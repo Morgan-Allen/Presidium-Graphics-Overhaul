@@ -10,7 +10,7 @@ public class Main {
 	public static void main(String[] args) {
 		LwjglApplicationConfiguration
 		  config = new LwjglApplicationConfiguration();
-		config.title = "SFCityBuilder";
+		config.title = "SFCityBuilder2";
 		config.useGL20 = true;
 		config.vSyncEnabled = false;
 		config.width = 800;
