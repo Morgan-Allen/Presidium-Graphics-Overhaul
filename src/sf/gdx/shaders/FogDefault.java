@@ -1,7 +1,6 @@
 package sf.gdx.shaders;
 
 import static gl.GL.*;
-import sf.gdx.SFMain;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Texture;

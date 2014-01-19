@@ -1,6 +1,6 @@
 
 
-import sf.gdx.SFMain;
+import sf.gdx.* ;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 
@@ -19,10 +19,9 @@ public class Main {
 		config.backgroundFPS = 120;
 		config.resizable = false;
 		config.fullscreen = false;
+		
 		//cfg.depth = 0;
-		
 		//System.setProperty("org.lwjgl.opengl.Window.undecorated", "true");
-		
 		new LwjglApplication(new SFMain(), config);
 	}
 }

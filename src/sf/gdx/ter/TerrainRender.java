@@ -65,14 +65,16 @@ public class TerrainRender {
 		
 		tshader.begin();
 		tshader.setUniformi("u_texture", 0);
-		tshader.setUniformi("u_fog", 1);
-		tshader.setUniformi("u_fogFlag", fog == null ? GL_FALSE : GL_TRUE );
 		
-		if (fog != null) tshader.setUniformi(
-			"u_fogSize",
-			fog.getWidth(),
-			fog.getHeight()
-		);
+		if (fog != null) {
+			tshader.setUniformi("u_fog", 1);
+			tshader.setUniformi("u_fogFlag", fog == null ? GL_FALSE : GL_TRUE );
+			tshader.setUniformi(
+				"u_fogSize",
+				fog.getWidth(),
+				fog.getHeight()
+			);
+		}
 		
 		tshader.setUniformMatrix("u_camera", camera.combined);
 		chunk.mesh.render(tshader, GL20.GL_TRIANGLES);

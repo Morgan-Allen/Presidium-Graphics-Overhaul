@@ -3,49 +3,23 @@
 
 package sf.gdx;
 import static gl.GL.*;
-
-import org.lwjgl.opengl.GL31;
-
 import sf.gdx.ms3d.MS3DLoader;
-import sf.gdx.shaders.FogDefault;
-import sf.gdx.shaders.FogMapAttribute;
-import sf.gdx.shaders.OutlineShader;
-import sf.gdx.ter.TerrainRender;
+import sf.gdx.terrain.TerrainSet;
 
-import com.badlogic.gdx.ApplicationListener;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Pixmap.Format;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
-import com.badlogic.gdx.graphics.Texture.TextureWrap ;
-import com.badlogic.gdx.graphics.VertexAttribute;
-import com.badlogic.gdx.graphics.VertexAttributes;
-import com.badlogic.gdx.graphics.VertexAttributes.Usage;
-import com.badlogic.gdx.graphics.g3d.Attribute;
-import com.badlogic.gdx.graphics.g3d.Environment;
-import com.badlogic.gdx.graphics.g3d.Material;
-import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.Renderable;
-import com.badlogic.gdx.graphics.g3d.Shader;
-import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
-import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.graphics.g3d.model.NodePart;
-import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
+import com.badlogic.gdx.* ;
+import com.badlogic.gdx.assets.* ;
+import com.badlogic.gdx.graphics.* ;
+import com.badlogic.gdx.graphics.g3d.* ;
+import com.badlogic.gdx.graphics.g3d.attributes.* ;
+import com.badlogic.gdx.graphics.g3d.environment.* ;
+import com.badlogic.gdx.utils.* ;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
-import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider;
-import com.badlogic.gdx.graphics.g3d.utils.DefaultTextureBinder;
-import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
+
+
+import com.badlogic.gdx.graphics.g3d.shaders.*;
+import com.badlogic.gdx.graphics.glutils.*;
+import com.badlogic.gdx.graphics.g3d.utils.*;
 
 
 
@@ -55,72 +29,36 @@ public class SFMain implements ApplicationListener {
 	public OrthographicCamera cam;
 	public RTSCameraControl rtscam;
 	public AssetManager assets;
+	Environment env;
+	
 	
 	public Array<ModelInstance> instances = new Array<ModelInstance>();
 	public boolean loading;
 	private AnimationController ctrl1;
 	private AnimationController ctrl4;
-	
 	//private String model1 = "wall_corner.ms3d";
 	private String model4 = "micovore/Micovore.ms3d";
-	
-	private TerrainRender ter;
-	//ModelBatch celbatch;
-	public Texture fogtex;
+	ModelBatch celbatch;
+	//public Texture fogtex;
 	//private Shader outline;
 	
-	Environment env;
-	//private Pixmap fogpix;
+	
+	private TerrainSet terrain ;
+	//  TODO:  Maybe the TerrainSet should initialise it's own default shader,
+	//         closer to previous behaviour?
+	private ShaderProgram terrainShade ;
+	
 	
 	
 	
 	public void create() {
-		/*
-		fogpix = new Pixmap(128, 128, Format.RGBA8888);
-		
-		for(int x=0; x<fogpix.getWidth(); x++) {
-			for(int z=0; z<fogpix.getHeight(); z++) {
-				int dupa = (int) (Math.random() * 255);
-				//System.out.println(dupa);
-				if(z>8)
-					dupa = 180;
-				if(z>9)
-					dupa = 255;
-				fogpix.drawPixel(x, z, dupa);
-			}
-		}
-		
-		fogtex = new Texture(fogpix);
-		fogtex.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-		fogtex.setWrap(TextureWrap.ClampToEdge, TextureWrap.ClampToEdge);
-		fogtex = null;
-		//*/
-		
 		env = new Environment();
 		env.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 0.9f));
 		env.add(new DirectionalLight().set(1f, 1f, 1f, -1f, -0.8f, -0.2f));
 		
-		/*
-		DefaultShaderProvider provider = new DefaultShaderProvider() {
-			@Override
-			protected Shader createShader(Renderable renderable) {
-				DefaultShader shad = new FogDefault(renderable, config, fogtex);
-				//System.out.println("----------------------------");
-				//System.out.println(shad.program.getVertexShaderSource());
-				//System.out.println("----------------------------");
-				return shad;
-			}
-		};
-		
-		provider.config.numBones = 20;
-		provider.config.fragmentShader = Gdx.files.internal("shaders/default.frag").readString();
-		provider.config.vertexShader = Gdx.files.internal("shaders/default.vert").readString();
-		celbatch = new ModelBatch(provider);
-		//*/
 		
 		float w = Gdx.graphics.getWidth();
 		float h = Gdx.graphics.getHeight();
-		//cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		cam = new OrthographicCamera(20, h/w * 20);
 		
 		cam.position.set(100f, 100f, 100f);
@@ -132,6 +70,14 @@ public class SFMain implements ApplicationListener {
 		rtscam = new RTSCameraControl(cam);
 		Gdx.input.setInputProcessor(rtscam);
 		
+		
+		
+		setupSprites() ;
+		setupTerrain() ;
+	}
+	
+	
+	private void setupSprites() {
 		assets = new AssetManager();
 		assets.setLoader(
 			Model.class, ".ms3d",
@@ -141,11 +87,64 @@ public class SFMain implements ApplicationListener {
 		assets.load(model4, Model.class);
 		loading = true;
 		
+		DefaultShaderProvider provider = new DefaultShaderProvider() {
+			@Override
+			protected Shader createShader(Renderable renderable) {
+				DefaultShader shad = new DefaultShader(renderable) ;
+				//DefaultShader shad = new FogDefault(renderable, config, fogtex);
+				//System.out.println("----------------------------");
+				//System.out.println(shad.program.getVertexShaderSource());
+				//System.out.println("----------------------------");
+				return shad;
+			}
+		};
+		
+		provider.config.numBones = 20;
+		provider.config.fragmentShader = Gdx.files.internal("shaders/default.frag").readString();
+		provider.config.vertexShader = Gdx.files.internal("shaders/default.vert").readString();
+		celbatch = new ModelBatch(provider);
+
 		//shad = new BlackShader();
-		ter = new TerrainRender(cam);
 		//outline = new OutlineShader();
 		//outline.init();
 	}
+	
+	
+	
+	private void setupTerrain() {
+		final byte indices[][] = {
+			{ 2, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+			{ 2, 2, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+			{ 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+			{ 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, },
+			{ 2, 2, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, },
+			{ 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, },
+			{ 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+			{ 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+			{ 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+			{ 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+			{ 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+			{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
+			{ 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, },
+			{ 1, 2, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, },
+			{ 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, },
+			{ 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 2, 1, 0, 0, 0, },
+		} ;
+		terrain = new TerrainSet(
+			16, 16, indices, "tiles/",
+			"ocean.2.gif",
+			"meadows_ground.gif",
+			"mesa_ground.gif"
+		) ;
+		terrainShade = new ShaderProgram(
+			Gdx.files.internal("shaders/terrain.vert"),
+			Gdx.files.internal("shaders/terrain.frag")
+		) ;
+		if(! terrainShade.isCompiled()) {
+			throw new GdxRuntimeException("\n"+terrainShade.getLog()) ;
+		}
+	}
+	
 	
 	
 	private void doneLoading() {
@@ -195,16 +194,16 @@ public class SFMain implements ApplicationListener {
 		}
 
 		
-		/*
+		//*
 		celbatch.begin(cam);
 		for (ModelInstance instance : instances) {
 			celbatch.render(instance, env);
 			//celbatch.render(instance, outline);
 		}
 		celbatch.end();
-
 		// rendering outlines
 		
+		/*
 		celbatch.begin(cam);
 		for (ModelInstance instance : instances) {
 			celbatch.render(instance, outline);
@@ -217,7 +216,7 @@ public class SFMain implements ApplicationListener {
 		// and then send it to texture
 		
 		//if(fogtex != null) fogtex.draw(fogpix, 0, 0);
-		ter.render(fogtex);
+		terrain.render(cam, terrainShade) ;
 	}
 	
 	
