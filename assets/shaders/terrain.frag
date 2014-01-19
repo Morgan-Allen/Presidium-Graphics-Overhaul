@@ -32,8 +32,8 @@ void main() {
 	color = mix(color, t3, t3.a);
 	
 	if(u_fogFlag) {
-		vec4 fog = texture2D(u_fog, vec2(v_position.x / u_fogSize.x, v_position.z/ u_fogSize.y));
-		color.rgb = mix(color.rgb, fog.rgb, fog.a);
+		//vec4 fog = texture2D(u_fog, vec2(v_position.x / u_fogSize.x, v_position.z/ u_fogSize.y));
+		//color.rgb = mix(color.rgb, fog.rgb, fog.a);
 	}
 	
 	gl_FragColor = color;
