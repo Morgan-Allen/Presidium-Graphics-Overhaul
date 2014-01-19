@@ -23,6 +23,8 @@ public class TerrainRender {
 	
 	
 	public TerrainRender(Camera cam) {
+		
+		
 		tshader = new ShaderProgram(
 			Gdx.files.internal("shaders/terrain.vert"),
 			Gdx.files.internal("shaders/terrain.frag")
@@ -43,6 +45,7 @@ public class TerrainRender {
 		
 		System.out.println("generating mesh");
 		chunk.generateMesh();
+		
 		if(!tshader.isCompiled()) {
 			throw new GdxRuntimeException(tshader.getLog());
 		}
