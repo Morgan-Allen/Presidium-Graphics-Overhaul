@@ -6,6 +6,7 @@ import java.util.Arrays;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import static sf.gdx.ter.TerrainType.*;
 
 
 
@@ -115,24 +116,24 @@ public class TerrainChunk {
 	
 	
 
-	private static final int mask(int type, int[] typet) {
-		//  TODO:  Introduce a different mapping here.
-		return (int) (Math.random() * 16) ;
-	}
-	/*
+//	private static final int mask(int type, int[] typet) {
+//		//  TODO:  Introduce a different mapping here.
+//		return (int) (Math.random() * 16) ;
+//	}
+	
 	private static final int mask(int type, int[] typet) {
 		int mask = 0;
 		if(typet[0] >= type)
-			mask |= 0b1000;
+			mask |= b1000;
 		if(typet[1] >= type)
-			mask |= 0b0100;
+			mask |= b0100;
 		if(typet[2] >= type)
-			mask |= 0b0010;
+			mask |= b0010;
 		if(typet[3] >= type)
-			mask |= 0b0001;
+			mask |= b0001;
 		return mask;
 	}
-	//*/
+	
 	
 	
 	private void addTile(int x, int z, TextureRegion[] reg) {
@@ -155,10 +156,7 @@ public class TerrainChunk {
 	}
 	
 	
-	private void addVertice(
-			float x, float y, float z,
-			TextureRegion regs[], int u, int v
-	) {
+	private void addVertice(float x, float y, float z,TextureRegion regs[], int u, int v) {
 		vertices[ptr++] = x;
 		vertices[ptr++] = y;
 		vertices[ptr++] = z;

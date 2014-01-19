@@ -66,7 +66,7 @@ public class SFMain implements ApplicationListener {
 	
 	private TerrainRender ter;
 	//ModelBatch celbatch;
-	//public Texture fogtex;
+	public Texture fogtex;
 	//private Shader outline;
 	
 	Environment env;
@@ -217,7 +217,7 @@ public class SFMain implements ApplicationListener {
 		// and then send it to texture
 		
 		//if(fogtex != null) fogtex.draw(fogpix, 0, 0);
-		//ter.render(fogtex);
+		ter.render(fogtex);
 	}
 	
 	

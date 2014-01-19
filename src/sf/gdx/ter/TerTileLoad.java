@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;
+import static sf.gdx.ter.TerrainType.*;
 
 
 
@@ -19,6 +20,7 @@ import com.badlogic.gdx.utils.Array;
  */
 
 public class TerTileLoad {
+
 	
 	
 	Pixmap atlas;
@@ -47,7 +49,7 @@ public class TerTileLoad {
 		Pixmap pix = new Pixmap(handle);
 		
 		TerrainType type = new TerrainType();
-		type.regions.put(0, putTile(pix, 0));
+		type.regions.put(b1111, putTile(pix, 0));
 		
 		types.add(type);
 	}
@@ -57,25 +59,25 @@ public class TerTileLoad {
 		Pixmap pix = new Pixmap(handle);
 		
 		TerrainType type = new TerrainType();
-		type.regions.put(0, putTile(pix, 0));
+		type.regions.put(b1111, putTile(pix, 0));
 		
-		type.regions.put(1, putTile(pix, 1));
-		type.regions.put(2, putTile(pix, 2));
-		type.regions.put(3, putTile(pix, 3));
-		type.regions.put(4, putTile(pix, 4));
+		type.regions.put(b1000, putTile(pix, 1));
+		type.regions.put(b0100, putTile(pix, 2));
+		type.regions.put(b0010, putTile(pix, 3));
+		type.regions.put(b0001, putTile(pix, 4));
+
+		type.regions.put(b1001, putTile(pix, 5));
+		type.regions.put(b0110, putTile(pix, 6));
 		
-		type.regions.put(5, putTile(pix, 5));
-		type.regions.put(6, putTile(pix, 6));
+		type.regions.put(b0111, putTile(pix, 7));
+		type.regions.put(b1011, putTile(pix, 8));
+		type.regions.put(b1101, putTile(pix, 9));
+		type.regions.put(b1110, putTile(pix, 10));
 		
-		type.regions.put(7, putTile(pix, 7));
-		type.regions.put(8, putTile(pix, 8));
-		type.regions.put(9, putTile(pix, 9));
-		type.regions.put(10, putTile(pix, 10));
-		
-		type.regions.put(11, putTile(pix, 11));
-		type.regions.put(12, putTile(pix, 12));
-		type.regions.put(13, putTile(pix, 13));
-		type.regions.put(14, putTile(pix, 14));
+		type.regions.put(b1100, putTile(pix, 11));
+		type.regions.put(b0011, putTile(pix, 12));
+		type.regions.put(b1010, putTile(pix, 13));
+		type.regions.put(b0101, putTile(pix, 14));
 		
 		types.add(type);
 	}

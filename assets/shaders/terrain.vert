@@ -6,11 +6,11 @@ attribute vec2 a_texCoord3;
 
 uniform mat4 u_camera;
 
-varying out vec2 v_texCoords0;
-varying out vec2 v_texCoords1;
-varying out vec2 v_texCoords2;
-varying out vec2 v_texCoords3;
-varying out vec3 v_position;
+varying vec2 v_texCoords0;
+varying vec2 v_texCoords1;
+varying vec2 v_texCoords2;
+varying vec2 v_texCoords3;
+varying vec3 v_position;
 
 void main() {
 	v_texCoords0 = a_texCoord0;
