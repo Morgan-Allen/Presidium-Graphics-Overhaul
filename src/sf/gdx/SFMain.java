@@ -90,7 +90,7 @@ public class SFMain implements ApplicationListener {
 		DefaultShaderProvider provider = new DefaultShaderProvider() {
 			@Override
 			protected Shader createShader(Renderable renderable) {
-				DefaultShader shad = new DefaultShader(renderable) ;
+				DefaultShader shad = new DefaultShader(renderable, config) ;
 				//DefaultShader shad = new FogDefault(renderable, config, fogtex);
 				//System.out.println("----------------------------");
 				//System.out.println(shad.program.getVertexShaderSource());
@@ -173,7 +173,6 @@ public class SFMain implements ApplicationListener {
 			ctrl4 = new AnimationController(k);
 			ctrl4.animate(k.animations.get(0).id, -1, 0.2f, null, 1);
 		}
-		Gdx.graphics.setVSync(true);
 		loading = false;
 	}
 	
