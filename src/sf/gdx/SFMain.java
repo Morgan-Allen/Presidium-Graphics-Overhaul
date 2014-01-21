@@ -43,11 +43,6 @@ public class SFMain implements ApplicationListener {
 	private String model1 = "wall_corner.ms3d";
 	//private String model4 = "micovore/Micovore.ms3d";
 	ModelBatch celbatch;
-	
-	private Pixmap fogpix;
-	private Texture fogtex;
-	
-	
 	//private Shader outline;
 	
 	
@@ -69,13 +64,9 @@ public class SFMain implements ApplicationListener {
 		System.out.println("GLSL_VERSION: " + glGetString(GL_SHADING_LANGUAGE_VERSION));
 		System.out.println("-----------------------");
 		
-		
-		
-		
 		env = new Environment();
 		env.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 0.1f));
 		env.add(new DirectionalLight().set(1f, 1f, 1f, -1f, -0.8f, -0.2f));
-		
 		
 		float w = Gdx.graphics.getWidth();
 		float h = Gdx.graphics.getHeight();
@@ -89,8 +80,6 @@ public class SFMain implements ApplicationListener {
 		
 		rtscam = new RTSCameraControl(cam);
 		Gdx.input.setInputProcessor(rtscam);
-		
-		
 		
 		setupSprites() ;
 		setupTerrain() ;
@@ -139,32 +128,8 @@ public class SFMain implements ApplicationListener {
 			{ 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 2, 1, 0, 0, 0, },
 		} ;
 		
-		fogpix = new Pixmap(16,16,Format.RGBA4444);
-		Pixmap.setBlending(Blending.None);
-		for(int x=0; x<fogpix.getWidth(); x++) {
-			for(int z=0; z<fogpix.getHeight(); z++) {
-				// this is color 0x000000XX where XX is alpha, randomed 0-255
-				int pix = (int) (Math.random() * 256); 
-				
-				fogpix.drawPixel(x,z,pix);
-				
-			}
-		}
-		for(int x=0; x<fogpix.getWidth(); x++) {
-			for(int z=0; z<fogpix.getHeight(); z++) {
-				// this is color 0x000000XX where XX is alpha, randomed 0-255
-				int pix = (int) (Math.random() * 256); 
-				
-				fogpix.drawPixel(x,z,pix);
-				
-			}
-		}
-		
-		fogtex = new Texture(fogpix);
-		fogtex.setFilter(Linear, Linear);
-		
 		terrain = new TerrainSet(
-			16, 16, indices, "tiles/",
+			16, 16, indices, true, "tiles/",
 			"ocean.2.gif",
 			"meadows_ground.gif",
 			"mesa_ground.gif"
@@ -239,20 +204,8 @@ public class SFMain implements ApplicationListener {
 		}
 		celbatch.end();
 		
-		// from pixmap to texture
-		// you can change fog pixmap here
-		// and then send it to texture
 		
-		terrainShader.begin();
-		if(fogtex != null) {
-			//fogtex.draw(fogpix, 0, 0);
-			fogtex.bind(1);
-			terrainShader.setUniformi("u_fog", 1);
-			terrainShader.setUniformi("u_fogFlag", fogtex == null ? GL_FALSE : GL_TRUE );
-			terrainShader.setUniformf("u_fogSize", fogtex.getWidth(), fogtex.getHeight());
-		}
-		
-		//terrainShade.set
+		//  TODO:  Try out fog modification here...
 		terrain.render(cam, terrainShader) ;
 	}
 	

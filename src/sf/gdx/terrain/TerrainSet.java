@@ -2,6 +2,7 @@
 
 package sf.gdx.terrain;
 import util.* ;
+import static gl.GL.*;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
@@ -22,12 +23,12 @@ public class TerrainSet {
 	
 	TerrainChunk chunks[][][] ;
 	LayerType layers[] ;
-	Texture fog ;
+	FogOverlay fog ;
 	
 	
 	public TerrainSet(
 		int size, int chunkSize,
-		byte layerIndices[][],
+		byte layerIndices[][], boolean fogged,
 		String texDir, String... texLayerNames
 	) {
 		//  Basic sanity checks first-
@@ -47,7 +48,7 @@ public class TerrainSet {
 		this.chunkGrid = (int) Math.ceil(size / chunkSize) ;
 		this.layerIndices = layerIndices ;
 		this.paveCount = new byte[size][size] ;
-		this.fog = null ;
+		this.fog = fogged ? new FogOverlay(size, this) : null ;
 		
 		//  TODO:  Include an initFog() method?  Look back at SFMain...
 		this.layers = new LayerType[numLayers + 1] ;
@@ -89,23 +90,35 @@ public class TerrainSet {
 	//  TODO:  You might want to build in some basic frustrum culling here-
 	//  or a set of visible terrain areas, and check for overlap?
 	
-	public void render(Camera camera, ShaderProgram tshader) {
+	public void render(Camera camera, ShaderProgram shader) {
 		Gdx.gl.glEnable(GL10.GL_DEPTH_TEST);
 		Gdx.gl.glDepthFunc(GL20.GL_LEQUAL);
 		Gdx.gl.glEnable(GL10.GL_BLEND);
 		Gdx.gl.glDepthMask(true);
 		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		
-		tshader.begin();
-		tshader.setUniformMatrix("u_camera", camera.combined);
+		shader.begin();
+		shader.setUniformMatrix("u_camera", camera.combined);
+		
+		if (fog != null) {
+			fog.tex.bind(1);
+			shader.setUniformi("u_fog", 1);
+			shader.setUniformi("u_fogFlag", GL_TRUE);
+			shader.setUniformf(
+				"u_fogSize", fog.tex.getWidth(), fog.tex.getHeight()
+			);
+		}
+		else shader.setUniformi("u_fogFlag", GL_FALSE);
+		
 		for (LayerType type : layers) {
 			layers[type.layerID].texture.bind(0) ;
 			for (Coord c : Visit.grid(0, 0, chunkGrid, chunkGrid, 1)) {
 				final TerrainChunk chunk = chunks[c.x][c.y][type.layerID];
-				chunk.mesh.render(tshader, GL20.GL_TRIANGLES);
+				chunk.mesh.render(shader, GL20.GL_TRIANGLES);
 			}
 		}
-		tshader.end();
+		
+		shader.end();
 	}
 }
 
