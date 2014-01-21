@@ -116,6 +116,10 @@ public class SFMain implements ApplicationListener {
 	
 	
 	private void setupTerrain() {
+		//
+		//  NOTE:  This is going to appear with the x/y axes flipped when
+		//  rendered, but that's okay- all the actual simulation code will
+		//  supply terrain data the right way.
 		final byte indices[][] = {
 			{ 2, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
 			{ 2, 2, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
@@ -146,8 +150,6 @@ public class SFMain implements ApplicationListener {
 				
 			}
 		}
-		
-
 		for(int x=0; x<fogpix.getWidth(); x++) {
 			for(int z=0; z<fogpix.getHeight(); z++) {
 				// this is color 0x000000XX where XX is alpha, randomed 0-255
@@ -159,9 +161,7 @@ public class SFMain implements ApplicationListener {
 		}
 		
 		fogtex = new Texture(fogpix);
-		
 		fogtex.setFilter(Linear, Linear);
-		
 		
 		terrain = new TerrainSet(
 			16, 16, indices, "tiles/",
@@ -169,6 +169,11 @@ public class SFMain implements ApplicationListener {
 			"meadows_ground.gif",
 			"mesa_ground.gif"
 		) ;
+		
+		for (int x = 10 ; x-- > 0 ;) terrain.maskPaving(x, 0, true) ;
+		for (int y = 10 ; y-- > 0 ;) terrain.maskPaving(2, y, true) ;
+		terrain.generateAllMeshes() ;
+		
 		terrainShader = new ShaderProgram(
 			Gdx.files.internal("shaders/terrain.vert"),
 			Gdx.files.internal("shaders/terrain.frag")

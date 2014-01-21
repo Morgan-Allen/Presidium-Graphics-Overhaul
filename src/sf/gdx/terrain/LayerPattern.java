@@ -9,7 +9,7 @@ import util.* ;
 
 
 
-public class TerrainPattern implements TileConstants {
+public class LayerPattern implements TileConstants {
   
   
   /**  Converts a UV map expressed in terms of unit grid coordinates into a
@@ -34,9 +34,7 @@ public class TerrainPattern implements TileConstants {
 	  MAX_UV, MAX_UV,
 	  MAX_UV, MIN_UV
     } ;
-  
-  
-  protected final static float[][] shrinkUVMap(float initMap[][], float maxUV) {
+  private final static float[][] shrinkUVMap(float initMap[][], float maxUV) {
     float processedUV[][] = new float[initMap.length][] ;
     //
     //  Here, the specific coordinates are stored-
@@ -253,7 +251,7 @@ public class TerrainPattern implements TileConstants {
   
   
   
-  /**  Finally, we have code for the semi-randomised fringe pieces of a
+  /**  Finally, we have code for the semi-randomised interior pieces of a
     *  texture-
     */
   final public static float

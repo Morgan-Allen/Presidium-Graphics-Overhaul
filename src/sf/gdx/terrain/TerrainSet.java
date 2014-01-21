@@ -2,8 +2,10 @@
 
 package sf.gdx.terrain;
 import util.* ;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 
 
@@ -16,10 +18,10 @@ public class TerrainSet {
 	
 	final int size, numLayers ;
 	final int chunkSize, chunkGrid ;
-	final byte layerIndices[][] ;
+	final byte layerIndices[][], paveCount[][] ;
 	
 	TerrainChunk chunks[][][] ;
-	Texture texLayers[] ;
+	LayerType layers[] ;
 	Texture fog ;
 	
 	
@@ -39,32 +41,45 @@ public class TerrainSet {
 		}
 		
 		//  Appropriate dimensions calculated-
-		this.size = size ;
 		this.numLayers = texLayerNames.length ;
+		this.size = size ;
 		this.chunkSize = chunkSize ;
 		this.chunkGrid = (int) Math.ceil(size / chunkSize) ;
 		this.layerIndices = layerIndices ;
+		this.paveCount = new byte[size][size] ;
+		this.fog = null ;
 		
 		//  TODO:  Include an initFog() method?  Look back at SFMain...
-		this.fog = null ;
-		this.texLayers = new Texture[numLayers] ;
+		this.layers = new LayerType[numLayers + 1] ;
 		for (int n = 0 ; n < numLayers ; n++) {
 			final String name = ""+texDir+texLayerNames[n] ;
-			//texLayers[n] = new Texture(Gdx.files.internal(name)) ;
-			texLayers[n] = new TextureLoad().load(name) ;
+			layers[n] = new LayerType(name, false, n) ;
 		}
-
-		this.chunks = new TerrainChunk[chunkGrid][chunkGrid][numLayers] ;
+		//  TODO:  Bit of a temporary hack here...
+		final String roadName = ""+texDir+"road_map_new.gif" ;
+		layers[numLayers] = new LayerType(roadName, true, numLayers) ;
 		
+		this.chunks = new TerrainChunk[chunkGrid][chunkGrid][layers.length] ;
+	}
+	
+	
+	public void maskPaving(int x, int y, boolean is) {
+		paveCount[x][y] += is ? 1 : -1 ;
+		//  TODO:  This needs to flag the underlying terrain chunks for mesh
+		//         updates...
+	}
+	
+	
+	public void generateAllMeshes() {
 		for (Coord c : Visit.grid(0, 0, chunkGrid, chunkGrid, 1)) {
-			for (int layer = numLayers; layer-- > 0;) {
+			for (LayerType layer : layers) {
 				final TerrainChunk chunk = new TerrainChunk(
 					chunkSize, chunkSize,
 					c.x * chunkSize, c.y * chunkSize,
-					this, layer
+					this, layer.layerID
 				) ;
 				chunk.generateMesh() ;
-				chunks[c.x][c.y][layer] = chunk ;
+				chunks[c.x][c.y][layer.layerID] = chunk ;
 			}
 		}
 	}
@@ -83,10 +98,10 @@ public class TerrainSet {
 		
 		tshader.begin();
 		tshader.setUniformMatrix("u_camera", camera.combined);
-		for (int layer = 0 ; layer < numLayers ; layer++) {
-			texLayers[layer].bind(0) ;
+		for (LayerType type : layers) {
+			layers[type.layerID].texture.bind(0) ;
 			for (Coord c : Visit.grid(0, 0, chunkGrid, chunkGrid, 1)) {
-				final TerrainChunk chunk = chunks[c.x][c.y][layer];
+				final TerrainChunk chunk = chunks[c.x][c.y][type.layerID];
 				chunk.mesh.render(tshader, GL20.GL_TRIANGLES);
 			}
 		}
