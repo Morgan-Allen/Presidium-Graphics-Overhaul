@@ -35,6 +35,7 @@ public class SFMain implements ApplicationListener {
 	public RTSCameraControl rtscam;
 	public AssetManager assets;
 	Environment env;
+	private float time;
 	
 	
 	public Array<ModelInstance> instances = new Array<ModelInstance>();
@@ -205,15 +206,25 @@ public class SFMain implements ApplicationListener {
 		celbatch.end();
 		
 		
-		//  TODO:  Try out fog modification here...
-		terrain.render(cam, terrainShader) ;
+		terrain.render(cam, terrainShader, time) ;
+		time += 1f / 60 ;
+		
+		//  TODO:  Just for testing purposes, remove later
+		if (Math.random() < 1f / 60) {
+			terrain.fog.liftAround(
+				(int) (Math.random() * terrain.size),
+				(int) (Math.random() * terrain.size),
+				(int) (Math.sqrt(terrain.size) / 2)
+			);
+		}
 	}
 	
 	
 	public void dispose() {
-		//celbatch.dispose();
 		instances.clear();
 		assets.dispose();
+		celbatch.dispose();
+		terrain.dispose();
 	}
 	
 	

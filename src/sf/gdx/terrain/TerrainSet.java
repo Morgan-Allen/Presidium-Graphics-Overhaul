@@ -3,7 +3,6 @@
 package sf.gdx.terrain;
 import util.* ;
 import static gl.GL.*;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
@@ -17,13 +16,13 @@ public class TerrainSet {
 	  DEFAULT_CHUNK_SIZE = 64,
 	  MAX_CHUNK_SIZE     = 128 ;
 	
-	final int size, numLayers ;
+	final public int size, numLayers ;
 	final int chunkSize, chunkGrid ;
 	final byte layerIndices[][], paveCount[][] ;
 	
 	TerrainChunk chunks[][][] ;
 	LayerType layers[] ;
-	FogOverlay fog ;
+	final public FogOverlay fog ;
 	
 	
 	public TerrainSet(
@@ -46,11 +45,12 @@ public class TerrainSet {
 		this.size = size ;
 		this.chunkSize = chunkSize ;
 		this.chunkGrid = (int) Math.ceil(size / chunkSize) ;
+		
+		//  Set up reference data for layer types-
 		this.layerIndices = layerIndices ;
 		this.paveCount = new byte[size][size] ;
 		this.fog = fogged ? new FogOverlay(size, this) : null ;
 		
-		//  TODO:  Include an initFog() method?  Look back at SFMain...
 		this.layers = new LayerType[numLayers + 1] ;
 		for (int n = 0 ; n < numLayers ; n++) {
 			final String name = ""+texDir+texLayerNames[n] ;
@@ -60,7 +60,15 @@ public class TerrainSet {
 		final String roadName = ""+texDir+"road_map_new.gif" ;
 		layers[numLayers] = new LayerType(roadName, true, numLayers) ;
 		
+		//  And finally, the bite-size terrain chunks that actually get
+		//  rendered on a need-to-see basis-
 		this.chunks = new TerrainChunk[chunkGrid][chunkGrid][layers.length] ;
+	}
+	
+	
+	public void dispose() {
+		//TODO:  Dispose of layers as well?
+		if (fog != null) fog.dispose();
 	}
 	
 	
@@ -90,7 +98,15 @@ public class TerrainSet {
 	//  TODO:  You might want to build in some basic frustrum culling here-
 	//  or a set of visible terrain areas, and check for overlap?
 	
-	public void render(Camera camera, ShaderProgram shader) {
+	//  TODO:  Definitely have the shader program specified internally.
+	
+	
+	private ShaderProgram setupShader() {
+		return null;
+	}
+	
+	
+	public void render(Camera camera, ShaderProgram shader, float time) {
 		Gdx.gl.glEnable(GL10.GL_DEPTH_TEST);
 		Gdx.gl.glDepthFunc(GL20.GL_LEQUAL);
 		Gdx.gl.glEnable(GL10.GL_BLEND);
@@ -101,12 +117,8 @@ public class TerrainSet {
 		shader.setUniformMatrix("u_camera", camera.combined);
 		
 		if (fog != null) {
-			fog.tex.bind(1);
-			shader.setUniformi("u_fog", 1);
+			fog.applyToShader(shader, time / 2) ;
 			shader.setUniformi("u_fogFlag", GL_TRUE);
-			shader.setUniformf(
-				"u_fogSize", fog.tex.getWidth(), fog.tex.getHeight()
-			);
 		}
 		else shader.setUniformi("u_fogFlag", GL_FALSE);
 		
@@ -121,51 +133,4 @@ public class TerrainSet {
 		shader.end();
 	}
 }
-
-
-
-//  TODO:  Try and restore/integrate this up above.
-/*
-fogpix = new Pixmap(128, 128, Format.RGBA8888);
-
-for(int x=0; x<fogpix.getWidth(); x++) {
-	for(int z=0; z<fogpix.getHeight(); z++) {
-		int dupa = (int) (Math.random() * 255);
-		//System.out.println(dupa);
-		if(z>8)
-			dupa = 180;
-		if(z>9)
-			dupa = 255;
-		fogpix.drawPixel(x, z, dupa);
-	}
-}
-
-fogtex = new Texture(fogpix);
-fogtex.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-fogtex.setWrap(TextureWrap.ClampToEdge, TextureWrap.ClampToEdge);
-fogtex = null;
-//*/
-
-/*
-texture.bind(0);
-if (fog != null) fog.bind(1);
-tshader.begin();
-tshader.setUniformi("u_texture", 0);
-
-if (fog != null) {
-	tshader.setUniformi("u_fog", 1);
-	tshader.setUniformi("u_fogFlag", fog == null ? GL_FALSE : GL_TRUE);
-	tshader.setUniformi(
-		"u_fogSize",
-		fog.getWidth(),
-		fog.getHeight()
-	);
-}
-chunk.mesh.render(tshader, GL20.GL_TRIANGLES);
-tshader.end();
-//*/
-
-
-
-
 
