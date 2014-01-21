@@ -22,17 +22,8 @@ import com.badlogic.gdx.graphics.Texture;
 
 public class TextureLoad {
 	Texture load(String name) {
-		Pixmap atlas = new Pixmap(512, 512, Pixmap.Format.RGBA4444);
-		Texture texture = new Texture(atlas);
-		texture.setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
-
-		Pixmap from = new Pixmap(Gdx.files.internal(name));
-        Pixmap.setBlending(Pixmap.Blending.None);
-		atlas.drawPixmap(
-			from, 1, 1, from.getWidth(), from.getHeight(), 1, 1, 512, 512
-		) ;
-        
-		texture.draw(atlas, 0, 0);
+		Texture texture = new Texture(Gdx.files.internal(name));
+		texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		return texture ;
 	}
 }

@@ -47,7 +47,7 @@ public class TerrainChunk implements TileConstants {
 
 		final boolean near[] = new boolean[8] ;
 		for (Coord c : Visit.grid(gridX, gridY, width, height, 1)) {
-			final int ID = belongs.layerIndices[c.x][c.y] ;
+			final int ID = belongs.layerIndices[c.y][c.x] ;
 			
 			if (ID == layerID) {
 				//  TODO:  Use some variation here...
@@ -59,7 +59,7 @@ public class TerrainChunk implements TileConstants {
 			
 			for (int n : N_INDEX) try {
 				final int x = c.x + N_X[n], y = c.y + N_Y[n] ;
-				final int sample = belongs.layerIndices[x][y] ;
+				final int sample = belongs.layerIndices[y][x] ;
 				near[n] = sample == layerID ;
 			}
 			catch (ArrayIndexOutOfBoundsException e) { near[n] = false ; }
