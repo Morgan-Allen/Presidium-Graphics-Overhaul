@@ -41,32 +41,30 @@ public class FogOverlay {
 	}
 	
 	
-	protected void applyToShader(ShaderProgram shader, float time) {
+	protected void applyToShader(ShaderProgram shader) {
 		oldTex.bind(1);
 		newTex.bind(2);
 		shader.setUniformi("u_fog_old", 1);
 		shader.setUniformi("u_fog_new", 2);
 		shader.setUniformf("u_fogSize", terrain.size, terrain.size);
 		shader.setUniformf("u_fogTime", oldTime % 1);
-		
-		if (((int) oldTime) != ((int) time)) {
-			swapBuffers();
+	}
+	
+	
+	protected void checkBufferSwap(float newTime) {
+		if (((int) oldTime) != ((int) newTime)) {
+			final Texture temp = newTex ;
+			newTex = oldTex ;
+			oldTex = temp ;
+			newTex.draw(drawnTo, 0, 0) ;
 		}
-		oldTime = time;
+		oldTime = newTime;
 	}
 	
 	
-	protected void swapBuffers() {
-		final Texture temp = newTex ;
-		newTex = oldTex ;
-		oldTex = temp ;
-		newTex.draw(drawnTo, 0, 0) ;
-	}
-	
-	
-	public void liftAround(float x, float y, float radius) {
+	public void liftAround(int x, int y, int radius) {
 		drawnTo.setColor(Color.WHITE);
-		drawnTo.fillCircle((int) x, (int) y, (int) radius);
+		drawnTo.fillCircle(x, y, radius);
 	}
 }
 

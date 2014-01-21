@@ -117,7 +117,7 @@ public class TerrainSet {
 		shader.setUniformMatrix("u_camera", camera.combined);
 		
 		if (fog != null) {
-			fog.applyToShader(shader, time / 2) ;
+			fog.applyToShader(shader) ;
 			shader.setUniformi("u_fogFlag", GL_TRUE);
 		}
 		else shader.setUniformi("u_fogFlag", GL_FALSE);
@@ -131,6 +131,7 @@ public class TerrainSet {
 		}
 		
 		shader.end();
+		if (fog != null) fog.checkBufferSwap(time / 2);
 	}
 }
 
