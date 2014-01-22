@@ -136,7 +136,7 @@ public class SFMain implements ApplicationListener {
 			"mesa_ground.gif"
 		) ;
 		
-		for (int x = 10 ; x-- > 0 ;) terrain.maskPaving(x, 0, true) ;
+		for (int x = 10 ; x-- > 0 ;) terrain.maskPaving(x, 2, true) ;
 		for (int y = 10 ; y-- > 0 ;) terrain.maskPaving(2, y, true) ;
 		terrain.generateAllMeshes() ;
 		
@@ -214,7 +214,7 @@ public class SFMain implements ApplicationListener {
 			terrain.fog.liftAround(
 				(int) (Math.random() * terrain.size),
 				(int) (Math.random() * terrain.size),
-				(int) (Math.sqrt(terrain.size) / 2)
+				(int) (Math.sqrt(terrain.size) / 1)
 			);
 		}
 	}

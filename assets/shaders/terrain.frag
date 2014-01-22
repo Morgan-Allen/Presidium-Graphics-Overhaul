@@ -24,11 +24,9 @@ varying MED vec3 v_position;
 void main() {
 	vec4 color = texture2D(u_texture, v_texCoords0);
 	if(u_fogFlag) {
-		//	  TODO:  My intention here would be to blend/interpolate the sets
-		//    of old/new fog values over time.
 		vec2 sampled = vec2(
-			v_position.x / u_fogSize.x,
-			v_position.z / u_fogSize.y
+			(v_position.x - 0.5f) / u_fogSize.x,
+			(v_position.z - 0.5f) / u_fogSize.y
 		);
 		vec4 fogOld = texture2D(u_fog_old, sampled);
 		vec4 fogNew = texture2D(u_fog_new, sampled);
