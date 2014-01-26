@@ -1,7 +1,7 @@
 
 
 
-package sf.gdx.terrain;
+package graphics.terrain;
 //import java.util.Arrays;
 import com.badlogic.gdx.graphics.* ;
 //import com.badlogic.gdx.graphics.g2d.TextureRegion;

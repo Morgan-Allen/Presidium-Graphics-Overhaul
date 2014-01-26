@@ -1,8 +1,9 @@
 
 
-package sf.gdx.terrain;
+package graphics.terrain;
 import util.* ;
-import static gl.GL.*;
+import static graphics.common.GL.*;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
@@ -131,7 +132,7 @@ public class TerrainSet {
 		}
 		
 		shader.end();
-		if (fog != null) fog.checkBufferSwap(time / 2);
+		if (fog != null) fog.checkBufferSwap(time);
 	}
 }
 

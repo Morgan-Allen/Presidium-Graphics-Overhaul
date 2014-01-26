@@ -4,7 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package sf.gdx.terrain ;
+package graphics.terrain ;
 import util.* ;
 
 

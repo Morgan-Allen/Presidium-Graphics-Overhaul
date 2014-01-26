@@ -1,4 +1,4 @@
-package sf.io;
+package graphics.jointed;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -7,10 +7,13 @@ import java.io.InputStream;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 
+
+
 public class DataInput extends InputStream {
 	
 	private final boolean endian; // little endian
 	private final InputStream in;
+	
 	
 	public DataInput(InputStream in, boolean littleEndian)
 	{
@@ -28,9 +31,13 @@ public class DataInput extends InputStream {
 	
 	public int readInt() throws IOException {
 		if(endian) {
-			return (read() & 0xFF) | (read() & 0xFF) << 8 | (read() & 0xFF) << 16 | (read() & 0xFF) << 24;
+			return
+				(read() & 0xFF) | (read() & 0xFF) << 8 |
+				(read() & 0xFF) << 16 | (read() & 0xFF) << 24;
 		} else {
-			return (read() & 0xFF) <<24 | (read() & 0xFF) << 16 | (read() & 0xFF) << 8 | (read() & 0xFF);
+			return
+				(read() & 0xFF) <<24 | (read() & 0xFF) << 16 |
+				(read() & 0xFF) << 8 | (read() & 0xFF);
 		}
 	}
 	
@@ -139,3 +146,7 @@ public class DataInput extends InputStream {
 	}
 
 }
+
+
+
+

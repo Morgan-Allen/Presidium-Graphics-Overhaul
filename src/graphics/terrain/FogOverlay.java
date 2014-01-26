@@ -1,7 +1,7 @@
 
 
 
-package sf.gdx.terrain ;
+package graphics.terrain ;
 import static com.badlogic.gdx.graphics.Texture.TextureFilter.* ;
 import util.* ;
 

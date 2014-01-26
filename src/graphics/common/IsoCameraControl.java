@@ -1,4 +1,4 @@
-package sf.gdx;
+package graphics.common;
 
 import org.lwjgl.input.*;
 
@@ -7,7 +7,12 @@ import com.badlogic.gdx.Input.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.math.*;
 
-public class RTSCameraControl extends InputAdapter {
+
+
+
+public class IsoCameraControl extends InputAdapter {
+	
+	
 	public int rotateButton = Buttons.RIGHT;
 	public int translateButton = Buttons.LEFT;
 	
@@ -27,7 +32,9 @@ public class RTSCameraControl extends InputAdapter {
 	private float startX;
 	private float startY;
 	
-	public RTSCameraControl(Camera cam) {
+	
+	
+	public IsoCameraControl(Camera cam) {
 		this.camera = cam;
 		
 		camera.lookAt(target);
@@ -61,8 +68,6 @@ public class RTSCameraControl extends InputAdapter {
 	}
 	
 	
-
-	@Override
 	public boolean touchDown (int screenX, int screenY, int pointer, int button) {
 		if (this.button < 0) {
 			startX = screenX;
@@ -73,14 +78,13 @@ public class RTSCameraControl extends InputAdapter {
 	}
 
 	
-	@Override
 	public boolean touchUp (int screenX, int screenY, int pointer, int button) {
 		if (button == this.button)
 			this.button = -1;
 		return true;
 	}
 	
-	@Override
+	
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
 		final float deltaX = (screenX - startX) / Gdx.graphics.getWidth();
 		final float deltaY = (startY - screenY) / Gdx.graphics.getHeight();
@@ -90,7 +94,8 @@ public class RTSCameraControl extends InputAdapter {
 		process(deltaX, deltaY);
 		return true;
 	}
-
+	
+	
 	private void process(float deltaX, float deltaY) {
 		if(button == rotateButton) {
 			t1.set(camera.direction).crs(camera.up).y = 0f;
@@ -109,12 +114,13 @@ public class RTSCameraControl extends InputAdapter {
 		camera.update();
 	}
 	
+	
 	private void translate(Vector3 vec) {
 		camera.translate(vec.scl(camera.viewportHeight * 0.08f));
 		target.add(vec);
 	}
 	
-	@Override
+	
 	public boolean scrolled(int amount) {
 		//camera.translate(t1.set(camera.direction).scl(amount * -1f));
 		float am = amount > 0? 1.1f : 0.9f;
@@ -123,3 +129,9 @@ public class RTSCameraControl extends InputAdapter {
 		return true;
 	}
 }
+
+
+
+
+
+

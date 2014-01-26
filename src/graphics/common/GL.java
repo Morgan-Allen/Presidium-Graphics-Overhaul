@@ -1,4 +1,4 @@
-package gl;
+package graphics.common;
 
 import java.nio.*;
 

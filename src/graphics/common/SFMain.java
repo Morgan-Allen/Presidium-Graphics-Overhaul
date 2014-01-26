@@ -1,25 +1,24 @@
 
 
-package sf.gdx;
-import static gl.GL.*;
-import static com.badlogic.gdx.graphics.Texture.TextureFilter.*;
+package graphics.common;
+import static graphics.common.GL.*;
 
-import sf.gdx.ms3d.MS3DLoader ;
-import sf.gdx.terrain.TerrainSet;
+import graphics.jointed.* ;
+import graphics.terrain.* ;
+import util.* ;
+
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
+import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
+import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.Pixmap.Blending;
-import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.g3d.*;
-import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
-import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
@@ -27,24 +26,44 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 
 
 
-
 public class SFMain implements ApplicationListener {
 	
 	
-	public OrthographicCamera cam;
-	public RTSCameraControl rtscam;
-	public AssetManager assets;
-	Environment env;
-	private float time;
+	public static void main(String[] args) {
+		LwjglApplicationConfiguration
+		  config = new LwjglApplicationConfiguration();
+		config.title = "SFCityBuilder2";
+		config.useGL20 = true;
+		config.vSyncEnabled = false;
+		config.width = 800;
+		config.height = 600;
+		config.foregroundFPS = 120;
+		config.backgroundFPS = 120;
+		config.resizable = false;
+		config.fullscreen = false;
+		
+		//cfg.depth = 0;
+		//System.setProperty("org.lwjgl.opengl.Window.undecorated", "true");
+		new LwjglApplication(new SFMain(), config);
+	}
 	
 	
-	public Array<ModelInstance> instances = new Array<ModelInstance>();
-	public boolean loading;
-	private AnimationController ctrl4;
-	private String model1 = "wall_corner.ms3d";
-	//private String model4 = "micovore/Micovore.ms3d";
-	ModelBatch celbatch;
-	//private Shader outline;
+	
+	private OrthographicCamera camera;
+	private IsoCameraControl camControl;
+	private Environment environment ;
+	//private float totalTime = 0 ;
+	private long initTime ;
+	private boolean doneLoad = false ;
+	
+	
+	private Array<ModelInstance> modelSprites = new Array<ModelInstance>();
+	private ModelBatch modelBatch;
+	private AssetManager assets;
+	private String assetFiles[] = {
+		"models/Micovore.ms3d",
+		"models/wall_corner.ms3d"
+	};
 	
 	
 	private TerrainSet terrain ;
@@ -65,42 +84,26 @@ public class SFMain implements ApplicationListener {
 		System.out.println("GLSL_VERSION: " + glGetString(GL_SHADING_LANGUAGE_VERSION));
 		System.out.println("-----------------------");
 		
-		env = new Environment();
-		env.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 0.1f));
-		env.add(new DirectionalLight().set(1f, 1f, 1f, -1f, -0.8f, -0.2f));
+		environment = new Environment();
+		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 0.1f));
+		environment.add(new DirectionalLight().set(1f, 1f, 1f, -1f, -0.8f, -0.2f));
 		
 		float w = Gdx.graphics.getWidth();
 		float h = Gdx.graphics.getHeight();
-		cam = new OrthographicCamera(20, h/w * 20);
+		camera = new OrthographicCamera(20, h/w * 20);
 		
-		cam.position.set(100f, 100f, 100f);
-		cam.lookAt(0, 0, 0);
-		cam.near = 0.1f;
-		cam.far = 300f;
-		cam.update();
+		camera.position.set(100f, 100f, 100f);
+		camera.lookAt(0, 0, 0);
+		camera.near = 0.1f;
+		camera.far = 300f;
+		camera.update();
 		
-		rtscam = new RTSCameraControl(cam);
-		Gdx.input.setInputProcessor(rtscam);
-		
-		setupSprites() ;
-		setupTerrain() ;
-	}
-	
-	
-	private void setupSprites() {
-		assets = new AssetManager();
-		assets.setLoader(Model.class, ".ms3d", new MS3DLoader(new InternalFileHandleResolver()));
-		assets.load(model1, Model.class);
-		//assets.load(model4, Model.class);
-		loading = true;
-		
-		DefaultShaderProvider provider = new DefaultShaderProvider();
-		
-		provider.config.numBones = 20;
-		//provider.config.fragmentShader = Gdx.files.internal("shaders/default.frag").readString();
-		//provider.config.vertexShader = Gdx.files.internal("shaders/default.vert").readString();
-		celbatch = new ModelBatch(provider);
+		camControl = new IsoCameraControl(camera);
+		Gdx.input.setInputProcessor(camControl);
+		initTime = System.currentTimeMillis();
 
+		setupTerrain() ;
+		setupSprites() ;
 	}
 	
 	
@@ -150,81 +153,88 @@ public class SFMain implements ApplicationListener {
 	}
 	
 	
-	
-	private void doneLoading() {
+	private void setupSprites() {
+		modelBatch = new ModelBatch(new JointShading());
 		
-		if(assets.isLoaded(model1)) {
-			Model kutas = assets.get(model1, Model.class);
-			Material mat = kutas.materials.get(0);
-			BlendingAttribute bl = (BlendingAttribute) mat.get(BlendingAttribute.Type);
-			System.out.println("OPACITY: " + bl.opacity);
-			bl.opacity = 1f;
-			bl.blended = false;
-			
-			{
-				ModelInstance k = new ModelInstance(kutas);
-				
-				// oh great there is some bug... either in model loading or in rendering.
-				// scaling is off (it doubles) and I'll have to find why
-				k.transform.setToTranslation(0.25f,0,0.25f);
-				instances.add(k);
-			}
-			
+		environment = new Environment();
+		environment.add(new DirectionalLight().set(
+			0.8f, 0.8f, 0.8f,
+			-1f, -0.8f, -0.2f
+		));
+		environment.set(new ColorAttribute(
+			ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 0.1f
+		));
+		
+		assets = new AssetManager();
+		assets.setLoader(
+			Model.class, ".ms3d",
+			new MS3DLoader(new InternalFileHandleResolver())
+		);
+		
+		for (String file : assetFiles) {
+			assets.load(file, Model.class);
 		}
-//		if(assets.isLoaded(model4)) {
-//			Model kutas = assets.get(model4, Model.class);
-//			
-//			ModelInstance k = new ModelInstance(kutas);
-//			k.transform.translate(10, 0, 10);
-//			k.transform.scale(0.1f, 0.1f, 0.1f);
-//			
-//			instances.add(k);
-//			ctrl4 = new AnimationController(k);
-//			ctrl4.animate(k.animations.get(0).id, -1, 0.2f, null, 1);
-//		}
-		loading = false;
+	}
+	
+	
+	private void checkLoading() {
+		assets.update() ;
+		doneLoad = true ;
+		int n = 0 ;
+		for (String file : assetFiles) {
+			n++ ;
+			if (assets.isLoaded(file)) {
+				final Model model = assets.get(file, Model.class);
+				final JointSprite sprite = new JointSprite(model);
+				sprite.transform.translate(0, 0, -5 * n) ;
+				sprite.setAnimation("default") ;
+				modelSprites.add(sprite) ;
+			}
+			else doneLoad = false ;
+		}
 	}
 	
 	
 	public void render() {
-		if (loading && assets.update())
-			doneLoading();
-		rtscam.update();
+		if (! doneLoad) {
+			checkLoading() ;
+			return ;
+		}
 		
+		camControl.update();
 		glClearColor(1, 0, 0, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		final float delta = Gdx.graphics.getDeltaTime() ;
 		
-		if (ctrl4 != null) {
-			ctrl4.update(Gdx.graphics.getDeltaTime());
+		long totalTime = System.currentTimeMillis() - initTime ;
+		float seconds = (float) (totalTime / 1000f) ;
+		terrain.render(camera, terrainShader, seconds) ;
+		I.say("Total time is: "+seconds) ;
+		
+		modelBatch.begin(camera);
+		for (ModelInstance MI : modelSprites) {
+			final JointSprite sprite = (JointSprite) MI ;
+			sprite.updateAnim(delta) ;
+			modelBatch.render(sprite, environment) ;
 		}
-
-		
-		celbatch.begin(cam);
-		for (ModelInstance instance : instances) {
-			celbatch.render(instance, env);
-		}
-		celbatch.end();
-		
-		
-		terrain.render(cam, terrainShader, time) ;
-		time += 1f / 60 ;
+		modelBatch.end();		
 		
 		//  TODO:  Just for testing purposes, remove later
 		if (Math.random() < 1f / 60) {
 			terrain.fog.liftAround(
 				(int) (Math.random() * terrain.size),
 				(int) (Math.random() * terrain.size),
-				(int) (Math.sqrt(terrain.size) / 1)
+				(int) (Math.sqrt(terrain.size) * (1 + Math.random()))
 			);
 		}
 	}
 	
 	
 	public void dispose() {
-		instances.clear();
-		assets.dispose();
-		celbatch.dispose();
 		terrain.dispose();
+		modelSprites.clear();
+		assets.dispose();
+		modelBatch.dispose();
 	}
 	
 	
@@ -233,15 +243,18 @@ public class SFMain implements ApplicationListener {
 	
 	
 	public void resize(int width, int height) {
-		cam.viewportWidth = 20;
-		cam.viewportHeight = (float)height/width * 20;
-		cam.update();
+		camera.viewportWidth = 20;
+		camera.viewportHeight = (float)height/width * 20;
+		camera.update();
 	}
 	
 	
 	public void pause() {
 	}
 }
+
+
+
 
 
 

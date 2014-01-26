@@ -1,6 +1,6 @@
 
 
-package sf.gdx.terrain ;
+package graphics.terrain ;
 import util.Coord;
 
 import com.badlogic.gdx.Gdx;
