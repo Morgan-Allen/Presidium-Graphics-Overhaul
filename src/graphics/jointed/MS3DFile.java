@@ -35,7 +35,7 @@ public class MS3DFile {
 
 		id = in.readUTF(10);
 		version = in.readInt();
-		System.out.println(id + " v" + version);
+		//System.out.println(id + " v" + version);
 		
 		parseVertices(in);
 		parseIndices(in);
@@ -247,7 +247,7 @@ public class MS3DFile {
 			joint.positions = new Keyframe[poss];
 			float v[] ;
 			
-			System.out.println() ;
+			//System.out.println() ;
 			for(int j=0; j < rots; j++) {
 				Keyframe kf = joint.rotations[j] = new Keyframe();
 				kf.time = in.readFloat();
@@ -257,7 +257,7 @@ public class MS3DFile {
 				//System.out.println(" Rotation: ("+q.x+", "+q.y+", "+q.z+","+q.w+")") ;
 			}
 			
-			System.out.println() ;
+			//System.out.println() ;
 			for(int j=0; j < poss; j++) {
 				Keyframe kf = joint.positions[j] = new Keyframe();
 				kf.time = in.readFloat();
@@ -288,7 +288,7 @@ public class MS3DFile {
 	
 	private void postProcessJoints() {
 		Hashtable <String, MS3DJoint> jointTable = new Hashtable <String, MS3DJoint> () ;
-		System.out.println("JOINTS ARE NULL? "+(joints == null));
+		///System.out.println("JOINTS ARE NULL? "+(joints == null));
 		for (MS3DJoint j : joints) jointTable.put(j.name, j) ;
 		for (MS3DJoint j : joints) {
 			j.parent = jointTable.get(j.parentName) ;
@@ -308,20 +308,15 @@ public class MS3DFile {
 			
 			if (vert.boneid >= 0) {
 				tmp.mul(joints[vert.boneid].inverse);
-				I.say("  VERT["+i+"] is: "+tmp) ;
+				///I.say("  VERT["+i+"] is: "+tmp) ;
 			}
 			else {
-				I.say("NO BONE ASSIGNED AT: "+i) ;
+				///I.say("NO BONE ASSIGNED AT: "+i) ;
 			}
 			
 			vert.vertex[0] = tmp.x;
 			vert.vertex[1] = tmp.y;
 			vert.vertex[2] = tmp.z;
-		}
-
-		for (MS3DJoint j : joints) {
-			//System.out.println("\nJOINT: "+j.name) ;
-			//System.out.println("  Matrix is: "+j.matrix) ;
 		}
 	}
 	

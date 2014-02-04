@@ -2,11 +2,10 @@
 
 package graphics.common;
 import static graphics.common.GL.*;
-
 import graphics.jointed.* ;
 import graphics.terrain.* ;
+import graphics.cutout.* ;
 import util.* ;
-
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
@@ -66,6 +65,9 @@ public class SFMain implements ApplicationListener {
 	};
 	
 	
+	private CutoutShading cutoutShader ;
+	private Array <Decal> allCutouts = new Array <Decal> () ;
+	
 	private TerrainSet terrain ;
 	//  TODO:  Maybe the TerrainSet should initialise it's own default shader,
 	//         closer to previous behaviour?
@@ -103,7 +105,8 @@ public class SFMain implements ApplicationListener {
 		initTime = System.currentTimeMillis();
 
 		setupTerrain() ;
-		setupSprites() ;
+		setupCutouts() ;
+		setupSolids() ;
 	}
 	
 	
@@ -153,7 +156,19 @@ public class SFMain implements ApplicationListener {
 	}
 	
 	
-	private void setupSprites() {
+	private void setupCutouts() {
+	  cutoutShader = new CutoutShading() ;
+	  final CutoutModel
+	    modelA = CutoutModel.fromImage("buildings/bastion_L1.png", 4, 2) ;
+	  Decal
+	    spriteA = new Decal(modelA) ;
+	  spriteA.rotateY(45) ;
+    spriteA.rotateX(-30) ;
+	  allCutouts.add(spriteA) ;
+	}
+	
+	
+	private void setupSolids() {
 		modelBatch = new ModelBatch(new JointShading());
 		
 		environment = new Environment();
@@ -201,16 +216,39 @@ public class SFMain implements ApplicationListener {
 			return ;
 		}
 		
-		camControl.update();
-		glClearColor(1, 0, 0, 0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		final float delta = Gdx.graphics.getDeltaTime() ;
+		camControl.update() ;
+		
+    Gdx.gl.glEnable(GL10.GL_DEPTH_TEST);
+    Gdx.gl.glDepthFunc(GL20.GL_LEQUAL);
+    Gdx.gl.glEnable(GL10.GL_BLEND);
+    Gdx.gl.glDepthMask(true);
+    Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+    
+		glClearColor(1, 0, 0, 0) ;
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) ;
+		glDisable(GL_CULL_FACE) ;
 		
 		long totalTime = System.currentTimeMillis() - initTime ;
 		float seconds = (float) (totalTime / 1000f) ;
 		terrain.render(camera, terrainShader, seconds) ;
-		I.say("Total time is: "+seconds) ;
+    //  TODO:  Just for testing purposes, remove later
+    if (Math.random() < 1f / 60) {
+      terrain.fog.liftAround(
+        (int) (Math.random() * terrain.size),
+        (int) (Math.random() * terrain.size),
+        (int) (Math.sqrt(terrain.size) * (1 + Math.random()))
+      );
+    }
+    
+    glClear(GL_DEPTH_BUFFER_BIT) ;
+		for (Decal d : allCutouts) {
+      d.update() ;
+		  cutoutShader.compileSprite(d, camera) ;
+		}
+		cutoutShader.compileAndRender(camera) ;
 		
+		/*
+    final float delta = Gdx.graphics.getDeltaTime() ;
 		modelBatch.begin(camera);
 		for (ModelInstance MI : modelSprites) {
 			final JointSprite sprite = (JointSprite) MI ;
@@ -219,14 +257,7 @@ public class SFMain implements ApplicationListener {
 		}
 		modelBatch.end();		
 		
-		//  TODO:  Just for testing purposes, remove later
-		if (Math.random() < 1f / 60) {
-			terrain.fog.liftAround(
-				(int) (Math.random() * terrain.size),
-				(int) (Math.random() * terrain.size),
-				(int) (Math.sqrt(terrain.size) * (1 + Math.random()))
-			);
-		}
+		//*/
 	}
 	
 	

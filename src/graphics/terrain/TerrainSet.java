@@ -108,12 +108,6 @@ public class TerrainSet {
 	
 	
 	public void render(Camera camera, ShaderProgram shader, float time) {
-		Gdx.gl.glEnable(GL10.GL_DEPTH_TEST);
-		Gdx.gl.glDepthFunc(GL20.GL_LEQUAL);
-		Gdx.gl.glEnable(GL10.GL_BLEND);
-		Gdx.gl.glDepthMask(true);
-		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-		
 		shader.begin();
 		shader.setUniformMatrix("u_camera", camera.combined);
 		
