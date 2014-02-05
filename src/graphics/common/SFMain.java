@@ -1,7 +1,11 @@
 
 
 package graphics.common;
+
 import static graphics.common.GL.*;
+
+import org.lwjgl.opengl.GL11;
+
 import graphics.jointed.* ;
 import graphics.terrain.* ;
 import graphics.cutout.* ;
@@ -19,6 +23,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
@@ -51,7 +56,6 @@ public class SFMain implements ApplicationListener {
 	private OrthographicCamera camera;
 	private IsoCameraControl camControl;
 	private Environment environment ;
-	//private float totalTime = 0 ;
 	private long initTime ;
 	private boolean doneLoad = false ;
 	
@@ -65,8 +69,8 @@ public class SFMain implements ApplicationListener {
 	};
 	
 	
-	private CutoutShading cutoutShader ;
-	private Array <Decal> allCutouts = new Array <Decal> () ;
+	private CutoutsPass cutoutsPass ;
+	private Array <CutoutSprite> allCutouts = new Array <CutoutSprite> () ;
 	
 	private TerrainSet terrain ;
 	//  TODO:  Maybe the TerrainSet should initialise it's own default shader,
@@ -78,44 +82,62 @@ public class SFMain implements ApplicationListener {
 	
 	public void create() {
 		
-		System.out.println("Please send me this info");
-		System.out.println("--- GL INFO -----------");
-		System.out.println("   GL_VENDOR: " + glGetString(GL_VENDOR));
-		System.out.println(" GL_RENDERER: " + glGetString(GL_RENDERER));
-		System.out.println("  GL_VERSION: " + glGetString(GL_VERSION));
-		System.out.println("GLSL_VERSION: " + glGetString(GL_SHADING_LANGUAGE_VERSION));
-		System.out.println("-----------------------");
+    environment = new Environment();
+    environment.add(new DirectionalLight().set(
+      0.8f, 0.8f, 0.8f,
+      -1f, -0.8f, -0.2f
+    ));
+    environment.set(new ColorAttribute(
+      ColorAttribute.AmbientLight,
+      0.4f, 0.4f, 0.4f, 0.1f
+    ));
+    
 		
-		environment = new Environment();
-		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 0.1f));
-		environment.add(new DirectionalLight().set(1f, 1f, 1f, -1f, -0.8f, -0.2f));
+		final float
+		  wide = Gdx.graphics.getWidth(),
+		  high = Gdx.graphics.getHeight() ;
 		
-		float w = Gdx.graphics.getWidth();
-		float h = Gdx.graphics.getHeight();
-		camera = new OrthographicCamera(20, h/w * 20);
 		
-		camera.position.set(100f, 100f, 100f);
-		camera.lookAt(0, 0, 0);
+		//
+		//  TODO:  Move the basic setup functions here to the IsoCameraControl
+		//  class.
+		camera = new OrthographicCamera(20, high / wide * 20);
+		camera.position.set(0, 50f, 100f) ;
+		final Vector3 origin = new Vector3(0, 0, 0) ;
+		camera.lookAt(origin);
+		
+		camera.rotateAround(origin, Vector3.Y, -45) ;
 		camera.near = 0.1f;
 		camera.far = 300f;
 		camera.update();
 		
 		camControl = new IsoCameraControl(camera);
+		
+		
 		Gdx.input.setInputProcessor(camControl);
 		initTime = System.currentTimeMillis();
-
+		
+		reportVersion() ;
 		setupTerrain() ;
 		setupCutouts() ;
 		setupSolids() ;
 	}
 	
 	
+	private void reportVersion() {
+    I.say(
+      "Please send me this info"+
+      "\n--- GL INFO -----------"+
+      "\n   GL_VENDOR: "+glGetString(GL_VENDOR)+
+      "\n GL_RENDERER: "+glGetString(GL_RENDERER)+
+      "\n  GL_VERSION: "+glGetString(GL_VERSION)+
+      "\nGLSL_VERSION: "+glGetString(GL_SHADING_LANGUAGE_VERSION)+
+      "\n-----------------------\n"
+    ) ;
+	}
+	
 	
 	private void setupTerrain() {
-		//
-		//  NOTE:  This is going to appear with the x/y axes flipped when
-		//  rendered, but that's okay- all the actual simulation code will
-		//  supply terrain data the right way.
 		final byte indices[][] = {
 			{ 2, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
 			{ 2, 2, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, },
@@ -157,28 +179,41 @@ public class SFMain implements ApplicationListener {
 	
 	
 	private void setupCutouts() {
-	  cutoutShader = new CutoutShading() ;
+	  cutoutsPass = new CutoutsPass() ;
 	  final CutoutModel
-	    modelA = CutoutModel.fromImage("buildings/bastion_L1.png", 4, 2) ;
-	  Decal
-	    spriteA = new Decal(modelA) ;
-	  spriteA.rotateY(45) ;
-    spriteA.rotateX(-30) ;
-	  allCutouts.add(spriteA) ;
+	    modelA = CutoutModel.fromImage("buildings/bastion_L1.png", 7, 7),
+	    modelB = CutoutModel.fromImage("buildings/bastion_L2.png", 7, 1),
+	    modelC = CutoutModel.fromImage("buildings/bastion_L3.png", 7, 1),
+	    modelG[][] = CutoutModel.fromImageGrid(
+	      "buildings/old_flora_resize.png", 4, 4, 2, 2
+	    ) ;
+    
+    final CutoutSprite SC = new CutoutSprite(modelC);
+    SC.position.set(3.0f, 0, 3.0f);
+    //BS.colour = Color.GREEN.toFloatBits();
+    allCutouts.add(SC) ;
+    
+    final CutoutSprite SA = new CutoutSprite(modelA);
+    SA.position.set(10.0f, 0, 10.0f);
+    allCutouts.add(SA);
+    
+    final CutoutSprite SB = new CutoutSprite(modelB);
+    SB.position.set(10.0f, 0, 3.0f);
+    allCutouts.add(SB);
+	  
+    for (int n = 30 + Rand.index(20) ; n-- > 0 ;) {
+      final CutoutModel TM = modelG[Rand.index(4)][Rand.index(4)] ;
+      final CutoutSprite TS = new CutoutSprite(TM) ;
+      TS.position.set(
+        Rand.range(0, 15), 0, Rand.range(0, 15)
+      ) ;
+      allCutouts.add(TS) ;
+    }
 	}
 	
 	
 	private void setupSolids() {
 		modelBatch = new ModelBatch(new JointShading());
-		
-		environment = new Environment();
-		environment.add(new DirectionalLight().set(
-			0.8f, 0.8f, 0.8f,
-			-1f, -0.8f, -0.2f
-		));
-		environment.set(new ColorAttribute(
-			ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 0.1f
-		));
 		
 		assets = new AssetManager();
 		assets.setLoader(
@@ -226,7 +261,6 @@ public class SFMain implements ApplicationListener {
     
 		glClearColor(1, 0, 0, 0) ;
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) ;
-		glDisable(GL_CULL_FACE) ;
 		
 		long totalTime = System.currentTimeMillis() - initTime ;
 		float seconds = (float) (totalTime / 1000f) ;
@@ -239,15 +273,13 @@ public class SFMain implements ApplicationListener {
         (int) (Math.sqrt(terrain.size) * (1 + Math.random()))
       );
     }
-    
     glClear(GL_DEPTH_BUFFER_BIT) ;
-		for (Decal d : allCutouts) {
-      d.update() ;
-		  cutoutShader.compileSprite(d, camera) ;
-		}
-		cutoutShader.compileAndRender(camera) ;
+    
+    cutoutsPass.performPass(allCutouts, camera);
+    //cutoutsPass.dispose();
+    //cutoutsPass = new CutoutsPass();
 		
-		/*
+    /*
     final float delta = Gdx.graphics.getDeltaTime() ;
 		modelBatch.begin(camera);
 		for (ModelInstance MI : modelSprites) {
@@ -255,17 +287,17 @@ public class SFMain implements ApplicationListener {
 			sprite.updateAnim(delta) ;
 			modelBatch.render(sprite, environment) ;
 		}
-		modelBatch.end();		
-		
+		modelBatch.end();
 		//*/
 	}
 	
 	
 	public void dispose() {
 		terrain.dispose();
+		cutoutsPass.dispose();
 		modelSprites.clear();
+    modelBatch.dispose();
 		assets.dispose();
-		modelBatch.dispose();
 	}
 	
 	

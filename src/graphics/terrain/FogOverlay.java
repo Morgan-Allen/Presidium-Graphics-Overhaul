@@ -7,7 +7,7 @@ import util.* ;
 
 import com.badlogic.gdx.graphics.* ;
 import com.badlogic.gdx.graphics.Pixmap.* ;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram ;
 
 
 
@@ -71,10 +71,10 @@ public class FogOverlay {
 	//  likely.
 	
 	public void liftAround(int x, int y, int radius) {
-		Pixmap.setBlending(Blending.SourceOver) ;
-		for (Coord c : Visit.grid(
-			x - radius, y - radius, radius * 2, radius * 2, 1
-		)) {
+	  Pixmap.setBlending(Blending.SourceOver) ;
+	  for (Coord c : Visit.grid(
+		  x - radius, y - radius, radius * 2, radius * 2, 1
+    )) {
 			final float
 			  xd = c.x - x, yd = c.y - y,
 			  dist = (float) Math.sqrt((xd * xd) + (yd * yd)) ;
@@ -82,6 +82,16 @@ public class FogOverlay {
 			drawnTo.setColor(1, 1, 1, 1 - (dist / radius)) ;
 			drawnTo.drawPixel(c.x, c.y) ;
 		}
+	}
+	
+	
+	public float sampleAt(float x, float y) {
+	  return (colorValue(x, y) & 0xff) / 255f ;
+	}
+	
+	
+	public int colorValue(float x, float y) {
+	  return drawnTo.getPixel((int) x, (int) y) ;
 	}
 }
 

@@ -229,7 +229,7 @@ void main() {
 	#endif
 	
 	// KURWA fog of war blending!
-	v_fogpos = vec2(pos.x /32, pos.z /32);
+	v_fogpos = vec2(pos.x / 32.0, pos.z / 32.0);
 	
 	gl_Position = u_projViewTrans * pos;
 		

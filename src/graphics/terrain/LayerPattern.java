@@ -18,21 +18,21 @@ public class LayerPattern implements TileConstants {
     */
   final static float
     VERT_PATTERN[] = {
-	  0, 0, 0,
-	  0, 0, 1,
-	  1, 0, 0,
-	  1, 0, 1
+      0, 0, 0,
+      0, 0, 1,
+      1, 0, 0,
+      1, 0, 1
     },
     INDEX_PATTERN[] = {
-	  0, 1, 2, 2, 1, 3
+      0, 1, 2, 2, 1, 3
     },
     MIN_UV = 0.01f,  //allow a slight margin for safety's sake...
     MAX_UV = 1 - MIN_UV,
     UV_PATTERN[] = {
-	  MIN_UV, MAX_UV,
-	  MIN_UV, MIN_UV,
-	  MAX_UV, MAX_UV,
-	  MAX_UV, MIN_UV
+      MIN_UV, MAX_UV,
+      MIN_UV, MIN_UV,
+      MAX_UV, MAX_UV,
+      MAX_UV, MIN_UV
     } ;
   private final static float[][] shrinkUVMap(float initMap[][], float maxUV) {
     float processedUV[][] = new float[initMap.length][] ;

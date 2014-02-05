@@ -108,9 +108,10 @@ public class TerrainSet {
 	
 	
 	public void render(Camera camera, ShaderProgram shader, float time) {
-		shader.begin();
+    shader.begin();
 		shader.setUniformMatrix("u_camera", camera.combined);
-		
+    shader.setUniformi("u_texture", 0) ;
+    
 		if (fog != null) {
 			fog.applyToShader(shader) ;
 			shader.setUniformi("u_fogFlag", GL_TRUE);
@@ -129,4 +130,8 @@ public class TerrainSet {
 		if (fog != null) fog.checkBufferSwap(time);
 	}
 }
+
+
+
+
 
