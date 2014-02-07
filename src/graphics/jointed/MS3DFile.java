@@ -4,11 +4,10 @@ package graphics.jointed;
 
 import java.io.IOException;
 
-import com.badlogic.gdx.math.* ;
+import com.badlogic.gdx.math.*;
 
-import java.util.Hashtable ;
-
-import util.I;
+//import java.util.Hashtable ;
+import util.*;
 
 
 
@@ -202,16 +201,14 @@ public class MS3DFile {
 		public String name;
 		public MS3DJoint parent = null ;
 		private String parentName ;
-		//public String parentName;
-		
-		//public Quaternion rotation = new Quaternion();
-		//public Vector3 position = new Vector3();
 		
 		public Matrix4 matrix = new Matrix4();
 		public Matrix4 inverse = new Matrix4();
 		
 		public Keyframe[] rotations;
 		public Keyframe[] positions;
+		
+		final List <MS3DJoint> children = new List <MS3DJoint> ();
 	}
 	
 	
@@ -287,7 +284,7 @@ public class MS3DFile {
 	
 	
 	private void postProcessJoints() {
-		Hashtable <String, MS3DJoint> jointTable = new Hashtable <String, MS3DJoint> () ;
+		Table <String, MS3DJoint> jointTable = new Table <String, MS3DJoint> () ;
 		///System.out.println("JOINTS ARE NULL? "+(joints == null));
 		for (MS3DJoint j : joints) jointTable.put(j.name, j) ;
 		for (MS3DJoint j : joints) {
@@ -295,7 +292,10 @@ public class MS3DFile {
 		}
 		
 		for (MS3DJoint j : joints) {
-			if (j.parent != null) j.inverse.mul(j.parent.inverse) ;
+			if (j.parent != null) {
+			  j.parent.children.add(j);
+			  j.inverse.mul(j.parent.inverse);
+			}
 		}
 		
 		Vector3 tmp = new Vector3();

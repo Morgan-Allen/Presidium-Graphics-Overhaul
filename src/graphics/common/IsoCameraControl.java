@@ -9,33 +9,42 @@ import com.badlogic.gdx.math.*;
 
 
 
-
-
 public class IsoCameraControl extends InputAdapter {
-	
 	
   
   final public float
-    KTF   = 0.4f,
-    KRF   = 0.5f,
-    MTF   = 20f,
-    MRF   = 360f ;
+    KTF   = 0.4f,  //key translation factor
+    KRF   = 0.5f,  //key rotation factor (unused)
+    MTF   = 20f,   //mouse translation factor
+    MRF   = 360f ; //mouse rotation factor
+  //  TODO:  Include some information about default rotation/view elevation,
+  //  zoom levels, etc.
+  
   
   final Camera camera ;
   final Vector3 target = new Vector3() ;
   
   private int button = -1;
   private float startX, startY;
-  private Vector3 t1 = new Vector3(), t2 = new Vector3() ;
+  private Vector3 t1 = new Vector3(), t2 = new Vector3();
 	
 	
 	
-	public IsoCameraControl(Camera cam) {
-		this.camera = cam;
-		
-		camera.lookAt(target);
-		camera.update();
+	public IsoCameraControl() {
+    final float
+      wide = Gdx.graphics.getWidth(),
+      high = Gdx.graphics.getHeight();
+    camera = new OrthographicCamera(20, (high / wide) * 20);
+    
+    camera.position.set(0, 50f, 100f);
+    target.set(0, 0, 0);
+    camera.lookAt(target);
+    camera.rotateAround(target, Vector3.Y, -45);
+    camera.near = 0.1f;
+    camera.far = 300f;
+    camera.update();
 	}
+	
 	
 	
 	public void update() {
@@ -93,6 +102,22 @@ public class IsoCameraControl extends InputAdapter {
 		process(deltaX, deltaY);
 		return true;
 	}
+  
+  
+  public boolean scrolled(int amount) {
+    //camera.translate(t1.set(camera.direction).scl(amount * -1f));
+    float am = amount > 0? 1.1f : 0.9f;
+    camera.viewportHeight*=am;
+    camera.viewportWidth*=am;
+    return true;
+  }
+  
+  
+  protected void onScreenResize(int width, int height) {
+    camera.viewportWidth = 20;
+    camera.viewportHeight = (float) height/width * 20;
+    camera.update();
+  }
 	
 	
 	
@@ -115,15 +140,6 @@ public class IsoCameraControl extends InputAdapter {
 	private void translate(Vector3 vec) {
 		camera.translate(vec.scl(camera.viewportHeight * 0.08f));
 		target.add(vec);
-	}
-	
-	
-	public boolean scrolled(int amount) {
-		//camera.translate(t1.set(camera.direction).scl(amount * -1f));
-		float am = amount > 0? 1.1f : 0.9f;
-		camera.viewportHeight*=am;
-		camera.viewportWidth*=am;
-		return true;
 	}
 }
 

@@ -2,10 +2,11 @@
 
 package graphics.jointed;
 import java.io.IOException;
-import java.util.* ;
+//import java.util.* ;
 
-import util.I;
+import util.*;
 import graphics.jointed.MS3DFile.* ;
+import java.lang.reflect.Field;
 
 import com.badlogic.gdx.assets.* ;
 import com.badlogic.gdx.assets.loaders.* ;
@@ -22,39 +23,138 @@ import com.badlogic.gdx.utils.* ;
 
 
 
-//  TODO:  I'll need to pass in the XML document as well to get full info.
-
-
-
 public class MS3DLoader extends ModelLoader<AssetLoaderParameters<Model>> {
 	
 	
-	private FileHandle baseDir ;
+	private FileHandle handle, baseDir ;
 	private MS3DFile file ;
 	private ModelData data ;
 	
+	private XML config = null;
+	private float scale = 1.0f;
+  private List <AnimRange> animRanges = new List <AnimRange> ();
+  private static Table <String, String> validAnimNames = null ;
 	
-	public MS3DLoader(FileHandleResolver resolver) {
-		super(resolver) ;
+	
+	private static class MS3DParams extends AssetLoaderParameters <Model> {
+	  String xmlFile, xmlName;
+	}
+  
+  public MS3DLoader(FileHandleResolver resolver) {
+    super(resolver) ;
+  }
+	
+	private static class AnimRange {
+	  String name ;
+	  float start, end, length ;
+	  private ModelAnimation anim = null;
 	}
 	
 	
+  public static void beginLoading(
+    String path, String file,
+    String xmlFile, String xmlName,
+    AssetManager manager
+  ) {
+    final MS3DParams params = new MS3DParams();
+    params.xmlFile = path+""+xmlFile;
+    params.xmlName = xmlName;
+    manager.load(path+""+file, Model.class, params);
+  }
+  
+	
 	public ModelData loadModelData(
 		FileHandle fileHandle,
-		AssetLoaderParameters<Model> parameters
+		AssetLoaderParameters <Model> assetParams
 	) {
 		try {
-			final DataInput input = new DataInput(fileHandle.read(), true) ;
-			baseDir = fileHandle.parent() ;
-			file = new MS3DFile(input) ;
+			final DataInput input = new DataInput(fileHandle.read(), true);
+			handle = fileHandle;
+			baseDir = fileHandle.parent();
+			file = new MS3DFile(input);
+			
+			final MS3DParams params = (MS3DParams) assetParams ;
+			if (params != null && params.xmlName != null) {
+	      XML xml = XML.load(params.xmlFile);
+	      config = xml.matchChildValue("name", params.xmlName);
+			}
+			else config = null;
 		}
 		catch (Exception e) { I.report(e) ; return null ; }
-		data = new ModelData() ;
 		
-		processMaterials() ;
-		processMesh() ;
-		processJoints() ;
+    animRanges.clear();
+    final AnimRange defaultRange = new AnimRange();
+    defaultRange.name = "default";
+    defaultRange.start = 0;
+    defaultRange.end = file.iTotalFrames;
+    defaultRange.length = defaultRange.end;
+    animRanges.add(defaultRange) ;
+    processXMLConfig();
+    
+		data = new ModelData() ;
+		processMaterials();
+		processMesh();
+		processJoints();
+		
+		//I.say("Processing complete! "+data) ;
 		return data ;
+	}
+	
+	
+	private void processXMLConfig() {
+    if (config == null) return ;
+    this.scale = config.getFloat("scale") ;
+    
+    loadAnimRanges(config.child("animations"));
+    
+    I.say("\nAnimation ranges are: ") ;
+    for (AnimRange range : animRanges) {
+      I.say("  "+range.name+" ("+range.start+" to "+range.end+")") ;
+    }
+  }
+	
+	
+	private void loadAnimRanges(XML anims) {
+    //
+    //  If neccesary, initialise the table of valid animation names-
+	  //  TODO:  try moving this to the JointModel class.
+    if (validAnimNames == null) {
+      validAnimNames = new Table <String, String> (100) ;
+      for (Field field : AnimNames.class.getFields()) try {
+        if (field.getType() != String.class) continue ;
+        final String value = (String) field.get(null) ;
+        validAnimNames.put(value, value) ;
+      }
+      catch (Exception e) {}
+    }
+    //
+    //  Quit if there are no animations to load.  Otherwise, check each entry-
+    if (anims == null || anims.numChildren() < 0) return ;
+    addLoop: for (XML anim : anims.children()) {
+      //
+      //  First, check to ensure that this animation has an approved name:
+      String name = anim.value("name") ;
+      if (validAnimNames.get(name) == null) I.say(
+        "WARNING: ANIMATION WITH IRREGULAR NAME: "+name+
+        " IN MODEL: "+handle
+      ) ;
+      else name = (String) validAnimNames.get(name) ;
+      for (AnimRange oldAnim : animRanges) {
+        if (oldAnim.name.equals(name)) continue addLoop ;
+      }
+      //
+      //  Either way, define the data-
+      final float
+        animStart  = Float.parseFloat(anim.value("start")),
+        animEnd    = Float.parseFloat(anim.value("end")),
+        animLength = Float.parseFloat(anim.value("duration")) ;
+      final AnimRange newAnim = new AnimRange() ;
+      newAnim.name = name ;
+      newAnim.start = animStart;
+      newAnim.end = animEnd;
+      newAnim.length = animLength;
+      animRanges.addFirst(newAnim) ;
+    }
 	}
 	
 	
@@ -122,9 +222,9 @@ public class MS3DLoader extends ModelLoader<AssetLoaderParameters<Model>> {
 			for (int j = 0; j < 3; j++) {
 				MS3DVertex vert = file.vertices[tri.indices[j]];
 				
-				verts[p++] = vert.vertex[0];
-				verts[p++] = vert.vertex[1];
-				verts[p++] = vert.vertex[2];
+				verts[p++] = vert.vertex[0] * this.scale;
+				verts[p++] = vert.vertex[1] * this.scale;
+				verts[p++] = vert.vertex[2] * this.scale;
 				
 				verts[p++] = tri.u[j];
 				verts[p++] = tri.v[j];
@@ -150,7 +250,7 @@ public class MS3DLoader extends ModelLoader<AssetLoaderParameters<Model>> {
 		part.indices = indices ;  //TODO:  Won't work for multiple groups.
 		parts[0] = part;
 		
-		//  ...Will *this* combine easily with multiple groups..?
+		//  ...Will *this* combine easily with multiple groups..?  ...No.
 		final ModelNode modelNode = new ModelNode();
 		modelNode.id = "node";
 		modelNode.meshId = "mesh";
@@ -166,86 +266,101 @@ public class MS3DLoader extends ModelLoader<AssetLoaderParameters<Model>> {
 	}
 	
 	
-
 	private void processJoints() {
 		//
-		//  For now just one animation, don't split it yet-
-		final ModelAnimation modelAnim = new ModelAnimation() ;
-		modelAnim.id = "default";
-		final float fpsmod = 1 / (25 / file.fAnimationFPS);
-		
-		//
-		//  Set up reference tables for lookup purposes-
-		final ModelNode modelNode = data.nodes.get(0) ;
-		final ModelNodePart rootPart = modelNode.parts[0] ;
-		final ArrayMap <String, ModelNode> 
-			jointTable = new ArrayMap <String, ModelNode> (32) ;
+		//  Set up reference tables/items for lookup purposes-
+    //final float fpsmod = 1 / (25 / file.fAnimationFPS);
+		ModelNode rootBone = data.nodes.get(0);
+		final ArrayMap <String, ModelNode>
+		  jointTable = new ArrayMap <String, ModelNode> ();
 		final ArrayMap <String, Matrix4>
-			boneTable = new ArrayMap <String, Matrix4> (13) ;
-		rootPart.bones = boneTable ;
+		  boneMatrices = new ArrayMap <String, Matrix4> ();
+		rootBone.parts[0].bones = boneMatrices;
 		
 		//
 		//  Then establish proper animation sequences for every joint-
-		for(int i=0; i < file.joints.length; i++) {
-			final MS3DJoint
-				fileJoint = file.joints[i],
-				fileParent = fileJoint.parent ;
-			final String childID = fileJoint.name ;
+		for (MS3DJoint fileJoint : file.joints) {
 			
-			//
-			//  Attach the child node to the appropriate parent-
-			ModelNode childNode = new ModelNode();
-			final ModelNode parentNode = fileParent == null ?
-				modelNode :
-				jointTable.get(fileParent.name) ;
-			
-			addChild(parentNode, childNode) ;
-			jointTable.put(childID, childNode) ;
-			childNode.id = childID ;
-			childNode.meshId = "mesh" ;
-			childNode.rotation = fileJoint.matrix.getRotation(new Quaternion()) ;
-			childNode.translation = fileJoint.matrix.getTranslation(new Vector3()) ;
-			childNode.scale = new Vector3(1,1,1) ;
-			//System.out.println(childID +" <= " + parentNode.id);
-			
-			//
-			//  Then, set up the correct sequence of animation keyframes for
-			//  this node-
-			final ModelNodeAnimation childAnim = new ModelNodeAnimation();
-			childAnim.nodeId = childID ;
-			boneTable.put(childID, new Matrix4()) ;
-			
-			for (int j = 0 ; j < fileJoint.positions.length ; j++) {
-				final ModelNodeKeyframe frame = new ModelNodeKeyframe();
-				childAnim.keyframes.add(frame);
-				//
-				//  Set up translation correctly-
-				frame.keytime = fileJoint.rotations[j].time * fpsmod;
-				frame.translation = new Vector3(fileJoint.positions[j].data);
-				frame.translation.mul(fileJoint.matrix);
-				//
-				//  Then set up rotation-
-				final Quaternion
-				  FE = MS3DFile.fromEuler(fileJoint.rotations[j].data),
-				  JM = fileJoint.matrix.getRotation(new Quaternion()) ;
-				frame.rotation = JM.mul(FE) ;
-			}
-			modelAnim.nodeAnimations.add(childAnim) ;
+      final String boneName = fileJoint.name ;
+			final ModelNode childBone = new ModelNode();
+			jointTable.put(boneName, childBone) ;
+      boneMatrices.put(boneName, new Matrix4());
+      
+			childBone.id = boneName ;
+			childBone.meshId = "mesh" ;
+			childBone.rotation = fileJoint.matrix.getRotation(new Quaternion());
+			childBone.translation = fileJoint.matrix.getTranslation(new Vector3());
+			childBone.scale = new Vector3(1,1,1) ;
+			childBone.translation.scl(this.scale);
+
+	    //
+	    //  Then, set up the correct sequence of animation keyframes for
+	    //  this node-
+	    for (int j = 0 ; j < fileJoint.positions.length ; j++) {
+	      final ModelNodeKeyframe frame = new ModelNodeKeyframe();
+	      frame.keytime = fileJoint.rotations[j].time ;// * fpsmod;
+	      frame.translation = new Vector3(fileJoint.positions[j].data);
+	      frame.translation.mul(fileJoint.matrix);
+	      frame.translation.scl(this.scale);
+	      final Quaternion
+	        FE = MS3DFile.fromEuler(fileJoint.rotations[j].data),
+	        JM = fileJoint.matrix.getRotation(new Quaternion());
+	      frame.rotation = JM.mul(FE);
+	      applyToMatchingRanges(frame, boneName);
+	    }
 		}
-		data.animations.add(modelAnim) ;
+    
+		//
+		//  Assign each child node to it's parent-
+    final Batch <ModelNode> orphans = new Batch <ModelNode> ();
+    for (MS3DJoint fileJoint : file.joints) {
+      final ModelNode childBone = jointTable.get(fileJoint.name);
+      childBone.children = new ModelNode[fileJoint.children.size()];
+      int i = 0;
+      for (MS3DJoint j : fileJoint.children) {
+        childBone.children[i++] = jointTable.get(j.name);
+      }
+      if (fileJoint.parent == null) orphans.add(childBone);
+    }
+    rootBone.children = orphans.toArray(ModelNode.class);
+    
+    //
+    //  Then compile the total set of animations (and clear for later)-
+    I.say("\nCompiled ranges are:") ;
+    for (AnimRange range : this.animRanges) if (range.anim != null) {
+      data.animations.add(range.anim);
+      I.say("  "+range.anim.id) ;
+      range.anim = null;
+    }
+    I.say("\n\n") ;
 	}
 	
 	
-	private static void addChild(ModelNode parent, ModelNode child) {
-		if (parent.children == null) {
-			parent.children = new ModelNode[] {child};
-		}
-		else {
-			parent.children = Arrays.copyOf(
-				parent.children, parent.children.length + 1
-			);
-			parent.children[parent.children.length - 1] = child;
-		}
+	private void applyToMatchingRanges(ModelNodeKeyframe frame, String boneName) {
+    final float time = frame.keytime;
+    //I.say("  Looking for match for keyframe at: "+time) ;
+    for (AnimRange range : animRanges) {
+      //I.say("    Start/end are "+range.start+"/"+range.end) ;
+      if (range.start <= time && range.end >= time) {
+        final ModelNodeAnimation MNA = getMNA(range, boneName);
+        if (MNA != null) MNA.keyframes.add(frame);
+      }
+    }
+	}
+	
+	
+	private ModelNodeAnimation getMNA(AnimRange range, String boneName) {
+	  if (range.anim == null) {
+	    range.anim = new ModelAnimation();
+	    range.anim.id = range.name;
+	  }
+	  for (ModelNodeAnimation MNA : range.anim.nodeAnimations) {
+	    if (MNA.nodeId.equals(boneName)) return MNA;
+	  }
+    final ModelNodeAnimation MNA = new ModelNodeAnimation();
+    MNA.nodeId = boneName;
+    range.anim.nodeAnimations.add(MNA);
+    return MNA;
 	}
 }
 

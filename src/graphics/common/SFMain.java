@@ -13,19 +13,19 @@ import util.* ;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.assets.* ;
+import com.badlogic.gdx.assets.loaders.FileHandleResolver;
+import com.badlogic.gdx.assets.loaders.resolvers.*;
 
 
 
@@ -33,40 +33,16 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 public class SFMain implements ApplicationListener {
 	
 	
-	public static void main(String[] args) {
-		LwjglApplicationConfiguration
-		  config = new LwjglApplicationConfiguration();
-		config.title = "SFCityBuilder2";
-		config.useGL20 = true;
-		config.vSyncEnabled = false;
-		config.width = 800;
-		config.height = 600;
-		config.foregroundFPS = 120;
-		config.backgroundFPS = 120;
-		config.resizable = false;
-		config.fullscreen = false;
-		
-		//cfg.depth = 0;
-		//System.setProperty("org.lwjgl.opengl.Window.undecorated", "true");
-		new LwjglApplication(new SFMain(), config);
-	}
-	
-	
-	
-	private OrthographicCamera camera;
 	private IsoCameraControl camControl;
 	private Environment environment ;
 	private long initTime ;
 	private boolean doneLoad = false ;
 	
 	
+	private AssetManager assets;
+	private String solidFiles[];
 	private Array<ModelInstance> modelSprites = new Array<ModelInstance>();
 	private ModelBatch modelBatch;
-	private AssetManager assets;
-	private String assetFiles[] = {
-		"models/Micovore.ms3d",
-		"models/wall_corner.ms3d"
-	};
 	
 	
 	private CutoutsPass cutoutsPass ;
@@ -92,30 +68,11 @@ public class SFMain implements ApplicationListener {
       0.4f, 0.4f, 0.4f, 0.1f
     ));
     
-		
-		final float
-		  wide = Gdx.graphics.getWidth(),
-		  high = Gdx.graphics.getHeight() ;
-		
-		
-		//
-		//  TODO:  Move the basic setup functions here to the IsoCameraControl
-		//  class.
-		camera = new OrthographicCamera(20, high / wide * 20);
-		camera.position.set(0, 50f, 100f) ;
-		final Vector3 origin = new Vector3(0, 0, 0) ;
-		camera.lookAt(origin);
-		
-		camera.rotateAround(origin, Vector3.Y, -45) ;
-		camera.near = 0.1f;
-		camera.far = 300f;
-		camera.update();
-		
-		camControl = new IsoCameraControl(camera);
-		
-		
+		camControl = new IsoCameraControl();
 		Gdx.input.setInputProcessor(camControl);
 		initTime = System.currentTimeMillis();
+		
+    assets = new AssetManager();
 		
 		reportVersion() ;
 		setupTerrain() ;
@@ -215,14 +172,27 @@ public class SFMain implements ApplicationListener {
 	private void setupSolids() {
 		modelBatch = new ModelBatch(new JointShading());
 		
-		assets = new AssetManager();
+		final String path = "models/", xml = "FaunaModels.xml";
+	  final String assetFiles[] = {
+	    "Micovore.ms3d",
+	    "wall_corner.ms3d"
+	  };
+	  final String xmlNames[] = {
+	    "Micovore",
+	    null
+	  };
+	  this.solidFiles = new String[assetFiles.length] ;
+	  for (int i = solidFiles.length ; i-- > 0;) {
+	    solidFiles[i] = path+""+assetFiles[i];
+	  }
+		
 		assets.setLoader(
 			Model.class, ".ms3d",
 			new MS3DLoader(new InternalFileHandleResolver())
 		);
 		
-		for (String file : assetFiles) {
-			assets.load(file, Model.class);
+		for (int i = assetFiles.length ; i-- > 0 ;) {
+		  MS3DLoader.beginLoading(path, assetFiles[i], xml, xmlNames[i], assets);
 		}
 	}
 	
@@ -231,27 +201,30 @@ public class SFMain implements ApplicationListener {
 		assets.update() ;
 		doneLoad = true ;
 		int n = 0 ;
-		for (String file : assetFiles) {
+		for (String file : solidFiles) {
 			n++ ;
 			if (assets.isLoaded(file)) {
 				final Model model = assets.get(file, Model.class);
 				final JointSprite sprite = new JointSprite(model);
 				sprite.transform.translate(0, 0, -5 * n) ;
-				sprite.setAnimation("default") ;
+				//sprite.setAnimation("walk") ;
 				modelSprites.add(sprite) ;
 			}
 			else doneLoad = false ;
 		}
+		//I.say("  Done loading? "+doneLoad) ;
 	}
 	
 	
 	public void render() {
 		if (! doneLoad) {
+      //  TODO:  Throw up a loading screen or something here.
 			checkLoading() ;
 			return ;
 		}
 		
-		camControl.update() ;
+		camControl.update();
+		final Camera camera = camControl.camera;
 		
     Gdx.gl.glEnable(GL10.GL_DEPTH_TEST);
     Gdx.gl.glDepthFunc(GL20.GL_LEQUAL);
@@ -276,19 +249,15 @@ public class SFMain implements ApplicationListener {
     glClear(GL_DEPTH_BUFFER_BIT) ;
     
     cutoutsPass.performPass(allCutouts, camera);
-    //cutoutsPass.dispose();
-    //cutoutsPass = new CutoutsPass();
 		
-    /*
-    final float delta = Gdx.graphics.getDeltaTime() ;
+    //final float delta = Gdx.graphics.getDeltaTime() ;
 		modelBatch.begin(camera);
 		for (ModelInstance MI : modelSprites) {
 			final JointSprite sprite = (JointSprite) MI ;
-			sprite.updateAnim(delta) ;
+			sprite.updateAnim("strike", seconds % 1) ;
 			modelBatch.render(sprite, environment) ;
 		}
 		modelBatch.end();
-		//*/
 	}
 	
 	
@@ -306,14 +275,30 @@ public class SFMain implements ApplicationListener {
 	
 	
 	public void resize(int width, int height) {
-		camera.viewportWidth = 20;
-		camera.viewportHeight = (float)height/width * 20;
-		camera.update();
+	  camControl.onScreenResize(width, height) ;
 	}
 	
 	
 	public void pause() {
 	}
+  
+	
+  
+  public static void main(String[] args) {
+    final LwjglApplicationConfiguration
+      config = new LwjglApplicationConfiguration();
+    config.title = "SFCityBuilder2";
+    config.useGL20 = true;
+    config.vSyncEnabled = false;
+    config.width = 800;
+    config.height = 600;
+    config.foregroundFPS = 120;
+    config.backgroundFPS = 120;
+    config.resizable = false;
+    config.fullscreen = false;
+    //config.depth = 0;
+    new LwjglApplication(new SFMain(), config);
+  }
 }
 
 

@@ -5,7 +5,11 @@
   */
 
 package util ;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.* ;
+
 import java.io.* ;
+
 
 
 /**  In essence, an easier-going XML file/node, which constructs a hierarchy of
@@ -87,7 +91,7 @@ public class XML {
     return (val == null) ? 1 : Float.parseFloat(val) ;
   }
   
-
+  
   public int getInt(String label) {
     return (int) getFloat(label) ;
   }
@@ -99,10 +103,11 @@ public class XML {
   public static XML load(String fileName) {
     Object cached = LoadService.getResource(fileName) ;
     if (cached != null) return (XML) cached ;
-    final XML xml = new XML(new File(fileName)) ;
+    final XML xml = new XML(Gdx.files.internal(fileName)) ;
     LoadService.cacheResource(xml, fileName) ;
     return xml ;
   }
+  
   
   //  Temporary member lists, to be discarded once setup is complete-
   private List <XML>
@@ -113,7 +118,7 @@ public class XML {
   
   /**  Constructs a new XML node from the given text file.
    */
-  private XML(File xmlF) {
+  private XML(FileHandle xmlF) {
     try {
       XML current = this ;
       boolean
@@ -128,9 +133,10 @@ public class XML {
         index,      //current index in file.
         length ;    //total length of file.
       
-      FileInputStream fR = new FileInputStream(xmlF) ;
+      //FileInputStream fR = new FileInputStream(xmlF) ;
+      final InputStream fR = xmlF.read();
       byte
-        chars[] = new byte[length = (int)xmlF.length()],
+        chars[] = new byte[length = (int) xmlF.length()],
         read ;
       fR.read(chars) ;
       

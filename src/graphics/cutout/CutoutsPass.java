@@ -89,7 +89,7 @@ public class CutoutsPass {
   
   
   public void performPass(Array <CutoutSprite> sprites, Camera camera) {
-    I.say("New cutouts pass...") ;
+    //I.say("New cutouts pass...") ;
     for (CutoutSprite s : sprites) {
       compileSprite(s, camera) ;
     }
@@ -128,8 +128,8 @@ public class CutoutsPass {
   private void compileAndRender(Camera camera) {
     if (total == 0 || lastTex == null) return ;
     
-    I.say("  compiled: "+(total / SIZE)+", texture: "+lastTex.hashCode()) ;
-    I.say("  total floats: "+total) ;
+    //I.say("  compiled: "+(total / SIZE)+", texture: "+lastTex.hashCode()) ;
+    //I.say("  total floats: "+total) ;
     compiled.setVertices(vertComp, 0, total) ;
     
     shading.begin();
@@ -143,13 +143,4 @@ public class CutoutsPass {
     total = 0 ;
   }
 }
-
-
-
-/*
-new VertexAttribute(
-  VertexAttributes.Usage.ColorPacked,
-  4, ShaderProgram.COLOR_ATTRIBUTE
-),
-//*/
 
