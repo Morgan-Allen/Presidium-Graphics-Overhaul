@@ -25,6 +25,8 @@ import com.badlogic.gdx.utils.* ;
 
 public class MS3DLoader extends ModelLoader<AssetLoaderParameters<Model>> {
 	
+  
+  private static boolean verbose = false;
 	
 	private FileHandle handle, baseDir ;
 	private MS3DFile file ;
@@ -107,9 +109,11 @@ public class MS3DLoader extends ModelLoader<AssetLoaderParameters<Model>> {
     
     loadAnimRanges(config.child("animations"));
     
-    I.say("\nAnimation ranges are: ") ;
-    for (AnimRange range : animRanges) {
-      I.say("  "+range.name+" ("+range.start+" to "+range.end+")") ;
+    if (verbose) {
+      I.say("\nAnimation ranges are: ") ;
+      for (AnimRange range : animRanges) {
+        I.say("  "+range.name+" ("+range.start+" to "+range.end+")") ;
+      }
     }
   }
 	
@@ -269,7 +273,6 @@ public class MS3DLoader extends ModelLoader<AssetLoaderParameters<Model>> {
 	private void processJoints() {
 		//
 		//  Set up reference tables/items for lookup purposes-
-    //final float fpsmod = 1 / (25 / file.fAnimationFPS);
 		ModelNode rootBone = data.nodes.get(0);
 		final ArrayMap <String, ModelNode>
 		  jointTable = new ArrayMap <String, ModelNode> ();
@@ -298,7 +301,7 @@ public class MS3DLoader extends ModelLoader<AssetLoaderParameters<Model>> {
 	    //  this node-
 	    for (int j = 0 ; j < fileJoint.positions.length ; j++) {
 	      final ModelNodeKeyframe frame = new ModelNodeKeyframe();
-	      frame.keytime = fileJoint.rotations[j].time ;// * fpsmod;
+	      frame.keytime = fileJoint.rotations[j].time;
 	      frame.translation = new Vector3(fileJoint.positions[j].data);
 	      frame.translation.mul(fileJoint.matrix);
 	      frame.translation.scl(this.scale);
@@ -326,13 +329,13 @@ public class MS3DLoader extends ModelLoader<AssetLoaderParameters<Model>> {
     
     //
     //  Then compile the total set of animations (and clear for later)-
-    I.say("\nCompiled ranges are:") ;
+    if (verbose) I.say("\nCompiled ranges are:") ;
     for (AnimRange range : this.animRanges) if (range.anim != null) {
       data.animations.add(range.anim);
-      I.say("  "+range.anim.id) ;
+      if (verbose) I.say("  "+range.anim.id) ;
       range.anim = null;
     }
-    I.say("\n\n") ;
+    if (verbose) I.say("\n\n") ;
 	}
 	
 	

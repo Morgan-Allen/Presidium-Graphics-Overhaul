@@ -3,23 +3,24 @@
 package graphics.common;
 
 import static graphics.common.GL.*;
-
-import org.lwjgl.opengl.GL11;
-
 import graphics.jointed.* ;
 import graphics.terrain.* ;
 import graphics.cutout.* ;
+import graphics.widgets.* ;
 import util.* ;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+
+
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
@@ -53,6 +54,7 @@ public class SFMain implements ApplicationListener {
 	//         closer to previous behaviour?
 	private ShaderProgram terrainShader ;
 	
+	private HUD UI ;
 	
 	
 	
@@ -78,6 +80,7 @@ public class SFMain implements ApplicationListener {
 		setupTerrain() ;
 		setupCutouts() ;
 		setupSolids() ;
+		setupHUD();
 	}
 	
 	
@@ -197,6 +200,15 @@ public class SFMain implements ApplicationListener {
 	}
 	
 	
+	private void setupHUD() {
+    UI = new HUD();
+    Button button = new Button(UI, "UI/arcade_button.png", "Basic button!");
+    button.absBound.set(20, 20, 100, 100);
+    button.attachTo(UI);
+	}
+	
+	
+	
 	private void checkLoading() {
 		assets.update() ;
 		doneLoad = true ;
@@ -254,10 +266,12 @@ public class SFMain implements ApplicationListener {
 		modelBatch.begin(camera);
 		for (ModelInstance MI : modelSprites) {
 			final JointSprite sprite = (JointSprite) MI ;
-			sprite.updateAnim("strike", seconds % 1) ;
+			sprite.updateAnim("move", seconds % 1) ;
 			modelBatch.render(sprite, environment) ;
 		}
 		modelBatch.end();
+		
+		UI.renderHUD();
 	}
 	
 	
