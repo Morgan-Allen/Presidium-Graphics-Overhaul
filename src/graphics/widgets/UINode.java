@@ -5,11 +5,11 @@
   */
 
 package graphics.widgets ;
-//import src.graphics.common.Texture;
 import util.* ;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.* ;
 
@@ -145,30 +145,13 @@ public abstract class UINode {
     Texture cached = (Texture) LoadService.getResource(name);
     if (cached != null) return cached;
     cached = new Texture(Gdx.files.internal(name));
+    cached.setFilter(TextureFilter.Linear, TextureFilter.Linear);
     LoadService.cacheResource(cached, name);
     return cached;
   }
   
   
   /*
-  final public static void drawQuad(
-    float xmin, float ymin,
-    float xmax, float ymax,
-    float umin, float vmin,
-    float umax, float vmax,
-    float absDepth
-  ) {
-    GL11.glTexCoord2f(umin, vmax) ;
-    GL11.glVertex3f(xmin, ymin, absDepth) ;
-    GL11.glTexCoord2f(umin, vmin) ;
-    GL11.glVertex3f(xmin, ymax, absDepth) ;
-    GL11.glTexCoord2f(umax, vmin) ;
-    GL11.glVertex3f(xmax, ymax, absDepth) ;
-    GL11.glTexCoord2f(umax, vmax) ;
-    GL11.glVertex3f(xmax, ymin, absDepth) ;
-  }
-  
-  
   //
   //  TODO:  Consider returning a Texture instead, or just a GL texture ID?
   final public static ByteBuffer copyPixels(Box2D area, ByteBuffer pixels) {

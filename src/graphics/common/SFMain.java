@@ -202,9 +202,16 @@ public class SFMain implements ApplicationListener {
 	
 	private void setupHUD() {
     UI = new HUD();
+    
     Button button = new Button(UI, "UI/arcade_button.png", "Basic button!");
     button.absBound.set(20, 20, 100, 100);
     button.attachTo(UI);
+    
+    Text text = new Text(UI, Text.INFO_FONT);
+    text.relBound.set(0, 0.5f, 1, 0.5f);
+    text.setText("Experimental text display...");
+    //text.setText("...");
+    text.attachTo(UI);
 	}
 	
 	
@@ -224,7 +231,6 @@ public class SFMain implements ApplicationListener {
 			}
 			else doneLoad = false ;
 		}
-		//I.say("  Done loading? "+doneLoad) ;
 	}
 	
 	
@@ -271,6 +277,7 @@ public class SFMain implements ApplicationListener {
 		}
 		modelBatch.end();
 		
+		UI.updateMouse();
 		UI.renderHUD();
 	}
 	

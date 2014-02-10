@@ -15,6 +15,39 @@ import com.badlogic.gdx.graphics.g2d.*;
 
 
 
+/*
+//  TODO:  Use this to perform scissor clipping around text fields, et cetera-
+
+Rectangle scissors = new Rectangle();
+Rectangle clipBounds = new Rectangle(x,y,w,h);
+ScissorStack.calculateScissors(
+    camera, spriteBatch.getTransformMatrix(), clipBounds, scissors
+);
+ScissorStack.pushScissors(scissors);
+spriteBatch.draw(...);
+spriteBatch.flush();
+ScissorStack.popScissors();
+This will limit rendering to within the bounds of the rectangle "clipBounds".
+
+It is also possible push multiple rectangles. Only the pixels of the sprites
+that are within all of the rectangles will be rendered.
+//*/
+
+//  Alternatively, this apparently works-
+/*
+Gdx.gl.glEnable(GL10.GL_SCISSOR_TEST);
+Gdx.gl.glScissor(clipX, clipY, clipWidth, clipHeight);
+
+batch.begin();
+//draw sprites to be clipped
+batch.draw(sprite, 0, 0, 250, 250);
+batch.end();
+
+Gdx.gl.glDisable(GL10.GL_SCISSOR_TEST);
+//*/
+
+
+
 /**  This is the 'master' UI class.
   */
 public class HUD extends UIGroup {
@@ -53,11 +86,9 @@ public class HUD extends UIGroup {
   
   
   public void updateMouse() {
-    //TODO:  Use Gdx.input instead.
-    
     nextMB = Gdx.input.isButtonPressed(Buttons.LEFT);
     nextMP.x = Gdx.input.getX() ;
-    nextMP.y = Gdx.input.getY() ;
+    nextMP.y = Gdx.graphics.getHeight() - Gdx.input.getY() ;
     
     if (mouseB && (! nextMB)) {
       mouseState = HOVERED ;
@@ -76,7 +107,7 @@ public class HUD extends UIGroup {
   //
   //  This is used for rendering GUI elements that share the viewport transform,
   //  but are superimposed on top of actual world-sprites.
-  //public void renderWorldFX() {} ;
+  public void renderWorldFX() {} ;
   
   //
   //  This is used for two-dimensional GUI elements in the conventional drawing

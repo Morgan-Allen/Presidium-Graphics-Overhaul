@@ -54,7 +54,7 @@ public class Image extends UINode {
     batch2D.draw(
       tex,
       drawn.xpos(), drawn.ypos(), drawn.xdim(), drawn.ydim(),
-      0.0f, 0.0f, 1.0f, 1.0f
+      0.0f, 1.0f, 1.0f, 0.0f
     );
   }
 }
