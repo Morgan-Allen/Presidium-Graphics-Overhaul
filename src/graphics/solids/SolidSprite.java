@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.utils.*;
 import com.badlogic.gdx.graphics.g3d.model.*;
+import com.badlogic.gdx.math.*;
 
 
 
@@ -81,8 +82,12 @@ public class SolidSprite extends Sprite {
   }
   
   
+  private static Vector3 temp = new Vector3();
+  
   public void registerFor(Rendering rendering) {
     initGDX();
+    rendering.view.worldToGL(position, temp);
+    gdxSprite.transform.setToTranslation(temp);
     rendering.solidsPass.register(this);
   }
   

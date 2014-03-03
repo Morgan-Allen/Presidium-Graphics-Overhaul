@@ -103,9 +103,9 @@ public class CutoutsPass {
       compileAndRender(camera) ;
     }
     
-    //System.arraycopy(s.model.vertices, 0, vertComp, total, SIZE) ;
+    //System.arraycopy(s.model.vertices, 0, vertComp, total, SIZE);
     for (int off = 0 ; off < SIZE ; off += VERTEX_SIZE) {
-      final int offset = total + off ;
+      final int offset = total + off;
       temp.set(
         s.model.vertices[X0 + off],
         s.model.vertices[Y0 + off],

@@ -85,8 +85,8 @@ public class Rendering {
   
   public void renderDisplay(float worldTime, float frameTime, HUD UI) {
     
-    this.worldTime = worldTime;
-    this.frameTime = frameTime;
+    Rendering.worldTime = worldTime;
+    Rendering.frameTime = frameTime;
     view.update();
     
     glEnable(GL10.GL_DEPTH_TEST);
@@ -106,6 +106,7 @@ public class Rendering {
     if (UI != null) {
       UI.updateInput();
       UI.renderHUD();
+      UI = null;
     }
   }
 }

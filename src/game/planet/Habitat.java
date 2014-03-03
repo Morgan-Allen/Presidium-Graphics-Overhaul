@@ -38,9 +38,9 @@ public class Habitat {
       4, 4, 1.9f, 2
     ),
     TUNDRA_FLORA_MODELS[][] = null,
-    PLANKTON_MODELS[][] = null,
-    ANNUALS_MODELS[][]  = null,
-    NO_FLORA[][]        = null,
+    PLANKTON_MODELS[][]     = null,
+    ANNUALS_MODELS[][]      = null,
+    NO_FLORA[][]            = null,
     //
     //  Finally, mineral outcrop models-
     OUTCROP_MODELS[][] = CutoutModel.fromImageGrid(
@@ -52,7 +52,7 @@ public class Habitat {
     ROCK_LODE_MODELS[] = OUTCROP_MODELS[0],
     SPIRE_MODELS[][] = CutoutModel.fromImageGrid(
       TERRAIN_PATH+"all_outcrops_old.png", Habitat.class,
-      4, 4, 1.9f, 2
+      3, 3, 1.9f, 2
     );
   
   final private static String

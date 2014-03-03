@@ -25,9 +25,6 @@ public class BuildingSprite extends Sprite {
     protected void disposeAsset() {}
     public Sprite makeSprite() { return new BuildingSprite() ; }
   } ;
-  
-  CutoutSprite baseSprite;
-  Sprite scaffolding;
 
   final static String DIR = "media/Buildings/artificer/" ;
   final public static ModelAsset SCAFF_MODELS[] = CutoutModel.fromImages(
@@ -42,6 +39,11 @@ public class BuildingSprite extends Sprite {
   );
   
   
+  private CutoutSprite baseSprite;
+  private Sprite scaffolding;
+  private int size, high;
+  
+  
   public static BuildingSprite fromBase(
     CutoutSprite sprite, int size, int high
   ) {
@@ -49,7 +51,8 @@ public class BuildingSprite extends Sprite {
     BS.baseSprite = sprite;
     final int SI = Visit.clamp(size - 1, SCAFF_MODELS.length);
     BS.scaffolding = SCAFF_MODELS[SI].makeSprite();
-    BS.scaffolding.scale = size;
+    BS.size = size;
+    BS.high = high;
     return BS;
   }
   
@@ -82,14 +85,15 @@ public class BuildingSprite extends Sprite {
   public void registerFor(Rendering rendering) {
     baseSprite.matchTo(this);
     scaffolding.matchTo(this);
+    scaffolding.scale = size;
     rendering.cutoutsPass.register(baseSprite);
     //  TODO:  RESTORE THIS
     //else rendering.cutoutsPass.register(scaffolding);
   }
   
   
-  public Sprite baseSprite()  { return baseSprite  ; }
-  public Sprite scaffolding() { return scaffolding ; }
+  //public Sprite baseSprite()  { return baseSprite  ; }
+  //public Sprite scaffolding() { return scaffolding ; }
   
   
   
