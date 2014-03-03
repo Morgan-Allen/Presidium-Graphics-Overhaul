@@ -138,12 +138,10 @@ public class Selection implements UIConstants {
       HS = (hovered  == null) ? null : hovered .subject(),
       SS = (selected == null) ? null : selected.subject() ;
     if (HS != null && HS != SS) {
-      //renderSelectFX(hovered, HS, Colour.transparency(0.5f), rendering) ;
       hovered.renderSelection(rendering, true) ;
     }
     if (SS != null) {
       selected.renderSelection(rendering, false) ;
-      //renderSelectFX(selected, SS, Colour.WHITE, rendering) ;
     }
   }
   

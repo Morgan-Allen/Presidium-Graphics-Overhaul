@@ -87,8 +87,8 @@ public class HUD extends UIGroup {
   
   public void updateInput() {
     nextMB = Gdx.input.isButtonPressed(Buttons.LEFT);
-    nextMP.x = Gdx.input.getX() ;
-    nextMP.y = Gdx.graphics.getHeight() - Gdx.input.getY() ;
+    nextMP.x = Gdx.input.getX();
+    nextMP.y = Gdx.graphics.getHeight() - Gdx.input.getY();
     
     if (mouseB && (! nextMB)) {
       mouseState = HOVERED ;

@@ -69,7 +69,7 @@ public class TerrainChunk implements TileConstants {
       final Coord coord = (Coord) iterV.next();
       final float VP[] = LayerPattern.VERT_PATTERN;
       final float[] UV = (float[]) iterT.next();
-
+      
       for (int c = 0, p = 0, t = 0; c < 4; c++) {
         vertices[pointV++] = VP[p++] + coord.x - 0.5f;
         vertices[pointV++] = VP[p++] + TILE_HIGH;

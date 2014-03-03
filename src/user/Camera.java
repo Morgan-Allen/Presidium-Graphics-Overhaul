@@ -127,6 +127,8 @@ public class Camera {
       targPos = new Vec3D().setTo(lockPos).add(lockOff),
       displace = targPos.sub(viewPos, new Vec3D()) ;
     final float distance = displace.length() ;
+    
+    I.say("Lock position is: "+lockPos);
     //
     //  If distance is too large, just go straight to the point-
     if (distance > 32) {

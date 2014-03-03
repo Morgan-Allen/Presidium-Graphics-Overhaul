@@ -62,9 +62,11 @@ public class FogOverlay {
       newTex = oldTex;
       oldTex = temp;
       newTex.draw(drawnTo, 0, 0);
+      
+      //  TODO:  This should not be necessary
       drawnTo.setColor(0, 0, 0, 0.25f);
       Pixmap.setBlending(Blending.SourceOver);
-      drawnTo.fillRectangle(0, 0, size, size);
+      //drawnTo.fillRectangle(0, 0, size, size);
     }
     oldTime = newTime;
   }
@@ -79,9 +81,13 @@ public class FogOverlay {
   
   //  Hopefully, this should be reasonably fast.  ...ish.
   public void assignNewVals(float newVals[][]) {
-    Pixmap.setBlending(Blending.SourceOver);
+    //  TODO:  Not sure what's happening here...
+    //Pixmap.setBlending(Blending.SourceOver);
+    Pixmap.setBlending(Blending.None);
     for (Coord c : Visit.grid(0, 0, size, size, 1)) {
-      drawnTo.setColor(1, 1, 1, newVals[c.x][c.y]);
+      final float fog = newVals[c.x][c.y];
+      drawnTo.setColor(fog, fog, fog, 1);
+      //drawnTo.setColor(1, 1, 1, newVals[c.x][c.y]);
       drawnTo.drawPixel(c.x, c.y);
     }
   }
@@ -97,31 +103,5 @@ public class FogOverlay {
   }
 }
 
-
-
-/*
-public void liftAround(int x, int y, int radius) {
-  Pixmap.setBlending(Blending.SourceOver);
-  for (Coord c : Visit
-      .grid(x - radius, y - radius, radius * 2, radius * 2, 1)) {
-    final float xd = c.x - x, yd = c.y - y, dist = (float) Math
-        .sqrt((xd * xd) + (yd * yd));
-    if (dist > radius)
-      continue;
-    drawnTo.setColor(1, 1, 1, 1 - (dist / radius));
-    drawnTo.drawPixel(c.x, c.y);
-  }
-}
-
-
-public float sampleAt(float x, float y) {
-  return (colorValue(x, y) & 0xff) / 255f;
-}
-
-
-public int colorValue(float x, float y) {
-  return drawnTo.getPixel((int) x, (int) y);
-}
-//*/
 
 

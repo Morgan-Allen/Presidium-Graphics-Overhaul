@@ -17,14 +17,14 @@ public class Viewport {
   
   final public static float
     DEFAULT_SCALE = 40.0f,
-    DEFAULT_ROTATE = (float) Math.toRadians(45),
-    DEFAULT_ELEVATE = (float) Math.toRadians(65) ;
+    DEFAULT_ROTATE  = 45,
+    DEFAULT_ELEVATE = 25 ;
   
   
   final OrthographicCamera camera;
   final public Vec3D lookedAt = new Vec3D();
   private float
-    rotation = DEFAULT_ROTATE,
+    rotation  = DEFAULT_ROTATE,
     elevation = DEFAULT_ELEVATE,
     zoomLevel = 1.0f ;
   
@@ -45,14 +45,17 @@ public class Viewport {
     camera.setToOrtho(false, wide / screenScale, high / screenScale);
     
     final float
-      opp = (float) FastMath.sin(elevation) * 100,
-      adj = (float) FastMath.cos(elevation) * 100;
-    camera.position.set(0, adj, opp);
+      ER  = (float) FastMath.toRadians(elevation),
+      opp = (float) FastMath.sin(ER) * 100,
+      adj = (float) FastMath.cos(ER) * 100;
+    
+    camera.position.set(adj, opp, 0);
     temp.set(0, 0, 0);
     camera.lookAt(temp);
-    camera.rotateAround(temp, Vector3.Y, (float) (rotation * -180 / Math.PI));
+    
+    camera.rotateAround(temp, Vector3.Y, 180 + rotation);
     camera.near = 0.1f;
-    camera.far = 300f;
+    camera.far = 200.1f;
     
     worldToGL(lookedAt, temp);
     camera.position.add(temp);
@@ -77,32 +80,35 @@ public class Viewport {
       m = new Vec3D().set(UI.mouseX(), UI.mouseY(), 0);
     translateToScreen(p).z = 0;
     final float distance = p.distance(m) / screenScale();
-    return distance < radius;
+    return distance <= radius;
   }
   
   
   public Vec3D translateToScreen(Vec3D point) {
     worldToGL(point, temp);
-    temp.mul(camera.combined);
-    return GLToWorld(temp, point);
+    camera.project(temp);
+    point.x = temp.x;
+    point.y = temp.y;// Gdx.graphics.getHeight() - temp.y;
+    point.z = temp.z;
+    return point;
   }
   
   
   public Vec3D translateFromScreen(Vec3D point) {
-    worldToGL(point, temp);
-    temp.mul(camera.invProjectionView);
-    return GLToWorld(temp, point);
+    //  Note:  We have to treat the y values differently from screen
+    //  translation, thanks to how LibGDX implements these functions.
+    temp.x = point.x;
+    temp.y = Gdx.graphics.getHeight() - point.y;
+    temp.z = point.z;
+    camera.unproject(temp);
+    GLToWorld(temp, point);
+    return point;
   }
   
   
   public Vec3D direction() {
     return GLToWorld(camera.direction, new Vec3D());
   }
-  
-  
-  //public Vec3D position() {
-    //return lookedAt;
-  //}
   
   
   public Vector3 worldToGL(Vec3D from, Vector3 to) {
@@ -119,11 +125,6 @@ public class Viewport {
     to.z = from.y;
     return to;
   }
-  
-  
-  //public void setPosition(Vec3D v) {
-    //lookedAt.setTo(v);
-  //}
 }
 
 

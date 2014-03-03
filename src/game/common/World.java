@@ -355,7 +355,6 @@ public class World {
     //  Then we register their associated media for rendering, in the correctly
     //  sorted order.
     renderTerrain(visibleSections, rendering, base) ;
-    
     //rendering.clearDepth() ;
     Vec3D deep = new Vec3D() ;
     for (Visible visible : allVisible) {
@@ -397,14 +396,23 @@ public class World {
   }
   
   
-  public Vec3D pickedGroundPoint(final HUD UI, final Viewport port) {
+  public Vec3D pickedGroundPoint(final HUD UI, final Viewport view) {
     //
     //  Here, we find the point of intersection between the line-of-sight
     //  underneath the mouse cursor, and the plane of the ground-
-    final Vec3D origin = new Vec3D(UI.mouseX(), UI.mouseY(), 0) ;
-    port.translateToScreen(origin);
-    final Vec3D vector = port.direction() ;
-    return origin.add(vector, 0 - origin.z / vector.z, null) ;
+    I.say("\nGETTING GROUND POINT-");
+    
+    final Vec3D origin = new Vec3D(UI.mouseX(), UI.mouseY(), 0);
+    view.translateFromScreen(origin);
+    I.say("  Mouse position: "+UI.mousePos());
+    I.say("  After translation: "+origin);
+    
+    final Vec3D vector = view.direction();
+    I.say("  View direction: "+vector);
+    vector.scale(0 - origin.z / vector.z);
+    origin.add(vector);
+    I.say("  Ground intersection point is: "+origin);
+    return origin;
   }
   
   
