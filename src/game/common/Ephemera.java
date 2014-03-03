@@ -72,7 +72,6 @@ public class Ephemera {
     public void renderFor(Rendering r, Base b) {
       sprite.fog = 1.0f ;
       sprite.registerFor(r);
-      //r.addClient(sprite) ;
     }
     
     
@@ -141,6 +140,8 @@ public class Ephemera {
   
   protected Batch <Ghost> visibleFor(Rendering rendering, Base base) {
     final Batch <Ghost> results = new Batch <Ghost> () ;
+    //  TODO:  TEST OUT AND RESTORE
+    if (true) return results;
     final Viewport port = rendering.view ;
     
     for (Section section : world.visibleSections(rendering)) {
