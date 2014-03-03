@@ -4,7 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package util ;
+package src.util ;
 import java.io.DataInputStream ;
 import java.io.DataOutputStream ;
 import com.badlogic.gdx.math.*;

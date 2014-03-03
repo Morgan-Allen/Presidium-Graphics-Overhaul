@@ -4,8 +4,8 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package graphics.widgets ;
-import util.* ;
+package src.graphics.widgets;
+import src.util.*;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
@@ -41,13 +41,13 @@ public abstract class UINode {
     hidden = false ;
   
   
-  final protected HUD myHUD ;
+  final protected HUD UI ;
   private UIGroup parent ;
   private ListEntry <UINode> kidEntry ;
   
   
   public UINode(HUD myHUD) {
-    this.myHUD = myHUD ;
+    this.UI = myHUD ;
   }
   
   
@@ -132,25 +132,15 @@ public abstract class UINode {
   protected void whenClicked() {}
   protected void whenPressed() {}
   protected void whenDragged() {}
-  protected boolean amHovered() { return myHUD.amSelected(this, HOVERED) ; }
-  protected boolean amClicked() { return myHUD.amSelected(this, CLICKED) ; }
-  protected boolean amPressed() { return myHUD.amSelected(this, PRESSED) ; }
-  protected boolean amDragged() { return myHUD.amSelected(this, DRAGGED) ; }
+  protected boolean amHovered() { return UI.amSelected(this, HOVERED) ; }
+  protected boolean amClicked() { return UI.amSelected(this, CLICKED) ; }
+  protected boolean amPressed() { return UI.amSelected(this, PRESSED) ; }
+  protected boolean amDragged() { return UI.amSelected(this, DRAGGED) ; }
   
   
   
   /**  Utility methods for drawing/graphic display:
     */
-  static Texture loadTexture(String name) {
-    Texture cached = (Texture) LoadService.getResource(name);
-    if (cached != null) return cached;
-    cached = new Texture(Gdx.files.internal(name));
-    cached.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-    LoadService.cacheResource(cached, name);
-    return cached;
-  }
-  
-  
   /*
   //
   //  TODO:  Consider returning a Texture instead, or just a GL texture ID?

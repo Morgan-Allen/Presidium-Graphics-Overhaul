@@ -1,0 +1,102 @@
+
+<model
+  name="Dropship"
+  format="MS3D"
+  type="JOINT"
+  path="media/Vehicles/"
+  file="dropship.ms3d"
+  scale="0.075"
+  bound="3.0"
+  stride="1.0"
+  height="2.0"
+>
+  <animations>
+    <animation name="stand"      start="1"  end="3"  duration="0.35" />
+    <animation name="descend"    start="4"  end="7"  duration="3" />
+  </animations>
+  
+  <attachPoints>
+  </attachPoints>
+</model>
+
+
+<model
+  name="CargoBarge"
+  format="MS3D"
+  type="JOINT"
+  path="media/Vehicles/"
+  file="loader_2.ms3d"
+  scale="0.03"
+  bound="1.5"
+  stride="1.0"
+  height="1.5"
+>
+  <animations>
+    <animation name="stand"      start="0"  end="0"  duration="1.0" />
+  </animations>
+  
+  <attachPoints>
+  </attachPoints>
+</model>
+
+
+<model
+  name="Cannon"
+  format="MS3D"
+  type="JOINT"
+  path="media/Vehicles/"
+  file="cannon.ms3d"
+  scale="0.06"
+  bound="2.0"
+  stride="1.0"
+  height="2.0"
+>
+  <animations>
+    <animation name="stand"      start="0"  end="0"  duration="1.0" />
+  </animations>
+  
+  <attachPoints>
+  </attachPoints>
+</model>
+
+
+<model
+  name="Suspensor"
+  format="MS3D"
+  type="JOINT"
+  path="media/Vehicles/"
+  file="barge.ms3d"
+  scale="0.015"
+  bound="1.0"
+  stride="1.0"
+  height="1.0"
+>
+  <animations>
+    <animation name="stand"      start="0"  end="0"  duration="1.0" />
+  </animations>
+  
+  <attachPoints>
+  </attachPoints>
+</model>
+
+
+
+<model
+  name="DustCrawler"
+  format="MS3D"
+  type="JOINT"
+  path="media/Vehicles/"
+  file="DustCrawler.ms3d"
+  scale="0.02"
+  bound="1.5"
+  stride="1.0"
+  height="1.5"
+>
+  <animations>
+    <animation name="stand"      start="0"  end="0"  duration="1.0" />
+  </animations>
+  
+  <attachPoints>
+  </attachPoints>
+</model>
+

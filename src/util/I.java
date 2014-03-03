@@ -4,7 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package util ;
+package src.util ;
 import java.awt.* ;
 import java.awt.image.* ;
 import javax.swing.* ;
@@ -83,8 +83,6 @@ public class I {
   
   /**  Visual presentations-
     */
-  //  TODO:  Restore later...
-  /*
   private final static int
     MODE_GREY   = 0,
     MODE_COLOUR = 1 ;

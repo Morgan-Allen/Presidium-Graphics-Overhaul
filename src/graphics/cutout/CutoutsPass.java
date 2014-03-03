@@ -1,20 +1,17 @@
 
 
-package graphics.cutout ;
-import static graphics.common.GL.*;
-import static graphics.cutout.CutoutModel.*;
-import util.*;
+package src.graphics.cutout ;
+import src.graphics.common.*;
+import static src.graphics.common.GL.*;
+import static src.graphics.cutout.CutoutModel.*;
+import src.util.*;
 
 import com.badlogic.gdx.* ;
 import com.badlogic.gdx.graphics.* ;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
-import com.badlogic.gdx.graphics.g2d.* ;
 import com.badlogic.gdx.math.* ;
 import com.badlogic.gdx.utils.* ;
 import com.badlogic.gdx.graphics.glutils.* ;
-import com.badlogic.gdx.graphics.g3d.* ;
-import com.badlogic.gdx.graphics.g3d.shaders.* ;
-import com.badlogic.gdx.graphics.g3d.utils.* ;
 
 
 
@@ -28,6 +25,9 @@ public class CutoutsPass {
   private static Vector3 temp = new Vector3() ;
   
   
+  final Rendering rendering;
+  final Batch <CutoutSprite> inPass = new Batch <CutoutSprite> ();
+  
   private Mesh compiled ;
   private float vertComp[] ;
   private short compIndex[] ;
@@ -38,7 +38,9 @@ public class CutoutsPass {
   
   
   
-  public CutoutsPass() {
+  public CutoutsPass(Rendering rendering) {
+    this.rendering = rendering;
+    
     compiled = new Mesh(
       Mesh.VertexDataType.VertexArray,  //TODO:  THIS IS THE CULPRIT.
       false,
@@ -61,8 +63,14 @@ public class CutoutsPass {
       compIndex[i++] = (short) (v + 3) ;
     }
     compiled.setIndices(compIndex) ;
-    
-    setupShading() ;
+
+    shading = new ShaderProgram(
+        Gdx.files.internal("shaders/cutouts.vert"),
+        Gdx.files.internal("shaders/cutouts.frag")
+    ) ;
+    if (! shading.isCompiled()) {
+      throw new GdxRuntimeException("\n"+shading.getLog()) ;
+    }
   }
   
   
@@ -75,25 +83,18 @@ public class CutoutsPass {
   
   /**  Rendering methods-
     */
-  private void setupShading() {
-    shading = new ShaderProgram(
-        Gdx.files.internal("shaders/cutouts.vert"),
-        Gdx.files.internal("shaders/cutouts.frag")
-        //Gdx.files.internal("shaders/default.vert"),
-        //Gdx.files.internal("shaders/default.frag")
-    ) ;
-    if (! shading.isCompiled()) {
-      throw new GdxRuntimeException("\n"+shading.getLog()) ;
-    }
+  protected void register(CutoutSprite sprite) {
+    inPass.add(sprite);
   }
   
   
-  public void performPass(Array <CutoutSprite> sprites, Camera camera) {
+  public void performPass() {//Array <CutoutSprite> sprites, Camera camera) {
     //I.say("New cutouts pass...") ;
-    for (CutoutSprite s : sprites) {
-      compileSprite(s, camera) ;
+    for (CutoutSprite s : inPass) {
+      compileSprite(s, rendering.camera()) ;
     }
-    compileAndRender(camera) ;
+    inPass.clear();
+    compileAndRender(rendering.camera()) ;
   }
   
   
@@ -111,11 +112,13 @@ public class CutoutsPass {
         s.model.vertices[Z0 + off]
       );
       temp.scl(s.scale);
-      temp.add(s.position);
+      temp.x += s.position.x;
+      temp.y += s.position.y;
+      temp.z += s.position.z;
       vertComp[X0 + offset] = temp.x;
       vertComp[Y0 + offset] = temp.y;
       vertComp[Z0 + offset] = temp.z;
-      vertComp[C0 + offset] = s.colour;
+      vertComp[C0 + offset] = s.colour.bitValue;
       vertComp[U0 + offset] = s.model.vertices[U0 + off];
       vertComp[V0 + offset] = s.model.vertices[V0 + off];
     }

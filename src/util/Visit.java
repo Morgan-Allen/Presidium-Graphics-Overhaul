@@ -4,7 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package util ;
+package src.util ;
 import java.lang.reflect.Array;
 import java.util.Iterator ;
 
@@ -120,7 +120,6 @@ public class Visit <T> {
   }
   
   
-  /*
   public static Iterable <Coord> grid(Box2D b) {
     final int
       minX = (int) (b.xpos() + 0.5f),
@@ -129,7 +128,6 @@ public class Visit <T> {
       dimY = (int) (b.ymax() + 0.5f) - minY ;
     return grid(minX, minY, dimX, dimY, 1) ;
   }
-  //*/
   
   
   public Iterable <T> grid(
@@ -199,7 +197,6 @@ public class Visit <T> {
   public float rate(T t) { return 0 ; }
   
   
-  /*
   public T pickBest(Series <T> series) {
     T picked = null ;
     float bestRating = Float.NEGATIVE_INFINITY ;
@@ -209,7 +206,6 @@ public class Visit <T> {
     }
     return picked ;
   }
-  //*/
   
   
   public T pickBest(T... series) {

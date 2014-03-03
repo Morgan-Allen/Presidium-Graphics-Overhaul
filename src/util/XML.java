@@ -4,7 +4,9 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package util ;
+package src.util ;
+import src.graphics.common.*;  //  TODO:  Something of an ugly hack.  Move Assets?
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.* ;
 
@@ -101,10 +103,10 @@ public class XML {
   /**  Returns the XML node constructed from the file with the given name.
     */
   public static XML load(String fileName) {
-    Object cached = LoadService.getResource(fileName) ;
+    Object cached = Assets.getResource(fileName) ;
     if (cached != null) return (XML) cached ;
     final XML xml = new XML(Gdx.files.internal(fileName)) ;
-    LoadService.cacheResource(xml, fileName) ;
+    Assets.cacheResource(xml, fileName) ;
     return xml ;
   }
   

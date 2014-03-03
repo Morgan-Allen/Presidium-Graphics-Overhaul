@@ -5,7 +5,7 @@
   */
 
 
-package util ;
+package src.util ;
 import java.lang.reflect.Array ;
 import java.util.Iterator ;
 

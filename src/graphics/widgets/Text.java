@@ -4,19 +4,18 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package graphics.widgets ;
-import graphics.widgets.Alphabet.Letter ;
-//import src.user.Description ;  //  TODO:  Remove out-of-package references?
-import util.* ;
-import graphics.common.* ;
-//import org.lwjgl.opengl.* ;
-//import java.awt.event.KeyEvent ;
+package src.graphics.widgets ;
+import src.graphics.common.*;
+import src.graphics.widgets.Alphabet.Letter ;
+import src.util.* ;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.* ;
+
+
+//
+//  TODO:  Restore scrollbar functions, and the Description interface.
 
 
 
@@ -24,22 +23,23 @@ import com.badlogic.gdx.math.* ;
   *  line is filled.  Non-wrapping text will adjust width to match current
   *  entries.
   */
-public class Text extends UINode {// implements Description {
+public class Text extends UINode implements Description {
   
-  
+  /*
   final public static Alphabet INFO_FONT = new Alphabet(
     "UI/", "FontVerdana.png", "FontVerdana.png",
     "FontVerdana.map", 8, 16
-  ) ;
-  final public static Color LINK_COLOUR = new Color().set(
+  );
+  //*/
+  final public static Colour LINK_COLOUR = new Colour().set(
     0.2f, 0.6f, 0.8f, 1
-  ) ;
+  );
   
   
   public float scale = 1.0f ;
   
-  final protected Alphabet alphabet ;
-  private boolean needsFormat = false ;
+  final protected Alphabet alphabet;
+  private boolean needsFormat = false;
   //private Scrollbar scrollbar ;
   
   protected List <Box2D> allEntries = new List <Box2D> () ;
@@ -63,6 +63,7 @@ public class Text extends UINode {// implements Description {
     alphabet = a ;
     setText(s) ;
   }
+  
   
   /*
   //
@@ -102,7 +103,7 @@ public class Text extends UINode {// implements Description {
     char key ;
     Letter letter ;
     boolean visible ;
-    Color colour = null ;
+    Colour colour = null ;
     Clickable link = null ;
   }
   
@@ -126,14 +127,14 @@ public class Text extends UINode {// implements Description {
   /**  Adds the given String to this text object in association with
     *  the specified selectable.
     */
-  public void append(String s, Clickable link, Color c) {
+  public void append(String s, Clickable link, Colour c) {
     if (s == null) s = "(none)" ;
     for (int n = 0, l = s.length() ; n < l ; n++)
       addEntry(s.charAt(n), link, c)  ;
   }
   
-
-  public void append(Clickable l, Color c) {
+  
+  public void append(Clickable l, Colour c) {
     if (l == null) append("(none)") ;
     else append(l.fullName(), l, c) ;
   }
@@ -153,7 +154,7 @@ public class Text extends UINode {// implements Description {
   
   
   public void append(String s, Clickable l) { append(s, l, LINK_COLOUR) ; }
-  public void append(String s, Color c) { append(s, null, c) ; }
+  public void append(String s, Colour c) { append(s, null, c) ; }
   public void append(String s) { append(s, null, null) ; }
   
   
@@ -178,7 +179,7 @@ public class Text extends UINode {// implements Description {
     *  the next carriage return or another image is inserted.
     */
   public boolean insert(Texture texGraphic, int maxSize) {
-    return insert(new Image(myHUD, texGraphic), maxSize) ;
+    return insert(new Image(UI, texGraphic), maxSize) ;
   }
   
   
@@ -206,7 +207,7 @@ public class Text extends UINode {// implements Description {
   
   /**  Adds a single letter entry to this text object.
     */
-  boolean addEntry(char k, Clickable links, Color c) {
+  boolean addEntry(char k, Clickable links, Colour c) {
     Letter l = null ;
     if (((l = alphabet.map[k]) == null) && (k != '\n')) return false ;
     final TextEntry entry = new TextEntry() ;
@@ -247,40 +248,11 @@ public class Text extends UINode {// implements Description {
   
   
   
-  /**  Handles any key press this text is registered to listen for.
-  void keyPress(char k) {
-    switch(k) {
-      case(KeyEvent.VK_BACK_SPACE) :
-      case(KeyEvent.VK_DELETE)     :
-        if (allEntries.size() > 0) {
-          allEntries.removeLast() ;  //delete last letter.
-          needsFormat = true ;
-        }
-        break ;
-      case(KeyEvent.VK_ESCAPE) :
-      case(KeyEvent.VK_ENTER)  :
-      case(KeyEvent.VK_ACCEPT) :
-        escaped() ;
-        break ;
-      default :
-        addEntry(k, null, null) ;
-    }
-  }
-  
-  
-  /**  Called when edit mode is escaped.
-  void escaped() {
-    I.say("exiting edit mode...") ;
-  }
-  //*/
-  
-  
-  
   /**  Returns the selectable associated with the currently hovered unit of
     *  text.
     */
   protected Clickable getTextLink(Vector2 mousePos, Box2D textArea) {
-    if (myHUD.selected() != this) return null ;
+    if (UI.selected() != this) return null ;
     final float
       mX = mousePos.x + textArea.xpos() - xpos(),
       mY = mousePos.y + textArea.ypos() - ypos() ;
@@ -304,15 +276,11 @@ public class Text extends UINode {// implements Description {
   protected void render(SpriteBatch batch2D) {
     if (allEntries.size() == 0) return ;
     final Box2D textArea = new Box2D().set(0, 0, xdim(), ydim()) ;
-    final Clickable link = getTextLink(myHUD.mousePos(), textArea) ;
+    final Clickable link = getTextLink(UI.mousePos(), textArea) ;
     final List <ImageEntry> bullets = new List <ImageEntry> () ;
     
     //
-    //  Begin the rendering pass...
-    //alphabet.fontTex.bindTex() ;
-    //GL11.glEnable(GL11.GL_SCISSOR_TEST) ;
-    //GL11.glScissor((int) xpos(), (int) ypos(), (int) xdim(), (int) ydim()) ;
-    //GL11.glBegin(GL11.GL_QUADS) ;
+    //  Begin the rendering pass...  TODO:  RESTORE SCISSOR CULL
     //Gdx.gl.glEnable(GLCommon.GL_SCISSOR_TEST);
     
     for (Box2D entry : allEntries) {
@@ -321,13 +289,11 @@ public class Text extends UINode {// implements Description {
       }
       else bullets.add((ImageEntry) entry) ;
     }
-    //GL11.glEnd() ;
     for (ImageEntry entry : bullets) {
       //renderImage(textArea, entry) ;
     }
-    //GL11.glDisable(GL11.GL_SCISSOR_TEST) ;
     //  TODO:  Move this to the selection method?
-    if (myHUD.mouseClicked() && link != null) link.whenClicked() ;
+    if (UI.mouseClicked() && link != null) link.whenClicked() ;
   }
   
 
@@ -342,7 +308,7 @@ public class Text extends UINode {// implements Description {
       batch2D.setColor(1, 1, 0, absAlpha);
     }
     else {
-      final Color c = entry.colour != null ? entry.colour : Color.WHITE ;
+      final Colour c = entry.colour != null ? entry.colour : Colour.WHITE ;
       batch2D.setColor(c.r, c.g, c.b, c.a * absAlpha) ;
     }
     final float xoff = xpos() - area.xpos(), yoff = ypos() - area.ypos() ;
@@ -413,34 +379,6 @@ public class Text extends UINode {// implements Description {
     entry.graphic.updateAbsoluteBounds() ;
     
     entry.graphic.render() ;
-  }
-  
-  
-  
-  /**  Renders a single character within the text field, if visible.
-  protected boolean renderText(Box2D area, TextEntry entry, Clickable link) {
-    if (entry.letter == null || ! entry.intersects(area)) return false ;
-    //
-    //  If this text links to something, we may need to colour the text (and
-    //  possibly select it's link target if clicked.)
-    if (link != null && entry.link == link) {
-      GL11.glColor4f(1, 1, 0, absAlpha) ;
-    }
-    else {
-      final Colour c = entry.colour != null ? entry.colour : Colour.WHITE ;
-      GL11.glColor4f(c.r, c.g, c.b, c.a * absAlpha) ;
-    }
-    final float xoff = xpos() - area.xpos(), yoff = ypos() - area.ypos() ;
-    //
-    //  Draw the text entry-
-    drawQuad(
-      entry.xpos() + xoff, entry.ypos() + yoff,
-      entry.xmax() + xoff, entry.ymax() + yoff,
-      entry.letter.umin, entry.letter.vmin,
-      entry.letter.umax, entry.letter.vmax,
-      absDepth
-    ) ;
-    return true ;
   }
   //*/
   

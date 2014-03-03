@@ -4,9 +4,9 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package graphics.widgets ;
-import util.* ;
-import graphics.common.* ;
+package src.graphics.widgets ;
+import src.util.* ;
+import src.graphics.common.* ;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.*;
@@ -29,20 +29,27 @@ public class Button extends Image {
   public Button(HUD myHUD, String norm, String infoS) {
     this(
       myHUD,
-      loadTexture(norm),
-      loadTexture("UI/lit_button.png"),
+      Assets.getTexture(norm),
+      Assets.getTexture("UI/lit_button.png"),
       infoS
     ) ;
   }
   
+  
   public Button(HUD myHUD, String path, String norm, String lit, String infoS) {
     this(
       myHUD,
-      loadTexture(path+norm),
-      loadTexture(path+lit),
+      Assets.getTexture(path+norm),
+      Assets.getTexture(path+lit),
       infoS
     ) ;
   }
+  
+
+  public Button(HUD myHUD, Texture norm, String infoS) {
+    this(myHUD, norm, Assets.getTexture("UI/lit_button.png"), infoS);
+  }
+  
   
   public Button(HUD myHUD, Texture norm, Texture lit, String infoS) {
     super(myHUD, norm) ;
@@ -78,7 +85,7 @@ public class Button extends Image {
     }
     else if (amHovered()) {
       float alpha = absAlpha * hoverLit;
-      alpha *= Visit.clamp(myHUD.timeHovered() / FADE_TIME, 0, 1);
+      alpha *= Visit.clamp(UI.timeHovered() / FADE_TIME, 0, 1);
       super.renderTex(highlit, alpha, batch2D);
     }
   }
@@ -114,24 +121,5 @@ if (selectMode == MODE_ALPHA) {
 return null ;
 //*/
 
-
-/*
-final float FADE_TIME = 0.25f ;
-super.render() ;
-final Texture realTex = texture ;
-final float realAlpha = absAlpha ;
-texture = highlit ;
-if (amPressed() || amDragged() || amClicked()) {
-  absAlpha *= pressLit ;
-  super.render() ;
-}
-if (amHovered()) {
-  absAlpha *= hoverLit ;
-  absAlpha *= Visit.clamp(myHUD.timeHovered() / FADE_TIME, 0, 1) ;
-  super.render() ;
-}
-absAlpha = realAlpha ;
-texture = realTex ;
-//*/
 
 

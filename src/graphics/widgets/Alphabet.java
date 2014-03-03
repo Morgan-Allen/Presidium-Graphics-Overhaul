@@ -4,16 +4,16 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package graphics.widgets ;
-import util.* ;
-import graphics.common.* ;
-import java.io.* ;
+package src.graphics.widgets;
+import src.util.*;
+import src.graphics.common.*;
+import java.io.*;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.*;
-import com.badlogic.gdx.math.* ;
+import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.files.*;
 
 
@@ -21,27 +21,32 @@ import com.badlogic.gdx.files.*;
 public class Alphabet {
   
   
-  Texture fontTex ;
-  Letter letters[], map[] ;
+  Texture fontTex;
+  Letter letters[], map[];
   
   public static class Letter {
-    public char map ;
+    public char map;
     public float
       umin,
       vmin,
       umax,
       vmax,
       width,
-      height ;
+      height;
+  }
+  
+  
+  public Letter letterFor(char c) {
+    return map[c];
   }
   
   
   public static Alphabet loadAlphabet(String path, String mmlFile) {
-    path = LoadService.safePath(path) ;
+    path = Assets.safePath(path) ;
     XML info = (XML.load(path + mmlFile)).child(0) ;
     String
       texFile = info.value("texture"),
-      alphaFile = info.value("relAlpha"),
+      alphaFile = info.value("alpha"),
       mapFile = info.value("mapping") ;
     final int
       numLines = Integer.parseInt(info.value("lines")),
@@ -52,9 +57,9 @@ public class Alphabet {
   
   
   Alphabet(
-      String path,
-      String valueFile, String alphaFile,
-      String mapFile, int numLines, int lineHigh
+    String path,
+    String valueFile, String alphaFile,
+    String mapFile, int numLines, int lineHigh
   ) {
     //
     //  Our first task is to load the colour and alpha values for the alphabet
@@ -119,7 +124,7 @@ public class Alphabet {
             letter.height = lineHigh ;
             letter.width = (int) ((letter.umax - letter.umin) * wide) ;
             scanned.addLast(letter) ;
-            I.say("UV for: "+letter.map+", "+letter.umin+"|"+letter.vmin);
+            ///I.say("UV for: "+letter.map+", "+letter.umin+"|"+letter.vmin);
           }
         }
       }
@@ -133,76 +138,4 @@ public class Alphabet {
     }
   }
 }
-
-
-
-  //  TODO:  Read it in as a Pixmap initially, then convert to a texture.
-  
-  /*
-  public Alphabet(
-    String path,
-    String texFile, String alphaFile,
-    String mapFile, int numLines, int lineHigh
-  ) {
-    //  Basic initialisation routine here.  The list of individual characters
-    //  must be loaded first for comparison with scanned character blocks.
-    int charMap[] = null ;
-    final int mask[] = LoadService.getRGBA(path + texFile) ;
-    try {
-      FileInputStream mapS = new FileInputStream(new File(path + mapFile)) ;
-      charMap = new int[mapS.available()] ;
-      for(int n = 0 ; n < charMap.length ; n++) charMap[n] = mapS.read() ;
-    }
-    catch(IOException e) { I.add(" " + e) ; }
-    fontTex = Texture.loadTexture(path+texFile, path+alphaFile) ;
-    //
-    //  This is where the actual scanning is done.  A single texture is used for
-    //  all characters to avoid frequent texture re-bindings during rendering.
-    //  The procedure looks for 'gaps' in the initial texture relAlpha as cues for
-    //  where to demarcate individual letters.
-    final int trueSize = fontTex.trueSize() ;
-    int x, y, ind, line = 0, maxMap = 0 ;
-    boolean scan = true ;
-    List <Letter> scanned = new List <Letter> () ;
-    Letter letter = null ;
-    
-    for( ; line < numLines ; line++) {
-      y = lineHigh * line ;
-      ind = (y * trueSize) + (x = 0) ;
-      for( ; x < fontTex.xdim() ; x++, ind++) {
-        if((mask[ind] & 0xff000000) != 0) {  //relAlpha value of pixel is nonzero.
-          if(scan) {
-            scan = false ;  //a letter starts here.
-            
-            letter = new Letter() ;
-            letter.umin = ((float) x) / trueSize ;
-            letter.map = (char) (charMap[scanned.size()]) ;
-            if (letter.map > maxMap) maxMap = letter.map ;
-          }
-        }
-        else {
-          if(! scan) {
-            //...and ends afterward on the first transparent pixel.
-            scan = true ;
-            letter.umax = ((float) x) / trueSize ;
-            letter.vmin = ((float) y) / trueSize ;
-            letter.vmax = ((float) y + lineHigh) / trueSize ;
-            letter.height = lineHigh ;
-            letter.width = (int) ((letter.umax - letter.umin) * trueSize) ;
-            scanned.addLast(letter) ;
-          }
-        }
-      }
-    }
-    
-    map = new Letter[maxMap + 1] ;
-    letters = new Letter[scanned.size()] ;
-    ind = 0 ;
-    for (Letter sLetter : scanned)
-      map[(int) (sLetter.map)] = letters[ind++] = sLetter ;
-  }
-}
-//*/
-
-
 

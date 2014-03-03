@@ -1,10 +1,11 @@
-package graphics.common;
 
+
+package src.graphics.common;
 import java.nio.*;
-
 import org.lwjgl.opengl.*;
-
 import com.badlogic.gdx.*;
+
+
 
 /**
  * Class for static OpenGL functions access

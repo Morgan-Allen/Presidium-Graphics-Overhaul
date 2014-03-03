@@ -4,7 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package util ;
+package src.util ;
 
 
 
@@ -32,14 +32,14 @@ public interface TileConstants {
     Y_AXIS = 1,
     CORNER = 2 ;
   
-  
+
+  /*
   public abstract static class TileMask {
     public abstract boolean maskAt(final int x, final int y) ;
     
     public byte varID(int x, int y) { return 0 ; }
     public boolean nullsCount() { return false ; }
     
-    /*
     public int simpleLineIndex(boolean near[]) {
       int numNear = 0 ;
       for (int n : N_ADJACENT) if (near[n]) numNear++ ;
@@ -48,7 +48,9 @@ public interface TileConstants {
       if (near[W] && near[E]) return X_AXIS ;
       return CORNER ;
     }
-    //*/
   }
+  //*/
   
 }
+
+

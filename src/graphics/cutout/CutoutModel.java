@@ -1,8 +1,9 @@
 
 
-package graphics.cutout ;
-import util.*;
-
+package src.graphics.cutout ;
+import src.graphics.common.*;
+import src.graphics.common.Sprite;
+import src.util.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.* ;
 import com.badlogic.gdx.graphics.g2d.* ;
@@ -11,17 +12,15 @@ import com.badlogic.gdx.utils.* ;
 
 
 
-public class CutoutModel {
+public class CutoutModel extends ModelAsset {
   
   
   public static final int
     VERTEX_SIZE = 3 + 1 + 2,  //  (position, colour and texture coords.)
     SIZE = 4 * VERTEX_SIZE,   //  (4 vertices, 1 per corner.)
     X0 = 0, Y0 = 1, Z0 = 2,
-    C0 = 3, U0 = 4, V0 = 5 ;
+    C0 = 3, U0 = 4, V0 = 5;
   
-  final static float
-    WHITE_BITS = Color.WHITE.toFloatBits() ;
   
   final static float VERT_PATTERN[] = {
     0, 1, 0,
@@ -30,52 +29,98 @@ public class CutoutModel {
     1, 0, 0
   } ;
   
+  private String fileName;
+  private Box2D window;
+  private float size;
+  private boolean loaded = false;
   
   Texture texture ;
   TextureRegion region ;
   Vector2 offset, dimension ;
 
-  final float vertices[] = new float[SIZE] ;
+  final float vertices[] = new float[SIZE];
   
   
   
-  public static CutoutModel fromImage(String fileName, int size, int height) {
-    
-    final CutoutModel model = new CutoutModel() ;
-    model.texture = new Texture(Gdx.files.internal(fileName)) ;
-    model.region = new TextureRegion(model.texture, 0, 0, 1.0f, 1.0f) ;
-    
-    final Texture t = model.texture ;
-    model.setupDimensions(size, t.getHeight() * 1f / t.getWidth()) ;
-    model.setupVertices() ;
-    return model ;
+  private CutoutModel(
+    String fileName, Class modelClass, Box2D window, float size
+  ) {
+    super(fileName+""+window, modelClass);
+    this.fileName = fileName;
+    this.window = window;
+    this.size = size;
+    Assets.registerForLoading(this);
+  }
+  
+  
+  protected void loadAsset() {
+    texture = Assets.getTexture(fileName);
+    region = new TextureRegion(
+      texture,
+      window.xpos(), window.ypos(),
+      window.xmax(), window.ymax()
+    );
+    final Texture t = texture;
+    setupDimensions(size, t.getHeight() * 1f / t.getWidth());
+    setupVertices();
+    loaded = true;
+  }
+  
+  
+  public boolean isLoaded() {
+    return loaded;
+  }
+  
+  
+  protected void disposeAsset() {
+    //  TODO:  The texture might not be unique to this model!  Check if already
+    //  disposed of!
+    texture.dispose();
+  }
+  
+  
+  public Sprite makeSprite() {
+    if (! loaded) I.complain("CANNOT CREATE SPRITE UNTIL LOADED!") ;
+    return new CutoutSprite(this);
+  }
+  
+  
+  public static CutoutModel fromImage(
+    String fileName, Class sourceClass, float size, float height
+  ) {
+    final Box2D window = new Box2D().set(0, 0, 1, 1);
+    return new CutoutModel(fileName, sourceClass, window, size);
+  }
+  
+  
+  public static CutoutModel[] fromImages(
+    String path, Class sourceClass, float size, float height,
+    String... files
+  ) {
+    final CutoutModel models[] = new CutoutModel[files.length];
+    for (int i = 0 ; i < files.length ; i++) {
+      models[i] = fromImage(path+files[i], sourceClass, size, height);
+    }
+    return models;
   }
   
   
   public static CutoutModel[][] fromImageGrid(
-    String fileName, int gridX, int gridY, int size, int height
+    String fileName, Class sourceClass,
+    int gridX, int gridY, float size, float height
   ) {
     final CutoutModel grid[][] = new CutoutModel[gridX][gridY] ;
-    final Texture texture = new Texture(Gdx.files.internal(fileName)) ;
     final float stepX = 1f / gridX, stepY = 1f / gridY ;
-    
     for (Coord c : Visit.grid(0, 0, gridX, gridY, 1)) {
-      final CutoutModel model = new CutoutModel() ;
-      final float gx = c.x * stepX, gy = c.y * stepY ;
-      model.texture = texture ;
-      model.region = new TextureRegion(
-        texture, gx, gy, gx + stepX, gy + stepY
-      ) ;
-      model.setupDimensions(size, 1) ;
-      model.setupVertices() ;
-      grid[c.x][c.y] = model ;
+      final float gx = c.x * stepX, gy = c.y * stepY;
+      final Box2D window = new Box2D().set(gx, gy, stepX, stepY);
+      grid[c.x][c.y] = new CutoutModel(fileName, sourceClass, window, size);
     }
-    
     return grid ;
   }
   
   
-  private void setupDimensions(int size, float relHigh) {
+  private void setupDimensions(float size, float relHigh) {
     //  TODO:  This will need to be based on more precise measurements of the
     //  default camera angle.
     
@@ -120,7 +165,7 @@ public class CutoutModel {
       vertices[Y0 + i] = temp.y ;
       vertices[Z0 + i] = temp.z ;
       
-      vertices[C0 + i] = WHITE_BITS ;
+      vertices[C0 + i] = Sprite.WHITE_BITS ;
       vertices[U0 + i] = (region.getU() * (1 - x)) + (region.getU2() * x) ;
       vertices[V0 + i] = (region.getV() * y) + (region.getV2() * (1 - y)) ;
     }

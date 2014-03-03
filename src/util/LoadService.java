@@ -4,10 +4,11 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package util ;
+package src.util ;
 import java.awt.image.BufferedImage ;
 import javax.imageio.ImageIO ;
 import java.io.* ;
+import java.lang.reflect.* ;
 import java.security.* ;
 import java.util.zip.* ;
 import java.net.* ;

@@ -4,10 +4,9 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package graphics.widgets ;
-import util.* ;
-import graphics.common.* ;
-//import org.lwjgl.opengl.* ;
+package src.graphics.widgets;
+import src.util.*;
+import src.graphics.common.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.*;
@@ -25,7 +24,7 @@ public class Image extends UINode {
   
   
   public Image(HUD myHUD, String textureName) {
-    this(myHUD, loadTexture(textureName)) ;
+    this(myHUD, Assets.getTexture(textureName)) ;
   }
   
   

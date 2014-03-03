@@ -5,12 +5,12 @@
   */
 
 
-package graphics.widgets ;
-import util.* ;
-
+package src.graphics.widgets;
+import src.graphics.common.*;
+import src.util.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Buttons;
-import com.badlogic.gdx.math.* ;
+import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.graphics.g2d.*;
 
 
@@ -85,7 +85,7 @@ public class HUD extends UIGroup {
   }
   
   
-  public void updateMouse() {
+  public void updateInput() {
     nextMB = Gdx.input.isButtonPressed(Buttons.LEFT);
     nextMP.x = Gdx.input.getX() ;
     nextMP.y = Gdx.graphics.getHeight() - Gdx.input.getY() ;
@@ -102,12 +102,18 @@ public class HUD extends UIGroup {
     }
     mousePos.set(nextMP) ;
     mouseB = nextMB ;
+    
+    //  TODO:  Perform the selection mechanics here.
   }
   
+  /*
   //
   //  This is used for rendering GUI elements that share the viewport transform,
   //  but are superimposed on top of actual world-sprites.
-  public void renderWorldFX() {} ;
+  public void renderWorldFX(Rendering rendering) {
+    
+  }
+  //*/
   
   //
   //  This is used for two-dimensional GUI elements in the conventional drawing

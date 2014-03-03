@@ -4,7 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package util ;
+package src.util ;
 import java.lang.reflect.Array;
 import java.util.Iterator ;
 

@@ -4,8 +4,8 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package graphics.terrain ;
-import util.* ;
+package src.graphics.terrain ;
+import src.util.* ;
 
 
 

@@ -4,7 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package util ;
+package src.util ;
 
 
 /**  Serves as a 'bookmark' within a given List, allowing for deletion in
