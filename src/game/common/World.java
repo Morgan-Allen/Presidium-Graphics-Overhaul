@@ -344,8 +344,8 @@ public class World {
     Vec3D viewPos = new Vec3D() ;
     float viewRad = -1 ;
     for (Mobile active : this.mobiles) {
-      if (active.sprite() == null || ! active.visibleTo(base)) continue ;
-      active.viewPosition(viewPos, null) ;
+      if (active.sprite() == null || ! active.visibleTo(base)) continue;
+      active.viewPosition(viewPos);
       viewRad = (active.height() / 2) + active.radius() ;
       if (rendering.view.intersects(viewPos, viewRad)) {
         allVisible.add(active) ;
@@ -434,7 +434,7 @@ public class World {
       if (m.indoors() || ! (m instanceof Selectable)) continue ;
       if (! m.visibleTo(base)) continue ;
       final float selRad = (m.height() + m.radius()) / 2 ;
-      final Vec3D selPos = m.viewPosition(null, null) ;
+      final Vec3D selPos = m.viewPosition(null);
       if (! port.mouseIntersects(selPos, selRad, UI)) continue ;
       final float dist = port.translateToScreen(selPos).z ;
       if (dist < minDist) { nearest = m ; minDist = dist ; }

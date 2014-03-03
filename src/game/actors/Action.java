@@ -423,7 +423,7 @@ public class Action implements Behaviour, AnimNames {
   
   
   protected float animProgress(Rendering rendering) {
-    final float alpha = rendering.frameTime() ;
+    final float alpha = Rendering.frameTime() ;
     final float AP = ((progress * alpha) + (oldProgress * (1 - alpha))) ;
     if (AP > 1) return AP % 1 ;
     return AP ;

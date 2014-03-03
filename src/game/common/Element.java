@@ -247,7 +247,7 @@ public class Element implements
   
   /**  Rendering and interface methods-
     */
-  public Vec3D viewPosition(Vec3D v, Rendering rendering) {
+  public Vec3D viewPosition(Vec3D v) {
     v = position(v);
     return v;
   }
@@ -267,10 +267,10 @@ public class Element implements
   
   
   public void renderFor(Rendering rendering, Base base) {
-    float timeGone = rendering.time() - inceptTime;
+    float timeGone = Rendering.time() - inceptTime;
     if (timeGone < 1) sprite.colour = Colour.transparency(timeGone);
     else sprite.colour = null;
-    viewPosition(sprite.position, rendering);
+    viewPosition(sprite.position);
     sprite.update() ;
     sprite.registerFor(rendering);
     //rendering.addClient(sprite);

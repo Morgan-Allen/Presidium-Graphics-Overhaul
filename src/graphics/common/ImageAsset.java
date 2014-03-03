@@ -21,6 +21,8 @@ public class ImageAsset extends Assets.Loadable {
   private ImageAsset(String filePath, Class sourceClass) {
     super("image_asset_"+filePath, sourceClass);
     this.filePath = filePath;
+    if (! Assets.exists(filePath)) I.complain("NO SUCH FILE: "+filePath) ;
+    Assets.registerForLoading(this);
   }
   
   
@@ -41,7 +43,7 @@ public class ImageAsset extends Assets.Loadable {
   
   
   public Texture asTexture() {
-    if (! loaded) I.complain("IMAGE ASSET HAS NOT LOADED!");
+    if (! loaded) I.complain("IMAGE ASSET HAS NOT LOADED!- "+filePath);
     return texture;
   }
   

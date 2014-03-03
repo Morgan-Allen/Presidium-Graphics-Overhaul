@@ -77,7 +77,7 @@ public class Conversion implements Economy {
     if (venueName == null) return null;
     try { return Class.forName("src.game.base."+venueName) ; }
     catch (ClassNotFoundException e) {
-      I.say("WARNING: No class found in base package: "+venueName) ;
+      I.say("WARNING: No class in src.game.base: "+venueName) ;
     }
     return null;
   }

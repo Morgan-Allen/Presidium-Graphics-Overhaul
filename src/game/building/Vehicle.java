@@ -370,7 +370,7 @@ public abstract class Vehicle extends Mobile implements
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (indoors() || ! inWorld()) return ;
     Selection.renderPlane(
-      rendering, viewPosition(null, null), radius() + 0.5f,
+      rendering, viewPosition(null), radius() + 0.5f,
       hovered ? Colour.transparency(0.5f) : Colour.WHITE,
       Selection.SELECT_CIRCLE
     ) ;

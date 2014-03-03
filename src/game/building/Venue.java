@@ -415,7 +415,7 @@ public abstract class Venue extends Fixture implements
     //*/
     
     if (sprite() == null) return ;
-    this.viewPosition(sprite().position, null) ;
+    this.viewPosition(sprite().position);
     sprite().colour = canPlace ? Colour.GREEN : Colour.RED ;
     sprite().registerFor(rendering);
   }
@@ -843,7 +843,7 @@ public abstract class Venue extends Fixture implements
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (destroyed() || ! inWorld()) return ;
     Selection.renderPlane(
-      rendering, viewPosition(null, null), (xdim() / 2f) + 1,
+      rendering, viewPosition(null), (xdim() / 2f) + 1,
       hovered ? Colour.transparency(0.5f) : Colour.WHITE,
       Selection.SELECT_SQUARE
     ) ;

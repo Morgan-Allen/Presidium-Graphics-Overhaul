@@ -61,8 +61,6 @@ public class Background implements Economy, Session.Saveable {
     MAKES = new Object(),
     NEEDS = new Object() ;
   
-  final static String COSTUME_DIR = "media/Actors/human/" ;
-  
   private static int nextID = 0 ;
   final public int ID = nextID++ ;
   private static Batch <Background> all = new Batch() ;
@@ -786,10 +784,10 @@ public class Background implements Economy, Session.Saveable {
     this.name = name ;
     
     if (costumeTex == null) this.costume = null ;
-    else this.costume = costumeFor(COSTUME_DIR+costumeTex);
+    else this.costume = costumeFor(costumeTex);
     
     if (portraitTex == null) this.portrait = null ;
-    else this.portrait = portraitFor(COSTUME_DIR+portraitTex);
+    else this.portrait = portraitFor(portraitTex);
     
     this.standing = standing ;
     this.guild = guild ;
@@ -860,6 +858,9 @@ public class Background implements Economy, Session.Saveable {
   
   /**  Rendering and interface helper methods-
     */
+  final static String COSTUME_DIR = "media/Actors/human/" ;
+  
+  
   private static ImageAsset costumeFor(String texName) {
     return ImageAsset.fromImage(COSTUME_DIR+texName, Background.class) ;
   }

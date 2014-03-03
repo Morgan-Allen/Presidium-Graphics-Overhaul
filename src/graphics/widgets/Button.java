@@ -19,6 +19,10 @@ public class Button extends Image {
   
   /**  Data fields and basic constructors-
     */
+  final static ImageAsset DEFAULT_LIT = ImageAsset.fromImage(
+    "media/GUI/iconLit.gif", Button.class
+  );
+  
   public float
     hoverLit = 0.5f,
     pressLit = 0.75f ;
@@ -30,7 +34,7 @@ public class Button extends Image {
     this(
       myHUD,
       Assets.getTexture(norm),
-      Assets.getTexture("UI/lit_button.png"),
+      DEFAULT_LIT.asTexture(),
       infoS
     ) ;
   }
@@ -42,12 +46,12 @@ public class Button extends Image {
       Assets.getTexture(path+norm),
       Assets.getTexture(path+lit),
       infoS
-    ) ;
+    );
   }
   
 
   public Button(HUD myHUD, Texture norm, String infoS) {
-    this(myHUD, norm, Assets.getTexture("UI/lit_button.png"), infoS);
+    this(myHUD, norm, DEFAULT_LIT.asTexture(), infoS);
   }
   
   

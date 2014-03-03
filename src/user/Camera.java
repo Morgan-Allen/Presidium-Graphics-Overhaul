@@ -7,13 +7,13 @@
 package src.user ;
 import org.lwjgl.input.Keyboard ;
 
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
 
 import src.game.common.* ;
 import src.graphics.common.* ;
+import src.start.PlayLoop;
 //import src.graphics.widgets.KeyInput ;
 import src.util.* ;
 
@@ -218,7 +218,7 @@ public class Camera {
     //  the target's position.
     final Vec3D
       lockPos = (lockTarget instanceof Element) ?
-        ((Element) lockTarget).viewPosition(null, null) :
+        ((Element) lockTarget).viewPosition(null) :
         lockTarget.position(null),
       viewPos = view.position(),
       targPos = new Vec3D().setTo(lockPos).add(lockOff),

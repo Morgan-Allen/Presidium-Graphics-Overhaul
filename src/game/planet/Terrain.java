@@ -268,7 +268,7 @@ public class Terrain implements TileConstants, Session.Saveable {
       };
     }
     
-    dirtLayer = layers[++lID] = new LayerType(
+    dirtLayer = layers[lID] = new LayerType(
       Habitat.SQUALOR_TEXTURE, true, lID
     ) {
       protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
@@ -280,7 +280,8 @@ public class Terrain implements TileConstants, Session.Saveable {
         return (tx + ty) % 4 ;
       }
     };
-    roadLayer = layers[++lID] = new LayerType(
+    lID++;
+    roadLayer = layers[lID] = new LayerType(
       Habitat.ROAD_TEXTURE, true, lID
     ) {
       protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
@@ -344,120 +345,5 @@ public class Terrain implements TileConstants, Session.Saveable {
 
 
 
-/**  Rendering and interface methods-
-  */
-/*
-public void initPatchGrid(int patchSize) {
-  this.patchSize = patchSize ;
-  this.patchGridSize = mapSize / patchSize ;
-  patches = new MeshPatch[patchGridSize][patchGridSize] ;
-  for (Coord c : Visit.grid(0, 0, patchGridSize, patchGridSize, 1)) {
-    final MeshPatch p = patches[c.x][c.y] = new MeshPatch() ;
-    p.x = c.x * patchSize ;
-    p.y = c.y * patchSize ;
-    
-    p.updateMesh  = true ;
-    p.updateRoads = true ;
-    p.updateDirt  = true ;
-  }
-}
 
 
-private void updatePatch(final MeshPatch old, final float time) {
-  if (! (old.updateMesh || old.updateRoads || old.updateDirt)) return ;
-  final int x = old.x, y = old.y ;
-  
-  final boolean init = old.inceptTime == TIME_INIT ;
-  final MeshPatch patch = init ? old : new MeshPatch() ;
-  if (init) {
-    old.inceptTime = TIME_DONE ;
-  }
-  else {
-    patch.previous = old ;
-    patch.inceptTime = time ;
-    patch.x = x ;
-    patch.y = y ;
-    patches[x / patchSize][y / patchSize] = patch ;
-  }
-  ///I.say("Updating patch: "+x+"/"+y+", incept: "+patch.inceptTime) ;
-  
-  if (old.updateMesh) {
-    patch.meshes = TerrainMesh.genMeshes(
-      x, y, x + patchSize, y + patchSize,
-      Habitat.BASE_TEXTURES,
-      heightVals, typeIndex, varsIndex
-    ) ;
-    animate(patch.meshes, Habitat.SHALLOWS) ;
-    animate(patch.meshes, Habitat.OCEAN   ) ;
-    old.updateMesh = false ;
-  }
-  else {
-    patch.meshes = new TerrainMesh[old.meshes.length] ;
-    for (int i = old.meshes.length ; i-- > 0 ;) {
-      patch.meshes[i] = TerrainMesh.meshAsReference(old.meshes[i]) ;
-    }
-  }
-  
-  if (old.updateRoads) {
-    patch.roadsMesh = TerrainMesh.genMesh(
-      x, y, x + patchSize, y + patchSize,
-      Habitat.ROAD_TEXTURE, heightVals, pavingMask
-    ) ;
-    old.updateRoads = false ;
-  }
-  else patch.roadsMesh = TerrainMesh.meshAsReference(old.roadsMesh) ;
-  
-  if (old.updateDirt) {
-    patch.dirtMesh = TerrainMesh.genMesh(
-      x, y, x + patchSize, y + patchSize,
-      Habitat.SQUALOR_TEXTURE, heightVals, squalorMask
-    ) ;
-    old.updateDirt = false ;
-  }
-  else patch.dirtMesh = TerrainMesh.meshAsReference(old.dirtMesh) ;
-}
-
-
-private void animate(TerrainMesh meshes[], Habitat h) {
-  meshes[h.ID].assignTexture(h.animTex) ;
-}
-
-
-public void renderFor(Box2D area, Rendering rendering, float time) {
-  if (patches == null) I.complain("PATCHES MUST BE INITIALISED FIRST!") ;
-  for (MeshPatch patch : patchesUnder(area)) {
-    updatePatch(patch, time) ;
-  }
-  for (MeshPatch patch : patchesUnder(area)) {
-    renderPatch(patch, rendering, time) ;
-  }
-}
-
-
-private void renderPatch(MeshPatch patch, Rendering rendering, float time) {
-  if (patch == null) return ;
-  final float alphaVal =
-    patch.inceptTime == TIME_DONE ? 1 :
-    ((time - patch.inceptTime) / 2f) ;
-  if (alphaVal >= 1 && patch.previous != null) {
-    patch.previous = null ;
-    patch.inceptTime = TIME_DONE ;
-  }
-  else renderPatch(patch.previous, rendering, time) ;
-  
-  final Colour colour = Colour.transparency(alphaVal) ;
-  for (TerrainMesh mesh : patch.meshes) {
-    mesh.colour = colour ;
-    mesh.setAnimTime(time) ;
-    rendering.addClient(mesh) ;
-  }
-  if (patch.roadsMesh != null) {
-    patch.roadsMesh.colour = colour ;
-    rendering.addClient(patch.roadsMesh) ;
-  }
-  if (patch.dirtMesh != null) {
-    patch.dirtMesh.colour = colour ;
-    rendering.addClient(patch.dirtMesh) ;
-  }
-}
-//*/

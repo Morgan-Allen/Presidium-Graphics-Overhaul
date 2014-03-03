@@ -61,7 +61,14 @@ public abstract class LayerType implements TileConstants {
     
     for (int n : N_INDEX) {
       final int x = tx + N_X[n], y = ty + N_Y[n];
-      near[n] = maskedAt(x, y, terrain);
+      /*
+      if (
+        Visit.clamp(x, terrain.size) != x ||
+        Visit.clamp(y, terrain.size) != y
+      ) near[n] = false;
+      //*/
+      try { near[n] = maskedAt(x, y, terrain); }
+      catch (ArrayIndexOutOfBoundsException e) { near[n] = false ; }
     }
     final float fringes[][] = innerFringe ?
       LayerPattern.innerFringeUV(near) :

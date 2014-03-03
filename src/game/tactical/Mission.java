@@ -373,7 +373,7 @@ public abstract class Mission implements
   public static void placeFlag(Sprite flag, Target subject) {
     if (subject instanceof Element) {
       final Element e = (Element) subject ;
-      flag.position.setTo(e.viewPosition(null, null)) ;
+      flag.position.setTo(e.viewPosition(null)) ;
       flag.position.z += e.height() + 1 ;
     }
     else {
@@ -386,7 +386,7 @@ public abstract class Mission implements
   
   public void renderSelection(Rendering rendering, boolean hovered) {
     final Vec3D pos = (subject instanceof Mobile) ?
-      ((Mobile) subject).viewPosition(null, null) :
+      ((Mobile) subject).viewPosition(null) :
       subject.position(null) ;
     Selection.renderPlane(
       rendering, pos, subject.radius() + 0.5f,

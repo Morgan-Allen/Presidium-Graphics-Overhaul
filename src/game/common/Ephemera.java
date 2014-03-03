@@ -92,7 +92,7 @@ public class Ephemera {
     ghost.tracked = e ;
     
     final Vec3D p = s.position ;
-    if (e != null) e.viewPosition(p, null) ;
+    if (e != null) e.viewPosition(p) ;
     final Section section = world.sections.sectionAt((int) p.x, (int) p.y) ;
     List <Ghost> SG = ghosts.get(section) ;
     if (SG == null) ghosts.put(section, SG = new List <Ghost> ()) ;
@@ -128,7 +128,7 @@ public class Ephemera {
     Ghost ghost, Section oldSection, List <Ghost> SG
   ) {
     final Vec3D p = ghost.sprite.position ;
-    ghost.tracked.viewPosition(p, null) ;
+    ghost.tracked.viewPosition(p) ;
     if (ghost.sprite instanceof SFX) p.z += ghost.tracked.height() / 2f ;
     final Section section = world.sections.sectionAt((int) p.x, (int) p.y) ;
     if (section == oldSection) return ;
@@ -148,7 +148,7 @@ public class Ephemera {
       if (SG != null) for (Ghost ghost : SG) {
         
         final float duration = ghost.duration ;
-        float timeGone = rendering.time() - ghost.inceptTime ;
+        float timeGone = Rendering.time() - ghost.inceptTime ;
         //timeGone += PlayLoop.frameTime() / PlayLoop.UPDATES_PER_SECOND ;
         
         if (timeGone >= duration) {

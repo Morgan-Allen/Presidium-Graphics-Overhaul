@@ -296,9 +296,9 @@ public abstract class Mobile extends Element
   }
   
   
-  public Vec3D viewPosition(Vec3D v, Rendering rendering) {
-    if (v == null) v = new Vec3D() ;
-    final float alpha = rendering.frameTime() ;
+  public Vec3D viewPosition(Vec3D v) {
+    if (v == null) v = new Vec3D();
+    final float alpha = Rendering.frameTime();
     //I.sayAbout(this, "Frame time: "+alpha) ;
     //I.sayAbout(this, "Old/new position: "+position+"/"+nextPosition) ;
     v.setTo(position).scale(1 - alpha) ;
@@ -321,8 +321,8 @@ public abstract class Mobile extends Element
     shadow.position.z = shadowHeight(p) ;
     shadow.registerFor(rendering);
     
-    this.viewPosition(s.position, null) ;
-    final float alpha = rendering.frameTime() ;
+    this.viewPosition(s.position);
+    final float alpha = Rendering.frameTime();
     final float rotateChange = Vec2D.degreeDif(nextRotation, rotation) ;
     s.rotation = (rotation + (rotateChange * alpha) + 360) % 360 ;
     s.registerFor(rendering);

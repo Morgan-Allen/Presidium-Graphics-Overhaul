@@ -53,7 +53,16 @@ public class SolidSprite extends Sprite {
   }
   
   
+  private void initGDX() {
+    if (gdxSprite == null) {
+      gdxSprite = new ModelInstance(gdxModel);
+      animControl = new AnimationController(gdxSprite);
+    }
+  }
+  
+  
   public void setAnimation(String animName, float progress) {
+    initGDX();
     if (
       animControl.current == null ||
       ! animControl.current.animation.id.equals(animName)
@@ -73,10 +82,7 @@ public class SolidSprite extends Sprite {
   
   
   public void registerFor(Rendering rendering) {
-    if (gdxSprite == null) {
-      gdxSprite = new ModelInstance(gdxModel);
-      animControl = new AnimationController(gdxSprite);
-    }
+    initGDX();
     rendering.solidsPass.register(this);
   }
   

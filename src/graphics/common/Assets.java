@@ -27,11 +27,11 @@ public class Assets {
   
   protected static abstract class Loadable {
 
-    final String modelName;
+    final String assetID;
     final Class sourceClass;
     
     Loadable(String modelName, Class sourceClass) {
-      this.modelName = modelName;
+      this.assetID = modelName;
       this.sourceClass = sourceClass;
     }
     
@@ -97,7 +97,7 @@ public class Assets {
         modelAsset.loadAsset();
         assetsToLoad.remove(modelAsset);
         assetsLoaded.add(modelAsset);
-        if (verbose) I.say("  Asset loaded okay: "+modelAsset.modelName);
+        if (verbose) I.say("  Asset loaded okay: "+modelAsset.assetID);
       }
       
       else return;
@@ -127,8 +127,9 @@ public class Assets {
   }
   
   
-  public static void registerForLoading(ModelAsset modelAsset) {
-    assetsToLoad.add(modelAsset);
+  public static void registerForLoading(Loadable asset) {
+    if (verbose) I.say("    Registering- "+asset.assetID);
+    assetsToLoad.add(asset);
   }
   
   
@@ -161,7 +162,7 @@ public class Assets {
     final int newID = counterID++ ;
     modelIDs.put(model, newID) ;
     out.writeInt(newID) ;
-    Assets.writeString(out, model.modelName) ;
+    Assets.writeString(out, model.assetID) ;
     Assets.writeString(out, model.sourceClass.getName()) ;
   }
   

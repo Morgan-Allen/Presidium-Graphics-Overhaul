@@ -47,10 +47,11 @@ public class Viewport {
     final float
       opp = (float) FastMath.sin(elevation) * 100,
       adj = (float) FastMath.cos(elevation) * 100;
-    camera.position.set(0, opp, adj);
+    ///I.say("Opp/Adj are: "+opp+"/"+adj);
+    camera.position.set(0, adj, opp);
     temp.set(0, 0, 0);
     camera.lookAt(temp);
-    camera.rotateAround(temp, Vector3.Y, (float) (rotation * 180 / Math.PI));
+    camera.rotateAround(temp, Vector3.Y, (float) (rotation * -180 / Math.PI));
     camera.near = 0.1f;
     camera.far = 300f;
     
@@ -105,7 +106,7 @@ public class Viewport {
   }
   
   
-  private Vector3 worldToGL(Vec3D from, Vector3 to) {
+  public Vector3 worldToGL(Vec3D from, Vector3 to) {
     to.x = from.x;
     to.y = from.z;
     to.z = from.y;
@@ -113,21 +114,12 @@ public class Viewport {
   }
   
   
-  private Vec3D GLToWorld(Vector3 from, Vec3D to) {
+  public Vec3D GLToWorld(Vector3 from, Vec3D to) {
     to.x = from.x;
     to.y = from.z;
     to.z = from.y;
     return to;
   }
-  
-  /*
-  private Vec3D copyTo(Vec3D out, Vector3 in) {
-    out.x = in.x;
-    out.y = in.y;
-    out.z = in.z;
-    return out;
-  }
-  //*/
   
   
   public void setPosition(Vec3D v) {

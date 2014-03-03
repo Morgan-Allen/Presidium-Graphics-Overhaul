@@ -222,7 +222,8 @@ public class Outcrop extends Fixture {// implements Selectable {
   
   public void renderSelection(Rendering rendering, boolean hovered) {
     Selection.renderPlane(
-      rendering, viewPosition(null, null), radius() + 0.5f + ((size - 1) / 5f),
+      rendering, viewPosition(null),
+      radius() + 0.5f + ((size - 1) / 5f),
       Colour.transparency(hovered ? 0.25f : 0.5f),
       Selection.SELECT_CIRCLE
     ) ;

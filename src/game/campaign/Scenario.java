@@ -25,25 +25,13 @@ public abstract class Scenario implements Session.Saveable, Playable {
   private World world ;
   private Base base ;
   final boolean isDebug ;
-  private float loadProgress = 0;
-  //private boolean loaded = false;
+  private float loadProgress = -1;
   
   private BaseUI UI ;
   private List <String> timeStamps = new List <String> () ;
   private String savesPrefix ;
   private float lastSaveTime = -1;
   
-  
-  
-  /*
-  public Scenario(World world, Base base, String saveFile) {
-    this.world = world ;
-    this.base = base ;
-    this.savesPrefix = saveFile ;
-    this.isDebug = false ;
-    //UI = createUI(base, PlayLoop.rendering()) ;
-  }
-  //*/
   
   
   public Scenario() {
@@ -66,8 +54,8 @@ public abstract class Scenario implements Session.Saveable, Playable {
     isDebug = s.loadBool() ;
     for (int i = s.loadInt() ; i-- > 0 ;) timeStamps.add(s.loadString()) ;
     
-    //UI = createUI(base, PlayLoop.rendering()) ;
-    //UI.loadState(s) ;
+    loadProgress = 1;
+    UI.loadState(s) ;
   }
   
   
@@ -125,7 +113,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
   
   
   public boolean isLoading() {
-    return loadProgress >= 1;
+    return loadProgress < 1 && loadProgress != -1;
   }
   
   
@@ -388,7 +376,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
     if ((! isDebug) && PlayLoop.gameSpeed() > 1) {
       Power.applyResting(PlayLoop.gameSpeed(), this) ;
     }
-    world.updateWorld() ;
+    world.updateWorld();
   }
   
   

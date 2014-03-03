@@ -164,8 +164,9 @@ public final class PlayLoop {
       frameTime = (updateGap - FRAME_INTERVAL) * 1.0f / UPDATE_INTERVAL;
       frameTime = Math.max(0, Math.min(1, frameTime));
     }
+    final Playable current = played;
     
-    ///I.say("Advancing play loop...");
+    //I.say("Advancing play loop...");
     
     if (Assets.loadProgress() < 1) {
       LoadingScreen.update("Loading Assets", Assets.loadProgress());
@@ -174,23 +175,29 @@ public final class PlayLoop {
       return true;
     }
     
+    if (played != current) return true;
     if (played != null && played.loadProgress() < 1) {
       if (! played.isLoading()) played.beginGameSetup();
       LoadingScreen.update("Loading Scenario", played.loadProgress());
       rendering.renderDisplay(0, 0, LoadingScreen.HUD);
       lastUpdate = lastFrame = timeMS();
       if (UI == null) UI = played.UI();
-      ///I.say("Content loading progress: "+played.loadProgress());
+      //I.say("Content loading progress: "+played.loadProgress());
       return true;
     }
     
-    if (frameGap >= FRAME_INTERVAL) {
+    //  TODO:  I'm updating graphics as fast as possible for the moment, since
+    //  I get occasional flicker problems otherwise.  Still seems wasteful,
+    //  mind...
+    if (played != current) return true;
+    if (frameGap >= FRAME_INTERVAL || true) {
       if (played != null) played.renderVisuals(rendering);
       float worldTime = (numStateUpdates + frameTime) / UPDATES_PER_SECOND;
       rendering.renderDisplay(worldTime, frameTime, UI);
       lastFrame = time;
     }
-
+    
+    if (played != current) return true;
     //  Now we essentially 'pretend' that updates were occurring once every
     //  UPDATE_INTERVAL milliseconds:
     if (played != null) {
@@ -200,6 +207,7 @@ public final class PlayLoop {
       );
       if (! paused) for (int n = numUpdates ; n-- > 0 ;) {
         if (played.shouldExitLoop()) return false;
+        if (played != current) return true;
         played.updateGameState() ;
         numStateUpdates++;
       }

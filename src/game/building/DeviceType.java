@@ -108,7 +108,7 @@ public class DeviceType extends Service implements Economy {
       final ShotFX shot = (ShotFX) SPEAR_FX_MODEL.makeSprite() ;
       
       final SolidSprite sprite = (SolidSprite) uses.sprite() ;
-      uses.viewPosition(sprite.position, null) ;
+      uses.viewPosition(sprite.position) ;
       shot.origin.setTo(sprite.attachPoint("fire")) ;
       shot.target.setTo(hitPoint(applied, hits)) ;
       
@@ -122,7 +122,7 @@ public class DeviceType extends Service implements Economy {
       final ShotFX shot = (ShotFX) LASER_FX_MODEL.makeSprite() ;
       
       final SolidSprite sprite = (SolidSprite) uses.sprite() ;
-      uses.viewPosition(sprite.position, null) ;
+      uses.viewPosition(sprite.position) ;
       shot.origin.setTo(sprite.attachPoint("fire")) ;
       shot.target.setTo(hitPoint(applied, hits)) ;
       

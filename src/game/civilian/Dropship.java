@@ -470,7 +470,7 @@ public class Dropship extends Vehicle implements
     */
   public void renderFor(Rendering rendering, Base base) {
     final Sprite s = this.sprite() ;
-    final float height = this.viewPosition(null, null).z / INIT_HIGH ;
+    final float height = this.viewPosition(null).z / INIT_HIGH ;
     
     final float fadeProgress = height < 0.5f ? 1 : ((1 - height) * 2) ;
     s.colour = Colour.transparency(fadeProgress) ;
@@ -486,7 +486,7 @@ public class Dropship extends Vehicle implements
     if (indoors() || ! inWorld()) return ;
     float fadeout = sprite().colour.a ;
     Selection.renderPlane(
-      rendering, viewPosition(null, null), radius() + 0.5f,
+      rendering, viewPosition(null), radius() + 0.5f,
       Colour.transparency(fadeout * (hovered ? 0.5f : 1)),
       Selection.SELECT_CIRCLE
     ) ;

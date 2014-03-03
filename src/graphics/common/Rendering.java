@@ -22,6 +22,7 @@ import com.badlogic.gdx.graphics.g3d.environment.*;
 //  NOTE:  This class should not be instantiated until the LibGdx engine has
 //  invoked the create() method for the ApplicationListener.
 
+
 public class Rendering {
   
   
@@ -29,7 +30,7 @@ public class Rendering {
   
   final public Viewport view;
   final public Lighting lighting;
-  private float worldTime, frameTime ;
+  private static float worldTime, frameTime ;
   
   //  first terrain, then cutouts, then solids, then sfx, then the UI.
   final public TerrainPass terrainPass;
@@ -59,8 +60,9 @@ public class Rendering {
   
   public Environment environment() { return lighting.environment; }
   public Camera camera() { return view.camera; }
-  public float time() { return worldTime; }
-  public float frameTime() { return frameTime; }
+  
+  public static float time() { return worldTime; }
+  public static float frameTime() { return frameTime; }
   
   
   private void reportVersion() {

@@ -330,8 +330,7 @@ public class MainMenu extends UIGroup {
   //  TODO:  Give the player a broad summary of the choices made (including the
   //  name of the ruler/subjects,) before committing to the landing choice.
   public void beginNewGame(Object args[]) {
-    
-    final Scenario scenario = new Scenario() {
+    PlayLoop.setupAndLoop(new Scenario() {
       protected World createWorld() {
         return generateWorld();
       }
@@ -357,8 +356,7 @@ public class MainMenu extends UIGroup {
       protected void afterCreation() {
         saveProgress(false);
       }
-    };
-    PlayLoop.setupAndLoop(scenario);
+    });
   }
   
   
@@ -471,62 +469,88 @@ public class MainMenu extends UIGroup {
   /**  Beginning a quick-start game-
     */
   public void configQuickstart(Object args[]) {
-    //  TODO:  RESTORE LATER
-    /*
-    //
-    //
-    final TerrainGen TG = new TerrainGen(
-      64, 0.0f,
-      Habitat.ESTUARY, 0.15f,
-      Habitat.MEADOW , 0.35f,
-      Habitat.BARRENS, 0.35f,
-      Habitat.DUNE , 0.15f
-    ) ;
-    final World world = new World(TG.generateTerrain()) ;
-    TG.setupMinerals(world, 0, 0, 0) ;
-    TG.setupOutcrops(world) ;
-    final Base base = Base.createFor(world, false) ;
+    //  TODO:  This will need to be replaced with a dedicated external
+    //  TutorialScenario class.
     
-    //
-    //  
-    final Human ruler = new Human(new Career(
-      Rand.yes(), Background.KNIGHTED, Background.HIGH_BIRTH,
-      (Background) Rand.pickFrom(Background.ALL_PLANETS)
-    ), base) ;
-    final Human consort = new Human(new Career(
-      ruler.traits.female(), Background.FIRST_CONSORT,
-      Background.HIGH_BIRTH, ruler.career().homeworld()
-    ), base) ;
-    
-    final List <Human> advisors = new List <Human> () ;
-    advisors.add(ruler) ;
-    advisors.add(consort) ;
-    final List <Human> colonists = new List <Human> () ;
-    for (int n = 2 ; n-- > 0 ;) {
-      colonists.add(new Human(Background.VOLUNTEER  , base)) ;
-      colonists.add(new Human(Background.SUPPLY_CORPS, base)) ;
-      colonists.add(new Human(Background.TECHNICIAN  , base)) ;
-    }
-    for (int n = 3 ; n-- > 0 ;) {
-      final Background b = (Background) Rand.pickFrom(COLONIST_BACKGROUNDS) ;
-      colonists.add(new Human(b, base)) ;
-    }
-    for (Human c : colonists) {
-      for (Skill s : house.skills()) if (c.traits.traitLevel(s) > 0) {
-        c.traits.incLevel(s, 5) ;
+    PlayLoop.setupAndLoop(new Scenario() {
+      
+      protected World createWorld() {
+        final TerrainGen TG = new TerrainGen(
+          64, 0.0f,
+          Habitat.ESTUARY, 0.15f,
+          Habitat.MEADOW , 0.35f,
+          Habitat.BARRENS, 0.35f,
+          Habitat.DUNE , 0.15f
+        ) ;
+        final World world = new World(TG.generateTerrain()) ;
+        TG.setupMinerals(world, 0, 0, 0) ;
+        TG.setupOutcrops(world) ;
+        return world;
       }
-    }
-    
-    base.incCredits(10000) ;
-    base.commerce.assignHomeworld((System) house) ;
-    base.setInterestPaid(2) ;
-    base.commerce.assignHomeworld((System) ruler.career().homeworld()) ;
-    final Bastion bastion = establishBastion(
-      world, base, ruler, advisors, colonists
-    ) ;
-    
-    beginGame(world, base, bastion) ;
-    //*/
+      
+      
+      protected Base createBase(World world) {
+        final Base base = Base.createFor(world, false) ;
+        return base;
+      }
+      
+      
+      protected void configureScenario(World world, Base base, BaseUI UI) {
+        final Human ruler = new Human(new Career(
+          Rand.yes(), Background.KNIGHTED, Background.HIGH_BIRTH,
+          (Background) Rand.pickFrom(Background.ALL_PLANETS)
+        ), base) ;
+        final Human consort = new Human(new Career(
+          ruler.traits.female(), Background.FIRST_CONSORT,
+          Background.HIGH_BIRTH, ruler.career().homeworld()
+        ), base) ;
+        
+        final List <Human> advisors = new List <Human> () ;
+        advisors.add(ruler) ;
+        advisors.add(consort) ;
+        final List <Human> colonists = new List <Human> () ;
+        for (int n = 2 ; n-- > 0 ;) {
+          colonists.add(new Human(Background.VOLUNTEER  , base)) ;
+          colonists.add(new Human(Background.SUPPLY_CORPS, base)) ;
+          colonists.add(new Human(Background.TECHNICIAN  , base)) ;
+        }
+        for (int n = 3 ; n-- > 0 ;) {
+          final Background b = (Background) Rand.pickFrom(COLONIST_BACKGROUNDS) ;
+          colonists.add(new Human(b, base)) ;
+        }
+        for (Human c : colonists) {
+          for (Skill s : house.skills()) if (c.traits.traitLevel(s) > 0) {
+            c.traits.incLevel(s, 5) ;
+          }
+        }
+        
+        base.incCredits(10000) ;
+        base.commerce.assignHomeworld((System) house) ;
+        base.setInterestPaid(2) ;
+        base.commerce.assignHomeworld((System) ruler.career().homeworld()) ;
+        
+        final Bastion bastion = establishBastion(
+          world, base, ruler, advisors, colonists
+        ) ;
+        UI.assignBaseSetup(base, bastion.position(null)) ;
+      }
+      
+      
+      protected String saveFilePrefix(World world, Base base) {
+        String title = base.ruler().fullName() ;
+        while (true) {
+          File match = new File(Scenario.fullSavePath(title, null)) ;
+          if (! match.exists()) break ;
+          title = title+"I" ;
+        }
+        return title;
+      }
+      
+      
+      protected void afterCreation() {
+        //saveProgress(false);
+      }
+    });
   }
   
   

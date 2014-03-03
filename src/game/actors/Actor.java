@@ -380,7 +380,8 @@ public abstract class Actor extends Mobile implements
     if (indoors() || ! inWorld()) return ;
     final boolean t = aboard() instanceof Tile ;
     Selection.renderPlane(
-      rendering, viewPosition(null, null), (radius() + 0.5f) * (t ? 1 : 0.5f),
+      rendering, viewPosition(null),
+      (radius() + 0.5f) * (t ? 1 : 0.5f),
       Colour.transparency((hovered ? 0.5f : 1.0f) * (t ? 1 : 0.5f)),
       Selection.SELECT_CIRCLE
     ) ;

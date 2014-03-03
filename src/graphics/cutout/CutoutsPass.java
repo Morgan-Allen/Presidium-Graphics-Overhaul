@@ -22,7 +22,7 @@ public class CutoutsPass {
     MAX_SPRITES   = 1000,
     COMPILE_LIMIT = MAX_SPRITES * SIZE ;
   
-  private static Vector3 temp = new Vector3() ;
+  private static Vector3 temp = new Vector3(), temp2 = new Vector3() ;
   
   
   final Rendering rendering;
@@ -112,13 +112,14 @@ public class CutoutsPass {
         s.model.vertices[Z0 + off]
       );
       temp.scl(s.scale);
-      temp.x += s.position.x;
-      temp.y += s.position.y;
-      temp.z += s.position.z;
+      rendering.view.worldToGL(s.position, temp2);
+      temp.add(temp2);
       vertComp[X0 + offset] = temp.x;
       vertComp[Y0 + offset] = temp.y;
       vertComp[Z0 + offset] = temp.z;
-      vertComp[C0 + offset] = s.colour.bitValue;
+      vertComp[C0 + offset] = (s.colour != null) ?
+        s.colour.bitValue :
+        Sprite.WHITE_BITS;
       vertComp[U0 + offset] = s.model.vertices[U0 + off];
       vertComp[V0 + offset] = s.model.vertices[V0 + off];
     }
