@@ -22,7 +22,7 @@ public class Viewport {
   
   
   final OrthographicCamera camera;
-  final Vec3D lookedAt = new Vec3D();
+  final public Vec3D lookedAt = new Vec3D();
   private float
     rotation = DEFAULT_ROTATE,
     elevation = DEFAULT_ELEVATE,
@@ -47,7 +47,6 @@ public class Viewport {
     final float
       opp = (float) FastMath.sin(elevation) * 100,
       adj = (float) FastMath.cos(elevation) * 100;
-    ///I.say("Opp/Adj are: "+opp+"/"+adj);
     camera.position.set(0, adj, opp);
     temp.set(0, 0, 0);
     camera.lookAt(temp);
@@ -101,9 +100,9 @@ public class Viewport {
   }
   
   
-  public Vec3D position() {
-    return lookedAt;
-  }
+  //public Vec3D position() {
+    //return lookedAt;
+  //}
   
   
   public Vector3 worldToGL(Vec3D from, Vector3 to) {
@@ -122,9 +121,9 @@ public class Viewport {
   }
   
   
-  public void setPosition(Vec3D v) {
-    lookedAt.setTo(v);
-  }
+  //public void setPosition(Vec3D v) {
+    //lookedAt.setTo(v);
+  //}
 }
 
 

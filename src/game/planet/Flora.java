@@ -95,6 +95,8 @@ public class Flora extends Element implements TileConstants {
       if (numBlocked < 2) {
         final Flora f = new Flora(h) ;
         if (init) {
+          I.say("Spawning new tree at: "+t);
+          
           f.enterWorldAt(t.x, t.y, world) ;
           float stage = 0.5f ;
           for (int n = MAX_GROWTH ; n-- > 0 ;) {

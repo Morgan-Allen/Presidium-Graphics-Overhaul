@@ -9,7 +9,7 @@ import src.util.* ;
 
 
 //
-//  TODO:  Now implement gradula decay of fog-values over time.
+//  TODO:  Now implement gradual decay of fog-values over time.
 
 //  Note:  Any previously-explored tile will have a minimum fog value of
 //  0.5, or 0.3, or something.  That way, you still get the 'fadeout' effect

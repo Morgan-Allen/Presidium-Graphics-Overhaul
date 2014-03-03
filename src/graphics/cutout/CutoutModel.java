@@ -114,7 +114,10 @@ public class CutoutModel extends ModelAsset {
     for (Coord c : Visit.grid(0, 0, gridX, gridY, 1)) {
       final float gx = c.x * stepX, gy = c.y * stepY;
       final Box2D window = new Box2D().set(gx, gy, stepX, stepY);
-      grid[c.x][c.y] = new CutoutModel(fileName, sourceClass, window, size);
+      
+      grid[c.x][gridY - (c.y + 1)] = new CutoutModel(
+        fileName, sourceClass, window, size
+      );
     }
     return grid ;
   }

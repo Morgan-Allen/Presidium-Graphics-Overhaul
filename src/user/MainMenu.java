@@ -384,8 +384,8 @@ public class MainMenu extends UIGroup {
     TG.setupMinerals(world, 0, 0, 0) ;
     TG.setupOutcrops(world) ;
     
-    //
-    //  TODO:  Generate ecology as well!
+    final EcologyGen EG = new EcologyGen(world, TG);
+    EG.populateFlora();
     return world ;
   }
   
@@ -485,6 +485,8 @@ public class MainMenu extends UIGroup {
         final World world = new World(TG.generateTerrain()) ;
         TG.setupMinerals(world, 0, 0, 0) ;
         TG.setupOutcrops(world) ;
+        final EcologyGen EG = new EcologyGen(world, TG);
+        EG.populateFlora();
         return world;
       }
       

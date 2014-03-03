@@ -16,7 +16,7 @@ import src.util.* ;
 public class Placement {
   
   
-  private static boolean verbose = false, cacheVerbose = true ;
+  private static boolean verbose = false, cacheVerbose = false ;
   
   final private static Coord footprintCache[][][] = new Coord[100][100][] ;
   //

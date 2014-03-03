@@ -62,15 +62,14 @@ public class FogOverlay {
       newTex = oldTex;
       oldTex = temp;
       newTex.draw(drawnTo, 0, 0);
-      //drawnTo.setColor(0, 0, 0, 0.25f);
+      drawnTo.setColor(0, 0, 0, 0.25f);
       Pixmap.setBlending(Blending.SourceOver);
-      //drawnTo.fillRectangle(0, 0, terrain.size, terrain.size);
+      drawnTo.fillRectangle(0, 0, size, size);
     }
     oldTime = newTime;
   }
   
   
-  //  Hopefully, this should be reasonably fast.  ...ish.
   
   
   public void registerFor(Rendering rendering) {
@@ -78,6 +77,7 @@ public class FogOverlay {
   }
   
   
+  //  Hopefully, this should be reasonably fast.  ...ish.
   public void assignNewVals(float newVals[][]) {
     Pixmap.setBlending(Blending.SourceOver);
     for (Coord c : Visit.grid(0, 0, size, size, 1)) {

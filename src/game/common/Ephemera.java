@@ -82,6 +82,8 @@ public class Ephemera {
   
   
   public Ghost addGhost(Element e, float size, Sprite s, float duration) {
+    //  TODO:  TEST AND RESTORE;
+    if (true) return null;
     if (s == null) return null ;
     final Ghost ghost = new Ghost() ;
     ghost.size = (int) Math.ceil(size) ;
