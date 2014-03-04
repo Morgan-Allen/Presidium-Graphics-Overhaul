@@ -52,16 +52,16 @@ public interface UIConstants {
   
   
   final public static int
-    NUM_TABS = 3,
-    NUM_QUICK_SLOTS = 10,
-    MAX_TIP_WIDTH = 200,
-    INFO_AREA_WIDE = 300 ;
+    NUM_TABS         = 3,
+    NUM_QUICK_SLOTS  = 10,
+    MAX_TIP_WIDTH    = 200,
+    INFO_AREA_WIDE   = 300,
+    CAT_BUTTONS_HIGH = 65;
   //  Move the tooltips class over to this package.
   
   //  ...Include insets as well?
   final public static Box2D
     MAIN_BOUNDS = new Box2D().set(0, 1, 0.66f, 1.0f),
-    
     MINI_BOUNDS = new Box2D().set(0, 1, 0, 0),
     MINI_INSETS = new Box2D().set(10, -210, 200, 200) ;
   
@@ -70,7 +70,8 @@ public interface UIConstants {
     //  TODO:  Have a constant for the width.
     INFO_BOUNDS = new Box2D().set(1, 0, 0, 1.0f),
     INFO_INSETS = new Box2D().set(
-      0 - (INFO_AREA_WIDE + 20), 65, INFO_AREA_WIDE, -75
+      -INFO_AREA_WIDE, CAT_BUTTONS_HIGH,
+      INFO_AREA_WIDE, -CAT_BUTTONS_HIGH
     ),
     
     //PANE_BOUNDS = new Box2D().set(0, 0, 1.0f, 0.9f),

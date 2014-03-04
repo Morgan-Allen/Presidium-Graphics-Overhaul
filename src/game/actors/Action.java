@@ -418,12 +418,12 @@ public class Action implements Behaviour, AnimNames {
     //  In the case of a pushing animation, you actually need to set different
     //  animations for the upper and lower body.
     ///I.sayAbout(actor, "anim progress: "+animProgress());
-    sprite.setAnimation(animName(), animProgress(rendering));
+    sprite.setAnimation(animName(), animProgress());
   }
   
   
-  protected float animProgress(Rendering rendering) {
-    final float alpha = Rendering.frameTime() ;
+  protected float animProgress() {
+    final float alpha = Rendering.frameAlpha() ;
     final float AP = ((progress * alpha) + (oldProgress * (1 - alpha))) ;
     if (AP > 1) return AP % 1 ;
     return AP ;

@@ -25,7 +25,7 @@ public class InfoPanel extends UIGroup implements UIConstants {
   ) ;
   final public static int
     DEFAULT_TOP_MARGIN = 50,
-    MARGIN_WIDTH = 10,
+    MARGIN_WIDTH  = 10,
     HEADER_HEIGHT = 35 ;
   
   final static Class INFO_CLASSES[] = {
@@ -55,27 +55,30 @@ public class InfoPanel extends UIGroup implements UIConstants {
   
   
   
-  public InfoPanel(BaseUI UI, Selectable selected, int topMargin) {
+  public InfoPanel(BaseUI UI, Selectable selected, int topPadding) {
     super(UI) ;
     this.UI = UI ;
     this.relBound.set(0, 0, 1, 1) ;
     
-    this.absBound.set(20, 20, -40, -40) ;
-    final int MW = MARGIN_WIDTH, HH = HEADER_HEIGHT ;
+    //  TODO:  Use topPadding again, once you have portrait composition done.
+    final int
+      TM = 40, BM = 40,  //top and bottom margins
+      LM = 40, RM = 40;  //left and right margins
+    
     this.border = new Bordering(UI, BORDER_TEX.asTexture());
-    border.drawInset.set(-40, -40, 80, 80) ;
-    border.absBound.set(MW, MW, -2 * MW, -2 * MW) ;
+    border.drawInset.set(LM, BM, -(LM + RM), -(BM + TM));
+    //border.absBound.set(-MW, -MW, 2 * MW, 2 * MW) ;
     border.relBound.set(0, 0, 1, 1) ;
     border.attachTo(this) ;
     
-    headerText = new Text(UI, BaseUI.INFO_FONT) ;
-    headerText.relBound.set(0, 1, 1, 0) ;
-    headerText.absBound.set(0, -MW - (topMargin + HH), 0, HH) ;
-    headerText.attachTo(this) ;
+    headerText = new Text(UI, BaseUI.INFO_FONT);
+    headerText.relBound.set(0, 1, 1, 0);
+    headerText.absBound.set(LM, -(TM + HEADER_HEIGHT), -(LM + RM), HEADER_HEIGHT);
+    headerText.attachTo(this);
     
-    detailText = new Text(UI, BaseUI.INFO_FONT) ;
-    detailText.relBound.set(0, 0, 1, 1) ;
-    detailText.absBound.set(0, MW, 0, (-2 * MW) - (topMargin + HH)) ;
+    detailText = new Text(UI, BaseUI.INFO_FONT);
+    detailText.relBound.set(0, 0, 1, 1);
+    detailText.absBound.set(LM, BM, -(LM + RM), -(BM + TM + HEADER_HEIGHT));
     detailText.attachTo(this) ;
     //detailText.getScrollBar().attachTo(this) ;
     detailText.scale = 0.75f ;
@@ -83,7 +86,7 @@ public class InfoPanel extends UIGroup implements UIConstants {
     this.selected = selected ;
     final String cats[] = (selected == null) ?
       null : selected.infoCategories() ;
-
+    
     categoryID = 0 ;
     final Class IC = infoClass(selected) ;
     if (IC != null) {

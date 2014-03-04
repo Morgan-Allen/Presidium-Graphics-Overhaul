@@ -30,7 +30,7 @@ public class Rendering {
   
   final public Viewport view;
   final public Lighting lighting;
-  private static float worldTime, frameTime ;
+  private static float activeTime, frameAlpha ;
   
   //  first terrain, then cutouts, then solids, then sfx, then the UI.
   final public TerrainPass terrainPass;
@@ -61,8 +61,8 @@ public class Rendering {
   public Environment environment() { return lighting.environment; }
   public Camera camera() { return view.camera; }
   
-  public static float time() { return worldTime; }
-  public static float frameTime() { return frameTime; }
+  public static float activeTime() { return activeTime; }
+  public static float frameAlpha() { return frameAlpha; }
   
   
   private void reportVersion() {
@@ -74,7 +74,7 @@ public class Rendering {
       "\n  GL_VERSION: "+glGetString(GL_VERSION)+
       "\nGLSL_VERSION: "+glGetString(GL_SHADING_LANGUAGE_VERSION)+
       "\n-----------------------\n"
-    ) ;
+    );
   }
   
   
@@ -85,8 +85,10 @@ public class Rendering {
   
   public void renderDisplay(float worldTime, float frameTime, HUD UI) {
     
-    Rendering.worldTime = worldTime;
-    Rendering.frameTime = frameTime;
+    Rendering.activeTime = worldTime;
+    Rendering.frameAlpha = frameTime;
+    
+    I.say("World and frame time are:"+worldTime+"/"+frameTime);
     view.update();
     
     glEnable(GL10.GL_DEPTH_TEST);

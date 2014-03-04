@@ -3,6 +3,7 @@
 package src.game.common ;
 import src.graphics.common.* ;
 import src.graphics.sfx.* ;
+import src.start.PlayLoop;
 import src.util.* ;
 import src.game.common.WorldSections.Section ;
 
@@ -142,17 +143,14 @@ public class Ephemera {
   
   protected Batch <Ghost> visibleFor(Rendering rendering, Base base) {
     final Batch <Ghost> results = new Batch <Ghost> () ;
-    //  TODO:  TEST OUT AND RESTORE
-    if (true) return results;
-    final Viewport port = rendering.view ;
+    final float timeNow = world.currentTime() + PlayLoop.frameTime();
     
     for (Section section : world.visibleSections(rendering)) {
       final List <Ghost> SG = ghosts.get(section) ;
       if (SG != null) for (Ghost ghost : SG) {
-        
-        final float duration = ghost.duration ;
-        float timeGone = Rendering.time() - ghost.inceptTime ;
-        //timeGone += PlayLoop.frameTime() / PlayLoop.UPDATES_PER_SECOND ;
+        final float
+          duration = ghost.duration,
+          timeGone = timeNow - ghost.inceptTime;
         
         if (timeGone >= duration) {
           SG.remove(ghost) ;
@@ -160,7 +158,7 @@ public class Ephemera {
         }
         else {
           final Sprite s = ghost.sprite ;
-          if (! port.intersects(s.position, ghost.size)) continue ;
+          if (! rendering.view.intersects(s.position, ghost.size)) continue ;
           s.colour = Colour.transparency((duration - timeGone) / duration) ;
           
           if (ghost.tracked != null) {

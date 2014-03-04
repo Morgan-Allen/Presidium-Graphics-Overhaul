@@ -78,7 +78,7 @@ public class TerrainPass {
       }
     }
     shader.end();
-    if (fogApplied != null) fogApplied.checkBufferSwap(Rendering.time());
+    if (fogApplied != null) fogApplied.checkBufferSwap(Rendering.activeTime());
     
     chunks.clear();
     fogApplied = null;

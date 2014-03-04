@@ -1,5 +1,7 @@
-package src.graphics.terrain;
 
+
+
+package src.graphics.terrain;
 import src.graphics.common.Rendering;
 import src.util.*;
 
@@ -10,22 +12,22 @@ public class TerrainSet {
   
   final static int
     DEFAULT_CHUNK_SIZE = 64,
-    MAX_CHUNK_SIZE = 128;
+    MAX_CHUNK_SIZE     = 128;
   
   
   final public int size, numLayers;
   final int chunkSize, chunkGrid;
-  final byte layerIndices[][];//, paveCount[][];
+  final byte layerIndices[][];
   
   TerrainChunk chunks[][][];
   LayerType layers[];
-  //final public FogOverlay fog;
   
   
   
   public TerrainSet(
       int size, int chunkSize,
-      byte layerIndices[][], LayerType layers[]
+      byte layerIndices[][],
+      LayerType layers[]
   ) {
     // Basic sanity checks first-
     if (chunkSize > MAX_CHUNK_SIZE) {

@@ -127,14 +127,6 @@ public class World {
   
   
   
-  //
-  //  TODO:  Add time-mutation methods here- you'll have to update the schedule
-  //  as well as the local time counter.
-  //  TODO:  Get rid of the internal time-counter entirely, and just refer to
-  //  the schedule for that?
-  
-  
-  
   /**  Utility methods for visiting tiles at specific coordinates.
     */
   public Tile tileAt(float x, float y) {
@@ -262,7 +254,7 @@ public class World {
   
   
   //
-  //  TODO:  Break this down into separate methods.
+  //  TODO:  Move this into the Base class.
   public Base baseWithName(String title, boolean create, boolean primal) {
     for (Base base : bases) if (
       base.title != null &&
@@ -400,18 +392,11 @@ public class World {
     //
     //  Here, we find the point of intersection between the line-of-sight
     //  underneath the mouse cursor, and the plane of the ground-
-    I.say("\nGETTING GROUND POINT-");
-    
     final Vec3D origin = new Vec3D(UI.mouseX(), UI.mouseY(), 0);
     view.translateFromScreen(origin);
-    I.say("  Mouse position: "+UI.mousePos());
-    I.say("  After translation: "+origin);
-    
     final Vec3D vector = view.direction();
-    I.say("  View direction: "+vector);
     vector.scale(0 - origin.z / vector.z);
     origin.add(vector);
-    I.say("  Ground intersection point is: "+origin);
     return origin;
   }
   
@@ -435,7 +420,7 @@ public class World {
   
   public Mobile pickedMobile(final HUD UI, final Viewport port, Base base) {
     //
-    //  You may want to use some pre-emptive culling here in future.
+    //  TODO:  You may want to use some pre-emptive culling here in future.
     Mobile nearest = null ;
     float minDist = Float.POSITIVE_INFINITY ;
     for (Mobile m : mobiles) {
