@@ -78,17 +78,15 @@ public class Rendering {
   }
   
   
-  public void updateViews() {
+  public void updateViews(float worldTime, float frameTime) {
+    Rendering.activeTime = worldTime;
+    Rendering.frameAlpha = frameTime;
     view.update();
   }
   
   
-  public void renderDisplay(float worldTime, float frameTime, HUD UI) {
-    
-    Rendering.activeTime = worldTime;
-    Rendering.frameAlpha = frameTime;
+  public void renderDisplay(HUD UI) {
     ///I.say("World and frame time are:"+worldTime+"/"+frameTime);
-    view.update();
     
     glEnable(GL10.GL_DEPTH_TEST);
     glDepthFunc(GL20.GL_LEQUAL);
@@ -103,7 +101,7 @@ public class Rendering {
 
     solidsPass.performPass();
     //  NOTE:  These are apparently switched off by the solids pass (using
-    //  ModelBatch internally.)  TODO:  FIX using RenderContext.
+    //  ModelBatch internally.)  TODO:  FIX using RenderContext?
     glEnable(GL10.GL_BLEND);
     glEnable(GL10.GL_DEPTH_TEST);
     //  TODO:  It's probably a good idea to take everything transparent and

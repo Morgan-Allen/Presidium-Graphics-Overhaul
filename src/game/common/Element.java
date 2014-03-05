@@ -271,10 +271,6 @@ public class Element implements
     if (timeGone < 1) sprite.colour = Colour.transparency(timeGone);
     else sprite.colour = null;
     
-    if (I.talkAbout == this) {
-      I.say("Time gone is: "+timeGone) ;
-    }
-    
     viewPosition(sprite.position);
     sprite.update() ;
     sprite.registerFor(rendering);

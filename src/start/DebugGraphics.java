@@ -33,19 +33,22 @@ public class DebugGraphics {
       
       private boolean loaded = false;
       List <Sprite> sprites = new List <Sprite> ();
-
+      
       private boolean moused = false ;
       private float origX, origY, origR, origE ;
       
       
       public void beginGameSetup() {
+        final Sprite SS = SM.makeSprite();
+        sprites.add(SS);
+        
         for (int i = 10 ; i-- > 0;) {
-          final Sprite s = CM.makeSprite();
-          s.position.set(i, -i, 0);
-          s.fog = (i + 1) / 10f;
-          s.colour = Colour.transparency(s.fog);
-          s.scale = 0.5f;
-          sprites.add(s);
+          final Sprite CS = CM.makeSprite();
+          CS.position.set(i, -i, 0);
+          CS.fog = (i + 1) / 10f;
+          CS.colour = Colour.transparency(CS.fog);
+          CS.scale = 0.5f;
+          sprites.add(CS);
         }
         loaded = true;
       }
@@ -116,6 +119,8 @@ public class DebugGraphics {
           final float f = sprite.fog, a = f * (1 - f) * 4;
           sprite.colour = Colour.transparency(a);
           sprite.fog = (f + 0.01f) % 1;
+          
+          sprite.setAnimation(AnimNames.MOVE, sprite.fog);
         }
       }
     });

@@ -375,11 +375,10 @@ public class World {
   protected void renderTerrain(
     Batch <Section> sections, Rendering rendering, Base base
   ) {
-    float renderTime = currentTime ;
-    renderTime += PlayLoop.frameTime() / PlayLoop.UPDATES_PER_SECOND ;
-    
+    final float renderTime = timeMidRender();
+    terrain.meshSet().refreshAllMeshes();
     for (Section section : sections) {
-      terrain.renderFor(section.area, rendering, renderTime) ;
+      terrain.renderFor(section.area, rendering, renderTime);
     }
     if (base != null && ! GameSettings.fogFree) {
       base.intelMap.updateFogBuffers(renderTime);
@@ -435,9 +434,6 @@ public class World {
     return nearest ;
   }
 }
-
-
-
 
 
 

@@ -341,6 +341,11 @@ public class Terrain implements TileConstants, Session.Saveable {
   public void renderFor(Box2D area, Rendering rendering, float time) {
     meshSet.renderWithin(area, rendering);
   }
+  
+  
+  public TerrainSet meshSet() {
+    return meshSet;
+  }
 }
 
 
