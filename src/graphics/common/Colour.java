@@ -90,10 +90,10 @@ public class Colour {
   
   private float toFloatBits() {
     final int color =
-      ((int)(255 * a) << 24) |
-      ((int)(255 * b) << 16) |
-      ((int)(255 * g) << 8 ) |
-      ((int)(255 * r)) ;
+      ((int) (255 * a) << 24) |
+      ((int) (255 * b) << 16) |
+      ((int) (255 * g) << 8 ) |
+      ((int) (255 * r) << 0 ) ;
     return Float.intBitsToFloat(color);
   }
   

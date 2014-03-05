@@ -87,8 +87,7 @@ public class Rendering {
     
     Rendering.activeTime = worldTime;
     Rendering.frameAlpha = frameTime;
-    
-    I.say("World and frame time are:"+worldTime+"/"+frameTime);
+    ///I.say("World and frame time are:"+worldTime+"/"+frameTime);
     view.update();
     
     glEnable(GL10.GL_DEPTH_TEST);
@@ -101,9 +100,16 @@ public class Rendering {
 
     terrainPass.performPass();
     glClear(GL_DEPTH_BUFFER_BIT);
-    
-    cutoutsPass.performPass();
+
     solidsPass.performPass();
+    //  NOTE:  These are apparently switched off by the solids pass (using
+    //  ModelBatch internally.)  TODO:  FIX using RenderContext.
+    glEnable(GL10.GL_BLEND);
+    glEnable(GL10.GL_DEPTH_TEST);
+    //  TODO:  It's probably a good idea to take everything transparent and
+    //  render it later.  But for the moment, cutouts are more likely to
+    //  exhibit transparency.
+    cutoutsPass.performPass();
     
     if (UI != null) {
       UI.updateInput();
@@ -112,8 +118,5 @@ public class Rendering {
     }
   }
 }
-
-
-
 
 

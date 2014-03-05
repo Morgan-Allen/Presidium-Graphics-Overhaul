@@ -293,7 +293,7 @@ public class World {
   
   /**  Rendering and interface methods-
     */
-  public float timeWithinFrame() {
+  public float timeMidRender() {
     return currentTime + (PlayLoop.frameTime() / PlayLoop.FRAMES_PER_SECOND) ;
   }
   
@@ -351,8 +351,8 @@ public class World {
     Vec3D deep = new Vec3D() ;
     for (Visible visible : allVisible) {
       final Sprite sprite = visible.sprite() ;
-      rendering.view.translateToScreen(deep.setTo(sprite.position)) ;
-      sprite.depth = 0 - deep.z ;
+      rendering.view.translateToScreen(deep.setTo(sprite.position));
+      sprite.depth = deep.z;
     }
     allVisible.queueSort() ;
     for (Visible visible : allVisible) {

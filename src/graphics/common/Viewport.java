@@ -23,7 +23,7 @@ public class Viewport {
   
   final OrthographicCamera camera;
   final public Vec3D lookedAt = new Vec3D();
-  private float
+  public float
     rotation  = DEFAULT_ROTATE,
     elevation = DEFAULT_ELEVATE,
     zoomLevel = 1.0f ;

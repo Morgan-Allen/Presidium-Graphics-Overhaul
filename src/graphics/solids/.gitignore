@@ -14,3 +14,7 @@
 /SolidsPass.class
 /SolidsPass$1.class
 /SolidModel.class
+/SolidModel$Animation.class
+/SolidModel$Joint.class
+/SolidModel$Group.class
+/SolidModel$Keyframe.class

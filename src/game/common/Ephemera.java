@@ -3,7 +3,6 @@
 package src.game.common ;
 import src.graphics.common.* ;
 import src.graphics.sfx.* ;
-import src.start.PlayLoop;
 import src.util.* ;
 import src.game.common.WorldSections.Section ;
 
@@ -143,7 +142,7 @@ public class Ephemera {
   
   protected Batch <Ghost> visibleFor(Rendering rendering, Base base) {
     final Batch <Ghost> results = new Batch <Ghost> () ;
-    final float timeNow = world.currentTime() + PlayLoop.frameTime();
+    final float timeNow = world.timeMidRender();
     
     for (Section section : world.visibleSections(rendering)) {
       final List <Ghost> SG = ghosts.get(section) ;

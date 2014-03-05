@@ -67,21 +67,26 @@ public class InfoPanel extends UIGroup implements UIConstants {
     
     this.border = new Bordering(UI, BORDER_TEX.asTexture());
     border.drawInset.set(LM, BM, -(LM + RM), -(BM + TM));
-    //border.absBound.set(-MW, -MW, 2 * MW, 2 * MW) ;
-    border.relBound.set(0, 0, 1, 1) ;
-    border.attachTo(this) ;
+    border.relBound.set(0, 0, 1, 1);
+    border.attachTo(this);
     
     headerText = new Text(UI, BaseUI.INFO_FONT);
     headerText.relBound.set(0, 1, 1, 0);
-    headerText.absBound.set(LM, -(TM + HEADER_HEIGHT), -(LM + RM), HEADER_HEIGHT);
+    headerText.absBound.set(
+      LM, -(TM + HEADER_HEIGHT),
+      -(LM + RM), HEADER_HEIGHT
+    );
     headerText.attachTo(this);
     
     detailText = new Text(UI, BaseUI.INFO_FONT);
     detailText.relBound.set(0, 0, 1, 1);
-    detailText.absBound.set(LM, BM, -(LM + RM), -(BM + TM + HEADER_HEIGHT));
-    detailText.attachTo(this) ;
+    detailText.absBound.set(
+      LM, BM, -(LM + RM),
+      -(BM + TM + HEADER_HEIGHT)
+    );
+    detailText.attachTo(this);
+    detailText.scale = 0.75f;
     //detailText.getScrollBar().attachTo(this) ;
-    detailText.scale = 0.75f ;
     
     this.selected = selected ;
     final String cats[] = (selected == null) ?

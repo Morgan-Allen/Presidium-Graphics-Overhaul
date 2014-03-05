@@ -33,7 +33,16 @@ public interface UIConstants {
   final public static Alphabet INFO_FONT = Alphabet.loadAlphabet(
     "media/GUI/", "FontVerdana.xml"
   );
-
+  
+  
+  //
+  //  TODO:  I'll probably rework this into a different system:
+  //    Security, Economic, Recreation,
+  //    Health & Government, Schools, Wards & Preserves
+  //
+  //  By default, all buildings will appear in one big list, and you can
+  //  optionally filter them along those lines.
+  
   final public static String
     TYPE_MILITANT  = "Militant",
     TYPE_MERCHANT  = "Merchant",
@@ -46,8 +55,7 @@ public interface UIConstants {
       TYPE_MILITANT, TYPE_MERCHANT, TYPE_AESTHETE,
       TYPE_ARTIFICER, TYPE_ECOLOGIST, TYPE_PHYSICIAN
     },
-    TYPE_SPECIAL  = "Special",
-    
+    TYPE_SPECIAL   = "Special",
     TYPE_HIDDEN    = "hidden" ;
   
   
@@ -63,7 +71,7 @@ public interface UIConstants {
   final public static Box2D
     MAIN_BOUNDS = new Box2D().set(0, 1, 0.66f, 1.0f),
     MINI_BOUNDS = new Box2D().set(0, 1, 0, 0),
-    MINI_INSETS = new Box2D().set(10, -210, 200, 200) ;
+    MINI_INSETS = new Box2D().set(10, -210, 200, 200);
   
   final static Box2D
     
@@ -73,11 +81,9 @@ public interface UIConstants {
       -INFO_AREA_WIDE, CAT_BUTTONS_HIGH,
       INFO_AREA_WIDE, -CAT_BUTTONS_HIGH
     ),
-    
     //PANE_BOUNDS = new Box2D().set(0, 0, 1.0f, 0.9f),
     //TABS_BOUNDS = new Box2D().set(0, 0.9f, 1.0f, 0.1f),
-    
-    TIPS_INSETS = new Box2D().set(-10, -10, 20, 20) ;
+    TIPS_INSETS = new Box2D().set(-10, -10, 20, 20);
   
   
   //  The size of the tooltip text.
@@ -88,8 +94,10 @@ public interface UIConstants {
   //  The size of the credits readout.
   //  The area allocated to buttons for the charts/career/logs tabs.
   //  The size of the quickbar.
-  
 }
+
+
+
 
 
 

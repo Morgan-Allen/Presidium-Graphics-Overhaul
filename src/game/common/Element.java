@@ -267,10 +267,14 @@ public class Element implements
   
   
   public void renderFor(Rendering rendering, Base base) {
-    float timeGone = world.currentTime() - inceptTime;
-    timeGone += Rendering.frameAlpha();
+    final float timeGone = world.timeMidRender() - inceptTime;
     if (timeGone < 1) sprite.colour = Colour.transparency(timeGone);
     else sprite.colour = null;
+    
+    if (I.talkAbout == this) {
+      I.say("Time gone is: "+timeGone) ;
+    }
+    
     viewPosition(sprite.position);
     sprite.update() ;
     sprite.registerFor(rendering);
