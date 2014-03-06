@@ -30,14 +30,11 @@ import src.graphics.common.Assets ;
 public class Session {
   
   
-  private Scenario scenario ;
-  private World world = null ;
-  
-  
   
   final static int
     CLASS_CAPACITY  = 200,
     OBJECT_CAPACITY = 50000 ;
+  private static boolean verbose = false;
   
   private Table <Class, Vars.Int> classCounts = new Table(CLASS_CAPACITY) ;
   
@@ -53,6 +50,9 @@ public class Session {
     nextObjectID = 0,
     nextClassID  = 0,
     lastObjectID = -1 ;
+  
+  private Scenario scenario ;
+  private World world = null ;
   
   private boolean saving ;
   private DataOutputStream out ;
@@ -290,12 +290,10 @@ public class Session {
       saveClass(s.getClass()) ;
       final int initBytes = bytesOut ;
       s.saveState(this) ;
-      /*
-      I.say(
+      if (verbose) I.say(
         "Saved new object: "+s.getClass().getName()+
         " total bytes saved: "+(bytesOut - initBytes)
       ) ;
-      //*/
       bytesOut = initBytes ;
     }
     else {
@@ -352,13 +350,13 @@ public class Session {
       if (loadMethod instanceof Constructor) {
         final Constructor loadObject = (Constructor) loadMethod ;
         loadClass = loadObject.getDeclaringClass() ;
-        //I.say("Loading new object of type "+loadClass.getName()) ;
+        if (verbose) I.say("Loading new object of type "+loadClass.getName()) ;
         loaded = (Saveable) loadObject.newInstance(this) ;
       }
       else {
         final Method loadConstant = (Method) loadMethod ;
         loadClass = loadConstant.getDeclaringClass() ;
-        //I.say("Loading new constant of type "+loadClass.getName()) ;
+        if (verbose) I.say("Loading new constant, type "+loadClass.getName()) ;
         loaded = (Saveable) loadConstant.invoke(null, this) ;
         cacheInstance(loaded) ;
       }

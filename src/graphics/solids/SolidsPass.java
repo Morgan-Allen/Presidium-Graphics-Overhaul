@@ -67,6 +67,11 @@ public class SolidsPass {
       spriteBatch.render(sprite.gdxSprite(), rendering.environment());
     }
     spriteBatch.end();
+    clearAll();
+  }
+  
+  
+  public void clearAll() {
     inPass.clear();
   }
 }

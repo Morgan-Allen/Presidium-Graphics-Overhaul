@@ -91,16 +91,21 @@ public class CutoutsPass {
   public void performPass() {//Array <CutoutSprite> sprites, Camera camera) {
     //I.say("New cutouts pass...") ;
     for (CutoutSprite s : inPass) {
-      compileSprite(s, rendering.camera()) ;
+      compileSprite(s, rendering.camera());
     }
+    compileAndRender(rendering.camera());
+    clearAll();
+  }
+  
+  
+  public void clearAll() {
     inPass.clear();
-    compileAndRender(rendering.camera()) ;
   }
   
   
   private void compileSprite(CutoutSprite s, Camera camera) {
     if (s.model.texture != lastTex || total >= COMPILE_LIMIT) {
-      compileAndRender(camera) ;
+      compileAndRender(camera);
     }
     
     //System.arraycopy(s.model.vertices, 0, vertComp, total, SIZE);

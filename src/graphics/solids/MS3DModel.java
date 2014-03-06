@@ -61,7 +61,6 @@ public class MS3DModel extends SolidModel {
     filePath = path+fileName;
     xmlPath = path+xmlFile;
     this.xmlName = xmlName;
-    Assets.registerForLoading(this);
   }
   
   

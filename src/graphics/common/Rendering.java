@@ -85,6 +85,13 @@ public class Rendering {
   }
   
   
+  public void clearAll() {
+    terrainPass.clearAll();
+    cutoutsPass.clearAll();
+    solidsPass .clearAll();
+  }
+  
+  
   public void renderDisplay(HUD UI) {
     ///I.say("World and frame time are:"+worldTime+"/"+frameTime);
     

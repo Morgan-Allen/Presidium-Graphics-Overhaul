@@ -88,6 +88,9 @@ public class SolidSprite extends Sprite {
     initGDX();
     rendering.view.worldToGL(position, temp);
     gdxSprite.transform.setToTranslation(temp);
+    
+    final float radians = (float) Math.toRadians(90 - rotation);
+    gdxSprite.transform.rot(Vector3.Y, radians);
     rendering.solidsPass.register(this);
   }
   

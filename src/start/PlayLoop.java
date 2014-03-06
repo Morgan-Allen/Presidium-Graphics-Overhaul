@@ -6,6 +6,7 @@
 
 package src.start;
 import src.util.*;
+import src.game.common.Spacing;
 import src.graphics.widgets.*;
 import src.graphics.common.*;
 
@@ -45,8 +46,8 @@ public final class PlayLoop {
   
   
   private static Rendering rendering ;
-  private static HUD UI ;
-  private static Playable played ;
+  //private static HUD UI ;
+  private static Playable played, nextToPlay ;
 
   private static long lastFrame, lastUpdate;
   private static float frameTime;
@@ -64,15 +65,15 @@ public final class PlayLoop {
   /**  Returns the components of the current game state-
     */
   public static HUD currentUI() {
-    return UI ;
+    return played.UI();
   }
   
   public static Rendering rendering() {
-    return rendering ;
+    return rendering;
   }
   
   public static Playable played() {
-    return played ;
+    return played;
   }
   
   
@@ -80,7 +81,6 @@ public final class PlayLoop {
   /**  The big static setup, run and exit methods-
     */
   public static void setupAndLoop(Playable scenario) {
-    PlayLoop.UI = null;
     PlayLoop.played = scenario;
     numStateUpdates = 0;
     gameSpeed = 1.0f;
@@ -128,6 +128,18 @@ public final class PlayLoop {
         }
       }, config);
     }
+  }
+  
+  
+  public static void gameStateWipe() {
+    //  TODO:  Look into this more carefully.  Port back to the PlayLoop class?
+    //KeyInput.clearInputs();
+    Spacing.wipeTempArrays();
+    I.talkAbout = null;
+    played   = null;
+    if (rendering != null) rendering.clearAll();
+    //RuntimeUtil.gc();  //  TODO:  RESTORE THIS?
+    //*/
   }
   
   
@@ -185,7 +197,6 @@ public final class PlayLoop {
       LoadingScreen.update("Loading Scenario", played.loadProgress());
       rendering.renderDisplay(LoadingScreen.HUD);
       lastUpdate = lastFrame = time;
-      if (UI == null) UI = played.UI();
       //I.say("Content loading progress: "+played.loadProgress());
       return true;
     }
@@ -196,7 +207,7 @@ public final class PlayLoop {
     if (played != current) return true;
     if (frameGap >= FRAME_INTERVAL || true) {
       if (played != null) played.renderVisuals(rendering);
-      rendering.renderDisplay(UI);
+      rendering.renderDisplay(played.UI());
       lastFrame = time;
     }
     

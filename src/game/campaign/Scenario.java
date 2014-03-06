@@ -55,6 +55,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
     for (int i = s.loadInt() ; i-- > 0 ;) timeStamps.add(s.loadString()) ;
     
     loadProgress = 1;
+    UI = createUI(base, PlayLoop.rendering());
     UI.loadState(s) ;
   }
   
@@ -129,22 +130,21 @@ public abstract class Scenario implements Session.Saveable, Playable {
   }
   
   
+  protected void resetScenario() {
+    this.world = null ;
+    this.base = null ;
+    this.UI = null ;
+    loadProgress = 0;
+    PlayLoop.gameStateWipe();
+    PlayLoop.setupAndLoop(this);
+  }
+  
+  
   protected abstract World createWorld();
   protected abstract Base createBase(World world);
   protected abstract void configureScenario(World world, Base base, BaseUI UI);
   protected abstract String saveFilePrefix(World world, Base base);
   protected abstract void afterCreation();
-  
-  
-  protected void resetScenario() {
-    this.world = null ;
-    this.base = null ;
-    this.UI = null ;
-    gameStateWipe() ;
-    //this.beginLoadingContent();
-    //setupScenario() ;
-    PlayLoop.setupAndLoop(this) ;
-  }
   
   
   
@@ -162,7 +162,6 @@ public abstract class Scenario implements Session.Saveable, Playable {
   public static void saveGame(String saveFile) {
     final Scenario scenario = current();
     if (scenario == null) return;
-    //KeyInput.clearInputs() ;
     try {
       scenario.lastSaveTime = scenario.world.currentTime();
       Session.saveSession(scenario.world(), scenario, saveFile);
@@ -174,7 +173,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
   
   public static void loadGame(String saveFile, boolean fromMenu) {
     try {
-      gameStateWipe();
+      PlayLoop.gameStateWipe();
       final Session s = Session.loadSession(saveFile);
       final Scenario scenario = s.scenario();
       scenario.afterLoading(fromMenu);
@@ -184,24 +183,9 @@ public abstract class Scenario implements Session.Saveable, Playable {
   }
   
   
-  public static void gameStateWipe() {
-    //  TODO:  Look into this more carefully.  Port back to the PlayLoop class?
-    //KeyInput.clearInputs();
-    Spacing.wipeTempArrays();
-    I.talkAbout = null;
-    /*
-    scenario = null;
-    UI       = null;
-    if (rendering != null) rendering.clearAll();
-    lastSaveTime = -1;
-    //RuntimeUtil.gc();  //  TODO:  RESTORE THIS?
-    //*/
-  }
-  
-  
   public static float timeSinceLastSave() {
     final Scenario scenario = current();
-    if (scenario.lastSaveTime == -1) return -1 ;
+    if (scenario == null || scenario.lastSaveTime == -1) return -1;
     float time = scenario.world.currentTime();
     time -= scenario.lastSaveTime;
     return time;

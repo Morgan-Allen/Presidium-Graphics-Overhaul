@@ -66,10 +66,9 @@ public class BaseUI extends HUD implements UIConstants {
   
   
   public void assignBaseSetup(Base played, Vec3D homePos) {
-    this.played = played ;
-    //  TODO:  RESTORE THIS
-    //if (homePos != null) rendering.port.cameraPosition.setTo(homePos) ;
-    minimap.setBase(played) ;
+    this.played = played;
+    if (homePos != null) rendering.view.lookedAt.setTo(homePos);
+    minimap.setBase(played);
   }
   
   

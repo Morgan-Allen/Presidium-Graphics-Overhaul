@@ -21,7 +21,6 @@ public class Assets {
   final static String JAR_NAME = "presidium_run_jar.jar";
   final static boolean EXCLUDE_BASE_DIR = false;
   final public static char REP_SEP = '/';
-  
   private static boolean verbose = false;
   
   
@@ -33,6 +32,7 @@ public class Assets {
     Loadable(String modelName, Class sourceClass) {
       this.assetID = modelName;
       this.sourceClass = sourceClass;
+      Assets.registerForLoading(this);
     }
     
     public abstract boolean isLoaded();
@@ -93,11 +93,12 @@ public class Assets {
       }
       
       else if (assetsToLoad.size() > 0) {
-        final Loadable modelAsset = assetsToLoad.first();
-        modelAsset.loadAsset();
-        assetsToLoad.remove(modelAsset);
-        assetsLoaded.add(modelAsset);
-        if (verbose) I.say("  Asset loaded okay: "+modelAsset.assetID);
+        final Loadable asset = assetsToLoad.first();
+        asset.loadAsset();
+        assetsToLoad.remove(asset);
+        assetsLoaded.add(asset);
+        modelCache.put(asset.assetID, asset);
+        if (verbose) I.say("  Asset loaded okay: "+asset.assetID);
       }
       
       else return;
@@ -174,10 +175,10 @@ public class Assets {
     if (modelID == -1) return null ;
     Loadable loaded = IDModels.get(modelID) ;
     if (loaded != null) return loaded ;
-    final String modelName = Assets.readString(in) ;
-    final String className = Assets.readString(in) ;
-    Class.forName(className) ;
-    loaded = modelCache.get(modelName) ;
+    final String modelName = Assets.readString(in);
+    final String className = Assets.readString(in);
+    Class.forName(className);
+    loaded = modelCache.get(modelName);
     
     if (loaded == null) I.complain(
       "MODEL NAMED: "+modelName+

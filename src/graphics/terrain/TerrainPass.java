@@ -80,6 +80,11 @@ public class TerrainPass {
     shader.end();
     if (fogApplied != null) fogApplied.checkBufferSwap(Rendering.activeTime());
     
+    clearAll();
+  }
+  
+  
+  public void clearAll() {
     chunks.clear();
     fogApplied = null;
   }

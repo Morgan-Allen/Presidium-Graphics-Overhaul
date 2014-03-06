@@ -49,7 +49,6 @@ public class CutoutModel extends ModelAsset {
     this.fileName = fileName;
     this.window = window;
     this.size = size;
-    Assets.registerForLoading(this);
   }
   
   

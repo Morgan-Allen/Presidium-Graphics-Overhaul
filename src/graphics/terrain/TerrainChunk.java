@@ -59,8 +59,8 @@ public class TerrainChunk implements TileConstants {
     vertices = new float[numTiles * 4 * (3 + 2)];
     indices = new short[numTiles * 2 * 3];
     final Iterator iterV = gridBatch.iterator(), iterT = textBatch.iterator();
-    I.say("Total tiles accumulated: " + numTiles);
-
+    ///I.say("Total tiles accumulated: " + numTiles);
+    
     // Then we just fill up the arrays with the appropriate concatenation
     // of data-
     for (int n = 0, pointV = 0, pointI = 0; n < numTiles; n++) {

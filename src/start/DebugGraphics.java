@@ -119,6 +119,7 @@ public class DebugGraphics {
           final float f = sprite.fog, a = f * (1 - f) * 4;
           sprite.colour = Colour.transparency(a);
           sprite.fog = (f + 0.01f) % 1;
+          sprite.rotation += 90 / 60f;
           
           sprite.setAnimation(AnimNames.MOVE, sprite.fog);
         }
