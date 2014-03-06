@@ -91,6 +91,7 @@ public class StartupScenario extends Scenario {
     config.male = s.loadBool();
     s.loadObjects(config.chosenTraits);
     s.loadObjects(config.chosenSkills);
+    s.loadObjects(config.advisors);
     for (int i = s.loadInt(); i-- > 0;) {
       config.numCrew.put((Background) s.loadObject(), s.loadInt());
     }
@@ -106,6 +107,7 @@ public class StartupScenario extends Scenario {
     s.saveBool(config.male);
     s.saveObjects(config.chosenTraits);
     s.saveObjects(config.chosenSkills);
+    s.saveObjects(config.advisors);
     s.saveInt(config.numCrew.size());
     for (Background b : config.numCrew.keySet()) {
       s.saveObject(b);

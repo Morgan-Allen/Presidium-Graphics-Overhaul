@@ -19,10 +19,9 @@ import com.badlogic.gdx.backends.lwjgl.*;
 
 //  *  Text must implement scrolling and scissor clipping.
 //  *  Human models need skin overlays and device/outfit attachments.
-//  *  Building sprites need item-stock displays and light overlays?
-//  *  The various special FX need to be re-implemented or else dummied out.
+//  *  Building sprites need item-stock displays and light overlays.
+//  *  The various special FX need to be re-implemented.
 //  *  Minimap must be fixed.
-//  *  Terrain rendering and BuildingSprites must be figured out.
 
 
 
