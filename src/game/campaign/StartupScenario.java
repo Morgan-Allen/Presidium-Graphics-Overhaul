@@ -145,7 +145,7 @@ public class StartupScenario extends Scenario {
   }
   
   protected void afterCreation() {
-    saveProgress(false);
+    //saveProgress(false);
   }
   
   
