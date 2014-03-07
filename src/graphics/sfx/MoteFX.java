@@ -19,25 +19,27 @@ import src.util.* ;
 public class MoteFX extends SFX {
   
   
-  final static ModelAsset MOTE_MODEL = new ModelAsset("mote_model", MoteFX.class) {
+  final static ModelAsset MOTE_MODEL = new ModelAsset(
+    "mote_model", MoteFX.class
+  ) {
     public boolean isLoaded() { return true ; }
     protected void loadAsset() {}
     protected void disposeAsset() {}
-    public Sprite makeSprite() { return new MoteFX() ; }
+    public Sprite makeSprite() { return new MoteFX(null) ; }
   } ;
   
-  public Sprite mote ;
+  //public Sprite mote ;
+  private CutoutModel moteModel;
   public float progress = 0, animTime = -1 ;
   
   
   
-  public ModelAsset model() { return MOTE_MODEL ; }
-  MoteFX() {}
-  
-  
-  public MoteFX(Sprite mote) {
-    this.mote = mote ;
+  public MoteFX(CutoutModel moteModel) {
+    this.moteModel = moteModel;
   }
+  
+  
+  public ModelAsset model() { return MOTE_MODEL ; }
   
   
   public void update() {
@@ -50,11 +52,13 @@ public class MoteFX extends SFX {
   
   
   protected void renderInPass(SFXPass pass) {
+    //  TODO:  Implement this.
+    //*
+    //mote.matchTo(this) ;
+    //mote.position.z -= 0.5f ;
+    //mote.setAnimation("animation", progress) ;
+    //mote.update() ;
     /*
-    mote.matchTo(this) ;
-    mote.position.z -= 0.5f ;
-    mote.setAnimation("animation", progress) ;
-    mote.update() ;
     GL11.glDepthMask(false) ;
     GL11.glDisable(GL11.GL_DEPTH_TEST) ;
     mote.renderTo(rendering) ;
@@ -63,5 +67,8 @@ public class MoteFX extends SFX {
     //*/
   }
 }
+
+
+
 
 

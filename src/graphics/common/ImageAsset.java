@@ -12,6 +12,17 @@ import com.badlogic.gdx.graphics.g2d.*;
 public class ImageAsset extends Assets.Loadable {
   
   
+  final public static Texture WHITE_TEX = new Texture(
+    4, 4, Pixmap.Format.RGBA8888
+  );
+  static {
+    final Pixmap draw = new Pixmap(4, 4, Pixmap.Format.RGBA8888);
+    draw.setColor(Color.WHITE);
+    draw.fillRectangle(0, 0, 4, 4);
+    WHITE_TEX.draw(draw, 0, 0);
+  }
+  
+  
   private String filePath;
   private boolean loaded = false;
   

@@ -107,7 +107,6 @@ public class ShieldFX extends SFX {
     for (Burst burst : bursts) {
       burst.timer -= BURST_FADE_INC;
       if (burst.timer <= 0) bursts.remove(burst);
-      I.say("Burst timer: "+burst.timer);
     }
   }
   

@@ -130,14 +130,14 @@ public class ShotFX extends SFX {
   
   
   protected void renderInPass(SFXPass pass) {
-    /*
+    
     //  First, we need to determine what the 'perp' angle should be (as in,
     //  perpendicular to the line of the beam, as perceived by the viewer.)
-    perp.setTo(line.setTo(target).sub(origin)) ;
-    line.normalise() ;
-    rendering.view.viewMatrix(perp) ;
+    perp.setTo(line.setTo(target).sub(origin));
+    line.normalise();
+    pass.rendering.view.translateToScreen(perp);
     perp.set(perp.y, -perp.x, 0) ;
-    rendering.view.viewInvert(perp) ;
+    pass.rendering.view.translateFromScreen(perp);
     perp.normalise().scale(model.width) ;
     
     //  Alright.  Based on time elapsed, divided by period, you should have a
@@ -151,11 +151,10 @@ public class ShotFX extends SFX {
       numParts = time / model.period ;
       partLen = model.length ;
     }
-
+    
     //  Now render the beam itself-
     final Colour c = this.colour ;
     final float f = this.fog ;
-    GL11.glColor4f(c.r * f, c.g * f, c.b * f, c.a) ;
     
     for (float n = numParts ; n-- > 0 ;) {
       final float progress = partLen * n ;
@@ -175,12 +174,10 @@ public class ShotFX extends SFX {
       verts[1].setTo(end  ).add(perp) ;
       verts[2].setTo(end  ).sub(perp) ;
       verts[3].setTo(start).sub(perp) ;
-      renderTex(verts, model.tex) ;
+      pass.compileQuad(model.tex, c, verts, 0, 0, 1, 1);
       
       if (! model.repeats) break ;
     }
-    GL11.glColor4f(1, 1, 1, 1) ;
-    //*/
   }
 }
 
