@@ -40,14 +40,12 @@ public final class PlayLoop {
     
     MIN_SLEEP    = 10,
     SLEEP_MARGIN = 2 ;
-
   private static boolean verbose = false;
   
   
-  private static Rendering rendering ;
-  //private static HUD UI ;
-  private static Playable played, nextToPlay ;
-
+  private static Rendering rendering;
+  private static Playable played, nextToPlay;
+  
   private static long lastFrame, lastUpdate;
   private static float frameTime;
   private static long numStateUpdates = 0;
@@ -131,7 +129,7 @@ public final class PlayLoop {
   
   
   public static void gameStateWipe() {
-    //  TODO:  Look into this more carefully.  Port back to the PlayLoop class?
+    //  TODO:  Look into this more carefully.
     //KeyInput.clearInputs();
     Spacing.wipeTempArrays();
     I.talkAbout = null;

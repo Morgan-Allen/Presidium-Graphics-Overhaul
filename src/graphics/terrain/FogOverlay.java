@@ -19,6 +19,8 @@ public class FogOverlay {
   
   
   final int size;
+  
+  private float oldVals[][], newVals[][];
   private Pixmap drawnTo;
   protected Texture oldTex, newTex;
   private float oldTime = 0;
@@ -31,6 +33,7 @@ public class FogOverlay {
     Pixmap.setBlending(Blending.None);
     drawnTo.setColor(Color.BLACK);
     drawnTo.fill();
+    oldVals = newVals = new float[size][size];
 
     oldTex = new Texture(drawnTo);
     oldTex.setFilter(Linear, Linear);
@@ -62,16 +65,9 @@ public class FogOverlay {
       newTex = oldTex;
       oldTex = temp;
       newTex.draw(drawnTo, 0, 0);
-      
-      //  TODO:  This should not be necessary
-      drawnTo.setColor(0, 0, 0, 0.25f);
-      Pixmap.setBlending(Blending.SourceOver);
-      //drawnTo.fillRectangle(0, 0, size, size);
     }
     oldTime = newTime;
   }
-  
-  
   
   
   public void registerFor(Rendering rendering) {
@@ -79,29 +75,30 @@ public class FogOverlay {
   }
   
   
-  //  Hopefully, this should be reasonably fast.  ...ish.
+  //  TODO:  Hopefully, this should be reasonably fast.  ...ish.  See if it
+  //  can't be improved on, though.
   public void assignNewVals(float newVals[][]) {
-    //  TODO:  Not sure what's happening here...
-    //Pixmap.setBlending(Blending.SourceOver);
+    oldVals = this.newVals;
+    this.newVals = newVals;
+    
     Pixmap.setBlending(Blending.None);
     for (Coord c : Visit.grid(0, 0, size, size, 1)) {
       final float fog = newVals[c.x][c.y];
       drawnTo.setColor(fog, fog, fog, 1);
-      //drawnTo.setColor(1, 1, 1, newVals[c.x][c.y]);
       drawnTo.drawPixel(c.x, c.y);
     }
   }
   
   
-  public float sampleAt(float x, float y) {
-    return (colorValue(x, y) & 0xff) / 255f;
-  }
-
-
-  public int colorValue(float x, float y) {
-    return drawnTo.getPixel((int) x, (int) y);
+  public float sampleAt(int x, int y) {
+    final float
+      oldVal = oldVals[x][y],
+      newVal = newVals[x][y];
+    final float time = oldTime % 1;
+    return (oldVal * (1 - time)) + (time * newVal);
   }
 }
+
 
 
 

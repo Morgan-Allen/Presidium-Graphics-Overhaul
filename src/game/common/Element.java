@@ -270,11 +270,9 @@ public class Element implements
     final float timeGone = world.timeMidRender() - inceptTime;
     if (timeGone < 1) sprite.colour = Colour.transparency(timeGone);
     else sprite.colour = null;
-    
     viewPosition(sprite.position);
     sprite.update() ;
     sprite.registerFor(rendering);
-    //rendering.addClient(sprite);
   }
   
   

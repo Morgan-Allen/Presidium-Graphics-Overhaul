@@ -1,21 +1,18 @@
 
 
-package src.game.campaign ;
+
+package src.game.campaign;
 import src.start.*;
-import src.game.building.* ;
-import src.game.common.* ;
-import src.game.actors.* ;
-import src.game.tactical.* ;
-import src.graphics.common.* ;
-import src.user.* ;
-import src.graphics.widgets.* ;
-import src.util.* ;
+import src.game.common.*;
+import src.game.actors.*;
+import src.game.tactical.*;
+import src.graphics.common.*;
+import src.user.*;
+import src.util.*;
 
 import java.io.*;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-
 
 
 

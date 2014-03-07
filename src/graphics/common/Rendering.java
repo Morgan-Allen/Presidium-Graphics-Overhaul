@@ -3,6 +3,9 @@
 
 package src.graphics.common ;
 import static src.graphics.common.GL.*;
+
+import org.lwjgl.opengl.GL11;
+
 import src.graphics.cutout.*;
 import src.graphics.solids.*;
 import src.graphics.terrain.*;
@@ -100,7 +103,8 @@ public class Rendering {
     glEnable(GL10.GL_BLEND);
     glDepthMask(true);
     glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-    glClearColor(1, 0, 0, 0);
+    final Colour BC = Colour.DARK_GREY;
+    GL11.glClearColor(BC.r, BC.g, BC.b, BC.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     terrainPass.performPass();

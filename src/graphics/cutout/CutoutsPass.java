@@ -108,7 +108,6 @@ public class CutoutsPass {
       compileAndRender(camera);
     }
     
-    //System.arraycopy(s.model.vertices, 0, vertComp, total, SIZE);
     for (int off = 0 ; off < SIZE ; off += VERTEX_SIZE) {
       final int offset = total + off;
       temp.set(
@@ -122,9 +121,14 @@ public class CutoutsPass {
       vertComp[X0 + offset] = temp.x;
       vertComp[Y0 + offset] = temp.y;
       vertComp[Z0 + offset] = temp.z;
-      vertComp[C0 + offset] = (s.colour != null) ?
-        s.colour.bitValue :
-        Sprite.WHITE_BITS;
+      
+      final Colour fog = Colour.greyscale(s.fog);
+      final float colourBits;
+      if (s.colour == null) colourBits = fog.bitValue;
+      else if (! s.colour.blank()) colourBits = s.colour.bitValue;
+      else colourBits = Colour.combineAlphaBits(fog, s.colour);
+      
+      vertComp[C0 + offset] = colourBits;
       vertComp[U0 + offset] = s.model.vertices[U0 + off];
       vertComp[V0 + offset] = s.model.vertices[V0 + off];
     }

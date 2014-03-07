@@ -27,7 +27,6 @@ public abstract class Sprite {
   public float depth;
   public float fog = 1;
   public Colour colour = null;
-  //public float colourBits = WHITE_BITS;
   
   
   protected void saveTo(DataOutputStream out) throws Exception {

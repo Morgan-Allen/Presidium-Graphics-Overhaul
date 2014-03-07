@@ -216,7 +216,7 @@ public class World {
     for (Base base : bases) {
       base.paving.checkConsistency() ;
       if (((int) (oldTime / 2)) != ((int) (currentTime / 2))) {
-        base.intelMap.updateFog() ;
+        base.intelMap.updateFogValues() ;
       }
     }
     
@@ -332,6 +332,10 @@ public class World {
       visibleSections, allVisible
     ) ;
     //
+    //  We register terrain for rendering first, partly to update fog values
+    //  for the purpose of allowing fog-culling of sprites-
+    renderTerrain(visibleSections, rendering, base);
+    //
     //  We also render visible mobiles and ghosted SFX-
     Vec3D viewPos = new Vec3D() ;
     float viewRad = -1 ;
@@ -346,8 +350,6 @@ public class World {
     //
     //  Then we register their associated media for rendering, in the correctly
     //  sorted order.
-    renderTerrain(visibleSections, rendering, base) ;
-    //rendering.clearDepth() ;
     Vec3D deep = new Vec3D() ;
     for (Visible visible : allVisible) {
       final Sprite sprite = visible.sprite() ;

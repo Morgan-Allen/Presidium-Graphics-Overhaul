@@ -10,7 +10,7 @@ import src.util.* ;
 
 
 
-public class Outcrop extends Fixture {// implements Selectable {
+public class Outcrop extends Fixture implements Selectable {
   
   
   /**  These are utility methods intended to determine the type and appearance
@@ -241,7 +241,7 @@ public class Outcrop extends Fixture {// implements Selectable {
   }
   
   
-  /*
+  //*
   public InfoPanel createPanel(BaseUI UI) {
     return new InfoPanel(UI, this, InfoPanel.DEFAULT_TOP_MARGIN) ;
   }
@@ -250,9 +250,7 @@ public class Outcrop extends Fixture {// implements Selectable {
     //
     //  TODO:  This is some really awkward phrasing.  When have you ever used
     //  a *non*-BaseUI?
-    if (PlayLoop.currentUI() instanceof BaseUI) {
-      ((BaseUI) PlayLoop.currentUI()).selection.pushSelection(this, false) ;
-    }
+    BaseUI.current().selection.pushSelection(this, false);
   }
   //*/
 }

@@ -87,29 +87,27 @@ public class IntelMap {
   public void updateFogBuffers(float fogTime) {
     final boolean needsUpdate = ((int) fogTime) != ((int) lastFogTime) ;
     lastFogTime = fogTime ;
-    //fogOver.assignFadeVal(fogTime % 1) ;
     if (! needsUpdate) return ;
     fogOver.assignNewVals(fogVals) ;
   }
   
   
   public float displayFog(Tile t) {
-    if (GameSettings.fogFree) return 1 ;
-    return fogOver.sampleAt(t.x, t.y) ;
+    if (GameSettings.fogFree) return 1;
+    return fogOver.sampleAt(t.x, t.y);
   }
   
   
   
   /**  Queries and modifications-
     */
-  public void updateFog() {
-    
+  public void updateFogValues() {
   }
   
   
   public float fogAt(Tile t) {
     if (GameSettings.fogFree) return 1 ;
-    return fogVals[t.x][t.y] ;
+    return fogVals[t.x][t.y];
   }
   
   

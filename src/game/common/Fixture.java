@@ -167,11 +167,10 @@ public abstract class Fixture extends Element {
   protected float fogFor(Base base) {
     float maxFog = Float.NEGATIVE_INFINITY ;
     final Tile o = origin() ;
-    for (int x = o.x ; x < o.x + size ; x++)
-      for (int y = o.y ; y < o.y + size ; y++) {
-        final float fog = base.intelMap.displayFog(world.tileAt(x,  y)) ;
-        if (fog > maxFog) maxFog = fog ;
-      }
+    for (Coord c : Visit.grid(o.x, o.y, size, size, 1)) {
+      final float fog = base.intelMap.displayFog(world.tileAt(c.x, c.y));
+      if (fog > maxFog) maxFog = fog ;
+    }
     return maxFog ;
   }
 }

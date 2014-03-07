@@ -45,18 +45,9 @@ public class Colour {
     LIGHT_GREY  = new Colour().set(0.8f, 0.8f, 0.8f, 1),
     BLACK       = new Colour().set(0, 0, 0, 1),
     TRANSLUCENT = new Colour().set(1, 1, 1, 0.5f) ;
-
-  final public static Colour TRANSPARENCIES[] = new Colour[100];
-  static {
-    for (int n = 100; n-- > 0;) {
-      Colour t = TRANSPARENCIES[n] = new Colour();
-      t.set(1, 1, 1, n / 100f);
-    }
-  }
-
-  public static Colour transparency(float a) {
-    return TRANSPARENCIES[Visit.clamp((int) (a * 100), 100)];
-  }
+  final static int
+    ALPHA_BITS = 0xff000000,
+    RGB_BITS   = 0x00ffffff;
   
   
   public float r = 1, g = 1, b = 1, a = 1;
@@ -99,13 +90,6 @@ public class Colour {
   
   
   /**
-   * Binds this colour to the given GL context. Convenience method.
-   */
-  /*
-   * public void bindColour() { GL11.glColor4f(r, g, b, a) ; } //
-   */
-
-  /**
    * Sets this colour to match the argument Colour values.
    */
   public Colour set(Colour colour) {
@@ -116,7 +100,8 @@ public class Colour {
     bitValue = toFloatBits();
     return this;
   }
-
+  
+  
   /**
    * Sets this colour to match given RGBA component values.
    */
@@ -152,6 +137,15 @@ public class Colour {
   public float value() {
     return Math.max(r, Math.max(g, b));
   }
+  
+  public boolean blank() {
+    return r == 1 && g == 1 && b == 1;
+  }
+  
+  public boolean transparent() {
+    return a < 1;
+  }
+  
 
   /**
    * Sets the argument colour to the complement of this Colour- opposite on the
@@ -219,7 +213,40 @@ public class Colour {
     a = (vals[i + 3] & 0xff) / 255f;
     bitValue = toFloatBits();
   }
+  
+  
+  
+  /**  Helper methods for obtaining transparency and fog values-
+    */
+  final public static Colour TRANSPARENCIES[] = new Colour[100];
+  final public static Colour GREYSCALES[]     = new Colour[100];
+  static {
+    for (int n = 100; n-- > 0;) {
+      final float l = n / 100f;
+      final Colour t = TRANSPARENCIES[n] = new Colour();
+      t.set(1, 1, 1, l);
+      final Colour f = GREYSCALES[n] = new Colour();
+      f.set(l, l, l, 1);
+    }
+  }
 
+  public static Colour transparency(float a) {
+    return TRANSPARENCIES[Visit.clamp((int) (a * 100), 100)];
+  }
+  
+  public static Colour greyscale(float a) {
+    return GREYSCALES[Visit.clamp((int) (a * 100), 100)];
+  }
+  
+  public static float combineAlphaBits(Colour base, Colour alpha) {
+    return Float.intBitsToFloat(
+      (Float.floatToRawIntBits(base .bitValue) & RGB_BITS  ) |
+      (Float.floatToRawIntBits(alpha.bitValue) & ALPHA_BITS)
+    );
+  }
+  
+  
+  
   /**
    * String description of this colour-
    */
