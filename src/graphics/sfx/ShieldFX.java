@@ -100,12 +100,14 @@ public class ShieldFX extends SFX {
   
   
   public void update() {
-    super.update() ;
-    glowAlpha -= BURST_FADE_INC ;
-    if (glowAlpha < MIN_ALPHA_GLOW) glowAlpha = MIN_ALPHA_GLOW ;
+    super.update();
+    
+    glowAlpha -= BURST_FADE_INC;
+    if (glowAlpha < MIN_ALPHA_GLOW) glowAlpha = MIN_ALPHA_GLOW;
     for (Burst burst : bursts) {
-      burst.timer -= BURST_FADE_INC ;
-      if (burst.timer <= 0) bursts.remove(burst) ;
+      burst.timer -= BURST_FADE_INC;
+      if (burst.timer <= 0) bursts.remove(burst);
+      I.say("Burst timer: "+burst.timer);
     }
   }
   
@@ -118,53 +120,52 @@ public class ShieldFX extends SFX {
   
   /**  Actual rendering-
     */
-  public void registerFor(Rendering rendering) {
-    rendering.sfxPass.register(this);
-  }
-  
-  
   protected void renderInPass(SFXPass pass) {
-    /*
     //
     //  First, establish coordinates for the halo corners-
-    final Vec3D off = new Vec3D(1.0f, 1.0f, 0).scale(scale) ;
-    rendering.view.viewInvert(off) ;
-    verts[0].setTo(position).add(off) ;
-    verts[2].setTo(position).sub(off) ;
-    off.set(1.0f, -1.0f, 0).scale(scale) ;
-    rendering.view.viewInvert(off) ;
-    verts[1].setTo(position).add(off) ;
-    verts[3].setTo(position).sub(off) ;
+    final Vec3D flatPos = new Vec3D().setTo(position);
+    pass.rendering.view.translateToScreen(flatPos);
     //
     //  Render the halo itself-
-    GL11.glColor4f(1, 1, 1, glowAlpha) ;
-    renderTex(verts, SHIELD_HALO_TEX) ;
-    GL11.glColor4f(1, 1, 1, 1) ;
+    final float r = scale * pass.rendering.view.screenScale();
+    pass.compileQuad(
+      SHIELD_HALO_TEX.asTexture(),
+      Colour.transparency(glowAlpha),
+      flatPos.x - r, flatPos.y - r, r * 2, r * 2,
+      0, 0, 1, 1,
+      flatPos.z, true
+    );
     //
     //  Then render each burst-
-    for (Burst burst : bursts) renderBurst(burst) ;
-    //*/
+    for (Burst burst : bursts) renderBurst(pass, burst) ;
   }
   
   
-  private void renderBurst(Burst burst) {
-    /*
-    //I.say("Rendering burst from angle: "+burst.angle) ;
-    final float s = burst.timer ;
-    verts[0].set(-s, 2, -s) ;
-    verts[1].set( s, 2, -s) ;
-    verts[2].set( s, 2,  s) ;
-    verts[3].set(-s, 2,  s) ;
-    rotMat.setIdentity().rotateZ((float) Math.toRadians(burst.angle)) ;
+  private void renderBurst(SFXPass pass, Burst burst) {
+    final float s = burst.timer * 2 ;
+    final float QV[] = SFXPass.QUAD_VERTS;
+    int i = 0; for (Vec3D v : verts) {
+      v.set(
+        (QV[i++] - 0.5f) * s,
+        (QV[i++] - 0.5f) * s,
+         QV[i++] + 2
+      );
+    }
+    
+    rotMat.setIdentity();
+    rotMat.rotateZ((float) Math.toRadians(burst.angle));
+    rotMat.rotateX((float) Math.toRadians(90));
     for (Vec3D v : verts) {
       rotMat.trans(v) ;
       v.scale(scale / 2f) ;
       v.add(position) ;
     }
-    GL11.glColor4f(1, 1, 1, Math.min(1, burst.timer * MAX_BURST_ALPHA)) ;
-    renderTex(verts, SHIELD_BURST_TEX) ;
-    GL11.glColor4f(1, 1, 1, 1) ;
-    //*/
+    
+    pass.compileQuad(
+      SHIELD_BURST_TEX.asTexture(),
+      Colour.transparency(burst.timer * MAX_BURST_ALPHA),
+      verts, 0, 0, 1, 1
+    );
   }
 }
 

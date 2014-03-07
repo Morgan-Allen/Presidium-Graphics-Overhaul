@@ -94,6 +94,13 @@ public class Viewport {
   }
   
   
+  public float screenDepth(Vec3D point) {
+    worldToGL(point, temp);
+    camera.project(temp);
+    return point.z;
+  }
+  
+  
   public Vec3D translateFromScreen(Vec3D point) {
     //  Note:  We have to treat the y values differently from screen
     //  translation, thanks to how LibGDX implements these functions.

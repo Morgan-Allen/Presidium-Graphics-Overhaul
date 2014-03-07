@@ -1,6 +1,8 @@
 
 
 package src.start;
+import org.apache.commons.math3.util.FastMath;
+
 import src.graphics.common.*;
 import src.graphics.cutout.*;
 import src.graphics.solids.*;
@@ -63,6 +65,22 @@ public class DebugGraphics {
         };
         TS.position.set(0, 0, 2);
         sprites.add(TS);
+        
+        final ShieldFX SFX = new ShieldFX() {
+          public void update() {
+            if (Rand.index(Rendering.FRAMES_PER_SECOND) <= 2) {
+              final Vec3D point = new Vec3D();
+              final float angle = (float) (Math.PI * 2 * Rand.num());
+              point.x = 10 * (float) FastMath.sin(angle);
+              point.y = 10 * (float) FastMath.cos(angle);
+              this.attachBurstFromPoint(point, Rand.yes());
+            }
+            super.update();
+          }
+        };
+        SFX.scale = 1.5f;
+        SFX.position.set(-2, 2, 0);
+        sprites.add(SFX);
         
         loaded = true;
       }

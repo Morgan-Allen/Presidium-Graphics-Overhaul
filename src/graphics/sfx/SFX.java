@@ -38,35 +38,22 @@ public abstract class SFX extends Sprite {
   protected abstract void renderInPass(SFXPass pass);
   
   
+  public void registerFor(Rendering rendering) {
+    rendering.sfxPass.register(this);
+  }
+  
+  
+  
   /**  Intended as utility methods for performing actual rendering-
     */
   final protected static Vec3D verts[] = new Vec3D[] {
     new Vec3D(), new Vec3D(), new Vec3D(), new Vec3D()
-  } ;
-  
-  /*
-  
-  protected void renderTex(Vec3D[] verts, Texture tex) {
-    GL11.glMatrixMode(GL11.GL_MODELVIEW) ;
-    GL11.glLoadIdentity() ;
-    tex.bindTex() ;
-    Vec3D v ;
-    GL11.glDepthMask(false) ;
-    GL11.glBegin(GL11.GL_QUADS) ;
-      GL11.glTexCoord2f(0, 0) ;
-      v = verts[0] ;
-      GL11.glVertex3f(v.x, v.y, v.z) ;
-      GL11.glTexCoord2f(0, 1) ;
-      v = verts[1] ;
-      GL11.glVertex3f(v.x, v.y, v.z) ;
-      GL11.glTexCoord2f(1, 1) ;
-      v = verts[2] ;
-      GL11.glVertex3f(v.x, v.y, v.z) ;
-      GL11.glTexCoord2f(1, 0) ;
-      v = verts[3] ;
-      GL11.glVertex3f(v.x, v.y, v.z) ;
-    GL11.glEnd() ;
-    GL11.glDepthMask(true) ;
-  }
-  //*/
+  };
 }
+
+
+
+
+
+
+

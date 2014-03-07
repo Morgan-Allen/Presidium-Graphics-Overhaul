@@ -129,11 +129,6 @@ public class ShotFX extends SFX {
     end   = new Vec3D() ;
   
   
-  public void registerFor(Rendering rendering) {
-    rendering.sfxPass.register(this);
-  }
-  
-  
   protected void renderInPass(SFXPass pass) {
     /*
     //  First, we need to determine what the 'perp' angle should be (as in,

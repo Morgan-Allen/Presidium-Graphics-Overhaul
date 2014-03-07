@@ -49,11 +49,6 @@ public class MoteFX extends SFX {
   }
   
   
-  public void registerFor(Rendering rendering) {
-    rendering.sfxPass.register(this);
-  }
-  
-  
   protected void renderInPass(SFXPass pass) {
     /*
     mote.matchTo(this) ;

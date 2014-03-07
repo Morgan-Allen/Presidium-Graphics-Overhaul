@@ -87,12 +87,6 @@ public class PlaneFX extends SFX {
   private static Mat3D trans = new Mat3D();
   
   
-  public void registerFor(Rendering rendering) {
-    ///I.complain("Who?");
-    rendering.sfxPass.register(this);
-  }
-  
-  
   protected void renderInPass(SFXPass pass) {
     
     ///I.say("Rendering plane FX...");
