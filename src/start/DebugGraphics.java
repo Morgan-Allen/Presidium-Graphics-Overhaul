@@ -4,6 +4,7 @@ package src.start;
 import src.graphics.common.*;
 import src.graphics.cutout.*;
 import src.graphics.solids.*;
+import src.graphics.sfx.*;
 import src.graphics.widgets.*;
 import src.util.*;
 
@@ -50,6 +51,19 @@ public class DebugGraphics {
           CS.scale = 0.5f;
           sprites.add(CS);
         }
+        
+        final TalkFX TS = new TalkFX() {
+          int count = 0;
+          public void update() {
+            if (this.numPhrases() < 2) {
+              addPhrase("Testing "+(count++), TalkFX.FROM_LEFT);
+            }
+            super.update();
+          }
+        };
+        TS.position.set(0, 0, 2);
+        sprites.add(TS);
+        
         loaded = true;
       }
       
@@ -115,6 +129,7 @@ public class DebugGraphics {
         else moused = false ;
         
         for (Sprite sprite : sprites) {
+          sprite.update();
           sprite.registerFor(rendering);
           final float f = sprite.fog, a = f * (1 - f) * 4;
           sprite.colour = Colour.transparency(a);

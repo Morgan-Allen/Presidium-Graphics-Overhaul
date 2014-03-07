@@ -4,13 +4,16 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
+
 package src.graphics.widgets;
 import src.util.*;
 import src.graphics.common.*;
+
 import java.io.*;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.Pixmap.Blending;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.*;
@@ -38,6 +41,11 @@ public class Alphabet {
   
   public Letter letterFor(char c) {
     return map[c];
+  }
+  
+  
+  public Texture texture() {
+    return fontTex;
   }
   
   
@@ -71,12 +79,14 @@ public class Alphabet {
       wide = valueMap.getWidth(),
       high = valueMap.getHeight();
     
+    Pixmap.setBlending(Blending.None);
     for (Coord c : Visit.grid(0, 0, wide, high, 1)) {
-      final int
-        value = valueMap.getPixel(c.x, c.y) & 0xffffff00,
-        alpha = (alphaMap.getPixel(c.x, c.y) & 0xff000000) >> 24,
-        blend = value | alpha;
-      valueMap.drawPixel(c.x, c.y, blend);
+      int value = valueMap.getPixel(c.x, c.y);
+      int alpha = alphaMap.getPixel(c.x, c.y);
+      value =  value & 0xffffff00;
+      alpha = (alpha & 0xff000000) >> 24;
+      value = value | alpha;
+      valueMap.drawPixel(c.x, c.y, value);
     }
     fontTex = new Texture(valueMap);
     fontTex.setFilter(TextureFilter.Linear, TextureFilter.Linear);
@@ -103,8 +113,8 @@ public class Alphabet {
     for (int line = 0 ; line < numLines ; line++) {
       final int y = line * lineHigh;
       for (int x = 0 ; x < wide ; x++) {
-        final int alpha = alphaMap.getPixel(x, y) & 0xff;
-        if (alpha != 0) {
+        final int alphaBits = alphaMap.getPixel(x, y) & 0xff;
+        if (alphaBits != 0) {
           if (scan) {
             //...a letter starts here.
             scan = false ;

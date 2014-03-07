@@ -113,24 +113,54 @@ public class SFXPass {
   }
   
   
-  protected void compileQuad(Texture tex, Colour colour, Vec3D verts[]) {
+  protected void compileQuad(
+    Texture tex, Colour colour, Vec3D verts[],
+    float umin, float vmin, float umax, float vmax
+  ) {
     if (tex != lastTex || total > COMPILE_LIMIT) {
       compileAndRender(rendering.camera());
     }
     lastTex = tex;
+    
     for (int i = 0 ; i < 4 ; i++) {
       final int offset = total + (i * VERT_SIZE);
       rendering.view.worldToGL(verts[i], temp);
       vertComp[X0 + offset] = temp.x;
       vertComp[Y0 + offset] = temp.y;
       vertComp[Z0 + offset] = temp.z;
+      
       vertComp[C0 + offset] = colour == null ?
         Sprite.WHITE_BITS : colour.bitValue;
-      vertComp[U0 + offset] = QUAD_UV[i * 2];
-      vertComp[V0 + offset] = QUAD_UV[(i * 2) + 1];
+      
+      final float u = QUAD_UV[i * 2], v = QUAD_UV[(i * 2) + 1];
+      vertComp[U0 + offset] = ((1 - u) * umin) + (u * umax);
+      vertComp[V0 + offset] = ((1 - v) * vmin) + (v * vmax);
     }
     
     total += QUAD_SIZE;
+  }
+  
+  
+  protected void compileQuad(
+    Texture tex, Colour colour,
+    float x, float y, float wide, float high,
+    float umin, float vmin, float umax, float vmax,
+    float zpos, boolean fromScreen
+  ) {
+    int i = 0 ; for (Vec3D v : SFX.verts) {
+      v.set(
+        x + (QUAD_VERTS[i++] * wide),
+        y + ((1 - QUAD_VERTS[i++]) * high),
+        zpos + QUAD_VERTS[i++]
+      );
+      //  TODO:  This still needs working on.  z coords in particular need to
+      //  be preserved?
+      if (fromScreen) {
+        rendering.view.translateFromScreen(v);
+        //v.scale(1f / rendering.view.screenScale());
+      }
+    }
+    compileQuad(tex, colour, SFX.verts, umin, vmin, umax, vmax);
   }
   
   

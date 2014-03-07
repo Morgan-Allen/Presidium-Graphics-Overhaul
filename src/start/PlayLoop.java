@@ -34,8 +34,8 @@ public final class PlayLoop {
     UPDATES_PER_SECOND = 10,
     FRAMES_PER_SECOND  = 30,
     
-    DEFAULT_WIDTH  = 1000,
-    DEFAULT_HEIGHT = 600,
+    DEFAULT_WIDTH  = 1600,
+    DEFAULT_HEIGHT = 800,
     DEFAULT_HERTZ  = 60,
     
     MIN_SLEEP    = 10,
@@ -87,7 +87,7 @@ public final class PlayLoop {
       
       final LwjglApplicationConfiguration
         config = new LwjglApplicationConfiguration();
-      config.title = "Presidium";
+      config.title = "Stratos";
       config.useGL20 = true;
       config.vSyncEnabled = true;
       config.width = DEFAULT_WIDTH;

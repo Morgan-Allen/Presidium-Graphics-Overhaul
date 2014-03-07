@@ -7,8 +7,7 @@ import src.graphics.widgets.* ;
 import src.util.* ;
 
 import java.io.* ;
-
-import org.lwjgl.opengl.* ;
+//import org.lwjgl.opengl.* ;
 
 
 
@@ -47,8 +46,8 @@ public class TalkFX extends SFX {
   
   public float fadeRate = 1.0f ;
   final float LINE_HIGH, LINE_SPACE;
-  final Stack <Bubble> toShow  = new Stack <Bubble> () ;
-  final Stack <Bubble> showing = new Stack <Bubble> () ;
+  final Stack <Bubble> toShow  = new Stack <Bubble> ();
+  final Stack <Bubble> showing = new Stack <Bubble> ();
   
   
   public TalkFX() {
@@ -184,40 +183,26 @@ public class TalkFX extends SFX {
   
   
   protected void renderInPass(SFXPass pass) {
-    if (showing.size() == 0) return ;
-    /*
-    final Vec3D flatPoint = new Vec3D(position) ;
-    rendering.view.isoToScreen(flatPoint) ;
-    float fontScale = LINE_HIGH / FONT.map[' '].height ;
+    if (showing.size() == 0) return;
     
-    GL11.glDepthMask(false) ;
-    rendering.view.setScreenMode() ;
+    final Vec3D flatPoint = new Vec3D(position);
+    pass.rendering.view.translateToScreen(flatPoint);
+    final float fontScale = LINE_HIGH / FONT.letterFor(' ').height;
     
-    BUBBLE_TEX.bindTex() ;
-    GL11.glBegin(GL11.GL_QUADS) ;
     for (Bubble bubble : showing) if (bubble.type != NOT_SPOKEN) {
-      renderBubble(rendering, bubble, flatPoint, bubble.type == FROM_RIGHT) ;
+      renderBubble(pass, bubble, flatPoint, bubble.type == FROM_RIGHT) ;
     }
-    GL11.glEnd() ;
-
-    FONT.fontTex.bindTex() ;
-    GL11.glBegin(GL11.GL_QUADS) ;
-    for (Bubble bubble : showing) {
-      renderPhrase(rendering, bubble, flatPoint, fontScale) ;
-    }
-    GL11.glEnd() ;
     
-    rendering.view.setIsoMode() ;
-    GL11.glDepthMask(true) ;
-    GL11.glColor4f(1, 1, 1, 1) ;
-    //*/
+    for (Bubble bubble : showing) {
+      renderPhrase(pass, bubble, flatPoint, fontScale) ;
+    }
   }
   
   
   //  TODO:  Consider unifying this code with the Border-display routines?
   
   private void renderBubble(
-    Rendering rendering, Bubble bubble,
+    SFXPass pass, Bubble bubble,
     Vec3D flatPoint, boolean fromRight
   ) {
     //
@@ -248,32 +233,30 @@ public class TalkFX extends SFX {
       capXR = maxX - (texWide * 0.25f) ;
     //
     //  Render the three segments of the bubble-
-    GL11.glColor4f(1, 1, 1, Math.min(1, bubble.alpha)) ;
-    /*
-    UINode.drawQuad(
-      minX , minY,
-      capXL, maxY,
+    final Colour colour = Colour.transparency(bubble.alpha);
+    pass.compileQuad(
+      BUBBLE_TEX.asTexture(), colour,
+      minX, minY, capXL - minX, maxY - minY,
       MIN_U, BOT_V, CAP_LU, TOP_V,
-      flatPoint.z + bubble.yoff
-    ) ;
-    UINode.drawQuad(
-      capXL, minY,
-      capXR, maxY,
+      0.5f, true
+    );
+    pass.compileQuad(
+      BUBBLE_TEX.asTexture(), colour,
+      capXL, minY, capXR - capXL, maxY - minY,
       CAP_LU, BOT_V, CAP_RU, TOP_V,
-      flatPoint.z + bubble.yoff
-    ) ;
-    UINode.drawQuad(
-      capXR, minY,
-      maxX , maxY,
+      0.5f, true
+    );
+    pass.compileQuad(
+      BUBBLE_TEX.asTexture(), colour,
+      capXR, minY, maxX - capXR, maxY - minY,
       CAP_RU, BOT_V, MAX_U, TOP_V,
-      flatPoint.z + bubble.yoff
-    ) ;
-    //*/
+      0.5f, true
+    );
   }
   
   
   private void renderPhrase(
-    Rendering rendering, Bubble bubble,
+    SFXPass pass, Bubble bubble,
     Vec3D flatPoint, float fontScale
   ) {
     float
@@ -281,19 +264,18 @@ public class TalkFX extends SFX {
       x = flatPoint.x + bubble.xoff,
       y = flatPoint.y + bubble.yoff ;
 
-    GL11.glColor4f(1, 1, 1, Math.min(1, bubble.alpha)) ;
+    final Colour colour = Colour.transparency(bubble.alpha);
     for (char c : bubble.phrase.toCharArray()) {
       Alphabet.Letter l = FONT.letterFor(c) ;
       if (l == null) l = FONT.letterFor(' ') ;
-      /*
-      UINode.drawQuad(
+      
+      pass.compileQuad(
+        FONT.texture(), colour,
         x + scanW, y,
-        x + scanW + (l.width * fontScale),
-        y + (l.height * fontScale),
+        l.width * fontScale, l.height * fontScale,
         l.umin, l.vmin, l.umax, l.vmax,
-        flatPoint.z + bubble.yoff
-      ) ;
-      //*/
+        0.5f, true
+      );
       scanW += l.width * fontScale ;
     }
   }

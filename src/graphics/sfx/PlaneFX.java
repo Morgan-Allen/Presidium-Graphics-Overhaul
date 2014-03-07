@@ -117,7 +117,7 @@ public class PlaneFX extends SFX {
       v.add(p);
     }
     
-    pass.compileQuad(model.texture, colour, verts);
+    pass.compileQuad(model.texture, colour, verts, 0, 0, 1, 1);
   }
 }
 

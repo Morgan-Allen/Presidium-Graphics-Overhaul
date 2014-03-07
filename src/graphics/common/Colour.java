@@ -45,9 +45,16 @@ public class Colour {
     LIGHT_GREY  = new Colour().set(0.8f, 0.8f, 0.8f, 1),
     BLACK       = new Colour().set(0, 0, 0, 1),
     TRANSLUCENT = new Colour().set(1, 1, 1, 0.5f) ;
-  final static int
+  final public static int
     ALPHA_BITS = 0xff000000,
-    RGB_BITS   = 0x00ffffff;
+    RGB_BITS   = 0x00ffffff,
+    RED_BITS   = 0x00ff0000,
+    GREEN_BITS = 0x0000ff00,
+    BLUE_BITS  = 0x000000ff,
+    ALPHA_SHIFT = 24,
+    RED_SHIFT   = 16,
+    GREEN_SHIFT = 8,
+    BLUE_SHIFT  = 0;
   
   
   public float r = 1, g = 1, b = 1, a = 1;
@@ -79,6 +86,10 @@ public class Colour {
     a = in.readFloat();
   }
   
+  
+  
+  /**  Helper methods for format conversion-
+    */
   private float toFloatBits() {
     final int color =
       ((int) (255 * a) << 24) |
@@ -87,6 +98,46 @@ public class Colour {
       ((int) (255 * r) << 0 ) ;
     return Float.intBitsToFloat(color);
   }
+  
+  
+  public int getRGBA() {
+    return
+      ((int) (255 * a) << 0 ) |
+      ((int) (255 * b) << 8 ) |
+      ((int) (255 * g) << 16) |
+      ((int) (255 * r) << 24) ;
+  }
+  
+  
+  //  TODO:  This is only suitable for the internal packing format of vertex
+  //  data...
+  public void setFromInt(int value) {
+    a = ((value >> 24) & 0xff) / 255f;
+    b = ((value >> 16) & 0xff) / 255f;
+    g = ((value >> 8 ) & 0xff) / 255f;
+    r = ((value >> 0 ) & 0xff) / 255f;
+    bitValue = toFloatBits();
+  }
+  
+  
+  
+  /*
+  public void storeByteValue(byte puts[], int i) {
+    puts[i + 0] = (byte) (r * 255);
+    puts[i + 1] = (byte) (g * 255);
+    puts[i + 2] = (byte) (b * 255);
+    puts[i + 3] = (byte) (a * 255);
+  }
+  
+  
+  public void setFromBytes(byte vals[], int i) {
+    r = (vals[i + 0] & 0xff) / 255f;
+    g = (vals[i + 1] & 0xff) / 255f;
+    b = (vals[i + 2] & 0xff) / 255f;
+    a = (vals[i + 3] & 0xff) / 255f;
+    bitValue = toFloatBits();
+  }
+  //*/
   
   
   /**
@@ -192,28 +243,6 @@ public class Colour {
     bitValue = toFloatBits();
     return this;
   }
-
-  /**
-   * Converts this colour into byte format-
-   */
-  public void storeByteValue(byte puts[], int i) {
-    puts[i + 0] = (byte) (r * 255);
-    puts[i + 1] = (byte) (g * 255);
-    puts[i + 2] = (byte) (b * 255);
-    puts[i + 3] = (byte) (a * 255);
-  }
-
-  /**
-   * Sets RGBA values from the given byte format-
-   */
-  public void setFromBytes(byte vals[], int i) {
-    r = (vals[i + 0] & 0xff) / 255f;
-    g = (vals[i + 1] & 0xff) / 255f;
-    b = (vals[i + 2] & 0xff) / 255f;
-    a = (vals[i + 3] & 0xff) / 255f;
-    bitValue = toFloatBits();
-  }
-  
   
   
   /**  Helper methods for obtaining transparency and fog values-

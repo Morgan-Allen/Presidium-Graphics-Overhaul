@@ -313,14 +313,13 @@ public abstract class Mobile extends Element
     s.scale = scale ;
     //
     //  Render your shadow, either on the ground or on top of occupants-
-    final float R2 = (float) Math.sqrt(2) ;
-    final PlaneFX shadow = (PlaneFX) SHADOW_MODEL.makeSprite() ;
-    shadow.scale = radius() * scale * R2 ;
-    final Vec3D p = s.position ;
-    shadow.position.setTo(p) ;
-    shadow.position.z = shadowHeight(p) ;
-    //  TODO:  RESTORE THIS!
-    //shadow.registerFor(rendering);
+    final float R2 = (float) Math.sqrt(2);
+    final PlaneFX shadow = (PlaneFX) SHADOW_MODEL.makeSprite();
+    shadow.scale = radius() * scale * R2;
+    final Vec3D p = s.position;
+    shadow.position.setTo(p);
+    shadow.position.z = shadowHeight(p);
+    shadow.registerFor(rendering);
     
     this.viewPosition(s.position);
     final float alpha = Rendering.frameAlpha();
