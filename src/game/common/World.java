@@ -294,13 +294,13 @@ public class World {
   /**  Rendering and interface methods-
     */
   public float timeMidRender() {
-    return currentTime + (PlayLoop.frameTime() / PlayLoop.FRAMES_PER_SECOND) ;
+    return currentTime + (PlayLoop.frameTime() / Rendering.FRAMES_PER_SECOND);
   }
   
   
   public static interface Visible {
-    void renderFor(Rendering r, Base b) ;
-    Sprite sprite() ;
+    void renderFor(Rendering r, Base b);
+    Sprite sprite();
   }
   
   
@@ -383,8 +383,7 @@ public class World {
       terrain.renderFor(section.area, rendering, renderTime);
     }
     if (base != null && ! GameSettings.fogFree) {
-      base.intelMap.updateFogBuffers(renderTime);
-      base.intelMap.fogOver().registerFor(rendering);
+      base.intelMap.updateAndRender(renderTime, rendering);
     }
   }
   

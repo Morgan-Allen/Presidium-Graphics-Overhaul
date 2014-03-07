@@ -8,6 +8,7 @@
 package src.graphics.sfx ;
 import src.graphics.common.* ;
 import src.util.* ;
+
 import java.io.* ;
 
 import com.badlogic.gdx.*;
@@ -83,37 +84,42 @@ public class PlaneFX extends SFX {
   
   /**  Actual rendering-
     */
-  private static Mat3D trans = new Mat3D() ;
+  private static Mat3D trans = new Mat3D();
+  
   
   public void registerFor(Rendering rendering) {
-    /*
-    final Vec3D p = this.position ;
-    final float r = this.radius * scale ;
+    ///I.complain("Who?");
+    rendering.sfxPass.register(this);
+  }
+  
+  
+  protected void renderInPass(SFXPass pass) {
     
-    trans.setIdentity() ;
-    trans.rotateZ((float) (rotation * Math.PI / 180)) ;
+    ///I.say("Rendering plane FX...");
+    final Vec3D p = this.position;
+    final float r = this.radius * scale;
     
+    trans.setIdentity();
+    trans.rotateZ((float) (rotation * Math.PI / 180));
     
-    verts[0].set(0 - r, 0 - r, 0) ;
-    verts[1].set(0 - r, 0 + r, 0) ;
-    verts[2].set(0 + r, 0 + r, 0) ;
-    verts[3].set(0 + r, 0 - r, 0) ;
-    for (Vec3D v : verts) {
-      trans.trans(v) ;
-      if (model.tilted) rendering.view.viewInvert(v) ;
-      v.add(p) ;
+    final float QV[] = SFXPass.QUAD_VERTS;
+    int i = 0 ; for (Vec3D v : verts) {
+      v.set(QV[i++], QV[i++], QV[i++]);
+      v.x = (v.x - 0.5f) * r * 2;
+      v.y = (v.y - 0.5f) * r * 2;
+      v.z = 0;
+      trans.trans(v);
+      if (model.tilted) {
+        final Viewport view = pass.rendering.view;
+        view.translateFromScreen(v);
+        v.scale(1f / view.screenScale());
+      }
+      v.add(p);
     }
     
-    if (colour != null) colour.bindColour() ;
-    renderTex(verts, model.image) ;
-    //*/
+    pass.compileQuad(model.texture, colour, verts);
   }
 }
-
-
-
-
-
 
 
 

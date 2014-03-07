@@ -4,7 +4,8 @@
 package src.game.tactical ;
 import src.game.common.* ;
 import src.game.planet.* ;
-import src.graphics.terrain.* ;
+import src.graphics.common.*;
+import src.graphics.terrain.*;
 import src.util.* ;
 
 
@@ -28,7 +29,7 @@ public class IntelMap {
   MipMap fogMap ;
   
   private FogOverlay fogOver ;
-  private float lastFogTime = -1 ;
+  //private float lastFogTime = -1 ;
   
   
   
@@ -52,7 +53,7 @@ public class IntelMap {
       fogVals[c.x][c.y] = s.loadFloat() ;
     }
     fogMap.loadFrom(s.input()) ;
-    fogOver.assignNewVals(fogVals) ;
+    fogOver.updateVals(-1, fogVals) ;
   }
   
   
@@ -83,18 +84,15 @@ public class IntelMap {
   
   /**  Visual refreshment-
     */
-
-  public void updateFogBuffers(float fogTime) {
-    final boolean needsUpdate = ((int) fogTime) != ((int) lastFogTime) ;
-    lastFogTime = fogTime ;
-    if (! needsUpdate) return ;
-    fogOver.assignNewVals(fogVals) ;
+  public void updateAndRender(float fogTime, Rendering rendering) {
+    fogOver.updateVals(fogTime, fogVals);
+    fogOver.registerFor(rendering);
   }
   
   
-  public float displayFog(Tile t) {
+  public float displayFog(Tile t, Object client) {
     if (GameSettings.fogFree) return 1;
-    return fogOver.sampleAt(t.x, t.y);
+    return fogOver.sampleAt(t.x, t.y, client);
   }
   
   

@@ -128,10 +128,10 @@ public abstract class Scenario implements Session.Saveable, Playable {
   
   
   protected void resetScenario() {
-    this.world = null ;
-    this.base = null ;
-    this.UI = null ;
-    loadProgress = 0;
+    loadProgress = -1;
+    this.world = null;
+    this.base = null;
+    this.UI = null;
     PlayLoop.gameStateWipe();
     PlayLoop.setupAndLoop(this);
   }
@@ -314,7 +314,8 @@ public abstract class Scenario implements Session.Saveable, Playable {
   /**  Methods for override by subclasses-
     */
   public boolean shouldExitLoop() {
-    if (isDebug) {
+    //  TODO:  These should only be available in debug situations...
+    if (isDebug || true) {
       if (Gdx.input.isKeyPressed(Keys.R)) {
         I.say("RESET MISSION?") ;
         resetScenario() ;
@@ -340,6 +341,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
   
   
   public void renderVisuals(Rendering rendering) {
+    if (world == null) return;
     if ((! isDebug) && PlayLoop.gameSpeed() != 1) {
       final Colour blur = new Colour().set(0.5f, 0.5f, 0.1f, 0.4f) ;
       world.ephemera.applyFadeColour(blur) ;
@@ -351,11 +353,12 @@ public abstract class Scenario implements Session.Saveable, Playable {
   
   
   public void updateGameState() {
+    if (world == null) return;
     if ((! isDebug) && PlayLoop.gameSpeed() < 1) {
-      Power.applyTimeDilation(PlayLoop.gameSpeed(), this) ;
+      Power.applyTimeDilation(PlayLoop.gameSpeed(), this);
     }
     if ((! isDebug) && PlayLoop.gameSpeed() > 1) {
-      Power.applyResting(PlayLoop.gameSpeed(), this) ;
+      Power.applyResting(PlayLoop.gameSpeed(), this);
     }
     world.updateWorld();
   }

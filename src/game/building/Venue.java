@@ -843,7 +843,7 @@ public abstract class Venue extends Fixture implements
     renderChat(rendering, base) ;
   }
   
-
+  
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (destroyed() || ! inWorld()) return ;
     Selection.renderPlane(

@@ -179,6 +179,11 @@ public class TalkFX extends SFX {
   /**  Rendering methods-
     */
   public void registerFor(Rendering rendering) {
+    rendering.sfxPass.register(this);
+  }
+  
+  
+  protected void renderInPass(SFXPass pass) {
     if (showing.size() == 0) return ;
     /*
     final Vec3D flatPoint = new Vec3D(position) ;

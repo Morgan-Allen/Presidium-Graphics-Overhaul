@@ -319,7 +319,8 @@ public abstract class Mobile extends Element
     final Vec3D p = s.position ;
     shadow.position.setTo(p) ;
     shadow.position.z = shadowHeight(p) ;
-    shadow.registerFor(rendering);
+    //  TODO:  RESTORE THIS!
+    //shadow.registerFor(rendering);
     
     this.viewPosition(s.position);
     final float alpha = Rendering.frameAlpha();

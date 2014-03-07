@@ -254,7 +254,7 @@ public class Element implements
   
   
   protected float fogFor(Base base) {
-    return base.intelMap.displayFog(origin()) ;
+    return base.intelMap.displayFog(origin(), this) ;
   }
   
   

@@ -9,6 +9,7 @@
 package src.graphics.sfx ;
 import src.graphics.common.* ;
 import src.util.* ;
+
 import java.io.* ;
 //import org.lwjgl.opengl.GL11 ;
 
@@ -118,6 +119,11 @@ public class ShieldFX extends SFX {
   /**  Actual rendering-
     */
   public void registerFor(Rendering rendering) {
+    rendering.sfxPass.register(this);
+  }
+  
+  
+  protected void renderInPass(SFXPass pass) {
     /*
     //
     //  First, establish coordinates for the halo corners-

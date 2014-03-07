@@ -30,29 +30,21 @@ public abstract class SFX extends Sprite {
     super.loadFrom(in) ;
   }
   
-  /*
-  final static int GL_DISABLES[] = {
-    GL11.GL_CULL_FACE,
-    GL11.GL_LIGHTING,
-    GL11.GL_ALPHA_TEST
-  } ;
-  //  TODO:  use GL11.glDepthMask() here, in a dedicated rendering pass for all
-  //  SFX objects.  Remove it from the renderTex() method below...
-  
-  public int[] GL_disables() { return GL_DISABLES ; }
-  //*/
   
   public void setAnimation(String animName, float progress) {
   }
   
   
+  protected abstract void renderInPass(SFXPass pass);
+  
   
   /**  Intended as utility methods for performing actual rendering-
     */
-  /*
   final protected static Vec3D verts[] = new Vec3D[] {
     new Vec3D(), new Vec3D(), new Vec3D(), new Vec3D()
   } ;
+  
+  /*
   
   protected void renderTex(Vec3D[] verts, Texture tex) {
     GL11.glMatrixMode(GL11.GL_MODELVIEW) ;

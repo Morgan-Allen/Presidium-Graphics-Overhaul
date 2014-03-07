@@ -18,6 +18,8 @@ import static com.badlogic.gdx.graphics.Texture.TextureFilter.*;
 public class FogOverlay {
   
   
+  private static boolean verbose = false;
+  
   final int size;
   
   private float oldVals[][], newVals[][];
@@ -33,8 +35,9 @@ public class FogOverlay {
     Pixmap.setBlending(Blending.None);
     drawnTo.setColor(Color.BLACK);
     drawnTo.fill();
-    oldVals = newVals = new float[size][size];
-
+    oldVals = new float[size][size];
+    newVals = new float[size][size];
+    
     oldTex = new Texture(drawnTo);
     oldTex.setFilter(Linear, Linear);
     newTex = new Texture(drawnTo);
@@ -59,45 +62,55 @@ public class FogOverlay {
   }
   
   
-  protected void checkBufferSwap(float newTime) {
-    if (((int) oldTime) != ((int) newTime)) {
-      final Texture temp = newTex;
-      newTex = oldTex;
-      oldTex = temp;
-      newTex.draw(drawnTo, 0, 0);
-    }
-    oldTime = newTime;
-  }
-  
-  
   public void registerFor(Rendering rendering) {
     rendering.terrainPass.applyFog(this);
   }
   
   
-  //  TODO:  Hopefully, this should be reasonably fast.  ...ish.  See if it
-  //  can't be improved on, though.
-  public void assignNewVals(float newVals[][]) {
-    oldVals = this.newVals;
-    this.newVals = newVals;
+  public void updateVals(float newTime, float updateVals[][]) {
+    if (((int) oldTime) == ((int) newTime)) {
+      if (verbose) I.say("OLD/NEW TIME: "+oldTime+"/"+newTime);
+      oldTime = newTime;
+      return;
+    }
+    final float tempV[][] = oldVals;
+    oldVals = newVals;
+    newVals = tempV;
     
+    //  TODO:  Hopefully, this should be reasonably fast.  ...ish.  See if it
+    //  can't be improved on, though.
     Pixmap.setBlending(Blending.None);
     for (Coord c : Visit.grid(0, 0, size, size, 1)) {
-      final float fog = newVals[c.x][c.y];
+      final float fog = updateVals[c.x][c.y];
+      newVals[c.x][c.y] = fog;
       drawnTo.setColor(fog, fog, fog, 1);
       drawnTo.drawPixel(c.x, c.y);
     }
+    
+    final Texture tempT = newTex;
+    newTex = oldTex;
+    oldTex = tempT;
+    newTex.draw(drawnTo, 0, 0);
+    
+    if (verbose) I.say("PERFORMED FOG REFRESH, TIMES: "+oldTime+"/"+newTime);
+    oldTime = newTime;
   }
   
   
-  public float sampleAt(int x, int y) {
+  public float sampleAt(int x, int y, Object client) {
     final float
       oldVal = oldVals[x][y],
       newVal = newVals[x][y];
     final float time = oldTime % 1;
-    return (oldVal * (1 - time)) + (time * newVal);
+    final float sample = (oldVal * (1 - time)) + (time * newVal);
+    if (verbose && client != null && I.talkAbout == client) {
+      I.say("  Client time is: "+time+", sample: "+sample);
+    }
+    return sample;
   }
 }
+
+
 
 
 

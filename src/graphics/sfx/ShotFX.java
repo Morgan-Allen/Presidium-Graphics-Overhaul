@@ -3,9 +3,10 @@
 
 package src.graphics.sfx ;
 import src.graphics.common.* ;
+
 import java.io.* ;
+
 import src.util.* ;
-//import org.lwjgl.opengl.GL11 ;
 
 import com.badlogic.gdx.graphics.*;
 
@@ -129,6 +130,11 @@ public class ShotFX extends SFX {
   
   
   public void registerFor(Rendering rendering) {
+    rendering.sfxPass.register(this);
+  }
+  
+  
+  protected void renderInPass(SFXPass pass) {
     /*
     //  First, we need to determine what the 'perp' angle should be (as in,
     //  perpendicular to the line of the beam, as perceived by the viewer.)

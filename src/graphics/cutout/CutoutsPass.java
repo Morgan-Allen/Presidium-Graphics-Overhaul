@@ -22,7 +22,7 @@ public class CutoutsPass {
     MAX_SPRITES   = 1000,
     COMPILE_LIMIT = MAX_SPRITES * SIZE ;
   
-  private static Vector3 temp = new Vector3(), temp2 = new Vector3() ;
+  private static Vector3 temp = new Vector3(), temp2 = new Vector3();
   
   
   final Rendering rendering;
@@ -42,7 +42,7 @@ public class CutoutsPass {
     this.rendering = rendering;
     
     compiled = new Mesh(
-      Mesh.VertexDataType.VertexArray,  //TODO:  THIS IS THE CULPRIT.
+      Mesh.VertexDataType.VertexArray,
       false,
       MAX_SPRITES * 4, MAX_SPRITES * 6,
       
@@ -88,8 +88,7 @@ public class CutoutsPass {
   }
   
   
-  public void performPass() {//Array <CutoutSprite> sprites, Camera camera) {
-    //I.say("New cutouts pass...") ;
+  public void performPass() {
     for (CutoutSprite s : inPass) {
       compileSprite(s, rendering.camera());
     }

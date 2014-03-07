@@ -168,7 +168,8 @@ public abstract class Fixture extends Element {
     float maxFog = Float.NEGATIVE_INFINITY ;
     final Tile o = origin() ;
     for (Coord c : Visit.grid(o.x, o.y, size, size, 1)) {
-      final float fog = base.intelMap.displayFog(world.tileAt(c.x, c.y));
+      final Tile t = world.tileAt(c.x, c.y);
+      final float fog = base.intelMap.displayFog(t, t == o ? this : null);
       if (fog > maxFog) maxFog = fog ;
     }
     return maxFog ;

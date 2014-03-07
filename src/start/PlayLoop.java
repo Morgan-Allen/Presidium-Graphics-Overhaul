@@ -208,8 +208,6 @@ public final class PlayLoop {
       lastFrame = time;
     }
     
-    ///I.say("Frame time is: "+frameTime);
-    if (played != current) return true;
     //  Now we essentially 'pretend' that updates were occurring once every
     //  UPDATE_INTERVAL milliseconds:
     if (played != null) {
@@ -218,8 +216,8 @@ public final class PlayLoop {
         (1 + (FRAME_INTERVAL / UPDATE_INTERVAL))
       );
       if (! paused) for (int n = numUpdates ; n-- > 0 ;) {
-        if (played.shouldExitLoop()) return false;
         if (played != current) return true;
+        if (played.shouldExitLoop()) return false;
         ///I.say("UPDATING WORLD?");
         played.updateGameState();
         numStateUpdates++;

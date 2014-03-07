@@ -9,6 +9,7 @@ import org.lwjgl.opengl.GL11;
 import src.graphics.cutout.*;
 import src.graphics.solids.*;
 import src.graphics.terrain.*;
+import src.graphics.sfx.*;
 import src.graphics.widgets.*;
 import src.start.PlayLoop;
 import src.util.*;
@@ -39,7 +40,7 @@ public class Rendering {
   final public TerrainPass terrainPass;
   final public SolidsPass solidsPass;
   final public CutoutsPass cutoutsPass;
-  //  TODO:  We'll also need a pass for special FX.
+  final public SFXPass sfxPass;
   
   
   public Rendering() {
@@ -50,6 +51,7 @@ public class Rendering {
     terrainPass = new TerrainPass(this);
     solidsPass  = new SolidsPass (this);
     cutoutsPass = new CutoutsPass(this);
+    sfxPass     = new SFXPass     (this);
     reportVersion();
   }
   
@@ -58,6 +60,7 @@ public class Rendering {
     terrainPass.dispose();
     solidsPass .dispose();
     cutoutsPass.dispose();
+    sfxPass    .dispose();
   }
   
   
@@ -92,6 +95,7 @@ public class Rendering {
     terrainPass.clearAll();
     cutoutsPass.clearAll();
     solidsPass .clearAll();
+    sfxPass    .clearAll();
   }
   
   
@@ -115,10 +119,14 @@ public class Rendering {
     //  ModelBatch internally.)  TODO:  FIX using RenderContext?
     glEnable(GL10.GL_BLEND);
     glEnable(GL10.GL_DEPTH_TEST);
+    
     //  TODO:  It's probably a good idea to take everything transparent and
     //  render it later.  But for the moment, cutouts are more likely to
     //  exhibit transparency.
     cutoutsPass.performPass();
+    
+    glDepthMask(false);
+    sfxPass.performPass();
     
     if (UI != null) {
       UI.updateInput();

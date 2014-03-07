@@ -63,7 +63,7 @@ public class Viewport {
   }
   
   
-  private float screenScale() {
+  public float screenScale() {
     return DEFAULT_SCALE * zoomLevel;
   }
   
@@ -104,6 +104,28 @@ public class Viewport {
     GLToWorld(temp, point);
     return point;
   }
+  
+  
+  //  TODO:  DIG INTO THESE INSTEAD-
+  /*
+    public void project (Vector3 vec, float viewportX, float viewportY, float viewportWidth, float viewportHeight) {
+        vec.prj(combined);
+        vec.x = viewportWidth * (vec.x + 1) / 2 + viewportX;
+        vec.y = viewportHeight * (vec.y + 1) / 2 + viewportY;
+        vec.z = (vec.z + 1) / 2;
+    }
+    
+    public void unproject (Vector3 vec, float viewportX, float viewportY, float viewportWidth, float viewportHeight) {
+        float x = vec.x, y = vec.y;
+        x = x - viewportX;
+        y = Gdx.graphics.getHeight() - y - 1;
+        y = y - viewportY;
+        vec.x = (2 * x) / viewportWidth - 1;
+        vec.y = (2 * y) / viewportHeight - 1;
+        vec.z = 2 * vec.z - 1;
+        vec.prj(invProjectionView);
+    }
+  //*/
   
   
   public Vec3D direction() {
