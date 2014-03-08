@@ -79,6 +79,8 @@ public class FogOverlay {
     
     //  TODO:  Hopefully, this should be reasonably fast.  ...ish.  See if it
     //  can't be improved on, though.
+    //  TODO:  You can use Pixmap.getPixels() to access the byte buffer
+    //         directly!  Employ that!
     Pixmap.setBlending(Blending.None);
     for (Coord c : Visit.grid(0, 0, size, size, 1)) {
       final float fog = updateVals[c.x][c.y];

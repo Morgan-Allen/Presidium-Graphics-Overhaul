@@ -112,19 +112,24 @@ public class BuildingSprite extends Sprite {
     
   }
   
+  
   public void updateItemDisplay(
     ModelAsset itemModel, float amount, float xoff, float yoff
   ) {
   }
   
+  
   public void clearFX() {
   }
+  
   
   public void updateCondition(
     float newCondition, boolean normalState, boolean burning
   ) {
   }
 }
+
+
 
 
 

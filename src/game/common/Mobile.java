@@ -20,7 +20,7 @@ public abstract class Mobile extends Element
   
   final public static PlaneFX.Model SHADOW_MODEL = new PlaneFX.Model(
     "ground_shadow_model", Mobile.class,
-    "media/SFX/ground_shadow.png", 1, 0, 0, false
+    "media/SFX/ground_shadow.png", 1, 0, 0, false, false
   ) ;
   
   final public static int

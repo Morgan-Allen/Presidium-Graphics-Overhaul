@@ -132,7 +132,7 @@ public class ShieldFX extends SFX {
       Colour.transparency(glowAlpha),
       flatPos.x - r, flatPos.y - r, r * 2, r * 2,
       0, 0, 1, 1,
-      flatPos.z, true
+      flatPos.z, true, true
     );
     //
     //  Then render each burst-
@@ -163,7 +163,7 @@ public class ShieldFX extends SFX {
     pass.compileQuad(
       SHIELD_BURST_TEX.asTexture(),
       Colour.transparency(burst.timer * MAX_BURST_ALPHA),
-      verts, 0, 0, 1, 1
+      verts, 0, 0, 1, 1, true
     );
   }
 }

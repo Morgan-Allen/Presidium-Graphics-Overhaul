@@ -18,20 +18,20 @@ public class DeviceType extends Service implements Economy {
   final static ShotFX.Model
     LASER_FX_MODEL = new ShotFX.Model(
       "laser_beam_fx", DeviceType.class,
-      "media/SFX/blast_beam.gif", 0.05f, 0, 0.05f, 3, true
+      "media/SFX/blast_beam.gif", 0.05f, 0, 0.05f, 3, true, true
     ),
     SPEAR_FX_MODEL = new ShotFX.Model(
       "spear_fx", DeviceType.class,
-      "media/SFX/spear_throw.gif", 0.1f, 0.33f, 0.06f, 1.2f, false
+      "media/SFX/spear_throw.gif", 0.1f, 0.33f, 0.06f, 1.2f, false, false
     ) ;
   final static PlaneFX.Model
     SLASH_FX_MODEL = new PlaneFX.Model(
       "slash_fx", DeviceType.class,
-      "media/SFX/melee_slash.png", 0.5f, 0, 0, false
+      "media/SFX/melee_slash.png", 0.5f, 0, 0, false, false
     ),
     LASER_BURST_MODEL = new PlaneFX.Model(
       "laser_burst_fx", DeviceType.class,
-      "media/SFX/laser_burst.png", 0.75f, 0, 0, true
+      "media/SFX/laser_burst.png", 0.75f, 0, 0, true, true
     ) ;
   
   

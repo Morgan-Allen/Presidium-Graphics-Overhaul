@@ -17,25 +17,12 @@ import com.badlogic.gdx.Input.Keys;
 
 
 
-public class DebugGraphics {
+public class DebugHumanSprites {
   
-  
-  final static CutoutModel
-    CM = CutoutModel.fromImage(
-      "media/Buildings/military/bastion.png",
-      DebugGraphics.class, 7, 5
-    );
   final static MS3DModel
-    SM = MS3DModel.loadFrom(
-      "media/Actors/fauna/", "Micovore.ms3d",
-      DebugGraphics.class, "FaunaModels.xml", "Micovore"
-    );
-  final static ShotFX.Model
-    FM = new ShotFX.Model(
-      "laser_beam_fx", DeviceType.class,
-      "media/SFX/blast_beam.gif",
-      0.05f, 0,
-      0.5f, 3, true, true
+    HM = MS3DModel.loadFrom(
+      "media/Actors/human/", "female_final.ms3d",
+      DebugHumanSprites.class, "HumanModels.xml", "FemalePrime"
     );
   
   
@@ -50,60 +37,11 @@ public class DebugGraphics {
       
       
       public void beginGameSetup() {
-        final Sprite SS = SM.makeSprite();
-        sprites.add(SS);
-        
-        for (int i = 10 ; i-- > 0;) {
-          final Sprite CS = CM.makeSprite();
-          CS.position.set(i, -i, 0);
-          CS.fog = (i + 1) / 10f;
-          CS.colour = Colour.transparency(CS.fog);
-          CS.scale = 0.5f;
-          sprites.add(CS);
-        }
-        
-        final TalkFX FX1 = new TalkFX() {
-          int count = 0;
-          public void update() {
-            if (this.numPhrases() < 2) {
-              addPhrase("Testing "+(count++), TalkFX.FROM_LEFT);
-            }
-            super.update();
-          }
-        };
-        FX1.position.set(0, 0, 2);
-        sprites.add(FX1);
-        
-        final ShieldFX FX2 = new ShieldFX() {
-          public void update() {
-            if (Rand.index(Rendering.FRAMES_PER_SECOND) <= 2) {
-              final Vec3D point = new Vec3D();
-              final float angle = (float) (Math.PI * 2 * Rand.num());
-              point.x = 10 * (float) FastMath.sin(angle);
-              point.y = 10 * (float) FastMath.cos(angle);
-              this.attachBurstFromPoint(point, Rand.yes());
-            }
-            super.update();
-          }
-        };
-        FX2.scale = 1.5f;
-        FX2.position.set(-2, 2, 0);
-        sprites.add(FX2);
-        
-        final ShotFX FX3 = new ShotFX(FM) {
-          public void update() {
-            super.update();
-            if (Rand.index(Rendering.FRAMES_PER_SECOND) <= 1) {
-              refreshShot();
-            }
-          }
-        };
-        FX3.position.set(0, 2, 0);
-        FX3.origin.set(0, 1, 0);
-        FX3.target.set(0, 4, 0);
-        sprites.add(FX3);
-        
+        final Sprite HS = HM.makeSprite();
+        sprites.add(HS);
         loaded = true;
+        
+        PlayLoop.rendering().view.zoomLevel = 3.5f;
       }
       
       
@@ -170,12 +108,7 @@ public class DebugGraphics {
         for (Sprite sprite : sprites) {
           sprite.update();
           sprite.registerFor(rendering);
-          final float f = sprite.fog, a = f * (1 - f) * 4;
-          sprite.colour = Colour.transparency(a);
-          sprite.fog = (f + 0.01f) % 1;
-          sprite.rotation += 90 / 60f;
-          
-          sprite.setAnimation(AnimNames.MOVE, sprite.fog);
+          sprite.setAnimation(AnimNames.MOVE, Rendering.activeTime() % 1);
         }
       }
     });

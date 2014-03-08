@@ -64,32 +64,32 @@ public class Power implements Abilities {
     
     REMOTE_VIEWING_FX_MODEL = new PlaneFX.Model(
       "RV_swirl_fx", Power.class,
-      SFX_DIR+"remote_viewing.png", 1, -360 / FPS, 2 / FPS, false
+      SFX_DIR+"remote_viewing.png", 1, -360 / FPS, 2 / FPS, false, true
     ),
     
     LIGHT_BURST_MODEL = new PlaneFX.Model(
       "RV_burst_fx", Power.class,
-      SFX_DIR+"light_burst.png", 1, 0, 2 / FPS, true
+      SFX_DIR+"light_burst.png", 1, 0, 2 / FPS, true, true
     ),
     
     KINESTHESIA_FX_MODEL = new PlaneFX.Model(
       "kinesthesia_fx", Power.class,
-      SFX_DIR+"kinesthesia.png", 0.5f, 360 / FPS, 0, true
+      SFX_DIR+"kinesthesia.png", 0.5f, 360 / FPS, 0, true, true
     ),
     
     SUSPENSION_FX_MODEL = new PlaneFX.Model(
       "suspension_fx", Power.class,
-      SFX_DIR+"suspension.png", 0.5f, 360 / FPS, 0, true
+      SFX_DIR+"suspension.png", 0.5f, 360 / FPS, 0, true, true
     ),
     
     TELEKINESIS_FX_MODEL = new PlaneFX.Model(
       "telekinesis_fx", Power.class,
-      SFX_DIR+"telekinesis.png", 0.5f, 360 / FPS, 0, true
+      SFX_DIR+"telekinesis.png", 0.5f, 360 / FPS, 0, true, true
     ),
     
     VOICE_OF_COMMAND_FX_MODEL = new PlaneFX.Model(
       "voice_command_fx", Power.class,
-      SFX_DIR+"voice_of_command.png", 1, 360 / FPS, 1, true
+      SFX_DIR+"voice_of_command.png", 1, 360 / FPS, 1, true, true
     ) ;
   
   

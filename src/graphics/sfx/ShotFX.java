@@ -25,7 +25,7 @@ public class ShotFX extends SFX {
     //final Texture tex ;
     final String texName;
     final float arc, period, width, length ;
-    final boolean repeats ;
+    final boolean repeats, vivid ;
     
     Texture tex;
     private boolean loaded = false;
@@ -33,7 +33,8 @@ public class ShotFX extends SFX {
     public Model(
       String modelName, Class modelClass,
       String texName,
-      float period, float arc, float width, float length, boolean repeats
+      float period, float arc, float width, float length,
+      boolean repeats, boolean vivid
     ) {
       super(modelName, modelClass) ;
       this.texName = texName ;
@@ -43,6 +44,7 @@ public class ShotFX extends SFX {
       this.width = width ;
       this.length = length ;
       this.repeats = repeats ;
+      this.vivid = vivid;
     }
     
     public boolean isLoaded() {
@@ -67,14 +69,14 @@ public class ShotFX extends SFX {
   }
   
   
-  final Model model ;
+  final Model model;
   final public Vec3D
     origin = new Vec3D(),
-    target = new Vec3D() ;
-  public float time = 0 ;
+    target = new Vec3D();
+  private float inceptTime = -1;
   
   
-  private ShotFX(Model model) {
+  public ShotFX(Model model) {
     this.model = model ;
   }
   
@@ -83,7 +85,7 @@ public class ShotFX extends SFX {
     super.saveTo(out) ;
     origin.saveTo(out) ;
     target.saveTo(out) ;
-    out.writeFloat(time) ;
+    out.writeFloat(inceptTime) ;
   }
   
   
@@ -91,7 +93,7 @@ public class ShotFX extends SFX {
     super.loadFrom(in) ;
     origin.loadFrom(in) ;
     target.loadFrom(in) ;
-    time = in.readFloat() ;
+    inceptTime = in.readFloat() ;
   }
   
   
@@ -109,15 +111,18 @@ public class ShotFX extends SFX {
     line.x = target.x - origin.x ;
     line.y = target.y - origin.y ;
     this.position.setTo(origin).add(target).scale(0.5f) ;
-    time += 1f / 25 ;
+    //time += 1f / 25 ;
   }
   
   
+  public void refreshShot() {
+    inceptTime = Rendering.activeTime();
+  }
+  
   
   public void refreshBurst(Vec3D targPos, ShieldFX shield) {
-    if (shield == null) target.setTo(targPos) ;
-    else target.setTo(shield.interceptPoint(origin)) ;
-    //update() ;
+    if (shield == null) target.setTo(targPos);
+    else target.setTo(shield.interceptPoint(origin));
   }
   
   
@@ -136,26 +141,27 @@ public class ShotFX extends SFX {
     perp.setTo(line.setTo(target).sub(origin));
     line.normalise();
     pass.rendering.view.translateToScreen(perp);
-    perp.set(perp.y, -perp.x, 0) ;
+    perp.set(perp.y, -perp.x, 0);
     pass.rendering.view.translateFromScreen(perp);
-    perp.normalise().scale(model.width) ;
+    perp.normalise().scale(model.width);
     
     //  Alright.  Based on time elapsed, divided by period, you should have a
     //  certain number of missiles in flight.
-    final float distance = origin.distance(target), numParts, partLen ;
+    final float distance = origin.distance(target), numParts, partLen;
+    final Colour c;
     if (model.period <= 0) {
-      numParts = 1 ;
-      partLen = distance ;
+      numParts = 1;
+      partLen = distance;
+      c = Colour.WHITE;
     }
     else {
-      numParts = time / model.period ;
-      partLen = model.length ;
+      if (inceptTime == -1) inceptTime = Rendering.activeTime();
+      numParts = (Rendering.activeTime() - inceptTime) / model.period;
+      partLen = model.length;
+      c = Colour.transparency(1f / (1 + numParts));
     }
     
     //  Now render the beam itself-
-    final Colour c = this.colour ;
-    final float f = this.fog ;
-    
     for (float n = numParts ; n-- > 0 ;) {
       final float progress = partLen * n ;
       final float lift = progress / distance ;
@@ -170,12 +176,15 @@ public class ShotFX extends SFX {
       }
       if (progress < 0) start.setTo(origin) ;
       
-      verts[0].setTo(start).add(perp) ;
-      verts[1].setTo(end  ).add(perp) ;
-      verts[2].setTo(end  ).sub(perp) ;
-      verts[3].setTo(start).sub(perp) ;
-      pass.compileQuad(model.tex, c, verts, 0, 0, 1, 1);
+      final float QV[] = SFXPass.QUAD_VERTS;
+      int i = 0; for (Vec3D v : verts) {
+        final boolean x = QV[i++] > 0, y = QV[i++] > 0, z = QV[i++] > 0;
+        v.setTo(y ? end : start);
+        if (x) v.add(perp);
+        else v.sub(perp);
+      }
       
+      pass.compileQuad(model.tex, c, verts, 0, 0, 1, 1, model.vivid);
       if (! model.repeats) break ;
     }
   }

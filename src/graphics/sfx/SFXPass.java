@@ -1,6 +1,7 @@
 
 
 package src.graphics.sfx;
+import static src.graphics.common.GL.glBlendFunc;
 import src.graphics.common.*;
 import src.util.*;
 
@@ -49,7 +50,9 @@ public class SFXPass {
   private int total = 0 ;
   private Texture lastTex = null ;
   private ShaderProgram shading ;
-  private static Vector3 temp = new Vector3(), temp2 = new Vector3();
+
+  private boolean vividMode = false;
+  private static Vector3 temp = new Vector3();
   
   
   
@@ -115,10 +118,16 @@ public class SFXPass {
   
   protected void compileQuad(
     Texture tex, Colour colour, Vec3D verts[],
-    float umin, float vmin, float umax, float vmax
+    float umin, float vmin, float umax, float vmax,
+    boolean vivid
   ) {
-    if (tex != lastTex || total > COMPILE_LIMIT) {
+    if (tex != lastTex || vivid != vividMode || total > COMPILE_LIMIT) {
       compileAndRender(rendering.camera());
+    }
+    if (vivid != vividMode) {
+      if (vivid) glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
+      else glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+      vividMode = vivid;
     }
     lastTex = tex;
     
@@ -145,7 +154,8 @@ public class SFXPass {
     Texture tex, Colour colour,
     float x, float y, float wide, float high,
     float umin, float vmin, float umax, float vmax,
-    float zpos, boolean fromScreen
+    float zpos, boolean fromScreen,
+    boolean vivid
   ) {
     int i = 0 ; for (Vec3D v : SFX.verts) {
       v.set(
@@ -160,7 +170,7 @@ public class SFXPass {
         //v.scale(1f / rendering.view.screenScale());
       }
     }
-    compileQuad(tex, colour, SFX.verts, umin, vmin, umax, vmax);
+    compileQuad(tex, colour, SFX.verts, umin, vmin, umax, vmax, vivid);
   }
   
   

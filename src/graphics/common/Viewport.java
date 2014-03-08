@@ -86,18 +86,12 @@ public class Viewport {
   
   public Vec3D translateToScreen(Vec3D point) {
     worldToGL(point, temp);
+    
     camera.project(temp);
     point.x = temp.x;
-    point.y = temp.y;// Gdx.graphics.getHeight() - temp.y;
+    point.y = temp.y;
     point.z = temp.z;
     return point;
-  }
-  
-  
-  public float screenDepth(Vec3D point) {
-    worldToGL(point, temp);
-    camera.project(temp);
-    return point.z;
   }
   
   
@@ -113,7 +107,15 @@ public class Viewport {
   }
   
   
-  //  TODO:  DIG INTO THESE INSTEAD-
+  public float screenDepth(Vec3D worldPoint) {
+    worldToGL(worldPoint, temp);
+    camera.project(temp);
+    return worldPoint.z;
+  }
+  
+  
+  //  TODO:  DIG INTO THESE INSTEAD.  I need a uniform transform for the z
+  //  component.
   /*
     public void project (Vector3 vec, float viewportX, float viewportY, float viewportWidth, float viewportHeight) {
         vec.prj(combined);

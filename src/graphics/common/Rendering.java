@@ -125,6 +125,9 @@ public class Rendering {
     //  exhibit transparency.
     cutoutsPass.performPass();
     
+    //  SFX require some... well... special effects.
+    //GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);  //Promising, but
+    //  needs more discretion in application.  TODO:  Implement that.
     glDepthMask(false);
     sfxPass.performPass();
     

@@ -233,19 +233,19 @@ public class TalkFX extends SFX {
       BUBBLE_TEX.asTexture(), colour,
       minX, minY, capXL - minX, maxY - minY,
       MIN_U, BOT_V, CAP_LU, TOP_V,
-      0.5f, true
+      0.5f, true, false
     );
     pass.compileQuad(
       BUBBLE_TEX.asTexture(), colour,
       capXL, minY, capXR - capXL, maxY - minY,
       CAP_LU, BOT_V, CAP_RU, TOP_V,
-      0.5f, true
+      0.5f, true, false
     );
     pass.compileQuad(
       BUBBLE_TEX.asTexture(), colour,
       capXR, minY, maxX - capXR, maxY - minY,
       CAP_RU, BOT_V, MAX_U, TOP_V,
-      0.5f, true
+      0.5f, true, false
     );
   }
   
@@ -269,7 +269,7 @@ public class TalkFX extends SFX {
         x + scanW, y,
         l.width * fontScale, l.height * fontScale,
         l.umin, l.vmin, l.umax, l.vmax,
-        0.5f, true
+        0.5f, true, true
       );
       scanW += l.width * fontScale ;
     }

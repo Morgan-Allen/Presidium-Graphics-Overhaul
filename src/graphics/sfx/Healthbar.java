@@ -62,7 +62,7 @@ public class Healthbar extends SFX {
       ImageAsset.WHITE_TEX, c,
       x, y, size, BAR_HEIGHT,
       0, 0, 1, 1,
-      base.z, true
+      base.z, true, false
     );
     
     //  When at less than half health, you need to flash-
@@ -101,7 +101,7 @@ public class Healthbar extends SFX {
       ImageAsset.WHITE_TEX, mix,
       x, y, size * level, BAR_HEIGHT,
       0, 0, 1, 1,
-      base.z + 0.01f, true
+      base.z + 0.01f, true, false
     );
   }
 }

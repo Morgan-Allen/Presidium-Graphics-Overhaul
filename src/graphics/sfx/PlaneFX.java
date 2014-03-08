@@ -27,14 +27,15 @@ public class PlaneFX extends SFX {
     //final Texture image ;
     final String imageName;
     final float initSize, spin, growth ;
-    final boolean tilted ;
+    final boolean tilted, vivid ;
     
     private Texture texture;
     private boolean loaded = false;
     
     public Model(
       String modelName, Class modelClass,
-      String image, float initSize, float spin, float growth, boolean tilted
+      String image, float initSize, float spin, float growth,
+      boolean tilted, boolean vivid
     ) {
       super(modelName, modelClass) ;
       this.imageName = image;
@@ -43,6 +44,7 @@ public class PlaneFX extends SFX {
       this.spin = spin ;
       this.growth = growth ;
       this.tilted = tilted ;
+      this.vivid = vivid;
     }
 
     
@@ -111,7 +113,7 @@ public class PlaneFX extends SFX {
       v.add(p);
     }
     
-    pass.compileQuad(model.texture, colour, verts, 0, 0, 1, 1);
+    pass.compileQuad(model.texture, colour, verts, 0, 0, 1, 1, model.vivid);
   }
 }
 

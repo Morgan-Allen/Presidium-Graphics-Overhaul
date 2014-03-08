@@ -19,11 +19,11 @@ public interface UIConstants {
   final public static PlaneFX.Model
     SELECT_CIRCLE = new PlaneFX.Model(
       "select_circle_fx", UIConstants.class,
-      "media/GUI/selectCircle.png", 1, 0, 0, false
+      "media/GUI/selectCircle.png", 1, 0, 0, false, false
     ),
     SELECT_SQUARE = new PlaneFX.Model(
       "select_square_fx", UIConstants.class,
-      "media/GUI/selectSquare.png", 1, 0, 0, false
+      "media/GUI/selectSquare.png", 1, 0, 0, false, false
     );
   
   final public static ImageAsset TIPS_TEX = ImageAsset.fromImage(
