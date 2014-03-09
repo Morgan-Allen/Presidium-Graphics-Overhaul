@@ -52,6 +52,8 @@ public class MoteFX extends SFX {
   
   
   protected void renderInPass(SFXPass pass) {
+    
+    
     //  TODO:  Implement this.
     //*
     //mote.matchTo(this) ;

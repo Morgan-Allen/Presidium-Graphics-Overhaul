@@ -3,7 +3,9 @@
 package src.graphics.common;
 import src.util.*;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.*;
 
 
@@ -27,6 +29,7 @@ public class ImageAsset extends Assets.Loadable {
   private boolean loaded = false;
   
   private Texture texture;
+  private Colour average;
   
   
   private ImageAsset(String filePath, Class sourceClass) {
@@ -59,10 +62,64 @@ public class ImageAsset extends Assets.Loadable {
   }
   
   
+  public Colour average() {
+    if (! loaded) I.complain("IMAGE ASSET HAS NOT LOADED!- "+filePath);
+    return average();
+  }
+  
+  
+  
+  /**  Actual loading-
+    */
+  private static Table <Texture, Colour> averages = new Table();
   
   protected void loadAsset() {
-    texture = Assets.getTexture(filePath);
+    final Texture cached = (Texture) Assets.getResource(filePath);
+    if (cached != null) {
+      this.texture = cached;
+      this.average = averages.get(texture);
+    }
+    else texture = cached;
+    
+    if (average == null) {
+      final Pixmap imgData = new Pixmap(Gdx.files.internal(filePath));
+      average = new Colour();
+      Colour sample = new Colour();
+      
+      final int wide = imgData.getWidth(), high = imgData.getHeight();
+      for (Coord c : Visit.grid(0, 0, wide, high, 1)) {
+        sample.setFromRGBA(imgData.getPixel(c.x, c.y));
+        average.r += sample.r;
+        average.g += sample.g;
+        average.b += sample.b;
+      }
+      
+      final int numPix = wide * high;
+      average.r /= numPix;
+      average.g /= numPix;
+      average.b /= numPix;
+      average.a = 1;
+      average.set(average);
+      
+      if (texture == null) {
+        texture = new Texture(imgData);
+        texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+        Assets.cacheResource(texture, filePath);
+      }
+      averages.put(texture, average);
+      imgData.dispose();
+    }
     loaded = true;
+  }
+  
+  
+  public static Texture getTexture(String name) {
+    Texture cached = (Texture) Assets.getResource(name);
+    if (cached != null) return cached;
+    cached = new Texture(Gdx.files.internal(name));
+    cached.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+    Assets.cacheResource(cached, name);
+    return cached;
   }
   
   
@@ -75,6 +132,9 @@ public class ImageAsset extends Assets.Loadable {
     texture.dispose();
   }
 }
+
+
+
 
 
 

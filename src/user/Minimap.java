@@ -10,21 +10,24 @@ import src.game.planet.* ;
 import src.util.* ;
 import src.graphics.common.* ;
 import src.graphics.terrain.* ;
-import src.graphics.widgets.UINode ;
+import src.graphics.widgets.* ;
 
 //import org.lwjgl.opengl.* ;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.glutils.PixmapTextureData;
+
 
 //
 //  TODO:  Have the minimap refresh itself every second or so, and simply fade
 //  in the new version on top of the old?  Something like that.  If you wanted,
 //  you could do some kind of fancy burn-in or flicker transition-effect.
-
 //
 //  TODO:  You need to be able to present the ambience map here.
-
 //  TODO:  RESTORE THIS, AND POSSIBLY MOVE TO THE WIDGETS PACKAGE?
+
+
 
 public class Minimap extends UINode {
   
@@ -36,7 +39,8 @@ public class Minimap extends UINode {
   final World world ;
   private Base base ;
   
-  //private Texture mapImage ;
+  private Texture mapImage ;
+  //private Pixmap drawnTo;
   
   
   
@@ -48,22 +52,26 @@ public class Minimap extends UINode {
   }
   
   
+  public void dispose() {
+    mapImage.dispose();
+  }
+  
+  
   private void updateMapImage() {
-    /*
-    final int texSize = world.size ;
-    if (mapImage == null) mapImage = Texture.createTexture(texSize, texSize) ;
-    byte RGBA[] = new byte[texSize * texSize * 4] ;
-    for (int y = 0, m = 0 ; y < texSize ; y++) {
-      for (int x = 0 ; x < texSize ; x++) {
-        final Tile t = world.tileAt(x, y) ;
-        final Colour avg = t.minimapHue() ;
-        avg.storeByteValue(RGBA, m) ;
-        m += 4 ;
-        RGBA[m - 1] = (byte) 0xff ;
-      }
+    final int texSize = world.size;
+    Pixmap drawnTo = new Pixmap(texSize, texSize, Pixmap.Format.RGBA8888);
+    
+    for (Coord c : Visit.grid(0, 0, texSize, texSize, 1)) {
+      final Tile t = world.tileAt(c.x, c.y);
+      final Colour avg = t.habitat().baseTex.average();
+      drawnTo.drawPixel(c.x, c.y, avg.getRGBA());
     }
-    mapImage.putBytes(RGBA) ;
-    //*/
+    drawnTo.dispose();
+    
+    if (mapImage == null) mapImage = new Texture(drawnTo);
+    else mapImage.load(new PixmapTextureData(
+      drawnTo, Pixmap.Format.RGBA8888, false, false
+    ));
   }
   
   
@@ -104,11 +112,11 @@ public class Minimap extends UINode {
   
   
   protected void render(SpriteBatch batch2D) {
+    batch2D.flush();
     /*
     if (mapImage == null) updateMapImage() ;
     
-    GL11.glColor4f(1, 1, 1, 1) ;
-    mapImage.bindTex() ;
+    mapImage.bind(0);
     renderTex(-1) ;
     if (base != null && ! GameSettings.fogFree) {
       GL11.glEnable(GL12.GL_TEXTURE_3D) ;
@@ -153,6 +161,7 @@ public class Minimap extends UINode {
   }
 }
 
-//*/
+
+
 
 

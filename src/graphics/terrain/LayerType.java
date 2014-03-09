@@ -3,6 +3,7 @@
 package src.graphics.terrain;
 import src.graphics.common.*;
 import src.util.*;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.Texture;
@@ -28,7 +29,7 @@ public abstract class LayerType implements TileConstants {
   public LayerType(String texName, boolean innerFringe, int layerID) {
     this.innerFringe = innerFringe;
     this.layerID = layerID;
-    this.texture = Assets.getTexture(texName);
+    this.texture = ImageAsset.getTexture(texName);
   }
   
   

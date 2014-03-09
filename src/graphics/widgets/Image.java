@@ -7,6 +7,7 @@
 package src.graphics.widgets;
 import src.util.*;
 import src.graphics.common.*;
+
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.*;
@@ -24,7 +25,7 @@ public class Image extends UINode {
   
   
   public Image(HUD myHUD, String textureName) {
-    this(myHUD, Assets.getTexture(textureName)) ;
+    this(myHUD, ImageAsset.getTexture(textureName)) ;
   }
   
   

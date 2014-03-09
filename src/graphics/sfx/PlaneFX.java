@@ -49,7 +49,7 @@ public class PlaneFX extends SFX {
 
     
     protected void loadAsset() {
-      texture = Assets.getTexture(imageName);
+      texture = ImageAsset.getTexture(imageName);
       loaded = true;
     }
     

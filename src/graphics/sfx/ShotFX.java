@@ -53,7 +53,7 @@ public class ShotFX extends SFX {
     
     
     protected void loadAsset() {
-      tex = Assets.getTexture(texName);
+      tex = ImageAsset.getTexture(texName);
       loaded = true;
     }
     

@@ -47,15 +47,7 @@ public class Colour {
     TRANSLUCENT = new Colour().set(1, 1, 1, 0.5f) ;
   final public static int
     ALPHA_BITS = 0xff000000,
-    RGB_BITS   = 0x00ffffff,
-    RED_BITS   = 0x00ff0000,
-    GREEN_BITS = 0x0000ff00,
-    BLUE_BITS  = 0x000000ff,
-    ALPHA_SHIFT = 24,
-    RED_SHIFT   = 16,
-    GREEN_SHIFT = 8,
-    BLUE_SHIFT  = 0;
-  
+    RGB_BITS   = 0x00ffffff;
   
   public float r = 1, g = 1, b = 1, a = 1;
   public float bitValue;
@@ -109,13 +101,11 @@ public class Colour {
   }
   
   
-  //  TODO:  This is only suitable for the internal packing format of vertex
-  //  data...
-  public void setFromInt(int value) {
-    a = ((value >> 24) & 0xff) / 255f;
-    b = ((value >> 16) & 0xff) / 255f;
-    g = ((value >> 8 ) & 0xff) / 255f;
-    r = ((value >> 0 ) & 0xff) / 255f;
+  public void setFromRGBA(int value) {
+    r = ((value >> 24) & 0xff) / 255f;
+    g = ((value >> 16) & 0xff) / 255f;
+    b = ((value >> 8 ) & 0xff) / 255f;
+    a = ((value >> 0 ) & 0xff) / 255f;
     bitValue = toFloatBits();
   }
   

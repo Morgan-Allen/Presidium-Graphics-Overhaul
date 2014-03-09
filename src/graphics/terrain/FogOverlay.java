@@ -1,7 +1,7 @@
 
 
 package src.graphics.terrain;
-import src.graphics.common.Rendering;
+import src.graphics.common.*;
 import src.util.*;
 
 import com.badlogic.gdx.graphics.*;
@@ -14,6 +14,7 @@ import static com.badlogic.gdx.graphics.Texture.TextureFilter.*;
 
 //
 //  TODO:  FOG OVERLAYS AND TERRAIN SETS MUST BE DISPOSED OF MANUALLY
+//  TODO:  ...THAT!!!
 
 public class FogOverlay {
   
@@ -77,8 +78,6 @@ public class FogOverlay {
     oldVals = newVals;
     newVals = tempV;
     
-    //  TODO:  Hopefully, this should be reasonably fast.  ...ish.  See if it
-    //  can't be improved on, though.
     //  TODO:  You can use Pixmap.getPixels() to access the byte buffer
     //         directly!  Employ that!
     Pixmap.setBlending(Blending.None);

@@ -7,6 +7,7 @@
 package src.graphics.widgets ;
 import src.util.* ;
 import src.graphics.common.* ;
+
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.*;
@@ -33,7 +34,7 @@ public class Button extends Image {
   public Button(HUD myHUD, String norm, String infoS) {
     this(
       myHUD,
-      Assets.getTexture(norm),
+      ImageAsset.getTexture(norm),
       DEFAULT_LIT.asTexture(),
       infoS
     ) ;
@@ -43,8 +44,8 @@ public class Button extends Image {
   public Button(HUD myHUD, String path, String norm, String lit, String infoS) {
     this(
       myHUD,
-      Assets.getTexture(path+norm),
-      Assets.getTexture(path+lit),
+      ImageAsset.getTexture(path+norm),
+      ImageAsset.getTexture(path+lit),
       infoS
     );
   }

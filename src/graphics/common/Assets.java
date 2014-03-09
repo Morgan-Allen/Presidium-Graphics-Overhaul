@@ -230,20 +230,6 @@ public class Assets {
   
   
   
-  /**  Returns the cached texture (if available), or loads the file from
-    *  scratch otherwise.
-    */
-  public static Texture getTexture(String name) {
-    Texture cached = (Texture) getResource(name);
-    if (cached != null) return cached;
-    cached = new Texture(Gdx.files.internal(name));
-    cached.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-    cacheResource(cached, name);
-    return cached;
-  }
-  
-  
-  
   /**  Recursively compiles the (presumed) full-path names of all classes in
     *  the given file directory.
     */

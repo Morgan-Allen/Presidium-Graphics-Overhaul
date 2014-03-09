@@ -24,7 +24,7 @@ public class Bordering extends UINode {
   
   
   public Bordering(HUD UI, String texFile) {
-    this(UI, Assets.getTexture(texFile));
+    this(UI, ImageAsset.getTexture(texFile));
   }
   
   

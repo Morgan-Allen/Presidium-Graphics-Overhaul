@@ -52,7 +52,7 @@ public class CutoutModel extends ModelAsset {
   
   
   protected void loadAsset() {
-    texture = Assets.getTexture(fileName);
+    texture = ImageAsset.getTexture(fileName);
     region = new TextureRegion(
       texture,
       window.xpos(), window.ypos(),

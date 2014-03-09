@@ -18,9 +18,9 @@ import com.badlogic.gdx.backends.lwjgl.*;
 
 
 //  *  Human models need skin overlays and device/outfit attachments.
+//  *  Light overlays for cutouts?
 
 //  *  Text should implement scrolling and scissor clipping.
-//  *  Building sprites need item-stock displays and light overlays.
 //  *  The MoteFX and ShotFX classes need proper completion.
 //  *  Minimap must be fixed.
 
