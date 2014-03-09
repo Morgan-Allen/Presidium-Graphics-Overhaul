@@ -1,19 +1,14 @@
 
 
 package src.start;
-import org.apache.commons.math3.util.FastMath;
-
-import src.game.building.DeviceType;
+import src.game.building.Economy;
 import src.graphics.common.*;
 import src.graphics.cutout.*;
 import src.graphics.solids.*;
 import src.graphics.sfx.*;
-import src.graphics.widgets.*;
 import src.util.*;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Buttons;
-import com.badlogic.gdx.Input.Keys;
+import org.apache.commons.math3.util.FastMath;
 
 
 
@@ -24,6 +19,10 @@ public class DebugGraphics {
     CM = CutoutModel.fromImage(
       "media/Buildings/military/bastion.png",
       DebugGraphics.class, 7, 5
+    ),
+    VM = CutoutModel.fromImage(
+      "media/Buildings/merchant/stock_exchange.png",
+      DebugGraphics.class, 4, 2
     );
   final static MS3DModel
     SM = MS3DModel.loadFrom(
@@ -32,7 +31,7 @@ public class DebugGraphics {
     );
   final static ShotFX.Model
     FM = new ShotFX.Model(
-      "laser_beam_fx", DeviceType.class,
+      "laser_beam_fx", DebugGraphics.class,
       "media/SFX/blast_beam.gif",
       0.05f, 0,
       0.5f, 3, true, true
@@ -40,16 +39,9 @@ public class DebugGraphics {
   
   
   public static void main(String args[]) {
-    PlayLoop.setupAndLoop(new Playable() {
-      
-      private boolean loaded = false;
-      List <Sprite> sprites = new List <Sprite> ();
-      
-      private boolean moused = false ;
-      private float origX, origY, origR, origE ;
-      
-      
-      public void beginGameSetup() {
+
+    PlayLoop.setupAndLoop(new VisualDebug() {
+      protected void loadVisuals() {
         final Sprite SS = SM.makeSprite();
         sprites.add(SS);
         
@@ -61,6 +53,23 @@ public class DebugGraphics {
           CS.scale = 0.5f;
           sprites.add(CS);
         }
+        
+        final BuildingSprite BS = BuildingSprite.fromBase(VM, 4, 2);
+        BS.position.set(-4, -4, 0);
+        BS.updateItemDisplay(
+          Economy.PARTS.model, 15, -1.5f, 1.5f
+        );
+        BS.updateItemDisplay(
+          Economy.CARBS.model, 15, -1.5f, 0.5f
+        );
+        BS.updateItemDisplay(
+          Economy.SOMA.model, 15, -1.5f, -0.5f
+        );
+        BS.updateItemDisplay(
+          Economy.FUEL_RODS.model, 15, -1.5f, -1.5f
+        );
+        BS.updateCondition(0.0f, false, false);
+        sprites.add(BS);
         
         final TalkFX FX1 = new TalkFX() {
           int count = 0;
@@ -98,84 +107,23 @@ public class DebugGraphics {
             }
           }
         };
-        FX3.position.set(0, 2, 0);
-        FX3.origin.set(0, 1, 0);
-        FX3.target.set(0, 4, 0);
+        FX3.position.set(-2, 2, 0);
+        FX3.origin.set(-2, 1, 0);
+        FX3.target.set(-2, 4, 0);
         sprites.add(FX3);
-        
-        loaded = true;
       }
       
       
-      public HUD UI() {
-        return null;
-      }
-      
-      
-      public boolean isLoading() {
-        return loaded;
-      }
-      
-      
-      public float loadProgress() {
-        return loaded ? 1 : 0;
-      }
-      
-      
-      public boolean shouldExitLoop() {
-        return false;
-      }
-      
-      
-      public void updateGameState() {
-      }
-      
-      
-      public void renderVisuals(Rendering rendering) {
-        
-        final Viewport port = rendering.view ;
-        if (Gdx.input.isKeyPressed(Keys.UP)) {
-          port.lookedAt.x-- ;
-          port.lookedAt.y++ ;
-        }
-        if (Gdx.input.isKeyPressed(Keys.DOWN)) {
-          port.lookedAt.x++ ;
-          port.lookedAt.y-- ;
-        }
-        if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
-          port.lookedAt.x++ ;
-          port.lookedAt.y++ ;
-        }
-        if (Gdx.input.isKeyPressed(Keys.LEFT)) {
-          port.lookedAt.x-- ;
-          port.lookedAt.y-- ;
-        }
-        
-        final int MX = Gdx.input.getX(), MY = Gdx.input.getY();
-        if (Gdx.input.isButtonPressed(Buttons.LEFT)) {
-          if (! moused) {
-            moused = true ;
-            origX = MX ;
-            origY = MY ;
-            origR = port.rotation  ;
-            origE = port.elevation ;
-          }
-          else {
-            port.rotation  = origR + ((origX - MX) / 2);
-            port.elevation = origE + ((MY - origY) / 2);
-          }
-        }
-        else moused = false ;
-        
-        for (Sprite sprite : sprites) {
-          sprite.update();
-          sprite.registerFor(rendering);
+      protected void onRendering(Sprite sprite) {
+        if (sprite.model() == CM) {
           final float f = sprite.fog, a = f * (1 - f) * 4;
           sprite.colour = Colour.transparency(a);
           sprite.fog = (f + 0.01f) % 1;
           sprite.rotation += 90 / 60f;
-          
-          sprite.setAnimation(AnimNames.MOVE, sprite.fog);
+        }
+        if (sprite.model() == SM) {
+          final float progress = Rendering.activeTime() * 6 / 10f;
+          sprite.setAnimation(AnimNames.MOVE, progress % 1);
         }
       }
     });

@@ -63,7 +63,6 @@ public class SolidsPass {
   public void performPass() {
     spriteBatch.begin(rendering.camera());
     for (SolidSprite sprite : inPass) {
-      //sprite.updateAnim("move", seconds % 1) ;
       spriteBatch.render(sprite.gdxSprite(), rendering.environment());
     }
     spriteBatch.end();

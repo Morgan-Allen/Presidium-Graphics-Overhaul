@@ -58,14 +58,25 @@ public class StockExchange extends Venue implements Economy {
   }
   
   
-  public void onCompletion() {
-    super.onCompletion() ;
+  
+  /**  Supplementary setup methods-
+    */
+  public boolean enterWorldAt(int x, int y, World world) {
+    if (! super.enterWorldAt(x, y, world)) return false;
     cargoBarge = new CargoBarge() ;
     cargoBarge.assignBase(base()) ;
     cargoBarge.setHangar(this) ;
     final Tile o = origin() ;
     cargoBarge.enterWorldAt(o.x, o.y, world) ;
     cargoBarge.goAboard(this, world) ;
+    
+    //*
+    for (Service type : this.services()) {
+      inventory().bumpItem(type, 10);
+    }
+    //*/
+    
+    return true;
   }
   
   
@@ -244,14 +255,14 @@ public class StockExchange extends Venue implements Economy {
   /**  Rendering and interface methods-
     */
   final static float GOOD_DISPLAY_OFFSETS[] = {
-    -0.5f, 0,
-    -1.0f, 0,
-    -1.5f, 0,
-    -2.0f, 0,
-     0, 0.5f,
-     0, 1.0f,
-     0, 1.5f,
-     0, 2.0f,
+    -3, 0.5f,
+    -3, 1.0f,
+    -3, 1.5f,
+    -3, 2.0f,
+    -0.5f, 3,
+    -1.0f, 3,
+    -1.5f, 3,
+    -2.0f, 3,
   } ;
   
   

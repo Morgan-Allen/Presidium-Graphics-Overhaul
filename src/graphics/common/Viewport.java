@@ -86,11 +86,12 @@ public class Viewport {
   
   public Vec3D translateToScreen(Vec3D point) {
     worldToGL(point, temp);
-    
     camera.project(temp);
     point.x = temp.x;
     point.y = temp.y;
     point.z = temp.z;
+    //  I find this more useful than a zero-to-1 range...
+    point.z *= (camera.far - camera.near);
     return point;
   }
   
@@ -101,6 +102,7 @@ public class Viewport {
     temp.x = point.x;
     temp.y = Gdx.graphics.getHeight() - point.y;
     temp.z = point.z;
+    temp.z /= (camera.far - camera.near);
     camera.unproject(temp);
     GLToWorld(temp, point);
     return point;
@@ -110,7 +112,9 @@ public class Viewport {
   public float screenDepth(Vec3D worldPoint) {
     worldToGL(worldPoint, temp);
     camera.project(temp);
-    return worldPoint.z;
+    //  I find this more useful than a zero-to-1 range...
+    temp.z *= (camera.far - camera.near);
+    return temp.z;
   }
   
   

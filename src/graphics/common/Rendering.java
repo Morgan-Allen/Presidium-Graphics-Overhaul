@@ -123,11 +123,13 @@ public class Rendering {
     //  TODO:  It's probably a good idea to take everything transparent and
     //  render it later.  But for the moment, cutouts are more likely to
     //  exhibit transparency.
+    
+    //  TODO:  I need to be able to toggle this on and off for specific
+    //  cutouts?
+    //glDepthMask(false);
     cutoutsPass.performPass();
     
     //  SFX require some... well... special effects.
-    //GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);  //Promising, but
-    //  needs more discretion in application.  TODO:  Implement that.
     glDepthMask(false);
     sfxPass.performPass();
     

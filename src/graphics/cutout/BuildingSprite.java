@@ -1,22 +1,15 @@
 
 
 package src.graphics.cutout;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-
 import src.graphics.common.*;
-import src.util.Visit;
+import src.util.*;
+
+import java.io.*;
 
 
 
 public class BuildingSprite extends Sprite {
   
-  
-  final static int
-    STAGE_INSTALL = 0,
-    STAGE_INTACT  = 1,
-    STAGE_DAMAGED = 2,
-    STAGE_SALVAGE = 3;
   
   final private static Class <BuildingSprite> C = BuildingSprite.class ;
   final static ModelAsset BUILDING_MODEL = new ModelAsset("building_model", C) {
@@ -27,21 +20,40 @@ public class BuildingSprite extends Sprite {
   } ;
 
   final static String DIR = "media/Buildings/artificer/" ;
-  final public static ModelAsset SCAFF_MODELS[] = CutoutModel.fromImages(
-    DIR, BuildingSprite.class, 1, 1,
-    "scaff_0.png",
-    "scaff_1.png",
-    "scaff_2.png",
-    "scaff_3.png",
-    "scaff_4.png",
-    "scaff_5.png",
-    "scaff_6.png"
-  );
+  final public static ModelAsset
+    SCAFF_MODELS[] = CutoutModel.fromImages(
+      DIR, BuildingSprite.class, 1, 1,
+      "scaff_0.png",
+      "scaff_1.png",
+      "scaff_2.png",
+      "scaff_3.png",
+      "scaff_4.png",
+      "scaff_5.png",
+      "scaff_6.png"
+    ),
+    BLAST_MODEL = CutoutModel.fromAnimationGrid(
+      "media/SFX/blast_anim.gif", BuildingSprite.class,
+      5, 5, 17, 1.36f, 1, 1
+    ),
+    CRATE_MODEL = CutoutModel.fromImage(
+      "media/Items/crate.gif", BuildingSprite.class, 0.5f, 0.2f
+    );
   
   
-  private CutoutSprite baseSprite;
-  private Sprite scaffolding;
+  private CutoutSprite baseSprite, scaffoldBase;
+  private GroupSprite scaffolding;
+  private GroupSprite allStacks;
+  
   private int size, high;
+  boolean intact;
+  float condition;
+  
+
+  public static BuildingSprite fromBase(
+    CutoutModel model, int size, int high
+  ) {
+    return fromBase((CutoutSprite) model.makeSprite(), size, high);
+  }
   
   
   public static BuildingSprite fromBase(
@@ -49,10 +61,16 @@ public class BuildingSprite extends Sprite {
   ) {
     final BuildingSprite BS = new BuildingSprite();
     BS.baseSprite = sprite;
-    final int SI = Visit.clamp(size - 1, SCAFF_MODELS.length);
-    BS.scaffolding = SCAFF_MODELS[SI].makeSprite();
+
+    final int SI = Visit.clamp(size, SCAFF_MODELS.length);
+    BS.scaffoldBase = (CutoutSprite) SCAFF_MODELS[SI].makeSprite();
+    
+    BS.scaffolding = BS.scaffoldFor(size, high, 0);
+    BS.allStacks = new GroupSprite();
     BS.size = size;
     BS.high = high;
+    BS.intact = true;
+    BS.condition = 0;
     return BS;
   }
   
@@ -65,15 +83,27 @@ public class BuildingSprite extends Sprite {
 
   public void loadFrom(DataInputStream in) throws Exception {
     super.loadFrom(in);
+    size = in.readInt();
+    high = in.readInt();
+    intact = in.readBoolean();
+    condition = in.readFloat();
     baseSprite = (CutoutSprite) ModelAsset.loadSprite(in);
-    scaffolding = ModelAsset.loadSprite(in);
+    scaffoldBase = (CutoutSprite) ModelAsset.loadSprite(in);
+    scaffolding = (GroupSprite) ModelAsset.loadSprite(in);
+    allStacks = (GroupSprite) ModelAsset.loadSprite(in);
   }
   
   
   public void saveTo(DataOutputStream out) throws Exception {
     super.saveTo(out);
+    out.writeInt(size);
+    out.writeInt(high);
+    out.writeBoolean(intact);
+    out.writeFloat(condition);
     ModelAsset.saveSprite(baseSprite, out);
+    ModelAsset.saveSprite(scaffoldBase, out);
     ModelAsset.saveSprite(scaffolding, out);
+    ModelAsset.saveSprite(allStacks, out);
   }
   
   
@@ -84,16 +114,24 @@ public class BuildingSprite extends Sprite {
   
   public void registerFor(Rendering rendering) {
     baseSprite.matchTo(this);
+    scaffoldBase.matchTo(this);
     scaffolding.matchTo(this);
-    scaffolding.scale = size;
-    rendering.cutoutsPass.register(baseSprite);
-    //  TODO:  RESTORE THIS
-    //else rendering.cutoutsPass.register(scaffolding);
+    allStacks.matchTo(this);
+    
+    if (intact) {
+      baseSprite.registerFor(rendering);
+    }
+    else {
+      scaffoldBase.scale = size;
+      scaffoldBase.registerFor(rendering);
+      scaffolding.registerFor(rendering);
+    }
+    allStacks.registerFor(rendering);
   }
   
   
-  //public Sprite baseSprite()  { return baseSprite  ; }
-  //public Sprite scaffolding() { return scaffolding ; }
+  public Sprite baseSprite()  { return baseSprite  ; }
+  public Sprite scaffolding() { return scaffolding ; }
   
   
   
@@ -109,13 +147,32 @@ public class BuildingSprite extends Sprite {
   
 
   public void toggleFX(ModelAsset model, boolean on) {
-    
   }
   
   
   public void updateItemDisplay(
-    ModelAsset itemModel, float amount, float xoff, float yoff
+    CutoutModel itemModel, float amount, float xoff, float yoff
   ) {
+    ItemStack match = null;
+    
+    for (Sprite s : allStacks.modules) {
+      if (s instanceof ItemStack) {
+        final ItemStack IS = (ItemStack) s;
+        if (IS.itemModel != itemModel) continue;
+        match = (ItemStack) s;
+        break;
+      }
+    }
+    
+    if (amount < 1) {
+      if (match != null) allStacks.detach(match) ;
+      return ;
+    }
+    if (match == null) {
+      match = new ItemStack(itemModel);
+      allStacks.attach(match, xoff, yoff, 0);
+    }
+    match.updateAmount((int) amount);
   }
   
   
@@ -126,6 +183,68 @@ public class BuildingSprite extends Sprite {
   public void updateCondition(
     float newCondition, boolean normalState, boolean burning
   ) {
+    intact = normalState;
+    
+    final float oldCondition = this.condition;
+    condition = newCondition;
+    
+    if (! intact) {
+      final int
+        maxStage = maxStages(),
+        oldStage = scaffoldStage(size, high, oldCondition, maxStage),
+        newStage = scaffoldStage(size, high, newCondition, maxStage);
+      if (oldStage == newStage) return ;
+      scaffolding = scaffoldFor(size, high, newCondition) ;
+    }
+  }
+  
+  
+  
+  /**  Producing and updating scaffold sprites-
+    */
+  private int maxStages() {
+    int max = 0 ;
+    for (int z = 0 ; z < high ; z++)
+      for (int x = 1 ; x < (size - z) ; x++)
+        for (int y = 1 + z ; y < size ; y++) max++ ;
+    return max ;
+  }
+  
+  
+  private int scaffoldStage(int size, int high, float condition, int maxStage) {
+    final int newStage = (int) (condition * (maxStage + 1)) ;
+    return newStage ;
+  }
+  
+  
+  private GroupSprite scaffoldFor(int size, int high, float condition) {
+    condition = Visit.clamp(condition, 0, 1);
+    final int stage = scaffoldStage(size, high, condition, maxStages());
+    //
+    //  Otherwise, put together a composite sprite where the number of mini-
+    //  scaffolds provides a visual indicator of progress.
+    final GroupSprite sprite = new GroupSprite();
+    if (size == 1) return sprite;
+    
+    final float xoff = (size / 2f), yoff = (size / 2f);
+    int numS = 0;
+    //
+    //  Iterate over the entire coordinate space as required-
+    loop: for (int z = 0 ; z < high ; z++) {
+      final float l = z * 1f / high, h = z - (l * l), i = z / 2f ;
+      for (int x = 1 ; x < (size - z) ; x++) {
+        for (int y = 1 + z ; y < size ; y++) {
+          if (++numS > stage) break loop ;
+          sprite.attach(
+            SCAFF_MODELS[0],
+            x + i - xoff,
+            y - (yoff + i),
+            h
+          );
+        }
+      }
+    }
+    return sprite;
   }
 }
 

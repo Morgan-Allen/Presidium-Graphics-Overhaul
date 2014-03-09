@@ -17,7 +17,6 @@ import src.graphics.cutout.* ;
 import src.graphics.sfx.* ;
 import src.user.* ;
 import src.util.* ;
-import src.util.Description;
 
 
 
@@ -213,18 +212,14 @@ public abstract class Venue extends Fixture implements
   
   
   public void onCompletion() {
-    //  TODO:  RESTORE THIS
-    //world.ephemera.addGhost(this, size, buildSprite.scaffolding(), 2.0f) ;
+    world.ephemera.addGhost(this, size, buildSprite.scaffolding(), 2.0f) ;
     setAsEstablished(false) ;
-    //personnel.onCompletion() ;
   }
   
   
   public void onDecommission() {
-    //  TODO:  RESTORE THIS
-    //world.ephemera.addGhost(this, size, buildSprite.baseSprite(), 2.0f) ;
+    world.ephemera.addGhost(this, size, buildSprite.baseSprite(), 2.0f) ;
     setAsEstablished(false) ;
-    //personnel.onDecommission() ;
   }
   
   
@@ -606,8 +601,7 @@ public abstract class Venue extends Fixture implements
           public void whenClicked() {
             final float condition = structure.repairLevel() ;
             structure.setState(Structure.STATE_INTACT, condition) ;
-            //  TODO:  RESTORE THIS
-            //world.ephemera.addGhost(v, size, buildSprite.scaffolding(), 2.0f) ;
+            world.ephemera.addGhost(v, size, buildSprite.scaffolding(), 2.0f) ;
           }
         }) ;
       }
@@ -616,8 +610,7 @@ public abstract class Venue extends Fixture implements
           public void whenClicked() {
             final float condition = structure.repairLevel() ;
             structure.setState(Structure.STATE_SALVAGE, condition) ;
-            //  TODO:  RESTORE THIS
-            //world.ephemera.addGhost(v, size, buildSprite.baseSprite(), 2.0f) ;
+            world.ephemera.addGhost(v, size, buildSprite.baseSprite(), 2.0f) ;
           }
         }) ;
       }

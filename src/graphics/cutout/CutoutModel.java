@@ -4,11 +4,10 @@ package src.graphics.cutout ;
 import src.graphics.common.*;
 import src.graphics.common.Sprite;
 import src.util.*;
-import com.badlogic.gdx.Gdx;
+
 import com.badlogic.gdx.graphics.* ;
 import com.badlogic.gdx.graphics.g2d.* ;
 import com.badlogic.gdx.math.* ;
-import com.badlogic.gdx.utils.* ;
 
 
 
@@ -122,17 +121,38 @@ public class CutoutModel extends ModelAsset {
   }
   
   
+  public static CutoutModel fromAnimationGrid(
+    String fileName, Class modelClass,
+    int gridX, int gridY, int numFrames, float duration, int wide, int high
+  ) {
+    //  TODO:  IMPLEMENT THIS
+    return null;
+    /*
+    final String modelName = "IMAGE-MODEL-"+tex.name() ;
+    Object cached = LoadService.getResource(modelName) ;
+    if (cached != null) return (ImageModel) cached ;
+    final ImageModel model = new ImageModel(
+      modelName, modelClass,
+      tex, spriteSize, spriteSize * gridX * 1f / gridY, TYPE_FLAT
+    ) ;
+    model.animateUV(gridX, gridY, numFrames) ;
+    model.animRanges.add(new Model.AnimRange(
+      "animation", 0, numFrames, duration
+    )) ;
+    return model ;
+    //*/
+  }
+  
+  
   private void setupDimensions(float size, float relHigh) {
-    //  TODO:  This will need to be based on more precise measurements of the
-    //  default camera angle.
+    final float
+      angle = (float) Math.toRadians(Viewport.DEFAULT_ELEVATE),
+      incidence = (float) Math.sin(angle);
     
-    final float wide = size * (float) Math.sqrt(2), high = wide * relHigh ;
-    dimension = new Vector2(wide, high) ;
-    //  1 : 2 ratio for camera elevation, so. Tan-1 (1/2) is the angle you need.
-    //  Hell, you can just use pythagoras, in that case:
-    //  sqrt((1 * 1) + (2 * 2)).
-    float idealBase = wide * 0.5f / ((float) Math.sqrt(5)) ;
-    offset = new Vector2(0, (high / 2) - idealBase) ;
+    final float wide = size * (float) Math.sqrt(2), high = wide * relHigh;
+    dimension = new Vector2(wide, high);
+    final float idealBase = wide * 0.5f * incidence;
+    offset = new Vector2(0, (high / 2) - idealBase);
   }
   
   
@@ -145,7 +165,7 @@ public class CutoutModel extends ModelAsset {
     rotation.set(Vector3.Z, 0) ;
     onAxis.set(Vector3.Y, -45) ;
     rotation.mul(onAxis) ;
-    onAxis.set(Vector3.X, -30) ;
+    onAxis.set(Vector3.X, 0 - Viewport.DEFAULT_ELEVATE) ;
     rotation.mul(onAxis) ;
     
     final float

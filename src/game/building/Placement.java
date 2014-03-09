@@ -140,7 +140,7 @@ public class Placement {
     v.doPlace(v.origin(), null) ;
     if (intact || GameSettings.buildFree) {
       v.structure.setState(Structure.STATE_INTACT, 1.0f) ;
-      v.onCompletion() ;
+      ///v.onCompletion() ;
     }
     else {
       v.structure.setState(Structure.STATE_INSTALL, 0.0f) ;
