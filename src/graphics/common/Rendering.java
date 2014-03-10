@@ -2,23 +2,18 @@
 
 
 package src.graphics.common ;
-import static src.graphics.common.GL.*;
-
-import org.lwjgl.opengl.GL11;
-
+import src.start.*;
 import src.graphics.cutout.*;
 import src.graphics.solids.*;
 import src.graphics.terrain.*;
 import src.graphics.sfx.*;
 import src.graphics.widgets.*;
-import src.start.PlayLoop;
 import src.util.*;
 
+import static src.graphics.common.GL.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g3d.*;
-import com.badlogic.gdx.graphics.g3d.attributes.*;
-import com.badlogic.gdx.graphics.g3d.environment.*;
 
 
 
@@ -34,6 +29,8 @@ public class Rendering {
   
   final public Viewport view;
   final public Lighting lighting;
+  public Colour backColour = null, foreColour = null ;
+  
   private static float activeTime, frameAlpha ;
   
   //  first terrain, then cutouts, then solids, then sfx, then the UI.
@@ -46,12 +43,11 @@ public class Rendering {
   public Rendering() {
     lighting = new Lighting(this);
     view = new Viewport();
-    //Gdx.input.setInputProcessor(view);
     
     terrainPass = new TerrainPass(this);
     solidsPass  = new SolidsPass (this);
     cutoutsPass = new CutoutsPass(this);
-    sfxPass     = new SFXPass     (this);
+    sfxPass     = new SFXPass    (this);
     reportVersion();
   }
   
@@ -98,8 +94,6 @@ public class Rendering {
     sfxPass    .clearAll();
   }
   
-  private Minimap minimap = new Minimap();
-  
   
   public void renderDisplay(HUD UI) {
     ///I.say("World and frame time are:"+worldTime+"/"+frameTime);
@@ -109,8 +103,8 @@ public class Rendering {
     glEnable(GL10.GL_BLEND);
     glDepthMask(true);
     glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-    final Colour BC = Colour.DARK_GREY;
-    GL11.glClearColor(BC.r, BC.g, BC.b, BC.a);
+    final Colour BC = backColour == null ? Colour.DARK_GREY : backColour ;
+    glClearColor(BC.r, BC.g, BC.b, BC.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     terrainPass.performPass();
@@ -125,21 +119,18 @@ public class Rendering {
     //  TODO:  It's probably a good idea to take everything transparent and
     //  render it later.  But for the moment, cutouts are more likely to
     //  exhibit transparency.
-    
-    //  TODO:  Do I need to be able to toggle this on and off for specific
-    //  cutouts?
-    //glDepthMask(false);
     cutoutsPass.performPass();
     
-    //  SFX require some... well... special effects.
+    //  TODO:  This is causing some odd overlap problems
     glDepthMask(false);
     sfxPass.performPass();
     
     if (UI != null) {
       UI.updateInput();
-      UI.renderHUD();
-      UI = null;
+      UI.renderHUD(this);
     }
+    
+    //  TODO:  Colour fades need to be performed here, not in the HUD class.
   }
 }
 

@@ -22,7 +22,7 @@ import com.badlogic.gdx.backends.lwjgl.*;
 
 //  *  Text should implement scrolling and scissor clipping.
 //  *  Cutout/PlaneFX animations and ocean animations.
-//  *  Global lighting and fadeout effects.
+//  *  Global lighting.
 
 
 public final class PlayLoop {

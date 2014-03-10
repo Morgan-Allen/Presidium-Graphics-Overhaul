@@ -262,8 +262,8 @@ public class BaseUI extends HUD implements UIConstants {
   //*/
   
   
-  public void renderHUD() {
-    super.renderHUD();
+  public void renderHUD(Rendering rendering) {
+    super.renderHUD(rendering);
     if (selection.selected() != null) {
       camera.setLockOffset(infoArea.xdim() / -2, 0) ;
     }
@@ -283,6 +283,8 @@ public class BaseUI extends HUD implements UIConstants {
       capturePanel = false ;
     }
     
+    //  TODO:  Problem- at the moment, this would render after the whole-screen
+    //         colour-fades.  That's unacceptable.
     /*
     final float TRANSITION_TIME = 0.33f ;
     float fade = System.currentTimeMillis() - panelInceptTime ;

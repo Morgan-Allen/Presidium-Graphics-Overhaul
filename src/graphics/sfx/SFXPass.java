@@ -2,6 +2,7 @@
 
 package src.graphics.sfx;
 import static src.graphics.common.GL.glBlendFunc;
+import static src.graphics.common.GL.glDepthMask;
 import static src.graphics.cutout.CutoutModel.VERT_INDICES;
 import src.graphics.common.*;
 import src.util.*;
@@ -121,8 +122,14 @@ public class SFXPass {
       compileAndRender(rendering.camera());
     }
     if (vivid != vividMode) {
-      if (vivid) glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
-      else glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+      if (vivid) {
+        glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
+        //glDepthMask(false);
+      }
+      else {
+        glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        //glDepthMask(true);
+      }
       vividMode = vivid;
     }
     lastTex = tex;

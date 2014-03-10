@@ -205,7 +205,7 @@ public class Colour {
     result.g = r + b / 2;
     result.b = r + g / 2;
     result.a = a;
-    result.setValue(1 - value());
+    result.setValue(((1 - value()) + 0.5f) / 2f);
     return result;
   }
 

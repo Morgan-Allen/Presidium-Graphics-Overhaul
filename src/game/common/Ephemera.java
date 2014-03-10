@@ -39,13 +39,11 @@ public class Ephemera {
   /**  Allowing for screen-fade FX:
     */
   public void applyFadeColour(Colour fade) {
-    this.fadeColour = fade ;
+    this.fadeColour = fade;
   }
   
   
   protected void applyScreenFade(Rendering rendering) {
-    //  TODO:  RESTORE THIS FX
-    /*
     rendering.foreColour = null ;
     if (fadeColour != null) {
       final Colour c = new Colour().set(fadeColour) ;
@@ -53,7 +51,6 @@ public class Ephemera {
       if (c.a <= 0) fadeColour = null ;
       else rendering.foreColour = fadeColour = c ;
     }
-    //*/
   }
   
   

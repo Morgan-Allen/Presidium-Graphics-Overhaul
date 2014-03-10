@@ -8,6 +8,7 @@
 package src.graphics.widgets;
 import src.graphics.common.*;
 import src.util.*;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.math.*;
@@ -103,22 +104,13 @@ public class HUD extends UIGroup {
     mousePos.set(nextMP) ;
     mouseB = nextMB ;
     
-    //  TODO:  Perform the selection mechanics here.
+    //  TODO:  Perform the selection mechanics here?
   }
   
-  /*
-  //
-  //  This is used for rendering GUI elements that share the viewport transform,
-  //  but are superimposed on top of actual world-sprites.
-  public void renderWorldFX(Rendering rendering) {
-    
-  }
-  //*/
   
-  //
   //  This is used for two-dimensional GUI elements in the conventional drawing
   //  hierarchy.
-  public void renderHUD() {
+  public void renderHUD(Rendering rendering) {
     relBound.set(0, 0, 1, 1) ;
     absBound.set(0, 0, 0, 0) ;
     final Box2D size = new Box2D();
@@ -143,22 +135,15 @@ public class HUD extends UIGroup {
       case (DRAGGED) : selected.whenDragged() ; break ;
     }
     
-    /*
-    GL11.glMatrixMode(GL11.GL_PROJECTION) ;
-    GL11.glLoadIdentity() ;
-    GL11.glOrtho(
-      0, bounds.xdim(),
-      0, bounds.ydim(),
-      -100, 100
-    ) ;
-    GL11.glMatrixMode(GL11.GL_MODELVIEW) ;
-    GL11.glLoadIdentity() ;
-    GL11.glDisable(GL11.GL_LIGHTING) ;
-    GL11.glDisable(GL11.GL_CULL_FACE) ;
-    GL11.glDisable(GL11.GL_DEPTH_TEST) ;
-    //*/
     batch2D.begin();
     super.render(batch2D);
+    
+    //  TODO:  Move this back to the Rendering class!
+    final Colour FC = rendering.foreColour;
+    if (FC != null) {
+      batch2D.setColor(FC.r, FC.g, FC.b, FC.a);
+      batch2D.draw(ImageAsset.WHITE_TEX, 0, 0, size.xdim(), size.ydim());
+    }
     batch2D.end();
   }
   

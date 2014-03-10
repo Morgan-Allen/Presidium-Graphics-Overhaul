@@ -56,6 +56,9 @@ public class TerrainPass {
     shader.setUniformMatrix("u_camera", rendering.camera().combined);
     shader.setUniformi("u_texture", 0);
     
+    final float lightSum[] = rendering.lighting.lightSum();
+    shader.setUniform4fv("u_lighting", lightSum, 0, 4);
+    
     final TerrainSet set = chunks.first().belongs;
     if (fogApplied != null) {
       fogApplied.applyToShader(shader);

@@ -18,7 +18,7 @@ public class Planet {
     MORNING_LIGHT  = new Colour(1.00f, 0.95f, 0.70f),
     DAY_LIGHT      = new Colour(1.00f, 1.00f, 1.00f),
     EVENING_LIGHT  = new Colour(0.70f, 0.95f, 1.00f),
-    NIGHT_LIGHT    = new Colour(0.35f, 0.55f, 0.35f),
+    NIGHT_LIGHT    = new Colour(0.45f, 0.70f, 0.55f),
     ALL_LIGHTS[]   = { MORNING_LIGHT, DAY_LIGHT, EVENING_LIGHT, NIGHT_LIGHT } ;
   final static float
     fade = (1 / 3f) / 2,
@@ -77,6 +77,9 @@ public class Planet {
       (a.b * w) + (b.b * (1 - w)),
       1
     ) ;
+    //blend.r = (blend.r + 1) / 2;
+    //blend.g = (blend.g + 1) / 2;
+    //blend.b = (blend.b + 1) / 2;
     return blend ;
   }
   

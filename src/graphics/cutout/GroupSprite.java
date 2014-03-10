@@ -122,8 +122,7 @@ public class GroupSprite extends Sprite {
     if (checkNeedsUpdate()) {
       final Batch <Sprite> kids = new Batch <Sprite> ();
       setOffsets(rendering, kids);
-      I.say("Refreshing z order, kids:"+kids.size());
-      
+      if (verbose) I.say("Refreshing z order, kids:"+kids.size());
       compressBefore(rendering, kids, 0.1f * kids.size() / 2);
     }
     renderKids(rendering);

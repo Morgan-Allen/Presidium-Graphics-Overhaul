@@ -141,6 +141,10 @@ public class CutoutsPass {
     shading.begin();
     shading.setUniformMatrix("u_camera", camera.combined);
     shading.setUniformi("u_texture", 0);
+    
+    final float lightSum[] = rendering.lighting.lightSum();
+    shading.setUniform4fv("u_lighting", lightSum, 0, 4);
+    
     lastTex.bind(0);
     compiled.render(shading, GL10.GL_TRIANGLES, 0, (total * 6) / SIZE);
     shading.end();
@@ -148,4 +152,7 @@ public class CutoutsPass {
     total = 0 ;
   }
 }
+
+
+
 

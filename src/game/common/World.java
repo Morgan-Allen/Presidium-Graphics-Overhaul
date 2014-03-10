@@ -34,6 +34,7 @@ public class World {
     STANDARD_YEAR_LENGTH = STANDARD_DAY_LENGTH * DAYS_PER_YEAR,
     GROWTH_INTERVAL      = STANDARD_DAY_LENGTH / 2,
     DEFAULT_INIT_TIME    = STANDARD_DAY_LENGTH / 3 ;
+  private static boolean verbose = false;
   
   
   final public int size ;
@@ -312,12 +313,11 @@ public class World {
   
   
   public void renderFor(Rendering rendering, Base base) {
-    //if (true) return ;
-    ///I.say("Rendering world...") ;
+    if (verbose) I.say("Rendering world...");
     //
     //  Set a couple of basic parameters before beginning-
-    final Colour c = Planet.lightValue(this) ;
-    rendering.lighting.setup(c.r, c.g, c.b, true, true) ;
+    final Colour c = Planet.lightValue(this);
+    rendering.lighting.setup(c.r, c.g, c.b);
     //
     //  First, we obtain lists of all current visible fixtures, actors, and
     //  terrain sections.

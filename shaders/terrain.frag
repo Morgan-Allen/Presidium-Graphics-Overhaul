@@ -3,6 +3,7 @@
 
 
 uniform sampler2D u_texture;
+uniform vec4 u_lighting;
 uniform sampler2D u_fog_old;
 uniform sampler2D u_fog_new;
 
@@ -26,7 +27,7 @@ void main() {
 		vec4 fog = mix(fogOld.rgba, fogNew.rgba, u_fogTime);
 		color.rgb = mix(color.rgb, fog.rgb, 1 - fog.r);
 	}
-	gl_FragColor = color;
+	gl_FragColor = color * u_lighting;
 }
 
 
