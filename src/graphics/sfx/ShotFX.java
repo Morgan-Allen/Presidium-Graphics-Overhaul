@@ -1,14 +1,12 @@
 
 
 
-package src.graphics.sfx ;
-import src.graphics.common.* ;
-
-import java.io.* ;
-
-import src.util.* ;
+package src.graphics.sfx;
+import src.graphics.common.*;
+import src.util.*;
 
 import com.badlogic.gdx.graphics.*;
+import java.io.*;
 
 
 
@@ -22,18 +20,18 @@ public class ShotFX extends SFX {
     */
   public static class Model extends src.graphics.common.ModelAsset {
     
-    //final Texture tex ;
     final String texName;
     final float arc, period, width, length ;
     final boolean repeats, vivid ;
     
-    Texture tex;
+    private Texture tex;
     private boolean loaded = false;
     
     public Model(
       String modelName, Class modelClass,
       String texName,
-      float period, float arc, float width, float length,
+      float period, float arc,
+      float width, float length,
       boolean repeats, boolean vivid
     ) {
       super(modelName, modelClass) ;
@@ -128,6 +126,7 @@ public class ShotFX extends SFX {
   
 
   private static Vec3D
+    tempA = new Vec3D(), tempB = new Vec3D(),
     perp  = new Vec3D(),
     line  = new Vec3D(),
     start = new Vec3D(),
@@ -138,11 +137,20 @@ public class ShotFX extends SFX {
     
     //  First, we need to determine what the 'perp' angle should be (as in,
     //  perpendicular to the line of the beam, as perceived by the viewer.)
-    perp.setTo(line.setTo(target).sub(origin));
+    line.setTo(target).sub(origin);
     line.normalise();
-    pass.rendering.view.translateToScreen(perp);
+    
+    //  We translate the start and end points to screen, and get the line
+    //  perpendicular to their direction on-screen.
+    pass.rendering.view.translateToScreen(tempA.setTo(origin));
+    pass.rendering.view.translateToScreen(tempB.setTo(target));
+    perp.setTo(tempB).sub(tempA);
     perp.set(perp.y, -perp.x, 0);
+    
+    //  We then translate that displacement from screen to world coordinates.
+    perp.add(tempA);
     pass.rendering.view.translateFromScreen(perp);
+    perp.sub(origin);
     perp.normalise().scale(model.width);
     
     //  Alright.  Based on time elapsed, divided by period, you should have a
@@ -160,37 +168,46 @@ public class ShotFX extends SFX {
       partLen = model.length;
       c = Colour.transparency(1f / (1 + numParts));
     }
-    
-    //  Now render the beam itself-
-    for (float n = numParts ; n-- > 0 ;) {
-      final float progress = partLen * n ;
-      final float lift = progress / distance ;
-      
-      start.setTo(line).scale(progress).add(origin) ;
-      start.z += lift * (1 - lift) * (distance * model.arc) ;
-      end.setTo(line).scale(partLen).add(start) ;
-      
+
+    // Now render the beam itself-
+    for (float n = numParts; n-- > 0;) {
+      final float progress = partLen * n;
+      final float lift = progress / distance;
+
+      start.setTo(line).scale(progress).add(origin);
+      start.z += lift * (1 - lift) * (distance * model.arc);
+      end.setTo(line).scale(partLen).add(start);
+
       if (end.distance(origin) > distance) {
-        if (progress > distance) break ;
-        else end.setTo(target) ;
+        if (progress > distance)
+          break;
+        else
+          end.setTo(target);
       }
-      if (progress < 0) start.setTo(origin) ;
-      
+      if (progress < 0)
+        start.setTo(origin);
+
       final float QV[] = SFXPass.QUAD_VERTS;
-      int i = 0; for (Vec3D v : verts) {
-        final boolean x = QV[i++] > 0, y = QV[i++] > 0, z = QV[i++] > 0;
+      int i = 0;
+      for (Vec3D v : verts) {
+        final boolean x = QV[i++] > 0, y = QV[i++] > 0;
         v.setTo(y ? end : start);
-        if (x) v.add(perp);
-        else v.sub(perp);
+        v.z += QV[i++];
+        
+        final float initDepth = pass.rendering.view.screenDepth(v);
+        if (x)
+          v.add(perp);
+        else
+          v.sub(perp);
+        final float afterDepth = pass.rendering.view.screenDepth(v);
+        
+        ///I.say("  Difference: "+(initDepth - afterDepth));
       }
-      
+
       pass.compileQuad(model.tex, c, verts, 0, 0, 1, 1, model.vivid);
-      if (! model.repeats) break ;
+      if (! model.repeats)
+        break;
     }
   }
 }
-
-
-
-
 

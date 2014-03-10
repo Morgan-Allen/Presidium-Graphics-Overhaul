@@ -41,8 +41,6 @@ public class Healthbar extends SFX {
   
   /**  Updates and rendering-
     */
-  //  TODO:  Will this overlap properly?  Check.
-  
   protected void renderInPass(SFXPass pass) {
     
     //  First, establish screen coordinates for the bottom-left corner.
@@ -57,7 +55,6 @@ public class Healthbar extends SFX {
     final Colour c = colour == null ? Colour.WHITE : colour ;
     final float s = 1 - level, f = fog ;
     
-    //  TODO:  Combine fog levels too?
     pass.compileQuad(
       ImageAsset.WHITE_TEX, c,
       x, y, size, BAR_HEIGHT,
@@ -66,28 +63,20 @@ public class Healthbar extends SFX {
     );
     
     //  When at less than half health, you need to flash-
-    //  TODO:  RESTORE THIS
-    /*
     if (level < 0.5f) {
       float flashAlpha = 0 ;
       flashAlpha = (0.5f - level) * 2 ;
       flash += 0.04f * Math.PI / 2f ;
       flashAlpha *= f * c.a * Math.abs(Math.sin(flash)) ;
-      GL11.glColor4f(1, 0, 0, flashAlpha) ;
+      final Colour flashed = new Colour().set(1, 0, 0, flashAlpha);
 
       pass.compileQuad(
-        ImageAsset.WHITE_TEX, c,
+        ImageAsset.WHITE_TEX, flashed,
         x, y, size, BAR_HEIGHT,
         0, 0, 1, 1,
-        base.z, true
+        base.z + 0.05f, true, false
       );
-      
-      UINode.drawQuad(
-        x, y, x + (int) size, y + BAR_HEIGHT,
-        0, 0, 1, 1, base.z
-      ) ;
     }
-    //*/
     //
     //  Then, the filled section-
     final Colour mix = new Colour().set(
@@ -101,7 +90,7 @@ public class Healthbar extends SFX {
       ImageAsset.WHITE_TEX, mix,
       x, y, size * level, BAR_HEIGHT,
       0, 0, 1, 1,
-      base.z + 0.01f, true, false
+      base.z + 0.1f, true, false
     );
   }
 }

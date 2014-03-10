@@ -143,10 +143,17 @@ public class BuildingSprite extends Sprite {
   public void toggleLighting(
     ModelAsset lightsModel, boolean lit, float xoff, float yoff, float zoff
   ) {
+    
   }
   
 
   public void toggleFX(ModelAsset model, boolean on) {
+    
+  }
+  
+  
+  public void clearFX() {
+    
   }
   
   
@@ -173,10 +180,6 @@ public class BuildingSprite extends Sprite {
       allStacks.attach(match, xoff, yoff, 0);
     }
     match.updateAmount((int) amount);
-  }
-  
-  
-  public void clearFX() {
   }
   
   

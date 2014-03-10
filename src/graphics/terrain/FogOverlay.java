@@ -7,7 +7,6 @@ import src.util.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Pixmap.*;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-
 import static com.badlogic.gdx.graphics.Texture.TextureFilter.*;
 
 

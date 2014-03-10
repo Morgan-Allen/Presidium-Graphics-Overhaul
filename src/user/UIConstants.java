@@ -71,7 +71,7 @@ public interface UIConstants {
   final public static Box2D
     MAIN_BOUNDS = new Box2D().set(0, 1, 0.66f, 1.0f),
     MINI_BOUNDS = new Box2D().set(0, 1, 0, 0),
-    MINI_INSETS = new Box2D().set(10, -210, 200, 200);
+    MINI_INSETS = new Box2D().set(0, -256, 256, 256);
   
   final static Box2D
     

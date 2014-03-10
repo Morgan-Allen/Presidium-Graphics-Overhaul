@@ -64,7 +64,7 @@ public class ImageAsset extends Assets.Loadable {
   
   public Colour average() {
     if (! loaded) I.complain("IMAGE ASSET HAS NOT LOADED!- "+filePath);
-    return average();
+    return average;
   }
   
   
@@ -86,18 +86,19 @@ public class ImageAsset extends Assets.Loadable {
       average = new Colour();
       Colour sample = new Colour();
       
+      float sumAlphas = 0;
       final int wide = imgData.getWidth(), high = imgData.getHeight();
       for (Coord c : Visit.grid(0, 0, wide, high, 1)) {
         sample.setFromRGBA(imgData.getPixel(c.x, c.y));
-        average.r += sample.r;
-        average.g += sample.g;
-        average.b += sample.b;
+        sumAlphas += sample.a;
+        average.r += sample.r * sample.a;
+        average.g += sample.g * sample.a;
+        average.b += sample.b * sample.a;
       }
       
-      final int numPix = wide * high;
-      average.r /= numPix;
-      average.g /= numPix;
-      average.b /= numPix;
+      average.r /= sumAlphas;
+      average.g /= sumAlphas;
+      average.b /= sumAlphas;
       average.a = 1;
       average.set(average);
       

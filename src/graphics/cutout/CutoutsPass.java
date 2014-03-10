@@ -1,17 +1,18 @@
 
 
+
 package src.graphics.cutout ;
 import src.graphics.common.*;
 import static src.graphics.common.GL.*;
 import static src.graphics.cutout.CutoutModel.*;
 import src.util.*;
 
-import com.badlogic.gdx.* ;
-import com.badlogic.gdx.graphics.* ;
+import com.badlogic.gdx.*;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
-import com.badlogic.gdx.math.* ;
-import com.badlogic.gdx.utils.* ;
-import com.badlogic.gdx.graphics.glutils.* ;
+import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.utils.*;
+import com.badlogic.gdx.graphics.glutils.*;
 
 
 
@@ -45,29 +46,22 @@ public class CutoutsPass {
       Mesh.VertexDataType.VertexArray,
       false,
       MAX_SPRITES * 4, MAX_SPRITES * 6,
-      
       VertexAttribute.Position(),
       VertexAttribute.Color(),
       VertexAttribute.TexCoords(0)
     );
-    vertComp = new float[COMPILE_LIMIT] ;
-    compIndex = new short[MAX_SPRITES * 6] ;
+    vertComp = new float[COMPILE_LIMIT];
+    compIndex = new short[MAX_SPRITES * 6];
     
-    for (int i = 0, v = 0 ; i < compIndex.length ; v += 4) {
-      //  TODO:  Use a pattern template in the CutoutModel class
-      compIndex[i++] = (short) (v + 0) ;
-      compIndex[i++] = (short) (v + 2) ;
-      compIndex[i++] = (short) (v + 1) ;
-      compIndex[i++] = (short) (v + 1) ;
-      compIndex[i++] = (short) (v + 2) ;
-      compIndex[i++] = (short) (v + 3) ;
+    for (int i = 0; i < compIndex.length ; i++) {
+      compIndex[i] = (short) (((i / 6) * 4) + VERT_INDICES[i % 6]);
     }
     compiled.setIndices(compIndex) ;
-
+    
     shading = new ShaderProgram(
-        Gdx.files.internal("shaders/cutouts.vert"),
-        Gdx.files.internal("shaders/cutouts.frag")
-    ) ;
+      Gdx.files.internal("shaders/cutouts.vert"),
+      Gdx.files.internal("shaders/cutouts.frag")
+    );
     if (! shading.isCompiled()) {
       throw new GdxRuntimeException("\n"+shading.getLog()) ;
     }
@@ -147,9 +141,8 @@ public class CutoutsPass {
     shading.begin();
     shading.setUniformMatrix("u_camera", camera.combined);
     shading.setUniformi("u_texture", 0);
-    lastTex.setFilter(TextureFilter.Linear, TextureFilter.Linear);
     lastTex.bind(0);
-    compiled.render(shading, GL10.GL_TRIANGLES, 0, total / 4);
+    compiled.render(shading, GL10.GL_TRIANGLES, 0, (total * 6) / SIZE);
     shading.end();
 
     total = 0 ;

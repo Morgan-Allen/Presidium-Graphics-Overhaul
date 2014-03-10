@@ -5,7 +5,9 @@ import src.game.building.Economy;
 import src.graphics.common.*;
 import src.graphics.cutout.*;
 import src.graphics.solids.*;
+import src.graphics.terrain.*;
 import src.graphics.sfx.*;
+import src.graphics.widgets.HUD;
 import src.util.*;
 
 import org.apache.commons.math3.util.FastMath;
@@ -34,7 +36,7 @@ public class DebugGraphics {
       "laser_beam_fx", DebugGraphics.class,
       "media/SFX/blast_beam.gif",
       0.05f, 0,
-      0.5f, 3, true, true
+      0.10f, 3, true, true
     );
   
   
@@ -108,22 +110,22 @@ public class DebugGraphics {
           }
         };
         FX3.position.set(-2, 2, 0);
-        FX3.origin.set(-2, 1, 0);
-        FX3.target.set(-2, 4, 0);
+        FX3.origin.set(-1, 1, 0);
+        FX3.target.set(-4, 4, 0);
         sprites.add(FX3);
       }
-      
-      
+
+
       protected void onRendering(Sprite sprite) {
         if (sprite.model() == CM) {
           final float f = sprite.fog, a = f * (1 - f) * 4;
           sprite.colour = Colour.transparency(a);
           sprite.fog = (f + 0.01f) % 1;
-          sprite.rotation += 90 / 60f;
         }
         if (sprite.model() == SM) {
           final float progress = Rendering.activeTime() * 6 / 10f;
           sprite.setAnimation(AnimNames.MOVE, progress % 1);
+          sprite.rotation += 90 / 60f;
         }
       }
     });

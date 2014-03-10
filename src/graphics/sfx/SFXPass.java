@@ -2,6 +2,7 @@
 
 package src.graphics.sfx;
 import static src.graphics.common.GL.glBlendFunc;
+import static src.graphics.cutout.CutoutModel.VERT_INDICES;
 import src.graphics.common.*;
 import src.util.*;
 
@@ -70,14 +71,9 @@ public class SFXPass {
     );
     vertComp = new float[COMPILE_LIMIT] ;
     compIndex = new short[MAX_QUADS * 6] ;
-    
-    for (int i = 0, v = 0 ; i < compIndex.length ; v += 4) {
-      compIndex[i++] = (short) (v + 0) ;
-      compIndex[i++] = (short) (v + 2) ;
-      compIndex[i++] = (short) (v + 1) ;
-      compIndex[i++] = (short) (v + 1) ;
-      compIndex[i++] = (short) (v + 2) ;
-      compIndex[i++] = (short) (v + 3) ;
+
+    for (int i = 0; i < compIndex.length ; i++) {
+      compIndex[i] = (short) (((i / 6) * 4) + VERT_INDICES[i % 6]);
     }
     compiled.setIndices(compIndex) ;
     

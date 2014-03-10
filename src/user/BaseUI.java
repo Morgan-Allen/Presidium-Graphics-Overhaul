@@ -9,6 +9,7 @@ package src.user ;
 import src.game.common.* ;
 import src.game.planet.* ;
 import src.graphics.common.* ;
+import src.graphics.terrain.Minimap;
 import src.graphics.widgets.* ;
 import src.start.PlayLoop;
 import src.util.* ;
@@ -17,6 +18,7 @@ import src.game.actors.ActorHealth ;
 //import org.lwjgl.input.* ;
 //import org.lwjgl.opengl.GL11 ;
 //import org.lwjgl.* ;
+
 
 
 
@@ -44,7 +46,8 @@ public class BaseUI extends HUD implements UIConstants {
   final public Camera camera ;
   
   UIGroup helpText ;
-  Minimap minimap ;
+  //Minimap minimap ;
+  MapsPanel mapsPanel;
   Text readout ;
   UIGroup infoArea ;
   //MainPanel mainPanel ;
@@ -68,7 +71,7 @@ public class BaseUI extends HUD implements UIConstants {
   public void assignBaseSetup(Base played, Vec3D homePos) {
     this.played = played;
     if (homePos != null) rendering.view.lookedAt.setTo(homePos);
-    minimap.setBase(played);
+    mapsPanel.setBase(played);
   }
   
   
@@ -104,10 +107,10 @@ public class BaseUI extends HUD implements UIConstants {
     */
   private void configLayout() {
     
-    this.minimap = new Minimap(this, world, null) ;
-    minimap.relBound.setTo(MINI_BOUNDS) ;
-    minimap.absBound.setTo(MINI_INSETS) ;
-    minimap.attachTo(this) ;
+    this.mapsPanel = new MapsPanel(this, world, null) ;
+    mapsPanel.relBound.setTo(MINI_BOUNDS) ;
+    mapsPanel.absBound.setTo(MINI_INSETS) ;
+    mapsPanel.attachTo(this) ;
     
     this.readout = new Text(this, INFO_FONT) ;
     readout.relBound.set(0, 1, 1, 0) ;

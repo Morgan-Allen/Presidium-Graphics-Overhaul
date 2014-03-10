@@ -21,7 +21,7 @@ public class GroupSprite extends Sprite {
     protected void loadAsset() {}
     protected void disposeAsset() {}
   };
-  private static boolean verbose = true;
+  private static boolean verbose = false;
   
   
   protected Stack <Sprite> modules = new Stack <Sprite> () ;

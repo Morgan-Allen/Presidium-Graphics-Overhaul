@@ -1,12 +1,5 @@
 #version 120
 
-#ifdef GL_ES 
-#define MED mediump
-precision mediump float;
-#else
-#define MED
-#endif
-
 
 
 uniform sampler2D u_texture;
@@ -17,8 +10,8 @@ uniform vec2 u_fogSize;
 uniform bool u_fogFlag;
 uniform float u_fogTime;
 
-varying MED vec2 v_texCoords0;
-varying MED vec3 v_position;
+varying vec2 v_texCoords0;
+varying vec3 v_position;
 
 
 void main() {

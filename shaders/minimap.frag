@@ -9,22 +9,19 @@ uniform vec2 u_fogSize;
 uniform bool u_fogFlag;
 uniform float u_fogTime;
 
-varying MED vec2 v_texCoords0;
-varying MED vec3 v_position;
+varying vec2 v_texCoords0;
+varying vec3 v_position;
 
 
 
 void main() {
   vec4 color = texture2D(u_texture, v_texCoords0);
   if(u_fogFlag) {
-    vec2 sampled = vec2(
-      (v_position.x + 0.5f) / u_fogSize.x,
-      (v_position.z + 0.5f) / u_fogSize.y
-    );
-    vec4 fogOld = texture2D(u_fog_old, sampled);
-    vec4 fogNew = texture2D(u_fog_new, sampled);
+    float fs = u_fogSize.x + u_fogSize.y;  //Just to keep compiler happy...
+    vec4 fogOld = texture2D(u_fog_old, v_texCoords0);
+    vec4 fogNew = texture2D(u_fog_new, v_texCoords0);
     vec4 fog = mix(fogOld.rgba, fogNew.rgba, u_fogTime);
-    color.rgb = mix(color.rgb, fog.rgb, 1 - fog.r);
+    color.rgb = mix(color.rgb, fog.rgb, (1 - fog.r) / 2);
   }
   gl_FragColor = color;
 }

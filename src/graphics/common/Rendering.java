@@ -98,6 +98,8 @@ public class Rendering {
     sfxPass    .clearAll();
   }
   
+  private Minimap minimap = new Minimap();
+  
   
   public void renderDisplay(HUD UI) {
     ///I.say("World and frame time are:"+worldTime+"/"+frameTime);
@@ -124,7 +126,7 @@ public class Rendering {
     //  render it later.  But for the moment, cutouts are more likely to
     //  exhibit transparency.
     
-    //  TODO:  I need to be able to toggle this on and off for specific
+    //  TODO:  Do I need to be able to toggle this on and off for specific
     //  cutouts?
     //glDepthMask(false);
     cutoutsPass.performPass();
@@ -140,5 +142,9 @@ public class Rendering {
     }
   }
 }
+
+
+
+
 
 

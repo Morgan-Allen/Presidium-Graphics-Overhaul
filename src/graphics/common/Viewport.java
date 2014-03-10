@@ -112,7 +112,6 @@ public class Viewport {
   public float screenDepth(Vec3D worldPoint) {
     worldToGL(worldPoint, temp);
     camera.project(temp);
-    //  I find this more useful than a zero-to-1 range...
     temp.z *= (camera.far - camera.near);
     return temp.z;
   }

@@ -21,12 +21,15 @@ public class CutoutModel extends ModelAsset {
     C0 = 3, U0 = 4, V0 = 5;
   
   
-  final static float VERT_PATTERN[] = {
+  final public static float VERT_PATTERN[] = {
     0, 1, 0,
     1, 1, 0,
     0, 0, 0,
     1, 0, 0
   } ;
+  final public static short VERT_INDICES[] = {
+    0, 2, 1, 1, 2, 3
+  };
   
   private String fileName;
   private Box2D window;
@@ -159,37 +162,32 @@ public class CutoutModel extends ModelAsset {
   private void setupVertices() {
     final Quaternion
       rotation = new Quaternion(0, 0, 0, 0),
-      onAxis = new Quaternion() ;
-    final Vector3 temp = new Vector3() ;
+      onAxis   = new Quaternion();
+    final Vector3 temp = new Vector3();
     
-    rotation.set(Vector3.Z, 0) ;
-    onAxis.set(Vector3.Y, -45) ;
-    rotation.mul(onAxis) ;
-    onAxis.set(Vector3.X, 0 - Viewport.DEFAULT_ELEVATE) ;
-    rotation.mul(onAxis) ;
+    rotation.set(Vector3.Z, 0);
+    onAxis.set(Vector3.Y, -45);
+    rotation.mul(onAxis);
+    onAxis.set(Vector3.X, 0 - Viewport.DEFAULT_ELEVATE);
+    rotation.mul(onAxis);
     
     final float
       left   = offset.x - (dimension.x / 2f),
-      bottom = offset.y - (dimension.y / 2f) ;
-    for (int i = 0, p = 0 ; i < vertices.length ; i += VERTEX_SIZE) {
+      bottom = offset.y - (dimension.y / 2f);
+    for (int i = 0, p = 0; i < vertices.length; i += VERTEX_SIZE) {
       final float
         x = VERT_PATTERN[p++],
         y = VERT_PATTERN[p++],
-        z = VERT_PATTERN[p++] ;
-      
-      temp.set(
-        left   + (dimension.x * x),
-        bottom + (dimension.y * y),
-        z
-      ) ;
-      temp.mul(rotation) ;
-      vertices[X0 + i] = temp.x ;
-      vertices[Y0 + i] = temp.y ;
-      vertices[Z0 + i] = temp.z ;
-      
-      vertices[C0 + i] = Sprite.WHITE_BITS ;
-      vertices[U0 + i] = (region.getU() * (1 - x)) + (region.getU2() * x) ;
-      vertices[V0 + i] = (region.getV() * y) + (region.getV2() * (1 - y)) ;
+        z = VERT_PATTERN[p++];
+      temp.set(left + (dimension.x * x), bottom + (dimension.y * y), z);
+      temp.mul(rotation);
+      vertices[X0 + i] = temp.x;
+      vertices[Y0 + i] = temp.y;
+      vertices[Z0 + i] = temp.z;
+
+      vertices[C0 + i] = Sprite.WHITE_BITS;
+      vertices[U0 + i] = (region.getU() * (1 - x)) + (region.getU2() * x);
+      vertices[V0 + i] = (region.getV() * y) + (region.getV2() * (1 - y));
     }
   }
   

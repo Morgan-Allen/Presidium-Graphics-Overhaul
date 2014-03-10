@@ -6,7 +6,7 @@
 
 package src.start;
 import src.util.*;
-import src.game.common.Spacing;
+import src.game.common.*;
 import src.graphics.widgets.*;
 import src.graphics.common.*;
 
@@ -21,9 +21,8 @@ import com.badlogic.gdx.backends.lwjgl.*;
 //  *  Light overlays for cutouts?
 
 //  *  Text should implement scrolling and scissor clipping.
-//  *  The MoteFX and ShotFX classes need proper completion.
-//  *  Minimap must be fixed.
-
+//  *  Cutout/PlaneFX animations and ocean animations.
+//  *  Global lighting and fadeout effects.
 
 
 public final class PlayLoop {
