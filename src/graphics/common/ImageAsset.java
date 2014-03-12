@@ -9,6 +9,9 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.*;
 
 
+//  TODO:  Allow division into a grid for purposes of animation or splitting up?
+
+
 
 
 public class ImageAsset extends Assets.Loadable {

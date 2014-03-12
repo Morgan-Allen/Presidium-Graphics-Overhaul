@@ -83,6 +83,7 @@ public class CutoutsPass {
   
   
   public void performPass() {
+    //I.say("Sprites to render: "+inPass.size());
     for (CutoutSprite s : inPass) {
       compileSprite(s, rendering.camera());
     }

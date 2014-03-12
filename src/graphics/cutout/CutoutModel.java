@@ -124,29 +124,6 @@ public class CutoutModel extends ModelAsset {
   }
   
   
-  public static CutoutModel fromAnimationGrid(
-    String fileName, Class modelClass,
-    int gridX, int gridY, int numFrames, float duration, int wide, int high
-  ) {
-    //  TODO:  IMPLEMENT THIS
-    return null;
-    /*
-    final String modelName = "IMAGE-MODEL-"+tex.name() ;
-    Object cached = LoadService.getResource(modelName) ;
-    if (cached != null) return (ImageModel) cached ;
-    final ImageModel model = new ImageModel(
-      modelName, modelClass,
-      tex, spriteSize, spriteSize * gridX * 1f / gridY, TYPE_FLAT
-    ) ;
-    model.animateUV(gridX, gridY, numFrames) ;
-    model.animRanges.add(new Model.AnimRange(
-      "animation", 0, numFrames, duration
-    )) ;
-    return model ;
-    //*/
-  }
-  
-  
   private void setupDimensions(float size, float relHigh) {
     final float
       angle = (float) Math.toRadians(Viewport.DEFAULT_ELEVATE),

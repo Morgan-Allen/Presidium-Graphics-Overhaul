@@ -129,7 +129,6 @@ public class Rendering {
       UI.updateInput();
       UI.renderHUD(this);
     }
-    
     //  TODO:  Colour fades need to be performed here, not in the HUD class.
   }
 }

@@ -258,7 +258,7 @@ public class Terrain implements TileConstants, Session.Saveable {
     
     while (++lID < habitats.length) {
       final int layerIndex = lID;
-      layers[lID] = new LayerType(habitats[lID].baseTex, false, lID) {
+      layers[lID] = new LayerType(habitats[lID].animTex, false, lID) {
         protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
           return typeIndex[tx][ty] == layerIndex;
         }

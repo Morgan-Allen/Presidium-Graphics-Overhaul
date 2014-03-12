@@ -55,6 +55,7 @@ public class TerrainPass {
     shader.begin();
     shader.setUniformMatrix("u_camera", rendering.camera().combined);
     shader.setUniformi("u_texture", 0);
+    //shader.setUniformi("u_animTex", 1);
     
     final float lightSum[] = rendering.lighting.lightSum();
     shader.setUniform4fv("u_lighting", lightSum, 0, 4);
@@ -68,20 +69,8 @@ public class TerrainPass {
     
     //  TODO:  What about customised terrain splats?  ...If the ID is -1,
     //  render them last, but in order of presentation.
-    
-    for (LayerType type : set.layers) {
-      type.texture.bind(0);
-      for (TerrainChunk chunk : chunks) {
-        if (chunk.belongs != set) I.complain(
-          "ALL RENDERED CHUNKS MUST BELONG TO SAME TERRAIN SET!"
-        ) ;
-        if (chunk.layer.layerID != type.layerID) continue;
-        chunk.mesh.render(shader, GL20.GL_TRIANGLES);
-        chunk.renderFlag = false;
-      }
-    }
+    for (LayerType type : set.layers) type.renderChunks(shader, chunks);
     shader.end();
-    //if (fogApplied != null) fogApplied.checkBufferSwap(Rendering.activeTime());
     
     clearAll();
   }
@@ -94,3 +83,10 @@ public class TerrainPass {
 }
 
 
+
+//  TODO:  ...Do I need this?
+/*
+if (chunk.belongs != set) I.complain(
+  "ALL RENDERED CHUNKS MUST BELONG TO SAME TERRAIN SET!"
+) ;
+//*/

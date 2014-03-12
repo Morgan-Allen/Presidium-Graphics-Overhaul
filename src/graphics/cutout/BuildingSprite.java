@@ -2,6 +2,8 @@
 
 package src.graphics.cutout;
 import src.graphics.common.*;
+import src.graphics.sfx.*;
+import src.graphics.sfx.PlaneFX.Model;
 import src.util.*;
 
 import java.io.*;
@@ -17,12 +19,11 @@ public class BuildingSprite extends Sprite {
     protected void loadAsset() {}
     protected void disposeAsset() {}
     public Sprite makeSprite() { return new BuildingSprite() ; }
-  } ;
-
-  final static String DIR = "media/Buildings/artificer/" ;
+  };
+  
   final public static ModelAsset
     SCAFF_MODELS[] = CutoutModel.fromImages(
-      DIR, BuildingSprite.class, 1, 1,
+      "media/Buildings/artificer/", BuildingSprite.class, 1, 1,
       "scaff_0.png",
       "scaff_1.png",
       "scaff_2.png",
@@ -31,22 +32,38 @@ public class BuildingSprite extends Sprite {
       "scaff_5.png",
       "scaff_6.png"
     ),
-    BLAST_MODEL = CutoutModel.fromAnimationGrid(
-      "media/SFX/blast_anim.gif", BuildingSprite.class,
-      5, 5, 17, 1.36f, 1, 1
-    ),
     CRATE_MODEL = CutoutModel.fromImage(
       "media/Items/crate.gif", BuildingSprite.class, 0.5f, 0.2f
+    );
+  final public static PlaneFX.Model
+    BLAST_MODEL = new PlaneFX.Model(
+      "blast_model", BuildingSprite.class,
+      "media/SFX/blast_anim.gif", 5, 4, 25, (25 / 25f)
+    ),
+    POWER_MODEL = new PlaneFX.Model(
+      "power_model", BuildingSprite.class,
+      "media/SFX/power.png", 0.5f, 0, 0, true, true
+    ),
+    LIFE_SUPPORT_MODEL = new PlaneFX.Model(
+      "power_model", BuildingSprite.class,
+      "media/SFX/life_S.png", 0.5f, 0, 0, true, true
+    ),
+    WATER_MODEL = new PlaneFX.Model(
+      "power_model", BuildingSprite.class,
+      "media/SFX/water.png", 0.5f, 0, 0, true, true
     );
   
   
   private CutoutSprite baseSprite, scaffoldBase;
   private GroupSprite scaffolding;
   private GroupSprite allStacks;
+  private List <PlaneFX> statusFX = new List <PlaneFX> ();
+  private int statusDisplayIndex = -1;
   
   private int size, high;
   boolean intact;
   float condition;
+  
   
 
   public static BuildingSprite fromBase(
@@ -127,6 +144,24 @@ public class BuildingSprite extends Sprite {
       scaffolding.registerFor(rendering);
     }
     allStacks.registerFor(rendering);
+    
+    final PlaneFX displayed = statusFX.atIndex(statusDisplayIndex) ;
+    if (displayed != null) {
+      
+      displayed.matchTo(this);
+      displayed.position.z += high + 0.5f;
+      displayed.registerFor(rendering);
+      
+      final float progress = displayed.animProgress();
+      final float alpha = Visit.clamp(progress * 4 * (1 - progress), 0, 1);
+      displayed.colour = Colour.transparency(alpha);
+      
+      if (progress >= 1) {
+        statusDisplayIndex = (statusDisplayIndex + 1) % statusFX.size();
+        statusFX.atIndex(statusDisplayIndex).reset();
+      }
+    }
+    else statusDisplayIndex = statusFX.size() - 1 ;
   }
   
   
@@ -148,7 +183,22 @@ public class BuildingSprite extends Sprite {
   
 
   public void toggleFX(ModelAsset model, boolean on) {
-    
+    if (on) {
+      for (PlaneFX FX : statusFX) if (FX.model() == model) return;
+      final PlaneFX FX = (PlaneFX) model.makeSprite();
+      statusFX.add(FX);
+      if (statusDisplayIndex < 0) statusDisplayIndex = 0;
+    }
+    else {
+      int index = 0;
+      for (PlaneFX FX : statusFX)
+        if (FX.model() == model) {
+          statusFX.remove(FX);
+          if (statusDisplayIndex >= index) statusDisplayIndex--;
+          return;
+        }
+        else index++;
+    }
   }
   
   

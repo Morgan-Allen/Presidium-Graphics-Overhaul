@@ -725,27 +725,26 @@ public abstract class Venue extends Fixture implements
       progBar.empty = Colour.GREY ;
       progBar.colour = Colour.WHITE ; //paler version of main bar colour?
       progBar.registerFor(rendering);
-      //rendering.addClient(progBar) ;
+      //rendering.addClient(progBar);
     }
   }
   
   
-  protected void toggleStatusFor(Service need) {
-    if (! structure.intact()) buildSprite.toggleFX(need.model, false) ;
+  protected void toggleStatusFor(Service need, ModelAsset model) {
+    if (! structure.intact()) buildSprite.toggleFX(need.model, false);
     final float
       shortage = stocks.shortageOf(need),
-      demand = stocks.demandFor(need) ;
-    buildSprite.toggleFX(need.model, shortage > (demand / 2) + 0.5f) ;
+      demand = stocks.demandFor(need);
+    buildSprite.toggleFX(model, shortage > (demand / 2) + 0.5f);
   }
   
   
   protected void toggleStatusDisplay() {
-    final boolean burns = structure.burning() ;
-    //  TODO:  RESTORE THIS
-    //buildSprite.toggleFX(BuildingSprite.BLAST_MODEL, burns) ;
-    toggleStatusFor(LIFE_SUPPORT) ;
-    toggleStatusFor(POWER       ) ;
-    toggleStatusFor(WATER       ) ;
+    final boolean burns = structure.burning();
+    buildSprite.toggleFX(BuildingSprite.BLAST_MODEL, burns);
+    toggleStatusFor(LIFE_SUPPORT, BuildingSprite.LIFE_SUPPORT_MODEL);
+    toggleStatusFor(POWER       , BuildingSprite.POWER_MODEL);
+    toggleStatusFor(WATER       , BuildingSprite.WATER_MODEL);
   }
   
   

@@ -54,9 +54,11 @@ public class MapsPanel extends UIGroup {
   
   
   protected UINode selectionAt(Vector2 mousePos) {
-    if (super.selectionAt(mousePos) == null) return null ;
+    final UINode kid = super.selectionAt(mousePos);
+    if (kid != null) return kid;
+    if (! bounds.contains(mousePos.x, mousePos.y)) return null;
     final Coord c = minimap.getMapPosition(UI.mousePos(), bounds, world.size);
-    return (c == null) ? null : this ;
+    return (c == null) ? null : this;
   }
   
   

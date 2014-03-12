@@ -112,7 +112,7 @@ public class Minimap {
   public Coord getMapPosition(final Vector2 pos, Box2D bound, int mapSize) {
     final float
       cX = (pos.x -  bound.xpos()) / bound.xdim(),
-      cY = (pos.y - (bound.ypos() + (bound.ydim() * 0.5f))) / bound.ydim();
+      cY = ((bound.ypos() + (bound.ydim() * 0.5f)) - pos.y) / bound.ydim();
     return new Coord(
       (int) ((cX - cY) * mapSize),
       (int) ((cY + cX) * mapSize)
@@ -143,5 +143,7 @@ public class Minimap {
     shading.end();
   }
 }
+
+
 
 

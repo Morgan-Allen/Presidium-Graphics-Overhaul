@@ -71,6 +71,9 @@ public class DebugGraphics {
           Economy.FUEL_RODS.model, 15, -1.5f, -1.5f
         );
         BS.updateCondition(0.0f, false, false);
+        BS.toggleFX(BuildingSprite.POWER_MODEL, true);
+        BS.toggleFX(BuildingSprite.WATER_MODEL, true);
+        BS.toggleFX(BuildingSprite.BLAST_MODEL, true);
         sprites.add(BS);
         
         final TalkFX FX1 = new TalkFX() {
@@ -131,8 +134,6 @@ public class DebugGraphics {
     });
   }
 }
-
-
 
 
 

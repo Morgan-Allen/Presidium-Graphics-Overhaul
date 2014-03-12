@@ -1,16 +1,15 @@
 
 
-
-package src.game.tactical ;
+package src.game.tactical;
 import src.game.civilian.*;
-import src.game.common.* ;
-import src.game.actors.* ;
-import src.graphics.common.* ;
-import src.graphics.cutout.* ;
-import src.graphics.widgets.HUD ;
+import src.game.common.*;
+import src.game.actors.*;
+import src.graphics.common.*;
+import src.graphics.cutout.*;
+import src.graphics.widgets.HUD;
 import src.start.PlayLoop;
-import src.user.* ;
-import src.util.* ;
+import src.user.*;
+import src.util.*;
 
 
 /*

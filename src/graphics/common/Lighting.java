@@ -24,16 +24,8 @@ public class Lighting {
   
   Lighting(Rendering rendering) {
     this.rendering = rendering;
-    
     environment = new Environment();
-    environment.add(new DirectionalLight().set(
-      0.8f, 0.8f, 0.8f,
-      -1f, -0.8f, -0.2f
-    ));
-    environment.set(new ColorAttribute(
-      ColorAttribute.AmbientLight,
-      0.4f, 0.4f, 0.4f, 0.1f
-    ));
+    setup(1, 1, 1);
   }
   
   

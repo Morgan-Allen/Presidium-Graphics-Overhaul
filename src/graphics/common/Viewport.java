@@ -29,6 +29,9 @@ public class Viewport {
     zoomLevel = 1.0f ;
   
   final private Vector3 temp = new Vector3();
+  final Vec3D
+    originWtS = new Vec3D(),
+    originStW = new Vec3D();
   
   
   public Viewport() {
@@ -60,6 +63,9 @@ public class Viewport {
     worldToGL(lookedAt, temp);
     camera.position.add(temp);
     camera.update();
+    
+    translateToScreen(originWtS.set(0, 0, 0));
+    translateFromScreen(originStW.set(0, 0, 0));
   }
   
   
