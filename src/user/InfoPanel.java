@@ -56,9 +56,9 @@ public class InfoPanel extends UIGroup implements UIConstants {
   
   
   public InfoPanel(BaseUI UI, Selectable selected, int topPadding) {
-    super(UI) ;
-    this.UI = UI ;
-    this.relBound.set(0, 0, 1, 1) ;
+    super(UI);
+    this.UI = UI;
+    this.relBound.set(0, 0, 1, 1);
     
     //  TODO:  Use topPadding again, once you have portrait composition done.
     final int
@@ -73,16 +73,16 @@ public class InfoPanel extends UIGroup implements UIConstants {
     headerText = new Text(UI, BaseUI.INFO_FONT);
     headerText.relBound.set(0, 1, 1, 0);
     headerText.absBound.set(
-      LM, -(TM + HEADER_HEIGHT),
-      -(LM + RM), HEADER_HEIGHT
+      25, -(TM + HEADER_HEIGHT),
+      -(25 + 20), HEADER_HEIGHT
     );
     headerText.attachTo(this);
     
     detailText = new Text(UI, BaseUI.INFO_FONT);
     detailText.relBound.set(0, 0, 1, 1);
     detailText.absBound.set(
-      LM, BM, -(LM + RM),
-      -(BM + TM + HEADER_HEIGHT)
+      25, BM,
+      -(25 + 20), -(BM + TM + HEADER_HEIGHT)
     );
     detailText.attachTo(this);
     detailText.scale = 0.75f;

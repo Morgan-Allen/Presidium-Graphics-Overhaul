@@ -36,7 +36,9 @@ public class CutoutModel extends ModelAsset {
   private float size;
   private boolean loaded = false;
   
-  Texture texture ;
+  Texture texture;
+  Texture lightSkin;//  TODO:  USE THIS
+  
   TextureRegion region ;
   Vector2 offset, dimension ;
 
@@ -64,6 +66,13 @@ public class CutoutModel extends ModelAsset {
     final Texture t = texture;
     setupDimensions(size, t.getHeight() * 1f / t.getWidth());
     setupVertices();
+    
+    String litName = fileName.substring(0, fileName.length() - 4);
+    litName+="_lights.png";
+    if (Assets.exists(litName)) {
+      lightSkin = ImageAsset.getTexture(litName);
+    }
+    
     loaded = true;
   }
   
@@ -74,9 +83,8 @@ public class CutoutModel extends ModelAsset {
   
   
   protected void disposeAsset() {
-    //  TODO:  The texture might not be unique to this model!  Check if already
-    //  disposed of!
     texture.dispose();
+    if (lightSkin != null) lightSkin.dispose();
   }
   
   

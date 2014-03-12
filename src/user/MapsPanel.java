@@ -58,7 +58,8 @@ public class MapsPanel extends UIGroup {
     if (kid != null) return kid;
     if (! bounds.contains(mousePos.x, mousePos.y)) return null;
     final Coord c = minimap.getMapPosition(UI.mousePos(), bounds, world.size);
-    return (c == null) ? null : this;
+    final Tile t = world.tileAt(c.x, c.y);
+    return (t == null) ? null : this;
   }
   
   

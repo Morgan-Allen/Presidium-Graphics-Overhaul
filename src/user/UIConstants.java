@@ -63,7 +63,7 @@ public interface UIConstants {
     NUM_TABS         = 3,
     NUM_QUICK_SLOTS  = 10,
     MAX_TIP_WIDTH    = 200,
-    INFO_AREA_WIDE   = 300,
+    INFO_AREA_WIDE   = 320,
     CAT_BUTTONS_HIGH = 65;
   //  Move the tooltips class over to this package.
   

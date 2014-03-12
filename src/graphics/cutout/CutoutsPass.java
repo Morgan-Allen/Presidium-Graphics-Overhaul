@@ -24,6 +24,7 @@ public class CutoutsPass {
     COMPILE_LIMIT = MAX_SPRITES * SIZE ;
   
   private static Vector3 temp = new Vector3(), temp2 = new Vector3();
+  final static float GLOW_LIGHTS[] = { 1, 1, 1, 1 };
   
   
   final Rendering rendering;
@@ -35,6 +36,7 @@ public class CutoutsPass {
   
   private int total = 0 ;
   private Texture lastTex = null ;
+  private boolean wasLit = false ;
   private ShaderProgram shading ;
   
   
@@ -83,9 +85,14 @@ public class CutoutsPass {
   
   
   public void performPass() {
-    //I.say("Sprites to render: "+inPass.size());
+    //  TODO:  Try using multi-texturing here instead.  Ought to be more
+    //  efficient, and probably less bug-prone.
     for (CutoutSprite s : inPass) {
-      compileSprite(s, rendering.camera());
+      compileSprite(s, rendering.camera(), false);
+    }
+    compileAndRender(rendering.camera());
+    for (CutoutSprite s : inPass) {
+      compileSprite(s, rendering.camera(), true);
     }
     compileAndRender(rendering.camera());
     clearAll();
@@ -97,8 +104,12 @@ public class CutoutsPass {
   }
   
   
-  private void compileSprite(CutoutSprite s, Camera camera) {
-    if (s.model.texture != lastTex || total >= COMPILE_LIMIT) {
+  private void compileSprite(
+    CutoutSprite s, Camera camera, boolean lightPass
+  ) {
+    final Texture keyTex = lightPass ? s.model.lightSkin : s.model.texture;
+    if (keyTex == null) return;
+    if (keyTex != lastTex || lightPass != wasLit || total >= COMPILE_LIMIT) {
       compileAndRender(camera);
     }
     
@@ -128,23 +139,26 @@ public class CutoutsPass {
     }
     
     total += SIZE;
-    lastTex = s.model.texture;
+    lastTex = keyTex;
+    wasLit = lightPass;
   }
   
   
   private void compileAndRender(Camera camera) {
-    if (total == 0 || lastTex == null) return ;
-    
-    //I.say("  compiled: "+(total / SIZE)+", texture: "+lastTex.hashCode()) ;
-    //I.say("  total floats: "+total) ;
-    compiled.setVertices(vertComp, 0, total) ;
+    if (total == 0 || lastTex == null) return;
+    compiled.setVertices(vertComp, 0, total);
     
     shading.begin();
     shading.setUniformMatrix("u_camera", camera.combined);
     shading.setUniformi("u_texture", 0);
     
-    final float lightSum[] = rendering.lighting.lightSum();
-    shading.setUniform4fv("u_lighting", lightSum, 0, 4);
+    if (wasLit) {
+      shading.setUniform4fv("u_lighting", GLOW_LIGHTS, 0, 4);
+    }
+    else {
+      final float lightSum[] = rendering.lighting.lightSum();
+      shading.setUniform4fv("u_lighting", lightSum, 0, 4);
+    }
     
     lastTex.bind(0);
     compiled.render(shading, GL10.GL_TRIANGLES, 0, (total * 6) / SIZE);

@@ -18,8 +18,8 @@ import com.badlogic.gdx.backends.lwjgl.*;
 
 
 //  *  Human models need skin overlays and device/outfit attachments.
-//  *  Text should implement scrolling and scissor clipping.
-//  *  Light overlays for cutouts?
+//  *  Text should implement scrolling and scissor clipping. (this might need
+//     some attention paid to general UI design, though.)
 
 
 
