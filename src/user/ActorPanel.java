@@ -1,29 +1,54 @@
 
 
-package src.user ;
+package src.user;
 import src.game.actors.* ;
+import src.graphics.widgets.*;
+import src.util.*;
+
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 
 
 public class ActorPanel extends InfoPanel {
   
   
-  Composite portrait ;
+  final public static int PORTRAIT_SIZE = 80;
+  
+
+  final Composite portrait;
+  final UINode portraitFrame;
   
   
   public ActorPanel(BaseUI UI, Actor actor, boolean simple) {
-    super(UI, actor, InfoPanel.DEFAULT_TOP_MARGIN) ;
-    /*
-    portrait = actor.portrait(UI) ;
-    if (simple) {
-      portrait.relBound.set(0, 1, 1, 0) ;
-      portrait.absBound.set(10, -110, -20, 100) ;
+    super(UI, actor, PORTRAIT_SIZE + 10) ;
+    portrait = actor.portrait(UI);
+    portraitFrame = createFrame(UI);
+    
+    final int PS = PORTRAIT_SIZE;
+    if (simple && false) {
+      portraitFrame.relBound.set(0, 1, 1, 0);
+      portraitFrame.absBound.set(10, -110, -20, 100);
     }
     else {
-      portrait.relBound.set(0, 1, 0, 0) ;
-      portrait.absBound.set(10, -110, 100, 100) ;
+      portraitFrame.relBound.set(0, 1, 0, 0);
+      portraitFrame.absBound.set(5, 5, PS, PS);
     }
-    portrait.attachTo(this) ;
-    //*/
+    portraitFrame.attachTo(innerRegion);
+  }
+  
+  
+  private UINode createFrame(BaseUI UI) {
+    return new UINode(UI) {
+      protected void render(SpriteBatch batch2d) {
+        if (portrait == null) return;
+        portrait.drawTo(batch2d, bounds);
+      }
+    };
   }
 }
+
+
+
+
+
+

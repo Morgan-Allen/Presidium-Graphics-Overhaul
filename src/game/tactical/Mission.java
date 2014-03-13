@@ -6,7 +6,7 @@ import src.game.common.*;
 import src.game.actors.*;
 import src.graphics.common.*;
 import src.graphics.cutout.*;
-import src.graphics.widgets.HUD;
+import src.graphics.widgets.* ;
 import src.start.PlayLoop;
 import src.user.*;
 import src.util.*;
@@ -358,8 +358,8 @@ public abstract class Mission implements
   
   
   public InfoPanel createPanel(BaseUI UI) {
-    //  Have a dedicated MissionPanel?
-    return new InfoPanel(UI, this, InfoPanel.DEFAULT_TOP_MARGIN) ;
+    //  TODO:  Have a dedicated MissionPanel?
+    return new InfoPanel(UI, this, 0) ;
   }
   
   

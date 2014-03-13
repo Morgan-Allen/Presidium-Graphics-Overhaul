@@ -11,7 +11,7 @@ import src.game.planet.* ;
 import src.graphics.common.* ;
 import src.graphics.cutout.CutoutModel;
 import src.graphics.solids.* ;
-import src.graphics.widgets.HUD ;
+import src.graphics.widgets.* ;
 import src.user.* ;
 import src.util.* ;
 

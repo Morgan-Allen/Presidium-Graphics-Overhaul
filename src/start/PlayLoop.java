@@ -128,13 +128,12 @@ public final class PlayLoop {
   
   public static void gameStateWipe() {
     //  TODO:  Look into this more carefully.
-    //KeyInput.clearInputs();
     Spacing.wipeTempArrays();
+    Composite.wipeCache();
     I.talkAbout = null;
-    played   = null;
+    played = null;
     if (rendering != null) rendering.clearAll();
     //RuntimeUtil.gc();  //  TODO:  RESTORE THIS?
-    //*/
   }
   
   

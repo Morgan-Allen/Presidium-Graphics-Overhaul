@@ -549,6 +549,10 @@ public abstract class Venue extends Fixture implements
     
     for (Mobile m : considered) {
       d.append("\n  ") ;
+      if (d instanceof Text && m instanceof Human) {
+        final Composite p = ((Human) m).portrait(UI);
+        ((Text) d).insert(p.texture(), 40);
+      }
       d.append(m) ;
       if (m instanceof Actor) {
         d.append("\n  ") ;
@@ -661,7 +665,7 @@ public abstract class Venue extends Fixture implements
   
   
   public InfoPanel createPanel(BaseUI UI) {
-    return new InfoPanel(UI, this, InfoPanel.DEFAULT_TOP_MARGIN) ;
+    return new InfoPanel(UI, this, 0) ;
   }
   
   

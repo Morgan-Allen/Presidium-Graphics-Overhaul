@@ -8,14 +8,13 @@
 package src.game.actors ;
 import src.game.civilian.*;
 import src.game.common.* ;
-import src.game.actors.* ;
 import src.game.building.* ;
 import src.game.tactical.Combat;
 import src.game.planet.* ;
 import src.graphics.common.* ;
 import src.graphics.solids.* ;
 import src.graphics.sfx.* ;
-import src.graphics.widgets.HUD;
+import src.graphics.widgets.* ;
 import src.user.* ;
 import src.util.* ;
 
@@ -40,12 +39,16 @@ public class Human extends Actor implements Abilities {
       Human.class, XML_FILE, "FemalePrime"
     );
   
-  final public static ImageAsset BASE_FACES = ImageAsset.fromImage(
-    FILE_DIR+"face_portraits.png", Actor.class
-  );
+  final static ImageAsset
+    PORTRAIT_BASE = ImageAsset.fromImage(
+      FILE_DIR+"portrait_base.png", Human.class
+    ),
+    BASE_FACES = ImageAsset.fromImage(
+      FILE_DIR+"face_portraits.png", Human.class
+    );
   
   final static ImageAsset BLOOD_SKINS[] = ImageAsset.fromImages(
-    Actor.class, FILE_DIR,
+    Human.class, FILE_DIR,
     "desert_blood.gif",
     "tundra_blood.gif",
     "forest_blood.gif",
@@ -135,14 +138,19 @@ public class Human extends Actor implements Abilities {
   }
   
   
-  //  TODO:  RESTORE THIS
-  /*
-  private static Composite faceComposite(Human c, HUD UI) {
+  private static Composite faceComposite(Human c) {
+    final String key = ""+c.hashCode();
     
-    final Composite composite = new Composite(UI) ;
-    final int bloodID = bloodID(c) ;
-    final boolean male = c.traits.male() ;
-    final int ageStage = c.health.agingStage() ;
+    final Composite cached = Composite.fromCache(key);
+    if (cached != null) return cached;
+    
+    final int PS = ActorPanel.PORTRAIT_SIZE;
+    final Composite composite = Composite.withSize(PS, PS, key);
+    composite.layer(PORTRAIT_BASE);
+    
+    final int bloodID = bloodID(c);
+    final boolean male = c.traits.male();
+    final int ageStage = c.health.agingStage();
     ///I.say("Blood/male/age-stage: "+bloodID+" "+male+" "+ageStage) ;
     
     int faceOff[], bloodOff[] = BLOOD_FACE_OFFSETS[bloodID] ;
@@ -157,8 +165,8 @@ public class Human extends Actor implements Abilities {
     final int UV[] = new int[] {
       0 + (faceOff[0] + bloodOff[0]),
       5 - (faceOff[1] + bloodOff[1])
-    } ;
-    composite.addLayer(BASE_FACES, UV[0], UV[1], 6, 6) ;
+    };
+    composite.layerFromGrid(BASE_FACES, UV[0], UV[1], 6, 6);
     
     if (ageStage > ActorHealth.AGE_JUVENILE) {
       int hairID = c.traits.geneValue("hair", 6) ;
@@ -168,16 +176,15 @@ public class Human extends Actor implements Abilities {
       if (ageStage >= ActorHealth.AGE_SENIOR) hairID = 5 ;
       else if (hairID == 5) hairID-- ;
       int fringeOff[] = (male ? M_HAIR_OFF : F_HAIR_OFF)[hairID] ;
-      composite.addLayer(BASE_FACES, fringeOff[0], fringeOff[1], 6, 6) ;
+      composite.layerFromGrid(BASE_FACES, fringeOff[0], fringeOff[1], 6, 6) ;
       
-      Texture portrait = c.career.vocation().portraitFor(c) ;
+      ImageAsset portrait = c.career.vocation().portraitFor(c);
       if (portrait == null) portrait = c.career.birth().portraitFor(c) ;
-      composite.addLayer(portrait, 0, 0, 1, 1) ;
+      composite.layerFromGrid(portrait, 0, 0, 1, 1) ;
     }
     
     return composite ;
   }
-  //*/
   
   
   private static void initSpriteFor(Human c) {
@@ -217,19 +224,12 @@ public class Human extends Actor implements Abilities {
   public void renderFor(Rendering rendering, Base base) {
     
     //  If you're in combat, show the right gear equipped-
+    //  TODO:  This is a bit of a hack.  Rework or generalise?
     final DeviceType DT = gear.deviceType() ;
     final Combat c = (Combat) matchFor(Combat.class) ;
     if (DT != null) {
       ((SolidSprite) sprite()).toggleGroup(DT.groupName, c != null) ;
     }
-    
-    /*
-    final Dialogue d = (Dialogue) matchFor(Dialogue.class) ;
-    if (d != null && BaseUI.isPicked(this)) {
-      d.transcript().update() ;
-      d.transcript().renderFor(rendering, base) ;
-    }
-    //*/
     
     super.renderFor(rendering, base) ;
   }
@@ -253,14 +253,12 @@ public class Human extends Actor implements Abilities {
   
   
   public Composite portrait(HUD UI) {
-    return null;
-    //  TODO:  RESTORE THIS.
-    //return faceComposite(this, UI) ;
+    return faceComposite(this);
   }
   
 
   public String helpInfo() {
-    return null ;
+    return Species.HUMAN.info ;
   }
   
   

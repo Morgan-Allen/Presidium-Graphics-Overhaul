@@ -11,7 +11,7 @@ import src.game.building.* ;
 import src.game.actors.* ;
 import src.graphics.common.* ;
 import src.graphics.cutout.* ;
-import src.graphics.widgets.HUD ;
+import src.graphics.widgets.* ;
 import src.user.* ;
 import src.util.* ;
 
@@ -25,6 +25,9 @@ public class CultureVats extends Venue implements Economy {
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
     "media/Buildings/physician/culture_vats.png", CultureVats.class, 4, 3
+  );
+  final public static ImageAsset ICON = ImageAsset.fromImage(
+    "media/GUI/Buttons/culture_vats_button.gif", CultureVats.class
   );
   
   
@@ -212,9 +215,12 @@ public class CultureVats extends Venue implements Economy {
   /**  Rendering and interface methods-
     */
   public Composite portrait(HUD UI) {
-    return null;//new Composite(UI, "media/GUI/Buttons/culture_vats_button.gif") ;
+    final Composite cached = Composite.fromCache("culture_vats");
+    if (cached != null) return cached;
+    return Composite.withImage(ICON, "culture_vats");
   }
-
+  
+  
   public String fullName() {
     return "Culture Vats" ;
   }

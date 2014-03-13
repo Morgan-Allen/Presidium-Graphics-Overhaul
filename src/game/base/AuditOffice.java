@@ -12,7 +12,7 @@ import src.game.actors.* ;
 import src.game.building.* ;
 import src.graphics.common.* ;
 import src.graphics.cutout.* ;
-import src.graphics.widgets.HUD ;
+import src.graphics.widgets.* ;
 import src.user.* ;
 import src.util.* ;
 
@@ -28,6 +28,9 @@ public class AuditOffice extends Venue implements Economy {
 
   final public static ModelAsset MODEL = CutoutModel.fromImage(
     "media/Buildings/merchant/audit_office.png", AuditOffice.class, 2.75f, 2
+  );
+  final public static ImageAsset ICON = ImageAsset.fromImage(
+    "media/GUI/Buttons/audit_office_button.gif", AuditOffice.class
   );
   
   final public static String
@@ -350,10 +353,12 @@ public class AuditOffice extends Venue implements Economy {
   public String fullName() {
     return "Audit Office" ;
   }
-
-
+  
+  
   public Composite portrait(HUD UI) {
-    return null;//new Composite(UI, "media/GUI/Buttons/audit_office_button.gif") ;
+    final Composite cached = Composite.fromCache("audit_office");
+    if (cached != null) return cached;
+    return Composite.withImage(ICON, "audit_office");
   }
   
   

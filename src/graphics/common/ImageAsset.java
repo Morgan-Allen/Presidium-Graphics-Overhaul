@@ -9,10 +9,6 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.*;
 
 
-//  TODO:  Allow division into a grid for purposes of animation or splitting up?
-
-
-
 
 public class ImageAsset extends Assets.Loadable {
   
@@ -31,6 +27,7 @@ public class ImageAsset extends Assets.Loadable {
   private String filePath;
   private boolean loaded = false;
   
+  private Pixmap pixels;
   private Texture texture;
   private Colour average;
   
@@ -59,6 +56,12 @@ public class ImageAsset extends Assets.Loadable {
   }
   
   
+  public Pixmap asPixels() {
+    if (! loaded) I.complain("IMAGE ASSET HAS NOT LOADED!- "+filePath);
+    return pixels;
+  }
+  
+  
   public Texture asTexture() {
     if (! loaded) I.complain("IMAGE ASSET HAS NOT LOADED!- "+filePath);
     return texture;
@@ -74,25 +77,27 @@ public class ImageAsset extends Assets.Loadable {
   
   /**  Actual loading-
     */
+  private static Table <Texture, Pixmap> pixMaps = new Table();
   private static Table <Texture, Colour> averages = new Table();
   
   protected void loadAsset() {
     final Texture cached = (Texture) Assets.getResource(filePath);
+    
     if (cached != null) {
       this.texture = cached;
+      this.pixels = pixMaps.get(texture);
       this.average = averages.get(texture);
     }
-    else texture = cached;
     
     if (average == null) {
-      final Pixmap imgData = new Pixmap(Gdx.files.internal(filePath));
+      pixels = new Pixmap(Gdx.files.internal(filePath));
       average = new Colour();
       Colour sample = new Colour();
       
       float sumAlphas = 0;
-      final int wide = imgData.getWidth(), high = imgData.getHeight();
+      final int wide = pixels.getWidth(), high = pixels.getHeight();
       for (Coord c : Visit.grid(0, 0, wide, high, 1)) {
-        sample.setFromRGBA(imgData.getPixel(c.x, c.y));
+        sample.setFromRGBA(pixels.getPixel(c.x, c.y));
         sumAlphas += sample.a;
         average.r += sample.r * sample.a;
         average.g += sample.g * sample.a;
@@ -106,12 +111,12 @@ public class ImageAsset extends Assets.Loadable {
       average.set(average);
       
       if (texture == null) {
-        texture = new Texture(imgData);
+        texture = new Texture(pixels);
         texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
         Assets.cacheResource(texture, filePath);
       }
       averages.put(texture, average);
-      imgData.dispose();
+      pixMaps.put(texture, pixels);
     }
     loaded = true;
   }
@@ -133,11 +138,15 @@ public class ImageAsset extends Assets.Loadable {
   
   
   protected void disposeAsset() {
-    texture.dispose();
+    final Pixmap pixels = pixMaps.get(texture);
+    if (pixels != null) {
+      pixMaps.remove(texture);
+      averages.remove(texture);
+      pixels.dispose();
+      texture.dispose();
+    }
   }
 }
-
-
 
 
 

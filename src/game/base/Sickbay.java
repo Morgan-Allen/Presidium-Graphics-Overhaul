@@ -9,7 +9,7 @@ import src.game.building.* ;
 import src.game.tactical.* ;
 import src.graphics.common.* ;
 import src.graphics.cutout.* ;
-import src.graphics.widgets.HUD ;
+import src.graphics.widgets.* ;
 import src.user.* ;
 import src.util.* ;
 
@@ -23,6 +23,9 @@ public class Sickbay extends Venue implements Economy {
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
     "media/Buildings/physician/physician_clinic.png", Sickbay.class, 3, 2
+  );
+  final public static ImageAsset ICON = ImageAsset.fromImage(
+    "media/GUI/Buttons/hospice_button.gif", Sickbay.class
   );
   
   private static boolean verbose = false ;
@@ -285,7 +288,9 @@ public class Sickbay extends Venue implements Economy {
   
   
   public Composite portrait(HUD UI) {
-    return null;//new Composite(UI, "media/GUI/Buttons/hospice_button.gif") ;
+    final Composite cached = Composite.fromCache("sickbay");
+    if (cached != null) return cached;
+    return Composite.withImage(ICON, "sickbay");
   }
   
   

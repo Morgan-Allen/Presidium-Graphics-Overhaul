@@ -105,7 +105,7 @@ public class InstallTab extends InfoPanel {
   
   
   InstallTab(BaseUI UI, String catName) {
-    super(UI, null, DEFAULT_TOP_MARGIN) ;
+    super(UI, null, 0) ;
     if (! setupDone) setupTypes() ;
     this.category = categories.get(catName) ;
   }
@@ -117,7 +117,7 @@ public class InstallTab extends InfoPanel {
   ) {
     detailText.setText("") ;
     headerText.setText("") ;
-    final String name = category.name ;//.toUpperCase() ;
+    final String name = category.name ;
     headerText.setText(name+" structures:") ;
     for (final InstallType type : category.types) {
       final Composite icon = type.sample.portrait(UI) ;
@@ -125,11 +125,10 @@ public class InstallTab extends InfoPanel {
       final String typeDesc = type.sample.helpInfo() ;
       final int buildCost = type.sample.buildCost() ;
       
-      //  TODO:  RESTORE THIS
-      //detailText.insert(icon, 40) ;
+      if (icon != null) detailText.insert(icon.texture(), 40) ;
       detailText.append("  "+typeName) ;
       detailText.append("\n Cost: "+buildCost+" Credits") ;
-      //TODO:  List construction materials too.
+      //  TODO:  List construction materials too?
       
       detailText.append(new Text.Clickable() {
         public void whenClicked() { initInstallTask(UI, type) ; }

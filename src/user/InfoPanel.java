@@ -24,7 +24,6 @@ public class InfoPanel extends UIGroup implements UIConstants {
     "media/GUI/Panel.png", InfoPanel.class
   ) ;
   final public static int
-    DEFAULT_TOP_MARGIN = 50,
     MARGIN_WIDTH  = 10,
     HEADER_HEIGHT = 35 ;
   
@@ -47,6 +46,7 @@ public class InfoPanel extends UIGroup implements UIConstants {
   final protected BaseUI UI ;
   
   final Bordering border ;
+  final UIGroup innerRegion;
   final Text headerText, detailText ;
   final protected Selectable selected ;
   
@@ -70,21 +70,28 @@ public class InfoPanel extends UIGroup implements UIConstants {
     border.relBound.set(0, 0, 1, 1);
     border.attachTo(this);
     
+    this.innerRegion = new UIGroup(UI);
+    innerRegion.relBound.set(0, 0, 1, 1);
+    innerRegion.absBound.set(
+      25, 20, -(25 + 20), -(20 + 25 + topPadding)
+    );
+    innerRegion.attachTo(this);
+    
     headerText = new Text(UI, BaseUI.INFO_FONT);
     headerText.relBound.set(0, 1, 1, 0);
     headerText.absBound.set(
-      25, -(TM + HEADER_HEIGHT),
-      -(25 + 20), HEADER_HEIGHT
+      0, -HEADER_HEIGHT,
+      0, HEADER_HEIGHT
     );
-    headerText.attachTo(this);
+    headerText.attachTo(innerRegion);
     
     detailText = new Text(UI, BaseUI.INFO_FONT);
     detailText.relBound.set(0, 0, 1, 1);
     detailText.absBound.set(
-      25, BM,
-      -(25 + 20), -(BM + TM + HEADER_HEIGHT)
+      0, BM,
+      0, -(BM + HEADER_HEIGHT)
     );
-    detailText.attachTo(this);
+    detailText.attachTo(innerRegion);
     detailText.scale = 0.75f;
     //detailText.getScrollBar().attachTo(this) ;
     

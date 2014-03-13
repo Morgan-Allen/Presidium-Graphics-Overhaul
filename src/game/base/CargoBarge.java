@@ -7,7 +7,7 @@ import src.game.actors.* ;
 import src.game.building.* ;
 import src.graphics.common.* ;
 import src.graphics.solids.* ;
-import src.graphics.widgets.HUD ;
+import src.graphics.widgets.* ;
 import src.user.* ;
 import src.util.* ;
 

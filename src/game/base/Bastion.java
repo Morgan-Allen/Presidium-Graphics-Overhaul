@@ -13,7 +13,7 @@ import src.game.building.* ;
 import src.game.tactical.* ;
 import src.graphics.common.* ;
 import src.graphics.cutout.* ;
-import src.graphics.widgets.HUD ;
+import src.graphics.widgets.* ;
 import src.user.* ;
 import src.util.* ;
 
@@ -27,6 +27,9 @@ public class Bastion extends Venue implements Economy {
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
     "media/Buildings/military/bastion.png", Bastion.class, 7, 4
+  );
+  final public static ImageAsset ICON = ImageAsset.fromImage(
+    "media/GUI/Buttons/bastion_button.gif", Bastion.class
   );
   
   
@@ -197,7 +200,7 @@ public class Bastion extends Venue implements Economy {
       Background.AUDITOR, Background.STEWARD
       //Background.HONOUR_GUARD, Background.CONSORT
       //Background.HEIR, Background.ADVISOR
-    } ;
+    };
   }
   
   
@@ -212,7 +215,9 @@ public class Bastion extends Venue implements Economy {
   /**  Rendering and interface methods-
     */
   public Composite portrait(HUD UI) {
-    return null;//new Composite(UI, "media/GUI/Buttons/bastion_button.gif") ;
+    final Composite cached = Composite.fromCache("bastion");
+    if (cached != null) return cached;
+    return Composite.withImage(ICON, "bastion");
   }
   
   

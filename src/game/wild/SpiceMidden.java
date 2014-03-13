@@ -6,7 +6,7 @@ import src.game.common.* ;
 import src.game.building.* ;
 import src.game.planet.* ;
 import src.graphics.common.* ;
-import src.graphics.widgets.HUD ;
+import src.graphics.widgets.* ;
 import src.user.* ;
 import src.util.* ;
 
@@ -121,7 +121,7 @@ public class SpiceMidden extends Fixture implements Selectable {
 
 
   public InfoPanel createPanel(BaseUI UI) {
-    return new InfoPanel(UI, this, InfoPanel.DEFAULT_TOP_MARGIN) ;
+    return new InfoPanel(UI, this, 0);
   }
 
 

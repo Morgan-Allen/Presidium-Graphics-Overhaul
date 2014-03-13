@@ -4,7 +4,7 @@
 package src.game.planet ;
 import src.game.common.* ;
 import src.graphics.common.* ;
-import src.graphics.widgets.HUD ;
+import src.graphics.widgets.* ;
 import src.user.* ;
 import src.util.* ;
 
@@ -241,10 +241,10 @@ public class Outcrop extends Fixture implements Selectable {
   }
   
   
-  //*
   public InfoPanel createPanel(BaseUI UI) {
-    return new InfoPanel(UI, this, InfoPanel.DEFAULT_TOP_MARGIN) ;
+    return new InfoPanel(UI, this, 0);
   }
+  
   
   public void whenClicked() {
     //

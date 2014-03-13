@@ -12,7 +12,7 @@ import src.game.actors.* ;
 import src.game.building.* ;
 import src.graphics.common.* ;
 import src.graphics.cutout.* ;
-import src.graphics.widgets.HUD ;
+import src.graphics.widgets.* ;
 import src.user.* ;
 import src.util.* ;
 
@@ -28,6 +28,9 @@ public class StockExchange extends Venue implements Economy {
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
     "media/Buildings/merchant/stock_exchange.png", StockExchange.class, 4, 2
+  );
+  final public static ImageAsset ICON = ImageAsset.fromImage(
+    "media/GUI/Buttons/stock_exchange_button.gif", StockExchange.class
   );
   
   private CargoBarge cargoBarge ;
@@ -289,10 +292,12 @@ public class StockExchange extends Venue implements Economy {
   public String fullName() {
     return "Stock Exchange" ;
   }
-
-
+  
+  
   public Composite portrait(HUD UI) {
-    return null;//new Composite(UI, "media/GUI/Buttons/stock_exchange_button.gif") ;
+    final Composite cached = Composite.fromCache("stock_exchange");
+    if (cached != null) return cached;
+    return Composite.withImage(ICON, "stock_exchange");
   }
 
 

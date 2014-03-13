@@ -11,7 +11,7 @@ import src.game.actors.* ;
 import src.game.building.* ;
 import src.graphics.common.* ;
 import src.graphics.cutout.* ;
-import src.graphics.widgets.HUD ;
+import src.graphics.widgets.* ;
 import src.user.* ;
 import src.util.* ;
 
@@ -29,7 +29,10 @@ public class SupplyDepot extends Venue implements
   final public static ModelAsset MODEL_CORE = CutoutModel.fromImage(
     "media/Buildings/merchant/depot_core.png", SupplyDepot.class, 3, 2
   );
-  //*/
+  final public static ImageAsset ICON = ImageAsset.fromImage(
+    "media/GUI/Buttons/supply_depot_button.gif", SupplyDepot.class
+  );
+  
   
   final static int
     KEY_RATIONS     = 0,
@@ -326,10 +329,12 @@ public class SupplyDepot extends Venue implements
   public String fullName() {
     return "Supply Depot" ;
   }
-
-
+  
+  
   public Composite portrait(HUD UI) {
-    return null;//new Composite(UI, "media/GUI/Buttons/supply_depot_button.gif") ;
+    final Composite cached = Composite.fromCache("supply_depot");
+    if (cached != null) return cached;
+    return Composite.withImage(ICON, "supply_depot");
   }
   
   

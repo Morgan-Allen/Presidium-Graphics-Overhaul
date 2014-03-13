@@ -372,7 +372,7 @@ public abstract class Actor extends Mobile implements
   
   
   public InfoPanel createPanel(BaseUI UI) {
-    return new InfoPanel(UI, this, InfoPanel.DEFAULT_TOP_MARGIN) ;
+    return new InfoPanel(UI, this, 0);
   }
 
   

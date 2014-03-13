@@ -25,12 +25,6 @@ import com.badlogic.gdx.math.* ;
   */
 public class Text extends UINode implements Description {
   
-  /*
-  final public static Alphabet INFO_FONT = new Alphabet(
-    "UI/", "FontVerdana.png", "FontVerdana.png",
-    "FontVerdana.map", 8, 16
-  );
-  //*/
   final public static Colour LINK_COLOUR = new Colour().set(
     0.2f, 0.6f, 0.8f, 1
   );
@@ -93,7 +87,7 @@ public class Text extends UINode implements Description {
   
   
   static class ImageEntry extends Box2D {
-    Image graphic ;
+    UINode graphic ;
     boolean visible ;
     int wide, high ;
   }
@@ -183,7 +177,7 @@ public class Text extends UINode implements Description {
   }
   
   
-  public boolean insert(Image graphic, int maxSize) {
+  public boolean insert(UINode graphic, int maxSize) {
     if (graphic == null) return false ;
     graphic.absBound.set(0, 0, maxSize, maxSize) ;
     graphic.relBound.set(0, 0, 0, 0) ;
@@ -285,15 +279,31 @@ public class Text extends UINode implements Description {
     
     for (Box2D entry : allEntries) {
       if (entry instanceof TextEntry) {
-        renderText(textArea, (TextEntry) entry, link, batch2D) ;
+        renderText(textArea, (TextEntry) entry, link, batch2D);
       }
-      else bullets.add((ImageEntry) entry) ;
+      else bullets.add((ImageEntry) entry);
     }
     for (ImageEntry entry : bullets) {
-      //renderImage(textArea, entry) ;
+      renderImage(textArea, entry, batch2D);
     }
     //  TODO:  Move this to the selection method?
     if (UI.mouseClicked() && link != null) link.whenClicked() ;
+  }
+  
+  
+  protected void renderImage(
+    Box2D bounds, ImageEntry entry, SpriteBatch batch2D
+  ) {
+    if (! entry.intersects(bounds)) return ;
+    final Box2D b = entry.graphic.absBound ;
+    entry.graphic.relAlpha = this.absAlpha ;
+    b.xpos(entry.xpos() + xpos() - bounds.xpos()) ;
+    b.ypos(entry.ypos() + ypos() - bounds.ypos()) ;
+    entry.graphic.updateState() ;
+    entry.graphic.updateRelativeParent() ;
+    entry.graphic.updateAbsoluteBounds() ;
+    
+    entry.graphic.render(batch2D) ;
   }
   
 
@@ -365,21 +375,7 @@ public class Text extends UINode implements Description {
     if (myHUD.mouseClicked() && link != null) link.whenClicked() ;
   }
   
-  
-  
   /**  Renders an image embedded within the text.
-  protected void renderImage(Box2D bounds, ImageEntry entry) {
-    if (! entry.intersects(bounds)) return ;
-    final Box2D b = entry.graphic.absBound ;
-    entry.graphic.relAlpha = this.absAlpha ;
-    b.xpos(entry.xpos() + xpos() - bounds.xpos()) ;
-    b.ypos(entry.ypos() + ypos() - bounds.ypos()) ;
-    entry.graphic.updateState() ;
-    entry.graphic.updateRelativeParent() ;
-    entry.graphic.updateAbsoluteBounds() ;
-    
-    entry.graphic.render() ;
-  }
   //*/
   
   
@@ -499,3 +495,10 @@ public class Text extends UINode implements Description {
 
 
 
+
+/*
+final public static Alphabet INFO_FONT = new Alphabet(
+  "UI/", "FontVerdana.png", "FontVerdana.png",
+  "FontVerdana.map", 8, 16
+);
+//*/

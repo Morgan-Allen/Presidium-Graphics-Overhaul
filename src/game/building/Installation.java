@@ -3,7 +3,7 @@
 package src.game.building ;
 import src.game.common.* ;
 import src.graphics.common.* ;
-import src.graphics.widgets.HUD ;
+import src.graphics.widgets.* ;
 import src.user.* ;
 import src.util.* ;
 
