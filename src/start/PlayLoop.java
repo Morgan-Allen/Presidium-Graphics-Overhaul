@@ -30,7 +30,7 @@ public final class PlayLoop {
     */
   public final static int
     UPDATES_PER_SECOND = 10,
-    FRAMES_PER_SECOND  = 30,
+    FRAMES_PER_SECOND  = 60,
     
     DEFAULT_WIDTH  = 1600,
     DEFAULT_HEIGHT = 800,

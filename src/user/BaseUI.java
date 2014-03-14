@@ -13,19 +13,10 @@ import src.graphics.terrain.Minimap;
 import src.graphics.widgets.* ;
 import src.start.PlayLoop;
 import src.util.* ;
-import src.game.actors.ActorHealth ;
+import src.game.actors.ActorHealth;
 
-//import org.lwjgl.input.* ;
-//import org.lwjgl.opengl.GL11 ;
-//import org.lwjgl.* ;
-
-
-
-
+import com.badlogic.gdx.*;
 import java.nio.*;
-
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 
 
 
@@ -225,7 +216,6 @@ public class BaseUI extends HUD implements UIConstants {
     selection.renderWorldFX(rendering) ;
     if (currentTask != null) {
       if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) currentTask.cancelTask() ;
-      //if (KeyInput.isKeyDown(Keyboard.KEY_ESCAPE)) currentTask.cancelTask() ;
       else currentTask.doTask() ;
     }
   }
@@ -248,7 +238,9 @@ public class BaseUI extends HUD implements UIConstants {
       currentPanel = newPanel ;
     }
     if (capturePanel) {
-      rendering.fading.applyFadeWithin(infoArea.trueBounds(), "panel_fade");
+      final Box2D b = new Box2D().setTo(infoArea.trueBounds());
+      b.expandBy(0 - InfoPanel.MARGIN_WIDTH);
+      rendering.fading.applyFadeWithin(b, "panel_fade");
       capturePanel = false ;
     }
   }

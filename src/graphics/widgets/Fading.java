@@ -16,7 +16,8 @@ public class Fading {
   
   
   final static float
-    ALPHA_FADE = 1f / Rendering.FRAMES_PER_SECOND;
+    FADE_TIME  = 0.50f,
+    ALPHA_FADE = 1f / (Rendering.FRAMES_PER_SECOND * FADE_TIME);
   
   static class Fade {
     Box2D area = new Box2D();
@@ -32,6 +33,12 @@ public class Fading {
   
   public Fading(Rendering r) {
     this.rendering = r;
+  }
+  
+  
+  //  TODO:  Have this called externally?
+  public void finalize() {
+    for (Fade fade : allFades.values()) fade.captured.dispose();
   }
   
   
