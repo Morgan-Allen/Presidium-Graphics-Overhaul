@@ -9,10 +9,11 @@ import src.graphics.terrain.*;
 import src.graphics.sfx.*;
 import src.graphics.widgets.*;
 import src.util.*;
-
 import static src.graphics.common.GL.*;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.*;
 
 
@@ -39,6 +40,9 @@ public class Rendering {
   final public CutoutsPass cutoutsPass;
   final public SFXPass sfxPass;
   
+  final public SpriteBatch batch2D ;
+  final public Fading fading;
+  
   
   public Rendering() {
     lighting = new Lighting(this);
@@ -48,6 +52,9 @@ public class Rendering {
     solidsPass  = new SolidsPass (this);
     cutoutsPass = new CutoutsPass(this);
     sfxPass     = new SFXPass    (this);
+    
+    batch2D = new SpriteBatch();
+    fading = new Fading(this);
     reportVersion();
   }
   
@@ -124,12 +131,14 @@ public class Rendering {
     //  TODO:  This is causing some odd overlap problems
     glDepthMask(false);
     sfxPass.performPass();
-    
+
+    batch2D.begin();
     if (UI != null) {
       UI.updateInput();
       UI.renderHUD(this);
     }
-    //  TODO:  Colour fades need to be performed here, not in the HUD class.
+    fading.applyTo(batch2D);
+    batch2D.end();
   }
 }
 

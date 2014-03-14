@@ -213,6 +213,7 @@ public class ActorTraits implements Abilities {
   
   
   public float relativeLevel(Trait type) {
+    //  Returns a value between -1 (for minimum) and +1 (for maximum).
     return (Visit.clamp(
       (traitLevel(type) - type.minVal) / (type.maxVal - type.minVal), 0, 1
     ) * 2) - 1 ;

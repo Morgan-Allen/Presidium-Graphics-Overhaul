@@ -75,14 +75,11 @@ public class HUD extends UIGroup {
     mouseState = HOVERED ;
   private Vector2
     mousePos = new Vector2() ;
-
-  
-  final private SpriteBatch batch2D ;
   
   
   public HUD() {
     super(null) ;
-    batch2D = new SpriteBatch();
+    //batch2D = new SpriteBatch();
   }
   
   
@@ -135,16 +132,7 @@ public class HUD extends UIGroup {
       case (DRAGGED) : selected.whenDragged() ; break ;
     }
     
-    batch2D.begin();
-    super.render(batch2D);
-    
-    //  TODO:  Move this back to the Rendering class!
-    final Colour FC = rendering.foreColour;
-    if (FC != null) {
-      batch2D.setColor(FC.r, FC.g, FC.b, FC.a);
-      batch2D.draw(ImageAsset.WHITE_TEX, 0, 0, size.xdim(), size.ydim());
-    }
-    batch2D.end();
+    super.render(rendering.batch2D);
   }
   
   

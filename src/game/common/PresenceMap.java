@@ -205,11 +205,6 @@ public class PresenceMap implements Session.Saveable {  //Do not make Saveable.
   
   /**  Iterating through members-
     */
-  //
-  //  TODO:  How do I make this faster?
-  //  Re-use the node-entries.  Re-set the index to -1 once done.
-  //  Use an internal boolean instead of instanceof checks.
-  
   final private NodeMarker nextMarker(
     final Object n, final boolean leaf, final Tile origin
   ) {
@@ -223,30 +218,10 @@ public class PresenceMap implements Session.Saveable {  //Do not make Saveable.
   }
   
   
-  //*
   public Iterable <Target> visitNear(
     final Tile origin, final float range, final Box2D area
   ) {
     markUseIndex = 0 ;
-    //origin.position(temp) ;
-    //final int oX = (int) temp.x, oY = (int) temp.y ;
-    //
-    //  Firstly, we define the data structures needed to traverse the tree-
-    //  structure of our entries and sort them by distance.
-    /*
-    final class NodeEntry {
-      
-      final Object node ;
-      final float distance ;
-      
-      NodeEntry(final Object n) {
-        this.node = n ;
-        this.distance = (n instanceof Node) ?
-          ((Node) n).section.area.distance(oX, oY) :
-          Spacing.distance(origin, (Target) n) ;
-      }
-    }
-    //*/
     final Sorting <NodeMarker> agenda = new Sorting <NodeMarker> () {
       public int compare(NodeMarker a, NodeMarker b) {
         if (a.node == b.node) return 0 ;
@@ -312,7 +287,6 @@ public class PresenceMap implements Session.Saveable {  //Do not make Saveable.
     }
     return new nearIter() ;
   }
-  //*/
   
   
   public Target pickNearest(Target origin, float range) {

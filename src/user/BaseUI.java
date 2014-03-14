@@ -46,16 +46,12 @@ public class BaseUI extends HUD implements UIConstants {
   final public Camera camera ;
   
   UIGroup helpText ;
-  //Minimap minimap ;
   MapsPanel mapsPanel;
   Text readout ;
   UIGroup infoArea ;
-  //MainPanel mainPanel ;
   Quickbar quickbar ;
   
-  private ByteBuffer panelFade ;
   private UIGroup currentPanel, newPanel ;
-  private long panelInceptTime = -1 ;
   private boolean capturePanel = false ;
   
   
@@ -235,33 +231,6 @@ public class BaseUI extends HUD implements UIConstants {
   }
   
   
-  //  TODO:  Restore the screen-fade functions.
-  
-  //  TODO:  You can use this for Screen-fades, together with the
-  //  Texture.load(textureData) method and glutils.PixmapTextureData-
-  //  (specifically, new PixmapTextureData(pixmap, null, false, false))
-  /*
-  public static TextureRegion getFrameBufferTexture(
-    int x, int y, int w, int h
-  ) {
-    final int potW = MathUtils.nextPowerOfTwo(w);
-    final int potH = MathUtils.nextPowerOfTwo(h);
-
-    final Pixmap pixmap = new Pixmap(potW, potH, Format.RGBA8888);
-    ByteBuffer pixels = pixmap.getPixels();
-    Gdx.gl.glReadPixels(
-      x, y, potW, potH, GL10.GL_RGBA, GL10.GL_UNSIGNED_BYTE, pixels
-    );
-
-    Texture texture = new Texture(pixmap);
-    TextureRegion textureRegion = new TextureRegion(texture, 0, h, w, -h);
-    pixmap.dispose();
-
-    return textureRegion;
-    }
-  //*/
-  
-  
   public void renderHUD(Rendering rendering) {
     super.renderHUD(rendering);
     if (selection.selected() != null) {
@@ -279,26 +248,13 @@ public class BaseUI extends HUD implements UIConstants {
       currentPanel = newPanel ;
     }
     if (capturePanel) {
-      //panelFade = UINode.copyPixels(infoArea.trueBounds(), panelFade) ;
+      rendering.fading.applyFadeWithin(infoArea.trueBounds(), "panel_fade");
       capturePanel = false ;
     }
-    
-    //  TODO:  Problem- at the moment, this would render after the whole-screen
-    //         colour-fades.  That's unacceptable.
-    /*
-    final float TRANSITION_TIME = 0.33f ;
-    float fade = System.currentTimeMillis() - panelInceptTime ;
-    fade = (fade / 1000f) / TRANSITION_TIME ;
-    if (fade <= 1) {
-      GL11.glColor4f(1, 1, 1, 1 - fade) ;
-      UINode.drawPixels(infoArea.trueBounds(), panelFade) ;
-    }
-    //*/
   }
   
   
   protected void beginPanelFade() {
-    panelInceptTime = System.currentTimeMillis() ;
     capturePanel = true ;
   }
   

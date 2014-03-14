@@ -15,6 +15,8 @@ import java.util.Iterator ;
 /**  In essence, a self-balancing binary tree used to maintain entries in a
   *  well-sorted order.
   */
+//  TODO:  Consider using an object pool of some kind here?
+
 public abstract class Sorting <K> implements Series <K> {
   
   
