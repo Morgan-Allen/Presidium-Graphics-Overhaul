@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Pixmap.*;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import static com.badlogic.gdx.graphics.Texture.TextureFilter.*;
+import java.nio.*;
 
 
 
@@ -32,7 +33,7 @@ public class FogOverlay {
   public FogOverlay(int size) {
     this.size = size;
     
-    drawnTo = new Pixmap(size, size, Format.RGBA4444);
+    drawnTo = new Pixmap(size, size, Format.RGBA8888);
     Pixmap.setBlending(Blending.None);
     drawnTo.setColor(Color.BLACK);
     drawnTo.fill();
@@ -78,15 +79,27 @@ public class FogOverlay {
     oldVals = newVals;
     newVals = tempV;
     
-    //  TODO:  You can use Pixmap.getPixels() to access the byte buffer
-    //         directly!  Employ that!
     Pixmap.setBlending(Blending.None);
-    for (Coord c : Visit.grid(0, 0, size, size, 1)) {
-      final float fog = updateVals[c.x][c.y];
-      newVals[c.x][c.y] = fog;
-      drawnTo.setColor(fog, fog, fog, 1);
-      drawnTo.drawPixel(c.x, c.y);
+    final ByteBuffer pixels = drawnTo.getPixels();
+    final byte rawData[] = new byte[pixels.capacity()];
+    final int lineLen = drawnTo.getWidth() * 4;
+    
+    for (int i = 0 ; i < rawData.length ;) {
+      final int
+        x = (i % lineLen) / 4,
+        y = i / lineLen;
+      final float fog = updateVals[x][y];
+      newVals[x][y] = fog;
+      
+      final byte fogByte = (byte) (((int) (fog * 255)) & 0xff);
+      rawData[i++] = fogByte;
+      rawData[i++] = fogByte;
+      rawData[i++] = fogByte;
+      rawData[i++] = (byte) 0xff;
     }
+    pixels.rewind();
+    pixels.put(rawData);
+    pixels.rewind();
     
     final Texture tempT = newTex;
     newTex = oldTex;

@@ -2,20 +2,12 @@
 
 package src.graphics.solids;
 
-import java.io.IOException;
-//import java.util.*;
-
-
-
 import src.util.*;
 import src.graphics.solids.MS3DFile.*;
 import src.graphics.common.*;
-
 import java.lang.reflect.Field;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.assets.*;
-import com.badlogic.gdx.assets.loaders.*;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -243,21 +235,21 @@ public class MS3DModel extends SolidModel {
     for (MS3DTriangle tri : file.triangles) {
       for (int j = 0; j < 3; j++) {
         MS3DVertex vert = file.vertices[tri.indices[j]];
-
+        
         verts[p++] = vert.vertex[0] * this.scale;
         verts[p++] = vert.vertex[1] * this.scale;
         verts[p++] = vert.vertex[2] * this.scale;
-
+        
         verts[p++] = tri.u[j];
         verts[p++] = tri.v[j];
-
+        
         verts[p++] = tri.normals[j][0];
         verts[p++] = tri.normals[j][1];
         verts[p++] = tri.normals[j][2];
-
+        
         verts[p++] = vert.boneid < 0 ? 0 : vert.boneid;
         verts[p++] = 1;
-
+        
         indices[index] = (short) index++;
       }
     }
