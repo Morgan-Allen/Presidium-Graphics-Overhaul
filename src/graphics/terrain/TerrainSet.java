@@ -2,8 +2,11 @@
 
 
 package src.graphics.terrain;
-import src.graphics.common.Rendering;
+import src.graphics.common.*;
 import src.util.*;
+
+import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 
 
 
@@ -51,7 +54,13 @@ public class TerrainSet {
   
   
   public void dispose() {
-    //if (fog != null) fog.dispose();
+    for (Coord c : Visit.grid(0, 0, chunkGrid, chunkGrid, 1)) {
+      for (LayerType layer : layers) {
+        final TerrainChunk chunk = chunks[c.x][c.y][layer.layerID];
+        chunk.dispose();
+        if (chunk.fadeOut != null) chunk.fadeOut.dispose();
+      }
+    }
     for (LayerType layer : layers) layer.dispose();
   }
   
@@ -71,7 +80,7 @@ public class TerrainSet {
         chunks[c.x][c.y][layer.layerID] = chunk;
         chunk.refreshFlag = false;
         chunk.fadeOut = oldChunk;
-        chunk.fadeAlpha = 1;
+        chunk.fadeIncept = Rendering.activeTime();
       }
     }
   }

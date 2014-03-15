@@ -25,9 +25,9 @@ public class TerrainChunk implements TileConstants {
   protected boolean
     renderFlag = false,
     refreshFlag = true;
-  // TODO: Fade in the new completely before you fade out the old...
-  protected TerrainChunk fadeOut;
-  protected float fadeAlpha;
+  
+  protected TerrainChunk fadeOut = null;
+  protected float fadeIncept = -1;
   
 
   public TerrainChunk(int width, int height, int gridX, int gridY,
@@ -39,6 +39,11 @@ public class TerrainChunk implements TileConstants {
     this.gridY = gridY;
     this.layer = layer;
     this.belongs = belongs;
+  }
+  
+  
+  protected void dispose() {
+    mesh.dispose();
   }
   
 

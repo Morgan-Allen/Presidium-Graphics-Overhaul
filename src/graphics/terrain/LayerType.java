@@ -49,32 +49,10 @@ public abstract class LayerType implements TileConstants {
   }
   
   
+  //  TODO:  This might not actually be needed, if image assets are disposed of
+  //  automatically...
   protected void dispose() {
     for (Texture t : textures) t.dispose();
-  }
-  
-  
-  
-  /**  Rendering methods-
-    */
-  protected void renderChunks(
-    ShaderProgram shader, Batch <TerrainChunk> chunks
-  ) {
-    final float time = (Rendering.activeTime() % 1) * textures.length;
-    final int index = (int) time, animIndex = (index + 1) % textures.length;
-    
-    for (int i : new int[] { index, animIndex }) {
-      final float opacity = (i == index) ? 1 : (time % 1);
-      textures[i].bind(0);
-      shader.setUniformf("u_opacity", opacity);
-      
-      for (TerrainChunk chunk : chunks) {
-        if (chunk.layer.layerID != this.layerID) continue;
-        chunk.mesh.render(shader, GL20.GL_TRIANGLES);
-        chunk.renderFlag = false;
-      }
-      if (textures.length == 1) break;
-    }
   }
   
   
@@ -95,7 +73,8 @@ public abstract class LayerType implements TileConstants {
     
     if (tileID >= layerID && ! innerFringe) {
       if (tileID == layerID) {
-        // TODO: Use some variation here...
+        //  TODO: Use some variation here...
+        //  TODO:  THAT
         
         gridBatch.add(new Coord(tx, ty));
         textBatch.add(LayerPattern.OUTER_FRINGE_CENTRE);
@@ -105,12 +84,6 @@ public abstract class LayerType implements TileConstants {
     
     for (int n : N_INDEX) {
       final int x = tx + N_X[n], y = ty + N_Y[n];
-      /*
-      if (
-        Visit.clamp(x, terrain.size) != x ||
-        Visit.clamp(y, terrain.size) != y
-      ) near[n] = false;
-      //*/
       try { near[n] = maskedAt(x, y, terrain); }
       catch (ArrayIndexOutOfBoundsException e) { near[n] = false ; }
     }
