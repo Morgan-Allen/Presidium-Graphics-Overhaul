@@ -18,7 +18,9 @@ import com.badlogic.gdx.graphics.g3d.utils.*;
   * with multiple models.
   */
 
+
 //  TODO:  Port over cel-shading related code here as well.
+//  TODO:  Look up the SpriteBatch code- it's not terribly complicated.
 
 
 public class SolidsPass {
