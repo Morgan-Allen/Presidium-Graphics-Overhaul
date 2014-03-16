@@ -1,31 +1,23 @@
-package src.graphics.kerai_src;
 
-import com.badlogic.gdx.Gdx;
+
+package src.graphics.kerai_src;
+//import com.badlogic.gdx.Gdx;
 //import com.badlogic.gdx.graphics.g3d.ModelInstance;
 //import com.badlogic.gdx.graphics.g3d.model.Animation;
 //import com.badlogic.gdx.graphics.g3d.model.Node;
 //import com.badlogic.gdx.graphics.g3d.model.NodeAnimation;
 //import com.badlogic.gdx.graphics.g3d.model.NodeKeyframe;
-import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Quaternion;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.ObjectMap;
-import com.badlogic.gdx.utils.Pool;
+
+import com.badlogic.gdx.graphics.g3d.*;
+import com.badlogic.gdx.graphics.g3d.model.*;
+import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.Pool.Poolable;
 
 
-/**
- * Base class for applying one or more {@link Animation2}s to a
- * {@link ModelInstance}. This class only applies the actual {@link Node}
- * transformations, it does not manage animations or keep track of animation
- * states. See {@link AnimationController} for an implementation of this class
- * which does manage animations.
- * 
- * @author Xoppa
- */
-public class BaseAnimationController {
+
+public class AnimControl {
   
   
   public final static class Transform implements Poolable {
@@ -77,7 +69,15 @@ public class BaseAnimationController {
   }
   
   
-  private final Pool<Transform> transformPool = new Pool<Transform>() {
+  private boolean applying = false;
+  public final ModelInstance target;  //  TODO:  Not really needed- use args
+  
+  private final static ObjectMap <Node, Transform>
+    transforms = new ObjectMap <Node, Transform>();
+  private final static Transform
+    tmpT = new Transform();
+  
+  private final static Pool<Transform> transformPool = new Pool<Transform>() {
     @Override
     protected Transform newObject() {
       return new Transform();
@@ -85,17 +85,8 @@ public class BaseAnimationController {
   };
   
   
-  private boolean applying = false;
-  public final ModelInstance target;  //  TODO:  Not really needed- use args
   
-  private final static ObjectMap <Node2, Transform>
-    transforms = new ObjectMap <Node2, Transform>();
-  private final static Transform
-    tmpT = new Transform();
-  
-  
-  
-  public BaseAnimationController(final ModelInstance target) {
+  public AnimControl(final ModelInstance target) {
     this.target = target;
   }
   
@@ -109,31 +100,31 @@ public class BaseAnimationController {
   
   
   protected void apply(
-    final Animation2 animation2, final float time, final float weight
+    final Animation Animation, final float time, final float weight
   ) {
     if (! applying) throw new GdxRuntimeException(
       "You must call begin() before adding an animation"
     );
-    applyAnimation(transforms, transformPool, weight, animation2, time);
+    applyAnimation(transforms, transformPool, weight, Animation, time);
   }
   
   
   protected static void applyAnimation(
-    final ObjectMap <Node2, Transform> out,
+    final ObjectMap <Node, Transform> out,
     final Pool <Transform> pool, final float alpha,
-    final Animation2 animation, final float time
+    final Animation animation, final float time
   ) {
     if (out != null) {
-      for (final Node2 node : out.keys())
+      for (final Node node : out.keys())
         node.isAnimated = false;
     }
     
-    for (final NodeAnimation2 nodeAnim : animation.nodeAnims) {
-      final Node2 node = nodeAnim.node;
+    for (final NodeAnimation nodeAnim : animation.nodeAnimations) {
+      final Node node = nodeAnim.node;
       node.isAnimated = true;
       
       // Find the keyframe(s)
-      final NodeKeyframe2 frames[] = nodeAnim.keyframes;
+      final NodeKeyframe frames[] = nodeAnim.keyframes.toArray(NodeKeyframe.class);
       
       int first = 0, second = -1;
       for (int i = 0; i < frames.length - 1; i++) if (
@@ -147,7 +138,7 @@ public class BaseAnimationController {
       
       // Apply the first keyframe:
       final Transform transform = tmpT;
-      final NodeKeyframe2 firstFrame = frames[first];
+      final NodeKeyframe firstFrame = frames[first];
       transform.set(
         firstFrame.translation,
         firstFrame.rotation,
@@ -156,7 +147,7 @@ public class BaseAnimationController {
       
       // Lerp the second keyframe
       if (second > first) {
-        final NodeKeyframe2 secondFrame = frames[second];
+        final NodeKeyframe secondFrame = frames[second];
         final float t =
           (time - firstFrame.keytime) /
           (secondFrame.keytime - firstFrame.keytime);
@@ -185,8 +176,8 @@ public class BaseAnimationController {
     }
     
     if (out != null) {
-      for (final ObjectMap.Entry<Node2, Transform> e : out.entries()) {
-        final Node2 node = e.key;
+      for (final ObjectMap.Entry<Node, Transform> e : out.entries()) {
+        final Node node = e.key;
         final Transform t = e.value;
         if (! node.isAnimated) {
           node.isAnimated = true;
@@ -198,8 +189,8 @@ public class BaseAnimationController {
   
   
   
-  protected void removeAnimation(final Animation2 animation2) {
-    for (final NodeAnimation2 nodeAnim : animation2.nodeAnims) {
+  protected void removeAnimation(final Animation Animation) {
+    for (final NodeAnimation nodeAnim : Animation.nodeAnimations) {
       nodeAnim.node.isAnimated = false;
     }
   }
@@ -209,7 +200,7 @@ public class BaseAnimationController {
     if (!applying) throw new GdxRuntimeException(
       "You must call begin() first"
     );
-    for (Entry<Node2, Transform> entry : transforms.entries()) {
+    for (Entry<Node, Transform> entry : transforms.entries()) {
       entry.value.toMatrix4(entry.key.localTransform);
       transformPool.free(entry.value);
     }

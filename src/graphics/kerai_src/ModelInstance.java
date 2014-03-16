@@ -1,11 +1,12 @@
-package src.graphics.kerai_src;
 
-import com.badlogic.gdx.Gdx;
+
+package src.graphics.kerai_src;
+import src.util.*;
+
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.model.*;
-
 import com.badlogic.gdx.math.*;
-import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.*;
 
 
@@ -13,15 +14,23 @@ import com.badlogic.gdx.utils.*;
 public class ModelInstance implements RenderableProvider {
   
   
-  // TODO: Get rid of the nodes, and probably just have one animation.
+  
   public final Array<Material> materials = new Array();
-  public final Array<Node2> nodes = new Array(); // root nodes of model...
-  public final Array<Animation2> animations = new Array();
+  public final Array<Node> nodes = new Array(); // root nodes of model...
+  public final Array<Animation> animations = new Array();
+  
   public final Model model;
   public Matrix4 transform;
 
-  private ObjectMap <NodePart2, ArrayMap<Node, Matrix4>>
-    nodePartBones = new ObjectMap <NodePart2, ArrayMap<Node, Matrix4>>();
+  private ObjectMap <NodePart, ArrayMap<Node, Matrix4>>
+    nodePartBones = new ObjectMap <NodePart, ArrayMap<Node, Matrix4>>();
+  
+  final AnimControl anim = new AnimControl(this);
+  final OverlayAttribute attr = new OverlayAttribute(null);
+  
+  private Animation currentAnim;
+  private float animTime;
+  private List <NodePart> hidden = new List();
   
   
   
@@ -31,6 +40,8 @@ public class ModelInstance implements RenderableProvider {
     copyNodes(model.nodes, (String[]) null);
     copyAnimations(model.animations);
     calculateTransforms();
+    
+    for (Material m : materials) m.set(attr);
   }
   
   
@@ -52,8 +63,8 @@ public class ModelInstance implements RenderableProvider {
   }
   
 
-  private Node2 copyNode(Node2 parent, Node node) {
-    Node2 copy = new Node2();
+  private Node copyNode(Node parent, Node node) {
+    Node copy = new Node();
     copy.id = node.id;
     copy.parent = parent;
     copy.translation.set(node.translation);
@@ -72,14 +83,14 @@ public class ModelInstance implements RenderableProvider {
   }
   
 
-  private NodePart2 copyNodePart(NodePart nodePart) {
-    NodePart2 copy = new NodePart2();
+  private NodePart copyNodePart(NodePart nodePart) {
+    NodePart copy = new NodePart();
     copy.meshPart = new MeshPart();
-    copy.meshPart.id = nodePart.meshPart.id;
-    copy.meshPart.indexOffset = nodePart.meshPart.indexOffset;
-    copy.meshPart.numVertices = nodePart.meshPart.numVertices;
+    copy.meshPart.id            = nodePart.meshPart.id;
+    copy.meshPart.indexOffset   = nodePart.meshPart.indexOffset;
+    copy.meshPart.numVertices   = nodePart.meshPart.numVertices;
     copy.meshPart.primitiveType = nodePart.meshPart.primitiveType;
-    copy.meshPart.mesh = nodePart.meshPart.mesh;
+    copy.meshPart.mesh          = nodePart.meshPart.mesh;
 
     if (nodePart.invBoneBindTransforms != null)
       nodePartBones.put(copy, nodePart.invBoneBindTransforms);
@@ -96,47 +107,44 @@ public class ModelInstance implements RenderableProvider {
 
   private void copyAnimations(final Iterable<Animation> source) {
     for (final Animation anim : source) {
-      Animation2 animation2 = new Animation2();
-      animation2.id = anim.id;
-      animation2.duration = anim.duration;
+      Animation Animation = new Animation();
+      Animation.id = anim.id;
+      Animation.duration = anim.duration;
       for (final NodeAnimation nanim : anim.nodeAnimations) {
-        final Node2 node2 = getNode(nanim.node.id);
-        if (node2 == null)
-          continue;
-        NodeAnimation2 nodeAnim = new NodeAnimation2();
-        nodeAnim.node = node2;
-        nodeAnim.keyframes = new NodeKeyframe2[nanim.keyframes.size];
+        final Node Node = getNode(nanim.node.id);
+        if (Node == null) continue;
+        NodeAnimation nodeAnim = new NodeAnimation();
+        nodeAnim.node = Node;
+        nodeAnim.keyframes = new Array <NodeKeyframe> ();
         
-        int i = 0 ; for (final NodeKeyframe kf : nanim.keyframes) {
-          NodeKeyframe2 keyframe = new NodeKeyframe2();
+        for (final NodeKeyframe kf : nanim.keyframes) {
+          NodeKeyframe keyframe = new NodeKeyframe();
           keyframe.keytime = kf.keytime;
           keyframe.rotation.set(kf.rotation);
           keyframe.scale.set(kf.scale);
           keyframe.translation.set(kf.translation);
-          nodeAnim.keyframes[i++] = keyframe;
+          nodeAnim.keyframes.add(keyframe);
         }
-        if (nodeAnim.keyframes.length > 0)
-          animation2.nodeAnims.add(nodeAnim);
+        if (nodeAnim.keyframes.size > 0)
+          Animation.nodeAnimations.add(nodeAnim);
       }
-      if (animation2.nodeAnims.size > 0)
-        animations.add(animation2);
+      if (Animation.nodeAnimations.size > 0)
+        animations.add(Animation);
     }
   }
   
   
-  //  TODO:  This might not be needed.
-  //*
   private void setBones() {
     for (
-      ObjectMap.Entry<NodePart2, ArrayMap<Node, Matrix4>> e :
+      ObjectMap.Entry<NodePart, ArrayMap<Node, Matrix4>> e :
       nodePartBones.entries()
     ) {
-      final NodePart2 part = e.key;
+      final NodePart part = e.key;
       final ArrayMap <Node, Matrix4> map = e.value;
       
       if (part.invBoneBindTransforms == null) {
-        part.invBoneBindTransforms = new ArrayMap<Node2, Matrix4>(
-          true, map.size, Node2.class, Matrix4.class
+        part.invBoneBindTransforms = new ArrayMap<Node, Matrix4>(
+          true, map.size, Node.class, Matrix4.class
         );
       }
       part.invBoneBindTransforms.clear();
@@ -151,7 +159,6 @@ public class ModelInstance implements RenderableProvider {
       }
     }
   }
-  //*/
   
   
   
@@ -168,15 +175,18 @@ public class ModelInstance implements RenderableProvider {
     Array<Renderable> renderables,
     Pool<Renderable> pool
   ) {
-    for (Node2 node : nodes) getRenderables(node, renderables, pool);
+    anim.begin();
+    anim.apply(currentAnim, animTime, 1);
+    anim.end();
+    for (Node node : nodes) getRenderables(node, renderables, pool);
   }
   
   
   private void getRenderables(
-    Node2 node, Array<Renderable> renderables, Pool<Renderable> pool
+    Node node, Array<Renderable> renderables, Pool<Renderable> pool
   ) {
-    for (NodePart2 part : node.parts) {
-      if (! part.enabled) continue;
+    for (NodePart part : node.parts) {
+      if (hidden.includes(part)) continue;
       final Renderable out = pool.obtain();
       
       part.setRenderable(out);
@@ -191,17 +201,17 @@ public class ModelInstance implements RenderableProvider {
       }
       renderables.add(out);
     }
-    for (Node2 child : node.children) {
+    for (Node child : node.children) {
       getRenderables(child, renderables, pool);
     }
   }
   
   
   /**
-   * Calculates the local and world transform of all {@link Node2} instances in
-   * this model, recursively. First each {@link Node2#localTransform} transform
+   * Calculates the local and world transform of all {@link Node} instances in
+   * this model, recursively. First each {@link Node#localTransform} transform
    * is calculated based on the translation, rotation and scale of each Node.
-   * Then each {@link Node2#calculateWorldTransform()} is calculated, based on
+   * Then each {@link Node#calculateWorldTransform()} is calculated, based on
    * the parent's world transform and the local transform of each Node. Finally,
    * the animation bone matrices are updated accordingly.</p>
    * 
@@ -219,18 +229,74 @@ public class ModelInstance implements RenderableProvider {
   }
   
   
-  public Animation2 getAnimation(final String id) {
+  public Animation getAnimation(final String id) {
     final int n = animations.size;
-    Animation2 animation2;
+    Animation Animation;
     for (int i = 0; i < n; i++)
-      if ((animation2 = animations.get(i)).id.equals(id))
-        return animation2;
+      if ((Animation = animations.get(i)).id.equals(id))
+        return Animation;
     return null;
   }
   
   
-  public Node2 getNode(final String id) {
-    return Node2.getNode(nodes, id, true, false);
+  public Node getNode(final String id) {
+    return Node.getNode(nodes, id, true, false);
+  }
+  
+  
+  
+  
+
+  
+  //  TODO:  This needs refinement.  Only apply to materials of a certain name!
+  public void setOverlaySkins(Texture... skins) {
+    attr.textures = skins;
+  }
+  
+  
+  
+  
+  
+  
+  public void hideParts(String... ids) {
+    for (String id : ids) {
+      togglePart(id, false);
+    }
+  }
+  
+  
+  public void showOnly(String partID) {
+    Node node = nodes.get(0);
+    for (NodePart np : node.parts) {
+      if (np.meshPart.id.equals(partID)) {
+        hidden.remove(np);
+        //np.enabled = true;
+      }
+      else {
+        hidden.include(np);
+        //np.enabled = false;
+      }
+    }
+  }
+  
+  
+  public void togglePart(String id, boolean visible) {
+    Node node = nodes.get(0);
+    for (NodePart np : node.parts) {
+      if (np.meshPart.id.equals(id)) {
+        if (visible) hidden.remove(np);
+        else hidden.include(np);
+        //np.enabled = visible;
+      }
+    }
+  }
+  
+  
+  public void setAnimation(String id, float progress) {
+    final Animation match = getAnimation(id);
+    if (match == null) return;
+    currentAnim = match;
+    animTime = progress * match.duration;
   }
 }
 
@@ -240,114 +306,3 @@ public class ModelInstance implements RenderableProvider {
 
 
 
-
-
-
-/*
-  public Material getMaterial(final String id) {
-    final int n = materials.size;
-    Material material;
-    for (int i = 0; i < n; i++)
-      if ((material = materials.get(i)).id.equals(id))
-        return material;
-    return null;
-  }
-//*/
-
-
-/** @return The renderable of the first node's first part. */
-/*
-public Renderable getRenderable(final Renderable out) {
-  return getRenderable(out, nodes.get(0));
-}
-
-
-/** @return The renderable of the node's first part. */
-/*
-public Renderable getRenderable(final Renderable out, final Node2 node2) {
-  return getRenderable(out, node2, node2.parts.get(0));
-}
-
-
-//*/
-
-/**
- * @param id
- *          The ID of the node to fetch.
- * @param recursive
- *          false to fetch a root node only, true to search the entire node
- *          tree for the specified node.
- * @param ignoreCase
- *          whether to use case sensitivity when comparing the node id.
- * @return The {@link Node2} with the specified id, or null if not found.
- */
-/*
-public Node2 getNode(final String id, boolean recursive) {
-  return Node2.getNode(nodes, id, recursive, false);
-}
-//*/
-/**
- * Calculate the bounding box of this model instance. This is a potential slow
- * operation, it is advised to cache the result.
- * 
- * @param out
- *          the {@link BoundingBox} that will be set with the bounds.
- * @return the out parameter for chaining
- */
-/*
-public BoundingBox calculateBoundingBox(final BoundingBox out) {
-  out.inf();
-  return extendBoundingBox(out);
-}
-//*/
-
-/**
- * Extends the bounding box with the bounds of this model instance. This is a
- * potential slow operation, it is advised to cache the result.
- * 
- * @param out
- *          the {@link BoundingBox} that will be extended with the bounds.
- * @return the out parameter for chaining
- */
-/*
-public BoundingBox extendBoundingBox(final BoundingBox out) {
-  final int n = nodes.size;
-  for (int i = 0; i < n; i++)
-    nodes.get(i).extendBoundingBox(out);
-  return out;
-}
-//*/
-
-
-
-/**
- * @param model
- *          The source {@link Model}
- * @param transform
- *          The {@link Matrix4} instance for this ModelInstance to reference or
- *          null to create a new matrix.
- * @param nodeId
- *          The ID of the {@link Node2} within the {@link Model} for the
- *          instance to contain
- * @param recursive
- *          True to recursively search the Model's node tree, false to only
- *          search for a root node
- * @param parentTransform
- *          True to apply the parent's node transform to the instance (only
- *          applicable if recursive is true).
- * @param mergeTransform
- *          True to apply the source node transform to the instance transform,
- *          resetting the node transform.
- */
-/*
- * public ModelInstance( final Model model, final Matrix4 transform, final
- * String nodeId, boolean recursive, boolean parentTransform, boolean
- * mergeTransform ) { this.model = model; this.transform = transform == null ?
- * new Matrix4() : transform; nodePartBones.clear(); Node2 copy, node2 =
- * model.getNode(nodeId, recursive); this.nodes.add(copy = copyNode(null,
- * node2)); if (mergeTransform) { this.transform.mul(parentTransform ?
- * node2.globalTransform : node2.localTransform); copy.translation.set(0,0,0);
- * copy.rotation.idt(); copy.scale.set(1,1,1); } else if (parentTransform &&
- * copy.parent != null) this.transform.mul(node2.parent.globalTransform);
- * setBones(); copyAnimations(model.animations); calculateTransforms(); } //
- */

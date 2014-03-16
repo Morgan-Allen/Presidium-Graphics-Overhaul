@@ -12,6 +12,7 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g3d.*;
+import com.badlogic.gdx.graphics.g3d.model.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
@@ -27,11 +28,11 @@ public class NewApp extends ApplicationAdapter {
   public OrthographicCamera cam;
   public RTSCameraControl rtscam;
 
-  public Array<MS3DInstance> instances = new Array<MS3DInstance>();
+  public Array<ModelInstance> instances = new Array<ModelInstance>();
   private Environment env;
   private ModelBatch batch;
 
-  private MS3DInstance controlled;
+  private ModelInstance controlled;
   private float activeTime = 0;
   private String animName = AnimNames.MOVE;
   
@@ -40,8 +41,8 @@ public class NewApp extends ApplicationAdapter {
   private InputAdapter inp = new InputAdapter() {
     public boolean keyDown(int key) {
       if (key == Keys.SPACE) {
-        Array<Animation2> anims = controlled.mi.animations;
-        Animation2 pick = (Animation2) Rand.pickFrom(anims.toArray());
+        Array<Animation> anims = controlled.animations;
+        Animation pick = (Animation) Rand.pickFrom(anims.toArray());
         animName = pick.id;
         return true;
       }
@@ -54,9 +55,14 @@ public class NewApp extends ApplicationAdapter {
 
     env = new Environment();
     env.set(new ColorAttribute(
-      ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 0.9f
+      ColorAttribute.AmbientLight,
+      0.2f, 0.2f, 0.2f, 1
     ));
-    env.add(new DirectionalLight().set(1f, 1f, 1f, -1f, -0.8f, -0.2f));
+    env.add(new DirectionalLight().set(
+      0.8f, 0.8f, 0.8f,
+      1, 1, 1
+    ));
+    
     
     DefaultShaderProvider provider = new DefaultShaderProvider() {
       protected Shader createShader(Renderable renderable) {
@@ -109,7 +115,6 @@ public class NewApp extends ApplicationAdapter {
     params.add("move_sneak", 85, 93, .7f);
     params.scale = 0.025f;
     
-    
     final String dir = "media/Actors/human/";
     final Model model = loader.loadModel(
       loader.resolve(dir + "male_final.ms3d"), params
@@ -121,17 +126,18 @@ public class NewApp extends ApplicationAdapter {
     overlays[2] = new Texture(dir + "highborn_male_skin.gif");
     
     {
-      MS3DInstance guy = new MS3DInstance(model);
+      ModelInstance guy = new ModelInstance(model);
       guy.setOverlaySkins(overlays);
       guy.showOnly(AnimNames.MAIN_BODY);
-      guy.mi.transform.setToTranslation(0, 0, 0);
-      guy.mi.transform.setToRotation(Vector3.Y, 90);
+      guy.transform.setToTranslation(0, 0, 0);
+      guy.transform.setToRotation(Vector3.Y, 90);
       instances.add(guy);
       controlled = guy;
     }
     {
-      MS3DInstance guy = new MS3DInstance(model);
-      guy.mi.transform.setToTranslation(1, 0, 0);
+      ModelInstance guy = new ModelInstance(model);
+      guy.transform.setToTranslation(1, 0, 0);
+      guy.setOverlaySkins(overlays[1]);
       instances.add(guy);
       guy.showOnly(AnimNames.MAIN_BODY);
     }
@@ -152,9 +158,9 @@ public class NewApp extends ApplicationAdapter {
     
     activeTime += Gdx.graphics.getRawDeltaTime();
     
-    for (MS3DInstance instance : instances) {
+    for (ModelInstance instance : instances) {
       instance.setAnimation(animName, activeTime % 1);
-      batch.render(instance.mi, env);
+      batch.render(instance, env);
     }
     batch.end();
   }
