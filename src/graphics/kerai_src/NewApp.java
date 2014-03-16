@@ -41,7 +41,7 @@ public class NewApp extends ApplicationAdapter {
   private InputAdapter inp = new InputAdapter() {
     public boolean keyDown(int key) {
       if (key == Keys.SPACE) {
-        Array<Animation> anims = controlled.animations;
+        Array<Animation> anims = controlled.model.animations;
         Animation pick = (Animation) Rand.pickFrom(anims.toArray());
         animName = pick.id;
         return true;

@@ -70,7 +70,7 @@ public class AnimControl {
   
   
   private boolean applying = false;
-  public final ModelInstance target;  //  TODO:  Not really needed- use args
+  public final ModelInstance target;  //  TODO:  Not really needed?
   
   private final static ObjectMap <Node, Transform>
     transforms = new ObjectMap <Node, Transform>();
@@ -109,21 +109,16 @@ public class AnimControl {
   }
   
   
-  protected static void applyAnimation(
+  protected void applyAnimation(
     final ObjectMap <Node, Transform> out,
     final Pool <Transform> pool, final float alpha,
     final Animation animation, final float time
   ) {
-    if (out != null) {
-      for (final Node node : out.keys())
-        node.isAnimated = false;
-    }
-    
     for (final NodeAnimation nodeAnim : animation.nodeAnimations) {
       final Node node = nodeAnim.node;
-      node.isAnimated = true;
       
       // Find the keyframe(s)
+      //  TODO:  See if this can't be cached somehow
       final NodeKeyframe frames[] = nodeAnim.keyframes.toArray(NodeKeyframe.class);
       
       int first = 0, second = -1;
@@ -158,35 +153,31 @@ public class AnimControl {
         );
       }
       
-      // Apply the transform, either directly to the bone or to out when
-      // blending
-      if (out == null) {
-        transform.toMatrix4(node.localTransform);
+      // Apply the transform-
+      Transform t = out.get(node);
+      if (t == null) {
+        t = pool.obtain();
+        t.set(node.translation, node.rotation, node.scale);
+        out.put(node, t);
       }
-      else {
-        Transform t = out.get(node, null);
-        if (t == null) {
-          t = pool.obtain();
-          t.set(node.translation, node.rotation, node.scale);
-          out.put(node, t);
-        }
-        if (alpha > 0.999999f) t.set(transform);
-        else t.lerp(transform, alpha);
-      }
+      if (alpha > 0.999999f) t.set(transform);
+      else t.lerp(transform, alpha);
     }
     
-    if (out != null) {
+    //  TODO:  Restore this later?
+    /*
+    //if (out != null) {
       for (final ObjectMap.Entry<Node, Transform> e : out.entries()) {
         final Node node = e.key;
         final Transform t = e.value;
-        if (! node.isAnimated) {
-          node.isAnimated = true;
-          t.lerp(e.key.translation, e.key.rotation, e.key.scale, alpha);
-        }
+        t.lerp(node.translation, node.rotation, node.scale, alpha);
+        //if (! node.isAnimated) {
+          //node.isAnimated = true;
+        //}
       }
-    }
+    //}
+    //*/
   }
-  
   
   
   protected void removeAnimation(final Animation Animation) {
@@ -197,18 +188,23 @@ public class AnimControl {
   
   
   protected void end() {
-    if (!applying) throw new GdxRuntimeException(
+    if (! applying) throw new GdxRuntimeException(
       "You must call begin() first"
     );
-    for (Entry<Node, Transform> entry : transforms.entries()) {
-      entry.value.toMatrix4(entry.key.localTransform);
-      transformPool.free(entry.value);
+    for (Entry <Node, Transform> entry : transforms.entries()) {
+      final Node node = entry.key;
+      final Transform t = entry.value;
+      t.toMatrix4(target.boneFor(node));
+      transformPool.free(t);
     }
     transforms.clear();
-    target.calculateTransforms();
+    //target.calculateTransforms();
     applying = false;
   }
 }
+
+
+
 
 
 

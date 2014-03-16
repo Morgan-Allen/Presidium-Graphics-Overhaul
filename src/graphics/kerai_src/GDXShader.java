@@ -66,6 +66,7 @@ public class GDXShader extends DefaultShader {
         return true;
       }
     });
+    //*/
 
     register("u_overlays", new Setter() {
       int[] units = new int[10];
