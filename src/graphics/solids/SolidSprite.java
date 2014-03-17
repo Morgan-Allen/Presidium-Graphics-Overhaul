@@ -1,51 +1,54 @@
 
 
-
 package src.graphics.solids;
 import src.graphics.common.*;
 import src.util.*;
 
-import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.*;
-import com.badlogic.gdx.graphics.g3d.utils.*;
 import com.badlogic.gdx.graphics.g3d.model.*;
 import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.utils.*;
 
 
 
-
-
-
-//TODO:  Get rid of the LibGDX code for this entirely and just go directly
-//       to the Mesh and a custom bone-shader.  All the code is there.
-
-
-public class SolidSprite extends Sprite {
+public class SolidSprite extends Sprite implements RenderableProvider {
   
   
-  final ModelAsset model;
-  final Model gdxModel;
+  final public SolidModel model;
+  public Matrix4 transform;
+  final Matrix4 nodeTransforms[];
+  final Material materials[];
   
-  //  Note:  We don't instantiate this immediately because sprites might be
-  //  initialised on a background loading thread, whereas anything directly
-  //  derived from libgdx typically needs to be created on the render() thread.
-  private ModelInstance gdxSprite = null;
-  private AnimationController animControl = null;
+  final AnimControl animControl = new AnimControl(this);
+  final OverlayAttribute overlaid = new OverlayAttribute(null);
   
-  private float lastTime = -1;
-  /*
-  //private Stack <Overlay> overlays = null;
-  //  TODO:  Not used at the moment.  Implement that...
-  private class Overlay {
-    Texture tex ;
-    String skin ;
-  }
-  //*/
+  //  TODO:  Allow fade-ins between animation states...
+  private Animation currentAnim;
+  private float animTime;
+  private List <NodePart> hidden = new List <NodePart> ();
+  
+  private static Vector3 temp = new Vector3();
   
   
-  protected SolidSprite(ModelAsset model, Model gdxModel) {
+  
+  protected SolidSprite(final SolidModel model) {
     this.model = model;
-    this.gdxModel = gdxModel;
+    if (! model.compiled) I.complain("MODEL MUST BE COMPILED FIRST!");
+    
+    this.transform = new Matrix4();
+    this.nodeTransforms = new Matrix4[model.modelNodes.length];
+    this.materials = new Material[model.modelMaterials.length];
+    
+    int i = 0; for (Node n : model.modelNodes) {
+      nodeTransforms[i++] = new Matrix4();
+    }
+    for (i = 0; i < materials.length; i++) {
+      final Material source = model.modelMaterials[i];
+      final Material m = new Material(source);
+      m.set(overlaid);
+      materials[i] = m;
+    }
   }
   
   
@@ -54,83 +57,137 @@ public class SolidSprite extends Sprite {
   }
   
   
-  private void initGDX() {
-    if (gdxSprite == null) {
-      gdxSprite = new ModelInstance(gdxModel);
-      animControl = new AnimationController(gdxSprite);
-    }
-  }
-  
-  
-  public void setAnimation(String animName, float progress) {
-    initGDX();
-    if (
-      animControl.current == null ||
-      ! animControl.current.animation.id.equals(animName)
-    ) {
-      if (gdxSprite.model.getAnimation(animName) == null) return;
-      animControl.animate(animName, -1, null, -1);
-      lastTime = -1;
-    }
-    if (lastTime == -1) lastTime = 0;
-    if (progress < lastTime) lastTime--;
-    float delta = progress - lastTime;
-    delta *= animControl.current.animation.duration;
-    animControl.update(delta);
-    ///I.say("Update delta is: "+delta);
-    lastTime = progress;
-  }
-  
-  
-  private static Vector3 temp = new Vector3();
-  
-  public void registerFor(Rendering rendering) {
-    initGDX();
-    rendering.view.worldToGL(position, temp);
-    gdxSprite.transform.setToTranslation(temp);
-    
-    final float radians = (float) Math.toRadians(90 - rotation);
-    gdxSprite.transform.rot(Vector3.Y, radians);
-    rendering.solidsPass.register(this);
-  }
-  
-  
   public void update() {
   }
   
   
-  protected ModelInstance gdxSprite() {
-    return gdxSprite;
+  public void registerFor(Rendering rendering) {
+    rendering.view.worldToGL(position, temp);
+    transform.setToTranslation(temp);
+    
+    final float radians = (float) Math.toRadians(90 - rotation);
+    transform.rot(Vector3.Y, radians);
+    rendering.solidsPass.register(this);
+  }
+
+
+
+
+
+
+  /**  Rendering and animation-
+   */
+  public void getRenderables(
+    Array<Renderable> renderables,
+    Pool<Renderable> pool
+  ) {
+    animControl.begin();
+    animControl.apply(currentAnim, animTime, 1);
+    animControl.end();
+    
+    final Matrix4 temp = new Matrix4();
+    //  The nodes here are ordered so as to guarantee that parents are always
+    //  visited before children, allowing a single pass-
+    for (int i = 0; i < model.modelNodes.length; i++) {
+      final Node node = model.modelNodes[i];
+      if (node.parent == null) {
+        nodeTransforms[i].setToTranslation(node.translation);
+        nodeTransforms[i].scl(node.scale);
+        continue;
+      }
+      final Matrix4 parentTransform = boneFor(node.parent);
+      temp.set(parentTransform).mul(nodeTransforms[i]);
+      nodeTransforms[i].set(temp);
+    }
+    
+    //  
+    for (int i = 0; i < model.modelParts.length; i++) {
+      final NodePart part = model.modelParts[i];
+      if (hidden.includes(part)) continue;
+      final Renderable r = pool.obtain();
+      
+      final int numBones = part.invBoneBindTransforms.size;
+      final Matrix4 boneSet[] = new Matrix4[numBones];  //TODO:  CACHE?
+      for (int b = 0; b < numBones; b++) {
+        final Node node = part.invBoneBindTransforms.keys[b];
+        final Matrix4 offset = part.invBoneBindTransforms.values[b];
+        boneSet[b] = new Matrix4(boneFor(node)).mul(offset);
+      }
+      
+      final int matIndex = model.indexFor(part.material);
+      r.worldTransform.set(transform);
+      r.material       = materials[matIndex];
+      r.bones          = boneSet;
+      r.mesh           = part.meshPart.mesh;
+      r.meshPartOffset = part.meshPart.indexOffset;
+      r.meshPartSize   = part.meshPart.numVertices;
+      r.primitiveType  = part.meshPart.primitiveType;
+      
+      renderables.add(r);
+    }
+  }
+  
+  
+  protected Matrix4 boneFor(Node node) {
+    final int index = model.indexFor(node);
+    return nodeTransforms[index];
+  }
+  
+  
+  public void setAnimation(String id, float progress) {
+    final Animation match = model.gdxModel.getAnimation(id);
+    if (match == null) return;
+    currentAnim = match;
+    animTime = progress * match.duration;
   }
   
   
   
-  /**  'Dummy' methods that need proper re-implementation later.
+  
+  /**  Customising appearance (toggling parts, adding skins)-
     */
-  public void applyOverlay(Texture overlay, String skin, boolean on) {
-    //  TODO:  IMPLEMENT
-    /*
-    final Overlay added = new Overlay();
-    added.tex = overlay;
-    added.skin = skin;  //TODO:  Identify group instead?  I'm not really sure
-                        //  how to render this, for that matter.
-    if (overlays == null) {
-      overlays = new Stack <Overlay> ();
-    }
-    overlays.add(added);
-    //*/
+  //  TODO:  This needs refinement.  Only apply to materials of a certain name!
+  public void setOverlaySkins(Texture... skins) {
+    overlaid.textures = skins;
   }
   
   
   public Vec3D attachPoint(String label) {
-    return position;
+    return new Vec3D(position);
   }
   
   
-  public void toggleGroup(String groupName, boolean on) {
-    //  TODO:  IMPLEMENT
+  public void hideParts(String... ids) {
+    for (String id : ids) {
+      togglePart(id, false);
+    }
+  }
+  
+  
+  public void showOnly(String partID) {
+    Node node = model.modelNodes[0];
+    for (NodePart np : node.parts) {
+      if (np.meshPart.id.equals(partID)) {
+        hidden.remove(np);
+      }
+      else {
+        hidden.include(np);
+      }
+    }
+  }
+  
+  
+  public void togglePart(String id, boolean visible) {
+    Node node = model.modelNodes[0];
+    for (NodePart np : node.parts) {
+      if (np.meshPart.id.equals(id)) {
+        if (visible) hidden.remove(np);
+        else hidden.include(np);
+      }
+    }
   }
 }
+
 
 
 

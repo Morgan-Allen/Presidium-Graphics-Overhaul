@@ -1,4 +1,4 @@
-package src.graphics.kerai_src;
+package src.graphics.solids;
 
 
 import src.graphics.common.*;

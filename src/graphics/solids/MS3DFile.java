@@ -1,14 +1,9 @@
-
-
 package src.graphics.solids;
 
-import java.io.IOException;
+import java.io.*;
+import java.util.*;
 
 import com.badlogic.gdx.math.*;
-
-//import java.util.Hashtable ;
-import src.util.*;
-
 
 
 
@@ -30,7 +25,7 @@ public class MS3DFile {
 
 	
 	
-	public MS3DFile(DataInput in) throws IOException {
+	public MS3DFile(DataInput0 in) throws IOException {
 
 		id = in.readUTF(10);
 		version = in.readInt();
@@ -45,20 +40,17 @@ public class MS3DFile {
 		// ignoring rest of the file
 		// all weights are 1 in my test model anyway
 		
-		postProcessJoints() ;
+		inverse();
 	}
-	
 
 	public static class MS3DVertex {
 		public float[] vertex;
 		public byte boneid;
 	}
 	
-	
 	public MS3DVertex[] vertices;
 	
-	
-	private void parseVertices(DataInput in) throws IOException {
+	private void parseVertices(DataInput0 in) throws IOException {
 		int nNumVertices = in.readUShort();
 		
 		vertices = new MS3DVertex[nNumVertices];
@@ -92,7 +84,7 @@ public class MS3DFile {
 	public MS3DTriangle[] triangles;
 	
 	
-	private void parseIndices(DataInput in) throws IOException {
+	private void parseIndices(DataInput0 in) throws IOException {
 		int nNumTriangles = in.readUShort();
 		
 		triangles = new MS3DTriangle[nNumTriangles];
@@ -119,13 +111,13 @@ public class MS3DFile {
 	
 	public static class MS3DGroup {
 		public String name;
-		public short[] indices;
+		public short[] trindices;
 		public byte materialIndex;
 	}
 	
 	public MS3DGroup[] groups;
 	
-	private void parseGroups(DataInput in) throws IOException {
+	private void parseGroups(DataInput0 in) throws IOException {
 		int nNumGroups = in.readUShort();
 		
 		groups = new MS3DGroup[nNumGroups];
@@ -137,8 +129,10 @@ public class MS3DFile {
 			
 			group.name = in.readUTF(32);
 			
+			System.out.println("Group: " + group.name);
+			
 			int numTriangles = in.readUShort();
-			group.indices = in.readShorts(new short[numTriangles]);
+			group.trindices = in.readShorts(new short[numTriangles]);
 			
 			group.materialIndex = in.readByte();
 		}
@@ -154,14 +148,14 @@ public class MS3DFile {
 		public float shininess;
 		public float transparency;
 		public byte mode;
-		public String texName;
+		public String texture;
 		public String alphamap;
 	}
 	
 	public MS3DMaterial[] materials;
 	
 	
-	private void parseMaterials(DataInput in) throws IOException {
+	private void parseMaterials(DataInput0 in) throws IOException {
 		int nNumMaterials = in.readUShort();
 
 		materials = new MS3DMaterial[nNumMaterials];
@@ -177,45 +171,38 @@ public class MS3DFile {
 			mat.shininess = in.readFloat();
 			mat.transparency = in.readFloat();
 			mat.mode = in.readByte();
-			mat.texName = in.readUTF(128);
+			mat.texture = in.readUTF(128);
 			mat.alphamap = in.readUTF(128);
 		}
 		
 	}
 	
-	
-	
 	public float fAnimationFPS;
 	public float fCurrentTime;
 	public int iTotalFrames;
-	
 	
 	public static class Keyframe {
 		public float time;
 		public float[] data;
 	}
 	
-	
 	public static class MS3DJoint {
-		public int index ;
 		public String name;
-		public MS3DJoint parent = null ;
-		private String parentName ;
+		public String parentName;
+		
+		//public Quaternion rotation = new Quaternion();
+		//public Vector3 position = new Vector3();
 		
 		public Matrix4 matrix = new Matrix4();
 		public Matrix4 inverse = new Matrix4();
 		
 		public Keyframe[] rotations;
 		public Keyframe[] positions;
-		
-		final List <MS3DJoint> children = new List <MS3DJoint> ();
 	}
-	
 	
 	public MS3DJoint[] joints;
 	
-	
-	private void parseJoints(DataInput in) throws IOException {
+	private void parseJoints(DataInput0 in) throws IOException {
 		fAnimationFPS = in.readFloat();
 		fCurrentTime = in.readFloat();
 		iTotalFrames = in.readInt();
@@ -232,38 +219,32 @@ public class MS3DFile {
 			joint.name = in.readUTF(32);
 			joint.parentName = in.readUTF(32);
 			
-			//System.out.println("\nJOINT NAME: "+joint.name) ;
+			System.out.println("Joint: " + joint.name);
+			
 			Quaternion rot = fromEuler(in.readFloats(new float[3]));
 			Vector3 pos = in.read3D(new Vector3());
-			///swap(pos);
 			
 			int rots = in.readUShort();
 			int poss = in.readUShort();
 			
 			joint.rotations = new Keyframe[rots];
 			joint.positions = new Keyframe[poss];
-			float v[] ;
 			
-			//System.out.println() ;
 			for(int j=0; j < rots; j++) {
 				Keyframe kf = joint.rotations[j] = new Keyframe();
 				kf.time = in.readFloat();
-				kf.data = in.readFloats(v = new float[3]);
-				
-				Quaternion q = fromEuler(v) ;
-				//System.out.println(" Rotation: ("+q.x+", "+q.y+", "+q.z+","+q.w+")") ;
+				kf.data = in.readFloats(new float[3]);
 			}
 			
-			//System.out.println() ;
 			for(int j=0; j < poss; j++) {
 				Keyframe kf = joint.positions[j] = new Keyframe();
 				kf.time = in.readFloat();
-				kf.data = in.readFloats(v = new float[3]);
-				//System.out.println(" Position: ("+v[0]+", "+v[1]+", "+v[2]+")") ;
+				kf.data = in.readFloats(new float[3]);
 			}
 			
 			joint.matrix.set(rot);
 			joint.matrix.setTranslation(pos);
+			
 			joint.inverse.set(joint.matrix);
 			joint.inverse.inv();
 		}
@@ -283,58 +264,103 @@ public class MS3DFile {
 	}
 	
 	
-	private void postProcessJoints() {
-		Table <String, MS3DJoint> jointTable = new Table <String, MS3DJoint> () ;
-		///System.out.println("JOINTS ARE NULL? "+(joints == null));
-		for (MS3DJoint j : joints) jointTable.put(j.name, j) ;
-		for (MS3DJoint j : joints) {
-			j.parent = jointTable.get(j.parentName) ;
+	/**
+	 *   Big bunch of utility methods-
+	 */
+	private void inverse() {
+		Map<String, MS3DJoint> map = new HashMap<String, MS3DFile.MS3DJoint>();
+		
+		for(MS3DJoint j : joints) {
+			map.put(j.name, j);
 		}
 		
 		for (MS3DJoint j : joints) {
-			if (j.parent != null) {
-			  j.parent.children.add(j);
-			  j.inverse.mul(j.parent.inverse);
-			}
+			if (!j.parentName.isEmpty()) j.inverse.mul(map.get(j.parentName).inverse) ;
 		}
 		
 		Vector3 tmp = new Vector3();
-		for (int i = 0 ; i < vertices.length ; i++) {
+		
+		for(int i=0; i<vertices.length; i++) {
+			
 			MS3DVertex vert = vertices[i];
+			int bone = vert.boneid;
+			
+			if(bone==-1)
+				continue;
 			
 			tmp.x = vert.vertex[0];
 			tmp.y = vert.vertex[1];
 			tmp.z = vert.vertex[2];
 			
-			if (vert.boneid >= 0) {
-				tmp.mul(joints[vert.boneid].inverse);
-				///I.say("  VERT["+i+"] is: "+tmp) ;
-			}
-			else {
-				///I.say("NO BONE ASSIGNED AT: "+i) ;
-			}
+			tmp.mul(joints[bone].inverse);
 			
 			vert.vertex[0] = tmp.x;
 			vert.vertex[1] = tmp.y;
 			vert.vertex[2] = tmp.z;
+			
 		}
+		
+		for(int i=0; i<triangles.length; i++) {
+			MS3DTriangle tri = triangles[i];
+			for(int j=0; j<tri.normals.length; j++) {
+				int bone = vertices[tri.indices[j]].boneid;
+
+				if(bone==-1)
+					continue;
+				
+				float[] norm = tri.normals[j];
+				
+				tmp.x = norm[0];
+				tmp.y = norm[1];
+				tmp.z = norm[2];
+				
+				tmp.mul(joints[bone].inverse);
+				
+				norm[0] = tmp.x;
+				norm[1] = tmp.y;
+				norm[2] = tmp.z;
+			}
+		}
+		
+		// TODO  I should also inverse normals here, but I'll deal with it later
 	}
+
 	
+	public static Quaternion fromEuler(float[] angles) {
+        float angle;
+        float sr, sp, sy, cr, cp, cy;
+        angle = (angles[2]) * 0.5f;
+        sy = (float) Math.sin(angle);
+        cy = (float) Math.cos(angle);
+        angle = angles[1] * 0.5f;
+        sp = (float) Math.sin(angle);
+        cp = (float) Math.cos(angle);
+        angle = angles[0] * 0.5f;
+        sr = (float) Math.sin(angle);
+        cr = (float) Math.cos(angle);
+
+        float crcp = cr * cp;
+        float srsp = sr * sp;
+
+        float x = (sr * cp * cy - cr * sp * sy);
+        float y = (cr * sp * cy + sr * cp * sy);
+        float z = (crcp * sy - srsp * cy);
+        float w = (crcp * cy + srsp * sy);
+        
+        return new Quaternion(x, y, z, w);
+    }
 	
-	public static Quaternion fromEuler(float vals[]) {  //roll, pitch, and yaw.
-		final float er = vals[0] / 2, ep = vals[1] / 2, ey = vals[2] / 2 ;
-		final float
-			sr = (float) (Math.sin(er)),
-			cr = (float) (Math.cos(er)),
-			sp = (float) (Math.sin(ep)),
-			cp = (float) (Math.cos(ep)),
-			sy = (float) (Math.sin(ey)),
-			cy = (float) (Math.cos(ey)),
-			w = (cr * cp * cy) + (sr * sp * sy),
-			x = (sr * cp * cy) - (cr * sp * sy),
-			y = (cr * sp * cy) + (sr * cp * sy),
-			z = (cr * cp * sy) - (sr * sp * cy) ;
-		return new Quaternion(x, y, z, w) ;
-	}
+//	public static Vector3 getRPY(Quaternion q) {
+//		float x = q.x;
+//		float y = q.y;
+//		float z = q.z;
+//		float w = q.w;
+//		
+//		float roll  = (float) Math.atan2(2*y*w - 2*x*z, 1 - 2*y*y - 2*z*z);
+//		float pitch = (float) Math.atan2(2*x*w - 2*y*z, 1 - 2*x*x - 2*z*z);
+//		float yaw   = (float) Math.asin(2*x*y + 2*z*w);
+//		
+//		return new Vector3(roll, pitch, yaw);
+//	}
 }
 

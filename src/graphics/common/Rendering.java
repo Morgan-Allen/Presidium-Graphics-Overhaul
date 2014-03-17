@@ -116,7 +116,7 @@ public class Rendering {
 
     terrainPass.performPass();
     glClear(GL_DEPTH_BUFFER_BIT);
-
+    
     solidsPass.performPass();
     //  NOTE:  These are apparently switched off by the solids pass (using
     //  ModelBatch internally.)  TODO:  FIX using RenderContext?

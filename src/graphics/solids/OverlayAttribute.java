@@ -1,4 +1,4 @@
-package src.graphics.kerai_src;
+package src.graphics.solids;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Attribute;

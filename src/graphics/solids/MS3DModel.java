@@ -1,41 +1,50 @@
 
 
 package src.graphics.solids;
-
+import src.graphics.common.*;
 import src.util.*;
 import src.graphics.solids.MS3DFile.*;
-import src.graphics.common.*;
 
-import java.lang.reflect.Field;
+import java.io.IOException;
 import java.util.Arrays;
+//import src.graphics.kerai_src.MS3DFile0.*;
+//import src.graphics.kerai_src.MS3DLoader0.MS3DParameters;
+
+
+
+
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetLoaderParameters;
+import com.badlogic.gdx.assets.loaders.*;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.model.*;
 import com.badlogic.gdx.graphics.g3d.model.data.*;
 import com.badlogic.gdx.graphics.g3d.model.data.ModelMaterial.MaterialType;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.*;
 
 
-
 public class MS3DModel extends SolidModel {
   
   
-  private static boolean verbose = false;
+  final static boolean FORCE_DEFAULT_MATERIAL = false;
+  
+  // temporary variables
+  //private MS3DParameters params;
   private String filePath, xmlPath, xmlName;
+  private FileHandle baseDir;
+  private XML config;
   private boolean loaded = false;
   
-  private FileHandle baseDir;
-  private MS3DFile file;
   private ModelData data;
-  private Model gdxModel;
+  private ModelMesh mesh;
+  private ModelNode root;
+  private MS3DFile ms3d;
+  
 
-  private XML config = null;
-  private float scale = 1.0f;
-  
-  
   private MS3DModel(
     String path, String fileName, Class sourceClass,
     String xmlFile, String xmlName
@@ -54,19 +63,13 @@ public class MS3DModel extends SolidModel {
     return new MS3DModel(path, fileName, sourceClass, xmlFile, xmlName);
   }
   
-  
-  //  TODO:  DISPOSE OF LATER
-  public Model gdxModel() {
-    return this.gdxModel;
-  }
-  
-  
+
   protected void loadAsset() {
     try {
       final FileHandle fileHandle = Gdx.files.internal(filePath);
-      final DataInput input = new DataInput(fileHandle.read(), true);
+      final DataInput0 input = new DataInput0(fileHandle.read(), true);
       baseDir = fileHandle.parent();
-      file = new MS3DFile(input);
+      ms3d = new MS3DFile(input);
       
       if (xmlName != null) {
         XML xml = XML.load(xmlPath);
@@ -79,16 +82,15 @@ public class MS3DModel extends SolidModel {
       return;
     }
     
-    this.scale = config.getFloat("scale");
+    //this.scale = config.getFloat("scale");
     
     data = new ModelData();
     processMaterials();
     processMesh();
     processJoints();
-    loadAnimRanges(config.child("animations"));
     //  TODO:  LOAD ATTACH POINTS AS WELL
     
-    gdxModel = new Model(data);
+    super.compileModel(new Model(data));
     loaded = true;
   }
   
@@ -99,48 +101,79 @@ public class MS3DModel extends SolidModel {
   
   
   protected void disposeAsset() {
-    gdxModel.dispose();
+    super.disposeAsset();
   }
   
   
-  public Sprite makeSprite() {
-    if (! loaded) I.complain("CANNOT CREATE SPRITES UNTIL LOADED!");
-    return new SolidSprite(this, gdxModel);
-  }
   
   
-  private void processMaterials() {
-    for (MS3DMaterial mat : file.materials) {
-      final ModelMaterial m = new ModelMaterial();
-      m.id = mat.name;
-      m.ambient  = color(mat.ambient);
-      m.diffuse  = color(mat.diffuse);
-      m.emissive = color(mat.emissive);
-      m.specular = color(mat.specular);
-      m.shininess = mat.shininess;
-      m.opacity = mat.transparency;
-      m.type = MaterialType.Phong;
-      
-      if (m.opacity == 0) {
-        continue;
-      }
-      if (!mat.texName.isEmpty()) {
-        ModelTexture tex = new ModelTexture();
-        if (mat.texName.startsWith(".\\")) {
-          mat.texName = mat.texName.substring(2);
-        }
-        tex.fileName = baseDir + "/" + mat.texName;
-        tex.id = mat.texName;
-        tex.usage = ModelTexture.USAGE_DIFFUSE;
-        m.textures = new Array<ModelTexture>();
-        m.textures.add(tex);
-      }
-      data.materials.add(m);
+  /*
+  private MS3DFile0 parseFile(ModelData data, FileHandle file) throws IOException {
+    // class used to read little endian data
+    DataInput in = new DataInput(file.read(), true);
+    try {
+      return new MS3DFile0(in);
+    } finally {
+      in.close();
     }
+  }
+  //*/
+  
+  /*
+  public ModelData loadModelData(FileHandle file, MS3DParameters parameters) {
+    data = new ModelData();
+    params = parameters;
+    try {
+      ms3d = parseFile(data, file);
+    } catch (IOException e) {
+      throw new GdxRuntimeException("Failed to parse " + file.name(), e);
+    }
+
+    processMaterials(file);
+    processMesh();
+    processJoints();
+    return data;
+  }
+  //*/
+
+
+  private void processMaterials() {
+    if (!FORCE_DEFAULT_MATERIAL)
+      for (MS3DMaterial mat : ms3d.materials) {
+        ModelMaterial m = new ModelMaterial();
+        m.id = mat.name;
+        m.ambient = color(mat.ambient);
+        m.diffuse = color(mat.diffuse);
+        m.emissive = color(mat.emissive);
+        m.specular = color(mat.specular);
+        m.shininess = mat.shininess;
+        m.opacity = mat.transparency;
+        m.type = MaterialType.Lambert;
+
+        if (m.opacity == 0) {
+          m.opacity = 1;
+        }
+
+        if (!mat.texture.isEmpty()) {
+          ModelTexture tex = new ModelTexture();
+          if (mat.texture.startsWith(".\\") || mat.texture.startsWith("//"))
+            mat.texture = mat.texture.substring(2);
+          System.out.println(mat.texture);
+          tex.fileName = baseDir.child(mat.texture).path();
+          // + "/" +
+          // mat.texture;
+          tex.id = mat.texture;
+          tex.usage = ModelTexture.USAGE_DIFFUSE;
+          m.textures = new Array<ModelTexture>();
+          m.textures.add(tex);
+        }
+        data.materials.add(m);
+      }
+
     if (data.materials.size == 0) {
-      final ModelMaterial mat = new ModelMaterial();
+      ModelMaterial mat = new ModelMaterial();
       mat.ambient = new Color(0.8f, 0.8f, 0.8f, 1f);
-      mat.diffuse = new Color(0.2f, 0.2f, 0.2f, 1f);
+      mat.diffuse = new Color(0.8f, 0.8f, 0.8f, 1f);
       mat.id = "default";
       data.materials.add(mat);
     }
@@ -148,165 +181,169 @@ public class MS3DModel extends SolidModel {
   
   
   private static Color color(float[] col) {
+    if (col[0] == 0 && col[1] == 0 && col[2] == 0)
+      return null;
     return new Color(col[0], col[1], col[2], col[3]);
   }
   
   
+  
   private void processMesh() {
-    //
-    // Initialise the mesh and fill it up with base geometry data-
-    final ModelMesh mesh = new ModelMesh();
+    mesh = new ModelMesh();
     mesh.id = "mesh";
-    mesh.attributes = new VertexAttribute[] {
-      VertexAttribute.Position(),
-      VertexAttribute.Normal(),
-      VertexAttribute.TexCoords(0),
-      VertexAttribute.BoneWeight(0)
-    };
-    final int numVerts = file.triangles.length * 3, NF = 10;
-    final float[] verts = new float[numVerts * NF];
-    final short[] indices = new short[numVerts * 3];
-    
-    int p = 0, index = 0;
-    for (MS3DTriangle tri : file.triangles) {
-      for (int j = 0; j < 3; j++) {
-        MS3DVertex vert = file.vertices[tri.indices[j]];
-        
-        verts[p++] = vert.vertex[0] * this.scale;
-        verts[p++] = vert.vertex[1] * this.scale;
-        verts[p++] = vert.vertex[2] * this.scale;
-        
-        verts[p++] = tri.normals[j][0];
-        verts[p++] = tri.normals[j][1];
-        verts[p++] = tri.normals[j][2];
-        
-        verts[p++] = tri.u[j];
-        verts[p++] = tri.v[j];
-        
-        verts[p++] = vert.boneid < 0 ? 0 : vert.boneid;
-        verts[p++] = 1;
-        
-        indices[index] = (short) index++;
-      }
-    }
-    mesh.vertices = verts;
-    data.meshes.add(mesh);
-    
-    
-    final ModelNode root = new ModelNode();
-    root.id = "root_node";
-    root.meshId = mesh.id;
-    root.boneId = 0;
-    root.scale = new Vector3(1, 1, 1);
-    //root.scale = new Vector3(scale, scale, scale);
-    
-    final ModelMeshPart[] MP = new ModelMeshPart[file.groups.length];
-    final ModelNodePart[] NP = new ModelNodePart[file.groups.length];
-    
-    int k = 0;
-    for (MS3DGroup group : file.groups) {
-      final ModelMeshPart meshPart = new ModelMeshPart();
-      meshPart.id = group.name;
-      meshPart.primitiveType = GL20.GL_TRIANGLES;
-      meshPart.indices = new short[group.indices.length * 3];
-      
-      final short[] GI = group.indices;
-      for (int i = 0; i < GI.length; i++) {
-        meshPart.indices[i * 3 + 0] = file.triangles[GI[i]].indices[0];
-        meshPart.indices[i * 3 + 1] = file.triangles[GI[i]].indices[1];
-        meshPart.indices[i * 3 + 2] = file.triangles[GI[i]].indices[2];
-      }
-      
-      final ModelNodePart nodePart = new ModelNodePart();
-      nodePart.meshPartId = group.name;
-      nodePart.materialId = file.materials[group.materialIndex].name;
-      nodePart.bones = new ArrayMap <String, Matrix4> ();
 
-      MP[k] = meshPart;
-      NP[k] = nodePart;
-      k++;
+    data.meshes.add(mesh);
+
+    Array<VertexAttribute> attrs = new Array<VertexAttribute>(
+        VertexAttribute.class);
+    attrs.add(VertexAttribute.Position());
+    attrs.add(VertexAttribute.Normal());
+    attrs.add(VertexAttribute.TexCoords(0));
+    attrs.add(VertexAttribute.BoneWeight(0));
+
+    mesh.attributes = attrs.toArray();
+
+    final int n = 10;
+    float[] verts = new float[ms3d.triangles.length * 3 * n];
+
+    int p = 0;
+    {
+      for (MS3DTriangle lol : ms3d.triangles) {
+
+        for (int j = 0; j < 3; j++) {
+          MS3DVertex vert = ms3d.vertices[lol.indices[j]];
+
+          verts[p * n + 0] = vert.vertex[0];
+          verts[p * n + 1] = vert.vertex[1];
+          verts[p * n + 2] = vert.vertex[2];
+
+          verts[p * n + 3] = lol.normals[j][0];
+          verts[p * n + 4] = lol.normals[j][1];
+          verts[p * n + 5] = lol.normals[j][2];
+
+          verts[p * n + 6] = lol.u[j];
+          verts[p * n + 7] = lol.v[j];
+
+          verts[p * n + 8] = vert.boneid;
+          verts[p * n + 9] = 1;
+
+          lol.indices[j] = (short) p;
+
+          p++;
+        }
+      }
     }
-    mesh.parts = MP;
-    root.parts = NP;
+
+    mesh.vertices = verts;
+
+    root = new ModelNode();
+    root.id = "node";
+    root.meshId = "mesh";
+    root.boneId = 0;
+    final float scale = config == null ? 1 : config.getFloat("scale");
+    root.scale = new Vector3(scale, scale, scale);
+
+    ModelMeshPart[] parts = new ModelMeshPart[ms3d.groups.length];
+    ModelNodePart[] nparts = new ModelNodePart[ms3d.groups.length];
+
+    int k = 0;
+    for (MS3DGroup group : ms3d.groups) {
+      ModelMeshPart part = new ModelMeshPart();
+      part.id = group.name;
+      part.primitiveType = GL20.GL_TRIANGLES;
+      part.indices = new short[group.trindices.length * 3];
+
+      short[] trindices = group.trindices;
+
+      for (int i = 0; i < trindices.length; i++) {
+        part.indices[i * 3 + 0] = ms3d.triangles[trindices[i]].indices[0];
+        part.indices[i * 3 + 1] = ms3d.triangles[trindices[i]].indices[1];
+        part.indices[i * 3 + 2] = ms3d.triangles[trindices[i]].indices[2];
+      }
+
+      ModelNodePart npart = new ModelNodePart();
+      npart.meshPartId = group.name;
+      npart.materialId = ms3d.materials[group.materialIndex].name;
+      npart.bones = new ArrayMap();
+
+      parts[k] = part;
+      nparts[k] = npart;
+      k++;
+      // nparts[]
+    }
+    mesh.parts = parts;
+    root.parts = nparts;
 
     data.nodes.add(root);
   }
   
   
   private void processJoints() {
-    final ModelNode root = data.nodes.get(0);
-    final ModelMesh baseMesh = data.meshes.get(0);
-    final ModelAnimation animation = new ModelAnimation();
-    animation.id = AnimNames.FULL_RANGE;
-    final ArrayMap<String, ModelNode> lookup = new ArrayMap(32);
-    
-    for (int i = 0; i < file.joints.length; i++) {
-      final MS3DJoint fileJoint = file.joints[i];
+
+    // ModelNodePart np = root.parts[0];
+
+    // for now just one animation, dont split it yet
+
+    ModelAnimation animation = new ModelAnimation();
+    animation.id = "default";
+
+    ArrayMap<String, ModelNode> lookup = new ArrayMap<String, ModelNode>(32);
+
+    // np.bones = new ArrayMap<String, Matrix4>(13);
+
+    System.out.println("FPS: " + ms3d.fAnimationFPS); // whatever that is...
+    // float fpsmod = 1 / (25 / ms3d.fAnimationFPS); // whatever, random, just
+    // to make it work somehow
+
+    for (int i = 0; i < ms3d.joints.length; i++) {
+      MS3DJoint jo = ms3d.joints[i];
       for (ModelNodePart part : root.parts) {
-        part.bones.put(fileJoint.name, new Matrix4());
+        part.bones.put(jo.name, new Matrix4());
       }
-      
-      final ModelNode node = new ModelNode();
-      node.id = fileJoint.name;
-      node.meshId = baseMesh.id;
-      node.rotation = fileJoint.matrix.getRotation(new Quaternion());
-      node.translation = fileJoint.matrix.getTranslation(new Vector3());
-      node.translation.scl(this.scale);
-      node.scale = new Vector3(1, 1, 1);
-      lookup.put(node.id, node);
-      
-      final ModelNode parent = fileJoint.parent == null ?
-        root :
-        lookup.get(fileJoint.parent.name);
-      addChild(parent, node);
 
-      final ModelNodeAnimation nodeAnim = new ModelNodeAnimation();
-      nodeAnim.nodeId = node.id;
+      ModelNode mn = new ModelNode();
+      
+      mn.id = jo.name;
+      mn.meshId = "mesh";
+      mn.rotation = jo.matrix.getRotation(new Quaternion());
+      mn.translation = jo.matrix.getTranslation(new Vector3());
+      mn.scale = new Vector3(1, 1, 1);
 
-      for (int j = 0; j < fileJoint.positions.length; j++) {
-        ModelNodeKeyframe frame = new ModelNodeKeyframe();
-        frame.keytime = fileJoint.rotations[j].time;
-        frame.translation = new Vector3(fileJoint.positions[j].data);
-        frame.translation.mul(fileJoint.matrix);
-        frame.translation.scl(this.scale);
-        final Quaternion
-          FE = MS3DFile.fromEuler(fileJoint.rotations[j].data),
-          JM = fileJoint.matrix.getRotation(new Quaternion());
-        frame.rotation = JM.mul(FE);
-        nodeAnim.keyframes.add(frame);
+      ModelNode parent = jo.parentName.isEmpty() ? root : lookup
+          .get(jo.parentName);
+      
+      addChild(parent, mn);
+      lookup.put(mn.id, mn);
+
+      ModelNodeAnimation ani = new ModelNodeAnimation();
+      ani.nodeId = mn.id;
+
+      for (int j = 0; j < jo.positions.length; j++) {
+        ModelNodeKeyframe kf = new ModelNodeKeyframe();
+
+        kf.keytime = jo.rotations[j].time;
+        kf.translation = new Vector3(jo.positions[j].data);
+        kf.translation.mul(jo.matrix);
+        // kf.translation.scl(1);
+        kf.rotation = jo.matrix.getRotation(new Quaternion()).mul(
+            MS3DFile.fromEuler(jo.rotations[j].data));
+
+        ani.keyframes.add(kf);
       }
-      animation.nodeAnimations.add(nodeAnim);
+      animation.nodeAnimations.add(ani);
     }
-    
-    data.animations.add(animation);
-  }
-  
-  //  TODO:  Dispose of later?
-  private static void addChild(ModelNode parent, ModelNode child) {
-    if (parent.children == null) {
-      parent.children = new ModelNode[] { child };
+    if (config == null) {
+      data.animations.add(animation);
+      return;
     }
-    else {
-      parent.children = Arrays.copyOf(
-        parent.children, parent.children.length + 1
-      );
-      parent.children[parent.children.length - 1] = child;
-    }
-  }
-  
-  
-  
-  /**  Animation processing...
-    */
-  private void loadAnimRanges(XML anims) {
-    if (anims == null || anims.numChildren() < 0) return;
-    final ModelAnimation animation = data.animations.get(0);
-    
-    
-    addLoop: for (XML anim : anims.children()) {
+
+    // params are present, split animations
+
+    final XML animConfig = config.child("animations");
+    addLoop: for (XML animXML : animConfig.children()) {
       //
       // First, check to ensure that this animation has an approved name:
-      final String name = anim.value("name");
+      final String name = animXML.value("name");
       if (! Sprite.isValidAnimName(name)) I.say(
         "WARNING: ANIMATION WITH IRREGULAR NAME: "+name+
         " IN MODEL: "+filePath
@@ -317,121 +354,78 @@ public class MS3DModel extends SolidModel {
       
       // Either way, define the data-
       final float
-        animStart  = Float.parseFloat(anim.value("start")),
-        animEnd    = Float.parseFloat(anim.value("end")),
-        animLength = Float.parseFloat(anim.value("duration"));
+        animStart  = Float.parseFloat(animXML.value("start")),
+        animEnd    = Float.parseFloat(animXML.value("end")),
+        animLength = Float.parseFloat(animXML.value("duration"));
       
-      final ModelAnimation modelAnim = new ModelAnimation();
-      modelAnim.id = name;
+      final ModelAnimation anim = new ModelAnimation();
+      anim.id = name;
+
       // scaling for exact duration
-      final float scale = animLength / (animEnd - animStart);
-      
+      float scale = animLength / (animEnd - animStart);
+
       for (ModelNodeAnimation node : animation.nodeAnimations) {
-        final ModelNodeAnimation nodeAnim = new ModelNodeAnimation();
-        nodeAnim.nodeId = node.nodeId;
-        
+        ModelNodeAnimation nd = new ModelNodeAnimation();
+        nd.nodeId = node.nodeId;
         for (ModelNodeKeyframe frame : node.keyframes) {
           if (frame.keytime >= animStart && frame.keytime <= animEnd) {
-            final ModelNodeKeyframe copy = copy(frame);
+            ModelNodeKeyframe kf = copy(frame);
             
             // trimming the beggining and scaling
-            copy.keytime -= animStart;
-            copy.keytime *= scale;
-            nodeAnim.keyframes.add(copy);
+            kf.keytime -= animStart;
+            kf.keytime *= scale;
+            nd.keyframes.add(kf);
           }
         }
-        modelAnim.nodeAnimations.add(nodeAnim);
+        anim.nodeAnimations.add(nd);
       }
-      data.animations.add(modelAnim);
+      data.animations.add(anim);
+    }
+  }
+  
+  
+  private static void addChild(ModelNode parent, ModelNode child) {
+    if (parent.children == null) {
+      parent.children = new ModelNode[] { child };
+    } else {
+      parent.children = Arrays.copyOf(parent.children,
+          parent.children.length + 1);
+      parent.children[parent.children.length - 1] = child;
     }
   }
   
   
   private static ModelNodeKeyframe copy(ModelNodeKeyframe frame) {
-    final ModelNodeKeyframe copy = new ModelNodeKeyframe();
-    copy.keytime = frame.keytime;
-    copy.rotation = frame.rotation.cpy();
-    copy.translation = frame.translation.cpy();
-    return copy;
+    ModelNodeKeyframe kf = new ModelNodeKeyframe();
+    kf.keytime = frame.keytime;
+    kf.rotation = frame.rotation.cpy();
+    // kf.scale = frame.scale.cpy();
+    kf.translation = frame.translation.cpy();
+    return kf;
   }
   
-  
-  //  TODO:  Consider caching this?  ...Or do I need it at all?
-  public String[] groupNames() {
-    final String names[] = new String[file.groups.length];
-    for (int i = names.length ; i-- > 0;) {
-      names[i] = file.groups[i].name;
-    }
-    return names;
-  }
-}
+  /*
+  public static class MS3DParameters extends AssetLoaderParameters<Model> {
+    public Array<MS3DAnimParam> params = new Array();
+    public float scale;
+    public float stride; // unused, don't know what it does
 
-
-
-
-
-
-
-
-
-//private List <AnimRange> animRanges = new List<AnimRange>();
-
-
-/*
-private static class AnimRange {
-  String name;
-  float start, end, length;
-  private ModelAnimation anim = null;
-}
-//*/
-
-/*
-private void applyToMatchingRanges(ModelNodeKeyframe frame, String boneName) {
-  final float time = frame.keytime;
-  // I.say("  Looking for match for keyframe at: "+time) ;
-  for (AnimRange range : animRanges) {
-    // I.say("    Start/end are "+range.start+"/"+range.end) ;
-    if (range.start <= time && range.end >= time) {
-      final ModelNodeAnimation MNA = getMNA(range, boneName);
-      if (MNA != null)
-        MNA.keyframes.add(frame);
+    public void add(String name, int begin, int end, float dur) {
+      params.add(new MS3DAnimParam(name, begin, end, dur));
     }
   }
-}
-//*/
 
+  public static class MS3DAnimParam {
+    public int begin, end;
+    public String name;
+    public float dur;
 
-/*
-private ModelNodeAnimation getMNA(AnimRange range, String boneName) {
-  if (range.anim == null) {
-    range.anim = new ModelAnimation();
-    range.anim.id = range.name;
-  }
-  for (ModelNodeAnimation MNA : range.anim.nodeAnimations) {
-    if (MNA.nodeId.equals(boneName))
-      return MNA;
-  }
-  final ModelNodeAnimation MNA = new ModelNodeAnimation();
-  MNA.nodeId = boneName;
-  range.anim.nodeAnimations.add(MNA);
-  return MNA;
-}
-//*/
-
-
-
-
-/*
-private void processXMLConfig() {
-  if (config == null) return;
-  this.scale = config.getFloat("scale");
-
-  loadAnimRanges(config.child("animations"));
-  if (verbose) {
-    I.say("\nAnimation ranges are: ");
-    for (AnimRange range : animRanges) {
-      I.say("  "+range.name+" ("+range.start+" to "+range.end+")");
+    public MS3DAnimParam(String name, int begin, int end, float dur) {
+      this.begin = begin;
+      this.end = end;
+      this.name = name;
+      this.dur = dur;
     }
   }
+  //*/
 }
-//*/

@@ -116,6 +116,8 @@ public class DebugGraphics {
         FX3.origin.set(-1, 1, 0);
         FX3.target.set(-4, 4, 0);
         sprites.add(FX3);
+        
+        PlayLoop.rendering().backColour = new Colour(0, 0, 1, 0);
       }
 
 

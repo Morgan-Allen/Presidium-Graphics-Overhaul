@@ -35,7 +35,7 @@ public class Species implements Session.Saveable, Economy {
   final static String
     FILE_DIR = "media/Actors/fauna/",
     LAIR_DIR = "media/Buildings/lairs and ruins/",
-    XML_FILE = "FaunaModels.xml" ;
+    XML_FILE = "FaunaModels.xml";
   final public static ModelAsset
     MODEL_NEST_QUUD = CutoutModel.fromImage(
       LAIR_DIR+"nest_quud.png", Species.class, 2.5f, 2

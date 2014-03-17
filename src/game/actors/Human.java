@@ -198,10 +198,12 @@ public class Human extends Actor implements Abilities {
     
     ImageAsset skin = BLOOD_SKINS[bloodID(c)];
     
-    s.applyOverlay(skin.asTexture(), AnimNames.MAIN_BODY, true);
+    //s.applyOverlay(skin.asTexture(), AnimNames.MAIN_BODY, true);
     ImageAsset costume = c.career.vocation().costumeFor(c) ;
     if (costume == null) costume = c.career.birth().costumeFor(c);
-    s.applyOverlay(costume.asTexture(), AnimNames.MAIN_BODY, true);
+    //s.applyOverlay(costume.asTexture(), AnimNames.MAIN_BODY, true);
+    
+    s.setOverlaySkins(skin.asTexture(), costume.asTexture());
     toggleSpriteGroups(c, s) ;
   }
   
@@ -209,11 +211,11 @@ public class Human extends Actor implements Abilities {
   //
   //  You might want to call this at more regular intervals?
   private static void toggleSpriteGroups(Human human, SolidSprite sprite) {
-    for (String groupName : ((SolidModel) sprite.model()).groupNames()) {
-      boolean valid = AnimNames.MAIN_BODY.equals(groupName) ;
-      final DeviceType DT = human.gear.deviceType() ;
-      if (DT != null && DT.groupName.equals(groupName)) valid = true ;
-      if (! valid) sprite.toggleGroup(groupName, false) ;
+    for (String groupName : ((SolidModel) sprite.model()).partNames()) {
+      boolean valid = AnimNames.MAIN_BODY.equals(groupName);
+      final DeviceType DT = human.gear.deviceType();
+      if (DT != null && DT.groupName.equals(groupName)) valid = true;
+      if (! valid) sprite.togglePart(groupName, false);
     }
   }
   
@@ -228,7 +230,7 @@ public class Human extends Actor implements Abilities {
     final DeviceType DT = gear.deviceType() ;
     final Combat c = (Combat) matchFor(Combat.class) ;
     if (DT != null) {
-      ((SolidSprite) sprite()).toggleGroup(DT.groupName, c != null) ;
+      ((SolidSprite) sprite()).togglePart(DT.groupName, c != null) ;
     }
     
     super.renderFor(rendering, base) ;

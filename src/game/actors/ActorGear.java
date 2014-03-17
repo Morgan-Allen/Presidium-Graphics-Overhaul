@@ -319,15 +319,21 @@ public class ActorGear extends Inventory implements Economy {
     //  Attach/detach the appropriate media-
     if (oldItem != null) {
       final OutfitType type = (OutfitType) oldItem.type ;
+      //  TODO:  FIGURE THIS OUT
+      /*
       if (type.skin != null) sprite.applyOverlay(
         type.skin.asTexture(), AnimNames.MAIN_BODY, true
       );
+      //*/
     }
     if (outfit != null) {
       final OutfitType type = (OutfitType) outfit.type ;
+      //  TODO:  FIGURE THIS OUT
+      /*
       if (type.skin != null) sprite.applyOverlay(
         type.skin.asTexture(), AnimNames.MAIN_BODY, false
       );
+      //*/
       currentShields = SHIELD_CHARGE + type.shieldBonus ;
     }
   }

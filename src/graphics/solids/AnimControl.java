@@ -1,6 +1,6 @@
 
 
-package src.graphics.kerai_src;
+package src.graphics.solids;
 //import com.badlogic.gdx.Gdx;
 //import com.badlogic.gdx.graphics.g3d.ModelInstance;
 //import com.badlogic.gdx.graphics.g3d.model.Animation;
@@ -70,7 +70,7 @@ public class AnimControl {
   
   
   private boolean applying = false;
-  public final SolidSprite0 target;  //  TODO:  Not really needed?
+  public final SolidSprite target;  //  TODO:  Not really needed?
   
   private final static ObjectMap <Node, Transform>
     transforms = new ObjectMap <Node, Transform>();
@@ -83,7 +83,7 @@ public class AnimControl {
   
   
   
-  public AnimControl(final SolidSprite0 target) {
+  public AnimControl(final SolidSprite target) {
     this.target = target;
   }
   
