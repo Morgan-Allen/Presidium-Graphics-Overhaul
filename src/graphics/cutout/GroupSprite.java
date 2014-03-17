@@ -117,6 +117,11 @@ public class GroupSprite extends Sprite {
     for (Sprite module : modules) module.setAnimation(animName, progress) ;
   }
   
+
+  public void update() {
+    //  TODO:  Move the update-check here...
+  }
+  
   
   public void registerFor(Rendering rendering) {
     if (checkNeedsUpdate()) {

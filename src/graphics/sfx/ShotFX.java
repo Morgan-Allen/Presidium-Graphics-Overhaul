@@ -104,7 +104,7 @@ public class ShotFX extends SFX {
   /**  Updates and modifications-
     */
   public void update() {
-    super.update() ;
+    //super.update() ;
     final Vec2D line = new Vec2D() ;
     line.x = target.x - origin.x ;
     line.y = target.y - origin.y ;

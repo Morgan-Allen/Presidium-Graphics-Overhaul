@@ -128,7 +128,7 @@ public class PlaneFX extends SFX {
   
   
   public void update() {
-    super.update() ;
+    //super.update() ;
     if (inceptTime == -1) reset();
   }
   

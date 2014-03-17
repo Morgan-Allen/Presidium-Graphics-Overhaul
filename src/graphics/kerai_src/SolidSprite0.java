@@ -1,6 +1,7 @@
 
 
 package src.graphics.kerai_src;
+import src.graphics.common.*;
 import src.util.*;
 
 import com.badlogic.gdx.graphics.Texture;
@@ -11,71 +12,70 @@ import com.badlogic.gdx.utils.*;
 
 
 
-public class ModelInstance implements RenderableProvider {
+public class SolidSprite0 extends Sprite implements RenderableProvider {
   
   
-  private static boolean verbose = true;
-  
-  public final Model model;
-  
-  //  TODO:  Offload these to a single convenience object?
-  private Node modelNodes[];
-  private NodePart modelParts[];
-  final ObjectMap <Node, Integer> nodeIndex = new ObjectMap <Node, Integer> ();
-  
-  
-
+  final public SolidModel model;
   public Matrix4 transform;
   final Matrix4 nodeTransforms[];
-  public final List <Material> materials = new List <Material> ();
+  final Material materials[];
   
   final AnimControl anim = new AnimControl(this);
   final OverlayAttribute attr = new OverlayAttribute(null);
   
+  //  TODO:  Allow fade-ins between animation states...
   private Animation currentAnim;
   private float animTime;
   private List <NodePart> hidden = new List <NodePart> ();
   
+  private static Vector3 temp = new Vector3();
   
   
-  public ModelInstance(final Model model) {
+  
+  protected SolidSprite0(final SolidModel model) {
     this.model = model;
+    if (! model.compiled) I.complain("MODEL MUST BE COMPILED FIRST!");
+    
     this.transform = new Matrix4();
+    this.nodeTransforms = new Matrix4[model.modelNodes.length];
+    this.materials = new Material[model.modelMaterials.length];
     
-    if (verbose) I.say("\nCompiling structure...");
-    final Batch <Node> nodeB = new Batch <Node> ();
-    final Batch <NodePart> partB = new Batch <NodePart> ();
-    for (Node n : model.nodes) compileFrom(n, nodeB, partB);
-    if (verbose) I.say("\n\n");
-    
-    modelNodes = nodeB.toArray(Node.class);
-    modelParts = partB.toArray(NodePart.class);
-    nodeTransforms = new Matrix4[modelNodes.length];
-    int i = 0; for (Node n : modelNodes) {
-      nodeTransforms[i] = new Matrix4();
-      nodeIndex.put(n, i++);
+    int i = 0; for (Node n : model.modelNodes) {
+      nodeTransforms[i++] = new Matrix4();
     }
-    
-    //  TODO:  Replace with copies.
-    for (Material m : materials) m.set(attr);
+    for (i = 0; i < materials.length; i++) {
+      final Material source = model.modelMaterials[i];
+      final Material m = new Material(source);
+      m.set(attr);
+      materials[i] = m;
+    }
   }
   
   
-  private void compileFrom(
-    Node node, Batch <Node> nodeB, Batch <NodePart> partB
-  ) {
-    nodeB.add(node);
-    if (verbose) I.say("Node is: "+node.id);
-    for (NodePart p : node.parts) {
-      partB.add(p);
-      materials.include(p.material);
-      if (verbose) I.say("  Part is: "+p.meshPart.id);
-    }
-    for (Node n : node.children) compileFrom(n, nodeB, partB);
+  public ModelAsset model() {
+    return model;
   }
   
   
+  public void update() {
+  }
   
+  
+  public void registerFor(Rendering rendering) {
+    rendering.view.worldToGL(position, temp);
+    transform.setToTranslation(temp);
+    
+    final float radians = (float) Math.toRadians(90 - rotation);
+    transform.rot(Vector3.Y, radians);
+    //  TODO:  IMPLEMENT
+    //rendering.cutoutsPass.register(this);
+  }
+
+
+
+
+
+
   /**  Rendering and animation-
    */
   public void getRenderables(
@@ -89,8 +89,8 @@ public class ModelInstance implements RenderableProvider {
     final Matrix4 temp = new Matrix4();
     //  The nodes here are ordered so as to guarantee that parents are always
     //  visited before children, allowing a single pass-
-    for (int i = 0; i < modelNodes.length; i++) {
-      final Node node = modelNodes[i];
+    for (int i = 0; i < model.modelNodes.length; i++) {
+      final Node node = model.modelNodes[i];
       if (node.parent == null) {
         nodeTransforms[i].setToTranslation(node.translation);
         nodeTransforms[i].scl(node.scale);
@@ -102,8 +102,8 @@ public class ModelInstance implements RenderableProvider {
     }
     
     //  
-    for (int i = 0; i < modelParts.length; i++) {
-      final NodePart part = modelParts[i];
+    for (int i = 0; i < model.modelParts.length; i++) {
+      final NodePart part = model.modelParts[i];
       if (hidden.includes(part)) continue;
       final Renderable r = pool.obtain();
       
@@ -115,9 +115,10 @@ public class ModelInstance implements RenderableProvider {
         boneSet[b] = new Matrix4(boneFor(node)).mul(offset);
       }
       
+      final int matIndex = model.indexFor(part.material);
       r.worldTransform.set(transform);
-      r.material = part.material;  //TODO:  NEEDS CUSTOMISATION
-      r.bones = boneSet;
+      r.material       = materials[matIndex];
+      r.bones          = boneSet;
       r.mesh           = part.meshPart.mesh;
       r.meshPartOffset = part.meshPart.indexOffset;
       r.meshPartSize   = part.meshPart.numVertices;
@@ -129,13 +130,13 @@ public class ModelInstance implements RenderableProvider {
   
   
   protected Matrix4 boneFor(Node node) {
-    final int index = nodeIndex.get(node);
+    final int index = model.indexFor(node);
     return nodeTransforms[index];
   }
   
   
   public void setAnimation(String id, float progress) {
-    final Animation match = model.getAnimation(id);
+    final Animation match = model.gdxModel.getAnimation(id);
     if (match == null) return;
     currentAnim = match;
     animTime = progress * match.duration;
@@ -160,7 +161,7 @@ public class ModelInstance implements RenderableProvider {
   
   
   public void showOnly(String partID) {
-    Node node = model.nodes.get(0);
+    Node node = model.modelNodes[0];
     for (NodePart np : node.parts) {
       if (np.meshPart.id.equals(partID)) {
         hidden.remove(np);
@@ -173,7 +174,7 @@ public class ModelInstance implements RenderableProvider {
   
   
   public void togglePart(String id, boolean visible) {
-    Node node = model.nodes.get(0);
+    Node node = model.modelNodes[0];
     for (NodePart np : node.parts) {
       if (np.meshPart.id.equals(id)) {
         if (visible) hidden.remove(np);

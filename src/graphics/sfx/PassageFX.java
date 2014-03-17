@@ -39,6 +39,10 @@ public class PassageFX extends SFX implements TileConstants {
     this.tex = tex ;
   }
   //*/
+
+  
+  public void update() {
+  }
   
   
   protected void renderInPass(SFXPass pass) {

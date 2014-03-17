@@ -36,6 +36,7 @@ public class Healthbar extends SFX {
   
   public Healthbar() {}
   public ModelAsset model() { return BAR_MODEL ; }
+  public void update() {}
   
   
   

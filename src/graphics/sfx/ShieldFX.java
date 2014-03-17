@@ -100,8 +100,7 @@ public class ShieldFX extends SFX {
   
   
   public void update() {
-    super.update();
-    
+    //super.update();
     glowAlpha -= BURST_FADE_INC;
     if (glowAlpha < MIN_ALPHA_GLOW) glowAlpha = MIN_ALPHA_GLOW;
     for (Burst burst : bursts) {

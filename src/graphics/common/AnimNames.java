@@ -21,7 +21,9 @@ public interface AnimNames {
     TALK_LONG  = "talk_long",
     
     BUILD      = "build",
-    REACH_DOWN = "reach_down"
+    REACH_DOWN = "reach_down",
+    
+    FULL_RANGE = "full_range"
   ;
   
   //  These are names for group parts.

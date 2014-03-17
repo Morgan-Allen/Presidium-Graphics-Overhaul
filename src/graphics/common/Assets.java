@@ -94,15 +94,20 @@ public class Assets {
       
       else if (assetsToLoad.size() > 0) {
         final Loadable asset = assetsToLoad.first();
-        asset.loadAsset();
-        assetsToLoad.remove(asset);
-        assetsLoaded.add(asset);
-        modelCache.put(asset.assetID, asset);
+        loadNow(asset);
         if (verbose) I.say("  Asset loaded okay: "+asset.assetID);
       }
       
       else return;
     }
+  }
+  
+  
+  public static void loadNow(Loadable asset) {
+    asset.loadAsset();
+    assetsToLoad.remove(asset);
+    assetsLoaded.add(asset);
+    modelCache.put(asset.assetID, asset);
   }
   
   

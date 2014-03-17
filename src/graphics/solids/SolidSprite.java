@@ -95,6 +95,10 @@ public class SolidSprite extends Sprite {
   }
   
   
+  public void update() {
+  }
+  
+  
   protected ModelInstance gdxSprite() {
     return gdxSprite;
   }

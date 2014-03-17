@@ -70,7 +70,7 @@ public class AnimControl {
   
   
   private boolean applying = false;
-  public final ModelInstance target;  //  TODO:  Not really needed?
+  public final SolidSprite0 target;  //  TODO:  Not really needed?
   
   private final static ObjectMap <Node, Transform>
     transforms = new ObjectMap <Node, Transform>();
@@ -78,15 +78,12 @@ public class AnimControl {
     tmpT = new Transform();
   
   private final static Pool<Transform> transformPool = new Pool<Transform>() {
-    @Override
-    protected Transform newObject() {
-      return new Transform();
-    }
+    protected Transform newObject() { return new Transform(); }
   };
   
   
   
-  public AnimControl(final ModelInstance target) {
+  public AnimControl(final SolidSprite0 target) {
     this.target = target;
   }
   

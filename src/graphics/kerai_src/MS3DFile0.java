@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.*;
 
 
 @SuppressWarnings("unused")
-public class MS3DFile {
+public class MS3DFile0 {
 	public static final int MAX_VERTICES  = 65535;
 	public static final int MAX_TRIANGLES = 65535;
 	public static final int MAX_GROUPS    = 255;
@@ -25,7 +25,7 @@ public class MS3DFile {
 
 	
 	
-	public MS3DFile(DataInput in) throws IOException {
+	public MS3DFile0(DataInput in) throws IOException {
 
 		id = in.readUTF(10);
 		version = in.readInt();
@@ -268,7 +268,7 @@ public class MS3DFile {
 	 *   Big bunch of utility methods-
 	 */
 	private void inverse() {
-		Map<String, MS3DJoint> map = new HashMap<String, MS3DFile.MS3DJoint>();
+		Map<String, MS3DJoint> map = new HashMap<String, MS3DFile0.MS3DJoint>();
 		
 		for(MS3DJoint j : joints) {
 			map.put(j.name, j);

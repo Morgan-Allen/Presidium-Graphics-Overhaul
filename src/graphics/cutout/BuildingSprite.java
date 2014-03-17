@@ -124,9 +124,10 @@ public class BuildingSprite extends Sprite {
   }
   
   
+  //  TODO:  Make use of these?
   
-  public void setAnimation(String animName, float progress) {
-  }
+  public void setAnimation(String animName, float progress) {}
+  public void update() {}
   
   
   public void registerFor(Rendering rendering) {

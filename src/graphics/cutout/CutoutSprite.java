@@ -23,9 +23,8 @@ public class CutoutSprite extends Sprite {
   }
   
   
-  public void setAnimation(String animName, float progress) {
-    //  TODO:  Implement this...
-  }
+  public void update() {}
+  public void setAnimation(String animName, float progress) {}
   
   
   public void registerFor(Rendering rendering) {

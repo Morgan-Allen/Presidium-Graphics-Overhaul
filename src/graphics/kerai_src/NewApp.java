@@ -4,7 +4,9 @@
 package src.graphics.kerai_src;
 import src.graphics.common.*;
 import static src.graphics.common.GL.*;
-import src.graphics.kerai_src.MS3DLoader.MS3DParameters;
+import src.graphics.solids.*;
+
+//import src.graphics.kerai_src.MS3DLoader0.MS3DParameters;
 import src.util.*;
 
 import com.badlogic.gdx.*;
@@ -28,11 +30,11 @@ public class NewApp extends ApplicationAdapter {
   public OrthographicCamera cam;
   public RTSCameraControl rtscam;
 
-  public Array<ModelInstance> instances = new Array<ModelInstance>();
+  public Array<SolidSprite0> instances = new Array<SolidSprite0>();
   private Environment env;
   private ModelBatch batch;
 
-  private ModelInstance controlled;
+  private SolidSprite0 controlled;
   private float activeTime = 0;
   private String animName = AnimNames.MOVE;
   
@@ -41,7 +43,7 @@ public class NewApp extends ApplicationAdapter {
   private InputAdapter inp = new InputAdapter() {
     public boolean keyDown(int key) {
       if (key == Keys.SPACE) {
-        Array<Animation> anims = controlled.model.animations;
+        Array <Animation> anims = controlled.model.gdxModel.animations;
         Animation pick = (Animation) Rand.pickFrom(anims.toArray());
         animName = pick.id;
         return true;
@@ -94,31 +96,12 @@ public class NewApp extends ApplicationAdapter {
     rtscam = new RTSCameraControl(cam);
     Gdx.input.setInputProcessor(new InputMultiplexer(inp, rtscam));
 
-    MS3DLoader loader = new MS3DLoader(new InternalFileHandleResolver());
-    
-    // copied from XML
-    MS3DParameters params = new MS3DParameters();
-    params.add("stand", 0, 0, 0.5f);
-    params.add("move", 5, 21, 1.5f);
-    params.add("fire", 26, 28, 1.5f);
-    params.add("reach_down", 30, 34, 1.2f);
-    params.add("strike", 36, 39, 1.5f);
-    params.add("fall", 40, 46, 2.1f);
-    params.add("look", 47, 48, 1.3f);
-    params.add("talk", 49, 50, 2f);
-    params.add("talk_long", 52, 57, 4f);
-    params.add("evade", 58, 62, 1f);
-    params.add("build", 63, 65, 1f);
-    params.add("block", 66, 67, .5f);
-    params.add("strike_big", 70, 74, 1.5f);
-    params.add("move_fast", 75, 83, .7f);
-    params.add("move_sneak", 85, 93, .7f);
-    params.scale = 0.025f;
-    
     final String dir = "media/Actors/human/";
-    final Model model = loader.loadModel(
-      loader.resolve(dir + "male_final.ms3d"), params
+    final MS3DModel0 model = MS3DModel0.loadFrom(
+      dir, "male_final.ms3d", NewApp.class,
+      "HumanModels.xml", "MalePrime"
     );
+    Assets.loadNow(model);
     
     final Texture[] overlays = new Texture[3];
     overlays[0] = new Texture(dir + "physician_skin.gif");
@@ -126,7 +109,7 @@ public class NewApp extends ApplicationAdapter {
     overlays[2] = new Texture(dir + "highborn_male_skin.gif");
     
     {
-      ModelInstance guy = new ModelInstance(model);
+      SolidSprite0 guy = new SolidSprite0(model);
       guy.setOverlaySkins(overlays);
       guy.showOnly(AnimNames.MAIN_BODY);
       guy.transform.setToTranslation(0, 0, 0);
@@ -135,7 +118,7 @@ public class NewApp extends ApplicationAdapter {
       controlled = guy;
     }
     {
-      ModelInstance guy = new ModelInstance(model);
+      SolidSprite0 guy = new SolidSprite0(model);
       guy.transform.setToTranslation(1, 0, 0);
       guy.setOverlaySkins(overlays[1]);
       instances.add(guy);
@@ -158,7 +141,7 @@ public class NewApp extends ApplicationAdapter {
     
     activeTime += Gdx.graphics.getRawDeltaTime();
     
-    for (ModelInstance instance : instances) {
+    for (SolidSprite0 instance : instances) {
       instance.setAnimation(animName, activeTime % 1);
       batch.render(instance, env);
     }
