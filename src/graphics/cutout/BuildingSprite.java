@@ -124,34 +124,32 @@ public class BuildingSprite extends Sprite {
   }
   
   
-  //  TODO:  Make use of these?
-  
+  //  TODO:  Make use of this?
   public void setAnimation(String animName, float progress) {}
-  public void update() {}
   
   
-  public void registerFor(Rendering rendering) {
+  public void readyFor(Rendering rendering) {
     baseSprite.matchTo(this);
     scaffoldBase.matchTo(this);
     scaffolding.matchTo(this);
     allStacks.matchTo(this);
     
     if (intact) {
-      baseSprite.registerFor(rendering);
+      baseSprite.readyFor(rendering);
     }
     else {
       scaffoldBase.scale = size;
-      scaffoldBase.registerFor(rendering);
-      scaffolding.registerFor(rendering);
+      scaffoldBase.readyFor(rendering);
+      scaffolding.readyFor(rendering);
     }
-    allStacks.registerFor(rendering);
+    allStacks.readyFor(rendering);
     
     final PlaneFX displayed = statusFX.atIndex(statusDisplayIndex) ;
     if (displayed != null) {
       
       displayed.matchTo(this);
       displayed.position.z += high + 0.5f;
-      displayed.registerFor(rendering);
+      displayed.readyFor(rendering);
       
       final float progress = displayed.animProgress();
       final float alpha = Visit.clamp(progress * 4 * (1 - progress), 0, 1);

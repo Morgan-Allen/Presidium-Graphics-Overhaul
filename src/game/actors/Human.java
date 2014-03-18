@@ -203,13 +203,16 @@ public class Human extends Actor implements Abilities {
     if (costume == null) costume = c.career.birth().costumeFor(c);
     //s.applyOverlay(costume.asTexture(), AnimNames.MAIN_BODY, true);
     
-    s.setOverlaySkins(skin.asTexture(), costume.asTexture());
+    s.setOverlaySkins(
+      AnimNames.MAIN_BODY,
+      skin.asTexture(),
+      costume.asTexture()
+    );
     toggleSpriteGroups(c, s) ;
   }
   
   
-  //
-  //  You might want to call this at more regular intervals?
+  //  TODO:  You might want to call this at more regular intervals?
   private static void toggleSpriteGroups(Human human, SolidSprite sprite) {
     for (String groupName : ((SolidModel) sprite.model()).partNames()) {
       boolean valid = AnimNames.MAIN_BODY.equals(groupName);

@@ -32,8 +32,8 @@ public final class PlayLoop {
     UPDATES_PER_SECOND = 10,
     FRAMES_PER_SECOND  = 60,
     
-    DEFAULT_WIDTH  = 1600,
-    DEFAULT_HEIGHT = 800,
+    DEFAULT_WIDTH  = 1200,
+    DEFAULT_HEIGHT = 600,
     DEFAULT_HERTZ  = 60,
     
     MIN_SLEEP    = 10,

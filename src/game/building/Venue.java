@@ -414,7 +414,7 @@ public abstract class Venue extends Fixture implements
     if (sprite() == null) return ;
     this.viewPosition(sprite().position);
     sprite().colour = canPlace ? Colour.GREEN : Colour.RED ;
-    sprite().registerFor(rendering);
+    sprite().readyFor(rendering);
   }
   
   
@@ -713,7 +713,7 @@ public abstract class Venue extends Fixture implements
     healthbar.size *= 1 + Structure.UPGRADE_HP_BONUSES[NU] ;
     healthbar.matchTo(buildSprite) ;
     healthbar.position.z += height() + 0.1f ;
-    healthbar.registerFor(rendering);
+    healthbar.readyFor(rendering);
     //rendering.addClient(healthbar) ;
     
     if (base() == null) healthbar.full = Colour.LIGHT_GREY ;
@@ -728,7 +728,7 @@ public abstract class Venue extends Fixture implements
       progBar.full = Colour.GREY ;
       progBar.empty = Colour.GREY ;
       progBar.colour = Colour.WHITE ; //paler version of main bar colour?
-      progBar.registerFor(rendering);
+      progBar.readyFor(rendering);
       //rendering.addClient(progBar);
     }
   }
@@ -757,9 +757,7 @@ public abstract class Venue extends Fixture implements
     if (chat.numPhrases() > 0) {
       chat.position.setTo(sprite().position) ;
       chat.position.z += height() ;
-      chat.update() ;
-      chat.registerFor(rendering);
-      //rendering.addClient(chat) ;
+      chat.readyFor(rendering);
     }
   }
   

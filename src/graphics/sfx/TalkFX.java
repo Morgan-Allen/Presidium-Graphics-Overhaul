@@ -123,7 +123,7 @@ public class TalkFX extends SFX {
   }
   
   
-  public void update() {
+  public void readyFor(Rendering rendering) {
     //
     //  If there are bubbles awaiting display, see if you can move the existing
     //  bubbles up to make room.
@@ -146,6 +146,8 @@ public class TalkFX extends SFX {
       b.alpha -= FADE_RATE * fadeRate / MAX_LINES ;
       if (b.alpha <= 0) showing.remove(b) ;
     }
+    
+    super.readyFor(rendering);
   }
   
   

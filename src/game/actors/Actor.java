@@ -333,9 +333,7 @@ public abstract class Actor extends Mobile implements
     if (chat.numPhrases() > 0) {
       chat.position.setTo(s.position) ;
       chat.position.z += height() ;
-      chat.update() ;
-      chat.registerFor(rendering);
-      //rendering.addClient(chat) ;
+      chat.readyFor(rendering);
     }
   }
   
@@ -356,7 +354,7 @@ public abstract class Actor extends Mobile implements
     healthbar.size = 45 ;
     healthbar.matchTo(sprite()) ;
     healthbar.position.z -= radius() ;
-    healthbar.registerFor(rendering);
+    healthbar.readyFor(rendering);
     //rendering.addClient(healthbar) ;
   }
   

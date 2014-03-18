@@ -310,7 +310,7 @@ public class Base implements
     for (Mission mission : missions) {
       final Sprite flag = mission.flagSprite() ;
       if (! port.intersects(flag.position, 2)) continue ;
-      flag.registerFor(rendering);
+      flag.readyFor(rendering);
       //rendering.addClient(flag) ;
     }
   }

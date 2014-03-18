@@ -36,7 +36,6 @@ public class Healthbar extends SFX {
   
   public Healthbar() {}
   public ModelAsset model() { return BAR_MODEL ; }
-  public void update() {}
   
   
   
@@ -57,7 +56,7 @@ public class Healthbar extends SFX {
     final float s = 1 - level, f = fog ;
     
     pass.compileQuad(
-      ImageAsset.WHITE_TEX, c,
+      ImageAsset.WHITE_TEX(), c,
       x, y, size, BAR_HEIGHT,
       0, 0, 1, 1,
       base.z, true, false
@@ -72,7 +71,7 @@ public class Healthbar extends SFX {
       final Colour flashed = new Colour().set(1, 0, 0, flashAlpha);
 
       pass.compileQuad(
-        ImageAsset.WHITE_TEX, flashed,
+        ImageAsset.WHITE_TEX(), flashed,
         x, y, size, BAR_HEIGHT,
         0, 0, 1, 1,
         base.z + 0.05f, true, false
@@ -88,7 +87,7 @@ public class Healthbar extends SFX {
     ) ;
     mix.setValue((a.value() * level) + (b.value() * s));
     pass.compileQuad(
-      ImageAsset.WHITE_TEX, mix,
+      ImageAsset.WHITE_TEX(), mix,
       x, y, size * level, BAR_HEIGHT,
       0, 0, 1, 1,
       base.z + 0.1f, true, false

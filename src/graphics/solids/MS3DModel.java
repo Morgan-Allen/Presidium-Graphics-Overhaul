@@ -31,9 +31,8 @@ public class MS3DModel extends SolidModel {
   
   
   final static boolean FORCE_DEFAULT_MATERIAL = false;
+  private static boolean verbose = false;
   
-  // temporary variables
-  //private MS3DParameters params;
   private String filePath, xmlPath, xmlName;
   private FileHandle baseDir;
   private XML config;
@@ -104,37 +103,6 @@ public class MS3DModel extends SolidModel {
     super.disposeAsset();
   }
   
-  
-  
-  
-  /*
-  private MS3DFile0 parseFile(ModelData data, FileHandle file) throws IOException {
-    // class used to read little endian data
-    DataInput in = new DataInput(file.read(), true);
-    try {
-      return new MS3DFile0(in);
-    } finally {
-      in.close();
-    }
-  }
-  //*/
-  
-  /*
-  public ModelData loadModelData(FileHandle file, MS3DParameters parameters) {
-    data = new ModelData();
-    params = parameters;
-    try {
-      ms3d = parseFile(data, file);
-    } catch (IOException e) {
-      throw new GdxRuntimeException("Failed to parse " + file.name(), e);
-    }
-
-    processMaterials(file);
-    processMesh();
-    processJoints();
-    return data;
-  }
-  //*/
 
 
   private void processMaterials() {
@@ -148,8 +116,8 @@ public class MS3DModel extends SolidModel {
         m.specular = color(mat.specular);
         m.shininess = mat.shininess;
         m.opacity = mat.transparency;
-        m.type = MaterialType.Lambert;
-
+        m.type = MaterialType.Phong;
+        
         if (m.opacity == 0) {
           m.opacity = 1;
         }
@@ -158,7 +126,7 @@ public class MS3DModel extends SolidModel {
           ModelTexture tex = new ModelTexture();
           if (mat.texture.startsWith(".\\") || mat.texture.startsWith("//"))
             mat.texture = mat.texture.substring(2);
-          System.out.println(mat.texture);
+          if (verbose) I.say(""+mat.texture);
           tex.fileName = baseDir.child(mat.texture).path();
           // + "/" +
           // mat.texture;
@@ -280,20 +248,11 @@ public class MS3DModel extends SolidModel {
   
   private void processJoints() {
 
-    // ModelNodePart np = root.parts[0];
-
-    // for now just one animation, dont split it yet
-
-    ModelAnimation animation = new ModelAnimation();
-    animation.id = "default";
+    final ModelAnimation animation = new ModelAnimation();
+    animation.id = AnimNames.FULL_RANGE;
 
     ArrayMap<String, ModelNode> lookup = new ArrayMap<String, ModelNode>(32);
-
-    // np.bones = new ArrayMap<String, Matrix4>(13);
-
-    System.out.println("FPS: " + ms3d.fAnimationFPS); // whatever that is...
-    // float fpsmod = 1 / (25 / ms3d.fAnimationFPS); // whatever, random, just
-    // to make it work somehow
+    if (verbose) I.say("FPS: " + ms3d.fAnimationFPS); // whatever that is...
 
     for (int i = 0; i < ms3d.joints.length; i++) {
       MS3DJoint jo = ms3d.joints[i];
@@ -332,13 +291,8 @@ public class MS3DModel extends SolidModel {
       }
       animation.nodeAnimations.add(ani);
     }
-    if (config == null) {
-      data.animations.add(animation);
-      return;
-    }
-
-    // params are present, split animations
-
+    data.animations.add(animation);
+    
     final XML animConfig = config.child("animations");
     addLoop: for (XML animXML : animConfig.children()) {
       //

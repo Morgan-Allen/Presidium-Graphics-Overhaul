@@ -41,10 +41,6 @@ public class PassageFX extends SFX implements TileConstants {
   //*/
 
   
-  public void update() {
-  }
-  
-  
   protected void renderInPass(SFXPass pass) {
     //tex.bindTex() ;
     //mesh.renderTo(rendering) ;

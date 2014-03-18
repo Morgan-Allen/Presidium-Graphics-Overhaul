@@ -308,9 +308,9 @@ public abstract class Mobile extends Element
   
   
   public void renderFor(Rendering rendering, Base base) {
-    final Sprite s = this.sprite() ;
-    final float scale = spriteScale() ;
-    s.scale = scale ;
+    final Sprite s = this.sprite();
+    final float scale = spriteScale();
+    s.scale = scale;
     //
     //  Render your shadow, either on the ground or on top of occupants-
     final float R2 = (float) Math.sqrt(2);
@@ -319,14 +319,14 @@ public abstract class Mobile extends Element
     final Vec3D p = s.position;
     shadow.position.setTo(p);
     shadow.position.z = shadowHeight(p);
-    shadow.registerFor(rendering);
+    shadow.readyFor(rendering);
     
     this.viewPosition(s.position);
     final float alpha = Rendering.frameAlpha();
-    final float rotateChange = Vec2D.degreeDif(nextRotation, rotation) ;
-    s.rotation = (rotation + (rotateChange * alpha) + 360) % 360 ;
-    s.registerFor(rendering);
-    //rendering.addClient(s) ;
+    final float rotateChange = Vec2D.degreeDif(nextRotation, rotation);
+    s.rotation = (rotation + (rotateChange * alpha) + 360) % 360;
+    
+    s.readyFor(rendering);
   }
   
   

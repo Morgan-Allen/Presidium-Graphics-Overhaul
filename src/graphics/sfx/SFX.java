@@ -38,7 +38,7 @@ public abstract class SFX extends Sprite {
   protected abstract void renderInPass(SFXPass pass);
   
   
-  public void registerFor(Rendering rendering) {
+  public void readyFor(Rendering rendering) {
     rendering.sfxPass.register(this);
   }
   

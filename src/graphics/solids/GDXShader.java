@@ -26,12 +26,13 @@ import org.lwjgl.BufferUtils;
 
 public class GDXShader extends DefaultShader {
   
-  Texture fogtex; // temporal, lol
+  //Texture fogtex; // temporal, lol
   
   
   public GDXShader(Renderable renderable, Config config, Texture fog) {
     super(renderable, config);
-
+    
+    /*
     this.fogtex = fog;
 
     register("u_fogmap", new Setter() {

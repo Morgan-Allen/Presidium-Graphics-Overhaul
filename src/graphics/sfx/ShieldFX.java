@@ -99,17 +99,6 @@ public class ShieldFX extends SFX {
   }
   
   
-  public void update() {
-    //super.update();
-    glowAlpha -= BURST_FADE_INC;
-    if (glowAlpha < MIN_ALPHA_GLOW) glowAlpha = MIN_ALPHA_GLOW;
-    for (Burst burst : bursts) {
-      burst.timer -= BURST_FADE_INC;
-      if (burst.timer <= 0) bursts.remove(burst);
-    }
-  }
-  
-  
   public boolean visible() {
     return glowAlpha > MIN_ALPHA_GLOW ;
   }
@@ -118,6 +107,18 @@ public class ShieldFX extends SFX {
   
   /**  Actual rendering-
     */
+  public void readyFor(Rendering rendering) {
+    glowAlpha -= BURST_FADE_INC;
+    if (glowAlpha < MIN_ALPHA_GLOW) glowAlpha = MIN_ALPHA_GLOW;
+    for (Burst burst : bursts) {
+      burst.timer -= BURST_FADE_INC;
+      if (burst.timer <= 0) bursts.remove(burst);
+    }
+    
+    super.readyFor(rendering);
+  }
+  
+  
   protected void renderInPass(SFXPass pass) {
     //
     //  First, establish coordinates for the halo corners-

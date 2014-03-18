@@ -91,8 +91,7 @@ public abstract class VisualDebug implements Playable {
     else moused = false ;
     
     for (Sprite sprite : sprites) {
-      sprite.update();
-      sprite.registerFor(rendering);
+      sprite.readyFor(rendering);
       onRendering(sprite);
     }
   }

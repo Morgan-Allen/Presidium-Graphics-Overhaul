@@ -13,15 +13,22 @@ import com.badlogic.gdx.graphics.g2d.*;
 public class ImageAsset extends Assets.Loadable {
   
   
-  final public static Texture WHITE_TEX = new Texture(
-    4, 4, Pixmap.Format.RGBA8888
-  );
-  static {
+  private static Texture WHITE_TEX = null;
+  
+  public static Texture WHITE_TEX() {
+    //  NOTE:  This method should not be called until the main LibGDX thread
+    //  has called create() on the application listener.
+    if (WHITE_TEX != null) return WHITE_TEX;
+    WHITE_TEX = new Texture(
+      4, 4, Pixmap.Format.RGBA8888
+    );
     final Pixmap draw = new Pixmap(4, 4, Pixmap.Format.RGBA8888);
     draw.setColor(Color.WHITE);
     draw.fillRectangle(0, 0, 4, 4);
     WHITE_TEX.draw(draw, 0, 0);
+    return WHITE_TEX;
   }
+  
   
   
   private String filePath;

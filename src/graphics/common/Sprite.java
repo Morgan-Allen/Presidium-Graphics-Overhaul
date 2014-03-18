@@ -45,7 +45,6 @@ public abstract class Sprite {
     scale = s.scale ;
     fog = s.fog ;
     colour = s.colour;
-    //colourBits = s.colourBits ;
   }
   
   
@@ -70,12 +69,9 @@ public abstract class Sprite {
   
   
   
-  
-  
   public abstract ModelAsset model();
-  public abstract void update() ;
   public abstract void setAnimation(String animName, float progress);
-  public abstract void registerFor(Rendering rendering);
+  public abstract void readyFor(Rendering rendering);
 }
 
 

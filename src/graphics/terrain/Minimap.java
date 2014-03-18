@@ -122,7 +122,6 @@ public class Minimap {
   
   public void renderWith(FogOverlay fogApplied) {
     
-    //glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
     final Matrix4 screenMat = new Matrix4();
     screenMat.setToOrtho2D(
       0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()
@@ -132,6 +131,8 @@ public class Minimap {
     shading.setUniformMatrix("u_ortho", screenMat);
     shading.setUniformi("u_texture", 0);
     
+    //  TODO:  There's some problem with the shader being bound here, at least
+    //  on windows.
     if (fogApplied != null) {
       fogApplied.applyToShader(shading);
       shading.setUniformi("u_fogFlag", GL_TRUE);

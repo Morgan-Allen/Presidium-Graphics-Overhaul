@@ -103,13 +103,12 @@ public class ShotFX extends SFX {
   
   /**  Updates and modifications-
     */
-  public void update() {
-    //super.update() ;
+  public void readyFor(Rendering rendering) {
     final Vec2D line = new Vec2D() ;
     line.x = target.x - origin.x ;
     line.y = target.y - origin.y ;
     this.position.setTo(origin).add(target).scale(0.5f) ;
-    //time += 1f / 25 ;
+    super.readyFor(rendering);
   }
   
   

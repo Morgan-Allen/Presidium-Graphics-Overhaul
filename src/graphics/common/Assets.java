@@ -35,6 +35,9 @@ public class Assets {
       Assets.registerForLoading(this);
     }
     
+    public String assetID() { return assetID; }
+    public Class sourceClass() { return sourceClass; }
+    
     public abstract boolean isLoaded();
     protected abstract void loadAsset();
     protected abstract void disposeAsset();

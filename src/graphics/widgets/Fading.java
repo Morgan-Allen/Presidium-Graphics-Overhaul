@@ -96,7 +96,7 @@ public class Fading {
     if (c != null) {
       batch2D.setColor(c.r, c.g, c.b, c.a);
       batch2D.draw(
-        ImageAsset.WHITE_TEX,
+        ImageAsset.WHITE_TEX(),
         0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(),
         0, 0, 1, 1
       );

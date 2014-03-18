@@ -127,16 +127,16 @@ public class PlaneFX extends SFX {
   }
   
   
-  public void update() {
-    //super.update() ;
-    if (inceptTime == -1) reset();
-  }
-  
-  
   
   /**  Actual rendering-
     */
   private static Mat3D trans = new Mat3D();
+  
+  
+  public void readyFor(Rendering rendering) {
+    if (inceptTime == -1) reset();
+    super.readyFor(rendering);
+  }
   
   
   public float animProgress() {

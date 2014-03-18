@@ -23,11 +23,10 @@ public class CutoutSprite extends Sprite {
   }
   
   
-  public void update() {}
   public void setAnimation(String animName, float progress) {}
   
   
-  public void registerFor(Rendering rendering) {
+  public void readyFor(Rendering rendering) {
     rendering.cutoutsPass.register(this);
   }
 }

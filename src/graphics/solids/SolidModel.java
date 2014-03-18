@@ -13,14 +13,16 @@ import com.badlogic.gdx.utils.ObjectMap;
 public abstract class SolidModel extends ModelAsset {
   
   
-  private static boolean verbose = true;
+  private static boolean verbose = false;
   
   
   protected boolean compiled = false;
   protected Model gdxModel;
-  protected Node modelNodes[];
-  protected NodePart modelParts[];
-  protected Material modelMaterials[];
+  protected AnimControl animControl;
+  
+  protected Node     allNodes[];
+  protected NodePart allParts[];
+  protected Material allMaterials[];
   
   private ObjectMap <Object, Integer>
     indices = new ObjectMap <Object, Integer> ();
@@ -44,12 +46,6 @@ public abstract class SolidModel extends ModelAsset {
   }
   
   
-  public String[] partNames() {
-    if (gdxModel == null) I.complain("MODEL MUST BE COMPILED FIRST!");
-    return partNames;
-  }
-  
-  
   
   protected void compileModel(Model model) {
     this.gdxModel = model;
@@ -61,21 +57,22 @@ public abstract class SolidModel extends ModelAsset {
     for (Node n : model.nodes) compileFrom(n, nodeB, partB, matsB);
     if (verbose) I.say("\n\n");
     
-    modelNodes = nodeB.toArray(Node.class);
-    int i = 0; for (Node n : modelNodes) {
+    allNodes = nodeB.toArray(Node.class);
+    int i = 0; for (Node n : allNodes) {
       indices.put(n, i++);
     }
-    modelParts = partB.toArray(NodePart.class);
-    partNames = new String[modelParts.length];
-    int j = 0; for (NodePart p : modelParts) {
+    allParts = partB.toArray(NodePart.class);
+    partNames = new String[allParts.length];
+    int j = 0; for (NodePart p : allParts) {
       partNames[j] = p.meshPart.id;
       indices.put(p, j++);
     }
-    modelMaterials = matsB.toArray(Material.class);
-    int k = 0; for (Material m : modelMaterials) {
+    allMaterials = matsB.toArray(Material.class);
+    int k = 0; for (Material m : allMaterials) {
       indices.put(m, k++);
     }
     
+    animControl = new AnimControl(this);
     compiled = true;
   }
   
@@ -97,8 +94,23 @@ public abstract class SolidModel extends ModelAsset {
   }
   
   
+  
+  /**  Convenience methods for iteration and component reference-
+    */
   protected int indexFor(Object o) {
     return indices.get(o);
+  }
+  
+  
+  public String[] partNames() {
+    if (gdxModel == null) I.complain("MODEL MUST BE COMPILED FIRST!");
+    return partNames;
+  }
+  
+  
+  protected NodePart partWithName(String name) {
+    for (NodePart p : allParts) if (p.meshPart.id.equals(name)) return p;
+    return null;
   }
 }
 

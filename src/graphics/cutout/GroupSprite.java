@@ -117,13 +117,8 @@ public class GroupSprite extends Sprite {
     for (Sprite module : modules) module.setAnimation(animName, progress) ;
   }
   
-
-  public void update() {
-    //  TODO:  Move the update-check here...
-  }
   
-  
-  public void registerFor(Rendering rendering) {
+  public void readyFor(Rendering rendering) {
     if (checkNeedsUpdate()) {
       final Batch <Sprite> kids = new Batch <Sprite> ();
       setOffsets(rendering, kids);
@@ -143,7 +138,7 @@ public class GroupSprite extends Sprite {
       }
       module.colour = colour;
       module.fog = fog;
-      module.registerFor(rendering);
+      module.readyFor(rendering);
     }
     if (lastPosition == null) lastPosition = new Vec3D();
     lastPosition.setTo(position);

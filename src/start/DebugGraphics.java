@@ -78,18 +78,18 @@ public class DebugGraphics {
         
         final TalkFX FX1 = new TalkFX() {
           int count = 0;
-          public void update() {
+          public void readyFor(Rendering r) {
             if (this.numPhrases() < 2) {
               addPhrase("Testing "+(count++), TalkFX.FROM_LEFT);
             }
-            super.update();
+            super.readyFor(r);
           }
         };
         FX1.position.set(0, 0, 2);
         sprites.add(FX1);
         
         final ShieldFX FX2 = new ShieldFX() {
-          public void update() {
+          public void readyFor(Rendering r) {
             if (Rand.index(Rendering.FRAMES_PER_SECOND) <= 2) {
               final Vec3D point = new Vec3D();
               final float angle = (float) (Math.PI * 2 * Rand.num());
@@ -97,7 +97,7 @@ public class DebugGraphics {
               point.y = 10 * (float) FastMath.cos(angle);
               this.attachBurstFromPoint(point, Rand.yes());
             }
-            super.update();
+            super.readyFor(r);
           }
         };
         FX2.scale = 1.5f;
@@ -105,11 +105,11 @@ public class DebugGraphics {
         sprites.add(FX2);
         
         final ShotFX FX3 = new ShotFX(FM) {
-          public void update() {
-            super.update();
+          public void readyFor(Rendering r) {
             if (Rand.index(Rendering.FRAMES_PER_SECOND) <= 1) {
               refreshShot();
             }
+            super.readyFor(r);
           }
         };
         FX3.position.set(-2, 2, 0);

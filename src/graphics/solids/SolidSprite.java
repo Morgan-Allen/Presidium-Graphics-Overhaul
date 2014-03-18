@@ -14,20 +14,23 @@ import com.badlogic.gdx.utils.*;
 
 public class SolidSprite extends Sprite implements RenderableProvider {
   
+  final static float
+    ANIM_FADE_TIME = 0.5f;
+  
   
   final public SolidModel model;
-  public Matrix4 transform;
+  final Matrix4 transform = new Matrix4();
   final Matrix4 nodeTransforms[];
   final Material materials[];
   
-  final AnimControl animControl = new AnimControl(this);
-  final OverlayAttribute overlaid = new OverlayAttribute(null);
+  private static class AnimState {
+    Animation current;
+    float time, incept;
+  }
+  final Stack <AnimState> animStates = new Stack <AnimState>();
   
-  //  TODO:  Allow fade-ins between animation states...
-  private Animation currentAnim;
-  private float animTime;
+  //  TODO:  Maybe use a bitmask for this?
   private List <NodePart> hidden = new List <NodePart> ();
-  
   private static Vector3 temp = new Vector3();
   
   
@@ -36,19 +39,17 @@ public class SolidSprite extends Sprite implements RenderableProvider {
     this.model = model;
     if (! model.compiled) I.complain("MODEL MUST BE COMPILED FIRST!");
     
-    this.transform = new Matrix4();
-    this.nodeTransforms = new Matrix4[model.modelNodes.length];
-    this.materials = new Material[model.modelMaterials.length];
+    this.nodeTransforms = new Matrix4[model.allNodes.length];
+    for (int i = nodeTransforms.length ; i-- > 0;) {
+      nodeTransforms[i] = new Matrix4();
+    }
     
-    int i = 0; for (Node n : model.modelNodes) {
-      nodeTransforms[i++] = new Matrix4();
+    this.materials = new Material[model.allMaterials.length];
+    for (int i = materials.length; i-- > 0;) {
+      materials[i] = model.allMaterials[i];
     }
-    for (i = 0; i < materials.length; i++) {
-      final Material source = model.modelMaterials[i];
-      final Material m = new Material(source);
-      m.set(overlaid);
-      materials[i] = m;
-    }
+    
+    this.setAnimation(AnimNames.FULL_RANGE, 0);
   }
   
   
@@ -57,57 +58,64 @@ public class SolidSprite extends Sprite implements RenderableProvider {
   }
   
   
-  public void update() {
-  }
-  
-  
-  public void registerFor(Rendering rendering) {
+  public void readyFor(Rendering rendering) {
     rendering.view.worldToGL(position, temp);
     transform.setToTranslation(temp);
     
     final float radians = (float) Math.toRadians(90 - rotation);
     transform.rot(Vector3.Y, radians);
+    
+    if (animStates.size() > 0) {
+      final float time = Rendering.activeTime();
+      
+      model.animControl.begin(this);
+      AnimState validFrom = animStates.getFirst();
+      for (AnimState state : animStates) {
+        float alpha = (time - state.incept) / ANIM_FADE_TIME;
+        if (alpha >= 1) { validFrom = state; alpha = 1; }
+        model.animControl.apply(state.current, state.time, alpha);
+      }
+      while (animStates.getFirst() != validFrom) animStates.removeFirst();
+      model.animControl.end();
+      
+      final Matrix4 temp = new Matrix4();
+      //  The nodes here are ordered so as to guarantee that parents are always
+      //  visited before children, allowing a single pass-
+      for (int i = 0; i < model.allNodes.length; i++) {
+        final Node node = model.allNodes[i];
+        if (node.parent == null) {
+          nodeTransforms[i].setToTranslation(node.translation);
+          nodeTransforms[i].scl(node.scale);
+          continue;
+        }
+        final Matrix4 parentTransform = boneFor(node.parent);
+        temp.set(parentTransform).mul(nodeTransforms[i]);
+        nodeTransforms[i].set(temp);
+      }
+    }
+    
     rendering.solidsPass.register(this);
   }
-
-
-
-
-
-
+  
+  
+  
   /**  Rendering and animation-
    */
   public void getRenderables(
     Array<Renderable> renderables,
     Pool<Renderable> pool
   ) {
-    animControl.begin();
-    animControl.apply(currentAnim, animTime, 1);
-    animControl.end();
     
-    final Matrix4 temp = new Matrix4();
-    //  The nodes here are ordered so as to guarantee that parents are always
-    //  visited before children, allowing a single pass-
-    for (int i = 0; i < model.modelNodes.length; i++) {
-      final Node node = model.modelNodes[i];
-      if (node.parent == null) {
-        nodeTransforms[i].setToTranslation(node.translation);
-        nodeTransforms[i].scl(node.scale);
-        continue;
-      }
-      final Matrix4 parentTransform = boneFor(node.parent);
-      temp.set(parentTransform).mul(nodeTransforms[i]);
-      nodeTransforms[i].set(temp);
-    }
-    
-    //  
-    for (int i = 0; i < model.modelParts.length; i++) {
-      final NodePart part = model.modelParts[i];
+    //  In either case, you'll need to set up renderables for each node part-
+    for (int i = 0; i < model.allParts.length; i++) {
+      final NodePart part = model.allParts[i];
       if (hidden.includes(part)) continue;
       final Renderable r = pool.obtain();
       
       final int numBones = part.invBoneBindTransforms.size;
-      final Matrix4 boneSet[] = new Matrix4[numBones];  //TODO:  CACHE?
+      
+      //  TODO:  Use an object pool for these, if possible?
+      final Matrix4 boneSet[] = new Matrix4[numBones];
       for (int b = 0; b < numBones; b++) {
         final Node node = part.invBoneBindTransforms.keys[b];
         final Matrix4 offset = part.invBoneBindTransforms.values[b];
@@ -136,9 +144,24 @@ public class SolidSprite extends Sprite implements RenderableProvider {
   
   public void setAnimation(String id, float progress) {
     final Animation match = model.gdxModel.getAnimation(id);
-    if (match == null) return;
-    currentAnim = match;
-    animTime = progress * match.duration;
+    if (match == null) {
+      I.say("  WARNING:  No matching animation: "+id);
+      I.say("  IN MODEL: "+model.assetID());
+      return;
+    }
+    
+    AnimState topState = animStates.getLast();
+    final boolean newState =
+      (animStates.size() == 0) ||
+      (topState.current != match);
+    
+    if (newState) {
+      topState = new AnimState();
+      topState.current = match;
+      topState.incept = Rendering.activeTime();
+      animStates.addLast(topState);
+    }
+    topState.time = progress * match.duration;
   }
   
   
@@ -146,9 +169,13 @@ public class SolidSprite extends Sprite implements RenderableProvider {
   
   /**  Customising appearance (toggling parts, adding skins)-
     */
-  //  TODO:  This needs refinement.  Only apply to materials of a certain name!
-  public void setOverlaySkins(Texture... skins) {
-    overlaid.textures = skins;
+  public void setOverlaySkins(String partName, Texture... skins) {
+    final NodePart match = model.partWithName(partName);
+    if (match == null) return;
+    final Material base = match.material;
+    final Material overlay = new Material(base);
+    overlay.set(new OverlayAttribute(skins));
+    this.materials[model.indexFor(base)] = overlay;
   }
   
   
@@ -165,7 +192,7 @@ public class SolidSprite extends Sprite implements RenderableProvider {
   
   
   public void showOnly(String partID) {
-    Node node = model.modelNodes[0];
+    Node node = model.allNodes[0];
     for (NodePart np : node.parts) {
       if (np.meshPart.id.equals(partID)) {
         hidden.remove(np);
@@ -178,7 +205,7 @@ public class SolidSprite extends Sprite implements RenderableProvider {
   
   
   public void togglePart(String id, boolean visible) {
-    Node node = model.modelNodes[0];
+    Node node = model.allNodes[0];
     for (NodePart np : node.parts) {
       if (np.meshPart.id.equals(id)) {
         if (visible) hidden.remove(np);

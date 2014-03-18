@@ -67,8 +67,8 @@ public class Ephemera {
     
     
     public void renderFor(Rendering r, Base b) {
-      sprite.fog = 1.0f ;
-      sprite.registerFor(r);
+      sprite.fog = tracked == null ? 1 : tracked.fogFor(b);
+      sprite.readyFor(r);
     }
     
     
@@ -160,7 +160,6 @@ public class Ephemera {
             s.fog = ghost.tracked.fogFor(base) ;
             trackElement(ghost, section, SG) ;
           }
-          s.update() ;
           results.add(ghost) ;
         }
       }

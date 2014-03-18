@@ -55,12 +55,14 @@ public class FogOverlay {
   
   
   protected void applyToShader(ShaderProgram shader) {
+    //*
     oldTex.bind(1);
     newTex.bind(2);
     shader.setUniformi("u_fog_old", 1);
     shader.setUniformi("u_fog_new", 2);
     shader.setUniformf("u_fogSize", size, size);
     shader.setUniformf("u_fogTime", oldTime % 1);
+    //*/
   }
   
   

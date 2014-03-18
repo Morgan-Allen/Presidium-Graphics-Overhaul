@@ -119,7 +119,7 @@ public class MissionsTab extends InfoPanel {
       Mission.placeFlag(flag, picked) ;
       flag.colour = Colour.GREEN ;
     }
-    flag.registerFor(UI.rendering);
+    flag.readyFor(UI.rendering);
     //UI.rendering.addClient(flag) ;
   }
   

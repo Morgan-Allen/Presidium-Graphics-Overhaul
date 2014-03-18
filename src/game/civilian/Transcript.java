@@ -52,7 +52,7 @@ public class Transcript implements World.Visible, Session.Saveable {
   
   
   public void renderFor(Rendering r, Base b) {
-    chat.registerFor(r) ;
+    chat.readyFor(r) ;
   }
   
   

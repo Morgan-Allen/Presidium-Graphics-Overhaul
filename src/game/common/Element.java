@@ -271,8 +271,7 @@ public class Element implements
     if (timeGone < 1) sprite.colour = Colour.transparency(timeGone);
     else sprite.colour = null;
     viewPosition(sprite.position);
-    sprite.update() ;
-    sprite.registerFor(rendering);
+    sprite.readyFor(rendering);
   }
   
   

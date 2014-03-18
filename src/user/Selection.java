@@ -153,7 +153,7 @@ public class Selection implements UIConstants {
     ring.colour = c;
     ring.scale = radius;
     ring.position.setTo(pos);
-    ring.registerFor(r);
+    ring.readyFor(r);
   }
 }
 
