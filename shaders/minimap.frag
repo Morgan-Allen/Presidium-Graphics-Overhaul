@@ -5,7 +5,6 @@ uniform sampler2D u_texture;
 uniform sampler2D u_fog_old;
 uniform sampler2D u_fog_new;
 
-uniform vec2 u_fogSize;
 uniform bool u_fogFlag;
 uniform float u_fogTime;
 
@@ -17,7 +16,6 @@ varying vec3 v_position;
 void main() {
   vec4 color = texture2D(u_texture, v_texCoords0);
   if(u_fogFlag) {
-    float fs = u_fogSize.x + u_fogSize.y;  //Just to keep compiler happy...
     vec4 fogOld = texture2D(u_fog_old, v_texCoords0);
     vec4 fogNew = texture2D(u_fog_new, v_texCoords0);
     vec4 fog = mix(fogOld.rgba, fogNew.rgba, u_fogTime);
