@@ -3,14 +3,8 @@
 package code.graphics.common;
 import java.io.*;
 import java.lang.reflect.Field;
-
-
-//import src.util.Vec3D;
-
 import code.util.*;
-
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.math.*;
 
 
 

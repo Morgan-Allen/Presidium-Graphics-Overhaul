@@ -144,7 +144,7 @@ public final class PlayLoop {
   
   
   private static void initLoop() {
-    Assets.compileAssetList("src");
+    Assets.compileAssetList("code");
     rendering = new Rendering();
   }
   

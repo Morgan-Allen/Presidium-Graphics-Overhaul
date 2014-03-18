@@ -2,7 +2,7 @@
 
 
 package code.game.actors ;
-//import src.game.base.* ;
+//import code.game.base.* ;
 import code.game.building.*;
 import code.game.civilian.*;
 import code.game.tactical.*;

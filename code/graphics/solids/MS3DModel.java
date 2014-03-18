@@ -1,31 +1,20 @@
 
 
+
 package code.graphics.solids;
-import java.io.IOException;
-import java.util.Arrays;
-//import src.graphics.kerai_src.MS3DFile0.*;
-//import src.graphics.kerai_src.MS3DLoader0.MS3DParameters;
-
-
-
-
-
-
 import code.graphics.common.*;
 import code.graphics.solids.MS3DFile.*;
 import code.util.*;
-
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.assets.AssetLoaderParameters;
-import com.badlogic.gdx.assets.loaders.*;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.model.*;
+import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.model.data.*;
 import com.badlogic.gdx.graphics.g3d.model.data.ModelMaterial.MaterialType;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.*;
+import java.util.Arrays;
+
 
 
 public class MS3DModel extends SolidModel {

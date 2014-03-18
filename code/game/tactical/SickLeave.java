@@ -10,9 +10,7 @@ import code.user.*;
 import code.util.*;
 
 
-//  TODO:  This should be moved to the src.game.base package.
-
-//*
+//  TODO:  This should be moved to the code.game.base package.
 public class SickLeave extends Plan {
   
   

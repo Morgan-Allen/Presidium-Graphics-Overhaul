@@ -75,9 +75,9 @@ public class Conversion implements Economy {
   
   static Class venueClass(String venueName) {
     if (venueName == null) return null;
-    try { return Class.forName("src.game.base."+venueName) ; }
+    try { return Class.forName("code.game.base."+venueName) ; }
     catch (ClassNotFoundException e) {
-      I.say("WARNING: No class in src.game.base: "+venueName) ;
+      I.say("WARNING: No class in code.game.base: "+venueName) ;
     }
     return null;
   }

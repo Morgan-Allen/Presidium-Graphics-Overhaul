@@ -22,7 +22,7 @@ public class SolidSprite extends Sprite implements RenderableProvider {
   final Matrix4 transform = new Matrix4();
   final Matrix4 nodeTransforms[];
   final Material materials[];
-  int hideMask = 0;
+  private int hideMask = 0;
   
   private static class AnimState {
     Animation current;
@@ -30,8 +30,6 @@ public class SolidSprite extends Sprite implements RenderableProvider {
   }
   final Stack <AnimState> animStates = new Stack <AnimState>();
   
-  //  TODO:  Maybe use a bitmask for this?
-  //private List <NodePart> hidden = new List <NodePart> ();
   private static Vector3 temp = new Vector3();
   
   

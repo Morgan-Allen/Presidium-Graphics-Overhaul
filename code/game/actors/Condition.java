@@ -52,10 +52,10 @@ public class Condition extends Trait {
     final Target at = actor.aboard() ;
     //  TODO:  CONSIDER RESTORING.
     /*
-    if (at instanceof src.game.base.Sickbay) {
+    if (at instanceof code.game.base.Sickbay) {
       factor /= 2 ;
     }
-    if (actor.gear.outfitType() == src.game.building.Economy.SEALSUIT) {
+    if (actor.gear.outfitType() == code.game.building.Economy.SEALSUIT) {
       factor /= 5 ;
     }
     //*/

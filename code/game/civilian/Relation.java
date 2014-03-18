@@ -7,7 +7,7 @@
 
 
 package code.game.civilian ;
-//import src.game.actors.Behaviour;
+//import code.game.actors.Behaviour;
 import code.game.common.*;
 import code.util.*;
 

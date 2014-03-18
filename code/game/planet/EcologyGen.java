@@ -7,12 +7,12 @@
 
 
 package code.game.planet ;
-//import src.game.base.* ;
+//import code.game.base.* ;
 import code.game.actors.*;
 import code.game.building.*;
 import code.game.common.*;
 import code.util.*;
-//import src.game.wild.* ;
+//import code.game.wild.* ;
 
 
 
