@@ -9,6 +9,7 @@ import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.game.tactical.*;
 import stratos.graphics.common.*;
+import stratos.graphics.terrain.*;
 import stratos.graphics.sfx.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
@@ -20,6 +21,21 @@ public class Selection implements UIConstants {
   
   /**  Field definitions and accessors-
     */
+  final public static PlaneFX.Model
+    SELECT_CIRCLE = new PlaneFX.Model(
+      "select_circle_fx", Selection.class,
+      "media/GUI/selectCircle.png", 1, 0, 0, false, false
+    ),
+    SELECT_SQUARE = new PlaneFX.Model(
+      "select_square_fx", Selection.class,
+      "media/GUI/selectSquare.png", 1, 0, 0, false, false
+    );
+  final public static ImageAsset
+    SELECT_OVERLAY = ImageAsset.fromImage(
+      "media/GUI/selectOverlay.png", Selection.class
+    );
+  
+  
   private static boolean verbose = false;
   
   final BaseUI UI ;
@@ -140,7 +156,7 @@ public class Selection implements UIConstants {
   
   /**  Rendering FX-
     */
-  void renderWorldFX(Rendering rendering) {
+  protected void renderWorldFX(Rendering rendering) {
     final Target
       HS = (hovered  == null) ? null : hovered .subject(),
       SS = (selected == null) ? null : selected.subject() ;
@@ -162,10 +178,29 @@ public class Selection implements UIConstants {
     ring.position.setTo(pos);
     ring.readyFor(r);
   }
+  
+  
+  public static void renderTileOverlay(
+    Rendering r, final Fixture f, final World world, Colour c, ImageAsset tex
+  ) {
+    final Box2D inside = f.area();
+    final LayerType layer = new LayerType(tex, false, -1) {
+      
+      protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
+        return inside.contains(tx, ty);
+      }
+      
+      protected int variantAt(int tx, int ty, TerrainSet terrain) {
+        return 0;
+      }
+    };
+    
+    final Box2D limit = f.area(null).expandBy(1);
+    final TerrainChunk overlay = world.terrain().createOverlay(limit, layer);
+    overlay.colour = c;
+    overlay.renderTo(r);
+  }
 }
-
-
-
 
 
 

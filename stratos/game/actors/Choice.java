@@ -80,7 +80,6 @@ public class Choice {
   }
   
   
-  //public Behaviour weightedPick(float priorityRange) {
   private Behaviour weightedPick(float priorityRange) {
     if (plans.size() == 0) {
       if (verboseReject) I.sayAbout(actor, "  ...Empty choice!") ;

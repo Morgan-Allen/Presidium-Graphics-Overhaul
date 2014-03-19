@@ -16,16 +16,6 @@ public interface UIConstants {
     BUTTONS_PATH = "media/GUI/Buttons/",
     TABS_PATH    = "media/GUI/Tabs/" ;
   
-  final public static PlaneFX.Model
-    SELECT_CIRCLE = new PlaneFX.Model(
-      "select_circle_fx", UIConstants.class,
-      "media/GUI/selectCircle.png", 1, 0, 0, false, false
-    ),
-    SELECT_SQUARE = new PlaneFX.Model(
-      "select_square_fx", UIConstants.class,
-      "media/GUI/selectSquare.png", 1, 0, 0, false, false
-    );
-  
   final public static Alphabet INFO_FONT = Alphabet.loadAlphabet(
     "media/GUI/", "FontVerdana.xml"
   );

@@ -222,6 +222,7 @@ public final class PlayLoop {
       }
     }
     
+    System.gc();
     return true;
   }
   

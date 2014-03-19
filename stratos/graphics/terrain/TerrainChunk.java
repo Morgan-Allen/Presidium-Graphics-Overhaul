@@ -31,6 +31,8 @@ public class TerrainChunk implements TileConstants {
   protected TerrainChunk fadeOut = null;
   protected float fadeIncept = -1;
   
+  public Colour colour = Colour.WHITE;
+  
 
   public TerrainChunk(int width, int height, int gridX, int gridY,
     LayerType layer, TerrainSet belongs
@@ -55,6 +57,7 @@ public class TerrainChunk implements TileConstants {
     // with the same layer assignment.
     final Batch<Coord> gridBatch = new Batch<Coord>();
     final Batch<float[]> textBatch = new Batch<float[]>();
+
     for (Coord c : Visit.grid(gridX, gridY, width, height, 1)) {
       layer.addFringes(c.x, c.y, belongs, gridBatch, textBatch);
     }

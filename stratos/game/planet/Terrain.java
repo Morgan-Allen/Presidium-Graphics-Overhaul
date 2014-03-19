@@ -10,6 +10,7 @@ import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.terrain.*;
 import stratos.util.*;
+import org.apache.commons.math3.util.FastMath;
 
 
 /*
@@ -325,12 +326,12 @@ public class Terrain implements TileConstants, Session.Saveable {
     Box2D area, LayerType layer
   ) {
     final int
-      minX = (int) Math.ceil(area.xpos()),
-      minY = (int) Math.ceil(area.ypos()),
+      minX = (int) FastMath.ceil(area.xpos()),
+      minY = (int) FastMath.ceil(area.ypos()),
       dimX = (int) area.xdim(),
-      dimY = (int) area.ydim() ;
+      dimY = (int) area.ydim();
     final TerrainChunk overlay = new TerrainChunk(
-      minX, minY, minX + dimX, minY + dimY,
+      dimX, dimY, minX, minY,
       layer, meshSet
     ) ;
     overlay.generateMesh();

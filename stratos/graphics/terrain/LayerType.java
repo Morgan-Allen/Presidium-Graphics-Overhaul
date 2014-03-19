@@ -58,15 +58,20 @@ public abstract class LayerType implements TileConstants {
   
 
   protected void addFringes(
-      int tx, int ty, TerrainSet terrain,
-      Batch<Coord> gridBatch, Batch<float[]> textBatch
+    int tx, int ty, TerrainSet terrain,
+    Batch<Coord> gridBatch, Batch<float[]> textBatch
   ) {
     final boolean masked = maskedAt(tx, ty, terrain);
     if (innerFringe && ! masked) return;
     final int tileID = terrain.layerIndices[tx][ty];
+    final boolean central = layerID >= 0 ? (tileID >= layerID) : masked;
     
-    if (tileID >= layerID && ! innerFringe) {
-      if (tileID == layerID) {
+    if (central) {
+      if (layerID < 0) {
+        gridBatch.add(new Coord(tx, ty));
+        textBatch.add(LayerPattern.OUTER_FRINGE_CENTRE);
+      }
+      else if (tileID == layerID) {
         gridBatch.add(new Coord(tx, ty));
         final int varID = terrain.varsIndices[tx][ty];
         textBatch.add(LayerPattern.extraFringeUV(varID, true)[0]);
@@ -79,10 +84,10 @@ public abstract class LayerType implements TileConstants {
       try { near[n] = maskedAt(x, y, terrain); }
       catch (ArrayIndexOutOfBoundsException e) { near[n] = false ; }
     }
+    
     final float fringes[][] = innerFringe ?
       LayerPattern.innerFringeUV(near) :
       LayerPattern.outerFringeUV(near);
-    
     if (fringes != null) for (float UV[] : fringes) if (UV != null) {
       gridBatch.add(new Coord(tx, ty));
       textBatch.add(UV);

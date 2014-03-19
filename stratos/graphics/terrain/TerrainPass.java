@@ -54,11 +54,10 @@ public class TerrainPass {
   public void performPass() {
     if (chunks.size() == 0) return;
     
+    //  Firstly, we set up shader parameters, include any fog of war-
     shader.begin();
     shader.setUniformMatrix("u_camera", rendering.camera().combined);
     shader.setUniformi("u_texture", 0);
-    //shader.setUniformi("u_animTex", 1);
-    
     final float lightSum[] = rendering.lighting.lightSum();
     shader.setUniform4fv("u_lighting", lightSum, 0, 4);
     
@@ -69,16 +68,43 @@ public class TerrainPass {
     }
     else shader.setUniformi("u_fogFlag", GL_FALSE);
     
-    //  TODO:  What about customised terrain splats?  ...If the ID is -1,
-    //  render them last, but in order of presentation.
-    for (LayerType type : set.layers) renderChunks(chunks, type);
-    shader.end();
+    //  We first compile the sets of terrain chunks in each layer, along with
+    //  any customised/impromptu overlays which are rendered last, in order of
+    //  presentation-
+    final Batch <TerrainChunk>
+      layerBatches[] = new Batch[set.layers.length],
+      others = new Batch <TerrainChunk> (),
+      single = new Batch <TerrainChunk> ();
     
+    for (LayerType type : set.layers) {
+      layerBatches[type.layerID] = new Batch <TerrainChunk> ();
+    }
+    for (TerrainChunk chunk : chunks) {
+      final LayerType type = chunk.layer;
+      if (type.layerID >= 0) layerBatches[type.layerID].add(chunk);
+      else others.add(chunk);
+    }
+    
+    for (LayerType type : set.layers) {
+      renderChunks(layerBatches[type.layerID], type);
+    }
+    for (TerrainChunk chunk : others) {
+      ///I.say("Rendering chunk, verts: "+chunk.vertices.length);
+      single.clear();
+      single.add(chunk);
+      renderChunks(single, chunk.layer);
+    }
+    
+    //  Flush the data, and clean up-
+    shader.end();
     clearAll();
   }
   
   
   protected void renderChunks(Batch <TerrainChunk> chunks, LayerType layer) {
+    
+    //  In the case of animated textures, we have to determine the current and
+    //  next texture frames to fade between-
     final Texture tex[] = layer.textures;
     final float time = (Rendering.activeTime() % 1) * tex.length;
     final int index = (int) time, animIndex = (index + 1) % tex.length;
@@ -88,7 +114,8 @@ public class TerrainPass {
       tex[i].bind(0);
       
       for (TerrainChunk chunk : chunks) {
-        if (chunk.layer.layerID != layer.layerID) continue;
+        if (chunk.layer.layerID != layer.layerID) I.complain("WRONG LAYER!");
+        final Colour c = chunk.colour == null ? Colour.WHITE : chunk.colour;
         
         //  In the event that an earlier terrain chunk is being faded out,
         //  render the predecessor semi-transparently-
@@ -107,16 +134,16 @@ public class TerrainPass {
           }
           
           final float inAlpha = Visit.clamp((1 - alpha) * 2, 0, 1);
-          shader.setUniformf("u_opacity", opacity * inAlpha);
+          shader.setUniformf("u_opacity", opacity * inAlpha * c.a);
           chunk.mesh.render(shader, GL20.GL_TRIANGLES);
         }
         
-        //  Otherwise just render directly-
+        //  Otherwise just render directly.  In either case, flag as complete.
+        //  TODO:  Allow true blending with chunk colour.
         else {
-          shader.setUniformf("u_opacity", opacity);
+          shader.setUniformf("u_opacity", opacity * c.a);
           chunk.mesh.render(shader, GL20.GL_TRIANGLES);
         }
-        
         chunk.renderFlag = false;
       }
       if (tex.length == 1) break;
@@ -130,11 +157,3 @@ public class TerrainPass {
   }
 }
 
-
-
-//  TODO:  ...Do I need this?
-/*
-if (chunk.belongs != set) I.complain(
-  "ALL RENDERED CHUNKS MUST BELONG TO SAME TERRAIN SET!"
-) ;
-//*/

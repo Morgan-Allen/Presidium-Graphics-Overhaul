@@ -840,18 +840,20 @@ public abstract class Venue extends Fixture implements
   
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (destroyed() || ! inWorld()) return ;
+    Selection.renderTileOverlay(
+      rendering, this, world,
+      hovered ? Colour.transparency(0.5f) : Colour.WHITE,
+      Selection.SELECT_OVERLAY
+    );
+    /*
     Selection.renderPlane(
       rendering, viewPosition(null), (xdim() / 2f) + 1,
       hovered ? Colour.transparency(0.5f) : Colour.WHITE,
       Selection.SELECT_SQUARE
     ) ;
+    //*/
   }
   
 }
-
-
-
-
-
 
 
