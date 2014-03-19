@@ -158,8 +158,8 @@ public abstract class ActorMind implements Abilities {
       final Fixture f = (Fixture) e ;
       noticeRange += f.size * 2 ;
     }
-    //
-    //  TODO:  Incorporate line-of-sight considerations here.
+    
+    //  TODO:  Incorporate line-of-sight considerations here?
     noticeRange -= Combat.stealthValue(e, actor) ;
     if (awareOf(e)) noticeRange += World.SECTOR_SIZE / 2f ;
     
@@ -388,14 +388,17 @@ public abstract class ActorMind implements Abilities {
   
   
   public void assignMission(Mission mission) {
-    if (this.mission == mission) return ;
-    if (this.mission != null) {
-      this.mission.setApplicant(actor, false) ;
+    if (this.mission == mission) {
+      return;
     }
-    this.mission = mission ;
     if (this.mission != null) {
-      this.mission.setApplicant(actor, true) ;
+      cancelBehaviour(this.mission);
+      this.mission.setApplicant(actor, false);
     }
+    if (mission != null) {
+      mission.setApplicant(actor, true);
+    }
+    this.mission = mission;
   }
   
   

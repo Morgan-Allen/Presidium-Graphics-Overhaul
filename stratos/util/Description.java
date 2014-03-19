@@ -9,10 +9,7 @@ package stratos.util ;
 //  TODO:  Get rid of references to widgets package- move the Clickable
 //  interface here, and rename to Link?
 import stratos.graphics.common.*;
-import stratos.graphics.widgets.Image;
-import stratos.graphics.widgets.Text;
 import stratos.graphics.widgets.Text.Clickable;
-import stratos.util.*;
 
 
 public interface Description {

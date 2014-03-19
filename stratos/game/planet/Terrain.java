@@ -62,7 +62,7 @@ public class Terrain implements TileConstants, Session.Saveable {
   private byte
     heightVals[][],
     typeIndex[][],
-    varsIndex[][] ;
+    varsIndex[][];
   
   final Habitat
     habitats[][] ;
@@ -292,7 +292,7 @@ public class Terrain implements TileConstants, Session.Saveable {
       }
     };
     
-    meshSet = new TerrainSet(mapSize, -1, typeIndex, layers);
+    meshSet = new TerrainSet(mapSize, -1, typeIndex, varsIndex, layers);
     meshSet.refreshAllMeshes();
   }
   

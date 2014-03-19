@@ -103,7 +103,7 @@ public class Manufacture extends Plan implements Behaviour {
     if (shift == Venue.OFF_DUTY) return 0 ;
     if (shift == Venue.SECONDARY_SHIFT) return IDLE ;
     final boolean hasNeeded = hasNeeded() ;
-    float competition = begun() ? 0 : venue.personnel.assignedTo(this) ;
+    float competition = hasBegun() ? 0 : venue.personnel.assignedTo(this) ;
     //
     //  Vary priority based on how qualified to perform the task you are.
     final Conversion c = conversion ;

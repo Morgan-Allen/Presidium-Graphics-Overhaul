@@ -19,13 +19,11 @@ public class ShieldFX extends SFX {
   
   /**  Fields, constants, setup and save/load methods-
     */
-  final public static ModelAsset
-    SHIELD_MODEL = new ModelAsset("shield_fx_model", ShieldFX.class) {
-      public boolean isLoaded() { return true; }
-      protected void loadAsset() {}
-      protected void disposeAsset() {}
-      public Sprite makeSprite() { return new ShieldFX() ; }
-    } ;
+  final public static ModelAsset SHIELD_MODEL = new Assets.ClassModel(
+    "shield_fx_model", ShieldFX.class
+  ) {
+    public Sprite makeSprite() { return new ShieldFX() ; }
+  };
   
   final public static ImageAsset
     SHIELD_BURST_TEX = ImageAsset.fromImage(

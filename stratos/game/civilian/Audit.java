@@ -204,7 +204,7 @@ public class Audit extends Plan implements Economy {
         salary = p.salary(),
         relief = AuditOffice.RELIEF_AMOUNTS[KR],
         payInterval = p.daysSinceWageEval(venue.world()),
-        wages = ((salary / World.DAYS_PER_YEAR) + relief) * payInterval ;
+        wages = ((salary / Background.NUM_DAYS_PAY) + relief) * payInterval;
       
       if (verbose && I.talkAbout == audits) {
         I.say(works+" is due: "+wages+" over "+payInterval+" days") ;

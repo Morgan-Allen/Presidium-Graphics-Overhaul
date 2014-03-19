@@ -44,6 +44,16 @@ public class Assets {
   }
   
   
+  public static abstract class ClassModel extends ModelAsset {
+    public ClassModel(String modelName, Class sourceClass) {
+      super(modelName, sourceClass);
+    }
+    public boolean isLoaded() { return true; }
+    protected void loadAsset() {}
+    protected void disposeAsset() {}
+  }
+  
+  
   final static List <String>
     classesToLoad = new List <String> ();
   final static List <Class>

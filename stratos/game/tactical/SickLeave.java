@@ -48,11 +48,11 @@ public class SickLeave extends Plan {
     
     final Item treatResult = needed.treatResult() ;
     if (treatResult != null) {
-      if (begun()) { if (treatResult.amount >= 1) return 0 ; }
+      if (hasBegun()) { if (treatResult.amount >= 1) return 0 ; }
       else { if (treatResult.amount > 0) return 0 ; }
     }
     
-    final float crowding = begun() ? 0 :
+    final float crowding = hasBegun() ? 0 :
       Plan.competition(SickLeave.class, sickbay, actor) ;
     //
     //  Modify for Psych Eval, since it's only needed in cases of severe bad

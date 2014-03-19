@@ -1,15 +1,9 @@
 
 
 package stratos.graphics.terrain;
-import static stratos.graphics.common.GL.*;
 import stratos.graphics.common.*;
 import stratos.util.*;
-
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 
 
 
@@ -73,11 +67,9 @@ public abstract class LayerType implements TileConstants {
     
     if (tileID >= layerID && ! innerFringe) {
       if (tileID == layerID) {
-        //  TODO: Use some variation here...
-        //  TODO:  THAT
-        
         gridBatch.add(new Coord(tx, ty));
-        textBatch.add(LayerPattern.OUTER_FRINGE_CENTRE);
+        final int varID = terrain.varsIndices[tx][ty];
+        textBatch.add(LayerPattern.extraFringeUV(varID, true)[0]);
       }
       return;
     }

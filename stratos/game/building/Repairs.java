@@ -87,7 +87,7 @@ public class Repairs extends Plan implements Abilities {
     //  During initial consideration, include competition as a decision factor,
     //  so that you don't get dozens of actors converging on a minor breakdown.
     float competition = 0 ;
-    if (! begun()) {
+    if (! hasBegun()) {
       competition = Plan.competition(Repairs.class, built, actor) ;
       competition /= 1 + (built.structure.maxIntegrity() / 100f) ;
       if (verbose) I.sayAbout(actor, "Competition is: "+competition) ;

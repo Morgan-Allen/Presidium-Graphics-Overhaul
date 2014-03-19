@@ -5,7 +5,7 @@
   */
 
 
-package stratos.game.actors ;
+package stratos.game.actors;
 import stratos.game.building.*;
 import stratos.game.campaign.System;
 import stratos.game.common.*;
@@ -77,7 +77,10 @@ public class Background implements Economy, Session.Saveable {
     GUILD_NATIVE    =  7,
     GUILD_COURT     =  8,
     NOT_A_GUILD     = -1 ;
-  
+
+  final public static float
+    NUM_DAYS_PAY = 20,
+    PAY_INTERVAL = World.STANDARD_DAY_LENGTH * 20;
   final public static int HIRE_COSTS[] = {
     150, 250, 500, 1000, 2500  //Represents 60 days' salary.
   } ;

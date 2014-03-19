@@ -55,7 +55,7 @@ public class InfoPanel extends UIGroup implements UIConstants {
   
   
   
-  public InfoPanel(BaseUI UI, Selectable selected, int topPadding) {
+  public InfoPanel(final BaseUI UI, Selectable selected, int topPadding) {
     super(UI);
     this.UI = UI;
     this.relBound.set(0, 0, 1, 1);
@@ -84,8 +84,13 @@ public class InfoPanel extends UIGroup implements UIConstants {
       0, HEADER_HEIGHT
     );
     headerText.attachTo(innerRegion);
-    
-    detailText = new Text(UI, BaseUI.INFO_FONT);
+
+    detailText = new Text(UI, BaseUI.INFO_FONT) {
+      protected void whenLinkClicked(Clickable link) {
+        super.whenLinkClicked(link);
+        ((BaseUI) UI).beginPanelFade();
+      }
+    };
     detailText.relBound.set(0, 0, 1, 1);
     detailText.absBound.set(
       0, BM,

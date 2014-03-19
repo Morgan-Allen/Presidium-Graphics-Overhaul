@@ -29,7 +29,7 @@ public class FindMission extends Plan implements Economy {
     //  Find a mission that seems pretty appealing at the moment-
     final Choice choice = new Choice(actor) ;
     for (Mission mission : actor.base().allMissions()) {
-      if (! mission.open()) continue ;
+      if (! mission.openToPublic()) continue ;
       choice.add(mission) ;
     }
     final Mission picked = (Mission) choice.weightedPick() ;

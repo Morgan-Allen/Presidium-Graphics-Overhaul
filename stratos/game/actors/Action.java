@@ -184,7 +184,7 @@ public class Action implements Behaviour, AnimNames {
   }
   
   
-  public boolean begun() {
+  public boolean hasBegun() {
     return actor.currentAction() == this ;
   }
   

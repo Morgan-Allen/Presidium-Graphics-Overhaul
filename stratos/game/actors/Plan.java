@@ -121,7 +121,7 @@ public abstract class Plan implements Saveable, Behaviour {
   
 
   public void abortBehaviour() {
-    if (! begun()) return ;
+    if (! hasBegun()) return ;
     if (verbose && I.talkAbout == actor) {
       I.say("\n"+actor+" Aborting plan! "+this+" "+this.hashCode()) ;
       new Exception().printStackTrace() ;
@@ -177,7 +177,7 @@ public abstract class Plan implements Saveable, Behaviour {
   }
   
   
-  public boolean begun() {
+  public boolean hasBegun() {
     return actor != null && nextStep != null ;
   }
   

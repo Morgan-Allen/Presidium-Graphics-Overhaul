@@ -31,9 +31,9 @@ public class Combat extends Plan implements Abilities {
     STYLE_EITHER = 2,
     ALL_STYLES[] = { 0, 1, 2 },
     
-    OBJECT_SUBDUE  = 0,
-    OBJECT_DESTROY = 1,
-    OBJECT_EITHER  = 2,
+    OBJECT_EITHER  = 0,
+    OBJECT_SUBDUE  = 1,
+    OBJECT_DESTROY = 2,
     ALL_OBJECTS[] = { 0, 1, 2 } ;
 
   final static String STYLE_NAMES[] = {
@@ -42,9 +42,9 @@ public class Combat extends Plan implements Abilities {
     "Either"
   } ;
   final static String OBJECT_NAMES[] = {
-    "Capture",
-    "Destroy",
-    "Neutralise"
+    "Neutralise ",
+    "Capture ",
+    "Destroy ",
   } ;
   
   
@@ -95,7 +95,7 @@ public class Combat extends Plan implements Abilities {
     if (target instanceof Actor) {
       final Actor struck = (Actor) target ;
       float lossCost = PARAMOUNT, winReward = priorityMod ;
-      if (begun()) lossCost = 0 ;
+      if (hasBegun()) lossCost = 0 ;
       
       float BP = combatPriority(actor, struck, winReward, lossCost, report) ;
       return BP <= 0 ? 0 : BP + ROUTINE ;
@@ -107,7 +107,7 @@ public class Combat extends Plan implements Abilities {
       BP += ROUTINE ;
       
       //  TODO:  Factor this out.  Also repeated below.
-      if (! begun()) {
+      if (! hasBegun()) {
         float danger = Retreat.dangerAtSpot(struck, actor, null) ;
         danger += Plan.dangerPenalty(struck, actor) ;
         BP += 0 - (danger * ROUTINE) ;
@@ -265,14 +265,14 @@ public class Combat extends Plan implements Abilities {
   /**  Actual behaviour implementation-
     */
   protected Behaviour getNextStep() {
-    if (eventsVerbose && begun()) {
+    if (eventsVerbose && hasBegun()) {
       I.sayAbout(actor, "NEXT COMBAT STEP "+this.hashCode()) ;
     }
     //
     //  This might need to be tweaked in cases of self-defence, where you just
     //  want to see off an attacker.
     if (isDowned(target)) {  //  TODO:  This might need to be varied-
-      if (eventsVerbose && begun()) I.sayAbout(actor, "COMBAT COMPLETE") ;
+      if (eventsVerbose && hasBegun()) I.sayAbout(actor, "COMBAT COMPLETE") ;
       return null ;
     }
     Action strike = null ;

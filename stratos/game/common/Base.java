@@ -305,13 +305,9 @@ public class Base implements
   /**  Rendering and interface methods-
     */
   public void renderFor(Rendering rendering) {
-    final Viewport port = rendering.view ;
-    
     for (Mission mission : missions) {
-      final Sprite flag = mission.flagSprite() ;
-      if (! port.intersects(flag.position, 2)) continue ;
-      flag.readyFor(rendering);
-      //rendering.addClient(flag) ;
+      if (! rendering.view.intersects(mission.flagSelectionPos(), 2)) continue;
+      mission.flagSprite().readyFor(rendering);
     }
   }
   
@@ -320,11 +316,10 @@ public class Base implements
     Mission closest = null ;
     float minDist = Float.POSITIVE_INFINITY ;
     for (Mission mission : missions) {
-      final Sprite flag = mission.flagSprite() ;
-      float dist = view.translateToScreen(new Vec3D(flag.position)).z;
-      if (view.mouseIntersects(flag.position, 0.5f, UI)) {
-        if (dist < minDist) { minDist = dist ; closest = mission ; }
-      }
+      final Vec3D selPos = mission.flagSelectionPos();
+      if (! view.mouseIntersects(selPos, 0.5f, UI)) continue;
+      final float dist = view.translateToScreen(selPos).z;
+      if (dist < minDist) { minDist = dist ; closest = mission ; }
     }
     return closest ;
   }

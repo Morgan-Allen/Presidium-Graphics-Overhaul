@@ -23,15 +23,13 @@ public class ReconMission extends Mission {
     World.SECTOR_SIZE * (float) Math.sqrt(0.50f),
     World.SECTOR_SIZE * (float) Math.sqrt(0.75f),
   } ;
-  final static String AREA_NAMES[] = {
-    "Small",
-    "Medium",
-    "Large"
+  final static String SETTING_DESC[] = {
+    "Small range survey of ",
+    "Medium range survey of ",
+    "Large range survey of "
   } ;
   
   private static boolean verbose = false ;
-  
-  int areaSetting = 0 ;
   Tile inRange[] = new Tile[0] ;
   boolean done = false ;
   
@@ -48,7 +46,6 @@ public class ReconMission extends Mission {
   
   public ReconMission(Session s) throws Exception {
     super(s) ;
-    areaSetting = s.loadInt() ;
     inRange = (Tile[]) s.loadTargetArray(Tile.class) ;
     done = s.loadBool() ;
   }
@@ -56,14 +53,13 @@ public class ReconMission extends Mission {
   
   public void saveState(Session s) throws Exception {
     super.saveState(s) ;
-    s.saveInt(areaSetting) ;
     s.saveTargetArray(inRange) ;
     s.saveBool(done) ;
   }
   
   
   public float exploreRadius() {
-    return SETTING_AREAS[areaSetting] ;
+    return SETTING_AREAS[objectIndex] ;
   }
   
   
@@ -72,11 +68,11 @@ public class ReconMission extends Mission {
     */
   public float priorityFor(Actor actor) {
     final Tile centre = (Tile) subject ;
-    float reward = actor.mind.greedFor(rewardAmount(actor)) * ROUTINE ;
+    float reward = actor.mind.greedFor(rewardCredits(actor)) * ROUTINE ;
     float priority = Exploring.rateExplorePoint(actor, centre, reward) ;
     priority *= SETTING_AREAS[1] / exploreRadius() ;
     if (verbose) I.sayAbout(actor,
-      actor+" priority is: "+priority+", base reward: "+rewardAmount(actor)+
+      actor+" priority is: "+priority+", base reward: "+rewardCredits(actor)+
       "\nperceived reward: "+reward
     ) ;
     return priority ;
@@ -92,6 +88,7 @@ public class ReconMission extends Mission {
 
 
   public Behaviour nextStepFor(Actor actor) {
+    if (! isActive()) return null;
     
     final IntelMap map = base.intelMap ;
     Tile lookedAt = null ;
@@ -133,15 +130,8 @@ public class ReconMission extends Mission {
   
   /**  Rendering and interface methods-
     */
-  public void writeInformation(Description d, int categoryID, HUD UI) {
-    super.writeInformation(d, categoryID, UI) ;
-    d.append("\n\nArea: ") ;
-    if (begun()) d.append(AREA_NAMES[areaSetting]) ;
-    else d.append(new Description.Link(AREA_NAMES[areaSetting]) {
-      public void whenClicked() {
-        areaSetting = (areaSetting + 1) % SETTING_AREAS.length ;
-      }
-    }) ;
+  protected String[] objectiveDescriptions() {
+    return SETTING_DESC;
   }
   
   

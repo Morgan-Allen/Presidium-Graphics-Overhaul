@@ -32,18 +32,14 @@ public class ContactMission extends Mission implements Economy {
   /**  Field definitions, constructors and save/load methods-
     */
   final static int
-    SETTING_TRIBUTE = 0,
-    SETTING_FAVOUR  = 1,
-    SETTING_FEALTY  = 2 ;
-  final static String SETTING_NAMES[] = {
-    "Send Tribute",
-    "Secure Favour",
-    "Demand Fealty"
-  } ;
-  
-  int contactType = SETTING_FAVOUR ;
-  
-  
+    SETTING_CONTACT  = 0,
+    SETTING_FAVOUR   = 1,
+    SETTING_AUDIENCE = 2;
+  final static String SETTING_DESC[] = {
+    "Make contact with ",
+    "Secure favour of ",
+    "Demand audience with "
+  };
   
   
   public ContactMission(Base base, Target subject) {
@@ -57,13 +53,11 @@ public class ContactMission extends Mission implements Economy {
   
   public ContactMission(Session s) throws Exception {
     super(s) ;
-    contactType = s.loadInt() ;
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s) ;
-    s.saveInt(contactType) ;
   }
   
   
@@ -71,7 +65,7 @@ public class ContactMission extends Mission implements Economy {
   /**  Behaviour implementation-
     */
   public float priorityFor(Actor actor) {
-    float reward = actor.mind.greedFor(rewardAmount(actor)) * ROUTINE ;
+    float reward = actor.mind.greedFor(rewardCredits(actor)) * ROUTINE ;
     float priority = 1 * reward ;
     
     return priority ;
@@ -84,10 +78,10 @@ public class ContactMission extends Mission implements Economy {
   
   
   private float relationLevelNeeded() {
-    if (contactType == SETTING_TRIBUTE) return 0    ;
-    if (contactType == SETTING_FAVOUR ) return 0.5f ;
-    if (contactType == SETTING_FEALTY ) return 1.0f ;
-    return -1 ;
+    if (objectIndex == SETTING_CONTACT ) return 0   ;
+    if (objectIndex == SETTING_FAVOUR  ) return 0.5f;
+    if (objectIndex == SETTING_AUDIENCE) return 1.0f;
+    return -1;
   }
   
   
@@ -107,6 +101,8 @@ public class ContactMission extends Mission implements Economy {
 
 
   public Behaviour nextStepFor(Actor actor) {
+    if (! isActive()) return null;
+    
     final float minRelation = relationLevelNeeded() ;
     Dialogue picked = null ;
     float maxUrgency = Float.NEGATIVE_INFINITY ;
@@ -148,15 +144,8 @@ public class ContactMission extends Mission implements Economy {
   
   /**  Rendering and interface methods-
     */
-  public void writeInformation(Description d, int categoryID, HUD UI) {
-    super.writeInformation(d, categoryID, UI) ;
-    d.append("\n\nArea: ") ;
-    if (begun()) d.append(SETTING_NAMES[contactType]) ;
-    else d.append(new Description.Link(SETTING_NAMES[contactType]) {
-      public void whenClicked() {
-        contactType = (contactType + 1) % SETTING_NAMES.length ;
-      }
-    }) ;
+  protected String[] objectiveDescriptions() {
+    return SETTING_DESC;
   }
   
   

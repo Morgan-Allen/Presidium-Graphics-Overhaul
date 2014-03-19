@@ -17,18 +17,15 @@ public class TalkFX extends SFX {
   
   /**  Field definitions, constants and constructors-
     */
-  final static ModelAsset TALK_MODEL = new ModelAsset(
+  final public static ModelAsset TALK_MODEL = new Assets.ClassModel(
     "talk_fx_model", TalkFX.class
   ) {
-    public boolean isLoaded() { return true; }
-    protected void loadAsset() {}
-    protected void disposeAsset() {}
     public Sprite makeSprite() { return new TalkFX() ; }
-  } ;
+  };
   
   final static ImageAsset BUBBLE_TEX = ImageAsset.fromImage(
     "media/GUI/textBubble.png", TalkFX.class
-  ) ;
+  );
   final static Alphabet FONT = Alphabet.loadAlphabet(
     "media/GUI/", "FontVerdana.xml"
   );
@@ -151,21 +148,16 @@ public class TalkFX extends SFX {
   
   
   private void showBubble(Bubble b) {
-    final float fontScale = 1;//LINE_HIGH / FONT.map[' '].height ;
-    float width = 0 ;
-    for (char c : b.phrase.toCharArray()) {
-      Alphabet.Letter l = FONT.letterFor(c) ;
-      if (l == null) l = FONT.letterFor(' ') ;
-      width += l.width * fontScale ;
-    }
+    final float fontScale = 1;
+    float width = Label.phraseWidth(b.phrase, FONT, fontScale);
     //
     //  You also need to either left or right justify, depending on the bubble
     //  type.
     b.width = width ;
     b.yoff = 5 ;
     if (b.type == NOT_SPOKEN) b.xoff = width / -2 ;
-    if (b.type == FROM_LEFT ) b.xoff = width / -2 ;//20 - width ;
-    if (b.type == FROM_RIGHT) b.xoff = width / -2 ;//-20 ;
+    if (b.type == FROM_LEFT ) b.xoff = width / -2 ;
+    if (b.type == FROM_RIGHT) b.xoff = width / -2 ;
     b.alpha = 1.5f ;
     showing.addFirst(b) ;
   }
@@ -190,13 +182,18 @@ public class TalkFX extends SFX {
     }
     
     for (Bubble bubble : showing) {
-      renderPhrase(pass, bubble, flatPoint, fontScale) ;
+      Label.renderPhrase(
+        bubble.phrase, FONT, fontScale, Colour.transparency(bubble.alpha),
+        flatPoint.x + bubble.xoff,
+        flatPoint.y + bubble.yoff,
+        flatPoint.z + 0.05f,
+        pass, true
+      );
     }
   }
   
   
-  //  TODO:  Consider unifying this code with the Border-display routines?
-  
+  //  TODO:  Unify this code with the Border-display routines.
   private void renderBubble(
     SFXPass pass, Bubble bubble,
     Vec3D flatPoint, boolean fromRight
@@ -234,46 +231,20 @@ public class TalkFX extends SFX {
       BUBBLE_TEX.asTexture(), colour,
       minX, minY, capXL - minX, maxY - minY,
       MIN_U, BOT_V, CAP_LU, TOP_V,
-      0.5f, true, false
+      flatPoint.z, true, false
     );
     pass.compileQuad(
       BUBBLE_TEX.asTexture(), colour,
       capXL, minY, capXR - capXL, maxY - minY,
       CAP_LU, BOT_V, CAP_RU, TOP_V,
-      0.5f, true, false
+      flatPoint.z, true, false
     );
     pass.compileQuad(
       BUBBLE_TEX.asTexture(), colour,
       capXR, minY, maxX - capXR, maxY - minY,
       CAP_RU, BOT_V, MAX_U, TOP_V,
-      0.5f, true, false
+      flatPoint.z, true, false
     );
-  }
-  
-  
-  private void renderPhrase(
-    SFXPass pass, Bubble bubble,
-    Vec3D flatPoint, float fontScale
-  ) {
-    float
-      scanW = 0,
-      x = flatPoint.x + bubble.xoff,
-      y = flatPoint.y + bubble.yoff ;
-
-    final Colour colour = Colour.transparency(bubble.alpha);
-    for (char c : bubble.phrase.toCharArray()) {
-      Alphabet.Letter l = FONT.letterFor(c) ;
-      if (l == null) l = FONT.letterFor(' ') ;
-      
-      pass.compileQuad(
-        FONT.texture(), colour,
-        x + scanW, y,
-        l.width * fontScale, l.height * fontScale,
-        l.umin, l.vmin, l.umax, l.vmax,
-        0.5f, true, true
-      );
-      scanW += l.width * fontScale ;
-    }
   }
 }
 

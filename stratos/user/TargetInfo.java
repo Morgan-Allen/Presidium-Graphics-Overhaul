@@ -22,7 +22,7 @@ public class TargetInfo extends UIGroup {
     OB_MARGIN  = 5;
   
   
-  //  need health bar, title, status fx, and mission-options
+  //  need health bar, title, status fx,
   
   final BaseUI BUI;
   final Target subject;
@@ -104,16 +104,17 @@ public class TargetInfo extends UIGroup {
   
   
   protected void updateState() {
+    //  TODO:  This still needs to be fixed when fading away...
     final Vec3D screenPos = BUI.viewTracking.screenPosFor(subject);
     final float
       SS = BUI.viewTracking.view.screenScale(),
       high = subject.height() * SS,
-      wide = subject.radius() * SS;
-    
-    this.relBound.set(0, 0, 0, 0);
-    this.absBound.set(
-      (int) screenPos.x, (int) (screenPos.y + high), 0, 0
+      wide = subject.radius() * SS * 2;
+    final int highAdjust = (int) (
+      screenPos.y + (subject instanceof Mobile ? -(wide + OB_SIZE) : high)
     );
+    this.relBound.set(0, 0, 0, 0);
+    this.absBound.set((int) screenPos.x, highAdjust, 0, 0);
     
     if (active) {
       if (BUI.viewTracking.fullyLocked(subject)) {

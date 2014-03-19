@@ -4,7 +4,6 @@
 package stratos.graphics.terrain;
 import stratos.graphics.common.*;
 import stratos.util.*;
-
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 
@@ -20,7 +19,7 @@ public class TerrainSet {
   
   final public int size, numLayers;
   final int chunkSize, chunkGrid;
-  final byte layerIndices[][];
+  final byte layerIndices[][], varsIndices[][];
   
   TerrainChunk chunks[][][];
   LayerType layers[];
@@ -30,6 +29,7 @@ public class TerrainSet {
   public TerrainSet(
       int size, int chunkSize,
       byte layerIndices[][],
+      byte varsIndices[][],
       LayerType layers[]
   ) {
     // Basic sanity checks first-
@@ -43,9 +43,9 @@ public class TerrainSet {
     this.size = size;
     this.chunkSize = chunkSize;
     this.chunkGrid = (int) Math.ceil(size / chunkSize);
-    //this.fog = fogged ? new FogOverlay(size, this) : null;
     this.layers = layers;
     this.layerIndices = layerIndices;
+    this.varsIndices = varsIndices;
     //
     // And finally, the bite-size terrain chunks that actually get
     // rendered on a need-to-see basis-

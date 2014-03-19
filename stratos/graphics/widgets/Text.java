@@ -287,7 +287,12 @@ public class Text extends UINode implements Description {
       renderImage(textArea, entry, batch2D);
     }
     //  TODO:  Move this to the selection method?
-    if (UI.mouseClicked() && link != null) link.whenClicked() ;
+    if (UI.mouseClicked() && link != null) whenLinkClicked(link) ;
+  }
+  
+  
+  protected void whenLinkClicked(Clickable link) {
+    link.whenClicked();
   }
   
   
@@ -333,50 +338,6 @@ public class Text extends UINode implements Description {
     );
     return true;
   }
-  
-  
-  /**  Draws this text object.
-  protected void render() {
-    if (allEntries.size() == 0) return ;
-    //
-    //  First, determine a 'viewing window' for the text, if larger than the
-    //  visible pane-
-    final Box2D textArea = new Box2D().set(0, 0, xdim(), ydim()) ;
-    if (scrollbar != null) {
-      final float lineHigh = 0 ;// alphabet.map[' '].height * scale ;
-      textArea.ypos(
-        (0 - lineHigh) -
-        (fullSize.ydim() - ydim()) * (1 - scrollbar.scrollPos())
-      ) ;
-    }
-    //
-    //  See what was clicked, if anything-
-    //  TODO:  Move this to the selection method?
-    final Clickable link = getTextLink(myHUD.mousePos(), textArea) ;
-    final Batch <ImageEntry> bullets = new Batch <ImageEntry> () ;
-    //
-    //  Begin the rendering pass...
-    alphabet.fontTex.bindTex() ;
-    GL11.glEnable(GL11.GL_SCISSOR_TEST) ;
-    GL11.glScissor((int) xpos(), (int) ypos(), (int) xdim(), (int) ydim()) ;
-    GL11.glBegin(GL11.GL_QUADS) ;
-    for (Box2D entry : allEntries) {
-      if (entry instanceof TextEntry) {
-        renderText(textArea, (TextEntry) entry, link) ;
-      }
-      else bullets.add((ImageEntry) entry) ;
-    }
-    GL11.glEnd() ;
-    for (ImageEntry entry : bullets) {
-      renderImage(textArea, entry) ;
-    }
-    GL11.glDisable(GL11.GL_SCISSOR_TEST) ;
-    //  TODO:  Move this to the selection method?
-    if (myHUD.mouseClicked() && link != null) link.whenClicked() ;
-  }
-  
-  /**  Renders an image embedded within the text.
-  //*/
   
   
   

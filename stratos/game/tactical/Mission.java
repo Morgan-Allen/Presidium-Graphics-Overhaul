@@ -12,8 +12,9 @@ import stratos.user.*;
 import stratos.util.*;
 
 
-/*
 
+
+/*
 MISSION OPTIONS
   Public Contract  Screened  Covert
   Idle Casual Routine Urgent Critical
@@ -44,6 +45,8 @@ Also apply to off-world missions-
   Marriage alliance / Trade envoy / Secure Peace
   Launch raid / Capture/rescue / Exploring/Spies
 
+
+//  TODO:  Add option to visit your household when recruiting members.
 //*/
 
 
@@ -52,41 +55,42 @@ public abstract class Mission implements
   Behaviour, Session.Saveable, Selectable
 {
   
-	
-  final static int
-    AMOUNT_NONE   = 0,
-    AMOUNT_TINY   = 1,
-    AMOUNT_SMALL  = 2,
-    AMOUNT_MEDIUM = 3,
-    AMOUNT_LARGE  = 4,
-    AMOUNT_HUGE   = 5,
-    REWARD_AMOUNTS[] = {
-      0, 100, 250, 500, 1000, 2500
-    },
-    
-    TYPE_BOUNTY   = 0,
+  final public static int
+    TYPE_PUBLIC   = 0,
     TYPE_SCREENED = 1,
-    TYPE_COVERT   = 2 ;
-  final static String TYPE_DESC[] = {
-    "Public Bounty", "Screened", "Covert"
-  } ;
-  //
-  //  TODO:  Allow arbitrary reward settings?
-  //  Type_Bounty, Type_Screened, Type_Covert
-  //  Idle, Casual, Routine, Urgent, Critical
-  //  100,   250,    500,     1000,    2500
+    TYPE_COVERT   = 2,
+    LIMIT_TYPE    = 3,
+    PRIORITY_NONE      = 0,
+    PRIORITY_NOMINAL   = 1,
+    PRIORITY_ROUTINE   = 2,
+    PRIORITY_URGENT    = 3,
+    PRIORITY_CRITICAL  = 4,
+    PRIORITY_PARAMOUNT = 5,
+    LIMIT_PRIORITY     = 6;
+  final static String
+    TYPE_DESC[] = {
+      "Public Contract", "Screened", "Covert"
+    },
+    PRIORITY_DESC[] = {
+      "None", "Nominal", "Routine", "Urgent", "Critical", "Paramount"
+    };
+  final static Integer REWARD_AMOUNTS[] = {
+    0, 100, 250, 500, 1000, 2500
+  };
   
   
   final Base base ;
   final Target subject ;
-  protected int rewardAmount, missionType ;
-  private boolean begun ;
+  
+  protected int
+    priority,
+    missionType,
+    objectIndex ;
+  private boolean begun = false ;
   protected List <Role> roles = new List <Role> () ;
   
-  
-  CutoutSprite flagSprite ;
-  //Texture flagTex ;
-  String description ;
+  final CutoutSprite flagSprite ;
+  final String description ;
   
   
   
@@ -97,7 +101,6 @@ public abstract class Mission implements
     this.base = base ;
     this.subject = subject ;
     this.flagSprite = (CutoutSprite) flagModel.makeSprite() ;
-    //this.flagTex = ((CutoutModel) flagSprite.model()).texture() ;
     this.description = description ;
   }
   
@@ -106,7 +109,9 @@ public abstract class Mission implements
     s.cacheInstance(this) ;
     base = (Base) s.loadObject() ;
     subject = s.loadTarget() ;
-    rewardAmount = s.loadInt() ;
+    priority = s.loadInt() ;
+    missionType = s.loadInt();
+    objectIndex = s.loadInt();
     begun = s.loadBool() ;
     
     for (int i = s.loadInt() ; i-- > 0 ;) {
@@ -125,7 +130,9 @@ public abstract class Mission implements
   public void saveState(Session s) throws Exception {
     s.saveObject(base) ;
     s.saveTarget(subject) ;
-    s.saveInt(rewardAmount) ;
+    s.saveInt(priority) ;
+    s.saveInt(missionType);
+    s.saveInt(objectIndex);
     s.saveBool(begun) ;
     
     s.saveInt(roles.size()) ;
@@ -153,9 +160,9 @@ public abstract class Mission implements
   /**  Adding and screening applicants-
     */
   class Role {
-    Actor applicant ;
-    ///Pledge pledgeMade ;  //Not used at the moment.
-    boolean approved ;
+    Actor applicant;
+    ///Pledge pledgeMade ;  //Not used at the moment.  TODO:  IMPLEMENT
+    boolean approved;
   }
   
   
@@ -165,51 +172,60 @@ public abstract class Mission implements
   }
   
   
-  public void assignReward(int amount) {
-    rewardAmount = amount ;
+  public void assignPriority(int degree) {
+    priority = degree;
   }
   
   
   public float priorityFor(Actor actor) {
-    return actor.mind.greedFor(rewardAmount) ;
+    return actor.mind.greedFor(rewardCredits(actor));
   }
   
   
-  //
-  //  TODO:  Replace with a general 'rewardAppeal' method, so that you can
-  //  employ different enticements?
-  public int rewardAmount(Actor actor) {
-    return rewardAmount ;
+  public int rewardCredits(Actor actor) {
+    return REWARD_AMOUNTS[priority];
   }
   
   
-  public boolean begun() {
+  public boolean hasBegun() {
     return begun ;
   }
   
   
-  public boolean active() {
+  public boolean isActive() {
     return begun && ! finished() ;
   }
   
   
-  public boolean open() {
-    return (! begun) ;
+  public boolean openToPublic() {
+    if (missionType == TYPE_PUBLIC) return true;
+    if (missionType == TYPE_COVERT) return false;
+    return (! begun);
   }
   
   
-  public int numApproved() {
+  public int rolesApproved() {
     int count = 0 ;
     for (Role role : roles) if (role.approved) count++ ;
     return count ;
   }
   
   
-  public int numApplied() {
+  public int totalApplied() {
     return roles.size() ;
   }
   
   
+  public boolean isApproved(Actor a) {
+    final Role role = roleFor(a);
+    if (missionType == TYPE_PUBLIC) return role != null;
+    return role == null ? false : role.approved;
+  }
+  
+  
+  /**  NOTE:  This method should be called within the ActorMind.assignMission
+    *  method, and not independantly.
+    */
   public void setApplicant(Actor actor, boolean is) {
     final Role oldRole = roleFor(actor) ;
     if (is) {
@@ -233,6 +249,11 @@ public abstract class Mission implements
   }
   
   
+  public void clearApplicants() {
+    for (Role role : roles) role.applicant.mind.assignMission(null);
+  }
+  
+  
   public void beginMission() {
     I.say("Beginning mission: "+this) ;
     for (Role role : roles) {
@@ -248,13 +269,17 @@ public abstract class Mission implements
   
   
   public void endMission(boolean cancelled) {
-    final float reward = rewardAmount ;
     for (Role role : roles) {
-      role.applicant.mind.assignMission(null) ;
-      if (! cancelled) role.applicant.gear.incCredits(reward) ;
+      final float reward = rewardCredits(role.applicant);
+      role.applicant.mind.assignMission(null);
+      if (! cancelled) role.applicant.gear.incCredits(reward);
+      base.incCredits(0 - reward);
     }
-    base.incCredits(0 - reward * roles.size()) ;
     base.removeMission(this) ;
+    
+    if (BaseUI.isSelected(this)) {
+      BaseUI.current().selection.pushSelection(null, false);
+    }
   }
   
   
@@ -279,47 +304,93 @@ public abstract class Mission implements
   public String fullName() { return description ; }
   public String helpInfo() { return description ; }
   public String toString() { return description ; }
+  public String[] infoCategories() { return null ; }
   
   
   public Composite portrait(HUD UI) {
+    //  TODO:  RESTORE THIS.
     return null;
-    //final Composite c = new Composite(UI, flagTex) ;
-    //return c ;
   }
-  
-  public String[] infoCategories() { return null ; }
-  
   
   
   public void writeInformation(
     Description d, int categoryID, final HUD UI
   ) {
-    //
-    //  Here, you can approve the mission, cancel the mission, or visit your
-    //  personnel listings (full household.)
-    if (! begun) {
-      d.append("CHOOSE PAYMENT:") ;
-      for (final int amount : REWARD_AMOUNTS) {
-        d.append("\n  ") ;
-        d.append(new Description.Link(""+amount) {
-          public void whenClicked() { assignReward(amount) ; }
-        }, amount == rewardAmount ? Colour.GREEN : Colour.BLUE) ;
+    d.append("Mission Type:  ");
+    if (hasBegun()) d.append(TYPE_DESC[missionType], Colour.GREY);
+    else d.append(new Description.Link(TYPE_DESC[missionType]) {
+      public void whenClicked() {
+        missionType = (missionType + 1) % LIMIT_TYPE;
+        clearApplicants();
       }
-      d.append("\n") ;
-      d.append("\n("+rewardAmount+" credits per applicant)") ;
+    });
+    
+    d.append("\nObjective:  ");
+    final String
+      descriptions[] = objectiveDescriptions(),
+      desc = descriptions[objectIndex];
+    if (hasBegun()) d.append(desc, Colour.GREY);
+    else d.append(new Description.Link(desc) {
+      public void whenClicked() {
+        objectIndex = (objectIndex + 1) % descriptions.length;
+      }
+    });
+    d.append(subject);
+    
+    d.append("\nPayment:  ");
+    final String payDesc = priority == 0 ?
+      "None" :
+      REWARD_AMOUNTS[priority]+" credits";
+    d.append(new Description.Link(payDesc) {
+      public void whenClicked() {
+        assignPriority((priority + 1) % LIMIT_PRIORITY);
+        if (missionType == TYPE_PUBLIC) begun = priority > 0;
+      }
+    });
+    
+    
+
+    final boolean
+      mustConfirm = missionType != TYPE_PUBLIC && ! begun,
+      emptyList = roles.size() == 0;
+    
+    d.append("\n\nApplications:");
+    d.append(new Description.Link(" (ABORT)") {
+      public void whenClicked() {
+        if (begun) endMission(true);
+        else endMission(false);
+      }
+    });
+    if (rolesApproved() > 0 && mustConfirm) {
+      d.append(" ");
+      d.append(new Description.Link(" (CONFIRM)") {
+        public void whenClicked() {
+          beginMission();
+        }
+      });
     }
-    else {
-      d.append("\n("+rewardAmount+" credits per applicant)") ;
+
+    if (emptyList) {
+      if (missionType == TYPE_PUBLIC) d.append(
+        "\n\nThis is a public contract, open to all comers."
+      );
+      if (missionType == TYPE_SCREENED) d.append(
+        "\n\nThis is a screened mission.  Applicants will be subject to your "+
+        "approval before they can embark."
+      );
+      if (missionType == TYPE_COVERT) d.append(
+        "\n\nThis is a covert mission.  No agents or citizens will apply "+
+        "unless recruited by interview."
+      );
     }
-    //
-    //  First, list the team members that have been approved-
-    if (begun) d.append("\n\nTEAM MEMBERS:") ;
-    else d.append("\n\nAPPLICANTS:") ;
-    for (final Role role : roles) {
-      d.append("\n  ") ;
-      d.append(role.applicant) ;
-      d.append(" ("+role.applicant.vocation()+") ") ;
-      if (! begun) {
+    else for (final Role role : roles) {
+      d.append("\n  ");
+      final Actor a = role.applicant;
+      ((Text) d).insert(a.portrait(UI).texture(), 40);
+      d.append(a);
+      
+      if (mustConfirm) {
+        d.append("\n");
         final String option = role.approved ? "(DISMISS)" : "(APPROVE)" ;
         d.append(new Description.Link(option) {
           public void whenClicked() {
@@ -328,44 +399,34 @@ public abstract class Mission implements
         }) ;
       }
     }
-    if (numApplied() == 0) d.append("\n  (None)") ;
-    //
-    //  Then, present options for beginning or cancelling the mission-
-    d.append("\n\n") ;
-    if (! begun && numApproved() > 0) {
-      d.append(new Description.Link("(APPROVE) ") {
-        public void whenClicked() {
-          beginMission() ;
-        }
-      }) ;
-    }
-    else d.append("(APPROVE) ", Colour.GREY) ;
-    d.append(new Description.Link("(ABORT)") {
-      public void whenClicked() {
-        if (begun) endMission(true) ;
-        else endMission(false) ;
-        if (UI instanceof BaseUI) {
-          ((BaseUI) UI).selection.pushSelection(null, false) ;
-        }
-      }
-    }, Colour.RED) ;
   }
+  
+  protected abstract String[] objectiveDescriptions();
   
 
   public void whenClicked() {
-    ((BaseUI) PlayLoop.currentUI()).selection.pushSelection(this, true) ;
+    BaseUI.current().selection.pushSelection(this, true) ;
   }
   
   
   public InfoPanel createPanel(BaseUI UI) {
-    //  TODO:  Have a dedicated MissionPanel?
-    return new InfoPanel(UI, this, 0) ;
+    //  Have a dedicated MissionPanel?
+    return new InfoPanel(UI, this, 0);
   }
   
   
-  public CutoutSprite flagSprite() {
+  public Sprite flagSprite() {
     placeFlag(flagSprite, subject) ;
+    flagSprite.colour = Colour.transparency(0.5f);
     return flagSprite ;
+  }
+  
+  
+  public Vec3D flagSelectionPos() {
+    placeFlag(flagSprite, subject);
+    final Vec3D selPos = new Vec3D(flagSprite.position);
+    selPos.z += 0.5f;
+    return selPos;
   }
   
   
@@ -384,6 +445,10 @@ public abstract class Mission implements
   
   
   public void renderSelection(Rendering rendering, boolean hovered) {
+    if (subject instanceof Selectable) {
+      ((Selectable) subject).renderSelection(rendering, hovered);
+      return;
+    }
     final Vec3D pos = (subject instanceof Mobile) ?
       ((Mobile) subject).viewPosition(null) :
       subject.position(null) ;
@@ -394,6 +459,7 @@ public abstract class Mission implements
     ) ;
   }
 }
+
 
 
 

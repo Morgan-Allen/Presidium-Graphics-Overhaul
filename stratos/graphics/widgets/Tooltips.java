@@ -3,6 +3,7 @@
 
 package stratos.graphics.widgets;
 import stratos.graphics.common.*;
+import stratos.user.UIConstants;
 import stratos.util.*;
 
 import com.badlogic.gdx.graphics.*;
@@ -12,21 +13,27 @@ import com.badlogic.gdx.math.*;
 
 
 public class Tooltips extends UIGroup {
+
   
+  final public static ImageAsset TIPS_TEX = ImageAsset.fromImage(
+    "media/GUI/tips_frame.png", UIConstants.class
+  );
+  //final static Box2D TIPS_INSETS = new Box2D().set(-10, -10, 20, 20);
   
   Bordering bordering ;
   Text infoText ;
   
   
-  public Tooltips(HUD UI, Alphabet font, Texture border, Box2D inset) {
+  public Tooltips(HUD UI) {
     super(UI) ;
-    bordering = new Bordering(UI, border) ;
-    bordering.relBound.set(0, 0, 1, 1) ;
-    bordering.drawInset.setTo(inset) ;
-    bordering.attachTo(this) ;
-    infoText = new Text(UI, font) ;
-    infoText.scale = 0.75f ;
-    infoText.attachTo(this) ;
+    bordering = new Bordering(UI, TIPS_TEX.asTexture());
+    bordering.relBound.set(0, 0, 1, 1);
+    bordering.absBound.set(-10, -10, 20, 20);
+    bordering.drawInset.set(10, 10, -20, -20);
+    bordering.attachTo(this);
+    infoText = new Text(UI, UIConstants.INFO_FONT);
+    infoText.scale = 0.75f;
+    infoText.attachTo(this);
   }
   
   

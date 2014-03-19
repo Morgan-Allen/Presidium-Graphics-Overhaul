@@ -19,7 +19,10 @@ void main() {
     vec4 fogOld = texture2D(u_fog_old, v_texCoords0);
     vec4 fogNew = texture2D(u_fog_new, v_texCoords0);
     vec4 fog = mix(fogOld.rgba, fogNew.rgba, u_fogTime);
-    color.rgb = mix(color.rgb, fog.rgb, (1 - fog.r) / 2);
+    float darken = (1 + fog.r) / 2;
+    color.r *= darken;
+    color.g *= darken;
+    color.b *= darken;
   }
   gl_FragColor = color;
 }

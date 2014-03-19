@@ -34,7 +34,7 @@ public interface Behaviour extends Session.Saveable {
   float priorityFor(Actor actor) ;
   boolean finished() ;
   boolean valid() ;
-  boolean begun() ;
+  boolean hasBegun() ;
   
   void describeBehaviour(Description d) ;
 }

@@ -91,6 +91,23 @@ public class BaseUI extends HUD implements UIConstants {
   }
   
   
+  public static boolean isSelected(Object o) {
+    final BaseUI UI = current();
+    return UI != null & UI.selection.selected() == o;
+  }
+  
+  
+  public static boolean isHovered(Object o) {
+    final BaseUI UI = current();
+    return UI != null & UI.selection.hovered() == o;
+  }
+  
+  
+  public static boolean isSelectedOrHovered(Object o) {
+    return isSelected(o) || isHovered(o);
+  }
+  
+  
   
   /**  Construction of the default interface layout-
     */
@@ -124,9 +141,7 @@ public class BaseUI extends HUD implements UIConstants {
     quickbar.setupPowersButtons() ;
     quickbar.setupInstallButtons() ;
     
-    this.helpText = new Tooltips(
-      this, INFO_FONT, TIPS_TEX.asTexture(), TIPS_INSETS
-    ) ;
+    this.helpText = new Tooltips(this);
     helpText.attachTo(this) ;
   }
   

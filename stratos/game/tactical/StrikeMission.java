@@ -24,9 +24,6 @@ public class StrikeMission extends Mission {
 
   /**  Field definitions, constants and save/load methods-
     */
-  int objective = Combat.OBJECT_EITHER ;
-  
-  
   public StrikeMission(Base base, Target subject) {
     super(
       base, subject,
@@ -37,13 +34,11 @@ public class StrikeMission extends Mission {
   
   public StrikeMission(Session s) throws Exception {
     super(s) ;
-    objective = s.loadInt() ;
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s) ;
-    s.saveInt(objective) ;
   }
   
   
@@ -53,21 +48,22 @@ public class StrikeMission extends Mission {
   public float priorityFor(Actor actor) {
     if (subject instanceof Actor) return Combat.combatPriority(
       actor, (Actor) subject,
-      actor.mind.greedFor(rewardAmount(actor)) * ROUTINE,
+      actor.mind.greedFor(rewardCredits(actor)) * ROUTINE,
       PARAMOUNT, false
     ) ;
     if (subject instanceof Venue) {
-      return actor.mind.greedFor(rewardAmount(actor)) * ROUTINE ;
+      return actor.mind.greedFor(rewardCredits(actor)) * ROUTINE ;
     }
     return 0 ;
   }
   
   
   public Behaviour nextStepFor(Actor actor) {
-    if (finished()) return null ;
+    if (! isActive()) return null;
     return new Combat(
-      actor, (Element) subject, Combat.STYLE_EITHER, objective
-    ) ;
+      actor, (Element) subject,
+      Combat.STYLE_EITHER, objectIndex
+    );
   }
 
 
@@ -80,15 +76,8 @@ public class StrikeMission extends Mission {
   
   /**  Rendering and interface-
     */
-  public void writeInformation(Description d, int categoryID, HUD UI) {
-    super.writeInformation(d, categoryID, UI) ;
-    d.append("\n\nObjective: ") ;
-    if (begun()) d.append(Combat.OBJECT_NAMES[objective]) ;
-    else d.append(new Description.Link(Combat.OBJECT_NAMES[objective]) {
-      public void whenClicked() {
-        objective = (objective + 1) % Combat.ALL_OBJECTS.length ;
-      }
-    }) ;
+  protected String[] objectiveDescriptions() {
+    return Combat.OBJECT_NAMES;
   }
   
   

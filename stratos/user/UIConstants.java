@@ -26,10 +26,6 @@ public interface UIConstants {
       "media/GUI/selectSquare.png", 1, 0, 0, false, false
     );
   
-  final public static ImageAsset TIPS_TEX = ImageAsset.fromImage(
-    "media/GUI/tips_frame.png", UIConstants.class
-  );
-  
   final public static Alphabet INFO_FONT = Alphabet.loadAlphabet(
     "media/GUI/", "FontVerdana.xml"
   );
@@ -80,10 +76,9 @@ public interface UIConstants {
     INFO_INSETS = new Box2D().set(
       -INFO_AREA_WIDE, CAT_BUTTONS_HIGH,
       INFO_AREA_WIDE, -CAT_BUTTONS_HIGH
-    ),
+    );
     //PANE_BOUNDS = new Box2D().set(0, 0, 1.0f, 0.9f),
     //TABS_BOUNDS = new Box2D().set(0, 0.9f, 1.0f, 0.1f),
-    TIPS_INSETS = new Box2D().set(-10, -10, 20, 20);
   
   
   //  The size of the tooltip text.

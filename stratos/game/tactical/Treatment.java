@@ -262,7 +262,7 @@ public class Treatment extends Plan implements Economy {
     if (patient.health.goodHealth() && patient.aboard() != theatre) {
       return 0 ;
     }
-    if (! begun() && Plan.competition(Treatment.class, patient, actor) > 1) {
+    if (! hasBegun() && Plan.competition(Treatment.class, patient, actor) > 1) {
       return 0 ;
     }
     float impetus = treatDC / 2f ;

@@ -19,18 +19,17 @@ public class SecurityMission extends Mission implements Abilities {
   /**  Field definitions, constants and save/load methods-
     */
   final static int DURATION_LENGTHS[] = {
-    World.STANDARD_DAY_LENGTH,
+    World.STANDARD_DAY_LENGTH / 2,
+    World.STANDARD_DAY_LENGTH * 1,
     World.STANDARD_DAY_LENGTH * 2,
-    World.STANDARD_DAY_LENGTH * 4,
-  } ;
+  };
   final static String DURATION_NAMES[] = {
-    "Short, (1 day)",
-    "Medium, (2 days)",
-    "Long (4 days)",
-  } ;
-  private static boolean verbose = true ;
+    "12 hours security for ",
+    "24 hours security for ",
+    "48 hours security for ",
+  };
+  private static boolean verbose = true;
   
-  int durationSetting = 0 ;
   float inceptTime = -1 ;
   
   
@@ -46,20 +45,18 @@ public class SecurityMission extends Mission implements Abilities {
   
   public SecurityMission(Session s) throws Exception {
     super(s) ;
-    durationSetting = s.loadInt() ;
     inceptTime = s.loadFloat() ;
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s) ;
-    s.saveInt(durationSetting) ;
     s.saveFloat(inceptTime) ;
   }
   
   
   public float duration() {
-    return DURATION_LENGTHS[durationSetting] ;
+    return DURATION_LENGTHS[objectIndex] ;
   }
   
   
@@ -69,7 +66,7 @@ public class SecurityMission extends Mission implements Abilities {
   public float priorityFor(Actor actor) {
     if (actor == subject) return 0 ;
     
-    float priority = actor.mind.greedFor(rewardAmount(actor)) * ROUTINE ;
+    float priority = actor.mind.greedFor(rewardCredits(actor)) * ROUTINE ;
     priority -= Plan.dangerPenalty(subject, actor) ;
     priority -= duration() * 0.5f / World.STANDARD_DAY_LENGTH ;
     if (subject instanceof Actor) {
@@ -118,8 +115,9 @@ public class SecurityMission extends Mission implements Abilities {
   
   
   public Behaviour nextStepFor(Actor actor) {
-    final float priority = priorityFor(actor) ;
+    if (! isActive()) return null;
     
+    final float priority = priorityFor(actor);
     final World world = actor.world() ;
     final Batch <Target> defended = new Batch <Target> () ;
     final Batch <Target> assailants = new Batch <Target> () ;
@@ -218,15 +216,8 @@ public class SecurityMission extends Mission implements Abilities {
   
   /**  Rendering and interface methods-
     */
-  public void writeInformation(Description d, int categoryID, HUD UI) {
-    super.writeInformation(d, categoryID, UI) ;
-    d.append("\n\nDuration: ") ;
-    if (begun()) d.append(DURATION_NAMES[durationSetting]) ;
-    else d.append(new Description.Link(DURATION_NAMES[durationSetting]) {
-      public void whenClicked() {
-        durationSetting = (durationSetting + 1) % DURATION_LENGTHS.length ;
-      }
-    }) ;
+  protected String[] objectiveDescriptions() {
+    return DURATION_NAMES;
   }
   
   

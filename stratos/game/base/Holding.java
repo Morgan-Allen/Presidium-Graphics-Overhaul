@@ -303,6 +303,9 @@ public class Holding extends Venue implements Economy {
     IMG_DIR = "media/Buildings/civilian/" ;
 
   final public static ModelAsset
+    SEAL_TENT_MODEL = CutoutModel.fromImage(
+      IMG_DIR+"field_tent.png", Holding.class, 2, 2
+    ),
     LOWER_CLASS_MODELS[][] = CutoutModel.fromImageGrid(
       IMG_DIR+"lower_class_housing.png", Holding.class,
       3, 3, 2, 2
@@ -321,7 +324,8 @@ public class Holding extends Venue implements Economy {
   
   
   private static ModelAsset modelFor(Holding holding) {
-    final int level = holding.upgradeLevel, VID = holding.varID ;
+    final int level = holding.upgradeLevel, VID = holding.varID;
+    if (level == 0) return SEAL_TENT_MODEL;
     if (level <= 1) {
       return LOWER_CLASS_MODELS[VID][level + 1] ;
     }

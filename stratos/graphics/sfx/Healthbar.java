@@ -15,13 +15,12 @@ public class Healthbar extends SFX {
   
   /**  Constants, field definitions, constructors and save/load methods-
     */
-  final public static ModelAsset
-    BAR_MODEL = new ModelAsset("health_bar_model", Healthbar.class) {
-      public boolean isLoaded() { return true ; }
-      protected void loadAsset() {}
-      protected void disposeAsset() {}
-      public Sprite makeSprite() { return new Healthbar() ; }
-    } ;
+
+  final public static ModelAsset BAR_MODEL = new Assets.ClassModel(
+    "shield_fx_model", Healthbar.class
+  ) {
+    public Sprite makeSprite() { return new Healthbar() ; }
+  };
   
   final public static int
     BAR_HEIGHT = 5,

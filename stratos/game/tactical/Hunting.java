@@ -112,7 +112,7 @@ public class Hunting extends Combat implements Economy {
     float priority = 0 ;
     if (type == TYPE_FEEDS) {
       float hunger = actor.health.hungerLevel() ;
-      if (begun()) hunger = (hunger + 0.5f) / 1.5f ;
+      if (hasBegun()) hunger = (hunger + 0.5f) / 1.5f ;
       if (hunger < 0) return 0 ;
       priority = hunger * PARAMOUNT ;
       if (verbose) I.sayAbout(actor, "Base feeding priority: "+priority) ;

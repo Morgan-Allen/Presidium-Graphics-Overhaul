@@ -28,6 +28,7 @@ public abstract class Actor extends Mobile implements
   private static boolean verbose = false ;
   
   final public Healthbar healthbar = new Healthbar() ;
+  final public Label label = new Label();
   final public TalkFX chat = new TalkFX() ;
   
   final public ActorHealth health = new ActorHealth(this) ;
@@ -340,9 +341,17 @@ public abstract class Actor extends Mobile implements
   
   protected void renderHealthbars(Rendering rendering, Base base) {
     if (health.dying()) return;
+    
+    if (BaseUI.isSelectedOrHovered(this));
+    
+    label.matchTo(sprite());
+    label.position.z -= radius() + 0.25f;
+    label.readyFor(rendering);
+    label.phrase = fullName();
+    
     healthbar.level =  (1 - health.injuryLevel());
     healthbar.full = this.base().colour;
-    healthbar.size = 45;
+    healthbar.size = 35;
     healthbar.matchTo(sprite());
     healthbar.position.z -= radius();
     healthbar.readyFor(rendering);
