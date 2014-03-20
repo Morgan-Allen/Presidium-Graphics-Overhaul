@@ -33,11 +33,6 @@ public class Label extends SFX {
   
   
   protected void renderInPass(SFXPass pass) {
-    //  TODO:  This is causing significant slowdown, most likely due to
-    //  duplication of texture-binding.  You might want a dedicated sub-pass
-    //  for the purpose.
-    //if (true) return;
-    
     final Vec3D flatPoint = new Vec3D(position);
     pass.rendering.view.translateToScreen(flatPoint);
     final float width = phraseWidth(phrase, FONT, fontScale);
