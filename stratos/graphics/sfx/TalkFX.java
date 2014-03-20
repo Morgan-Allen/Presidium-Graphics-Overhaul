@@ -47,6 +47,7 @@ public class TalkFX extends SFX {
   
   
   public TalkFX() {
+    super(PRIORITY_FIRST);
     LINE_HIGH = FONT.letterFor(' ').height;
     LINE_SPACE = LINE_HIGH + 10;
   }
@@ -182,12 +183,16 @@ public class TalkFX extends SFX {
     }
     
     for (Bubble bubble : showing) {
+      final boolean speaks = bubble.type != NOT_SPOKEN;
+      final Colour c = new Colour();
+      if (speaks) c.set(0.8f, 0.8f, 1, 1);
+      c.a = Colour.transparency(bubble.alpha).a / 1.2f;
       Label.renderPhrase(
-        bubble.phrase, FONT, fontScale, Colour.transparency(bubble.alpha),
+        bubble.phrase, FONT, fontScale, c,
         flatPoint.x + bubble.xoff,
         flatPoint.y + bubble.yoff,
         flatPoint.z + 0.05f,
-        pass, true
+        pass, speaks ? false : true
       );
     }
   }

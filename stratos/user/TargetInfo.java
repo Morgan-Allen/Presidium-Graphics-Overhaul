@@ -63,7 +63,7 @@ public class TargetInfo extends UIGroup {
       subject instanceof Venue
     ) {
       options.add(new OptionButton(
-        BUI, MissionsTab.STRIKE_ICON, "Create strike mission",
+        BUI, MissionsTab.STRIKE_ICON, "Neutralise subject",
         new StrikeMission(base, subject)
       ));
     }
@@ -73,7 +73,7 @@ public class TargetInfo extends UIGroup {
       subject instanceof Item
     ) {
       options.add(new OptionButton(
-        BUI, MissionsTab.SECURITY_ICON, "Create security mission",
+        BUI, MissionsTab.SECURITY_ICON, "Secure subject",
         new SecurityMission(base, subject)
       ));
     }
@@ -81,7 +81,7 @@ public class TargetInfo extends UIGroup {
       subject instanceof Actor
     ) {
       options.add(new OptionButton(
-        BUI, MissionsTab.CONTACT_ICON, "Create contact mission",
+        BUI, MissionsTab.CONTACT_ICON, "Contact subject",
         new ContactMission(base, subject)
       ));
     }
@@ -89,7 +89,7 @@ public class TargetInfo extends UIGroup {
       subject instanceof Tile
     ) {
       options.add(new OptionButton(
-        BUI, MissionsTab.RECON_ICON, "Create recon mission",
+        BUI, MissionsTab.RECON_ICON, "Surveil subject",
         new ReconMission(base, (Tile) subject)
       ));
     }

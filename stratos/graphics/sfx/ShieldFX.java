@@ -45,6 +45,10 @@ public class ShieldFX extends SFX {
   private static Mat3D rotMat = new Mat3D() ;
   
   
+  public ShieldFX() {
+    super(PRIORITY_MIDDLE);
+  }
+  
   
   public ModelAsset model() { return SHIELD_MODEL ; }
   

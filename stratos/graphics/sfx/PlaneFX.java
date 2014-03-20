@@ -119,6 +119,7 @@ public class PlaneFX extends SFX {
   
   
   protected PlaneFX(Model model) {
+    super(PRIORITY_MIDDLE);
     this.model = model ;
   }
   

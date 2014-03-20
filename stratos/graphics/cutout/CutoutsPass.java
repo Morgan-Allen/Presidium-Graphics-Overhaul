@@ -5,6 +5,7 @@ package stratos.graphics.cutout ;
 import static stratos.graphics.common.GL.*;
 import static stratos.graphics.cutout.CutoutModel.*;
 import stratos.graphics.common.*;
+import stratos.graphics.sfx.SFX;
 import stratos.util.*;
 
 import com.badlogic.gdx.*;
@@ -85,16 +86,26 @@ public class CutoutsPass {
   
   
   public void performPass() {
-    //  TODO:  Try using multi-texturing here instead.  Ought to be more
-    //  efficient, and probably less bug-prone.
+    final Table <ModelAsset, Batch <CutoutSprite>> subPasses = new Table();
+    
     for (CutoutSprite s : inPass) {
-      compileSprite(s, rendering.camera(), false);
+      Batch <CutoutSprite> batch = subPasses.get(s.model());
+      if (batch == null) subPasses.put(s.model(), batch = new Batch());
+      batch.add(s);
     }
-    compileAndRender(rendering.camera());
-    for (CutoutSprite s : inPass) {
-      compileSprite(s, rendering.camera(), true);
+    
+    for (Batch <CutoutSprite> subPass : subPasses.values()) {
+      //  TODO:  Try using multi-texturing here instead.  Ought to be more
+      //  efficient, and probably less bug-prone.
+      for (CutoutSprite s : subPass) {
+        compileSprite(s, rendering.camera(), false);
+      }
+      compileAndRender(rendering.camera());
+      for (CutoutSprite s : subPass) {
+        compileSprite(s, rendering.camera(), true);
+      }
+      compileAndRender(rendering.camera());
     }
-    compileAndRender(rendering.camera());
     clearAll();
   }
   

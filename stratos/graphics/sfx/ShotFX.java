@@ -76,6 +76,7 @@ public class ShotFX extends SFX {
   
   
   public ShotFX(Model model) {
+    super(PRIORITY_MIDDLE);
     this.model = model ;
   }
   

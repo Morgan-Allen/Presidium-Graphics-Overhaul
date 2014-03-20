@@ -45,6 +45,10 @@ public class SFXPass {
   final Rendering rendering;
   final Batch <SFX> inPass = new Batch <SFX> ();
   
+  //  TODO:  Key registered sprites to their textures, and render in batches
+  //  based on those.
+  
+  
   private Mesh compiled ;
   private float vertComp[] ;
   private short compIndex[] ;
@@ -102,8 +106,25 @@ public class SFXPass {
   
   
   public void performPass() {
-    for (SFX s : inPass) s.renderInPass(this);
-    compileAndRender(rendering.camera());
+    //  TODO:  Something similar should definitely be employed in the cutouts
+    //  phase?  ModelBatch uses something similar, actually.
+    final Table <ModelAsset, Batch <SFX>> subPasses = new Table();
+    
+    for (SFX s : inPass) {
+      Batch <SFX> batch = subPasses.get(s.model());
+      if (batch == null) subPasses.put(s.model(), batch = new Batch());
+      batch.add(s);
+    }
+    
+    for (int priority : SFX.ALL_PRIORITIES) {
+      for (Batch <SFX> subPass : subPasses.values()) {
+        if (subPass.first().priorityKey != priority) continue;
+        for (SFX s : subPass) {
+          s.renderInPass(this);
+        }
+        compileAndRender(rendering.camera());
+      }
+    }
     clearAll();
   }
   

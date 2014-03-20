@@ -156,6 +156,11 @@ public class Selection implements UIConstants {
   
   /**  Rendering FX-
     */
+  final static int MAX_CACHE = 5;
+  private Table <Element, TerrainChunk> overlayCache = new Table();
+  private List <Element> recentOverlays = new List();
+  
+  
   protected void renderWorldFX(Rendering rendering) {
     final Target
       HS = (hovered  == null) ? null : hovered .subject(),
@@ -180,9 +185,20 @@ public class Selection implements UIConstants {
   }
   
   
-  public static void renderTileOverlay(
+  public void renderTileOverlay(
     Rendering r, final Fixture f, final World world, Colour c, ImageAsset tex
   ) {
+    if (recentOverlays.includes(f)) {
+      final TerrainChunk overlay = overlayCache.get(f);
+      overlay.colour = c;
+      overlay.renderTo(r);
+      return;
+    }
+    if (recentOverlays.size() > MAX_CACHE) {
+      final Element oldest = recentOverlays.removeLast();
+      overlayCache.remove(oldest);
+    }
+    
     final Box2D inside = f.area();
     final LayerType layer = new LayerType(tex, false, -1) {
       
@@ -197,6 +213,8 @@ public class Selection implements UIConstants {
     
     final Box2D limit = f.area(null).expandBy(1);
     final TerrainChunk overlay = world.terrain().createOverlay(limit, layer);
+    recentOverlays.addFirst(f);
+    overlayCache.put(f, overlay);
     overlay.colour = c;
     overlay.renderTo(r);
   }

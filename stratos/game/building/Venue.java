@@ -50,8 +50,9 @@ public abstract class Venue extends Fixture implements
   
   
   BuildingSprite buildSprite ;
-  Healthbar healthbar ;
-  final public TalkFX chat = new TalkFX() ;
+  final Healthbar healthbar = new Healthbar();
+  final Label label = new Label();
+  final public TalkFX chat = new TalkFX();
   
   protected int entranceFace ;
   protected Tile entrance ;
@@ -697,24 +698,28 @@ public abstract class Venue extends Fixture implements
   
   
   protected void renderHealthbars(Rendering rendering, Base base) {
-    if (! structure.intact()) return ;
-    if (healthbar == null) healthbar = new Healthbar() ;
-    healthbar.level = structure.repairLevel() ;
+    if (! structure.intact()) return;
+    healthbar.level = structure.repairLevel();
     
-    final BaseUI UI = BaseUI.current() ;
+    final BaseUI UI = BaseUI.current();
     if (
       UI.selection.selected() != this &&
       UI.selection.hovered()  != this &&
       healthbar.level > 0.5f
-    ) return ;
+    ) return;
     
-    final int NU = structure.numUpgrades() ;
-    healthbar.size = (radius() * 50) ;
-    healthbar.size *= 1 + Structure.UPGRADE_HP_BONUSES[NU] ;
-    healthbar.matchTo(buildSprite) ;
-    healthbar.position.z += height() + 0.1f ;
+    final int NU = structure.numUpgrades();
+    healthbar.size = (radius() * 50);
+    healthbar.size *= 1 + Structure.UPGRADE_HP_BONUSES[NU];
+    healthbar.matchTo(buildSprite);
+    healthbar.position.z += height() + 0.1f;
     healthbar.readyFor(rendering);
-    //rendering.addClient(healthbar) ;
+    
+    label.matchTo(buildSprite);
+    label.position.z += height() - 0.25f;
+    label.phrase = this.fullName();
+    label.readyFor(rendering);
+    label.fontScale = 1.0f;
     
     if (base() == null) healthbar.full = Colour.LIGHT_GREY ;
     else healthbar.full = base().colour ;
@@ -729,7 +734,6 @@ public abstract class Venue extends Fixture implements
       progBar.empty = Colour.GREY ;
       progBar.colour = Colour.WHITE ; //paler version of main bar colour?
       progBar.readyFor(rendering);
-      //rendering.addClient(progBar);
     }
   }
   
@@ -840,7 +844,8 @@ public abstract class Venue extends Fixture implements
   
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (destroyed() || ! inWorld()) return ;
-    Selection.renderTileOverlay(
+    
+    BaseUI.current().selection.renderTileOverlay(
       rendering, this, world,
       hovered ? Colour.transparency(0.5f) : Colour.WHITE,
       Selection.SELECT_OVERLAY

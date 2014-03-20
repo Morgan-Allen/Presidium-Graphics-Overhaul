@@ -20,9 +20,23 @@ public abstract class SFX extends Sprite {
   
   /**  Basic methods overrides.
     */
+  final static int
+    PRIORITY_FIRST  = 0,
+    PRIORITY_MIDDLE = 1,
+    PRIORITY_LAST   = 2,
+    ALL_PRIORITIES[] = {0, 1, 2};
+  
+  final int priorityKey;
+  
+  protected SFX(int priority) {
+    this.priorityKey = priority;
+  }
+  
+  
   public void saveTo(DataOutputStream out) throws Exception {
     super.saveTo(out) ;
   }
+  
   
   public void loadFrom(DataInputStream in) throws Exception {
     super.loadFrom(in) ;
@@ -33,13 +47,12 @@ public abstract class SFX extends Sprite {
   }
   
   
-  protected abstract void renderInPass(SFXPass pass);
-  
-  
   public void readyFor(Rendering rendering) {
     rendering.sfxPass.register(this);
   }
   
+  
+  protected abstract void renderInPass(SFXPass pass);
   
   
   /**  Intended as utility methods for performing actual rendering-

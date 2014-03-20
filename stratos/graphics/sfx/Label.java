@@ -18,13 +18,14 @@ public class Label extends SFX {
   };
   
   final static Alphabet FONT = UIConstants.INFO_FONT;
-  final static float FONT_SCALE = 0.8f;
+  //final static float FONT_SCALE = 1.0f;
   
   public String phrase = "";
+  public float fontScale = 0.8f;
   
   
   public Label() {
-    super();
+    super(PRIORITY_FIRST);
   }
   
   
@@ -32,13 +33,18 @@ public class Label extends SFX {
   
   
   protected void renderInPass(SFXPass pass) {
+    //  TODO:  This is causing significant slowdown, most likely due to
+    //  duplication of texture-binding.  You might want a dedicated sub-pass
+    //  for the purpose.
+    //if (true) return;
+    
     final Vec3D flatPoint = new Vec3D(position);
     pass.rendering.view.translateToScreen(flatPoint);
-    final float width = phraseWidth(phrase, FONT, FONT_SCALE);
+    final float width = phraseWidth(phrase, FONT, fontScale);
     renderPhrase(
-      phrase, FONT, FONT_SCALE, this.colour,
+      phrase, FONT, fontScale, this.colour,
       flatPoint.x - (width / 2), flatPoint.y, flatPoint.z,
-      pass, false
+      pass, true
     );
   }
   

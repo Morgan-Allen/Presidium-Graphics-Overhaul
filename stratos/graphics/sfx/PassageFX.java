@@ -25,6 +25,11 @@ public class PassageFX extends SFX implements TileConstants {
   public ModelAsset model() { return PASSAGE_MODEL ; }
   
   
+  public PassageFX() {
+    super(PRIORITY_FIRST);
+  }
+  
+  
   /*
   Texture tex ;
   MeshBuffer mesh ;

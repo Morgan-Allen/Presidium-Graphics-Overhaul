@@ -15,7 +15,6 @@ public class Healthbar extends SFX {
   
   /**  Constants, field definitions, constructors and save/load methods-
     */
-
   final public static ModelAsset BAR_MODEL = new Assets.ClassModel(
     "shield_fx_model", Healthbar.class
   ) {
@@ -33,7 +32,10 @@ public class Healthbar extends SFX {
   private float flash = 0 ;
   
   
-  public Healthbar() {}
+  public Healthbar() {
+    super(PRIORITY_FIRST);
+  }
+  
   public ModelAsset model() { return BAR_MODEL ; }
   
   
