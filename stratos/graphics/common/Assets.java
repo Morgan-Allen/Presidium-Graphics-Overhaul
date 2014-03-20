@@ -288,7 +288,7 @@ public class Assets {
     if (! file.exists()) return;
     
     try {
-      final URL jarURL = new URL(code.getLocation()+"/"+JAR_NAME) ;
+      final URL jarURL = code.getLocation();
       ZipInputStream zip = new ZipInputStream(jarURL.openStream()) ;
       for (ZipEntry e ; (e = zip.getNextEntry()) != null ;) {
         if (e.isDirectory()) continue ;
