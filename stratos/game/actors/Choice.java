@@ -39,22 +39,28 @@ public class Choice {
   
   
   public boolean add(Behaviour plan) {
-    if (plan == null) return false ;
-    final boolean finished = plan.finished() ;
-    final float priority = plan.priorityFor(actor) ;
-    final Behaviour nextStep = plan.nextStepFor(actor) ;
-    
+    if (plan == null) return false;
+    if (! checkPlanValid(plan)) return false;
+    plans.add(plan);
+    return true;
+  }
+  
+  
+  protected boolean checkPlanValid(Behaviour plan) {
+    final boolean finished = plan.finished();
+    final float priority = plan.priorityFor(actor);
+    final Behaviour nextStep = plan.nextStepFor(actor);
+
     if (finished || priority <= 0 || nextStep == null) {
       if (verboseReject && plan != null && I.talkAbout == actor) {
-        I.say("  Rejected option: "+plan+" ("+plan.getClass()+")") ;
-        I.say("  Priority: "+priority) ;
-        I.say("  Finished/valid: "+finished+"/"+plan.valid()) ;
-        I.say("  Next step: "+nextStep+"\n") ;
+        I.say("  Rejected option: " + plan + " (" + plan.getClass() + ")");
+        I.say("  Priority: " + priority);
+        I.say("  Finished/valid: " + finished + "/" + plan.valid());
+        I.say("  Next step: " + nextStep + "\n");
       }
-      return false ;
+      return false;
     }
-    plans.add(plan) ;
-    return true ;
+    return true;
   }
   
   

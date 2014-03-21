@@ -65,9 +65,8 @@ public class ContactMission extends Mission implements Economy {
   /**  Behaviour implementation-
     */
   public float priorityFor(Actor actor) {
-    float reward = actor.mind.greedFor(rewardCredits(actor)) * ROUTINE ;
-    float priority = 1 * reward ;
-    
+    float priority = 1 * basePriority(actor);
+    //  TODO:  USE DIALOGUE MODIFIERS
     return priority ;
   }
   
@@ -78,6 +77,7 @@ public class ContactMission extends Mission implements Economy {
   
   
   private float relationLevelNeeded() {
+    final int objectIndex = objectIndex();
     if (objectIndex == SETTING_CONTACT ) return 0   ;
     if (objectIndex == SETTING_FAVOUR  ) return 0.5f;
     if (objectIndex == SETTING_AUDIENCE) return 1.0f;

@@ -235,8 +235,7 @@ public class Human extends Actor implements Abilities {
     if (DT != null) {
       ((SolidSprite) sprite()).togglePart(DT.groupName, c != null) ;
     }
-    
-    super.renderFor(rendering, base) ;
+    super.renderFor(rendering, base);
   }
   
   

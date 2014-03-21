@@ -118,20 +118,20 @@ public class Selection implements UIConstants {
   
 
   public void pushSelection(Selectable s, boolean asRoot) {
-    if (asRoot) navStack.clear() ;
-    
-    if (s == null && selected != null) {
+    if (s == null) {
       navStack.clear() ;
       selected = null ;
-      UI.viewTracking.lockOn(null) ;
-      UI.setInfoPanel(null, null) ;
+      UI.viewTracking.lockOn(null);
+      UI.setInfoPanels(null, null);
+      return;
     }
+    else if (asRoot) navStack.clear();
     
     selected = s ;
     UI.viewTracking.lockOn(s.selectionLocksOn());
     final InfoPanel panel = s.configPanel(null, UI);
     final TargetInfo info = s.configInfo(null, UI);
-    UI.setInfoPanel(panel, info);
+    UI.setInfoPanels(panel, info);
     
     if (panel != null) {
       final int SI = navStack.indexOf(selected) ;

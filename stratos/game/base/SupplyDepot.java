@@ -105,11 +105,11 @@ public class SupplyDepot extends Venue implements
     structure.setupStats(100, 2, 200, 0, Structure.TYPE_VENUE) ;
     personnel.setShiftType(SHIFTS_ALWAYS) ;
     
-    attachModel(MODEL_UNDER);
-    //final GroupSprite sprite = new GroupSprite() ;
-    //sprite.attach(MODEL_UNDER, 0, 0, -0.05f) ;
-    //sprite.attach(MODEL_CORE, -0.25f, 0.25f, 0) ;
-    //attachSprite(sprite) ;
+    final GroupSprite sprite = new GroupSprite();
+    sprite.attach(MODEL_UNDER, 0, 0, -0.05f);
+    sprite.attach(MODEL_CORE, 0.25f, -0.25f, 0);
+    sprite.setSortMode(GroupSprite.SORT_BY_ADDITION);
+    attachSprite(sprite);
   }
   
   

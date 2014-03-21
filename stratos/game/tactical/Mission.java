@@ -67,6 +67,10 @@ public abstract class Mission implements
     PRIORITY_CRITICAL  = 4,
     PRIORITY_PARAMOUNT = 5,
     LIMIT_PRIORITY     = 6;
+  
+  final static float REWARD_TYPE_MULTS[] = {
+    0.75f, 0.5f, 0.25f
+  };
   final static String
     TYPE_DESC[] = {
       "Public Contract", "Screened", "Covert"
@@ -77,17 +81,21 @@ public abstract class Mission implements
   final static Integer REWARD_AMOUNTS[] = {
     0, 100, 250, 500, 1000, 2500
   };
+  final static Integer PARTY_LIMITS[] = {
+    0, 3, 3, 4, 4, 5
+  };
   
   
   final Base base ;
   final Target subject ;
   
-  protected int
+  //final Table <Actor, Role> roles = new Table <Actor, Role> ();
+  final Stack <Role> roles = new Stack <Role> ();
+  private int
     priority,
     missionType,
     objectIndex ;
   private boolean begun = false ;
-  protected List <Role> roles = new List <Role> () ;
   
   final CutoutSprite flagSprite ;
   final String description ;
@@ -118,7 +126,7 @@ public abstract class Mission implements
       final Role role = new Role() ;
       role.applicant = (Actor) s.loadObject() ;
       role.approved = s.loadBool() ;
-      roles.add(role) ;
+      roles.add(role);
     }
     
     flagSprite = (CutoutSprite) ModelAsset.loadSprite(s.input()) ;
@@ -156,6 +164,12 @@ public abstract class Mission implements
   }
   
   
+  public void resetMission() {
+    for (Role role : roles) role.applicant.mind.assignMission(null);
+    begun = false;
+  }
+  
+  
   
   /**  Adding and screening applicants-
     */
@@ -167,33 +181,61 @@ public abstract class Mission implements
   
   
   protected Role roleFor(Actor actor) {
-    for (Role r : roles) if (r.applicant == actor) return r ;
-    return null ;
+    for (Role r : roles) if (r.applicant == actor) return r;
+    return null;
+  }
+  
+  /*
+  protected float rewardFor(Actor actor) {
+    return REWARD_AMOUNTS[priority] / roles.size();
+  }
+  //*/
+  
+  
+  protected float basePriority(Actor actor) {
+    float rewardEval = REWARD_AMOUNTS[priority];
+    rewardEval *= REWARD_TYPE_MULTS[missionType];
+    
+    if (! isApproved(actor)) {
+      final float fill = rolesApproved() * 1f / PARTY_LIMITS[priority];
+      if (fill >= 1) return -1;
+      rewardEval /= 1f + fill;
+    }
+    
+    float value = actor.mind.greedFor((int) rewardEval);
+    return value;
   }
   
   
+  protected int rolesApproved() {
+    int count = 0 ;
+    for (Role role : roles) if (role.approved) count++;
+    return count ;
+  }
+  
+  
+  protected int totalApplied() {
+    return roles.size() ;
+  }
+  
+  
+  protected boolean isApproved(Actor a) {
+    final Role role = roleFor(a);
+    if (missionType == TYPE_PUBLIC) return role != null;
+    return role == null ? false : role.approved;
+  }
+  
+  
+  protected int objectIndex() {
+    return objectIndex;
+  }
+  
+  
+  
+  /**  Public access methods for setup purposes
+    */
   public void assignPriority(int degree) {
     priority = degree;
-  }
-  
-  
-  public float priorityFor(Actor actor) {
-    return actor.mind.greedFor(rewardCredits(actor));
-  }
-  
-  
-  public int rewardCredits(Actor actor) {
-    return REWARD_AMOUNTS[priority];
-  }
-  
-  
-  public boolean hasBegun() {
-    return begun ;
-  }
-  
-  
-  public boolean isActive() {
-    return begun && ! finished() ;
   }
   
   
@@ -204,23 +246,20 @@ public abstract class Mission implements
   }
   
   
-  public int rolesApproved() {
-    int count = 0 ;
-    for (Role role : roles) if (role.approved) count++ ;
-    return count ;
+  public boolean hasBegun() {
+    return begun ;
   }
   
   
-  public int totalApplied() {
-    return roles.size() ;
+  public boolean isActive() {
+    return begun && ! finished();
   }
   
   
-  public boolean isApproved(Actor a) {
-    final Role role = roleFor(a);
-    if (missionType == TYPE_PUBLIC) return role != null;
-    return role == null ? false : role.approved;
-  }
+  public int motionType(Actor actor) { return MOTION_ANY ; }
+  public void abortBehaviour() {}
+  public boolean valid() { return ! subject.destroyed() ; }
+  
   
   
   /**  NOTE:  This method should be called within the ActorMind.assignMission
@@ -229,11 +268,11 @@ public abstract class Mission implements
   public void setApplicant(Actor actor, boolean is) {
     final Role oldRole = roleFor(actor) ;
     if (is) {
-      if (oldRole != null) return ;
-      Role role = new Role() ;
-      role.applicant = actor ;
-      role.approved = false ;
-      roles.add(role) ;
+      if (oldRole != null) return;
+      Role role = new Role();
+      role.applicant = actor;
+      role.approved = missionType == TYPE_PUBLIC ? true : false ;
+      roles.add(role);
     }
     else {
       if (oldRole == null) return ;
@@ -249,33 +288,28 @@ public abstract class Mission implements
   }
   
   
-  public void clearApplicants() {
-    for (Role role : roles) role.applicant.mind.assignMission(null);
-  }
-  
-  
   public void beginMission() {
-    I.say("Beginning mission: "+this) ;
+    if (hasBegun()) return;
+    begun = true;
+    ///I.say("Beginning mission: "+this);
     for (Role role : roles) {
-      if (! role.approved) roles.remove(role) ;
-      else {
-        role.applicant.mind.assignMission(this) ;
-        role.applicant.mind.assignBehaviour(this) ;
+      if (! role.approved) {
+        final Actor rejected = role.applicant;
+        rejected.mind.assignMission(null);
       }
     }
-    I.say("Mission begun...") ;
-    begun = true ;
+    ///I.say("Mission begun...");
   }
   
   
   public void endMission(boolean cancelled) {
+    final float reward = REWARD_AMOUNTS[priority] * 1f / roles.size();
     for (Role role : roles) {
-      final float reward = rewardCredits(role.applicant);
       role.applicant.mind.assignMission(null);
       if (! cancelled) role.applicant.gear.incCredits(reward);
       base.incCredits(0 - reward);
     }
-    base.removeMission(this) ;
+    base.removeMission(this);
     
     if (BaseUI.isSelected(this)) {
       BaseUI.current().selection.pushSelection(null, false);
@@ -284,18 +318,9 @@ public abstract class Mission implements
   
   
   public void updateMission() {
-    if (finished()) endMission(false) ;
+    if (missionType == TYPE_PUBLIC && priority > 0) beginMission();
+    if (finished()) endMission(false);
   }
-  
-  
-  
-  /**  Default behaviour implementation and utility methods-
-    */
-  public int motionType(Actor actor) { return MOTION_ANY ; }
-  public void abortBehaviour() {}
-  
-  public void setPriority(float priority) {}
-  public boolean valid() { return ! subject.destroyed() ; }
   
   
   
@@ -325,30 +350,22 @@ public abstract class Mission implements
     else d.append(new Description.Link(TYPE_DESC[missionType]) {
       public void whenClicked() {
         missionType = (missionType + 1) % LIMIT_TYPE;
-        clearApplicants();
+        resetMission();
       }
     });
     
     d.append("\nObjective:  ");
-    final String
-      descriptions[] = objectiveDescriptions(),
-      desc = descriptions[objectIndex];
-    if (hasBegun()) d.append(desc, Colour.GREY);
-    else d.append(new Description.Link(desc) {
-      public void whenClicked() {
-        objectIndex = (objectIndex + 1) % descriptions.length;
-      }
-    });
-    d.append(subject);
+    describeObjective(d);
     
     d.append("\nPayment:  ");
     final String payDesc = priority == 0 ?
       "None" :
       REWARD_AMOUNTS[priority]+" credits";
+    //  TODO:  Allow payment to be put down too?
     d.append(new Description.Link(payDesc) {
       public void whenClicked() {
-        assignPriority((priority + 1) % LIMIT_PRIORITY);
-        if (missionType == TYPE_PUBLIC) begun = priority > 0;
+        if (priority == PRIORITY_PARAMOUNT) return;
+        assignPriority(priority + 1);
       }
     });
     
@@ -391,7 +408,7 @@ public abstract class Mission implements
       ((Text) d).insert(a.portrait(UI).texture(), 40);
       d.append(a);
       if (a instanceof Human) {
-        d.append("\n("+((Human) a).career().vocation()+")");
+        d.append(" ("+((Human) a).career().vocation()+")");
       }
       
       if (mustConfirm) {
@@ -407,6 +424,21 @@ public abstract class Mission implements
 
     return panel;
   }
+  
+  
+  protected void describeObjective(Description d) {
+    final String
+      descriptions[] = objectiveDescriptions(),
+      desc = descriptions[objectIndex];
+    if (hasBegun()) d.append(desc, Colour.GREY);
+    else d.append(new Description.Link(desc) {
+      public void whenClicked() {
+        objectIndex = (objectIndex + 1) % descriptions.length;
+      }
+    });
+    d.append(subject);
+  }
+  
   
   protected abstract String[] objectiveDescriptions();
   

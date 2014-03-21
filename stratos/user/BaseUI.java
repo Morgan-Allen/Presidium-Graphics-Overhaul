@@ -149,7 +149,7 @@ public class BaseUI extends HUD implements UIConstants {
   
   /**  Modifying the interface layout-
     */
-  protected void setInfoPanel(UIGroup infoPanel, TargetInfo targetInfo) {
+  protected void setInfoPanels(UIGroup infoPanel, TargetInfo targetInfo) {
     if (infoPanel != currentPanel) {
       beginPanelFade();
       newPanel = infoPanel;

@@ -276,9 +276,9 @@ public class Quickbar extends UIGroup implements UIConstants {
         final BaseUI UI = BaseUI.current();
         UI.beginPanelFade() ;
         if (UI.currentPanel() == newTab) {
-          UI.setInfoPanel(null, null) ;
+          UI.setInfoPanels(null, null) ;
         }
-        else UI.setInfoPanel(newTab, null) ;
+        else UI.setInfoPanels(newTab, null) ;
       }
     } ;
     button.stretch = true ;

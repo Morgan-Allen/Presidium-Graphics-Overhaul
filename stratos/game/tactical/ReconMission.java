@@ -59,7 +59,7 @@ public class ReconMission extends Mission {
   
   
   public float exploreRadius() {
-    return SETTING_AREAS[objectIndex] ;
+    return SETTING_AREAS[objectIndex()] ;
   }
   
   
@@ -68,12 +68,11 @@ public class ReconMission extends Mission {
     */
   public float priorityFor(Actor actor) {
     final Tile centre = (Tile) subject ;
-    float reward = actor.mind.greedFor(rewardCredits(actor)) * ROUTINE ;
-    float priority = Exploring.rateExplorePoint(actor, centre, reward) ;
+    final float basePriority = super.basePriority(actor);
+    float priority = Exploring.rateExplorePoint(actor, centre, basePriority) ;
     priority *= SETTING_AREAS[1] / exploreRadius() ;
     if (verbose) I.sayAbout(actor,
-      actor+" priority is: "+priority+", base reward: "+rewardCredits(actor)+
-      "\nperceived reward: "+reward
+      actor+" priority is: "+priority+", base priority: "+basePriority
     ) ;
     return priority ;
   }
@@ -85,8 +84,8 @@ public class ReconMission extends Mission {
       base.intelMap, (Tile) subject, exploreRadius()
     ) ;
   }
-
-
+  
+  
   public Behaviour nextStepFor(Actor actor) {
     if (! isActive()) return null;
     
@@ -101,7 +100,7 @@ public class ReconMission extends Mission {
       final float fog = map.fogAt(t) ;
       float rating = fog < 1 ? 1 : 0 ;
       
-      for (Role role : this.roles) if (role.applicant != actor) {
+      for (Role role : roles) if (role.applicant != actor) {
         Target looks = role.applicant.targetFor(Exploring.class) ;
         if (looks == null) looks = role.applicant ;
         rating *= (10 + Spacing.distance(actor, looks)) / 10f ;

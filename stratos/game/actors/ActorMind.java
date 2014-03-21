@@ -7,6 +7,8 @@
 
 
 package stratos.game.actors ;
+import org.apache.commons.math3.util.FastMath;
+
 import stratos.game.building.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
@@ -560,24 +562,20 @@ public abstract class ActorMind implements Abilities {
   
   
   
-  /**  Methods related to the value system-
-    *  Fear.  Love/Hate.  Aggression.
-    *  Greed.  Curiosity.  Restlessness.
-    *  Sociability.  Loyalty.  Stubbornness.
-    *  
-    *  These should all return values centred around 1.0f, 1 being typical,
-    *  zero being low, 2.0f or more being high.  Obvious enough.  Point being
-    *  it's a scalar operation.
+  /**  Greed value-
     */
   public float greedFor(int credits) {
-    float baseUnit = actor.gear.credits() / 2f ;
+    float baseUnit = actor.gear.credits() / 2f;
     if (actor.base() != null) {
-      final Profile p = actor.base().profiles.profileFor(actor) ;
-      baseUnit += (100 + p.salary()) / 2f ;
+      final Profile p = actor.base().profiles.profileFor(actor);
+      baseUnit += (100 + p.salary()) / 2f;
     }
-    baseUnit /= 2f ;
-    //if (updatesVerbose) I.sayAbout(actor, actor+" greed unit is: "+baseUnit) ;
-    return (credits / baseUnit) * actor.traits.scaleLevel(ACQUISITIVE) ;
+    baseUnit /= 2f;
+    
+    final float
+      mag = 1f + (credits / baseUnit),
+      greed = actor.traits.scaleLevel(ACQUISITIVE);
+    return greed * (float) (Behaviour.ROUTINE * FastMath.log(mag));
   }
   
   

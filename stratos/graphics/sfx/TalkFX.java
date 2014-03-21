@@ -22,7 +22,6 @@ public class TalkFX extends SFX {
   ) {
     public Sprite makeSprite() { return new TalkFX() ; }
   };
-  
   final static ImageAsset BUBBLE_TEX = ImageAsset.fromImage(
     "media/GUI/textBubble.png", TalkFX.class
   );
@@ -36,9 +35,7 @@ public class TalkFX extends SFX {
     FROM_LEFT  = 1,
     FROM_RIGHT = 2 ;
   final static float
-    //LINE_HIGH  = FONT.map[' '].height,
-    //LINE_SPACE = LINE_HIGH + 10,
-    FADE_RATE  = 1f / 25 ;
+    FADE_RATE  = 1f / (Rendering.FRAMES_PER_SECOND * 0.5f);
   
   public float fadeRate = 1.0f ;
   final float LINE_HIGH, LINE_SPACE;
@@ -113,10 +110,10 @@ public class TalkFX extends SFX {
   
   
   public void addPhrase(String phrase, int bubbleType) {
-    final Bubble b = new Bubble() ;
-    b.phrase = phrase ;
-    b.type = bubbleType ;
-    toShow.add(b) ;
+    final Bubble b = new Bubble();
+    b.phrase = phrase;
+    b.type = bubbleType;
+    toShow.add(b);
   }
   
   
@@ -129,6 +126,7 @@ public class TalkFX extends SFX {
       shouldMove = toShow.size() > 0,
       canMove = showing.size() == 0 || first.alpha <= 1,
       isSpace = showing.size() == 0 || first.yoff >= LINE_SPACE ;
+    
     if (shouldMove && canMove) {
       if (isSpace) {
         showBubble(toShow.removeFirst()) ;
@@ -143,7 +141,6 @@ public class TalkFX extends SFX {
       b.alpha -= FADE_RATE * fadeRate / MAX_LINES ;
       if (b.alpha <= 0) showing.remove(b) ;
     }
-    
     super.readyFor(rendering);
   }
   
@@ -169,6 +166,7 @@ public class TalkFX extends SFX {
   }
   
   
+  
   /**  Rendering methods-
     */
   protected void renderInPass(SFXPass pass) {
@@ -185,8 +183,13 @@ public class TalkFX extends SFX {
     for (Bubble bubble : showing) {
       final boolean speaks = bubble.type != NOT_SPOKEN;
       final Colour c = new Colour();
-      if (speaks) c.set(0.8f, 0.8f, 1, 1);
-      c.a = Colour.transparency(bubble.alpha).a / 1.2f;
+      
+      final float alpha;
+      if (bubble.alpha < 1) alpha = bubble.alpha;
+      else alpha = (1.5f - bubble.alpha) * 2;
+      if (speaks) c.set(0.8f, 0.8f, 1, alpha);
+      else c.set(1, 1, 1, alpha);
+      
       Label.renderPhrase(
         bubble.phrase, FONT, fontScale, c,
         flatPoint.x + bubble.xoff,

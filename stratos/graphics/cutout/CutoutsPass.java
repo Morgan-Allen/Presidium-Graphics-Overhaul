@@ -87,14 +87,19 @@ public class CutoutsPass {
   
   public void performPass() {
     final Table <ModelAsset, Batch <CutoutSprite>> subPasses = new Table();
+    final Stack <ModelAsset> sequence = new Stack <ModelAsset> ();
     
     for (CutoutSprite s : inPass) {
       Batch <CutoutSprite> batch = subPasses.get(s.model());
-      if (batch == null) subPasses.put(s.model(), batch = new Batch());
+      if (batch == null) {
+        subPasses.put(s.model(), batch = new Batch());
+        sequence.add(s.model());
+      }
       batch.add(s);
     }
     
-    for (Batch <CutoutSprite> subPass : subPasses.values()) {
+    for (ModelAsset modelKey : sequence) {
+      final Batch <CutoutSprite> subPass = subPasses.get(modelKey);
       //  TODO:  Try using multi-texturing here instead.  Ought to be more
       //  efficient, and probably less bug-prone.
       for (CutoutSprite s : subPass) {

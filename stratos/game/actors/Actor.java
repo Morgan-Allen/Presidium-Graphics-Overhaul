@@ -332,8 +332,8 @@ public abstract class Actor extends Mobile implements
     //
     //  Finally, if you have anything to say, render the chat bubbles.
     if (chat.numPhrases() > 0) {
-      chat.position.setTo(s.position) ;
-      chat.position.z += height() ;
+      chat.position.setTo(s.position);
+      chat.position.z += height();
       chat.readyFor(rendering);
     }
   }

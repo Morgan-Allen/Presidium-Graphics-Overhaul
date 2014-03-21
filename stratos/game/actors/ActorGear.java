@@ -119,16 +119,18 @@ public class ActorGear extends Inventory implements Economy {
   
   
   public void incCredits(float inc) {
-    if (Float.isNaN(inc)) I.complain("INC IS NOT-A-NUMBER!") ;
-    if (Float.isNaN(credits)) credits = 0 ;
-    if (inc == 0) return ;
-    final int oldC = (int) credits() ;
-    super.incCredits(inc) ;
-    final int newC = (int) credits() ;
-    if (! actor.inWorld() || oldC == newC) return ;
-    String phrase = inc >= 0 ? "+" : "-" ;
-    phrase+=" "+(int) Math.abs(inc)+" credits" ;
-    actor.chat.addPhrase(phrase) ;
+    if (Float.isNaN(inc)) I.complain("INC IS NOT-A-NUMBER!");
+    if (Float.isNaN(credits)) credits = 0;
+    if (inc == 0) return;
+    
+    final int oldC = (int) credits();
+    super.incCredits(inc);
+    final int newC = (int) credits();
+    if (! actor.inWorld() || oldC == newC) return;
+    
+    String phrase = inc >= 0 ? "+" : "-";
+    phrase+=" "+(int) Math.abs(inc)+" credits";
+    actor.chat.addPhrase(phrase);
   }
   
   

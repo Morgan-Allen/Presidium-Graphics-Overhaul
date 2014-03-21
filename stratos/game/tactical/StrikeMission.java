@@ -47,12 +47,11 @@ public class StrikeMission extends Mission {
     */
   public float priorityFor(Actor actor) {
     if (subject instanceof Actor) return Combat.combatPriority(
-      actor, (Actor) subject,
-      actor.mind.greedFor(rewardCredits(actor)) * ROUTINE,
+      actor, (Actor) subject, basePriority(actor),
       PARAMOUNT, false
-    ) ;
+    );
     if (subject instanceof Venue) {
-      return actor.mind.greedFor(rewardCredits(actor)) * ROUTINE ;
+      return basePriority(actor);
     }
     return 0 ;
   }
@@ -62,7 +61,7 @@ public class StrikeMission extends Mission {
     if (! isActive()) return null;
     return new Combat(
       actor, (Element) subject,
-      Combat.STYLE_EITHER, objectIndex
+      Combat.STYLE_EITHER, objectIndex()
     );
   }
 

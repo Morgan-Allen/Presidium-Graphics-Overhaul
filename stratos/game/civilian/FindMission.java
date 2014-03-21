@@ -14,7 +14,7 @@ import stratos.util.*;
 public class FindMission extends Plan implements Economy {
   
   
-  private static boolean verbose = false ;
+  private static boolean verbose = true;
   
   
   final Mission applies ;
@@ -22,20 +22,34 @@ public class FindMission extends Plan implements Economy {
   
   
   public static FindMission attemptFor(Actor actor) {
-    if (actor.mind.mission() != null) return null ;
-    final Venue admin = Audit.nearestAdminFor(actor, false) ;
-    if (admin == null) return null ;
-    //
-    //  Find a mission that seems pretty appealing at the moment-
-    final Choice choice = new Choice(actor) ;
+    if (actor.mind.mission() != null) return null;
+    final Venue admin = Audit.nearestAdminFor(actor, false);
+    if (admin == null) return null;
+    
+    //  Find a mission that seems appealing at the moment (we disable culling
+    //  of invalid plans, since missions might not have steps available until
+    //  approved-)
+    if (verbose) I.sayAbout(actor, "\nEvaluating missions...");
+    final Choice choice = new Choice(actor) {
+      protected boolean checkPlanValid(Behaviour b) {
+        return true;
+      }
+    };
     for (Mission mission : actor.base().allMissions()) {
+      if (verbose && I.talkAbout == actor) {
+        I.say("\n  mission is: "+mission);
+        I.say("  priority: "+mission.priorityFor(actor));
+        I.say("  next step: "+mission.nextStepFor(actor));
+      }
       if (! mission.openToPublic()) continue ;
       choice.add(mission) ;
     }
     final Mission picked = (Mission) choice.weightedPick() ;
-    if (picked == null) return null ;
-    //
+    
+    
     //  And try to apply for it-
+    if (verbose) I.sayAbout(actor, "Mission picked: "+picked);
+    if (picked == null) return null ;
     return new FindMission(actor, picked, admin) ;
   }
   

@@ -13,20 +13,22 @@ import stratos.util.*;
 public class GroupSprite extends Sprite {
   
   
-  final static ModelAsset GROUP_MODEL = new ModelAsset(
+  final static ModelAsset GROUP_MODEL = new Assets.ClassModel(
     "GROUP-MODEL", GroupSprite.class
   ) {
     public Sprite makeSprite() { return new GroupSprite(); }
-    public boolean isLoaded() { return true; }
-    protected void loadAsset() {}
-    protected void disposeAsset() {}
   };
+  final public static int
+    SORT_BY_Z_ORDER = 0,
+    SORT_BY_ADDITION = 1;
+  
   private static boolean verbose = false;
   
   
   protected Stack <Sprite> modules = new Stack <Sprite> () ;
   protected Stack <Vec3D>  offsets = new Stack <Vec3D>  () ;
   private Vec3D lastPosition = null;
+  private int sortMode = SORT_BY_Z_ORDER;
   
   
   public GroupSprite() {}
@@ -34,6 +36,7 @@ public class GroupSprite extends Sprite {
   
   public void loadFrom(DataInputStream in) throws Exception {
     super.loadFrom(in) ;
+    this.sortMode = in.read();
     final int numMods = in.readInt() ;
     for (int i = numMods ; i-- > 0 ;) {
       final Sprite sprite = ModelAsset.loadSprite(in) ;
@@ -46,6 +49,7 @@ public class GroupSprite extends Sprite {
   
   public void saveTo(DataOutputStream out) throws Exception {
     super.saveTo(out) ;
+    out.write(sortMode);
     out.writeInt(modules.size()) ;
     final Iterator <Sprite> overMods = modules.iterator() ;
     final Iterator <Vec3D> overOffs = offsets.iterator() ;
@@ -57,6 +61,11 @@ public class GroupSprite extends Sprite {
   
   
   public ModelAsset model() { return GROUP_MODEL; }
+  
+  
+  public void setSortMode(int mode) {
+    this.sortMode = mode;
+  }
   
   
   
@@ -178,26 +187,35 @@ public class GroupSprite extends Sprite {
     final float baseDepth = rendering.view.screenDepth(this.position);
     if (verbose) I.say("\nCompressing Z order, base depth: "+baseDepth);
     
-    //*
-    float
-      minDepth = Float.POSITIVE_INFINITY,
-      maxDepth = Float.NEGATIVE_INFINITY;
-    for (Sprite s : overlaid) {
-      rendering.view.translateToScreen(s.position);
-      s.depth = s.position.z;
-      minDepth = Math.min(minDepth, s.depth);
-      maxDepth = Math.max(maxDepth, s.depth);
-    }
-    if (verbose) I.say("  True depth range: "+(maxDepth - minDepth));
-    final float margin = depthRange / overlaid.size();
-    //*/
     
-    int i = 0 ;for (Sprite s : overlaid) {
-      final float relDepth = (s.depth - minDepth) / (maxDepth - minDepth);
-      //final float relDepth = ++i * depthRange / overlaid.size();
-      s.position.z = baseDepth - (margin + (depthRange * (1 - relDepth)));
-      rendering.view.translateFromScreen(s.position);
+    if (sortMode == SORT_BY_Z_ORDER) {
+      float
+        minDepth = Float.POSITIVE_INFINITY,
+        maxDepth = Float.NEGATIVE_INFINITY;
+      for (Sprite s : overlaid) {
+        rendering.view.translateToScreen(s.position);
+        s.depth = s.position.z;
+        minDepth = Math.min(minDepth, s.depth);
+        maxDepth = Math.max(maxDepth, s.depth);
+      }
+      if (verbose) I.say("  True depth range: "+(maxDepth - minDepth));
+      final float margin = depthRange / overlaid.size();
+      
+      for (Sprite s : overlaid) {
+        final float relDepth = (s.depth - minDepth) / (maxDepth - minDepth);
+        s.position.z = baseDepth - (margin + (depthRange * (1 - relDepth)));
+        rendering.view.translateFromScreen(s.position);
+      }
     }
+    else {
+      int i = 0; for (Sprite s : overlaid) {
+        rendering.view.translateToScreen(s.position);
+        final float relDepth = ++i * depthRange / overlaid.size();
+        s.position.z = baseDepth - (depthRange * relDepth);
+        rendering.view.translateFromScreen(s.position);
+      }
+    }
+    
   }
   
   
