@@ -14,7 +14,7 @@ import stratos.util.*;
 public class FindMission extends Plan implements Economy {
   
   
-  private static boolean verbose = true;
+  private static boolean verbose = false;
   
   
   final Mission applies ;
