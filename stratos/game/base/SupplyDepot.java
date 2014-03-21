@@ -277,7 +277,7 @@ public class SupplyDepot extends Venue implements
   /**  Rendering and interface methods-
     */
   protected float[] goodDisplayOffsets() {
-    return new float[] { -3.0f, 0.0f } ;
+    return new float[] { 0.0f, 3.0f } ;
   }
   
   

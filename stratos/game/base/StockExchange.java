@@ -258,6 +258,15 @@ public class StockExchange extends Venue implements Economy {
   /**  Rendering and interface methods-
     */
   final static float GOOD_DISPLAY_OFFSETS[] = {
+    0, 0.5f,
+    0, 1.0f,
+    0, 1.5f,
+    0, 2.0f,
+    0.5f, 0,
+    1.0f, 0,
+    1.5f, 0,
+    2.0f, 0
+    /*
     -3, 0.5f,
     -3, 1.0f,
     -3, 1.5f,
@@ -266,6 +275,7 @@ public class StockExchange extends Venue implements Economy {
     -1.0f, 3,
     -1.5f, 3,
     -2.0f, 3,
+    //*/
   } ;
   
   

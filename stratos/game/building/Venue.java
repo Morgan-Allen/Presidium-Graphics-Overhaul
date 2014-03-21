@@ -710,7 +710,7 @@ public abstract class Venue extends Fixture implements
   
   
   protected void renderHealthbars(Rendering rendering, Base base) {
-    if (! structure.intact()) return;
+    //if (! structure.intact()) return;
     healthbar.level = structure.repairLevel();
     
     final BaseUI UI = BaseUI.current();
@@ -787,13 +787,22 @@ public abstract class Venue extends Fixture implements
 
   
   final protected static float STANDARD_GOOD_SPRITE_OFFSETS[] = {
-     0, 0,
-     0, 1,
-    -1, 0,
-     0, 2,
-    -2, 0,
-     0, 3,
-    -3, 0,
+    0, 0,
+    1, 0,
+    0, 1,
+    2, 0,
+    0, 2,
+    3, 0,
+    0, 3
+    /*
+     0,  0,
+     1,  0,
+     0, -1,
+     2,  0,
+     0, -2,
+     3,  0,
+     0, -3,
+     //*/
   } ;
   
   
@@ -820,8 +829,9 @@ public abstract class Venue extends Fixture implements
     
     final boolean hide = ! structure.intact() ;
     final float
-      initX = (size / 2f) - 0.5f,
-      initY = 0.5f - (size / 2f) ;
+      initY = (size / 2f) - 0.5f,
+      initX = 0.5f - (size / 2f) ;
+    
     int index = -1 ;
     for (Service s : services) if (canShow(s)) index += 2 ;
     if (index < 0) return ;
@@ -832,8 +842,10 @@ public abstract class Venue extends Fixture implements
       final float y = offsets[index--], x = offsets[index--] ;
       if (y >= size || size <= -x) continue ;
       buildSprite.updateItemDisplay(
-        s.model, hide ? 0 : goodDisplayAmount(s),
-        x + initX, y + initY
+        s.model,
+        hide ? 0 : goodDisplayAmount(s),
+        initX + x,
+        initY - y
       ) ;
     }
   }

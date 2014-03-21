@@ -187,7 +187,6 @@ public class GroupSprite extends Sprite {
     final float baseDepth = rendering.view.screenDepth(this.position);
     if (verbose) I.say("\nCompressing Z order, base depth: "+baseDepth);
     
-    
     if (sortMode == SORT_BY_Z_ORDER) {
       float
         minDepth = Float.POSITIVE_INFINITY,

@@ -2,6 +2,7 @@
 
 package stratos.graphics.cutout ;
 import stratos.graphics.common.*;
+import stratos.util.I;
 
 
 
@@ -32,7 +33,7 @@ public class ItemStack extends GroupSprite {
     final int oldAmount = this.amount ;
     if (oldAmount == newAmount) return ;
     clearAllAttachments() ;
-    //
+    
     //  First, determine how many crates and packets of the good should be
     //  shown-
     int numPacks = (int) Math.ceil(newAmount * 1f / ITEM_UNIT), numCrates = 0 ;
@@ -41,7 +42,7 @@ public class ItemStack extends GroupSprite {
       total = numCrates + numPacks,
       numLevels = total / 4,
       topOffset = (4 * (int) Math.ceil(total / 4f)) - total ;
-    //
+    
     //  Then iterate through the list of possible positions, and fill 'em up.
     for (int i = 0 ; i < total ; i++) {
       final int level = i / 4, coordIndex = (level < numLevels) ?
@@ -52,10 +53,14 @@ public class ItemStack extends GroupSprite {
       final CutoutSprite box = (CutoutSprite) ((i < numCrates) ?
         BuildingSprite.CRATE_MODEL : itemModel
       ).makeSprite();
-      box.scale = 0.5f;
       attach(box, coord[0], coord[1], level * 0.2f);
     }
     amount = newAmount ;
+  }
+  
+  
+  public void readyFor(Rendering rendering) {
+    super.readyFor(rendering);
   }
 }
 

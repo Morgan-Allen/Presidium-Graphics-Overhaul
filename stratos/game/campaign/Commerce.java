@@ -25,7 +25,7 @@ public class Commerce implements Economy {
     DEMAND_INC      = 0.15f,
     MAX_APPLICANTS  = 3 ;
   
-  private static boolean verbose = true;
+  private static boolean verbose = false;
   
   
   final Base base ;

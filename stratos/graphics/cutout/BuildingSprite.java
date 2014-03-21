@@ -109,6 +109,7 @@ public class BuildingSprite extends Sprite {
     scaffoldBase = (CutoutSprite) ModelAsset.loadSprite(in);
     scaffolding = (GroupSprite) ModelAsset.loadSprite(in);
     allStacks = (GroupSprite) ModelAsset.loadSprite(in);
+    allStacks.clearAllAttachments();
   }
   
   
@@ -203,7 +204,8 @@ public class BuildingSprite extends Sprite {
   
   
   public void clearFX() {
-    
+    statusFX.clear() ;
+    allStacks.clearAllAttachments() ;
   }
   
   
@@ -220,7 +222,6 @@ public class BuildingSprite extends Sprite {
         break;
       }
     }
-    
     if (amount < 1) {
       if (match != null) allStacks.detach(match) ;
       return ;
