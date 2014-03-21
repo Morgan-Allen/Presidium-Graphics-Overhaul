@@ -25,7 +25,7 @@ public class Commerce implements Economy {
     DEMAND_INC      = 0.15f,
     MAX_APPLICANTS  = 3 ;
   
-  private static boolean verbose = false ;
+  private static boolean verbose = true;
   
   
   final Base base ;
@@ -175,11 +175,13 @@ public class Commerce implements Economy {
       jobSupply[a.position.ID]++ ;
     }
     
+    if (verbose) I.say("\nChecking for new candidates...");
+    
     for (Background b : Background.ALL_BACKGROUNDS) {
       final float supply = jobSupply[b.ID], demand = jobDemand[b.ID] ;
       if (demand == 0) continue ;
       //float applyChance = (demand * MAX_APPLICANTS) - supply ;
-      float applyChance = demand / (supply + demand) ;
+      float applyChance = demand * demand / (supply + demand) ;
       applyChance *= timeGone ;
       
       if (verbose) {
@@ -190,47 +192,50 @@ public class Commerce implements Economy {
       while (Rand.num() < applyChance) {
         final Human applies = new Human(b, base) ;
         candidates.addFirst(applies) ;
-        FindWork.lookForWork((Human) applies, base) ;
+        final Application a = FindWork.lookForWork((Human) applies, base);
+        if (a != null) applies.mind.switchApplication(a);
         applyChance-- ;
+        if (verbose) I.say("New candidate: "+applies);
       }
     }
     
-    //
     //  TODO:  Consider time-slicing this again, at least for larger
     //  settlements.
+    if (verbose) I.say("\nTotal candidates "+candidates.size());
     
     for (ListEntry e = candidates ; (e = e.nextEntry()) != candidates ;) {
-      final Human c = (Human) e.refers ;
-      final Application a = c.mind.application() ;
-      float quitChance = 1 ;
+      final Human c = (Human) e.refers;
+      final Application a = c.mind.application();
+      float quitChance = timeGone;
+      
       if (a != null) {
-        final Background b = c.mind.application().position ;
+        final Background b = a.position ;
         final float
           supply = jobSupply[b.ID],
           demand = jobDemand[b.ID] ;
-        quitChance = supply / (supply + demand) ;
-        quitChance *= timeGone ;
+        quitChance *= supply / (supply + demand);
         
         if (verbose) {
-          I.say("Quit chance for "+a.position+" "+c+" is: "+quitChance) ;
+          I.say("Quit chance for "+a.position+" "+c+" is: "+quitChance);
         }
       }
+      
       if (Rand.num() > quitChance) {
-        if (Rand.num() < timeGone) {
-          FindWork.lookForWork((Human) c, base) ;
-        }
+        final Application newApp = FindWork.lookForWork((Human) c, base);
+        if (newApp != null) c.mind.switchApplication(newApp);
       }
       else {
+        if (verbose) I.say(c+"("+c.vocation()+") is quitting...");
         candidates.removeEntry(e) ;
-        if (a != null) a.employer.personnel().setApplicant(a, false) ;
+        if (a != null) a.employer.personnel().setApplicant(a, false);
       }
     }
   }
   
   
   public void incDemand(Background b, float amount, int period) {
-    jobDemand[b.ID] +=
-      amount * (period / UPDATE_INTERVAL) * DEMAND_INC * MAX_APPLICANTS ;
+    final float inc = amount *(period / UPDATE_INTERVAL);
+    jobDemand[b.ID] += inc * DEMAND_INC * MAX_APPLICANTS;
   }
   
   

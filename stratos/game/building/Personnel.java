@@ -251,15 +251,15 @@ public class Personnel {
   protected void updatePersonnel(int numUpdates) {
     if (numUpdates % REFRESH_INTERVAL == 0) {
       final Base base = employs.base() ;
-      //
+      
       //  Clear out the office for anyone dead-
       for (Actor a : workers  ) if (a.destroyed()) setWorker(a, false) ;
       for (Actor a : residents) if (a.destroyed()) setResident(a, false) ;
-      //
+      
       //  If there's an unfilled opening, look for someone to fill it.
       //  TODO:  This should really be handled more from the Commerce class?
-      if (employs.careers() == null) return ;
-
+      if (employs.careers() == null) return;
+      
       for (Background v : employs.careers()) {
         final int numOpenings = employs.numOpenings(v) ;
         if (numOpenings > 0) {
@@ -303,7 +303,7 @@ public class Personnel {
   }
   
   
-  public int numPositions(Background match) {
+  public int numHired(Background match) {
     int num = 0 ; for (Actor c : workers) {
       if (c.vocation() == match) num++ ;
     }

@@ -13,7 +13,7 @@ import stratos.util.*;
 public class FindWork extends Plan implements Economy {
   
   
-  private static boolean verbose = false ;
+  private static boolean verbose = true;
   
   
   final Application application ;
@@ -179,7 +179,7 @@ public class FindWork extends Plan implements Economy {
     
     if (app.employer instanceof Venue) {
       final Venue venue = (Venue) app.employer ;
-      int numEmployed = venue.personnel.numPositions(app.position) ;
+      int numEmployed = venue.personnel.numHired(app.position) ;
       if (numEmployed == 0) {
         guildFees = 0 ;
         transport /= 2 ;

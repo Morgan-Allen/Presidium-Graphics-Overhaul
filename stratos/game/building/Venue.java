@@ -335,7 +335,7 @@ public abstract class Venue extends Fixture implements
   /**  Recruiting staff and assigning manufacturing tasks-
     */
   public int numOpenings(Background v) {
-    return structure.upgradeBonus(v) - personnel.numPositions(v) ;
+    return structure.upgradeBonus(v) - personnel.numHired(v);
   }
   
   public boolean isManned() {
@@ -548,7 +548,32 @@ public abstract class Venue extends Fixture implements
   
   
   private void describePersonnel(Description d, BaseUI UI) {
-    d.append("Personnel and Visitors:") ;
+    final Background c[] = careers();
+    if (c != null && c.length > 0) {
+      d.append("\nCareers and Openings:");
+      for (Background v : c) {
+        final int
+          hired = personnel.numHired(v),
+          total = hired + numOpenings(v);
+        d.append("\n  "+hired+"/"+total+" "+v.name);
+      }
+      d.append("\n");
+    }
+    
+    d.append("\nPersonnel:");
+    for (final Application a : personnel.applications) {
+      final Actor p = a.applies;
+      d.append("\n") ;
+      ((Text) d).insert(p.portrait(UI).texture(), 40);
+      d.append(p);
+      d.append(p.inWorld() ? " (" : " (Offworld ");
+      d.append(p.vocation().name+")\n  ");
+      
+      d.append(new Description.Link("Hire for "+a.hiringFee()+" cred") {
+        public void whenClicked() { personnel.confirmApplication(a); }
+      }) ;
+    }
+    
     final Batch <Mobile> considered = new Batch <Mobile> () ;
     for (Actor m : personnel.residents()) considered.include(m) ;
     for (Actor m : personnel.workers()) considered.include(m) ;
@@ -568,24 +593,6 @@ public abstract class Venue extends Fixture implements
       d.append("\n  ") ;
       m.describeStatus(d) ;
     }
-    
-    d.append("\n\nVacancies and Applications:") ;
-    boolean none = true ;
-    if (careers() != null) for (Background v : careers()) {
-      final int numOpen = numOpenings(v) ;
-      if (numOpen > 0) none = false ;
-      if (numOpen > 0) d.append("\n  "+numOpen+" "+v.name+" vacancies") ;
-    }
-    for (final Application a : personnel.applications) {
-      none = false ;
-      d.append("\n  ") ;
-      d.append(a.applies) ;
-      d.append("\n  ("+a.hiringFee()+" credits) ") ;
-      d.append(new Description.Link("HIRE") {
-        public void whenClicked() { personnel.confirmApplication(a) ; }
-      }) ;
-    }
-    if (none) d.append("\n  No vacancies or applications.") ;
   }
   
   

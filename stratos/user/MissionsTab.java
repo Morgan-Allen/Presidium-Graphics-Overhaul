@@ -30,15 +30,17 @@ public class MissionsTab extends InfoPanel {
   final public static ImageAsset
     ALL_ICONS[] = ImageAsset.fromImages(
       MissionsTab.class, IMG_DIR,
-      "mission_strike.png",
-      "mission_recon.png",
-      "mission_contact.png",
-      "mission_security.png"
+      "button_strike.png",
+      "button_recon.png",
+      "button_contact.png",
+      "button_security.png",
+      "mission_button_lit.png"
     ),
     STRIKE_ICON   = ALL_ICONS[0],
     RECON_ICON    = ALL_ICONS[1],
     CONTACT_ICON  = ALL_ICONS[2],
-    SECURITY_ICON = ALL_ICONS[3];
+    SECURITY_ICON = ALL_ICONS[3],
+    MISSION_ICON_LIT = ALL_ICONS[4];
   //
   //  These icons need to be worked on a little more...
   final public static CutoutModel

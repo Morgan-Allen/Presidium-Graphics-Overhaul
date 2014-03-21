@@ -18,8 +18,8 @@ public class TargetInfo extends UIGroup {
   
   
   final int
-    OB_SIZE = 35,
-    OB_MARGIN  = 5;
+    OB_SIZE = 40,
+    OB_MARGIN  = 2;
   //  need health bar, title, status fx,
   
   final BaseUI BUI;
@@ -39,8 +39,10 @@ public class TargetInfo extends UIGroup {
   private class OptionButton extends Button {
     final Mission mission;
     
-    OptionButton(BaseUI UI, ImageAsset img, String info, Mission m) { 
-      super(UI, img.asTexture(), info);
+    OptionButton(BaseUI UI, ImageAsset img, String info, Mission m) {
+      super(
+        UI, img.asTexture(), MissionsTab.MISSION_ICON_LIT.asTexture(), info
+      );
       this.mission = m;
     }
     

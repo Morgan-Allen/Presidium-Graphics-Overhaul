@@ -186,7 +186,9 @@ public class TalkFX extends SFX {
       
       final float alpha;
       if (bubble.alpha < 1) alpha = bubble.alpha;
+      else if (speaks) alpha = 1;
       else alpha = (1.5f - bubble.alpha) * 2;
+      
       if (speaks) c.set(0.8f, 0.8f, 1, alpha);
       else c.set(1, 1, 1, alpha);
       
