@@ -9,6 +9,7 @@ package stratos.game.common ;
 import stratos.game.building.*;
 import stratos.game.planet.*;
 import stratos.graphics.common.*;
+import stratos.graphics.widgets.Composite;
 import stratos.graphics.widgets.Text.Clickable;
 import stratos.user.*;
 import stratos.util.*;
@@ -16,7 +17,7 @@ import stratos.util.*;
 
 
 public final class Tile implements
-  Target, TileConstants, Boardable, Session.Saveable, Clickable
+  Target, TileConstants, Boardable, Session.Saveable, Selectable
 {
   
   
@@ -312,18 +313,39 @@ public final class Tile implements
   }
   
   
-  /*
-  public Colour minimapHue() {
-    /*
-    if (owner != null && owner.sprite() != null) {
-      return owner.sprite().averageHue() ;
-    }
-    if (world.terrain().isRoad(this)) return Habitat.ROAD_TEXTURE.averaged() ;
-    //*/
-  /*
-    return habitat().baseTex.averaged() ;
+  public Composite portrait(BaseUI UI) {
+    return null;
   }
-  //*/
+  
+  
+  public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
+    return null;
+  }
+  
+  
+  public TargetInfo configInfo(TargetInfo info, BaseUI UI) {
+    if (info == null) info = new TargetInfo(UI, this);
+    return info;
+  }
+  
+  
+  public Target selectionLocksOn() {
+    return this;
+  }
+  
+  
+  public void renderSelection(Rendering rendering, boolean hovered) {
+    //  TODO:  Consider a gentle 'fuzz' over the area concerned?
+  }
+  
+  
+  public Colour minimapTone() {
+    if (this.owner instanceof Venue) {
+      return ((Venue) owner).base().colour;
+    }
+    if (world.terrain().isRoad(this)) return Habitat.ROAD_TEXTURE.average();
+    return habitat().baseTex.average() ;
+  }
 }
 
 

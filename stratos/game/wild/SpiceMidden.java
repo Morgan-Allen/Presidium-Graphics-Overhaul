@@ -99,33 +99,35 @@ public class SpiceMidden extends Fixture implements Selectable {
   }
 
 
-  public Composite portrait(HUD UI) {
+  public Composite portrait(BaseUI UI) {
+    //  TODO:  Fix this.
     return null;//new Composite(UI) ;
-  }
-
-
-  public String[] infoCategories() {
-    return null ;
-  }
-
-
-  public void writeInformation(Description d, int categoryID, HUD UI) {
-    d.append(helpInfo()) ;
-    d.append("\n\nContains: "+spice()) ;
   }
   
   
   public void whenClicked() {
-    
+    BaseUI.current().selection.pushSelection(this, false);
+  }
+  
+
+  public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
+    if (panel == null) panel = new InfoPanel(
+      UI, this, 0
+    );
+    final Description d = panel.detail();
+    d.append(helpInfo());
+    d.append("\n\nContains: "+spice());
+    return panel;
+  }
+  
+  
+  public TargetInfo configInfo(TargetInfo info, BaseUI UI) {
+    if (info == null) info = new TargetInfo(UI, this);
+    return info;
   }
 
 
-  public InfoPanel createPanel(BaseUI UI) {
-    return new InfoPanel(UI, this, 0);
-  }
-
-
-  public Target subject() {
+  public Target selectionLocksOn() {
     return this ;
   }
   

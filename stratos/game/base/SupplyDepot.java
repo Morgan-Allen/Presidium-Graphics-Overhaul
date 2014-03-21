@@ -9,6 +9,7 @@ package stratos.game.base ;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
+import stratos.game.planet.Species;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
@@ -24,10 +25,10 @@ public class SupplyDepot extends Venue implements
   /**  Other data fields, constructors and save/load methods-
     */
   final public static ModelAsset MODEL_UNDER = CutoutModel.fromImage(
-    "media/Buildings/merchant/depot_under.gif", SupplyDepot.class, 4.25f, 0
+    SupplyDepot.class, "media/Buildings/merchant/depot_under.gif", 4.25f, 0
   );
   final public static ModelAsset MODEL_CORE = CutoutModel.fromImage(
-    "media/Buildings/merchant/depot_core.png", SupplyDepot.class, 3, 2
+    SupplyDepot.class, "media/Buildings/merchant/depot_core.png", 3, 2
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
     "media/GUI/Buttons/supply_depot_button.gif", SupplyDepot.class
@@ -293,19 +294,23 @@ public class SupplyDepot extends Venue implements
   }
   
   
-  public String[] infoCategories() {
-    return new String[] { "STATUS", "STAFF", "STOCK", "ORDERS" } ;
-  }
-  
 
-  public void writeInformation(Description d, int categoryID, HUD UI) {
+  public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
+    if (panel == null) panel = new InfoPanel(
+      UI, this, 0, "STATUS", "STAFF", "STOCK", "ORDERS"
+    );
+    super.configPanel(panel, UI);
+    final int categoryID = panel.categoryID();
+    final Description d = panel.detail();
+    
     if (categoryID == 3) {
-      d.append("Trade Quotas (Click to change)\n") ;
+      d.append("Trade Quotas (Click to change)\n");
       for (int n = 0 ; n < NUM_PREFS ; n++) {
-        descPref(n, PREF_TITLES[n], d) ;
+        descPref(n, PREF_TITLES[n], d);
       }
     }
-    else super.writeInformation(d, categoryID, UI) ;
+    else super.configPanel(panel, UI);
+    return panel;
   }
   
   
@@ -331,7 +336,7 @@ public class SupplyDepot extends Venue implements
   }
   
   
-  public Composite portrait(HUD UI) {
+  public Composite portrait(BaseUI UI) {
     final Composite cached = Composite.fromCache("supply_depot");
     if (cached != null) return cached;
     return Composite.withImage(ICON, "supply_depot");

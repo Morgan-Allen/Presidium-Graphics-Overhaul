@@ -1,8 +1,6 @@
 
 
 package stratos.user;
-import com.badlogic.gdx.math.Vector2;
-
 import stratos.game.common.*;
 import stratos.game.tactical.*;
 import stratos.game.actors.*;
@@ -12,16 +10,16 @@ import stratos.graphics.common.Rendering;
 import stratos.graphics.widgets.*;
 import stratos.start.PlayLoop;
 import stratos.util.*;
+import com.badlogic.gdx.math.Vector2;
 
 
 
 public class TargetInfo extends UIGroup {
   
+  
   final int
     OB_SIZE = 35,
     OB_MARGIN  = 5;
-  
-  
   //  need health bar, title, status fx,
   
   final BaseUI BUI;
@@ -105,6 +103,7 @@ public class TargetInfo extends UIGroup {
   
   protected void updateState() {
     //  TODO:  This still needs to be fixed when fading away...
+    
     final Vec3D screenPos = BUI.viewTracking.screenPosFor(subject);
     final float
       SS = BUI.viewTracking.view.screenScale(),

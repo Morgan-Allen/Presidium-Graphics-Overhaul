@@ -20,7 +20,7 @@ public interface Installation extends Inventory.Owner, Session.Saveable {
   void preview(boolean canPlace, Rendering rendering, Tile from, Tile to) ;
   
   String fullName() ;
-  Composite portrait(HUD UI) ;
+  Composite portrait(BaseUI UI) ;
   String helpInfo() ;
   String buildCategory() ;
   

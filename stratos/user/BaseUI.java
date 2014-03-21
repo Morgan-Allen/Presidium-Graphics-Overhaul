@@ -52,7 +52,7 @@ public class BaseUI extends HUD implements UIConstants {
   public BaseUI(World world, Rendering rendering) {
     this.world = world ;
     this.rendering = rendering ;
-    this.viewTracking = new ViewTracking((BaseUI) (Object) this, rendering.view) ;
+    this.viewTracking = new ViewTracking(this, rendering.view) ;
     configLayout() ;
   }
   
@@ -134,7 +134,7 @@ public class BaseUI extends HUD implements UIConstants {
     currentInfo = newInfo = null;
     
     this.quickbar = new Quickbar(this) ;
-    quickbar.absBound.set(20, 20, -40, 0) ;
+    //quickbar.absBound.set(20, 20, -40, 0) ;
     quickbar.relBound.set(0, 0, 1, 0) ;
     quickbar.attachTo(this) ;
     //quickbar.setupMissionButtons() ;  //  Not needed any more, I think...
@@ -150,10 +150,14 @@ public class BaseUI extends HUD implements UIConstants {
   /**  Modifying the interface layout-
     */
   protected void setInfoPanel(UIGroup infoPanel, TargetInfo targetInfo) {
-    if (infoPanel == currentPanel) return;
-    newPanel = infoPanel;
-    if (currentInfo != null) currentInfo.active = false;
-    newInfo = targetInfo;
+    if (infoPanel != currentPanel) {
+      beginPanelFade();
+      newPanel = infoPanel;
+    }
+    if (targetInfo != currentInfo) {
+      if (currentInfo != null) currentInfo.active = false;
+      newInfo = targetInfo;
+    }
   }
   
   
@@ -162,12 +166,7 @@ public class BaseUI extends HUD implements UIConstants {
     */
   public void updateInput() {
     super.updateInput();
-    if (selection.updateSelection(world, rendering.view, panelArea)) {
-      if (mouseClicked() && currentTask == null) {
-        selection.pushSelection(selection.hovered(), true);
-      }
-    }
-    I.talkAbout = selection.selected();
+    selection.updateSelection(world, rendering.view, panelArea);
   }
   
   
@@ -238,22 +237,27 @@ public class BaseUI extends HUD implements UIConstants {
   
   public void renderHUD(Rendering rendering) {
     super.renderHUD(rendering);
+    /*
     if (selection.selected() != null) {
       viewTracking.setLockOffset(panelArea.xdim() / -2, 0) ;
     }
     else {
       viewTracking.setLockOffset(0, 0) ;
     }
-    viewTracking.updateCamera() ;
+    //*/
+    viewTracking.updateTracking() ;
     
     if (currentPanel != newPanel) {
-      beginPanelFade();
+      //beginPanelFade();
       if (currentPanel != null) currentPanel.detach();
       if (newPanel     != null) newPanel.attachTo(panelArea);
-      if (newInfo      != null) newInfo.attachTo(infoArea);
       currentPanel = newPanel;
-      currentInfo  = newInfo ;
     }
+    if (currentInfo != newInfo) {
+      if (newInfo      != null) newInfo.attachTo(infoArea);
+      currentInfo  = newInfo;
+    }
+    
     if (capturePanel) {
       final Box2D b = new Box2D().setTo(panelArea.trueBounds());
       b.expandBy(0 - InfoPanel.MARGIN_WIDTH);

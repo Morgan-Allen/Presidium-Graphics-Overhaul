@@ -5,13 +5,33 @@
   */
 
 package stratos.graphics.common ;
+import stratos.util.*;
 
-//import org.lwjgl.opengl.* ;
 import java.awt.Color ;
 import java.io.* ;
 
-import stratos.util.*;
+import org.apache.commons.math3.util.FastMath;
 
+
+
+
+/*
+public void storeByteValue(byte puts[], int i) {
+  puts[i + 0] = (byte) (r * 255);
+  puts[i + 1] = (byte) (g * 255);
+  puts[i + 2] = (byte) (b * 255);
+  puts[i + 3] = (byte) (a * 255);
+}
+
+
+public void setFromBytes(byte vals[], int i) {
+  r = (vals[i + 0] & 0xff) / 255f;
+  g = (vals[i + 1] & 0xff) / 255f;
+  b = (vals[i + 2] & 0xff) / 255f;
+  a = (vals[i + 3] & 0xff) / 255f;
+  bitValue = toFloatBits();
+}
+//*/
 
 
 /**  Standard RGBA colour class with utility functions for conversion to other
@@ -23,8 +43,7 @@ public class Colour {
   
   final public static Colour
     HIDE  = new Colour().set(1, 1, 1,  0),
-    LIGHT = new Colour().set(1, 1, 1, -1),
-    
+    //GLOW = new Colour().set(1, 1, 1, -1),
     WHITE = new Colour().set(1, 1, 1, 1),
     NONE  = new Colour().set(0, 0, 0, 0),
     
@@ -85,8 +104,9 @@ public class Colour {
   /**  Helper methods for format conversion-
     */
   private float toFloatBits() {
+    final float o = FastMath.abs(a);
     final int color =
-      ((int) (255 * a) << 24) |
+      ((int) (255 * o) << 24) |
       ((int) (255 * b) << 16) |
       ((int) (255 * g) << 8 ) |
       ((int) (255 * r) << 0 ) ;
@@ -110,26 +130,6 @@ public class Colour {
     a = ((value >> 0 ) & 0xff) / 255f;
     bitValue = toFloatBits();
   }
-  
-  
-  
-  /*
-  public void storeByteValue(byte puts[], int i) {
-    puts[i + 0] = (byte) (r * 255);
-    puts[i + 1] = (byte) (g * 255);
-    puts[i + 2] = (byte) (b * 255);
-    puts[i + 3] = (byte) (a * 255);
-  }
-  
-  
-  public void setFromBytes(byte vals[], int i) {
-    r = (vals[i + 0] & 0xff) / 255f;
-    g = (vals[i + 1] & 0xff) / 255f;
-    b = (vals[i + 2] & 0xff) / 255f;
-    a = (vals[i + 3] & 0xff) / 255f;
-    bitValue = toFloatBits();
-  }
-  //*/
   
   
   /**
@@ -189,6 +189,10 @@ public class Colour {
     return a < 1;
   }
   
+  public boolean glows() {
+    return a < 0;
+  }
+  
 
   /**
    * Sets the argument colour to the complement of this Colour- opposite on the
@@ -241,6 +245,7 @@ public class Colour {
     */
   final public static Colour TRANSPARENCIES[] = new Colour[100];
   final public static Colour GREYSCALES[]     = new Colour[100];
+  final public static Colour GLOWS[]          = new Colour[100];
   static {
     for (int n = 100; n-- > 0;) {
       final float l = n / 100f;
@@ -248,6 +253,8 @@ public class Colour {
       t.set(1, 1, 1, l);
       final Colour f = GREYSCALES[n] = new Colour();
       f.set(l, l, l, 1);
+      final Colour g = GLOWS[n] = new Colour();
+      g.set(1, 1, 1, -l);
     }
   }
 
@@ -257,6 +264,10 @@ public class Colour {
   
   public static Colour greyscale(float a) {
     return GREYSCALES[Visit.clamp((int) (a * 100), 100)];
+  }
+  
+  public static Colour glow(float a) {
+    return GLOWS[Visit.clamp((int) (a * 100), 100)];
   }
   
   public static float combineAlphaBits(Colour base, Colour alpha) {

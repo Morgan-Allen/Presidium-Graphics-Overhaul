@@ -354,23 +354,19 @@ public abstract class Fauna extends Actor {
   }
   
   
-  public Composite portrait(HUD UI) {
+  public Composite portrait(BaseUI UI) {
     //  TODO:  Restore.
     return null;//new Composite(UI, species.portrait) ;
   }
   
   
-  public String helpInfo() {
-    return species.info ;
-  }
-  
-  
-  public String[] infoCategories() {
-    return null ;
-  }
-  
-  
-  public void writeInformation(Description d, int categoryID, HUD UI) {
+  public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
+    if (panel == null) panel = new ActorPanel(
+      UI, this
+    );
+    //final int categoryID = panel.categoryID();
+    final Description d = panel.detail();
+    
     d.append("Is: ") ;
     describeStatus(d) ;
     
@@ -391,6 +387,7 @@ public abstract class Fauna extends Actor {
     
     d.append("\n\n") ;
     d.append(species.info, Colour.LIGHT_GREY) ;
+    return panel;
   }
 }
 

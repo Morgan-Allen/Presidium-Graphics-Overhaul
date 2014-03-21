@@ -257,31 +257,21 @@ public class Human extends Actor implements Abilities {
   }
   
   
-  public Composite portrait(HUD UI) {
+  public Composite portrait(BaseUI UI) {
     return faceComposite(this);
   }
   
-
-  public String helpInfo() {
-    return Species.HUMAN.info ;
-  }
   
-  
-  public InfoPanel createPanel(BaseUI UI) {
-    return new ActorPanel(UI, this, false) ;
-  }
-  
-  
-  public String[] infoCategories() {
-    return new String[] { "STATUS", "SKILLS", "PROFILE" } ;
-  }
-  
-  
-  public void writeInformation(Description d, int categoryID, HUD UI) {
+  public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
+    if (panel == null) panel = new ActorPanel(
+      UI, this, "STATUS", "SKILLS", "PROFILE"
+    );
+    final int categoryID = panel.categoryID();
+    final Description d = panel.detail();
     if (categoryID == 0) describeStatus(d, UI) ;
-    ///if (categoryID == 1) describeOutfit(d, UI) ;
     if (categoryID == 1) describeSkills(d, UI) ;
     if (categoryID == 2) describeProfile(d, UI) ;
+    return panel;
   }
   
   

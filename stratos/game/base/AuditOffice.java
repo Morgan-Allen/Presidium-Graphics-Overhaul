@@ -27,7 +27,7 @@ public class AuditOffice extends Venue implements Economy {
   
 
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    "media/Buildings/merchant/audit_office.png", AuditOffice.class, 2.75f, 2
+    AuditOffice.class, "media/Buildings/merchant/audit_office.png", 2.75f, 2
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
     "media/GUI/Buttons/audit_office_button.gif", AuditOffice.class
@@ -284,6 +284,7 @@ public class AuditOffice extends Venue implements Economy {
   
   /**  Rendering and interface methods-
     */
+  /*
   public void writeInformation(Description d, int categoryID, HUD UI) {
     super.writeInformation(d, categoryID, UI) ;
     if (categoryID != 3 || ! structure.intact()) return ;
@@ -314,18 +315,6 @@ public class AuditOffice extends Venue implements Economy {
       "Determines the proportion of income paid in tax by upper-class "+
       "citizens, and lowers the savings threshold for tax exemption."
     ) ;
-    /*
-    describeSetting(
-      d, KEY_ESTATE_TAX, DEFAULT_ESTATE_TAX,
-      "Estate Tax Fees", DESC_ESTATE_TAX,
-      "Determines the payment made by landed gentry toward maintenance of "+
-      "their sprawling estates."
-    ) ;
-    if (lastHelpInfo != null) {
-      d.append("\n") ;
-      d.append(lastHelpInfo) ;
-    }
-    //*/
   }
   
   private static String lastHelpInfo = null ;
@@ -348,6 +337,7 @@ public class AuditOffice extends Venue implements Economy {
       }
     }) ;
   }
+  //*/
   
   
   public String fullName() {
@@ -355,7 +345,7 @@ public class AuditOffice extends Venue implements Economy {
   }
   
   
-  public Composite portrait(HUD UI) {
+  public Composite portrait(BaseUI UI) {
     final Composite cached = Composite.fromCache("audit_office");
     if (cached != null) return cached;
     return Composite.withImage(ICON, "audit_office");

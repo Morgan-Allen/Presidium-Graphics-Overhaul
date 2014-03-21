@@ -22,7 +22,7 @@ public class Sickbay extends Venue implements Economy {
   /**  Static constants, field definitions, constructors and save/load methods-
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    "media/Buildings/physician/physician_clinic.png", Sickbay.class, 3, 2
+    Sickbay.class, "media/Buildings/physician/physician_clinic.png", 3, 2
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
     "media/GUI/Buttons/hospice_button.gif", Sickbay.class
@@ -287,7 +287,7 @@ public class Sickbay extends Venue implements Economy {
   }
   
   
-  public Composite portrait(HUD UI) {
+  public Composite portrait(BaseUI UI) {
     final Composite cached = Composite.fromCache("sickbay");
     if (cached != null) return cached;
     return Composite.withImage(ICON, "sickbay");

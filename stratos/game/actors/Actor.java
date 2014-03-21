@@ -363,13 +363,9 @@ public abstract class Actor extends Mobile implements
   }
   
   
-  public String[] infoCategories() {
-    return null ;
-  }
-  
-  
-  public InfoPanel createPanel(BaseUI UI) {
-    return new InfoPanel(UI, this, 0);
+  public TargetInfo configInfo(TargetInfo info, BaseUI UI) {
+    if (info == null) info = new TargetInfo(UI, this);
+    return info;
   }
 
   
@@ -385,7 +381,7 @@ public abstract class Actor extends Mobile implements
   }
   
   
-  public Target subject() {
+  public Target selectionLocksOn() {
     return this ;
   }
   

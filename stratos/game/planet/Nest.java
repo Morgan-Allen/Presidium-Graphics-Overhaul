@@ -326,12 +326,7 @@ public class Nest extends Venue {
   }
   
   
-  public Composite portrait(HUD UI) {
-    return null ;
-  }
-
-  
-  public String[] infoCategories() {
+  public Composite portrait(BaseUI UI) {
     return null ;
   }
   

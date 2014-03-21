@@ -98,11 +98,12 @@ public class CutoutsPass {
       //  TODO:  Try using multi-texturing here instead.  Ought to be more
       //  efficient, and probably less bug-prone.
       for (CutoutSprite s : subPass) {
-        compileSprite(s, rendering.camera(), false);
+        final boolean glow = s.colour != null && s.colour.glows();
+        compileSprite(s, rendering.camera(), glow, s.model.texture);
       }
       compileAndRender(rendering.camera());
       for (CutoutSprite s : subPass) {
-        compileSprite(s, rendering.camera(), true);
+        compileSprite(s, rendering.camera(), true, s.model.lightSkin);
       }
       compileAndRender(rendering.camera());
     }
@@ -116,13 +117,20 @@ public class CutoutsPass {
   
   
   private void compileSprite(
-    CutoutSprite s, Camera camera, boolean lightPass
+    CutoutSprite s, Camera camera, boolean lightPass, Texture keyTex
   ) {
-    final Texture keyTex = lightPass ? s.model.lightSkin : s.model.texture;
+    //final Texture keyTex = lightPass ? s.model.lightSkin : s.model.texture;
     if (keyTex == null) return;
     if (keyTex != lastTex || lightPass != wasLit || total >= COMPILE_LIMIT) {
       compileAndRender(camera);
     }
+
+    final Colour fog = Colour.greyscale(s.fog);
+    final float colourBits;
+    if (s.colour == null) colourBits = fog.bitValue;
+    else if (s.colour.glows()) colourBits = s.colour.bitValue;
+    else if (! s.colour.blank()) colourBits = s.colour.bitValue;
+    else colourBits = Colour.combineAlphaBits(fog, s.colour);
     
     for (int off = 0 ; off < SIZE ; off += VERTEX_SIZE) {
       final int offset = total + off;
@@ -137,13 +145,6 @@ public class CutoutsPass {
       vertComp[X0 + offset] = temp.x;
       vertComp[Y0 + offset] = temp.y;
       vertComp[Z0 + offset] = temp.z;
-      
-      final Colour fog = Colour.greyscale(s.fog);
-      final float colourBits;
-      if (s.colour == null) colourBits = fog.bitValue;
-      else if (! s.colour.blank()) colourBits = s.colour.bitValue;
-      else colourBits = Colour.combineAlphaBits(fog, s.colour);
-      
       vertComp[C0 + offset] = colourBits;
       vertComp[U0 + offset] = s.model.vertices[U0 + off];
       vertComp[V0 + offset] = s.model.vertices[V0 + off];

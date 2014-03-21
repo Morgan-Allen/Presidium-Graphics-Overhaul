@@ -33,9 +33,16 @@ void main() {
 		color.g *= darken;
 		color.b *= darken;
 	}
-	color.a *= u_opacity;
 	
-	gl_FragColor = color * u_lighting;
+	//  In the case of a 'glow' texture, ignore current lighting.
+	if (u_opacity < 0) {
+    color.a *= 0 - u_opacity;
+    gl_FragColor = color;
+	}
+	else {
+    color.a *= u_opacity;
+    gl_FragColor = color * u_lighting;
+	}
 }
 
 

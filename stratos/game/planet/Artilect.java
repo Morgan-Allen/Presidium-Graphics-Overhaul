@@ -177,7 +177,12 @@ public abstract class Artilect extends Actor {
   
   /**  Rendering and interface methods-
     */
-  public void writeInformation(Description d, int categoryID, HUD UI) {
+  public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
+    if (panel == null) panel = new ActorPanel(
+      UI, this//, "STATUS", "SKILLS", "PROFILE"
+    );
+    final Description d = panel.detail();
+
     d.append("Is: ") ;
     super.describeStatus(d) ;
     
@@ -202,9 +207,12 @@ public abstract class Artilect extends Actor {
       d.append(Skill.skillDesc(level), Skill.skillTone(level)) ;
     }
     
-    d.append("\n\n") ;
-    d.append(helpInfo()) ;
+    d.append("\n\n");
+    d.append(species().info);
+    return panel;
   }
+  
+  
   
   
   protected static String nameWithBase(String base) {

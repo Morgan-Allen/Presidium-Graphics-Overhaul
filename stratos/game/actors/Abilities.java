@@ -200,7 +200,7 @@ public interface Abilities {
       "Nervous",
       "Cautious",
       null,
-      "Brave",
+      "Assertive",
       "Fearless",
       "Reckless"
     ),
@@ -238,7 +238,7 @@ public interface Abilities {
       null,
       "Temperate",
       "Abstinent",
-      "Frigid"
+      "Ascetic"
     ),
     APPETITE = new Trait(PERSONALITY,
       "Gluttonous",

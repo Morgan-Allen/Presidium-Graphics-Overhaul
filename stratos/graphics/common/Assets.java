@@ -18,7 +18,6 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 public class Assets {
   
   
-  final static String JAR_NAME = "presidium_run_jar.jar";
   final static boolean EXCLUDE_BASE_DIR = false;
   final public static char REP_SEP = '/';
   private static boolean verbose = false;

@@ -426,22 +426,28 @@ public abstract class Venue extends Fixture implements
     return fullName() ;
   }
   
-  
-  
-  public String[] infoCategories() {
-    return new String[] { "STATUS", "STAFF", "STOCK", "UPGRADES" } ;
+
+  public TargetInfo configInfo(TargetInfo info, BaseUI UI) {
+    if (info == null) info = new TargetInfo(UI, this);
+    return info;
   }
   
   
-  public void writeInformation(Description d, int categoryID, HUD UI) {
+  public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
+    if (panel == null) panel = new InfoPanel(
+      UI, this, 0, "STATUS", "STAFF", "STOCK", "UPGRADES"
+    );
+    final int categoryID = panel.categoryID();
+    final Description d = panel.detail();
     if (categoryID == 0) describeCondition(d, UI) ;
     if (categoryID == 1) describePersonnel(d, UI) ;
     if (categoryID == 2) describeStocks(d, UI) ;
     if (categoryID == 3) describeUpgrades(d, UI) ;
+    return panel;
   }
   
   
-  private void describeCondition(Description d, HUD UI) {
+  private void describeCondition(Description d, BaseUI UI) {
     
     d.append("Condition and Repair:") ;
     d.append("\n  Integrity: ") ;
@@ -480,7 +486,7 @@ public abstract class Venue extends Fixture implements
   }
   
   
-  protected void describeStocks(Description d, HUD UI) {
+  protected void describeStocks(Description d, BaseUI UI) {
     d.append("Stocks and Orders:") ;
     boolean empty = true ;
     
@@ -541,7 +547,7 @@ public abstract class Venue extends Fixture implements
   
   
   
-  private void describePersonnel(Description d, HUD UI) {
+  private void describePersonnel(Description d, BaseUI UI) {
     d.append("Personnel and Visitors:") ;
     final Batch <Mobile> considered = new Batch <Mobile> () ;
     for (Actor m : personnel.residents()) considered.include(m) ;
@@ -595,7 +601,7 @@ public abstract class Venue extends Fixture implements
   
   private static Upgrade lastCU ;  //last clicked...
   
-  private void describeUpgrades(Description d, HUD UI) {
+  private void describeUpgrades(Description d, BaseUI UI) {
     final Base played = BaseUI.current().played();
     
     if (played == base && ! privateProperty()) {
@@ -670,7 +676,7 @@ public abstract class Venue extends Fixture implements
   }
   
   
-  public Target subject() { return this ; }
+  public Target selectionLocksOn() { return this ; }
   
   
   
@@ -678,11 +684,10 @@ public abstract class Venue extends Fixture implements
     */
   public void attachSprite(Sprite sprite) {
     if (sprite == null) super.attachSprite(null);
-    else if (sprite instanceof CutoutSprite) {
-      buildSprite = BuildingSprite.fromBase((CutoutSprite) sprite, size, high);
+    else {
+      buildSprite = BuildingSprite.fromBase(sprite, size, high);
       super.attachSprite(buildSprite) ;
     }
-    else I.complain("Venues must have a CutoutSprite! ...for now.");
   }
   
   
@@ -850,15 +855,9 @@ public abstract class Venue extends Fixture implements
       hovered ? Colour.transparency(0.5f) : Colour.WHITE,
       Selection.SELECT_OVERLAY
     );
-    /*
-    Selection.renderPlane(
-      rendering, viewPosition(null), (xdim() / 2f) + 1,
-      hovered ? Colour.transparency(0.5f) : Colour.WHITE,
-      Selection.SELECT_SQUARE
-    ) ;
-    //*/
   }
-  
 }
+
+
 
 

@@ -106,8 +106,13 @@ public class Selection implements UIConstants {
       hovered = (Selectable) pickFixture ;
     }
     else {
-      hovered = null ;
+      hovered = pickTile ;
     }
+    
+    if (UI.mouseClicked() && UI.currentTask() == null) {
+      pushSelection(hovered, true);
+    }
+    I.talkAbout = selected;
     return true ;
   }
   
@@ -115,11 +120,20 @@ public class Selection implements UIConstants {
   public void pushSelection(Selectable s, boolean asRoot) {
     if (asRoot) navStack.clear() ;
     
-    if (s != null) {
-      selected = s ;
-      if (s.subject().inWorld()) UI.viewTracking.lockOn(s.subject()) ;
-      final InfoPanel panel = s.createPanel(UI) ;
-      
+    if (s == null && selected != null) {
+      navStack.clear() ;
+      selected = null ;
+      UI.viewTracking.lockOn(null) ;
+      UI.setInfoPanel(null, null) ;
+    }
+    
+    selected = s ;
+    UI.viewTracking.lockOn(s.selectionLocksOn());
+    final InfoPanel panel = s.configPanel(null, UI);
+    final TargetInfo info = s.configInfo(null, UI);
+    UI.setInfoPanel(panel, info);
+    
+    if (panel != null) {
       final int SI = navStack.indexOf(selected) ;
       Selectable previous = null ;
       if (SI != -1) {
@@ -138,17 +152,6 @@ public class Selection implements UIConstants {
         I.say("Navigation stack is: ") ;
         for (Selectable n : navStack) I.add("\n  "+n) ;
       }
-      
-      final TargetInfo info = (s instanceof Target) ?
-        new TargetInfo(UI, (Target) s) :
-        null;
-      UI.setInfoPanel(panel, info);
-    }
-    else if (selected != null) {
-      navStack.clear() ;
-      selected = null ;
-      UI.viewTracking.lockOn(null) ;
-      UI.setInfoPanel(null, null) ;
     }
   }
   
@@ -163,8 +166,8 @@ public class Selection implements UIConstants {
   
   protected void renderWorldFX(Rendering rendering) {
     final Target
-      HS = (hovered  == null) ? null : hovered .subject(),
-      SS = (selected == null) ? null : selected.subject() ;
+      HS = (hovered  == null) ? null : hovered.selectionLocksOn(),
+      SS = (selected == null) ? null : selected.selectionLocksOn() ;
     if (HS != null && HS != SS) {
       hovered.renderSelection(rendering, true) ;
     }
@@ -188,6 +191,10 @@ public class Selection implements UIConstants {
   public void renderTileOverlay(
     Rendering r, final Fixture f, final World world, Colour c, ImageAsset tex
   ) {
+    //  Use a glow-colour:
+    c = new Colour().set(c);
+    c.a *= -1;
+    
     if (recentOverlays.includes(f)) {
       final TerrainChunk overlay = overlayCache.get(f);
       overlay.colour = c;

@@ -38,13 +38,13 @@ public class Species implements Session.Saveable, Economy {
     XML_FILE = "FaunaModels.xml";
   final public static ModelAsset
     MODEL_NEST_QUUD = CutoutModel.fromImage(
-      LAIR_DIR+"nest_quud.png", Species.class, 2.5f, 2
+      Species.class, LAIR_DIR+"nest_quud.png", 2.5f, 2
     ),
     MODEL_NEST_VAREEN = CutoutModel.fromImage(
-      LAIR_DIR+"nest_vareen.png", Species.class, 2.5f, 3
+      Species.class, LAIR_DIR+"nest_vareen.png", 2.5f, 3
     ),
     MODEL_NEST_MICOVORE = CutoutModel.fromImage(
-      LAIR_DIR+"nest_micovore.png", Species.class, 3.5f, 3
+      Species.class, LAIR_DIR+"nest_micovore.png", 3.5f, 3
     ),
     MODEL_MIDDENS[] = CutoutModel.fromImages(
       LAIR_DIR, Species.class, 1.35f, 1,

@@ -34,8 +34,8 @@ public class ViewTracking {
   final BaseUI UI ;
   final Viewport view ;
   
-  private Target lockTarget = null ;
-  private float lockX = 0, lockY = 0 ;
+  private Target lockTarget = null;
+  private float lockX = 0, lockY = 0;
   
   
   ViewTracking(BaseUI UI, Viewport view) {
@@ -83,20 +83,12 @@ public class ViewTracking {
   }
   
   
-  protected void setLockOffset(float lX, float lY) {
-    //  TODO:  try calculating this internally instead, based on the width of
-    //  the current info-panel.
-    lockX = lX ;
-    lockY = lY ;
-  }
-  
-  
-  Target lockTarget() {
+  protected Target lockTarget() {
     return lockTarget ;
   }
   
   
-  void pushCamera(int x, int y) {
+  protected void pushCamera(int x, int y) {
     final Vec3D p = view.lookedAt;
     p.x += x ;
     p.y += y ;
@@ -107,7 +99,13 @@ public class ViewTracking {
   
   /**  Updates general camera behaviour.
     */
-  void updateCamera() {
+  protected void updateTracking() {
+    lockX = lockY = 0;
+    if (UI.currentPanel() != null) {
+      lockX = 0 - UI.panelArea.xdim() / 2f;
+      lockY = 0;
+    }
+    
     if (Gdx.input.isKeyPressed(Keys.UP   )) pushCamera( 1, -1) ;
     if (Gdx.input.isKeyPressed(Keys.DOWN )) pushCamera(-1,  1) ;
     if (Gdx.input.isKeyPressed(Keys.RIGHT)) pushCamera( 1,  1) ;

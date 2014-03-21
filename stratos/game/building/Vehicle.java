@@ -351,13 +351,22 @@ public abstract class Vehicle extends Mobile implements
   
   /**  Rendering and interface methods-
     */
-  public String[] infoCategories() {
-    return null ;  //cargo, passengers, integrity.
+  public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
+    if (panel == null) panel = new InfoPanel(UI, this, 0);
+    
+    final Description d = panel.detail();
+    describeStatus(d) ;
+    if (crew().size() > 0) d.appendList("\n\nCrew: ", crew()) ;
+    if (inside.size() > 0) d.appendList("\n\nPassengers: ", inside) ;
+    if (! cargo.empty()) d.appendList("\n\nCargo: ", cargo.allItems()) ;
+    d.append("\n\n") ; d.append(helpInfo(), Colour.LIGHT_GREY) ;
+    return panel;
   }
   
   
-  public InfoPanel createPanel(BaseUI UI) {
-    return new InfoPanel(UI, this, 0);
+  public TargetInfo configInfo(TargetInfo info, BaseUI UI) {
+    if (info == null) info = new TargetInfo(UI, this);
+    return info;
   }
   
   
@@ -377,7 +386,7 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
-  public Target subject() {
+  public Target selectionLocksOn() {
     return this ;
   }
   
@@ -404,16 +413,6 @@ public abstract class Vehicle extends Mobile implements
     else {
       d.append("Idling") ;
     }
-  }
-  
-  
-  public void writeInformation(Description d, int categoryID, HUD UI) {
-    describeStatus(d) ;
-    final List <Actor> crew = this.crew() ;
-    if (crew.size() > 0) d.appendList("\n\nCrew: ", crew) ;
-    if (inside.size() > 0) d.appendList("\n\nPassengers: ", inside) ;
-    if (! cargo.empty()) d.appendList("\n\nCargo: ", cargo.allItems()) ;
-    d.append("\n\n") ; d.append(helpInfo(), Colour.LIGHT_GREY) ;
   }
 }
 

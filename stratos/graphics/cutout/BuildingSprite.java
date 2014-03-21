@@ -33,7 +33,7 @@ public class BuildingSprite extends Sprite {
       "scaff_6.png"
     ),
     CRATE_MODEL = CutoutModel.fromImage(
-      "media/Items/crate.gif", BuildingSprite.class, 0.5f, 0.2f
+      BuildingSprite.class, "media/Items/crate.gif", 0.5f, 0.2f
     );
   final public static PlaneFX.Model
     BLAST_MODEL = new PlaneFX.Model(
@@ -54,7 +54,8 @@ public class BuildingSprite extends Sprite {
     );
   
   
-  private CutoutSprite baseSprite, scaffoldBase;
+  private Sprite baseSprite;
+  private CutoutSprite scaffoldBase;
   private GroupSprite scaffolding;
   private GroupSprite allStacks;
   private List <PlaneFX> statusFX = new List <PlaneFX> ();
@@ -67,14 +68,14 @@ public class BuildingSprite extends Sprite {
   
 
   public static BuildingSprite fromBase(
-    CutoutModel model, int size, int high
+    ModelAsset model, int size, int high
   ) {
     return fromBase((CutoutSprite) model.makeSprite(), size, high);
   }
   
   
   public static BuildingSprite fromBase(
-    CutoutSprite sprite, int size, int high
+    Sprite sprite, int size, int high
   ) {
     final BuildingSprite BS = new BuildingSprite();
     BS.baseSprite = sprite;
@@ -104,7 +105,7 @@ public class BuildingSprite extends Sprite {
     high = in.readInt();
     intact = in.readBoolean();
     condition = in.readFloat();
-    baseSprite = (CutoutSprite) ModelAsset.loadSprite(in);
+    baseSprite = ModelAsset.loadSprite(in);
     scaffoldBase = (CutoutSprite) ModelAsset.loadSprite(in);
     scaffolding = (GroupSprite) ModelAsset.loadSprite(in);
     allStacks = (GroupSprite) ModelAsset.loadSprite(in);

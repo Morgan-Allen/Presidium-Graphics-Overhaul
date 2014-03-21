@@ -62,11 +62,11 @@ public class Service implements Session.Saveable {
     final String imagePath = ITEM_PATH+imgName ;
     if (new java.io.File(imagePath).exists()) {
       this.picPath = imagePath;
-      this.model = CutoutModel.fromImage(imagePath, typeClass, 1, 1);
+      this.model = CutoutModel.fromImage(typeClass, imagePath, 1, 1);
     }
     else {
       this.picPath = DEFAULT_PIC_PATH;
-      this.model = CutoutModel.fromImage(picPath, typeClass, 1, 1);
+      this.model = CutoutModel.fromImage(typeClass, picPath, 1, 1);
     }
     soFar.add(this) ;
     allTypes.add(this) ;

@@ -241,3 +241,4 @@ if (verbose && I.talkAbout == actor) {
   I.say("  Defence priority: "+defence.priorityFor(actor)) ;
 }
 //*/
+

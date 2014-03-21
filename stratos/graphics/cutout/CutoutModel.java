@@ -94,7 +94,7 @@ public class CutoutModel extends ModelAsset {
   
   
   public static CutoutModel fromImage(
-    String fileName, Class sourceClass, float size, float height
+    Class sourceClass, String fileName, float size, float height
   ) {
     final Box2D window = new Box2D().set(0, 0, 1, 1);
     return new CutoutModel(fileName, sourceClass, window, size);
@@ -107,14 +107,14 @@ public class CutoutModel extends ModelAsset {
   ) {
     final CutoutModel models[] = new CutoutModel[files.length];
     for (int i = 0 ; i < files.length ; i++) {
-      models[i] = fromImage(path+files[i], sourceClass, size, height);
+      models[i] = fromImage(sourceClass, path+files[i], size, height);
     }
     return models;
   }
   
   
   public static CutoutModel[][] fromImageGrid(
-    String fileName, Class sourceClass,
+    Class sourceClass, String fileName,
     int gridX, int gridY, float size, float height
   ) {
     final CutoutModel grid[][] = new CutoutModel[gridX][gridY] ;

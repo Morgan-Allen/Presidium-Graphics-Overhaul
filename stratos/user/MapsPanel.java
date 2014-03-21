@@ -19,6 +19,7 @@ public class MapsPanel extends UIGroup {
   final World world;
   private Base base;
   
+  private float lastTime = -1;
   final Minimap minimap;
   
   
@@ -27,28 +28,13 @@ public class MapsPanel extends UIGroup {
     this.UI = UI ;
     this.world = world ;
     this.base = base ;
-    
     minimap = new Minimap();
-    final int WS = world.size, RGBA[][] = new int[WS][WS];
-    for (Coord c : Visit.grid(0, 0, WS, WS, 1)) {
-      final Tile t = world.tileAt(c.x, c.y);
-      final Colour avg = t.habitat().baseTex.average();
-      RGBA[c.x][c.y] = avg.getRGBA();
-    }
-    minimap.updateTexture(WS, RGBA);
   }
   
 
   public void setBase(Base base) {
     this.base = base ;
   }
-  
-  
-  public void updateAt(Tile t) {
-    //final Colour avg = t.minimapHue() ;
-    //mapImage.putColour(avg, t.x, t.y) ;
-  }
-  
   
   
   protected UINode selectionAt(Vector2 mousePos) {
@@ -71,6 +57,19 @@ public class MapsPanel extends UIGroup {
   public void render(SpriteBatch batch2d) {
     //  TODO:  Calling begin/end here is a bit of a hack.  Fix?
     batch2d.end();
+    
+    final float time = Rendering.activeTime();
+    if (((int) lastTime) != ((int) time)) {
+      final int WS = world.size, RGBA[][] = new int[WS][WS];
+      for (Coord c : Visit.grid(0, 0, WS, WS, 1)) {
+        final Tile t = world.tileAt(c.x, c.y);
+        final Colour avg = t.minimapTone();
+        RGBA[c.x][c.y] = avg.getRGBA();
+      }
+      minimap.updateTexture(WS, RGBA);
+    }
+    lastTime = time;
+    
     minimap.updateGeometry(bounds);
     minimap.renderWith(base.intelMap.fogOver());
     batch2d.begin();

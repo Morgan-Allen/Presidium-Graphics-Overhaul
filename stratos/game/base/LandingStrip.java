@@ -24,7 +24,7 @@ public class LandingStrip extends Venue {
     */
   final static String IMG_DIR = "media/Buildings/merchant/" ;
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    IMG_DIR+"landing_strip.png", LandingStrip.class, 4.25f, 0
+    LandingStrip.class, IMG_DIR+"landing_strip.png", 4.25f, 0
   );
   
   
@@ -134,7 +134,7 @@ public class LandingStrip extends Venue {
   
   /**  Rendering and interface methods-
     */
-  public Composite portrait(HUD UI) {
+  public Composite portrait(BaseUI UI) {
     return null;//new Composite(UI, "media/GUI/Buttons/supply_depot_button.gif") ;
   }
   
@@ -153,11 +153,6 @@ public class LandingStrip extends Venue {
   
   public String buildCategory() {
     return InstallTab.TYPE_MERCHANT ;
-  }
-  
-  
-  public void writeInformation(Description d, int categoryID, HUD UI) {
-    super.writeInformation(d, categoryID, UI) ;
   }
 }
 

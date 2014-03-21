@@ -304,14 +304,14 @@ public class Holding extends Venue implements Economy {
 
   final public static ModelAsset
     SEAL_TENT_MODEL = CutoutModel.fromImage(
-      IMG_DIR+"field_tent.png", Holding.class, 2, 2
+      Holding.class, IMG_DIR+"field_tent.png", 2, 2
     ),
     LOWER_CLASS_MODELS[][] = CutoutModel.fromImageGrid(
-      IMG_DIR+"lower_class_housing.png", Holding.class,
+      Holding.class, IMG_DIR+"lower_class_housing.png",
       3, 3, 2, 2
     ),
     MIDDLE_CLASS_MODELS[][] = CutoutModel.fromImageGrid(
-      IMG_DIR+"middle_class_housing.png", Holding.class,
+      Holding.class, IMG_DIR+"middle_class_housing.png",
       3, 3, 2, 2
     ),
     UPPER_CLASS_MODELS[][] = null;
@@ -351,19 +351,18 @@ public class Holding extends Venue implements Economy {
   }
   
   
-  public Composite portrait(HUD UI) {
+  public Composite portrait(BaseUI UI) {
     return null ;//Texture.loadTexture("media/GUI/Buttons/holding.gif") ;
   }
   
   
-  public String[] infoCategories() {
-    return new String[] { "STATUS", "STAFF", "STOCKS" } ;
-  }
-  
-  
-  public void writeInformation(Description d, int categoryID, HUD UI) {
-    if (categoryID >= 3) return ;
-    else super.writeInformation(d, categoryID, UI) ;
+  public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
+    if (panel == null) panel = new InfoPanel(
+      UI, this, 0, "STATUS", "STAFF", "STOCKS"
+    );
+    super.configPanel(panel, UI);
+    final int categoryID = panel.categoryID();
+    final Description d = panel.detail();
     if (categoryID == 0) {
       final String
         uS = needMessage(upgradeLevel),
@@ -377,6 +376,7 @@ public class Holding extends Venue implements Economy {
         d.append(tS) ;
       }
     }
+    return panel;
   }
   
   

@@ -26,15 +26,15 @@ public class Habitat {
     TERRAIN_PATH = "media/Terrain/";
   final public static CutoutModel
     DESERT_FLORA_MODELS[][] = CutoutModel.fromImageGrid(
-      TERRAIN_PATH+"old_flora_resize.png", Habitat.class,
+      Habitat.class, TERRAIN_PATH+"old_flora_resize.png",
       4, 4, 1.9f, 2
     ),
     FOREST_FLORA_MODELS[][] = CutoutModel.fromImageGrid(
-      TERRAIN_PATH+"old_flora_resize.png", Habitat.class,
+      Habitat.class, TERRAIN_PATH+"old_flora_resize.png",
       4, 4, 1.9f, 2
     ),
     WASTES_FLORA_MODELS[][] = CutoutModel.fromImageGrid(
-      TERRAIN_PATH+"wastes_flora.png", Habitat.class,
+      Habitat.class, TERRAIN_PATH+"wastes_flora.png",
       4, 4, 1.9f, 2
     ),
     TUNDRA_FLORA_MODELS[][] = null,
@@ -44,14 +44,14 @@ public class Habitat {
     //
     //  Finally, mineral outcrop models-
     OUTCROP_MODELS[][] = CutoutModel.fromImageGrid(
-      TERRAIN_PATH+"all_deposits.png", Habitat.class,
+      Habitat.class, TERRAIN_PATH+"all_deposits.png",
       3, 3, 2.0f, 2
     ),
     DUNE_MODELS[]      = OUTCROP_MODELS[2],
     MINERAL_MODELS[]   = OUTCROP_MODELS[1],
     ROCK_LODE_MODELS[] = OUTCROP_MODELS[0],
     SPIRE_MODELS[][] = CutoutModel.fromImageGrid(
-      TERRAIN_PATH+"all_outcrops_old.png", Habitat.class,
+      Habitat.class, TERRAIN_PATH+"all_outcrops_old.png",
       3, 3, 1.9f, 2
     );
   

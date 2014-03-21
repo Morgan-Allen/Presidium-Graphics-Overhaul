@@ -20,8 +20,11 @@ public class ActorPanel extends InfoPanel {
   //private Texture panelBack
   
   
-  public ActorPanel(BaseUI UI, Actor actor, boolean simple) {
-    super(UI, actor, PORTRAIT_SIZE + 10) ;
+  public ActorPanel(
+    BaseUI UI, Actor actor,
+    String... categories
+  ) {
+    super(UI, actor, PORTRAIT_SIZE + 10, categories);
     portrait = actor.portrait(UI);
     portraitFrame = createFrame(UI);
     

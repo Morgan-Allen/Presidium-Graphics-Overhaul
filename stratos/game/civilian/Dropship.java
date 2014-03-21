@@ -499,7 +499,7 @@ public class Dropship extends Vehicle implements
   }
   
   
-  public Composite portrait(HUD UI) {
+  public Composite portrait(BaseUI UI) {
     return null ;
   }
   

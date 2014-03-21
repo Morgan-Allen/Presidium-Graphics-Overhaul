@@ -43,19 +43,23 @@ public class InfoPanel extends UIGroup implements UIConstants {
   }
   
   
-  final protected BaseUI UI ;
+  final BaseUI UI ;
+  final Selectable selected ;
   
   final Bordering border ;
   final UIGroup innerRegion;
   final Text headerText, detailText ;
-  final protected Selectable selected ;
   
+  final String categories[];
   private Selectable previous ;
   private int categoryID ;
   
   
   
-  public InfoPanel(final BaseUI UI, Selectable selected, int topPadding) {
+  public InfoPanel(
+    final BaseUI UI, Selectable selected, int topPadding,
+    String... categories
+  ) {
     super(UI);
     this.UI = UI;
     this.relBound.set(0, 0, 1, 1);
@@ -101,14 +105,15 @@ public class InfoPanel extends UIGroup implements UIConstants {
     //detailText.getScrollBar().attachTo(this) ;
     
     this.selected = selected ;
-    final String cats[] = (selected == null) ?
-      null : selected.infoCategories() ;
-    
+    this.categories = categories;
+    //final String cats[] = (selected == null) ?
+      //null : selected.infoCategories() ;
     categoryID = 0 ;
+    
     final Class IC = infoClass(selected) ;
     if (IC != null) {
       final Integer catID = DEFAULT_CATS.get(IC) ;
-      if (catID != null) categoryID = catID ;
+      if (catID != null) categoryID = Visit.clamp(catID, categories.length);
     }
   }
   
@@ -124,6 +129,17 @@ public class InfoPanel extends UIGroup implements UIConstants {
   
   
   
+  public int categoryID() {
+    return categoryID;
+  }
+  
+  
+  public Description detail() {
+    return detailText;
+  }
+  
+  
+  
   /**  Display and updates-
     */
   private void setCategory(int catID) {
@@ -135,12 +151,12 @@ public class InfoPanel extends UIGroup implements UIConstants {
   
   
   protected void updateState() {
-    if (selected != null && selected.subject().destroyed()) {
-      ///I.say("INFO SUBJECT IS DESTROYED.") ;
+    if (selected != null && selected.selectionLocksOn().destroyed()) {
       UI.selection.pushSelection(previous, false) ;
       return ;
     }
-    updateText(UI, headerText, detailText) ;
+    updateText(UI, headerText, detailText);
+    if (selected != null) selected.configPanel(this, UI);
     super.updateState() ;
   }
   
@@ -150,15 +166,14 @@ public class InfoPanel extends UIGroup implements UIConstants {
   ) {
     if (selected == null) return ;
     headerText.setText(selected.fullName()) ;
-    
     headerText.append("\n") ;
-    final String cats[] = selected.infoCategories() ;
-    if (cats != null) {
-      for (int i = 0 ; i < cats.length ; i++) {
+    
+    if (categories != null) {
+      for (int i = 0 ; i < categories.length ; i++) {
         final int index = i ;
         final boolean CC = categoryID == i ;
         headerText.append(new Text.Clickable() {
-          public String fullName() { return ""+cats[index]+" " ; }
+          public String fullName() { return ""+categories[index]+" " ; }
           public void whenClicked() { setCategory(index) ; }
         }, CC ? Colour.GREEN : Text.LINK_COLOUR) ;
       }
@@ -170,9 +185,8 @@ public class InfoPanel extends UIGroup implements UIConstants {
         }
       }) ;
     }
-    
-    detailText.setText("") ;
-    selected.writeInformation(detailText, categoryID, UI) ;
+    detailText.setText("");
+    //selected.writeInformation(detailText, categoryID, UI) ;
   }
 }
 

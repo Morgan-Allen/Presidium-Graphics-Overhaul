@@ -26,7 +26,7 @@ public class Bastion extends Venue implements Economy {
   /**  Fields, constructors, and save/load methods-
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    "media/Buildings/military/bastion.png", Bastion.class, 7, 4
+    Bastion.class, "media/Buildings/military/bastion.png", 7, 4
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
     "media/GUI/Buttons/bastion_button.gif", Bastion.class
@@ -214,7 +214,7 @@ public class Bastion extends Venue implements Economy {
   
   /**  Rendering and interface methods-
     */
-  public Composite portrait(HUD UI) {
+  public Composite portrait(BaseUI UI) {
     final Composite cached = Composite.fromCache("bastion");
     if (cached != null) return cached;
     return Composite.withImage(ICON, "bastion");

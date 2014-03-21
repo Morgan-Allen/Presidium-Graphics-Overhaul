@@ -27,7 +27,7 @@ public class StockExchange extends Venue implements Economy {
   /**  Data fields, constructors and save/load functionality-
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    "media/Buildings/merchant/stock_exchange.png", StockExchange.class, 4, 2
+    StockExchange.class, "media/Buildings/merchant/stock_exchange.png", 4, 2
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
     "media/GUI/Buttons/stock_exchange_button.gif", StockExchange.class
@@ -294,7 +294,7 @@ public class StockExchange extends Venue implements Economy {
   }
   
   
-  public Composite portrait(HUD UI) {
+  public Composite portrait(BaseUI UI) {
     final Composite cached = Composite.fromCache("stock_exchange");
     if (cached != null) return cached;
     return Composite.withImage(ICON, "stock_exchange");

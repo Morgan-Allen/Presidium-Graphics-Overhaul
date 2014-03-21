@@ -10,7 +10,7 @@ import stratos.util.*;
 
 
 
-public class Outcrop extends Fixture implements Selectable {
+public class Outcrop extends Fixture {// implements Selectable {
   
   
   /**  These are utility methods intended to determine the type and appearance
@@ -198,7 +198,8 @@ public class Outcrop extends Fixture implements Selectable {
     return fullName() ;
   }
   
-  
+
+  /*
   public Composite portrait(HUD UI) {
     return null ;
   }
@@ -215,7 +216,7 @@ public class Outcrop extends Fixture implements Selectable {
   }
 
 
-  public Target subject() {
+  public Target selectionLocksOn() {
     return this ;
   }
   
@@ -228,8 +229,7 @@ public class Outcrop extends Fixture implements Selectable {
       Selection.SELECT_CIRCLE
     ) ;
   }
-
-
+  
   public String helpInfo() {
     return
       "Rock outcrops are a frequent indication of underlying mineral wealth." ;

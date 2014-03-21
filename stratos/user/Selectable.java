@@ -14,23 +14,30 @@ import stratos.util.*;
 
 public interface Selectable extends Text.Clickable, Session.Saveable {
   
-  //
-  //  I don't think all of this is really needed.  fullName(), writeInfo()
-  //  and portrait() are the only essentials, really.  Maybe configPanel()?
+  String fullName();
+  Composite portrait(BaseUI UI);
   
+  InfoPanel configPanel(InfoPanel panel, BaseUI UI);
+  TargetInfo configInfo(TargetInfo info, BaseUI UI);
   
-  String fullName() ;
-  String helpInfo() ;
+  Target selectionLocksOn();
+  void renderSelection(Rendering rendering, boolean hovered);
   
+  //boolean configDetail(InfoPanel panel);
+  //boolean configControl(TargetInfo panel);
+  /*
+  //  TODO:  Just return a DetailPanel and/or TargetInfo instead.
   String[] infoCategories() ;
   Composite portrait(HUD UI) ;
   void writeInformation(Description description, int categoryID, HUD UI) ;
-  
-  void whenClicked() ;
   InfoPanel createPanel(BaseUI UI) ;
   Target subject() ;
-  void renderSelection(Rendering rendering, boolean hovered) ;
+  //*/
+  //void whenClicked();
 }
+
+
+
 
 
 

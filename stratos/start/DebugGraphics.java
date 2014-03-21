@@ -19,12 +19,12 @@ public class DebugGraphics {
   
   final static CutoutModel
     CM = CutoutModel.fromImage(
-      "media/Buildings/military/bastion.png",
-      DebugGraphics.class, 7, 5
+      DebugGraphics.class,
+      "media/Buildings/military/bastion.png", 7, 5
     ),
     VM = CutoutModel.fromImage(
-      "media/Buildings/merchant/stock_exchange.png",
-      DebugGraphics.class, 4, 2
+      DebugGraphics.class,
+      "media/Buildings/merchant/stock_exchange.png", 4, 2
     );
   final static MS3DModel
     SM = MS3DModel.loadFrom(

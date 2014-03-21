@@ -151,7 +151,7 @@ public abstract class Mission implements
   }
   
   
-  public Target subject() {
+  public Target selectionLocksOn() {
     return subject ;
   }
   
@@ -200,7 +200,7 @@ public abstract class Mission implements
   public boolean openToPublic() {
     if (missionType == TYPE_PUBLIC) return true;
     if (missionType == TYPE_COVERT) return false;
-    return (! begun);
+    return ! begun;
   }
   
   
@@ -302,20 +302,24 @@ public abstract class Mission implements
   /**  Rendering and interface methods-
     */
   public String fullName() { return description ; }
-  public String helpInfo() { return description ; }
   public String toString() { return description ; }
-  public String[] infoCategories() { return null ; }
   
   
-  public Composite portrait(HUD UI) {
+  public Composite portrait(BaseUI UI) {
     //  TODO:  RESTORE THIS.
     return null;
   }
   
   
-  public void writeInformation(
-    Description d, int categoryID, final HUD UI
-  ) {
+  public TargetInfo configInfo(TargetInfo info, BaseUI UI) {
+    return null;
+  }
+  
+  
+  public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
+    if (panel == null) panel = new InfoPanel(UI, this, 0);
+    final Description d = panel.detail();
+    
     d.append("Mission Type:  ");
     if (hasBegun()) d.append(TYPE_DESC[missionType], Colour.GREY);
     else d.append(new Description.Link(TYPE_DESC[missionType]) {
@@ -348,8 +352,6 @@ public abstract class Mission implements
       }
     });
     
-    
-
     final boolean
       mustConfirm = missionType != TYPE_PUBLIC && ! begun,
       emptyList = roles.size() == 0;
@@ -369,7 +371,7 @@ public abstract class Mission implements
         }
       });
     }
-
+    
     if (emptyList) {
       if (missionType == TYPE_PUBLIC) d.append(
         "\n\nThis is a public contract, open to all comers."
@@ -388,6 +390,9 @@ public abstract class Mission implements
       final Actor a = role.applicant;
       ((Text) d).insert(a.portrait(UI).texture(), 40);
       d.append(a);
+      if (a instanceof Human) {
+        d.append("\n("+((Human) a).career().vocation()+")");
+      }
       
       if (mustConfirm) {
         d.append("\n");
@@ -399,11 +404,13 @@ public abstract class Mission implements
         }) ;
       }
     }
+
+    return panel;
   }
   
   protected abstract String[] objectiveDescriptions();
   
-
+  
   public void whenClicked() {
     BaseUI.current().selection.pushSelection(this, true) ;
   }
@@ -416,8 +423,11 @@ public abstract class Mission implements
   
   
   public Sprite flagSprite() {
-    placeFlag(flagSprite, subject) ;
-    flagSprite.colour = Colour.transparency(0.5f);
+    placeFlag(flagSprite, subject);
+    float alpha;
+    if (BaseUI.isSelectedOrHovered(this)) alpha = 1.0f;
+    else alpha = 0.75f;
+    flagSprite.colour = Colour.glow(alpha);
     return flagSprite ;
   }
   

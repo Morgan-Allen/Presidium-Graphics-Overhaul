@@ -24,7 +24,7 @@ public class CultureVats extends Venue implements Economy {
   /**  Fields, constructors, and save/load methods-
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    "media/Buildings/physician/culture_vats.png", CultureVats.class, 4, 3
+    CultureVats.class, "media/Buildings/physician/culture_vats.png", 4, 3
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
     "media/GUI/Buttons/culture_vats_button.gif", CultureVats.class
@@ -214,7 +214,7 @@ public class CultureVats extends Venue implements Economy {
   
   /**  Rendering and interface methods-
     */
-  public Composite portrait(HUD UI) {
+  public Composite portrait(BaseUI UI) {
     final Composite cached = Composite.fromCache("culture_vats");
     if (cached != null) return cached;
     return Composite.withImage(ICON, "culture_vats");
