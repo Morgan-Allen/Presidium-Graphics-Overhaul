@@ -197,7 +197,7 @@ public class TalkFX extends SFX {
         flatPoint.x + bubble.xoff,
         flatPoint.y + bubble.yoff,
         flatPoint.z + 0.05f,
-        pass, speaks ? false : true
+        pass, true//speaks ? false : true
       );
     }
   }

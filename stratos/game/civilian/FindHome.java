@@ -20,7 +20,7 @@ import stratos.util.*;
 public class FindHome extends Plan implements Economy {
   
   
-  private static boolean verbose = false ;
+  private static boolean verbose = true;
   
   
   final Employment newHome ;
@@ -209,7 +209,7 @@ public class FindHome extends Plan implements Economy {
       maxPop = HoldingUpgrades.OCCUPANCIES[UL] ;
     final float crowding = residents.size() * 1f / maxPop ;
     
-    float rating = 1 ;
+    float rating = (1 + UL) / HoldingUpgrades.NUM_LEVELS ;
     if (holding == actor.mind.home()) {
       rating *= 1.5f ;
     }
@@ -217,9 +217,10 @@ public class FindHome extends Plan implements Economy {
     if (holding.inWorld()) {
       rating *= 1.5f ;
     }
+    if (actor.mind.home() == null) rating += ROUTINE ;
     
-    rating *= (UL + 1) * (2f - crowding) / HoldingUpgrades.NUM_LEVELS ;
-    rating -= actor.mind.greedFor(HoldingUpgrades.TAX_LEVELS[UL]) * 5 ;
+    rating *= (2f - crowding) ;
+    rating -= actor.mind.greedFor(HoldingUpgrades.TAX_LEVELS[UL]) / ROUTINE ;
     rating -= Plan.rangePenalty(actor.mind.work(), holding) ;
     
     if (residents.size() > 0) {

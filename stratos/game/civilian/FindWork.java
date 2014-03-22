@@ -13,8 +13,7 @@ import stratos.util.*;
 public class FindWork extends Plan implements Economy {
   
   
-  private static boolean verbose = true;
-  
+  private static boolean verbose = false;
   
   final Application application ;
   final float rating ;

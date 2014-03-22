@@ -24,7 +24,7 @@ public class CultureVats extends Venue implements Economy {
   /**  Fields, constructors, and save/load methods-
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    CultureVats.class, "media/Buildings/physician/culture_vats.png", 4, 3
+    CultureVats.class, "media/Buildings/physician/culture_vats.png", 3, 2
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
     "media/GUI/Buttons/culture_vats_button.gif", CultureVats.class
@@ -32,7 +32,7 @@ public class CultureVats extends Venue implements Economy {
   
   
   public CultureVats(Base base) {
-    super(4, 3, ENTRANCE_NORTH, base) ;
+    super(3, 2, ENTRANCE_NORTH, base) ;
     structure.setupStats(
       400, 3, 450,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
