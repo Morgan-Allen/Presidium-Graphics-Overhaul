@@ -135,7 +135,7 @@ public class LandingStrip extends Venue {
   /**  Rendering and interface methods-
     */
   public Composite portrait(BaseUI UI) {
-    return null;//new Composite(UI, "media/GUI/Buttons/supply_depot_button.gif") ;
+    return Composite.withImage(SupplyDepot.ICON, "landing_strip");
   }
   
   

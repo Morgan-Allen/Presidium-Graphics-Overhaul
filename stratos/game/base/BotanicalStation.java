@@ -342,8 +342,6 @@ public class BotanicalStation extends Venue implements Economy {
   
   
   public Composite portrait(BaseUI UI) {
-    final Composite cached = Composite.fromCache("botanical_station");
-    if (cached != null) return cached;
     return Composite.withImage(ICON, "botanical_station");
   }
   

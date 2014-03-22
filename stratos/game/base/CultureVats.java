@@ -215,8 +215,6 @@ public class CultureVats extends Venue implements Economy {
   /**  Rendering and interface methods-
     */
   public Composite portrait(BaseUI UI) {
-    final Composite cached = Composite.fromCache("culture_vats");
-    if (cached != null) return cached;
     return Composite.withImage(ICON, "culture_vats");
   }
   

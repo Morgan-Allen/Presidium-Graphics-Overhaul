@@ -40,10 +40,7 @@ public class Plantation extends Venue implements
 {
   
   
-  final static String IMG_DIR = "media/Buildings/ecologist/" ;
-  final static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/nursery_button.gif", Plantation.class
-  );
+  final static String IMG_DIR = "media/Buildings/ecologist/";
   final static ModelAsset
     NURSERY_MODEL = CutoutModel.fromImage(
       Plantation.class, IMG_DIR+"curing_shed.png", 2, 2
@@ -447,9 +444,7 @@ public class Plantation extends Venue implements
   /**  Rendering and interface methods-
     */
   public Composite portrait(BaseUI UI) {
-    final Composite cached = Composite.fromCache("plantation");
-    if (cached != null) return cached;
-    return Composite.withImage(ICON, "plantation");
+    return Composite.withImage(BotanicalStation.ICON, "plantation");
   }
   
   

@@ -336,8 +336,6 @@ public class SupplyDepot extends Venue implements
   
   
   public Composite portrait(BaseUI UI) {
-    final Composite cached = Composite.fromCache("supply_depot");
-    if (cached != null) return cached;
     return Composite.withImage(ICON, "supply_depot");
   }
   

@@ -346,8 +346,6 @@ public class AuditOffice extends Venue implements Economy {
   
   
   public Composite portrait(BaseUI UI) {
-    final Composite cached = Composite.fromCache("audit_office");
-    if (cached != null) return cached;
     return Composite.withImage(ICON, "audit_office");
   }
   

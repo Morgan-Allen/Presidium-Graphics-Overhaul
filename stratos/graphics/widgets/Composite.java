@@ -53,6 +53,8 @@ public class Composite {
   
   
   public static Composite withImage(ImageAsset image, String key) {
+    final Composite cached = recentTable.get(key);
+    if (cached != null) return cached;
     final Pixmap p = image.asPixels();
     final Composite c = withSize(p.getWidth(), p.getHeight(), key);
     c.layer(image);

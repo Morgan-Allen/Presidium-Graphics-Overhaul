@@ -288,8 +288,6 @@ public class Sickbay extends Venue implements Economy {
   
   
   public Composite portrait(BaseUI UI) {
-    final Composite cached = Composite.fromCache("sickbay");
-    if (cached != null) return cached;
     return Composite.withImage(ICON, "sickbay");
   }
   

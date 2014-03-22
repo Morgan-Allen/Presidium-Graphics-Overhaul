@@ -305,8 +305,6 @@ public class StockExchange extends Venue implements Economy {
   
   
   public Composite portrait(BaseUI UI) {
-    final Composite cached = Composite.fromCache("stock_exchange");
-    if (cached != null) return cached;
     return Composite.withImage(ICON, "stock_exchange");
   }
 

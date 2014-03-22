@@ -215,8 +215,6 @@ public class Bastion extends Venue implements Economy {
   /**  Rendering and interface methods-
     */
   public Composite portrait(BaseUI UI) {
-    final Composite cached = Composite.fromCache("bastion");
-    if (cached != null) return cached;
     return Composite.withImage(ICON, "bastion");
   }
   
