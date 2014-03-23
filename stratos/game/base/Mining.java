@@ -92,7 +92,7 @@ public class Mining extends Plan implements Economy {
     final TileSpread spread = new TileSpread(world.tileAt(site)) {
       
       protected boolean canAccess(Tile t) {
-        if (world.worldTerrain().mineralDegree(t) != WorldTerrain.DEGREE_TAKEN) {
+        if (world.terrain().mineralDegree(t) != WorldTerrain.DEGREE_TAKEN) {
           if (site.area().contains(t.x, t.y)) return true ;
           return false ;
         }
@@ -110,7 +110,7 @@ public class Mining extends Plan implements Economy {
     final Batch <Tile> touched = new Batch <Tile> () ;
     for (Tile o : open) for (Tile n : o.edgeAdjacent(Spacing.tempT4)) {
       if (n == null || n.flaggedWith() != null) continue ;
-      if (world.worldTerrain().mineralDegree(n) == WorldTerrain.DEGREE_TAKEN) {
+      if (world.terrain().mineralDegree(n) == WorldTerrain.DEGREE_TAKEN) {
         continue ;
       }
       float rating = 10 ;
@@ -307,7 +307,7 @@ public class Mining extends Plan implements Economy {
     progressChance *= 1 + (bonus / 2f) ;
     if (Rand.num() > progressChance) return false ;
     
-    final WorldTerrain worldTerrain = face.world.worldTerrain() ;
+    final WorldTerrain worldTerrain = face.world.terrain() ;
     final byte typeID = worldTerrain.mineralType(face) ;
     final float oldAmount = worldTerrain.mineralsAt(face, typeID) ;
     worldTerrain.incMineralDegree(face, typeID, -1) ;
@@ -339,8 +339,8 @@ public class Mining extends Plan implements Economy {
     float amount = -1 ;
     if (face instanceof Tile) {
       final Tile t = (Tile) face ;
-      type = t.world.worldTerrain().mineralType(t) ;
-      amount = t.world.worldTerrain().mineralsAt(t, type) ;
+      type = t.world.terrain().mineralType(t) ;
+      amount = t.world.terrain().mineralsAt(t, type) ;
       if (type == WorldTerrain.TYPE_NOTHING) {
         type = Rand.yes() ? WorldTerrain.TYPE_METALS : WorldTerrain.TYPE_ISOTOPES ;
         amount = 1 ;

@@ -89,7 +89,7 @@ public class Paving {
     
     for (Coord c : Visit.grid(0, 0, world.size, world.size, 1)) {
       final Tile t = world.tileAt(c.x, c.y) ;
-      final int pM = mask[c.x][c.y], tM = world.worldTerrain().roadMask(t) ;
+      final int pM = mask[c.x][c.y], tM = world.terrain().roadMask(t) ;
       if (pM != tM) {
         I.say("Discrepancy at: "+c.x+" "+c.y+", "+pM+" =/= "+tM) ;
         okay = false ;
@@ -130,17 +130,17 @@ public class Paving {
       //I.say("Installing perimeter for "+v) ;
       
       if (match != null) {
-        world.worldTerrain().maskAsPaved(match.path, false) ;
+        world.terrain().maskAsPaved(match.path, false) ;
         allRoutes.remove(match) ;
       }
-      world.worldTerrain().maskAsPaved(key.path, true) ;
+      world.terrain().maskAsPaved(key.path, true) ;
       clearRoad(key.path) ;
       allRoutes.put(key, key) ;
     }
     else if (match != null) {
       //I.say("Discarding perimeter for "+v) ;
       //reportPath("Old route", match) ;
-      world.worldTerrain().maskAsPaved(match.path, false) ;
+      world.terrain().maskAsPaved(match.path, false) ;
       allRoutes.remove(key) ;
     }
   }
@@ -216,7 +216,7 @@ public class Paving {
       allRoutes.put(route, route) ;
       toggleRoute(route, route.start, true) ;
       toggleRoute(route, route.end  , true) ;
-      world.worldTerrain().maskAsPaved(route.path, true) ;
+      world.terrain().maskAsPaved(route.path, true) ;
       clearRoad(route.path) ;
     }
     return true ;
@@ -224,7 +224,7 @@ public class Paving {
   
   
   private void deleteRoute(Route route) {
-    world.worldTerrain().maskAsPaved(route.path, false) ;
+    world.terrain().maskAsPaved(route.path, false) ;
     allRoutes.remove(route) ;
     toggleRoute(route, route.start, false) ;
     toggleRoute(route, route.end  , false) ;

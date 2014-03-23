@@ -87,7 +87,7 @@ public final class Tile implements
     */
   public float elevation() {
     if (elevation == Float.NEGATIVE_INFINITY) {
-      elevation = world.worldTerrain().trueHeight(x, y) ;
+      elevation = world.terrain().trueHeight(x, y) ;
     }
     return elevation ;
   }
@@ -143,7 +143,7 @@ public final class Tile implements
   
   
   public void refreshHabitat() {
-    habitat = world.worldTerrain().habitatAt(x, y) ;
+    habitat = world.terrain().habitatAt(x, y) ;
   }
   
   
@@ -154,7 +154,7 @@ public final class Tile implements
   
   public int pathType() {
     if (owner != null) return owner.pathType() ;
-    if (world.worldTerrain().isRoad(this)) return PATH_ROAD ;
+    if (world.terrain().isRoad(this)) return PATH_ROAD ;
     return habitat().pathClear ? PATH_CLEAR : PATH_BLOCKS ;
   }
   
@@ -354,7 +354,7 @@ public final class Tile implements
     if (this.owner instanceof Venue) {
       return ((Venue) owner).base().colour;
     }
-    if (world.worldTerrain().isRoad(this)) return Habitat.ROAD_TEXTURE.average();
+    if (world.terrain().isRoad(this)) return Habitat.ROAD_TEXTURE.average();
     return habitat().baseTex.average() ;
   }
 }

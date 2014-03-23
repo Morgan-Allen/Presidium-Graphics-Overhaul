@@ -60,7 +60,7 @@ public class Flora extends Element implements TileConstants {
     
     final Ecology ecology = world.ecology() ;
     final Tile t = world.tileAt(x, y) ;
-    final Habitat h = world.worldTerrain().habitatAt(x, y) ;
+    final Habitat h = world.terrain().habitatAt(x, y) ;
     if (h.floraModels == null) return ;
     final float growChance = h.moisture / (10f * 4) ;
     

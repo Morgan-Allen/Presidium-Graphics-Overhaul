@@ -103,13 +103,13 @@ public class Causeway extends Segment {
   
   public boolean enterWorldAt(int x, int y, World world) {
     if (! super.enterWorldAt(x, y, world)) return false ;
-    world.worldTerrain().maskAsPaved(Spacing.under(area(), world), true) ;
+    world.terrain().maskAsPaved(Spacing.under(area(), world), true) ;
     return true ;
   }
   
   
   public void exitWorld() {
-    world.worldTerrain().maskAsPaved(Spacing.under(area(), world), false) ;
+    world.terrain().maskAsPaved(Spacing.under(area(), world), false) ;
     super.exitWorld() ;
   }
   

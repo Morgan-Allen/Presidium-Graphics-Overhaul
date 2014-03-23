@@ -45,7 +45,7 @@ public class World {
   private float currentTime = DEFAULT_INIT_TIME ;
   private List <Mobile> mobiles = new List <Mobile> () ;
   
-  private WorldTerrain worldTerrain ;
+  private WorldTerrain terrain ;
   private Ecology ecology ;
   private List <Base> bases = new List <Base> () ;
   
@@ -58,7 +58,7 @@ public class World {
   
   public World(WorldTerrain worldTerrain) {
     this(worldTerrain.mapSize) ;
-    this.worldTerrain = worldTerrain ;
+    this.terrain = worldTerrain ;
     worldTerrain.initTerrainMesh(Habitat.ALL_HABITATS);
     //terrain.initPatchGrid(PATCH_RESOLUTION) ;
   }
@@ -91,8 +91,8 @@ public class World {
     currentTime = s.loadFloat() ;
     schedule.loadFrom(s) ;
     
-    worldTerrain = (WorldTerrain) s.loadObject() ;
-    worldTerrain.initTerrainMesh(Habitat.ALL_HABITATS);
+    terrain = (WorldTerrain) s.loadObject() ;
+    terrain.initTerrainMesh(Habitat.ALL_HABITATS);
     //terrain.initPatchGrid(PATCH_RESOLUTION) ;
     ecology.loadState(s) ;
     
@@ -115,7 +115,7 @@ public class World {
     s.saveFloat(currentTime) ;
     schedule.saveTo(s) ;
     
-    s.saveObject(worldTerrain) ;
+    s.saveObject(terrain) ;
     ecology.saveState(s) ;
     
     s.saveObjects(bases) ;
@@ -271,8 +271,8 @@ public class World {
   }
   
   
-  public WorldTerrain worldTerrain() {
-    return worldTerrain ;
+  public WorldTerrain terrain() {
+    return terrain ;
   }
   
   
@@ -378,9 +378,9 @@ public class World {
     Batch <Section> sections, Rendering rendering, Base base
   ) {
     final float renderTime = timeMidRender();
-    worldTerrain.meshSet().refreshAllMeshes();
+    terrain.meshSet().refreshAllMeshes();
     for (Section section : sections) {
-      worldTerrain.renderFor(section.area, rendering, renderTime);
+      terrain.renderFor(section.area, rendering, renderTime);
     }
     if (base != null && ! GameSettings.fogFree) {
       base.intelMap.updateAndRender(renderTime, rendering);

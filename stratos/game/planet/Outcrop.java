@@ -39,8 +39,8 @@ public class Outcrop extends Fixture {// implements Selectable {
     float amounts[] = new float[4] ;
     int numTiles = 0 ;
     for (Tile t : outcrop.surrounds()) if (t != null) {
-      final byte type = world.worldTerrain().mineralType(t) ;
-      final float amount = world.worldTerrain().mineralsAt(t, type) ;
+      final byte type = world.terrain().mineralType(t) ;
+      final float amount = world.terrain().mineralsAt(t, type) ;
       amounts[type] += amount ;
       amounts[0] += t.habitat().rockiness ;
       numTiles++ ;

@@ -137,7 +137,7 @@ public class Tailing extends Fixture {
         xoff = xo + MOLD_COORDS[n * 2],
         yoff = yo + MOLD_COORDS[(n * 2) + 1];
       final Tile t = o.world.tileAt(o.x + xoff, o.y + yoff);
-      final int var = t == null ? 1 : (o.world.worldTerrain().varAt(t) % 2);
+      final int var = t == null ? 1 : (o.world.terrain().varAt(t) % 2);
       
       final int modelStage = Visit.clamp(fillStage - (n * NML), NML);
       final ModelAsset model = Smelter.SLAG_HEAP_MODELS[var][modelStage];

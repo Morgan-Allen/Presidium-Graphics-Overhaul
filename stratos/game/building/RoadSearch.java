@@ -26,7 +26,7 @@ public class RoadSearch extends Search <Tile> {
   public RoadSearch(Tile start, Tile end, int priority) {
     super(start, (Spacing.sumAxisDist(start, end) * 20) + 20) ;
     this.destination = end ;
-    this.worldTerrain = end.world.worldTerrain() ;
+    this.worldTerrain = end.world.terrain() ;
     this.priority = priority ;
   }
   

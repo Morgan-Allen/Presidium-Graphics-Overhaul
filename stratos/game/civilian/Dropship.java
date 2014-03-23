@@ -456,7 +456,7 @@ public class Dropship extends Vehicle implements
         area.ypos() + (area.ydim() / 2f),
         0
       ) ;
-      aimPos.z = base.world.worldTerrain().trueHeight(aimPos.x, aimPos.y) ;
+      aimPos.z = base.world.terrain().trueHeight(aimPos.x, aimPos.y) ;
       dropPoint = null ;
       I.say("Landing at point: "+aimPos) ;
       return true ;

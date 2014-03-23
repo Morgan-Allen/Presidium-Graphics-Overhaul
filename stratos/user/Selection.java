@@ -236,7 +236,7 @@ public class Selection implements UIConstants {
     };
     
     final Box2D limit = f.area(null).expandBy(1);
-    final TerrainChunk overlay = world.worldTerrain().createOverlay(limit, layer);
+    final TerrainChunk overlay = world.terrain().createOverlay(limit, layer);
     overlay.colour = c;
     overlay.readyFor(r);
     

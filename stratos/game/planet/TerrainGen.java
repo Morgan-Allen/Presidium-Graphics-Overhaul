@@ -322,7 +322,7 @@ public class TerrainGen implements TileConstants {
     final World world,
     float chanceMetals, float chanceArtifacts, float chanceIsotopes
   ) {
-    final WorldTerrain worldTerrain = world.worldTerrain() ;
+    final WorldTerrain worldTerrain = world.terrain() ;
     if (worldTerrain == null) I.complain("No terrain assigned to world!") ;
     final byte
       artifactsMap[][] = genSectorMap(10),
@@ -397,7 +397,7 @@ public class TerrainGen implements TileConstants {
   //  Put the various tiles for processing in different batches and treat 'em
   //  that way?
   public void setupOutcrops(final World world) {
-    final WorldTerrain worldTerrain = world.worldTerrain() ;
+    final WorldTerrain worldTerrain = world.terrain() ;
     final int seedSize = (mapSize / DETAIL_RESOLUTION) + 1 ;
     final HeightMap heightDetail = new HeightMap(
       mapSize + 1, new float[seedSize][seedSize], 1, 0.5f

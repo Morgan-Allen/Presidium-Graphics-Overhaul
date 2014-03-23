@@ -227,7 +227,7 @@ public class Action implements Behaviour, AnimNames {
     //  outcome is less (obviously) deterministic.  However, it must be
     //  constant at a given position and time.
     final Tile o = actor.origin() ;
-    int var = o.world.worldTerrain().varAt(o) ;
+    int var = o.world.terrain().varAt(o) ;
     var += (o.x * o.world.size) + o.y ;
     var -= o.world.currentTime() ;
     var ^= actor.hashCode() ;
