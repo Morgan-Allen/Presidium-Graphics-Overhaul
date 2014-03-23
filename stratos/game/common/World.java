@@ -56,10 +56,10 @@ public class World {
   
   
   
-  public World(WorldTerrain worldTerrain) {
-    this(worldTerrain.mapSize) ;
-    this.terrain = worldTerrain ;
-    worldTerrain.initTerrainMesh(Habitat.ALL_HABITATS);
+  public World(WorldTerrain terrain) {
+    this(terrain.mapSize) ;
+    this.terrain = terrain ;
+    terrain.initTerrainMesh(Habitat.ALL_HABITATS);
     //terrain.initPatchGrid(PATCH_RESOLUTION) ;
   }
   

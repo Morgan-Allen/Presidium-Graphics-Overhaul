@@ -17,7 +17,7 @@ public class RoadSearch extends Search <Tile> {
   final static float
     MAX_DISTANCE_MULT = 4.0f ;
   
-  final WorldTerrain worldTerrain  ;
+  final WorldTerrain terrain  ;
   final Tile destination ;
   final int priority ;
   final private Tile edges[] = new Tile[4] ;
@@ -26,7 +26,7 @@ public class RoadSearch extends Search <Tile> {
   public RoadSearch(Tile start, Tile end, int priority) {
     super(start, (Spacing.sumAxisDist(start, end) * 20) + 20) ;
     this.destination = end ;
-    this.worldTerrain = end.world.terrain() ;
+    this.terrain = end.world.terrain() ;
     this.priority = priority ;
   }
   
@@ -42,7 +42,7 @@ public class RoadSearch extends Search <Tile> {
   
   
   protected float cost(Tile prior, Tile spot) {
-    if (worldTerrain.isRoad(spot)) return 0.5f ;
+    if (terrain.isRoad(spot)) return 0.5f ;
     return 1 ;
   }
   

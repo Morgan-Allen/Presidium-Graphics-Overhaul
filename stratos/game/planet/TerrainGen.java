@@ -322,8 +322,8 @@ public class TerrainGen implements TileConstants {
     final World world,
     float chanceMetals, float chanceArtifacts, float chanceIsotopes
   ) {
-    final WorldTerrain worldTerrain = world.terrain() ;
-    if (worldTerrain == null) I.complain("No terrain assigned to world!") ;
+    final WorldTerrain terrain = world.terrain() ;
+    if (terrain == null) I.complain("No terrain assigned to world!") ;
     final byte
       artifactsMap[][] = genSectorMap(10),
       metalsMap   [][] = genSectorMap(10),
@@ -367,7 +367,7 @@ public class TerrainGen implements TileConstants {
       //  Adjust abundance based on local terrain and global variables, and
       //  find the degree for the local deposit-
       if (pickHighest) chance *= abundances[var] ;
-      final float minChance = worldTerrain.habitatAt(c.x, c.y).minerals() / 10f ;
+      final float minChance = terrain.habitatAt(c.x, c.y).minerals() / 10f ;
       chance *= minChance ;
       byte degree = (byte) ((minChance * WorldTerrain.NUM_DEGREES)) ;
       if (Rand.num() > chance) degree-- ;
@@ -377,8 +377,8 @@ public class TerrainGen implements TileConstants {
       //
       //  Store and summarise-
       final Tile location = world.tileAt(c.x, c.y) ;
-      worldTerrain.setMinerals(location, (byte) var, degree) ;
-      totals[var] += worldTerrain.mineralsAt(location, (byte) var) ;
+      terrain.setMinerals(location, (byte) var, degree) ;
+      totals[var] += terrain.mineralsAt(location, (byte) var) ;
     }
     /*
     final boolean report = true ;

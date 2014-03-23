@@ -307,11 +307,11 @@ public class Mining extends Plan implements Economy {
     progressChance *= 1 + (bonus / 2f) ;
     if (Rand.num() > progressChance) return false ;
     
-    final WorldTerrain worldTerrain = face.world.terrain() ;
-    final byte typeID = worldTerrain.mineralType(face) ;
-    final float oldAmount = worldTerrain.mineralsAt(face, typeID) ;
-    worldTerrain.incMineralDegree(face, typeID, -1) ;
-    final float taken = oldAmount - worldTerrain.mineralsAt(face, typeID) ;
+    final WorldTerrain terrain = face.world.terrain() ;
+    final byte typeID = terrain.mineralType(face) ;
+    final float oldAmount = terrain.mineralsAt(face, typeID) ;
+    terrain.incMineralDegree(face, typeID, -1) ;
+    final float taken = oldAmount - terrain.mineralsAt(face, typeID) ;
     
     if (taken == 0 || left == null) return false ;
     final Item mined = Item.with(SAMPLES, left.type, taken * bonus / 2f, 0) ;
