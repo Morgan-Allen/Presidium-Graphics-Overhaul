@@ -45,7 +45,7 @@ public class World {
   private float currentTime = DEFAULT_INIT_TIME ;
   private List <Mobile> mobiles = new List <Mobile> () ;
   
-  private Terrain terrain ;
+  private WorldTerrain worldTerrain ;
   private Ecology ecology ;
   private List <Base> bases = new List <Base> () ;
   
@@ -56,10 +56,10 @@ public class World {
   
   
   
-  public World(Terrain terrain) {
-    this(terrain.mapSize) ;
-    this.terrain = terrain ;
-    terrain.initTerrainMesh(Habitat.ALL_HABITATS);
+  public World(WorldTerrain worldTerrain) {
+    this(worldTerrain.mapSize) ;
+    this.worldTerrain = worldTerrain ;
+    worldTerrain.initTerrainMesh(Habitat.ALL_HABITATS);
     //terrain.initPatchGrid(PATCH_RESOLUTION) ;
   }
   
@@ -91,8 +91,8 @@ public class World {
     currentTime = s.loadFloat() ;
     schedule.loadFrom(s) ;
     
-    terrain = (Terrain) s.loadObject() ;
-    terrain.initTerrainMesh(Habitat.ALL_HABITATS);
+    worldTerrain = (WorldTerrain) s.loadObject() ;
+    worldTerrain.initTerrainMesh(Habitat.ALL_HABITATS);
     //terrain.initPatchGrid(PATCH_RESOLUTION) ;
     ecology.loadState(s) ;
     
@@ -115,7 +115,7 @@ public class World {
     s.saveFloat(currentTime) ;
     schedule.saveTo(s) ;
     
-    s.saveObject(terrain) ;
+    s.saveObject(worldTerrain) ;
     ecology.saveState(s) ;
     
     s.saveObjects(bases) ;
@@ -271,8 +271,8 @@ public class World {
   }
   
   
-  public Terrain terrain() {
-    return terrain ;
+  public WorldTerrain worldTerrain() {
+    return worldTerrain ;
   }
   
   
@@ -378,9 +378,9 @@ public class World {
     Batch <Section> sections, Rendering rendering, Base base
   ) {
     final float renderTime = timeMidRender();
-    terrain.meshSet().refreshAllMeshes();
+    worldTerrain.meshSet().refreshAllMeshes();
     for (Section section : sections) {
-      terrain.renderFor(section.area, rendering, renderTime);
+      worldTerrain.renderFor(section.area, rendering, renderTime);
     }
     if (base != null && ! GameSettings.fogFree) {
       base.intelMap.updateAndRender(renderTime, rendering);

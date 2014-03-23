@@ -22,25 +22,12 @@ public class Causeway extends Segment {
       "causeway_left.png",
       "causeway_right.png",
       "causeway_hub.png"
-      /*
-      "mag_node_left.png",
-      "mag_node_right.png",
-      "mag_node_centre.png",
-      "mag_node_flat.png",
-      "mag_node_flat.png"
-      /*
-      "causeway_terminal_left.png",
-      "causeway_terminal_right.png",
-      "causeway_centre.png",
-      "causeway_flat_left.png",
-      "causeway_flat_right.png"
-      //*/
     ),
     NODE_MODEL_LEFT   = NODE_MODELS[0],
     NODE_MODEL_RIGHT  = NODE_MODELS[1],
     NODE_MODEL_CENTRE = NODE_MODELS[2],
-    MODEL_FLAT_LEFT   = NODE_MODELS[0],
-    MODEL_FLAT_RIGHT  = NODE_MODELS[1];
+    MODEL_FLAT_LEFT   = NODE_MODELS[2],
+    MODEL_FLAT_RIGHT  = NODE_MODELS[2];
   final public static ImageAsset ICON = ImageAsset.fromImage(
     "media/GUI/Buttons/mag_line_button.gif", AuditOffice.class
   );
@@ -116,13 +103,13 @@ public class Causeway extends Segment {
   
   public boolean enterWorldAt(int x, int y, World world) {
     if (! super.enterWorldAt(x, y, world)) return false ;
-    world.terrain().maskAsPaved(Spacing.under(area(), world), true) ;
+    world.worldTerrain().maskAsPaved(Spacing.under(area(), world), true) ;
     return true ;
   }
   
   
   public void exitWorld() {
-    world.terrain().maskAsPaved(Spacing.under(area(), world), false) ;
+    world.worldTerrain().maskAsPaved(Spacing.under(area(), world), false) ;
     super.exitWorld() ;
   }
   

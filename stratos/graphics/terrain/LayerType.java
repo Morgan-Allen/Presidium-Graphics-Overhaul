@@ -64,6 +64,7 @@ public abstract class LayerType implements TileConstants {
     final boolean masked = maskedAt(tx, ty, terrain);
     if (innerFringe && ! masked) return;
     final int tileID = terrain.layerIndices[tx][ty];
+    final int varID = variantAt(tx, ty, terrain);
     final boolean central = layerID >= 0 ? (tileID >= layerID) : masked;
     
     if (central) {
@@ -73,8 +74,7 @@ public abstract class LayerType implements TileConstants {
       }
       else if (tileID == layerID) {
         gridBatch.add(new Coord(tx, ty));
-        final int varID = terrain.varsIndices[tx][ty];
-        textBatch.add(LayerPattern.extraFringeUV(varID, true)[0]);
+        textBatch.add(LayerPattern.extraFringeUV(varID)[0]);
       }
       return;
     }
@@ -86,7 +86,7 @@ public abstract class LayerType implements TileConstants {
     }
     
     final float fringes[][] = innerFringe ?
-      LayerPattern.innerFringeUV(near) :
+      LayerPattern.innerFringeUV(near, varID % 2) :
       LayerPattern.outerFringeUV(near);
     if (fringes != null) for (float UV[] : fringes) if (UV != null) {
       gridBatch.add(new Coord(tx, ty));

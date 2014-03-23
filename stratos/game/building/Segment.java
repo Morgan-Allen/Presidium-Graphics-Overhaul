@@ -152,8 +152,16 @@ public abstract class Segment extends Venue implements TileConstants {
   private List <Segment> toInstall = new List() ;
   
   
+  private Tile previewAt() {
+    final int HS = this.size / 2;
+    Tile at = origin();
+    at = at.world.tileAt(at.x + HS, at.y + HS) ;
+    return at;
+  }
+  
+  
   private void superPlacing(List <Segment> prior) {
-    final Tile at = origin() ;
+    final Tile at = previewAt();
     super.doPlace(at, at) ;
     
     final Tile o = origin() ;
@@ -171,13 +179,13 @@ public abstract class Segment extends Venue implements TileConstants {
   
   
   private void superPreview(boolean canPlace, Rendering rendering) {
-    final Tile at = origin() ;
+    final Tile at = previewAt();
     super.preview(canPlace, rendering, at, at) ;
   }
   
   
   private boolean superPointsOkay() {
-    final Tile at = origin() ;
+    final Tile at = previewAt();
     return super.pointsOkay(at, at) ;
   }
   

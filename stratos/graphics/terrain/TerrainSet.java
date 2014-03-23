@@ -108,7 +108,7 @@ public class TerrainSet {
     
     int i = 0 ; for (Coord c : Visit.grid(minX, minY, dimX, dimY, 1)) {
       for (TerrainChunk patch : chunks[c.x][c.y]) {
-        patch.renderTo(rendering);
+        patch.readyFor(rendering);
       }
     }
   }

@@ -13,6 +13,10 @@ public class GameSettings {
   //
   //  TODO:  It's possible that these should be base or scenario-specific,
   //  rather than global...
+  final public static float
+    SMALL_SPRITE_SCALE = 0.55f,
+    BIG_SPRITE_SCALE   = 1.0f;
+  
   
   public static boolean
     
@@ -22,6 +26,8 @@ public class GameSettings {
     fogFree   = false,
     
     pathFree  = false,
+    
+    bigSprite = false,
     
     hardCore  = false ;
   

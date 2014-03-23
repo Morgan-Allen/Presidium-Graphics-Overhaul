@@ -34,7 +34,9 @@ public class LayerPattern implements TileConstants {
       MAX_UV, MAX_UV,
       MAX_UV, MIN_UV
     } ;
-  private final static float[][] shrinkUVMap(float initMap[][], float maxUV) {
+  private final static float[][] shrinkUVMap(
+    float initMap[][], float maxUV, int xoff, int yoff
+  ) {
     float processedUV[][] = new float[initMap.length][] ;
     //
     //  Here, the specific coordinates are stored-
@@ -42,8 +44,8 @@ public class LayerPattern implements TileConstants {
     int i = 0 ; for (float[] UV : initMap) {
       final float MAP[] = processedUV[i++] = new float[dataSize] ;
       for (int n = 0 ; n < dataSize ;) {
-        MAP[n] = (UV_PATTERN[n++] + UV[0]) / maxUV ;
-        MAP[n] = (UV_PATTERN[n++] + UV[1]) / maxUV ;
+        MAP[n] = (UV_PATTERN[n++] + UV[0] + xoff) / maxUV ;
+        MAP[n] = (UV_PATTERN[n++] + UV[1] + yoff) / maxUV ;
       }
     }
     return processedUV ;
@@ -103,7 +105,8 @@ public class LayerPattern implements TileConstants {
       {3, 6},  //14- northeast, southeast and southwest
       {1, 5}   //15- all 4 corners
     },
-    INNER_FRINGE_UV[][] = shrinkUVMap(INNER_FRINGE_INDEX, 8) ;
+    INNER_FRINGE_UV[][] = shrinkUVMap(INNER_FRINGE_INDEX, 8, 0, 0),
+    INNER_FRINGE_ALT_UV[][] = shrinkUVMap(INNER_FRINGE_INDEX, 8, 4, 0);
   private final static int innerIndices[] = new int[2] ;
   private static float innerUV[][] = new float[2][] ;
   
@@ -139,10 +142,13 @@ public class LayerPattern implements TileConstants {
     return innerIndices ;
   }
   
-  protected static float[][] innerFringeUV(boolean near[]) {
+  protected static float[][] innerFringeUV(boolean near[], int varID) {
     final int indices[] = innerFringeIndices(near) ;
-    for (int n = 2 ; n-- > 0 ;)
-      innerUV[n] = (indices[n] == -1) ? null : INNER_FRINGE_UV[indices[n]] ;
+    final float UV[][] = (varID % 2) == 0 ?
+      INNER_FRINGE_UV : INNER_FRINGE_ALT_UV;
+    for (int n = 2 ; n-- > 0 ;) {
+      innerUV[n] = (indices[n] == -1) ? null : UV[indices[n]] ;
+    }
     return innerUV ;
   }
   
@@ -187,7 +193,7 @@ public class LayerPattern implements TileConstants {
       {2, 3},  //near southwest (corner)
       {2, 5}   //near northwest (corner)
     },
-    OUTER_FRINGE_UV[][] = shrinkUVMap(OUTER_FRINGE_INDEX, 6),
+    OUTER_FRINGE_UV[][] = shrinkUVMap(OUTER_FRINGE_INDEX, 6, 0, 0),
     OUTER_FRINGE_CENTRE[] = OUTER_FRINGE_UV[0] ;
   //
   //  Having done that, we can now define some convenient constants:
@@ -261,20 +267,11 @@ public class LayerPattern implements TileConstants {
       {4, 4},
       {4, 5}
     },
-    OUTER_EXTRAS_UV[][] = shrinkUVMap(OUTER_EXTRAS_INDEX, 6),
-    INNER_EXTRAS_INDEX[][] = {
-      {5, 6},
-      {6, 6},
-      {7, 6},
-      {5, 5},
-      {6, 5},
-      {7, 5}
-    },
-    INNER_EXTRAS_UV[][] = shrinkUVMap(INNER_EXTRAS_INDEX, 8) ;
+    OUTER_EXTRAS_UV[][] = shrinkUVMap(OUTER_EXTRAS_INDEX, 6, 0, 0) ;
   
   
-  protected static float[][] extraFringeUV(int varID, boolean outer) {
-    final float UV[][] = outer ? OUTER_EXTRAS_UV : INNER_EXTRAS_UV ;
+  protected static float[][] extraFringeUV(int varID) {
+    final float UV[][] = OUTER_EXTRAS_UV ;
     varID %= UV.length ;
     innerUV[0] = UV[varID] ;
     innerUV[1] = null ;

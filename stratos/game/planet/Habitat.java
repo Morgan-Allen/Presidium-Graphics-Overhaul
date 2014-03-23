@@ -159,7 +159,7 @@ public class Habitat {
   final public static ImageAsset
     BASE_TEXTURES[] = new ImageAsset[ALL_HABITATS.length],
     ROAD_TEXTURE = ImageAsset.fromImage(
-      TERRAIN_PATH+"road_tiles.gif", Habitat.class
+      TERRAIN_PATH+"road_map_new.png", Habitat.class
     ),
     SQUALOR_TEXTURE = ImageAsset.fromImage(
       TERRAIN_PATH+"black_wastes_ground.png", Habitat.class

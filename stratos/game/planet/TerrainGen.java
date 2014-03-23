@@ -66,10 +66,10 @@ public class TerrainGen implements TileConstants {
   }
   
   
-  public Terrain generateTerrain() {
+  public WorldTerrain generateTerrain() {
     setupSectors() ;
     setupTileHabitats() ;
-    final Terrain t = new Terrain(habitats, typeIndex, varsIndex, heightMap) ;
+    final WorldTerrain t = new WorldTerrain(habitats, typeIndex, varsIndex, heightMap) ;
     return t ;
   }
   
@@ -322,8 +322,8 @@ public class TerrainGen implements TileConstants {
     final World world,
     float chanceMetals, float chanceArtifacts, float chanceIsotopes
   ) {
-    final Terrain terrain = world.terrain() ;
-    if (terrain == null) I.complain("No terrain assigned to world!") ;
+    final WorldTerrain worldTerrain = world.worldTerrain() ;
+    if (worldTerrain == null) I.complain("No terrain assigned to world!") ;
     final byte
       artifactsMap[][] = genSectorMap(10),
       metalsMap   [][] = genSectorMap(10),
@@ -367,18 +367,18 @@ public class TerrainGen implements TileConstants {
       //  Adjust abundance based on local terrain and global variables, and
       //  find the degree for the local deposit-
       if (pickHighest) chance *= abundances[var] ;
-      final float minChance = terrain.habitatAt(c.x, c.y).minerals() / 10f ;
+      final float minChance = worldTerrain.habitatAt(c.x, c.y).minerals() / 10f ;
       chance *= minChance ;
-      byte degree = (byte) ((minChance * Terrain.NUM_DEGREES)) ;
+      byte degree = (byte) ((minChance * WorldTerrain.NUM_DEGREES)) ;
       if (Rand.num() > chance) degree-- ;
       if (Rand.num() < chance) degree++ ;
-      degree = (byte) Visit.clamp(degree, Terrain.NUM_DEGREES) ;
+      degree = (byte) Visit.clamp(degree, WorldTerrain.NUM_DEGREES) ;
       if (degree == 0) continue ;
       //
       //  Store and summarise-
       final Tile location = world.tileAt(c.x, c.y) ;
-      terrain.setMinerals(location, (byte) var, degree) ;
-      totals[var] += terrain.mineralsAt(location, (byte) var) ;
+      worldTerrain.setMinerals(location, (byte) var, degree) ;
+      totals[var] += worldTerrain.mineralsAt(location, (byte) var) ;
     }
     /*
     final boolean report = true ;
@@ -397,7 +397,7 @@ public class TerrainGen implements TileConstants {
   //  Put the various tiles for processing in different batches and treat 'em
   //  that way?
   public void setupOutcrops(final World world) {
-    final Terrain terrain = world.terrain() ;
+    final WorldTerrain worldTerrain = world.worldTerrain() ;
     final int seedSize = (mapSize / DETAIL_RESOLUTION) + 1 ;
     final HeightMap heightDetail = new HeightMap(
       mapSize + 1, new float[seedSize][seedSize], 1, 0.5f
@@ -410,7 +410,7 @@ public class TerrainGen implements TileConstants {
         //
         //  First, determine the outcrop type.  (In the case of desert tiles,
         //  we insert dunes wherever possible.)
-        final Habitat habitat = terrain.habitatAt(x, y) ;
+        final Habitat habitat = worldTerrain.habitatAt(x, y) ;
         final Tile location = world.tileAt(x, y) ;
         float rockAmount = detailGrid[x][y] / 10f ;
         rockAmount *= rockAmount * Rand.num() * 1.25f ;
@@ -424,8 +424,8 @@ public class TerrainGen implements TileConstants {
           ) ;
           if (o != null) for (Tile t : world.tilesIn(o.area(), false)) {
             if (t.habitat() == Habitat.SHORELINE) continue ;
-            if (Rand.index(4) > 0) terrain.setHabitat(t, Habitat.BARRENS) ;
-            else terrain.setHabitat(t, Habitat.MESA) ;
+            if (Rand.index(4) > 0) worldTerrain.setHabitat(t, Habitat.BARRENS) ;
+            else worldTerrain.setHabitat(t, Habitat.MESA) ;
           }
         }
         
@@ -466,7 +466,7 @@ public class TerrainGen implements TileConstants {
   
   /**  Utility methods for debugging-
     */
-  public void presentMineralMap(World world, Terrain terrain) {
+  public void presentMineralMap(World world, WorldTerrain worldTerrain) {
     final int colourKey[][] = new int[mapSize][mapSize] ;
     final int typeColours[] = {
       0xff000000,
@@ -483,12 +483,12 @@ public class TerrainGen implements TileConstants {
     } ;
     for (Coord c : Visit.grid(0, 0, mapSize, mapSize, 1)) {
       final Tile t = world.tileAt(c.x, c.y) ;
-      final byte type = terrain.mineralType(t) ;
-      final float amount = terrain.mineralsAt(t, type) ;
+      final byte type = worldTerrain.mineralType(t) ;
+      final float amount = worldTerrain.mineralsAt(t, type) ;
       byte degree = 0 ;
-      if (amount == Terrain.AMOUNT_TRACE) degree = 1 ;
-      if (amount == Terrain.AMOUNT_COMMON) degree = 2 ;
-      if (amount == Terrain.AMOUNT_HEAVY ) degree = 3 ;
+      if (amount == WorldTerrain.AMOUNT_TRACE) degree = 1 ;
+      if (amount == WorldTerrain.AMOUNT_COMMON) degree = 2 ;
+      if (amount == WorldTerrain.AMOUNT_HEAVY ) degree = 3 ;
       colourKey[c.x][c.y] = typeColours[type] & degreeMasks[degree] ;
     }
     I.present(colourKey, "minerals map", 256, 256) ;

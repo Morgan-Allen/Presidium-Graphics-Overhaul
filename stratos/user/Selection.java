@@ -36,6 +36,9 @@ public class Selection implements UIConstants {
   final public static ImageAsset
     SELECT_OVERLAY = ImageAsset.fromImage(
       "media/GUI/selectOverlay.png", Selection.class
+    ),
+    PLACE_OVERLAY = ImageAsset.fromImage(
+      "media/GUI/placeOverlay.png", Selection.class
     );
   
   
@@ -180,7 +183,7 @@ public class Selection implements UIConstants {
   protected void renderWorldFX(Rendering rendering) {
     final Target
       HS = (hovered  == null) ? null : hovered.selectionLocksOn(),
-      SS = (selected == null) ? null : selected.selectionLocksOn() ;
+      SS = (selected == null) ? null : selected.selectionLocksOn();
     if (HS != null && HS != SS) {
       hovered.renderSelection(rendering, true) ;
     }
@@ -202,19 +205,20 @@ public class Selection implements UIConstants {
   
   
   public void renderTileOverlay(
-    Rendering r, final Fixture f, final World world, Colour c, ImageAsset tex
+    Rendering r, final Fixture f, final World world, Colour c,
+    ImageAsset tex, boolean cache
   ) {
     //  Use a glow-colour:
     c = new Colour().set(c);
     c.a *= -1;
     
-    if (recentOverlays.includes(f)) {
+    if (cache && recentOverlays.includes(f)) {
       final TerrainChunk overlay = overlayCache.get(f);
       overlay.colour = c;
-      overlay.renderTo(r);
+      overlay.readyFor(r);
       return;
     }
-    if (recentOverlays.size() > MAX_CACHE) {
+    if (cache && recentOverlays.size() > MAX_CACHE) {
       final Element oldest = recentOverlays.removeLast();
       overlayCache.remove(oldest);
     }
@@ -232,11 +236,14 @@ public class Selection implements UIConstants {
     };
     
     final Box2D limit = f.area(null).expandBy(1);
-    final TerrainChunk overlay = world.terrain().createOverlay(limit, layer);
-    recentOverlays.addFirst(f);
-    overlayCache.put(f, overlay);
+    final TerrainChunk overlay = world.worldTerrain().createOverlay(limit, layer);
     overlay.colour = c;
-    overlay.renderTo(r);
+    overlay.readyFor(r);
+    
+    if (cache) {
+      recentOverlays.addFirst(f);
+      overlayCache.put(f, overlay);
+    }
   }
 }
 

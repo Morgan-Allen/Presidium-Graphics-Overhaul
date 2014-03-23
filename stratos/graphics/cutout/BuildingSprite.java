@@ -58,6 +58,7 @@ public class BuildingSprite extends Sprite {
   private Sprite baseSprite;
   private CutoutSprite scaffoldBase;
   private GroupSprite scaffolding;
+  
   private GroupSprite allStacks;
   private List <PlaneFX> statusFX = new List <PlaneFX> ();
   private int statusDisplayIndex = -1;
@@ -138,11 +139,12 @@ public class BuildingSprite extends Sprite {
     allStacks.matchTo(this);
     
     if (intact) {
+      baseSprite.passType = this.passType;
       baseSprite.readyFor(rendering);
     }
     else {
       scaffoldBase.scale = size;
-      scaffoldBase.passType = CutoutSprite.PASS_SPLAT;
+      scaffoldBase.passType = Sprite.PASS_SPLAT;
       scaffoldBase.readyFor(rendering);
       scaffolding.readyFor(rendering);
     }

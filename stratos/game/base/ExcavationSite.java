@@ -35,7 +35,7 @@ public class ExcavationSite extends Venue implements
   final static String
     IMG_DIR = "media/Buildings/artificer/" ;
   final static CutoutModel SHAFT_MODEL = CutoutModel.fromImage(
-    ExcavationSite.class, IMG_DIR+"excavation_shaft.gif", 4, 1
+    ExcavationSite.class, IMG_DIR+"excavation_site.png", 4, 1
   ) ;
   final static ImageAsset ICON = ImageAsset.fromImage(
     "media/GUI/Buttons/excavation_button.gif", ExcavationSite.class
@@ -260,6 +260,7 @@ public class ExcavationSite extends Venue implements
     }
     final Tailing t = Tailing.siteTailing(this);
     if (t == null) return null;
+    t.enterWorld();
     tailings.add(t);
     return t;
   }
@@ -276,6 +277,8 @@ public class ExcavationSite extends Venue implements
       }
     }
     
+    //  TODO:  Remove later?
+    nextTailing();
     //
     //  TODO:  Come up with limits for each of the smelter types, based on
     //  staff size and underlying/surrounding terrain.

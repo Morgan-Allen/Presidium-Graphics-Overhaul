@@ -88,6 +88,7 @@ public class Element implements
     this.world = world ;
     this.inceptTime = world.currentTime() ;
     if (owningType() != NOTHING_OWNS && ! isMobile()) {
+      if (location.owner() != null) location.owner().setAsDestroyed();
       location.setOwner(this) ;
     }
     return true ;

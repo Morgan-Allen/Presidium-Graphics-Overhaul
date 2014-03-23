@@ -40,10 +40,12 @@ public class Smelter extends Venue implements Economy {
     ),
     SMELTER_MOLD_MODELS[][] = {
       ALL_MOLD_MODELS[1],
-      ALL_MOLD_MODELS[0],
-      ALL_MOLD_MODELS[2],
+      ALL_MOLD_MODELS[0]
     },
-    SLAG_HEAP_MODELS[] = ALL_MOLD_MODELS[3];
+    SLAG_HEAP_MODELS[][] = {
+      ALL_MOLD_MODELS[2],
+      ALL_MOLD_MODELS[3]
+    };
   
   final static int
     MOLD_COORDS[] = {
@@ -169,8 +171,8 @@ public class Smelter extends Venue implements Economy {
   
   
   private byte variant() {
-    if (output == METALS) return Terrain.TYPE_METALS ;
-    if (output == FUEL_RODS) return Terrain.TYPE_ISOTOPES ;
+    if (output == METALS) return WorldTerrain.TYPE_METALS ;
+    if (output == FUEL_RODS) return WorldTerrain.TYPE_ISOTOPES ;
     return -1 ;
   }
   

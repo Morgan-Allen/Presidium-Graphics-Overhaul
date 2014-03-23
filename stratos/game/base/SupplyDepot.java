@@ -24,8 +24,8 @@ public class SupplyDepot extends Venue implements
   
   /**  Other data fields, constructors and save/load methods-
     */
-  final public static ModelAsset MODEL_UNDER = CutoutModel.fromImage(
-    SupplyDepot.class, "media/Buildings/merchant/depot_under.gif", 4.25f, 0
+  final public static ModelAsset MODEL_UNDER = CutoutModel.fromSplatImage(
+    SupplyDepot.class, "media/Buildings/merchant/depot_under.gif", 4.25f
   );
   final public static ModelAsset MODEL_CORE = CutoutModel.fromImage(
     SupplyDepot.class, "media/Buildings/merchant/depot_core.png", 3, 2
@@ -264,7 +264,7 @@ public class SupplyDepot extends Venue implements
         n = (n + 2) % 8 ;
         newStrip.setPosition(o.x + (N_X[n] * S), o.y + (N_Y[n] * S), world) ;
         if (newStrip.canPlace()) {
-          newStrip.doPlace(newStrip.origin(), null) ;
+          newStrip.placeFromCorner(newStrip.origin()) ;
           landingStrip = newStrip ;
           break ;
         }

@@ -20,12 +20,17 @@ public abstract class Sprite {
     BLACK_BITS = Color.BLACK.toFloatBits(),
     CLEAR_BITS = new Color(0, 0, 0, 0).toFloatBits();
   
+  final public static int
+    PASS_SPLAT   = 0,
+    PASS_NORMAL  = 1,
+    PASS_PREVIEW = 2;
   
   final public Vec3D position = new Vec3D();
   public float scale = 1, rotation = 0;
-  public float depth;
   public float fog = 1;
   public Colour colour = null;
+  public float depth;
+  public int passType = PASS_NORMAL;
   
   
   protected void saveTo(DataOutputStream out) throws Exception {

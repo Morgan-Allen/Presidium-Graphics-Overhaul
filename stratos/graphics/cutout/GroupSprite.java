@@ -147,6 +147,7 @@ public class GroupSprite extends Sprite {
       }
       module.colour = colour;
       module.fog = fog;
+      module.passType = passType;
       module.readyFor(rendering);
     }
     if (lastPosition == null) lastPosition = new Vec3D();

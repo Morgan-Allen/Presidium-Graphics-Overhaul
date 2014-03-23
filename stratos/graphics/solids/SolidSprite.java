@@ -31,7 +31,7 @@ public class SolidSprite extends Sprite implements RenderableProvider {
   }
   final Stack <AnimState> animStates = new Stack <AnimState>();
   
-  private static Vector3 temp = new Vector3();
+  private static Vector3 tempV = new Vector3();
   
   
   
@@ -60,8 +60,8 @@ public class SolidSprite extends Sprite implements RenderableProvider {
   
   public void readyFor(Rendering rendering) {
     //  Set up the translation matrix based on game-world position and facing-
-    rendering.view.worldToGL(position, temp);
-    transform.setToTranslation(temp);
+    rendering.view.worldToGL(position, tempV);
+    transform.setToTranslation(tempV);
     final float radians = (float) FastMath.toRadians(90 - rotation);
     transform.rot(Vector3.Y, radians);
     
@@ -81,19 +81,20 @@ public class SolidSprite extends Sprite implements RenderableProvider {
       while (animStates.getFirst() != validFrom) animStates.removeFirst();
       model.animControl.end();
       
-      final Matrix4 temp = new Matrix4();
+      final Matrix4 tempM = new Matrix4();
       //  The nodes here are ordered so as to guarantee that parents are always
       //  visited before children, allowing a single pass-
       for (int i = 0; i < model.allNodes.length; i++) {
         final Node node = model.allNodes[i];
         if (node.parent == null) {
+          tempV.set(node.scale).scl(this.scale);
           boneTransforms[i].setToTranslation(node.translation);
-          boneTransforms[i].scl(node.scale);
+          boneTransforms[i].scl(tempV);
           continue;
         }
         final Matrix4 parentTransform = boneFor(node.parent);
-        temp.set(parentTransform).mul(boneTransforms[i]);
-        boneTransforms[i].set(temp);
+        tempM.set(parentTransform).mul(boneTransforms[i]);
+        boneTransforms[i].set(tempM);
       }
     }
     

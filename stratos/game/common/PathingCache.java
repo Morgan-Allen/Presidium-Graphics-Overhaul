@@ -13,6 +13,10 @@ import stratos.util.*;
 
 
 
+//  TODO:  All of this needs to be saved & loaded, or you'll get major slowdown
+//  after loading from a saved game.
+
+
 public class PathingCache {
   
   

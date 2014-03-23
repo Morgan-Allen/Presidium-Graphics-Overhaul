@@ -363,10 +363,18 @@ public abstract class Venue extends Fixture implements
   }
   
   
+  public void placeFromCorner(Tile t) {
+    final int HS = this.size / 2;
+    doPlace(t.world.tileAt(t.x + HS, t.y + HS), null);
+  }
+  
+  
   public boolean pointsOkay(Tile from, Tile to) {
     //  You have to check for visibility too.  Have a Base argument?
     if (from == null) return false ;
-    final Tile t = from ;
+    final int HS = this.size / 2;
+    final Tile t = from.world.tileAt(from.x - HS, from.y - HS) ;
+    if (t == null) return false;
     setPosition(t.x, t.y, t.world) ;
     return canPlace() ;
   }
@@ -374,8 +382,7 @@ public abstract class Venue extends Fixture implements
   
   public void doPlace(Tile from, Tile to) {
     if (sprite() != null) sprite().colour = null ;
-    final Tile t = from ;
-    setPosition(t.x, t.y, t.world) ;
+    pointsOkay(from, to);
     clearSurrounds() ;
     enterWorld() ;
     
@@ -388,29 +395,25 @@ public abstract class Venue extends Fixture implements
       //I.say("Now placing: "+this+" in install phase") ;
     }
   }
-
-
+  
+  
   public void preview(
     boolean canPlace, Rendering rendering, Tile from, Tile to
   ) {
     if (from == null) return ;
-    final Tile t = from ;
-    final World world = t.world ;
-    setPosition(t.x, t.y, t.world) ;
+    pointsOkay(from, to);
     
-    //  TODO:  RESTORE THIS
-    /*
-    final TerrainMesh overlay = world.terrain().createOverlay(
-      world, surrounds(), false, Texture.WHITE_TEX
-    ) ;
-    overlay.colour = canPlace ? Colour.GREEN : Colour.RED ;
-    rendering.addClient(overlay) ;
-    //*/
+    if (canPlace) BaseUI.current().selection.renderTileOverlay(
+      rendering, this, from.world, canPlace ? Colour.GREEN : Colour.RED,
+      Selection.SELECT_OVERLAY, false
+    );
     
-    if (sprite() == null) return ;
-    this.viewPosition(sprite().position);
-    sprite().colour = canPlace ? Colour.GREEN : Colour.RED ;
-    sprite().readyFor(rendering);
+    final Sprite sprite = this.buildSprite;
+    if (sprite == null) return ;
+    this.viewPosition(sprite.position);
+    sprite.colour = canPlace ? Colour.GREEN : Colour.RED ;
+    sprite.passType = Sprite.PASS_PREVIEW;
+    sprite.readyFor(rendering);
   }
   
   
@@ -856,6 +859,7 @@ public abstract class Venue extends Fixture implements
       structure.intact(),
       structure.burning()
     ) ;
+    buildSprite.passType = Sprite.PASS_NORMAL;
     toggleStatusDisplay() ;
     updateItemSprites() ;
     renderHealthbars(rendering, base) ;
@@ -869,7 +873,7 @@ public abstract class Venue extends Fixture implements
     BaseUI.current().selection.renderTileOverlay(
       rendering, this, world,
       hovered ? Colour.transparency(0.5f) : Colour.WHITE,
-      Selection.SELECT_OVERLAY
+      Selection.SELECT_OVERLAY, true
     );
   }
 }

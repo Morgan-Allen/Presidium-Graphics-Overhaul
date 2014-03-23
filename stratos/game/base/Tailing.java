@@ -1,9 +1,7 @@
 
 
 package stratos.game.base;
-import stratos.game.building.Placement;
-import stratos.game.building.Service;
-import stratos.game.building.TileSpread;
+import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -17,9 +15,8 @@ import stratos.util.*;
 
 
 //  TODO:  Extend Venue instead, and make private property, so you can get a
-//         proper handle on the interface.
-
-//  TODO:  Create cutout sprites that behave like a portion of terrain.
+//         proper handle on the interface.  Also, make 3x3.
+//  TODO:  This HAS to be a venue.  Substantial bugs otherwise.
 
 
 public class Tailing extends Fixture {
@@ -34,7 +31,7 @@ public class Tailing extends Fixture {
   
   
   public Tailing() {
-    super(2, 1);
+    super(3, 1);
   }
   
   
@@ -92,7 +89,8 @@ public class Tailing extends Fixture {
   /**  Status mutators/accessors-
     */
   public int owningType() {
-    return Element.TERRAIN_OWNS;
+    if (! inWorld()) return FIXTURE_OWNS;
+    return TERRAIN_OWNS;
   }
   
   
@@ -118,13 +116,18 @@ public class Tailing extends Fixture {
   /**  Rendering and interface-
     */
   final static int
-    NUM_MOLDS = 4,
-    MOLD_COORDS[] = { 0, 0, 0, 1, 1, 1, 1, 0 };
+    NUM_MOLDS = 9,
+    MOLD_COORDS[] = {
+      0, 0, 0, 1, 0, 2,
+      1, 0, 1, 1, 1, 2,
+      2, 0, 2, 1, 2, 2
+    };
   
   private GroupSprite updateSprite(GroupSprite sprite) {
     final boolean init = sprite == null;
     if (init) sprite = new GroupSprite();
     final float xo = (size - 1) / -2f, yo = (size - 1) / -2f;
+    final Tile o = origin();
     
     final int NML = Smelter.NUM_MOLD_LEVELS;
     final int fillStage = (int) (fillLevel * NUM_MOLDS * NML);
@@ -133,9 +136,11 @@ public class Tailing extends Fixture {
       final float
         xoff = xo + MOLD_COORDS[n * 2],
         yoff = yo + MOLD_COORDS[(n * 2) + 1];
+      final Tile t = o.world.tileAt(o.x + xoff, o.y + yoff);
+      final int var = t == null ? 1 : (o.world.worldTerrain().varAt(t) % 2);
       
       final int modelStage = Visit.clamp(fillStage - (n * NML), NML);
-      final ModelAsset model = Smelter.SLAG_HEAP_MODELS[modelStage];
+      final ModelAsset model = Smelter.SLAG_HEAP_MODELS[var][modelStage];
       
       if (init) sprite.attach(model, xoff, yoff, 0);
       else {

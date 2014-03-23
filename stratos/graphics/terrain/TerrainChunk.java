@@ -58,9 +58,9 @@ public class TerrainChunk implements TileConstants {
     final Batch<Coord> gridBatch = new Batch<Coord>();
     final Batch<float[]> textBatch = new Batch<float[]>();
 
-    for (Coord c : Visit.grid(gridX, gridY, width, height, 1)) {
+    for (Coord c : Visit.grid(gridX, gridY, width, height, 1)) try {
       layer.addFringes(c.x, c.y, belongs, gridBatch, textBatch);
-    }
+    } catch (Exception e) {}
 
     // We have 4 vertices per tile and 2 tiles per face.
     // Each vertex requires 3 floats for geometry and 2 for tex coords.
@@ -102,7 +102,7 @@ public class TerrainChunk implements TileConstants {
   }
   
   
-  public void renderTo(Rendering rendering) {
+  public void readyFor(Rendering rendering) {
     if (renderFlag) return;
     renderFlag = true;
     rendering.terrainPass.register(this);

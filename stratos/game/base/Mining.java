@@ -92,7 +92,7 @@ public class Mining extends Plan implements Economy {
     final TileSpread spread = new TileSpread(world.tileAt(site)) {
       
       protected boolean canAccess(Tile t) {
-        if (world.terrain().mineralDegree(t) != Terrain.DEGREE_TAKEN) {
+        if (world.worldTerrain().mineralDegree(t) != WorldTerrain.DEGREE_TAKEN) {
           if (site.area().contains(t.x, t.y)) return true ;
           return false ;
         }
@@ -110,7 +110,7 @@ public class Mining extends Plan implements Economy {
     final Batch <Tile> touched = new Batch <Tile> () ;
     for (Tile o : open) for (Tile n : o.edgeAdjacent(Spacing.tempT4)) {
       if (n == null || n.flaggedWith() != null) continue ;
-      if (world.terrain().mineralDegree(n) == Terrain.DEGREE_TAKEN) {
+      if (world.worldTerrain().mineralDegree(n) == WorldTerrain.DEGREE_TAKEN) {
         continue ;
       }
       float rating = 10 ;
@@ -307,11 +307,11 @@ public class Mining extends Plan implements Economy {
     progressChance *= 1 + (bonus / 2f) ;
     if (Rand.num() > progressChance) return false ;
     
-    final Terrain terrain = face.world.terrain() ;
-    final byte typeID = terrain.mineralType(face) ;
-    final float oldAmount = terrain.mineralsAt(face, typeID) ;
-    terrain.incMineralDegree(face, typeID, -1) ;
-    final float taken = oldAmount - terrain.mineralsAt(face, typeID) ;
+    final WorldTerrain worldTerrain = face.world.worldTerrain() ;
+    final byte typeID = worldTerrain.mineralType(face) ;
+    final float oldAmount = worldTerrain.mineralsAt(face, typeID) ;
+    worldTerrain.incMineralDegree(face, typeID, -1) ;
+    final float taken = oldAmount - worldTerrain.mineralsAt(face, typeID) ;
     
     if (taken == 0 || left == null) return false ;
     final Item mined = Item.with(SAMPLES, left.type, taken * bonus / 2f, 0) ;
@@ -339,10 +339,10 @@ public class Mining extends Plan implements Economy {
     float amount = -1 ;
     if (face instanceof Tile) {
       final Tile t = (Tile) face ;
-      type = t.world.terrain().mineralType(t) ;
-      amount = t.world.terrain().mineralsAt(t, type) ;
-      if (type == Terrain.TYPE_NOTHING) {
-        type = Rand.yes() ? Terrain.TYPE_METALS : Terrain.TYPE_ISOTOPES ;
+      type = t.world.worldTerrain().mineralType(t) ;
+      amount = t.world.worldTerrain().mineralsAt(t, type) ;
+      if (type == WorldTerrain.TYPE_NOTHING) {
+        type = Rand.yes() ? WorldTerrain.TYPE_METALS : WorldTerrain.TYPE_ISOTOPES ;
         amount = 1 ;
       }
     }
@@ -350,16 +350,16 @@ public class Mining extends Plan implements Economy {
       final Outcrop o = (Outcrop) face ;
       type = o.mineralType() ;
       amount = o.mineralAmount() ;
-      if (type == Terrain.TYPE_NOTHING) {
-        type = Rand.yes() ? Terrain.TYPE_METALS : Terrain.TYPE_ISOTOPES ;
+      if (type == WorldTerrain.TYPE_NOTHING) {
+        type = Rand.yes() ? WorldTerrain.TYPE_METALS : WorldTerrain.TYPE_ISOTOPES ;
         amount = 1 * o.bulk() * o.condition() ;
       }
     }
     else return null ;
     Service mineral = null ; switch (type) {
-      case (Terrain.TYPE_RUINS   ) : mineral = ARTIFACTS  ; break ;
-      case (Terrain.TYPE_METALS  ) : mineral = METALS  ; break ;
-      case (Terrain.TYPE_ISOTOPES) : mineral = FUEL_RODS ; break ;
+      case (WorldTerrain.TYPE_RUINS   ) : mineral = ARTIFACTS  ; break ;
+      case (WorldTerrain.TYPE_METALS  ) : mineral = METALS  ; break ;
+      case (WorldTerrain.TYPE_ISOTOPES) : mineral = FUEL_RODS ; break ;
     }
     if (mineral == null || amount <= 0) {
       I.say("Type/amount: "+type+"/"+amount) ;

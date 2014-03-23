@@ -103,15 +103,21 @@ public class CutoutsPass {
   
   
   public void performPreviewPass() {
+    ///I.say("total previews... "+passPreview.size());
     performPass(passPreview);
   }
   
   
   private void performPass(Batch <CutoutSprite> inPass) {
     final Table <ModelAsset, Batch <CutoutSprite>> subPasses = new Table();
+    final Batch <CutoutSprite> ghosts = new Batch <CutoutSprite> ();
     final Stack <ModelAsset> sequence = new Stack <ModelAsset> ();
     
     for (CutoutSprite s : inPass) {
+      if (s.colour != null && s.colour.a < 1) {
+        ghosts.add(s);
+        continue;
+      }
       Batch <CutoutSprite> batch = subPasses.get(s.model());
       if (batch == null) {
         subPasses.put(s.model(), batch = new Batch());
@@ -134,6 +140,11 @@ public class CutoutsPass {
       }
       compileAndRender(rendering.camera());
     }
+    
+    for (CutoutSprite s : ghosts) {
+      compileSprite(s, rendering.camera(), false, s.model.texture);
+    }
+    compileAndRender(rendering.camera());
     inPass.clear();
   }
   

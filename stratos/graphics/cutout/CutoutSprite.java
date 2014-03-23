@@ -10,13 +10,7 @@ import stratos.util.*;
 public class CutoutSprite extends Sprite {
   
   
-  final public static int
-    PASS_SPLAT   = 0,
-    PASS_NORMAL  = 1,
-    PASS_PREVIEW = 2;
-  
   protected CutoutModel model ;
-  public int passType ;
   
   
   
@@ -40,7 +34,11 @@ public class CutoutSprite extends Sprite {
   
   
   public void readyFor(Rendering rendering) {
+    if (passType == PASS_NORMAL && model.splat) passType = PASS_SPLAT;
     rendering.cutoutsPass.register(this);
   }
 }
+
+
+
 

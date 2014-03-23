@@ -24,7 +24,7 @@ t = terraform-progress  (1 as default).
 //*/
 
 
-public class Terrain implements TileConstants, Session.Saveable {
+public class WorldTerrain implements TileConstants, Session.Saveable {
   
   
   final public static int
@@ -77,7 +77,7 @@ public class Terrain implements TileConstants, Session.Saveable {
   
   
   
-  Terrain(
+  WorldTerrain(
     Habitat[] gradient,
     byte typeIndex[][],
     byte varsIndex[][],
@@ -97,7 +97,7 @@ public class Terrain implements TileConstants, Session.Saveable {
   }
   
   
-  public Terrain(Session s) throws Exception {
+  public WorldTerrain(Session s) throws Exception {
     s.cacheInstance(this) ;
     mapSize = s.loadInt() ;
     
@@ -289,7 +289,7 @@ public class Terrain implements TileConstants, Session.Saveable {
         return roadCounter[tx][ty] > 0 ;
       }
       protected int variantAt(int tx, int ty, TerrainSet terrain) {
-        return (tx + ty) % 4 ;
+        return ((tx + ty) % 3 == 0) ? 0 : 1 ;
       }
     };
     

@@ -258,7 +258,7 @@ public abstract class Mobile extends Element
   
   private float boardHeight() {
     if (aboard == origin()) {
-      return world.terrain().trueHeight(position.x, position.y) ;
+      return world.worldTerrain().trueHeight(position.x, position.y) ;
     }
     else return aboard.position(null).z ;
   }
@@ -308,8 +308,8 @@ public abstract class Mobile extends Element
   
   
   public void renderFor(Rendering rendering, Base base) {
-    final Sprite s = this.sprite();
     final float scale = spriteScale();
+    final Sprite s = this.sprite();
     s.scale = scale;
     //
     //  Render your shadow, either on the ground or on top of occupants-
@@ -331,9 +331,8 @@ public abstract class Mobile extends Element
   
   
   protected float shadowHeight(Vec3D p) {
-    return world.terrain().trueHeight(p.x, p.y) ;
+    return world.worldTerrain().trueHeight(p.x, p.y) ;
   }
-  
   
   protected float spriteScale() {
     return 1 ;

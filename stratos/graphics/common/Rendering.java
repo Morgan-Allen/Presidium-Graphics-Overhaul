@@ -125,19 +125,15 @@ public class Rendering {
     
     solidsPass.performPass();
     //  NOTE:  These are apparently switched off by the solids pass (using
-    //  ModelBatch internally.)  TODO:  FIX using RenderContext?
+    //  ModelBatch internally.)  TODO:  Fix the shader/rendercontext.
     glEnable(GL10.GL_BLEND);
     glEnable(GL10.GL_DEPTH_TEST);
-    
-    //  TODO:  It's probably a good idea to take everything transparent and
-    //  render it later.  But for the moment, cutouts are more likely to
-    //  exhibit transparency.
     cutoutsPass.performNormalPass();
     
     glDepthMask(false);
     sfxPass.performPass();
-    glClear(GL_DEPTH_BUFFER_BIT);
     glDepthMask(true);
+    glClear(GL_DEPTH_BUFFER_BIT);
     cutoutsPass.performPreviewPass();
 
     batch2D.begin();
