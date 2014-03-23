@@ -175,14 +175,22 @@ varying vec3 v_ambientLight;
 
 #endif // lightingFlag
 
+
+
+
+//  TODO:  The vast majority of this stuff can be dispensed with, cleaned up,
+//  or simplified.
+
 void main() {
 	#ifdef textureFlag
 		v_texCoords0 = a_texCoord0;
 	#endif // textureFlag
 	
+	
 	#if defined(colorFlag)
 		v_color = a_color;
 	#endif // colorFlag
+	
 		
 	#ifdef blendedFlag
 		v_opacity = u_opacity;
@@ -190,6 +198,7 @@ void main() {
 			v_alphaTest = u_alphaTest;
 		#endif //alphaTestFlag
 	#endif // blendedFlag
+	
 	
 	#ifdef skinningFlag
 		mat4 skinning = mat4(0.0);
@@ -218,12 +227,13 @@ void main() {
 			skinning += (a_boneWeight7.y) * u_bones[int(a_boneWeight7.x)];
 		#endif //boneWeight7Flag
 	#endif //skinningFlag
-
+	
 	#ifdef skinningFlag
 		vec4 pos = u_worldTrans * skinning * vec4(a_position, 1.0);
 	#else
 		vec4 pos = u_worldTrans * vec4(a_position, 1.0);
 	#endif
+	
 		
 	gl_Position = u_projViewTrans * pos;
 		
@@ -233,6 +243,7 @@ void main() {
 		v_shadowMapUv.z = min(spos.z * 0.5 + 0.5, 0.998);
 	#endif //shadowMapFlag
 	
+	
 	#if defined(normalFlag)
 		#if defined(skinningFlag)
 			vec3 normal = normalize((u_worldTrans * skinning * vec4(a_normal, 0.0)).xyz);
@@ -241,12 +252,14 @@ void main() {
 		#endif
 		v_normal = normal;
 	#endif // normalFlag
+	
 
     #ifdef fogFlag
         vec3 flen = u_cameraPosition.xyz - pos.xyz;
         float fog = dot(flen, flen) * u_cameraPosition.w;
         v_fog = min(fog, 1.0);
     #endif
+  
 
 	#ifdef lightingFlag
 		#if	defined(ambientLightFlag)

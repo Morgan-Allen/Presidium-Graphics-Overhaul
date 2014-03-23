@@ -1,3 +1,5 @@
+
+
 #ifdef GL_ES 
 #define LOWP lowp
 #define MED mediump
@@ -97,28 +99,97 @@ uniform vec4 u_fogColor;
 varying float v_fog;
 #endif // fogFlag
 
+
+
+
+//  CUSTOM MODIFICATION STARTS HERE
+uniform sampler2D u_overlays[8];
+uniform int u_overnum;
+
+
+
+vec4 mixOverlays()
+{
+  vec4 color = texture2D(u_diffuseTexture, v_texCoords0);
+  
+  //  NOTE:  Unfortunately, there's a fatal bug on OSX 10.6.8 which requires
+  //  unrolling the inner loop here.  See a similar report and fix here-
+  //  http://www.opengl.org/discussion_boards/archive/index.php/t-166799.html
+  //  https://github.com/gaborpapp/apps/blob/master/DepthMerge/resources/DepthMergeFrag.glsl
+  
+  int limit = u_overnum;
+  if (limit > 8) limit = 8;
+  
+  if (limit > 0) {
+    vec4 over = texture2D(u_overlays[0], v_texCoords0);
+    color = mix(color, over, over.a);
+  }
+  
+  if (limit > 1) {
+    vec4 over = texture2D(u_overlays[1], v_texCoords0);
+    color = mix(color, over, over.a);
+  }
+  
+  if (limit > 2) {
+    vec4 over = texture2D(u_overlays[2], v_texCoords0);
+    color = mix(color, over, over.a);
+  }
+  
+  if (limit > 3) {
+    vec4 over = texture2D(u_overlays[3], v_texCoords0);
+    color = mix(color, over, over.a);
+  }
+  
+  if (limit > 4) {
+    vec4 over = texture2D(u_overlays[4], v_texCoords0);
+    color = mix(color, over, over.a);
+  }
+  
+  if (limit > 5) {
+    vec4 over = texture2D(u_overlays[5], v_texCoords0);
+    color = mix(color, over, over.a);
+  }
+  
+  if (limit > 6) {
+    vec4 over = texture2D(u_overlays[6], v_texCoords0);
+    color = mix(color, over, over.a);
+  }
+  
+  if (limit > 7) {
+    vec4 over = texture2D(u_overlays[7], v_texCoords0);
+    color = mix(color, over, over.a);
+  }
+  
+  if (color.a < 0.001) discard;
+  return color;
+}
+
+
+
+//  TODO:  90% of this stuff can be dispensed with.
+
 void main() {
 	#if defined(normalFlag) 
 		vec3 normal = v_normal;
 	#endif // normalFlag
 		
-	#if defined(diffuseTextureFlag) && defined(diffuseColorFlag) && defined(colorFlag)
-		vec4 diffuse = texture2D(u_diffuseTexture, v_texCoords0) * u_diffuseColor * v_color;
-	#elif defined(diffuseTextureFlag) && defined(diffuseColorFlag)
-		vec4 diffuse = texture2D(u_diffuseTexture, v_texCoords0) * u_diffuseColor;
-	#elif defined(diffuseTextureFlag) && defined(colorFlag)
-		vec4 diffuse = texture2D(u_diffuseTexture, v_texCoords0) * v_color;
-	#elif defined(diffuseTextureFlag)
-		vec4 diffuse = texture2D(u_diffuseTexture, v_texCoords0);
-	#elif defined(diffuseColorFlag) && defined(colorFlag)
-		vec4 diffuse = u_diffuseColor * v_color;
-	#elif defined(diffuseColorFlag)
-		vec4 diffuse = u_diffuseColor;
-	#elif defined(colorFlag)
-		vec4 diffuse = v_color;
-	#else
-		vec4 diffuse = vec4(1.0);
-	#endif
+  #if defined(diffuseTextureFlag) && defined(diffuseColorFlag) && defined(colorFlag)
+    vec4 diffuse = mixOverlays() * u_diffuseColor * v_color;
+  #elif defined(diffuseTextureFlag) && defined(diffuseColorFlag)
+    vec4 diffuse = mixOverlays() * u_diffuseColor;
+  #elif defined(diffuseTextureFlag) && defined(colorFlag)
+    vec4 diffuse = mixOverlays() * v_color;
+  #elif defined(diffuseTextureFlag)
+    vec4 diffuse = mixOverlays();
+  #elif defined(diffuseColorFlag) && defined(colorFlag)
+    vec4 diffuse = u_diffuseColor * v_color;
+  #elif defined(diffuseColorFlag)
+    vec4 diffuse = u_diffuseColor;
+  #elif defined(colorFlag)
+    vec4 diffuse = v_color;
+  #else
+    vec4 diffuse = vec4(1.0);
+  #endif
 
 	#if (!defined(lightingFlag))  
 		gl_FragColor.rgb = diffuse.rgb;

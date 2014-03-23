@@ -262,9 +262,13 @@ public class Paving {
   
   /**  Methods related to physical road construction-
     */
-  public static void clearRoad(Tile path[]) {
-    for (Tile t : path) if (t.owningType() < Element.FIXTURE_OWNS) {
-      if (t.owner() != null) t.owner().setAsDestroyed() ;
+  private void clearRoad(Tile path[]) {
+    if (verbose) I.say("Clearing path...");
+    for (Tile t : path) {
+      if (verbose) I.say("Owner of "+t+" is "+t.owner());
+      if (t.owningType() < Element.FIXTURE_OWNS) {
+        if (t.owner() != null) t.owner().setAsDestroyed();
+      }
     }
   }
   

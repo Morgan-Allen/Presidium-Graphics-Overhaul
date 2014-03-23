@@ -1,10 +1,6 @@
 
 
 package stratos.graphics.solids;
-import static stratos.graphics.common.GL.GL_COLOR_BUFFER_BIT;
-import static stratos.graphics.common.GL.GL_DEPTH_BUFFER_BIT;
-import static stratos.graphics.common.GL.glClear;
-import static stratos.graphics.common.GL.glClearColor;
 import stratos.graphics.common.*;
 import stratos.util.*;
 
@@ -41,28 +37,12 @@ public class SolidsPass {
     };
     provider.config.numBones = 20;
     provider.config.fragmentShader = Gdx.files.internal(
-      "shaders/solids.frag"
+      "shaders/solids_new.frag"
     ).readString();
     provider.config.vertexShader = Gdx.files.internal(
-      "shaders/solids.vert"
+      "shaders/solids_new.vert"
     ).readString();
-    
     this.spriteBatch = new ModelBatch(provider);
-    /*
-    this.spriteBatch = new ModelBatch(new DefaultShaderProvider() {
-      protected Shader createShader(final Renderable renderable) {
-        if (Gdx.graphics.isGL20Available()) {
-          final DefaultShader.Config config = new DefaultShader.Config() ;
-          //  Bit of a hacky workaround here.  Look up solutions.
-          config.numBones = MAX_BONES ;
-          //config.fragmentShader = Gdx.files.internal("shaders/default.frag").readString();
-          //config.vertexShader = Gdx.files.internal("shaders/default.vert").readString();
-          return new DefaultShader(renderable, config) ;
-        }
-        return new GLES10Shader();
-      }
-    });
-    //*/
   }
   
   

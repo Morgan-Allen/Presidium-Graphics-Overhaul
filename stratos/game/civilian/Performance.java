@@ -79,8 +79,8 @@ public class Performance extends Recreation {
     { EROTICS       , ATHLETICS  },
     { MASQUERADE, GRAPHIC_DESIGN },
     { MASQUERADE, HANDICRAFTS    },
-    { ATHLETICS      , BRAWN  , VIGOUR   , REFLEX },
-    { BODY_MEDITATION, INSIGHT, INTELLECT, WILL   }
+    { ATHLETICS      , MUSCULAR  , IMMUNE   , MOTOR },
+    { BODY_MEDITATION, PERCEPT, COGNITION, NERVE   }
   } ;
   
   final static String EFFECT_DESC[] = {

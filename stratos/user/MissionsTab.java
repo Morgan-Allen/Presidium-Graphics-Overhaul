@@ -45,7 +45,7 @@ public class MissionsTab extends InfoPanel {
   //  These icons need to be worked on a little more...
   final public static CutoutModel
     ALL_MODELS[] = CutoutModel.fromImages(
-      IMG_DIR, MissionsTab.class, 1, 2,
+      IMG_DIR, MissionsTab.class, 1, 2, false,
       "flag_strike.gif",
       "flag_recon.gif",
       "flag_contact.gif",

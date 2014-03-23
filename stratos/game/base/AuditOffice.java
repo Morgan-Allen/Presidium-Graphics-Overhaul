@@ -17,11 +17,6 @@ import stratos.user.*;
 import stratos.util.*;
 
 
-//
-//  TODO:  Rename this to the Press Office, and move auditor functions to the
-//  Enforcer Bloc.
-
-
 
 public class AuditOffice extends Venue implements Economy {
   

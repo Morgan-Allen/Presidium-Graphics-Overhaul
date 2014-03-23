@@ -114,7 +114,13 @@ public class Rendering {
     glClearColor(BC.r, BC.g, BC.b, BC.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    glDisable(GL10.GL_DEPTH_TEST);
+    glDepthMask(false);
     terrainPass.performPass();
+    cutoutsPass.performSplatPass();
+    terrainPass.performOverlayPass();
+    glEnable(GL10.GL_DEPTH_TEST);
+    glDepthMask(true);
     glClear(GL_DEPTH_BUFFER_BIT);
     
     solidsPass.performPass();
@@ -126,11 +132,13 @@ public class Rendering {
     //  TODO:  It's probably a good idea to take everything transparent and
     //  render it later.  But for the moment, cutouts are more likely to
     //  exhibit transparency.
-    cutoutsPass.performPass();
+    cutoutsPass.performNormalPass();
     
-    //  TODO:  This is causing some odd overlap problems
     glDepthMask(false);
     sfxPass.performPass();
+    glClear(GL_DEPTH_BUFFER_BIT);
+    glDepthMask(true);
+    cutoutsPass.performPreviewPass();
 
     batch2D.begin();
     if (UI != null) {

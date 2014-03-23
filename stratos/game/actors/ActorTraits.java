@@ -74,12 +74,12 @@ public class ActorTraits implements Abilities {
   public void initAtts(float physical, float sensitive, float cognitive) {
     //
     //  Replace these with just 3 attributes.  Simpler that way.
-    actor.traits.setLevel(BRAWN    , physical ) ;
-    actor.traits.setLevel(VIGOUR   , physical ) ;
-    actor.traits.setLevel(REFLEX   , sensitive) ;
-    actor.traits.setLevel(INSIGHT  , sensitive) ;
-    actor.traits.setLevel(INTELLECT, cognitive) ;
-    actor.traits.setLevel(WILL     , cognitive) ;
+    actor.traits.setLevel(MUSCULAR    , physical ) ;
+    actor.traits.setLevel(IMMUNE   , physical ) ;
+    actor.traits.setLevel(MOTOR   , sensitive) ;
+    actor.traits.setLevel(PERCEPT  , sensitive) ;
+    actor.traits.setLevel(COGNITION, cognitive) ;
+    actor.traits.setLevel(NERVE     , cognitive) ;
   }
   
   

@@ -99,11 +99,11 @@ public class Background implements Economy, Session.Saveable {
   final public static Background
     MALE_BIRTH = new Background(
       "Born Male", null, null, -1, NOT_A_GUILD,
-      3, BRAWN, 1, REFLEX, SOMETIMES, TALL, NEVER, FEMININE
+      3, MUSCULAR, 1, MOTOR, SOMETIMES, TALL, NEVER, FEMININE
     ),
     FEMALE_BIRTH = new Background(
       "Born Female", null, null, -1, NOT_A_GUILD,
-      2, VIGOUR, 2, INSIGHT, RARELY, STOUT, ALWAYS, FEMININE
+      2, IMMUNE, 2, PERCEPT, RARELY, STOUT, ALWAYS, FEMININE
     ),
     //
     //  Natives can only be recruited locally, not from offworld.

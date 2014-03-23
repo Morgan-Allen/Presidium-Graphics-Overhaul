@@ -150,7 +150,7 @@ public class ActorGear extends Inventory implements Economy {
     */
   public float attackDamage() {
     final Item weapon = deviceEquipped() ;
-    final float brawnBonus = actor.traits.traitLevel(BRAWN) / 4 ;
+    final float brawnBonus = actor.traits.traitLevel(MUSCULAR) / 4 ;
     if (weapon == null) return (brawnBonus / 2) + baseDamage ;
     final DeviceType type = (DeviceType) weapon.type ;
     final float damage = type.baseDamage * (weapon.quality + 2f) / 4 ;
@@ -196,7 +196,7 @@ public class ActorGear extends Inventory implements Economy {
     */
   public float armourRating() {
     final Item armour = outfitEquipped() ;
-    float reflexBonus = actor.traits.traitLevel(REFLEX) / 4 ;
+    float reflexBonus = actor.traits.traitLevel(MOTOR) / 4 ;
     if (armour == null) return reflexBonus + baseArmour ;
     
     final OutfitType type = (OutfitType) armour.type ;

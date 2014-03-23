@@ -43,7 +43,7 @@ public class Plantation extends Venue implements
   final static String IMG_DIR = "media/Buildings/ecologist/";
   final static ModelAsset
     NURSERY_MODEL = CutoutModel.fromImage(
-      Plantation.class, IMG_DIR+"curing_shed.png", 2, 2
+      Plantation.class, IMG_DIR+"nursery.png", 2, 2
     ),
     COVERING_LEFT = CutoutModel.fromImage(
       Plantation.class, IMG_DIR+"covering_left.png", 1, 1

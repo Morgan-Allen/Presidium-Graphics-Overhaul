@@ -3,6 +3,7 @@
 package stratos.start;
 import org.apache.commons.math3.util.FastMath;
 
+import stratos.game.base.Smelter;
 import stratos.game.building.Economy;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -25,6 +26,10 @@ public class DebugGraphics {
     VM = CutoutModel.fromImage(
       DebugGraphics.class,
       "media/Buildings/merchant/stock_exchange.png", 4, 2
+    ),
+    GM[][] = CutoutModel.fromImageGrid(
+      DebugGraphics.class, "media/Buildings/artificer/all_molds.png",
+      4, 5, 1, 1
     );
   final static MS3DModel
     SM = MS3DModel.loadFrom(

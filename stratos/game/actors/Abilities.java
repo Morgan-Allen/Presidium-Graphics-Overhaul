@@ -41,61 +41,62 @@ public interface Abilities {
   
   
   final public static Skill
-    VIGOUR    = new Skill("Vigour"   , FORM_NATURAL, null),
-    BRAWN     = new Skill("Brawn"    , FORM_NATURAL, null),
-    REFLEX    = new Skill("Reflex"   , FORM_NATURAL, null),
-    INSIGHT   = new Skill("Insight"  , FORM_NATURAL, null),
-    INTELLECT = new Skill("Intellect", FORM_NATURAL, null),
-    WILL      = new Skill("Will"     , FORM_NATURAL, null),
+    IMMUNE    = new Skill("Immune Response"     , FORM_NATURAL, null),
+    MUSCULAR  = new Skill("Muscular Development", FORM_NATURAL, null),
+    MOTOR     = new Skill("Motor Coordination"  , FORM_NATURAL, null),
+    PERCEPT   = new Skill("Percept Analysis"    , FORM_NATURAL, null),
+    COGNITION = new Skill("Cognition Quotient"  , FORM_NATURAL, null),
+    NERVE     = new Skill("Nerve Integration"   , FORM_NATURAL, null),
     
-    ATTRIBUTES[] = Trait.skillsSoFar() ;
+    ATTRIBUTES[] = Trait.skillsSoFar();
   
+  //  TODO:  Move these down
   final public static Skill
     //
     //  For the benefit of animals and non-human species-
-    SCENTING       = new Skill("Scenting"      , FORM_INSTINCT, INSIGHT  ),
-    LIMB_AND_MAW   = new Skill("Limb and Maw"  , FORM_INSTINCT, REFLEX   ),
-    NESTING        = new Skill("Nesting"       , FORM_INSTINCT, INSIGHT  ),
-    MIMESIS        = new Skill("Mimesis"       , FORM_INSTINCT, REFLEX   ),
-    PHEREMONIST    = new Skill("Pheremonist"   , FORM_INSTINCT, WILL     ),
-    IMMANENCE      = new Skill("Immanence"     , FORM_INSTINCT, INTELLECT),
+    SCENTING       = new Skill("Scenting"      , FORM_INSTINCT, PERCEPT  ),
+    LIMB_AND_MAW   = new Skill("Limb and Maw"  , FORM_INSTINCT, MOTOR    ),
+    NESTING        = new Skill("Nesting"       , FORM_INSTINCT, PERCEPT  ),
+    MIMESIS        = new Skill("Mimesis"       , FORM_INSTINCT, MOTOR    ),
+    PHEREMONIST    = new Skill("Pheremonist"   , FORM_INSTINCT, NERVE    ),
+    IMMANENCE      = new Skill("Immanence"     , FORM_INSTINCT, COGNITION),
     
-    INSTINCT_SKILLS[] = Trait.skillsSoFar() ;
+    INSTINCT_SKILLS[] = Trait.skillsSoFar();
   
   final public static Skill
     //
     //  Artifice-related skills:
-    ASSEMBLY       = new Skill("Assembly"      , FORM_COGNITIVE, INTELLECT),
-    CHEMISTRY      = new Skill("Chemistry"     , FORM_COGNITIVE, INTELLECT),
-    INSCRIPTION    = new Skill("Inscription"   , FORM_COGNITIVE, INTELLECT),
-    FIELD_THEORY   = new Skill("Field Theory"  , FORM_COGNITIVE, INTELLECT),
-    ASTROGATION    = new Skill("Astrogation"   , FORM_COGNITIVE, INTELLECT),
-    SIMULACRA      = new Skill("Simulacra"     , FORM_COGNITIVE, INTELLECT),
+    ASSEMBLY       = new Skill("Assembly"      , FORM_COGNITIVE, COGNITION),
+    CHEMISTRY      = new Skill("Chemistry"     , FORM_COGNITIVE, COGNITION),
+    INSCRIPTION    = new Skill("Inscription"   , FORM_COGNITIVE, COGNITION),
+    FIELD_THEORY   = new Skill("Field Theory"  , FORM_COGNITIVE, COGNITION),
+    ASTROGATION    = new Skill("Astrogation"   , FORM_COGNITIVE, COGNITION),
+    SIMULACRA      = new Skill("Simulacra"     , FORM_COGNITIVE, COGNITION),
     ARTIFICER_SKILLS[] = Trait.skillsSoFar(),
     //
     //  Ecology-related skills:
-    XENOZOOLOGY    = new Skill("Xenozoology"   , FORM_COGNITIVE, INTELLECT),
-    CULTIVATION    = new Skill("Cultivation"   , FORM_COGNITIVE, INTELLECT),
-    GEOPHYSICS     = new Skill("Geophysics"    , FORM_COGNITIVE, INTELLECT),
-    CETANI_ECOLOGY = new Skill("Cetani Ecology", FORM_COGNITIVE, INTELLECT),
-    ALBEDO_ECOLOGY = new Skill("Albedo Ecology", FORM_COGNITIVE, INTELLECT),
-    SILICO_ECOLOGY = new Skill("Silico Ecology", FORM_COGNITIVE, INTELLECT),
+    XENOZOOLOGY    = new Skill("Xenozoology"   , FORM_COGNITIVE, COGNITION),
+    CULTIVATION    = new Skill("Cultivation"   , FORM_COGNITIVE, COGNITION),
+    GEOPHYSICS     = new Skill("Geophysics"    , FORM_COGNITIVE, COGNITION),
+    CETANI_ECOLOGY = new Skill("Cetani Ecology", FORM_COGNITIVE, COGNITION),
+    ALBEDO_ECOLOGY = new Skill("Albedo Ecology", FORM_COGNITIVE, COGNITION),
+    SILICO_ECOLOGY = new Skill("Silico Ecology", FORM_COGNITIVE, COGNITION),
     ECOLOGIST_SKILLS[] = Trait.skillsSoFar(),
     //
     //  Physician-related skills:
-    PHARMACY       = new Skill("Pharmacy"      , FORM_COGNITIVE, INTELLECT),
-    GENE_CULTURE   = new Skill("Gene Culture"  , FORM_COGNITIVE, INTELLECT),
-    ANATOMY        = new Skill("Anatomy"       , FORM_COGNITIVE, INTELLECT),
-    PSYCHOANALYSIS = new Skill("Psychoanalysis", FORM_COGNITIVE, INTELLECT),
-    FORENSICS      = new Skill("Forensics"     , FORM_COGNITIVE, INTELLECT),
-    SOCIAL_HISTORY = new Skill("Social History", FORM_COGNITIVE, INTELLECT),
+    PHARMACY       = new Skill("Pharmacy"      , FORM_COGNITIVE, COGNITION),
+    GENE_CULTURE   = new Skill("Gene Culture"  , FORM_COGNITIVE, COGNITION),
+    ANATOMY        = new Skill("Anatomy"       , FORM_COGNITIVE, COGNITION),
+    PSYCHOANALYSIS = new Skill("Psychoanalysis", FORM_COGNITIVE, COGNITION),
+    FORENSICS      = new Skill("Forensics"     , FORM_COGNITIVE, COGNITION),
+    SOCIAL_HISTORY = new Skill("Social History", FORM_COGNITIVE, COGNITION),
     PHYSICIAN_SKILLS[] = Trait.skillsSoFar(),
     //
     //  Research and governance:
-    BATTLE_TACTICS = new Skill("Battle Tactics", FORM_COGNITIVE, INTELLECT),
-    ACCOUNTING     = new Skill("Accounting"    , FORM_COGNITIVE, INTELLECT),
-    ANCIENT_LORE   = new Skill("Ancient Lore"  , FORM_COGNITIVE, INTELLECT),
-    LEGISLATION    = new Skill("Legislation"   , FORM_COGNITIVE, INTELLECT),
+    BATTLE_TACTICS = new Skill("Battle Tactics", FORM_COGNITIVE, COGNITION),
+    ACCOUNTING     = new Skill("Accounting"    , FORM_COGNITIVE, COGNITION),
+    ANCIENT_LORE   = new Skill("Ancient Lore"  , FORM_COGNITIVE, COGNITION),
+    LEGISLATION    = new Skill("Legislation"   , FORM_COGNITIVE, COGNITION),
     ADMIN_SKILLS[] = Trait.skillsSoFar(),
     
     COGNITIVE_SKILLS[] = (Skill[]) Visit.compose(
@@ -106,60 +107,60 @@ public interface Abilities {
   final public static Skill
     //
     //  Methods of persuasion:
-    COMMAND           = new Skill("Command"        , FORM_SENSITIVE, INSIGHT),
-    SUASION           = new Skill("Suasion"        , FORM_SENSITIVE, INSIGHT),
-    COUNSEL           = new Skill("Counsel"        , FORM_SENSITIVE, INSIGHT),
-    TRUTH_SENSE       = new Skill("Truth Sense"    , FORM_SENSITIVE, INSIGHT),
+    COMMAND           = new Skill("Command"        , FORM_SENSITIVE, PERCEPT),
+    SUASION           = new Skill("Suasion"        , FORM_SENSITIVE, PERCEPT),
+    COUNSEL           = new Skill("Counsel"        , FORM_SENSITIVE, PERCEPT),
+    TRUTH_SENSE       = new Skill("Truth Sense"    , FORM_SENSITIVE, PERCEPT),
     //
     //  Knowing the language and culture:
-    NATIVE_TABOO      = new Skill("Native Taboo"   , FORM_SENSITIVE, INSIGHT),
-    COMMON_CUSTOM     = new Skill("Common Custom"  , FORM_SENSITIVE, INSIGHT),
-    NOBLE_ETIQUETTE   = new Skill("Noble Etiquette", FORM_SENSITIVE, INSIGHT),
-    OUTER_DIALECTS    = new Skill("Outer Dialects" , FORM_SENSITIVE, INSIGHT),
-    REPUBLIC_LAWS     = new Skill("Republic Laws"  , FORM_SENSITIVE, INSIGHT),
-    IMPERIAL_DOGMA    = new Skill("Imperial Dogma" , FORM_SENSITIVE, INSIGHT),
+    NATIVE_TABOO      = new Skill("Native Taboo"   , FORM_SENSITIVE, PERCEPT),
+    COMMON_CUSTOM     = new Skill("Common Custom"  , FORM_SENSITIVE, PERCEPT),
+    NOBLE_ETIQUETTE   = new Skill("Noble Etiquette", FORM_SENSITIVE, PERCEPT),
+    OUTER_DIALECTS    = new Skill("Outer Dialects" , FORM_SENSITIVE, PERCEPT),
+    REPUBLIC_LAWS     = new Skill("Republic Laws"  , FORM_SENSITIVE, PERCEPT),
+    IMPERIAL_DOGMA    = new Skill("Imperial Dogma" , FORM_SENSITIVE, PERCEPT),
     //
     //  Forms of artistic expression/entertainment:
-    EROTICS           = new Skill("Erotics"        , FORM_SENSITIVE, REFLEX ),
-    MASQUERADE        = new Skill("Masquerade"     , FORM_SENSITIVE, REFLEX ),
-    MUSIC_AND_SONG    = new Skill("Music and Song" , FORM_SENSITIVE, INSIGHT),
-    GRAPHIC_DESIGN    = new Skill("Graphic Design" , FORM_SENSITIVE, INSIGHT),
+    EROTICS           = new Skill("Erotics"        , FORM_SENSITIVE, MOTOR  ),
+    MASQUERADE        = new Skill("Masquerade"     , FORM_SENSITIVE, PERCEPT),
+    MUSIC_AND_SONG    = new Skill("Music and Song" , FORM_SENSITIVE, MOTOR  ),
+    GRAPHIC_DESIGN    = new Skill("Graphic Design" , FORM_SENSITIVE, PERCEPT),
     
     SENSITIVE_SKILLS[] = Trait.skillsSoFar() ;
   
   final public static Skill
     //
     //  Direct combat skills:
-    FORMATION_COMBAT  = new Skill("Formation Combat" , FORM_PHYSICAL, WILL  ),
-    MARKSMANSHIP      = new Skill("Marksmanship"     , FORM_PHYSICAL, REFLEX),
-    HAND_TO_HAND      = new Skill("Hand to Hand"     , FORM_PHYSICAL, REFLEX),
-    SHIELD_AND_ARMOUR = new Skill("Shield and Armour", FORM_PHYSICAL, REFLEX),
-    HEAVY_WEAPONS     = new Skill("Heavy Weapons"    , FORM_PHYSICAL, REFLEX),
-    FIREARMS          = new Skill("Firearms"         , FORM_PHYSICAL, REFLEX),
+    FORMATION_COMBAT  = new Skill("Formation Combat" , FORM_PHYSICAL, NERVE),
+    MARKSMANSHIP      = new Skill("Marksmanship"     , FORM_PHYSICAL, MOTOR),
+    HAND_TO_HAND      = new Skill("Hand to Hand"     , FORM_PHYSICAL, MOTOR),
+    SHIELD_AND_ARMOUR = new Skill("Shield and Armour", FORM_PHYSICAL, MOTOR),
+    HEAVY_WEAPONS     = new Skill("Heavy Weapons"    , FORM_PHYSICAL, MOTOR),
+    FIREARMS          = new Skill("Firearms"         , FORM_PHYSICAL, MOTOR),
     //
     //  Exploration and mobility:
-    ATHLETICS         = new Skill("Athletics"        , FORM_PHYSICAL, WILL  ),
-    PILOTING          = new Skill("Piloting"         , FORM_PHYSICAL, REFLEX),
-    SURVEILLANCE      = new Skill("Surveillance"     , FORM_PHYSICAL, REFLEX),
-    STEALTH_AND_COVER = new Skill("Stealth and Cover", FORM_PHYSICAL, REFLEX),
+    ATHLETICS         = new Skill("Athletics"        , FORM_PHYSICAL, NERVE),
+    PILOTING          = new Skill("Piloting"         , FORM_PHYSICAL, MOTOR),
+    SURVEILLANCE      = new Skill("Surveillance"     , FORM_PHYSICAL, MOTOR),
+    STEALTH_AND_COVER = new Skill("Stealth and Cover", FORM_PHYSICAL, MOTOR),
     //
     //  General patience and elbow grease:
-    HANDICRAFTS       = new Skill("Handicrafts"      , FORM_PHYSICAL, WILL  ),
-    HARD_LABOUR       = new Skill("Hard Labour"      , FORM_PHYSICAL, WILL  ),
-    DOMESTICS         = new Skill("Domestics"        , FORM_PHYSICAL, WILL  ),
-    BODY_MEDITATION   = new Skill("Body Meditation"  , FORM_PHYSICAL, WILL  ),
+    HANDICRAFTS       = new Skill("Handicrafts"      , FORM_PHYSICAL, MOTOR),
+    HARD_LABOUR       = new Skill("Hard Labour"      , FORM_PHYSICAL, MOTOR),
+    DOMESTICS         = new Skill("Domestics"        , FORM_PHYSICAL, MOTOR),
+    BODY_MEDITATION   = new Skill("Body Meditation"  , FORM_PHYSICAL, NERVE),
     
-    PHYSICAL_SKILLS[] = Trait.skillsSoFar() ;
+    PHYSICAL_SKILLS[] = Trait.skillsSoFar();
   
   final public static Skill
-    SUGGESTION   = new Skill("Suggestion"  , FORM_PSYONIC, WILL),
-    SYNESTHESIA  = new Skill("Synesthesia" , FORM_PSYONIC, WILL),
-    METABOLISM   = new Skill("Metabolism"  , FORM_PSYONIC, WILL),
-    TRANSDUCTION = new Skill("Transduction", FORM_PSYONIC, WILL),
-    PROJECTION   = new Skill("Projection"  , FORM_PSYONIC, WILL),
-    PREMONITION  = new Skill("Premonition" , FORM_PSYONIC, WILL),
+    SUGGESTION   = new Skill("Suggestion"  , FORM_PSYONIC, NERVE),
+    SYNESTHESIA  = new Skill("Synesthesia" , FORM_PSYONIC, NERVE),
+    METABOLISM   = new Skill("Metabolism"  , FORM_PSYONIC, NERVE),
+    TRANSDUCTION = new Skill("Transduction", FORM_PSYONIC, NERVE),
+    PROJECTION   = new Skill("Projection"  , FORM_PSYONIC, NERVE),
+    PREMONITION  = new Skill("Premonition" , FORM_PSYONIC, NERVE),
     
-    PSYONIC_SKILLS[] = Trait.skillsSoFar() ;
+    PSYONIC_SKILLS[] = Trait.skillsSoFar();
   
   final public static Skill ALL_SKILLS[] = (Skill[]) Visit.compose(Skill.class,
     ATTRIBUTES, INSTINCT_SKILLS, PSYONIC_SKILLS,
@@ -518,7 +519,7 @@ public interface Abilities {
     //  TODO:  Use this as a possible side-effect of incompetent foraging.
     POISONED = new Condition(
       SHORT_LATENCY, LOW_VIRULENCE, NO_SPREAD, Table.make(
-        VIGOUR, -5, BRAWN, -5
+        IMMUNE, -5, MUSCULAR, -5
       ),
       "Severe Poisoning",
       "Bad Poisoning",
@@ -529,7 +530,7 @@ public interface Abilities {
     
     SOMA_HAZE = new Condition(
       NO_LATENCY, NO_VIRULENCE, NO_SPREAD, Table.make(
-        REFLEX, -3, INTELLECT, -1, INSIGHT, 1
+        MOTOR, -3, COGNITION, -1, PERCEPT, 1
       ),
       "Soma Haze",
       "Soma Haze",
@@ -539,7 +540,7 @@ public interface Abilities {
     ),
     ILLNESS = new Condition(
       SHORT_LATENCY, MINIMAL_VIRULENCE, RAPID_SPREAD, Table.make(
-        VIGOUR, -5, BRAWN, -5
+        IMMUNE, -5, MUSCULAR, -5
       ),
       "Debilitating Illness",
       "Serious Illness",
@@ -549,7 +550,7 @@ public interface Abilities {
     ),
     SPICE_ADDICTION = new Condition(
       LONG_LATENCY, LOW_VIRULENCE, NO_SPREAD, Table.make(
-        VIGOUR, -10, INSIGHT, -5, WILL, -5, INTELLECT, -5
+        IMMUNE, -10, PERCEPT, -5, NERVE, -5, COGNITION, -5
       ),
       "Complete Spice Addiction",
       "Heavy Spice Addiction",
@@ -559,7 +560,7 @@ public interface Abilities {
     ),
     CANCER = new Condition(
       LONG_LATENCY, AVERAGE_VIRULENCE, NO_SPREAD, Table.make(
-        VIGOUR, -20, BRAWN, -10
+        IMMUNE, -20, MUSCULAR, -10
       ),
       "Terminal Cancer",
       "Advanced Cancer",
@@ -569,7 +570,7 @@ public interface Abilities {
     ),
     RAGE_INFECTION = new Condition(
       SHORT_LATENCY, HIGH_VIRULENCE, RAPID_SPREAD, Table.make(
-        VIGOUR, 5, BRAWN, 5, AGGRESSIVE, 5, INTELLECT, -15
+        IMMUNE, 5, MUSCULAR, 5, AGGRESSIVE, 5, COGNITION, -15
       ),
       "Rage Frenzy",
       "Rage Fever",
@@ -579,7 +580,7 @@ public interface Abilities {
     ),
     HIREX_PARASITE = new Condition(
       MEDIUM_LATENCY, HIGH_VIRULENCE, SLOW_SPREAD, Table.make(
-        INTELLECT, -5, REFLEX, -5, INSIGHT, -5, BRAWN, -5, HANDSOME, -5
+        COGNITION, -5, MOTOR, -5, PERCEPT, -5, MUSCULAR, -5, HANDSOME, -5
       ),
       "Hirex Fruiting",
       "Hirex Infestation",
@@ -589,7 +590,7 @@ public interface Abilities {
     ),
     ALBEDAN_STRAIN = new Condition(
       MEDIUM_LATENCY, EXTREME_VIRULENCE, SLOW_SPREAD, Table.make(
-        DEBAUCHED, 2, VIGOUR, 5, INSIGHT, 5, REFLEX, -5
+        DEBAUCHED, 2, IMMUNE, 5, PERCEPT, 5, MOTOR, -5
       ),
       "Albedan Strain",
       "Albedan Strain",
@@ -599,7 +600,7 @@ public interface Abilities {
     ),
     SILVERQUICK = new Condition(
       SHORT_LATENCY, EXTREME_VIRULENCE, RAPID_SPREAD, Table.make(
-        IMPASSIVE, 5, VIGOUR, -20, BRAWN, -20
+        IMPASSIVE, 5, IMMUNE, -20, MUSCULAR, -20
       ),
       "Silverquick Rictus",
       "Silverquick Scale",
@@ -609,7 +610,7 @@ public interface Abilities {
     ),
     MOEBIUS_PLAGUE = new Condition(
       LONG_LATENCY, EXTREME_VIRULENCE, NO_SPREAD, Table.make(
-        REFLEX, -20, BRAWN, -20
+        MOTOR, -20, MUSCULAR, -20
       ),
       "Moebius Sublimation",
       "Moebius Displacement",
@@ -633,7 +634,7 @@ public interface Abilities {
   final public static Trait
     KINESTHESIA_EFFECT = new Condition(
       NO_LATENCY, NO_VIRULENCE, NO_SPREAD, Table.make(
-        REFLEX, 10, HAND_TO_HAND, 10, MARKSMANSHIP, 10, ATHLETICS, 10
+        MOTOR, 10, HAND_TO_HAND, 10, MARKSMANSHIP, 10, ATHLETICS, 10
       ),
       "Kinesthesia", "Kinesthesia", "Kinesthesia", null
     ) {
@@ -659,7 +660,7 @@ public interface Abilities {
     },
     SPICE_VISION_EFFECT = new Condition(
      SHORT_LATENCY, NO_VIRULENCE, NO_SPREAD, Table.make(
-        VIGOUR, 10, INTELLECT, 5, INSIGHT, 5, WILL, 5
+        IMMUNE, 10, COGNITION, 5, PERCEPT, 5, NERVE, 5
       ),
       "Spice Vision", "Spice Vision", "Spice Vision", null
     ) {

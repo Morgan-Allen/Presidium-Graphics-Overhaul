@@ -25,11 +25,12 @@ public class Healthbar extends SFX {
     BAR_HEIGHT = 5,
     DEFAULT_WIDTH = 40 ;
   
-  public float level = 0.5f, yoff = 0 ;
-  public float size = DEFAULT_WIDTH ;
-  public Colour full = Colour.BLUE, empty = Colour.RED ;
+  public float level = 0.5f, yoff = 0;
+  public float size = DEFAULT_WIDTH;
   
-  private float flash = 0 ;
+  public Colour back = Colour.DARK_GREY, warn = Colour.RED;
+  public boolean alarm = false;
+  private float flash = 0;
   
   
   public Healthbar() {
@@ -51,28 +52,32 @@ public class Healthbar extends SFX {
       x = (int) (base.x - (size / 2)),
       y = (int) (base.y + yoff - (BAR_HEIGHT / 2)) ;
     
-    //  First, do the background-
-    final Colour a = full, b = empty ;
-    final Colour c = colour == null ? Colour.WHITE : colour ;
-    final float s = 1 - level, f = fog ;
+    //  Then, establish correct colours for the fill, back, and warning-
+    Colour colour = this.colour;
+    if (colour == null) colour = Colour.LIGHT_GREY;
+    Colour back = new Colour(this.back == null ? Colour.WHITE : this.back);
+    Colour warn = new Colour(this.warn == null ? Colour.WHITE : this.warn);
+    back.a = colour.a * fog;
+    warn.a = colour.a * fog;
+    final float s = 1 - level, f = fog;
     
     pass.compileQuad(
-      ImageAsset.WHITE_TEX(), c,
+      ImageAsset.WHITE_TEX(), back,
       x, y, size, BAR_HEIGHT,
       0, 0, 1, 1,
       base.z, true, false
     );
     
-    //  When at less than half health, you need to flash-
-    if (level < 0.5f) {
+    //  When in alarm mode, you need to flash-
+    if (alarm) {
       float flashAlpha = 0 ;
       flashAlpha = (0.5f - level) * 2 ;
       flash += 0.04f * Math.PI / 2f ;
-      flashAlpha *= f * c.a * Math.abs(Math.sin(flash)) ;
-      final Colour flashed = new Colour().set(1, 0, 0, flashAlpha);
-
+      flashAlpha *= f * colour.a * Math.abs(Math.sin(flash)) ;
+      warn.a *= flashAlpha;
+      
       pass.compileQuad(
-        ImageAsset.WHITE_TEX(), flashed,
+        ImageAsset.WHITE_TEX(), warn,
         x, y, size, BAR_HEIGHT,
         0, 0, 1, 1,
         base.z + 0.05f, true, false
@@ -81,12 +86,12 @@ public class Healthbar extends SFX {
     //
     //  Then, the filled section-
     final Colour mix = new Colour().set(
-      (a.r * level) + (b.r * s),
-      (a.g * level) + (b.g * s),
-      (a.b * level) + (b.b * s),
-      1
+      (colour.r * level) + (warn.r * s),
+      (colour.g * level) + (warn.g * s),
+      (colour.b * level) + (warn.b * s),
+      colour.a
     ) ;
-    mix.setValue((a.value() * level) + (b.value() * s));
+    mix.setValue((colour.value() * level) + (warn.value() * s));
     pass.compileQuad(
       ImageAsset.WHITE_TEX(), mix,
       x, y, size * level, BAR_HEIGHT,

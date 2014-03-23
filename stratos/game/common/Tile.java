@@ -29,6 +29,8 @@ public final class Tile implements
   private static Stack <Mobile>
     NONE_INSIDE = new Stack <Mobile> () ;
   
+  private static boolean verbose = false;
+  
   
   final public World world ;
   final public int x, y ;
@@ -112,8 +114,17 @@ public final class Tile implements
   
   
   public void setOwner(Element e) {
+    //  TODO:  AUTOMATICALLY DISPLACE PRIOR OWNER (set as destroyed?)
     if (e == owner) return ;
+    if (e != null && this.owner != null) {
+      I.complain("PREVIOUS OWNER WAS NOT CLEARED: "+this.owner);
+    }
+    
     this.owner = e ;
+    if (verbose) {
+      if (e != null) I.say(this+" now owned by: "+e);
+      else I.say(this+" now cleared.");
+    }
     
     world.sections.flagBoundsUpdate(x, y) ;
     boardingCache = null ;

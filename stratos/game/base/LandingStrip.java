@@ -23,8 +23,8 @@ public class LandingStrip extends Venue {
   /**  Constructors, data fields, setup and save/load methods-
     */
   final static String IMG_DIR = "media/Buildings/merchant/" ;
-  final public static ModelAsset MODEL = CutoutModel.fromImage(
-    LandingStrip.class, IMG_DIR+"landing_strip.png", 4.25f, 0
+  final public static ModelAsset MODEL = CutoutModel.fromSplatImage(
+    LandingStrip.class, IMG_DIR+"landing_strip.png", 4.25f
   );
   
   
@@ -40,7 +40,7 @@ public class LandingStrip extends Venue {
     
     //final GroupSprite sprite = new GroupSprite() ;
     //sprite.attach(STRIP_MODEL, 0, 0, -0.05f) ;
-    //attachSprite(sprite) ;
+    //attachSprite(sprite);
     attachModel(MODEL);
   }
   

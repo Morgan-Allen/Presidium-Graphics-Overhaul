@@ -181,12 +181,12 @@ public class Career implements Abilities {
       if (s.form == FORM_SENSITIVE) minSens = Math.max(level, minSens + 1) ;
       if (s.form == FORM_PHYSICAL ) minPhys = Math.max(level, minPhys + 1) ;
     }
-    actor.traits.raiseLevel(BRAWN    , (minPhys + Rand.rollDice(3, 7)) / 2f) ;
-    actor.traits.raiseLevel(VIGOUR   , (minPhys + Rand.rollDice(3, 7)) / 2f) ;
-    actor.traits.raiseLevel(REFLEX   , (minSens + Rand.rollDice(3, 7)) / 2f) ;
-    actor.traits.raiseLevel(INSIGHT  , (minSens + Rand.rollDice(3, 7)) / 2f) ;
-    actor.traits.raiseLevel(INTELLECT, (minCogn + Rand.rollDice(3, 7)) / 2f) ;
-    actor.traits.raiseLevel(WILL     , (minCogn + Rand.rollDice(3, 7)) / 2f) ;
+    actor.traits.raiseLevel(MUSCULAR    , (minPhys + Rand.rollDice(3, 7)) / 2f) ;
+    actor.traits.raiseLevel(IMMUNE   , (minPhys + Rand.rollDice(3, 7)) / 2f) ;
+    actor.traits.raiseLevel(MOTOR   , (minSens + Rand.rollDice(3, 7)) / 2f) ;
+    actor.traits.raiseLevel(PERCEPT  , (minSens + Rand.rollDice(3, 7)) / 2f) ;
+    actor.traits.raiseLevel(COGNITION, (minCogn + Rand.rollDice(3, 7)) / 2f) ;
+    actor.traits.raiseLevel(NERVE     , (minCogn + Rand.rollDice(3, 7)) / 2f) ;
   }
   
   

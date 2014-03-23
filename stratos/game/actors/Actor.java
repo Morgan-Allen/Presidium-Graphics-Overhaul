@@ -346,13 +346,13 @@ public abstract class Actor extends Mobile implements
     
     label.matchTo(sprite());
     label.position.z -= radius() + 0.25f;
-    label.readyFor(rendering);
     label.phrase = fullName();
+    label.readyFor(rendering);
     
-    healthbar.level =  (1 - health.injuryLevel());
-    healthbar.full = this.base().colour;
-    healthbar.size = 35;
     healthbar.matchTo(sprite());
+    healthbar.level = (1 - health.injuryLevel());
+    healthbar.colour = this.base().colour;
+    healthbar.size = 35;
     healthbar.position.z -= radius();
     healthbar.readyFor(rendering);
   }

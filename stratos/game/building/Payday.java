@@ -50,7 +50,7 @@ public class Payday extends Plan implements Economy {
     final Profile p = venue.base().profiles.profileFor(actor) ;
     float impetus = (p.daysSinceWageEval(venue.world()) - 1) * ROUTINE ;
     if (impetus < 0) impetus = 0 ;
-    impetus += actor.mind.greedFor((int) p.paymentDue()) * ROUTINE ;
+    impetus += actor.mind.greedFor((int) p.paymentDue());
     return Visit.clamp(impetus, 0, URGENT) ;
   }
   

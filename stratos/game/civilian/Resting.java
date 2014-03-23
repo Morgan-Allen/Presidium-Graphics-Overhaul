@@ -113,7 +113,7 @@ public class Resting extends Plan implements Economy {
     }
     if (cost > 0) {
       if (cost > actor.gear.credits() / 2) priority -= 5 ;
-      priority -= actor.mind.greedFor(cost) ;
+      priority -= actor.mind.greedFor(cost) / ROUTINE ;
     }
     priority -= Plan.rangePenalty(actor, restPoint) ;
     priority -= Plan.dangerPenalty(restPoint, actor) ;

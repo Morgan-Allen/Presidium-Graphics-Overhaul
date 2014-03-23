@@ -397,7 +397,7 @@ public class Power implements Abilities {
         }
         
         if (subject.health.conscious()) {
-          if (subject.traits.test(VIGOUR, 10 + bonus, 10)) bonus = 0 ;
+          if (subject.traits.test(IMMUNE, 10 + bonus, 10)) bonus = 0 ;
         }
         if (bonus > 0) {
           subject.health.setState(ActorHealth.STATE_SUSPEND) ;

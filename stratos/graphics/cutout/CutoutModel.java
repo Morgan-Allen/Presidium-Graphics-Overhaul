@@ -36,22 +36,24 @@ public class CutoutModel extends ModelAsset {
   private boolean loaded = false;
   
   Texture texture;
-  Texture lightSkin;//  TODO:  USE THIS
+  Texture lightSkin;
   
   TextureRegion region ;
   Vector2 offset, dimension ;
-
+  
+  final boolean splat;
   final float vertices[] = new float[SIZE];
   
   
   
   private CutoutModel(
-    String fileName, Class modelClass, Box2D window, float size
+    String fileName, Class modelClass, Box2D window, float size, boolean splat
   ) {
     super(fileName+""+window, modelClass);
     this.fileName = fileName;
     this.window = window;
     this.size = size;
+    this.splat = splat;
   }
   
   
@@ -63,7 +65,10 @@ public class CutoutModel extends ModelAsset {
       window.xmax(), window.ymax()
     );
     final Texture t = texture;
-    setupDimensions(size, t.getHeight() * 1f / t.getWidth());
+    final float relHeight =
+      (t.getHeight() * window.ydim()) /
+      (t.getWidth() * window.xdim());
+    setupDimensions(size, relHeight);
     setupVertices();
     
     String litName = fileName.substring(0, fileName.length() - 4);
@@ -97,17 +102,27 @@ public class CutoutModel extends ModelAsset {
     Class sourceClass, String fileName, float size, float height
   ) {
     final Box2D window = new Box2D().set(0, 0, 1, 1);
-    return new CutoutModel(fileName, sourceClass, window, size);
+    return new CutoutModel(fileName, sourceClass, window, size, false);
+  }
+  
+  
+  public static CutoutModel fromSplatImage(
+    Class sourceClass, String fileName, float size
+  ) {
+    final Box2D window = new Box2D().set(0, 0, 1, 1);
+    return new CutoutModel(fileName, sourceClass, window, size, true);
   }
   
   
   public static CutoutModel[] fromImages(
-    String path, Class sourceClass, float size, float height,
+    String path, Class sourceClass, float size, float height, boolean splat,
     String... files
   ) {
     final CutoutModel models[] = new CutoutModel[files.length];
     for (int i = 0 ; i < files.length ; i++) {
-      models[i] = fromImage(sourceClass, path+files[i], size, height);
+      final String fileName = path+files[i];
+      final Box2D window = new Box2D().set(0, 0, 1, 1);
+      models[i] = new CutoutModel(fileName, sourceClass, window, size, splat);
     }
     return models;
   }
@@ -117,14 +132,13 @@ public class CutoutModel extends ModelAsset {
     Class sourceClass, String fileName,
     int gridX, int gridY, float size, float height
   ) {
-    final CutoutModel grid[][] = new CutoutModel[gridX][gridY] ;
-    final float stepX = 1f / gridX, stepY = 1f / gridY ;
+    final CutoutModel grid[][] = new CutoutModel[gridX][gridY];
+    final float stepX = 1f / gridX, stepY = 1f / gridY;
     for (Coord c : Visit.grid(0, 0, gridX, gridY, 1)) {
       final float gx = c.x * stepX, gy = c.y * stepY;
       final Box2D window = new Box2D().set(gx, gy, stepX, stepY);
-      
       grid[c.x][gridY - (c.y + 1)] = new CutoutModel(
-        fileName, sourceClass, window, size
+        fileName, sourceClass, window, size, false
       );
     }
     return grid ;

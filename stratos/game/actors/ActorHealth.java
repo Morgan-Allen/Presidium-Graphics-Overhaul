@@ -431,7 +431,7 @@ public class ActorHealth implements Abilities {
   
   
   public boolean goodHealth() {
-    return conscious() || (asleep() && actor.traits.effectBonus(VIGOUR) > -5) ;
+    return conscious() || (asleep() && actor.traits.effectBonus(IMMUNE) > -5) ;
   }
   
   
@@ -481,8 +481,8 @@ public class ActorHealth implements Abilities {
     //  Define primary attributes-
     ageMultiple = calcAgeMultiple() ;
     maxHealth = baseBulk * ageMultiple * (DEFAULT_HEALTH +
-      (actor.traits.traitLevel(VIGOUR) / 3f) +
-      (actor.traits.traitLevel(BRAWN ) / 3f)
+      (actor.traits.traitLevel(IMMUNE) / 3f) +
+      (actor.traits.traitLevel(MUSCULAR ) / 3f)
     ) ;
     if (numUpdates < 0) return ;
     //
@@ -523,10 +523,10 @@ public class ActorHealth implements Abilities {
     if (fatigue + injury >= maxHealth) {
       state = STATE_RESTING ;
     }
-    if (actor.traits.useLevel(VIGOUR) < -5) {
+    if (actor.traits.useLevel(IMMUNE) < -5) {
       I.say(actor+" has died of disease.") ;
-      I.say("Effective vigour: "+actor.traits.useLevel(VIGOUR)) ;
-      I.say("Maximum vigour: "+actor.traits.traitLevel(VIGOUR)) ;
+      I.say("Effective vigour: "+actor.traits.useLevel(IMMUNE)) ;
+      I.say("Maximum vigour: "+actor.traits.traitLevel(IMMUNE)) ;
       I.say("Conditions: ") ; for (Trait t : CONDITIONS) {
         final float level = actor.traits.useLevel(t) ;
         if (level <= 0) continue ;
@@ -571,7 +571,7 @@ public class ActorHealth implements Abilities {
     }
     if (bleeds) {
       injury++ ;
-      if (actor.traits.test(VIGOUR, 10, 1) && Rand.num() < STABILISE_CHANCE) {
+      if (actor.traits.test(IMMUNE, 10, 1) && Rand.num() < STABILISE_CHANCE) {
         bleeds = false ;
       }
     }
@@ -620,7 +620,7 @@ public class ActorHealth implements Abilities {
     
     if (currentAge > lifespan * (1 + (lifeExtend / 10))) {
       float deathDC = ROUTINE_DC * (1 + lifeExtend) ;
-      if (actor.traits.test(VIGOUR, deathDC, 0)) {
+      if (actor.traits.test(IMMUNE, deathDC, 0)) {
         lifeExtend++ ;
       }
       else {

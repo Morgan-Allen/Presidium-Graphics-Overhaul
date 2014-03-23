@@ -193,7 +193,7 @@ public class HumanMind extends ActorMind implements Abilities {
   private void addVenueResponses(Choice choice) {
     final World world = actor.world() ;
     final Batch <Employment> around = new Batch <Employment> () ;
-    float numSampled = 5 + (actor.traits.traitLevel(INTELLECT) / 4) ;
+    float numSampled = 5 + (actor.traits.traitLevel(COGNITION) / 4) ;
     
     world.presences.sampleFromKey(
       actor, world, (int) numSampled, around, Venue.class

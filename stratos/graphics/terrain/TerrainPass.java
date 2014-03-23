@@ -20,7 +20,9 @@ public class TerrainPass {
   
   final Rendering rendering;
   final ShaderProgram shader;
-  private Batch <TerrainChunk> chunks = new Batch <TerrainChunk> ();
+  private Batch <TerrainChunk>
+    chunks = new Batch <TerrainChunk> (),
+    overlays = new Batch <TerrainChunk> ();
   private FogOverlay fogApplied = null;
   
   
@@ -42,7 +44,8 @@ public class TerrainPass {
   
   
   protected void register(TerrainChunk chunk) {
-    chunks.add(chunk);
+    if (chunk.layer.layerID < 0) overlays.add(chunk);
+    else chunks.add(chunk);
   }
   
   
@@ -53,7 +56,45 @@ public class TerrainPass {
   
   public void performPass() {
     if (chunks.size() == 0) return;
+    beginShader();
+    final TerrainSet set = chunks.first().belongs;
+    //  We first compile the sets of terrain chunks in each layer, along with
+    //  any customised/impromptu overlays which are rendered last, in order of
+    //  presentation-
+    final Batch <TerrainChunk>
+      layerBatches[] = new Batch[set.layers.length];
+    for (LayerType type : set.layers) {
+      layerBatches[type.layerID] = new Batch <TerrainChunk> ();
+    }
+    for (TerrainChunk chunk : chunks) {
+      final LayerType type = chunk.layer;
+      layerBatches[type.layerID].add(chunk);
+    }
+    for (LayerType type : set.layers) {
+      renderChunks(layerBatches[type.layerID], type);
+    }
+    shader.end();
+    chunks.clear();
+  }
+  
+  
+  public void performOverlayPass() {
+    if (overlays.size() == 0) return;
+    beginShader();
+    final Batch <TerrainChunk> single = new Batch <TerrainChunk> ();
     
+    for (TerrainChunk chunk : overlays) {
+      ///I.say("Rendering chunk, verts: "+chunk.vertices.length);
+      single.clear();
+      single.add(chunk);
+      renderChunks(single, chunk.layer);
+    }
+    shader.end();
+    overlays.clear();
+  }
+  
+  
+  private void beginShader() {
     //  Firstly, we set up shader parameters, include any fog of war-
     shader.begin();
     shader.setUniformMatrix("u_camera", rendering.camera().combined);
@@ -61,44 +102,19 @@ public class TerrainPass {
     final float lightSum[] = rendering.lighting.lightSum();
     shader.setUniform4fv("u_lighting", lightSum, 0, 4);
     
-    final TerrainSet set = chunks.first().belongs;
     if (fogApplied != null) {
       fogApplied.applyToTerrain(shader);
       shader.setUniformi("u_fogFlag", GL_TRUE);
     }
     else shader.setUniformi("u_fogFlag", GL_FALSE);
-    
-    //  We first compile the sets of terrain chunks in each layer, along with
-    //  any customised/impromptu overlays which are rendered last, in order of
-    //  presentation-
-    final Batch <TerrainChunk>
-      layerBatches[] = new Batch[set.layers.length],
-      others = new Batch <TerrainChunk> (),
-      single = new Batch <TerrainChunk> ();
-    
-    for (LayerType type : set.layers) {
-      layerBatches[type.layerID] = new Batch <TerrainChunk> ();
-    }
-    for (TerrainChunk chunk : chunks) {
-      final LayerType type = chunk.layer;
-      if (type.layerID >= 0) layerBatches[type.layerID].add(chunk);
-      else others.add(chunk);
-    }
-    
-    for (LayerType type : set.layers) {
-      renderChunks(layerBatches[type.layerID], type);
-    }
-    for (TerrainChunk chunk : others) {
-      ///I.say("Rendering chunk, verts: "+chunk.vertices.length);
-      single.clear();
-      single.add(chunk);
-      renderChunks(single, chunk.layer);
-    }
-    
-    //  Flush the data, and clean up-
-    shader.end();
-    clearAll();
   }
+  
+  
+  public void clearAll() {
+    chunks.clear();
+    fogApplied = null;
+  }
+  
   
   
   protected void renderChunks(Batch <TerrainChunk> chunks, LayerType layer) {
@@ -148,12 +164,6 @@ public class TerrainPass {
       }
       if (tex.length == 1) break;
     }
-  }
-  
-  
-  public void clearAll() {
-    chunks.clear();
-    fogApplied = null;
   }
 }
 

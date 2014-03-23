@@ -112,7 +112,7 @@ public class Commission extends Plan {
     final int price = (int) (shop.priceFor(item.type) * item.amount) ;
     //I.sayAbout(actor, "Get this far... "+price) ;
     if (price > actor.gear.credits()) return 0 ;
-    final float costVal = actor.mind.greedFor(price) * CASUAL ;
+    final float costVal = actor.mind.greedFor(price) ;
     float priority = 1 + ROUTINE - (costVal + business) ;
     //I.sayAbout(actor, "Commission priority is: "+priority) ;
     return Visit.clamp(priority, 0, ROUTINE) ;

@@ -350,11 +350,6 @@ public abstract class Venue extends Fixture implements
   public void addServices(Choice choice, Actor forActor) {}
   
   
-  //  public int occupancy() ;
-  //  public int comfortLevel() ;
-  //  public boolean allowsResidence(Actor a) ;
-  
-  
   public boolean privateProperty() {
     return false ;
   }
@@ -710,22 +705,20 @@ public abstract class Venue extends Fixture implements
   
   
   protected void renderHealthbars(Rendering rendering, Base base) {
-    //if (! structure.intact()) return;
-    healthbar.level = structure.repairLevel();
-    
-    final BaseUI UI = BaseUI.current();
-    if (
-      UI.selection.selected() != this &&
-      UI.selection.hovered()  != this &&
-      healthbar.level > 0.5f
-    ) return;
+    final boolean alarm = structure.intact() && structure.repairLevel() < 0.5f;
+    if ((! BaseUI.isSelectedOrHovered(this)) && ! alarm) return;
     
     final int NU = structure.numUpgrades();
+    healthbar.level = structure.repairLevel();
     healthbar.size = (radius() * 50);
     healthbar.size *= 1 + Structure.UPGRADE_HP_BONUSES[NU];
     healthbar.matchTo(buildSprite);
     healthbar.position.z += height() + 0.1f;
     healthbar.readyFor(rendering);
+    
+    if (base() == null) healthbar.colour = Colour.LIGHT_GREY;
+    else healthbar.colour = base().colour;
+    healthbar.alarm = alarm;
     
     label.matchTo(buildSprite);
     label.position.z += height() - 0.25f;
@@ -733,18 +726,22 @@ public abstract class Venue extends Fixture implements
     label.readyFor(rendering);
     label.fontScale = 1.0f;
     
-    if (base() == null) healthbar.full = Colour.LIGHT_GREY ;
-    else healthbar.full = base().colour ;
-    
     if (structure.needsUpgrade()) {
-      Healthbar progBar = new Healthbar() ;
-      progBar.level = structure.upgradeProgress() ;
-      progBar.size = healthbar.size ;
-      progBar.position.setTo(healthbar.position) ;
-      progBar.yoff = Healthbar.BAR_HEIGHT ;
-      progBar.full = Colour.GREY ;
-      progBar.empty = Colour.GREY ;
-      progBar.colour = Colour.WHITE ; //paler version of main bar colour?
+      Healthbar progBar = new Healthbar();
+      progBar.level = structure.upgradeProgress();
+      progBar.size = healthbar.size;
+      progBar.position.setTo(healthbar.position);
+      progBar.yoff = Healthbar.BAR_HEIGHT;
+      
+      final Colour c = new Colour(healthbar.colour);
+      c.set(
+        (1 + c.r) / 2,
+        (1 + c.g) / 2,
+        (1 + c.b) / 2,
+        1
+      );
+      progBar.colour = c;
+      progBar.warn = healthbar.colour;
       progBar.readyFor(rendering);
     }
   }

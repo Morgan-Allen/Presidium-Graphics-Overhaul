@@ -20,7 +20,7 @@ import stratos.util.*;
 public class FindHome extends Plan implements Economy {
   
   
-  private static boolean verbose = true;
+  private static boolean verbose = false;
   
   
   final Employment newHome ;

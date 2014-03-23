@@ -23,7 +23,8 @@ public class BuildingSprite extends Sprite {
   
   final public static ModelAsset
     SCAFF_MODELS[] = CutoutModel.fromImages(
-      "media/Buildings/artificer/", BuildingSprite.class, 1, 1,
+      "media/Buildings/civilian/",
+      BuildingSprite.class, 1, 1, false,
       "scaff_0.png",
       "scaff_1.png",
       "scaff_2.png",
@@ -141,6 +142,7 @@ public class BuildingSprite extends Sprite {
     }
     else {
       scaffoldBase.scale = size;
+      scaffoldBase.passType = CutoutSprite.PASS_SPLAT;
       scaffoldBase.readyFor(rendering);
       scaffolding.readyFor(rendering);
     }

@@ -92,7 +92,7 @@ public class Condition extends Trait {
       
       ///I.sayAbout(actor, "Contract chance/day for "+c+" is: "+infectChance) ;
       if (Rand.num() > (infectChance / World.STANDARD_DAY_LENGTH)) continue ;
-      if (actor.traits.test(VIGOUR, c.virulence - 10, 1.0f)) continue ;
+      if (actor.traits.test(IMMUNE, c.virulence - 10, 1.0f)) continue ;
       
       if (verbose) I.say("INFECTING "+actor+" WITH "+c) ;
       actor.traits.incLevel(c, 0.1f) ;
@@ -106,7 +106,7 @@ public class Condition extends Trait {
     if (! near.health.organic()) return 0 ;
     if (has.species() != near.species()) return 0 ;
     if (near.traits.traitLevel(this) != 0) return 0 ;
-    if (near.traits.test(VIGOUR, virulence / 2, 0.1f)) return 0 ;
+    if (near.traits.test(IMMUNE, virulence / 2, 0.1f)) return 0 ;
     //
     //  TODO:  THERE HAS GOT TO BE A MORE ELEGANT WAY TO EXPRESS THIS
     float chance = 0.1f ;
@@ -155,7 +155,7 @@ public class Condition extends Trait {
     //  Otherwise, see if your immune system can respond, based on how much of
     //  an immune response is already marshalled, and how advanced the disease
     //  is-
-    else if (a.traits.test(VIGOUR, immuneDC, inc)) {
+    else if (a.traits.test(IMMUNE, immuneDC, inc)) {
       a.traits.incBonus(this, 0 - (inc * 2)) ;
       a.traits.incLevel(this, 0 - inc) ;
       if (a.traits.useLevel(this) < 0) {
@@ -172,8 +172,8 @@ public class Condition extends Trait {
     }
     if (verbose && I.talkAbout == a) {
       I.say("Reporting on: "+this+" for "+a) ;
-      I.say("  Immune DC/vigour: "+immuneDC+"/"+a.traits.useLevel(VIGOUR)) ;
-      I.say("  Test chance: "+a.traits.chance(VIGOUR, immuneDC)) ;
+      I.say("  Immune DC/vigour: "+immuneDC+"/"+a.traits.useLevel(IMMUNE)) ;
+      I.say("  Test chance: "+a.traits.chance(IMMUNE, immuneDC)) ;
       I.say("  Progress/response: "+progress+"/"+response) ;
     }
   }

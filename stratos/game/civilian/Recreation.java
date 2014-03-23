@@ -101,7 +101,7 @@ public class Recreation extends Plan implements Economy, Abilities {
     final Trait enjoyT[] = ENJOYMENT_TRAITS[type] ; for (Trait t : enjoyT) {
       priority += actor.traits.traitLevel(t) / enjoyT.length ;
     }
-    priority -= actor.mind.greedFor((int) cost) ;
+    priority += ROUTINE - actor.mind.greedFor((int) cost) ;
     priority -= Plan.rangePenalty(actor, venue) ;
     priority += priorityMod + enjoyBonus ;
     

@@ -18,7 +18,7 @@ public class Causeway extends Segment {
   final static String IMG_DIR = "media/Buildings/civilian/" ;
   final static CutoutModel
     NODE_MODELS[] = CutoutModel.fromImages(
-      IMG_DIR, Causeway.class, 2, 0.1f,
+      IMG_DIR, Causeway.class, 2, 0.1f, true,
       "causeway_left.png",
       "causeway_right.png",
       "causeway_hub.png"

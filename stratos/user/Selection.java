@@ -5,6 +5,9 @@
   */
 
 package stratos.user ;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+
 import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.game.tactical.*;
@@ -94,6 +97,15 @@ public class Selection implements UIConstants {
     pickFixture = world.pickedFixture(UI, port, base) ;
     pickMobile = world.pickedMobile(UI, port, base) ;
     pickMission = UI.played().pickedMission(UI, port) ;
+    
+    if (
+      verbose && pickTile != null &&
+      Gdx.input.isKeyPressed(Input.Keys.SPACE)
+    ) {
+      I.say("Owner is: "+pickTile.owner());
+      I.say("Path type is: "+pickTile.pathType());
+    }
+    
     //
     //  Then, we see which type is given priority-
     if (pickMission != null) {
@@ -128,7 +140,8 @@ public class Selection implements UIConstants {
     else if (asRoot) navStack.clear();
     
     selected = s ;
-    UI.viewTracking.lockOn(s.selectionLocksOn());
+    final Target locks = s.selectionLocksOn();
+    if (locks.inWorld()) UI.viewTracking.lockOn(locks);
     final InfoPanel panel = s.configPanel(null, UI);
     final TargetInfo info = s.configInfo(null, UI);
     UI.setInfoPanels(panel, info);

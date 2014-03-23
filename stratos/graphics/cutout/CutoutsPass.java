@@ -29,7 +29,10 @@ public class CutoutsPass {
   
   
   final Rendering rendering;
-  final Batch <CutoutSprite> inPass = new Batch <CutoutSprite> ();
+  final Batch <CutoutSprite>
+    passSplat   = new Batch <CutoutSprite> (),
+    passNormal  = new Batch <CutoutSprite> (),
+    passPreview = new Batch <CutoutSprite> ();
   
   private Mesh compiled ;
   private float vertComp[] ;
@@ -81,11 +84,30 @@ public class CutoutsPass {
   /**  Rendering methods-
     */
   protected void register(CutoutSprite sprite) {
-    inPass.add(sprite);
+    switch (sprite.passType) {
+      case (CutoutSprite.PASS_SPLAT  ): passSplat  .add(sprite); break;
+      case (CutoutSprite.PASS_NORMAL ): passNormal .add(sprite); break;
+      case (CutoutSprite.PASS_PREVIEW): passPreview.add(sprite); break;
+    }
   }
   
   
-  public void performPass() {
+  public void performSplatPass() {
+    performPass(passSplat);
+  }
+  
+  
+  public void performNormalPass() {
+    performPass(passNormal);
+  }
+  
+  
+  public void performPreviewPass() {
+    performPass(passPreview);
+  }
+  
+  
+  private void performPass(Batch <CutoutSprite> inPass) {
     final Table <ModelAsset, Batch <CutoutSprite>> subPasses = new Table();
     final Stack <ModelAsset> sequence = new Stack <ModelAsset> ();
     
@@ -112,12 +134,14 @@ public class CutoutsPass {
       }
       compileAndRender(rendering.camera());
     }
-    clearAll();
+    inPass.clear();
   }
   
   
   public void clearAll() {
-    inPass.clear();
+    passSplat.clear();
+    passNormal.clear();
+    passPreview.clear();
   }
   
   

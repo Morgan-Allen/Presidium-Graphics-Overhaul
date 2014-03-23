@@ -105,8 +105,10 @@ public abstract class Fixture extends Element {
   
   
   public boolean enterWorldAt(int x, int y, World world) {
-    if (! super.enterWorldAt(x, y, world)) return false ;
+    if (! super.enterWorldAt(x, y, world)) return false;
     for (Tile t : world.tilesIn(area, false)) {
+      final Element old = t.owner();
+      if (old != null && old != this) old.setAsDestroyed();
       t.setOwner(this) ;
     }
     return true ;

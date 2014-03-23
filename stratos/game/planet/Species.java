@@ -47,7 +47,7 @@ public class Species implements Session.Saveable, Economy {
       Species.class, LAIR_DIR+"nest_micovore.png", 3.5f, 3
     ),
     MODEL_MIDDENS[] = CutoutModel.fromImages(
-      LAIR_DIR, Species.class, 1.35f, 1,
+      LAIR_DIR, Species.class, 1.35f, 1, false,
       "midden_a.png",
       "midden_b.png",
       "midden_c.png"

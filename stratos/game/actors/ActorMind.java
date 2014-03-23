@@ -172,7 +172,7 @@ public abstract class ActorMind implements Abilities {
   protected void updateSeen() {
     final World world = actor.world() ;
     final float sightRange = actor.health.sightRange() ;
-    final int reactLimit = 3 + (int) (actor.traits.traitLevel(INSIGHT) / 5) ;
+    final int reactLimit = 3 + (int) (actor.traits.traitLevel(PERCEPT) / 5) ;
     
     final Batch <Element>
       couldSee   = new Batch <Element> (),
@@ -564,6 +564,7 @@ public abstract class ActorMind implements Abilities {
   
   /**  Greed value-
     */
+  //*
   public float greedFor(int creditsPerDay) {
     float baseUnit = actor.gear.credits() / 2f;
     if (actor.base() != null) {
@@ -577,6 +578,7 @@ public abstract class ActorMind implements Abilities {
       greed = actor.traits.scaleLevel(ACQUISITIVE);
     return greed * (float) (Behaviour.ROUTINE + FastMath.log(mag));
   }
+  //*/
   
   
   

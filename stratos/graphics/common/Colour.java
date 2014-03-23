@@ -76,6 +76,11 @@ public class Colour {
   
   public Colour() {
   }
+  
+  
+  public Colour(Colour c) {
+    set(c);
+  }
 
   public Colour(float r, float g, float b, float a) {
     set(r, g, b, a);
