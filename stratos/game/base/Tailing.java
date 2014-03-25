@@ -1,25 +1,18 @@
 
 
 package stratos.game.base;
+import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
+import stratos.graphics.widgets.*;
+import stratos.user.*;
 import stratos.util.*;
 
 
 
-//  TODO:  This is intended to be a dumping ground for the waste and slag and
-//  ejecta from mining operations.  It takes up space, pollutes, can't be built
-//  over, and decays slowly, if ever.
-
-
-//  TODO:  Extend Venue instead, and make private property, so you can get a
-//         proper handle on the interface.  Also, make 3x3.
-//  TODO:  This HAS to be a venue.  Substantial bugs otherwise.
-
-
-public class Tailing extends Fixture {
+public class Tailing extends Venue {
   
   
   
@@ -27,57 +20,35 @@ public class Tailing extends Fixture {
     */
   final public static float FILL_CAPACITY = 100;
   
+  final Tailing strip[];
   private float fillLevel = 0;
   
   
-  public Tailing() {
-    super(3, 1);
+  public Tailing(Base base, Tailing strip[]) {
+    super(2, 2, ENTRANCE_NONE, base);
+    structure.setupStats(200, 10, 0, 0, Structure.TYPE_FIXTURE);
+    this.strip = strip;
   }
-  
-  
+
+
   public Tailing(Session s) throws Exception {
     super(s);
+    this.strip = (Tailing[]) s.loadTargetArray(Tailing.class);
     this.fillLevel = s.loadFloat();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
+    s.saveTargetArray(strip);
     s.saveFloat(fillLevel);
   }
   
   
   
+  
   /**  Placement and initialisation-
     */
-  static Tailing siteTailing(final ExcavationSite site) {
-    final World world = site.world() ;
-    final Tile init = Spacing.pickRandomTile(site.origin(), 4, world) ;
-    final Tailing tailing = new Tailing();
-    
-    final TileSpread spread = new TileSpread(init) {
-      protected boolean canAccess(Tile t) {
-        if (t.owner() == site) return true ;
-        if (t.owningType() >= Element.FIXTURE_OWNS) return false ;
-        return true ;
-      }
-      
-      protected boolean canPlaceAt(Tile t) {
-        tailing.setPosition(t.x, t.y, world);
-        if (tailing.canPlace()) return true;
-        return false;
-      }
-    } ;
-    spread.doSearch() ;
-    if (spread.success()) {
-      //I.say("Total tiles searched: "+spread.allSearched(Tile.class).length) ;
-      //tailing.enterWorld();
-      return tailing;
-    }
-    return null ;
-  }
-  
-  
   public boolean enterWorldAt(int x, int y, World world) {
     if (! super.enterWorldAt(x, y, world)) return false;
     attachSprite(updateSprite(null));
@@ -85,9 +56,14 @@ public class Tailing extends Fixture {
   }
   
   
+  protected void incFill(float oreAmount) {
+    if (oreAmount < 0) I.complain("Can't subtract from tailing.");
+    final float inc = oreAmount / FILL_CAPACITY;
+    fillLevel = Visit.clamp(fillLevel + inc, 0, 1);
+    updateSprite((GroupSprite) buildSprite().baseSprite());
+  }
   
-  /**  Status mutators/accessors-
-    */
+  
   public int owningType() {
     if (! inWorld()) return FIXTURE_OWNS;
     return TERRAIN_OWNS;
@@ -99,11 +75,8 @@ public class Tailing extends Fixture {
   }
   
   
-  protected void incFill(float oreAmount) {
-    if (oreAmount < 0) I.complain("Can't subtract from tailing.");
-    final float inc = oreAmount / FILL_CAPACITY;
-    fillLevel = Visit.clamp(fillLevel + inc, 0, 1);
-    updateSprite((GroupSprite) sprite());
+  public boolean privateProperty() {
+    return true;
   }
   
   
@@ -113,22 +86,40 @@ public class Tailing extends Fixture {
   
   
   
+  /**  Economic functions-
+    */
+  public String buildCategory() {
+    return UIConstants.TYPE_HIDDEN;
+  }
+  
+  public Background[] careers() { return null; }
+  public Service[] services() { return null; }
+  public Behaviour jobFor(Actor actor) { return null; }
+  
+  
+  
   /**  Rendering and interface-
     */
   final static int
-    NUM_MOLDS = 9,
+    NUM_MOLDS = 4,
     MOLD_COORDS[] = {
-      0, 0, 0, 1, 0, 2,
-      1, 0, 1, 1, 1, 2,
-      2, 0, 2, 1, 2, 2
+      1, 0, 1, 1, //0, 2,
+      0, 0, 0, 1, //1, 2,
+      //2, 0, 2, 1, 2, 2
     };
-  
-  private GroupSprite updateSprite(GroupSprite sprite) {
-    final boolean init = sprite == null;
-    if (init) sprite = new GroupSprite();
+  private Sprite updateSprite(Sprite oldSprite) {
+    if (this == strip[0]) {
+      if (oldSprite == null) return Smelter.TAILING_SHAFT_MODEL.makeSprite();
+      else return oldSprite;
+    }
+
+    final boolean init = oldSprite == null;
+    final GroupSprite sprite = init ?
+      new GroupSprite() : (GroupSprite) oldSprite
+    ;
+      
     final float xo = (size - 1) / -2f, yo = (size - 1) / -2f;
     final Tile o = origin();
-    
     final int NML = Smelter.NUM_MOLD_LEVELS;
     final int fillStage = (int) (fillLevel * NUM_MOLDS * NML);
     
@@ -137,10 +128,12 @@ public class Tailing extends Fixture {
         xoff = xo + MOLD_COORDS[n * 2],
         yoff = yo + MOLD_COORDS[(n * 2) + 1];
       final Tile t = o.world.tileAt(o.x + xoff, o.y + yoff);
-      final int var = t == null ? 1 : (o.world.terrain().varAt(t) % 2);
+      final int var = t == null ? 1 : (o.world.terrain().varAt(t) % 3);
       
       final int modelStage = Visit.clamp(fillStage - (n * NML), NML);
-      final ModelAsset model = Smelter.SLAG_HEAP_MODELS[var][modelStage];
+      final ModelAsset model = var == 2 ?
+        Smelter.TAILING_SLAB_MODEL :
+        Smelter.TAILING_MOLD_MODELS[var][modelStage];
       
       if (init) sprite.attach(model, xoff, yoff, 0);
       else {
@@ -154,12 +147,22 @@ public class Tailing extends Fixture {
     }
     return sprite;
   }
+  
+  
+  public String fullName() {
+    return "Mine Tailings";
+  }
+  
+  
+  public Composite portrait(BaseUI UI) {
+    return Composite.withImage(ExcavationSite.ICON, "tailing");
+  }
+  
+  
+  public String helpInfo() {
+    return "A dumping ground for waste and ejecta from mining operations.";
+  }
 }
-
-
-
-
-
 
 
 

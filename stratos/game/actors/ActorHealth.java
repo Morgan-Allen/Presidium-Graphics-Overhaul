@@ -298,6 +298,8 @@ public class ActorHealth implements Abilities {
     */
   public float baseSpeed() {
     float rate = baseSpeed ;
+    if (GameSettings.bigSprite) rate *= GameSettings.BIG_SPRITE_SCALE;
+    else rate *= GameSettings.SMALL_SPRITE_SCALE;
     return rate * (float) Math.sqrt(ageMultiple) ;
   }
   

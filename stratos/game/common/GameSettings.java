@@ -15,7 +15,7 @@ public class GameSettings {
   //  rather than global...
   final public static float
     SMALL_SPRITE_SCALE = 0.55f,
-    BIG_SPRITE_SCALE   = 1.0f;
+    BIG_SPRITE_SCALE   = 0.85f;
   
   
   public static boolean

@@ -105,8 +105,9 @@ public class Selection implements UIConstants {
       verbose && pickTile != null &&
       Gdx.input.isKeyPressed(Input.Keys.SPACE)
     ) {
-      I.say("Owner is: "+pickTile.owner());
-      I.say("Path type is: "+pickTile.pathType());
+      I.say("Picked tile is: "+pickTile);
+      I.say("  Owner is: "+pickTile.owner());
+      I.say("  Path type is: "+pickTile.pathType());
     }
     
     //
@@ -167,6 +168,7 @@ public class Selection implements UIConstants {
       if (verbose) {
         I.say("Navigation stack is: ") ;
         for (Selectable n : navStack) I.add("\n  "+n) ;
+        I.add("\n");
       }
     }
   }

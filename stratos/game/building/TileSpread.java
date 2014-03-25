@@ -11,6 +11,10 @@ import stratos.util.*;
 
 
 
+//
+//  TODO:  Unify with the Placement class?
+
+
 public abstract class TileSpread extends Search <Tile> {
   
   
@@ -47,7 +51,7 @@ public abstract class TileSpread extends Search <Tile> {
   }
   
   protected float estimate(Tile spot) {
-    return 0 ;
+    return 0;// Spacing.distance(spot, init) ;
   }
   
   protected void setEntry(Tile spot, Entry flag) {

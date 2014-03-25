@@ -374,7 +374,7 @@ public abstract class Actor extends Mobile implements
     final boolean t = aboard() instanceof Tile ;
     Selection.renderPlane(
       rendering, viewPosition(null),
-      (radius() + 0.5f) * (t ? 1 : 0.5f),
+      (radius() + 0.5f) * (t ? 1 : 0.5f) * sprite().scale,
       Colour.transparency((hovered ? 0.5f : 1.0f) * (t ? 1 : 0.5f)),
       Selection.SELECT_CIRCLE
     ) ;

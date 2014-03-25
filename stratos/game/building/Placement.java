@@ -1,6 +1,8 @@
 
 
 package stratos.game.building ;
+import org.apache.commons.math3.util.FastMath;
+
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.civilian.*;
@@ -13,7 +15,7 @@ import stratos.util.*;
 //  TODO:  Try merging this with the TileSpread class.
 
 
-public class Placement {
+public class Placement implements TileConstants {
   
   
   private static boolean verbose = false, cacheVerbose = false ;
@@ -137,7 +139,7 @@ public class Placement {
     final Venue v, final Target near, boolean intact, World world
   ) {
     if (! findClearanceFor(v, near, world)) return null ;
-    v.doPlace(v.origin(), null) ;
+    v.placeFromOrigin() ;
     if (intact || GameSettings.buildFree) {
       v.structure.setState(Structure.STATE_INTACT, 1.0f) ;
       ///v.onCompletion() ;
@@ -147,6 +149,77 @@ public class Placement {
     }
     v.setAsEstablished(true) ;
     return v ;
+  }
+  
+  
+  public static Venue[] establishVenueStrip(
+    final Venue strip[], final Target near, boolean intact, final World world
+  ) {
+    final Venue v = strip[0];
+    final int deep = v.size;
+    final Tile init = world.tileAt(near);
+    final int maxDist = World.SECTOR_SIZE / 2;
+    
+    final TileSpread search = new TileSpread(init) {
+      int minX, minY;
+      
+      protected boolean canAccess(Tile t) {
+        if (Spacing.distance(t, near) > maxDist) return false ;
+        if (t.owner() == near) return true;
+        return ! t.blocked() ;
+      }
+      
+      protected boolean canPlaceAt(Tile t) {
+        if (verbose) I.say("  Trying "+t);
+        
+        dirLoop: for (int dir : N_ADJACENT) {
+          int xdim = N_X[dir] * deep, ydim = N_Y[dir] * deep;
+          if (xdim == 0) xdim = ydim * strip.length;
+          if (ydim == 0) ydim = xdim * strip.length;
+          if (xdim >= 0) minX = t.x;
+          else { xdim *= -1; minX = t.x - xdim; }
+          if (ydim >= 0) minY = t.y;
+          else { ydim *= -1; minY = t.y - ydim; }
+          
+          final Tile c = world.tileAt(minX, minY);
+          if (! checkAreaClear(c, xdim, ydim, v.owningType())) continue;
+          
+          if (verbose) I.say("Area clear: "+c.x+" "+c.y+" "+xdim+" "+ydim);
+          int i = 0; for (Venue s : strip) {
+            s.setPosition(
+              minX + (i * deep * FastMath.abs(N_Y[dir])),
+              minY + (i * deep * FastMath.abs(N_X[dir])),
+              world
+            );
+            if (verbose) I.say("Checking at: "+s.origin());
+            if (! s.canPlace()) {
+              if (verbose) I.say("Blocked!");
+              continue dirLoop;
+            }
+            else i++;
+          }
+          return true;
+        }
+        return false;
+      }
+    } ;
+    search.verbose = verbose;
+    search.doSearch();
+    
+    if (search.success()) {
+      for (Venue s : strip) {
+        s.placeFromOrigin() ;
+        if (intact || GameSettings.buildFree) {
+          s.structure.setState(Structure.STATE_INTACT, 1.0f) ;
+        }
+        else s.structure.setState(Structure.STATE_INSTALL, 0.0f) ;
+        s.setAsEstablished(true) ;
+      }
+      return strip;
+    }
+    if (verbose) I.say("Failed to establish venue strip for: "+v);
+    
+    return null;
   }
   
   

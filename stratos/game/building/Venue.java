@@ -363,11 +363,14 @@ public abstract class Venue extends Fixture implements
   }
   
   
-  public void placeFromCorner(Tile t) {
+  public void placeFromOrigin() {
+    final Tile t = origin();
     final int HS = this.size / 2;
     doPlace(t.world.tileAt(t.x + HS, t.y + HS), null);
   }
   
+  //  TODO:  This built-in offset is introducing unnecesary complications.  Try
+  //  to move it back to the InstallTab/InstallTask code
   
   public boolean pointsOkay(Tile from, Tile to) {
     //  You have to check for visibility too.  Have a Base argument?

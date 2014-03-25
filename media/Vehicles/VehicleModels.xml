@@ -5,7 +5,7 @@
   type="JOINT"
   path="media/Vehicles/"
   file="dropship.ms3d"
-  scale="0.075"
+  scale="0.085"
   bound="3.0"
   stride="1.0"
   height="2.0"

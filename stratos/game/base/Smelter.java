@@ -23,16 +23,18 @@ public class Smelter extends Venue implements Economy {
   
   final static String IMG_DIR = "media/Buildings/artificer/" ;
   final static ModelAsset
-    DRILL_MODELS[] = CutoutModel.fromImages(
-      IMG_DIR, Smelter.class, 3, 3, false,
+    DRILLING_MODELS[] = CutoutModel.fromImages(
+      IMG_DIR, Smelter.class, 2, 2, false,
       "metals_smelter.gif",
-      "isotopes_smelter.gif"
-    ),
-    SHAFT_MODELS[] = CutoutModel.fromImages(
-      IMG_DIR, Smelter.class, 2, 1, true,
-      "open_shaft_2.png",
-      "open_shaft_1.png",
+      "isotopes_smelter.gif",
       "sunk_shaft.gif"
+    ),
+    TAILING_SHAFT_MODEL = DRILLING_MODELS[2],
+    TAILING_SLAB_MODEL = CutoutModel.fromImage(
+      Smelter.class, IMG_DIR+"slab.png", 1, 1
+    ),
+    SMELTER_STACK_MODEL = CutoutModel.fromImage(
+      Smelter.class, IMG_DIR+"drain_cover.png", 1, 1
     ),
     ALL_MOLD_MODELS[][] = CutoutModel.fromImageGrid(
       Smelter.class, IMG_DIR+"all_molds.png",
@@ -42,7 +44,7 @@ public class Smelter extends Venue implements Economy {
       ALL_MOLD_MODELS[1],
       ALL_MOLD_MODELS[0]
     },
-    SLAG_HEAP_MODELS[][] = {
+    TAILING_MOLD_MODELS[][] = {
       ALL_MOLD_MODELS[2],
       ALL_MOLD_MODELS[3]
     };
@@ -71,20 +73,20 @@ public class Smelter extends Venue implements Economy {
   
   final ExcavationSite parent ;
   final Service output ;
-  final Smelter strip[] ;
+  //final Smelter2 strip[] ;
   
   private int oldProgress = 0 ;
   
   
   
   public Smelter(
-    ExcavationSite parent, Service mined, int facing, Smelter strip[]
+    ExcavationSite parent, Service mined
   ) {
-    super(3, 2, (ENTRANCE_WEST + (facing / 2)) % 4, parent.base()) ;
-    structure.setupStats(75, 6, 150, 0, Structure.TYPE_FIXTURE) ;
+    super(3, 2, ENTRANCE_WEST, parent.base());
+    structure.setupStats(75, 6, 150, 0, Structure.TYPE_FIXTURE);
     this.parent = parent ;
     this.output = mined ;
-    this.strip = strip ;
+    //this.strip = strip ;
     //if (variant == 0) updateSprite() ;
     //else attachModel(SHAFT_MODELS[variant - 1]) ;
   }
@@ -94,7 +96,7 @@ public class Smelter extends Venue implements Economy {
     super(s) ;
     parent = (ExcavationSite) s.loadObject() ;
     output = (Service) s.loadObject() ;
-    strip = (Smelter[]) s.loadTargetArray(Smelter.class) ;
+    //strip = (Smelter2[]) s.loadTargetArray(Smelter2.class) ;
     oldProgress = s.loadInt() ;
   }
   
@@ -103,7 +105,7 @@ public class Smelter extends Venue implements Economy {
     super.saveState(s) ;
     s.saveObject(parent) ;
     s.saveObject(output) ;
-    s.saveTargetArray(strip) ;
+    //s.saveTargetArray(strip) ;
     s.saveInt(oldProgress) ;
   }
   
@@ -121,6 +123,13 @@ public class Smelter extends Venue implements Economy {
   
   /**  Behaviour implementation.
     */
+  public boolean enterWorldAt(int x, int y, World world) {
+    if (! super.enterWorldAt(x, y, world)) return false;
+    updateSprite(0);
+    return true;
+  }
+  
+  
   public void updateAsScheduled(int numUpdates) {
     super.updateAsScheduled(numUpdates) ;
     if (! structure.intact()) return ;
@@ -170,21 +179,12 @@ public class Smelter extends Venue implements Economy {
   }
   
   
-  private byte variant() {
-    if (output == METALS) return WorldTerrain.TYPE_METALS ;
-    if (output == FUEL_RODS) return WorldTerrain.TYPE_ISOTOPES ;
-    return -1 ;
-  }
-  
-  
-  final static int STRIP_DIRS[]  = { N, E, S, W } ;
-  
-  static Smelter[] siteSmelterStrip(
+  static Smelter siteSmelter(
     final ExcavationSite site, final Service mined
   ) {
     final World world = site.world() ;
     final Tile init = Spacing.pickRandomTile(site.origin(), 4, world) ;
-    final Smelter strip[] = new Smelter[2] ;
+    final Smelter smelter = new Smelter(site, mined);
     
     final TileSpread spread = new TileSpread(init) {
       protected boolean canAccess(Tile t) {
@@ -194,29 +194,14 @@ public class Smelter extends Venue implements Economy {
       }
       
       protected boolean canPlaceAt(Tile t) {
-        final int off = Rand.index(4) ;
-        for (int n = 4 ; n-- > 0 ;) {
-          final int dir = STRIP_DIRS[(n + off) % 4] ;
-          strip[0] = new Smelter(site, mined, dir, strip) ;
-          strip[1] = new Smelter(site, mined, dir, strip) ;
-          strip[0].setPosition(t.x, t.y, world) ;
-          strip[1].setPosition(
-            t.x + (N_X[dir] * 3), t.y + (N_Y[dir] * 3), world
-          ) ;
-          if (! Placement.checkPlacement(strip, world)) continue ;
-          return true ;
-        }
-        return false ;
+        smelter.setPosition(t.x, t.y, world);
+        return smelter.canPlace();
       }
     } ;
     spread.doSearch() ;
     if (spread.success()) {
-      I.say("Total tiles searched: "+spread.allSearched(Tile.class).length) ;
-      for (Smelter s : strip) {
-        s.doPlace(s.origin(), null) ;
-        s.updateSprite(0) ;
-      }
-      return strip ;
+      smelter.placeFromOrigin();
+      return smelter ;
     }
     return null ;
   }
@@ -231,13 +216,7 @@ public class Smelter extends Venue implements Economy {
   
   
   private void updateSprite(int progress) {
-    final boolean inWorld = inWorld() && sprite() != null ;
-    //
-    //  If you're not the first drill in the strip, just attach a simple model.
-    if (strip[0] == this) {
-      attachModel(DRILL_MODELS[spriteVariant()]) ;
-      return ;
-    }
+    final boolean inWorld = inWorld() && sprite() != null;
     //
     //  Otherwise, put together a group sprite-
     final float xo = (size - 1) / -2f, yo = (size - 1) / -2f ;
@@ -247,25 +226,26 @@ public class Smelter extends Venue implements Economy {
     }
     else {
       s = new GroupSprite() ;
-      s.attach(SHAFT_MODELS[spriteVariant()], 1.5f + xo, 0.5f + yo, 0) ;
+      s.attach(DRILLING_MODELS[spriteVariant()], 1.5f + xo, 0.5f + yo, 0) ;
       attachSprite(s) ;
     }
     //
     //  And attach mold sprites at the right intervals-
-    final int fillThresh = progress / NUM_MOLD_LEVELS ;
+    final int fillThresh = progress / NUM_MOLD_LEVELS;
     for (int i = 0, c = 0 ; i < NUM_MOLDS ; i++) {
-      int moldLevel = 0 ;
-      if (i < fillThresh) moldLevel = NUM_MOLD_LEVELS - 1 ;
-      else if (i < fillThresh + 1) moldLevel = progress % NUM_MOLD_LEVELS ;
-      final ModelAsset model = SMELTER_MOLD_MODELS[spriteVariant()][moldLevel] ;
+      int moldLevel = 0;
+      if (i < fillThresh) moldLevel = NUM_MOLD_LEVELS - 1;
+      else if (i < fillThresh + 1) moldLevel = progress % NUM_MOLD_LEVELS;
+      ModelAsset model = SMELTER_MOLD_MODELS[spriteVariant()][moldLevel];
+      if (i == NUM_MOLDS - 4) model = SMELTER_STACK_MODEL;
       
       if (inWorld) {
-        final CutoutSprite old = (CutoutSprite) s.atIndex(i + 1) ;
-        if (old != null && old.model() == model) continue ;
-        final Sprite ghost = old.model().makeSprite() ;
-        ghost.position.setTo(old.position) ;
-        world().ephemera.addGhost(null, 1, ghost, 2.0f) ;
-        old.setModel((CutoutModel) model) ;
+        final CutoutSprite old = (CutoutSprite) s.atIndex(i + 1);
+        if (old != null && old.model() == model) continue;
+        final Sprite ghost = old.model().makeSprite();
+        ghost.position.setTo(old.position);
+        world().ephemera.addGhost(null, 1, ghost, 2.0f);
+        old.setModel((CutoutModel) model);
       }
       else s.attach(model,
         MOLD_COORDS[c++] + xo,
@@ -276,12 +256,10 @@ public class Smelter extends Venue implements Economy {
   
   
   public void renderFor(Rendering rendering, Base base) {
-    if (strip[0] != this) {
-      int progress = NUM_MOLDS * NUM_MOLD_LEVELS ;
-      progress *= strip[0].stocks.amountOf(output) / SMELT_AMOUNT ;
-      if (progress != oldProgress) updateSprite(progress) ;
-      oldProgress = progress ;
-    }
+    int progress = NUM_MOLDS * NUM_MOLD_LEVELS ;
+    progress *= stocks.amountOf(output) / SMELT_AMOUNT ;
+    if (progress != oldProgress) updateSprite(progress) ;
+    oldProgress = progress ;
     super.renderFor(rendering, base) ;
   }
   

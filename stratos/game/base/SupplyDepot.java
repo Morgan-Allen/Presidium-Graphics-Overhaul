@@ -264,7 +264,7 @@ public class SupplyDepot extends Venue implements
         n = (n + 2) % 8 ;
         newStrip.setPosition(o.x + (N_X[n] * S), o.y + (N_Y[n] * S), world) ;
         if (newStrip.canPlace()) {
-          newStrip.placeFromCorner(newStrip.origin()) ;
+          newStrip.placeFromOrigin() ;
           landingStrip = newStrip ;
           break ;
         }

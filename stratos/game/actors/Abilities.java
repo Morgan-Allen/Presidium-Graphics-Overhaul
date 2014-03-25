@@ -46,7 +46,7 @@ public interface Abilities {
     MOTOR     = new Skill("Motor Coordination"  , FORM_NATURAL, null),
     PERCEPT   = new Skill("Percept Analysis"    , FORM_NATURAL, null),
     COGNITION = new Skill("Cognition Quotient"  , FORM_NATURAL, null),
-    NERVE     = new Skill("Nerve Integration"   , FORM_NATURAL, null),
+    NERVE     = new Skill("N.E.R.V Factor"      , FORM_NATURAL, null),
     
     ATTRIBUTES[] = Trait.skillsSoFar();
   
@@ -146,7 +146,7 @@ public interface Abilities {
     //
     //  General patience and elbow grease:
     HANDICRAFTS       = new Skill("Handicrafts"      , FORM_PHYSICAL, MOTOR),
-    HARD_LABOUR       = new Skill("Hard Labour"      , FORM_PHYSICAL, MOTOR),
+    HARD_LABOUR       = new Skill("Hard Labour"      , FORM_PHYSICAL, NERVE),
     DOMESTICS         = new Skill("Domestics"        , FORM_PHYSICAL, MOTOR),
     BODY_MEDITATION   = new Skill("Body Meditation"  , FORM_PHYSICAL, NERVE),
     

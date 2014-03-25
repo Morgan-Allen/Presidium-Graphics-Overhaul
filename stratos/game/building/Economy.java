@@ -18,6 +18,7 @@ SPYCE_C = new Item.Type(C, COMMODITY, "Spyce C (Natrizoral)", 400),
 //*/
 //  TODO:  Each commodity type should have a description attached.
 
+//  SLAG!
 
 
 

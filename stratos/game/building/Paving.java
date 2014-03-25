@@ -160,26 +160,29 @@ public class Paving {
   
   public void updateJunction(Venue v, Tile t, boolean isMember) {
     if (t == null) {
+      if (verbose) I.say("CANNOT SUPPLY NULL TILE AS JUNCTION") ;
       return ;
-      //I.complain("CANNOT SUPPLY NULL TILE AS JUNCTION") ;
     }
-    junctions.toggleMember(t, t, isMember) ;
+    junctions.toggleMember(t, t, isMember);
+    
     if (isMember) {
-      ///I.say("Updating road junction "+t) ;
-      for (Target o : junctions.visitNear(t, PATH_RANGE + 1, null)) {
+      if (verbose) I.say("Updating road junction "+t) ;
+      final int HS = v.size / 2;
+      final Tile c = v.origin(), centre = world.tileAt(c.x + HS, c.y + HS);
+      final int range = PATH_RANGE + 1 + HS;
+      for (Target o : junctions.visitNear(centre, range, null)) {
         final Tile jT = (Tile) o ;
         routeBetween(t, jT) ;
       }
     }
     else {
-      ///I.say("Discarding junctions for "+v) ;
-      final List <Route> routes = tileRoutes.get(t) ;
-      if (routes != null) {
-        for (Route r : routes) {
-          if (r.cost < 0) continue ;
-          deleteRoute(r) ;
-          r.cost = -1 ;
-        }
+      if (verbose) I.say("Discarding junctions for "+v) ;
+      
+      final List <Route> routes = tileRoutes.get(t);
+      if (routes != null) for (Route r : routes) {
+        if (r.cost < 0) continue ;
+        deleteRoute(r) ;
+        r.cost = -1 ;
       }
     }
   }

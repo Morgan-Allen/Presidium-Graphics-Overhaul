@@ -308,7 +308,10 @@ public abstract class Mobile extends Element
   
   
   public void renderFor(Rendering rendering, Base base) {
-    final float scale = spriteScale();
+    float scale = spriteScale();
+    if (GameSettings.bigSprite) scale *= GameSettings.BIG_SPRITE_SCALE;
+    else scale *= GameSettings.SMALL_SPRITE_SCALE;
+    
     final Sprite s = this.sprite();
     s.scale = scale;
     //

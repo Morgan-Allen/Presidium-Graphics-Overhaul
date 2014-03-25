@@ -6,7 +6,6 @@
 
 
 package stratos.game.base ;
-//import stratos.game.campaign.Scenario;
 import stratos.game.common.* ;
 import stratos.game.planet.* ;
 import stratos.game.actors.* ;
@@ -202,7 +201,6 @@ public class ExcavationSite extends Venue implements
     if ((! structure.intact()) || (! personnel.onShift(actor))) return null ;
     
     I.sayAbout(actor, "GETTING NEXT EXCAVATION TASK") ;
-    
     final Delivery d = Deliveries.nextDeliveryFor(
       actor, this, services(), 5, world
     ) ;
@@ -258,11 +256,15 @@ public class ExcavationSite extends Venue implements
       }
       if (t.fillLevel() < 1) return t;
     }
-    final Tailing t = Tailing.siteTailing(this);
-    if (t == null) return null;
-    t.enterWorld();
-    tailings.add(t);
-    return t;
+    
+    Tailing strip[] = new Tailing[4];
+    for (int i = 4 ; i-- > 0;) strip[i] = new Tailing(base(), strip);
+    strip = (Tailing[]) Placement.establishVenueStrip(
+      strip, this, false, world
+    );
+    if (strip == null) return null;
+    for (int i = 4 ; i-- > 0;) tailings.add(strip[i]);
+    return nextTailing();
   }
   
   
@@ -271,10 +273,8 @@ public class ExcavationSite extends Venue implements
     if (! structure.intact()) return ;
     structure.setAmbienceVal(structure.upgradeLevel(SAFETY_PROTOCOL) - 3) ;
     
-    checks: for (Smelter d : smelters) {
-      for (Smelter kid : d.strip) if (kid.destroyed()) {
-        smelters.remove(d) ; continue checks ;
-      }
+    for (Smelter kid : smelters) if (kid.destroyed()) {
+      smelters.remove(kid) ;
     }
     
     //  TODO:  Remove later?
@@ -286,15 +286,15 @@ public class ExcavationSite extends Venue implements
     //final int numDrills = structure.upgradeLevel(MANTLE_DRILLING) ;
     if (numUpdates % SMELTER_REFRESH == 0) {
       if (smeltingSite(METALS) == null) {
-        final Smelter strip[] = Smelter.siteSmelterStrip(this, METALS) ;
-        if (strip != null) smelters.add(strip[0]) ;
+        final Smelter strip = Smelter.siteSmelter(this, METALS) ;
+        if (strip != null) smelters.add(strip) ;
       }
       if (
         smeltingSite(FUEL_RODS) == null &&
         true //structure.upgradeLevel(FUEL_PROCESSING) > 0
       ) {
-        final Smelter strip[] = Smelter.siteSmelterStrip(this, FUEL_RODS) ;
-        if (strip != null) smelters.add(strip[0]) ;
+        final Smelter strip = Smelter.siteSmelter(this, FUEL_RODS) ;
+        if (strip != null) smelters.add(strip) ;
       }
     }
     

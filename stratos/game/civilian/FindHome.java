@@ -90,7 +90,7 @@ public class FindHome extends Plan implements Economy {
   public boolean actionSiteHome(Actor client, Target site) {
     if (! canPlace()) return false ;
     final Venue v = (Venue) newHome ;
-    v.doPlace(v.origin(), null) ;
+    v.placeFromOrigin() ;
     client.mind.setHome(v) ;
     if (verbose) I.sayAbout(actor, "siting home at: "+v.origin()) ;
     return true ;

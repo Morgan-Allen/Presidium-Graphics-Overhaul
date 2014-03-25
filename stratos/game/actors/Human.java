@@ -244,10 +244,7 @@ public class Human extends Actor implements Abilities {
     //  TODO:  make this a general 3D scaling vector, and incorporate other
     //  physical traits.
     final int stage = health.agingStage() ;
-    float scale = (float) Math.pow(traits.scaleLevel(TALL), 0.1f) ;
-    if (GameSettings.bigSprite) scale *= GameSettings.BIG_SPRITE_SCALE;
-    else scale *= GameSettings.SMALL_SPRITE_SCALE;
-    
+    final float scale = (float) Math.pow(traits.scaleLevel(TALL), 0.1f) ;
     if (stage == 0) return 0.8f * scale ;
     if (stage >= 2) return 0.95f * scale ;
     return 1 * scale ;
