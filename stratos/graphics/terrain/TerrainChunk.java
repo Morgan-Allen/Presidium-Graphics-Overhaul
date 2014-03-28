@@ -2,12 +2,10 @@
 
 
 package stratos.graphics.terrain;
-import com.badlogic.gdx.graphics.*;
-
-import java.util.Iterator;
-
 import stratos.graphics.common.*;
 import stratos.util.*;
+import com.badlogic.gdx.graphics.*;
+import java.util.Iterator;
 
 
 
@@ -15,18 +13,16 @@ import stratos.util.*;
 public class TerrainChunk implements TileConstants {
   
   
+  private static boolean verbose = false;
+  
   final int width, height, gridX, gridY;
   final LayerType layer;
   final TerrainSet belongs;
   
-  protected float[] vertices;
-  protected short[] indices;
-  protected Mesh mesh;
-  
-  
-  protected boolean
-    renderFlag = false,
-    refreshFlag = true;
+  private float[] vertices;
+  private short[] indices;
+  private Mesh mesh;
+  private boolean renderFlag = false, refreshFlag = true;
   
   protected TerrainChunk fadeOut = null;
   protected float fadeIncept = -1;
@@ -47,11 +43,37 @@ public class TerrainChunk implements TileConstants {
   
   
   protected void dispose() {
-    mesh.dispose();
+    if (mesh != null) {
+      mesh.dispose();
+      mesh = null;
+    }
   }
   
-
-  public void generateMesh() {
+  
+  protected Mesh mesh() {
+    if (mesh == null) {
+      if (verbose && vertices.length > 0) {
+        I.say("Setting up mesh object for "+this.hashCode());
+        I.say("Vertex/index length: "+vertices.length+"/"+indices.length);
+        I.say("Layer ID: "+this.layer.layerID);
+        //I.add("\nVertices:  ");
+        //for (float f : vertices) I.add(f+", ");
+        //I.add("\n\n");
+      }
+      mesh = new Mesh(
+        true, vertices.length, indices.length,
+        VertexAttribute.Position(),
+        VertexAttribute.TexCoords(0)
+      );
+      mesh.setVertices(vertices);
+      mesh.setIndices(indices);
+    }
+    return mesh;
+  }
+  
+  
+  public void generateMeshData() {
+    if (verbose) I.say("Generating mesh data for "+this.hashCode());
     // First of all, compile a list of all occupied tiles and their
     // associated UV fringing, based on the position of any adjacent tiles
     // with the same layer assignment.
@@ -92,19 +114,29 @@ public class TerrainChunk implements TileConstants {
       }
     }
     
-    // Finally set up the mesh object itself, ready for rendering-
-    mesh = new Mesh(
-      true, vertices.length, indices.length,
-      VertexAttribute.Position(), VertexAttribute.TexCoords(0)
-    );
-    mesh.setVertices(vertices);
-    mesh.setIndices(indices);
+    refreshFlag = false;
+  }
+  
+  
+  protected void flagRefresh() {
+    refreshFlag = true;
+  }
+  
+  
+  protected boolean needsRefresh() {
+    return refreshFlag;
+  }
+  
+  
+  protected void resetRenderFlag() {
+    renderFlag = false;
   }
   
   
   public void readyFor(Rendering rendering) {
-    if (renderFlag) return;
+    if (renderFlag || vertices.length == 0) return;
     renderFlag = true;
+    mesh();
     rendering.terrainPass.register(this);
   }
 }

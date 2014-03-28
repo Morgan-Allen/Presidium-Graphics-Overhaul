@@ -18,7 +18,6 @@ public class Tooltips extends UIGroup {
   final public static ImageAsset TIPS_TEX = ImageAsset.fromImage(
     "media/GUI/tips_frame.png", UIConstants.class
   );
-  //final static Box2D TIPS_INSETS = new Box2D().set(-10, -10, 20, 20);
   
   Bordering bordering ;
   Text infoText ;
@@ -26,7 +25,7 @@ public class Tooltips extends UIGroup {
   
   public Tooltips(HUD UI) {
     super(UI) ;
-    bordering = new Bordering(UI, TIPS_TEX.asTexture());
+    bordering = new Bordering(UI, TIPS_TEX);
     bordering.relBound.set(0, 0, 1, 1);
     bordering.absBound.set(-10, -10, 20, 20);
     bordering.drawInset.set(10, 10, -20, -20);

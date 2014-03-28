@@ -294,7 +294,6 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
     };
     
     meshSet = new TerrainSet(mapSize, -1, typeIndex, varsIndex, layers);
-    meshSet.refreshAllMeshes();
   }
   
   
@@ -334,18 +333,18 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
       dimX, dimY, minX, minY,
       layer, meshSet
     ) ;
-    overlay.generateMesh();
+    overlay.generateMeshData();
     return overlay ;
+  }
+  
+  
+  public void readyAllMeshes() {
+    meshSet.refreshAllMeshes();
   }
   
   
   public void renderFor(Box2D area, Rendering rendering, float time) {
     meshSet.renderWithin(area, rendering);
-  }
-  
-  
-  public TerrainSet meshSet() {
-    return meshSet;
   }
 }
 

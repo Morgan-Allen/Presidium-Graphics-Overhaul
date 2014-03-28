@@ -164,18 +164,22 @@ public class StartupScenario extends Scenario {
       case(2) : forest = 2 ; meadow  = 3 ; barrens = 2 ; water = 1 ; break ;
     }
     
+    //  TODO:  the terrain setup algorithm should not be directly interacting
+    //  with the world, only passing data onto the constructor.  The
+    //  'readyAllMeshes()' method should be called automatically then.
     final TerrainGen TG = new TerrainGen(
       MAP_SIZES[station], 0.2f,
       Habitat.OCEAN       , water  ,
       Habitat.ESTUARY     , forest ,
       Habitat.MEADOW      , meadow ,
       Habitat.BARRENS     , barrens,
-      Habitat.DUNE      , desert ,
+      Habitat.DUNE        , desert ,
       Habitat.CURSED_EARTH, wastes
     ) ;
     final World world = new World(TG.generateTerrain()) ;
     TG.setupMinerals(world, 0, 0, 0) ;
     TG.setupOutcrops(world) ;
+    world.terrain().readyAllMeshes();
     
     final EcologyGen EG = new EcologyGen(world, TG);
     EG.populateFlora();

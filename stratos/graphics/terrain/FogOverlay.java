@@ -28,7 +28,9 @@ public class FogOverlay {
   
   private float oldVals[][], newVals[][];
   private Pixmap drawnTo;
-  protected Texture oldTex, newTex;
+  
+  private Texture oldTex, newTex;
+  private boolean doSwap = false;
   private float oldTime = 0;
   
   
@@ -41,11 +43,6 @@ public class FogOverlay {
     drawnTo.fill();
     oldVals = new float[size][size];
     newVals = new float[size][size];
-    
-    oldTex = new Texture(drawnTo);
-    oldTex.setFilter(Linear, Linear);
-    newTex = new Texture(drawnTo);
-    newTex.setFilter(Linear, Linear);
   }
   
   
@@ -56,7 +53,26 @@ public class FogOverlay {
   }
   
   
+  private void updateTex() {
+    if (oldTex == null || newTex == null) {
+      oldTex = new Texture(drawnTo);
+      oldTex.setFilter(Linear, Linear);
+      newTex = new Texture(drawnTo);
+      newTex.setFilter(Linear, Linear);
+    }
+    
+    if (doSwap) {
+      final Texture tempT = newTex;
+      newTex = oldTex;
+      oldTex = tempT;
+      newTex.draw(drawnTo, 0, 0);
+      doSwap = false;
+    }
+  }
+  
+  
   protected void applyToTerrain(ShaderProgram shader) {
+    updateTex();
     oldTex.bind(1);
     newTex.bind(2);
     shader.setUniformi("u_fog_old", 1);
@@ -67,6 +83,7 @@ public class FogOverlay {
   
   
   protected void applyToMinimap(ShaderProgram shader) {
+    updateTex();
     oldTex.bind(1);
     newTex.bind(2);
     shader.setUniformi("u_fog_old", 1);
@@ -76,6 +93,7 @@ public class FogOverlay {
   
   
   public void registerFor(Rendering rendering) {
+    updateTex();
     rendering.terrainPass.applyFog(this);
   }
   
@@ -112,13 +130,9 @@ public class FogOverlay {
     pixels.put(rawData);
     pixels.rewind();
     
-    final Texture tempT = newTex;
-    newTex = oldTex;
-    oldTex = tempT;
-    newTex.draw(drawnTo, 0, 0);
-    
     if (verbose) I.say("PERFORMED FOG REFRESH, TIMES: "+oldTime+"/"+newTime);
     oldTime = newTime;
+    doSwap = true;
   }
   
   

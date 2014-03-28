@@ -141,7 +141,7 @@ public class TerrainPass {
           if (alpha > 0) {
             final float outAlpha = Visit.clamp(alpha * 2, 0, 1);
             shader.setUniformf("u_opacity", opacity * outAlpha);
-            chunk.fadeOut.mesh.render(shader, GL20.GL_TRIANGLES);
+            chunk.fadeOut.mesh().render(shader, GL20.GL_TRIANGLES);
           }
           else {
             chunk.fadeOut.dispose();
@@ -151,16 +151,16 @@ public class TerrainPass {
           
           final float inAlpha = Visit.clamp((1 - alpha) * 2, 0, 1);
           shader.setUniformf("u_opacity", opacity * inAlpha * c.a);
-          chunk.mesh.render(shader, GL20.GL_TRIANGLES);
+          chunk.mesh().render(shader, GL20.GL_TRIANGLES);
         }
         
         //  Otherwise just render directly.  In either case, flag as complete.
         //  TODO:  Allow true blending with chunk colour.
         else {
           shader.setUniformf("u_opacity", opacity * c.a);
-          chunk.mesh.render(shader, GL20.GL_TRIANGLES);
+          chunk.mesh().render(shader, GL20.GL_TRIANGLES);
         }
-        chunk.renderFlag = false;
+        chunk.resetRenderFlag();
       }
       if (tex.length == 1) break;
     }

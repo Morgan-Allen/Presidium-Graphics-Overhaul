@@ -30,6 +30,9 @@ public class Smelter extends Venue implements Economy {
       "sunk_shaft.gif"
     ),
     TAILING_SHAFT_MODEL = DRILLING_MODELS[2],
+    TAILING_ANNEX_MODEL = CutoutModel.fromSplatImage(
+      Smelter.class, IMG_DIR+"tailing_annex.png", 2
+    ),
     TAILING_SLAB_MODEL = CutoutModel.fromImage(
       Smelter.class, IMG_DIR+"slab.png", 1, 1
     ),

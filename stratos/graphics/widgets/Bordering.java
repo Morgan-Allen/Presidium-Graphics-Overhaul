@@ -14,6 +14,8 @@ import com.badlogic.gdx.math.*;
 
 
 
+//  TODO:  Just allow top/bottom/right/left parameters to be assigned.
+
 public class Bordering extends UINode {
   
   
@@ -23,14 +25,16 @@ public class Bordering extends UINode {
     drawInset = new Box2D().set(10, 10, -20, -20) ;
   
   
+  /*
   public Bordering(HUD UI, String texFile) {
     this(UI, ImageAsset.getTexture(texFile));
   }
+  //*/
   
   
-  public Bordering(HUD UI, Texture tex) {
+  public Bordering(HUD UI, ImageAsset tex) {
     super(UI);
-    this.borderTex = tex;
+    this.borderTex = tex.asTexture();
   }
   
   

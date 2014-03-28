@@ -207,7 +207,7 @@ public class Action implements Behaviour, AnimNames {
     float rate = actor.health.baseSpeed() ;
     if (motionType == MOTION_SNEAK) rate *= (2 - luck) / 4 ;
     else if (motionType == MOTION_FAST) rate *= 2 * luck ;
-    else rate += (luck - 0.5f) / 2 ;
+    else rate *= 1 + ((luck - 0.5f) / 2) ;
     if (basic) return rate ;
     
     //  TODO:  Must also account for the effects of fatigue and encumbrance...
@@ -358,7 +358,7 @@ public class Action implements Behaviour, AnimNames {
       moveRate(actor, false) *
       actor.moveAnimStride() /
       World.UPDATES_PER_SECOND
-    ) ;
+    ) / actor.health.baseSpeed() ;
   }
   
   
@@ -423,8 +423,8 @@ public class Action implements Behaviour, AnimNames {
   
   
   protected float animProgress() {
-    final float alpha = Rendering.frameAlpha() ;
-    final float AP = ((progress * alpha) + (oldProgress * (1 - alpha))) ;
+    final float alpha = Rendering.frameAlpha();
+    final float AP = ((progress * alpha) + (oldProgress * (1 - alpha)));
     if (AP > 1) return AP % 1 ;
     return AP ;
   }

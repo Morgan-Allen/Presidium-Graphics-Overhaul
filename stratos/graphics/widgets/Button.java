@@ -31,23 +31,12 @@ public class Button extends Image {
   protected String info ;
   
   
-  public Button(HUD myHUD, String norm, String infoS) {
+  public Button(HUD myHUD, ImageAsset norm, String infoS) {
     this(
-      myHUD,
-      ImageAsset.getTexture(norm),
+      myHUD, norm.asTexture(),
       DEFAULT_LIT.asTexture(),
       infoS
     ) ;
-  }
-  
-  
-  public Button(HUD myHUD, String path, String norm, String lit, String infoS) {
-    this(
-      myHUD,
-      ImageAsset.getTexture(path+norm),
-      ImageAsset.getTexture(path+lit),
-      infoS
-    );
   }
   
 
@@ -97,6 +86,8 @@ public class Button extends Image {
 
 
 
+
+
 /*
 //  selection modes.
 final public static byte
@@ -123,6 +114,17 @@ if (selectMode == MODE_ALPHA) {
   return (texSample.a > 0.5f) ? this : null ;
 }
 return null ;
+
+
+  public Button(HUD myHUD, String path, String norm, String lit, String infoS) {
+    this(
+      myHUD,
+      ImageAsset.getTexture(path+norm),
+      ImageAsset.getTexture(path+lit),
+      infoS
+    );
+  }
+  //*/
 //*/
 
 

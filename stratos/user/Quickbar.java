@@ -1,25 +1,53 @@
 
 
+
 package stratos.user ;
 import org.lwjgl.input.Keyboard;
-
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.tactical.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
-
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
+import com.badlogic.gdx.*;
 
 
 
 public class Quickbar extends UIGroup implements UIConstants {
   
+  
   final static int
     BUT_SIZE = 40,
     SPACING  = 2 ;
+
+  final static int NUM_GUILDS = 6;
+  final static String GUILD_IMG_NAMES[] = {
+    "militant_category_button",
+    "merchant_category_button",
+    "aesthete_category_button",
+    "artificer_category_button",
+    "ecologist_category_button",
+    "physician_category_button",
+  };
+  final static String GUILD_TITLES[] = {
+    "Militant Structures",
+    "Merchant Structures",
+    "Aesthete Structures",
+    "Artificer Structures",
+    "Ecologist Structures",
+    "Physician Structures",
+  };
+  final static Table <String, ImageAsset> GUILD_IMG_ASSETS;
+  static {
+    GUILD_IMG_ASSETS = new Table <String, ImageAsset> ();
+    for (String name : GUILD_IMG_NAMES) {
+      final ImageAsset asset = ImageAsset.fromImage(
+        BUTTONS_PATH+name+".png", Quickbar.class
+      );
+      GUILD_IMG_ASSETS.put(name, asset);
+    }
+  }
+  
   
   final BaseUI UI ;
   private UIGroup optionList ;
@@ -59,9 +87,6 @@ public class Quickbar extends UIGroup implements UIConstants {
   
   /**  
     */
-  //
-  //  TODO:  Export this to a dedicated PowersTab class.  Probably.
-  
   class PowerTask implements UITask {
     
     final Power power ;
@@ -190,7 +215,7 @@ public class Quickbar extends UIGroup implements UIConstants {
     final Quickbar bar = this;
     
     final Button strikeMB = new Button(
-      UI, MissionsTab.STRIKE_ICON.asTexture(),
+      UI, MissionsTab.STRIKE_ICON,
       "Strike Mission\n  Destroy, capture or neutralise a chosen target"
     ) {
       public void whenClicked() { MissionsTab.initStrikeTask(bar.UI) ; }
@@ -198,7 +223,7 @@ public class Quickbar extends UIGroup implements UIConstants {
     addToSlot(strikeMB, missionGroup, missionSlots) ;
     
     final Button reconMB = new Button(
-      UI, MissionsTab.RECON_ICON.asTexture(),
+      UI, MissionsTab.RECON_ICON,
       "Recon Mission\n  Explore a given area or follow a chosen subject"
     ) {
       public void whenClicked() { MissionsTab.initReconTask(bar.UI) ; }
@@ -206,7 +231,7 @@ public class Quickbar extends UIGroup implements UIConstants {
     addToSlot(reconMB, missionGroup, missionSlots) ;
     
     final Button securityMB = new Button(
-      UI, MissionsTab.SECURITY_ICON.asTexture(),
+      UI, MissionsTab.SECURITY_ICON,
       "Security Mission\n  Protect a given area, structure or subject"
     ) {
       public void whenClicked() { MissionsTab.initSecurityTask(bar.UI) ; }
@@ -214,7 +239,7 @@ public class Quickbar extends UIGroup implements UIConstants {
     addToSlot(securityMB, missionGroup, missionSlots) ;
     
     final Button contactMB = new Button(
-      UI, MissionsTab.CONTACT_ICON.asTexture(),
+      UI, MissionsTab.CONTACT_ICON,
       "Contact Mission\n  Establish better relations with the subject"
     ) {
       public void whenClicked() { MissionsTab.initContactTask(bar.UI) ; }
@@ -232,30 +257,12 @@ public class Quickbar extends UIGroup implements UIConstants {
     final UIGroup installGroup = new UIGroup(UI) ;
     final List <Button> installSlots = new List <Button> () ;
     
-    createGuildButton(
-      "militant_category_button", "Militant Structures",
-      0, installGroup, installSlots
-    ) ;
-    createGuildButton(
-      "merchant_category_button", "Merchant Structures",
-      1, installGroup, installSlots
-    ) ;
-    createGuildButton(
-      "aesthete_category_button", "Aesthete Structures",
-      2, installGroup, installSlots
-    ) ;
-    createGuildButton(
-      "artificer_category_button", "Artificer Structures",
-      3, installGroup, installSlots
-    ) ;
-    createGuildButton(
-      "ecologist_category_button", "Ecologist Structures",
-      4, installGroup, installSlots
-    ) ;
-    createGuildButton(
-      "physician_category_button", "Physician Structures",
-      5, installGroup, installSlots
-    ) ;
+    for (int i = 0 ; i < NUM_GUILDS ; i++) {
+      createGuildButton(
+        GUILD_IMG_NAMES[i], GUILD_TITLES[i],
+        i, installGroup, installSlots
+      ) ;
+    }
     
     installGroup.relBound.set(1, 0, 0, 0) ;
     installGroup.absBound.set(-INFO_AREA_WIDE, 0, 0, 0) ;
@@ -269,9 +276,7 @@ public class Quickbar extends UIGroup implements UIConstants {
   ) {
     final String catName = INSTALL_CATEGORIES[buttonID] ;
     final InstallTab newTab = new InstallTab(UI, catName) ;
-    final Button button = new Button(
-      UI, BUTTONS_PATH+img+".png", help
-    ) {
+    final Button button = new Button(UI, GUILD_IMG_ASSETS.get(img), help) {
       protected void whenClicked() {
         final BaseUI UI = BaseUI.current();
         UI.beginPanelFade() ;
@@ -288,16 +293,8 @@ public class Quickbar extends UIGroup implements UIConstants {
     if (last != null) button.absBound.xpos(last.absBound.xmax()) ;
     installSlots.add(button) ;
     button.attachTo(installGroup) ;
-    //addToSlot(button, installGroup, installSlots) ;
   }
 }
-
-
-
-
-
-
-
 
 
 

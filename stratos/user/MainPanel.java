@@ -11,12 +11,7 @@ import stratos.graphics.widgets.*;
 import stratos.util.*;
 
 
-//  TODO:  You also need a portrait image for the top.
-//  Add panes for Special Structures and a 'Blueprint mode'?  Maybe later.
-
-//
-//  ...Okay.  I still want instant access to the building categories.  And I
-//  need a readout/help button of some kind.
+//  TODO:  This isn't actually being used at the moment.  Get rid of it.
 
 
 public class MainPanel extends InfoPanel implements UIConstants {
@@ -98,7 +93,7 @@ public class MainPanel extends InfoPanel implements UIConstants {
     String img, String help, final int buttonID, float a, float d
   ) {
     final Button button = new Button(
-      UI, BUTTONS_PATH+img+".png", help
+      UI, Quickbar.GUILD_IMG_ASSETS.get(img), help
     ) {
       protected void whenClicked() {
         switchToPane(buttonID) ;

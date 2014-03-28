@@ -13,7 +13,7 @@ public class TerrainSet {
   
   
   final static int
-    DEFAULT_CHUNK_SIZE = 64,
+    DEFAULT_CHUNK_SIZE = 16,
     MAX_CHUNK_SIZE     = 128;
   
   
@@ -69,16 +69,15 @@ public class TerrainSet {
     for (Coord c : Visit.grid(0, 0, chunkGrid, chunkGrid, 1)) {
       for (LayerType layer : layers) {
         final TerrainChunk oldChunk = chunks[c.x][c.y][layer.layerID];
-        if (oldChunk != null && ! oldChunk.refreshFlag) continue;
+        if (oldChunk != null && ! oldChunk.needsRefresh()) continue;
         
         final TerrainChunk chunk = new TerrainChunk(
           chunkSize, chunkSize,
           c.x * chunkSize, c.y * chunkSize,
           layer, this
         );
-        chunk.generateMesh();
+        chunk.generateMeshData();
         chunks[c.x][c.y][layer.layerID] = chunk;
-        chunk.refreshFlag = false;
         chunk.fadeOut = oldChunk;
         chunk.fadeIncept = Rendering.activeTime();
       }
@@ -95,7 +94,8 @@ public class TerrainSet {
     final int tx = x / chunkSize, ty = y / chunkSize;
     if (tx < 0 || tx >= chunkGrid) return;
     if (ty < 0 || ty >= chunkGrid) return;
-    chunks[tx][ty][layer.layerID].refreshFlag = true;
+    final TerrainChunk chunk = chunks[tx][ty][layer.layerID];
+    if (chunk != null) chunk.flagRefresh();
   }
   
   
@@ -105,8 +105,7 @@ public class TerrainSet {
       minY = (int) ((area.ypos() + 1) / chunkSize),
       dimX = 1 + (int) ((area.xmax() - 1) / chunkSize) - minX,
       dimY = 1 + (int) ((area.ymax() - 1) / chunkSize) - minY ;
-    
-    int i = 0 ; for (Coord c : Visit.grid(minX, minY, dimX, dimY, 1)) {
+    for (Coord c : Visit.grid(minX, minY, dimX, dimY, 1)) {
       for (TerrainChunk patch : chunks[c.x][c.y]) {
         patch.readyFor(rendering);
       }

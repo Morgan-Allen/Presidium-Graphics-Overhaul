@@ -8,6 +8,7 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.tactical.*;
 import stratos.graphics.common.*;
+import stratos.graphics.widgets.HUD;
 import stratos.start.*;
 import stratos.user.*;
 import stratos.util.*;
@@ -87,27 +88,49 @@ public abstract class Scenario implements Session.Saveable, Playable {
   /**  Default methods for creating a new world, base, and user interface.
     */
   public void beginGameSetup() {
+    
+    I.say("Beginning scenario setup...");
     loadProgress = 0;
     final Thread loadingThread = new Thread() {
       public void run() {
         world = createWorld();
         loadProgress = 0.2f;
+        I.say("World created...");
+        
+        try { Thread.sleep(100); }
+        catch (Exception e) {}
         
         base = createBase(world);
         loadProgress = 0.4f;
+        I.say("Base created...");
+        
+        try { Thread.sleep(100); }
+        catch (Exception e) {}
         
         UI = createUI(base, PlayLoop.rendering());
         loadProgress = 0.6f;
+        I.say("UI setup done...");
+        
+        try { Thread.sleep(100); }
+        catch (Exception e) {}
         
         configureScenario(world, base, UI);
         savesPrefix = saveFilePrefix(world, base);
         loadProgress = 0.8f;
+        I.say("Configuring scenario...");
+        
+        try { Thread.sleep(100); }
+        catch (Exception e) {}
         
         afterCreation();
         loadProgress = 1.0f;
+        I.say("Setup complete...");
+        
+        try { Thread.sleep(100); }
+        catch (Exception e) {}
       }
     };
-    loadingThread.run();
+    loadingThread.start();
   }
   
   
@@ -157,27 +180,64 @@ public abstract class Scenario implements Session.Saveable, Playable {
   //  No, just overwrite the loadProgress() method (even for saves.)
   
   
-  public static void saveGame(String saveFile) {
+  public static void saveGame(final String saveFile) {
     final Scenario scenario = current();
     if (scenario == null) return;
-    try {
-      scenario.lastSaveTime = scenario.world.currentTime();
-      Session.saveSession(scenario.world(), scenario, saveFile);
-      scenario.afterSaving();
-    }
-    catch (Exception e) { I.report(e); }
+    scenario.loadProgress = 0;
+    //  TODO:  Implement some kind of progress readout here...
+    
+    final Thread saveThread = new Thread() {
+      public void run() {
+        try {
+          scenario.lastSaveTime = scenario.world.currentTime();
+          Session.saveSession(scenario.world(), scenario, saveFile);
+          scenario.afterSaving();
+          scenario.loadProgress = 1;
+        }
+        catch (Exception e) { I.report(e); }
+      }
+    };
+    saveThread.start();
   }
   
   
-  public static void loadGame(String saveFile, boolean fromMenu) {
-    try {
-      PlayLoop.gameStateWipe();
-      final Session s = Session.loadSession(saveFile);
-      final Scenario scenario = s.scenario();
-      scenario.afterLoading(fromMenu);
-      PlayLoop.setupAndLoop(scenario);
-    }
-    catch (Exception e) { I.report(e) ; }
+  public static void loadGame(final String saveFile, final boolean fromMenu) {
+
+    PlayLoop.gameStateWipe();
+    final Thread loadThread = new Thread() {
+      public void run() {
+        try {
+          final Session s = Session.loadSession(saveFile);
+          final Scenario scenario = s.scenario();
+          scenario.afterLoading(fromMenu);
+          PlayLoop.setupAndLoop(scenario);
+        }
+        catch (Exception e) { I.report(e); }
+      }
+    };
+
+    PlayLoop.setupAndLoop(new Playable() {
+      private boolean begun = false;
+      
+      public void updateGameState() {}
+      public void renderVisuals(Rendering rendering) {}
+      public HUD UI() { return null; }
+      public boolean shouldExitLoop() { return false; }
+      
+      public void beginGameSetup() {
+        loadThread.start();
+        begun = true;
+      }
+      
+      public boolean isLoading() {
+        return begun;
+      }
+      
+      public float loadProgress() {
+        //  TODO:  Implement some kind of progress readout here.
+        return 0;//Session.loadProgress();
+      }
+    });
   }
   
   

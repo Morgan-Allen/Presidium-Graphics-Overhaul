@@ -55,15 +55,6 @@ public class World {
   final public Ephemera ephemera ;
   
   
-  
-  public World(WorldTerrain terrain) {
-    this(terrain.mapSize) ;
-    this.terrain = terrain ;
-    terrain.initTerrainMesh(Habitat.ALL_HABITATS);
-    //terrain.initPatchGrid(PATCH_RESOLUTION) ;
-  }
-  
-  
   public World(int size) {
     this.size = size ;
     tiles = new Tile[size][size] ;
@@ -77,8 +68,14 @@ public class World {
     activities = new Activities(this) ;
     pathingCache = new PathingCache(this) ;
     presences = new Presences(this) ;
-    //mobilesMap = new PresenceMap(this, Mobile.class) ;
     ephemera = new Ephemera(this) ;
+  }
+  
+  
+  public World(WorldTerrain terrain) {
+    this(terrain.mapSize) ;
+    this.terrain = terrain ;
+    terrain.initTerrainMesh(Habitat.ALL_HABITATS);
   }
   
   
@@ -93,7 +90,6 @@ public class World {
     
     terrain = (WorldTerrain) s.loadObject() ;
     terrain.initTerrainMesh(Habitat.ALL_HABITATS);
-    //terrain.initPatchGrid(PATCH_RESOLUTION) ;
     ecology.loadState(s) ;
     
     s.loadObjects(bases) ;
@@ -378,7 +374,7 @@ public class World {
     Batch <Section> sections, Rendering rendering, Base base
   ) {
     final float renderTime = timeMidRender();
-    terrain.meshSet().refreshAllMeshes();
+    terrain.readyAllMeshes();
     for (Section section : sections) {
       terrain.renderFor(section.area, rendering, renderTime);
     }

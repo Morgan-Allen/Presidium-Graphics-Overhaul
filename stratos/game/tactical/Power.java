@@ -35,14 +35,14 @@ public class Power implements Abilities {
   
   
   final public String name, helpInfo ;
-  final public String buttonImage;
+  final public ImageAsset buttonImage;
   final int properties ;
   
   
   Power(String name, int properties, String imgFile, String helpInfo) {
     this.name = name ;
     this.helpInfo = helpInfo ;
-    this.buttonImage = IMG_DIR+imgFile ;
+    this.buttonImage = ImageAsset.fromImage(IMG_DIR+imgFile, Power.class);
     this.properties = properties ;
   }
   

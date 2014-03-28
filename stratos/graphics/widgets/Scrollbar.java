@@ -39,10 +39,10 @@ public class Scrollbar extends UINode {
   
   
   
-  protected Scrollbar(HUD myHUD, Texture tex, Box2D mapArea) {
+  protected Scrollbar(HUD myHUD, ImageAsset tex, Box2D mapArea) {
     super(myHUD) ;
     this.mapArea = mapArea ;
-    this.scrollTex = tex ;
+    this.scrollTex = tex.asTexture() ;
   }
   
   

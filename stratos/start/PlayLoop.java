@@ -19,9 +19,7 @@ import com.badlogic.gdx.backends.lwjgl.*;
 
 //  *  Text should implement scrolling and scissor clipping. (this might need
 //     some attention paid to general UI design, though.)
-
 //  *  HUMAN ARMOUR VALUES ARE WAY OFF- INVESTIGATE
-//  *  Clicking on blank terrain needs to open a recon option.
 
 
 
@@ -44,7 +42,8 @@ public final class PlayLoop {
   
   
   private static Rendering rendering;
-  private static Playable played, nextToPlay;
+  private static Playable played;
+  private static Thread gdxThread;
   
   private static long lastFrame, lastUpdate;
   private static float frameTime;
@@ -73,6 +72,10 @@ public final class PlayLoop {
     return played;
   }
   
+  public static boolean onRenderThread() {
+    return Thread.currentThread() == gdxThread;
+  }
+  
   
   
   /**  The big static setup, run and exit methods-
@@ -81,6 +84,11 @@ public final class PlayLoop {
     PlayLoop.played = scenario;
     numStateUpdates = 0;
     gameSpeed = 1.0f;
+    
+    if (verbose) {
+      I.say("ASSIGNED NEW PLAYABLE: "+scenario);
+      new Exception().printStackTrace();
+    }
     
     if (! initDone) {
       initDone = true;
@@ -119,6 +127,7 @@ public final class PlayLoop {
         }
         
         public void render() {
+          gdxThread = Thread.currentThread();
           if (! shouldLoop) return;
           final boolean okay = advanceLoop();
           if (! okay) exitLoop();
@@ -143,6 +152,7 @@ public final class PlayLoop {
       };
       GCT.setPriority(Thread.MIN_PRIORITY);
       GCT.start();
+      //RuntimeUtil.gc();
       //*/
     }
   }
@@ -155,7 +165,6 @@ public final class PlayLoop {
     I.talkAbout = null;
     played = null;
     if (rendering != null) rendering.clearAll();
-    //RuntimeUtil.gc();  //  TODO:  RESTORE THIS?
   }
   
   
@@ -198,7 +207,8 @@ public final class PlayLoop {
     final Playable current = played;
     float worldTime = (numStateUpdates + frameTime) / UPDATES_PER_SECOND;
     rendering.updateViews(worldTime, frameTime);
-    //I.say("Advancing play loop...");
+    if (verbose) I.say("Advancing play loop...");
+    
     
     if (Assets.loadProgress() < 1) {
       LoadingScreen.update("Loading Assets", Assets.loadProgress());
@@ -213,7 +223,7 @@ public final class PlayLoop {
       LoadingScreen.update("Loading Scenario", played.loadProgress());
       rendering.renderDisplay(LoadingScreen.HUD);
       lastUpdate = lastFrame = time;
-      //I.say("Content loading progress: "+played.loadProgress());
+      if (verbose) I.say("Content loading progress: "+played.loadProgress());
       return true;
     }
     
@@ -223,9 +233,10 @@ public final class PlayLoop {
     if (played != current) return true;
     if (frameGap >= FRAME_INTERVAL || true) {
       if (played != null) played.renderVisuals(rendering);
-      rendering.renderDisplay(played.UI());
+      rendering.renderDisplay(played == null ? null : played.UI());
       lastFrame = time;
     }
+    if (verbose) I.say("Played is: "+played);
     
     //  Now we essentially 'pretend' that updates were occurring once every
     //  UPDATE_INTERVAL milliseconds:
@@ -237,7 +248,7 @@ public final class PlayLoop {
       if (! paused) for (int n = numUpdates ; n-- > 0 ;) {
         if (played != current) return true;
         if (played.shouldExitLoop()) return false;
-        ///I.say("UPDATING WORLD?");
+        if (verbose) I.say("UPDATING WORLD?");
         played.updateGameState();
         numStateUpdates++;
         lastUpdate += UPDATE_INTERVAL;

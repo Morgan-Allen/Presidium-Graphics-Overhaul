@@ -112,6 +112,12 @@ public class Tailing extends Venue {
       if (oldSprite == null) return Smelter.TAILING_SHAFT_MODEL.makeSprite();
       else return oldSprite;
     }
+    
+    if (true) {
+      if (oldSprite == null) return Smelter.TAILING_ANNEX_MODEL.makeSprite();
+      else return oldSprite;
+    }
+    
 
     final boolean init = oldSprite == null;
     final GroupSprite sprite = init ?

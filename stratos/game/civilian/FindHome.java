@@ -11,6 +11,12 @@ import stratos.user.*;
 import stratos.util.*;
 
 
+
+//  ...This needs to centre on the bastion/bunker system more reliably, then
+//  the place of work.  Also, the results have to be more stable.
+
+
+
 //
 //  TODO:  Have native huts extend Holdings?  ...Maybe.
 
