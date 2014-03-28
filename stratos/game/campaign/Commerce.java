@@ -346,7 +346,7 @@ public class Commerce implements Economy {
     for (Actor works : ship.crew()) {
       final float MH = works.health.maxHealth() ;
       works.health.liftFatigue(MH * Rand.num()) ;
-      works.health.takeSustenance(MH, 0.25f + Rand.num()) ;
+      works.health.takeCalories(MH, 0.25f + Rand.num()) ;
       works.health.adjustMorale(Rand.num() / 2f) ;
       works.mind.clearAgenda() ;
     }

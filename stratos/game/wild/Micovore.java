@@ -164,7 +164,7 @@ public class Micovore extends Fauna implements Economy {
     final float amountTaken = Math.min(hunger, nest.stocks.amountOf(PROTEIN)) ;
     if (amountTaken <= 0) return false ;
     nest.stocks.removeItem(Item.withAmount(PROTEIN, amountTaken)) ;
-    actor.health.takeSustenance(amountTaken * MEAT_CONVERSION, 1) ;
+    actor.health.takeCalories(amountTaken * MEAT_CONVERSION, 1) ;
     return true ;
   }
   

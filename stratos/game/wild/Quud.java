@@ -73,7 +73,7 @@ public class Quud extends Fauna {
     if (health.conscious()) {
       float eaten = 1f / World.STANDARD_DAY_LENGTH ;
       eaten *= newTile.habitat().moisture() / 100f ;
-      health.takeSustenance(eaten, 1) ;
+      health.takeCalories(eaten, 1) ;
     }
   }
   

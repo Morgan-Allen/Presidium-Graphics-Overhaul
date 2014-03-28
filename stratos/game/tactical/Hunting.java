@@ -276,7 +276,7 @@ public class Hunting extends Combat implements Economy {
     //  Then dispose of it appropriately-
     if (! prey.health.dying()) prey.health.setState(ActorHealth.STATE_DYING) ;
     if (type == TYPE_FEEDS) {
-      actor.health.takeSustenance(taken * Fauna.MEAT_CONVERSION, 1) ;
+      actor.health.takeCalories(taken * Fauna.MEAT_CONVERSION, 1) ;
     }
     if (type == TYPE_HARVEST) {
       actor.gear.bumpItem(PROTEIN, taken) ;

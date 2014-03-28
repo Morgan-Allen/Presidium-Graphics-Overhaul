@@ -20,7 +20,8 @@ public class ActorHealth implements Abilities {
   final public static int
     HUMAN_METABOLISM    = 0,
     ANIMAL_METABOLISM   = 1,
-    ARTILECT_METABOLISM = 2 ;
+    ARTILECT_METABOLISM = 2,
+    FOOD_TO_CALORIES   = 10;
   final public static int
     STATE_ACTIVE   = 0,
     STATE_RESTING  = 1,
@@ -33,7 +34,6 @@ public class ActorHealth implements Abilities {
     "In Suspended Animation",
     "Dying",
     "Decomposed",
-    //"Disintegrated"
   } ;
   final public static int
     AGE_JUVENILE = 0,
@@ -216,7 +216,7 @@ public class ActorHealth implements Abilities {
   }
   
   
-  public void takeSustenance(float amount, float quality) {
+  public void takeCalories(float amount, float quality) {
     amount = Visit.clamp(amount, 0, maxCalories() - calories) ;
     final float oldQual = nutrition * calories ;
     calories += amount ;

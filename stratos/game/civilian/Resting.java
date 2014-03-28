@@ -204,20 +204,23 @@ public class Resting extends Plan implements Economy {
   
   
   public static boolean dineFrom(Actor actor, Inventory.Owner stores) {
-    final Batch <Service> menu = menuFor(stores) ;
-    final int numFoods = menu.size() ;
+    final Batch <Service> menu = menuFor(stores);
+    final int numFoods = menu.size();
+    
     if (numFoods > 0 && actor.health.hungerLevel() > 0.1f) {
-      //
-      //  FOOD TO BODY-MASS RATIO IS 1 TO 10.  So, 1 unit of food will last a
-      //  typical person 5 days.
+      final int FTC = ActorHealth.FOOD_TO_CALORIES;
+      float sumFood = 0;
+      
       for (Service type : menu) {
-        final Item portion = Item.withAmount(type, 0.1f * 1f / numFoods) ;
-        stores.inventory().removeItem(portion) ;
+        final Item portion = Item.withAmount(type, 0.2f / (numFoods * FTC));
+        stores.inventory().removeItem(portion);
+        sumFood += portion.amount;
       }
-      actor.health.takeSustenance(1, numFoods / 2) ;
-      return true ;
+      
+      actor.health.takeCalories(1, sumFood * FTC);
+      return true;
     }
-    return false ;
+    return false;
   }
   
   

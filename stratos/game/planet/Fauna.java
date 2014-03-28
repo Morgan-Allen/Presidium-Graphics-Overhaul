@@ -182,7 +182,7 @@ public abstract class Fauna extends Actor {
     I.sayAbout(this, "Am browsing at: "+eaten.origin()) ;
     float bite = 0.1f * eaten.growth * 2 * health.maxHealth() / 10 ;
     eaten.incGrowth(0 - bite, actor.world(), false) ;
-    actor.health.takeSustenance(bite * PLANT_CONVERSION, 1) ;
+    actor.health.takeCalories(bite * PLANT_CONVERSION, 1) ;
     return true ;
   }
   
