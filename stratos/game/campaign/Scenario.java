@@ -193,6 +193,9 @@ public abstract class Scenario implements Session.Saveable, Playable {
           Session.saveSession(scenario.world(), scenario, saveFile);
           scenario.afterSaving();
           scenario.loadProgress = 1;
+          
+          try { Thread.sleep(250); }
+          catch (Exception e) {}
         }
         catch (Exception e) { I.report(e); }
       }
@@ -202,22 +205,10 @@ public abstract class Scenario implements Session.Saveable, Playable {
   
   
   public static void loadGame(final String saveFile, final boolean fromMenu) {
-
     PlayLoop.gameStateWipe();
-    final Thread loadThread = new Thread() {
-      public void run() {
-        try {
-          final Session s = Session.loadSession(saveFile);
-          final Scenario scenario = s.scenario();
-          scenario.afterLoading(fromMenu);
-          PlayLoop.setupAndLoop(scenario);
-        }
-        catch (Exception e) { I.report(e); }
-      }
-    };
 
     PlayLoop.setupAndLoop(new Playable() {
-      private boolean begun = false;
+      private boolean begun = false, done = false;
       
       public void updateGameState() {}
       public void renderVisuals(Rendering rendering) {}
@@ -225,6 +216,21 @@ public abstract class Scenario implements Session.Saveable, Playable {
       public boolean shouldExitLoop() { return false; }
       
       public void beginGameSetup() {
+        final Thread loadThread = new Thread() {
+          public void run() {
+            try {
+              final Session s = Session.loadSession(saveFile);
+              final Scenario scenario = s.scenario();
+              scenario.afterLoading(fromMenu);
+              done = true;
+              
+              try { Thread.sleep(100); }
+              catch (Exception e) {}
+              PlayLoop.setupAndLoop(scenario);
+            }
+            catch (Exception e) { I.report(e); }
+          }
+        };
         loadThread.start();
         begun = true;
       }
@@ -235,7 +241,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
       
       public float loadProgress() {
         //  TODO:  Implement some kind of progress readout here.
-        return 0;//Session.loadProgress();
+        return done ? 1 : 0;//Session.loadProgress();
       }
     });
   }
