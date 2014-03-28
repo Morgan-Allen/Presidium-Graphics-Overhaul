@@ -28,6 +28,10 @@ public class Manufacture extends Plan implements Behaviour {
     TIME_PER_UNIT = World.STANDARD_DAY_LENGTH / (3 * MAX_UNITS_PER_DAY),
     DEVICE_TIME_MULT = 5,
     OUTFIT_TIME_MULT = 10;
+  final static float
+    SHORTAGE_DC_MOD    = 5,
+    SHORTAGE_TIME_MULT = 5,
+    FAILURE_TIME_MULT  = 5;
   
   private static boolean verbose = false ;
   
@@ -130,17 +134,6 @@ public class Manufacture extends Plan implements Behaviour {
   }
   
   
-  private boolean hasNeeded() {
-    //
-    //  TODO:  Average the shortage of each needed item, so that penalties are
-    //  less stringent for output that demands multiple inputs.
-    for (Item need : needed) {
-      if (! venue.stocks.hasItem(need)) return false ;
-    }
-    return true ;
-  }
-  
-  
   
   /**  Behaviour implementation-
     */
@@ -165,6 +158,17 @@ public class Manufacture extends Plan implements Behaviour {
   }
   
   
+  private boolean hasNeeded() {
+    //
+    //  TODO:  Average the shortage of each needed item, so that penalties are
+    //  less stringent for output that demands multiple inputs?
+    for (Item need : needed) {
+      if (! venue.stocks.hasItem(need)) return false ;
+    }
+    return true ;
+  }
+  
+  
   public boolean actionMake(Actor actor, Venue venue) {
     //
     //  First, check to make sure you have adequate raw materials.  (In hard-
@@ -176,40 +180,38 @@ public class Manufacture extends Plan implements Behaviour {
       return false ;
     }
     final Conversion c = conversion ;
-    final int checkMod = (hasNeeded ? 0 : 5) - checkBonus ;
     
-    float timeMult = 1.0f;
-    if (c.out.type instanceof DeviceType) timeMult = DEVICE_TIME_MULT;
-    if (c.out.type instanceof OutfitType) timeMult = OUTFIT_TIME_MULT;
-    
-    final float timeTaken = made.amount * TIME_PER_UNIT * timeMult ;
-    final float progInc = (hasNeeded ? 1 : 0.5f) / timeTaken ;
-    //
     //  Secondly, make sure the skill tests all check out, and deplete any raw
     //  materials used up.
+    final float checkMod = (hasNeeded ? 0 : SHORTAGE_DC_MOD) - checkBonus ;
     boolean success = true ;
+    //  TODO:  Have this average results, rather than '&' them...
     for (int i = c.skills.length ; i-- > 0 ;) {
       success &= actor.traits.test(c.skills[i], c.skillDCs[i] + checkMod, 1) ;
     }
-    if ((success || GameSettings.hardCore) && progInc > 0) {
+    
+    float increment = 1f / (made.amount * TIME_PER_UNIT);
+    if (c.out.type instanceof DeviceType) increment /= DEVICE_TIME_MULT;
+    if (c.out.type instanceof OutfitType) increment /= OUTFIT_TIME_MULT;
+    if (! hasNeeded) increment /= SHORTAGE_TIME_MULT;
+    if (! success) increment /= FAILURE_TIME_MULT;
+    
+    if ((success || GameSettings.hardCore) && increment > 0) {
       for (Item r : c.raw) {
-        final Item used = Item.withAmount(r, r.amount * progInc) ;
+        final Item used = Item.withAmount(r, r.amount * increment);
         venue.inventory().removeItem(used) ;
       }
     }
+    
     //
     //  Advance progress, and check if you're done yet.
-    final float oldAmount = venue.stocks.amountOf(made) ;
-    float progress = (success ? progInc : (progInc / 10f)) * made.amount ;
-    if (progress + oldAmount > made.amount) progress = made.amount - oldAmount ;
-    if (progress > 0) {
-      amountMade += progress ;
-      final Item added = Item.withAmount(made, progress) ;
+    if (increment > 0) {
+      amountMade += increment * made.amount ;
+      final Item added = Item.withAmount(made, increment * made.amount) ;
       venue.stocks.addItem(added) ;
+      
       if (verbose && I.talkAbout == actor) {
-        I.say("Time taken/success: "+timeTaken+"/"+success) ;
-        I.say("Time mult: "+timeMult) ;
-        I.say("Progress on "+made+": "+progress) ;
+        I.say("Progress increment on "+made+": "+increment) ;
       }
     }
     return venue.stocks.hasItem(made) ;

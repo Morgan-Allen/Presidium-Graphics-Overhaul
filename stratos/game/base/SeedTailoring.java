@@ -64,7 +64,7 @@ public class SeedTailoring extends Plan implements Economy {
     if (nursery.type != Plantation.TYPE_NURSERY) return 0 ;
     final BotanicalStation station = nursery.belongs ;
     
-    final Service yield = Plantation.speciesYield(species) ;
+    final Service yield = Crop.yieldType(species) ;
     return Visit.clamp(
       ROUTINE + (station.structure.upgradeBonus(yield) / 2f),
       0, URGENT
@@ -116,7 +116,7 @@ public class SeedTailoring extends Plan implements Economy {
   
   
   private float cultureTest(int DC, BotanicalStation lab) {
-    final Service yield = Plantation.speciesYield(species) ;
+    final Service yield = Crop.yieldType(species) ;
     float skillRating = 5 ;
     if (! actor.traits.test(GENE_CULTURE, DC, 5.0f)) skillRating /= 2 ;
     if (! actor.traits.test(CULTIVATION , DC, 5.0f)) skillRating /= 2 ;

@@ -37,11 +37,7 @@ public class BotanicalStation extends Venue implements Economy {
     ) ;
   
   
-  
-  final static int MAX_PLANT_RANGE = 16 ;
-  
   final List <Plantation> allotments = new List <Plantation> () ;
-  
   
   
   public BotanicalStation(Base belongs) {
@@ -275,33 +271,6 @@ public class BotanicalStation extends Venue implements Economy {
   
   protected List <Plantation> allotments() {
     return allotments ;
-  }
-  
-  
-  protected float growBonus(Tile t, Species s, boolean natural) {
-    final float pollution = t.world.ecology().ambience.valueAt(t) / -10f ;
-    if (pollution > 0) return 0 ;
-    final float hB = 1 - pollution ;
-    float bonus = 1 ;
-    
-    if (s == Species.HIVE_GRUBS || s == Species.BLUE_VALVES) {
-      bonus = Math.min(1, world.ecology().biomassRating(t)) ;
-      if (natural) return hB * 2.0f * bonus ;
-      return structure.upgradeBonus(PROTEIN) * 0.2f * bonus * hB ;
-    }
-    else bonus = Math.max(0, (t.habitat().moisture() - 5) / 5f) ;
-    
-    if (s == Species.DURWHEAT || s == Species.BROADFRUITS) {
-      bonus = (1 - bonus) / 2f ;
-    }
-    if (s == Species.ONI_RICE || s == Species.DURWHEAT) {
-      if (natural) return 1.0f * bonus * hB ;
-      return (structure.upgradeBonus(CARBS) + 2) * 1.0f * bonus * hB ;
-    }
-    else {
-      if (natural) return 0.5f * bonus * hB ;
-      return (structure.upgradeBonus(GREENS) + 2) * 0.5f * bonus * hB ;
-    }
   }
   
   

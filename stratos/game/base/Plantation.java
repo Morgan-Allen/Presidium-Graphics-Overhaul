@@ -17,20 +17,21 @@ import stratos.util.* ;
 /*
  Crops and Flora include:
    Durwheat                     (primary carbs on land)
-   Oni Rice                     (primary carbs in water)
+   Bulrice                      (primary carbs in water)
    Broadfruits                  (secondary greens on land)
-   Tuber Lily                   (secondary greens in water)
-   Ant/termite/bee/worm cells   (protein on land)
-   Fish/mussel/clam farming     (protein in water)
+   Tuber lily                   (secondary greens in water)
+   Ant/termite/bee/worm cells   (tertiary protein on land)
+   Fish/mussel/clam farming     (tertiary protein in water)
    
-   Vapok Canopy/Broadleaves  (tropical)   //...Consider merging with desert?
+   Vapok Canopy/Broadleaves  (tropical)
    Mixtaob Tree/Glass Cacti  (desert)
    Redwood/Cushion Plants    (tundra)
-   Strain XV97/Mycon Burst   (wastes)
-   Lichens/Algal Bloom       (pioneer species)
-   Coral Beds/Kelp Forest    (seas/oceans)
+   Strain XV97/Mycon Bloom   (wastes)
+   Lichens/Annuals           (pioneer species)
+   Coral Beds/Algal Forest   (rivers/oceans)
    
-   ...You'll also need to include flora sets for the changelings and silicates.
+   Lumen forest (changer) + Rhizome (glaive knight) + Manna tree (collective)
+   Albedan ecology:  Carpets + Metastases + Amoeba Clade
 //*/
 
 
@@ -39,7 +40,8 @@ public class Plantation extends Venue implements
   TileConstants, Economy
 {
   
-  
+  /**  Constructors, data fields, setup and save/load methods-
+    */
   final static String IMG_DIR = "media/Buildings/ecologist/";
   final static ModelAsset
     NURSERY_MODEL = CutoutModel.fromImage(
@@ -58,63 +60,25 @@ public class Plantation extends Venue implements
     GRUB_BOX_MODEL = CutoutModel.fromImage(
       Plantation.class, IMG_DIR+"grub_box.png", 1, 1
     ) ;
-  final public static Species ALL_VARIETIES[] = {
-    Species.ONI_RICE,
-    Species.DURWHEAT,
-    Species.TUBER_LILY,
-    Species.BROADFRUITS,
-    Species.HIVE_GRUBS
-  } ;
-  
-  //
-  //  TODO:  Move most or all of this out to the Species class, where it
-  //         belongs.
-  final static Object CROP_SPECIES[][] = {
-    new Object[] { Species.ONI_RICE, CARBS   , CROP_MODELS[0] },
-    new Object[] { Species.DURWHEAT, CARBS   , CROP_MODELS[1] },
-    new Object[] { Species.TUBER_LILY, GREENS  , CROP_MODELS[3] },
-    new Object[] { Species.BROADFRUITS, GREENS  , CROP_MODELS[2] },
-    new Object[] { Species.HIVE_GRUBS, PROTEIN , new ModelAsset[] { GRUB_BOX_MODEL }},
-    null,
-    null,
-    new Object[] { Species.TIMBER, GREENS, null },
-  } ;
-  
-  
-  public static Service speciesYield(Species s) {
-    final int varID = Visit.indexOf(s, ALL_VARIETIES) ;
-    return (Service) CROP_SPECIES[varID][1] ;
-    //
-    //  TODO:  Use this instead...
-    //return s.nutrients[0].type ;
-  }
-  
-  
-  public static ModelAsset speciesModel(Species s, int growStage) {
-    final int varID = Visit.indexOf(s, ALL_VARIETIES) ;
-    final ModelAsset seq[] = (ModelAsset[]) CROP_SPECIES[varID][2] ;
-    return seq[Visit.clamp(growStage, seq.length)] ;
-  }
-  
-  
-  public static Species pickSpecies(Tile t, BotanicalStation parent) {
-    final Float chances[] = new Float[5] ;
-    int i = 0 ; for (Species s : ALL_VARIETIES) {
-      final float stocked = 50 + parent.stocks.amountOf(speciesYield(s)) ;
-      chances[i++] = parent.growBonus(t, s, false) / stocked ;
-    }
-    return (Species) Rand.pickFrom(ALL_VARIETIES, chances) ;
-  }
   
   
   
-  
-  /**  Constructors, data fields, setup and save/load methods-
-    */
   final static int
     TYPE_NURSERY = 0,
     TYPE_BED     = 1,
     TYPE_COVERED = 2 ;
+  final static float
+    MATURE_DURATION = World.STANDARD_DAY_LENGTH * 5,
+    GROW_INCREMENT = World.GROWTH_INTERVAL * Crop.MAX_GROWTH / MATURE_DURATION,
+    
+    MAX_HEALTH_BONUS = 2.0f,
+    INFEST_GROW_PENALTY = 0.5f,
+    POLLUTE_GROW_PENALTY = 0.5f,
+    UPGRADE_GROW_BONUS = 0.25f,
+    
+    CEREAL_BONUS = 2.00f,
+    DRYLAND_MULT = 0.75f,
+    WETLAND_MULT = 1.25f;
   
   
   final BotanicalStation belongs ;
@@ -234,16 +198,14 @@ public class Plantation extends Venue implements
     
     if (type == TYPE_NURSERY && numUpdates % 10 == 0) {
       final float
-        decay  = 10 * 0.1f / World.STANDARD_DAY_LENGTH,
-        growth = 10 * Planet.dayValue(world) / World.GROWTH_INTERVAL ;
+        decay  = 10 * 0.1f * GROW_INCREMENT,
+        growth = 10 * GROW_INCREMENT ;
       for (Item seed : stocks.matches(SAMPLES)) {
         stocks.removeItem(Item.withAmount(seed, decay)) ;
-        final Species s = (Species) seed.refers ;
-        if (s != null) {
-          final Service yield = Plantation.speciesYield(s) ;
-          stocks.bumpItem(yield, growth * seed.quality, 10) ;
-        }
       }
+      stocks.bumpItem(CARBS, growth);
+      stocks.bumpItem(GREENS, growth);
+      stocks.bumpItem(PROTEIN, growth);
     }
   }
   
@@ -268,15 +230,15 @@ public class Plantation extends Venue implements
     }
     avgMoisture /= count * 10 ;
     if (type == TYPE_COVERED) avgMoisture = (avgMoisture + 1) / 2f ;
-    //
+    
     //  Then apply growth to each crop-
     boolean anyChange = false ;
     for (Crop c : planted) if (c != null) {
-      final int oldGrowth = (int) c.growStage ;
-      c.doGrowth(avgMoisture, 0.25f) ;
-      final int newGrowth = (int) c.growStage ;
+      final int oldGrowth = (int) c.growStage() ;
+      c.doGrowth(avgMoisture, 1f / planted.length) ;
+      final int newGrowth = (int) c.growStage() ;
       if (oldGrowth != newGrowth) anyChange = true ;
-      world.ecology().impingeBiomass(this, c.health * c.growStage / 2f, true) ;
+      world.ecology().impingeBiomass(this, c.growStage() / 2f, true) ;
     }
     checkCropStates() ;
     if (anyChange) refreshCropSprites() ;
@@ -312,7 +274,7 @@ public class Plantation extends Venue implements
         }
       }
       if (m == null) {
-        m = Plantation.speciesModel(c.species, (int) c.growStage);
+        m = Plantation.speciesModel(c.species(), c.growStage());
       }
       s.attach(m,
         CROPS_POS[i * 2] - 0.5f,
@@ -434,6 +396,42 @@ public class Plantation extends Venue implements
 
   protected boolean canTouch(Element e) {
     return e.owningType() < this.owningType() ;
+  }
+  
+  
+  
+  /**  Selecting crop type and accessing properties-
+    */
+  final public static Species ALL_VARIETIES[] = {
+    Species.ONI_RICE,
+    Species.DURWHEAT,
+    Species.TUBER_LILY,
+    Species.BROADFRUITS,
+    Species.HIVE_GRUBS
+  } ;
+  
+  //
+  //  TODO:  Move most or all of this out to the Species class, where it
+  //         belongs.
+  final static Object CROP_SPECIES[][] = {
+    new Object[] { Species.ONI_RICE, CARBS    , CROP_MODELS[0] },
+    new Object[] { Species.DURWHEAT, CARBS    , CROP_MODELS[1] },
+    new Object[] { Species.TUBER_LILY, GREENS , CROP_MODELS[3] },
+    new Object[] { Species.BROADFRUITS, GREENS, CROP_MODELS[2] },
+    new Object[] {
+      Species.HIVE_GRUBS, PROTEIN ,
+      new ModelAsset[] { GRUB_BOX_MODEL }
+    },
+    null,
+    null,
+    new Object[] { Species.TIMBER, GREENS, null },
+  } ;
+  
+  
+  public static ModelAsset speciesModel(Species s, int growStage) {
+    final int varID = Visit.indexOf(s, ALL_VARIETIES) ;
+    final ModelAsset seq[] = (ModelAsset[]) CROP_SPECIES[varID][2] ;
+    return seq[Visit.clamp(growStage, seq.length)] ;
   }
   
   

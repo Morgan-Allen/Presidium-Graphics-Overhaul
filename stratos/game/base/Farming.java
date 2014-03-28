@@ -77,7 +77,7 @@ public class Farming extends Plan implements Economy {
       if (verbose) I.sayAbout(actor, "Should return everything...") ;
       return returnHarvestAction(0) ;
     }
-    //
+    
     //  If you're out of gene seed, and there's any in the nursery, pick up
     //  some more-
     if (nextSeedNeeded() != null) {
@@ -88,7 +88,7 @@ public class Farming extends Plan implements Economy {
       ) ;
       return pickup ;
     }
-    //
+    
     //  Find the next tile for seeding, tending or harvest.
     float minDist = Float.POSITIVE_INFINITY, dist ;
     Crop picked = null ;
@@ -101,12 +101,12 @@ public class Farming extends Plan implements Economy {
     }
     if (picked != null) {
       final String actionName, anim, desc ;
-      if (picked.infested) {
+      if (picked.blighted()) {
         actionName = "actionDisinfest" ;
         anim = Action.BUILD ;
         desc = "Disinfesting "+picked ;
       }
-      else if (picked.growStage >= Crop.MIN_HARVEST) {
+      else if (picked.growStage() >= Crop.MIN_HARVEST) {
         actionName = "actionHarvest" ;
         anim = Action.REACH_DOWN ;
         desc = "Harvesting "+picked ;
@@ -125,6 +125,17 @@ public class Farming extends Plan implements Economy {
       return plants ;
     }
     return null ;
+  }
+  
+  
+  private Species pickSpecies(Tile t, BotanicalStation parent) {
+    final Float chances[] = new Float[5] ;
+    int i = 0 ;
+    for (Species s : Plantation.ALL_VARIETIES) {
+      final float stocked = 50 + parent.stocks.amountOf(Crop.yieldType(s)) ;
+      chances[i++] = Crop.habitatBonus(t, s, parent) / stocked ;
+    }
+    return (Species) Rand.pickFrom(Plantation.ALL_VARIETIES, chances) ;
   }
   
   
@@ -162,25 +173,27 @@ public class Farming extends Plan implements Economy {
     //
     //  Initial seed quality has a substantial impact on crop health.
     final Item seed = actor.gear.bestSample(
-      Item.asMatch(SAMPLES, crop.species), 0.1f
+      Item.asMatch(SAMPLES, crop.species()), 0.1f
     ) ;
     float plantDC = ROUTINE_DC ;
+    float health;
+    
     if (seed != null) {
-      crop.health = 0.5f + (seed.quality / 2f) ;
+      health = 0.5f + (seed.quality / 2f) ;
       actor.gear.removeItem(seed) ;
     }
     else {
       if (GameSettings.hardCore) return false ;
       plantDC += 5 ;
-      crop.health = 0 ;
+      health = 0 ;
     }
     //
     //  So does expertise and elbow grease.
-    crop.health += actor.traits.test(CULTIVATION, plantDC, 1) ? 1 : 0 ;
-    crop.health += actor.traits.test(HARD_LABOUR, ROUTINE_DC, 1) ? 1 : 0 ;
-    crop.health = Visit.clamp(crop.health, 0, 5) ;
-    crop.growStage = Crop.MIN_GROWTH ;
-    crop.species = Plantation.pickSpecies(crop.tile, nursery.belongs) ;
+    health += actor.traits.test(CULTIVATION, plantDC, 1) ? 1 : 0 ;
+    health += actor.traits.test(HARD_LABOUR, ROUTINE_DC, 1) ? 1 : 0 ;
+    health *= Plantation.MAX_HEALTH_BONUS / 5;
+    final Species s = pickSpecies(crop.tile, nursery.belongs);
+    crop.seedWith(s, health);
     //
     //  Update and return-
     crop.parent.refreshCropSprites() ;
@@ -191,13 +204,13 @@ public class Farming extends Plan implements Economy {
   
   public boolean actionDisinfest(Actor actor, Crop crop) {
     final Item seed = actor.gear.bestSample(
-      Item.asMatch(SAMPLES, crop.species), 0.1f
+      Item.asMatch(SAMPLES, crop.species()), 0.1f
     ) ;
     int success = seed != null ? 2 : 0 ;
     if (actor.traits.test(CULTIVATION, MODERATE_DC, 1)) success++ ;
-    if (actor.traits.test(CHEMISTRY  , ROUTINE_DC , 1)) success++ ;
+    if (actor.traits.test(HARD_LABOUR, ROUTINE_DC , 1)) success++ ;
     if (Rand.index(5) <= success) {
-      crop.infested = false ;
+      crop.disinfest();
       if (seed != null) actor.gear.removeItem(seed) ;
     }
     return true ;
@@ -205,9 +218,9 @@ public class Farming extends Plan implements Economy {
   
   
   public boolean actionHarvest(Actor actor, Crop crop) {
-    final float yield = crop.health * crop.growStage / Crop.MIN_HARVEST ;
-    actor.gear.bumpItem(Plantation.speciesYield(crop.species), yield) ;
-    actionPlant(actor, crop) ;
+    final Item harvest = crop.yieldCrop();
+    actor.gear.addItem(harvest);
+    actionPlant(actor, crop);
     return true ;
   }
   
