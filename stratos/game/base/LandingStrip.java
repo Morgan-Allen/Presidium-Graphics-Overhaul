@@ -154,6 +154,11 @@ public class LandingStrip extends Venue {
   public String buildCategory() {
     return InstallTab.TYPE_MERCHANT ;
   }
+  
+  
+  public void renderSelection(Rendering rendering, boolean hovered) {
+    belongs.renderSelection(rendering, hovered);
+  }
 }
 
 

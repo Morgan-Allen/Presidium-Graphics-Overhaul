@@ -376,10 +376,7 @@ public class Plantation extends Venue implements
       }
     }
     if (bestSite != null) {
-      for (Plantation p : bestSite) {
-        final Tile o = p.origin() ;
-        p.doPlace(o, o) ;
-      }
+      for (Plantation p : bestSite) p.placeFromOrigin();
       return bestSite ;
     }
     return null ;
@@ -485,10 +482,7 @@ public class Plantation extends Venue implements
         d.append(Crop.HEALTH_NAMES[(int) seed.quality]+" quality)") ;
         any = true ;
       }
-      if (! any) d.append(
-        "\nThis nursery needs gene-tailored seed stock before it can maximise "+
-        "crop yield."
-      ) ;
+      if (! any) d.append("\nNo seed stock.");
     }
     else {
       d.append("\n") ;
@@ -498,18 +492,16 @@ public class Plantation extends Venue implements
     }
     return panel;
   }
+  
+  
+  public void renderSelection(Rendering rendering, boolean hovered) {
+    BaseUI.current().selection.renderTileOverlay(
+      rendering, world,
+      hovered ? Colour.transparency(0.5f) : Colour.WHITE,
+      Selection.SELECT_OVERLAY, true, strip[0], strip
+    );
+  }
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 

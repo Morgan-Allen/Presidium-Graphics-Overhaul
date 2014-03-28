@@ -168,6 +168,15 @@ public class Tailing extends Venue {
   public String helpInfo() {
     return "A dumping ground for waste and ejecta from mining operations.";
   }
+  
+  
+  public void renderSelection(Rendering rendering, boolean hovered) {
+    BaseUI.current().selection.renderTileOverlay(
+      rendering, world,
+      hovered ? Colour.transparency(0.5f) : Colour.WHITE,
+      Selection.SELECT_OVERLAY, true, strip[0], strip
+    );
+  }
 }
 
 

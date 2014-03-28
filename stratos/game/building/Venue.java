@@ -407,8 +407,8 @@ public abstract class Venue extends Fixture implements
     pointsOkay(from, to);
     
     if (canPlace) BaseUI.current().selection.renderTileOverlay(
-      rendering, this, from.world, canPlace ? Colour.GREEN : Colour.RED,
-      Selection.SELECT_OVERLAY, false
+      rendering, from.world, canPlace ? Colour.GREEN : Colour.RED,
+      Selection.SELECT_OVERLAY, false, this, this
     );
     
     final Sprite sprite = this.buildSprite;
@@ -874,9 +874,9 @@ public abstract class Venue extends Fixture implements
     if (destroyed() || ! inWorld()) return ;
     
     BaseUI.current().selection.renderTileOverlay(
-      rendering, this, world,
+      rendering, world,
       hovered ? Colour.transparency(0.5f) : Colour.WHITE,
-      Selection.SELECT_OVERLAY, true
+      Selection.SELECT_OVERLAY, true, this, this
     );
   }
 }

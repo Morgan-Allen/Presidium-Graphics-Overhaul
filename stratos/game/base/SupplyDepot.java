@@ -350,6 +350,15 @@ public class SupplyDepot extends Venue implements
   public String buildCategory() {
     return UIConstants.TYPE_MERCHANT ;
   }
+  
+  
+  public void renderSelection(Rendering rendering, boolean hovered) {
+    BaseUI.current().selection.renderTileOverlay(
+      rendering, world,
+      hovered ? Colour.transparency(0.5f) : Colour.WHITE,
+      Selection.SELECT_OVERLAY, true, this, this, landingStrip
+    );
+  }
 }
 
 

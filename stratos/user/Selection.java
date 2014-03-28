@@ -207,15 +207,16 @@ public class Selection implements UIConstants {
   
   
   public void renderTileOverlay(
-    Rendering r, final Fixture f, final World world, Colour c,
-    ImageAsset tex, boolean cache
+    Rendering r, final World world,
+    Colour c, ImageAsset tex, boolean cache,
+    final Fixture key, final Fixture... group
   ) {
     //  Use a glow-colour:
     c = new Colour().set(c);
     c.a *= -1;
     
-    if (cache && recentOverlays.includes(f)) {
-      final TerrainChunk overlay = overlayCache.get(f);
+    if (cache && recentOverlays.includes(key)) {
+      final TerrainChunk overlay = overlayCache.get(key);
       overlay.colour = c;
       overlay.readyFor(r);
       return;
@@ -225,26 +226,37 @@ public class Selection implements UIConstants {
       overlayCache.remove(oldest);
     }
     
-    final Box2D inside = f.area();
+    final Box2D limit = key.area(null);
+    final Batch <Tile> under = new Batch <Tile> ();
+    for (Fixture f : group) {
+      if (f == null) continue;
+      for (Tile t : world.tilesIn(f.area(), true)) {
+        limit.include(t.x, t.y, 0.5f);
+        under.add(t);
+        t.flagWith(under);
+      }
+    }
+    
     final LayerType layer = new LayerType(tex, false, -1) {
       
       protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
-        return inside.contains(tx, ty);
+        final Tile t = world.tileAt(tx, ty);
+        return t != null && t.flaggedWith() == under;
       }
       
       protected int variantAt(int tx, int ty, TerrainSet terrain) {
         return 0;
       }
     };
-    
-    final Box2D limit = f.area(null).expandBy(1);
+    limit.expandBy(1);
     final TerrainChunk overlay = world.terrain().createOverlay(limit, layer);
     overlay.colour = c;
     overlay.readyFor(r);
     
+    for (Tile t : under) t.flagWith(null);
     if (cache) {
-      recentOverlays.addFirst(f);
-      overlayCache.put(f, overlay);
+      recentOverlays.addFirst(key);
+      overlayCache.put(key, overlay);
     }
   }
 }
