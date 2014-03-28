@@ -220,12 +220,12 @@ public abstract class Scenario implements Session.Saveable, Playable {
           public void run() {
             try {
               final Session s = Session.loadSession(saveFile);
+              done = true;
+              try { Thread.sleep(250); }
+              catch (Exception e) {}
+              
               final Scenario scenario = s.scenario();
               scenario.afterLoading(fromMenu);
-              done = true;
-              
-              try { Thread.sleep(100); }
-              catch (Exception e) {}
               PlayLoop.setupAndLoop(scenario);
             }
             catch (Exception e) { I.report(e); }
@@ -241,7 +241,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
       
       public float loadProgress() {
         //  TODO:  Implement some kind of progress readout here.
-        return done ? 1 : 0;//Session.loadProgress();
+        return done ? 0.999f : 0;//Session.loadProgress();
       }
     });
   }

@@ -24,14 +24,17 @@ public class Manufacture extends Plan implements Behaviour {
   /**  Fields, constructors, and save/load methods-
     */
   final static int
-    TIME_PER_UNIT = 30 ;
+    MAX_UNITS_PER_DAY = 5,
+    TIME_PER_UNIT = World.STANDARD_DAY_LENGTH / (3 * MAX_UNITS_PER_DAY),
+    DEVICE_TIME_MULT = 5,
+    OUTFIT_TIME_MULT = 10;
   
   private static boolean verbose = false ;
   
   
   final public Venue venue ;
   final public Conversion conversion ;
-  public int timeMult = 1, checkBonus = 0 ;
+  public int checkBonus = 0 ;
   
   private Item made, needed[] ;
   private float amountMade = 0 ;
@@ -55,7 +58,7 @@ public class Manufacture extends Plan implements Behaviour {
     conversion = Conversion.loadFrom(s) ;
     made = Item.loadFrom(s) ;
     this.needed = conversion.raw ;
-    timeMult   = s.loadInt() ;
+    //timeMult   = s.loadInt() ;
     checkBonus = s.loadInt() ;
     amountMade = s.loadFloat() ;
   }
@@ -66,7 +69,7 @@ public class Manufacture extends Plan implements Behaviour {
     s.saveObject(venue) ;
     Conversion.saveTo(s, conversion) ;
     Item.saveTo(s, made) ;
-    s.saveInt(timeMult  ) ;
+    //s.saveInt(timeMult  ) ;
     s.saveInt(checkBonus) ;
     s.saveFloat(amountMade) ;
   }
@@ -174,6 +177,11 @@ public class Manufacture extends Plan implements Behaviour {
     }
     final Conversion c = conversion ;
     final int checkMod = (hasNeeded ? 0 : 5) - checkBonus ;
+    
+    float timeMult = 1.0f;
+    if (c.out.type instanceof DeviceType) timeMult = DEVICE_TIME_MULT;
+    if (c.out.type instanceof OutfitType) timeMult = OUTFIT_TIME_MULT;
+    
     final float timeTaken = made.amount * TIME_PER_UNIT * timeMult ;
     final float progInc = (hasNeeded ? 1 : 0.5f) / timeTaken ;
     //

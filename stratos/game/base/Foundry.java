@@ -170,7 +170,6 @@ public class Foundry extends Venue implements Economy {
         o.checkBonus += OT.shieldBonus * FCB / 10f ;
         o.checkBonus += OT.defence * CMB / 10f ;
       }
-      o.timeMult = 5 ;
       o.checkBonus -= powerCut ;
       o.priorityMod = Plan.ROUTINE ;
       return o ;
