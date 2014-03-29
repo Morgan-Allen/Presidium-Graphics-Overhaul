@@ -27,8 +27,9 @@ public class Crop implements Session.Saveable, Target {
     MIN_HARVEST =  3,
     MAX_GROWTH  =  4;
   final static float
-    MIN_HEALTH = 0,
-    MAX_HEALTH = 2;
+    NO_HEALTH  = -1,
+    MIN_HEALTH =  0,
+    MAX_HEALTH =  2;
   
   final static String STAGE_NAMES[] = {
     "Unplanted ",
@@ -51,7 +52,7 @@ public class Crop implements Session.Saveable, Target {
   final Tile tile;
   
   private Species species;
-  private float growStage, health;
+  private float growStage, quality;
   private boolean blighted;
   
   
@@ -60,7 +61,7 @@ public class Crop implements Session.Saveable, Target {
     this.species = species ;
     this.tile = t ;
     growStage = NOT_PLANTED ;
-    health = 1.0f ;
+    quality = 1.0f ;
   }
   
   
@@ -70,7 +71,7 @@ public class Crop implements Session.Saveable, Target {
     tile = (Tile) s.loadTarget() ;
     species = (Species) s.loadObject() ;
     growStage = s.loadFloat() ;
-    health = s.loadFloat() ;
+    quality = s.loadFloat() ;
   }
   
   
@@ -79,7 +80,7 @@ public class Crop implements Session.Saveable, Target {
     s.saveTarget(tile) ;
     s.saveObject(species) ;
     s.saveFloat(growStage) ;
-    s.saveFloat(health) ;
+    s.saveFloat(quality) ;
   }
   
   
@@ -119,7 +120,7 @@ public class Crop implements Session.Saveable, Target {
     //  TODO:  try and use tile-ownership, directly, as a fixture.
     if (t.owner() instanceof Plantation) {
       for (Crop c : ((Plantation) t.owner()).planted) {
-        if (c.tile == t) return c;
+        if (c != null && c.tile == t) return c;
       }
     }
     return null;
@@ -170,19 +171,20 @@ public class Crop implements Session.Saveable, Target {
   }
   
   
-  protected void seedWith(Species s, float initHealth) {
+  protected void seedWith(Species s, float quality) {
     this.species = s;
-    this.health = Visit.clamp(initHealth, 0, Plantation.MAX_HEALTH_BONUS);
+    this.quality = Visit.clamp(quality, 0, Plantation.MAX_HEALTH_BONUS);
     this.growStage = MIN_GROWTH;
   }
   
   
-  //  TODO:  Get rid of extra arguments, and treat each crop individually as a
-  //  fixture or element.  Use road network to get water.
-  protected void doGrowth(float fertility, float scale) {
+  //  TODO:  Treat each crop individually as a fixture or element.  Use road
+  //  network to get water.
+  //final float fertility = tile.habitat().moisture() / 10f;
+  
+  protected void onGrowth(Tile t) {
     if (growStage == NOT_PLANTED) return ;
     final World world = parent.world() ;
-    //final float fertility = tile.habitat().moisture() / 10f;
     final float pollution = Visit.clamp(
       tile.world.ecology().ambience.valueAt(tile), 0, 1
     );
@@ -190,17 +192,20 @@ public class Crop implements Session.Saveable, Target {
     float increment = 1f;
     increment -= (pollution * Plantation.POLLUTE_GROW_PENALTY);
     if (blighted) increment -= Plantation.INFEST_GROW_PENALTY;
-    if (increment > 0) increment *= fertility * Planet.dayValue(world) * 2;
-    increment *= Rand.num() * Plantation.GROW_INCREMENT * 2 * scale;
+    if (increment > 0) {
+      increment *= Planet.dayValue(world) * 2;
+      increment *= quality * habitatBonus(tile, species, null);
+    }
+    increment *= Rand.num() * 2 * Plantation.GROW_INCREMENT;
     
-    growStage = Visit.clamp(growStage + increment, MIN_GROWTH, MAX_GROWTH) ;
+    growStage = Visit.clamp(growStage + increment, MIN_GROWTH, MAX_GROWTH);
     checkBlight(pollution);
   }
   
   
   private void checkBlight(float pollution) {
     if (growStage <= MIN_GROWTH) { blighted = false; return; }
-    float blightChance = (pollution + MAX_HEALTH - health) / MAX_HEALTH;
+    float blightChance = (pollution + MAX_HEALTH - quality) / MAX_HEALTH;
     
     //  The chance of contracting disease increases if near infected plants of
     //  the same species, and decreases with access to a hive.
@@ -229,9 +234,9 @@ public class Crop implements Session.Saveable, Target {
   
   protected Item yieldCrop() {
     final Service type = yieldType(species);
-    float amount = health * habitatBonus(tile, species, null);
+    final float amount = growStage / MAX_GROWTH;
     growStage = NOT_PLANTED;
-    health = 0;
+    quality = NO_HEALTH;
     blighted = false;
     return Item.withAmount(type, amount);
   }
@@ -269,7 +274,7 @@ public class Crop implements Session.Saveable, Target {
     final String HD ;
     if (blighted) HD = " (Infested)" ;
     else {
-      final int HL = Visit.clamp((int) health, 5) ;
+      final int HL = Visit.clamp((int) quality, 5) ;
       HD = " ("+HEALTH_NAMES[HL]+" health)" ;
     }
     return STAGE_NAMES[stage]+""+species.name+HD ;

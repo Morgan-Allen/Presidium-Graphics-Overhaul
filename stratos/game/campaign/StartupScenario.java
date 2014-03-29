@@ -175,14 +175,15 @@ public class StartupScenario extends Scenario {
       Habitat.BARRENS     , barrens,
       Habitat.DUNE        , desert ,
       Habitat.CURSED_EARTH, wastes
-    ) ;
-    final World world = new World(TG.generateTerrain()) ;
-    TG.setupMinerals(world, 0, 0, 0) ;
-    TG.setupOutcrops(world) ;
+    );
+    final World world = new World(TG.generateTerrain());
+    TG.setupMinerals(world, 0, 0, 0);
+    TG.setupOutcrops(world);
+    Flora.populateFlora(world);
     world.terrain().readyAllMeshes();
     
-    final EcologyGen EG = new EcologyGen(world, TG);
-    EG.populateFlora();
+    //final SitingPass EG = new SitingPass(world, TG);
+    //EG.populateFlora();
     return world ;
   }
   
@@ -274,6 +275,8 @@ public class StartupScenario extends Scenario {
     advisors.add(ruler) ;
     base.assignRuler(ruler) ;
     Human AA[] = advisors.toArray(Human.class) ;
+    
+    
     //
     //  TODO:  Place lairs away from the bastion.
     final int WS = world.size;

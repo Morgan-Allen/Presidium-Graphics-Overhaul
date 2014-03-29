@@ -90,7 +90,7 @@ public class Ecology {
   
   
   private void growthAt(Tile t) {
-    Flora.tryGrowthAt(t.x, t.y, world, false) ;
+    Flora.tryGrowthAt(t) ;
     final Element owner = t.owner() ;
     if (owner != null) owner.onGrowth(t) ;
     ambience.updateAt(t) ;

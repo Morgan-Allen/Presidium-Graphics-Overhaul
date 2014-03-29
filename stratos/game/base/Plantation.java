@@ -216,6 +216,8 @@ public class Plantation extends Venue implements
     //  Here, we average fertility over the plantation as a whole-
     //  TODO:  Possibly combine with irrigation effects from water supply or
     //  life support?
+    //  TODO:  Restore this.
+    /*
     float avgMoisture = 0, count = 0 ;
     for (Plantation p : strip) {
       final Tile o = p.origin() ;
@@ -230,12 +232,13 @@ public class Plantation extends Venue implements
     }
     avgMoisture /= count * 10 ;
     if (type == TYPE_COVERED) avgMoisture = (avgMoisture + 1) / 2f ;
+    //*/
     
     //  Then apply growth to each crop-
     boolean anyChange = false ;
-    for (Crop c : planted) if (c != null) {
+    for (Crop c : planted) if (c != null && c.tile == t) {
       final int oldGrowth = (int) c.growStage() ;
-      c.doGrowth(avgMoisture, 1f / planted.length) ;
+      c.onGrowth(t) ;
       final int newGrowth = (int) c.growStage() ;
       if (oldGrowth != newGrowth) anyChange = true ;
       world.ecology().impingeBiomass(this, c.growStage() / 2f, true) ;

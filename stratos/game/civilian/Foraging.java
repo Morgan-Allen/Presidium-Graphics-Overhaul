@@ -6,11 +6,12 @@
 
 
 
-package stratos.game.planet ;
+package stratos.game.civilian ;
 import stratos.game.actors.*;
 import stratos.game.building.*;
-import stratos.game.civilian.Resting;
 import stratos.game.common.*;
+import stratos.game.planet.Flora;
+import stratos.game.planet.Species;
 import stratos.graphics.common.*;
 import stratos.user.*;
 import stratos.util.*;

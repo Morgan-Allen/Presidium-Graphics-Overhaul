@@ -6,10 +6,12 @@
 
 
 
-package stratos.game.planet ;
+package stratos.game.civilian ;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
+import stratos.game.planet.Flora;
+import stratos.game.planet.Species;
 import stratos.graphics.common.*;
 import stratos.user.*;
 import stratos.util.*;
@@ -164,24 +166,22 @@ public class Forestry extends Plan implements Economy {
   
   
   public boolean actionPlant(Actor actor, Tile t) {
-    final Flora f = new Flora(t.habitat()) ;
-    f.setPosition(t.x, t.y, t.world) ;
-    if (! f.canPlace()) {
+    
+    if (! Flora.canGrowAt(t)) {
       stage = STAGE_RETURN ;
       return false ;
     }
+    final Flora f = Flora.tryGrowthAt(t);
+    if (f == null) return false;
     
     float growStage = -0.5f ;
     for (Item seed : actor.gear.matches(seedMatch())) {
       growStage += (1 + seed.quality) / 2f ;
       break ;
     }
-    
     if (actor.traits.test(CULTIVATION, MODERATE_DC, 5f)) growStage += 0.75f ;
     if (actor.traits.test(HARD_LABOUR, ROUTINE_DC , 5f)) growStage += 0.75f ;
     if (growStage <= 0) return false ;
-    
-    f.enterWorld() ;
     f.incGrowth(growStage * (Rand.num() + 1) / 4, t.world, true) ;
     
     //
@@ -235,11 +235,8 @@ public class Forestry extends Plan implements Economy {
       tried = Spacing.nearestOpenTile(tried, actor) ;
       if (tried == null || tried.pathType() != Tile.PATH_CLEAR) continue ;
       
-      final Flora f = new Flora(tried.habitat()) ;
-      f.setPosition(tried.x, tried.y, tried.world) ;
-      if (! f.canPlace()) continue ;
-      
-      float rating = tried.habitat().moisture / 10f ;
+      if (! Flora.canGrowAt(tried)) continue;
+      float rating = tried.habitat().moisture() / 10f ;
       rating -= Plan.rangePenalty(tried, actor) ;
       rating -= Plan.dangerPenalty(tried, actor) ;
       rating -= actor.world().ecology().biomassRating(tried) ;
@@ -258,7 +255,7 @@ public class Forestry extends Plan implements Economy {
     Flora picked = null ;
     for (Target t : sample) {
       final Flora f = (Flora) t ;
-      if (f.growth < 2) continue ;
+      if (f.growStage() < 2) continue ;
       float rating = 0 - Spacing.distance(t, actor) ;
       rating -= actor.base().dangerMap.longTermVal(f.origin()) ;
       rating += (f.growStage() - 2) * 10 ;

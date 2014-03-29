@@ -58,9 +58,10 @@ public class Selection implements UIConstants {
   Selection(BaseUI UI) {
     this.UI = UI ;
   }
-
+  
+  
   public void loadState(Session s) throws Exception {
-    pushSelection((Selectable) s.loadObject(), false) ;
+    selected = (Selectable) s.loadObject();
   }
   
 

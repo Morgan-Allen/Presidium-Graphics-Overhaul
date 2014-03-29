@@ -8,7 +8,7 @@
 
 package stratos.game.planet ;
 //import stratos.game.base.* ;
-import stratos.game.actors.*;
+//import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.util.*;
@@ -17,11 +17,78 @@ import stratos.util.*;
 
 
 
-public class EcologyGen {
+//  Okay.  The next challenge will be to get this up and running once more.
+
+//  Drop sites.  Ancient ruins.  Native encampments.
+//  Mineral deposits and terrain features.  Flora.  Animal Lairs.
+
+//  ***  Feed forward, or feed back?  Feed forward.
+//  ***  Multi-pass, or single pass?  Multi-pass.
+
+
+
+
+
+
+
+public abstract class SitingPass {
+  
+  
+  int resolution = World.SECTOR_SIZE;
+  
+  
+  protected static class Site {
+    Tile centre;
+    float rating;
+    
+    float fertility, minerals, insolation;
+    float habitatAmounts[];
+  }
+  
+  
+  public void applyPassTo(final World world, final int numSites) {
+    
+    final List <Site> allSites = new List <Site> () {
+      protected float queuePriority(Site site) {
+        return site.rating;
+      }
+    };
+    
+    final int scanSize = (int) Math.ceil(world.size * 1f / resolution);
+    final RandomScan scan = new RandomScan(scanSize) {
+      protected void scanAt(int x, int y) {
+        final Site site = new Site();
+        site.centre = world.tileAt(
+          (x + 0.5f) * resolution,
+          (y + 0.5f) * resolution
+        );
+        site.rating = rateSite(site.centre);
+        allSites.add(site);
+      }
+    };
+    scan.doFullScan();
+    allSites.queueSort();
+    
+    int sited = 0;
+    for (Site site : allSites) {
+      if (createSite(site.centre)) sited++;
+      if (sited >= numSites) break;
+    }
+  }
+  
+  
+  protected abstract float rateSite(Tile centre);
+  protected abstract boolean createSite(Tile centre);
+}
+
+
+
+
   
   
   /**  Field definitions, constructors and setup methods.
     */
+  /*
   final static int
     WORLD_SIZE_CATS[] = { 32, 64, 128, 256 },
     MAJOR_LAIR_COUNTS[] = { 0, 0, 1, 4 },
@@ -49,6 +116,7 @@ public class EcologyGen {
   
   /**  General helper methods-
     */
+  /*
   private void summariseFertilities() {
     final int SS = World.SECTOR_SIZE, SR = world.size / World.SECTOR_SIZE ;
     fertilityLevels = new float[SR][SR] ;
@@ -202,6 +270,7 @@ public class EcologyGen {
   
   /**  Placement of natural flora and animal dens/populations-
     */
+  /*
   public void populateFlora() {
     //
     //  Migrate the population code for the Flora class over to here?
@@ -276,7 +345,8 @@ public class EcologyGen {
       }
     }
   }
-}
+  //*/
+//}
 
 
 

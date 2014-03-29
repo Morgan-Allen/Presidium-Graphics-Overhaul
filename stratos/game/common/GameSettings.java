@@ -27,7 +27,7 @@ public class GameSettings {
     
     pathFree  = false,
     
-    bigSprite = false,
+    bigSprite = true,
     
     hardCore  = false ;
   

@@ -5,6 +5,8 @@
   */
 
 package stratos.game.base ;
+import stratos.game.civilian.Foraging;
+import stratos.game.civilian.Forestry;
 import stratos.game.common.* ;
 import stratos.game.planet.* ;
 import stratos.game.actors.* ;

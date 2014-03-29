@@ -26,7 +26,7 @@ public class Tailing extends Venue {
   
   public Tailing(Base base, Tailing strip[]) {
     super(2, 2, ENTRANCE_NONE, base);
-    structure.setupStats(200, 10, 0, 0, Structure.TYPE_FIXTURE);
+    structure.setupStats(50, 10, 0, 0, Structure.TYPE_FIXTURE);
     this.strip = strip;
   }
 
@@ -112,17 +112,12 @@ public class Tailing extends Venue {
       if (oldSprite == null) return Smelter.TAILING_SHAFT_MODEL.makeSprite();
       else return oldSprite;
     }
-    
-    if (true) {
-      if (oldSprite == null) return Smelter.TAILING_ANNEX_MODEL.makeSprite();
-      else return oldSprite;
-    }
-    
 
     final boolean init = oldSprite == null;
     final GroupSprite sprite = init ?
       new GroupSprite() : (GroupSprite) oldSprite
     ;
+    if (init) sprite.attach(Smelter.TAILING_ANNEX_MODEL, 0, 0, 0);
       
     final float xo = (size - 1) / -2f, yo = (size - 1) / -2f;
     final Tile o = origin();
@@ -143,7 +138,7 @@ public class Tailing extends Venue {
       
       if (init) sprite.attach(model, xoff, yoff, 0);
       else {
-        final CutoutSprite old = (CutoutSprite) sprite.atIndex(n);
+        final CutoutSprite old = (CutoutSprite) sprite.atIndex(n + 1);
         if (old != null && old.model() == model) continue;
         final Sprite ghost = old.model().makeSprite();
         ghost.position.setTo(old.position);

@@ -2,7 +2,6 @@
 
 
 package stratos.user ;
-import org.lwjgl.input.Keyboard;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.tactical.*;
@@ -10,6 +9,7 @@ import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.math.*;
 
 
 
@@ -101,8 +101,11 @@ public class Quickbar extends UIGroup implements UIConstants {
       power = p ;
       option = o ;
       caster = c ;
+      
+      //  The preview image can't return a selection, or nothing beneath will
+      //  be picked.  TODO:  CREATE A DEDICATED CURSOR CLASS
       preview = new Image(UI, power.buttonImage) {
-        protected UINode selectionAt(Vec2D mousePos) {
+        protected UINode selectionAt(Vector2 mousePos) {
           return null ;
         }
       } ;
@@ -112,15 +115,15 @@ public class Quickbar extends UIGroup implements UIConstants {
     
     
     public void doTask() {
-      final boolean clicked = UI.mouseClicked() ;
-      Object hovered = UI.selection.hovered() ;
-      if (hovered == null) hovered = UI.selection.pickedTile() ;
+      final boolean clicked = UI.mouseClicked();
+      Object hovered = UI.selection.hovered();
+      if (hovered == null) hovered = UI.selection.pickedTile();
       preview.absBound.set(
         UI.mouseX() - HPS,
         UI.mouseY() - HPS,
         PS, PS
       ) ;
-      
+
       if (! (hovered instanceof Target)) hovered = null ;
       final Target picked = (Target) hovered ;
       if (power.finishedWith(caster, option, picked, clicked)) {

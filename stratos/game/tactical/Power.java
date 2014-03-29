@@ -207,7 +207,6 @@ public class Power implements Abilities {
         //  Load the older save, and make it current-
         final String prefix = Scenario.current().savesPrefix() ;
         Scenario.loadGame(Scenario.fullSavePath(prefix, option), false) ;
-        Scenario.current().saveProgress(true) ;
         return true ;
       }
     },
@@ -258,9 +257,11 @@ public class Power implements Abilities {
         Actor caster, String option,
         Target selected, boolean clicked
       ) {
+        I.say("Selected is: "+selected+", clicked: "+clicked);
+        
         if (clicked != true || ! (selected instanceof Tile)) return false ;
         final Tile tile = (Tile) selected ;
-
+        
         float bonus = 0 ;
         if (caster != null && ! GameSettings.psyFree) {
           bonus += caster.traits.useLevel(PROJECTION) / 5 ;
