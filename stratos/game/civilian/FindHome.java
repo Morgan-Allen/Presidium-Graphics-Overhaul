@@ -15,12 +15,28 @@ import stratos.util.*;
 //  ...This needs to centre on the bastion/bunker system more reliably, then
 //  the place of work.  Also, the results have to be more stable.
 
+//  Implement the following-
+/*  TODO:  HOUSE-SITING ALGORITHM:
 
+Place of work.  (-5 for every sector's distance.)
+Vital services.  (+2 for each, divided by 1-plus-sector-distance.)
+Danger and Ambience.  (up to +/-5 modifier each.)
+Friends and Family.  (up to +/-2 modifier per inhabitant, based on relation,
+divided by 1-plus-sector-distance.)
 
-//
-//  TODO:  Have native huts extend Holdings?  ...Maybe.
+No residents:  +2
+1 resident:  +1
+More than 2 residents:  -5
+Only a child:  No crowding effects, friend/family effects doubled.
 
-//  ...Ideally, you want well-off workers moving out more regularly.
+Ordinary holding:  +2 per upgrade level, halved for nobles, 0 if unbuilt.
+Bastion:  +10.  Noble household only.
+Native hut:  Must defect to native base.
+Rent/tax level:  -5 for 50% of daily wages, scaled accordingly.
+
+Work in vehicle:  Cannot move out, must live there.
+//*/
+
 
 
 public class FindHome extends Plan implements Economy {

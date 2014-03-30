@@ -3,8 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.planet ;
 import stratos.game.actors.*;
 import stratos.game.building.*;
@@ -15,11 +13,6 @@ import stratos.user.*;
 import stratos.util.*;
 
 
-
-
-//
-//  TODO:  You need to be able to set default armour, HP, organic values etc.
-//  for lairs of a given type, ideally from the Species class.
 
 public class Nest extends Venue {
   
@@ -100,10 +93,8 @@ public class Nest extends Venue {
   }
   
   
-  //  TODO:  Consider using a brute-force flood-fill for sampling during
-  //  initial setup.
-  //  TODO:  Also, consider making this a general 'food sampling' method that
-  //  subclasses could override in an arbitrary way?
+  //  TODO:  Use the fertility sampling methods in the terrain class!
+  
   private static float sampleFertility(Tile point) {
     final int range = BROWSER_SEPARATION * 2 ;// + (SPECIES_SEPARATION / 2) ;
     float fertility = 0 ;
@@ -141,20 +132,21 @@ public class Nest extends Venue {
     float preySupply = 0 ;
     for (Object o : world.presences.matchesNear(Venue.class, nest, range)) {
       final Venue v = (Venue) o ;
-      final List <Actor> living = v.personnel.residents() ;
-      if (v == nest || living.size() == 0) continue ;
+      final List <Actor> resident = v.personnel.residents() ;
+      if (v == nest || resident.size() == 0) continue ;
       
       final int spacing = minSpacing(nest, v, species) ;
       if (reports) I.say("Minimum spacing from "+v+" is "+spacing) ;
       if (Spacing.distance(nest, v) < spacing) return -1 ;
       
       float alike = 0 ;
-      for (Actor a : living) {
-        if (a.species() == species) alike++ ;
-        if (a.species().browser()) preySupply += a.species().metabolism() ;
+      for (Actor a : resident) {
+        final Species s = a.species();
+        if (s != null && s == species) alike++ ;
+        if (s != null && s.browser()) preySupply += a.species().metabolism() ;
       }
       numLairsNear++ ;
-      alikeLairs += alike / living.size() ;
+      alikeLairs += alike / resident.size() ;
     }
     //
     //  Secondly, sample the fertility & biomass of nearby terrain (within half
@@ -223,7 +215,7 @@ public class Nest extends Venue {
       (Species) species, venue, world, true
     ) ;
     if (idealPop <= 0) return MAX_CROWDING ;
-    if (verbose && I.talkAbout == venue && false) {
+    if (verbose && I.talkAbout == venue) {
       I.say("Actual/ideal population: "+actualPop+"/"+idealPop) ;
     }
     return Visit.clamp(actualPop / (1 + idealPop), 0, MAX_CROWDING) ;
@@ -317,7 +309,69 @@ public class Nest extends Venue {
   
   
   protected void updatePaving(boolean inWorld) {}
-
+  
+  
+  
+  
+  /**  Placing the site-
+    */
+  public static void placeNests(
+    final World world, final Species... species
+  ) {
+    //  TODO:  Use the SitingPass code for this?
+    
+    //  Use fertility samples from terrain type, together with biomass summaries
+    //  from the ecology() class.
+    
+    
+    
+    final int SS = World.SECTOR_SIZE ;
+    int numAttempts = (world.size * world.size * 4) / (SS * SS) ;
+    ///I.say("No. of attempts: "+numAttempts) ;
+    final Base wildlife = world.baseWithName(Base.KEY_WILDLIFE, true, true) ;
+    
+    while (numAttempts-- > 0) {
+      Tile tried = world.tileAt(
+        Rand.index(world.size),
+        Rand.index(world.size)
+      ) ;
+      tried = Spacing.nearestOpenTile(tried, tried) ;
+      if (tried == null) continue ;
+      Nest toPlace = null ;
+      float bestRating = 0 ;
+      
+      for (Species s : species) {
+        final Nest nest = Nest.siteNewLair(s, tried, world) ;
+        if (nest == null) continue ;
+        final float
+          idealPop = Nest.idealNestPop(s, nest, world, false),
+          adultMass = s.baseBulk * s.baseSpeed,
+          rating = (idealPop * adultMass) + 0.5f ;
+        if (rating > bestRating) { toPlace = nest ; bestRating = rating ; }
+      }
+      
+      if (toPlace != null) {
+        I.say("New lair for "+toPlace.species+" at "+toPlace.origin()) ;
+        toPlace.doPlace(toPlace.origin(), null) ;
+        toPlace.assignBase(wildlife) ;
+        toPlace.structure.setState(Structure.STATE_INTACT, 1) ;
+        final Species s = toPlace.species ;
+        final float adultMass = s.baseBulk * s.baseSpeed ;
+        float bestPop = bestRating / adultMass ;
+        
+        while (bestPop-- > 0) {
+          final Fauna f = toPlace.species.newSpecimen() ;
+          f.health.setupHealth(Rand.num(), 0.9f, 0.1f) ;
+          f.mind.setHome(toPlace) ;
+          f.assignBase(wildlife) ;
+          f.enterWorldAt(toPlace, world) ;
+          f.goAboard(toPlace, world) ;
+        }
+      }
+    }
+  }
+  
+  
 
   /**  Rendering and interface methods-
     */

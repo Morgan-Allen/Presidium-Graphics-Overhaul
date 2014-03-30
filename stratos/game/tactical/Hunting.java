@@ -37,7 +37,8 @@ public class Hunting extends Combat implements Economy {
     STAGE_SAMPLE_GENE   = 5,
     STAGE_RETURN_SAMPLE = 6,
     STAGE_COMPLETE      = 7 ;
-  private static boolean verbose = false ;
+  
+  private static boolean verbose = false;
   
   
   final int type ;
@@ -54,7 +55,7 @@ public class Hunting extends Combat implements Economy {
   
   
   public static Hunting asHarvest(Actor actor, Actor prey, Employment depot) {
-    if (depot == null) return asFeeding(actor, prey) ;
+    if (depot == null) return null ;
     return new Hunting(actor, prey, TYPE_HARVEST, depot) ;
   }
   
@@ -103,13 +104,20 @@ public class Hunting extends Combat implements Economy {
   
   /**  Evaluating targets and priority-
     */
+  public static boolean validPrey(Element prey, Actor hunts, boolean conserve) {
+    if (! (prey instanceof Actor)) return false;
+    final Actor a = (Actor) prey;
+    if (a.species() == hunts.species() || ! a.health.organic()) return false;
+    if (conserve && Nest.crowdingFor(a) < 1) return false;
+    return true;
+  }
+  
+  
   public float priorityFor(Actor actor) {
-    //
-    //  TODO:  Unify this evaluation method with the 'FindPrey' routine below.
-    if (prey.species() == actor.species() || ! prey.health.organic()) {
-      return -1 ;
-    }
+    if (! validPrey(prey, actor, false)) return -1;
+    if (! actor.gear.armed()) return 0;
     float priority = 0 ;
+    
     if (type == TYPE_FEEDS) {
       float hunger = actor.health.hungerLevel() ;
       if (hasBegun()) hunger = (hunger + 0.5f) / 1.5f ;
@@ -117,18 +125,15 @@ public class Hunting extends Combat implements Economy {
       priority = hunger * PARAMOUNT ;
       if (verbose) I.sayAbout(actor, "Base feeding priority: "+priority) ;
     }
-    if (type == TYPE_HARVEST || type == TYPE_PROCESS) {
+    
+    else if (type == TYPE_HARVEST || type == TYPE_PROCESS) {
       float crowding = Nest.crowdingFor(prey) ;
       if (crowding < 1) return 0 ;
       priority = ROUTINE ;
     }
     else priority = ROUTINE ;
     priority += priorityMod ;
-    //
-    //  Modify based on relation with subject-
-    //if (prey.species() == actor.species()) priority -= ROUTINE ;
-    //priority -= actor.mind.relation(prey) * PARAMOUNT ;
-    //
+    
     //  Modify based on danger of extraction-
     if (prey.health.conscious()) {
       priority = Combat.combatPriority(
@@ -159,45 +164,6 @@ public class Hunting extends Combat implements Economy {
   }
   
   
-  //
-  //  TODO:  Get rid of this and use a similar sampling method to that employed
-  //  by human-minds?
-  
-  public static Actor nextPreyFor(
-    Actor actor, boolean conserve
-  ) {
-    if (verbose) I.sayAbout(actor, "FINDING NEXT PREY") ;
-    Actor pickedPrey = null ;
-    float bestRating = Float.NEGATIVE_INFINITY ;
-    //
-    //  
-    for (Element t : actor.mind.awareOf()) {
-      if (! (t instanceof Actor)) continue ;
-      final Actor f = (Actor) t ;
-      if ((! f.health.organic()) || (! (t instanceof Fauna))) continue ;
-      final Species s = (Species) f.species() ;
-      if (s == actor.species()) continue ;
-      //
-      //  
-      final float crowding = Nest.crowdingFor(f) ;
-      if (conserve && crowding < 1) continue ;
-      final float
-        danger = (f.health.alive() ? Combat.combatStrength(f, actor) : 0),
-        rangePenalty = Plan.rangePenalty(actor, f) ;
-      float rating = 1 / (1f + danger + (rangePenalty / Plan.ROUTINE)) ;
-      rating *= crowding * Rand.avgNums(2) ;
-      //
-      //  
-      if (rating > bestRating) { pickedPrey = f ; bestRating = rating ; }
-    }
-    if (verbose && I.talkAbout == actor) {
-      if (pickedPrey == null) I.say("NO PREY FOUND FOR "+actor) ;
-      else I.say("PREY IS: "+pickedPrey) ;
-    }
-    return pickedPrey ;
-  }
-  
-  
   
   /**  Actual implementation-
     */
@@ -223,12 +189,10 @@ public class Hunting extends Combat implements Economy {
     }
     
     if (prey.health.conscious()) return super.getNextStep() ;
-    /*
     if (type == TYPE_FEEDS && actor.health.energyLevel() >= 1.5f) {
       if (verbose) I.sayAbout(actor, "Have eaten fill of "+prey) ;
       return null ;
     }
-    //*/
     
     if (type == TYPE_HARVEST || type == TYPE_PROCESS) {
       final Item carried = (type == TYPE_HARVEST) ?
@@ -249,6 +213,7 @@ public class Hunting extends Combat implements Economy {
       }
     }
     
+    if (! prey.inWorld()) return null;
     final Action harvest = new Action(
       actor, prey,
       this, "actionHarvest",
@@ -350,6 +315,46 @@ public class Hunting extends Combat implements Economy {
 }
 
 
+
+
+//
+//  TODO:  Get rid of this and use a similar sampling method to that employed
+//  by human-minds?
+/*
+public static Actor nextPreyFor(
+  Actor actor, boolean conserve
+) {
+  if (verbose) I.sayAbout(actor, "FINDING NEXT PREY") ;
+  Actor pickedPrey = null ;
+  float bestRating = Float.NEGATIVE_INFINITY ;
+  //
+  //  
+  for (Element t : actor.mind.awareOf()) {
+    if (! (t instanceof Actor)) continue ;
+    final Actor f = (Actor) t ;
+    if ((! f.health.organic()) || (! (t instanceof Fauna))) continue ;
+    final Species s = (Species) f.species() ;
+    if (s == actor.species()) continue ;
+    //
+    //  
+    final float crowding = Nest.crowdingFor(f) ;
+    if (conserve && crowding < 1) continue ;
+    final float
+      danger = (f.health.alive() ? Combat.combatStrength(f, actor) : 0),
+      rangePenalty = Plan.rangePenalty(actor, f) ;
+    float rating = 1 / (1f + danger + (rangePenalty / Plan.ROUTINE)) ;
+    rating *= crowding * Rand.avgNums(2) ;
+    //
+    //  
+    if (rating > bestRating) { pickedPrey = f ; bestRating = rating ; }
+  }
+  if (verbose && I.talkAbout == actor) {
+    if (pickedPrey == null) I.say("NO PREY FOUND FOR "+actor) ;
+    else I.say("PREY IS: "+pickedPrey) ;
+  }
+  return pickedPrey ;
+}
+//*/
 
 
 

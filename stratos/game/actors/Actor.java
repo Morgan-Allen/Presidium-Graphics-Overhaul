@@ -74,9 +74,12 @@ public abstract class Actor extends Mobile implements
   
   protected MobileMotion initMotion() { return new MobileMotion(this) ; }
   
+  public float height() {
+    return 1.0f * GameSettings.actorScale ;
+  }
+  
   public Background vocation() { return null ; }
   public void setVocation(Background b) {}
-  
   public Species species() { return null ; }
   
   
@@ -245,7 +248,8 @@ public abstract class Actor extends Mobile implements
       }
       if (! visibleTo(b)) continue ;
       final float relation = mind.relationValue(b) ;
-      b.dangerMap.impingeVal(origin(), 0 - power * relation, true) ;
+      final Tile o = origin();
+      b.dangerMap.accumulate(0 - power * relation, 1.0f, o.x, o.y);
     }
   }
   

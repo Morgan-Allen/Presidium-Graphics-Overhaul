@@ -72,15 +72,15 @@ public abstract class Fauna extends Actor {
     */
   public boolean enterWorldAt(int x, int y, World world) {
     if (! super.enterWorldAt(x, y, world)) return false ;
-    world.ecology().impingeAbundance(this, false) ;
+    world.ecology().impingeAbundance(this, World.STANDARD_DAY_LENGTH) ;
     return true ;
   }
   
   
   public void updateAsScheduled(int numUpdates) {
     super.updateAsScheduled(numUpdates) ;
-    world.ecology().impingeAbundance(this, true) ;
     if (numUpdates % 10 == 0 && health.alive()) {
+      world.ecology().impingeAbundance(this, 10);
       float crowding = Nest.crowdingFor(this) ;
       if (crowding == 1) crowding += 0.1f ;
       float fertility = (health.agingStage() - 0.5f) * health.energyLevel() ;
@@ -128,10 +128,14 @@ public abstract class Fauna extends Actor {
   
   
   protected Behaviour nextHunting() {
-    final Actor prey = Hunting.nextPreyFor(this, false) ;
-    if (prey == null) return null ;
-    final Hunting hunting = Hunting.asFeeding(this, prey) ;
-    return hunting ;
+    final Choice c = new Choice(this);
+    for (Element e : mind.awareOf()) {
+      if (Hunting.validPrey(e, this, false)) {
+        final Actor prey = (Actor) e;
+        c.add(Hunting.asFeeding(this, prey));
+      }
+    }
+    return c.pickMostUrgent();
   }
   
   

@@ -5,8 +5,7 @@
   */
 
 package stratos.game.planet ;
-import java.io.* ;
-
+import java.io.*;
 import stratos.game.common.*;
 import stratos.util.*;
 

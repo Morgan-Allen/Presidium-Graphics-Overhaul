@@ -21,6 +21,7 @@ Mesa, Deep Desert, Cursed Earth, Strip Mining.
 terrain chance (scaled proportionately) = x * (1 - x) * (1 + tx)
 x = moisture
 t = terraform-progress  (1 as default).
+//  ...Organics.  That's the name for carbons.
 //*/
 
 
@@ -56,7 +57,9 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
   
   final static int
     TIME_INIT = -1,
-    TIME_DONE = -2 ;
+    TIME_DONE = -2,
+    SAMPLE_RESOLUTION = World.SECTOR_SIZE,
+    SAMPLE_AREA = SAMPLE_RESOLUTION * SAMPLE_RESOLUTION;
   
   final public int
     mapSize ;
@@ -72,8 +75,16 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
     roadCounter[][],
     dirtVals[][] ;
   
-  private TerrainSet meshSet ;
+  private TerrainSet meshSet;
   private LayerType dirtLayer, roadLayer;
+  
+  private static class Sample {
+    int fertility, insolation, minerals;
+    final int habitat[] = new int[Habitat.ALL_HABITATS.length];
+  }
+  
+  private Sample sampleGrid[][];
+  
   
   
   
@@ -94,6 +105,8 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
     }
     this.minerals = new byte[mapSize][mapSize] ;
     this.dirtVals = new byte[mapSize][mapSize] ;
+    
+    initSamples();
   }
   
   
@@ -119,6 +132,8 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
     dirtVals = new byte[mapSize][mapSize] ;
     s.loadByteArray(minerals) ;
     s.loadByteArray(dirtVals) ;
+    
+    initSamples();
   }
   
   
@@ -135,14 +150,68 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
   
   
   
+  /**  Averages and sampling-
+    */
+  private Sample sampleAt(int x, int y) {
+    return sampleGrid[x / SAMPLE_RESOLUTION][y / SAMPLE_RESOLUTION];
+  }
+  
+  
+  private void initSamples() {
+    final int SGS = mapSize / SAMPLE_RESOLUTION;
+    this.sampleGrid = new Sample[SGS][SGS];
+    for (Coord c : Visit.grid(0, 0, SGS, SGS, 1)) {
+      sampleGrid[c.x][c.y] = new Sample();
+    }
+    for (Coord c : Visit.grid(0, 0, mapSize, mapSize, 1)) {
+      incSampleAt(c.x, c.y, habitatAt(c.x, c.y), 1);
+    }
+  }
+  
+  
+  private void incSampleAt(int x, int y, Habitat h, int inc) {
+    if (h == null) return;
+    final Sample s = sampleAt(x, y);
+    s.habitat[h.ID] += inc;
+    s.insolation += h.insolation * inc;
+    s.minerals += h.rockiness * inc;
+    s.fertility += h.moisture * inc;
+  }
+  
+  
+  public float fertilitySample(Tile t) {
+    return sampleAt(t.x, t.y).fertility / SAMPLE_AREA;
+  }
+  
+  
+  public float insolationSample(Tile t) {
+    return sampleAt(t.x, t.y).insolation / SAMPLE_AREA;
+  }
+  
+  
+  public float mineralsSample(Tile t) {
+    return sampleAt(t.x, t.y).minerals / SAMPLE_AREA;
+  }
+  
+  
+  public float habitatSample(Tile t, Habitat h) {
+    return sampleAt(t.x, t.y).habitat[h.ID] / SAMPLE_AREA;
+  }
+  
+  
+  
   /**  Habitats and mineral deposits-
     */
   private static Tile tempV[] = new Tile[9] ;
   
   
   public void setHabitat(Tile t, Habitat h) {
+    final Habitat old = habitats[t.x][t.y];
+    incSampleAt(t.x, t.y, old, -1);
     habitats[t.x][t.y] = h ;
     typeIndex[t.x][t.y] = (byte) h.ID ;
+    incSampleAt(t.x, t.y, h, 1);
+    
     t.refreshHabitat() ;
     for (Tile n : t.vicinity(tempV)) if (n != null) {
       meshSet.flagUpdateAt(n.x, n.y);

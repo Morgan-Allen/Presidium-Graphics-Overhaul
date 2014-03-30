@@ -119,7 +119,7 @@ public class Foundry extends Venue implements Economy {
   
   public int numOpenings(Background v) {
     int num = super.numOpenings(v) ;
-    if (v == Background.TECHNICIAN) return num + 1 ;
+    if (v == Background.TECHNICIAN) return num + 2 ;
     if (v == Background.ARTIFICER ) return num + 1 ;
     return 0 ;
   }

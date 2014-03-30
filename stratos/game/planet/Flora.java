@@ -74,7 +74,7 @@ public class Flora extends Element implements TileConstants {
       f.setAsEstablished(true);
       
       if (verbose) I.say("Initial flora at: " + t);
-      world.ecology().impingeBiomass(f, f.growth, false);
+      world.ecology().impingeBiomass(t, f.growth, World.STANDARD_DAY_LENGTH);
     }
   }
   
@@ -113,7 +113,7 @@ public class Flora extends Element implements TileConstants {
       final Flora f = (Flora) t.owner();
       if (Rand.num() < (growChance * 4 * GROWTH_PER_UPDATE)) {
         f.incGrowth(1, t.world, false);
-        t.world.ecology().impingeBiomass(f, f.growth, true);
+        t.world.ecology().impingeBiomass(t, f.growth, World.GROWTH_INTERVAL);
       }
       return f;
     }
@@ -126,7 +126,7 @@ public class Flora extends Element implements TileConstants {
       final Flora f = new Flora(t.habitat());
       f.enterWorldAt(t.x, t.y,t.world);
       f.incGrowth(1, t.world, false);
-      t.world.ecology().impingeBiomass(f, f.growth, true);
+      t.world.ecology().impingeBiomass(t, f.growth, World.GROWTH_INTERVAL);
       return f;
     }
     

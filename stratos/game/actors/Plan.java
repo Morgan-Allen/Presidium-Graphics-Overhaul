@@ -208,7 +208,7 @@ public abstract class Plan implements Saveable, Behaviour {
     //  path-caching.
     if (actor.base() == null) return 0 ;  //  TODO:  REMOVE THIS
     final Tile at = actor.world().tileAt(t) ;
-    float danger = actor.base().dangerMap.shortTermVal(at) ;
+    float danger = actor.base().dangerMap.sampleAt(at.x, at.y) ;
     if (danger < 0) return 0 ;
     danger *= actor.traits.scaleLevel(Abilities.NERVOUS) ;
     return danger * 0.1f / (1 + Combat.combatStrength(actor, null)) ;

@@ -169,44 +169,83 @@ public abstract class Scenario implements Session.Saveable, Playable {
   
   
   
-  
-  /**  Saving and loading methods-
+  /**  Methods for keeping track of saved and loaded state-
     */
   //
-  //  TODO:  Saving and Loading functions need to be performed on a background
-  //  thread.  In fact... there should be some method of packing them into a
-  //  Scenario object's beginLoadingContent() method.
+  //  Saves must be tagged by ruler, day and time.  There can't be more than
+  //  three for a given ruler at once- and if there would be, the least
+  //  recently saved is deleted.  So you have the following array of files-
+  //
+  //  saves/<ruler>-current.rep     _ONLY THIS CAN BE LOADED FROM MENU_
+  //  saves/<ruler><timestamp A>.rep
+  //  saves/<ruler><timestamp B>.rep
+  //  saves/<ruler><timestamp C>.rep
+  //
+  //  When and if you go back in the timeline, subsequent saves are deleted.
+  //  So there's always a strictly ascending chronological order.
   
-  //  No, just overwrite the loadProgress() method (even for saves.)
+  final public static String
+    CURRENT_SAVE = "-current" ;
+  final public static int
+    MAX_SAVES = 3 ;
   
   
-  public static void saveGame(final String saveFile) {
-    final Scenario scenario = current();
-    if (scenario == null) return;
-    scenario.loadProgress = 0;
-    //  TODO:  Implement some kind of progress readout here...
-    
+  public void saveProgress(final boolean overwrite, final boolean quit) {
     final Thread saveThread = new Thread() {
       public void run() {
-        try {
-          scenario.lastSaveTime = scenario.world.currentTime();
-          Session.saveSession(scenario.world(), scenario, saveFile);
-          scenario.afterSaving();
-          scenario.loadProgress = 1;
-          
-          try { Thread.sleep(250); }
-          catch (Exception e) {}
+        
+        //  In the case of an overwrite, just save under the current file-
+        if (overwrite) {
+          saveGame(fullSavePath(savesPrefix, CURRENT_SAVE)) ;
+          if (quit) PlayLoop.exitLoop();
+          return ;
         }
-        catch (Exception e) { I.report(e); }
+        
+        //  If necessary, delete the least recent save.
+        if (timeStamps.size() >= MAX_SAVES) {
+          final String oldStamp = timeStamps.removeFirst() ;
+          final File f = new File(fullSavePath(savesPrefix, oldStamp)) ;
+          if (f.exists()) f.delete() ;
+        }
+        
+        //  Create a new save.
+        final float time = world.currentTime() / World.STANDARD_DAY_LENGTH ;
+        String
+          day = "Day "+(int) time,
+          hour = ""+(int) (24 * (time % 1)),
+          minute = ""+(int) (((24 * (time % 1)) % 1) * 60) ;
+        while (hour.length() < 2) hour = "0"+hour ;
+        while (minute.length() < 2) minute = "0"+minute ;
+        
+        final String newStamp = day+", "+hour+minute+" Hours" ;
+        timeStamps.addLast(newStamp) ;
+        saveGame(fullSavePath(savesPrefix, newStamp)) ;
+        if (quit) PlayLoop.exitLoop();
       }
     };
     saveThread.start();
   }
   
   
-  public static void loadGame(final String saveFile, final boolean fromMenu) {
+  private void saveGame(final String saveFile) {
+    try {
+      loadProgress = 0;
+      lastSaveTime = world.currentTime();
+      Session.saveSession(world, this, saveFile);
+      afterSaving();
+      loadProgress = 1;
+      
+      try { Thread.sleep(250); }
+      catch (Exception e) {}
+    }
+    catch (Exception e) { I.report(e); }
+  }
+  
+  
+  public static void loadGame(
+    final String saveFile, final boolean fromMenu
+  ) {
     PlayLoop.gameStateWipe();
-
     PlayLoop.setupAndLoop(new Playable() {
       private boolean begun = false, done = false;
       
@@ -246,101 +285,36 @@ public abstract class Scenario implements Session.Saveable, Playable {
     });
   }
   
-  
-  public static float timeSinceLastSave() {
-    final Scenario scenario = current();
-    if (scenario == null || scenario.lastSaveTime == -1) return -1;
-    float time = scenario.world.currentTime();
-    time -= scenario.lastSaveTime;
-    return time;
+  /*
+  public static boolean loadedFrom(String prefix) {
+    final String fullPath = fullSavePath(prefix, CURRENT_SAVE) ;
+    final File file = new File(fullPath) ;
+    if (! file.exists()) return false ;
+    try {
+      loadGame(fullPath, true) ;
+      return true ;
+    }
+    catch (Exception e) { I.report(e) ; }
+    return false ;
   }
+  //*/
+
   
-  
-  
-  /**  Methods for keeping track of saved and loaded state-
-    */
-  //
-  //  Saves must be tagged by ruler, day and time.  There can't be more than
-  //  three for a given ruler at once- and if there would be, the least
-  //  recently saved is deleted.  So you have the following array of files-
-  //
-  //  saves/<ruler>-current.rep     _ONLY THIS CAN BE LOADED FROM MENU_
-  //  saves/<ruler><timestamp A>.rep
-  //  saves/<ruler><timestamp B>.rep
-  //  saves/<ruler><timestamp C>.rep
-  //
-  //  When and if you go back in the timeline, subsequent saves are deleted.
-  //  So there's always a strictly ascending chronological order.
-  
-  final public static String
-    CURRENT_SAVE = "-current" ;
-  final public static int
-    MAX_SAVES = 3 ;
-  
-  
-  public String savesPrefix() {
+  /*
+  private String savesPrefix() {
     return savesPrefix ;
   }
+  //*/
   
   
-  public void saveProgress(boolean overwrite) {
-    //
-    //  In the case of an overwrite, just save under the current file-
-    if (overwrite) {
-      saveGame(fullSavePath(savesPrefix, CURRENT_SAVE)) ;
-      return ;
-    }
-    //
-    //  If necessary, delete the least recent save.
-    if (timeStamps.size() >= MAX_SAVES) {
-      final String oldStamp = timeStamps.removeFirst() ;
-      final File f = new File(fullSavePath(savesPrefix, oldStamp)) ;
-      if (f.exists()) f.delete() ;
-    }
-    //
-    //  Create a new save.
-    final float time = world.currentTime() / World.STANDARD_DAY_LENGTH ;
-    String
-      day = "Day "+(int) time,
-      hour = ""+(int) (24 * (time % 1)),
-      minute = ""+(int) (((24 * (time % 1)) % 1) * 60) ;
-    while (hour.length() < 2) hour = "0"+hour ;
-    while (minute.length() < 2) minute = "0"+minute ;
-    
-    final String newStamp = day+", "+hour+minute+" Hours" ;
-    timeStamps.addLast(newStamp) ;
-    saveGame(fullSavePath(savesPrefix, newStamp)) ;
-  }
-  
-  
-  public String[] loadOptions() {
-    //
-    //  Strip away any missing entries-
-    for (String stamp : timeStamps) {
-      final File f = new File(fullSavePath(savesPrefix, stamp)) ;
-      if (! f.exists()) timeStamps.remove(stamp) ;
-    }
-    return timeStamps.toArray(String.class) ;
-  }
-  
-  
-  public void wipeSavesAfter(String option) {
-    //
-    //  Delete any subsequent time-stamp entries.
-    boolean matched = false ; for (String stamp : timeStamps) {
-      if (matched) {
-        timeStamps.remove(stamp) ;
-        final File f = new File(fullSavePath(savesPrefix, stamp)) ;
-        if (f.exists()) f.delete() ;
-      }
-      if (stamp.equals(option)) matched = true ;
-    }
-    if (! matched) I.complain("NO SUCH TIME STAMP!") ;
+  public float timeSinceLastSave() {
+    if (lastSaveTime == -1) return -1;
+    return world.currentTime() - lastSaveTime;
   }
   
   
   public static String fullSavePath(String prefix, String suffix) {
-    if (suffix == null) return "saves"+prefix+".rep" ;
+    if (suffix == null) suffix = CURRENT_SAVE;
     return "saves/"+prefix+suffix+".rep" ;
   }
   
@@ -363,16 +337,40 @@ public abstract class Scenario implements Session.Saveable, Playable {
   }
   
   
-  public static boolean loadedFrom(String prefix) {
-    final String fullPath = fullSavePath(prefix, CURRENT_SAVE) ;
-    final File file = new File(fullPath) ;
-    if (! file.exists()) return false ;
-    try {
-      loadGame(fullPath, true) ;
-      return true ;
+  public String[] loadOptions() {
+    //
+    //  Strip away any missing entries-
+    for (String stamp : timeStamps) {
+      final File f = new File(fullSavePath(savesPrefix, stamp)) ;
+      if (! f.exists()) timeStamps.remove(stamp) ;
     }
-    catch (Exception e) { I.report(e) ; }
-    return false ;
+    return timeStamps.toArray(String.class) ;
+  }
+  
+  
+  public void revertTo(String option) {
+    //  Delete any subsequent time-stamp entries.
+    boolean matched = false ; for (String stamp : timeStamps) {
+      if (matched) timeStamps.remove(stamp);
+      if (stamp.equals(option)) matched = true;
+    }
+    if (! matched) I.complain("NO SUCH TIME STAMP!");
+    
+    //  Delete any files with this prefix not contained within the time-stamps.
+    for (String file : savedFiles(savesPrefix)) {
+      boolean okay = false;
+      for (String stamp : timeStamps) {
+        final String match = fullSavePath(savesPrefix, stamp);
+        if (file.equals(match)) okay = true;
+      }
+      if (! okay) {
+        final File f = new File(fullSavePath(savesPrefix, file));
+        if (f.exists()) f.delete();
+      }
+    }
+    
+    //  And finally, load the earlier game-
+    Scenario.loadGame(Scenario.fullSavePath(savesPrefix, option), false) ;
   }
   
   

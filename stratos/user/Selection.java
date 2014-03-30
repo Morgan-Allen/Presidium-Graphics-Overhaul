@@ -83,6 +83,9 @@ public class Selection implements UIConstants {
   /**  
     */
   boolean updateSelection(World world, Viewport port, UIGroup infoPanel) {
+    if (selected != null && UI.currentPanel() == null) {
+      pushSelection(selected, true);
+    }
     //
     //  If a UI element is selected, don't pick anything else-
     if (UI.selected() != null) {

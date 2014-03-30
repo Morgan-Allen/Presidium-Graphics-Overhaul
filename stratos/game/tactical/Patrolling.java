@@ -86,7 +86,7 @@ public class Patrolling extends Plan implements TileConstants, Abilities {
     float absDanger = 0, relDanger = 0 ;
     if (actor.base() != null) for (Target t : patrolled) {
       final Tile u = actor.world().tileAt(t) ;
-      absDanger += actor.base().dangerMap.longTermVal(u) ;
+      absDanger += actor.base().dangerMap.sampleAt(u.x, u.y) ;
       relDanger += Plan.dangerPenalty(t, actor) ;
     }
     absDanger /= patrolled.size() ;

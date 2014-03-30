@@ -57,7 +57,8 @@ public class Species implements Session.Saveable, Economy {
     BROWSER,
     PREDATOR,
     HUMANOID,
-    FLORA
+    FLORA,
+    ARTILECT
   }
   
   
@@ -205,6 +206,8 @@ public class Species implements Session.Saveable, Economy {
   final public Type type ;
   final public Item nutrients[] ;
   
+  //  TODO:  Use a table filled with generic string keys, so that it's more
+  //  self-descriptive.
   final public float
     baseBulk, baseSpeed, baseSight ;
   

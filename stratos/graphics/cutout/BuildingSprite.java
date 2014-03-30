@@ -20,6 +20,8 @@ public class BuildingSprite extends Sprite {
     protected void disposeAsset() {}
     public Sprite makeSprite() { return new BuildingSprite() ; }
   };
+  final public static float
+    ITEM_SIZE = 0.33f;
   
   final public static ModelAsset
     SCAFF_MODELS[] = CutoutModel.fromImages(
@@ -34,7 +36,8 @@ public class BuildingSprite extends Sprite {
       "scaff_6.png"
     ),
     CRATE_MODEL = CutoutModel.fromImage(
-      BuildingSprite.class, "media/Items/crate.gif", 0.5f, 0.2f
+      BuildingSprite.class, "media/Items/crate.gif",
+      ITEM_SIZE, ITEM_SIZE * 0.4f
     );
   final public static PlaneFX.Model
     BLAST_MODEL = new PlaneFX.Model(
@@ -111,6 +114,7 @@ public class BuildingSprite extends Sprite {
     scaffoldBase = (CutoutSprite) ModelAsset.loadSprite(in);
     scaffolding = (GroupSprite) ModelAsset.loadSprite(in);
     allStacks = (GroupSprite) ModelAsset.loadSprite(in);
+    
     allStacks.clearAllAttachments();
   }
   

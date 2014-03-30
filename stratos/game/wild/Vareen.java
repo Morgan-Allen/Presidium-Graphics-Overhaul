@@ -104,10 +104,15 @@ public class Vareen extends Fauna {
   
   
   protected Behaviour nextBrowsing() {
-    final Actor prey = Hunting.nextPreyFor(this, false) ;
-    if (prey != null && prey.health.dying()) {
-      return Hunting.asFeeding(this, prey) ;
+    final Choice c = new Choice(this);
+    for (Element e : mind.awareOf()) {
+      if (Hunting.validPrey(e, this, false)) {
+        final Actor prey = (Actor) e;
+        if (prey.health.dying()) c.add(Hunting.asFeeding(this, prey));
+      }
     }
+    final Behaviour p = c.pickMostUrgent();
+    if (p != null) return p;
     return super.nextBrowsing() ;
   }
   

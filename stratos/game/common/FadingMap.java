@@ -6,6 +6,85 @@ import stratos.util.*;
 
 
 
+//  TODO:  Make this into a SampleMap class instead?  Or merge with MipMap?
+
+
+
+public class FadingMap implements TileConstants {
+  
+  
+  final World world;
+  final int resolution, gridSize, patchSize, interval;
+  private float averages[][], overall, lastTime = -1;
+  
+
+  public FadingMap(World world, int resolution, int interval) {
+    this.world = world;
+    this.resolution = resolution;
+    this.gridSize = world.size / resolution;
+    this.patchSize = resolution * resolution;
+    this.interval = interval > 0 ? interval : World.STANDARD_DAY_LENGTH;
+    this.averages = new float[gridSize][gridSize];
+  }
+  
+  
+  public void loadState(Session s) throws Exception {
+    for (Coord c : Visit.grid(0, 0, gridSize, gridSize, 1)) {
+      averages[c.x][c.y] = s.loadFloat();
+    }
+    overall = s.loadFloat();
+    lastTime = s.loadFloat();
+  }
+  
+  
+  public void saveState(Session s) throws Exception {
+    for (Coord c : Visit.grid(0, 0, gridSize, gridSize, 1)) {
+      s.saveFloat(averages[c.x][c.y]);
+    }
+    s.saveFloat(overall);
+    s.saveFloat(lastTime);
+  }
+  
+  
+  public void accumulate(float value, float duration, int x, int y) {
+    x /= resolution;
+    y /= resolution;
+    final float inc = value * duration / interval;
+    averages[x][y] += inc;
+    overall += inc;
+  }
+  
+  
+  public void update() {
+    final float time = world.currentTime();
+    if (lastTime == -1) { lastTime = time; return; }
+    final float fadeValue = 1 - ((time - lastTime) / interval);
+    for (Coord c : Visit.grid(0, 0, gridSize, gridSize, 1)) {
+      averages[c.x][c.y] *= fadeValue;
+    }
+    overall *= fadeValue;
+  }
+  
+  
+  public float sampleAt(int x, int y) {
+    return Visit.sampleMap(world.size, averages, x, y) / patchSize;
+  }
+  
+  
+  public float overallValue() {
+    return overall / (world.size * world.size);
+  }
+  
+  
+  public void presentVals(String label, float mult, boolean shortTerm) {
+    final float squareA = resolution * resolution * mult ;
+    I.present(averages, label, 256, 256, squareA, -squareA) ;
+  }
+}
+
+
+
+/*
 public class FadingMap implements TileConstants {
   
   
@@ -76,7 +155,6 @@ public class FadingMap implements TileConstants {
   
   
   /**  Methods for regularly updating, adjusting and querying danger values-
-    */
   private void accumulate(float val, int x, int y) {
     shortTermSum[x][y] += val ;
     longTermSum[x][y] += val ;
@@ -133,7 +211,6 @@ public class FadingMap implements TileConstants {
   
   
   /**  External value impingement and queries-
-    */
   public void impingeVal(Tile at, float power, boolean gradual) {
     accumulate(power, at.x / resolution, at.y / resolution) ;
   }
@@ -174,12 +251,11 @@ public class FadingMap implements TileConstants {
   
   
   /**  Rendering and interface-
-    */
   public void presentVals(String label, float mult, boolean shortTerm) {
     final float squareA = resolution * resolution * mult ;
     final float map[][] = shortTerm ? shortTermAvg : longTermAvg ;
     I.present(map, label, 256, 256, squareA, -squareA) ;
   }
 }
-
+//*/
 

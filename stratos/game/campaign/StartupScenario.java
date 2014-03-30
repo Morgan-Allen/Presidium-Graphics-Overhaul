@@ -8,6 +8,7 @@ import stratos.game.base.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.game.planet.*;
+import stratos.game.wild.Ruins;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -57,8 +58,19 @@ public class StartupScenario extends Scenario {
       "Baroness (Large Estate)"
     } ;
   final public static int
-    MAP_SIZES[] = { 64, 128, 256 } ;
-  
+    MAP_SIZES[] = { 64, 128, 256 },
+    
+    SITE_WASTELAND  = 0,
+    SITE_WILDERNESS = 1,
+    SITE_SETTLED    = 2,
+    
+    FUNDING_MINIMAL  = 0,
+    FUNDING_STANDARD = 1,
+    FUNDING_GENEROUS = 2,
+    
+    TITLE_KNIGHTED = 0,
+    TITLE_COUNT    = 1,
+    TITLE_BARON    = 2;
   
   public static class Config {
     public Background house;
@@ -127,23 +139,27 @@ public class StartupScenario extends Scenario {
     return generateWorld();
   }
   
+  
   protected Base createBase(World world) {
     return generateBase(world);
   }
+  
   
   protected void configureScenario(World world, Base base, BaseUI UI) {
     generateScenario(world, base, UI);
   }
   
+  
   protected String saveFilePrefix(World world, Base base) {
     String title = base.ruler().fullName();
     while (true) {
-      File match = new File(Scenario.fullSavePath(title, null)) ;
-      if (! match.exists()) break ;
-      title = title+"I" ;
+      File match = new File(Scenario.fullSavePath(title, null));
+      if (! match.exists()) break;
+      title = title+"I";
     }
     return title;
   }
+  
   
   protected void afterCreation() {
     //saveProgress(false);
@@ -204,7 +220,7 @@ public class StartupScenario extends Scenario {
   }
   
   
-  protected void generateScenario(World world, Base base, BaseUI UI) {
+  private void generateScenario(World world, Base base, BaseUI UI) {
     //
     //  Determine relevant attributes for the ruler-
     final int station = config.titleLevel ;
@@ -258,46 +274,71 @@ public class StartupScenario extends Scenario {
       }
     }
     
+    //  Establish the position of the base site-
     final Bastion bastion = establishBastion(
       world, base, ruler, advisors, colonists
-    ) ;
-    UI.assignBaseSetup(base, bastion.position(null)) ;
+    );
+    UI.assignBaseSetup(base, bastion.position(null));
+    
+    //  And establish the locals too-
+    establishLocals(world);
   }
   
   
+  private void establishLocals(World world) {
+    if (config.siteLevel == SITE_SETTLED) {
+      Nest.placeNests(world, Species.QUD, Species.HAREEN);
+    }
+    if (config.siteLevel == SITE_WILDERNESS) {
+      final int maxRuins = world.size / (World.SECTOR_SIZE * 4);
+      Ruins.placeRuins(world, maxRuins);
+      Nest.placeNests(world, Species.QUD, Species.HAREEN, Species.LICTOVORE);
+    }
+    if (config.siteLevel == SITE_WASTELAND) {
+      final int maxRuins = world.size / (World.SECTOR_SIZE * 2);
+      Ruins.placeRuins(world, maxRuins);
+    }
+  }
+  
+  
+  
   private Bastion establishBastion(
-    World world, Base base,
+    final World world, Base base,
     Human ruler, List <Human> advisors, List <Human> colonists
   ) {
-    //
-    //  And finally, initiate the settlement within the world-
-    final Bastion bastion = new Bastion(base) ;
-    advisors.add(ruler) ;
-    base.assignRuler(ruler) ;
-    Human AA[] = advisors.toArray(Human.class) ;
+    final Bastion bastion = new Bastion(base);
+    advisors.add(ruler);
+    base.assignRuler(ruler);
+    final Human AA[] = advisors.toArray(Human.class);
+    final Tile target = world.tileAt(world.size / 2, world.size / 2);
     
     
-    //
-    //  TODO:  Place lairs away from the bastion.
-    final int WS = world.size;
-    for (Coord c : Visit.grid(0, 0, WS, WS, World.SECTOR_SIZE)) {
-      final Venue placed = Placement.establishVenue(
-        bastion, c.x + 12, c.y + 12, true, world, AA
-      );
-      if (placed != null) break;
-    }
+    final SitingPass siting = new SitingPass() {
+      protected float rateSite(Tile centre) {
+        float rating = world.terrain().fertilitySample(centre);
+        rating -= Spacing.distance(centre, target) / World.SECTOR_SIZE;
+        return rating;
+      }
+      protected boolean createSite(Tile centre) {
+        Placement.establishVenue(
+          bastion, centre.x, centre.y, true, world, AA
+        );
+        return bastion.inWorld();
+      }
+    };
+    siting.applyPassTo(world, 1);
+
     if (! bastion.inWorld()) I.complain("NO LANDING SITE FOUND!");
-    
-    bastion.clearSurrounds() ;
+    bastion.clearSurrounds();
     for (Actor a : advisors) {
-      a.mind.setHome(bastion) ;
+      a.mind.setHome(bastion);
     }
     for (Actor a : colonists) {
-      a.assignBase(base) ;
-      a.enterWorldAt(bastion, world) ;
-      a.goAboard(bastion, world) ;
+      a.assignBase(base);
+      a.enterWorldAt(bastion, world);
+      a.goAboard(bastion, world);
     }
-    return bastion ;
+    return bastion;
   }
 }
 

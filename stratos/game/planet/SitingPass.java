@@ -7,27 +7,8 @@
 
 
 package stratos.game.planet ;
-//import stratos.game.base.* ;
-//import stratos.game.actors.*;
-import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.util.*;
-
-
-
-
-
-//  Okay.  The next challenge will be to get this up and running once more.
-
-//  Drop sites.  Ancient ruins.  Native encampments.
-//  Mineral deposits and terrain features.  Flora.  Animal Lairs.
-
-//  ***  Feed forward, or feed back?  Feed forward.
-//  ***  Multi-pass, or single pass?  Multi-pass.
-
-
-
-
 
 
 
@@ -37,15 +18,14 @@ public abstract class SitingPass {
   int resolution = World.SECTOR_SIZE;
   
   
-  protected static class Site {
-    Tile centre;
-    float rating;
-    
-    float fertility, minerals, insolation;
-    float habitatAmounts[];
+  private static class Site {
+    Tile centre = null;
+    float rating = -1;
+    boolean placed = false;
   }
   
   
+  //  TODO:  Return a list of the sites generated...
   public void applyPassTo(final World world, final int numSites) {
     
     final List <Site> allSites = new List <Site> () {
@@ -185,88 +165,6 @@ public abstract class SitingPass {
   
   
   
-  /**  Placement of ruins-
-    */
-  //
-  //  TODO:  You might want to pass in a constructor.
-  
-  //  TODO:  RESTORE THIS LATER
-  /*
-  public void populateWithRuins() {
-    float ruined = terGen.baseAmount(Habitat.CURSED_EARTH) ;
-    ruined = (ruined + (1 - totalFertility)) / 2f ;
-    
-    final int
-      numMajorRuins = (int) ((ruined * numMajor) + 0.5f),
-      numMinorRuins = (int) ((ruined * numMinor) + 0.5f) ;
-    I.say("Major/minor ruins: "+numMajorRuins+"/"+numMinorRuins) ;
-    
-    for (int n = numMajorRuins + numMinorRuins ; n-- > 0 ;) {
-      final int SS = World.SECTOR_SIZE ;
-      Coord pos = findBasePosition(null, -1) ;
-      I.say("Ruins site at: "+pos) ;
-      final Tile centre = world.tileAt(
-        (pos.x + 0.5f) * SS,
-        (pos.y + 0.5f) * SS
-      ) ;
-      final boolean minor = n < numMinorRuins ;
-      
-      int maxRuins = (minor ? 3 : 1) + Rand.index(3) ;
-      final Batch <Venue> ruins = new Batch <Venue> () ;
-      while (maxRuins-- > 0) {
-        final Ruins r = new Ruins() ;
-        Placement.establishVenue(r, centre.x, centre.y, true, world) ;
-        if (r.inWorld()) ruins.add(r) ;
-      }
-      
-      for (Venue r : ruins) for (Tile t : world.tilesIn(r.area(), true)) {
-        Habitat h = Rand.yes() ? Habitat.CURSED_EARTH : Habitat.DUNE ;
-        world.terrain().setHabitat(t, h) ;
-      }
-      populateArtilects(ruins, minor) ;
-    }
-    //
-    //  TODO:  The slag/wreckage positioning must be done in a distinct pass.
-  }
-  
-  
-  private void populateArtilects(Batch <Venue> ruins, boolean minor) {
-    final Base artilects = world.baseWithName(Base.KEY_ARTILECTS, true, true) ;
-    //
-    //  TODO:  Generalise this, too?  Using pre-initialised actors?
-    int lairNum = 0 ; for (Venue r : ruins) {
-      r.assignBase(artilects) ;
-      if (lairNum++ > 0 && Rand.yes()) continue ;
-      
-      final Tile e = r.mainEntrance() ;
-      int numT = Rand.index(3) == 0 ? 1 : 0, numD = 1 + Rand.index(2) ;
-      if (minor && Rand.yes()) { numT = 0 ; numD-- ; }
-      
-      while (numT-- > 0) {
-        final Tripod tripod = new Tripod() ;
-        tripod.assignBase(artilects) ;
-        tripod.enterWorldAt(e.x, e.y, world) ;
-        tripod.mind.setHome(r) ;
-      }
-      
-      while (numD-- > 0) {
-        final Drone drone = new Drone() ;
-        drone.assignBase(artilects) ;
-        drone.enterWorldAt(e.x, e.y, world) ;
-        drone.mind.setHome(r) ;
-      }
-      
-      if (lairNum == 1 && Rand.yes() && ! minor) {
-        final Cranial cranial = new Cranial() ;
-        cranial.assignBase(artilects) ;
-        cranial.enterWorldAt(e.x, e.y, e.world) ;
-        cranial.mind.setHome(r) ;
-      }
-    }
-  }
-  //*/
-  
-  
   
   /**  Placement of natural flora and animal dens/populations-
     */
@@ -279,75 +177,8 @@ public abstract class SitingPass {
     }
   }
   
-  
-  public void populateFauna(
-    final Species... species
-  ) {
-    //
-    //  Okay.  First of all, there ought to be a minimum distance between lairs.
-    //  Secondly, it might be simplest to just sample the dozen closest lairs
-    //  and their occupants to get an idea of predator quotients.
-    //
-    //  Thirdly... well, terrain sampling can proceed as before.  But
-    //  reproduction should probably be limited to once every couple of days-
-    //  and longer, for predators.
-    //
-    //  Fourthly, for animals, maturation should probably be spurred primarily
-    //  by food ingestion.  (Lifespan is a maximum only.)  And lairs have no
-    //  maximum occupancy- crowding is rated based on abundance of nearby
-    //  food sources.
-    //
-    //  During setup, whichever species is considered least abundant at a given
-    //  site will be installed first.
-    
-    final int SS = World.SECTOR_SIZE ;
-    int numAttempts = (world.size * world.size * 4) / (SS * SS) ;
-    I.say("No. of attempts: "+numAttempts) ;
-    final Base wildlife = world.baseWithName(Base.KEY_WILDLIFE, true, true) ;
-    
-    while (numAttempts-- > 0) {
-      Tile tried = world.tileAt(
-        Rand.index(world.size),
-        Rand.index(world.size)
-      ) ;
-      tried = Spacing.nearestOpenTile(tried, tried) ;
-      if (tried == null) continue ;
-      Nest toPlace = null ;
-      float bestRating = 0 ;
-      
-      for (Species s : species) {
-        final Nest nest = Nest.siteNewLair(s, tried, world) ;
-        if (nest == null) continue ;
-        final float
-          idealPop = Nest.idealNestPop(s, nest, world, false),
-          adultMass = s.baseBulk * s.baseSpeed,
-          rating = (idealPop * adultMass) + 0.5f ;
-        if (rating > bestRating) { toPlace = nest ; bestRating = rating ; }
-      }
-      
-      if (toPlace != null) {
-        I.say("New lair for "+toPlace.species+" at "+toPlace.origin()) ;
-        toPlace.doPlace(toPlace.origin(), null) ;
-        toPlace.assignBase(wildlife) ;
-        toPlace.structure.setState(Structure.STATE_INTACT, 1) ;
-        final Species s = toPlace.species ;
-        final float adultMass = s.baseBulk * s.baseSpeed ;
-        float bestPop = bestRating / adultMass ;
-        
-        while (bestPop-- > 0) {
-          final Fauna f = toPlace.species.newSpecimen() ;
-          f.health.setupHealth(Rand.num(), 0.9f, 0.1f) ;
-          f.mind.setHome(toPlace) ;
-          f.assignBase(wildlife) ;
-          f.enterWorldAt(toPlace, world) ;
-          f.goAboard(toPlace, world) ;
-        }
-      }
-    }
-  }
-  //*/
 //}
-
+//*/
 
 
 

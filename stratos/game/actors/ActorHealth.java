@@ -4,6 +4,8 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.actors ;
+import org.apache.commons.math3.util.FastMath;
+
 import stratos.game.common.*;
 import stratos.util.*;
 
@@ -297,10 +299,8 @@ public class ActorHealth implements Abilities {
   /**  Methods related to sensing and motion-
     */
   public float baseSpeed() {
-    float rate = baseSpeed ;
-    if (GameSettings.bigSprite) rate *= GameSettings.BIG_SPRITE_SCALE;
-    else rate *= GameSettings.SMALL_SPRITE_SCALE;
-    return rate * (float) Math.sqrt(ageMultiple) ;
+    float rate = baseSpeed * GameSettings.actorScale ;
+    return rate * (float) FastMath.sqrt(ageMultiple) ;
   }
   
   

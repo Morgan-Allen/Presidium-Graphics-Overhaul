@@ -1,10 +1,11 @@
 
 
 
-package stratos.game.planet ;
+package stratos.game.wild ;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
+import stratos.game.planet.Species;
 import stratos.game.tactical.*;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
@@ -56,19 +57,30 @@ public abstract class Artilect extends Actor {
   ;
   
   
+  final Species species;
   
-  protected Artilect() {
+  
+  
+  protected Artilect(Species s) {
     super() ;
+    this.species = s;
   }
   
   
   public Artilect(Session s) throws Exception {
     super(s) ;
+    this.species = (Species) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s) ;
+    s.saveObject(species);
+  }
+  
+  
+  public Species species() {
+    return species;
   }
   
 
@@ -208,9 +220,12 @@ public abstract class Artilect extends Actor {
     }
     
     d.append("\n\n");
-    d.append(species().info);
+    d.append(helpInfo());
     return panel;
   }
+  
+  //  TODO:  Get rid of this once species are sorted out.
+  protected abstract String helpInfo();
   
   
   

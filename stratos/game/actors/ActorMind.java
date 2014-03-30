@@ -564,7 +564,6 @@ public abstract class ActorMind implements Abilities {
   
   /**  Greed value-
     */
-  //*
   public float greedFor(int creditsPerDay) {
     float baseUnit = actor.gear.credits() / 2f;
     if (actor.base() != null) {
@@ -578,7 +577,6 @@ public abstract class ActorMind implements Abilities {
       greed = actor.traits.scaleLevel(ACQUISITIVE);
     return greed * (float) (Behaviour.ROUTINE + FastMath.log(mag));
   }
-  //*/
   
   
   

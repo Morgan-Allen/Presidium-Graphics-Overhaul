@@ -55,7 +55,7 @@ public class Quud extends Fauna {
   
   
   public float height() {
-    return 0.33f ;
+    return 0.33f * super.height() ;
   }
   
   

@@ -27,9 +27,12 @@ public class GameSettings {
     
     pathFree  = false,
     
-    bigSprite = true,
+    //bigSprite = false,
     
     hardCore  = false ;
+  
+  public static float
+    actorScale = SMALL_SPRITE_SCALE;
   
   
   

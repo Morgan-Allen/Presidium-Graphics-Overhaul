@@ -196,7 +196,7 @@ public class Crop implements Session.Saveable, Target {
       increment *= Planet.dayValue(world) * 2;
       increment *= quality * habitatBonus(tile, species, null);
     }
-    increment *= Rand.num() * 2 * Plantation.GROW_INCREMENT;
+    increment *= Rand.num() * 2 * Plantation.GROW_INCREMENT * MAX_GROWTH;
     
     growStage = Visit.clamp(growStage + increment, MIN_GROWTH, MAX_GROWTH);
     checkBlight(pollution);

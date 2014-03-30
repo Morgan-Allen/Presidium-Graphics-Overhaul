@@ -435,252 +435,12 @@ public abstract class Venue extends Fixture implements
   
   
   public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
-    if (panel == null) panel = new InfoPanel(
-      UI, this, 0, "STATUS", "STAFF", "STOCK", "UPGRADES"
-    );
-    final int categoryID = panel.categoryID();
-    final Description d = panel.detail();
-    if (categoryID == 0) describeCondition(d, UI) ;
-    if (categoryID == 1) describePersonnel(d, UI) ;
-    if (categoryID == 2) describeStocks(d, UI) ;
-    if (categoryID == 3) describeUpgrades(d, UI) ;
-    return panel;
-  }
-  
-  
-  private void describeCondition(Description d, BaseUI UI) {
-    
-    d.append("Condition and Repair:") ;
-    d.append("\n  Integrity: ") ;
-    d.append(structure.repair()+" / "+structure.maxIntegrity()) ;
-    
-    //
-    //  If there's an upgrade in progress, list it here.
-    final String CUD = structure.currentUpgradeDesc() ;
-    if (CUD != null) d.append("\n  "+CUD) ;
-    d.append("\n  Materials Needed: "+"None") ;
-    d.append("\n  Untaxed Credits: "+(int) stocks.credits()) ;
-    
-    final float squalor = 0 - world.ecology().ambience.valueAt(this) ;
-    if (squalor > 0) {
-      final String SN = " ("+I.shorten(squalor, 1)+")" ;
-      d.append("\n  "+Ambience.squalorDesc(squalor)+" Squalor"+SN) ;
-    }
-    else {
-      final String AN = " ("+I.shorten(0 - squalor, 1)+")" ;
-      d.append("\n  "+Ambience.squalorDesc(squalor)+" Ambience"+AN) ;
-    }
-    
-    final float danger = base().dangerMap.longTermVal(world.tileAt(this)) ;
-    if (danger > 0) {
-      final String DN = " ("+I.shorten(danger, 1)+")" ;
-      d.append("\n  "+Ambience.dangerDesc(danger)+" Hazards"+DN) ;
-    }
-    else {
-      final String SN = " ("+I.shorten(0 - danger, 1)+")" ;
-      d.append("\n  "+Ambience.dangerDesc(danger)+" Safety"+SN) ;
-    }
-    
-    d.append("\n\n") ;
-    
-    d.append(helpInfo(), Colour.LIGHT_GREY) ;
-  }
-  
-  
-  protected void describeStocks(Description d, BaseUI UI) {
-    d.append("Stocks and Orders:") ;
-    boolean empty = true ;
-    
-    final Sorting <Item> listing = new Sorting <Item> () {
-      public int compare(Item a, Item b) {
-        if (a.equals(b)) return 0 ;
-        if (a.type.typeID > b.type.typeID) return  1 ;
-        if (a.type.typeID < b.type.typeID) return -1 ;
-        if (a.refers != null && b.refers != null) {
-          if (a.refers.hashCode() > b.refers.hashCode()) return  1 ;
-          if (a.refers.hashCode() < b.refers.hashCode()) return -1 ;
-        }
-        if (a.quality > b.quality) return  1 ;
-        if (a.quality < b.quality) return -1 ;
-        return 0 ;
-      }
-    } ;
-    for (Item item : stocks.allItems()) listing.add(item) ;
-    for (Service type : ALL_ITEM_TYPES) {
-      if (stocks.demandFor(type) > 0 && stocks.amountOf(type) == 0) {
-        listing.add(Item.withAmount(type, 0)) ;
-      }
-    }
-    if (listing.size() > 0) empty = false ;
-    for (Item item : listing) describeStocks(item, d) ;
-    
-    for (Manufacture m : stocks.specialOrders()) {
-      d.append("\n  ") ; m.describeBehaviour(d) ; empty = false ;
-    }
-    if (empty) d.append("\n  No stocks or orders.") ;
-  }
-  
-  
-  protected boolean describeStocks(Item item, Description d) {
-    final float needed ;
-    final Service type = item.type ;
-    if (this instanceof Service.Trade) {
-      final Service.Trade trade = (Service.Trade) this ;
-      needed = Math.max(Math.max(
-        trade.exportDemand(type),
-        trade.importDemand(type)
-      ), stocks.demandFor(type)) ;
-    }
-    else needed = stocks.demandFor(type) ;
-    final float amount = stocks.amountOf(type) ;
-    if (needed == 0 && amount == 0) return false ;
-    
-    final String nS = I.shorten(needed, 1) ;
-    d.append("\n  ") ;
-    item.describeTo(d) ;
-    
-    //if (Visit.arrayIncludes(services(), type) && item.refers == null) {
-      final int price = (int) Math.ceil(priceFor(type)) ;
-      d.append(" /"+nS+" (Price "+price+")") ;
-    //}
-    return true ;
-  }
-  
-  
-  
-  private void describePersonnel(Description d, BaseUI UI) {
-    final Background c[] = careers();
-    if (c != null && c.length > 0) {
-      d.append("\nCareers and Openings:");
-      for (Background v : c) {
-        final int
-          hired = personnel.numHired(v),
-          total = hired + numOpenings(v);
-        d.append("\n  "+hired+"/"+total+" "+v.name);
-      }
-      d.append("\n");
-    }
-    
-    d.append("\nPersonnel:");
-    for (final Application a : personnel.applications) {
-      final Actor p = a.applies;
-      d.append("\n") ;
-      ((Text) d).insert(p.portrait(UI).texture(), 40);
-      d.append(p);
-      d.append(p.inWorld() ? " (" : " (Offworld ");
-      d.append(p.vocation().name+")\n  ");
-      
-      d.append(new Description.Link("Hire for "+a.hiringFee()+" cred") {
-        public void whenClicked() { personnel.confirmApplication(a); }
-      }) ;
-    }
-    
-    final Batch <Mobile> considered = new Batch <Mobile> () ;
-    for (Actor m : personnel.residents()) considered.include(m) ;
-    for (Actor m : personnel.workers()) considered.include(m) ;
-    for (Mobile m : inside) considered.include(m) ;
-    
-    for (Mobile m : considered) {
-      d.append("\n  ") ;
-      if (d instanceof Text && m instanceof Human) {
-        final Composite p = ((Human) m).portrait(UI);
-        ((Text) d).insert(p.texture(), 40);
-      }
-      d.append(m) ;
-      if (m instanceof Actor) {
-        d.append("\n  ") ;
-        d.append(descDuty((Actor) m)) ;
-      }
-      d.append("\n  ") ;
-      m.describeStatus(d) ;
-    }
-  }
-  
-  
-  private String descDuty(Actor a) {
-    final Background v = a.vocation() ;
-    final String VN = v == null ? a.species().toString() : v.nameFor(a) ;
-    if (a.mind.home() == this) return "(Resident "+VN+")" ;
-    if (a.mind.work() != this) return "(Visiting "+VN+")" ;
-    final String duty = personnel.onShift(a) ? "On-Duty" : "Off-Duty" ;
-    return "("+duty+" "+VN+")" ;
-  }
-  
-  
-  private static Upgrade lastCU ;  //last clicked...
-  
-  private void describeUpgrades(Description d, BaseUI UI) {
-    final Base played = BaseUI.current().played();
-    
-    if (played == base && ! privateProperty()) {
-      d.append("Orders: ") ;
-      final Venue v = this ;
-      if (structure.needsSalvage()) {
-        d.append(new Description.Link("\n  Cancel Salvage") {
-          public void whenClicked() {
-            final float condition = structure.repairLevel() ;
-            structure.setState(Structure.STATE_INTACT, condition) ;
-            world.ephemera.addGhost(v, size, buildSprite.scaffolding(), 2.0f) ;
-          }
-        }) ;
-      }
-      else {
-        d.append(new Description.Link("\n  Begin Salvage") {
-          public void whenClicked() {
-            final float condition = structure.repairLevel() ;
-            structure.setState(Structure.STATE_SALVAGE, condition) ;
-            world.ephemera.addGhost(v, size, buildSprite.baseSprite(), 2.0f) ;
-          }
-        }) ;
-      }
-      d.append("\n\n") ;
-    }
-    
-    final int numU = structure.numUpgrades(), maxU = structure.maxUpgrades() ;
-    if (maxU > 0) {
-      final Batch <String> DU = structure.descOngoingUpgrades() ;
-      d.append("Upgrade slots ("+numU+"/"+maxU+")") ;
-      for (String s : DU) d.append("\n  "+s) ;
-      d.append("\n\nUpgrades available: ") ;
-      
-      final Index <Upgrade> upgrades = allUpgrades() ;
-      if (upgrades != null && upgrades.members().length > 0) {
-        for (final Upgrade upgrade : upgrades) {
-          d.append("\n  ") ;
-          d.append(new Description.Link(upgrade.name) {
-            public void whenClicked() { lastCU = upgrade ; }
-          }) ;
-          d.append(" (x"+structure.upgradeLevel(upgrade)+")") ;
-        }
-        if (lastCU != null) {
-          d.append("\n\n") ;
-          d.append(lastCU.description) ;
-          d.append("\n  Cost: "+lastCU.buildCost+"   ") ;
-          if (lastCU.required != null) {
-            d.append("\n  Requires: "+lastCU.required.name) ;
-          }
-          if (structure.upgradePossible(lastCU)) {
-            d.append(new Description.Link("\n\n  BEGIN UPGRADE") {
-              public void whenClicked() {
-                structure.beginUpgrade(lastCU, false) ;
-              }
-            }) ;
-          }
-        }
-      }
-      else d.append("\n  No upgrades.") ;
-    }
+    return VenueDescription.configInfoPanel(this, panel, UI);
   }
 
   
   public void whenClicked() {
-    lastCU = null ;
     BaseUI.current().selection.pushSelection(this, false) ;
-  }
-  
-  
-  public InfoPanel createPanel(BaseUI UI) {
-    return new InfoPanel(UI, this, 0) ;
   }
   
   
@@ -797,15 +557,6 @@ public abstract class Venue extends Fixture implements
     0, 2,
     3, 0,
     0, 3
-    /*
-     0,  0,
-     1,  0,
-     0, -1,
-     2,  0,
-     0, -2,
-     3,  0,
-     0, -3,
-     //*/
   } ;
   
   
@@ -832,8 +583,8 @@ public abstract class Venue extends Fixture implements
     
     final boolean hide = ! structure.intact() ;
     final float
-      initY = (size / 2f) - 0.5f,
-      initX = 0.5f - (size / 2f) ;
+      initY = (size / 2f) - BuildingSprite.ITEM_SIZE,
+      initX = BuildingSprite.ITEM_SIZE - (size / 2f) ;
     
     int index = -1 ;
     for (Service s : services) if (canShow(s)) index += 2 ;

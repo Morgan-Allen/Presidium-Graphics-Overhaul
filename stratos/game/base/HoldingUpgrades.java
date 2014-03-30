@@ -128,7 +128,7 @@ public class HoldingUpgrades implements Economy {
       MODERATE_DC, ASSEMBLY
     ),
     new Conversion(
-      2, PARTS, 2, POWER, 2, PLASTICS, 1, WATER, 1, CIRCUITRY,
+      3, PARTS, 2, POWER, 2, PLASTICS, 1, WATER, 1, CIRCUITRY,
       DIFFICULT_DC, ASSEMBLY
     ),
   } ;
@@ -280,16 +280,16 @@ public class HoldingUpgrades implements Economy {
   /**  Venues access-
     */
   //
-  //  Danger and Ambience, based on area.
-  //  Health and morale, based on inhabitants.
-  //  Food stocks and building materials.
-  //  Vault System or Sickbay.
-  //  Stock Exchange or Cantina.
-  //  Archives or Counsel Chamber.
+  //  Danger and Ambience, based on area.  (modified by security.)
+  //  Health and morale, based on inhabitants.  (modified by entertainment.)
+  //  Food stocks and building materials.  (modified by health & services.)
+  
+  //  Security (bastion, enforcer bloc, shield wall.)
+  //  Health & services (sickbay, archives, stock exchange.)
+  //  Entertainment (cantina, arena, counsel chamber.)
   
   //  Merge 'wastes huts' with slum housing, and allow those to upgrade to Dreg
-  //  Towers.
-  //  Seal tents are intermediate.
+  //  Towers.  Seal tents are intermediate.
   //
   //  Knighted Estates require access to a Bastion, and 2 servants per
   //    inhabitant.
@@ -306,10 +306,10 @@ public class HoldingUpgrades implements Economy {
     
     if (upgradeLevel >= LEVEL_PYON) {
       if (
-        //lacksAccess(holding, VaultSystem.class) &&
+        lacksAccess(holding, Bastion.class) &&
         lacksAccess(holding, Sickbay.class)
       ) return NV ? NOT_MET :
-        "Your pyons will need access to a Vault System or Sickbay to provide "+
+        "Your pyons will need access to a Bastion or Sickbay to provide "+
         "life support or health services before they will feel safe enough "+
         "to settle down." ;
     }
@@ -421,7 +421,8 @@ public class HoldingUpgrades implements Economy {
   ) {
     final boolean NV = ! verbose ;
     
-    float safety = 0 - holding.base().dangerMap.longTermVal(holding.origin()) ;
+    final Tile t = holding.world().tileAt(holding);
+    float safety = 0 - holding.base().dangerMap.sampleAt(t.x, t.y) ;
     if (holding.stocks.amountOf(PRESSFEED) > 0.5f) safety += 1.5f ;
     if (safety < SAFETY_NEEDS[upgradeLevel]) return NV ? NOT_MET :
       "This area feels too unsettled for your subjects' comfort, hindering "+

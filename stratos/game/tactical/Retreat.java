@@ -189,7 +189,7 @@ public class Retreat extends Plan implements Abilities {
       if (tried == null || Spacing.distance(tried, target) > range) continue ;
       
       //  TODO:  Have danger-map sampling built into dangerAtSpot().
-      float tryRating = actor.base().dangerMap.shortTermVal(tried) ;
+      float tryRating = actor.base().dangerMap.sampleAt(tried.x, tried.y) ;
       tryRating = dangerAtSpot(tried, actor, null, actor.mind.awareOf()) ;
       tryRating /= 2 ;
       tryRating += (Rand.num() - 0.5f) * salt ;

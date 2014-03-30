@@ -55,10 +55,10 @@ public class Plantation extends Venue implements
     ),
     CROP_MODELS[][] = CutoutModel.fromImageGrid(
       Plantation.class, IMG_DIR+"all_crops.png",
-      4, 4, 1, 1
+      4, 4, 0.5f, 0.5f
     ),
     GRUB_BOX_MODEL = CutoutModel.fromImage(
-      Plantation.class, IMG_DIR+"grub_box.png", 1, 1
+      Plantation.class, IMG_DIR+"grub_box.png", 0.5f, 0.5f
     ) ;
   
   
@@ -69,16 +69,20 @@ public class Plantation extends Venue implements
     TYPE_COVERED = 2 ;
   final static float
     MATURE_DURATION = World.STANDARD_DAY_LENGTH * 5,
-    GROW_INCREMENT = World.GROWTH_INTERVAL * Crop.MAX_GROWTH / MATURE_DURATION,
+    GROW_INCREMENT  = World.GROWTH_INTERVAL / MATURE_DURATION,
     
-    MAX_HEALTH_BONUS = 2.0f,
-    INFEST_GROW_PENALTY = 0.5f,
+    MAX_HEALTH_BONUS     = 2.0f,
+    INFEST_GROW_PENALTY  = 0.5f,
     POLLUTE_GROW_PENALTY = 0.5f,
-    UPGRADE_GROW_BONUS = 0.25f,
+    UPGRADE_GROW_BONUS   = 0.25f,
     
     CEREAL_BONUS = 2.00f,
     DRYLAND_MULT = 0.75f,
-    WETLAND_MULT = 1.25f;
+    WETLAND_MULT = 1.25f,
+    
+    NURSERY_CARBS   = 1,
+    NURSERY_GREENS  = 0.5f,
+    NURSERY_PROTEIN = 0.5f;
   
   
   final BotanicalStation belongs ;
@@ -148,9 +152,10 @@ public class Plantation extends Venue implements
   
   
   public int pathType() {
-    if (type == TYPE_NURSERY) return Tile.PATH_BLOCKS ;
-    if (type == TYPE_COVERED) return Tile.PATH_BLOCKS ;
-    return Tile.PATH_HINDERS ;
+    return Tile.PATH_BLOCKS;
+    //if (type == TYPE_NURSERY) return Tile.PATH_BLOCKS ;
+    //if (type == TYPE_COVERED) return Tile.PATH_BLOCKS ;
+    //return Tile.PATH_HINDERS ;
   }
   
   
@@ -198,14 +203,14 @@ public class Plantation extends Venue implements
     
     if (type == TYPE_NURSERY && numUpdates % 10 == 0) {
       final float
-        decay  = 10 * 0.1f * GROW_INCREMENT,
-        growth = 10 * GROW_INCREMENT ;
+        growth = 10 * 1f / MATURE_DURATION,
+        decay = growth / 10;
       for (Item seed : stocks.matches(SAMPLES)) {
-        stocks.removeItem(Item.withAmount(seed, decay)) ;
+        stocks.removeItem(Item.withAmount(seed, decay));
       }
-      stocks.bumpItem(CARBS, growth);
-      stocks.bumpItem(GREENS, growth);
-      stocks.bumpItem(PROTEIN, growth);
+      stocks.bumpItem(CARBS  , growth * NURSERY_CARBS  );
+      stocks.bumpItem(GREENS , growth * NURSERY_GREENS );
+      stocks.bumpItem(PROTEIN, growth * NURSERY_PROTEIN);
     }
   }
   
@@ -241,7 +246,10 @@ public class Plantation extends Venue implements
       c.onGrowth(t) ;
       final int newGrowth = (int) c.growStage() ;
       if (oldGrowth != newGrowth) anyChange = true ;
-      world.ecology().impingeBiomass(this, c.growStage() / 2f, true) ;
+      
+      world.ecology().impingeBiomass(
+        t, c.growStage() / 2f, World.GROWTH_INTERVAL
+      );
     }
     checkCropStates() ;
     if (anyChange) refreshCropSprites() ;
@@ -261,31 +269,43 @@ public class Plantation extends Venue implements
       world.ephemera.addGhost(this, 2, oldSprite, 2.0f) ;
     }
     
-    final GroupSprite s = new GroupSprite() ;
+    final GroupSprite GS = new GroupSprite() ;
     final Tile o = origin() ;
     for (int i = 4 ; i-- > 0 ;) {
       final Crop c = planted[i] ;
       if (c == null) continue ;
       //
       //  Update the sprite-
-      ModelAsset m = null ; if (type == TYPE_COVERED) {
+      Sprite s = null ;
+      if (type == TYPE_COVERED) {
         if ((facing == N || facing == S) && c.tile.x == o.x + 1) {
-          m = COVERING_RIGHT ;
+          s = COVERING_RIGHT.makeSprite() ;
         }
         if ((facing == E || facing == W) && c.tile.y == o.y + 0) {
-          m = COVERING_LEFT ;
+          s = COVERING_LEFT.makeSprite() ;
         }
       }
-      if (m == null) {
-        m = Plantation.speciesModel(c.species(), c.growStage());
+      if (s == null) {
+        final ModelAsset m = speciesModel(c.species(), c.growStage());
+        final GroupSprite CS = new GroupSprite();
+        for (int j = 0; j < 8;) {
+          CS.attach(
+            m,
+            (CROPS_POS[j++] - 0.5f) / 2,
+            (CROPS_POS[j++] - 0.5f) / 2,
+            0
+         );
+        }
+        s = CS;
       }
-      s.attach(m,
+      GS.attach(
+        s,
         CROPS_POS[i * 2] - 0.5f,
         CROPS_POS[(i * 2) + 1] - 0.5f,
         0
       ) ;
     }
-    attachSprite(s) ;
+    attachSprite(GS) ;
     setAsEstablished(false) ;
   }
   
@@ -319,6 +339,9 @@ public class Plantation extends Venue implements
   
   /**  Finding space.
     */
+  
+  //  TODO:  Outsource these to the Placement class.
+  
   static Plantation[] placeAllotment(
     final BotanicalStation parent, final int minSize, boolean covered
   ) {

@@ -192,7 +192,7 @@ public class ExcavationSite extends Venue implements
   
   public int numOpenings(Background v) {
     final int NO = super.numOpenings(v) ;
-    if (v == Background.EXCAVATOR) return NO + 2 ;
+    if (v == Background.EXCAVATOR) return NO + 3 ;
     return 0 ;
   }
   

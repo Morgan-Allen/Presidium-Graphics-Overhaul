@@ -32,7 +32,6 @@ public class MainMenu extends UIGroup {
   final Text text;
   int mode = MODE_INIT;
   private StartupScenario.Config config;
-  //private StartupScenario scenario;
   
   
   public MainMenu(HUD UI) {
@@ -303,9 +302,9 @@ public class MainMenu extends UIGroup {
     }
     config.numCrew.put(Background.FIRST_CONSORT, 1);
     
-    config.siteLevel  = 1;
-    config.titleLevel = 1;
-    config.fundsLevel = 1;
+    config.siteLevel  = StartupScenario.SITE_WILDERNESS;
+    config.titleLevel = StartupScenario.TITLE_COUNT;
+    config.fundsLevel = StartupScenario.FUNDING_STANDARD;
     
     PlayLoop.setupAndLoop(new StartupScenario(config));
   }
@@ -333,20 +332,8 @@ public class MainMenu extends UIGroup {
     final String fullPath = "saves/"+(String) args[0] ;
     I.say("Loading game: "+fullPath) ;
     Scenario.loadGame(fullPath, true);
-    /*
-    try {
-      final Session s = Session.loadSession(fullPath) ;
-      final Scenario scenario = s.scenario() ;
-      PlayLoop.setupAndLoop(scenario.UI(), scenario) ;
-    }
-    catch (Exception e) { I.report(e) ; }
-    //*/
   }
   
-  
-  //
-  //  TODO:  Provide a couple of settings to tweak:  Difficulty, hardness, and
-  //  drama rating...  Ha!
   
   public void configForSettings(Object args[]) {
     text.setText("\nChange Settings\n") ;

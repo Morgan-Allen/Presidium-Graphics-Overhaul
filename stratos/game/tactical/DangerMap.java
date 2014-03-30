@@ -7,9 +7,6 @@ import stratos.game.common.*;
 import stratos.util.*;
 
 
-//
-//  You need something similar for squalor/ambience.
-
 
 public class DangerMap extends FadingMap {
   
@@ -20,9 +17,9 @@ public class DangerMap extends FadingMap {
   
   
   public DangerMap(World world, Base base) {
-    super(world, world.sections.resolution) ;
+    super(world, world.sections.resolution, -1) ;
     //TODO:  Use Sector Size for grid resolution, and enhance pathfinding with
-    //       enemy fog-of-war, if the actor has enough in the stealth skill...
+    //       enemy fog-of-war.
     this.base = base ;
   }
   
@@ -40,13 +37,13 @@ public class DangerMap extends FadingMap {
   
   /**  Methods for regularly updating, adjusting and querying danger values-
     */
-  public void updateVals() {
-    super.performFade() ;
-    
+  public void update() {
+    super.update();
     //if (base == PlayLoop.currentScenario().base()) {
       //I.present(shortTermVals, "Danger map", 200, 200, 20, -20) ;
     //}
   }
+  
   
   
   /**  TODO:  Include generalised methods for estimating distance/danger totals

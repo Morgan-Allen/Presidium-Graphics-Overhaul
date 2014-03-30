@@ -31,11 +31,11 @@ import stratos.util.*;
 public class Session {
   
   
-  
   final static int
     CLASS_CAPACITY  = 200,
     OBJECT_CAPACITY = 50000 ;
   private static boolean verbose = false;
+  
   
   private Table <Class, Vars.Int> classCounts = new Table(CLASS_CAPACITY) ;
   

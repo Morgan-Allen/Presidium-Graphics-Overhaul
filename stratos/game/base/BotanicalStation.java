@@ -233,7 +233,7 @@ public class BotanicalStation extends Venue implements Economy {
       }
       //
       //  Then, calculate how many allotments one should have.
-      int maxAllots = 3 + (structure.upgradeBonus(Background.CULTIVATOR) * 2) ;
+      int maxAllots = 2 * personnel.numHired(Background.CULTIVATOR);
       maxAllots *= STRIP_SIZE ;
       if (maxAllots > allotments.size()) {
         //
@@ -265,7 +265,7 @@ public class BotanicalStation extends Venue implements Economy {
 
   public int numOpenings(Background v) {
     int num = super.numOpenings(v) ;
-    if (v == Background.CULTIVATOR) return num + 1 ;
+    if (v == Background.CULTIVATOR) return num + 2 ;
     if (v == Background.ECOLOGIST ) return num + 1 ;
     return 0 ;
   }

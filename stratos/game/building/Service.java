@@ -60,13 +60,14 @@ public class Service implements Session.Saveable {
     this.name = name ;
     this.basePrice = basePrice ;
     final String imagePath = ITEM_PATH+imgName ;
+    final float IS = BuildingSprite.ITEM_SIZE;
     if (new java.io.File(imagePath).exists()) {
       this.picPath = imagePath;
-      this.model = CutoutModel.fromImage(typeClass, imagePath, 0.5f, 0.5f);
+      this.model = CutoutModel.fromImage(typeClass, imagePath, IS, IS);
     }
     else {
       this.picPath = DEFAULT_PIC_PATH;
-      this.model = CutoutModel.fromImage(typeClass, picPath, 0.5f, 0.5f);
+      this.model = CutoutModel.fromImage(typeClass, picPath, IS, IS);
     }
     soFar.add(this) ;
     allTypes.add(this) ;

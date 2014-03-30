@@ -40,7 +40,7 @@ public interface Economy extends Abilities {
     CARBS       = new Service(BC, "Carbs"     , "carbs.gif"      , FC, 10 ),
     GREENS      = new Service(BC, "Greens"    , "greens.gif"     , FC, 25 ),
     PROTEIN     = new Service(BC, "Protein"   , "protein.gif"    , FC, 40 ),
-    POLYMERS    = new Service(BC, "Polymers"  , "polymers.gif"   , FC, 60 ),
+    ORGANICS    = new Service(BC, "Organics"  , "polymers.gif"   , FC, 60 ),
     SPICE_OIL   = new Service(BC, "Spice Oil" , "spice oil.gif"  , FC, 100),
     SPICE_GALL  = new Service(BC, "Spice Gall", "spice gall.gif" , FC, 200),
     //

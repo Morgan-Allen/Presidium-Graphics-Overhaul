@@ -7,7 +7,7 @@ import stratos.util.*;
 
 
 //  TODO:  You might be able to get rid of this class entirely, or merge with
-//  the EcologyGen class instead.
+//  the WorldTerrain class instead.
 
 
 public class Ecology {
@@ -24,6 +24,8 @@ public class Ecology {
   final int SR, SS ;
   final RandomScan growthMap ;
   final public Ambience ambience ;
+  
+  //  TODO:  Consider getting rid of this class entirely.
   final public FadingMap
     biomass,
     preyMap, hunterMap,
@@ -41,13 +43,13 @@ public class Ecology {
     } ;
     ambience = new Ambience(world) ;
     
-    allMaps.add(biomass    = new FadingMap(world, SS)) ;
-    allMaps.add(preyMap    = new FadingMap(world, SS)) ;
-    allMaps.add(hunterMap  = new FadingMap(world, SS)) ;
+    allMaps.add(biomass    = new FadingMap(world, SS, -1)) ;
+    allMaps.add(preyMap    = new FadingMap(world, SS, -1)) ;
+    allMaps.add(hunterMap  = new FadingMap(world, SS, -1)) ;
     
     abundances = new FadingMap[Species.ANIMAL_SPECIES.length] ;
     for (int i = 0 ; i < Species.ANIMAL_SPECIES.length ; i++) {
-      abundances[i] = new FadingMap(world, SS) ;
+      abundances[i] = new FadingMap(world, SS, -1) ;
       allMaps.add(abundances[i]) ;
     }
   }
@@ -78,11 +80,7 @@ public class Ecology {
     float growIndex = (time % World.GROWTH_INTERVAL) ;
     growIndex *= size * size * 1f / World.GROWTH_INTERVAL ;
     growthMap.scanThroughTo((int) growIndex) ;
-    
-    for (FadingMap map : allMaps) {
-      map.performFade() ;
-    }
-    
+    for (FadingMap map : allMaps) map.update();
     //
     //  TODO:  Let the player view this on the minimap!
     //squalorMap.presentVals("Squalor", -1, true) ;
@@ -98,26 +96,24 @@ public class Ecology {
   }
   
   
-  public void impingeBiomass(Element e, float amount, boolean gradual) {
-    biomass.impingeVal(e.origin(), amount, gradual) ;
+  public void impingeBiomass(Tile t, float amount, float duration) {
+    biomass.accumulate(amount, duration, t.x, t.y);
   }
   
-  /*
-  public void impingeSqualor(float squalorVal, Fixture f, boolean gradual) {
-    squalorMap.impingeVal(f.area(), squalorVal, gradual) ;
-  }
-  //*/
   
-  
-  public void impingeAbundance(Fauna f, boolean gradual) {
+  public void impingeAbundance(Fauna f, float duration) {
     final Tile t = f.origin() ;
     final Species s = f.species ;
     final float inc = f.health.maxHealth() ;
-    abundances[s.ID].impingeVal(t, inc, gradual) ;
-    if (s.type == Species.Type.BROWSER ) preyMap.impingeVal(t, inc, gradual) ;
-    if (s.type == Species.Type.PREDATOR) hunterMap.impingeVal(t, inc, gradual) ;
+    
+    if (s.type == Species.Type.BROWSER ) {
+      preyMap.accumulate(inc, duration, t.x, t.y);
+    }
+    if (s.type == Species.Type.PREDATOR) {
+      hunterMap.accumulate(inc, duration, t.x, t.y);
+    }
+    abundances[s.ID].accumulate(inc, duration, t.x, t.y);
   }
-  
   
   
   
@@ -129,22 +125,23 @@ public class Ecology {
   
   
   
-  
-  
   /**  Querying sample values-
     */
+  /*
   public float biomassAmount(Tile t) {
     return biomass.longTermVal(t) ;
   }
+  //*/
   
   
   public float biomassRating(Tile t) {
-    return biomass.longTermVal(t) * 4f / (SR * SR) ;
+    return biomass.sampleAt(t.x, t.y);
+    //return biomass.longTermVal(t) * 4f / (SR * SR) ;
   }
   
   
   public float globalBiomass() {
-    return biomass.overallSum() / (world.size * world.size) ;
+    return biomass.overallValue() ;
   }
 }
 

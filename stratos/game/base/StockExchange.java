@@ -1,3 +1,4 @@
+
 /**  
   *  Written by Morgan Allen.
   *  I intend to slap on some kind of open-source license here in a while, but
@@ -72,13 +73,6 @@ public class StockExchange extends Venue implements Economy {
     final Tile o = origin() ;
     cargoBarge.enterWorldAt(o.x, o.y, world) ;
     cargoBarge.goAboard(this, world) ;
-    
-    //*
-    for (Service type : this.services()) {
-      inventory().bumpItem(type, 10);
-    }
-    //*/
-    
     return true;
   }
   
@@ -200,6 +194,11 @@ public class StockExchange extends Venue implements Economy {
       stocks.incDemand(type, demandBonus, VenueStocks.TIER_TRADER, 1) ;
       stocks.diffuseDemand(type, depots) ;
     }
+    /*
+    for (Service type : this.services()) {
+      if (stocks.amountOf(type) < 40) stocks.bumpItem(type, 40);
+    }
+    //*/
   }
   
   
@@ -208,7 +207,8 @@ public class StockExchange extends Venue implements Economy {
     //  TODO:  This will have to be based on the overall economic performance
     //  of the larger setting.
     
-    
+    //  TODO:  Base this on the overall proportion of internal trade within the
+    //  settlement, and/or at this stock exchange.
   }
   
   
@@ -258,24 +258,14 @@ public class StockExchange extends Venue implements Economy {
   /**  Rendering and interface methods-
     */
   final static float GOOD_DISPLAY_OFFSETS[] = {
-    0, 0.5f,
     0, 1.0f,
-    0, 1.5f,
     0, 2.0f,
-    0.5f, 0,
+    0, 3.0f,
+    //0, 3.5f,
     1.0f, 0,
-    1.5f, 0,
-    2.0f, 0
-    /*
-    -3, 0.5f,
-    -3, 1.0f,
-    -3, 1.5f,
-    -3, 2.0f,
-    -0.5f, 3,
-    -1.0f, 3,
-    -1.5f, 3,
-    -2.0f, 3,
-    //*/
+    2.0f, 0,
+    3.0f, 0,
+    //2.5f, 0
   } ;
   
   
@@ -286,8 +276,8 @@ public class StockExchange extends Venue implements Economy {
   
   protected Service[] goodsToShow() {
     return new Service[] {
-      CARBS, PROTEIN, GREENS, SOMA,
-      PARTS, PLASTICS, CIRCUITRY, FIXTURES
+      CARBS, PROTEIN, GREENS,// SOMA,
+      PARTS, PLASTICS, CIRCUITRY,// FIXTURES
     } ;
   }
   
@@ -295,7 +285,7 @@ public class StockExchange extends Venue implements Economy {
   //  TODO:  You have to show items in the back as well, behind a sprite
   //  overlay for the facade of the structure.
   protected float goodDisplayAmount(Service good) {
-    return super.goodDisplayAmount(good) / 2f ;
+    return Math.min(super.goodDisplayAmount(good), 25);
   }
   
   

@@ -256,8 +256,10 @@ public class Forestry extends Plan implements Economy {
     for (Target t : sample) {
       final Flora f = (Flora) t ;
       if (f.growStage() < 2) continue ;
+      
       float rating = 0 - Spacing.distance(t, actor) ;
-      rating -= actor.base().dangerMap.longTermVal(f.origin()) ;
+      final Tile o = f.origin();
+      rating -= actor.base().dangerMap.sampleAt(o.x, o.y) ;
       rating += (f.growStage() - 2) * 10 ;
       if (rating > bestRating) { picked = f ; bestRating = rating ; }
     }

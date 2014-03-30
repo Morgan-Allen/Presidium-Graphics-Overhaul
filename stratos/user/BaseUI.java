@@ -237,18 +237,9 @@ public class BaseUI extends HUD implements UIConstants {
   
   public void renderHUD(Rendering rendering) {
     super.renderHUD(rendering);
-    /*
-    if (selection.selected() != null) {
-      viewTracking.setLockOffset(panelArea.xdim() / -2, 0) ;
-    }
-    else {
-      viewTracking.setLockOffset(0, 0) ;
-    }
-    //*/
     viewTracking.updateTracking() ;
     
     if (currentPanel != newPanel) {
-      //beginPanelFade();
       if (currentPanel != null) currentPanel.detach();
       if (newPanel     != null) newPanel.attachTo(panelArea);
       currentPanel = newPanel;

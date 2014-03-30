@@ -7,9 +7,10 @@
 
 package stratos.game.common ;
 import stratos.game.building.*;
+import stratos.game.actors.*;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.PlaneFX;
-import stratos.user.*;
+//import stratos.user.*;
 import stratos.util.*;
 
 
@@ -309,8 +310,7 @@ public abstract class Mobile extends Element
   
   public void renderFor(Rendering rendering, Base base) {
     float scale = spriteScale();
-    if (GameSettings.bigSprite) scale *= GameSettings.BIG_SPRITE_SCALE;
-    else scale *= GameSettings.SMALL_SPRITE_SCALE;
+    if (this instanceof Actor) scale *= GameSettings.actorScale;
     
     final Sprite s = this.sprite();
     s.scale = scale;

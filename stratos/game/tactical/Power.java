@@ -128,7 +128,7 @@ public class Power implements Abilities {
     
     final float
       bonus = caster.traits.useLevel(PREMONITION) / 10,
-      lastSave = Scenario.timeSinceLastSave(),
+      lastSave = Scenario.current().timeSinceLastSave(),
       boost = (lastSave / 1000f) * (0.5f + bonus) ;
     caster.health.adjustPsy(boost) ;
     caster.traits.practiceAgainst(10, boost / 2, PREMONITION) ;
@@ -170,15 +170,17 @@ public class Power implements Abilities {
         Target selected, boolean clicked
       ) {
         if (option.equals(OPTION_QUIT)) {
-          Scenario.current().saveProgress(true) ;
-          PlayLoop.exitLoop() ;
+          Scenario.current().saveProgress(true, true) ;
+          //  TODO:  There's a problem here.  Saving happens on a background
+          //  loop, so quitting here may terminate saving mid-process!
+          //PlayLoop.exitLoop() ;
         }
         if (option.equals(OPTION_REST)) {
-          Scenario.current().saveProgress(true) ;
+          Scenario.current().saveProgress(true, false) ;
           PlayLoop.setGameSpeed(5.0f) ;
         }
         if (option.equals(OPTION_MARK)) {
-          Scenario.current().saveProgress(false) ;
+          Scenario.current().saveProgress(false, false) ;
         }
         return true ;
       }
@@ -197,16 +199,11 @@ public class Power implements Abilities {
         Actor caster, String option,
         Target selected, boolean clicked
       ) {
-        //
-        //  Clean up arguments to allow garbage collection, and delete later
-        //  saves in the timeline-
+        //  Clean up arguments to allow garbage collection, and go back in the
+        //  timeline-
         caster = null ;
         selected = null ;
-        Scenario.current().wipeSavesAfter(option) ;
-        //
-        //  Load the older save, and make it current-
-        final String prefix = Scenario.current().savesPrefix() ;
-        Scenario.loadGame(Scenario.fullSavePath(prefix, option), false) ;
+        Scenario.current().revertTo(option) ;
         return true ;
       }
     },
@@ -257,8 +254,6 @@ public class Power implements Abilities {
         Actor caster, String option,
         Target selected, boolean clicked
       ) {
-        I.say("Selected is: "+selected+", clicked: "+clicked);
-        
         if (clicked != true || ! (selected instanceof Tile)) return false ;
         final Tile tile = (Tile) selected ;
         

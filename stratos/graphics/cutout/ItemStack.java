@@ -14,9 +14,13 @@ public class ItemStack extends GroupSprite {
   
   
 
-  final static float H = 0.25f, L = -0.25f, ATTACH_COORDS[][] = {
-    {L, H}, {H, H}, {L, L}, {H, L}
-  } ;
+  final static float
+    H = 0 - BuildingSprite.ITEM_SIZE / 2,
+    L = BuildingSprite.ITEM_SIZE / 2,
+    ATTACH_COORDS[][] = {
+      {L, H}, {L, L}, {H, H}, {H, L}
+    },
+    UP = BuildingSprite.ITEM_SIZE * 0.2f;
   final static int ITEM_UNIT = 5 ;
   
   
@@ -53,7 +57,7 @@ public class ItemStack extends GroupSprite {
       final CutoutSprite box = (CutoutSprite) ((i < numCrates) ?
         BuildingSprite.CRATE_MODEL : itemModel
       ).makeSprite();
-      attach(box, coord[0], coord[1], level * 0.2f);
+      attach(box, coord[0], coord[1], level * UP);
     }
     amount = newAmount ;
   }
