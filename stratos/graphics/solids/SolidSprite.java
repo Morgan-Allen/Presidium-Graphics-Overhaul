@@ -3,7 +3,6 @@
 package stratos.graphics.solids;
 import stratos.graphics.common.*;
 import stratos.util.*;
-
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.model.*;
@@ -17,6 +16,7 @@ public class SolidSprite extends Sprite implements RenderableProvider {
   
   final static float
     ANIM_INTRO_TIME = 0.5f;
+  private static boolean verbose = false;
   
   
   final public SolidModel model;
@@ -145,11 +145,17 @@ public class SolidSprite extends Sprite implements RenderableProvider {
   
   
   public void setAnimation(String id, float progress) {
-    final Animation match = model.gdxModel.getAnimation(id);
+    Animation match = model.gdxModel.getAnimation(id);
     if (match == null) {
-      I.say("  WARNING:  No matching animation: "+id);
-      I.say("  IN MODEL: "+model.assetID());
-      return;
+      if (verbose) {
+        I.say("  WARNING:  No matching animation: "+id);
+        I.say("  IN MODEL: "+model.assetID());
+      }
+      match = model.gdxModel.getAnimation(AnimNames.STAND);
+    }
+    if (match == null) {
+      match = model.gdxModel.getAnimation(AnimNames.FULL_RANGE);
+      if (match == null) return;
     }
     
     AnimState topState = animStates.getLast();

@@ -18,6 +18,7 @@ public class Tooltips extends UIGroup {
   final public static ImageAsset TIPS_TEX = ImageAsset.fromImage(
     "media/GUI/tips_frame.png", UIConstants.class
   );
+  //  TODO:  Pass in the texture as a parameter.
   
   Bordering bordering ;
   Text infoText ;
@@ -28,7 +29,8 @@ public class Tooltips extends UIGroup {
     bordering = new Bordering(UI, TIPS_TEX);
     bordering.relBound.set(0, 0, 1, 1);
     bordering.absBound.set(-10, -10, 20, 20);
-    bordering.drawInset.set(10, 10, -20, -20);
+    bordering.left = bordering.right = 10;
+    bordering.bottom = bordering.top = 10;
     bordering.attachTo(this);
     infoText = new Text(UI, UIConstants.INFO_FONT);
     infoText.scale = 0.75f;
@@ -69,18 +71,17 @@ public class Tooltips extends UIGroup {
         //  the screen, but still accomodate visible text.
         final Box2D
           TB = infoText.preferredSize(),
-          SB = UI.screenBounds(),
-          BI = bordering.drawInset ;
+          SB = UI.screenBounds();
         final float wide = TB.xdim(), high = TB.ydim() ;
         absBound.xdim(wide) ;
         absBound.ydim(high) ;
         absBound.xpos(Visit.clamp(
-          UI.mousePos().x, 0 - BI.xpos(),
-          SB.xdim() - (wide + BI.xmax())
+          UI.mousePos().x, 0 - bordering.left,
+          SB.xdim() - (wide + bordering.right)
         )) ;
         absBound.ypos(Visit.clamp(
-          UI.mousePos().y, 0 - BI.ypos(),
-          SB.ydim() - (high + BI.ymax())
+          UI.mousePos().y, 0 - bordering.bottom,
+          SB.ydim() - (high + bordering.top)
         )) ;
       }
     }

@@ -70,7 +70,10 @@ public class InfoPanel extends UIGroup implements UIConstants {
       LM = 40, RM = 40;  //left and right margins
     
     this.border = new Bordering(UI, BORDER_TEX);
-    border.drawInset.set(LM, BM, -(LM + RM), -(BM + TM));
+    border.left   = LM;
+    border.right  = RM;
+    border.bottom = BM;
+    border.top    = TM;
     border.relBound.set(0, 0, 1, 1);
     border.attachTo(this);
     
