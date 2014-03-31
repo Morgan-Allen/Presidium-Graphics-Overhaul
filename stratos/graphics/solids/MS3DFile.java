@@ -72,6 +72,7 @@ public class MS3DFile {
       vert.vertex[2] = in.readFloat();
 
       vert.boneid = in.readByte();
+      if (vert.boneid == -1) vert.boneid = 0;
 
       int referenceCount = in.readByte(); // useless
 
@@ -211,7 +212,7 @@ public class MS3DFile {
 
     int nNumJoints = in.readUShort();
 
-    joints = new MS3DJoint[nNumJoints];
+    joints = new MS3DJoint[Math.max(nNumJoints, 1)];
 
     for (int i = 0; i < nNumJoints; i++) {
       MS3DJoint joint = (joints[i] = new MS3DJoint());
@@ -249,6 +250,16 @@ public class MS3DFile {
 
       joint.inverse.set(joint.matrix);
       joint.inverse.inv();
+    }
+    
+    if (nNumJoints == 0) {
+      final MS3DJoint root = joints[0] = new MS3DJoint();
+      root.name = "root";
+      root.parentName = "";
+      root.rotations = new Keyframe[0];
+      root.positions = new Keyframe[0];
+      root.matrix.idt();
+      root.inverse.idt();
     }
   }
 

@@ -16,7 +16,7 @@ public class SolidSprite extends Sprite implements RenderableProvider {
   
   final static float
     ANIM_INTRO_TIME = 0.5f;
-  private static boolean verbose = false;
+  private static boolean verbose = true;
   
   
   final public SolidModel model;
@@ -62,16 +62,16 @@ public class SolidSprite extends Sprite implements RenderableProvider {
     //  Set up the translation matrix based on game-world position and facing-
     rendering.view.worldToGL(position, tempV);
     transform.setToTranslation(tempV);
+    transform.scl(tempV.set(scale, scale, scale));
     final float radians = (float) FastMath.toRadians(90 - rotation);
     transform.rot(Vector3.Y, radians);
-    
+
+    model.animControl.begin(this);
     if (animStates.size() > 0) {
       //  If we're currently being animated, then we need to loop over each
       //  animation state and blend them together, while culling any that have
       //  expired-
       final float time = Rendering.activeTime();
-      
-      model.animControl.begin(this);
       AnimState validFrom = animStates.getFirst();
       for (AnimState state : animStates) {
         float alpha = (time - state.incept) / ANIM_INTRO_TIME;
@@ -79,23 +79,22 @@ public class SolidSprite extends Sprite implements RenderableProvider {
         model.animControl.apply(state.current, state.time, alpha);
       }
       while (animStates.getFirst() != validFrom) animStates.removeFirst();
-      model.animControl.end();
-      
-      final Matrix4 tempM = new Matrix4();
-      //  The nodes here are ordered so as to guarantee that parents are always
-      //  visited before children, allowing a single pass-
-      for (int i = 0; i < model.allNodes.length; i++) {
-        final Node node = model.allNodes[i];
-        if (node.parent == null) {
-          tempV.set(node.scale).scl(this.scale);
-          boneTransforms[i].setToTranslation(node.translation);
-          boneTransforms[i].scl(tempV);
-          continue;
-        }
-        final Matrix4 parentTransform = boneFor(node.parent);
-        tempM.set(parentTransform).mul(boneTransforms[i]);
-        boneTransforms[i].set(tempM);
+    }
+    model.animControl.end();
+    
+    final Matrix4 tempM = new Matrix4();
+    //  The nodes here are ordered so as to guarantee that parents are always
+    //  visited before children, allowing a single pass-
+    for (int i = 0; i < model.allNodes.length; i++) {
+      final Node node = model.allNodes[i];
+      if (node.parent == null) {
+        boneTransforms[i].setToTranslation(node.translation);
+        boneTransforms[i].scl(node.scale);
+        continue;
       }
+      final Matrix4 parentTransform = boneFor(node.parent);
+      tempM.set(parentTransform).mul(boneTransforms[i]);
+      boneTransforms[i].set(tempM);
     }
     
     rendering.solidsPass.register(this);
@@ -155,8 +154,8 @@ public class SolidSprite extends Sprite implements RenderableProvider {
     }
     if (match == null) {
       match = model.gdxModel.getAnimation(AnimNames.FULL_RANGE);
-      if (match == null) return;
     }
+    if (match == null) return;
     
     AnimState topState = animStates.getLast();
     final boolean newState =
@@ -171,7 +170,6 @@ public class SolidSprite extends Sprite implements RenderableProvider {
     }
     topState.time = progress * match.duration;
   }
-  
   
   
   

@@ -5,6 +5,7 @@ import org.apache.commons.math3.util.FastMath;
 
 import stratos.game.base.Smelter;
 import stratos.game.building.Economy;
+import stratos.game.building.Suspensor;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.sfx.*;
@@ -35,7 +36,12 @@ public class DebugGraphics {
     SM = MS3DModel.loadFrom(
       "media/Actors/fauna/", "Micovore.ms3d",
       DebugGraphics.class, "FaunaModels.xml", "Micovore"
+    ),
+    SUSPENSOR_MODEL = MS3DModel.loadFrom(
+      "media/Vehicles/", "Barge.ms3d", Suspensor.class,
+      "VehicleModels.xml", "Suspensor"
     );
+  
   final static ShotFX.Model
     FM = new ShotFX.Model(
       "laser_beam_fx", DebugGraphics.class,
@@ -49,8 +55,9 @@ public class DebugGraphics {
 
     PlayLoop.setupAndLoop(new VisualDebug() {
       protected void loadVisuals() {
-        final Sprite SS = SM.makeSprite();
+        final Sprite SS = SUSPENSOR_MODEL.makeSprite();
         sprites.add(SS);
+        //SS.printGeom();
         
         for (int i = 10 ; i-- > 0;) {
           final Sprite CS = CM.makeSprite();
@@ -132,7 +139,7 @@ public class DebugGraphics {
           sprite.colour = Colour.transparency(a);
           sprite.fog = (f + 0.01f) % 1;
         }
-        if (sprite.model() == SM) {
+        if (sprite.model() == SUSPENSOR_MODEL) {
           final float progress = Rendering.activeTime() * 6 / 10f;
           sprite.setAnimation(AnimNames.MOVE, progress % 1);
           sprite.rotation += 90 / 60f;

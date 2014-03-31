@@ -136,40 +136,6 @@ public class StartupScenario extends Scenario {
   /**  Required setup methods-
     */
   protected World createWorld() {
-    return generateWorld();
-  }
-  
-  
-  protected Base createBase(World world) {
-    return generateBase(world);
-  }
-  
-  
-  protected void configureScenario(World world, Base base, BaseUI UI) {
-    generateScenario(world, base, UI);
-  }
-  
-  
-  protected String saveFilePrefix(World world, Base base) {
-    String title = base.ruler().fullName();
-    while (true) {
-      File match = new File(Scenario.fullSavePath(title, null));
-      if (! match.exists()) break;
-      title = title+"I";
-    }
-    return title;
-  }
-  
-  
-  protected void afterCreation() {
-    //saveProgress(false);
-  }
-  
-  
-  
-  /**  Private helper methods-
-    */
-  private World generateWorld() {
     final int station = config.titleLevel ;
     float water = 2 ;
     float forest = 0, meadow = 0, barrens = 0, desert = 0, wastes = 0 ;
@@ -195,13 +161,13 @@ public class StartupScenario extends Scenario {
     final World world = new World(TG.generateTerrain());
     TG.setupMinerals(world, 0, 0, 0);
     TG.setupOutcrops(world);
-    Flora.populateFlora(world);
     world.terrain().readyAllMeshes();
+    Flora.populateFlora(world);
     return world ;
   }
   
   
-  private Base generateBase(World world) {
+  protected Base createBase(World world) {
     final Base base = Base.baseWithName(world, "Player", false) ;
     
     int funding = -1, interest = -1 ;
@@ -217,7 +183,7 @@ public class StartupScenario extends Scenario {
   }
   
   
-  private void generateScenario(World world, Base base, BaseUI UI) {
+  protected void configureScenario(World world, Base base, BaseUI UI) {
     //
     //  Determine relevant attributes for the ruler-
     final int station = config.titleLevel ;
@@ -282,6 +248,25 @@ public class StartupScenario extends Scenario {
   }
   
   
+  protected String saveFilePrefix(World world, Base base) {
+    String title = base.ruler().fullName();
+    while (true) {
+      File match = new File(Scenario.fullSavePath(title, null));
+      if (! match.exists()) break;
+      title = title+"I";
+    }
+    return title;
+  }
+  
+  
+  protected void afterCreation() {
+    //saveProgress(false);
+  }
+  
+  
+  
+  /**  Private helper methods-
+    */
   private void establishLocals(World world) {
     if (config.siteLevel == SITE_SETTLED) {
       Nest.placeNests(world, Species.QUD, Species.HAREEN);

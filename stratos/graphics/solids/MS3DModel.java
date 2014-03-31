@@ -180,10 +180,10 @@ public class MS3DModel extends SolidModel {
           verts[p * n + 3] = lol.normals[j][0];
           verts[p * n + 4] = lol.normals[j][1];
           verts[p * n + 5] = lol.normals[j][2];
-
+          
           verts[p * n + 6] = lol.u[j];
           verts[p * n + 7] = lol.v[j];
-
+          
           verts[p * n + 8] = vert.boneid;
           verts[p * n + 9] = 1;
 
@@ -201,6 +201,7 @@ public class MS3DModel extends SolidModel {
     root.meshId = "mesh";
     root.boneId = 0;
     final float scale = config == null ? 1 : config.getFloat("scale");
+    //I.say("Scale for "+this.filePath+" is "+scale);
     root.scale = new Vector3(scale, scale, scale);
 
     ModelMeshPart[] parts = new ModelMeshPart[ms3d.groups.length];
@@ -256,6 +257,7 @@ public class MS3DModel extends SolidModel {
       
       mn.id = jo.name;
       mn.meshId = "mesh";
+      mn.boneId = i;
       mn.rotation = jo.matrix.getRotation(new Quaternion());
       mn.translation = jo.matrix.getTranslation(new Vector3());
       mn.scale = new Vector3(1, 1, 1);
@@ -275,15 +277,15 @@ public class MS3DModel extends SolidModel {
         kf.keytime = jo.rotations[j].time;
         kf.translation = new Vector3(jo.positions[j].data);
         kf.translation.mul(jo.matrix);
-        // kf.translation.scl(1);
         kf.rotation = jo.matrix.getRotation(new Quaternion()).mul(
-            MS3DFile.fromEuler(jo.rotations[j].data));
-
+          MS3DFile.fromEuler(jo.rotations[j].data)
+        );
         ani.keyframes.add(kf);
       }
       animation.nodeAnimations.add(ani);
     }
     data.animations.add(animation);
+    
     
     final XML animConfig = config.child("animations");
     addLoop: for (XML animXML : animConfig.children()) {
@@ -326,6 +328,11 @@ public class MS3DModel extends SolidModel {
         anim.nodeAnimations.add(nd);
       }
       data.animations.add(anim);
+    }
+    
+    if (verbose) {
+      I.say("MODEL IS: "+filePath);
+      I.say("  TOTAL ANIMATIONS LOADED: "+data.animations.size);
     }
   }
   

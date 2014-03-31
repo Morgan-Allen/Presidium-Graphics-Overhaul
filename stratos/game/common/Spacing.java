@@ -91,28 +91,27 @@ public final class Spacing implements TileConstants {
     if (face == Venue.ENTRANCE_NONE) return new int[] { 0, 0 } ;
     face = (face + 0.5f) % Venue.NUM_SIDES ;
     float edgeVal = face % 1 ;
-    ///I.say("Face/edge-val: "+face+"/"+edgeVal) ;
     
     int enterX = 1, enterY = -1 ;
     if (face < Venue.ENTRANCE_EAST) {
       //  This is the north edge.
-      enterX = (int) (xdim * edgeVal) ;
-      enterY = ydim ;
+      enterX = xdim;
+      enterY = (int) (ydim * edgeVal);
     }
     else if (face < Venue.ENTRANCE_SOUTH) {
       //  This is the east edge.
-      enterX = xdim ;
-      enterY = (int) (ydim * (1 - edgeVal)) ;
+      enterX = (int) (ydim * (1 - edgeVal));
+      enterY = xdim;
     }
     else if (face < Venue.ENTRANCE_WEST) {
       //  This is the south edge.
-      enterX = (int) (xdim * (1 - edgeVal)) ;
-      enterY = -1 ;
+      enterX = -1;
+      enterY = (int) (ydim * (1 - edgeVal));
     }
     else {
       //  This is the west edge.
-      enterX = -1 ;
-      enterY = (int) (ydim * edgeVal) ;
+      enterX = (int) (ydim * edgeVal);
+      enterY = -1;
     }
     return new int[] { enterX, enterY } ;
   }

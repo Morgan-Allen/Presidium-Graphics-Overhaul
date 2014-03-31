@@ -14,11 +14,11 @@ import stratos.util.*;
 public class FirstAid extends Plan implements Abilities, Economy {
   
   
-  private static boolean verbose = true;
+  private static boolean verbose = true, evalVerbose = false;
   
   final Actor patient;
   final Boardable refuge;
-  final Item result;
+  private Item result = null;
   
   
   public FirstAid(Actor actor, Actor patient) {
@@ -31,12 +31,6 @@ public class FirstAid extends Plan implements Abilities, Economy {
     this.patient = patient;
     this.refuge = refuge;
     
-    final Action asEffect = new Action(
-      patient, patient,
-      this, "actionAsItem",
-      Action.STAND, "Bandaging"
-    ) ;
-    result = Item.asMatch(SERVICE_TREAT, asEffect) ;
   }
   
   
@@ -57,17 +51,30 @@ public class FirstAid extends Plan implements Abilities, Economy {
   
   
   
-  
   /**  Targeting and priority evaluation.
     */
-  final static Skill BASE_SKILLS[] = { ANATOMY };
-  final static Trait BASE_TRAITS[] = { EMPATHIC };
+  final static Skill BASE_SKILLS[] = { ANATOMY, PHARMACY };
+  final static Trait BASE_TRAITS[] = { EMPATHIC, HONOURABLE };
   
   
   private float severity() {
-    float severity = actor.health.injuryLevel();
-    if (actor.health.bleeding()) severity += 0.5f;
+    float severity = patient.health.injuryLevel();
+    if (patient.health.bleeding()) severity += 0.5f;
     return severity;
+  }
+  
+  
+  private Item treatmentFor(Actor patient) {
+    for (Item match : patient.gear.matches(SERVICE_TREAT)) {
+      final Action action = (Action) match.refers;
+      if (action.basis instanceof FirstAid) return match;
+    }
+    final Action asEffect = new Action(
+      patient, patient,
+      this, "actionAsItem",
+      Action.STAND, "Bandaging"
+    );
+    return Item.withReference(SERVICE_TREAT, asEffect);
   }
   
   
@@ -80,8 +87,8 @@ public class FirstAid extends Plan implements Abilities, Economy {
   
   public float priorityFor(Actor actor) {
     if (patient.health.conscious()) return 0;
-    if (patient.indoors() && ! patient.health.bleeding()) return 0;
-    return priorityForActorWith(
+    
+    final float priority = priorityForActorWith(
       actor, patient,
       severity() * CRITICAL,
       REAL_HELP,
@@ -92,10 +99,18 @@ public class FirstAid extends Plan implements Abilities, Economy {
       NORMAL_DISTANCE_CHECK,
       MILD_DANGER
     );
+    
+    if (evalVerbose && I.talkAbout == actor) {
+      I.say("Considering first aid of "+patient);
+      I.say("  Severity of injury: "+severity());
+      I.say("  Priority is: "+priority);
+    }
+    return priority;
   }
   
   
   protected Behaviour getNextStep() {
+    final boolean report = verbose && I.talkAbout == actor && hasBegun();
     
     if (patient.health.bleeding()) {
       final Action aids = new Action(
@@ -106,11 +121,18 @@ public class FirstAid extends Plan implements Abilities, Economy {
       return aids;
     }
     
-    if (refuge != null && ! patient.indoors()) {
+    if (
+      refuge != null && ! patient.indoors() &&
+      Suspensor.canCarry(actor, patient)
+    ) {
       return new Delivery(patient, (Inventory.Owner) refuge);
     }
     
-    if (patient.gear.amountOf(result) < 1) {
+    result = treatmentFor(patient);
+    final float AR = patient.gear.amountOf(result);
+    if (report) I.say("Amount of treatment is: "+AR);
+    
+    if (AR < 1) {
       final Action aids = new Action(
         actor, patient,
         this, "actionFirstAid",
@@ -123,14 +145,22 @@ public class FirstAid extends Plan implements Abilities, Economy {
   }
   
   
+  public int motionType(Actor actor) {
+    return patient.health.alive() ? MOTION_FAST : MOTION_ANY;
+  }
+  
+  
   public boolean actionFirstAid(Actor actor, Actor patient) {
+    
     float DC = severity() * 5;
     boolean success = true;
     success &= actor.traits.test(ANATOMY, DC, 10);
-    
+    //I.say("Applying first aid- success? "+success);
+    //I.say("Patient bleeding? "+patient.health.bleeding());
     if (success) {
-      if (patient.health.bleeding()) patient.health.liftInjury(1);
-      else patient.gear.addItem(Item.withAmount(result, 0.1f));
+      patient.health.liftInjury(0);
+      result = treatmentFor(patient);
+      patient.gear.addItem(Item.withAmount(result, 0.1f));
     }
     return true;
   }
@@ -145,13 +175,17 @@ public class FirstAid extends Plan implements Abilities, Economy {
     float regen = ActorHealth.INJURY_REGEN_PER_DAY ;
     regen *= 3 * effect * patient.health.maxHealth() ;
     patient.health.liftInjury(regen) ;
-    patient.gear.removeItem(Item.withAmount(result, 0 - effect));
+    patient.gear.removeItem(Item.withAmount(result, effect));
     return true;
   }
   
   
   
   public void describeBehaviour(Description d) {
+    if (lastStep instanceof Delivery) {
+      super.describedByStep(d);
+      return;
+    }
     if (super.describedByStep(d)) d.append(" to ");
     else d.append("Treating ");
     d.append(patient) ;

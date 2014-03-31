@@ -457,16 +457,7 @@ public class Delivery extends Plan implements Economy {
 
 
 
-/*
-public boolean finished() {
-  return stage == STAGE_DONE ;
-}
-//*/
 
-/*
-public void onSuspend() {
-  if (driven != null) driven.setPilot(null) ;
-}
-//*/
+
 
 

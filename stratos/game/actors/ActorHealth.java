@@ -316,7 +316,7 @@ public class ActorHealth implements Abilities {
     */
   public void takeInjury(float taken) {
     injury += taken ;
-    if (organic() && Rand.num() * maxHealth < injury) bleeds = true ;
+    if (organic() && Rand.num() * maxHealth < taken) bleeds = true ;
     final float max ;
     if (! conscious()) max = maxHealth * (MAX_INJURY + 1) ;
     else {
@@ -393,7 +393,7 @@ public class ActorHealth implements Abilities {
   
   
   public boolean bleeding() {
-    return bleeds && ! dying() ;
+    return bleeds && alive() ;
   }
   
   

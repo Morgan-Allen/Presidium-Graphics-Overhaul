@@ -77,6 +77,7 @@ public class IntelMap {
   
   
   public FogOverlay fogOver() {
+    if (GameSettings.fogFree) return null;
     return fogOver ;
   }
   

@@ -32,7 +32,7 @@ public abstract class Plan implements Saveable, Behaviour {
   
   /**  Fields, constructors, and save/load methods-
     */
-  private static boolean verbose = false ;
+  private static boolean verbose = false, evalVerbose = false;
   
   final Saveable signature[] ;
   final int hash ;
@@ -228,7 +228,9 @@ public abstract class Plan implements Saveable, Behaviour {
     float distanceCheck,
     float dangerFactor
   ) {
+    final boolean report = evalVerbose && I.talkAbout == actor;
     float priority = ROUTINE + specialModifier;
+    if (report) I.say("Evaluating priority for "+this);
     
     for (Skill skill : baseSkills) {
       final float level = actor.traits.traitLevel(skill);
@@ -250,7 +252,8 @@ public abstract class Plan implements Saveable, Behaviour {
       priority -= competition * peersCompete * CASUAL / 2;
     }
     
-    priority = Visit.clamp(priority / ROUTINE, 0.5f, 1.5f);
+    if (report) I.say("Priority before clamp/scale is: "+priority);
+    priority = Visit.clamp(priority / ROUTINE, 0.5f, 2.0f);
     priority *= defaultPriority;
     
     if (dangerFactor > 0) {
@@ -266,6 +269,8 @@ public abstract class Plan implements Saveable, Behaviour {
         priority -= danger * (range + 2) / 2f;
       }
     }
+    
+    if (report) I.say("Priority after clamp/scale, dist/danger: "+priority);
     return priority;
   }
   

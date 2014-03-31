@@ -7,7 +7,6 @@
 
 package stratos.game.actors ;
 import java.lang.reflect.* ;
-
 import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
@@ -197,27 +196,45 @@ public class Action implements Behaviour, AnimNames {
   
   /**  Helper methods for dealing with motion-
     */
-  public static float moveRate(Actor actor, boolean basic) {
+  public static float moveRate(
+    Actor actor, boolean basic
+  ) {
+    final boolean report = verbose && I.talkAbout == actor;
+    if (report) I.say("Deciding on motion rate:");
     int motionType = MOTION_NORMAL ; for (Behaviour b : actor.mind.agenda) {
       final int MT = b.motionType(actor) ;
+      if (report) I.say("  Type is: "+MT);
       if (MT != MOTION_ANY) { motionType = MT ; break ; }
     }
+    if (report) I.say("  Result:  "+motionType);
+
+    float rate = actor.health.baseSpeed() ;
+    if (motionType == MOTION_SNEAK) rate /= 2 ;
+    else if (motionType == MOTION_FAST) rate *= 2 ;
+    
+    if (basic) return rate;
     
     final float luck = actor.motionWalks() ? moveLuck(actor) : 0.5f ;
-    float rate = actor.health.baseSpeed() ;
-    if (motionType == MOTION_SNEAK) rate *= (2 - luck) / 4 ;
-    else if (motionType == MOTION_FAST) rate *= 2 * luck ;
-    else rate *= 1 + ((luck - 0.5f) / 2) ;
-    if (basic) return rate ;
+    rate *= 1 + ((luck - 0.5f) / 2);
     
-    //  TODO:  Must also account for the effects of fatigue and encumbrance...
+    //  TODO:  Must also account for the effects of fatigue and encumbrance.
+    
     final int pathType = actor.origin().pathType() ;
     switch (pathType) {
       case (Tile.PATH_HINDERS) : rate *= 0.8f ; break ;
       case (Tile.PATH_CLEAR  ) : rate *= 1.0f ; break ;
       case (Tile.PATH_ROAD   ) : rate *= 1.2f ; break ;
     }
+    
+    
     return rate ;
+  }
+
+  
+  public int motionType(Actor actor) {
+    if (quick()  ) return MOTION_FAST  ;
+    if (careful()) return MOTION_SNEAK ;
+    return MOTION_ANY ;
   }
   
   
@@ -232,13 +249,6 @@ public class Action implements Behaviour, AnimNames {
     var -= o.world.currentTime() ;
     var ^= actor.hashCode() ;
     return (1 + (float) Math.sqrt(Math.abs(var % 10) / 4.5f)) / 2 ;
-  }
-
-  
-  public int motionType(Actor actor) {
-    if (quick()  ) return MOTION_FAST  ;
-    if (careful()) return MOTION_SNEAK ;
-    return MOTION_NORMAL ;
   }
   
   
@@ -320,6 +330,7 @@ public class Action implements Behaviour, AnimNames {
     //  If active updates to pathing & motion are called for, make them.
     if (active) {
       final float moveRate = moveRate(actor, false) ;
+      if (report) I.say("Move rate: "+moveRate);
       actor.motion.headTowards(closeOn, moveRate, ! closed) ;
       if (! closed) actor.motion.applyCollision(moveRate) ;
     }
@@ -354,10 +365,11 @@ public class Action implements Behaviour, AnimNames {
       final float contact = (duration - 0.25f) / duration ;
       if (oldProgress <= contact && progress > contact) applyEffect() ;
     }
-    if (inRange == 0) progress += (
-      (moveRate(actor, false) * actor.moveAnimStride()) /
-      (1 * World.UPDATES_PER_SECOND)
-    ) / actor.health.baseSpeed() ;
+    if (inRange == 0) {
+      float speedUp = moveRate(actor, false) / actor.health.baseSpeed();
+      speedUp = (1 + speedUp) / (2 * World.UPDATES_PER_SECOND);
+      progress += actor.moveAnimStride() * speedUp;
+    }
   }
   
   
@@ -417,18 +429,23 @@ public class Action implements Behaviour, AnimNames {
     //  In the case of a pushing animation, you actually need to set different
     //  animations for the upper and lower body.
     ///I.sayAbout(actor, "anim progress: "+animProgress());
-    sprite.setAnimation(animName(), animProgress());
-  }
-  
-  
-  protected float animProgress() {
+    final float rate = moveRate(actor, true) / actor.health.baseSpeed();
+    final String animName;
+    if (inRange == 1) animName = this.animName;
+    else if (rate < 0.9f) animName = MOVE_SNEAK;
+    else if (rate > 1.1f) animName = MOVE_FAST;
+    else animName = MOVE;
+    
     final float alpha = Rendering.frameAlpha();
     final float AP = ((progress * alpha) + (oldProgress * (1 - alpha)));
-    if (AP > 1) return AP % 1 ;
-    return AP ;
+    sprite.setAnimation(animName, (AP > 1) ? (AP % 1) : AP);
   }
   
+  /*
+  protected float animProgress() {
+  }
   
+  /*
   protected String animName() {
     if (inRange == 1) {
       return animName ;
@@ -439,6 +456,7 @@ public class Action implements Behaviour, AnimNames {
       return MOVE ;
     }
   }
+  //*/
   
   
   public String toString() {

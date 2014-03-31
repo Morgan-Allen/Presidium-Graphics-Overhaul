@@ -303,6 +303,7 @@ public class Inventory {
   
   
   public float amountOf(Item item) {
+    //if (verbose) I.sayAbout(owner, "Seeking match for "+item);
     if (item.isMatch()) {
       float amount = 0 ;
       for (Item found : itemTable.values()) {
@@ -312,6 +313,7 @@ public class Inventory {
     }
     else {
       final Item found = itemTable.get(item) ;
+      //if (verbose) I.sayAbout(owner, "Match for "+item+" is "+found);
       return found == null ? 0 : found.amount ;
     }
   }

@@ -29,7 +29,7 @@ public class Suspensor extends Mobile {
     FILE_DIR = "media/Vehicles/",
     XML_FILE = "VehicleModels.xml" ;
   final static ModelAsset SUSPENSOR_MODEL = MS3DModel.loadFrom(
-    FILE_DIR, "Barge.ms3d", Species.class,
+    FILE_DIR, "Barge.ms3d", Suspensor.class,
     XML_FILE, "Suspensor"
   );
   
@@ -145,7 +145,9 @@ public class Suspensor extends Mobile {
     */
   public void renderFor(Rendering rendering, Base base) {
     if (followed.indoors()) return ;
-    if (origin().owner() != null) return ;
+    //if (origin().owner() != null) return ;
+    sprite().setAnimation(AnimNames.STAND, 1);
+    ///I.say("Rendering suspensor...");
     super.renderFor(rendering, base) ;
   }
   
