@@ -11,6 +11,8 @@ import stratos.util.*;
 
 
 //  TODO:  This should be moved to the stratos.game.base package.
+
+/*
 public class SickLeave extends Plan {
   
   

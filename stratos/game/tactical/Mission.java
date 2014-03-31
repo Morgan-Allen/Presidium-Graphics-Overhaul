@@ -342,7 +342,7 @@ public abstract class Mission implements
   
   
   public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
-    if (panel == null) panel = new InfoPanel(UI, this, 0);
+    if (panel == null) panel = new InfoPanel(UI, this, null);
     final Description d = panel.detail();
     
     d.append("Mission Type:  ");
@@ -445,12 +445,6 @@ public abstract class Mission implements
   
   public void whenClicked() {
     BaseUI.current().selection.pushSelection(this, true) ;
-  }
-  
-  
-  public InfoPanel createPanel(BaseUI UI) {
-    //  Have a dedicated MissionPanel?
-    return new InfoPanel(UI, this, 0);
   }
   
   

@@ -26,7 +26,6 @@ public class Power implements Abilities {
   final static String
     IMG_DIR = "media/GUI/Powers/",
     SFX_DIR = "media/SFX/";
-  //final static float FPS = PlayLoop.FRAMES_PER_SECOND ;
   
   final public static int
     NONE        = 0,
@@ -64,12 +63,12 @@ public class Power implements Abilities {
     
     REMOTE_VIEWING_FX_MODEL = new PlaneFX.Model(
       "RV_swirl_fx", Power.class,
-      SFX_DIR+"remote_viewing.png", 1, -360, 2, false, true
+      SFX_DIR+"remote_viewing.png", 0.5f, -360, 1, false, true
     ),
     
     LIGHT_BURST_MODEL = new PlaneFX.Model(
       "RV_burst_fx", Power.class,
-      SFX_DIR+"light_burst.png", 1, 0, 2, true, true
+      SFX_DIR+"light_burst.png", 0.5f, 0, 1, true, true
     ),
     
     KINESTHESIA_FX_MODEL = new PlaneFX.Model(
@@ -171,9 +170,6 @@ public class Power implements Abilities {
       ) {
         if (option.equals(OPTION_QUIT)) {
           Scenario.current().saveProgress(true, true) ;
-          //  TODO:  There's a problem here.  Saving happens on a background
-          //  loop, so quitting here may terminate saving mid-process!
-          //PlayLoop.exitLoop() ;
         }
         if (option.equals(OPTION_REST)) {
           Scenario.current().saveProgress(true, false) ;
@@ -267,7 +263,7 @@ public class Power implements Abilities {
           caster.traits.practiceAgainst(10, cost, PROJECTION) ;
         }
         
-        final float radius = 9 + (bonus * bonus) ;
+        final float radius = (9 + (bonus * bonus)) / 2f ;
         final Base played = Scenario.current().base() ;
         played.intelMap.liftFogAround(tile.x, tile.y, radius) ;
         
@@ -474,7 +470,7 @@ public class Power implements Abilities {
           command = new Combat(affects, (Actor) selected) ;
         }
         if (option == options[2] && selected instanceof Actor) {
-          command = new Treatment(affects, (Actor) selected, null) ;
+          command = new FirstAid(affects, (Actor) selected) ;
         }
         if (option == options[3] && selected instanceof Actor) {
           command = new Dialogue(

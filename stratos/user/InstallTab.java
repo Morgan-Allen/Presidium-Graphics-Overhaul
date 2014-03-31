@@ -106,7 +106,7 @@ public class InstallTab extends InfoPanel {
   
   
   InstallTab(BaseUI UI, String catName) {
-    super(UI, null, 0) ;
+    super(UI, null, null) ;
     if (! setupDone) setupTypes() ;
     this.category = categories.get(catName) ;
   }

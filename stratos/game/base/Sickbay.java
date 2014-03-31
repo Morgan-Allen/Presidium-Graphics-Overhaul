@@ -136,7 +136,7 @@ public class Sickbay extends Venue implements Economy {
     world.presences.sampleFromKey(this, world, 5, around, Mobile.class) ;
     for (Mobile m : this.inside()) around.include(m) ;
     for (Mobile m : around) if (m instanceof Actor) {
-      final Treatment t = new Treatment(actor, (Actor) m, this) ;
+      final FirstAid t = new FirstAid(actor, (Actor) m, this) ;
       t.priorityMod = Plan.ROUTINE ;
       choice.add(t) ;
     }
@@ -151,7 +151,8 @@ public class Sickbay extends Venue implements Economy {
   
   
   public void addServices(Choice choice, Actor forActor) {
-    choice.add(new SickLeave(forActor, this)) ;
+    //  TODO:  RESTORE ONCE TREATMENT IS CLEANED UP
+    //choice.add(new SickLeave(forActor, this)) ;
   }
   
   
@@ -161,7 +162,7 @@ public class Sickbay extends Venue implements Economy {
       final Actor actor = (Actor) m ;
       if (! actor.health.conscious()) count++ ;
       else if (actor.health.injuryLevel() > 0) count++ ;
-      else if (actor.isDoing(SickLeave.class, null)) count++ ;
+      //else if (actor.isDoing(SickLeave.class, null)) count++ ;
     }
     return count ;
   }
@@ -170,7 +171,7 @@ public class Sickbay extends Venue implements Economy {
   public void updateAsScheduled(int numUpdates) {
     super.updateAsScheduled(numUpdates) ;
     if (! structure.intact()) return ;
-    updateCloneOrders(numUpdates) ;
+    //updateCloneOrders(numUpdates) ;
     
     final int numU = (1 + structure.numUpgrades()) / 2 ;
     int medNeed = 2 + numU, powerNeed = 2 + numU ;
@@ -184,6 +185,8 @@ public class Sickbay extends Venue implements Economy {
   }
   
   
+  //  TODO:  Restore this once the Treatment behaviour is cleaned up!
+  /*
   private void updateCloneOrders(int numUpdates) {
     if (numUpdates % 10 != 0) return ;
     //
@@ -253,6 +256,7 @@ public class Sickbay extends Venue implements Economy {
     rating *= 2 / (2 + v.stocks.specialOrders().size()) ;
     return rating ;
   }
+  //*/
   
   
   public Background[] careers() {

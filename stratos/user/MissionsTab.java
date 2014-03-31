@@ -59,7 +59,7 @@ public class MissionsTab extends InfoPanel {
   
   
   public MissionsTab(BaseUI UI) {
-    super(UI, null, 0) ;
+    super(UI, null, null) ;
   }
   
   

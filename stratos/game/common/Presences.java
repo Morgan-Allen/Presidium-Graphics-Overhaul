@@ -88,7 +88,7 @@ public class Presences {
   
   
   public void togglePresence(
-    Venue venue, boolean is//, Object services[]
+    Venue venue, boolean is
   ) {
   	final Tile origin = venue.origin() ;
   	

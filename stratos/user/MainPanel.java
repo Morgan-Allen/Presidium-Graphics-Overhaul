@@ -54,7 +54,7 @@ public class MainPanel extends InfoPanel implements UIConstants {
   
   
   public MainPanel(BaseUI UI) {
-    super(UI, null, GUILDS_BOTTOM) ;
+    super(UI, null, null) ;
     this.UI = UI ;
     InstallTab.setupTypes() ;
     setupLayout() ;

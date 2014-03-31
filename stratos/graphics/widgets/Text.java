@@ -12,10 +12,13 @@ import stratos.util.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.* ;
+import com.badlogic.gdx.utils.*;
 
 
 //
-//  TODO:  Restore scrollbar functions, and the Description interface.
+//  TODO:  Restore scrollbar functions?
+
+//  TODO:  Consider using an object pool for the various text entries.
 
 
 
@@ -40,15 +43,16 @@ public class Text extends UINode implements Description {
   private Box2D fullSize = new Box2D() ;
   private float oldWide, oldHigh = 0 ;
   
+  final Pool <TextEntry> letterPool = new Pool <TextEntry> (1000) {
+    protected TextEntry newObject() {
+      return new TextEntry();
+    }
+  };
   
-  /**  Assorted constructors.  If 'grow' is true, the text will expand to fit
-    *  the total size of the String given.  If 'wrap' is true, width will
-    *  remain fixed but text will wrap around from side to side.  If 'roll'
-    *  is true, then text beyond size limits will be hidden, but the last
-    *  entries will remain visible.
-    */
-  public Text(HUD myHUD, Alphabet a) {
-    this(myHUD, a, "") ;
+  
+  
+  public Text(HUD UI, Alphabet a) {
+    this(UI, a, "") ;
   }
   
   
@@ -75,6 +79,37 @@ public class Text extends UINode implements Description {
   //*/
   
   
+  public void continueWrap(Text continues) {
+    if (needsFormat) format(xdim());
+    final Box2D textArea = new Box2D().set(0, 0, xdim(), ydim()) ;
+    
+    continues.setText("");
+    boolean spilt = false;
+    for (ListEntry LE = allEntries;;) {
+      if ((LE = LE.nextEntry()) == allEntries) break;
+      
+      if ((! spilt) && LE.refers instanceof TextEntry) {
+        final TextEntry TE = (TextEntry) LE.refers;
+        if (TE.containedBy(textArea)) continue;
+        spilt = true;
+      }
+      
+      if ((! spilt) && LE.refers instanceof ImageEntry) {
+        final ImageEntry IE = (ImageEntry) LE.refers;
+        if (IE.containedBy(textArea)) continue;
+        spilt = true;
+      }
+      
+      if (spilt) {
+        continues.allEntries.add((Box2D) LE.refers); 
+        LE.delete();
+      }
+    }
+    
+    continues.needsFormat = true;
+  }
+  
+  
   
   /**  Essential component classes and interfaces- clickables can be used to
     *  navigate to other objects, with image and text entries provide
@@ -93,12 +128,21 @@ public class Text extends UINode implements Description {
   }
   
   
-  static class TextEntry extends Box2D {
+  static class TextEntry extends Box2D implements Pool.Poolable {
     char key ;
     Letter letter ;
     boolean visible ;
     Colour colour = null ;
     Clickable link = null ;
+    
+    public void reset() {
+      letter = null;
+      colour = null;
+      link = null;
+      visible = true;
+      key = ' ';
+      super.set(0, 0, 0, 0);
+    }
   }
   
   
@@ -204,7 +248,7 @@ public class Text extends UINode implements Description {
   boolean addEntry(char k, Clickable links, Colour c) {
     Letter l = null ;
     if (((l = alphabet.map[k]) == null) && (k != '\n')) return false ;
-    final TextEntry entry = new TextEntry() ;
+    final TextEntry entry = letterPool.obtain() ;
     entry.key = k ;
     entry.letter = l ;
     entry.colour = c ;
@@ -219,6 +263,9 @@ public class Text extends UINode implements Description {
   /**  Sets this text object to the given string.
     */
   public void setText(String s) {
+    for (Object e : allEntries) {
+      if (e instanceof TextEntry) letterPool.free((TextEntry) e);
+    }
     allEntries.clear() ;
     append(s, null, null) ;
     needsFormat = true ;

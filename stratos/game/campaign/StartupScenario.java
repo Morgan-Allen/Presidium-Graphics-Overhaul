@@ -202,7 +202,7 @@ public class StartupScenario extends Scenario {
   
   
   private Base generateBase(World world) {
-    final Base base = Base.createFor(world, false) ;
+    final Base base = Base.baseWithName(world, "Player", false) ;
     
     int funding = -1, interest = -1 ;
     switch (config.fundsLevel) {

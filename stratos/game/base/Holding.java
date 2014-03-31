@@ -359,7 +359,7 @@ public class Holding extends Venue implements Economy {
   
   public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
     if (panel == null) panel = new InfoPanel(
-      UI, this, 0, "STATUS", "STAFF", "STOCKS"
+      UI, this, portrait(UI), "STATUS", "STAFF", "STOCKS"
     );
     super.configPanel(panel, UI);
     final int categoryID = panel.categoryID();

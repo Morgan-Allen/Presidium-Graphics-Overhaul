@@ -28,6 +28,9 @@ public class Ruins extends Venue {
   ) ;
   private static int NI = (int) (Math.random() * 3) ;
   
+  final static int
+    MIN_RUINS_SPACING = (int) (World.SECTOR_SIZE * 1.5f);
+  
   
   public Ruins() {
     super(4, 2, ENTRANCE_EAST, null) ;
@@ -68,13 +71,17 @@ public class Ruins extends Venue {
     final World world, final int maxPlaced
   ) {
     final Presences presences = world.presences;
-    final float minSpacing = World.SECTOR_SIZE;
+    //final float minSpacing = World.SECTOR_SIZE * 1.5f;
+    //  TODO:  Establish a minimum distance from ALL venues.
     
     final SitingPass siting = new SitingPass() {
       int numSited = 0;
       
+      
       protected float rateSite(Tile centre) {
-        if (presences.nearestMatch(Ruins.class, centre, minSpacing) != null) {
+        if (presences.nearestMatch(
+          Venue.class, centre, MIN_RUINS_SPACING) != null
+        ) {
           return -1;
         }
         float rating = 2;
@@ -83,7 +90,10 @@ public class Ruins extends Venue {
         return rating;
       }
       
+      
       protected boolean createSite(Tile centre) {
+        if (rateSite(centre) <= 0) return false;
+        
         final boolean minor = numSited >= maxPlaced / 2;
         int maxRuins = (minor ? 3 : 1) + Rand.index(3) ;
         final Batch <Venue> ruins = new Batch <Venue> () ;
@@ -110,7 +120,7 @@ public class Ruins extends Venue {
   static void populateArtilects(
     World world, Batch <Venue> ruins, boolean minor
   ) {
-    final Base artilects = world.baseWithName(Base.KEY_ARTILECTS, true, true) ;
+    final Base artilects = Base.baseWithName(world, Base.KEY_ARTILECTS, true);
     //
     //  TODO:  Generalise this, too?  Using pre-initialised actors?
     int lairNum = 0 ; for (Venue r : ruins) {

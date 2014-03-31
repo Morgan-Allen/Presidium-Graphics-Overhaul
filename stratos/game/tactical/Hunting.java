@@ -25,9 +25,11 @@ public class Hunting extends Combat implements Economy {
     */
   final public static int
     TYPE_FEEDS   = 0,
-    TYPE_HARVEST = 1,
+    TYPE_HARVEST = 1;
+  /*
     TYPE_PROCESS = 2,
     TYPE_SAMPLE  = 3 ;
+  //*/
   final static int
     STAGE_INIT          = 0,
     STAGE_HUNT          = 1,
@@ -38,7 +40,7 @@ public class Hunting extends Combat implements Economy {
     STAGE_RETURN_SAMPLE = 6,
     STAGE_COMPLETE      = 7 ;
   
-  private static boolean verbose = false;
+  private static boolean verbose = true;
   
   
   final int type ;
@@ -59,7 +61,7 @@ public class Hunting extends Combat implements Economy {
     return new Hunting(actor, prey, TYPE_HARVEST, depot) ;
   }
   
-  
+  /*
   public static Hunting asProcess(Actor actor, Actor prey, Employment depot) {
     if (depot == null) I.complain("NO DEPOT SPECIFIED!") ;
     return new Hunting(actor, prey, TYPE_PROCESS, depot) ;
@@ -70,6 +72,7 @@ public class Hunting extends Combat implements Economy {
     if (depot == null) I.complain("NO DEPOT SPECIFIED!") ;
     return new Hunting(actor, prey, TYPE_SAMPLE, depot) ;
   }
+  //*/
   
   
   
@@ -126,7 +129,7 @@ public class Hunting extends Combat implements Economy {
       if (verbose) I.sayAbout(actor, "Base feeding priority: "+priority) ;
     }
     
-    else if (type == TYPE_HARVEST || type == TYPE_PROCESS) {
+    else if (type == TYPE_HARVEST) {
       float crowding = Nest.crowdingFor(prey) ;
       if (crowding < 1) return 0 ;
       priority = ROUTINE ;
@@ -156,10 +159,12 @@ public class Hunting extends Combat implements Economy {
     if (type == TYPE_HARVEST) {
       if (actor.gear.amountOf(PROTEIN) > 0) return true ;
     }
+    /*
     if (type == TYPE_PROCESS || type == TYPE_SAMPLE) {
       final Item sample = Item.withReference(SAMPLES, prey) ;
       if (actor.gear.amountOf(sample) > 0) return true ;
     }
+    //*/
     return super.valid() ;
   }
   
@@ -182,6 +187,11 @@ public class Hunting extends Combat implements Economy {
   
   
   protected Behaviour getNextStep() {
+    final boolean report = verbose && I.talkAbout == actor && hasBegun();
+    if (report) {
+      I.say("Getting next hunting step...");
+    }
+    
     if (beginTime == -1) beginTime = actor.world().currentTime() ;
     final float timeSpent = actor.world().currentTime() - beginTime ;
     if (timeSpent > World.STANDARD_DAY_LENGTH / 3) {
@@ -194,21 +204,15 @@ public class Hunting extends Combat implements Economy {
       return null ;
     }
     
-    if (type == TYPE_HARVEST || type == TYPE_PROCESS) {
-      final Item carried = (type == TYPE_HARVEST) ?
-        Item.withAmount(PROTEIN, 1) :
-        Item.withReference(SAMPLES, prey) ;
-      final float amountC = actor.gear.amountOf(carried) ;
-      if (
-        (prey.destroyed() && amountC > 0) ||
-        amountC >= 5 ||
-        depot.inventory().amountOf(carried) > 0
-      ) {
+    if (type == TYPE_HARVEST) {
+      final float amountC = actor.gear.amountOf(PROTEIN) ;
+      if ((prey.destroyed() && amountC > 0) || amountC >= 5) {
         final Action process = new Action(
           actor, depot,
           this, "actionProcess",
           Action.REACH_DOWN, "Processing "+prey
-        ) ;
+        );
+        if (report) I.say("Next step is processing...");
         return process ;
       }
     }
@@ -219,16 +223,19 @@ public class Hunting extends Combat implements Economy {
       this, "actionHarvest",
       Action.BUILD, "Harvesting from "+prey
     ) ;
+    if (report) I.say("Next step is harvest...");
     return harvest ;
   }
   
   
   public boolean actionHarvest(Actor actor, Actor prey) {
+    /*
     if (type == TYPE_SAMPLE) {
       final Item sample = Item.withReference(SAMPLES, prey) ;
       actor.gear.addItem(sample) ;
       return true ;
     }
+    //*/
     //
     //  Determine just how large a chunk you can take out of the prey-
     final float
@@ -246,10 +253,12 @@ public class Hunting extends Combat implements Economy {
     if (type == TYPE_HARVEST) {
       actor.gear.bumpItem(PROTEIN, taken) ;
     }
+    /*
     if (type == TYPE_PROCESS) {
       final Item sample = Item.withReference(SAMPLES, prey) ;
       actor.gear.addItem(Item.withAmount(sample, taken)) ;
     }
+    //*/
     return true ;
   }
   
@@ -257,8 +266,11 @@ public class Hunting extends Combat implements Economy {
   public boolean actionProcess(Actor actor, Employment depot) {
     if (type == TYPE_HARVEST) {
       actor.gear.transfer(PROTEIN, depot) ;
+      return true;
     }
     
+    //  TODO:  Restore and test these functions...
+    /*
     if (type == TYPE_PROCESS || type == TYPE_SAMPLE) {
       final Item
         sample = Item.withReference(SAMPLES, prey),
@@ -286,6 +298,7 @@ public class Hunting extends Combat implements Economy {
         stocks.bumpItem(TRUE_SPICE, spiceAmount) ;
       }
     }
+    //*/
     return true ;
   }
   
@@ -299,7 +312,7 @@ public class Hunting extends Combat implements Economy {
         d.append("Scavenging meat from ") ;
         d.append(prey) ;
       }
-      if (type == TYPE_HARVEST || type == TYPE_PROCESS) {
+      if (type == TYPE_HARVEST) {
         if (! prey.destroyed()) {
           d.append("Harvesting meat from ") ;
           d.append(prey) ;

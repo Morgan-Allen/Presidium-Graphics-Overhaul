@@ -352,7 +352,7 @@ public abstract class Vehicle extends Mobile implements
   /**  Rendering and interface methods-
     */
   public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
-    if (panel == null) panel = new InfoPanel(UI, this, 0);
+    if (panel == null) panel = new InfoPanel(UI, this, portrait(UI));
     
     final Description d = panel.detail();
     describeStatus(d) ;

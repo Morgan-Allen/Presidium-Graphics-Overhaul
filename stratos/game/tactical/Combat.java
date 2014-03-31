@@ -136,7 +136,7 @@ public class Combat extends Plan implements Abilities {
       return 1.0f ;
     }
     if (p instanceof Dialogue) return -0.5f ;
-    if (p instanceof Treatment) return -1.0f ;
+    if (p instanceof FirstAid) return -1.0f ;
     return 0 ;
   }
   

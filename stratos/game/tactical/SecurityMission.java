@@ -7,7 +7,8 @@ package stratos.game.tactical ;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
-import stratos.graphics.widgets.HUD;
+import stratos.game.civilian.*;
+import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -184,7 +185,7 @@ public class SecurityMission extends Mission implements Abilities {
     
     final Choice choice = new Choice(actor) ;
     for (Target t : defended) if (t instanceof Actor) {
-      final Treatment TS = new Treatment(actor, (Actor) t, null) ;
+      final FirstAid TS = new FirstAid(actor, (Actor) t) ;
       TS.priorityMod = priority * (t == subject ? 2 : 1) ;
       choice.add(TS) ;
     }

@@ -6,18 +6,13 @@
 
 
 package stratos.user ;
-import com.badlogic.gdx.*;
-
-import java.nio.*;
-
-import stratos.game.actors.ActorHealth;
+import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.planet.*;
 import stratos.graphics.common.*;
-import stratos.graphics.terrain.Minimap;
 import stratos.graphics.widgets.*;
-import stratos.start.PlayLoop;
+import stratos.start.*;
 import stratos.util.*;
+import com.badlogic.gdx.*;
 
 
 
@@ -43,7 +38,7 @@ public class BaseUI extends HUD implements UIConstants {
   UIGroup panelArea, infoArea ;
   Quickbar quickbar ;
   
-  private UIGroup currentPanel, newPanel;
+  private InfoPanel currentPanel, newPanel;
   private TargetInfo currentInfo, newInfo;
   private boolean capturePanel = false;
   
@@ -153,7 +148,7 @@ public class BaseUI extends HUD implements UIConstants {
   
   /**  Modifying the interface layout-
     */
-  protected void setInfoPanels(UIGroup infoPanel, TargetInfo targetInfo) {
+  protected void setInfoPanels(InfoPanel infoPanel, TargetInfo targetInfo) {
     if (infoPanel != currentPanel) {
       beginPanelFade();
       newPanel = infoPanel;
@@ -162,6 +157,38 @@ public class BaseUI extends HUD implements UIConstants {
       if (currentInfo != null) currentInfo.active = false;
       newInfo = targetInfo;
     }
+  }
+  
+  
+  protected UITask currentTask() {
+    return currentTask ;
+  }
+  
+  
+  protected InfoPanel currentPanel() {
+    return currentPanel ;
+  }
+  
+  
+  protected TargetInfo currentInfo() {
+    return currentInfo;
+  }
+  
+  
+  protected void beginTask(UITask task) {
+    currentTask = task ;
+  }
+  
+  
+  protected void endCurrentTask() {
+    currentTask = null ;
+  }
+  
+  
+  public static boolean isPicked(Object o) {
+    final HUD hud = PlayLoop.currentUI() ;
+    if (! (hud instanceof BaseUI)) return false ;
+    return (o == null) || ((BaseUI) hud).selection.selected() == o ;
   }
   
   
@@ -264,36 +291,6 @@ public class BaseUI extends HUD implements UIConstants {
   
   protected void beginPanelFade() {
     capturePanel = true ;
-  }
-  
-  
-  
-  /**  Handling task execution (Outsource this to the HUD class?)-
-    */
-  public UITask currentTask() {
-    return currentTask ;
-  }
-  
-  
-  public UIGroup currentPanel() {
-    return this.currentPanel ;
-  }
-  
-  
-  public void beginTask(UITask task) {
-    currentTask = task ;
-  }
-  
-  
-  public void endCurrentTask() {
-    currentTask = null ;
-  }
-  
-  
-  public static boolean isPicked(Object o) {
-    final HUD hud = PlayLoop.currentUI() ;
-    if (! (hud instanceof BaseUI)) return false ;
-    return (o == null) || ((BaseUI) hud).selection.selected() == o ;
   }
 }
 

@@ -492,7 +492,7 @@ public class Plantation extends Venue implements
   
   public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
     if (panel == null) panel = new InfoPanel(
-      UI, this, 0
+      UI, this, portrait(UI)
     );
     super.configPanel(panel, UI);
     final Description d = panel.detail();

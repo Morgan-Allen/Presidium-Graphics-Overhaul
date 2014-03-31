@@ -297,7 +297,7 @@ public class SupplyDepot extends Venue implements
 
   public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
     if (panel == null) panel = new InfoPanel(
-      UI, this, 0, "STATUS", "STAFF", "STOCK", "ORDERS"
+      UI, this, portrait(UI), "STATUS", "STAFF", "STOCK", "ORDERS"
     );
     final int categoryID = panel.categoryID();
     final Description d = panel.detail();

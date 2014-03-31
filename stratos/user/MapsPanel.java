@@ -21,6 +21,7 @@ public class MapsPanel extends UIGroup {
   
   private float lastTime = -1;
   final Minimap minimap;
+  final int RGBA[][];
   
   
   public MapsPanel(BaseUI UI, World world, Base base) {
@@ -29,6 +30,7 @@ public class MapsPanel extends UIGroup {
     this.world = world ;
     this.base = base ;
     minimap = new Minimap();
+    RGBA = new int[world.size][world.size];
   }
   
 
@@ -60,7 +62,7 @@ public class MapsPanel extends UIGroup {
     
     final float time = Rendering.activeTime();
     if (((int) lastTime) != ((int) time)) {
-      final int WS = world.size, RGBA[][] = new int[WS][WS];
+      final int WS = world.size;
       for (Coord c : Visit.grid(0, 0, WS, WS, 1)) {
         final Tile t = world.tileAt(c.x, c.y);
         final Colour avg = t.minimapTone();

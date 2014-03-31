@@ -5,7 +5,9 @@
   */
 
 
-package stratos.user ;
+package stratos.user;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.graphics.common.*;
@@ -25,7 +27,9 @@ public class InfoPanel extends UIGroup implements UIConstants {
   ) ;
   final public static int
     MARGIN_WIDTH  = 10,
-    HEADER_HEIGHT = 35 ;
+    HEADER_HEIGHT = 35,
+    PORTRAIT_SIZE = 80;
+  
   
   final static Class INFO_CLASSES[] = {
     Vehicle.class,
@@ -43,28 +47,33 @@ public class InfoPanel extends UIGroup implements UIConstants {
   }
   
   
+  
   final BaseUI UI ;
   final Selectable selected ;
   
   final Bordering border ;
   final UIGroup innerRegion;
-  final Text headerText, detailText ;
+  final Text headerText, detailText, spillText ;
   
   final String categories[];
   private Selectable previous ;
   private int categoryID ;
+
+  final Composite portrait;
+  final UINode portraitFrame;
   
   
   
   public InfoPanel(
-    final BaseUI UI, Selectable selected, int topPadding,
+    final BaseUI UI, Selectable selected,
+    final Composite portrait,
     String... categories
   ) {
     super(UI);
     this.UI = UI;
     this.relBound.set(0, 0, 1, 1);
     
-    //  TODO:  Use topPadding again, once you have portrait composition done.
+    final int across = portrait == null ? 0 : PORTRAIT_SIZE + 10;
     final int
       TM = 40, BM = 40,  //top and bottom margins
       LM = 40, RM = 40;  //left and right margins
@@ -80,7 +89,7 @@ public class InfoPanel extends UIGroup implements UIConstants {
     this.innerRegion = new UIGroup(UI);
     innerRegion.relBound.set(0, 0, 1, 1);
     innerRegion.absBound.set(
-      25, 20, -(25 + 20), -(20 + 25 + topPadding)
+      25 + across, 20, -(25 + 20 + across), -(20 + 25)
     );
     innerRegion.attachTo(this);
     
@@ -98,7 +107,7 @@ public class InfoPanel extends UIGroup implements UIConstants {
         ((BaseUI) UI).beginPanelFade();
       }
     };
-    detailText.relBound.set(0, 0, 1, 1);
+    detailText.relBound.set(0, 0, 0.5f, 1);
     detailText.absBound.set(
       0, BM,
       0, -(BM + HEADER_HEIGHT)
@@ -106,14 +115,47 @@ public class InfoPanel extends UIGroup implements UIConstants {
     detailText.attachTo(innerRegion);
     detailText.scale = 0.75f;
     
+    spillText = new Text(UI, BaseUI.INFO_FONT) {
+      protected void whenLinkClicked(Clickable link) {
+        super.whenLinkClicked(link);
+        ((BaseUI) UI).beginPanelFade();
+      }
+    };
+    spillText.relBound.set(0.5f, 0, 0.5f, 1);
+    spillText.absBound.set(
+      0, BM,
+      0, -(BM + HEADER_HEIGHT)
+    );
+    spillText.attachTo(innerRegion);
+    spillText.scale = 0.75f;
+    
+    
     this.selected = selected;
     this.categories = categories;
     categoryID = 0;
     
     final Class IC = infoClass(selected) ;
-    if (IC != null) {
+    if (IC != null && categories.length > 0) {
       final Integer catID = DEFAULT_CATS.get(IC) ;
       if (catID != null) categoryID = Visit.clamp(catID, categories.length);
+    }
+    else categoryID = -1;
+    
+    if (portrait != null) {
+      this.portrait = portrait;
+      portraitFrame = new UINode(UI) {
+        protected void render(SpriteBatch batch2d) {
+          portrait.drawTo(batch2d, bounds, absAlpha);
+        }
+      };
+      final int PS = PORTRAIT_SIZE;
+      portraitFrame.relBound.set(0, 1, 0, 0);
+      portraitFrame.absBound.set(25 + 5, -(5 + PS), PS, PS);
+      portraitFrame.attachTo(this);
+    }
+    else {
+      this.portrait = null;
+      this.portraitFrame = null;
     }
   }
   
@@ -157,6 +199,7 @@ public class InfoPanel extends UIGroup implements UIConstants {
     }
     updateText(UI, headerText, detailText);
     if (selected != null) selected.configPanel(this, UI);
+    detailText.continueWrap(spillText);
     super.updateState() ;
   }
   
@@ -186,7 +229,6 @@ public class InfoPanel extends UIGroup implements UIConstants {
       }) ;
     }
     detailText.setText("");
-    //selected.writeInformation(detailText, categoryID, UI) ;
   }
 }
 

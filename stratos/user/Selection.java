@@ -83,7 +83,11 @@ public class Selection implements UIConstants {
   /**  
     */
   boolean updateSelection(World world, Viewport port, UIGroup infoPanel) {
-    if (selected != null && UI.currentPanel() == null) {
+    if (
+      selected != null &&
+      UI.currentPanel() == null &&
+      UI.currentInfo() == null
+    ) {
       pushSelection(selected, true);
     }
     //
@@ -112,6 +116,7 @@ public class Selection implements UIConstants {
       I.say("Picked tile is: "+pickTile);
       I.say("  Owner is: "+pickTile.owner());
       I.say("  Path type is: "+pickTile.pathType());
+      I.say("  Minimap tone is: "+pickTile.minimapTone());
     }
     
     //
@@ -147,7 +152,7 @@ public class Selection implements UIConstants {
     }
     else if (asRoot) navStack.clear();
     
-    selected = s ;
+    selected = s;
     final Target locks = s.selectionLocksOn();
     if (locks.inWorld()) UI.viewTracking.lockOn(locks);
     final InfoPanel panel = s.configPanel(null, UI);

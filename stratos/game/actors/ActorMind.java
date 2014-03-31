@@ -626,6 +626,9 @@ public abstract class ActorMind implements Abilities {
   }
   
   
+  //  TODO:  ALL OF THIS MUST BE RE-EVALUATED
+  
+  
   public void setRelation(Accountable other, float level, int initTime) {
     final Relation r = new Relation(actor, other, level, initTime) ;
     relations.put(other, r) ;

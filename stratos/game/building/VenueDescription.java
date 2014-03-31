@@ -33,7 +33,7 @@ public class VenueDescription {
     Venue venue, InfoPanel panel, BaseUI UI
   ) {
     if (panel == null) panel = new InfoPanel(
-      UI, venue, 0, "STATUS", "STAFF", "STOCK", "UPGRADES"
+      UI, venue, venue.portrait(UI), "STATUS", "STAFF", "STOCK", "UPGRADES"
     );
     final int categoryID = panel.categoryID();
     final Description d = panel.detail();
@@ -51,7 +51,7 @@ public class VenueDescription {
   public static InfoPanel configSimplePanel(
     Venue venue, InfoPanel panel, BaseUI UI, String statusMessage
   ) {
-    if (panel == null) panel = new InfoPanel(UI, venue, 0);
+    if (panel == null) panel = new InfoPanel(UI, venue, venue.portrait(UI));
     final Description d = panel.detail();
 
     final VenueDescription VD = new VenueDescription(venue);

@@ -359,16 +359,14 @@ public abstract class Fauna extends Actor {
   
   
   public Composite portrait(BaseUI UI) {
-    //  TODO:  Restore.
-    return null;//new Composite(UI, species.portrait) ;
+    return Composite.withImage(species.portrait, species.name);
   }
   
   
   public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
-    if (panel == null) panel = new ActorPanel(
-      UI, this
+    if (panel == null) panel = new InfoPanel(
+      UI, this, portrait(UI)
     );
-    //final int categoryID = panel.categoryID();
     final Description d = panel.detail();
     
     d.append("Is: ") ;

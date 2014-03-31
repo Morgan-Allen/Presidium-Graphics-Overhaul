@@ -167,9 +167,14 @@ public abstract class Artilect extends Actor {
     Venue toAssault = null ;
     float bestRating = 0 ;
     
+    //
+    //  TODO:  Base priority on proximity to your lair, along with total
+    //  settlement size.
     for (Venue venue : sampled) {
       if (venue.base() == this.base()) continue ;
       final float dist = Spacing.distance(venue, lair) ;
+      if (dist > Ruins.MIN_RUINS_SPACING) continue;
+      
       float rating = SS / (SS + dist) ;
       rating += 1 - mind.relationValue(venue) ;
       if (rating > bestRating) { bestRating = rating ; toAssault = venue ; }
@@ -178,9 +183,6 @@ public abstract class Artilect extends Actor {
     if (toAssault == null) return null ;
     final Combat siege = new Combat(this, toAssault) ;
     
-    //
-    //  TODO:  Base priority on proximity to your lair, along with total
-    //  settlement size.
     return siege ;
   }
   
@@ -190,8 +192,8 @@ public abstract class Artilect extends Actor {
   /**  Rendering and interface methods-
     */
   public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
-    if (panel == null) panel = new ActorPanel(
-      UI, this//, "STATUS", "SKILLS", "PROFILE"
+    if (panel == null) panel = new InfoPanel(
+      UI, this, null//, "STATUS", "SKILLS", "PROFILE"
     );
     final Description d = panel.detail();
 

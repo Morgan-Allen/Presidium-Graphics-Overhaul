@@ -237,7 +237,7 @@ public class World {
   }
   
   
-  public void registerBase(Base base, boolean active) {
+  protected void registerBase(Base base, boolean active) {
     if (active) {
       bases.include(base) ;
       schedule.scheduleForUpdates(base) ;
@@ -246,24 +246,6 @@ public class World {
       schedule.unschedule(base) ;
       bases.remove(base) ;
     }
-  }
-  
-  
-  
-  //
-  //  TODO:  Move this into the Base class.
-  public Base baseWithName(String title, boolean create, boolean primal) {
-    for (Base base : bases) if (
-      base.title != null &&
-      base.title.equals(title) &&
-      base.primal == primal
-    ) {
-      return base ;
-    }
-    if (! create) return null ;
-    final Base newBase = Base.createFor(this, primal) ;
-    newBase.title = title ;
-    return newBase ;
   }
   
   

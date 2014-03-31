@@ -144,7 +144,7 @@ public class Human extends Actor implements Abilities {
     final Composite cached = Composite.fromCache(key);
     if (cached != null) return cached;
     
-    final int PS = ActorPanel.PORTRAIT_SIZE;
+    final int PS = InfoPanel.PORTRAIT_SIZE;
     final Composite composite = Composite.withSize(PS, PS, key);
     composite.layer(PORTRAIT_BASE);
     
@@ -262,8 +262,8 @@ public class Human extends Actor implements Abilities {
   
   
   public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
-    if (panel == null) panel = new ActorPanel(
-      UI, this, "STATUS", "SKILLS", "PROFILE"
+    if (panel == null) panel = new InfoPanel(
+      UI, this, portrait(UI), "STATUS", "SKILLS", "PROFILE"
     );
     final int categoryID = panel.categoryID();
     final Description d = panel.detail();

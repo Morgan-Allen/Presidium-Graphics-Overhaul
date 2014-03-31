@@ -76,7 +76,7 @@ public class Delivery extends Plan implements Economy {
   }
   
   
-  public Delivery(Actor passenger, Venue destination) {
+  public Delivery(Actor passenger, Owner destination) {
     super(null, passenger, destination) ;
     this.origin = null ;
     this.destination = destination ;

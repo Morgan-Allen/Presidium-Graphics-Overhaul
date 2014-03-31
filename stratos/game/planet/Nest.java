@@ -328,7 +328,7 @@ public class Nest extends Venue {
     final int SS = World.SECTOR_SIZE ;
     int numAttempts = (world.size * world.size * 4) / (SS * SS) ;
     ///I.say("No. of attempts: "+numAttempts) ;
-    final Base wildlife = world.baseWithName(Base.KEY_WILDLIFE, true, true) ;
+    final Base wildlife = Base.baseWithName(world, Base.KEY_WILDLIFE, true) ;
     
     while (numAttempts-- > 0) {
       Tile tried = world.tileAt(

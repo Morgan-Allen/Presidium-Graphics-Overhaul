@@ -153,13 +153,13 @@ public class HumanMind extends ActorMind implements Abilities {
   protected void addReactions(Element seen, Choice choice) {
     if (seen instanceof Actor) {
       final Actor nearby = (Actor) seen ;
-      choice.add(Hunting.asHarvest(actor, nearby, home)) ;
+      choice.add(Hunting.asFeeding(actor, nearby)) ;
       choice.add(new Combat(actor, nearby)) ;
       if (nearby.isDoing(Combat.class, actor)) choice.add(new Retreat(actor)) ;
       
       choice.add(new Dialogue(actor, nearby, Dialogue.TYPE_CASUAL)) ;
       //  TODO:  Also consider 'objecting' to whatever the other is doing.
-      choice.add(new Treatment(actor, nearby, null)) ;
+      choice.add(new FirstAid(actor, nearby)) ;
     }
   }
   

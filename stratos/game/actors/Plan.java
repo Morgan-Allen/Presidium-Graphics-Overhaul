@@ -8,6 +8,8 @@
 package stratos.game.actors ;
 import java.lang.reflect.* ;
 
+import org.apache.commons.math3.util.FastMath;
+
 import stratos.game.building.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
@@ -96,6 +98,14 @@ public abstract class Plan implements Saveable, Behaviour {
   }
   
   
+  
+  /**  Default implementations of Behaviour methods-
+    */
+  public int motionType(Actor actor) {
+    return MOTION_ANY ;
+  }
+  
+  
   public boolean valid() {
     for (Saveable o : signature) if (o instanceof Target) {
       final Target t = (Target) o ;
@@ -103,19 +113,6 @@ public abstract class Plan implements Saveable, Behaviour {
     }
     if (actor != null && ! actor.inWorld()) return false ;
     return true ;
-  }
-  
-  //public abstract Plan copyFor(Actor other) ;
-  
-  
-  
-  /**  Default implementations of Behaviour methods-
-    */
-  //
-  //  TODO:  This needs to return the appropriate motion mode for the actor at
-  //  the given time.
-  public int motionType(Actor actor) {
-    return MOTION_ANY ;
   }
   
   
@@ -138,7 +135,7 @@ public abstract class Plan implements Saveable, Behaviour {
       nextStep = null ;
     }
     if (! valid()) { onceInvalid() ; return nextStep = null ; }
-    //
+    
     //  We do not cache steps for dormant or 'under consideration' plans, since
     //  that can screw up proper sequence of evaluation/execution.  Start from
     //  scratch instead.
@@ -152,11 +149,6 @@ public abstract class Plan implements Saveable, Behaviour {
     }
     return nextStep ;
   }
-  
-  
-  protected void onceInvalid() {}
-  
-  protected abstract Behaviour getNextStep() ;
   
   
   public Behaviour nextStep() {
@@ -190,15 +182,112 @@ public abstract class Plan implements Saveable, Behaviour {
   
   /**  Assorted utility evaluation methods-
     */
-  final private static float IL2 = 1 / (float) Math.log(2) ;
+  /*
+  final static int
+    NO_DISTANCE_CHECK  = 1,
+    NO_LAW_ENFORCEMENT = 2,
+    IS_COMMUNAL        = 4,
+    IS_WORK_OR_DUTY    = 8;
+  //*/
+  final protected static float
+    NO_DANGER      = 0.0f,
+    MILD_DANGER    = 0.5f,
+    REAL_DANGER    = 1.0f,
+    EXTREME_DANGER = 2.0f,
+    
+    NO_COMPETITION   =  0.0f,
+    MILD_COMPETITION =  0.5f,
+    FULL_COMPETITION =  1.0f,
+    MILD_COOPERATION = -0.5f,
+    FULL_COOPERATION = -1.0f,
+    
+    NO_HARM      =  0.0f,
+    MILD_HARM    =  0.5f,
+    REAL_HARM    =  1.0f,
+    EXTREME_HARM =  1.5f,
+    MILD_HELP    = -0.5f,
+    REAL_HELP    = -1.0f,
+    EXTREME_HELP = -1.5f,
+    
+    NO_DISTANCE_CHECK      = 0.0f,
+    PARTIAL_DISTANCE_CHECK = 0.5f,
+    NORMAL_DISTANCE_CHECK  = 1.0f,
+    HEAVY_DISTANCE_CHECK   = 2.0f,
+    
+    NO_MODIFIER = 0;
+  
+  protected float priorityForActorWith(
+    Actor actor,
+    Target subject,
+    float defaultPriority,
+    float subjectHarm,
+    float peersCompete,
+    Skill baseSkills[],
+    Trait baseTraits[],
+    float specialModifier,
+    float distanceCheck,
+    float dangerFactor
+  ) {
+    float priority = ROUTINE + specialModifier;
+    
+    for (Skill skill : baseSkills) {
+      final float level = actor.traits.traitLevel(skill);
+      priority += (level - 5) / (5 * baseSkills.length);
+    }
+    
+    for (Trait trait : baseTraits) {
+      final float level = actor.traits.relativeLevel(trait);
+      priority += level * CASUAL / baseTraits.length;
+    }
+    
+    if (subjectHarm != 0) {
+      final float relation = actor.mind.relationValue(subject);
+      priority -= relation * subjectHarm * CRITICAL;
+    }
+    
+    if (peersCompete != 0 && ! hasBegun()) {
+      final float competition = competition(this, subject, actor);
+      priority -= competition * peersCompete * CASUAL / 2;
+    }
+    
+    priority = Visit.clamp(priority / ROUTINE, 0.5f, 1.5f);
+    priority *= defaultPriority;
+    
+    if (dangerFactor > 0) {
+      final float chance = successChance();
+      priority -= (1 - chance) * dangerFactor * ROUTINE;
+    }
+    
+    if (distanceCheck != 0) {
+      final float range = rangePenalty(actor, subject) * distanceCheck;
+      priority -= range;
+      if (dangerFactor > 0) {
+        final float danger = dangerPenalty(subject, actor);
+        priority -= danger * (range + 2) / 2f;
+      }
+    }
+    return priority;
+  }
+  
+  
+  //  TODO:  Consider making these methods abstract too?
+  protected float successChance() {
+    return 1 ;
+  }
+  
+  protected void onceInvalid() {}
+  
+  protected abstract Behaviour getNextStep() ;
+  
+  
   
   
   public static float rangePenalty(Target a, Target b) {
     if (a == null || b == null) return 0 ;
     final float SS = World.SECTOR_SIZE ;
-    final float dist = Spacing.distance(a, b) * 1.0f / SS ;
-    if (dist <= 1) return dist ;
-    return IL2 * (float) Math.log(dist) ;
+    final float dist = Spacing.distance(a, b) / SS ;
+    if (dist <= 1) return 0 ;
+    return ((float) FastMath.log(2, dist)) - 1 ;
   }
   
   
@@ -253,12 +342,6 @@ public abstract class Plan implements Saveable, Behaviour {
     }
     else return v.structure.upgradeBonus(refers) ;
   }
-  
-  
-  protected float successChance() {
-    return 1 ;
-  }
-  
   
   
   

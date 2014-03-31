@@ -19,7 +19,7 @@ import stratos.util.*;
 
 //  TODO:  Primal bases shouldn't employ fog of war, commerce transactions, and
 //  the like.  They are intended for use primarily by artilects, wildlife,
-//  natives, and the like.
+//  natives, et cetera.
 
 //  TODO:  Modify relations between bases depending on the average relations
 //  of their members.
@@ -64,24 +64,27 @@ public class Base implements
   final public DangerMap dangerMap ;
   final public IntelMap intelMap = new IntelMap(this) ;
   
-  
   public String title  = "Player Base" ;
-  public Colour colour = Colour.BLUE ;
+  public Colour colour = new Colour().set(Colour.BLUE) ;  //TODO:  Make private.
   
   
   
-  public static Base createFor(World world, boolean primal) {
+  public static Base baseWithName(
+    World world, String title, boolean primal
+  ) {
+    for (Base base : world.bases()) if (
+      base.title != null &&
+      base.title.equals(title) &&
+      base.primal == primal
+    ) {
+      return base ;
+    }
     final Base base = new Base(world, primal) ;
+    base.title = title;
     world.registerBase(base, true) ;
-    if (primal) base.colour = Colour.LIGHT_GREY ;
+    if (primal) base.colour.set(Colour.LIGHT_GREY) ;
     return base ;
   }
-  
-  /*
-  public static Base withName(String name, World world, boolean primal) {
-    return null ;
-  }
-  //*/
   
   
   private Base(World world, boolean primal) {
@@ -91,7 +94,6 @@ public class Base implements
     //maintenance = new PresenceMap(world, "damaged") ;
     dangerMap = new DangerMap(world, this) ;
     intelMap.initFog(world) ;
-    
   }
   
   
@@ -127,6 +129,7 @@ public class Base implements
     
     title = s.loadString() ;
     colour.loadFrom(s.input()) ;
+    I.say("Loaded colour for "+title+" is "+colour);
   }
   
   

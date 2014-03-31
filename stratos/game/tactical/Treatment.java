@@ -27,12 +27,15 @@ import stratos.util.*;
 //  native Shamans.)
 
 
+
+/*
 public class Treatment extends Plan implements Economy {
   
   
   
   /**  Constants, field definitions, constructors and save/load methods-
     */
+/*
   final public static int
     TYPE_FIRST_AID    = 0, FIRST_AID_DC    = 5 , FIRST_AID_XP    = 10,
     TYPE_MEDICATION   = 1, MEDICATION_DC   = 10, MEDICATION_XP   = 20,
@@ -257,6 +260,7 @@ public class Treatment extends Plan implements Economy {
   
   /**  Evaluating targets and priorities-
     */
+/*
   public float priorityFor(Actor actor) {
     if (! canTreat()) return 0 ;
     if (patient.health.goodHealth() && patient.aboard() != theatre) {
@@ -343,6 +347,7 @@ public class Treatment extends Plan implements Economy {
   
   /**  Behaviour implementation-
     */
+/*
   protected Behaviour getNextStep() {
     if (! canTreat()) return null ;
     
@@ -593,6 +598,7 @@ public class Treatment extends Plan implements Economy {
   
   /**  Rendering and interface-
     */
+/*
   private String descForAction() {
     String effectDesc = "?" ;
     if (applied != null) effectDesc = "for "+applied ;
@@ -638,7 +644,7 @@ public class Treatment extends Plan implements Economy {
     d.append(theatre) ;
   }
 }
-
+//*/
 
 
 
