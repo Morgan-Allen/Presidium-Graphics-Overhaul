@@ -54,9 +54,10 @@ public class DebugPlans extends Scenario {
     );
     
     final Actor patient = new Human(Background.VETERAN, base);
-    patient.enterWorldAt(10, 10, world);
+    patient.enterWorldAt(world.tileAt(10, 10), world);
     patient.health.takeInjury(patient.health.maxHealth());
-    UI.selection.pushSelection(treats, true);
+    
+    UI.selection.pushSelection(patient, true);
   }
   
   

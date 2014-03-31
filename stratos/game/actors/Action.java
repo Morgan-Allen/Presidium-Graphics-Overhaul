@@ -199,10 +199,10 @@ public class Action implements Behaviour, AnimNames {
   public static float moveRate(
     Actor actor, boolean basic
   ) {
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = false && verbose && I.talkAbout == actor;
     if (report) I.say("Deciding on motion rate:");
     int motionType = MOTION_NORMAL ; for (Behaviour b : actor.mind.agenda) {
-      final int MT = b.motionType(actor) ;
+      final int MT = b.motionType(actor);
       if (report) I.say("  Type is: "+MT);
       if (MT != MOTION_ANY) { motionType = MT ; break ; }
     }
@@ -283,7 +283,12 @@ public class Action implements Behaviour, AnimNames {
     boolean closed = false, approaching = false, facing = false ;
     final Target step = actor.motion.nextStep(), closeOn ;
     
-    if (mustBoard) {
+    if (contactMade()) {
+      pathsTo = actor.aboard();
+      closeOn = actor;
+      closed = approaching = facing = true;
+    }
+    else if (mustBoard) {
       approaching = actor.aboard() == moveTarget ;
       closed = approaching && (motionDist - maxDist < separation) ;
       closeOn = closed ? actionTarget : step ;
@@ -306,7 +311,8 @@ public class Action implements Behaviour, AnimNames {
     facing = actor.motion.facingTarget(closeOn) ;
     
     if (report) {
-      I.say("Action target is: "+actionTarget) ;
+      I.say("Action is: "+methodName()+" "+hashCode());
+      I.say("  Action target is: "+actionTarget) ;
       I.say("  Move target is: "+moveTarget) ;
       I.say("  Path target is: "+actor.motion.target()+", step: "+step) ;
       I.say("  Faced is: "+closeOn+", must board: "+mustBoard) ;
@@ -348,6 +354,18 @@ public class Action implements Behaviour, AnimNames {
   }
   
   
+  private float contactTime() {
+    final float duration = actionDuration() ;
+    final float contact = (duration - 0.25f) / duration ;
+    return contact;
+  }
+  
+  
+  private boolean contactMade() {
+    return inRange == 1 && progress >= contactTime();
+  }
+  
+  
   protected void updateAction(boolean active) {
     if (verbose) I.sayAbout(actor, "Updating action: "+progress) ;
     if (finished()) {
@@ -361,8 +379,7 @@ public class Action implements Behaviour, AnimNames {
     if (inRange == 1) {
       progress += 1f / (actionDuration() * World.UPDATES_PER_SECOND) ;
       progress = Visit.clamp(progress, 0, 1) ;
-      final float duration = actionDuration() ;
-      final float contact = (duration - 0.25f) / duration ;
+      final float contact = contactTime();
       if (oldProgress <= contact && progress > contact) applyEffect() ;
     }
     if (inRange == 0) {
@@ -440,23 +457,6 @@ public class Action implements Behaviour, AnimNames {
     final float AP = ((progress * alpha) + (oldProgress * (1 - alpha)));
     sprite.setAnimation(animName, (AP > 1) ? (AP % 1) : AP);
   }
-  
-  /*
-  protected float animProgress() {
-  }
-  
-  /*
-  protected String animName() {
-    if (inRange == 1) {
-      return animName ;
-    }
-    else {
-      if (quick()  ) return MOVE_FAST  ;
-      if (careful()) return MOVE_SNEAK ;
-      return MOVE ;
-    }
-  }
-  //*/
   
   
   public String toString() {

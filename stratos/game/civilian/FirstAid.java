@@ -30,7 +30,6 @@ public class FirstAid extends Plan implements Abilities, Economy {
     super(actor, patient);
     this.patient = patient;
     this.refuge = refuge;
-    
   }
   
   
@@ -80,7 +79,7 @@ public class FirstAid extends Plan implements Abilities, Economy {
   
   private static Boardable findRefuge(Actor actor) {
     final Target t = Retreat.nearestHaven(actor, Sickbay.class);
-    if (t instanceof Inventory.Owner) return (Boardable) t;
+    if (t instanceof Boardable) return (Boardable) t;
     return null;
   }
   
@@ -121,11 +120,9 @@ public class FirstAid extends Plan implements Abilities, Economy {
       return aids;
     }
     
-    if (
-      refuge != null && ! patient.indoors() &&
-      Suspensor.canCarry(actor, patient)
-    ) {
-      return new Delivery(patient, (Inventory.Owner) refuge);
+    if (refuge != null && ! patient.indoors()) {
+      final StretcherDelivery d = new StretcherDelivery(actor, patient, refuge);
+      if (d.nextStep() != null) return d;
     }
     
     result = treatmentFor(patient);
@@ -151,12 +148,10 @@ public class FirstAid extends Plan implements Abilities, Economy {
   
   
   public boolean actionFirstAid(Actor actor, Actor patient) {
-    
     float DC = severity() * 5;
     boolean success = true;
     success &= actor.traits.test(ANATOMY, DC, 10);
-    //I.say("Applying first aid- success? "+success);
-    //I.say("Patient bleeding? "+patient.health.bleeding());
+    
     if (success) {
       patient.health.liftInjury(0);
       result = treatmentFor(patient);
@@ -182,7 +177,7 @@ public class FirstAid extends Plan implements Abilities, Economy {
   
   
   public void describeBehaviour(Description d) {
-    if (lastStep instanceof Delivery) {
+    if (! (lastStep instanceof Action)) {
       super.describedByStep(d);
       return;
     }

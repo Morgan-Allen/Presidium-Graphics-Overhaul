@@ -134,6 +134,10 @@ public class Element implements
   public boolean enterWorldAt(Target t, World world) {
     final Vec3D p = t.position(null) ;
     if (! setPosition(p.x, p.y, world)) return false ;
+    if (location.blocked()) {
+      final Tile entry = Spacing.nearestOpenTile(location, location);
+      if (entry != null) setPosition(entry.x, entry.y, world);
+    }
     enterWorld() ;
     return true ;
   }

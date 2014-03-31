@@ -40,7 +40,6 @@ public class Delivery extends Plan implements Economy {
   
   final public Owner origin, destination ;
   final public Item items[] ;
-  final Actor passenger ;
   public Owner shouldPay ;
   
   private byte stage = STAGE_INIT ;
@@ -72,16 +71,6 @@ public class Delivery extends Plan implements Economy {
     for (Item n : items) {
       if (n.quality == -1) I.complain(n+" HAD NO QUALITY") ;
     }
-    this.passenger = null ;
-  }
-  
-  
-  public Delivery(Actor passenger, Owner destination) {
-    super(null, passenger, destination) ;
-    this.origin = null ;
-    this.destination = destination ;
-    this.items = new Item[0] ;
-    this.passenger = passenger ;
   }
   
   
@@ -94,7 +83,6 @@ public class Delivery extends Plan implements Economy {
       if (items[n].quality == -1) items[n] = Item.withQuality(items[n], 0) ;
     }
     
-    passenger = (Actor) s.loadObject() ;
     origin = (Owner) s.loadObject() ;
     destination = (Owner) s.loadObject() ;
     shouldPay = (Owner) s.loadObject() ;
@@ -112,7 +100,6 @@ public class Delivery extends Plan implements Economy {
     s.saveInt(items.length) ;
     for (Item i : items) Item.saveTo(s, i) ;
     
-    s.saveObject(passenger) ;
     s.saveObject((Session.Saveable) origin) ;
     s.saveObject((Session.Saveable) destination) ;
     s.saveObject(shouldPay) ;
@@ -142,16 +129,6 @@ public class Delivery extends Plan implements Economy {
   
   /**  Assessing targets and priorities-
     */
-  //
-  //  TODO:  You'll need to break this up into multiple delivery types, and
-  //  specify who (if anyone) needs to pay for it.
-  /*
-  private boolean isShopping(Actor actor) {
-    return destination == actor.mind.home() ;
-  }
-  //*/
-  
-  
   public static float purchasePrice(Item item, Actor actor, Owner origin) {
     float TP = origin.priceFor(item.type) ;
     if (actor != null && actor.vocation().guild == Background.GUILD_MILITANT) {
@@ -240,13 +217,9 @@ public class Delivery extends Plan implements Economy {
       if (driven.destroyed()) return false ;
       if (! driven.canPilot(actor)) return false ;
     }
-    //
-    //  TODO:  Put the passenger-delivery schtick into a different class.  It's
-    //  making a mess of things here.
-    if (passenger != null) return true ;
+    
     if (stage < STAGE_RETURN && available(actor).length == 0) {
       if (driven != null) { stage = STAGE_RETURN ; return true ; }
-      ///I.say("Nothing available!") ;
       return false ;
     }
     return true ;
@@ -270,12 +243,8 @@ public class Delivery extends Plan implements Economy {
       else stage = STAGE_PICKUP ;
     }
     if (stage == STAGE_PICKUP) {
-      if (passenger != null && ! Suspensor.canCarry(actor, passenger)) {
-        stage = STAGE_DONE ;
-        return null ;
-      }
       final Action pickup = new Action(
-        actor, (passenger == null) ? origin : passenger,
+        actor, origin,
         this, "actionPickup",
         Action.REACH_DOWN, "Picking up goods"
       ) ;
@@ -338,10 +307,6 @@ public class Delivery extends Plan implements Economy {
 
   public boolean actionPickup(Actor actor, Target target) {
     if (stage != STAGE_PICKUP) return false ;
-    if (passenger != null && ! Suspensor.canCarry(actor, passenger)) {
-      stage = STAGE_DONE ;
-      return false ;
-    }
     //
     //  Vehicles get special treatment-
     if (driven != null) {
@@ -358,18 +323,13 @@ public class Delivery extends Plan implements Economy {
     //  Perform the actual transfer of goods, make the payment required, and
     //  see if a suspensor is needed-
     final float sum = transferGoods(origin, actor) ;
-    final boolean bulky = sum >= 5 || passenger != null ;
+    final boolean bulky = sum >= 5;// || passenger != null ;
     if (verbose) I.sayAbout(actor, "Performing pickup!") ;
-    //
-    //  Passengers always require a suspensor.
     if (bulky) {
       final Suspensor suspensor = new Suspensor(actor, this) ;
       final Tile o = actor.origin() ;
       suspensor.enterWorldAt(o.x, o.y, o.world) ;
       this.suspensor = suspensor ;
-    }
-    if (target == passenger) {
-      suspensor.passenger = passenger ;
     }
     stage = STAGE_DROPOFF ;
     return true ;
@@ -390,7 +350,6 @@ public class Delivery extends Plan implements Economy {
         for (Service t : ALL_COMMODITIES) {
           driven.cargo.transfer(t, target) ;
         }
-        //for (Item i : items) driven.cargo.transfer(i.type, target) ;
         stage = STAGE_RETURN ;
         return true ;
       }
@@ -400,9 +359,6 @@ public class Delivery extends Plan implements Economy {
     if (suspensor != null && suspensor.inWorld()) suspensor.exitWorld() ;
     
     for (Item i : items) actor.gear.transfer(i.type, target) ;
-    if (passenger != null) {
-      passenger.goAboard((Boardable) target, actor.world()) ;
-    }
     stage = STAGE_DONE ;
     return true ;
   }
@@ -429,13 +385,6 @@ public class Delivery extends Plan implements Economy {
     if (stage == STAGE_RETURN) {
       d.append("Returning to ") ;
       d.append(origin) ;
-      return ;
-    }
-    if (passenger != null) {
-      d.append("Delivering ") ;
-      d.append(passenger) ;
-      d.append(" to ") ;
-      d.append(destination) ;
       return ;
     }
     

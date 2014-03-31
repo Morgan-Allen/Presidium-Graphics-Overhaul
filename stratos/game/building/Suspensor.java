@@ -75,19 +75,16 @@ public class Suspensor extends Mobile {
   }
   
   
-  public static boolean canCarry(Actor carries, Actor actor) {
-    if (carries == null || actor == null) return false ;
-    for (Mobile m : actor.aboard().inside()) {
+  public static Actor carrying(Actor other) {
+    for (Mobile m : other.aboard().inside()) {
       if (m instanceof Suspensor) {
         final Suspensor s = (Suspensor) m ;
-        if (s.passenger == actor) {
-          if (s.followed == carries) return true ;
-          return false ;
-        }
+        if (s.passenger == other) return s.followed;
       }
     }
-    return true ;
+    return null;
   }
+  
   
   
   protected void updateAsMobile() {
@@ -128,7 +125,7 @@ public class Suspensor extends Mobile {
       }
       else {
         final Vec3D raise = new Vec3D(nextPosition) ;
-        raise.z += 0.15f ;
+        raise.z += 0.15f * GameSettings.actorScale ;
         passenger.setHeading(raise, nextRotation, false, world) ;
       }
     }
@@ -137,7 +134,11 @@ public class Suspensor extends Mobile {
   
   protected float aboveGroundHeight() { return 0.15f ; }
   public float radius() { return 0.0f ; }
-  public Base base() { return null ; }
+  public Base base() { return followed.base() ; }
+  
+  protected float spriteScale() {
+    return super.spriteScale() * GameSettings.actorScale;
+  }
   
   
   
@@ -146,8 +147,6 @@ public class Suspensor extends Mobile {
   public void renderFor(Rendering rendering, Base base) {
     if (followed.indoors()) return ;
     //if (origin().owner() != null) return ;
-    sprite().setAnimation(AnimNames.STAND, 1);
-    ///I.say("Rendering suspensor...");
     super.renderFor(rendering, base) ;
   }
   
