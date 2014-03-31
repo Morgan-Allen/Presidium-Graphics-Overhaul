@@ -14,6 +14,8 @@ import stratos.user.*;
 import stratos.util.*;
 
 
+//  TODO:  This will have to be looked into again.
+
 
 public class Combat extends Plan implements Abilities {
   

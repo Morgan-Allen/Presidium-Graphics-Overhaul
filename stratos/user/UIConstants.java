@@ -45,11 +45,19 @@ public interface UIConstants {
     TYPE_HIDDEN    = "hidden" ;
   
   
+  
+  final public static int
+    GUILD_BUTTONS_HIGH = 65,
+    GUILDS_PANEL_WIDE = 320,
+    READOUT_HIGH = 40,
+    INFO_PANEL_HIGH = 240;
+  
+  /*
   final public static int
     NUM_TABS         = 3,
     NUM_QUICK_SLOTS  = 10,
     MAX_TIP_WIDTH    = 200,
-    INFO_AREA_WIDE   = 320,
+    INFO_AREA_WIDE   = 480,
     CAT_BUTTONS_HIGH = 65;
   //  Move the tooltips class over to this package.
   
@@ -58,7 +66,8 @@ public interface UIConstants {
     MAIN_BOUNDS = new Box2D().set(0, 1, 0.66f, 1.0f),
     MINI_BOUNDS = new Box2D().set(0, 1, 0, 0),
     MINI_INSETS = new Box2D().set(0, -256, 256, 256);
-  
+  //*/
+  /*
   final static Box2D
     
     //  TODO:  Have a constant for the width.
@@ -67,6 +76,7 @@ public interface UIConstants {
       -INFO_AREA_WIDE, CAT_BUTTONS_HIGH,
       INFO_AREA_WIDE, -CAT_BUTTONS_HIGH
     );
+  //*/
     //PANE_BOUNDS = new Box2D().set(0, 0, 1.0f, 0.9f),
     //TABS_BOUNDS = new Box2D().set(0, 0.9f, 1.0f, 0.1f),
   

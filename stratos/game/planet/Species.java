@@ -116,7 +116,7 @@ public class Species implements Session.Saveable, Economy {
       ),
       Type.BROWSER,
       1.00f, //bulk
-      0.35f, //speed
+      0.15f, //speed
       0.65f  //sight
     ) {
       public Fauna newSpecimen() { return new Quud() ; }

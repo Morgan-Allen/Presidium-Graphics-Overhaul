@@ -268,7 +268,7 @@ public class Quickbar extends UIGroup implements UIConstants {
     }
     
     installGroup.relBound.set(1, 0, 0, 0) ;
-    installGroup.absBound.set(-INFO_AREA_WIDE, 0, 0, 0) ;
+    installGroup.absBound.set(-GUILDS_PANEL_WIDE, 0, 0, 0) ;
     installGroup.attachTo(this) ;
   }
   
@@ -291,7 +291,7 @@ public class Quickbar extends UIGroup implements UIConstants {
     } ;
     button.stretch = true ;
     
-    button.absBound.set(0, 0, INFO_AREA_WIDE / 6f, BUT_SIZE) ;
+    button.absBound.set(0, 0, GUILDS_PANEL_WIDE / 6f, BUT_SIZE) ;
     final Button last = installSlots.last() ;
     if (last != null) button.absBound.xpos(last.absBound.xmax()) ;
     installSlots.add(button) ;

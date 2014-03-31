@@ -7,18 +7,16 @@
 package stratos.graphics.widgets ;
 import stratos.graphics.common.*;
 import stratos.util.*;
-
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
-import com.badlogic.gdx.math.*;
 
 
-
-//  TODO:  Just allow top/bottom/right/left parameters to be assigned.
 
 public class Bordering extends UINode {
   
   
+  /**  
+    */
   final Texture borderTex;
   public int
     left = 10, right = 10,
@@ -26,11 +24,6 @@ public class Bordering extends UINode {
   public float
     leftU = 0.33f, rightU = 0.66f,
     bottomV = 0.33f, topV = 0.66f;
-  /*
-  final public Box2D
-    insetUV = new Box2D().set(0.33f, 0.33f, 0.33f, 0.33f),
-    drawInset = new Box2D().set(10, 10, -20, -20) ;
-  //*/
   
   
   public Bordering(HUD UI, ImageAsset tex) {
@@ -39,13 +32,24 @@ public class Bordering extends UINode {
   }
   
   
+  protected void render(SpriteBatch batch2D) {
+    renderBorder(
+      batch2D, bounds,
+      left, right, top, bottom,
+      leftU, rightU, bottomV, topV,
+      borderTex
+    );
+  }
   
+  
+  
+  /**  Public implementation for the convenience of other widgets-
+    */
   final static float
     coordX[] = new float[4],
     coordY[] = new float[4],
     coordU[] = new float[4],
     coordV[] = new float[4];
-  
   
   public static void renderBorder(
     SpriteBatch batch2D, Box2D area,
@@ -92,16 +96,6 @@ public class Bordering extends UINode {
         coordV[y + 1]
       );
     }
-  }
-  
-  
-  protected void render(SpriteBatch batch2D) {
-    renderBorder(
-      batch2D, bounds,
-      left, right, top, bottom,
-      leftU, rightU, bottomV, topV,
-      borderTex
-    );
   }
 }
 

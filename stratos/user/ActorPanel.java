@@ -39,7 +39,7 @@ public class ActorPanel extends InfoPanel {
     return new UINode(UI) {
       protected void render(SpriteBatch batch2d) {
         if (portrait == null) return;
-        portrait.drawTo(batch2d, bounds);
+        portrait.drawTo(batch2d, bounds, absAlpha);
       }
     };
   }

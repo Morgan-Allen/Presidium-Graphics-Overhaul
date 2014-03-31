@@ -26,9 +26,6 @@ public class GameSettings {
     fogFree   = false,
     
     pathFree  = false,
-    
-    //bigSprite = false,
-    
     hardCore  = false ;
   
   public static float

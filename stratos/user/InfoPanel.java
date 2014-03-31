@@ -105,13 +105,10 @@ public class InfoPanel extends UIGroup implements UIConstants {
     );
     detailText.attachTo(innerRegion);
     detailText.scale = 0.75f;
-    //detailText.getScrollBar().attachTo(this) ;
     
-    this.selected = selected ;
+    this.selected = selected;
     this.categories = categories;
-    //final String cats[] = (selected == null) ?
-      //null : selected.infoCategories() ;
-    categoryID = 0 ;
+    categoryID = 0;
     
     final Class IC = infoClass(selected) ;
     if (IC != null) {

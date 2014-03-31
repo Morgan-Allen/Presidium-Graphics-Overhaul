@@ -115,8 +115,9 @@ public class Composite {
   }
   
   
-  public void drawTo(SpriteBatch batch2D, Box2D bounds) {
+  public void drawTo(SpriteBatch batch2D, Box2D bounds, float alpha) {
     texture();
+    batch2D.setColor(1, 1, 1, alpha);
     batch2D.draw(
       composed,
       bounds.xpos(), bounds.ypos(),

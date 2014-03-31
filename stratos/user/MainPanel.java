@@ -32,7 +32,7 @@ public class MainPanel extends InfoPanel implements UIConstants {
   
   
   final static int
-    PANEL_WIDE = INFO_AREA_WIDE - 36,
+    PANEL_WIDE = GUILDS_PANEL_WIDE - 36,
     
     GUILDS_MARGIN = 0,
     GUILDS_TOP = 0,

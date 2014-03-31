@@ -115,7 +115,7 @@ public class Quud extends Fauna {
 
   /**  Rendering and interface methods-
     */
-  protected float moveAnimStride() { return 4.0f ; }
+  protected float moveAnimStride() { return super.moveAnimStride() * 0.8f ; }
   protected float spriteScale() { return super.spriteScale() * 0.8f ; }
 }
 

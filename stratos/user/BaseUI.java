@@ -114,19 +114,23 @@ public class BaseUI extends HUD implements UIConstants {
   private void configLayout() {
     
     this.mapsPanel = new MapsPanel(this, world, null) ;
-    mapsPanel.relBound.setTo(MINI_BOUNDS) ;
-    mapsPanel.absBound.setTo(MINI_INSETS) ;
+    mapsPanel.relBound.set(0, 1, 0, 0);
+    mapsPanel.absBound.set(0, -256, 256, 256);
     mapsPanel.attachTo(this) ;
     
     this.readout = new Text(this, INFO_FONT) ;
     readout.relBound.set(0, 1, 1, 0) ;
-    readout.absBound.set(200, -50, -300, 40) ;
+    readout.absBound.set(200, -50, -300, READOUT_HIGH) ;
     readout.attachTo(this) ;
     
     this.panelArea = new UIGroup(this) ;
-    panelArea.relBound.setTo(INFO_BOUNDS) ;
-    panelArea.absBound.setTo(INFO_INSETS) ;
+    panelArea.relBound.set(0.25f, 1, 0.5f, 0);
+    panelArea.absBound.set(
+      0, -(INFO_PANEL_HIGH + READOUT_HIGH),
+      0, INFO_PANEL_HIGH
+    );
     panelArea.attachTo(this) ;
+    
     this.infoArea = new UIGroup(this);
     infoArea.relBound.set(0, 0, 1, 1);
     infoArea.attachTo(this);

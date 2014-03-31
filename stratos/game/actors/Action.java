@@ -355,9 +355,8 @@ public class Action implements Behaviour, AnimNames {
       if (oldProgress <= contact && progress > contact) applyEffect() ;
     }
     if (inRange == 0) progress += (
-      moveRate(actor, false) *
-      actor.moveAnimStride() /
-      World.UPDATES_PER_SECOND
+      (moveRate(actor, false) * actor.moveAnimStride()) /
+      (1 * World.UPDATES_PER_SECOND)
     ) / actor.health.baseSpeed() ;
   }
   

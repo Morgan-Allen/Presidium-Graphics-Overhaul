@@ -43,10 +43,12 @@ public class ViewTracking {
     this.view = view ;
   }
   
+  
   void saveState(Session s) throws Exception {
     s.saveTarget(lockTarget) ;
     view.lookedAt.saveTo(s.output()) ;
   }
+  
   
   void loadState(Session s) throws Exception {
     lockTarget = s.loadTarget() ;
@@ -102,8 +104,8 @@ public class ViewTracking {
   protected void updateTracking() {
     lockX = lockY = 0;
     if (UI.currentPanel() != null) {
-      lockX = 0 - UI.panelArea.xdim() / 2f;
-      lockY = 0;
+      lockX = 0;// - UI.panelArea.xdim() / 2f;
+      lockY = 0 - UI.panelArea.ydim() / 2f;
     }
     
     if (Gdx.input.isKeyPressed(Keys.UP   )) pushCamera( 1, -1) ;

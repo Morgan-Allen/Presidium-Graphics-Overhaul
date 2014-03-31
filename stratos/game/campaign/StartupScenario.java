@@ -197,9 +197,6 @@ public class StartupScenario extends Scenario {
     TG.setupOutcrops(world);
     Flora.populateFlora(world);
     world.terrain().readyAllMeshes();
-    
-    //final SitingPass EG = new SitingPass(world, TG);
-    //EG.populateFlora();
     return world ;
   }
   
