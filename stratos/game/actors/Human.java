@@ -21,7 +21,7 @@ import stratos.util.*;
 
 
 
-public class Human extends Actor implements Abilities {
+public class Human extends Actor implements Qualities {
   
   
   /**  Methods and constants related to preparing media and sprites-

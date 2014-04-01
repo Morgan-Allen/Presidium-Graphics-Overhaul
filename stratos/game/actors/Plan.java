@@ -37,8 +37,9 @@ public abstract class Plan implements Saveable, Behaviour {
   final Saveable signature[] ;
   final int hash ;
   protected Actor actor ;
-  protected Behaviour nextStep = null, lastStep = null ;
-  
+  protected Behaviour
+    nextStep = null,
+    lastStep = null ;
   public float priorityMod = 0 ;
   
   
@@ -182,13 +183,6 @@ public abstract class Plan implements Saveable, Behaviour {
   
   /**  Assorted utility evaluation methods-
     */
-  /*
-  final static int
-    NO_DISTANCE_CHECK  = 1,
-    NO_LAW_ENFORCEMENT = 2,
-    IS_COMMUNAL        = 4,
-    IS_WORK_OR_DUTY    = 8;
-  //*/
   final protected static float
     NO_DANGER      = 0.0f,
     MILD_DANGER    = 0.5f,
@@ -215,6 +209,8 @@ public abstract class Plan implements Saveable, Behaviour {
     HEAVY_DISTANCE_CHECK   = 2.0f,
     
     NO_MODIFIER = 0;
+  final protected static Skill NO_SKILLS[] = null;
+  final protected static Trait NO_TRAITS[] = null;
   
   protected float priorityForActorWith(
     Actor actor,
@@ -232,19 +228,19 @@ public abstract class Plan implements Saveable, Behaviour {
     float priority = ROUTINE + specialModifier;
     if (report) I.say("Evaluating priority for "+this);
     
-    for (Skill skill : baseSkills) {
+    if (baseSkills != null) for (Skill skill : baseSkills) {
       final float level = actor.traits.traitLevel(skill);
       priority += (level - 5) / (5 * baseSkills.length);
     }
     
-    for (Trait trait : baseTraits) {
+    if (baseTraits != null) for (Trait trait : baseTraits) {
       final float level = actor.traits.relativeLevel(trait);
       priority += level * CASUAL / baseTraits.length;
     }
     
     if (subjectHarm != 0) {
       final float relation = actor.mind.relationValue(subject);
-      priority -= relation * subjectHarm * CRITICAL;
+      priority -= relation * subjectHarm * PARAMOUNT;
     }
     
     if (peersCompete != 0 && ! hasBegun()) {
@@ -253,7 +249,9 @@ public abstract class Plan implements Saveable, Behaviour {
     }
     
     if (report) I.say("Priority before clamp/scale is: "+priority);
-    priority = Visit.clamp(priority / ROUTINE, 0.5f, 2.0f);
+    if (priority <= 0) return 0;
+    
+    priority = Visit.clamp(priority / ROUTINE, 0.5f, 2.5f);
     priority *= defaultPriority;
     
     if (dangerFactor > 0) {
@@ -304,7 +302,7 @@ public abstract class Plan implements Saveable, Behaviour {
     final Tile at = actor.world().tileAt(t) ;
     float danger = actor.base().dangerMap.sampleAt(at.x, at.y) ;
     if (danger < 0) return 0 ;
-    danger *= actor.traits.scaleLevel(Abilities.NERVOUS) ;
+    danger *= actor.traits.scaleLevel(Qualities.NERVOUS) ;
     return danger * 0.1f / (1 + Combat.combatStrength(actor, null)) ;
   }
   

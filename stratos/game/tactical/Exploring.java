@@ -12,7 +12,7 @@ import stratos.util.*;
 
 
 
-public class Exploring extends Plan implements Abilities {
+public class Exploring extends Plan implements Qualities {
   
   
   /**  Construction and save/load methods-
@@ -68,8 +68,8 @@ public class Exploring extends Plan implements Abilities {
     float impetus = winReward ;
     
     impetus += actor.traits.traitLevel(NATURALIST) / 2f ;
-    impetus += actor.traits.traitLevel(INQUISITIVE) / 2f ;
-    impetus -= actor.traits.traitLevel(INDOLENT) ;
+    impetus += actor.traits.traitLevel(CURIOUS) / 2f ;
+    impetus -= actor.traits.traitLevel(RELAXED) ;
     impetus += actor.traits.traitLevel(SURVEILLANCE) / 10f ;
     
     impetus -= Plan.rangePenalty(actor, point) ;

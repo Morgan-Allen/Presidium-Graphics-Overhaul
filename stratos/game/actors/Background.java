@@ -160,7 +160,7 @@ public class Background implements Economy, Session.Saveable {
       "Technician", "artificer_skin.gif", "artificer_portrait.png",
       LOWER_CLASS, GUILD_ARTIFICER,
       PRACTICED, ASSEMBLY, HARD_LABOUR, NOVICE, FIELD_THEORY, CHEMISTRY,
-      SOMETIMES, DUTIFUL, RARELY, INDOLENT,
+      SOMETIMES, DUTIFUL, RARELY, RELAXED,
       OVERALLS
     ),
     
@@ -178,7 +178,7 @@ public class Background implements Economy, Session.Saveable {
       UPPER_CLASS, GUILD_ARTIFICER,
       EXPERT, ASSEMBLY, PRACTICED, FIELD_THEORY, SHIELD_AND_ARMOUR,
       NOVICE, ANCIENT_LORE, CHEMISTRY,
-      SOMETIMES, INQUISITIVE, RARELY, NATURALIST,
+      SOMETIMES, CURIOUS, RARELY, NATURALIST,
       OVERALLS
     ),
     
@@ -199,7 +199,7 @@ public class Background implements Economy, Session.Saveable {
       "Biochemist", "citizen_skin.gif", null,
       MIDDLE_CLASS, GUILD_PHYSICIAN,
       PRACTICED, GENE_CULTURE, PHARMACY, CHEMISTRY,
-      RARELY, DEBAUCHED, INDOLENT,
+      RARELY, INDULGENT, RELAXED,
       OVERALLS
     ),
     
@@ -208,7 +208,7 @@ public class Background implements Economy, Session.Saveable {
       MIDDLE_CLASS, GUILD_PHYSICIAN,
       EXPERT, ACCOUNTING, INSCRIPTION, PRACTICED, COUNSEL, ASSEMBLY,
       NOVICE, ANCIENT_LORE, LEGISLATION,
-      ALWAYS, INQUISITIVE, SOMETIMES, NERVOUS, IMPASSIVE,
+      ALWAYS, CURIOUS, SOMETIMES, NERVOUS, IMPASSIVE,
       OVERALLS
     ),
     
@@ -217,7 +217,7 @@ public class Background implements Economy, Session.Saveable {
       UPPER_CLASS, GUILD_PHYSICIAN,
       EXPERT, ANATOMY, PHARMACY,
       PRACTICED, GENE_CULTURE, PSYCHOANALYSIS, COUNSEL, SUASION,
-      OFTEN, INQUISITIVE, SOMETIMES, HONOURABLE, IMPASSIVE, RARELY, DEBAUCHED,
+      OFTEN, CURIOUS, SOMETIMES, METICULOUS, IMPASSIVE, RARELY, INDULGENT,
       OVERALLS
     ),
     
@@ -230,7 +230,7 @@ public class Background implements Economy, Session.Saveable {
       "Cultivator", "pyon_skin.gif", null,
       LOWER_CLASS, GUILD_ECOLOGIST,
       PRACTICED, CULTIVATION, HARD_LABOUR, NOVICE, DOMESTICS,
-      OFTEN, SOCIABLE, SOMETIMES, NATURALIST, RARELY, AMBITIOUS,
+      OFTEN, OUTGOING, SOMETIMES, NATURALIST, RARELY, AMBITIOUS,
       OVERALLS
     ),
     
@@ -239,7 +239,7 @@ public class Background implements Economy, Session.Saveable {
       MIDDLE_CLASS, GUILD_ECOLOGIST,
       PRACTICED, GEOPHYSICS, ASSEMBLY, HARD_LABOUR,
       NOVICE, GENE_CULTURE, SURVEILLANCE,
-      RARELY, SOCIABLE, OFTEN, OPTIMISTIC,
+      RARELY, OUTGOING, OFTEN, POSITIVE,
       OVERALLS
     ),
     
@@ -249,7 +249,7 @@ public class Background implements Economy, Session.Saveable {
       EXPERT, XENOZOOLOGY, SURVEILLANCE, STEALTH_AND_COVER,
       PRACTICED, MARKSMANSHIP, NATIVE_TABOO,
       NOVICE, BATTLE_TACTICS, HAND_TO_HAND,
-      RARELY, NERVOUS, INDOLENT, OFTEN, NATURALIST,
+      RARELY, NERVOUS, RELAXED, OFTEN, NATURALIST,
       STUN_PISTOL, CAMOUFLAGE
     ),
     
@@ -258,7 +258,7 @@ public class Background implements Economy, Session.Saveable {
       UPPER_CLASS, GUILD_ECOLOGIST,
       EXPERT, CULTIVATION, PRACTICED, GENE_CULTURE, XENOZOOLOGY,
       PRACTICED, GEOPHYSICS, CHEMISTRY,
-      ALWAYS, NATURALIST, SOMETIMES, EMPATHIC, INQUISITIVE,
+      ALWAYS, NATURALIST, SOMETIMES, EMPATHIC, CURIOUS,
       SEALSUIT
     ),
     
@@ -273,7 +273,7 @@ public class Background implements Economy, Session.Saveable {
       "Supply Corps", "pyon_skin.gif", null,
       LOWER_CLASS, GUILD_MERCHANT,
       NOVICE, PILOTING, HARD_LABOUR,
-      OFTEN, INDOLENT, RARELY, AMBITIOUS,
+      OFTEN, RELAXED, RARELY, AMBITIOUS,
       OVERALLS
     ),
     
@@ -298,7 +298,7 @@ public class Background implements Economy, Session.Saveable {
       UPPER_CLASS, GUILD_MERCHANT,
       EXPERT, COUNSEL, ACCOUNTING, PRACTICED, COMMAND, ANCIENT_LORE,
       ALWAYS, STUBBORN, OFTEN, DUTIFUL,
-      SOMETIMES, AMBITIOUS, IMPASSIVE, RARELY, DEBAUCHED,
+      SOMETIMES, AMBITIOUS, IMPASSIVE, RARELY, INDULGENT,
       OVERALLS
     ),
     
@@ -312,7 +312,7 @@ public class Background implements Economy, Session.Saveable {
       LOWER_CLASS, GUILD_MILITANT,
       PRACTICED, HAND_TO_HAND, MARKSMANSHIP,
       NOVICE, SURVEILLANCE, ASSEMBLY, HARD_LABOUR, SHIELD_AND_ARMOUR,
-      SOMETIMES, DUTIFUL, AGGRESSIVE, RARELY, NERVOUS, FEMININE,
+      SOMETIMES, DUTIFUL, DEFENSIVE, RARELY, NERVOUS, FEMININE,
       SHOCK_STAFF, BLASTER, PARTIAL_ARMOUR
     ),
     
@@ -321,7 +321,7 @@ public class Background implements Economy, Session.Saveable {
       MIDDLE_CLASS, GUILD_MILITANT,
       PRACTICED, HARD_LABOUR, ASSEMBLY,
       NOVICE, ANATOMY, PHARMACY, MARKSMANSHIP,
-      RARELY, SOCIABLE, SOMETIMES, HONOURABLE,
+      RARELY, OUTGOING, SOMETIMES, METICULOUS,
       STUN_PISTOL, BELT_AND_BRACER
     ),
     
@@ -330,7 +330,7 @@ public class Background implements Economy, Session.Saveable {
       MIDDLE_CLASS, GUILD_MILITANT,
       PRACTICED, MARKSMANSHIP, SURVEILLANCE, STEALTH_AND_COVER,
       NOVICE, XENOZOOLOGY, ATHLETICS, HAND_TO_HAND,
-      RARELY, NERVOUS, SOMETIMES, INQUISITIVE,
+      RARELY, NERVOUS, SOMETIMES, CURIOUS,
       BLASTER, CAMOUFLAGE
     ),
     
@@ -352,7 +352,7 @@ public class Background implements Economy, Session.Saveable {
       "Performer", "aesthete_female_skin.gif", "aesthete_portrait.png",
       LOWER_CLASS, GUILD_AESTHETE,
       PRACTICED, MUSIC_AND_SONG, NOVICE, EROTICS, MASQUERADE,
-      OFTEN, HANDSOME, RARELY, STOUT, SOMETIMES, EMPATHIC, DEBAUCHED,
+      OFTEN, HANDSOME, RARELY, STOUT, SOMETIMES, EMPATHIC, INDULGENT,
       FINERY
     ) {
       final ImageAsset male_skin = costumeFor("aesthete_male_skin.gif") ;
@@ -375,7 +375,7 @@ public class Background implements Economy, Session.Saveable {
       EXPERT, GRAPHIC_DESIGN, SUASION,
       PRACTICED, COUNSEL, SOCIAL_HISTORY,
       NOVICE, ACCOUNTING, MUSIC_AND_SONG,
-      RARELY, HONOURABLE, STUBBORN, SOMETIMES, AMBITIOUS,
+      RARELY, METICULOUS, STUBBORN, SOMETIMES, AMBITIOUS,
       OVERALLS
     ),
     
@@ -383,7 +383,7 @@ public class Background implements Economy, Session.Saveable {
       "Aesthete", "aesthete_male_skin.gif", null,
       UPPER_CLASS, GUILD_AESTHETE,
       EXPERT, GRAPHIC_DESIGN, PRACTICED, HANDICRAFTS, NOVICE, ANATOMY,
-      RARELY, STUBBORN, IMPASSIVE, OFTEN, DEBAUCHED,
+      RARELY, STUBBORN, IMPASSIVE, OFTEN, INDULGENT,
       FINERY
     ),
     
@@ -399,14 +399,14 @@ public class Background implements Economy, Session.Saveable {
       "Scavenger", "native_skin.gif", null,
       SLAVE_CLASS, NOT_A_GUILD,
       NOVICE, STEALTH_AND_COVER, LEARNING, HANDICRAFTS,
-      OFTEN, NERVOUS, ACQUISITIVE, RARELY, INDOLENT
+      OFTEN, NERVOUS, ACQUISITIVE, RARELY, RELAXED
     ),
     FREE_TRADER = new Background(
       "Free Trader", "pyon_skin.gif", null,
       LOWER_CLASS, NOT_A_GUILD,
       PRACTICED, SUASION, NOVICE, HANDICRAFTS, ACCOUNTING, DOMESTICS,
       NATIVE_TABOO, COMMON_CUSTOM,
-      SOMETIMES, SOCIABLE, FRIENDLY, RARELY, NERVOUS, AMBITIOUS
+      SOMETIMES, OUTGOING, POSITIVE, RARELY, NERVOUS, AMBITIOUS
     ),
     //
     //  Mechanics and captains keep your dropships in working order.
@@ -431,7 +431,7 @@ public class Background implements Economy, Session.Saveable {
       MIDDLE_CLASS, NOT_A_GUILD,
       EXPERT, PILOTING, MARKSMANSHIP, STEALTH_AND_COVER,
       PRACTICED, SUASION, SURVEILLANCE, MASQUERADE,
-      OFTEN, ACQUISITIVE, SOMETIMES, NERVOUS, RARELY, HONOURABLE,
+      OFTEN, ACQUISITIVE, SOMETIMES, NERVOUS, RARELY, METICULOUS,
       BLASTER, CAMOUFLAGE
     ),
     COMPANION = new Background(
@@ -462,7 +462,7 @@ public class Background implements Economy, Session.Saveable {
       LOWER_CLASS, NOT_A_GUILD,
       EXPERT, HANDICRAFTS, PRACTICED, DOMESTICS, CULTIVATION, HARD_LABOUR,
       NATIVE_TABOO, NOVICE, MASQUERADE,
-      RARELY, INDOLENT, OFTEN, SOCIABLE
+      RARELY, RELAXED, OFTEN, OUTGOING
     ),
     HUNTER = new Background(
       "Hunter", "native_skin.gif", null,
@@ -559,7 +559,7 @@ public class Background implements Economy, Session.Saveable {
       RULER_CLASS, NOT_A_GUILD,
       PRACTICED, COMMAND, SUASION, NOVICE, EROTICS, MASQUERADE, DOMESTICS,
       RARELY, IMPASSIVE, STUBBORN, OFTEN, AMBITIOUS, ACQUISITIVE,
-      SOMETIMES, FRIENDLY
+      SOMETIMES, POSITIVE
     ) {
       final ImageAsset male_skin = costumeFor("highborn_female_skin.gif") ;
       public String nameFor(Actor actor) {
@@ -593,7 +593,7 @@ public class Background implements Economy, Session.Saveable {
       UPPER_CLASS, NOT_A_GUILD,
       EXPERT, DOMESTICS, PRACTICED, PHARMACY, ANATOMY, COUNSEL,
       GENE_CULTURE, NOVICE, NOBLE_ETIQUETTE,
-      ALWAYS, DUTIFUL, OFTEN, TRADITIONAL, NEVER, AGGRESSIVE
+      ALWAYS, DUTIFUL, OFTEN, TRADITIONAL, NEVER, DEFENSIVE
     ),
 
     //
@@ -605,7 +605,7 @@ public class Background implements Economy, Session.Saveable {
       RULER_CLASS, NOT_A_GUILD,
       PRACTICED, COUNSEL, SUASION, ACCOUNTING, COMMON_CUSTOM,
       NOVICE, NOBLE_ETIQUETTE, SOCIAL_HISTORY, BATTLE_TACTICS, COMMAND,
-      OFTEN, SOCIABLE, AMBITIOUS, SOMETIMES, ACQUISITIVE
+      OFTEN, OUTGOING, AMBITIOUS, SOMETIMES, ACQUISITIVE
     ),
     GOVERNOR = null,
     SENATOR  = null,

@@ -87,7 +87,7 @@ issue certain tasks and vet others, and can extend to foreign kingdoms.
 
 
 
-public class HumanMind extends ActorMind implements Abilities {
+public class HumanMind extends ActorMind implements Qualities {
   
   
   

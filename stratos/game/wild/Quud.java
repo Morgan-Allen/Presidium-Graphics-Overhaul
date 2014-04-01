@@ -98,7 +98,7 @@ public class Quud extends Fauna {
         Action.FALL, "Hunkering Down"
       ) ;
       hunker.setProperties(Action.QUICK) ;
-      hunker.setPriority(Action.CRITICAL) ;
+      hunker.setPriority(Action.PARAMOUNT) ;
       return hunker ;
     }
     return null ;

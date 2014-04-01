@@ -10,7 +10,7 @@ import stratos.util.I;
 
 
 
-public class StretcherDelivery extends Plan {
+public class StretcherDelivery extends Plan implements Qualities {
   
   
   final Actor patient;
@@ -48,8 +48,18 @@ public class StretcherDelivery extends Plan {
   
   
   public float priorityFor(Actor actor) {
-    return ROUTINE;
+    return priorityForActorWith(
+      actor, patient, ROUTINE,
+      REAL_HELP, FULL_COMPETITION,
+      BASE_SKILLS, BASE_TRAITS,
+      NO_MODIFIER, PARTIAL_DISTANCE_CHECK, NO_DANGER
+    );
   }
+  
+  final Skill BASE_SKILLS[] = {};
+  final Trait BASE_TRAITS[] = {};
+  
+  
   
   
   protected Behaviour getNextStep() {

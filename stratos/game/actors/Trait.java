@@ -11,7 +11,7 @@ import stratos.util.*;
 
 
 
-public class Trait implements Abilities, Session.Saveable {
+public class Trait implements Qualities, Session.Saveable {
   
   
   
@@ -58,6 +58,9 @@ public class Trait implements Abilities, Session.Saveable {
   final String descriptors[] ;
   final int descValues[] ;
   
+  private Trait correlates[];
+  private float weightings[];
+  
   
   
   protected Trait(int type, String... descriptors) {
@@ -101,6 +104,18 @@ public class Trait implements Abilities, Session.Saveable {
   
   
   public void affect(Actor a) {
+  }
+  
+  
+  protected void assignCorrelates(Trait t[], float w[]) {
+    this.correlates = t;
+    this.weightings = w;
+  }
+  
+  
+  protected float correlation(Trait other) {
+    final int index = Visit.indexOf(other, correlates);
+    return (index == -1) ? 0 : weightings[index];
   }
   
   

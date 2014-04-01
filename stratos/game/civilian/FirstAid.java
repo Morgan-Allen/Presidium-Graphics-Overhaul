@@ -11,7 +11,7 @@ import stratos.util.*;
 
 
 
-public class FirstAid extends Plan implements Abilities, Economy {
+public class FirstAid extends Plan implements Qualities, Economy {
   
   
   private static boolean verbose = true, evalVerbose = false;
@@ -53,7 +53,7 @@ public class FirstAid extends Plan implements Abilities, Economy {
   /**  Targeting and priority evaluation.
     */
   final static Skill BASE_SKILLS[] = { ANATOMY, PHARMACY };
-  final static Trait BASE_TRAITS[] = { EMPATHIC, HONOURABLE };
+  final static Trait BASE_TRAITS[] = { EMPATHIC, DUTIFUL };
   
   
   private float severity() {
@@ -89,7 +89,7 @@ public class FirstAid extends Plan implements Abilities, Economy {
     
     final float priority = priorityForActorWith(
       actor, patient,
-      severity() * CRITICAL,
+      severity() * PARAMOUNT,
       REAL_HELP,
       FULL_COMPETITION,
       BASE_SKILLS,

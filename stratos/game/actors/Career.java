@@ -14,7 +14,7 @@ import stratos.util.*;
 
 
 
-public class Career implements Abilities {
+public class Career implements Qualities {
   
   
   

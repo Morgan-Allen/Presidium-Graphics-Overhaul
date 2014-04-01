@@ -10,7 +10,7 @@ import stratos.util.*;
 
 
 
-public class Recreation extends Plan implements Economy, Abilities {
+public class Recreation extends Plan implements Economy, Qualities {
   
   
   /**  Data fields, construction and save/load methods-
@@ -29,10 +29,10 @@ public class Recreation extends Plan implements Economy, Abilities {
     TYPE_MEDITATE =  5 ;
   final static Trait ENJOYMENT_TRAITS[][] = {
     { },
-    { DEBAUCHED },
+    { INDULGENT },
     { },
-    { INQUISITIVE, SOCIABLE },
-    { OPTIMISTIC, AGGRESSIVE },
+    { CURIOUS, OUTGOING },
+    { POSITIVE, DEFENSIVE },
     { IMPASSIVE, STUBBORN },
   } ;
   final static String RELAX_DESC[] = {
@@ -91,7 +91,7 @@ public class Recreation extends Plan implements Economy, Abilities {
     final Employment work = actor.mind.work() ;
     float priority = ROUTINE * (1 - actor.health.moraleLevel()) ;
     if (work != null && work.personnel().onShift(actor)) {
-      priority = IDLE ;
+      priority = 1 ;
     }
     
     final float performValue = Performance.performValueFor(venue, this) ;

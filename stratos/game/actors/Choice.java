@@ -80,7 +80,7 @@ public class Choice {
   
   public Behaviour weightedPick() {
     final float
-      sub = actor.traits.relativeLevel(Abilities.STUBBORN),
+      sub = actor.traits.relativeLevel(Qualities.STUBBORN),
       range = DEFAULT_PRIORITY_RANGE - (sub * DEFAULT_TRAIT_RANGE) ;
     return weightedPick(range) ;
   }

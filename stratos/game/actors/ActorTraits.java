@@ -13,7 +13,7 @@ import stratos.util.*;
 
 
 
-public class ActorTraits implements Abilities {
+public class ActorTraits implements Qualities {
   
   
   /**  Common fields, constructors, and save/load methods-
@@ -350,41 +350,41 @@ public class ActorTraits implements Abilities {
   
   
   public Batch <Trait> personality() {
-    return getMatches(null, Abilities.PERSONALITY_TRAITS) ;
+    return getMatches(null, Qualities.PERSONALITY_TRAITS) ;
   }
   
   
   public Batch <Trait> physique() {
     final Batch <Trait> matches = new Batch <Trait> () ;
-    getMatches(matches, Abilities.PHYSICAL_TRAITS) ;
-    getMatches(matches, Abilities.BLOOD_TRAITS) ;
+    getMatches(matches, Qualities.PHYSICAL_TRAITS) ;
+    getMatches(matches, Qualities.BLOOD_TRAITS) ;
     return matches ;
   }
   
   
   public Batch <Trait> characteristics() {
-    return getMatches(null, Abilities.CATEGORIC_TRAITS) ;
+    return getMatches(null, Qualities.CATEGORIC_TRAITS) ;
   }
   
   
   public Batch <Skill> attributes() {
-    return (Batch) getMatches(null, Abilities.ATTRIBUTES) ;
+    return (Batch) getMatches(null, Qualities.ATTRIBUTES) ;
   }
   
   
   public Batch <Skill> skillSet() {
     final Batch <Trait> matches = new Batch <Trait> () ;
-    getMatches(matches, Abilities.INSTINCT_SKILLS ) ;
-    getMatches(matches, Abilities.PHYSICAL_SKILLS ) ;
-    getMatches(matches, Abilities.SENSITIVE_SKILLS) ;
-    getMatches(matches, Abilities.COGNITIVE_SKILLS) ;
-    getMatches(matches, Abilities.PSYONIC_SKILLS  ) ;
+    getMatches(matches, Qualities.INSTINCT_SKILLS ) ;
+    getMatches(matches, Qualities.PHYSICAL_SKILLS ) ;
+    getMatches(matches, Qualities.SENSITIVE_SKILLS) ;
+    getMatches(matches, Qualities.COGNITIVE_SKILLS) ;
+    getMatches(matches, Qualities.PSYONIC_SKILLS  ) ;
     return (Batch) matches ;
   }
   
   
   public Batch <Condition> conditions() {
-    return (Batch) getMatches(null, Abilities.CONDITIONS) ;
+    return (Batch) getMatches(null, Qualities.CONDITIONS) ;
   }
   
   /*

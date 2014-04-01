@@ -20,7 +20,7 @@ import stratos.util.*;
 
 
 
-public class Power implements Abilities {
+public class Power implements Qualities {
   
   
   final static String

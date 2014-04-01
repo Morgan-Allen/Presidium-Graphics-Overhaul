@@ -17,7 +17,7 @@ import stratos.util.*;
 //  TODO:  This will have to be looked into again.
 
 
-public class Combat extends Plan implements Abilities {
+public class Combat extends Plan implements Qualities {
   
   
   /**  Data fields, constructors and save/load methods-
@@ -89,9 +89,47 @@ public class Combat extends Plan implements Abilities {
   /**  Gauging the relative strength of combatants, odds of success, and how
     *  (un)appealing an engagement would be.
     */
+  final static Trait BASE_TRAITS[] = { FEARLESS, DEFENSIVE };
+  final static Skill
+    MELEE_SKILLS[]  = { HAND_TO_HAND, SHIELD_AND_ARMOUR, FORMATION_COMBAT },
+    RANGED_SKILLS[] = { MARKSMANSHIP, STEALTH_AND_COVER, FORMATION_COMBAT };
+  
+  
   public float priorityFor(Actor actor) {
     if (isDowned(target)) return 0 ;
+    final boolean melee = actor.gear.meleeWeapon();
     
+    return priorityForActorWith(
+      actor, target, PARAMOUNT,
+      REAL_HARM, MILD_COOPERATION,
+      melee ? MELEE_SKILLS : RANGED_SKILLS,
+      BASE_TRAITS,
+      NO_MODIFIER, NORMAL_DISTANCE_CHECK, REAL_DANGER
+    );
+  }
+  
+  
+  protected float successChance() {
+    float danger;
+    
+    if (target instanceof Actor) {
+      final Actor struck = (Actor) target ;
+      danger = Retreat.dangerAtSpot(target, actor, struck) ;
+    }
+    else if (target instanceof Venue) {
+      final Venue struck = (Venue) target ;
+      danger = Retreat.dangerAtSpot(struck, actor, null) ;
+    }
+    else danger = Retreat.dangerAtSpot(target, actor, null) / 2;
+    
+    danger *= 1 + actor.traits.relativeLevel(NERVOUS);
+    final float chance = Visit.clamp(1 - danger, 0.1f, 0.9f) ;
+    return chance;
+  }
+  
+  
+  
+    /*
     final boolean report = verbose && I.talkAbout == actor ;
     
     if (target instanceof Actor) {
@@ -122,10 +160,12 @@ public class Combat extends Plan implements Abilities {
       return BP ;// BP <= 0 ? 0 : BP + ROUTINE ;
     }
     return -1 ;
-  }
+    //*/
+  //}
   
   
   //  TODO:  This could probably be made more generalised.
+  /*
   public static float hostility(Actor actor) {
     Plan p = null ;
     for (Behaviour b : actor.mind.agenda()) if (b instanceof Plan) {
@@ -178,6 +218,7 @@ public class Combat extends Plan implements Abilities {
     if (report) I.say("  Final appeal: "+appeal+"\n") ;
     return appeal ;
   }
+  //*/
   
   
   protected static boolean isDowned(Element subject) {

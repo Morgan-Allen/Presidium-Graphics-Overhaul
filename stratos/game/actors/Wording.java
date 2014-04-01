@@ -12,7 +12,7 @@ import stratos.util.*;
 //
 //  TODO:  SPLIT THIS INTO DIFFERENT CLASSES
 
-public class Wording implements Abilities {
+public class Wording implements Qualities {
   
   
   

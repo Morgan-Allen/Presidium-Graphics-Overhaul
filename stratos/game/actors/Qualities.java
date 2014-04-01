@@ -9,7 +9,7 @@ import stratos.util.*;
 
 
 
-public interface Abilities {
+public interface Qualities {
   
   
   final public static int
@@ -168,205 +168,51 @@ public interface Abilities {
   ) ;
   
   
-  //  Likelihood of aiding/harming others- Empathic vs. Cruel
-  //  Brave danger/retreat- Bold vs. Nervous
-  //  Enjoy/disdain violence- Aggressive vs. Pacifist
-  //  Conversation/relationships- Expressive vs. Impassive
-  //  Adhere to ethics/get results- Principled vs. Amoral
-  //  Persistance/adaptability- Stubborn/Patient vs. Whimsical
-  //  Desire for more/content with lot- Ambitious/Jealous vs. Humble
-  //  Baser motivations- Acquisitive, Lustful, Glutton vs. Moderate
-  //  Desire/need to get outdoors- Restless vs. Indolent
-  //  Desire/need to research- Curious vs. Dull
-  //  Desire/need to socialise- Gregarious vs. Solitary
-  //  Willingness to follow authority- Dutiful vs. Selfish/Rebel
-  //  Willingness to enforce discipline- Strict vs. Lenient
-  
   public static Trait
+    DEFENSIVE  = new Trait(PERSONALITY, "Defensive"),
+    CRITICAL   = new Trait(PERSONALITY, "Critical"),
+    NERVOUS    = new Trait(PERSONALITY, "Nervous"),
     
-    //
-    //  These are the listings of personality traits.  These can be modified
-    //  over time based on experience, peer pressure or conditioning.  Genetic
-    //  factors also influence their expression.  (TODO:  Implement that.)
-    //
-    //  I've divided these into 3 main categories-
-    //    Basic Impulses (emotional drives or physical needs)
-    //    Meta-Decisional (modify the general process of plan-selection)
-    //    Cultural/Ethical (overall social values)
+    CALM       = new Trait(PERSONALITY, "Calm"),
+    POSITIVE   = new Trait(PERSONALITY, "Positive"),
+    FEARLESS   = new Trait(PERSONALITY, "Fearless"),
     
-    //
-    //  BASIC IMPULSES-
-    NERVOUS = new Trait(PERSONALITY,
-      "Cowardly",
-      "Nervous",
-      "Cautious",
-      null,
-      "Assertive",
-      "Fearless",
-      "Reckless"
-    ),
-    AGGRESSIVE = new Trait(PERSONALITY,
-      "Vengeful",
-      "Aggressive",
-      "Defensive",
-      null,
-      "Calm",
-      "Gentle",
-      "Pacifist"
-    ),
-    FRIENDLY = new Trait(PERSONALITY,
-      "Fawning",
-      "Complimentary",
-      "Friendly",
-      null,
-      "Reserved",
-      "Critical",
-      "Caustic"
-    ),
-    OPTIMISTIC = new Trait(PERSONALITY,
-      "Blithe",
-      "Optimistic",
-      "Cheerful",
-      null,
-      "Skeptical",
-      "Pessimistic",
-      "Morose"
-    ),
-    DEBAUCHED = new Trait(PERSONALITY,
-      "Debauched",
-      "Lusty",
-      "Fun",
-      null,
-      "Temperate",
-      "Abstinent",
-      "Ascetic"
-    ),
-    APPETITE = new Trait(PERSONALITY,
-      "Gluttonous",
-      "Big Appetite",
-      "Gourmand",
-      null,
-      "Frugal",
-      "Small Appetite",
-      "No Appetite"
-    ),
+    CRUEL       = new Trait(PERSONALITY, "Cruel"),
+    DISHONEST   = new Trait(PERSONALITY, "Dishonest"),
+    ACQUISITIVE = new Trait(PERSONALITY, "Acquisitive"),
     
-    //
-    //  META-DECISIONAL-
-    STUBBORN = new Trait(PERSONALITY,
-      "Obstinate",
-      "Stubborn",
-      "Persistent",
-      null,
-      "Spontaneous",
-      "Impulsive",
-      "Fickle"
-    ),
-    INQUISITIVE = new Trait(PERSONALITY,
-      "Insatiably Curious",
-      "Inquisitive",
-      "Curious",
-      null,
-      "Stolid",
-      "Disinterested",
-      "Dull"
-    ),
-    SOCIABLE = new Trait(PERSONALITY,
-      "Gregarious",
-      "Sociable",
-      "Open",
-      null,
-      "Private",
-      "Solitary",
-      "Withdrawn"
-    ),
-    DUTIFUL = new Trait(PERSONALITY,
-      "Obedient",
-      "Dutiful",
-      "Respectful of Betters",
-      null,
-      "Independant",
-      "Rebellious",
-      "Anarchic"
-    ),
-    IMPASSIVE = new Trait(PERSONALITY,
-      "Emotionless",
-      "Impassive",
-      "Rational",
-      null,
-      "Passionate",
-      "Excitable",
-      "Manic"
-    ),
-    INDOLENT = new Trait(PERSONALITY,
-      "Lethargic",
-      "Indolent",
-      "Relaxed",
-      null,
-      "Busy",
-      "Restless",
-      "Workaholic"
-    ),
+    EMPATHIC    = new Trait(PERSONALITY, "Empathic"),
+    TRUTHFUL    = new Trait(PERSONALITY, "Truthful"),
+    GENEROUS    = new Trait(PERSONALITY, "Generous"),
     
-    //
-    //  CULTURAL/ETHICAL-
-    TRADITIONAL = new Trait(PERSONALITY,
-      "Hidebound",
-      "Traditional",
-      "Old-fashioned",
-      null,
-      "Reformist",
-      "Radical",
-      "Subversive"
-    ),
-    NATURALIST = new Trait(PERSONALITY,
-      "Gone Feral",
-      "Ecophile",
-      "Naturalist",
-      null,
-      "Urbanist",
-      "Industrialist",
-      "Antiseptic"
-    ),
-    ACQUISITIVE = new Trait(PERSONALITY,
-      "Avaricious",
-      "Acquisitive",
-      "Thrifty",
-      null,
-      "Generous",
-      "Extravagant",
-      "Profligate"
-    ),
-    AMBITIOUS = new Trait(PERSONALITY,
-      "Narcissist",
-      "Ambitious",
-      "Proud",
-      null,
-      "Modest",
-      "Humble",
-      "Complacent"
-    ),
-    HONOURABLE = new Trait(PERSONALITY,
-      "Unimpeachable",
-      "Honourable",
-      "Trustworthy",
-      null,
-      "Sly",
-      "Dishonest",
-      "Manipulative"
-    ),
-    EMPATHIC = new Trait(PERSONALITY,
-      "Martyr Complex",
-      "Compassionate",
-      "Sympathetic",
-      null,
-      "Hard",
-      "Cruel",
-      "Sadistic"
-    ),
-    PERSONALITY_TRAITS[] = Trait.traitsSoFar(),
+    SUBVERSIVE  = new Trait(PERSONALITY, "Subversive"),
+    NATURALIST  = new Trait(PERSONALITY, "Naturalist"),
+    INDULGENT   = new Trait(PERSONALITY, "Indulgent"),
     
+    DUTIFUL     = new Trait(PERSONALITY, "Dutiful"),
+    METICULOUS  = new Trait(PERSONALITY, "Meticulous"),
+    ABSTINENT   = new Trait(PERSONALITY, "Abstinent"),
     
+    CREATIVE    = new Trait(PERSONALITY, "Creative"),
+    CURIOUS     = new Trait(PERSONALITY, "Curious"),
+    IMPULSIVE   = new Trait(PERSONALITY, "Impulsive"),
+    
+    TRADITIONAL = new Trait(PERSONALITY, "Traditional"),
+    SIMPLE      = new Trait(PERSONALITY, "Simple"),
+    STUBBORN    = new Trait(PERSONALITY, "Stubborn"),
+    
+    AMBITIOUS   = new Trait(PERSONALITY, "Defensive"),
+    ENERGETIC   = new Trait(PERSONALITY, "Defensive"),
+    OUTGOING    = new Trait(PERSONALITY, "Defensive"),
+    
+    HUMBLE      = new Trait(PERSONALITY, "Defensive"),
+    RELAXED     = new Trait(PERSONALITY, "Defensive"),
+    SOLITARY    = new Trait(PERSONALITY, "Defensive"),
+    
+    EXCITABLE   = new Trait(PERSONALITY, "Excitable"),
+    IMPASSIVE   = new Trait(PERSONALITY, "Impassive"),
+    
+    PERSONALITY_TRAITS[] = Personality.setupRelations(Trait.traitsSoFar()),
     //
     //  These are the listings for physical traits.  Physical traits are
     //  determined at birth and cannot be modified (except perhaps surgically),
@@ -570,7 +416,7 @@ public interface Abilities {
     ),
     RAGE_INFECTION = new Condition(
       SHORT_LATENCY, HIGH_VIRULENCE, RAPID_SPREAD, Table.make(
-        IMMUNE, 5, MUSCULAR, 5, AGGRESSIVE, 5, COGNITION, -15
+        IMMUNE, 5, MUSCULAR, 5, DEFENSIVE, 5, COGNITION, -15
       ),
       "Rage Frenzy",
       "Rage Fever",
@@ -590,7 +436,7 @@ public interface Abilities {
     ),
     ALBEDAN_STRAIN = new Condition(
       MEDIUM_LATENCY, EXTREME_VIRULENCE, SLOW_SPREAD, Table.make(
-        DEBAUCHED, 2, IMMUNE, 5, PERCEPT, 5, MOTOR, -5
+        INDULGENT, 2, IMMUNE, 5, PERCEPT, 5, MOTOR, -5
       ),
       "Albedan Strain",
       "Albedan Strain",
@@ -746,5 +592,189 @@ MUTANT_TRAITS[] = Trait.traitsSoFar() ;
 
 
 
+/*
+  //
+  //  These are the listings of personality traits.  These can be modified
+  //  over time based on experience, peer pressure or conditioning.  Genetic
+  //  factors also influence their expression.  (TODO:  Implement that.)
+  //
+  //  I've divided these into 3 main categories-
+  //    Basic Impulses (emotional drives or physical needs)
+  //    Meta-Decisional (modify the general process of plan-selection)
+  //    Cultural/Ethical (overall social values)
+  
+  //
+  //  BASIC IMPULSES-
+  NERVOUS = new Trait(PERSONALITY,
+    "Cowardly",
+    "Nervous",
+    "Cautious",
+    null,
+    "Assertive",
+    "Fearless",
+    "Reckless"
+  ),
+  AGGRESSIVE = new Trait(PERSONALITY,
+    "Vengeful",
+    "Aggressive",
+    "Defensive",
+    null,
+    "Calm",
+    "Gentle",
+    "Pacifist"
+  ),
+  FRIENDLY = new Trait(PERSONALITY,
+    "Fawning",
+    "Complimentary",
+    "Friendly",
+    null,
+    "Reserved",
+    "Critical",
+    "Caustic"
+  ),
+  OPTIMISTIC = new Trait(PERSONALITY,
+    "Blithe",
+    "Optimistic",
+    "Cheerful",
+    null,
+    "Skeptical",
+    "Pessimistic",
+    "Morose"
+  ),
+  DEBAUCHED = new Trait(PERSONALITY,
+    "Debauched",
+    "Lusty",
+    "Fun",
+    null,
+    "Temperate",
+    "Abstinent",
+    "Ascetic"
+  ),
+  APPETITE = new Trait(PERSONALITY,
+    "Gluttonous",
+    "Big Appetite",
+    "Gourmand",
+    null,
+    "Frugal",
+    "Small Appetite",
+    "No Appetite"
+  ),
+  
+  //
+  //  META-DECISIONAL-
+  STUBBORN = new Trait(PERSONALITY,
+    "Obstinate",
+    "Stubborn",
+    "Persistent",
+    null,
+    "Spontaneous",
+    "Impulsive",
+    "Fickle"
+  ),
+  INQUISITIVE = new Trait(PERSONALITY,
+    "Insatiably Curious",
+    "Inquisitive",
+    "Curious",
+    null,
+    "Stolid",
+    "Disinterested",
+    "Dull"
+  ),
+  SOCIABLE = new Trait(PERSONALITY,
+    "Gregarious",
+    "Sociable",
+    "Open",
+    null,
+    "Private",
+    "Solitary",
+    "Withdrawn"
+  ),
+  DUTIFUL = new Trait(PERSONALITY,
+    "Obedient",
+    "Dutiful",
+    "Respectful of Betters",
+    null,
+    "Independant",
+    "Rebellious",
+    "Anarchic"
+  ),
+  IMPASSIVE = new Trait(PERSONALITY,
+    "Emotionless",
+    "Impassive",
+    "Rational",
+    null,
+    "Passionate",
+    "Excitable",
+    "Manic"
+  ),
+  INDOLENT = new Trait(PERSONALITY,
+    "Lethargic",
+    "Indolent",
+    "Relaxed",
+    null,
+    "Busy",
+    "Restless",
+    "Workaholic"
+  ),
+  
+  //
+  //  CULTURAL/ETHICAL-
+  TRADITIONAL = new Trait(PERSONALITY,
+    "Hidebound",
+    "Traditional",
+    "Old-fashioned",
+    null,
+    "Reformist",
+    "Radical",
+    "Subversive"
+  ),
+  NATURALIST = new Trait(PERSONALITY,
+    "Gone Feral",
+    "Ecophile",
+    "Naturalist",
+    null,
+    "Urbanist",
+    "Industrialist",
+    "Antiseptic"
+  ),
+  ACQUISITIVE = new Trait(PERSONALITY,
+    "Avaricious",
+    "Acquisitive",
+    "Thrifty",
+    null,
+    "Generous",
+    "Extravagant",
+    "Profligate"
+  ),
+  AMBITIOUS = new Trait(PERSONALITY,
+    "Narcissist",
+    "Ambitious",
+    "Proud",
+    null,
+    "Modest",
+    "Humble",
+    "Complacent"
+  ),
+  HONOURABLE = new Trait(PERSONALITY,
+    "Unimpeachable",
+    "Honourable",
+    "Trustworthy",
+    null,
+    "Sly",
+    "Dishonest",
+    "Manipulative"
+  ),
+  EMPATHIC = new Trait(PERSONALITY,
+    "Martyr Complex",
+    "Compassionate",
+    "Sympathetic",
+    null,
+    "Hard",
+    "Cruel",
+    "Sadistic"
+  ),
+  PERSONALITY_TRAITS[] = Trait.traitsSoFar(),
+//*/
+  
 
 

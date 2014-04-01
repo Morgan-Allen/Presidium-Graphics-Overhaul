@@ -46,6 +46,11 @@ public class StrikeMission extends Mission {
   /**  Behaviour implementation-
     */
   public float priorityFor(Actor actor) {
+    final Combat combat = new Combat(
+      actor, (Element) subject, Combat.STYLE_EITHER, objectIndex()
+    );
+    return basePriority(actor) + combat.priorityFor(actor);
+    /*
     if (subject instanceof Actor) return Combat.combatPriority(
       actor, (Actor) subject, basePriority(actor),
       PARAMOUNT, false
@@ -54,6 +59,7 @@ public class StrikeMission extends Mission {
       return basePriority(actor);
     }
     return 0 ;
+    //*/
   }
   
   

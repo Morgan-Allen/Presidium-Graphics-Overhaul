@@ -24,7 +24,7 @@ Basic dialogue effects can also happen spontaneously.
 //  doing something they don't approve of *to* someone else.
 
 
-public class Dialogue extends Plan implements Abilities {
+public class Dialogue extends Plan implements Qualities {
   
   
   /**  Constants, data fields, constructors and save/load methods-
@@ -97,15 +97,15 @@ public class Dialogue extends Plan implements Abilities {
       novelty  = actor.mind.relationNovelty(other),
       solitude = actor.mind.solitude() ;
     
-    novelty *= (actor.traits.scaleLevel(INQUISITIVE) + 1) / 2f ;
+    novelty *= (actor.traits.scaleLevel(CURIOUS) + 1) / 2f ;
     if (! actor.mind.hasRelation(other)) novelty *= solitude ;
     else novelty *= (1 + solitude) / 2f ;
     
-    float impetus = (IDLE * value * 2) + (novelty * ROUTINE) ;
+    float impetus = (CASUAL * value * 2) + (novelty * ROUTINE) ;
     if (other.base() == actor.base()) {
       impetus += actor.base().communitySpirit() ;
     }
-    impetus *= actor.traits.scaleLevel(SOCIABLE) ;
+    impetus *= actor.traits.scaleLevel(OUTGOING) ;
     
     if (verbose && I.talkAbout == actor) {
       I.say("\n  Priority for talking to "+other+" is: "+impetus) ;

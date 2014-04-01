@@ -11,7 +11,7 @@ import stratos.util.*;
 
 
 
-public class ActorHealth implements Abilities {
+public class ActorHealth implements Qualities {
   
   
   
@@ -442,7 +442,7 @@ public class ActorHealth implements Abilities {
     if (! organic()) return stressCache = 0 ;
     
     float sumDisease = 0 ;
-    for (Trait t : Abilities.TREATABLE_CONDITIONS) {
+    for (Trait t : Qualities.TREATABLE_CONDITIONS) {
       sumDisease += ((Condition) t).virulence * actor.traits.traitLevel(t) ;
     }
     float sum = Visit.clamp((fatigue + injury) / maxHealth, 0, 1) ;
@@ -586,7 +586,7 @@ public class ActorHealth implements Abilities {
     //  current stress levels.
     final float
       stress = stressPenalty(),
-      defaultMorale = actor.traits.traitLevel(OPTIMISTIC) / 10f,
+      defaultMorale = actor.traits.traitLevel(POSITIVE) / 10f,
       moraleInc = MORALE_DECAY_PER_DAY * MM / DL ;
     morale = (morale * (1 - moraleInc)) + (defaultMorale * moraleInc) ;
     morale -= stress / DL ;

@@ -95,8 +95,8 @@ public class Forestry extends Plan implements Economy {
     float impetus = CASUAL ;
     
     impetus += actor.traits.traitLevel(NATURALIST) * 1.5f ;
-    impetus -= actor.traits.traitLevel(INDOLENT) ;
-    impetus += actor.traits.traitLevel(OPTIMISTIC) / 2 ;
+    impetus -= actor.traits.traitLevel(RELAXED) ;
+    impetus += actor.traits.traitLevel(ENERGETIC) / 2 ;
     if (toPlant != null) {
       impetus -= Plan.rangePenalty(toPlant, actor) / 2f ;
       impetus -= Plan.dangerPenalty(toPlant, actor) ;
@@ -105,7 +105,7 @@ public class Forestry extends Plan implements Economy {
       impetus -= Plan.rangePenalty(toCut, actor) / 2f ;
       impetus -= Plan.dangerPenalty(toCut, actor) ;
     }
-    return Visit.clamp(impetus, IDLE, ROUTINE) ;
+    return Visit.clamp(impetus, 1, ROUTINE) ;
   }
   
   

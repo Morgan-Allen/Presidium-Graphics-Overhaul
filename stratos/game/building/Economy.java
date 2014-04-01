@@ -22,7 +22,7 @@ SPYCE_C = new Item.Type(C, COMMODITY, "Spyce C (Natrizoral)", 400),
 
 
 
-public interface Economy extends Abilities {
+public interface Economy extends Qualities {
   
 
   final static Class BC = Economy.class ;

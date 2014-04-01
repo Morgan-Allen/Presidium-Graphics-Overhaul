@@ -32,18 +32,6 @@ public class Stack <T> implements Series <T> {
   }
   
   
-  /**  Returns an array with identical contents to this Stack.
-    */
-  final public Object[] toArray(Class typeClass) {
-    final Object[] array = (Object[]) Array.newInstance(typeClass, size) ;
-    int i = 0 ; for (T t : this) array[i++] = t ;
-    return array ;
-  }
-  final public Object[] toArray() { return toArray(Object.class) ; }
-  
-  final public void add(final T t) { addLast(t) ; }
-  
-  
   protected Entry <T> first, last ;
   int size = 0 ;
   
@@ -225,5 +213,22 @@ public class Stack <T> implements Series <T> {
       next = n ;
     }
   }
+  
+  
+  
+  /**  Implementation of the Series interface-
+    */
+  final public T[] toArray(Class typeClass) {
+    final T[] array = (T[]) Array.newInstance(typeClass, size) ;
+    int i = 0 ; for (T t : this) array[i++] = t ;
+    return array ;
+  }
+  
+  final public Object[] toArray() {
+    final Object array[] = new Object[size];
+    int i = 0 ; for (T t : this) array[i++] = t ;
+    return array ;
+  }
+  
+  final public void add(final T t) { addLast(t) ; }
 }
-

@@ -15,10 +15,9 @@ public interface Behaviour extends Session.Saveable {
   
   final public static float
     IDLE      = 1,
-    CASUAL    = 3,
+    CASUAL    = 2.5f,
     ROUTINE   = 5,
-    URGENT    = 7,
-    CRITICAL  = 9,
+    URGENT    = 7.5f,
     PARAMOUNT = 10 ;
   final public static int
     MOTION_ANY    = -1,

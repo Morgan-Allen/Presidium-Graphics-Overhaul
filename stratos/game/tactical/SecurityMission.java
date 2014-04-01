@@ -14,7 +14,7 @@ import stratos.util.*;
 
 
 
-public class SecurityMission extends Mission implements Abilities {
+public class SecurityMission extends Mission implements Qualities {
   
   
   /**  Field definitions, constants and save/load methods-

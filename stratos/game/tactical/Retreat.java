@@ -12,7 +12,7 @@ import stratos.util.*;
 
 
 
-public class Retreat extends Plan implements Abilities {
+public class Retreat extends Plan implements Qualities {
   
   
   
@@ -49,7 +49,23 @@ public class Retreat extends Plan implements Abilities {
   
   /**  Evaluation of priority and targets--
     */
+  final Skill BASE_SKILLS[] = { ATHLETICS };
+  final Trait BASE_TRAITS[] = { NERVOUS };
+  
   public float priorityFor(Actor actor) {
+    float danger = dangerAtSpot(
+      actor.origin(), actor, null, actor.mind.awareOf()
+    );
+    danger *= 1 + actor.traits.relativeLevel(NERVOUS);
+    
+    if (danger <= 0) return 0;
+    return super.priorityForActorWith(
+      actor, safePoint, PARAMOUNT,
+      NO_HARM, NO_COMPETITION,
+      BASE_SKILLS, BASE_TRAITS,
+      danger * ROUTINE, NO_DISTANCE_CHECK, NO_DANGER
+    );
+    /*
     float danger = dangerAtSpot(
       actor.origin(), actor, null, actor.mind.awareOf()
     ) ;
@@ -61,6 +77,7 @@ public class Retreat extends Plan implements Abilities {
       I.say("Perceived danger: "+danger) ;
     }
     return danger * PARAMOUNT ;
+    //*/
   }
   
   

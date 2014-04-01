@@ -17,7 +17,7 @@ import stratos.util.*;
 //  TODO:  You need to incorporate intercept behaviours here.
 
 
-public class Patrolling extends Plan implements TileConstants, Abilities {
+public class Patrolling extends Plan implements TileConstants, Qualities {
   
   
   /**  Fields, constructors, and save/load methods-

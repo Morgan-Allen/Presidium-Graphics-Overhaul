@@ -33,7 +33,7 @@ public class Condition extends Trait {
     Table effects,
     String... names
   ) {
-    super(Abilities.CONDITION, names) ;
+    super(Qualities.CONDITION, names) ;
     this.latency   = Math.max(latency, 0.1f) ;
     this.virulence = virulence ;
     this.spread    = spread    ;
@@ -73,7 +73,7 @@ public class Condition extends Trait {
     final Tile o = actor.origin() ;
     final float squalor = actor.world().ecology().ambience.valueAt(o) / -10 ;
     
-    for (Object d : Abilities.SPONTANEOUS_DISEASE) {
+    for (Object d : Qualities.SPONTANEOUS_DISEASE) {
       final Condition c = (Condition) d ;
       //
       //  Let's say that under average squalor, you have a 10% chance of

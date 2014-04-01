@@ -11,7 +11,7 @@ import stratos.util.*;
 
 
 
-public class Repairs extends Plan implements Abilities {
+public class Repairs extends Plan implements Qualities {
   
   
   
@@ -61,7 +61,7 @@ public class Repairs extends Plan implements Abilities {
     //final boolean broke = built.base().credits() <= 0 ;
     float impetus = skillRating * attachment ;
     impetus -= actor.traits.traitLevel(NATURALIST) / 10f ;
-    impetus -= actor.traits.traitLevel(INDOLENT) / 10f ;
+    impetus -= actor.traits.traitLevel(RELAXED) / 10f ;
     if (impetus <= 0 || attachment <= 0) impetus = 0 ;
     else impetus += attachment / 2f ;
     //

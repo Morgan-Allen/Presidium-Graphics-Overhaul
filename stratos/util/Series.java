@@ -13,5 +13,5 @@ public interface Series <T> extends Iterable <T> {
   boolean includes(T t) ;
   
   Object[] toArray() ;
-  Object[] toArray(Class typeClass) ;
+  T[] toArray(Class typeClass) ;
 }

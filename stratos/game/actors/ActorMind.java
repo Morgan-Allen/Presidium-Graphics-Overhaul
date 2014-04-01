@@ -23,7 +23,7 @@ import stratos.util.*;
 //  TODO:  Create a separate 'ActorSenses' class to handle some of this stuff.
 
 
-public abstract class ActorMind implements Abilities {
+public abstract class ActorMind implements Qualities {
   
   
   /**  Field definitions, constructor, save/load methods-
@@ -596,7 +596,7 @@ public abstract class ActorMind implements Abilities {
     if (other.traits.hasTrait(GENDER, "Female")) otherG =  1 ;
     float attraction = other.traits.traitLevel(HANDSOME) * 3.33f ;
     attraction += otherG * other.traits.traitLevel(FEMININE) * 3.33f ;
-    attraction *= (actor.traits.scaleLevel(DEBAUCHED) + 1f) / 2 ;
+    attraction *= (actor.traits.scaleLevel(INDULGENT) + 1f) / 2 ;
     //
     //  Then compute attraction based on orientation-
     final String descO = actor.traits.levelDesc(ORIENTATION) ;
@@ -719,7 +719,7 @@ public abstract class ActorMind implements Abilities {
       sumFriends += Math.max(0, r.value()) ;
     }
     sumFriends /= Relation.BASE_NUM_FRIENDS ;
-    sumFriends /= actor.traits.scaleLevel(SOCIABLE) ;
+    sumFriends /= actor.traits.scaleLevel(OUTGOING) ;
     solitude = Visit.clamp(1 - sumFriends, 0, 1) ;
   }
   

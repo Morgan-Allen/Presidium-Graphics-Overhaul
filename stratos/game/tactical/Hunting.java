@@ -117,10 +117,15 @@ public class Hunting extends Combat implements Economy {
   
   
   public float priorityFor(Actor actor) {
+    //  TODO:  REWORK ALL THESE!!!
+    
     if (! validPrey(prey, actor, false)) return -1;
     if (! actor.gear.armed()) return 0;
     float priority = 0 ;
     
+    return priority;
+    
+    /*
     if (type == TYPE_FEEDS) {
       float hunger = actor.health.hungerLevel() ;
       if (hasBegun()) hunger = (hunger + 0.5f) / 1.5f ;
@@ -139,14 +144,12 @@ public class Hunting extends Combat implements Economy {
     
     //  Modify based on danger of extraction-
     if (prey.health.conscious()) {
-      priority = Combat.combatPriority(
-        actor, prey, priority, PARAMOUNT, false
-      ) ;
-      priority -= Plan.rangePenalty(actor, prey) ;
+      priority = super.priorityFor(actor);
     }
     
     if (verbose) I.sayAbout(actor, "Hunting "+prey+" priority: "+priority) ;
     return Visit.clamp(priority, 0, PARAMOUNT) ;
+    //*/
   }
   
   
