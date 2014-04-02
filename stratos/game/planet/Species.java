@@ -27,7 +27,7 @@ import stratos.util.*;
 //  to the name and base class, same as Assets do.
 
 
-public class Species implements Session.Saveable, Economy {
+public abstract class Species implements Session.Saveable, Economy {
   
   
   /**  Type, instance and media definitions-
@@ -100,7 +100,7 @@ public class Species implements Session.Saveable, Economy {
       null,
       Type.HUMANOID, 1, 1, 1
     ) {
-      public Fauna newSpecimen() { return null ; }
+      public Fauna newSpecimen(Base base) { return null ; }
       public Nest createNest() { return null ; }
     },
     
@@ -119,7 +119,7 @@ public class Species implements Session.Saveable, Economy {
       0.15f, //speed
       0.65f  //sight
     ) {
-      public Fauna newSpecimen() { return new Quud() ; }
+      public Fauna newSpecimen(Base base) { return new Quud(base) ; }
       public Nest createNest() { return new Nest(
         2, 2, Venue.ENTRANCE_EAST, this, MODEL_NEST_QUUD
       ) ; }
@@ -141,7 +141,7 @@ public class Species implements Session.Saveable, Economy {
       1.60f, //speed
       1.00f  //sight
     ) {
-      public Fauna newSpecimen() { return new Vareen() ; }
+      public Fauna newSpecimen(Base base) { return new Vareen(base) ; }
       public Nest createNest() { return new Nest(
         2, 2, Venue.ENTRANCE_EAST, this, MODEL_NEST_VAREEN
       ) ; }
@@ -163,7 +163,7 @@ public class Species implements Session.Saveable, Economy {
       1.30f, //speed
       1.50f  //sight
     ) {
-      public Fauna newSpecimen() { return new Micovore() ; }
+      public Fauna newSpecimen(Base base) { return new Micovore(base) ; }
       public Nest createNest() { return new Nest(
         3, 2, Venue.ENTRANCE_EAST, this, MODEL_NEST_MICOVORE
       ) ; }
@@ -172,22 +172,23 @@ public class Species implements Session.Saveable, Economy {
     ANIMAL_SPECIES[] = Species.speciesSoFar(),
     
     
-    ONI_RICE    = new Species("Oni Rice"   , Type.FLORA, 2, CARBS  ),
-    DURWHEAT    = new Species("Durwheat"   , Type.FLORA, 2, CARBS  ),
-    SABLE_OAT   = new Species("Sable Oat"  , Type.FLORA, 1, CARBS  ),
+    //  TODO:  These probably need a dedicated class of their own.
+    ONI_RICE    = new Species("Oni Rice"   , Type.FLORA, 2, CARBS  ) {},
+    DURWHEAT    = new Species("Durwheat"   , Type.FLORA, 2, CARBS  ) {},
+    SABLE_OAT   = new Species("Sable Oat"  , Type.FLORA, 1, CARBS  ) {},
     
-    TUBER_LILY  = new Species("Tuber Lily" , Type.FLORA, 2, GREENS ),
-    BROADFRUITS = new Species("Broadfruits", Type.FLORA, 2, GREENS ),
-    HIBERNUTS   = new Species("Hibernuts"  , Type.FLORA, 1, GREENS ),
+    TUBER_LILY  = new Species("Tuber Lily" , Type.FLORA, 2, GREENS ) {},
+    BROADFRUITS = new Species("Broadfruits", Type.FLORA, 2, GREENS ) {},
+    HIBERNUTS   = new Species("Hibernuts"  , Type.FLORA, 1, GREENS ) {},
     
-    HIVE_GRUBS  = new Species("Hive Grubs" , Type.FLORA, 1, PROTEIN),
-    BLUE_VALVES = new Species("Blue Valves", Type.FLORA, 1, PROTEIN),
-    CLAN_BORE   = new Species("Clan Bore"  , Type.FLORA, 1, PROTEIN),
+    HIVE_GRUBS  = new Species("Hive Grubs" , Type.FLORA, 1, PROTEIN) {},
+    BLUE_VALVES = new Species("Blue Valves", Type.FLORA, 1, PROTEIN) {},
+    CLAN_BORE   = new Species("Clan Bore"  , Type.FLORA, 1, PROTEIN) {},
     
-    GORG_APHID  = new Species("Gorg Aphid" , Type.FLORA, 1, TRUE_SPICE  ),
+    GORG_APHID  = new Species("Gorg Aphid" , Type.FLORA, 1, TRUE_SPICE) {},
     
-    PIONEERS    = new Species("Pioneers"   , Type.FLORA),
-    TIMBER      = new Species("Timber"     , Type.FLORA),
+    PIONEERS    = new Species("Pioneers"   , Type.FLORA) {},
+    TIMBER      = new Species("Timber"     , Type.FLORA) {},
     
     CROP_SPECIES[] = Species.speciesSoFar(),
     ALL_SPECIES[] = Species.allSpecies()
@@ -270,14 +271,8 @@ public class Species implements Session.Saveable, Economy {
   }
   
   
-  public Fauna newSpecimen() {
-    return null ;
-  }
-  
-  
-  public Nest createNest() {
-    return null ;
-  }
+  public Fauna newSpecimen(Base base) { return null; };
+  public Nest createNest() { return null; };
   
   
   public boolean browser() {

@@ -20,8 +20,8 @@ public class Quud extends Fauna {
   
   /**  Field definitions, constructors and save/load methods-
     */
-  public Quud() {
-    super(Species.QUD) ;
+  public Quud(Base base) {
+    super(Species.QUD, base) ;
   }
   
   

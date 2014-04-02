@@ -285,7 +285,7 @@ public class ActorHealth implements Qualities {
   }
   
   
-  public float energyLevel() {
+  public float caloryLevel() {
     return calories / maxHealth ;
   }
   
@@ -608,7 +608,7 @@ public class ActorHealth implements Qualities {
     }
     
     if (metabolism == ANIMAL_METABOLISM) {
-      float growBonus = energyLevel() * 1f / (AGE_MAX * DL) ;
+      float growBonus = caloryLevel() * 1f / (AGE_MAX * DL) ;
       final int AS = agingStage() ;
       if      (AS == AGE_JUVENILE) growBonus *= 1.00f ;
       else if (AS == AGE_YOUNG   ) growBonus *= 0.20f ;

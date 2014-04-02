@@ -22,8 +22,8 @@ public class Micovore extends Fauna implements Economy {
   
   /**  Constructors, setup and save/load methods-
     */
-  public Micovore() {
-    super(Species.LICTOVORE) ;
+  public Micovore(Base base) {
+    super(Species.LICTOVORE, base) ;
   }
   
   
@@ -87,7 +87,7 @@ public class Micovore extends Fauna implements Economy {
           this, "actionHomeFeeding",
           Action.REACH_DOWN, "Feeding at nest"
         ) ;
-        homeFeed.setPriority((1 - health.energyLevel()) * Action.PARAMOUNT) ;
+        homeFeed.setPriority((1 - health.caloryLevel()) * Action.PARAMOUNT) ;
         return homeFeed ;
       }
     }
@@ -100,7 +100,7 @@ public class Micovore extends Fauna implements Economy {
     //
     //  Determine whether you should fight with others of your kind-
     float crowding = Nest.crowdingFor(this) ;
-    crowding += 1 - ((health.energyLevel() + 0.5f) / 2) ;
+    crowding += 1 - ((health.caloryLevel() + 0.5f) / 2) ;
     final Fauna fights = findCompetition() ;
     if (fights != null && crowding > 1) {
       final Combat fighting = new Combat(this, fights) ;
@@ -117,7 +117,7 @@ public class Micovore extends Fauna implements Economy {
         int numYoung = 0 ; for (Actor a : nest.personnel().residents()) {
           if (a.health.juvenile()) numYoung++ ;
         }
-        final float excessFood = health.energyLevel() - 1 ;
+        final float excessFood = health.caloryLevel() - 1 ;
         if (
           numYoung > 0 && excessFood > 0 &&
           nest.inventory().amountOf(PROTEIN) < (numYoung * 5)
@@ -149,7 +149,7 @@ public class Micovore extends Fauna implements Economy {
   
   
   public boolean actionDepositFood(Fauna actor, Venue nest) {
-    float energy = health.energyLevel() - 0.5f ;
+    float energy = health.caloryLevel() - 0.5f ;
     if (energy <= 0) return false ;
     actor.health.loseSustenance(energy) ;
     energy *= actor.health.maxHealth() / MEAT_CONVERSION ;
@@ -159,7 +159,7 @@ public class Micovore extends Fauna implements Economy {
   
   
   public boolean actionHomeFeeding(Fauna actor, Venue nest) {
-    float hunger = 1 - health.energyLevel() ;
+    float hunger = 1 - health.caloryLevel() ;
     hunger *= actor.health.maxHealth() / MEAT_CONVERSION ;
     final float amountTaken = Math.min(hunger, nest.stocks.amountOf(PROTEIN)) ;
     if (amountTaken <= 0) return false ;

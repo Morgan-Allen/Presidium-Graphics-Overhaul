@@ -38,11 +38,12 @@ public abstract class Fauna extends Actor {
   private float breedMetre = 0.0f, lastMigrateCheck = -1 ;
   
   
-  public Fauna(Species species) {
+  public Fauna(Species species, Base base) {
     if (species == null) I.complain("NULL SPECIES!") ;
     this.species = species ;
     initStats() ;
     attachSprite(species.model.makeSprite()) ;
+    assignBase(base);
   }
   
   
@@ -83,7 +84,7 @@ public abstract class Fauna extends Actor {
       world.ecology().impingeAbundance(this, 10);
       float crowding = Nest.crowdingFor(this) ;
       if (crowding == 1) crowding += 0.1f ;
-      float fertility = (health.agingStage() - 0.5f) * health.energyLevel() ;
+      float fertility = (health.agingStage() - 0.5f) * health.caloryLevel() ;
       float breedInc = (1 - crowding) * 10 / Nest.DEFAULT_BREED_INTERVAL ;
       breedInc *= Visit.clamp(fertility, 0, ActorHealth.AGE_MAX) ;
       breedMetre = Visit.clamp(breedMetre + breedInc, 0, 1) ;
@@ -165,7 +166,7 @@ public abstract class Fauna extends Actor {
     }
     if (picked == null) return null ;
     
-    float priority = ActorHealth.MAX_CALORIES - (health.energyLevel() + 0.1f) ;
+    float priority = ActorHealth.MAX_CALORIES - (health.caloryLevel() + 0.1f) ;
     priority = priority * Action.PARAMOUNT - Plan.rangePenalty(this, picked) ;
     if (priority < 0) return null ;
     
@@ -318,7 +319,7 @@ public abstract class Fauna extends Actor {
     actor.breedMetre = 0 ;
     final int maxKids = 1 + (int) Math.sqrt(10f / health.lifespan()) ;
     for (int numKids = 1 + Rand.index(maxKids) ; numKids-- > 0 ;) {
-      final Fauna young = species.newSpecimen() ;
+      final Fauna young = species.newSpecimen(null) ;
       young.assignBase(this.base()) ;
       young.health.setupHealth(0, 1, 0) ;
       young.mind.setHome(nests) ;

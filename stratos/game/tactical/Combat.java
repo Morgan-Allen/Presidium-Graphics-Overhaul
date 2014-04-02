@@ -99,12 +99,25 @@ public class Combat extends Plan implements Qualities {
     if (isDowned(target)) return 0 ;
     final boolean melee = actor.gear.meleeWeapon();
     
+    float modifier = 0 - ROUTINE;
+    if (target instanceof Actor) {
+      //  TODO:  Just use the general harm-level of the other guy's current
+      //  behaviour as the basis for evaluation?
+      final Target victim = ((Actor) target).targetFor(Combat.class);
+      if (victim != null) {
+        modifier += ROUTINE * actor.mind.relationValue(victim);
+      }
+    }
+    
+    float harmLevel = REAL_HARM;
+    if (object == OBJECT_SUBDUE ) harmLevel = MILD_HARM;
+    if (object == OBJECT_DESTROY) harmLevel = EXTREME_HARM;
+    
     return priorityForActorWith(
       actor, target, PARAMOUNT,
-      REAL_HARM, MILD_COOPERATION,
-      melee ? MELEE_SKILLS : RANGED_SKILLS,
-      BASE_TRAITS,
-      NO_MODIFIER, NORMAL_DISTANCE_CHECK, REAL_DANGER
+      harmLevel, MILD_COOPERATION,
+      melee ? MELEE_SKILLS : RANGED_SKILLS, BASE_TRAITS,
+      modifier, NORMAL_DISTANCE_CHECK, REAL_DANGER
     );
   }
   

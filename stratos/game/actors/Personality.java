@@ -62,9 +62,9 @@ public class Personality {
       //  together, but in reverse-
       int aboveIndex = row - 2, belowIndex = row + 2;
       if (aboveIndex < 0) aboveIndex = (invertIndex + NUM_ROWS - 2) % NUM_ROWS;
-      final Trait above[] = TRAIT_MATRIX[row - 2];
+      final Trait above[] = TRAIT_MATRIX[aboveIndex];
       if (belowIndex >= NUM_ROWS) belowIndex = (invertIndex + 2) % NUM_ROWS;
-      final Trait below[] = TRAIT_MATRIX[row + 2];
+      final Trait below[] = TRAIT_MATRIX[belowIndex];
       
       for (int column = 0; column < bracket.length; column++) {
         

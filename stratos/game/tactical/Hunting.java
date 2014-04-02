@@ -25,11 +25,8 @@ public class Hunting extends Combat implements Economy {
     */
   final public static int
     TYPE_FEEDS   = 0,
-    TYPE_HARVEST = 1;
-  /*
-    TYPE_PROCESS = 2,
-    TYPE_SAMPLE  = 3 ;
-  //*/
+    TYPE_HARVEST = 1,
+    TYPE_SAMPLE  = 2;
   final static int
     STAGE_INIT          = 0,
     STAGE_HUNT          = 1,
@@ -52,13 +49,19 @@ public class Hunting extends Combat implements Economy {
   
   
   public static Hunting asFeeding(Actor actor, Actor prey) {
-    return new Hunting(actor, prey, TYPE_FEEDS, null) ;
+    return new Hunting(actor, prey, TYPE_FEEDS, null);
   }
   
   
   public static Hunting asHarvest(Actor actor, Actor prey, Employment depot) {
-    if (depot == null) return null ;
-    return new Hunting(actor, prey, TYPE_HARVEST, depot) ;
+    if (depot == null) return null;
+    return new Hunting(actor, prey, TYPE_HARVEST, depot);
+  }
+  
+  
+  public static Hunting asSample(Actor actor, Actor prey, Employment depot) {
+    if (depot == null) I.complain("NO DEPOT SPECIFIED!");
+    return new Hunting(actor, prey, TYPE_SAMPLE, depot);
   }
   
   /*
@@ -116,15 +119,43 @@ public class Hunting extends Combat implements Economy {
   }
   
   
+  final Trait
+    HARVEST_TRAITS[] = { NATURALIST, FEARLESS, CRUEL },
+    SAMPLE_TRAITS[]  = { CURIOUS, FEARLESS, NATURALIST };
+  
+  
   public float priorityFor(Actor actor) {
-    //  TODO:  REWORK ALL THESE!!!
-    
     if (! validPrey(prey, actor, false)) return -1;
     if (! actor.gear.armed()) return 0;
-    float priority = 0 ;
     
-    return priority;
+    float urgency, harmLevel;
+    final Trait baseTraits[];
+    final float crowding = Nest.crowdingFor(prey);
     
+    if (type == TYPE_FEEDS) {
+      urgency = actor.health.hungerLevel() * PARAMOUNT;
+      urgency += (crowding - 1) * ROUTINE;
+      harmLevel = EXTREME_HARM;
+      baseTraits = Combat.BASE_TRAITS;
+    }
+    else if (type == TYPE_HARVEST) {
+      if (crowding < 1) return 0;
+      urgency = Visit.clamp(ROUTINE * crowding, ROUTINE, URGENT);
+      harmLevel = EXTREME_HARM;
+      baseTraits = HARVEST_TRAITS;
+    }
+    else {
+      urgency = ROUTINE;
+      harmLevel = NO_HARM;
+      baseTraits = SAMPLE_TRAITS;
+    }
+    
+    return priorityForActorWith(
+      actor, prey, urgency,
+      harmLevel, MILD_COMPETITION,
+      RANGED_SKILLS, baseTraits,
+      NO_MODIFIER, NORMAL_DISTANCE_CHECK, REAL_DANGER
+    );
     /*
     if (type == TYPE_FEEDS) {
       float hunger = actor.health.hungerLevel() ;
@@ -158,7 +189,6 @@ public class Hunting extends Combat implements Economy {
     //
     //  TODO:  Try to make this whole process more elegant.  Establish the
     //  basic harvest-item from the beginning?
-    
     if (type == TYPE_HARVEST) {
       if (actor.gear.amountOf(PROTEIN) > 0) return true ;
     }
@@ -175,71 +205,86 @@ public class Hunting extends Combat implements Economy {
   
   /**  Actual implementation-
     */
-  public int motionType(Actor actor) {
-    //
-    //  Close at normal speed until you are near your prey.  Then enter stealth
-    //  mode to get closer.  If they spot you, charge.
-    if (prey.mind.awareOf(actor)) {
-      return MOTION_FAST ;
-    }
-    else if (actor.mind.awareOf(prey)) {
-      return MOTION_SNEAK ;
-    }
-    else return super.motionType(actor) ;
-  }
-  
-  
+  //  TODO:  Split into separate behaviours?
   protected Behaviour getNextStep() {
-    final boolean report = verbose && I.talkAbout == actor && hasBegun();
-    if (report) {
-      I.say("Getting next hunting step...");
-    }
+    //final boolean report = verbose && I.talkAbout == actor && hasBegun();
     
-    if (beginTime == -1) beginTime = actor.world().currentTime() ;
-    final float timeSpent = actor.world().currentTime() - beginTime ;
-    if (timeSpent > World.STANDARD_DAY_LENGTH / 3) {
-      return null ;
-    }
-    
-    if (prey.health.conscious()) return super.getNextStep() ;
-    if (type == TYPE_FEEDS && actor.health.energyLevel() >= 1.5f) {
-      if (verbose) I.sayAbout(actor, "Have eaten fill of "+prey) ;
-      return null ;
+    if (type == TYPE_FEEDS) {
+      if (! prey.inWorld()) return null;
+      if (! isDowned(prey)) return super.getNextStep();
+      
+      final float full = ActorHealth.MAX_CALORIES * 0.99f;
+      if (actor.health.caloryLevel() >= full) return null;
+      final Action feed = new Action(
+        actor, prey,
+        this, "actionFeed",
+        Action.STRIKE, "Feeding"
+      );
+      return feed;
     }
     
     if (type == TYPE_HARVEST) {
-      final float amountC = actor.gear.amountOf(PROTEIN) ;
-      if ((prey.destroyed() && amountC > 0) || amountC >= 5) {
-        final Action process = new Action(
+      final float carried = actor.gear.amountOf(PROTEIN);
+      if (carried == 0 && ! prey.inWorld()) return null;
+      if (! isDowned(prey)) return super.getNextStep();
+      
+      if (carried >= 5 || (prey.destroyed() && carried > 0)) {
+        final Action returns = new Action(
           actor, depot,
-          this, "actionProcess",
-          Action.REACH_DOWN, "Processing "+prey
+          this, "actionReturnHarvest",
+          Action.REACH_DOWN, "Returning harvest"
         );
-        if (report) I.say("Next step is processing...");
-        return process ;
+        return returns;
+      }
+      else {
+        final Action harvest = new Action(
+          actor, prey,
+          this, "actionHarvest",
+          Action.BUILD, "Harvesting"
+        );
+        return harvest;
       }
     }
     
-    if (! prey.inWorld()) return null;
-    final Action harvest = new Action(
-      actor, prey,
-      this, "actionHarvest",
-      Action.BUILD, "Harvesting from "+prey
-    ) ;
-    if (report) I.say("Next step is harvest...");
-    return harvest ;
+    if (type == TYPE_SAMPLE) {
+      final boolean sampled = actor.gear.hasItem(sample());
+      if (sampled) {
+        final Action returns = new Action(
+          actor, depot,
+          this, "actionReturnSample",
+          Action.REACH_DOWN, "Returning sample"
+        );
+        return returns;
+      }
+      if (! isDowned(prey)) return super.getNextStep();
+      else {
+        final Action samples = new Action(
+          actor, prey,
+          this, "actionSample",
+          Action.BUILD, "Sampling"
+        );
+        return samples;
+      }
+    }
+    
+    return null;
   }
   
   
-  public boolean actionHarvest(Actor actor, Actor prey) {
-    /*
-    if (type == TYPE_SAMPLE) {
-      final Item sample = Item.withReference(SAMPLES, prey) ;
-      actor.gear.addItem(sample) ;
-      return true ;
+  public int motionType(Actor actor) {
+    //  Close at normal speed until you are near your prey.  Then enter stealth
+    //  mode to get closer.  If they spot you, charge.
+    if (prey.mind.awareOf(actor)) {
+      return MOTION_FAST;
     }
-    //*/
-    //
+    else if (actor.mind.awareOf(prey)) {
+      return MOTION_SNEAK;
+    }
+    else return super.motionType(actor);
+  }
+  
+  
+  public boolean actionFeed(Actor actor, Actor prey) {
     //  Determine just how large a chunk you can take out of the prey-
     final float
       before = prey.health.injuryLevel(),
@@ -247,62 +292,53 @@ public class Hunting extends Combat implements Economy {
     prey.health.takeInjury(damage) ;
     float taken = prey.health.injuryLevel() - before ;
     taken *= prey.health.maxHealth() ;
-    //
+    
     //  Then dispose of it appropriately-
-    if (! prey.health.dying()) prey.health.setState(ActorHealth.STATE_DYING) ;
-    if (type == TYPE_FEEDS) {
-      actor.health.takeCalories(taken * Fauna.MEAT_CONVERSION, 1) ;
-    }
-    if (type == TYPE_HARVEST) {
-      actor.gear.bumpItem(PROTEIN, taken) ;
-    }
-    /*
-    if (type == TYPE_PROCESS) {
-      final Item sample = Item.withReference(SAMPLES, prey) ;
-      actor.gear.addItem(Item.withAmount(sample, taken)) ;
-    }
-    //*/
-    return true ;
+    if (! prey.health.dying()) prey.health.setState(ActorHealth.STATE_DYING);
+    actor.health.takeCalories(taken * Fauna.MEAT_CONVERSION, 1);
+    return true;
   }
   
   
-  public boolean actionProcess(Actor actor, Employment depot) {
-    if (type == TYPE_HARVEST) {
-      actor.gear.transfer(PROTEIN, depot) ;
-      return true;
-    }
+  private Item sample() {
+    return Item.withReference(SAMPLES, prey);
+  }
+  
+  
+  public boolean actionHarvest(Actor actor, Actor prey) {
+    float success = 1;
+    if (actor.traits.test(XENOZOOLOGY, 5, 10)) success++;
+    if (actor.traits.test(DOMESTICS, 5, 5)) success++;
+    if (actor.traits.test(HARD_LABOUR, 5, 5)) success++;
     
-    //  TODO:  Restore and test these functions...
-    /*
-    if (type == TYPE_PROCESS || type == TYPE_SAMPLE) {
-      final Item
-        sample = Item.withReference(SAMPLES, prey),
-        carried = actor.gear.matchFor(sample) ;
-      if (carried != null) actor.gear.transfer(carried, depot) ;
-      if (type == TYPE_SAMPLE) return true ;
-      
-      final Inventory stocks = depot.inventory() ;
-      final float remaining = stocks.amountOf(sample) ;
-      if (remaining > 0) {
-        float success = 1 ;
-        if (actor.traits.test(DOMESTICS  , SIMPLE_DC  , 1)) success++ ;
-        if (actor.traits.test(XENOZOOLOGY, MODERATE_DC, 1)) success++ ;
-        
-        final Species species = (Species) prey.species() ;
-        float baseAmount = 0.1f, spiceAmount = 0.1f ;
-        if (species.type == Species.Type.BROWSER ) spiceAmount  = 0 ;
-        if (species.type != Species.Type.PREDATOR) spiceAmount /= 4 ;
-        baseAmount = Math.min(baseAmount, remaining) ;
-        
-        stocks.removeItem(Item.withAmount(sample, baseAmount)) ;
-        baseAmount *= success ;
-        spiceAmount *= baseAmount * (1 + (success / 2)) ;
-        stocks.bumpItem(PROTEIN, baseAmount) ;
-        stocks.bumpItem(TRUE_SPICE, spiceAmount) ;
-      }
-    }
-    //*/
-    return true ;
+    final float
+      before = prey.health.injuryLevel(),
+      damage = success * 2;
+    prey.health.takeInjury(damage);
+    final float taken = prey.health.injuryLevel() - before;
+    
+    if (! prey.health.dying()) prey.health.setState(ActorHealth.STATE_DYING);
+    actor.gear.bumpItem(PROTEIN, taken * prey.health.maxHealth());
+    return true;
+  }
+  
+  
+  public boolean actionReturnHarvest(Actor actor, Employment depot) {
+    actor.gear.transfer(PROTEIN, depot);
+    return true;
+  }
+  
+  
+  public boolean actionSample(Actor actor, Actor prey) {
+    if (! actor.traits.test(XENOZOOLOGY, 10, 10)) return false;
+    actor.gear.addItem(sample());
+    return true;
+  }
+  
+  
+  public boolean actionReturnSample(Actor actor, Employment depot) {
+    actor.gear.transfer(sample(), depot);
+    return true;
   }
   
   
@@ -371,6 +407,99 @@ public static Actor nextPreyFor(
   return pickedPrey ;
 }
 //*/
+
+
+
+
+/*
+final boolean report = verbose && I.talkAbout == actor && hasBegun();
+if (report) {
+  I.say("Getting next hunting step...");
+}
+
+if (beginTime == -1) beginTime = actor.world().currentTime() ;
+final float timeSpent = actor.world().currentTime() - beginTime ;
+if (timeSpent > World.STANDARD_DAY_LENGTH / 3) {
+  return null ;
+}
+
+if (prey.health.conscious()) return super.getNextStep() ;
+if (type == TYPE_FEEDS && actor.health.energyLevel() >= 1.5f) {
+  if (verbose) I.sayAbout(actor, "Have eaten fill of "+prey) ;
+  return null ;
+}
+
+if (type == TYPE_SAMPLE) {
+  //  TODO:  TEST THIS OUT AND IMPLEMENT
+}
+
+if (type == TYPE_HARVEST) {
+  final float amountC = actor.gear.amountOf(PROTEIN) ;
+  if ((prey.destroyed() && amountC > 0) || amountC >= 5) {
+    final Action process = new Action(
+      actor, depot,
+      this, "actionProcess",
+      Action.REACH_DOWN, "Processing "+prey
+    );
+    if (report) I.say("Next step is processing...");
+    return process ;
+  }
+}
+
+if (! prey.inWorld()) return null;
+final Action harvest = new Action(
+  actor, prey,
+  this, "actionHarvest",
+  Action.BUILD, "Harvesting from "+prey
+) ;
+if (report) I.say("Next step is harvest...");
+return harvest ;
+//*/
+//}
+
+
+/*
+public boolean actionProcess(Actor actor, Employment depot) {
+if (type == TYPE_HARVEST) {
+  actor.gear.transfer(PROTEIN, depot) ;
+  return true;
+}
+
+//  TODO:  Restore and test these functions...
+/*
+if (type == TYPE_PROCESS || type == TYPE_SAMPLE) {
+  final Item
+    sample = Item.withReference(SAMPLES, prey),
+    carried = actor.gear.matchFor(sample) ;
+  if (carried != null) actor.gear.transfer(carried, depot) ;
+  if (type == TYPE_SAMPLE) return true ;
+  
+  final Inventory stocks = depot.inventory() ;
+  final float remaining = stocks.amountOf(sample) ;
+  if (remaining > 0) {
+    float success = 1 ;
+    if (actor.traits.test(DOMESTICS  , SIMPLE_DC  , 1)) success++ ;
+    if (actor.traits.test(XENOZOOLOGY, MODERATE_DC, 1)) success++ ;
+    
+    final Species species = (Species) prey.species() ;
+    float baseAmount = 0.1f, spiceAmount = 0.1f ;
+    if (species.type == Species.Type.BROWSER ) spiceAmount  = 0 ;
+    if (species.type != Species.Type.PREDATOR) spiceAmount /= 4 ;
+    baseAmount = Math.min(baseAmount, remaining) ;
+    
+    stocks.removeItem(Item.withAmount(sample, baseAmount)) ;
+    baseAmount *= success ;
+    spiceAmount *= baseAmount * (1 + (success / 2)) ;
+    stocks.bumpItem(PROTEIN, baseAmount) ;
+    stocks.bumpItem(TRUE_SPICE, spiceAmount) ;
+  }
+}
+//*/
+/*
+return true ;
+}
+//*/
+
 
 
 

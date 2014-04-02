@@ -29,8 +29,8 @@ public class Vareen extends Fauna {
   
   
   
-  public Vareen() {
-    super(Species.HAREEN) ;
+  public Vareen(Base base) {
+    super(Species.HAREEN, base) ;
   }
   
   
