@@ -40,7 +40,10 @@ public class GameSettings {
     s.saveBool(psyFree) ;
     s.saveBool(fogFree) ;
     s.saveBool(pathFree) ;
+    s.saveBool(noBlood);
     s.saveBool(hardCore) ;
+    
+    s.saveFloat(actorScale);
   }
   
   protected static void loadSettings(Session s) throws Exception {
@@ -49,7 +52,10 @@ public class GameSettings {
     psyFree = s.loadBool() ;
     fogFree = s.loadBool() ;
     pathFree = s.loadBool() ;
+    noBlood = s.loadBool();
     hardCore = s.loadBool() ;
+    
+    actorScale = s.loadFloat();
   }
 }
 

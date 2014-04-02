@@ -56,6 +56,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
     loadProgress = 1;
     UI = createUI(base, PlayLoop.rendering());
     UI.loadState(s) ;
+    ///I.say("Saves prefix: "+savesPrefix);
   }
   
   
@@ -245,6 +246,8 @@ public abstract class Scenario implements Session.Saveable, Playable {
   public static void loadGame(
     final String saveFile, final boolean fromMenu
   ) {
+    I.say("Should be loading game from: "+saveFile);
+    
     PlayLoop.gameStateWipe();
     PlayLoop.setupAndLoop(new Playable() {
       private boolean begun = false, done = false;
@@ -257,6 +260,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
       public void beginGameSetup() {
         final Thread loadThread = new Thread() {
           public void run() {
+            I.say("Beginning loading...");
             try {
               final Session s = Session.loadSession(saveFile);
               done = true;
@@ -266,6 +270,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
               final Scenario scenario = s.scenario();
               scenario.afterLoading(fromMenu);
               PlayLoop.setupAndLoop(scenario);
+              I.say("Loading complete...");
             }
             catch (Exception e) { I.report(e); }
           }
@@ -285,26 +290,12 @@ public abstract class Scenario implements Session.Saveable, Playable {
     });
   }
   
-  /*
-  public static boolean loadedFrom(String prefix) {
-    final String fullPath = fullSavePath(prefix, CURRENT_SAVE) ;
-    final File file = new File(fullPath) ;
-    if (! file.exists()) return false ;
-    try {
-      loadGame(fullPath, true) ;
-      return true ;
-    }
-    catch (Exception e) { I.report(e) ; }
-    return false ;
-  }
-  //*/
-
   
-  /*
-  private String savesPrefix() {
-    return savesPrefix ;
+  public static boolean saveExists(String saveFile) {
+    final File file = new File(saveFile) ;
+    if (! file.exists()) return false ;
+    else return true;
   }
-  //*/
   
   
   public float timeSinceLastSave() {
@@ -398,7 +389,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
       if (Gdx.input.isKeyPressed(Keys.L)) {
         I.say("LOADING GAME...") ;
         loadGame(fullSavePath(savesPrefix, CURRENT_SAVE), true) ;
-        return true ;
+        return false ;
       }
     }
     return false ;

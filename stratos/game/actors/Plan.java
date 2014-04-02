@@ -24,6 +24,9 @@ import stratos.util.*;
 //  TODO:  Include a copyPlan(Actor other) method here, for the sake of asking
 //  other actors to do favours, et cetera.
 
+//  TODO:  Either get rid of the priorityMod field, or incorporate it more
+//  consistently in priority evaluation.
+
 
 
 public abstract class Plan implements Saveable, Behaviour {
@@ -40,6 +43,7 @@ public abstract class Plan implements Saveable, Behaviour {
   protected Behaviour
     nextStep = null,
     lastStep = null ;
+  
   public float priorityMod = 0 ;
   
   

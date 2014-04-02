@@ -22,6 +22,36 @@ public class DebugPlans extends Scenario {
   }
   
   
+  private DebugPlans() {
+    super();
+  }
+  
+  
+  public DebugPlans(Session s) throws Exception {
+    super(s);
+  }
+  
+  
+  public void saveState(Session s) throws Exception {
+    super.saveState(s);
+  }
+  
+  
+  
+  public void beginGameSetup() {
+    final String savePath = Scenario.fullSavePath("debug_plans", null);
+    if (Scenario.saveExists(savePath)) {
+      Scenario.loadGame(savePath, false);
+    }
+    else super.beginGameSetup();
+  }
+  
+  
+  protected String saveFilePrefix(World world, Base base) {
+    return "debug_plans";
+  }
+  
+  
   protected World createWorld() {
     final TerrainGen TG = new TerrainGen(
       64, 0.2f,
@@ -88,11 +118,6 @@ public class DebugPlans extends Scenario {
     
     hunts.mind.assignBehaviour(Hunting.asHarvest(hunts, prey, station));
     UI.selection.pushSelection(prey, true);
-  }
-  
-  
-  protected String saveFilePrefix(World world, Base base) {
-    return "debug_plans";
   }
   
   

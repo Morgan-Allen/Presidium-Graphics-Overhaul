@@ -128,9 +128,15 @@ public final class PlayLoop {
         
         public void render() {
           gdxThread = Thread.currentThread();
-          if (! shouldLoop) return;
+          if (! shouldLoop) {
+            if (verbose) I.say("should not be looping...");
+            return;
+          }
           final boolean okay = advanceLoop();
-          if (! okay) exitLoop();
+          if (! okay) {
+            if (verbose) I.say("Loop does not want to advance!");
+            exitLoop();
+          }
         }
       }, config);
       
@@ -169,6 +175,7 @@ public final class PlayLoop {
   
   
   public static void exitLoop() {
+    if (verbose) I.say("EXITING PLAY LOOP");
     shouldLoop = false;
     Gdx.app.exit();
   }

@@ -3,6 +3,8 @@
 
 
 package stratos.game.tactical ;
+import org.apache.commons.math3.util.FastMath;
+
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
@@ -18,10 +20,13 @@ public class Retreat extends Plan implements Qualities {
   
   /**  Constants, field definitions, constructors and save/load methods-
     */
-  final static float MAX_DANGER = 2.0f;
+  final static float
+    MAX_DANGER  = 2.0f,
+    DANGER_MEMORY_FADE = 0.9f;
   
-  static boolean verbose = true ;
+  static boolean verbose = false;
   
+  private float maxDanger = 0;
   private Boardable safePoint = null ;
   
   
@@ -38,12 +43,14 @@ public class Retreat extends Plan implements Qualities {
 
   public Retreat(Session s) throws Exception {
     super(s) ;
+    this.maxDanger = s.loadFloat();
     this.safePoint = (Boardable) s.loadTarget() ;
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s) ;
+    s.saveFloat(maxDanger);
     s.saveTarget(safePoint) ;
   }
   
@@ -59,35 +66,25 @@ public class Retreat extends Plan implements Qualities {
     float danger = dangerAtSpot(
       actor.origin(), actor, null, actor.senses.awareOf()
     );
-    if (report) I.say("\nBase danger: "+danger);
+    if (report) I.say("\nCurrent danger: "+danger);
     danger *= 1 + actor.traits.relativeLevel(NERVOUS);
+    maxDanger = FastMath.max(danger, maxDanger);
     
-    if (danger <= 0) {
-      if (report) I.say("  No danger!  Aware of: "+actor.senses.awareOf().size());
+    
+    if (maxDanger <= 0) {
+      if (report) I.say("  No danger!");
       return 0;
     }
+    if (report) I.say("Max. danger was: "+maxDanger);
     final float priority = priorityForActorWith(
       actor, safePoint, PARAMOUNT,
       NO_HARM, NO_COMPETITION,
       BASE_SKILLS, BASE_TRAITS,
-      danger * ROUTINE, NO_DISTANCE_CHECK, NO_DANGER
+      maxDanger * ROUTINE, NO_DISTANCE_CHECK, NO_DANGER
     );
     
     if (report) I.say("  Retreat priority is: "+priority);
     return priority;
-    /*
-    float danger = dangerAtSpot(
-      actor.origin(), actor, null, actor.senses.awareOf()
-    ) ;
-    danger += priorityMod / ROUTINE ;
-    if (danger <= 0) return 0 ;
-    danger *= actor.traits.scaleLevel(NERVOUS) ;
-    
-    if (verbose && I.talkAbout == actor) {
-      I.say("Perceived danger: "+danger) ;
-    }
-    return danger * PARAMOUNT ;
-    //*/
   }
   
   
@@ -164,7 +161,7 @@ public class Retreat extends Plan implements Qualities {
       cons = sumEnemies + sumTargeting,
       hurt = Visit.clamp(injury + stress - 0.5f, 0, 1);
     if (cons <= 0) return 0;
-    if (pros == 0) return 9;
+    if (pros == 0) return MAX_DANGER;
     float danger = (cons * 2) / (pros + cons);
     danger = (danger + hurt) * (1 + hurt);
     
@@ -255,7 +252,7 @@ public class Retreat extends Plan implements Qualities {
     final Action flees = new Action(
       actor, safePoint,
       this, "actionFlee",
-      Action.LOOK, "Fleeing to "
+      Action.MOVE_SNEAK, "Fleeing to "
     ) ;
     flees.setProperties(Action.QUICK) ;
     return flees ;
@@ -263,6 +260,7 @@ public class Retreat extends Plan implements Qualities {
   
   
   public boolean actionFlee(Actor actor, Target safePoint) {
+    maxDanger *= DANGER_MEMORY_FADE;
     return true ;
   }
   
@@ -276,9 +274,6 @@ public class Retreat extends Plan implements Qualities {
     d.append(safePoint) ;
   }
 }
-
-
-
 
 
 

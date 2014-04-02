@@ -96,6 +96,7 @@ public class Combat extends Plan implements Qualities {
   
   
   public float priorityFor(Actor actor) {
+    final boolean report = verbose && I.talkAbout == actor;
     if (isDowned(target)) return 0 ;
     final boolean melee = actor.gear.meleeWeapon();
     
@@ -113,12 +114,17 @@ public class Combat extends Plan implements Qualities {
     if (object == OBJECT_SUBDUE ) harmLevel = MILD_HARM;
     if (object == OBJECT_DESTROY) harmLevel = EXTREME_HARM;
     
-    return priorityForActorWith(
+    final float priority = priorityForActorWith(
       actor, target, PARAMOUNT,
       harmLevel, MILD_COOPERATION,
       melee ? MELEE_SKILLS : RANGED_SKILLS, BASE_TRAITS,
       modifier, NORMAL_DISTANCE_CHECK, REAL_DANGER
     );
+    
+    if (report) {
+      I.say("Combat priority: "+priority);
+    }
+    return priority;
   }
   
   
