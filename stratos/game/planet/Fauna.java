@@ -130,7 +130,7 @@ public abstract class Fauna extends Actor {
   
   protected Behaviour nextHunting() {
     final Choice c = new Choice(this);
-    for (Element e : mind.awareOf()) {
+    for (Element e : senses.awareOf()) {
       if (Hunting.validPrey(e, this, false)) {
         final Actor prey = (Actor) e;
         c.add(Hunting.asFeeding(this, prey));

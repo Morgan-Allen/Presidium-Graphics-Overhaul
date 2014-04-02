@@ -137,7 +137,7 @@ public class SecurityMission extends Mission implements Qualities {
     
     //  TODO:  Only react to threats the actor is aware of directly.
     /*
-    for (Element e : actor.mind.awareOf()) if (e instanceof Actor) {
+    for (Element e : actor.senses.awareOf()) if (e instanceof Actor) {
       final Actor a = (Actor) e ;
       final Target victim = a.targetFor(Combat.class) ;
     }

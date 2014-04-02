@@ -34,6 +34,7 @@ public abstract class Actor extends Mobile implements
   final public ActorHealth health = new ActorHealth(this) ;
   final public ActorTraits traits = new ActorTraits(this) ;
   final public ActorGear   gear   = new ActorGear  (this) ;
+  final public Senses      senses = new Senses     (this) ;
   
   final public ActorMind mind = initAI() ;
   private Action actionTaken ;
@@ -50,6 +51,7 @@ public abstract class Actor extends Mobile implements
     health.loadState(s) ;
     traits.loadState(s) ;
     gear.loadState(s) ;
+    senses.loadState(s);
     mind.loadState(s) ;
     
     actionTaken = (Action) s.loadObject() ;
@@ -63,6 +65,7 @@ public abstract class Actor extends Mobile implements
     health.saveState(s) ;
     traits.saveState(s) ;
     gear.saveState(s) ;
+    senses.saveState(s);
     mind.saveState(s) ;
     
     s.saveObject(actionTaken) ;
@@ -218,17 +221,21 @@ public abstract class Actor extends Mobile implements
       if (! motion.checkPathingOkay()) {
         motion.refreshFullPath() ;
       }
+      senses.updateSeen();
       mind.updateAI(numUpdates) ;
     }
     
     //  Check to see if you need to wake up-
     if (checkSleep) {
+      senses.updateSeen();
       mind.updateAI(numUpdates) ;
       mind.getNextAction() ;
+      
       final Behaviour root = mind.rootBehaviour() ;
       final float
         wakePriority  = root == null ? 0 : root.priorityFor(this),
         sleepPriority = Resting.ratePoint(this, aboard(), 0) ;
+      
       if (wakePriority + 1 > sleepPriority + Choice.DEFAULT_PRIORITY_RANGE) {
         health.setState(ActorHealth.STATE_ACTIVE) ;
       }

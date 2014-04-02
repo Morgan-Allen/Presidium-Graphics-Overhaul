@@ -164,7 +164,7 @@ public class HumanMind extends ActorMind implements Qualities {
   
   
   private void addActorResponses(Choice choice) {
-    for (Element e : awareOf()) addReactions(e, choice) ;
+    for (Element e : actor.senses.awareOf()) addReactions(e, choice) ;
   }
   
   

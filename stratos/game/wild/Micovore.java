@@ -171,7 +171,7 @@ public class Micovore extends Fauna implements Economy {
   
   private Fauna findCompetition() {
     final Batch <Fauna> tried = new Batch <Fauna> () ;
-    for (Element e : mind.awareOf()) if (e instanceof Micovore) {
+    for (Element e : senses.awareOf()) if (e instanceof Micovore) {
       if (e == this) continue ;
       final Micovore m = (Micovore) e ;
       tried.add(m) ;

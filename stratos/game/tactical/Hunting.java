@@ -236,15 +236,14 @@ public class Hunting extends Combat implements Economy {
       }
     }
     
-    if (report) I.say("RETURNING NULL ACTION");
     return null;
   }
   
   
   public int motionType(Actor actor) {
     if (isDowned(prey)) return MOTION_ANY;
-    else if (prey.mind.awareOf(actor)) return MOTION_FAST;
-    else if (actor.mind.awareOf(prey)) return MOTION_SNEAK;
+    else if (prey.senses.awareOf(actor)) return MOTION_FAST;
+    else if (actor.senses.awareOf(prey)) return MOTION_SNEAK;
     else return super.motionType(actor);
   }
   
@@ -346,7 +345,7 @@ public static Actor nextPreyFor(
   float bestRating = Float.NEGATIVE_INFINITY ;
   //
   //  
-  for (Element t : actor.mind.awareOf()) {
+  for (Element t : actor.senses.awareOf()) {
     if (! (t instanceof Actor)) continue ;
     final Actor f = (Actor) t ;
     if ((! f.health.organic()) || (! (t instanceof Fauna))) continue ;

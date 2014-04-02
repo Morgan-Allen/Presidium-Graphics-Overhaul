@@ -295,7 +295,7 @@ public class Combat extends Plan implements Qualities {
     if (razes && Rand.num() < 0.1f) underFire = true ;
     
     boolean dodges = false ;
-    if (actor.mind.hasSeen(target)) {
+    if (actor.senses.hasSeen(target)) {
       final float distance = Spacing.distance(actor, target) / range ;
       //
       //  If not under fire, consider advancing for a clearer shot-

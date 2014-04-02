@@ -18,6 +18,8 @@ public class Retreat extends Plan implements Qualities {
   
   /**  Constants, field definitions, constructors and save/load methods-
     */
+  final static float MAX_DANGER = 2.0f;
+  
   static boolean verbose = true ;
   
   private Boardable safePoint = null ;
@@ -55,13 +57,13 @@ public class Retreat extends Plan implements Qualities {
   public float priorityFor(Actor actor) {
     final boolean report = verbose && I.talkAbout == actor;
     float danger = dangerAtSpot(
-      actor.origin(), actor, null, actor.mind.awareOf()
+      actor.origin(), actor, null, actor.senses.awareOf()
     );
     if (report) I.say("\nBase danger: "+danger);
     danger *= 1 + actor.traits.relativeLevel(NERVOUS);
     
     if (danger <= 0) {
-      if (report) I.say("  No danger!  Aware of: "+actor.mind.awareOf().size());
+      if (report) I.say("  No danger!  Aware of: "+actor.senses.awareOf().size());
       return 0;
     }
     final float priority = priorityForActorWith(
@@ -75,7 +77,7 @@ public class Retreat extends Plan implements Qualities {
     return priority;
     /*
     float danger = dangerAtSpot(
-      actor.origin(), actor, null, actor.mind.awareOf()
+      actor.origin(), actor, null, actor.senses.awareOf()
     ) ;
     danger += priorityMod / ROUTINE ;
     if (danger <= 0) return 0 ;
@@ -98,7 +100,7 @@ public class Retreat extends Plan implements Qualities {
     //
     //  TODO:  Blend values from the danger map?
     if (Spacing.distance(actor, spot) < range * 2) {
-      return dangerAtSpot(spot, actor, enemy, actor.mind.awareOf()) ;
+      return dangerAtSpot(spot, actor, enemy, actor.senses.awareOf()) ;
     }
     
     final Batch <Element> seen = new Batch <Element> () ;
@@ -167,7 +169,7 @@ public class Retreat extends Plan implements Qualities {
     danger = (danger + hurt) * (1 + hurt);
     
     if (report) I.say("  Danger estimate: "+danger) ;
-    return danger ;
+    return Visit.clamp(danger, 0, MAX_DANGER) ;
   }
   
   
@@ -175,7 +177,7 @@ public class Retreat extends Plan implements Qualities {
     Object picked = null ;
     float bestRating = 0 ;
     
-    for (Element e : actor.mind.awareOf()) {
+    for (Element e : actor.senses.awareOf()) {
       final float rating = rateHaven(e, actor, prefClass) ;
       if (rating > bestRating) { bestRating = rating ; picked = e ; }
     }
@@ -224,7 +226,7 @@ public class Retreat extends Plan implements Qualities {
       
       //  TODO:  Have danger-map sampling built into dangerAtSpot().
       float tryRating = actor.base().dangerMap.sampleAt(tried.x, tried.y) ;
-      tryRating = dangerAtSpot(tried, actor, null, actor.mind.awareOf()) ;
+      tryRating = dangerAtSpot(tried, actor, null, actor.senses.awareOf()) ;
       tryRating /= 2 ;
       tryRating += (Rand.num() - 0.5f) * salt ;
       if (salt < 0) tryRating *= -1 ;

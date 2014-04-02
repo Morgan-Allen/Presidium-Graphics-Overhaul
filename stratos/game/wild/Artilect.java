@@ -132,7 +132,7 @@ public abstract class Artilect extends Actor {
     ///I.say("Patrolling priority: "+p.priorityFor(this)) ;
     choice.add(p) ;
     
-    for (Element e : mind.awareOf()) if (e instanceof Actor) {
+    for (Element e : senses.awareOf()) if (e instanceof Actor) {
       choice.add(new Combat(this, (Actor) e)) ;
     }
     

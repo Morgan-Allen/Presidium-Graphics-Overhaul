@@ -126,7 +126,7 @@ public class SurveyStation extends Venue implements Economy {
         actor, still, still.services(), 5, world
       ) ;
       choice.add(d);
-      for (Element t : actor.mind.awareOf()) {
+      for (Element t : actor.senses.awareOf()) {
         if (Hunting.validPrey(t, actor, true)) {
           choice.add(Hunting.asHarvest(actor, (Actor) t, still));
         }
