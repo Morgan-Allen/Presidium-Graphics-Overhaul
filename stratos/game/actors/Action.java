@@ -301,7 +301,9 @@ public class Action implements Behaviour, AnimNames {
       closeOn = closed ? actionTarget : step ;
     }
     else {
-      final boolean seen = MobileMotion.hasLineOfSight(
+      //  TODO:  Build line-of-sight considerations into the actor's reaction
+      //  algorithms instead.
+      final boolean seen = Senses.hasLineOfSight(
         actor, actionTarget, Math.max(maxDist, sightRange)
       ) ;
       if (Math.min(motionDist, actionDist) < maxDist && ! seen) {
