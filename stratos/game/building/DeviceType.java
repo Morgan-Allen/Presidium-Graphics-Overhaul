@@ -22,7 +22,7 @@ public class DeviceType extends Service implements Economy {
     ),
     PISTOL_FX_MODEL = new ShotFX.Model(
       "pistol_shot_fx", DeviceType.class,
-      "media/SFX/pistol_shot.gif", 0.075f, 0, 0.03f, 1.5f, true, true
+      "media/SFX/pistol_shot.gif", 0.02f, 0, 0.03f, 1.5f, true, true
     ),
     SPEAR_FX_MODEL = new ShotFX.Model(
       "spear_fx", DeviceType.class,
@@ -36,7 +36,11 @@ public class DeviceType extends Service implements Economy {
     LASER_BURST_MODEL = new PlaneFX.Model(
       "laser_burst_fx", DeviceType.class,
       "media/SFX/laser_burst.png", 0.75f, 0, 0, true, true
-    ) ;
+    ),
+    PISTOL_BURST_MODEL = new PlaneFX.Model(
+      "pistol_burst_fx", DeviceType.class,
+      "media/SFX/pistol_burst.png", 0.2f, 180, 0, true, true
+    );
   
   
   final public float baseDamage ;
@@ -92,6 +96,9 @@ public class DeviceType extends Service implements Economy {
   //
   //  TODO:  Move all weapon/armour types to a dedicated interface listing and
   //  customise their SFX there.
+  //  TODO:  Have the device types themselves specify their preferred SFX.
+  //else if (type.hasProperty(RANGED | THROWN)) {
+  //}
   
   public static void applyFX(
     DeviceType type, Mobile uses, Target applied, boolean hits
@@ -106,49 +113,54 @@ public class DeviceType extends Service implements Economy {
       slashFX.scale = r * 2 ;
       world.ephemera.addGhost(uses, r, slashFX, 0.33f) ;
     }
-    //  TODO:  Have the device types themselves specify their preferred SFX.
-    //else if (type.hasProperty(RANGED | THROWN)) {
-    //}
-    
-    //  TODO:  Consider setting the fire point manually- at least if the
-    //  animation state hasn't matured yet?
     
     else if (type.hasProperty(RANGED | PHYSICAL)) {
-      
-      //  You'll have to create a missile effect, with similar parameters.
-      final ShotFX shot = (ShotFX) PISTOL_FX_MODEL.makeSprite() ;
-      
-      final SolidSprite sprite = (SolidSprite) uses.sprite() ;
-      uses.viewPosition(sprite.position) ;
-      sprite.attachPoint("fire", shot.origin);
-      shot.target.setTo(hitPoint(applied, hits)) ;
-      
-      shot.position.setTo(shot.origin).add(shot.target).scale(0.5f) ;
-      final float size = shot.origin.sub(shot.target, null).length() / 2 ;
-      world.ephemera.addGhost(null, size + 1, shot, 1 + (distance * 0.1f)) ;
+      final ShotFX shot = applyShotFX(
+        PISTOL_FX_MODEL, uses, applied, hits, 1 + (distance * 0.1f), world
+      );
+      applyBurstFX(PISTOL_BURST_MODEL, shot, 0.66f, world);
     }
     else if (type.hasProperty(RANGED | ENERGY)) {
-      
-      //  Otherwise, create an appropriate 'beam' FX-
-      final ShotFX shot = (ShotFX) LASER_FX_MODEL.makeSprite() ;
-      
-      final SolidSprite sprite = (SolidSprite) uses.sprite() ;
-      uses.viewPosition(sprite.position) ;
-      sprite.attachPoint("fire", shot.origin);
-      shot.target.setTo(hitPoint(applied, hits)) ;
-      
-      shot.position.setTo(shot.origin).add(shot.target).scale(0.5f) ;
-      final float size = shot.origin.sub(shot.target, null).length() / 2 ;
-      world.ephemera.addGhost(null, size + 1, shot, 0.66f) ;
-      
-      final Sprite
-        BO = LASER_BURST_MODEL.makeSprite(),
-        BT = LASER_BURST_MODEL.makeSprite() ;
-      BO.position.setTo(shot.origin) ;
-      BT.position.setTo(shot.target) ;
-      //world.ephemera.addGhost(null, 1, BO, 0.66f) ;
-      world.ephemera.addGhost(null, 1, BT, 0.66f) ;
+      final ShotFX shot = applyShotFX(
+        LASER_FX_MODEL, uses, applied, hits, 0.66f, world
+      );
+      applyBurstFX(LASER_BURST_MODEL, shot, 0.66f, world);
     }
+  }
+  
+  
+  private static ShotFX applyShotFX(
+    ShotFX.Model model, Mobile uses, Target applied,
+    boolean hits, float duration, World world
+  ) {
+    final ShotFX shot = (ShotFX) model.makeSprite() ;
+    
+    //  TODO:  Consider setting the fire point manually if the animation state
+    //  hasn't matured yet
+    final SolidSprite sprite = (SolidSprite) uses.sprite() ;
+    uses.viewPosition(sprite.position) ;
+    sprite.attachPoint("fire", shot.origin);
+    shot.target.setTo(hitPoint(applied, hits)) ;
+    
+    shot.position.setTo(shot.origin).add(shot.target).scale(0.5f) ;
+    final float size = shot.origin.sub(shot.target, null).length() / 2 ;
+    world.ephemera.addGhost(null, size + 1, shot, duration) ;
+    
+    return shot;
+  }
+  
+  
+  //  TODO:  Unify the burst FX with ShotFX models?
+  private static void applyBurstFX(
+    PlaneFX.Model model, ShotFX shot, float duration, World world
+  ) {
+    final Sprite
+      BO = model.makeSprite(),
+      BT = model.makeSprite() ;
+    BO.position.setTo(shot.origin) ;
+    BT.position.setTo(shot.target) ;
+    world.ephemera.addGhost(null, 1, BO, duration) ;
+    world.ephemera.addGhost(null, 1, BT, duration) ;
   }
 }
 
