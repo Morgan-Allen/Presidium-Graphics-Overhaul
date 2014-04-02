@@ -50,7 +50,7 @@ public class Combat extends Plan implements Qualities {
   } ;
   
   
-  final Element target ;  //, concern. (in case of defensive action.)
+  final Element target ;
   final int style, object ;
   
   
@@ -97,16 +97,16 @@ public class Combat extends Plan implements Qualities {
   
   public float priorityFor(Actor actor) {
     final boolean report = verbose && I.talkAbout == actor;
-    if (isDowned(target)) return 0 ;
+    if (isDowned(target, object)) return 0;
     final boolean melee = actor.gear.meleeWeapon();
     
-    float modifier = 0 - ROUTINE;
+    float modifier = 0 - PARAMOUNT;
     if (target instanceof Actor) {
       //  TODO:  Just use the general harm-level of the other guy's current
       //  behaviour as the basis for evaluation?
       final Target victim = ((Actor) target).targetFor(Combat.class);
       if (victim != null) {
-        modifier += ROUTINE * actor.mind.relationValue(victim);
+        modifier += PARAMOUNT * actor.mind.relationValue(victim);
       }
     }
     
@@ -118,7 +118,8 @@ public class Combat extends Plan implements Qualities {
       actor, target, PARAMOUNT,
       harmLevel, MILD_COOPERATION,
       melee ? MELEE_SKILLS : RANGED_SKILLS, BASE_TRAITS,
-      modifier, NORMAL_DISTANCE_CHECK, REAL_DANGER
+      modifier, NORMAL_DISTANCE_CHECK, REAL_DANGER,
+      report
     );
     
     if (report) {
@@ -147,12 +148,12 @@ public class Combat extends Plan implements Qualities {
   }
   
   
-  protected static boolean isDowned(Element subject) {
-    //
-    //  TODO:  Vary this based on objective type, along with the types of
-    //  damage dealt.
-    if (subject instanceof Actor)
-      return ! ((Actor) subject).health.conscious() ;
+  protected static boolean isDowned(Element subject, int object) {
+    if (subject instanceof Actor) {
+      final Actor struck = (Actor) subject;
+      if (object == OBJECT_DESTROY) return ! struck.health.alive();
+      return ! struck.health.conscious() ;
+    }
     if (subject instanceof Venue)
       return ((Venue) subject).structure.destroyed() ;
     return false ;
@@ -240,7 +241,7 @@ public class Combat extends Plan implements Qualities {
     //
     //  This might need to be tweaked in cases of self-defence, where you just
     //  want to see off an attacker.
-    if (isDowned(target)) {  //  TODO:  This might need to be varied-
+    if (isDowned(target, object)) {
       if (eventsVerbose && hasBegun()) I.sayAbout(actor, "COMBAT COMPLETE") ;
       return null ;
     }
@@ -331,13 +332,14 @@ public class Combat extends Plan implements Qualities {
     */
   public boolean actionStrike(Actor actor, Actor target) {
     if (target.health.dying()) return false ;
+    final boolean subdue = object == OBJECT_SUBDUE;
     //
-    //  You may want a separate category for animals.
+    //  TODO:  You may want a separate category for animals.
     if (actor.gear.meleeWeapon()) {
-      performStrike(actor, target, HAND_TO_HAND, HAND_TO_HAND) ;
+      performStrike(actor, target, HAND_TO_HAND, HAND_TO_HAND, subdue) ;
     }
     else {
-      performStrike(actor, target, MARKSMANSHIP, STEALTH_AND_COVER) ;
+      performStrike(actor, target, MARKSMANSHIP, STEALTH_AND_COVER, subdue) ;
     }
     return true ;
   }
@@ -352,15 +354,21 @@ public class Combat extends Plan implements Qualities {
   
   static void performStrike(
     Actor actor, Actor target,
-    Skill offence, Skill defence
+    Skill offence, Skill defence,
+    boolean subdue
   ) {
-    //
-    //  TODO:  Allow for wear and tear to weapons/armour over time...
-    final boolean success = actor.health.conscious() ? actor.traits.test(
-      offence, target, defence, 0 - rangePenalty(actor, target), 1
+    //  TODO:  Move weapon/armour properties to dedicated subclasses.
+    final boolean canStun = actor.gear.hasDeviceProperty(Economy.STUN);
+    float penalty = 0, damage = 0;
+    penalty -= rangePenalty(actor, target);
+    if (subdue && ! canStun) penalty -= 5;
+    
+    final boolean success = target.health.conscious() ? actor.traits.test(
+      offence, target, defence, penalty, 1
     ) : true ;
+      
     if (success) {
-      float damage = actor.gear.attackDamage() * Rand.avgNums(2) ;
+      damage = actor.gear.attackDamage() * Rand.avgNums(2) ;
       damage -= target.gear.armourRating() * Rand.avgNums(2) ;
       
       final float oldDamage = damage ;
@@ -369,8 +377,18 @@ public class Combat extends Plan implements Qualities {
       if (damage != oldDamage) {
         OutfitType.applyFX(target.gear.outfitType(), target, actor, hit) ;
       }
-      if (hit && ! GameSettings.noBlood) target.health.takeInjury(damage) ;
     }
+    
+    if (damage > 0 && ! GameSettings.noBlood) {
+      if (subdue && canStun) target.health.takeFatigue(damage);
+      else if (subdue || canStun) {
+        target.health.takeFatigue(damage / 2);
+        target.health.takeInjury(damage / 2);
+      }
+      else target.health.takeInjury(damage);
+      //  TODO:  Allow for wear and tear to weapons/armour over time...
+    }
+    
     DeviceType.applyFX(actor.gear.deviceType(), actor, target, success) ;
   }
   

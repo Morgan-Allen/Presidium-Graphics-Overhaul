@@ -38,7 +38,7 @@ public class Hunting extends Combat implements Economy {
     STAGE_RETURN_SAMPLE = 6,
     STAGE_COMPLETE      = 7 ;
   
-  private static boolean verbose = false, evalVerbose = false;
+  private static boolean verbose = false, evalVerbose = true;
   
   
   final int type ;
@@ -68,7 +68,10 @@ public class Hunting extends Combat implements Economy {
   
   
   private Hunting(Actor actor, Actor prey, int type, Employment depot) {
-    super(actor, prey) ;
+    super(
+      actor, prey, STYLE_EITHER,
+      (type == TYPE_SAMPLE) ? OBJECT_SUBDUE : OBJECT_EITHER
+    ) ;
     this.prey = prey ;
     this.type = type ;
     this.depot = depot ;
@@ -146,7 +149,8 @@ public class Hunting extends Combat implements Economy {
       actor, prey, urgency,
       harmLevel, MILD_COMPETITION,
       RANGED_SKILLS, baseTraits,
-      NO_MODIFIER, NORMAL_DISTANCE_CHECK, REAL_DANGER
+      NO_MODIFIER, NORMAL_DISTANCE_CHECK, REAL_DANGER,
+      report
     );
     
     if (report) {
@@ -194,7 +198,7 @@ public class Hunting extends Combat implements Economy {
     if (type == TYPE_HARVEST) {
       final float carried = actor.gear.amountOf(PROTEIN);
       if (carried == 0 && ! prey.inWorld()) return null;
-      if (! isDowned(prey)) return super.getNextStep();
+      if (! isDowned(prey, object)) return super.getNextStep();
       
       if (carried >= 5 || (prey.destroyed() && carried > 0)) {
         final Action returns = new Action(
@@ -225,7 +229,7 @@ public class Hunting extends Combat implements Economy {
         );
         return returns;
       }
-      if (! isDowned(prey)) return super.getNextStep();
+      if (! isDowned(prey, object)) return super.getNextStep();
       else {
         final Action samples = new Action(
           actor, prey,
@@ -241,7 +245,7 @@ public class Hunting extends Combat implements Economy {
   
   
   public int motionType(Actor actor) {
-    if (isDowned(prey)) return MOTION_ANY;
+    if (isDowned(prey, object)) return MOTION_ANY;
     else if (prey.senses.awareOf(actor)) return MOTION_FAST;
     else if (actor.senses.awareOf(prey)) return MOTION_SNEAK;
     else return super.motionType(actor);

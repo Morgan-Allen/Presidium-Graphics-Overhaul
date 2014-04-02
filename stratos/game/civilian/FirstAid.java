@@ -85,6 +85,7 @@ public class FirstAid extends Plan implements Qualities, Economy {
   
   
   public float priorityFor(Actor actor) {
+    final boolean report = evalVerbose && I.talkAbout == actor;
     if (patient.health.conscious()) return 0;
     float modifier = 0;
     if (patient.base() != actor.base()) {
@@ -104,10 +105,11 @@ public class FirstAid extends Plan implements Qualities, Economy {
       BASE_TRAITS,
       modifier,
       NORMAL_DISTANCE_CHECK,
-      MILD_DANGER
+      MILD_DANGER,
+      report
     );
     
-    if (evalVerbose && I.talkAbout == actor) {
+    if (report) {
       I.say("Considering first aid of "+patient);
       I.say("  Severity of injury: "+severity());
       I.say("  Priority is: "+priority);

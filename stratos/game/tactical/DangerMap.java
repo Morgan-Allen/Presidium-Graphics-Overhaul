@@ -13,6 +13,8 @@ public class DangerMap extends FadingMap {
   
   /**  Data fields, construction and save/load methods-
     */
+  private boolean verbose = false;
+  
   final Base base ;
   
   
@@ -39,6 +41,15 @@ public class DangerMap extends FadingMap {
     */
   public void update() {
     super.update();
+    
+    if (verbose) {
+      I.say("\nDanger map updated for "+base.title);
+      for (Coord c : Visit.grid(1, 1, world.size, world.size, resolution)) {
+        I.say("  Val at "+c.x+" "+c.y+": "+patchValue(c.x, c.y));
+        I.say("  Sample is: "+sampleAt(c.x, c.y));
+      }
+    }
+    
     //if (base == PlayLoop.currentScenario().base()) {
       //I.present(shortTermVals, "Danger map", 200, 200, 20, -20) ;
     //}

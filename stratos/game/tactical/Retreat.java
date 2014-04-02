@@ -4,7 +4,6 @@
 
 package stratos.game.tactical ;
 import org.apache.commons.math3.util.FastMath;
-
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
@@ -61,26 +60,26 @@ public class Retreat extends Plan implements Qualities {
   final Skill BASE_SKILLS[] = { ATHLETICS };
   final Trait BASE_TRAITS[] = { NERVOUS };
   
+  
   public float priorityFor(Actor actor) {
     final boolean report = verbose && I.talkAbout == actor;
     float danger = dangerAtSpot(
       actor.origin(), actor, null, actor.senses.awareOf()
     );
-    if (report) I.say("\nCurrent danger: "+danger);
     danger *= 1 + actor.traits.relativeLevel(NERVOUS);
     maxDanger = FastMath.max(danger, maxDanger);
+    if (report) I.say("\nCurrent/max danger: "+danger+"/"+maxDanger);
     
+    if (maxDanger <= 0) return 0;
+    final float safety = (0.5f - maxDanger) * 2 * ROUTINE;
+    if (report) I.say("Safety rating: "+safety);
     
-    if (maxDanger <= 0) {
-      if (report) I.say("  No danger!");
-      return 0;
-    }
-    if (report) I.say("Max. danger was: "+maxDanger);
     final float priority = priorityForActorWith(
       actor, safePoint, PARAMOUNT,
       NO_HARM, NO_COMPETITION,
       BASE_SKILLS, BASE_TRAITS,
-      maxDanger * ROUTINE, NO_DISTANCE_CHECK, NO_DANGER
+      0 - safety, NO_DISTANCE_CHECK, NO_DANGER,
+      report
     );
     
     if (report) I.say("  Retreat priority is: "+priority);

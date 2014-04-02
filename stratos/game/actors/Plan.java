@@ -229,53 +229,81 @@ public abstract class Plan implements Saveable, Behaviour {
     Trait baseTraits[],
     float specialModifier,
     float distanceCheck,
-    float dangerFactor
+    float dangerFactor,
+    boolean report
   ) {
-    final boolean report = evalVerbose && I.talkAbout == actor;
-    float priority = ROUTINE + specialModifier;
-    if (report) I.say("Evaluating priority for "+this);
+    float
+      priority = ROUTINE + specialModifier,
+      skillBonus = 0, traitBonus = 0,
+      harmBonus = 0, competeBonus = 0;
+    
+    if (report) {
+      I.say("\nEvaluating priority for "+this);
+      I.say("  Initialised at: "+priority+", default: "+defaultPriority);
+    }
     
     if (baseSkills != null) for (Skill skill : baseSkills) {
       final float level = actor.traits.traitLevel(skill);
-      priority += (level - 5) / (5 * baseSkills.length);
+      skillBonus += (level - 5) / (5 * baseSkills.length);
     }
     
     if (baseTraits != null) for (Trait trait : baseTraits) {
       final float level = actor.traits.relativeLevel(trait);
-      priority += level * CASUAL / baseTraits.length;
+      traitBonus += level * CASUAL / baseTraits.length;
     }
     
     if (subjectHarm != 0) {
       final float relation = actor.mind.relationValue(subject);
-      priority -= relation * subjectHarm * PARAMOUNT;
+      harmBonus = 0 - relation * subjectHarm * PARAMOUNT;
     }
     
-    if (peersCompete != 0 && ! hasBegun()) {
+    if (peersCompete != 0 && (peersCompete < 0 || ! hasBegun())) {
       final float competition = competition(this, subject, actor);
-      priority -= competition * peersCompete * CASUAL / 2;
+      competeBonus = 0 - competition * peersCompete * CASUAL / 2;
     }
     
-    if (report) I.say("Priority before clamp/scale is: "+priority);
-    if (priority <= 0) return 0;
+    priority += skillBonus;
+    priority += traitBonus;
+    priority += harmBonus;
+    priority += competeBonus;
+    if (report) {
+      I.say("  Skill/traits bonus: "+skillBonus+"/"+traitBonus);
+      I.say("  Harm/compete bonus: "+harmBonus+"/"+competeBonus);
+      I.say("  Priority before clamp/scale is: "+priority);
+    }
     
-    priority = Visit.clamp(priority / ROUTINE, 0.5f, 2.5f);
-    priority *= defaultPriority;
+    priority *= defaultPriority * 1f / ROUTINE;
+    final float
+      min = defaultPriority * 0.5f,
+      max = defaultPriority * 2.0f;
+    if (priority < min) return priority - min;
+    priority = Visit.clamp(priority, min, max);
+    if (report) I.say("  Priority after clamp/scale: "+priority);
+    
+    float chancePenalty = 0, rangePenalty = 0, dangerPenalty = 0;
     
     if (dangerFactor > 0) {
       final float chance = successChance();
-      priority -= (1 - chance) * dangerFactor * ROUTINE;
+      chancePenalty = (1 - chance) * dangerFactor * PARAMOUNT;
     }
     
     if (distanceCheck != 0) {
-      final float range = rangePenalty(actor, subject) * distanceCheck;
-      priority -= range;
+      rangePenalty = rangePenalty(actor, subject) * distanceCheck;
       if (dangerFactor > 0) {
         final float danger = dangerPenalty(subject, actor);
-        priority -= danger * (range + 2) / 2f;
+        dangerPenalty = danger * (rangePenalty + 2) / 2f;
       }
     }
     
-    if (report) I.say("Priority after clamp/scale, dist/danger: "+priority);
+    priority -= chancePenalty;
+    priority -= rangePenalty;
+    priority -= dangerPenalty;
+    if (report) {
+      I.say("  Chance penalty is: "+chancePenalty);
+      I.say("  Range/Danger penalty is: "+rangePenalty);
+      I.say("  Danger penalty is: "+dangerPenalty);
+      I.say("  Priority after clamp/scale, dist/danger: "+priority);
+    }
     return priority;
   }
   
@@ -310,7 +338,13 @@ public abstract class Plan implements Saveable, Behaviour {
     float danger = actor.base().dangerMap.sampleAt(at.x, at.y) ;
     if (danger < 0) return 0 ;
     danger *= 1 + actor.traits.relativeLevel(Qualities.NERVOUS) ;
-    return danger * 0.1f / (1 + Combat.combatStrength(actor, null)) ;
+    final float strength = Combat.combatStrength(actor, null);
+    
+    if (evalVerbose && I.talkAbout == actor) {
+      I.say("  Combat strength: "+strength);
+      I.say("  Danger sample: "+danger);
+    }
+    return danger * 0.1f / (1 + strength) ;
   }
   
   

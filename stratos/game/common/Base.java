@@ -129,7 +129,6 @@ public class Base implements
     
     title = s.loadString() ;
     colour.loadFrom(s.input()) ;
-    I.say("Loaded colour for "+title+" is "+colour);
   }
   
   

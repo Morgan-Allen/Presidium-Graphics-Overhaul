@@ -13,6 +13,8 @@ import stratos.util.I;
 public class StretcherDelivery extends Plan implements Qualities {
   
   
+  private static boolean verbose = false;
+  
   final Actor patient;
   final Boardable origin, destination;
   private Suspensor suspensor;
@@ -52,7 +54,8 @@ public class StretcherDelivery extends Plan implements Qualities {
       actor, patient, ROUTINE,
       REAL_HELP, FULL_COMPETITION,
       BASE_SKILLS, BASE_TRAITS,
-      NO_MODIFIER, PARTIAL_DISTANCE_CHECK, NO_DANGER
+      NO_MODIFIER, PARTIAL_DISTANCE_CHECK, NO_DANGER,
+      verbose
     );
   }
   

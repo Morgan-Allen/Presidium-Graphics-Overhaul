@@ -189,6 +189,13 @@ public class ActorGear extends Inventory implements Economy {
   }
   
   
+  public boolean hasDeviceProperty(int bits) {
+    final DeviceType type = deviceType();
+    if (type == null) return false;
+    return type.hasProperty(bits);
+  }
+  
+  
   
   /**  Returns this actor's effective armour rating.  Actors not wearing any
     *  significant armour, or only lightly armoured, gain a bonus based on

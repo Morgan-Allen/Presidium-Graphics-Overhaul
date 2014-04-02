@@ -56,7 +56,6 @@ public abstract class Scenario implements Session.Saveable, Playable {
     loadProgress = 1;
     UI = createUI(base, PlayLoop.rendering());
     UI.loadState(s) ;
-    ///I.say("Saves prefix: "+savesPrefix);
   }
   
   
@@ -89,6 +88,16 @@ public abstract class Scenario implements Session.Saveable, Playable {
   /**  Default methods for creating a new world, base, and user interface.
     */
   public void beginGameSetup() {
+    initScenario(null);
+  }
+  
+  
+  protected void initScenario(String fromSave) {
+    final String savePath = fullSavePath(fromSave, null);
+    if (Scenario.saveExists(savePath)) {
+      Scenario.loadGame(savePath, false);
+      return;
+    }
     
     I.say("Beginning scenario setup...");
     loadProgress = 0;
@@ -135,6 +144,17 @@ public abstract class Scenario implements Session.Saveable, Playable {
   }
   
   
+  protected void resetScenario() {
+    loadProgress = -1;
+    this.world = null;
+    this.base = null;
+    this.UI = null;
+    PlayLoop.gameStateWipe();
+    initScenario(null);
+    PlayLoop.setupAndLoop(this);
+  }
+  
+  
   public boolean isLoading() {
     return loadProgress < 1 && loadProgress != -1;
   }
@@ -149,16 +169,6 @@ public abstract class Scenario implements Session.Saveable, Playable {
     BaseUI UI = new BaseUI(base.world, rendering) ;
     UI.assignBaseSetup(base, new Vec3D(8, 8, 0)) ;
     return UI ;
-  }
-  
-  
-  protected void resetScenario() {
-    loadProgress = -1;
-    this.world = null;
-    this.base = null;
-    this.UI = null;
-    PlayLoop.gameStateWipe();
-    PlayLoop.setupAndLoop(this);
   }
   
   

@@ -37,13 +37,8 @@ public class DebugPlans extends Scenario {
   }
   
   
-  
   public void beginGameSetup() {
-    final String savePath = Scenario.fullSavePath("debug_plans", null);
-    if (Scenario.saveExists(savePath)) {
-      Scenario.loadGame(savePath, false);
-    }
-    else super.beginGameSetup();
+    super.initScenario("debug_plans");
   }
   
   
@@ -116,8 +111,8 @@ public class DebugPlans extends Scenario {
     prey.enterWorldAt(world.tileAt(9, 9), world);
     //prey.health.takeFatigue(prey.health.maxHealth());
     
-    hunts.mind.assignBehaviour(Hunting.asHarvest(hunts, prey, station));
-    UI.selection.pushSelection(prey, true);
+    //hunts.mind.assignBehaviour(Hunting.asHarvest(hunts, prey, station));
+    UI.selection.pushSelection(hunts, true);
   }
   
   
