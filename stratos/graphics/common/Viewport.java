@@ -152,7 +152,7 @@ public class Viewport {
   }
   
   
-  public Vector3 worldToGL(Vec3D from, Vector3 to) {
+  public static Vector3 worldToGL(Vec3D from, Vector3 to) {
     to.x = from.x;
     to.y = from.z;
     to.z = from.y;
@@ -160,7 +160,7 @@ public class Viewport {
   }
   
   
-  public Vec3D GLToWorld(Vector3 from, Vec3D to) {
+  public static Vec3D GLToWorld(Vector3 from, Vec3D to) {
     to.x = from.x;
     to.y = from.z;
     to.z = from.y;

@@ -8,6 +8,7 @@ import stratos.game.common.*;
 import stratos.game.campaign.*;
 import stratos.game.planet.*;
 import stratos.game.base.*;
+import stratos.game.tactical.Hunting;
 import stratos.game.wild.*;
 import stratos.user.*;
 
@@ -69,18 +70,24 @@ public class DebugPlans extends Scenario {
   private void configHuntingScenario(World world, Base base, BaseUI UI) {
     GameSettings.fogFree = true;
     GameSettings.buildFree = true;
+    GameSettings.noBlood = true;
     
     final Actor hunts = new Human(Background.SURVEY_SCOUT, base);
+    final Venue station = new SurveyStation(base);
     Placement.establishVenue(
-      new SurveyStation(base), 6, 6, true, world,
+      station, 6, 6, true, world,
+      new Human(Background.SURVEY_SCOUT, base),
+      new Human(Background.SURVEY_SCOUT, base),
       hunts
     );
     
     final Base wildlife = Base.baseWithName(world, Base.KEY_WILDLIFE, true);
     final Actor prey = new Vareen(wildlife);
-    prey.enterWorldAt(world.tileAt(13, 13), world);
+    prey.enterWorldAt(world.tileAt(9, 9), world);
+    //prey.health.takeFatigue(prey.health.maxHealth());
     
-    UI.selection.pushSelection(hunts, true);
+    hunts.mind.assignBehaviour(Hunting.asHarvest(hunts, prey, station));
+    UI.selection.pushSelection(prey, true);
   }
   
   

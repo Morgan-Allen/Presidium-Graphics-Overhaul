@@ -79,9 +79,9 @@ public class MS3DModel extends SolidModel {
     processMaterials();
     processMesh();
     processJoints();
-    //  TODO:  LOAD ATTACH POINTS AS WELL
     
     super.compileModel(new Model(data));
+    if (config != null) loadAttachPoints(config.child("attachPoints"));
     loaded = true;
   }
   

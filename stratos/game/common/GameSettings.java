@@ -24,8 +24,9 @@ public class GameSettings {
     hireFree  = false,
     psyFree   = false,
     fogFree   = false,
-    
     pathFree  = false,
+    
+    noBlood   = false,
     hardCore  = false ;
   
   public static float

@@ -97,7 +97,7 @@ public class Dialogue extends Plan implements Qualities {
       novelty  = actor.mind.relationNovelty(other),
       solitude = actor.mind.solitude() ;
     
-    novelty *= (actor.traits.scaleLevel(CURIOUS) + 1) / 2f ;
+    novelty *= (actor.traits.relativeLevel(CURIOUS) + 1) / 2f ;
     if (! actor.mind.hasRelation(other)) novelty *= solitude ;
     else novelty *= (1 + solitude) / 2f ;
     
@@ -105,7 +105,7 @@ public class Dialogue extends Plan implements Qualities {
     if (other.base() == actor.base()) {
       impetus += actor.base().communitySpirit() ;
     }
-    impetus *= actor.traits.scaleLevel(OUTGOING) ;
+    impetus *= 1 + actor.traits.relativeLevel(OUTGOING) ;
     
     if (verbose && I.talkAbout == actor) {
       I.say("\n  Priority for talking to "+other+" is: "+impetus) ;
@@ -322,8 +322,8 @@ public class Dialogue extends Plan implements Qualities {
       return ;
     }
     final float
-      levelA = actor.traits.scaleLevel(comp),
-      levelO = actor.traits.scaleLevel(comp),
+      levelA = 1 + actor.traits.relativeLevel(comp),
+      levelO = 1 + actor.traits.relativeLevel(comp),
       effect = 0.5f - (Math.abs(levelA - levelO) / 1.5f) ;
     final String desc = actor.traits.levelDesc(comp) ;
     

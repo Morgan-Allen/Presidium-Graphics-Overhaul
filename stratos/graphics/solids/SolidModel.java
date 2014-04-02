@@ -4,6 +4,7 @@
 package stratos.graphics.solids;
 import stratos.graphics.common.*;
 import stratos.util.*;
+
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.model.*;
 import com.badlogic.gdx.utils.ObjectMap;
@@ -28,6 +29,7 @@ public abstract class SolidModel extends ModelAsset {
     indices = new ObjectMap <Object, Integer> ();
   private String
     partNames[];
+  
   
   
   protected SolidModel(String modelName, Class sourceClass) {
@@ -91,6 +93,23 @@ public abstract class SolidModel extends ModelAsset {
       if (verbose) I.say("  Material is: "+p.material.id);
     }
     for (Node n : node.children) compileFrom(n, nodeB, partB, matsB);
+  }
+  
+  
+  protected void loadAttachPoints(XML points) {
+    if (points == null) return ;
+    
+    for (XML point : points.children()) {
+      final String
+        function = point.value("function"),
+        jointName = point.value("joint");
+      final Node match = gdxModel.getNode(jointName);
+      if (match == null) {
+        I.say("WARNING: NO MATCH FOR ATTACH POINT: "+function);
+        continue;
+      }
+      indices.put(function, indexFor(match));
+    }
   }
   
   

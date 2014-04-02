@@ -6,6 +6,8 @@
 
 
 package stratos.game.common ;
+import org.apache.commons.math3.util.FastMath;
+
 import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.user.*;
@@ -19,7 +21,7 @@ public class MobileMotion {
   /**  Field definitions, constructors, and save/load methods-
     */
   final public static int MAX_PATH_SCAN = 8 ;
-  private static boolean verbose = false ;
+  private static boolean verbose = false;
   
   final Mobile mobile ;
   Target trueTarget ;
@@ -289,7 +291,7 @@ public class MobileMotion {
     //  Then, we check to see if any such tiles are actually blocked, and
     //  perform a more exacting intersection test-
     if (reports) {
-      I.say("\nCHECKING LINE OF SIGHT") ;
+      I.say("\nCHECKING LINE OF SIGHT TO: "+target) ;
       I.say("  Mobile origin: "+orig) ;
       I.say("  Target position: "+dest) ;
     }
@@ -410,14 +412,19 @@ public class MobileMotion {
   //
   //  TODO:  Consider removing this to the Action or Motion classes
   public boolean facingTarget(Target target) {
-    if (target == null) return false ;
-    final Vec2D disp = displacement(target) ;
-    if (disp.length() == 0) return true ;
-    final float angleDif = Math.abs(Vec2D.degreeDif(
+    if (target == null) return false;
+    final Vec2D disp = displacement(target);
+    if (disp.length() == 0) return true;
+    final float angleDif = FastMath.abs(Vec2D.degreeDif(
       disp.normalise().toAngle(), mobile.rotation
     )) ;
+    if (verbose) I.sayAbout(mobile, "Angle difference is: "+angleDif);
     return angleDif < 30 ;
   }
 }
+
+
+
+
 
 

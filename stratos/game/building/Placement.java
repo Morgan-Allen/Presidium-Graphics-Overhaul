@@ -231,12 +231,12 @@ public class Placement implements TileConstants {
       return null ;
     }
     for (Actor a : employed) {
-      a.mind.setWork(v) ;
       if (! a.inWorld()) {
         a.assignBase(v.base()) ;
         a.enterWorldAt(v, world) ;
         a.goAboard(v, world) ;
       }
+      a.mind.setWork(v) ;
     }
     if (GameSettings.hireFree) Personnel.fillVacancies(v) ;
     return v ;

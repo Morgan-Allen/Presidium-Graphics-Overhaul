@@ -18,7 +18,7 @@ public class Retreat extends Plan implements Qualities {
   
   /**  Constants, field definitions, constructors and save/load methods-
     */
-  static boolean verbose = false ;
+  static boolean verbose = true ;
   
   private Boardable safePoint = null ;
   
@@ -53,18 +53,26 @@ public class Retreat extends Plan implements Qualities {
   final Trait BASE_TRAITS[] = { NERVOUS };
   
   public float priorityFor(Actor actor) {
+    final boolean report = verbose && I.talkAbout == actor;
     float danger = dangerAtSpot(
       actor.origin(), actor, null, actor.mind.awareOf()
     );
+    if (report) I.say("\nBase danger: "+danger);
     danger *= 1 + actor.traits.relativeLevel(NERVOUS);
     
-    if (danger <= 0) return 0;
-    return super.priorityForActorWith(
+    if (danger <= 0) {
+      if (report) I.say("  No danger!  Aware of: "+actor.mind.awareOf().size());
+      return 0;
+    }
+    final float priority = priorityForActorWith(
       actor, safePoint, PARAMOUNT,
       NO_HARM, NO_COMPETITION,
       BASE_SKILLS, BASE_TRAITS,
       danger * ROUTINE, NO_DISTANCE_CHECK, NO_DANGER
     );
+    
+    if (report) I.say("  Retreat priority is: "+priority);
+    return priority;
     /*
     float danger = dangerAtSpot(
       actor.origin(), actor, null, actor.mind.awareOf()
@@ -104,32 +112,39 @@ public class Retreat extends Plan implements Qualities {
   
   
   private static float dangerAtSpot(
-    Target spot, Actor actor, Actor enemy, Batch <Element> seen
+    Target spot, Actor actor, Actor enemy, Series <Element> seen
   ) {
     if (spot == null) return 0 ;
     final boolean report = verbose && I.talkAbout == actor ;
     
-    final float basePower = Combat.combatStrength(actor, enemy) ;
-    float sumAllies = basePower, sumEnemies = 0, sumTargeting = 0 ;
-    
+    final float basePower = Combat.combatStrength(actor, enemy);
+    float sumAllies = basePower, sumEnemies = 0, sumTargeting = 0;
     //
-    //  TODO:  Blend values from the danger map?
+    //  TODO:  Blend in values from the danger map?
     
     for (Element m : seen) {
-      if (m == actor || ! (m instanceof Actor)) continue ;
-      final Actor near = (Actor) m ;
-      if (near.indoors() || ! near.health.conscious()) continue ;
+      if (m == actor || ! (m instanceof Actor)) {
+        if (report) I.say("Subject is self or not actor: "+m);
+        continue;
+      }
+      final Actor near = (Actor) m;
+      if (near.indoors() || ! near.health.conscious()) {
+        if (report) I.say("Subject is indoors or KO: "+near);
+        continue;
+      }
 
-      final Target victim = near.targetFor(Combat.class) ;
-      final float relation = near.mind.relationValue(actor) ;
-      final float power = Combat.combatStrength(near, enemy) ;
+      final Target victim = near.targetFor(Combat.class);
+      final float relation = near.mind.relationValue(actor);
+      final float power = Combat.combatStrength(near, enemy);
       if (relation > 0) {
-        sumAllies += power ;
+        sumAllies += power * relation;
       }
       if (relation < 0) {
-        sumEnemies += power ;
+        sumEnemies += power * -relation;
       }
-      if (victim == actor) sumTargeting += power ;
+      if (victim == actor)
+        sumTargeting += power;
+      if (report) I.say("Victim is: "+victim);
     }
     
     final float
@@ -138,16 +153,18 @@ public class Retreat extends Plan implements Qualities {
     
     if (report) {
       I.say("  Sum allied/enemy strength: "+sumAllies+" / "+sumEnemies) ;
-      I.say("  Sum targetting: "+sumTargeting) ;
+      I.say("  Sum targeting: "+sumTargeting) ;
       I.say("  Injury & stress: "+injury+" / "+stress) ;
     }
     
-    float danger = (
-      (1 - (basePower / (basePower + sumTargeting))) +
-      (sumEnemies / (sumEnemies + sumAllies))
-    ) / 2.0f ;
-    danger += Visit.clamp(injury + stress - 0.5f, 0, 1) ;
-    danger *= 1 + injury + stress ;
+    final float
+      pros = basePower + sumAllies,
+      cons = sumEnemies + sumTargeting,
+      hurt = Visit.clamp(injury + stress - 0.5f, 0, 1);
+    if (cons <= 0) return 0;
+    if (pros == 0) return 9;
+    float danger = (cons * 2) / (pros + cons);
+    danger = (danger + hurt) * (1 + hurt);
     
     if (report) I.say("  Danger estimate: "+danger) ;
     return danger ;
@@ -163,7 +180,7 @@ public class Retreat extends Plan implements Qualities {
       if (rating > bestRating) { bestRating = rating ; picked = e ; }
     }
     if (picked == null) picked = pickWithdrawPoint(
-      actor, actor.health.sightRange(), actor, 0.1f
+      actor, actor.health.sightRange() + World.SECTOR_SIZE, actor, 0.1f
     ) ;
     if (verbose) I.sayAbout(actor, "Haven picked is: "+picked) ;
     return (Boardable) picked ;

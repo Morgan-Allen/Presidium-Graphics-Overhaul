@@ -14,8 +14,7 @@ import org.apache.commons.math3.util.FastMath;
 
 public class SolidSprite extends Sprite implements RenderableProvider {
   
-  final static float
-    ANIM_INTRO_TIME = 0.5f;
+  final static float ANIM_INTRO_TIME = 0.2f;
   private static boolean verbose = true;
   
   
@@ -32,6 +31,7 @@ public class SolidSprite extends Sprite implements RenderableProvider {
   final Stack <AnimState> animStates = new Stack <AnimState>();
   
   private static Vector3 tempV = new Vector3();
+  private static Matrix4 tempM = new Matrix4();
   
   
   
@@ -65,7 +65,7 @@ public class SolidSprite extends Sprite implements RenderableProvider {
     transform.scl(tempV.set(scale, scale, scale));
     final float radians = (float) FastMath.toRadians(90 - rotation);
     transform.rot(Vector3.Y, radians);
-
+    
     model.animControl.begin(this);
     if (animStates.size() > 0) {
       //  If we're currently being animated, then we need to loop over each
@@ -82,7 +82,6 @@ public class SolidSprite extends Sprite implements RenderableProvider {
     }
     model.animControl.end();
     
-    final Matrix4 tempM = new Matrix4();
     //  The nodes here are ordered so as to guarantee that parents are always
     //  visited before children, allowing a single pass-
     for (int i = 0; i < model.allNodes.length; i++) {
@@ -185,8 +184,17 @@ public class SolidSprite extends Sprite implements RenderableProvider {
   }
   
   
-  public Vec3D attachPoint(String label) {
-    return new Vec3D(position);
+  public Vec3D attachPoint(String function, Vec3D v) {
+    final Integer nodeIndex = model.indexFor(function);
+    if (nodeIndex == null) {
+      I.say("WARNING:  NO ATTACH POINT FOR "+function);
+      return new Vec3D(position);
+    }
+    
+    tempV.set(0, 0, 0);
+    tempV.mul(boneTransforms[nodeIndex]);
+    tempV.mul(transform);
+    return Viewport.GLToWorld(tempV, v != null ? v : new Vec3D());
   }
   
   

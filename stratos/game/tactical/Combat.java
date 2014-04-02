@@ -141,99 +141,6 @@ public class Combat extends Plan implements Qualities {
   }
   
   
-  
-    /*
-    final boolean report = verbose && I.talkAbout == actor ;
-    
-    if (target instanceof Actor) {
-      final Actor struck = (Actor) target ;
-      float lossCost = PARAMOUNT, winReward = priorityMod ;
-      if (hasBegun()) lossCost = 0 ;
-      
-      float BP = combatPriority(actor, struck, winReward, lossCost, report) ;
-      return BP <= 0 ? 0 : BP + ROUTINE ;
-    }
-    if (target instanceof Venue) {
-      
-      final Venue struck = (Venue) target ;
-      float BP = priorityMod - (actor.mind.relationValue(struck) * ROUTINE) ;
-      BP += ROUTINE ;
-      
-      //  TODO:  Factor this out.  Also repeated below.
-      if (! hasBegun()) {
-        float danger = Retreat.dangerAtSpot(struck, actor, null) ;
-        danger += Plan.dangerPenalty(struck, actor) ;
-        BP += 0 - (danger * ROUTINE) ;
-      }
-      //  TODO:  Eliminate loss cost in a similar fashion to the above, if
-      //  begun or in range, etc.
-      
-      ///I.sayAbout(actor, "Priority mod is: "+priorityMod) ;
-      ///I.sayAbout(actor, "Relation is: "+actor.mind.relation(struck)) ;
-      return BP ;// BP <= 0 ? 0 : BP + ROUTINE ;
-    }
-    return -1 ;
-    //*/
-  //}
-  
-  
-  //  TODO:  This could probably be made more generalised.
-  /*
-  public static float hostility(Actor actor) {
-    Plan p = null ;
-    for (Behaviour b : actor.mind.agenda()) if (b instanceof Plan) {
-      p = (Plan) b ;
-      break ;
-    }
-    if (p instanceof Combat) {
-      return 1.0f ;
-    }
-    if (p instanceof Dialogue) return -0.5f ;
-    if (p instanceof FirstAid) return -1.0f ;
-    return 0 ;
-  }
-  
-  
-  protected static float combatPriority(
-    Actor actor, Actor enemy, float winReward, float lossCost, boolean report
-  ) {
-    if (actor == enemy) return 0 ;
-    if (report) I.say("  Basic combat reward/cost: "+winReward+"/"+lossCost) ;
-    
-    float danger = Retreat.dangerAtSpot(enemy, actor, enemy) ;
-    final float chance = Visit.clamp(1 - danger, 0.1f, 0.9f) ;
-    
-    final Target enemyTargets = enemy.targetFor(null) ;
-    float hostility = hostility(enemy) ;
-    hostility *= PARAMOUNT * actor.mind.relationValue(enemyTargets) ;
-    winReward += hostility ;
-    lossCost -= hostility / 2 ;
-    winReward -= actor.mind.relationValue(enemy) * PARAMOUNT ;
-    
-    if (winReward < 0) return 0 ;
-    winReward *= actor.traits.scaleLevel(AGGRESSIVE) ;
-    
-    if (report) {
-      I.say(
-        "  "+actor+" considering COMBAT with "+enemy+
-        ", time: "+actor.world().currentTime()
-      ) ;
-      I.say(
-        "  Danger level: "+danger+
-        "\n  Appeal before chance: "+winReward+", chance: "+chance
-      ) ;
-    }
-    if (chance <= 0) {
-      if (report) I.say("  No chance of victory!\n") ;
-      return 0 ;
-    }
-    float appeal = (winReward * chance) - ((1 - chance) * lossCost) ;
-    if (report) I.say("  Final appeal: "+appeal+"\n") ;
-    return appeal ;
-  }
-  //*/
-  
-  
   protected static boolean isDowned(Element subject) {
     //
     //  TODO:  Vary this based on objective type, along with the types of
@@ -409,7 +316,7 @@ public class Combat extends Plan implements Qualities {
     }
     
     if (dodges) strike.setProperties(Action.QUICK) ;
-    else strike.setProperties(Action.RANGED | Action.QUICK) ;
+    else strike.setProperties(Action.RANGED | Action.QUICK | Action.TRACKS) ;
   }
   
   
@@ -456,7 +363,7 @@ public class Combat extends Plan implements Qualities {
       if (damage != oldDamage) {
         OutfitType.applyFX(target.gear.outfitType(), target, actor, hit) ;
       }
-      if (hit) target.health.takeInjury(damage) ;
+      if (hit && ! GameSettings.noBlood) target.health.takeInjury(damage) ;
     }
     DeviceType.applyFX(actor.gear.deviceType(), actor, target, success) ;
   }
@@ -501,3 +408,98 @@ public class Combat extends Plan implements Qualities {
   }
 }
 
+
+
+
+
+
+/*
+final boolean report = verbose && I.talkAbout == actor ;
+
+if (target instanceof Actor) {
+  final Actor struck = (Actor) target ;
+  float lossCost = PARAMOUNT, winReward = priorityMod ;
+  if (hasBegun()) lossCost = 0 ;
+  
+  float BP = combatPriority(actor, struck, winReward, lossCost, report) ;
+  return BP <= 0 ? 0 : BP + ROUTINE ;
+}
+if (target instanceof Venue) {
+  
+  final Venue struck = (Venue) target ;
+  float BP = priorityMod - (actor.mind.relationValue(struck) * ROUTINE) ;
+  BP += ROUTINE ;
+  
+  //  TODO:  Factor this out.  Also repeated below.
+  if (! hasBegun()) {
+    float danger = Retreat.dangerAtSpot(struck, actor, null) ;
+    danger += Plan.dangerPenalty(struck, actor) ;
+    BP += 0 - (danger * ROUTINE) ;
+  }
+  //  TODO:  Eliminate loss cost in a similar fashion to the above, if
+  //  begun or in range, etc.
+  
+  ///I.sayAbout(actor, "Priority mod is: "+priorityMod) ;
+  ///I.sayAbout(actor, "Relation is: "+actor.mind.relation(struck)) ;
+  return BP ;// BP <= 0 ? 0 : BP + ROUTINE ;
+}
+return -1 ;
+//*/
+//}
+
+
+//  TODO:  This could probably be made more generalised.
+/*
+public static float hostility(Actor actor) {
+Plan p = null ;
+for (Behaviour b : actor.mind.agenda()) if (b instanceof Plan) {
+  p = (Plan) b ;
+  break ;
+}
+if (p instanceof Combat) {
+  return 1.0f ;
+}
+if (p instanceof Dialogue) return -0.5f ;
+if (p instanceof FirstAid) return -1.0f ;
+return 0 ;
+}
+
+
+protected static float combatPriority(
+Actor actor, Actor enemy, float winReward, float lossCost, boolean report
+) {
+if (actor == enemy) return 0 ;
+if (report) I.say("  Basic combat reward/cost: "+winReward+"/"+lossCost) ;
+
+float danger = Retreat.dangerAtSpot(enemy, actor, enemy) ;
+final float chance = Visit.clamp(1 - danger, 0.1f, 0.9f) ;
+
+final Target enemyTargets = enemy.targetFor(null) ;
+float hostility = hostility(enemy) ;
+hostility *= PARAMOUNT * actor.mind.relationValue(enemyTargets) ;
+winReward += hostility ;
+lossCost -= hostility / 2 ;
+winReward -= actor.mind.relationValue(enemy) * PARAMOUNT ;
+
+if (winReward < 0) return 0 ;
+winReward *= actor.traits.scaleLevel(AGGRESSIVE) ;
+
+if (report) {
+  I.say(
+    "  "+actor+" considering COMBAT with "+enemy+
+    ", time: "+actor.world().currentTime()
+  ) ;
+  I.say(
+    "  Danger level: "+danger+
+    "\n  Appeal before chance: "+winReward+", chance: "+chance
+  ) ;
+}
+if (chance <= 0) {
+  if (report) I.say("  No chance of victory!\n") ;
+  return 0 ;
+}
+float appeal = (winReward * chance) - ((1 - chance) * lossCost) ;
+if (report) I.say("  Final appeal: "+appeal+"\n") ;
+return appeal ;
+}
+//*/

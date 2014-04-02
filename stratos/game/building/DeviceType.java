@@ -20,9 +20,13 @@ public class DeviceType extends Service implements Economy {
       "laser_beam_fx", DeviceType.class,
       "media/SFX/blast_beam.gif", 0.05f, 0, 0.05f, 3, true, true
     ),
+    PISTOL_FX_MODEL = new ShotFX.Model(
+      "pistol_shot_fx", DeviceType.class,
+      "media/SFX/pistol_shot.gif", 0.075f, 0, 0.03f, 1.5f, true, true
+    ),
     SPEAR_FX_MODEL = new ShotFX.Model(
       "spear_fx", DeviceType.class,
-      "media/SFX/spear_throw.gif", 0.1f, 0.33f, 0.06f, 1.2f, false, false
+      "media/SFX/spear_throw.gif", 0.1f, 0.0f, 0.12f, 1.2f, false, false
     ) ;
   final static PlaneFX.Model
     SLASH_FX_MODEL = new PlaneFX.Model(
@@ -92,7 +96,7 @@ public class DeviceType extends Service implements Economy {
   public static void applyFX(
     DeviceType type, Mobile uses, Target applied, boolean hits
   ) {
-    
+    final float distance = Spacing.distance(uses, applied);
     final World world = uses.world() ;
     if (type == null || type.hasProperty(MELEE)) {
       //
@@ -102,19 +106,26 @@ public class DeviceType extends Service implements Economy {
       slashFX.scale = r * 2 ;
       world.ephemera.addGhost(uses, r, slashFX, 0.33f) ;
     }
+    //  TODO:  Have the device types themselves specify their preferred SFX.
+    //else if (type.hasProperty(RANGED | THROWN)) {
+    //}
+    
+    //  TODO:  Consider setting the fire point manually- at least if the
+    //  animation state hasn't matured yet?
+    
     else if (type.hasProperty(RANGED | PHYSICAL)) {
       
       //  You'll have to create a missile effect, with similar parameters.
-      final ShotFX shot = (ShotFX) SPEAR_FX_MODEL.makeSprite() ;
+      final ShotFX shot = (ShotFX) PISTOL_FX_MODEL.makeSprite() ;
       
       final SolidSprite sprite = (SolidSprite) uses.sprite() ;
       uses.viewPosition(sprite.position) ;
-      shot.origin.setTo(sprite.attachPoint("fire")) ;
+      sprite.attachPoint("fire", shot.origin);
       shot.target.setTo(hitPoint(applied, hits)) ;
       
       shot.position.setTo(shot.origin).add(shot.target).scale(0.5f) ;
       final float size = shot.origin.sub(shot.target, null).length() / 2 ;
-      world.ephemera.addGhost(null, size + 1, shot, 1) ;
+      world.ephemera.addGhost(null, size + 1, shot, 1 + (distance * 0.1f)) ;
     }
     else if (type.hasProperty(RANGED | ENERGY)) {
       
@@ -123,7 +134,7 @@ public class DeviceType extends Service implements Economy {
       
       final SolidSprite sprite = (SolidSprite) uses.sprite() ;
       uses.viewPosition(sprite.position) ;
-      shot.origin.setTo(sprite.attachPoint("fire")) ;
+      sprite.attachPoint("fire", shot.origin);
       shot.target.setTo(hitPoint(applied, hits)) ;
       
       shot.position.setTo(shot.origin).add(shot.target).scale(0.5f) ;

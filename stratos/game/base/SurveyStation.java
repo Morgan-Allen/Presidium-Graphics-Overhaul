@@ -20,7 +20,7 @@ public class SurveyStation extends Venue implements Economy {
   /**  Data fields, constructors and save/load methods-
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    SurveyStation.class, "media/Buildings/ecologist/surveyor.png", 4.8f, 1
+    SurveyStation.class, "media/Buildings/ecologist/surveyor.png", 4, 1
   ) ;
   final static ImageAsset ICON = ImageAsset.fromImage(
     "media/GUI/Buttons/redoubt_button.gif", SurveyStation.class
@@ -32,7 +32,7 @@ public class SurveyStation extends Venue implements Economy {
   
   
   public SurveyStation(Base base) {
-    super(5, 1, Venue.ENTRANCE_NORTH, base) ;
+    super(4, 1, Venue.ENTRANCE_NORTH, base) ;
     structure.setupStats(
       150, 4, 150,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
@@ -112,7 +112,7 @@ public class SurveyStation extends Venue implements Economy {
     final Choice choice = new Choice(actor) ;
     final boolean report = I.talkAbout == actor && true;
     
-    final Tile blank = Exploring.getUnexplored(actor.base().intelMap, actor) ;
+    final Tile blank = Exploring.getUnexplored(actor.base().intelMap, actor);
     if (blank != null) {
       //  TODO:  Priority mods related to work, mission payments etc. still
       //  have to be worked out...
@@ -146,7 +146,7 @@ public class SurveyStation extends Venue implements Economy {
   public int numOpenings(Background v) {
     final int nO = super.numOpenings(v) ;
     if (v == Background.SURVEY_SCOUT) {
-      return nO + 2 + structure.upgradeLevel(EXPLORER_STATION) ;
+      return nO + 3 + structure.upgradeLevel(EXPLORER_STATION) ;
     }
     return 0 ;
   }

@@ -27,6 +27,7 @@ public class Hunting extends Combat implements Economy {
     TYPE_FEEDS   = 0,
     TYPE_HARVEST = 1,
     TYPE_SAMPLE  = 2;
+  final static String TYPE_DESC[] = { "Feeding", "Harvest", "Sampling" };
   final static int
     STAGE_INIT          = 0,
     STAGE_HUNT          = 1,
@@ -37,7 +38,7 @@ public class Hunting extends Combat implements Economy {
     STAGE_RETURN_SAMPLE = 6,
     STAGE_COMPLETE      = 7 ;
   
-  private static boolean verbose = true;
+  private static boolean verbose = false, evalVerbose = false;
   
   
   final int type ;
@@ -63,19 +64,6 @@ public class Hunting extends Combat implements Economy {
     if (depot == null) I.complain("NO DEPOT SPECIFIED!");
     return new Hunting(actor, prey, TYPE_SAMPLE, depot);
   }
-  
-  /*
-  public static Hunting asProcess(Actor actor, Actor prey, Employment depot) {
-    if (depot == null) I.complain("NO DEPOT SPECIFIED!") ;
-    return new Hunting(actor, prey, TYPE_PROCESS, depot) ;
-  }
-  
-  
-  public static Hunting asSample(Actor actor, Actor prey, Employment depot) {
-    if (depot == null) I.complain("NO DEPOT SPECIFIED!") ;
-    return new Hunting(actor, prey, TYPE_SAMPLE, depot) ;
-  }
-  //*/
   
   
   
@@ -125,7 +113,11 @@ public class Hunting extends Combat implements Economy {
   
   
   public float priorityFor(Actor actor) {
-    if (! validPrey(prey, actor, false)) return -1;
+    final boolean report = evalVerbose && I.talkAbout == actor;
+    if (! validPrey(prey, actor, false)) {
+      if (report) I.say(prey+" IS NOT VALID!");
+      return -1;
+    }
     if (! actor.gear.armed()) return 0;
     
     float urgency, harmLevel;
@@ -133,8 +125,8 @@ public class Hunting extends Combat implements Economy {
     final float crowding = Nest.crowdingFor(prey);
     
     if (type == TYPE_FEEDS) {
-      urgency = actor.health.hungerLevel() * PARAMOUNT;
-      urgency += (crowding - 1) * ROUTINE;
+      final float hunger = actor.health.hungerLevel();
+      urgency = hunger * PARAMOUNT * Math.min(crowding, hunger);
       harmLevel = EXTREME_HARM;
       baseTraits = Combat.BASE_TRAITS;
     }
@@ -150,54 +142,30 @@ public class Hunting extends Combat implements Economy {
       baseTraits = SAMPLE_TRAITS;
     }
     
-    return priorityForActorWith(
+    final float priority = priorityForActorWith(
       actor, prey, urgency,
       harmLevel, MILD_COMPETITION,
       RANGED_SKILLS, baseTraits,
       NO_MODIFIER, NORMAL_DISTANCE_CHECK, REAL_DANGER
     );
-    /*
-    if (type == TYPE_FEEDS) {
-      float hunger = actor.health.hungerLevel() ;
-      if (hasBegun()) hunger = (hunger + 0.5f) / 1.5f ;
-      if (hunger < 0) return 0 ;
-      priority = hunger * PARAMOUNT ;
-      if (verbose) I.sayAbout(actor, "Base feeding priority: "+priority) ;
-    }
     
-    else if (type == TYPE_HARVEST) {
-      float crowding = Nest.crowdingFor(prey) ;
-      if (crowding < 1) return 0 ;
-      priority = ROUTINE ;
+    if (report) {
+      I.say("\nHunting type is: "+TYPE_DESC[type]);
+      I.say("  Base urgency is: "+urgency);
+      I.say("  Final priority: "+priority);
     }
-    else priority = ROUTINE ;
-    priority += priorityMod ;
-    
-    //  Modify based on danger of extraction-
-    if (prey.health.conscious()) {
-      priority = super.priorityFor(actor);
-    }
-    
-    if (verbose) I.sayAbout(actor, "Hunting "+prey+" priority: "+priority) ;
-    return Visit.clamp(priority, 0, PARAMOUNT) ;
-    //*/
+    return priority;
   }
   
   
   public boolean valid() {
     if (actor == null) return super.valid() ;
-    //
-    //  TODO:  Try to make this whole process more elegant.  Establish the
-    //  basic harvest-item from the beginning?
     if (type == TYPE_HARVEST) {
-      if (actor.gear.amountOf(PROTEIN) > 0) return true ;
+      if (actor.gear.amountOf(PROTEIN) > 0) return true;
     }
-    /*
-    if (type == TYPE_PROCESS || type == TYPE_SAMPLE) {
-      final Item sample = Item.withReference(SAMPLES, prey) ;
-      if (actor.gear.amountOf(sample) > 0) return true ;
+    if (type == TYPE_SAMPLE) {
+      if (actor.gear.hasItem(sample())) return true;
     }
-    //*/
     return super.valid() ;
   }
   
@@ -205,13 +173,13 @@ public class Hunting extends Combat implements Economy {
   
   /**  Actual implementation-
     */
-  //  TODO:  Split into separate behaviours?
   protected Behaviour getNextStep() {
-    //final boolean report = verbose && I.talkAbout == actor && hasBegun();
+    final boolean report = verbose && I.talkAbout == actor && hasBegun();
+    if (report) I.say("Getting next hunting step "+type+" "+hashCode());
     
     if (type == TYPE_FEEDS) {
       if (! prey.inWorld()) return null;
-      if (! isDowned(prey)) return super.getNextStep();
+      if (prey.health.conscious()) return super.getNextStep();
       
       final float full = ActorHealth.MAX_CALORIES * 0.99f;
       if (actor.health.caloryLevel() >= full) return null;
@@ -237,6 +205,7 @@ public class Hunting extends Combat implements Economy {
         return returns;
       }
       else {
+        if (report) I.say("Returning harvest action...");
         final Action harvest = new Action(
           actor, prey,
           this, "actionHarvest",
@@ -267,19 +236,15 @@ public class Hunting extends Combat implements Economy {
       }
     }
     
+    if (report) I.say("RETURNING NULL ACTION");
     return null;
   }
   
   
   public int motionType(Actor actor) {
-    //  Close at normal speed until you are near your prey.  Then enter stealth
-    //  mode to get closer.  If they spot you, charge.
-    if (prey.mind.awareOf(actor)) {
-      return MOTION_FAST;
-    }
-    else if (actor.mind.awareOf(prey)) {
-      return MOTION_SNEAK;
-    }
+    if (isDowned(prey)) return MOTION_ANY;
+    else if (prey.mind.awareOf(actor)) return MOTION_FAST;
+    else if (actor.mind.awareOf(prey)) return MOTION_SNEAK;
     else return super.motionType(actor);
   }
   

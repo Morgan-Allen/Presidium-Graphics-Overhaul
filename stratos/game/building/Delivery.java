@@ -258,7 +258,7 @@ public class Delivery extends Plan implements Economy {
         Action.REACH_DOWN, "Dropping off goods"
       ) ;
       if (driven != null) dropoff.setMoveTarget(driven) ;
-      else dropoff.setProperties(Action.CARRIES) ;
+      //else dropoff.setProperties(Action.CARRIES) ;
       return dropoff ;
     }
     if (stage == STAGE_RETURN && driven != null && driven.hangar() != null) {

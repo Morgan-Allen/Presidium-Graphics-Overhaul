@@ -141,6 +141,12 @@ public abstract class ActorMind implements Qualities {
   }
   
   
+  //  TODO:  CREATE A SEPARATE SENSES CLASS FOR THIS STUFF- INCLUDE LINE-OF-
+  //  SIGHT CODE!
+  //  TODO:  Include some kind of emotional state for fear, so that retreat is
+  //  less stop-and-go.
+  
+  
   protected boolean notices(Element e, float noticeRange) {
     if (e == actor || ! e.inWorld()) return false ;
     if (e == home || e == work) return true ;
@@ -154,7 +160,7 @@ public abstract class ActorMind implements Qualities {
     }
     if (e instanceof Actor) {
       final Actor a = (Actor) e ;
-      if (a.targetFor(null) == actor) noticeRange *= 2 ;
+      if (a.targetFor(null) == actor) return true;// noticeRange *= 2 ;
     }
     if (e instanceof Fixture) {
       final Fixture f = (Fixture) e ;
@@ -194,7 +200,7 @@ public abstract class ActorMind implements Qualities {
     for (Behaviour b : world.activities.targeting(actor)) {
       if (b instanceof Action) {
         final Actor a = ((Action) b).actor ;
-        if (Spacing.distance(a, actor) > World.SECTOR_SIZE) continue ;
+        //if (Spacing.distance(a, actor) > World.SECTOR_SIZE) continue ;
         couldSee.add(a) ;
       }
     }
@@ -436,6 +442,8 @@ public abstract class ActorMind implements Qualities {
     final Behaviour b = agenda.removeFirst() ;
     if (updatesVerbose && I.talkAbout == actor) {
       I.say("POPPING BEHAVIOUR: "+b) ;
+      I.say("  Finished/valid: "+b.finished()+"/"+b.valid());
+      I.say("  Priority "+b.priorityFor(actor));
     }
     actor.world().activities.toggleBehaviour(b, false) ;
     return b ;
@@ -574,7 +582,7 @@ public abstract class ActorMind implements Qualities {
     
     final float
       mag = 1f + (creditsPerDay / baseUnit),
-      greed = actor.traits.scaleLevel(ACQUISITIVE);
+      greed = 1 + actor.traits.relativeLevel(ACQUISITIVE);
     return greed * (float) (Behaviour.ROUTINE + FastMath.log(mag));
   }
   
@@ -596,7 +604,7 @@ public abstract class ActorMind implements Qualities {
     if (other.traits.hasTrait(GENDER, "Female")) otherG =  1 ;
     float attraction = other.traits.traitLevel(HANDSOME) * 3.33f ;
     attraction += otherG * other.traits.traitLevel(FEMININE) * 3.33f ;
-    attraction *= (actor.traits.scaleLevel(INDULGENT) + 1f) / 2 ;
+    attraction *= (actor.traits.relativeLevel(INDULGENT) + 1f) / 2 ;
     //
     //  Then compute attraction based on orientation-
     final String descO = actor.traits.levelDesc(ORIENTATION) ;
@@ -719,7 +727,7 @@ public abstract class ActorMind implements Qualities {
       sumFriends += Math.max(0, r.value()) ;
     }
     sumFriends /= Relation.BASE_NUM_FRIENDS ;
-    sumFriends /= actor.traits.scaleLevel(OUTGOING) ;
+    sumFriends /= (2 + actor.traits.relativeLevel(OUTGOING)) / 2 ;
     solitude = Visit.clamp(1 - sumFriends, 0, 1) ;
   }
   

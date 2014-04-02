@@ -3,7 +3,7 @@
 package stratos.start;
 import org.apache.commons.math3.util.FastMath;
 
-import stratos.game.base.Smelter;
+import stratos.game.actors.Human;
 import stratos.game.building.Economy;
 import stratos.game.building.Suspensor;
 import stratos.graphics.common.*;
@@ -11,7 +11,7 @@ import stratos.graphics.cutout.*;
 import stratos.graphics.sfx.*;
 import stratos.graphics.solids.*;
 import stratos.graphics.terrain.*;
-import stratos.graphics.widgets.HUD;
+import stratos.graphics.widgets.*;
 import stratos.util.*;
 
 
@@ -33,31 +33,42 @@ public class DebugGraphics {
       4, 5, 1, 1
     );
   final static MS3DModel
-    SM = MS3DModel.loadFrom(
+    MICOVORE_MODEL = MS3DModel.loadFrom(
       "media/Actors/fauna/", "Micovore.ms3d",
       DebugGraphics.class, "FaunaModels.xml", "Micovore"
     ),
     SUSPENSOR_MODEL = MS3DModel.loadFrom(
       "media/Vehicles/", "Barge.ms3d", Suspensor.class,
       "VehicleModels.xml", "Suspensor"
-    );
+    ),
+    HUMAN_MODEL = MS3DModel.loadFrom(
+      "media/Actors/human/", "male_final.ms3d",
+      Human.class, "HumanModels.xml", "MalePrime"
+    ),
+    SM = HUMAN_MODEL;
   
   final static ShotFX.Model
-    FM = new ShotFX.Model(
+    BEAM_FX_MODEL = new ShotFX.Model(
       "laser_beam_fx", DebugGraphics.class,
       "media/SFX/blast_beam.gif",
       0.05f, 0,
       0.10f, 3, true, true
-    );
+    ),
+    SPEAR_FX_MODEL = new ShotFX.Model(
+      "spear_fx", DebugGraphics.class,
+      "media/SFX/spear_throw.gif", 0.1f, 0.0f, 0.12f, 1.2f, false, false
+    ),
+    FM = BEAM_FX_MODEL;
   
   
   public static void main(String args[]) {
 
     PlayLoop.setupAndLoop(new VisualDebug() {
       protected void loadVisuals() {
-        final Sprite SS = SUSPENSOR_MODEL.makeSprite();
+        final SolidSprite SS = (SolidSprite) SM.makeSprite();
         sprites.add(SS);
-        //SS.printGeom();
+        SS.position.x = 2;
+        SS.scale = 2.5f;
         
         for (int i = 10 ; i-- > 0;) {
           final Sprite CS = CM.makeSprite();
@@ -117,10 +128,13 @@ public class DebugGraphics {
         sprites.add(FX2);
         
         final ShotFX FX3 = new ShotFX(FM) {
+          float lastTime = 0;
+          
           public void readyFor(Rendering r) {
-            if (Rand.index(Rendering.FRAMES_PER_SECOND) <= 1) {
-              refreshShot();
-            }
+            SS.attachPoint("fire", this.origin);
+            final float time = Rendering.activeTime() * 3;
+            if ((int) lastTime != (int) time) refreshShot();
+            lastTime = time;
             super.readyFor(r);
           }
         };
@@ -139,10 +153,10 @@ public class DebugGraphics {
           sprite.colour = Colour.transparency(a);
           sprite.fog = (f + 0.01f) % 1;
         }
-        if (sprite.model() == SUSPENSOR_MODEL) {
+        if (sprite.model() == SM) {
           final float progress = Rendering.activeTime() * 6 / 10f;
-          sprite.setAnimation(AnimNames.MOVE, progress % 1);
-          sprite.rotation += 90 / 60f;
+          sprite.setAnimation(AnimNames.FIRE, progress % 1);
+          sprite.rotation += 120 / 60f;
         }
       }
     });

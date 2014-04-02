@@ -33,10 +33,16 @@ public class Action implements Behaviour, AnimNames {
   final public static int
     QUICK    = 1,
     CAREFUL  = 2,
-    CARRIES  = 4,
-    RANGED   = 8 ;
+    TRACKS   = 4,
+    RANGED   = 8;
+  final static byte
+    STATE_INIT   = -1,
+    STATE_CLOSED =  0,
+    STATE_MOVE   =  1,
+    STATE_SNEAK  =  2,
+    STATE_RUN    =  3;
   
-  private static boolean verbose = false ;
+  private static boolean verbose = false;
   
   
   final public Actor actor ;
@@ -46,7 +52,8 @@ public class Action implements Behaviour, AnimNames {
   private float priority ;
   
   private int properties ;
-  private byte inRange = -1 ;
+  private byte moveState = -1;
+  //private byte inRange = -1 ;
   private Target actionTarget, moveTarget ;
   private float progress, oldProgress ;
   
@@ -80,7 +87,7 @@ public class Action implements Behaviour, AnimNames {
     priority = s.loadFloat() ;
     
     properties = s.loadInt() ;
-    inRange = (byte) s.loadInt() ;
+    moveState = (byte) s.loadInt() ;
     actionTarget = s.loadTarget() ;
     moveTarget = s.loadTarget() ;
     
@@ -99,7 +106,7 @@ public class Action implements Behaviour, AnimNames {
     s.saveFloat(priority) ;
     
     s.saveInt(properties) ;
-    s.saveInt(inRange) ;
+    s.saveInt(moveState) ;
     s.saveTarget(actionTarget) ;
     s.saveTarget(moveTarget) ;
     
@@ -145,7 +152,7 @@ public class Action implements Behaviour, AnimNames {
   public boolean ranged()  { return (properties & RANGED ) != 0 ; }
   public boolean careful() { return (properties & CAREFUL) != 0 ; }
   public boolean quick()   { return (properties & QUICK  ) != 0 ; }
-  public boolean carries() { return (properties & CARRIES) != 0 ; }
+  public boolean tracks()  { return (properties & TRACKS ) != 0 ; }
   
   
   
@@ -158,7 +165,7 @@ public class Action implements Behaviour, AnimNames {
   
   public boolean finished() {
     if (progress == -1) return true ;
-    return (inRange == 1) && (progress >= 1) ;
+    return (moveState == STATE_CLOSED) && (progress >= 1) ;
   }
   
   
@@ -170,7 +177,7 @@ public class Action implements Behaviour, AnimNames {
   
   public void abortBehaviour() {
     progress = -1 ;
-    inRange = -1 ;
+    moveState = STATE_INIT ;
     actor.mind.cancelBehaviour(this) ;
     actor.assignAction(null) ;
   }
@@ -252,7 +259,7 @@ public class Action implements Behaviour, AnimNames {
   }
   
   
-  private void updateMotion(boolean active) {
+  private void updateMotion(boolean active, float moveRate) {
     final boolean report = verbose && I.talkAbout == actor ;
     
     //  Firstly, we establish current displacements between actor and target,
@@ -271,8 +278,8 @@ public class Action implements Behaviour, AnimNames {
     //  We also need to calculate an appropriate maximum distance in order for
     //  the action to progress-
     float maxDist = 0.01f ;
-    if (ranged()) maxDist += sightRange * (inRange == 1 ? 2 : 1) ;
-    else if (inRange == 1) maxDist += progress + 0.5f ;
+    if (ranged()) maxDist += sightRange * (moveState == STATE_CLOSED ? 2 : 1) ;
+    else if (moveState == STATE_CLOSED) maxDist += progress + 0.5f ;
     
     //  In order for the action to execute, the actor must both be close enough
     //  to the target and facing in the right direction.  If the target is
@@ -283,7 +290,7 @@ public class Action implements Behaviour, AnimNames {
     boolean closed = false, approaching = false, facing = false ;
     final Target step = actor.motion.nextStep(), closeOn ;
     
-    if (contactMade()) {
+    if (contactMade() && ! tracks()) {
       pathsTo = actor.aboard();
       closeOn = actor;
       closed = approaching = facing = true;
@@ -326,16 +333,20 @@ public class Action implements Behaviour, AnimNames {
     //  If both facing and proximity are satisfied, toggle the flag which
     //  allows action delivery to proceed.  (If delivery was already underway,
     //  cancel the action.)
-    final byte oldRange = inRange ;
-    inRange = (byte) ((closed && facing) ? 1 : 0) ;
-    if (inRange != oldRange) {
-      if (oldRange == 1) { abortBehaviour() ; return ; }
+    final byte oldState = moveState;
+    final float animRate = moveRate / actor.health.baseSpeed();
+    
+    if (closed && facing) moveState = STATE_CLOSED;
+    else if (animRate < 0.75f) moveState = STATE_SNEAK;
+    else if (animRate > 1.5f ) moveState = STATE_RUN;
+    else moveState = STATE_MOVE;
+    if (moveState != oldState) {
+      if (oldState == STATE_CLOSED) { abortBehaviour() ; return ; }
       else progress = oldProgress = 0 ;
     }
     
     //  If active updates to pathing & motion are called for, make them.
     if (active) {
-      final float moveRate = moveRate(actor, false) ;
       if (report) I.say("Move rate: "+moveRate);
       actor.motion.headTowards(closeOn, moveRate, ! closed) ;
       if (! closed) actor.motion.applyCollision(moveRate) ;
@@ -362,7 +373,7 @@ public class Action implements Behaviour, AnimNames {
   
   
   private boolean contactMade() {
-    return inRange == 1 && progress >= contactTime();
+    return moveState == STATE_CLOSED && progress >= contactTime();
   }
   
   
@@ -372,18 +383,19 @@ public class Action implements Behaviour, AnimNames {
       oldProgress = progress = 1 ;
       return ;
     }
-    else {
-      oldProgress = progress ;
-      updateMotion(active) ;
-    }
-    if (inRange == 1) {
+    
+    final float moveRate = moveRate(actor, false);
+    oldProgress = progress ;
+    updateMotion(active, moveRate) ;
+    
+    if (moveState == STATE_CLOSED) {
       progress += 1f / (actionDuration() * World.UPDATES_PER_SECOND) ;
       progress = Visit.clamp(progress, 0, 1) ;
       final float contact = contactTime();
       if (oldProgress <= contact && progress > contact) applyEffect() ;
     }
-    if (inRange == 0) {
-      float speedUp = moveRate(actor, false) / actor.health.baseSpeed();
+    else if (moveState != STATE_INIT) {
+      float speedUp = moveRate / actor.health.baseSpeed();
       speedUp = (1 + speedUp) / (2 * World.UPDATES_PER_SECOND);
       progress += actor.moveAnimStride() * speedUp;
     }
@@ -444,13 +456,12 @@ public class Action implements Behaviour, AnimNames {
   protected void configSprite(Sprite sprite, Rendering rendering) {
     //
     //  In the case of a pushing animation, you actually need to set different
-    //  animations for the upper and lower body.
-    ///I.sayAbout(actor, "anim progress: "+animProgress());
-    final float rate = moveRate(actor, true) / actor.health.baseSpeed();
+    //  animations for the upper and lower body.  TODO:  THAT
+    
     final String animName;
-    if (inRange == 1) animName = this.animName;
-    else if (rate < 0.9f) animName = MOVE_SNEAK;
-    else if (rate > 1.1f) animName = MOVE_FAST;
+    if (moveState == STATE_CLOSED) animName = this.animName;
+    else if (moveState == STATE_SNEAK) animName = MOVE_SNEAK;
+    else if (moveState == STATE_RUN) animName = MOVE_FAST;
     else animName = MOVE;
     
     final float alpha = Rendering.frameAlpha();

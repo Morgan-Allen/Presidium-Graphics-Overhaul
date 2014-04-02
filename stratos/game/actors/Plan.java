@@ -160,10 +160,13 @@ public abstract class Plan implements Saveable, Behaviour {
   public boolean finished() {
     if (actor == null) return false ;
     if (this == actor.mind.rootBehaviour()) {
-      if (priorityFor(actor) <= 0) return true ;
+      if (priorityFor(actor) <= 0) {
+        if (verbose) I.sayAbout(actor, "NO PRIORITY: "+this+" "+hashCode()) ;
+        return true ;
+      }
     }
     if (nextStep() == null) {
-      if (verbose) I.sayAbout(actor, "NO NEXT STEP") ;
+      if (verbose) I.sayAbout(actor, "NO NEXT STEP: "+this+" "+hashCode()) ;
       return true ;
     }
     return false ;
@@ -302,7 +305,7 @@ public abstract class Plan implements Saveable, Behaviour {
     final Tile at = actor.world().tileAt(t) ;
     float danger = actor.base().dangerMap.sampleAt(at.x, at.y) ;
     if (danger < 0) return 0 ;
-    danger *= actor.traits.scaleLevel(Qualities.NERVOUS) ;
+    danger *= 1 + actor.traits.relativeLevel(Qualities.NERVOUS) ;
     return danger * 0.1f / (1 + Combat.combatStrength(actor, null)) ;
   }
   

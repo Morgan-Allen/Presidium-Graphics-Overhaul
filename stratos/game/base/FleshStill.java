@@ -20,7 +20,7 @@ public class FleshStill extends Venue implements Economy {
   /**  Data fields, constructors and save/load methods-
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    FleshStill.class, "media/Buildings/ecologist/flesh_still.png", 4, 2
+    FleshStill.class, "media/Buildings/ecologist/flesh_still.png", 3, 1
   ) ;
   
   
@@ -29,7 +29,7 @@ public class FleshStill extends Venue implements Economy {
   
   
   public FleshStill(SurveyStation parent) {
-    super(4, 2, Venue.ENTRANCE_EAST, parent.base()) ;
+    super(3, 1, Venue.ENTRANCE_EAST, parent.base()) ;
     structure.setupStats(
       100, 4, 150, 0, Structure.TYPE_FIXTURE
     ) ;

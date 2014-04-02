@@ -316,12 +316,16 @@ public class ActorHealth implements Qualities {
     */
   public void takeInjury(float taken) {
     injury += taken ;
-    if (organic() && Rand.num() * maxHealth < taken) bleeds = true ;
     final float max ;
-    if (! conscious()) max = maxHealth * (MAX_INJURY + 1) ;
-    else {
+    if (alive()) {
       max = (maxHealth * MAX_INJURY) + 1 ;
-      morale -= taken * 0.1f / max ;
+      if (organic()) {
+        if (Rand.num() * maxHealth < taken) bleeds = true ;
+        morale -= taken * 0.1f / max ;
+      }
+    }
+    else {
+      max = maxHealth * (MAX_INJURY + 1) ;
     }
     injury = Visit.clamp(injury, 0, max) ;
   }
@@ -557,11 +561,14 @@ public class ActorHealth implements Qualities {
   
   
   private void updateStresses() {
-    if (state >= STATE_SUSPEND || ! organic()) return ;
+    if (state >= STATE_SUSPEND || ! organic()) {
+      bleeds = false;
+      return ;
+    }
+    
+    //  Regeneration rates differ during sleep-
     final float DL = World.STANDARD_DAY_LENGTH ;
     float MM = 1, FM = 1, IM = 1, PM = 1 ;
-    //
-    //  Regeneration rates differ during sleep-
     if (state == STATE_RESTING) {
       FM = -3 ;
       IM =  2 ;
@@ -581,7 +588,7 @@ public class ActorHealth implements Qualities {
     fatigue += FATIGUE_GROW_PER_DAY * baseSpeed * maxHealth * FM / DL ;
     fatigue = Visit.clamp(fatigue, 0, MAX_FATIGUE * maxHealth) ;
     injury = Visit.clamp(injury, 0, (MAX_INJURY + 1) * maxHealth) ;
-    //
+    
     //  Have morale converge to a default based on the cheerful trait and
     //  current stress levels.
     final float
@@ -590,7 +597,7 @@ public class ActorHealth implements Qualities {
       moraleInc = MORALE_DECAY_PER_DAY * MM / DL ;
     morale = (morale * (1 - moraleInc)) + (defaultMorale * moraleInc) ;
     morale -= stress / DL ;
-    //
+    
     //  Last but not least, update your psy points-
     final float maxPsy = maxPsy() ;
     psyPoints += maxPsy * (1 - stress) * PM / PSY_REGEN_TIME ;

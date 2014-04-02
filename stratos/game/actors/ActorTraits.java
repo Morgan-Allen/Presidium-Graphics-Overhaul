@@ -214,15 +214,21 @@ public class ActorTraits implements Qualities {
   
   public float relativeLevel(Trait type) {
     //  Returns a value between -1 (for minimum) and +1 (for maximum).
+    final Level level = levels.get(type);
+    if (level == null) return 0;
+    return (level.value - type.minVal) / (type.maxVal - type.minVal);
+    /*
     return (Visit.clamp(
       (traitLevel(type) - type.minVal) / (type.maxVal - type.minVal), 0, 1
     ) * 2) - 1 ;
+    //*/
   }
   
-  
+  /*
   public float scaleLevel(Trait type) {
     return (float) Math.pow(2, relativeLevel(type)) ;
   }
+  //*/
   
   
   public float effectBonus(Trait trait) {

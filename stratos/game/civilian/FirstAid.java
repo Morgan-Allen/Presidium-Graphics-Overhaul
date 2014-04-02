@@ -86,6 +86,14 @@ public class FirstAid extends Plan implements Qualities, Economy {
   
   public float priorityFor(Actor actor) {
     if (patient.health.conscious()) return 0;
+    float modifier = 0;
+    if (patient.base() != actor.base()) {
+      modifier -= (1 - actor.mind.relationValue(patient.base())) * ROUTINE;
+    }
+    if (patient.species() != actor.species()) {
+      modifier -= ROUTINE;
+    }
+    modifier /= 2;
     
     final float priority = priorityForActorWith(
       actor, patient,
@@ -94,7 +102,7 @@ public class FirstAid extends Plan implements Qualities, Economy {
       FULL_COMPETITION,
       BASE_SKILLS,
       BASE_TRAITS,
-      NO_MODIFIER,
+      modifier,
       NORMAL_DISTANCE_CHECK,
       MILD_DANGER
     );
