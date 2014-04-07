@@ -170,12 +170,6 @@ public abstract class Plan implements Saveable, Behaviour {
   
   
   public Behaviour nextStepFor(Actor actor) {
-    /*
-    if (! hasMotive()) {
-      I.say("WARNING:  No Motive set for "+this);
-      return null;
-    }
-    //*/
     if (this.actor != actor) {
       if (this.actor != null) ;  //TODO:  Give some kind of message here?
       this.actor = actor ;
@@ -268,6 +262,8 @@ public abstract class Plan implements Saveable, Behaviour {
   final protected static Skill NO_SKILLS[] = null;
   final protected static Trait NO_TRAITS[] = null;
   
+  
+  //  Okay.  Default priority becomes the minimum.  Max is that times 2.
   
   protected float priorityForActorWith(
     Actor actor,

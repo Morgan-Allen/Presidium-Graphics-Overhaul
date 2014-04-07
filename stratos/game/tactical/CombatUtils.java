@@ -17,7 +17,7 @@ public class CombatUtils implements Qualities {
     MAX_DANGER  = 2.0f;
   private static boolean
     strengthVerbose = false,
-    dangerVerbose   = true;
+    dangerVerbose   = false;
   
   
   //  Note:  it's acceptable to pass null as the enemy argument, for a general
@@ -96,13 +96,16 @@ public class CombatUtils implements Qualities {
     for (Target m : seen) {
       if (m == actor || ! (m instanceof Actor)) continue;
       final Actor other = (Actor) m;
-
+      
+      final Target victim = other.focusFor(Combat.class);
       final float
-        relation = other.mind.relationValue(actor),
+        relation = victim == actor ? -1 : Visit.clamp(
+          other.mind.relationValue(actor) +
+          other.base().relationWith(actor.base()),
+        -1, 1),
         otherStrength = combatStrength(other, null),
         distance = Spacing.distance(actor, other) / World.SECTOR_SIZE;
       if (otherStrength <= 0) continue;
-      final Target victim = other.focusFor(Combat.class);
       float scale = 1.0f;
       
       if (distance > 1) scale /= distance;
@@ -112,8 +115,7 @@ public class CombatUtils implements Qualities {
         sumAllies += otherStrength * scale * relation;
       }
       else {
-        if (victim != actor) scale *= relation / -2;
-        //if (! other.isDoing(Combat.class, actor)) scale *= 0 - relation;
+        scale *= relation / -2;
         //if (! other.senses.awareOf(actor)) scale /= 2;
         sumFoes += otherStrength * scale;
       }

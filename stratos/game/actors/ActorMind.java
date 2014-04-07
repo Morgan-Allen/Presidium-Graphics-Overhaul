@@ -134,7 +134,7 @@ public abstract class ActorMind implements Qualities {
       I.say("  NEXT PLAN: "+next+" "+nextP) ;
       I.say("\n") ;
     }
-    if (couldSwitch(last, next)) assignBehaviour(next) ;
+    if (Choice.couldSwitch(actor, last, next)) assignBehaviour(next) ;
   }
   
   
@@ -142,7 +142,8 @@ public abstract class ActorMind implements Qualities {
     final Behaviour
       notDone = new Choice(actor, todoList).pickMostUrgent(),
       newChoice = createBehaviour(),
-      taken = couldSwitch(notDone, newChoice) ? newChoice : notDone ;
+      taken = Choice.couldSwitch(actor, notDone, newChoice) ?
+        newChoice : notDone ;
     
     if (updatesVerbose && I.talkAbout == actor) {
       //I.say("  Persistance: "+persistance()) ;
@@ -156,53 +157,12 @@ public abstract class ActorMind implements Qualities {
   }
   
   
-  protected boolean couldSwitch(Behaviour last, Behaviour next) {
-    if (next == null) return false ;
-    if (last == null) return true ;
-    //
-    //  TODO:  CONSIDER GETTING RID OF THIS CLAUSE?  It's handy in certain
-    //  situations, (e.g, where completing the current plan would come at 'no
-    //  cost' to the next plan,) but may be more trouble than it's worth.
-    final Target NT = targetFor(next) ;
-    if (NT != null && targetFor(last) == NT && NT != actor.aboard()) {
-      return false ;
-    }
-    final float
-      lastPriority = last.priorityFor(actor),
-      persist = (
-        Choice.DEFAULT_PRIORITY_RANGE +
-        (actor.traits.relativeLevel(STUBBORN) * Choice.DEFAULT_TRAIT_RANGE)
-      ),
-      threshold = persist + lastPriority,
-      /*
-      threshold = Math.min(
-        lastPriority + persist,
-        lastPriority * (1 + (persist / 2))
-      ),
-      //*/
-      nextPriority = next.priorityFor(actor) ;
-    if (reactionsVerbose && I.talkAbout == actor) {
-      I.say("Last/next priority is: "+lastPriority+"/"+nextPriority) ;
-      I.say("Threshold is: "+threshold) ;
-    }
-    return nextPriority >= threshold ;
-  }
-  
-  
-  private Target targetFor(Behaviour b) {
-    final Behaviour n = b.nextStepFor(actor) ;
-    if (n instanceof Action) return ((Action) n).subject() ;
-    else if (n == null || n.finished()) return null ;
-    else return targetFor(n) ;
-  }
-  
-  
   protected abstract Behaviour createBehaviour() ;
   protected abstract void addReactions(Target m, Choice choice) ;
   
   
   protected Action getNextAction() {
-    final int MAX_LOOP = 100 ;  // Safety feature, see below...
+    final int MAX_LOOP = 20 ;  // Safety feature, see below...
     for (int loop = MAX_LOOP ; loop-- > 0 ;) {
       if (updatesVerbose) I.sayAbout(actor, "...in action loop.") ;
       //
@@ -403,13 +363,13 @@ public abstract class ActorMind implements Qualities {
   
   public boolean couldSwitchTo(Behaviour next) {
     if (! actor.health.conscious()) return false ;
-    return couldSwitch(rootBehaviour(), next) ;
+    return Choice.couldSwitch(actor, rootBehaviour(), next) ;
   }
   
   
   public boolean mustIgnore(Behaviour next) {
     if (! actor.health.conscious()) return true ;
-    return couldSwitch(next, rootBehaviour()) ;
+    return Choice.couldSwitch(actor, next, rootBehaviour()) ;
   }
   
   
@@ -612,8 +572,25 @@ public abstract class ActorMind implements Qualities {
 
 
 
+/*
+//
+//  TODO:  CONSIDER GETTING RID OF THIS CLAUSE?  It's handy in certain
+//  situations, (e.g, where completing the current plan would come at 'no
+//  cost' to the next plan,) but may be more trouble than it's worth.
+final Target NT = targetFor(next) ;
+if (NT != null && targetFor(last) == NT && NT != actor.aboard()) {
+  return false ;
+}
+//*/
 
-
+/*
+private Target targetFor(Behaviour b) {
+  final Behaviour n = b.nextStepFor(actor) ;
+  if (n instanceof Action) return ((Action) n).subject() ;
+  else if (n == null || n.finished()) return null ;
+  else return targetFor(n) ;
+}
+//*/
 
 
 

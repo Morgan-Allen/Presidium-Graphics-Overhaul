@@ -202,6 +202,7 @@ public class Action implements Behaviour, AnimNames {
   
   /**  Helper methods for dealing with motion-
     */
+  //*
   public static float moveRate(
     Actor actor, boolean basic
   ) {
@@ -220,9 +221,6 @@ public class Action implements Behaviour, AnimNames {
     
     if (basic) return rate;
     
-    final float luck = actor.motionWalks() ? moveLuck(actor) : 0.5f ;
-    rate *= 1 + ((luck - 0.5f) / 2);
-    
     //  TODO:  Must also account for the effects of fatigue and encumbrance.
     
     final int pathType = actor.origin().pathType() ;
@@ -234,30 +232,13 @@ public class Action implements Behaviour, AnimNames {
     
     return rate ;
   }
+  //*/
 
   
   public int motionType(Actor actor) {
     if (quick()  ) return MOTION_FAST  ;
     if (careful()) return MOTION_SNEAK ;
     return MOTION_ANY ;
-  }
-  
-  
-  //  TODO:  MOVE STUFF LIKE THIS TO ANOTHER CLASS.
-  
-  //  ...There has got to be some way to simplify this junk.
-  
-  public static float moveLuck(Actor actor) {
-    //
-    //  This is employed during chases and stealth conflicts, so that the
-    //  outcome is less (obviously) deterministic.  However, it must be
-    //  constant at a given position and time.
-    final Tile o = actor.origin() ;
-    int var = o.world.terrain().varAt(o) ;
-    var += (o.x * o.world.size) + o.y ;
-    var -= o.world.currentTime() ;
-    var ^= actor.hashCode() ;
-    return (1 + (float) Math.sqrt(Math.abs(var % 10) / 4.5f)) / 2 ;
   }
   
   
@@ -489,3 +470,23 @@ public class Action implements Behaviour, AnimNames {
 }
 
 
+
+
+
+//  TODO:  MOVE STUFF LIKE THIS TO ANOTHER CLASS.
+
+//  ...There has got to be some way to simplify this junk.
+/*
+public static float moveLuck(Actor actor) {
+  //
+  //  This is employed during chases and stealth conflicts, so that the
+  //  outcome is less (obviously) deterministic.  However, it must be
+  //  constant at a given position and time.
+  final Tile o = actor.origin() ;
+  int var = o.world.terrain().varAt(o) ;
+  var += (o.x * o.world.size) + o.y ;
+  var -= o.world.currentTime() ;
+  var ^= actor.hashCode() ;
+  return (1 + (float) Math.sqrt(Math.abs(var % 10) / 4.5f)) / 2 ;
+}
+//*/

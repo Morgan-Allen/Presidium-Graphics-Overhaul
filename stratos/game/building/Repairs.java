@@ -80,18 +80,20 @@ public class Repairs extends Plan implements Qualities {
     final boolean report = verbose && I.talkAbout == actor;
 
     float urgency = needForRepair(built);
+    urgency *= actor.mind.relationValue(built.base()) / 2;
     final float debt = 0 - built.base().credits();
-    if (debt > 0) urgency -= debt / 500f;
+    if (debt > 0 && urgency > 0) urgency -= debt / 500f;
+    if (urgency <= 0) return 0;
     
     float competition = FULL_COMPETITION;
-    final float help = REAL_HELP + (actor.base().communitySpirit() / 2);
     competition /= 1 + (built.structure.maxIntegrity() / 100f);
+    final float help = REAL_HELP + (actor.base().communitySpirit() / 2);
     
-    final float priority = super.priorityForActorWith(
-      actor, built, ROUTINE,
+    final float priority = priorityForActorWith(
+      actor, built, ROUTINE * Visit.clamp(urgency, 0, 1),
       help, competition,
       BASE_SKILLS, BASE_TRAITS,
-      urgency, NORMAL_DISTANCE_CHECK, MILD_DANGER,
+      NO_MODIFIER, NORMAL_DISTANCE_CHECK, MILD_DANGER,
       report
     );
     if (report) {

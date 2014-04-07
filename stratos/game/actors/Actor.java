@@ -246,7 +246,7 @@ public abstract class Actor extends Mobile implements
       final Behaviour root = mind.rootBehaviour() ;
       final float
         wakePriority  = root == null ? 0 : root.priorityFor(this),
-        sleepPriority = Resting.ratePoint(this, aboard(), 0) ;
+        sleepPriority = new Resting(this, aboard()).priorityFor(this);
       
       if (wakePriority + 1 > sleepPriority + Choice.DEFAULT_PRIORITY_RANGE) {
         health.setState(ActorHealth.STATE_ACTIVE) ;
@@ -281,7 +281,7 @@ public abstract class Actor extends Mobile implements
   
   public void enterStateKO(String animName) {
     ///I.say(this+" HAS BEEN KO'D") ;
-    if (isDoing("actionFall", null)) return ;
+    if (isDoingAction("actionFall", null)) return ;
     final Action falling = new Action(
       this, this, this, "actionFall",
       animName, "Stricken"
@@ -302,14 +302,39 @@ public abstract class Actor extends Mobile implements
   }
   
   
+  public boolean isDoingAction(String actionMethod, Target target) {
+    if (actionTaken == null) return false;
+    if (target != null && actionTaken.subject() != target) return false;
+    return actionTaken.methodName().equals(actionMethod);
+  }
+  
+  
   public boolean isDoing(Class planClass, Target target) {
-    if (target != null) {
-      if (actionTaken == null || actionTaken.subject() != target) return false ;
+    final Target focus = focusFor(planClass);
+    return (target == null) ? (focus != null) : (focus == target);
+  }
+  
+  
+  public Target focusFor(Class planClass) {
+    if (planClass == null) {
+      if (mind.agenda.size() == 0) return null;
+      return mind.topBehaviour().subject();
+    }
+    final Plan match = matchFor(planClass);
+    return match == null ? null : match.subject();
+  }
+  
+  
+  public Plan matchFor(Class planClass) {
+    if (planClass == null || ! Plan.class.isAssignableFrom(planClass)) {
+      I.complain("NOT A PLAN CLASS!");
     }
     for (Behaviour b : mind.agenda()) {
-      if (planClass.isAssignableFrom(b.getClass())) return true ;
+      if (planClass.isAssignableFrom(b.getClass())) {
+        return (Plan) b ;
+      }
     }
-    return false ;
+    return null;
   }
   
   
@@ -319,31 +344,7 @@ public abstract class Actor extends Mobile implements
         return (Plan) b ;
       }
     }
-    return null ;
-  }
-  
-  
-  public Plan matchFor(Class planClass) {
-    for (Behaviour b : mind.agenda()) if (b instanceof Plan) {
-      if (b.getClass() == planClass) {
-        return (Plan) b ;
-      }
-    }
-    return null ;
-  }
-  
-  
-  public boolean isDoing(String actionMethod, Target target) {
-    if (actionTaken == null) return false ;
-    if (target != null && actionTaken.subject() != target) return false ;
-    return actionTaken.methodName().equals(actionMethod) ;
-  }
-  
-  
-  public Target focusFor(Class planClass) {
-    if (actionTaken == null) return null ;
-    if (planClass != null && ! isDoing(planClass, null)) return null ;
-    return actionTaken.subject() ;
+    return null;
   }
   
   

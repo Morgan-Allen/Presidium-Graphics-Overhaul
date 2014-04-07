@@ -129,8 +129,10 @@ public abstract class Artilect extends Actor {
     //
     //  Patrol around your base and see off intruders.
     Element guards = mind.home() == null ? this : (Element) mind.home() ;
+    final float distance = Spacing.distance(this, guards) / World.SECTOR_SIZE;
+    
     final Plan p = Patrolling.aroundPerimeter(this, guards, world).setMotive(
-      Plan.MOTIVE_DUTY, Plan.IDLE
+      Plan.MOTIVE_DUTY, Plan.IDLE + (distance * Plan.PARAMOUNT)
     );
     ///I.say("Patrolling priority: "+p.priorityFor(this)) ;
     choice.add(p) ;
@@ -144,16 +146,19 @@ public abstract class Artilect extends Actor {
     //  Perform reconaissance or patrolling.
     //  Retreat and return to base.
     //  (Drone specialties.)
+    
     //
     //  Launch an assault on a nearby settlement, if numbers are too large.
     //  Capture specimens and bring back to lair.
     //  (Tripod specialties.)
     choice.add(nextAssault()) ;
     choice.add(new Retreat(this)) ;
+    
     //
     //  Experiment upon/dissect/interrogate/convert any captives.
     //  Perform repairs on another artilect, or refurbish a new model.
     //  (Cranial specialties.)
+    
     //
     //  Defend home site or retreat to different site (all).
     //  Respond to obelisk or tesseract presence (all).
@@ -174,8 +179,10 @@ public abstract class Artilect extends Actor {
     //  TODO:  Base priority on proximity to your lair, along with total
     //  settlement size.
     for (Venue venue : sampled) {
-      if (venue.base() == this.base()) continue ;
-      final float dist = Spacing.distance(venue, lair) ;
+      if (venue.base() == this.base()) continue;
+      final float crowding = 1 - venue.base().communitySpirit();
+      
+      final float dist = Spacing.distance(venue, lair);
       if (dist > Ruins.MIN_RUINS_SPACING) continue;
       
       float rating = SS / (SS + dist) ;

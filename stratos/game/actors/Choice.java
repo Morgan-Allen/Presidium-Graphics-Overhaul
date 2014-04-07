@@ -4,13 +4,13 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package stratos.game.actors ;
+package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.util.*;
 
 
 
-public class Choice {
+public class Choice implements Qualities {
   
   
   /**  Data fields, constructors and setup-
@@ -85,7 +85,7 @@ public class Choice {
   
   public Behaviour weightedPick() {
     final float
-      sub = actor.traits.relativeLevel(Qualities.STUBBORN),
+      sub = actor.traits.relativeLevel(STUBBORN),
       range = DEFAULT_PRIORITY_RANGE - (sub * DEFAULT_TRAIT_RANGE) ;
     return weightedPick(range) ;
   }
@@ -147,7 +147,33 @@ public class Choice {
     if (verbose) I.sayAbout(actor, "    Picked: "+picked) ;
     return picked ;
   }
+  
+  
+  
+  protected static boolean couldSwitch(
+    Actor actor, Behaviour last, Behaviour next
+  ) {
+    if (next == null) return false ;
+    if (last == null) return true ;
+    final float
+      lastPriority = last.priorityFor(actor),
+      nextPriority = next.priorityFor(actor);
+    if (nextPriority <= 0) return false;
+    if (lastPriority <= 0) return true;
+    
+    float threshold = Math.min(lastPriority / 2, Plan.ROUTINE);
+    threshold *= (1 + actor.traits.relativeLevel(STUBBORN) + 1) / 2f;
+    threshold += lastPriority;
+    
+    if (verbose && I.talkAbout == actor) {
+      I.say("Last/next priority is: "+lastPriority+"/"+nextPriority);
+      I.say("Threshold is: "+threshold);
+    }
+    return nextPriority >= threshold;
+  }
 }
+
+
 
 
 

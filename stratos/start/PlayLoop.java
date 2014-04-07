@@ -199,11 +199,7 @@ public final class PlayLoop {
       1000 / (UPDATES_PER_SECOND * gameSpeed)
     );
     
-    if (paused) {
-      frameTime = 1.0f;
-      lastUpdate = lastFrame = time;
-    }
-    else {
+    if (! paused) {
       frameTime = (updateGap - 0) * 1.0f / UPDATE_INTERVAL;
       frameTime = Visit.clamp(frameTime, 0, 1);
     }
@@ -248,9 +244,9 @@ public final class PlayLoop {
         (int) (updateGap / UPDATE_INTERVAL),
         (1 + (FRAME_INTERVAL / UPDATE_INTERVAL))
       );
+      if (played.shouldExitLoop()) return false;
       if (! paused) for (int n = numUpdates ; n-- > 0 ;) {
         if (played != current) return true;
-        if (played.shouldExitLoop()) return false;
         if (verbose) I.say("UPDATING WORLD?");
         played.updateGameState();
         numStateUpdates++;

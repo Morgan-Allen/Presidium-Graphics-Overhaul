@@ -182,11 +182,15 @@ public class HumanMind extends ActorMind implements Qualities {
       if (timeoff) work.addServices(choice, actor) ;
       choice.add(new Payday(actor, work)) ;
     }
-    if (home != null && home != work) {
+    if (home != null) {
       choice.add(home.jobFor(actor)) ;
       if (timeoff) home.addServices(choice, actor) ;
+      choice.add(new Resting(actor, home));
     }
-    choice.add(Resting.nextRestingFor(actor)) ;
+    else {
+      final Target haven = Retreat.nearestHaven(actor, null);
+      choice.add(new Resting(actor, haven));
+    }
   }
   
   

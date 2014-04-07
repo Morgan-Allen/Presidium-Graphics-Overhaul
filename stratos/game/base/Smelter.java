@@ -164,7 +164,7 @@ public class Smelter extends Venue implements Economy {
 
   private boolean isWorking() {
     for (Actor a : personnel.visitors()) {
-      if (a.isDoing("actionSmelt", null)) return true ;
+      if (a.isDoingAction("actionSmelt", null)) return true ;
     }
     return false ;
   }

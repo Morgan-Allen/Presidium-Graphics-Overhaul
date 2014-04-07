@@ -59,6 +59,9 @@ public class Retreat extends Plan implements Qualities {
   final Trait BASE_TRAITS[] = { NERVOUS };
   
   
+  //  TODO:  You need to be able to evaluate relative and absolute danger.
+  //  Otherwise, even tiny amounts of danger can trigger headlong retreat.
+  
   public float priorityFor(Actor actor) {
     final boolean report = verbose && I.talkAbout == actor;
     float danger = CombatUtils.dangerAtSpot(actor.origin(), actor, null);
@@ -70,7 +73,6 @@ public class Retreat extends Plan implements Qualities {
       return 0;
     }
     float safety = (0.5f - maxDanger) * ROUTINE;
-    //final float safety = (0.5f - maxDanger) * 2 * ROUTINE;
     
     final float priority = priorityForActorWith(
       actor, safePoint, PARAMOUNT,
@@ -91,16 +93,25 @@ public class Retreat extends Plan implements Qualities {
   
   public static Boardable nearestHaven(Actor actor, Class prefClass) {
     final boolean report = havenVerbose && I.talkAbout == actor;
-    Object picked = pickWithdrawPoint(
-      actor, actor.health.sightRange() + World.SECTOR_SIZE, actor, 0.1f
-    ) ;
-    float bestRating = rateHaven(picked, actor, prefClass);
     
-    for (Target e : actor.senses.awareOf()) {
+    final Batch <Target> considered = new Batch();
+    considered.add(actor.world().presences.nearestMatch(
+      Economy.SERVICE_REFUGE, actor, -1
+    ));
+    considered.add(pickWithdrawPoint(
+      actor, actor.health.sightRange() + World.SECTOR_SIZE, actor, 0.1f
+    ));
+    considered.add(actor.mind.home());
+    for (Target e : actor.senses.awareOf()) considered.add(e);
+    
+    Object picked = null;
+    float bestRating = 0;
+    for (Target e : considered) {
       final float rating = rateHaven(e, actor, prefClass) ;
       if (report) I.say("  Rating for "+e+" is "+rating);
       if (rating > bestRating) { bestRating = rating ; picked = e ; }
     }
+    
     if (report) I.say("Haven picked is: "+picked);
     return (Boardable) picked ;
   }
@@ -120,6 +131,7 @@ public class Retreat extends Plan implements Qualities {
     if (prefClass != null && haven.getClass() == prefClass) rating *= 2 ;
     if (haven.base() == actor.base()) rating *= 2 ;
     if (haven == actor.mind.home()) rating *= 2 ;
+    rating *= haven.structure.maxIntegrity() / 50f;
     final int SS = World.SECTOR_SIZE ;
     rating *= SS / (SS + Spacing.distance(actor, haven)) ;
     return rating ;
@@ -143,6 +155,7 @@ public class Retreat extends Plan implements Qualities {
       tried = Spacing.nearestOpenTile(tried, target) ;
       if (tried == null || Spacing.distance(tried, target) > range) continue ;
       
+      //  TODO:  Just use general danger-map readings, and sample more spots.
       float tryRating = CombatUtils.dangerAtSpot(tried, actor, null);
       tryRating += (Rand.num() - 0.5f) * salt ;
       if (salt < 0) tryRating *= -1 ;

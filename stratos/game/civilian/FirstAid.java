@@ -160,6 +160,14 @@ public class FirstAid extends Plan implements Qualities, Economy {
     return patient.health.alive() ? MOTION_FAST : MOTION_ANY;
   }
   
+  /*
+  protected float successChance() {
+    final float DC = severity() * 5;
+    float chance = actor.traits.chance(ANATOMY, DC);
+    return chance;
+  }
+  //*/
+  
   
   public boolean actionFirstAid(Actor actor, Actor patient) {
     float DC = severity() * 5;

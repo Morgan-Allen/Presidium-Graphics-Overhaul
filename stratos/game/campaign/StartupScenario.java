@@ -268,6 +268,10 @@ public class StartupScenario extends Scenario {
   /**  Private helper methods-
     */
   private void establishLocals(World world) {
+    if (config.siteLevel == SITE_WASTELAND) {
+      final int maxRuins = world.size / (World.SECTOR_SIZE * 2);
+      Ruins.placeRuins(world, maxRuins);
+    }
     if (config.siteLevel == SITE_SETTLED) {
       Nest.placeNests(world, Species.QUD, Species.HAREEN);
     }
@@ -275,10 +279,6 @@ public class StartupScenario extends Scenario {
       final int maxRuins = world.size / (World.SECTOR_SIZE * 4);
       Ruins.placeRuins(world, maxRuins);
       Nest.placeNests(world, Species.QUD, Species.HAREEN, Species.LICTOVORE);
-    }
-    if (config.siteLevel == SITE_WASTELAND) {
-      final int maxRuins = world.size / (World.SECTOR_SIZE * 2);
-      Ruins.placeRuins(world, maxRuins);
     }
   }
   

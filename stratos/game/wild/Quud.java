@@ -64,7 +64,7 @@ public class Quud extends Fauna {
     */
   public void updateAsScheduled(int numUpdates) {
     super.updateAsScheduled(numUpdates) ;
-    if (! isDoing("actionHunker", null)) gear.setArmour(15) ;
+    if (! isDoingAction("actionHunker", null)) gear.setArmour(15) ;
   }
   
   

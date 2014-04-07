@@ -363,8 +363,16 @@ public class Nest extends Venue {
           final Fauna f = toPlace.species.newSpecimen(wildlife) ;
           f.health.setupHealth(Rand.num(), 0.9f, 0.1f) ;
           f.mind.setHome(toPlace) ;
-          f.enterWorldAt(toPlace, world) ;
-          f.goAboard(toPlace, world) ;
+          if (Rand.num() < 0.1f) {
+            f.enterWorldAt(toPlace, world) ;
+            f.goAboard(toPlace, world) ;
+          }
+          else {
+            final Tile t = Spacing.pickRandomTile(
+              toPlace, BROWSER_SEPARATION, world
+            );
+            f.enterWorldAt(t, world);
+          }
         }
       }
     }
