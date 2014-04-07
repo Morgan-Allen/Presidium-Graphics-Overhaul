@@ -4,20 +4,12 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-
-
 package stratos.game.actors ;
 import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.graphics.common.AnimNames;
 import stratos.graphics.solids.*;
 import stratos.util.*;
-
-
-
-//
-//  You need to generate Special Effects for weapon-beams, shield bursts, and
-//  acquisitions of credits and loot.
 
 
 
@@ -37,10 +29,11 @@ public class ActorGear extends Inventory implements Economy {
   
   
   final Actor actor ;
-  float baseDamage, baseArmour ;
-  Item device = null ;
-  Item outfit = null ;
-  float fuelCells = 0, currentShields ;
+  private float baseDamage, baseArmour ;
+  private Item device = null ;
+  private Item outfit = null ;
+  private float fuelCells = 0, currentShields ;
+  private float encumbrance = -1;
   
   
   public ActorGear(Actor actor) {
@@ -57,6 +50,7 @@ public class ActorGear extends Inventory implements Economy {
     Item.saveTo(s, outfit) ;
     s.saveFloat(fuelCells) ;
     s.saveFloat(currentShields) ;
+    s.saveFloat(encumbrance);
   }
   
 
@@ -68,6 +62,7 @@ public class ActorGear extends Inventory implements Economy {
     outfit = Item.loadFrom(s) ;
     fuelCells = s.loadFloat() ;
     currentShields = s.loadFloat() ;
+    encumbrance = s.loadFloat();
   }
   
   
@@ -97,11 +92,21 @@ public class ActorGear extends Inventory implements Economy {
         ((Action) item.refers).applyEffect() ;
       }
     }
+    encumbrance = -1;
+  }
+  
+  
+  public boolean removeItem(Item item) {
+    final boolean OK = super.removeItem(item);
+    if (OK) encumbrance = -1;
+    return OK;
   }
   
   
   public boolean addItem(Item item) {
     if (item == null || item.amount == 0) return false ;
+    encumbrance = -1;
+    
     final int oldAmount = (int) amountOf(item) ;
     if (item.refers == actor) item = Item.withReference(item, null) ;
     if      (item.type instanceof DeviceType) equipDevice(item) ;
@@ -135,11 +140,10 @@ public class ActorGear extends Inventory implements Economy {
   
   
   public float encumbrance() {
-    //
-    //  TODO:  Cache this each second?
+    if (encumbrance != -1) return encumbrance;
     float sum = 0 ; for (Item i : allItems()) sum += i.amount ;
     sum /= actor.health.maxHealth() * (1 - actor.health.fatigueLevel()) ;
-    return sum * sum ;
+    return encumbrance = sum * sum ;
   }
   
   
@@ -207,8 +211,15 @@ public class ActorGear extends Inventory implements Economy {
     if (armour == null) return reflexBonus + baseArmour ;
     
     final OutfitType type = (OutfitType) armour.type ;
-    reflexBonus *= (20 - type.defence) ;
+    reflexBonus *= (20 - type.defence) / 10f ;
     final float rating = type.defence * (armour.quality + 1) / 4 ;
+    
+    if (verbose && I.talkAbout == actor) {
+      I.say("\nBase armour: "+type.defence);
+      I.say("  Reflex bonus: "+reflexBonus);
+      I.say("  Quality rating: "+rating);
+    }
+    
     return rating + baseArmour + Math.max(0, reflexBonus) ;
   }
   

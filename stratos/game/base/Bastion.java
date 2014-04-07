@@ -140,7 +140,7 @@ public class Bastion extends Venue implements Economy {
     final Background v = actor.vocation() ;
     
     if (v == Background.VETERAN || v == Background.WAR_MASTER) {
-      return Patrolling.securePerimeter(actor, this, world) ;
+      return Patrolling.aroundPerimeter(actor, this, world) ;
     }
     if (v == Background.TECH_RESERVE) {
       return Repairs.getNextRepairFor(actor, Plan.CASUAL) ;

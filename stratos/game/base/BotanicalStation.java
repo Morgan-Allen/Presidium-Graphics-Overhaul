@@ -146,12 +146,12 @@ public class BotanicalStation extends Venue implements Economy {
     //  Forestry may have to be performed, depending on need for gene samples-
     final Forestry f = new Forestry(actor, this) ;
     if (needsSeed && actor.vocation() == Background.ECOLOGIST) {
-      f.priorityMod += Plan.ROUTINE ;
-      f.configureFor(Forestry.STAGE_SAMPLING) ;
+      f.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
+      f.configureFor(Forestry.STAGE_SAMPLING);
     }
     else {
-      f.priorityMod = structure.upgradeLevel(TREE_FARMING) ;
-      f.configureFor(Forestry.STAGE_GET_SEED) ;
+      f.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
+      f.configureFor(Forestry.STAGE_GET_SEED);
     }
     choice.add(f) ;
     //
@@ -161,7 +161,7 @@ public class BotanicalStation extends Venue implements Economy {
       stocks.shortagePenalty(GREENS) ;
     if (actor.vocation() == Background.CULTIVATOR && shortages > 0) {
       final Foraging foraging = new Foraging(actor, this) ;
-      foraging.priorityMod = Plan.CASUAL * shortages ;
+      foraging.setMotive(Plan.MOTIVE_EMERGENCY, Plan.CASUAL + shortages);
       choice.add(foraging) ;
     }
     //

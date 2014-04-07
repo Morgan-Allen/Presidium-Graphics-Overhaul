@@ -33,6 +33,17 @@ public class GameSettings {
     actorScale = SMALL_SPRITE_SCALE;
   
   
+  public static void setDefaults() {
+    buildFree = false;
+    hireFree  = false;
+    psyFree   = false;
+    fogFree   = false;
+    pathFree  = false;
+    noBlood   = false;
+    hardCore  = false;
+    actorScale = SMALL_SPRITE_SCALE;
+  }
+  
   
   protected static void saveSettings(Session s) throws Exception {
     s.saveBool(buildFree) ;

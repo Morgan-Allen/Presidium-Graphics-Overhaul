@@ -44,20 +44,28 @@ public class Farming extends Plan implements Economy {
   
   
   
+  
+  final static Skill BASE_SKILLS[] = { HARD_LABOUR, CULTIVATION };
+  final static Trait BASE_TRAITS[] = { SIMPLE, ENERGETIC, NATURALIST };
+  
+  
   public float priorityFor(Actor actor) {
+    final boolean report = verbose && I.talkAbout == actor;
     if ((! hasBegun()) && nursery.belongs.personnel.assignedTo(this) > 0) {
-      return 0 ;
+      return 0;
     }
-    //
-    //  Vary priority based on competence for the task and how many crops
-    //  actually need attention-
-    final float min = sumHarvest() > 0 ? ROUTINE : 0 ;
-    final float need = nursery.needForTending() ;
-    if (need <= 0) return min ;
-    float chance = 1.0f ;
-    chance *= actor.traits.chance(HARD_LABOUR, ROUTINE_DC) * 2 ;
-    chance *= actor.traits.chance(CULTIVATION, MODERATE_DC) * 2 ;
-    return Visit.clamp(chance * (CASUAL + (need * ROUTINE)), min, URGENT) ;
+    
+    final float min = sumHarvest() > 0 ? ROUTINE : 0;
+    final float need = nursery.needForTending();
+    if (need <= 0) return min;
+    
+    return priorityForActorWith(
+      actor, nursery, ROUTINE,
+      MILD_HELP, MILD_COMPETITION,
+      BASE_SKILLS, BASE_TRAITS,
+      (need - 0.5f) * ROUTINE, PARTIAL_DISTANCE_CHECK, NO_DANGER,
+      report
+    );
   }
   
   

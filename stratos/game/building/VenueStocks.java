@@ -158,13 +158,12 @@ public class VenueStocks extends Inventory implements Economy {
   public Manufacture nextManufacture(Actor actor, Conversion c) {
     final float shortage = shortageOf(c.out.type) ;
     if (shortage <= 0) return null ;
-    //
-    //  TODO:  Manufactures need to update the amount required...
+    
     final Manufacture m = new Manufacture(
       actor, venue, c,
       Item.withAmount(c.out, shortage + 5)
     ) ;
-    m.priorityMod = this.shortageUrgency(c.out.type) ;
+    m.setMotive(Plan.MOTIVE_DUTY, shortageUrgency(c.out.type)) ;
     return m ;
   }
   

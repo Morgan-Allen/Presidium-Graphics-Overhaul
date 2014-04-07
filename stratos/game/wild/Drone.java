@@ -22,8 +22,8 @@ public class Drone extends Artilect implements Economy {
   final String name ;
   
   
-  public Drone() {
-    super((Species) null) ;
+  public Drone(Base base) {
+    super(base, (Species) null) ;
     
     traits.initAtts(15, 10, 5) ;
     health.initStats(

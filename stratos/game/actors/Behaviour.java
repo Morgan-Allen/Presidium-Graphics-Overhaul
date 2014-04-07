@@ -14,11 +14,12 @@ import stratos.util.*;
 public interface Behaviour extends Session.Saveable {
   
   final public static float
-    IDLE      = 1,
-    CASUAL    = 2.5f,
-    ROUTINE   = 5,
-    URGENT    = 7.5f,
-    PARAMOUNT = 10 ;
+    FROM_MOTIVE = -1,
+    IDLE        =  1,
+    CASUAL      =  2.5f,
+    ROUTINE     =  5,
+    URGENT      =  7.5f,
+    PARAMOUNT   =  10 ;
   final public static int
     MOTION_ANY    = -1,
     MOTION_NORMAL =  0,
@@ -29,6 +30,7 @@ public interface Behaviour extends Session.Saveable {
   Behaviour nextStepFor(Actor actor) ;
   int motionType(Actor actor) ;
   void abortBehaviour() ;
+  Target subject();
   
   float priorityFor(Actor actor) ;
   boolean finished() ;

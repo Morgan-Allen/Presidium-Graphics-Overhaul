@@ -1,20 +1,44 @@
 
 
 package stratos.game.actors;
+
 import stratos.game.common.*;
 import stratos.game.tactical.*;
 import stratos.game.building.*;
 import stratos.util.*;
+import stratos.game.common.Session.Saveable;
+import java.util.Map.Entry;
+
+
+
+//
+//  ...You need to be able to lose track of distant objects, based on stealth
+//  values.
+//
+//  ...This makes distant objects almost impossible to maintain consistent
+//  tracking of, though.
+//  Maybe... just for mobiles.  Or the stealthed.
+
+//  But then... how do you lose track of the venues?
+
+//  Wait.  If it's the current focus of your attention, reduce stealth value
+//  by 0.5f, and boost noticeRange.  Aha!  Cool!
 
 
 
 public class Senses implements Qualities {
   
   
-  private static boolean verbose = false;
+  /**  
+    */
+  private static boolean
+    reactVerbose  = false,
+    noticeVerbose = false,
+    sightVerbose  = false;
   
   final Actor actor;
-  final Table <Element, Session.Saveable> seen = new Table() ;
+  final Table <Target, Saveable> seen = new Table();
+  final Batch <Target> seenBatch = new Batch();
   
   
   protected Senses(Actor actor) {
@@ -24,137 +48,192 @@ public class Senses implements Qualities {
   
   public void loadState(Session s) throws Exception {
     for (int n = s.loadInt() ; n-- > 0 ;) {
-      final Element e = (Element) s.loadObject() ;
+      final Target e = s.loadTarget() ;
       seen.put(e, s.loadObject()) ;
+      seenBatch.add(e);
     }
   }
   
   
   public void saveState(Session s) throws Exception {
     s.saveInt(seen.size()) ;
-    for (Element e : seen.keySet()) {
-      s.saveObject(e) ;
+    for (Target e : seen.keySet()) {
+      s.saveTarget(e) ;
       s.saveObject(seen.get(e)) ;
     }
   }
   
   
-
-  
   
   
   /**  Dealing with seen objects and reactions to them-
     */
-  private Session.Saveable reactionKey(Element seen) {
-    if (seen instanceof Actor) {
-      final Actor a = (Actor) seen ;
-      if (a.currentAction() == null) return seen ;
-      final Behaviour b = a.mind.rootBehaviour() ;
-      if (b == null) return seen ;
-      else return b ;
-    }
-    else return seen ;
-  }
-  
-  
-  public boolean awareOf(Element e) {
-    return seen.get(e) != null ;
-  }
-  
-  
-  public boolean hasSeen(Element e) {
-    return seen.get(e) != null ;
-  }
-  
-  
-  public Batch <Element> awareOf() {
-    final Batch <Element> seen = new Batch <Element> () ;
-    for (Element e : this.seen.keySet()) seen.add(e) ;
-    return seen ;
-  }
-  
-  
-  protected boolean notices(Element e, float noticeRange) {
-    final ActorMind mind = actor.mind;
-    
-    if (e == actor || ! e.inWorld()) return false ;
-    if (e == mind.home || e == mind.work) return true ;
-    final int roll = Rand.index(20) ;
-    if (roll == 0 ) noticeRange *= 2 ;
-    if (roll == 19) noticeRange /= 2 ;
-    
-    if (e instanceof Mobile) {
-      final Mobile m = (Mobile) e ;
-      if (m.indoors()) noticeRange /= 2 ;
-    }
-    if (e instanceof Actor) {
-      final Actor a = (Actor) e ;
-      if (a.targetFor(null) == actor) return true;// noticeRange *= 2 ;
-    }
-    if (e instanceof Fixture) {
-      final Fixture f = (Fixture) e ;
-      noticeRange += f.size * 2 ;
-    }
-    
-    //  TODO:  Incorporate line-of-sight considerations here.
-    noticeRange -= Combat.stealthValue(e, actor) ;
-    if (awareOf(e)) noticeRange += World.SECTOR_SIZE / 2f ;
-    
-    return Spacing.distance(actor, e) < noticeRange ;
-  }
-  
-  
   protected void updateSeen() {
-    final World world = actor.world() ;
-    final float sightRange = actor.health.sightRange() ;
-    final int reactLimit = 3 + (int) (actor.traits.traitLevel(PERCEPT) / 5) ;
-    final ActorMind mind = actor.mind;
     
-    final Batch <Element>
-      couldSee   = new Batch <Element> (),
-      justSaw    = new Batch <Element> (),
-      outOfSight = new Batch <Element> () ;
-    //
-    //  Firstly, cull anything you can't see any more-
-    for (Element e : seen.keySet()) {
-      if (! notices(e, sightRange)) outOfSight.add(e) ;
-    }
-    for (Element e : outOfSight) seen.remove(e) ;
-    //
-    //  Then, sample nearby objects you could react to-
+    final boolean report = reactVerbose && I.talkAbout == actor;
+    final World world = actor.world();
+    final Batch <Target> unseen = new Batch(), noticed = new Batch();
+    final float range = actor.health.sightRange();
+    if (report) I.say("\nUpdating seen, sight range: "+range);
+    
+    //  Add anything newly within range-
+    final int reactLimit = 1 + (int) (actor.traits.traitLevel(PERCEPT) / 5);
     world.presences.sampleFromKeys(
-      actor, world, reactLimit, couldSee,
+      actor, world, reactLimit, noticed,
       Mobile.class,
       Venue.class
-    ) ;
+    );
+    
+    //  Automatically include home, work, anyone actively targeting you, and
+    //  anything you target.
+    noticed.add(actor.mind.home);
+    noticed.add(actor.mind.work);
     for (Behaviour b : world.activities.targeting(actor)) {
-      if (b instanceof Action) {
-        final Actor a = ((Action) b).actor ;
-        //if (Spacing.distance(a, actor) > World.SECTOR_SIZE) continue ;
-        couldSee.add(a) ;
-      }
+      if (b instanceof Action) noticed.add(((Action) b).actor);
     }
-    if (mind.home != null) couldSee.include((Element) mind.home) ;
-    if (mind.work != null) couldSee.include((Element) mind.work) ;
-    //
-    //  And check to see if they're anything new.
-    for (Element m : couldSee) {
-      if (! notices(m, sightRange)) continue ;
-      final Session.Saveable after = reactionKey(m), before = seen.get(m) ;
-      if (before != after) justSaw.add(m) ;
-      seen.put(m, after) ;
+    noticed.add(actor.focusFor(null));
+    
+    //  Check for anything new, and react to it.
+    final Choice reactions = new Choice(actor);
+    for (Target e : noticed) pushAwareness(e, range, reactions);
+    final Behaviour reaction = reactions.pickMostUrgent();
+    if (actor.mind.couldSwitchTo(reaction)) {
+      actor.mind.assignBehaviour(reaction);
     }
-    //
-    //  Finally, add reactions to anything novel-
-    if (justSaw.size() > 0) {
-      final Choice choice = new Choice(actor) ;
-      for (Element NS : justSaw) mind.addReactions(NS, choice) ;
-      final Behaviour reaction = choice.pickMostUrgent() ;
-      if (mind.couldSwitchTo(reaction)) mind.assignBehaviour(reaction) ;
+    
+    //  Remove anything old.
+    for (Entry <Target, Saveable> entry : seen.entrySet()) {
+      final Target e = entry.getKey();
+      if (! notices(e, range)) unseen.add(e);
     }
+    for (Target e : unseen) {
+      if (report) I.say("  No longer visible: "+e);
+      seen.remove(e);
+    }
+    
+    //  Finally, compile a list of everything seen for easy iteration-
+    seenBatch.clear();
+    for (Target e : seen.keySet()) seenBatch.add(e);
   }
   
   
+  public void pushAwareness(Target e, float sightRange, Choice reactions) {
+    if (e == null) return;
+    if (sightRange > 0 && ! notices(e, sightRange)) return;
+    
+    final boolean report = reactVerbose && I.talkAbout == actor;
+    final Session.Saveable after = reactionKey(e), before = seen.get(e);
+    if (before != after) {
+      if (report && before == null) I.say("  Have just seen: "+e);
+      if (report) I.say("  Reacting to: "+e);
+      if (reactions != null) actor.mind.addReactions(e, reactions);
+    }
+    seen.put(e, after);
+  }
+  
+  
+  private boolean notices(Target e, float sightRange) {
+    
+    //  Decide on the basic stats for evaluation-
+    final boolean report = noticeVerbose && I.talkAbout == actor;
+    final boolean
+      seen = this.seen.get(e) != null,
+      focus = actor.focusFor(null) == e;
+    final float
+      distance = Spacing.distance(e, actor),
+      stealth = stealthFactor(e, actor);
+    float
+      senseFactor = sightRange,
+      hideFactor = distance;
+    
+    //  The target is easier to spot if they're your current focus, or if
+    //  they've already been seen.
+    if (seen) senseFactor += sightRange;
+    if (focus) {
+      //  NOTE:  Hide factor needs to go down to zero in order for long-range
+      //  behaviours to work.  Hence, the pure multiply with stealth (if 0.)
+      senseFactor += sightRange;
+      hideFactor *= stealth;
+    }
+    else hideFactor *= 0.5f + stealth;
+    
+    //  Anything focused on you is easier to spot, and indoor targets aren't.
+    if (e instanceof Mobile) {
+      if (((Mobile) e).indoors()) senseFactor /= 2;
+    }
+    if (e instanceof Actor) {
+      if (((Actor) e).focusFor(null) == actor) senseFactor *= 2;
+    }
+    
+    //  Summarise and return-
+    final float noticeChance = senseFactor / (hideFactor + senseFactor);
+    final boolean success = Rand.num() < noticeChance;
+    if (report) {
+      I.say("  Checking to notice: "+e+", chance: "+noticeChance);
+      I.say("    Distance/stealth: "+distance+"/"+stealth);
+      I.say("    Seen/is focus: "+seen+"/"+focus);
+      I.say("    Sense/hide factors: "+senseFactor+"/"+hideFactor);
+      I.say("    Success: "+success);
+    }
+    return success;
+  }
+  
+  
+  public static float stealthFactor(Target e, Actor looks) {
+    
+    if (e instanceof Actor) {
+      final Actor a = (Actor) e;
+      if (a.base() == looks.base()) return 0;
+      float stealth = a.traits.useLevel(STEALTH_AND_COVER) / 20f;
+      stealth += a.health.baseSpeed() / Action.moveRate(a, false);
+      return stealth;
+    }
+    
+    if (e instanceof Installation) {
+      final Installation i = (Installation) e;
+      return i.structure().cloaking() / 10f;
+    }
+    
+    return 0 ;
+  }
+  
+  
+  private Session.Saveable reactionKey(Target seen) {
+    if (seen instanceof Actor) {
+      final Actor a = (Actor) seen ;
+      if (a.currentAction() == null) return a ;
+      final Behaviour b = a.mind.rootBehaviour() ;
+      if (b == null) return a ;
+      else return b ;
+    }
+    if (seen instanceof Element) {
+      return (Element) seen;
+    }
+    if (seen instanceof Tile) {
+      return (Tile) seen;
+    }
+    return null;
+  }
+  
+  
+  public boolean awareOf(Target e) {
+    return seen.get(e) != null ;
+  }
+  
+  
+  public boolean hasSeen(Target e) {
+    return seen.get(e) != null ;
+  }
+  
+  
+  public Batch <Target> awareOf() {
+    return seenBatch;
+  }
+  
+  
+  
+  /**  Returns whether any blocked tiles lie between the two points given.
+    */
   public static boolean hasLineOfSight(
     Target origin, Target target, float maxRange
   ) {
@@ -162,7 +241,7 @@ public class Senses implements Qualities {
     if (maxRange > 0 && Spacing.distance(origin, target) > maxRange) {
       return false ;
     }
-    final boolean reports = verbose && I.talkAbout == origin ;
+    final boolean reports = sightVerbose && I.talkAbout == origin ;
     
     //  Firstly, we determine the start and end points for the line segment,
     //  and the vector connecting the two-
@@ -234,6 +313,5 @@ public class Senses implements Qualities {
     return ! blocked ;
   }
 }
-
 
 

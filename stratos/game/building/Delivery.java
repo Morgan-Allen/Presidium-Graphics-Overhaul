@@ -64,7 +64,7 @@ public class Delivery extends Plan implements Economy {
   
   
   public Delivery(Item items[], Owner origin, Owner destination) {
-    super(null, origin, destination) ;
+    super(null, origin) ;
     this.origin = origin ;
     this.destination = destination ;
     this.items = items ;
@@ -181,16 +181,11 @@ public class Delivery extends Plan implements Economy {
   
   
   public float priorityFor(Actor actor) {
-    final Item[] available = available(this.actor) ;
+    final Item[] available = available(actor) ;
     if (available.length == 0) return 0 ;
+    final boolean report = verbose && I.talkAbout == actor;
     
-    final float rangePenalty = (
-      Plan.rangePenalty(actor, origin) +
-      Plan.rangePenalty(actor, destination) +
-      Plan.rangePenalty(origin, destination)
-    ) / (driven == null ? 2f : 10f) ;
-
-    float offset = rangePenalty ;
+    float modifier = NO_MODIFIER;
     if (shouldPay == actor && stage <= STAGE_PICKUP) {
       int price = 0 ;
       float foodVal = 0 ;
@@ -199,15 +194,27 @@ public class Delivery extends Plan implements Economy {
         if (Visit.arrayIncludes(ALL_FOOD_TYPES, i.type)) foodVal += i.amount ;
       }
       if (price > actor.gear.credits()) return 0 ;
-      offset += actor.mind.greedFor(price) - ROUTINE ;
-      offset -= actor.health.hungerLevel() * CASUAL * foodVal ;
+      modifier -= actor.mind.greedFor(price) - ROUTINE ;
+      modifier += actor.health.hungerLevel() * CASUAL * foodVal ;
     }
     else for (Item i : available) {
-      offset -= i.amount / 5f ;
+      modifier += i.amount / 5f ;
     }
-    return Visit.clamp(
-      ROUTINE + priorityMod - offset, 0, URGENT
-    ) ;
+    
+    final float rangeDiv = driven == null ? 2f : 10f;
+    final float extraRangePenalty = (
+      Plan.rangePenalty(actor, origin) +
+      Plan.rangePenalty(origin, destination)
+    ) / rangeDiv;
+    
+    final float priority = priorityForActorWith(
+      actor, destination, ROUTINE,
+      NO_HARM, NO_COMPETITION,
+      NO_SKILLS, NO_TRAITS,
+      modifier, NORMAL_DISTANCE_CHECK / rangeDiv, NO_DANGER,
+      report
+    ) - extraRangePenalty;
+    return priority;
   }
   
   

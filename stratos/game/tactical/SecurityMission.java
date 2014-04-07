@@ -81,7 +81,7 @@ public class SecurityMission extends Mission implements Qualities {
     //  Modify by possession of combat and surveillance skills-
     float ability = 1 ;
     ability *= actor.traits.useLevel(SURVEILLANCE) / 10f ;
-    ability *= Combat.combatStrength(actor, null) * 1.5f ;
+    ability *= CombatUtils.combatStrength(actor, null) * 1.5f ;
     ability = Visit.clamp(ability, 0.5f, 1.5f) ;
     priority = Visit.clamp(priority * ability, 0, PARAMOUNT) ;
     
@@ -156,8 +156,8 @@ public class SecurityMission extends Mission implements Qualities {
           final Actor assails = c.actor() ;
           if (Spacing.distance(t, assails) > maxDist) continue ;
           assailants.add(assails) ;
-
-          float strength = Combat.combatStrength(actor, assails) ;
+          
+          float strength = CombatUtils.combatStrength(actor, assails) ;
           float urgency = 1 * Rand.avgNums(2) / (1f + strength) ;
           urgency *= t == subject ? 1.5f : 0.5f ;
           //urgency *= 2 - t.condition() ;
@@ -171,7 +171,7 @@ public class SecurityMission extends Mission implements Qualities {
     if (toRepel != null) {
       I.sayAbout(actor, "Repelling: "+toRepel) ;
       final Combat repels = new Combat(actor, toRepel) ;
-      final Target target = actor.targetFor(Combat.class) ;
+      final Target target = actor.focusFor(Combat.class) ;
       //
       //  TODO:  I think it needs to be possible to generalise this sort of
       //  priority-switch.
@@ -186,7 +186,7 @@ public class SecurityMission extends Mission implements Qualities {
     final Choice choice = new Choice(actor) ;
     for (Target t : defended) if (t instanceof Actor) {
       final FirstAid TS = new FirstAid(actor, (Actor) t) ;
-      TS.priorityMod = priority * (t == subject ? 2 : 1) ;
+      TS.setMotive(Plan.MOTIVE_EMERGENCY, priority * (t == subject ? 2 : 1)) ;
       choice.add(TS) ;
     }
     
@@ -194,7 +194,7 @@ public class SecurityMission extends Mission implements Qualities {
       //  TODO:  Assign this higher priority?  It doesn't seem to get much
       //  play...
       final Repairs repairs = new Repairs(actor, (Venue) subject) ;
-      repairs.priorityMod = priority ;
+      repairs.setMotive(Plan.MOTIVE_EMERGENCY, priority);
       choice.add(repairs) ;
     }
     
@@ -202,15 +202,17 @@ public class SecurityMission extends Mission implements Qualities {
     if (subject instanceof ItemDrop) {
       final ItemDrop SI = (ItemDrop) subject ;
       final Recovery RS = new Recovery(actor, SA, admin) ;
-      RS.priorityMod = priority ;
+      RS.setMotive(Plan.MOTIVE_DUTY, priority) ;
       choice.add(TS) ;
     }
     //*/
     
-    final Patrolling p = Patrolling.securePerimeter(
+    final Plan p = Patrolling.aroundPerimeter(
       actor, (Element) subject, base.world
-    ) ;
-    p.priorityMod = Spacing.distance(actor, subject) * ROUTINE / maxDist ;
+    );
+    p.setMotive(
+      Plan.MOTIVE_DUTY, Spacing.distance(actor, subject) * ROUTINE / maxDist
+    );
     choice.add(p) ;
     
     final Plan picked = (Plan) choice.pickMostUrgent() ;
@@ -248,16 +250,4 @@ public class SecurityMission extends Mission implements Qualities {
   }
 }
 
-
-
-/*
-final Combat defence = new Combat(actor, c.actor()) ;
-c.priorityMod = priority * (t == subject ? 1.5f : 0.5f) ;
-choice.add(defence) ;
-
-if (verbose && I.talkAbout == actor) {
-  I.say("  "+c.actor()+" is assaulting "+t) ;
-  I.say("  Defence priority: "+defence.priorityFor(actor)) ;
-}
-//*/
 

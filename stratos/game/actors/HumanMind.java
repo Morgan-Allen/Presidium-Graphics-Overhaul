@@ -150,13 +150,14 @@ public class HumanMind extends ActorMind implements Qualities {
   }
   
   
-  protected void addReactions(Element seen, Choice choice) {
-    if (seen instanceof Actor) {
+  protected void addReactions(Target seen, Choice choice) {
+    if (seen instanceof Actor) if (seen != actor) {
       final Actor nearby = (Actor) seen ;
-      choice.add(Hunting.asFeeding(actor, nearby)) ;
-      choice.add(new Combat(actor, nearby)) ;
       
-      if (nearby.isDoing(Combat.class, actor)) choice.add(new Retreat(actor)) ;
+      choice.add(Hunting.asHarvest(actor, nearby, home, true));
+      
+      choice.add(new Combat(actor, nearby)) ;
+      choice.add(new Retreat(actor)) ;
       choice.add(new Dialogue(actor, nearby, Dialogue.TYPE_CASUAL)) ;
       choice.add(new FirstAid(actor, nearby)) ;
     }
@@ -164,7 +165,7 @@ public class HumanMind extends ActorMind implements Qualities {
   
   
   private void addActorResponses(Choice choice) {
-    for (Element e : actor.senses.awareOf()) addReactions(e, choice) ;
+    for (Target e : actor.senses.awareOf()) addReactions(e, choice) ;
   }
   
   
@@ -189,6 +190,7 @@ public class HumanMind extends ActorMind implements Qualities {
   }
   
   
+  //  TODO:  Move this to the reactions method?
   private void addVenueResponses(Choice choice) {
     final World world = actor.world() ;
     final Batch <Employment> around = new Batch <Employment> () ;

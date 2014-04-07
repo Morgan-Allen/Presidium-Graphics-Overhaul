@@ -276,9 +276,8 @@ public abstract class Mobile extends Element
   }
   
   
-  protected float aboveGroundHeight() {
-    return 0 ;
-  }
+  protected float aboveGroundHeight() { return 0; }
+  protected boolean collides() { return true; }
   
   
   public int motionType() { return MOTION_WALKS ; }

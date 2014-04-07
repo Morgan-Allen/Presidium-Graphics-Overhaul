@@ -66,12 +66,15 @@ public class StretcherDelivery extends Plan implements Qualities {
   
   
   protected Behaviour getNextStep() {
+    final boolean report = verbose && I.talkAbout == actor;
     if ((! hasBegun()) && Plan.competition(this, patient, actor) > 0) {
       return null;
     }
+    if (patient.aboard() == destination) return null;
     final Actor carries = Suspensor.carrying(patient);
     
     if (patient.aboard() == origin && carries == null) {
+      if (report) I.say("Returning new pickup");
       final Action pickup = new Action(
         actor, patient,
         this, "actionPickup",
@@ -82,6 +85,7 @@ public class StretcherDelivery extends Plan implements Qualities {
     }
     
     if (carries == actor) {
+      if (report) I.say("Returning new dropoff");
       final Action dropoff = new Action(
         actor, patient,
         this, "actionDropoff",
@@ -105,7 +109,10 @@ public class StretcherDelivery extends Plan implements Qualities {
   
   
   public boolean actionDropoff(Actor actor, Actor patient) {
-    if (Suspensor.carrying(patient) != actor) return false;
+    if (Suspensor.carrying(patient) != actor) {
+      I.say("NOT CARRYING PATIENT!");
+      return false;
+    }
     suspensor.passenger = null;
     suspensor.exitWorld();
     this.suspensor = null;

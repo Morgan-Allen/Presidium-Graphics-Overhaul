@@ -110,28 +110,30 @@ public class SurveyStation extends Venue implements Economy {
   public Behaviour jobFor(Actor actor) {
     if ((! structure.intact()) || (! personnel.onShift(actor))) return null ;
     final Choice choice = new Choice(actor) ;
-    final boolean report = I.talkAbout == actor && true;
+    //final boolean report = I.talkAbout == actor && true;
     
     final Tile blank = Exploring.getUnexplored(actor.base().intelMap, actor);
     if (blank != null) {
       //  TODO:  Priority mods related to work, mission payments etc. still
       //  have to be worked out...
       final Exploring e = new Exploring(actor, actor.base(), blank);
-      e.priorityMod = Plan.ROUTINE;
+      e.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
       choice.add(e);
     }
     
-    if (still != null && ! still.destroyed()) {
-      final Delivery d = Deliveries.nextDeliveryFor(
-        actor, still, still.services(), 5, world
-      ) ;
-      choice.add(d);
-      for (Element t : actor.senses.awareOf()) {
-        if (Hunting.validPrey(t, actor, true)) {
-          choice.add(Hunting.asHarvest(actor, (Actor) t, still));
-        }
+    final boolean hasStill = still != null && ! still.destroyed();
+    for (Target t : actor.senses.awareOf()) {
+      if (hasStill && Hunting.validPrey(t, actor, true)) {
+        choice.add(Hunting.asHarvest(actor, (Actor) t, still, false));
+      }
+      if (t instanceof Fauna) {
+        final Hunting h = Hunting.asSample(actor, (Fauna) t, this);
+        if (! stocks.hasItem(h.sample())) choice.add(h);
       }
     }
+    if (hasStill) choice.add(Deliveries.nextDeliveryFor(
+      actor, still, still.services(), 5, world
+    ));
     
     //  TODO:  Restore animal breeding and placement of sensor posts.
     return choice.weightedPick() ;

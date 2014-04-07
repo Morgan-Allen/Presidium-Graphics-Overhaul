@@ -19,7 +19,7 @@ public class Activities {
     */
   final World world ;
   
-  final Table <Target, List <Action>> actions = new Table(1000) ;
+  final Table <Target, List <Behaviour>> actions = new Table(1000) ;
   final Table <Behaviour, Behaviour> behaviours = new Table(1000) ;
   
   
@@ -31,9 +31,12 @@ public class Activities {
   public void loadState(Session s) throws Exception {
     for (int n = s.loadInt() ; n-- > 0 ;) {
       final Target t = s.loadTarget() ;
-      final List <Action> l = new List <Action> () ;
+      final List <Behaviour> l = new List <Behaviour> () ;
       s.loadObjects(l) ;
       actions.put(t, l) ;
+      
+      //  TODO:  RESTORE AND TEST
+      /*
       //
       //  Safety checks for can't-happen events-
       if (! t.inWorld()) {
@@ -45,6 +48,7 @@ public class Activities {
           l.remove(a) ;
         }
       }
+      //*/
     }
     for (int n = s.loadInt() ; n-- > 0 ;) {
       final Behaviour b = (Behaviour) s.loadObject() ;
@@ -74,6 +78,24 @@ public class Activities {
   public void toggleBehaviour(Behaviour b, boolean is) {
     if (is) behaviours.put(b, b) ;
     else behaviours.remove(b) ;
+
+    if (b == null) return ;
+    /*
+    if (! b.actor.inWorld()) {
+      I.complain(b+" TOGGLED BY DEFUNCT ACTOR: "+a.actor) ;
+    }
+    //*/
+    
+    final Target t = b.subject() ;
+    List <Behaviour> forT = actions.get(t) ;
+    if (is) {
+      if (forT == null) actions.put(t, forT = new List <Behaviour> ()) ;
+      forT.include(b) ;
+    }
+    else if (forT != null) {
+      forT.remove(b) ;
+      if (forT.size() == 0) actions.remove(t) ;
+    }
   }
   
   
@@ -82,23 +104,25 @@ public class Activities {
   }
   
   
+  //  Intended for debugging purposes.
+  /*
   public void huntForActionReference(Actor actor) {
     for (List <Action> LA : actions.values()) for (Action a : LA) {
       if (a.actor == actor) {
         I.say(actor+" "+actor.hashCode()+" STILL REFERENCED BY "+a) ;
-        I.say("TARGET IS: "+a.target()+", IN WORLD? "+a.target().inWorld()) ;
+        I.say("TARGET IS: "+a.subject()+", IN WORLD? "+a.subject().inWorld()) ;
       }
     }
   }
   
-  
+  /*
   public void toggleAction(Action a, boolean is) {
     if (a == null) return ;
     if (! a.actor.inWorld()) {
       I.complain(a+" TOGGLED BY DEFUNCT ACTOR: "+a.actor) ;
     }
     
-    final Target t = a.target() ;
+    final Target t = a.subject() ;
     List <Action> forT = actions.get(t) ;
     if (is) {
       if (forT == null) actions.put(t, forT = new List <Action> ()) ;
@@ -109,25 +133,26 @@ public class Activities {
       if (forT.size() == 0) actions.remove(t) ;
     }
   }
+  //*/
   
   
+  /*
   public boolean includes(Target t, String methodName) {
-    final List <Action> onTarget = actions.get(t) ;
+    final List <Behaviour> onTarget = actions.get(t) ;
     if (onTarget == null) return false ;
     for (Action a : onTarget) {
       if (a.methodName().equals(methodName)) return true ;
     }
     return false ;
   }
+  //*/
   
   
   public boolean includes(Target t, Class behaviourClass) {
-    final List <Action> onTarget = actions.get(t) ;
+    final List <Behaviour> onTarget = actions.get(t) ;
     if (onTarget == null) return false ;
-    for (Action a : onTarget) {
-      for (Behaviour b : a.actor.mind.agenda()) {
-        if (b.getClass() == behaviourClass) return true ;
-      }
+    for (Behaviour b : onTarget) {
+      if (b.getClass() == behaviourClass) return true ;
     }
     return false ;
   }
@@ -135,70 +160,12 @@ public class Activities {
   
   public Batch <Behaviour> targeting(Target t) {
     final Batch <Behaviour> batch = new Batch <Behaviour> () ;
-    final List <Action> onTarget = actions.get(t) ;
+    final List <Behaviour> onTarget = actions.get(t) ;
     if (onTarget == null) return batch ;
-    for (Action a : onTarget) for (Behaviour b : a.actor.mind.agenda()) {
-      batch.add(b) ;
-    }
+    for (Behaviour b : onTarget) batch.add(b) ;
     return batch ;
   }
 }
-
-
-
-/*
-public boolean assigned(Target t, String methodName) {
-  final List <Action> onTarget = actions.get(t) ;
-  if (onTarget == null) return false ;
-  for (Action a : onTarget) {
-    if (a.methodName().equals(methodName)) return true ;
-  }
-  return false ;
-}
-
-
-public Batch <Action> matches(Target t, String methodName) {
-  final Batch <Action> found = new Batch <Action> () ;
-  final List <Action> onTarget = actions.get(t) ;
-  if (onTarget != null) for (Action a : onTarget) {
-    if (a.methodName().equals(methodName)) found.add(a) ;
-  }
-  return found ;
-}
-
-
-public boolean assigned(Target t, Behaviour behaviour) {
-  final List <Action> onTarget = actions.get(t) ;
-  if (onTarget == null) return false ;
-  for (Action a : onTarget) for (Behaviour b : a.actor.currentBehaviours()) {
-    if (b.equals(behaviour)) return true ;
-  }
-  return false ;
-}
-
-
-public boolean contains(Target t, Class behaviourClass) {
-  final List <Action> onTarget = actions.get(t) ;
-  if (onTarget == null) return false ;
-  for (Action a : onTarget) for (Behaviour b : a.actor.currentBehaviours()) {
-    if (b.getClass() == behaviourClass) return true ;
-  }
-  return false ;
-}
-
-
-public Batch <Behaviour> matches(Target t, Class behaviourClass) {
-  final Batch <Behaviour> found = new Batch <Behaviour> () ;
-  final List <Action> onTarget = actions.get(t) ;
-  if (onTarget == null) return found ;
-  for (Action a : onTarget) for (Behaviour b : a.actor.currentBehaviours()) {
-    if (b.getClass() == behaviourClass) found.add(b) ;
-  }
-  return found ;
-}
-//*/
-
-
 
 
 

@@ -21,8 +21,8 @@ public class Tripod extends Artilect implements Economy {
   final String name ;
   
   
-  public Tripod() {
-    super((Species) null) ;
+  public Tripod(Base base) {
+    super(base, (Species) null) ;
     
     traits.initAtts(30, 10, 5) ;
     health.initStats(

@@ -390,7 +390,7 @@ public class Mining extends Plan implements Economy {
       else d.append(face) ;
     }
     if (stage == STAGE_RETURN) {
-      d.append("Returning ores to "+actor.targetFor(Mining.class)) ;
+      d.append("Returning ores to "+actor.focusFor(Mining.class)) ;
     }
   }
 }

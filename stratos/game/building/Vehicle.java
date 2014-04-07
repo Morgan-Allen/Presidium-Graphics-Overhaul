@@ -205,7 +205,7 @@ public abstract class Vehicle extends Mobile implements
       return ;
     }
     if (pilot.currentAction() == null) return ;
-    motion.updateTarget(pilot.currentAction().target()) ;
+    motion.updateTarget(pilot.currentAction().subject()) ;
   }
   
   

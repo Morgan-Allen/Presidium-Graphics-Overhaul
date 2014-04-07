@@ -14,7 +14,7 @@ import stratos.util.*;
 public class FirstAid extends Plan implements Qualities, Economy {
   
   
-  private static boolean verbose = true, evalVerbose = false;
+  private static boolean verbose = false, evalVerbose = false;
   
   final Actor patient;
   final Boardable refuge;
@@ -57,6 +57,7 @@ public class FirstAid extends Plan implements Qualities, Economy {
   
   
   private float severity() {
+    if (! patient.health.alive()) return 0.25f;
     float severity = patient.health.injuryLevel();
     if (patient.health.bleeding()) severity += 0.5f;
     return severity;
@@ -79,7 +80,7 @@ public class FirstAid extends Plan implements Qualities, Economy {
   
   private static Boardable findRefuge(Actor actor) {
     final Target t = Retreat.nearestHaven(actor, Sickbay.class);
-    if (t instanceof Boardable) return (Boardable) t;
+    if (t instanceof Venue) return (Venue) t;
     return null;
   }
   
@@ -132,14 +133,17 @@ public class FirstAid extends Plan implements Qualities, Economy {
     
     if (refuge != null && ! patient.indoors()) {
       final StretcherDelivery d = new StretcherDelivery(actor, patient, refuge);
-      if (d.nextStep() != null) return d;
+      if (d.nextStep() != null) {
+        if (report) I.say("Returning new stretcher delivery...");
+        return d;
+      }
     }
     
     result = treatmentFor(patient);
     final float AR = patient.gear.amountOf(result);
     if (report) I.say("Amount of treatment is: "+AR);
     
-    if (AR < 1) {
+    if (AR < (hasBegun() ? 1 : 0.5f)) {
       final Action aids = new Action(
         actor, patient,
         this, "actionFirstAid",
@@ -187,7 +191,7 @@ public class FirstAid extends Plan implements Qualities, Economy {
   
   
   public void describeBehaviour(Description d) {
-    if (! (lastStep instanceof Action)) {
+    if (lastStep instanceof Plan) {
       super.describedByStep(d);
       return;
     }

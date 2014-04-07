@@ -43,73 +43,17 @@ public class Repairs extends Plan implements Qualities {
   
   /**  Assessing targets and priority-
     */
-  public float priorityFor(Actor actor) {
-    //
-    //  By default, the impetus to repair something is based on qualification
-    //  for the task and personality.
-    if (verbose) I.sayAbout(actor, "Considering repair of "+built+"?") ;
-    final float attachment = Math.max(
-      actor.base().communitySpirit(),
-      actor.mind.relationValue(built)
-    ) ;
-    //
-    //  TODO:  Factor out the skill evaluation down below?
-    float skillRating = actor.traits.chance(ASSEMBLY, MODERATE_DC) ;
-    skillRating += actor.traits.chance(HARD_LABOUR, ROUTINE_DC) ;
-    skillRating /= 2 ;
-    
-    //final boolean broke = built.base().credits() <= 0 ;
-    float impetus = skillRating * attachment ;
-    impetus -= actor.traits.traitLevel(NATURALIST) / 10f ;
-    impetus -= actor.traits.traitLevel(RELAXED) / 10f ;
-    if (impetus <= 0 || attachment <= 0) impetus = 0 ;
-    else impetus += attachment / 2f ;
-    //
-    //  If damage is higher than 50%, priority converges to maximum, regardless
-    //  of competency, but only when you have altruistic motives.
-    float needRepair = (1 - built.structure.repairLevel()) * 1.5f ;
+  private static float needForRepair(Venue built) {
+    float needRepair;
     if (! built.structure.intact()) needRepair = 1.0f ;
+    else needRepair = (1 - built.structure.repairLevel()) * 1.5f ;
     if (built.structure.needsUpgrade()) needRepair += 0.5f ;
     if (built.structure.burning()) needRepair += 1.0f ;
-    if (verbose) I.sayAbout(
-      actor, "Considering repair of "+built+", need: "+needRepair+
-      "\nimpetus/skill for "+actor+" is "+impetus+"/"+skillRating
-    ) ;
-    if (needRepair > 0.5f) {
-      if (needRepair > 1) needRepair = 1 ;
-      final float urgency = (needRepair - 0.5f) * 2 ;
-      impetus += (1 - impetus) * urgency * attachment * (1 + skillRating) / 2 ;
-      if (verbose) I.sayAbout(actor, "Attachment "+attachment) ;
-      if (verbose) I.sayAbout(actor, "Need for repair: "+needRepair) ;
-    }
-    else if (needRepair == 0) return 0 ;
-    //
-    //  During initial consideration, include competition as a decision factor,
-    //  so that you don't get dozens of actors converging on a minor breakdown.
-    float competition = 0 ;
-    if (! hasBegun()) {
-      competition = Plan.competition(Repairs.class, built, actor) ;
-      competition /= 1 + (built.structure.maxIntegrity() / 100f) ;
-      if (verbose) I.sayAbout(actor, "Competition is: "+competition) ;
-    }
-    //
-    //  Finally, scale, offset and clamp appropriately-
-    impetus = (impetus * needRepair * URGENT) - competition ;
-    impetus -= Plan.rangePenalty(actor, built) ;
-    
-    //
-    //  TODO:  What about native huts?  Or animal lairs?  ...They won't have a
-    //  credit balance.
-    final float brokeRating = 0 - built.base().credits() / 500f ;
-    if (brokeRating > 0) impetus -= brokeRating ;
-    impetus += priorityMod ;
-    
-    if (verbose) I.sayAbout(actor, "Priority for "+this+" is "+impetus) ;
-    return Visit.clamp(impetus, 0, URGENT) ;
+    return needRepair;
   }
   
   
-  public static Repairs getNextRepairFor(Actor client, float priorityMod) {
+  public static Repairs getNextRepairFor(Actor client, float motiveBonus) {
     final World world = client.world() ;
     final Batch <Venue> toRepair = new Batch <Venue> () ;
     world.presences.sampleFromKeys(
@@ -118,18 +62,45 @@ public class Repairs extends Plan implements Qualities {
     final Choice choice = new Choice(client) ;
     for (Venue near : toRepair) {
       if (near.base() != client.base()) continue ;
-      final boolean needsRepair =
-        near.structure.hasWear() ||
-        near.structure.burning() ||
-        near.structure.needsUpgrade() ||
-        near.structure.needsSalvage() ;
-      if (! needsRepair) continue ;
+      if (needForRepair(near) <= 0) continue;
       final Repairs b = new Repairs(client, near) ;
-      b.priorityMod = priorityMod ;
+      b.setMotive(Plan.MOTIVE_DUTY, motiveBonus);
       choice.add(b) ;
     }
     
     return (Repairs) choice.pickMostUrgent() ;
+  }
+  
+  
+  final Trait BASE_TRAITS[] = { METICULOUS, ENERGETIC };
+  final Skill BASE_SKILLS[] = { ASSEMBLY, HARD_LABOUR };
+  
+  
+  public float priorityFor(Actor actor) {
+    final boolean report = verbose && I.talkAbout == actor;
+
+    float urgency = needForRepair(built);
+    final float debt = 0 - built.base().credits();
+    if (debt > 0) urgency -= debt / 500f;
+    
+    float competition = FULL_COMPETITION;
+    final float help = REAL_HELP + (actor.base().communitySpirit() / 2);
+    competition /= 1 + (built.structure.maxIntegrity() / 100f);
+    
+    final float priority = super.priorityForActorWith(
+      actor, built, ROUTINE,
+      help, competition,
+      BASE_SKILLS, BASE_TRAITS,
+      urgency, NORMAL_DISTANCE_CHECK, MILD_DANGER,
+      report
+    );
+    if (report) {
+      I.say("Repairing "+built);
+      I.say("  Basic urgency: "+urgency+", debt level: "+debt);
+      I.say("  Help/Competition: "+help+"/"+competition);
+      I.say("  Final priority: "+priority);
+    }
+    return priority;
   }
   
   

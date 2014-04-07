@@ -171,7 +171,7 @@ public class Foundry extends Venue implements Economy {
         o.checkBonus += OT.defence * CMB / 10f ;
       }
       o.checkBonus -= powerCut ;
-      o.priorityMod = Plan.ROUTINE ;
+      o.setMotive(Plan.MOTIVE_DUTY, Plan.URGENT);
       return o ;
       //choice.add(o) ;
     }

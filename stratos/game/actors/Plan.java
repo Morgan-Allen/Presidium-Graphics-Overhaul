@@ -26,6 +26,12 @@ import stratos.util.*;
 
 //  TODO:  Either get rid of the priorityMod field, or incorporate it more
 //  consistently in priority evaluation.
+//  
+//  public void setMotive(int type, float bonus), maybe?  And remove related
+//  fields from the priorityFor(... method.
+
+//  TYPE_LEISURE, TYPE_STUDY, TYPE_ADVENTURE, TYPE_OTHER
+//  TYPE_DUTY, TYPE_EMERGENCY, TYPE_MISSION, TYPE_FORCED
 
 
 
@@ -35,72 +41,99 @@ public abstract class Plan implements Saveable, Behaviour {
   
   /**  Fields, constructors, and save/load methods-
     */
+  final public static int
+    MOTIVE_INIT      = -1,
+    MOTIVE_LEISURE   =  0,
+    MOTIVE_DUTY      =  1,
+    MOTIVE_EMERGENCY =  2;
+  
   private static boolean verbose = false, evalVerbose = false;
   
-  final Saveable signature[] ;
-  final int hash ;
-  protected Actor actor ;
+  //final Saveable signature[];
+  final Target subject;
+  //final int hash;
+  
+  protected Actor actor;
   protected Behaviour
     nextStep = null,
-    lastStep = null ;
+    lastStep = null;
   
-  public float priorityMod = 0 ;
+  private int motiveType = MOTIVE_INIT;
+  private float motiveBonus = 0;
   
   
   
-  protected Plan(Actor actor, Saveable... signature) {
-    this(actor, ROUTINE, null, signature) ;
+  protected Plan(Actor actor, Target subject) {
+    //this(actor, ROUTINE, null, signature) ;
+    this.actor = actor;
+    this.subject = subject;
+    //this.hash = Table.hashFor(actor, subject);
   }
   
-  
+  /*
   protected Plan(
-    Actor actor, float priority, String desc,
-    Saveable... signature
+    Actor actor, float priority, String desc
   ) {
     this.actor = actor ;
     this.signature = signature ;
     this.hash = Table.hashFor((Object[]) signature) ;
   }
+  //*/
   
   
   public Plan(Session s) throws Exception {
     s.cacheInstance(this) ;
     this.actor = (Actor) s.loadObject() ;
-    final int numS = s.loadInt() ;
-    this.signature = new Saveable[numS] ;
-    for (int i = 0 ; i < numS ; i++) signature[i] = s.loadObject() ;
-    this.hash = Table.hashFor((Object[]) signature) ;
+    this.subject = s.loadTarget();
+    //final int numS = s.loadInt() ;
+    //this.signature = new Saveable[numS] ;
+    //for (int i = 0 ; i < numS ; i++) signature[i] = s.loadObject() ;
+    //this.hash = Table.hashFor((Object[]) signature) ;
     
     this.nextStep = (Behaviour) s.loadObject() ;
     this.lastStep = (Behaviour) s.loadObject() ;
-    this.priorityMod = s.loadFloat() ;
+    this.motiveType = s.loadInt();
+    this.motiveBonus = s.loadFloat();
   }
   
   
   public void saveState(Session s) throws Exception {
     s.saveObject(actor) ;
-    s.saveInt(signature.length) ;
-    for (Saveable o : signature) s.saveObject(o) ;
+    s.saveTarget(subject);
+    //s.saveInt(signature.length) ;
+    //for (Saveable o : signature) s.saveObject(o) ;
+    
     s.saveObject(nextStep) ;
     s.saveObject(lastStep) ;
-    s.saveFloat(priorityMod) ;
+    s.saveInt(motiveType);
+    s.saveFloat(motiveBonus);
   }
   
   
   public boolean matchesPlan(Plan p) {
     if (p == null || p.getClass() != this.getClass()) return false ;
+    return this.subject == p.subject;
+    
+    /*
     for (int i = 0 ; i < signature.length ; i++) {
       final Object s = signature[i], pS = p.signature[i] ;
       if (s == null && pS != null) return false ;
       if (! s.equals(pS)) return false ;
     }
     return true ;
+    //*/
   }
   
   
+  public Target subject() {
+    return subject;
+  }
+  
+  /*
   public int planHash() {
     return hash ;
   }
+  //*/
   
   
   
@@ -112,10 +145,13 @@ public abstract class Plan implements Saveable, Behaviour {
   
   
   public boolean valid() {
+    /*
     for (Saveable o : signature) if (o instanceof Target) {
       final Target t = (Target) o ;
       if (! t.inWorld()) return false ;
     }
+    //*/
+    if (! subject.inWorld()) return false;
     if (actor != null && ! actor.inWorld()) return false ;
     return true ;
   }
@@ -134,6 +170,12 @@ public abstract class Plan implements Saveable, Behaviour {
   
   
   public Behaviour nextStepFor(Actor actor) {
+    /*
+    if (! hasMotive()) {
+      I.say("WARNING:  No Motive set for "+this);
+      return null;
+    }
+    //*/
     if (this.actor != actor) {
       if (this.actor != null) ;  //TODO:  Give some kind of message here?
       this.actor = actor ;
@@ -190,6 +232,13 @@ public abstract class Plan implements Saveable, Behaviour {
   
   /**  Assorted utility evaluation methods-
     */
+  public Plan setMotive(int type, float bonus) {
+    this.motiveType = type;
+    this.motiveBonus = bonus;
+    return this;
+  }
+  
+  
   final protected static float
     NO_DANGER      = 0.0f,
     MILD_DANGER    = 0.5f,
@@ -219,6 +268,7 @@ public abstract class Plan implements Saveable, Behaviour {
   final protected static Skill NO_SKILLS[] = null;
   final protected static Trait NO_TRAITS[] = null;
   
+  
   protected float priorityForActorWith(
     Actor actor,
     Target subject,
@@ -232,10 +282,20 @@ public abstract class Plan implements Saveable, Behaviour {
     float dangerFactor,
     boolean report
   ) {
+    if (subject == null) I.complain("NO SUBJECT SPECIFIED");
     float
       priority = ROUTINE + specialModifier,
       skillBonus = 0, traitBonus = 0,
       harmBonus = 0, competeBonus = 0;
+    
+    if (motiveType != MOTIVE_INIT) {
+      if (defaultPriority == FROM_MOTIVE) defaultPriority = motiveBonus;
+      else defaultPriority = (motiveBonus + defaultPriority) / 2f;
+    }
+    else if (defaultPriority == FROM_MOTIVE) {
+      I.complain("NO MOTIVATION!");
+      return -1;
+    }
     
     if (report) {
       I.say("\nEvaluating priority for "+this);
@@ -244,7 +304,7 @@ public abstract class Plan implements Saveable, Behaviour {
     
     if (baseSkills != null) for (Skill skill : baseSkills) {
       final float level = actor.traits.traitLevel(skill);
-      skillBonus += (level - 5) / (5 * baseSkills.length);
+      skillBonus += CASUAL * (level - 5) / (15 * baseSkills.length);
     }
     
     if (baseTraits != null) for (Trait trait : baseTraits) {
@@ -284,15 +344,14 @@ public abstract class Plan implements Saveable, Behaviour {
     
     if (dangerFactor > 0) {
       final float chance = successChance();
+      priority *= chance;
       chancePenalty = (1 - chance) * dangerFactor * PARAMOUNT;
     }
     
     if (distanceCheck != 0) {
       rangePenalty = rangePenalty(actor, subject) * distanceCheck;
-      if (dangerFactor > 0) {
-        final float danger = dangerPenalty(subject, actor);
-        dangerPenalty = danger * (rangePenalty + 2) / 2f;
-      }
+      final float danger = dangerPenalty(subject, actor);
+      dangerPenalty = danger * (rangePenalty + 2) / 2f;
     }
     
     priority -= chancePenalty;
@@ -338,7 +397,7 @@ public abstract class Plan implements Saveable, Behaviour {
     float danger = actor.base().dangerMap.sampleAt(at.x, at.y) ;
     if (danger < 0) return 0 ;
     danger *= 1 + actor.traits.relativeLevel(Qualities.NERVOUS) ;
-    final float strength = Combat.combatStrength(actor, null);
+    final float strength = CombatUtils.combatStrength(actor, null);
     
     if (evalVerbose && I.talkAbout == actor) {
       I.say("  Combat strength: "+strength);
@@ -378,6 +437,14 @@ public abstract class Plan implements Saveable, Behaviour {
   }
   
   
+  //  TODO:  Implement this.
+  /*
+  public static float victimBonus(Actor actor, float harmMult) {
+    
+  }
+  //*/
+  
+  
   public static int upgradeBonus(Target location, Object refers) {
     if (! (location instanceof Venue)) return 0 ;
     final Venue v = (Venue) location ;
@@ -409,7 +476,7 @@ public abstract class Plan implements Saveable, Behaviour {
   
   protected Target lastStepTarget() {
     if (lastStep == null) return null ;
-    if (lastStep instanceof Action) return ((Action) lastStep).target() ;
+    if (lastStep instanceof Action) return ((Action) lastStep).subject() ;
     if (lastStep instanceof Plan) return ((Plan) lastStep).lastStepTarget() ;
     return null ;
   }

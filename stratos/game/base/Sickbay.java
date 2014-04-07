@@ -136,8 +136,8 @@ public class Sickbay extends Venue implements Economy {
     world.presences.sampleFromKey(this, world, 5, around, Mobile.class) ;
     for (Mobile m : this.inside()) around.include(m) ;
     for (Mobile m : around) if (m instanceof Actor) {
-      final FirstAid t = new FirstAid(actor, (Actor) m, this) ;
-      t.priorityMod = Plan.ROUTINE ;
+      final FirstAid t = new FirstAid(actor, (Actor) m, this);
+      t.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
       choice.add(t) ;
     }
     final Behaviour picked = (numPatients() > 0) ?

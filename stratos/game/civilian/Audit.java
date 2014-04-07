@@ -43,9 +43,9 @@ public class Audit extends Plan implements Economy {
   public int checkBonus = 0 ;
   
   
-  public Audit(Actor actor, Venue firstAudit) {
-    super(actor) ;
-    this.audited = firstAudit ;
+  public Audit(Actor actor, Venue toAudit) {
+    super(actor, toAudit) ;
+    this.audited = toAudit ;
   }
   
   

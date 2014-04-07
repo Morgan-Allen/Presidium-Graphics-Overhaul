@@ -16,12 +16,8 @@ import com.badlogic.gdx.backends.lwjgl.*;
 
 
 
-
 //  *  Text should implement scrolling and scissor clipping. (this might need
 //     some attention paid to general UI design, though.)
-//  *  HUMAN ARMOUR VALUES ARE WAY OFF- INVESTIGATE
-
-
 
 public final class PlayLoop {
   

@@ -113,19 +113,21 @@ public abstract class Actor extends Mobile implements
     */
   public void assignAction(Action action) {
     if (verbose && I.talkAbout == this) {
-      I.say("  ASSIGNING ACTION: "+action) ;
-      if (action != null) I.add("  "+action.hashCode()+"\n") ;
+      I.say("  ASSIGNING ACTION: "+action);
+      if (action != null) I.add("  "+action.hashCode()+"\n");
     }
-    world.activities.toggleAction(actionTaken, false) ;
-    this.actionTaken = action ;
-    if (actionTaken != null) actionTaken.updateAction(false) ;
-    world.activities.toggleAction(actionTaken, true) ;
+    //world.activities.toggleAction(actionTaken, false);
+    this.actionTaken = action;
+    if (actionTaken != null) {
+      senses.pushAwareness(actionTaken.subject(), -1, null);
+      actionTaken.updateAction(false);
+    }
+    //world.activities.toggleAction(actionTaken, true);
   }
   
   
   protected void pathingAbort() {
     if (actionTaken == null) return ;
-
     final Behaviour root = mind.rootBehaviour() ;
     //  TODO:  This needs some work.  Ideally, behaviours (particularly
     //  missions) should have some method of handling this more gracefully.
@@ -223,6 +225,16 @@ public abstract class Actor extends Mobile implements
       }
       senses.updateSeen();
       mind.updateAI(numUpdates) ;
+      
+      if (actionTaken != null && numUpdates % 10 == 0) {
+        //  TODO:  Only perform this test once you arrive at the quarry's last
+        //  known position?
+        if ((! senses.awareOf(actionTaken.subject()))) {
+          ///I.say("HAVE LOST SIGHT OF: "+actionTarget);
+          //if (report) I.say("Have lost sight of "+actionTarget);
+          pathingAbort();
+        }
+      }
     }
     
     //  Check to see if you need to wake up-
@@ -242,7 +254,7 @@ public abstract class Actor extends Mobile implements
     }
     
     //  Update the intel/danger maps associated with the world's bases.
-    final float power = Combat.combatStrength(this, null) * 10 ;
+    final float power = CombatUtils.combatStrength(this, null) * 10 ;
     for (Base b : world.bases()) {
       if (b == base()) {
         //
@@ -280,6 +292,11 @@ public abstract class Actor extends Mobile implements
   }
   
   
+  protected boolean collides() {
+    return health.conscious();
+  }
+  
+  
   public boolean actionFall(Actor actor, Actor fallen) {
     return true ;
   }
@@ -287,7 +304,7 @@ public abstract class Actor extends Mobile implements
   
   public boolean isDoing(Class planClass, Target target) {
     if (target != null) {
-      if (actionTaken == null || actionTaken.target() != target) return false ;
+      if (actionTaken == null || actionTaken.subject() != target) return false ;
     }
     for (Behaviour b : mind.agenda()) {
       if (planClass.isAssignableFrom(b.getClass())) return true ;
@@ -318,15 +335,15 @@ public abstract class Actor extends Mobile implements
   
   public boolean isDoing(String actionMethod, Target target) {
     if (actionTaken == null) return false ;
-    if (target != null && actionTaken.target() != target) return false ;
+    if (target != null && actionTaken.subject() != target) return false ;
     return actionTaken.methodName().equals(actionMethod) ;
   }
   
   
-  public Target targetFor(Class planClass) {
+  public Target focusFor(Class planClass) {
     if (actionTaken == null) return null ;
     if (planClass != null && ! isDoing(planClass, null)) return null ;
-    return actionTaken.target() ;
+    return actionTaken.subject() ;
   }
   
   

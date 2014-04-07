@@ -422,14 +422,15 @@ public class ActorTraits implements Qualities {
   }
   
   
-  public int test(
+  public float test(
     Skill checked, Actor b, Skill opposed,
     float bonus, float duration,
     int range
   ) {
     final float chance = chance(checked, b, opposed, bonus) ;
-    int success = 0 ;
-    for (int tried = 0 ; tried < range ; tried++) {
+    float success = 0 ;
+    if (range <= 0) success = chance;
+    else for (int tried = range; tried-- > 0;) {
       if (Rand.num() < chance) success++ ;
     }
     practice(checked, (1 - chance) * duration / 10) ;

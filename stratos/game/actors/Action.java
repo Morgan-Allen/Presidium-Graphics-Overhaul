@@ -53,7 +53,6 @@ public class Action implements Behaviour, AnimNames {
   
   private int properties ;
   private byte moveState = -1;
-  //private byte inRange = -1 ;
   private Target actionTarget, moveTarget ;
   private float progress, oldProgress ;
   
@@ -134,7 +133,7 @@ public class Action implements Behaviour, AnimNames {
   }
   
   
-  public Target target() {
+  public Target subject() {
     return actionTarget ;
   }
   
@@ -176,10 +175,10 @@ public class Action implements Behaviour, AnimNames {
   
   
   public void abortBehaviour() {
-    progress = -1 ;
-    moveState = STATE_INIT ;
-    actor.mind.cancelBehaviour(this) ;
-    actor.assignAction(null) ;
+    progress = -1;
+    moveState = STATE_INIT;
+    actor.mind.cancelBehaviour(this);
+    actor.assignAction(null);
   }
   
   
@@ -233,7 +232,6 @@ public class Action implements Behaviour, AnimNames {
       case (Tile.PATH_ROAD   ) : rate *= 1.2f ; break ;
     }
     
-    
     return rate ;
   }
 
@@ -244,6 +242,10 @@ public class Action implements Behaviour, AnimNames {
     return MOTION_ANY ;
   }
   
+  
+  //  TODO:  MOVE STUFF LIKE THIS TO ANOTHER CLASS.
+  
+  //  ...There has got to be some way to simplify this junk.
   
   public static float moveLuck(Actor actor) {
     //
@@ -305,7 +307,8 @@ public class Action implements Behaviour, AnimNames {
       //  algorithms instead.
       final boolean seen = Senses.hasLineOfSight(
         actor, actionTarget, Math.max(maxDist, sightRange)
-      ) ;
+      );
+      
       if (Math.min(motionDist, actionDist) < maxDist && ! seen) {
         pathsTo = actionTarget ;
       }
@@ -316,8 +319,9 @@ public class Action implements Behaviour, AnimNames {
       approaching = closed || (seen && (actionDist <= (maxDist + 1))) ;
       closeOn = approaching ? actionTarget : step ;
     }
-    actor.motion.updateTarget(pathsTo) ;
-    facing = actor.motion.facingTarget(closeOn) ;
+    actor.motion.updateTarget(pathsTo);
+    facing = actor.motion.facingTarget(closeOn);
+    //facing = (! tracks()) || actor.motion.facingTarget(closeOn);
     
     if (report) {
       I.say("Action is: "+methodName()+" "+hashCode());
@@ -350,8 +354,8 @@ public class Action implements Behaviour, AnimNames {
     //  If active updates to pathing & motion are called for, make them.
     if (active) {
       if (report) I.say("Move rate: "+moveRate);
-      actor.motion.headTowards(closeOn, moveRate, ! closed) ;
-      if (! closed) actor.motion.applyCollision(moveRate) ;
+      actor.motion.headTowards(closeOn, moveRate, ! closed);
+      if (! closed) actor.motion.applyCollision(moveRate, actionTarget);
     }
   }
   
@@ -380,8 +384,10 @@ public class Action implements Behaviour, AnimNames {
   
   
   protected void updateAction(boolean active) {
-    if (verbose) I.sayAbout(actor, "Updating action: "+progress) ;
+    final boolean report = verbose && I.talkAbout == actor;
+    if (report) I.say("Updating action: "+progress+", target: "+actionTarget);
     if (finished()) {
+      if (report) I.say("Finished!");
       oldProgress = progress = 1 ;
       return ;
     }

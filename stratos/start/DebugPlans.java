@@ -68,8 +68,10 @@ public class DebugPlans extends Scenario {
   
   
   protected void configureScenario(World world, Base base, BaseUI UI) {
+    GameSettings.setDefaults();
     //configMedicalScenario(world, base, UI);
-    configHuntingScenario(world, base, UI);
+    //configHuntingScenario(world, base, UI);
+    configCombatScenario(world, base, UI);
   }
   
   
@@ -91,11 +93,11 @@ public class DebugPlans extends Scenario {
     UI.selection.pushSelection(patient, true);
   }
   
-
+  
   private void configHuntingScenario(World world, Base base, BaseUI UI) {
-    GameSettings.fogFree = true;
+    //GameSettings.fogFree = true;
     GameSettings.buildFree = true;
-    GameSettings.noBlood = true;
+    //GameSettings.noBlood = true;
     
     final Actor hunts = new Human(Background.SURVEY_SCOUT, base);
     final Venue station = new SurveyStation(base);
@@ -109,18 +111,38 @@ public class DebugPlans extends Scenario {
     final Base wildlife = Base.baseWithName(world, Base.KEY_WILDLIFE, true);
     final Actor prey = new Vareen(wildlife);
     prey.enterWorldAt(world.tileAt(9, 9), world);
-    //prey.health.takeFatigue(prey.health.maxHealth());
     
+    //prey.health.takeFatigue(prey.health.maxHealth());
     //hunts.mind.assignBehaviour(Hunting.asHarvest(hunts, prey, station));
     UI.selection.pushSelection(hunts, true);
+    
+    Nest.placeNests(world, Species.HAREEN, Species.QUD);
+  }
+  
+  
+  private void configCombatScenario(World world, Base base, BaseUI UI) {
+    
+    Actor soldier = null;
+    for (int n = 5; n-- > 0;) {
+      soldier = new Human(Background.VETERAN, base);
+      soldier.enterWorldAt(world.tileAt(4, 4), world);
+    }
+    
+    final Actor civilian = new Human(Background.STOCK_VENDOR, base);
+    civilian.enterWorldAt(world.tileAt(5, 4), world);
+    //civilian.health.takeInjury(civilian.health.maxHealth());
+    
+    final Base artilects = Base.baseWithName(world, Base.KEY_ARTILECTS, true);
+    final Actor threat = new Tripod(artilects);
+    threat.enterWorldAt(world.tileAt(9, 9), world);
+    
+    UI.selection.pushSelection(soldier, true);
   }
   
   
   protected void afterCreation() {
   }
 }
-
-
 
 
 

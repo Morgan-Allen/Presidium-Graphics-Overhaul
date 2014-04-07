@@ -479,14 +479,14 @@ public class Power implements Qualities {
         }
         if (command == null) return false ;
         
-        float priorityMod = Plan.PARAMOUNT ;
+        float priorityMod = Plan.ROUTINE ;
         if (caster != null && ! GameSettings.psyFree) {
           final float cost = 5f ;
           priorityMod += caster.traits.useLevel(SUGGESTION) / 5f ;
           caster.health.adjustPsy(0 - cost) ;
           caster.traits.practiceAgainst(10, cost, SYNESTHESIA) ;
         }
-        command.priorityMod = priorityMod ;
+        command.setMotive(Plan.MOTIVE_EMERGENCY, priorityMod);
         
         if (affects.mind.couldSwitchTo(command)) {
           affects.mind.assignBehaviour(command) ;

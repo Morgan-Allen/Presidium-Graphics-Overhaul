@@ -73,7 +73,7 @@ public class Commission extends Plan {
   
   
   public Commission(Actor actor, Item baseItem, Venue shop) {
-    super(actor, baseItem.type, shop) ;
+    super(actor, shop) ;
     this.item = Item.withReference(baseItem, actor) ;
     this.shop = shop ;
   }
@@ -96,6 +96,12 @@ public class Commission extends Plan {
     s.saveObject(order) ;
     s.saveFloat(orderDate) ;
     s.saveBool(delivered) ;
+  }
+  
+  
+  public boolean matchesPlan(Plan p) {
+    if (! super.matchesPlan(p)) return false;
+    return ((Commission) p).item.type == this.item.type;
   }
   
   

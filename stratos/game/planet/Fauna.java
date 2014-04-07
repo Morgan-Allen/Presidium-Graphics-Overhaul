@@ -109,7 +109,7 @@ public abstract class Fauna extends Actor {
         super.updateAI(numUpdates) ;
       }
       
-      protected void addReactions(Element seen, Choice choice) {
+      protected void addReactions(Target seen, Choice choice) {
         if (seen instanceof Actor) choice.add(nextDefence((Actor) seen)) ;
       }
       
@@ -130,7 +130,7 @@ public abstract class Fauna extends Actor {
   
   protected Behaviour nextHunting() {
     final Choice c = new Choice(this);
-    for (Element e : senses.awareOf()) {
+    for (Target e : senses.awareOf()) {
       if (Hunting.validPrey(e, this, false)) {
         final Actor prey = (Actor) e;
         c.add(Hunting.asFeeding(this, prey));

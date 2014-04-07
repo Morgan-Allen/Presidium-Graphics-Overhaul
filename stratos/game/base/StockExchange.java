@@ -156,7 +156,7 @@ public class StockExchange extends Venue implements Economy {
       actor, this, ALL_COMMODITIES, depots, 50, world
     ) ;
     if (bD != null && personnel.assignedTo(bD) < 1) {
-      bD.priorityMod = Plan.CASUAL ;
+      bD.setMotive(Plan.MOTIVE_DUTY, Plan.URGENT);
       bD.driven = cargoBarge ;
       choice.add(bD) ;
     }
@@ -164,7 +164,7 @@ public class StockExchange extends Venue implements Economy {
       actor, this, ALL_COMMODITIES, depots, 50, null, world
     ) ;
     if (bC != null && personnel.assignedTo(bC) < 1) {
-      bC.priorityMod = Plan.CASUAL ;
+      bC.setMotive(Plan.MOTIVE_DUTY, Plan.URGENT);
       bC.driven = cargoBarge ;
       choice.add(bC) ;
     }

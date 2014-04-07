@@ -250,7 +250,9 @@ public class MobileMotion {
   }
   
   
-  public void applyCollision(float moveRate) {
+  //  TODO:  Move the call for this to the Mobile class.
+  
+  public void applyCollision(float moveRate, Target focus) {
     final Mobile m = mobile ;
     if (m.indoors()) return ;
     final Vec2D sum = new Vec2D(), disp = new Vec2D() ;
@@ -278,7 +280,7 @@ public class MobileMotion {
       //  TODO:  This isn't actually guaranteed to catch all nearby mobiles
       //  unless you register them in multiple tiles.  See about that.
       else for (Mobile near : t.inside()) {
-        if (near == m) continue ;
+        if (near == m || near == focus || ! near.collides()) continue ;
         final float
           nMin = near.aboveGroundHeight(),
           nMax = nMin + near.height() ;

@@ -29,8 +29,8 @@ public abstract class ActorMind implements Qualities {
   /**  Field definitions, constructor, save/load methods-
     */
   private static boolean
-    reactionsVerbose = false ,
-    updatesVerbose   = false ;
+    reactionsVerbose = false,
+    updatesVerbose   = false;
   
   
   final protected Actor actor ;
@@ -156,8 +156,49 @@ public abstract class ActorMind implements Qualities {
   }
   
   
+  protected boolean couldSwitch(Behaviour last, Behaviour next) {
+    if (next == null) return false ;
+    if (last == null) return true ;
+    //
+    //  TODO:  CONSIDER GETTING RID OF THIS CLAUSE?  It's handy in certain
+    //  situations, (e.g, where completing the current plan would come at 'no
+    //  cost' to the next plan,) but may be more trouble than it's worth.
+    final Target NT = targetFor(next) ;
+    if (NT != null && targetFor(last) == NT && NT != actor.aboard()) {
+      return false ;
+    }
+    final float
+      lastPriority = last.priorityFor(actor),
+      persist = (
+        Choice.DEFAULT_PRIORITY_RANGE +
+        (actor.traits.relativeLevel(STUBBORN) * Choice.DEFAULT_TRAIT_RANGE)
+      ),
+      threshold = persist + lastPriority,
+      /*
+      threshold = Math.min(
+        lastPriority + persist,
+        lastPriority * (1 + (persist / 2))
+      ),
+      //*/
+      nextPriority = next.priorityFor(actor) ;
+    if (reactionsVerbose && I.talkAbout == actor) {
+      I.say("Last/next priority is: "+lastPriority+"/"+nextPriority) ;
+      I.say("Threshold is: "+threshold) ;
+    }
+    return nextPriority >= threshold ;
+  }
+  
+  
+  private Target targetFor(Behaviour b) {
+    final Behaviour n = b.nextStepFor(actor) ;
+    if (n instanceof Action) return ((Action) n).subject() ;
+    else if (n == null || n.finished()) return null ;
+    else return targetFor(n) ;
+  }
+  
+  
   protected abstract Behaviour createBehaviour() ;
-  protected abstract void addReactions(Element m, Choice choice) ;
+  protected abstract void addReactions(Target m, Choice choice) ;
   
   
   protected Action getNextAction() {
@@ -369,47 +410,6 @@ public abstract class ActorMind implements Qualities {
   public boolean mustIgnore(Behaviour next) {
     if (! actor.health.conscious()) return true ;
     return couldSwitch(next, rootBehaviour()) ;
-  }
-  
-  
-  protected boolean couldSwitch(Behaviour last, Behaviour next) {
-    if (next == null) return false ;
-    if (last == null) return true ;
-    //
-    //  TODO:  CONSIDER GETTING RID OF THIS CLAUSE?  It's handy in certain
-    //  situations, (e.g, where completing the current plan would come at 'no
-    //  cost' to the next plan,) but may be more trouble than it's worth.
-    final Target NT = targetFor(next) ;
-    if (NT != null && targetFor(last) == NT && NT != actor.aboard()) {
-      return false ;
-    }
-    final float
-      lastPriority = last.priorityFor(actor),
-      persist = (
-        Choice.DEFAULT_PRIORITY_RANGE +
-        (actor.traits.relativeLevel(STUBBORN) * Choice.DEFAULT_TRAIT_RANGE)
-      ),
-      threshold = persist + lastPriority,
-      /*
-      threshold = Math.min(
-        lastPriority + persist,
-        lastPriority * (1 + (persist / 2))
-      ),
-      //*/
-      nextPriority = next.priorityFor(actor) ;
-    if (reactionsVerbose && I.talkAbout == actor) {
-      I.say("Last/next priority is: "+lastPriority+"/"+nextPriority) ;
-      I.say("Threshold is: "+threshold) ;
-    }
-    return nextPriority >= threshold ;
-  }
-  
-  
-  private Target targetFor(Behaviour b) {
-    final Behaviour n = b.nextStepFor(actor) ;
-    if (n instanceof Action) return ((Action) n).target() ;
-    else if (n == null || n.finished()) return null ;
-    else return targetFor(n) ;
   }
   
   

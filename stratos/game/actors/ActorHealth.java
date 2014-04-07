@@ -64,11 +64,13 @@ public class ActorHealth implements Qualities {
     STARVE_INTERVAL = World.STANDARD_DAY_LENGTH * 5,
     
     MAX_INJURY       =  1.5f,
+    MAX_DECOMP       =  2.5f,
     MAX_FATIGUE      =  1.0f,
     MAX_MORALE       =  0.5f,
     MIN_MORALE       = -1.5f,
     REVIVE_THRESHOLD =  0.5f,
     STABILISE_CHANCE =  0.2f,
+    BLEED_OUT_TIME   =  World.STANDARD_DAY_LENGTH / 10,
     DECOMPOSE_TIME   =  World.STANDARD_DAY_LENGTH / 2,
     
     FATIGUE_GROW_PER_DAY = 0.33f,
@@ -76,7 +78,7 @@ public class ActorHealth implements Qualities {
     INJURY_REGEN_PER_DAY = 0.33f,
     
     MAX_PSY_MULTIPLE = 10,
-    PSY_REGEN_TIME   = World.STANDARD_DAY_LENGTH / 10 ;
+    PSY_REGEN_TIME   = World.STANDARD_DAY_LENGTH / 2 ;
   
   
   final Actor actor ;
@@ -111,8 +113,8 @@ public class ActorHealth implements Qualities {
     ageMultiple = 1.0f ;
   
   //
-  //  I don't save/load these, since they refresh frequently anyway(?)
-  private float stressCache = -1 ;
+  //  I don't save/load these, since they refresh frequently anyway
+  private float stressCache = -1;
   
   
   
@@ -258,20 +260,6 @@ public class ActorHealth implements Qualities {
   
   public String agingDesc() {
     return AGING_DESC[agingStage()] ;
-  }
-  
-  
-  private float calcAgeMultiple() {
-    if (metabolism == ARTILECT_METABOLISM) return 1 ;
-    final float stage = agingStage() ;
-    if (actor.species() != null) {  //Make this more precise.  Use Traits.
-      return 0.5f + (stage * 0.25f) ;
-    }
-    if (stage == 0) return 0.70f ;
-    if (stage == 1) return 1.00f ;
-    if (stage == 2) return 0.85f ;
-    if (stage == 3) return 0.65f ;
-    return -1 ;
   }
   
   
@@ -441,26 +429,6 @@ public class ActorHealth implements Qualities {
   }
   
   
-  public float stressPenalty() {
-    if (stressCache != -1) return stressCache ;
-    if (! organic()) return stressCache = 0 ;
-    
-    float sumDisease = 0 ;
-    for (Trait t : Qualities.TREATABLE_CONDITIONS) {
-      sumDisease += ((Condition) t).virulence * actor.traits.traitLevel(t) ;
-    }
-    float sum = Visit.clamp((fatigue + injury) / maxHealth, 0, 1) ;
-    final float hunger = (1 - (calories / maxHealth)) + (1 - nutrition) ;
-    if (hunger > 0.5f) sum += hunger - 0.5f ;
-    if (bleeds) sum += 0.25f ;
-    sum += sumDisease / 100f ;
-    sum -= moraleLevel() + 0.25f ;
-    
-    if (sum < 0) return stressCache = 0 ;
-    return stressCache = Visit.clamp(sum * sum, 0, 0.5f) ;
-  }
-  
-  
   public float maxHealth() {
     return maxHealth ;
   }
@@ -482,15 +450,60 @@ public class ActorHealth implements Qualities {
   
   /**  Updates and internal state changes-
     */
-  void updateHealth(int numUpdates) {
+  final static float AGE_STAGE_MULTS[] = { 0.2f, 0.7f, 1.0f, 0.85f, 0.65f };
+  
+  
+  private float calcAgeMultiple() {
+    if (metabolism == ARTILECT_METABOLISM) return 1;
+    final float age = ageLevel();
+    if (metabolism == ANIMAL_METABOLISM) {
+      return 0.5f + age;
+    }
+    else {
+      final int stage = (int) (age * 4);
+      final float
+        a  = (age * 4) % 1,
+        m1 = AGE_STAGE_MULTS[stage],
+        m2 = AGE_STAGE_MULTS[stage + 1];
+      return (m2 * a) + (m1 * (1 - a));
+    }
+  }
+  
+  
+  public float stressPenalty() {
+    if (stressCache != -1) return stressCache;
+    if (! organic()) return stressCache = 0;
+    
+    float disease = 0;
+    for (Trait t : Qualities.TREATABLE_CONDITIONS) {
+      disease += ((Condition) t).virulence * actor.traits.traitLevel(t) / 100f;
+    }
+    
+    float sum = 0;
+    sum += injuryLevel();
+    sum += fatigueLevel();
+    sum += hungerLevel();
+    
+    sum -= (bleeds ? 0 : 0.25f) - disease;
+    sum -= Visit.clamp(moraleLevel(), -0.5f, 0.5f);
+    
+    if (sum > 0) sum -= actor.traits.test(NERVE, null, null, sum * 10, 1, 0);
+    
+    return stressCache = Visit.clamp(sum, 0, 1);
+  }
+  
+  
+  protected void updateHealth(int numUpdates) {
     //
     //  Define primary attributes-
-    ageMultiple = calcAgeMultiple() ;
-    maxHealth = baseBulk * ageMultiple * (DEFAULT_HEALTH +
-      (actor.traits.traitLevel(IMMUNE) / 3f) +
-      (actor.traits.traitLevel(MUSCULAR ) / 3f)
-    ) ;
-    if (numUpdates < 0) return ;
+    ageMultiple = calcAgeMultiple();
+    if (metabolism == HUMAN_METABOLISM) {
+      final float muscle = actor.traits.traitLevel(MUSCULAR) / 10f;
+      maxHealth = DEFAULT_HEALTH * (0.5f + (muscle * muscle / 2f));
+    }
+    else maxHealth = DEFAULT_HEALTH;
+    maxHealth *= baseBulk * ageMultiple;
+    if (numUpdates < 0) return;
     //
     //  Deal with injury, fatigue and stress.
     stressCache = -1 ;
@@ -579,15 +592,18 @@ public class ActorHealth implements Qualities {
       FM *= Action.moveRate(actor, true) ;
     }
     if (bleeds) {
-      injury++ ;
+      injury += baseBulk * 1f / BLEED_OUT_TIME ;
       if (actor.traits.test(IMMUNE, 10, 1) && Rand.num() < STABILISE_CHANCE) {
         bleeds = false ;
       }
     }
-    else injury -= INJURY_REGEN_PER_DAY * maxHealth * IM / DL ;
-    fatigue += FATIGUE_GROW_PER_DAY * baseSpeed * maxHealth * FM / DL ;
-    fatigue = Visit.clamp(fatigue, 0, MAX_FATIGUE * maxHealth) ;
-    injury = Visit.clamp(injury, 0, (MAX_INJURY + 1) * maxHealth) ;
+    else if (injury > 0) {
+      final float regen = actor.traits.test(IMMUNE, null, null, -10, 0.1f, 2);
+      injury -= INJURY_REGEN_PER_DAY * maxHealth * regen * IM / DL;
+    }
+    fatigue += FATIGUE_GROW_PER_DAY * baseSpeed * maxHealth * FM / DL;
+    fatigue = Visit.clamp(fatigue, 0, MAX_FATIGUE * maxHealth);
+    injury = Visit.clamp(injury, 0, MAX_DECOMP * maxHealth);
     
     //  Have morale converge to a default based on the cheerful trait and
     //  current stress levels.

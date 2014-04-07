@@ -144,6 +144,7 @@ public class SolidSprite extends Sprite implements RenderableProvider {
   
   public void setAnimation(String id, float progress) {
     Animation match = model.gdxModel.getAnimation(id);
+    /*
     if (match == null) {
       if (verbose) {
         I.say("  WARNING:  No matching animation: "+id);
@@ -151,9 +152,7 @@ public class SolidSprite extends Sprite implements RenderableProvider {
       }
       match = model.gdxModel.getAnimation(AnimNames.STAND);
     }
-    if (match == null) {
-      match = model.gdxModel.getAnimation(AnimNames.FULL_RANGE);
-    }
+    //*/
     if (match == null) return;
     
     AnimState topState = animStates.getLast();

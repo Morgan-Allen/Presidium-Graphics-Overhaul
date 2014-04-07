@@ -37,7 +37,7 @@ public class Migration extends Plan implements Economy {
   
   
   public Migration(Actor actor) {
-    super(actor) ;
+    super(actor, actor) ;
   }
   
   

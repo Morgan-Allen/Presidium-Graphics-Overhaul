@@ -19,7 +19,7 @@ public class Steps extends Plan {
   
   
   public Steps(
-    Actor actor, Saveable key, float priority,
+    Actor actor, Target key, float priority,
     Action... actions
   ) {
     super(actor, key) ;

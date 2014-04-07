@@ -17,6 +17,8 @@ public class Exploring extends Plan implements Qualities {
   
   /**  Construction and save/load methods-
     */
+  private static boolean verbose = false;
+  
   final Base base ;
   private Tile lookedAt ;
   
@@ -29,7 +31,7 @@ public class Exploring extends Plan implements Qualities {
   
   
   public Exploring(Actor actor, Base base, Tile lookedAt) {
-    super(actor) ;
+    super(actor, lookedAt) ;
     this.base = base ;
     this.lookedAt = lookedAt ;
   }
@@ -52,16 +54,30 @@ public class Exploring extends Plan implements Qualities {
   
   /**  Evaluating targets and priority-
     */
+  final static Skill BASE_SKILLS[] = { SURVEILLANCE, ATHLETICS };
+  final static Trait BASE_TRAITS[] = { CURIOUS, ENERGETIC, NATURALIST };
+  
   public float priorityFor(Actor actor) {
-    final float p = rateExplorePoint(actor, lookedAt, priorityMod) ;
+    //final float p = rateExplorePoint(actor, lookedAt, priorityMod) ;
     ///if (BaseUI.isPicked(actor))
     ///I.say("PRIORITY FOR EXPLORATION: "+p) ;
     //
-    //  TODO:  Increase priority based on amount of map left unexplored.
-    return p ;
+    //  TODO:  Increase priority based on amount of map left unexplored?
+    
+    final boolean report = verbose && I.talkAbout == actor;
+    
+    
+    final float priority = super.priorityForActorWith(
+      actor, lookedAt, CASUAL,
+      NO_HARM, MILD_COMPETITION,
+      BASE_SKILLS, BASE_TRAITS,
+      NO_MODIFIER, NORMAL_DISTANCE_CHECK, NO_DANGER,
+      report
+    );
+    return priority;
   }
   
-  
+  /*
   public static float rateExplorePoint(
     Actor actor, Tile point, float winReward
   ) {
@@ -78,6 +94,7 @@ public class Exploring extends Plan implements Qualities {
     
     return impetus ;
   }
+  //*/
   
   
   static Tile[] grabExploreArea(

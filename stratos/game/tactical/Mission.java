@@ -159,6 +159,11 @@ public abstract class Mission implements
   }
   
   
+  public Target subject() {
+    return subject;
+  }
+  
+  
   public Target selectionLocksOn() {
     return subject ;
   }

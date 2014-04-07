@@ -141,7 +141,7 @@ public class CultureVats extends Venue implements Economy {
       final Actor a = (Actor) match.refers ;
       if (a.aboard() instanceof Venue) {
         final Delivery d = new Delivery(match, this, (Venue) a.aboard()) ;
-        d.priorityMod = Plan.CASUAL ;
+        d.setMotive(Plan.MOTIVE_EMERGENCY, Plan.URGENT);
         choice.add(d) ;
       }
     }

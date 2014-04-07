@@ -121,7 +121,7 @@ public class ContactMission extends Mission implements Economy {
     //  Otherwise, see if you can give them a gift, or find a suitable task
     //  from the subject's home or work venue.
     final Element around = (Element) subject ;
-    return Patrolling.securePerimeter(actor, around, actor.world()) ;
+    return Patrolling.aroundPerimeter(actor, around, actor.world()) ;
   }
   
   

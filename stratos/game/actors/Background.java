@@ -51,14 +51,12 @@ public class Background implements Economy, Session.Saveable {
     SOMETIMES =  0.3f,
     RARELY    = -0.7f,
     NEVER     = -1.0f ;
-  //*
   final public static Integer
     LEARNING  = 0,
     NOVICE    = 5,
     PRACTICED = 10,
     EXPERT    = 15,
     MASTER    = 20 ;
-  //*/
   
   final public static int
     SLAVE_CLASS  =  0,

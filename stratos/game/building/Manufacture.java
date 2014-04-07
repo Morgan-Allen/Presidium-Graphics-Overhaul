@@ -16,7 +16,7 @@ import stratos.util.*;
 //
 //  TODO:  Quit after a certain total amount made.
 
-public class Manufacture extends Plan implements Behaviour {
+public class Manufacture extends Plan implements Behaviour, Qualities {
   
   
   
@@ -101,18 +101,25 @@ public class Manufacture extends Plan implements Behaviour {
   
   /**  Vary this based on delay since inception and demand at the venue-
     */
+  final Trait BASE_TRAITS[] = { ENERGETIC, METICULOUS, ACQUISITIVE };
+  
+  
   public float priorityFor(Actor actor) {
-    if (GameSettings.hardCore && ! hasNeeded()) return 0 ;
-    //
-    //  Don't work on this outside your shift (or at least make it more
-    //  casual.)
-    final int shift = venue.personnel.shiftFor(actor) ;
-    if (shift == Venue.OFF_DUTY) return 0 ;
-    if (shift == Venue.SECONDARY_SHIFT) return IDLE ;
-    final boolean hasNeeded = hasNeeded() ;
-    float competition = hasBegun() ? 0 : venue.personnel.assignedTo(this) ;
-    //
-    //  Vary priority based on how qualified to perform the task you are.
+    final boolean report = verbose && I.talkAbout == actor;
+    final int shift = venue.personnel.shiftFor(actor);
+    if (shift == Venue.OFF_DUTY) return 0;
+    
+    final float priority = priorityForActorWith(
+      actor, venue, shift == Venue.SECONDARY_SHIFT ? IDLE : ROUTINE,
+      MILD_HELP, FULL_COMPETITION,
+      conversion.skills, BASE_TRAITS,
+      NO_MODIFIER, NO_DISTANCE_CHECK, MILD_DANGER, report
+    );
+    return priority;
+  }
+  
+  
+  protected float successChance() {
     final Conversion c = conversion ;
     float chance = 1.0f ;
     for (int i = c.skills.length ; i-- > 0 ;) {
@@ -121,10 +128,8 @@ public class Manufacture extends Plan implements Behaviour {
       ) ;
     }
     chance = (chance + 1) / 2f ;
-    ///I.sayAbout(actor, "Chance: "+chance+" for "+this) ;
-    float impetus = (URGENT * chance) + priorityMod - competition ;
-    if (! hasNeeded) impetus /= 2 ;
-    return Visit.clamp(impetus, IDLE, URGENT) ;
+    if (! hasNeeded()) return chance / 2;
+    return chance;
   }
   
   

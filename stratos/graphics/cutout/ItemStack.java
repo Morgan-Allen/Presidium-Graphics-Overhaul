@@ -20,7 +20,7 @@ public class ItemStack extends GroupSprite {
     ATTACH_COORDS[][] = {
       {L, H}, {L, L}, {H, H}, {H, L}
     },
-    UP = BuildingSprite.ITEM_SIZE * 0.2f;
+    UP = BuildingSprite.ITEM_SIZE * 0.8f;
   final static int ITEM_UNIT = 5 ;
   
   

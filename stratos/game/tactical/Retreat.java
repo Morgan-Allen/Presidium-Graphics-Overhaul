@@ -7,8 +7,6 @@ import org.apache.commons.math3.util.FastMath;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
-import stratos.game.planet.*;
-import stratos.user.*;
 import stratos.util.*;
 
 
@@ -20,22 +18,22 @@ public class Retreat extends Plan implements Qualities {
   /**  Constants, field definitions, constructors and save/load methods-
     */
   final static float
-    MAX_DANGER  = 2.0f,
     DANGER_MEMORY_FADE = 0.9f;
   
-  static boolean verbose = false;
+  static boolean verbose = true, havenVerbose = false;
+  
   
   private float maxDanger = 0;
   private Boardable safePoint = null ;
   
   
   public Retreat(Actor actor) {
-    super(actor) ;
+    this(actor, nearestHaven(actor, null)) ;
   }
   
   
   public Retreat(Actor actor, Boardable safePoint) {
-    super(actor) ;
+    super(actor, safePoint) ;
     this.safePoint = safePoint ;
   }
 
@@ -63,16 +61,16 @@ public class Retreat extends Plan implements Qualities {
   
   public float priorityFor(Actor actor) {
     final boolean report = verbose && I.talkAbout == actor;
-    float danger = dangerAtSpot(
-      actor.origin(), actor, null, actor.senses.awareOf()
-    );
+    float danger = CombatUtils.dangerAtSpot(actor.origin(), actor, null);
     danger *= 1 + actor.traits.relativeLevel(NERVOUS);
     maxDanger = FastMath.max(danger, maxDanger);
-    if (report) I.say("\nCurrent/max danger: "+danger+"/"+maxDanger);
     
-    if (maxDanger <= 0) return 0;
-    final float safety = (0.5f - maxDanger) * 2 * ROUTINE;
-    if (report) I.say("Safety rating: "+safety);
+    if (maxDanger <= 0) {
+      if (report) I.say("NO DANGER!");
+      return 0;
+    }
+    float safety = (0.5f - maxDanger) * ROUTINE;
+    //final float safety = (0.5f - maxDanger) * 2 * ROUTINE;
     
     final float priority = priorityForActorWith(
       actor, safePoint, PARAMOUNT,
@@ -82,110 +80,34 @@ public class Retreat extends Plan implements Qualities {
       report
     );
     
-    if (report) I.say("  Retreat priority is: "+priority);
+    if (report) {
+      I.say("  Current/max danger: "+danger+"/"+maxDanger);
+      I.say("  Safety rating: "+safety);
+      I.say("  Retreat priority is: "+priority);
+    }
     return priority;
   }
   
   
-  protected static float dangerAtSpot(
-    Target spot, Actor actor, Actor enemy
-  ) {
-    
-    final float range = actor.health.sightRange() ;
-    final World world = actor.world() ;
-    //
-    //  TODO:  Blend values from the danger map?
-    if (Spacing.distance(actor, spot) < range * 2) {
-      return dangerAtSpot(spot, actor, enemy, actor.senses.awareOf()) ;
-    }
-    
-    final Batch <Element> seen = new Batch <Element> () ;
-    for (Object o : world.presences.matchesNear(Mobile.class, spot, range)) {
-      final Mobile m = (Mobile) o ;
-      if (! m.visibleTo(actor.base())) continue ;
-      seen.add(m) ;
-    }
-    return dangerAtSpot(spot, actor, enemy, seen) ;
-  }
-  
-  
-  private static float dangerAtSpot(
-    Target spot, Actor actor, Actor enemy, Series <Element> seen
-  ) {
-    if (spot == null) return 0 ;
-    final boolean report = verbose && I.talkAbout == actor ;
-    
-    final float basePower = Combat.combatStrength(actor, enemy);
-    float sumAllies = basePower, sumEnemies = 0, sumTargeting = 0;
-    //
-    //  TODO:  Blend in values from the danger map?
-    
-    for (Element m : seen) {
-      if (m == actor || ! (m instanceof Actor)) {
-        if (report) I.say("Subject is self or not actor: "+m);
-        continue;
-      }
-      final Actor near = (Actor) m;
-      if (near.indoors() || ! near.health.conscious()) {
-        if (report) I.say("Subject is indoors or KO: "+near);
-        continue;
-      }
-
-      final Target victim = near.targetFor(Combat.class);
-      final float relation = near.mind.relationValue(actor);
-      final float power = Combat.combatStrength(near, enemy);
-      if (relation > 0) {
-        sumAllies += power * relation;
-      }
-      if (relation < 0) {
-        sumEnemies += power * -relation;
-      }
-      if (victim == actor)
-        sumTargeting += power;
-      if (report) I.say("Victim is: "+victim);
-    }
-    
-    final float
-      injury = actor.health.injuryLevel(),
-      stress = actor.health.stressPenalty() ;
-    
-    if (report) {
-      I.say("  Sum allied/enemy strength: "+sumAllies+" / "+sumEnemies) ;
-      I.say("  Sum targeting: "+sumTargeting) ;
-      I.say("  Injury & stress: "+injury+" / "+stress) ;
-    }
-    
-    final float
-      pros = basePower + sumAllies,
-      cons = sumEnemies + sumTargeting,
-      hurt = Visit.clamp(injury + stress - 0.5f, 0, 1);
-    if (cons <= 0) return 0;
-    if (pros == 0) return MAX_DANGER;
-    float danger = (cons * 2) / (pros + cons);
-    danger = (danger + hurt) * (1 + hurt);
-    
-    if (report) I.say("  Danger estimate: "+danger) ;
-    return Visit.clamp(danger, 0, MAX_DANGER) ;
-  }
-  
-  
   public static Boardable nearestHaven(Actor actor, Class prefClass) {
-    Object picked = null ;
-    float bestRating = 0 ;
-    
-    for (Element e : actor.senses.awareOf()) {
-      final float rating = rateHaven(e, actor, prefClass) ;
-      if (rating > bestRating) { bestRating = rating ; picked = e ; }
-    }
-    if (picked == null) picked = pickWithdrawPoint(
+    final boolean report = havenVerbose && I.talkAbout == actor;
+    Object picked = pickWithdrawPoint(
       actor, actor.health.sightRange() + World.SECTOR_SIZE, actor, 0.1f
     ) ;
-    if (verbose) I.sayAbout(actor, "Haven picked is: "+picked) ;
+    float bestRating = rateHaven(picked, actor, prefClass);
+    
+    for (Target e : actor.senses.awareOf()) {
+      final float rating = rateHaven(e, actor, prefClass) ;
+      if (report) I.say("  Rating for "+e+" is "+rating);
+      if (rating > bestRating) { bestRating = rating ; picked = e ; }
+    }
+    if (report) I.say("Haven picked is: "+picked);
     return (Boardable) picked ;
   }
   
   
   private static float rateHaven(Object t, Actor actor, Class prefClass) {
+    final boolean report = havenVerbose && I.talkAbout == actor;
     //
     //  TODO:  Don't pick anything too close by either.  That'll be in a
     //  dangerous area.
@@ -208,22 +130,20 @@ public class Retreat extends Plan implements Qualities {
     Actor actor, float range,
     Target target, float salt
   ) {
+    final boolean report = havenVerbose && I.talkAbout == actor;
     final int numPicks = 3 ;  // TODO:  Make this an argument instead of range?
     Target pick = null ;
     float bestRating = salt > 0 ?
       Float.POSITIVE_INFINITY : Float.NEGATIVE_INFINITY ;
+    
     for (int i = numPicks ; i-- > 0 ;) {
-      
       //  TODO:  Check by compass-point directions instead of purely at random?
       Tile tried = Spacing.pickRandomTile(actor, range, actor.world()) ;
       if (tried == null) continue ;
       tried = Spacing.nearestOpenTile(tried, target) ;
       if (tried == null || Spacing.distance(tried, target) > range) continue ;
       
-      //  TODO:  Have danger-map sampling built into dangerAtSpot().
-      float tryRating = actor.base().dangerMap.sampleAt(tried.x, tried.y) ;
-      tryRating = dangerAtSpot(tried, actor, null, actor.senses.awareOf()) ;
-      tryRating /= 2 ;
+      float tryRating = CombatUtils.dangerAtSpot(tried, actor, null);
       tryRating += (Rand.num() - 0.5f) * salt ;
       if (salt < 0) tryRating *= -1 ;
       if (tryRating < bestRating) { bestRating = tryRating ; pick = tried ; }
@@ -236,13 +156,13 @@ public class Retreat extends Plan implements Qualities {
   /**  Behaviour implementation-
     */
   protected Behaviour getNextStep() {
+    final boolean report = verbose && I.talkAbout == actor;
     if (
       safePoint == null || actor.aboard() == safePoint ||
       safePoint.pathType() == Tile.PATH_BLOCKS
     ) {
       safePoint = nearestHaven(actor, null) ;
-      priorityMod *= 0.5f ;
-      if (priorityMod < 0.25f) priorityMod = 0 ;
+      if (report) I.say("Safe point is: "+safePoint);
     }
     if (safePoint == null) {
       abortBehaviour() ;
@@ -252,14 +172,16 @@ public class Retreat extends Plan implements Qualities {
       actor, safePoint,
       this, "actionFlee",
       Action.MOVE_SNEAK, "Fleeing to "
-    ) ;
-    flees.setProperties(Action.QUICK) ;
+    );
+    flees.setProperties(Action.QUICK);
+    if (report) I.say("Fleeing to... "+safePoint);
     return flees ;
   }
   
   
   public boolean actionFlee(Actor actor, Target safePoint) {
     maxDanger *= DANGER_MEMORY_FADE;
+    if (maxDanger < 0.5f) maxDanger = 0;
     return true ;
   }
   

@@ -73,7 +73,7 @@ public class Vareen extends Fauna {
   /**  Behaviour modifications/implementation-
     */
   protected void updateAsMobile() {
-    final Target target = this.targetFor(null) ;
+    final Target target = this.focusFor(null) ;
     float idealHeight = DEFAULT_FLY_HEIGHT ;
     
     if (! health.conscious()) idealHeight = 0 ;
@@ -105,7 +105,7 @@ public class Vareen extends Fauna {
   
   protected Behaviour nextBrowsing() {
     final Choice c = new Choice(this);
-    for (Element e : senses.awareOf()) {
+    for (Target e : senses.awareOf()) {
       if (Hunting.validPrey(e, this, false)) {
         final Actor prey = (Actor) e;
         if (prey.health.dying()) c.add(Hunting.asFeeding(this, prey));

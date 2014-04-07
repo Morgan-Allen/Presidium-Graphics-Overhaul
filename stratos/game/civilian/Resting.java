@@ -49,7 +49,7 @@ public class Resting extends Plan implements Economy {
   
   
   public Resting(Actor actor, Target relaxesAt) {
-    super(actor) ;
+    super(actor, relaxesAt) ;
     this.restPoint = (Boardable) relaxesAt ;
   }
   

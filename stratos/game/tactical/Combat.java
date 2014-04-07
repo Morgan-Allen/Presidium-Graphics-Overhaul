@@ -13,19 +13,14 @@ import stratos.game.common.*;
 import stratos.user.*;
 import stratos.util.*;
 
-
-//  TODO:  This will have to be looked into again.
-
-
 public class Combat extends Plan implements Qualities {
   
   
   /**  Data fields, constructors and save/load methods-
     */
   private static boolean
-    verbose         = false,
-    eventsVerbose   = false,
-    strengthVerbose = false ;
+    evalVerbose   = false,
+    eventsVerbose = false;
   
   final static int
     STYLE_RANGED = 0,  //TODO:  Replace with hit-and-run/skirmish
@@ -96,15 +91,16 @@ public class Combat extends Plan implements Qualities {
   
   
   public float priorityFor(Actor actor) {
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = evalVerbose && I.talkAbout == actor;
     if (isDowned(target, object)) return 0;
     final boolean melee = actor.gear.meleeWeapon();
     
-    float modifier = 0 - PARAMOUNT;
+    float modifier = 0 - ROUTINE;
+    Target victim = null;
     if (target instanceof Actor) {
       //  TODO:  Just use the general harm-level of the other guy's current
       //  behaviour as the basis for evaluation?
-      final Target victim = ((Actor) target).targetFor(Combat.class);
+      victim = ((Actor) target).focusFor(Combat.class);
       if (victim != null) {
         modifier += PARAMOUNT * actor.mind.relationValue(victim);
       }
@@ -116,14 +112,16 @@ public class Combat extends Plan implements Qualities {
     
     final float priority = priorityForActorWith(
       actor, target, PARAMOUNT,
-      harmLevel, MILD_COOPERATION,
+      harmLevel, FULL_COOPERATION,
       melee ? MELEE_SKILLS : RANGED_SKILLS, BASE_TRAITS,
       modifier, NORMAL_DISTANCE_CHECK, REAL_DANGER,
       report
     );
     
     if (report) {
-      I.say("Combat priority: "+priority);
+      I.say("  Victim was: "+victim);
+      I.say("  Modifier was: "+modifier);
+      I.say("  Final combat priority: "+priority);
     }
     return priority;
   }
@@ -134,13 +132,13 @@ public class Combat extends Plan implements Qualities {
     
     if (target instanceof Actor) {
       final Actor struck = (Actor) target ;
-      danger = Retreat.dangerAtSpot(target, actor, struck) ;
+      danger = CombatUtils.dangerAtSpot(target, actor, struck) ;
     }
     else if (target instanceof Venue) {
       final Venue struck = (Venue) target ;
-      danger = Retreat.dangerAtSpot(struck, actor, null) ;
+      danger = CombatUtils.dangerAtSpot(struck, actor, null) ;
     }
-    else danger = Retreat.dangerAtSpot(target, actor, null) / 2;
+    else danger = CombatUtils.dangerAtSpot(target, actor, null) / 2;
     
     danger *= 1 + actor.traits.relativeLevel(NERVOUS);
     final float chance = Visit.clamp(1 - danger, 0.1f, 0.9f) ;
@@ -166,71 +164,6 @@ public class Combat extends Plan implements Qualities {
   }
   
   
-  //
-  //  TODO:  Actors may need to cache this value?  Maybe later.  Not urgent at
-  //  the moment.
-  //
-  //  Note:  it's acceptable to pass null as the enemy argument, for a general
-  //  estimate of combat prowess.  (TODO:  Put in a separate method for that?)
-  public static float combatStrength(Actor actor, Actor enemy) {
-    float strength = 0 ;
-    strength += (actor.gear.armourRating() + actor.gear.attackDamage()) / 20f ;
-    strength *= (1 + (actor.health.maxHealth() / 10)) / 2f ;
-    strength *= (1 - actor.health.injuryLevel()) ;
-    strength *= 1 - actor.health.stressPenalty() ;
-    //
-    //  Scale by general ranks in relevant skills-
-    if (strengthVerbose) I.sayAbout(actor, "Native strength: "+strength) ;
-    strength *= (2 +
-      actor.traits.useLevel(HAND_TO_HAND) +
-      actor.traits.useLevel(MARKSMANSHIP)
-    ) / 20 ;
-    strength *= (2 +
-      actor.traits.useLevel(HAND_TO_HAND) +
-      actor.traits.useLevel(STEALTH_AND_COVER)
-    ) / 20 ;
-    if (strengthVerbose) I.sayAbout(actor, "With skills: "+strength) ;
-    //
-    //  And if you're measuring combat against a specific adversary, scale by
-    //  chance of victory-
-    if (enemy != null) {
-      final Skill attack, defend ;
-      if (actor.gear.meleeWeapon()) {
-        attack = defend = HAND_TO_HAND ;
-      }
-      else {
-        attack = MARKSMANSHIP ;
-        defend = STEALTH_AND_COVER ;
-      }
-      final float chance = actor.traits.chance(attack, enemy, defend, 0) ;
-      if (strengthVerbose && I.talkAbout == enemy) {
-        I.say("Chance to injure "+enemy+" is: "+chance) ;
-        I.say("Native strength: "+strength) ;
-      }
-      strength *= 2 * chance ;
-    }
-    return strength ;
-  }
-  
-  
-  public static float stealthValue(Element e, Actor looks) {
-    if (e instanceof Actor) {
-      final Actor a = (Actor) e ;
-      if (a.base() == looks.base()) return 0 ;
-      float stealth = a.traits.traitLevel(STEALTH_AND_COVER) / 2f ;
-      stealth *= Action.moveLuck(a) ;
-      stealth /= (0.5f + a.health.baseSpeed()) ;
-      return stealth ;
-    }
-    if (e instanceof Installation) {
-      final Installation i = (Installation) e ;
-      return i.structure().cloaking() ;
-    }
-    return 0 ;
-  }
-  
-  
-  
   
   /**  Actual behaviour implementation-
     */
@@ -249,7 +182,7 @@ public class Combat extends Plan implements Qualities {
     final DeviceType DT = actor.gear.deviceType() ;
     final boolean melee = actor.gear.meleeWeapon() ;
     final boolean razes = target instanceof Venue ;
-    final float danger = Retreat.dangerAtSpot(
+    final float danger = CombatUtils.dangerAtSpot(
       actor.origin(), actor, razes ? null : (Actor) target
     ) ;
     
@@ -322,7 +255,7 @@ public class Combat extends Plan implements Qualities {
       }
     }
     
-    if (dodges) strike.setProperties(Action.QUICK) ;
+    if (dodges) strike.setProperties(Action.QUICK | Action.TRACKS) ;
     else strike.setProperties(Action.RANGED | Action.QUICK | Action.TRACKS) ;
   }
   
@@ -435,95 +368,3 @@ public class Combat extends Plan implements Qualities {
 
 
 
-
-
-/*
-final boolean report = verbose && I.talkAbout == actor ;
-
-if (target instanceof Actor) {
-  final Actor struck = (Actor) target ;
-  float lossCost = PARAMOUNT, winReward = priorityMod ;
-  if (hasBegun()) lossCost = 0 ;
-  
-  float BP = combatPriority(actor, struck, winReward, lossCost, report) ;
-  return BP <= 0 ? 0 : BP + ROUTINE ;
-}
-if (target instanceof Venue) {
-  
-  final Venue struck = (Venue) target ;
-  float BP = priorityMod - (actor.mind.relationValue(struck) * ROUTINE) ;
-  BP += ROUTINE ;
-  
-  //  TODO:  Factor this out.  Also repeated below.
-  if (! hasBegun()) {
-    float danger = Retreat.dangerAtSpot(struck, actor, null) ;
-    danger += Plan.dangerPenalty(struck, actor) ;
-    BP += 0 - (danger * ROUTINE) ;
-  }
-  //  TODO:  Eliminate loss cost in a similar fashion to the above, if
-  //  begun or in range, etc.
-  
-  ///I.sayAbout(actor, "Priority mod is: "+priorityMod) ;
-  ///I.sayAbout(actor, "Relation is: "+actor.mind.relation(struck)) ;
-  return BP ;// BP <= 0 ? 0 : BP + ROUTINE ;
-}
-return -1 ;
-//*/
-//}
-
-
-//  TODO:  This could probably be made more generalised.
-/*
-public static float hostility(Actor actor) {
-Plan p = null ;
-for (Behaviour b : actor.mind.agenda()) if (b instanceof Plan) {
-  p = (Plan) b ;
-  break ;
-}
-if (p instanceof Combat) {
-  return 1.0f ;
-}
-if (p instanceof Dialogue) return -0.5f ;
-if (p instanceof FirstAid) return -1.0f ;
-return 0 ;
-}
-
-
-protected static float combatPriority(
-Actor actor, Actor enemy, float winReward, float lossCost, boolean report
-) {
-if (actor == enemy) return 0 ;
-if (report) I.say("  Basic combat reward/cost: "+winReward+"/"+lossCost) ;
-
-float danger = Retreat.dangerAtSpot(enemy, actor, enemy) ;
-final float chance = Visit.clamp(1 - danger, 0.1f, 0.9f) ;
-
-final Target enemyTargets = enemy.targetFor(null) ;
-float hostility = hostility(enemy) ;
-hostility *= PARAMOUNT * actor.mind.relationValue(enemyTargets) ;
-winReward += hostility ;
-lossCost -= hostility / 2 ;
-winReward -= actor.mind.relationValue(enemy) * PARAMOUNT ;
-
-if (winReward < 0) return 0 ;
-winReward *= actor.traits.scaleLevel(AGGRESSIVE) ;
-
-if (report) {
-  I.say(
-    "  "+actor+" considering COMBAT with "+enemy+
-    ", time: "+actor.world().currentTime()
-  ) ;
-  I.say(
-    "  Danger level: "+danger+
-    "\n  Appeal before chance: "+winReward+", chance: "+chance
-  ) ;
-}
-if (chance <= 0) {
-  if (report) I.say("  No chance of victory!\n") ;
-  return 0 ;
-}
-float appeal = (winReward * chance) - ((1 - chance) * lossCost) ;
-if (report) I.say("  Final appeal: "+appeal+"\n") ;
-return appeal ;
-}
-//*/

@@ -9,18 +9,15 @@ import stratos.user.*;
 import stratos.util.*;
 
 
-//
-//  TODO:  Allow customised descriptions and basic training as standard.
-//  TODO:  Allow actors to perform minor dialogue without distraction.
-//  TODO:  HAVE THIS PLAN RESPONSIBLE FOR AUDITING IF NOBODY ELSE DOES IT FIRST
 
-
+//  TODO:  See if this can't serve a dual function of some kind.
 public class Supervision extends Plan implements Economy {
   
   
   /**  Data fields, setup and save/load functions-
     */
-  final float WAIT_TIME = 20f ;
+  final static float WAIT_TIME = 20f ;
+  private static boolean verbose = false;
   
   final Venue venue ;
   private float beginTime = -1 ;
@@ -49,10 +46,20 @@ public class Supervision extends Plan implements Economy {
   
   /**  Evaluating targets and priority-
     */
+  final static Trait BASE_TRAITS[] = { RELAXED, SIMPLE };
+  
   public float priorityFor(Actor actor) {
     if (Plan.competition(Supervision.class, venue, actor) > 0) return 0 ;
     if (! actor.mind.work().personnel().onShift(actor)) return 0 ;
-    return CASUAL + priorityMod ;
+    final boolean report = verbose && I.talkAbout == actor;
+    
+    return super.priorityForActorWith(
+      actor, venue, CASUAL,
+      MILD_HELP, FULL_COMPETITION,
+      NO_SKILLS, BASE_TRAITS,
+      NO_MODIFIER, PARTIAL_DISTANCE_CHECK, NO_DANGER,
+      report
+    );
   }
   
   

@@ -6,7 +6,7 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.planet.*;
 import stratos.graphics.common.*;
-import stratos.graphics.widgets.HUD;
+import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -67,14 +67,19 @@ public class ReconMission extends Mission {
   /**  Behaviour implementation-
     */
   public float priorityFor(Actor actor) {
+    final Exploring exploring = new Exploring(actor, base, (Tile) subject);
+    
+    float priority = exploring.priorityFor(actor) + basePriority(actor);
+    priority *= SETTING_AREAS[1] / exploreRadius();
+    if (verbose) I.sayAbout(actor, actor+" priority is: "+priority);
+    
+    return priority;
+    /*
     final Tile centre = (Tile) subject ;
     final float basePriority = super.basePriority(actor);
     float priority = Exploring.rateExplorePoint(actor, centre, basePriority) ;
     priority *= SETTING_AREAS[1] / exploreRadius() ;
-    if (verbose) I.sayAbout(actor,
-      actor+" priority is: "+priority+", base priority: "+basePriority
-    ) ;
-    return priority ;
+    //*/
   }
   
   
@@ -101,7 +106,7 @@ public class ReconMission extends Mission {
       float rating = fog < 1 ? 1 : 0 ;
       
       for (Role role : roles) if (role.applicant != actor) {
-        Target looks = role.applicant.targetFor(Exploring.class) ;
+        Target looks = role.applicant.focusFor(Exploring.class) ;
         if (looks == null) looks = role.applicant ;
         rating *= (10 + Spacing.distance(actor, looks)) / 10f ;
       }
@@ -116,7 +121,6 @@ public class ReconMission extends Mission {
     }
     
     final Exploring e = new Exploring(actor, base, lookedAt) ;
-    //e.priorityMod = actor.mind.greedFor(rewardAmount(actor)) * ROUTINE ;
     return e ;
   }
   

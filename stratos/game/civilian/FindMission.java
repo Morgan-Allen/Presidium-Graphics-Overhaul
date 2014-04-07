@@ -55,7 +55,7 @@ public class FindMission extends Plan implements Economy {
   
 
   private FindMission(Actor actor, Mission mission, Venue admin) {
-    super(actor) ;
+    super(actor, admin) ;
     this.applies = mission ;
     this.admin = admin ;
   }

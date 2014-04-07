@@ -132,22 +132,19 @@ public class Ruins extends Venue {
       if (minor && Rand.yes()) { numT = 0 ; numD-- ; }
       
       while (numT-- > 0) {
-        final Tripod tripod = new Tripod() ;
-        tripod.assignBase(artilects) ;
+        final Tripod tripod = new Tripod(artilects) ;
         tripod.enterWorldAt(e.x, e.y, world) ;
         tripod.mind.setHome(r) ;
       }
       
       while (numD-- > 0) {
-        final Drone drone = new Drone() ;
-        drone.assignBase(artilects) ;
+        final Drone drone = new Drone(artilects) ;
         drone.enterWorldAt(e.x, e.y, world) ;
         drone.mind.setHome(r) ;
       }
       
       if (lairNum == 1 && Rand.yes() && ! minor) {
-        final Cranial cranial = new Cranial() ;
-        cranial.assignBase(artilects) ;
+        final Cranial cranial = new Cranial(artilects) ;
         cranial.enterWorldAt(e.x, e.y, e.world) ;
         cranial.mind.setHome(r) ;
       }

@@ -21,6 +21,7 @@ import stratos.util.*;
 public class Foraging extends Plan implements Economy {
   
   
+  private static boolean verbose = false;
   
   final Venue store ;
   private Flora source = null ;
@@ -28,7 +29,7 @@ public class Foraging extends Plan implements Economy {
   
   
   public Foraging(Actor actor, Venue store) {
-    super(actor) ;
+    super(actor, actor) ;
     if (store == null && actor.mind.home() instanceof Venue) {
       this.store = (Venue) actor.mind.home() ;
     }
@@ -55,33 +56,33 @@ public class Foraging extends Plan implements Economy {
   
   /**  Behaviour implementation-
     */
+  final static Trait BASE_TRAITS[] = { NATURALIST, ENERGETIC, ACQUISITIVE };
+  final static Skill BASE_SKILLS[] = { CULTIVATION, HARD_LABOUR };
+  
+  
   public float priorityFor(Actor actor) {
+    final boolean report = verbose && I.talkAbout == actor;
+
     if (storeShortage() <= 0) {
-      if (sumHarvest() > 0) return Plan.ROUTINE ;
-      else done = true ;
+      if (sumHarvest() > 0) return Plan.ROUTINE;
+      else done = true;
     }
-    final float hunger = actor.health.hungerLevel() ;
-    if (store == null && hunger <= 0) done = true ;
-    if (done) return 0 ;
-    
-    float impetus = 0 ;
-    impetus += hunger * Plan.PARAMOUNT ;
-    impetus *= actor.traits.chance(CULTIVATION, MODERATE_DC) ;
-    impetus *= actor.traits.chance(HARD_LABOUR, ROUTINE_DC) ;
-    if (hunger > 0.5f) {
-      final float scale = (hunger - 0.5f) * 2 ;
-      impetus = (impetus * (1 - scale)) + (PARAMOUNT * scale) ;
-    }
+    final float hunger = actor.health.hungerLevel();
+    if (store == null && hunger <= 0) done = true;
+    if (done) return 0;
     
     if (source == null || source.destroyed()) {
       source = Forestry.findCutting(actor) ;
-      if (source == null) return 0 ;
+      if (source == null) return 0;
     }
-    impetus -= Plan.rangePenalty(actor, source) ;
-    impetus -= Plan.dangerPenalty(source, actor) ;
-    impetus += priorityMod ;
-    
-    return impetus ;
+    final float priority = priorityForActorWith(
+      actor, source, hunger * PARAMOUNT,
+      NO_HARM, FULL_COMPETITION,
+      BASE_SKILLS, BASE_TRAITS,
+      NO_MODIFIER, NORMAL_DISTANCE_CHECK, NO_DANGER,
+      report
+    );
+    return priority;
   }
   
   

@@ -29,7 +29,7 @@ public class FindWork extends Plan implements Economy {
   
   
   private FindWork(Actor actor, Application newApp, float rating) {
-    super(actor) ;
+    super(actor, newApp.employer) ;
     this.application = newApp ;
     this.rating = rating ;
   }

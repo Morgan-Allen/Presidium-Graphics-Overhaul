@@ -103,8 +103,10 @@ public class Micovore extends Fauna implements Economy {
     crowding += 1 - ((health.caloryLevel() + 0.5f) / 2) ;
     final Fauna fights = findCompetition() ;
     if (fights != null && crowding > 1) {
-      final Combat fighting = new Combat(this, fights) ;
-      fighting.priorityMod = (crowding - 1) * Plan.PARAMOUNT ;
+      final Plan fighting = new Combat(this, fights).setMotive(
+        Plan.MOTIVE_EMERGENCY,
+        (crowding - 1) * Plan.PARAMOUNT
+      );
       //I.sayAbout(this, "  Crowding is: "+crowding) ;
       //I.sayAbout(this, "  Fighting priority: "+fighting.priorityFor(this)) ;
       choice.add(fighting) ;
@@ -171,7 +173,7 @@ public class Micovore extends Fauna implements Economy {
   
   private Fauna findCompetition() {
     final Batch <Fauna> tried = new Batch <Fauna> () ;
-    for (Element e : senses.awareOf()) if (e instanceof Micovore) {
+    for (Target e : senses.awareOf()) if (e instanceof Micovore) {
       if (e == this) continue ;
       final Micovore m = (Micovore) e ;
       tried.add(m) ;

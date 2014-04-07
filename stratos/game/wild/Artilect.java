@@ -61,9 +61,10 @@ public abstract class Artilect extends Actor {
   
   
   
-  protected Artilect(Species s) {
+  protected Artilect(Base base, Species s) {
     super() ;
     this.species = s;
+    assignBase(base);
   }
   
   
@@ -98,7 +99,7 @@ public abstract class Artilect extends Actor {
         super.updateAI(numUpdates) ;
       }
       
-      protected void addReactions(Element seen, Choice choice) {
+      protected void addReactions(Target seen, Choice choice) {
         if (seen instanceof Actor) choice.add(nextDefence((Actor) seen)) ;
       }
       
@@ -113,8 +114,9 @@ public abstract class Artilect extends Actor {
   
   protected Behaviour nextDefence(Actor near) {
     if (near == null) return null ;
-    final Combat defence = new Combat(this, near) ;
-    defence.priorityMod = Plan.ROUTINE ;
+    final Plan defence = new Combat(this, near).setMotive(
+      Plan.MOTIVE_EMERGENCY, Plan.ROUTINE
+    );
     //I.sayAbout(this, "Have just seen: "+near) ;
     //I.sayAbout(this, "Defence priority: "+defence.priorityFor(this)) ;
     return defence ;
@@ -127,12 +129,13 @@ public abstract class Artilect extends Actor {
     //
     //  Patrol around your base and see off intruders.
     Element guards = mind.home() == null ? this : (Element) mind.home() ;
-    final Patrolling p = Patrolling.securePerimeter(this, guards, world) ;
-    p.priorityMod = Plan.IDLE ;
+    final Plan p = Patrolling.aroundPerimeter(this, guards, world).setMotive(
+      Plan.MOTIVE_DUTY, Plan.IDLE
+    );
     ///I.say("Patrolling priority: "+p.priorityFor(this)) ;
     choice.add(p) ;
     
-    for (Element e : senses.awareOf()) if (e instanceof Actor) {
+    for (Target e : senses.awareOf()) if (e instanceof Actor) {
       choice.add(new Combat(this, (Actor) e)) ;
     }
     

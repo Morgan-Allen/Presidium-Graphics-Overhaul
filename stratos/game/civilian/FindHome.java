@@ -56,7 +56,7 @@ public class FindHome extends Plan implements Economy {
   
 
   private FindHome(Actor actor, Employment newHome) {
-    super(actor) ;
+    super(actor, newHome) ;
     this.newHome = newHome ;
   }
 

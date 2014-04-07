@@ -31,7 +31,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     WATCH_TIME = 10 ;
   
   
-  private static boolean verbose = false ;
+  private static boolean verbose = false, evalVerbose = false;
   
   final int type ;
   final Element guarded ;
@@ -76,31 +76,34 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   
   /**  Obtaining and evaluating patrols targets-
     */
+  final static Trait BASE_TRAITS[] = { FEARLESS, SIMPLE, SOLITARY };
+  final static Skill BASE_SKILLS[] = { SURVEILLANCE, HAND_TO_HAND };
+  
+  
   public float priorityFor(Actor actor) {
-    if (type == TYPE_WANDERING) {
-      return IDLE ;
-    }
-    //
-    //  Favour patrols through more dangerous areas in absolute terms, but not
-    //  in relative terms.  (i.e, go where you're needed, but won't get killed.)
-    float absDanger = 0, relDanger = 0 ;
-    if (actor.base() != null) for (Target t : patrolled) {
-      final Tile u = actor.world().tileAt(t) ;
-      absDanger += actor.base().dangerMap.sampleAt(u.x, u.y) ;
-      relDanger += Plan.dangerPenalty(t, actor) ;
-    }
-    absDanger /= patrolled.size() ;
-    relDanger /= patrolled.size() ;
+    final boolean report = evalVerbose && I.talkAbout == actor;
+    if (onPoint == null) return 0;
     
-    final float skill = actor.traits.traitLevel(SURVEILLANCE) / 10f ;
-    float impetus = Math.max(skill * absDanger, priorityMod / 2) ;
-    impetus -= relDanger * PARAMOUNT ;
+    float urgency;
+    if (type == TYPE_WANDERING) urgency = IDLE;
+    else {
+      //  Favour patrols through more (relatively) dangerous areas.
+      float relDanger = 0 ;
+      if (actor.base() != null) for (Target t : patrolled) {
+        relDanger += Plan.dangerPenalty(t, actor) ;
+      }
+      relDanger /= patrolled.size() ;
+      urgency = relDanger * PARAMOUNT * 1f / patrolled.size();
+    }
     
-    if (verbose) I.sayAbout(actor,
-      "Rel/abs danger: "+relDanger+"/"+absDanger+
-      "\nPatrol impetus is: "+impetus
-    ) ;
-    return Visit.clamp(priorityMod + impetus, 0, URGENT) ;
+    final float priority = priorityForActorWith(
+      actor, onPoint, urgency,
+      MILD_HELP, NO_COMPETITION,
+      BASE_SKILLS, BASE_TRAITS,
+      NO_MODIFIER, NORMAL_DISTANCE_CHECK, MILD_DANGER,
+      report
+    );
+    return priority;
   }
   
   
@@ -109,10 +112,10 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     */
   public Behaviour getNextStep() {
     if (onPoint == null) return null ;
+    final boolean report = verbose && I.talkAbout == actor;
     final World world = actor.world() ;
     Target stop = onPoint ;
-    if (verbose) I.sayAbout(actor, "Goes: "+onPoint+", post time: "+postTime) ;
-    
+    if (report) I.say("Goes: "+onPoint+", post time: "+postTime) ;
     //
     //  TODO:  You need to add an intercept/attack behaviour for enemies near
     //  the guarded target (if any?)
@@ -131,7 +134,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     }
     else if (postTime != -1) {
       final float spent = world.currentTime() - postTime ;
-      if (verbose) I.sayAbout(actor, "Time at post: "+spent) ;
+      if (report) I.say("Time at post: "+spent) ;
       if (spent < WATCH_TIME) {
         final Action watch = new Action(
           actor, onPoint,
@@ -142,7 +145,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
       }
     }
     
-    if (verbose) I.sayAbout(actor, "Next stop: "+stop+" "+stop.hashCode()) ;
+    if (report) I.say("Next stop: "+stop+" "+stop.hashCode()) ;
     final Action patrol = new Action(
       actor, stop,
       this, "actionPatrol",
@@ -209,14 +212,14 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   /**  External factory methods-
     */
   public static Patrolling wandering(Actor actor) {
-    final List <Target> patrolled = new List <Target> () ;
-    final float range = actor.health.sightRange() + actor.aboard().radius() ;
-    patrolled.add(Spacing.pickRandomTile(actor, range, actor.world())) ;
-    return new Patrolling(actor, actor, patrolled, TYPE_WANDERING) ;
+    final List<Target> patrolled = new List<Target>();
+    final float range = actor.health.sightRange() + actor.aboard().radius();
+    patrolled.add(Spacing.pickRandomTile(actor, range, actor.world()));
+    return new Patrolling(actor, actor, patrolled, TYPE_WANDERING);
   }
   
   
-  public static Patrolling securePerimeter(
+  public static Patrolling aroundPerimeter(
     Actor actor, Element guarded, World world
   ) {
     final List <Target> patrolled = new List <Target> () ;
@@ -258,66 +261,6 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   }
   
   
-  //  TODO:  RESTORE THIS.
-  /*
-  public static Patrolling sentryDuty(
-    Actor actor, ShieldWall start, int initDir
-  ) {
-    final Batch <Target> enRoute = new Batch <Target> () ;
-    
-    final float maxDist = World.SECTOR_SIZE * 1.5f ;
-    final Vec3D p = start.position(null) ;
-    final Tile ideal = actor.world().tileAt(
-      p.x + (N_X[initDir] * 2),
-      p.y + (N_Y[initDir] * 2)
-    ) ;
-    
-    Boardable init = start, next = null ;
-    float minDist = Float.POSITIVE_INFINITY ;
-    for (Boardable b : init.canBoard(Spacing.tempB4)) {
-      if (! (b instanceof ShieldWall)) continue ;
-      final float dist = Spacing.distance(b, ideal) ;
-      if (dist < minDist) { minDist = dist ; next = b ; }
-    }
-    if (next == null) return null ;
-    
-    init.flagWith(enRoute) ;
-    next.flagWith(enRoute) ;
-    enRoute.add(init) ;
-    enRoute.add(next) ;
-    
-    while (true) {
-      Boardable near = null ;
-      for (Boardable b : next.canBoard(Spacing.tempB4)) {
-        if (! (b instanceof ShieldWall)) continue ;
-        if (b.flaggedWith() != null) continue ;
-        near = b ;
-        near.flagWith(enRoute) ;
-        enRoute.add(near) ;
-        break ;
-      }
-      if (near == null || enRoute.size() > maxDist / 2) break ;
-      next = near ;
-    }
-    for (Target t : enRoute) t.flagWith(null) ;
-    
-    final List <Target> patrolled = new List <Target> () ;
-    BlastDoors doors = null ;
-    for (Target b : enRoute) {
-      final ShieldWall s = (ShieldWall) b ;
-      if (s.isTower()) patrolled.include(b) ;
-      if (s.isGate()) {
-        if (doors == null || (
-          Spacing.distance(s, actor) < Spacing.distance(doors, actor)
-        )) doors = (BlastDoors) s ;
-      }
-    }
-    if (doors == null) return null ;
-    return new Patrolling(actor, doors, patrolled, TYPE_SENTRY_DUTY) ;
-  }
-  //*/
-  
-  
   
   /**  Rendering and interface methods-
     */
@@ -340,4 +283,64 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
 
 
 
+
+
+//  TODO:  RESTORE THIS.
+/*
+public static Patrolling sentryDuty(
+  Actor actor, ShieldWall start, int initDir
+) {
+  final Batch <Target> enRoute = new Batch <Target> () ;
+  
+  final float maxDist = World.SECTOR_SIZE * 1.5f ;
+  final Vec3D p = start.position(null) ;
+  final Tile ideal = actor.world().tileAt(
+    p.x + (N_X[initDir] * 2),
+    p.y + (N_Y[initDir] * 2)
+  ) ;
+  
+  Boardable init = start, next = null ;
+  float minDist = Float.POSITIVE_INFINITY ;
+  for (Boardable b : init.canBoard(Spacing.tempB4)) {
+    if (! (b instanceof ShieldWall)) continue ;
+    final float dist = Spacing.distance(b, ideal) ;
+    if (dist < minDist) { minDist = dist ; next = b ; }
+  }
+  if (next == null) return null ;
+  
+  init.flagWith(enRoute) ;
+  next.flagWith(enRoute) ;
+  enRoute.add(init) ;
+  enRoute.add(next) ;
+  
+  while (true) {
+    Boardable near = null ;
+    for (Boardable b : next.canBoard(Spacing.tempB4)) {
+      if (! (b instanceof ShieldWall)) continue ;
+      if (b.flaggedWith() != null) continue ;
+      near = b ;
+      near.flagWith(enRoute) ;
+      enRoute.add(near) ;
+      break ;
+    }
+    if (near == null || enRoute.size() > maxDist / 2) break ;
+    next = near ;
+  }
+  for (Target t : enRoute) t.flagWith(null) ;
+  
+  final List <Target> patrolled = new List <Target> () ;
+  BlastDoors doors = null ;
+  for (Target b : enRoute) {
+    final ShieldWall s = (ShieldWall) b ;
+    if (s.isTower()) patrolled.include(b) ;
+    if (s.isGate()) {
+      if (doors == null || (
+        Spacing.distance(s, actor) < Spacing.distance(doors, actor)
+      )) doors = (BlastDoors) s ;
+    }
+  }
+  if (doors == null) return null ;
+  return new Patrolling(actor, doors, patrolled, TYPE_SENTRY_DUTY) ;
+}
+//*/
 

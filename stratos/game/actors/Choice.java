@@ -20,8 +20,8 @@ public class Choice {
     DEFAULT_TRAIT_RANGE    = 2.0f ;
   
   public static boolean
-    verbose       = false,
-    verboseReject = verbose && false ;
+    verbose       = true,
+    verboseReject = verbose && false;
   
   final Actor actor ;
   final Batch <Behaviour> plans = new Batch <Behaviour> () ;
@@ -50,13 +50,18 @@ public class Choice {
     final boolean finished = plan.finished();
     final float priority = plan.priorityFor(actor);
     final Behaviour nextStep = plan.nextStepFor(actor);
-
+    
     if (finished || priority <= 0 || nextStep == null) {
-      if (verboseReject && plan != null && I.talkAbout == actor) {
-        I.say("  Rejected option: " + plan + " (" + plan.getClass() + ")");
-        I.say("  Priority: " + priority);
-        I.say("  Finished/valid: " + finished + "/" + plan.valid());
-        I.say("  Next step: " + nextStep + "\n");
+      if (I.talkAbout == actor) {
+        if (verboseReject) {
+          I.say("  Rejected option: " + plan + " (" + plan.getClass() + ")");
+          I.say("  Priority: " + priority);
+          I.say("  Finished/valid: " + finished + "/" + plan.valid());
+          I.say("  Next step: " + nextStep + "\n");
+        }
+        else if (verbose && nextStep != null) {
+          I.say("  "+plan+" rejected, priority: "+priority);
+        }
       }
       return false;
     }

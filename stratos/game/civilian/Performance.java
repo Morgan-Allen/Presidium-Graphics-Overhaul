@@ -92,6 +92,8 @@ public class Performance extends Recreation {
     "Rapturous",
   } ;
   
+  private static boolean verbose = false;
+  
   
   
   final Actor client ;
@@ -227,27 +229,20 @@ public class Performance extends Recreation {
   
   /**  Behaviour implementation-
     */
+  final static Trait BASE_TRAITS[] = { OUTGOING, CREATIVE };
+  
   public float priorityFor(Actor actor) {
     if (expired()) return 0 ;
-    float impetus = CASUAL ;
-    //
-    //  Vary readiness based on possession of relevant skills-
-    final Skill needed[] = PERFORM_SKILLS[type] ;
-    if (needed.length > 0) {
-      float avgChance = 0 ;
-      for (Skill s : needed) {
-        final int DC = s == needed[0] ? MODERATE_DC : ROUTINE_DC ;
-        final float chance = actor.traits.chance(s, DC - checkBonus) ;
-        avgChance += chance ;
-      }
-      avgChance /= needed.length ;
-      impetus *= avgChance ;
-    }
-    //
-    //  TODO:  ...What about singing voice?  Use gene values?
-    //impetus += actor.traits.relativeLevel(SOCIABLE) * 2 ;
-    //impetus += actor.traits.relativeLevel(CREATIVE) * 2 ;  TODO:  INSERT
-    return Visit.clamp(impetus + priorityMod, 0, URGENT) ;
+    final boolean report = verbose && I.talkAbout == actor;
+    
+    final float priority = priorityForActorWith(
+      actor, venue, CASUAL,
+      MILD_HELP, MILD_COOPERATION,
+      PERFORM_SKILLS[type], BASE_TRAITS,
+      NO_MODIFIER, NORMAL_DISTANCE_CHECK, NO_DANGER,
+      report
+    );
+    return priority;
   }
   
   

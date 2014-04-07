@@ -450,8 +450,9 @@ private Action assistanceFrom(Actor other) {
   
   //Plan favour = actor.mind.createBehaviour() ;
   //favour.assignActor(other) ;
-  //favour.priorityMod = ROUTINE * other.mind.relationValue(actor) ;
-  //favour.priorityMod *= favour.priorityFor(other) / PARAMOUNT ;
+  //favour.setMotive(
+    //Plan.MOTIVE_LEISURE, ROUTINE * other.mind.relationValue(actor)
+  //) ;
   //return favour ;
   return null ;
 }
@@ -462,12 +463,6 @@ private Action assistanceFrom(Actor other) {
 //  TODO:  Base gifts on the item's demanded at the subject's home or work
 //         venue, while defaulting to food, money, or bling.
 //  TODO:  Create a new plan for gift-giving.
-final Service GIFT_TYPES[] = {
-  PROTEIN, GREENS, SPICE,
-  PLASTICS, DECOR, MEDICINE
-} ;
-//*/
-
 
 
 
