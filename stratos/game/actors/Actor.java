@@ -226,6 +226,9 @@ public abstract class Actor extends Mobile implements
       senses.updateSeen();
       mind.updateAI(numUpdates) ;
       
+      
+      //  TODO:  Restore this later?  Or have stealth attempts break it?
+      /*
       if (actionTaken != null && numUpdates % 10 == 0) {
         //  TODO:  Only perform this test once you arrive at the quarry's last
         //  known position?
@@ -235,6 +238,7 @@ public abstract class Actor extends Mobile implements
           pathingAbort();
         }
       }
+      //*/
     }
     
     //  Check to see if you need to wake up-
@@ -248,7 +252,7 @@ public abstract class Actor extends Mobile implements
         wakePriority  = root == null ? 0 : root.priorityFor(this),
         sleepPriority = new Resting(this, aboard()).priorityFor(this);
       
-      if (wakePriority + 1 > sleepPriority + Choice.DEFAULT_PRIORITY_RANGE) {
+      if (wakePriority > sleepPriority + 1 + Plan.DEFAULT_SWITCH_THRESHOLD) {
         health.setState(ActorHealth.STATE_ACTIVE) ;
       }
     }
@@ -370,8 +374,9 @@ public abstract class Actor extends Mobile implements
   
   protected void renderHealthbars(Rendering rendering, Base base) {
     if (health.dying()) return;
-    
-    if (BaseUI.isSelectedOrHovered(this));
+    if (! (this instanceof Human)) {
+      if (! BaseUI.isSelectedOrHovered(this)) return;
+    }
     
     label.matchTo(sprite());
     label.position.z -= radius() + 0.25f;

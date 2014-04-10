@@ -125,6 +125,12 @@ public class Trait implements Qualities, Session.Saveable {
   /**  Returns the appropriate description for the given trait-level.
     */
   public static String descriptionFor(Trait trait, float level) {
+    
+    if (trait.descriptors.length == 1) {
+      if (level == 0) return null;
+      return (level > 0 ? "" : "Not ") + trait.descriptors[0];
+    }
+    
     String bestDesc = null ;
     float minDiff = Float.POSITIVE_INFINITY ;
     int i = 0 ; for (String s : trait.descriptors) {

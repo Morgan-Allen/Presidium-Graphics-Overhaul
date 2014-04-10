@@ -144,15 +144,6 @@ public class SolidSprite extends Sprite implements RenderableProvider {
   
   public void setAnimation(String id, float progress) {
     Animation match = model.gdxModel.getAnimation(id);
-    /*
-    if (match == null) {
-      if (verbose) {
-        I.say("  WARNING:  No matching animation: "+id);
-        I.say("  IN MODEL: "+model.assetID());
-      }
-      match = model.gdxModel.getAnimation(AnimNames.STAND);
-    }
-    //*/
     if (match == null) return;
     
     AnimState topState = animStates.getLast();
@@ -184,6 +175,9 @@ public class SolidSprite extends Sprite implements RenderableProvider {
   
   
   public Vec3D attachPoint(String function, Vec3D v) {
+    if (v == null) v = new Vec3D();
+    if (animStates.size() == 0) return v.setTo(position);
+    
     final Integer nodeIndex = model.indexFor(function);
     if (nodeIndex == null) {
       I.say("WARNING:  NO ATTACH POINT FOR "+function);
@@ -193,7 +187,7 @@ public class SolidSprite extends Sprite implements RenderableProvider {
     tempV.set(0, 0, 0);
     tempV.mul(boneTransforms[nodeIndex]);
     tempV.mul(transform);
-    return Viewport.GLToWorld(tempV, v != null ? v : new Vec3D());
+    return Viewport.GLToWorld(tempV, v);
   }
   
   

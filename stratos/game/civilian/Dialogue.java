@@ -90,37 +90,33 @@ public class Dialogue extends Plan implements Qualities {
   
   /**  Target selection and priority evaluation-
     */
+  final static Trait BASE_TRAITS[] = { OUTGOING, POSITIVE, EMPATHIC };
+  final static Skill BASE_SKILLS[] = { SUASION, TRUTH_SENSE };
+  
   public float priorityFor(Actor actor) {
-    if (stage >= STAGE_DONE || ! canTalk(other)) return 0 ;
-    float
-      value    = actor.mind.relationValue(other),
-      novelty  = actor.mind.relationNovelty(other),
-      solitude = actor.mind.solitude() ;
+    final boolean report = verbose && I.talkAbout == actor;
     
-    novelty *= (actor.traits.relativeLevel(CURIOUS) + 1) / 2f ;
-    if (! actor.mind.hasRelation(other)) novelty *= solitude ;
-    else novelty *= (1 + solitude) / 2f ;
+    final float novelty = actor.mind.relationNovelty(other);
+    if (novelty <= 0) return 0;
+    if (stage >= STAGE_DONE || ! canTalk(other)) return 0;
     
-    float impetus = (CASUAL * value * 2) + (novelty * ROUTINE) ;
-    if (other.base() == actor.base()) {
-      impetus += actor.base().communitySpirit() ;
-    }
-    impetus *= 1 + actor.traits.relativeLevel(OUTGOING) ;
-    
-    if (verbose && I.talkAbout == actor) {
-      I.say("\n  Priority for talking to "+other+" is: "+impetus) ;
-      I.say("  Value/novelty: "+value+"/"+novelty) ;
-    }
-    return Visit.clamp(impetus, 0, URGENT) ;
+    final float priority = priorityForActorWith(
+      actor, other, CASUAL,
+      MILD_HELP, MILD_COMPETITION,
+      BASE_SKILLS, BASE_TRAITS,
+      NO_MODIFIER, HEAVY_DISTANCE_CHECK, NO_DANGER,
+      report
+    );
+    return priority;
   }
   
   
   private boolean canTalk(Actor other) {
-    if (! other.health.conscious()) return false ;
+    //if (! other.health.conscious()) return false ;
     if (other.isDoing(Dialogue.class, null)) return true ;
     if (starts != actor) return false ;
     final Dialogue d = new Dialogue(other, actor, actor, type) ;
-    return other.mind.couldSwitchTo(d) ;
+    return ! other.mind.mustIgnore(d) ;
   }
   
   
@@ -429,6 +425,29 @@ public class Dialogue extends Plan implements Qualities {
 }
 
 
+
+/*
+float
+  value    = actor.mind.relationValue(other),
+  novelty  = actor.mind.relationNovelty(other),
+  solitude = actor.mind.solitude() ;
+
+novelty *= (actor.traits.relativeLevel(CURIOUS) + 1) / 2f ;
+if (! actor.mind.hasRelation(other)) novelty *= solitude ;
+else novelty *= (1 + solitude) / 2f ;
+
+float impetus = (CASUAL * value * 2) + (novelty * ROUTINE) ;
+if (other.base() == actor.base()) {
+  impetus += actor.base().communitySpirit() ;
+}
+impetus *= 1 + actor.traits.relativeLevel(OUTGOING) ;
+
+if (verbose && I.talkAbout == actor) {
+  I.say("\n  Priority for talking to "+other+" is: "+impetus) ;
+  I.say("  Value/novelty: "+value+"/"+novelty) ;
+}
+return Visit.clamp(impetus, 0, URGENT) ;
+//*/
 
 
 /**  Helper methods for gifts and favours-

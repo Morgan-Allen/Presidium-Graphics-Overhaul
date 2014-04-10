@@ -14,6 +14,13 @@ import stratos.util.*;
 
 
 
+//Planitia Sector (robots + ruins, artifact.)
+//Pavonis Sector (mild settlement, pacified.)
+//Aeolis Sector (desert plus wildlife.)
+//Marineris Sector (neutral + water/islands.  Some wildlife.)
+
+
+
 public class StartupScenario extends Scenario {
   
   
@@ -73,12 +80,16 @@ public class StartupScenario extends Scenario {
     TITLE_BARON    = 2;
   
   public static class Config {
+    //  TODO:  Just pick House, Province, Options.  And a few perks.
+    
     public Background house;
+    
     public boolean male;
     public List <Trait> chosenTraits = new List <Trait> ();
     public List <Skill> chosenSkills = new List <Skill> ();
     public List <Background> advisors = new List <Background> ();
     public Table <Background, Integer> numCrew = new Table();
+    
     public int siteLevel, fundsLevel, titleLevel;
     
     public int numCrew(Background b) {
@@ -186,56 +197,15 @@ public class StartupScenario extends Scenario {
   protected void configureScenario(World world, Base base, BaseUI UI) {
     //
     //  Determine relevant attributes for the ruler-
-    final int station = config.titleLevel ;
-    final float promoteChance = (25 - (station * 10)) / 100f ;
-    final Background vocation = Background.RULING_POSITIONS[station] ;
-    final Background birth ;
-    if (Rand.num() < promoteChance) {
-      if (Rand.num() < promoteChance) birth = Background.FREE_BIRTH ;
-      else birth = Background.GELDER_BIRTH ;
-    }
-    else birth = Background.HIGH_BIRTH ;
-    
-    final Background house = config.house;
-    final Career rulerCareer = new Career(config.male, vocation, birth, house);
-    final Human ruler = new Human(rulerCareer, base) ;
-    for (Skill s : house.skills()) ruler.traits.incLevel(s, 5) ;
+    final Human ruler = ruler(base);
     
     //
     //  Try to pick out some complementary advisors-
-    final List <Human> advisors = new List <Human> () ;
-    final int numTries = 5 ;
-    for (Background b : config.advisors) {
-      Human picked = null ;
-      float bestRating = Float.NEGATIVE_INFINITY ;
-      
-      for (int i = numTries ; i-- > 0 ;) {
-        final Human candidate = new Human(b, base) ;
-        float rating = Career.ratePromotion(b, candidate) ;
-        
-        if (b == Background.FIRST_CONSORT) {
-          rating +=
-            ruler.mind.attraction(candidate) +
-            (candidate.mind.attraction(ruler) / 2) ;
-        }
-        if (rating > bestRating) { picked = candidate ; bestRating = rating ; }
-      }
-      if (picked != null) advisors.add(picked) ;
-    }
+    final List <Human> advisors = advisors(base, ruler);
     
     //
     //  Pick out some random colonists-
-    final List <Human> colonists = new List <Human> () ;
-    for (int i = COLONIST_BACKGROUNDS.length ; i-- > 0 ;) {
-      final Background b = COLONIST_BACKGROUNDS[i];
-      for (int n = config.numCrew(b) ; n-- > 0 ;) {
-        final Human c = new Human(b, base) ;
-        for (Skill s : house.skills()) if (c.traits.traitLevel(s) > 0) {
-          c.traits.incLevel(s, 5) ;
-        }
-        colonists.add(c) ;
-      }
-    }
+    final List <Human> colonists = colonists(base);
     
     //  Establish the position of the base site-
     final Bastion bastion = establishBastion(
@@ -267,24 +237,72 @@ public class StartupScenario extends Scenario {
   
   /**  Private helper methods-
     */
-  private void establishLocals(World world) {
-    if (config.siteLevel == SITE_WASTELAND) {
-      final int maxRuins = world.size / (World.SECTOR_SIZE * 2);
-      Ruins.placeRuins(world, maxRuins);
+  protected Human ruler(Base base) {
+    
+    final int station = config.titleLevel ;
+    final float promoteChance = (25 - (station * 10)) / 100f ;
+    final Background vocation = Background.RULING_POSITIONS[station] ;
+    final Background birth ;
+    if (Rand.num() < promoteChance) {
+      if (Rand.num() < promoteChance) birth = Background.FREE_BIRTH ;
+      else birth = Background.GELDER_BIRTH ;
     }
-    if (config.siteLevel == SITE_SETTLED) {
-      Nest.placeNests(world, Species.QUD, Species.HAREEN);
-    }
-    if (config.siteLevel == SITE_WILDERNESS) {
-      final int maxRuins = world.size / (World.SECTOR_SIZE * 4);
-      Ruins.placeRuins(world, maxRuins);
-      Nest.placeNests(world, Species.QUD, Species.HAREEN, Species.LICTOVORE);
-    }
+    else birth = Background.HIGH_BIRTH ;
+    
+    final Background house = config.house;
+    final Career rulerCareer = new Career(config.male, vocation, birth, house);
+    final Human ruler = new Human(rulerCareer, base) ;
+    for (Skill s : house.skills()) ruler.traits.incLevel(s, 5) ;
+    
+    return ruler ;
   }
   
   
+  protected List <Human> advisors(Base base, Actor ruler) {
+    final List <Human> advisors = new List <Human> () ;
+    final int numTries = 5 ;
+    for (Background b : config.advisors) {
+      Human picked = null ;
+      float bestRating = Float.NEGATIVE_INFINITY ;
+      
+      for (int i = numTries ; i-- > 0 ;) {
+        final Human candidate = new Human(b, base) ;
+        float rating = Career.ratePromotion(b, candidate) ;
+        
+        if (b == Background.FIRST_CONSORT) {
+          rating +=
+            ruler.mind.attraction(candidate) +
+            (candidate.mind.attraction(ruler) / 2) ;
+        }
+        if (rating > bestRating) { picked = candidate ; bestRating = rating ; }
+      }
+      if (picked != null) advisors.add(picked) ;
+    }
+    
+    return advisors;
+  }
   
-  private Bastion establishBastion(
+  
+  protected List <Human> colonists(Base base) {
+    final List <Human> colonists = new List <Human> () ;
+    final Background house = config.house;
+    
+    for (int i = COLONIST_BACKGROUNDS.length ; i-- > 0 ;) {
+      final Background b = COLONIST_BACKGROUNDS[i];
+      for (int n = config.numCrew(b) ; n-- > 0 ;) {
+        final Human c = new Human(b, base) ;
+        for (Skill s : house.skills()) if (c.traits.traitLevel(s) > 0) {
+          c.traits.incLevel(s, 5) ;
+        }
+        colonists.add(c) ;
+      }
+    }
+    
+    return colonists;
+  }
+  
+  
+  protected Bastion establishBastion(
     final World world, Base base,
     Human ruler, List <Human> advisors, List <Human> colonists
   ) {
@@ -321,6 +339,22 @@ public class StartupScenario extends Scenario {
       a.goAboard(bastion, world);
     }
     return bastion;
+  }
+  
+  
+  protected void establishLocals(World world) {
+    if (config.siteLevel == SITE_WASTELAND) {
+      final int maxRuins = world.size / (World.SECTOR_SIZE * 2);
+      Ruins.placeRuins(world, maxRuins);
+    }
+    if (config.siteLevel == SITE_SETTLED) {
+      Nest.placeNests(world, Species.QUD, Species.HAREEN);
+    }
+    if (config.siteLevel == SITE_WILDERNESS) {
+      final int maxRuins = world.size / (World.SECTOR_SIZE * 4);
+      Ruins.placeRuins(world, maxRuins);
+      Nest.placeNests(world, Species.QUD, Species.HAREEN, Species.LICTOVORE);
+    }
   }
 }
 

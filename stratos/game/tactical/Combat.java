@@ -19,7 +19,7 @@ public class Combat extends Plan implements Qualities {
   /**  Data fields, constructors and save/load methods-
     */
   private static boolean
-    evalVerbose   = false,
+    evalVerbose   = true,
     eventsVerbose = false;
   
   final static int

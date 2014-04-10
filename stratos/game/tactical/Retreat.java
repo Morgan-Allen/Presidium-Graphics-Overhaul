@@ -20,7 +20,7 @@ public class Retreat extends Plan implements Qualities {
   final static float
     DANGER_MEMORY_FADE = 0.9f;
   
-  static boolean verbose = true, havenVerbose = false;
+  static boolean verbose = false, havenVerbose = false;
   
   
   private float maxDanger = 0;
@@ -175,7 +175,6 @@ public class Retreat extends Plan implements Qualities {
       safePoint.pathType() == Tile.PATH_BLOCKS
     ) {
       safePoint = nearestHaven(actor, null) ;
-      if (report) I.say("Safe point is: "+safePoint);
     }
     if (safePoint == null) {
       abortBehaviour() ;

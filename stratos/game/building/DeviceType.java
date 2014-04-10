@@ -136,11 +136,12 @@ public class DeviceType extends Service implements Economy {
     final ShotFX shot = (ShotFX) model.makeSprite() ;
     
     //  TODO:  Consider setting the fire point manually if the animation state
-    //  hasn't matured yet
-    final SolidSprite sprite = (SolidSprite) uses.sprite() ;
-    uses.viewPosition(sprite.position) ;
+    //  hasn't matured yet.
+    
+    final SolidSprite sprite = (SolidSprite) uses.sprite();
+    uses.viewPosition(sprite.position);
     sprite.attachPoint("fire", shot.origin);
-    shot.target.setTo(hitPoint(applied, hits)) ;
+    shot.target.setTo(hitPoint(applied, hits));
     
     shot.position.setTo(shot.origin).add(shot.target).scale(0.5f) ;
     final float size = shot.origin.sub(shot.target, null).length() / 2 ;

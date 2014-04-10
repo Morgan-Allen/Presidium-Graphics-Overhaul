@@ -134,7 +134,7 @@ public abstract class ActorMind implements Qualities {
       I.say("  NEXT PLAN: "+next+" "+nextP) ;
       I.say("\n") ;
     }
-    if (Choice.couldSwitch(actor, last, next)) assignBehaviour(next) ;
+    if (Choice.wouldSwitch(actor, last, next)) assignBehaviour(next) ;
   }
   
   
@@ -142,7 +142,7 @@ public abstract class ActorMind implements Qualities {
     final Behaviour
       notDone = new Choice(actor, todoList).pickMostUrgent(),
       newChoice = createBehaviour(),
-      taken = Choice.couldSwitch(actor, notDone, newChoice) ?
+      taken = Choice.wouldSwitch(actor, notDone, newChoice) ?
         newChoice : notDone ;
     
     if (updatesVerbose && I.talkAbout == actor) {
@@ -361,15 +361,15 @@ public abstract class ActorMind implements Qualities {
   }
   
   
-  public boolean couldSwitchTo(Behaviour next) {
+  public boolean wouldSwitchTo(Behaviour next) {
     if (! actor.health.conscious()) return false ;
-    return Choice.couldSwitch(actor, rootBehaviour(), next) ;
+    return Choice.wouldSwitch(actor, rootBehaviour(), next) ;
   }
   
   
   public boolean mustIgnore(Behaviour next) {
     if (! actor.health.conscious()) return true ;
-    return Choice.couldSwitch(actor, next, rootBehaviour()) ;
+    return Choice.wouldSwitch(actor, next, rootBehaviour()) ;
   }
   
   

@@ -123,7 +123,7 @@ public class DebugPlans extends Scenario {
   private void configCombatScenario(World world, Base base, BaseUI UI) {
     
     Actor soldier = null;
-    for (int n = 5; n-- > 0;) {
+    for (int n = 1; n-- > 0;) {
       soldier = new Human(Background.VETERAN, base);
       soldier.enterWorldAt(world.tileAt(4, 4), world);
     }
@@ -137,6 +137,17 @@ public class DebugPlans extends Scenario {
     threat.enterWorldAt(world.tileAt(9, 9), world);
     
     UI.selection.pushSelection(soldier, true);
+  }
+  
+  
+  private void configDialogueScenario(World world, Base base, BaseUI UI) {
+    
+    Actor citizen = null;
+    for (int n = 5; n-- > 0;) {
+      citizen = new Human(Background.CULTIVATOR, base);
+      citizen.enterWorldAt(world.tileAt(4, 4), world);
+    }
+    UI.selection.pushSelection(citizen, true);
   }
   
   

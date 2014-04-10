@@ -40,7 +40,8 @@ public class Call implements Clickable {
     try { method.invoke(client, args) ; }
     catch (Exception e) { I.report(e) ; }
   }
-
+  
+  
   public static void add(
     String label, Object client, String methodName, Description d,
     Object... args

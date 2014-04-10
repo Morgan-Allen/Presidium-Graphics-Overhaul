@@ -34,7 +34,12 @@ public class BaseUI extends HUD implements UIConstants {
   
   UIGroup helpText ;
   MapsPanel mapsPanel;
-  Text readout ;
+  Readout readout;
+  
+  //  TODO:  Also a starcharts and policies panel.
+  CommsPanel commsPanel;
+  Button commsButton;
+  
   UIGroup panelArea, infoArea ;
   Quickbar quickbar ;
   
@@ -49,6 +54,8 @@ public class BaseUI extends HUD implements UIConstants {
     this.rendering = rendering ;
     this.viewTracking = new ViewTracking(this, rendering.view) ;
     configLayout() ;
+    configPanels() ;
+    configHovers() ;
   }
   
   
@@ -76,6 +83,9 @@ public class BaseUI extends HUD implements UIConstants {
   
   public Base played() { return played ; }
   public World world() { return world  ; }
+  
+  
+  public CommsPanel commsPanel() { return commsPanel; }
   
   
   public static BaseUI current() {
@@ -113,7 +123,7 @@ public class BaseUI extends HUD implements UIConstants {
     mapsPanel.absBound.set(0, -256, 256, 256);
     mapsPanel.attachTo(this) ;
     
-    this.readout = new Text(this, INFO_FONT) ;
+    this.readout = new Readout(this) ;
     readout.relBound.set(0, 1, 1, 0) ;
     readout.absBound.set(200, -50, -300, READOUT_HIGH) ;
     readout.attachTo(this) ;
@@ -139,7 +149,23 @@ public class BaseUI extends HUD implements UIConstants {
     //quickbar.setupMissionButtons() ;  //  Not needed any more, I think...
     quickbar.setupPowersButtons() ;
     quickbar.setupInstallButtons() ;
-    
+  }
+  
+  
+  private void configPanels() {
+    this.commsPanel = new CommsPanel(this);
+    this.commsButton = new Button(this, CommsPanel.COMMS_ICON, "messages") {
+      protected void whenClicked() {
+        setInfoPanels(commsPanel, null);
+      }
+    };
+    commsButton.relBound.set(0, 1, 0, 0);
+    commsButton.absBound.set(0, -256, 40, 40);
+    commsButton.attachTo(this);
+  }
+  
+  
+  private void configHovers() {
     this.helpText = new Tooltips(this);
     helpText.attachTo(this) ;
   }
@@ -148,7 +174,7 @@ public class BaseUI extends HUD implements UIConstants {
   
   /**  Modifying the interface layout-
     */
-  protected void setInfoPanels(InfoPanel infoPanel, TargetInfo targetInfo) {
+  public void setInfoPanels(InfoPanel infoPanel, TargetInfo targetInfo) {
     if (infoPanel != currentPanel) {
       beginPanelFade();
       newPanel = infoPanel;
@@ -199,62 +225,15 @@ public class BaseUI extends HUD implements UIConstants {
     super.updateInput();
     selection.updateSelection(world, rendering.view, panelArea);
   }
-  
+  /*
   
   protected void updateState() {
     super.updateState() ;
     updateReadout() ;
   }
+  //*/
   
   
-  protected void updateReadout() {
-    //
-    //  TODO:  Move these functions to a separate class.
-    if (readout == null) return ;
-    readout.setText("") ;
-    //
-    //  Credits first-
-    final int credits = played.credits() ;
-    if (credits >= 0) readout.append(credits+" Credits", Colour.WHITE) ;
-    else readout.append((0 - credits)+" In Debt", Colour.YELLOW) ;
-    readout.append("   ") ;
-    //
-    //  Then time and date-
-    final float
-      time = world.currentTime() / World.STANDARD_DAY_LENGTH ;
-    final int
-      days  = (int) time,
-      hours = (int) ((time - days) * 24) ;
-    String hS = hours+"00" ;
-    while (hS.length() < 4) hS = "0"+hS ;
-    String dS = "Day "+days+" "+hS+" Hours" ;
-    readout.append(dS) ;
-    //
-    //  And finally current psy points-
-    final boolean ruled = played.ruler() != null ;
-    final ActorHealth RH = ruled ? played.ruler().health : null ;
-    final int PS = ruled ? 2 * (int) RH.maxPsy() : 0 ;
-    float psyPoints = 0 ;
-    if (played.ruler() != null) {
-      psyPoints += played.ruler().health.psyPoints() ;
-      psyPoints *= PS / RH.maxPsy() ;
-    }
-    if (PS > 0 && psyPoints > 0) {
-      readout.append("   Psy Points: ") ;
-      float a = psyPoints / PS ;
-      Colour tone = new Colour().set((1 - a) / 2, a, (1 - a), 1) ;
-      while (--psyPoints > 0) {
-        readout.append("|", tone) ;
-        a = psyPoints / PS ;
-        tone = new Colour().set((1 - a) / 2, a, (1 - a), 1) ;
-        tone.setValue(1) ;
-      }
-      if ((psyPoints + 1) > 0) {
-        tone.a = psyPoints + 1 ;
-        readout.append("|", tone) ;
-      }
-    }
-  }
   
   
   public void renderWorldFX() {

@@ -19,13 +19,17 @@ public interface Behaviour extends Session.Saveable {
     CASUAL      =  2.5f,
     ROUTINE     =  5,
     URGENT      =  7.5f,
-    PARAMOUNT   =  10 ;
+    PARAMOUNT   =  10,
+    
+    DEFAULT_SWITCH_THRESHOLD = 2.5f;
+  
+  //  TODO:  Just base these off urgency?  Anything above urgent triggers
+  //  running, say?
   final public static int
     MOTION_ANY    = -1,
     MOTION_NORMAL =  0,
     MOTION_FAST   =  1,
     MOTION_SNEAK  =  2 ;
-  
   
   Behaviour nextStepFor(Actor actor) ;
   int motionType(Actor actor) ;
@@ -39,11 +43,6 @@ public interface Behaviour extends Session.Saveable {
   
   void describeBehaviour(Description d) ;
 }
-
-
-
-
-
 
 
 

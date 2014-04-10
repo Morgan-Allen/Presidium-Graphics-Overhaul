@@ -97,7 +97,7 @@ public class Senses implements Qualities {
     final Choice reactions = new Choice(actor);
     for (Target e : noticed) pushAwareness(e, range, reactions);
     final Behaviour reaction = reactions.pickMostUrgent();
-    if (actor.mind.couldSwitchTo(reaction)) {
+    if (actor.mind.wouldSwitchTo(reaction)) {
       actor.mind.assignBehaviour(reaction);
     }
     
@@ -134,6 +134,9 @@ public class Senses implements Qualities {
   
   private boolean notices(Target e, float sightRange) {
     
+    final float fog = actor.base().intelMap.fogAt(e);
+    if (fog == 0) return false;
+    
     //  Decide on the basic stats for evaluation-
     final boolean report = noticeVerbose && I.talkAbout == actor;
     final boolean
@@ -143,7 +146,7 @@ public class Senses implements Qualities {
       distance = Spacing.distance(e, actor),
       stealth = stealthFactor(e, actor);
     float
-      senseFactor = sightRange,
+      senseFactor = sightRange * fog,
       hideFactor = distance;
     
     //  The target is easier to spot if they're your current focus, or if

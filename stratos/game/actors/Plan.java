@@ -263,8 +263,7 @@ public abstract class Plan implements Saveable, Behaviour {
   final protected static Trait NO_TRAITS[] = null;
   
   
-  //  Okay.  Default priority becomes the minimum.  Max is that times 2.
-  
+  //  This probably needs to be reworked.
   protected float priorityForActorWith(
     Actor actor,
     Target subject,
@@ -355,8 +354,7 @@ public abstract class Plan implements Saveable, Behaviour {
     priority -= dangerPenalty;
     if (report) {
       I.say("  Chance penalty is: "+chancePenalty);
-      I.say("  Range/Danger penalty is: "+rangePenalty);
-      I.say("  Danger penalty is: "+dangerPenalty);
+      I.say("  Range/Danger penalty is: "+rangePenalty+"/"+dangerPenalty);
       I.say("  Priority after clamp/scale, dist/danger: "+priority);
     }
     return priority;

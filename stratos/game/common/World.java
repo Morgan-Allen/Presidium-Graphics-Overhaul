@@ -127,6 +127,8 @@ public class World {
   
   /**  Utility methods for visiting tiles at specific coordinates.
     */
+  private Vec3D tempV = new Vec3D();
+  
   public Tile tileAt(float x, float y) {
     try { return tiles[(int) (x + 0.5f)][(int) (y + 0.5f)] ; }
     catch (ArrayIndexOutOfBoundsException e) { return null ; }
@@ -140,7 +142,7 @@ public class World {
   
   
   public Tile tileAt(Target t) {
-    final Vec3D v = t.position(null) ;
+    final Vec3D v = t.position(tempV) ;
     return tileAt(v.x, v.y) ;
   }
   
@@ -273,11 +275,6 @@ public class World {
   
   /**  Rendering and interface methods-
     */
-  public float timeMidRender() {
-    return currentTime + (PlayLoop.frameTime() / Rendering.FRAMES_PER_SECOND);
-  }
-  
-  
   public static interface Visible {
     void renderFor(Rendering r, Base b);
     Sprite sprite();
@@ -353,10 +350,18 @@ public class World {
   }
   
   
+  public float timeMidRender() {
+    return currentTime + (PlayLoop.frameTime() / UPDATES_PER_SECOND);
+  }
+  
+  
   protected void renderTerrain(
     Batch <Section> sections, Rendering rendering, Base base
   ) {
     final float renderTime = timeMidRender();
+    I.say("Render time: "+renderTime);
+    
+    
     terrain.readyAllMeshes();
     for (Section section : sections) {
       terrain.renderFor(section.area, rendering, renderTime);

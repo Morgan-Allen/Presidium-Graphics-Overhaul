@@ -206,8 +206,13 @@ public final class PlayLoop {
     final Playable current = played;
     float worldTime = (numStateUpdates + frameTime) / UPDATES_PER_SECOND;
     rendering.updateViews(worldTime, frameTime);
-    if (verbose) I.say("Advancing play loop...");
     
+    if (verbose) {
+      I.say("Advancing play loop, time: "+time);
+      I.say("  Last frame/last update: "+lastFrame+"/"+lastUpdate);
+      I.say("  Frame/update gap: "+frameGap+"/"+updateGap);
+      I.say("  FRAME/UPDATE INTERVAL: "+FRAME_INTERVAL+"/"+UPDATE_INTERVAL);
+    }
     
     if (Assets.loadProgress() < 1) {
       LoadingScreen.update("Loading Assets", Assets.loadProgress());
@@ -222,7 +227,7 @@ public final class PlayLoop {
       LoadingScreen.update("Loading Scenario", played.loadProgress());
       rendering.renderDisplay(LoadingScreen.HUD);
       lastUpdate = lastFrame = time;
-      if (verbose) I.say("Content loading progress: "+played.loadProgress());
+      if (verbose) I.say("  Content loading progress: "+played.loadProgress());
       return true;
     }
     
@@ -235,7 +240,7 @@ public final class PlayLoop {
       rendering.renderDisplay(played == null ? null : played.UI());
       lastFrame = time;
     }
-    if (verbose) I.say("Played is: "+played);
+    if (verbose) I.say("  Played is: "+played);
     
     //  Now we essentially 'pretend' that updates were occurring once every
     //  UPDATE_INTERVAL milliseconds:
@@ -245,9 +250,11 @@ public final class PlayLoop {
         (1 + (FRAME_INTERVAL / UPDATE_INTERVAL))
       );
       if (played.shouldExitLoop()) return false;
+      
+      if (verbose) I.say("  No. of updates: "+numUpdates);
       if (! paused) for (int n = numUpdates ; n-- > 0 ;) {
         if (played != current) return true;
-        if (verbose) I.say("UPDATING WORLD?");
+        if (verbose) I.say("  UPDATING WORLD?");
         played.updateGameState();
         numStateUpdates++;
         lastUpdate += UPDATE_INTERVAL;

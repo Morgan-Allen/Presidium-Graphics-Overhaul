@@ -29,7 +29,6 @@ public class IntelMap {
   MipMap fogMap ;
   
   private FogOverlay fogOver ;
-  //private float lastFogTime = -1 ;
   
   
   
@@ -77,7 +76,7 @@ public class IntelMap {
   
   
   public FogOverlay fogOver() {
-    if (GameSettings.fogFree) return null;
+    if (GameSettings.fogFree || base.primal) return null;
     return fogOver ;
   }
   
@@ -86,13 +85,14 @@ public class IntelMap {
   /**  Visual refreshment-
     */
   public void updateAndRender(float fogTime, Rendering rendering) {
+    if (GameSettings.fogFree || base.primal) return;
     fogOver.updateVals(fogTime, fogVals);
     fogOver.registerFor(rendering);
   }
   
   
   public float displayFog(Tile t, Object client) {
-    if (GameSettings.fogFree) return 1;
+    if (GameSettings.fogFree || base.primal) return 1;
     return fogOver.sampleAt(t.x, t.y, client);
   }
   
@@ -105,18 +105,26 @@ public class IntelMap {
   
   
   public float fogAt(Tile t) {
-    if (GameSettings.fogFree) return 1 ;
+    if (GameSettings.fogFree || base.primal) return 1;
     return fogVals[t.x][t.y];
   }
   
   
+  public float fogAt(Target t) {
+    if (GameSettings.fogFree || base.primal) return 1;
+    return fogAt(world.tileAt(t));
+  }
+  
+  
   public int liftFogAround(Target t, float radius) {
+    if (GameSettings.fogFree || base.primal) return (int) radius;
     final Vec3D p = t.position(null) ;
     return liftFogAround(p.x, p.y, radius) ;
   }
   
   
   public int liftFogAround(float x, float y, float radius) {
+    if (GameSettings.fogFree || base.primal) return (int) radius;
     //
     //  We record and return the number of new tiles seen-
     final Box2D area = new Box2D().set(

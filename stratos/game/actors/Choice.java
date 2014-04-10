@@ -15,10 +15,6 @@ public class Choice implements Qualities {
   
   /**  Data fields, constructors and setup-
     */
-  final static float
-    DEFAULT_PRIORITY_RANGE = 5.0f,
-    DEFAULT_TRAIT_RANGE    = 2.0f ;
-  
   public static boolean
     verbose       = true,
     verboseReject = verbose && false;
@@ -79,29 +75,38 @@ public class Choice implements Qualities {
     *  likelihood of their selection.
     */
   public Behaviour pickMostUrgent() {
-    return weightedPick(0) ;
+    return weightedPick(false);
   }
   
   
   public Behaviour weightedPick() {
-    final float
-      sub = actor.traits.relativeLevel(STUBBORN),
-      range = DEFAULT_PRIORITY_RANGE - (sub * DEFAULT_TRAIT_RANGE) ;
-    return weightedPick(range) ;
+    return weightedPick(true) ;
   }
   
   
-  private Behaviour weightedPick(float priorityRange) {
+  private static float competeThreshold(Actor actor, float topPriority) {
+    float thresh = topPriority + actor.traits.relativeLevel(STUBBORN);
+    if (topPriority > Plan.PARAMOUNT) {
+      final float extra = (topPriority - Plan.PARAMOUNT) / Plan.ROUTINE;
+      thresh -= Plan.DEFAULT_SWITCH_THRESHOLD * extra;
+    }
+    thresh -= Plan.DEFAULT_SWITCH_THRESHOLD;
+    return Visit.clamp(thresh, 0, Plan.PARAMOUNT);
+  }
+  
+  
+  private Behaviour weightedPick(boolean free) {//float priorityRange) {
+    final boolean report = verbose && I.talkAbout == actor;
     if (plans.size() == 0) {
-      if (verboseReject) I.sayAbout(actor, "  ...Empty choice!") ;
+      if (verboseReject && I.talkAbout == actor) I.say("  ...Empty choice!") ;
       return null ;
     }
-    else if (verbose) I.sayAbout(actor, "Range of choice is "+plans.size()) ;
-    if (verbose && I.talkAbout == actor) {
+    else if (report) I.say("Range of choice is "+plans.size()) ;
+    if (report) {
       String label = "Actor" ;
       if (actor.vocation() != null) label = actor.vocation().name ;
       else if (actor.species() != null) label = actor.species().toString() ;
-      I.say(actor+" ("+label+") is making a choice, range: "+priorityRange) ;
+      I.say(actor+" ("+label+") is making a choice.  Is free? "+free) ;
       I.say("  Current time: "+actor.world().currentTime()) ;
     }
     //
@@ -115,23 +120,27 @@ public class Choice implements Qualities {
       final float priority = plan.priorityFor(actor) ;
       if (priority > bestPriority) { bestPriority = priority ; picked = plan ; }
       weights[i++] = priority ;
-      if (verbose) I.sayAbout(actor, "  "+plan+" has priority: "+priority) ;
+      if (report) I.say("  "+plan+" has priority: "+priority) ;
     }
-    if (priorityRange == 0) {
-      if (verbose) I.sayAbout(actor, "    Picked: "+picked) ;
+    if (! free) {
+      if (report) I.say("    Picked: "+picked) ;
       return picked ;
     }
     //
     //  Eliminate all weights outside the permitted range, so that only plans
     //  of comparable attractiveness to the most important are considered-
-    final float minPriority = Math.max(0, bestPriority - priorityRange) ;
+    final float minPriority = competeThreshold(actor, bestPriority) ;
+    if (report) {
+      I.say("  Best priority: "+bestPriority);
+      I.say("  Min. priority: "+minPriority);
+    }
     float sumWeights = 0 ;
     for (i = weights.length ; i-- > 0 ;) {
       weights[i] = Math.max(0, weights[i] - minPriority) ;
       sumWeights += weights[i] ;
     }
     if (sumWeights == 0) {
-      if (verbose) I.sayAbout(actor, "    Picked: "+picked) ;
+      if (report) I.say("    Picked: "+picked) ;
       return picked ;
     }
     //
@@ -144,32 +153,29 @@ public class Choice implements Qualities {
       if (randPick < chance) { picked = plan ; break ; }
       else randPick -= chance ;
     }
-    if (verbose) I.sayAbout(actor, "    Picked: "+picked) ;
+    if (report) I.say("    Picked: "+picked) ;
     return picked ;
   }
   
   
-  
-  protected static boolean couldSwitch(
+  protected static boolean wouldSwitch(
     Actor actor, Behaviour last, Behaviour next
   ) {
-    if (next == null) return false ;
-    if (last == null) return true ;
+    if (next == null) return false;
+    if (last == null) return true;
     final float
       lastPriority = last.priorityFor(actor),
       nextPriority = next.priorityFor(actor);
     if (nextPriority <= 0) return false;
     if (lastPriority <= 0) return true;
     
-    float threshold = Math.min(lastPriority / 2, Plan.ROUTINE);
-    threshold *= (1 + actor.traits.relativeLevel(STUBBORN) + 1) / 2f;
-    threshold += lastPriority;
-    
+    final float minPriority = competeThreshold(actor, nextPriority);
     if (verbose && I.talkAbout == actor) {
-      I.say("Last/next priority is: "+lastPriority+"/"+nextPriority);
-      I.say("Threshold is: "+threshold);
+      I.say("Last plan: "+last+", priority: "+lastPriority);
+      I.say("Next plan: "+next+", priority: "+nextPriority);
+      I.say("Min. priority for last is: "+minPriority);
     }
-    return nextPriority >= threshold;
+    return lastPriority < minPriority;
   }
 }
 

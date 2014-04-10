@@ -289,6 +289,9 @@ public class MainMenu extends UIGroup {
   /**  Beginning a quick-start game-
     */
   public void configQuickstart(Object args[]) {
+    final TutorialScenario tutorial = new TutorialScenario();
+    PlayLoop.setupAndLoop(tutorial);
+    /*
     config = new StartupScenario.Config();
     config.house = (Background) Rand.pickFrom(Background.ALL_PLANETS);
     config.male = Rand.yes();
@@ -307,6 +310,7 @@ public class MainMenu extends UIGroup {
     config.fundsLevel = StartupScenario.FUNDING_STANDARD;
     
     PlayLoop.setupAndLoop(new StartupScenario(config));
+    //*/
   }
   
   

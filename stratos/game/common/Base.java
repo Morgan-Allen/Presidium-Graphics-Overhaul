@@ -39,7 +39,7 @@ public class Base implements
   
   
   final public World world ;
-  final boolean primal ;
+  final public boolean primal ;
   
   final public Commerce commerce = new Commerce(this) ;
   final public Paving paving ;

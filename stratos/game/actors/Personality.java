@@ -8,6 +8,15 @@ import java.util.Map.Entry;
 
 
 
+//  TODO:  See if this can't be simplified still further?
+
+//  Conscience.  Obedience.
+//  Empathy.  Greed.
+//  Aggression.  Caution.
+//  Curiosity.  Sloth.
+//  Ambition.  Whimsy.
+
+
 /*  I'm basing this system (loosely) on the Big 5 personality traits and some
 proposed (loose) correlations between them:
 

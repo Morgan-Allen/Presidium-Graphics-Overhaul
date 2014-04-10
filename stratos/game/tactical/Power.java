@@ -488,7 +488,7 @@ public class Power implements Qualities {
         }
         command.setMotive(Plan.MOTIVE_EMERGENCY, priorityMod);
         
-        if (affects.mind.couldSwitchTo(command)) {
+        if (affects.mind.wouldSwitchTo(command)) {
           affects.mind.assignBehaviour(command) ;
         }
         else {

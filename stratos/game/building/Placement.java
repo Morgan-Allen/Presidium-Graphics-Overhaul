@@ -227,7 +227,7 @@ public class Placement implements TileConstants {
     final Venue v, int atX, int atY, boolean intact, final World world,
     Actor... employed
   ) {
-    if (establishVenue(v, world.tileAt(atX, atX), intact, world) == null) {
+    if (establishVenue(v, world.tileAt(atX, atY), intact, world) == null) {
       return null ;
     }
     for (Actor a : employed) {

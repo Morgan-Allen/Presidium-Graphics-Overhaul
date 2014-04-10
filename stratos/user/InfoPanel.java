@@ -63,10 +63,19 @@ public class InfoPanel extends UIGroup implements UIConstants {
   final UINode portraitFrame;
   
   
-  
+
   public InfoPanel(
     final BaseUI UI, Selectable selected,
     final Composite portrait,
+    String... categories
+  ) {
+    this(UI, selected, portrait, true, categories);
+  }
+  
+  
+  protected InfoPanel(
+    final BaseUI UI, Selectable selected,
+    final Composite portrait, boolean splitText,
     String... categories
   ) {
     super(UI);
@@ -107,28 +116,35 @@ public class InfoPanel extends UIGroup implements UIConstants {
         ((BaseUI) UI).beginPanelFade();
       }
     };
-    detailText.relBound.set(0, 0, 0.5f, 1);
     detailText.absBound.set(
       0, BM,
       0, -(BM + HEADER_HEIGHT)
     );
-    detailText.attachTo(innerRegion);
     detailText.scale = 0.75f;
     
-    spillText = new Text(UI, BaseUI.INFO_FONT) {
-      protected void whenLinkClicked(Clickable link) {
-        super.whenLinkClicked(link);
-        ((BaseUI) UI).beginPanelFade();
-      }
-    };
-    spillText.relBound.set(0.5f, 0, 0.5f, 1);
-    spillText.absBound.set(
-      0, BM,
-      0, -(BM + HEADER_HEIGHT)
-    );
-    spillText.attachTo(innerRegion);
-    spillText.scale = 0.75f;
-    
+    if (splitText) {
+      spillText = new Text(UI, BaseUI.INFO_FONT) {
+        protected void whenLinkClicked(Clickable link) {
+          super.whenLinkClicked(link);
+          ((BaseUI) UI).beginPanelFade();
+        }
+      };
+      spillText.absBound.set(
+        0, BM,
+        0, -(BM + HEADER_HEIGHT)
+      );
+      spillText.scale = 0.75f;
+      
+      detailText.relBound.set(0, 0, 0.5f, 1);
+      spillText.relBound.set(0.5f, 0, 0.5f, 1);
+      detailText.attachTo(innerRegion);
+      spillText.attachTo(innerRegion);
+    }
+    else {
+      spillText = null;
+      detailText.relBound.set(0, 0, 1, 1);
+      detailText.attachTo(innerRegion);
+    }
     
     this.selected = selected;
     this.categories = categories;
@@ -199,7 +215,8 @@ public class InfoPanel extends UIGroup implements UIConstants {
     }
     updateText(UI, headerText, detailText);
     if (selected != null) selected.configPanel(this, UI);
-    detailText.continueWrap(spillText);
+    if (spillText != null) detailText.continueWrap(spillText);
+    //  TODO:  Otherwise, attach a scroll bar.
     super.updateState() ;
   }
   
@@ -207,10 +224,10 @@ public class InfoPanel extends UIGroup implements UIConstants {
   protected void updateText(
     final BaseUI UI, Text headerText, Text detailText
   ) {
-    if (selected == null) return ;
-    headerText.setText(selected.fullName()) ;
-    headerText.append("\n") ;
-    
+    if (selected != null) {
+      headerText.setText(selected.fullName()) ;
+      headerText.append("\n") ;
+    }
     if (categories != null) {
       for (int i = 0 ; i < categories.length ; i++) {
         final int index = i ;
@@ -221,7 +238,7 @@ public class InfoPanel extends UIGroup implements UIConstants {
         }, CC ? Colour.GREEN : Text.LINK_COLOUR) ;
       }
     }
-    if (previous != null) {
+    if (selected != null && previous != null) {
       headerText.append(new Description.Link("UP") {
         public void whenClicked() {
           UI.selection.pushSelection(previous, false) ;
@@ -231,12 +248,6 @@ public class InfoPanel extends UIGroup implements UIConstants {
     detailText.setText("");
   }
 }
-
-
-
-
-
-
 
 
 

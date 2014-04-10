@@ -31,6 +31,8 @@ public class Ruins extends Venue {
   final static int
     MIN_RUINS_SPACING = (int) (World.SECTOR_SIZE * 1.5f);
   
+  private static boolean verbose = false;
+  
   
   public Ruins() {
     super(4, 2, ENTRANCE_EAST, null) ;
@@ -67,22 +69,25 @@ public class Ruins extends Venue {
   
   /**  Siting and placement-
     */
-  public static void placeRuins(
+  public static Batch <Ruins> placeRuins(
     final World world, final int maxPlaced
   ) {
     final Presences presences = world.presences;
-    //final float minSpacing = World.SECTOR_SIZE * 1.5f;
-    //  TODO:  Establish a minimum distance from ALL venues.
+    final Batch <Ruins> placed = new Batch <Ruins> ();
     
     final SitingPass siting = new SitingPass() {
       int numSited = 0;
       
       
       protected float rateSite(Tile centre) {
-        if (presences.nearestMatch(
-          Venue.class, centre, MIN_RUINS_SPACING) != null
-        ) {
-          return -1;
+        if (verbose) I.say("Rating site at: "+centre);
+        final Venue nearest = (Venue) presences.nearestMatch(
+          Venue.class, centre, -1
+        );
+        if (nearest != null) {
+          final float distance = Spacing.distance(nearest, centre);
+          if (verbose) I.say("Neighbour is: "+nearest+", distance: "+distance);
+          if (distance < MIN_RUINS_SPACING) return -1;
         }
         float rating = 2;
         rating -= world.terrain().fertilitySample(centre);
@@ -92,15 +97,23 @@ public class Ruins extends Venue {
       
       
       protected boolean createSite(Tile centre) {
-        if (rateSite(centre) <= 0) return false;
+        final float rating = rateSite(centre);
+        if (verbose) {
+          I.say("Trying to place ruins at "+centre+", rating "+rating);
+        }
+        if (rating <= 0) return false;
         
         final boolean minor = numSited >= maxPlaced / 2;
-        int maxRuins = (minor ? 3 : 1) + Rand.index(3) ;
-        final Batch <Venue> ruins = new Batch <Venue> () ;
+        int maxRuins = (minor ? 3 : 1) + Rand.index(3);
+        final Batch <Venue> ruins = new Batch <Venue> ();
         while (maxRuins-- > 0) {
           final Ruins r = new Ruins() ;
-          Placement.establishVenue(r, centre.x, centre.y, true, world) ;
-          if (r.inWorld()) ruins.add(r) ;
+          Placement.establishVenue(r, centre.x, centre.y, true, world);
+          if (r.inWorld()) {
+            if (verbose) I.say("  Ruin established at: "+r.origin());
+            ruins.add(r);
+            placed.add(r);
+          }
         }
         
         //  TODO:  Slag/wreckage must be done in a distinct pass...
@@ -114,10 +127,11 @@ public class Ruins extends Venue {
       }
     };
     siting.applyPassTo(world, maxPlaced);
+    return placed;
   }
   
   
-  static void populateArtilects(
+  public static void populateArtilects(
     World world, Batch <Venue> ruins, boolean minor
   ) {
     final Base artilects = Base.baseWithName(world, Base.KEY_ARTILECTS, true);
@@ -168,9 +182,8 @@ public class Ruins extends Venue {
   public String helpInfo() {
     return
       "Ancient ruins cover the landscape of many worlds in regions irradiated "+
-      "by nuclear fire or blighted by biological warfare.  Clans of ravenous "+
-      "infected, deformed mutant primitives or even decaying artilect "+
-      "sentinels may haunt such forsaken places." ;
+      "by nuclear fire or blighted by biological warfare.  Strange and "+
+      "dangerous beings often haunt such forsaken places.";
   }
   
   
