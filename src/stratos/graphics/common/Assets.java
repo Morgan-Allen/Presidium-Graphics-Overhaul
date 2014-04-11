@@ -4,7 +4,7 @@
 package stratos.graphics.common;
 import java.io.*;
 import java.util.zip.*;
-import java.net.URL;
+import java.net.*;
 import java.security.CodeSource;
 
 import stratos.util.*;
@@ -246,33 +246,32 @@ public class Assets {
   }
   
   
-  
-  /**  Recursively compiles the (presumed) full-path names of all classes in
-    *  the given file directory.
-    */
-  private static void compileClassNames(
-    String dirName, Batch <String> loaded
-  ) {
-    final File baseDir = new File(dirName) ;
-
-    if (baseDir.isDirectory()) for (File defined : baseDir.listFiles()) try {
-
-      final String fileName = defined.getName();
-      if (defined.isDirectory()) {
-        compileClassNames(dirName+"/"+fileName, loaded) ;
-        continue;
-      }
-      if (! fileName.endsWith(".java")) continue;
-      
-      final int cutoff = fileName.length() - ".java".length();
-      String className = fileName.substring(0, cutoff);
-      className = (dirName+"/"+className).replace('/', '.');
-      loaded.add(className);
-    }
-    catch (Exception e) {
-      I.say("TROUBLE READING: "+defined);
-    }
-  }
+	/**
+	 * Recursively compiles the (presumed) full-path names of all classes in the
+	 * given file directory.
+	 */
+	private static void compileClassNames(String packg, Batch<String> loaded) {
+		File basedir = new File("bin");
+		addClasses(basedir.toURI(), new File(basedir, packg), loaded);
+	}
+	
+	private static void addClasses(URI base, File dir, Batch<String> list) {
+		File[] files = dir.listFiles();
+		for(File f : files) {
+			if(f.isDirectory()) {
+				addClasses(base, f, list);
+				continue;
+			}
+			if(!f.getName().endsWith(".class"))
+				continue;
+			if(f.getName().contains("$"))
+				continue;
+			URI relative = base.relativize(f.toURI());
+			String path = relative.toString().replaceAll("/|\\\\", ".");
+			path = path.substring(0, path.length() - 6);
+			list.add(path);
+		}
+	}
   
   
   /**  Pulls the same trick, but applied to class files embedded in a .jar
