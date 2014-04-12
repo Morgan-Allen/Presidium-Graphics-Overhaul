@@ -29,7 +29,7 @@ public interface Qualities {
     DIFFICULT_DC   =  15,
     STRENUOUS_DC   =  20,
     PUNISHING_DC   =  25,
-    IMPOSSIBLE_DC  =  30 ;
+    IMPOSSIBLE_DC  =  30;
   
   final static int
     FORM_NATURAL   = 0,
@@ -41,14 +41,14 @@ public interface Qualities {
   
   
   final public static Skill
-    IMMUNE    = new Skill("Immune Response"     , FORM_NATURAL, null),
-    MUSCULAR  = new Skill("Muscular Development", FORM_NATURAL, null),
-    MOTOR     = new Skill("Motor Coordination"  , FORM_NATURAL, null),
-    PERCEPT   = new Skill("Percept Analysis"    , FORM_NATURAL, null),
-    COGNITION = new Skill("Cognition Quotient"  , FORM_NATURAL, null),
-    NERVE     = new Skill("N.E.R.V Factor"      , FORM_NATURAL, null),
-    
+    IMMUNE    = new Skill("Immune"   , FORM_NATURAL, null),
+    MUSCULAR  = new Skill("Muscular" , FORM_NATURAL, null),
+    MOTOR     = new Skill("Motor"    , FORM_NATURAL, null),
+    PERCEPT   = new Skill("Percept"  , FORM_NATURAL, null),
+    COGNITION = new Skill("Cognition", FORM_NATURAL, null),
+    NERVE     = new Skill("Nerve"    , FORM_NATURAL, null),
     ATTRIBUTES[] = Trait.skillsSoFar();
+  
   
   //  TODO:  Move these down
   final public static Skill

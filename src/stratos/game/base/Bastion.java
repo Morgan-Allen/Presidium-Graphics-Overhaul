@@ -8,7 +8,7 @@
 package stratos.game.base ;
 import stratos.game.actors.*;
 import stratos.game.building.*;
-import stratos.game.civilian.Audit;
+import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.tactical.*;
 import stratos.graphics.common.*;
@@ -136,7 +136,14 @@ public class Bastion extends Venue implements Economy {
   
   
   public Behaviour jobFor(Actor actor) {
-    if ((! structure.intact()) || (! personnel.onShift(actor))) return null ;
+    if (! structure.intact()) return null;
+    if (actor == base().ruler()) {
+      final Supervision s = new Supervision(actor, this);
+      s.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
+      return s;
+    }
+    
+    if (! personnel.onShift(actor)) return null ;
     final Background v = actor.vocation() ;
     
     if (v == Background.VETERAN || v == Background.WAR_MASTER) {

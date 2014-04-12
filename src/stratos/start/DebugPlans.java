@@ -8,7 +8,7 @@ import stratos.game.common.*;
 import stratos.game.campaign.*;
 import stratos.game.planet.*;
 import stratos.game.base.*;
-import stratos.game.tactical.Hunting;
+import stratos.game.tactical.*;
 import stratos.game.wild.*;
 import stratos.user.*;
 
@@ -71,7 +71,8 @@ public class DebugPlans extends Scenario {
     GameSettings.setDefaults();
     //configMedicalScenario(world, base, UI);
     //configHuntingScenario(world, base, UI);
-    configCombatScenario(world, base, UI);
+    //configCombatScenario(world, base, UI);
+    configDialogueScenario(world, base, UI);
   }
   
   
@@ -121,20 +122,22 @@ public class DebugPlans extends Scenario {
   
   
   private void configCombatScenario(World world, Base base, BaseUI UI) {
+    GameSettings.fogFree = true;
+    GameSettings.noBlood = true;
     
     Actor soldier = null;
     for (int n = 1; n-- > 0;) {
-      soldier = new Human(Background.VETERAN, base);
+      soldier = new Human(Background.KNIGHTED, base);
       soldier.enterWorldAt(world.tileAt(4, 4), world);
     }
     
     final Actor civilian = new Human(Background.STOCK_VENDOR, base);
     civilian.enterWorldAt(world.tileAt(5, 4), world);
-    //civilian.health.takeInjury(civilian.health.maxHealth());
+    civilian.health.takeInjury(civilian.health.maxHealth() * 2);
     
     final Base artilects = Base.baseWithName(world, Base.KEY_ARTILECTS, true);
     final Actor threat = new Tripod(artilects);
-    threat.enterWorldAt(world.tileAt(9, 9), world);
+    threat.enterWorldAt(world.tileAt(8, 6), world);
     
     UI.selection.pushSelection(soldier, true);
   }

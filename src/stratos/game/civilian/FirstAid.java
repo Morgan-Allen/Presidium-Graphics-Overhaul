@@ -14,7 +14,7 @@ import stratos.util.*;
 public class FirstAid extends Plan implements Qualities, Economy {
   
   
-  private static boolean verbose = false, evalVerbose = false;
+  private static boolean verbose = false, evalVerbose = true;
   
   final Actor patient;
   final Boardable refuge;
@@ -89,6 +89,7 @@ public class FirstAid extends Plan implements Qualities, Economy {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (patient.health.conscious()) return 0;
     float modifier = 0;
+    
     if (patient.base() != actor.base()) {
       modifier -= (1 - actor.mind.relationValue(patient.base())) * ROUTINE;
     }

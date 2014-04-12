@@ -425,7 +425,7 @@ public abstract class Actor extends Mobile implements
   }
   
   
-  public void whenClicked() {
+  public void whenTextClicked() {
     BaseUI.current().selection.pushSelection(this, false);
   }
   

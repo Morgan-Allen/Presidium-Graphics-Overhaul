@@ -20,7 +20,10 @@ public class Retreat extends Plan implements Qualities {
   final static float
     DANGER_MEMORY_FADE = 0.9f;
   
-  static boolean verbose = false, havenVerbose = false;
+  private static boolean
+    evalVerbose  = false,
+    havenVerbose = false,
+    stepsVerbose = false;
   
   
   private float maxDanger = 0;
@@ -63,9 +66,8 @@ public class Retreat extends Plan implements Qualities {
   //  Otherwise, even tiny amounts of danger can trigger headlong retreat.
   
   public float priorityFor(Actor actor) {
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = evalVerbose && I.talkAbout == actor;
     float danger = CombatUtils.dangerAtSpot(actor.origin(), actor, null);
-    danger *= 1 + actor.traits.relativeLevel(NERVOUS);
     maxDanger = FastMath.max(danger, maxDanger);
     
     if (maxDanger <= 0) {
@@ -169,7 +171,7 @@ public class Retreat extends Plan implements Qualities {
   /**  Behaviour implementation-
     */
   protected Behaviour getNextStep() {
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = stepsVerbose && I.talkAbout == actor;
     if (
       safePoint == null || actor.aboard() == safePoint ||
       safePoint.pathType() == Tile.PATH_BLOCKS

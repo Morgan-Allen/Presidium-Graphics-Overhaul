@@ -353,7 +353,7 @@ public abstract class Mission implements
     d.append("Mission Type:  ");
     if (hasBegun()) d.append(TYPE_DESC[missionType], Colour.GREY);
     else d.append(new Description.Link(TYPE_DESC[missionType]) {
-      public void whenClicked() {
+      public void whenTextClicked() {
         missionType = (missionType + 1) % LIMIT_TYPE;
         resetMission();
       }
@@ -368,7 +368,7 @@ public abstract class Mission implements
       REWARD_AMOUNTS[priority]+" credits";
     //  TODO:  Allow payment to be put down too?
     d.append(new Description.Link(payDesc) {
-      public void whenClicked() {
+      public void whenTextClicked() {
         if (priority == PRIORITY_PARAMOUNT) return;
         assignPriority(priority + 1);
       }
@@ -380,7 +380,7 @@ public abstract class Mission implements
     
     d.append("\n\nApplications:");
     d.append(new Description.Link(" (ABORT)") {
-      public void whenClicked() {
+      public void whenTextClicked() {
         if (begun) endMission(true);
         else endMission(false);
       }
@@ -388,7 +388,7 @@ public abstract class Mission implements
     if (rolesApproved() > 0 && mustConfirm) {
       d.append(" ");
       d.append(new Description.Link(" (CONFIRM)") {
-        public void whenClicked() {
+        public void whenTextClicked() {
           beginMission();
         }
       });
@@ -420,7 +420,7 @@ public abstract class Mission implements
         d.append("\n");
         final String option = role.approved ? "(DISMISS)" : "(APPROVE)" ;
         d.append(new Description.Link(option) {
-          public void whenClicked() {
+          public void whenTextClicked() {
             setApprovalFor(role.applicant, ! role.approved) ;
           }
         }) ;
@@ -437,7 +437,7 @@ public abstract class Mission implements
       desc = descriptions[objectIndex];
     if (hasBegun()) d.append(desc, Colour.GREY);
     else d.append(new Description.Link(desc) {
-      public void whenClicked() {
+      public void whenTextClicked() {
         objectIndex = (objectIndex + 1) % descriptions.length;
       }
     });
@@ -448,7 +448,7 @@ public abstract class Mission implements
   protected abstract String[] objectiveDescriptions();
   
   
-  public void whenClicked() {
+  public void whenTextClicked() {
     BaseUI.current().selection.pushSelection(this, true) ;
   }
   

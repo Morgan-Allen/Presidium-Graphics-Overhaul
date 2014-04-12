@@ -19,7 +19,7 @@ public class Combat extends Plan implements Qualities {
   /**  Data fields, constructors and save/load methods-
     */
   private static boolean
-    evalVerbose   = true,
+    evalVerbose   = false,
     eventsVerbose = false;
   
   final static int
@@ -131,17 +131,16 @@ public class Combat extends Plan implements Qualities {
     float danger;
     
     if (target instanceof Actor) {
-      final Actor struck = (Actor) target ;
-      danger = CombatUtils.dangerAtSpot(target, actor, struck) ;
+      final Actor struck = (Actor) target;
+      danger = CombatUtils.dangerAtSpot(target, actor, struck);
     }
     else if (target instanceof Venue) {
-      final Venue struck = (Venue) target ;
-      danger = CombatUtils.dangerAtSpot(struck, actor, null) ;
+      final Venue struck = (Venue) target;
+      danger = CombatUtils.dangerAtSpot(struck, actor, null);
     }
     else danger = CombatUtils.dangerAtSpot(target, actor, null) / 2;
     
-    danger *= 1 + actor.traits.relativeLevel(NERVOUS);
-    final float chance = Visit.clamp(1 - danger, 0.1f, 0.9f) ;
+    final float chance = Visit.clamp(1 - danger, 0.1f, 0.9f);
     return chance;
   }
   

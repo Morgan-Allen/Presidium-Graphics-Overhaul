@@ -10,7 +10,9 @@ import stratos.util.*;
 
 
 
-//  TODO:  See if this can't serve a dual function of some kind.
+//  TODO:  Use this to perform domestic chores, cleanup, and child-minding.
+
+
 public class Supervision extends Plan implements Economy {
   
   

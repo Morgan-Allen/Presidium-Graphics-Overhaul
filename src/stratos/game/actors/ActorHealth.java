@@ -69,7 +69,7 @@ public class ActorHealth implements Qualities {
     MAX_MORALE       =  0.5f,
     MIN_MORALE       = -1.5f,
     REVIVE_THRESHOLD =  0.5f,
-    STABILISE_CHANCE =  0.2f,
+    STABILISE_CHANCE =  0.05f,
     BLEED_OUT_TIME   =  World.STANDARD_DAY_LENGTH / 10,
     DECOMPOSE_TIME   =  World.STANDARD_DAY_LENGTH / 2,
     

@@ -36,7 +36,7 @@ public class Call implements Clickable {
   }
   
   
-  public void whenClicked() {
+  public void whenTextClicked() {
     try { method.invoke(client, args) ; }
     catch (Exception e) { I.report(e) ; }
   }

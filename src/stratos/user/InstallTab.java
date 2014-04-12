@@ -132,18 +132,18 @@ public class InstallTab extends InfoPanel {
       //  TODO:  List construction materials too?
       
       detailText.append(new Text.Clickable() {
-        public void whenClicked() { initInstallTask(UI, type) ; }
+        public void whenTextClicked() { initInstallTask(UI, type) ; }
         public String fullName() { return "\n  (BUILD)" ; }
       }) ;
       detailText.append(new Text.Clickable() {
-        public void whenClicked() {
+        public void whenTextClicked() {
           listShown = (type == listShown) ? null : type ;
           helpShown = null ;
         }
         public String fullName() { return "  (LIST)" ; }
       }) ;
       detailText.append(new Text.Clickable() {
-        public void whenClicked() {
+        public void whenTextClicked() {
           helpShown = (type == helpShown) ? null : type ;
           listShown = null ;
         }

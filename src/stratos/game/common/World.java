@@ -351,6 +351,8 @@ public class World {
   
   
   public float timeMidRender() {
+    //  Updates to currentTime occur 10 times per second or so, so adding the
+    //  frame-time within that fraction gives the exact answer.
     return currentTime + (PlayLoop.frameTime() / UPDATES_PER_SECOND);
   }
   
@@ -359,9 +361,7 @@ public class World {
     Batch <Section> sections, Rendering rendering, Base base
   ) {
     final float renderTime = timeMidRender();
-    I.say("Render time: "+renderTime);
-    
-    
+    if (verbose) I.say("Render time: "+renderTime);
     terrain.readyAllMeshes();
     for (Section section : sections) {
       terrain.renderFor(section.area, rendering, renderTime);

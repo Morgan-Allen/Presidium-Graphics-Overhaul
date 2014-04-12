@@ -105,7 +105,7 @@ public class SpiceMidden extends Fixture implements Selectable {
   }
   
   
-  public void whenClicked() {
+  public void whenTextClicked() {
     BaseUI.current().selection.pushSelection(this, false);
   }
   

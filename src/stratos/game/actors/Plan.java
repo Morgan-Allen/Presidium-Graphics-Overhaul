@@ -49,10 +49,7 @@ public abstract class Plan implements Saveable, Behaviour {
   
   private static boolean verbose = false, evalVerbose = false;
   
-  //final Saveable signature[];
   final Target subject;
-  //final int hash;
-  
   protected Actor actor;
   protected Behaviour
     nextStep = null,

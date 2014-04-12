@@ -234,13 +234,13 @@ public class InfoPanel extends UIGroup implements UIConstants {
         final boolean CC = categoryID == i ;
         headerText.append(new Text.Clickable() {
           public String fullName() { return ""+categories[index]+" " ; }
-          public void whenClicked() { setCategory(index) ; }
+          public void whenTextClicked() { setCategory(index) ; }
         }, CC ? Colour.GREEN : Text.LINK_COLOUR) ;
       }
     }
     if (selected != null && previous != null) {
       headerText.append(new Description.Link("UP") {
-        public void whenClicked() {
+        public void whenTextClicked() {
           UI.selection.pushSelection(previous, false) ;
         }
       }) ;

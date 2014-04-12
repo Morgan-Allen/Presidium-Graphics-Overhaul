@@ -112,8 +112,10 @@ public class Dialogue extends Plan implements Qualities {
   
   
   private boolean canTalk(Actor other) {
-    //if (! other.health.conscious()) return false ;
-    if (other.isDoing(Dialogue.class, null)) return true ;
+    //if (! other.health.conscious()) return false;
+    final Target talksWith = other.focusFor(Dialogue.class);
+    if (talksWith == actor) return true;
+    if (talksWith != null) return false;
     if (starts != actor) return false ;
     final Dialogue d = new Dialogue(other, actor, actor, type) ;
     return ! other.mind.mustIgnore(d) ;

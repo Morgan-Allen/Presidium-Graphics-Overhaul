@@ -191,7 +191,7 @@ public class VenueDescription {
       d.append(p.vocation().name+")\n  ");
       
       d.append(new Description.Link("Hire for "+a.hiringFee()+" cred") {
-        public void whenClicked() { v.personnel.confirmApplication(a); }
+        public void whenTextClicked() { v.personnel.confirmApplication(a); }
       }) ;
     }
     
@@ -234,7 +234,7 @@ public class VenueDescription {
       d.append("Orders: ") ;
       if (v.structure.needsSalvage()) {
         d.append(new Description.Link("\n  Cancel Salvage") {
-          public void whenClicked() {
+          public void whenTextClicked() {
             v.structure.setState(Structure.STATE_INTACT, -1) ;
             //world.ephemera.addGhost(v, size, buildSprite.scaffolding(), 2.0f) ;
           }
@@ -242,7 +242,7 @@ public class VenueDescription {
       }
       else {
         d.append(new Description.Link("\n  Begin Salvage") {
-          public void whenClicked() {
+          public void whenTextClicked() {
             v.structure.setState(Structure.STATE_SALVAGE, -1) ;
             //world.ephemera.addGhost(v, size, buildSprite.baseSprite(), 2.0f) ;
           }
@@ -263,7 +263,7 @@ public class VenueDescription {
         for (final Upgrade upgrade : upgrades) {
           d.append("\n  ") ;
           d.append(new Description.Link(upgrade.name) {
-            public void whenClicked() { lastCU = upgrade ; }
+            public void whenTextClicked() { lastCU = upgrade ; }
           }) ;
           d.append(" (x"+v.structure.upgradeLevel(upgrade)+")") ;
         }
@@ -276,7 +276,7 @@ public class VenueDescription {
           }
           if (v.structure.upgradePossible(lastCU)) {
             d.append(new Description.Link("\n\n  BEGIN UPGRADE") {
-              public void whenClicked() {
+              public void whenTextClicked() {
                 v.structure.beginUpgrade(lastCU, false) ;
               }
             }) ;
