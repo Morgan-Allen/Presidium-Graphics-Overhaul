@@ -25,8 +25,8 @@ public class Nesting extends Plan {
     super.saveState(s) ;
   }
   
-
-  public float priorityFor(Actor actor) {
+  
+  protected float getPriority() {
     return ROUTINE ;
   }
   

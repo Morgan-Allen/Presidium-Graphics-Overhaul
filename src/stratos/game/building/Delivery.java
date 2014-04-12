@@ -179,8 +179,8 @@ public class Delivery extends Plan implements Economy {
     return available.toArray(Item.class) ;
   }
   
-  
-  public float priorityFor(Actor actor) {
+
+  protected float getPriority() {
     final Item[] available = available(actor) ;
     if (available.length == 0) return 0 ;
     final boolean report = verbose && I.talkAbout == actor;

@@ -103,8 +103,8 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     */
   final Trait BASE_TRAITS[] = { ENERGETIC, METICULOUS, ACQUISITIVE };
   
-  
-  public float priorityFor(Actor actor) {
+
+  protected float getPriority() {
     final boolean report = verbose && I.talkAbout == actor;
     final int shift = venue.personnel.shiftFor(actor);
     if (shift == Venue.OFF_DUTY) return 0;

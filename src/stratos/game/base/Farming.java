@@ -48,8 +48,8 @@ public class Farming extends Plan implements Economy {
   final static Skill BASE_SKILLS[] = { HARD_LABOUR, CULTIVATION };
   final static Trait BASE_TRAITS[] = { SIMPLE, ENERGETIC, NATURALIST };
   
-  
-  public float priorityFor(Actor actor) {
+
+  protected float getPriority() {
     final boolean report = verbose && I.talkAbout == actor;
     if ((! hasBegun()) && nursery.belongs.personnel.assignedTo(this) > 0) {
       return 0;

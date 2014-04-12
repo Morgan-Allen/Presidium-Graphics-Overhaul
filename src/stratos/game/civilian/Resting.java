@@ -66,7 +66,7 @@ public class Resting extends Plan implements Economy {
   final static Trait BASE_TRAITS[] = { RELAXED, INDULGENT };
   
   
-  public float priorityFor(Actor actor) {
+  protected float getPriority() {
     final boolean report = verbose && I.talkAbout == actor;
     float modifier = NO_MODIFIER, urgency = CASUAL;
     
@@ -75,7 +75,7 @@ public class Resting extends Plan implements Economy {
     if (restPoint == actor.mind.home()) modifier += 2 ;
     if (restPoint instanceof Venue) {
       final Venue venue = (Venue) restPoint ;
-      final float relation = actor.mind.relationValue(venue) ;
+      final float relation = actor.memories.relationValue(venue) ;
       if (relation > 0) modifier *= relation ;
       else modifier -= relation * 5 ;
     }
@@ -252,7 +252,7 @@ public static float ratePoint(Actor actor, Boardable restPoint, int cost) {
   if (restPoint == actor.mind.home()) priority += 2 ;
   if (restPoint instanceof Venue) {
     final Venue venue = (Venue) restPoint ;
-    final float relation = actor.mind.relationValue(venue) ;
+    final float relation = actor.memories.relationValue(venue) ;
     if (relation > 0) priority *= relation ;
     else priority -= relation * 5 ;
   }

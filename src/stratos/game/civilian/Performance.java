@@ -309,7 +309,7 @@ public class Performance extends Recreation {
     
     if (audience.size() > 0) {
       final Actor notice = ((Plan) Rand.pickFrom(audience)).actor() ;
-      if (Rand.num() < actor.mind.relationValue(notice)) {
+      if (Rand.num() < actor.memories.relationValue(notice)) {
         super.actionRelax(actor, venue) ;
       }
     }

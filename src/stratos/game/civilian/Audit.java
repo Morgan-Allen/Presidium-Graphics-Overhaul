@@ -70,7 +70,7 @@ public class Audit extends Plan implements Economy {
   
   /**  Evaluating targets and priority-
     */
-  public float priorityFor(Actor actor) {
+  protected float getPriority() {
     return ROUTINE ;
   }
   

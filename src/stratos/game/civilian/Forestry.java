@@ -89,8 +89,8 @@ public class Forestry extends Plan implements Economy {
     ) ;
   }
   
-  
-  public float priorityFor(Actor actor) {
+
+  protected float getPriority() {
     if (! configured()) return 0 ;
     float impetus = CASUAL ;
     

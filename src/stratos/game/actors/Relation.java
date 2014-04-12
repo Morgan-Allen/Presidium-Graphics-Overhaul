@@ -6,8 +6,9 @@
 
 
 
-package stratos.game.civilian ;
+package stratos.game.actors ;
 //import stratos.game.actors.Behaviour;
+import stratos.game.civilian.Accountable;
 import stratos.game.common.*;
 import stratos.util.*;
 
@@ -27,12 +28,10 @@ public class Relation {
     TYPE_LORD    = 5,
     TYPE_VASSAL  = 6 ;
   
-  /*
   final public static float
     MAG_CHATTING  = 0.33f,
     MAG_HELPING   = 0.66f,
     MAG_SAVE_LIFE = 1.00f ;
-  //*/
   
   
   final public static int
@@ -41,7 +40,7 @@ public class Relation {
     ATTITUDE_SPAN =  MAX_ATTITUDE - MIN_ATTITUDE,
     ATTITUDE_DIE  =  10 ,
     NOVELTY_INTERVAL    = World.STANDARD_DAY_LENGTH * 5,
-    FAMILIARITY_DIVISOR = 10,
+    FAMILIARITY_UNIT    = 10,
     BASE_NUM_FRIENDS    = 5 ,
     MAX_RELATIONS       = 25 ;
   
@@ -60,23 +59,20 @@ public class Relation {
   
   final public Accountable object, subject ;
   final private int hash ;
-  final int initTime ;  //...This has to be the time the relation was founded.
   
-  private float attitude = 0 ;
-  private int familiarity = 0 ;
+  private float attitude = 0, novelty ;
   private int type = TYPE_GENERIC ;
   
   
   public Relation(
-    Accountable object, Accountable subject, float initLevel, int initTime
+    Accountable object, Accountable subject, float initLevel, float initNovelty
   ) {
     this.object = object ;
     this.subject = subject ;
-    this.initTime = initTime ;
     
     this.hash = Table.hashFor(object, subject) ;
-    this.attitude = initLevel * MAX_ATTITUDE ;
-    this.familiarity = 0 ;
+    this.attitude = initLevel * MAX_ATTITUDE;
+    this.novelty = initNovelty * MAX_ATTITUDE;
   }
   
   
@@ -95,10 +91,9 @@ public class Relation {
   private Relation(Session s) throws Exception {
     object = (Accountable) s.loadObject() ;
     subject = (Accountable) s.loadObject() ;
-    initTime = s.loadInt() ;
     hash = Table.hashFor(object, subject) ;
     attitude = s.loadFloat() ;
-    familiarity = s.loadInt() ;
+    novelty = s.loadFloat();
     type = s.loadInt() ;
   }
   
@@ -111,9 +106,8 @@ public class Relation {
   public static void saveTo(Session s, Relation r) throws Exception {
     s.saveObject((Session.Saveable) r.object ) ;
     s.saveObject((Session.Saveable) r.subject) ;
-    s.saveInt(r.initTime) ;
     s.saveFloat(r.attitude) ;
-    s.saveInt(r.familiarity) ;
+    s.saveFloat(r.novelty);
     s.saveInt(r.type) ;
   }
   
@@ -121,15 +115,27 @@ public class Relation {
   
   /**  Accessing and modifying the content of the relationship-
     */
+  protected void update() {
+    novelty += MAX_ATTITUDE * 1f / NOVELTY_INTERVAL;
+  }
+  
+  
   public float value() {
     return attitude / MAX_ATTITUDE ;
   }
   
   
+  public float novelty() {
+    return novelty / MAX_ATTITUDE;
+  }
+  
+  
+  /*
   public float novelty(World world) {
     final float delay = (world.currentTime() - initTime) / NOVELTY_INTERVAL ;
     return Visit.clamp(delay - (familiarity / FAMILIARITY_DIVISOR), 0, 1) ;
   }
+  //*/
   
   
   public int type() {
@@ -146,11 +152,10 @@ public class Relation {
   }
   
   
-  public void initRelation(float attitude, int type) {
+  protected void initRelation(float attitude, int type) {
     this.attitude = attitude ;
     this.type = type ;
   }
-  
   
   //
   //  TODO:  This is going to need a significant overhaul.
@@ -170,7 +175,7 @@ public class Relation {
       attitude += (inc > 0) ? (diff / 2) : (diff / -2) ;
       attitude = Visit.clamp(attitude, MIN_ATTITUDE, MAX_ATTITUDE) ;
     }
-    familiarity++ ;
+    novelty -= FAMILIARITY_UNIT ;
   }
   
   

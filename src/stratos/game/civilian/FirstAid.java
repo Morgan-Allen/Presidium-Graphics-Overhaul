@@ -85,13 +85,13 @@ public class FirstAid extends Plan implements Qualities, Economy {
   }
   
   
-  public float priorityFor(Actor actor) {
+  protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (patient.health.conscious()) return 0;
     float modifier = 0;
     
     if (patient.base() != actor.base()) {
-      modifier -= (1 - actor.mind.relationValue(patient.base())) * ROUTINE;
+      modifier -= (1 - actor.memories.relationValue(patient.base())) * ROUTINE;
     }
     if (patient.species() != actor.species()) {
       modifier -= ROUTINE;
@@ -134,7 +134,7 @@ public class FirstAid extends Plan implements Qualities, Economy {
     
     if (refuge != null && ! patient.indoors()) {
       final StretcherDelivery d = new StretcherDelivery(actor, patient, refuge);
-      if (d.nextStep() != null) {
+      if (d.nextStepFor(actor) != null) {
         if (report) I.say("Returning new stretcher delivery...");
         return d;
       }

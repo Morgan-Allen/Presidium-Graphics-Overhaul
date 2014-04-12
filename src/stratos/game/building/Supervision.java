@@ -49,8 +49,8 @@ public class Supervision extends Plan implements Economy {
   /**  Evaluating targets and priority-
     */
   final static Trait BASE_TRAITS[] = { RELAXED, SIMPLE };
-  
-  public float priorityFor(Actor actor) {
+
+  protected float getPriority() {
     if (Plan.competition(Supervision.class, venue, actor) > 0) return 0 ;
     if (! actor.mind.work().personnel().onShift(actor)) return 0 ;
     final boolean report = verbose && I.talkAbout == actor;

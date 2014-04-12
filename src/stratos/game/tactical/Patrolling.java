@@ -79,8 +79,8 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   final static Trait BASE_TRAITS[] = { FEARLESS, SIMPLE, SOLITARY };
   final static Skill BASE_SKILLS[] = { SURVEILLANCE, HAND_TO_HAND };
   
-  
-  public float priorityFor(Actor actor) {
+
+  protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (onPoint == null) return 0;
     

@@ -73,8 +73,8 @@ public class FindHome extends Plan implements Economy {
   }
   
   
-
-  public float priorityFor(Actor actor) {
+  
+  protected float getPriority() {
     return ROUTINE ;
   }
   
@@ -247,7 +247,7 @@ public class FindHome extends Plan implements Economy {
     
     if (residents.size() > 0) {
       float averageRelations = 0 ; for (Actor a : residents) {
-        averageRelations += actor.mind.relationValue(a) ;
+        averageRelations += actor.memories.relationValue(a) ;
       }
       averageRelations /= residents.size() ;
       rating += averageRelations ;

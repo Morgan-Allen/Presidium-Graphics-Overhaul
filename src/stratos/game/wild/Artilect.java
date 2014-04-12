@@ -186,7 +186,7 @@ public abstract class Artilect extends Actor {
       if (dist > Ruins.MIN_RUINS_SPACING) continue;
       
       float rating = SS / (SS + dist) ;
-      rating += 1 - mind.relationValue(venue) ;
+      rating += 1 - memories.relationValue(venue) ;
       if (rating > bestRating) { bestRating = rating ; toAssault = venue ; }
     }
     

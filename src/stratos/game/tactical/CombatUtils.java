@@ -101,7 +101,7 @@ public class CombatUtils implements Qualities {
       final Target victim = other.focusFor(Combat.class);
       final float
         relation = victim == actor ? -1 : Visit.clamp(
-          other.mind.relationValue(actor) +
+          other.memories.relationValue(actor) +
           other.base().relationWith(actor.base()),
         -1, 1),
         otherStrength = combatStrength(other, null),

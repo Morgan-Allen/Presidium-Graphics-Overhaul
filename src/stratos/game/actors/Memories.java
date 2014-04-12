@@ -2,6 +2,8 @@
 
 
 package stratos.game.actors ;
+import stratos.game.building.Venue;
+import stratos.game.civilian.Accountable;
 import stratos.game.common.*;
 import stratos.game.common.Session.Saveable;
 import stratos.util.*;
@@ -21,8 +23,9 @@ public class Memories {
   
   
   final Actor actor ;
-  final List <Plan> remembered ;
-  final Table <Plan, List <Saveable>> associations ;
+  final Table <Accountable, Relation> relations = new Table() ;
+  //final List <Plan> remembered ;
+  //final Table <Plan, List <Saveable>> associations ;
   //
   //  TODO:  You might want to use classes here instead of plans, at least for
   //  the association table.
@@ -30,12 +33,18 @@ public class Memories {
   
   Memories(Actor actor) {
     this.actor = actor ;
-    remembered = new List <Plan> () ;
-    associations = new Table <Plan, List <Saveable>> () ;
+    //remembered = new List <Plan> () ;
+    //associations = new Table <Plan, List <Saveable>> () ;
   }
   
   
   protected void loadState(Session s) throws Exception {
+
+    for (int n = s.loadInt() ; n-- > 0 ;) {
+      final Relation r = Relation.loadFrom(s) ;
+      relations.put((Actor) r.subject, r) ;
+    }
+    /*
     s.loadObjects(remembered) ;
     for (int n = s.loadInt() ; n-- > 0 ;) {
       final Plan key = (Plan) s.loadObject() ;
@@ -43,21 +52,121 @@ public class Memories {
       s.loadObjects(associated) ;
       associations.put(key, associated) ;
     }
+    //*/
   }
   
   
   protected void saveState(Session s) throws Exception {
+    
+    s.saveInt(relations.size()) ;
+    for (Relation r : relations.values()) Relation.saveTo(s, r) ;
+    /*
     s.saveObjects(remembered) ;
     s.saveInt(associations.size()) ;
     for (Plan p : associations.keySet()) {
       s.saveObject(p) ;
       s.saveObjects(associations.get(p)) ;
     }
+    //*/
   }
   
   
+  
+  
+  //
+  //  TODO:  ALL THE MECHANICS HERE NEED HEAVY RE-CONSIDERATION
+  
+  public void updateValues(int numUpdates) {
+    for (Relation r : relations.values()) {
+      r.update();
+    }
+  }
+  
+  
+  public void setRelation(Accountable other, float level) {
+    final Relation r = new Relation(actor, other, level, 1) ;
+    relations.put(other, r) ;
+  }
+  
+  
+  public void incRelation(Accountable other, float inc) {
+    Relation r = relations.get(other) ;
+    if (r == null) r = initRelation(other, 0, 0) ;
+    r.incValue(inc) ;
+  }
+  
+  
+  public float relationValue(Base base) {
+    final Base AB = actor.base() ;
+    if (AB != null) {
+      if (base == AB) return 1 ;
+      if (base == null) return 0 ;
+      return AB.relationWith(base) ;
+    }
+    else return 0 ;
+  }
+  
+  
+  public float relationValue(Venue venue) {
+    if (venue == null) return 0 ;
+    if (venue == actor.mind.home) return 1.0f ;
+    if (venue == actor.mind.work) return 0.5f ;
+    return relationValue(venue.base()) / 2f ;
+  }
+  
+  
+  public float relationValue(Actor other) {
+    final Relation r = relations.get(other) ;
+    if (r == null) {
+      return relationValue(other.base()) / 2 ;
+    }
+    if (r.subject == actor) return Visit.clamp(r.value() + 1, 0, 1) ;
+    return r.value() + (relationValue(other.base()) / 2) ;
+  }
+  
+  
+  public float relationValue(Target other) {
+    if (other instanceof Venue) return relationValue((Venue) other) ;
+    if (other instanceof Actor) return relationValue((Actor) other) ;
+    return 0 ;
+  }
+  
+  
+  public float relationNovelty(Actor other) {
+    final Relation r = relations.get(other) ;
+    if (r == null) return 1 ;
+    return r.novelty() ;
+  }
+  
+  
+  public Relation initRelation(Accountable other, float value, float novelty) {
+    final Relation r = new Relation(actor, other, value, novelty);
+    relations.put(other, r) ;
+    return r ;
+  }
+  
+  
+  public Batch <Relation> relations() {
+    final Batch <Relation> all = new Batch <Relation> () ;
+    for (Relation r : relations.values()) all.add(r) ;
+    return all ;
+  }
+  
+  
+  public boolean hasRelation(Accountable other) {
+    return relations.get(other) != null ;
+  }
+  
+  
+  
+  
+  
+  
+  
+  //  TODO:  Restore this later.
   /**  Modification and updates-
     */
+  /*
   //
   //  TODO:  Allow for varying degrees of association.
   public void associateWithCurrentBehaviour(Saveable s) {
@@ -68,8 +177,6 @@ public class Memories {
   }
   
   
-  /**  Queries and data access-
-    */
   public Series <Plan> remembered() {
     return remembered ;
   }
@@ -78,6 +185,7 @@ public class Memories {
   public Series <Saveable> associationsFor(Plan p) {
     return associations.get(p) ;
   }
+  //*/
 }
 
 

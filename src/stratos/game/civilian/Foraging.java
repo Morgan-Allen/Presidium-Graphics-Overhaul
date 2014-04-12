@@ -60,7 +60,7 @@ public class Foraging extends Plan implements Economy {
   final static Skill BASE_SKILLS[] = { CULTIVATION, HARD_LABOUR };
   
   
-  public float priorityFor(Actor actor) {
+  protected float getPriority() {
     final boolean report = verbose && I.talkAbout == actor;
 
     if (storeShortage() <= 0) {

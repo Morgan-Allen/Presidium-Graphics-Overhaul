@@ -75,8 +75,8 @@ public class FindMission extends Plan implements Economy {
   }
   
   
-
-  public float priorityFor(Actor actor) {
+  
+  protected float getPriority() {
     if (actor.mind.mission() == applies) return 0 ;
     
     float penalty = Plan.rangePenalty(admin, actor) ;

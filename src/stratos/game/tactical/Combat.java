@@ -90,7 +90,7 @@ public class Combat extends Plan implements Qualities {
     RANGED_SKILLS[] = { MARKSMANSHIP, STEALTH_AND_COVER, FORMATION_COMBAT };
   
   
-  public float priorityFor(Actor actor) {
+  protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (isDowned(target, object)) return 0;
     final boolean melee = actor.gear.meleeWeapon();
@@ -102,7 +102,7 @@ public class Combat extends Plan implements Qualities {
       //  behaviour as the basis for evaluation?
       victim = ((Actor) target).focusFor(Combat.class);
       if (victim != null) {
-        modifier += PARAMOUNT * actor.mind.relationValue(victim);
+        modifier += PARAMOUNT * actor.memories.relationValue(victim);
       }
     }
     

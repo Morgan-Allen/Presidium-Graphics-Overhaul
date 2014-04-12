@@ -38,8 +38,7 @@ public abstract class ActorMind implements Qualities {
   final Stack <Behaviour> agenda = new Stack() ;
   final List <Behaviour> todoList = new List() ;
   
-  final Table <Accountable, Relation> relations = new Table() ;
-  protected float anger, fear, solitude, libido, boredom ;
+  //protected float anger, fear, solitude, libido, boredom ;
   
   protected Mission mission ;
   protected Employment home, work ;
@@ -57,16 +56,6 @@ public abstract class ActorMind implements Qualities {
     s.loadObjects(agenda) ;
     s.loadObjects(todoList) ;
     
-    for (int n = s.loadInt() ; n-- > 0 ;) {
-      final Relation r = Relation.loadFrom(s) ;
-      relations.put((Actor) r.subject, r) ;
-    }
-    anger    = s.loadFloat() ;
-    fear     = s.loadFloat() ;
-    solitude = s.loadFloat() ;
-    libido   = s.loadFloat() ;
-    boredom  = s.loadFloat() ;
-    
     mission = (Mission) s.loadObject() ;
     home = (Employment) s.loadObject() ;
     work = (Employment) s.loadObject() ;
@@ -78,14 +67,6 @@ public abstract class ActorMind implements Qualities {
   protected void saveState(Session s) throws Exception {
     s.saveObjects(agenda) ;
     s.saveObjects(todoList) ;
-    
-    s.saveInt(relations.size()) ;
-    for (Relation r : relations.values()) Relation.saveTo(s, r) ;
-    s.saveFloat(anger   ) ;
-    s.saveFloat(fear    ) ;
-    s.saveFloat(solitude) ;
-    s.saveFloat(libido  ) ;
-    s.saveFloat(boredom ) ;
     
     s.saveObject(mission) ;
     s.saveObject(home) ;
@@ -401,6 +382,34 @@ public abstract class ActorMind implements Qualities {
   }
   
   
+  //  TODO:  ALL OF THIS MUST BE RE-EVALUATED
+  
+  
+  
+  /**  Updates associated with general emotional drives.
+    */
+  //  TODO:  These might only be suitable for humans?
+  //  TODO:  Also, include evaluation of career ambitions here.
+  //  TODO:  Put these in a separate class.
+  //*
+  protected void updateDrives() {
+    /*
+    float sumFriends = 0 ;
+    for (Relation r : relations.values()) {
+      sumFriends += Math.max(0, r.value()) ;
+    }
+    sumFriends /= Relation.BASE_NUM_FRIENDS ;
+    sumFriends /= (2 + actor.traits.relativeLevel(OUTGOING)) / 2 ;
+    solitude = Visit.clamp(1 - sumFriends, 0, 1) ;
+    //*/
+  }
+  
+  /*
+  public float solitude() {
+    return solitude ;
+  }
+  //*/
+  
   
   /**  Greed value-
     */
@@ -463,109 +472,6 @@ public abstract class ActorMind implements Qualities {
       return male ? "Male" : "Female" ;
     }
     return Rand.yes() ? "Male" : "Female" ;
-  }
-  
-  
-  //  TODO:  ALL OF THIS MUST BE RE-EVALUATED
-  
-  
-  public void setRelation(Accountable other, float level, int initTime) {
-    final Relation r = new Relation(actor, other, level, initTime) ;
-    relations.put(other, r) ;
-  }
-  
-  
-  public void incRelation(Accountable other, float inc) {
-    Relation r = relations.get(other) ;
-    if (r == null) r = initRelation(other, 0, 0) ;
-    r.incValue(inc) ;
-  }
-  
-  
-  public float relationValue(Base base) {
-    final Base AB = actor.base() ;
-    if (AB != null) {
-      if (base == AB) return 1 ;
-      if (base == null) return 0 ;
-      return AB.relationWith(base) ;
-    }
-    else return 0 ;
-  }
-  
-  
-  public float relationValue(Venue venue) {
-    if (venue == null) return 0 ;
-    if (venue == home) return 1.0f ;
-    if (venue == work) return 0.5f ;
-    return relationValue(venue.base()) / 2f ;
-  }
-  
-  
-  public float relationValue(Actor other) {
-    final Relation r = relations.get(other) ;
-    if (r == null) {
-      return relationValue(other.base()) / 2 ;
-    }
-    if (r.subject == actor) return Visit.clamp(r.value() + 1, 0, 1) ;
-    return r.value() + (relationValue(other.base()) / 2) ;
-  }
-  
-  
-  public float relationValue(Target other) {
-    if (other instanceof Venue) return relationValue((Venue) other) ;
-    if (other instanceof Actor) return relationValue((Actor) other) ;
-    return 0 ;
-  }
-  
-  
-  public float relationNovelty(Actor other) {
-    final Relation r = relations.get(other) ;
-    if (r == null) return 1 ;
-    return r.novelty(actor.world()) ;
-  }
-  
-  
-  public Relation initRelation(Accountable other, float value, float novelty) {
-    final float familiarity = (1 - novelty) * Relation.NOVELTY_INTERVAL ;
-    final Relation r = new Relation(
-      actor, other, value,
-      (int) (actor.world().currentTime() + familiarity)
-    ) ;
-    relations.put(other, r) ;
-    return r ;
-  }
-  
-  
-  public Batch <Relation> relations() {
-    final Batch <Relation> all = new Batch <Relation> () ;
-    for (Relation r : relations.values()) all.add(r) ;
-    return all ;
-  }
-  
-  
-  public boolean hasRelation(Accountable other) {
-    return relations.get(other) != null ;
-  }
-  
-  
-  
-  /**  Updates associated with general emotional drives.
-    */
-  //  TODO:  These might only be suitable for humans?
-  //  TODO:  Also, include evaluation of career ambitions here.
-  protected void updateDrives() {
-    float sumFriends = 0 ;
-    for (Relation r : relations.values()) {
-      sumFriends += Math.max(0, r.value()) ;
-    }
-    sumFriends /= Relation.BASE_NUM_FRIENDS ;
-    sumFriends /= (2 + actor.traits.relativeLevel(OUTGOING)) / 2 ;
-    solitude = Visit.clamp(1 - sumFriends, 0, 1) ;
-  }
-  
-  
-  public float solitude() {
-    return solitude ;
   }
 }
 

@@ -32,16 +32,16 @@ public class Dialogue extends Plan implements Qualities {
   final public static int
     TYPE_CONTACT   = 0,
     TYPE_CASUAL    = 1,
-    TYPE_OBJECTION = 2 ;
+    TYPE_OBJECTION = 2;
   
   final static int
     STAGE_INIT  = -1,
     STAGE_GREET =  0,
     STAGE_CHAT  =  1,
     STAGE_BYE   =  2,
-    STAGE_DONE  =  3 ;
+    STAGE_DONE  =  3;
   
-  private static boolean verbose = false ;
+  private static boolean verbose = false;
   
   
   final Actor starts, other ;
@@ -93,11 +93,14 @@ public class Dialogue extends Plan implements Qualities {
   final static Trait BASE_TRAITS[] = { OUTGOING, POSITIVE, EMPATHIC };
   final static Skill BASE_SKILLS[] = { SUASION, TRUTH_SENSE };
   
-  public float priorityFor(Actor actor) {
+  protected float getPriority() {
     final boolean report = verbose && I.talkAbout == actor;
     
-    final float novelty = actor.mind.relationNovelty(other);
-    if (novelty <= 0) return 0;
+    final float novelty = actor.memories.relationNovelty(other);
+    I.say("Novelty is: "+novelty);
+    if (novelty <= 0) {
+      return 0;
+    }
     if (stage >= STAGE_DONE || ! canTalk(other)) return 0;
     
     final float priority = priorityForActorWith(
@@ -235,6 +238,8 @@ public class Dialogue extends Plan implements Qualities {
   public boolean actionGreet(Actor actor, Actor other) {
     if (! other.isDoing(Dialogue.class, null)) {
       if (type != TYPE_CONTACT && ! canTalk(other)) {
+        I.say("  OTHER CANNOT TALK!  ABORTING!");
+        
         abortBehaviour() ;
         return false ;
       }
@@ -249,8 +254,9 @@ public class Dialogue extends Plan implements Qualities {
   
   public boolean actionChats(Actor actor, Actor other) {
     tryChat(actor, other) ;
-    final float novelty = actor.mind.relationNovelty(other) ;
+    final float novelty = actor.memories.relationNovelty(other) ;
     if (novelty <= 0) {
+      I.say("  NO REMAINING NOVELTY!  SAYING BYE!");
       stage = STAGE_BYE ;
     }
     return true ;
@@ -277,12 +283,25 @@ public class Dialogue extends Plan implements Qualities {
   
   
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   /**  Helper methods for elaborating on chat options-
     */
   private static float talkResult(
     Skill language, Skill plea, Skill opposeSkill, Actor actor, Actor other
   ) {
-    final float attitude = other.mind.relationValue(actor) ;
+    
+    //  TODO:  You're adding way too much XP to Truth Sense this way!
+    
+    final float attitude = other.memories.relationValue(actor) ;
     final int DC = ROUTINE_DC - (int) (attitude * MODERATE_DC) ;
     float success = -1 ;
     success += actor.traits.test(language, null, null, ROUTINE_DC, 10, 2) ;
@@ -297,7 +316,7 @@ public class Dialogue extends Plan implements Qualities {
     //  or actors involved.
     
     float success = talkResult(SUASION, SUASION, TRUTH_SENSE, actor, other) ;
-    other.mind.incRelation(actor, success / 10) ;
+    other.memories.incRelation(actor, success / 10) ;
     
     switch (Rand.index(3)) {
       case (0) : anecdote(actor, other) ; break ;
@@ -325,8 +344,8 @@ public class Dialogue extends Plan implements Qualities {
       effect = 0.5f - (Math.abs(levelA - levelO) / 1.5f) ;
     final String desc = actor.traits.levelDesc(comp) ;
     
-    other.mind.incRelation(actor, effect) ;
-    actor.mind.incRelation(other, effect) ;
+    other.memories.incRelation(actor, effect) ;
+    actor.memories.incRelation(other, effect) ;
     
     utters(actor, "It's important to be "+desc+".") ;
     if (effect > 0) utters(other, "Absolutely.") ;
@@ -339,13 +358,13 @@ public class Dialogue extends Plan implements Qualities {
     //
     //  Pick an acquaintance, see if it's mutual, and if so compare attitudes
     //  on the subject.  TODO:  Include memories of recent activities?
-    final Relation r = (Relation) Rand.pickFrom(actor.mind.relations()) ;
+    final Relation r = (Relation) Rand.pickFrom(actor.memories.relations()) ;
     if (r == null || r.subject == other) {
       utters(actor, "Nice weather, huh?") ;
       utters(other, "Uh-huh.") ;
       return ;
     }
-    final float attA = r.value(), attO = other.mind.relationValue(actor) ;
+    final float attA = r.value(), attO = other.memories.relationValue(actor) ;
     
     if (attA > 0) utters(actor, "I get on well with "+r.subject+".") ;
     else utters(actor, "I don't get on with "+r.subject+".") ;
@@ -354,9 +373,9 @@ public class Dialogue extends Plan implements Qualities {
     else utters(other, "Really?") ;
     
     final float effect = 0.2f * (agrees ? 1 : -1) ;
-    other.mind.incRelation(actor, effect / 2) ;
-    actor.mind.incRelation(other, effect / 2) ;
-    other.mind.incRelation(r.subject, effect * r.value()) ;
+    other.memories.incRelation(actor, effect / 2) ;
+    actor.memories.incRelation(other, effect / 2) ;
+    other.memories.incRelation(r.subject, effect * r.value()) ;
   }
   
   
@@ -381,8 +400,8 @@ public class Dialogue extends Plan implements Qualities {
     if (other.traits.test(tested, level * Rand.num(), 0.5f)) effect += 5 ;
     else effect -= 5 ;
     effect /= 25 ;
-    other.mind.incRelation(actor, effect) ;
-    actor.mind.incRelation(other, effect) ;
+    other.memories.incRelation(actor, effect) ;
+    actor.memories.incRelation(other, effect) ;
     
     if (effect > 0) utters(actor, "Yes, exactly!") ;
     if (effect == 0) utters(actor, "Close. Try again.") ;
@@ -430,8 +449,8 @@ public class Dialogue extends Plan implements Qualities {
 
 /*
 float
-  value    = actor.mind.relationValue(other),
-  novelty  = actor.mind.relationNovelty(other),
+  value    = actor.memories.relationValue(other),
+  novelty  = actor.memories.relationNovelty(other),
   solitude = actor.mind.solitude() ;
 
 novelty *= (actor.traits.relativeLevel(CURIOUS) + 1) / 2f ;
@@ -472,7 +491,7 @@ private Action assistanceFrom(Actor other) {
   //Plan favour = actor.mind.createBehaviour() ;
   //favour.assignActor(other) ;
   //favour.setMotive(
-    //Plan.MOTIVE_LEISURE, ROUTINE * other.mind.relationValue(actor)
+    //Plan.MOTIVE_LEISURE, ROUTINE * other.memories.relationValue(actor)
   //) ;
   //return favour ;
   return null ;

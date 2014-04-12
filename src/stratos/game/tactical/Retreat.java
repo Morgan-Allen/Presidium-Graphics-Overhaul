@@ -58,6 +58,7 @@ public class Retreat extends Plan implements Qualities {
   
   /**  Evaluation of priority and targets--
     */
+  //  TODO:  Possibly get rid of these?
   final Skill BASE_SKILLS[] = { ATHLETICS };
   final Trait BASE_TRAITS[] = { NERVOUS };
   
@@ -65,7 +66,7 @@ public class Retreat extends Plan implements Qualities {
   //  TODO:  You need to be able to evaluate relative and absolute danger.
   //  Otherwise, even tiny amounts of danger can trigger headlong retreat.
   
-  public float priorityFor(Actor actor) {
+  protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
     float danger = CombatUtils.dangerAtSpot(actor.origin(), actor, null);
     maxDanger = FastMath.max(danger, maxDanger);

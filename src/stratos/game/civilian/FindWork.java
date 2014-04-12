@@ -49,8 +49,8 @@ public class FindWork extends Plan implements Economy {
   }
   
   
-
-  public float priorityFor(Actor actor) {
+  
+  protected float getPriority() {
     return Visit.clamp(URGENT * rating, 0, URGENT) ;
   }
   

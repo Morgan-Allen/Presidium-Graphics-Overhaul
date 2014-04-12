@@ -75,12 +75,12 @@ public class Repairs extends Plan implements Qualities {
   final Trait BASE_TRAITS[] = { METICULOUS, ENERGETIC };
   final Skill BASE_SKILLS[] = { ASSEMBLY, HARD_LABOUR };
   
-  
-  public float priorityFor(Actor actor) {
+
+  protected float getPriority() {
     final boolean report = verbose && I.talkAbout == actor;
 
     float urgency = needForRepair(built);
-    urgency *= actor.mind.relationValue(built.base()) / 2;
+    urgency *= actor.memories.relationValue(built.base()) / 2;
     final float debt = 0 - built.base().credits();
     if (debt > 0 && urgency > 0) urgency -= debt / 500f;
     if (urgency <= 0) return 0;

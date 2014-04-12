@@ -267,7 +267,7 @@ public class Placement implements TileConstants {
       for (int n = 10 ; n-- > 0 ;) {
         initRelation += Dialogue.tryChat(f, t) * 10 ;
       }
-      f.mind.initRelation(t, initRelation, Rand.num()) ;
+      f.memories.initRelation(t, initRelation, Rand.num()) ;
     }
   }
 }
