@@ -71,6 +71,7 @@ public class Resting extends Plan implements Economy {
     float modifier = NO_MODIFIER, urgency = CASUAL;
     
     modifier += actor.world().ecology().ambience.valueAt(restPoint) * ROUTINE;
+    
     if (restPoint instanceof Tile) modifier -= 2 ;
     if (restPoint == actor.mind.home()) modifier += 2 ;
     if (restPoint instanceof Venue) {
@@ -152,6 +153,7 @@ public class Resting extends Plan implements Economy {
       this, "actionRest",
       Action.FALL, "Resting at "+restPoint
     );
+    relax.setProperties(Action.NO_LOOP);
     return relax;
   }
   

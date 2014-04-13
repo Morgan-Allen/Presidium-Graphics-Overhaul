@@ -43,7 +43,7 @@ public abstract class SFX extends Sprite {
   }
   
   
-  public void setAnimation(String animName, float progress) {
+  public void setAnimation(String animName, float progress, boolean loop) {
   }
   
   

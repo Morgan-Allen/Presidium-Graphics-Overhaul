@@ -41,7 +41,7 @@ public class Dialogue extends Plan implements Qualities {
     STAGE_BYE   =  2,
     STAGE_DONE  =  3;
   
-  private static boolean verbose = false;
+  private static boolean verbose = true;
   
   
   final Actor starts, other ;
@@ -97,14 +97,12 @@ public class Dialogue extends Plan implements Qualities {
     final boolean report = verbose && I.talkAbout == actor;
     
     final float novelty = actor.memories.relationNovelty(other);
-    I.say("Novelty is: "+novelty);
-    if (novelty <= 0) {
-      return 0;
-    }
+    if (report) I.say("Novelty for "+other+" is: "+novelty);
+    if (novelty <= 0) return 0;
     if (stage >= STAGE_DONE || ! canTalk(other)) return 0;
     
     final float priority = priorityForActorWith(
-      actor, other, CASUAL,
+      actor, other, ROUTINE * novelty,
       MILD_HELP, MILD_COMPETITION,
       BASE_SKILLS, BASE_TRAITS,
       NO_MODIFIER, HEAVY_DISTANCE_CHECK, NO_DANGER,
@@ -238,8 +236,6 @@ public class Dialogue extends Plan implements Qualities {
   public boolean actionGreet(Actor actor, Actor other) {
     if (! other.isDoing(Dialogue.class, null)) {
       if (type != TYPE_CONTACT && ! canTalk(other)) {
-        I.say("  OTHER CANNOT TALK!  ABORTING!");
-        
         abortBehaviour() ;
         return false ;
       }
@@ -256,7 +252,7 @@ public class Dialogue extends Plan implements Qualities {
     tryChat(actor, other) ;
     final float novelty = actor.memories.relationNovelty(other) ;
     if (novelty <= 0) {
-      I.say("  NO REMAINING NOVELTY!  SAYING BYE!");
+      //I.say("  NO REMAINING NOVELTY!  SAYING BYE!");
       stage = STAGE_BYE ;
     }
     return true ;
@@ -298,12 +294,12 @@ public class Dialogue extends Plan implements Qualities {
   private static float talkResult(
     Skill language, Skill plea, Skill opposeSkill, Actor actor, Actor other
   ) {
-    
     //  TODO:  You're adding way too much XP to Truth Sense this way!
     
     final float attitude = other.memories.relationValue(actor) ;
     final int DC = ROUTINE_DC - (int) (attitude * MODERATE_DC) ;
     float success = -1 ;
+    
     success += actor.traits.test(language, null, null, ROUTINE_DC, 10, 2) ;
     success += actor.traits.test(plea, other, opposeSkill, 0 - DC, 10, 2) ;
     success /= 3 ;
@@ -316,7 +312,7 @@ public class Dialogue extends Plan implements Qualities {
     //  or actors involved.
     
     float success = talkResult(SUASION, SUASION, TRUTH_SENSE, actor, other) ;
-    other.memories.incRelation(actor, success / 10) ;
+    other.memories.incRelation(actor, success * Relation.MAG_CHATTING, 0.1f) ;
     
     switch (Rand.index(3)) {
       case (0) : anecdote(actor, other) ; break ;
@@ -341,11 +337,13 @@ public class Dialogue extends Plan implements Qualities {
     final float
       levelA = 1 + actor.traits.relativeLevel(comp),
       levelO = 1 + actor.traits.relativeLevel(comp),
-      effect = 0.5f - (Math.abs(levelA - levelO) / 1.5f) ;
+      effect = (
+        0.5f - (Math.abs(levelA - levelO) / 2)
+      ) * Relation.MAG_CHATTING ;
     final String desc = actor.traits.levelDesc(comp) ;
     
-    other.memories.incRelation(actor, effect) ;
-    actor.memories.incRelation(other, effect) ;
+    other.memories.incRelation(actor, effect, 0.1f) ;
+    actor.memories.incRelation(other, effect, 0.1f) ;
     
     utters(actor, "It's important to be "+desc+".") ;
     if (effect > 0) utters(other, "Absolutely.") ;
@@ -372,10 +370,10 @@ public class Dialogue extends Plan implements Qualities {
     if (agrees) utters(other, "I can see that.") ;
     else utters(other, "Really?") ;
     
-    final float effect = 0.2f * (agrees ? 1 : -1) ;
-    other.memories.incRelation(actor, effect / 2) ;
-    actor.memories.incRelation(other, effect / 2) ;
-    other.memories.incRelation(r.subject, effect * r.value()) ;
+    final float effect = 0.2f * (agrees ? 1 : -1) * Relation.MAG_CHATTING ;
+    other.memories.incRelation(actor, effect / 2, 0.1f) ;
+    actor.memories.incRelation(other, effect / 2, 0.1f) ;
+    other.memories.incRelation(r.subject, effect * r.value(), 0.1f) ;
   }
   
   
@@ -399,9 +397,9 @@ public class Dialogue extends Plan implements Qualities {
     else effect -= 5 ;
     if (other.traits.test(tested, level * Rand.num(), 0.5f)) effect += 5 ;
     else effect -= 5 ;
-    effect /= 25 ;
-    other.memories.incRelation(actor, effect) ;
-    actor.memories.incRelation(other, effect) ;
+    effect *= Relation.MAG_CHATTING / 25f ;
+    other.memories.incRelation(actor, effect, 0.1f) ;
+    actor.memories.incRelation(other, effect, 0.1f) ;
     
     if (effect > 0) utters(actor, "Yes, exactly!") ;
     if (effect == 0) utters(actor, "Close. Try again.") ;

@@ -47,6 +47,7 @@ public abstract class Plan implements Saveable, Behaviour {
     nextStep = null,
     lastStep = null;
   
+  //  TODO:  keep a record of harm to the subject.
   private int motiveType = MOTIVE_INIT;
   private float motiveBonus = 0;
   

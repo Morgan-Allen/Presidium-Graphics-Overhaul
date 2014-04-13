@@ -122,8 +122,8 @@ public class GroupSprite extends Sprite {
   
   /**  Rendering and updates-
     */
-  public void setAnimation(String animName, float progress) {
-    for (Sprite module : modules) module.setAnimation(animName, progress) ;
+  public void setAnimation(String animName, float progress, boolean loop) {
+    for (Sprite module : modules) module.setAnimation(animName, progress, true) ;
   }
   
   

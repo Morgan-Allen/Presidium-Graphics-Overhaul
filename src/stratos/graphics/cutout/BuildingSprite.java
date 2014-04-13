@@ -133,7 +133,7 @@ public class BuildingSprite extends Sprite {
   
   
   //  TODO:  Make use of this?
-  public void setAnimation(String animName, float progress) {}
+  public void setAnimation(String animName, float progress, boolean loop) {}
   
   
   public void readyFor(Rendering rendering) {

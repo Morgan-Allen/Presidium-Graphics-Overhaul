@@ -49,7 +49,7 @@ public class SolidSprite extends Sprite implements RenderableProvider {
       materials[i] = model.allMaterials[i];
     }
     
-    this.setAnimation(AnimNames.FULL_RANGE, 0);
+    this.setAnimation(AnimNames.FULL_RANGE, 0, true);
   }
   
   
@@ -142,7 +142,7 @@ public class SolidSprite extends Sprite implements RenderableProvider {
   }
   
   
-  public void setAnimation(String id, float progress) {
+  public void setAnimation(String id, float progress, boolean loop) {
     Animation match = model.gdxModel.getAnimation(id);
     if (match == null) return;
     
@@ -157,7 +157,11 @@ public class SolidSprite extends Sprite implements RenderableProvider {
       topState.incept = Rendering.activeTime();
       animStates.addLast(topState);
     }
-    topState.time = progress * match.duration;
+    if (loop) topState.time = progress * match.duration;
+    else {
+      final float minTime = progress * match.duration;
+      if (minTime > topState.time) topState.time = minTime;
+    }
   }
   
   

@@ -72,27 +72,11 @@ public class Memories {
   
   
   
-  
-  //
-  //  TODO:  ALL THE MECHANICS HERE NEED HEAVY RE-CONSIDERATION
-  
+
   public void updateValues(int numUpdates) {
     for (Relation r : relations.values()) {
       r.update();
     }
-  }
-  
-  
-  public void setRelation(Accountable other, float level) {
-    final Relation r = new Relation(actor, other, level, 1) ;
-    relations.put(other, r) ;
-  }
-  
-  
-  public void incRelation(Accountable other, float inc) {
-    Relation r = relations.get(other) ;
-    if (r == null) r = initRelation(other, 0, 0) ;
-    r.incValue(inc) ;
   }
   
   
@@ -125,14 +109,15 @@ public class Memories {
   }
   
   
-  public float relationValue(Target other) {
-    if (other instanceof Venue) return relationValue((Venue) other) ;
-    if (other instanceof Actor) return relationValue((Actor) other) ;
+  public float relationValue(Object other) {
+    if (other instanceof Venue) return relationValue((Venue) other);
+    if (other instanceof Actor) return relationValue((Actor) other);
+    if (other instanceof Base ) return relationValue((Base ) other);
     return 0 ;
   }
   
   
-  public float relationNovelty(Actor other) {
+  public float relationNovelty(Accountable other) {
     final Relation r = relations.get(other) ;
     if (r == null) return 1 ;
     return r.novelty() ;
@@ -146,6 +131,16 @@ public class Memories {
   }
   
   
+  public void incRelation(Accountable other, float level, float weight) {
+    Relation r = relations.get(other) ;
+    if (r == null) {
+      final float baseVal = relationValue(other);
+      r = initRelation(other, baseVal + (level * weight), 1) ;
+    }
+    r.incValue(level, weight) ;
+  }
+  
+  
   public Batch <Relation> relations() {
     final Batch <Relation> all = new Batch <Relation> () ;
     for (Relation r : relations.values()) all.add(r) ;
@@ -156,10 +151,6 @@ public class Memories {
   public boolean hasRelation(Accountable other) {
     return relations.get(other) != null ;
   }
-  
-  
-  
-  
   
   
   

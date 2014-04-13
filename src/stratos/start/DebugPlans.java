@@ -9,6 +9,7 @@ import stratos.game.campaign.*;
 import stratos.game.planet.*;
 import stratos.game.base.*;
 import stratos.game.tactical.*;
+import stratos.game.civilian.*;
 import stratos.game.wild.*;
 import stratos.user.*;
 
@@ -148,14 +149,15 @@ public class DebugPlans extends Scenario {
     GameSettings.noBlood = true;
     
     Actor citizen = null;
-    for (int n = 2; n-- > 0;) {
+    for (int n = 1; n-- > 0;) {
       citizen = new Human(Background.CULTIVATOR, base);
       citizen.enterWorldAt(world.tileAt(4 + n, 4 + n), world);
+      final Resting r = new Resting(citizen, world.tileAt(3, 3));
+      r.setMotive(Plan.MOTIVE_EMERGENCY, Plan.PARAMOUNT);
+      citizen.mind.assignBehaviour(r);
     }
     UI.selection.pushSelection(citizen, true);
   }
-  
-  //  TODO:  Debug open-air resting too!  perpetual collapse bug!
   
   
   protected void afterCreation() {

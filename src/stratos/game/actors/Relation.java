@@ -8,6 +8,8 @@
 
 package stratos.game.actors ;
 //import stratos.game.actors.Behaviour;
+import org.apache.commons.math3.util.FastMath;
+
 import stratos.game.civilian.Accountable;
 import stratos.game.common.*;
 import stratos.util.*;
@@ -157,30 +159,31 @@ public class Relation {
     this.type = type ;
   }
   
-  //
-  //  TODO:  This is going to need a significant overhaul.
   
-  public void incValue(float inc) {
-    //Include weight, and use it to modify familiarity?
-    //
-    //  Roll dice matching current relationship against magnitude of event.
-    final int numDice = (int) (Math.abs(attitude / ATTITUDE_DIE) + 0.5f) ;
-    int roll = 0 ;
-    for (int n = numDice ; n-- > 0 ;) roll += Rand.yes() ? 1 : 0 ;
-    final float diff = (Math.abs(inc) * MAX_ATTITUDE) - (roll * ATTITUDE_DIE) ;
-    //
-    //  Raise/lower by half the margin of failure, and increment familiarity
-    //  either way.
-    if (diff > 0) {
-      attitude += (inc > 0) ? (diff / 2) : (diff / -2) ;
-      attitude = Visit.clamp(attitude, MIN_ATTITUDE, MAX_ATTITUDE) ;
+  public void incValue(float level, float weight) {
+    if (level == 0 || weight == 0) return;
+    final float value = value();
+    
+    //  If the magnitude of the desired level is greater than the current level,
+    //  or of opposite sign, make the adjustment.
+    if (FastMath.abs(value / level) < 1 || value * level < 0) {
+      final float gap = level - value;
+      attitude += gap * weight * MAX_ATTITUDE;
+      attitude = Visit.clamp(attitude, MIN_ATTITUDE, MAX_ATTITUDE);
+      //I.say(this+" has value: "+attitude);
     }
-    novelty -= FAMILIARITY_UNIT ;
+    
+    novelty -= FAMILIARITY_UNIT;
   }
   
   
   public void setType(int type) {
     this.type = type ;
+  }
+  
+  
+  public String toString() {
+    return descriptor()+" relation between "+object+" and "+subject;
   }
 }
 
