@@ -125,6 +125,8 @@ public class Senses implements Qualities {
     
     final boolean report = reactVerbose && I.talkAbout == actor;
     final Session.Saveable after = reactionKey(e), before = seen.get(e);
+    
+    if (report) I.say("Before/after keys for "+e+" are "+before+"/"+after);
     if (before != after) {
       if (report && before == null) I.say("  Have just seen: "+e);
       if (report) I.say("  Reacting to: "+e);

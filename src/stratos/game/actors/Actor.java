@@ -35,9 +35,9 @@ public abstract class Actor extends Mobile implements
   final public ActorTraits traits = new ActorTraits(this) ;
   final public ActorGear   gear   = new ActorGear  (this) ;
   
-  final public ActorMind mind = initAI() ;
-  final public Senses senses = new Senses(this) ;
-  final public Memories memories = new Memories(this);
+  final public ActorMind mind = initAI();
+  final public Senses senses = initSenses();
+  final public Memories memories = initMemories();
   
   private Action actionTaken ;
   private Base base ;
@@ -79,7 +79,9 @@ public abstract class Actor extends Mobile implements
   }
   
   
-  protected abstract ActorMind initAI() ;
+  protected abstract ActorMind initAI();
+  protected Senses initSenses() { return new Senses(this); }
+  protected Memories initMemories() { return new Memories(this); }
   
   protected MobileMotion initMotion() { return new MobileMotion(this) ; }
   
@@ -297,6 +299,7 @@ public abstract class Actor extends Mobile implements
       this, this, this, "actionFall",
       animName, "Stricken"
     ) ;
+    falling.setProperties(Action.NO_LOOP);
     motion.updateTarget(null) ;
     mind.cancelBehaviour(mind.rootBehaviour()) ;
     this.assignAction(falling) ;

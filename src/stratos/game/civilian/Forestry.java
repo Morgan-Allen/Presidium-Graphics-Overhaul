@@ -28,9 +28,9 @@ public class Forestry extends Plan implements Economy {
     STAGE_SAMPLING =  2,
     STAGE_RETURN   =  3,
     STAGE_DONE     =  4 ;
+  private static boolean verbose = false;
   
   final Venue nursery ;
-  
   private int stage = STAGE_INIT ;
   private Tile toPlant = null ;
   private Flora toCut = null ;
@@ -89,23 +89,23 @@ public class Forestry extends Plan implements Economy {
     ) ;
   }
   
+  
+  final static Skill BASE_SKILLS[] = { CULTIVATION, HARD_LABOUR };
+  final static Trait BASE_TRAITS[] = { NATURALIST, ENERGETIC };
+  
 
   protected float getPriority() {
+    final boolean report = verbose && I.talkAbout == actor;
     if (! configured()) return 0 ;
-    float impetus = CASUAL ;
     
-    impetus += actor.traits.traitLevel(NATURALIST) * 1.5f ;
-    impetus -= actor.traits.traitLevel(RELAXED) ;
-    impetus += actor.traits.traitLevel(ENERGETIC) / 2 ;
-    if (toPlant != null) {
-      impetus -= Plan.rangePenalty(toPlant, actor) / 2f ;
-      impetus -= Plan.dangerPenalty(toPlant, actor) ;
-    }
-    if (toCut != null) {
-      impetus -= Plan.rangePenalty(toCut, actor) / 2f ;
-      impetus -= Plan.dangerPenalty(toCut, actor) ;
-    }
-    return Visit.clamp(impetus, 1, ROUTINE) ;
+    final float priority = priorityForActorWith(
+      actor, toPlant, ROUTINE,
+      NO_HARM, FULL_COMPETITION,
+      BASE_SKILLS, BASE_TRAITS,
+      NO_MODIFIER, NORMAL_DISTANCE_CHECK, NO_DANGER,
+      report
+    );
+    return priority;
   }
   
   
@@ -248,6 +248,13 @@ public class Forestry extends Plan implements Economy {
   
   
   public static Flora findCutting(Actor actor) {
+    if (Rand.yes()) return (Flora) actor.world().presences.randomMatchNear(
+      Flora.class, actor, World.SECTOR_SIZE
+    );
+    return (Flora) actor.world().presences.nearestMatch(
+      Flora.class, actor, World.SECTOR_SIZE
+    );
+    /*
     Series <Target> sample = actor.world().presences.sampleFromKey(
       actor, actor.world(), 10, null, Flora.class
     ) ;
@@ -264,6 +271,7 @@ public class Forestry extends Plan implements Economy {
       if (rating > bestRating) { picked = f ; bestRating = rating ; }
     }
     return picked ;
+    //*/
   }
 }
 

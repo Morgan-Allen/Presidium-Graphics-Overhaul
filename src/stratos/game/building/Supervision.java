@@ -52,7 +52,7 @@ public class Supervision extends Plan implements Economy {
 
   protected float getPriority() {
     if (Plan.competition(Supervision.class, venue, actor) > 0) return 0 ;
-    if (! actor.mind.work().personnel().onShift(actor)) return 0 ;
+    ///if (! actor.mind.work().personnel().onShift(actor)) return 0 ;
     final boolean report = verbose && I.talkAbout == actor;
     
     return super.priorityForActorWith(
@@ -68,11 +68,18 @@ public class Supervision extends Plan implements Economy {
   /**  Behaviour implementation-
     */
   protected Behaviour getNextStep() {
-    if (beginTime == -1) beginTime = actor.world().currentTime() ;
-    final float elapsed = actor.world().currentTime() - beginTime ;
+    final float time = actor.world().currentTime();
+    if (beginTime == -1) beginTime = time ;
+    final float elapsed = time - beginTime ;
+    
+    if (elapsed > WAIT_TIME) {
+      abortBehaviour();
+      return null;
+    }
+    
     if (elapsed > WAIT_TIME / 2) {
       final Behaviour nextJob = venue.jobFor(actor) ;
-      if (elapsed > WAIT_TIME || ! (nextJob instanceof Supervision)) {
+      if (! (nextJob instanceof Supervision)) {
         abortBehaviour() ;
         return null ;
       }

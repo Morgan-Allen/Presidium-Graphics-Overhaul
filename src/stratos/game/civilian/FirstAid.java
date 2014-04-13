@@ -14,7 +14,7 @@ import stratos.util.*;
 public class FirstAid extends Plan implements Qualities, Economy {
   
   
-  private static boolean verbose = false, evalVerbose = true;
+  private static boolean verbose = false, evalVerbose = false;
   
   final Actor patient;
   final Boardable refuge;

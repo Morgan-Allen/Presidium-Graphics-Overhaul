@@ -11,6 +11,7 @@ import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.game.planet.*;
 import stratos.game.tactical.*;
+import stratos.game.wild.Artilect;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
@@ -112,11 +113,16 @@ public abstract class Fauna extends Actor {
       protected void addReactions(Target seen, Choice choice) {
         if (seen instanceof Actor) choice.add(nextDefence((Actor) seen)) ;
       }
-      
+    } ;
+  }
+  
+  
+  protected Memories initMemories() {
+    return new Memories(this) {
       //
       //  We install some default relationships with other animals-
       public float relationValue(Actor other) {
-        if (other instanceof Fauna) {
+        if (other.health.animal()) {
           final Fauna f = (Fauna) other ;
           if (f.species == species) return 0.25f ;
           if (f.species.type == Species.Type.BROWSER) return 0 ;
@@ -124,7 +130,7 @@ public abstract class Fauna extends Actor {
         }
         return -0.25f ;
       }
-    } ;
+    };
   }
   
   

@@ -56,6 +56,7 @@ public abstract class Plan implements Saveable, Behaviour {
   protected Plan(Actor actor, Target subject) {
     this.actor = actor;
     this.subject = subject;
+    if (subject == null) I.complain("NULL PLAN SUBJECT");
   }
   
   
@@ -129,12 +130,13 @@ public abstract class Plan implements Saveable, Behaviour {
       this.actor = actor ;
       priorityEval = NULL_PRIORITY;
     }
-    final float time = subject.world().currentTime();
+    final float time = actor.world().currentTime();
     if (priorityEval != NULL_PRIORITY && time - lastEvalTime < 1) {
       return priorityEval;
     }
-    priorityEval = getPriority();
     lastEvalTime = time;
+    priorityEval = 0;  //This helps to avoid certain types of infinite loop.
+    priorityEval = getPriority();
     return priorityEval;
   }
   
@@ -257,6 +259,10 @@ public abstract class Plan implements Saveable, Behaviour {
       I.complain("NO MOTIVATION!");
       return -1;
     }
+    if (defaultPriority <= 0) {
+      //I.complain("NEGATIVE DEFAULT PRIORITY");
+      return 0;
+    }
     
     if (report) {
       I.say("\nEvaluating priority for "+this);
@@ -342,11 +348,11 @@ public abstract class Plan implements Saveable, Behaviour {
   
   
   public static float rangePenalty(Target a, Target b) {
-    if (a == null || b == null) return 0 ;
-    final float SS = World.SECTOR_SIZE ;
-    final float dist = Spacing.distance(a, b) / SS ;
-    if (dist <= 1) return 0 ;
-    return ((float) FastMath.log(2, dist)) - 1 ;
+    if (a == null || b == null) return 0;
+    final float SS = World.SECTOR_SIZE;
+    final float dist = Spacing.distance(a, b) / SS;
+    if (dist <= 1) return dist / 2;
+    return ((float) FastMath.log(2, dist)) + 0.5f;
   }
   
   

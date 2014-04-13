@@ -93,7 +93,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
         relDanger += Plan.dangerPenalty(t, actor) ;
       }
       relDanger /= patrolled.size() ;
-      urgency = relDanger * PARAMOUNT * 1f / patrolled.size();
+      urgency = relDanger * ROUTINE * 1f / patrolled.size();
     }
     
     final float priority = priorityForActorWith(

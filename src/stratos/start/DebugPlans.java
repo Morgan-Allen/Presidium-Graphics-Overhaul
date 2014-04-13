@@ -72,8 +72,8 @@ public class DebugPlans extends Scenario {
     GameSettings.setDefaults();
     //configMedicalScenario(world, base, UI);
     //configHuntingScenario(world, base, UI);
-    //configCombatScenario(world, base, UI);
-    configDialogueScenario(world, base, UI);
+    configCombatScenario(world, base, UI);
+    //configDialogueScenario(world, base, UI);
   }
   
   
@@ -124,7 +124,7 @@ public class DebugPlans extends Scenario {
   
   private void configCombatScenario(World world, Base base, BaseUI UI) {
     GameSettings.fogFree = true;
-    GameSettings.noBlood = true;
+    //GameSettings.noBlood = true;
     
     Actor soldier = null;
     for (int n = 1; n-- > 0;) {
@@ -140,21 +140,18 @@ public class DebugPlans extends Scenario {
     final Actor threat = new Tripod(artilects);
     threat.enterWorldAt(world.tileAt(8, 6), world);
     
-    UI.selection.pushSelection(soldier, true);
+    UI.selection.pushSelection(threat, true);
   }
   
   
   private void configDialogueScenario(World world, Base base, BaseUI UI) {
-    GameSettings.fogFree = true;
+    //GameSettings.fogFree = true;
     GameSettings.noBlood = true;
     
     Actor citizen = null;
-    for (int n = 1; n-- > 0;) {
+    for (int n = 5; n-- > 0;) {
       citizen = new Human(Background.CULTIVATOR, base);
       citizen.enterWorldAt(world.tileAt(4 + n, 4 + n), world);
-      final Resting r = new Resting(citizen, world.tileAt(3, 3));
-      r.setMotive(Plan.MOTIVE_EMERGENCY, Plan.PARAMOUNT);
-      citizen.mind.assignBehaviour(r);
     }
     UI.selection.pushSelection(citizen, true);
   }

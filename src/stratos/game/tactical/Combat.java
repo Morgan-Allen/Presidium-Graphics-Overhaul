@@ -99,7 +99,7 @@ public class Combat extends Plan implements Qualities {
     Target victim = null;
     if (target instanceof Actor) {
       //  TODO:  Just use the general harm-level of the other guy's current
-      //  behaviour as the basis for evaluation?
+      //  behaviour as the basis for evaluation?  ...Yeah.  That.
       victim = ((Actor) target).focusFor(Combat.class);
       if (victim != null) {
         modifier += PARAMOUNT * actor.memories.relationValue(victim);

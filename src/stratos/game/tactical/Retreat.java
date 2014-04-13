@@ -63,34 +63,41 @@ public class Retreat extends Plan implements Qualities {
   final Trait BASE_TRAITS[] = { NERVOUS };
   
   
-  //  TODO:  You need to be able to evaluate relative and absolute danger.
-  //  Otherwise, even tiny amounts of danger can trigger headlong retreat.
-  
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
-    float danger = CombatUtils.dangerAtSpot(actor.origin(), actor, null);
+    
+    //  Make retreat more attractive the further you are from home, and the
+    //  more dangerous the area is-
+    float
+      danger = CombatUtils.dangerAtSpot(actor.origin(), actor, null),
+      distFactor = 0;
     maxDanger = FastMath.max(danger, maxDanger);
     
-    if (maxDanger <= 0) {
-      if (report) I.say("NO DANGER!");
-      return 0;
+    if (rateHaven(safePoint, actor, null) > 1) {
+      distFactor = 1 + Plan.rangePenalty(actor, safePoint);
+      distFactor *= (2 + actor.traits.relativeLevel(NERVOUS)) / 2f;
     }
-    float safety = (0.5f - maxDanger) * ROUTINE;
     
     final float priority = priorityForActorWith(
-      actor, safePoint, PARAMOUNT,
+      actor, safePoint, distFactor + (maxDanger * PARAMOUNT),
       NO_HARM, NO_COMPETITION,
       BASE_SKILLS, BASE_TRAITS,
-      0 - safety, NO_DISTANCE_CHECK, NO_DANGER,
+      NO_MODIFIER, NO_DISTANCE_CHECK, NO_DANGER,
       report
     );
     
     if (report) {
+      I.say("  Safe point for retreat is: "+safePoint);
       I.say("  Current/max danger: "+danger+"/"+maxDanger);
-      I.say("  Safety rating: "+safety);
+      I.say("  Distance factor: "+distFactor);
       I.say("  Retreat priority is: "+priority);
     }
     return priority;
+  }
+  
+  
+  private boolean urgent() {
+    return priorityFor(actor) >= ROUTINE;
   }
   
   
@@ -122,9 +129,6 @@ public class Retreat extends Plan implements Qualities {
   
   private static float rateHaven(Object t, Actor actor, Class prefClass) {
     final boolean report = havenVerbose && I.talkAbout == actor;
-    //
-    //  TODO:  Don't pick anything too close by either.  That'll be in a
-    //  dangerous area.
     if (! (t instanceof Boardable)) return -1 ;
     if (! (t instanceof Venue)) return 1 ;
     final Venue haven = (Venue) t ;
@@ -134,9 +138,14 @@ public class Retreat extends Plan implements Qualities {
     if (prefClass != null && haven.getClass() == prefClass) rating *= 2 ;
     if (haven.base() == actor.base()) rating *= 2 ;
     if (haven == actor.mind.home()) rating *= 2 ;
+    
     rating *= haven.structure.maxIntegrity() / 50f;
     final int SS = World.SECTOR_SIZE ;
     rating *= SS / (SS + Spacing.distance(actor, haven)) ;
+    
+    final Tile o = actor.world().tileAt(haven);
+    rating /= 1 + actor.base().dangerMap.sampleAt(o.x, o.y);
+    
     return rating ;
   }
   
@@ -183,12 +192,13 @@ public class Retreat extends Plan implements Qualities {
       abortBehaviour() ;
       return null ;
     }
+    
     final Action flees = new Action(
       actor, safePoint,
       this, "actionFlee",
       Action.MOVE_SNEAK, "Fleeing to "
     );
-    flees.setProperties(Action.QUICK);
+    if (urgent()) flees.setProperties(Action.QUICK);
     if (report) I.say("Fleeing to... "+safePoint);
     return flees ;
   }
@@ -205,11 +215,22 @@ public class Retreat extends Plan implements Qualities {
   /**  Rendering and interface methods-
     */
   public void describeBehaviour(Description d) {
+    if (! urgent()) {
+      d.append("Retiring to ");
+      d.append(safePoint);
+      return;
+    }
     if (actor.aboard() == safePoint) d.append("Seeking refuge at ") ;
     else d.append("Retreating to ") ;
     d.append(safePoint) ;
   }
 }
+
+
+
+
+
+
 
 
 

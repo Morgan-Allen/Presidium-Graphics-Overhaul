@@ -33,7 +33,7 @@ public class Relation {
   final public static float
     MAG_CHATTING  = 0.33f,
     MAG_HELPING   = 0.66f,
-    MAG_SAVE_LIFE = 1.00f ;
+    MAG_SAVE_LIFE = 1.00f;
   
   
   final public static int

@@ -3,28 +3,13 @@
 
 package stratos.game.campaign ;
 import stratos.game.common.*;
-import stratos.game.actors.Background;
-import stratos.game.actors.Human;
+import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.planet.*;
 import stratos.game.wild.*;
-import stratos.graphics.widgets.Text;
+import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
-
-
-
-//
-//  TODO:  Guide the player through the basics of setting up a settlement,
-//  using missions to explore, defend, and either attack or contact natives
-//  and other local threats.
-
-
-//  Objectives:
-//    Destroy the artilects and raze their lair.
-//    Make peace with, or drive out, all native camps.
-//    Turn a profit for 6 consecutive days.
-//    Attain a population of 60 citizens.
 
 
 
@@ -40,12 +25,16 @@ public class TutorialScenario extends StartupScenario {
   private static Config config() {
     final Config config = new Config();
     config.house = Background.PLANET_HALIBAN;
-    
     config.male = Rand.yes();
     
-    config.siteLevel = SITE_WILDERNESS;
+    config.siteLevel  = SITE_WILDERNESS;
     config.titleLevel = TITLE_KNIGHTED;
     config.fundsLevel = FUNDING_STANDARD;
+    
+    config.numCrew.put(Background.VETERAN, 2);
+    config.numCrew.put(Background.TECHNICIAN, 2);
+    config.numCrew.put(Background.AUDITOR, 1);
+    config.numCrew.put(Background.CULTIVATOR, 3);
     return config;
   }
   
@@ -91,22 +80,29 @@ public class TutorialScenario extends StartupScenario {
   /**  Monitoring and updates-
     */
   final String
-    TITLE_WELCOME = "Welcome",
+    TITLE_WELCOME    = "Welcome",
     TITLE_OBJECTIVES = "Order of Business",
-    TITLE_SECURITY = "Objective 1: Security",  //  Recon and Strike!
-    TITLE_CONTACT = "Objective 2: Contact",
-    TITLE_ECONOMY = "Objective 3: Economy Basics";  //
+    TITLE_SECURITY   = "Objective 1: Security",
+    TITLE_CONTACT    = "Objective 2: Contact",
+    TITLE_ECONOMY    = "Objective 3: Economy Basics",
+    TITLE_EXPLAIN_SECURITY = "Security Missions",
+    TITLE_EXPLAIN_STRIKE   = "Strike Missions",
+    TITLE_EXPLAIN_RECON    = "Recon Missions",
+    TITLE_EXPLAIN_CONTACT  = "Contact Missions",
+    TITLE_EXPLAIN_SUPPLY   = "Imports and Exports",
+    TITLE_EXPLAIN_RESOURCE = "Cultivation and Mining",
+    TITLE_EXPLAIN_INDUSTRY = "Housing and Industry";
   
-  //private String stage = TITLE_WE
-  //private int stage = 0;
   
+  protected boolean showMessages() { return true;}
   
   
   public void updateGameState() {
     super.updateGameState();
     
-    pushMessage(TITLE_WELCOME);
-    
+    if (showMessages()) {
+      pushMessage(TITLE_WELCOME);
+    }
   }
   
   
