@@ -257,6 +257,8 @@ public class Assets {
 	
 	private static void addClasses(URI base, File dir, Batch<String> list) {
 		File[] files = dir.listFiles();
+		if(files == null)
+			return; // not a directory
 		for(File f : files) {
 			if(f.isDirectory()) {
 				addClasses(base, f, list);
