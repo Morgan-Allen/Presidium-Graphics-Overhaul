@@ -17,6 +17,9 @@ public class Repairs extends Plan implements Qualities {
   
   /**  Field definitions, constants and save/load methods-
     */
+  final static float
+    TIME_PER_25_HP = World.STANDARD_HOUR_LENGTH;
+  
   private static boolean verbose = false ;
   
   final Venue built ;
@@ -154,23 +157,28 @@ public class Repairs extends Plan implements Qualities {
     //  Double the rate of repair again if you have proper tools and materials.
     final boolean salvage = built.structure.needsSalvage() ;
     final boolean free = GameSettings.buildFree ;
-    int success = actor.traits.test(HARD_LABOUR, ROUTINE_DC, 1) ? 1 : 0 ;
-    //
+    final Base base = built.base();
+    
+    float success = actor.traits.test(HARD_LABOUR, ROUTINE_DC, 1) ? 1 : 0 ;
+    success *= 25f / TIME_PER_25_HP;
+    
     //  TODO:  Base assembly DC (or other skills) on a Conversion for the
     //  structure.  Require construction materials for full efficiency.
+    
     if (salvage) {
-      success *= actor.traits.test(ASSEMBLY, 5, 1) ? 2 : 1 ;
-      final float amount = 0 - built.structure.repairBy(success * 5f / -2) ;
+      success *= actor.traits.test(ASSEMBLY, 5, 1) ? 1 : 0.5f ;
+      final float amount = 0 - built.structure.repairBy(success) ;
       final float cost = amount * built.structure.buildCost() ;
-      if (! free) built.stocks.incCredits(cost * 0.5f) ;
+      if (! free) base.incCredits(cost * 0.5f) ;
     }
+    
     else {
-      success *= actor.traits.test(ASSEMBLY, 10, 0.5f) ? 2 : 1 ;
+      success *= actor.traits.test(ASSEMBLY, 10, 0.5f) ? 1 : 0.5f ;
       success *= actor.traits.test(ASSEMBLY, 20, 0.5f) ? 2 : 1 ;
       final boolean intact = built.structure.intact() ;
-      final float amount = built.structure.repairBy(success * 5f / 2) ;
+      final float amount = built.structure.repairBy(success) ;
       final float cost = amount * built.structure.buildCost() ;
-      if (! free) built.stocks.incCredits((0 - cost) * (intact ? 0.5f : 1)) ;
+      if (! free) base.incCredits((0 - cost) * (intact ? 0.5f : 1)) ;
     }
     return true ;
   }

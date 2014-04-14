@@ -42,7 +42,7 @@ Work in vehicle:  Cannot move out, must live there.
 public class FindHome extends Plan implements Economy {
   
   
-  private static boolean verbose = false;
+  private static boolean verbose = true;
   
   
   final Employment newHome ;
@@ -74,24 +74,27 @@ public class FindHome extends Plan implements Economy {
   
   
   
+  
+  
   protected float getPriority() {
     return ROUTINE ;
   }
   
   
   protected Behaviour getNextStep() {
+    final boolean report = verbose && I.talkAbout == actor;
+    if (report || true) I.say("Getting next site action ") ;
     if (actor.mind.home() == newHome) return null ;
     
-    if (verbose) I.sayAbout(actor, "Getting next site action ") ;
     if (! newHome.inWorld()) {
       if (! canPlace()) { abortBehaviour() ; return null ; }
       final Tile goes = actor.world().tileAt(newHome) ;
       final Action sites = new Action(
         actor, Spacing.nearestOpenTile(goes, actor),
         this, "actionSiteHome",
-        Action.LOOK, "Siting home"
-      ) ;
-      sites.setProperties(Action.RANGED) ;
+        Action.REACH_DOWN, "Siting home"
+      );
+      sites.setMoveTarget(((Venue) newHome).mainEntrance());
       return sites ;
     }
     final Action finds = new Action(
@@ -103,6 +106,11 @@ public class FindHome extends Plan implements Economy {
   }
   
   
+  public boolean valid() {
+    return actor.inWorld() && (newHome.inWorld() || canPlace());
+  }
+  
+  
   private boolean canPlace() {
     final Venue v = (Venue) newHome ;
     return v.canPlace() ;
@@ -110,7 +118,7 @@ public class FindHome extends Plan implements Economy {
   
   
   public boolean actionSiteHome(Actor client, Target site) {
-    if (! canPlace()) return false ;
+    if (! canPlace()) { abortBehaviour(); return false ; }
     final Venue v = (Venue) newHome ;
     v.placeFromOrigin() ;
     client.mind.setHome(v) ;
@@ -140,6 +148,8 @@ public class FindHome extends Plan implements Economy {
   /**  Static helper methods for home placement/location-
     */
   public static Holding lookForHome(Actor client, Base base) {
+    final boolean report = verbose && I.talkAbout == client;
+    
     final World world = base.world ;
     final Employment oldHome = client.mind.home() ;
     
@@ -166,16 +176,21 @@ public class FindHome extends Plan implements Economy {
     //  to 'defection' to the natives faction?
     
     if (best == null || Rand.index(10) == 0) {
+      /*
       final Venue refuge = (Venue) world.presences.nearestMatch(
         SERVICE_REFUGE, client, World.SECTOR_SIZE
       ) ;
+      if (report) I.say("Refuge is: "+refuge);
+      
       final Holding h = (refuge == null || refuge.base() != client.base()) ?
         null : newHoldingFor(client) ;  //  Use newHutFor(client)!
-      final float rating = rateHolding(client, h) ;
-      if (rating > bestRating) { bestRating = rating ; best = h ; }
+      //*/
+      final Holding h = newHoldingFor(client);
+      final float rating = rateHolding(client, h);
+      if (rating > bestRating) { bestRating = rating; best = h; }
     }
     
-    if (verbose && I.talkAbout == client) {
+    if (report && best != null) {
       I.say("Looking for home, best site: "+best) ;
     }
     return best ;

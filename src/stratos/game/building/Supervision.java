@@ -18,7 +18,7 @@ public class Supervision extends Plan implements Economy {
   
   /**  Data fields, setup and save/load functions-
     */
-  final static float WAIT_TIME = 20f ;
+  final static float WAIT_TIME = World.STANDARD_HOUR_LENGTH ;
   private static boolean verbose = false;
   
   final Venue venue ;

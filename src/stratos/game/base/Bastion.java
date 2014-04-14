@@ -214,7 +214,7 @@ public class Bastion extends Venue implements Economy {
   public Service[] services() {
     return new Service[] {
       SERVICE_ADMIN, SERVICE_REFUGE, POWER, LIFE_SUPPORT
-    } ;
+    };
   }
   
   

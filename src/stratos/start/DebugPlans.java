@@ -72,8 +72,8 @@ public class DebugPlans extends Scenario {
     GameSettings.setDefaults();
     //configMedicalScenario(world, base, UI);
     //configHuntingScenario(world, base, UI);
-    configCombatScenario(world, base, UI);
-    //configDialogueScenario(world, base, UI);
+    //configCombatScenario(world, base, UI);
+    configDialogueScenario(world, base, UI);
   }
   
   
@@ -145,11 +145,11 @@ public class DebugPlans extends Scenario {
   
   
   private void configDialogueScenario(World world, Base base, BaseUI UI) {
-    //GameSettings.fogFree = true;
+    GameSettings.fogFree = true;
     GameSettings.noBlood = true;
     
     Actor citizen = null;
-    for (int n = 5; n-- > 0;) {
+    for (int n = 3; n-- > 0;) {
       citizen = new Human(Background.CULTIVATOR, base);
       citizen.enterWorldAt(world.tileAt(4 + n, 4 + n), world);
     }
@@ -157,7 +157,25 @@ public class DebugPlans extends Scenario {
   }
   
   
+  private void configPurchaseScenario(World world, Base base, BaseUI UI) {
+    
+    Actor citizen = null;
+    for (int n = 2; n-- > 0;) {
+      citizen = new Human(Background.RUNNER, base);
+      citizen.enterWorldAt(world.tileAt(4 + n, 4 + n), world);
+    }
+    UI.selection.pushSelection(citizen, true);
+    
+    
+  }
+  
+  
   protected void afterCreation() {
   }
 }
+
+
+
+
+
 

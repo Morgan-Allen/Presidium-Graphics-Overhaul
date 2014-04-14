@@ -371,25 +371,25 @@ public class Dialogue extends Plan implements Qualities {
     //  If the activity is similar, or was undertaken for similar reasons,
     //  improve relations.
     //  TODO:  At the moment, we just compare traits.  Fix later.
+    
     final Trait comp = (Trait) Rand.pickFrom(actor.traits.personality()) ;
     if (comp == null) {
       return ;
     }
     final float
-      levelA = 1 + actor.traits.relativeLevel(comp),
-      levelO = 1 + actor.traits.relativeLevel(comp),
-      effect = (
-        0.5f - (Math.abs(levelA - levelO) / 2)
-      ) * Relation.MAG_CHATTING ;
-    final String desc = actor.traits.levelDesc(comp) ;
+      levelA = actor.traits.relativeLevel(comp),
+      levelO = other.traits.relativeLevel(comp),
+      similarity = (1 - Math.abs(levelA - levelO));
+    final String desc = actor.traits.levelDesc(comp);
     
-    other.memories.incRelation(actor, effect, 0.1f) ;
-    actor.memories.incRelation(other, effect, 0.1f) ;
+    final float effect = similarity * Relation.MAG_CHATTING;
+    other.memories.incRelation(actor, effect, 0.1f);
+    actor.memories.incRelation(other, effect, 0.1f);
     
     utters(actor, "It's important to be "+desc+".") ;
-    if (effect > 0) utters(other, "Absolutely.") ;
-    if (effect == 0) utters(other, "Yeah, I guess...") ;
-    if (effect < 0) utters(other, "No way!") ;
+    if (similarity > 0.5f) utters(other, "Absolutely.") ;
+    else if (similarity < -0.5f) utters(other, "No way!") ;
+    else utters(other, "Yeah, I guess...") ;
   }
   
   
