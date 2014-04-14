@@ -92,7 +92,7 @@ public class Recreation extends Plan implements Economy, Qualities {
     float modifier = NO_MODIFIER;
     modifier += Performance.performValueFor(venue, this);
     modifier += IDLE * rateComfort(venue, actor, this) / 10;
-    modifier -= ROUTINE - actor.mind.greedFor((int) cost);
+    modifier -= actor.mind.greedFor((int) cost) * ROUTINE;
     
     final float priority = priorityForActorWith(
       actor, venue, CASUAL,

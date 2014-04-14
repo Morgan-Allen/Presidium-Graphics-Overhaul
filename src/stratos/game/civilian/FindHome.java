@@ -243,7 +243,7 @@ public class FindHome extends Plan implements Economy {
     
     if (newHome instanceof Holding) {
       final int UL = ((Holding) newHome).upgradeLevel();
-      rating -= actor.mind.greedFor(HoldingUpgrades.TAX_LEVELS[UL]) - ROUTINE;
+      rating -= actor.mind.greedFor(HoldingUpgrades.TAX_LEVELS[UL]) * ROUTINE;
       rating += UL;
     }
     

@@ -420,18 +420,19 @@ public abstract class ActorMind implements Qualities {
   
   /**  Greed value-
     */
-  public float greedFor(int creditsPerDay) {
-    float baseUnit = actor.gear.credits() / 2f;
+  public float greedFor(float creditsPerDay) {
+    float baseUnit = actor.gear.credits();
+    final float greed = 1 + actor.traits.relativeLevel(ACQUISITIVE);
+    
     if (actor.base() != null) {
       final Profile p = actor.base().profiles.profileFor(actor);
       baseUnit += (100 + p.salary()) / 2f;
     }
     baseUnit /= 2f;
     
-    final float
-      mag = 1f + (creditsPerDay / baseUnit),
-      greed = 1 + actor.traits.relativeLevel(ACQUISITIVE);
-    return greed * (float) (Behaviour.ROUTINE + FastMath.log(mag));
+    float mag = 1f + (creditsPerDay / baseUnit);
+    mag = ((float) FastMath.log(2, mag)) * greed;
+    return (Plan.ROUTINE + mag - 1) / Plan.PARAMOUNT;
   }
   
   

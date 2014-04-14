@@ -24,7 +24,10 @@ SPYCE_C = new Item.Type(C, COMMODITY, "Spyce C (Natrizoral)", 400),
 
 public interface Economy extends Qualities {
   
-
+  
+  final static float
+    NUM_WEAR_DAYS = Background.NUM_DAYS_PAY;
+  
   final static Class BC = Economy.class ;
   final public static int
     FORM_COMMODITY      = 0, FC = 0,

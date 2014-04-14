@@ -196,8 +196,8 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     }
     
     float increment = 1f / (made.amount * TIME_PER_UNIT);
-    if (c.out.type instanceof DeviceType) increment /= DEVICE_TIME_MULT;
-    if (c.out.type instanceof OutfitType) increment /= OUTFIT_TIME_MULT;
+    if (made.type instanceof DeviceType) increment /= DEVICE_TIME_MULT;
+    if (made.type instanceof OutfitType) increment /= OUTFIT_TIME_MULT;
     if (! hasNeeded) increment /= SHORTAGE_TIME_MULT;
     if (! success) increment /= FAILURE_TIME_MULT;
     

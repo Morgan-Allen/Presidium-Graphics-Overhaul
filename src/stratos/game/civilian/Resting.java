@@ -101,7 +101,7 @@ public class Resting extends Plan implements Economy {
     }
     if (cost > 0) {
       if (cost > actor.gear.credits() / 2) urgency -= ROUTINE ;
-      urgency -= actor.mind.greedFor(cost) / ROUTINE ;
+      urgency -= actor.mind.greedFor(cost) * ROUTINE ;
     }
     
     final float priority = priorityForActorWith(

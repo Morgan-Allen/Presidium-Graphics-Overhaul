@@ -207,7 +207,7 @@ public abstract class Mission implements
       rewardEval /= 1f + fill;
     }
     
-    float value = actor.mind.greedFor((int) rewardEval);
+    float value = actor.mind.greedFor((int) rewardEval) * ROUTINE;
     return value;
   }
   

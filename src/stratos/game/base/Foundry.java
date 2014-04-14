@@ -134,6 +134,9 @@ public class Foundry extends Venue implements Economy {
     ///I.say("Demand for metal is: "+stocks.demandFor(METAL_ORE)) ;
     //
     //  Output squalor and demand power-
+    stocks.forceDemand(POWER, 0, VenueStocks.TIER_CONSUMER) ;
+    structure.setAmbienceVal(0) ;
+    /*
     float pollution = 5, powerNeed = 5 ;
     if (! isManned()) {
       pollution /= 2 ;
@@ -144,6 +147,7 @@ public class Foundry extends Venue implements Economy {
     stocks.forceDemand(POWER, powerNeed, VenueStocks.TIER_CONSUMER) ;
     stocks.removeItem(Item.withAmount(POWER, 0.1f * powerNeed)) ;
     structure.setAmbienceVal(0 - pollution) ;
+    //*/
   }
   
   

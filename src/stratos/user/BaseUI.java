@@ -154,7 +154,12 @@ public class BaseUI extends HUD implements UIConstants {
   
   private void configPanels() {
     this.commsPanel = new CommsPanel(this);
-    this.commsButton = new Button(this, CommsPanel.COMMS_ICON, "messages") {
+    this.commsButton = new Button(
+      this,
+      CommsPanel.COMMS_ICON.asTexture(),
+      CommsPanel.COMMS_ICON_LIT.asTexture(),
+      "messages"
+    ) {
       protected void whenClicked() {
         setInfoPanels(commsPanel, null);
       }

@@ -15,6 +15,9 @@ public class CommsPanel extends InfoPanel {
   final static ImageAsset
     COMMS_ICON = ImageAsset.fromImage(
       "media/GUI/Panels/comms_panel.png", CommsPanel.class
+    ),
+    COMMS_ICON_LIT = ImageAsset.fromImage(
+      "media/GUI/triangle_tab_glow.png", CommsPanel.class
     );
   final static String
     ALL_CATEGORIES[] = {};
@@ -29,13 +32,8 @@ public class CommsPanel extends InfoPanel {
   
   
   public CommsPanel(BaseUI UI) {
-    super(
-      UI, null, Composite.withImage(COMMS_ICON, "comms_panel"),
-      true, ALL_CATEGORIES
-    );
+    super(UI, null, null, true, ALL_CATEGORIES);
   }
-  
-  
   
   
   public boolean hasMessage(String keyTitle) {

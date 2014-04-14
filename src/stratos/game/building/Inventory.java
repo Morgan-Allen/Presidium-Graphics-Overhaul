@@ -228,6 +228,12 @@ public class Inventory {
   }
   
   
+  public void removeMatch(Item item) {
+    final Item match = matchFor(item);
+    if (match != null) removeItem(match);
+  }
+  
+  
   public void removeAllMatches(Service type) {
     for (Item match : matches(type)) itemTable.remove(match) ;
   }

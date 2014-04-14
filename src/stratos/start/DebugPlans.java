@@ -73,7 +73,8 @@ public class DebugPlans extends Scenario {
     //configMedicalScenario(world, base, UI);
     //configHuntingScenario(world, base, UI);
     //configCombatScenario(world, base, UI);
-    configDialogueScenario(world, base, UI);
+    //configDialogueScenario(world, base, UI);
+    configPurchaseScenario(world, base, UI);
   }
   
   
@@ -168,11 +169,20 @@ public class DebugPlans extends Scenario {
     Actor citizen = null;
     for (int n = 2; n-- > 0;) {
       citizen = new Human(Background.RUNNER, base);
-      citizen.enterWorldAt(world.tileAt(4 + n, 4 + n), world);
+      citizen.enterWorldAt(world.tileAt(10 + n, 10 + n), world);
+      citizen.gear.incCredits(1000);
     }
     UI.selection.pushSelection(citizen, true);
-    
-    
+
+    final Venue foundry = new Foundry(base);
+    Placement.establishVenue(
+      foundry, 6, 6, true, world,
+      new Human(Background.TECHNICIAN, base),
+      new Human(Background.TECHNICIAN, base),
+      new Human(Background.ARTIFICER, base)
+    );
+    foundry.stocks.bumpItem(Economy.METALS, 40);
+    foundry.stocks.bumpItem(Economy.PARTS, 20);
   }
   
   

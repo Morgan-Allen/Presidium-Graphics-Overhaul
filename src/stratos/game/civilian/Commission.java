@@ -17,12 +17,15 @@ import stratos.util.*;
 
 
 
-public class Commission extends Plan {
+public class Commission extends Plan implements Economy {
   
   
   
   /**  Data fields, construction and save/load methods-
     */
+  private static boolean verbose = true;
+  
+  
   final Item item ;
   final Venue shop ;
   
@@ -31,6 +34,42 @@ public class Commission extends Plan {
   private boolean delivered = false ;
   
   
+  public Commission(Actor actor, Item baseItem, Venue shop) {
+    super(actor, shop) ;
+    this.item = Item.withReference(baseItem, actor) ;
+    this.shop = shop ;
+  }
+  
+  
+  public Commission(Session s) throws Exception {
+    super(s) ;
+    item = Item.loadFrom(s) ;
+    shop = (Venue) s.loadObject() ;
+    order = (Manufacture) s.loadObject() ;
+    orderDate = s.loadFloat() ;
+    delivered = s.loadBool() ;
+  }
+  
+  
+  public void saveState(Session s) throws Exception {
+    super.saveState(s) ;
+    Item.saveTo(s, item) ;
+    s.saveObject(shop) ;
+    s.saveObject(order) ;
+    s.saveFloat(orderDate) ;
+    s.saveBool(delivered) ;
+  }
+  
+  
+  public boolean matchesPlan(Plan p) {
+    if (! super.matchesPlan(p)) return false;
+    return ((Commission) p).item.type == this.item.type;
+  }
+  
+  
+  
+  /**  Assessing and locating targets-
+    */
   public static void addCommissions(
     Actor actor, Venue makes, Choice choice
   ) {
@@ -72,55 +111,36 @@ public class Commission extends Plan {
   }
   
   
-  public Commission(Actor actor, Item baseItem, Venue shop) {
-    super(actor, shop) ;
-    this.item = Item.withReference(baseItem, actor) ;
-    this.shop = shop ;
-  }
+  final static Trait BASE_TRAITS[] = { ACQUISITIVE };
   
   
-  public Commission(Session s) throws Exception {
-    super(s) ;
-    item = Item.loadFrom(s) ;
-    shop = (Venue) s.loadObject() ;
-    order = (Manufacture) s.loadObject() ;
-    orderDate = s.loadFloat() ;
-    delivered = s.loadBool() ;
-  }
-  
-  
-  public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
-    Item.saveTo(s, item) ;
-    s.saveObject(shop) ;
-    s.saveObject(order) ;
-    s.saveFloat(orderDate) ;
-    s.saveBool(delivered) ;
-  }
-  
-  
-  public boolean matchesPlan(Plan p) {
-    if (! super.matchesPlan(p)) return false;
-    return ((Commission) p).item.type == this.item.type;
-  }
-  
-  
-  
-  /**  Assessing and locating targets-
-    */
   protected float getPriority() {
-    ///I.sayAbout(actor, "Getting commission priority... "+item) ;
+    final boolean report = verbose && I.talkAbout == actor;
+    if (report) I.say("Getting priority for commision of "+item);
+    
     final boolean done = shop.stocks.hasItem(item) ;
     if (order != null && ! order.finished() && ! done) {
       return 0 ;
     }
-    final float business = shop.stocks.specialOrders().size() ;
     final int price = (int) (shop.priceFor(item.type) * item.amount) ;
-    //I.sayAbout(actor, "Get this far... "+price) ;
-    if (price > actor.gear.credits()) return 0 ;
-    final float costVal = actor.mind.greedFor(price) ;
-    float priority = 1 + ROUTINE - (costVal + business) ;
-    //I.sayAbout(actor, "Commission priority is: "+priority) ;
+    if (price > actor.gear.credits()) return 0;
+    
+    final float greed = actor.mind.greedFor(price / NUM_WEAR_DAYS) * ROUTINE;
+    float modifier = NO_MODIFIER + item.quality - greed;
+    
+    final float priority = priorityForActorWith(
+      actor, shop, CASUAL,
+      MILD_HELP, MILD_COMPETITION,
+      NO_SKILLS, BASE_TRAITS,
+      modifier, NORMAL_DISTANCE_CHECK, NO_DANGER,
+      report
+    );
+    
+    if (report) {
+      I.say("\nGetting priority for commission of "+item);
+      I.say("  Price/greed value: "+price+"/"+greed);
+      I.say("  Final priority is: "+priority);
+    }
     return Visit.clamp(priority, 0, ROUTINE) ;
   }
   
@@ -190,8 +210,8 @@ public class Commission extends Plan {
     shop.inventory().incCredits(price) ;
     actor.inventory().incCredits(0 - price) ;
     
-    shop.inventory().removeItem(item) ;
-    actor.inventory().addItem(item) ;
+    shop.inventory().removeMatch(item);
+    actor.inventory().addItem(item);
     delivered = true ;
     ///I.say(actor+" picking up: "+item) ;
     return true ;
