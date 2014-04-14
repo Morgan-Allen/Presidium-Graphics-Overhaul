@@ -1,0 +1,16 @@
+<project name="Stratos build" basedir="." default="jars">
+	<property file="local.properties" />
+	<target name="jars">
+		<jar destfile="build/stratos.jar" basedir="bin">
+			<manifest>
+				<attribute name="Main-Class" value="debug.DebugStartup"/>
+			</manifest>
+		</jar>
+		<copy todir="build">
+			<fileset dir="libs"/>
+		</copy>
+		<copy todir="build/media">
+			<fileset dir="media"/>
+		</copy>
+	</target>
+</project>
