@@ -60,7 +60,7 @@ public class Foraging extends Plan implements Economy {
   final static Skill BASE_SKILLS[] = { CULTIVATION, HARD_LABOUR };
   
   
-  public float priorityFor(Actor actor) {
+  protected float getPriority() {
     final boolean report = verbose && I.talkAbout == actor;
 
     if (storeShortage() <= 0) {
@@ -76,13 +76,21 @@ public class Foraging extends Plan implements Economy {
       if (source == null) return 0;
     }
     final float priority = priorityForActorWith(
-      actor, source, hunger * PARAMOUNT,
+      actor, source, hunger * URGENT,
       NO_HARM, FULL_COMPETITION,
       BASE_SKILLS, BASE_TRAITS,
-      NO_MODIFIER, NORMAL_DISTANCE_CHECK, NO_DANGER,
+      NO_MODIFIER, NORMAL_DISTANCE_CHECK, MILD_DANGER,
       report
     );
     return priority;
+  }
+  
+  
+  protected float successChance() {
+    float chance = 1;
+    chance *= actor.traits.chance(HARD_LABOUR, ROUTINE_DC);
+    chance *= actor.traits.chance(CULTIVATION, MODERATE_DC);
+    return chance;
   }
   
   

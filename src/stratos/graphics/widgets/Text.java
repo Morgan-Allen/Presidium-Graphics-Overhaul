@@ -117,7 +117,7 @@ public class Text extends UINode implements Description {
     */
   public static interface Clickable {
     String fullName() ;
-    void whenClicked() ;
+    void whenTextClicked() ;
   }
   
   
@@ -339,7 +339,7 @@ public class Text extends UINode implements Description {
   
   
   protected void whenLinkClicked(Clickable link) {
-    link.whenClicked();
+    link.whenTextClicked();
   }
   
   

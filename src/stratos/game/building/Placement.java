@@ -243,7 +243,23 @@ public class Placement implements TileConstants {
   }
   
   
+  public static void establishRelations(Series <? extends Actor>... among) {
+    for (Series <? extends Actor> sF : among) for (Actor f : sF) {
+      for (Series <? extends Actor> tF : among) for (Actor t : tF) {
+        if (f == t || f.memories.hasRelation(t)) continue;
+        
+        float initRelation = 0 ;
+        for (int n = 10 ; n-- > 0 ;) {
+          initRelation += Dialogue.tryChat(f, t) ;
+        }
+        f.memories.initRelation(t, initRelation, Rand.num()) ;
+      }
+    }
+  }
   
+  
+  
+  /*
   //  TODO:  Humans in general might want a method like this, during the setup
   //  process.
   public static void establishRelations(Venue venue) {
@@ -267,9 +283,10 @@ public class Placement implements TileConstants {
       for (int n = 10 ; n-- > 0 ;) {
         initRelation += Dialogue.tryChat(f, t) * 10 ;
       }
-      f.mind.initRelation(t, initRelation, Rand.num()) ;
+      f.memories.initRelation(t, initRelation, Rand.num()) ;
     }
   }
+  //*/
 }
 
 

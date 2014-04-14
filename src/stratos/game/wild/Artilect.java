@@ -102,13 +102,20 @@ public abstract class Artilect extends Actor {
       protected void addReactions(Target seen, Choice choice) {
         if (seen instanceof Actor) choice.add(nextDefence((Actor) seen)) ;
       }
-      
+    } ;
+  }
+  
+  
+  protected Memories initMemories() {
+    final Artilect actor = this ;
+    
+    return new Memories(this) {
       public float relationValue(Actor other) {
         if (actor.base() != null && other.base() == actor.base()) return 0.5f ;
-        if (other instanceof Artilect) return 1.0f ;
+        if (other.health.artilect()) return 1.0f ;
         return -1.0f ;
       }
-    } ;
+    };
   }
   
   
@@ -132,7 +139,7 @@ public abstract class Artilect extends Actor {
     final float distance = Spacing.distance(this, guards) / World.SECTOR_SIZE;
     
     final Plan p = Patrolling.aroundPerimeter(this, guards, world).setMotive(
-      Plan.MOTIVE_DUTY, Plan.IDLE + (distance * Plan.PARAMOUNT)
+      Plan.MOTIVE_DUTY, Plan.CASUAL + (distance * Plan.PARAMOUNT)
     );
     ///I.say("Patrolling priority: "+p.priorityFor(this)) ;
     choice.add(p) ;
@@ -186,7 +193,7 @@ public abstract class Artilect extends Actor {
       if (dist > Ruins.MIN_RUINS_SPACING) continue;
       
       float rating = SS / (SS + dist) ;
-      rating += 1 - mind.relationValue(venue) ;
+      rating += 1 - memories.relationValue(venue) ;
       if (rating > bestRating) { bestRating = rating ; toAssault = venue ; }
     }
     

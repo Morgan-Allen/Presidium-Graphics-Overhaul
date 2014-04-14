@@ -389,7 +389,7 @@ public class Human extends Actor implements Qualities {
     //d.appendList("\n\nMutations: "  , descTraits(traits.mutations  ())) ;
     
     d.append("\n\nRelationships: ") ;
-    for (Relation r : mind.relations()) {
+    for (Relation r : memories.relations()) {
       d.append("\n  ") ;
       d.append(r.subject) ;
       d.append(" ("+r.descriptor()+")") ;

@@ -71,10 +71,10 @@ public class SecurityMission extends Mission implements Qualities {
     priority -= Plan.dangerPenalty(subject, actor) ;
     priority -= duration() * 0.5f / World.STANDARD_DAY_LENGTH ;
     if (subject instanceof Actor) {
-      priority += actor.mind.relationValue((Actor) subject) * ROUTINE ;
+      priority += actor.memories.relationValue((Actor) subject) * ROUTINE ;
     }
     if (subject instanceof Venue) {
-      priority += actor.mind.relationValue((Venue) subject) * ROUTINE ;
+      priority += actor.memories.relationValue((Venue) subject) * ROUTINE ;
     }
     
     //

@@ -57,7 +57,8 @@ public class Exploring extends Plan implements Qualities {
   final static Skill BASE_SKILLS[] = { SURVEILLANCE, ATHLETICS };
   final static Trait BASE_TRAITS[] = { CURIOUS, ENERGETIC, NATURALIST };
   
-  public float priorityFor(Actor actor) {
+  
+  protected float getPriority() {
     //final float p = rateExplorePoint(actor, lookedAt, priorityMod) ;
     ///if (BaseUI.isPicked(actor))
     ///I.say("PRIORITY FOR EXPLORATION: "+p) ;

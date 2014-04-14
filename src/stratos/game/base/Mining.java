@@ -160,8 +160,8 @@ public class Mining extends Plan implements Economy {
     return picked ;
   }
   
-  
-  public float priorityFor(Actor actor) {
+
+  protected float getPriority() {
     return ROUTINE ;
   }
   

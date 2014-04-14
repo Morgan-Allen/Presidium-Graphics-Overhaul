@@ -237,8 +237,8 @@ public class Treatment extends Plan implements Economy {
   
   private float diagnoseBonus() {
     float manners = -5 ;
-    manners += 5 * patient.mind.relationValue(actor) ;
-    manners += 5 * actor.mind.relationValue(patient) ;
+    manners += 5 * patient.memories.relationValue(actor) ;
+    manners += 5 * actor.memories.relationValue(patient) ;
     manners /= 2 ;
     if (actor.aboard() != theatre) return manners ;
     
@@ -581,7 +581,7 @@ public class Treatment extends Plan implements Economy {
     float memoryLoss = p.daysSincePsychEval(world) / (MEDIUM_DURATION * 2) ;
     memoryLoss = Visit.clamp(memoryLoss, 0.1f, 0.9f) ;
     
-    for (Relation r : patient.mind.relations()) {
+    for (Relation r : patient.memories.relations()) {
       float level = r.value() ;
       level *= 1 - (memoryLoss * Rand.avgNums(2) * (1 - Math.abs(level))) ;
       patient.mind.initRelation(r.subject, level, Rand.num()) ;

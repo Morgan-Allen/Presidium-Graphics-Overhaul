@@ -24,6 +24,7 @@ public class CombatUtils implements Qualities {
   //  estimate of combat prowess.  (TODO:  Put in a separate method for that?)
   
   public static float combatStrength(Actor actor, Actor enemy) {
+    if (actor == null) return 0;
     final boolean report = strengthVerbose && I.talkAbout == actor;
     
     float strength = 0 ;
@@ -72,7 +73,7 @@ public class CombatUtils implements Qualities {
   ) {
     final boolean report = dangerVerbose && I.talkAbout == actor;
     if (spot == null) return 0 ;
-    if (report) I.say("\nEvaluating danger at "+spot+" for "+actor);
+    if (report) I.say("  Evaluating danger at "+spot+" for "+actor);
     
     final float range = actor.health.sightRange();
     final World world = actor.world();
@@ -91,16 +92,16 @@ public class CombatUtils implements Qualities {
     }
     
     final float baseStrength = combatStrength(actor, enemy);
-    float sumAllies = baseStrength, sumFoes = 0;//, sumTargeting = 0;
+    float sumAllies = baseStrength, sumFoes = combatStrength(enemy, actor);
     
     for (Target m : seen) {
-      if (m == actor || ! (m instanceof Actor)) continue;
+      if (m == actor || m == enemy || ! (m instanceof Actor)) continue;
       final Actor other = (Actor) m;
       
       final Target victim = other.focusFor(Combat.class);
       final float
         relation = victim == actor ? -1 : Visit.clamp(
-          other.mind.relationValue(actor) +
+          other.memories.relationValue(actor) +
           other.base().relationWith(actor.base()),
         -1, 1),
         otherStrength = combatStrength(other, null),
@@ -121,14 +122,12 @@ public class CombatUtils implements Qualities {
       }
       
       if (report) {
-        I.say("    Raw strength of: "+m+": "+otherStrength);
-        I.say("    Distance: "+distance+", victim: "+victim);
-        //I.say("   Root behaviour: "+other.mind.rootBehaviour());
-        I.say("    Relation and scale: "+relation+" "+scale);
+        I.say("      Raw strength of: "+m+": "+otherStrength);
+        I.say("      Distance: "+distance+", victim: "+victim);
+        I.say("      Relation and scale: "+relation+" "+scale);
       }
     }
     
-
     final Tile o = actor.world().tileAt(spot);
     final float ambientDanger = actor.base().dangerMap.sampleAt(o.x, o.y);
     if (ambientDanger >= 0) sumFoes += ambientDanger;
@@ -144,17 +143,18 @@ public class CombatUtils implements Qualities {
     if (sumAllies == 0) return MAX_DANGER;
     float danger = sumFoes / (sumFoes + sumAllies);
     danger = (danger + hurt) * (1 + hurt);
-
+    
     if (report) {
-      I.say("  Sum allied/enemy strength: "+sumAllies+" / "+sumFoes);
-      I.say("  Ambient danger: "+ambientDanger);
-      I.say("  Injury & stress: "+injury+" / "+stress);
-      I.say("  Final danger rating: "+danger);
+      I.say("    Sum allied/enemy strength: "+sumAllies+" / "+sumFoes);
+      I.say("    Ambient danger: "+ambientDanger);
+      I.say("    Injury & stress: "+injury+" / "+stress);
+      I.say("    Intrinsic danger: "+danger);
     }
-    return Visit.clamp(danger, 0, MAX_DANGER);
+    danger *= (2 + actor.traits.relativeLevel(NERVOUS)) / 2;
+    danger = Visit.clamp(danger, 0, MAX_DANGER);
+    if (report) I.say("    Perceived danger: "+danger);
+    return danger;
   }
 }
-
-
 
 

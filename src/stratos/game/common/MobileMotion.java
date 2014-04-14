@@ -239,7 +239,7 @@ public class MobileMotion {
     //  Then apply the changes in heading-
     mobile.nextPosition.x = disp.x + mobile.position.x ;
     mobile.nextPosition.y = disp.y + mobile.position.y ;
-    mobile.nextRotation = angle ;
+    if (dist > 0) mobile.nextRotation = angle ;
     if (
       Float.isNaN(mobile.nextPosition.x) ||
       Float.isNaN(mobile.nextPosition.y)

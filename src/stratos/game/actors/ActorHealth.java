@@ -28,13 +28,13 @@ public class ActorHealth implements Qualities {
     STATE_ACTIVE   = 0,
     STATE_RESTING  = 1,
     STATE_SUSPEND  = 2,
-    STATE_DYING    = 3,
+    STATE_STRICKEN = 3,
     STATE_DECOMP   = 4 ;
   final static String STATE_DESC[] = {
     "Active",
     "Asleep",
     "In Suspended Animation",
-    "Dying",
+    "Mortally Hurt",
     "Decomposed",
   } ;
   final public static int
@@ -69,7 +69,7 @@ public class ActorHealth implements Qualities {
     MAX_MORALE       =  0.5f,
     MIN_MORALE       = -1.5f,
     REVIVE_THRESHOLD =  0.5f,
-    STABILISE_CHANCE =  0.2f,
+    STABILISE_CHANCE =  0.05f,
     BLEED_OUT_TIME   =  World.STANDARD_DAY_LENGTH / 10,
     DECOMPOSE_TIME   =  World.STANDARD_DAY_LENGTH / 2,
     
@@ -233,54 +233,25 @@ public class ActorHealth implements Qualities {
   }
   
   
-  public int agingStage() {
-    return Visit.clamp((int) (ageLevel() * 4), 4) ;
-  }
-  
-  
-  public float ageLevel() {
-    return currentAge * 1f / lifespan ;
-  }
-  
-  
-  public boolean juvenile() {
-    return agingStage() <= AGE_JUVENILE ;
-  }
-  
-  
   public void setMaturity(float ageLevel) {
     currentAge = lifespan * ageLevel ;
   }
   
   
-  public int exactAge() {
-    return (int) currentAge ;
-  }
+  public int agingStage()    { return Visit.clamp((int) (ageLevel() * 4), 4) ; }
+  public float ageLevel()    { return currentAge * 1f / lifespan ; }
+  public boolean juvenile()  { return agingStage() <= AGE_JUVENILE ; }
+  public int exactAge()      { return (int) currentAge ; }
+  public String agingDesc()  { return AGING_DESC[agingStage()] ; }
+  public float ageMultiple() { return ageMultiple ; }
+  public float lifespan()    { return lifespan ; }
   
+  public float caloryLevel() { return calories / maxHealth ; }
   
-  public String agingDesc() {
-    return AGING_DESC[agingStage()] ;
-  }
-  
-  
-  public float ageMultiple() {
-    return ageMultiple ;
-  }
-  
-  
-  public float lifespan() {
-    return lifespan ;
-  }
-  
-  
-  public float caloryLevel() {
-    return calories / maxHealth ;
-  }
-  
-  
-  public boolean organic() {
-    return metabolism != ARTILECT_METABOLISM ;
-  }
+  public boolean organic()  { return metabolism != ARTILECT_METABOLISM; }
+  public boolean animal()   { return metabolism == ANIMAL_METABOLISM  ; }
+  public boolean artilect() { return metabolism == ARTILECT_METABOLISM; }
+  public boolean human()    { return metabolism == HUMAN_METABOLISM   ; }
   
   
   
@@ -411,7 +382,7 @@ public class ActorHealth implements Qualities {
   
   
   public boolean dying() {
-    return state >= STATE_DYING ;
+    return state >= STATE_STRICKEN ;
   }
   
   
@@ -515,7 +486,7 @@ public class ActorHealth implements Qualities {
     //
     //  Check for disease or sudden death due to senescence.
     if (oldState != state && state != STATE_ACTIVE) {
-      if (state < STATE_DYING && ! organic()) state = STATE_DYING ;
+      if (state < STATE_STRICKEN && ! organic()) state = STATE_STRICKEN ;
       I.say(actor+" has entered a non-active state: "+stateDesc()) ;
       actor.enterStateKO(Action.FALL) ;
     }
@@ -533,7 +504,7 @@ public class ActorHealth implements Qualities {
     //
     //  Check for state effects-
     if (state == STATE_SUSPEND) return ;
-    if (state == STATE_DYING) {
+    if (state == STATE_STRICKEN) {
       injury += maxHealth * 1f / DECOMPOSE_TIME ;
       if (injury > maxHealth * (MAX_INJURY + 1)) {
         state = STATE_DECOMP ;
@@ -552,11 +523,11 @@ public class ActorHealth implements Qualities {
         if (level <= 0) continue ;
         I.add(t.toString()+": "+level+", ") ;
       }
-      state = STATE_DYING ;
+      state = STATE_STRICKEN ;
     }
     if (injury >= maxHealth * MAX_INJURY) {
       I.say(actor+" has died of injury.") ;
-      state = STATE_DYING ;
+      state = STATE_STRICKEN ;
     }
     if (fatigue <= 0 && asleep()) {
       if (verbose) I.sayAbout(actor, actor+" has revived!") ;
@@ -569,7 +540,7 @@ public class ActorHealth implements Qualities {
     calories = Visit.clamp(calories, 0, maxCalories()) ;
     if (calories <= 0) {
       I.say(actor+" has died from lack of energy.") ;
-      state = STATE_DYING ;
+      state = STATE_STRICKEN ;
     }
   }
   
@@ -651,7 +622,7 @@ public class ActorHealth implements Qualities {
       }
       else {
         I.say(actor+" has died of old age.") ;
-        state = STATE_DYING ;
+        state = STATE_STRICKEN ;
       }
     }
   }

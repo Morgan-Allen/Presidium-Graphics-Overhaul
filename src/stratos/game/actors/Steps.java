@@ -45,7 +45,7 @@ public class Steps extends Plan {
   
   /**  
     */
-  public float priorityFor(Actor actor) {
+  protected float getPriority() {
     return priority ;
   }
   

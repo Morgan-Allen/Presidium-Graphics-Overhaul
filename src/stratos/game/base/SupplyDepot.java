@@ -321,7 +321,7 @@ public class SupplyDepot extends Venue implements
         final int setting = n ;
         d.append("\n  ") ;
         d.append(new Description.Link(LEVEL_TITLES[n]) {
-          public void whenClicked() {
+          public void whenTextClicked() {
             exportLevels[index] = PREF_LEVELS[(setting + 1) % NUM_LEVELS] ;
           }
         }, PREF_COLOURS[setting]) ;

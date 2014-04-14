@@ -42,8 +42,7 @@ public class Composite {
     while (recent.size() >= MAX_CACHED) {
       Composite oldest = recent.removeFirst();
       recentTable.remove(oldest.tableKey);
-      oldest.drawn.dispose();
-      oldest.composed.dispose();
+      oldest.dispose();
     }
     
     recentTable.put(c.tableKey, c);
@@ -62,11 +61,14 @@ public class Composite {
   }
   
   
+  private void dispose() {
+    drawn.dispose();
+    if (composed != null) composed.dispose();
+  }
+  
+  
   public static void wipeCache() {
-    for (Composite c : recent) {
-      c.drawn.dispose();
-      c.composed.dispose();
-    }
+    for (Composite c : recent) c.dispose();
     recent.clear();
     recentTable.clear();
   }

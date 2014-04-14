@@ -81,10 +81,10 @@ public class DebugHumanSprites {
         
         final float time = Rendering.activeTime();
         if (sprite == first) {
-          sprite.setAnimation(animName, time % 1);
+          sprite.setAnimation(animName, time % 1, true);
         }
         else {
-          sprite.setAnimation(AnimNames.MOVE, (time + 0.5f) % 1);
+          sprite.setAnimation(AnimNames.MOVE, (time + 0.5f) % 1, true);
         }
       }
     });

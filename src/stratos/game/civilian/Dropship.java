@@ -478,7 +478,7 @@ public class Dropship extends Vehicle implements
     s.colour = Colour.transparency(fadeProgress) ;
     
     final float animProgress = height > 0.5f ? 0 : ((0.5f - height) * 2) ;
-    s.setAnimation("descend", Visit.clamp(animProgress, 0, 1)) ;
+    s.setAnimation("descend", Visit.clamp(animProgress, 0, 1), true) ;
     
     super.renderFor(rendering, base) ;
   }

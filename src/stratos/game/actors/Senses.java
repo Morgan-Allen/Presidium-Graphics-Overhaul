@@ -113,7 +113,9 @@ public class Senses implements Qualities {
     
     //  Finally, compile a list of everything seen for easy iteration-
     seenBatch.clear();
-    for (Target e : seen.keySet()) seenBatch.add(e);
+    for (Target e : seen.keySet()) {
+      seenBatch.add(e);
+    }
   }
   
   
@@ -123,6 +125,8 @@ public class Senses implements Qualities {
     
     final boolean report = reactVerbose && I.talkAbout == actor;
     final Session.Saveable after = reactionKey(e), before = seen.get(e);
+    
+    if (report) I.say("Before/after keys for "+e+" are "+before+"/"+after);
     if (before != after) {
       if (report && before == null) I.say("  Have just seen: "+e);
       if (report) I.say("  Reacting to: "+e);
@@ -203,11 +207,10 @@ public class Senses implements Qualities {
   
   private Session.Saveable reactionKey(Target seen) {
     if (seen instanceof Actor) {
-      final Actor a = (Actor) seen ;
-      if (a.currentAction() == null) return a ;
-      final Behaviour b = a.mind.rootBehaviour() ;
-      if (b == null) return a ;
-      else return b ;
+      final Actor a = (Actor) seen;
+      if (a.currentAction() == null) return a;
+      final Behaviour b = a.mind.rootBehaviour();
+      return b == null ? a : b;
     }
     if (seen instanceof Element) {
       return (Element) seen;

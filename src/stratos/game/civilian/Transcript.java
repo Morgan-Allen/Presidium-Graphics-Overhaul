@@ -101,7 +101,7 @@ static Batch <Object> associationsFor(Human actor) {
   for (Skill s : actor.traits.skillSet()) assocs.add(s) ;
   
   //for (Plan p : actor.memories.remembered()) assocs.add(p) ;
-  for (Relation r : actor.mind.relations()) assocs.add(r.subject) ;
+  for (Relation r : actor.memories.relations()) assocs.add(r.subject) ;
   return assocs ;
 }
 

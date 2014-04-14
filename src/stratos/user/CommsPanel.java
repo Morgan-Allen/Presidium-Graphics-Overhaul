@@ -22,7 +22,7 @@ public class CommsPanel extends InfoPanel {
   
   private class Message {
     String keyTitle;
-    InfoPanel panel;
+    DialoguePanel panel;
   }
   final List <Message> messages = new List <Message> ();
   
@@ -36,27 +36,41 @@ public class CommsPanel extends InfoPanel {
   }
   
   
+  
+  
   public boolean hasMessage(String keyTitle) {
-    for (Message m : messages) if (m.keyTitle.equals(keyTitle)) {
-      return true;
-    }
-    return false;
+    return messageWith(keyTitle) != null;
   }
   
   
-  public boolean pushMessage(
+  public DialoguePanel messageWith(String keyTitle) {
+    for (Message m : messages) if (m.keyTitle.equals(keyTitle)) {
+      return m.panel;
+    }
+    return null;
+  }
+  
+  
+  public DialoguePanel addMessage(
     String title, Composite portrait, String mainText, Clickable... options
   ) {
     final Message message = new Message();
+    
+    final Clickable navOptions[] = {
+      new Clickable() {
+        public String fullName() { return "View all messages"; }
+        public void whenTextClicked() { UI.setInfoPanels(UI.commsPanel(), null); }
+      }
+    };
+    
     message.keyTitle = title;
     message.panel = new DialoguePanel(
-      UI, portrait, title, mainText, options
+      UI, portrait, title, mainText,
+      (Clickable[]) Visit.compose(Clickable.class, options, navOptions)
     );
     messages.add(message);
-    UI.setInfoPanels(message.panel, null);
     
-    //  TODO:  You need to add a 'go back' option in the dialogue panel.
-    return true;
+    return message.panel;
   }
   
   
@@ -64,12 +78,13 @@ public class CommsPanel extends InfoPanel {
     final BaseUI UI, Text headerText, Text detailText
   ) {
     super.updateText(UI, headerText, detailText);
+    headerText.setText("COMMUNICATIONS");
     
     for (final Message message : messages) {
       detailText.append("\n  ");
       detailText.append(new Clickable() {
         public String fullName() { return message.keyTitle; }
-        public void whenClicked() { UI.setInfoPanels(message.panel, null); }
+        public void whenTextClicked() { UI.setInfoPanels(message.panel, null); }
       });
     }
   }

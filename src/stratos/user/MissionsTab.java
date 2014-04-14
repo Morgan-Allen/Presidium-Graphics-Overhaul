@@ -75,7 +75,7 @@ public class MissionsTab extends InfoPanel {
     detailText.append(" Strike Mission\n") ;
     detailText.append(new Text.Clickable() {
       public String fullName() { return "Target" ; }
-      public void whenClicked() { initStrikeTask(UI) ; }
+      public void whenTextClicked() { initStrikeTask(UI) ; }
     }) ;
     detailText.append("\n") ;
     
@@ -83,7 +83,7 @@ public class MissionsTab extends InfoPanel {
     detailText.append(" Recon Mission\n") ;
     detailText.append(new Text.Clickable() {
       public String fullName() { return "Target" ; }
-      public void whenClicked() { initReconTask(UI) ; }
+      public void whenTextClicked() { initReconTask(UI) ; }
     }) ;
     detailText.append("\n") ;
     
@@ -91,7 +91,7 @@ public class MissionsTab extends InfoPanel {
     detailText.append(" Security Mission\n") ;
     detailText.append(new Text.Clickable() {
       public String fullName() { return "Target" ; }
-      public void whenClicked() { initSecurityTask(UI) ; }
+      public void whenTextClicked() { initSecurityTask(UI) ; }
     }) ;
     detailText.append("\n") ;
     
@@ -99,7 +99,7 @@ public class MissionsTab extends InfoPanel {
     detailText.append(" Contact Mission\n") ;
     detailText.append(new Text.Clickable() {
       public String fullName() { return "Target" ; }
-      public void whenClicked() { initContactTask(UI) ; }
+      public void whenTextClicked() { initContactTask(UI) ; }
     }) ;
     detailText.append("\n") ;
   }

@@ -3,27 +3,13 @@
 
 package stratos.game.campaign ;
 import stratos.game.common.*;
-import stratos.game.actors.Background;
-import stratos.game.actors.Human;
+import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.planet.*;
 import stratos.game.wild.*;
+import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
-
-
-
-//
-//  TODO:  Guide the player through the basics of setting up a settlement,
-//  using missions to explore, defend, and either attack or contact natives
-//  and other local threats.
-
-
-//  Objectives:
-//    Destroy the artilects and raze their lair.
-//    Make peace with, or drive out, all native camps.
-//    Turn a profit for 6 consecutive days.
-//    Attain a population of 60 citizens.
 
 
 
@@ -39,12 +25,16 @@ public class TutorialScenario extends StartupScenario {
   private static Config config() {
     final Config config = new Config();
     config.house = Background.PLANET_HALIBAN;
-    
     config.male = Rand.yes();
     
-    config.siteLevel = SITE_WILDERNESS;
+    config.siteLevel  = SITE_WILDERNESS;
     config.titleLevel = TITLE_KNIGHTED;
     config.fundsLevel = FUNDING_STANDARD;
+    
+    config.numCrew.put(Background.VETERAN, 2);
+    config.numCrew.put(Background.TECHNICIAN, 2);
+    config.numCrew.put(Background.AUDITOR, 1);
+    config.numCrew.put(Background.CULTIVATOR, 3);
     return config;
   }
   
@@ -89,60 +79,123 @@ public class TutorialScenario extends StartupScenario {
   
   /**  Monitoring and updates-
     */
+  final String
+    TITLE_WELCOME    = "Welcome",
+    TITLE_OBJECTIVES = "Order of Business",
+    TITLE_SECURITY   = "Objective 1: Security",
+    TITLE_CONTACT    = "Objective 2: Contact",
+    TITLE_ECONOMY    = "Objective 3: Economy Basics",
+    TITLE_EXPLAIN_SECURITY = "Security Missions",
+    TITLE_EXPLAIN_STRIKE   = "Strike Missions",
+    TITLE_EXPLAIN_RECON    = "Recon Missions",
+    TITLE_EXPLAIN_CONTACT  = "Contact Missions",
+    TITLE_EXPLAIN_SUPPLY   = "Imports and Exports",
+    TITLE_EXPLAIN_RESOURCE = "Cultivation and Mining",
+    TITLE_EXPLAIN_INDUSTRY = "Housing and Industry";
+  
+  
+  protected boolean showMessages() { return true;}
+  
+  
   public void updateGameState() {
     super.updateGameState();
     
+    if (showMessages()) {
+      pushMessage(TITLE_WELCOME);
+    }
+  }
+  
+  
+  private void pushMessage(String title) {
     final CommsPanel comms = UI().commsPanel();
+    if (! comms.hasMessage(title)) {
+      UI().setInfoPanels(messageFor(TITLE_WELCOME), null);
+    }
+  }
+  
+  
+  private Text.Clickable linkFor(String linkText, final String title) {
+    final CommsPanel comms = UI().commsPanel();
+    return new Description.Link(linkText) {
+      public void whenTextClicked() {
+        DialoguePanel message = comms.messageWith(title);
+        if (message == null) message = messageFor(title);
+        UI().setInfoPanels(message, null);
+      }
+    };
+  }
+  
+  
+  private DialoguePanel messageFor(String title) {
+    final CommsPanel comms = UI().commsPanel();
+    if (comms.hasMessage(title)) return comms.messageWith(title);
     
-    if (! comms.hasMessage("Welcome")) comms.pushMessage(
-      "Welcome", null,
-      "Hello, and welcome to Stratos: The Sci-Fi Settlement Sim!  This "+
-      "tutorial will walk you through the essentials of setting up a "+
-      "settlement, exploring the surrounds, dealing with potential threats, "+
-      "and establishing a sound economy."
-    );
+    if (title == TITLE_WELCOME) {
+      return comms.addMessage(
+        TITLE_WELCOME, null,
+        "Hello, and welcome to Stratos: The Sci-Fi Settlement Sim!  This "+
+        "tutorial will walk you through the essentials of setting up a "+
+        "settlement, exploring the surrounds, dealing with potential threats, "+
+        "and establishing a sound economy.",
+        linkFor("Proceed", TITLE_OBJECTIVES)
+      );
+    }
     
-    /*
-    postMessage(
-      "Order of Business",
-      "What you do first is up to you.  But as a general rule, your first "+
-      "order of business"
-    );
-    //*/
+    if (title == TITLE_OBJECTIVES) {
+      return comms.addMessage(
+        TITLE_OBJECTIVES, null,
+        "What you do first is up to you, but for the moment, we'll specify "+
+        "three basic objectives for you to tackle.  Complete two of the "+
+        "three, and we will proceed to the next stage of this tutorial.",
+        linkFor("Tell me about the security objective.", TITLE_SECURITY),
+        linkFor("Tell me about the contact objective.", TITLE_CONTACT),
+        linkFor("Tell me about the economic objective.", TITLE_ECONOMY)
+      );
+    }
+    
+    if (title == TITLE_SECURITY) {
+      return comms.addMessage(
+        TITLE_SECURITY, null,
+        "Somewhere on this map, there is an ancient ruin, inhabited by "+
+        "artilect guardians who may come to threaten your settlement.  You "+
+        "will need to find this site and destroy it, by first exploring the "+
+        "map to find the site, and then declaring a strike mission.",
+        linkFor("Go back", TITLE_OBJECTIVES),
+        linkFor("Tell me about the contact objective.", TITLE_CONTACT),
+        linkFor("Tell me about the economic objective.", TITLE_ECONOMY)
+      );
+    }
+    
+    if (title == TITLE_CONTACT) {
+      return comms.addMessage(
+        TITLE_CONTACT, null,
+        "Somewhere on this map, there is a camp of primitive humanoids, who "+
+        "may present either a threat or an asset, depending on how they are "+
+        "handled.  Either declare a contact mission to bring them within the "+
+        "fold of your settlement, or drive them out entirely.",
+        linkFor("Go back", TITLE_OBJECTIVES),
+        linkFor("Tell me about the security objective.", TITLE_SECURITY),
+        linkFor("Tell me about the economic objective.", TITLE_ECONOMY)
+      );
+    }
+    
+    if (title == TITLE_ECONOMY) {
+      return comms.addMessage(
+        TITLE_ECONOMY, null,
+        "In order for your settlement to provide a viable power base for "+
+        "later expansion, you will need to establish exports and gather tax "+
+        "from your citizens.  Try to put all your citizens in pyon housing or "+
+        "better, and turn a profit for six consecutive days.",
+        linkFor("Go back", TITLE_OBJECTIVES),
+        linkFor("Tell me about the security objective.", TITLE_SECURITY),
+        linkFor("Tell me about the contact objective.", TITLE_CONTACT)
+      );
+    }
+    
+    return messageFor(TITLE_WELCOME);
   }
 }
 
 
 
 
-/*
-postMessage(
-  "In order for your settlement to become a viable long-term power-base, "+
-  "you will need to get your finances in order.  Your citizens need "+
-  "basic foodstuffs and supplies in order to survive and construct new "+
-  "facilities."
-);
-
-//  TODO:  What about the combat guilds?  Trooper, Runner, or Explorer.
-
-postMessage(
-  "  Objective:  Turn a profit for 6 consecutive days."
-);
-
-postMessage(
-  "Many sectors have resident tribes of human primitives or mutant "+
-  "strains, which may present either a threat or an opportunity, "+
-  "depending on how they are handled.  A diplomatic touch may allow them "+
-  "to be recruited as allies, but hot-blooded arguments on either side "+
-  "can spark violent retaliation.\n"+
-  "  Objective:  Make peace with, or drive out, all Native camps."
-);
-
-postMessage(
-  "As your settlement grows in size, it will begin to attract attention "+
-  "from your neighbours- in this case, hostile artilects from the nearby "+
-  "ruins.  This threat will need to be neutralised in order for your base "+
-  "to grow.\n"+
-  "  Objective:  Destroy the Ruins"
-);
-//*/

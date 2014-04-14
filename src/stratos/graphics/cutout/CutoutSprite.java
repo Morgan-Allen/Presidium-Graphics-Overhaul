@@ -30,7 +30,7 @@ public class CutoutSprite extends Sprite {
   }
   
   
-  public void setAnimation(String animName, float progress) {}
+  public void setAnimation(String animName, float progress, boolean loop) {}
   
   
   public void readyFor(Rendering rendering) {

@@ -43,7 +43,7 @@ public class Payday extends Plan implements Economy {
   
   /**  Evaluating targets and priority-
     */
-  public float priorityFor(Actor actor) {
+  protected float getPriority() {
     if (! (pays instanceof Venue)) return 0 ;
     
     final Venue venue = (Venue) pays ;

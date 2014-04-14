@@ -11,11 +11,6 @@ import stratos.util.*;
 
 
 /*
-Etiquette (based on subject) + Comm Skill (based on dialogue event).
-  Humans:  Tribal, Commoner or Noble speech, plus Counsel, Command or Suasion
-  Animals:  appropriate Ecology plus Zoologist
-  Artilects:  Ancient Lore plus Inscription
-
 TODO:  Incorporate effects of community spirit for novel acquaintances.
 Basic dialogue effects can also happen spontaneously.
 //*/
@@ -32,22 +27,22 @@ public class Dialogue extends Plan implements Qualities {
   final public static int
     TYPE_CONTACT   = 0,
     TYPE_CASUAL    = 1,
-    TYPE_OBJECTION = 2 ;
+    TYPE_OBJECTION = 2;
   
   final static int
     STAGE_INIT  = -1,
     STAGE_GREET =  0,
     STAGE_CHAT  =  1,
     STAGE_BYE   =  2,
-    STAGE_DONE  =  3 ;
+    STAGE_DONE  =  3;
   
-  private static boolean verbose = false ;
+  private static boolean verbose = false;
   
   
-  final Actor starts, other ;
-  final int type ;
-  private int stage = STAGE_INIT ;
-  private Boardable location = null, stands = null ;
+  final Actor starts, other;
+  final int type;
+  private int stage = STAGE_INIT;
+  private Boardable location = null, stands = null;
   
   
   
@@ -93,15 +88,20 @@ public class Dialogue extends Plan implements Qualities {
   final static Trait BASE_TRAITS[] = { OUTGOING, POSITIVE, EMPATHIC };
   final static Skill BASE_SKILLS[] = { SUASION, TRUTH_SENSE };
   
-  public float priorityFor(Actor actor) {
+  protected float getPriority() {
     final boolean report = verbose && I.talkAbout == actor;
+    final float
+      relation = actor.memories.relationValue(other),
+      novelty  = actor.memories.relationNovelty(other);
     
-    final float novelty = actor.mind.relationNovelty(other);
-    if (novelty <= 0) return 0;
+    float urgency = novelty * (1 + actor.traits.relativeLevel(CURIOUS)) / 2;
+    urgency = Visit.clamp(urgency + (relation / 2), -1, 1);
+    
+    if (urgency <= 0) return 0;
     if (stage >= STAGE_DONE || ! canTalk(other)) return 0;
     
     final float priority = priorityForActorWith(
-      actor, other, CASUAL,
+      actor, other, ROUTINE * urgency,
       MILD_HELP, MILD_COMPETITION,
       BASE_SKILLS, BASE_TRAITS,
       NO_MODIFIER, HEAVY_DISTANCE_CHECK, NO_DANGER,
@@ -112,8 +112,10 @@ public class Dialogue extends Plan implements Qualities {
   
   
   private boolean canTalk(Actor other) {
-    //if (! other.health.conscious()) return false ;
-    if (other.isDoing(Dialogue.class, null)) return true ;
+    //if (! other.health.conscious()) return false;
+    final Target talksWith = other.focusFor(Dialogue.class);
+    if (talksWith == actor) return true;
+    if (talksWith != null) return false;
     if (starts != actor) return false ;
     final Dialogue d = new Dialogue(other, actor, actor, type) ;
     return ! other.mind.mustIgnore(d) ;
@@ -247,8 +249,9 @@ public class Dialogue extends Plan implements Qualities {
   
   public boolean actionChats(Actor actor, Actor other) {
     tryChat(actor, other) ;
-    final float novelty = actor.mind.relationNovelty(other) ;
+    final float novelty = actor.memories.relationNovelty(other) ;
     if (novelty <= 0) {
+      //I.say("  NO REMAINING NOVELTY!  SAYING BYE!");
       stage = STAGE_BYE ;
     }
     return true ;
@@ -270,6 +273,10 @@ public class Dialogue extends Plan implements Qualities {
   
   public boolean actionAskFavour(Actor actor, Actor other) {
     //  (Base on relationship strength.)
+    
+    //  TODO:  Create a copy of your upcoming behaviour (something new, or on
+    //  the todo-list,) pass it to the other for evaluation, and if they agree,
+    //  you can both head off for that.
     return true ;
   }
   
@@ -277,16 +284,28 @@ public class Dialogue extends Plan implements Qualities {
   
   /**  Helper methods for elaborating on chat options-
     */
+  private static Skill languageFor(Actor other) {
+    if (other.health.animal()) return XENOZOOLOGY;
+    if (other.health.artilect()) return INSCRIPTION;
+    if (other.health.human()) {
+      final int standing = other.vocation().standing;
+      if (standing == Background.RULER_CLASS) return NOBLE_ETIQUETTE;
+      if (standing == Background.SLAVE_CLASS) return NATIVE_TABOO;
+      return COMMON_CUSTOM;
+    }
+    return null;
+  }
+  
+  
   private static float talkResult(
-    Skill language, Skill plea, Skill opposeSkill, Actor actor, Actor other
+    Skill plea, float opposeDC, Actor actor, Actor other
   ) {
-    final float attitude = other.mind.relationValue(actor) ;
-    final int DC = ROUTINE_DC - (int) (attitude * MODERATE_DC) ;
-    float success = -1 ;
-    success += actor.traits.test(language, null, null, ROUTINE_DC, 10, 2) ;
-    success += actor.traits.test(plea, other, opposeSkill, 0 - DC, 10, 2) ;
-    success /= 3 ;
-    return success ;
+    final Skill language = languageFor(other);
+    final float attBonus = other.memories.relationValue(actor) * ROUTINE_DC;
+    int result = 0;
+    result += actor.traits.test(language, ROUTINE_DC - attBonus, 1) ? 1 : 0;
+    result += actor.traits.test(plea, opposeDC - attBonus, 1) ? 1 : 0;
+    return result / 2f;
   }
   
   
@@ -294,20 +313,59 @@ public class Dialogue extends Plan implements Qualities {
     //  Base on comparison of recent activities and associated traits, skills
     //  or actors involved.
     
-    float success = talkResult(SUASION, SUASION, TRUTH_SENSE, actor, other) ;
-    other.mind.incRelation(actor, success / 10) ;
+    final float DC = other.traits.useLevel(SUASION) / 2;
+    float success = talkResult(SUASION, DC, actor, other) ;
+    other.memories.incRelation(actor, success * Relation.MAG_CHATTING, 0.1f) ;
     
     switch (Rand.index(3)) {
       case (0) : anecdote(actor, other) ; break ;
       case (1) : gossip  (actor, other) ; break ;
       case (2) : advise  (actor, other) ; break ;
     }
-    
     return success ;
   }
   
   
+  //  Basic introductions.  (Name, origin, job, health, weather, events.)
+  //  Recent activities.
+  //  Other acquaintances.
+  //  Shared skills.
+  //  Ask for favour.
+  //  Give a gift.
+  
+  //  List associations with each, and discuss those.
+  //  Make statements, and agree or disagree.
+  
+  /*
+  private Batch associationsFor(Object topic) {
+    final Batch assoc = new Batch();
+    if (topic instanceof Plan) {
+      assoc.addAll(topic.keyTraits());
+      assoc.addAll(topic.keySkills());
+    }
+    if (topic instanceof Actor) {
+      assoc.add(topic.vocation());
+      for (Plan p : actor.memories.recent()) {
+        if (p.subject() == topic) assoc.add(p);
+      }
+    }
+    if (topic instanceof Background) {
+      
+    }
+    if (topic instanceof Skill) {
+      
+    }
+    return assoc;
+  }
+  //*/
+  
+  
+  
+  
+  
+  
   private static void anecdote(Actor actor, Actor other) {
+    
     //
     //  Pick a random recent activity and see if the other also indulged in it.
     //  If the activity is similar, or was undertaken for similar reasons,
@@ -320,11 +378,13 @@ public class Dialogue extends Plan implements Qualities {
     final float
       levelA = 1 + actor.traits.relativeLevel(comp),
       levelO = 1 + actor.traits.relativeLevel(comp),
-      effect = 0.5f - (Math.abs(levelA - levelO) / 1.5f) ;
+      effect = (
+        0.5f - (Math.abs(levelA - levelO) / 2)
+      ) * Relation.MAG_CHATTING ;
     final String desc = actor.traits.levelDesc(comp) ;
     
-    other.mind.incRelation(actor, effect) ;
-    actor.mind.incRelation(other, effect) ;
+    other.memories.incRelation(actor, effect, 0.1f) ;
+    actor.memories.incRelation(other, effect, 0.1f) ;
     
     utters(actor, "It's important to be "+desc+".") ;
     if (effect > 0) utters(other, "Absolutely.") ;
@@ -337,13 +397,13 @@ public class Dialogue extends Plan implements Qualities {
     //
     //  Pick an acquaintance, see if it's mutual, and if so compare attitudes
     //  on the subject.  TODO:  Include memories of recent activities?
-    final Relation r = (Relation) Rand.pickFrom(actor.mind.relations()) ;
+    final Relation r = (Relation) Rand.pickFrom(actor.memories.relations()) ;
     if (r == null || r.subject == other) {
       utters(actor, "Nice weather, huh?") ;
       utters(other, "Uh-huh.") ;
       return ;
     }
-    final float attA = r.value(), attO = other.mind.relationValue(actor) ;
+    final float attA = r.value(), attO = other.memories.relationValue(actor) ;
     
     if (attA > 0) utters(actor, "I get on well with "+r.subject+".") ;
     else utters(actor, "I don't get on with "+r.subject+".") ;
@@ -351,10 +411,10 @@ public class Dialogue extends Plan implements Qualities {
     if (agrees) utters(other, "I can see that.") ;
     else utters(other, "Really?") ;
     
-    final float effect = 0.2f * (agrees ? 1 : -1) ;
-    other.mind.incRelation(actor, effect / 2) ;
-    actor.mind.incRelation(other, effect / 2) ;
-    other.mind.incRelation(r.subject, effect * r.value()) ;
+    final float effect = 0.2f * (agrees ? 1 : -1) * Relation.MAG_CHATTING ;
+    other.memories.incRelation(actor, effect / 2, 0.1f) ;
+    actor.memories.incRelation(other, effect / 2, 0.1f) ;
+    other.memories.incRelation(r.subject, effect * r.value(), 0.1f) ;
   }
   
   
@@ -378,9 +438,9 @@ public class Dialogue extends Plan implements Qualities {
     else effect -= 5 ;
     if (other.traits.test(tested, level * Rand.num(), 0.5f)) effect += 5 ;
     else effect -= 5 ;
-    effect /= 25 ;
-    other.mind.incRelation(actor, effect) ;
-    actor.mind.incRelation(other, effect) ;
+    effect *= Relation.MAG_CHATTING / 25f ;
+    other.memories.incRelation(actor, effect, 0.1f) ;
+    actor.memories.incRelation(other, effect, 0.1f) ;
     
     if (effect > 0) utters(actor, "Yes, exactly!") ;
     if (effect == 0) utters(actor, "Close. Try again.") ;
@@ -427,9 +487,44 @@ public class Dialogue extends Plan implements Qualities {
 
 
 /*
+
+//  TODO:  You're adding way too much XP to Truth Sense this way!  It should
+//  only count if the opponent is lying.  Otherwise, half value.
+
+//  ...You test against half opponent's skill.  They test against half
+//  yours.  Simple enough.  Whoever is better skilled gets more influence
+//  on the conversation.
+
+float success = 0;
+
+//  Suasion vs. Suasion.  Half DC.  Bonus for truth sense, esp. vs deceit.
+//  Plus a routine check for language.
+
+//  Another modifier for attitude.
+
+//  Counsel or command for instruction.  Level of skill taught for DC.
+//  ...Maybe that should be a different activity, though?
+
+//  Suasion for pleas.  Level of reluctance for DC.  Command for inferiors.
+
+
+
+return success;
+/*
+final float attitude = other.memories.relationValue(actor) ;
+final int DC = ROUTINE_DC - (int) (attitude * MODERATE_DC) ;
+float success = -1 ;
+
+success += actor.traits.test(language, null, null, ROUTINE_DC, 10, 2) ;
+success += actor.traits.test(plea, other, opposeSkill, 0 - DC, 10, 2) ;
+success /= 3 ;
+return success ;
+//*/
+
+/*
 float
-  value    = actor.mind.relationValue(other),
-  novelty  = actor.mind.relationNovelty(other),
+  value    = actor.memories.relationValue(other),
+  novelty  = actor.memories.relationNovelty(other),
   solitude = actor.mind.solitude() ;
 
 novelty *= (actor.traits.relativeLevel(CURIOUS) + 1) / 2f ;
@@ -470,7 +565,7 @@ private Action assistanceFrom(Actor other) {
   //Plan favour = actor.mind.createBehaviour() ;
   //favour.assignActor(other) ;
   //favour.setMotive(
-    //Plan.MOTIVE_LEISURE, ROUTINE * other.mind.relationValue(actor)
+    //Plan.MOTIVE_LEISURE, ROUTINE * other.memories.relationValue(actor)
   //) ;
   //return favour ;
   return null ;

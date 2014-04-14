@@ -79,8 +79,8 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   final static Trait BASE_TRAITS[] = { FEARLESS, SIMPLE, SOLITARY };
   final static Skill BASE_SKILLS[] = { SURVEILLANCE, HAND_TO_HAND };
   
-  
-  public float priorityFor(Actor actor) {
+
+  protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (onPoint == null) return 0;
     
@@ -93,7 +93,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
         relDanger += Plan.dangerPenalty(t, actor) ;
       }
       relDanger /= patrolled.size() ;
-      urgency = relDanger * PARAMOUNT * 1f / patrolled.size();
+      urgency = relDanger * ROUTINE * 1f / patrolled.size();
     }
     
     final float priority = priorityForActorWith(

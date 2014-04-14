@@ -153,6 +153,7 @@ public class HumanMind extends ActorMind implements Qualities {
   protected void addReactions(Target seen, Choice choice) {
     if (seen instanceof Actor) if (seen != actor) {
       final Actor nearby = (Actor) seen ;
+      ///I.say(actor+" adding reaction to: "+nearby);
       
       choice.add(Hunting.asHarvest(actor, nearby, home, true));
       
@@ -179,11 +180,11 @@ public class HumanMind extends ActorMind implements Qualities {
     final boolean timeoff = work == null || ! work.personnel().onShift(actor) ;
     if (work != null) {
       choice.add(work.jobFor(actor)) ;
-      if (timeoff) work.addServices(choice, actor) ;
+      if (timeoff && work != home) work.addServices(choice, actor) ;
       choice.add(new Payday(actor, work)) ;
     }
     if (home != null) {
-      choice.add(home.jobFor(actor)) ;
+      if (home != work) choice.add(home.jobFor(actor)) ;
       if (timeoff) home.addServices(choice, actor) ;
       choice.add(new Resting(actor, home));
     }
@@ -225,6 +226,8 @@ public class HumanMind extends ActorMind implements Qualities {
     //  Apply for missions, migration, work and home.
     choice.add(FindWork.attemptFor(actor)) ;
     choice.add(FindHome.attemptFor(actor)) ;
+    
+    //  TODO:  Just apply for missions directly, here.
     choice.add(FindMission.attemptFor(actor)) ;
     //choice.add(new Migration(actor)) ;
   }

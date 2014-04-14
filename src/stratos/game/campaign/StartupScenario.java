@@ -310,9 +310,8 @@ public class StartupScenario extends Scenario {
     advisors.add(ruler);
     base.assignRuler(ruler);
     final Human AA[] = advisors.toArray(Human.class);
+    
     final Tile target = world.tileAt(world.size / 2, world.size / 2);
-    
-    
     final SitingPass siting = new SitingPass() {
       protected float rateSite(Tile centre) {
         float rating = world.terrain().fertilitySample(centre);
@@ -338,6 +337,8 @@ public class StartupScenario extends Scenario {
       a.enterWorldAt(bastion, world);
       a.goAboard(bastion, world);
     }
+    
+    //Placement.establishRelations(advisors, colonists);
     return bastion;
   }
   

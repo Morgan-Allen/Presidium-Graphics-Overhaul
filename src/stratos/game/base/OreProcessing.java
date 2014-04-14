@@ -56,7 +56,7 @@ public class OreProcessing extends Plan implements Economy {
   
   /**  Static location methods and priority evaluation-
     */
-  public float priorityFor(Actor actor) {
+  protected float getPriority() {
     final float bonus = venue.stocks.amountOf(sample) / 5f ;
     return Visit.clamp(CASUAL + bonus + 1, 0, URGENT) ;
   }

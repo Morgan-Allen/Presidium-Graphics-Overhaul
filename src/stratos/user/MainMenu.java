@@ -291,26 +291,6 @@ public class MainMenu extends UIGroup {
   public void configQuickstart(Object args[]) {
     final TutorialScenario tutorial = new TutorialScenario();
     PlayLoop.setupAndLoop(tutorial);
-    /*
-    config = new StartupScenario.Config();
-    config.house = (Background) Rand.pickFrom(Background.ALL_PLANETS);
-    config.male = Rand.yes();
-    
-    config.numCrew.put(Background.VOLUNTEER, 2);
-    config.numCrew.put(Background.SUPPLY_CORPS, 2);
-    config.numCrew.put(Background.TECHNICIAN, 2);
-    for (int n = 3 ; n-- > 0 ;) {
-      final Background b = (Background) Rand.pickFrom(COLONIST_BACKGROUNDS);
-      config.numCrew.put(b, config.numCrew(b) + 1);
-    }
-    config.numCrew.put(Background.FIRST_CONSORT, 1);
-    
-    config.siteLevel  = StartupScenario.SITE_WILDERNESS;
-    config.titleLevel = StartupScenario.TITLE_COUNT;
-    config.fundsLevel = StartupScenario.FUNDING_STANDARD;
-    
-    PlayLoop.setupAndLoop(new StartupScenario(config));
-    //*/
   }
   
   

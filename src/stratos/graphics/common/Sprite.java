@@ -72,7 +72,7 @@ public abstract class Sprite {
   
   
   public abstract ModelAsset model();
-  public abstract void setAnimation(String animName, float progress);
+  public abstract void setAnimation(String anim, float progress, boolean loop);
   public abstract void readyFor(Rendering rendering);
 }
 

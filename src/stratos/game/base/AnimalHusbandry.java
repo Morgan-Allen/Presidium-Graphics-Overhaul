@@ -56,7 +56,7 @@ public class AnimalHusbandry extends Plan implements Economy {
   
   /**  Priority and target evaluation-
     */
-  public float priorityFor(Actor actor) {
+  protected float getPriority() {
     return ROUTINE ;
   }
   

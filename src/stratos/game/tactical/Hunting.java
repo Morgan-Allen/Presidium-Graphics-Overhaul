@@ -270,7 +270,7 @@ public class Hunting extends Combat implements Economy {
     taken *= prey.health.maxHealth() ;
     
     //  Then dispose of it appropriately-
-    if (! prey.health.dying()) prey.health.setState(ActorHealth.STATE_DYING);
+    if (! prey.health.dying()) prey.health.setState(ActorHealth.STATE_STRICKEN);
     actor.health.takeCalories(taken * Fauna.MEAT_CONVERSION, 1);
     return true;
   }
@@ -294,7 +294,7 @@ public class Hunting extends Combat implements Economy {
     prey.health.takeInjury(damage);
     final float taken = prey.health.injuryLevel() - before;
     
-    if (! prey.health.dying()) prey.health.setState(ActorHealth.STATE_DYING);
+    if (! prey.health.dying()) prey.health.setState(ActorHealth.STATE_STRICKEN);
     actor.gear.bumpItem(PROTEIN, taken * prey.health.maxHealth());
     return true;
   }

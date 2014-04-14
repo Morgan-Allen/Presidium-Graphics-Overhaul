@@ -85,7 +85,7 @@ public class Recreation extends Plan implements Economy, Qualities {
   
   /**  Finding and evaluating targets-
     */
-  public float priorityFor(Actor actor) {
+  protected float getPriority() {
     final boolean report = verbose && I.talkAbout == actor;
     
     if (cost > actor.gear.credits() / 2f) return 0;

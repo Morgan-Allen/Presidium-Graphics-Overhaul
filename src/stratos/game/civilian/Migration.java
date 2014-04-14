@@ -58,7 +58,7 @@ public class Migration extends Plan implements Economy {
   
   /**  Evaluating targets and priority-
     */
-  public float priorityFor(Actor actor) {
+  protected float getPriority() {
     //
     //  DISABLING FOR NOW  TODO:  Restore once job-applications are sorted out.
     //if (true) return -1 ;

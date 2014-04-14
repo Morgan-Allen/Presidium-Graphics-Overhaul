@@ -10,6 +10,7 @@ import java.lang.reflect.* ;
 import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
+import stratos.graphics.solids.*;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -34,7 +35,8 @@ public class Action implements Behaviour, AnimNames {
     QUICK    = 1,
     CAREFUL  = 2,
     TRACKS   = 4,
-    RANGED   = 8;
+    RANGED   = 8,
+    NO_LOOP  = 16;
   final static byte
     STATE_INIT   = -1,
     STATE_CLOSED =  0,
@@ -282,6 +284,7 @@ public class Action implements Behaviour, AnimNames {
       approaching = actor.aboard() == moveTarget ;
       closed = approaching && (motionDist - maxDist < separation) ;
       closeOn = closed ? actionTarget : step ;
+      facing = actor.motion.facingTarget(closeOn);
     }
     else {
       //  TODO:  Build line-of-sight considerations into the actor's reaction
@@ -299,10 +302,9 @@ public class Action implements Behaviour, AnimNames {
       closed = seen && (actionDist <= maxDist) ;
       approaching = closed || (seen && (actionDist <= (maxDist + 1))) ;
       closeOn = approaching ? actionTarget : step ;
+      facing = actor.motion.facingTarget(closeOn);
     }
     actor.motion.updateTarget(pathsTo);
-    facing = actor.motion.facingTarget(closeOn);
-    //facing = (! tracks()) || actor.motion.facingTarget(closeOn);
     
     if (report) {
       I.say("Action is: "+methodName()+" "+hashCode());
@@ -442,7 +444,8 @@ public class Action implements Behaviour, AnimNames {
   
   /**  Methods to support rendering-
     */
-  protected void configSprite(Sprite sprite, Rendering rendering) {
+  protected void configSprite(Sprite s, Rendering rendering) {
+    final SolidSprite sprite = (SolidSprite) s;
     //
     //  In the case of a pushing animation, you actually need to set different
     //  animations for the upper and lower body.  TODO:  THAT
@@ -452,10 +455,11 @@ public class Action implements Behaviour, AnimNames {
     else if (moveState == STATE_SNEAK) animName = MOVE_SNEAK;
     else if (moveState == STATE_RUN) animName = MOVE_FAST;
     else animName = MOVE;
+    boolean loop = animName != this.animName || (properties & NO_LOOP) == 0;
     
     final float alpha = Rendering.frameAlpha();
     final float AP = ((progress * alpha) + (oldProgress * (1 - alpha)));
-    sprite.setAnimation(animName, (AP > 1) ? (AP % 1) : AP);
+    sprite.setAnimation(animName, (AP > 1) ? (AP % 1) : AP, loop);
   }
   
   

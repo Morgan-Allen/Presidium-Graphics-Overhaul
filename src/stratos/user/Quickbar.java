@@ -155,7 +155,7 @@ public class Quickbar extends UIGroup implements UIConstants {
     int i = 0 ; for (final String option : options) {
       final Text text = new Text(UI, UIConstants.INFO_FONT) ;
       text.append(new Description.Link(option) {
-        public void whenClicked() {
+        public void whenTextClicked() {
           final Actor caster = UI.played().ruler() ;
           final PowerTask task = new PowerTask(bar, power, option, caster) ;
           UI.beginTask(task) ;
@@ -181,7 +181,7 @@ public class Quickbar extends UIGroup implements UIConstants {
         UI, power.buttonImage,
         power.name.toUpperCase()+"\n  "+power.helpInfo
       ) {
-        protected void whenClicked() {
+        protected void whenTextClicked() {
           ///I.say(power.name+" CLICKED") ;
           final Actor caster = BaseUI.current().played().ruler() ;
           if (optionList != null) optionList.detach() ;
@@ -221,7 +221,7 @@ public class Quickbar extends UIGroup implements UIConstants {
       UI, MissionsTab.STRIKE_ICON,
       "Strike Mission\n  Destroy, capture or neutralise a chosen target"
     ) {
-      public void whenClicked() { MissionsTab.initStrikeTask(bar.UI) ; }
+      public void whenTextClicked() { MissionsTab.initStrikeTask(bar.UI) ; }
     } ;
     addToSlot(strikeMB, missionGroup, missionSlots) ;
     
@@ -229,7 +229,7 @@ public class Quickbar extends UIGroup implements UIConstants {
       UI, MissionsTab.RECON_ICON,
       "Recon Mission\n  Explore a given area or follow a chosen subject"
     ) {
-      public void whenClicked() { MissionsTab.initReconTask(bar.UI) ; }
+      public void whenTextClicked() { MissionsTab.initReconTask(bar.UI) ; }
     } ;
     addToSlot(reconMB, missionGroup, missionSlots) ;
     
@@ -237,7 +237,7 @@ public class Quickbar extends UIGroup implements UIConstants {
       UI, MissionsTab.SECURITY_ICON,
       "Security Mission\n  Protect a given area, structure or subject"
     ) {
-      public void whenClicked() { MissionsTab.initSecurityTask(bar.UI) ; }
+      public void whenTextClicked() { MissionsTab.initSecurityTask(bar.UI) ; }
     } ;
     addToSlot(securityMB, missionGroup, missionSlots) ;
     
@@ -245,7 +245,7 @@ public class Quickbar extends UIGroup implements UIConstants {
       UI, MissionsTab.CONTACT_ICON,
       "Contact Mission\n  Establish better relations with the subject"
     ) {
-      public void whenClicked() { MissionsTab.initContactTask(bar.UI) ; }
+      public void whenTextClicked() { MissionsTab.initContactTask(bar.UI) ; }
     } ;
     addToSlot(contactMB, missionGroup, missionSlots) ;
     
@@ -280,7 +280,7 @@ public class Quickbar extends UIGroup implements UIConstants {
     final String catName = INSTALL_CATEGORIES[buttonID] ;
     final InstallTab newTab = new InstallTab(UI, catName) ;
     final Button button = new Button(UI, GUILD_IMG_ASSETS.get(img), help) {
-      protected void whenClicked() {
+      protected void whenTextClicked() {
         final BaseUI UI = BaseUI.current();
         UI.beginPanelFade() ;
         if (UI.currentPanel() == newTab) {

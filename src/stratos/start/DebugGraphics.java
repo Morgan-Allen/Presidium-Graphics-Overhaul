@@ -155,7 +155,7 @@ public class DebugGraphics {
         }
         if (sprite.model() == SM) {
           final float progress = Rendering.activeTime() * 6 / 10f;
-          sprite.setAnimation(AnimNames.FIRE, progress % 1);
+          sprite.setAnimation(AnimNames.FIRE, progress % 1, true);
           sprite.rotation += 120 / 60f;
         }
       }

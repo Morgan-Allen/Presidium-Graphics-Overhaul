@@ -34,9 +34,11 @@ public abstract class Actor extends Mobile implements
   final public ActorHealth health = new ActorHealth(this) ;
   final public ActorTraits traits = new ActorTraits(this) ;
   final public ActorGear   gear   = new ActorGear  (this) ;
-  final public Senses      senses = new Senses     (this) ;
   
-  final public ActorMind mind = initAI() ;
+  final public ActorMind mind = initAI();
+  final public Senses senses = initSenses();
+  final public Memories memories = initMemories();
+  
   private Action actionTaken ;
   private Base base ;
   
@@ -51,8 +53,10 @@ public abstract class Actor extends Mobile implements
     health.loadState(s) ;
     traits.loadState(s) ;
     gear.loadState(s) ;
-    senses.loadState(s);
+    
     mind.loadState(s) ;
+    senses.loadState(s);
+    memories.loadState(s);
     
     actionTaken = (Action) s.loadObject() ;
     base = (Base) s.loadObject() ;
@@ -65,15 +69,19 @@ public abstract class Actor extends Mobile implements
     health.saveState(s) ;
     traits.saveState(s) ;
     gear.saveState(s) ;
-    senses.saveState(s);
+    
     mind.saveState(s) ;
+    senses.saveState(s);
+    memories.saveState(s);
     
     s.saveObject(actionTaken) ;
     s.saveObject(base) ;
   }
   
   
-  protected abstract ActorMind initAI() ;
+  protected abstract ActorMind initAI();
+  protected Senses initSenses() { return new Senses(this); }
+  protected Memories initMemories() { return new Memories(this); }
   
   protected MobileMotion initMotion() { return new MobileMotion(this) ; }
   
@@ -225,7 +233,7 @@ public abstract class Actor extends Mobile implements
       }
       senses.updateSeen();
       mind.updateAI(numUpdates) ;
-      
+      memories.updateValues(numUpdates);
       
       //  TODO:  Restore this later?  Or have stealth attempts break it?
       /*
@@ -245,6 +253,7 @@ public abstract class Actor extends Mobile implements
     if (checkSleep) {
       senses.updateSeen();
       mind.updateAI(numUpdates) ;
+      memories.updateValues(numUpdates);
       mind.getNextAction() ;
       
       final Behaviour root = mind.rootBehaviour() ;
@@ -270,7 +279,7 @@ public abstract class Actor extends Mobile implements
         b.intelMap.liftFogAround(heads.x, heads.y, health.sightRange()) ;
       }
       if (! visibleTo(b)) continue ;
-      final float relation = mind.relationValue(b) ;
+      final float relation = memories.relationValue(b) ;
       final Tile o = origin();
       b.dangerMap.accumulate(0 - power * relation, 1.0f, o.x, o.y);
     }
@@ -290,6 +299,7 @@ public abstract class Actor extends Mobile implements
       this, this, this, "actionFall",
       animName, "Stricken"
     ) ;
+    falling.setProperties(Action.NO_LOOP);
     motion.updateTarget(null) ;
     mind.cancelBehaviour(mind.rootBehaviour()) ;
     this.assignAction(falling) ;
@@ -425,7 +435,7 @@ public abstract class Actor extends Mobile implements
   }
   
   
-  public void whenClicked() {
+  public void whenTextClicked() {
     BaseUI.current().selection.pushSelection(this, false);
   }
   

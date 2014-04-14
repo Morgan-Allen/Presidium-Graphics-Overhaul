@@ -60,7 +60,7 @@ public class SeedTailoring extends Plan implements Economy {
   
   /**  Obtaining and evaluating targets-
     */
-  public float priorityFor(Actor actor) {
+  protected float getPriority() {
     if (nursery.type != Plantation.TYPE_NURSERY) return 0 ;
     final BotanicalStation station = nursery.belongs ;
     

@@ -19,7 +19,7 @@ public class Combat extends Plan implements Qualities {
   /**  Data fields, constructors and save/load methods-
     */
   private static boolean
-    evalVerbose   = true,
+    evalVerbose   = false,
     eventsVerbose = false;
   
   final static int
@@ -90,7 +90,7 @@ public class Combat extends Plan implements Qualities {
     RANGED_SKILLS[] = { MARKSMANSHIP, STEALTH_AND_COVER, FORMATION_COMBAT };
   
   
-  public float priorityFor(Actor actor) {
+  protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (isDowned(target, object)) return 0;
     final boolean melee = actor.gear.meleeWeapon();
@@ -99,10 +99,10 @@ public class Combat extends Plan implements Qualities {
     Target victim = null;
     if (target instanceof Actor) {
       //  TODO:  Just use the general harm-level of the other guy's current
-      //  behaviour as the basis for evaluation?
+      //  behaviour as the basis for evaluation?  ...Yeah.  That.
       victim = ((Actor) target).focusFor(Combat.class);
       if (victim != null) {
-        modifier += PARAMOUNT * actor.mind.relationValue(victim);
+        modifier += PARAMOUNT * actor.memories.relationValue(victim);
       }
     }
     
@@ -131,17 +131,16 @@ public class Combat extends Plan implements Qualities {
     float danger;
     
     if (target instanceof Actor) {
-      final Actor struck = (Actor) target ;
-      danger = CombatUtils.dangerAtSpot(target, actor, struck) ;
+      final Actor struck = (Actor) target;
+      danger = CombatUtils.dangerAtSpot(target, actor, struck);
     }
     else if (target instanceof Venue) {
-      final Venue struck = (Venue) target ;
-      danger = CombatUtils.dangerAtSpot(struck, actor, null) ;
+      final Venue struck = (Venue) target;
+      danger = CombatUtils.dangerAtSpot(struck, actor, null);
     }
     else danger = CombatUtils.dangerAtSpot(target, actor, null) / 2;
     
-    danger *= 1 + actor.traits.relativeLevel(NERVOUS);
-    final float chance = Visit.clamp(1 - danger, 0.1f, 0.9f) ;
+    final float chance = Visit.clamp(1 - danger, 0.1f, 0.9f);
     return chance;
   }
   

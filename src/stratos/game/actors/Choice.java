@@ -84,8 +84,16 @@ public class Choice implements Qualities {
   }
   
   
-  private static float competeThreshold(Actor actor, float topPriority) {
-    float thresh = topPriority + actor.traits.relativeLevel(STUBBORN);
+  //  Okay.  Separate thresholds for switch and choice?  Or just temporary
+  //  interrupts?
+  //*
+  private static float competeThreshold(
+    Actor actor, float topPriority, boolean forCurrent
+  ) {
+    final float stubborn = actor.traits.relativeLevel(STUBBORN);
+    float thresh = topPriority;
+    if (forCurrent) thresh += 2 + stubborn;
+    else thresh -= stubborn;
     if (topPriority > Plan.PARAMOUNT) {
       final float extra = (topPriority - Plan.PARAMOUNT) / Plan.ROUTINE;
       thresh -= Plan.DEFAULT_SWITCH_THRESHOLD * extra;
@@ -93,9 +101,10 @@ public class Choice implements Qualities {
     thresh -= Plan.DEFAULT_SWITCH_THRESHOLD;
     return Visit.clamp(thresh, 0, Plan.PARAMOUNT);
   }
+  //*/
   
   
-  private Behaviour weightedPick(boolean free) {//float priorityRange) {
+  private Behaviour weightedPick(boolean free) {
     final boolean report = verbose && I.talkAbout == actor;
     if (plans.size() == 0) {
       if (verboseReject && I.talkAbout == actor) I.say("  ...Empty choice!") ;
@@ -129,7 +138,7 @@ public class Choice implements Qualities {
     //
     //  Eliminate all weights outside the permitted range, so that only plans
     //  of comparable attractiveness to the most important are considered-
-    final float minPriority = competeThreshold(actor, bestPriority) ;
+    final float minPriority = competeThreshold(actor, bestPriority, false);
     if (report) {
       I.say("  Best priority: "+bestPriority);
       I.say("  Min. priority: "+minPriority);
@@ -169,11 +178,13 @@ public class Choice implements Qualities {
     if (nextPriority <= 0) return false;
     if (lastPriority <= 0) return true;
     
-    final float minPriority = competeThreshold(actor, nextPriority);
+    final float minPriority = competeThreshold(actor, nextPriority, true);
     if (verbose && I.talkAbout == actor) {
-      I.say("Last plan: "+last+", priority: "+lastPriority);
-      I.say("Next plan: "+next+", priority: "+nextPriority);
-      I.say("Min. priority for last is: "+minPriority);
+      I.say("\n  Consider plan switch...");
+      I.say("  Last plan: "+last+", priority: "+lastPriority);
+      I.say("  Next plan: "+next+", priority: "+nextPriority);
+      I.say("  Min. priority for last is: "+minPriority);
+      I.say("  Would switch from last to next? "+(lastPriority < minPriority));
     }
     return lastPriority < minPriority;
   }

@@ -108,12 +108,12 @@ public class ContactMission extends Mission implements Economy {
     float maxUrgency = Float.NEGATIVE_INFINITY ;
     
     for (Actor a : talksTo()) {
-      final float relation = a.mind.relationValue(actor) ;
+      final float relation = a.memories.relationValue(actor) ;
       if (relation >= minRelation) continue ;
       
       final Dialogue d = new Dialogue(actor, a, Dialogue.TYPE_CONTACT) ;
       float urgency = d.priorityFor(actor) ;
-      urgency += (1 - a.mind.relationValue(actor)) * ROUTINE ;
+      urgency += (1 - a.memories.relationValue(actor)) * ROUTINE ;
       if (urgency > maxUrgency) { maxUrgency = urgency ; picked = d ; }
     }
     if (picked != null) return picked ;
@@ -131,7 +131,7 @@ public class ContactMission extends Mission implements Economy {
     ///I.say("\nMinimum relation needed: "+minRelation) ;
     boolean allOK = true ;
     for (Actor a : talksTo()) for (Role role : this.roles) {
-      final float relation = a.mind.relationValue(role.applicant) ;
+      final float relation = a.memories.relationValue(role.applicant) ;
       ///I.say("  Relation between "+a+" and "+role.applicant+": "+relation) ;
       if (relation < minRelation) allOK = false ;
     }
