@@ -38,7 +38,7 @@ public class Personnel {
   private static boolean verbose = false ;
   
   
-  final Employment employs ;
+  final Employer employs ;
   final List <Application>
     applications = new List <Application> () ;
   final List <Actor>
@@ -49,7 +49,7 @@ public class Personnel {
   
   
   
-  Personnel(Employment venue) {
+  Personnel(Employer venue) {
     this.employs = venue ;
   }
   

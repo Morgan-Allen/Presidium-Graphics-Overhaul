@@ -18,11 +18,11 @@ public class Application implements Session.Saveable {
   
   final public Actor applies ;
   final public Background position ;
-  final public Employment employer ;
+  final public Employer employer ;
   private int hiringFee ;
   
   
-  public Application(Actor a, Background p, Employment e) {
+  public Application(Actor a, Background p, Employer e) {
     applies = a ;
     position = p ;
     employer = e ;
@@ -33,7 +33,7 @@ public class Application implements Session.Saveable {
     s.cacheInstance(this) ;
     applies = (Actor) s.loadObject() ;
     position = Background.ALL_BACKGROUNDS[s.loadInt()] ;
-    employer = (Employment) s.loadObject() ;
+    employer = (Employer) s.loadObject() ;
     hiringFee = s.loadInt() ;
   }
   

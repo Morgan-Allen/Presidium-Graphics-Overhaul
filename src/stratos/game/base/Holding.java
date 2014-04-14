@@ -292,6 +292,12 @@ public class Holding extends Venue implements Economy {
   }
   
   
+  public float homeCrowding(Actor actor) {
+    final int maxPop = HoldingUpgrades.OCCUPANCIES[upgradeLevel];
+    return personnel.residents().size() * 1f / maxPop;
+  }
+  
+  
   public Background[] careers() { return new Background[0] ; }
   public Service[] services() { return new Service[0] ; }
   

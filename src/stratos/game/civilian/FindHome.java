@@ -12,50 +12,24 @@ import stratos.util.*;
 
 
 
-//  ...This needs to centre on the bastion/bunker system more reliably, then
-//  the place of work.  Also, the results have to be more stable.
-
-//  Implement the following-
-/*  TODO:  HOUSE-SITING ALGORITHM:
-
-Place of work.  (-5 for every sector's distance.)
-Vital services.  (+2 for each, divided by 1-plus-sector-distance.)
-Danger and Ambience.  (up to +/-5 modifier each.)
-Friends and Family.  (up to +/-2 modifier per inhabitant, based on relation,
-divided by 1-plus-sector-distance.)
-
-No residents:  +2
-1 resident:  +1
-More than 2 residents:  -5
-Only a child:  No crowding effects, friend/family effects doubled.
-
-Ordinary holding:  +2 per upgrade level, halved for nobles, 0 if unbuilt.
-Bastion:  +10.  Noble household only.
-Native hut:  Must defect to native base.
-Rent/tax level:  -5 for 50% of daily wages, scaled accordingly.
-
-Work in vehicle:  Cannot move out, must live there.
-//*/
-
-
 
 public class FindHome extends Plan implements Economy {
   
   
-  private static boolean verbose = true;
+  private static boolean verbose = false;
   
   
-  final Employment newHome ;
+  final Employer newHome ;
   
   
   public static FindHome attemptFor(Actor actor) {
-    Employment newHome = lookForHome(actor, actor.base()) ;
+    Employer newHome = lookForHome(actor, actor.base()) ;
     if (newHome == null || newHome == actor.mind.home()) return null ;
     return new FindHome(actor, newHome) ;
   }
   
 
-  private FindHome(Actor actor, Employment newHome) {
+  private FindHome(Actor actor, Employer newHome) {
     super(actor, newHome) ;
     this.newHome = newHome ;
   }
@@ -63,7 +37,7 @@ public class FindHome extends Plan implements Economy {
 
   public FindHome(Session s) throws Exception {
     super(s) ;
-    newHome = (Employment) s.loadObject() ;
+    newHome = (Employer) s.loadObject() ;
   }
   
   
@@ -71,9 +45,6 @@ public class FindHome extends Plan implements Economy {
     super.saveState(s) ;
     s.saveObject(newHome) ;
   }
-  
-  
-  
   
   
   protected float getPriority() {
@@ -97,12 +68,16 @@ public class FindHome extends Plan implements Economy {
       sites.setMoveTarget(((Venue) newHome).mainEntrance());
       return sites ;
     }
+    
     final Action finds = new Action(
       actor, newHome,
       this, "actionFindHome",
-      Action.LOOK, "Finding home"
-    ) ;
-    return finds ;
+      Action.REACH_DOWN, "Finding home"
+    );
+    if (newHome.boardableType() == Boardable.BOARDABLE_VENUE) {
+      finds.setMoveTarget(((Venue) newHome).mainEntrance());
+    }
+    return finds;
   }
   
   
@@ -127,7 +102,12 @@ public class FindHome extends Plan implements Economy {
   }
   
   
-  public boolean actionFindHome(Actor client, Employment best) {
+  public boolean actionFindHome(Actor client, Employer best) {
+    if (best.homeCrowding(client) >= 1) {
+      if (verbose) I.sayAbout(actor, "No space!") ;
+      abortBehaviour();
+      return false;
+    }
     client.mind.setHome(best) ;
     return true ;
   }
@@ -147,36 +127,29 @@ public class FindHome extends Plan implements Economy {
   
   /**  Static helper methods for home placement/location-
     */
-  public static Holding lookForHome(Actor client, Base base) {
+  public static Employer lookForHome(Actor client, Base base) {
     final boolean report = verbose && I.talkAbout == client;
     
     final World world = base.world ;
-    final Employment oldHome = client.mind.home() ;
+    final Employer oldHome = client.mind.home(), work = client.mind.work() ;
     
-    Holding best = null ;
-    float bestRating = 0 ;
+    if (work instanceof Vehicle) return work;
+    if (work instanceof Bastion) return work;
     
-    //  TODO:  Also, Native Huts and the Bastion need to count here!
-    if (oldHome instanceof Holding) {
-      final Holding h = (Holding) oldHome ;
-      best = h ;
-      bestRating = rateHolding(client, h) ;
-    }
+    Employer best = oldHome ;
+    float bestRating = oldHome == null ? 0 : rateHolding(client, best) ;
     
     for (Object o : world.presences.sampleFromKey(
       client, world, 3, null, Holding.class
     )) {
       final Holding h = (Holding) o ;
       final float rating = rateHolding(client, h) ;
+      if (report) I.say("Rating for "+h+" is "+rating);
       if (rating > bestRating) { bestRating = rating ; best = h ; }
     }
     
-    //  TODO:  You need to allow for construction of native hutments if there's
-    //  no more conventional refuge available.  ...Or would that be equivalent
-    //  to 'defection' to the natives faction?
-    
     if (best == null || Rand.index(10) == 0) {
-      /*
+      //  TODO:  IMPLEMENT CONSTRUCTION OF NATIVE HUTS
       final Venue refuge = (Venue) world.presences.nearestMatch(
         SERVICE_REFUGE, client, World.SECTOR_SIZE
       ) ;
@@ -184,14 +157,15 @@ public class FindHome extends Plan implements Economy {
       
       final Holding h = (refuge == null || refuge.base() != client.base()) ?
         null : newHoldingFor(client) ;  //  Use newHutFor(client)!
-      //*/
-      final Holding h = newHoldingFor(client);
+      //final Holding h = newHoldingFor(client);
       final float rating = rateHolding(client, h);
+      if (report) I.say("Rating for new site "+h+" is "+rating);
       if (rating > bestRating) { bestRating = rating; best = h; }
     }
     
     if (report && best != null) {
       I.say("Looking for home, best site: "+best) ;
+      I.say("Crowding is: "+best.homeCrowding(client));
     }
     return best ;
   }
@@ -229,47 +203,64 @@ public class FindHome extends Plan implements Economy {
   //}
   
   
+  
+//...This needs to centre on the bastion/bunker system more reliably, then
+//the place of work.  Also, the results have to be more stable.
   private static Tile searchPoint(Actor client) {
     if (client.mind.work() instanceof Venue) {
       return ((Venue) client.mind.work()).mainEntrance() ;
     }
+    //  Nearest refuge.
+    
+    //  Nearest other building.
+    
     return client.origin() ;
   }
-
-
-  private static float rateHolding(Actor actor, Holding holding) {
-    if (holding == null || holding.base() != actor.base()) return -1 ;
+  
+  
+  
+  /**  Site evaluation-
+    */
+  //TODO:  Implement the following-
+  /*
+    Only a child:  No crowding effects, friend/family effects doubled.
+    Ordinary holding:  +2 per upgrade level, halved for nobles, 0 if unbuilt.
+    Bastion:  +10.  Noble household only.
+    Native hut:  Must defect to native base.
+    Rent/tax level:  -5 for 50% of daily wages, scaled accordingly.
     
-    final Series <Actor> residents = holding.personnel.residents() ;
-    final int
-      UL = holding.upgradeLevel(),
-      maxPop = HoldingUpgrades.OCCUPANCIES[UL] ;
-    final float crowding = residents.size() * 1f / maxPop ;
+    Work in vehicle:  Cannot move out, must live there.
+  //*/
+  
+  private static float rateHolding(Actor actor, Employer newHome) {
+    if (newHome == null || newHome.base() != actor.base()) return -1 ;
     
-    float rating = (1 + UL) / HoldingUpgrades.NUM_LEVELS ;
-    if (holding == actor.mind.home()) {
-      rating *= 1.5f ;
+    final Employer oldHome = actor.mind.home();
+    float rating = 0;
+    if (oldHome == null) rating += ROUTINE;
+    if (newHome == oldHome) rating += DEFAULT_SWITCH_THRESHOLD;
+    else if (newHome.homeCrowding(actor) >= 1) return 0;
+    
+    if (newHome instanceof Holding) {
+      final int UL = ((Holding) newHome).upgradeLevel();
+      rating -= actor.mind.greedFor(HoldingUpgrades.TAX_LEVELS[UL]) - ROUTINE;
+      rating += UL;
     }
-    else if (crowding >= 1) return -1 ;
-    if (holding.inWorld()) {
-      rating *= 1.5f ;
-    }
-    if (actor.mind.home() == null) rating += ROUTINE ;
     
-    rating *= (2f - crowding) ;
-    rating -= actor.mind.greedFor(HoldingUpgrades.TAX_LEVELS[UL]) / ROUTINE ;
-    rating -= Plan.rangePenalty(actor.mind.work(), holding) ;
-    
+    final Series <Actor> residents = newHome.personnel().residents() ;
     if (residents.size() > 0) {
       float averageRelations = 0 ; for (Actor a : residents) {
         averageRelations += actor.memories.relationValue(a) ;
       }
       averageRelations /= residents.size() ;
-      rating += averageRelations ;
+      rating += averageRelations * 2 ;
     }
     
-    if (verbose) I.sayAbout(actor, "  Rating for holding is: "+rating) ;
-    return rating ;
+    rating -= Plan.rangePenalty(actor.mind.work(), newHome);
+    final Tile o = actor.world().tileAt(newHome);
+    rating -= actor.base().dangerMap.sampleAt(o.x, o.y) * ROUTINE;
+    
+    return rating;
   }
 }
 
@@ -278,3 +269,35 @@ public class FindHome extends Plan implements Economy {
 
 
 
+/*
+final Series <Actor> residents = holding.personnel.residents() ;
+final int
+  UL = holding.upgradeLevel(),
+  maxPop = HoldingUpgrades.OCCUPANCIES[UL] ;
+final float crowding = residents.size() * 1f / maxPop ;
+
+float rating = (1 + UL) / HoldingUpgrades.NUM_LEVELS ;
+if (holding == actor.mind.home()) {
+  rating *= 1.5f ;
+}
+else if (crowding >= 1) return -1 ;
+if (holding.inWorld()) {
+  rating *= 1.5f ;
+}
+if (actor.mind.home() == null) rating += ROUTINE ;
+
+rating *= (2f - crowding) ;
+rating -= actor.mind.greedFor(HoldingUpgrades.TAX_LEVELS[UL]) / ROUTINE ;
+rating -= Plan.rangePenalty(actor.mind.work(), holding) ;
+
+if (residents.size() > 0) {
+  float averageRelations = 0 ; for (Actor a : residents) {
+    averageRelations += actor.memories.relationValue(a) ;
+  }
+  averageRelations /= residents.size() ;
+  rating += averageRelations ;
+}
+
+if (verbose) I.sayAbout(actor, "  Rating for holding is: "+rating) ;
+return rating ;
+//*/

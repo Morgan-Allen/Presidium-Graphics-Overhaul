@@ -8,6 +8,7 @@ import stratos.game.tactical.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
+
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.math.*;
 
@@ -181,7 +182,7 @@ public class Quickbar extends UIGroup implements UIConstants {
         UI, power.buttonImage,
         power.name.toUpperCase()+"\n  "+power.helpInfo
       ) {
-        protected void whenTextClicked() {
+        protected void whenClicked() {
           ///I.say(power.name+" CLICKED") ;
           final Actor caster = BaseUI.current().played().ruler() ;
           if (optionList != null) optionList.detach() ;
@@ -212,50 +213,6 @@ public class Quickbar extends UIGroup implements UIConstants {
   }
   
   
-  protected void setupMissionButtons() {
-    final UIGroup missionGroup = new UIGroup(UI) ;
-    final List <Button> missionSlots = new List <Button> () ;
-    final Quickbar bar = this;
-    
-    final Button strikeMB = new Button(
-      UI, MissionsTab.STRIKE_ICON,
-      "Strike Mission\n  Destroy, capture or neutralise a chosen target"
-    ) {
-      public void whenTextClicked() { MissionsTab.initStrikeTask(bar.UI) ; }
-    } ;
-    addToSlot(strikeMB, missionGroup, missionSlots) ;
-    
-    final Button reconMB = new Button(
-      UI, MissionsTab.RECON_ICON,
-      "Recon Mission\n  Explore a given area or follow a chosen subject"
-    ) {
-      public void whenTextClicked() { MissionsTab.initReconTask(bar.UI) ; }
-    } ;
-    addToSlot(reconMB, missionGroup, missionSlots) ;
-    
-    final Button securityMB = new Button(
-      UI, MissionsTab.SECURITY_ICON,
-      "Security Mission\n  Protect a given area, structure or subject"
-    ) {
-      public void whenTextClicked() { MissionsTab.initSecurityTask(bar.UI) ; }
-    } ;
-    addToSlot(securityMB, missionGroup, missionSlots) ;
-    
-    final Button contactMB = new Button(
-      UI, MissionsTab.CONTACT_ICON,
-      "Contact Mission\n  Establish better relations with the subject"
-    ) {
-      public void whenTextClicked() { MissionsTab.initContactTask(bar.UI) ; }
-    } ;
-    addToSlot(contactMB, missionGroup, missionSlots) ;
-    
-    final float length = this.lengthFor(missionSlots) ;
-    missionGroup.relBound.set(0.55f, 0, 0, 0) ;
-    missionGroup.absBound.set(-length / 2, 0, 0, 0) ;
-    missionGroup.attachTo(this) ;
-  }
-  
-  
   protected void setupInstallButtons() {
     final UIGroup installGroup = new UIGroup(UI) ;
     final List <Button> installSlots = new List <Button> () ;
@@ -279,9 +236,11 @@ public class Quickbar extends UIGroup implements UIConstants {
   ) {
     final String catName = INSTALL_CATEGORIES[buttonID] ;
     final InstallTab newTab = new InstallTab(UI, catName) ;
+    
     final Button button = new Button(UI, GUILD_IMG_ASSETS.get(img), help) {
-      protected void whenTextClicked() {
+      protected void whenClicked() {
         final BaseUI UI = BaseUI.current();
+        ///I.say("Guild button clicked...");
         UI.beginPanelFade() ;
         if (UI.currentPanel() == newTab) {
           UI.setInfoPanels(null, null) ;
@@ -303,3 +262,48 @@ public class Quickbar extends UIGroup implements UIConstants {
 
 
 
+
+/*
+protected void setupMissionButtons() {
+  final UIGroup missionGroup = new UIGroup(UI) ;
+  final List <Button> missionSlots = new List <Button> () ;
+  final Quickbar bar = this;
+  
+  final Button strikeMB = new Button(
+    UI, MissionsTab.STRIKE_ICON,
+    "Strike Mission\n  Destroy, capture or neutralise a chosen target"
+  ) {
+    public void whenTextClicked() { MissionsTab.initStrikeTask(bar.UI) ; }
+  } ;
+  addToSlot(strikeMB, missionGroup, missionSlots) ;
+  
+  final Button reconMB = new Button(
+    UI, MissionsTab.RECON_ICON,
+    "Recon Mission\n  Explore a given area or follow a chosen subject"
+  ) {
+    public void whenTextClicked() { MissionsTab.initReconTask(bar.UI) ; }
+  } ;
+  addToSlot(reconMB, missionGroup, missionSlots) ;
+  
+  final Button securityMB = new Button(
+    UI, MissionsTab.SECURITY_ICON,
+    "Security Mission\n  Protect a given area, structure or subject"
+  ) {
+    public void whenTextClicked() { MissionsTab.initSecurityTask(bar.UI) ; }
+  } ;
+  addToSlot(securityMB, missionGroup, missionSlots) ;
+  
+  final Button contactMB = new Button(
+    UI, MissionsTab.CONTACT_ICON,
+    "Contact Mission\n  Establish better relations with the subject"
+  ) {
+    public void whenTextClicked() { MissionsTab.initContactTask(bar.UI) ; }
+  } ;
+  addToSlot(contactMB, missionGroup, missionSlots) ;
+  
+  final float length = this.lengthFor(missionSlots) ;
+  missionGroup.relBound.set(0.55f, 0, 0, 0) ;
+  missionGroup.absBound.set(-length / 2, 0, 0, 0) ;
+  missionGroup.attachTo(this) ;
+}
+//*/

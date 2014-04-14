@@ -43,7 +43,7 @@ public class Hunting extends Combat implements Economy {
   
   final int type ;
   final Actor prey ;
-  final Employment depot ;
+  final Employer depot ;
   private int stage = STAGE_INIT ;
   private float beginTime = -1 ;
   
@@ -55,7 +55,7 @@ public class Hunting extends Combat implements Economy {
   
   
   public static Hunting asHarvest(
-    Actor actor, Actor prey, Employment depot, boolean hungry
+    Actor actor, Actor prey, Employer depot, boolean hungry
   ) {
     if (depot == null) return null;
     final float hunger = actor.health.hungerLevel() * Plan.PARAMOUNT;
@@ -64,14 +64,14 @@ public class Hunting extends Combat implements Economy {
   }
   
   
-  public static Hunting asSample(Actor actor, Actor prey, Employment depot) {
+  public static Hunting asSample(Actor actor, Actor prey, Employer depot) {
     if (depot == null) I.complain("NO DEPOT SPECIFIED!");
     return new Hunting(actor, prey, TYPE_SAMPLE, depot);
   }
   
   
   
-  private Hunting(Actor actor, Actor prey, int type, Employment depot) {
+  private Hunting(Actor actor, Actor prey, int type, Employer depot) {
     super(
       actor, prey, STYLE_EITHER,
       (type == TYPE_SAMPLE) ? OBJECT_SUBDUE : OBJECT_EITHER
@@ -86,7 +86,7 @@ public class Hunting extends Combat implements Economy {
     super(s) ;
     prey = (Actor) s.loadObject() ;
     type = s.loadInt() ;
-    depot = (Employment) s.loadObject() ;
+    depot = (Employer) s.loadObject() ;
     stage = s.loadInt() ;
     beginTime = s.loadFloat() ;
   }
@@ -300,7 +300,7 @@ public class Hunting extends Combat implements Economy {
   }
   
   
-  public boolean actionReturnHarvest(Actor actor, Employment depot) {
+  public boolean actionReturnHarvest(Actor actor, Employer depot) {
     actor.gear.transfer(PROTEIN, depot);
     return true;
   }
@@ -313,7 +313,7 @@ public class Hunting extends Combat implements Economy {
   }
   
   
-  public boolean actionReturnSample(Actor actor, Employment depot) {
+  public boolean actionReturnSample(Actor actor, Employer depot) {
     actor.gear.transfer(sample(), depot);
     return true;
   }

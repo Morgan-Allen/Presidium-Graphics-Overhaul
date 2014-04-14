@@ -19,10 +19,10 @@ public class Payday extends Plan implements Economy {
   
   /**  Data fields, setup and save/load functions-
     */
-  final Employment pays ;
+  final Employer pays ;
   
   
-  public Payday(Actor actor, Employment pays) {
+  public Payday(Actor actor, Employer pays) {
     super(actor, pays) ;
     this.pays = pays ;
   }
@@ -30,7 +30,7 @@ public class Payday extends Plan implements Economy {
   
   public Payday(Session s) throws Exception {
     super(s) ;
-    this.pays = (Employment) s.loadObject() ;
+    this.pays = (Employer) s.loadObject() ;
   }
   
   

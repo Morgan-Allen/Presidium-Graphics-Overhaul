@@ -7,6 +7,7 @@ import stratos.util.*;
 
 
 //  TODO:  Make this into a SampleMap class instead?  Or merge with MipMap?
+//  TODO:  Give maps a name, to make debugging a tad easier.
 
 
 
@@ -58,7 +59,14 @@ public class FadingMap implements TileConstants {
   public void update() {
     final float time = world.currentTime();
     if (lastTime == -1) { lastTime = time; return; }
-    final float fadeValue = 1 - ((time - lastTime) / interval);
+    final float gap = time - lastTime;
+    if (gap < 1) return;
+    else lastTime = time;
+    final float fadeValue = 1 - (gap / interval);
+    
+    ///I.say("Fade value is: "+fadeValue);
+    ///new Exception().printStackTrace();
+    
     for (Coord c : Visit.grid(0, 0, gridSize, gridSize, 1)) {
       averages[c.x][c.y] *= fadeValue;
     }

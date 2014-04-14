@@ -43,10 +43,15 @@ public class DangerMap extends FadingMap {
     super.update();
     
     if (verbose) {
-      I.say("\nDanger map updated for "+base.title);
-      for (Coord c : Visit.grid(1, 1, world.size, world.size, resolution)) {
-        I.say("  Val at "+c.x+" "+c.y+": "+patchValue(c.x, c.y));
-        I.say("  Sample is: "+sampleAt(c.x, c.y));
+      I.say("\nDanger map updated for "+base.title+" ("+base.hashCode()+")");
+      
+      final int o = resolution / 2;
+      for (Coord c : Visit.grid(o, o, world.size, world.size, resolution)) {
+        final float value = patchValue(c.x, c.y);
+        if (value > 0) {
+          I.say("  Positive at "+c.x+" "+c.y+":    "+value);
+          I.say("    (Sample is: "+sampleAt(c.x, c.y)+")");
+        }
       }
     }
     
@@ -54,6 +59,19 @@ public class DangerMap extends FadingMap {
       //I.present(shortTermVals, "Danger map", 200, 200, 20, -20) ;
     //}
   }
+  
+  
+  public void accumulate(float value, float duration, int x, int y) {
+    super.accumulate(value, duration, x, y);
+    /*
+    if (value > 0) {
+      I.say("Getting danger from ...");
+      new Exception().printStackTrace();
+    }
+    //*/
+  }
+  
+  
   
   
   

@@ -22,7 +22,7 @@ import stratos.util.*;
 
 
 public abstract class Vehicle extends Mobile implements
-  Boardable, Inventory.Owner, Employment,
+  Boardable, Inventory.Owner, Employer,
   Selectable, Economy, Installation
 {
   

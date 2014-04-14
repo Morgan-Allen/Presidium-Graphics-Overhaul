@@ -77,7 +77,8 @@ public class Dropship extends Vehicle implements
     STAGE_AWAY     = 4 ;
   final public static int
     MAX_CAPACITY   = 100,
-    MAX_PASSENGERS = 5 ;
+    MAX_PASSENGERS = 5,
+    MAX_CREW       = 5;
   final public static float
     INIT_DIST = 10.0f,
     INIT_HIGH = 10.0f,
@@ -126,6 +127,24 @@ public class Dropship extends Vehicle implements
   
   /**  Economic and behavioural functions-
     */
+  public float visitCrowding(Actor actor) {
+    float crowding = 0;
+    for (Mobile m : inside()) {
+      if (m instanceof Actor) {
+        if (((Actor) m).mind.work() == this) continue;
+      }
+      crowding++;
+    }
+    crowding /= MAX_PASSENGERS;
+    return crowding;
+  }
+  
+  
+  public float homeCrowding(Actor actor) {
+    return personnel().residents().size() * 1f / MAX_CREW;
+  }
+  
+  
   public Behaviour jobFor(Actor actor) {
     if (actor.isDoing(Delivery.class, null)) return null ;
     

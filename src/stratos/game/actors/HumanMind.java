@@ -198,7 +198,7 @@ public class HumanMind extends ActorMind implements Qualities {
   //  TODO:  Move this to the reactions method?
   private void addVenueResponses(Choice choice) {
     final World world = actor.world() ;
-    final Batch <Employment> around = new Batch <Employment> () ;
+    final Batch <Employer> around = new Batch <Employer> () ;
     float numSampled = 5 + (actor.traits.traitLevel(COGNITION) / 4) ;
     
     world.presences.sampleFromKey(
@@ -206,7 +206,7 @@ public class HumanMind extends ActorMind implements Qualities {
     ) ;
     final boolean timeoff = work == null || ! work.personnel().onShift(actor) ;
     
-    for (Employment employs : around) {
+    for (Employer employs : around) {
       if (timeoff && employs.structure().intact()) {
         employs.addServices(choice, actor) ;
       }

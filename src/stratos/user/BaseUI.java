@@ -160,7 +160,7 @@ public class BaseUI extends HUD implements UIConstants {
       }
     };
     commsButton.relBound.set(0, 1, 0, 0);
-    commsButton.absBound.set(0, -256, 40, 40);
+    commsButton.absBound.set(256 - 60, 0 - 100, 80, 80);
     commsButton.attachTo(this);
   }
   

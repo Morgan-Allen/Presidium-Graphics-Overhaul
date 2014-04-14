@@ -23,7 +23,7 @@ import stratos.util.*;
 
 public abstract class Venue extends Fixture implements
   Schedule.Updates, Boardable, Installation,
-  Inventory.Owner, Employment,
+  Inventory.Owner, Employer,
   Selectable, TileConstants, Economy
 {
   
@@ -344,6 +344,25 @@ public abstract class Venue extends Fixture implements
     }
     return false ;
   }
+  
+  
+  public float visitCrowding(Actor actor) {
+    float crowding = 0;
+    for (Mobile m : inside()) {
+      if (m instanceof Actor) {
+        if (((Actor) m).mind.work() == this) continue;
+      }
+      crowding++;
+    }
+    crowding /= ((size * 2) + 1);
+    return crowding;
+  }
+  
+  
+  public float homeCrowding(Actor actor) {
+    return 1;
+  }
+  
   
   public abstract Background[] careers() ;
   public abstract Service[] services() ;  //TODO:  Rename to Goods?

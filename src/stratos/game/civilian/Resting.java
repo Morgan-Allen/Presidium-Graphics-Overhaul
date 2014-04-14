@@ -162,7 +162,7 @@ public class Resting extends Plan implements Economy {
     //
     //  Transfer any incidental groceries-
     if (place == actor.mind.home()) for (Service food : ALL_FOOD_TYPES) {
-      actor.gear.transfer(food, (Employment) place) ;
+      actor.gear.transfer(food, (Employer) place) ;
     }
     //
     //  If you're resting at home, deposit any taxes due-

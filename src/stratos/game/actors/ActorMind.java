@@ -29,8 +29,8 @@ public abstract class ActorMind implements Qualities {
   /**  Field definitions, constructor, save/load methods-
     */
   private static boolean
-    reactionsVerbose = false,
-    updatesVerbose   = false;
+    decideVerbose   = false,
+    updatesVerbose  = false;
   
   
   final protected Actor actor ;
@@ -38,10 +38,8 @@ public abstract class ActorMind implements Qualities {
   final Stack <Behaviour> agenda = new Stack() ;
   final List <Behaviour> todoList = new List() ;
   
-  //protected float anger, fear, solitude, libido, boredom ;
-  
   protected Mission mission ;
-  protected Employment home, work ;
+  protected Employer home, work ;
   protected Application application ;
   protected Actor master ;
   
@@ -57,8 +55,8 @@ public abstract class ActorMind implements Qualities {
     s.loadObjects(todoList) ;
     
     mission = (Mission) s.loadObject() ;
-    home = (Employment) s.loadObject() ;
-    work = (Employment) s.loadObject() ;
+    home = (Employer) s.loadObject() ;
+    work = (Employer) s.loadObject() ;
     application = (Application) s.loadObject() ;
     master = (Actor) s.loadObject() ;
   }
@@ -106,7 +104,8 @@ public abstract class ActorMind implements Qualities {
     for (Behaviour b : todoList) if (b.finished()) todoList.remove(b) ;
     final Behaviour last = rootBehaviour() ;
     final Behaviour next = nextBehaviour() ;
-    if (updatesVerbose && I.talkAbout == actor) {
+    
+    if (decideVerbose && I.talkAbout == actor) {
       I.say("\nPerformed periodic AI update.") ;
       final float
         lastP = last == null ? -1 : last.priorityFor(actor),
@@ -120,14 +119,22 @@ public abstract class ActorMind implements Qualities {
   
   
   private Behaviour nextBehaviour() {
-    final Behaviour
-      notDone = new Choice(actor, todoList).pickMostUrgent(),
-      newChoice = createBehaviour(),
-      taken = Choice.wouldSwitch(actor, notDone, newChoice) ?
-        newChoice : notDone ;
+    final boolean report = decideVerbose && I.talkAbout == actor;
     
-    if (updatesVerbose && I.talkAbout == actor) {
+    if (report) I.say("\nGetting next from to-do list:");
+    final Choice fromTodo = new Choice(actor, todoList);
+    final Behaviour notDone = fromTodo.pickMostUrgent();
+    
+    if (report) I.say("\nGetting newly created behaviour:");
+    final Behaviour newChoice = createBehaviour();
+    
+    if (report) I.say("\nChecking for switch from undone to new choice:");
+    final Behaviour taken = Choice.wouldSwitch(actor, notDone, newChoice) ?
+      newChoice : notDone ;
+    
+    if (report) {
       //I.say("  Persistance: "+persistance()) ;
+      I.say("\nPLANS ACQUIRED:");
       I.say("  LAST PLAN: "+rootBehaviour()) ;
       I.say("  NOT DONE: "+notDone) ;
       I.say("  NEW CHOICE: "+newChoice) ;
@@ -222,7 +229,7 @@ public abstract class ActorMind implements Qualities {
   }
   
   
-  public void setWork(Employment e) {
+  public void setWork(Employer e) {
     if (work == e) return ;
     if (work != null) work.personnel().setWorker(actor, false) ;
     work = e ;
@@ -230,13 +237,13 @@ public abstract class ActorMind implements Qualities {
   }
   
   
-  public Employment work() {
+  public Employer work() {
     return work ;
   }
   
   
-  public void setHome(Employment home) {
-    final Employment old = this.home ;
+  public void setHome(Employer home) {
+    final Employer old = this.home ;
     if (old == home) return ;
     if (old != null) old.personnel().setResident(actor, false) ;
     this.home = home ;
@@ -244,7 +251,7 @@ public abstract class ActorMind implements Qualities {
   }
   
   
-  public Employment home() {
+  public Employer home() {
     return home ;
   }
   

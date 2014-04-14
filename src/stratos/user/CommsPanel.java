@@ -59,7 +59,9 @@ public class CommsPanel extends InfoPanel {
     final Clickable navOptions[] = {
       new Clickable() {
         public String fullName() { return "View all messages"; }
-        public void whenTextClicked() { UI.setInfoPanels(UI.commsPanel(), null); }
+        public void whenTextClicked() {
+          UI.setInfoPanels(UI.commsPanel(), null);
+        }
       }
     };
     

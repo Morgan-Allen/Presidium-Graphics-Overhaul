@@ -29,5 +29,4 @@ public interface Boardable extends Target {
   int pathType() ;
   boolean allowsEntry(Mobile m) ;
   int boardableType() ;
-  //boolean openPlan() ;
 }

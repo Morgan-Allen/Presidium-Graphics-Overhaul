@@ -20,7 +20,7 @@ public class Repairs extends Plan implements Qualities {
   final static float
     TIME_PER_25_HP = World.STANDARD_HOUR_LENGTH;
   
-  private static boolean verbose = false ;
+  private static boolean verbose = false;
   
   final Venue built ;
   
@@ -83,10 +83,15 @@ public class Repairs extends Plan implements Qualities {
     final boolean report = verbose && I.talkAbout == actor;
 
     float urgency = needForRepair(built);
+    if (report) I.say("Urgency for repair of "+built+" is "+urgency);
+    
     urgency *= actor.memories.relationValue(built.base()) / 2;
     final float debt = 0 - built.base().credits();
     if (debt > 0 && urgency > 0) urgency -= debt / 500f;
-    if (urgency <= 0) return 0;
+    if (urgency <= 0) {
+      if (report) I.say("Urgency after debt and relations: "+urgency);
+      return 0;
+    }
     
     float competition = FULL_COMPETITION;
     competition /= 1 + (built.structure.maxIntegrity() / 100f);

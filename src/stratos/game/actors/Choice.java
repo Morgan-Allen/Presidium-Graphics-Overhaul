@@ -21,6 +21,7 @@ public class Choice implements Qualities {
   
   final Actor actor ;
   final Batch <Behaviour> plans = new Batch <Behaviour> () ;
+  public boolean isVerbose = false;
   
   
   public Choice(Actor actor) {
@@ -54,9 +55,6 @@ public class Choice implements Qualities {
           I.say("  Priority: " + priority);
           I.say("  Finished/valid: " + finished + "/" + plan.valid());
           I.say("  Next step: " + nextStep + "\n");
-        }
-        else if (verbose && nextStep != null) {
-          I.say("  "+plan+" rejected, priority: "+priority);
         }
       }
       return false;
@@ -105,17 +103,17 @@ public class Choice implements Qualities {
   
   
   private Behaviour weightedPick(boolean free) {
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = (verbose && I.talkAbout == actor) || isVerbose;
     if (plans.size() == 0) {
       if (verboseReject && I.talkAbout == actor) I.say("  ...Empty choice!") ;
       return null ;
     }
-    else if (report) I.say("Range of choice is "+plans.size()) ;
+    //else if (report) I.say("Range of choice is "+plans.size()) ;
     if (report) {
       String label = "Actor" ;
       if (actor.vocation() != null) label = actor.vocation().name ;
       else if (actor.species() != null) label = actor.species().toString() ;
-      I.say(actor+" ("+label+") is making a choice.  Is free? "+free) ;
+      I.say("\n"+actor+" ("+label+") is making a choice.  Is free? "+free) ;
       I.say("  Current time: "+actor.world().currentTime()) ;
     }
     //
@@ -180,7 +178,7 @@ public class Choice implements Qualities {
     
     final float minPriority = competeThreshold(actor, nextPriority, true);
     if (verbose && I.talkAbout == actor) {
-      I.say("\n  Consider plan switch...");
+      I.say("\nConsidering plan switch...");
       I.say("  Last plan: "+last+", priority: "+lastPriority);
       I.say("  Next plan: "+next+", priority: "+nextPriority);
       I.say("  Min. priority for last is: "+minPriority);

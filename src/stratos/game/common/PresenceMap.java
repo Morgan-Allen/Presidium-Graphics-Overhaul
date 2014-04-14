@@ -145,12 +145,6 @@ public class PresenceMap implements Session.Saveable {  //Do not make Saveable.
   
   /**  Inserting and deleting members-
     */
-  /*
-  public void toggleMember(Target t, boolean is) {
-    t.position(temp) ;
-    toggleAt(root, (int) temp.x, (int) temp.y, t, is) ;
-  }
-  //*/
   //
   //  NOTE:  This method should ONLY be used if you are very confident that the
   //  target in question either is or immediately WILL be at the given tile.

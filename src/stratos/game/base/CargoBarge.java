@@ -56,6 +56,16 @@ public class CargoBarge extends Vehicle implements
   }
   
   
+  public float homeCrowding(Actor actor) {
+    return 1;
+  }
+  
+  
+  public float visitCrowding(Actor actor) {
+    return 0;
+  }
+  
+  
   public boolean actionBoard(Actor actor, CargoBarge ship) {
     ship.setInside(actor, true) ;
     return true ;

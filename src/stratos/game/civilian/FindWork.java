@@ -67,7 +67,7 @@ public class FindWork extends Plan implements Economy {
   }
   
   
-  public boolean actionApplyTo(Actor client, Employment best) {
+  public boolean actionApplyTo(Actor client, Employer best) {
     if (! application.valid()) return false ;
     client.mind.switchApplication(application) ;
     return true ;
@@ -89,7 +89,7 @@ public class FindWork extends Plan implements Economy {
   //  be simpler...
   
   public static Application lookForWork(Actor actor, Base base) {
-    final Employment work = actor.mind.work() ;
+    final Employer work = actor.mind.work() ;
     if (work instanceof Vehicle) return null ;
     //
     //  Set up key comparison variables-

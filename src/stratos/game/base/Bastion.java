@@ -135,6 +135,13 @@ public class Bastion extends Venue implements Economy {
   }
   
   
+  public float homeCrowding(Actor actor) {
+    if (actor.mind.work() != this) return 1;
+    final int maxPop = 6 + (structure.upgradeLevel(NOBLE_QUARTERS) * 2);
+    return personnel.residents().size() * 1f / maxPop;
+  }
+  
+  
   public Behaviour jobFor(Actor actor) {
     if (! structure.intact()) return null;
     if (actor == base().ruler()) {
