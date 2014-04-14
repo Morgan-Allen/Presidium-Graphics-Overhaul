@@ -144,7 +144,11 @@ public class SecurityMission extends Mission implements Qualities {
     }
     
     for (Target e : actor.senses.awareOf()) if (e instanceof Actor) {
-      final Combat fend = new Combat(actor, (Actor) e);
+      final Actor a = (Actor) e;
+      final Target victim = a.focusFor(Combat.class);
+      if (victim == null || ! defended.includes(victim)) continue;
+      
+      final Combat fend = new Combat(actor, a);
       final float fP = fend.priorityFor(actor);
       if (fP > bestPriority) { picked = fend; bestPriority = fP; }
     }
@@ -199,92 +203,3 @@ public class SecurityMission extends Mission implements Qualities {
 }
 
 
-
-
-/*
-final float priority = priorityFor(actor);
-final World world = actor.world() ;
-final Batch <Target> defended = new Batch <Target> () ;
-final Batch <Target> assailants = new Batch <Target> () ;
-defended.add(subject) ;
-for (Role role : roles) defended.add(role.applicant) ;
-
-//  TODO:  Only react to threats the actor is aware of directly.
-/*
-for (Element e : actor.senses.awareOf()) if (e instanceof Actor) {
-  final Actor a = (Actor) e ;
-  final Target victim = a.targetFor(Combat.class) ;
-}
-//*/
-//  TODO:  Also, transplant the defence-reaction code to the Patrolling
-//  class.
-/*
-final float maxDist = World.SECTOR_SIZE ;
-Actor toRepel = null ;
-float maxUrgency = 0 ;
-
-for (Target t : defended) {
-  for (Behaviour b : world.activities.targeting(t)) {
-    if (b instanceof Combat) {
-      final Combat c = (Combat) b ;
-      final Actor assails = c.actor() ;
-      if (Spacing.distance(t, assails) > maxDist) continue ;
-      assailants.add(assails) ;
-      
-      float strength = CombatUtils.combatStrength(actor, assails) ;
-      float urgency = 1 * Rand.avgNums(2) / (1f + strength) ;
-      urgency *= t == subject ? 1.5f : 0.5f ;
-      //urgency *= 2 - t.condition() ;
-      if (urgency > maxUrgency) {
-        maxUrgency = urgency ;
-        toRepel = assails ;
-      }
-    }
-  }
-}
-if (toRepel != null) {
-  I.sayAbout(actor, "Repelling: "+toRepel) ;
-  final Combat repels = new Combat(actor, toRepel) ;
-  final Target target = actor.focusFor(Combat.class) ;
-  //
-  //  TODO:  I think it needs to be possible to generalise this sort of
-  //  priority-switch.
-  if (! assailants.includes(target)) {
-    I.sayAbout(actor, "PUSHING NEW DEFENCE ACTION: "+repels) ;
-    actor.mind.pushFromParent(repels, this) ;
-  }
-  return repels ;
-}
-
-
-final Choice choice = new Choice(actor) ;
-for (Target t : defended) if (t instanceof Actor) {
-  final FirstAid TS = new FirstAid(actor, (Actor) t) ;
-  TS.setMotive(Plan.MOTIVE_EMERGENCY, priority * (t == subject ? 2 : 1)) ;
-  choice.add(TS) ;
-}
-
-if (subject instanceof Venue) {
-  //  TODO:  Assign this higher priority?  It doesn't seem to get much
-  //  play...
-  final Repairs repairs = new Repairs(actor, (Venue) subject) ;
-  repairs.setMotive(Plan.MOTIVE_EMERGENCY, priority);
-  choice.add(repairs) ;
-}
-
-/*
-final Plan p = Patrolling.aroundPerimeter(
-  actor, (Element) subject, base.world
-);
-p.setMotive(
-  Plan.MOTIVE_DUTY, Spacing.distance(actor, subject) * ROUTINE / maxDist
-);
-choice.add(p) ;
-
-final Plan picked = (Plan) choice.pickMostUrgent() ;
-/*
-if (actor.matchFor(picked) == null) {
-  actor.mind.pushFromParent(picked, this) ;
-}
-//*/
-//return picked ;
