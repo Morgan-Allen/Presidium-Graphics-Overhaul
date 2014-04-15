@@ -12,5 +12,7 @@
 		<copy todir="build/media">
 			<fileset dir="media"/>
 		</copy>
+		<copy file="stratos.exe" tofile="build/stratos.exe"/>
+		<mkdir dir="build/saves"/>
 	</target>
 </project>

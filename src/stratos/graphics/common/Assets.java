@@ -9,9 +9,9 @@ import java.security.CodeSource;
 
 import stratos.util.*;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
+//import com.badlogic.gdx.Gdx;
+//import com.badlogic.gdx.graphics.Texture;
+//simport com.badlogic.gdx.graphics.Texture.TextureFilter;
 
 
 
@@ -85,8 +85,9 @@ public class Assets {
   
   
   public static void advanceAssetLoading(int timeLimit) {
-    
+    if (classesToLoad.size() <= 0 && assetsToLoad.size() <= 0) return;
     if (verbose) I.say("Advancing asset loading...");
+    
     final long initTime = System.currentTimeMillis();
     while (true) {
       final long timeSpent = System.currentTimeMillis() - initTime;
@@ -284,16 +285,22 @@ public class Assets {
   ) {
     CodeSource code = Assets.class.getProtectionDomain().getCodeSource();
     if (code == null) return;
-    final File file = new File(code.getLocation().getFile());
+    File file = new File(code.getLocation().getFile());
+    if (verbose) I.say("Code location: "+file+", exists? "+file.exists());
+    
+    if (! file.exists()) file = new File(file.getName());
+    if (verbose) I.say("Relative location: "+file+", exists? "+file.exists());
+    
     if (! file.exists()) return;
     
     try {
-      final URL jarURL = code.getLocation();
+      final URL jarURL = file.toURI().toURL();
       ZipInputStream zip = new ZipInputStream(jarURL.openStream()) ;
       for (ZipEntry e ; (e = zip.getNextEntry()) != null ;) {
         if (e.isDirectory()) continue ;
         
         final String name = e.getName() ;
+        if (verbose) I.say("Jarred file is: "+name);
         if (! name.endsWith(".class")) continue ;
         if (name.indexOf('$') != -1) continue ;
         
