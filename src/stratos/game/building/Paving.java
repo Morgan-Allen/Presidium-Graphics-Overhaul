@@ -20,9 +20,9 @@ public class Paving {
     */
   final static int PATH_RANGE = World.SECTOR_SIZE / 2 ;
   private static boolean
-    paveVerbose = false,
-    distroVerbose = true,
-    checkConsistency = false ;
+    paveVerbose      = false,
+    distroVerbose    = false,
+    checkConsistency = false;
   
   final World world ;
   PresenceMap junctions ;

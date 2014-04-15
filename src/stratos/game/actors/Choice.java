@@ -16,7 +16,7 @@ public class Choice implements Qualities {
   /**  Data fields, constructors and setup-
     */
   public static boolean
-    verbose       = false,
+    verbose       = true,
     verboseReject = verbose && false;
   
   final Actor actor ;
@@ -82,15 +82,12 @@ public class Choice implements Qualities {
   }
   
   
-  //  Okay.  Separate thresholds for switch and choice?  Or just temporary
-  //  interrupts?
-  //*
   private static float competeThreshold(
     Actor actor, float topPriority, boolean forCurrent
   ) {
     final float stubborn = actor.traits.relativeLevel(STUBBORN);
     float thresh = topPriority;
-    if (forCurrent) thresh += 2 + stubborn;
+    if (forCurrent) thresh -= 2 + stubborn;
     else thresh -= stubborn;
     if (topPriority > Plan.PARAMOUNT) {
       final float extra = (topPriority - Plan.PARAMOUNT) / Plan.ROUTINE;
@@ -99,7 +96,6 @@ public class Choice implements Qualities {
     thresh -= Plan.DEFAULT_SWITCH_THRESHOLD;
     return Visit.clamp(thresh, 0, Plan.PARAMOUNT);
   }
-  //*/
   
   
   private Behaviour weightedPick(boolean free) {

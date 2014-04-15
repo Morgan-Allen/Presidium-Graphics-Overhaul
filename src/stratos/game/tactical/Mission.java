@@ -154,6 +154,11 @@ public abstract class Mission implements
   }
   
   
+  public int missionType() {
+    return missionType;
+  }
+  
+  
   public Base base() {
     return base ;
   }

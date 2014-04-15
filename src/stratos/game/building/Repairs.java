@@ -20,7 +20,7 @@ public class Repairs extends Plan implements Qualities {
   final static float
     TIME_PER_25_HP = World.STANDARD_HOUR_LENGTH;
   
-  private static boolean verbose = false;
+  private static boolean verbose = true;
   
   final Venue built ;
   
@@ -80,12 +80,12 @@ public class Repairs extends Plan implements Qualities {
   
 
   protected float getPriority() {
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = verbose && I.talkAbout == actor && hasBegun();
 
     float urgency = needForRepair(built);
     if (report) I.say("Urgency for repair of "+built+" is "+urgency);
     
-    urgency *= actor.memories.relationValue(built.base()) / 2;
+    urgency *= actor.memories.relationValue(built.base());
     final float debt = 0 - built.base().credits();
     if (debt > 0 && urgency > 0) urgency -= debt / 500f;
     if (urgency <= 0) {
@@ -126,7 +126,8 @@ public class Repairs extends Plan implements Qualities {
   
   
   protected Behaviour getNextStep() {
-    if (verbose) I.sayAbout(actor, "Getting next build step?") ;
+    final boolean report = verbose && I.talkAbout == actor && hasBegun();
+    if (report) I.say("\nGetting next build step?") ;
     
     if (built.structure.needsUpgrade() && built.structure.goodCondition()) {
       final Action upgrades = new Action(
@@ -151,6 +152,7 @@ public class Repairs extends Plan implements Qualities {
         building.setMoveTarget(t) ;
       }
       else building.setMoveTarget(actor.origin()) ;
+      if (report) I.say("  Returning next build action.");
       return building ;
     }
     return null ;

@@ -59,17 +59,10 @@ public class Exploring extends Plan implements Qualities {
   
   
   protected float getPriority() {
-    //final float p = rateExplorePoint(actor, lookedAt, priorityMod) ;
-    ///if (BaseUI.isPicked(actor))
-    ///I.say("PRIORITY FOR EXPLORATION: "+p) ;
-    //
-    //  TODO:  Increase priority based on amount of map left unexplored?
-    
     final boolean report = verbose && I.talkAbout == actor;
     
-    
-    final float priority = super.priorityForActorWith(
-      actor, lookedAt, CASUAL,
+    final float priority = priorityForActorWith(
+      actor, lookedAt, CASUAL * Planet.dayValue(actor.world()),
       NO_HARM, MILD_COMPETITION,
       BASE_SKILLS, BASE_TRAITS,
       NO_MODIFIER, NORMAL_DISTANCE_CHECK, NO_DANGER,
@@ -77,25 +70,6 @@ public class Exploring extends Plan implements Qualities {
     );
     return priority;
   }
-  
-  /*
-  public static float rateExplorePoint(
-    Actor actor, Tile point, float winReward
-  ) {
-    float impetus = winReward ;
-    
-    impetus += actor.traits.traitLevel(NATURALIST) / 2f ;
-    impetus += actor.traits.traitLevel(CURIOUS) / 2f ;
-    impetus -= actor.traits.traitLevel(RELAXED) ;
-    impetus += actor.traits.traitLevel(SURVEILLANCE) / 10f ;
-    
-    impetus -= Plan.rangePenalty(actor, point) ;
-    impetus -= Plan.dangerPenalty(point, actor) ;
-    impetus *= actor.health.sightRange() * 2 / ActorHealth.DEFAULT_SIGHT ;
-    
-    return impetus ;
-  }
-  //*/
   
   
   static Tile[] grabExploreArea(

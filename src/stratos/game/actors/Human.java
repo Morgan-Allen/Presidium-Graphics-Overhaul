@@ -239,6 +239,11 @@ public class Human extends Actor implements Qualities {
   }
   
   
+  protected float moveAnimStride() {
+    return 1.11f;
+  }
+  
+  
   protected float spriteScale() {
     //
     //  TODO:  make this a general 3D scaling vector, and incorporate other

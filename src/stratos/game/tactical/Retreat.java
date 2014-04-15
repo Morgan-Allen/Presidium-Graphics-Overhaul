@@ -3,15 +3,14 @@
 
 
 package stratos.game.tactical ;
-import org.apache.commons.math3.util.FastMath;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
+import stratos.game.civilian.*;
+import stratos.game.planet.*;
 import stratos.util.*;
+import org.apache.commons.math3.util.FastMath;
 
-
-//  Retreating to the bastion isn't appropriate if it's not a genuine emergency.
-//  ...Just introduce a general distance penalty, relative to home?
 
 
 public class Retreat extends Plan implements Qualities {
@@ -72,7 +71,7 @@ public class Retreat extends Plan implements Qualities {
     //  more dangerous the area is-
     float
       danger = CombatUtils.dangerAtSpot(actor.origin(), actor, null),
-      distFactor = 0;
+      distFactor = 0, nightVal = 1f - Planet.dayValue(actor.world());
     maxDanger = FastMath.max(danger, maxDanger);
     
     if (rateHaven(safePoint, actor, null) > 1) {
@@ -81,7 +80,7 @@ public class Retreat extends Plan implements Qualities {
     }
     
     final float priority = priorityForActorWith(
-      actor, safePoint, distFactor + (maxDanger * PARAMOUNT),
+      actor, safePoint, distFactor + nightVal + (maxDanger * PARAMOUNT),
       NO_HARM, NO_COMPETITION,
       BASE_SKILLS, BASE_TRAITS,
       NO_MODIFIER, NO_DISTANCE_CHECK, NO_DANGER,
@@ -98,11 +97,6 @@ public class Retreat extends Plan implements Qualities {
   }
   
   
-  private boolean urgent() {
-    return priorityFor(actor) >= ROUTINE;
-  }
-  
-  
   public static Boardable nearestHaven(Actor actor, Class prefClass) {
     final boolean report = havenVerbose && I.talkAbout == actor;
     
@@ -113,6 +107,7 @@ public class Retreat extends Plan implements Qualities {
     considered.add(pickWithdrawPoint(
       actor, actor.health.sightRange() + World.SECTOR_SIZE, actor, 0.1f
     ));
+    considered.add(actor.aboard());
     considered.add(actor.mind.home());
     for (Target e : actor.senses.awareOf()) considered.add(e);
     
@@ -140,6 +135,7 @@ public class Retreat extends Plan implements Qualities {
     if (prefClass != null && haven.getClass() == prefClass) rating *= 2 ;
     if (haven.base() == actor.base()) rating *= 2 ;
     if (haven == actor.mind.home()) rating *= 2 ;
+    if (haven == actor.aboard()) rating *= 2 ;
     
     rating *= haven.structure.maxIntegrity() / 50f;
     final int SS = World.SECTOR_SIZE ;
@@ -184,6 +180,7 @@ public class Retreat extends Plan implements Qualities {
     */
   protected Behaviour getNextStep() {
     final boolean report = stepsVerbose && I.talkAbout == actor;
+    final boolean urgent = urgent();
     if (
       safePoint == null || actor.aboard() == safePoint ||
       safePoint.pathType() == Tile.PATH_BLOCKS
@@ -197,17 +194,29 @@ public class Retreat extends Plan implements Qualities {
     
     final Target home = actor.mind.home();
     final Action flees = new Action(
-      actor, (home != null && ! urgent()) ? home : safePoint,
+      actor, (home != null && ! urgent) ? home : safePoint,
       this, "actionFlee",
       Action.MOVE_SNEAK, "Fleeing to "
     );
-    if (urgent()) flees.setProperties(Action.QUICK);
+    if (urgent) flees.setProperties(Action.QUICK);
     if (report) I.say("Fleeing to... "+safePoint);
     return flees ;
   }
   
   
+  private boolean urgent() {
+    return priorityFor(actor) >= ROUTINE;
+  }
+  
+  
   public boolean actionFlee(Actor actor, Target safePoint) {
+    if (actor.indoors() && ! urgent()) {
+      final Resting rest = new Resting(actor, safePoint);
+      rest.setMotive(Plan.MOTIVE_LEISURE, priorityFor(actor));
+      actor.mind.assignBehaviour(rest);
+      maxDanger = 0;
+      return true;
+    }
     maxDanger *= DANGER_MEMORY_FADE;
     if (maxDanger < 0.5f) maxDanger = 0;
     return true ;
@@ -219,8 +228,7 @@ public class Retreat extends Plan implements Qualities {
     */
   public void describeBehaviour(Description d) {
     if (! urgent()) {
-      d.append("Retiring to ");
-      d.append(safePoint);
+      d.append("Retiring to safety");
       return;
     }
     if (actor.aboard() == safePoint) d.append("Seeking refuge at ") ;

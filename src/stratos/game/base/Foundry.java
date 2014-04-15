@@ -177,7 +177,7 @@ public class Foundry extends Venue implements Economy {
     
     //  Consider contributing toward local repairs-
     final Choice choice = new Choice(actor) ;
-    choice.add(Repairs.getNextRepairFor(actor, Plan.CASUAL)) ;
+    choice.add(Repairs.getNextRepairFor(actor, Plan.ROUTINE)) ;
     
     //  Finally, consider the production of general bulk commodities-
     final int PB = 1 + structure.upgradeLevel(ASSEMBLY_LINE) ;

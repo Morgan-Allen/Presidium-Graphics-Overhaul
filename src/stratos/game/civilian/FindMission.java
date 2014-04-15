@@ -87,15 +87,27 @@ public class FindMission extends Plan implements Economy {
   
   protected Behaviour getNextStep() {
     if (actor.mind.mission() == applies) return null ;
-    //
-    //  TODO:  Note- this may not be necessary for public bounties.
-    
+    if (applies.missionType() == Mission.TYPE_PUBLIC) {
+      final Action joins = new Action(
+        actor, actor,
+        this, "actionJoins",
+        Action.LOOK, "Joining mission"
+      );
+      return joins;
+    }
     final Action applies = new Action(
       actor, admin,
       this, "actionApplies",
       Action.LOOK, "Applying for mission"
-    ) ;
-    return applies ;
+    );
+    return applies;
+  }
+  
+  
+  public boolean actionJoins(Actor client, Actor self) {
+    client.mind.assignMission(applies);
+    client.mind.assignBehaviour(applies);
+    return true;
   }
   
   
@@ -106,17 +118,14 @@ public class FindMission extends Plan implements Economy {
   
   
   public void describeBehaviour(Description d) {
+    if (applies.missionType() == Mission.TYPE_PUBLIC) {
+      d.append("Joining mission");
+      return;
+    }
     d.append("Applying for mission at ") ;
     d.append(admin) ;
   }
 }
-
-
-
-
-
-
-
 
 
 
