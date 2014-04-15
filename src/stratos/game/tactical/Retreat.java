@@ -10,9 +10,11 @@ import stratos.game.common.*;
 import stratos.util.*;
 
 
+//  Retreating to the bastion isn't appropriate if it's not a genuine emergency.
+//  ...Just introduce a general distance penalty, relative to home?
+
 
 public class Retreat extends Plan implements Qualities {
-  
   
   
   /**  Constants, field definitions, constructors and save/load methods-
@@ -193,8 +195,9 @@ public class Retreat extends Plan implements Qualities {
       return null ;
     }
     
+    final Target home = actor.mind.home();
     final Action flees = new Action(
-      actor, safePoint,
+      actor, (home != null && ! urgent()) ? home : safePoint,
       this, "actionFlee",
       Action.MOVE_SNEAK, "Fleeing to "
     );

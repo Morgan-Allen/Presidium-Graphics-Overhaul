@@ -19,7 +19,10 @@ public class Paving {
   /**  Field definitions, constructor and save/load methods-
     */
   final static int PATH_RANGE = World.SECTOR_SIZE / 2 ;
-  private static boolean verbose = false, checkConsistency = false ;
+  private static boolean
+    paveVerbose = false,
+    distroVerbose = true,
+    checkConsistency = false ;
   
   final World world ;
   PresenceMap junctions ;
@@ -120,6 +123,7 @@ public class Paving {
   public void updatePerimeter(
     Fixture v, Batch <Tile> around, boolean isMember
   ) {
+    final boolean report = paveVerbose && I.talkAbout == v;
     final Tile o = v.origin() ;
     final Route key = new Route(o, o), match = allRoutes.get(key) ;
     
@@ -127,18 +131,18 @@ public class Paving {
       key.path = around.toArray(Tile.class) ;
       key.cost = -1 ;
       if (roadsEqual(key, match)) return ;
-      //I.say("Installing perimeter for "+v) ;
+      if (report) I.say("Installing perimeter for "+v) ;
       
       if (match != null) {
         world.terrain().maskAsPaved(match.path, false) ;
         allRoutes.remove(match) ;
       }
       world.terrain().maskAsPaved(key.path, true) ;
-      clearRoad(key.path) ;
+      clearRoad(key.path, report) ;
       allRoutes.put(key, key) ;
     }
     else if (match != null) {
-      //I.say("Discarding perimeter for "+v) ;
+      if (report) I.say("Discarding perimeter for "+v) ;
       //reportPath("Old route", match) ;
       world.terrain().maskAsPaved(match.path, false) ;
       allRoutes.remove(key) ;
@@ -159,24 +163,27 @@ public class Paving {
   
   
   public void updateJunction(Venue v, Tile t, boolean isMember) {
+    final boolean report = paveVerbose && I.talkAbout == v;
     if (t == null) {
-      if (verbose) I.say("CANNOT SUPPLY NULL TILE AS JUNCTION") ;
+      if (report) I.say("CANNOT SUPPLY NULL TILE AS JUNCTION") ;
       return ;
     }
     junctions.toggleMember(t, t, isMember);
     
     if (isMember) {
-      if (verbose) I.say("Updating road junction "+t) ;
       final int HS = v.size / 2;
       final Tile c = v.origin(), centre = world.tileAt(c.x + HS, c.y + HS);
       final int range = PATH_RANGE + 1 + HS;
+      if (report) I.say("Updating road junction "+t+", range: "+range);
+      
       for (Target o : junctions.visitNear(centre, range, null)) {
         final Tile jT = (Tile) o ;
-        routeBetween(t, jT) ;
+        if (report) I.say("Paving to: "+jT);
+        routeBetween(t, jT, report) ;
       }
     }
     else {
-      if (verbose) I.say("Discarding junctions for "+v) ;
+      if (report) I.say("Discarding junctions for "+v) ;
       
       final List <Route> routes = tileRoutes.get(t);
       if (routes != null) for (Route r : routes) {
@@ -188,7 +195,7 @@ public class Paving {
   }
   
   
-  private boolean routeBetween(Tile a, Tile b) {
+  private boolean routeBetween(Tile a, Tile b, boolean report) {
     if (a == b) return false ;
     //
     //  Firstly, determine the correct current route.
@@ -206,7 +213,7 @@ public class Paving {
     final Route oldRoute = allRoutes.get(route) ;
     if (roadsEqual(route, oldRoute)) return false ;
     
-    if (verbose) {
+    if (report) {
       I.say("Route between "+a+" and "+b+" has changed!") ;
       this.reportPath("Old route", oldRoute) ;
       this.reportPath("New route", route   ) ;
@@ -220,7 +227,7 @@ public class Paving {
       toggleRoute(route, route.start, true) ;
       toggleRoute(route, route.end  , true) ;
       world.terrain().maskAsPaved(route.path, true) ;
-      clearRoad(route.path) ;
+      clearRoad(route.path, report) ;
     }
     return true ;
   }
@@ -265,10 +272,10 @@ public class Paving {
   
   /**  Methods related to physical road construction-
     */
-  private void clearRoad(Tile path[]) {
-    if (verbose) I.say("Clearing path...");
+  private void clearRoad(Tile path[], boolean report) {
+    if (report) I.say("Clearing path...");
     for (Tile t : path) {
-      if (verbose) I.say("Owner of "+t+" is "+t.owner());
+      if (report) I.say("Owner of "+t+" is "+t.owner());
       if (t.owningType() < Element.FIXTURE_OWNS) {
         if (t.owner() != null) t.owner().setAsDestroyed();
       }
@@ -287,11 +294,11 @@ public class Paving {
   //
   //  TODO:  YOU NEED TO RESTRICT THIS TO PARTICULAR BASES?  Or maybe you
   //  could share, given suitable alliance status?
-  final private Batch <Target> tried = new Batch <Target> () ;
+  final private Batch <Target> tried = new Batch <Target> (40) ;
   final private Stack <Target> agenda = new Stack <Target> () ;
   
   
-  private void insertA(Target t) {
+  private void insertAgenda(Target t) {
     if (t.flaggedWith() != null) return ;
     t.flagWith(agenda) ;
     agenda.add(t) ;
@@ -299,30 +306,38 @@ public class Paving {
   }
   
   
-  private Batch <Venue> venuesReached(Venue init) {
+  private Batch <Venue> venuesReached(Venue init, Base base) {
     if (init.flaggedWith() != null) return null ;
+    final boolean report = distroVerbose;
+    if (report) I.say("\nDetermining provision access from "+init);
+    
     final Batch <Venue> reached = new Batch <Venue> () ;
     agenda.add(init) ;
     
+    //  The agenda could include either tiles or venues, depending on how they
+    //  are encountered.
     while (agenda.size() > 0) {
       final Target next = agenda.removeFirst() ;
       final List <Route> routes = tileRoutes.get(next) ;
       
       if (routes == null) {
         final Venue v = (Venue) next ;
+        if (v.base() != base) continue;
         reached.add(v) ;
+        if (report) I.say("  Have reached: "+v);
+        
         for (Tile t : Spacing.perimeter(v.area(), world)) if (t != null) {
-          if (t.owner() instanceof Venue) insertA(t.owner()) ;
-          else if (tileRoutes.get(t) != null) insertA(t) ;
+          if (t.owner() instanceof Venue) insertAgenda(t.owner()) ;
+          else if (tileRoutes.get(t) != null) insertAgenda(t) ;
         }
       }
       
       else for (Route r : routes) {
         final Tile o = r.end == next ? r.start : r.end ;
-        if (o == null || o.flaggedWith() != null) continue ;
-        insertA(o) ;
+        if (o == null) continue;
+        insertAgenda(o) ;
         for (Tile a : o.allAdjacent(Spacing.tempT8)) if (a != null) {
-          if (a.owner() instanceof Venue) insertA(a.owner()) ;
+          if (a.owner() instanceof Venue) insertAgenda(a.owner()) ;
         }
       }
     }
@@ -339,10 +354,19 @@ public class Paving {
   private void distributeTo(Batch <Venue> reached, Service provided[]) {
     //
     //  First, tabulate total supply and demand within the area-
+    final boolean report = distroVerbose;
+    if (report) I.say("\nDistributing provisions through paving network-");
+    
     float
       supply[] = new float[provided.length],
       demand[] = new float[provided.length] ;
     for (Venue venue : reached) {
+      if (report) {
+        I.say("  Have reached: "+venue);
+        //final List <Route> routes = tileRoutes.get(venue.mainEntrance());
+        //if (routes != null) I.say("  Routes at entrance: "+routes.size());
+      }
+      
       for (int i = provided.length ; i-- > 0 ;) {
         final Service type = provided[i] ;
         supply[i] += venue.stocks.amountOf(type) ;
@@ -365,14 +389,16 @@ public class Paving {
   }
   
 
-  public void distribute(Service provided[]) {
+  public void distribute(Service provided[], Base base) {
+    final boolean report = distroVerbose;
+    if (report) I.say("\n\nDistributing provisions for base: "+base);
     final Batch <Batch <Venue>> allReached = new Batch <Batch <Venue>> () ;
     //
     //  First, divide the set of all venues into discrete partitions based on
     //  mutual paving connections-
     final Tile at = world.tileAt(0, 0) ;
-    for (Object o : world.presences.matchesNear(Venue.class, at, -1)) {
-      final Batch <Venue> reached = venuesReached((Venue) o) ;
+    for (Object o : world.presences.matchesNear(base, at, -1)) {
+      final Batch <Venue> reached = venuesReached((Venue) o, base) ;
       if (reached != null) allReached.add(reached) ;
     }
     //
@@ -383,4 +409,9 @@ public class Paving {
     }
   }
 }
+
+
+
+
+
 

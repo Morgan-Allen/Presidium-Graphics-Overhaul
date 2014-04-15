@@ -267,7 +267,7 @@ public class Base implements
   
   public void updateAsScheduled(int numUpdates) {
     commerce.updateCommerce(numUpdates) ;
-    paving.distribute(Economy.ALL_PROVISIONS) ;
+    paving.distribute(Economy.ALL_PROVISIONS, this) ;
     dangerMap.update() ;
     for (Mission mission : missions) mission.updateMission() ;
     //

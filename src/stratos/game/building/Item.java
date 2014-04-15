@@ -121,6 +121,12 @@ public class Item implements Economy {
   }
   
   
+  public float priceAt(Venue venue) {
+    final float basePrice = venue.priceFor(type);
+    return basePrice * amount * PRICE_MULTS[(int) quality];
+  }
+  
+  
   
   /**  Matching/equality functions-
     */

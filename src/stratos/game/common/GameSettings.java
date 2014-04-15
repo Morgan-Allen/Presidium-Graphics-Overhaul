@@ -26,6 +26,8 @@ public class GameSettings {
     fogFree   = false,
     pathFree  = false,
     
+    needsFree = false,
+    
     noBlood   = false,
     hardCore  = false ;
   
@@ -39,6 +41,7 @@ public class GameSettings {
     psyFree   = false;
     fogFree   = false;
     pathFree  = false;
+    needsFree = false;
     noBlood   = false;
     hardCore  = false;
     actorScale = SMALL_SPRITE_SCALE;
@@ -46,26 +49,29 @@ public class GameSettings {
   
   
   protected static void saveSettings(Session s) throws Exception {
-    s.saveBool(buildFree) ;
-    s.saveBool(hireFree) ;
-    s.saveBool(psyFree) ;
-    s.saveBool(fogFree) ;
-    s.saveBool(pathFree) ;
+    s.saveBool(buildFree);
+    s.saveBool(hireFree);
+    s.saveBool(psyFree);
+    s.saveBool(fogFree);
+    s.saveBool(pathFree);
+    s.saveBool(needsFree);
     s.saveBool(noBlood);
-    s.saveBool(hardCore) ;
-    
+    s.saveBool(hardCore);
+
     s.saveFloat(actorScale);
   }
   
+  
   protected static void loadSettings(Session s) throws Exception {
-    buildFree = s.loadBool() ;
-    hireFree = s.loadBool() ;
-    psyFree = s.loadBool() ;
-    fogFree = s.loadBool() ;
-    pathFree = s.loadBool() ;
+    buildFree = s.loadBool();
+    hireFree = s.loadBool();
+    psyFree = s.loadBool();
+    fogFree = s.loadBool();
+    pathFree = s.loadBool();
+    needsFree = s.loadBool();
     noBlood = s.loadBool();
-    hardCore = s.loadBool() ;
-    
+    hardCore = s.loadBool();
+
     actorScale = s.loadFloat();
   }
 }

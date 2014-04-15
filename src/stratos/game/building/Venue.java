@@ -534,10 +534,7 @@ public abstract class Venue extends Fixture implements
   
   protected void toggleStatusFor(Service need, ModelAsset model) {
     if (! structure.intact()) buildSprite.toggleFX(need.model, false);
-    final float
-      shortage = stocks.shortageOf(need),
-      demand = stocks.demandFor(need);
-    buildSprite.toggleFX(model, shortage > (demand / 2) + 0.5f);
+    buildSprite.toggleFX(model, stocks.shortagePenalty(need) > 0);
   }
   
   

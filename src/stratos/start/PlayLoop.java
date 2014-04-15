@@ -40,6 +40,7 @@ public final class PlayLoop {
   private static Rendering rendering;
   private static Playable played;
   private static Thread gdxThread;
+  private static boolean loopChanged = false;
   
   private static long lastFrame, lastUpdate;
   private static float frameTime;
@@ -77,6 +78,7 @@ public final class PlayLoop {
   /**  The big static setup, run and exit methods-
     */
   public static void setupAndLoop(Playable scenario) {
+    loopChanged = true;
     PlayLoop.played = scenario;
     numStateUpdates = 0;
     gameSpeed = 1.0f;
@@ -203,7 +205,9 @@ public final class PlayLoop {
       frameTime = (updateGap - 0) * 1.0f / UPDATE_INTERVAL;
       frameTime = Visit.clamp(frameTime, 0, 1);
     }
-    final Playable current = played;
+    
+    loopChanged = false;
+    //final Playable current = played;
     float worldTime = (numStateUpdates + frameTime) / UPDATES_PER_SECOND;
     rendering.updateViews(worldTime, frameTime);
     
@@ -221,7 +225,7 @@ public final class PlayLoop {
       return true;
     }
     
-    if (played != current) return true;
+    if (loopChanged) return true;
     if (played != null && played.loadProgress() < 1) {
       if (! played.isLoading()) played.beginGameSetup();
       LoadingScreen.update("Loading Scenario", played.loadProgress());
@@ -234,7 +238,7 @@ public final class PlayLoop {
     //  TODO:  I'm updating graphics as fast as possible for the moment, since
     //  I get occasional flicker problems otherwise.  Still seems wasteful,
     //  mind...
-    if (played != current) return true;
+    if (loopChanged) return true;
     if (frameGap >= FRAME_INTERVAL || true) {
       if (played != null) played.renderVisuals(rendering);
       rendering.renderDisplay(played == null ? null : played.UI());
@@ -253,7 +257,7 @@ public final class PlayLoop {
       
       if (verbose) I.say("  No. of updates: "+numUpdates);
       if (! paused) for (int n = numUpdates ; n-- > 0 ;) {
-        if (played != current) return true;
+        if (loopChanged) return true;
         if (verbose) I.say("  UPDATING WORLD?");
         played.updateGameState();
         numStateUpdates++;

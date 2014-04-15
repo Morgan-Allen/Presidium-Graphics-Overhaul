@@ -165,6 +165,7 @@ public class DebugPlans extends Scenario {
   
   
   private void configPurchaseScenario(World world, Base base, BaseUI UI) {
+    GameSettings.needsFree = true;
     
     Actor citizen = null;
     for (int n = 2; n-- > 0;) {

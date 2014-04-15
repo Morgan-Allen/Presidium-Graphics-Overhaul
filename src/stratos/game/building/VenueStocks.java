@@ -198,9 +198,15 @@ public class VenueStocks extends Inventory implements Economy {
   
   
   public float shortagePenalty(Service type) {
-    final float amount = amountOf(type), demand = demandFor(type) ;
-    final float shortage = ((demand - amount) / (amount + 1)) - 0.5f ;
-    return Visit.clamp(shortage * 2, 0, 1) ;
+    if (GameSettings.needsFree && type.form == FORM_PROVISION) return 0;
+    final float
+      amount = amountOf(type),
+      demand = demandFor(type),
+      shortage = demand - amount;
+    return Visit.clamp(
+      (shortage - ((demand + 1f) / 2)) / (amount + 1),
+      0, 1
+    );
   }
   
   
@@ -436,9 +442,6 @@ public class VenueStocks extends Inventory implements Economy {
     //  Here, we clear out any expired orders or useless items.  (Consider
     //  recycling materials or sending elswhere?)
     for (Manufacture m : specialOrders) {
-      //
-      //  TODO:  Only remove once the item is picked up or the actor loses
-      //  interest.
       if (m.finished()) specialOrders.remove(m) ;
     }
     //

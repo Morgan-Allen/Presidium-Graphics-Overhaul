@@ -144,7 +144,9 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     */
   public boolean finished() {
     if (super.finished()) return true ;
-    return (amountMade >= 2) || venue.stocks.hasItem(made) ;
+    return
+      (amountMade >= 2) || (amountMade >= made.amount) ||
+      venue.stocks.hasItem(made) ;
   }
   
   
@@ -152,6 +154,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     final float demand = venue.stocks.demandFor(made.type) ;
     if (demand > 0) made = Item.withAmount(made, demand + 5) ;
     if (venue.stocks.hasItem(made)) {
+      amountMade = made.amount;
       return null ;
     }
     if (GameSettings.hardCore && ! hasNeeded()) return null ;

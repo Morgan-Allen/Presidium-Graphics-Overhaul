@@ -75,38 +75,34 @@ public class Commission extends Plan implements Economy {
   ) {
     final boolean hasCommission = actor.mind.hasToDo(Commission.class) ;
     if (hasCommission) return ;
+    addCommission(actor, makes, choice, actor.gear.deviceEquipped());
+    addCommission(actor, makes, choice, actor.gear.outfitEquipped());
+  }
+  
+
+  public static void addCommission(
+    Actor actor, Venue makes, Choice choice, Item baseItem
+  ) {
+    if (baseItem == null) return;
+    if (baseItem.type.materials().venueType != makes.getClass()) return;
     
-    //  Check to see if this venue makes the actor's device type, and if an
-    //  upgrade/repair to said device is needed.
-    final DeviceType DT = actor.gear.deviceType() ;
-    if (DT != null && DT.materials().venueType == makes.getClass()) {
-      final int DQ = (int) actor.gear.deviceEquipped().quality ;
-      final float DA = actor.gear.deviceEquipped().amount ;
-      
-      if (DQ < Item.MAX_QUALITY) {
-        final Item nextDevice = Item.withQuality(DT, DQ + 1) ;
-        choice.add(new Commission(actor, nextDevice, makes)) ;
-      }
-      if (DA < 1) {
-        final Item nextDevice = Item.withQuality(DT, DQ) ;
-        choice.add(new Commission(actor, nextDevice, makes)) ;
-      }
+    final int baseQuality = (int) baseItem.quality;
+    final float baseAmount = baseItem.amount;
+    
+    int quality = Item.MAX_QUALITY + 1;
+    Commission added = null;
+    
+    while (--quality > 0) {
+      final Item upgrade = Item.withQuality(baseItem.type, quality);
+      final float price = upgrade.priceAt(makes);
+      if (price >= actor.gear.credits()) continue;
+      added = new Commission(actor, upgrade, makes);
+      if (added.priorityFor(actor) <= 0) continue;
+      break;
     }
     
-    //  Similarly for armour-
-    final OutfitType OT = actor.gear.outfitType() ;
-    if (OT != null && OT.materials.venueType == makes.getClass()) {
-      final int OQ = (int) actor.gear.outfitEquipped().quality ;
-      final float OA = actor.gear.outfitEquipped().amount ;
-      
-      if (OQ < Item.MAX_QUALITY) {
-        final Item nextOutfit = Item.withQuality(OT, OQ + 1) ;
-        choice.add(new Commission(actor, nextOutfit, makes)) ;
-      }
-      if (OA < 1) {
-        final Item nextOutfit = Item.withQuality(OT, OQ) ;
-        choice.add(new Commission(actor, nextOutfit, makes)) ;
-      }
+    if (quality >= 0 && (baseAmount <= 0.5f || quality > baseQuality)) {
+      choice.add(added) ;
     }
   }
   
@@ -122,7 +118,7 @@ public class Commission extends Plan implements Economy {
     if (order != null && ! order.finished() && ! done) {
       return 0 ;
     }
-    final int price = (int) (shop.priceFor(item.type) * item.amount) ;
+    final float price = item.priceAt(shop);
     if (price > actor.gear.credits()) return 0;
     
     final float greed = actor.mind.greedFor(price / NUM_WEAR_DAYS) * ROUTINE;
@@ -174,16 +170,6 @@ public class Commission extends Plan implements Economy {
     */
   protected Behaviour getNextStep() {
     if (finished()) return null ;
-    //
-    //  TODO:  Check that someone is attending the shop.
-    if (shop.stocks.hasItem(item)) {
-      final Action pickup = new Action(
-        actor, shop,
-        this, "actionPickupItem",
-        Action.REACH_DOWN, "Collecting"
-      ) ;
-      return pickup ;
-    }
     
     if (order == null) {
       final Action placeOrder = new Action(
@@ -192,6 +178,15 @@ public class Commission extends Plan implements Economy {
         Action.TALK_LONG, "Placing Order"
       ) ;
       return placeOrder ;
+    }
+    
+    if (shop.isManned() && shop.stocks.hasItem(item)) {
+      final Action pickup = new Action(
+        actor, shop,
+        this, "actionPickupItem",
+        Action.REACH_DOWN, "Collecting"
+      ) ;
+      return pickup ;
     }
     return null ;
   }
@@ -211,7 +206,7 @@ public class Commission extends Plan implements Economy {
     actor.inventory().incCredits(0 - price) ;
     
     shop.inventory().removeMatch(item);
-    actor.inventory().addItem(item);
+    actor.inventory().addItem(Item.withReference(item, null));
     delivered = true ;
     ///I.say(actor+" picking up: "+item) ;
     return true ;
@@ -222,12 +217,12 @@ public class Commission extends Plan implements Economy {
   /**  Rendering and interface methods-
     */
   public void describeBehaviour(Description d) {
-    if (order == null) {
-      d.append("Placing order for "+item+" at ") ;
+    if (shop.stocks.hasItem(item)) {
+      d.append("Collecting "+item+" at ") ;
       d.append(shop) ;
     }
     else {
-      d.append("Collecting "+item+" at ") ;
+      d.append("Placing order for "+item+" at ") ;
       d.append(shop) ;
     }
   }
