@@ -14,8 +14,7 @@ import stratos.util.*;
 public class Trait implements Qualities, Session.Saveable {
   
   
-  
-  private static boolean verboseInit = false ;
+  private static boolean verboseInit = false;
   
   static Batch <Trait>
     traitsSoFar = new Batch <Trait> (),
@@ -76,8 +75,9 @@ public class Trait implements Qualities, Session.Saveable {
       val = descValues[i] = zeroIndex - i ;
       
       final String desc = descriptors[i] ;
-      if (verboseInit && desc != null) {
-        I.say("  Value for "+desc+" is "+val) ;
+      if (verboseInit) {
+        if (desc != null) I.say("  Value for "+desc+" is "+val) ;
+        else I.say("  Empty value: "+val);
       }
       
       if (val > max) max = val ;
@@ -133,10 +133,11 @@ public class Trait implements Qualities, Session.Saveable {
     
     String bestDesc = null ;
     float minDiff = Float.POSITIVE_INFINITY ;
+    
     int i = 0 ; for (String s : trait.descriptors) {
       float value = trait.descValues[i] ;
-      if (value > 0) value -= (trait.maxVal - level) / (trait.maxVal - 1) ;
-      if (value < 0) value += 0.5f ;
+      if (value > 0) value /= trait.maxVal;
+      if (value < 0) value /= 0 - trait.minVal;
       
       final float diff = Math.abs(level - value) ;
       if (diff < minDiff) { minDiff = diff ; bestDesc = s ; }

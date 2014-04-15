@@ -16,7 +16,7 @@ public class Choice implements Qualities {
   /**  Data fields, constructors and setup-
     */
   public static boolean
-    verbose       = true,
+    verbose       = false,
     verboseReject = verbose && false;
   
   final Actor actor ;
@@ -83,11 +83,11 @@ public class Choice implements Qualities {
   
   
   private static float competeThreshold(
-    Actor actor, float topPriority, boolean forCurrent
+    Actor actor, float topPriority, boolean fromCurrent
   ) {
-    final float stubborn = actor.traits.relativeLevel(STUBBORN);
+    final float stubborn = actor.traits.relativeLevel(STUBBORN) / 2f;
     float thresh = topPriority;
-    if (forCurrent) thresh -= 2 + stubborn;
+    if (fromCurrent) thresh -= 1 + stubborn;
     else thresh -= stubborn;
     if (topPriority > Plan.PARAMOUNT) {
       final float extra = (topPriority - Plan.PARAMOUNT) / Plan.ROUTINE;

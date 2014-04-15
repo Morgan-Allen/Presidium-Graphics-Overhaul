@@ -586,6 +586,13 @@ public class ActorHealth implements Qualities {
     morale = (morale * (1 - moraleInc)) + (defaultMorale * moraleInc) ;
     morale -= stress / DL ;
     
+    if (verbose && I.talkAbout == actor) {
+      float descL = 0 - morale / MAX_MORALE;
+      I.say("Morale is: "+morale+", desc level: "+descL);
+      I.say("Descriptor: "+Trait.descriptionFor(Qualities.POOR_MORALE, descL));
+      I.say("Current descriptor: "+moraleDesc());
+    }
+    
     //  Last but not least, update your psy points-
     final float maxPsy = maxPsy() ;
     psyPoints += maxPsy * (1 - stress) * PM / PSY_REGEN_TIME ;
@@ -663,12 +670,12 @@ public class ActorHealth implements Qualities {
   
   
   public String moraleDesc() {
-    return descFor(POOR_MORALE, morale * -2, -1) ;
+    return descFor(POOR_MORALE, 0 - morale / MAX_MORALE, -1) ;
   }
   
   
   private String descFor(Trait trait, float level, float max) {
-    final String desc = Trait.descriptionFor(trait, level * trait.maxVal) ;
+    final String desc = Trait.descriptionFor(trait, level) ;
     if (desc == null) return null ;
     if (max <= 0) return desc ;
     return desc+" ("+(int) (level * max)+"/"+(int) max+")" ;
