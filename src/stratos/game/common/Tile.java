@@ -234,17 +234,26 @@ public final class Tile implements
     }
     //*/
     
+    //  If you're actually occupied, allow boarding of the owner-
     if (blocked() && owner() instanceof Boardable) {
       return ((Boardable) owner()).canBoard(batch) ;
     }
+    
+    //  Include any unblocked adjacent tiles-
     for (int n : N_INDEX) {
       batch[n] = null ;
       final Tile t = world.tileAt(x + N_X[n], y + N_Y[n]) ;
       if (t == null || t.blocked()) continue ;
       batch[n] = t ;
     }
-    Spacing.cullDiagonals(batch) ;
     
+    //  Cull any diagonal tiles that are blocked by either adjacent neighbour-
+    for (int i : Tile.N_DIAGONAL) if (batch[i] != null) {
+      if (batch[(i + 7) % 8] == null) batch[i] = null ;
+      if (batch[(i + 1) % 8] == null) batch[i] = null ;
+    }
+    
+    //  Include anything that you're any entrance to-
     for (int n : N_ADJACENT) {
       final Tile t = world.tileAt(x + N_X[n], y + N_Y[n]) ;
       if (t == null || ! (t.owner() instanceof Boardable)) continue ;
@@ -252,6 +261,7 @@ public final class Tile implements
       if (v.isEntrance(this)) batch[n] = v ;
     }
     
+    //  Cache and return-
     boardingCache = batch ;
     return batch ;
   }

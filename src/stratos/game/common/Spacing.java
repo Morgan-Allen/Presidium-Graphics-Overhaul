@@ -211,17 +211,6 @@ public final class Spacing implements TileConstants {
   
   
   
-  /**  Used to ensure that diagonally-adjacent tiles are fully accessible.
-    */
-  public static void cullDiagonals(Object batch[]) {
-    for (int i : Tile.N_DIAGONAL) if (batch[i] != null) {
-      if (batch[(i + 7) % 8] == null) batch[i] = null ;
-      if (batch[(i + 1) % 8] == null) batch[i] = null ;
-    }
-  }
-  
-  
-  
   /**  Proximity methods-
     */
   public static Target nearest(

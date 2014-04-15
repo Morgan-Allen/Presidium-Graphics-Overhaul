@@ -138,7 +138,11 @@ public class Senses implements Qualities {
   
   private boolean notices(Target e, float sightRange) {
     
-    final float fog = actor.base().intelMap.fogAt(e);
+    final float distance = Spacing.distance(e, actor);
+    final Base base = actor.base();
+    final float fog = base.primal ?
+      Visit.clamp(2 - (distance / sightRange), 0, 1):
+      base.intelMap.fogAt(e);
     if (fog == 0) return false;
     
     //  Decide on the basic stats for evaluation-
@@ -147,7 +151,6 @@ public class Senses implements Qualities {
       seen = this.seen.get(e) != null,
       focus = actor.focusFor(null) == e;
     final float
-      distance = Spacing.distance(e, actor),
       stealth = stealthFactor(e, actor);
     float
       senseFactor = sightRange * fog,

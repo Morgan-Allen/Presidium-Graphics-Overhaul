@@ -201,7 +201,6 @@ public class DebugPlans extends Scenario {
     
     
     //  And introduce ruins, with a complement of artilects.
-    
     final Ruins ruins = new Ruins();
     Placement.establishVenue(ruins, 44, 44, true, world);
     final Batch <Artilect> pop = Ruins.populateArtilects(world, ruins, true);

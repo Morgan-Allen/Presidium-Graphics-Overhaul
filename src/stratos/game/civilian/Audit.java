@@ -284,6 +284,8 @@ public class Audit extends Plan implements Economy {
   
   
   public static float taxesDue(Actor actor) {
+    if (actor.base().primal) return 0;
+    
     final int bracket = actor.vocation().standing ;
     if (bracket == Background.SLAVE_CLASS) return 0 ;
     if (bracket == Background.RULER_CLASS) return 0 ;

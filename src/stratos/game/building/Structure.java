@@ -27,7 +27,7 @@ public class Structure {
     DEFAULT_AMBIENCE   = 0 ;
   final public static float
     BURN_PER_SECOND = 1.0f,
-    WEAR_PER_DAY    = 0.1f,
+    WEAR_PER_DAY    = 1f / 20,
     REGEN_PER_DAY   = 0.2f ;
   
   final public static int

@@ -57,7 +57,7 @@ public class MobileMotion {
     */
   private boolean inLocus(Boardable b) {
     if (b == null) return false ;
-    return Spacing.innerDistance(mobile, b) < 0.5f ;
+    return Spacing.innerDistance(mobile, b) < 0.25f ;
   }
   
   
