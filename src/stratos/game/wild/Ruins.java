@@ -131,10 +131,20 @@ public class Ruins extends Venue {
   }
   
   
-  public static void populateArtilects(
+  public static Batch <Artilect> populateArtilects(
+    World world, Ruins ruins, boolean minor
+  ) {
+    final Batch <Venue> b = new Batch <Venue> ();
+    b.add(ruins);
+    return populateArtilects(world, b, minor);
+  }
+  
+  
+  public static Batch <Artilect> populateArtilects(
     World world, Batch <Venue> ruins, boolean minor
   ) {
     final Base artilects = Base.baseWithName(world, Base.KEY_ARTILECTS, true);
+    final Batch <Artilect> pop = new Batch <Artilect> ();
     //
     //  TODO:  Generalise this, too?  Using pre-initialised actors?
     int lairNum = 0 ; for (Venue r : ruins) {
@@ -149,20 +159,25 @@ public class Ruins extends Venue {
         final Tripod tripod = new Tripod(artilects) ;
         tripod.enterWorldAt(e.x, e.y, world) ;
         tripod.mind.setHome(r) ;
+        pop.add(tripod);
       }
       
       while (numD-- > 0) {
         final Drone drone = new Drone(artilects) ;
         drone.enterWorldAt(e.x, e.y, world) ;
         drone.mind.setHome(r) ;
+        pop.add(drone);
       }
       
       if (lairNum == 1 && Rand.yes() && ! minor) {
         final Cranial cranial = new Cranial(artilects) ;
         cranial.enterWorldAt(e.x, e.y, e.world) ;
         cranial.mind.setHome(r) ;
+        pop.add(cranial);
       }
     }
+    
+    return pop;
   }
   
   

@@ -311,8 +311,8 @@ public class Action implements Behaviour, AnimNames {
       I.say("  Action target is: "+actionTarget) ;
       I.say("  Move target is: "+moveTarget) ;
       I.say("  Path target is: "+actor.motion.target()+", step: "+step) ;
-      I.say("  Faced is: "+closeOn+", must board: "+mustBoard) ;
-      I.say("  Current position: "+actor.aboard()) ;
+      I.say("  Closing on: "+closeOn+", must board: "+mustBoard) ;
+      I.say("  Currently aboard: "+actor.aboard()) ;
       I.say("  Closed/facing: "+closed+"/"+facing+", doing update? "+active) ;
       I.say("  Is ranged? "+ranged()+", approaching? "+approaching) ;
       final float distance = Spacing.distance(actor, actor.motion.target()) ;
@@ -329,6 +329,7 @@ public class Action implements Behaviour, AnimNames {
     else if (animRate < 0.75f) moveState = STATE_SNEAK;
     else if (animRate > 1.5f ) moveState = STATE_RUN;
     else moveState = STATE_MOVE;
+    
     if (moveState != oldState) {
       if (oldState == STATE_CLOSED) { abortBehaviour() ; return ; }
       else progress = oldProgress = 0 ;

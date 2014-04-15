@@ -218,10 +218,12 @@ public class MobileMotion {
     //
     //  Determine the appropriate offset and angle for this target-
     if (target == null) return ;
+    //final boolean report = I.talkAbout == mobile && verbose;
     final Vec2D disp = displacement(target) ;
     final float dist = disp.length() ;
     float angle = dist == 0 ? 0 : disp.normalise().toAngle() ;
     float moveRate = moves ? (speed / World.UPDATES_PER_SECOND) : 0 ;
+    //if (report) I.say("MOVE DIST: "+dist);
     //
     //  Determine how far one can move this update, including limits on
     //  maximum rotation-
@@ -253,8 +255,18 @@ public class MobileMotion {
   //  TODO:  Move the call for this to the Mobile class.
   
   public void applyCollision(float moveRate, Target focus) {
+    ///if (true) return;
     final Mobile m = mobile ;
     if (m.indoors()) return ;
+    
+    if (m.aboard().pathType() == Tile.PATH_BLOCKS) {
+      final Tile free = Spacing.nearestOpenTile(m, m);
+      if (free == null) I.complain("MOBILE IS TRAPPED! "+m);
+      m.nextPosition.x = free.x ;
+      m.nextPosition.y = free.y ;
+      return;
+    }
+    
     final Vec2D sum = new Vec2D(), disp = new Vec2D() ;
     int numHits = 0 ;
     final float mMin = m.position.z, mMax = mMin + m.height() ;

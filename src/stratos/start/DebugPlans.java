@@ -12,6 +12,7 @@ import stratos.game.tactical.*;
 import stratos.game.civilian.*;
 import stratos.game.wild.*;
 import stratos.user.*;
+import stratos.util.*;
 
 
 
@@ -74,7 +75,8 @@ public class DebugPlans extends Scenario {
     //configHuntingScenario(world, base, UI);
     //configCombatScenario(world, base, UI);
     //configDialogueScenario(world, base, UI);
-    configPurchaseScenario(world, base, UI);
+    //configPurchaseScenario(world, base, UI);
+    configRaidScenario(world, base, UI);
   }
   
   
@@ -187,9 +189,35 @@ public class DebugPlans extends Scenario {
   }
   
   
+  private void configRaidScenario(World world, Base base, BaseUI UI) {
+    GameSettings.fogFree = true;
+    GameSettings.hireFree = true;
+    GameSettings.noBlood = true;
+    
+    
+    //  Introduce a bastion, with standard personnel.
+    final Bastion bastion = new Bastion(base);
+    Placement.establishVenue(bastion, 11, 11, true, world);
+    
+    
+    //  And introduce ruins, with a complement of artilects.
+    
+    final Ruins ruins = new Ruins();
+    Placement.establishVenue(ruins, 44, 44, true, world);
+    final Batch <Artilect> pop = Ruins.populateArtilects(world, ruins, true);
+    
+    UI.selection.pushSelection(pop.first(), true);
+  }
+  
+  
   protected void afterCreation() {
   }
 }
+
+
+
+
+
 
 
 
