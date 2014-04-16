@@ -194,11 +194,9 @@ public class DebugPlans extends Scenario {
     GameSettings.hireFree = true;
     GameSettings.noBlood = true;
     
-    
     //  Introduce a bastion, with standard personnel.
     final Bastion bastion = new Bastion(base);
     Placement.establishVenue(bastion, 11, 11, true, world);
-    
     
     //  And introduce ruins, with a complement of artilects.
     final Ruins ruins = new Ruins();

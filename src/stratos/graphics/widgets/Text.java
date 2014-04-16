@@ -3,22 +3,15 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.graphics.widgets ;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.Alphabet.Letter;
 import stratos.util.*;
-
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
-import com.badlogic.gdx.math.* ;
+import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.*;
-
-
-//
-//  TODO:  Restore scrollbar functions?
-
-//  TODO:  Consider using an object pool for the various text entries.
 
 
 
@@ -37,7 +30,7 @@ public class Text extends UINode implements Description {
   
   final protected Alphabet alphabet;
   private boolean needsFormat = false;
-  //private Scrollbar scrollbar ;
+  private Scrollbar scrollbar ;
   
   protected List <Box2D> allEntries = new List <Box2D> () ;
   private Box2D fullSize = new Box2D() ;
@@ -63,20 +56,9 @@ public class Text extends UINode implements Description {
   }
   
   
-  /*
-  //
-  //  TODO:  Scrollbars should be possible to associate with arbitrary UI
-  //  groups.  In fact, they should probably be a group type unto themselves.
-  public Scrollbar getScrollBar() {
-    final Scrollbar bar = new Scrollbar(
-      myHUD, Scrollbar.SCROLL_TEX, fullSize, true
-    ) ;
-    final float W = Scrollbar.DEFAULT_SCROLL_WIDTH ;
-    bar.relBound.set(relBound.xmax(), relBound.ypos(), 0, relBound.ydim()) ;
-    bar.absBound.set(absBound.xmax(), absBound.ypos(), W, absBound.ydim()) ;
-    return this.scrollbar = bar ;
+  public Scrollbar makeScrollBar(ImageAsset tex) {
+    return this.scrollbar = new Scrollbar(UI, tex, fullSize) ;
   }
-  //*/
   
   
   public void continueWrap(Text continues) {
@@ -90,7 +72,8 @@ public class Text extends UINode implements Description {
       
       if ((! spilt) && LE.refers instanceof TextEntry) {
         final TextEntry TE = (TextEntry) LE.refers;
-        if (TE.containedBy(textArea)) continue;
+        if (TE.containedBy(textArea) || ! TE.visible) continue;
+        if (Character.isWhitespace(TE.key)) continue;
         spilt = true;
       }
       
@@ -101,7 +84,9 @@ public class Text extends UINode implements Description {
       }
       
       if (spilt) {
-        continues.allEntries.add((Box2D) LE.refers); 
+        final Box2D b = (Box2D) LE.refers;
+        b.set(0, 0, 0, 0);
+        continues.allEntries.add(b); 
         LE.delete();
       }
     }
@@ -156,8 +141,7 @@ public class Text extends UINode implements Description {
       oldWide = xdim() ;
       oldHigh = ydim() ;
     }
-    if (needsFormat && (allEntries.size() > 0)) format(xdim()) ;
-    //needsFormat = false ;
+    if (needsFormat && (allEntries.size() > 0)) format(xdim());
   }
   
   
@@ -292,6 +276,42 @@ public class Text extends UINode implements Description {
   /**  Returns the selectable associated with the currently hovered unit of
     *  text.
     */
+  protected void render(SpriteBatch batch2D) {
+    if (allEntries.size() == 0) return ;
+    final Box2D textArea = new Box2D().set(0, 0, xdim(), ydim()) ;
+    
+    //  We offset text-area position based on the scrollbar.
+    if (scrollbar != null) {
+      final float down = 1 - scrollbar.scrollPos();
+      //I.say("Scrolled down: "+down+", pane height: "+ydim());
+      //I.say("  Full height: "+fullSize.ydim());
+      textArea.ypos(0 - (fullSize.ydim() - ydim()) * down);
+    }
+    final List <ImageEntry> bullets = new List <ImageEntry> () ;
+    final Clickable link = getTextLink(UI.mousePos(), textArea) ;
+    
+    //  Then we begin the rendering pass.  In order to accomodate scissor
+    //  culling, we flush the pipeline of existing elements before and after,
+    //  and set the bounds to fit.
+    batch2D.flush();
+    Gdx.gl.glEnable(GL11.GL_SCISSOR_TEST);
+    Gdx.gl.glScissor((int) xpos(), (int) ypos(), (int) xdim(), (int) ydim());
+    for (Box2D entry : allEntries) {
+      if (entry instanceof TextEntry) {
+        renderText(textArea, (TextEntry) entry, link, batch2D);
+      }
+      else bullets.add((ImageEntry) entry);
+    }
+    for (ImageEntry entry : bullets) {
+      renderImage(textArea, entry, batch2D);
+    }
+    batch2D.flush();
+    Gdx.gl.glDisable(GL11.GL_SCISSOR_TEST);
+    
+    if (UI.mouseClicked() && link != null) whenLinkClicked(link) ;
+  }
+  
+  
   protected Clickable getTextLink(Vector2 mousePos, Box2D textArea) {
     if (UI.selected() != this) return null ;
     final float
@@ -310,31 +330,6 @@ public class Text extends UINode implements Description {
       }
     }
     return null ;
-  }
-  
-  
-  
-  protected void render(SpriteBatch batch2D) {
-    if (allEntries.size() == 0) return ;
-    final Box2D textArea = new Box2D().set(0, 0, xdim(), ydim()) ;
-    final Clickable link = getTextLink(UI.mousePos(), textArea) ;
-    final List <ImageEntry> bullets = new List <ImageEntry> () ;
-    
-    //
-    //  Begin the rendering pass...  TODO:  RESTORE SCISSOR CULL
-    //Gdx.gl.glEnable(GLCommon.GL_SCISSOR_TEST);
-    
-    for (Box2D entry : allEntries) {
-      if (entry instanceof TextEntry) {
-        renderText(textArea, (TextEntry) entry, link, batch2D);
-      }
-      else bullets.add((ImageEntry) entry);
-    }
-    for (ImageEntry entry : bullets) {
-      renderImage(textArea, entry, batch2D);
-    }
-    //  TODO:  Move this to the selection method?
-    if (UI.mouseClicked() && link != null) whenLinkClicked(link) ;
   }
   
   

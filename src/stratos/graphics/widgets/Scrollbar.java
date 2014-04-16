@@ -108,25 +108,15 @@ public class Scrollbar extends UINode {
   
   protected void render(SpriteBatch batch2D) {
     if (! showScroll) return ;
-    final float
-      x = grabArea.xpos(), y = grabArea.ypos(),
-      w = grabArea.xdim(), h = grabArea.ydim();
+    final int
+      side = (int) (grabArea.xdim() / 2),
+      cap = (int) DEFAULT_TAB_HEIGHT;
     
-    batch2D.setColor(1, 1, 1, 1);
-    batch2D.draw(
-      scrollTex,
-      x, y, w, DEFAULT_TAB_HEIGHT,
-      0, DEFAULT_TAB_UV, 1, 0
-    );
-    batch2D.draw(
-      scrollTex,
-      x, y + DEFAULT_TAB_HEIGHT, w, h - (DEFAULT_TAB_HEIGHT * 2),
-      0, DEFAULT_TAB_UV, 1, 0.5f
-    );
-    batch2D.draw(
-      scrollTex,
-      x, y + h - DEFAULT_TAB_HEIGHT, w, DEFAULT_TAB_HEIGHT,
-      0, 0, 1, DEFAULT_TAB_UV
+    Bordering.renderBorder(
+      batch2D, grabArea,
+      side, side, cap, cap,
+      0.5f, 0.5f, 0.25f, 0.75f,
+      scrollTex
     );
   }
 }

@@ -196,6 +196,7 @@ public class Foundry extends Venue implements Economy {
     }
     
     //  And return whatever suits the actor best-
+    choice.isVerbose = I.talkAbout == this;
     return choice.weightedPick() ;
   }
   

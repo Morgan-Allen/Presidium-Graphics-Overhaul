@@ -6,13 +6,12 @@
 
 
 package stratos.user;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 
 
@@ -22,9 +21,13 @@ public class InfoPanel extends UIGroup implements UIConstants {
   
   /**  Constants, fields and setup methods-
     */
-  final public static ImageAsset BORDER_TEX = ImageAsset.fromImage(
-    "media/GUI/Panel.png", InfoPanel.class
-  ) ;
+  final public static ImageAsset
+    BORDER_TEX = ImageAsset.fromImage(
+      "media/GUI/Panel.png", InfoPanel.class
+    ),
+    SCROLL_TEX = ImageAsset.fromImage(
+      "media/GUI/scrollbox.gif", InfoPanel.class
+    );
   final public static int
     MARGIN_WIDTH  = 10,
     HEADER_HEIGHT = 35,
@@ -35,7 +38,7 @@ public class InfoPanel extends UIGroup implements UIConstants {
     Vehicle.class,
     Actor.class,
     Venue.class
-  } ;
+  };
   private static Table <Class, Integer> DEFAULT_CATS = new Table() ;
   
   private static Class infoClass(Selectable s) {
@@ -54,6 +57,7 @@ public class InfoPanel extends UIGroup implements UIConstants {
   final Bordering border ;
   final UIGroup innerRegion;
   final Text headerText, detailText, spillText ;
+  final Scrollbar scrollbar;
   
   final String categories[];
   private Selectable previous ;
@@ -98,7 +102,7 @@ public class InfoPanel extends UIGroup implements UIConstants {
     this.innerRegion = new UIGroup(UI);
     innerRegion.relBound.set(0, 0, 1, 1);
     innerRegion.absBound.set(
-      25 + across, 20, -(25 + 20 + across), -(20 + 25)
+      25 + across, 5, -(25 + 20 + across), -(5 + 25)
     );
     innerRegion.attachTo(this);
     
@@ -116,10 +120,7 @@ public class InfoPanel extends UIGroup implements UIConstants {
         ((BaseUI) UI).beginPanelFade();
       }
     };
-    detailText.absBound.set(
-      0, BM,
-      0, -(BM + HEADER_HEIGHT)
-    );
+    detailText.absBound.set(0, 0, 0, -HEADER_HEIGHT);
     detailText.scale = 0.75f;
     
     if (splitText) {
@@ -129,22 +130,28 @@ public class InfoPanel extends UIGroup implements UIConstants {
           ((BaseUI) UI).beginPanelFade();
         }
       };
-      spillText.absBound.set(
-        0, BM,
-        0, -(BM + HEADER_HEIGHT)
-      );
+      spillText.absBound.set(0, 0, 0, -HEADER_HEIGHT);
       spillText.scale = 0.75f;
       
       detailText.relBound.set(0, 0, 0.5f, 1);
       spillText.relBound.set(0.5f, 0, 0.5f, 1);
       detailText.attachTo(innerRegion);
       spillText.attachTo(innerRegion);
+      
+      scrollbar = spillText.makeScrollBar(SCROLL_TEX);
     }
     else {
       spillText = null;
       detailText.relBound.set(0, 0, 1, 1);
       detailText.attachTo(innerRegion);
+      
+      scrollbar = detailText.makeScrollBar(SCROLL_TEX);
     }
+    
+    final int SCROLL_WIDTH = 20;
+    scrollbar.relBound.set(1, 0, 0, 1);
+    scrollbar.absBound.set(0, 0, SCROLL_WIDTH, 0);
+    scrollbar.attachTo(innerRegion);
     
     this.selected = selected;
     this.categories = categories;
@@ -210,13 +217,12 @@ public class InfoPanel extends UIGroup implements UIConstants {
   
   protected void updateState() {
     if (selected != null && selected.selectionLocksOn().destroyed()) {
-      UI.selection.pushSelection(previous, false) ;
-      return ;
+      UI.selection.pushSelection(previous, false);
+      return;
     }
     updateText(UI, headerText, detailText);
     if (selected != null) selected.configPanel(this, UI);
     if (spillText != null) detailText.continueWrap(spillText);
-    //  TODO:  Otherwise, attach a scroll bar.
     super.updateState() ;
   }
   

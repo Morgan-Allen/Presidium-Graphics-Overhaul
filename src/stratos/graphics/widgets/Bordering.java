@@ -51,6 +51,7 @@ public class Bordering extends UINode {
     coordU[] = new float[4],
     coordV[] = new float[4];
   
+  
   public static void renderBorder(
     SpriteBatch batch2D, Box2D area,
     int left, int right, int bottom, int top,
