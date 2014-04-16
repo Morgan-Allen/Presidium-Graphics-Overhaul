@@ -15,16 +15,9 @@ import stratos.user.*;
 import stratos.util.*;
 
 
-//
-//  TODO:  A lot of the methods here could more reasonably be moved to a
-//  dedicated Motion class.
-//  TODO:  Consider getting rid of separate Move Targets entirely.  It might
-//  well be turning out as more hassle than it's worth.
 
 //  TODO:  ...You need to arrange for actions to terminate if you wind up
 //  staying in one place too long (which likely means you're stuck.)
-
-
 public class Action implements Behaviour, AnimNames {
   
   
@@ -52,7 +45,6 @@ public class Action implements Behaviour, AnimNames {
   final public Method toCall ;
   
   private float priority ;
-  
   private int properties ;
   private byte moveState = -1;
   private Target actionTarget, moveTarget ;
@@ -273,7 +265,7 @@ public class Action implements Behaviour, AnimNames {
     //  should be visible, but isn't, then path towards it more directly.
     Target pathsTo = moveTarget ;
     boolean closed = false, approaching = false, facing = false ;
-    final Target step = actor.motion.nextStep(), closeOn ;
+    final Target step = actor.pathing.nextStep(), closeOn ;
     
     if (contactMade() && ! tracks()) {
       pathsTo = actor.aboard();
@@ -284,11 +276,11 @@ public class Action implements Behaviour, AnimNames {
       approaching = actor.aboard() == moveTarget ;
       closed = approaching && (motionDist - maxDist < separation) ;
       closeOn = closed ? actionTarget : step ;
-      facing = actor.motion.facingTarget(closeOn);
+      facing = actor.pathing.facingTarget(closeOn);
     }
     else {
       //  TODO:  Build line-of-sight considerations into the actor's reaction
-      //  algorithms instead.
+      //  algorithms instead?
       final boolean seen = Senses.hasLineOfSight(
         actor, actionTarget, Math.max(maxDist, sightRange)
       );
@@ -296,26 +288,27 @@ public class Action implements Behaviour, AnimNames {
       if (Math.min(motionDist, actionDist) < maxDist && ! seen) {
         pathsTo = actionTarget ;
       }
-      if (Pathing.blockedBy(pathsTo, actor)) {
+      if (PathSearch.blockedBy(pathsTo, actor)) {
         pathsTo = Spacing.nearestOpenTile(pathsTo, actor) ;
       }
       closed = seen && (actionDist <= maxDist) ;
       approaching = closed || (seen && (actionDist <= (maxDist + 1))) ;
       closeOn = approaching ? actionTarget : step ;
-      facing = actor.motion.facingTarget(closeOn);
+      facing = actor.pathing.facingTarget(closeOn);
     }
-    actor.motion.updateTarget(pathsTo);
+    actor.pathing.updateTarget(pathsTo);
     
     if (report) {
       I.say("Action is: "+methodName()+" "+hashCode());
       I.say("  Action target is: "+actionTarget) ;
       I.say("  Move target is: "+moveTarget) ;
-      I.say("  Path target is: "+actor.motion.target()+", step: "+step) ;
+      I.say("  Path target is: "+actor.pathing.target()+", step: "+step) ;
       I.say("  Closing on: "+closeOn+", must board: "+mustBoard) ;
-      I.say("  Currently aboard: "+actor.aboard()) ;
+      final boolean blocked = PathSearch.blockedBy(actor.aboard(), actor);
+      I.say("  Currently aboard: "+actor.aboard()+", blocked? "+blocked) ;
       I.say("  Closed/facing: "+closed+"/"+facing+", doing update? "+active) ;
       I.say("  Is ranged? "+ranged()+", approaching? "+approaching) ;
-      final float distance = Spacing.distance(actor, actor.motion.target()) ;
+      final float distance = Spacing.distance(actor, actor.pathing.target()) ;
       I.say("  Distance: "+distance+", maximum: "+maxDist+"\n") ;
     }
     
@@ -338,8 +331,8 @@ public class Action implements Behaviour, AnimNames {
     //  If active updates to pathing & motion are called for, make them.
     if (active) {
       if (report) I.say("Move rate: "+moveRate);
-      actor.motion.headTowards(closeOn, moveRate, ! closed);
-      if (! closed) actor.motion.applyCollision(moveRate, actionTarget);
+      actor.pathing.headTowards(closeOn, moveRate, ! closed);
+      if (! closed) actor.pathing.applyCollision(moveRate, actionTarget);
     }
   }
   

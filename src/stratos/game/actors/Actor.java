@@ -80,10 +80,10 @@ public abstract class Actor extends Mobile implements
   
   
   protected abstract ActorMind initAI();
+  
   protected Senses initSenses() { return new Senses(this); }
   protected Memories initMemories() { return new Memories(this); }
-  
-  protected MobileMotion initMotion() { return new MobileMotion(this) ; }
+  protected Pathing initPathing() { return new Pathing(this) ; }
   
   public float height() {
     return 1.0f * GameSettings.actorScale ;
@@ -180,10 +180,10 @@ public abstract class Actor extends Mobile implements
   protected void updateAsMobile() {
     super.updateAsMobile() ;
     final boolean OK = health.conscious() ;
-    if (! OK) motion.updateTarget(null) ;
+    if (! OK) pathing.updateTarget(null) ;
     
     if (actionTaken != null) {
-      if (! motion.checkPathingOkay()) {
+      if (! pathing.checkPathingOkay()) {
         world.schedule.scheduleNow(this) ;
       }
       if (actionTaken.finished()) {
@@ -203,7 +203,7 @@ public abstract class Actor extends Mobile implements
       mind.cancelBehaviour(root) ;
     }
     
-    if (aboard instanceof Mobile && (motion.nextStep() == aboard || ! OK)) {
+    if (aboard instanceof Mobile && (pathing.nextStep() == aboard || ! OK)) {
       aboard.position(nextPosition) ;
     }
   }
@@ -228,8 +228,8 @@ public abstract class Actor extends Mobile implements
       if (actionTaken == null || actionTaken.finished()) {
         assignAction(mind.getNextAction()) ;
       }
-      if (! motion.checkPathingOkay()) {
-        motion.refreshFullPath() ;
+      if (! pathing.checkPathingOkay()) {
+        pathing.refreshFullPath() ;
       }
       senses.updateSeen();
       mind.updateAI(numUpdates) ;
@@ -300,7 +300,7 @@ public abstract class Actor extends Mobile implements
       animName, "Stricken"
     ) ;
     falling.setProperties(Action.NO_LOOP);
-    motion.updateTarget(null) ;
+    pathing.updateTarget(null) ;
     mind.cancelBehaviour(mind.rootBehaviour()) ;
     this.assignAction(falling) ;
   }

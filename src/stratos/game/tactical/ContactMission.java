@@ -36,9 +36,9 @@ public class ContactMission extends Mission implements Economy {
     SETTING_FAVOUR   = 1,
     SETTING_AUDIENCE = 2;
   final static String SETTING_DESC[] = {
-    "Make contact with ",
-    "Secure favour of ",
-    "Demand audience with "
+    "Demand fealty ",
+    "Secure as agent ",
+    "Request audience with "
   };
   
   

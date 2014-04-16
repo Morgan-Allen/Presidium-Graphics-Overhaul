@@ -88,12 +88,16 @@ public class Crop implements Session.Saveable, Target {
   /**  Implementing the Target interface-
     */
   private Object flagged ;
+  
   public boolean inWorld() { return parent.inWorld() ; }
   public boolean destroyed() { return parent.destroyed() ; }
   public World world() { return parent.world() ; }
+  
   public Vec3D position(Vec3D v) { return tile.position(v) ; }
   public float height() { return tile.height() ; }
   public float radius() { return tile.radius() ; }
+  public boolean isMobile() { return false ; }
+  
   public void flagWith(Object f) { this.flagged = f ; }
   public Object flaggedWith() { return flagged ; }
   

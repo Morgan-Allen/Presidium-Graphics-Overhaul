@@ -64,6 +64,9 @@ public class Base implements
   final public DangerMap dangerMap ;
   final public IntelMap intelMap = new IntelMap(this) ;
   
+  
+  
+  
   public String title  = "Player Base" ;
   public Colour colour = new Colour().set(Colour.BLUE) ;  //TODO:  Make private.
   

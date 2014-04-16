@@ -6,18 +6,14 @@
 
 
 package stratos.game.common ;
-import java.util.Iterator ;
-//import java.util.TreeSet ;
-//import java.util.Comparator ;
-
-
 import stratos.game.building.*;
 import stratos.game.common.WorldSections.Section;
 import stratos.util.*;
+import java.util.Iterator ;
 
 
 
-public class PresenceMap implements Session.Saveable {  //Do not make Saveable.
+public class PresenceMap implements Session.Saveable {  //TODO:  Do not make Saveable.
   
   
   
@@ -26,7 +22,7 @@ public class PresenceMap implements Session.Saveable {  //Do not make Saveable.
   final static int
     MAX_VISITED = 100 ;
   
-  final Object key ;  //  Move this stuff to the Presences class.
+  final Object key ;  //  TODO:  Move this stuff to the Presences class(?)
   final World world ;
   final Node root ;
   
@@ -154,6 +150,21 @@ public class PresenceMap implements Session.Saveable {  //Do not make Saveable.
   }
   
   
+  public boolean hasMember(Target t, Tile at) {
+    return presentAt(root, at.x, at.y, t);
+  }
+  
+  
+  private boolean presentAt(Node n, int x, int y, Target t) {
+    if (n.section.depth == 0) {
+      return n.includes(t);
+    }
+    final Node kid = kidAround(n, x, y);
+    if (kid == null || kid.population == 0) return false;
+    return presentAt(kid, x, y, t);
+  }
+  
+  
   protected void printSectionFor(Target t, Node n) {
     if (n == null) {
       n = root ;
@@ -170,31 +181,44 @@ public class PresenceMap implements Session.Saveable {  //Do not make Saveable.
   
   private void toggleAt(Node n, int x, int y, Target t, boolean is) {
     if (n.section.depth == 0) {
-      final int oldPop = n.size() ;
-      if (is) n.include(t) ;
-      else if (n.size() > 0) {
-        n.remove(t) ;
+      final int oldPop = n.size();
+      if (is) {
+        n.include(t);
       }
-      n.population += n.size() - oldPop ;
+      else if (n.size() > 0) {
+        n.remove(t);
+      }
+      n.population += n.size() - oldPop;
     }
     else {
-      Section worldKid = null ; for (Section k : n.section.kids) {
-        if (k.area.contains(x, y)) { worldKid = k ; break ; }
-      }
-      Node nodeKid = null ; for (Object o : n) {
-        final Node k = (Node) o ;
-        if (k.section == worldKid) { nodeKid = k ; break ; }
-      }
-      if (nodeKid == null) {
-        if (is) n.add(nodeKid = new Node(worldKid)) ;
-        else return ;
-      }
-      toggleAt(nodeKid, x, y, t, is) ;
-      if (nodeKid.size() == 0) n.remove(nodeKid) ;
+      Node nodeKid = kidAround(n, x, y);
       
-      n.population = 0 ;
-      for (Object k : n) n.population += ((Node) k).population ;
+      if (nodeKid == null) {
+        if (is) {
+          Section worldKid = null;
+          for (Section k : n.section.kids) if (k.area.contains(x, y)) {
+            worldKid = k;
+            break;
+          }
+          n.add(nodeKid = new Node(worldKid));
+        }
+        else return;
+      }
+      toggleAt(nodeKid, x, y, t, is);
+      if (nodeKid.size() == 0) n.remove(nodeKid);
+      
+      n.population = 0;
+      for (Object k : n) n.population += ((Node) k).population;
     }
+  }
+  
+  
+  private Node kidAround(Node parent, int x, int y) {
+    for (ListEntry e = parent; (e = e.nextEntry()) != parent;) {
+      final Node kid = (Node) e.refers;
+      if (kid.section.area.contains(x, y)) return kid;
+    }
+    return null;
   }
   
   

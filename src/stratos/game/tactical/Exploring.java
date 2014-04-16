@@ -3,11 +3,9 @@
 
 package stratos.game.tactical ;
 import stratos.game.actors.*;
-import stratos.game.building.TileSpread;
+import stratos.game.building.*;
 import stratos.game.common.*;
-import stratos.game.common.WorldSections.Section;
 import stratos.game.planet.*;
-import stratos.user.*;
 import stratos.util.*;
 
 

@@ -318,7 +318,7 @@ public class Delivery extends Plan implements Economy {
     //  Vehicles get special treatment-
     if (driven != null) {
       if (! driven.setPilot(actor)) abortBehaviour() ;
-      driven.motion.updateTarget(target) ;
+      driven.pathing.updateTarget(target) ;
       if (driven.aboard() == target) {
         transferGoods(origin, driven) ;
         stage = STAGE_DROPOFF ;
@@ -352,7 +352,7 @@ public class Delivery extends Plan implements Economy {
     
     if (driven != null) {
       if (! driven.setPilot(actor)) abortBehaviour() ;
-      driven.motion.updateTarget(target) ;
+      driven.pathing.updateTarget(target) ;
       if (driven.aboard() == target) {
         for (Service t : ALL_COMMODITIES) {
           driven.cargo.transfer(t, target) ;
@@ -373,7 +373,7 @@ public class Delivery extends Plan implements Economy {
   
   public boolean actionReturn(Actor actor, Venue target) {
     if (! driven.setPilot(actor)) abortBehaviour() ;
-    driven.motion.updateTarget(target) ;
+    driven.pathing.updateTarget(target) ;
     if (driven.aboard() == target) {
       driven.setPilot(null) ;
       actor.goAboard(target, actor.world()) ;

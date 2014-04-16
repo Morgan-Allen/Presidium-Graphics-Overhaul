@@ -243,10 +243,9 @@ public abstract class Artilect extends Actor {
     return panel;
   }
   
+  
   //  TODO:  Get rid of this once species are sorted out.
   protected abstract String helpInfo();
-  
-  
   
   
   protected static String nameWithBase(String base) {

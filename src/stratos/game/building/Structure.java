@@ -308,11 +308,6 @@ public class Structure {
   }
   
   
-  public boolean goodCondition() {
-    return (repairLevel() >= 0.8f) && intact() ;
-  }
-  
-  
   public boolean hasWear() {
     return needsSalvage() || integrity < maxIntegrity() ;
   }
@@ -328,19 +323,25 @@ public class Structure {
   }
   
   
+  public boolean goodCondition() {
+    return Repairs.needForRepair(basis) < Repairs.MIN_SERVICE_DAMAGE;
+  }
+  
+  
   protected void checkMaintenance() {
-    //  TODO:  In principle, this should be extensible to Vehicles as well.
-    if (! (basis instanceof Venue)) return ;
-    final World world = ((Venue) basis).world() ;
-    if (world == null) return ;
-    final boolean needs = (state != STATE_RAZED) && (
-      (state == STATE_SALVAGE) || (! goodCondition()) ||
-      needsUpgrade() || burning
-    ) ;
-    if (verbose) I.sayAbout(basis, "Needs maintenance: "+needs) ;
-    world.presences.togglePresence(
-      basis, world.tileAt(basis), needs, "damaged"
-    ) ;
+    final World world = basis.world();
+    if (world == null || basis.isMobile()) return;
+    final boolean report = verbose && I.talkAbout == basis;
+    
+    final boolean needs = ! goodCondition();
+    final Tile o = world.tileAt(basis);
+    final PresenceMap damaged = world.presences.mapFor("damaged");
+    
+    if (report) {
+      I.say(basis+" needs maintenance: "+needs) ;
+      I.say("In map? "+damaged.hasMember(basis, o));
+    }
+    damaged.toggleMember(basis, o, needs);
   }
   
   

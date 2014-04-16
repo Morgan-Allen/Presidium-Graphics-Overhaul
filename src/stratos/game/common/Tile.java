@@ -103,6 +103,7 @@ public final class Tile implements
   
   public float radius() { return 0 ; }
   public float height() { return 0 ; }
+  public boolean isMobile() { return false ; }
   
   
   

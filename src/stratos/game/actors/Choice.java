@@ -15,7 +15,7 @@ public class Choice implements Qualities {
   
   /**  Data fields, constructors and setup-
     */
-  public static boolean
+  protected static boolean
     verbose       = false,
     verboseReject = verbose && false;
   
@@ -162,7 +162,7 @@ public class Choice implements Qualities {
   
   
   protected static boolean wouldSwitch(
-    Actor actor, Behaviour last, Behaviour next
+    Actor actor, Behaviour last, Behaviour next, boolean stubborn
   ) {
     if (next == null) return false;
     if (last == null) return true;
@@ -172,7 +172,10 @@ public class Choice implements Qualities {
     if (nextPriority <= 0) return false;
     if (lastPriority <= 0) return true;
     
-    final float minPriority = competeThreshold(actor, nextPriority, true);
+    final float minPriority = stubborn ?
+      competeThreshold(actor, nextPriority, true) :
+      nextPriority;
+    
     if (verbose && I.talkAbout == actor) {
       I.say("\nConsidering plan switch...");
       I.say("  Last plan: "+last+", priority: "+lastPriority);

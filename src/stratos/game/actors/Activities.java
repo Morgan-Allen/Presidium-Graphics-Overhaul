@@ -19,7 +19,7 @@ public class Activities {
     */
   final World world ;
   
-  final Table <Target, List <Behaviour>> actions = new Table(1000) ;
+  final Table <Target, List <Behaviour>> activeTable = new Table(1000) ;
   final Table <Behaviour, Behaviour> behaviours = new Table(1000) ;
   
   
@@ -33,7 +33,7 @@ public class Activities {
       final Target t = s.loadTarget() ;
       final List <Behaviour> l = new List <Behaviour> () ;
       s.loadObjects(l) ;
-      actions.put(t, l) ;
+      activeTable.put(t, l) ;
       
       //  TODO:  RESTORE AND TEST
       /*
@@ -58,11 +58,11 @@ public class Activities {
   
   
   public void saveState(Session s) throws Exception {
-    s.saveInt(actions.size()) ;
+    s.saveInt(activeTable.size()) ;
     ///I.say("Saving "+actions.size()+" actions in activity table.") ;
-    for (Target t : actions.keySet()) {
+    for (Target t : activeTable.keySet()) {
       s.saveTarget(t) ;
-      s.saveObjects(actions.get(t)) ;
+      s.saveObjects(activeTable.get(t)) ;
     }
     s.saveInt(behaviours.size()) ;
     ///I.say("Saving "+behaviours.size()+" behaviours in behaviour table.") ;
@@ -87,14 +87,14 @@ public class Activities {
     //*/
     
     final Target t = b.subject() ;
-    List <Behaviour> forT = actions.get(t) ;
+    List <Behaviour> forT = activeTable.get(t) ;
     if (is) {
-      if (forT == null) actions.put(t, forT = new List <Behaviour> ()) ;
+      if (forT == null) activeTable.put(t, forT = new List <Behaviour> ()) ;
       forT.include(b) ;
     }
     else if (forT != null) {
       forT.remove(b) ;
-      if (forT.size() == 0) actions.remove(t) ;
+      if (forT.size() == 0) activeTable.remove(t) ;
     }
   }
   
@@ -149,7 +149,7 @@ public class Activities {
   
   
   public boolean includes(Target t, Class behaviourClass) {
-    final List <Behaviour> onTarget = actions.get(t) ;
+    final List <Behaviour> onTarget = activeTable.get(t) ;
     if (onTarget == null) return false ;
     for (Behaviour b : onTarget) {
       if (b.getClass() == behaviourClass) return true ;
@@ -160,7 +160,7 @@ public class Activities {
   
   public Batch <Behaviour> targeting(Target t) {
     final Batch <Behaviour> batch = new Batch <Behaviour> () ;
-    final List <Behaviour> onTarget = actions.get(t) ;
+    final List <Behaviour> onTarget = activeTable.get(t) ;
     if (onTarget == null) return batch ;
     for (Behaviour b : onTarget) batch.add(b) ;
     return batch ;

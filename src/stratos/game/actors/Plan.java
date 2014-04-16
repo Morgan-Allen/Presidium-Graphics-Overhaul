@@ -142,23 +142,35 @@ public abstract class Plan implements Saveable, Behaviour {
   
   
   public Behaviour nextStepFor(Actor actor) {
+    final boolean report = verbose && hasBegun() && I.talkAbout == actor;
+    
     if (this.actor != actor) {
-      if (this.actor != null) ;  //TODO:  Give some kind of message here?
+      if (this.actor != null) ;  //TODO:  Give some kind of message here
       this.actor = actor ;
       nextStep = null ;
+      if (report) I.say("NEXT STEP IS NULL: DIFFERENT ACTOR");
     }
-    if (! valid()) { onceInvalid() ; return nextStep = null ; }
+    if (! valid()) {
+      onceInvalid() ;
+      if (report) I.say("NEXT STEP IS NULL: NOT VALID");
+      return nextStep = null ;
+    }
     
     //  We do not cache steps for dormant or 'under consideration' plans, since
     //  that can screw up proper sequence of evaluation/execution.  Start from
     //  scratch instead.
-    if (! actor.mind.agenda().includes(this)) {
-      nextStep = lastStep = null ;
+    if (! actor.mind.doing(this)) {
+      if (report) {
+        I.say("NEXT STEP IS NULL: NOT ACTIVE");
+        new Exception().printStackTrace();
+      }
+      nextStep = null ;
       return getNextStep() ;
     }
     else if (nextStep == null || nextStep.finished()) {
       nextStep = getNextStep() ;
       if (nextStep != null) lastStep = nextStep ;
+      else if (report) I.say("NEXT STEP IS NULL: WAS ACTIVE");
       priorityEval = NULL_PRIORITY;
     }
     return nextStep ;
@@ -166,15 +178,16 @@ public abstract class Plan implements Saveable, Behaviour {
   
   
   public boolean finished() {
+    final boolean report = verbose && hasBegun() && I.talkAbout == actor;
     if (actor == null) return false ;
     if (this == actor.mind.rootBehaviour()) {
       if (priorityFor(actor) <= 0) {
-        if (verbose) I.sayAbout(actor, "NO PRIORITY: "+this+" "+hashCode()) ;
+        if (report) I.say("NO PRIORITY: "+this+" "+hashCode()) ;
         return true ;
       }
     }
     if (nextStepFor(actor) == null) {
-      if (verbose) I.sayAbout(actor, "NO NEXT STEP: "+this+" "+hashCode()) ;
+      if (report) I.say("NO NEXT STEP: "+this+" "+hashCode()) ;
       return true ;
     }
     return false ;
@@ -182,7 +195,7 @@ public abstract class Plan implements Saveable, Behaviour {
   
   
   public boolean hasBegun() {
-    return actor != null && nextStep != null ;
+    return actor != null && lastStep != null ;
   }
   
   

@@ -32,7 +32,10 @@ public class Deliveries implements Economy {
     IS_IMPORT   = 2,
     IS_EXPORT   = 3 ;
   
-  private static boolean verbose = false ;
+  private static boolean
+    collectVerbose = false,
+    deliverVerbose = false,
+    shopsVerbose   = false;
   
   
   public static Delivery nextDeliveryFor(
@@ -115,6 +118,8 @@ public class Deliveries implements Economy {
     Actor actor, Service goods[], Owner client,
     Batch <Owner> origins, int sizeLimit, int tradeType
   ) {
+    final boolean report = collectVerbose && I.talkAbout == client;
+    
     Delivery picked = null ;
     float bestRating = 0 ;
     for (Owner origin : origins) {
@@ -122,11 +127,11 @@ public class Deliveries implements Economy {
         goods, origin, client, actor,
         sizeLimit, actor.world(), tradeType
       ) ;
-      if (verbose) I.sayAbout(actor, "Order length: "+order.length) ;
+      if (report) I.say("Order length: "+order.length) ;
       if (order.length == 0) continue ;
       final Delivery d = new Delivery(order, origin, client) ;
       final float rating = d.priorityFor(actor) ;
-      if (verbose) I.sayAbout(actor, "Rating: "+rating) ;
+      if (report) I.say("Rating: "+rating) ;
       if (rating > bestRating) { bestRating = rating ; picked = d ; }
     }
     if (picked != null) picked.shouldPay = picked.destination ;
@@ -158,7 +163,7 @@ public class Deliveries implements Economy {
   /**  Helper methods for squeezing orders down into manageable chunks-
     */
   private static float rateTrading(
-    Service good, Owner origin, Owner client, int tradeType
+    Service good, Owner origin, Owner client, int tradeType, boolean report
   ) {
     //
     //  The basic purpose of this comparison is to ensure that deliveries are
@@ -190,10 +195,9 @@ public class Deliveries implements Economy {
       tO = vO.stocks.demandTier(good),
       tC = vC.stocks.demandTier(good) ;
 
-    if (verbose && I.talkAbout == origin) {
-      I.say("Origin/client tiers "+tO+"/"+tC) ;
+    if (report) {
+      I.say("Origin/client tiers for "+good+" "+tO+"/"+tC) ;
     }
-    
     
     if (tO == VenueStocks.TIER_CONSUMER) return 0 ;
     if (tC == VenueStocks.TIER_PRODUCER) return 0 ;
@@ -213,13 +217,16 @@ public class Deliveries implements Economy {
     rating *= origin.inventory().amountOf(good) ;
     rating /= 5 + ((Venue) client).stocks.shortageOf(good) ;
     
-    if (verbose && rating > 0.1f && I.talkAbout == origin) {
+    if (report && rating > 0.1f) {
     }
     //
     //  TODO:  Make sure the client inventory has space!
     return rating ;
   }
   
+  
+  //  TODO:  This all seems mightily computationally expensive.  Any way to cut
+  //  down on all this?
   
   private static Item[] configDelivery(
     Service goods[], Owner origin, Owner client,
@@ -230,15 +237,19 @@ public class Deliveries implements Economy {
     //  First, get the amount of each item available for trade at the point of
     //  origin, and desired by the destination/client, which constrains the
     //  quantities involved-
-    final Object subject = pays ;
+    final boolean report =
+      (collectVerbose && I.talkAbout == client) ||
+      (deliverVerbose && I.talkAbout == origin) ||
+      (shopsVerbose   && I.talkAbout == pays  );
+    
     final int
       roundUnit = sizeLimit < 10 ? (sizeLimit <= 5 ? 1 : 2) : 5,
       pickUnit  = sizeLimit < 10 ? (sizeLimit <= 5 ? 0 : 2) : 5 ;
-    
-    if (verbose) I.sayAbout(subject,
+    if (report) I.say(
       "Evaluating delivery between "+origin+" and "+client+
-      ", goods: "+goods.length
-    ) ;
+      "\nTotal goods: "+goods.length+
+      ", pick/round unit: "+pickUnit+"/"+roundUnit
+    );
     
     final List <Item> viable = new List <Item> () {
       protected float queuePriority(Item i) {
@@ -265,15 +276,23 @@ public class Deliveries implements Economy {
         maxSold = origin.inventory().amountOf(good) ;
         maxBuys = ((Venue) client).stocks.shortageOf(good) ;
       }
+      if (maxSold == 0 || maxBuys == 0) continue;
       maxSold -= reservedForCollection(OD, good) ;
       maxBuys -= reservedForCollection(CD, good) ;
       final float amount = Math.min(maxSold, maxBuys) ;
       
       final float rateTrade = tradeType == IS_TRADE ? Deliveries.rateTrading(
-        good, origin, client, tradeType
+        good, origin, client, tradeType, report
       ) : 2 ;
       
-      if (verbose && I.talkAbout == subject) {
+      if ((amount * rateTrade) < pickUnit) {
+        if (report) {
+          I.say("  Max bought/sold: "+maxBuys+"/"+maxSold);
+          I.say("  Trade limit/rating: "+amount+"/"+rateTrade);
+        }
+        continue ;
+      }
+      if (report) {
         I.say("  Service: "+good) ;
         if (client instanceof Venue) {
           final Venue VC = (Venue) client ;
@@ -290,7 +309,6 @@ public class Deliveries implements Economy {
         I.say("    Trade amount is: "+(amount * rateTrade)) ;
       }
       
-      if ((amount * rateTrade) < pickUnit) continue ;
       if (rateTrade >= 1) {
         viable.queueAdd(Item.withAmount(good, amount)) ;
         continue ;
@@ -309,7 +327,7 @@ public class Deliveries implements Economy {
       sumPrice += price ;
     }
     if (sumAmounts == 0) {
-      if (verbose && I.talkAbout == subject) I.say("  Nothing to deliver!") ;
+      if (report) I.say("  Nothing to deliver!") ;
       return new Item[0] ;
     }
     
@@ -324,7 +342,7 @@ public class Deliveries implements Economy {
       scale *= priceLimit / sumPrice ;
     }
     
-    if (verbose && I.talkAbout == subject) {
+    if (report) {
       I.say("Size/price limits: "+sizeLimit+" "+priceLimit+", goods:") ;
       for (Item v : viable) I.say("  "+v) ;
     }
@@ -361,7 +379,7 @@ public class Deliveries implements Economy {
       if (noneTrimmed) break ;
     }
     
-    if (verbose && I.talkAbout == subject) {
+    if (report) {
       I.say("AFTER TRIM") ;
       i = 0 ;
       for (Item v : viable) {

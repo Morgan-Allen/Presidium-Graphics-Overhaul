@@ -18,6 +18,7 @@ public interface Target {
   Vec3D position(Vec3D v) ;
   float height() ;
   float radius() ;
+  boolean isMobile();
   
   void flagWith(Object f) ;
   Object flaggedWith() ;

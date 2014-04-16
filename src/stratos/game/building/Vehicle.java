@@ -171,24 +171,24 @@ public abstract class Vehicle extends Mobile implements
 
   /**  Handling pathing-
     */
-  protected MobileMotion initMotion() {
-    return new MobileMotion(this) ;
+  protected Pathing initPathing() {
+    return new Pathing(this) ;
   }
   
   
   protected void updateAsMobile() {
     super.updateAsMobile() ;
     if (pilot != null) updatePiloting() ;
-    else motion.updateTarget(motion.target()) ;
-    final Boardable step = motion.nextStep() ;
+    else pathing.updateTarget(pathing.target()) ;
+    final Boardable step = pathing.nextStep() ;
     
-    if (motion.checkPathingOkay() && step != null) {
+    if (pathing.checkPathingOkay() && step != null) {
       float moveRate = baseMoveRate() ;
       if (origin().pathType() == Tile.PATH_ROAD) moveRate *= 1.5f ;
       //  TODO:  RESTORE THIS
       //if (origin().owner() instanceof Causeway) moveRate *= 1.5f ;
       moveRate *= (pilotBonus + 1) / 2 ;
-      motion.headTowards(step, moveRate, true) ;
+      pathing.headTowards(step, moveRate, true) ;
     }
     else world.schedule.scheduleNow(this) ;
   }
@@ -201,11 +201,11 @@ public abstract class Vehicle extends Mobile implements
   
   protected void updatePiloting() {
     if (pilot.aboard() != this) {
-      motion.updateTarget(null) ;
+      pathing.updateTarget(null) ;
       return ;
     }
     if (pilot.currentAction() == null) return ;
-    motion.updateTarget(pilot.currentAction().subject()) ;
+    pathing.updateTarget(pilot.currentAction().subject()) ;
   }
   
   
@@ -224,7 +224,7 @@ public abstract class Vehicle extends Mobile implements
       pilotBonus = 0.5f ;
       pilot = null ;
     }
-    if (! motion.checkPathingOkay()) motion.refreshFullPath() ;
+    if (! pathing.checkPathingOkay()) pathing.refreshFullPath() ;
     if (hangar != null && hangar.destroyed()) {
       //  TODO:  REGISTER FOR SALVAGE
       setAsDestroyed() ;
@@ -405,10 +405,10 @@ public abstract class Vehicle extends Mobile implements
     if (pilot != null && pilot.mind.rootBehaviour() != null) {
       pilot.mind.rootBehaviour().describeBehaviour(d) ;
     }
-    else if (motion.target() != null) {
-      if (motion.target() == aboard()) d.append("Aboard ") ;
+    else if (pathing.target() != null) {
+      if (pathing.target() == aboard()) d.append("Aboard ") ;
       else d.append("Heading for ") ;
-      d.append(motion.target()) ;
+      d.append(pathing.target()) ;
     }
     else {
       d.append("Idling") ;

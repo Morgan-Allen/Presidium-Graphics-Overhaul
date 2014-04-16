@@ -59,7 +59,9 @@ public abstract class Mission implements
     TYPE_PUBLIC   = 0,
     TYPE_SCREENED = 1,
     TYPE_COVERT   = 2,
+    TYPE_PARTY    = 3,
     LIMIT_TYPE    = 3,
+    
     PRIORITY_NONE      = 0,
     PRIORITY_NOMINAL   = 1,
     PRIORITY_ROUTINE   = 2,
@@ -224,11 +226,6 @@ public abstract class Mission implements
   }
   
   
-  protected int totalApplied() {
-    return roles.size() ;
-  }
-  
-  
   protected boolean isApproved(Actor a) {
     final Role role = roleFor(a);
     if (missionType == TYPE_PUBLIC) return role != null;
@@ -238,6 +235,11 @@ public abstract class Mission implements
   
   protected int objectIndex() {
     return objectIndex;
+  }
+  
+  
+  public int totalApplied() {
+    return roles.size() ;
   }
   
   
@@ -295,6 +297,12 @@ public abstract class Mission implements
     final Role role = roleFor(actor) ;
     if (role == null) I.complain(actor+" never applied for "+this) ;
     role.approved = is ;
+  }
+  
+  
+  public void setMissionType(int type) {
+    this.missionType = type;
+    resetMission();
   }
   
   
@@ -359,8 +367,7 @@ public abstract class Mission implements
     if (hasBegun()) d.append(TYPE_DESC[missionType], Colour.GREY);
     else d.append(new Description.Link(TYPE_DESC[missionType]) {
       public void whenTextClicked() {
-        missionType = (missionType + 1) % LIMIT_TYPE;
-        resetMission();
+        setMissionType((missionType + 1) % LIMIT_TYPE);
       }
     });
     

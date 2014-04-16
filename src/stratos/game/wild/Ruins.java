@@ -57,6 +57,15 @@ public class Ruins extends Venue {
   /**  Behavioural routines-
     */
   public Behaviour jobFor(Actor actor) {
+    //  TODO:  Consider launching a collective raid on other bases, if they
+    //  seem to be threatening enough (close, disliked, and populous.)  And if
+    //  they're not too tricky to attack.
+    
+    //  ...Everyone will need to be in on this, bear in mind.
+    //  ...It's rather similar to declaring missions, isn't it?  In which case,
+    //  this probably belongs on the level of base-wide decision-making.
+    
+    //  ...Yeah.  Cool.
     return null ;
   }
   

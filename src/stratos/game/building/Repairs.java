@@ -18,10 +18,10 @@ public class Repairs extends Plan implements Qualities {
   /**  Field definitions, constants and save/load methods-
     */
   final static float
-    TIME_PER_25_HP = World.STANDARD_HOUR_LENGTH;
+    TIME_PER_25_HP = World.STANDARD_HOUR_LENGTH,
+    MIN_SERVICE_DAMAGE = 0.25f;
   
-  private static boolean verbose = true;
-  
+  private static boolean verbose = false;
   final Venue built ;
   
   
@@ -46,25 +46,32 @@ public class Repairs extends Plan implements Qualities {
   
   /**  Assessing targets and priority-
     */
-  private static float needForRepair(Venue built) {
+  //  TODO:  Move this to the Structure class?
+  public static float needForRepair(Installation built) {
     float needRepair;
-    if (! built.structure.intact()) needRepair = 1.0f ;
-    else needRepair = (1 - built.structure.repairLevel()) * 1.5f ;
-    if (built.structure.needsUpgrade()) needRepair += 0.5f ;
-    if (built.structure.burning()) needRepair += 1.0f ;
+    final Structure structure = built.structure();
+    if (! structure.intact()) needRepair = 1.0f ;
+    else needRepair = (1 - structure.repairLevel()) * 1.5f ;
+    if (structure.needsUpgrade()) needRepair += 0.5f ;
+    if (structure.burning()) needRepair += 1.0f ;
     return needRepair;
   }
   
   
+  //  TODO:  Get rid of this?  Just use actor awareness?
   public static Repairs getNextRepairFor(Actor client, float motiveBonus) {
     final World world = client.world() ;
     final Batch <Venue> toRepair = new Batch <Venue> () ;
     world.presences.sampleFromKeys(
-      client, world, 10, toRepair, "damaged", Venue.class
+      client, world, 5, toRepair, "damaged"//, Venue.class
     ) ;
     final Choice choice = new Choice(client) ;
     for (Venue near : toRepair) {
       if (near.base() != client.base()) continue ;
+      if (near.structure.goodCondition()) {
+        I.say(near+" SHOULD NOT BE REGISTERED FOR REPAIRS");
+        continue;
+      }
       if (needForRepair(near) <= 0) continue;
       final Repairs b = new Repairs(client, near) ;
       b.setMotive(Plan.MOTIVE_DUTY, motiveBonus);
@@ -129,14 +136,6 @@ public class Repairs extends Plan implements Qualities {
     final boolean report = verbose && I.talkAbout == actor && hasBegun();
     if (report) I.say("\nGetting next build step?") ;
     
-    if (built.structure.needsUpgrade() && built.structure.goodCondition()) {
-      final Action upgrades = new Action(
-        actor, built,
-        this, "actionUpgrade",
-        Action.BUILD, "Upgrading "+built
-      ) ;
-      return upgrades ;
-    }
     if (built.structure.hasWear()) {
       final Action building = new Action(
         actor, built,
@@ -155,6 +154,15 @@ public class Repairs extends Plan implements Qualities {
       if (report) I.say("  Returning next build action.");
       return building ;
     }
+    if (built.structure.needsUpgrade()) {
+      final Action upgrades = new Action(
+        actor, built,
+        this, "actionUpgrade",
+        Action.BUILD, "Upgrading "+built
+      ) ;
+      return upgrades ;
+    }
+    
     return null ;
   }
   

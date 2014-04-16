@@ -43,7 +43,7 @@ public abstract class Mobile extends Element
   
   protected Boardable aboard ;
   private ListEntry <Mobile> entry = null ;
-  final public MobileMotion motion = initMotion() ;
+  final public Pathing pathing = initPathing() ;
   
   
   
@@ -61,7 +61,7 @@ public abstract class Mobile extends Element
     nextPosition.loadFrom(s.input()) ;
     aboard = (Boardable) s.loadTarget() ;
     //boarding = (Boardable) s.loadTarget() ;
-    if (motion != null) motion.loadState(s) ;
+    if (pathing != null) pathing.loadState(s) ;
   }
   
   public void saveState(Session s) throws Exception {
@@ -72,12 +72,12 @@ public abstract class Mobile extends Element
     nextPosition.saveTo(s.output()) ;
     s.saveTarget(aboard) ;
     //s.saveTarget(boarding) ;
-    if (motion != null) motion.saveState(s) ;
+    if (pathing != null) pathing.saveState(s) ;
   }
   
   
   public abstract Base base() ;
-  protected MobileMotion initMotion() { return null ; }
+  protected Pathing initPathing() { return null ; }
   
   
   
@@ -204,7 +204,7 @@ public abstract class Mobile extends Element
   protected void updateAsMobile() {
     
     //  
-    final Boardable next = motion == null ? null : motion.nextStep() ;
+    final Boardable next = pathing == null ? null : pathing.nextStep() ;
     final Tile oldTile = origin() ;
     final Vec3D p = nextPosition ;
     final boolean outOfBounds =
@@ -266,7 +266,7 @@ public abstract class Mobile extends Element
   
   
   protected void onMotionBlock(Tile t) {
-    final boolean canRoute = motion != null && motion.refreshFullPath() ;
+    final boolean canRoute = pathing != null && pathing.refreshFullPath() ;
     if (! canRoute) pathingAbort() ;
   }
   

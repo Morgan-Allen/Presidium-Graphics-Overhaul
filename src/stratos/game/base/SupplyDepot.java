@@ -9,7 +9,6 @@ package stratos.game.base ;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
-import stratos.game.planet.Species;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
@@ -58,7 +57,6 @@ public class SupplyDepot extends Venue implements
     "Light Imports", "Medium Imports", "Heavy Imports",
   } ;
   final private static Colour PREF_COLOURS[] = {
-    //  TODO:  Blend the colours a bit more.
     Colour.RED, Colour.RED, Colour.RED,
     Colour.LIGHT_GREY,
     Colour.GREEN, Colour.GREEN, Colour.GREEN,
@@ -67,7 +65,7 @@ public class SupplyDepot extends Venue implements
   
   //
   // TODO:  Allow import levels for each of these to be specified manually.
-  
+  //        ...Probably under a Legislation tab.
   final public static Table SERVICE_KEY = Table.make(
     
     CARBS     , KEY_RATIONS ,
@@ -158,8 +156,6 @@ public class SupplyDepot extends Venue implements
       actor, this, services(), 10, world
     ) ;
     if (d != null && personnel.assignedTo(d) < 1) {
-      //d.nextStepFor(actor) ;
-      //I.sayAbout(this, "next delivery: "+d) ;
       choice.add(d) ;
     }
     

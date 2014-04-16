@@ -138,7 +138,7 @@ public class PathingCache {
       if (reports) I.say(
         "Using simple agenda-bounded pathing between "+initB+" "+destB
       ) ;
-      final Pathing search = new Pathing(initB, destB) ;
+      final PathSearch search = new PathSearch(initB, destB) ;
       search.client = client ;
       search.verbose = reports ;
       search.doSearch() ;
@@ -151,7 +151,7 @@ public class PathingCache {
       if (reports) I.say(
         "Using full cordoned path-search between "+initB+" "+destB
       ) ;
-      final Pathing search = cordonedSearch(
+      final PathSearch search = cordonedSearch(
         initB, destB, placesPath[0].caching.section,
         placesPath[placesPath.length - 1].caching.section
       ) ;
@@ -165,7 +165,7 @@ public class PathingCache {
       if (reports) I.say(
         "Using partial cordoned path-search between "+initB+" "+destB
       ) ;
-      final Pathing search = fullPathSearch(
+      final PathSearch search = fullPathSearch(
         initB, destB, placesPath, maxLength
       ) ;
       search.client = client ;
@@ -178,7 +178,7 @@ public class PathingCache {
       if (reports) I.say(
         "Resorting to agenda-bounded pathfinding between "+initB+" "+destB
       ) ;
-      final Pathing search = new Pathing(initB, destB) ;
+      final PathSearch search = new PathSearch(initB, destB) ;
       search.client = client ;
       search.verbose = reports ;
       search.doSearch() ;
@@ -383,7 +383,7 @@ public class PathingCache {
   /**  Generating paths between nearby Places, and among the larger network of
     *  Places-
     */
-  public Pathing fullPathSearch(
+  public PathSearch fullPathSearch(
     final Boardable initB, final Boardable destB,
     Object placesPathRef, final int maxLength
   ) {
@@ -410,7 +410,7 @@ public class PathingCache {
     //  to the PathingSearch class itself?
     final Tile initT = tilePosition(initB, null) ;
     
-    final Pathing search = new Pathing(initB, destB, -1) {
+    final PathSearch search = new PathSearch(initB, destB, -1) {
       
       final int PPL = placesPath.length ;
       private Place lastPlace = placesPath[0] ;
@@ -477,7 +477,7 @@ public class PathingCache {
   }
   
   
-  private Pathing cordonedSearch(
+  private PathSearch cordonedSearch(
     Boardable a, Boardable b, Section sA, Section sB
   ) {
     //
@@ -486,7 +486,7 @@ public class PathingCache {
     final Box2D
       cordon = new Box2D().setTo(sA.area).include(sB.area),
       tB = new Box2D() ;
-    final Pathing search = new Pathing(a, b, -1) {
+    final PathSearch search = new PathSearch(a, b, -1) {
       protected boolean canEnter(Boardable spot) {
         if (! super.canEnter(spot)) return false ;
         if (spot instanceof Tile) {
@@ -506,7 +506,7 @@ public class PathingCache {
   private Route routeBetween(Place a, Place b) {
     //
     //  First, check to ensure that a valid path exists-
-    final Pathing search = cordonedSearch(
+    final PathSearch search = cordonedSearch(
       a.core, b.core, a.caching.section, b.caching.section
     ) ;
     search.doSearch() ;

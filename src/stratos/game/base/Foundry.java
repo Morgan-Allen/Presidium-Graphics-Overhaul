@@ -183,6 +183,7 @@ public class Foundry extends Venue implements Economy {
     final int PB = 1 + structure.upgradeLevel(ASSEMBLY_LINE) ;
     final Manufacture mP = stocks.nextManufacture(actor, METALS_TO_PARTS) ;
     if (mP != null) {
+      //I.sayAbout(this, "Making parts priority: "+mP.priorityFor(actor));
       mP.checkBonus = (PB * 5) / 2 ;
       mP.checkBonus -= powerCut ;
       choice.add(mP) ;

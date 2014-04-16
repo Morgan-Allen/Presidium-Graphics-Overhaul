@@ -29,14 +29,14 @@ public abstract class ActorMind implements Qualities {
   /**  Field definitions, constructor, save/load methods-
     */
   private static boolean
-    decideVerbose   = false,
-    updatesVerbose  = false;
+    decisionVerbose   = Choice.verbose,
+    stepsVerbose  = false;
   
   
   final protected Actor actor ;
   
-  final Stack <Behaviour> agenda = new Stack() ;
-  final List <Behaviour> todoList = new List() ;
+  final List <Behaviour> agenda = new List <Behaviour> () ;
+  final List <Behaviour> todoList = new List <Behaviour> () ;
   
   protected Mission mission ;
   protected Employer home, work ;
@@ -105,7 +105,7 @@ public abstract class ActorMind implements Qualities {
     final Behaviour last = rootBehaviour() ;
     final Behaviour next = nextBehaviour() ;
     
-    if (decideVerbose && I.talkAbout == actor) {
+    if (decisionVerbose && I.talkAbout == actor) {
       I.say("\nPerformed periodic AI update.") ;
       final float
         lastP = last == null ? -1 : last.priorityFor(actor),
@@ -114,12 +114,12 @@ public abstract class ActorMind implements Qualities {
       I.say("  NEXT PLAN: "+next+" "+nextP) ;
       I.say("\n") ;
     }
-    if (Choice.wouldSwitch(actor, last, next)) assignBehaviour(next) ;
+    if (Choice.wouldSwitch(actor, last, next, true)) assignBehaviour(next) ;
   }
   
   
   private Behaviour nextBehaviour() {
-    final boolean report = decideVerbose && I.talkAbout == actor;
+    final boolean report = decisionVerbose && I.talkAbout == actor;
     
     if (report) I.say("\nGetting next from to-do list:");
     final Choice fromTodo = new Choice(actor, todoList);
@@ -129,17 +129,17 @@ public abstract class ActorMind implements Qualities {
     final Behaviour newChoice = createBehaviour();
     
     if (report) I.say("\nChecking for switch from undone to new choice:");
-    final Behaviour taken = Choice.wouldSwitch(actor, notDone, newChoice) ?
-      newChoice : notDone ;
+    final Behaviour taken =
+      Choice.wouldSwitch(actor, notDone, newChoice, false) ?
+      newChoice : notDone;
     
     if (report) {
       //I.say("  Persistance: "+persistance()) ;
       I.say("\nPLANS ACQUIRED:");
       I.say("  LAST PLAN: "+rootBehaviour()) ;
-      I.say("  NOT DONE: "+notDone) ;
-      I.say("  NEW CHOICE: "+newChoice) ;
+      I.say("  NOT DONE: "+notDone+", PRIORITY: "+notDone.priorityFor(actor)) ;
+      I.say("  NEW CHOICE: "+newChoice+", PRIORITY: "+newChoice.priorityFor(actor)) ;
       I.say("  CURRENT FAVOURITE: "+taken) ;
-      ///I.say("  Finished? "+taken.finished()) ;
     }
     return taken ;
   }
@@ -152,19 +152,19 @@ public abstract class ActorMind implements Qualities {
   protected Action getNextAction() {
     final int MAX_LOOP = 20 ;  // Safety feature, see below...
     for (int loop = MAX_LOOP ; loop-- > 0 ;) {
-      if (updatesVerbose) I.sayAbout(actor, "...in action loop.") ;
+      if (stepsVerbose) I.sayAbout(actor, "...in action loop.") ;
       //
       //  If all current behaviours are complete, generate a new one.
       if (agenda.size() == 0) {
-        if (updatesVerbose && I.talkAbout == actor) {
-          I.say("Current agenda is empty!") ;
+        if (decisionVerbose && I.talkAbout == actor) {
+          I.say("\nCurrent agenda is empty!") ;
         }
         final Behaviour taken = nextBehaviour() ;
         if (taken == null) {
-          if (updatesVerbose) I.sayAbout(actor, "No next behaviour!") ;
+          if (decisionVerbose) I.sayAbout(actor, "  No next behaviour!") ;
           return null ;
         }
-        pushBehaviour(taken) ;
+        assignBehaviour(taken);
       }
       //
       //  Root behaviours which return null, but aren't complete, should be
@@ -173,7 +173,7 @@ public abstract class ActorMind implements Qualities {
       final Behaviour current = topBehaviour() ;
       final Behaviour next = current.nextStepFor(actor) ;
       final boolean isDone = current.finished() ;
-      if (updatesVerbose && I.talkAbout == actor) {
+      if (stepsVerbose && I.talkAbout == actor) {
         I.say("  Current action "+current) ;
         I.say("  Next step "+next) ;
         I.say("  Done "+isDone) ;
@@ -185,7 +185,7 @@ public abstract class ActorMind implements Qualities {
         popBehaviour() ;
       }
       else if (current instanceof Action) {
-        if (updatesVerbose && I.talkAbout == actor) {
+        if (stepsVerbose && I.talkAbout == actor) {
           I.say("Next action: "+current) ;
           I.say("Agenda size: "+agenda.size()) ;
         }
@@ -292,7 +292,7 @@ public abstract class ActorMind implements Qualities {
   private void pushBehaviour(Behaviour b) {
     if (todoList.includes(b)) todoList.remove(b) ;
     agenda.addFirst(b) ;
-    if (updatesVerbose && I.talkAbout == actor) {
+    if (stepsVerbose && I.talkAbout == actor) {
       I.say("PUSHING BEHAVIOUR: "+b) ;
     }
     actor.world().activities.toggleBehaviour(b, true) ;
@@ -301,7 +301,7 @@ public abstract class ActorMind implements Qualities {
   
   private Behaviour popBehaviour() {
     final Behaviour b = agenda.removeFirst() ;
-    if (updatesVerbose && I.talkAbout == actor) {
+    if (stepsVerbose && I.talkAbout == actor) {
       I.say("POPPING BEHAVIOUR: "+b) ;
       I.say("  Finished/valid: "+b.finished()+"/"+b.valid());
       I.say("  Priority "+b.priorityFor(actor));
@@ -313,15 +313,20 @@ public abstract class ActorMind implements Qualities {
   
   public void assignBehaviour(Behaviour behaviour) {
     if (behaviour == null) I.complain("CANNOT ASSIGN NULL BEHAVIOUR.") ;
-    if (updatesVerbose) I.sayAbout(actor, "Assigning behaviour "+behaviour) ;
+    final boolean report = decisionVerbose && I.talkAbout == actor;
+    
+    //  TODO:  Print the entire agenda stack?
+    if (report) I.say("Assigning behaviour "+behaviour) ;
     actor.assignAction(null) ;
+    
     final Behaviour replaced = rootBehaviour() ;
-    cancelBehaviour(replaced) ;
-    pushBehaviour(behaviour) ;
     if (replaced != null && ! replaced.finished()) {
-      if (updatesVerbose) I.sayAbout(actor, " SAVING PLAN AS TODO: "+replaced) ;
+      if (report) I.say(" SAVING PLAN AS TODO: "+replaced) ;
       todoList.include(replaced) ;
     }
+    
+    cancelBehaviour(replaced) ;
+    pushBehaviour(behaviour) ;
   }
   
   
@@ -339,25 +344,27 @@ public abstract class ActorMind implements Qualities {
   
   public void cancelBehaviour(Behaviour b) {
     if (b == null) return ;
-    if (! agenda.includes(b)) return ;
-    while (agenda.size() > 0) {
+    if (decisionVerbose && I.talkAbout == actor) I.say("\nCANCELLING "+b);
+    
+    if (agenda.includes(b)) while (agenda.size() > 0) {
       final Behaviour popped = popBehaviour() ;
       if (popped == b) break ;
     }
-    if (agenda.includes(b)) I.complain("Duplicate behaviour!") ;
-    actor.assignAction(null) ;
+    if (agenda.includes(b)) I.complain("Duplicate behaviour!");
+    todoList.remove(b);
+    actor.assignAction(null);
   }
   
   
   public boolean wouldSwitchTo(Behaviour next) {
     if (! actor.health.conscious()) return false ;
-    return Choice.wouldSwitch(actor, rootBehaviour(), next) ;
+    return Choice.wouldSwitch(actor, rootBehaviour(), next, true) ;
   }
   
   
   public boolean mustIgnore(Behaviour next) {
     if (! actor.health.conscious()) return true ;
-    return Choice.wouldSwitch(actor, next, rootBehaviour()) ;
+    return Choice.wouldSwitch(actor, next, rootBehaviour(), false) ;
   }
   
   
@@ -373,12 +380,12 @@ public abstract class ActorMind implements Qualities {
   
   
   public Behaviour topBehaviour() {
-    return agenda.getFirst() ;
+    return agenda.first() ;
   }
   
   
   public Behaviour rootBehaviour() {
-    return agenda.getLast() ;
+    return agenda.last() ;
   }
   
   
@@ -389,7 +396,14 @@ public abstract class ActorMind implements Qualities {
   }
   
   
-  //  TODO:  ALL OF THIS MUST BE RE-EVALUATED
+  public boolean doing(Behaviour b) {
+    //  I do a little bit of speed optimisation here, rather than using an
+    //  iterator...
+    for (ListEntry <Behaviour> bE = agenda; (bE = bE.nextEntry()) != agenda;) {
+      if (bE.refers == b) return true;
+    }
+    return false;
+  }
   
   
   

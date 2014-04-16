@@ -215,6 +215,7 @@ public class Retreat extends Plan implements Qualities {
       rest.setMotive(Plan.MOTIVE_LEISURE, priorityFor(actor));
       actor.mind.assignBehaviour(rest);
       maxDanger = 0;
+      abortBehaviour();
       return true;
     }
     maxDanger *= DANGER_MEMORY_FADE;
