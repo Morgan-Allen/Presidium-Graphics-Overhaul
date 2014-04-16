@@ -191,8 +191,8 @@ public class StockExchange extends Venue implements Economy {
     for (Service type : ALL_COMMODITIES) {
       final int demandBonus = (upgradeForGood(type) * 10) - 5 ;
       if (demandBonus < 0) continue ;
-      stocks.incDemand(type, demandBonus, VenueStocks.TIER_TRADER, 1) ;
-      stocks.diffuseDemand(type, depots) ;
+      stocks.incDemand(type, demandBonus, VenueStocks.TIER_TRADER, 1, this) ;
+      stocks.diffuseDemand(type, depots, 1) ;
     }
     /*
     for (Service type : this.services()) {

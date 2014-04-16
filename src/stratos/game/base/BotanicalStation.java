@@ -188,7 +188,7 @@ public class BotanicalStation extends Venue implements Economy {
     updateAllotments(numUpdates) ;
     //
     //  Increment demand for gene seed, and decay current stocks-
-    stocks.incDemand(GENE_SEED, 5, VenueStocks.TIER_CONSUMER, 1) ;
+    stocks.incDemand(GENE_SEED, 5, VenueStocks.TIER_CONSUMER, 1, this) ;
     final float decay = 0.1f / World.STANDARD_DAY_LENGTH ;
     for (Item seed : stocks.matches(GENE_SEED)) {
       stocks.removeItem(Item.withAmount(seed, decay)) ;

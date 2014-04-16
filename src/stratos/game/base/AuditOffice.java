@@ -214,7 +214,7 @@ public class AuditOffice extends Venue implements Economy {
     stocks.bumpItem(POWER, needPower * -0.1f) ;
     
     printCredits() ;
-    stocks.translateDemands(1, PLASTICS_TO_PRESSFEED) ;
+    stocks.translateDemands(1, PLASTICS_TO_PRESSFEED, this) ;
     structure.setAmbienceVal(2) ;
   }
   
@@ -252,7 +252,7 @@ public class AuditOffice extends Venue implements Economy {
     adjust = Visit.clamp(adjust, -printRate, printRate) ;
     
     final float needPlastic = printRate / 10f ;
-    stocks.incDemand(PLASTICS, needPlastic, VenueStocks.TIER_CONSUMER, 1) ;
+    stocks.incDemand(PLASTICS, needPlastic, VenueStocks.TIER_CONSUMER, 1, this);
     
     adjust /= World.STANDARD_DAY_LENGTH ;
     

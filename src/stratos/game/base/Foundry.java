@@ -128,9 +128,9 @@ public class Foundry extends Venue implements Economy {
   public void updateAsScheduled(int numUpdates) {
     super.updateAsScheduled(numUpdates) ;
     if (! structure.intact()) return ;
-    stocks.translateDemands(1, PARTS_TO_CIRCUITRY) ;
-    stocks.incDemand(PARTS, 10, VenueStocks.TIER_PRODUCER, 1) ;
-    stocks.translateDemands(1, METALS_TO_PARTS) ;
+    stocks.translateDemands(1, PARTS_TO_CIRCUITRY, this) ;
+    stocks.incDemand(PARTS, 10, VenueStocks.TIER_PRODUCER, 1, this) ;
+    stocks.translateDemands(1, METALS_TO_PARTS, this) ;
     ///I.say("Demand for metal is: "+stocks.demandFor(METAL_ORE)) ;
     
     float pollution = 5, powerNeed = 5 ;

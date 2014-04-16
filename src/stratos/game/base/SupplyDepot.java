@@ -190,8 +190,8 @@ public class SupplyDepot extends Venue implements
       if (level < 0) stocks.forceDemand(
         type, 0 - level, VenueStocks.TIER_PRODUCER
       ) ;
-      stocks.diffuseDemand(type, depots) ;
-      stocks.diffuseDemand(type) ;
+      stocks.diffuseDemand(type, depots, 1) ;
+      stocks.diffuseDemand(type, 1) ;
     }
   }
   

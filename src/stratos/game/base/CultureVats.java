@@ -106,14 +106,14 @@ public class CultureVats extends Venue implements Economy {
     super.updateAsScheduled(numUpdates) ;
     if (! structure.intact()) return ;
     
-    stocks.translateDemands(1, POWER_TO_CARBS   ) ;
-    stocks.translateDemands(1, POWER_TO_PROTEIN ) ;
-    stocks.translateDemands(1, GREENS_TO_SOMA   ) ;
-    stocks.translateDemands(1, SPICE_TO_MEDICINE) ;
+    stocks.translateDemands(1, POWER_TO_CARBS   , this) ;
+    stocks.translateDemands(1, POWER_TO_PROTEIN , this) ;
+    stocks.translateDemands(1, GREENS_TO_SOMA   , this) ;
+    stocks.translateDemands(1, SPICE_TO_MEDICINE, this) ;
     
     float needPower = 5 ;
     if (! isManned()) needPower /= 2 ;
-    stocks.incDemand(POWER, needPower, VenueStocks.TIER_CONSUMER, 1) ;
+    stocks.incDemand(POWER, needPower, VenueStocks.TIER_CONSUMER, 1, this) ;
     stocks.bumpItem(POWER, needPower * -0.1f) ;
     
     final int cycleBonus = bonusFor(WASTE_DISPOSAL, 1) ;

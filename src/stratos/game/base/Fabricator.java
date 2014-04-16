@@ -106,7 +106,7 @@ public class Fabricator extends Venue implements Economy {
   
   public void updateAsScheduled(int numUpdates) {
     super.updateAsScheduled(numUpdates) ;
-    stocks.translateDemands(1, CARBS_TO_PLASTICS) ;
+    stocks.translateDemands(1, CARBS_TO_PLASTICS, this) ;
     
     final float powerNeed = 2 + (structure.numUpgrades() / 2f) ;
     stocks.bumpItem(POWER, powerNeed / -10) ;

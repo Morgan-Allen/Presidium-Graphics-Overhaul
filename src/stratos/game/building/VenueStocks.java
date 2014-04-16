@@ -4,8 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-
-package stratos.game.building ;
+package stratos.game.building;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.user.*;
@@ -20,8 +19,8 @@ public class VenueStocks extends Inventory implements Economy {
   /**  Fields, constructors, and save/load methods-
     */
   final public static float
-    UPDATE_PERIOD = 10,
-    POTENTIAL_INC = 0.15f,
+    UPDATE_PERIOD = World.STANDARD_HOUR_LENGTH,
+    DEMAND_DECAY  = UPDATE_PERIOD * 1f / (World.STANDARD_DAY_LENGTH / 2),
     SEARCH_RADIUS = 16,
     MAX_CHECKED   = 5 ;
   
@@ -31,8 +30,9 @@ public class VenueStocks extends Inventory implements Economy {
     TIER_TRADER   =  1,  //deliver to/from based on relative shortage.
     TIER_CONSUMER =  2 ; //never deliver from a consumer.
   
+  private static boolean
+    verbose = false;
   
-  private static boolean verbose = false ;
   
   static class Demand {
     Service type ;
@@ -287,80 +287,81 @@ public class VenueStocks extends Inventory implements Economy {
   }
   
   
-  public void incDemand(Service type, float amount, int tier, int period) {
+  public void incDemand(
+    Service type, float amount, int tier, int period, Owner source
+  ) {
     if (amount == 0) return ;
     final Demand d = demandRecord(type) ;
-    final float inc = POTENTIAL_INC * (period * 1f / UPDATE_PERIOD) ;
-    if (inc >= 1) I.complain("DEMAND INCREMENT TOO HIGH") ;
+    final float inc = period * 1f / UPDATE_PERIOD ;
     d.amountInc += amount * inc ;
-    if (verbose) I.sayAbout(
-      venue, "Demand inc is: "+d.amountInc+" bump: "+amount+
-      " for: "+type
-    ) ;
-    if (tier != -1) d.tierType = tier ;
-  }
-  
-  
-  private void incDemand(Service type, float amount, int period) {
-    if (amount == 0) return ;
-    final Demand d = demandRecord(type) ;
-    incDemand(type, amount, d.tierType, period) ;
-  }
-  
-  
-  private void incPrice(Service type, float toPrice) {
-    final Demand d = demandRecord(type) ;
-    d.pricePaid += (toPrice - type.basePrice) * POTENTIAL_INC ;
-  }
-  
-  
-  public void clearDemands() {
-    //
-    //  TODO:  Just clear the table?
-    for (Demand d : demands.values()) {
-      d.demandAmount = 0 ;
-      d.tierType = TIER_PRODUCER ;
-      //d.demandTier = 0 ;
+    
+    if (verbose && I.talkAbout == venue) {
+      I.say(
+        "  "+type+" demand inc is: "+d.amountInc+" raw amount: "+amount+
+        "\n    Source is: "+source+", base inc: "+inc
+      );
     }
+    if (tier != TIER_NONE) d.tierType = tier;
   }
   
   
-  public void translateDemands(int period, Conversion cons) {
-    //
+  public void translateDemands(int period, Conversion cons, Owner source) {
+    
     //  Firstly, we check to see if the output good is in demand, and if so,
     //  reset demand for the raw materials-
+    final boolean report = verbose && I.talkAbout == venue;
     final float demand = shortageOf(cons.out.type) ;
-    if (verbose) I.sayAbout(venue, "Demand for "+cons.out.type+" is: "+demand) ;
     if (demand <= 0) return ;
+    
+    if (report) {
+      I.say("\nTranslating demand for "+cons.out.type+" at: "+demand) ;
+    }
     float priceBump = 1 ;
-    //
+    
     //  We adjust our prices to ensure we can make a profit, and adjust demand
     //  for the inputs to match demand for the outputs-
     final Demand o = demandRecord(cons.out.type) ;
     o.pricePaid = o.type.basePrice * priceBump / (1f + cons.raw.length) ;
     for (Item raw : cons.raw) {
-      if (verbose) I.sayAbout(venue, "Needs "+raw) ;
       final float needed = raw.amount * demand / cons.out.amount ;
-      incDemand(raw.type, needed, TIER_CONSUMER, period) ;
+      if (report) I.say("  Need "+needed+" "+raw.type+" as raw materials") ;
+      incDemand(raw.type, needed, TIER_CONSUMER, period, source) ;
     }
   }
   
   
-  public void translateBest(int period, Conversion... cons) {
-    final Conversion picked = bestConversion(cons) ;
-    //if (verbose)
-      //I.sayAbout(venue, "Best conversion: "+picked) ;
-    if (picked != null) translateDemands(period, picked) ;
+  private void incDemand(
+    Service type, float amount, int period, Owner source
+  ) {
+    if (amount == 0) return ;
+    final Demand d = demandRecord(type) ;
+    incDemand(type, amount, d.tierType, period, source) ;
   }
   
   
-  public void diffuseDemand(Service type, Batch <Venue> suppliers) {
+  private void incPrice(Service type, float toPrice) {
+    final Demand d = demandRecord(type) ;
+    d.pricePaid += (toPrice - type.basePrice) * DEMAND_DECAY ;
+  }
+  
+  
+  public void clearDemands() {
+    for (Demand d : demands.values()) {
+      d.demandAmount = 0 ;
+      d.tierType = TIER_PRODUCER ;
+    }
+  }
+  
+  
+  public void diffuseDemand(Service type, Batch <Venue> suppliers, int period) {
     final Demand d = demands.get(type) ;
     if (d == null) return ;
     
     final float
       shortage = shortageOf(type),
       urgency = shortageUrgency(type) ;
+    if (shortage <= 0 || urgency <= 0) return;
+    
     final int
       tier = demandTier(type) ;
     if (verbose) I.sayAbout(venue, 
@@ -400,10 +401,8 @@ public class VenueStocks extends Inventory implements Economy {
         weight = rating / sumRatings,
         shortBump = shortage * weight,
         priceBump = type.basePrice * distance / 10f ;
-
-      supplies.stocks.incDemand(
-        type, shortBump, (int) UPDATE_PERIOD
-      ) ;
+      
+      supplies.stocks.incDemand(type, shortBump, period, venue);
       final float price = supplies.priceFor(type) ;
       
       if (verbose && I.talkAbout == venue) {
@@ -423,11 +422,11 @@ public class VenueStocks extends Inventory implements Economy {
   }
   
   
-  public void diffuseDemand(Service type) {
+  public void diffuseDemand(Service type, int period) {
     final Batch <Venue> suppliers = Deliveries.nearbyVendors(
       type, venue, venue.world()
     ) ;
-    diffuseDemand(type, suppliers) ;
+    diffuseDemand(type, suppliers, period) ;
   }
   
   
@@ -445,11 +444,23 @@ public class VenueStocks extends Inventory implements Economy {
       if (m.finished()) specialOrders.remove(m) ;
     }
     //
-    //  TODO:  Just have all stocks wear out/go off, given enough time.
+    //  TODO:  Have all stocks wear out/go off, given enough time.
   }
   
+  /*
+  public void translateBest(int period, Conversion... cons) {
+    final Conversion picked = bestConversion(cons) ;
+    //if (verbose)
+      //I.sayAbout(venue, "Best conversion: "+picked) ;
+    if (picked != null) translateDemands(period, picked) ;
+  }
+  //*/
   
-  protected void diffuseExistingDemand() {
+  
+  private void diffuseExistingDemand() {
+    final boolean report = verbose && I.talkAbout == venue;
+    
+    if (report) I.say("\nDIFFUSING DEMAND AT: "+venue);
     
     final Service vS[] = venue.services() ;
     if ((vS == null || vS.length == 0) && demands.size() == 0) return ;
@@ -458,25 +469,24 @@ public class VenueStocks extends Inventory implements Economy {
     }
     
     for (Demand d : demands.values()) {
-      d.demandAmount *= (1 - POTENTIAL_INC) ;
-      d.demandAmount += d.amountInc ;
+      d.demandAmount += d.amountInc * DEMAND_DECAY ;
+      d.demandAmount *= 1 - DEMAND_DECAY ;
       d.amountInc = 0 ;
-      d.pricePaid -= d.type.basePrice ;
-      d.pricePaid *= (1 - POTENTIAL_INC) ;
-      d.pricePaid += d.type.basePrice ;
-      if (verbose) I.sayAbout(
-        venue, d.type+" demand is: "+d.demandAmount
-      ) ;
       
+      d.pricePaid -= d.type.basePrice ;
+      d.pricePaid *= 1 - DEMAND_DECAY ;
+      d.pricePaid += d.type.basePrice ;
+      
+      if (report) I.say("  "+d.type+" demand is: "+d.demandAmount);
       if (d.tierType == TIER_PRODUCER) continue ;
-      diffuseDemand(d.type) ;
+      diffuseDemand(d.type, (int) UPDATE_PERIOD) ;
     }
     
     for (Manufacture m : specialOrders) {
       final Item out = m.conversion.out ;
       final float amount = m.made().amount / (out == null ? 1 : out.amount) ;
       for (Item i : m.conversion.raw) {
-        incDemand(i.type, i.amount * amount, -1, (int) UPDATE_PERIOD) ;
+        incDemand(i.type, i.amount * amount, -1, (int) UPDATE_PERIOD, venue) ;
       }
     }
   }
