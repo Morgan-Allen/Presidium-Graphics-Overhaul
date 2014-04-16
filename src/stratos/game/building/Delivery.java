@@ -194,7 +194,7 @@ public class Delivery extends Plan implements Economy {
         if (Visit.arrayIncludes(ALL_FOOD_TYPES, i.type)) foodVal += i.amount ;
       }
       if (price > actor.gear.credits()) return 0 ;
-      modifier -= actor.mind.greedFor(price) - ROUTINE ;
+      modifier -= Plan.greedLevel(actor, price) - ROUTINE ;
       modifier += actor.health.hungerLevel() * CASUAL * foodVal ;
     }
     else for (Item i : available) {

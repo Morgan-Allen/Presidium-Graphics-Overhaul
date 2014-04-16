@@ -19,7 +19,7 @@ public class Combat extends Plan implements Qualities {
   /**  Data fields, constructors and save/load methods-
     */
   private static boolean
-    evalVerbose   = false,
+    evalVerbose   = true,
     eventsVerbose = false;
   
   final static int
@@ -84,10 +84,10 @@ public class Combat extends Plan implements Qualities {
   /**  Gauging the relative strength of combatants, odds of success, and how
     *  (un)appealing an engagement would be.
     */
-  final static Trait BASE_TRAITS[] = { FEARLESS, DEFENSIVE };
+  final static Trait BASE_TRAITS[] = { FEARLESS, DEFENSIVE, CRUEL };
   final static Skill
-    MELEE_SKILLS[]  = { HAND_TO_HAND, SHIELD_AND_ARMOUR, FORMATION_COMBAT },
-    RANGED_SKILLS[] = { MARKSMANSHIP, STEALTH_AND_COVER, FORMATION_COMBAT };
+    MELEE_SKILLS[]  = { HAND_TO_HAND },//, SHIELD_AND_ARMOUR, FORMATION_COMBAT },
+    RANGED_SKILLS[] = { MARKSMANSHIP, STEALTH_AND_COVER };//, FORMATION_COMBAT };
   
   
   protected float getPriority() {
@@ -95,9 +95,18 @@ public class Combat extends Plan implements Qualities {
     if (isDowned(target, object)) return 0;
     final boolean melee = actor.gear.meleeWeapon();
     
-    float modifier = 0 - ROUTINE;
+    float modifier = 0;
     Target victim = null;
+    
+    float harmLevel = REAL_HARM;
+    if (object == OBJECT_SUBDUE ) harmLevel = MILD_HARM;
+    if (object == OBJECT_DESTROY) harmLevel = EXTREME_HARM;
+    
+    //  In the case of actors, subtract the actor's willingness to kill and add
+    //  the urge to protect another.
     if (target instanceof Actor) {
+      final float empathy = 1f + actor.traits.relativeLevel(EMPATHIC);
+      modifier -= ROUTINE * empathy * harmLevel;
       //  TODO:  Just use the general harm-level of the other guy's current
       //  behaviour as the basis for evaluation?  ...Yeah.  That.
       victim = ((Actor) target).focusFor(Combat.class);
@@ -105,10 +114,6 @@ public class Combat extends Plan implements Qualities {
         modifier += PARAMOUNT * actor.memories.relationValue(victim);
       }
     }
-    
-    float harmLevel = REAL_HARM;
-    if (object == OBJECT_SUBDUE ) harmLevel = MILD_HARM;
-    if (object == OBJECT_DESTROY) harmLevel = EXTREME_HARM;
     
     final float priority = priorityForActorWith(
       actor, target, PARAMOUNT,

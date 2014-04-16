@@ -101,7 +101,7 @@ public class Resting extends Plan implements Economy {
     }
     if (cost > 0) {
       if (cost > actor.gear.credits() / 2) urgency -= ROUTINE ;
-      urgency -= actor.mind.greedFor(cost) * ROUTINE ;
+      urgency -= Plan.greedLevel(actor, cost) * ROUTINE ;
     }
     
     final float priority = priorityForActorWith(
@@ -281,7 +281,7 @@ public static float ratePoint(Actor actor, Boardable restPoint, int cost) {
   }
   if (cost > 0) {
     if (cost > actor.gear.credits() / 2) priority -= 5 ;
-    priority -= actor.mind.greedFor(cost) / ROUTINE ;
+    priority -= Plan.greedBonus(actor, cost) / ROUTINE ;
   }
   priority -= Plan.rangePenalty(actor, restPoint) ;
   priority -= Plan.dangerPenalty(restPoint, actor) ;

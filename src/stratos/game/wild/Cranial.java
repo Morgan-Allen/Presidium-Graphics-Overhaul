@@ -23,7 +23,7 @@ public class Cranial extends Artilect implements Economy {
   
   
   public Cranial(Base base) {
-    super(base, (Species) null) ;
+    super(base, Species.SPECIES_ARTILECT) ;
     
     traits.initAtts(20, 10, 25) ;
     health.initStats(

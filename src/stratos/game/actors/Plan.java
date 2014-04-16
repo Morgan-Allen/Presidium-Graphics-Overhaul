@@ -7,6 +7,7 @@
 
 package stratos.game.actors ;
 import java.lang.reflect.* ;
+
 import stratos.game.building.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
@@ -14,6 +15,7 @@ import stratos.game.common.Session.Saveable;
 import stratos.game.tactical.*;
 import stratos.user.*;
 import stratos.util.*;
+
 import org.apache.commons.math3.util.FastMath;
 
 
@@ -31,7 +33,8 @@ public abstract class Plan implements Saveable, Behaviour {
     MOTIVE_INIT      = -1,
     MOTIVE_LEISURE   =  0,
     MOTIVE_DUTY      =  1,
-    MOTIVE_EMERGENCY =  2;
+    MOTIVE_EMERGENCY =  2,
+    MOTIVE_MISSION   =  3;
   final static float
     NULL_PRIORITY = -100;
   
@@ -47,7 +50,6 @@ public abstract class Plan implements Saveable, Behaviour {
     nextStep = null,
     lastStep = null;
   
-  //  TODO:  keep a record of harm to the subject.
   private int motiveType = MOTIVE_INIT;
   private float motiveBonus = 0;
   
@@ -264,6 +266,9 @@ public abstract class Plan implements Saveable, Behaviour {
       skillBonus = 0, traitBonus = 0,
       harmBonus = 0, competeBonus = 0;
     
+    if (motiveType == MOTIVE_MISSION) {
+      priority = (priority + motiveBonus) / 2;
+    }
     if (motiveType != MOTIVE_INIT) {
       if (defaultPriority == FROM_MOTIVE) defaultPriority = motiveBonus;
       else defaultPriority = (motiveBonus + defaultPriority) / 2f;
@@ -272,10 +277,7 @@ public abstract class Plan implements Saveable, Behaviour {
       I.complain("NO MOTIVATION!");
       return -1;
     }
-    if (defaultPriority <= 0) {
-      //I.complain("NEGATIVE DEFAULT PRIORITY");
-      return 0;
-    }
+    if (defaultPriority <= 0) return 0;
     
     if (report) {
       I.say("\nEvaluating priority for "+this);
@@ -415,6 +417,22 @@ public abstract class Plan implements Saveable, Behaviour {
       }
     }
     return competition ;
+  }
+  
+  
+  public static float greedLevel(Actor actor, float creditsPerDay) {
+    float baseUnit = actor.gear.credits();
+    final float greed = 1 + actor.traits.relativeLevel(Qualities.ACQUISITIVE);
+    
+    if (actor.base() != null) {
+      final Profile p = actor.base().profiles.profileFor(actor);
+      baseUnit += (100 + p.salary()) / 2f;
+    }
+    baseUnit /= 2f;
+    
+    float mag = 1f + (creditsPerDay / baseUnit);
+    mag = ((float) FastMath.log(2, mag)) * greed;
+    return mag;
   }
   
   

@@ -191,6 +191,18 @@ public abstract class Species implements Session.Saveable, Economy {
     TIMBER      = new Species("Timber"     , Type.FLORA) {},
     
     CROP_SPECIES[] = Species.speciesSoFar(),
+    
+    
+    //  TODO:  Expand this to include each of the main artilect species, and
+    //  include descriptive text.
+    SPECIES_ARTILECT = new Species(
+      "Artilect",
+      "<THIS SPACE RESERVED>",
+      null,
+      null,
+      Type.ARTILECT, 1, 1, 1
+    ) {},
+    
     ALL_SPECIES[] = Species.allSpecies()
   ;
   

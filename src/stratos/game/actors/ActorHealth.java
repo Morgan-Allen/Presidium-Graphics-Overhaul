@@ -263,11 +263,11 @@ public class ActorHealth implements Qualities {
   }
   
   
-  public int sightRange() {
+  public float sightRange() {
     float range = 0.5f + (actor.traits.useLevel(SURVEILLANCE) / 10f);
     range *= (actor.world().dayValue() + 1) / 2;
     range *= GameSettings.actorScale;
-    return (int) (baseSight * (float) Math.sqrt(range * ageMultiple));
+    return baseSight * (float) FastMath.sqrt(range * ageMultiple);
   }
   
   

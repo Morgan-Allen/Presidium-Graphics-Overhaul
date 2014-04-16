@@ -33,7 +33,7 @@ public class Senses implements Qualities {
     */
   private static boolean
     reactVerbose  = false,
-    noticeVerbose = false,
+    noticeVerbose = true,
     sightVerbose  = false;
   
   final Actor actor;
@@ -137,16 +137,29 @@ public class Senses implements Qualities {
   
   
   private boolean notices(Target e, float sightRange) {
+    final boolean report = noticeVerbose && I.talkAbout == actor;
+    
+    if (e instanceof Actor) {
+      //  TODO:  Use harm estimation here!  LIKE IN THE COMBAT CLASS
+      final Actor other = (Actor) e;
+      final Target otherFocus = other.focusFor(Combat.class);
+      if (otherFocus == actor || otherFocus == actor.aboard()) sightRange *= 2;
+    }
     
     final float distance = Spacing.distance(e, actor);
     final Base base = actor.base();
     final float fog = base.primal ?
       Visit.clamp(2 - (distance / sightRange), 0, 1):
       base.intelMap.fogAt(e);
-    if (fog == 0) return false;
+    if (fog == 0) {
+      if (report) {
+        I.say("\nTarget is in fog: "+e+"");
+        I.say("  Distance/sight range: "+distance+"/"+sightRange);
+      }
+      return false;
+    }
     
     //  Decide on the basic stats for evaluation-
-    final boolean report = noticeVerbose && I.talkAbout == actor;
     final boolean
       seen = this.seen.get(e) != null,
       focus = actor.focusFor(null) == e;

@@ -82,7 +82,6 @@ public abstract class ActorMind implements Qualities {
   /**  Calling regular, periodic updates and triggering AI refreshments-
     */
   protected void updateAI(int numUpdates) {
-    updateDrives() ;
     if (numUpdates % 10 != 0) return ;
     //
     //  Remove any expired behaviour-sources:
@@ -406,53 +405,10 @@ public abstract class ActorMind implements Qualities {
   }
   
   
-  
-  /**  Updates associated with general emotional drives.
-    */
-  //  TODO:  These might only be suitable for humans?
-  //  TODO:  Also, include evaluation of career ambitions here.
-  //  TODO:  Put these in a separate class.
-  //*
-  protected void updateDrives() {
-    /*
-    float sumFriends = 0 ;
-    for (Relation r : relations.values()) {
-      sumFriends += Math.max(0, r.value()) ;
-    }
-    sumFriends /= Relation.BASE_NUM_FRIENDS ;
-    sumFriends /= (2 + actor.traits.relativeLevel(OUTGOING)) / 2 ;
-    solitude = Visit.clamp(1 - sumFriends, 0, 1) ;
-    //*/
-  }
-  
-  /*
-  public float solitude() {
-    return solitude ;
-  }
-  //*/
-  
-  
-  /**  Greed value-
-    */
-  public float greedFor(float creditsPerDay) {
-    float baseUnit = actor.gear.credits();
-    final float greed = 1 + actor.traits.relativeLevel(ACQUISITIVE);
-    
-    if (actor.base() != null) {
-      final Profile p = actor.base().profiles.profileFor(actor);
-      baseUnit += (100 + p.salary()) / 2f;
-    }
-    baseUnit /= 2f;
-    
-    float mag = 1f + (creditsPerDay / baseUnit);
-    mag = ((float) FastMath.log(2, mag)) * greed;
-    return (Plan.ROUTINE + mag - 1) / Plan.PARAMOUNT;
-  }
-  
-  
-  
   /**  Supplementary methods for relationships and attitudes-
     */
+  //  TODO:  MOVE TO THE RELATION CLASS
+  
   public float attraction(Actor other) {
     if (this.actor.species() != Species.HUMAN) return 0 ;
     if (other.species() != Species.HUMAN) return 0 ;

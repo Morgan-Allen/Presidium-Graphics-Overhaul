@@ -58,14 +58,13 @@ public class Base implements
     averageMood,
     propertyValues,
     creditCirculation ;
+  
+  //final BaseAI baseAI = new BaseAI(this, BaseAI.RAID_TIME_NORMAL);
   final Table <Accountable, Relation> baseRelations = new Table() ;
   
   final public BaseProfiles profiles = new BaseProfiles(this) ;
   final public DangerMap dangerMap ;
   final public IntelMap intelMap = new IntelMap(this) ;
-  
-  
-  
   
   public String title  = "Player Base" ;
   public Colour colour = new Colour().set(Colour.BLUE) ;  //TODO:  Make private.

@@ -24,6 +24,9 @@ public class StrikeMission extends Mission {
 
   /**  Field definitions, constants and save/load methods-
     */
+  private static boolean verbose = false;
+  
+  
   public StrikeMission(Base base, Target subject) {
     super(
       base, subject,
@@ -45,21 +48,20 @@ public class StrikeMission extends Mission {
   
   /**  Behaviour implementation-
     */
+  //  TODO:  Learn to cache steps for each actor engaged in a mission?
+  
   public float priorityFor(Actor actor) {
     final Combat combat = new Combat(
       actor, (Element) subject, Combat.STYLE_EITHER, objectIndex()
     );
-    return basePriority(actor) + combat.priorityFor(actor);
-    /*
-    if (subject instanceof Actor) return Combat.combatPriority(
-      actor, (Actor) subject, basePriority(actor),
-      PARAMOUNT, false
-    );
-    if (subject instanceof Venue) {
-      return basePriority(actor);
+    final float BP = basePriority(actor);
+    combat.setMotive(Plan.MOTIVE_MISSION, BP);
+    final float priority = combat.priorityFor(actor);
+    
+    if (verbose && I.talkAbout == actor) {
+      I.say("\nBase and final strike mission priority: "+BP+"/"+priority);
     }
-    return 0 ;
-    //*/
+    return priority;
   }
   
   

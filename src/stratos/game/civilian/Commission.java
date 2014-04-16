@@ -121,7 +121,7 @@ public class Commission extends Plan implements Economy {
     final float price = item.priceAt(shop);
     if (price > actor.gear.credits()) return 0;
     
-    final float greed = actor.mind.greedFor(price / NUM_WEAR_DAYS) * ROUTINE;
+    final float greed = Plan.greedLevel(actor, price / NUM_WEAR_DAYS) * ROUTINE;
     float modifier = NO_MODIFIER + item.quality - greed;
     
     final float priority = priorityForActorWith(

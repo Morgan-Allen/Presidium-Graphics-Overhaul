@@ -9,15 +9,11 @@ import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
-
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.*;
 
 
-
-//  *  Text should implement scrolling and scissor clipping. (this might need
-//     some attention paid to general UI design, though.)
 
 public final class PlayLoop {
   

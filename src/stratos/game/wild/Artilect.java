@@ -62,20 +62,20 @@ public abstract class Artilect extends Actor {
   
   
   protected Artilect(Base base, Species s) {
-    super() ;
+    super();
     this.species = s;
     assignBase(base);
   }
   
   
   public Artilect(Session s) throws Exception {
-    super(s) ;
+    super(s);
     this.species = (Species) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
+    super.saveState(s);
     s.saveObject(species);
   }
   
@@ -141,7 +141,6 @@ public abstract class Artilect extends Actor {
     final Plan p = Patrolling.aroundPerimeter(this, guards, world).setMotive(
       Plan.MOTIVE_DUTY, Plan.CASUAL + (distance * Plan.PARAMOUNT)
     );
-    ///I.say("Patrolling priority: "+p.priorityFor(this)) ;
     choice.add(p) ;
     
     for (Target e : senses.awareOf()) if (e instanceof Actor) {
@@ -160,6 +159,7 @@ public abstract class Artilect extends Actor {
     //  (Tripod specialties.)
     choice.add(nextAssault()) ;
     choice.add(new Retreat(this)) ;
+    ///choice.isVerbose = true;
     
     //
     //  Experiment upon/dissect/interrogate/convert any captives.

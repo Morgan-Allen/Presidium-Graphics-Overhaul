@@ -215,7 +215,9 @@ public class Ruins extends Venue {
   
   
   public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
-    return VenueDescription.configSimplePanel(this, panel, UI, null);
+    return VenueDescription.configInfoPanel(this, panel, UI);
+    
+    //return VenueDescription.configSimplePanel(this, panel, UI, null);
   }
   
   

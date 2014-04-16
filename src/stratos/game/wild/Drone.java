@@ -23,13 +23,13 @@ public class Drone extends Artilect implements Economy {
   
   
   public Drone(Base base) {
-    super(base, (Species) null) ;
+    super(base, Species.SPECIES_ARTILECT) ;
     
-    traits.initAtts(15, 10, 5) ;
+    traits.initAtts(15, 10, 5);
     health.initStats(
       10,  //lifespan
       0.65f,//bulk bonus
-      0.65f,//sight range
+      1.00f,//sight range
       1.25f,//move speed,
       ActorHealth.ARTILECT_METABOLISM
     ) ;

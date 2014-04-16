@@ -243,7 +243,7 @@ public class FindHome extends Plan implements Economy {
     
     if (newHome instanceof Holding) {
       final int UL = ((Holding) newHome).upgradeLevel();
-      rating -= actor.mind.greedFor(HoldingUpgrades.TAX_LEVELS[UL]) * ROUTINE;
+      rating -= Plan.greedLevel(actor, HoldingUpgrades.TAX_LEVELS[UL]) * ROUTINE;
       rating += UL;
     }
     
@@ -287,7 +287,7 @@ if (holding.inWorld()) {
 if (actor.mind.home() == null) rating += ROUTINE ;
 
 rating *= (2f - crowding) ;
-rating -= actor.mind.greedFor(HoldingUpgrades.TAX_LEVELS[UL]) / ROUTINE ;
+rating -= Plan.greedBonus(actor, HoldingUpgrades.TAX_LEVELS[UL]) / ROUTINE ;
 rating -= Plan.rangePenalty(actor.mind.work(), holding) ;
 
 if (residents.size() > 0) {
