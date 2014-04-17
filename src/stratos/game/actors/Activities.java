@@ -104,55 +104,22 @@ public class Activities {
   }
   
   
-  //  Intended for debugging purposes.
-  /*
-  public void huntForActionReference(Actor actor) {
-    for (List <Action> LA : actions.values()) for (Action a : LA) {
-      if (a.actor == actor) {
-        I.say(actor+" "+actor.hashCode()+" STILL REFERENCED BY "+a) ;
-        I.say("TARGET IS: "+a.subject()+", IN WORLD? "+a.subject().inWorld()) ;
-      }
-    }
-  }
-  
-  /*
-  public void toggleAction(Action a, boolean is) {
-    if (a == null) return ;
-    if (! a.actor.inWorld()) {
-      I.complain(a+" TOGGLED BY DEFUNCT ACTOR: "+a.actor) ;
-    }
-    
-    final Target t = a.subject() ;
-    List <Action> forT = actions.get(t) ;
-    if (is) {
-      if (forT == null) actions.put(t, forT = new List <Action> ()) ;
-      forT.include(a) ;
-    }
-    else if (forT != null) {
-      forT.remove(a) ;
-      if (forT.size() == 0) actions.remove(t) ;
-    }
-  }
-  //*/
-  
-  
-  /*
-  public boolean includes(Target t, String methodName) {
-    final List <Behaviour> onTarget = actions.get(t) ;
-    if (onTarget == null) return false ;
-    for (Action a : onTarget) {
-      if (a.methodName().equals(methodName)) return true ;
-    }
-    return false ;
-  }
-  //*/
-  
-  
   public boolean includes(Target t, Class behaviourClass) {
     final List <Behaviour> onTarget = activeTable.get(t) ;
     if (onTarget == null) return false ;
     for (Behaviour b : onTarget) {
       if (b.getClass() == behaviourClass) return true ;
+    }
+    return false ;
+  }
+  
+  
+  public boolean includesAction(Target t, String methodName) {
+    final List <Behaviour> onTarget = activeTable.get(t) ;
+    if (onTarget == null) return false ;
+    for (Behaviour b : onTarget) if (b instanceof Action) {
+      final String name = ((Action) b).methodName();
+      if (name.equals(methodName)) return true;
     }
     return false ;
   }

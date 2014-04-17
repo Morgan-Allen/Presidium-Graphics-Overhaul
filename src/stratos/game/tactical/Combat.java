@@ -184,16 +184,17 @@ public class Combat extends Plan implements Qualities {
       if (eventsVerbose && hasBegun()) I.sayAbout(actor, "COMBAT COMPLETE") ;
       return null ;
     }
+
+    Target struck = CombatUtils.mostThreatTo(actor, this.target, true);
+    if (struck == null) struck = this.target;
+    
     Action strike = null ;
     final DeviceType DT = actor.gear.deviceType() ;
     final boolean melee = actor.gear.meleeWeapon() ;
-    final boolean razes = target instanceof Venue ;
+    final boolean razes = struck instanceof Venue ;
     final float danger = CombatUtils.dangerAtSpot(
-      actor.origin(), actor, razes ? null : (Actor) target
+      actor.origin(), actor, razes ? null : (Actor) struck
     ) ;
-    
-    Target struck = CombatUtils.mostThreatTo(actor, this.target, true);
-    if (struck == null) struck = this.target;
     
     final String strikeAnim = DT == null ? Action.STRIKE : DT.animName ;
     if (razes) {
@@ -219,42 +220,46 @@ public class Combat extends Plan implements Qualities {
   }
   
   
-  //  TODO:  You need to be able to switch targets temporarily, based on who
-  //  threatens you most at a given moment.  For that, you need a general
-  //  victim rating.
-  
-  
-  private void configMeleeAction(Action strike, boolean razes, float danger) {
+  private void configMeleeAction(
+    Action strike, boolean razes, float danger
+  ) {
     ///if (eventsVerbose) I.sayAbout(actor, "Configuring melee attack.\n") ;
+    final Element struck = (Element) strike.subject();
     final World world = actor.world() ;
     strike.setProperties(Action.QUICK) ;
     if (razes) {
-      if (! Spacing.adjacent(actor, target)) {
-        strike.setMoveTarget(Spacing.nearestOpenTile(target, actor, world)) ;
+      if (! Spacing.adjacent(actor, struck)) {
+        strike.setMoveTarget(Spacing.nearestOpenTile(struck, actor, world)) ;
       }
       else if (Rand.num() < 0.2f) {
-        strike.setMoveTarget(Spacing.pickFreeTileAround(target, actor)) ;
+        strike.setMoveTarget(Spacing.pickFreeTileAround(struck, actor)) ;
       }
       else strike.setMoveTarget(actor.origin()) ;
     }
   }
   
   
-  private void configRangedAction(Action strike, boolean razes, float danger) {
+  private void configRangedAction(
+    Action strike, boolean razes, float danger
+  ) {
     ///if (eventsVerbose) I.sayAbout(actor, "Configuring ranged attack.\n") ;
     
+    final Activities activities = actor.world().activities;
+    
+    final Element struck = (Element) strike.subject();
     final float range = actor.health.sightRange() ;
-    boolean underFire = actor.world().activities.includes(actor, Combat.class) ;
+    
+    boolean underFire = activities.includesAction(actor, "actionStrike");
     if (razes && Rand.num() < 0.1f) underFire = true ;
     
     boolean dodges = false ;
-    if (actor.senses.hasSeen(target)) {
-      final float distance = Spacing.distance(actor, target) / range ;
+    if (actor.senses.hasSeen(struck)) {
+      final float distance = Spacing.distance(actor, struck) / range ;
       //
       //  If not under fire, consider advancing for a clearer shot-
       if (Rand.num() < distance && ! underFire) {
         final Target AP = Retreat.pickWithdrawPoint(
-          actor, range, target, -0.1f
+          actor, range, struck, -0.1f
         ) ;
         if (AP != null) { dodges = true ; strike.setMoveTarget(AP) ; }
       }
@@ -262,7 +267,7 @@ public class Combat extends Plan implements Qualities {
       //  Otherwise, consider falling back for cover-
       if (underFire && Rand.num() > distance) {
         final Target WP = Retreat.pickWithdrawPoint(
-          actor, range, target, 0.1f
+          actor, range, struck, 0.1f
         ) ;
         if (WP != null) { dodges = true ; strike.setMoveTarget(WP) ; }
       }
