@@ -41,7 +41,7 @@ public class StartupScenario extends Scenario {
     Background.FABRICATOR,
     Background.TECHNICIAN,
     Background.CULTIVATOR,
-    Background.MEDIC
+    Background.MINDER
   } ;
   final public static String
     SITE_DESC[] = {

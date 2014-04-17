@@ -43,8 +43,9 @@ public abstract class Mobile extends Element
   
   protected Boardable aboard ;
   private ListEntry <Mobile> entry = null ;
-  final public Pathing pathing = initPathing() ;
   
+  final public Pathing pathing = initPathing() ;
+  private float strengthEstimate = -1;
   
   
   /**  Basic constructors and save/load functionality-
@@ -60,9 +61,10 @@ public abstract class Mobile extends Element
     position.    loadFrom(s.input()) ;
     nextPosition.loadFrom(s.input()) ;
     aboard = (Boardable) s.loadTarget() ;
-    //boarding = (Boardable) s.loadTarget() ;
     if (pathing != null) pathing.loadState(s) ;
+    strengthEstimate = s.loadFloat();
   }
+  
   
   public void saveState(Session s) throws Exception {
     super.saveState(s) ;
@@ -71,8 +73,8 @@ public abstract class Mobile extends Element
     position    .saveTo(s.output()) ;
     nextPosition.saveTo(s.output()) ;
     s.saveTarget(aboard) ;
-    //s.saveTarget(boarding) ;
     if (pathing != null) pathing.saveState(s) ;
+    s.saveFloat(strengthEstimate);
   }
   
   
@@ -202,7 +204,6 @@ public abstract class Mobile extends Element
   
   
   protected void updateAsMobile() {
-    
     //  
     final Boardable next = pathing == null ? null : pathing.nextStep() ;
     final Tile oldTile = origin() ;
@@ -272,10 +273,7 @@ public abstract class Mobile extends Element
   
   
   //  TODO:  Make this abstract?
-  protected void pathingAbort() {
-  }
-  
-  
+  protected void pathingAbort() {}
   protected float aboveGroundHeight() { return 0; }
   protected boolean collides() { return true; }
   
@@ -285,6 +283,24 @@ public abstract class Mobile extends Element
   public boolean motionHover() { return motionType() == MOTION_HOVER ; }
   public boolean motionFlyer() { return motionType() == MOTION_FLYER ; }
   public boolean motionWater() { return motionType() == MOTION_WATER ; }
+  
+  
+  
+  /**  Regular updates and strength estimates-
+    */
+  public void updateAsScheduled(int numUpdates) {
+    if (numUpdates % 10 == 0) strengthEstimate = -1;
+  }
+  
+
+  public float strengthEstimate() {
+    return strengthEstimate;
+  }
+  
+  
+  public void setStrengthEstimate(float value) {
+    strengthEstimate = value;
+  }
   
   
   

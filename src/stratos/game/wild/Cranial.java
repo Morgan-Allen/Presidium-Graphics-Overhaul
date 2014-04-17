@@ -14,6 +14,9 @@ import stratos.util.* ;
 
 
 
+//  TODO:  Add the grapple, silver plague and psy strike abilities.
+
+
 public class Cranial extends Artilect implements Economy {
   
   
@@ -25,7 +28,7 @@ public class Cranial extends Artilect implements Economy {
   public Cranial(Base base) {
     super(base, Species.SPECIES_ARTILECT) ;
     
-    traits.initAtts(20, 10, 25) ;
+    traits.initAtts(10, 20, 30) ;
     health.initStats(
       1000,//lifespan
       1.5f,//bulk bonus
@@ -35,12 +38,17 @@ public class Cranial extends Artilect implements Economy {
     ) ;
     health.setupHealth(0, Rand.avgNums(2), Rand.avgNums(2)) ;
     
-    gear.setDamage(15) ;
+    gear.setDamage(20) ;
     gear.setArmour(15) ;
+    gear.equipOutfit(Item.withQuality(ARTILECT_ARMOUR, 0)) ;
     gear.equipDevice(Item.withQuality(INTRINSIC_MELEE_WEAPON, 0)) ;
-    traits.setLevel(HAND_TO_HAND, 5) ;
+    traits.setLevel(HAND_TO_HAND, 15) ;
     traits.setLevel(ANATOMY, 10) ;
-    traits.setLevel(ASSEMBLY, 15) ;
+    traits.setLevel(ASSEMBLY, 20) ;
+    traits.setLevel(INSCRIPTION, 10) ;
+    
+    traits.setLevel(IMPASSIVE, 1);
+    traits.setLevel(CRUEL, 1);
     
     attachModel(MODEL_CRANIAL) ;
     name = nameWithBase("Cranial ") ;
@@ -63,7 +71,12 @@ public class Cranial extends Artilect implements Economy {
   /**  Physical properties-
     */
   public float aboveGroundHeight() {
-    return 0.5f ;
+    return 0.25f ;
+  }
+  
+  
+  public float height() {
+    return 1.5f;
   }
   
   
@@ -82,9 +95,9 @@ public class Cranial extends Artilect implements Economy {
   
   public String helpInfo() {
     return
-      "Cranials are cunning, quasi-organic machine intelligences with a "+
-      "propensity for abducting living creatures for purposes of dissection, "+
-      "interrogation and ultimate assimilation." ;
+      "Cranials are cunning, quasi-organic machine intelligences that direct "+
+      "the efforts of their lesser brethren.  They have a marked propensity "+
+      "for tortuous experiments on living creatures.";
   }
   
   

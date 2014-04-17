@@ -239,7 +239,7 @@ public class Performance extends Recreation {
       actor, venue, CASUAL,
       MILD_HELP, MILD_COOPERATION,
       PERFORM_SKILLS[type], BASE_TRAITS,
-      NO_MODIFIER, NORMAL_DISTANCE_CHECK, NO_DANGER,
+      NO_MODIFIER, NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
       report
     );
     return priority;

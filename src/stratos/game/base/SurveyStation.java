@@ -141,13 +141,13 @@ public class SurveyStation extends Venue implements Economy {
   
   
   public Background[] careers() {
-    return new Background[] { Background.SURVEY_SCOUT } ;
+    return new Background[] { Background.EXPLORER } ;
   }
   
   
   public int numOpenings(Background v) {
     final int nO = super.numOpenings(v) ;
-    if (v == Background.SURVEY_SCOUT) {
+    if (v == Background.EXPLORER) {
       return nO + 3 + structure.upgradeLevel(EXPLORER_STATION) ;
     }
     return 0 ;

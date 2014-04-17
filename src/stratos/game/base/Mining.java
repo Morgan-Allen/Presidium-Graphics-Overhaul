@@ -140,7 +140,7 @@ public class Mining extends Plan implements Economy {
     final Batch <Target> sampled = new Batch <Target> () ;
     Target picked = null ;
     float bestRating = Float.NEGATIVE_INFINITY ;
-    presences.sampleFromKey(site, site.world(), 5, sampled, Outcrop.class) ;
+    presences.sampleFromMap(site, site.world(), 5, sampled, Outcrop.class) ;
     if (under != null) for (int n = 5 ; n-- > 0 ;) {
       sampled.add((Tile) Rand.pickFrom(under)) ;
     }

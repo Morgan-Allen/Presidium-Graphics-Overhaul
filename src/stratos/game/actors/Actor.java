@@ -210,6 +210,7 @@ public abstract class Actor extends Mobile implements
   
   
   public void updateAsScheduled(int numUpdates) {
+    super.updateAsScheduled(numUpdates);
     //
     //  Update our basic statistics and physical properties-
     health.updateHealth(numUpdates) ;

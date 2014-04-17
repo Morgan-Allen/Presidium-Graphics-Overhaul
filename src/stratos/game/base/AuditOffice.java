@@ -156,7 +156,7 @@ public class AuditOffice extends Venue implements Economy {
     
     if (actor.vocation() == Background.ADVERTISER) {
       Batch <Venue> clients = new Batch <Venue> () ;
-      world.presences.sampleFromKey(this, world, 5, clients, Holding.class) ;
+      world.presences.sampleFromMap(this, world, 5, clients, Holding.class) ;
       
       final Delivery c = Deliveries.nextCollectionFor(
         actor, this, new Service[] { PLASTICS }, 5, null, world

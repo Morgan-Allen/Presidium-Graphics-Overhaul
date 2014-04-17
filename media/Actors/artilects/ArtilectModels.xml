@@ -117,7 +117,7 @@
   type="JOINT"
   path="media/Actors/artilects/"
   file="Cranial.ms3d"
-  scale="0.008"
+  scale="0.012"
   bound="2.5"
   stride="1.5"
   height="2.5"

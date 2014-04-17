@@ -128,7 +128,7 @@ public class Commission extends Plan implements Economy {
       actor, shop, CASUAL,
       MILD_HELP, MILD_COMPETITION,
       NO_SKILLS, BASE_TRAITS,
-      modifier, NORMAL_DISTANCE_CHECK, NO_DANGER,
+      modifier, NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
       report
     );
     

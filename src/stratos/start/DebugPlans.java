@@ -93,8 +93,8 @@ public class DebugPlans extends Scenario {
     Placement.establishVenue(
       new Sickbay(base), 6, 6, true, world,
       treats,
-      new Human(Background.MEDIC, base),
-      new Human(Background.MEDIC, base)
+      new Human(Background.MINDER, base),
+      new Human(Background.MINDER, base)
     );
     
     final Actor patient = new Human(Background.VETERAN, base);
@@ -110,12 +110,12 @@ public class DebugPlans extends Scenario {
     GameSettings.buildFree = true;
     //GameSettings.noBlood = true;
     
-    final Actor hunts = new Human(Background.SURVEY_SCOUT, base);
+    final Actor hunts = new Human(Background.EXPLORER, base);
     final Venue station = new SurveyStation(base);
     Placement.establishVenue(
       station, 6, 6, true, world,
-      new Human(Background.SURVEY_SCOUT, base),
-      new Human(Background.SURVEY_SCOUT, base),
+      new Human(Background.EXPLORER, base),
+      new Human(Background.EXPLORER, base),
       hunts
     );
     

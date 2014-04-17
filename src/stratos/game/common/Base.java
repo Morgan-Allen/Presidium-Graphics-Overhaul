@@ -236,7 +236,14 @@ public class Base implements
   
   public float relationWith(Base base) {
     final Relation r = baseRelations.get(base) ;
-    if (r == null) return 0 ;
+    if (r == null) {
+      //  TODO:  Failing that, base off relations with the house of the base's
+      //  ruler.
+      final float initR = base.primal ? -0.5f : 0.5f;
+      final Relation n = new Relation(this, base, initR, -1);
+      baseRelations.put(base, n);
+      return n.value();
+    }
     return r.value() ;
   }
   

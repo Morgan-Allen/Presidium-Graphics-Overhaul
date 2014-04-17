@@ -94,6 +94,7 @@ public class Combat extends Plan implements Qualities {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (isDowned(target, object)) return 0;
     final boolean melee = actor.gear.meleeWeapon();
+    final boolean isActor = target instanceof Actor;
     
     float modifier = 0;
     Target victim = null;
@@ -104,11 +105,12 @@ public class Combat extends Plan implements Qualities {
     
     //  In the case of actors, subtract the actor's willingness to kill and add
     //  the urge to protect another.
-    if (target instanceof Actor) {
+    if (isActor) {
       final float empathy = 1f + actor.traits.relativeLevel(EMPATHIC);
       modifier -= ROUTINE * empathy * harmLevel;
+      
       //  TODO:  Just use the general harm-level of the other guy's current
-      //  behaviour as the basis for evaluation?  ...Yeah.  That.
+      //  behaviour as the basis for evaluation?  IMPLEMENT THAT
       victim = ((Actor) target).focusFor(Combat.class);
       if (victim != null) {
         modifier += PARAMOUNT * actor.memories.relationValue(victim);
@@ -116,10 +118,10 @@ public class Combat extends Plan implements Qualities {
     }
     
     final float priority = priorityForActorWith(
-      actor, target, PARAMOUNT,
+      actor, target, isActor ? PARAMOUNT : ROUTINE,
       harmLevel, FULL_COOPERATION,
       melee ? MELEE_SKILLS : RANGED_SKILLS, BASE_TRAITS,
-      modifier, NORMAL_DISTANCE_CHECK, REAL_DANGER,
+      modifier, NORMAL_DISTANCE_CHECK, REAL_FAIL_RISK,
       report
     );
     
@@ -190,29 +192,36 @@ public class Combat extends Plan implements Qualities {
       actor.origin(), actor, razes ? null : (Actor) target
     ) ;
     
+    Target struck = CombatUtils.mostThreatTo(actor, this.target, true);
+    if (struck == null) struck = this.target;
+    
     final String strikeAnim = DT == null ? Action.STRIKE : DT.animName ;
     if (razes) {
       strike = new Action(
-        actor, target,
+        actor, struck,
         this, "actionSiege",
         strikeAnim, "Razing"
       ) ;
     }
     else {
       strike = new Action(
-        actor, target,
+        actor, struck,
         this, "actionStrike",
         strikeAnim, "Striking at"
       ) ;
     }
-    //
+    
     //  Depending on the type of target, and how dangerous the area is, a bit
     //  of dancing around may be in order.
     if (melee) configMeleeAction(strike, razes, danger) ;
     else configRangedAction(strike, razes, danger) ;
-    ///if (eventsVerbose) I.sayAbout(actor, "NEXT STRIKE "+strike) ;
     return strike ;
   }
+  
+  
+  //  TODO:  You need to be able to switch targets temporarily, based on who
+  //  threatens you most at a given moment.  For that, you need a general
+  //  victim rating.
   
   
   private void configMeleeAction(Action strike, boolean razes, float danger) {

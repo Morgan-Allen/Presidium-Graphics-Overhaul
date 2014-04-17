@@ -8,7 +8,9 @@
 package stratos.game.tactical ;
 import stratos.game.actors.*;
 import stratos.game.building.*;
+import stratos.game.civilian.FirstAid;
 import stratos.game.common.*;
+import stratos.game.tactical.Mission.Role;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -77,8 +79,11 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   /**  Obtaining and evaluating patrols targets-
     */
   final static Trait BASE_TRAITS[] = { FEARLESS, SIMPLE, SOLITARY };
-  final static Skill BASE_SKILLS[] = { SURVEILLANCE, HAND_TO_HAND };
+  final static Skill
+    BASE_SKILLS[] = { SURVEILLANCE, MARKSMANSHIP, HAND_TO_HAND };
   
+  //  TODO:  Include bonus from first aid or assembly skills, depending on the
+  //  target.
 
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
@@ -100,7 +105,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
       actor, onPoint, urgency,
       MILD_HELP, NO_COMPETITION,
       BASE_SKILLS, BASE_TRAITS,
-      NO_MODIFIER, NORMAL_DISTANCE_CHECK, MILD_DANGER,
+      NO_MODIFIER, NORMAL_DISTANCE_CHECK, MILD_FAIL_RISK,
       report
     );
     return priority;
@@ -116,33 +121,59 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     final World world = actor.world() ;
     Target stop = onPoint ;
     if (report) I.say("Goes: "+onPoint+", post time: "+postTime) ;
-    //
-    //  TODO:  You need to add an intercept/attack behaviour for enemies near
-    //  the guarded target (if any?)
     
-    if (type != TYPE_SENTRY_DUTY) {
-      Tile open = world.tileAt(onPoint) ;
-      open = Spacing.nearestOpenTile(open, actor) ;
-      if (open == null) {
-        onPoint = (Boardable) patrolled.atIndex(patrolled.indexOf(onPoint) + 1) ;
-        if (onPoint == null) {
-          abortBehaviour() ;
-          return null ;
+    //  First, check to see if there are any supplemental behaviours you could
+    //  or should be performing (first aid, repairs, or defence.)
+    Behaviour picked = null;
+    float bestPriority = Plan.IDLE;
+    
+    final Target threat = CombatUtils.mostThreatTo(actor, onPoint, false);
+    if (threat != null) {
+      final Combat fend = new Combat(actor, (Element) threat);
+      final float fP = fend.priorityFor(actor);
+      if (fP > bestPriority) { picked = fend; bestPriority = fP; }
+    }
+    
+    for (Target defends : actor.senses.awareOf()) {
+      if (defends instanceof Actor) {
+        final FirstAid treats = new FirstAid(actor, (Actor) defends);
+        final float tP = treats.priorityFor(actor);
+        if (tP > bestPriority) { picked = treats; bestPriority = tP; }
+      }
+    }
+    
+    if (onPoint instanceof Venue) {
+      final Repairs repairs = new Repairs(actor, (Venue) onPoint) ;
+      final float rP = repairs.priorityFor(actor);
+      if (rP > bestPriority) { picked = repairs; bestPriority = rP; }
+    }
+    
+    if (picked != null) return picked;
+    
+    //  If you're on sentry duty, check to see if you've spent long enough at
+    //  your post.
+    if (type == TYPE_SENTRY_DUTY) {
+      if (postTime != -1) {
+        final float spent = world.currentTime() - postTime ;
+        if (report) I.say("Time at post: "+spent) ;
+        if (spent < WATCH_TIME) {
+          final Action watch = new Action(
+            actor, onPoint,
+            this, "actionStandWatch",
+            Action.LOOK, "Standing Watch"
+          ) ;
+          return watch ;
         }
       }
-      else stop = open ;
     }
-    else if (postTime != -1) {
-      final float spent = world.currentTime() - postTime ;
-      if (report) I.say("Time at post: "+spent) ;
-      if (spent < WATCH_TIME) {
-        final Action watch = new Action(
-          actor, onPoint,
-          this, "actionStandWatch",
-          Action.LOOK, "Standing Watch"
-        ) ;
-        return watch ;
-      }
+    
+    //  Otherwise, find the nearest free point to stand around the next point
+    //  to guard, and proceed there.
+    else {
+      Tile open = world.tileAt(onPoint) ;
+      open = Spacing.nearestOpenTile(open, actor) ;
+      if (open == null) { abortBehaviour(); return null; }
+      else stop = open ;
     }
     
     if (report) I.say("Next stop: "+stop+" "+stop.hashCode()) ;

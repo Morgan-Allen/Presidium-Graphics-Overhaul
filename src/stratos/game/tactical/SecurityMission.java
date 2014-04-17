@@ -14,6 +14,11 @@ import stratos.util.*;
 
 
 
+//
+//  TODO:  Move these behavioural functions out to the Patrolling class.
+
+
+
 public class SecurityMission extends Mission implements Qualities {
   
   
@@ -67,28 +72,11 @@ public class SecurityMission extends Mission implements Qualities {
   public float priorityFor(Actor actor) {
     if (actor == subject) return 0 ;
     
-    float priority = basePriority(actor);
-    priority -= Plan.dangerPenalty(subject, actor) ;
-    priority -= duration() * 0.5f / World.STANDARD_DAY_LENGTH ;
-    if (subject instanceof Actor) {
-      priority += actor.memories.relationValue((Actor) subject) * ROUTINE ;
-    }
-    if (subject instanceof Venue) {
-      priority += actor.memories.relationValue((Venue) subject) * ROUTINE ;
-    }
-    
-    //
-    //  Modify by possession of combat and surveillance skills-
-    float ability = 1 ;
-    ability *= actor.traits.useLevel(SURVEILLANCE) / 10f ;
-    ability *= CombatUtils.combatStrength(actor, null) * 1.5f ;
-    ability = Visit.clamp(ability, 0.5f, 1.5f) ;
-    priority = Visit.clamp(priority * ability, 0, PARAMOUNT) ;
-    
-    if (verbose && I.talkAbout == actor) {
-      I.say("  SECURITY priority for "+actor+" is "+priority);
-    }
-    return priority ;
+    final Patrolling patrol = Patrolling.aroundPerimeter(
+      actor, (Element) subject, subject.world()
+    );
+    patrol.setMotive(Plan.MOTIVE_MISSION, basePriority(actor));
+    return patrol.priorityFor(actor);
   }
   
   
@@ -105,75 +93,30 @@ public class SecurityMission extends Mission implements Qualities {
     inceptTime = base.world.currentTime();
   }
   
-  /*
-  public void updateMission() {
-    super.updateMission();
-    //  TODO:  Get rid of this.  Shouldn't be needed.
-    if (hasBegun() && inceptTime == -1) {
-      inceptTime = base.world.currentTime() - (DURATION_LENGTHS[0] * 0.66f);
-    }
-  }
-  //*/
   
   
   /**  Behaviour implementation-
     */
+  //  TODO:  Consider implementing shifts or supply logistics, in the case of
+  //  longer security details?
+  
   public Behaviour nextStepFor(Actor actor) {
-    final boolean report = verbose && I.talkAbout == actor;
+    ///final boolean report = verbose && I.talkAbout == actor;
     if (! isActive()) return null;
     
-    Behaviour picked = null;
-    float bestPriority = 0;
-
-    if (subject instanceof Venue) {
-      final Repairs repairs = new Repairs(actor, (Venue) subject) ;
-      final float rP = repairs.priorityFor(actor);
-      if (rP > bestPriority) { picked = repairs; bestPriority = rP; }
-    }
-    
-    final Batch <Target> defended = new Batch <Target> () ;
-    defended.add(subject) ;
-    for (Role role : roles) defended.add(role.applicant) ;
-    
-    for (Target defends : defended) {
-      if (defends instanceof Actor) {
-        final FirstAid treats = new FirstAid(actor, (Actor) defends) ;
-        final float tP = treats.priorityFor(actor);
-        if (tP > bestPriority) { picked = treats; bestPriority = tP; }
-      }
-    }
-    
-    for (Target e : actor.senses.awareOf()) if (e instanceof Actor) {
-      final Actor a = (Actor) e;
-      final Target victim = a.focusFor(Combat.class);
-      if (victim == null || ! defended.includes(victim)) continue;
-      
-      final Combat fend = new Combat(actor, a);
-      final float fP = fend.priorityFor(actor);
-      if (fP > bestPriority) { picked = fend; bestPriority = fP; }
-    }
-    
-    
-    //TODO:  ...Implement shifts here?
-    final Plan patrol = Patrolling.aroundPerimeter(
-      actor, (Element) subject, base.world
-    );
-    final float pP = patrol.priorityFor(actor);
-    if (picked == null || pP > bestPriority) picked = patrol;
-    //  TODO:  get the list of the actor's reactions, modify the priorities,
-    //  and choose from those again.  Huh.  That could work.
-    
-    if (report) I.say("Picked is: "+picked);
-    return picked;
-    //  TODO:  Implement item salvage.
+    //  TODO:  Implement item salvage?
     /*
     if (subject instanceof ItemDrop) {
       final ItemDrop SI = (ItemDrop) subject ;
-      final Recovery RS = new Recovery(actor, SA, admin) ;
+      final Recovery RS = new Recovery(actor, SI, admin) ;
       RS.setMotive(Plan.MOTIVE_DUTY, priority) ;
-      choice.add(TS) ;
+      choice.add(RS) ;
     }
     //*/
+    
+    return Patrolling.aroundPerimeter(
+      actor, (Element) subject, base.world
+    );
   }
   
   

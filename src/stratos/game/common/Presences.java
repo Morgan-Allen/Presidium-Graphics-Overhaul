@@ -154,25 +154,29 @@ public class Presences {
   }
   
   
-  public Series <Target> sampleFromKeys(
-    Target t, World world, int limit, Series sampled, Object... keys
+  public Series <Target> sampleFromMaps(
+    Target t, World world, int limit,
+    Series <? extends Target> sampled, Object... keys
   ) {
     if (sampled == null) sampled = new Batch() ;
+    else if (sampled.size() > 0) for (Target o : sampled) flagItem(o, sampled) ;
     for (Object key : keys) {
       sampleTargets(key, t, world, limit, sampled) ;
     }
-    for (Object o : sampled) ((Target) o).flagWith(null) ;
-    return sampled ;
+    for (Target o : sampled) flagItem(o, null) ;
+    return (Series) sampled ;
   }
   
-
-  public Series <Target> sampleFromKey(
-    Target t, World world, int limit, Series sampled, Object key
+  
+  public Series <Target> sampleFromMap(
+    Target t, World world, int limit,
+    Series <? extends Target> sampled, Object key
   ) {
     if (sampled == null) sampled = new Batch() ;
+    else if (sampled.size() > 0) for (Target o : sampled) flagItem(o, sampled) ;
     sampleTargets(key, t, world, limit, sampled) ;
-    for (Object o : sampled) ((Target) o).flagWith(null) ;
-    return sampled ;
+    for (Target o : sampled) flagItem(o, null) ;
+    return (Series) sampled ;
   }
   
   
@@ -181,17 +185,32 @@ public class Presences {
   ) {
     for (int n = limit / 2 ; n-- > 0 ;) {
       final Target v = randomMatchNear(key, t, -1) ;
+      if (v != t) flagItem(v, sampled);
+      /*
       if (v == t || v == null || v.flaggedWith() != null) continue ;
       sampled.add(v) ;
       v.flagWith(sampled) ;
+      //*/
     }
     for (Object o : matchesNear(key, t, -1)) {
-      if (o == t) continue ; final Target v = (Target) o ;
+      if (o != t) flagItem((Target) o, sampled);
+      /*
+      final Target v = (Target) o ;
       if (v.flaggedWith() != null) continue ;
       sampled.add(v) ;
+      //*/
       if (sampled.size() >= limit) break ;
     }
     return sampled ;
+  }
+  
+  
+  private static boolean flagItem(Target item, Series sampled) {
+    if (item == null) return false;
+    if (item.flaggedWith() == sampled) return false;
+    if (sampled != null) sampled.add(item);
+    item.flagWith(sampled);
+    return true;
   }
 }
 

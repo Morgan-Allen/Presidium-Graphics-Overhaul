@@ -108,7 +108,7 @@ public class FindWork extends Plan implements Economy {
     if (actor.mind.application() != null) {
       final Application oldApp = actor.mind.application() ;
       bestRating = Math.max(bestRating, rateApplication(oldApp) * 1.5f) ;
-      world.presences.sampleFromKeys(
+      world.presences.sampleFromMaps(
         from, world, 2, batch, oldApp.position
       ) ;
     }
@@ -116,7 +116,7 @@ public class FindWork extends Plan implements Economy {
       final Application WA = new Application(actor, actor.vocation(), work) ;
       bestRating = Math.max(bestRating, rateApplication(WA) * 1.5f) ;
     }
-    world.presences.sampleFromKeys(
+    world.presences.sampleFromMaps(
       from, world, 2, batch, actor.vocation(), base
     ) ;
     

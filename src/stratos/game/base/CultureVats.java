@@ -97,7 +97,7 @@ public class CultureVats extends Venue implements Economy {
       "Vat Breeders supervise the cultivation and harvesting of the chemical "+
       "and biological processes needed to produce pharmaceuticals and tissue "+
       "samples.",
-      100, Background.BIOCHEMIST, 1, null, ALL_UPGRADES
+      100, Background.VATS_BREEDER, 1, null, ALL_UPGRADES
     )
   ;
   
@@ -198,13 +198,13 @@ public class CultureVats extends Venue implements Economy {
   
   
   public Background[] careers() {
-    return new Background[] { Background.BIOCHEMIST } ;
+    return new Background[] { Background.VATS_BREEDER } ;
   }
   
   
   public int numOpenings(Background v) {
     final int nO = super.numOpenings(v) ;
-    if (v == Background.BIOCHEMIST) {
+    if (v == Background.VATS_BREEDER) {
       return nO + 1 ;//+ structure.upgradeLevel(VATS_BREEDER_STATION) ;
     }
     return 0 ;

@@ -139,7 +139,7 @@ public class FindHome extends Plan implements Economy {
     Employer best = oldHome ;
     float bestRating = oldHome == null ? 0 : rateHolding(client, best) ;
     
-    for (Object o : world.presences.sampleFromKey(
+    for (Object o : world.presences.sampleFromMap(
       client, world, 3, null, Holding.class
     )) {
       final Holding h = (Holding) o ;

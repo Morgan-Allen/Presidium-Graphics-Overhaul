@@ -24,6 +24,13 @@ public class Memories {
   
   final Actor actor ;
   final Table <Accountable, Relation> relations = new Table() ;
+  
+  private float strengthEstimate = -1;
+  
+  //  Point of retreat.
+  //  Career interest.
+  //  Combat strength
+  
   //final List <Plan> remembered ;
   //final Table <Plan, List <Saveable>> associations ;
   //
@@ -72,14 +79,24 @@ public class Memories {
   
   
   
-
   public void updateValues(int numUpdates) {
     for (Relation r : relations.values()) {
       r.update();
     }
+    strengthEstimate = -1;
   }
   
   
+  
+  
+  /**  Miscellaneous caching functions-
+    */
+  
+  
+  
+  
+  /**  Handling relationships and attitudes-
+    */
   public float relationValue(Base base) {
     final Base AB = actor.base() ;
     if (AB != null) {

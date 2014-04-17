@@ -80,7 +80,7 @@ public class Audit extends Plan implements Economy {
     final World world = actor.world() ;
     final Venue work = (Venue) actor.mind.work() ;
     final Batch <Venue> batch = new Batch <Venue> () ;
-    world.presences.sampleFromKey(work, world, 10, batch, work.base()) ;
+    world.presences.sampleFromMap(work, world, 10, batch, work.base()) ;
     
     Venue picked = null ;
     float bestRating = 0, rating ;
@@ -100,7 +100,7 @@ public class Audit extends Plan implements Economy {
     final World world = actor.world() ;
     final Upgrade WS = AuditOffice.RELIEF_AUDIT ;
     
-    for (Object o : world.presences.sampleFromKey(
+    for (Object o : world.presences.sampleFromMap(
       actor, world, 5, null, SERVICE_ADMIN
     )) {
       final Venue v = (Venue) o ;
@@ -287,18 +287,18 @@ public class Audit extends Plan implements Economy {
     if (actor.base().primal) return 0;
     
     final int bracket = actor.vocation().standing ;
-    if (bracket == Background.SLAVE_CLASS) return 0 ;
-    if (bracket == Background.RULER_CLASS) return 0 ;
+    if (bracket == Background.CLASS_NATIVE) return 0 ;
+    if (bracket == Background.CLASS_STRATOI) return 0 ;
     
     final BaseProfiles BP = actor.base().profiles ;
     int taxLevel = 0 ;
-    if (bracket == Background.LOWER_CLASS) {
+    if (bracket == Background.CLASS_SLAVE) {
       taxLevel = BP.querySetting(AuditOffice.KEY_LOWER_TAX) ;
     }
-    if (bracket == Background.MIDDLE_CLASS) {
+    if (bracket == Background.CLASS_VASSAL) {
       taxLevel = BP.querySetting(AuditOffice.KEY_MIDDLE_TAX) ;
     }
-    if (bracket == Background.LOWER_CLASS) {
+    if (bracket == Background.CLASS_SLAVE) {
       taxLevel = BP.querySetting(AuditOffice.KEY_UPPER_TAX) ;
     }
     final int

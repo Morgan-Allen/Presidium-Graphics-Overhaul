@@ -5,9 +5,12 @@ import stratos.game.common.*;
 import stratos.game.common.Session.Saveable;
 import stratos.game.actors.*;
 import stratos.game.building.*;
-import stratos.util.Description;
-import stratos.util.I;
+import stratos.util.*;
 
+
+
+
+//  TODO:  Extend this more generally to capture and arrest.
 
 
 public class StretcherDelivery extends Plan implements Qualities {
@@ -53,7 +56,7 @@ public class StretcherDelivery extends Plan implements Qualities {
       actor, patient, ROUTINE,
       REAL_HELP, FULL_COMPETITION,
       BASE_SKILLS, BASE_TRAITS,
-      NO_MODIFIER, PARTIAL_DISTANCE_CHECK, NO_DANGER,
+      NO_MODIFIER, PARTIAL_DISTANCE_CHECK, NO_FAIL_RISK,
       verbose
     );
   }

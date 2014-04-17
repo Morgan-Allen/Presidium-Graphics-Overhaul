@@ -201,7 +201,7 @@ public class HumanMind extends ActorMind implements Qualities {
     final Batch <Employer> around = new Batch <Employer> () ;
     float numSampled = 5 + (actor.traits.traitLevel(COGNITION) / 4) ;
     
-    world.presences.sampleFromKey(
+    world.presences.sampleFromMap(
       actor, world, (int) numSampled, around, Venue.class
     ) ;
     final boolean timeoff = work == null || ! work.personnel().onShift(actor) ;

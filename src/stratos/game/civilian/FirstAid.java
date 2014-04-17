@@ -107,7 +107,7 @@ public class FirstAid extends Plan implements Qualities, Economy {
       BASE_TRAITS,
       modifier,
       NORMAL_DISTANCE_CHECK,
-      MILD_DANGER,
+      MILD_FAIL_RISK,
       report
     );
     

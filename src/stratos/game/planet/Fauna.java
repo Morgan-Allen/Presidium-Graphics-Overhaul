@@ -152,7 +152,7 @@ public abstract class Fauna extends Actor {
     if (centre == null) centre = this ;
     
     final Batch <Flora> sampled = new Batch <Flora> () ;
-    world.presences.sampleFromKey(centre, world, 5, sampled, Flora.class) ;
+    world.presences.sampleFromMap(centre, world, 5, sampled, Flora.class) ;
     /*
     final PresenceMap map = world.presences.mapFor(Flora.class) ;
     for (int n = 5 ; n-- > 0 ;) {

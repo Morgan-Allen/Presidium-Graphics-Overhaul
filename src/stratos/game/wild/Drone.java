@@ -40,6 +40,8 @@ public class Drone extends Artilect implements Economy {
     traits.setLevel(MARKSMANSHIP, 5) ;
     gear.equipDevice(Item.withQuality(INTRINSIC_ENERGY_WEAPON, 0)) ;
     
+    traits.setLevel(CURIOUS, 1);
+    
     final ModelAsset model = DRONE_MODELS[Rand.index(3)] ;
     attachSprite(model.makeSprite()) ;
     name = nameWithBase("Drone ") ;

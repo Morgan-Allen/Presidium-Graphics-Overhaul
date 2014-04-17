@@ -238,7 +238,7 @@ public class Nest extends Venue {
     if (crowdingFor(fauna) > 0.5f) {
       Nest bestNear = null ;
       float bestRating = 0 ;
-      for (Object o : world.presences.sampleFromKey(
+      for (Object o : world.presences.sampleFromMap(
         fauna, world, 5, null, Nest.class
       )) {
         final Nest l = (Nest) o ;

@@ -14,14 +14,8 @@ import stratos.util.*;
 
 
 
-
-//  Merge this with the Combat class?
-
-
 public class StrikeMission extends Mission {
   
-  
-
   /**  Field definitions, constants and save/load methods-
     */
   private static boolean verbose = false;

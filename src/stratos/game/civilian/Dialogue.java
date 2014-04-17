@@ -104,7 +104,7 @@ public class Dialogue extends Plan implements Qualities {
       actor, other, ROUTINE * urgency,
       MILD_HELP, MILD_COMPETITION,
       BASE_SKILLS, BASE_TRAITS,
-      NO_MODIFIER, HEAVY_DISTANCE_CHECK, NO_DANGER,
+      NO_MODIFIER, HEAVY_DISTANCE_CHECK, NO_FAIL_RISK,
       report
     );
     return priority;
@@ -289,8 +289,8 @@ public class Dialogue extends Plan implements Qualities {
     if (other.health.artilect()) return INSCRIPTION;
     if (other.health.human()) {
       final int standing = other.vocation().standing;
-      if (standing == Background.RULER_CLASS) return NOBLE_ETIQUETTE;
-      if (standing == Background.SLAVE_CLASS) return NATIVE_TABOO;
+      if (standing == Background.CLASS_STRATOI) return NOBLE_ETIQUETTE;
+      if (standing == Background.CLASS_NATIVE) return NATIVE_TABOO;
       return COMMON_CUSTOM;
     }
     return null;

@@ -33,7 +33,7 @@ public class Senses implements Qualities {
     */
   private static boolean
     reactVerbose  = false,
-    noticeVerbose = true,
+    noticeVerbose = false,
     sightVerbose  = false;
   
   final Actor actor;
@@ -76,22 +76,27 @@ public class Senses implements Qualities {
     final float range = actor.health.sightRange();
     if (report) I.say("\nUpdating seen, sight range: "+range);
     
+    //  Automatically include home, work, anyone actively targeting you, and
+    //  anything you target.
+    noticed.include(actor.mind.home);
+    noticed.include(actor.mind.work);
+    for (Behaviour b : world.activities.targeting(actor)) {
+      if (b instanceof Action) noticed.include(((Action) b).actor);
+    }
+    noticed.include(actor.focusFor(null));
+    
     //  Add anything newly within range-
     final int reactLimit = 1 + (int) (actor.traits.traitLevel(PERCEPT) / 5);
-    world.presences.sampleFromKeys(
+    int reactCount = 0;
+    for (Object m : world.presences.matchesNear(Mobile.class, actor, range)) {
+      noticed.add((Target) m);
+      if (++reactCount > reactLimit) break;
+    }
+    world.presences.sampleFromMaps(
       actor, world, reactLimit, noticed,
       Mobile.class,
       Venue.class
     );
-    
-    //  Automatically include home, work, anyone actively targeting you, and
-    //  anything you target.
-    noticed.add(actor.mind.home);
-    noticed.add(actor.mind.work);
-    for (Behaviour b : world.activities.targeting(actor)) {
-      if (b instanceof Action) noticed.add(((Action) b).actor);
-    }
-    noticed.add(actor.focusFor(null));
     
     //  Check for anything new, and react to it.
     final Choice reactions = new Choice(actor);
@@ -137,14 +142,11 @@ public class Senses implements Qualities {
   
   
   private boolean notices(Target e, float sightRange) {
+    if (e == actor) return false;
     final boolean report = noticeVerbose && I.talkAbout == actor;
     
-    if (e instanceof Actor) {
-      //  TODO:  Use harm estimation here!  LIKE IN THE COMBAT CLASS
-      final Actor other = (Actor) e;
-      final Target otherFocus = other.focusFor(Combat.class);
-      if (otherFocus == actor || otherFocus == actor.aboard()) sightRange *= 2;
-    }
+    final float hostility = Plan.hostilityOf(e, actor);
+    if (hostility > 0) sightRange *= 1 + hostility;
     
     final float distance = Spacing.distance(e, actor);
     final Base base = actor.base();

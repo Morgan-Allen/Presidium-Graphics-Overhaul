@@ -110,6 +110,11 @@ public abstract class Artilect extends Actor {
     final Artilect actor = this ;
     
     return new Memories(this) {
+      public float relationValue(Venue venue) {
+        if (venue == actor.mind.home()) return 1;
+        return super.relationValue(venue);
+      }
+      
       public float relationValue(Actor other) {
         if (actor.base() != null && other.base() == actor.base()) return 0.5f ;
         if (other.health.artilect()) return 1.0f ;
@@ -135,48 +140,80 @@ public abstract class Artilect extends Actor {
     //I.say("Creating new choices for "+this) ;
     //
     //  Patrol around your base and see off intruders.
-    Element guards = mind.home() == null ? this : (Element) mind.home() ;
-    final float distance = Spacing.distance(this, guards) / World.SECTOR_SIZE;
     
-    final Plan p = Patrolling.aroundPerimeter(this, guards, world).setMotive(
-      Plan.MOTIVE_DUTY, Plan.CASUAL + (distance * Plan.PARAMOUNT)
-    );
-    choice.add(p) ;
+    final boolean
+      isDrone = this instanceof Drone,
+      isTripod = this instanceof Tripod,
+      isCranial = this instanceof Cranial;
     
-    for (Target e : senses.awareOf()) if (e instanceof Actor) {
-      choice.add(new Combat(this, (Actor) e)) ;
-    }
+    
     
     //
     //
     //  Perform reconaissance or patrolling.
     //  Retreat and return to base.
     //  (Drone specialties.)
+
+    Element guards = mind.home() == null ? this : (Element) mind.home() ;
+    final float distance = Spacing.distance(this, guards) / World.SECTOR_SIZE;
+    
+    final Plan patrol = Patrolling.aroundPerimeter(this, guards, world);
+    if (isDrone) patrol.setMotive(
+      Plan.MOTIVE_DUTY, Plan.CASUAL + (distance * Plan.PARAMOUNT)
+    );
+    else patrol.setMotive(Plan.MOTIVE_DUTY, Plan.IDLE);
+    choice.add(patrol);
+    
+    if (isDrone && distance > 1) choice.add(new Retreat(this));
     
     //
     //  Launch an assault on a nearby settlement, if numbers are too large.
     //  Capture specimens and bring back to lair.
     //  (Tripod specialties.)
-    choice.add(nextAssault()) ;
-    choice.add(new Retreat(this)) ;
-    ///choice.isVerbose = true;
+    final Plan assault = nextAssault();
+    if (assault != null) {
+      if (isTripod) assault.setMotive(Plan.MOTIVE_DUTY, Plan.PARAMOUNT);
+      choice.add(assault);
+    }
     
     //
     //  Experiment upon/dissect/interrogate/convert any captives.
     //  Perform repairs on another artilect, or refurbish a new model.
     //  (Cranial specialties.)
+    if (isCranial) {
+      for (Target t : senses.awareOf()) if (t instanceof Actor) {
+        final Actor other = (Actor) t;
+        final SpawnArtilect repair = new SpawnArtilect(this, other);
+        choice.add(repair);
+      }
+      //  TODO:  Also do this if the ruins are short of staff.  And check any
+      //  staff at your home.
+    }
     
     //
     //  Defend home site or retreat to different site (all).
     //  Respond to obelisk or tesseract presence (all).
+    
+    for (Target e : senses.awareOf()) if (e instanceof Actor) {
+      choice.add(new Combat(this, (Actor) e)) ;
+    }
+    
+    
+    /*
+    //  TODO:  Use the BaseAI to try declaring raids on other settlements.
+    
+    if (actor instanceof Cranial) {
+      //  TODO:  Issue repairs to other artilects.
+    }
+    //*/
   }
   
   
-  protected Behaviour nextAssault() {
+  protected Plan nextAssault() {
     if (! (mind.home() instanceof Venue)) return null ;
     final Venue lair = (Venue) mind.home() ;
     final Batch <Venue> sampled = new Batch <Venue> () ;
-    world.presences.sampleFromKey(this, world, 10, sampled, Venue.class) ;
+    world.presences.sampleFromMap(this, world, 10, sampled, Venue.class) ;
     
     final int SS = World.SECTOR_SIZE ;
     Venue toAssault = null ;
@@ -257,8 +294,5 @@ public abstract class Artilect extends Actor {
     return nB.toString() ;
   }
 }
-
-
-
 
 

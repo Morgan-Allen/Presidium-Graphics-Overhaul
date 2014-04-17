@@ -50,20 +50,21 @@ public class Background implements Economy, Session.Saveable {
     OFTEN     =  0.6f,
     SOMETIMES =  0.3f,
     RARELY    = -0.7f,
-    NEVER     = -1.0f ;
+    NEVER     = -1.0f;
   final public static Integer
-    LEARNING  = 0,
-    NOVICE    = 5,
+    LEARNING  = 0 ,
+    NOVICE    = 5 ,
     PRACTICED = 10,
     EXPERT    = 15,
-    MASTER    = 20 ;
+    MASTER    = 20;
   
   final public static int
-    SLAVE_CLASS  =  0,
-    LOWER_CLASS  =  1,
-    MIDDLE_CLASS =  2,
-    UPPER_CLASS  =  3,
-    RULER_CLASS  =  4 ;
+    CLASS_NATIVE   = -1,
+    CLASS_SLAVE    =  0,
+    CLASS_VASSAL   =  1,
+    CLASS_FREEMEN  =  2,
+    CLASS_STRATOI  =  3,
+    NOT_A_CLASS    = -2;
   final public static int
     GUILD_MILITANT  =  0,
     GUILD_MERCHANT  =  1,
@@ -74,13 +75,13 @@ public class Background implements Economy, Session.Saveable {
     GUILD_RUNNER    =  6,
     GUILD_NATIVE    =  7,
     GUILD_COURT     =  8,
-    NOT_A_GUILD     = -1 ;
-
+    NOT_A_GUILD     = -1;
+  
   final public static float
     NUM_DAYS_PAY = 20,
     PAY_INTERVAL = World.STANDARD_DAY_LENGTH * 20;
   final public static int HIRE_COSTS[] = {
-    150, 250, 500, 1000, 2500  //Represents PAY_INTERVAL days' salary.
+    150, 250, 500, 1000 //Represents PAY_INTERVAL days' salary.
   } ;
   
   
@@ -96,46 +97,46 @@ public class Background implements Economy, Session.Saveable {
   //*
   final public static Background
     MALE_BIRTH = new Background(
-      "Born Male", null, null, -1, NOT_A_GUILD,
+      "Born Male", null, null, NOT_A_CLASS, NOT_A_GUILD,
       3, MUSCULAR, 1, MOTOR, SOMETIMES, TALL, NEVER, FEMININE
     ),
     FEMALE_BIRTH = new Background(
-      "Born Female", null, null, -1, NOT_A_GUILD,
+      "Born Female", null, null, NOT_A_CLASS, NOT_A_GUILD,
       2, IMMUNE, 2, PERCEPT, RARELY, STOUT, ALWAYS, FEMININE
     ),
     //
     //  Natives can only be recruited locally, not from offworld.
     NATIVE_BIRTH = new Background(
-      "Born Native", "native_skin.gif", null, -1, NOT_A_GUILD,
+      "Born Native", "native_skin.gif", null, NOT_A_CLASS, NOT_A_GUILD,
       NOVICE, NATIVE_TABOO, LEARNING, HANDICRAFTS, MARKSMANSHIP, XENOZOOLOGY
     ),
     //
     //  The following are available to most actors as part of their careers-
     DREGS_BIRTH = new Background(
-      "Born Dreg", "artificer_skin.gif", null, SLAVE_CLASS, NOT_A_GUILD,
+      "Born Dreg", "artificer_skin.gif", null, CLASS_SLAVE, NOT_A_GUILD,
       NOVICE, COMMON_CUSTOM, LEARNING, NATIVE_TABOO, HAND_TO_HAND, CHEMISTRY
     ),
     PYON_BIRTH = new Background(
-      "Born Pyon", "pyon_skin.gif", null, LOWER_CLASS, NOT_A_GUILD,
+      "Born Pyon", "pyon_skin.gif", null, CLASS_VASSAL, NOT_A_GUILD,
       NOVICE, COMMON_CUSTOM, LEARNING, HARD_LABOUR, DOMESTICS, ASSEMBLY
     ),
     FREE_BIRTH = new Background(
-      "Born Free", "citizen_skin.gif", null, MIDDLE_CLASS, NOT_A_GUILD,
+      "Born Free", "citizen_skin.gif", null, CLASS_FREEMEN, NOT_A_GUILD,
       NOVICE, COMMON_CUSTOM, LEARNING, SUASION, MARKSMANSHIP, PILOTING
     ),
     GELDER_BIRTH = new Background(
-      "Born Gelder", "vendor_skin.gif", null, UPPER_CLASS, NOT_A_GUILD,
+      "Born Gelder", "vendor_skin.gif", null, CLASS_FREEMEN, NOT_A_GUILD,
       NOVICE, COMMON_CUSTOM, LEARNING, NOBLE_ETIQUETTE, ACCOUNTING, COUNSEL
     ),
     //
     //  Highborn are not available as normally-generated citizens, only as
     //  visiting NPCs or members of your household.
     LANDER_BIRTH = new Background(
-      "Born Lander", "highborn_male_skin.gif", null, RULER_CLASS,
+      "Born Lander", "highborn_male_skin.gif", null, CLASS_STRATOI,
       NOVICE, NOBLE_ETIQUETTE, LEARNING, COMMON_CUSTOM, HAND_TO_HAND, ACCOUNTING
     ),
     HIGH_BIRTH = new Background(
-      "Born High", "highborn_male_skin.gif", null, RULER_CLASS,
+      "Born High", "highborn_male_skin.gif", null, CLASS_STRATOI,
       NOVICE, NOBLE_ETIQUETTE, LEARNING, COMMAND, HAND_TO_HAND, ANCIENT_LORE
     ),
     
@@ -148,7 +149,7 @@ public class Background implements Economy, Session.Saveable {
     
     EXCAVATOR = new Background(
       "Excavator", "pyon_skin.gif", null,
-      LOWER_CLASS, GUILD_ARTIFICER,
+      CLASS_VASSAL, GUILD_ARTIFICER,
       EXPERT, HARD_LABOUR, NOVICE, GEOPHYSICS, ASSEMBLY, LEARNING, ANCIENT_LORE,
       OFTEN, STUBBORN, RARELY, NERVOUS, HANDSOME,
       OVERALLS
@@ -156,7 +157,7 @@ public class Background implements Economy, Session.Saveable {
     
     TECHNICIAN = new Background(
       "Technician", "artificer_skin.gif", "artificer_portrait.png",
-      LOWER_CLASS, GUILD_ARTIFICER,
+      CLASS_VASSAL, GUILD_ARTIFICER,
       PRACTICED, ASSEMBLY, HARD_LABOUR, NOVICE, FIELD_THEORY, CHEMISTRY,
       SOMETIMES, DUTIFUL, RARELY, RELAXED,
       OVERALLS
@@ -164,7 +165,7 @@ public class Background implements Economy, Session.Saveable {
     
     CORE_TECHNICIAN = new Background(
       "Core Technician", "citizen_skin.gif", "artificer_portrait.png",
-      MIDDLE_CLASS, GUILD_ARTIFICER,
+      CLASS_FREEMEN, GUILD_ARTIFICER,
       EXPERT, FIELD_THEORY, PRACTICED, CHEMISTRY, ASSEMBLY,
       NOVICE, SHIELD_AND_ARMOUR,
       OFTEN, DUTIFUL, SOMETIMES, NERVOUS,
@@ -173,7 +174,7 @@ public class Background implements Economy, Session.Saveable {
     
     ARTIFICER = new Background(
       "Artificer", "artificer_skin.gif", "artificer_portrait.png",
-      UPPER_CLASS, GUILD_ARTIFICER,
+      CLASS_FREEMEN, GUILD_ARTIFICER,
       EXPERT, ASSEMBLY, PRACTICED, FIELD_THEORY, SHIELD_AND_ARMOUR,
       NOVICE, ANCIENT_LORE, CHEMISTRY,
       SOMETIMES, CURIOUS, RARELY, NATURALIST,
@@ -185,17 +186,17 @@ public class Background implements Economy, Session.Saveable {
 
   final public static Background
     
-    MEDIC = new Background(
-      "Medic", "citizen_skin.gif", null,
-      LOWER_CLASS, GUILD_PHYSICIAN,
+    MINDER = new Background(
+      "Minder", "citizen_skin.gif", null,
+      CLASS_VASSAL, GUILD_PHYSICIAN,
       PRACTICED, DOMESTICS, SUASION, NOVICE, ANATOMY, PHARMACY, COUNSEL,
       OFTEN, EMPATHIC, SOMETIMES, STUBBORN,
       OVERALLS
     ),
     
-    BIOCHEMIST = new Background(
-      "Biochemist", "citizen_skin.gif", null,
-      MIDDLE_CLASS, GUILD_PHYSICIAN,
+    VATS_BREEDER = new Background(
+      "Vats Breeder", "citizen_skin.gif", null,
+      CLASS_VASSAL, GUILD_PHYSICIAN,
       PRACTICED, GENE_CULTURE, PHARMACY, CHEMISTRY,
       RARELY, INDULGENT, RELAXED,
       OVERALLS
@@ -203,7 +204,7 @@ public class Background implements Economy, Session.Saveable {
     
     SAVANT = new Background(
       "Savant", "citizen_skin.gif", null,
-      MIDDLE_CLASS, GUILD_PHYSICIAN,
+      CLASS_FREEMEN, GUILD_PHYSICIAN,
       EXPERT, ACCOUNTING, INSCRIPTION, PRACTICED, COUNSEL, ASSEMBLY,
       NOVICE, ANCIENT_LORE, LEGISLATION,
       ALWAYS, CURIOUS, SOMETIMES, NERVOUS, IMPASSIVE,
@@ -212,38 +213,38 @@ public class Background implements Economy, Session.Saveable {
     
     PHYSICIAN = new Background(
       "Physician", "physician_skin.gif", "physician_portrait.png",
-      UPPER_CLASS, GUILD_PHYSICIAN,
+      CLASS_FREEMEN, GUILD_PHYSICIAN,
       EXPERT, ANATOMY, PHARMACY,
       PRACTICED, GENE_CULTURE, PSYCHOANALYSIS, COUNSEL, SUASION,
       OFTEN, CURIOUS, SOMETIMES, METICULOUS, IMPASSIVE, RARELY, INDULGENT,
       OVERALLS
     ),
     
-    PHYSICIAN_CIRCLES[] = { MEDIC, BIOCHEMIST, SAVANT, PHYSICIAN }
+    PHYSICIAN_CIRCLES[] = { MINDER, VATS_BREEDER, SAVANT, PHYSICIAN }
   ;
   
   final public static Background
     
     CULTIVATOR = new Background(
       "Cultivator", "pyon_skin.gif", null,
-      LOWER_CLASS, GUILD_ECOLOGIST,
+      CLASS_VASSAL, GUILD_ECOLOGIST,
       PRACTICED, CULTIVATION, HARD_LABOUR, NOVICE, DOMESTICS,
       OFTEN, OUTGOING, SOMETIMES, NATURALIST, RARELY, AMBITIOUS,
       OVERALLS
     ),
     
-    ARCOLOGY_ENGINEER = new Background(
-      "Arcology Engineer", "ecologist_skin.gif", null,
-      MIDDLE_CLASS, GUILD_ECOLOGIST,
+    FORMER_ENGINEER = new Background(
+      "Former Engineer", "ecologist_skin.gif", null,
+      CLASS_FREEMEN, GUILD_ECOLOGIST,
       PRACTICED, GEOPHYSICS, ASSEMBLY, HARD_LABOUR,
       NOVICE, GENE_CULTURE, SURVEILLANCE,
       RARELY, OUTGOING, OFTEN, POSITIVE,
       OVERALLS
     ),
     
-    SURVEY_SCOUT = new Background(
-      "Survey Scout", "ecologist_skin.gif", "ecologist_portrait.png",
-      MIDDLE_CLASS, GUILD_ECOLOGIST,
+    EXPLORER = new Background(
+      "Explorer", "ecologist_skin.gif", "ecologist_portrait.png",
+      CLASS_FREEMEN, GUILD_ECOLOGIST,
       EXPERT, XENOZOOLOGY, SURVEILLANCE, STEALTH_AND_COVER,
       PRACTICED, MARKSMANSHIP, NATIVE_TABOO,
       NOVICE, BATTLE_TACTICS, HAND_TO_HAND,
@@ -253,7 +254,7 @@ public class Background implements Economy, Session.Saveable {
     
     ECOLOGIST = new Background(
       "Ecologist", "ecologist_skin.gif", "ecologist_portrait.png",
-      UPPER_CLASS, GUILD_ECOLOGIST,
+      CLASS_FREEMEN, GUILD_ECOLOGIST,
       EXPERT, CULTIVATION, PRACTICED, GENE_CULTURE, XENOZOOLOGY,
       PRACTICED, GEOPHYSICS, CHEMISTRY,
       ALWAYS, NATURALIST, SOMETIMES, EMPATHIC, CURIOUS,
@@ -261,7 +262,7 @@ public class Background implements Economy, Session.Saveable {
     ),
     
     ECOLOGIST_CIRCLES[] = {
-      CULTIVATOR, ARCOLOGY_ENGINEER, SURVEY_SCOUT, ECOLOGIST
+      CULTIVATOR, FORMER_ENGINEER, EXPLORER, ECOLOGIST
     }
   ;
   
@@ -269,7 +270,7 @@ public class Background implements Economy, Session.Saveable {
     
     SUPPLY_CORPS = new Background(
       "Supply Corps", "pyon_skin.gif", null,
-      LOWER_CLASS, GUILD_MERCHANT,
+      CLASS_VASSAL, GUILD_MERCHANT,
       NOVICE, PILOTING, HARD_LABOUR,
       OFTEN, RELAXED, RARELY, AMBITIOUS,
       OVERALLS
@@ -277,7 +278,7 @@ public class Background implements Economy, Session.Saveable {
     
     SOMA_VENDOR = new Background(
       "Soma Vendor", "vendor_skin.gif", null,
-      MIDDLE_CLASS, GUILD_MERCHANT,
+      CLASS_VASSAL, GUILD_MERCHANT,
       PRACTICED, COUNSEL, SUASION, NOVICE, DOMESTICS, CHEMISTRY,
       ACCOUNTING,
       SOMETIMES, ACQUISITIVE,
@@ -286,14 +287,14 @@ public class Background implements Economy, Session.Saveable {
     
     STOCK_VENDOR = new Background(
       "Stock Vendor", "vendor_skin.gif", "vendor_portrait.png",
-      MIDDLE_CLASS, GUILD_MERCHANT,
+      CLASS_VASSAL, GUILD_MERCHANT,
       PRACTICED, ACCOUNTING, DOMESTICS, NOVICE, SUASION, HARD_LABOUR,
       OVERALLS
     ),
     
     AUDITOR = new Background(
       "Auditor", "vendor_skin.gif", "vendor_portrait.png",
-      UPPER_CLASS, GUILD_MERCHANT,
+      CLASS_FREEMEN, GUILD_MERCHANT,
       EXPERT, COUNSEL, ACCOUNTING, PRACTICED, COMMAND, ANCIENT_LORE,
       ALWAYS, STUBBORN, OFTEN, DUTIFUL,
       SOMETIMES, AMBITIOUS, IMPASSIVE, RARELY, INDULGENT,
@@ -307,48 +308,48 @@ public class Background implements Economy, Session.Saveable {
     
     VOLUNTEER = new Background(
       "Volunteer", "militant_skin.gif", "militant_portrait.png",
-      LOWER_CLASS, GUILD_MILITANT,
+      CLASS_VASSAL, GUILD_MILITANT,
       PRACTICED, HAND_TO_HAND, MARKSMANSHIP,
       NOVICE, SURVEILLANCE, ASSEMBLY, HARD_LABOUR, SHIELD_AND_ARMOUR,
       SOMETIMES, DUTIFUL, DEFENSIVE, RARELY, NERVOUS, FEMININE,
       SHOCK_STAFF, BLASTER, PARTIAL_ARMOUR
     ),
     
-    TECH_RESERVE = new Background(
-      "Tech Reserve", "artificer_skin.gif", "militant_portrait.png",
-      MIDDLE_CLASS, GUILD_MILITANT,
-      PRACTICED, HARD_LABOUR, ASSEMBLY,
-      NOVICE, ANATOMY, PHARMACY, MARKSMANSHIP,
-      RARELY, OUTGOING, SOMETIMES, METICULOUS,
+    //  TODO:  Restore traits here.
+    AIR_CORPS = new Background(
+      "Air Corps", "artificer_skin.gif", "militant_portrait.png",
+      CLASS_FREEMEN, GUILD_MILITANT,
+      PRACTICED, MARKSMANSHIP, PILOTING, SURVEILLANCE, STEALTH_AND_COVER,
+      NOVICE, HARD_LABOUR, ASSEMBLY,
       STUN_PISTOL, BELT_AND_BRACER
     ),
     
-    SCOUT = new Background(
-      "Scout", "ecologist_skin.gif", "militant_portrait.png",
-      MIDDLE_CLASS, GUILD_MILITANT,
-      PRACTICED, MARKSMANSHIP, SURVEILLANCE, STEALTH_AND_COVER,
-      NOVICE, XENOZOOLOGY, ATHLETICS, HAND_TO_HAND,
-      RARELY, NERVOUS, SOMETIMES, CURIOUS,
-      BLASTER, CAMOUFLAGE
+    //  TODO:  Draw up a different set of art assets for this guy.
+    MECH_LEGION = new Background(
+      "Mech Legion", "militant_skin.gif", "militant_portrait.png",
+      CLASS_FREEMEN, GUILD_MILITANT,
+      EXPERT, HAND_TO_HAND, FORMATION_COMBAT, SHIELD_AND_ARMOUR,
+      PRACTICED, COMMAND, NOVICE, BATTLE_TACTICS, MARKSMANSHIP,
+      BLASTER, POWER_ARMOUR
     ),
     
     VETERAN = new Background(
       "Veteran", "militant_skin.gif", "militant_portrait.png",
-      UPPER_CLASS, GUILD_MILITANT,
+      CLASS_FREEMEN, GUILD_MILITANT,
       EXPERT, HAND_TO_HAND, MARKSMANSHIP, PRACTICED, SURVEILLANCE,
       FORMATION_COMBAT, COMMAND, SHIELD_AND_ARMOUR, BATTLE_TACTICS,
       OFTEN, DUTIFUL, SOMETIMES, STUBBORN, AMBITIOUS, NEVER, NERVOUS,
       SHOCK_STAFF, BLASTER, BODY_ARMOUR
     ),
     
-    MILITARY_CIRCLES[] = { VOLUNTEER, TECH_RESERVE, SCOUT, VETERAN }
+    MILITARY_CIRCLES[] = { VOLUNTEER, AIR_CORPS, MECH_LEGION, VETERAN }
   ;
   
   final public static Background
     
     PERFORMER = new Background(
       "Performer", "aesthete_female_skin.gif", "aesthete_portrait.png",
-      LOWER_CLASS, GUILD_AESTHETE,
+      CLASS_VASSAL, GUILD_AESTHETE,
       PRACTICED, MUSIC_AND_SONG, NOVICE, EROTICS, MASQUERADE,
       OFTEN, HANDSOME, RARELY, STOUT, SOMETIMES, EMPATHIC, INDULGENT,
       FINERY
@@ -361,7 +362,7 @@ public class Background implements Economy, Session.Saveable {
     
     FABRICATOR = new Background(
       "Fabricator", "citizen_skin.gif", null,
-      LOWER_CLASS, GUILD_AESTHETE,
+      CLASS_VASSAL, GUILD_AESTHETE,
       PRACTICED, CHEMISTRY, HARD_LABOUR, NOVICE, GRAPHIC_DESIGN, HANDICRAFTS,
       SOMETIMES, STUBBORN, NERVOUS,
       OVERALLS
@@ -369,7 +370,7 @@ public class Background implements Economy, Session.Saveable {
     
     ADVERTISER = new Background(
       "Advertiser", "citizen_skin.gif", null,
-      MIDDLE_CLASS, GUILD_AESTHETE,
+      CLASS_FREEMEN, GUILD_AESTHETE,
       EXPERT, GRAPHIC_DESIGN, SUASION,
       PRACTICED, COUNSEL, SOCIAL_HISTORY,
       NOVICE, ACCOUNTING, MUSIC_AND_SONG,
@@ -379,7 +380,7 @@ public class Background implements Economy, Session.Saveable {
     
     AESTHETE = new Background(
       "Aesthete", "aesthete_male_skin.gif", null,
-      UPPER_CLASS, GUILD_AESTHETE,
+      CLASS_FREEMEN, GUILD_AESTHETE,
       EXPERT, GRAPHIC_DESIGN, PRACTICED, HANDICRAFTS, NOVICE, ANATOMY,
       RARELY, STUBBORN, IMPASSIVE, OFTEN, INDULGENT,
       FINERY
@@ -395,13 +396,13 @@ public class Background implements Economy, Session.Saveable {
     //  leave your settlement, but can't.  Free Traders peddle small goods.
     SCAVENGER = new Background(
       "Scavenger", "native_skin.gif", null,
-      SLAVE_CLASS, NOT_A_GUILD,
+      CLASS_VASSAL, NOT_A_GUILD,
       NOVICE, STEALTH_AND_COVER, LEARNING, HANDICRAFTS,
       OFTEN, NERVOUS, ACQUISITIVE, RARELY, RELAXED
     ),
     FREE_TRADER = new Background(
       "Free Trader", "pyon_skin.gif", null,
-      LOWER_CLASS, NOT_A_GUILD,
+      CLASS_VASSAL, NOT_A_GUILD,
       PRACTICED, SUASION, NOVICE, HANDICRAFTS, ACCOUNTING, DOMESTICS,
       NATIVE_TABOO, COMMON_CUSTOM,
       SOMETIMES, OUTGOING, POSITIVE, RARELY, NERVOUS, AMBITIOUS
@@ -410,13 +411,13 @@ public class Background implements Economy, Session.Saveable {
     //  Mechanics and captains keep your dropships in working order.
     SHIP_MECHANIC = new Background(
       "Ship Mechanic", null, null,
-      LOWER_CLASS, NOT_A_GUILD,
+      CLASS_VASSAL, NOT_A_GUILD,
       PRACTICED, ASSEMBLY, HARD_LABOUR,
       NOVICE, FIELD_THEORY, SHIELD_AND_ARMOUR
     ),
     SHIP_CAPTAIN = new Background(
       "Ship Captain", null, null,
-      MIDDLE_CLASS, NOT_A_GUILD,
+      CLASS_FREEMEN, NOT_A_GUILD,
       EXPERT, PILOTING, MARKSMANSHIP, PRACTICED, COMMAND, SUASION,
       NOVICE, ASTROGATION, BATTLE_TACTICS, COMMON_CUSTOM,
       STUN_PISTOL, PARTIAL_ARMOUR
@@ -426,7 +427,7 @@ public class Background implements Economy, Session.Saveable {
     //  if the place needs their services.
     RUNNER = new Background(
       "Runner", "runner_skin.gif", "vendor_portrait.png",
-      MIDDLE_CLASS, NOT_A_GUILD,
+      CLASS_FREEMEN, NOT_A_GUILD,
       EXPERT, PILOTING, MARKSMANSHIP, STEALTH_AND_COVER,
       PRACTICED, SUASION, SURVEILLANCE, MASQUERADE,
       OFTEN, ACQUISITIVE, SOMETIMES, NERVOUS, RARELY, METICULOUS,
@@ -434,7 +435,7 @@ public class Background implements Economy, Session.Saveable {
     ),
     COMPANION = new Background(
       "Companion", "aesthete_female_skin.gif", "aesthete_portrait.png",
-      UPPER_CLASS, NOT_A_GUILD,
+      CLASS_FREEMEN, NOT_A_GUILD,
       EXPERT, EROTICS, COUNSEL, SUASION, MASQUERADE, NOBLE_ETIQUETTE,
       PRACTICED, DOMESTICS, MUSIC_AND_SONG, COMMAND, HAND_TO_HAND,
       ALWAYS, HANDSOME, OFTEN, FEMININE, EMPATHIC, TALL, RARELY, STOUT,
@@ -457,14 +458,14 @@ public class Background implements Economy, Session.Saveable {
     //  You'll always get a few of these in a given native village-
     GATHERER = new Background(
       "Gatherer", "native_skin.gif", null,
-      LOWER_CLASS, NOT_A_GUILD,
+      CLASS_NATIVE, NOT_A_GUILD,
       EXPERT, HANDICRAFTS, PRACTICED, DOMESTICS, CULTIVATION, HARD_LABOUR,
       NATIVE_TABOO, NOVICE, MASQUERADE,
       RARELY, RELAXED, OFTEN, OUTGOING
     ),
     HUNTER = new Background(
       "Hunter", "native_skin.gif", null,
-      LOWER_CLASS, NOT_A_GUILD,
+      CLASS_NATIVE, NOT_A_GUILD,
       EXPERT, SURVEILLANCE, STEALTH_AND_COVER,
       PRACTICED, MARKSMANSHIP, XENOZOOLOGY, ATHLETICS,
       NOVICE, HAND_TO_HAND, HANDICRAFTS, MASQUERADE,
@@ -473,19 +474,22 @@ public class Background implements Economy, Session.Saveable {
     ),
     SHAMAN = new Background(
       "Shaman", "native_skin.gif", null,
-      UPPER_CLASS, NOT_A_GUILD,
+      CLASS_NATIVE, NOT_A_GUILD,
       EXPERT, NATIVE_TABOO, COUNSEL, PRACTICED, CULTIVATION,
       NOVICE, PHARMACY, ANATOMY, ANCIENT_LORE, MUSIC_AND_SONG,
       ALWAYS, TRADITIONAL, OFTEN, DUTIFUL, NATURALIST
     ),
     CHIEFTAIN = new Background(
       "Chieftain", "native_skin.gif", null,
-      UPPER_CLASS, NOT_A_GUILD,
+      CLASS_NATIVE, NOT_A_GUILD,
       EXPERT, NATIVE_TABOO, COMMAND, SUASION, MARKSMANSHIP,
       PRACTICED, HAND_TO_HAND, BATTLE_TACTICS,
       RARELY, NERVOUS, OFTEN, TRADITIONAL,
       TOOTH_KNIFE, JAVELIN, SCRAP_GEAR
     ),
+    //  TODO:  Restore Cargo Cultist and Mutant Pseer.
+    CARGO_CULTIST = null,
+    MUTANT_PSEER  = null,
     
     NATIVE_CIRCLES[] = {
       GATHERER, HUNTER, SHAMAN, CHIEFTAIN
@@ -499,7 +503,7 @@ public class Background implements Economy, Session.Saveable {
     //  Aristocratic titles are for the benefit of the player-character:
     KNIGHTED = new Background(
       "Knighted", "highborn_male_skin.gif", null,
-      RULER_CLASS, NOT_A_GUILD,
+      CLASS_STRATOI, NOT_A_GUILD,
       PRACTICED, HAND_TO_HAND, BATTLE_TACTICS, SHIELD_AND_ARMOUR, COMMAND,
       NOBLE_ETIQUETTE, NOVICE, ACCOUNTING, ANCIENT_LORE, COMMON_CUSTOM,
       LEARNING, SUGGESTION, PREMONITION, PROJECTION,
@@ -507,7 +511,7 @@ public class Background implements Economy, Session.Saveable {
     ) {
       final ImageAsset female_skin = costumeFor("highborn_male_skin.gif") ;
       public String nameFor(Actor actor) {
-        return actor.traits.male() ? "Knighted Lord" : "Knighted Lady" ;
+        return actor.traits.male() ? "Knighted" : "Knighted" ;
       }
       public ImageAsset costumeFor(Actor actor) {
         return actor.traits.male() ? costume : female_skin ;
@@ -515,7 +519,7 @@ public class Background implements Economy, Session.Saveable {
     },
     BARON = new Background(
       "Baron", "highborn_male_skin.gif", null,
-      RULER_CLASS, NOT_A_GUILD,
+      CLASS_STRATOI, NOT_A_GUILD,
       EXPERT, HAND_TO_HAND, BATTLE_TACTICS, SHIELD_AND_ARMOUR, COMMAND,
       NOBLE_ETIQUETTE, PRACTICED, ACCOUNTING, ANCIENT_LORE, COMMON_CUSTOM,
       NOVICE, SUGGESTION, PREMONITION, PROJECTION,
@@ -531,7 +535,7 @@ public class Background implements Economy, Session.Saveable {
     },
     COUNT = new Background(
       "Count", "highborn_male_skin.gif", null,
-      RULER_CLASS, NOT_A_GUILD,
+      CLASS_STRATOI, NOT_A_GUILD,
       MASTER, HAND_TO_HAND, BATTLE_TACTICS, SHIELD_AND_ARMOUR, COMMAND,
       NOBLE_ETIQUETTE, EXPERT, ACCOUNTING, ANCIENT_LORE, COMMON_CUSTOM,
       PRACTICED, SUGGESTION, PREMONITION, PROJECTION,
@@ -554,7 +558,7 @@ public class Background implements Economy, Session.Saveable {
     //  Your family, servants, bodyguards and captives-
     FIRST_CONSORT = new Background(
       "First Consort", "highborn_female_skin.gif", null,
-      RULER_CLASS, NOT_A_GUILD,
+      CLASS_STRATOI, NOT_A_GUILD,
       PRACTICED, COMMAND, SUASION, NOVICE, EROTICS, MASQUERADE, DOMESTICS,
       RARELY, IMPASSIVE, STUBBORN, OFTEN, AMBITIOUS, ACQUISITIVE,
       SOMETIMES, POSITIVE
@@ -575,12 +579,12 @@ public class Background implements Economy, Session.Saveable {
     },
     MINISTER_FOR_ACCOUNTS = new Background(
       "Minister for Accounts", "vendor_skin.gif", null,
-      RULER_CLASS, NOT_A_GUILD,
+      CLASS_STRATOI, NOT_A_GUILD,
       EXPERT, ACCOUNTING, PRACTICED, SOCIAL_HISTORY, COUNSEL, SUASION
     ),
     WAR_MASTER = new Background(
       "War Master", "highborn_male_skin.gif", null,
-      RULER_CLASS, NOT_A_GUILD,
+      CLASS_STRATOI, NOT_A_GUILD,
       EXPERT, HAND_TO_HAND, SHIELD_AND_ARMOUR, BATTLE_TACTICS, PRACTICED,
       SURVEILLANCE, MARKSMANSHIP
     ),
@@ -588,11 +592,15 @@ public class Background implements Economy, Session.Saveable {
     
     STEWARD = new Background(
       "Steward", "citizen_skin.gif", null,
-      UPPER_CLASS, NOT_A_GUILD,
+      CLASS_FREEMEN, NOT_A_GUILD,
       EXPERT, DOMESTICS, PRACTICED, PHARMACY, ANATOMY, COUNSEL,
       GENE_CULTURE, NOVICE, NOBLE_ETIQUETTE,
       ALWAYS, DUTIFUL, OFTEN, TRADITIONAL, NEVER, DEFENSIVE
     ),
+    
+    HONOUR_GUARD = null,
+    CAPTIVE      = null,
+    COURT_CIRCLES[] = {},
 
     //
     //  These positions are for the benefit of citizens elected at the Counsel
@@ -600,7 +608,7 @@ public class Background implements Economy, Session.Saveable {
     //  in principle, are on an equal footing with the Emperor/Empress.)
     PREFECT = new Background(
       "Prefect", "physician_skin.gif", null,
-      RULER_CLASS, NOT_A_GUILD,
+      CLASS_STRATOI, NOT_A_GUILD,
       PRACTICED, COUNSEL, SUASION, ACCOUNTING, COMMON_CUSTOM,
       NOVICE, NOBLE_ETIQUETTE, SOCIAL_HISTORY, BATTLE_TACTICS, COMMAND,
       OFTEN, OUTGOING, AMBITIOUS, SOMETIMES, ACQUISITIVE
@@ -609,25 +617,26 @@ public class Background implements Economy, Session.Saveable {
     SENATOR  = null,
     CONSUL   = null,
     ELECTED_POSITIONS[] = { PREFECT, GOVERNOR, SENATOR, CONSUL },
-    
-    COURT_CIRCLES[] = {},
-    HONOUR_GUARD = null,
-    HOSTAGE      = null,
     //
     //  Ministers confer the benefits of a portion of their skills on the
     //  planet as a whole (including stuff off the main map.)
     MASTER_OF_ASSASSINS     = null,
-    //WAR_MASTER              = null,
+    //WAR_MASTER            = null,
     CHIEF_ARTIFICER         = null,
     PLANETOLOGIST           = null,
     MINISTER_FOR_HEALTH     = null,
-    //MINISTER_FOR_ACCOUNTS   = null,
+    //MINISTER_FOR_ACCOUNTS = null,
     MINISTER_FOR_PROPAGANDA = null,
-    //FIRST_CONSORT           = null,
+    //FIRST_CONSORT         = null,
     
-    GOVERNMENT_CIRCLES[] = {}
+    GOVERNMENT_CIRCLES[] = {},
     //
-    //  TODO:  Do you need positions for leadership within the Strains?
+    //  TODO:  These are appointed-representatives for each of the major
+    //  metahuman strain populations.
+    STRAIN_AGENT = null,
+    MSSID_REPRESENTATIVE = null,  //metahuman-stable-strain-ID program
+    
+    STRAIN_CIRCLES[] = { STRAIN_AGENT, MSSID_REPRESENTATIVE }
   ;
   
   

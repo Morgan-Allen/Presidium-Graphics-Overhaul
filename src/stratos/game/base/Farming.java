@@ -63,7 +63,7 @@ public class Farming extends Plan implements Economy {
       actor, nursery, ROUTINE,
       MILD_HELP, MILD_COMPETITION,
       BASE_SKILLS, BASE_TRAITS,
-      (need - 0.5f) * ROUTINE, PARTIAL_DISTANCE_CHECK, NO_DANGER,
+      (need - 0.5f) * ROUTINE, PARTIAL_DISTANCE_CHECK, NO_FAIL_RISK,
       report
     );
   }

@@ -108,7 +108,7 @@ public class Resting extends Plan implements Economy {
       actor, restPoint, Visit.clamp(urgency, IDLE, URGENT),
       NO_HARM, NO_COMPETITION,
       NO_SKILLS, BASE_TRAITS,
-      modifier, NORMAL_DISTANCE_CHECK, NO_DANGER,
+      modifier, NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
       report
     );
     return priority;

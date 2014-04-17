@@ -211,7 +211,7 @@ public class Delivery extends Plan implements Economy {
       actor, destination, ROUTINE,
       NO_HARM, NO_COMPETITION,
       NO_SKILLS, NO_TRAITS,
-      modifier, NORMAL_DISTANCE_CHECK / rangeDiv, NO_DANGER,
+      modifier, NORMAL_DISTANCE_CHECK / rangeDiv, NO_FAIL_RISK,
       report
     ) - extraRangePenalty;
     return priority;

@@ -233,7 +233,9 @@ public class Pathing {
     //
     //  Determine how far one can move this update, including limits on
     //  maximum rotation-
-    final float maxRotate = speed * 180 / World.UPDATES_PER_SECOND ;
+    final float maxRotate = speed * 180 / (
+      World.UPDATES_PER_SECOND * GameSettings.actorScale
+    );
     final float
       angleDif = Vec2D.degreeDif(angle, mobile.rotation),
       absDif   = Math.abs(angleDif) ;

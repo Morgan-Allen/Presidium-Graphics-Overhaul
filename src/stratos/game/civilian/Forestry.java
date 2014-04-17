@@ -102,7 +102,7 @@ public class Forestry extends Plan implements Economy {
       actor, toPlant, ROUTINE,
       NO_HARM, FULL_COMPETITION,
       BASE_SKILLS, BASE_TRAITS,
-      NO_MODIFIER, NORMAL_DISTANCE_CHECK, NO_DANGER,
+      NO_MODIFIER, NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
       report
     );
     return priority;

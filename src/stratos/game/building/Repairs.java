@@ -62,7 +62,7 @@ public class Repairs extends Plan implements Qualities {
   public static Repairs getNextRepairFor(Actor client, float motiveBonus) {
     final World world = client.world() ;
     final Batch <Venue> toRepair = new Batch <Venue> () ;
-    world.presences.sampleFromKeys(
+    world.presences.sampleFromMaps(
       client, world, 5, toRepair, "damaged"//, Venue.class
     ) ;
     final Choice choice = new Choice(client) ;
@@ -108,7 +108,7 @@ public class Repairs extends Plan implements Qualities {
       actor, built, ROUTINE * Visit.clamp(urgency, 0, 1),
       help, competition,
       BASE_SKILLS, BASE_TRAITS,
-      NO_MODIFIER, NORMAL_DISTANCE_CHECK, MILD_DANGER,
+      NO_MODIFIER, NORMAL_DISTANCE_CHECK, MILD_FAIL_RISK,
       report
     );
     if (report) {

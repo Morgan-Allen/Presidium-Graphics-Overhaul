@@ -217,10 +217,11 @@ public abstract class Plan implements Saveable, Behaviour {
   
   
   final protected static float
-    NO_DANGER      = 0.0f,
-    MILD_DANGER    = 0.5f,
-    REAL_DANGER    = 1.0f,
-    EXTREME_DANGER = 2.0f,
+    
+    NO_FAIL_RISK      = 0.0f,
+    MILD_FAIL_RISK    = 0.5f,
+    REAL_FAIL_RISK    = 1.0f,
+    EXTREME_FAIL_RISK = 2.0f,
     
     NO_COMPETITION   =  0.0f,
     MILD_COMPETITION =  0.5f,
@@ -257,7 +258,7 @@ public abstract class Plan implements Saveable, Behaviour {
     Trait baseTraits[],
     float specialModifier,
     float distanceCheck,
-    float dangerFactor,
+    float failRisk,
     boolean report
   ) {
     if (subject == null) I.complain("NO SUBJECT SPECIFIED");
@@ -322,28 +323,36 @@ public abstract class Plan implements Saveable, Behaviour {
     priority = Visit.clamp(priority, min, max);
     if (report) I.say("  Priority after clamp/scale: "+priority);
     
-    float chancePenalty = 0, rangePenalty = 0, dangerPenalty = 0;
+    float
+      chancePenalty = 0, rangePenalty = 0, dangerPenalty = 0,
+      classBonus = 0;
     
-    if (dangerFactor > 0) {
+    if (failRisk > 0) {
       final float chance = successChance();
-      priority *= chance;
-      chancePenalty = (1 - chance) * dangerFactor * PARAMOUNT;
+      chancePenalty = (1 - chance) * failRisk * PARAMOUNT;
     }
     
     if (distanceCheck != 0) {
-      //  TODO:  Estimate distance from actor's home, or nearest point of
-      //  refuge?  Or make that an aspect of Retreat, maybe?
       rangePenalty = rangePenalty(actor, subject) * distanceCheck;
-      final float danger = dangerPenalty(subject, actor);
+      final float danger = dangerPenalty(subject, actor) * (1f + failRisk);
       dangerPenalty = danger * (rangePenalty + 2) / 2f;
+    }
+    
+    if (actor.vocation() != null && motiveType == MOTIVE_DUTY) {
+      final float workBonus = Plan.DEFAULT_SWITCH_THRESHOLD;
+      final int standing = actor.vocation().standing;
+      if (standing == Background.CLASS_STRATOI) classBonus -= workBonus;
+      if (standing == Background.CLASS_NATIVE ) classBonus += workBonus;
     }
     
     priority -= chancePenalty;
     priority -= rangePenalty;
     priority -= dangerPenalty;
+    priority += classBonus;
     if (report) {
       I.say("  Chance penalty is: "+chancePenalty);
       I.say("  Range/Danger penalty is: "+rangePenalty+"/"+dangerPenalty);
+      I.say("  Class bonus is: "+classBonus);
       I.say("  Priority after clamp/scale, dist/danger: "+priority);
     }
     return priority;
@@ -436,12 +445,25 @@ public abstract class Plan implements Saveable, Behaviour {
   }
   
   
-  //  TODO:  Implement this.
-  /*
-  public static float victimBonus(Actor actor, float harmMult) {
+  
+  public static float hostilityOf(Target threat, Actor actor) {
     
+    //  TODO:  Generalise this to activities beside combat, based on the
+    //  help/harm ratings supplied in plans' priority calculations!
+    if (threat instanceof Actor) {
+      final Actor other = (Actor) threat;
+      final Target victim = other.focusFor(Combat.class);
+      final float
+        relation = victim == actor ? -1 : Visit.clamp(
+          other.memories.relationValue(actor) +
+          other.base().relationWith(actor.base()),
+        -1, 1);
+      return 0 - relation;
+    }
+    
+    //  TODO:  Implement an assessment for venues as well?
+    return 0;
   }
-  //*/
   
   
   public static int upgradeBonus(Target location, Object refers) {

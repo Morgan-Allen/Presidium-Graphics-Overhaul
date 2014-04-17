@@ -418,7 +418,7 @@ public class Deliveries implements Economy {
     */
   public static Batch <Venue> nearbyDepots(Target t, World world) {
     final Batch <Venue> depots = new Batch <Venue> () ;
-    world.presences.sampleFromKeys(
+    world.presences.sampleFromMaps(
       t, world, 5, depots,
       SupplyDepot.class, StockExchange.class
     ) ;
@@ -428,7 +428,7 @@ public class Deliveries implements Economy {
   
   public static Batch <Venue> nearbyCustomers(Target target, World world) {
     final Batch <Venue> sampled = new Batch <Venue> () ;
-    world.presences.sampleFromKey(
+    world.presences.sampleFromMap(
       target, world, 5, sampled, Venue.class
     ) ;
     final Batch <Venue> returned = new Batch <Venue> () ;
@@ -443,7 +443,7 @@ public class Deliveries implements Economy {
   
   public static Batch <Vehicle> nearbyTraders(Target target, World world) {
     final Batch <Vehicle> nearby = new Batch <Vehicle> () ;
-    world.presences.sampleFromKey(target, world, 10, nearby, Dropship.class) ;
+    world.presences.sampleFromMap(target, world, 10, nearby, Dropship.class) ;
     return nearby ;
   }
   
@@ -452,7 +452,7 @@ public class Deliveries implements Economy {
     Service type, Target target, World world
   ) {
     final Batch <Venue> vendors = new Batch <Venue> () ;
-    world.presences.sampleFromKey(target, world, 5, vendors, type) ;
+    world.presences.sampleFromMap(target, world, 5, vendors, type) ;
     return vendors ;
   }
   
@@ -461,7 +461,7 @@ public class Deliveries implements Economy {
     Service types[], Target target, World world
   ) {
     final Batch <Venue> vendors = new Batch <Venue> () ;
-    world.presences.sampleFromKeys(target, world, 5, vendors, (Object[]) types) ;
+    world.presences.sampleFromMaps(target, world, 5, vendors, (Object[]) types) ;
     return vendors ;
   }
 }

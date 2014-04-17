@@ -126,7 +126,7 @@ public class BaseAI {
       if (lastAssault != null && lastAssault.base() == other) {
         sample.add(lastAssault);
       }
-      world.presences.sampleFromKey(point, world, 10, sample, other);
+      world.presences.sampleFromMap(point, world, 10, sample, other);
       
       for (Venue v : sample) {
         final float threat = threatFrom(point, v);

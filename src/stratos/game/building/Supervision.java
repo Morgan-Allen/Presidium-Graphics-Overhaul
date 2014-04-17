@@ -59,7 +59,7 @@ public class Supervision extends Plan implements Economy {
       actor, venue, CASUAL,
       MILD_HELP, FULL_COMPETITION,
       NO_SKILLS, BASE_TRAITS,
-      NO_MODIFIER, PARTIAL_DISTANCE_CHECK, NO_DANGER,
+      NO_MODIFIER, PARTIAL_DISTANCE_CHECK, NO_FAIL_RISK,
       report
     );
   }

@@ -83,7 +83,7 @@ public class Retreat extends Plan implements Qualities {
       actor, safePoint, distFactor + nightVal + (maxDanger * PARAMOUNT),
       NO_HARM, NO_COMPETITION,
       BASE_SKILLS, BASE_TRAITS,
-      NO_MODIFIER, NO_DISTANCE_CHECK, NO_DANGER,
+      NO_MODIFIER, NO_DISTANCE_CHECK, NO_FAIL_RISK,
       report
     );
     

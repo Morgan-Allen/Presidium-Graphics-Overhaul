@@ -89,7 +89,7 @@ public class Sickbay extends Venue implements Economy {
       "to diet and sanitary needs, but are only familiar with more common "+
       "medications and standard emergency protocol.",
       50,
-      Background.MEDIC, 1, APOTHECARY, ALL_UPGRADES
+      Background.MINDER, 1, APOTHECARY, ALL_UPGRADES
     ),
     NEURAL_SCANNING = new Upgrade(
       "Neural Scanning",
@@ -133,7 +133,7 @@ public class Sickbay extends Venue implements Economy {
     //  If anyone is waiting for treatment, tend to them- including outside the
     //  building.
     final Batch <Mobile> around = new Batch <Mobile> () ;
-    world.presences.sampleFromKey(this, world, 5, around, Mobile.class) ;
+    world.presences.sampleFromMap(this, world, 5, around, Mobile.class) ;
     for (Mobile m : this.inside()) around.include(m) ;
     for (Mobile m : around) if (m instanceof Actor) {
       final FirstAid t = new FirstAid(actor, (Actor) m, this);
@@ -260,13 +260,13 @@ public class Sickbay extends Venue implements Economy {
   
   
   public Background[] careers() {
-    return new Background[] { Background.MEDIC, Background.PHYSICIAN } ;
+    return new Background[] { Background.MINDER, Background.PHYSICIAN } ;
   }
   
   
   public int numOpenings(Background v) {
     final int nO = super.numOpenings(v) ;
-    if (v == Background.MEDIC) return nO + 1 ;
+    if (v == Background.MINDER) return nO + 1 ;
     if (v == Background.PHYSICIAN) return nO + 1 ;
     return 0 ;
   }

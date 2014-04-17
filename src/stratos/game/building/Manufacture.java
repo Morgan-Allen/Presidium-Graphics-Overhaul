@@ -113,7 +113,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
       actor, venue, shift == Venue.SECONDARY_SHIFT ? IDLE : ROUTINE,
       MILD_HELP, FULL_COMPETITION,
       conversion.skills, BASE_TRAITS,
-      NO_MODIFIER, NO_DISTANCE_CHECK, MILD_DANGER, report
+      NO_MODIFIER, NO_DISTANCE_CHECK, MILD_FAIL_RISK, report
     );
     return priority;
   }

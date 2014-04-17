@@ -79,7 +79,7 @@ public class Foraging extends Plan implements Economy {
       actor, source, hunger * URGENT,
       NO_HARM, FULL_COMPETITION,
       BASE_SKILLS, BASE_TRAITS,
-      NO_MODIFIER, NORMAL_DISTANCE_CHECK, MILD_DANGER,
+      NO_MODIFIER, NORMAL_DISTANCE_CHECK, MILD_FAIL_RISK,
       report
     );
     return priority;

@@ -41,6 +41,8 @@ public class Tripod extends Artilect implements Economy {
     gear.equipOutfit(Item.withQuality(ARTILECT_ARMOUR, 0)) ;
     gear.equipDevice(Item.withQuality(INTRINSIC_ENERGY_WEAPON, 0)) ;
     
+    traits.setLevel(FEARLESS, 1);
+    
     attachSprite(MODEL_TRIPOD.makeSprite()) ;
     name = nameWithBase("Tripod ") ;
   }

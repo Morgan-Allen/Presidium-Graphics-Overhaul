@@ -154,7 +154,7 @@ public class Hunting extends Combat implements Economy {
       actor, prey, urgency,
       harmLevel, MILD_COMPETITION,
       RANGED_SKILLS, baseTraits,
-      NO_MODIFIER, NORMAL_DISTANCE_CHECK, REAL_DANGER,
+      NO_MODIFIER, NORMAL_DISTANCE_CHECK, REAL_FAIL_RISK,
       report
     );
     

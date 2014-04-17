@@ -1,9 +1,11 @@
 
 
 
-package stratos.game.planet ;
+package stratos.game.wild ;
 import stratos.game.actors.*;
 import stratos.game.common.*;
+import stratos.game.planet.Fauna;
+import stratos.game.planet.Nest;
 import stratos.user.*;
 import stratos.util.*;
 
