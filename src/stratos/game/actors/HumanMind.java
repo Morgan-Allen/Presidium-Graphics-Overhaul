@@ -159,7 +159,7 @@ public class HumanMind extends ActorMind implements Qualities {
       choice.add(Hunting.asHarvest(actor, nearby, home, true));
       
       choice.add(new Combat(actor, nearby)) ;
-      choice.add(new Retreat(actor)) ;
+      choice.add(new Retreat(actor)) ;  //TODO:  MAKE MORE ECONOMICAL
       choice.add(new Dialogue(actor, nearby, Dialogue.TYPE_CASUAL)) ;
       choice.add(new FirstAid(actor, nearby)) ;
     }

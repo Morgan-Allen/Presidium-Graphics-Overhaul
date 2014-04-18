@@ -120,8 +120,8 @@ public class Base implements
     creditCirculation = s.loadFloat() ;
     
     for (int n = s.loadInt() ; n-- > 0 ;) {
-      final Relation r = Relation.loadFrom(s) ;
-      baseRelations.put(r.subject, r) ;
+      final Relation r = Relation.loadFrom(s);
+      baseRelations.put(r.subject, r);
     }
     
     profiles.loadState(s) ;
@@ -229,9 +229,10 @@ public class Base implements
   
   /**  Dealing with admin functions-
     */
-  public void setRelation(Base other, float attitude, boolean symmetric) {
-    baseRelations.put(other, new Relation(this, other, attitude, -1));
-    if (symmetric) other.setRelation(other, attitude, false);
+  public void setRelation(Base other, float attitude, boolean symmetric) {    
+    final Relation r = new Relation(this, other, attitude, -1);
+    baseRelations.put(other, r);
+    if (symmetric) other.setRelation(this, attitude, false);
   }
   
   
@@ -247,6 +248,7 @@ public class Base implements
       else if (primal || other.primal) initR = -0.5f;
       else initR = 0.5f;
       
+      ///I.say(this+" INITIALISING RELATION WITH "+other+" AT: "+initR);
       setRelation(other, initR, true);
       final Relation n = baseRelations.get(other);
       return n.value();

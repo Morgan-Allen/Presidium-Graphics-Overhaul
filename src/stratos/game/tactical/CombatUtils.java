@@ -17,7 +17,7 @@ public class CombatUtils implements Qualities {
   private static boolean
     threatsVerbose  = false,
     strengthVerbose = false,
-    dangerVerbose   = false;
+    dangerVerbose   = true ;
   
   
   /**  Returns the estimated combat strength of the given actor, either
@@ -80,17 +80,18 @@ public class CombatUtils implements Qualities {
   private static float threatTo(
     Actor actor, Target m, float distance, boolean report
   ) {
-    //  TODO:  Adapt to venues with defensive capability?
+    //  TODO:  Adapt to venues or vehicles with defensive capability?
     
     if (m == actor || ! (m instanceof Actor)) return 0;
+    distance /= (World.SECTOR_SIZE / 2);
+    if (distance > 2) return 0;
     final Actor other = (Actor) m;
     
     final float
-      hostility = Plan.generalHostility(other, actor),
+      hostility     = Plan.hostilityOf(other, actor, true),
       otherStrength = combatStrength(other, null);
     if (otherStrength <= 0) return 0;
     
-    distance /= (World.SECTOR_SIZE / 2);
     float threat = 1 / (1f + distance);
     if (other.isDoing(Retreat.class, null)) threat /= 2;
     threat *= otherStrength * hostility;
@@ -170,17 +171,17 @@ public class CombatUtils implements Qualities {
       else sumAllies += -threat;
     }
     
-    final Tile o = actor.world().tileAt(spot);
-    final float ambientDanger = actor.base().dangerMap.sampleAt(o.x, o.y);
-    if (ambientDanger >= 0) sumFoes += ambientDanger;
-    else sumAllies -= ambientDanger;
-    
     final float
       injury = actor.health.injuryLevel(),
       stress = actor.health.stressPenalty(),
       hurt = Visit.clamp((injury + stress) * 2, 0, 2);
     
     if (sumFoes == 0 && hurt == 0) return 0;
+    final Tile o = actor.world().tileAt(spot);
+    final float ambientDanger = actor.base().dangerMap.sampleAt(o.x, o.y);
+    if (ambientDanger >= 0) sumFoes += ambientDanger;
+    else sumAllies -= ambientDanger;
+    
     sumAllies = (sumAllies + baseStrength) / 2;
     if (sumAllies == 0) return MAX_DANGER;
     float danger = hurt + (sumFoes * 2 / (sumFoes + sumAllies));

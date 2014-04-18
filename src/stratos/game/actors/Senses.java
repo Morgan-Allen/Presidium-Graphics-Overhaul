@@ -146,7 +146,7 @@ public class Senses implements Qualities {
     if (e == actor) return false;
     final boolean report = noticeVerbose && I.talkAbout == actor;
     
-    final float hostility = Plan.generalHostility(e, actor);
+    final float hostility = Plan.hostilityOf(e, actor, false);
     if (hostility > 0) sightRange *= 1 + hostility;
     
     final float distance = Spacing.distance(e, actor);

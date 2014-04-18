@@ -108,7 +108,7 @@ public class Combat extends Plan implements Qualities {
     if (isActor) {
       final float empathy = 1f + actor.traits.relativeLevel(EMPATHIC);
       modifier -= ROUTINE * empathy * harmLevel;
-      final float hostility = Plan.hostileFocus((Actor) target, actor);
+      final float hostility = Plan.hostilityOf((Actor) target, actor, false);
       modifier += PARAMOUNT * hostility;
       //final float unarmed = 1f - hostility;
       //modifier -= ROUTINE * actor.traits.relativeLevel(HONOURABLE) * unarmed;

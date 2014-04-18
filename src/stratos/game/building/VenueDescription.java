@@ -220,10 +220,12 @@ public class VenueDescription {
   private String descDuty(Actor a) {
     final Background b = a.vocation() ;
     final String VN = b == null ? a.species().toString() : b.nameFor(a) ;
+    if (a.mind.work() == v) {
+      final String duty = v.personnel.onShift(a) ? "On-Duty" : "Off-Duty" ;
+      return "("+duty+" "+VN+")" ;
+    }
     if (a.mind.home() == v) return "(Resident "+VN+")" ;
-    if (a.mind.work() != v) return "(Visiting "+VN+")" ;
-    final String duty = v.personnel.onShift(a) ? "On-Duty" : "Off-Duty" ;
-    return "("+duty+" "+VN+")" ;
+    return "(Visiting "+VN+")" ;
   }
   
   
