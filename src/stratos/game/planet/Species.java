@@ -5,6 +5,7 @@
   */
 
 package stratos.game.planet ;
+import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.game.wild.*;
@@ -15,23 +16,26 @@ import stratos.util.*;
 
 
 
-//
-//  TODO:  This class needs to include data for base speed, sight range, damage
-//  and armour, et cetera, et cetera.
-
 //  TODO:  This class probably needs to be moved to the wild package.  It
 //  should not be referring to objects outside the planet package.
-
-//
-//  TODO:  In fact, this class should probably save itself through a reference
-//  to the name and base class, same as Assets do.
-
 
 public abstract class Species implements Session.Saveable, Economy {
   
   
   /**  Type, instance and media definitions-
     */
+  //  TODO:  Allow Species to be defined within their own Actor sub-classes, in
+  //  a fashion similar to Sprites and ModelAssets.
+  
+  //  TODO:  Define basic attributes using a Table, keyed with either the stats
+  //  below, or using Skills/Traits.
+  protected static enum Stat {
+    BULK, SIGHT, SPEED,
+    HEALTH, SENSES, COGNITION,
+    ARMOUR, DAMAGE
+  }
+  
+  
   final static String
     FILE_DIR = "media/Actors/fauna/",
     LAIR_DIR = "media/Buildings/lairs and ruins/",
@@ -100,7 +104,7 @@ public abstract class Species implements Session.Saveable, Economy {
       null,
       Type.HUMANOID, 1, 1, 1
     ) {
-      public Fauna newSpecimen(Base base) { return null ; }
+      public Actor newSpecimen(Base base) { return null ; }
       public Nest createNest() { return null ; }
     },
     
@@ -119,7 +123,7 @@ public abstract class Species implements Session.Saveable, Economy {
       0.15f, //speed
       0.65f  //sight
     ) {
-      public Fauna newSpecimen(Base base) { return new Quud(base) ; }
+      public Actor newSpecimen(Base base) { return new Quud(base) ; }
       public Nest createNest() { return new Nest(
         2, 2, Venue.ENTRANCE_EAST, this, MODEL_NEST_QUUD
       ) ; }
@@ -141,7 +145,7 @@ public abstract class Species implements Session.Saveable, Economy {
       1.60f, //speed
       1.00f  //sight
     ) {
-      public Fauna newSpecimen(Base base) { return new Vareen(base) ; }
+      public Actor newSpecimen(Base base) { return new Vareen(base) ; }
       public Nest createNest() { return new Nest(
         2, 2, Venue.ENTRANCE_EAST, this, MODEL_NEST_VAREEN
       ) ; }
@@ -163,7 +167,7 @@ public abstract class Species implements Session.Saveable, Economy {
       1.30f, //speed
       1.50f  //sight
     ) {
-      public Fauna newSpecimen(Base base) { return new Micovore(base) ; }
+      public Actor newSpecimen(Base base) { return new Micovore(base) ; }
       public Nest createNest() { return new Nest(
         3, 2, Venue.ENTRANCE_EAST, this, MODEL_NEST_MICOVORE
       ) ; }
@@ -193,15 +197,38 @@ public abstract class Species implements Session.Saveable, Economy {
     CROP_SPECIES[] = Species.speciesSoFar(),
     
     
-    //  TODO:  Expand this to include each of the main artilect species, and
-    //  include descriptive text.
-    SPECIES_ARTILECT = new Species(
-      "Artilect",
+    //  TODO:  Include descriptive text and other details.
+    SPECIES_DRONE = new Species(
+      "Drone",
       "<THIS SPACE RESERVED>",
       null,
       null,
       Type.ARTILECT, 1, 1, 1
-    ) {},
+    ) {
+      public Actor newSpecimen(Base base) { return new Drone(base) ; }
+    },
+    
+    SPECIES_TRIPOD = new Species(
+      "Tripod",
+      "<THIS SPACE RESERVED>",
+      null,
+      null,
+      Type.ARTILECT, 1, 1, 1
+    ) {
+      public Actor newSpecimen(Base base) { return new Tripod(base) ; }
+    },
+    
+    SPECIES_CRANIAL = new Species(
+      "Cranial",
+      "<THIS SPACE RESERVED>",
+      null,
+      null,
+      Type.ARTILECT, 1, 1, 1
+    ) {
+      public Actor newSpecimen(Base base) { return new Cranial(base) ; }
+    },
+    
+    ARTILECT_SPECIES[] = { SPECIES_DRONE, SPECIES_TRIPOD, SPECIES_CRANIAL },
     
     ALL_SPECIES[] = Species.allSpecies()
   ;
@@ -283,7 +310,7 @@ public abstract class Species implements Session.Saveable, Economy {
   }
   
   
-  public Fauna newSpecimen(Base base) { return null; };
+  public Actor newSpecimen(Base base) { return null; };
   public Nest createNest() { return null; };
   
   

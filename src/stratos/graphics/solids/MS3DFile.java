@@ -3,9 +3,7 @@
 package stratos.graphics.solids;
 import java.io.*;
 import java.util.*;
-
 import stratos.util.*;
-
 import com.badlogic.gdx.math.*;
 
 
@@ -48,12 +46,14 @@ public class MS3DFile {
 
     inverse();
   }
-
+  
+  
   public static class MS3DVertex {
     public float[] vertex;
     public byte boneid;
   }
-
+  
+  
   public MS3DVertex[] vertices;
 
   private void parseVertices(DataInput0 in) throws IOException {
@@ -78,7 +78,8 @@ public class MS3DFile {
 
     }
   }
-
+  
+  
   public static class MS3DTriangle {
     public short[] indices;
     public float[][] normals = new float[3][];
@@ -198,6 +199,7 @@ public class MS3DFile {
 
     public Matrix4 matrix = new Matrix4();
     public Matrix4 inverse = new Matrix4();
+    public Quaternion invRot = new Quaternion();
 
     public Keyframe[] rotations;
     public Keyframe[] positions;
@@ -260,6 +262,7 @@ public class MS3DFile {
       root.positions = new Keyframe[0];
       root.matrix.idt();
       root.inverse.idt();
+      root.invRot.idt();
     }
   }
 
@@ -277,14 +280,18 @@ public class MS3DFile {
    */
   private void inverse() {
     Map<String, MS3DJoint> map = new HashMap<String, MS3DFile.MS3DJoint>();
+    Quaternion tempRot = new Quaternion();
 
     for (MS3DJoint j : joints) {
       map.put(j.name, j);
     }
 
     for (MS3DJoint j : joints) {
-      if (!j.parentName.isEmpty())
+      if (!j.parentName.isEmpty()) {
         j.inverse.mul(map.get(j.parentName).inverse);
+        j.inverse.getRotation(j.invRot);
+        j.invRot.nor();
+      }
     }
 
     Vector3 tmp = new Vector3();
@@ -322,16 +329,12 @@ public class MS3DFile {
         tmp.x = norm[0];
         tmp.y = norm[1];
         tmp.z = norm[2];
-
-        tmp.mul(joints[bone].inverse);
-
+        tmp.mul(joints[bone].invRot);
         norm[0] = tmp.x;
         norm[1] = tmp.y;
         norm[2] = tmp.z;
       }
     }
-
-    // TODO I should also inverse normals here, but I'll deal with it later
   }
 
   public static Quaternion fromEuler(float[] angles) {

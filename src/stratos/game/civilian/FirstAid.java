@@ -90,6 +90,7 @@ public class FirstAid extends Plan implements Qualities, Economy {
     if (patient.health.conscious()) return 0;
     float modifier = 0;
     
+    //  TODO:  You need a generalised method for this.
     if (patient.base() != actor.base()) {
       modifier -= (1 - actor.memories.relationValue(patient.base())) * ROUTINE;
     }
@@ -107,7 +108,7 @@ public class FirstAid extends Plan implements Qualities, Economy {
       BASE_TRAITS,
       modifier,
       NORMAL_DISTANCE_CHECK,
-      MILD_FAIL_RISK,
+      NO_FAIL_RISK,
       report
     );
     
@@ -160,14 +161,6 @@ public class FirstAid extends Plan implements Qualities, Economy {
   public int motionType(Actor actor) {
     return patient.health.alive() ? MOTION_FAST : MOTION_ANY;
   }
-  
-  /*
-  protected float successChance() {
-    final float DC = severity() * 5;
-    float chance = actor.traits.chance(ANATOMY, DC);
-    return chance;
-  }
-  //*/
   
   
   public boolean actionFirstAid(Actor actor, Actor patient) {

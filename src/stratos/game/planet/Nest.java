@@ -360,7 +360,7 @@ public class Nest extends Venue {
         float bestPop = bestRating / adultMass ;
         
         while (bestPop-- > 0) {
-          final Fauna f = toPlace.species.newSpecimen(wildlife) ;
+          final Fauna f = (Fauna) toPlace.species.newSpecimen(wildlife) ;
           f.health.setupHealth(Rand.num(), 0.9f, 0.1f) ;
           f.mind.setHome(toPlace) ;
           if (Rand.num() < 0.1f) {

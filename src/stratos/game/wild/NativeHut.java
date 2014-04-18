@@ -36,7 +36,7 @@ public class NativeHut extends Venue {
   
   final static String TRIBE_NAMES[] = {
     //"Homaxquin (Cloud Eaters)",
-    "Kon'E (Children of Rust)",
+    "Hqon (Children of Rust)",
     "Ai Baru (Sand Runners)",
     "Ybetsi (The Painted)"
   } ;
@@ -226,7 +226,8 @@ public class NativeHut extends Venue {
   }
   
   
-  private static void populateHut(NativeHut hut, NativeHall parent) {
+  public static Batch <Actor> populateHut(NativeHut hut, NativeHall parent) {
+    final Batch <Actor> populace = new Batch <Actor> ();
     final World world = hut.world() ;
     final Background NB = NATIVE_BIRTH, NH = PLANET_DIAPSOR ;
     Background cleric = Background.SHAMAN ;
@@ -254,9 +255,10 @@ public class NativeHut extends Venue {
       lives.mind.setWork(hut) ;
       lives.enterWorldAt(hut, world) ;
       lives.goAboard(hut, world) ;
+      populace.add(lives);
     }
+    return populace;
   }
-  
   
   
   

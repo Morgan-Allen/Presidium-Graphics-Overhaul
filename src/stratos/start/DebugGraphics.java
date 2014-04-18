@@ -45,7 +45,7 @@ public class DebugGraphics {
       "media/Actors/human/", "male_final.ms3d",
       Human.class, "HumanModels.xml", "MalePrime"
     ),
-    SM = HUMAN_MODEL;
+    SM = MICOVORE_MODEL;
   
   final static ShotFX.Model
     BEAM_FX_MODEL = new ShotFX.Model(
@@ -67,8 +67,21 @@ public class DebugGraphics {
       protected void loadVisuals() {
         final SolidSprite SS = (SolidSprite) SM.makeSprite();
         sprites.add(SS);
-        SS.position.x = 2;
+        SS.position.y = 2;
         SS.scale = 2.5f;
+        
+        final SolidSprite spriteA = (SolidSprite) HUMAN_MODEL.makeSprite();
+        spriteA.showOnly(AnimNames.MAIN_BODY);
+        spriteA.setOverlaySkins(
+          AnimNames.MAIN_BODY,
+          DebugHumanSprites.SKIN_A.asTexture(),
+          DebugHumanSprites.SKIN_B.asTexture()
+        );
+        spriteA.togglePart("pistol", true);
+        spriteA.scale = 2.0f;
+        spriteA.position.set(-2, 2, 0);
+        sprites.add(spriteA);
+        
         
         for (int i = 10 ; i-- > 0;) {
           final Sprite CS = CM.makeSprite();
@@ -76,7 +89,7 @@ public class DebugGraphics {
           CS.fog = (i + 1) / 10f;
           CS.colour = Colour.transparency(CS.fog);
           CS.scale = 0.5f;
-          sprites.add(CS);
+          //sprites.add(CS);
         }
         
         final BuildingSprite BS = BuildingSprite.fromBase(VM, 4, 2);
@@ -97,7 +110,7 @@ public class DebugGraphics {
         BS.toggleFX(BuildingSprite.POWER_MODEL, true);
         BS.toggleFX(BuildingSprite.WATER_MODEL, true);
         BS.toggleFX(BuildingSprite.BLAST_MODEL, true);
-        sprites.add(BS);
+        //sprites.add(BS);
         
         final TalkFX FX1 = new TalkFX() {
           int count = 0;
@@ -109,7 +122,7 @@ public class DebugGraphics {
           }
         };
         FX1.position.set(0, 0, 2);
-        sprites.add(FX1);
+        //sprites.add(FX1);
         
         final ShieldFX FX2 = new ShieldFX() {
           public void readyFor(Rendering r) {
@@ -125,7 +138,7 @@ public class DebugGraphics {
         };
         FX2.scale = 1.5f;
         FX2.position.set(-2, 2, 0);
-        sprites.add(FX2);
+        //sprites.add(FX2);
         
         final ShotFX FX3 = new ShotFX(FM) {
           float lastTime = 0;
@@ -141,7 +154,7 @@ public class DebugGraphics {
         FX3.position.set(-2, 2, 0);
         FX3.origin.set(-1, 1, 0);
         FX3.target.set(-4, 4, 0);
-        sprites.add(FX3);
+        //sprites.add(FX3);
         
         PlayLoop.rendering().backColour = new Colour(0, 0, 1, 0);
       }
@@ -156,7 +169,10 @@ public class DebugGraphics {
         if (sprite.model() == SM) {
           final float progress = Rendering.activeTime() * 6 / 10f;
           sprite.setAnimation(AnimNames.FIRE, progress % 1, true);
-          sprite.rotation += 120 / 60f;
+          sprite.rotation += 120 / Rendering.FRAMES_PER_SECOND;
+        }
+        if (sprite.model() == HUMAN_MODEL) {
+          sprite.rotation += 120 / Rendering.FRAMES_PER_SECOND;
         }
       }
     });

@@ -229,19 +229,26 @@ public class Base implements
   
   /**  Dealing with admin functions-
     */
-  public void setRelation(Base base, float attitude) {
-    baseRelations.put(base, new Relation(this, base, attitude, -1)) ;
+  public void setRelation(Base other, float attitude, boolean symmetric) {
+    baseRelations.put(other, new Relation(this, other, attitude, -1));
+    if (symmetric) other.setRelation(other, attitude, false);
   }
   
   
-  public float relationWith(Base base) {
-    final Relation r = baseRelations.get(base) ;
+  public float relationWith(Base other) {
+    final Relation r = baseRelations.get(other) ;
     if (r == null) {
       //  TODO:  Failing that, base off relations with the house of the base's
       //  ruler.
-      final float initR = base.primal ? -0.5f : 0.5f;
-      final Relation n = new Relation(this, base, initR, -1);
-      baseRelations.put(base, n);
+      
+      //  TODO:  You need some more refined default setup methods here.
+      final float initR;
+      if (primal && other.primal) initR = 0;
+      else if (primal || other.primal) initR = -0.5f;
+      else initR = 0.5f;
+      
+      setRelation(other, initR, true);
+      final Relation n = baseRelations.get(other);
       return n.value();
     }
     return r.value() ;

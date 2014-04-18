@@ -76,9 +76,11 @@ public class AnimalHusbandry extends Plan implements Economy {
       final float crowding = Nest.crowdingFor(station, species, world) ;
       I.say("Abundance of "+species+" is "+crowding) ;
       if (crowding >= 1) continue ;
-      final Fauna specimen = species.newSpecimen(null) ;
+      
+      final Fauna specimen = (Fauna) species.newSpecimen(station.base()) ;
       if (specimen == null) continue ;
       float rating = 10f / (1 + crowding) ;
+      
       if (rating > bestRating) {
         I.say("Best is: "+species) ;
         picked = specimen ;

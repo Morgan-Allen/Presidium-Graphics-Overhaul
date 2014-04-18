@@ -22,7 +22,7 @@ public class Retreat extends Plan implements Qualities {
     DANGER_MEMORY_FADE = 0.9f;
   
   private static boolean
-    evalVerbose  = false,
+    evalVerbose  = true,
     havenVerbose = false,
     stepsVerbose = false;
   
@@ -60,7 +60,7 @@ public class Retreat extends Plan implements Qualities {
   /**  Evaluation of priority and targets--
     */
   //  TODO:  Possibly get rid of these?
-  final Skill BASE_SKILLS[] = { ATHLETICS };
+  final Skill BASE_SKILLS[] = { };  //  TODO:  Include speed in calculation
   final Trait BASE_TRAITS[] = { NERVOUS };
   
   

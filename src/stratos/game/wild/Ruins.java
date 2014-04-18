@@ -34,12 +34,13 @@ public class Ruins extends Venue {
   private static boolean verbose = false;
   
   
-  public Ruins() {
-    super(4, 2, ENTRANCE_EAST, null) ;
-    structure.setupStats(1000, 100, 0, 0, Structure.TYPE_ANCIENT) ;
-    personnel.setShiftType(SHIFTS_ALWAYS) ;
-    final int index = (NI++ + Rand.index(1)) % 3 ;
-    attachSprite(MODEL_RUINS[index].makeSprite()) ;
+  public Ruins(Base base) {
+    super(4, 2, ENTRANCE_EAST, base);
+    structure.setupStats(1000, 100, 0, 0, Structure.TYPE_ANCIENT);
+    structure.setState(Structure.STATE_INTACT, Rand.avgNums(2));
+    personnel.setShiftType(SHIFTS_ALWAYS);
+    final int index = (NI++ + Rand.index(1)) % 3;
+    attachSprite(MODEL_RUINS[index].makeSprite());
   }
   
   
@@ -76,6 +77,7 @@ public class Ruins extends Venue {
   ) {
     final Presences presences = world.presences;
     final Batch <Ruins> placed = new Batch <Ruins> ();
+    final Base artilects = Base.baseWithName(world, Base.KEY_ARTILECTS, true);
     
     final SitingPass siting = new SitingPass() {
       int numSited = 0;
@@ -107,9 +109,10 @@ public class Ruins extends Venue {
         
         final boolean minor = numSited >= maxPlaced / 2;
         int maxRuins = (minor ? 3 : 1) + Rand.index(3);
-        final Batch <Venue> ruins = new Batch <Venue> ();
+        final Batch <Ruins> ruins = new Batch <Ruins> ();
+        
         while (maxRuins-- > 0) {
-          final Ruins r = new Ruins() ;
+          final Ruins r = new Ruins(artilects) ;
           Placement.establishVenue(r, centre.x, centre.y, true, world);
           if (r.inWorld()) {
             if (verbose) I.say("  Ruin established at: "+r.origin());
@@ -119,11 +122,13 @@ public class Ruins extends Venue {
         }
         
         //  TODO:  Slag/wreckage must be done in a distinct pass...
-        for (Venue r : ruins) for (Tile t : world.tilesIn(r.area(), true)) {
-          Habitat h = Rand.yes() ? Habitat.CURSED_EARTH : Habitat.DUNE ;
-          world.terrain().setHabitat(t, h) ;
+        for (Ruins r : ruins) {
+          for (Tile t : world.tilesIn(r.area(), true)) {
+            Habitat h = Rand.yes() ? Habitat.CURSED_EARTH : Habitat.DUNE ;
+            world.terrain().setHabitat(t, h) ;
+          }
+          populateArtilects(world, r, true) ;
         }
-        populateArtilects(world, ruins, minor) ;
         numSited++;
         return ruins.size() > 0;
       }
@@ -134,52 +139,56 @@ public class Ruins extends Venue {
   
   
   public static Batch <Artilect> populateArtilects(
-    World world, Ruins ruins, boolean minor
+    World world, Ruins ruins, boolean fillSpaces, Artilect... living
   ) {
-    final Batch <Venue> b = new Batch <Venue> ();
-    b.add(ruins);
-    return populateArtilects(world, b, minor);
-  }
-  
-  
-  public static Batch <Artilect> populateArtilects(
-    World world, Batch <Venue> ruins, boolean minor
-  ) {
-    final Base artilects = Base.baseWithName(world, Base.KEY_ARTILECTS, true);
-    final Batch <Artilect> pop = new Batch <Artilect> ();
-    //
-    //  TODO:  Generalise this, too?  Using pre-initialised actors?
-    int lairNum = 0 ; for (Venue r : ruins) {
-      r.assignBase(artilects) ;
-      if (lairNum++ > 0 && Rand.yes()) continue ;
-      
-      final Tile e = r.mainEntrance() ;
-      int numT = Rand.index(3) == 0 ? 1 : 0, numD = 1 + Rand.index(2) ;
-      if (minor && Rand.yes()) { numT = 0 ; numD-- ; }
-      
-      while (numT-- > 0) {
-        final Tripod tripod = new Tripod(artilects) ;
-        tripod.enterWorldAt(e.x, e.y, world) ;
-        tripod.mind.setHome(r) ;
-        pop.add(tripod);
-      }
-      
-      while (numD-- > 0) {
-        final Drone drone = new Drone(artilects) ;
-        drone.enterWorldAt(e.x, e.y, world) ;
-        drone.mind.setHome(r) ;
-        pop.add(drone);
-      }
-      
-      if (lairNum == 1 && Rand.yes() && ! minor) {
-        final Cranial cranial = new Cranial(artilects) ;
-        cranial.enterWorldAt(e.x, e.y, e.world) ;
-        cranial.mind.setHome(r) ;
-        pop.add(cranial);
+    final Batch <Artilect> populace = new Batch <Artilect> ();
+    
+    //  Add any artilects passed as arguments, or that there's room for
+    //  afterwards.
+    for (Artilect a : living) {
+      a.mind.setHome(ruins);
+      populace.add(a);
+    }
+    
+    if (living == null || living.length == 0 || fillSpaces) {
+      for (Species s : Species.ARTILECT_SPECIES) {
+        final int space = ruins.spaceFor(s);
+        if (verbose) I.say("  SPACE FOR "+s+" is "+space);
+        for (int n = space; n-- > 0;) {
+          populace.add((Artilect) s.newSpecimen(ruins.base()));
+        }
       }
     }
     
-    return pop;
+    //  Then have each enter the world at the given location-
+    for (Artilect a : populace) {
+      a.mind.setHome(ruins);
+      a.enterWorldAt(ruins, world);
+      a.goAboard(ruins, world);
+    }
+    return populace;
+  }
+  
+  
+  
+  protected int spaceFor(Species s) {
+    
+    //  We 'salt' this estimate in a semi-random but deterministic way by
+    //  referring to terrain variation.
+    float spaceLevel = structure.repairLevel();
+    spaceLevel *= 1 + world.terrain().varAt(origin());
+    spaceLevel *= 1f / WorldTerrain.VAR_LIMIT;
+    
+    int numLiving = 0;
+    for (Actor a : personnel.residents()) if (a.species() == s) numLiving++;
+    
+    int space = 0;
+    if (s == Species.SPECIES_CRANIAL) space = spaceLevel > 0.5f ? 1 : 0;
+    if (s == Species.SPECIES_TRIPOD ) space = 1 + (int) (spaceLevel * 3);
+    if (s == Species.SPECIES_DRONE  ) space = 1 + (int) (spaceLevel * 5);
+    
+    if (verbose) I.say("\n  BASE-SPACE/NUM-LIVING: "+space+"/"+numLiving);
+    return space - numLiving;
   }
   
   

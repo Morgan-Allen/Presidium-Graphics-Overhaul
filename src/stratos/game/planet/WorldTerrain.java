@@ -51,8 +51,9 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
     AMOUNT_COMMON = 3,
     AMOUNT_HEAVY  = 9,
     
-    NUM_TYPES = 4,
+    NUM_TYPES   = 4,
     NUM_DEGREES = 4,
+    VAR_LIMIT   = 4,
     MAX_MINERAL_AMOUNT = 10 ;
   
   final static int

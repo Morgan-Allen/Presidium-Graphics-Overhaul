@@ -208,8 +208,11 @@ public class Pathing {
   
   /**  Specialty methods for modifying the position/facing of actors-
     */
+  private static Vec3D temp3 = new Vec3D();
+  private static Vec2D temp2 = new Vec2D();
+  
   private Vec2D displacement(Target target) {
-    final Vec3D p = target.position(null) ;
+    final Vec3D p = target.position(temp3) ;
     final Vec2D disp = new Vec2D(
       p.x - mobile.position.x,
       p.y - mobile.position.y
@@ -221,15 +224,23 @@ public class Pathing {
   public void headTowards(
     Target target, float speed, boolean moves
   ) {
+    final boolean report = I.talkAbout == mobile && verbose;
+    if (report) I.say("\n"+mobile+" HEADING TOWARDS: "+target);
+    
+    //  Don't move if something ahead is blocking entrance-
+    if (target instanceof Tile) {
+      final Series <Mobile> inside = ((Tile) target).inside();
+      if (inside.size() > 0) for (Mobile m : inside) if (deferTo(m)) return;
+    }
+    
     //
     //  Determine the appropriate offset and angle for this target-
     if (target == null) return ;
-    //final boolean report = I.talkAbout == mobile && verbose;
     final Vec2D disp = displacement(target) ;
     final float dist = disp.length() ;
     float angle = dist == 0 ? 0 : disp.normalise().toAngle() ;
     float moveRate = moves ? (speed / World.UPDATES_PER_SECOND) : 0 ;
-    //if (report) I.say("MOVE DIST: "+dist);
+    if (report) I.say("  MOVE DIST: "+dist);
     //
     //  Determine how far one can move this update, including limits on
     //  maximum rotation-
@@ -245,8 +256,8 @@ public class Pathing {
       moveRate *= (180 - absDif) / 180 ;
     }
     disp.scale(Math.min(moveRate, dist)) ;
-    //
-    //  Then apply the changes in heading-
+    
+    //  Otherwise, apply the changes in heading-
     mobile.nextPosition.x = disp.x + mobile.position.x ;
     mobile.nextPosition.y = disp.y + mobile.position.y ;
     if (dist > 0) mobile.nextRotation = angle ;
@@ -260,7 +271,11 @@ public class Pathing {
   }
   
   
-  //  TODO:  Move the call for this to the Mobile class.
+  private boolean deferTo(Mobile other) {
+    //  TODO:  See if you can't refine the logic here a little.
+    return other.hashCode() > mobile.hashCode();
+  }
+  
   
   public void applyCollision(float moveRate, Target focus) {
     ///if (true) return;

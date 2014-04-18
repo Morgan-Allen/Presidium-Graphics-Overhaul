@@ -46,7 +46,7 @@ public class Farming extends Plan implements Economy {
   
   
   final static Skill BASE_SKILLS[] = { HARD_LABOUR, CULTIVATION };
-  final static Trait BASE_TRAITS[] = { SIMPLE, ENERGETIC, NATURALIST };
+  final static Trait BASE_TRAITS[] = { IGNORANT, ENERGETIC, NATURALIST };
   
 
   protected float getPriority() {

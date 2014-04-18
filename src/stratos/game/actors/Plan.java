@@ -445,20 +445,22 @@ public abstract class Plan implements Saveable, Behaviour {
   }
   
   
+  public static float hostileFocus(Actor threat, Actor actor) {
+    final Target victim = threat.focusFor(Combat.class);
+    if (victim == actor) return 1;
+    return actor.memories.relationValue(victim);
+  }
   
-  public static float hostilityOf(Target threat, Actor actor) {
-    
+  
+  public static float generalHostility(Target threat, Actor actor) {
     //  TODO:  Generalise this to activities beside combat, based on the
     //  help/harm ratings supplied in plans' priority calculations!
     if (threat instanceof Actor) {
       final Actor other = (Actor) threat;
-      final Target victim = other.focusFor(Combat.class);
-      final float
-        relation = victim == actor ? -1 : Visit.clamp(
-          other.memories.relationValue(actor) +
-          other.base().relationWith(actor.base()),
-        -1, 1);
-      return 0 - relation;
+      float hostility = hostileFocus(other, actor);
+      hostility -= other.memories.relationValue(actor);
+      hostility -= other.base().relationWith(actor.base());
+      return hostility / 2;
     }
     
     //  TODO:  Implement an assessment for venues as well?

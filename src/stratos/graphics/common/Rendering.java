@@ -110,7 +110,7 @@ public class Rendering {
     glEnable(GL10.GL_BLEND);
     glDepthMask(true);
     glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-    final Colour BC = backColour == null ? Colour.DARK_GREY : backColour ;
+    final Colour BC = backColour == null ? Colour.DARK_GREY : backColour;
     glClearColor(BC.r, BC.g, BC.b, BC.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

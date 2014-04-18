@@ -172,11 +172,11 @@ public class MS3DModel extends SolidModel {
 
         for (int j = 0; j < 3; j++) {
           MS3DVertex vert = ms3d.vertices[lol.indices[j]];
-
+          
           verts[p * n + 0] = vert.vertex[0];
           verts[p * n + 1] = vert.vertex[1];
           verts[p * n + 2] = vert.vertex[2];
-
+          
           verts[p * n + 3] = lol.normals[j][0];
           verts[p * n + 4] = lol.normals[j][1];
           verts[p * n + 5] = lol.normals[j][2];
@@ -186,9 +186,8 @@ public class MS3DModel extends SolidModel {
           
           verts[p * n + 8] = vert.boneid;
           verts[p * n + 9] = 1;
-
+          
           lol.indices[j] = (short) p;
-
           p++;
         }
       }

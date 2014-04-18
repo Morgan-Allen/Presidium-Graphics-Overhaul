@@ -5,8 +5,9 @@ package stratos.game.wild ;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
-import stratos.game.planet.Species;
+import stratos.game.planet.*;
 import stratos.game.tactical.*;
+import stratos.game.civilian.*;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
 import stratos.graphics.widgets.HUD;
@@ -22,6 +23,9 @@ public abstract class Artilect extends Actor {
   
   /**  Construction and save/load methods-
     */
+  final static float
+    FUEL_CELLS_REGEN = World.STANDARD_DAY_LENGTH;
+  
   final static String
     FILE_DIR = "media/Actors/artilects/",
     XML_FILE = "ArtilectModels.xml" ;
@@ -91,8 +95,8 @@ public abstract class Artilect extends Actor {
       
       protected Behaviour createBehaviour() {
         final Choice choice = new Choice(actor) ;
-        addChoices(choice) ;
-        return choice.pickMostUrgent() ;
+        addChoices(choice);
+        return choice.weightedPick();
       }
       
       protected void updateAI(int numUpdates) {
@@ -137,6 +141,9 @@ public abstract class Artilect extends Actor {
   
   protected void addChoices(Choice choice) {
     
+    //  TODO:  Try to ensure that most artilects spend their time 'laying
+    //  dormant', if nothing urgent is going on.
+    
     //I.say("Creating new choices for "+this) ;
     //
     //  Patrol around your base and see off intruders.
@@ -158,11 +165,15 @@ public abstract class Artilect extends Actor {
     final float distance = Spacing.distance(this, guards) / World.SECTOR_SIZE;
     
     final Plan patrol = Patrolling.aroundPerimeter(this, guards, world);
-    if (isDrone) patrol.setMotive(
-      Plan.MOTIVE_DUTY, Plan.CASUAL + (distance * Plan.PARAMOUNT)
-    );
-    else patrol.setMotive(Plan.MOTIVE_DUTY, Plan.IDLE);
-    choice.add(patrol);
+    if (isDrone) {
+      final float urgency = Plan.ROUTINE + (distance * Plan.PARAMOUNT);
+      patrol.setMotive(Plan.MOTIVE_DUTY, urgency);
+      choice.add(patrol);
+    }
+    else if (isTripod) {
+      patrol.setMotive(Plan.MOTIVE_DUTY, Plan.IDLE);
+      choice.add(patrol);
+    }
     
     if (isDrone && distance > 1) choice.add(new Retreat(this));
     
@@ -170,6 +181,8 @@ public abstract class Artilect extends Actor {
     //  Launch an assault on a nearby settlement, if numbers are too large.
     //  Capture specimens and bring back to lair.
     //  (Tripod specialties.)
+
+    //  TODO:  Use the BaseAI to try declaring raids on other settlements
     final Plan assault = nextAssault();
     if (assault != null) {
       if (isTripod) assault.setMotive(Plan.MOTIVE_DUTY, Plan.PARAMOUNT);
@@ -197,15 +210,13 @@ public abstract class Artilect extends Actor {
     for (Target e : senses.awareOf()) if (e instanceof Actor) {
       choice.add(new Combat(this, (Actor) e)) ;
     }
+    final Resting rest = new Resting(this, mind.home());
     
+    if (isDrone) rest.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL);
+    else rest.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
+    choice.add(rest);
     
-    /*
-    //  TODO:  Use the BaseAI to try declaring raids on other settlements.
-    
-    if (actor instanceof Cranial) {
-      //  TODO:  Issue repairs to other artilects.
-    }
-    //*/
+    choice.isVerbose = I.talkAbout == this;
   }
   
   
@@ -238,6 +249,14 @@ public abstract class Artilect extends Actor {
     final Combat siege = new Combat(this, toAssault) ;
     
     return siege ;
+  }
+  
+  
+  
+  public void updateAsScheduled(int numUpdates) {
+    super.updateAsScheduled(numUpdates);
+    final float fuelInc = 1f / FUEL_CELLS_REGEN;
+    if (isDoing(Resting.class, null)) gear.addFuelCells(fuelInc);
   }
   
   

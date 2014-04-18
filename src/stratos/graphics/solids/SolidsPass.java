@@ -5,6 +5,8 @@ import stratos.graphics.common.*;
 import stratos.util.*;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL11;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.shaders.*;
 import com.badlogic.gdx.graphics.g3d.utils.*;
@@ -43,6 +45,7 @@ public class SolidsPass {
       "shaders/solids_new.vert"
     ).readString();
     this.spriteBatch = new ModelBatch(provider);
+    
   }
   
   
@@ -57,6 +60,11 @@ public class SolidsPass {
   
   
   public void performPass() {
+
+    final RenderContext context = spriteBatch.getRenderContext();
+    context.setDepthTest(GL20.GL_LEQUAL);
+    context.setBlending(true, GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+    Gdx.gl.glDisable(GL11.GL_LIGHTING);
     
     spriteBatch.begin(rendering.camera());
     for (SolidSprite sprite : inPass) {
@@ -64,6 +72,7 @@ public class SolidsPass {
     }
     spriteBatch.end();
     clearAll();
+    Gdx.gl.glEnable(GL11.GL_LIGHTING);
   }
   
   

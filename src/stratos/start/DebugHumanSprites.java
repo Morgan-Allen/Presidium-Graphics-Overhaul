@@ -20,8 +20,8 @@ public class DebugHumanSprites {
       DIR, "female_final.ms3d", C, "HumanModels.xml", "FemalePrime"
     );
   final static ImageAsset
-    SKIN_A = ImageAsset.fromImage(DIR+"desert_blood.gif"  , C),
-    SKIN_B = ImageAsset.fromImage(DIR+"ecologist_skin.gif", C);
+    SKIN_A = ImageAsset.fromImage(DIR+"wastes_blood.gif"  , C),
+    SKIN_B = ImageAsset.fromImage(DIR+"militant_skin.gif", C);
   
   
   
@@ -82,6 +82,7 @@ public class DebugHumanSprites {
         final float time = Rendering.activeTime();
         if (sprite == first) {
           sprite.setAnimation(animName, time % 1, true);
+          sprite.rotation += 90f / Rendering.FRAMES_PER_SECOND;
         }
         else {
           sprite.setAnimation(AnimNames.MOVE, (time + 0.5f) % 1, true);

@@ -49,7 +49,7 @@ public class Lighting {
     
     environment.directionalLights.clear();
     environment.add(new DirectionalLight().set(
-      c.r * c.a, c.g * c.a, c.b * c.a, 1, 1, 1
+      c.r * c.a, c.g * c.a, c.b * c.a, 1, -1, -1
     ));
     environment.set(new ColorAttribute(
       ColorAttribute.AmbientLight,

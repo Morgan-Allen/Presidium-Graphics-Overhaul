@@ -116,7 +116,7 @@ public abstract class SolidModel extends ModelAsset {
   
   /**  Convenience methods for iteration and component reference-
     */
-  protected int indexFor(Object o) {
+  protected Integer indexFor(Object o) {
     return indices.get(o);
   }
   

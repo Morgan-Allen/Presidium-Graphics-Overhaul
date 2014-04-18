@@ -77,6 +77,8 @@ public class DebugPlans extends Scenario {
     //configDialogueScenario(world, base, UI);
     //configPurchaseScenario(world, base, UI);
     configRaidScenario(world, base, UI);
+    //configContactScenario(world, base, UI);
+    //configWildScenario(world, base, UI);
   }
   
   
@@ -199,24 +201,61 @@ public class DebugPlans extends Scenario {
     Placement.establishVenue(bastion, 11, 11, true, world);
     
     //  And introduce ruins, with a complement of artilects.
-    final Ruins ruins = new Ruins();
+    final Base artilects = Base.baseWithName(world, Base.KEY_ARTILECTS, true);
+    final Ruins ruins = new Ruins(artilects);
     Placement.establishVenue(ruins, 44, 44, true, world);
-    final Batch <Artilect> pop = Ruins.populateArtilects(world, ruins, true);
+    ruins.structure.setState(Structure.STATE_INTACT, 0.5f);
+    Artilect raids = null;
+    
+    Ruins.populateArtilects(
+      world, ruins, true,
+      new Cranial(artilects),
+      new Tripod(artilects),
+      raids = new Drone(artilects)
+    );
+    UI.selection.pushSelection(raids, true);
+  }
+  
+  
+  private void configContactScenario(World world, Base base, BaseUI UI) {
+    GameSettings.fogFree = true;
+    GameSettings.hireFree = true;
+    GameSettings.noBlood = true;
+    
+    //  TODO:  Problem- at the moment, default hostilities between the bases
+    //  are enough to trigger immediate combat behaviours (at least among the
+    //  more aggressively inclined.)
+    
+    //  You need to take the same 'default empathy' method from the First Aid
+    //  behaviour and apply it here in reverse.  Most sympathy for same base
+    //  and species.
+    
+    //  That might not be enough, though.
+    
+    //  Introduce a bastion, with standard personnel.
+    final Bastion bastion = new Bastion(base);
+    Placement.establishVenue(bastion, 11, 11, true, world);
+    
+    //  And introduce a native camp.
+    final Base natives = Base.baseWithName(world, Base.KEY_NATIVES, true);
+    final NativeHut hut = NativeHut.newHall(NativeHut.TRIBE_FOREST, natives);
+    Placement.establishVenue(hut, 44, 44, true, world);
+    final Batch <Actor> pop = NativeHut.populateHut(hut, null);
     
     UI.selection.pushSelection(pop.first(), true);
+  }
+  
+  
+  private void configWildScenario(World world, Base base, BaseUI UI) {
+    
+    //  This is the last scenario to test.  Just introduce some animals, and
+    //  see how they react to (A) eachother and (B) the nearby base.
   }
   
   
   protected void afterCreation() {
   }
 }
-
-
-
-
-
-
-
 
 
 

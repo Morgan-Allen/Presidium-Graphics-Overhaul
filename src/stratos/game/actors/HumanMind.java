@@ -146,6 +146,7 @@ public class HumanMind extends ActorMind implements Qualities {
     addVenueResponses(choice) ;
     addBaseResponses(choice) ;
     
+    ///choice.isVerbose = I.talkAbout == actor;
     return choice.weightedPick() ;
   }
   
@@ -219,22 +220,21 @@ public class HumanMind extends ActorMind implements Qualities {
   private void addBaseResponses(Choice choice) {
     //
     //  Derive tasks from missions or the scenario.
-    choice.add(mission) ;
-    final Scenario s = Scenario.current() ;
-    if (s != null) choice.add(s.taskFor(actor)) ;
+    choice.add(mission);
+    choice.add(Scenario.current().taskFor(actor));
     //
-    //  Apply for missions, migration, work and home.
-    choice.add(FindWork.attemptFor(actor)) ;
-    choice.add(FindHome.attemptFor(actor)) ;
-    
-    //  TODO:  Just apply for missions directly, here.
-    choice.add(FindMission.attemptFor(actor)) ;
-    //choice.add(new Migration(actor)) ;
+    // Apply for missions, migration, work and home.
+    choice.add(FindWork.attemptFor(actor));
+    choice.add(FindHome.attemptFor(actor));
+    //
+    //  Finally, free-born actors may apply for missions.
+    final int standing = actor.vocation().standing;
+    if (standing >= Background.CLASS_FREEMEN) {
+      choice.add(FindMission.attemptFor(actor));
+      //choice.add(new Migration(actor)) ;
+    }
   }
 }
-
-
-
 
 
 

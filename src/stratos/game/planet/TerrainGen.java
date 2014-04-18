@@ -273,7 +273,9 @@ public class TerrainGen implements TileConstants {
     byte sampleVar ;
     try { sampleVar = varsIndex[x + N_X[dir]][y + N_Y[dir]] ; }
     catch (ArrayIndexOutOfBoundsException e) { sampleVar = 0 ; }
-    if (sampleVar == 0) sampleVar = (byte) (Rand.index(5) % 4) ;
+    
+    final int MV = WorldTerrain.VAR_LIMIT;
+    if (sampleVar == 0) sampleVar = (byte) (Rand.index(MV + 1) % MV);
     varsIndex[x][y] = sampleVar ;
     return sampleVar ;
   }

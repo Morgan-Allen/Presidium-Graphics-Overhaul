@@ -86,7 +86,8 @@ public class Senses implements Qualities {
     noticed.include(actor.focusFor(null));
     
     //  Add anything newly within range-
-    final int reactLimit = 1 + (int) (actor.traits.traitLevel(PERCEPT) / 5);
+    final float percept = actor.traits.traitLevel(PERCEPT);
+    final int reactLimit = (int) (2.5f + (percept / 5));
     int reactCount = 0;
     for (Object m : world.presences.matchesNear(Mobile.class, actor, range)) {
       noticed.add((Target) m);
@@ -145,7 +146,7 @@ public class Senses implements Qualities {
     if (e == actor) return false;
     final boolean report = noticeVerbose && I.talkAbout == actor;
     
-    final float hostility = Plan.hostilityOf(e, actor);
+    final float hostility = Plan.generalHostility(e, actor);
     if (hostility > 0) sightRange *= 1 + hostility;
     
     final float distance = Spacing.distance(e, actor);

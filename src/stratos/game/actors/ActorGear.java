@@ -254,6 +254,13 @@ public class ActorGear extends Inventory implements Economy {
   }
   
   
+  public void addFuelCells(float amount) {
+    if (amount <= 0) return;
+    fuelCells += amount;
+    fuelCells = Visit.clamp(fuelCells, 0, MAX_FUEL_CELLS);
+  }
+  
+  
   public float maxShields() {
     if (outfit == null) return 0 ;
     final OutfitType type = (OutfitType) outfit.type ;

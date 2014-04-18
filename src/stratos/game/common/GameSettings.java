@@ -25,11 +25,10 @@ public class GameSettings {
     psyFree   = false,
     fogFree   = false,
     pathFree  = false,
-    
     needsFree = false,
     
     noBlood   = false,
-    hardCore  = false ;
+    hardCore  = false;
   
   public static float
     actorScale = SMALL_SPRITE_SCALE;

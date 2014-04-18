@@ -1,57 +1,49 @@
 
-
-
 package stratos.game.actors;
 import static stratos.game.actors.Qualities.*;
 import stratos.util.*;
 import java.util.Map.Entry;
 
-
-
 //  TODO:  See if this can't be simplified still further?
 
-//  Conscience.  Obedience.
-//  Empathy.  Greed.
-//  Aggression.  Caution.
-//  Curiosity.  Sloth.
-//  Ambition.  Whimsy.
+/*
+Aggressive  vs. Empathic    (helping or harming others)
+Ambitious   vs. Humble      (desire for promotion)
+Greedy      vs. Generous    (give or receive money/gifts)
+Solitary    vs. Outgoing    (conversation, group activity)
+Critical    vs. Friendly    (politeness vs. accuracy)  <REDUNDANT?>
+Cold        vs. Passionate  (mood-swings and relations)
+Relaxed     vs. Restless    (sleep vs. physical exercise)
+Cautious    vs. Fearless    (sensitivity to danger)
 
+TODO:  <CROSS OVER HERE>
 
-/*  I'm basing this system (loosely) on the Big 5 personality traits and some
-proposed (loose) correlations between them:
+Truthful    vs. Deceptive             <REDUNDANT?>
+Honourable  vs. Cunning     (use of deceit or cheap shots)
+Dutiful     vs. Subversive  (conformity to authority)
+Ignorant    vs. Curious     (gossip, exploring and study)
+Stubborn    vs. Whimsical   (activity-persistance)
+Traditional vs. Creative    (appeal of aesthetic novelty)
+Urbane      vs. Naturalist  (appeal of civilisation)
+Ascetic     vs. Indulgent   (appeal of vice and gluttony)
 
-http://www.researchgate.net/publication/40455341_The_nature_and_structure_of_co
-       rrelations_among_Big_Five_ratings_the_halo-alpha-beta_model/file/9fcfd50
-       9b3e067d9ef.pdf
-http://www.psychology.iastate.edu/faculty/caa/abstracts/2010-2014/12BA.pdf
-
-I'm not a psychologist, please don't sue me, I just work here
-
-ON TO THE DETAILS
-  Personality traits:  Extraversion, Neophilia, Amorality, Self Concern and
-  Neuroticism, from top to bottom.
-  
-  [Ambitious, Energetic, Outgoing   ] vs. [Humble, Relaxed, Solitary     ]
-  [Creative, Curious, Impulsive     ] vs. [Traditional, Simple, Stubborn ]
-  [Subversive, Naturalist, Indulgent] vs. [Dutiful, Meticulous, Abstinent]
-  [Cruel, Dishonest, Acquisitive    ] vs. [Empathic, Truthful, Generous  ]
-  [Defensive, Nervous, Critical     ] vs. [Calm, Fearless, Positive      ]
-           Excitable (Yang)           vs.        Impassive (Yin)          
-  
-  Entries correlate above and below (switching at top-to-bottom), negatively
-  with those opposite, and positively within a given bracket.
 //*/
+
+//  ...Wait a second.  Based on anecdotal experience, half of these are
+//  bullshit.  Correlations should be weaker, at least.
+//  TODO:  Implement the exclusion principle at least.
+
 public class Personality {
   
   final private static Trait TRAIT_MATRIX[][] = {
-    {AMBITIOUS, ENERGETIC, OUTGOING   }, {HUMBLE, RELAXED, SOLITARY     },
-    {CREATIVE, CURIOUS, IMPULSIVE     }, {TRADITIONAL, SIMPLE, STUBBORN },
-    {SUBVERSIVE, NATURALIST, INDULGENT}, {DUTIFUL, METICULOUS, ABSTINENT},
-    {CRUEL, DISHONEST, ACQUISITIVE    }, {EMPATHIC, TRUTHFUL, GENEROUS  },
-    {DEFENSIVE, NERVOUS, CRITICAL     }, {CALM, FEARLESS, POSITIVE      },
+    {AMBITIOUS, ENERGETIC, OUTGOING   }, {HUMBLE, RELAXED, SOLITARY      },
+    {CREATIVE, CURIOUS, IMPULSIVE     }, {TRADITIONAL, IGNORANT, STUBBORN},
+    {SUBVERSIVE, NATURALIST, INDULGENT}, {DUTIFUL, URBANE, ABSTINENT     },
+    {CRUEL, DISHONEST, ACQUISITIVE    }, {EMPATHIC, TRUTHFUL, GENEROUS   },
+    {DEFENSIVE, NERVOUS, CRITICAL     }, {CALM, FEARLESS, POSITIVE       },
     //                <vertical associations swap here>
-    {           EXCITABLE             }, {         IMPASSIVE            }
-  },    YANG[] = TRAIT_MATRIX[10]      ,    YIN[] = TRAIT_MATRIX[11];
+    {           EXCITABLE             }, {          IMPASSIVE            }
+  },    YANG[] = TRAIT_MATRIX[10]      ,     YIN[] = TRAIT_MATRIX[11];
   
   final private static int NUM_ROWS = 10;
   final private static Table <Trait, Table> correlates = new Table();

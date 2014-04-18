@@ -86,27 +86,20 @@ public class CombatUtils implements Qualities {
     final Actor other = (Actor) m;
     
     final float
-      hostility = Plan.hostilityOf(other, actor),
+      hostility = Plan.generalHostility(other, actor),
       otherStrength = combatStrength(other, null);
     if (otherStrength <= 0) return 0;
     
     distance /= (World.SECTOR_SIZE / 2);
-    float scale = 1.0f, threat = 0;
-    if (distance > 1) scale /= distance;
+    float threat = 1 / (1f + distance);
+    if (other.isDoing(Retreat.class, null)) threat /= 2;
+    threat *= otherStrength * hostility;
     
-    if (other.isDoing(Retreat.class, null)) scale /= 2;
-    if (hostility <= 0) {
-      threat = otherStrength * scale * hostility;
-    }
-    else {
-      scale /= 2;
-      threat = otherStrength * scale * hostility;
-    }
     if (report) {
       final Target victim = other.focusFor(Combat.class);
       I.say("      Raw strength of: "+m+": "+otherStrength);
       I.say("      Distance: "+distance+", victim: "+victim);
-      I.say("      Hostility and scale: "+hostility+" "+scale);
+      I.say("      Hostility: "+hostility);
       I.say("      Final threat: "+threat);
     }
     return threat;
@@ -148,7 +141,7 @@ public class CombatUtils implements Qualities {
   ) {
     final boolean report = dangerVerbose && I.talkAbout == actor;
     if (spot == null) return 0 ;
-    if (report) I.say("  Evaluating danger at "+spot+" for "+actor);
+    if (report) I.say("\n  Evaluating danger at "+spot+" for "+actor);
     
     final float range = actor.health.sightRange();
     final World world = actor.world();
@@ -185,12 +178,12 @@ public class CombatUtils implements Qualities {
     final float
       injury = actor.health.injuryLevel(),
       stress = actor.health.stressPenalty(),
-      hurt = Visit.clamp(injury * stress * 2, 0, 2);
+      hurt = Visit.clamp((injury + stress) * 2, 0, 2);
     
     if (sumFoes == 0 && hurt == 0) return 0;
     sumAllies = (sumAllies + baseStrength) / 2;
     if (sumAllies == 0) return MAX_DANGER;
-    float danger = hurt + (sumFoes / (sumFoes + sumAllies));
+    float danger = hurt + (sumFoes * 2 / (sumFoes + sumAllies));
     
     if (report) {
       I.say("    Sum allied/enemy strength: "+sumAllies+" / "+sumFoes);

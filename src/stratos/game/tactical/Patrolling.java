@@ -78,7 +78,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   
   /**  Obtaining and evaluating patrols targets-
     */
-  final static Trait BASE_TRAITS[] = { FEARLESS, SIMPLE, SOLITARY };
+  final static Trait BASE_TRAITS[] = { FEARLESS, IGNORANT, SOLITARY };
   final static Skill
     BASE_SKILLS[] = { SURVEILLANCE, MARKSMANSHIP, HAND_TO_HAND };
   
@@ -99,6 +99,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
       }
       relDanger /= patrolled.size() ;
       urgency = relDanger * ROUTINE * 1f / patrolled.size();
+      if (urgency < IDLE) urgency = IDLE;
     }
     
     final float priority = priorityForActorWith(

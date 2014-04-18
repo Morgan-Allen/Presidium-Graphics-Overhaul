@@ -190,7 +190,7 @@ public interface Qualities {
     INDULGENT   = new Trait(PERSONALITY, "Indulgent"),
     
     DUTIFUL     = new Trait(PERSONALITY, "Dutiful"),
-    METICULOUS  = new Trait(PERSONALITY, "Meticulous"),
+    URBANE      = new Trait(PERSONALITY, "Urbane"),
     ABSTINENT   = new Trait(PERSONALITY, "Abstinent"),
     
     CREATIVE    = new Trait(PERSONALITY, "Creative"),
@@ -198,16 +198,16 @@ public interface Qualities {
     IMPULSIVE   = new Trait(PERSONALITY, "Impulsive"),
     
     TRADITIONAL = new Trait(PERSONALITY, "Traditional"),
-    SIMPLE      = new Trait(PERSONALITY, "Simple"),
+    IGNORANT    = new Trait(PERSONALITY, "Ignorant"),
     STUBBORN    = new Trait(PERSONALITY, "Stubborn"),
     
-    AMBITIOUS   = new Trait(PERSONALITY, "Defensive"),
-    ENERGETIC   = new Trait(PERSONALITY, "Defensive"),
-    OUTGOING    = new Trait(PERSONALITY, "Defensive"),
+    AMBITIOUS   = new Trait(PERSONALITY, "Ambitious"),
+    ENERGETIC   = new Trait(PERSONALITY, "Energetic"),
+    OUTGOING    = new Trait(PERSONALITY, "Outgoing"),
     
-    HUMBLE      = new Trait(PERSONALITY, "Defensive"),
-    RELAXED     = new Trait(PERSONALITY, "Defensive"),
-    SOLITARY    = new Trait(PERSONALITY, "Defensive"),
+    HUMBLE      = new Trait(PERSONALITY, "Humble"),
+    RELAXED     = new Trait(PERSONALITY, "Relaxed"),
+    SOLITARY    = new Trait(PERSONALITY, "Solitary"),
     
     EXCITABLE   = new Trait(PERSONALITY, "Excitable"),
     IMPASSIVE   = new Trait(PERSONALITY, "Impassive"),

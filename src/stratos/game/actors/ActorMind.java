@@ -29,8 +29,8 @@ public abstract class ActorMind implements Qualities {
   /**  Field definitions, constructor, save/load methods-
     */
   private static boolean
-    decisionVerbose   = Choice.verbose,
-    stepsVerbose  = false;
+    decisionVerbose = Choice.verbose,
+    stepsVerbose    = false;
   
   
   final protected Actor actor ;
@@ -133,11 +133,13 @@ public abstract class ActorMind implements Qualities {
       newChoice : notDone;
     
     if (report) {
-      //I.say("  Persistance: "+persistance()) ;
       I.say("\nPLANS ACQUIRED:");
       I.say("  LAST PLAN: "+rootBehaviour()) ;
-      I.say("  NOT DONE: "+notDone+", PRIORITY: "+notDone.priorityFor(actor)) ;
-      I.say("  NEW CHOICE: "+newChoice+", PRIORITY: "+newChoice.priorityFor(actor)) ;
+      final float
+        notP = notDone == null ? -1 : notDone.priorityFor(actor),
+        newP = newChoice == null ? -1 : newChoice.priorityFor(actor);
+      I.say("  NOT DONE: "+notDone+", PRIORITY: "+notP) ;
+      I.say("  NEW CHOICE: "+newChoice+", PRIORITY: "+newP) ;
       I.say("  CURRENT FAVOURITE: "+taken) ;
     }
     return taken ;

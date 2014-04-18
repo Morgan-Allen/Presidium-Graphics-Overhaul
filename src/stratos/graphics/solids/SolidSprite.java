@@ -182,9 +182,10 @@ public class SolidSprite extends Sprite implements RenderableProvider {
     if (v == null) v = new Vec3D();
     if (animStates.size() == 0) return v.setTo(position);
     
+    ///I.say("Getting attach point ("+function+") from "+model);
     final Integer nodeIndex = model.indexFor(function);
     if (nodeIndex == null) {
-      I.say("WARNING:  NO ATTACH POINT FOR "+function);
+      ///I.say("WARNING:  NO ATTACH POINT FOR "+function);
       return new Vec3D(position);
     }
     

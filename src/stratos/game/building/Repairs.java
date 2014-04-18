@@ -82,7 +82,7 @@ public class Repairs extends Plan implements Qualities {
   }
   
   
-  final Trait BASE_TRAITS[] = { METICULOUS, ENERGETIC };
+  final Trait BASE_TRAITS[] = { URBANE, ENERGETIC };
   final Skill BASE_SKILLS[] = { ASSEMBLY, HARD_LABOUR };
   
 

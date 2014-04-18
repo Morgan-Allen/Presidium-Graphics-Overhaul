@@ -48,7 +48,7 @@ public class Supervision extends Plan implements Economy {
   
   /**  Evaluating targets and priority-
     */
-  final static Trait BASE_TRAITS[] = { RELAXED, SIMPLE };
+  final static Trait BASE_TRAITS[] = { RELAXED, IGNORANT };
 
   protected float getPriority() {
     if (Plan.competition(Supervision.class, venue, actor) > 0) return 0 ;

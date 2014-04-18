@@ -107,13 +107,12 @@ uniform sampler2D u_overlays[8];
 uniform int u_overnum;
 
 
-
 vec4 mixOverlays()
 {
   vec4 color = texture2D(u_diffuseTexture, v_texCoords0);
   
   //  NOTE:  Unfortunately, there's a fatal bug on OSX 10.6.8 which requires
-  //  unrolling the inner loop here.  See a similar report and fix here-
+  //  unrolling the inner loop here.  See a similar report here and fix here-
   //  http://www.opengl.org/discussion_boards/archive/index.php/t-166799.html
   //  https://github.com/gaborpapp/apps/blob/master/DepthMerge/resources/DepthMergeFrag.glsl
   
@@ -123,51 +122,90 @@ vec4 mixOverlays()
   if (limit > 0) {
     vec4 over = texture2D(u_overlays[0], v_texCoords0);
     color = mix(color, over, over.a);
+    if (color.a < 0.001) discard;
   }
+  else return color;
   
   if (limit > 1) {
     vec4 over = texture2D(u_overlays[1], v_texCoords0);
     color = mix(color, over, over.a);
+    if (color.a < 0.001) discard;
   }
+  else return color;
   
   if (limit > 2) {
     vec4 over = texture2D(u_overlays[2], v_texCoords0);
     color = mix(color, over, over.a);
+    if (color.a < 0.001) discard;
   }
+  else return color;
   
   if (limit > 3) {
     vec4 over = texture2D(u_overlays[3], v_texCoords0);
     color = mix(color, over, over.a);
+    if (color.a < 0.001) discard;
   }
+  else return color;
   
   if (limit > 4) {
     vec4 over = texture2D(u_overlays[4], v_texCoords0);
     color = mix(color, over, over.a);
+    if (color.a < 0.001) discard;
   }
+  else return color;
   
   if (limit > 5) {
     vec4 over = texture2D(u_overlays[5], v_texCoords0);
     color = mix(color, over, over.a);
+    if (color.a < 0.001) discard;
   }
+  else return color;
   
   if (limit > 6) {
     vec4 over = texture2D(u_overlays[6], v_texCoords0);
     color = mix(color, over, over.a);
+    if (color.a < 0.001) discard;
   }
+  else return color;
   
   if (limit > 7) {
     vec4 over = texture2D(u_overlays[7], v_texCoords0);
     color = mix(color, over, over.a);
+    if (color.a < 0.001) discard;
   }
-  
-  if (color.a < 0.001) discard;
   return color;
 }
 
 
 
+//  NOTE:  This seems to work fine, but might throw up bugs on other hardware
+//  due to not-referencing various flags.  Disabled for now.
+
+/*
+void main() {
+  vec4 diffuse = mixOverlays();
+  
+  //gl_FragColor.rgb = diffuse.rgb;
+  gl_FragColor.rgb = (diffuse.rgb * v_lightDiffuse);
+  gl_FragColor.rgb = mix(diffuse.rgb, gl_FragColor.rgb, 0.5);
+  
+  #ifdef blendedFlag
+    gl_FragColor.a = diffuse.a * v_opacity;
+    #ifdef alphaTestFlag
+      if (gl_FragColor.a <= v_alphaTest)
+        discard;
+    #endif
+  #else
+    gl_FragColor.a = 1.0;
+  #endif
+}
+//*/
+
+
+
 //  TODO:  90% of this stuff can be dispensed with.
 
+//*
 void main() {
 	#if defined(normalFlag) 
 		vec3 normal = v_normal;
@@ -250,3 +288,5 @@ void main() {
 	#endif
 
 }
+//*/
+

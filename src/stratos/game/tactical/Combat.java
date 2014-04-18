@@ -19,7 +19,7 @@ public class Combat extends Plan implements Qualities {
   /**  Data fields, constructors and save/load methods-
     */
   private static boolean
-    evalVerbose   = true,
+    evalVerbose   = true ,
     eventsVerbose = false;
   
   final static int
@@ -108,23 +108,19 @@ public class Combat extends Plan implements Qualities {
     if (isActor) {
       final float empathy = 1f + actor.traits.relativeLevel(EMPATHIC);
       modifier -= ROUTINE * empathy * harmLevel;
-      
-      //  TODO:  Just use the general harm-level of the other guy's current
-      //  behaviour as the basis for evaluation?  IMPLEMENT THAT
-      victim = ((Actor) target).focusFor(Combat.class);
-      if (victim != null) {
-        modifier += PARAMOUNT * actor.memories.relationValue(victim);
-      }
+      final float hostility = Plan.hostileFocus((Actor) target, actor);
+      modifier += PARAMOUNT * hostility;
+      //final float unarmed = 1f - hostility;
+      //modifier -= ROUTINE * actor.traits.relativeLevel(HONOURABLE) * unarmed;
     }
     
     final float priority = priorityForActorWith(
-      actor, target, isActor ? PARAMOUNT : ROUTINE,
+      actor, target, ROUTINE + modifier,
       harmLevel, FULL_COOPERATION,
       melee ? MELEE_SKILLS : RANGED_SKILLS, BASE_TRAITS,
       modifier, NORMAL_DISTANCE_CHECK, REAL_FAIL_RISK,
       report
     );
-    
     if (report) {
       I.say("  Victim was: "+victim);
       I.say("  Modifier was: "+modifier);
@@ -242,7 +238,7 @@ public class Combat extends Plan implements Qualities {
   private void configRangedAction(
     Action strike, boolean razes, float danger
   ) {
-    ///if (eventsVerbose) I.sayAbout(actor, "Configuring ranged attack.\n") ;
+    ///if (eventsVerbose) I.sayAbout(actor, "Configuring ranged attack.\n");
     
     final Activities activities = actor.world().activities;
     
