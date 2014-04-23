@@ -8,7 +8,9 @@ import stratos.util.*;
 
 
 
-//  TODO:  Allow local danger evaluations to be cached for each actor?
+//  TODO:  JUST CACHE THREAT RATINGS LIKE YOU DO STRENGTH RATINGS, WITHOUT
+//         DISTANCE FACTOR
+
 public class CombatUtils implements Qualities {
   
   
@@ -17,7 +19,7 @@ public class CombatUtils implements Qualities {
   private static boolean
     threatsVerbose  = false,
     strengthVerbose = false,
-    dangerVerbose   = true ;
+    dangerVerbose   = false;
   
   
   /**  Returns the estimated combat strength of the given actor, either
@@ -25,6 +27,7 @@ public class CombatUtils implements Qualities {
     */
   public static float combatStrength(Actor actor, Actor enemy) {
     if (actor == null) return 0;
+    if (! actor.health.conscious()) return 0;
     final boolean report = strengthVerbose && I.talkAbout == actor;
     
     //  First, obtain a general estimate of the actor's combat prowess (if
@@ -77,7 +80,7 @@ public class CombatUtils implements Qualities {
     *  distance from another point of concern.  (If report is true, prints out
     *  calculation factors.)
     */
-  private static float threatTo(
+  public static float threatTo(
     Actor actor, Target m, float distance, boolean report
   ) {
     //  TODO:  Adapt to venues or vehicles with defensive capability?
@@ -86,13 +89,15 @@ public class CombatUtils implements Qualities {
     distance /= (World.SECTOR_SIZE / 2);
     if (distance > 2) return 0;
     final Actor other = (Actor) m;
+    if (other.indoors()) return 0;
     
     final float
       hostility     = Plan.hostilityOf(other, actor, true),
       otherStrength = combatStrength(other, null);
     if (otherStrength <= 0) return 0;
     
-    float threat = 1 / (1f + distance);
+    float threat = 1;
+    if (distance > 0) threat /= (1f + distance);
     if (other.isDoing(Retreat.class, null)) threat /= 2;
     threat *= otherStrength * hostility;
     
@@ -111,24 +116,34 @@ public class CombatUtils implements Qualities {
     *  actor, partially weighted by distance from the 'primary' argument.  (If
     *  asThreat is true, primary is evaluated as a threat itself.)
     */
-  public static Target mostThreatTo(
+  public static Target bestTarget(
     Actor actor, Target primary, boolean asThreat
   ) {
     final boolean report = threatsVerbose && I.talkAbout == actor;
     
+    final boolean melee = actor.gear.meleeWeapon();
     Actor protects = actor;
     Target pick = primary;
-    float maxThreat = 0;
-    if (asThreat) maxThreat = threatTo(actor, primary, 0, report) * 1.5f;
+    float maxRating = 0;
+    if (asThreat) maxRating = threatTo(actor, primary, 0, report) + 0.5f;
     else if (primary instanceof Actor) protects = (Actor) primary;
     
     for (Target t : actor.senses.awareOf()) {
       final float distance = Spacing.distance(t, primary);
       if (distance > World.SECTOR_SIZE) continue;
+      
       final float threat = threatTo(protects, t, distance, report);
-      if (threat > maxThreat) { pick = t; maxThreat = threat; }
+      float rating = Plan.hostilityOf(t, actor, false);
+      
+      if (melee) rating /= distance;
+      else rating -= distance / (World.SECTOR_SIZE / 2);
+      
+      if (protects == actor) rating -= threat;
+      else rating += threat;
+      
+      if (rating > maxRating) { pick = t; maxRating = rating; }
     }
-    if (maxThreat <= 0) return null;
+    if (maxRating <= 0) return null;
     return pick;
   }
   
@@ -170,13 +185,13 @@ public class CombatUtils implements Qualities {
       if (threat > 0) sumFoes += threat;
       else sumAllies += -threat;
     }
+    if (sumFoes == 0) return 0;
     
     final float
       injury = actor.health.injuryLevel(),
       stress = actor.health.stressPenalty(),
       hurt = Visit.clamp((injury + stress) * 2, 0, 2);
     
-    if (sumFoes == 0 && hurt == 0) return 0;
     final Tile o = actor.world().tileAt(spot);
     final float ambientDanger = actor.base().dangerMap.sampleAt(o.x, o.y);
     if (ambientDanger >= 0) sumFoes += ambientDanger;

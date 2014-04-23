@@ -243,6 +243,13 @@ public abstract class Mission implements
   }
   
   
+  public List <Actor> approved() {
+    final List <Actor> all = new List <Actor> ();
+    for (Role r : roles) if (isApproved(r.applicant)) all.add(r.applicant);
+    return all;
+  }
+  
+  
   
   /**  Public access methods for setup purposes
     */
@@ -303,6 +310,11 @@ public abstract class Mission implements
   public void setMissionType(int type) {
     this.missionType = type;
     resetMission();
+  }
+  
+  
+  public void setObjective(int objectIndex) {
+    this.objectIndex = objectIndex;
   }
   
   
@@ -450,7 +462,7 @@ public abstract class Mission implements
     if (hasBegun()) d.append(desc, Colour.GREY);
     else d.append(new Description.Link(desc) {
       public void whenTextClicked() {
-        objectIndex = (objectIndex + 1) % descriptions.length;
+        setObjective((objectIndex + 1) % descriptions.length);
       }
     });
     d.append(subject);

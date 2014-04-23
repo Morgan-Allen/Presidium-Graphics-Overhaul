@@ -7,7 +7,7 @@ import stratos.game.base.*;
 import stratos.game.building.*;
 import stratos.game.campaign.Commerce;
 import stratos.game.common.*;
-import stratos.game.planet.*;
+import stratos.game.maps.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.CutoutModel;
 import stratos.graphics.solids.*;
@@ -389,7 +389,10 @@ public class Dropship extends Vehicle implements
   
   
   public void pathingAbort() {}
-  public boolean blockedBy(Boardable t) { return false ; }
+  
+  //  TODO:  Path-finding will need to be more generally addressed here...
+  protected boolean collides() { return false; }
+  //public boolean blockedBy(Boardable t) { return false ; }
   
   
   /**  Code for finding a suitable landing site-

@@ -10,35 +10,45 @@ import stratos.util.*;
 
 //  TODO:  Allow full repairs if you have proper facilities and raw
 //  materials (as an initiate would.)
+//  TODO:  Allow manufacture of cybrids, if the subject is organic.
 
-//  TODO:  Allow manufacture of cyborgs, if the subject is organic.
 
 public class SpawnArtilect extends Plan implements Qualities {
   
   
   /**  Data fields, constructors and save/load methods-
     */
-  private static boolean verbose = true;
+  private static boolean
+    evalVerbose   = false,
+    effectVerbose = false;
   
+  final static float
+    TIME_PER_10_HP = World.STANDARD_DAY_LENGTH,
+    MIN_DAMAGE     = 0.4f / ActorHealth.MAX_INJURY,
+    INIT_HEALTH    = 0.1f;
   
   final Actor repairs;
+  final Venue works;
   
   
-  public SpawnArtilect(Actor actor, Actor repairs) {
+  public SpawnArtilect(Actor actor, Actor repairs, Venue works) {
     super(actor, repairs);
     this.repairs = repairs;
+    this.works = works;
   }
   
   
   public SpawnArtilect(Session s) throws Exception {
     super(s);
     repairs = (Actor) s.loadObject();
+    works = (Venue) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     s.saveObject(repairs);
+    s.saveObject(works);
   }
   
   
@@ -47,9 +57,13 @@ public class SpawnArtilect extends Plan implements Qualities {
     */
   public boolean valid() {
     if (actor == null || ! actor.inWorld()) return false;
+    if (! works.structure.intact()) return false;
     if (repairs.health.organic()) return false;
-    if (repairs.health.injuryLevel() < 0.5f) return false;
-    if ((! repairs.indoors()) && (! repairs.inWorld())) return false;
+    
+    if (repairs.inWorld()) {
+      if (repairs.health.injuryLevel() < MIN_DAMAGE) return false;
+      if (! repairs.indoors()) return false;
+    }
     return true;
   }
   
@@ -58,7 +72,7 @@ public class SpawnArtilect extends Plan implements Qualities {
   
   
   protected float getPriority() {
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = evalVerbose && I.talkAbout == actor;
     
     final float priority = priorityForActorWith(
       actor, repairs, ROUTINE,
@@ -72,9 +86,11 @@ public class SpawnArtilect extends Plan implements Qualities {
   
   
   protected Behaviour getNextStep() {
-    if (repairs.health.injuryLevel() < 0.5f) return null;
+    if (repairs.inWorld() && repairs.health.injuryLevel() < MIN_DAMAGE) {
+      return null;
+    }
     final Action makes = new Action(
-      actor, repairs,
+      actor, works,
       this, "actionMake",
       Action.BUILD, "Repairing"
     );
@@ -101,22 +117,32 @@ public class SpawnArtilect extends Plan implements Qualities {
   
   
   public boolean actionMake(Actor actor, Venue location) {
+    final boolean report = effectVerbose && I.talkAbout == actor;
+    if (report) I.say("\nPERFORMING REPAIRS ON "+repairs);
     
-    final float DC = repairDC();
+    final float DC = repairDC() + (repairs.inWorld() ? 0 : 5);
+    final float inc = 10f / TIME_PER_10_HP;
     float success = 0;
     success += actor.traits.test(ASSEMBLY, DC, 1) ? 1 : 0;
     success += actor.traits.test(INSCRIPTION, DC, 1) ? 1 : 0;
-    location.structure.takeDamage(1.0f * Rand.num());
+    location.structure.repairBy(-1.0f * Rand.num() * inc);
     if (success <= 0) return false;
-
+    
+    if (report) I.say("  Success was: "+success);
     if (repairs != actor) {
       
       if (! repairs.inWorld()) {
-        repairs.health.setupHealth(0, 0.1f * success, 0.4f);
         repairs.enterWorldAt(location, actor.world());
+        repairs.goAboard(location, actor.world());
+        repairs.mind.setHome(location);
+        
+        repairs.health.setupHealth(0, 0.5f, 1);
+        repairs.health.setInjuryLevel(1 - (INIT_HEALTH * success));
+        repairs.health.setState(ActorHealth.STATE_RESTING);
+        if (report) I.say("  Starting injury: "+repairs.health.injuryLevel());
       }
       else if (! repairs.health.alive()) {
-        repairs.health.setState(ActorHealth.STATE_RESTING);
+        repairs.health.setState(ActorHealth.STATE_SUSPEND);
       }
       
       final Action stay = new Action(
@@ -128,8 +154,13 @@ public class SpawnArtilect extends Plan implements Qualities {
       stay.setPriority(Action.PARAMOUNT);
       repairs.mind.assignBehaviour(stay);
     }
-    repairs.health.liftInjury(success);
     
+    repairs.health.liftInjury(success * inc);
+    if (repairs != actor && repairs.health.injuryLevel() < MIN_DAMAGE) {
+      repairs.health.setState(ActorHealth.STATE_RESTING);
+    }
+    
+    if (report) I.say("  Current injury: "+repairs.health.injuryLevel());
     return true;
   }
   
@@ -143,5 +174,11 @@ public class SpawnArtilect extends Plan implements Qualities {
   /**  UI and interface methods-
     */
   public void describeBehaviour(Description d) {
+    d.append("Refurbishing ");
+    d.append(repairs);
   }
 }
+
+
+
+

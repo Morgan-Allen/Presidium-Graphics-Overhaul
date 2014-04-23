@@ -7,8 +7,9 @@ import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.game.civilian.*;
-import stratos.game.planet.*;
+import stratos.game.maps.*;
 import stratos.util.*;
+
 import org.apache.commons.math3.util.FastMath;
 
 
@@ -22,7 +23,7 @@ public class Retreat extends Plan implements Qualities {
     DANGER_MEMORY_FADE = 0.9f;
   
   private static boolean
-    evalVerbose  = true,
+    evalVerbose  = false,
     havenVerbose = false,
     stepsVerbose = false;
   
@@ -75,7 +76,7 @@ public class Retreat extends Plan implements Qualities {
     maxDanger = FastMath.max(danger, maxDanger);
     
     if (rateHaven(safePoint, actor, null) > 1) {
-      distFactor = 1 + Plan.rangePenalty(actor, safePoint);
+      distFactor = Plan.rangePenalty(actor, safePoint);
       distFactor *= (2 + actor.traits.relativeLevel(NERVOUS)) / 2f;
     }
     
@@ -97,6 +98,13 @@ public class Retreat extends Plan implements Qualities {
   }
   
   
+  public boolean finished() {
+    if (super.finished()) return true;
+    if (hasBegun() && ! actor.isDoing(Retreat.class, null)) return true;
+    return false;
+  }
+  
+  
   public static Boardable nearestHaven(Actor actor, Class prefClass) {
     final boolean report = havenVerbose && I.talkAbout == actor;
     
@@ -105,7 +113,7 @@ public class Retreat extends Plan implements Qualities {
       Economy.SERVICE_REFUGE, actor, -1
     ));
     considered.add(pickWithdrawPoint(
-      actor, actor.health.sightRange() + World.SECTOR_SIZE, actor, 0.1f
+      actor, actor.health.sightRange() + World.SECTOR_SIZE, actor, false
     ));
     considered.add(actor.aboard());
     considered.add(actor.mind.home());
@@ -148,30 +156,50 @@ public class Retreat extends Plan implements Qualities {
   }
   
   
+  
+  /**  Picks a nearby tile for the actor to temporarily withdraw to (as opposed
+    *  to a full-blown long-distance retreat.)  Used to perform hit-and-run
+    *  tactics, stealth while travelling, or an emergency hide.
+    */
   public static Target pickWithdrawPoint(
-    Actor actor, float range,
-    Target target, float salt
+    Actor actor, float range, Target from, boolean advance
   ) {
     final boolean report = havenVerbose && I.talkAbout == actor;
-    final int numPicks = 3 ;  // TODO:  Make this an argument instead of range?
-    Target pick = null ;
-    float bestRating = salt > 0 ?
-      Float.POSITIVE_INFINITY : Float.NEGATIVE_INFINITY ;
     
-    for (int i = numPicks ; i-- > 0 ;) {
-      //  TODO:  Check by compass-point directions instead of purely at random?
-      Tile tried = Spacing.pickRandomTile(actor, range, actor.world()) ;
-      if (tried == null) continue ;
-      tried = Spacing.nearestOpenTile(tried, target) ;
-      if (tried == null || Spacing.distance(tried, target) > range) continue ;
-      
-      //  TODO:  Just use general danger-map readings, and sample more spots.
-      float tryRating = CombatUtils.dangerAtSpot(tried, actor, null);
-      tryRating += (Rand.num() - 0.5f) * salt ;
-      if (salt < 0) tryRating *= -1 ;
-      if (tryRating < bestRating) { bestRating = tryRating ; pick = tried ; }
+    final Tile o = from == null ? actor.origin() : actor.world().tileAt(from);
+    final Vec2D off = new Vec2D();
+    final float salt = Rand.num();
+    
+    final Series <Target> seen = actor.senses.awareOf();
+    final float threats[] = new float[seen.size()];
+    
+    int i = 0; for (Target s : seen) {
+      threats[i++] = CombatUtils.threatTo(actor, s, 0, report);
     }
-    return pick ;
+
+    Target pick = null;
+    float bestRating = Float.NEGATIVE_INFINITY;
+    
+    for (int n = 8; n-- > 0;) {
+      off.setFromAngle(((n + salt) * 360 / 8f) % 360);
+      off.scale(range * Rand.avgNums(2));
+      
+      Tile under = actor.world().tileAt(o.x + off.x, o.y + off.y);
+      under = Spacing.nearestOpenTile(under, actor);
+      if (under == null) continue;
+      
+      float rating = 0;
+      i = 0; for (Target s : seen) {
+        final float distance = Spacing.distance(from, s);
+        rating -= threats[i++] / (1 + distance);
+      }
+      rating /= 1 + Spacing.distance(under, actor);
+      rating *= advance ? -1 : 1;
+      
+      if (rating > bestRating) { pick = under; bestRating = rating; }
+    }
+    
+    return pick;
   }
   
   

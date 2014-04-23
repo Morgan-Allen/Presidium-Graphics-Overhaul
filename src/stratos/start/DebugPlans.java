@@ -6,7 +6,7 @@ import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.game.campaign.*;
-import stratos.game.planet.*;
+import stratos.game.maps.*;
 import stratos.game.base.*;
 import stratos.game.tactical.*;
 import stratos.game.civilian.*;
@@ -76,8 +76,9 @@ public class DebugPlans extends Scenario {
     //configCombatScenario(world, base, UI);
     //configDialogueScenario(world, base, UI);
     //configPurchaseScenario(world, base, UI);
-    configRaidScenario(world, base, UI);
-    //configContactScenario(world, base, UI);
+    //configRaidScenario(world, base, UI);
+    //configArtilectScenario(world, base, UI);
+    configContactScenario(world, base, UI);
     //configWildScenario(world, base, UI);
   }
   
@@ -91,15 +92,15 @@ public class DebugPlans extends Scenario {
   private void configMedicalScenario(World world, Base base, BaseUI UI) {
     GameSettings.fogFree = true;
     
-    final Actor treats = new Human(Background.PHYSICIAN, base);
+    final Actor treats = new Human(Backgrounds.PHYSICIAN, base);
     Placement.establishVenue(
       new Sickbay(base), 6, 6, true, world,
       treats,
-      new Human(Background.MINDER, base),
-      new Human(Background.MINDER, base)
+      new Human(Backgrounds.MINDER, base),
+      new Human(Backgrounds.MINDER, base)
     );
     
-    final Actor patient = new Human(Background.VETERAN, base);
+    final Actor patient = new Human(Backgrounds.VETERAN, base);
     patient.enterWorldAt(world.tileAt(10, 10), world);
     patient.health.takeInjury(patient.health.maxHealth());
     
@@ -112,12 +113,12 @@ public class DebugPlans extends Scenario {
     GameSettings.buildFree = true;
     //GameSettings.noBlood = true;
     
-    final Actor hunts = new Human(Background.EXPLORER, base);
+    final Actor hunts = new Human(Backgrounds.EXPLORER, base);
     final Venue station = new SurveyStation(base);
     Placement.establishVenue(
       station, 6, 6, true, world,
-      new Human(Background.EXPLORER, base),
-      new Human(Background.EXPLORER, base),
+      new Human(Backgrounds.EXPLORER, base),
+      new Human(Backgrounds.EXPLORER, base),
       hunts
     );
     
@@ -139,11 +140,11 @@ public class DebugPlans extends Scenario {
     
     Actor soldier = null;
     for (int n = 1; n-- > 0;) {
-      soldier = new Human(Background.KNIGHTED, base);
+      soldier = new Human(Backgrounds.KNIGHTED, base);
       soldier.enterWorldAt(world.tileAt(4, 4), world);
     }
     
-    final Actor civilian = new Human(Background.STOCK_VENDOR, base);
+    final Actor civilian = new Human(Backgrounds.STOCK_VENDOR, base);
     civilian.enterWorldAt(world.tileAt(5, 4), world);
     civilian.health.takeInjury(civilian.health.maxHealth() * 2);
     
@@ -161,7 +162,7 @@ public class DebugPlans extends Scenario {
     
     Actor citizen = null;
     for (int n = 3; n-- > 0;) {
-      citizen = new Human(Background.CULTIVATOR, base);
+      citizen = new Human(Backgrounds.CULTIVATOR, base);
       citizen.enterWorldAt(world.tileAt(4 + n, 4 + n), world);
     }
     UI.selection.pushSelection(citizen, true);
@@ -173,7 +174,7 @@ public class DebugPlans extends Scenario {
     
     Actor citizen = null;
     for (int n = 2; n-- > 0;) {
-      citizen = new Human(Background.RUNNER, base);
+      citizen = new Human(Backgrounds.RUNNER, base);
       citizen.enterWorldAt(world.tileAt(10 + n, 10 + n), world);
       citizen.gear.incCredits(1000);
     }
@@ -182,9 +183,9 @@ public class DebugPlans extends Scenario {
     final Venue foundry = new Foundry(base);
     Placement.establishVenue(
       foundry, 6, 6, true, world,
-      new Human(Background.TECHNICIAN, base),
-      new Human(Background.TECHNICIAN, base),
-      new Human(Background.ARTIFICER, base)
+      new Human(Backgrounds.TECHNICIAN, base),
+      new Human(Backgrounds.TECHNICIAN, base),
+      new Human(Backgrounds.ARTIFICER, base)
     );
     foundry.stocks.bumpItem(Economy.METALS, 40);
     foundry.stocks.bumpItem(Economy.PARTS, 20);
@@ -194,7 +195,6 @@ public class DebugPlans extends Scenario {
   private void configRaidScenario(World world, Base base, BaseUI UI) {
     GameSettings.fogFree = true;
     GameSettings.hireFree = true;
-    GameSettings.noBlood = true;
     
     //  Introduce a bastion, with standard personnel.
     final Bastion bastion = new Bastion(base);
@@ -204,16 +204,34 @@ public class DebugPlans extends Scenario {
     final Base artilects = Base.baseWithName(world, Base.KEY_ARTILECTS, true);
     final Ruins ruins = new Ruins(artilects);
     Placement.establishVenue(ruins, 44, 44, true, world);
-    ruins.structure.setState(Structure.STATE_INTACT, 0.5f);
-    Artilect raids = null;
+    final float healthLevel = (1 + Rand.avgNums(2)) / 2;
+    ruins.structure.setState(Structure.STATE_INTACT, healthLevel);
+    Ruins.populateArtilects(world, ruins, true);
+  }
+  
+  
+  private void configArtilectScenario(World world, Base base, BaseUI UI) {
+    GameSettings.fogFree = true;
+
+    final Base artilects = Base.baseWithName(world, Base.KEY_ARTILECTS, true);
+    final Ruins ruins = new Ruins(artilects);
+    Placement.establishVenue(ruins, 20, 20, true, world);
+    final float healthLevel = (1 + Rand.avgNums(2)) / 2;
+    ruins.structure.setState(Structure.STATE_INTACT, healthLevel);
+    Artilect lives = null;
     
     Ruins.populateArtilects(
       world, ruins, true,
-      new Cranial(artilects),
       new Tripod(artilects),
-      raids = new Drone(artilects)
+      lives = new Cranial(artilects)
     );
-    UI.selection.pushSelection(raids, true);
+    
+    final Human subject = new Human(Backgrounds.AESTHETE, base);
+    subject.enterWorldAt(ruins, world);
+    subject.health.takeInjury(subject.health.maxHealth() + 1);
+    subject.health.setState(ActorHealth.STATE_STRICKEN);
+    
+    UI.selection.pushSelection(lives, true);
   }
   
   
@@ -234,15 +252,33 @@ public class DebugPlans extends Scenario {
     
     //  Introduce a bastion, with standard personnel.
     final Bastion bastion = new Bastion(base);
-    Placement.establishVenue(bastion, 11, 11, true, world);
+    bastion.stocks.bumpItem(Economy.PROTEIN, 20);
+    bastion.stocks.bumpItem(Economy.PLASTICS, 10);
+    bastion.stocks.bumpItem(Economy.TRUE_SPICE, 5);
+    final Actor ruler = new Human(Backgrounds.KNIGHTED, base);
+    Placement.establishVenue(
+      bastion, 11, 11, true, world,
+      ruler, new Human(Backgrounds.FIRST_CONSORT, base)
+    );
+    base.assignRuler(ruler);
+    
+    final Garrison garrison = new Garrison(base);
+    Placement.establishVenue(garrison, world.tileAt(3, 15), true, world);
     
     //  And introduce a native camp.
     final Base natives = Base.baseWithName(world, Base.KEY_NATIVES, true);
     final NativeHut hut = NativeHut.newHall(NativeHut.TRIBE_FOREST, natives);
-    Placement.establishVenue(hut, 44, 44, true, world);
-    final Batch <Actor> pop = NativeHut.populateHut(hut, null);
+    Placement.establishVenue(hut, 21, 21, true, world);
+    final Batch <Actor> lives = NativeHut.populateHut(hut, null);
+    //UI.selection.pushSelection(lives.first(), true);
     
-    UI.selection.pushSelection(pop.first(), true);
+    final Mission peaceMission = new ContactMission(base, hut);
+    peaceMission.assignPriority(Mission.PRIORITY_ROUTINE);
+    peaceMission.setObjective(ContactMission.OBJECT_AUDIENCE);
+    base.addMission(peaceMission);
+    peaceMission.beginMission();
+    
+    UI.selection.pushSelection(peaceMission, true);
   }
   
   
@@ -256,7 +292,6 @@ public class DebugPlans extends Scenario {
   protected void afterCreation() {
   }
 }
-
 
 
 

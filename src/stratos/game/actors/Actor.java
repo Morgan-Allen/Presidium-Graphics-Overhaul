@@ -9,7 +9,7 @@ package stratos.game.actors ;
 import stratos.game.building.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
-import stratos.game.planet.*;
+import stratos.game.maps.*;
 import stratos.game.tactical.*;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
@@ -149,7 +149,11 @@ public abstract class Actor extends Mobile implements
   
   
   public void assignBase(Base base) {
-    this.base = base ;
+    if (! inWorld()) { this.base = base; return; }
+    final Tile o = origin();
+    world.presences.togglePresence(this, o, false);
+    this.base = base;
+    world.presences.togglePresence(this, o, true);
   }
   
   
@@ -366,17 +370,22 @@ public abstract class Actor extends Mobile implements
   
   /**  Rendering and interface methods-
     */
-  public void renderFor(Rendering rendering, Base base) {
-    //
-    //  ...Maybe include equipment/costume configuration here as well?
+  public void renderAt(
+    Vec3D position, float rotation, Rendering rendering
+  ) {
     final Sprite s = sprite() ;
-    renderHealthbars(rendering, base) ;
     if (actionTaken != null) actionTaken.configSprite(s, rendering);
+    super.renderAt(position, rotation, rendering);
+  }
+  
+  
+  public void renderFor(Rendering rendering, Base base) {
+    renderHealthbars(rendering, base) ;
     super.renderFor(rendering, base) ;
     //
     //  Finally, if you have anything to say, render the chat bubbles.
     if (chat.numPhrases() > 0) {
-      chat.position.setTo(s.position);
+      chat.position.setTo(sprite().position);
       chat.position.z += height();
       chat.readyFor(rendering);
     }

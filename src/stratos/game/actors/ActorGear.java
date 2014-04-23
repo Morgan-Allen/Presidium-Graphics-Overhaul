@@ -300,24 +300,8 @@ public class ActorGear extends Inventory implements Economy {
   /**  Here we deal with equipping/removing Devices-
     */
   public void equipDevice(Item device) {
-    if (device != null && ! (device.type instanceof DeviceType))
-      return ;
-    this.device = device ;
-    /*
-    final Actor actor = (Actor) owner ;
-    final JointSprite sprite = (JointSprite) actor.sprite() ;
-    final Item oldItem = this.device ;
-    //
-    //  Attach/detach the appropriate media-
-    if (oldItem != null && sprite != null) {
-      final DeviceType oldType = (DeviceType) oldItem.type ;
-      sprite.toggleGroup(oldType.groupName, false) ;
-    }
-    if (device != null && sprite != null) {
-      final DeviceType newType = (DeviceType) device.type ;
-      sprite.toggleGroup(newType.groupName, true) ;
-    }
-    //*/
+    if (device != null && ! (device.type instanceof DeviceType)) return;
+    this.device = device;
   }
   
   

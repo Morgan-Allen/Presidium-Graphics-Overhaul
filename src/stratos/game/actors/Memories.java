@@ -25,73 +25,80 @@ public class Memories {
   final Actor actor ;
   final Table <Accountable, Relation> relations = new Table() ;
   
-  private float strengthEstimate = -1;
-  
-  //  Point of retreat.
-  //  Career interest.
-  //  Combat strength
-  
-  //final List <Plan> remembered ;
-  //final Table <Plan, List <Saveable>> associations ;
-  //
-  //  TODO:  You might want to use classes here instead of plans, at least for
-  //  the association table.
-  
   
   public Memories(Actor actor) {
     this.actor = actor ;
-    //remembered = new List <Plan> () ;
-    //associations = new Table <Plan, List <Saveable>> () ;
   }
   
   
   protected void loadState(Session s) throws Exception {
-
     for (int n = s.loadInt() ; n-- > 0 ;) {
       final Relation r = Relation.loadFrom(s) ;
-      relations.put((Actor) r.subject, r) ;
+      relations.put((Accountable) r.subject, r) ;
     }
-    /*
-    s.loadObjects(remembered) ;
-    for (int n = s.loadInt() ; n-- > 0 ;) {
-      final Plan key = (Plan) s.loadObject() ;
-      final List <Saveable> associated = new List <Saveable> () ;
-      s.loadObjects(associated) ;
-      associations.put(key, associated) ;
-    }
-    //*/
   }
   
   
   protected void saveState(Session s) throws Exception {
-    
     s.saveInt(relations.size()) ;
     for (Relation r : relations.values()) Relation.saveTo(s, r) ;
-    /*
-    s.saveObjects(remembered) ;
-    s.saveInt(associations.size()) ;
-    for (Plan p : associations.keySet()) {
-      s.saveObject(p) ;
-      s.saveObjects(associations.get(p)) ;
-    }
-    //*/
   }
   
   
   
   public void updateValues(int numUpdates) {
+    final boolean report = verbose && I.talkAbout == actor;
+    if (report) I.say("Updating relations, num. updates: "+numUpdates);
+    
     for (Relation r : relations.values()) {
       r.update();
     }
-    strengthEstimate = -1;
+    
+    if (numUpdates % 10 == 0) {
+      //  Get a running total of relations with all actors belonging to a given
+      //  base, so you can average that for the base itself.
+      final List <Base> bases = actor.world().bases();
+      final float
+        baseSum[]   = new float[bases.size()],
+        baseCount[] = new float[bases.size()];
+      
+      //  Sort relations in order of importance while doing so.
+      final List <Relation> sorting = new List <Relation> () {
+        protected float queuePriority(Relation r) {
+          return Math.abs(r.value()) - r.novelty();
+        }
+      };
+      for (Relation r : relations.values()) {
+        if (! (r.subject instanceof Actor)) continue;
+        sorting.add(r);
+        final int BID = bases.indexOf(r.subject.base());
+        if (BID != -1) {
+          if (report) I.say("  Relation is: "+r+" ("+r.value()+")");
+          baseSum[BID] += r.value();
+          baseCount[BID] += 1;
+        }
+      }
+      sorting.queueSort();
+      
+      //  Cull the least important relationships, and set up relations with the
+      //  bases.
+      while (sorting.size() > Relation.MAX_RELATIONS) {
+        final Relation r = sorting.removeLast();
+        relations.remove(r.subject);
+      }
+      int BID = 0; for (Base base : bases) {
+        final float
+          sum = baseSum[BID], count = baseCount[BID],
+          relation = count == 0 ? 0 : (sum / count);
+        if (report) {
+          I.say("Relation with "+base+" is "+relation);
+          I.say("Base sum/base count: "+sum+"/"+count);
+        }
+        incRelation(base, relation, 10f / World.STANDARD_DAY_LENGTH);
+        BID++;
+      }
+    }
   }
-  
-  
-  
-  
-  /**  Miscellaneous caching functions-
-    */
-  
   
   
   
@@ -133,16 +140,20 @@ public class Memories {
   
   
   public float relationNovelty(Accountable other) {
-    final Relation r = relations.get(other) ;
-    if (r == null) return 1 ;
-    return r.novelty() ;
+    final Relation r = relations.get(other);
+    if (r == null) return 1;
+    return r.novelty();
   }
   
   
-  public Relation initRelation(Accountable other, float value, float novelty) {
-    final Relation r = new Relation(actor, other, value, novelty);
-    relations.put(other, r) ;
-    return r ;
+  public Relation setRelation(Accountable other, float value, float novelty) {
+    Relation r = relations.get(other);
+    if (r == null) {
+      r = new Relation(actor, other, value, novelty);
+      relations.put(other, r);
+    }
+    else r.setValue(value, novelty);
+    return r;
   }
   
   
@@ -150,7 +161,7 @@ public class Memories {
     Relation r = relations.get(other) ;
     if (r == null) {
       final float baseVal = relationValue(other) / 2;
-      r = initRelation(other, baseVal + (level * weight), 1) ;
+      r = setRelation(other, baseVal + (level * weight), 1) ;
     }
     r.incValue(level, weight) ;
   }
@@ -160,6 +171,11 @@ public class Memories {
     final Batch <Relation> all = new Batch <Relation> () ;
     for (Relation r : relations.values()) all.add(r) ;
     return all ;
+  }
+  
+  
+  public Relation relationWith(Accountable other) {
+    return relations.get(other);
   }
   
   

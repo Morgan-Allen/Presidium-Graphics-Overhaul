@@ -4,9 +4,8 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package stratos.game.building ;
-import java.lang.reflect.* ;
-
+package stratos.game.building;
+import java.lang.reflect.*;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.util.*;
@@ -278,8 +277,13 @@ public class Structure {
     if (basis.destroyed()) return ;
     if (damage < 0) I.complain("NEGATIVE DAMAGE!") ;
     adjustRepair(0 - damage) ;
-    final float burnChance = damage * (1 - repairLevel()) / maxIntegrity() ;
-    if (flammable() && Rand.num() < burnChance) burning = true ;
+    
+    float burnChance = 2 * (1f - repairLevel());
+    if (! flammable()) burnChance -= 0.5f;
+    if (burnChance > 0) burnChance *= damage / 100f;
+    
+    if (verbose && I.talkAbout == basis) I.say("Burn chance: "+burnChance);
+    if (Rand.num() < burnChance) burning = true;
     if (integrity <= 0) basis.onDestruction() ;
   }
   
@@ -324,7 +328,7 @@ public class Structure {
   
   
   public boolean goodCondition() {
-    return Repairs.needForRepair(basis) < Repairs.MIN_SERVICE_DAMAGE;
+    return (! burning) && (1 - repairLevel()) < Repairs.MIN_SERVICE_DAMAGE;
   }
   
   
@@ -333,7 +337,8 @@ public class Structure {
     if (world == null || basis.isMobile()) return;
     final boolean report = verbose && I.talkAbout == basis;
     
-    final boolean needs = ! goodCondition();
+    final boolean
+      needs = Repairs.needForRepair(basis) > Repairs.MIN_SERVICE_DAMAGE;
     final Tile o = world.tileAt(basis);
     final PresenceMap damaged = world.presences.mapFor("damaged");
     
@@ -471,12 +476,16 @@ public class Structure {
   
   public int upgradeBonus(Object refers) {
     if (upgrades == null) return 0 ;
+    final boolean report = verbose && I.talkAbout == basis;
+    
     int bonus = 0 ;
     for (int i = 0 ; i < upgrades.length ; i++) {
       final Upgrade u = upgrades[i] ;
       if (u == null || upgradeStates[i] != STATE_INTACT) continue ;
+      if (report) I.say("Upgrade is: "+u.name+", refers: "+u.refers);
       if (u.refers == refers) bonus += u.bonus ;
     }
+    if (report) I.say("Bonus for "+refers+" is "+bonus);
     return bonus ;
   }
   

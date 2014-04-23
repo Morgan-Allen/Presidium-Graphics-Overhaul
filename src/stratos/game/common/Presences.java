@@ -2,7 +2,7 @@
 
 package stratos.game.common ;
 import stratos.game.building.*;
-import stratos.game.planet.*;
+import stratos.game.maps.*;
 import stratos.util.*;
 
 

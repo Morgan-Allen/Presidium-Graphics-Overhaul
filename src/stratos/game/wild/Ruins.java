@@ -4,7 +4,7 @@ package stratos.game.wild ;
 import stratos.game.actors.* ;
 import stratos.game.building.* ;
 import stratos.game.common.* ;
-import stratos.game.planet.* ;
+import stratos.game.maps.*;
 import stratos.graphics.common.* ;
 import stratos.graphics.cutout.* ;
 import stratos.graphics.widgets.* ;
@@ -36,7 +36,7 @@ public class Ruins extends Venue {
   
   public Ruins(Base base) {
     super(4, 2, ENTRANCE_EAST, base);
-    structure.setupStats(1000, 100, 0, 0, Structure.TYPE_ANCIENT);
+    structure.setupStats(500, 25, 0, 0, Structure.TYPE_ANCIENT);
     structure.setState(Structure.STATE_INTACT, Rand.avgNums(2));
     personnel.setShiftType(SHIFTS_ALWAYS);
     final int index = (NI++ + Rand.index(1)) % 3;
@@ -217,9 +217,8 @@ public class Ruins extends Venue {
   
   
   public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
-    return VenueDescription.configInfoPanel(this, panel, UI);
-    
-    //return VenueDescription.configSimplePanel(this, panel, UI, null);
+    //return VenueDescription.configStandardPanel(this, panel, UI);
+    return VenueDescription.configSimplePanel(this, panel, UI, null);
   }
   
   

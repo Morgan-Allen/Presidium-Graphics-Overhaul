@@ -70,21 +70,31 @@ public class Commission extends Plan implements Economy {
   
   /**  Assessing and locating targets-
     */
+  public static Commission forItem(Actor actor, Item baseItem) {
+    if (baseItem == null || actor == null) return null;
+    final Venue match = (Venue) actor.world().presences.nearestMatch(
+      baseItem.type, actor, World.SECTOR_SIZE
+    );
+    if (match == null) return null;
+    return nextCommission(actor, match, baseItem);
+  }
+  
+  
   public static void addCommissions(
     Actor actor, Venue makes, Choice choice
   ) {
-    final boolean hasCommission = actor.mind.hasToDo(Commission.class) ;
-    if (hasCommission) return ;
-    addCommission(actor, makes, choice, actor.gear.deviceEquipped());
-    addCommission(actor, makes, choice, actor.gear.outfitEquipped());
+    final boolean hasCommission = actor.mind.hasToDo(Commission.class);
+    if (hasCommission) return;
+    choice.add(nextCommission(actor, makes, actor.gear.deviceEquipped()));
+    choice.add(nextCommission(actor, makes, actor.gear.outfitEquipped()));
   }
   
-
-  public static void addCommission(
-    Actor actor, Venue makes, Choice choice, Item baseItem
+  
+  public static Commission nextCommission(
+    Actor actor, Venue makes, Item baseItem
   ) {
-    if (baseItem == null) return;
-    if (baseItem.type.materials().venueType != makes.getClass()) return;
+    if (baseItem == null) return null;
+    if (baseItem.type.materials().venueType != makes.getClass()) return null;
     
     final int baseQuality = (int) baseItem.quality;
     final float baseAmount = baseItem.amount;
@@ -102,8 +112,9 @@ public class Commission extends Plan implements Economy {
     }
     
     if (quality >= 0 && (baseAmount <= 0.5f || quality > baseQuality)) {
-      choice.add(added) ;
+      return added;
     }
+    return null;
   }
   
   
@@ -140,13 +151,6 @@ public class Commission extends Plan implements Economy {
     return Visit.clamp(priority, 0, ROUTINE) ;
   }
   
-  /*
-  public static Venue findVenue(Actor actor, Item item) {
-    final Presences p = actor.world().presences ;
-    return (Venue) p.nearestMatch(item.type, actor, -1) ;
-  }
-  //*/
-  
   
   private boolean expired() {
     if (orderDate == -1) return false ;
@@ -161,7 +165,7 @@ public class Commission extends Plan implements Economy {
   
   
   public boolean finished() {
-    return delivered || expired() ;
+    return delivered || expired();
   }
   
   

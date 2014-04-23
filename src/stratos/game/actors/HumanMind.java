@@ -10,7 +10,7 @@ import stratos.game.building.*;
 import stratos.game.campaign.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
-import stratos.game.planet.*;
+import stratos.game.maps.*;
 import stratos.game.tactical.*;
 import stratos.user.*;
 import stratos.util.*;
@@ -229,7 +229,7 @@ public class HumanMind extends ActorMind implements Qualities {
     //
     //  Finally, free-born actors may apply for missions.
     final int standing = actor.vocation().standing;
-    if (standing >= Background.CLASS_FREEMEN) {
+    if (standing >= Backgrounds.CLASS_FREEMEN) {
       choice.add(FindMission.attemptFor(actor));
       //choice.add(new Migration(actor)) ;
     }

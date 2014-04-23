@@ -54,7 +54,7 @@ public class FindHome extends Plan implements Economy {
   
   protected Behaviour getNextStep() {
     final boolean report = verbose && I.talkAbout == actor;
-    if (report || true) I.say("Getting next site action ") ;
+    if (report) I.say("Getting next site action ") ;
     if (actor.mind.home() == newHome) return null ;
     
     if (! newHome.inWorld()) {
@@ -203,18 +203,22 @@ public class FindHome extends Plan implements Economy {
   //}
   
   
-  
-//...This needs to centre on the bastion/bunker system more reliably, then
-//the place of work.  Also, the results have to be more stable.
   private static Tile searchPoint(Actor client) {
+    final Presences presences = client.world().presences;
+    final Batch <Target> amenities = new Batch <Target> ();
+    
     if (client.mind.work() instanceof Venue) {
-      return ((Venue) client.mind.work()).mainEntrance() ;
+      amenities.add(client.mind.work());
     }
-    //  Nearest refuge.
+    final Target first = amenities.size() == 0 ? client : amenities.first();
     
-    //  Nearest other building.
+    final Target refuge = presences.nearestMatch(SERVICE_REFUGE, first, -1);
+    if (refuge != null) amenities.add(refuge);
+    final Target nearby = presences.nearestMatch(Venue.class, first, -1);
+    if (nearby != null) amenities.add(nearby);
+    if (amenities.size() == 0) amenities.add(client);
     
-    return client.origin() ;
+    return Spacing.bestMidpoint(amenities.toArray(Target.class));
   }
   
   

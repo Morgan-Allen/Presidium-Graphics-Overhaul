@@ -6,7 +6,6 @@ import java.io.*;
 import java.util.zip.*;
 import java.net.*;
 import java.security.CodeSource;
-
 import stratos.util.*;
 
 //import com.badlogic.gdx.Gdx;
@@ -69,7 +68,12 @@ public class Assets {
   
   /**  Methods called externally by the PlayLoop class.
     */
-  public static void compileAssetList(String sourcePackage) {
+  public static void compileAssetList(
+    String sourcePackage, Class... loadFirst
+  ) {
+    try { for (Class l : loadFirst) Class.forName(l.getName()); }
+    catch (Exception e) { I.report(e); }
+    
     final Batch <String> names = new Batch <String> ();
     compileClassNames(sourcePackage, names);
     compileJarredClassNames(sourcePackage, names);

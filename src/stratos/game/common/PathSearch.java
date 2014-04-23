@@ -176,6 +176,8 @@ public class PathSearch extends Search <Boardable> {
   //  TODO:  This all seems terribly complicated for such a frequently-used
   //  function.  Any way to simplify?
   
+  //  TODO:  Each client should be able to override a method to specify this.
+  
   private static boolean blockedBy(final Boardable b, final Mobile mobile) {
     if (b.boardableType() == Boardable.BOARDABLE_TILE) {
       return b.pathType() == Tile.PATH_BLOCKS;

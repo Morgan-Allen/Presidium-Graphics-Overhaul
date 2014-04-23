@@ -204,7 +204,7 @@ public class Audit extends Plan implements Economy {
         salary = p.salary(),
         relief = AuditOffice.RELIEF_AMOUNTS[KR],
         payInterval = p.daysSinceWageEval(venue.world()),
-        wages = ((salary / Background.NUM_DAYS_PAY) + relief) * payInterval;
+        wages = ((salary / Backgrounds.NUM_DAYS_PAY) + relief) * payInterval;
       
       if (verbose && I.talkAbout == audits) {
         I.say(works+" is due: "+wages+" over "+payInterval+" days") ;
@@ -287,18 +287,18 @@ public class Audit extends Plan implements Economy {
     if (actor.base().primal) return 0;
     
     final int bracket = actor.vocation().standing ;
-    if (bracket == Background.CLASS_NATIVE) return 0 ;
-    if (bracket == Background.CLASS_STRATOI) return 0 ;
+    if (bracket == Backgrounds.CLASS_NATIVE) return 0 ;
+    if (bracket == Backgrounds.CLASS_STRATOI) return 0 ;
     
     final BaseProfiles BP = actor.base().profiles ;
     int taxLevel = 0 ;
-    if (bracket == Background.CLASS_SLAVE) {
+    if (bracket == Backgrounds.CLASS_SLAVE) {
       taxLevel = BP.querySetting(AuditOffice.KEY_LOWER_TAX) ;
     }
-    if (bracket == Background.CLASS_VASSAL) {
+    if (bracket == Backgrounds.CLASS_VASSAL) {
       taxLevel = BP.querySetting(AuditOffice.KEY_MIDDLE_TAX) ;
     }
-    if (bracket == Background.CLASS_SLAVE) {
+    if (bracket == Backgrounds.CLASS_SLAVE) {
       taxLevel = BP.querySetting(AuditOffice.KEY_UPPER_TAX) ;
     }
     final int

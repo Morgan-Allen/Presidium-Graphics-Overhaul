@@ -1,11 +1,12 @@
 
 
 package stratos.graphics.sfx ;
-import java.io.* ;
+import org.apache.commons.math3.util.FastMath;
 
 import stratos.graphics.common.*;
-import stratos.graphics.widgets.*;
+//import stratos.graphics.widgets.*;
 import stratos.util.*;
+//import java.io.*;
 
 
 
@@ -24,13 +25,19 @@ public class Healthbar extends SFX {
   final public static int
     BAR_HEIGHT = 5,
     DEFAULT_WIDTH = 40 ;
+  final public static Colour
+    AMBER_FLASH = new Colour().set(1, 0.75f, 0, 1);
+  
   
   public float level = 0.5f, yoff = 0;
   public float size = DEFAULT_WIDTH;
   
-  public Colour back = Colour.DARK_GREY, warn = Colour.RED;
+  public Colour
+    back  = Colour.DARK_GREY,
+    warn  = Colour.RED,
+    flash = AMBER_FLASH;
   public boolean alarm = false;
-  private float flash = 0;
+  private float flashTime = 0;
   
   
   public Healthbar() {
@@ -56,7 +63,6 @@ public class Healthbar extends SFX {
     Colour colour = this.colour;
     if (colour == null) colour = Colour.LIGHT_GREY;
     Colour back = new Colour(this.back == null ? Colour.WHITE : this.back);
-    Colour warn = new Colour(this.warn == null ? Colour.WHITE : this.warn);
     back.a = colour.a * fog;
     warn.a = colour.a * fog;
     final float s = 1 - level, f = fog;
@@ -70,27 +76,30 @@ public class Healthbar extends SFX {
     
     //  When in alarm mode, you need to flash-
     if (alarm) {
-      float flashAlpha = 0 ;
-      flashAlpha = (0.5f - level) * 2 ;
-      flash += 0.04f * Math.PI / 2f ;
-      flashAlpha *= f * colour.a * Math.abs(Math.sin(flash)) ;
-      warn.a *= flashAlpha;
+      final float urgency = (1 - level) * 2;
+      flashTime += ((urgency / Rendering.FRAMES_PER_SECOND) * Math.PI / 2f);
+      flashTime %= (Math.PI * 2);
+      Colour flash = new Colour(this.flash == null ? Colour.WHITE : this.flash);
+      flash.a *= f * colour.a;
+      flash.a *= FastMath.abs(FastMath.sin(flashTime));
+      flash.calcBitValue();
       
       pass.compileQuad(
-        ImageAsset.WHITE_TEX(), warn,
+        ImageAsset.WHITE_TEX(), flash,
         x, y, size, BAR_HEIGHT,
         0, 0, 1, 1,
         base.z + 0.05f, true, false
       );
     }
-    //
+
+    Colour warn = new Colour(this.warn == null ? Colour.WHITE : this.warn);
     //  Then, the filled section-
     final Colour mix = new Colour().set(
       (colour.r * level) + (warn.r * s),
       (colour.g * level) + (warn.g * s),
       (colour.b * level) + (warn.b * s),
-      colour.a
-    ) ;
+       colour.a
+    );
     mix.setValue((colour.value() * level) + (warn.value() * s));
     pass.compileQuad(
       ImageAsset.WHITE_TEX(), mix,

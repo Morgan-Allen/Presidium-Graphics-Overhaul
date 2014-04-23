@@ -21,7 +21,8 @@ public class Repairs extends Plan implements Qualities {
     TIME_PER_25_HP = World.STANDARD_HOUR_LENGTH,
     MIN_SERVICE_DAMAGE = 0.25f;
   
-  private static boolean verbose = false;
+  private static boolean verbose = true;
+  
   final Venue built ;
   
   
@@ -50,10 +51,10 @@ public class Repairs extends Plan implements Qualities {
   public static float needForRepair(Installation built) {
     float needRepair;
     final Structure structure = built.structure();
-    if (! structure.intact()) needRepair = 1.0f ;
-    else needRepair = (1 - structure.repairLevel()) * 1.5f ;
-    if (structure.needsUpgrade()) needRepair += 0.5f ;
+    if (! structure.intact()) needRepair = 1.0f;
+    else needRepair = (1 - structure.repairLevel()) * 1.5f;
     if (structure.burning()) needRepair += 1.0f ;
+    if (structure.needsUpgrade()) needRepair = Math.max(needRepair, 1);
     return needRepair;
   }
   
@@ -63,15 +64,11 @@ public class Repairs extends Plan implements Qualities {
     final World world = client.world() ;
     final Batch <Venue> toRepair = new Batch <Venue> () ;
     world.presences.sampleFromMaps(
-      client, world, 5, toRepair, "damaged"//, Venue.class
+      client, world, 5, toRepair, "damaged"
     ) ;
     final Choice choice = new Choice(client) ;
     for (Venue near : toRepair) {
       if (near.base() != client.base()) continue ;
-      if (near.structure.goodCondition()) {
-        I.say(near+" SHOULD NOT BE REGISTERED FOR REPAIRS");
-        continue;
-      }
       if (needForRepair(near) <= 0) continue;
       final Repairs b = new Repairs(client, near) ;
       b.setMotive(Plan.MOTIVE_DUTY, motiveBonus);
@@ -105,7 +102,7 @@ public class Repairs extends Plan implements Qualities {
     final float help = REAL_HELP + (actor.base().communitySpirit() / 2);
     
     final float priority = priorityForActorWith(
-      actor, built, ROUTINE * Visit.clamp(urgency, 0, 1),
+      actor, built, CASUAL * Visit.clamp(urgency, 0, 1),
       help, competition,
       BASE_SKILLS, BASE_TRAITS,
       NO_MODIFIER, NORMAL_DISTANCE_CHECK, MILD_FAIL_RISK,
@@ -118,6 +115,14 @@ public class Repairs extends Plan implements Qualities {
       I.say("  Final priority: "+priority);
     }
     return priority;
+  }
+  
+  
+  protected float successChance() {
+    float chance = 1;
+    chance *= actor.traits.chance(HARD_LABOUR, 0);
+    chance *= actor.traits.chance(ASSEMBLY, 5);
+    return chance;
   }
   
   
@@ -135,6 +140,16 @@ public class Repairs extends Plan implements Qualities {
   protected Behaviour getNextStep() {
     final boolean report = verbose && I.talkAbout == actor && hasBegun();
     if (report) I.say("\nGetting next build step?") ;
+    
+    if (built.structure.needsUpgrade() && built.structure.goodCondition()) {
+      final Action upgrades = new Action(
+        actor, built,
+        this, "actionUpgrade",
+        Action.BUILD, "Upgrading "+built
+      );
+      if (report) I.say("  Returning next upgrade action.");
+      return upgrades ;
+    }
     
     if (built.structure.hasWear()) {
       final Action building = new Action(
@@ -154,15 +169,8 @@ public class Repairs extends Plan implements Qualities {
       if (report) I.say("  Returning next build action.");
       return building ;
     }
-    if (built.structure.needsUpgrade()) {
-      final Action upgrades = new Action(
-        actor, built,
-        this, "actionUpgrade",
-        Action.BUILD, "Upgrading "+built
-      ) ;
-      return upgrades ;
-    }
     
+    if (report) I.say("NOTHING TO BUILD");
     return null ;
   }
   

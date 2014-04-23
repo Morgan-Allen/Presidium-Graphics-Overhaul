@@ -81,7 +81,7 @@ public class Foundry extends Venue implements Economy {
       "common machinery, but lack the theoretical grounding needed for "+
       "fundamental design or customisation.",
       50,
-      Background.TECHNICIAN, 1, null, ALL_UPGRADES
+      Backgrounds.TECHNICIAN, 1, null, ALL_UPGRADES
     ),
     COMPOSITE_MATERIALS = new Upgrade(
       "Composite Materials",
@@ -103,7 +103,7 @@ public class Foundry extends Venue implements Economy {
       "tackle the most taxing commissions reliant on dangerous or arcane "+
       "technologies.",
       150,
-      Background.ARTIFICER, 1, TECHNICIAN_STATION, ALL_UPGRADES
+      Backgrounds.ARTIFICER, 1, TECHNICIAN_STATION, ALL_UPGRADES
     ) ;
   
   
@@ -113,14 +113,14 @@ public class Foundry extends Venue implements Economy {
   
   
   public Background[] careers() {
-    return new Background[] { Background.TECHNICIAN, Background.ARTIFICER } ;
+    return new Background[] { Backgrounds.TECHNICIAN, Backgrounds.ARTIFICER } ;
   }
   
   
   public int numOpenings(Background v) {
-    int num = super.numOpenings(v) ;
-    if (v == Background.TECHNICIAN) return num + 2 ;
-    if (v == Background.ARTIFICER ) return num + 1 ;
+    int num = super.numOpenings(v);
+    if (v == Backgrounds.TECHNICIAN) return num + 2 ;
+    if (v == Backgrounds.ARTIFICER ) return num + 1 ;
     return 0 ;
   }
   

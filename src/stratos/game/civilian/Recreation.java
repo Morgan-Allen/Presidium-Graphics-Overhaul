@@ -5,6 +5,7 @@ package stratos.game.civilian ;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
+import stratos.game.maps.Planet;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -15,10 +16,12 @@ public class Recreation extends Plan implements Economy, Qualities {
   
   /**  Data fields, construction and save/load methods-
     */
-  private static boolean verbose = false ;
+  private static boolean verbose = false;
   
   
-  final static int PERFORM_TIME = World.STANDARD_DAY_LENGTH / 10 ;
+  final static int
+    PERFORM_TIME = World.STANDARD_HOUR_LENGTH,
+    STAY_TIME    = World.STANDARD_HOUR_LENGTH;
   final public static int
     TYPE_ANY      = -1,
     TYPE_SONG     =  0,
@@ -93,14 +96,19 @@ public class Recreation extends Plan implements Economy, Qualities {
     modifier += Performance.performValueFor(venue, this);
     modifier += IDLE * rateComfort(venue, actor, this) / 10;
     modifier -= Plan.greedLevel(actor, (int) cost) * ROUTINE;
+    final float need = 1f - actor.health.moraleLevel();
     
     final float priority = priorityForActorWith(
-      actor, venue, CASUAL,
+      actor, venue, CASUAL * need,
       NO_HARM, NO_COMPETITION,
       NO_SKILLS, ENJOYMENT_TRAITS[type],
       modifier, NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
       report
     );
+    if (report) {
+      I.say("  Need for fun: "+need);
+      I.say("  Final priority: "+priority);
+    }
     return priority;
   }
   

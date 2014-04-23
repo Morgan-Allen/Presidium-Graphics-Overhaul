@@ -7,7 +7,8 @@ import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
-import stratos.game.planet.*;
+import stratos.game.maps.*;
+import stratos.game.wild.Nest;
 import stratos.game.wild.Ruins;
 import stratos.user.*;
 import stratos.util.*;
@@ -31,17 +32,17 @@ public class StartupScenario extends Scenario {
     MAX_COLONISTS = 9,
     MAX_PERKS     = 3 ;
   final public static Background ADVISOR_BACKGROUNDS[] = {
-    Background.FIRST_CONSORT,
-    Background.MINISTER_FOR_ACCOUNTS,
-    Background.WAR_MASTER
+    Backgrounds.FIRST_CONSORT,
+    Backgrounds.MINISTER_FOR_ACCOUNTS,
+    Backgrounds.WAR_MASTER
   } ;
   final public static Background COLONIST_BACKGROUNDS[] = {
-    Background.VOLUNTEER,
-    Background.SUPPLY_CORPS,
-    Background.FABRICATOR,
-    Background.TECHNICIAN,
-    Background.CULTIVATOR,
-    Background.MINDER
+    Backgrounds.VOLUNTEER,
+    Backgrounds.SUPPLY_CORPS,
+    Backgrounds.FABRICATOR,
+    Backgrounds.TECHNICIAN,
+    Backgrounds.CULTIVATOR,
+    Backgrounds.MINDER
   } ;
   final public static String
     SITE_DESC[] = {
@@ -241,13 +242,13 @@ public class StartupScenario extends Scenario {
     
     final int station = config.titleLevel ;
     final float promoteChance = (25 - (station * 10)) / 100f ;
-    final Background vocation = Background.RULING_POSITIONS[station] ;
+    final Background vocation = Backgrounds.RULING_POSITIONS[station] ;
     final Background birth ;
     if (Rand.num() < promoteChance) {
-      if (Rand.num() < promoteChance) birth = Background.FREE_BIRTH ;
-      else birth = Background.GELDER_BIRTH ;
+      if (Rand.num() < promoteChance) birth = Backgrounds.FREE_BIRTH ;
+      else birth = Backgrounds.GELDER_BIRTH ;
     }
-    else birth = Background.HIGH_BIRTH ;
+    else birth = Backgrounds.HIGH_BIRTH ;
     
     final Background house = config.house;
     final Career rulerCareer = new Career(config.male, vocation, birth, house);
@@ -269,7 +270,7 @@ public class StartupScenario extends Scenario {
         final Human candidate = new Human(b, base) ;
         float rating = Career.ratePromotion(b, candidate) ;
         
-        if (b == Background.FIRST_CONSORT) {
+        if (b == Backgrounds.FIRST_CONSORT) {
           rating +=
             ruler.mind.attraction(candidate) +
             (candidate.mind.attraction(ruler) / 2) ;

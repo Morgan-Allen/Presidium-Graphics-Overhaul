@@ -10,10 +10,9 @@ package stratos.game.civilian ;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
-import stratos.game.planet.Flora;
-import stratos.game.planet.Species;
-import stratos.graphics.common.*;
-import stratos.user.*;
+import stratos.game.maps.*;
+//import stratos.graphics.common.*;
+//import stratos.user.*;
 import stratos.util.*;
 
 
@@ -62,7 +61,7 @@ public class Foraging extends Plan implements Economy {
   
   protected float getPriority() {
     final boolean report = verbose && I.talkAbout == actor;
-
+    
     if (storeShortage() <= 0) {
       if (sumHarvest() > 0) return Plan.ROUTINE;
       else done = true;
@@ -76,12 +75,16 @@ public class Foraging extends Plan implements Economy {
       if (source == null) return 0;
     }
     final float priority = priorityForActorWith(
-      actor, source, hunger * URGENT,
+      actor, source, hunger * PARAMOUNT,
       NO_HARM, FULL_COMPETITION,
       BASE_SKILLS, BASE_TRAITS,
       NO_MODIFIER, NORMAL_DISTANCE_CHECK, MILD_FAIL_RISK,
       report
     );
+    if (report) {
+      I.say("  Hunger level was: "+hunger);
+      I.say("  Final priority: "+priority);
+    }
     return priority;
   }
   

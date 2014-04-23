@@ -90,6 +90,7 @@ public class FindWork extends Plan implements Economy {
   
   public static Application lookForWork(Actor actor, Base base) {
     final Employer work = actor.mind.work() ;
+    
     if (work instanceof Vehicle) return null ;
     //
     //  Set up key comparison variables-
@@ -120,9 +121,11 @@ public class FindWork extends Plan implements Economy {
       from, world, 2, batch, actor.vocation(), base
     ) ;
     
-    //
     //  Assess the attractiveness of applying for jobs at each venue-
-    for (Venue venue : batch) {
+    
+    //  TODO:  Allow defection to another base, if the job prospects are
+    //  sufficiently attractive?
+    for (Venue venue : batch) if (venue.base() == actor.base()) {
       final Background careers[] = venue.careers() ;
       if (careers == null) continue ;
       for (Background c : careers) if (venue.numOpenings(c) > 0) {
@@ -166,7 +169,7 @@ public class FindWork extends Plan implements Economy {
     //  TODO:  Signing cost is based on transport factors, attraction, no.
     //  already employed, etc.  Implement all of that.
     int transport = 0, incentive = 0, guildFees = 0 ;
-    guildFees += Background.HIRE_COSTS[app.position.standing] ;
+    guildFees += Backgrounds.HIRE_COSTS[app.position.standing] ;
     
     if (! app.applies.inWorld()) {
       //  ...This could potentially be much higher, depending on origin point.

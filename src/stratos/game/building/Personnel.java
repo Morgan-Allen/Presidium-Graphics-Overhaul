@@ -10,7 +10,7 @@ import stratos.game.actors.*;
 import stratos.game.campaign.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
-import stratos.game.planet.Planet;
+import stratos.game.maps.*;
 import stratos.util.*;
 
 
@@ -253,8 +253,12 @@ public class Personnel {
       final Base base = employs.base() ;
       
       //  Clear out the office for anyone dead-
-      for (Actor a : workers  ) if (a.destroyed()) setWorker(a, false) ;
-      for (Actor a : residents) if (a.destroyed()) setResident(a, false) ;
+      for (Actor a : workers) if (a.destroyed() || a.base() != base) {
+        setWorker(a, false);
+      }
+      for (Actor a : residents) if (a.destroyed() || a.base() != base) {
+        setResident(a, false);
+      }
       
       //  If there's an unfilled opening, look for someone to fill it.
       //  TODO:  This should really be handled more from the Commerce class?
@@ -306,6 +310,14 @@ public class Personnel {
   public int numHired(Background match) {
     int num = 0 ; for (Actor c : workers) {
       if (c.vocation() == match) num++ ;
+    }
+    return num ;
+  }
+  
+  
+  public int numResident(Species match) {
+    int num = 0 ; for (Actor c : residents) {
+      if (c.species() == match) num++ ;
     }
     return num ;
   }

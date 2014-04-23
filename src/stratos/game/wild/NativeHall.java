@@ -2,9 +2,9 @@
 
 package stratos.game.wild ;
 import stratos.game.actors.* ;
-import static stratos.game.actors.Background.* ;
+import static stratos.game.actors.Backgrounds.* ;
 import stratos.game.common.* ;
-import stratos.game.planet.* ;
+import stratos.game.maps.*;
 import stratos.game.base.* ;
 import stratos.game.building.* ;
 import stratos.graphics.widgets.* ;

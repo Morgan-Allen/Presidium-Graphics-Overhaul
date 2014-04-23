@@ -52,19 +52,17 @@ public class StretcherDelivery extends Plan implements Qualities {
   
   
   protected float getPriority() {
-    return priorityForActorWith(
+    final boolean report = verbose && I.talkAbout == actor;
+    
+    final float priority = priorityForActorWith(
       actor, patient, ROUTINE,
-      REAL_HELP, FULL_COMPETITION,
-      BASE_SKILLS, BASE_TRAITS,
+      NO_HARM, FULL_COMPETITION,
+      NO_SKILLS, NO_TRAITS,
       NO_MODIFIER, PARTIAL_DISTANCE_CHECK, NO_FAIL_RISK,
-      verbose
+      report
     );
+    return priority;
   }
-  
-  final Skill BASE_SKILLS[] = {};
-  final Trait BASE_TRAITS[] = {};
-  
-  
   
   
   protected Behaviour getNextStep() {
@@ -125,7 +123,7 @@ public class StretcherDelivery extends Plan implements Qualities {
   
   
   public void describeBehaviour(Description d) {
-    d.append("Delivering ");
+    d.append("Taking ");
     d.append(patient);
     d.append(" to ");
     d.append(destination);

@@ -131,7 +131,7 @@ public class Delivery extends Plan implements Economy {
     */
   public static float purchasePrice(Item item, Actor actor, Owner origin) {
     float TP = origin.priceFor(item.type) ;
-    if (actor != null && actor.vocation().guild == Background.GUILD_MILITANT) {
+    if (actor != null && actor.vocation().guild == Backgrounds.GUILD_MILITANT) {
       TP -= Audit.MILITANT_RATION ;
       if (TP <= 0) return 0 ;
     }

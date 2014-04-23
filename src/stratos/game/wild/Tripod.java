@@ -4,7 +4,7 @@
 package stratos.game.wild ;
 import stratos.game.actors.* ;
 import stratos.game.common.* ;
-import stratos.game.planet.* ;
+import stratos.game.maps.*;
 import stratos.game.building.* ;
 import stratos.graphics.common.* ;
 import stratos.graphics.solids.* ;

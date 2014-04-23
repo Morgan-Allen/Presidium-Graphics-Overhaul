@@ -1,12 +1,11 @@
 
 
-
 package stratos.game.tactical ;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
-import stratos.game.planet.*;
+import stratos.game.maps.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
@@ -14,32 +13,35 @@ import stratos.util.*;
 
 
 
-//
-//  TODO:  Try and convince a particular subject to join your settlement, not
-//  be hostile, or simply accept a gift.  Applies to all actors encountered
-//  that belong to the same base, but with particular emphasis on the primary
-//  subject.
-//  (Use the Dialogue class.)
-
-//
-//  ...Give gift or ask favour.  Player-selected?
+//  TODO:  Allow spontaneous turn-coat behaviours for both actors and venues...
 
 
 public class ContactMission extends Mission implements Economy {
   
   
-  
   /**  Field definitions, constructors and save/load methods-
     */
-  final static int
-    SETTING_CONTACT  = 0,
-    SETTING_FAVOUR   = 1,
-    SETTING_AUDIENCE = 2;
+  final static float
+    MAX_DURATION = World.STANDARD_DAY_LENGTH;
+  
+  final public static int
+    OBJECT_FRIENDSHIP = 0,
+    OBJECT_AUDIENCE   = 1,
+    OBJECT_SUBMISSION = 2;
   final static String SETTING_DESC[] = {
-    "Demand fealty ",
-    "Secure as agent ",
-    "Request audience with "
+    "Offer friendship to ",
+    "Secure audience with ",
+    "Demand submission from "
   };
+  
+  private static boolean 
+    evalVerbose  = false,
+    eventVerbose = true ;
+  
+  
+  private Actor[] talksTo = null;  //Refreshed on request, at most once/second
+  private List <Actor> agreed = new List <Actor> ();
+  private boolean done = false;
   
   
   public ContactMission(Base base, Target subject) {
@@ -53,92 +55,193 @@ public class ContactMission extends Mission implements Economy {
   
   public ContactMission(Session s) throws Exception {
     super(s) ;
+    s.loadObjects(agreed);
+    done = s.loadBool();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s) ;
+    s.saveObjects(agreed);
+    s.saveBool(done);
   }
   
   
   
   /**  Behaviour implementation-
     */
-  public float priorityFor(Actor actor) {
-    float priority = 1 * basePriority(actor);
-    //  TODO:  USE DIALOGUE MODIFIERS
-    return priority ;
-  }
-  
-  
-  public void beginMission() {
-    super.beginMission() ;
-  }
-  
-  
-  private float relationLevelNeeded() {
-    final int objectIndex = objectIndex();
-    if (objectIndex == SETTING_CONTACT ) return 0   ;
-    if (objectIndex == SETTING_FAVOUR  ) return 0.5f;
-    if (objectIndex == SETTING_AUDIENCE) return 1.0f;
-    return -1;
-  }
-  
-  
-  private Batch <Actor> talksTo() {
-    final Batch <Actor> batch = new Batch <Actor> () ;
+  private Actor[] talksTo() {
+    if (talksTo != null) return talksTo;
+    final Batch <Actor> batch = new Batch <Actor> ();
     if (subject instanceof Actor) {
-      final Actor a = (Actor) subject ;
-      batch.add(a) ;
+      final Actor a = (Actor) subject;
+      batch.add(a);
     }
     else if (subject instanceof Venue) {
-      final Venue v = (Venue) subject ;
-      for (Actor a : v.personnel.residents()) batch.include(a) ;
-      for (Actor a : v.personnel.workers()  ) batch.include(a) ;
+      final Venue v = (Venue) subject;
+      for (Actor a : v.personnel.residents()) batch.include(a);
+      for (Actor a : v.personnel.workers()  ) batch.include(a);
     }
-    return batch ;
+    return talksTo = batch.toArray(Actor.class);
   }
-
-
+  
+  
+  private boolean doneTalking(Actor a) {
+    if (agreed.includes(a)) return true;
+    return a.memories.relationNovelty(base) < 0;
+  }
+  
+  
+  public void updateMission() {
+    super.updateMission();
+    talksTo = null;
+    
+    final boolean report = eventVerbose && (
+      ((List) approved()).includes(I.talkAbout) ||
+      Visit.arrayIncludes(talksTo(), I.talkAbout) ||
+      I.talkAbout == this
+    );
+    
+    boolean allDone = roles.size() > 0;
+    for (Actor a : talksTo()) {
+      if (! doneTalking(a)) allDone = false;
+    }
+    
+    if (allDone) {
+      applyContactEffects(report);
+      done = true;
+    }
+  }
+  
+  
+  public float priorityFor(Actor actor) {
+    final boolean report = evalVerbose && I.talkAbout == actor;
+    final float basePriority = basePriority(actor);
+    if (report) {
+      I.say("\nAssessing priority of contact mission");
+      I.say("  Base priority: "+basePriority);
+    }
+    
+    final Actor with[] = talksTo();
+    float avg = 0;
+    for (Actor other : with) {
+      final Dialogue d = new Dialogue(actor, other, Dialogue.TYPE_CONTACT);
+      d.setMotive(Plan.MOTIVE_MISSION, basePriority);
+      final float otherP = d.priorityFor(actor);
+      if (report) {
+        I.say("  Priority of contact with: "+other+": "+otherP);
+      }
+      avg += otherP / with.length;
+    }
+    
+    if (report) I.say("  FINAL PRIORITY: "+avg);
+    return avg ;
+  }
+  
+  
   public Behaviour nextStepFor(Actor actor) {
     if (! isActive()) return null;
-    
-    final float minRelation = relationLevelNeeded() ;
-    Dialogue picked = null ;
-    float maxUrgency = Float.NEGATIVE_INFINITY ;
+    final Choice choice = new Choice(actor);
     
     for (Actor a : talksTo()) {
-      final float relation = a.memories.relationValue(actor) ;
-      if (relation >= minRelation) continue ;
-      
-      final Dialogue d = new Dialogue(actor, a, Dialogue.TYPE_CONTACT) ;
-      float urgency = d.priorityFor(actor) ;
-      urgency += (1 - a.memories.relationValue(actor)) * ROUTINE ;
-      if (urgency > maxUrgency) { maxUrgency = urgency ; picked = d ; }
+      final float novelty = a.memories.relationNovelty(actor);
+      if (novelty <= 0) continue;
+      final Dialogue d = new Dialogue(actor, a, Dialogue.TYPE_CONTACT);
+      d.setMotive(Plan.MOTIVE_DUTY, novelty * ROUTINE);
+      choice.add(d);
     }
-    if (picked != null) return picked ;
     
-    //  Otherwise, see if you can give them a gift, or find a suitable task
-    //  from the subject's home or work venue.
-    final Element around = (Element) subject ;
-    return Patrolling.aroundPerimeter(actor, around, actor.world()) ;
+    if (choice.size() == 0) for (Actor a : talksTo) {
+      if (doneTalking(a)) continue;
+      final float relation = a.memories.relationValue(actor);
+      final Action closeTalks = new Action(
+        actor, a,
+        this, "actionCloseTalks",
+        Action.TALK_LONG, "Closing talks"
+      );
+      closeTalks.setPriority(ROUTINE * (2 + relation) / 2f);
+      choice.add(closeTalks);
+    }
+    
+    if (choice.size() == 0) {
+      final Element around = (Element) subject ;
+      return Patrolling.aroundPerimeter(actor, around, actor.world()) ;
+    }
+    else return choice.pickMostUrgent();
   }
   
   
   public boolean finished() {
-    //  Ensure mutual relations are ALL peachy.
-    final float minRelation = relationLevelNeeded() ;
-    ///I.say("\nMinimum relation needed: "+minRelation) ;
-    boolean allOK = true ;
-    for (Actor a : talksTo()) for (Role role : this.roles) {
-      final float relation = a.memories.relationValue(role.applicant) ;
-      ///I.say("  Relation between "+a+" and "+role.applicant+": "+relation) ;
-      if (relation < minRelation) allOK = false ;
-    }
-    ///I.say("All Okay? "+allOK) ;
-    return allOK ;
+    return done;
   }
   
+  
+  
+  //  TODO:  Partial success might net you an informant...
+  public boolean actionCloseTalks(Actor actor, Actor other) {
+    final boolean report = eventVerbose;// && I.talkAbout == actor;
+    
+    float DC = other.memories.relationValue(actor) * 10;
+    if (objectIndex() == OBJECT_FRIENDSHIP) DC += 0 ;
+    if (objectIndex() == OBJECT_AUDIENCE  ) DC += 10;
+    if (objectIndex() == OBJECT_SUBMISSION) DC += 20;
+    
+    final float danger = CombatUtils.dangerAtSpot(other, other, null);
+    DC -= danger * 5;
+    
+    final float novelty = other.memories.relationNovelty(actor.base());
+    if (novelty < 0) DC += novelty * 10;
+    float success = Dialogue.talkResult(SUASION, DC, actor, other);
+    
+    if (report) I.say("Success rating was: "+success+" with "+other);
+    //  Failed efforts annoy the subject.
+    other.memories.incRelation(base, 0, 0);
+    if (success < 1) {
+      other.memories.incRelation(actor, 0 - Relation.MAG_CHATTING, 0.1f);
+      return false;
+    }
+    else {
+      agreed.add(other);
+      return true;
+    }
+  }
+  
+  
+  private void applyContactEffects(boolean report) {
+    final Actor ruler = base.ruler();
+    final boolean majority = agreed.size() > (talksTo().length / 2);
+    
+    if (report) {
+      I.say("\nCONTACT MISSION COMPLETE "+this);
+      I.say("  Following have agreed to terms: ");
+      for (Actor a : agreed) I.say("    "+a);
+    }
+    
+    for (Actor other : agreed) {
+      if (objectIndex() == OBJECT_FRIENDSHIP) {
+        //  TODO:  Actually modify relations between the bases, depending on
+        //  how successful you were.  (This has the added benefit of making
+        //  spontaneous combat less likely.)
+        
+        other.memories.incRelation(base, Relation.MAG_CHATTING, 0.5f);
+      }
+      if (objectIndex() == OBJECT_AUDIENCE && ruler != null) {
+        I.say("Issuing summons to: "+other);
+        final Summons summons = new Summons(other, ruler);
+        other.mind.assignBehaviour(summons);
+      }
+      if (objectIndex() == OBJECT_SUBMISSION) {
+        other.memories.incRelation(base, Relation.MAG_HARMING, 0.5f);
+        other.assignBase(base);
+      }
+    }
+    
+    if (subject instanceof Venue && majority) {
+      if (objectIndex() == OBJECT_SUBMISSION) {
+        ((Venue) subject).assignBase(base);
+      }
+    }
+  }
   
   
   
@@ -150,10 +253,9 @@ public class ContactMission extends Mission implements Economy {
   
   
   public void describeBehaviour(Description d) {
-    d.append("On ") ;
-    d.append("Contact Mission", this) ;
-    d.append(" around ") ;
-    d.append(subject) ;
+    d.append("On mission: ", this);
+    d.append(SETTING_DESC[objectIndex()]);
+    d.append(subject);
   }
 }
 

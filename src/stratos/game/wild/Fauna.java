@@ -5,13 +5,13 @@
   */
 
 
-package stratos.game.planet ;
+package stratos.game.wild ;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
-import stratos.game.planet.*;
+import stratos.game.maps.*;
+import stratos.game.maps.Species.Type;
 import stratos.game.tactical.*;
-import stratos.game.wild.Artilect;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
@@ -166,7 +166,7 @@ public abstract class Fauna extends Actor {
     for (Flora f : sampled) {
       final float dist = Spacing.distance(this, f) ;
       if (dist > range) continue ;
-      float rating = f.growth * Rand.avgNums(2) ;
+      float rating = f.growStage() * Rand.avgNums(2) ;
       rating *= range / (range + dist) ;
       if (rating > bestRating) { picked = f ; bestRating = rating ; }
     }
@@ -191,7 +191,7 @@ public abstract class Fauna extends Actor {
     if (! eaten.inWorld()) return false ;
     
     I.sayAbout(this, "Am browsing at: "+eaten.origin()) ;
-    float bite = 0.1f * eaten.growth * 2 * health.maxHealth() / 10 ;
+    float bite = 0.1f * eaten.growStage() * 2 * health.maxHealth() / 10 ;
     eaten.incGrowth(0 - bite, actor.world(), false) ;
     actor.health.takeCalories(bite * PLANT_CONVERSION, 1) ;
     return true ;

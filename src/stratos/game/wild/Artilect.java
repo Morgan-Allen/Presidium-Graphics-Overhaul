@@ -5,7 +5,7 @@ package stratos.game.wild ;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
-import stratos.game.planet.*;
+import stratos.game.maps.*;
 import stratos.game.tactical.*;
 import stratos.game.civilian.*;
 import stratos.graphics.common.*;
@@ -60,6 +60,7 @@ public abstract class Artilect extends Actor {
     )
   ;
   
+  private static boolean verbose = false;
   
   final Species species;
   
@@ -140,28 +141,21 @@ public abstract class Artilect extends Actor {
   
   
   protected void addChoices(Choice choice) {
-    
-    //  TODO:  Try to ensure that most artilects spend their time 'laying
-    //  dormant', if nothing urgent is going on.
-    
-    //I.say("Creating new choices for "+this) ;
     //
     //  Patrol around your base and see off intruders.
-    
+    final boolean report = verbose && I.talkAbout == this;
+    ///choice.isVerbose = report;
     final boolean
       isDrone = this instanceof Drone,
       isTripod = this instanceof Tripod,
       isCranial = this instanceof Cranial;
     
-    
-    
-    //
-    //
     //  Perform reconaissance or patrolling.
     //  Retreat and return to base.
     //  (Drone specialties.)
-
-    Element guards = mind.home() == null ? this : (Element) mind.home() ;
+    
+    final Employer home = mind.home();
+    Element guards = home == null ? this : (Element) home ;
     final float distance = Spacing.distance(this, guards) / World.SECTOR_SIZE;
     
     final Plan patrol = Patrolling.aroundPerimeter(this, guards, world);
@@ -181,26 +175,47 @@ public abstract class Artilect extends Actor {
     //  Launch an assault on a nearby settlement, if numbers are too large.
     //  Capture specimens and bring back to lair.
     //  (Tripod specialties.)
-
-    //  TODO:  Use the BaseAI to try declaring raids on other settlements
+    //  TODO:  Use the BaseAI to decide on declaring raids on other settlements.
     final Plan assault = nextAssault();
     if (assault != null) {
       if (isTripod) assault.setMotive(Plan.MOTIVE_DUTY, Plan.PARAMOUNT);
       choice.add(assault);
     }
-    
+    if (
+      (isTripod || isCranial) &&
+      home.personnel().numResident(Species.SPECIES_CRANIAL) > 0
+    ) {
+      //  TODO:  Restore this later, once Cybrid creation is sorted out.
+      /*
+      for (Target t : senses.awareOf()) if (t instanceof Human) {
+        final Human other = (Human) t;
+        if (other.health.conscious()) continue;
+        if (report) I.say("  POTENTIAL SUBJECT: "+other);
+        final Plan recovery = new StretcherDelivery(this, other, home);
+        recovery.setMotive(Plan.MOTIVE_DUTY, Plan.URGENT);
+        choice.add(recovery);
+      }
+      //*/
+      for (Actor other : home.personnel().residents()) {
+        if (other.health.conscious()) continue;
+        if (report) I.say("  FALLEN ALLY: "+other);
+        final Plan recovery = new StretcherDelivery(this, other, home);
+        choice.add(recovery);
+      }
+    }
     //
     //  Experiment upon/dissect/interrogate/convert any captives.
     //  Perform repairs on another artilect, or refurbish a new model.
     //  (Cranial specialties.)
-    if (isCranial) {
-      for (Target t : senses.awareOf()) if (t instanceof Actor) {
-        final Actor other = (Actor) t;
-        final SpawnArtilect repair = new SpawnArtilect(this, other);
-        choice.add(repair);
+    if (isCranial && home instanceof Venue) {
+      final Venue venue = (Venue) mind.home();
+      for (Actor other : venue.personnel.residents()) {
+        choice.add(new SpawnArtilect(this, other, venue));
       }
-      //  TODO:  Also do this if the ruins are short of staff.  And check any
-      //  staff at your home.
+      final Ruins ruins = (Ruins) world.presences.randomMatchNear(
+        Ruins.class, this, World.SECTOR_SIZE
+      );
+      choice.add(nextSpawning(this, ruins));
     }
     
     //
@@ -208,15 +223,14 @@ public abstract class Artilect extends Actor {
     //  Respond to obelisk or tesseract presence (all).
     
     for (Target e : senses.awareOf()) if (e instanceof Actor) {
-      choice.add(new Combat(this, (Actor) e)) ;
+      choice.add(new Combat(this, (Actor) e));
     }
-    final Resting rest = new Resting(this, mind.home());
-    
-    if (isDrone) rest.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL);
-    else rest.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
-    choice.add(rest);
-    
-    choice.isVerbose = I.talkAbout == this;
+    if (mind.home() != null) {
+      final Resting rest = new Resting(this, mind.home());
+      if (isDrone) rest.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL);
+      else rest.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
+      choice.add(rest);
+    }
   }
   
   
@@ -249,6 +263,22 @@ public abstract class Artilect extends Actor {
     final Combat siege = new Combat(this, toAssault) ;
     
     return siege ;
+  }
+  
+  
+  protected Plan nextSpawning(Actor actor, Ruins lair) {
+    if (lair == null) return null;
+    
+    int mostSpace = 0;
+    Species pick = null;
+    for (Species s : Species.ARTILECT_SPECIES) {
+      final int space = lair.spaceFor(s);
+      if (space > mostSpace) { mostSpace = space; pick = s; }
+    }
+    if (pick == null) return null;
+    
+    final Artilect spawned = (Artilect) pick.newSpecimen(lair.base());
+    return new SpawnArtilect(actor, spawned, lair);
   }
   
   

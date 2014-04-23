@@ -326,6 +326,20 @@ public final class Spacing implements TileConstants {
   }
   
   
+  public static Tile bestMidpoint(Target... targets) {
+    if (targets == null || targets.length == 0) return null;
+    final Target client = targets[0];
+    final Vec2D avg = new Vec2D();
+    for (Target t : targets) {
+      t.position(pA);
+      avg.x += pA.x / targets.length;
+      avg.y += pA.y / targets.length;
+    }
+    Tile open = client.world().tileAt(avg.x, avg.y);
+    return Spacing.nearestOpenTile(open, client);
+  }
+  
+  
   
   /**  Distance calculation methods-
     */

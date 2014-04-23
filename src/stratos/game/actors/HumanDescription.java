@@ -155,9 +155,10 @@ public class HumanDescription implements Qualities {
     
     d.append("\n\nRelationships: ") ;
     for (Relation r : h.memories.relations()) {
+      if (! (r.subject instanceof Actor)) continue;
       d.append("\n  ") ;
       d.append(r.subject) ;
-      d.append(" ("+r.descriptor()+")") ;
+      d.append(" ("+Relation.describe(r)+")") ;
     }
   }
   

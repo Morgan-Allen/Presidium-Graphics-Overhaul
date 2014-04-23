@@ -6,6 +6,8 @@
 
 
 package stratos.game.common ;
+import org.apache.commons.math3.util.FastMath;
+
 import stratos.game.building.*;
 import stratos.game.actors.*;
 import stratos.graphics.common.*;
@@ -204,6 +206,7 @@ public abstract class Mobile extends Element
   
   
   protected void updateAsMobile() {
+    final boolean report = verbose && I.talkAbout == this;
     //  
     final Boardable next = pathing == null ? null : pathing.nextStep() ;
     final Tile oldTile = origin() ;
@@ -218,7 +221,7 @@ public abstract class Mobile extends Element
       aboard.position(nextPosition) ;
     }
     else if (next != null && next.getClass() != aboard.getClass()) {
-      if (verbose) I.sayAbout(this, "Jumping to: "+next) ;
+      if (report) I.say("Jumping to: "+next) ;
       aboard.setInside(this, false) ;
       (aboard = next).setInside(this, true) ;
       next.position(nextPosition) ;
@@ -238,11 +241,29 @@ public abstract class Mobile extends Element
       }
       else if (outOfBounds) {
         if (awry) onMotionBlock(newTile) ;
-        if (verbose) I.sayAbout(this, "Entering tile: "+newTile) ;
+        if (report) I.say("Entering tile: "+newTile) ;
         aboard.setInside(this, false) ;
         (aboard = newTile).setInside(this, true) ;
       }
     }
+    
+    //  Escape any currently blocked tile-
+    if (
+      collides() && (aboard instanceof Tile) &&
+      aboard.pathType() == Tile.PATH_BLOCKS
+    ) {
+      final Tile free = Spacing.nearestOpenTile(aboard, this);
+      if (free == null) I.complain("MOBILE IS TRAPPED! "+this);
+      
+      if (report) {
+        I.say(this+" IS ABOARD: "+aboard);
+        I.say("  ESCAPING TO: "+free);
+      }
+      nextPosition.x = free.x ;
+      nextPosition.y = free.y ;
+      return;
+    }
+    
     //
     //  Either way, update current position-
     position.setTo(nextPosition) ;
@@ -250,7 +271,7 @@ public abstract class Mobile extends Element
     super.setPosition(position.x, position.y, world) ;
     nextPosition.z = boardHeight() + aboveGroundHeight() ;
     
-    if (verbose && I.talkAbout == this) {
+    if (report) {
       I.say("Aboard: "+aboard) ;
       I.say("Position "+nextPosition) ;
       I.say("Next step: "+next) ;
@@ -324,26 +345,33 @@ public abstract class Mobile extends Element
   
   
   public void renderFor(Rendering rendering, Base base) {
+    final Sprite s = this.sprite();
+    this.viewPosition(s.position);
+    final float alpha = Rendering.frameAlpha();
+    final float rotateChange = Vec2D.degreeDif(nextRotation, rotation);
+    s.rotation = (rotation + (rotateChange * alpha) + 360) % 360;
+    renderAt(s.position, s.rotation, rendering);
+  }
+  
+  
+  public void renderAt(
+    Vec3D position, float rotation, Rendering rendering
+  ) {
+    final Sprite s = this.sprite();
     float scale = spriteScale();
     if (this instanceof Actor) scale *= GameSettings.actorScale;
-    
-    final Sprite s = this.sprite();
     s.scale = scale;
+    s.position.setTo(position);
+    s.rotation = rotation;
     //
     //  Render your shadow, either on the ground or on top of occupants-
-    final float R2 = (float) Math.sqrt(2);
+    final float R2 = (float) FastMath.sqrt(2);
     final PlaneFX shadow = (PlaneFX) SHADOW_MODEL.makeSprite();
     shadow.scale = radius() * scale * R2;
     final Vec3D p = s.position;
     shadow.position.setTo(p);
     shadow.position.z = shadowHeight(p);
     shadow.readyFor(rendering);
-    
-    this.viewPosition(s.position);
-    final float alpha = Rendering.frameAlpha();
-    final float rotateChange = Vec2D.degreeDif(nextRotation, rotation);
-    s.rotation = (rotation + (rotateChange * alpha) + 360) % 360;
-    
     s.readyFor(rendering);
   }
   
@@ -351,6 +379,7 @@ public abstract class Mobile extends Element
   protected float shadowHeight(Vec3D p) {
     return world.terrain().trueHeight(p.x, p.y) ;
   }
+  
   
   protected float spriteScale() {
     return 1 ;

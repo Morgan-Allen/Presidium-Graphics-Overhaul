@@ -19,12 +19,15 @@ public class Combat extends Plan implements Qualities {
   /**  Data fields, constructors and save/load methods-
     */
   private static boolean
-    evalVerbose   = true ,
-    eventsVerbose = false;
+    evalVerbose   = false,
+    eventsVerbose = false,
+    damageVerbose = false;
   
+  
+  //  TODO:  Introduce formation-behaviours, in contrast to hit-and-run
   final static int
-    STYLE_RANGED = 0,  //TODO:  Replace with hit-and-run/skirmish
-    STYLE_MELEE  = 1,  //TODO:  Replace with stand ground/direct assault
+    STYLE_RANGED = 0,
+    STYLE_MELEE  = 1,
     STYLE_EITHER = 2,
     ALL_STYLES[] = { 0, 1, 2 },
     
@@ -181,7 +184,7 @@ public class Combat extends Plan implements Qualities {
       return null ;
     }
 
-    Target struck = CombatUtils.mostThreatTo(actor, this.target, true);
+    Target struck = CombatUtils.bestTarget(actor, this.target, true);
     if (struck == null) struck = this.target;
     
     Action strike = null ;
@@ -238,38 +241,38 @@ public class Combat extends Plan implements Qualities {
   private void configRangedAction(
     Action strike, boolean razes, float danger
   ) {
-    ///if (eventsVerbose) I.sayAbout(actor, "Configuring ranged attack.\n");
-    
     final Activities activities = actor.world().activities;
     
     final Element struck = (Element) strike.subject();
     final float range = actor.health.sightRange() ;
     
     boolean underFire = activities.includesAction(actor, "actionStrike");
-    if (razes && Rand.num() < 0.1f) underFire = true ;
+    boolean shouldDodge = actor.senses.hasSeen(struck);
+    if (razes && Rand.num() > danger) shouldDodge = false;
+    else if (Rand.yes() || Rand.num() > danger) shouldDodge = false;
     
-    boolean dodges = false ;
-    if (actor.senses.hasSeen(struck)) {
+    boolean dodged = false;
+    if (shouldDodge) {
       final float distance = Spacing.distance(actor, struck) / range ;
       //
       //  If not under fire, consider advancing for a clearer shot-
       if (Rand.num() < distance && ! underFire) {
         final Target AP = Retreat.pickWithdrawPoint(
-          actor, range, struck, -0.1f
-        ) ;
-        if (AP != null) { dodges = true ; strike.setMoveTarget(AP) ; }
+          actor, range, struck, true
+        );
+        if (AP != null) { dodged = true ; strike.setMoveTarget(AP) ; }
       }
       //
       //  Otherwise, consider falling back for cover-
       if (underFire && Rand.num() > distance) {
         final Target WP = Retreat.pickWithdrawPoint(
-          actor, range, struck, 0.1f
-        ) ;
-        if (WP != null) { dodges = true ; strike.setMoveTarget(WP) ; }
+          actor, range, struck, false
+        );
+        if (WP != null) { dodged = true ; strike.setMoveTarget(WP) ; }
       }
     }
     
-    if (dodges) strike.setProperties(Action.QUICK | Action.TRACKS) ;
+    if (dodged) strike.setProperties(Action.QUICK | Action.TRACKS) ;
     else strike.setProperties(Action.RANGED | Action.QUICK | Action.TRACKS) ;
   }
   
@@ -304,6 +307,8 @@ public class Combat extends Plan implements Qualities {
     Skill offence, Skill defence,
     boolean subdue
   ) {
+    final boolean report = damageVerbose && I.talkAbout == actor;
+    
     //  TODO:  Move weapon/armour properties to dedicated subclasses.
     final boolean canStun = actor.gear.hasDeviceProperty(Economy.STUN);
     float penalty = 0, damage = 0;
@@ -316,7 +321,10 @@ public class Combat extends Plan implements Qualities {
       
     if (success) {
       damage = actor.gear.attackDamage() * Rand.avgNums(2) ;
-      damage -= target.gear.armourRating() * Rand.avgNums(2) ;
+      final float absorb = target.gear.armourRating() * Rand.avgNums(2);
+      damage -= absorb ;
+      
+      if (report) I.say("Damage/absorbed: "+damage+"/"+absorb);
       
       final float oldDamage = damage ;
       damage = target.gear.afterShields(damage, actor.gear.physicalWeapon()) ;
@@ -343,6 +351,8 @@ public class Combat extends Plan implements Qualities {
   static void performSiege(
     Actor actor, Venue besieged
   ) {
+    final boolean report = damageVerbose && I.talkAbout == actor;
+    
     boolean accurate = false ;
     if (actor.gear.meleeWeapon()) {
       accurate = actor.traits.test(HAND_TO_HAND, 0, 1) ;
@@ -357,10 +367,10 @@ public class Combat extends Plan implements Qualities {
     else damage *= 0.5f ;
     
     final float armour = besieged.structure.armouring() ;
-    damage -= armour * (Rand.avgNums(2) + 0.25f) ;
-    damage *= 5f / (5 + armour) ;
+    damage -= armour * Rand.avgNums(2) ;
+    damage *= 10f / (5 + armour) ;
     
-    ///I.say("Armour/Damage: "+armour+"/"+damage) ;
+    if (report) I.say("Armour/Damage: "+armour+"/"+damage);
     
     if (damage > 0) besieged.structure.takeDamage(damage) ;
     DeviceType.applyFX(actor.gear.deviceType(), actor, besieged, true) ;

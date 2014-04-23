@@ -5,7 +5,7 @@ package stratos.game.tactical ;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
-import stratos.game.planet.*;
+import stratos.game.maps.*;
 import stratos.util.*;
 
 

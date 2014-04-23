@@ -227,13 +227,13 @@ public class SupplyDepot extends Venue implements
   
   
   public Background[] careers() {
-    return new Background[] { Background.SUPPLY_CORPS } ;
+    return new Background[] { Backgrounds.SUPPLY_CORPS } ;
   }
   
   
   public int numOpenings(Background v) {
     final int nO = super.numOpenings(v) ;
-    if (v == Background.SUPPLY_CORPS) return nO + 2 ;
+    if (v == Backgrounds.SUPPLY_CORPS) return nO + 2 ;
     return 0 ;
   }
   

@@ -16,6 +16,7 @@ import stratos.util.*;
 
 
 
+//  TODO:  Have relation changes NOT due to dialogue *increase* novelty
 public class Relation {
   
   
@@ -28,23 +29,22 @@ public class Relation {
     TYPE_SPOUSE  = 3,
     TYPE_SIBLING = 4,
     TYPE_LORD    = 5,
-    TYPE_VASSAL  = 6 ;
+    TYPE_VASSAL  = 6;
   
   final public static float
+    MAG_KILLING   = -1.0f,
+    MAG_HARMING   = -0.5f,
     MAG_CHATTING  = 0.33f,
     MAG_HELPING   = 0.66f,
     MAG_SAVE_LIFE = 1.00f;
   
   
   final public static int
-    MIN_ATTITUDE  = -100,
-    MAX_ATTITUDE  =  100,
-    ATTITUDE_SPAN =  MAX_ATTITUDE - MIN_ATTITUDE,
-    ATTITUDE_DIE  =  10 ,
-    NOVELTY_INTERVAL    = World.STANDARD_DAY_LENGTH * 5,
-    FAMILIARITY_UNIT    = 10,
-    BASE_NUM_FRIENDS    = 5 ,
-    MAX_RELATIONS       = 25 ;
+    MAX_VALUE        = 100,
+    NOVELTY_INTERVAL = World.STANDARD_DAY_LENGTH * 5,
+    FAMILIARITY_UNIT = 10,
+    BASE_NUM_FRIENDS = 5 ,
+    MAX_RELATIONS    = 25;
   
   final static String DESCRIPTORS[] = {
     "Soulmate",
@@ -62,7 +62,7 @@ public class Relation {
   final public Accountable object, subject ;
   final private int hash ;
   
-  private float attitude = 0, novelty ;
+  private float attitude = 0, novelty = 0 ;
   private int type = TYPE_GENERIC ;
   
   
@@ -73,8 +73,8 @@ public class Relation {
     this.subject = subject ;
     
     this.hash = Table.hashFor(object, subject) ;
-    this.attitude = initLevel * MAX_ATTITUDE;
-    this.novelty = initNovelty * MAX_ATTITUDE;
+    this.attitude = initLevel * MAX_VALUE;
+    this.novelty = initNovelty * MAX_VALUE;
   }
   
   
@@ -118,17 +118,17 @@ public class Relation {
   /**  Accessing and modifying the content of the relationship-
     */
   protected void update() {
-    novelty += MAX_ATTITUDE * 1f / NOVELTY_INTERVAL;
+    novelty += MAX_VALUE * 1f / NOVELTY_INTERVAL;
   }
   
   
   public float value() {
-    return attitude / MAX_ATTITUDE ;
+    return attitude / MAX_VALUE ;
   }
   
   
   public float novelty() {
-    return novelty / MAX_ATTITUDE;
+    return novelty / MAX_VALUE;
   }
   
   
@@ -142,15 +142,6 @@ public class Relation {
   
   public int type() {
     return type ;
-  }
-  
-  
-  public String descriptor() {
-    final float
-      attSpan = MAX_ATTITUDE - MIN_ATTITUDE,
-      level   = (MAX_ATTITUDE - attitude) / attSpan ;
-    final int DL = DESCRIPTORS.length ;
-    return DESCRIPTORS[Visit.clamp((int) (level * (DL + 1)), DL)] ;
   }
   
   
@@ -168,8 +159,8 @@ public class Relation {
     //  or of opposite sign, make the adjustment.
     if (FastMath.abs(value / level) < 1 || value * level < 0) {
       final float gap = level - value;
-      attitude += gap * weight * MAX_ATTITUDE;
-      attitude = Visit.clamp(attitude, MIN_ATTITUDE, MAX_ATTITUDE);
+      attitude += gap * weight * MAX_VALUE;
+      attitude = Visit.clamp(attitude, -MAX_VALUE, MAX_VALUE);
       //I.say(this+" has value: "+attitude);
     }
     
@@ -177,13 +168,30 @@ public class Relation {
   }
   
   
-  public void setType(int type) {
-    this.type = type ;
+  public void setValue(float value, float novelty) {
+    this.attitude = value * MAX_VALUE;
+    this.novelty = novelty * MAX_VALUE;
   }
   
   
+  public void setType(int type) {
+    this.type = type ;
+  }
+
+  
+  public static String describe(Relation r) {
+    if (r == null) return "None";
+    final float
+      attSpan = MAX_VALUE * 2,
+      level   = (MAX_VALUE - r.attitude) / attSpan ;
+    final int DL = DESCRIPTORS.length ;
+    return DESCRIPTORS[Visit.clamp((int) (level * (DL + 1)), DL)] ;
+  }
+  
+  
+  
   public String toString() {
-    return descriptor()+" relation between "+object+" and "+subject;
+    return describe(this)+" relation between "+object+" and "+subject;
   }
 }
 

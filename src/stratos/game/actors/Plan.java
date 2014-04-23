@@ -341,8 +341,8 @@ public abstract class Plan implements Saveable, Behaviour {
     if (actor.vocation() != null && motiveType == MOTIVE_DUTY) {
       final float workBonus = Plan.DEFAULT_SWITCH_THRESHOLD;
       final int standing = actor.vocation().standing;
-      if (standing == Background.CLASS_STRATOI) classBonus -= workBonus;
-      if (standing == Background.CLASS_NATIVE ) classBonus += workBonus;
+      if (standing == Backgrounds.CLASS_STRATOI) classBonus -= workBonus;
+      if (standing == Backgrounds.CLASS_NATIVE ) classBonus += workBonus;
     }
     
     priority -= chancePenalty;
@@ -458,6 +458,10 @@ public abstract class Plan implements Saveable, Behaviour {
       if (victim != null) hostility += actor.memories.relationValue(victim);
       hostility -= other.memories.relationValue(actor);
       return hostility;
+    }
+    
+    if (threat instanceof Venue) {
+      final Venue venue = (Venue) threat;
     }
     
     //  TODO:  Implement an assessment for venues as well?

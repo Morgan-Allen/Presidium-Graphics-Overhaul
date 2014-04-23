@@ -80,17 +80,17 @@ public class Profile {
     //  TODO:  This needs to be negotiated, or at least modified, based on
     //  reluctance to settle or personal dislike.
     final int standing = actor.vocation().standing ;
-    if (standing == Background.CLASS_NATIVE) return 0 ;
+    if (standing == Backgrounds.CLASS_NATIVE) return 0 ;
     //
     //  Rulers draw directly on the finances of the state if they have any
     //  particular shortage of funds.
-    if (standing == Background.CLASS_STRATOI) {
+    if (standing == Backgrounds.CLASS_STRATOI) {
       if (actor.gear.credits() < Audit.RULER_STIPEND) {
         return Audit.RULER_STIPEND - actor.gear.credits() ;
       }
       else return 0 ;
     }
-    return Background.HIRE_COSTS[standing] ;
+    return Backgrounds.HIRE_COSTS[standing] ;
   }
   
   

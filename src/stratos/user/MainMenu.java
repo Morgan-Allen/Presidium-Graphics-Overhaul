@@ -73,8 +73,8 @@ public class MainMenu extends UIGroup {
     ) ;
     text.append("\n      ") ;
     final Background g = config.male ?
-        Background.MALE_BIRTH :
-        Background.FEMALE_BIRTH ;
+        Backgrounds.MALE_BIRTH :
+        Backgrounds.FEMALE_BIRTH ;
     for (Skill s : g.skills()) {
       text.append(s.name+" +"+g.skillLevel(s)+" ", Colour.LIGHT_GREY) ;
     }
@@ -84,7 +84,7 @@ public class MainMenu extends UIGroup {
     //  a preview image and side-text.
     
     text.append("\n  House:") ;
-    for (Background b : Background.ALL_PLANETS) {
+    for (Background b : Backgrounds.ALL_PLANETS) {
       final System s = (System) b ;
       final Colour c = config.house == s ? Colour.CYAN : null ;
       Call.add("\n    "+s.houseName, c, this, "setHouse", text, s) ;
@@ -95,16 +95,16 @@ public class MainMenu extends UIGroup {
     
     text.append("\n  Favoured skills: ") ;
     text.append("("+config.chosenSkills.size()+"/"+MAX_SKILLS+")") ;
-    for (Skill s : Background.KNIGHTED.skills()) {
-      if (Background.KNIGHTED.skillLevel(s) <= 5) continue ;
+    for (Skill s : Backgrounds.KNIGHTED.skills()) {
+      if (Backgrounds.KNIGHTED.skillLevel(s) <= 5) continue ;
       final Colour c = config.chosenSkills.includes(s) ? Colour.CYAN : null ;
       Call.add("\n    "+s.name, c, this, "toggleSkill", text, s) ;
     }
     
     text.append("\n  Favoured traits: ") ;
     text.append("("+config.chosenTraits.size()+"/"+MAX_TRAITS+")") ;
-    for (Trait t : Background.KNIGHTED.traits()) {
-      final float l = Background.KNIGHTED.traitChance(t) > 0 ? 2 : -2 ;
+    for (Trait t : Backgrounds.KNIGHTED.traits()) {
+      final float l = Backgrounds.KNIGHTED.traitChance(t) > 0 ? 2 : -2 ;
       final String name = Trait.descriptionFor(t, l) ;
       final Colour c = config.chosenTraits.includes(t) ? Colour.CYAN : null ;
       Call.add("\n    "+name, c, this, "toggleTrait", text, t) ;

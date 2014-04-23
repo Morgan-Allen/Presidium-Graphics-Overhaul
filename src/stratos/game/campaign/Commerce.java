@@ -32,7 +32,7 @@ public class Commerce implements Economy {
   System homeworld ;
   List <System> partners = new List <System> () ;
   
-  final static int NUM_J = Background.ALL_BACKGROUNDS.length ;
+  final static int NUM_J = Backgrounds.ALL_BACKGROUNDS.length ;
   final float
     jobSupply[] = new float[NUM_J],
     jobDemand[] = new float[NUM_J] ;
@@ -64,8 +64,8 @@ public class Commerce implements Economy {
     ship = new Dropship() ;
     ship.assignBase(base) ;
     addCrew(ship,
-      Background.SHIP_CAPTAIN,
-      Background.SHIP_MECHANIC
+      Backgrounds.SHIP_CAPTAIN,
+      Backgrounds.SHIP_MECHANIC
     ) ;
     nextVisitTime = Rand.num() * SUPPLY_INTERVAL ;
   }
@@ -74,9 +74,9 @@ public class Commerce implements Economy {
   public void loadState(Session s) throws Exception {
     
     final int hID = s.loadInt() ;
-    homeworld = hID == -1 ? null : (System) Background.ALL_BACKGROUNDS[hID] ;
+    homeworld = hID == -1 ? null : (System) Backgrounds.ALL_BACKGROUNDS[hID] ;
     for (int n = s.loadInt() ; n-- > 0 ;) {
-      partners.add((System) Background.ALL_BACKGROUNDS[s.loadInt()]) ;
+      partners.add((System) Backgrounds.ALL_BACKGROUNDS[s.loadInt()]) ;
     }
     
     for (int i = NUM_J ; i-- > 0 ;) {
@@ -162,7 +162,7 @@ public class Commerce implements Economy {
     if ((numUpdates % UPDATE_INTERVAL) != 0) return ;
     
     final float inc = DEMAND_INC, timeGone = UPDATE_INTERVAL / APPLY_INTERVAL ;
-    for (Background b : Background.ALL_BACKGROUNDS) {
+    for (Background b : Backgrounds.ALL_BACKGROUNDS) {
       final int i = b.ID ;
       jobDemand[i] *= (1 - inc) ;
       jobDemand[i] = Math.max(jobDemand[i] - (inc / 100), 0) ;
@@ -177,7 +177,7 @@ public class Commerce implements Economy {
     
     if (verbose) I.say("\nChecking for new candidates...");
     
-    for (Background b : Background.ALL_BACKGROUNDS) {
+    for (Background b : Backgrounds.ALL_BACKGROUNDS) {
       final float supply = jobSupply[b.ID], demand = jobDemand[b.ID] ;
       if (demand == 0) continue ;
       //float applyChance = (demand * MAX_APPLICANTS) - supply ;
@@ -475,7 +475,7 @@ public boolean genCandidate(Background vocation, Venue venue, int numOpen) {
   //  This requires more work on the subject of pricing.  Some will join for
   //  free, but others need enticement, depending on distance and willingness
   //  to relocate, and the friendliness of the home system.
-  final int signingCost = Background.HIRE_COSTS[vocation.standing] ;
+  final int signingCost = Backgrounds.HIRE_COSTS[vocation.standing] ;
   venue.personnel.applyFor(vocation, candidate, signingCost) ;
   //
   //  Insert the candidate in local records, and return.

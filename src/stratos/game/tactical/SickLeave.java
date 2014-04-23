@@ -62,8 +62,8 @@ public class SickLeave extends Plan {
     float impetus = needed.baseUrgency() - crowding ;
     if (needed.type == Treatment.TYPE_PSYCH_EVAL) {
       final Background v = actor.vocation() ;
-      if (v.guild == Background.GUILD_MILITANT) return impetus ;
-      if (v.standing >= Background.UPPER_CLASS) return impetus ;
+      if (v.guild == Backgrounds.GUILD_MILITANT) return impetus ;
+      if (v.standing >= Backgrounds.UPPER_CLASS) return impetus ;
       impetus *= (0.5f - actor.health.moraleLevel()) ;
     }
     

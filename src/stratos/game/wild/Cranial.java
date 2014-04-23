@@ -4,7 +4,7 @@
 package stratos.game.wild ;
 import stratos.game.actors.* ;
 import stratos.game.common.* ;
-import stratos.game.planet.* ;
+import stratos.game.maps.*;
 import stratos.game.building.* ;
 import stratos.graphics.common.* ;
 import stratos.graphics.solids.* ;
@@ -96,8 +96,8 @@ public class Cranial extends Artilect implements Economy {
   public String helpInfo() {
     return
       "Cranials are cunning, quasi-organic machine intelligences that direct "+
-      "the efforts of their lesser brethren.  They have a marked propensity "+
-      "for tortuous experiments on living creatures.";
+      "the efforts of their lesser brethren.  They appear to have a marked "+
+      "propensity for tortuous experiments on living creatures.";
   }
   
   

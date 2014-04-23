@@ -1,7 +1,7 @@
 
 
 
-package stratos.game.planet ;
+package stratos.game.maps ;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;

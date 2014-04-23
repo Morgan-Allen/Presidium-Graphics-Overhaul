@@ -8,7 +8,7 @@ package stratos.game.base ;
 import stratos.game.civilian.Foraging;
 import stratos.game.civilian.Forestry;
 import stratos.game.common.* ;
-import stratos.game.planet.* ;
+import stratos.game.maps.*;
 import stratos.game.actors.* ;
 import stratos.game.building.* ;
 import stratos.graphics.common.* ;
@@ -95,7 +95,7 @@ public class BotanicalStation extends Venue implements Economy {
       "Hire additional field hands to plant and reap the harvest more "+
       "quickly, maintain equipment, and bring land under cultivation.",
       50,
-      Background.CULTIVATOR, 1,
+      Backgrounds.CULTIVATOR, 1,
       null, ALL_UPGRADES
     ),
     TREE_FARMING = new Upgrade(
@@ -120,7 +120,7 @@ public class BotanicalStation extends Venue implements Economy {
       "Ecologists are highly-skilled students of plants, animals and gene "+
       "modification, capable of adapting species to local climate conditions.",
       150,
-      Background.ECOLOGIST, 1,
+      Backgrounds.ECOLOGIST, 1,
       TREE_FARMING, ALL_UPGRADES
     ) ;
   
@@ -145,7 +145,7 @@ public class BotanicalStation extends Venue implements Economy {
     //
     //  Forestry may have to be performed, depending on need for gene samples-
     final Forestry f = new Forestry(actor, this) ;
-    if (needsSeed && actor.vocation() == Background.ECOLOGIST) {
+    if (needsSeed && actor.vocation() == Backgrounds.ECOLOGIST) {
       f.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
       f.configureFor(Forestry.STAGE_SAMPLING);
     }
@@ -159,7 +159,7 @@ public class BotanicalStation extends Venue implements Economy {
     final float shortages =
       stocks.shortagePenalty(CARBS) +
       stocks.shortagePenalty(GREENS) ;
-    if (actor.vocation() == Background.CULTIVATOR && shortages > 0) {
+    if (actor.vocation() == Backgrounds.CULTIVATOR && shortages > 0) {
       final Foraging foraging = new Foraging(actor, this) ;
       foraging.setMotive(Plan.MOTIVE_EMERGENCY, Plan.CASUAL + shortages);
       choice.add(foraging) ;
@@ -168,7 +168,7 @@ public class BotanicalStation extends Venue implements Economy {
     //  And lower-priority tending and upkeep also gets an appearance-
     for (Plantation p : allotments) if (p.type == Plantation.TYPE_NURSERY) {
       for (Species s : Plantation.ALL_VARIETIES) {
-        if (actor.vocation() == Background.ECOLOGIST) {
+        if (actor.vocation() == Backgrounds.ECOLOGIST) {
           final SeedTailoring t = new SeedTailoring(actor, p, s) ;
           if (personnel.assignedTo(t) > 0) continue ;
           choice.add(t) ;
@@ -233,7 +233,7 @@ public class BotanicalStation extends Venue implements Economy {
       }
       //
       //  Then, calculate how many allotments one should have.
-      int maxAllots = 2 * personnel.numHired(Background.CULTIVATOR);
+      int maxAllots = 2 * personnel.numHired(Backgrounds.CULTIVATOR);
       maxAllots *= STRIP_SIZE ;
       if (maxAllots > allotments.size()) {
         //
@@ -265,8 +265,8 @@ public class BotanicalStation extends Venue implements Economy {
 
   public int numOpenings(Background v) {
     int num = super.numOpenings(v) ;
-    if (v == Background.CULTIVATOR) return num + 2 ;
-    if (v == Background.ECOLOGIST ) return num + 1 ;
+    if (v == Backgrounds.CULTIVATOR) return num + 2 ;
+    if (v == Backgrounds.ECOLOGIST ) return num + 1 ;
     return 0 ;
   }
   
@@ -282,7 +282,7 @@ public class BotanicalStation extends Venue implements Economy {
   
   
   public Background[] careers() {
-    return new Background[] { Background.ECOLOGIST, Background.CULTIVATOR } ;
+    return new Background[] { Backgrounds.ECOLOGIST, Backgrounds.CULTIVATOR } ;
   }
   
   

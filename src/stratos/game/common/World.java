@@ -8,7 +8,8 @@
 package stratos.game.common ;
 import stratos.game.actors.*;
 import stratos.game.common.WorldSections.Section;
-import stratos.game.planet.*;
+import stratos.game.maps.*;
+import stratos.game.campaign.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.start.*;
@@ -34,7 +35,8 @@ public class World {
     STANDARD_DAY_LENGTH  = 480,
     STANDARD_YEAR_LENGTH = STANDARD_DAY_LENGTH * DAYS_PER_YEAR,
     GROWTH_INTERVAL      = STANDARD_DAY_LENGTH / 2,
-    DEFAULT_INIT_TIME    = STANDARD_DAY_LENGTH / 3 ;
+    DEFAULT_INIT_TIME    = STANDARD_DAY_LENGTH / 3;
+  
   private static boolean verbose = false;
   
   
@@ -50,6 +52,7 @@ public class World {
   private Ecology ecology ;
   private List <Base> bases = new List <Base> () ;
   
+  final public Setting setting = new Setting();
   final public Activities activities ;
   final public PathingCache pathingCache ;
   final public Presences presences ;
@@ -97,6 +100,7 @@ public class World {
     for (int n = s.loadInt() ; n-- > 0 ;) {
       toggleActive((Mobile) s.loadObject(), true) ;
     }
+    setting.loadState(s);
     activities.loadState(s) ;
     presences.loadState(s) ;
     ephemera.loadState(s) ;
@@ -118,6 +122,7 @@ public class World {
     s.saveObjects(bases) ;
     s.saveInt(mobiles.size()) ;
     for (Mobile m : mobiles) s.saveObject(m) ;
+    setting.saveState(s);
     activities.saveState(s) ;
     presences.saveState(s) ;
     ephemera.saveState(s) ;

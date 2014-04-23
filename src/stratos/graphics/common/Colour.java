@@ -108,6 +108,10 @@ public class Colour {
   
   /**  Helper methods for format conversion-
     */
+  public void calcBitValue() {
+    bitValue = toFloatBits();
+  }
+  
   private float toFloatBits() {
     final float o = FastMath.abs(a);
     final int color =

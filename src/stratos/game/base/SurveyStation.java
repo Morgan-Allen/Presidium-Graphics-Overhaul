@@ -4,8 +4,9 @@ package stratos.game.base ;
 import stratos.game.actors.* ;
 import stratos.game.building.* ;
 import stratos.game.common.* ;
-import stratos.game.planet.* ;
+import stratos.game.maps.*;
 import stratos.game.tactical.* ;
+import stratos.game.wild.Fauna;
 import stratos.graphics.common.* ;
 import stratos.graphics.cutout.* ;
 import stratos.graphics.widgets.* ;
@@ -103,7 +104,7 @@ public class SurveyStation extends Venue implements Economy {
       "Explorers are rugged outdoorsman that combine scientific curiosity "+
       "with a respect for natural ecosystems and basic self-defence training.",
       100,
-      null, 1, null, ALL_UPGRADES
+      Backgrounds.EXPLORER, 1, null, ALL_UPGRADES
     ) ;
   
   
@@ -141,13 +142,13 @@ public class SurveyStation extends Venue implements Economy {
   
   
   public Background[] careers() {
-    return new Background[] { Background.EXPLORER } ;
+    return new Background[] { Backgrounds.EXPLORER } ;
   }
   
   
   public int numOpenings(Background v) {
     final int nO = super.numOpenings(v) ;
-    if (v == Background.EXPLORER) {
+    if (v == Backgrounds.EXPLORER) {
       return nO + 3 + structure.upgradeLevel(EXPLORER_STATION) ;
     }
     return 0 ;

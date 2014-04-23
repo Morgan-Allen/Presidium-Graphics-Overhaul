@@ -5,7 +5,7 @@ package stratos.game.building ;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
-import stratos.game.planet.Species;
+import stratos.game.maps.Species;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
 import stratos.user.*;
@@ -118,10 +118,10 @@ public class Suspensor extends Mobile {
     //  And if you have a passenger, update their position.
     if (passenger != null) {
       if (followed.indoors()) {
-        final Boardable toBoard = followed.aboard() ;
-        ///I.say("Transferring "+passenger+" to: "+toBoard) ;
-        passenger.goAboard(toBoard, world) ;
-        passenger.setHeading(toBoard.position(null), 0, false, world) ;
+        final Boardable toBoard = followed.aboard();
+        goAboard(toBoard, world);
+        passenger.goAboard(toBoard, world);
+        passenger.setHeading(toBoard.position(null), 0, false, world);
       }
       else {
         final Vec3D raise = new Vec3D(nextPosition) ;

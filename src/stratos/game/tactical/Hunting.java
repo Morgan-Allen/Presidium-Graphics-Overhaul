@@ -10,7 +10,9 @@ import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
-import stratos.game.planet.*;
+import stratos.game.maps.*;
+import stratos.game.wild.Fauna;
+import stratos.game.wild.Nest;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -131,7 +133,6 @@ public class Hunting extends Combat implements Economy {
     
     //  TODO:  Either hunger or sense of duty could be the basic motivation
     //  here.  I need a rigorous and consistent way to apply that.
-    
     
     if (type == TYPE_FEEDS) {
       urgency = hunger * PARAMOUNT * (0.5f + Math.min(crowding, hunger));

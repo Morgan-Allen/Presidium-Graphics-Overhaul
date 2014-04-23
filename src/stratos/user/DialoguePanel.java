@@ -21,8 +21,18 @@ public class DialoguePanel extends InfoPanel implements UIConstants {
   
   
   public DialoguePanel(
-    final BaseUI UI, final Composite portrait,
-    String title, String initText, Clickable... options
+    BaseUI UI, Composite portrait,
+    String title, String initText,
+    Series <? extends Clickable> options
+  ) {
+    this(UI, portrait, title, initText, options.toArray(Clickable.class));
+  }
+  
+  
+  public DialoguePanel(
+    BaseUI UI, Composite portrait,
+    String title, String initText,
+    Clickable... options
   ) {
     super(UI, null, portrait, false);
     this.title = title;

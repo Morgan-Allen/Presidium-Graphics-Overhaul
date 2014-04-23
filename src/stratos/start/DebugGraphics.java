@@ -68,7 +68,7 @@ public class DebugGraphics {
         final SolidSprite SS = (SolidSprite) SM.makeSprite();
         sprites.add(SS);
         SS.position.y = 2;
-        SS.scale = 2.5f;
+        SS.scale = 1.5f;
         
         final SolidSprite spriteA = (SolidSprite) HUMAN_MODEL.makeSprite();
         spriteA.showOnly(AnimNames.MAIN_BODY);

@@ -2,15 +2,15 @@
 
 
 package stratos.game.wild ;
-import static stratos.game.actors.Background.CHIEFTAIN;
-import static stratos.game.actors.Background.GATHERER;
-import static stratos.game.actors.Background.HUNTER;
-import static stratos.game.actors.Background.NATIVE_BIRTH;
-import static stratos.game.actors.Background.PLANET_DIAPSOR;
+import static stratos.game.actors.Backgrounds.CHIEFTAIN;
+import static stratos.game.actors.Backgrounds.GATHERER;
+import static stratos.game.actors.Backgrounds.HUNTER;
+import static stratos.game.actors.Backgrounds.NATIVE_BIRTH;
+import static stratos.game.actors.Backgrounds.PLANET_DIAPSOR;
 import stratos.game.actors.* ;
 import stratos.game.building.* ;
 import stratos.game.common.* ;
-import stratos.game.planet.* ;
+import stratos.game.maps.*;
 import stratos.graphics.common.* ;
 import stratos.graphics.cutout.* ;
 import stratos.graphics.widgets.* ;
@@ -230,10 +230,10 @@ public class NativeHut extends Venue {
     final Batch <Actor> populace = new Batch <Actor> ();
     final World world = hut.world() ;
     final Background NB = NATIVE_BIRTH, NH = PLANET_DIAPSOR ;
-    Background cleric = Background.SHAMAN ;
+    Background cleric = Backgrounds.SHAMAN ;
     /*
     if (parent.tribeID == TRIBE_WASTES || Rand.index(5) == 0) {
-      cleric = Rand.yes() ? Background.C CARGO_CULTIST : MUTANT_PARIAH ;
+      cleric = Rand.yes() ? Backgrounds.C CARGO_CULTIST : MUTANT_PARIAH ;
     }
     //*/
     

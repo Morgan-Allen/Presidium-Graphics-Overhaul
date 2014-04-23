@@ -9,7 +9,7 @@ package stratos.game.actors ;
 import stratos.game.building.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
-import stratos.game.planet.*;
+import stratos.game.maps.*;
 import stratos.game.tactical.Combat;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;

@@ -27,7 +27,7 @@ public class Career implements Qualities {
   public Career(
     boolean male, Background vocation, Background birth, Background homeworld
   ) {
-    this.gender = male ? Background.MALE_BIRTH : Background.FEMALE_BIRTH ;
+    this.gender = male ? Backgrounds.MALE_BIRTH : Backgrounds.FEMALE_BIRTH ;
     this.vocation = vocation ;
     this.birth = birth ;
     this.homeworld = homeworld ;
@@ -149,20 +149,20 @@ public class Career implements Qualities {
     Background root = vocation ;
     if (birth == null) {
       final Batch <Float> weights = new Batch <Float> () ;
-      for (Background v : Background.OPEN_CLASSES) {
+      for (Background v : Backgrounds.OPEN_CLASSES) {
         weights.add(ratePromotion(root, actor)) ;
       }
       birth = (Background) Rand.pickFrom(
-        Background.OPEN_CLASSES, weights.toArray()
+        Backgrounds.OPEN_CLASSES, weights.toArray()
       ) ;
     }
     if (homeworld == null) {
       final Batch <Float> weights = new Batch <Float> () ;
-      for (Background v : Background.ALL_PLANETS) {
+      for (Background v : Backgrounds.ALL_PLANETS) {
         weights.add(ratePromotion(root, actor)) ;
       }
       homeworld = (Background) Rand.pickFrom(
-        Background.ALL_PLANETS, weights.toArray()
+        Backgrounds.ALL_PLANETS, weights.toArray()
       ) ;
     }
     applyVocation(homeworld, actor) ;
@@ -181,24 +181,24 @@ public class Career implements Qualities {
       if (s.form == FORM_SENSITIVE) minSens = Math.max(level, minSens + 1) ;
       if (s.form == FORM_PHYSICAL ) minPhys = Math.max(level, minPhys + 1) ;
     }
-    actor.traits.raiseLevel(MUSCULAR    , (minPhys + Rand.rollDice(3, 7)) / 2f) ;
-    actor.traits.raiseLevel(IMMUNE   , (minPhys + Rand.rollDice(3, 7)) / 2f) ;
-    actor.traits.raiseLevel(MOTOR   , (minSens + Rand.rollDice(3, 7)) / 2f) ;
-    actor.traits.raiseLevel(PERCEPT  , (minSens + Rand.rollDice(3, 7)) / 2f) ;
-    actor.traits.raiseLevel(COGNITION, (minCogn + Rand.rollDice(3, 7)) / 2f) ;
-    actor.traits.raiseLevel(NERVE     , (minCogn + Rand.rollDice(3, 7)) / 2f) ;
+    actor.traits.raiseLevel(MUSCULAR , (minPhys + Rand.rollDice(3, 7)) / 2f);
+    actor.traits.raiseLevel(IMMUNE   , (minPhys + Rand.rollDice(3, 7)) / 2f);
+    actor.traits.raiseLevel(MOTOR    , (minSens + Rand.rollDice(3, 7)) / 2f);
+    actor.traits.raiseLevel(PERCEPT  , (minSens + Rand.rollDice(3, 7)) / 2f);
+    actor.traits.raiseLevel(COGNITION, (minCogn + Rand.rollDice(3, 7)) / 2f);
+    actor.traits.raiseLevel(NERVE    , (minCogn + Rand.rollDice(3, 7)) / 2f);
   }
   
   
   private void applySex(Human actor) {
     if (gender == null) {
       final float
-        rateM = ratePromotion(Background.MALE_BIRTH  , actor),
-        rateF = ratePromotion(Background.FEMALE_BIRTH, actor) ;
+        rateM = ratePromotion(Backgrounds.MALE_BIRTH  , actor),
+        rateF = ratePromotion(Backgrounds.FEMALE_BIRTH, actor) ;
       if (rateM * Rand.avgNums(2) > rateF * Rand.avgNums(2)) {
-        gender = Background.MALE_BIRTH ;
+        gender = Backgrounds.MALE_BIRTH ;
       }
-      else gender = Background.FEMALE_BIRTH ;
+      else gender = Backgrounds.FEMALE_BIRTH ;
     }
     //
     //  TODO:  Some of these traits need to be rendered 'dormant' in younger
@@ -206,7 +206,7 @@ public class Career implements Qualities {
     applyVocation(gender, actor) ;
     float ST = Visit.clamp(Rand.rangeAvg(-1, 3, 2), 0, 3) ;
     if (Rand.index(20) == 0) ST = -1 ;
-    if (gender == Background.FEMALE_BIRTH) {
+    if (gender == Backgrounds.FEMALE_BIRTH) {
       actor.traits.setLevel(GENDER, "Female") ;
       actor.traits.setLevel(FEMININE, ST) ;
     }

@@ -137,6 +137,13 @@ public class VenueStocks extends Inventory implements Economy {
   }
   
   
+  public Batch <Service> demanded() {
+    final Batch <Service> batch = new Batch <Service> ();
+    for (Demand d : demands.values()) batch.add(d.type);
+    return batch;
+  }
+  
+  
   public Batch <Item> shortages() {
     final Batch <Item> batch = new Batch <Item> () ;
     for (Demand d : demands.values()) {

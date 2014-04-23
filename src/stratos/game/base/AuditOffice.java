@@ -141,7 +141,7 @@ public class AuditOffice extends Venue implements Economy {
     
     final int linkMod = (int) (5 * (1 - stocks.shortagePenalty(DATALINKS))) ;
     
-    if (actor.vocation() == Background.AUDITOR) {
+    if (actor.vocation() == Backgrounds.AUDITOR) {
       final Venue toAudit = Audit.nextToAuditFor(actor) ;
       if (toAudit != null) {
         final Audit a = new Audit(actor, toAudit) ;
@@ -154,7 +154,7 @@ public class AuditOffice extends Venue implements Economy {
       //  publication.  Use local information only.
     }
     
-    if (actor.vocation() == Background.ADVERTISER) {
+    if (actor.vocation() == Backgrounds.ADVERTISER) {
       Batch <Venue> clients = new Batch <Venue> () ;
       world.presences.sampleFromMap(this, world, 5, clients, Holding.class) ;
       
@@ -193,10 +193,10 @@ public class AuditOffice extends Venue implements Economy {
   
   public int numOpenings(Background v) {
     final int nO = super.numOpenings(v) ;
-    if (v == Background.AUDITOR) {
+    if (v == Backgrounds.AUDITOR) {
       return nO + 1 + (structure.upgradeLevel(FILE_SYSTEM) / 2) ;
     }
-    if (v == Background.ADVERTISER) {
+    if (v == Backgrounds.ADVERTISER) {
       return nO + 1 + (structure.upgradeLevel(PRESS_OFFICE) / 2) ;
     }
     return 0 ;
@@ -267,7 +267,7 @@ public class AuditOffice extends Venue implements Economy {
   
   
   public Background[] careers() {
-    return new Background[] { Background.AUDITOR, Background.ADVERTISER } ;
+    return new Background[] { Backgrounds.AUDITOR, Backgrounds.ADVERTISER } ;
   }
   
   

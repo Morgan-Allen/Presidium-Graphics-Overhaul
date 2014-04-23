@@ -76,7 +76,7 @@ public class Fabricator extends Venue implements Economy {
       "Fabricator Station",
       "Fabricators are responsible for the bulk production of textiles, "+
       "domestic utensils and other lightweight goods.",
-      100, Background.FABRICATOR, 1, POLYMER_LOOM, ALL_UPGRADES
+      100, Backgrounds.FABRICATOR, 1, POLYMER_LOOM, ALL_UPGRADES
     ),
     CUTTING_FLOOR = new Upgrade(
       "Cutting Floor",
@@ -98,7 +98,7 @@ public class Fabricator extends Venue implements Economy {
       "Aesthetes are gifted, but often somewhat tempestuous individuals "+
       "with a flair for visual expression and eye-catching designs, able and "+
       "willing to cater to demanding patrons.",
-      150, Background.AESTHETE, 1, DESIGN_STUDIO, ALL_UPGRADES
+      150, Backgrounds.AESTHETE, 1, DESIGN_STUDIO, ALL_UPGRADES
     )
   ;
   
@@ -161,8 +161,8 @@ public class Fabricator extends Venue implements Economy {
   
   public int numOpenings(Background v) {
     int nO = super.numOpenings(v) ;
-    if (v == Background.FABRICATOR) return nO + 1 ;
-    if (v == Background.AESTHETE  ) return nO + 1 ;
+    if (v == Backgrounds.FABRICATOR) return nO + 1 ;
+    if (v == Backgrounds.AESTHETE  ) return nO + 1 ;
     return 0 ;
   }
   
@@ -176,7 +176,7 @@ public class Fabricator extends Venue implements Economy {
   
   
   public Background[] careers() {
-    return new Background[] { Background.FABRICATOR, Background.AESTHETE } ;
+    return new Background[] { Backgrounds.FABRICATOR, Backgrounds.AESTHETE } ;
   }
   
   

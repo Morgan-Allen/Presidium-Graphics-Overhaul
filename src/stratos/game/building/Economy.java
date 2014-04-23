@@ -26,7 +26,7 @@ public interface Economy extends Qualities {
   
   
   final static float
-    NUM_WEAR_DAYS = Background.NUM_DAYS_PAY;
+    NUM_WEAR_DAYS = Backgrounds.NUM_DAYS_PAY;
   
   final static Class BC = Economy.class ;
   final public static int

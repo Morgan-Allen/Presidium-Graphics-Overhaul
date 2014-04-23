@@ -102,7 +102,7 @@ public class InfoPanel extends UIGroup implements UIConstants {
     this.innerRegion = new UIGroup(UI);
     innerRegion.relBound.set(0, 0, 1, 1);
     innerRegion.absBound.set(
-      25 + across, 5, -(25 + 20 + across), -(5 + 25)
+      25 + across, 15, -(25 + 20 + across), -(15 + 25)
     );
     innerRegion.attachTo(this);
     
@@ -196,6 +196,11 @@ public class InfoPanel extends UIGroup implements UIConstants {
   
   public int categoryID() {
     return categoryID;
+  }
+  
+  
+  public String category() {
+    return categories[categoryID];
   }
   
   

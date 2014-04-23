@@ -6,7 +6,7 @@ package stratos.game.civilian ;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
-import stratos.game.planet.*;
+import stratos.game.maps.*;
 import stratos.game.tactical.*;
 import stratos.user.*;
 import stratos.util.*;
@@ -76,6 +76,7 @@ public class Resting extends Plan implements Economy {
     if (restPoint == actor.mind.home()) modifier += 2 ;
     if (restPoint instanceof Venue) {
       final Venue venue = (Venue) restPoint ;
+      if (! venue.structure.intact()) return 0;
       final float relation = actor.memories.relationValue(venue) ;
       if (relation > 0) modifier *= relation ;
       else modifier -= relation * 5 ;

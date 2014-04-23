@@ -89,7 +89,7 @@ public class Sickbay extends Venue implements Economy {
       "to diet and sanitary needs, but are only familiar with more common "+
       "medications and standard emergency protocol.",
       50,
-      Background.MINDER, 1, APOTHECARY, ALL_UPGRADES
+      Backgrounds.MINDER, 1, APOTHECARY, ALL_UPGRADES
     ),
     NEURAL_SCANNING = new Upgrade(
       "Neural Scanning",
@@ -113,7 +113,7 @@ public class Sickbay extends Venue implements Economy {
       "metabolism and anatomy, are adept as surgeons, and can tailor their "+
       "treatments to the idiosyncracies of a given patient.",
       150,
-      Background.PHYSICIAN, 1, EMERGENCY_AID, ALL_UPGRADES
+      Backgrounds.PHYSICIAN, 1, EMERGENCY_AID, ALL_UPGRADES
     ) ;
   
   
@@ -260,14 +260,14 @@ public class Sickbay extends Venue implements Economy {
   
   
   public Background[] careers() {
-    return new Background[] { Background.MINDER, Background.PHYSICIAN } ;
+    return new Background[] { Backgrounds.MINDER, Backgrounds.PHYSICIAN } ;
   }
   
   
   public int numOpenings(Background v) {
     final int nO = super.numOpenings(v) ;
-    if (v == Background.MINDER) return nO + 1 ;
-    if (v == Background.PHYSICIAN) return nO + 1 ;
+    if (v == Backgrounds.MINDER) return nO + 1 ;
+    if (v == Backgrounds.PHYSICIAN) return nO + 1 ;
     return 0 ;
   }
   

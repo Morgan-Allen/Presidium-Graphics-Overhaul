@@ -4,7 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package stratos.game.planet ;
+package stratos.game.maps ;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
 

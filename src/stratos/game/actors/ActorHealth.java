@@ -212,6 +212,21 @@ public class ActorHealth implements Qualities {
   }
   
   
+  public void setInjuryLevel(float level) {
+    injury = level * maxHealth * MAX_INJURY;
+  }
+  
+  
+  public void setFatigueLevel(float level) {
+    fatigue = level * maxHealth * MAX_FATIGUE;
+  }
+  
+  
+  public void setMoraleLevel(float level) {
+    morale = level;
+  }
+  
+  
   
   /**  Methods related to growth, reproduction, aging and death.
     */
@@ -546,8 +561,13 @@ public class ActorHealth implements Qualities {
   
   
   private void updateStresses() {
+    
+    //  Inorganic targets get a different selection of perks and drawbacks-
     if (state >= STATE_SUSPEND || ! organic()) {
       bleeds = false;
+      morale = 0;
+      float fatigueRegen = maxHealth * FATIGUE_GROW_PER_DAY / DEFAULT_HEALTH;
+      fatigue = Visit.clamp(fatigue - fatigueRegen, 0, maxHealth);
       return ;
     }
     

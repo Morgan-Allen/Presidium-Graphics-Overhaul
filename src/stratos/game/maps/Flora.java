@@ -4,7 +4,7 @@
  *  for now, feel free to poke around for non-commercial purposes.
  */
 
-package stratos.game.planet;
+package stratos.game.maps;
 import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
@@ -96,7 +96,7 @@ public class Flora extends Element implements TileConstants {
   
   
   public static boolean canGrowAt(Tile t) {
-    if (t.blocked()) return false;
+    if (t.blocked() || t.inside().size() > 0) return false;
     final float growChance = growChance(t);
     if (growChance == -1) return false;
     final int crowding = crowdingAt(t);

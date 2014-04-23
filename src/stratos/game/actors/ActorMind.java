@@ -12,7 +12,7 @@ import org.apache.commons.math3.util.FastMath;
 import stratos.game.building.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
-import stratos.game.planet.*;
+import stratos.game.maps.*;
 import stratos.game.tactical.*;
 import stratos.user.*;
 import stratos.util.*;
@@ -312,6 +312,12 @@ public abstract class ActorMind implements Qualities {
   }
   
   
+  public void assignToDo(Behaviour toDo) {
+    if (wouldSwitchTo(toDo)) assignBehaviour(toDo);
+    else todoList.include(toDo);
+  }
+  
+  
   public void assignBehaviour(Behaviour behaviour) {
     if (behaviour == null) I.complain("CANNOT ASSIGN NULL BEHAVIOUR.") ;
     final boolean report = decisionVerbose && I.talkAbout == actor;
@@ -345,7 +351,10 @@ public abstract class ActorMind implements Qualities {
   
   public void cancelBehaviour(Behaviour b) {
     if (b == null) return ;
-    if (decisionVerbose && I.talkAbout == actor) I.say("\nCANCELLING "+b);
+    if (decisionVerbose && I.talkAbout == actor) {
+      I.say("\nCANCELLING "+b);
+      ///new Exception().printStackTrace();
+    }
     
     if (agenda.includes(b)) while (agenda.size() > 0) {
       final Behaviour popped = popBehaviour() ;

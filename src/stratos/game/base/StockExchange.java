@@ -126,7 +126,7 @@ public class StockExchange extends Venue implements Economy {
       "Vendor Station",
       "Vendors are responsible for transport and presentation of both "+
       "essential commodities and luxury goods.",
-      100, Background.STOCK_VENDOR, 1, null, ALL_UPGRADES
+      100, Backgrounds.STOCK_VENDOR, 1, null, ALL_UPGRADES
     ),
     
     CREDITS_RESERVE = new Upgrade(
@@ -140,7 +140,7 @@ public class StockExchange extends Venue implements Economy {
   
   public int numOpenings(Background p) {
     final int nO = super.numOpenings(p) ;
-    if ( p == Background.STOCK_VENDOR) return nO + 2 ;
+    if ( p == Backgrounds.STOCK_VENDOR) return nO + 2 ;
     return 0 ;
   }
   
@@ -245,7 +245,7 @@ public class StockExchange extends Venue implements Economy {
   
   
   public Background[] careers() {
-    return new Background[] { Background.STOCK_VENDOR } ;
+    return new Background[] { Backgrounds.STOCK_VENDOR } ;
   }
   
   

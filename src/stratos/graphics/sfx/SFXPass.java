@@ -157,7 +157,7 @@ public class SFXPass {
     
     for (int i = 0 ; i < 4 ; i++) {
       final int offset = total + (i * VERT_SIZE);
-      rendering.view.worldToGL(verts[i], temp);
+      Viewport.worldToGL(verts[i], temp);
       vertComp[X0 + offset] = temp.x;
       vertComp[Y0 + offset] = temp.y;
       vertComp[Z0 + offset] = temp.z;
@@ -189,10 +189,7 @@ public class SFXPass {
       );
       //  TODO:  This still needs working on.  z coords in particular need to
       //  be preserved?
-      if (fromScreen) {
-        rendering.view.translateFromScreen(v);
-        //v.scale(1f / rendering.view.screenScale());
-      }
+      if (fromScreen) rendering.view.translateFromScreen(v);
     }
     compileQuad(tex, colour, SFX.verts, umin, vmin, umax, vmax, vivid);
   }

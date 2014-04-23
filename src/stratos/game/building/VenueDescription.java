@@ -4,7 +4,8 @@ package stratos.game.building;
 import stratos.game.actors.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
-import stratos.game.planet.*;
+import stratos.game.maps.*;
+import static stratos.game.building.Venue.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
@@ -12,39 +13,40 @@ import stratos.util.*;
 
 
 
-
 //  NOTE:  I'm moving these methods here essentially for the sake of reducing
 //  clutter/space demands within the main Venue class.
-
 
 public class VenueDescription {
   
   
+  final String categories[];
   final Venue v;
   private static Upgrade lastCU ;  //last clicked upgrade.
  
   
-  private VenueDescription(Venue v) {
+  protected VenueDescription(Venue v, String... categories) {
+    this.categories = categories;
     this.v = v;
   }
   
   
-  public static InfoPanel configInfoPanel(
+  public static InfoPanel configPanelWith(
+    Venue venue, InfoPanel panel, BaseUI UI, String... categories
+  ) {
+    final VenueDescription VD = new VenueDescription(
+      venue, categories
+    );
+    return VD.configPanel(panel, UI);
+  }
+  
+  
+  public static InfoPanel configStandardPanel(
     Venue venue, InfoPanel panel, BaseUI UI
   ) {
-    if (panel == null) panel = new InfoPanel(
-      UI, venue, venue.portrait(UI), "STATUS", "STAFF", "STOCK", "UPGRADES"
+    final VenueDescription VD = new VenueDescription(
+      venue, CAT_STATUS, CAT_STAFF, CAT_STOCK, CAT_UPGRADES
     );
-    final int categoryID = panel.categoryID();
-    final Description d = panel.detail();
-
-    lastCU = null ;
-    final VenueDescription VD = new VenueDescription(venue);
-    if (categoryID == 0) VD.describeCondition(d, UI, true) ;
-    if (categoryID == 1) VD.describePersonnel(d, UI) ;
-    if (categoryID == 2) VD.describeStocks(d, UI) ;
-    if (categoryID == 3) VD.describeUpgrades(d, UI) ;
-    return panel;
+    return VD.configPanel(panel, UI);
   }
   
   
@@ -62,6 +64,25 @@ public class VenueDescription {
       d.append(statusMessage);
     }
     return panel;
+  }
+  
+  
+  public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
+    if (panel == null) panel = new InfoPanel(
+      UI, v, v.portrait(UI), categories
+    );
+    final String category = panel.category();
+    final Description d = panel.detail();
+    describeCategory(d, UI, category);
+    return panel;
+  }
+  
+  
+  protected void describeCategory(Description d, BaseUI UI, String catID) {
+    if (catID == CAT_STATUS  ) describeCondition(d, UI, true) ;
+    if (catID == CAT_STAFF   ) describePersonnel(d, UI) ;
+    if (catID == CAT_STOCK   ) describeStocks(d, UI) ;
+    if (catID == CAT_UPGRADES) describeUpgrades(d, UI) ;
   }
   
   

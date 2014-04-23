@@ -3,7 +3,7 @@
 
 package stratos.game.tactical ;
 import stratos.game.common.*;
-import stratos.game.planet.*;
+import stratos.game.maps.*;
 import stratos.graphics.common.*;
 import stratos.graphics.terrain.*;
 import stratos.util.*;

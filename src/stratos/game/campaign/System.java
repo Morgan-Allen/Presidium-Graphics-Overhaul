@@ -13,11 +13,13 @@ import stratos.graphics.common.*;
 import stratos.util.*;
 
 
-//
-//  TODO:  Consider merging this with/extending the Vocation/Background class?
 
 public class System extends Background {
+
   
+  final public static Object
+    MAKES = new Object(),
+    NEEDS = new Object();
   
   
   final public String houseName ;
@@ -36,7 +38,7 @@ public class System extends Background {
     String imgName, float starX, float starY,
     Trait climate, int gravity, Object... args
   ) {
-    super(name, null, null, -1, NOT_A_GUILD, args) ;
+    super(name, null, null, -1, Backgrounds.NOT_A_GUILD, args) ;
     this.houseName = houseName ;
     this.description = description ;
     this.imagePath = imgName;

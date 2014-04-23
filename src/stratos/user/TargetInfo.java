@@ -5,8 +5,8 @@ import stratos.game.common.*;
 import stratos.game.tactical.*;
 import stratos.game.actors.*;
 import stratos.game.building.*;
-import stratos.graphics.common.ImageAsset;
-import stratos.graphics.common.Rendering;
+import stratos.game.civilian.*;
+import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.start.PlayLoop;
 import stratos.util.*;
@@ -18,8 +18,8 @@ public class TargetInfo extends UIGroup {
   
   
   final int
-    OB_SIZE = 40,
-    OB_MARGIN  = 2;
+    OB_SIZE   = 40,
+    OB_MARGIN = 2 ;
   //  need health bar, title, status fx,
   
   final BaseUI BUI;
@@ -53,10 +53,35 @@ public class TargetInfo extends UIGroup {
   }
   
   
+  private class SummonsButton extends Button {
+    final Actor subject;
+    
+    SummonsButton(BaseUI UI, Actor subject) {
+      super(
+        UI, MissionsTab.SUMMONS_ICON.asTexture(),
+        MissionsTab.MISSION_ICON_LIT.asTexture(),
+        "Summon this subject to the bastion"
+      );
+      this.subject = subject;
+    }
+    
+    
+    protected void whenClicked() {
+      final Base base = ((BaseUI) UI).played();
+      if (! Summons.canSummon(subject, base)) {
+        //  TODO:  Print this message on-screen in some form.
+        I.say("CANNOT SUMMON AT THE MOMENT");
+        return;
+      }
+      Summons.beginSummons(subject);
+    }
+  }
+  
+  
   private void setup() {
     final BaseUI BUI = (BaseUI) UI;
     final Base base = BUI.played();
-    final List <OptionButton> options = new List <OptionButton> ();
+    final List <Button> options = new List <Button> ();
     
     if (
       subject instanceof Actor ||
@@ -94,8 +119,13 @@ public class TargetInfo extends UIGroup {
       ));
     }
     
+    if (Summons.canSummon(subject, BUI.played())) {
+      options.add(new SummonsButton(BUI, (Actor) subject));
+    }
+    
+    
     int sumWide = options.size() * (OB_SIZE + OB_MARGIN), across = 0;
-    for (OptionButton option : options) {
+    for (Button option : options) {
       option.absBound.set(across - (sumWide / 2), 0, OB_SIZE, OB_SIZE);
       option.attachTo(this);
       across += OB_SIZE + OB_MARGIN;

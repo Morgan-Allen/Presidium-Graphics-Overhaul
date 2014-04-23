@@ -9,7 +9,7 @@ package stratos.game.building ;
 import stratos.game.actors.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
-import stratos.game.planet.*;
+import stratos.game.maps.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.sfx.*;
@@ -30,6 +30,11 @@ public abstract class Venue extends Fixture implements
   
   /**  Field definitions, constants, constructors, and save/load methods.
     */
+  final protected static String
+    CAT_STATUS   = "STATUS",
+    CAT_STAFF    = "STAFF",
+    CAT_STOCK    = "STOCK",
+    CAT_UPGRADES = "UPGRADES";
   final public static int
     ENTRANCE_NONE  = -1,
     ENTRANCE_NORTH =  N / 2,
@@ -113,6 +118,7 @@ public abstract class Venue extends Fixture implements
   
   
   public void assignBase(Base base) {
+    if (! inWorld()) { this.base = base; return; }
     world.presences.togglePresence(this, false) ;
     this.base = base ;
     world.presences.togglePresence(this, true) ;
@@ -454,16 +460,16 @@ public abstract class Venue extends Fixture implements
   
   
   public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
-    return VenueDescription.configInfoPanel(this, panel, UI);
+    return VenueDescription.configStandardPanel(this, panel, UI);
   }
 
   
   public void whenTextClicked() {
-    BaseUI.current().selection.pushSelection(this, false) ;
+    BaseUI.current().selection.pushSelection(this, false);
   }
   
   
-  public Target selectionLocksOn() { return this ; }
+  public Target selectionLocksOn() { return this; }
   
   
   
@@ -490,8 +496,11 @@ public abstract class Venue extends Fixture implements
   
   
   protected void renderHealthbars(Rendering rendering, Base base) {
-    final boolean alarm = structure.intact() && structure.repairLevel() < 0.5f;
-    if ((! BaseUI.isSelectedOrHovered(this)) && ! alarm) return;
+    final boolean focused = BaseUI.isSelectedOrHovered(this);
+    final boolean alarm =
+      structure.intact() && (base == base() || focused) &&
+      (structure.burning() || structure.repairLevel() < 0.25f);
+    if ((! focused) && (! alarm)) return;
     
     final int NU = structure.numUpgrades();
     healthbar.level = structure.repairLevel();
@@ -539,8 +548,8 @@ public abstract class Venue extends Fixture implements
   
   
   protected void toggleStatusDisplay() {
-    final boolean burns = structure.burning();
-    buildSprite.toggleFX(BuildingSprite.BLAST_MODEL, burns);
+    final boolean showBurn = structure.burning();
+    buildSprite.toggleFX(BuildingSprite.BLAST_MODEL, showBurn);
     toggleStatusFor(LIFE_SUPPORT, BuildingSprite.LIFE_SUPPORT_MODEL);
     toggleStatusFor(POWER       , BuildingSprite.POWER_MODEL);
     toggleStatusFor(WATER       , BuildingSprite.WATER_MODEL);

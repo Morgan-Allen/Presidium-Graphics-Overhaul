@@ -5,7 +5,7 @@ import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
-import stratos.game.planet.*;
+import stratos.game.maps.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
@@ -153,6 +153,16 @@ public class LandingStrip extends Venue {
   
   public String buildCategory() {
     return InstallTab.TYPE_MERCHANT ;
+  }
+  
+  
+  public TargetInfo configInfo(TargetInfo info, BaseUI UI) {
+    return belongs.configInfo(info, UI);
+  }
+  
+  
+  public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
+    return belongs.configPanel(panel, UI);
   }
   
   

@@ -2,6 +2,8 @@
 
 
 package stratos.game.civilian ;
+import org.apache.commons.math3.util.FastMath;
+
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
@@ -17,6 +19,9 @@ Basic dialogue effects can also happen spontaneously.
 
 //  ...Actors also need to use dialogue to 'object' when they see someone
 //  doing something they don't approve of *to* someone else.
+
+//  TODO:  You need to restore the use of a communal ChatFX for a given instance
+//  of dialogue.  (And have everything fade once complete.)
 
 
 public class Dialogue extends Plan implements Qualities {
@@ -36,7 +41,9 @@ public class Dialogue extends Plan implements Qualities {
     STAGE_BYE   =  2,
     STAGE_DONE  =  3;
   
-  private static boolean verbose = false;
+  private static boolean
+    evalVerbose   = false,
+    eventsVerbose = true ;
   
   
   final Actor starts, other;
@@ -88,23 +95,36 @@ public class Dialogue extends Plan implements Qualities {
   final static Trait BASE_TRAITS[] = { OUTGOING, POSITIVE, EMPATHIC };
   final static Skill BASE_SKILLS[] = { SUASION, TRUTH_SENSE };
   
+  
   protected float getPriority() {
-    final boolean report = verbose && I.talkAbout == actor;
-    final float
-      relation = actor.memories.relationValue(other),
-      novelty  = actor.memories.relationNovelty(other);
+    final boolean report = evalVerbose && I.talkAbout == actor;
+    final Relation r = actor.memories.relationWith(other);
+    final float curiosity = (1 + actor.traits.relativeLevel(CURIOUS)) / 2;
     
-    float urgency = novelty * (1 + actor.traits.relativeLevel(CURIOUS)) / 2;
-    urgency = Visit.clamp(urgency + (relation / 2), -1, 1);
+    float urgency = 0;
+    if (r == null) {
+      urgency += curiosity;
+      urgency -= 5f / (10 + actor.memories.relations().size());
+    }
+    else {
+      urgency += r.novelty() * curiosity;
+      urgency += r.value() / 2f;
+    }
+    final boolean casual = type == TYPE_CASUAL;
+    urgency = Visit.clamp(urgency, -1, 1);
+    float distCheck = NORMAL_DISTANCE_CHECK;
     
-    if (urgency <= 0) return 0;
-    if (stage >= STAGE_DONE || ! canTalk(other)) return 0;
+    if (casual) {
+      if (urgency <= 0) return 0;
+      if (stage >= STAGE_DONE || ! canTalk(other)) return 0;
+      distCheck = HEAVY_DISTANCE_CHECK;
+    }
     
     final float priority = priorityForActorWith(
-      actor, other, ROUTINE * urgency,
-      MILD_HELP, MILD_COMPETITION,
+      actor, other, casual ? (ROUTINE * urgency) : URGENT,
+      MILD_HELP, NO_COMPETITION,
       BASE_SKILLS, BASE_TRAITS,
-      NO_MODIFIER, HEAVY_DISTANCE_CHECK, NO_FAIL_RISK,
+      NO_MODIFIER, distCheck, NO_FAIL_RISK,
       report
     );
     return priority;
@@ -112,13 +132,13 @@ public class Dialogue extends Plan implements Qualities {
   
   
   private boolean canTalk(Actor other) {
-    //if (! other.health.conscious()) return false;
+    if (! other.health.conscious()) return false;
     final Target talksWith = other.focusFor(Dialogue.class);
     if (talksWith == actor) return true;
-    if (talksWith != null) return false;
-    if (starts != actor) return false ;
-    final Dialogue d = new Dialogue(other, actor, actor, type) ;
-    return ! other.mind.mustIgnore(d) ;
+    //if (talksWith != null) return false;
+    if (starts != actor) return false;
+    final Dialogue d = new Dialogue(other, actor, actor, type);
+    return ! other.mind.mustIgnore(d);
   }
   
   
@@ -141,15 +161,20 @@ public class Dialogue extends Plan implements Qualities {
   
   
   private void setLocationFor(Action talkAction) {
-    
-    //  If a location has not already been assigned, look for one either used
-    //  by existing conversants, or find a new spot nearby.
+    final boolean report = I.talkAbout == actor;
     final Batch <Dialogue> sides = sides() ;
     if (location == null) {
+      
+      //  If a location has not already been assigned, look for one either used
+      //  by existing conversants, or find a new spot nearby.
       for (Dialogue d : sides) if (d.location != null) {
         this.location = d.location ; break ;
       }
-      if (location == null) location = Spacing.nearestOpenTile(actor, actor) ;
+      if (location == null) {
+        if (other.indoors() && starts.indoors()) location = other.aboard();
+        else location = Spacing.bestMidpoint(starts, other);
+        if (report) I.say("Initialising talk location: "+location);
+      }
     }
     
     if (location instanceof Tile) {
@@ -198,7 +223,7 @@ public class Dialogue extends Plan implements Qualities {
     
     if (starts == actor && stage == STAGE_INIT) {
       final Action greeting = new Action(
-        actor, other,
+        actor, other.aboard(),
         this, "actionGreet",
         Action.TALK, "Greeting "
       ) ;
@@ -207,8 +232,11 @@ public class Dialogue extends Plan implements Qualities {
     }
     
     if (stage == STAGE_CHAT) {
-      Actor chatsWith = ((Dialogue) Rand.pickFrom(sides())).actor ;
-      if (chatsWith == actor) chatsWith = other ;
+      Actor chatsWith = other;
+      if (type == TYPE_CASUAL) {
+        chatsWith = ((Dialogue) Rand.pickFrom(sides())).actor;
+        if (chatsWith == actor) chatsWith = other;
+      }
       final Action chats = new Action(
         actor, chatsWith,
         this, "actionChats",
@@ -232,10 +260,10 @@ public class Dialogue extends Plan implements Qualities {
   }
   
   
-  public boolean actionGreet(Actor actor, Actor other) {
+  public boolean actionGreet(Actor actor, Boardable aboard) {
     if (! other.isDoing(Dialogue.class, null)) {
-      if (type != TYPE_CONTACT && ! canTalk(other)) {
-        abortBehaviour() ;
+      if (! canTalk(other)) {
+        if (type == TYPE_CASUAL) abortBehaviour() ;
         return false ;
       }
       final Dialogue d = new Dialogue(other, actor, type) ;
@@ -289,15 +317,15 @@ public class Dialogue extends Plan implements Qualities {
     if (other.health.artilect()) return INSCRIPTION;
     if (other.health.human()) {
       final int standing = other.vocation().standing;
-      if (standing == Background.CLASS_STRATOI) return NOBLE_ETIQUETTE;
-      if (standing == Background.CLASS_NATIVE) return NATIVE_TABOO;
+      if (standing == Backgrounds.CLASS_STRATOI) return NOBLE_ETIQUETTE;
+      if (standing == Backgrounds.CLASS_NATIVE ) return NATIVE_TABOO;
       return COMMON_CUSTOM;
     }
     return null;
   }
   
   
-  private static float talkResult(
+  public static float talkResult(
     Skill plea, float opposeDC, Actor actor, Actor other
   ) {
     final Skill language = languageFor(other);
@@ -360,20 +388,32 @@ public class Dialogue extends Plan implements Qualities {
   //*/
   
   
-  
-  
+  private static void smalltalk(Actor actor, Actor other) {
+    utters(actor, "Nice weather, huh?", 0);
+    utters(other, "Uh-huh.", 0);
+  }
   
   
   private static void anecdote(Actor actor, Actor other) {
-    
     //
     //  Pick a random recent activity and see if the other also indulged in it.
     //  If the activity is similar, or was undertaken for similar reasons,
     //  improve relations.
     //  TODO:  At the moment, we just compare traits.  Fix later.
     
-    final Trait comp = (Trait) Rand.pickFrom(actor.traits.personality()) ;
+    utters(other, "What is best in life?", 0);
+    
+    Trait comp = null;
+    float bestRating = 0;
+    for (Trait t : actor.traits.personality()) {
+      final float
+        levelA = actor.traits.relativeLevel(t),
+        levelO = actor.traits.relativeLevel(t),
+        rating = (2f - FastMath.abs(levelA - levelO)) * Rand.num();
+      if (rating > bestRating) { bestRating = rating; comp = t; }
+    }
     if (comp == null) {
+      utters(actor, "Uh... I don't know.", 0);
       return ;
     }
     final float
@@ -386,10 +426,10 @@ public class Dialogue extends Plan implements Qualities {
     other.memories.incRelation(actor, effect, 0.1f);
     actor.memories.incRelation(other, effect, 0.1f);
     
-    utters(actor, "It's important to be "+desc+".") ;
-    if (similarity > 0.5f) utters(other, "Absolutely.") ;
-    else if (similarity < -0.5f) utters(other, "No way!") ;
-    else utters(other, "Yeah, I guess...") ;
+    utters(actor, "It's important to be "+desc+".", 0) ;
+    if (similarity > 0.5f) utters(other, "Absolutely.", effect) ;
+    else if (similarity < -0.5f) utters(other, "No way!", effect) ;
+    else utters(other, "Yeah, I guess...", effect) ;
   }
   
   
@@ -397,42 +437,70 @@ public class Dialogue extends Plan implements Qualities {
     //
     //  Pick an acquaintance, see if it's mutual, and if so compare attitudes
     //  on the subject.  TODO:  Include memories of recent activities?
-    final Relation r = (Relation) Rand.pickFrom(actor.memories.relations()) ;
-    if (r == null || r.subject == other) {
-      utters(actor, "Nice weather, huh?") ;
-      utters(other, "Uh-huh.") ;
-      return ;
+    Relation pick = null;
+    float bestRating = 0;
+    for (Relation r : actor.memories.relations()) {
+      if (r.subject == other || ! (r.subject instanceof Actor)) continue;
+      final float
+        otherR = other.memories.relationValue(r.subject),
+        rating = (FastMath.abs(otherR * r.value()) + 0.5f) * Rand.num();
+      if (rating > bestRating) { pick = r; bestRating = rating; }
     }
-    final float attA = r.value(), attO = other.memories.relationValue(actor) ;
     
-    if (attA > 0) utters(actor, "I get on well with "+r.subject+".") ;
-    else utters(actor, "I don't get on with "+r.subject+".") ;
-    final boolean agrees = attO * attA > 0 ;
-    if (agrees) utters(other, "I can see that.") ;
-    else utters(other, "Really?") ;
+    if (pick == null) {
+      smalltalk(actor, other);
+      return;
+    }
+    final Actor about = (Actor) pick.subject;
+    final float
+      attA = actor.memories.relationValue(about),
+      attO = other.memories.relationValue(about);
     
-    final float effect = 0.2f * (agrees ? 1 : -1) * Relation.MAG_CHATTING ;
-    other.memories.incRelation(actor, effect / 2, 0.1f) ;
-    actor.memories.incRelation(other, effect / 2, 0.1f) ;
-    other.memories.incRelation(r.subject, effect * r.value(), 0.1f) ;
+
+    final boolean agrees = FastMath.abs(attA - attO) < 0.5f;
+    final float effect = 0.2f * (agrees ? 1 : -1) * Relation.MAG_CHATTING;
+    other.memories.incRelation(actor, effect / 2, 0.1f);
+    actor.memories.incRelation(other, effect / 2, 0.1f);
+    other.memories.incRelation(about, effect * pick.value(), 0.1f);
+    
+    utters(other, "What do you think of "+about+"?", 0);
+    if (attA > 0.33f) {
+      utters(actor, "We get along pretty well!", effect);
+    }
+    else if (attA < 0.33f) {
+      utters(actor, "We don't get along.", effect);
+    }
+    else {
+      utters(actor, "We get along okay...", effect);
+    }
+    if (agrees) utters(other, "Same here.", effect);
+    else utters(other, "Really?", effect);
   }
   
   
   private static void advise(Actor actor, Actor other) {
-    final Skill tested = (Skill) Rand.pickFrom(other.traits.skillSet()) ;
-    if (tested == null) return ;
-    final float level = actor.traits.useLevel(tested) ;
+    utters(other, "So, what do you do?", 0) ;
     
-    utters(other, "I'm interested in "+tested.name+".") ;
-    if (level < other.traits.useLevel(tested)) {
-      utters(actor, "Don't know much about that.") ;
-      return ;
+    Skill tested = null;
+    float bestRating = 0;
+    for (Skill s : other.traits.skillSet()) {
+      final float
+        levelA = actor.traits.useLevel(s),
+        levelO = other.traits.useLevel(s),
+        rating = levelA * levelO * Rand.num();
+      if (levelA < 0 || levelO < 0) continue;
+      if (rating > bestRating) { tested = s; bestRating = rating; }
     }
-    utters(actor, "Well, here's what you do...") ;
-    utters(other, "You mean like this?") ;
     
-    //  Use the Counsel skill here.
+    if (tested == null) {
+      utters(actor, "Oh, nothing you'd find interesting.", 0);
+      return;
+    }
+    final float level = actor.traits.useLevel(tested);
+    utters(actor, "Well, I'm interested in "+tested+".", 0);
+    utters(actor, "Let me show you a few tricks...", 0);
     
+    //  TODO:  Use the Counsel skill here.
     float effect = 0 ;
     if (other.traits.test(tested, level / 2, 0.5f)) effect += 5 ;
     else effect -= 5 ;
@@ -442,9 +510,18 @@ public class Dialogue extends Plan implements Qualities {
     other.memories.incRelation(actor, effect, 0.1f) ;
     actor.memories.incRelation(other, effect, 0.1f) ;
     
-    if (effect > 0) utters(actor, "Yes, exactly!") ;
-    if (effect == 0) utters(actor, "Close. Try again.") ;
-    if (effect < 0) utters(actor, "No, that's not it...") ;
+    if (effect > 0) {
+      utters(other, "You mean like this?", effect);
+      utters(actor, "Yes, exactly!", effect);
+    }
+    if (effect == 0) {
+      utters(other, "You mean like this?", effect);
+      utters(actor, "Close. Try again.", effect);
+    }
+    if (effect < 0) {
+      utters(other, "You mean like this?", effect);
+      utters(actor, "No, that's not it.", effect);
+    }
   }
   
   
@@ -464,7 +541,12 @@ public class Dialogue extends Plan implements Qualities {
   }
   
   
-  private static void utters(Actor a, String s) {
+  private static void utters(Actor a, String s, float effect) {
+    final String sign;
+    if (effect == 0) sign = "";
+    else if (effect > 0) sign = " (+)";
+    else sign = " (-)";
+    
     final Dialogue says = (Dialogue) a.matchFor(Dialogue.class) ;
     if (says == null) return ;
     boolean picked = false ;
@@ -475,7 +557,7 @@ public class Dialogue extends Plan implements Qualities {
     final Actor opposite = a == says.actor ? says.other : says.actor ;
     final boolean onRight = onRight(a, opposite) ;
     final int side = onRight ? TalkFX.FROM_RIGHT : TalkFX.FROM_LEFT ;
-    a.chat.addPhrase(s, side) ;
+    a.chat.addPhrase(s+sign, side) ;
   }
   
   

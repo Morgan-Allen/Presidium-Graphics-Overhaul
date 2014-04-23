@@ -230,7 +230,9 @@ public class Pathing {
     //  Don't move if something ahead is blocking entrance-
     if (target instanceof Tile) {
       final Series <Mobile> inside = ((Tile) target).inside();
-      if (inside.size() > 0) for (Mobile m : inside) if (deferTo(m)) return;
+      if (inside.size() > 0) for (Mobile m : inside) if (deferTo(m)) {
+        speed /= 2;
+      }
     }
     
     //
@@ -272,24 +274,26 @@ public class Pathing {
   
   
   private boolean deferTo(Mobile other) {
-    //  TODO:  See if you can't refine the logic here a little.
+    //  TODO:  See below.
+    if (true) return false;
+    final Vec2D
+      heading = temp2.setFromAngle(mobile.rotation),
+      disp = displacement(other);
+    if (heading.dot(disp) < 0) return false;
+    
     return other.hashCode() > mobile.hashCode();
   }
   
   
   public void applyCollision(float moveRate, Target focus) {
+    //  TODO:  I am probably going to have to implement some kind of proper
+    //  polygonal pathfinding here.  For the moment, it's just kind of
+    //  distracting.
+    if (true) return;
+    
     ///if (true) return;
     final Mobile m = mobile ;
-    if (m.indoors()) return ;
-    
-    if (m.aboard().pathType() == Tile.PATH_BLOCKS) {
-      final Tile free = Spacing.nearestOpenTile(m, m);
-      if (free == null) I.complain("MOBILE IS TRAPPED! "+m);
-      m.nextPosition.x = free.x ;
-      m.nextPosition.y = free.y ;
-      return;
-    }
-    
+    if (m.indoors() || ! m.collides()) return;
     final Vec2D sum = new Vec2D(), disp = new Vec2D() ;
     int numHits = 0 ;
     final float mMin = m.position.z, mMax = mMin + m.height() ;

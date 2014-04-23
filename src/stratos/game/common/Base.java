@@ -17,10 +17,7 @@ import stratos.util.*;
 
 
 
-//  TODO:  Primal bases shouldn't employ fog of war, commerce transactions, and
-//  the like.  They are intended for use primarily by artilects, wildlife,
-//  natives, et cetera.
-
+//  TODO:  Primal bases shouldn't employ commerce transactions.
 //  TODO:  Modify relations between bases depending on the average relations
 //  of their members.
 
@@ -35,7 +32,8 @@ public class Base implements
   final public static String
     KEY_ARTILECTS = "Artilects",
     KEY_WILDLIFE  = "Wildlife" ,
-    KEY_NATIVES   = "Natives"  ;
+    KEY_NATIVES   = "Natives"  ,
+    KEY_FREEHOLD  = "Freehold" ;
   
   
   final public World world ;
@@ -237,19 +235,10 @@ public class Base implements
   
   
   public float relationWith(Base other) {
-    final Relation r = baseRelations.get(other) ;
+    final Relation r = baseRelations.get(other);
     if (r == null) {
-      //  TODO:  Failing that, base off relations with the house of the base's
-      //  ruler.
-      
-      //  TODO:  You need some more refined default setup methods here.
-      final float initR;
-      if (primal && other.primal) initR = 0;
-      else if (primal || other.primal) initR = -0.5f;
-      else initR = 0.5f;
-      
-      ///I.say(this+" INITIALISING RELATION WITH "+other+" AT: "+initR);
-      setRelation(other, initR, true);
+      final float initR = world.setting.defaultRelations(this, other);
+      setRelation(other, initR, false);
       final Relation n = baseRelations.get(other);
       return n.value();
     }
@@ -346,7 +335,7 @@ public class Base implements
   
   
   public String toString() {
-    return "Base: "+title ;
+    return title ;
   }
 }
 

@@ -117,17 +117,17 @@ public class Bastion extends Venue implements Economy {
   
   public int numOpenings(Background b) {
     final int nO = super.numOpenings(b) ;
-    if (b == Background.VETERAN) {
-      return nO + 2 + structure.upgradeLevel(SECURITY_MEASURES) ;
+    if (b == Backgrounds.VETERAN) {
+      return nO + 2 + structure.upgradeLevel(SECURITY_MEASURES);
     }
-    if (b == Background.AIR_CORPS) {
-      return nO + 2 + structure.upgradeLevel(LOGISTIC_SUPPORT) ;
+    if (b == Backgrounds.TECHNICIAN) {
+      return nO + 2 + structure.upgradeLevel(LOGISTIC_SUPPORT);
     }
-    if (b == Background.AUDITOR) {
-      return nO + ((1 + structure.upgradeLevel(LOGISTIC_SUPPORT)) / 2) ;
+    if (b == Backgrounds.AUDITOR) {
+      return nO + ((1 + structure.upgradeLevel(LOGISTIC_SUPPORT)) / 2);
     }
-    if (b == Background.STEWARD) {
-      return nO + ((1 + structure.upgradeLevel(GUEST_QUARTERS)) / 2) ;
+    if (b == Backgrounds.STEWARD) {
+      return nO + ((1 + structure.upgradeLevel(GUEST_QUARTERS)) / 2);
     }
     //
     //  TODO:  Return the amount of space open to hostages and guests as well.
@@ -150,19 +150,19 @@ public class Bastion extends Venue implements Economy {
       return s;
     }
     final Background v = actor.vocation() ;
-    if (v == Background.STEWARD || v == Background.FIRST_CONSORT) {
+    if (v == Backgrounds.STEWARD || v == Backgrounds.FIRST_CONSORT) {
       return new Supervision(actor, this) ;
     }
     
     if (! personnel.onShift(actor)) return null ;
     
-    if (v == Background.VETERAN || v == Background.WAR_MASTER) {
-      return Patrolling.aroundPerimeter(actor, this, world) ;
+    if (v == Backgrounds.VETERAN || v == Backgrounds.WAR_MASTER) {
+      return Patrolling.nextGuardPatrol(actor, this, Plan.ROUTINE);
     }
-    if (v == Background.AIR_CORPS) {
-      return Repairs.getNextRepairFor(actor, Plan.CASUAL) ;
+    if (v == Backgrounds.TECHNICIAN) {
+      return Repairs.getNextRepairFor(actor, Plan.ROUTINE) ;
     }
-    if (v == Background.AUDITOR || v == Background.MINISTER_FOR_ACCOUNTS) {
+    if (v == Backgrounds.AUDITOR || v == Backgrounds.MINISTER_FOR_ACCOUNTS) {
       final Venue toAudit = Audit.nextToAuditFor(actor) ;
       return toAudit == null ? null : new Audit(actor, toAudit) ;
     }
@@ -210,10 +210,10 @@ public class Bastion extends Venue implements Economy {
   
   public Background[] careers() {
     return new Background[] {
-      Background.AIR_CORPS, Background.VETERAN,
-      Background.AUDITOR, Background.STEWARD
-      //Background.HONOUR_GUARD, Background.CONSORT
-      //Background.HEIR, Background.ADVISOR
+      Backgrounds.TECHNICIAN, Backgrounds.VETERAN,
+      Backgrounds.AUDITOR, Backgrounds.STEWARD
+      //Backgrounds.HONOUR_GUARD, Backgrounds.CONSORT
+      //Backgrounds.HEIR, Backgrounds.ADVISOR
     };
   }
   

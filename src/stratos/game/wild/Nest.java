@@ -3,10 +3,14 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-package stratos.game.planet ;
+package stratos.game.wild ;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
+import stratos.game.maps.Flora;
+import stratos.game.maps.Habitat;
+import stratos.game.maps.Species;
+import stratos.game.maps.Species.Type;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
@@ -105,9 +109,9 @@ public class Nest extends Venue {
       ) ;
       if (t == null) continue ;
       final Habitat h = t.habitat() ;
-      if (h.isOcean || h.isWaste) continue ;
+      if (h.isOcean() || h.isWaste()) continue ;
       else {
-        final float moisture = Visit.clamp((h.moisture - 2) / 10f, 0, 1) ;
+        final float moisture = Visit.clamp((h.moisture() - 2) / 10f, 0, 1) ;
         fertility += moisture / 4f ;
         if (t.owner() instanceof Flora) {
           final Flora f = (Flora) t.owner() ;

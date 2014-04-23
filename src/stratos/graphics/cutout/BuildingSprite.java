@@ -182,15 +182,6 @@ public class BuildingSprite extends Sprite {
   /**  The following are 'dummy' methods that need to be re-implemented once
     *  the simulation logic is back in action.
     */
-  //  TODO:  this method in particular needs to be reconsidered, since *all*
-  //  cutoutsprites might well have (optional) lighting attached.
-  public void toggleLighting(
-    ModelAsset lightsModel, boolean lit, float xoff, float yoff, float zoff
-  ) {
-    
-  }
-  
-
   public void toggleFX(ModelAsset model, boolean on) {
     if (on) {
       for (PlaneFX FX : statusFX) if (FX.model() == model) return;

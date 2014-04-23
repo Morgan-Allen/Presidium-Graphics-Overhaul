@@ -32,7 +32,7 @@ public class Application implements Session.Saveable {
   public Application(Session s) throws Exception {
     s.cacheInstance(this) ;
     applies = (Actor) s.loadObject() ;
-    position = Background.ALL_BACKGROUNDS[s.loadInt()] ;
+    position = Backgrounds.ALL_BACKGROUNDS[s.loadInt()] ;
     employer = (Employer) s.loadObject() ;
     hiringFee = s.loadInt() ;
   }

@@ -7,7 +7,7 @@
 
 package stratos.game.base ;
 import stratos.game.common.* ;
-import stratos.game.planet.* ;
+import stratos.game.maps.*;
 import stratos.game.actors.* ;
 import stratos.game.building.* ;
 import stratos.graphics.common.* ;
@@ -157,7 +157,7 @@ public class ExcavationSite extends Venue implements
       "Excavators are responsible for seeking out subterranean mineral "+
       "deposits and bringing them to the surface.",
       50,
-      Background.EXCAVATOR, 1, null, ALL_UPGRADES
+      Backgrounds.EXCAVATOR, 1, null, ALL_UPGRADES
     ),
     
     ARTIFACT_ASSEMBLY = new Upgrade(
@@ -181,7 +181,7 @@ public class ExcavationSite extends Venue implements
   
   
   public Background[] careers() {
-    return new Background[] { Background.EXCAVATOR } ;
+    return new Background[] { Backgrounds.EXCAVATOR } ;
   }
   
   
@@ -192,7 +192,7 @@ public class ExcavationSite extends Venue implements
   
   public int numOpenings(Background v) {
     final int NO = super.numOpenings(v) ;
-    if (v == Background.EXCAVATOR) return NO + 3 ;
+    if (v == Backgrounds.EXCAVATOR) return NO + 3 ;
     return 0 ;
   }
   
