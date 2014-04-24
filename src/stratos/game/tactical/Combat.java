@@ -108,6 +108,7 @@ public class Combat extends Plan implements Qualities {
     
     //  In the case of actors, subtract the actor's willingness to kill and add
     //  the urge to protect another.
+    //  TODO:  Include effects of honour!
     if (isActor) {
       final float empathy = 1f + actor.traits.relativeLevel(EMPATHIC);
       modifier -= ROUTINE * empathy * harmLevel;
@@ -116,6 +117,7 @@ public class Combat extends Plan implements Qualities {
       //final float unarmed = 1f - hostility;
       //modifier -= ROUTINE * actor.traits.relativeLevel(HONOURABLE) * unarmed;
     }
+    if (! actor.gear.armed()) modifier -= ROUTINE;
     
     final float priority = priorityForActorWith(
       actor, target, ROUTINE + modifier,

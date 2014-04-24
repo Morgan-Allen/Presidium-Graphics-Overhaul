@@ -1,6 +1,8 @@
 
 
 package stratos.game.base ;
+import javax.net.ssl.SSLEngineResult.Status;
+
 import stratos.game.common.* ;
 import stratos.game.maps.*;
 import stratos.game.actors.* ;
@@ -161,10 +163,6 @@ public class Plantation extends Venue implements
   
   protected void updatePaving(boolean inWorld) {
     if (type == TYPE_NURSERY) super.updatePaving(inWorld) ;
-    else {
-      final Paving paving = base().paving ;
-      paving.updatePerimeter(this, inWorld) ;
-    }
   }
   
   
@@ -346,7 +344,30 @@ public class Plantation extends Venue implements
     final BotanicalStation parent, final int minSize, boolean covered
   ) {
     final World world = parent.world() ;
+    Plantation strip[] = new Plantation[4];
     
+    for (int n = 4 ; n-- > 0 ;) {
+      final Plantation p = strip[n] = new Plantation(
+        parent, n == 0 ? TYPE_NURSERY : (covered ? TYPE_COVERED : TYPE_BED),
+        0, strip
+      ) ;
+    }
+    
+    if (Placement.findClearanceFor(strip, parent, world)) {
+      final int dir = Placement.directionOf(strip);
+      for (int n = 4 ; n-- > 0 ;) {
+        final Tile o = strip[n].origin();
+        final Plantation p = strip[n] = new Plantation(
+          parent, n == 0 ? TYPE_NURSERY : (covered ? TYPE_COVERED : TYPE_BED),
+          dir, strip
+        );
+        p.setPosition(o.x, o.y, world);
+        p.placeFromOrigin();
+      }
+      return strip;
+    }
+    return null;
+    /*
     Plantation bestSite[] = null ;
     float bestRating = 0 ;
     
@@ -368,9 +389,11 @@ public class Plantation extends Venue implements
       return bestSite ;
     }
     return null ;
+    //*/
   }
   
   
+  //  TODO:  INCORPORATE THIS INTO THE PLACEMENT ALGORITHM
   static float rateArea(Plantation allots[], World world) {
     //
     //  Favour fertile, unpaved areas close to the parent botanical station but
@@ -399,7 +422,7 @@ public class Plantation extends Venue implements
     return rating ;
   }
   
-  
+  /*
   private static boolean tryPlacementAt(
     Tile t, BotanicalStation parent, Plantation allots[],
     int dir, boolean covered
@@ -418,6 +441,7 @@ public class Plantation extends Venue implements
     } catch (Exception e) { return false ; }
     return true ;
   }
+  //*/
   
 
   protected boolean canTouch(Element e) {
@@ -491,12 +515,7 @@ public class Plantation extends Venue implements
   
   
   public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
-    if (panel == null) panel = new InfoPanel(
-      UI, this, portrait(UI)
-    );
-    super.configPanel(panel, UI);
-    final Description d = panel.detail();
-    
+    final StringBuffer d = new StringBuffer();
     if (type == TYPE_NURSERY) {
       d.append("\n") ;
       boolean any = false ;
@@ -514,6 +533,7 @@ public class Plantation extends Venue implements
         d.append("\n  "+c) ;
       }
     }
+    panel = VenueDescription.configSimplePanel(this, panel, UI, d.toString());
     return panel;
   }
   

@@ -4,6 +4,7 @@ package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
+import stratos.game.maps.Species;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
@@ -85,6 +86,11 @@ public class Tailing extends Venue {
   }
   
   
+  protected void updatePaving(boolean inWorld) {
+    if (this == strip[0]) super.updatePaving(inWorld);
+  }
+  
+  
   
   /**  Economic functions-
     */
@@ -157,6 +163,14 @@ public class Tailing extends Venue {
   
   public Composite portrait(BaseUI UI) {
     return Composite.withImage(ExcavationSite.ICON, "tailing");
+  }
+  
+  
+  public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
+    final StringBuffer d = new StringBuffer();
+    d.append("% filled: "+((int) (fillLevel * 100)));
+    panel = VenueDescription.configSimplePanel(this, panel, UI, d.toString());
+    return panel;
   }
   
   

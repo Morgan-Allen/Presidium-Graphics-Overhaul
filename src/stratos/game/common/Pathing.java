@@ -289,7 +289,20 @@ public class Pathing {
     //  TODO:  I am probably going to have to implement some kind of proper
     //  polygonal pathfinding here.  For the moment, it's just kind of
     //  distracting.
-    if (true) return;
+    if (true) {
+      
+      //  If your current location is blocked, you need to escape to a free tile-
+      if (PathSearch.blockedBy(mobile.aboard(), mobile)) {
+        final Tile blocked = mobile.origin() ;
+        final Tile free = Spacing.nearestOpenTile(blocked, mobile) ;
+        if (free == null) I.complain("NO FREE TILE AVAILABLE!") ;
+        if (verbose) I.sayAbout(mobile, "Escaping to free tile: "+free) ;
+        mobile.setPosition(free.x, free.y, mobile.world()) ;
+        mobile.onMotionBlock(blocked) ;
+        return ;
+      }
+      return;
+    }
     
     ///if (true) return;
     final Mobile m = mobile ;

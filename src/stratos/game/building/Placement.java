@@ -151,9 +151,41 @@ public class Placement implements TileConstants {
     return v ;
   }
   
-  
+
   public static Venue[] establishVenueStrip(
     final Venue strip[], final Target near, boolean intact, final World world
+  ) {
+    if (findClearanceFor(strip, near, world)) {
+      for (Venue s : strip) {
+        s.placeFromOrigin() ;
+        if (intact || GameSettings.buildFree) {
+          s.structure.setState(Structure.STATE_INTACT, 1.0f) ;
+        }
+        else s.structure.setState(Structure.STATE_INSTALL, 0.0f) ;
+        s.setAsEstablished(true) ;
+      }
+      return strip;
+    }
+    return null;
+  }
+  
+  
+  public static int directionOf(Venue strip[]) {
+    if (strip == null || strip.length < 2) return -1;
+    final Venue v = strip[0];
+    final Tile o = v.origin();
+    for (int dir : N_ADJACENT) {
+      final Tile t = strip[1].origin();
+      if ((t.x - o.x) / v.size != N_X[dir]) continue;
+      if ((t.y - o.y) / v.size != N_Y[dir]) continue;
+      return dir;
+    }
+    return -1;
+  }
+  
+  
+  public static boolean findClearanceFor(
+    final Venue strip[], final Target near, final World world
   ) {
     final Venue v = strip[0];
     final int deep = v.size;
@@ -207,19 +239,11 @@ public class Placement implements TileConstants {
     search.doSearch();
     
     if (search.success()) {
-      for (Venue s : strip) {
-        s.placeFromOrigin() ;
-        if (intact || GameSettings.buildFree) {
-          s.structure.setState(Structure.STATE_INTACT, 1.0f) ;
-        }
-        else s.structure.setState(Structure.STATE_INSTALL, 0.0f) ;
-        s.setAsEstablished(true) ;
-      }
-      return strip;
+      return true;
     }
-    if (verbose) I.say("Failed to establish venue strip for: "+v);
+    if (verbose) I.say("Failed to establish strip-site for: "+v);
     
-    return null;
+    return false;
   }
   
   
