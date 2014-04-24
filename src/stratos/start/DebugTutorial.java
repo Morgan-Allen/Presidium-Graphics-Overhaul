@@ -49,7 +49,7 @@ public class DebugTutorial extends TutorialScenario {
   }
   
   
-  protected boolean showMessages() { return false; }
+  protected boolean showMessages() { return true; }
 }
 
 

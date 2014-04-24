@@ -162,7 +162,7 @@ public class InfoPanel extends UIGroup implements UIConstants {
       final Integer catID = DEFAULT_CATS.get(IC) ;
       if (catID != null) categoryID = Visit.clamp(catID, categories.length);
     }
-    else categoryID = -1;
+    else categoryID = 0;
     
     if (portrait != null) {
       this.portrait = portrait;
@@ -200,7 +200,8 @@ public class InfoPanel extends UIGroup implements UIConstants {
   
   
   public String category() {
-    return categories[categoryID];
+    if (categories.length == 0) return null;
+    return categories[Visit.clamp(categoryID, categories.length)];
   }
   
   

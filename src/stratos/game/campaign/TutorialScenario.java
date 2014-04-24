@@ -22,23 +22,6 @@ public class TutorialScenario extends StartupScenario {
   Batch <NativeHut> huts;
   
   
-  private static Config config() {
-    final Config config = new Config();
-    config.house = Backgrounds.PLANET_HALIBAN;
-    config.male = Rand.yes();
-    
-    config.siteLevel  = SITE_WILDERNESS;
-    config.titleLevel = TITLE_KNIGHTED;
-    config.fundsLevel = FUNDING_STANDARD;
-    
-    config.numCrew.put(Backgrounds.VETERAN, 2);
-    config.numCrew.put(Backgrounds.TECHNICIAN, 2);
-    config.numCrew.put(Backgrounds.AUDITOR, 1);
-    config.numCrew.put(Backgrounds.CULTIVATOR, 3);
-    return config;
-  }
-  
-  
   public TutorialScenario() {
     super(config());
   }
@@ -61,6 +44,32 @@ public class TutorialScenario extends StartupScenario {
   
   /**  Initial setup-
     */
+  private static Config config() {
+    final Config config = new Config();
+    config.house = Backgrounds.PLANET_HALIBAN;
+    config.male = Rand.yes();
+    
+    config.siteLevel  = SITE_WILDERNESS;
+    config.titleLevel = TITLE_KNIGHTED;
+    config.fundsLevel = FUNDING_GENEROUS;
+    
+    //  TODO:  Don't need this if hiring is free...
+    /*
+    config.numCrew.put(Backgrounds.VETERAN, 2);
+    config.numCrew.put(Backgrounds.TECHNICIAN, 2);
+    config.numCrew.put(Backgrounds.AUDITOR, 1);
+    config.numCrew.put(Backgrounds.CULTIVATOR, 3);
+    //*/
+    return config;
+  }
+  
+  
+  protected void configureScenario(World world, Base base, BaseUI UI) {
+    GameSettings.hireFree = true;
+    super.configureScenario(world, base, UI);
+  }
+  
+  
   protected Bastion establishBastion(
     World world, Base base, Human ruler,
     List<Human> advisors, List<Human> colonists
@@ -77,6 +86,70 @@ public class TutorialScenario extends StartupScenario {
   
   
   
+  /**  Checking objectives and message display-
+    */
+  public void updateGameState() {
+    super.updateGameState();
+    
+    if (showMessages()) {
+      pushMessage(TITLE_WELCOME);
+    }
+    
+    int numObjectives = 0;
+    if (checkSecurityObjective()) {
+      pushMessage(TITLE_SECURITY_DONE);
+      numObjectives++;
+    }
+    if (checkContactObjective()) {
+      pushMessage(TITLE_CONTACT_DONE);
+      numObjectives++;
+    }
+    if (checkEconomicObjective()) {
+      pushMessage(TITLE_ECONOMY_DONE);
+      numObjectives++;
+    }
+    if (numObjectives >= 2) {
+      pushMessage(TITLE_CONGRATULATIONS);
+    }
+    
+    ///I.say("Objectives complete: "+numObjectives);
+  }
+  
+  
+  private boolean checkSecurityObjective() {
+    if (ruins.size() == 0) return false;
+    for (Ruins ruin : ruins) {
+      if (ruin.destroyed());
+      else return false;
+    }
+    return true;
+  }
+  
+  
+  private boolean checkContactObjective() {
+    if (huts.size() == 0) return false;
+    for (NativeHut hut : huts) {
+      if (hut.destroyed() || hut.base() == base());
+      else return false;
+    }
+    return true;
+  }
+  
+  
+  private boolean checkEconomicObjective() {
+    boolean hasHolding = false;
+    final Tile t = world().tileAt(0, 0);
+    for (Object o : world().presences.matchesNear(Holding.class, t, -1)) {
+      final Holding h = (Holding) o;
+      hasHolding = true;
+      if (h.upgradeLevel() < HoldingUpgrades.LEVEL_FREEBORN) return false;
+    }
+    if (base().credits() < 0 || ! hasHolding) return false;
+    return true;
+  }
+  
+  
+  
   /**  Monitoring and updates-
     */
   final String
@@ -85,25 +158,21 @@ public class TutorialScenario extends StartupScenario {
     TITLE_SECURITY   = "Objective 1: Security",
     TITLE_CONTACT    = "Objective 2: Contact",
     TITLE_ECONOMY    = "Objective 3: Economy Basics",
+    TITLE_NAVIGATION = "Navigation Basics",
     
     TITLE_EXPLAIN_EXPAND    = "Expanding your base",
     TITLE_EXPLAIN_DEFEND    = "Defending your base",
     TITLE_EXPLAIN_CONTACT   = "Diplomacy missions",
     TITLE_EXPLAIN_INTERVIEW = "Interviewing citizens",
     TITLE_EXPLAIN_SUPPLY    = "Getting Supplies",
-    TITLE_EXPLAIN_INDUSTRY  = "Housing and Industry";
-  
+    TITLE_EXPLAIN_INDUSTRY  = "Housing and Industry",
+    
+    TITLE_SECURITY_DONE   = "Security objective complete",
+    TITLE_CONTACT_DONE    = "Contact objective complete",
+    TITLE_ECONOMY_DONE    = "Economy objective complete",
+    TITLE_CONGRATULATIONS = "Tutorial complete!";
   
   protected boolean showMessages() { return true; }
-  
-  
-  public void updateGameState() {
-    super.updateGameState();
-    
-    if (showMessages()) {
-      pushMessage(TITLE_WELCOME);
-    }
-  }
   
   
   private void pushMessage(String title) {
@@ -149,7 +218,22 @@ public class TutorialScenario extends StartupScenario {
         "three, and we will proceed to the next stage of this tutorial.",
         linkFor("Tell me about the security objective.", TITLE_SECURITY),
         linkFor("Tell me about the contact objective.", TITLE_CONTACT),
-        linkFor("Tell me about the economic objective.", TITLE_ECONOMY)
+        linkFor("Tell me about the economic objective.", TITLE_ECONOMY),
+        linkFor("Wait a second.  How do I navigate?", TITLE_NAVIGATION)
+      );
+    }
+    
+    if (title == TITLE_NAVIGATION) {
+      return comms.addMessage(
+        TITLE_NAVIGATION, null,
+        "To move your viewpoint, either click on a selectable object (such as "+
+        "a structure, person, or point of terrain,) or click on the minimap. "+
+        "You can also use the arrow keys.  To see information about an "+
+        "object or interaction options, simply click on it.  Construction "+
+        "options are available from the Guild buttons in the bottom right.\n"+
+        "Finally, these messages will be stored in the Comms Panel, just "+
+        "above and to the right of the top-left minimap.",
+        linkFor("Okay, that helps.", TITLE_OBJECTIVES)
       );
     }
     
@@ -160,11 +244,10 @@ public class TutorialScenario extends StartupScenario {
         "artilect guardians who may come to threaten your settlement.  You "+
         "will need to find this site and destroy it, by first exploring the "+
         "map to find the site, and then declaring a strike mission.",
-        linkFor("Go back", TITLE_OBJECTIVES),
-        linkFor("Tell me about the contact objective.", TITLE_CONTACT),
-        linkFor("Tell me about the economic objective.", TITLE_ECONOMY),
         linkFor("How do I deal with enemies?", TITLE_EXPLAIN_EXPAND),
-        linkFor("How do I protect my subjects?", TITLE_EXPLAIN_DEFEND)
+        linkFor("How do I protect my subjects?", TITLE_EXPLAIN_DEFEND),
+        linkFor("Tell me about the contact objective.", TITLE_CONTACT),
+        linkFor("Tell me about the economic objective.", TITLE_ECONOMY)
       );
     }
     
@@ -179,8 +262,8 @@ public class TutorialScenario extends StartupScenario {
         "begin a Strike mission.  (You may wish to build a Garrison or two "+
         "first, just to get numbers on your side.)  With luck, your soldiers "+
         "will polish off the interlopers in short order.",
-        linkFor("Go back to the security objective.", TITLE_SECURITY),
-        linkFor("How do I protect my subjects?", TITLE_EXPLAIN_DEFEND)
+        linkFor("How do I protect my subjects?", TITLE_EXPLAIN_DEFEND),
+        linkFor("Go back to the security objective.", TITLE_SECURITY)
       );
     }
     
@@ -193,8 +276,8 @@ public class TutorialScenario extends StartupScenario {
         "buildings, repairs will be carried out by qualified applicants, "+
         "while unconscious citizens in dangerous areas can be recovered and "+
         "treated using the same method.",
-        linkFor("Go back to the security objective.", TITLE_SECURITY),
-        linkFor("How do I deal with enemies?", TITLE_EXPLAIN_EXPAND)
+        linkFor("How do I deal with enemies?", TITLE_EXPLAIN_EXPAND),
+        linkFor("Go back to the security objective.", TITLE_SECURITY)
       );
     }
     //  Explain use of recon to explore, and strike to destroy.
@@ -207,11 +290,10 @@ public class TutorialScenario extends StartupScenario {
         "may present either a threat or an asset, depending on how they are "+
         "handled.  Either declare a contact mission to bring them within the "+
         "fold of your settlement, or drive them out with a strike team.",
-        linkFor("Go back", TITLE_OBJECTIVES),
-        linkFor("Tell me about the security objective.", TITLE_SECURITY),
-        linkFor("Tell me about the economic objective.", TITLE_ECONOMY),
         linkFor("How do I make first contact?", TITLE_EXPLAIN_CONTACT),
-        linkFor("What are the outcomes of contact?", TITLE_EXPLAIN_INTERVIEW)
+        linkFor("What are the outcomes of contact?", TITLE_EXPLAIN_INTERVIEW),
+        linkFor("Tell me about the security objective.", TITLE_SECURITY),
+        linkFor("Tell me about the economic objective.", TITLE_ECONOMY)
       );
     }
     
@@ -226,8 +308,8 @@ public class TutorialScenario extends StartupScenario {
         "mission type from public to 'screened' or 'covert'- diplomacy is a "+
         "delicate matter, and you may want some finer control over who "+
         "applies for the job.",
-        linkFor("Go back to the contact objective.", TITLE_CONTACT),
-        linkFor("What are the outcomes of contact?", TITLE_EXPLAIN_INTERVIEW)
+        linkFor("What are the outcomes of contact?", TITLE_EXPLAIN_INTERVIEW),
+        linkFor("Go back to the contact objective.", TITLE_CONTACT)
       );
     }
     
@@ -245,8 +327,8 @@ public class TutorialScenario extends StartupScenario {
         "Any of your own subjects may be summoned for interview at will, so "+
         "they can be recruited for secret missions, or just asked for advice "+
         "and opinions.",
-        linkFor("Go back to the contact objective.", TITLE_CONTACT),
-        linkFor("How do I make first contact?", TITLE_EXPLAIN_CONTACT)
+        linkFor("How do I make first contact?", TITLE_EXPLAIN_CONTACT),
+        linkFor("Go back to the contact objective.", TITLE_CONTACT)
       );
     }
     //  Mention that negotiations are delicate- use screened/covert.
@@ -258,12 +340,11 @@ public class TutorialScenario extends StartupScenario {
         "In order for your settlement to provide a viable power base for "+
         "later expansion, you will need to establish exports and gather tax "+
         "from your citizens.  Try to put all your citizens in pyon housing or "+
-        "better, and turn a profit for six consecutive days.",
-        linkFor("Go back", TITLE_OBJECTIVES),
-        linkFor("Tell me about the security objective.", TITLE_SECURITY),
-        linkFor("Tell me about the contact objective.", TITLE_CONTACT),
+        "better without running short of money.",
         linkFor("How do I get money and supplies?", TITLE_EXPLAIN_SUPPLY),
-        linkFor("How do I improve my housing?", TITLE_EXPLAIN_INDUSTRY)
+        linkFor("How do I improve my housing?", TITLE_EXPLAIN_INDUSTRY),
+        linkFor("Tell me about the security objective.", TITLE_SECURITY),
+        linkFor("Tell me about the contact objective.", TITLE_CONTACT)
       );
     }
 
@@ -279,8 +360,8 @@ public class TutorialScenario extends StartupScenario {
         "to produce food and minerals for export or local consumption.  (Both "+
         "the Botanical Station and Excavation Site need a good deal of room, "+
         "so don't place them too close to your main base.)",
-        linkFor("Go back to the economic objective.", TITLE_ECONOMY),
-        linkFor("How do I improve my housing?", TITLE_EXPLAIN_INDUSTRY)
+        linkFor("How do I improve my housing?", TITLE_EXPLAIN_INDUSTRY),
+        linkFor("Go back to the economic objective.", TITLE_ECONOMY)
       );
     }
     
@@ -297,16 +378,55 @@ public class TutorialScenario extends StartupScenario {
         "Holdings should display the goods and services they require to "+
         "upgrade in their status description, and will do so after being "+
         "satisfied for a day or so.",
-        linkFor("Go back to the economic objective.", TITLE_ECONOMY),
-        linkFor("How do I get money and supplies?", TITLE_EXPLAIN_SUPPLY)
+        linkFor("How do I get money and supplies?", TITLE_EXPLAIN_SUPPLY),
+        linkFor("Go back to the economic objective.", TITLE_ECONOMY)
       );
     }
     
     //  Mention artificer and fabricator.  Upgrades to increase production.
     //  Mention supply depot and botanical station, for trade and food.
     
+    if (title == TITLE_SECURITY_DONE) {
+      return comms.addMessage(
+        TITLE_SECURITY_DONE, null,
+        "Congratulations!  Each of the ruins has now been destroyed."
+      );
+    }
+    
+    if (title == TITLE_CONTACT_DONE) {
+      return comms.addMessage(
+        TITLE_CONTACT_DONE, null,
+        "Congratulations!  The native camps no longer pose a threat to your "+
+        "base."
+      );
+    }
+    
+    if (title == TITLE_ECONOMY_DONE) {
+      return comms.addMessage(
+        TITLE_ECONOMY_DONE, null,
+        "Congratulations!  Your future economic prospects are bright."
+      );
+    }
+    
+    if (title == TITLE_CONGRATULATIONS) {
+      return comms.addMessage(
+        TITLE_CONGRATULATIONS, null,
+        "This tutorial is now complete.  Feel free to explore the mechanics "+
+        "of construction and mission-settings some more, but when you are "+
+        "ready, select 'Complete Tutorial' to advance to a new mission.\n\n"+
+        "Complete Tutorial <UNDER CONSTRUCTION!>"
+      );
+    }
+    
     return messageFor(TITLE_WELCOME);
   }
 }
+
+
+
+
+
+
+
 
 

@@ -35,20 +35,23 @@ public class CombatUtils implements Qualities {
     float estimate = actor.strengthEstimate();
     if (estimate == -1) {
       estimate = (actor.gear.armourRating() + actor.gear.attackDamage()) / 20f;
-      estimate *= (1 + (actor.health.maxHealth() / 10)) / 2f;
+      estimate *= actor.health.maxHealth() / 10f;
       estimate *= (1 - actor.health.injuryLevel());
       estimate *= 1 - actor.health.stressPenalty();
       //
       // Scale by general ranks in relevant skills-
+      float skillBonus = 1;
       if (report) I.say("Native strength: " + estimate);
-      estimate *= (2 +
+      skillBonus *= (2 +
         actor.traits.useLevel(HAND_TO_HAND) +
         actor.traits.useLevel(MARKSMANSHIP)
       ) / 20;
-      estimate *= (2 +
+      skillBonus *= (2 +
         actor.traits.useLevel(HAND_TO_HAND) +
         actor.traits.useLevel(STEALTH_AND_COVER)
       ) / 20;
+      estimate *= (1 + skillBonus) / 2f;
+      if (! actor.gear.armed()) estimate /= 2;
       if (report) I.say("With skills: "+estimate);
       actor.setStrengthEstimate(estimate);
     }

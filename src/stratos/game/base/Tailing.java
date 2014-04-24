@@ -4,6 +4,7 @@ package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
+import stratos.game.maps.Species;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
@@ -26,7 +27,13 @@ public class Tailing extends Venue {
   
   public Tailing(Base base, Tailing strip[]) {
     super(2, 2, ENTRANCE_NONE, base);
-    structure.setupStats(50, 10, 0, 0, Structure.TYPE_FIXTURE);
+    structure.setupStats(
+      10,  //integrity
+      10,  //armour
+      20,  //build cost
+      0,  //max upgrades
+      Structure.TYPE_FIXTURE
+    );
     this.strip = strip;
   }
 
@@ -82,6 +89,11 @@ public class Tailing extends Venue {
   
   protected float fillLevel() {
     return fillLevel;
+  }
+  
+  
+  protected void updatePaving(boolean inWorld) {
+    if (this == strip[0]) super.updatePaving(inWorld);
   }
   
   
@@ -157,6 +169,14 @@ public class Tailing extends Venue {
   
   public Composite portrait(BaseUI UI) {
     return Composite.withImage(ExcavationSite.ICON, "tailing");
+  }
+  
+  
+  public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
+    final StringBuffer d = new StringBuffer();
+    d.append("% filled: "+((int) (fillLevel * 100)));
+    panel = VenueDescription.configSimplePanel(this, panel, UI, d.toString());
+    return panel;
   }
   
   
