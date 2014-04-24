@@ -46,8 +46,6 @@ public class MainMenu extends UIGroup {
   
   public void configMainText(Object args[]) {
     text.setText("") ;
-    //
-    //  TODO:  Add a Tutorial/Quickstart option?
     Call.add("\n  New Game"       , this, "configForNew"     , text) ;
     Call.add("\n  Quick Tutorial" , this, "configQuickstart" , text) ;
     Call.add("\n  Continue Game"  , this, "configToContinue" , text) ;
@@ -57,8 +55,9 @@ public class MainMenu extends UIGroup {
   
   
   public void configForNew(Object args[]) {
+    I.say("  CONFIGURING NEW GAME");
     
-    config = new StartupScenario.Config();
+    if (this.config == null) this.config = new StartupScenario.Config();
     text.setText("");
     text.append("\nRuler Settings:\n");
     
@@ -84,6 +83,8 @@ public class MainMenu extends UIGroup {
     //  a preview image and side-text.
     
     text.append("\n  House:") ;
+    I.say("  HOUSE IS: "+config.house);
+    if (config.house == null) config.house = Backgrounds.ALL_PLANETS[0];
     for (Background b : Backgrounds.ALL_PLANETS) {
       final System s = (System) b ;
       final Colour c = config.house == s ? Colour.CYAN : null ;
@@ -135,6 +136,7 @@ public class MainMenu extends UIGroup {
   
   public void setHouse(Object args[]) {
     config.house = (Background) args[0] ;
+    I.say("  HOUSE IS NOW: "+config.house);
     configForNew(null) ;
   }
   
