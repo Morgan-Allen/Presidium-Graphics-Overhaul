@@ -18,10 +18,6 @@ import stratos.user.* ;
 import stratos.util.* ;
 
 
-//
-//  TODO:  Get rid of the Petrocarbs production from forestry, since the Air
-//  Processor already has that covered.  (That and mining of course.)
-
 
 public class BotanicalStation extends Venue implements Economy {
   

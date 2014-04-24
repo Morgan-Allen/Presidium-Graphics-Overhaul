@@ -27,7 +27,13 @@ public class Tailing extends Venue {
   
   public Tailing(Base base, Tailing strip[]) {
     super(2, 2, ENTRANCE_NONE, base);
-    structure.setupStats(50, 10, 0, 0, Structure.TYPE_FIXTURE);
+    structure.setupStats(
+      10,  //integrity
+      10,  //armour
+      20,  //build cost
+      0,  //max upgrades
+      Structure.TYPE_FIXTURE
+    );
     this.strip = strip;
   }
 

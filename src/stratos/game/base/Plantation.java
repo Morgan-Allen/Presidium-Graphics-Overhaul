@@ -103,9 +103,9 @@ public class Plantation extends Venue implements
     super(2, 2, (ENTRANCE_WEST + (facing / 2)) % 4, belongs.base()) ;
     final boolean IN = type == TYPE_NURSERY ;
     structure.setupStats(
-      IN ? 50 : 20,  //integrity
-      3,  //armour
-      IN ? 30 : 10,  //build cost
+      IN ? 25 : 5,  //integrity
+      5,  //armour
+      IN ? 15 : 2,  //build cost
       0,  //max upgrades
       Structure.TYPE_FIXTURE
     ) ;

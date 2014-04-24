@@ -16,6 +16,8 @@ import stratos.util.*;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.*;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 
 
 
@@ -77,6 +79,25 @@ public final class PlayLoop {
   
   /**  The big static setup, run and exit methods-
     */
+  private static LwjglApplicationConfiguration getConfig() {
+    final Dimension SS = Toolkit.getDefaultToolkit().getScreenSize();
+
+    final LwjglApplicationConfiguration
+      config = new LwjglApplicationConfiguration();
+    config.title = "Stratos";
+    config.useGL20 = true;
+    config.vSyncEnabled = true;
+    config.width = Math.min(DEFAULT_WIDTH, SS.width - 100);
+    config.height = Math.min(DEFAULT_HEIGHT, SS.height - 100);
+    config.foregroundFPS = DEFAULT_HERTZ;
+    config.backgroundFPS = DEFAULT_HERTZ;
+    config.resizable = true;
+    config.fullscreen = false;
+    
+    return config;
+  }
+  
+  
   public static void setupAndLoop(Playable scenario) {
     loopChanged = true;
     PlayLoop.played = scenario;
@@ -91,17 +112,6 @@ public final class PlayLoop {
     if (! initDone) {
       initDone = true;
       
-      final LwjglApplicationConfiguration
-        config = new LwjglApplicationConfiguration();
-      config.title = "Stratos";
-      config.useGL20 = true;
-      config.vSyncEnabled = true;
-      config.width = DEFAULT_WIDTH;
-      config.height = DEFAULT_HEIGHT;
-      config.foregroundFPS = DEFAULT_HERTZ;
-      config.backgroundFPS = DEFAULT_HERTZ;
-      config.resizable = true;
-      config.fullscreen = false;
       
       new LwjglApplication(new ApplicationListener() {
         public void create() {
@@ -136,7 +146,7 @@ public final class PlayLoop {
             exitLoop();
           }
         }
-      }, config);
+      }, getConfig());
       
       //  TODO:  Figure out a way to schedule garbage collection that doesn't
       //  suck.
