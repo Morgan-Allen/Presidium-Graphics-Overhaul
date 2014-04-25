@@ -48,6 +48,8 @@ public class Service implements Session.Saveable {
   final public String name ;
   final public int typeID = nextID++ ;
   
+  final public String supplyKey, demandKey;
+  
   final public int basePrice ;
   final public String picPath ;
   final public CutoutModel model ;
@@ -78,6 +80,9 @@ public class Service implements Session.Saveable {
       this.picPath = DEFAULT_PIC_PATH;
       this.model = CutoutModel.fromImage(typeClass, picPath, IS, IS);
     }
+    
+    this.supplyKey = name+"_supply";
+    this.demandKey = name+"_demand";
     soFar.add(this) ;
     allTypes.add(this) ;
   }

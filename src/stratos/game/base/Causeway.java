@@ -67,6 +67,11 @@ public class Causeway extends Segment {
     return new Causeway(base);
   }
   
+  
+  protected boolean lockToGrid() {
+    return true;
+  }
+  
 
   protected void configFromAdjacent(boolean[] near, int numNear) {
     final Tile o = origin() ;

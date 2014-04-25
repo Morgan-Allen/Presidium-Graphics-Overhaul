@@ -44,7 +44,7 @@ public class Deliveries implements Economy {
   ) {
     return Deliveries.bestClient(
       actor, goods, origin,
-      (Batch) nearbyCustomers(origin, world),
+      (Batch) nearbyCustomers(goods, origin, world),
       sizeLimit, IS_TRADE
     ) ;
   }
@@ -426,11 +426,32 @@ public class Deliveries implements Economy {
   }
   
   
-  public static Batch <Venue> nearbyCustomers(Target target, World world) {
+  public static Batch <Venue> nearbyCustomers(
+    Service types[], Target target, World world
+  ) {
+    final boolean report = deliverVerbose && I.talkAbout == target;
+    
     final Batch <Venue> sampled = new Batch <Venue> () ;
-    world.presences.sampleFromMap(
-      target, world, 5, sampled, Venue.class
+    final String keys[] = new String[types.length];
+    for (int i = types.length; i-- > 0;) keys[i] = types[i].demandKey;
+    
+    world.presences.sampleFromMaps(
+      target, world, 5, sampled, (Object[]) keys
     ) ;
+    
+    if (report) {
+      I.say("\nGoods types are: ");
+      for (Service t : types) {
+        final int pop = world.presences.mapFor(t.demandKey).population();
+        if (pop == 0) continue;
+        I.say("  "+t+" (population "+pop+")");
+      }
+      if (sampled.size() > 0) {
+        I.say("Customers sampled are: ");
+        for (Venue v : sampled) I.say("  "+v);
+      }
+    }
+    
     final Batch <Venue> returned = new Batch <Venue> () ;
     for (Venue v : sampled) {
       if (v.privateProperty()) continue ;

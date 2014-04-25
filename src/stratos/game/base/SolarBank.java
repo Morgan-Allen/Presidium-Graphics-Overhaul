@@ -22,19 +22,22 @@ public class SolarBank extends Segment implements Economy {
   final public static ModelAsset
     ARRAY_MODELS[] = CutoutModel.fromImages(
       IMG_DIR, SolarBank.class, 2, 2, false,
-      "solar_array_left.png",
-      "solar_array_right.png",
-      "windtrap_left.png",
-      "windtrap_right.png",
-      "power_hub_left.png",
-      "power_hub_right.png"
+      "solar_bank_left.png",
+      "solar_bank_right.png",
+      "solar_bank_centre.png"
+      //"windtrap_right.png",
+      //"power_hub_left.png",
+      //"power_hub_right.png"
     ),
     MODEL_LEFT       = ARRAY_MODELS[0],
     MODEL_RIGHT      = ARRAY_MODELS[1],
+    MODEL_CENTRE     = ARRAY_MODELS[2];
+    /*
     MODEL_TRAP_LEFT  = ARRAY_MODELS[2],
     MODEL_TRAP_RIGHT = ARRAY_MODELS[3],
     MODEL_HUB_LEFT   = ARRAY_MODELS[4],
     MODEL_HUB_RIGHT  = ARRAY_MODELS[5];
+  //*/
   final static ImageAsset ICON = ImageAsset.fromImage(
     "media/GUI/Buttons/solar_array_button.gif", SolarBank.class
   );
@@ -67,6 +70,11 @@ public class SolarBank extends Segment implements Economy {
     return new SolarBank(base);
   }
   
+  
+  protected boolean lockToGrid() {
+    return false;
+  }
+  
 
   protected void configFromAdjacent(boolean[] near, int numNear) {
     final Tile o = origin() ;
@@ -77,7 +85,7 @@ public class SolarBank extends Segment implements Economy {
         facing = X_AXIS ;
         if (o.y % 8 == 0) {
           type = TYPE_WIND ;
-          attachModel(MODEL_TRAP_LEFT) ;
+          attachModel(MODEL_CENTRE) ;
         }
         else attachModel(MODEL_LEFT) ;
         return ;
@@ -86,7 +94,7 @@ public class SolarBank extends Segment implements Economy {
         facing = Y_AXIS ;
         if (o.x % 8 == 0) {
           type = TYPE_WIND ;
-          attachModel(MODEL_TRAP_RIGHT) ;
+          attachModel(MODEL_CENTRE) ;
         }
         else attachModel(MODEL_RIGHT) ;
         return ;
@@ -105,7 +113,7 @@ public class SolarBank extends Segment implements Economy {
     final int hubIndex = installed.size() / 2 ;
     final SolarBank hub = (SolarBank) installed.atIndex(hubIndex) ;
     hub.type = TYPE_HUB ;
-    ModelAsset model = hub.facing == X_AXIS ? MODEL_HUB_LEFT : MODEL_HUB_RIGHT ;
+    ModelAsset model = hub.facing == X_AXIS ? MODEL_CENTRE : MODEL_CENTRE ;
     hub.attachModel(model) ;
     
     return installed ;

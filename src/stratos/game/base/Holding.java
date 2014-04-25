@@ -9,6 +9,7 @@ package stratos.game.base ;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
+import static stratos.game.building.VenueDescription.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
@@ -364,13 +365,11 @@ public class Holding extends Venue implements Economy {
   
   
   public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
-    if (panel == null) panel = new InfoPanel(
-      UI, this, portrait(UI), "STATUS", "STAFF", "STOCKS"
+    panel = VenueDescription.configPanelWith(
+      this, panel, UI, CAT_STATUS, CAT_STAFF, CAT_STOCK
     );
-    super.configPanel(panel, UI);
-    final int categoryID = panel.categoryID();
     final Description d = panel.detail();
-    if (categoryID == 0) {
+    if (panel.category() == CAT_STATUS) {
       final String
         uS = needMessage(upgradeLevel),
         tS = needMessage(upgradeLevel + 1) ;

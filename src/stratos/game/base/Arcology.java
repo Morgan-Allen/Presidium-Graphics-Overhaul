@@ -72,6 +72,11 @@ public class Arcology extends Segment {
   }
   
   
+  protected boolean lockToGrid() {
+    return false;
+  }
+  
+  
   protected void configFromAdjacent(boolean[] near, int numNear) {
 
     final Tile o = origin() ;

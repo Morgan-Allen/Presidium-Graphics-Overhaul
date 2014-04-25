@@ -178,7 +178,6 @@ public abstract class Venue extends Fixture implements
         return false ;
       }
     }
-    
     //  And make sure we don't create isolated areas of unreachable tiles-
     if (! Spacing.perimeterFits(this)) return false ;
     return true;
@@ -202,18 +201,20 @@ public abstract class Venue extends Fixture implements
   public boolean enterWorldAt(int x, int y, World world) {
     if (! super.enterWorldAt(x, y, world)) return false ;
 
-    world.presences.togglePresence(this, true ) ;
-    world.schedule.scheduleForUpdates(this) ;
-    personnel.onCommission() ;
+    world.presences.togglePresence(this, true);
+    world.schedule.scheduleForUpdates(this);
+    stocks.onWorldEntry();
+    personnel.onCommission();
     return true ;
   }
   
   
   public void exitWorld() {
-    personnel.onDecommission() ;
-    world.presences.togglePresence(this, false) ;
-    if (base != null) updatePaving(false) ;
-    world.schedule.unschedule(this) ;
+    stocks.onWorldExit();
+    personnel.onDecommission();
+    world.presences.togglePresence(this, false);
+    if (base != null) updatePaving(false);
+    world.schedule.unschedule(this);
     
     super.exitWorld() ;
   }
@@ -349,6 +350,7 @@ public abstract class Venue extends Fixture implements
   public int numOpenings(Background v) {
     return structure.upgradeBonus(v) - personnel.numHired(v);
   }
+  
   
   public boolean isManned() {
     for (Actor a : personnel.workers) {

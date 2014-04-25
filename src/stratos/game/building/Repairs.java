@@ -21,7 +21,7 @@ public class Repairs extends Plan implements Qualities {
     TIME_PER_25_HP = World.STANDARD_HOUR_LENGTH,
     MIN_SERVICE_DAMAGE = 0.25f;
   
-  private static boolean verbose = true;
+  private static boolean verbose = false;
   
   final Venue built ;
   

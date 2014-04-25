@@ -344,6 +344,7 @@ public final class Spacing implements TileConstants {
   /**  Distance calculation methods-
     */
   final public static float distance(final Target a, final Target b) {
+    if (a == null || b == null) I.complain("NULL POINT! "+a+" "+b);
     final float dist = innerDistance(a, b) - (a.radius() + b.radius()) ;
     return (dist < 0) ? 0 : dist ;
   }

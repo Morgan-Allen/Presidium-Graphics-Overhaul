@@ -176,6 +176,11 @@ public class ShieldWall extends Segment {
   }
   
   
+  protected boolean lockToGrid() {
+    return true;
+  }
+  
+  
   protected boolean checkPerimeter(World world) {
     for (Tile n : Spacing.perimeter(area(), world)) {
       if (n == null || n.owner() instanceof ShieldWall) continue;

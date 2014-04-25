@@ -117,7 +117,7 @@ public class BlastDoors extends ShieldWall implements TileConstants {
   public String helpInfo() {
     return
       "Blast Doors grant your citizens access to enclosed sectors of your "+
-      "base, and can be used to restrict passage to the less desireable." ;
+      "base, and can be used to restrict passage to undesireables." ;
   }
   
   

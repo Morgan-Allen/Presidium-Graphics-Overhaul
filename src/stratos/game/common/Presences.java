@@ -7,6 +7,9 @@ import stratos.util.*;
 
 
 
+//  TODO:  As an added safety feature, presence-maps will need to be
+//  periodically checked for dead objects.
+
 public class Presences {
 	
 	
@@ -35,10 +38,10 @@ public class Presences {
   	allMaps.put(Outcrop.class, outcropMap) ;
   	allMaps.put(Mobile.class, mobilesMap) ;
   	
-  	nullMap = new PresenceMap(world, "nothing") {
-		  public void toggleMember(Target t, Tile at, boolean is) {
-		  	I.complain("Cannot modify null-presence map!") ;
-		  }
+    nullMap = new PresenceMap(world, "nothing") {
+      public void toggleMember(Target t, Tile at, boolean is) {
+        I.complain("Cannot modify null-presence map!");
+      }
   	} ;
   	nullStack = new Stack() ;
   }
@@ -87,6 +90,7 @@ public class Presences {
   }
   
   
+  //  TODO:  Move this to the venue/venue-stocks classes?
   public void togglePresence(
     Venue venue, boolean is
   ) {
@@ -186,19 +190,9 @@ public class Presences {
     for (int n = limit / 2 ; n-- > 0 ;) {
       final Target v = randomMatchNear(key, t, -1) ;
       if (v != t) flagItem(v, sampled);
-      /*
-      if (v == t || v == null || v.flaggedWith() != null) continue ;
-      sampled.add(v) ;
-      v.flagWith(sampled) ;
-      //*/
     }
     for (Object o : matchesNear(key, t, -1)) {
       if (o != t) flagItem((Target) o, sampled);
-      /*
-      final Target v = (Target) o ;
-      if (v.flaggedWith() != null) continue ;
-      sampled.add(v) ;
-      //*/
       if (sampled.size() >= limit) break ;
     }
     return sampled ;

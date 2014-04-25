@@ -337,8 +337,9 @@ public class Structure {
     if (world == null || basis.isMobile()) return;
     final boolean report = verbose && I.talkAbout == basis;
     
-    final boolean
-      needs = Repairs.needForRepair(basis) > Repairs.MIN_SERVICE_DAMAGE;
+    final boolean needs =
+      (Repairs.needForRepair(basis) > Repairs.MIN_SERVICE_DAMAGE) ||
+      hasWear();
     final Tile o = world.tileAt(basis);
     final PresenceMap damaged = world.presences.mapFor("damaged");
     

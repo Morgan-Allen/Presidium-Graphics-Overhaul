@@ -287,7 +287,7 @@ public abstract class Plan implements Saveable, Behaviour {
     
     if (baseSkills != null) for (Skill skill : baseSkills) {
       final float level = actor.traits.traitLevel(skill);
-      skillBonus += CASUAL * (level - 5) / (15 * baseSkills.length);
+      skillBonus += CASUAL * (level - 10) / (10 * baseSkills.length);
     }
     
     if (baseTraits != null) for (Trait trait : baseTraits) {

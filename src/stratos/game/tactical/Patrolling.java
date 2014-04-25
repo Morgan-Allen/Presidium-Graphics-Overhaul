@@ -296,14 +296,16 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
 
     final float maxDist = World.SECTOR_SIZE * 1.5f;
     final Vec3D p = start.position(null);
-    final Tile ideal = actor.world().tileAt(p.x + (N_X[initDir] * 2),
-        p.y + (N_Y[initDir] * 2));
+    Tile ideal = actor.world().tileAt(
+      p.x + (N_X[initDir] * 2),
+      p.y + (N_Y[initDir] * 2)
+    );
+    if (ideal == null) return null;
 
     Boardable init = start, next = null;
     float minDist = Float.POSITIVE_INFINITY;
     for (Boardable b : init.canBoard(Spacing.tempB4)) {
-      if (! (b instanceof ShieldWall))
-        continue;
+      if (! (b instanceof ShieldWall)) continue;
       final float dist = Spacing.distance(b, ideal);
       if (dist < minDist) {
         minDist = dist;

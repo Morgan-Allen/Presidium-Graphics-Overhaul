@@ -352,14 +352,6 @@ public class VenueStocks extends Inventory implements Economy {
   }
   
   
-  public void clearDemands() {
-    for (Demand d : demands.values()) {
-      d.demandAmount = 0 ;
-      d.tierType = TIER_PRODUCER ;
-    }
-  }
-  
-  
   public void diffuseDemand(Service type, Batch <Venue> suppliers, int period) {
     final Demand d = demands.get(type) ;
     if (d == null) return ;
@@ -432,14 +424,35 @@ public class VenueStocks extends Inventory implements Economy {
   public void diffuseDemand(Service type, int period) {
     final Batch <Venue> suppliers = Deliveries.nearbyVendors(
       type, venue, venue.world()
-    ) ;
-    diffuseDemand(type, suppliers, period) ;
+    );
+    diffuseDemand(type, suppliers, period);
+  }
+  
+  
+  public void clearDemands() {
+    final Presences presences = venue.world().presences;
+    final Tile at = venue.world().tileAt(venue);
+    for (Demand d : demands.values()) {
+      d.demandAmount = 0 ;
+      d.tierType = TIER_PRODUCER ;
+      presences.togglePresence(venue, at, false, d.type.demandKey);
+    }
   }
   
   
   
   /**  Calling regular updates-
     */
+  protected void onWorldEntry() {
+    //  TODO:  Use this to register service presences?
+  }
+  
+  
+  protected void onWorldExit() {
+    clearDemands();
+  }
+  
+  
   protected void updateStocks(int numUpdates) {
     if (Float.isNaN(credits)) credits = 0 ;
     if (Float.isNaN(taxed)) taxed = 0 ;
@@ -469,8 +482,11 @@ public class VenueStocks extends Inventory implements Economy {
     
     if (report) I.say("\nDIFFUSING DEMAND AT: "+venue);
     
-    final Service vS[] = venue.services() ;
-    if ((vS == null || vS.length == 0) && demands.size() == 0) return ;
+    final Presences presences = venue.world().presences;
+    final Tile vO = venue.world().tileAt(venue);
+    final Service vS[] = venue.services();
+    
+    if ((vS == null || vS.length == 0) && demands.size() == 0) return;
     if (vS != null) for (Service s : vS) if (demandTier(s) == TIER_NONE) {
       demandRecord(s).tierType = TIER_PRODUCER ;
     }
@@ -485,8 +501,14 @@ public class VenueStocks extends Inventory implements Economy {
       d.pricePaid += d.type.basePrice ;
       
       if (report) I.say("  "+d.type+" demand is: "+d.demandAmount);
-      if (d.tierType == TIER_PRODUCER) continue ;
-      diffuseDemand(d.type, (int) UPDATE_PERIOD) ;
+      if (d.tierType == TIER_PRODUCER) continue;
+      diffuseDemand(d.type, (int) UPDATE_PERIOD);
+      
+      final boolean shortage = d.demandAmount > amountOf(d.type);
+      if (report) {
+        I.say("  Flagging shortage of "+d.type+"? "+shortage);
+      }
+      presences.togglePresence(venue, vO, shortage, d.type.demandKey);
     }
     
     for (Manufacture m : specialOrders) {
@@ -498,11 +520,6 @@ public class VenueStocks extends Inventory implements Economy {
     }
   }
 }
-
-
-
-
-
 
 
 
