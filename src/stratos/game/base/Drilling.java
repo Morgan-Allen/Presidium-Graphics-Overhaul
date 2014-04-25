@@ -165,11 +165,14 @@ public class Drilling extends Plan implements Economy, Qualities {
       I.say("Basic DC: "+DC+", success: "+success);
     }
     
+    //  TODO:  This needs some more consideration.
+    /*
     if (type == DrillYard.DRILL_RANGED || type == DrillYard.DRILL_MELEE) {
       final Target dummy = yard.dummyFor(actor);
       if (dummy == null) return true;
       DeviceType.applyFX(actor.gear.deviceType(), actor, dummy, success);
     }
+    //*/
     return true;
   }
   

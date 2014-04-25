@@ -5,13 +5,12 @@
   */
 
 package stratos.start;
-import stratos.game.actors.Backgrounds;
-import stratos.game.actors.Qualities;
-import stratos.game.building.Economy;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
+import stratos.game.actors.Backgrounds;
+import stratos.game.maps.Species;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
@@ -191,7 +190,9 @@ public final class PlayLoop {
   
   private static void initLoop() {
     Assets.compileAssetList(
-      "stratos", Qualities.class, Economy.class, Backgrounds.class
+      "stratos",
+      Backgrounds.class,
+      Species.class
     );
     rendering = new Rendering();
   }

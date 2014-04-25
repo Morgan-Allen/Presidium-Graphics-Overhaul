@@ -62,6 +62,11 @@ public class SolarBank extends Segment implements Economy {
     super.saveState(s) ;
   }
   
+  
+  protected Segment instance(Base base) {
+    return new SolarBank(base);
+  }
+  
 
   protected void configFromAdjacent(boolean[] near, int numNear) {
     final Tile o = origin() ;
@@ -69,27 +74,27 @@ public class SolarBank extends Segment implements Economy {
     
     if (numNear > 0 && numNear <= 2) {
       if (near[N] || near[S]) {
-        facing = Y_AXIS ;
-        if (o.y % 8 == 0) {
-          type = TYPE_WIND ;
-          attachModel(MODEL_TRAP_RIGHT) ;
-        }
-        else attachModel(MODEL_RIGHT) ;
-        return ;
-      }
-      if (near[W] || near[E]) {
         facing = X_AXIS ;
-        if (o.x % 8 == 0) {
+        if (o.y % 8 == 0) {
           type = TYPE_WIND ;
           attachModel(MODEL_TRAP_LEFT) ;
         }
         else attachModel(MODEL_LEFT) ;
         return ;
       }
+      if (near[W] || near[E]) {
+        facing = Y_AXIS ;
+        if (o.x % 8 == 0) {
+          type = TYPE_WIND ;
+          attachModel(MODEL_TRAP_RIGHT) ;
+        }
+        else attachModel(MODEL_RIGHT) ;
+        return ;
+      }
     }
     
     facing = CORNER ;
-    attachModel(MODEL_LEFT) ;
+    attachModel(MODEL_RIGHT) ;
   }
   
 

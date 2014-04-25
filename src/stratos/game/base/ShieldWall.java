@@ -6,14 +6,13 @@
 
 
 package stratos.game.base ;
-import stratos.game.building.* ;
-import stratos.game.common.* ;
-import stratos.graphics.common.* ;
-import stratos.graphics.cutout.* ;
-import stratos.graphics.widgets.Composite;
-import stratos.graphics.widgets.HUD ;
-import stratos.user.* ;
-import stratos.util.* ;
+import stratos.game.building.*;
+import stratos.game.common.*;
+import stratos.graphics.common.*;
+import stratos.graphics.cutout.*;
+import stratos.graphics.widgets.*;
+import stratos.user.*;
+import stratos.util.*;
 
 
 
@@ -63,25 +62,29 @@ public class ShieldWall extends Segment {
   
   
   public ShieldWall(Base base) {
-    super(2, 3, base) ;
-    structure.setupStats(75, 35, 40, 0, Structure.TYPE_FIXTURE) ;
+    this(TYPE_SECTION, 2, 2, base);
   }
   
   
   protected ShieldWall(int type, int size, int high, Base base) {
-    super(size, high, base) ;
-    this.type = type ;
-    structure.setupStats(200, 35, 100, 0, Structure.TYPE_FIXTURE) ;
+    super(size, high, base);
+    this.type = type;
+    if (type == TYPE_SECTION) {
+      structure.setupStats(75, 35, 40, 0, Structure.TYPE_FIXTURE);
+    }
+    else {
+      structure.setupStats(200, 35, 100, 0, Structure.TYPE_FIXTURE);
+    }
   }
   
   
   public ShieldWall(Session s) throws Exception {
-    super(s) ;
+    super(s);
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
+    super.saveState(s);
   }
   
   
@@ -168,27 +171,41 @@ public class ShieldWall extends Segment {
   
   /**  Configuring sections of the line-
     */
+  protected Segment instance(Base base) {
+    return new ShieldWall(base);
+  }
+  
+  
+  protected boolean checkPerimeter(World world) {
+    for (Tile n : Spacing.perimeter(area(), world)) {
+      if (n == null || n.owner() instanceof ShieldWall) continue;
+      if (n.owningType() >= this.owningType()) return false;
+    }
+    return true;
+  }
+  
+  
   protected void configFromAdjacent(boolean[] near, int numNear) {
     final Tile o = origin() ;
     entrances = null ;
     if (numNear == 2) {
       type = TYPE_SECTION ;
       if (near[N] && near[S]) {
-        facing = Y_AXIS ;
-        if (o.y % 8 == 0) {
-          type = TYPE_TOWER ;
-          attachModel(TOWER_MODEL_RIGHT) ;
-        }
-        else attachModel(SECTION_MODEL_RIGHT) ;
-        return ;
-      }
-      if (near[W] && near[E]) {
         facing = X_AXIS ;
-        if (o.x % 8 == 0) {
+        if (o.y % 8 == 0) {
           type = TYPE_TOWER ;
           attachModel(TOWER_MODEL_LEFT) ;
         }
         else attachModel(SECTION_MODEL_LEFT) ;
+        return ;
+      }
+      if (near[W] && near[E]) {
+        facing = Y_AXIS ;
+        if (o.x % 8 == 0) {
+          type = TYPE_TOWER ;
+          attachModel(TOWER_MODEL_RIGHT) ;
+        }
+        else attachModel(SECTION_MODEL_RIGHT) ;
         return ;
       }
     }

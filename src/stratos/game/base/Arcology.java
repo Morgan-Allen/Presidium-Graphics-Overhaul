@@ -67,6 +67,11 @@ public class Arcology extends Segment {
   }
   
   
+  protected Segment instance(Base base) {
+    return new Arcology(base);
+  }
+  
+  
   protected void configFromAdjacent(boolean[] near, int numNear) {
 
     final Tile o = origin() ;
@@ -74,33 +79,33 @@ public class Arcology extends Segment {
     int capIndex = -1 ;
     
     if (numNear == 2) {
-      if (near[N] && near[S]) facing = Y_AXIS ;
-      if (near[W] && near[E]) facing = X_AXIS ;
+      if (near[N] && near[S]) facing = X_AXIS ;
+      if (near[W] && near[E]) facing = Y_AXIS ;
     }
     else if (numNear == 1) {
       if (near[N] || near[S]) {
-        facing = Y_AXIS ;
+        facing = X_AXIS ;
         capIndex = near[N] ? 6 : 2 ;
       }
       if (near[W] || near[E]) {
-        facing = X_AXIS ;
+        facing = Y_AXIS ;
         capIndex = near[W] ? 2 : 6 ;
       }
     }
     if (facing == -1) facing = CORNER ;
 
     if (facing == X_AXIS) {
-      final int x = o.x % 8 ;
-      if (x == 0 || x == capIndex) attachModel(ART_MODELS[varID]) ;
-      else if (x == 6 || capIndex == 2) attachModel(MODEL_BEDS_EAST ) ;
-      else if (x == 2 || capIndex == 6) attachModel(MODEL_BEDS_WEST ) ;
+      final int x = o.y % 8 ;
+      if (false);//if (x == 0 || x == capIndex) attachModel(ART_MODELS[varID]) ;
+      else if (capIndex == 2) attachModel(MODEL_BEDS_EAST ) ;
+      else if (capIndex == 6) attachModel(MODEL_BEDS_WEST ) ;
       else attachModel(MODEL_BEDS_RIGHT) ;
     }
     if (facing == Y_AXIS) {
-      final int y = o.y % 8 ;
-      if (y == 0 || y == capIndex) attachModel(ART_MODELS[varID]) ;
-      else if (y == 6 || capIndex == 2) attachModel(MODEL_BEDS_NORTH) ;
-      else if (y == 2 || capIndex == 6) attachModel(MODEL_BEDS_SOUTH) ;
+      final int y = o.x % 8 ;
+      if (false);//if (y == 0 || y == capIndex) attachModel(ART_MODELS[varID]) ;
+      else if (capIndex == 2) attachModel(MODEL_BEDS_NORTH) ;
+      else if (capIndex == 6) attachModel(MODEL_BEDS_SOUTH) ;
       else attachModel(MODEL_BEDS_LEFT ) ;
     }
     if (facing == CORNER) {

@@ -11,17 +11,6 @@ import stratos.graphics.common.*;
 
 
 
-/*
-SPYCE_A = new Item.Type(C, COMMODITY, "Spyce A (Tinerazine)", 400),
-SPYCE_B = new Item.Type(C, COMMODITY, "Spyce B (Halebdynum)", 400),
-SPYCE_C = new Item.Type(C, COMMODITY, "Spyce C (Natrizoral)", 400),
-//*/
-//  TODO:  Each commodity type should have a description attached.
-
-//  SLAG!
-
-
-
 public interface Economy extends Qualities {
   
   
@@ -288,7 +277,6 @@ public interface Economy extends Qualities {
       BC, "Golem Frame"  , 25, 10, 500,
       new Conversion(12, PARTS, "Foundry", 25, ASSEMBLY)
     ),
-    //  Myrmidone armour, Suspensor, Inhibitor Collar.
     
     NATURAL_ARMOUR = new OutfitType(
       BC, "Natural Armour", 0, 0, 0, null

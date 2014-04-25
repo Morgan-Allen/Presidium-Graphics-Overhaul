@@ -153,7 +153,7 @@ public abstract class Venue extends Fixture implements
   public boolean canPlace() {
     if (origin() == null) return false ;
     final World world = origin().world ;
-    //
+    
     //  Make sure we don't displace any more important object, or occupy their
     //  entrances.  In addition, the entrance must be clear.
     final int OT = owningType() ;
@@ -163,19 +163,25 @@ public abstract class Venue extends Fixture implements
         if (e.owningType() >= OT) return false ;
       }
     }
-    //
+    
+    if (! checkPerimeter(world)) return false;
+    final Tile e = mainEntrance() ;
+    if (e != null && e.owningType() >= OT) return false ;
+    return true ;
+  }
+  
+  
+  protected boolean checkPerimeter(World world) {
     //  Don't abut on anything of higher priority-
     for (Tile n : Spacing.perimeter(area(), world)) {
       if (n == null || (n.owner() != null && ! canTouch(n.owner()))) {
         return false ;
       }
     }
-    //
+    
     //  And make sure we don't create isolated areas of unreachable tiles-
     if (! Spacing.perimeterFits(this)) return false ;
-    final Tile e = mainEntrance() ;
-    if (e != null && e.owningType() >= OT) return false ;
-    return true ;
+    return true;
   }
   
   

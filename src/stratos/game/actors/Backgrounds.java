@@ -9,7 +9,7 @@ import stratos.util.*;
 
 
 
-public interface Backgrounds extends Qualities, Economy {
+public interface Backgrounds extends Economy {
   
   
   final public static Float

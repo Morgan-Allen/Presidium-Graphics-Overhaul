@@ -60,6 +60,7 @@ public class DeviceType extends Service implements Economy {
       baseClass, FORM_DEVICE, name,
       basePrice + (materials == null ? 0 : materials.rawPriceValue())
     ) ;
+    ///I.say("Declaring device: "+name);
     this.baseDamage = baseDamage ;
     this.properties = properties ;
     this.materials = materials ;

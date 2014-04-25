@@ -41,7 +41,7 @@ Ecologist      Gatherer
 
 
 
-public class Background implements Economy, Session.Saveable {
+public class Background implements Session.Saveable {
   
   
   private static int nextID = 0 ;
@@ -65,6 +65,7 @@ public class Background implements Economy, Session.Saveable {
     int standing, int guild, Object... args
   ) {
     this.name = name ;
+    ///I.say("Declaring background: "+name);
     
     if (costumeTex == null) this.costume = null ;
     else this.costume = costumeFor(costumeTex);
@@ -88,6 +89,7 @@ public class Background implements Economy, Session.Saveable {
         traitChances.put((Trait) o, chance) ;
       }
       else if (o instanceof Service) {
+        ///I.say("  "+name+" has gear: "+o);
         gear.add((Service) o) ;
       }
     }

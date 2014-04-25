@@ -76,9 +76,9 @@ public class DebugPlans extends Scenario {
     //configCombatScenario(world, base, UI);
     //configDialogueScenario(world, base, UI);
     //configPurchaseScenario(world, base, UI);
-    //configRaidScenario(world, base, UI);
+    configRaidScenario(world, base, UI);
     //configArtilectScenario(world, base, UI);
-    configContactScenario(world, base, UI);
+    //configContactScenario(world, base, UI);
     //configWildScenario(world, base, UI);
   }
   
@@ -193,7 +193,7 @@ public class DebugPlans extends Scenario {
   
   
   private void configRaidScenario(World world, Base base, BaseUI UI) {
-    GameSettings.fogFree = true;
+    GameSettings.fogFree = false;
     GameSettings.hireFree = true;
     
     //  Introduce a bastion, with standard personnel.

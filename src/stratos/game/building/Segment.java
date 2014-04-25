@@ -89,7 +89,7 @@ public abstract class Segment extends Venue implements TileConstants {
     final int
       atX = 2 * (int) (hovered.x / 2f),
       atY = 2 * (int) (hovered.y / 2f) ;
-    return hovered.world.tileAt(atX, atY) ;
+    return hovered.world.tileAt(atX, atY);
   }
   
   
@@ -99,13 +99,7 @@ public abstract class Segment extends Venue implements TileConstants {
   }
   
   
-  protected Segment instance(Base base) {
-    try {
-      final Constructor cons = this.getClass().getConstructor(Base.class) ;
-      return (Segment) cons.newInstance(base) ;
-    }
-    catch (Exception e) { return null ; }
-  }
+  protected abstract Segment instance(Base base);
   
   
   protected List <Segment> installedBetween(Tile start, Tile end) {
@@ -129,10 +123,11 @@ public abstract class Segment extends Venue implements TileConstants {
     
     final List <Segment> installed = new List() ;
     for (Tile p : placePath) {
-      final Segment v = instance(base()) ;
-      v.setPosition(p.x, p.y, p.world) ;
-      if (! v.canPlace()) return null ;
-      installed.add(v) ;
+      final Segment v = instance(base());
+      if (v == null) I.say("PROBLEM!");
+      v.setPosition(p.x, p.y, p.world);
+      if (! v.canPlace()) return null;
+      installed.add(v);
     }
     
     for (Segment s : installed) {
@@ -202,12 +197,12 @@ public abstract class Segment extends Venue implements TileConstants {
 
   public boolean pointsOkay(Tile from, Tile to) {
     toInstall = installedBetween(from, to) ;
-    I.say("TO INSTALL IS: "+toInstall+", between "+from+" and "+to) ;
+    ///I.say("TO INSTALL IS: "+toInstall+", between "+from+" and "+to) ;
     if (toInstall == null) return false ;
     for (Segment s : toInstall) {
       if (! s.superPointsOkay()) return false ;
     }
-    I.say("INSTALL OKAY...") ;
+    ///I.say("INSTALL OKAY...") ;
     return true ;
   }
   

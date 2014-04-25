@@ -28,6 +28,8 @@ public class OutfitType extends Service implements Economy {
       baseClass, FORM_OUTFIT, name,
       basePrice + (materials == null ? 0 : materials.rawPriceValue())
     ) ;
+    ///I.say("Declaring outfit: "+name);
+    
     this.defence = defence ;
     this.shieldBonus = shieldBonus ;
     this.materials = materials ;

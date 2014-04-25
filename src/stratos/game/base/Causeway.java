@@ -41,8 +41,14 @@ public class Causeway extends Segment {
   
   
   public Causeway(Base base) {
-    super(2, 1, base) ;
-    structure.setupStats(25, 15, 20, 0, Structure.TYPE_FIXTURE) ;
+    super(2, 1, base);
+    structure.setupStats(
+      10,  //integrity
+      25,  //armour
+      20,  //build cost
+      0,   //max upogrades
+      Structure.TYPE_FIXTURE
+    );
     personnel.setShiftType(SHIFTS_ALWAYS) ;
   }
   
@@ -54,6 +60,11 @@ public class Causeway extends Segment {
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
+  }
+  
+  
+  protected Segment instance(Base base) {
+    return new Causeway(base);
   }
   
 
@@ -135,7 +146,7 @@ public class Causeway extends Segment {
   
   
   public String buildCategory() {
-    return InstallTab.TYPE_MERCHANT;
+    return InstallTab.TYPE_ARTIFICER;
   }
 }
 

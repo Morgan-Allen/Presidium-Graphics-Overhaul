@@ -374,7 +374,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
       Target pick, other ;
       if (Rand.yes()) { pick = init ; other = dest ; }
       else            { pick = dest ; other = init ; }
-      if (pick == null) pick = other ;
+      if (! (pick instanceof ShieldWall)) pick = other ;
       final Patrolling s = Patrolling.sentryDuty(
         actor, (ShieldWall) pick, Rand.index(8)
       ) ;
