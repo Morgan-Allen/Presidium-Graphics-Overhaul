@@ -133,53 +133,53 @@ public interface Economy extends Qualities {
     
     MANIPLES = new DeviceType(BC, "Maniples",
       2, GRAPPLE | MELEE | PHYSICAL, 10,
-      new Conversion(3, PARTS, "Foundry", 5, ASSEMBLY),
+      new Conversion(3, PARTS, "Artificer", 5, ASSEMBLY),
       "maniples", AnimNames.BUILD
     ),
     LASER_DRILL = new DeviceType(BC, "Laser Drill",
       5, RANGED | ENERGY, 10,
-      new Conversion(2, PARTS, "Foundry", 5, ASSEMBLY),
+      new Conversion(2, PARTS, "Artificer", 5, ASSEMBLY),
       "laser drill", AnimNames.BUILD
     ),
     MODUS_LUTE = new DeviceType(BC, "Modus Lute",
       0, NONE, 40,
-      new Conversion(1, PARTS, "Foundry", 10, ASSEMBLY),
+      new Conversion(1, PARTS, "Artificer", 10, ASSEMBLY),
       "modus lute", AnimNames.TALK_LONG
     ),
     BIOCORDER = new DeviceType(BC, "Biocorder",
       0, NONE, 55,
-      new Conversion(2, PARTS, "Foundry", 15, ASSEMBLY),
+      new Conversion(2, PARTS, "Artificer", 15, ASSEMBLY),
       "biocorder", AnimNames.LOOK
     ),
     
     STUN_PISTOL = new DeviceType(BC, "Stun Pistol",
       10, RANGED | PHYSICAL | STUN | HOMING, 35,
-      new Conversion(1, PARTS, "Foundry", 10, ASSEMBLY),
+      new Conversion(1, PARTS, "Artificer", 10, ASSEMBLY),
       "pistol", AnimNames.FIRE
     ),
     BLASTER = new DeviceType(BC, "Blaster",
       15, RANGED | ENERGY | PLASMA, 25,
-      new Conversion(1, PARTS, "Foundry", 10, ASSEMBLY),
+      new Conversion(1, PARTS, "Artificer", 10, ASSEMBLY),
       "pistol", AnimNames.FIRE
     ),
     MISSILE_PACK = new DeviceType(BC, "Missile Pack",
       15, RANGED | PHYSICAL | HOMING, 30,
-      new Conversion(2, PARTS, "Foundry", 15, ASSEMBLY),
+      new Conversion(2, PARTS, "Artificer", 15, ASSEMBLY),
       "shoulder", AnimNames.FIRE
     ),
     MICROWAVE_BEAM = new DeviceType(BC, "Microwave Beam",
       20, RANGED | ENERGY | STUN, 45,
-      new Conversion(3, PARTS, "Foundry", 15, ASSEMBLY),
+      new Conversion(3, PARTS, "Artificer", 15, ASSEMBLY),
       "shoulder", AnimNames.FIRE
     ),
     RAIL_CANNON = new DeviceType(BC, "Rail Cannon",
       25, RANGED | PHYSICAL, 60,
-      new Conversion(3, PARTS, "Foundry", 20, ASSEMBLY),
+      new Conversion(3, PARTS, "Artificer", 20, ASSEMBLY),
       "cannon", AnimNames.FIRE
     ),
     DISINTEGRATOR = new DeviceType(BC, "Disintegrator",
       30, RANGED | ENERGY, 120,
-      new Conversion(5, PARTS, "Foundry", 25, ASSEMBLY),
+      new Conversion(5, PARTS, "Artificer", 25, ASSEMBLY),
       "cannon", AnimNames.FIRE
     ),
     
@@ -188,30 +188,29 @@ public interface Economy extends Qualities {
       new Conversion(5, HANDICRAFTS),
       "spear", AnimNames.STRIKE//"staff"
     ),
-    TOOTH_KNIFE = new DeviceType(BC, "Tooth Knife",
+    TOOTH_SHIV = new DeviceType(BC, "Tooth Shiv",
       5, MELEE | PHYSICAL, 5,
       new Conversion(5, HANDICRAFTS),
       "light blade", AnimNames.STRIKE
     ),
-    
+    NERVE_BATON = new DeviceType(BC, "Nerve Baton",
+      10, MELEE | PHYSICAL | STUN, 25,
+      new Conversion(1, PARTS, "Artificer", 10, ASSEMBLY),
+      "baton", AnimNames.STRIKE_BIG
+    ),
     SHOCK_STAFF = new DeviceType(BC, "Shock Staff",
       15, MELEE | PHYSICAL | STUN, 40,
-      new Conversion(2, PARTS, "Foundry", 10, ASSEMBLY),
+      new Conversion(2, PARTS, "Artificer", 10, ASSEMBLY),
       "staff", AnimNames.STRIKE
     ),
     ARC_SABRE = new DeviceType(BC, "Arc Sabre",
       25, MELEE | ENERGY, 100,
-      new Conversion(3, PARTS, "Foundry", 15, ASSEMBLY),
+      new Conversion(3, PARTS, "Artificer", 15, ASSEMBLY),
       "staff", AnimNames.STRIKE
     ),
-    FIST_SHIV = new DeviceType(BC, "Fist Shiv",
-      10, MELEE | PHYSICAL, 10,
-      new Conversion(1, PARTS, "Foundry", 0, ASSEMBLY),
-      "light blade", AnimNames.STRIKE
-    ),
-    KONOCHE = new DeviceType(BC, "Konoche",
-      20, MELEE | PHYSICAL, 45,
-      new Conversion(2, PARTS, "Foundry", 5, ASSEMBLY),
+    ARC_HALBERD = new DeviceType(BC, "Konoche",
+      20, MELEE | ENERGY, 45,
+      new Conversion(2, PARTS, "Artificer", 5, ASSEMBLY),
       "heavy blade", AnimNames.STRIKE_BIG
     ),
     
@@ -259,23 +258,23 @@ public interface Economy extends Qualities {
     
     BELT_AND_BRACER = new OutfitType(
       BC, "Belt and Bracer"   , 5, 10, 50,
-      new Conversion(1, PARTS, "Foundry", 5, ASSEMBLY)
+      new Conversion(1, PARTS, "Artificer", 5, ASSEMBLY)
     ),
     PARTIAL_ARMOUR = new OutfitType(
       BC, "Partial Armour", 10, 10, 100,
-      new Conversion(2, PARTS, "Foundry", 10, ASSEMBLY)
+      new Conversion(2, PARTS, "Artificer", 10, ASSEMBLY)
     ),
     BODY_ARMOUR    = new OutfitType(
       BC, "Body Armour"   , 15, 10, 150,
-      new Conversion(5, PARTS, "Foundry", 15, ASSEMBLY)
+      new Conversion(5, PARTS, "Artificer", 15, ASSEMBLY)
     ),
     POWER_ARMOUR   = new OutfitType(
       BC, "Power Armour"  , 20, 10, 275,
-      new Conversion(8, PARTS, "Foundry", 20, ASSEMBLY)
+      new Conversion(8, PARTS, "Artificer", 20, ASSEMBLY)
     ),
     GOLEM_FRAME = new OutfitType(
       BC, "Golem Frame"  , 25, 10, 500,
-      new Conversion(12, PARTS, "Foundry", 25, ASSEMBLY)
+      new Conversion(12, PARTS, "Artificer", 25, ASSEMBLY)
     ),
     
     NATURAL_ARMOUR = new OutfitType(
@@ -300,13 +299,13 @@ public interface Economy extends Qualities {
     //  Artificer conversions-
     METALS_TO_PARTS = new Conversion(
       1, METALS, TO, 2, PARTS,
-      "Foundry",
+      "Artificer",
       MODERATE_DC, ASSEMBLY, SIMPLE_DC, CHEMISTRY
     ),
     
     PARTS_TO_CIRCUITRY = new Conversion(
       1, PARTS, TO, 5, CIRCUITRY,
-      "Foundry",
+      "Artificer",
       DIFFICULT_DC, ASSEMBLY, ROUTINE_DC, INSCRIPTION, SIMPLE_DC, FIELD_THEORY
     ),
     
@@ -348,7 +347,7 @@ public interface Economy extends Qualities {
     //  Reactor conversions-
     METALS_TO_FUEL = new Conversion(
       10, METALS, TO, 1, FUEL_RODS,
-      "Generator",
+      "Reactor",
       MODERATE_DC, CHEMISTRY, MODERATE_DC, FIELD_THEORY
     ),
     

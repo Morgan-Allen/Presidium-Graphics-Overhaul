@@ -58,6 +58,7 @@ public class DebugPlans extends Scenario {
       Habitat.DUNE        , 1f
     );
     final World world = new World(TG.generateTerrain());
+    TG.setupMinerals(world, 0.6f, 0, 0.2f);
     world.terrain().readyAllMeshes();
     //Flora.populateFlora(world);
     return world;
@@ -180,7 +181,7 @@ public class DebugPlans extends Scenario {
     }
     UI.selection.pushSelection(citizen, true);
 
-    final Venue foundry = new Foundry(base);
+    final Venue foundry = new Artificer(base);
     Placement.establishVenue(
       foundry, 6, 6, true, world,
       new Human(Backgrounds.TECHNICIAN, base),
@@ -207,6 +208,8 @@ public class DebugPlans extends Scenario {
     final float healthLevel = (1 + Rand.avgNums(2)) / 2;
     ruins.structure.setState(Structure.STATE_INTACT, healthLevel);
     Ruins.populateArtilects(world, ruins, true);
+    
+    UI.selection.pushSelection(bastion, true);
   }
   
   

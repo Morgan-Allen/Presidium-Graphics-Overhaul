@@ -73,6 +73,11 @@ public class Drilling extends Plan implements Economy, Qualities {
     final boolean report = evalVerbose && I.talkAbout == actor;
     final int type = yard.drillType();
     if (type == -1) return 0;
+    
+    final boolean melee = actor.gear.meleeWeapon();
+    if (type == DrillYard.DRILL_MELEE && ! melee) return 0;
+    if (type == DrillYard.DRILL_RANGED &&  melee) return 0;
+    
     final Skill baseSkills[] = ALL_DRILL_SKILLS[yard.drillType()];
     
     final float priority = priorityForActorWith(
@@ -84,24 +89,6 @@ public class Drilling extends Plan implements Economy, Qualities {
     );
     //  TODO:  VARY ASSOCIATED TRAITS (not defensive for first aid, say.)
     return priority;
-  }
-  
-  
-  public static Drilling nextDrillFor(Actor actor) {
-    if (actor.base() == null) return null ;
-    //if (! (actor.mind.work() instanceof Venue)) return null ;
-    
-    final World world = actor.world() ;
-    final Batch <DrillYard> yards = new Batch <DrillYard> () ;
-    world.presences.sampleFromMap(actor, world, 5, yards, DrillYard.class) ;
-    
-    final Choice choice = new Choice(actor) ;
-    for (DrillYard yard : yards) if (yard.base() == actor.base()) {
-      ///I.sayAbout(actor, "Can drill at "+yard) ;
-      final Drilling drilling = new Drilling(actor, yard) ;
-      choice.add(drilling) ;
-    }
-    return (Drilling) choice.pickMostUrgent() ;
   }
   
   
@@ -165,14 +152,11 @@ public class Drilling extends Plan implements Economy, Qualities {
       I.say("Basic DC: "+DC+", success: "+success);
     }
     
-    //  TODO:  This needs some more consideration.
-    /*
     if (type == DrillYard.DRILL_RANGED || type == DrillYard.DRILL_MELEE) {
       final Target dummy = yard.dummyFor(actor);
       if (dummy == null) return true;
       DeviceType.applyFX(actor.gear.deviceType(), actor, dummy, success);
     }
-    //*/
     return true;
   }
   
@@ -201,99 +185,3 @@ public class Drilling extends Plan implements Economy, Qualities {
   }
 }
 
-
-
-//  TODO:  Get rid of this whole nonsense with dummies and wot-not...
-
-/*
-if (
-  (yard.nextDrill != yard.drill && ! yard.belongs.destroyed()) &&
-  (Plan.competition(Drilling.class, yard.belongs, actor) < 1)
-) {
-  final Action pickup = new Action(
-    actor, yard.belongs,
-    this, "actionPickupEquipment",
-    Action.REACH_DOWN, "Picking up equipment"
-  ) ;
-  final Action equips = new Action(
-    actor, yard,
-    this, "actionEquipYard",
-    Action.BUILD, "Installing equipment"
-  ) ;
-  final Element dummy = (Element) Rand.pickFrom(yard.dummies) ;
-  equips.setMoveTarget(Spacing.nearestOpenTile(dummy.origin(), actor)) ;
-  final Steps steps = new Steps(
-    actor, yard, Plan.ROUTINE, pickup, equips
-  ) ;
-  return steps ;
-}
-if (yard.equipQuality <= 0) return null ;
-
-//
-//  TODO:  If you're a commanding officer, consider supervising the drill-
-
-final Target
-  dummy = yard.nextDummyFree(drillType, actor),
-  moveTarget = yard.nextMoveTarget(dummy, actor) ;
-if (dummy == null || moveTarget == null) return null ;
-//*/
-
-/*
-public boolean actionPickupEquipment(Actor actor, Garrison store) {
-  if (verbose) I.sayAbout(actor, "Picking up drill equipment...") ;
-  final Item equipment = Item.withReference(SAMPLES, store) ;
-  final Upgrade bonus = yard.bonusFor(yard.nextDrill) ;
-  final int quality = bonus == null ? 0 :
-    (1 + store.structure.upgradeLevel(bonus)) ;
-  
-  actor.gear.addItem(Item.withQuality(equipment, quality)) ;
-  return true ;
-}
-
-
-public boolean actionEquipYard(Actor actor, Element dummy) {
-  if (verbose) I.sayAbout(actor, "Installing drill equipment...") ;
-  final Item equipment = actor.gear.bestSample(SAMPLES, yard.belongs, 1) ;
-  yard.drill = yard.nextDrill ;
-  yard.equipQuality = (int) (equipment.quality * 5) ;
-  actor.gear.removeItem(equipment) ;
-  
-  yard.updateSprite() ;
-  return true ;
-}
-//*/
-
-/*
-public boolean actionDrillMelee(Actor actor, Target dummy) {
-  final int DC = yard.drillDC(DrillYard.DRILL_MELEE) ;
-  actor.traits.test(HAND_TO_HAND, DC, 0.5f) ;
-  actor.traits.test(SHIELD_AND_ARMOUR, DC - 5, 0.5f) ;
-  DeviceType.applyFX(actor.gear.deviceType(), actor, dummy, true) ;
-  return true ;
-}
-
-
-public boolean actionDrillRanged(Actor actor, Target dummy) {
-  final int DC = yard.drillDC(DrillYard.DRILL_RANGED) ;
-  actor.traits.test(MARKSMANSHIP, DC, 0.5f) ;
-  actor.traits.test(SURVEILLANCE, DC - 5, 0.5f) ;
-  DeviceType.applyFX(actor.gear.deviceType(), actor, dummy, true) ;
-  return true ;
-}
-
-
-public boolean actionDrillEndurance(Actor actor, Target target) {
-  final int DC = yard.drillDC(DrillYard.DRILL_ENDURANCE) ;
-  actor.traits.test(ATHLETICS, DC, 0.5f) ;
-  actor.traits.test(STEALTH_AND_COVER, DC - 5, 0.5f) ;
-  return true ;
-}
-
-
-public boolean actionDrillAid(Actor actor, Target target) {
-  final int DC = yard.drillDC(DrillYard.DRILL_AID) ;
-  actor.traits.test(PHARMACY, DC, 0.5f) ;
-  actor.traits.test(ANATOMY, DC - 5, 0.5f) ;
-  return true ;
-}
-//*/

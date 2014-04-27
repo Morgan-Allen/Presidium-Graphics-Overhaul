@@ -2,15 +2,11 @@
 
 
 package stratos.game.wild ;
-import static stratos.game.actors.Backgrounds.CHIEFTAIN;
-import static stratos.game.actors.Backgrounds.GATHERER;
-import static stratos.game.actors.Backgrounds.HUNTER;
-import static stratos.game.actors.Backgrounds.NATIVE_BIRTH;
-import static stratos.game.actors.Backgrounds.PLANET_DIAPSOR;
 import stratos.game.actors.* ;
 import stratos.game.building.* ;
 import stratos.game.common.* ;
 import stratos.game.maps.*;
+import static stratos.game.actors.Backgrounds.*;
 import stratos.graphics.common.* ;
 import stratos.graphics.cutout.* ;
 import stratos.graphics.widgets.* ;
@@ -249,7 +245,7 @@ public class NativeHut extends Venue {
       }
       if (Rand.index(5) != 0) male = ! male ;
       
-      final Career c = new Career(male, b, NB, NH) ;
+      final Career c = new Career(b, NB, NH, male ? MALE_BIRTH : FEMALE_BIRTH);
       final Human lives = new Human(c, hut.base()) ;
       lives.mind.setHome(hut) ;
       lives.mind.setWork(hut) ;

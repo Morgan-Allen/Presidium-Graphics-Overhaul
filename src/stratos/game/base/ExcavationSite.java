@@ -19,8 +19,7 @@ import stratos.util.* ;
 
 
 //  TODO:  USE THESE UPGRADES-
-//  Metal Ores Mining.  Fuel Cores Mining.  Artifact Assembly.
-//  Safety Measures.  Excavator Station.  Mantle Drilling.
+//  Metal Ores Mining.  Fuel Cores Mining.  Artifact Assembly.  Mantle Drilling.
 
 
 
@@ -31,8 +30,7 @@ public class ExcavationSite extends Venue implements
   
   /**  Constants, fields, constructors and save/load methods-
     */
-  final static String
-    IMG_DIR = "media/Buildings/artificer/" ;
+  final static String IMG_DIR = "media/Buildings/artificer/" ;
   final static CutoutModel SHAFT_MODEL = CutoutModel.fromImage(
     ExcavationSite.class, IMG_DIR+"excavation_site.png", 4, 1
   ) ;
@@ -40,16 +38,17 @@ public class ExcavationSite extends Venue implements
     "media/GUI/Buttons/excavation_button.gif", ExcavationSite.class
   ) ;
   
-  //private static boolean verbose = false ;
-  
   final static int
     DIG_LIMITS[] = { 8, 12, 15, 16 },
     DIG_FACE_REFRESH = World.STANDARD_DAY_LENGTH / 10,
     SMELTER_REFRESH  = 10 ;
   
+  private static boolean verbose = false;
+  
   
   private Tile underFaces[] ;
-  private List <Smelter> smelters = new List <Smelter> ();
+  //  TODO:  List open shafts instead
+  ///private List <Smelter> smelters = new List <Smelter> ();
   private List <Tailing> tailings = new List <Tailing> ();
   private Box2D stripArea = new Box2D() ;
   
@@ -70,7 +69,6 @@ public class ExcavationSite extends Venue implements
   public ExcavationSite(Session s) throws Exception {
     super(s) ;
     underFaces = (Tile[]) s.loadTargetArray(Tile.class) ;
-    s.loadObjects(smelters);
     s.loadObjects(tailings);
     stripArea.loadFrom(s.input()) ;
   }
@@ -79,7 +77,6 @@ public class ExcavationSite extends Venue implements
   public void saveState(Session s) throws Exception {
     super.saveState(s) ;
     s.saveTargetArray(underFaces) ;
-    s.saveObjects(smelters);
     s.saveObjects(tailings);
     stripArea.saveTo(s.output()) ;
   }
@@ -199,14 +196,16 @@ public class ExcavationSite extends Venue implements
   
   public Behaviour jobFor(Actor actor) {
     if ((! structure.intact()) || (! personnel.onShift(actor))) return null ;
+    final boolean report = verbose && I.talkAbout == actor;
     
-    I.sayAbout(actor, "GETTING NEXT EXCAVATION TASK") ;
+    if (report) I.say("\nGETTING NEXT EXCAVATION TASK") ;
     final Delivery d = Deliveries.nextDeliveryFor(
       actor, this, services(), 5, world
     ) ;
     if (d != null) return d ;
     final Choice choice = new Choice(actor) ;
     
+    /*
     for (Smelter s : smelters) {
       choice.add(new OreProcessing(actor, s, s.output)) ;
     }
@@ -218,6 +217,7 @@ public class ExcavationSite extends Venue implements
     //*/
     
     final Target face = Mining.nextMineFace(this, underFaces) ;
+    if (report) I.say("  Mine face is: "+face);
     if (face != null) {
       choice.add(new Mining(actor, face, this)) ;
     }
@@ -238,7 +238,7 @@ public class ExcavationSite extends Venue implements
     return -1 ;
   }
   
-  
+  /*
   protected Venue smeltingSite(Service mineral) {
     if (mineral == ARTIFACTS ) return this ;
     for (Smelter s : smelters) {
@@ -246,6 +246,7 @@ public class ExcavationSite extends Venue implements
     }
     return null ;
   }
+  //*/
   
   
   protected Tailing nextTailing() {
@@ -273,16 +274,16 @@ public class ExcavationSite extends Venue implements
     if (! structure.intact()) return ;
     structure.setAmbienceVal(structure.upgradeLevel(SAFETY_PROTOCOL) - 3) ;
     
+    //  TODO:  Remove later?
+    nextTailing();
+    
+    /*
     for (Smelter kid : smelters) if (kid.destroyed()) {
       smelters.remove(kid) ;
     }
-    
-    //  TODO:  Remove later?
-    nextTailing();
     //
     //  TODO:  Come up with limits for each of the smelter types, based on
     //  staff size and underlying/surrounding terrain.
-    
     //final int numDrills = structure.upgradeLevel(MANTLE_DRILLING) ;
     if (numUpdates % SMELTER_REFRESH == 0) {
       if (smeltingSite(METALS) == null) {
@@ -297,8 +298,9 @@ public class ExcavationSite extends Venue implements
         if (strip != null) smelters.add(strip) ;
       }
     }
+    //*/
     
-    if (numUpdates % DIG_FACE_REFRESH == 0) {
+    if (underFaces == null || numUpdates % DIG_FACE_REFRESH == 0) {
       underFaces = Mining.getTilesUnder(this) ;
     }
   }

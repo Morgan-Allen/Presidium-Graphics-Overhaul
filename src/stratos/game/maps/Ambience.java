@@ -101,6 +101,7 @@ public class Ambience {
     if (owner instanceof Flora) {
       value = ((Flora) owner).growStage() ;
     }
+    
     for (Mobile m : tile.inside()) if (m instanceof Actor) {
       final Actor a = (Actor) m ;
       value -= 5 * a.health.stressPenalty() ;

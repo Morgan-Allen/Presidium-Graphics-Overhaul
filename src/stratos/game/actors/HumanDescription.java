@@ -149,7 +149,7 @@ public class HumanDescription implements Qualities {
     d.append(" "+h.traits.levelDesc(GENDER)) ;
     d.append("\n  Age: "+h.health.exactAge()+" ("+h.health.agingDesc()+")") ;
     
-    d.appendList("\n\nAppearance: " , descTraits(h.traits.physique   ())) ;
+    ///d.appendList("\n\nAppearance: " , descTraits(h.traits.physique   ())) ;
     d.appendList("\n\nPersonality: ", descTraits(h.traits.personality())) ;
     //d.appendList("\n\nMutations: "  , descTraits(traits.mutations  ())) ;
     

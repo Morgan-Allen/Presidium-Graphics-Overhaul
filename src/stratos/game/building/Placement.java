@@ -80,6 +80,7 @@ public class Placement implements TileConstants {
   public static boolean checkAreaClear(
     Tile origin, int sizeX, int sizeY, int owningPriority
   ) {
+    if (origin == null || sizeX <= 0 || sizeY <= 0) return false;
     for (Coord c : footprintFor(sizeX, sizeY)) {
       final Tile t = origin.world.tileAt(origin.x + c.x, origin.y + c.y) ;
       if (t == null || t.owningType() >= owningPriority) return false ;

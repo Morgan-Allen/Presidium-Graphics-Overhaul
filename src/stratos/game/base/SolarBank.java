@@ -107,16 +107,16 @@ public class SolarBank extends Segment implements Economy {
   
 
   protected List <Segment> installedBetween(Tile start, Tile end) {
-    final List <Segment> installed = super.installedBetween(start, end) ;
-    if (installed == null) return installed ;
+    final List <Segment> installed = super.installedBetween(start, end);
+    if (installed == null) return installed;
     
-    final int hubIndex = installed.size() / 2 ;
-    final SolarBank hub = (SolarBank) installed.atIndex(hubIndex) ;
-    hub.type = TYPE_HUB ;
-    ModelAsset model = hub.facing == X_AXIS ? MODEL_CENTRE : MODEL_CENTRE ;
-    hub.attachModel(model) ;
+    final int hubIndex = installed.size() / 2;
+    final SolarBank hub = (SolarBank) installed.atIndex(hubIndex);
+    hub.type = TYPE_HUB;
+    ModelAsset model = hub.facing == X_AXIS ? MODEL_CENTRE : MODEL_CENTRE;
+    hub.attachModel(model);
     
-    return installed ;
+    return installed;
   }
   
   

@@ -140,14 +140,17 @@ public abstract class Artilect extends Actor {
   }
   
   
+  //  TODO:  Arrange for occasional scouting trips and active raids.
+  //  (Intervals are slow, based on community size.)
+  
   protected void addChoices(Choice choice) {
     //
     //  Patrol around your base and see off intruders.
     final boolean report = verbose && I.talkAbout == this;
     ///choice.isVerbose = report;
     final boolean
-      isDrone = this instanceof Drone,
-      isTripod = this instanceof Tripod,
+      isDrone   = this instanceof Drone,
+      isTripod  = this instanceof Tripod,
       isCranial = this instanceof Cranial;
     
     //  Perform reconaissance or patrolling.
@@ -157,6 +160,7 @@ public abstract class Artilect extends Actor {
     final Employer home = mind.home();
     Element guards = home == null ? this : (Element) home ;
     final float distance = Spacing.distance(this, guards) / World.SECTOR_SIZE;
+    final float danger = CombatUtils.dangerAtSpot(this, this, null);
     
     final Plan patrol = Patrolling.aroundPerimeter(this, guards, world);
     if (isDrone) {
@@ -182,7 +186,7 @@ public abstract class Artilect extends Actor {
       choice.add(assault);
     }
     if (
-      (isTripod || isCranial) &&
+      (isTripod || isCranial) && danger == 0 &&
       home.personnel().numResident(Species.SPECIES_CRANIAL) > 0
     ) {
       //  TODO:  Restore this later, once Cybrid creation is sorted out.

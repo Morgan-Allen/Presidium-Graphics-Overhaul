@@ -13,6 +13,10 @@ import stratos.game.common.*;
 import stratos.user.*;
 import stratos.util.*;
 
+
+
+//  TODO:  Introduce formation-behaviours, in contrast to hit-and-run!
+
 public class Combat extends Plan implements Qualities {
   
   
@@ -24,7 +28,6 @@ public class Combat extends Plan implements Qualities {
     damageVerbose = false;
   
   
-  //  TODO:  Introduce formation-behaviours, in contrast to hit-and-run
   final static int
     STYLE_RANGED = 0,
     STYLE_MELEE  = 1,
@@ -112,15 +115,17 @@ public class Combat extends Plan implements Qualities {
     if (isActor) {
       final float empathy = 1f + actor.traits.relativeLevel(EMPATHIC);
       modifier -= ROUTINE * empathy * harmLevel;
+      ///if (report) I.say("\n  Empathy for target: "+empathy);
       final float hostility = Plan.hostilityOf((Actor) target, actor, false);
       modifier += PARAMOUNT * hostility;
+      ///if (report) I.say("  Hostility of target: "+hostility);
       //final float unarmed = 1f - hostility;
       //modifier -= ROUTINE * actor.traits.relativeLevel(HONOURABLE) * unarmed;
     }
     if (! actor.gear.armed()) modifier -= ROUTINE;
     
     final float priority = priorityForActorWith(
-      actor, target, ROUTINE + modifier,
+      actor, target, Visit.clamp(ROUTINE + modifier, 0, PARAMOUNT),
       harmLevel, FULL_COOPERATION,
       melee ? MELEE_SKILLS : RANGED_SKILLS, BASE_TRAITS,
       modifier, NORMAL_DISTANCE_CHECK, REAL_FAIL_RISK,

@@ -89,8 +89,8 @@ public class Structure {
   
   
   
-  Structure(Installation venue) {
-    this.basis = venue ;
+  Structure(Installation basis) {
+    this.basis = basis ;
   }
   
   
@@ -328,7 +328,9 @@ public class Structure {
   
   
   public boolean goodCondition() {
-    return (! burning) && (1 - repairLevel()) < Repairs.MIN_SERVICE_DAMAGE;
+    return
+      (state == STATE_INTACT) && (! burning) &&
+      ((1 - repairLevel()) < Repairs.MIN_SERVICE_DAMAGE);
   }
   
   

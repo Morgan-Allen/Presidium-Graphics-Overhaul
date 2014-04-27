@@ -277,15 +277,20 @@ public class BuildingSprite extends Sprite {
     //  Otherwise, put together a composite sprite where the number of mini-
     //  scaffolds provides a visual indicator of progress.
     final GroupSprite sprite = new GroupSprite();
+    sprite.setSortMode(GroupSprite.SORT_BY_ADDITION);
     if (size == 1) return sprite;
     
     final float xoff = (size / 2f), yoff = (size / 2f);
     int numS = 0;
     //
     //  Iterate over the entire coordinate space as required-
-    loop: for (int z = 0 ; z < high ; z++) {
-      final float l = z * 1f / high, h = z - (l * l), i = z / 2f ;
-      for (int x = 1 ; x < (size - z) ; x++) {
+    loop: for (int z = 0 ; z < high; z++) {
+      final float
+        l = z * 1f / high,
+        h = z - (l * l),
+        i = z / 2f ;
+      
+      for (int x = size - z ; x-- > 1;) {
         for (int y = 1 + z ; y < size ; y++) {
           if (++numS > stage) break loop ;
           sprite.attach(

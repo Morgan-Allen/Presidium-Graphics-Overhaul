@@ -84,8 +84,8 @@ public class StartupScenario extends Scenario {
     //  TODO:  Just pick House, Province, Options.  And a few perks.
     
     public Background house;
-    
-    public boolean male;
+    public Background gender;
+    //public boolean male;
     public List <Trait> chosenTraits = new List <Trait> ();
     public List <Skill> chosenSkills = new List <Skill> ();
     public List <Background> advisors = new List <Background> ();
@@ -113,7 +113,7 @@ public class StartupScenario extends Scenario {
     super(s);
     this.config = new Config();
     config.house = (Background) s.loadObject();
-    config.male = s.loadBool();
+    config.gender = (Background) s.loadObject();
     s.loadObjects(config.chosenTraits);
     s.loadObjects(config.chosenSkills);
     s.loadObjects(config.advisors);
@@ -129,7 +129,7 @@ public class StartupScenario extends Scenario {
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     s.saveObject(config.house);
-    s.saveBool(config.male);
+    s.saveObject(config.gender);
     s.saveObjects(config.chosenTraits);
     s.saveObjects(config.chosenSkills);
     s.saveObjects(config.advisors);
@@ -251,8 +251,8 @@ public class StartupScenario extends Scenario {
     else birth = Backgrounds.HIGH_BIRTH ;
     
     final Background house = config.house;
-    final Career rulerCareer = new Career(config.male, vocation, birth, house);
-    final Human ruler = new Human(rulerCareer, base) ;
+    final Career rulerCareer = new Career(vocation, birth, house, config.gender);
+    final Human ruler = new Human(rulerCareer, base);
     for (Skill s : house.skills()) ruler.traits.incLevel(s, 5) ;
     
     return ruler ;

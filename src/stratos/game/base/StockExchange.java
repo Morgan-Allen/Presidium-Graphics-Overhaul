@@ -21,6 +21,16 @@ import stratos.util.*;
 
 
 
+//  TODO:  Ideally, this needs to be made a little more interesting...
+
+//  Credit Investment.  (Boosts overall growth, but dividends must go back.)
+//  Generate extra cash on top of existing sales.
+//  Patent Items.  (Ration Paks.  Comm Links.  Power Cells.)
+//  Attractiveness and ambience- advertising.
+
+//  Bulk transport between distant parts of settlement.  (Needs refinement,
+//  also possible at supply depot.)
+
 
 public class StockExchange extends Venue implements Economy {
   
@@ -28,7 +38,7 @@ public class StockExchange extends Venue implements Economy {
   /**  Data fields, constructors and save/load functionality-
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    StockExchange.class, "media/Buildings/merchant/stock_exchange.png", 4, 2
+    StockExchange.class, "media/Buildings/merchant/stock_exchange.png", 3.7f, 1
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
     "media/GUI/Buttons/stock_exchange_button.gif", StockExchange.class
@@ -39,7 +49,7 @@ public class StockExchange extends Venue implements Economy {
   
   
   public StockExchange(Base base) {
-    super(4, 2, ENTRANCE_SOUTH, base) ;
+    super(4, 1, ENTRANCE_SOUTH, base) ;
     personnel.setShiftType(SHIFTS_BY_DAY) ;
     structure.setupStats(
       150, 3, 250,
@@ -99,19 +109,19 @@ public class StockExchange extends Venue implements Economy {
       150, null, 1, null, ALL_UPGRADES
     ),
     
-    HARDWARE_STOCK = new Upgrade(
-      "Hardware Stock",
-      "Increases space available to parts, plastics, circuitry and decor, and "+
-      "augments profits from their sale.",
-      150, null, 1, null, ALL_UPGRADES
-    ),
-    
-    //  ...and these two get space in the back.
     MEDICAL_EXCHANGE = new Upgrade(
       "Medical Exchange",
       "Increases space available to stim kits, soma, medicine and gene seed, "+
       "and augments profits from their sale.",
       250, null, 1, RATIONS_STOCK, ALL_UPGRADES
+    ),
+    
+    //  ...and these two get space in the back.
+    HARDWARE_STOCK = new Upgrade(
+      "Hardware Stock",
+      "Increases space available to parts, plastics, circuitry and decor, and "+
+      "augments profits from their sale.",
+      150, null, 1, null, ALL_UPGRADES
     ),
     
     PROSPECT_EXCHANGE = new Upgrade(
@@ -258,14 +268,12 @@ public class StockExchange extends Venue implements Economy {
   /**  Rendering and interface methods-
     */
   final static float GOOD_DISPLAY_OFFSETS[] = {
-    0, 1.0f,
-    0, 2.0f,
-    0, 3.0f,
-    //0, 3.5f,
-    1.0f, 0,
-    2.0f, 0,
-    3.0f, 0,
-    //2.5f, 0
+    0, 0.5f,
+    0, 1.5f,
+    0, 2.5f,
+    0.5f, 0,
+    1.5f, 0,
+    2.5f, 0,
   } ;
   
   

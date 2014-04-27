@@ -17,6 +17,11 @@ import stratos.user.* ;
 import stratos.util.* ;
 
 
+//  TODO:  I'm going to completely cut this out for the moment.  More of a
+//  complication than I need right now.
+
+
+
 
 public class Smelter extends Venue implements Economy {
   
@@ -63,14 +68,6 @@ public class Smelter extends Venue implements Economy {
     NUM_MOLDS = MOLD_COORDS.length / 2,
     NUM_MOLD_LEVELS = 5 ;
   
-  final static Service MINED_TYPES[] = {
-    METALS, FUEL_RODS, ARTIFACTS
-  } ;
-  final static Item SAMPLE_TYPES[] = {
-    Item.withReference(SAMPLES, METALS),
-    Item.withReference(SAMPLES, FUEL_RODS),
-    Item.withReference(SAMPLES, ARTIFACTS ),
-  } ;
   final static int SMELT_AMOUNT = 10;
   
   
@@ -214,7 +211,7 @@ public class Smelter extends Venue implements Economy {
   /**  Rendering and interface methods-
     */
   private int spriteVariant() {
-    return Visit.indexOf(output, MINED_TYPES) ;
+    return Visit.indexOf(output, Mining.MINED_TYPES) ;
   }
   
   

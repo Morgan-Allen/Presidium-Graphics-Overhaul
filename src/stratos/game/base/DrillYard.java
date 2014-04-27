@@ -196,7 +196,7 @@ public class DrillYard extends Venue {
   private void initSprite() {
     final GroupSprite sprite = new GroupSprite();
     sprite.attach(YARD_MODEL, 0, 0, 0);
-    sprite.attach(BLANK_DRILL_MODEL, 0, -1.5f, 0);
+    sprite.attach(BLANK_DRILL_MODEL, 0, -0.5f, 0);
     sprite.attach(YARD_FRONT_MODEL, 0, 0, 0);
     sprite.setSortMode(GroupSprite.SORT_BY_ADDITION);
     attachSprite(sprite);

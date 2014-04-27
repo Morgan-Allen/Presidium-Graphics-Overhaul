@@ -16,6 +16,9 @@ import stratos.util.* ;
 
 
 
+//  TODO:  Consider doing this directly at the excavation site instead.
+
+
 public class OreProcessing extends Plan implements Economy {
   
   

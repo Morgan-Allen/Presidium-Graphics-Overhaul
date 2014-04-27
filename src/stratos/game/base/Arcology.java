@@ -28,7 +28,7 @@ public class Arcology extends Segment {
   final static ModelAsset
     BEDS_MODELS[][] = CutoutModel.fromImageGrid(
       Arcology.class, IMG_DIR+"all_arcology.png",
-      4, 4, 2, 2
+      4, 4, 1, 1
     ),
     
     MODEL_BEDS_WEST  = BEDS_MODELS[0][1],
@@ -52,7 +52,7 @@ public class Arcology extends Segment {
   
   
   public Arcology(Base base) {
-    super(2, 2, base) ;
+    super(1, 1, base) ;
     structure.setupStats(15, 1, 100, 0, Structure.TYPE_FIXTURE) ;
   }
   

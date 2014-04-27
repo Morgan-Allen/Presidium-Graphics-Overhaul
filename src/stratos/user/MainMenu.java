@@ -1,9 +1,10 @@
 
 
 package stratos.user ;
-import static stratos.game.campaign.StartupScenario.*;
 import stratos.game.actors.*;
 import stratos.game.campaign.*;
+import static stratos.game.campaign.StartupScenario.*;
+import static stratos.game.actors.Backgrounds.*;
 import stratos.game.campaign.System;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
@@ -63,17 +64,15 @@ public class MainMenu extends UIGroup {
     
     text.append("\n  Gender:");
     Call.add(
-      "\n    Male", config.male ? Colour.CYAN : null,
+      "\n    Male", (config.gender == MALE_BIRTH) ? Colour.CYAN : null,
       this, "setGender", text, true
     ) ;
     Call.add(
-      "\n    Female", (! config.male) ? Colour.CYAN : null,
+      "\n    Female", (config.gender == FEMALE_BIRTH) ? Colour.CYAN : null,
       this, "setGender", text, false
     ) ;
     text.append("\n      ") ;
-    final Background g = config.male ?
-        Backgrounds.MALE_BIRTH :
-        Backgrounds.FEMALE_BIRTH ;
+    final Background g = config.gender ;
     for (Skill s : g.skills()) {
       text.append(s.name+" +"+g.skillLevel(s)+" ", Colour.LIGHT_GREY) ;
     }
@@ -129,7 +128,7 @@ public class MainMenu extends UIGroup {
   
   
   public void setGender(Object args[]) {
-    config.male = (Boolean) args[0] ;
+    config.gender = ((Boolean) args[0]) ? MALE_BIRTH : FEMALE_BIRTH ;
     configForNew(null) ;
   }
   
@@ -208,7 +207,7 @@ public class MainMenu extends UIGroup {
     describePerk(1, config.fundsLevel, "Funding Level", FUNDING_DESC) ;
     describePerk(
       2, config.titleLevel, "Granted Title",
-      config.male ? TITLE_MALE : TITLE_FEMALE
+      (config.gender == MALE_BIRTH) ? TITLE_MALE : TITLE_FEMALE
     ) ;
     
     text.append("\n  Colonists:") ;
@@ -217,7 +216,6 @@ public class MainMenu extends UIGroup {
       totalColonists += config.numCrew(b);
     }
     text.append(" ("+totalColonists+"/"+MAX_COLONISTS+")") ;
-    int i = 0 ;
     for (Background b : COLONIST_BACKGROUNDS) {
       text.append("\n    "+config.numCrew(b)+" ") ;
       Call.add(" More", Colour.CYAN, this, "incColonists", text, b,  1) ;

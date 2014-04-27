@@ -17,6 +17,8 @@ import stratos.util.*;
 //
 //  TODO:  Barges need to be made more persistent.
 
+//  TODO:  Create a separate BulkDelivery class for vehicles.
+
 
 public class Delivery extends Plan implements Economy {
   

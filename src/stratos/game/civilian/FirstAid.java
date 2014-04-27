@@ -87,7 +87,7 @@ public class FirstAid extends Plan implements Qualities, Economy {
   
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
-    if (patient.health.conscious()) return 0;
+    if (patient.health.conscious() || ! patient.health.organic()) return 0;
     float modifier = 0;
     
     //  TODO:  You need a generalised method for this.

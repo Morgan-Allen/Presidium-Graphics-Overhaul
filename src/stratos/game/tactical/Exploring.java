@@ -63,7 +63,7 @@ public class Exploring extends Plan implements Qualities {
       actor, lookedAt, CASUAL * Planet.dayValue(actor.world()),
       NO_HARM, MILD_COMPETITION,
       BASE_SKILLS, BASE_TRAITS,
-      NO_MODIFIER, NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
+      NO_MODIFIER, HEAVY_DISTANCE_CHECK, NO_FAIL_RISK,
       report
     );
     return priority;

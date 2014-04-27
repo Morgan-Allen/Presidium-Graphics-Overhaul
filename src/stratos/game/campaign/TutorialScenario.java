@@ -47,7 +47,7 @@ public class TutorialScenario extends StartupScenario {
   private static Config config() {
     final Config config = new Config();
     config.house = Backgrounds.PLANET_HALIBAN;
-    config.male = Rand.yes();
+    config.gender = null;
     
     config.siteLevel  = SITE_WILDERNESS;
     config.titleLevel = TITLE_KNIGHTED;

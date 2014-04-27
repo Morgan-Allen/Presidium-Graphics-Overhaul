@@ -168,6 +168,7 @@ public interface Qualities {
   ) ;
   
   
+  //  TODO:  I think only about half of these are needed.
   public static Trait
     DEFENSIVE  = new Trait(PERSONALITY, "Defensive"),
     CRITICAL   = new Trait(PERSONALITY, "Critical"),

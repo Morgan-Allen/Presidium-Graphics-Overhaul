@@ -158,7 +158,7 @@ public class VenueDescription {
     for (Manufacture m : v.stocks.specialOrders()) {
       d.append("\n  ") ; m.describeBehaviour(d) ; empty = false ;
     }
-    if (empty) d.append("\n  No v.stocks or orders.") ;
+    if (empty) d.append("\n  No stocks or orders.") ;
   }
   
   

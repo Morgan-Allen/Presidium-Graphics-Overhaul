@@ -7,7 +7,7 @@
 
 package stratos.game.actors ;
 import stratos.game.common.*;
-import stratos.graphics.sfx.TalkFX;
+import stratos.graphics.sfx.*;  //TODO:  Get rid of direct reference?
 import stratos.user.*;
 import stratos.util.*;
 
@@ -214,21 +214,10 @@ public class ActorTraits implements Qualities {
   
   public float relativeLevel(Trait type) {
     //  Returns a value between -1 (for minimum) and +1 (for maximum).
-    final Level level = levels.get(type);
-    if (level == null) return 0;
-    return (level.value - type.minVal) / (type.maxVal - type.minVal);
-    /*
-    return (Visit.clamp(
-      (traitLevel(type) - type.minVal) / (type.maxVal - type.minVal), 0, 1
-    ) * 2) - 1 ;
-    //*/
+    final float level = traitLevel(type);
+    if (level > 0) return level / type.maxVal;
+    else return 0 - level / type.minVal;
   }
-  
-  /*
-  public float scaleLevel(Trait type) {
-    return (float) Math.pow(2, relativeLevel(type)) ;
-  }
-  //*/
   
   
   public float effectBonus(Trait trait) {

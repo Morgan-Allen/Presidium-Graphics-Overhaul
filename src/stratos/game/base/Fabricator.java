@@ -5,7 +5,7 @@
   */
 
 
-package stratos.game.base ;
+package stratos.game.base;
 import stratos.game.civilian.Commission;
 import stratos.game.common.* ;
 import stratos.game.actors.* ;
@@ -25,7 +25,7 @@ public class Fabricator extends Venue implements Economy {
   /**  Fields, constructors, and save/load methods-
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    Fabricator.class, "media/Buildings/aesthete/fabricator.png", 4, 2
+    Fabricator.class, "media/Buildings/aesthete/fabricator.png", 3, 2
   ) ;
   final static ImageAsset ICON = ImageAsset.fromImage(
     "media/GUI/Buttons/fabricator_button.gif", Fabricator.class
@@ -33,7 +33,7 @@ public class Fabricator extends Venue implements Economy {
   
   
   public Fabricator(Base base) {
-    super(4, 2, ENTRANCE_EAST, base) ;
+    super(3, 2, ENTRANCE_EAST, base) ;
     structure.setupStats(
       125, 2, 200,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
@@ -57,7 +57,7 @@ public class Fabricator extends Venue implements Economy {
   /**  Implementation of employee behaviour-
     */
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-    Foundry.class, "fabricator_upgrades"
+    Artificer.class, "fabricator_upgrades"
   ) ;
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES ; }
   final public static Upgrade
@@ -161,7 +161,7 @@ public class Fabricator extends Venue implements Economy {
   
   public int numOpenings(Background v) {
     int nO = super.numOpenings(v) ;
-    if (v == Backgrounds.FABRICATOR) return nO + 1 ;
+    if (v == Backgrounds.FABRICATOR) return nO + 2 ;
     if (v == Backgrounds.AESTHETE  ) return nO + 1 ;
     return 0 ;
   }

@@ -82,10 +82,10 @@ public class Repairs extends Plan implements Qualities {
   final Trait BASE_TRAITS[] = { URBANE, ENERGETIC };
   final Skill BASE_SKILLS[] = { ASSEMBLY, HARD_LABOUR };
   
-
+  
   protected float getPriority() {
     final boolean report = verbose && I.talkAbout == actor && hasBegun();
-
+    
     float urgency = needForRepair(built);
     if (report) I.say("Urgency for repair of "+built+" is "+urgency);
     

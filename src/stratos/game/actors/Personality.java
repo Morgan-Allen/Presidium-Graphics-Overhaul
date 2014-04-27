@@ -1,10 +1,19 @@
 
+
 package stratos.game.actors;
 import static stratos.game.actors.Qualities.*;
 import stratos.util.*;
 import java.util.Map.Entry;
 
+
+
+//  TODO:  You'll need to ensure mutual contradictions aren't allowed here.
+
+
 //  TODO:  See if this can't be simplified still further?
+
+//  Opposite of Meticulous- Sloppy.
+//  Replaced Naturalist/Urbane with Claustrophobe/Agoraphobe?
 
 /*
 Aggressive  vs. Empathic    (helping or harming others)

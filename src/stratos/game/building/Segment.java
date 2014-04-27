@@ -14,6 +14,10 @@ import stratos.util.*;
 
 
 
+//  TODO:  Have this extend Fixture instead of Venue!  (It just needs a
+//  structure, not personnel or stocks or visitors.)
+
+
 public abstract class Segment extends Venue implements TileConstants {
   
   
@@ -142,7 +146,7 @@ public abstract class Segment extends Venue implements TileConstants {
   
   /**  Placement interface and rendering tweaks-
     */
-  private List <Segment> toInstall = new List() ;
+  private List <Segment> toInstall = null;// new List() ;
   
   
   private Tile previewAt() {
@@ -192,7 +196,7 @@ public abstract class Segment extends Venue implements TileConstants {
     return false ;
   }
   
-
+  
   public boolean pointsOkay(Tile from, Tile to) {
     toInstall = installedBetween(from, to) ;
     ///I.say("TO INSTALL IS: "+toInstall+", between "+from+" and "+to) ;

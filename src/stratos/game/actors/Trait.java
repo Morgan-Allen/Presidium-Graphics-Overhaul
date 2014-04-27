@@ -69,7 +69,7 @@ public class Trait implements Qualities, Session.Saveable {
     this.descValues = new int[descriptors.length] ;
     if (verboseInit) I.say("\n  Initialising new trait");
     
-    int zeroIndex = 0, min = 100, max = 0, val ;
+    int zeroIndex = 0, min = -1, max = 1, val ;
     for (String s : descriptors) { if (s == null) break ; else zeroIndex++ ; }
     for (int i = descriptors.length ; i-- > 0 ;) {
       val = descValues[i] = zeroIndex - i ;
@@ -83,7 +83,7 @@ public class Trait implements Qualities, Session.Saveable {
       if (val > max) max = val ;
       if (val < min) min = val ;
     }
-    this.minVal = min == max ? 0 : min ;
+    this.minVal = min ;
     this.maxVal = max ;
     
     if (verboseInit) I.say("  Min/max vals: "+minVal+"/"+maxVal);

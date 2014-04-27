@@ -282,6 +282,7 @@ public abstract class Plan implements Saveable, Behaviour {
     
     if (report) {
       I.say("\nEvaluating priority for "+this);
+      I.say("  Special modifier: "+specialModifier);
       I.say("  Initialised at: "+priority+", default: "+defaultPriority);
     }
     
@@ -456,7 +457,7 @@ public abstract class Plan implements Saveable, Behaviour {
       if (victim == actor) return 1;
       float hostility = 0;
       if (victim != null) hostility += actor.memories.relationValue(victim);
-      hostility -= other.memories.relationValue(actor);
+      hostility -= actor.memories.relationValue(other);
       return hostility;
     }
     

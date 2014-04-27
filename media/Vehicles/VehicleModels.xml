@@ -87,7 +87,7 @@
   type="JOINT"
   path="media/Vehicles/"
   file="DustCrawler.ms3d"
-  scale="0.02"
+  scale="0.01"
   bound="1.5"
   stride="1.0"
   height="1.5"

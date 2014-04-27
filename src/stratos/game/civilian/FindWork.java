@@ -164,37 +164,25 @@ public class FindWork extends Plan implements Economy {
   
   
   public static int signingCost(Application app) {
-    
-    //
-    //  TODO:  Signing cost is based on transport factors, attraction, no.
-    //  already employed, etc.  Implement all of that.
     int transport = 0, incentive = 0, guildFees = 0 ;
+    
+    //  TODO:  Allow the player to set wages in a similar manner to setting
+    //  goods' import/export levels.
     guildFees += Backgrounds.HIRE_COSTS[app.position.standing] ;
     
-    if (! app.applies.inWorld()) {
-      //  ...This could potentially be much higher, depending on origin point.
+    if (app.applies.inWorld()) {
+      guildFees = 0;
+    }
+    else {
+      //  TODO:  ...This could be much higher, depending on origin point.
       transport += 100 ;
     }
-    else if (app.applies.mind.work() == null) {
-      guildFees = 0 ;
-    }
     
-    if (app.employer instanceof Venue) {
-      final Venue venue = (Venue) app.employer ;
-      int numEmployed = venue.personnel.numHired(app.position) ;
-      if (numEmployed == 0) {
-        guildFees = 0 ;
-        transport /= 2 ;
-      }
-      else if (numEmployed == 1) {
-        guildFees /= 2 ;
-      }
-      else guildFees *= 1 + ((numEmployed - 2) / 2f) ;
-    }
+    //  TODO:  Set up incentive to join the settlement, based on settlement
+    //  ratings and legislation.
     
     return guildFees + transport + incentive ;
   }
-  
 }
 
 

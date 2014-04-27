@@ -43,7 +43,7 @@ public class Dialogue extends Plan implements Qualities {
   
   private static boolean
     evalVerbose   = false,
-    eventsVerbose = true ;
+    eventsVerbose = false;
   
   
   final Actor starts, other;
@@ -104,7 +104,13 @@ public class Dialogue extends Plan implements Qualities {
     float urgency = 0;
     if (r == null) {
       urgency += curiosity;
-      urgency -= 5f / (10 + actor.memories.relations().size());
+      //  TODO:  Only count positive relations?
+      final float
+        baseF = Relation.BASE_NUM_FRIENDS,
+        numF = actor.memories.relations().size();
+      urgency -= (numF - baseF) / (baseF * 2);
+      
+      if (report) I.say("  TALK URGENCY: "+urgency);
     }
     else {
       urgency += r.novelty() * curiosity;
@@ -116,7 +122,7 @@ public class Dialogue extends Plan implements Qualities {
     
     if (casual) {
       if (urgency <= 0) return 0;
-      if (stage >= STAGE_DONE || ! canTalk(other)) return 0;
+      if (stage >= STAGE_DONE || ! canTalk(other, report)) return 0;
       distCheck = HEAVY_DISTANCE_CHECK;
     }
     
@@ -127,18 +133,29 @@ public class Dialogue extends Plan implements Qualities {
       NO_MODIFIER, distCheck, NO_FAIL_RISK,
       report
     );
+    if (report) {
+      I.say("  Urgency of dialogue was: "+urgency);
+      I.say("  Prior relationship? "+(r != null)+", curiosity: "+curiosity);
+    }
     return priority;
   }
   
   
-  private boolean canTalk(Actor other) {
+  private boolean canTalk(Actor other, boolean report) {
     if (! other.health.conscious()) return false;
+    if (other == starts) return true;
     final Target talksWith = other.focusFor(Dialogue.class);
     if (talksWith == actor) return true;
-    //if (talksWith != null) return false;
-    if (starts != actor) return false;
+    if (talksWith != null) return false;
+    
     final Dialogue d = new Dialogue(other, actor, actor, type);
-    return ! other.mind.mustIgnore(d);
+    final boolean can = ! other.mind.mustIgnore(d);
+
+    if (report) {
+      I.say("  Talk priority for other: "+d.priorityFor(other));
+      I.say("  Can talk? "+can);
+    }
+    return can;
   }
   
   
@@ -216,7 +233,9 @@ public class Dialogue extends Plan implements Qualities {
     */
   protected Behaviour getNextStep() {
     if (stage >= STAGE_DONE) return null ;
-    if (type != TYPE_CONTACT && ! canTalk(other)) {
+    final boolean report = eventsVerbose && I.talkAbout == actor;
+    
+    if (type != TYPE_CONTACT && ! canTalk(other, report)) {
       abortBehaviour() ;
       return null ;
     }
@@ -262,7 +281,7 @@ public class Dialogue extends Plan implements Qualities {
   
   public boolean actionGreet(Actor actor, Boardable aboard) {
     if (! other.isDoing(Dialogue.class, null)) {
-      if (! canTalk(other)) {
+      if (! canTalk(other, false)) {
         if (type == TYPE_CASUAL) abortBehaviour() ;
         return false ;
       }

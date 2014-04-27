@@ -23,7 +23,7 @@ public class Edifice extends Venue implements Economy {
   
 
   final static ModelAsset MODEL = CutoutModel.fromImage(
-    Foundry.class, "media/Buildings/aesthete/edifice.png", 4, 2
+    Artificer.class, "media/Buildings/aesthete/edifice.png", 4, 2
   ) ;
   final static ImageAsset ICON = ImageAsset.fromImage(
     "media/GUI/Buttons/edifice_button.gif", Edifice.class

@@ -16,7 +16,7 @@ public class Choice implements Qualities {
   /**  Data fields, constructors and setup-
     */
   protected static boolean
-    verbose       = true,
+    verbose       = true ,
     verboseReject = verbose && false;
   
   final Actor actor ;

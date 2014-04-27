@@ -25,9 +25,10 @@ public class Career implements Qualities {
   
   
   public Career(
-    boolean male, Background vocation, Background birth, Background homeworld
+    Background vocation, Background birth,
+    Background homeworld, Background gender
   ) {
-    this.gender = male ? Backgrounds.MALE_BIRTH : Backgrounds.FEMALE_BIRTH ;
+    this.gender = gender;//male ? Backgrounds.MALE_BIRTH : Backgrounds.FEMALE_BIRTH ;
     this.vocation = vocation ;
     this.birth = birth ;
     this.homeworld = homeworld ;
@@ -200,6 +201,8 @@ public class Career implements Qualities {
       }
       else gender = Backgrounds.FEMALE_BIRTH ;
     }
+    
+    
     //
     //  TODO:  Some of these traits need to be rendered 'dormant' in younger
     //  citizens...

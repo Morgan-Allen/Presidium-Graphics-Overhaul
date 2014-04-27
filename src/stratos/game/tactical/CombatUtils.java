@@ -106,7 +106,7 @@ public class CombatUtils implements Qualities {
     
     if (report) {
       final Target victim = other.focusFor(Combat.class);
-      I.say("      Raw strength of: "+m+": "+otherStrength);
+      I.say("\n    Raw strength of: "+m+": "+otherStrength);
       I.say("      Distance: "+distance+", victim: "+victim);
       I.say("      Hostility: "+hostility);
       I.say("      Final threat: "+threat);
@@ -135,18 +135,21 @@ public class CombatUtils implements Qualities {
       final float distance = Spacing.distance(t, primary);
       if (distance > World.SECTOR_SIZE) continue;
       
-      final float threat = threatTo(protects, t, distance, report);
       float rating = Plan.hostilityOf(t, actor, false);
+      if (rating < 0) continue;
       
-      if (melee) rating /= distance;
+      if (melee) rating /= 1 + distance;
       else rating -= distance / (World.SECTOR_SIZE / 2);
-      
+
+      final float threat = threatTo(protects, t, distance, report);
       if (protects == actor) rating -= threat;
       else rating += threat;
       
       if (rating > maxRating) { pick = t; maxRating = rating; }
     }
     if (maxRating <= 0) return null;
+    
+    if (report) I.say("  BEST TARGET: "+pick);
     return pick;
   }
   

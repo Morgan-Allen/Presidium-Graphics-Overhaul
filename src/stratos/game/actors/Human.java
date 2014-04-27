@@ -59,7 +59,7 @@ public class Human extends Actor implements Qualities {
   
   /**  Field definitions, constructors and save/load methods-
     */
-  Career career ;
+  final Career career;
   
   
   public Human(Background vocation, Base base) {

@@ -18,22 +18,22 @@ import stratos.util.* ;
 
 
 
-public class Foundry extends Venue implements Economy {
+public class Artificer extends Venue implements Economy {
   
   
   
   /**  Fields, constructors, and save/load methods-
     */
   final static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/artificer_button.gif", Foundry.class
+    "media/GUI/Buttons/artificer_button.gif", Artificer.class
   );
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    Foundry.class, "media/Buildings/artificer/artificer.png", 4, 2
+    Artificer.class, "media/Buildings/artificer/artificer.png", 3, 2
   );
   
   
-  public Foundry(Base base) {
-    super(4, 2, ENTRANCE_WEST, base) ;
+  public Artificer(Base base) {
+    super(3, 2, ENTRANCE_WEST, base) ;
     structure.setupStats(
       200, 5, 350,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
@@ -43,7 +43,7 @@ public class Foundry extends Venue implements Economy {
   }
   
   
-  public Foundry(Session s) throws Exception {
+  public Artificer(Session s) throws Exception {
     super(s) ;
   }
   
@@ -57,7 +57,7 @@ public class Foundry extends Venue implements Economy {
   /**  Economic functions, upgrades and employee behaviour-
     */
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-    Foundry.class, "foundry_upgrades"
+    Artificer.class, "foundry_upgrades"
   ) ;
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES ; }
   final public static Upgrade
@@ -220,13 +220,13 @@ public class Foundry extends Venue implements Economy {
 
 
   public String fullName() {
-    return "Foundry" ;
+    return "Artificer" ;
   }
   
   
   public String helpInfo() {
     return
-      "The Foundry manufactures parts, inscriptions, devices and armour "+
+      "The Artificer manufactures parts, inscriptions, devices and armour "+
       "for your citizens.";
   }
   
