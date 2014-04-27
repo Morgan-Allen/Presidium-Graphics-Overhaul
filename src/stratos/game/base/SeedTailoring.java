@@ -84,8 +84,8 @@ public class SeedTailoring extends Plan implements Economy {
     //
     //  If the nursery has enough of the crop type, deliver it-
     if (station.stocks.amountOf(cropType) > 1) {
-      final Batch <Item> matches = station.stocks.matches(cropType) ;
-      return new Delivery(matches, station, nursery) ;
+      final Batch <Item> matches = station.stocks.matches(cropType);
+      return new Delivery(matches, station, nursery);
     }
     //
     //  If the nursery has enough of the seed type, culture it-
@@ -170,11 +170,15 @@ public class SeedTailoring extends Plan implements Economy {
   /**  Rendering and interface-
     */
   public void describeBehaviour(Description d) {
-    //d.append("Tailoring seed at ") ;
-    super.describedByStep(d) ;
-    d.append(" at ") ;
-    d.append(super.lastStepTarget()) ;
-    //d.append(nursery) ;
+    if (lastStep instanceof Plan) {
+      super.describedByStep(d);
+      return;
+    }
+    else {
+      super.describedByStep(d);
+      d.append(" at ");
+      d.append(super.lastStepTarget());
+    }
   }
 }
 

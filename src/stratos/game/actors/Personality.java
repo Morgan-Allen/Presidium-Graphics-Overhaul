@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 
 
 //  TODO:  You'll need to ensure mutual contradictions aren't allowed here.
+//  TODO:  Implement the exclusion principle at least.
 
 
 //  TODO:  See if this can't be simplified still further?
@@ -40,7 +41,6 @@ Ascetic     vs. Indulgent   (appeal of vice and gluttony)
 
 //  ...Wait a second.  Based on anecdotal experience, half of these are
 //  bullshit.  Correlations should be weaker, at least.
-//  TODO:  Implement the exclusion principle at least.
 
 public class Personality {
   

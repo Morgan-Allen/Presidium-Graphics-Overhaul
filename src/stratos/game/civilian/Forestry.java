@@ -28,7 +28,10 @@ public class Forestry extends Plan implements Economy {
     STAGE_SAMPLING =  2,
     STAGE_RETURN   =  3,
     STAGE_DONE     =  4 ;
-  private static boolean verbose = false;
+  private static boolean
+    evalVerbose   = false,
+    eventsVerbose = false;
+  
   
   final Venue nursery ;
   private int stage = STAGE_INIT ;
@@ -95,11 +98,13 @@ public class Forestry extends Plan implements Economy {
   
 
   protected float getPriority() {
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = evalVerbose && I.talkAbout == actor;
     if (! configured()) return 0 ;
+    final Target subject = toPlant == null ? toCut : toPlant;
+    if (subject == null) return 0;
     
     final float priority = priorityForActorWith(
-      actor, toPlant, ROUTINE,
+      actor, subject, ROUTINE,
       NO_HARM, FULL_COMPETITION,
       BASE_SKILLS, BASE_TRAITS,
       NO_MODIFIER, NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
@@ -111,6 +116,8 @@ public class Forestry extends Plan implements Economy {
   
   public Behaviour getNextStep() {
     if (! configured()) return null ;
+    final boolean report = eventsVerbose && I.talkAbout == actor;
+    
     if (stage == STAGE_GET_SEED) {
       final Action collects = new Action(
         actor, nursery,
@@ -125,8 +132,13 @@ public class Forestry extends Plan implements Economy {
         this, "actionPlant",
         Action.BUILD, "Planting"
       ) ;
-      final Tile to = Spacing.pickFreeTileAround(toPlant, actor) ;
-      plants.setMoveTarget(to) ;
+      if (Spacing.adjacent(toPlant, actor) && Rand.num() <= 0.8f) {
+        plants.setMoveTarget(actor.origin());
+      }
+      else {
+        final Tile to = Spacing.pickFreeTileAround(toPlant, actor);
+        plants.setMoveTarget(to);
+      }
       return plants ;
     }
     if (stage == STAGE_SAMPLING) {
@@ -165,14 +177,21 @@ public class Forestry extends Plan implements Economy {
   }
   
   
-  public boolean actionPlant(Actor actor, Tile t) {
+  public boolean actionPlant(Actor actor, Tile beside) {
+    final boolean report = eventsVerbose && I.talkAbout == actor;
+    if (report) I.say("\nPLANTING AT "+toPlant+", from: "+actor.origin());
     
-    if (! Flora.canGrowAt(t)) {
-      stage = STAGE_RETURN ;
+    if (! Flora.canGrowAt(toPlant)) {
+      if (report) {
+        I.say("  COULD NOT GROW!");
+        I.say("  Occupied? "+(toPlant.inside().size() > 0));
+        I.say("  Blocked? "+toPlant.blocked());
+      }
+      toPlant = findPlantTile(actor, nursery) ;
+      if (report) I.say("  New tile: "+toPlant);
+      if (toPlant == null) stage = STAGE_RETURN ;
       return false ;
     }
-    final Flora f = Flora.tryGrowthAt(t);
-    if (f == null) return false;
     
     float growStage = -0.5f ;
     for (Item seed : actor.gear.matches(seedMatch())) {
@@ -182,10 +201,14 @@ public class Forestry extends Plan implements Economy {
     if (actor.traits.test(CULTIVATION, MODERATE_DC, 5f)) growStage += 0.75f ;
     if (actor.traits.test(HARD_LABOUR, ROUTINE_DC , 5f)) growStage += 0.75f ;
     if (growStage <= 0) return false ;
-    f.incGrowth(growStage * (Rand.num() + 1) / 4, t.world, true) ;
     
-    //
-    //  TODO:  If you still have seed left, try picking another site...
+    final Flora f = Flora.tryGrowthAt(toPlant);
+    if (f == null) return false;
+    f.incGrowth(growStage * (Rand.num() + 1) / 4, toPlant.world, true) ;
+    
+    if (report) I.say("  SUCCESS! Grow stage: "+growStage);
+    
+    //  TODO:  If you still have seed left, try picking another site.
     stage = STAGE_RETURN ;
     return true ;
   }
@@ -230,12 +253,12 @@ public class Forestry extends Plan implements Economy {
     
     for (int n = 10 ; n-- > 0 ;) {
       tried = Spacing.pickRandomTile(
-        nursery, World.SECTOR_SIZE * 2, actor.world()
-      ) ;
-      tried = Spacing.nearestOpenTile(tried, actor) ;
-      if (tried == null || tried.pathType() != Tile.PATH_CLEAR) continue ;
+        actor, World.SECTOR_SIZE / 2, actor.world()
+      );
+      tried = Spacing.nearestOpenTile(tried, actor);
+      if (tried == null || ! Flora.canGrowAt(tried)) continue;
+      if (Spacing.distance(tried, nursery) > World.SECTOR_SIZE) continue;
       
-      if (! Flora.canGrowAt(tried)) continue;
       float rating = tried.habitat().moisture() / 10f ;
       rating -= Plan.rangePenalty(tried, actor) ;
       rating -= Plan.dangerPenalty(tried, actor) ;

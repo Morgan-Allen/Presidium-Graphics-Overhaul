@@ -8,6 +8,7 @@
 package stratos.game.common ;
 import org.apache.commons.math3.util.FastMath;
 
+import stratos.game.actors.Choice;
 import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.user.*;
@@ -150,7 +151,8 @@ public class Pathing {
   
   
   public boolean refreshFullPath() {
-    if (verbose) I.sayAbout(mobile, "REFRESHING PATH TO: "+trueTarget) ;
+    final boolean report = verbose && I.talkAbout == mobile;
+    if (report) I.say("REFRESHING PATH TO: "+trueTarget) ;
     
     final Boardable origin = location(mobile) ;
     if (trueTarget == null) path = null ;
@@ -159,7 +161,7 @@ public class Pathing {
       //  Firstly, we perform some basic sanity checks on the start and end
       //  points of the prospective route.
       pathTarget = location(trueTarget) ;
-      if (verbose) I.sayAbout(mobile, "BETWEEN: "+origin+" AND "+pathTarget) ;
+      if (report) I.say("BETWEEN: "+origin+" AND "+pathTarget) ;
       if (
         PathSearch.blockedBy(origin, mobile) ||
         PathSearch.blockedBy(pathTarget, mobile)
@@ -167,7 +169,9 @@ public class Pathing {
       else path = pathBetween(origin, pathTarget) ;
     }
     if (path == null) {
-      if (verbose) I.sayAbout(mobile, "COULDN'T PATH TO: "+pathTarget) ;
+      if (report || (I.talkAbout == mobile && Choice.verbose)) {
+        I.say("COULDN'T PATH TO: "+pathTarget) ;
+      }
       mobile.pathingAbort() ;
       stepIndex = -1 ;
       return false ;
@@ -176,9 +180,11 @@ public class Pathing {
     //  If those pass inspection, we then select the next step in the currently
     //  approved path-
     else {
-      if (verbose && I.talkAbout == mobile) {
+      if (report) {
         I.say("PATH IS: ") ;
-        for (Boardable b : path) I.add(b+" "+PathSearch.blockedBy(b, mobile)+" ") ;
+        for (Boardable b : path) {
+          I.add(b+" "+PathSearch.blockedBy(b, mobile)+" ") ;
+        }
       }
       int index = 0 ;
       while (index < path.length) if (path[index++] == origin) break ;

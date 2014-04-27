@@ -21,7 +21,9 @@ public class Repairs extends Plan implements Qualities {
     TIME_PER_25_HP = World.STANDARD_HOUR_LENGTH,
     MIN_SERVICE_DAMAGE = 0.25f;
   
-  private static boolean verbose = false;
+  private static boolean
+    evalVerbose   = false,
+    eventsVerbose = false;
   
   final Venue built ;
   
@@ -84,7 +86,7 @@ public class Repairs extends Plan implements Qualities {
   
   
   protected float getPriority() {
-    final boolean report = verbose && I.talkAbout == actor && hasBegun();
+    final boolean report = evalVerbose && I.talkAbout == actor && hasBegun();
     
     float urgency = needForRepair(built);
     if (report) I.say("Urgency for repair of "+built+" is "+urgency);
@@ -138,7 +140,7 @@ public class Repairs extends Plan implements Qualities {
   
   
   protected Behaviour getNextStep() {
-    final boolean report = verbose && I.talkAbout == actor && hasBegun();
+    final boolean report = eventsVerbose && I.talkAbout == actor && hasBegun();
     if (report) I.say("\nGetting next build step?") ;
     
     if (built.structure.needsUpgrade() && built.structure.goodCondition()) {
@@ -176,8 +178,9 @@ public class Repairs extends Plan implements Qualities {
   
   
   public boolean actionBuild(Actor actor, Venue built) {
-    //
-    //  Double the rate of repair again if you have proper tools and materials.
+    final boolean report = eventsVerbose && I.talkAbout == actor && hasBegun();
+    
+    //  TODO:  Double the rate of repair again if you have proper tools and materials.
     final boolean salvage = built.structure.needsSalvage() ;
     final boolean free = GameSettings.buildFree ;
     final Base base = built.base();
@@ -190,9 +193,11 @@ public class Repairs extends Plan implements Qualities {
     
     if (salvage) {
       success *= actor.traits.test(ASSEMBLY, 5, 1) ? 1 : 0.5f ;
-      final float amount = 0 - built.structure.repairBy(success) ;
+      final float amount = built.structure.repairBy(0 - success) ;
       final float cost = amount * built.structure.buildCost() ;
       if (! free) base.incCredits(cost * 0.5f) ;
+      if (report) I.say("Salvage sucess: "+success);
+      if (report) I.say("Repair level: "+built.structure.repairLevel());
     }
     
     else {

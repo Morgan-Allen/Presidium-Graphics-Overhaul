@@ -308,9 +308,10 @@ public final class Spacing implements TileConstants {
     float roll = Rand.num() * sumWeights ;
     sumWeights = 0 ;
     for (int n = 0 ; n < perim.length ; n++) {
-      if (roll < weights[n]) return perim[n] ;
+      if (roll < sumWeights) return perim[n] ;
       sumWeights += weights[n] ;
     }
+    
     return nearestOpenTile(t, client) ;
   }
   

@@ -98,8 +98,10 @@ public class Flora extends Element implements TileConstants {
   public static boolean canGrowAt(Tile t) {
     if (t.blocked() || t.inside().size() > 0) return false;
     final float growChance = growChance(t);
+    ///I.say(t+" grow chance: "+growChance);
     if (growChance == -1) return false;
     final int crowding = crowdingAt(t);
+    ///I.say(t+" crowding: "+crowding);
     if (crowding >= 2) return false;
     return true;
   }
@@ -120,7 +122,7 @@ public class Flora extends Element implements TileConstants {
     
     if (! canGrowAt(t)) return null;
     if (Rand.num() > growChance) return null;
-
+    
     if (Rand.num() < GROWTH_PER_UPDATE) {
       if (verbose) I.say("Seeding new tree at: "+t);
       final Flora f = new Flora(t.habitat());

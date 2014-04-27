@@ -15,7 +15,7 @@ public class Choice implements Qualities {
   
   /**  Data fields, constructors and setup-
     */
-  protected static boolean
+  public static boolean
     verbose       = true ,
     verboseReject = verbose && false;
   
@@ -177,7 +177,7 @@ public class Choice implements Qualities {
       competeThreshold(actor, nextPriority, true) :
       nextPriority;
     
-    if (verbose && I.talkAbout == actor) {
+    if (verbose && I.talkAbout == actor && last.hasBegun()) {
       I.say("\nConsidering plan switch...");
       I.say("  Last plan: "+last+", priority: "+lastPriority);
       I.say("  Next plan: "+next+", priority: "+nextPriority);

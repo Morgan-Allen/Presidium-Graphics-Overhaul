@@ -122,24 +122,35 @@ public class BotanicalStation extends Venue implements Economy {
   
   
   public Behaviour jobFor(Actor actor) {
-    if (! structure.intact() || Planet.isNight(world)) return null ;
-    //
-    //  If the harvest is really coming in, pitch in regardless-
+    if (! structure.intact()) return null ;
     final Choice choice = new Choice(actor) ;
-    final boolean needsSeed = stocks.amountOf(GENE_SEED) < 5 ;
-    for (Plantation p : allotments) {
-      if (p.needForTending() > 0.5f) choice.add(new Farming(actor, p)) ;
+    
+    //  If you're really short on food, consider foraging in the surrounds-
+    final float shortages = (
+      stocks.shortagePenalty(CARBS) +
+      stocks.shortagePenalty(GREENS)
+    ) / 2f;
+    if (shortages > 0) {
+      final Foraging foraging = new Foraging(actor, this);
+      foraging.setMotive(Plan.MOTIVE_EMERGENCY, Plan.PARAMOUNT * shortages);
+      choice.add(foraging) ;
+    }
+    
+    //  If the harvest is really coming in, pitch in regardless-
+    if (! Planet.isNight(world)) for (Plantation p : allotments) {
+      if (p.needForTending() > 0.5f) choice.add(new Farming(actor, p));
     }
     if (choice.size() > 0) return choice.pickMostUrgent() ;
-    //
+    
     //  Otherwise, perform deliveries and more casual work-
     if (! personnel.onShift(actor)) return null ;
     final Delivery d = Deliveries.nextDeliveryFor(
       actor, this, services(), 10, world
     ) ;
     choice.add(d) ;
-    //
+    
     //  Forestry may have to be performed, depending on need for gene samples-
+    final boolean needsSeed = stocks.amountOf(GENE_SEED) < 5;
     final Forestry f = new Forestry(actor, this) ;
     if (needsSeed && actor.vocation() == Backgrounds.ECOLOGIST) {
       f.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
@@ -150,17 +161,7 @@ public class BotanicalStation extends Venue implements Economy {
       f.configureFor(Forestry.STAGE_GET_SEED);
     }
     choice.add(f) ;
-    //
-    //  If you're really short on food, consider foraging in the surrounds-
-    final float shortages =
-      stocks.shortagePenalty(CARBS) +
-      stocks.shortagePenalty(GREENS) ;
-    if (actor.vocation() == Backgrounds.CULTIVATOR && shortages > 0) {
-      final Foraging foraging = new Foraging(actor, this) ;
-      foraging.setMotive(Plan.MOTIVE_EMERGENCY, Plan.CASUAL + shortages);
-      choice.add(foraging) ;
-    }
-    //
+    
     //  And lower-priority tending and upkeep also gets an appearance-
     for (Plantation p : allotments) if (p.type == Plantation.TYPE_NURSERY) {
       for (Species s : Plantation.ALL_VARIETIES) {
@@ -170,7 +171,6 @@ public class BotanicalStation extends Venue implements Economy {
           choice.add(t) ;
         }
       }
-      //
       //  TODO:  Do this for every crop type?
       choice.add(new Farming(actor, p)) ;
     }
@@ -229,7 +229,7 @@ public class BotanicalStation extends Venue implements Economy {
       }
       //
       //  Then, calculate how many allotments one should have.
-      int maxAllots = 2 * personnel.numHired(Backgrounds.CULTIVATOR);
+      int maxAllots = 1 + personnel.numHired(Backgrounds.CULTIVATOR);
       maxAllots *= STRIP_SIZE ;
       if (maxAllots > allotments.size()) {
         //
@@ -286,11 +286,11 @@ public class BotanicalStation extends Venue implements Economy {
   /**  Rendering and interface methods-
     */
   final static float GOOD_DISPLAY_OFFSETS[] = {
-     -0.0f, 0,
-     -1.0f, 0,
-     -2.0f, 0,
-     -0.0f, 1,
-  } ;
+    0.0f, 1.0f,
+    0.0f, 0.0f,
+    0.5f, 0.0f,
+    1.0f, 0.0f,
+  };
   
   
   protected float[] goodDisplayOffsets() {
@@ -299,8 +299,9 @@ public class BotanicalStation extends Venue implements Economy {
   
   
   protected Service[] goodsToShow() {
-    return new Service[] { GENE_SEED, GREENS, PROTEIN, CARBS } ;
+    return new Service[] { GENE_SEED, CARBS, GREENS, PROTEIN } ;
   }
+  
   
   protected float goodDisplayAmount(Service good) {
     if (good == GENE_SEED) return stocks.amountOf(good) > 0 ? 5 : 0 ;

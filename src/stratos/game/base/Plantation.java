@@ -100,7 +100,7 @@ public class Plantation extends Venue implements
   public Plantation(
     BotanicalStation belongs, int type, int facing, Plantation strip[]
   ) {
-    super(2, 2, (ENTRANCE_WEST + (facing / 2)) % 4, belongs.base()) ;
+    super(2, 2, (ENTRANCE_SOUTH + (facing / 2)) % 4, belongs.base()) ;
     final boolean IN = type == TYPE_NURSERY ;
     structure.setupStats(
       IN ? 25 : 5,  //integrity

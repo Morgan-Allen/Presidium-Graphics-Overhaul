@@ -7,6 +7,8 @@
 
 
 package stratos.game.base ;
+import org.apache.commons.math3.util.FastMath;
+
 import stratos.game.building.* ;
 import stratos.game.common.* ;
 import stratos.game.actors.* ;
@@ -55,17 +57,17 @@ public class Farming extends Plan implements Economy {
       return 0;
     }
     
-    final float min = sumHarvest() > 0 ? ROUTINE : 0;
+    final float min = returnHarvestAction(0) == null ? 0 :  ROUTINE;
     final float need = nursery.needForTending();
-    if (need <= 0) return min;
     
-    return priorityForActorWith(
+    final float priority = priorityForActorWith(
       actor, nursery, ROUTINE,
       MILD_HELP, MILD_COMPETITION,
       BASE_SKILLS, BASE_TRAITS,
       (need - 0.5f) * ROUTINE, PARTIAL_DISTANCE_CHECK, NO_FAIL_RISK,
       report
     );
+    return FastMath.max(min, priority);
   }
   
   
@@ -79,8 +81,8 @@ public class Farming extends Plan implements Economy {
   public Behaviour getNextStep() {
     //
     //  If you've harvested enough, bring it back to the depot-
-    Action action = returnHarvestAction(5) ;
-    if (action != null) return action ;
+    final Action returns = returnHarvestAction(5) ;
+    if (returns != null) return returns ;
     if (nursery.needForTending() == 0 || ! canPlant()) {
       if (verbose) I.sayAbout(actor, "Should return everything...") ;
       return returnHarvestAction(0) ;
@@ -136,6 +138,40 @@ public class Farming extends Plan implements Economy {
   }
   
   
+  private float sumHarvest() {
+    return 
+      actor.gear.amountOf(CARBS) +
+      actor.gear.amountOf(GREENS) +
+      actor.gear.amountOf(PROTEIN) ;
+  }
+  
+  
+  private Action returnHarvestAction(int amountNeeded) {
+    final boolean hasSample = actor.gear.amountOf(SAMPLES) > 0;
+    final float sumHarvest = sumHarvest() ;
+    
+    if (hasSample && sumHarvest == 0 && amountNeeded == 0) {
+      //  TODO:  Create a dedicated action type for this?
+      final Action returnSeed = new Action(
+        actor, nursery,
+        this, "actionReturnHarvest",
+        Action.REACH_DOWN, "Returning seed"
+      ) ;
+      return returnSeed ;
+    }
+    
+    if (sumHarvest <= amountNeeded && actor.gear.encumbrance() < 1) {
+      return null ;
+    }
+    final Action returnAction = new Action(
+      actor, nursery.belongs,
+      this, "actionReturnHarvest",
+      Action.REACH_DOWN, "Returning harvest"
+    ) ;
+    return returnAction ;
+  }
+  
+  
   private Species pickSpecies(Tile t, BotanicalStation parent) {
     final Float chances[] = new Float[5] ;
     int i = 0 ;
@@ -178,7 +214,7 @@ public class Farming extends Plan implements Economy {
   
   
   public boolean actionPlant(Actor actor, Crop crop) {
-    //
+    
     //  Initial seed quality has a substantial impact on crop health.
     final Item seed = actor.gear.bestSample(
       Item.asMatch(SAMPLES, crop.species()), 0.1f
@@ -195,14 +231,14 @@ public class Farming extends Plan implements Economy {
       plantDC += 5 ;
       health = 0 ;
     }
-    //
+    
     //  So does expertise and elbow grease.
     health += actor.traits.test(CULTIVATION, plantDC, 1) ? 1 : 0 ;
     health += actor.traits.test(HARD_LABOUR, ROUTINE_DC, 1) ? 1 : 0 ;
     health *= Plantation.MAX_HEALTH_BONUS / 5;
     final Species s = pickSpecies(crop.tile, nursery.belongs);
     crop.seedWith(s, health);
-    //
+    
     //  Update and return-
     crop.parent.refreshCropSprites() ;
     crop.parent.checkCropStates() ;
@@ -233,35 +269,13 @@ public class Farming extends Plan implements Economy {
   }
   
   
-  private float sumHarvest() {
-    return 
-      actor.gear.amountOf(CARBS) +
-      actor.gear.amountOf(GREENS) +
-      actor.gear.amountOf(PROTEIN) +
-      (actor.gear.amountOf(SAMPLES) / 4) ;
-  }
-  
-  
-  private Action returnHarvestAction(int amountNeeded) {
-    final float sumHarvest = sumHarvest() ;
-    if (sumHarvest <= amountNeeded && actor.gear.encumbrance() < 1) {
-      return null ;
-    }
-    final Action returnAction = new Action(
-      actor, nursery.belongs,
-      this, "actionReturnHarvest",
-      Action.REACH_DOWN, "Returning harvest"
-    ) ;
-    return returnAction ;
-  }
-  
-  
   public boolean actionReturnHarvest(Actor actor, Venue depot) {
     actor.gear.transfer(CARBS, depot) ;
     actor.gear.transfer(GREENS, depot) ;
     actor.gear.transfer(PROTEIN, depot) ;
     for (Item seed : actor.gear.matches(SAMPLES)) {
-      actor.gear.removeItem(seed) ;
+      actor.gear.transfer(seed, depot);
+      //actor.gear.removeItem(seed);
     }
     return true ;
   }

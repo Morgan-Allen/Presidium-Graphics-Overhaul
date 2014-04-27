@@ -624,7 +624,9 @@ public abstract class Venue extends Fixture implements
     if (index < 0) return ;
     index = Visit.clamp(index, offsets.length) ;
     
-    for (Service s : services) if (canShow(s)) {
+    for (int SI = services.length; SI-- > 0;) {
+      final Service s = services[SI];
+      if (! canShow(s)) continue;
       if (index < 0) break ;
       final float y = offsets[index--], x = offsets[index--] ;
       if (y >= size || size <= -x) continue ;

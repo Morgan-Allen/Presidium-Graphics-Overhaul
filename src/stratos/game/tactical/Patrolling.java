@@ -386,7 +386,9 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
       }
     }
     if (init != null && dest != null) {
-      final Patrolling p = Patrolling.streetPatrol(actor, init, dest, world) ;
+      final Patrolling p = (init == dest) ?
+        Patrolling.aroundPerimeter(actor, init, world) :
+        Patrolling.streetPatrol(actor, init, dest, world);
       if (p != null) {
         p.setMotive(Plan.MOTIVE_DUTY, priority);
         return p;
