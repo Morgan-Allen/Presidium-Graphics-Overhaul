@@ -11,11 +11,17 @@ import stratos.game.building.*;
 import stratos.game.campaign.System;
 import stratos.game.common.*;
 import stratos.util.*;
+//import org.apache.commons.math3.util.FastMath;
 
 
 
 public class Career implements Qualities {
   
+  
+  final static int
+    MIN_PERSONALITY = 3;
+  
+  private static boolean verbose = false;
   
   
   private Actor subject ;
@@ -28,7 +34,7 @@ public class Career implements Qualities {
     Background vocation, Background birth,
     Background homeworld, Background gender
   ) {
-    this.gender = gender;//male ? Backgrounds.MALE_BIRTH : Backgrounds.FEMALE_BIRTH ;
+    this.gender = gender;
     this.vocation = vocation ;
     this.birth = birth ;
     this.homeworld = homeworld ;
@@ -109,6 +115,8 @@ public class Career implements Qualities {
     *  physique, aptitudes and motivations:
     */
   public void applyCareer(Human actor) {
+    if (verbose) I.say("\nGENERATING NEW CAREER");
+    
     subject = actor ;
     applyBackgrounds(actor) ;
     //
@@ -118,21 +126,12 @@ public class Career implements Qualities {
       Visit.clamp(Rand.avgNums(2), 0.26f, 0.94f),
       1, 0
     ) ;
-    //
+    
     //  For now, we apply gender at random, though this might be tweaked a bit
     //  later.  We also assign some random personality and/or physical traits.
-    while (true) {
-      final int numP = actor.traits.personality().size() ;
-      if (numP >= 5) break ;
-      final Trait t = (Trait) Rand.pickFrom(PERSONALITY_TRAITS) ;
-      actor.traits.incLevel(t, Rand.range(-2, 2)) ;
-      if (numP >= 3 && Rand.yes()) break ;
-    }
-    actor.traits.incLevel(HANDSOME, Rand.rangeAvg(-2, 2, 2)) ;
-    actor.traits.incLevel(TALL    , Rand.rangeAvg(-2, 2, 2)) ;
-    actor.traits.incLevel(STOUT   , Rand.rangeAvg(-2, 2, 2)) ;
     applySystem((System) homeworld, actor) ;
     applySex(actor) ;
+    fillPersonality(actor);
     //
     //  Finally, specify name and (TODO:) a few other details of appearance.
     for (String name : Wording.namesFor(actor)) {
@@ -143,6 +142,15 @@ public class Career implements Qualities {
     //
     //  Along with current wealth and equipment-
     applyGear(vocation, actor) ;
+    
+    if (verbose) {
+      I.say("  GENERATION COMPLETE: "+actor);
+      I.say("  Personality:");
+      for (Trait t : actor.traits.personality()) {
+        final float level = actor.traits.traitLevel(t);
+        I.say("    "+actor.traits.levelDesc(t)+" ("+level+")");
+      }
+    }
   }
   
   
@@ -195,14 +203,12 @@ public class Career implements Qualities {
     if (gender == null) {
       final float
         rateM = ratePromotion(Backgrounds.MALE_BIRTH  , actor),
-        rateF = ratePromotion(Backgrounds.FEMALE_BIRTH, actor) ;
+        rateF = ratePromotion(Backgrounds.FEMALE_BIRTH, actor);
       if (rateM * Rand.avgNums(2) > rateF * Rand.avgNums(2)) {
         gender = Backgrounds.MALE_BIRTH ;
       }
       else gender = Backgrounds.FEMALE_BIRTH ;
     }
-    
-    
     //
     //  TODO:  Some of these traits need to be rendered 'dormant' in younger
     //  citizens...
@@ -258,12 +264,10 @@ public class Career implements Qualities {
     actor.traits.incLevel(STOUT, Rand.num() * 1 * world.gravity) ;
   }
   
-
-  //
-  //  TODO:  Check for similar traits?
+  
   public static float ratePromotion(Background next, Actor actor) {
     float rating = 1 ;
-    //
+    
     //  Check for similar skills.
     for (Skill s : next.baseSkills.keySet()) {
       rating += rateSimilarity(s, next, actor) ;
@@ -273,8 +277,18 @@ public class Career implements Qualities {
       rating += rateSimilarity(s, next, actor) ;
     }
     rating /= 1 + next.baseSkills.size() + skills.size() ;
-    //
-    //  Favour transition to more prestigious vocations-
+    
+    //  Check for similar traits.
+    float sumChances = 1;
+    for (Trait t : next.traitChances.keySet()) {
+      float chance = next.traitChances.get(t);
+      chance *= Personality.traitChance(t, actor);
+      sumChances += (1 + chance) / 2f;
+    }
+    rating *= sumChances / (1 + next.traitChances.size());
+    if (rating < 0) return 0;
+    
+    //  And favour transition to more prestigious vocations.
     if (actor instanceof Human) {
       final Background prior = ((Human) actor).career().topBackground() ;
       if (next.standing < prior.standing) return rating / 10f ;
@@ -300,7 +314,7 @@ public class Career implements Qualities {
   
   
   private void applyVocation(Background v, Actor actor) {
-    ///I.say("Applying vocation: "+v) ;
+    if (verbose) I.say("Applying vocation: "+v) ;
     
     for (Skill s : v.baseSkills.keySet()) {
       final int level = v.baseSkills.get(s) ;
@@ -308,13 +322,32 @@ public class Career implements Qualities {
     }
     
     for (Trait t : v.traitChances.keySet()) {
-      float chance = v.traitChances.get(t) ;
-      while (Rand.index(10) < Math.abs(chance) * 10) {
-        actor.traits.incLevel(t, chance > 0 ? 0.5f : -0.5f) ;
-        chance /= 2 ;
+      float chance = v.traitChances.get(t);
+      chance += Personality.traitChance(t, actor) / 2;
+      actor.traits.incLevel(t, chance * Rand.avgNums(2) * 2);
+      if (verbose) {
+        I.say("  Chance for "+t+" is "+chance);
+        final float level = actor.traits.traitLevel(t);
+        I.say("  Level is now: "+level);
       }
-      actor.traits.incLevel(t, chance * Rand.num()) ;
     }
+  }
+  
+  
+  private void fillPersonality(Actor actor) {
+    while (true) {
+      final int numP = actor.traits.personality().size();
+      if (numP >= MIN_PERSONALITY) break;
+      final Trait t = (Trait) Rand.pickFrom(PERSONALITY_TRAITS);
+      float chance = (Personality.traitChance(t, actor) / 2) + Rand.num();
+      if (chance < 0 && chance > -0.5f) chance = -0.5f;
+      if (chance > 0 && chance <  0.5f) chance =  0.5f;
+      actor.traits.incLevel(t, chance);
+    }
+    
+    actor.traits.incLevel(HANDSOME, Rand.rangeAvg(-2, 2, 2)) ;
+    actor.traits.incLevel(TALL    , Rand.rangeAvg(-2, 2, 2)) ;
+    actor.traits.incLevel(STOUT   , Rand.rangeAvg(-2, 2, 2)) ;
   }
   
   

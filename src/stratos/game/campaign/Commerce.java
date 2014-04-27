@@ -55,19 +55,10 @@ public class Commerce implements Economy {
   
   public Commerce(Base base) {
     this.base = base ;
-    
     for (Service type : ALL_COMMODITIES) {
       importPrices.put(type, (float) type.basePrice) ;
       exportPrices.put(type, (float) type.basePrice) ;
     }
-    
-    ship = new Dropship() ;
-    ship.assignBase(base) ;
-    addCrew(ship,
-      Backgrounds.SHIP_CAPTAIN,
-      Backgrounds.SHIP_MECHANIC
-    ) ;
-    nextVisitTime = Rand.num() * SUPPLY_INTERVAL ;
   }
   
   
@@ -402,6 +393,16 @@ public class Commerce implements Economy {
   /**  Perform updates to trigger new events or assess local needs-
     */
   public void updateCommerce(int numUpdates) {
+    if (ship == null) {
+      ship = new Dropship() ;
+      ship.assignBase(base) ;
+      addCrew(ship,
+        Backgrounds.SHIP_CAPTAIN,
+        Backgrounds.SHIP_MECHANIC
+      ) ;
+      nextVisitTime = base.world.currentTime() + (Rand.num() * SUPPLY_INTERVAL);
+    }
+    
     updateCandidates(numUpdates) ;
     if (numUpdates % 10 == 0) {
       summariseDemand(base) ;

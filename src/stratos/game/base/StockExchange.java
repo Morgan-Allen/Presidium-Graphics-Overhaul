@@ -19,7 +19,29 @@ import stratos.util.*;
 
 
 
+/*
 
+The stock exchange needs more attention.  It multiplies the wealth of your settlement.
+
+...This falls under the heading of legislation.  Make it work there first.
+
+PROPERTY ASSESSMENT
+CREDITS SPECULATION
+SALES ADJUSTMENT
+
+CARGO VAULT
+ITEM AUCTIONS
+ADVERTISEMENT
+
+Alms and Taxation.
+
+
+-Then you can have fixed prices.  Merchants are compensated by creating cash ex nihilo.  (Auditor is reponsible for checking this.)
+
+Credit speculation.  From outside.  Dividends given back, good if you have growth.
+
+Credit creation based on value of nearby housing.
+//*/
 
 //  TODO:  Ideally, this needs to be made a little more interesting...
 

@@ -13,6 +13,8 @@ import stratos.util.*;
 
 
 
+//  TODO:  Consider putting skills, traits and physique in separate classes.
+
 public class ActorTraits implements Qualities {
   
   
@@ -29,8 +31,8 @@ public class ActorTraits implements Qualities {
   
 
   private static class Level {
-    float value, bonus ;
-  }  //studyLevel  TODO:  use that.
+    float value, bonus;
+  }
   
   private Table <Trait, Level> levels = new Table <Trait, Level> () ;
   
@@ -206,9 +208,13 @@ public class ActorTraits implements Qualities {
   /**  Methods for querying and modifying the levels of assorted traits-
     */
   public float traitLevel(Trait type) {
-    final Level level = levels.get(type) ;
-    if (level == null) return 0 ;
-    return Visit.clamp(level.value, type.minVal, type.maxVal) ;
+    final Level level = levels.get(type);
+    if (level == null) {
+      final Trait o = type.opposite();
+      if (o != null && levels.get(o) != null) return 0 - traitLevel(o);
+      return 0;
+    }
+    return Visit.clamp(level.value, type.minVal, type.maxVal);
   }
   
   
@@ -234,6 +240,10 @@ public class ActorTraits implements Qualities {
   
   
   public float useLevel(Trait type) {
+    if (type.type == PERSONALITY) {
+      return traitLevel(type);
+    }
+    
     final Level TL = levels.get(type) ;
     float level = TL == null ? 0 : (TL.value + TL.bonus) ;
     
@@ -271,19 +281,13 @@ public class ActorTraits implements Qualities {
   }
   
   
-  public String levelDesc(Trait type) {
-    return Trait.descriptionFor(type, useLevel(type)) ;
-  }
-  
-  
-  private void tryReport(Trait type, float diff) {
-    if ((! actor.inWorld()) || Math.abs(diff) < 1) return ;
-    final String prefix = diff > 0 ? "+" : "" ;
-    actor.chat.addPhrase(prefix+type, TalkFX.NOT_SPOKEN) ;
-  }
-  
-  
   public void setLevel(Trait type, float toLevel) {
+    if (toLevel < 0 && type.opposite() != null) {
+      setLevel(type, 0);
+      setLevel(type.opposite(), 0 - toLevel);
+      return;
+    }
+    
     if (toLevel == 0) {
       levels.remove(type) ;
       return ;
@@ -456,6 +460,19 @@ public class ActorTraits implements Qualities {
   
   /**  Rendering and interface methods-
     */
+  public String levelDesc(Trait type) {
+    return Trait.descriptionFor(type, useLevel(type));
+  }
+  
+  
+  private void tryReport(Trait type, float diff) {
+    if ((! actor.inWorld()) || Math.abs(diff) < 1) return ;
+    final String prefix = diff > 0 ? "+" : "" ;
+    actor.chat.addPhrase(prefix+type, TalkFX.NOT_SPOKEN) ;
+  }
+  
+  
+  //  TODO:  Get rid of this- it's not being used.
   public void writeInformation(Description d) {
     for (Skill s : attributes()) {
       d.append("\n  "+s.name+" "+((int) traitLevel(s))) ;
@@ -474,17 +491,5 @@ public class ActorTraits implements Qualities {
     }
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 

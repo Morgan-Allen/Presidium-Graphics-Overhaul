@@ -16,38 +16,6 @@ public class Trait implements Qualities, Session.Saveable {
   
   private static boolean verboseInit = false;
   
-  static Batch <Trait>
-    traitsSoFar = new Batch <Trait> (),
-    allTraits   = new Batch <Trait> () ;
-  
-  static Trait[] from(Batch <Trait> types) {
-    final Trait t[] = (Trait[]) types.toArray(Trait.class) ;
-    types.clear() ;
-    return t ;
-  }
-  
-  static Skill[] skillsSoFar() {
-    final Skill t[] = (Skill[]) traitsSoFar.toArray(Skill.class) ;
-    traitsSoFar.clear() ;
-    return t ;
-  }
-  
-  static Trait[] traitsSoFar() {
-    final Trait t[] = traitsSoFar.toArray(Trait.class) ;
-    traitsSoFar.clear() ;
-    return t ;
-  }
-  
-  
-  public static Trait loadConstant(Session s) throws Exception {
-    return ALL_TRAIT_TYPES[s.loadInt()] ;
-  }
-  
-  
-  public void saveState(Session s) throws Exception {
-    s.saveInt(traitID) ;
-  }
-  
   
   private static int nextID = 0 ;
   final public int traitID ;
@@ -57,7 +25,7 @@ public class Trait implements Qualities, Session.Saveable {
   final String descriptors[] ;
   final int descValues[] ;
   
-  private Trait correlates[];
+  private Trait correlates[], opposite;
   private float weightings[];
   
   
@@ -105,13 +73,23 @@ public class Trait implements Qualities, Session.Saveable {
   }
   
   
+  
+  /**  Mechanical effects-
+    */
   public void affect(Actor a) {
   }
   
   
+  
+  /**  Correlations-
+    */
   protected void assignCorrelates(Trait t[], float w[]) {
     this.correlates = t;
     this.weightings = w;
+    
+    for (int n = t.length; n-- > 0;) {
+      if (w[n] == -1) { this.opposite = t[n]; break; }
+    }
   }
   
   
@@ -121,10 +99,54 @@ public class Trait implements Qualities, Session.Saveable {
   }
   
   
+  public Trait opposite() { return opposite; }
+  public Trait[] correlates() { return correlates; }
+  public float[] correlateWeights() { return weightings; }
+  
+  
+  
+  /**  Listing, compilation, and saving/loading-
+    */
+  static Batch <Trait>
+    traitsSoFar = new Batch <Trait> (),
+    allTraits   = new Batch <Trait> () ;
+  
+  static Trait[] from(Batch <Trait> types) {
+    final Trait t[] = (Trait[]) types.toArray(Trait.class) ;
+    types.clear() ;
+    return t ;
+  }
+  
+  static Skill[] skillsSoFar() {
+    final Skill t[] = (Skill[]) traitsSoFar.toArray(Skill.class) ;
+    traitsSoFar.clear() ;
+    return t ;
+  }
+  
+  static Trait[] traitsSoFar() {
+    final Trait t[] = traitsSoFar.toArray(Trait.class) ;
+    traitsSoFar.clear() ;
+    return t ;
+  }
+  
+  
+  public static Trait loadConstant(Session s) throws Exception {
+    return ALL_TRAIT_TYPES[s.loadInt()] ;
+  }
+  
+  
+  public void saveState(Session s) throws Exception {
+    s.saveInt(traitID) ;
+  }
+  
+  
   
   /**  Returns the appropriate description for the given trait-level.
     */
   public static String descriptionFor(Trait trait, float level) {
+    if (trait.opposite != null && level < 0) {
+      return descriptionFor(trait.opposite, 0 - level);
+    }
     
     if (trait.descriptors.length == 1) {
       if (level == 0) return null;

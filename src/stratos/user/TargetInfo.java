@@ -14,6 +14,10 @@ import com.badlogic.gdx.math.Vector2;
 
 
 
+//  TODO:  This needs to be re-located in a consistent position near the foot
+//  of the screen.
+
+
 public class TargetInfo extends UIGroup {
   
   
