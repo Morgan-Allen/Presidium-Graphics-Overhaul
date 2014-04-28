@@ -155,7 +155,7 @@ public class HumanDescription implements Qualities {
     d.append("\n  Age: "+h.health.exactAge()+" ("+h.health.agingDesc()+")") ;
     
     ///d.appendList("\n\nAppearance: " , descTraits(h.traits.physique   ())) ;
-    d.appendList("\n\nPersonality: ", descTraits(h.traits.personality())) ;
+    d.appendList("\n\nPersonality: ", descTraits(h.traits.personality(), h)) ;
     //d.appendList("\n\nMutations: "  , descTraits(traits.mutations  ())) ;
     
     d.append("\n\nRelationships: ") ;
@@ -167,18 +167,29 @@ public class HumanDescription implements Qualities {
     }
   }
   
-  private Batch <String> descTraits(Batch <Trait> traits) {
+  
+  public static List <Trait> sortTraits(
+    Batch <? extends Trait> traits, final Actor h
+  ) {
     final List <Trait> sorting = new List <Trait> () {
       protected float queuePriority(Trait r) {
-        return 0 - h.traits.traitLevel(r) ;
+        return h.traits.traitLevel(r);
       }
     } ;
     for (Trait t : traits) sorting.queueAdd(t) ;
-    final Batch <String> desc = new Batch <String> () ;
-    for (Trait t : sorting) desc.add(h.traits.levelDesc(t)) ;
-    return desc ;
+    return sorting;
   }
   
   
-  
+  public static Batch <String> descTraits(
+    Batch <? extends Trait> traits, final Actor h
+  ) {
+    final List <Trait> sorting = sortTraits(traits, h);
+    final Batch <String> desc = new Batch <String> ();
+    for (Trait t : sorting) desc.add(h.traits.levelDesc(t));
+    return desc;
+  }
 }
+
+
+

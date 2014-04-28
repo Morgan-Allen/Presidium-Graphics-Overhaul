@@ -263,7 +263,7 @@ public class Placement implements TileConstants {
       }
       a.mind.setWork(v) ;
     }
-    if (GameSettings.hireFree) Personnel.fillVacancies(v) ;
+    if (GameSettings.hireFree) FindWork.fillVacancies(v, intact) ;
     return v ;
   }
 }

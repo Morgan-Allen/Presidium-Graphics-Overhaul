@@ -19,15 +19,6 @@ public class FindWork extends Plan implements Economy {
   final float rating ;
   
   
-  public static FindWork attemptFor(Actor actor) {
-    final Application newApp = lookForWork(actor, actor.base()) ;
-    if (newApp == null || newApp.employer == actor.mind.work()) return null ;
-    final int signingCost = signingCost(newApp) ;
-    newApp.setHiringFee(signingCost) ;
-    return new FindWork(actor, newApp, rateApplication(newApp)) ;
-  }
-  
-  
   private FindWork(Actor actor, Application newApp, float rating) {
     super(actor, newApp.employer) ;
     this.application = newApp ;
@@ -128,8 +119,13 @@ public class FindWork extends Plan implements Economy {
     for (Venue venue : batch) if (venue.base() == actor.base()) {
       final Background careers[] = venue.careers() ;
       if (careers == null) continue ;
+      
       for (Background c : careers) if (venue.numOpenings(c) > 0) {
         final Application newApp = new Application(actor, c, venue) ;
+        
+        final int signingCost = signingCost(newApp) ;
+        newApp.setHiringFee(signingCost) ;
+        
         final float rating = rateApplication(newApp) ;
         if (rating > bestRating) {
           bestRating = rating ;
@@ -163,27 +159,72 @@ public class FindWork extends Plan implements Economy {
   }
   
   
+  
+  /**  Returns the default hiring fee associated with a given application.
+    */
   public static int signingCost(Application app) {
     int transport = 0, incentive = 0, guildFees = 0 ;
     
     //  TODO:  Allow the player to set wages in a similar manner to setting
     //  goods' import/export levels.
-    guildFees += Backgrounds.HIRE_COSTS[app.position.standing] ;
+    guildFees += Backgrounds.HIRE_COSTS[app.position.standing];
     
     if (app.applies.inWorld()) {
       guildFees = 0;
     }
     else {
       //  TODO:  ...This could be much higher, depending on origin point.
-      transport += 100 ;
+      transport += 100;
     }
+    if (app.employer instanceof Venue) {
+      final Venue venue = (Venue) app.employer;
+      if (venue.personnel.numHired(app.position) == 0) {
+        guildFees /= 2;
+        transport /= 2;
+      }
+    }
+    
     
     //  TODO:  Set up incentive to join the settlement, based on settlement
     //  ratings and legislation.
     
     return guildFees + transport + incentive ;
   }
+  
+  
+  
+  /**  Public helper methods-
+    */
+  public static FindWork attemptFor(Actor actor) {
+    final Application newApp = lookForWork(actor, actor.base()) ;
+    if (newApp == null || newApp.employer == actor.mind.work()) return null ;
+    return new FindWork(actor, newApp, rateApplication(newApp)) ;
+  }
+  
+  
+  public static void fillVacancies(Venue venue, boolean enterWorld) {
+    //
+    //  We automatically fill any positions available when the venue is
+    //  established.  This is done for free, but candidates cannot be screened.
+    if (venue.careers() == null) return ;
+    for (Background v : venue.careers()) {
+      final int numOpen = venue.numOpenings(v) ;
+      if (numOpen <= 0) continue ;
+      
+      for (int i = numOpen ; i-- > 0 ;) {
+        final Human worker = new Human(v, venue.base()) ;
+        worker.mind.setWork(venue) ;
+        
+        if (GameSettings.hireFree || enterWorld) {
+          worker.enterWorldAt(venue, venue.world());
+          worker.goAboard(venue, venue.world());
+        }
+        else {
+          venue.base().commerce.addImmigrant(worker) ;
+        }
+      }
+    }
+  }
 }
-
 
 

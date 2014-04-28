@@ -195,11 +195,12 @@ public class DebugPlans extends Scenario {
   
   private void configRaidScenario(World world, Base base, BaseUI UI) {
     GameSettings.fogFree = false;
-    GameSettings.hireFree = true;
+    //GameSettings.hireFree = true;
     
     //  Introduce a bastion, with standard personnel.
     final Bastion bastion = new Bastion(base);
     Placement.establishVenue(bastion, 11, 11, true, world);
+    FindWork.fillVacancies(bastion, true);
     
     //  And introduce ruins, with a complement of artilects.
     final Base artilects = Base.baseWithName(world, Base.KEY_ARTILECTS, true);

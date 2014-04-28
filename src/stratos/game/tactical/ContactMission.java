@@ -41,7 +41,7 @@ public class ContactMission extends Mission implements Economy {
   
   private Actor[] talksTo = null;  //Refreshed on request, at most once/second
   private List <Actor> agreed = new List <Actor> ();
-  private boolean done = false;
+  private boolean doneContact = false;
   
   
   public ContactMission(Base base, Target subject) {
@@ -56,14 +56,14 @@ public class ContactMission extends Mission implements Economy {
   public ContactMission(Session s) throws Exception {
     super(s) ;
     s.loadObjects(agreed);
-    done = s.loadBool();
+    doneContact = s.loadBool();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s) ;
     s.saveObjects(agreed);
-    s.saveBool(done);
+    s.saveBool(doneContact);
   }
   
   
@@ -109,7 +109,7 @@ public class ContactMission extends Mission implements Economy {
     
     if (allDone) {
       applyContactEffects(report);
-      done = true;
+      doneContact = true;
     }
   }
   
@@ -171,8 +171,8 @@ public class ContactMission extends Mission implements Economy {
   }
   
   
-  public boolean finished() {
-    return done;
+  protected boolean shouldEnd() {
+    return doneContact;
   }
   
   

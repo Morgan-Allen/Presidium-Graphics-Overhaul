@@ -87,17 +87,20 @@ public abstract class Mission implements
     0, 3, 3, 4, 4, 5
   };
   
+  private static boolean verbose = true;
+  
   
   final Base base ;
   final Target subject ;
   
-  //final Table <Actor, Role> roles = new Table <Actor, Role> ();
   final Stack <Role> roles = new Stack <Role> ();
   private int
     priority,
     missionType,
     objectIndex ;
-  private boolean begun = false ;
+  private boolean
+    begun = false,
+    done  = false;
   
   final CutoutSprite flagSprite ;
   final String description ;
@@ -116,13 +119,14 @@ public abstract class Mission implements
   
   
   public Mission(Session s) throws Exception {
-    s.cacheInstance(this) ;
-    base = (Base) s.loadObject() ;
-    subject = s.loadTarget() ;
-    priority = s.loadInt() ;
+    s.cacheInstance(this);
+    base = (Base) s.loadObject();
+    subject = s.loadTarget();
+    priority = s.loadInt();
     missionType = s.loadInt();
     objectIndex = s.loadInt();
-    begun = s.loadBool() ;
+    begun = s.loadBool();
+    done = s.loadBool();
     
     for (int i = s.loadInt() ; i-- > 0 ;) {
       final Role role = new Role() ;
@@ -138,12 +142,13 @@ public abstract class Mission implements
   
   
   public void saveState(Session s) throws Exception {
-    s.saveObject(base) ;
-    s.saveTarget(subject) ;
-    s.saveInt(priority) ;
+    s.saveObject(base);
+    s.saveTarget(subject);
+    s.saveInt(priority);
     s.saveInt(missionType);
     s.saveInt(objectIndex);
-    s.saveBool(begun) ;
+    s.saveBool(begun);
+    s.saveBool(done);
     
     s.saveInt(roles.size()) ;
     for (Role role : roles) {
@@ -196,12 +201,6 @@ public abstract class Mission implements
     for (Role r : roles) if (r.applicant == actor) return r;
     return null;
   }
-  
-  /*
-  protected float rewardFor(Actor actor) {
-    return REWARD_AMOUNTS[priority] / roles.size();
-  }
-  //*/
   
   
   protected float basePriority(Actor actor) {
@@ -332,11 +331,18 @@ public abstract class Mission implements
   }
   
   
+  //  I know what happened here.  Ah, feck.
+  
   public void endMission(boolean cancelled) {
+    if (verbose) I.say("\nMISSION COMPLETE: "+this);
+    
     final float reward = REWARD_AMOUNTS[priority] * 1f / roles.size();
     for (Role role : roles) {
       role.applicant.mind.assignMission(null);
-      if (! cancelled) role.applicant.gear.incCredits(reward);
+      if (! cancelled) {
+        if (verbose) I.say("Dispensing "+reward+" to "+role.applicant);
+        role.applicant.gear.incCredits(reward);
+      }
       base.incCredits(0 - reward);
     }
     base.removeMission(this);
@@ -349,8 +355,16 @@ public abstract class Mission implements
   
   public void updateMission() {
     if (missionType == TYPE_PUBLIC && priority > 0) beginMission();
-    if (finished()) endMission(false);
+    if (shouldEnd()) {
+      endMission(false);
+      done = true;
+    }
   }
+  
+  
+  protected abstract boolean shouldEnd();
+  
+  public boolean finished() { return done; }
   
   
   
@@ -361,8 +375,24 @@ public abstract class Mission implements
   
   
   public Composite portrait(BaseUI UI) {
-    //  TODO:  RESTORE THIS.
-    return null;
+    final String key = getClass().getSimpleName()+"_"+subject.hashCode();
+    final Composite cached = Composite.fromCache(key);
+    if (cached != null) return cached;
+    
+    final CutoutModel flagModel = (CutoutModel) flagSprite.model();
+    int flagIndex = Visit.indexOf(flagModel, MissionsTab.ALL_MODELS);
+    final ImageAsset icon = MissionsTab.ALL_ICONS[flagIndex];
+    
+    final int size = InfoPanel.PORTRAIT_SIZE;
+    final Composite c = Composite.withSize(size, size, key);
+    c.layerFromGrid(icon, 0, 0, 1, 1);
+    
+    if (subject instanceof Selectable) {
+      final Selectable s = (Selectable) subject;
+      c.layerInBounds(s.portrait(UI), 0.1f, 0.1f, 0.4f, 0.4f);
+    }
+    
+    return c;
   }
   
   
@@ -372,7 +402,7 @@ public abstract class Mission implements
   
   
   public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
-    if (panel == null) panel = new InfoPanel(UI, this, null);
+    if (panel == null) panel = new InfoPanel(UI, this, portrait(UI));
     final Description d = panel.detail();
     
     d.append("Mission Type:  ");
@@ -390,7 +420,6 @@ public abstract class Mission implements
     final String payDesc = priority == 0 ?
       "None" :
       REWARD_AMOUNTS[priority]+" credits";
-    //  TODO:  Allow payment to be put down too?
     d.append(new Description.Link(payDesc) {
       public void whenTextClicked() {
         if (priority == PRIORITY_PARAMOUNT) return;

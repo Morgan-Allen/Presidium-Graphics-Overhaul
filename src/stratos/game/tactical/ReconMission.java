@@ -30,8 +30,10 @@ public class ReconMission extends Mission {
   } ;
   
   private static boolean verbose = false ;
-  Tile inRange[] = new Tile[0] ;
-  boolean done = false ;
+  
+  
+  private Tile inRange[] = new Tile[0] ;
+  private boolean doneRecon = false ;
   
   
   
@@ -47,14 +49,14 @@ public class ReconMission extends Mission {
   public ReconMission(Session s) throws Exception {
     super(s) ;
     inRange = (Tile[]) s.loadTargetArray(Tile.class) ;
-    done = s.loadBool() ;
+    doneRecon = s.loadBool() ;
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s) ;
     s.saveTargetArray(inRange) ;
-    s.saveBool(done) ;
+    s.saveBool(doneRecon) ;
   }
   
   
@@ -116,7 +118,7 @@ public class ReconMission extends Mission {
       }
     }
     if (lookedAt == null) {
-      done = true ;
+      doneRecon = true ;
       return null ;
     }
     
@@ -124,9 +126,9 @@ public class ReconMission extends Mission {
     return e ;
   }
   
-  
-  public boolean finished() {
-    return done ;
+
+  protected boolean shouldEnd() {
+    return doneRecon ;
   }
   
   

@@ -36,7 +36,9 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     WATCH_TIME = 10 ;
   
   
-  private static boolean verbose = false, evalVerbose = false;
+  private static boolean
+    verbose     = false,
+    evalVerbose = false;
   
   final int type ;
   final Element guarded ;

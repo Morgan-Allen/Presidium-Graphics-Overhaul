@@ -10,7 +10,7 @@ import stratos.util.*;
 
 
 //  TODO:  JUST CACHE THREAT RATINGS LIKE YOU DO STRENGTH RATINGS, WITHOUT
-//         DISTANCE FACTOR
+//         DISTANCE FACTORS.
 
 public class CombatUtils implements Qualities {
   

@@ -226,13 +226,16 @@ public class TutorialScenario extends StartupScenario {
     if (title == TITLE_NAVIGATION) {
       return comms.addMessage(
         TITLE_NAVIGATION, null,
+        "To save and load, hit S and L, or click on the 'foresight' and "+
+        "'remembrance' buttons in the bottom left.\n"+
         "To move your viewpoint, either click on a selectable object (such as "+
         "a structure, person, or point of terrain,) or click on the minimap. "+
-        "You can also use the arrow keys.  To see information about an "+
-        "object or interaction options, simply click on it.  Construction "+
-        "options are available from the Guild buttons in the bottom right.\n"+
-        "Finally, these messages will be stored in the Comms Panel, just "+
-        "above and to the right of the top-left minimap.",
+        "You can also use the arrow keys.  Clicking also displays information "+
+        "about most objects.\n"+
+        "Construction options are available from the Guild buttons in the "+
+        "bottom right, along with information about each structure type.\n"+
+        "Finally, these messages will be stored in the Comms Panel, opened "+
+        "by clicking just above and to the right of the top-left minimap.",
         linkFor("Okay, that helps.", TITLE_OBJECTIVES)
       );
     }

@@ -212,6 +212,7 @@ public abstract class Plan implements Saveable, Behaviour {
   public Plan setMotive(int type, float bonus) {
     this.motiveType = type;
     this.motiveBonus = bonus;
+    this.lastEvalTime = -1;
     return this;
   }
   
@@ -267,9 +268,6 @@ public abstract class Plan implements Saveable, Behaviour {
       skillBonus = 0, traitBonus = 0,
       harmBonus = 0, competeBonus = 0;
     
-    if (motiveType == MOTIVE_MISSION) {
-      priority = (priority + motiveBonus) / 2;
-    }
     if (motiveType != MOTIVE_INIT) {
       if (defaultPriority == FROM_MOTIVE) defaultPriority = motiveBonus;
       else defaultPriority = (motiveBonus + defaultPriority) / 2f;
@@ -278,12 +276,17 @@ public abstract class Plan implements Saveable, Behaviour {
       I.complain("NO MOTIVATION!");
       return -1;
     }
+    if (motiveType == MOTIVE_MISSION) {
+      priority = (priority + motiveBonus) / 2;
+      if (defaultPriority < motiveBonus) defaultPriority = motiveBonus;
+    }
     if (defaultPriority <= 0) return 0;
     
     if (report) {
       I.say("\nEvaluating priority for "+this);
-      I.say("  Special modifier: "+specialModifier);
+      I.say("  Motive type/bonus: "+motiveType+"/"+motiveBonus);
       I.say("  Initialised at: "+priority+", default: "+defaultPriority);
+      I.say("  Special modifier: "+specialModifier);
     }
     
     if (baseSkills != null) for (Skill skill : baseSkills) {

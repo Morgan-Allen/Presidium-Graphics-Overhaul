@@ -146,7 +146,7 @@ public class TargetInfo extends UIGroup {
       high = subject.height() * SS,
       wide = subject.radius() * SS * 2;
     final int highAdjust = (int) (
-      screenPos.y + (subject instanceof Mobile ? -(wide + OB_SIZE) : high)
+      screenPos.y + (subject instanceof Mobile ? -(wide + OB_SIZE) : (0 - OB_SIZE))
     );
     this.relBound.set(0, 0, 0, 0);
     this.absBound.set((int) screenPos.x, highAdjust, 0, 0);

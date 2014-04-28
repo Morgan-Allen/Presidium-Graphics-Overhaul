@@ -115,7 +115,7 @@ public class EnforcerBloc extends Venue implements Economy {
   
   
   public Service[] services() {
-    return new Service[] { SERVICE_ADMIN } ;
+    return new Service[] { SERVICE_ADMIN };
   }
   
   
@@ -133,15 +133,16 @@ public class EnforcerBloc extends Venue implements Economy {
   
   
   public String helpInfo() {
-    return "" ;
+    return
+      "The Enforcer Bloc provides a dedicated police force for your base, "+
+      "specialising in interrogation and forensics as well as self defence "+
+      "and nonlethal force.";
   }
   
   
   public String buildCategory() {
-    return UIConstants.TYPE_PHYSICIAN ;
+    return UIConstants.TYPE_PHYSICIAN;
   }
 }
-
-
 
 

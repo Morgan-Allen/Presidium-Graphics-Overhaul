@@ -316,8 +316,8 @@ public class Career implements Qualities {
     if (verbose) I.say("Applying vocation: "+v) ;
     
     for (Skill s : v.baseSkills.keySet()) {
-      final int level = v.baseSkills.get(s) ;
-      actor.traits.raiseLevel(s, level + (Rand.num() * 5)) ;
+      final int level = v.baseSkills.get(s);
+      actor.traits.raiseLevel(s, level + (Rand.num() * 10) - 5);
     }
     
     for (Trait t : v.traitChances.keySet()) {

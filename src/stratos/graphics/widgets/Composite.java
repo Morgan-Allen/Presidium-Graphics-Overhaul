@@ -86,6 +86,24 @@ public class Composite {
   }
   
   
+  public void layerInBounds(
+    Composite image, float x, float y, float w, float h
+  ) {
+    if (image == null) return;
+    if (composed != null) {
+      I.complain("Cannot add layers once texture is compiled!");
+    }
+    final Pixmap source = image.drawn;
+    final float dw = drawn.getWidth(), dh = drawn.getHeight();
+    
+    drawn.drawPixmap(
+      source,
+      1, 1, source.getWidth(), source.getHeight(),
+      1 + (int) (dw * x), 1 + (int) (dh * y), (int) (dw * w), (int) (dh * h)
+    );
+  }
+  
+  
   public void layerFromGrid(
     ImageAsset image, int offX, int offY, int gridW, int gridH
   ) {

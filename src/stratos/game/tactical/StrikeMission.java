@@ -66,9 +66,9 @@ public class StrikeMission extends Mission {
       Combat.STYLE_EITHER, objectIndex()
     );
   }
-
-
-  public boolean finished() {
+  
+  
+  protected boolean shouldEnd() {
     if (Combat.isDowned((Element) subject, objectIndex())) return true ;
     return false ;
   }

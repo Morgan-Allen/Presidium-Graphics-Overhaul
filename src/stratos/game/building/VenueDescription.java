@@ -203,23 +203,10 @@ public class VenueDescription {
     }
     
     d.append("\nPersonnel:");
-    for (final Application a : v.personnel.applications) {
-      final Actor p = a.applies;
-      d.append("\n") ;
-      ((Text) d).insert(p.portrait(UI).texture(), 40);
-      d.append(p);
-      d.append(p.inWorld() ? " (" : " (Offworld ");
-      d.append(p.vocation().name+")\n  ");
-      
-      d.append(new Description.Link("Hire for "+a.hiringFee()+" cred") {
-        public void whenTextClicked() { v.personnel.confirmApplication(a); }
-      }) ;
-    }
-    
     final Batch <Mobile> considered = new Batch <Mobile> () ;
     for (Actor m : v.personnel.residents()) considered.include(m) ;
     for (Actor m : v.personnel.workers()) considered.include(m) ;
-    for (Mobile m : v.inside()) considered.include(m) ;
+    for (Mobile m : v.inside()) considered.include(m);
     
     for (Mobile m : considered) {
       d.append("\n  ") ;
@@ -234,6 +221,37 @@ public class VenueDescription {
       }
       d.append("\n  ") ;
       m.describeStatus(d) ;
+    }
+
+    for (final Application a : v.personnel.applications) {
+      final Actor p = a.applies;
+      d.append("\n\n");
+      
+      ((Text) d).insert(p.portrait(UI).texture(), 40);
+      d.append(p);
+      d.append(p.inWorld() ? " (" : " (Offworld ");
+      d.append(p.vocation().name+")");
+      
+      final Series <Trait>
+        TD = HumanDescription.sortTraits(p.traits.personality(), p),
+        SD = HumanDescription.sortTraits(p.traits.skillSet()   , p);
+      
+      int numS = 0;
+      for (Trait s : SD) {
+        if (a.position.skillLevel((Skill) s) <= 0) continue;
+        if (++numS > 3) break;
+        d.append("\n  "+s+" ("+((int) p.traits.traitLevel(s))+") ");
+      }
+      d.append("\n  ");
+      int numT = 0;
+      for (Trait t : TD) {
+        if (++numT > 3) break;
+        d.append(t+" ");
+      }
+      
+      d.append(new Description.Link("\n  Hire for "+a.hiringFee()+" credits") {
+        public void whenTextClicked() { v.personnel.confirmApplication(a); }
+      });
     }
   }
   
@@ -274,7 +292,9 @@ public class VenueDescription {
       d.append("\n\n") ;
     }
     
-    final int numU = v.structure.numUpgrades(), maxU = v.structure.maxUpgrades() ;
+    final int
+      numU = v.structure.numUpgrades(),
+      maxU = v.structure.maxUpgrades() ;
     if (maxU > 0) {
       final Batch <String> DU = v.structure.descOngoingUpgrades() ;
       d.append("Upgrade slots ("+numU+"/"+maxU+")") ;
