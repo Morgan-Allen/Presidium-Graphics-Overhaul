@@ -8,10 +8,9 @@
 
 package stratos.game.actors ;
 import stratos.game.building.*;
-import stratos.game.campaign.System;
 import stratos.game.common.*;
+import stratos.game.campaign.System;
 import stratos.util.*;
-//import org.apache.commons.math3.util.FastMath;
 
 
 
@@ -116,22 +115,23 @@ public class Career implements Qualities {
     */
   public void applyCareer(Human actor) {
     if (verbose) I.say("\nGENERATING NEW CAREER");
+    subject = actor;
     
-    subject = actor ;
-    applyBackgrounds(actor) ;
-    //
+    applyBackgrounds(actor);
+    applySystem((System) homeworld, actor);
+    applySex(actor);
+    setupAttributes(actor);
+    fillPersonality(actor);
+    
     //  We top up basic attributes to match.
     actor.traits.initDNA(0) ;
     actor.health.setupHealth(
       Visit.clamp(Rand.avgNums(2), 0.26f, 0.94f),
       1, 0
-    ) ;
+    );
     
     //  For now, we apply gender at random, though this might be tweaked a bit
     //  later.  We also assign some random personality and/or physical traits.
-    applySystem((System) homeworld, actor) ;
-    applySex(actor) ;
-    fillPersonality(actor);
     //
     //  Finally, specify name and (TODO:) a few other details of appearance.
     for (String name : Wording.namesFor(actor)) {
@@ -177,7 +177,6 @@ public class Career implements Qualities {
     applyVocation(homeworld, actor) ;
     applyVocation(birth    , actor) ;
     applyVocation(vocation , actor) ;
-    setupAttributes(actor) ;
   }
   
   
@@ -355,44 +354,23 @@ public class Career implements Qualities {
     int BQ = v.standing ;
     for (Service gear : v.gear) {
       if (gear instanceof DeviceType) {
-        actor.gear.equipDevice(Item.withQuality(gear, BQ + Rand.index(3))) ;
+        final int quality = Visit.clamp(BQ - 1 + Rand.index(3), 4);
+        actor.gear.equipDevice(Item.withQuality(gear, quality));
       }
       else if (gear instanceof OutfitType) {
-        actor.gear.equipOutfit(Item.withQuality(gear, BQ + Rand.index(3))) ;
+        final int quality = Visit.clamp(BQ - 1 + Rand.index(3), 4);
+        actor.gear.equipOutfit(Item.withQuality(gear, quality));
       }
-      else actor.gear.addItem(Item.withAmount(gear, 1 + Rand.index(3))) ;
+      else actor.gear.addItem(Item.withAmount(gear, 1 + Rand.index(3)));
     }
     if (actor.gear.credits() == 0) {
-      actor.gear.incCredits((50 + Rand.index(100)) * BQ / 2f) ;
+      actor.gear.incCredits((50 + Rand.index(100)) * BQ / 2f);
     }
-    actor.gear.boostShields(actor.gear.maxShields() / 2f, true) ;
+    actor.gear.boostShields(actor.gear.maxShields() / 2f, true);
   }
 }
 
 
 
-
-
-
-
-/*
-public static float ratePromotion(Background next, Background prior) {
-  float rating = 1 ;
-  //
-  //  Check for similar skills.
-  for (Skill s : next.baseSkills.keySet()) {
-    rating += rateSimilarity(s, next, prior) ;
-  }
-  for (Skill s : prior.baseSkills.keySet()) {
-    rating += rateSimilarity(s, next, prior) ;
-  }
-  rating /= 1 + next.baseSkills.size() + prior.baseSkills.size() ;
-  
-  //
-  //  Favour transition to more prestigous vocations-
-  if (next.standing < prior.standing) return rating / 10f ;
-  return rating ;
-}
-//*/
 
 

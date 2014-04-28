@@ -8,6 +8,7 @@ import stratos.util.*;
 
 
 
+
 //  TODO:  JUST CACHE THREAT RATINGS LIKE YOU DO STRENGTH RATINGS, WITHOUT
 //         DISTANCE FACTOR
 
@@ -35,7 +36,7 @@ public class CombatUtils implements Qualities {
     float estimate = actor.strengthEstimate();
     if (estimate == -1) {
       estimate = (actor.gear.armourRating() + actor.gear.attackDamage()) / 20f;
-      estimate *= actor.health.maxHealth() / 10f;
+      estimate *= (actor.health.maxHealth() + actor.gear.shieldCharge()) / 10f;
       estimate *= (1 - actor.health.injuryLevel());
       estimate *= 1 - actor.health.stressPenalty();
       //

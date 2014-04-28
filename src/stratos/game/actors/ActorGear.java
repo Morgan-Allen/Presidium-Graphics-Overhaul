@@ -15,11 +15,15 @@ import stratos.util.*;
 
 public class ActorGear extends Inventory implements Economy {
   
-  
+  /*
   final public static float
     SHIELD_CHARGE     = 5f,
     SHIELD_SHORTS     = 2f,
     SHIELD_REGEN_TIME = 10f ;
+  //*/
+  final public static float
+    SHIELD_REGEN_TIME = World.STANDARD_HOUR_LENGTH,
+    FUEL_DEPLETE      = 0.1f;
   final public static int
     MAX_RATIONS    = 5,
     MAX_FOOD_TYPES = 5,
@@ -227,9 +231,7 @@ public class ActorGear extends Inventory implements Economy {
   /**  Shield depletion and regeneration are handled here-
     */
   public float shieldCharge() {
-    if (outfit == null) return 0 ;
-    final OutfitType type = (OutfitType) outfit.type ;
-    return type.shieldBonus * currentShields / SHIELD_CHARGE ;
+    return currentShields ;
   }
   
   
@@ -240,12 +242,13 @@ public class ActorGear extends Inventory implements Economy {
   
   
   public float afterShields(float damage, boolean physical) {
-    if (damage <= 0 || ! actor.health.conscious()) return damage ;
-    float reduction = shieldCharge() * Rand.num() ;
-    if (physical) reduction /= 2 ;
-    if (reduction > damage) reduction = damage ;
-    currentShields -= reduction / SHIELD_CHARGE ;
-    return damage - reduction ;
+    if (damage <= 0 || ! actor.health.conscious()) return damage;
+    float reduction = shieldCharge() * Rand.num();
+    if (reduction <= 0) return damage;
+    if (physical) reduction /= 2;
+    if (reduction > damage) reduction = damage;
+    currentShields -= reduction / 2;
+    return damage - reduction;
   }
   
   
@@ -263,35 +266,28 @@ public class ActorGear extends Inventory implements Economy {
   
   public float maxShields() {
     if (outfit == null) return 0 ;
+    final float bulk = actor.health.baseBulk() / ActorHealth.DEFAULT_BULK;
     final OutfitType type = (OutfitType) outfit.type ;
-    return 
-      (SHIELD_CHARGE + type.shieldBonus) *
-      (float) Math.sqrt(fuelCells / MAX_FUEL_CELLS) ;
+    return type.shieldBonus * bulk * (outfit.quality + 2f) / 4;
   }
   
   
   public boolean hasShields() {
-    if (outfit == null) return false ;
-    final OutfitType type = (OutfitType) outfit.type ;
-    return type.shieldBonus > 0 ;
+    return shieldCharge() > 0;
   }
   
   
   private void regenerateShields() {
-    final OutfitType type = (OutfitType) outfit.type ;
-    final float regenTime =
-      SHIELD_REGEN_TIME * 2f / (2 + type.shieldBonus) ;
-    final float maxShield = maxShields() ;
-    if (currentShields < maxShield) {
-      final float nudge = maxShield / regenTime ;
-      currentShields += nudge ;
-      fuelCells -= nudge / 10f ;
-      if (currentShields > maxShield) currentShields = maxShield ;
-      if (fuelCells < 0) fuelCells = 0 ;
+    final float max = maxShields();
+    float regen = max / SHIELD_REGEN_TIME;
+    
+    if (currentShields < max) {
+      regen = Visit.clamp(regen, 0, max - currentShields);
+      currentShields = Visit.clamp(currentShields + regen, 0, max);
+      fuelCells -= FUEL_DEPLETE * regen / (max * SHIELD_REGEN_TIME);
     }
-    else {
-      currentShields -= SHIELD_CHARGE / regenTime ;
-      if (currentShields < maxShield) currentShields = maxShield ;
+    if (currentShields > max) {
+      currentShields = Visit.clamp(currentShields - regen, max, (max + 10) * 2);
     }
   }
   
@@ -345,7 +341,7 @@ public class ActorGear extends Inventory implements Economy {
         type.skin.asTexture(), AnimNames.MAIN_BODY, false
       );
       //*/
-      currentShields = SHIELD_CHARGE + type.shieldBonus ;
+      currentShields = maxShields() ;
     }
   }
   

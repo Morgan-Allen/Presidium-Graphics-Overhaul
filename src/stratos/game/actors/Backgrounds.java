@@ -166,9 +166,9 @@ public interface Backgrounds extends Economy {
       PRACTICED, MARKSMANSHIP, SUASION, COUNSEL, STEALTH_AND_COVER, NOVICE,
       HAND_TO_HAND, ANATOMY, PHARMACY, COMMAND, BATTLE_TACTICS,
       OFTEN, FEARLESS, STUBBORN, SOMETIMES, DUTIFUL, CURIOUS, CRUEL,
-      PARTIAL_ARMOUR, STUN_PISTOL, NERVE_BATON
+      PARTIAL_ARMOUR, NERVE_BATON, STUN_PISTOL
     ),
-
+    
     /*
     SAVANT = new Background(
       "Savant", "citizen_skin.gif", null,

@@ -420,6 +420,13 @@ public class ActorTraits implements Qualities {
     float bonus, float duration,
     int range
   ) {
+    //  TODO:  Physical skills need to exercise strength/vigour and exact
+    //  fatigue!
+    //  TODO:  Sensitive skills must exercise reflex/insight, and tie in with
+    //  awareness/FoW.
+    //  TODO:  Cognitive skills need study to advance, and exercise will/
+    //  intellect.
+    
     final float chance = chance(checked, b, opposed, bonus) ;
     float success = 0 ;
     if (range <= 0) success = chance;

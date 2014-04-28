@@ -59,8 +59,8 @@ public class HumanDescription implements Qualities {
     else d.append("Homeless") ;
     //
     //  Describe your current health, outlook, or special FX.
-    d.append("\n\nCondition: ") ;
-    final Batch <String> healthDesc = h.health.conditionsDesc() ;
+    d.append("\n\nHealth: (Max "+(int) h.health.maxHealth()+")");
+    final Batch <String> healthDesc = h.health.conditionsDesc();
     for (String desc : healthDesc) {
       d.append("\n  "+desc) ;
     }
@@ -86,11 +86,16 @@ public class HumanDescription implements Qualities {
     else d.append("\n  Nothing worn") ;
     d.append(" ("+((int) h.gear.armourRating())+")") ;
     
+    final int MS = (int) h.gear.maxShields(), SC = (int) h.gear.shieldCharge();
+    if (MS > 0 || SC > 0) {
+      d.append("\n  Shields "+SC+" (Max "+MS+")");
+    }
+    
     for (Item item : h.gear.allItems()) d.append("\n  "+item) ;
     d.append("\n  "+((int) h.gear.credits())+" Credits") ;
-    if (h.gear.hasShields()) {
-      d.append("\n  Fuel Cells: "+((int) h.gear.fuelCells())) ;
-    }
+    
+    final int FC = (int) h.gear.fuelCells();
+    if (FC > 0) d.append("\n  Fuel Cells: "+FC) ;
   }
   
   

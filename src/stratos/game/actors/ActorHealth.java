@@ -272,6 +272,11 @@ public class ActorHealth implements Qualities {
   
   /**  Methods related to sensing and motion-
     */
+  public float baseBulk() {
+    return baseBulk;
+  }
+  
+  
   public float baseSpeed() {
     float rate = baseSpeed * GameSettings.actorScale ;
     return rate * (float) FastMath.sqrt(ageMultiple) ;
@@ -485,8 +490,12 @@ public class ActorHealth implements Qualities {
     //  Define primary attributes-
     ageMultiple = calcAgeMultiple();
     if (metabolism == HUMAN_METABOLISM) {
-      final float muscle = actor.traits.traitLevel(MUSCULAR) / 10f;
-      maxHealth = DEFAULT_HEALTH * (0.5f + (muscle * muscle / 2f));
+      final float
+        muscle   = actor.traits.traitLevel(MUSCULAR)     / 10f,
+        fitness  = actor.traits.traitLevel(ATHLETICS)    / 20f,
+        hardness = actor.traits.traitLevel(HAND_TO_HAND) / 20f;
+      maxHealth = (1 + fitness + hardness + (muscle * muscle)) / 1.5f;
+      maxHealth *= DEFAULT_HEALTH;
     }
     else maxHealth = DEFAULT_HEALTH;
     maxHealth *= baseBulk * ageMultiple;
@@ -698,7 +707,7 @@ public class ActorHealth implements Qualities {
     final String desc = Trait.descriptionFor(trait, level) ;
     if (desc == null) return null ;
     if (max <= 0) return desc ;
-    return desc+" ("+(int) (level * max)+"/"+(int) max+")" ;
+    return desc+" ("+(int) (level * max)+")" ;
   }
   
   
