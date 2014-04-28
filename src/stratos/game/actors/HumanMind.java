@@ -146,7 +146,6 @@ public class HumanMind extends ActorMind implements Qualities {
     addVenueResponses(choice) ;
     addBaseResponses(choice) ;
     
-    ///choice.isVerbose = I.talkAbout == actor;
     return choice.weightedPick() ;
   }
   
@@ -154,20 +153,24 @@ public class HumanMind extends ActorMind implements Qualities {
   protected void addReactions(Target seen, Choice choice) {
     if (seen instanceof Actor) if (seen != actor) {
       final Actor nearby = (Actor) seen ;
-      ///I.say(actor+" adding reaction to: "+nearby);
-      
-      choice.add(Hunting.asHarvest(actor, nearby, home, true));
-      
-      choice.add(new Combat(actor, nearby)) ;
-      choice.add(new Retreat(actor)) ;  //TODO:  MAKE MORE ECONOMICAL
-      choice.add(new Dialogue(actor, nearby, Dialogue.TYPE_CASUAL)) ;
-      choice.add(new FirstAid(actor, nearby)) ;
+      choice.add(new Retreat(actor)) ;
+      addActorResponses(nearby, choice);
     }
   }
   
   
   private void addActorResponses(Choice choice) {
-    for (Target e : actor.senses.awareOf()) addReactions(e, choice) ;
+    for (Target e : actor.senses.awareOf()) {
+      if (e instanceof Actor) addActorResponses((Actor) e, choice);
+    }
+  }
+  
+  
+  private void addActorResponses(Actor nearby, Choice choice) {
+    choice.add(Hunting.asHarvest(actor, nearby, home, true));
+    choice.add(new Combat(actor, nearby)) ;
+    choice.add(new Dialogue(actor, nearby, Dialogue.TYPE_CASUAL)) ;
+    choice.add(new FirstAid(actor, nearby)) ;
   }
   
   

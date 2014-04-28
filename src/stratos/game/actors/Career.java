@@ -303,15 +303,6 @@ public class Career implements Qualities {
   }
   
   
-  public static boolean qualifies(Actor a, Background b) {
-    for (Skill s : b.baseSkills.keySet()) {
-      final int level = b.baseSkills.get(s) ;
-      if (a.traits.traitLevel(s) < level) return false ;
-    }
-    return true ;
-  }
-  
-  
   private void applyVocation(Background v, Actor actor) {
     if (verbose) I.say("Applying vocation: "+v) ;
     
@@ -330,6 +321,15 @@ public class Career implements Qualities {
         I.say("  Level is now: "+level);
       }
     }
+  }
+  
+  
+  public static boolean qualifies(Actor a, Background b) {
+    for (Skill s : b.baseSkills.keySet()) {
+      final int level = b.baseSkills.get(s) ;
+      if (a.traits.traitLevel(s) < level - 5) return false ;
+    }
+    return true ;
   }
   
   

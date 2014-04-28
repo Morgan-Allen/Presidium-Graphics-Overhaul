@@ -134,11 +134,14 @@ public class Retreat extends Plan implements Qualities {
   
   private static float rateHaven(Object t, Actor actor, Class prefClass) {
     final boolean report = havenVerbose && I.talkAbout == actor;
+    
     if (! (t instanceof Boardable)) return -1 ;
     if (! (t instanceof Venue)) return 1 ;
+    
     final Venue haven = (Venue) t ;
     if (! haven.structure.intact()) return -1 ;
     if (! haven.allowsEntry(actor)) return -1 ;
+    
     float rating = 1 ;
     if (prefClass != null && haven.getClass() == prefClass) rating *= 2 ;
     if (haven.base() == actor.base()) rating *= 2 ;
@@ -146,13 +149,13 @@ public class Retreat extends Plan implements Qualities {
     if (haven == actor.aboard()) rating *= 2 ;
     
     rating *= haven.structure.maxIntegrity() / 50f;
-    final int SS = World.SECTOR_SIZE ;
-    rating *= SS / (SS + Spacing.distance(actor, haven)) ;
+    final int SS = World.SECTOR_SIZE;
+    rating *= SS / (SS + Spacing.distance(actor, haven));
     
     final Tile o = actor.world().tileAt(haven);
     rating /= 1 + actor.base().dangerMap.sampleAt(o.x, o.y);
     
-    return rating ;
+    return rating;
   }
   
   
@@ -209,6 +212,7 @@ public class Retreat extends Plan implements Qualities {
   protected Behaviour getNextStep() {
     final boolean report = stepsVerbose && I.talkAbout == actor;
     final boolean urgent = urgent();
+    
     if (
       safePoint == null || actor.aboard() == safePoint ||
       safePoint.pathType() == Tile.PATH_BLOCKS
@@ -221,8 +225,10 @@ public class Retreat extends Plan implements Qualities {
     }
     
     final Target home = actor.mind.home();
+    final boolean goHome = (! urgent) && (rateHaven(home, actor, null) > 0);
+    
     final Action flees = new Action(
-      actor, (home != null && ! urgent) ? home : safePoint,
+      actor, goHome ? home : safePoint,
       this, "actionFlee",
       Action.MOVE_SNEAK, "Fleeing to "
     );
@@ -241,7 +247,6 @@ public class Retreat extends Plan implements Qualities {
     if (actor.indoors() && ! urgent()) {
       final Resting rest = new Resting(actor, safePoint);
       rest.setMotive(Plan.MOTIVE_LEISURE, priorityFor(actor));
-      actor.mind.assignBehaviour(rest);
       maxDanger = 0;
       abortBehaviour();
       return true;

@@ -15,15 +15,19 @@ public class Exploring extends Plan implements Qualities {
   
   /**  Construction and save/load methods-
     */
-  private static boolean verbose = false;
+  private static boolean
+    evalVerbose = true ;
   
   final Base base ;
   private Tile lookedAt ;
+  private float sumTravels = 0;
   
   
   public static Exploring nextExplorationFor(Actor actor) {
-    Tile toExplore = Exploring.getUnexplored(actor.base().intelMap, actor) ;
-    if (toExplore == null) return null ;
+    final Tile toExplore = getUnexplored(
+      actor.base().intelMap, actor, actor.health.sightRange(), -1
+    );
+    if (toExplore == null) return null;
     return new Exploring(actor, actor.base(), toExplore) ;
   }
   
@@ -57,7 +61,7 @@ public class Exploring extends Plan implements Qualities {
   
   
   protected float getPriority() {
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = evalVerbose && I.talkAbout == actor;
     
     final float priority = priorityForActorWith(
       actor, lookedAt, CASUAL * Planet.dayValue(actor.world()),
@@ -70,6 +74,46 @@ public class Exploring extends Plan implements Qualities {
   }
   
   
+  
+  /**  Behaviour implementation-
+    */
+  protected Behaviour getNextStep() {
+    if (actor.base().intelMap.fogAt(lookedAt) == 1) {
+      final float
+        range = actor.health.sightRange(),
+        maxTravel = range * 2 * (1 + actor.traits.relativeLevel(STUBBORN));
+      
+      if ((sumTravels * (Rand.num() + 0.5f)) > maxTravel) return null;
+      final Tile nextLook = getUnexplored(
+        actor.base().intelMap, actor, range, maxTravel + range
+      );
+      
+      if (nextLook == null) return null;
+      lookedAt = nextLook;
+      sumTravels += Spacing.distance(actor, lookedAt);
+    }
+    
+    final Action looking = new Action(
+      actor, lookedAt,
+      this, "actionLook",
+      Action.LOOK, "Looking at "+lookedAt.habitat().name
+    ) ;
+    looking.setProperties(Action.RANGED) ;
+    return looking ;
+  }
+  
+  
+  public boolean actionLook(Actor actor, Tile point) {
+    //  TODO:  Check for mission-completion here?
+    final IntelMap map = base.intelMap ;
+    map.liftFogAround(point, actor.health.sightRange() * 1.414f) ;
+    return true ;
+  }
+  
+  
+  
+  /**  Helper methods for grabbing unexplored tiles-
+    */
   static Tile[] grabExploreArea(
     final IntelMap intelMap, final Tile point, final float radius
   ) {
@@ -104,7 +148,7 @@ public class Exploring extends Plan implements Qualities {
   
   
   public static Tile getUnexplored(
-    IntelMap intelMap, Target target
+    IntelMap intelMap, Target target, float distanceUnit, float maxDist
   ) {
     //
     //  TODO:  Restrict this to within a given Box2D area if possible.
@@ -139,8 +183,10 @@ public class Exploring extends Plan implements Qualities {
         //  Otherwise, favour closer areas that are partially unexplored.
         final float level = map.getAvgAt(kX, kY, high - 1) < 1 ? 1 : 0 ;
         final float distance = pos.distance(mX, mY, 0) ;
+        if (level == 0 || (maxDist > 0 && distance > maxDist)) continue;
+        
         rating = level * Rand.avgNums(2) ;
-        rating /= 1 + (distance / World.SECTOR_SIZE) ;
+        rating /= 1 + (distance / distanceUnit) ;
         if (rating > bestRating) { picked = c ; bestRating = rating ; }
       }
       if (picked == null) return null ;
@@ -152,34 +198,6 @@ public class Exploring extends Plan implements Qualities {
     if (intelMap.fogAt(looks) == 1) return null ;
     if (looks.blocked()) return Spacing.nearestOpenTile(looks, target) ;
     else return looks ;
-  }
-  
-  
-  
-  /**  Behaviour implementation-
-    */
-  protected Behaviour getNextStep() {
-    //
-    //  TODO:  Consider grabbing another nearby spot.
-    if (actor.base().intelMap.fogAt(lookedAt) == 1) {
-      ///I.say("TILE ALREADY EXPLORED!") ;
-      return null ;
-    }
-    final Action looking = new Action(
-      actor, lookedAt,
-      this, "actionLook",
-      Action.LOOK, "Looking at "+lookedAt.habitat().name
-    ) ;
-    looking.setProperties(Action.RANGED) ;
-    return looking ;
-  }
-  
-  
-  public boolean actionLook(Actor actor, Tile point) {
-    //  TODO:  Check for mission-completion here?
-    final IntelMap map = base.intelMap ;
-    map.liftFogAround(point, actor.health.sightRange() * 1.414f) ;
-    return true ;
   }
   
   

@@ -16,7 +16,8 @@ import stratos.util.*;
 public class FindHome extends Plan implements Economy {
   
   
-  private static boolean verbose = false;
+  private static boolean
+    verbose = false;
   
   
   final Employer newHome ;
@@ -59,13 +60,15 @@ public class FindHome extends Plan implements Economy {
     
     if (! newHome.inWorld()) {
       if (! canPlace()) { abortBehaviour() ; return null ; }
-      final Tile goes = actor.world().tileAt(newHome) ;
+      
+      Tile goes = ((Venue) newHome).mainEntrance();
+      goes = Spacing.nearestOpenTile(goes, actor);
+      
       final Action sites = new Action(
-        actor, Spacing.nearestOpenTile(goes, actor),
+        actor, goes,
         this, "actionSiteHome",
         Action.REACH_DOWN, "Siting home"
       );
-      sites.setMoveTarget(((Venue) newHome).mainEntrance());
       return sites ;
     }
     

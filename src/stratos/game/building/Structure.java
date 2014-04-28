@@ -313,12 +313,12 @@ public class Structure {
   
   
   public boolean hasWear() {
-    return needsSalvage() || integrity < maxIntegrity() ;
+    return (state != STATE_INTACT) || integrity < (maxIntegrity() - 1);
   }
   
   
   public boolean needsSalvage() {
-    return state == STATE_SALVAGE || integrity > maxIntegrity() ;
+    return state == STATE_SALVAGE || integrity > maxIntegrity();
   }
   
   

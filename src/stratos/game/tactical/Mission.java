@@ -87,7 +87,7 @@ public abstract class Mission implements
     0, 3, 3, 4, 4, 5
   };
   
-  private static boolean verbose = true;
+  private static boolean verbose = false;
   
   
   final Base base ;

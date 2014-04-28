@@ -182,11 +182,14 @@ public class Commerce implements Economy {
       
       while (Rand.num() < applyChance) {
         final Human applies = new Human(b, base) ;
+        if (verbose) I.say("  New candidate: "+applies);
         candidates.addFirst(applies) ;
-        final Application a = FindWork.lookForWork((Human) applies, base);
-        if (a != null) applies.mind.switchApplication(a);
+        Application a = FindWork.lookForWork((Human) applies, base, verbose);
+        if (a != null) {
+          if (verbose) I.say("  Applying at: "+a.employer);
+          applies.mind.switchApplication(a);
+        }
         applyChance-- ;
-        if (verbose) I.say("New candidate: "+applies);
       }
     }
     
@@ -194,26 +197,30 @@ public class Commerce implements Economy {
     //  settlements.
     if (verbose) I.say("\nTotal candidates "+candidates.size());
     
-    for (ListEntry e = candidates ; (e = e.nextEntry()) != candidates ;) {
+    for (ListEntry e = candidates; (e = e.nextEntry()) != candidates ;) {
       final Human c = (Human) e.refers;
       final Application a = c.mind.application();
       float quitChance = timeGone;
+      if (verbose) I.say("  Updating "+c);
       
       if (a != null) {
-        final Background b = a.position ;
+        final Background b = a.position;
         final float
           supply = jobSupply[b.ID],
-          demand = jobDemand[b.ID] ;
+          demand = jobDemand[b.ID];
         quitChance *= supply / (supply + demand);
         
         if (verbose) {
-          I.say("Quit chance for "+a.position+" "+c+" is: "+quitChance);
+          I.say("  Quit chance for "+a.position+" "+c+" is: "+quitChance);
         }
       }
       
       if (Rand.num() > quitChance) {
-        final Application newApp = FindWork.lookForWork((Human) c, base);
-        if (newApp != null) c.mind.switchApplication(newApp);
+        Application newApp = FindWork.lookForWork((Human) c, base, verbose);
+        if (newApp != null) {
+          if (verbose) I.say("  Applying at: "+newApp.employer);
+          c.mind.switchApplication(newApp);
+        }
       }
       else {
         if (verbose) I.say(c+"("+c.vocation()+") is quitting...");

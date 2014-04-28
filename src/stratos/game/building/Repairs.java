@@ -160,7 +160,7 @@ public class Repairs extends Plan implements Qualities {
         Action.BUILD, "Assembling "+built
       ) ;
       if (! Spacing.adjacent(actor.origin(), built) || Rand.num() < 0.2f) {
-        final Tile t = Spacing.pickFreeTileAround(built, actor) ;
+        final Tile t = Spacing.pickFreeTileAround(built, actor);
         if (t == null) {
           abortBehaviour() ;
           return null ;

@@ -40,7 +40,6 @@ public class FindWork extends Plan implements Economy {
   }
   
   
-  
   protected float getPriority() {
     return Visit.clamp(URGENT * rating, 0, URGENT) ;
   }
@@ -79,8 +78,11 @@ public class FindWork extends Plan implements Economy {
   //  TODO:  Allow all venues to offer this as a service instead?  That might
   //  be simpler...
   
-  public static Application lookForWork(Actor actor, Base base) {
+  public static Application lookForWork(
+    Actor actor, Base base, boolean report
+  ) {
     final Employer work = actor.mind.work() ;
+    if (report) I.say("\n"+actor+" looking for work!");
     
     if (work instanceof Vehicle) return null ;
     //
@@ -99,18 +101,19 @@ public class FindWork extends Plan implements Economy {
     //  Ensure that any new applications outweigh the value of older attempts-
     if (actor.mind.application() != null) {
       final Application oldApp = actor.mind.application() ;
-      bestRating = Math.max(bestRating, rateApplication(oldApp) * 1.5f) ;
+      bestRating = Math.max(bestRating, rateApplication(oldApp, report) * 1.5f);
       world.presences.sampleFromMaps(
         from, world, 2, batch, oldApp.position
       ) ;
     }
     if (work != null) {
       final Application WA = new Application(actor, actor.vocation(), work) ;
-      bestRating = Math.max(bestRating, rateApplication(WA) * 1.5f) ;
+      bestRating = Math.max(bestRating, rateApplication(WA, report) * 1.5f) ;
     }
     world.presences.sampleFromMaps(
       from, world, 2, batch, actor.vocation(), base
     ) ;
+    if (report) I.say("  Venues sampled: "+batch.size());
     
     //  Assess the attractiveness of applying for jobs at each venue-
     
@@ -126,25 +129,26 @@ public class FindWork extends Plan implements Economy {
         final int signingCost = signingCost(newApp) ;
         newApp.setHiringFee(signingCost) ;
         
-        final float rating = rateApplication(newApp) ;
+        final float rating = rateApplication(newApp, report) ;
         if (rating > bestRating) {
           bestRating = rating ;
           picked = newApp ;
         }
         
-        if (verbose && I.talkAbout == actor) {
-          I.say("Rating for "+c+" at "+venue+" is: "+rating) ;
-        }
+        if (report) I.say("  Rating for "+c+" at "+venue+" is: "+rating);
       }
     }
     return picked ;
   }
   
   
-  private static float rateApplication(Application app) {
+  private static float rateApplication(Application app, boolean report) {
     
-    final Actor a = app.applies ;
-    if (! Career.qualifies(a, app.position)) return -1 ;
+    final Actor a = app.applies;
+    if (! Career.qualifies(a, app.position)) {
+      if (report) I.say("  NO QUALIFICATION");
+      return -1 ;
+    }
     
     float rating = 2 ;
     rating *= Career.ratePromotion(app.position, a) ;
@@ -196,9 +200,10 @@ public class FindWork extends Plan implements Economy {
   /**  Public helper methods-
     */
   public static FindWork attemptFor(Actor actor) {
-    final Application newApp = lookForWork(actor, actor.base()) ;
-    if (newApp == null || newApp.employer == actor.mind.work()) return null ;
-    return new FindWork(actor, newApp, rateApplication(newApp)) ;
+    final boolean report = verbose && I.talkAbout == actor;
+    final Application newApp = lookForWork(actor, actor.base(), report);
+    if (newApp == null || newApp.employer == actor.mind.work()) return null;
+    return new FindWork(actor, newApp, rateApplication(newApp, report));
   }
   
   

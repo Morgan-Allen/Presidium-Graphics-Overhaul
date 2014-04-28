@@ -26,10 +26,11 @@ public class SurveyStation extends Venue implements Economy {
   final static ImageAsset ICON = ImageAsset.fromImage(
     "media/GUI/Buttons/redoubt_button.gif", SurveyStation.class
   );
+  private static boolean verbose = true;
   
   
-  GroupSprite camouflaged ;
-  FleshStill still ;
+  private GroupSprite camouflaged;
+  private FleshStill still;
   
   
   public SurveyStation(Base base) {
@@ -109,15 +110,12 @@ public class SurveyStation extends Venue implements Economy {
   
   
   public Behaviour jobFor(Actor actor) {
-    if ((! structure.intact()) || (! personnel.onShift(actor))) return null ;
-    final Choice choice = new Choice(actor) ;
-    //final boolean report = I.talkAbout == actor && true;
+    if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
+    final Choice choice = new Choice(actor);
+    final boolean report = verbose && I.talkAbout == actor;
     
-    final Tile blank = Exploring.getUnexplored(actor.base().intelMap, actor);
-    if (blank != null) {
-      //  TODO:  Priority mods related to work, mission payments etc. still
-      //  have to be worked out...
-      final Exploring e = new Exploring(actor, actor.base(), blank);
+    final Exploring e = Exploring.nextExplorationFor(actor);
+    if (e != null) {
       e.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
       choice.add(e);
     }
@@ -135,9 +133,12 @@ public class SurveyStation extends Venue implements Economy {
     if (hasStill) choice.add(Deliveries.nextDeliveryFor(
       actor, still, still.services(), 5, world
     ));
-    
+
     //  TODO:  Restore animal breeding and placement of sensor posts.
-    return choice.weightedPick() ;
+    
+    final Behaviour pick = choice.weightedPick();
+    if (report) I.say("\n  Next survey station job: "+pick);
+    return pick;
   }
   
   
@@ -147,11 +148,11 @@ public class SurveyStation extends Venue implements Economy {
   
   
   public int numOpenings(Background v) {
-    final int nO = super.numOpenings(v) ;
+    final int nO = super.numOpenings(v);
     if (v == Backgrounds.EXPLORER) {
-      return nO + 3 + structure.upgradeLevel(EXPLORER_STATION) ;
+      return nO + 3 + structure.upgradeLevel(EXPLORER_STATION);
     }
-    return 0 ;
+    return 0;
   }
   
   
