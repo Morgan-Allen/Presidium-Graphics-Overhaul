@@ -219,7 +219,7 @@ public abstract class Fauna extends Actor {
   
   
   protected Behaviour nextMigration() {
-    final boolean report = I.talkAbout == this;
+    final boolean report = verbose && I.talkAbout == this;
     Target wandersTo = null;
     String description = null;
     float priority = 0;
@@ -234,7 +234,7 @@ public abstract class Fauna extends Actor {
       I.say("  Last check: "+timeSinceCheck+"/"+World.GROWTH_INTERVAL);
     }
     
-    if (true || timeSinceCheck > World.GROWTH_INTERVAL) {
+    if (timeSinceCheck > World.GROWTH_INTERVAL) {
       final boolean crowded = home == null || Nest.crowdingFor(this) > 0.5f ;
       if (report) I.say("  Crowded? "+crowded) ;
       newNest = crowded ? Nest.findNestFor(this) : null ;
@@ -275,10 +275,12 @@ public abstract class Fauna extends Actor {
   public boolean actionMigrate(Fauna actor, Target point) {
     if (point instanceof Nest) {
       final Nest nest = (Nest) point ;
-      if (Nest.crowdingFor(this) < 0.5f) return false ;
+      
+      //if (Nest.crowdingFor(this) < 0.5f) return false ;  //  TODO: ?
       if (Nest.crowdingFor(nest, species, world) > 0.5f) return false ;
       
       if (! nest.inWorld()) {
+        nest.assignBase(actor.base());
         nest.clearSurrounds() ;
         nest.enterWorld() ;
         nest.structure.setState(Structure.STATE_INTACT, 0.01f) ;

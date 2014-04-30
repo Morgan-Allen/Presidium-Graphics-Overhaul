@@ -256,7 +256,7 @@ public class BreedAnimal extends Plan implements Economy {
   
   public boolean actionRelease(Actor actor, Boardable point) {
     final World world = actor.world();
-    actor.gear.removeItem(asStock);
+    actor.gear.removeMatch(asStock);
     handled.enterWorldAt(point, world);
     
     if (point instanceof Venue) {

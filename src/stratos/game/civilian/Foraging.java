@@ -20,7 +20,10 @@ import stratos.util.*;
 public class Foraging extends Plan implements Economy {
   
   
-  private static boolean verbose = false;
+  private static boolean
+    evalVerbose  = false,
+    stepsVerbose = false;
+  
   
   final Venue store ;
   private Flora source = null ;
@@ -60,7 +63,7 @@ public class Foraging extends Plan implements Economy {
   
   
   protected float getPriority() {
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = evalVerbose && I.talkAbout == actor;
     
     if (storeShortage() <= 0) {
       if (sumHarvest() > 0) return Plan.ROUTINE;
@@ -74,11 +77,13 @@ public class Foraging extends Plan implements Economy {
       source = Forestry.findCutting(actor) ;
       if (source == null) return 0;
     }
+    final float modifier = NO_MODIFIER + (hunger * ROUTINE);
+    
     final float priority = priorityForActorWith(
       actor, source, hunger * PARAMOUNT,
       NO_HARM, FULL_COMPETITION,
       BASE_SKILLS, BASE_TRAITS,
-      NO_MODIFIER, NORMAL_DISTANCE_CHECK, MILD_FAIL_RISK,
+      modifier, NORMAL_DISTANCE_CHECK, MILD_FAIL_RISK,
       report
     );
     if (report) {
@@ -168,11 +173,13 @@ public class Foraging extends Plan implements Economy {
   }
   
   
+  /*
   public boolean actionFell(Actor actor, Flora cut) {
     //
-    //  TODO:  Allow for wood-cutting behaviours as well.
+    //  TODO:  Allow for wood-cutting behaviours as well?
     return true ;
   }
+  //*/
   
   
   public boolean actionReturnHarvest(Actor actor, Venue depot) {

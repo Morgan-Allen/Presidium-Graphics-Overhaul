@@ -563,7 +563,7 @@ public class ActorHealth implements Qualities {
     calories -= (1f * maxHealth * baseSpeed) / STARVE_INTERVAL ;
     calories = Visit.clamp(calories, 0, maxCalories()) ;
     if (calories <= 0) {
-      I.say(actor+" has died from lack of energy.") ;
+      I.say(actor+" has died from starvation.");
       state = STATE_STRICKEN ;
     }
   }

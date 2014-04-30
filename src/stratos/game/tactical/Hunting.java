@@ -117,7 +117,7 @@ public class Hunting extends Combat implements Economy {
   
   
   final Trait
-    HARVEST_TRAITS[] = { NATURALIST, FEARLESS, ENERGETIC },
+    HARVEST_TRAITS[] = { CRUEL, FEARLESS, ENERGETIC },
     SAMPLE_TRAITS[]  = { CURIOUS, ENERGETIC, NATURALIST };
   
   
@@ -276,7 +276,7 @@ public class Hunting extends Combat implements Economy {
   
   public Item sample() {
     if (type != TYPE_SAMPLE) I.complain("Not a sampling hunt!");
-    return Item.withReference(SAMPLES, prey.species());
+    return Item.withReference(GENE_SEED, prey.species());
   }
   
   
