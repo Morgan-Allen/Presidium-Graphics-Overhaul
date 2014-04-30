@@ -6,6 +6,7 @@ import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
+//import stratos.game.base.SensorPost;
 import stratos.util.*;
 
 
@@ -16,7 +17,7 @@ public class Exploring extends Plan implements Qualities {
   /**  Construction and save/load methods-
     */
   private static boolean
-    evalVerbose = true ;
+    evalVerbose = false;
   
   final Base base ;
   private Tile lookedAt ;
@@ -109,6 +110,49 @@ public class Exploring extends Plan implements Qualities {
     map.liftFogAround(point, actor.health.sightRange() * 1.414f) ;
     return true ;
   }
+  
+  
+  //  TODO:  Consider integrating these...
+  /*
+    final SensorPost newPost = SensorPost.locateNewPost(this) ;
+    if (newPost != null) {
+      final Action collects = new Action(
+        actor, newPost,
+        this, "actionCollectSensor",
+        Action.REACH_DOWN, "Collecting sensor"
+      ) ;
+      collects.setMoveTarget(this) ;
+      final Action plants = new Action(
+        actor, newPost.origin(),
+        this, "actionPlantSensor",
+        Action.REACH_DOWN, "Planting sensor"
+      ) ;
+      plants.setMoveTarget(Spacing.pickFreeTileAround(newPost, actor)) ;
+      choice.add(new Steps(actor, this, Plan.ROUTINE, collects, plants)) ;
+    }
+  
+  
+  public boolean actionCollectSensor(Actor actor, SensorPost post) {
+    actor.gear.addItem(Item.withReference(SAMPLES, post)) ;
+    return true ;
+  }
+  
+  
+  public boolean actionPlantSensor(Actor actor, Tile t) {
+    SensorPost post = null ;
+    for (Item i : actor.gear.matches(SAMPLES)) {
+      if (i.refers instanceof SensorPost) {
+        post = (SensorPost) i.refers ;
+        actor.gear.removeItem(i) ;
+      }
+    }
+    if (post == null) return false ;
+    post.setPosition(t.x, t.y, world) ;
+    if (! Spacing.perimeterFits(post)) return false ;
+    post.enterWorld() ;
+    return true ;
+  }
+  //*/
   
   
   

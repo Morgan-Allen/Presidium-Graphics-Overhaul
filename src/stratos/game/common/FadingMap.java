@@ -62,11 +62,8 @@ public class FadingMap implements TileConstants {
     final float gap = time - lastTime;
     if (gap < 1) return;
     else lastTime = time;
+    
     final float fadeValue = 1 - (gap / interval);
-    
-    ///I.say("Fade value is: "+fadeValue);
-    ///new Exception().printStackTrace();
-    
     for (Coord c : Visit.grid(0, 0, gridSize, gridSize, 1)) {
       averages[c.x][c.y] *= fadeValue;
     }

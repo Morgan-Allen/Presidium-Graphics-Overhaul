@@ -147,33 +147,26 @@ public abstract class Fauna extends Actor {
   
   
   protected Behaviour nextBrowsing() {
-    final float range = Nest.forageRange(species) * 2 ;
+    final float range = Nest.forageRange(species);
     Target centre = mind.home() ;
     if (centre == null) centre = this ;
     
     final Batch <Flora> sampled = new Batch <Flora> () ;
     world.presences.sampleFromMap(centre, world, 5, sampled, Flora.class) ;
-    /*
-    final PresenceMap map = world.presences.mapFor(Flora.class) ;
-    for (int n = 5 ; n-- > 0 ;) {
-      final Flora f = (Flora) map.pickRandomAround(this, range) ;
-      if (f != null) sampled.include(f) ;
-    }
-    //*/
-    
     Flora picked = null ;
     float bestRating = 0 ;
+    
     for (Flora f : sampled) {
-      final float dist = Spacing.distance(this, f) ;
-      if (dist > range) continue ;
-      float rating = f.growStage() * Rand.avgNums(2) ;
-      rating *= range / (range + dist) ;
-      if (rating > bestRating) { picked = f ; bestRating = rating ; }
+      final float dist = Spacing.distance(this, f);
+      if (dist > (range * 2)) continue;
+      float rating = f.growStage() * Rand.avgNums(2);
+      rating *= range / (range + dist);
+      if (rating > bestRating) { picked = f; bestRating = rating; }
     }
-    if (picked == null) return null ;
+    if (picked == null) return null;
     
     float priority = ActorHealth.MAX_CALORIES - (health.caloryLevel() + 0.1f) ;
-    priority = priority * Action.PARAMOUNT - Plan.rangePenalty(this, picked) ;
+    priority = (priority * Action.URGENT) - Plan.rangePenalty(this, picked) ;
     if (priority < 0) return null ;
     
     final Action browse = new Action(
@@ -190,7 +183,7 @@ public abstract class Fauna extends Actor {
   public boolean actionBrowse(Fauna actor, Flora eaten) {
     if (! eaten.inWorld()) return false ;
     
-    I.sayAbout(this, "Am browsing at: "+eaten.origin()) ;
+    //if (verbose) I.sayAbout(this, "Am browsing at: "+eaten.origin()) ;
     float bite = 0.1f * eaten.growStage() * 2 * health.maxHealth() / 10 ;
     eaten.incGrowth(0 - bite, actor.world(), false) ;
     actor.health.takeCalories(bite * PLANT_CONVERSION, 1) ;
@@ -226,22 +219,31 @@ public abstract class Fauna extends Actor {
   
   
   protected Behaviour nextMigration() {
-    Target wandersTo = null ;
-    String description = null ;
-    float priority = 0 ;
+    final boolean report = I.talkAbout == this;
+    Target wandersTo = null;
+    String description = null;
+    float priority = 0;
     
-    Nest newNest = null ;
-    if (lastMigrateCheck == -1) lastMigrateCheck = world.currentTime() ;
-    if (world.currentTime() - lastMigrateCheck > World.GROWTH_INTERVAL) {
-      final boolean crowded = Nest.crowdingFor(this) > 0.5f ;
-      if (verbose) I.sayAbout(this, "Crowded? "+crowded) ;
+    final Target home = mind.home();
+    Nest newNest = null;
+    if (lastMigrateCheck == -1) lastMigrateCheck = world.currentTime();
+    
+    final float timeSinceCheck = world.currentTime() - lastMigrateCheck;
+    if (report) {
+      I.say("\nChecking migration for "+this);
+      I.say("  Last check: "+timeSinceCheck+"/"+World.GROWTH_INTERVAL);
+    }
+    
+    if (true || timeSinceCheck > World.GROWTH_INTERVAL) {
+      final boolean crowded = home == null || Nest.crowdingFor(this) > 0.5f ;
+      if (report) I.say("  Crowded? "+crowded) ;
       newNest = crowded ? Nest.findNestFor(this) : null ;
       lastMigrateCheck = world.currentTime() ;
     }
     
     
-    if (newNest != null && newNest != mind.home()) {
-      if (verbose) I.sayAbout(this, "Found new nest! "+newNest.origin()) ;
+    if (newNest != null && newNest != home) {
+      if (report) I.say("  Found new nest! "+newNest.origin()) ;
       wandersTo = newNest ;
       description = "Migrating" ;
       priority = Action.ROUTINE ;

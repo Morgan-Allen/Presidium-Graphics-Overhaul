@@ -105,13 +105,12 @@ public class Choice implements Qualities {
       if (verboseReject && I.talkAbout == actor) I.say("  ...Empty choice!") ;
       return null ;
     }
-    //else if (report) I.say("Range of choice is "+plans.size()) ;
     if (report) {
-      String label = "Actor" ;
-      if (actor.vocation() != null) label = actor.vocation().name ;
-      else if (actor.species() != null) label = actor.species().toString() ;
-      I.say("\n"+actor+" ("+label+") is making a choice.  Is free? "+free) ;
-      I.say("  Current time: "+actor.world().currentTime()) ;
+      String label = "Actor";
+      if (actor.vocation() != null) label = actor.vocation().name;
+      else if (actor.species() != null) label = actor.species().toString();
+      I.say("\n"+actor+" ("+label+") is making a choice.");
+      I.say("Range of choice is "+plans.size()+", free? "+free);
     }
     //
     //  Firstly, acquire the priorities for each plan.  If the permitted range

@@ -30,30 +30,31 @@ public class CombatUtils implements Qualities {
     if (actor == null) return 0;
     if (! actor.health.conscious()) return 0;
     final boolean report = strengthVerbose && I.talkAbout == actor;
+    if (report) I.say("\nAssessing combat strength for: "+actor);
     
     //  First, obtain a general estimate of the actor's combat prowess (if
     //  possible, one cached.)
     float estimate = actor.strengthEstimate();
     if (estimate == -1) {
-      estimate = (actor.gear.armourRating() + actor.gear.attackDamage()) / 20f;
+      estimate = (actor.gear.armourRating() + actor.gear.attackDamage()) / 10f;
       estimate *= (actor.health.maxHealth() + actor.gear.shieldCharge()) / 10f;
-      estimate *= (1 - actor.health.injuryLevel());
+      estimate *= 1 - actor.health.injuryLevel();
       estimate *= 1 - actor.health.stressPenalty();
       //
       // Scale by general ranks in relevant skills-
       float skillBonus = 1;
-      if (report) I.say("Native strength: " + estimate);
-      skillBonus *= (2 +
+      if (report) I.say("  Native strength: " + estimate);
+      skillBonus *= (5 +
         actor.traits.useLevel(HAND_TO_HAND) +
         actor.traits.useLevel(MARKSMANSHIP)
-      ) / 20;
-      skillBonus *= (2 +
+      ) / 25;
+      skillBonus *= (5 +
         actor.traits.useLevel(HAND_TO_HAND) +
         actor.traits.useLevel(STEALTH_AND_COVER)
-      ) / 20;
+      ) / 25;
       estimate *= (1 + skillBonus) / 2f;
       if (! actor.gear.armed()) estimate /= 2;
-      if (report) I.say("With skills: "+estimate);
+      if (report) I.say("  With skills: "+estimate);
       actor.setStrengthEstimate(estimate);
     }
     
@@ -69,12 +70,10 @@ public class CombatUtils implements Qualities {
         defend = STEALTH_AND_COVER ;
       }
       final float chance = actor.traits.chance(attack, enemy, defend, 0) ;
-      if (report) {
-        I.say("Chance to injure "+enemy+" is: "+chance) ;
-        I.say("Native strength: "+estimate) ;
-      }
       estimate *= 2 * chance ;
+      if (report) I.say("  Chance to injure "+enemy+" is: "+chance) ;
     }
+    if (report) I.say("  Final strength: "+estimate) ;
     return estimate ;
   }
   

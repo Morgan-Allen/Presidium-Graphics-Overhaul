@@ -87,7 +87,7 @@ public class NativeHall extends NativeHut {
     //  TODO:  Have the population-estimate routines for Nests take an argument
     //  to specify search range/minimum separation?
     
-    float estimate = Nest.idealNestPop(Species.HUMAN, this, world, false) ;
+    float estimate = Nest.idealPopulation(this, Species.HUMAN, world, false) ;
     if (idealPopEstimate == -1) idealPopEstimate = estimate ;
     else {
       final float inc = 10f / World.STANDARD_DAY_LENGTH ;

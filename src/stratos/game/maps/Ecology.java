@@ -137,7 +137,6 @@ public class Ecology {
   
   public float biomassRating(Tile t) {
     return biomass.sampleAt(t.x, t.y);
-    //return biomass.longTermVal(t) * 4f / (SR * SR) ;
   }
   
   

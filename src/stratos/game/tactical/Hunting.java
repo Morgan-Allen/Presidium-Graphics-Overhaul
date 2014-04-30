@@ -40,7 +40,7 @@ public class Hunting extends Combat implements Economy {
     STAGE_RETURN_SAMPLE = 6,
     STAGE_COMPLETE      = 7 ;
   
-  private static boolean verbose = false, evalVerbose = true;
+  private static boolean verbose = false, evalVerbose = false ;
   
   
   final int type ;
@@ -130,9 +130,6 @@ public class Hunting extends Combat implements Economy {
     final Trait baseTraits[];
     final float crowding = Nest.crowdingFor(prey);
     final float hunger = actor.health.hungerLevel();
-    
-    //  TODO:  Either hunger or sense of duty could be the basic motivation
-    //  here.  I need a rigorous and consistent way to apply that.
     
     if (type == TYPE_FEEDS) {
       urgency = hunger * PARAMOUNT * (0.5f + Math.min(crowding, hunger));

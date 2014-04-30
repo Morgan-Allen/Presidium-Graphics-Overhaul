@@ -130,11 +130,13 @@ public class SurveyStation extends Venue implements Economy {
         if (! stocks.hasItem(h.sample())) choice.add(h);
       }
     }
+    
     if (hasStill) choice.add(Deliveries.nextDeliveryFor(
       actor, still, still.services(), 5, world
     ));
-
-    //  TODO:  Restore animal breeding and placement of sensor posts.
+    
+    //  TODO:  Incorporate sensor-placement into recon missions.
+    choice.add(BreedAnimal.nextBreeding(actor, this));
     
     final Behaviour pick = choice.weightedPick();
     if (report) I.say("\n  Next survey station job: "+pick);
