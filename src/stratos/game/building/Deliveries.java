@@ -114,7 +114,7 @@ public class Deliveries implements Economy {
   }
   
   
-  private static Delivery bestOrigin(
+  public static Delivery bestOrigin(
     Actor actor, Service goods[], Owner client,
     Batch <Owner> origins, int sizeLimit, int tradeType
   ) {
@@ -139,7 +139,7 @@ public class Deliveries implements Economy {
   }
   
   
-  private static Delivery bestClient(
+  public static Delivery bestClient(
     Actor actor, Service goods[], Owner origin,
     Batch <Owner> clients, int sizeLimit, int tradeType
   ) {
@@ -265,16 +265,20 @@ public class Deliveries implements Economy {
     //  taken away.
     for (Service good : goods) if (good.form == FORM_COMMODITY) {
       if (tradeType == IS_IMPORT) {
-        maxBuys = ((Service.Trade) client).importShortage(good) ;
-        maxSold = maxBuys ;
+        maxBuys = ((Service.Trade) client).importShortage(good);
+        maxSold = maxBuys;
       }
       else if (tradeType == IS_EXPORT) {
-        maxSold = ((Service.Trade) origin).exportSurplus(good) ;
-        maxBuys = maxSold ;
+        maxSold = ((Service.Trade) origin).exportSurplus(good);
+        maxBuys = maxSold;
+      }
+      else if (client instanceof Venue) {
+        maxSold = origin.inventory().amountOf(good);
+        maxBuys = ((Venue) client).stocks.shortageOf(good);
       }
       else {
-        maxSold = origin.inventory().amountOf(good) ;
-        maxBuys = ((Venue) client).stocks.shortageOf(good) ;
+        maxSold = origin.inventory().amountOf(good);
+        maxBuys = sizeLimit;
       }
       if (maxSold == 0 || maxBuys == 0) continue;
       maxSold -= reservedForCollection(OD, good) ;

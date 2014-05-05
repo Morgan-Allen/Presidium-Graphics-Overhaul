@@ -372,7 +372,8 @@ public class VenueStocks extends Inventory implements Economy {
       distances[] = new float[suppliers.size()] ;
     float sumRatings = 0 ;
     
-    int i = 0 ; for (Venue supplies : suppliers) {
+    int i = 0 ;
+    for (Venue supplies : suppliers) {
       final int ST = supplies.stocks.demandTier(type) ;
       if (ST > tier) { i++ ; continue ; }
       

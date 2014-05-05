@@ -143,10 +143,8 @@ public class BaseUI extends HUD implements UIConstants {
     currentInfo = newInfo = null;
     
     this.quickbar = new Quickbar(this) ;
-    //quickbar.absBound.set(20, 20, -40, 0) ;
     quickbar.relBound.set(0, 0, 1, 0) ;
     quickbar.attachTo(this) ;
-    //quickbar.setupMissionButtons() ;  //  Not needed any more, I think...
     quickbar.setupPowersButtons() ;
     quickbar.setupInstallButtons() ;
   }

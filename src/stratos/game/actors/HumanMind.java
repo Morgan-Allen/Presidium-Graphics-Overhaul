@@ -152,8 +152,8 @@ public class HumanMind extends ActorMind implements Qualities {
   
   protected void addReactions(Target seen, Choice choice) {
     if (seen instanceof Actor) if (seen != actor) {
-      final Actor nearby = (Actor) seen ;
-      choice.add(new Retreat(actor)) ;
+      final Actor nearby = (Actor) seen;
+      choice.add(new Retreat(actor));
       addActorResponses(nearby, choice);
     }
   }
@@ -168,9 +168,12 @@ public class HumanMind extends ActorMind implements Qualities {
   
   private void addActorResponses(Actor nearby, Choice choice) {
     choice.add(Hunting.asHarvest(actor, nearby, home, true));
-    choice.add(new Combat(actor, nearby)) ;
-    choice.add(new Dialogue(actor, nearby, Dialogue.TYPE_CASUAL)) ;
-    choice.add(new FirstAid(actor, nearby)) ;
+    choice.add(new Combat(actor, nearby));
+    choice.add(new FirstAid(actor, nearby));
+    
+    //choice.add(Gifting.nextGiftFor(actor, nearby));
+    //  TODO:  Add accompaniment?
+    choice.add(new Dialogue(actor, nearby, Dialogue.TYPE_CASUAL));
   }
   
   

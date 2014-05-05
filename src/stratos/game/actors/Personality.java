@@ -7,16 +7,28 @@ import java.util.Map.Entry;
 
 
 
-//  TODO:  You'll need to ensure mutual contradictions aren't allowed here.
-//  TODO:  Implement the exclusion principle at least.
-
-
 //  TODO:  See if this can't be simplified still further?
 
-//  Opposite of Meticulous- Sloppy.
-//  Replaced Naturalist/Urbane with Claustrophobe/Agoraphobe?
-
 /*
+TODO:  USE THESE
+  Avarice    vs. Generosity
+  Assured    vs. Nervous
+  Aggressive vs. Empathic
+  Honourable vs. Cunning
+  Dutiful    vs. Subversive
+  Whimsical  vs. Stubborn
+  Curious    vs. Dull
+  Sloth      vs. Restless
+  Private    vs. Friendly
+  Cold       vs. Passionate
+  Indulgent  vs. Ascetic
+  Meticulous vs. Impatient
+  Civilised  vs. Wild Heart
+  Creative   vs. Dogmatic
+  Critical   vs. Blithe
+  Ambitious  vs. Humble
+
+
 Aggressive  vs. Empathic    (helping or harming others)
 Ambitious   vs. Humble      (desire for promotion)
 Greedy      vs. Generous    (give or receive money/gifts)

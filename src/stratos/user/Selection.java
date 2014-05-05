@@ -144,8 +144,8 @@ public class Selection implements UIConstants {
 
   public void pushSelection(Selectable s, boolean asRoot) {
     if (s == null) {
-      navStack.clear() ;
-      selected = null ;
+      navStack.clear();
+      selected = null;
       UI.viewTracking.lockOn(null);
       UI.setInfoPanels(null, null);
       return;
@@ -180,6 +180,8 @@ public class Selection implements UIConstants {
         I.add("\n");
       }
     }
+    
+    I.talkAbout = selected;
   }
   
   

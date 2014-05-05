@@ -199,11 +199,11 @@ public abstract class ActorMind implements Qualities {
     //
     //  If you exhaust the maximum number of iterations (which I assume *would*
     //  be enough for any reasonable use-case,) report the problem.
-    I.say("  "+actor+" COULD NOT DECIDE ON NEXT STEP.") ;
+    I.say("\n"+actor+" COULD NOT DECIDE ON NEXT STEP.") ;
     final Behaviour root = rootBehaviour() ;
     final Behaviour next = root.nextStepFor(actor) ;
-    I.say("Root behaviour: "+root) ;
-    I.say("Next step: "+next) ;
+    I.say("  Root behaviour: "+root) ;
+    I.say("  Next step: "+next) ;
     I.say("  Valid/finished "+next.valid()+"/"+next.finished()) ;
     new Exception().printStackTrace() ;
     return null ;
@@ -322,18 +322,18 @@ public abstract class ActorMind implements Qualities {
     if (behaviour == null) I.complain("CANNOT ASSIGN NULL BEHAVIOUR.") ;
     final boolean report = decisionVerbose && I.talkAbout == actor;
     
-    //  TODO:  Print the entire agenda stack?
     if (report) I.say("Assigning behaviour "+behaviour) ;
     actor.assignAction(null) ;
     
     final Behaviour replaced = rootBehaviour() ;
-    if (replaced != null && ! replaced.finished()) {
+    final boolean saveTodo = replaced != null && ! replaced.finished();
+    cancelBehaviour(replaced) ;
+    pushBehaviour(behaviour) ;
+    
+    if (saveTodo) {
       if (report) I.say(" SAVING PLAN AS TODO: "+replaced) ;
       todoList.include(replaced) ;
     }
-    
-    cancelBehaviour(replaced) ;
-    pushBehaviour(behaviour) ;
   }
   
   

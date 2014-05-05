@@ -18,6 +18,9 @@ import stratos.util.*;
 
 
 
+//  TODO:  GET RID OF THIS ENTIRELY
+
+
 public class AuditOffice extends Venue implements Economy {
   
 
@@ -354,7 +357,8 @@ public class AuditOffice extends Venue implements Economy {
   
 
   public String buildCategory() {
-    return UIConstants.TYPE_MERCHANT ;
+    return UIConstants.TYPE_HIDDEN;
+    //return UIConstants.TYPE_MERCHANT ;
   }
 }
 

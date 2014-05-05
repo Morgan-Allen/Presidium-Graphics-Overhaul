@@ -79,6 +79,7 @@ public class Profile {
     //
     //  TODO:  This needs to be negotiated, or at least modified, based on
     //  reluctance to settle or personal dislike.
+    if (actor.vocation() == null) return 0;
     final int standing = actor.vocation().standing ;
     if (standing == Backgrounds.CLASS_NATIVE) return 0 ;
     //

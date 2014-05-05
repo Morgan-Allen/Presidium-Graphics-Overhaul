@@ -131,7 +131,6 @@ public class Artificer extends Venue implements Economy {
     stocks.translateDemands(1, PARTS_TO_CIRCUITRY, this) ;
     stocks.incDemand(PARTS, 10, VenueStocks.TIER_PRODUCER, 1, this) ;
     stocks.translateDemands(1, METALS_TO_PARTS, this) ;
-    ///I.say("Demand for metal is: "+stocks.demandFor(METAL_ORE)) ;
     
     float pollution = 5, powerNeed = 5 ;
     if (! isManned()) {

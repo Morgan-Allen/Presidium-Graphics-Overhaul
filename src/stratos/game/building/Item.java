@@ -122,10 +122,12 @@ public class Item implements Economy {
   
   
   public float priceAt(Venue venue) {
-    final float basePrice = venue == null ?
-      type.basePrice :
-      venue.priceFor(type);
-    return basePrice * amount * PRICE_MULTS[(int) quality];
+    return venue.priceFor(type) * amount * PRICE_MULTS[(int) quality];
+  }
+  
+  
+  public float defaultPrice() {
+    return type.basePrice * amount * PRICE_MULTS[(int) quality];
   }
   
   

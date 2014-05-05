@@ -98,30 +98,26 @@ public class Dialogue extends Plan implements Qualities {
   
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
+    
     final Relation r = actor.memories.relationWith(other);
     final float curiosity = (1 + actor.traits.relativeLevel(CURIOUS)) / 2;
     
+    final boolean approached = starts != actor;
     float urgency = 0;
-    if (r == null) {
-      urgency += curiosity;
-      //  TODO:  Only count positive relations?
-      final float
-        baseF = Relation.BASE_NUM_FRIENDS,
-        numF = actor.memories.relations().size();
-      urgency -= (numF - baseF) / (baseF * 2);
-      
-      if (report) I.say("  TALK URGENCY: "+urgency);
-    }
-    else {
-      urgency += r.novelty() * curiosity;
-      urgency += r.value() / 2f;
-    }
-    final boolean casual = type == TYPE_CASUAL;
-    urgency = Visit.clamp(urgency, -1, 1);
     float distCheck = NORMAL_DISTANCE_CHECK;
     
+    final boolean casual = type == TYPE_CASUAL;
     if (casual) {
-      if (urgency <= 0) return 0;
+      final float
+        value   = r == null ? actor.memories.relationValue(other) : r.value(),
+        novelty = r == null ? 1 : r.novelty();
+      
+      urgency += novelty * curiosity;
+      urgency += (solitude(actor) + value) / 2f;
+      urgency = Visit.clamp(urgency, -1, 1);
+      
+      if (approached && urgency < 0.5f) urgency = 0.5f;
+      else if (urgency <= 0) return 0;
       if (stage >= STAGE_DONE || ! canTalk(other, report)) return 0;
       distCheck = HEAVY_DISTANCE_CHECK;
     }
@@ -141,8 +137,18 @@ public class Dialogue extends Plan implements Qualities {
   }
   
   
+  private float solitude(Actor actor) {
+    //  TODO:  Only count positive relations?
+    final float
+      baseF = Relation.BASE_NUM_FRIENDS,
+      numF  = actor.memories.relations().size();
+    return (baseF - numF) / baseF;
+  }
+  
+  
   private boolean canTalk(Actor other, boolean report) {
     if (! other.health.conscious()) return false;
+    if (! other.health.human()) return false;
     if (other == starts && ! hasBegun()) return true;
     final Target talksWith = other.focusFor(Dialogue.class);
     if (talksWith == actor) return true;
@@ -554,28 +560,22 @@ public class Dialogue extends Plan implements Qualities {
   
   
   final static Vec3D forwardVec = new Vec3D(1, 1, 0) ;
-  private static boolean onRight(Actor a, Actor b) {
+  private static boolean onRight(Actor a, Target b) {
     final Vec3D disp = a.position(null).sub(b.position(null)) ;
     return disp.dot(forwardVec) > 0 ;
   }
   
   
-  private static void utters(Actor a, String s, float effect) {
+  public static void utters(Actor a, String s, float effect) {
     final String sign;
     if (effect == 0) sign = "";
     else if (effect > 0) sign = " (+)";
     else sign = " (-)";
     
-    final Dialogue says = (Dialogue) a.matchFor(Dialogue.class) ;
-    if (says == null) return ;
-    boolean picked = false ;
-    for (Dialogue d : says.sides()) {
-      if (BaseUI.isPicked(d.actor())) picked = true ;
-    }
-    if (! picked) return ;
-    final Actor opposite = a == says.actor ? says.other : says.actor ;
-    final boolean onRight = onRight(a, opposite) ;
-    final int side = onRight ? TalkFX.FROM_RIGHT : TalkFX.FROM_LEFT ;
+    final Target opposite = a.focusFor(null);
+    final int side = (opposite == null) ? TalkFX.FROM_RIGHT : (
+      onRight(a, opposite) ? TalkFX.FROM_RIGHT : TalkFX.FROM_LEFT
+    );
     a.chat.addPhrase(s+sign, side) ;
   }
   

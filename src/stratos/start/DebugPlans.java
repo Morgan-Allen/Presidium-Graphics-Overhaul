@@ -75,9 +75,9 @@ public class DebugPlans extends Scenario {
     //configMedicalScenario(world, base, UI);
     //configHuntingScenario(world, base, UI);
     //configCombatScenario(world, base, UI);
-    //configDialogueScenario(world, base, UI);
+    configDialogueScenario(world, base, UI);
     //configPurchaseScenario(world, base, UI);
-    configRaidScenario(world, base, UI);
+    //configRaidScenario(world, base, UI);
     //configArtilectScenario(world, base, UI);
     //configContactScenario(world, base, UI);
     //configWildScenario(world, base, UI);
@@ -161,12 +161,24 @@ public class DebugPlans extends Scenario {
     GameSettings.fogFree = true;
     GameSettings.noBlood = true;
     
-    Actor citizen = null;
-    for (int n = 3; n-- > 0;) {
+    final Artificer venue = new Artificer(base);
+    Placement.establishVenue(venue, world.tileAt(4, 4), true, world);
+    venue.stocks.bumpItem(Economy.PARTS, 10);
+    
+    Actor citizen = null, other = null;
+    for (int n = 2; n-- > 0;) {
       citizen = new Human(Backgrounds.CULTIVATOR, base);
-      citizen.enterWorldAt(world.tileAt(4 + n, 4 + n), world);
+      citizen.enterWorldAt(venue, world);
+      if (other == null) other = citizen;
     }
+    
     UI.selection.pushSelection(citizen, true);
+    final Item gift = Item.withAmount(Economy.PARTS, 1);
+    final Gifting gifting = new Gifting(
+      citizen, other, gift,
+      new Delivery(gift, venue, other)
+    );
+    citizen.mind.assignBehaviour(gifting);
   }
   
   

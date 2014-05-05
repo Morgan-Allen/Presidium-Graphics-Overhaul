@@ -372,7 +372,7 @@ public class TutorialScenario extends StartupScenario {
       return comms.addMessage(
         TITLE_EXPLAIN_INDUSTRY, null,
         "In order to improve your housing- and export finished goods- you may "+
-        "wish to place a Foundry or Fabricator to take metal ore or carbs "+
+        "wish to place an Artificer or Fabricator to take metal ore or carbs "+
         "and process them into parts and plastics, along with weapons or "+
         "outfits for your citizens.  A skilled worker with enough raw "+
         "materials can make perhaps 5 units per day, but you may wish to "+
