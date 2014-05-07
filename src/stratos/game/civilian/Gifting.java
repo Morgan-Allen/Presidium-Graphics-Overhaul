@@ -9,12 +9,6 @@ import stratos.util.*;
 
 
 
-//  TODO:  Consider having this extend Dialogue.  The other guy needs to
-//  actively receive the gift, not just stand there like a dumbass.  (Or just
-//  apply the action?  Yeah.  It's only one action.  Just check that they're
-//  willing.)
-
-
 public class Gifting extends Plan implements Qualities {
   
   
@@ -63,6 +57,15 @@ public class Gifting extends Plan implements Qualities {
   }
   
   
+  public Plan copyFor(Actor other) {
+    return Gifting.nextGiftFor(other, receives);
+  }
+  
+  
+  
+  
+  /**  Priority evaluation-
+    */
   final static Trait BASE_TRAITS[] = { EMPATHIC, GENEROUS, EXCITABLE };
   
   
@@ -94,31 +97,49 @@ public class Gifting extends Plan implements Qualities {
   }
   
   
+  public boolean finished() {
+    if (! getting.finished()) return false;
+    return super.finished();
+  }
+  
+  
   protected Behaviour getNextStep() {
+    final boolean report = stepVerbose && I.talkAbout == actor;
+    if (report) I.say("\nGetting next gifting step:");
     
     //  If the recipient has accepted the item, your job is complete.  (If it's
     //  refused, abort the behaviour.)
-    if (this.stage == STAGE_DONE) return null;
+    if (this.stage == STAGE_DONE) {
+      if (report) I.say("  Gifting complete!");
+      return null;
+    }
     
     //  If you've acquired the item, present it to the recipient, and await
     //  their response.
     if (actor.gear.hasItem(gift)) {
+      final Dialogue d = new Dialogue(actor, receives, Dialogue.TYPE_CASUAL);
+      if (d.priorityFor(actor) > 0) return d;
+      
       this.stage = STAGE_GIVES;
       final Action offer = new Action(
         actor, receives,
         this, "actionOffer",
-        Action.REACH_DOWN, "Giving "
+        Action.REACH_DOWN, "Offering "+gift.type+" to "
       );
       offer.setProperties(Action.RANGED | Action.NO_LOOP);
+      if (report) I.say("  Going to give.");
       return offer;
     }
     
     //  If the 'get' action hasn't completed, carry it out.
     if (! getting.finished()) {
       this.stage = STAGE_GETS;
+      if (report) I.say("  Still getting.");
+      if (getting.nextStepFor(actor) == null) return null;
       return getting;
     }
     
+    if (report) I.say("  No next step!");
     return null;
   }
   
@@ -126,7 +147,7 @@ public class Gifting extends Plan implements Qualities {
   private Action receiptAction(
     Actor receives, Actor from, float value, float success
   ) {
-    final float priority = value * success * PARAMOUNT;
+    final float priority = (1 + value) * success * ROUTINE;
     if (priority <= 0) return null;
     
     final Action receipt = new Action(
@@ -142,31 +163,61 @@ public class Gifting extends Plan implements Qualities {
   
   
   public boolean actionOffer(Actor actor, Actor receives) {
-    if (receives.isDoingAction("actionReceives", actor)) return true;
-    Dialogue.utters(actor, "I have a gift for you...", 0);
+    final boolean report = stepVerbose && I.talkAbout == actor;
     
+    final Action doing = receives.currentAction();
+    if (doing == null || doing.methodName().equals("actionReceives")) {
+      if (report) I.say("  Other is distracted.");
+      return false;
+    }
+
     //  TODO:  Modify DC by the greed and honour of the subject.
+    DialogueUtils.utters(actor, "I have a gift for you...", 0);
     final float value = rateGift(gift, null, receives) / 10f;
-    float acceptDC = (1 - value) * ROUTINE_DC;
-    float success = Dialogue.talkResult(SUASION, acceptDC, actor, receives);
+    float acceptDC = (0 - value) * ROUTINE_DC;
+    float success = DialogueUtils.talkResult(
+      SUASION, acceptDC, actor, receives
+    );
+
+    if (report) {
+      I.say("\nOffering "+gift+" to "+receives+", DC: "+acceptDC);
+      I.say("  Value: "+value+", success: "+success);
+    }
     
     final Action receipt = receiptAction(receives, actor, value, success);
     if (receipt == null) {
-      Dialogue.utters(receives, "I can't accept that.", -1);
+      DialogueUtils.utters(receives, "I can't accept that.", -1);
       abortBehaviour();
+      if (report) I.say("  Gift was rejected!");
       return false;
     }
-    else receives.mind.assignBehaviour(receipt);
+    else {
+      if (report) I.say("  Can accept gift, assigning receipt...");
+      receives.mind.assignBehaviour(receipt);
+    }
     return true;
   }
   
   
   public boolean actionReceives(Actor receives, Actor from) {
-    final float value = rateGift(gift, null, receives);
-    receives.memories.incRelation(actor, value / 2, 0.5f);
+    final boolean report = stepVerbose && I.talkAbout == from;
+    if (report) {
+      I.say("\nReceiving gift from "+from);
+      I.say("  Relation before: "+receives.memories.relationValue(from));
+    }
+    
+    final float value = rateGift(gift, null, receives) / 10f;
     from.gear.transfer(gift, receives);
-    Dialogue.utters(receives, "Thank you for the "+gift.type+"!", value);
+    receives.memories.incRelation(from, 1, value / 2);
+    from.memories.incRelation(receives, 1, value / 4);
+    
+    DialogueUtils.utters(receives, "Thank you for the "+gift.type+"!", value);
     this.stage = STAGE_DONE;
+    
+    if (report) {
+      I.say("  Relation after: "+receives.memories.relationValue(from));
+      I.say("  Value of gift received: "+(value / 2));
+    }
     return true;
   }
   
@@ -178,6 +229,9 @@ public class Gifting extends Plan implements Qualities {
     final boolean report = rateVerbose && I.talkAbout == buys;
     if (report) I.say("\nGetting next gift from "+buys+" for "+receives);
     
+    //  TODO:  THIS SHOULD NOT APPLY TO CONTACT MISSIONS.  ALSO, YOU NEED TO
+    //  TRANSFER SOME OF OF THE PRIORITY FROM THE PARENT PLAN ON TO THE CHILD
+    //  PLAN- AND SOME OF THAT ON TO THE COMMISSION
     if (buys.mind.hasToDo(Gifting.class)) return null;
     final Dialogue d = new Dialogue(buys, receives, Dialogue.TYPE_CASUAL);
     if (d.priorityFor(buys) <= 0) return null;
@@ -226,7 +280,10 @@ public class Gifting extends Plan implements Qualities {
       final Batch <Inventory.Owner> origins = new Batch <Inventory.Owner> ();
       world.presences.sampleFromMaps(buys, world, 5, origins, gift.type);
       origins.include(buys);
-      origins.include(buys.mind.home());
+      
+      //  TODO:  Don't offer things the actor already has!
+      //  TODO:  Take stuff from home, but only if you have a surplus there.
+      //origins.include(buys.mind.home());
       
       if (report) {
         I.say("\n  Potential vendors for "+gift+" are:");
@@ -279,8 +336,8 @@ public class Gifting extends Plan implements Qualities {
       }
     }
     
-    final float pricedAt = item.defaultPrice();
-    rating += Plan.greedLevel(receives, pricedAt / Relation.NOVELTY_DAYS);
+    final float pricedAt = item.defaultPrice() / Relation.NOVELTY_DAYS;
+    rating += Plan.greedLevel(receives, pricedAt) * ROUTINE;
     if (report) I.say("  Rating for "+item+" is: "+rating);
     
     if (buys != null) {
@@ -295,8 +352,9 @@ public class Gifting extends Plan implements Qualities {
   /**  Rendering and interface methods-
     */
   public void describeBehaviour(Description d) {
-    d.append("Getting gift of "+gift+" for ");
-    d.append(receives);
+    if (super.needsSuffix(d, "Getting gift for ")) {
+      d.append(receives);
+    }
   }
 }
 

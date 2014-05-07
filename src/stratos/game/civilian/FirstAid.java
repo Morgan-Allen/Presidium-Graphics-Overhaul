@@ -49,6 +49,11 @@ public class FirstAid extends Plan implements Qualities, Economy {
   }
   
   
+  public Plan copyFor(Actor other) {
+    return new FirstAid(other, patient, refuge);
+  }
+  
+  
   
   /**  Targeting and priority evaluation.
     */
@@ -128,7 +133,7 @@ public class FirstAid extends Plan implements Qualities, Economy {
       final Action aids = new Action(
         actor, patient,
         this, "actionFirstAid",
-        Action.BUILD, "Giving first aid"
+        Action.BUILD, "Giving first aid to "
       );
       return aids;
     }
@@ -149,7 +154,7 @@ public class FirstAid extends Plan implements Qualities, Economy {
       final Action aids = new Action(
         actor, patient,
         this, "actionFirstAid",
-        Action.BUILD, "Applying bandages"
+        Action.BUILD, "Applying bandages to "
       );
       return aids;
     }
@@ -193,13 +198,9 @@ public class FirstAid extends Plan implements Qualities, Economy {
   
   
   public void describeBehaviour(Description d) {
-    if (lastStep instanceof Plan) {
-      super.describedByStep(d);
-      return;
+    if (super.needsSuffix(d, "Treating ")) {
+      d.append(patient);
     }
-    if (super.describedByStep(d)) d.append(" to ");
-    else d.append("Treating ");
-    d.append(patient) ;
   }
 }
 

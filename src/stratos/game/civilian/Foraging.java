@@ -53,6 +53,11 @@ public class Foraging extends Plan implements Economy {
     s.saveObject(source) ;
     s.saveBool(done) ;
   }
+  
+  
+  public Plan copyFor(Actor other) {
+    return new Foraging(other, store);
+  }
 
   
   

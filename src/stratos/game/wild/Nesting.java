@@ -3,6 +3,7 @@
 
 package stratos.game.wild ;
 import stratos.game.actors.*;
+import stratos.game.civilian.Dialogue;
 import stratos.game.common.*;
 import stratos.user.*;
 import stratos.util.*;
@@ -21,9 +22,19 @@ public class Nesting extends Plan {
     super(s) ;
   }
   
+  
   public void saveState(Session s) throws Exception {
     super.saveState(s) ;
   }
+  
+  
+  public Plan copyFor(Actor other) {
+    return null;
+  }
+  
+  
+  
+  
   
   
   protected float getPriority() {

@@ -117,7 +117,7 @@ public abstract class ActorMind implements Qualities {
   }
   
   
-  private Behaviour nextBehaviour() {
+  public Behaviour nextBehaviour() {
     final boolean report = decisionVerbose && I.talkAbout == actor;
     
     if (report) I.say("\nGetting next from to-do list:");
@@ -125,7 +125,8 @@ public abstract class ActorMind implements Qualities {
     final Behaviour notDone = fromTodo.pickMostUrgent();
     
     if (report) I.say("\nGetting newly created behaviour:");
-    final Behaviour newChoice = createBehaviour();
+    final Choice fromNew = createNewBehaviours(new Choice(actor));
+    final Behaviour newChoice = fromNew.weightedPick();
     
     if (report) I.say("\nChecking for switch from undone to new choice:");
     final Behaviour taken =
@@ -146,7 +147,17 @@ public abstract class ActorMind implements Qualities {
   }
   
   
-  protected abstract Behaviour createBehaviour() ;
+  public Series <Plan> getBehaviourRange() {
+    final Choice fromNew = createNewBehaviours(new Choice(actor));
+    final Batch <Plan> range = new Batch <Plan> ();
+    for (Behaviour b : fromNew.plans) if (b instanceof Plan) {
+      range.add((Plan) b);
+    }
+    return range;
+  }
+  
+  
+  protected abstract Choice createNewBehaviours(Choice choice) ;
   protected abstract void addReactions(Target m, Choice choice) ;
   
   

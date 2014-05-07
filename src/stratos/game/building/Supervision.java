@@ -45,6 +45,11 @@ public class Supervision extends Plan implements Economy {
   }
   
   
+  public Plan copyFor(Actor other) {
+    return new Supervision(other, venue);
+  }
+  
+  
   
   /**  Evaluating targets and priority-
     */

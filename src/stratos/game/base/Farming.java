@@ -45,8 +45,14 @@ public class Farming extends Plan implements Economy {
   }
   
   
+  public Plan copyFor(Actor other) {
+    return new Farming(other, nursery);
+  }
   
   
+  
+  /**  Behaviour implementation-
+    */
   final static Skill BASE_SKILLS[] = { HARD_LABOUR, CULTIVATION };
   final static Trait BASE_TRAITS[] = { IGNORANT, ENERGETIC, NATURALIST };
   
@@ -282,9 +288,9 @@ public class Farming extends Plan implements Economy {
   
   
   public void describeBehaviour(Description d) {
-    if (! describedByStep(d)) d.append("Farming") ;
-    d.append(" around ") ;
-    d.append(nursery) ;
+    if (super.needsSuffix(d, "Farming around ")) {
+      d.append(nursery);
+    }
   }
 }
 

@@ -57,6 +57,11 @@ public class Retreat extends Plan implements Qualities {
   }
   
   
+  public Plan copyFor(Actor other) {
+    return new Retreat(other, safePoint);
+  }
+  
+  
   
   /**  Evaluation of priority and targets--
     */

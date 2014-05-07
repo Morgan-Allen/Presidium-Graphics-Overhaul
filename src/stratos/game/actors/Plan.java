@@ -53,6 +53,10 @@ public abstract class Plan implements Saveable, Behaviour {
   private int motiveType = MOTIVE_INIT;
   private float motiveBonus = 0;
   
+  //  TODO:  See if there's any more compact way to represent these.  A PlanType
+  //  class, for example?
+  private float harmFactor, competeFactor;
+  
   
   
   protected Plan(Actor actor, Target subject) {
@@ -73,6 +77,9 @@ public abstract class Plan implements Saveable, Behaviour {
     this.lastStep = (Behaviour) s.loadObject();
     this.motiveType = s.loadInt();
     this.motiveBonus = s.loadFloat();
+    
+    this.harmFactor = s.loadFloat();
+    this.competeFactor = s.loadFloat();
   }
   
   
@@ -86,6 +93,9 @@ public abstract class Plan implements Saveable, Behaviour {
     s.saveObject(lastStep);
     s.saveInt(motiveType);
     s.saveFloat(motiveBonus);
+    
+    s.saveFloat(harmFactor);
+    s.saveFloat(competeFactor);
   }
   
   
@@ -128,7 +138,7 @@ public abstract class Plan implements Saveable, Behaviour {
   
   public float priorityFor(Actor actor) {
     if (this.actor != actor) {
-      if (this.actor != null) ;  //TODO:  Give some kind of message here?
+      if (this.actor != null) ;  //TODO:  Give some kind of message here
       this.actor = actor ;
       priorityEval = NULL_PRIORITY;
     }
@@ -137,7 +147,7 @@ public abstract class Plan implements Saveable, Behaviour {
       return priorityEval;
     }
     lastEvalTime = time;
-    priorityEval = 0;  //This helps to avoid certain types of infinite loop.
+    priorityEval = 0;  //Note: This helps avoid certain types of infinite loop.
     priorityEval = getPriority();
     return priorityEval;
   }
@@ -217,6 +227,11 @@ public abstract class Plan implements Saveable, Behaviour {
   }
   
   
+  public Plan setMotiveFrom(Plan parent) {
+    return setMotive(parent.motiveType, parent.motiveBonus);
+  }
+  
+  
   final protected static float
     
     NO_FAIL_RISK      = 0.0f,
@@ -263,6 +278,8 @@ public abstract class Plan implements Saveable, Behaviour {
     boolean report
   ) {
     if (subject == null) I.complain("NO SUBJECT SPECIFIED");
+    this.harmFactor = subjectHarm;
+    this.competeFactor = peersCompete;
     float
       priority = ROUTINE + specialModifier,
       skillBonus = 0, traitBonus = 0,
@@ -363,18 +380,23 @@ public abstract class Plan implements Saveable, Behaviour {
   }
   
   
-  //  TODO:  Consider making these methods abstract too?
-  protected float successChance() {
-    return 1 ;
-  }
+  public float harmFactor() { return harmFactor; }
+  public float competeFactor() { return competeFactor; }
   
+  protected float successChance() { return 1; }
   protected void onceInvalid() {}
   
   protected abstract Behaviour getNextStep();
   protected abstract float getPriority();
   
+  public abstract Plan copyFor(Actor other);
+  //public abstract Memory makeMemory();  //TODO:  IMPLEMENT
   
   
+  
+  /**  Various utility methods for modifying plan priority (primarily invoked
+    *  above.)
+    */
   public static float rangePenalty(Target a, Target b) {
     if (a == null || b == null) return 0;
     final float SS = World.SECTOR_SIZE;
@@ -388,7 +410,7 @@ public abstract class Plan implements Saveable, Behaviour {
     //
     //  TODO:  Incorporate estimate of dangers along entire route using
     //  path-caching.
-    if (actor.base() == null) return 0 ;  //  TODO:  REMOVE THIS
+    //if (actor.base() == null) return 0 ;
     final Tile at = actor.world().tileAt(t) ;
     float danger = actor.base().dangerMap.sampleAt(at.x, at.y) ;
     if (danger < 0) return 0 ;
@@ -493,12 +515,19 @@ public abstract class Plan implements Saveable, Behaviour {
   }
   
   
-  protected boolean describedByStep(Description d) {
-    if (lastStep != null) {
-      lastStep.describeBehaviour(d) ;
-      return true ;
+  protected boolean needsSuffix(Description d, String defaultPrefix) {
+    if (lastStep == null) {
+      d.append(defaultPrefix);
+      return true;
     }
-    return false ;
+    if (lastStep instanceof Action) {
+      lastStep.describeBehaviour(d);
+      return true;
+    }
+    else {
+      lastStep.describeBehaviour(d);
+      return false;
+    }
   }
   
   
@@ -514,6 +543,8 @@ public abstract class Plan implements Saveable, Behaviour {
   /**  Validation methods, intended to ensure that Plans can be stored
     *  compactly as memories-
     */
+  //  TODO:  Implement this.
+  /*
   private static Table <Class, Boolean> validations = new Table(100) ;
   
   
@@ -542,6 +573,7 @@ public abstract class Plan implements Saveable, Behaviour {
     validations.put(planClass, okay) ;
     return okay ;
   }
+  //*/
 }
 
 

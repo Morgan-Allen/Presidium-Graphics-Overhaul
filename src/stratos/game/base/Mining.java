@@ -35,14 +35,7 @@ public class Mining extends Plan implements Economy {
 
   final static Service MINED_TYPES[] = {
     METALS, FUEL_RODS, ARTIFACTS
-  } ;
-  /*
-  final static Item SAMPLE_TYPES[] = {
-    Item.withReference(SAMPLES, METALS),
-    Item.withReference(SAMPLES, FUEL_RODS),
-    Item.withReference(SAMPLES, ARTIFACTS ),
-  } ;
-  //*/
+  };
   
   private static boolean
     evalVerbose  = false,
@@ -75,6 +68,11 @@ public class Mining extends Plan implements Economy {
     s.saveObject(site) ;
     s.saveTarget(face) ;
     s.saveInt(stage) ;
+  }
+  
+  
+  public Plan copyFor(Actor other) {
+    return new Mining(other, face, site);
   }
   
   

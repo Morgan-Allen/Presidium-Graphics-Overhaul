@@ -75,7 +75,14 @@ public class FindMission extends Plan implements Economy {
   }
   
   
+  public Plan copyFor(Actor other) {
+    return null;
+  }
   
+  
+  
+  /**  Behaviour implementation-
+    */
   protected float getPriority() {
     if (actor.mind.mission() == applies) return 0 ;
     

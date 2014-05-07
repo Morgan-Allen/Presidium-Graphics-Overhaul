@@ -94,10 +94,10 @@ public abstract class Artilect extends Actor {
     final Artilect actor = this ;
     return new ActorMind(actor) {
       
-      protected Behaviour createBehaviour() {
-        final Choice choice = new Choice(actor) ;
+      protected Choice createNewBehaviours(Choice choice) {
+        if (choice == null) choice = new Choice(actor);
         addChoices(choice);
-        return choice.weightedPick();
+        return choice;
       }
       
       protected void updateAI(int numUpdates) {

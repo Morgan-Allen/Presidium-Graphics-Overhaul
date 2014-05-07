@@ -100,10 +100,10 @@ public abstract class Fauna extends Actor {
     final Fauna actor = this ;
     
     return new ActorMind(actor) {
-      protected Behaviour createBehaviour() {
-        final Choice choice = new Choice(actor) ;
-        addChoices(choice) ;
-        return choice.weightedPick() ;
+      protected Choice createNewBehaviours(Choice choice) {
+        if (choice == null) choice = new Choice(actor);
+        addChoices(choice);
+        return choice;
       }
       
       protected void updateAI(int numUpdates) {

@@ -104,6 +104,11 @@ public class Hunting extends Combat implements Economy {
   }
   
   
+  public Plan copyFor(Actor other) {
+    return new Hunting(other, prey, type, depot);
+  }
+  
+  
   
   /**  Evaluating targets and priority-
     */

@@ -61,6 +61,11 @@ public class Forestry extends Plan implements Economy {
     s.saveTarget(toPlant) ;
     s.saveObject(toCut) ;
   }
+  
+  
+  public Plan copyFor(Actor other) {
+    return new Forestry(other, nursery);
+  }
 
   
   

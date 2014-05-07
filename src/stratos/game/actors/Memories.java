@@ -124,10 +124,10 @@ public class Memories {
   
   
   public float relationValue(Actor other) {
-    final Relation r = relations.get(other) ;
-    if (r == null) return relationValue(other.base()) / 2 ;
-    if (r.subject == actor) return Visit.clamp(r.value() + 1, 0, 1) ;
-    return r.value() + (relationValue(other.base()) / 4) ;
+    final Relation r = relations.get(other);
+    if (r == null) return relationValue(other.base()) / 2;
+    if (r.subject == actor) return Visit.clamp(r.value() + 1, 0, 1);
+    return r.value() + (relationValue(other.base()) / 4);
   }
   
   
@@ -158,12 +158,12 @@ public class Memories {
   
   
   public void incRelation(Accountable other, float level, float weight) {
-    Relation r = relations.get(other) ;
+    Relation r = relations.get(other);
     if (r == null) {
       final float baseVal = relationValue(other) / 2;
-      r = setRelation(other, baseVal + (level * weight), 1) ;
+      r = setRelation(other, baseVal + (level * weight), 1);
     }
-    r.incValue(level, weight) ;
+    r.incValue(level, weight);
   }
   
   

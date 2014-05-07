@@ -52,7 +52,7 @@ public class Performance extends Recreation {
     "My Life With The Overmind",
     "Psychic Raptor: Adventures in the 21st Century",
     "The Sleepy Village Xenomorph",
-    "Burning Empires Historical Pre-Enactment"
+    "Burning Empires Historical Re-enactment"
   } ;
   final static String SPORT_NAMES[] = {
     "Dony Hoc's Ultra VR Surfing",
@@ -133,6 +133,21 @@ public class Performance extends Recreation {
   }
   
   
+  public Plan copyFor(Actor other) {
+    return new Performance(other, venue, type, client);
+  }
+  
+  
+  public boolean matchesPlan(Plan p) {
+    if (! super.matchesPlan(p)) return false ;
+    final Performance oP = (Performance) p ;
+    return oP.type == this.type && oP.client == this.client ;
+  }
+  
+  
+  
+  /**  Helper methods-
+    */
   private void findLead() {
     for (Mobile m : venue.inside()) if (m instanceof Actor) {
       final Performance match = (Performance) ((Actor) m).matchFor(this) ;
@@ -145,13 +160,6 @@ public class Performance extends Recreation {
     lead = this ;
     actID = Rand.index(ALL_PERFORM_NAMES[type].length) ;
     performValue = 5 + Rand.range(-2, 2) ;
-  }
-  
-  
-  public boolean matchesPlan(Plan p) {
-    if (! super.matchesPlan(p)) return false ;
-    final Performance oP = (Performance) p ;
-    return oP.type == this.type && oP.client == this.client ;
   }
   
   

@@ -1,6 +1,7 @@
 
 
 package stratos.game.wild;
+import stratos.game.civilian.Dialogue;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.building.*;
@@ -49,6 +50,11 @@ public class SpawnArtilect extends Plan implements Qualities {
     super.saveState(s);
     s.saveObject(repairs);
     s.saveObject(works);
+  }
+  
+  
+  public Plan copyFor(Actor other) {
+    return new SpawnArtilect(other, repairs, works);
   }
   
   

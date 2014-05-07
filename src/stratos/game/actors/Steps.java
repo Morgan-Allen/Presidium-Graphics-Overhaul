@@ -42,6 +42,11 @@ public class Steps extends Plan {
   }
   
   
+  public Plan copyFor(Actor other) {
+    return null;
+  }
+  
+  
   
   /**  
     */
@@ -58,7 +63,7 @@ public class Steps extends Plan {
   
   
   public void describeBehaviour(Description d) {
-    super.describedByStep(d) ;
+    super.needsSuffix(d, "");
   }
 }
 

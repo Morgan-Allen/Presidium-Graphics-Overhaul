@@ -86,6 +86,11 @@ public class Combat extends Plan implements Qualities {
   }
   
   
+  public Plan copyFor(Actor other) {
+    return new Combat(other, target, style, object);
+  }
+  
+  
   
   /**  Gauging the relative strength of combatants, odds of success, and how
     *  (un)appealing an engagement would be.

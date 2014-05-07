@@ -88,15 +88,11 @@ public class Suspensor extends Mobile {
   
   
   protected void updateAsMobile() {
+    super.updateAsMobile() ;
     //
     //  Firstly, check whether you even need to exist any more-
-    super.updateAsMobile() ;
-    if (
-      (! followed.inWorld()) ||
-      ! followed.mind.agenda().includes(tracked)
-    ) {
+    if ((! followed.inWorld()) || tracked.finished()) {
       if (passenger != null) {
-        ////I.say("Depositing passenger...") ;
         final Tile o = origin() ;
         passenger.setPosition(o.x, o.y, world) ;
       }

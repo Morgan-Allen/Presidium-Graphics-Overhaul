@@ -138,15 +138,20 @@ public class HumanMind extends ActorMind implements Qualities {
     <> Finding Home/Work, Migration
   //*/
   
-  protected Behaviour createBehaviour() {
-    final Choice choice = new Choice(actor) ;
-    
-    addActorResponses(choice) ;
-    addConstantResponses(choice) ;
-    addVenueResponses(choice) ;
-    addBaseResponses(choice) ;
-    
-    return choice.weightedPick() ;
+  protected Choice createNewBehaviours(Choice choice) {
+    if (choice == null) choice = new Choice(actor);
+    addConstantResponses(choice);
+    addVenueResponses(choice);
+    addBaseResponses(choice);
+    return choice;
+  }
+  
+  
+  private void addActorResponses(Actor nearby, Choice choice) {
+    choice.add(new Combat(actor, nearby));
+    //  TODO:  Add objections!
+    choice.add(new FirstAid(actor, nearby));
+    choice.add(new Dialogue(actor, nearby, Dialogue.TYPE_CASUAL));
   }
   
   
@@ -159,25 +164,16 @@ public class HumanMind extends ActorMind implements Qualities {
   }
   
   
-  private void addActorResponses(Choice choice) {
-    for (Target e : actor.senses.awareOf()) {
-      if (e instanceof Actor) addActorResponses((Actor) e, choice);
-    }
-  }
-  
-  
-  private void addActorResponses(Actor nearby, Choice choice) {
-    choice.add(Hunting.asHarvest(actor, nearby, home, true));
-    choice.add(new Combat(actor, nearby));
-    choice.add(new FirstAid(actor, nearby));
-    
-    //choice.add(Gifting.nextGiftFor(actor, nearby));
-    //  TODO:  Add accompaniment?
-    choice.add(new Dialogue(actor, nearby, Dialogue.TYPE_CASUAL));
-  }
-  
-  
   private void addConstantResponses(Choice choice) {
+    
+    for (Target e : actor.senses.awareOf()) {
+      if (e instanceof Actor) {
+        final Actor nearby = (Actor) e;
+        addActorResponses(nearby, choice);
+        choice.add(Hunting.asHarvest(actor, nearby, home, true));
+        choice.add(Gifting.nextGiftFor(actor, nearby));
+      }
+    }
     
     choice.add(Exploring.nextExplorationFor(actor)) ;
     choice.add(Patrolling.wandering(actor)) ;

@@ -191,7 +191,7 @@ public class ContactMission extends Mission implements Economy {
     
     final float novelty = other.memories.relationNovelty(actor.base());
     if (novelty < 0) DC += novelty * 10;
-    float success = Dialogue.talkResult(SUASION, DC, actor, other);
+    float success = DialogueUtils.talkResult(SUASION, DC, actor, other);
     
     if (report) I.say("Success rating was: "+success+" with "+other);
     //  Failed efforts annoy the subject.

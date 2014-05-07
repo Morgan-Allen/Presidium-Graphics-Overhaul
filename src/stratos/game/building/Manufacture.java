@@ -79,6 +79,11 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   }
   
   
+  public Plan copyFor(Actor other) {
+    return new Manufacture(other, venue, conversion, made);
+  }
+  
+  
   public Item made() {
     return made ;
   }

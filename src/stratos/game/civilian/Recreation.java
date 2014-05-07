@@ -77,6 +77,11 @@ public class Recreation extends Plan implements Economy, Qualities {
   }
   
   
+  public Plan copyFor(Actor other) {
+    return new Recreation(other, venue, type);
+  }
+  
+  
   public boolean matchesPlan(Plan p) {
     if (! super.matchesPlan(p)) return false ;
     final int pT = ((Recreation) p).type ;

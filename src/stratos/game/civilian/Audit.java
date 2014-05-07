@@ -39,7 +39,6 @@ public class Audit extends Plan implements Economy {
   private int stage = STAGE_EVAL ;
   private Venue audited ;
   private float balance = 0 ;
-  
   public int checkBonus = 0 ;
   
   
@@ -64,6 +63,11 @@ public class Audit extends Plan implements Economy {
     s.saveObject(audited) ;
     s.saveFloat(balance) ;
     s.saveInt(checkBonus) ;
+  }
+  
+  
+  public Plan copyFor(Actor other) {
+    return new Audit(other, audited);
   }
   
   

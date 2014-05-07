@@ -15,7 +15,7 @@ public class Choice implements Qualities {
   /**  Data fields, constructors and setup-
     */
   public static boolean
-    verbose       = true ,
+    verbose       = false,
     verboseReject = verbose && false;
   
   final Actor actor ;
@@ -184,8 +184,21 @@ public class Choice implements Qualities {
     }
     return lastPriority < minPriority;
   }
+  
+  
+  public static Plan pickJointActivity(
+    Plan parent, Actor actor, Actor partner
+  ) {
+    final Behaviour basis = actor.mind.nextBehaviour();
+    if (! (basis instanceof Plan)) return null;
+    final Plan copy = ((Plan) basis).copyFor(partner);
+    if (parent != null) copy.setMotiveFrom(parent);
+    
+    final Behaviour intended = partner.mind.nextBehaviour();
+    if (wouldSwitch(partner, copy, intended, true)) return null;
+    return copy;
+  }
 }
-
 
 
 

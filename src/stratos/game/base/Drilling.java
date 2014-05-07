@@ -55,6 +55,11 @@ public class Drilling extends Plan implements Economy, Qualities {
   }
   
   
+  public Plan copyFor(Actor other) {
+    return new Drilling(other, yard);
+  }
+  
+  
   
   /**  Priority and target evaluation-
     */
@@ -176,12 +181,14 @@ public class Drilling extends Plan implements Economy, Qualities {
   /**  Rendering and interface-
     */
   public void describeBehaviour(Description d) {
-    final int DT = yard.drillType();
-    if ((! describedByStep(d)) && DT >= 0) {
-      d.append("Training "+DrillYard.DRILL_STATE_NAMES[DT]);
+    if (super.needsSuffix(d, "Training at ")) {
+      d.append(yard);
     }
-    d.append(" at ");
-    d.append(yard);
   }
 }
+
+
+
+
+
 

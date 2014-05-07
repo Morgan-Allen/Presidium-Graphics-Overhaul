@@ -56,6 +56,11 @@ public class OreProcessing extends Plan implements Economy {
   }
   
   
+  public Plan copyFor(Actor other) {
+    return new OreProcessing(other, venue, output);
+  }
+  
+  
   
   /**  Static location methods and priority evaluation-
     */
@@ -254,7 +259,9 @@ public class OreProcessing extends Plan implements Economy {
   /**  Rendering and interface methods-
     */
   public void describeBehaviour(Description d) {
-    if (! describedByStep(d)) d.append("Processing "+output) ;
+    if (super.needsSuffix(d, "Processing ore at ")) {
+      d.append(venue);
+    }
   }
 }
 

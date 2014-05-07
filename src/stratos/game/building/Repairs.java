@@ -46,6 +46,11 @@ public class Repairs extends Plan implements Qualities {
   }
   
   
+  public Plan copyFor(Actor other) {
+    return new Repairs(other, built);
+  }
+  
+  
   
   /**  Assessing targets and priority-
     */

@@ -16,6 +16,9 @@ import stratos.util.*;
 public class FindHome extends Plan implements Economy {
   
   
+  
+  /**  Data fields, constructors, and save/load methods-
+    */
   private static boolean
     verbose = false;
   
@@ -48,6 +51,14 @@ public class FindHome extends Plan implements Economy {
   }
   
   
+  public Plan copyFor(Actor other) {
+    return null;
+  }
+  
+  
+  
+  /**  Behaviour implementation.
+    */
   protected float getPriority() {
     return ROUTINE ;
   }

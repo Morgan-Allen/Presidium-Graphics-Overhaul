@@ -136,7 +136,7 @@ public class SurveyStation extends Venue implements Economy {
     ));
     
     //  TODO:  Incorporate sensor-placement into recon missions.
-    choice.add(BreedAnimal.nextBreeding(actor, this));
+    choice.add(AnimalBreeding.nextBreeding(actor, this));
     
     final Behaviour pick = choice.weightedPick();
     if (report) I.say("\n  Next survey station job: "+pick);

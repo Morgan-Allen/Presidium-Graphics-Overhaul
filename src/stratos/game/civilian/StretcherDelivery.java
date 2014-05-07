@@ -33,6 +33,7 @@ public class StretcherDelivery extends Plan implements Qualities {
     this.destination = destination;
   }
   
+  
   public StretcherDelivery(Session s) throws Exception {
     super(s);
     this.patient = (Actor) s.loadObject();
@@ -51,6 +52,14 @@ public class StretcherDelivery extends Plan implements Qualities {
   }
   
   
+  public Plan copyFor(Actor other) {
+    return null;
+  }
+  
+  
+  
+  /**  Behaviour implementation-
+    */
   protected float getPriority() {
     final boolean report = verbose && I.talkAbout == actor;
     

@@ -40,6 +40,14 @@ public class FindWork extends Plan implements Economy {
   }
   
   
+  public Plan copyFor(Actor other) {
+    return null;
+  }
+  
+  
+  
+  /**  Behaviour implementation-
+    */
   protected float getPriority() {
     return Visit.clamp(URGENT * rating, 0, URGENT) ;
   }

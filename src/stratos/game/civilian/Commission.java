@@ -61,6 +61,11 @@ public class Commission extends Plan implements Economy {
   }
   
   
+  public Plan copyFor(Actor other) {
+    return null;
+  }
+  
+  
   public boolean matchesPlan(Plan p) {
     if (! super.matchesPlan(p)) return false;
     return ((Commission) p).item.type == this.item.type;

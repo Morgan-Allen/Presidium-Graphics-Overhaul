@@ -55,6 +55,11 @@ public class Migration extends Plan implements Economy {
   }
   
   
+  public Plan copyFor(Actor other) {
+    return null;
+  }
+  
+  
   
   /**  Evaluating targets and priority-
     */

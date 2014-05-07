@@ -4,6 +4,7 @@
 package stratos.game.tactical ;
 import stratos.game.actors.*;
 import stratos.game.building.*;
+import stratos.game.civilian.Dialogue;
 import stratos.game.common.*;
 import stratos.game.maps.*;
 //import stratos.game.base.SensorPost;
@@ -51,6 +52,11 @@ public class Exploring extends Plan implements Qualities {
     super.saveState(s) ;
     s.saveObject(base) ;
     s.saveTarget(lookedAt) ;
+  }
+  
+  
+  public Plan copyFor(Actor other) {
+    return new Exploring(other, base, lookedAt);
   }
   
   

@@ -32,6 +32,7 @@ public class Relation {
     TYPE_VASSAL  = 6;
   
   final public static float
+    MIN_ADJUST    =  0.1f,
     MAG_KILLING   = -1.0f,
     MAG_HARMING   = -0.5f,
     MAG_CHATTING  = 0.33f,
@@ -58,6 +59,9 @@ public class Relation {
     "Hostile",
     "Nemesis"
   } ;
+  
+  private static boolean verbose = false;
+  
   
   
   final public Accountable object, subject ;
@@ -133,14 +137,6 @@ public class Relation {
   }
   
   
-  /*
-  public float novelty(World world) {
-    final float delay = (world.currentTime() - initTime) / NOVELTY_INTERVAL ;
-    return Visit.clamp(delay - (familiarity / FAMILIARITY_DIVISOR), 0, 1) ;
-  }
-  //*/
-  
-  
   public int type() {
     return type ;
   }
@@ -152,26 +148,48 @@ public class Relation {
   }
   
   
-  public void incValue(float level, float weight) {
-    if (level == 0 || weight == 0) return;
+  public void incValue(float target, float weight) {
+    if (target == 0 || weight <= 0) return;
+    final boolean report = verbose && (
+      I.talkAbout == subject ||
+      I.talkAbout == object
+    );
     final float value = value();
+    weight = Visit.clamp(weight, 0, 1);
     
-    //  If the magnitude of the desired level is greater than the current level,
-    //  or of opposite sign, make the adjustment.
-    if (FastMath.abs(value / level) < 1 || value * level < 0) {
-      final float gap = level - value;
-      attitude += gap * weight * MAX_VALUE;
-      attitude = Visit.clamp(attitude, -MAX_VALUE, MAX_VALUE);
-      //I.say(this+" has value: "+attitude);
+    if (report) {
+      I.say("\nIncrementing relation between "+object+" and "+subject);
+      I.say("  Current value: "+value+", level/weight: "+target+" / "+weight);
     }
     
-    novelty -= FAMILIARITY_UNIT;
+    //  Relations are most easily adjustable when not at either extreme of the
+    //  range, but we ensure that positive/negative target level always have
+    //  *some* effect.
+    final float
+      min     = MIN_ADJUST * FastMath.abs(target),
+      inRange = (1 + value) / 2f,
+      budge   = Visit.clamp(inRange * (1 - inRange) * 4, MIN_ADJUST, 1);
+    float gap = target - value;
+    if (target  < 0 && gap > -min) gap = -min;
+    if (target >= 0 && gap <  min) gap =  min;
+    
+    attitude += gap * budge * weight * MAX_VALUE;
+    attitude = Visit.clamp(attitude, 0 - MAX_VALUE, MAX_VALUE);
+    
+    if (report) {
+      I.say("  Budge factor: "+budge+", gap factor: "+gap);
+      I.say("  Final value: "+value());
+    }
+    
+    //  TODO:  Only decrease novelty as a result of conversation- other
+    //  impact factors actually *increase* the novelty of the relationship.
+    novelty -= FAMILIARITY_UNIT * (MIN_ADJUST + 1 - value);
   }
   
   
   public void setValue(float value, float novelty) {
-    this.attitude = value * MAX_VALUE;
-    this.novelty = novelty * MAX_VALUE;
+    this.attitude = value   * MAX_VALUE;
+    this.novelty  = novelty * MAX_VALUE;
   }
   
   

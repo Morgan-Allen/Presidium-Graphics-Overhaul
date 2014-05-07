@@ -21,7 +21,7 @@ import stratos.util.*;
 //  TODO:  Predators, by contrast, are domesticated and used to assist in
 //  hunting and patrols.  (Possibly as cavalry!)
 
-public class BreedAnimal extends Plan implements Economy {
+public class AnimalBreeding extends Plan implements Economy {
   
   
   final static int
@@ -39,7 +39,7 @@ public class BreedAnimal extends Plan implements Economy {
   
   
   
-  private BreedAnimal(
+  private AnimalBreeding(
     Actor actor, SurveyStation station, Fauna handled, Target releasePoint
   ) {
     super(actor, station);
@@ -50,7 +50,7 @@ public class BreedAnimal extends Plan implements Economy {
   }
   
   
-  public BreedAnimal(Session s) throws Exception {
+  public AnimalBreeding(Session s) throws Exception {
     super(s);
     station = (SurveyStation) s.loadObject();
     handled = (Fauna) s.loadObject();
@@ -67,7 +67,12 @@ public class BreedAnimal extends Plan implements Economy {
   }
   
   
-  protected static BreedAnimal nextBreeding(
+  public Plan copyFor(Actor other) {
+    return new AnimalBreeding(other, station, handled, releasePoint);
+  }
+  
+  
+  protected static AnimalBreeding nextBreeding(
     Actor actor, SurveyStation station
   ) {
     final boolean report = evalVerbose && I.talkAbout == station;
@@ -78,7 +83,7 @@ public class BreedAnimal extends Plan implements Economy {
         if (report) I.say("  Fauna being bred: "+match.refers);
         final Fauna fauna = (Fauna) match.refers;
         final Target releasePoint = fauna.mind.home();
-        return new BreedAnimal(actor, station, fauna, releasePoint);
+        return new AnimalBreeding(actor, station, fauna, releasePoint);
       }
     }
     
@@ -113,7 +118,7 @@ public class BreedAnimal extends Plan implements Economy {
     nest.setPosition(at.x, at.y, world);
     picked.mind.setHome(nest);
     
-    return new BreedAnimal(actor, station, picked, releasePoint);
+    return new AnimalBreeding(actor, station, picked, releasePoint);
   }
   
   
@@ -280,9 +285,15 @@ public class BreedAnimal extends Plan implements Economy {
   /**  Rendering and interface methods-
     */
   public void describeBehaviour(Description d) {
-    if (describedByStep(d)) {
-      d.append(handled);
+    if (super.needsSuffix(d, "Breeding "+handled.species+" at ")) {
+      d.append(station);
     }
   }
 }
+
+
+
+
+
+
 

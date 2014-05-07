@@ -12,7 +12,8 @@ import stratos.util.*;
 
 
 //  TODO:  You need some kind of visual indication of being summoned to the
-//  sovereign's presence.  (Or being under arrest?)
+//  sovereign's presence.  (Or being under arrest.)
+
 
 public class Summons extends Plan {
   
@@ -46,6 +47,14 @@ public class Summons extends Plan {
   }
   
   
+  public Plan copyFor(Actor other) {
+    return new Summons(other, ruler);
+  }
+  
+  
+  
+  /**  Behaviour implementation-
+    */
   protected float getPriority() {
     final boolean report = verbose && I.talkAbout == actor;
     if (report) I.say("\nGetting priority for summons from "+ruler);

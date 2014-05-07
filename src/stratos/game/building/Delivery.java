@@ -14,9 +14,7 @@ import stratos.user.*;
 import stratos.util.*;
 
 
-//
 //  TODO:  Barges need to be made more persistent.
-
 //  TODO:  Create a separate BulkDelivery class for vehicles.
 
 
@@ -110,6 +108,11 @@ public class Delivery extends Plan implements Economy {
     s.saveFloat(pricePaid) ;
     s.saveObject(suspensor) ;
     s.saveObject(driven) ;
+  }
+  
+  
+  public Plan copyFor(Actor other) {
+    return null;
   }
   
   

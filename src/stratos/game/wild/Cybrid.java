@@ -36,8 +36,8 @@ public class Cybrid extends Artilect {
   
   protected ActorMind initAI() {
     return new HumanMind(this) {
-      protected Behaviour createBehaviour() {
-        return super.createBehaviour();
+      protected Choice createNewBehaviours(Choice choice) {
+        return super.createNewBehaviours(choice);
       }
       
       protected void addReactions(Target seen, Choice choice) {

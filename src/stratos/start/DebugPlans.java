@@ -176,7 +176,7 @@ public class DebugPlans extends Scenario {
     final Item gift = Item.withAmount(Economy.PARTS, 1);
     final Gifting gifting = new Gifting(
       citizen, other, gift,
-      new Delivery(gift, venue, other)
+      new Delivery(gift, venue, citizen)
     );
     citizen.mind.assignBehaviour(gifting);
   }

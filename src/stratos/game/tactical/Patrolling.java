@@ -9,6 +9,7 @@ package stratos.game.tactical ;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
+import stratos.game.civilian.Dialogue;
 import stratos.game.civilian.FirstAid;
 import stratos.game.base.ShieldWall;
 import stratos.game.base.BlastDoors;
@@ -77,6 +78,11 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     s.saveTargets(patrolled) ;
     s.saveTarget(onPoint) ;
     s.saveFloat(postTime) ;
+  }
+  
+  
+  public Plan copyFor(Actor other) {
+    return new Patrolling(other, guarded, patrolled, type);
   }
   
   

@@ -50,6 +50,11 @@ public class SeedTailoring extends Plan implements Economy {
   }
   
   
+  public Plan copyFor(Actor other) {
+    return new SeedTailoring(other, nursery, species);
+  }
+  
+  
   public boolean matchesPlan(Plan p) {
     if (! super.matchesPlan(p)) return false ;
     final SeedTailoring t = (SeedTailoring) p ;
@@ -170,13 +175,7 @@ public class SeedTailoring extends Plan implements Economy {
   /**  Rendering and interface-
     */
   public void describeBehaviour(Description d) {
-    if (lastStep instanceof Plan) {
-      super.describedByStep(d);
-      return;
-    }
-    else {
-      super.describedByStep(d);
-      d.append(" at ");
+    if (super.needsSuffix(d, "Tailoring seed at ")) {
       d.append(super.lastStepTarget());
     }
   }

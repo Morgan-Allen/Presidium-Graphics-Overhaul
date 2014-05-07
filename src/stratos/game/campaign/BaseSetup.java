@@ -20,7 +20,7 @@ public class BaseSetup {
         
         float initRelation = 0 ;
         for (int n = 10 ; n-- > 0 ;) {
-          initRelation += Dialogue.tryChat(f, t) ;
+          initRelation += DialogueUtils.tryChat(f, t) ;
         }
         f.memories.setRelation(t, initRelation, Rand.num()) ;
       }
