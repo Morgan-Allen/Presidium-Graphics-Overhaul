@@ -67,8 +67,8 @@ public abstract class Plan implements Saveable, Behaviour {
   
   
   public Plan(Session s) throws Exception {
-    s.cacheInstance(this) ;
-    this.actor = (Actor) s.loadObject() ;
+    s.cacheInstance(this);
+    this.actor = (Actor) s.loadObject();
     this.subject = s.loadTarget();
     
     this.lastEvalTime = s.loadFloat();
@@ -84,7 +84,7 @@ public abstract class Plan implements Saveable, Behaviour {
   
   
   public void saveState(Session s) throws Exception {
-    s.saveObject(actor) ;
+    s.saveObject(actor);
     s.saveTarget(subject);
     
     s.saveFloat(lastEvalTime);
@@ -517,6 +517,12 @@ public abstract class Plan implements Saveable, Behaviour {
     final StringDescription desc = new StringDescription() ;
     describeBehaviour(desc) ;
     return desc.toString() ;
+  }
+  
+  
+  protected boolean lastStepIs(String methodName) {
+    if (! (lastStep instanceof Action)) return false;
+    return ((Action) lastStep).methodName().equals(methodName);
   }
   
   

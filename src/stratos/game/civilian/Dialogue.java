@@ -9,12 +9,14 @@ import stratos.util.*;
 
 
 
-//  ...Actors also need to use dialogue to 'object' when they see someone
-//  doing something they don't approve of *to* someone else.  (Or just build
-//  that into basic decision-making?)
+//  TODO:  Actors also need to use dialogue to 'object' when they see someone
+//  doing something they don't approve of *to* someone else.
 
 //  TODO:  You need to restore the use of a communal ChatFX for a given
 //  instance of dialogue.  (And have everything fade once complete.)
+
+//  TODO:  You need to use separate actions for invites/gifting.  Get rid of
+//  urgency-based quits for now, and just allow for 3 exchanges at a time, say.
 
 
 public class Dialogue extends Plan implements Qualities {
@@ -23,16 +25,20 @@ public class Dialogue extends Plan implements Qualities {
   /**  Constants, data fields, constructors and save/load methods-
     */
   final public static int
-    TYPE_CONTACT   = 0,
-    TYPE_CASUAL    = 1,
-    TYPE_OBJECTION = 2;
+    TYPE_CONTACT = 0,
+    TYPE_CASUAL  = 1,
+    TYPE_PLEA    = 2;
   
   final static int
-    STAGE_INIT  = -1,
-    STAGE_GREET =  0,
-    STAGE_CHAT  =  1,
-    STAGE_BYE   =  2,
-    STAGE_DONE  =  3;
+    STAGE_INIT   = -1,
+    STAGE_PLEAD  =  0,
+    STAGE_INTRO  =  1,
+    STAGE_GREET  =  2,
+    STAGE_OFFER  =  3,
+    STAGE_CHAT   =  4,
+    STAGE_INVITE =  5,
+    STAGE_BYE    =  6,
+    STAGE_DONE   =  7;
   
   private static boolean
     evalVerbose   = false,
@@ -46,7 +52,7 @@ public class Dialogue extends Plan implements Qualities {
   private Boardable location = null, stands = null;
   
   private Item gift;
-  private Behaviour favour;
+  private Behaviour invitation;
   
   
   
@@ -74,7 +80,7 @@ public class Dialogue extends Plan implements Qualities {
     location = (Boardable) s.loadTarget() ;
     stands = (Boardable) s.loadTarget() ;
     gift = Item.loadFrom(s);
-    favour = (Plan) s.loadObject();
+    invitation = (Plan) s.loadObject();
   }
   
   
@@ -88,7 +94,7 @@ public class Dialogue extends Plan implements Qualities {
     s.saveTarget(location) ;
     s.saveTarget(stands) ;
     Item.saveTo(s, gift);
-    s.saveObject(favour);
+    s.saveObject(invitation);
   }
   
   
@@ -103,9 +109,9 @@ public class Dialogue extends Plan implements Qualities {
   }
   
   
-  public void attachfavour(Plan favour) {
-    if (favour.actor() != other) I.complain("Favour must apply to partner!");
-    this.favour = favour;
+  public void attachInvitation(Plan invite) {
+    if (invite.actor() != actor) I.complain("Favour must apply to actor!");
+    this.invitation = invite;
   }
   
   
@@ -149,9 +155,7 @@ public class Dialogue extends Plan implements Qualities {
   }
   
   
-  //  TODO:  Try moving some of these methods out to the DialogueUtils class.
-  
-  
+  //  TODO:  Try moving some of these methods out to the DialogueUtils class?
   private float urgency() {
     final float curiosity = (1 + actor.traits.relativeLevel(CURIOUS)) / 2;
     final Relation r = actor.memories.relationWith(other);
@@ -170,7 +174,8 @@ public class Dialogue extends Plan implements Qualities {
   private float solitude(Actor actor) {
     //  TODO:  Only count positive relations?
     final float
-      baseF = Relation.BASE_NUM_FRIENDS,
+      trait = actor.traits.relativeLevel(OUTGOING) + 1,
+      baseF = 1 + (Relation.BASE_NUM_FRIENDS * trait),
       numF  = actor.memories.relations().size();
     return (baseF - numF) / baseF;
   }
@@ -196,30 +201,16 @@ public class Dialogue extends Plan implements Qualities {
   }
   
   
-  private Batch <Dialogue> sides() {
-    final World world = actor.world() ;
-    final Batch <Dialogue> batch = new Batch <Dialogue> () ;
-    
-    batch.include(this) ;
-    Dialogue oD = (Dialogue) other.matchFor(Dialogue.class) ;
-    if (oD != null) batch.include(oD) ;
-    
-    for (Behaviour b : world.activities.targeting(other)) {
-      if (b instanceof Dialogue) {
-        final Dialogue d = (Dialogue) b ;
-        batch.include(d) ;
-      }
-    }
-    return batch ;
-  }
-  
-  
   private void setLocationFor(Action talkAction) {
     final boolean report = eventsVerbose && I.talkAbout == actor;
+    talkAction.setMoveTarget(other);
+    location = other.origin();
+    /*
     if (location == null) {
       location = starts.aboard();
     }
     talkAction.setMoveTarget(location);
+    //*/
   }
   
   
@@ -246,7 +237,6 @@ public class Dialogue extends Plan implements Qualities {
     }
     
     if (stage == STAGE_CHAT) {
-      Actor chatsWith = other;
       final Action waits = new Action(
         actor, other,
         this, "actionWait",
@@ -257,14 +247,27 @@ public class Dialogue extends Plan implements Qualities {
         waits.setProperties(Action.NO_LOOP);
         return waits;
       }
-      /*
-      if (type == TYPE_CASUAL) {
-        chatsWith = ((Dialogue) Rand.pickFrom(sides())).actor;
-        if (chatsWith == actor) chatsWith = other;
+      
+      if (gift != null) {
+        final Action offer = new Action(
+          actor, other,
+          this, "actionOfferGift",
+          Action.TALK_LONG, "Offering "+gift.type+" to "
+        );
+        return offer;
       }
-      //*/
+      
+      if (invitation != null) {
+        final Action invite = new Action(
+          actor, other,
+          this, "actionInvite",
+          Action.TALK_LONG, "Inviting"
+        );
+        return invite;
+      }
+      
       final Action chats = new Action(
-        actor, chatsWith,
+        actor, other,
         this, "actionChats",
         Action.TALK_LONG, "Chatting with "
       ) ;
@@ -309,15 +312,11 @@ public class Dialogue extends Plan implements Qualities {
   public boolean actionChats(Actor actor, Actor other) {
     DialogueUtils.tryChat(actor, other);
     
-    if (gift != null) {
-      actionOfferGift(actor, other);
-      gift = null;
-      return true;
-    }
-    
     if (urgency() <= 0) {
-      if (actionAskFavour(actor, other)) stage = STAGE_DONE;
-      stage = STAGE_BYE;
+      if (invitation == null && Rand.num() < actor.memories.relationValue(other)) {
+        invitation = actor.mind.nextBehaviour();
+      }
+      else stage = STAGE_BYE;
     }
     return true;
   }
@@ -335,12 +334,10 @@ public class Dialogue extends Plan implements Qualities {
     */
   public boolean actionOfferGift(Actor actor, Actor receives) {
     final boolean report = eventsVerbose && I.talkAbout == actor;
-    
-    final Action doing = receives.currentAction();
-    if (doing == null || doing.methodName().equals("actionReceives")) {
-      if (report) I.say("  Other is distracted.");
-      return false;
-    }
+
+    //  Regardless of the outcome, this won't be offered twice.
+    final Item gift = this.gift;
+    this.gift = null;
     
     //  TODO:  Modify DC by the greed and honour of the subject.
     DialogueUtils.utters(actor, "I have a gift for you...", 0);
@@ -376,20 +373,41 @@ public class Dialogue extends Plan implements Qualities {
   }
   
   
-  public boolean actionAskFavour(Actor actor, Actor asked) {
+  public boolean actionInvite(Actor actor, Actor asked) {
     final boolean report = eventsVerbose && I.talkAbout == actor;
-    if (report) I.say("\nSuggesting joint activity with "+asked);
-    //  TODO:  Elaborate on this a little with some dialogue.
+    this.stage = STAGE_BYE;
     
-    final float joinMotive = DialogueUtils.talkResult(
-      SUASION, ROUTINE_DC, actor, other
-    ) * ROUTINE;
-    if (Choice.assignedJointActivity(this, actor, other, joinMotive)) {
-      if (report) I.say("  Accepted!");
-      return true;
+    if (! (invitation instanceof Plan)) return false;
+    final Plan basis = (Plan) invitation;
+    if (basis.hasMotiveType(Plan.MOTIVE_DUTY)) return false;
+    
+    final Plan copy = basis.copyFor(asked);
+    if (copy == null) {
+      I.say("Warning: no copy of "+basis+" for "+asked);
+      return false;
     }
-    if (report) I.say("  Rejected.");
-    return false;
+    final float motiveBonus = DialogueUtils.talkResult(
+      SUASION, ROUTINE_DC, actor, asked
+    ) * CASUAL;
+    basis.setMotiveFrom(this, 0);
+    copy.setMotive(Plan.MOTIVE_LEISURE, motiveBonus);
+    if (report) I.say("\nExtending invitation: "+basis+" to "+asked);
+    
+    if (! Choice.couldJoinActivity(asked, actor, basis, copy)) {
+      if (report) I.say("  ...Invitation rejected.");
+      return false;
+    }
+    
+    //  TODO:  It would help to have a dedicated 'doing stuff with' Plan to
+    //  base this off.
+    actor.mind.assignBehaviour(new Joining(actor, basis, asked));
+    asked.mind.assignBehaviour(new Joining(asked, copy, actor));
+    if (report) {
+      I.say("  Assigning behaviour: "+basis+" to "+actor);
+      I.say("  Assigning behaviour: "+copy+" to "+asked);
+    }
+    this.stage = STAGE_DONE;
+    return true;
   }
   
   
@@ -397,12 +415,18 @@ public class Dialogue extends Plan implements Qualities {
   /**  Rendering and interface methods-
     */
   public void describeBehaviour(Description d) {
+    if (super.lastStepIs("actionInvite")) {
+      d.append("Inviting ");
+      d.append(other);
+      d.append(" to go ");
+      d.append(invitation);
+      return;
+    }
     if (super.needsSuffix(d, "Talking to ")) {
       d.append(other);
     }
   }
 }
-
 
 
 

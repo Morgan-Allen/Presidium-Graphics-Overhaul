@@ -113,7 +113,7 @@ public class Retreat extends Plan implements Qualities {
   public static Boardable nearestHaven(Actor actor, Class prefClass) {
     final boolean report = havenVerbose && I.talkAbout == actor;
     
-    final Batch <Target> considered = new Batch();
+    final Batch <Target> considered = new Batch <Target> ();
     considered.add(actor.world().presences.nearestMatch(
       Economy.SERVICE_REFUGE, actor, -1
     ));

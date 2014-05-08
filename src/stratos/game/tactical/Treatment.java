@@ -10,22 +10,10 @@ import stratos.user.*;
 import stratos.util.*;
 
 
+//  TODO:  Re-implement these.
 
 //  First aid.  Intensive care.  Cosmetic options.
 //  Disease treatment.  Birth control.  Neural backups.
-
-
-//
-//  ...There's also an occasional bug where more than one actor can wind up
-//  trying to deliver the patient.  That'll likely have to be sorted out with
-//  suspensor-persistence in general, since they're related.
-
-
-//
-//  TODO:  Only include First Aid here.  Split off other forms of treatment to
-//  a separate class, specifically intended for Sickbay employees (or possibly
-//  native Shamans.)
-
 
 
 /*

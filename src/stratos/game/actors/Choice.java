@@ -190,6 +190,15 @@ public class Choice implements Qualities {
   /**
     */
   //  TODO:  Make this a dedicated activity.
+  public static boolean couldJoinActivity(
+    Actor actor, Actor with, Plan basis, Plan copy
+  ) {
+    final Behaviour intended = actor.mind.nextBehaviour();
+    if (wouldSwitch(actor, copy, intended, true)) return false;
+    return true;
+  }
+  
+  /*
   public static boolean assignedJointActivity(
     Plan parent, Actor actor, Actor partner, float motiveBonus
   ) {
@@ -220,6 +229,7 @@ public class Choice implements Qualities {
     }
     return true;
   }
+  //*/
 }
 
 
