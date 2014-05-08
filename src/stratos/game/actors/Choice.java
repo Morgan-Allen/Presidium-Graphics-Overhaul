@@ -186,19 +186,43 @@ public class Choice implements Qualities {
   }
   
   
-  public static Plan pickJointActivity(
-    Plan parent, Actor actor, Actor partner
+  
+  /**
+    */
+  //  TODO:  Make this a dedicated activity.
+  public static boolean assignedJointActivity(
+    Plan parent, Actor actor, Actor partner, float motiveBonus
   ) {
-    final Behaviour basis = actor.mind.nextBehaviour();
-    if (! (basis instanceof Plan)) return null;
-    final Plan copy = ((Plan) basis).copyFor(partner);
-    if (parent != null) copy.setMotiveFrom(parent);
+    final boolean report = true;// verbose && I.talkAbout == actor;
+    
+    final Behaviour b = actor.mind.nextBehaviour();
+    if (! (b instanceof Plan)) return false;
+    final Plan basis = (Plan) b;
+    if (basis.hasMotiveType(Plan.MOTIVE_DUTY)) return false;
+    
+    final Plan copy = basis.copyFor(partner);
+    if (copy == null) {
+      I.say("Warning: no copy of "+basis+" for "+partner);
+      return false;
+    }
+    if (parent != null) basis.setMotiveFrom(parent, 0);
+    copy.setMotive(Plan.MOTIVE_LEISURE, motiveBonus);
     
     final Behaviour intended = partner.mind.nextBehaviour();
-    if (wouldSwitch(partner, copy, intended, true)) return null;
-    return copy;
+    if (wouldSwitch(partner, copy, intended, true)) return false;
+    
+    actor.mind.assignBehaviour(basis);
+    partner.mind.assignBehaviour(copy);
+    if (report) {
+      I.say("\nPerforming joint activity!");
+      I.say("  Assigning behaviour: "+basis+" to "+actor);
+      I.say("  Assigning behaviour: "+copy+" to "+partner);
+    }
+    return true;
   }
 }
+
+
 
 
 

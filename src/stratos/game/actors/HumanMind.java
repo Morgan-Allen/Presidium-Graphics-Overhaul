@@ -171,7 +171,7 @@ public class HumanMind extends ActorMind implements Qualities {
         final Actor nearby = (Actor) e;
         addActorResponses(nearby, choice);
         choice.add(Hunting.asHarvest(actor, nearby, home, true));
-        choice.add(Gifting.nextGiftFor(actor, nearby));
+        choice.add(Gifting.nextGifting(null, actor, nearby));
       }
     }
     

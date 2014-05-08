@@ -336,10 +336,10 @@ public abstract class ActorMind implements Qualities {
     if (report) I.say("Assigning behaviour "+behaviour) ;
     actor.assignAction(null) ;
     
-    final Behaviour replaced = rootBehaviour() ;
+    final Behaviour replaced = rootBehaviour();
     final boolean saveTodo = replaced != null && ! replaced.finished();
-    cancelBehaviour(replaced) ;
-    pushBehaviour(behaviour) ;
+    cancelBehaviour(replaced);
+    pushBehaviour(behaviour);
     
     if (saveTodo) {
       if (report) I.say(" SAVING PLAN AS TODO: "+replaced) ;

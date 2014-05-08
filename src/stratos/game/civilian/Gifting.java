@@ -21,12 +21,13 @@ public class Gifting extends Plan implements Qualities {
   private static boolean
     evalVerbose = false,
     rateVerbose = false,
-    stepVerbose = true ;
+    eventsVerbose = true ;
   
   
   final Item gift;
   final Actor receives;
   final Plan getting;
+  final Dialogue giving;
   private int stage = STAGE_INIT;
   
   
@@ -36,6 +37,7 @@ public class Gifting extends Plan implements Qualities {
     this.gift = gift;
     this.receives = receives;
     this.getting = getting;
+    this.giving = new Dialogue(actor, receives, Dialogue.TYPE_CONTACT);
   }
   
   
@@ -45,6 +47,7 @@ public class Gifting extends Plan implements Qualities {
     receives = (Actor) s.loadObject();
     getting = (Plan) s.loadObject();
     stage = s.loadInt();
+    giving = (Dialogue) s.loadObject();
   }
   
   
@@ -54,11 +57,13 @@ public class Gifting extends Plan implements Qualities {
     s.saveObject(receives);
     s.saveObject(getting);
     s.saveInt(stage);
+    s.saveObject(giving);
   }
   
   
   public Plan copyFor(Actor other) {
-    return Gifting.nextGiftFor(other, receives);
+    return null;
+    //return Gifting.nextGiftFor(null, other, receives);
   }
   
   
@@ -103,8 +108,14 @@ public class Gifting extends Plan implements Qualities {
   }
   
   
+  public boolean valid() {
+    if (! super.valid()) return false;
+    return getting.finished() || getting.valid();
+  }
+  
+  
   protected Behaviour getNextStep() {
-    final boolean report = stepVerbose && I.talkAbout == actor;
+    final boolean report = eventsVerbose && I.talkAbout == actor;
     if (report) I.say("\nGetting next gifting step:");
     
     //  If the recipient has accepted the item, your job is complete.  (If it's
@@ -117,18 +128,15 @@ public class Gifting extends Plan implements Qualities {
     //  If you've acquired the item, present it to the recipient, and await
     //  their response.
     if (actor.gear.hasItem(gift)) {
-      final Dialogue d = new Dialogue(actor, receives, Dialogue.TYPE_CASUAL);
-      if (d.priorityFor(actor) > 0) return d;
-      
+      if (giving.finished()) return null;
       this.stage = STAGE_GIVES;
-      final Action offer = new Action(
-        actor, receives,
-        this, "actionOffer",
-        Action.REACH_DOWN, "Offering "+gift.type+" to "
-      );
-      offer.setProperties(Action.RANGED | Action.NO_LOOP);
-      if (report) I.say("  Going to give.");
-      return offer;
+      giving.setMotiveFrom(this, 0);
+      giving.attachGift(gift);
+      if (report) {
+        I.say("  Entering dialogue mode for gift-giving.");
+        I.say("  Priority: "+giving.priorityFor(actor));
+      }
+      return giving;
     }
     
     //  If the 'get' action hasn't completed, carry it out.
@@ -144,96 +152,16 @@ public class Gifting extends Plan implements Qualities {
   }
   
   
-  private Action receiptAction(
-    Actor receives, Actor from, float value, float success
-  ) {
-    final float priority = (1 + value) * success * ROUTINE;
-    if (priority <= 0) return null;
-    
-    final Action receipt = new Action(
-      receives, from,
-      this, "actionReceives",
-      Action.TALK_LONG, "Receiving a gift of "+gift
-    );
-    receipt.setPriority(priority);
-    if (receives.mind.mustIgnore(receipt)) return null;
-    
-    return receipt;
-  }
-  
-  
-  public boolean actionOffer(Actor actor, Actor receives) {
-    final boolean report = stepVerbose && I.talkAbout == actor;
-    
-    final Action doing = receives.currentAction();
-    if (doing == null || doing.methodName().equals("actionReceives")) {
-      if (report) I.say("  Other is distracted.");
-      return false;
-    }
-
-    //  TODO:  Modify DC by the greed and honour of the subject.
-    DialogueUtils.utters(actor, "I have a gift for you...", 0);
-    final float value = rateGift(gift, null, receives) / 10f;
-    float acceptDC = (0 - value) * ROUTINE_DC;
-    float success = DialogueUtils.talkResult(
-      SUASION, acceptDC, actor, receives
-    );
-
-    if (report) {
-      I.say("\nOffering "+gift+" to "+receives+", DC: "+acceptDC);
-      I.say("  Value: "+value+", success: "+success);
-    }
-    
-    final Action receipt = receiptAction(receives, actor, value, success);
-    if (receipt == null) {
-      DialogueUtils.utters(receives, "I can't accept that.", -1);
-      abortBehaviour();
-      if (report) I.say("  Gift was rejected!");
-      return false;
-    }
-    else {
-      if (report) I.say("  Can accept gift, assigning receipt...");
-      receives.mind.assignBehaviour(receipt);
-    }
-    return true;
-  }
-  
-  
-  public boolean actionReceives(Actor receives, Actor from) {
-    final boolean report = stepVerbose && I.talkAbout == from;
-    if (report) {
-      I.say("\nReceiving gift from "+from);
-      I.say("  Relation before: "+receives.memories.relationValue(from));
-    }
-    
-    final float value = rateGift(gift, null, receives) / 10f;
-    from.gear.transfer(gift, receives);
-    receives.memories.incRelation(from, 1, value / 2);
-    from.memories.incRelation(receives, 1, value / 4);
-    
-    DialogueUtils.utters(receives, "Thank you for the "+gift.type+"!", value);
-    this.stage = STAGE_DONE;
-    
-    if (report) {
-      I.say("  Relation after: "+receives.memories.relationValue(from));
-      I.say("  Value of gift received: "+(value / 2));
-    }
-    return true;
-  }
-  
-  
   
   /**  Returns the next suitable gift between the given actors-
     */
-  public static Gifting nextGiftFor(Actor buys, Actor receives) {
+  public static Gifting nextGifting(Plan parent, Actor buys, Actor receives) {
     final boolean report = rateVerbose && I.talkAbout == buys;
     if (report) I.say("\nGetting next gift from "+buys+" for "+receives);
     
-    //  TODO:  THIS SHOULD NOT APPLY TO CONTACT MISSIONS.  ALSO, YOU NEED TO
-    //  TRANSFER SOME OF OF THE PRIORITY FROM THE PARENT PLAN ON TO THE CHILD
-    //  PLAN- AND SOME OF THAT ON TO THE COMMISSION
     if (buys.mind.hasToDo(Gifting.class)) return null;
     final Dialogue d = new Dialogue(buys, receives, Dialogue.TYPE_CASUAL);
+    if (parent != null) d.setMotiveFrom(parent, 0);
     if (d.priorityFor(buys) <= 0) return null;
     
     float rating, bestRating = 0;

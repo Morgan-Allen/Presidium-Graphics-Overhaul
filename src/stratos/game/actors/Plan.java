@@ -192,12 +192,12 @@ public abstract class Plan implements Saveable, Behaviour {
   public boolean finished() {
     final boolean report = verbose && hasBegun() && I.talkAbout == actor;
     if (actor == null) return false ;
-    if (this == actor.mind.rootBehaviour()) {
-      if (priorityFor(actor) <= 0) {
-        if (report) I.say("NO PRIORITY: "+this+" "+hashCode()) ;
-        return true ;
-      }
+    //if (this == actor.mind.rootBehaviour()) {
+    if (priorityFor(actor) <= 0) {
+      if (report) I.say("NO PRIORITY: "+this+" "+hashCode()) ;
+      return true ;
     }
+    //}
     if (nextStepFor(actor) == null) {
       if (report) I.say("NO NEXT STEP: "+this+" "+hashCode()) ;
       return true ;
@@ -227,8 +227,13 @@ public abstract class Plan implements Saveable, Behaviour {
   }
   
   
-  public Plan setMotiveFrom(Plan parent) {
-    return setMotive(parent.motiveType, parent.motiveBonus);
+  public Plan setMotiveFrom(Plan parent, float bonus) {
+    return setMotive(parent.motiveType, parent.motiveBonus + bonus);
+  }
+  
+  
+  public boolean hasMotiveType(int type) {
+    return this.motiveType == type;
   }
   
   

@@ -109,7 +109,7 @@ public class Deliveries implements Economy {
       sizeLimit, IS_EXPORT
     ) ;
     I.sayAbout(actor, "Getting next export collection...") ;
-    if (d != null) I.say("Should pay: "+d.shouldPay) ;
+    ///if (d != null) I.say("Should pay: "+d.shouldPay) ;
     return d ;
   }
   

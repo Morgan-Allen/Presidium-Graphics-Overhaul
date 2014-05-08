@@ -22,7 +22,7 @@ public class ContactMission extends Mission implements Economy {
   /**  Field definitions, constructors and save/load methods-
     */
   final static float
-    MAX_DURATION = World.STANDARD_DAY_LENGTH;
+    MAX_DURATION = World.STANDARD_DAY_LENGTH * 2;
   
   final public static int
     OBJECT_FRIENDSHIP = 0,
@@ -142,15 +142,22 @@ public class ContactMission extends Mission implements Economy {
   public Behaviour nextStepFor(Actor actor) {
     if (! isActive()) return null;
     final Choice choice = new Choice(actor);
+    final float basePriority = basePriority(actor);
     
+    //  First of all, try to complete normal dialogue efforts with everyone
+    //  involved.
     for (Actor a : talksTo()) {
       final float novelty = a.memories.relationNovelty(actor);
       if (novelty <= 0) continue;
-      final Dialogue d = new Dialogue(actor, a, Dialogue.TYPE_CONTACT);
-      d.setMotive(Plan.MOTIVE_DUTY, novelty * ROUTINE);
-      choice.add(d);
+      final Dialogue talk = new Dialogue(actor, a, Dialogue.TYPE_CONTACT);
+      talk.setMotive(Plan.MOTIVE_MISSION, basePriority);
+      final Gifting gifts = Gifting.nextGifting(talk, actor, a);
+      
+      if (gifts != null) choice.add(gifts);
+      else choice.add(talk);
     }
     
+    //  If that is complete, try closing the talks.
     if (choice.size() == 0) for (Actor a : talksTo) {
       if (doneTalking(a)) continue;
       final float relation = a.memories.relationValue(actor);
@@ -163,11 +170,15 @@ public class ContactMission extends Mission implements Economy {
       choice.add(closeTalks);
     }
     
+    return choice.pickMostUrgent();
+    /*
+    //  Otherwise, just try to make yourself useful.
     if (choice.size() == 0) {
       final Element around = (Element) subject ;
       return Patrolling.aroundPerimeter(actor, around, actor.world()) ;
     }
     else return choice.pickMostUrgent();
+    //*/
   }
   
   
@@ -176,10 +187,8 @@ public class ContactMission extends Mission implements Economy {
   }
   
   
-  
-  //  TODO:  Partial success might net you an informant...
   public boolean actionCloseTalks(Actor actor, Actor other) {
-    final boolean report = eventVerbose;// && I.talkAbout == actor;
+    final boolean report = eventVerbose && I.talkAbout == actor;
     
     float DC = other.memories.relationValue(actor) * 10;
     if (objectIndex() == OBJECT_FRIENDSHIP) DC += 0 ;
@@ -194,6 +203,8 @@ public class ContactMission extends Mission implements Economy {
     float success = DialogueUtils.talkResult(SUASION, DC, actor, other);
     
     if (report) I.say("Success rating was: "+success+" with "+other);
+    
+    //  TODO:  Reconsider?
     //  Failed efforts annoy the subject.
     other.memories.incRelation(base, 0, 0);
     if (success < 1) {
@@ -217,12 +228,12 @@ public class ContactMission extends Mission implements Economy {
       for (Actor a : agreed) I.say("    "+a);
     }
     
+    //  TODO:  Partial success might net you an informant.
     for (Actor other : agreed) {
       if (objectIndex() == OBJECT_FRIENDSHIP) {
         //  TODO:  Actually modify relations between the bases, depending on
         //  how successful you were.  (This has the added benefit of making
         //  spontaneous combat less likely.)
-        
         other.memories.incRelation(base, Relation.MAG_CHATTING, 0.5f);
       }
       if (objectIndex() == OBJECT_AUDIENCE && ruler != null) {
