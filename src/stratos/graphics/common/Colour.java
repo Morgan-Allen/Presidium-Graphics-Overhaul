@@ -14,26 +14,6 @@ import org.apache.commons.math3.util.FastMath;
 
 
 
-
-/*
-public void storeByteValue(byte puts[], int i) {
-  puts[i + 0] = (byte) (r * 255);
-  puts[i + 1] = (byte) (g * 255);
-  puts[i + 2] = (byte) (b * 255);
-  puts[i + 3] = (byte) (a * 255);
-}
-
-
-public void setFromBytes(byte vals[], int i) {
-  r = (vals[i + 0] & 0xff) / 255f;
-  g = (vals[i + 1] & 0xff) / 255f;
-  b = (vals[i + 2] & 0xff) / 255f;
-  a = (vals[i + 3] & 0xff) / 255f;
-  bitValue = toFloatBits();
-}
-//*/
-
-
 /**  Standard RGBA colour class with utility functions for conversion to other
   *  formats and setting non-standard qualities such as brightness and
   *  complement.
@@ -219,8 +199,8 @@ public class Colour {
       complement(temp);
       set(temp);
       return this;
-    } else if (result == null)
-      result = new Colour();
+    }
+    else if (result == null) result = new Colour();
     result.r = g + b / 2;
     result.g = r + b / 2;
     result.b = r + g / 2;
@@ -302,3 +282,23 @@ public class Colour {
 }
 
 
+
+
+
+/*
+public void storeByteValue(byte puts[], int i) {
+  puts[i + 0] = (byte) (r * 255);
+  puts[i + 1] = (byte) (g * 255);
+  puts[i + 2] = (byte) (b * 255);
+  puts[i + 3] = (byte) (a * 255);
+}
+
+
+public void setFromBytes(byte vals[], int i) {
+  r = (vals[i + 0] & 0xff) / 255f;
+  g = (vals[i + 1] & 0xff) / 255f;
+  b = (vals[i + 2] & 0xff) / 255f;
+  a = (vals[i + 3] & 0xff) / 255f;
+  bitValue = toFloatBits();
+}
+//*/

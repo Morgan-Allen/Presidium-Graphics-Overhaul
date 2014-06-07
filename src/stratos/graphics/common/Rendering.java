@@ -36,7 +36,7 @@ public class Rendering {
   
   //  first terrain, then cutouts, then solids, then sfx, then the UI.
   final public TerrainPass terrainPass;
-  final public SolidsPass3 solidsPass ;
+  final public SolidsPass solidsPass ;
   final public CutoutsPass cutoutsPass;
   final public SFXPass     sfxPass    ;
   
@@ -49,7 +49,7 @@ public class Rendering {
     view = new Viewport();
     
     terrainPass = new TerrainPass(this);
-    solidsPass  = new SolidsPass3(this);
+    solidsPass  = new SolidsPass(this);
     cutoutsPass = new CutoutsPass(this);
     sfxPass     = new SFXPass    (this);
     
@@ -67,9 +67,7 @@ public class Rendering {
   }
   
   
-  public Environment environment() { return lighting.environment; }
   public Camera camera() { return view.camera; }
-  
   public static float activeTime() { return activeTime; }
   public static float frameAlpha() { return frameAlpha; }
   
