@@ -23,7 +23,7 @@ public class Commission extends Plan implements Economy {
   
   /**  Data fields, construction and save/load methods-
     */
-  private static boolean verbose = true;
+  private static boolean verbose = false;
   
   
   final Item item ;
@@ -99,7 +99,7 @@ public class Commission extends Plan implements Economy {
     Actor actor, Venue makes, Item baseItem
   ) {
     if (baseItem == null) return null;
-    if (baseItem.type.materials().venueType != makes.getClass()) return null;
+    //if (! Visit.arrayIncludes(makes.services(), baseItem.type)) return null;
     
     final int baseQuality = (int) baseItem.quality;
     final float baseAmount = baseItem.amount;
@@ -179,8 +179,9 @@ public class Commission extends Plan implements Economy {
     */
   protected Behaviour getNextStep() {
     if (finished()) return null ;
+    final boolean report = I.talkAbout == actor;
     
-    if (order == null) {
+    if (order == null && shop.structure().intact()) {
       final Action placeOrder = new Action(
         actor, shop,
         this, "actionPlaceOrder",

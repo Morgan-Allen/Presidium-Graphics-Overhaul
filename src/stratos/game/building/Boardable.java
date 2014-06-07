@@ -16,7 +16,8 @@ public interface Boardable extends Target {
   final int
     BOARDABLE_TILE    = 0,
     BOARDABLE_VENUE   = 1,
-    BOARDABLE_VEHICLE = 2 ;
+    BOARDABLE_VEHICLE = 2,
+    BOARDABLE_OTHER   = 3;
   
   
   void setInside(Mobile m, boolean is) ;

@@ -116,8 +116,11 @@ public class FormerPlant extends Venue implements Economy {
     final Choice choice = new Choice(actor) ;
     //
     //  Consider upkeep, deliveries and supervision-
-    choice.add(Deliveries.nextDeliveryFor(actor, this, services(), 10, world)) ;
-    choice.add(new Repairs(actor, this)) ;
+    final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
+      this, services(), 2, 10, 5
+    );
+    if (d != null) choice.add(d);
+    choice.add(new Repairs(actor, this));
     //
     //  Have the climate engineer gather soil samples, but only if they're
     //  very low.  (Automated crawlers would do this in bulk.)
@@ -179,7 +182,6 @@ public class FormerPlant extends Venue implements Economy {
     for (Item sample : actor.gear.matches(SAMPLES)) {
       final Tile t = (Tile) sample.refers ;
       actor.gear.removeItem(sample) ;
-      if (verbose) I.sayAbout(actor, "Sample size: "+t.habitat().minerals()) ;
       works.soilSamples += (t.habitat().minerals() / 10f) + 0.5f ;
     }
     return true ;
@@ -199,7 +201,9 @@ public class FormerPlant extends Venue implements Economy {
     super.updateAsScheduled(numUpdates) ;
     if (! structure.intact()) return ;
     
-    if (verbose) I.sayAbout(this, "\nUPDATING FORMER PLANT "+this) ;
+    final boolean report = verbose && I.talkAbout == this;
+    
+    if (report) I.say("\nUPDATING FORMER PLANT "+this) ;
     updateCrawlers() ;
     //
     //  Output the various goods, depending on terrain, supervision and upgrade
@@ -213,11 +217,11 @@ public class FormerPlant extends Venue implements Economy {
       SDL = World.STANDARD_DAY_LENGTH ;
     
     int powerNeed = 4 + (structure.numUpgrades() * 2) ;
-    stocks.incDemand(POWER, powerNeed, VenueStocks.TIER_CONSUMER, 1, this) ;
+    stocks.incDemand(POWER, powerNeed, Stocks.TIER_CONSUMER, 1, this) ;
     stocks.bumpItem(POWER, powerNeed * -0.1f) ;
     float yield = 2 - stocks.shortagePenalty(POWER) ;
     
-    if (verbose) I.sayAbout(this, "  Basic yield is: "+yield) ;
+    if (report) I.say("  Basic yield is: "+yield) ;
     
     //
     //  Sample the local terrain and see if you get an extraction bonus-
@@ -243,8 +247,8 @@ public class FormerPlant extends Venue implements Economy {
     sumDesert /= 100 ;
     final float cycleBonus = (waterBonus * sumWater * sumDesert * 4) ;
     
-    if (verbose) I.sayAbout(
-      this, "  Water cycle bonus: "+cycleBonus+
+    if (report) I.say(
+      "  Water cycle bonus: "+cycleBonus+
       ", water/desert: "+sumWater+"/"+sumDesert
     ) ;
     //
@@ -258,14 +262,12 @@ public class FormerPlant extends Venue implements Economy {
     }
     else soilBonus /= 2 ;
     
-    if (verbose) I.sayAbout(this, "  Soil samples "+soilSamples+
-      ", bonus: "+soilBonus
-    ) ;
+    if (report) I.say("  Soil samples "+soilSamples+", bonus: "+soilBonus);
     
     //
     //  Here, we handle the lighter/more rarified biproducts-
     yield *= 1 + cycleBonus ;
-    if (verbose) I.sayAbout(this, "  Yield/day with cycle bonus: "+yield) ;
+    if (report) I.say("  Yield/day with cycle bonus: "+yield) ;
     stocks.bumpItem(WATER, yield * (1 + waterBonus) * sumWater * 10 / SDL, 15) ;
     stocks.bumpItem(LIFE_SUPPORT, yield * carbonBonus * 100 / SDL, 15) ;
     //stocks.bumpItem(PETROCARBS, yield * carbonBonus / SDL, 15) ;
@@ -274,7 +276,7 @@ public class FormerPlant extends Venue implements Economy {
     //  And here, the heavier elements-
     soilSamples = Visit.clamp(soilSamples - (10f / SDL), 0, 10) ;
     yield *= 1 + soilBonus ;
-    if (verbose) I.sayAbout(this, "  Yield/day with soil bonus: "+yield) ;
+    if (report) I.say("  Yield/day with soil bonus: "+yield) ;
     stocks.bumpItem(TRUE_SPICE, yield * spiceBonus / SDL, 10) ;
     stocks.bumpItem(METALS, yield * dustBonus / SDL, 10) ;
     stocks.bumpItem(FUEL_RODS, yield * dustBonus / SDL, 10) ;
@@ -294,16 +296,17 @@ public class FormerPlant extends Venue implements Economy {
   //
   //  TODO:  Ensure vehicles are listed under staffing.
   protected void updateCrawlers() {
+    final boolean report = verbose && I.talkAbout == this;
     //
     //  Cull all any destroyed crawlers-
     for (DustCrawler c : crawlers) if (c.destroyed()) {
-      if (verbose) I.sayAbout(c, c+" was destroyed!") ;
+      if (report) I.say(c+" was destroyed!") ;
       crawlers.remove(c) ;
     }
     //
     //  Update the proper number of automated crawlers.
     final int numCrawlers = (1 + structure.upgradeLevel(DUST_PANNING)) / 2 ;
-    if (verbose) I.sayAbout(this, "Proper no. of crawlers: "+numCrawlers) ;
+    if (report) I.say("Proper no. of crawlers: "+numCrawlers) ;
     if (crawlers.size() < numCrawlers) {
       final DustCrawler crawler = new DustCrawler() ;
       crawler.enterWorldAt(this, world) ;
@@ -313,7 +316,7 @@ public class FormerPlant extends Venue implements Economy {
     }
     if (crawlers.size() > numCrawlers) {
       for (DustCrawler c : crawlers) if (c.aboard() == this) {
-        if (verbose) I.sayAbout(this, "Too many crawlers.  Salvaging: "+c) ;
+        if (report) I.say("Too many crawlers.  Salvaging: "+c) ;
         //  TODO:  PERFORM ACTUAL CONSTRUCTION/SALVAGE
         c.setAsDestroyed() ;
         crawlers.remove(c) ;

@@ -26,6 +26,7 @@ public class Schedule {
   
   private static boolean
     verbose       = false,
+    updateVerbose = false,
     verboseDelays = verbose && true ;
   
   private long initTime = -1 ;
@@ -77,6 +78,7 @@ public class Schedule {
     }
   }
   
+  
   protected void loadFrom(Session s) throws Exception {
     currentTime = s.loadFloat() ;
     for (int n = s.loadInt() ; n-- > 0 ;) {
@@ -94,18 +96,20 @@ public class Schedule {
   /**  Registration and deregistration methods for updatable objects-
     */
   public void scheduleForUpdates(Updates updates) {
-    if (allUpdates.get(updates) != null)
-      I.complain(updates+" ALREADY REGISTERED FOR UPDATES!") ;
+    if (allUpdates.get(updates) != null) {
+      I.complain(updates+" ALREADY REGISTERED FOR UPDATES!");
+    }
     final Event event = new Event() ;
+    ///I.say("Scheduling "+updates+" for updates...");
     
     //  We 'fudge' the incept and scheduling times a little here to help ensure
     //  that client updates are staggered evenly over the schedule, rather
     //  than clustering in one or two processor-intensive updates.
-    event.lastUpdateCount = Rand.index(10) ;
-    event.initTime = ((int) currentTime) - event.lastUpdateCount ;
-    event.time = (currentTime + Rand.num()) * updates.scheduledInterval() ;
-    event.updates = updates ;
-    allUpdates.put(updates, events.insert(event)) ;
+    event.lastUpdateCount = Rand.index(10);
+    event.initTime = ((int) currentTime) - event.lastUpdateCount;
+    event.time = currentTime + (Rand.num() * updates.scheduledInterval());
+    event.updates = updates;
+    allUpdates.put(updates, events.insert(event));
   }
   
   
@@ -152,7 +156,7 @@ public class Schedule {
     if (verbose) I.say(
       "\nUPDATING SCHEDULE, MS SINCE LAST UPDATE: "+(initTime - oldInit)+
       "\nCurrent time: "+currentTime+"\n"
-    ) ;
+    );
     
     while (true) {
       final long taken = System.currentTimeMillis() - initTime ;
@@ -185,6 +189,8 @@ public class Schedule {
       final int updateCount = (int) (currentTime - event.initTime) ;
       if (updateCount > event.lastUpdateCount) {
         long startTime = System.nanoTime() ;
+        
+        if (updateVerbose) I.say("Updating: "+event.updates);
         event.updates.updateAsScheduled(updateCount) ;
         long updateTime = System.nanoTime() - startTime ;
         if (updateTime > longestTime) {

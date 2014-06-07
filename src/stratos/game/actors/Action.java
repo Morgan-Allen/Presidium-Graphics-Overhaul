@@ -179,7 +179,7 @@ public class Action implements Behaviour, AnimNames {
   public boolean valid() {
     return
       actor.inWorld() && moveTarget.inWorld() &&
-      ! actionTarget.destroyed() ;
+      ! actionTarget.destroyed();
   }
   
   

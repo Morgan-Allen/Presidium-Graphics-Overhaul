@@ -16,7 +16,7 @@ import stratos.util.*;
 
 
 
-public class ShieldWall extends Segment {
+public class ShieldWall extends Structural implements Boardable {
   
   
   /**  Construction and save/load routines-
@@ -45,6 +45,7 @@ public class ShieldWall extends Segment {
     DOORS_MODEL_RIGHT = CutoutModel.fromImage(
       ShieldWall.class, IMG_DIR+"wall_gate_right.png", 4, 2.5f
     );
+  
   final static ImageAsset ICON = ImageAsset.fromImage(
     "media/GUI/Buttons/shield_wall_button.gif", ShieldWall.class
   );
@@ -57,7 +58,11 @@ public class ShieldWall extends Segment {
   
   private static boolean verbose = false;
   
-  private Boardable entrances[] = null ;
+  
+  
+  final List <Mobile> inside = new List <Mobile> ();
+  private Boardable entrances[] = null;
+  private Tile entrance = null;
   
   
   
@@ -80,24 +85,37 @@ public class ShieldWall extends Segment {
   
   public ShieldWall(Session s) throws Exception {
     super(s);
+    s.loadObjects(inside);
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
+    s.saveObjects(inside);
   }
   
   
   
-  /**  Pathing and traversal-
+  /**  Boardable implementation-
     */
-  public boolean isTower() {
-    return type == TYPE_TOWER || type == TYPE_SQUARE ;
+  public void setInside(Mobile m, boolean is) {
+    if (is) inside.include(m);
+    else inside.remove(m);
   }
   
   
-  public boolean isGate() {
-    return type == TYPE_DOORS ;
+  public Series <Mobile> inside() {
+    return inside;
+  }
+  
+  
+  public boolean allowsEntry(Mobile m) {
+    return m.base() == base();
+  }
+  
+  
+  public int boardableType() {
+    return Boardable.BOARDABLE_OTHER;
   }
   
   
@@ -151,13 +169,27 @@ public class ShieldWall extends Segment {
   }
   
   
-  public boolean enterWorldAt(int x, int y, World world) {
-    if (! super.enterWorldAt(x, y, world)) return false ;
-    entrances = null ;
-    return true ;
+
+  /**  Pathing and traversal-
+    */
+  public boolean isTower() {
+    return type == TYPE_TOWER || type == TYPE_SQUARE ;
   }
   
   
+  public boolean isGate() {
+    return type == TYPE_DOORS ;
+  }
+  
+  
+  public boolean enterWorldAt(int x, int y, World world) {
+    if (! super.enterWorldAt(x, y, world)) return false ;
+    entrances = null ;
+    entrance = null ;
+    return true ;
+  }
+  
+  /*
   public Vec3D position(Vec3D v) {
     if (v == null) v = new Vec3D() ;
     super.position(v) ;
@@ -166,12 +198,13 @@ public class ShieldWall extends Segment {
     else if (type == TYPE_SQUARE ) v.z += 1.00f ;
     return v ;
   }
+  //*/
   
   
   
   /**  Configuring sections of the line-
     */
-  protected Segment instance(Base base) {
+  protected Structural instance(Base base) {
     return new ShieldWall(base);
   }
   
@@ -219,8 +252,8 @@ public class ShieldWall extends Segment {
   }
   
   
-  protected List <Segment> installedBetween(Tile start, Tile end) {
-    final List <Segment> installed = super.installedBetween(start, end) ;
+  protected List <Structural> installedBetween(Tile start, Tile end) {
+    final List <Structural> installed = super.installedBetween(start, end) ;
     if (installed == null || installed.size() < 4) return installed ;
     //
     //  If the stretch to install is long enough, we cut out the middle two
@@ -237,7 +270,7 @@ public class ShieldWall extends Segment {
     final BlastDoors doors = new BlastDoors(a.base(), a.facing) ;
     doors.setPosition(centre.x - 1.5f, centre.y - 1.5f, world) ;
     final Box2D bound = doors.area(null) ;
-    for (Venue v : installed) {
+    for (Structural v : installed) {
       if (v == a || v == b) continue ;
       if (v.area(null).cropBy(bound).area() > 0) return installed ;
     }

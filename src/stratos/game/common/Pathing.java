@@ -22,7 +22,9 @@ public class Pathing {
   /**  Field definitions, constructors, and save/load methods-
     */
   final public static int MAX_PATH_SCAN = 8 ;
-  private static boolean verbose = false;
+  private static boolean
+    pathVerbose = false,
+    verbose     = false;
   
   final Mobile mobile ;
   Target trueTarget ;
@@ -87,7 +89,8 @@ public class Pathing {
       return a.origin() ;
     }
     if (t instanceof Element) {
-      return Spacing.nearestOpenTile((Element) t, mobile, mobile.world()) ;
+      return mobile.world.tileAt(t);
+      //return Spacing.nearestOpenTile((Element) t, mobile, mobile.world()) ;
     }
     I.complain("CANNOT GET LOCATION FOR: "+t) ;
     return null ;
@@ -95,27 +98,32 @@ public class Pathing {
   
   
   public void updateTarget(Target moveTarget) {
+    final boolean report = verbose && I.talkAbout == mobile;
+    
     final Target oldTarget = trueTarget ;
     this.trueTarget = moveTarget ;
     if (trueTarget != oldTarget) {
-      if (verbose) I.sayAbout(mobile, "...TARGET HAS CHANGED: "+trueTarget) ;
+      if (report) I.say("...TARGET HAS CHANGED: "+trueTarget) ;
       path = null ; stepIndex = -1 ; return ;
     }
     else if (inLocus(nextStep())) {
       stepIndex = Visit.clamp(stepIndex + 1, path.length) ;
     }
-    else if (verbose) I.sayAbout(mobile, "Not in locus of: "+nextStep()) ;
+    else if (report) I.say("Not in locus of: "+nextStep()) ;
   }
   
   
   public boolean checkPathingOkay() {
     if (trueTarget == null) return true ;
     if (path == null) return false ;
-    final boolean report = verbose && I.talkAbout == mobile;
-    if (report) I.say("\nChecking path okay for "+mobile);
+    final boolean report = pathVerbose && I.talkAbout == mobile;
     
     final Boardable dest = location(trueTarget) ;
     boolean blocked = false, nearTarget = false, validPath = true ;
+    if (report) {
+      I.say("\nChecking path okay for "+mobile);
+      I.say("  True target: "+trueTarget+", dest: "+dest);
+    }
     //
     //  Check to ensure that subsequent steps along this path are not blocked,
     //  and that the path target has not changed.
@@ -231,7 +239,11 @@ public class Pathing {
     Target target, float speed, boolean moves
   ) {
     final boolean report = I.talkAbout == mobile && verbose;
-    if (report) I.say("\n"+mobile+" HEADING TOWARDS: "+target);
+    if (report) {
+      I.say("\n"+mobile+" HEADING TOWARDS: "+target+" FROM: "+mobile.origin());
+      final Tile TA = mobile.world.tileAt(target);
+      I.say("  Target position: "+TA+", blocked? "+TA.blocked());
+    }
     
     //  Don't move if something ahead is blocking entrance-
     if (target instanceof Tile) {
@@ -292,6 +304,7 @@ public class Pathing {
   
   
   public void applyCollision(float moveRate, Target focus) {
+    final boolean report = I.talkAbout == mobile && verbose;
     //  TODO:  I am probably going to have to implement some kind of proper
     //  polygonal pathfinding here.  For the moment, it's just kind of
     //  distracting.
@@ -302,7 +315,7 @@ public class Pathing {
         final Tile blocked = mobile.origin() ;
         final Tile free = Spacing.nearestOpenTile(blocked, mobile) ;
         if (free == null) I.complain("NO FREE TILE AVAILABLE!") ;
-        if (verbose) I.sayAbout(mobile, "Escaping to free tile: "+free) ;
+        if (report) I.say("Escaping to free tile: "+free) ;
         mobile.setPosition(free.x, free.y, mobile.world()) ;
         mobile.onMotionBlock(blocked) ;
         return ;
@@ -379,7 +392,7 @@ public class Pathing {
       final Tile blocked = mobile.origin() ;
       final Tile free = Spacing.nearestOpenTile(blocked, mobile) ;
       if (free == null) I.complain("NO FREE TILE AVAILABLE!") ;
-      if (verbose) I.sayAbout(mobile, "Escaping to free tile: "+free) ;
+      if (report) I.say("Escaping to free tile: "+free) ;
       mobile.setPosition(free.x, free.y, mobile.world()) ;
       mobile.onMotionBlock(blocked) ;
       return ;
@@ -390,13 +403,15 @@ public class Pathing {
   //
   //  TODO:  Consider removing this to the Action or Motion classes
   public boolean facingTarget(Target target) {
+    final boolean report = I.talkAbout == mobile && verbose;
     if (target == null) return false;
+    
     final Vec2D disp = displacement(target);
     if (disp.length() == 0) return true;
     final float angleDif = FastMath.abs(Vec2D.degreeDif(
       disp.normalise().toAngle(), mobile.rotation
     )) ;
-    if (verbose) I.sayAbout(mobile, "Angle difference is: "+angleDif);
+    if (report) I.say("Angle difference is: "+angleDif);
     return angleDif < 30 ;
   }
 }

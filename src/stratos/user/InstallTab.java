@@ -234,7 +234,7 @@ public class InstallTab extends InfoPanel {
       if (canPlace && hasPressed && ! UI.mouseDown()) {
         toInstall.doPlace(from, to) ;
         UI.endCurrentTask() ;
-        if (toInstall instanceof Segment) {
+        if (toInstall instanceof Structural) {
           initInstallTask(UI, type) ;
         }
       }

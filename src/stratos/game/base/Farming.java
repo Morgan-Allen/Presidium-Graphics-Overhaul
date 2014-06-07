@@ -79,7 +79,7 @@ public class Farming extends Plan implements Economy {
   
   public boolean finished() {
     final boolean f = super.finished() ;
-    if (f && verbose) I.sayAbout(actor, "FARMING COMPLETE") ;
+    //if (f && verbose) I.sayAbout(actor, "FARMING COMPLETE") ;
     return f ;
   }
   
@@ -90,7 +90,6 @@ public class Farming extends Plan implements Economy {
     final Action returns = returnHarvestAction(5) ;
     if (returns != null) return returns ;
     if (nursery.needForTending() == 0 || ! canPlant()) {
-      if (verbose) I.sayAbout(actor, "Should return everything...") ;
       return returnHarvestAction(0) ;
     }
     
@@ -288,7 +287,8 @@ public class Farming extends Plan implements Economy {
   
   
   public void describeBehaviour(Description d) {
-    if (super.needsSuffix(d, "Farming around ")) {
+    if (super.needsSuffix(d, "Farming")) {
+      d.append(" around ");
       d.append(nursery);
     }
   }

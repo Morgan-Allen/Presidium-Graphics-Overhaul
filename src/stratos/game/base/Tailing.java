@@ -67,7 +67,7 @@ public class Tailing extends Venue {
     if (oreAmount < 0) I.complain("Can't subtract from tailing.");
     final float inc = oreAmount / FILL_CAPACITY;
     fillLevel = Visit.clamp(fillLevel + inc, 0, 1);
-    updateSprite((GroupSprite) buildSprite().baseSprite());
+    updateSprite((GroupSprite) buildSprite.baseSprite());
   }
   
   

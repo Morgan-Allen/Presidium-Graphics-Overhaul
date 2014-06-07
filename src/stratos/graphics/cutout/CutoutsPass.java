@@ -17,6 +17,8 @@ import com.badlogic.gdx.graphics.glutils.*;
 
 
 
+//  TODO:  See if you can unify this with other types of rendering pass.
+
 public class CutoutsPass {
 	
   
@@ -208,15 +210,14 @@ public class CutoutsPass {
       shading.setUniform4fv("u_lighting", GLOW_LIGHTS, 0, 4);
     }
     else {
-      final float lightSum[] = rendering.lighting.lightSum();
+      final float lightSum[] = rendering.lighting.lightSum;
       shading.setUniform4fv("u_lighting", lightSum, 0, 4);
     }
     
     lastTex.bind(0);
     compiled.render(shading, GL10.GL_TRIANGLES, 0, (total * 6) / SIZE);
     shading.end();
-
-    total = 0 ;
+    total = 0;
   }
 }
 

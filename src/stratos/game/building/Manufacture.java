@@ -8,6 +8,7 @@
 package stratos.game.building ;
 import stratos.game.actors.*;
 import stratos.game.common.*;
+import stratos.game.civilian.*;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -25,18 +26,18 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     */
   final static int
     MAX_UNITS_PER_DAY = 5,
-    TIME_PER_UNIT = World.STANDARD_DAY_LENGTH / (3 * MAX_UNITS_PER_DAY),
-    DEVICE_TIME_MULT = 5,
-    OUTFIT_TIME_MULT = 10;
+    TIME_PER_UNIT     = World.STANDARD_DAY_LENGTH / (3 * MAX_UNITS_PER_DAY),
+    DEVICE_TIME_MULT  = 2,
+    OUTFIT_TIME_MULT  = 2;
   final static float
     SHORTAGE_DC_MOD    = 5,
     SHORTAGE_TIME_MULT = 5,
     FAILURE_TIME_MULT  = 5;
   
-  private static boolean verbose = false ;
+  private static boolean verbose = false;
   
   
-  final public Venue venue ;
+  final public Employer venue ;
   final public Conversion conversion ;
   public int checkBonus = 0 ;
   
@@ -46,7 +47,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   
   
   public Manufacture(
-    Actor actor, Venue venue, Conversion conversion, Item made
+    Actor actor, Employer venue, Conversion conversion, Item made
   ) {
     super(actor, venue) ;
     this.venue = venue ;
@@ -111,7 +112,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
 
   protected float getPriority() {
     final boolean report = verbose && I.talkAbout == actor;
-    final int shift = venue.personnel.shiftFor(actor);
+    final int shift = venue.personnel().shiftFor(actor);
     if (shift == Venue.OFF_DUTY) return 0;
     
     final float priority = priorityForActorWith(
@@ -151,14 +152,14 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     if (super.finished()) return true ;
     return
       (amountMade >= 2) || (amountMade >= made.amount) ||
-      venue.stocks.hasItem(made) ;
+      venue.inventory().hasItem(made) ;
   }
   
   
   public Behaviour getNextStep() {
-    final float demand = venue.stocks.demandFor(made.type) ;
+    final float demand = venue.inventory().demandFor(made.type);
     if (demand > 0) made = Item.withAmount(made, demand + 5) ;
-    if (venue.stocks.hasItem(made)) {
+    if (venue.inventory().hasItem(made)) {
       amountMade = made.amount;
       return null ;
     }
@@ -176,7 +177,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     //  TODO:  Average the shortage of each needed item, so that penalties are
     //  less stringent for output that demands multiple inputs?
     for (Item need : needed) {
-      if (! venue.stocks.hasItem(need)) return false ;
+      if (! venue.inventory().hasItem(need)) return false ;
     }
     return true ;
   }

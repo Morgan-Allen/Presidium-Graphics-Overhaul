@@ -162,7 +162,7 @@ public class Paving {
   }
   
   
-  public void updateJunction(Venue v, Tile t, boolean isMember) {
+  public void updateJunction(Fixture v, Tile t, boolean isMember) {
     final boolean report = paveVerbose && I.talkAbout == v;
     if (t == null) {
       if (report) I.say("CANNOT SUPPLY NULL TILE AS JUNCTION") ;
@@ -284,74 +284,72 @@ public class Paving {
   
   
   
-  /**  Methods related to distribution of provisional goods-
+  /**  Methods related to distribution of provisional goods (power, water, and
+    *  life support.)
     */
-  //
-  //  TODO:  See if there's any way you can make the provision less...
-  //         distracting.  It keeps flickering on and off.
-  
-  
-  //
-  //  TODO:  YOU NEED TO RESTRICT THIS TO PARTICULAR BASES?  Or maybe you
-  //  could share, given suitable alliance status?
-  final private Batch <Target> tried = new Batch <Target> (40) ;
-  final private Stack <Target> agenda = new Stack <Target> () ;
+  final private Batch <Target> tried = new Batch <Target> (40);
+  final private Stack <Target> agenda = new Stack <Target> ();
   
   
   private void insertAgenda(Target t) {
-    if (t.flaggedWith() != null) return ;
-    t.flagWith(agenda) ;
-    agenda.add(t) ;
-    tried.add(t) ;
+    if (t.flaggedWith() != null) return;
+    t.flagWith(agenda);
+    agenda.add(t);
+    tried.add(t);
   }
   
   
-  private Batch <Venue> venuesReached(Venue init, Base base) {
+  private Batch <Structural> venuesReached(Structural init, Base base) {
     if (init.flaggedWith() != null) return null ;
     final boolean report = distroVerbose;
     if (report) I.say("\nDetermining provision access from "+init);
     
-    final Batch <Venue> reached = new Batch <Venue> () ;
+    final Batch <Structural> reached = new Batch <Structural> () ;
     agenda.add(init) ;
+    final Tile tempN[] = new Tile[8];
     
-    //  The agenda could include either tiles or venues, depending on how they
-    //  are encountered.
+    //  The agenda could include either tiles or structures, depending on how
+    //  they are encountered.
     while (agenda.size() > 0) {
       final Target next = agenda.removeFirst() ;
       final List <Route> routes = tileRoutes.get(next) ;
-      
+
+      //  In the case of a structure, check every tile along the perimeter
+      //  and add any adjacent structures or road junctions.
       if (routes == null) {
-        final Venue v = (Venue) next ;
+        final Structural v = (Structural) next ;
         if (v.base() != base) continue;
         reached.add(v) ;
         if (report) I.say("  Have reached: "+v);
         
         for (Tile t : Spacing.perimeter(v.area(), world)) if (t != null) {
-          if (t.owner() instanceof Venue) insertAgenda(t.owner()) ;
+          if (t.owner() instanceof Structural) insertAgenda(t.owner()) ;
           else if (tileRoutes.get(t) != null) insertAgenda(t) ;
         }
       }
       
+      //  In the case of a road junction, add whatever structures lie at the
+      //  other end of the route.
       else for (Route r : routes) {
         final Tile o = r.end == next ? r.start : r.end ;
         if (o == null) continue;
         insertAgenda(o) ;
-        for (Tile a : o.allAdjacent(Spacing.tempT8)) if (a != null) {
-          if (a.owner() instanceof Venue) insertAgenda(a.owner()) ;
+        for (Tile a : o.allAdjacent(tempN)) if (a != null) {
+          if (a.owner() instanceof Structural) insertAgenda(a.owner()) ;
         }
       }
     }
-    //
+    
     //  Clean up afterwards, and return-
     for (Target t : tried) t.flagWith(null) ;
     tried.clear() ;
     agenda.clear() ;
-    for (Venue v : reached) v.flagWith(reached) ;
+    for (Structural v : reached) v.flagWith(reached) ;
     return reached ;
   }
   
   
-  private void distributeTo(Batch <Venue> reached, Service provided[]) {
+  private void distributeTo(Batch <Structural> reached, Service provided[]) {
     //
     //  First, tabulate total supply and demand within the area-
     final boolean report = distroVerbose;
@@ -360,18 +358,16 @@ public class Paving {
     float
       supply[] = new float[provided.length],
       demand[] = new float[provided.length] ;
-    for (Venue venue : reached) {
-      if (report) {
-        I.say("  Have reached: "+venue);
-        //final List <Route> routes = tileRoutes.get(venue.mainEntrance());
-        //if (routes != null) I.say("  Routes at entrance: "+routes.size());
-      }
+    for (Structural s : reached) {
+      if (report) I.say("  Have reached: "+s);
       
       for (int i = provided.length ; i-- > 0 ;) {
-        final Service type = provided[i] ;
-        supply[i] += venue.stocks.amountOf(type) ;
-        final float shortage = venue.stocks.shortageOf(type) ;
-        if (shortage > 0) demand[i] += shortage ;
+        final Service type = provided[i];
+        supply[i] += s.structure.outputOf(type);
+        
+        if (! (s instanceof Venue)) continue;
+        final float d = ((Venue) s).stocks.demandFor(type);
+        if (d > 0) demand[i] += d;
       }
     }
     //
@@ -381,9 +377,10 @@ public class Paving {
       if (demand[i] == 0) continue ;
       final Service type = provided[i] ;
       final float supplyRatio = Visit.clamp(supply[i] / demand[i], 0, 1) ;
-      for (Venue venue : reached) {
-        final float shortage = venue.stocks.shortageOf(type) ;
-        venue.stocks.bumpItem(type, shortage * supplyRatio) ;
+      for (Structural s : reached) if (s instanceof Venue) {
+        final Venue venue = (Venue) s;
+        final float d = venue.stocks.demandFor(type);
+        venue.stocks.setAmount(type, d * supplyRatio);
       }
     }
   }
@@ -392,20 +389,20 @@ public class Paving {
   public void distribute(Service provided[], Base base) {
     final boolean report = distroVerbose;
     if (report) I.say("\n\nDistributing provisions for base: "+base);
-    final Batch <Batch <Venue>> allReached = new Batch <Batch <Venue>> () ;
+    final Batch <Batch <Structural>> allReached = new Batch();
     //
     //  First, divide the set of all venues into discrete partitions based on
     //  mutual paving connections-
     final Tile at = world.tileAt(0, 0) ;
     for (Object o : world.presences.matchesNear(base, at, -1)) {
-      final Batch <Venue> reached = venuesReached((Venue) o, base) ;
-      if (reached != null) allReached.add(reached) ;
+      final Batch <Structural> reached = venuesReached((Venue) o, base) ;
+      if (reached != null) allReached.add(reached);
     }
     //
     //  Then, distribute water/power/et cetera within that area-
-    for (Batch <Venue> reached : allReached) {
+    for (Batch <Structural> reached : allReached) {
       distributeTo(reached, provided) ;
-      for (Venue v : reached) v.flagWith(null) ;
+      for (Structural v : reached) v.flagWith(null);
     }
   }
 }

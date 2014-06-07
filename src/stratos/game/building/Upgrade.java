@@ -29,13 +29,17 @@ public class Upgrade extends Index.Member implements Backgrounds {
     Upgrade required, Index index
   ) {
     super(index);
-    
-    this.name = name ;
-    this.description = desc ;
-    this.buildCost = buildCost ;
-    this.refers = refers ;
-    this.bonus = bonus ;
-    this.required = required ;
+    this.name = name;
+    this.description = desc;
+    this.buildCost = buildCost;
+    this.refers = refers;
+    this.bonus = bonus;
+    this.required = required;
+    /*
+    if (name.endsWith("Station")) {
+      I.say(name+" upgrade refers to: "+refers);
+    }
+    //*/
   }
   
   

@@ -1,16 +1,20 @@
-package stratos.graphics.solids;
 
+
+package stratos.graphics.solids;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
-
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
+
+
 
 public class DataInput0 extends InputStream {
 	
 	private final boolean endian; // little endian
 	private final InputStream in;
+	
+	
 	
 	public DataInput0(InputStream in, boolean littleEndian)
 	{

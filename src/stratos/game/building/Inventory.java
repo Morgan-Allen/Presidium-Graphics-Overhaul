@@ -3,13 +3,16 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.building ;
 import stratos.game.common.*;
 import stratos.user.*;
 import stratos.util.*;
+import stratos.graphics.sfx.*;
 
+
+
+
+//  TODO:  Allow demand to be attached to this.
 
 
 /**  An inventory allows for the storage, transfer and tracking of discrete
@@ -18,26 +21,36 @@ import stratos.util.*;
 public class Inventory {
   
   
-  
   /**  Fields, constructors, and save/load methods-
     */
+  final public static int
+    TIER_OWNER    = -1,  //
+    TIER_PRODUCER =  0,  //never deliver to a producer.
+    TIER_TRADER   =  1,  //deliver to/from based on relative shortage.
+    TIER_CONSUMER =  2;  //never deliver from a consumer.
+  
   final public Owner owner ;
   protected float credits, taxed ;
   
-  private Table <Item, Item> itemTable = new Table(10) ;
-  //  private int sumGoods ;  //TODO:  Break into increments of 1/100th bulk.
+  private Table <Item, Item> itemTable = new Table <Item, Item> (10);
+  //  private int sumGoods ;  //TODO:  Break into increments of 1/100th bulk?
   
   
   public Inventory(Owner owner) {
     this.owner = owner ;
   }
   
-  
+  //  TODO:  Consider moving this outside.
   public static interface Owner extends Target, Session.Saveable {
-    Inventory inventory() ;
-    float priceFor(Service service) ;
-    int spaceFor(Service good) ;
-    void afterTransaction(Item item, float amount) ;
+    
+    Base base();
+    Inventory inventory();
+    float priceFor(Service service);
+    int spaceFor(Service good);
+    void afterTransaction(Item item, float amount);
+    
+    //  TODO:  You might move chat displays to the afterTransaction method.
+    TalkFX chat();
   }
   
   
@@ -52,39 +65,10 @@ public class Inventory {
   public void loadState(Session s) throws Exception {
     for (int i = s.loadInt() ; i-- > 0 ;) {
       final Item item = Item.loadFrom(s) ;
-      /*
-      if (item.amount <= 0) continue ;
-      if (item.isMatch()) {
-        if (item.quality == -1) {
-          final Item replaces = Item.withQuality(item, 0) ;
-          itemTable.put(replaces, replaces) ;
-        }
-        continue ;
-      }
-      //*/
       itemTable.put(item, item) ;
     }
     credits = s.loadFloat() ;
     taxed   = s.loadFloat() ;
-  }
-  
-  
-  
-  /**  Writes inventory information to the given text field.
-    */
-  public void writeInformation(Description text) {
-    for (Item item : itemTable.values()) {
-      text.append("\n") ;
-      //  TODO:  RESTORE THIS
-      //text.insert(item.type.picPath, 25) ;
-      text.append(item) ;
-      //text.append("\n"+item) ;
-    }
-    if (credits() != 0) {
-      text.append("\n"+((int) credits())+" credits") ;
-      text.append((credits() < 0) ? " (in debt)" : "") ;
-    }
-    text.append("\n") ;
   }
   
   
@@ -142,6 +126,11 @@ public class Inventory {
   }
   
   
+  public int size() {
+    return itemTable.size();
+  }
+  
+  
   public void clearItems(Service type) {
     itemTable.remove(type) ;
   }
@@ -172,6 +161,8 @@ public class Inventory {
     //  Check to see if a similar item already exists.  If so, blend the new
     //  quality with the old-
     final Item oldItem = itemTable.get(item) ;
+    final int oldAmount = oldItem == null ? 0 : (int) oldItem.amount;
+    
     float amount = item.amount, quality = item.quality ;
     if (oldItem != null) {
       itemTable.remove(oldItem) ;
@@ -181,8 +172,9 @@ public class Inventory {
     }
     
     final Item entered = Item.with(item.type, item.refers, amount, quality) ;
-    itemTable.put(entered, entered) ;
-    if (owner != null) owner.afterTransaction(item, item.amount) ;
+    itemTable.put(entered, entered);
+    
+    if (owner != null) owner.afterTransaction(item, item.amount);
     return true ;
   }
   
@@ -197,6 +189,14 @@ public class Inventory {
   public void bumpItem(Service type, float amount, int max) {
     final float oldAmount = amountOf(type) ;
     bumpItem(type, Visit.clamp(amount, 0 - oldAmount, max - oldAmount)) ;
+  }
+  
+  
+  public void setAmount(Service type, float amount) {
+    final Item sets = Item.withAmount(type, amount);
+    final Item match = matchFor(sets);
+    if (match != null) itemTable.remove(match);
+    if (amount > 0) itemTable.put(sets, sets);
   }
   
   
@@ -328,6 +328,14 @@ public class Inventory {
   public float amountOf(Service type) {
     return amountOf(Item.asMatch(type, null)) ;
   }
+  
+  
+  /**  Default supply-and-demand functions intended for override by certain
+    *  subclasses.
+    */
+  public float demandFor(Service type) { return 0; }
+  public float shortageOf(Service type) { return 0; }
+  public int demandTier(Service type) { return TIER_OWNER; }
   
   
   

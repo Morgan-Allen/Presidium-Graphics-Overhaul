@@ -95,8 +95,7 @@ public class HumanMind extends ActorMind implements Qualities {
     */
   private static boolean verbose = false ;
   
-  //  private Background careerInterest ;
-  //  private float lifeSatisfaction ;
+  //  Ambition, Philosophy, Allegiance.
   
   
   
@@ -180,41 +179,42 @@ public class HumanMind extends ActorMind implements Qualities {
     choice.add(new Foraging(actor, null)) ;
     choice.add(new Retreat(actor)) ;
 
-    final boolean timeoff = work == null || ! work.personnel().onShift(actor) ;
+    final boolean timeoff = work == null || ! work.personnel().onShift(actor);
     if (work != null) {
-      choice.add(work.jobFor(actor)) ;
-      if (timeoff && work != home) work.addServices(choice, actor) ;
-      choice.add(new Payday(actor, work)) ;
+      choice.add(work.jobFor(actor));
+      if (timeoff && work != home) work.addServices(choice, actor);
+      choice.add(new Payday(actor, work));
     }
     if (home != null) {
-      if (home != work) choice.add(home.jobFor(actor)) ;
-      if (timeoff) home.addServices(choice, actor) ;
+      if (home != work) choice.add(home.jobFor(actor));
+      if (timeoff) home.addServices(choice, actor);
       choice.add(new Resting(actor, home));
     }
     else {
-      final Target haven = Retreat.nearestHaven(actor, null);
-      choice.add(new Resting(actor, haven));
+      final Target hidesAt = Retreat.nearestHaven(actor, null);
+      choice.add(new Resting(actor, hidesAt));
     }
   }
   
   
-  //  TODO:  Move this to the reactions method?
   private void addVenueResponses(Choice choice) {
     final World world = actor.world() ;
-    final Batch <Employer> around = new Batch <Employer> () ;
+    final Batch <Venue> around = new Batch <Venue> () ;
     float numSampled = 5 + (actor.traits.traitLevel(COGNITION) / 4) ;
     
-    world.presences.sampleFromMap(
+    world.presences.sampleFromMaps(
       actor, world, (int) numSampled, around, Venue.class
-    ) ;
-    final boolean timeoff = work == null || ! work.personnel().onShift(actor) ;
+    );
     
-    for (Employer employs : around) {
-      if (timeoff && employs.structure().intact()) {
-        employs.addServices(choice, actor) ;
+    final boolean timeoff = work == null || ! work.personnel().onShift(actor) ;
+    for (Venue venue : around) {
+      if (timeoff && venue.structure().intact()) {
+        venue.addServices(choice, actor);
       }
-      if (! (employs instanceof Venue)) continue ;
-      choice.add(new Repairs(actor, (Venue) employs)) ;
+    }
+    if (timeoff) {
+      choice.add(Repairs.getNextRepairFor(actor, 0));
+      choice.add(new ItemDisposal(actor));
     }
   }
   
@@ -233,7 +233,7 @@ public class HumanMind extends ActorMind implements Qualities {
     final int standing = actor.vocation().standing;
     if (standing >= Backgrounds.CLASS_FREEMEN) {
       choice.add(FindMission.attemptFor(actor));
-      //choice.add(new Migration(actor)) ;
+      //choice.add(new Migration(actor));
     }
   }
 }

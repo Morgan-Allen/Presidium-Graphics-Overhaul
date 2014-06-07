@@ -62,7 +62,7 @@ public class Summons extends Plan {
     //  TODO:  Include enforcement bonus, once crime/punishment are done...
     final float
       waited = timeStayed / MAX_STAY_DURATION,
-      relation = actor.memories.relationValue(ruler);
+      relation = actor.relations.relationValue(ruler);
     
     final float priority = URGENT + (relation * CASUAL) - (ROUTINE * waited);
     if (report) {

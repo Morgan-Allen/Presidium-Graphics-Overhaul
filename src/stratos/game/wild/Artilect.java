@@ -111,10 +111,10 @@ public abstract class Artilect extends Actor {
   }
   
   
-  protected Memories initMemories() {
+  protected Relations initMemories() {
     final Artilect actor = this ;
     
-    return new Memories(this) {
+    return new Relations(this) {
       public float relationValue(Venue venue) {
         if (venue == actor.mind.home()) return 1;
         return super.relationValue(venue);
@@ -259,7 +259,7 @@ public abstract class Artilect extends Actor {
       if (dist > Ruins.MIN_RUINS_SPACING) continue;
       
       float rating = SS / (SS + dist) ;
-      rating += 1 - memories.relationValue(venue) ;
+      rating += 1 - relations.relationValue(venue) ;
       if (rating > bestRating) { bestRating = rating ; toAssault = venue ; }
     }
     

@@ -30,7 +30,7 @@ public class Forestry extends Plan implements Economy {
     STAGE_DONE     =  4 ;
   private static boolean
     evalVerbose   = false,
-    eventsVerbose = false;
+    eventsVerbose = true;
   
   
   final Venue nursery ;
@@ -142,6 +142,7 @@ public class Forestry extends Plan implements Economy {
       }
       else {
         final Tile to = Spacing.pickFreeTileAround(toPlant, actor);
+        if (to == null) return null;
         plants.setMoveTarget(to);
       }
       return plants ;
@@ -198,22 +199,22 @@ public class Forestry extends Plan implements Economy {
       return false ;
     }
     
-    float growStage = -0.5f ;
+    float growStage = -0.5f;
     for (Item seed : actor.gear.matches(seedMatch())) {
-      growStage += (1 + seed.quality) / 2f ;
-      break ;
+      growStage += (1 + seed.quality) / 2f;
+      break;
     }
-    if (actor.traits.test(CULTIVATION, MODERATE_DC, 5f)) growStage += 0.75f ;
-    if (actor.traits.test(HARD_LABOUR, ROUTINE_DC , 5f)) growStage += 0.75f ;
+    if (actor.traits.test(CULTIVATION, MODERATE_DC, 5f)) growStage += 0.75f;
+    if (actor.traits.test(HARD_LABOUR, ROUTINE_DC , 5f)) growStage += 0.75f;
+    if (report) I.say("  Grow stage: "+growStage);
     if (growStage <= 0) return false ;
     
-    final Flora f = Flora.tryGrowthAt(toPlant);
+    final Flora f = Flora.newGrowthAt(toPlant);
     if (f == null) return false;
     f.incGrowth(growStage * (Rand.num() + 1) / 4, toPlant.world, true) ;
     
     if (report) I.say("  SUCCESS! Grow stage: "+growStage);
     
-    //  TODO:  If you still have seed left, try picking another site.
     stage = STAGE_RETURN ;
     return true ;
   }

@@ -24,6 +24,7 @@ public interface Target {
   Object flaggedWith() ;
   
   
+  //  TODO:  Move this elsewhere?
   public static class Dummy implements Target {
     
     public Vec3D position = new Vec3D();

@@ -32,15 +32,9 @@ public class I {
     }
   }
   
+  
   public static final void say(String s) {
     if (! mute) {
-      System.out.println(s) ;
-    }
-  }
-  
-  
-  public static final void sayAbout(Object o, String s) {
-    if (talkAbout != null && o == talkAbout && ! mute) {
       System.out.println(s) ;
     }
   }

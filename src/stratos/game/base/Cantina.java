@@ -113,9 +113,14 @@ public class Cantina extends Venue implements Economy {
     if ((! structure.intact()) || (! personnel.onShift(actor))) return null ;
     if (actor.vocation() == Backgrounds.SOMA_VENDOR) {
       final Service needed[] = { SOMA, CARBS, PROTEIN } ;
+      final Delivery d = DeliveryUtils.bestBulkCollectionFor(
+        this, needed, 1, 5, 5
+      );
+      /*
       final Delivery d = Deliveries.nextCollectionFor(
         actor, this, needed, 5, null, world
       ) ;
+      //*/
       if (d != null) return d ;
       return new Supervision(actor, this) ;
     }
@@ -150,9 +155,9 @@ public class Cantina extends Venue implements Economy {
   public void updateAsScheduled(int numUpdates) {
     super.updateAsScheduled(numUpdates) ;
     if (! structure.intact()) return ;
-    stocks.forceDemand(SOMA   , 5, VenueStocks.TIER_CONSUMER) ;
-    stocks.forceDemand(CARBS  , 5, VenueStocks.TIER_CONSUMER) ;
-    stocks.forceDemand(PROTEIN, 5, VenueStocks.TIER_CONSUMER) ;
+    stocks.forceDemand(SOMA   , 5, Stocks.TIER_CONSUMER) ;
+    stocks.forceDemand(CARBS  , 5, Stocks.TIER_CONSUMER) ;
+    stocks.forceDemand(PROTEIN, 5, Stocks.TIER_CONSUMER) ;
     updateGambling(numUpdates) ;
   }
   

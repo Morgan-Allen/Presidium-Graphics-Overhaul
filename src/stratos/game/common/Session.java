@@ -145,10 +145,7 @@ public class Session {
   /**  Saving and Loading series of objects-
     */
   public void saveObjects(Series objects) throws Exception {
-    if (objects == null) {
-      saveInt(-1) ;
-      return ;
-    }
+    if (objects == null) { saveInt(-1) ; return ; }
     saveInt(objects.size()) ;
     for (Object o : objects) saveObject((Saveable) o) ;
   }
@@ -159,6 +156,22 @@ public class Session {
     if (count == -1) return null ;
     for (int n = count ; n-- > 0 ;) objects.add(loadObject()) ;
     return objects ;
+  }
+  
+  
+  public void saveObjectArray(Object objects[]) throws Exception {
+    if (objects == null) { saveInt(-1) ; return ; }
+    saveInt(objects.length) ;
+    for (Object o : objects) saveObject((Saveable) o) ;
+  }
+  
+  
+  public Object[] loadObjectArray(Class typeClass) throws Exception {
+    final int count = loadInt();
+    if (count == -1) return null;
+    final Object objects[] = (Object[]) Array.newInstance(typeClass, count);
+    for (int n = 0; n < count; n++) objects[n] = loadObject();
+    return objects;
   }
   
   

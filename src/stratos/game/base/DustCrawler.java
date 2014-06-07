@@ -12,6 +12,7 @@ import stratos.user.* ;
 import stratos.util.* ;
 
 
+//  TODO:  Just extend Mobile instead?
 
 public class DustCrawler extends Vehicle implements
   Inventory.Owner, Economy
@@ -52,8 +53,10 @@ public class DustCrawler extends Vehicle implements
   
   public float homeCrowding(Actor actor) { return 1; }
   public float visitCrowding(Actor actor) { return 1; }
-
-
+  public Service[] services() { return null; }
+  
+  
+  
   /**  Behavioural methods-
     */
   public void updateAsScheduled(int numUpdates) {

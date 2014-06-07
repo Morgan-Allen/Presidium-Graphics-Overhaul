@@ -47,12 +47,16 @@ public interface Backgrounds extends Economy {
   final public static float
     NUM_DAYS_PAY = 20,
     PAY_INTERVAL = World.STANDARD_DAY_LENGTH * 20;
-  final public static int HIRE_COSTS[] = {
-    150, 250, 500, 1000 //Represents PAY_INTERVAL days' salary.
-  } ;
+  final public static int
+    HIRE_COSTS[] = {
+      150, 250, 500, 1000 //Represents PAY_INTERVAL days' salary.
+    },
+    DEFAULT_RELIEF = 100,
+    DEFAULT_TAX_PERCENT = 50,
+    DEFAULT_SURPLUS_PERCENT = 10,
+    DEFAULT_RULER_STIPEND   = 2000;
   
   
-  //*
   final public static Background
     MALE_BIRTH = new Background(
       "Born Male", null, null, NOT_A_CLASS, NOT_A_GUILD,
@@ -237,10 +241,10 @@ public interface Backgrounds extends Economy {
   
   final public static Background
     
-    SUPPLY_CORPS = new Background(
-      "Supply Corps", "pyon_skin.gif", "pyon_portrait.png",
+    FAB_WORKER = new Background(
+      "Fab Worker", "pyon_skin.gif", "pyon_portrait.png",
       CLASS_VASSAL, GUILD_MERCHANT,
-      NOVICE, PILOTING, HARD_LABOUR,
+      NOVICE, CHEMISTRY, PILOTING, ASSEMBLY, HARD_LABOUR,
       OFTEN, RELAXED, RARELY, AMBITIOUS,
       OVERALLS
     ),
@@ -270,7 +274,7 @@ public interface Backgrounds extends Economy {
       OVERALLS
     ),
     
-    VENDOR_CIRCLES[] = { SUPPLY_CORPS, SOMA_VENDOR, STOCK_VENDOR, AUDITOR }
+    VENDOR_CIRCLES[] = { FAB_WORKER, SOMA_VENDOR, STOCK_VENDOR, AUDITOR }
   ;
   
   final public static Background
@@ -379,13 +383,13 @@ public interface Backgrounds extends Economy {
     //
     //  Mechanics and captains keep your dropships in working order.
     SHIP_MECHANIC = new Background(
-      "Ship Mechanic", null, null,
+      "Ship Mechanic", "artificer_skin.gif", "artificer_portrait.png",
       CLASS_VASSAL, NOT_A_GUILD,
       PRACTICED, ASSEMBLY, HARD_LABOUR,
       NOVICE, FIELD_THEORY, SHIELD_AND_ARMOUR
     ),
     SHIP_CAPTAIN = new Background(
-      "Ship Captain", null, null,
+      "Ship Captain", null, "pyon_portrait.png",
       CLASS_FREEMEN, NOT_A_GUILD,
       EXPERT, PILOTING, MARKSMANSHIP, PRACTICED, COMMAND, SUASION,
       NOVICE, ASTROGATION, BATTLE_TACTICS, COMMON_CUSTOM,

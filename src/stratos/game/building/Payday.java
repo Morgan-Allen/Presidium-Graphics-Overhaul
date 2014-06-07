@@ -19,6 +19,8 @@ public class Payday extends Plan implements Economy {
   
   /**  Data fields, setup and save/load functions-
     */
+  private static boolean verbose = false;
+  
   final Employer pays ;
   
   
@@ -49,14 +51,30 @@ public class Payday extends Plan implements Economy {
   /**  Evaluating targets and priority-
     */
   protected float getPriority() {
-    if (! (pays instanceof Venue)) return 0 ;
+    final boolean report = verbose && I.talkAbout == actor;
+    if (! (pays instanceof Venue)) return 0;
+    final Venue venue = (Venue) pays;
     
-    final Venue venue = (Venue) pays ;
-    final Profile p = venue.base().profiles.profileFor(actor) ;
-    float impetus = (p.daysSinceWageEval(venue.world()) - 1) * ROUTINE ;
-    if (impetus < 0) impetus = 0 ;
-    impetus += Plan.greedLevel(actor, (int) p.paymentDue()) * ROUTINE;
-    return Visit.clamp(impetus, 0, URGENT) ;
+    final Profile p = venue.base().profiles.profileFor(actor);
+    final float payGap = p.daysSincePayment(venue.world());
+    if (payGap < 1) {
+      if (report) I.say("\nPay gap is: "+payGap+" days");
+      return 0;
+    }
+    float modifier = Visit.clamp(payGap, 0, 2) - 1.5f;
+    modifier = NO_MODIFIER + (modifier * ROUTINE);
+    
+    final float priority = priorityForActorWith(
+      actor, venue, ROUTINE,
+      NO_HARM, NO_COMPETITION,
+      NO_SKILLS, NO_TRAITS,
+      modifier, PARTIAL_DISTANCE_CHECK, NO_FAIL_RISK, report
+    );
+    if (report) {
+      I.say("  Payment due: "+p.paymentDue()+", pay gap: "+payGap+" days");
+      I.say("  Final priority: "+priority);
+    }
+    return priority;
   }
   
   
@@ -64,8 +82,10 @@ public class Payday extends Plan implements Economy {
   /**  Behaviour implementation-
     */
   protected Behaviour getNextStep() {
-    final Profile p = actor.base().profiles.profileFor(actor) ;
-    if (p.daysSinceWageEval(actor.world()) < 1) return null ;
+    //final boolean report = verbose && I.talkAbout == actor;
+    //final Profile p = actor.base().profiles.profileFor(actor);
+    //if (p.daysSincePayment(actor.world()) < 1) return null;
+    //if (p.paymentDue() <= 0) return null;
     
     //  TODO:  Get rid of this.  The audit office is going to serve a different
     //  function, anyway.
@@ -76,7 +96,6 @@ public class Payday extends Plan implements Economy {
     }
     else
     //*/
-    if (p.paymentDue() <= 0) return null ;
     
     final Action getPaid = new Action(
       actor, pays,
@@ -88,8 +107,9 @@ public class Payday extends Plan implements Economy {
   
   
   public boolean actionGetPaid(Actor actor, Venue venue) {
-    final Profile p = venue.base().profiles.profileFor(actor) ;
-    I.sayAbout(actor, "Getting paid at "+venue) ;
+    final boolean report = verbose && I.talkAbout == actor;
+    final Profile p = venue.base().profiles.profileFor(actor);
+    if (report) I.say("Getting paid at "+venue);
     //Audit.auditEmployer(actor, venue) ;
     
     if (p.paymentDue() == 0) {
@@ -101,17 +121,16 @@ public class Payday extends Plan implements Economy {
       else {
       }
       //*/
-      final float balance = Audit.auditForBalance(actor, venue) ;
-      I.sayAbout(actor, "Getting balance: "+balance) ;
-      venue.base().incCredits(balance) ;
+      final float balance = Audit.auditForBalance(actor, venue, true);
+      if (report) I.say("Getting balance: "+balance);
+      venue.base().incCredits(balance);
     }
-    
-    final float wages = p.paymentDue() ;
-    I.sayAbout(actor, "Wages due "+wages) ;
-    venue.stocks.incCredits(0 - wages) ;
-    actor.gear.incCredits(wages) ;
-    p.clearWages(venue.world()) ;
-    return true ;
+
+    final float wages = p.paymentDue();
+    if (report) I.say("Wages due "+wages);
+    actor.gear.incCredits(wages);
+    p.clearWages(venue.world());
+    return true;
   }
   
   

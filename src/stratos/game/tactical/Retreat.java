@@ -113,10 +113,11 @@ public class Retreat extends Plan implements Qualities {
   public static Boardable nearestHaven(Actor actor, Class prefClass) {
     final boolean report = havenVerbose && I.talkAbout == actor;
     
+    final Presences presences = actor.world().presences;
+    
     final Batch <Target> considered = new Batch <Target> ();
-    considered.add(actor.world().presences.nearestMatch(
-      Economy.SERVICE_REFUGE, actor, -1
-    ));
+    considered.add(presences.nearestMatch(Venue.class, actor, -1));
+    considered.add(presences.nearestMatch(Economy.SERVICE_REFUGE, actor, -1));
     considered.add(pickWithdrawPoint(
       actor, actor.health.sightRange() + World.SECTOR_SIZE, actor, false
     ));
@@ -144,6 +145,7 @@ public class Retreat extends Plan implements Qualities {
     if (! (t instanceof Venue)) return 1 ;
     
     final Venue haven = (Venue) t ;
+    if (haven.mainEntrance() == null) return -1;
     if (! haven.structure.intact()) return -1 ;
     if (! haven.allowsEntry(actor)) return -1 ;
     
@@ -198,7 +200,7 @@ public class Retreat extends Plan implements Qualities {
       
       float rating = 0;
       i = 0; for (Target s : seen) {
-        final float distance = Spacing.distance(from, s);
+        final float distance = Spacing.distance(o, s);
         rating -= threats[i++] / (1 + distance);
       }
       rating /= 1 + Spacing.distance(under, actor);

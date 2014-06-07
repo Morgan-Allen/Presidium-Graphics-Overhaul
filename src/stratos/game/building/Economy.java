@@ -32,7 +32,7 @@ public interface Economy extends Qualities {
     CARBS       = new Service(BC, "Carbs"     , "carbs.gif"      , FC, 10 ),
     GREENS      = new Service(BC, "Greens"    , "greens.gif"     , FC, 25 ),
     PROTEIN     = new Service(BC, "Protein"   , "protein.gif"    , FC, 40 ),
-    ORGANICS    = new Service(BC, "Organics"  , "polymers.gif"   , FC, 60 ),
+    POLYMER     = new Service(BC, "Organics"  , "polymers.gif"   , FC, 60 ),
     SPICE_OIL   = new Service(BC, "Spice Oil" , "spice oil.gif"  , FC, 100),
     SPICE_GALL  = new Service(BC, "Spice Gall", "spice gall.gif" , FC, 200),
     //
@@ -309,10 +309,10 @@ public interface Economy extends Qualities {
       DIFFICULT_DC, ASSEMBLY, ROUTINE_DC, INSCRIPTION, SIMPLE_DC, FIELD_THEORY
     ),
     
-    CARBS_TO_PLASTICS = new Conversion(
-      1, CARBS, TO, 2, PLASTICS,
+    WASTE_TO_PLASTICS = new Conversion(
+      TO, 1, PLASTICS,
       "Fabricator",
-      ROUTINE_DC, CHEMISTRY, ROUTINE_DC, HANDICRAFTS
+      ROUTINE_DC, CHEMISTRY, SIMPLE_DC, ASSEMBLY
     ),
     
     PLASTICS_TO_DECOR = new Conversion(
@@ -353,26 +353,26 @@ public interface Economy extends Qualities {
     
     //
     //  Culture Vats/Sickbay conversions-
-    POWER_TO_CARBS = new Conversion(
-      1, POWER, TO, 1, CARBS,
+    WASTE_TO_CARBS = new Conversion(
+      TO, 1, CARBS,
       "CultureVats",
       SIMPLE_DC, CHEMISTRY
     ),
     
-    POWER_TO_PROTEIN = new Conversion(
-      2, POWER, TO, 1, PROTEIN,
+    CARBS_TO_PROTEIN = new Conversion(
+      2, CARBS, TO, 1, PROTEIN,
       "CultureVats",
       ROUTINE_DC, CHEMISTRY, ROUTINE_DC, GENE_CULTURE
     ),
     
-    GREENS_TO_SOMA = new Conversion(
-      2, POWER, 1, GREENS, TO, 10, SOMA,
+    CARBS_TO_SOMA = new Conversion(
+      2, CARBS, TO, 1, SOMA,
       "CultureVats",
       ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
     ),
     
     SPICE_TO_MEDICINE = new Conversion(
-      5, POWER, 1, TRUE_SPICE, TO, 5, MEDICINE,
+      1, TRUE_SPICE, TO, 5, MEDICINE,
       "CultureVats",
       MODERATE_DC, CHEMISTRY, ROUTINE_DC, PHARMACY
     ),

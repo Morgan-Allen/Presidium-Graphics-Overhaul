@@ -368,7 +368,8 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
   
   
   public TerrainChunk createOverlay(
-    final World world, Tile tiles[], final boolean nullsCount, String tex
+    final World world, Tile tiles[],
+    final boolean nullsCount, ImageAsset tex
   ) {
     if (tiles == null || tiles.length < 1) I.complain("No tiles in overlay!");
     final Table <Tile, Tile> pathTable = new Table(tiles.length * 2) ;

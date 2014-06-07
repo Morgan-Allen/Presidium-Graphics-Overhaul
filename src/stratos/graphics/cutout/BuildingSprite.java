@@ -137,21 +137,21 @@ public class BuildingSprite extends Sprite {
   
   
   public void readyFor(Rendering rendering) {
-    baseSprite.matchTo(this);
-    scaffoldBase.matchTo(this);
-    scaffolding.matchTo(this);
-    allStacks.matchTo(this);
     
     if (intact) {
+      baseSprite.matchTo(this);
       baseSprite.passType = this.passType;
       baseSprite.readyFor(rendering);
     }
     else {
+      scaffoldBase.matchTo(this);
+      scaffolding.matchTo(this);
       scaffoldBase.scale = size;
       scaffoldBase.passType = Sprite.PASS_SPLAT;
       scaffoldBase.readyFor(rendering);
       scaffolding.readyFor(rendering);
     }
+    allStacks.matchTo(this);
     allStacks.readyFor(rendering);
     
     final PlaneFX displayed = statusFX.atIndex(statusDisplayIndex) ;
@@ -246,8 +246,11 @@ public class BuildingSprite extends Sprite {
         maxStage = maxStages(),
         oldStage = scaffoldStage(size, high, oldCondition, maxStage),
         newStage = scaffoldStage(size, high, newCondition, maxStage);
-      if (oldStage == newStage) return ;
-      scaffolding = scaffoldFor(size, high, newCondition) ;
+      if (oldStage == newStage) return;
+      scaffolding = scaffoldFor(size, high, newCondition);
+    }
+    else {
+      scaffolding = null;
     }
   }
   

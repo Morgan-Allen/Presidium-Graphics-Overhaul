@@ -205,7 +205,7 @@ public class DrillYard extends Venue {
   
   private void updateSprite() {
     final boolean inUse = world.activities.includes(this, Drilling.class);
-    final GroupSprite s = (GroupSprite) buildSprite().baseSprite() ;
+    final GroupSprite s = (GroupSprite) buildSprite.baseSprite() ;
     final ModelAsset m =
       (drill == NOT_DRILLING || drill == STATE_RED_ALERT || ! inUse) ?
       BLANK_DRILL_MODEL : DRILL_MODELS[drill] ;

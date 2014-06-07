@@ -144,9 +144,14 @@ public class BotanicalStation extends Venue implements Economy {
     
     //  Otherwise, perform deliveries and more casual work-
     if (! personnel.onShift(actor)) return null ;
+    final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
+      this, services(), 2, 10, 5
+    );
+    /*
     final Delivery d = Deliveries.nextDeliveryFor(
       actor, this, services(), 10, world
     ) ;
+    //*/
     choice.add(d) ;
     
     //  Forestry may have to be performed, depending on need for gene samples-
@@ -184,7 +189,7 @@ public class BotanicalStation extends Venue implements Economy {
     updateAllotments(numUpdates) ;
     //
     //  Increment demand for gene seed, and decay current stocks-
-    stocks.incDemand(GENE_SEED, 5, VenueStocks.TIER_CONSUMER, 1, this) ;
+    stocks.incDemand(GENE_SEED, 5, Stocks.TIER_CONSUMER, 1, this) ;
     final float decay = 0.1f / World.STANDARD_DAY_LENGTH ;
     for (Item seed : stocks.matches(GENE_SEED)) {
       stocks.removeItem(Item.withAmount(seed, decay)) ;
@@ -195,13 +200,14 @@ public class BotanicalStation extends Venue implements Economy {
     structure.setAmbienceVal(2) ;
   }
   
-  
+  /*
   //
   //  TODO:  You need to cover the case of de-commissioning aura structures.
   //  ...in fact, try to generalise that more robustly.
   public void onDecommission() {
     super.onDecommission() ;
   }
+  //*/
   
   
   public void onDestruction() {

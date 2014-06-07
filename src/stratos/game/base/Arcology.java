@@ -18,7 +18,7 @@ import stratos.util.* ;
 
 
 
-public class Arcology extends Segment {
+public class Arcology extends Structural {
   
   
   
@@ -67,7 +67,7 @@ public class Arcology extends Segment {
   }
   
   
-  protected Segment instance(Base base) {
+  protected Structural instance(Base base) {
     return new Arcology(base);
   }
   
@@ -122,8 +122,7 @@ public class Arcology extends Segment {
   
   /**  Behaviour and economic functions-
     */
-  public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates) ;
+  public void onGrowth(Tile t) {
     /*
     //
     //  Demand water in proportion to dryness of the surrounding terrain.
@@ -145,16 +144,20 @@ public class Arcology extends Segment {
     //
     //  TODO:  UPDATE SPRITE TO REFLECT THIS.
     //*/
+    if (t != origin() || ! structure.intact()) return;
+    
     plantsHealth = 1 ;
-    //
-    //  Combat pollution and improve global biomass based on health.
-    world.ecology().impingeBiomass(origin(), 5 * plantsHealth, 1.0f);
-    structure.setAmbienceVal(10 * plantsHealth) ;
+    world.ecology().impingeBiomass(
+      origin(), 5 * plantsHealth, World.GROWTH_INTERVAL
+    );
+    structure.setAmbienceVal(10 * plantsHealth);
+    //base().paving.updatePerimeter(this, inWorld());
   }
   
   //
   //  TODO:  Have samples of various different indigenous or foreign flora,
   //  suited to the local climate.
+  /*
   private float numSaplings() {
     float num = 0 ;
     for (Item i : stocks.matches(SAMPLES)) {
@@ -168,11 +171,7 @@ public class Arcology extends Segment {
   private void updateSprite() {
     
   }
-  
-  
-  protected void updatePaving(boolean inWorld) {
-    base().paving.updatePerimeter(this, inWorld) ;
-  }
+  //*/
   
 
 

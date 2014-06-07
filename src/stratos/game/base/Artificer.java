@@ -126,11 +126,11 @@ public class Artificer extends Venue implements Economy {
   
   
   public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates) ;
-    if (! structure.intact()) return ;
-    stocks.translateDemands(1, PARTS_TO_CIRCUITRY, this) ;
-    stocks.incDemand(PARTS, 10, VenueStocks.TIER_PRODUCER, 1, this) ;
-    stocks.translateDemands(1, METALS_TO_PARTS, this) ;
+    super.updateAsScheduled(numUpdates);
+    if (! structure.intact()) return;
+    stocks.translateDemands(1, PARTS_TO_CIRCUITRY, this);
+    stocks.incDemand(PARTS, 10, Stocks.TIER_PRODUCER, 1, this);
+    stocks.translateDemands(1, METALS_TO_PARTS, this);
     
     float pollution = 5, powerNeed = 5 ;
     if (! isManned()) {
@@ -138,10 +138,9 @@ public class Artificer extends Venue implements Economy {
       powerNeed /= 2 ;
     }
     powerNeed *= (3 + structure.numUpgrades()) / 3 ;
-    pollution *= 2f / (2 + structure.upgradeLevel(MOLDING_PRESS)) ;
-    stocks.forceDemand(POWER, powerNeed, VenueStocks.TIER_CONSUMER) ;
-    stocks.removeItem(Item.withAmount(POWER, 0.1f * powerNeed)) ;
-    structure.setAmbienceVal(0 - pollution) ;
+    pollution *= 2f / (2 + structure.upgradeLevel(MOLDING_PRESS));
+    stocks.forceDemand(POWER, powerNeed, Stocks.TIER_CONSUMER);
+    structure.setAmbienceVal(0 - pollution);
   }
   
   

@@ -20,11 +20,14 @@ public class Visit <T> {
   public void visit(T o) {} ;
   
   
+  //  TODO:  Move these into a dedicated math class.
+  
   public static int clamp(int index, int range) {
     if (index < 0) return 0 ;
     if (index >= range) return range - 1 ;
     return index ;
   }
+  
   
   public static float clamp(float value, float min, float max) {
     if (value >= min && value <= max) return value ;
@@ -32,6 +35,15 @@ public class Visit <T> {
     if (value > max) return max ;
     return 0 ;
   }
+  
+  
+  public static int round(float value, int unit, boolean up) {
+    final float fraction = (value * 1f) / unit;
+    if (up) return (int) (Math.ceil(fraction) * unit);
+    return (int) (fraction * unit);
+  }
+  
+  
   
   
   public static Object last(Object o[]) {

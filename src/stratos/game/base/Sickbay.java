@@ -178,9 +178,9 @@ public class Sickbay extends Venue implements Economy {
     //
     //  Sickbays consumes medicine and power based on current upgrade level,
     //  and have a mild positive effect on ambience-
-    stocks.incDemand(MEDICINE , medNeed, VenueStocks.TIER_CONSUMER, 1, this) ;
-    stocks.incDemand(STIM_KITS, medNeed, VenueStocks.TIER_TRADER, 1, this) ;
-    stocks.forceDemand(POWER, powerNeed, VenueStocks.TIER_CONSUMER) ;
+    stocks.incDemand(MEDICINE , medNeed, Stocks.TIER_CONSUMER, 1, this) ;
+    stocks.incDemand(STIM_KITS, medNeed, Stocks.TIER_TRADER, 1, this) ;
+    stocks.forceDemand(POWER, powerNeed, Stocks.TIER_CONSUMER) ;
     structure.setAmbienceVal(numU * 2) ;
   }
   

@@ -144,13 +144,13 @@ public class Garrison extends Venue implements Economy {
   
   protected void updateDrillYard() {
     if (drillYard == null || drillYard.destroyed()) {
-      final DrillYard newYard = new DrillYard(this) ;
-      final Tile o = origin() ;
-      final int S = this.size ;
+      final DrillYard newYard = new DrillYard(this);
+      final Tile o = origin();
+      final int S = this.size;
       
       for (int n : TileConstants.N_ADJACENT) {
-        n = (n + 2) % 8 ;
-        newYard.setPosition(o.x + (N_X[n] * S), o.y + (N_Y[n] * S), world) ;
+        n = (n + 2) % 8;
+        newYard.setPosition(o.x + (N_X[n] * S), o.y + (N_Y[n] * S), world);
         if (newYard.canPlace()) {
           newYard.placeFromOrigin();
           drillYard = newYard ;
@@ -161,12 +161,15 @@ public class Garrison extends Venue implements Economy {
   }
   
   
+  //  TODO:  This needs to be generalised more robustly.
+  /*
   public void onDecommision() {
     super.onDecommission() ;
     if (drillYard != null) {
       drillYard.structure.setState(Structure.STATE_SALVAGE, -1) ;
     }
   }
+  //*/
   
   
   

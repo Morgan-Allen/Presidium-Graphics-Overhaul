@@ -28,28 +28,27 @@ public class Commerce implements Economy {
   private static boolean verbose = false;
   
   
-  final Base base ;
-  System homeworld ;
-  List <System> partners = new List <System> () ;
+  final Base base;
+  System homeworld;
+  final List <System> partners = new List <System> ();
   
-  final static int NUM_J = Backgrounds.ALL_BACKGROUNDS.length ;
+  final static int NUM_J = Backgrounds.ALL_BACKGROUNDS.length;
   final float
     jobSupply[] = new float[NUM_J],
-    jobDemand[] = new float[NUM_J] ;
+    jobDemand[] = new float[NUM_J];
   
-  
-  final List <Actor> candidates = new List <Actor> () ;
-  final List <Actor> migrantsIn = new List <Actor> () ;
+  final List <Actor> candidates = new List <Actor> ();
+  final List <Actor> migrantsIn = new List <Actor> ();
   
   final Inventory
     shortages = new Inventory(null),
-    surpluses = new Inventory(null) ;
+    surpluses = new Inventory(null);
   final Table <Service, Float>
     importPrices = new Table <Service, Float> (),
-    exportPrices = new Table <Service, Float> () ;
+    exportPrices = new Table <Service, Float> ();
   
-  private Dropship ship ;
-  private float nextVisitTime ;
+  private Dropship ship;
+  private float nextVisitTime;
   
   
   
@@ -241,27 +240,45 @@ public class Commerce implements Economy {
   /**  Assessing supply and demand associated with goods-
     */
   private void summariseDemand(Base base) {
-    shortages.removeAllItems() ;
-    surpluses.removeAllItems() ;
+    final boolean report = verbose;
+    if (report) I.say("\nSummarising demand for base: "+base);
     
-    final World world = base.world ;
-    final Tile t = world.tileAt(0, 0) ;
+    shortages.removeAllItems();
+    surpluses.removeAllItems();
     
-    for (Object o : world.presences.matchesNear(SupplyDepot.class, t, -1)) {
-      final SupplyDepot venue = (SupplyDepot) o ;
-      if (venue.base() != base) continue ;
-      for (Service type : ALL_COMMODITIES) {
-        final float shortage = venue.importShortage(type) ;
-        if (shortage > 0) shortages.addItem(Item.withAmount(type, shortage)) ;
-        final float surplus = venue.exportSurplus(type) ;
-        if (surplus  > 0) surpluses.addItem(Item.withAmount(type, surplus )) ;
+    final World world = base.world;
+    final Tile t = world.tileAt(0, 0);
+    
+    for (Object o : world.presences.matchesNear(base, t, -1)) {
+      final Venue venue = (Venue) o;
+      if (venue.privateProperty()) continue;
+      
+      for (Service type : venue.stocks.demanded()) {
+        if (type.form != FORM_COMMODITY) continue;
+        final int tier = venue.stocks.demandTier(type);
+        final float
+          demand = venue.stocks.shortageOf(type),
+          amount = venue.stocks.amountOf(type),
+          shortage,
+          surplus;
+        
+        if (tier == Stocks.TIER_PRODUCER) shortage = 0;
+        else shortage = Visit.round(demand - amount, 5, true);
+        
+        if (tier == Stocks.TIER_CONSUMER) surplus  = 0;
+        else surplus  = Visit.round(amount - demand, 5, true);
+        
+        shortages.bumpItem(type, shortage);
+        surpluses.bumpItem(type, surplus );
       }
     }
     
-    for (Item item : shortages.allItems()) {
-      shortages.removeItem(item) ;
-      final float bump = (float) Math.ceil(item.amount / 5f) * 5 ;
-      shortages.addItem(Item.withAmount(item, bump)) ;
+    if (report) {
+      I.say("Shortages for "+shortages.size()+" items");
+      for (Item i : shortages.allItems()) I.say("  "+i);
+      I.say("Surpluses for "+surpluses.size()+" items");
+      for (Item i : surpluses.allItems()) I.say("  "+i);
+      I.say("");
     }
   }
   
@@ -313,6 +330,16 @@ public class Commerce implements Economy {
       importPrices.put(type, basePrice * importMul) ;
       exportPrices.put(type, basePrice / exportDiv) ;
     }
+  }
+  
+  
+  public float localSurplus(Service type) {
+    return surpluses.amountOf(type);
+  }
+  
+  
+  public float localShortage(Service type) {
+    return shortages.amountOf(type);
   }
   
   

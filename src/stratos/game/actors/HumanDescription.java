@@ -159,7 +159,7 @@ public class HumanDescription implements Qualities {
     //d.appendList("\n\nMutations: "  , descTraits(traits.mutations  ())) ;
     
     d.append("\n\nRelationships: ") ;
-    for (Relation r : h.memories.relations()) {
+    for (Relation r : h.relations.relations()) {
       if (! (r.subject instanceof Actor)) continue;
       d.append("\n  ") ;
       d.append(r.subject) ;

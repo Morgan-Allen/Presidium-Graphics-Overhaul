@@ -35,7 +35,7 @@ public class Joining extends Plan {
   
   
   public Plan copyFor(Actor other) {
-    return new Joining(other, basis.copyFor(other), joined);
+    return null;
   }
   
   

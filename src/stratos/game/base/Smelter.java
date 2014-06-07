@@ -222,7 +222,7 @@ public class Smelter extends Venue implements Economy {
     final float xo = (size - 1) / -2f, yo = (size - 1) / -2f ;
     final GroupSprite s ;
     if (inWorld) {
-      s = (GroupSprite) buildSprite().baseSprite() ;
+      s = (GroupSprite) buildSprite.baseSprite() ;
     }
     else {
       s = new GroupSprite() ;

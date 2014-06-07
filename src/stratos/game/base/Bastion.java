@@ -189,10 +189,10 @@ public class Bastion extends Venue implements Economy {
     //
     //  Demand provisions-
     final int foodNeed = personnel.residents().size() + 5 ;
-    stocks.forceDemand(CARBS  , foodNeed * 1.5f, VenueStocks.TIER_CONSUMER) ;
-    stocks.forceDemand(PROTEIN, foodNeed * 1.0f, VenueStocks.TIER_CONSUMER) ;
-    stocks.forceDemand(GREENS , foodNeed * 1.0f, VenueStocks.TIER_CONSUMER) ;
-    stocks.forceDemand(TRUE_SPICE  , foodNeed * 0.5f, VenueStocks.TIER_CONSUMER) ;
+    stocks.forceDemand(CARBS  , foodNeed * 1.5f, Stocks.TIER_CONSUMER) ;
+    stocks.forceDemand(PROTEIN, foodNeed * 1.0f, Stocks.TIER_CONSUMER) ;
+    stocks.forceDemand(GREENS , foodNeed * 1.0f, Stocks.TIER_CONSUMER) ;
+    stocks.forceDemand(TRUE_SPICE  , foodNeed * 0.5f, Stocks.TIER_CONSUMER) ;
     //
     //  Modify maximum integrity based on upgrades-
     final int BB = structure.upgradeLevel(BLAST_SHIELDS) ;

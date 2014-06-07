@@ -13,8 +13,7 @@ import stratos.util.*;
 
 
 
-
-public class SolarBank extends Segment implements Economy {
+public class SolarBank extends Structural implements Economy {
   
   
   final static String
@@ -25,19 +24,11 @@ public class SolarBank extends Segment implements Economy {
       "solar_bank_left.png",
       "solar_bank_right.png",
       "solar_bank_centre.png"
-      //"windtrap_right.png",
-      //"power_hub_left.png",
-      //"power_hub_right.png"
     ),
     MODEL_LEFT       = ARRAY_MODELS[0],
     MODEL_RIGHT      = ARRAY_MODELS[1],
     MODEL_CENTRE     = ARRAY_MODELS[2];
-    /*
-    MODEL_TRAP_LEFT  = ARRAY_MODELS[2],
-    MODEL_TRAP_RIGHT = ARRAY_MODELS[3],
-    MODEL_HUB_LEFT   = ARRAY_MODELS[4],
-    MODEL_HUB_RIGHT  = ARRAY_MODELS[5];
-  //*/
+  
   final static ImageAsset ICON = ImageAsset.fromImage(
     "media/GUI/Buttons/solar_array_button.gif", SolarBank.class
   );
@@ -52,7 +43,6 @@ public class SolarBank extends Segment implements Economy {
   public SolarBank(Base base) {
     super(2, 2, base) ;
     structure.setupStats(10, 5, 40, 0, Structure.TYPE_FIXTURE) ;
-    personnel.setShiftType(SHIFTS_ALWAYS) ;
   }
   
   
@@ -66,7 +56,7 @@ public class SolarBank extends Segment implements Economy {
   }
   
   
-  protected Segment instance(Base base) {
+  protected Structural instance(Base base) {
     return new SolarBank(base);
   }
   
@@ -106,8 +96,8 @@ public class SolarBank extends Segment implements Economy {
   }
   
 
-  protected List <Segment> installedBetween(Tile start, Tile end) {
-    final List <Segment> installed = super.installedBetween(start, end);
+  protected List <Structural> installedBetween(Tile start, Tile end) {
+    final List <Structural> installed = super.installedBetween(start, end);
     if (installed == null) return installed;
     
     final int hubIndex = installed.size() / 2;
@@ -121,31 +111,26 @@ public class SolarBank extends Segment implements Economy {
   
   
   public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates) ;
-    if (! structure.intact()) return ;
-    //
-    //  TODO:  Power must be stockpiled by day and released slowly at night.
-    //  ...Maybe just a constant output could be assumed, for simplicity's
-    //  sake?  Or maybe the hub could detect shortages and release more power
-    //  to satisfy demand?
+    super.updateAsScheduled(numUpdates);
     
-    final float dayVal = Planet.dayValue(world) ;
-    stocks.bumpItem(POWER, 5 * dayVal / 10f, type == TYPE_HUB ? 100 : 10) ;
-    stocks.bumpItem(WATER, 1 * dayVal / 10f, 5 ) ;
+    //  TODO:  Vary this based on how much you have stocked of each over the
+    //  past 24 hours, sunlight/moisture values, et cetera.
+    structure.assignOutputs(
+      Item.withAmount(POWER, 2),
+      Item.withAmount(WATER, 0.5f)
+    );
   }
   
   
   protected void updatePaving(boolean inWorld) {
     if (type != TYPE_HUB) return ;
-    base().paving.updatePerimeter(this, inWorld) ;
+    final Paving paving = base().paving;
+    paving.updatePerimeter(this, inWorld);
     
-    final Tile o = origin() ;
-    base().paving.updateJunction(this, o, false) ;
-    
-    final Tile perim[] = Spacing.perimeter(area(), world) ;
+    final Tile perim[] = Spacing.perimeter(area(), world);
     for (int n = 0 ; n < perim.length ; n += 4) {
-      final Tile t = perim[n] ;
-      if (t != null) base().paving.updateJunction(this, t, inWorld) ;
+      final Tile t = perim[n];
+      if (t != null) paving.updateJunction(this, t, inWorld && ! t.blocked());
     }
   }
   

@@ -1,18 +1,21 @@
 
 
 
-package stratos.game.base ;
-import stratos.game.common.* ;
-import stratos.game.building.* ;
-import stratos.graphics.common.* ;
+package stratos.game.base;
+import stratos.game.common.*;
+import stratos.game.building.*;
+import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
-import stratos.graphics.widgets.* ;
-import stratos.user.* ;
-import stratos.util.* ;
+import stratos.graphics.widgets.*;
+import stratos.user.*;
+import stratos.util.*;
 
 
 
-public class Causeway extends Segment {
+//  TODO:  This needs to be placed spontaneously.
+
+
+public class Causeway extends Structural {
   
   
   final static String IMG_DIR = "media/Buildings/civilian/" ;
@@ -29,7 +32,7 @@ public class Causeway extends Segment {
     MODEL_FLAT_LEFT   = NODE_MODELS[2],
     MODEL_FLAT_RIGHT  = NODE_MODELS[2];
   final public static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/mag_line_button.gif", AuditOffice.class
+    "media/GUI/Buttons/mag_line_button.gif", Causeway.class
   );
   
   
@@ -49,7 +52,6 @@ public class Causeway extends Segment {
       0,   //max upogrades
       Structure.TYPE_FIXTURE
     );
-    personnel.setShiftType(SHIFTS_ALWAYS) ;
   }
   
   
@@ -63,7 +65,7 @@ public class Causeway extends Segment {
   }
   
   
-  protected Segment instance(Base base) {
+  protected Structural instance(Base base) {
     return new Causeway(base);
   }
   
@@ -151,7 +153,7 @@ public class Causeway extends Segment {
   
   
   public String buildCategory() {
-    return InstallTab.TYPE_ARTIFICER;
+    return InstallTab.TYPE_HIDDEN;
   }
 }
 

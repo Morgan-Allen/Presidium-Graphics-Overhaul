@@ -146,27 +146,6 @@ public final class PlayLoop {
           }
         }
       }, getConfig());
-      
-      //  TODO:  Figure out a way to schedule garbage collection that doesn't
-      //  suck.
-      //  http://stackoverflow.com/questions/6915633/how-to-increase-the-rate-of-gc-calls-in-java
-      //  http://www.oracle.com/technetwork/java/javase/gc-tuning-6-140523.html
-      /*
-      final Thread GCT = new Thread() {
-        public void run() {
-          while (true) {
-            if (numStateUpdates % UPDATES_PER_SECOND == 0) {
-              System.gc();
-            }
-            try { Thread.sleep(10); }
-            catch (Exception e) {}
-          }
-        }
-      };
-      GCT.setPriority(Thread.MIN_PRIORITY);
-      GCT.start();
-      //RuntimeUtil.gc();
-      //*/
     }
   }
   

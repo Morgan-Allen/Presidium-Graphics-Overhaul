@@ -375,7 +375,18 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     //
     //  TODO:  try to pick points far apart from eachother, and employ
     //  multiple samples for the purpose?
+    final Venue pick = (Venue) world.presences.randomMatchNear(
+      base, origin, range
+    );
+    if (pick != null) {
+      final Patrolling p = Patrolling.aroundPerimeter(actor, pick, world);
+      p.setMotive(Plan.MOTIVE_DUTY, priority);
+      return p;
+    }
     
+    //  TODO:  Restore sentry duty along shield walls!
+    
+    /*
     final Venue
       init = (Venue) world.presences.randomMatchNear(base, origin, range),
       dest = (Venue) world.presences.randomMatchNear(base, origin, range) ;
@@ -393,6 +404,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
         return s;
       }
     }
+    
     if (init != null && dest != null) {
       final Patrolling p = (init == dest) ?
         Patrolling.aroundPerimeter(actor, init, world) :
@@ -402,6 +414,8 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
         return p;
       }
     }
+    //*/
+    
     return null;
   }
   

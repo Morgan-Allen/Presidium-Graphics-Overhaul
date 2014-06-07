@@ -93,6 +93,9 @@ public class CargoBarge extends Vehicle implements
   }
   
   
+  public Service[] services() { return null; }
+  
+  
   
   /**  Rendering and interface methods-
     */

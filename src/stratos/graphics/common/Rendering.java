@@ -36,9 +36,9 @@ public class Rendering {
   
   //  first terrain, then cutouts, then solids, then sfx, then the UI.
   final public TerrainPass terrainPass;
-  final public SolidsPass solidsPass;
+  final public SolidsPass3 solidsPass ;
   final public CutoutsPass cutoutsPass;
-  final public SFXPass sfxPass;
+  final public SFXPass     sfxPass    ;
   
   final public SpriteBatch batch2D ;
   final public Fading fading;
@@ -49,7 +49,7 @@ public class Rendering {
     view = new Viewport();
     
     terrainPass = new TerrainPass(this);
-    solidsPass  = new SolidsPass (this);
+    solidsPass  = new SolidsPass3(this);
     cutoutsPass = new CutoutsPass(this);
     sfxPass     = new SFXPass    (this);
     
@@ -110,6 +110,7 @@ public class Rendering {
     glEnable(GL10.GL_BLEND);
     glDepthMask(true);
     glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL10.GL_TEXTURE);
     final Colour BC = backColour == null ? Colour.DARK_GREY : backColour;
     glClearColor(BC.r, BC.g, BC.b, BC.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

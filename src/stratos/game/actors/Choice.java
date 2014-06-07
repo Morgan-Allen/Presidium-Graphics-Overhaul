@@ -18,8 +18,8 @@ public class Choice implements Qualities {
     verbose       = false,
     verboseReject = verbose && false;
   
-  final Actor actor ;
-  final Batch <Behaviour> plans = new Batch <Behaviour> () ;
+  final Actor actor;
+  final Batch <Behaviour> plans = new Batch <Behaviour> ();
   public boolean isVerbose = false;
   
   

@@ -1,16 +1,15 @@
 
 
 
-package stratos.game.actors ;
-import stratos.game.building.Venue;
-import stratos.game.civilian.Accountable;
+package stratos.game.actors;
+import stratos.game.building.*;
+import stratos.game.civilian.*;
 import stratos.game.common.*;
-import stratos.game.common.Session.Saveable;
 import stratos.util.*;
 
 
 
-public class Memories {
+public class Relations {
   
   
   /**  Data fields, constructors and save/load methods-
@@ -26,7 +25,7 @@ public class Memories {
   final Table <Accountable, Relation> relations = new Table() ;
   
   
-  public Memories(Actor actor) {
+  public Relations(Actor actor) {
     this.actor = actor ;
   }
   
@@ -115,7 +114,7 @@ public class Memories {
   }
   
   
-  public float relationValue(Venue venue) {
+  public float relationValue(Installation venue) {
     if (venue == null) return 0 ;
     if (venue == actor.mind.home) return 1.0f ;
     if (venue == actor.mind.work) return 0.5f ;
@@ -132,7 +131,9 @@ public class Memories {
   
   
   public float relationValue(Object other) {
-    if (other instanceof Venue) return relationValue((Venue) other);
+    if (other instanceof Installation) {
+      return relationValue((Installation) other);
+    }
     if (other instanceof Actor) return relationValue((Actor) other);
     if (other instanceof Base ) return relationValue((Base ) other);
     return 0 ;

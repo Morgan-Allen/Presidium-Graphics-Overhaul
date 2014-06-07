@@ -34,7 +34,7 @@ public class DialogueUtils implements Qualities {
     Skill plea, float opposeDC, Actor actor, Actor other
   ) {
     final Skill language = languageFor(other);
-    final float attBonus = other.memories.relationValue(actor) * ROUTINE_DC;
+    final float attBonus = other.relations.relationValue(actor) * ROUTINE_DC;
     int result = 0;
     result += actor.traits.test(language, ROUTINE_DC - attBonus, 1) ? 1 : 0;
     result += actor.traits.test(plea, opposeDC - attBonus, 1) ? 1 : 0;
@@ -48,7 +48,7 @@ public class DialogueUtils implements Qualities {
     
     final float DC = other.traits.useLevel(SUASION) / 2;
     float success = talkResult(SUASION, DC, actor, other) ;
-    other.memories.incRelation(actor, success * Relation.MAG_CHATTING, 0.1f) ;
+    other.relations.incRelation(actor, success * Relation.MAG_CHATTING, 0.1f) ;
     
     switch (Rand.index(3)) {
       case (0) : anecdote(actor, other) ; break ;
@@ -94,8 +94,8 @@ public class DialogueUtils implements Qualities {
     final String desc = actor.traits.levelDesc(comp);
     
     final float effect = similarity * Relation.MAG_CHATTING;
-    other.memories.incRelation(actor, effect, 0.1f);
-    actor.memories.incRelation(other, effect, 0.1f);
+    other.relations.incRelation(actor, effect, 0.1f);
+    actor.relations.incRelation(other, effect, 0.1f);
     
     utters(actor, "It's important to be "+desc+".", 0) ;
     if (similarity > 0.5f) utters(other, "Absolutely.", effect) ;
@@ -110,10 +110,10 @@ public class DialogueUtils implements Qualities {
     //  on the subject.  TODO:  Include memories of recent activities?
     Relation pick = null;
     float bestRating = 0;
-    for (Relation r : actor.memories.relations()) {
+    for (Relation r : actor.relations.relations()) {
       if (r.subject == other || ! (r.subject instanceof Actor)) continue;
       final float
-        otherR = other.memories.relationValue(r.subject),
+        otherR = other.relations.relationValue(r.subject),
         rating = (FastMath.abs(otherR * r.value()) + 0.5f) * Rand.num();
       if (rating > bestRating) { pick = r; bestRating = rating; }
     }
@@ -124,15 +124,15 @@ public class DialogueUtils implements Qualities {
     }
     final Actor about = (Actor) pick.subject;
     final float
-      attA = actor.memories.relationValue(about),
-      attO = other.memories.relationValue(about);
+      attA = actor.relations.relationValue(about),
+      attO = other.relations.relationValue(about);
     
 
     final boolean agrees = FastMath.abs(attA - attO) < 0.5f;
     final float effect = 0.2f * (agrees ? 1 : -1) * Relation.MAG_CHATTING;
-    other.memories.incRelation(actor, effect / 2, 0.1f);
-    actor.memories.incRelation(other, effect / 2, 0.1f);
-    other.memories.incRelation(about, effect * pick.value(), 0.1f);
+    other.relations.incRelation(actor, effect / 2, 0.1f);
+    actor.relations.incRelation(other, effect / 2, 0.1f);
+    other.relations.incRelation(about, effect * pick.value(), 0.1f);
     
     utters(other, "What do you think of "+about+"?", 0);
     if (attA > 0.33f) {
@@ -178,8 +178,8 @@ public class DialogueUtils implements Qualities {
     if (other.traits.test(tested, level * Rand.num(), 0.5f)) effect += 5 ;
     else effect -= 5 ;
     effect *= Relation.MAG_CHATTING / 25f ;
-    other.memories.incRelation(actor, effect, 0.1f) ;
-    actor.memories.incRelation(other, effect, 0.1f) ;
+    other.relations.incRelation(actor, effect, 0.1f) ;
+    actor.relations.incRelation(other, effect, 0.1f) ;
     
     if (effect > 0) {
       utters(other, "You mean like this?", effect);
@@ -204,8 +204,6 @@ public class DialogueUtils implements Qualities {
   
   //  Put advice/study/instruction under a separate plan type?  Or have lines
   //  to speak for every skill, so they sound less generic?
-  
-  
   
   
   

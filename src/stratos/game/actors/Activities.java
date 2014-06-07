@@ -132,7 +132,26 @@ public class Activities {
     for (Behaviour b : onTarget) batch.add(b) ;
     return batch ;
   }
+  
+  
+  public Batch <Behaviour> actionMatches(Target t, Class planClass) {
+    final Batch <Behaviour> batch = new Batch <Behaviour> ();
+    final List <Behaviour> onTarget = activeTable.get(t);
+    if (onTarget == null) return batch;
+    
+    for (Behaviour b : onTarget) if (b instanceof Action) {
+      final Plan match = ((Action) b).actor.matchFor(planClass);
+      if (match != null) batch.add(match);
+    }
+    return batch;
+  }
 }
+
+
+
+
+
+
 
 
 

@@ -21,10 +21,8 @@ import stratos.util.*;
 
 
 
-public abstract class Venue extends Fixture implements
-  Schedule.Updates, Boardable, Installation,
-  Inventory.Owner, Employer,
-  Selectable, TileConstants, Economy
+public abstract class Venue extends Structural implements
+  Boardable, Inventory.Owner, Employer, Economy
 {
   
   
@@ -54,25 +52,21 @@ public abstract class Venue extends Fixture implements
     SHIFTS_BY_CALENDAR = 3 ;  //weekends and holidays off.  NOT DONE YET
   
   
-  BuildingSprite buildSprite ;
-  final Healthbar healthbar = new Healthbar();
-  final Label label = new Label();
   final public TalkFX chat = new TalkFX();
   
-  protected int entranceFace ;
-  protected Tile entrance ;
+  protected int entranceFace;
+  protected Tile entrance;
   
-  private Base base ;
-  private List <Mobile> inside = new List <Mobile> () ;
+  private List <Mobile> inside = new List <Mobile> ();
+  //  final protected List <Structural> children = new List <Structural> ();
   
-  final public Personnel   personnel = new Personnel(this)   ;
-  final public VenueStocks stocks    = new VenueStocks(this) ;
-  final public Structure   structure = new Structure(this)   ;
+  final public Personnel personnel = new Personnel(this);
+  final public Stocks stocks = new Stocks(this);
   
   
   
   public Venue(int size, int high, int entranceFace, Base base) {
-    super(size, high) ;
+    super(size, high, base) ;
     this.base = base ;
     this.entranceFace = entranceFace ;
   }
@@ -84,13 +78,10 @@ public abstract class Venue extends Fixture implements
 
     entranceFace = s.loadInt() ;
     entrance = (Tile) s.loadTarget() ;
-    base = (Base) s.loadObject() ;
     s.loadObjects(inside) ;
     
     personnel.loadState(s) ;
     stocks.loadState(s) ;
-    structure.loadState(s) ;
-    
   }
   
   
@@ -98,12 +89,10 @@ public abstract class Venue extends Fixture implements
     super.saveState(s) ;
     s.saveInt(entranceFace) ;
     s.saveTarget(entrance) ;
-    s.saveObject(base) ;
     s.saveObjects(inside) ;
     
     personnel.saveState(s) ;
     stocks.saveState(s) ;
-    structure.saveState(s) ;
   }
   
   
@@ -113,8 +102,7 @@ public abstract class Venue extends Fixture implements
   
   public int owningType() { return VENUE_OWNS ; }
   public Base base() { return base ; }
-  
-  protected BuildingSprite buildSprite() { return buildSprite ; }
+  //protected BuildingSprite buildSprite() { return buildSprite ; }
   
   
   public void assignBase(Base base) {
@@ -144,6 +132,11 @@ public abstract class Venue extends Fixture implements
   
   
   public void afterTransaction(Item item, float amount) {
+  }
+  
+  
+  public TalkFX chat() {
+    return chat;
   }
   
   
@@ -200,9 +193,8 @@ public abstract class Venue extends Fixture implements
   
   public boolean enterWorldAt(int x, int y, World world) {
     if (! super.enterWorldAt(x, y, world)) return false ;
-
     world.presences.togglePresence(this, true);
-    world.schedule.scheduleForUpdates(this);
+    //world.schedule.scheduleForUpdates(this);
     stocks.onWorldEntry();
     personnel.onCommission();
     return true ;
@@ -213,38 +205,34 @@ public abstract class Venue extends Fixture implements
     stocks.onWorldExit();
     personnel.onDecommission();
     world.presences.togglePresence(this, false);
-    if (base != null) updatePaving(false);
-    world.schedule.unschedule(this);
-    
     super.exitWorld() ;
   }
   
   
-  public void setAsEstablished(boolean isDone) {
-    super.setAsEstablished(isDone) ;
+  public float scheduledInterval() {
+    return 1 ;
   }
   
   
-  public void onCompletion() {
-    world.ephemera.addGhost(this, size, buildSprite.scaffolding(), 2.0f) ;
-    setAsEstablished(false) ;
+  public void updateAsScheduled(int numUpdates) {
+    if (destroyed()) {
+      I.say(this+" IS DESTROYED! SHOULD NOT BE ON SCHEDULE!") ;
+      this.setAsDestroyed() ;
+    }
+    structure.updateStructure(numUpdates);
+    if (! structure.needsSalvage()) {
+      if (base != null && numUpdates % 10 == 0) updatePaving(true) ;
+      personnel.updatePersonnel(numUpdates) ;
+    }
+    if (structure.intact()) {
+      stocks.updateStocks(numUpdates, services());
+    }
   }
   
   
-  public void onDecommission() {
-    world.ephemera.addGhost(this, size, buildSprite.baseSprite(), 2.0f) ;
-    setAsEstablished(false) ;
-  }
-  
-  
-  public void onDestruction() {
-    Wreckage.reduceToSlag(area(), world) ;
-  }
-  
-  
-  public void setAsDestroyed() {
-    buildSprite().clearFX() ;
-    super.setAsDestroyed() ;
+  protected void updatePaving(boolean inWorld) {
+    super.updatePaving(inWorld);
+    base.paving.updateJunction(this, mainEntrance(), inWorld);
   }
   
   
@@ -309,42 +297,6 @@ public abstract class Venue extends Fixture implements
   
   
   
-  /**  Updates and life cycle-
-    */
-  public float scheduledInterval() {
-    return 1 ;
-  }
-  
-  
-  public void updateAsScheduled(int numUpdates) {
-    if (destroyed()) {
-      I.say(this+" IS DESTROYED! SHOULD NOT BE ON SCHEDULE!") ;
-      this.setAsDestroyed() ;
-    }
-    structure.updateStructure(numUpdates) ;
-    if (! structure.needsSalvage()) {
-      if (base != null && numUpdates % 10 == 0) updatePaving(true) ;
-      personnel.updatePersonnel(numUpdates) ;
-    }
-    if (structure.intact()) {
-      stocks.updateStocks(numUpdates) ;
-    }
-  }
-  
-  
-  protected void updatePaving(boolean inWorld) {
-    if (inWorld) {
-      base.paving.updateJunction(this, mainEntrance(), true) ;
-      base.paving.updatePerimeter(this, true) ;
-    }
-    else {
-      base.paving.updatePerimeter(this, false) ;
-      base.paving.updateJunction(this, mainEntrance(), false) ;
-    }
-  }
-  
-  
-  
   /**  Recruiting staff and assigning manufacturing tasks-
     */
   public int numOpenings(Background v) {
@@ -391,161 +343,49 @@ public abstract class Venue extends Fixture implements
   
   /**  Installation interface-
     */
-  public int buildCost() {
-    return structure.buildCost() ;
+  protected boolean lockToGrid() { return false; }
+  protected Structural instance(Base base) { return this; }
+  protected void configFromAdjacent(boolean near[], int numNear) {}
+  
+  
+  private boolean setPreviewAt(Tile from) {
+    if (from == null) return false;
+    final int HS = size / 2;
+    final Tile at = from.world.tileAt(from.x - HS, from.y - HS);
+    if (at == null) return false;
+    setPosition(at.x, at.y, at.world);
+    return true;
   }
   
-  
-  public void placeFromOrigin() {
-    final Tile t = origin();
-    final int HS = this.size / 2;
-    doPlace(t.world.tileAt(t.x + HS, t.y + HS), null);
-  }
-  
-  //  TODO:  This built-in offset is introducing unnecesary complications.  Try
-  //  to move it back to the InstallTab/InstallTask code
   
   public boolean pointsOkay(Tile from, Tile to) {
-    //  You have to check for visibility too.  Have a Base argument?
-    if (from == null) return false ;
-    final int HS = this.size / 2;
-    final Tile t = from.world.tileAt(from.x - HS, from.y - HS) ;
-    if (t == null) return false;
-    setPosition(t.x, t.y, t.world) ;
-    return canPlace() ;
+    if (setPreviewAt(from)) return singlePointOkay();
+    return false;
   }
   
   
   public void doPlace(Tile from, Tile to) {
-    if (sprite() != null) sprite().colour = null ;
-    pointsOkay(from, to);
-    clearSurrounds() ;
-    enterWorld() ;
-    
-    if (GameSettings.buildFree) {
-      structure.setState(Structure.STATE_INTACT , 1) ;
-      //I.say("Now placing: "+this+" in intact state") ;
-    }
-    else {
-      structure.setState(Structure.STATE_INSTALL, 0) ;
-      //I.say("Now placing: "+this+" in install phase") ;
-    }
+    if (setPreviewAt(from)) singlePlacing(null);
   }
   
   
   public void preview(
     boolean canPlace, Rendering rendering, Tile from, Tile to
   ) {
-    if (from == null) return ;
-    pointsOkay(from, to);
-    
-    if (canPlace) BaseUI.current().selection.renderTileOverlay(
-      rendering, from.world, canPlace ? Colour.GREEN : Colour.RED,
-      Selection.SELECT_OVERLAY, false, this, this
-    );
-    
-    final Sprite sprite = this.buildSprite;
-    if (sprite == null) return ;
-    this.viewPosition(sprite.position);
-    sprite.colour = canPlace ? Colour.GREEN : Colour.RED ;
-    sprite.passType = Sprite.PASS_PREVIEW;
-    sprite.readyFor(rendering);
+    if (setPreviewAt(from)) singlePreview(canPlace, rendering);
   }
   
   
   
   /**  Interface methods-
     */
-  public String toString() {
-    return fullName() ;
-  }
-  
-
-  public TargetInfo configInfo(TargetInfo info, BaseUI UI) {
-    if (info == null) info = new TargetInfo(UI, this);
-    return info;
-  }
-  
-  
   public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
     return VenueDescription.configStandardPanel(this, panel, UI);
-  }
-
-  
-  public void whenTextClicked() {
-    BaseUI.current().selection.pushSelection(this, false);
-  }
-  
-  
-  public Target selectionLocksOn() { return this; }
-  
-  
-  
-  /**  Rendering methods-
-    */
-  public void attachSprite(Sprite sprite) {
-    if (sprite == null) super.attachSprite(null);
-    else {
-      buildSprite = BuildingSprite.fromBase(sprite, size, high);
-      super.attachSprite(buildSprite) ;
-    }
-  }
-  
-  
-  protected float fogFor(Base base) {
-    if (base == this.base) return (1 + super.fogFor(base)) / 2f ;
-    return super.fogFor(base) ;
   }
   
   
   protected boolean showLights() {
     return isManned() ;
-  }
-  
-  
-  protected void renderHealthbars(Rendering rendering, Base base) {
-    final boolean focused = BaseUI.isSelectedOrHovered(this);
-    final boolean alarm =
-      structure.intact() && (base == base() || focused) &&
-      (structure.burning() || structure.repairLevel() < 0.25f);
-    if ((! focused) && (! alarm)) return;
-    
-    final int NU = structure.numUpgrades();
-    healthbar.level = structure.repairLevel();
-    healthbar.size = (radius() * 50);
-    healthbar.size *= 1 + Structure.UPGRADE_HP_BONUSES[NU];
-    healthbar.matchTo(buildSprite);
-    healthbar.position.z += height() + 0.1f;
-    healthbar.readyFor(rendering);
-    
-    if (base() == null) healthbar.colour = Colour.LIGHT_GREY;
-    else healthbar.colour = base().colour;
-    healthbar.alarm = alarm;
-    
-    label.matchTo(buildSprite);
-    label.position.z += height() - 0.25f;
-    label.phrase = this.fullName();
-    label.readyFor(rendering);
-    label.fontScale = 1.0f;
-    
-    if (structure.needsUpgrade()) {
-      Healthbar progBar = new Healthbar();
-      progBar.level = structure.upgradeProgress();
-      progBar.size = healthbar.size;
-      progBar.position.setTo(healthbar.position);
-      progBar.yoff = Healthbar.BAR_HEIGHT;
-      
-      final Colour c = new Colour(healthbar.colour);
-      c.set(
-        (1 + c.r) / 2,
-        (1 + c.g) / 2,
-        (1 + c.b) / 2,
-        1
-      );
-      progBar.colour = c;
-      progBar.warn = healthbar.colour;
-      progBar.readyFor(rendering);
-    }
   }
   
   
@@ -572,7 +412,6 @@ public abstract class Venue extends Fixture implements
       chat.readyFor(rendering);
     }
   }
-  
   
   
   private boolean canShow(Service type) {
@@ -641,30 +480,30 @@ public abstract class Venue extends Fixture implements
   
   
   public void renderFor(Rendering rendering, Base base) {
-    position(buildSprite.position) ;
-    super.renderFor(rendering, base) ;
-    buildSprite.updateCondition(
-      structure.repairLevel(),
-      structure.intact(),
-      structure.burning()
-    ) ;
-    buildSprite.passType = Sprite.PASS_NORMAL;
+    super.renderFor(rendering, base);
     toggleStatusDisplay() ;
     updateItemSprites() ;
-    renderHealthbars(rendering, base) ;
     renderChat(rendering, base) ;
   }
   
   
+  
+  /*
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (destroyed() || ! inWorld()) return ;
+    BaseUI.current().selection.renderTileOverlay(
+      rendering, world,
+      hovered ? Colour.transparency(0.5f) : Colour.WHITE,
+      Selection.SELECT_OVERLAY, true, primary, group
+    );
     
     BaseUI.current().selection.renderTileOverlay(
       rendering, world,
       hovered ? Colour.transparency(0.5f) : Colour.WHITE,
-      Selection.SELECT_OVERLAY, true, this, this
+      Selection.SELECT_OVERLAY, true, this, this, children
     );
   }
+  //*/
 }
 
 

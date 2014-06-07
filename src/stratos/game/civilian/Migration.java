@@ -126,7 +126,6 @@ public class Migration extends Plan implements Economy {
   public boolean actionConsider(Actor actor, Target t) {
     if (initTime == -1) {
       initTime = actor.world().currentTime() ;
-      I.sayAbout(actor, "Setting initial time "+this.hashCode()) ;
       return true ;
     }
     return false ;

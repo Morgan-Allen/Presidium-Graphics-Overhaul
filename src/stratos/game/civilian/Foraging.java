@@ -133,15 +133,15 @@ public class Foraging extends Plan implements Economy {
         actor, source,
         this, "actionForage",
         Action.BUILD, "Foraging"
-      ) ;
-      //forage.setMoveTarget(Spacing.pickFreeTileAround(source, actor)) ;
+      );
+      forage.setMoveTarget(Spacing.nearestOpenTile(source, actor));
       return forage ;
     }
     else if (store != null && harvest > 0) {
       final Action returns = new Action(
         actor, store,
         this, "actionReturnHarvest",
-        Action.REACH_DOWN, "Returning harvest"
+        Action.REACH_DOWN, "Returning forage"
       ) ;
       return returns ;
     }
@@ -200,7 +200,7 @@ public class Foraging extends Plan implements Economy {
   /**  Rendering and interface-
     */
   public void describeBehaviour(Description d) {
-    d.append("Foraging") ;
+    if (super.needsSuffix(d, "Foraging"));
   }
 }
 

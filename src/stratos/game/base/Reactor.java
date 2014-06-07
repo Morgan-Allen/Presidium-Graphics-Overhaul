@@ -210,24 +210,22 @@ public class Reactor extends Venue implements Economy {
     super.updateAsScheduled(numUpdates) ;
     checkMeltdownAdvance() ;
     if (! structure.intact()) return ;
-    //
+    
     //  Calculate output of power and consumption of fuel-
     float fuelConsumed = 0.01f, powerOutput = 5 ;
-    fuelConsumed *= 2 / (2f + structure.upgradeLevel(WASTE_PROCESSING)) ;
-    powerOutput *= (2f + structure.upgradeLevel(FUSION_CONFINEMENT)) / 2 ;
-    if (stocks.amountOf(POWER) >= 50 + (powerOutput * 10)) {
-      fuelConsumed /= 10 ;
-      powerOutput = 0 ;
-    }
-    final Item fuel = Item.withAmount(FUEL_RODS, fuelConsumed) ;
-    if (stocks.hasItem(fuel)) stocks.removeItem(fuel) ;
-    else powerOutput /= 5 ;
-    stocks.bumpItem(POWER, powerOutput) ;
-    //
+    fuelConsumed *= 2 / (2f + structure.upgradeLevel(WASTE_PROCESSING));
+    powerOutput *= (2f + structure.upgradeLevel(FUSION_CONFINEMENT)) / 2;
+    
+    final Item fuel = Item.withAmount(FUEL_RODS, fuelConsumed);
+    if (stocks.hasItem(fuel)) stocks.removeItem(fuel);
+    else powerOutput /= 5;
+    
+    structure.assignOutputs(Item.withAmount(POWER, powerOutput));
+    
     //  Update demand for raw materials-
     stocks.forceDemand(
       FUEL_RODS, stocks.demandFor(POWER) / 5f,
-      VenueStocks.TIER_CONSUMER
+      Stocks.TIER_CONSUMER
     ) ;
     if (structure.upgradeLevel(ISOTOPE_CONVERSION) > 0) {
       stocks.translateDemands(1, METALS_TO_FUEL, this) ;

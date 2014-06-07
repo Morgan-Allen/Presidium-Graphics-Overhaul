@@ -162,13 +162,17 @@ public class Presences {
     Target t, World world, int limit,
     Series <? extends Target> sampled, Object... keys
   ) {
-    if (sampled == null) sampled = new Batch() ;
-    else if (sampled.size() > 0) for (Target o : sampled) flagItem(o, sampled) ;
-    for (Object key : keys) {
-      sampleTargets(key, t, world, limit, sampled) ;
+    if (sampled == null) sampled = new Batch();
+    else if (sampled.size() > 0) {
+      for (Target o : sampled) shouldFlag(o, sampled);
     }
-    for (Target o : sampled) flagItem(o, null) ;
-    return (Series) sampled ;
+    for (Object key : keys) {
+      sampleTargets(key, t, world, limit, sampled);
+    }
+    for (Target o : sampled) {
+      shouldFlag(o, null);
+    }
+    return (Series) sampled;
   }
   
   
@@ -176,33 +180,36 @@ public class Presences {
     Target t, World world, int limit,
     Series <? extends Target> sampled, Object key
   ) {
-    if (sampled == null) sampled = new Batch() ;
-    else if (sampled.size() > 0) for (Target o : sampled) flagItem(o, sampled) ;
-    sampleTargets(key, t, world, limit, sampled) ;
-    for (Target o : sampled) flagItem(o, null) ;
-    return (Series) sampled ;
+    if (sampled == null) sampled = new Batch();
+    else if (sampled.size() > 0) for (Target o : sampled) {
+      shouldFlag(o, sampled);
+    }
+    sampleTargets(key, t, world, limit, sampled);
+    for (Target o : sampled) {
+      shouldFlag(o, null);
+    }
+    return (Series) sampled;
   }
   
   
   private Series <Target> sampleTargets(
     Object key, Target t, World world, int limit, Series sampled
   ) {
-    for (int n = limit / 2 ; n-- > 0 ;) {
-      final Target v = randomMatchNear(key, t, -1) ;
-      if (v != t) flagItem(v, sampled);
+    for (int n = limit / 2; n-- > 0;) {
+      final Target v = randomMatchNear(key, t, -1);
+      if (v != t && shouldFlag(v, sampled)) sampled.add(v);
     }
     for (Object o : matchesNear(key, t, -1)) {
-      if (o != t) flagItem((Target) o, sampled);
-      if (sampled.size() >= limit) break ;
+      if (o != t && shouldFlag((Target) o, sampled)) sampled.add(o);
+      if (sampled.size() >= limit) break;
     }
-    return sampled ;
+    return sampled;
   }
   
   
-  private static boolean flagItem(Target item, Series sampled) {
+  private static boolean shouldFlag(Target item, Series sampled) {
     if (item == null) return false;
     if (item.flaggedWith() == sampled) return false;
-    if (sampled != null) sampled.add(item);
     item.flagWith(sampled);
     return true;
   }

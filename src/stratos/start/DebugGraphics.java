@@ -89,7 +89,7 @@ public class DebugGraphics {
           CS.fog = (i + 1) / 10f;
           CS.colour = Colour.transparency(CS.fog);
           CS.scale = 0.5f;
-          //sprites.add(CS);
+          sprites.add(CS);
         }
         
         final BuildingSprite BS = BuildingSprite.fromBase(VM, 4, 2);
@@ -110,7 +110,7 @@ public class DebugGraphics {
         BS.toggleFX(BuildingSprite.POWER_MODEL, true);
         BS.toggleFX(BuildingSprite.WATER_MODEL, true);
         BS.toggleFX(BuildingSprite.BLAST_MODEL, true);
-        //sprites.add(BS);
+        sprites.add(BS);
         
         final TalkFX FX1 = new TalkFX() {
           int count = 0;
@@ -122,7 +122,7 @@ public class DebugGraphics {
           }
         };
         FX1.position.set(0, 0, 2);
-        //sprites.add(FX1);
+        sprites.add(FX1);
         
         final ShieldFX FX2 = new ShieldFX() {
           public void readyFor(Rendering r) {
@@ -138,7 +138,7 @@ public class DebugGraphics {
         };
         FX2.scale = 1.5f;
         FX2.position.set(-2, 2, 0);
-        //sprites.add(FX2);
+        sprites.add(FX2);
         
         final ShotFX FX3 = new ShotFX(FM) {
           float lastTime = 0;
@@ -154,7 +154,7 @@ public class DebugGraphics {
         FX3.position.set(-2, 2, 0);
         FX3.origin.set(-1, 1, 0);
         FX3.target.set(-4, 4, 0);
-        //sprites.add(FX3);
+        sprites.add(FX3);
         
         PlayLoop.rendering().backColour = new Colour(0, 0, 1, 0);
       }

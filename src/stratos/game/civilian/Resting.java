@@ -8,6 +8,7 @@ import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
 import stratos.game.tactical.*;
+import stratos.game.building.Inventory.Owner;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -28,22 +29,22 @@ public class Resting extends Plan implements Economy {
     MODE_SLEEP    =  2,
     RELAX_TIME = World.STANDARD_HOUR_LENGTH / 2;
   
-  final Boardable restPoint ;
-  public int cost ;
+  final Owner restPoint;
+  public int cost;
   
-  private int currentMode = MODE_NONE ;
+  private int currentMode = MODE_NONE;
   private float relaxTime = 0;
   
   
-  public Resting(Actor actor, Target relaxesAt) {
-    super(actor, relaxesAt) ;
-    this.restPoint = (Boardable) relaxesAt ;
+  public Resting(Actor actor, Target point) {
+    super(actor, point);
+    this.restPoint = (point instanceof Owner) ? (Owner) point : actor;
   }
   
   
   public Resting(Session s) throws Exception {
     super(s) ;
-    this.restPoint = (Boardable) s.loadTarget() ;
+    this.restPoint = (Owner) s.loadTarget();
     this.cost = s.loadInt() ;
     this.currentMode = s.loadInt() ;
     this.relaxTime = s.loadFloat() ;
@@ -74,19 +75,19 @@ public class Resting extends Plan implements Economy {
     final boolean report = verbose && I.talkAbout == actor;
     float modifier = NO_MODIFIER, urgency = CASUAL;
     
+    //  Include location effects-
     final Ambience ambience = actor.world().ecology().ambience;
     modifier += ambience.valueAt(restPoint) * ROUTINE;
     
-    if (restPoint instanceof Tile) modifier -= 2 ;
-    if (restPoint == actor.mind.home()) modifier += 2 ;
     if (restPoint instanceof Venue) {
       final Venue venue = (Venue) restPoint ;
       if (! venue.structure.intact()) return 0;
-      final float relation = actor.memories.relationValue(venue) ;
-      if (relation > 0) modifier *= relation ;
-      else modifier -= relation * 5 ;
     }
-
+    if (restPoint != actor) {
+      modifier += actor.relations.relationValue(restPoint) * CASUAL;
+    }
+    
+    //  Include effects of fatigue-
     final float fatigue = actor.health.fatigueLevel() ;
     if (fatigue < 0.5f) {
       urgency *= fatigue * 2 ;
@@ -96,15 +97,15 @@ public class Resting extends Plan implements Economy {
       urgency = (urgency * f) + (PARAMOUNT * (1 - f)) ;
     }
     
-    if (restPoint instanceof Inventory.Owner) {
-      final Inventory.Owner owner = (Inventory.Owner) restPoint ;
-      float sumFood = 0 ;
-      for (Service s : menuFor(owner)) {
-        sumFood += owner.inventory().amountOf(s) ;
-      }
-      if (sumFood > 1) sumFood = 1 ;
-      urgency += actor.health.hungerLevel() * sumFood * PARAMOUNT ;
+    //  Include effects of hunger-
+    float sumFood = 0 ;
+    for (Service s : menuFor(restPoint)) {
+      sumFood += restPoint.inventory().amountOf(s) ;
     }
+    if (sumFood > 1) sumFood = 1 ;
+    urgency += actor.health.hungerLevel() * sumFood * PARAMOUNT ;
+    
+    //  Include pricing effects-
     if (cost > 0) {
       if (cost > actor.gear.credits() / 2) urgency -= ROUTINE ;
       urgency -= Plan.greedLevel(actor, cost) * ROUTINE ;
@@ -121,7 +122,7 @@ public class Resting extends Plan implements Economy {
   }
   
   
-  private static Batch <Service> menuFor(Inventory.Owner place) {
+  private static Batch <Service> menuFor(Owner place) {
     Batch <Service> menu = new Batch <Service> () ;
     for (Service type : ALL_FOOD_TYPES) {
       if (place.inventory().amountOf(type) >= 0.1f) menu.add(type) ;
@@ -132,12 +133,14 @@ public class Resting extends Plan implements Economy {
   
   protected Behaviour getNextStep() {
     if (restPoint == null) return null ;
+    /*
     if (restPoint instanceof Tile) {
       if (((Tile) restPoint).blocked()) return null ;
     }
+    //*/
     
     //  TODO:  Split dining off into a separate behaviour.
-    if (restPoint instanceof Venue && menuFor((Venue) restPoint).size() > 0) {
+    if (menuFor(restPoint).size() > 0) {
       if (actor.health.hungerLevel() > 0.1f) {
         final Action eats = new Action(
           actor, restPoint,
@@ -145,7 +148,6 @@ public class Resting extends Plan implements Economy {
           Action.BUILD, "Eating at "+restPoint
         ) ;
         currentMode = MODE_DINE ;
-        if (verbose) I.sayAbout(actor, "Returning eat action...") ;
         return eats ;
       }
     }
@@ -164,7 +166,7 @@ public class Resting extends Plan implements Economy {
   }
   
   
-  public boolean actionRest(Actor actor, Boardable place) {
+  public boolean actionRest(Actor actor, Owner place) {
     //
     //  Transfer any incidental groceries-
     if (place == actor.mind.home()) for (Service food : ALL_FOOD_TYPES) {
@@ -197,12 +199,12 @@ public class Resting extends Plan implements Economy {
   }
 
   
-  public boolean actionEats(Actor actor, Venue place) {
+  public boolean actionEats(Actor actor, Owner place) {
     return dineFrom(actor, place) ;
   }
   
   
-  public static boolean dineFrom(Actor actor, Inventory.Owner stores) {
+  public static boolean dineFrom(Actor actor, Owner stores) {
     final Batch <Service> menu = menuFor(stores);
     final int numFoods = menu.size();
     

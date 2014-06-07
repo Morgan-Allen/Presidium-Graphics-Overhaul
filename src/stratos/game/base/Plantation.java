@@ -263,7 +263,7 @@ public class Plantation extends Venue implements
   
   protected void refreshCropSprites() {
     if (sprite() != null) {
-      final GroupSprite oldSprite = (GroupSprite) buildSprite().baseSprite() ;
+      final GroupSprite oldSprite = (GroupSprite) buildSprite.baseSprite() ;
       world.ephemera.addGhost(this, 2, oldSprite, 2.0f) ;
     }
     

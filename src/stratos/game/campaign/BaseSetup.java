@@ -16,13 +16,13 @@ public class BaseSetup {
   public static void establishRelations(Series <? extends Actor>... among) {
     for (Series <? extends Actor> sF : among) for (Actor f : sF) {
       for (Series <? extends Actor> tF : among) for (Actor t : tF) {
-        if (f == t || f.memories.hasRelation(t)) continue;
+        if (f == t || f.relations.hasRelation(t)) continue;
         
         float initRelation = 0 ;
         for (int n = 10 ; n-- > 0 ;) {
           initRelation += DialogueUtils.tryChat(f, t) ;
         }
-        f.memories.setRelation(t, initRelation, Rand.num()) ;
+        f.relations.setRelation(t, initRelation, Rand.num()) ;
       }
     }
   }

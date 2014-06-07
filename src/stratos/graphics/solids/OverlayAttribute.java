@@ -1,7 +1,9 @@
-package stratos.graphics.solids;
 
+
+package stratos.graphics.solids;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Attribute;
+
 
 
 

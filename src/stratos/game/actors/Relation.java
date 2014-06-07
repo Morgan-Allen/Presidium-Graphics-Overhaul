@@ -42,7 +42,7 @@ public class Relation {
     NOVELTY_INTERVAL = World.STANDARD_DAY_LENGTH * NOVELTY_DAYS,
     FAMILIARITY_UNIT = 10,
     BASE_NUM_FRIENDS = 5 ,
-    MAX_RELATIONS    = 25;
+    MAX_RELATIONS    = 10;
   
   final static String DESCRIPTORS[] = {
     "Soulmate",
@@ -119,7 +119,9 @@ public class Relation {
   /**  Accessing and modifying the content of the relationship-
     */
   protected void update() {
-    novelty += MAX_VALUE * 1f / NOVELTY_INTERVAL;
+    //  
+    final float inRange = (1 + value()) / 2f;
+    novelty += MAX_VALUE * 1f * inRange / NOVELTY_INTERVAL;
   }
   
   

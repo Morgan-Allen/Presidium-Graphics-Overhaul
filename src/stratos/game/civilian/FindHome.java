@@ -114,14 +114,12 @@ public class FindHome extends Plan implements Economy {
     final Venue v = (Venue) newHome ;
     v.placeFromOrigin() ;
     client.mind.setHome(v) ;
-    if (verbose) I.sayAbout(actor, "siting home at: "+v.origin()) ;
     return true ;
   }
   
   
   public boolean actionFindHome(Actor client, Employer best) {
     if (best.homeCrowding(client) >= 1) {
-      if (verbose) I.sayAbout(actor, "No space!") ;
       abortBehaviour();
       return false;
     }
@@ -271,7 +269,7 @@ public class FindHome extends Plan implements Economy {
     final Series <Actor> residents = newHome.personnel().residents() ;
     if (residents.size() > 0) {
       float averageRelations = 0 ; for (Actor a : residents) {
-        averageRelations += actor.memories.relationValue(a) ;
+        averageRelations += actor.relations.relationValue(a) ;
       }
       averageRelations /= residents.size() ;
       rating += averageRelations * 2 ;

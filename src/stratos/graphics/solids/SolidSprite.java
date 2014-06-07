@@ -14,6 +14,7 @@ import org.apache.commons.math3.util.FastMath;
 
 public class SolidSprite extends Sprite implements RenderableProvider {
   
+  
   final static float ANIM_INTRO_TIME = 0.2f;
   private static boolean verbose = true;
   
@@ -60,7 +61,7 @@ public class SolidSprite extends Sprite implements RenderableProvider {
   
   public void readyFor(Rendering rendering) {
     //  Set up the translation matrix based on game-world position and facing-
-    rendering.view.worldToGL(position, tempV);
+    Viewport.worldToGL(position, tempV);
     transform.setToTranslation(tempV);
     transform.scl(tempV.set(scale, scale, scale));
     final float radians = (float) FastMath.toRadians(90 - rotation);
@@ -103,6 +104,39 @@ public class SolidSprite extends Sprite implements RenderableProvider {
   
   /**  Rendering and animation-
    */
+  protected void addRenderables(Series <Renderable> renderables) {
+    //  In either case, you'll need to set up renderables for each node part-
+    for (int i = 0; i < model.allParts.length; i++) {
+      final NodePart part = model.allParts[i];
+      if ((hideMask & (1 << i)) != 0) continue;
+      final Renderable r = new Renderable();
+      
+      final int numBones = part.invBoneBindTransforms.size;
+      //  TODO:  Use an object pool for these, if possible?
+      final Matrix4 boneSet[] = new Matrix4[numBones];
+      for (int b = 0; b < numBones; b++) {
+        final Node node = part.invBoneBindTransforms.keys[b];
+        final Matrix4 offset = part.invBoneBindTransforms.values[b];
+        boneSet[b] = new Matrix4(boneFor(node)).mul(offset);
+      }
+      
+      final int matIndex = model.indexFor(part.material);
+      
+      //  TODO:  What about world transforms?
+      r.worldTransform.set(transform);
+      r.material       = materials[matIndex];
+      r.bones          = boneSet;
+      r.mesh           = part.meshPart.mesh;
+      r.meshPartOffset = part.meshPart.indexOffset;
+      r.meshPartSize   = part.meshPart.numVertices;
+      r.primitiveType  = part.meshPart.primitiveType;
+      renderables.add(r);
+    }
+  }
+  
+  //  TODO:  Delete the method below once the new rendering pass is set up, and
+  //  replace it with the above.
+  
   public void getRenderables(
     Array<Renderable> renderables,
     Pool<Renderable> pool
@@ -130,7 +164,6 @@ public class SolidSprite extends Sprite implements RenderableProvider {
       r.meshPartOffset = part.meshPart.indexOffset;
       r.meshPartSize   = part.meshPart.numVertices;
       r.primitiveType  = part.meshPart.primitiveType;
-      
       renderables.add(r);
     }
   }

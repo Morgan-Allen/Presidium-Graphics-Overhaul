@@ -55,7 +55,7 @@ public class Profile {
   public float daysSincePsychEval(World world) {
     ///I.sayAbout(actor, "Last time: "+lastPsychEval) ;
     final float interval ;
-    if (lastPsychEval == -1) interval = World.STANDARD_YEAR_LENGTH  ;
+    if (lastPsychEval == -1) interval = World.STANDARD_YEAR_LENGTH ;
     else interval = world.currentTime() - lastPsychEval ;
     return interval / World.STANDARD_DAY_LENGTH ;
   }
@@ -82,6 +82,9 @@ public class Profile {
     if (actor.vocation() == null) return 0;
     final int standing = actor.vocation().standing ;
     if (standing == Backgrounds.CLASS_NATIVE) return 0 ;
+    
+    //  TODO:  Reconsider this.
+    /*
     //
     //  Rulers draw directly on the finances of the state if they have any
     //  particular shortage of funds.
@@ -91,6 +94,7 @@ public class Profile {
       }
       else return 0 ;
     }
+    //*/
     return Backgrounds.HIRE_COSTS[standing] ;
   }
   
@@ -105,15 +109,15 @@ public class Profile {
   }
   
   
-  public float daysSinceWageEval(World world) {
+  public float daysSincePayment(World world) {
     final float interval = world.currentTime() - lastWageEval ;
     return interval / World.STANDARD_DAY_LENGTH ;
   }
   
   
   public void clearWages(World world) {
-    paymentDue = 0 ;
-    lastWageEval = world.currentTime() ;
+    paymentDue = 0;
+    lastWageEval = world.currentTime();
   }
 }
 

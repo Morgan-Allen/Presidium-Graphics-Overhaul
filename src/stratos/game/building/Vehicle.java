@@ -10,15 +10,11 @@ import stratos.game.actors.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
-import stratos.graphics.widgets.HUD;
+import stratos.graphics.sfx.TalkFX;
 import stratos.user.*;
 import stratos.util.*;
 
 
-
-
-//
-//  TODO:  Have Employment return a Personnel class.
 
 
 public abstract class Vehicle extends Mobile implements
@@ -30,7 +26,7 @@ public abstract class Vehicle extends Mobile implements
   /**  Fields, constants, constructors and save/load methods-
     */
   protected Base base ;
-  final public Inventory cargo = new Inventory(this) ;
+  final public Stocks cargo = new Stocks(this) ;
   final public Structure structure = new Structure(this) ;
   final Personnel personnel = new Personnel(this) ;
   
@@ -41,6 +37,8 @@ public abstract class Vehicle extends Mobile implements
   
   protected float entranceFace = Venue.ENTRANCE_NONE ;
   protected Boardable dropPoint ;
+  
+  final TalkFX chat = new TalkFX();
   
   
   public Vehicle() {
@@ -140,8 +138,13 @@ public abstract class Vehicle extends Mobile implements
   public void afterTransaction(Item item, float amount) {
   }
   
+  
+  public TalkFX chat() {
+    return chat;
+  }
+  
 
-  public Index<Upgrade> allUpgrades() {
+  public Index <Upgrade> allUpgrades() {
     return null;
   }
   
@@ -211,7 +214,8 @@ public abstract class Vehicle extends Mobile implements
   
   public void updateAsScheduled(int numUpdates) {
     super.updateAsScheduled(numUpdates);
-    structure.updateStructure(numUpdates) ;
+    structure.updateStructure(numUpdates);
+    cargo.updateStocks(numUpdates, services());
     //
     //  TODO:  Restore this once building/salvage of vehicles is complete.
     ///if (! structure.intact()) return ;
@@ -374,6 +378,16 @@ public abstract class Vehicle extends Mobile implements
   protected float fogFor(Base base) {
     if (base == this.base) return (1 + super.fogFor(base)) / 2f ;
     return super.fogFor(base) ;
+  }
+  
+  
+  public void renderFor(Rendering rendering, Base base) {
+    super.renderFor(rendering, base);
+    if (chat.numPhrases() > 0) {
+      chat.position.setTo(sprite().position);
+      chat.position.z += height();
+      chat.readyFor(rendering);
+    }
   }
   
 

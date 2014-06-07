@@ -38,7 +38,7 @@ public class StartupScenario extends Scenario {
   } ;
   final public static Background COLONIST_BACKGROUNDS[] = {
     Backgrounds.VOLUNTEER,
-    Backgrounds.SUPPLY_CORPS,
+    Backgrounds.FAB_WORKER,
     Backgrounds.FABRICATOR,
     Backgrounds.TECHNICIAN,
     Backgrounds.CULTIVATOR,

@@ -16,7 +16,7 @@ import stratos.util.*;
 
 
 
-public class LandingStrip extends Venue {
+public class LaunchHangar extends Venue {
   
   
   
@@ -24,44 +24,37 @@ public class LandingStrip extends Venue {
     */
   final static String IMG_DIR = "media/Buildings/merchant/" ;
   final public static ModelAsset MODEL = CutoutModel.fromSplatImage(
-    LandingStrip.class, IMG_DIR+"landing_strip.png", 4.25f
+    LaunchHangar.class, IMG_DIR+"landing_strip.png", 4.25f
   );
   
   
-  
-  final SupplyDepot belongs ;
-  private Dropship docking ;
+  private Dropship docking;
   
   
-  public LandingStrip(SupplyDepot belongs) {
-    super(4, 1, ENTRANCE_NORTH, belongs.base()) ;
-    structure.setupStats(50, 10, 25, 0, Structure.TYPE_FIXTURE) ;
-    this.belongs = belongs ;
-    
-    //final GroupSprite sprite = new GroupSprite() ;
-    //sprite.attach(STRIP_MODEL, 0, 0, -0.05f) ;
-    //attachSprite(sprite);
+  
+  public LaunchHangar(FRSD belongs) {
+    super(4, 1, ENTRANCE_NORTH, belongs.base());
+    structure.setupStats(50, 10, 25, 0, Structure.TYPE_FIXTURE);
     attachModel(MODEL);
   }
   
 
-  public LandingStrip(Session s) throws Exception {
-    super(s) ;
-    belongs = (SupplyDepot) s.loadObject() ;
-    docking = (Dropship) s.loadObject() ;
+  public LaunchHangar(Session s) throws Exception {
+    super(s);
+    docking = (Dropship) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
-    s.saveObject(belongs) ;
-    s.saveObject(docking) ;
+    super.saveState(s);
+    s.saveObject(docking);
   }
   
   
   
   /**  Owning/pathing modifications-
     */
+  /*
   public int owningType() {
     return VENUE_OWNS ;
   }
@@ -87,6 +80,7 @@ public class LandingStrip extends Venue {
   protected boolean canTouch(Element e) {
     return (e.owningType() < this.owningType()) || e == belongs ;
   }
+  //*/
   
   
   
@@ -135,27 +129,29 @@ public class LandingStrip extends Venue {
   /**  Rendering and interface methods-
     */
   public Composite portrait(BaseUI UI) {
-    return Composite.withImage(SupplyDepot.ICON, "landing_strip");
+    return Composite.withImage(FRSD.ICON, "landing_strip");
   }
   
   
   public String fullName() {
-    return "Landing Strip" ;
+    return "Launch Hangar" ;
   }
   
   
   public String helpInfo() {
     return
-      "The Landing Strip provides offworld freighters with a convenient area "+
-      "to land and refuel, facilitating sanctioned trade and migration." ;
+      "The Launch Hangar allows you to establish a local air force, while "+
+      "providing smaller dropships with a convenient site to land and "+
+      "refuel, so facilitating offworld trade and migration.";
   }
   
   
   public String buildCategory() {
-    return InstallTab.TYPE_MERCHANT ;
+    return InstallTab.TYPE_MILITANT;
   }
   
   
+  /*
   public TargetInfo configInfo(TargetInfo info, BaseUI UI) {
     return belongs.configInfo(info, UI);
   }
@@ -169,6 +165,7 @@ public class LandingStrip extends Venue {
   public void renderSelection(Rendering rendering, boolean hovered) {
     belongs.renderSelection(rendering, hovered);
   }
+  //*/
 }
 
 

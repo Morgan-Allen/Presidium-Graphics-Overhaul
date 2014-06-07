@@ -23,18 +23,18 @@ public class Structure {
     DEFAULT_ARMOUR     = 1,
     DEFAULT_CLOAKING   = 0,
     DEFAULT_BUILD_COST = 50,
-    DEFAULT_AMBIENCE   = 0 ;
+    DEFAULT_AMBIENCE   = 0;
   final public static float
     BURN_PER_SECOND = 1.0f,
-    WEAR_PER_DAY    = 1f / 20,
-    REGEN_PER_DAY   = 0.2f ;
+    WEAR_PER_DAY    = 0.5f,
+    REGEN_PER_DAY   = 0.2f;
   
   final public static int
     STATE_NONE    =  0,
     STATE_INSTALL =  1,
     STATE_INTACT  =  2,
     STATE_SALVAGE =  3,
-    STATE_RAZED   =  4 ;
+    STATE_RAZED   =  4;
   final static String STATE_DESC[] = {
     "N/A",
     "Installing",
@@ -64,13 +64,14 @@ public class Structure {
     0.5f , 0.55f, 0.55f, 0.6f , 0.6f , 0.65f
   } ;
   
-  private static boolean verbose = false ;
+  private static boolean
+    verbose = false;
   
   
   final Installation basis ;
   
   private int baseIntegrity = DEFAULT_INTEGRITY ;
-  private int maxUpgrades = NO_UPGRADES ;
+  private int maxUpgrades   = NO_UPGRADES ;
   private int
     buildCost     = DEFAULT_BUILD_COST,
     armouring     = DEFAULT_ARMOUR,
@@ -87,6 +88,10 @@ public class Structure {
   private Upgrade upgrades[] = null ;
   private int upgradeStates[] = null ;
   
+  private Item
+    materials[],
+    outputs[];
+  
   
   
   Structure(Installation basis) {
@@ -95,54 +100,61 @@ public class Structure {
   
   
   public void loadState(Session s) throws Exception {
-    baseIntegrity = s.loadInt() ;
-    maxUpgrades = s.loadInt() ;
-    buildCost = s.loadInt() ;
-    armouring = s.loadInt() ;
-    cloaking  = s.loadInt() ;
-    ambienceVal = s.loadInt() ;
-    structureType = s.loadInt() ;
+    baseIntegrity = s.loadInt();
+    maxUpgrades = s.loadInt();
+    buildCost = s.loadInt();
+    armouring = s.loadInt();
+    cloaking = s.loadInt();
+    ambienceVal = s.loadInt();
+    structureType = s.loadInt();
+
+    state = s.loadInt();
+    integrity = s.loadFloat();
+    burning = s.loadBool();
     
-    state = s.loadInt() ;
-    integrity = s.loadFloat() ;
-    burning = s.loadBool() ;
-    
-    Index <Upgrade> AU = basis.allUpgrades() ;
+    Index <Upgrade> AU = basis.allUpgrades();
     if (AU != null) {
-      upgradeProgress = s.loadFloat() ;
-      upgradeIndex = s.loadInt() ;
-      upgrades = new Upgrade[maxUpgrades] ;
-      upgradeStates = new int[maxUpgrades] ;
+      upgradeProgress = s.loadFloat();
+      upgradeIndex = s.loadInt();
+      upgrades = new Upgrade[maxUpgrades];
+      upgradeStates = new int[maxUpgrades];
+      
       for (int i = 0 ; i < maxUpgrades ; i++) {
-        upgrades[i] = AU.loadMember(s.input()) ;
-        upgradeStates[i] = s.loadInt() ;
+        upgrades[i] = AU.loadMember(s.input());
+        upgradeStates[i] = s.loadInt();
       }
     }
+    
+    materials = Item.loadItemsFrom(s);
+    outputs = Item.loadItemsFrom(s);
   }
   
   
   public void saveState(Session s) throws Exception {
-    s.saveInt(baseIntegrity) ;
-    s.saveInt(maxUpgrades) ;
-    s.saveInt(buildCost) ;
-    s.saveInt(armouring) ;
-    s.saveInt(cloaking) ;
-    s.saveInt(ambienceVal) ;
-    s.saveInt(structureType) ;
+    s.saveInt(baseIntegrity);
+    s.saveInt(maxUpgrades);
+    s.saveInt(buildCost);
+    s.saveInt(armouring);
+    s.saveInt(cloaking);
+    s.saveInt(ambienceVal);
+    s.saveInt(structureType);
+
+    s.saveInt(state);
+    s.saveFloat(integrity);
+    s.saveBool(burning);
     
-    s.saveInt(state) ;
-    s.saveFloat(integrity) ;
-    s.saveBool(burning) ;
-    
-    Index <Upgrade> AU = basis.allUpgrades() ;
+    Index <Upgrade> AU = basis.allUpgrades();
     if (AU != null) {
-      s.saveFloat(upgradeProgress) ;
-      s.saveInt(upgradeIndex) ;
-      for (int i = 0 ; i < maxUpgrades ; i++) {
-        AU.saveMember(upgrades[i], s.output()) ;
-        s.saveInt(upgradeStates[i]) ;
+      s.saveFloat(upgradeProgress);
+      s.saveInt(upgradeIndex);
+      for (int i = 0; i < maxUpgrades; i++) {
+        AU.saveMember(upgrades[i], s.output());
+        s.saveInt(upgradeStates[i]);
       }
     }
+    
+    Item.saveItemsTo(s, materials);
+    Item.saveItemsTo(s, outputs);
   }
   
   
@@ -152,13 +164,11 @@ public class Structure {
     int buildCost,
     int maxUpgrades,
     int type
-    //boolean organic
   ) {
     this.integrity = this.baseIntegrity = baseIntegrity ;
     this.armouring = armouring ;
     this.buildCost = buildCost ;
     this.structureType = type ;
-    //this.organic = organic ;
     
     this.maxUpgrades = maxUpgrades ;
     this.upgrades = new Upgrade[maxUpgrades] ;
@@ -167,17 +177,33 @@ public class Structure {
   
   
   public void updateStats(int baseIntegrity, int armouring, int cloaking) {
-    final float condition = integrity * 1f / maxIntegrity() ;
-    this.baseIntegrity = baseIntegrity ;
-    this.armouring = armouring ;
-    this.cloaking  = cloaking  ;
-    integrity = condition * maxIntegrity() ;
-    //checkMaintenance() ;
+    final float condition = integrity * 1f / maxIntegrity();
+    this.baseIntegrity = baseIntegrity;
+    this.armouring = armouring;
+    this.cloaking = cloaking;
+    integrity = condition * maxIntegrity();
   }
   
   
   public void setAmbienceVal(float val) {
     this.ambienceVal = (int) val ;
+  }
+  
+  
+  public void assignMaterials(Item... materials) {
+    this.materials = materials;
+  }
+  
+  
+  public void assignOutputs(Item... outputs) {
+    this.outputs = outputs;
+  }
+  
+  
+  public float outputOf(Service outType) {
+    if (outputs == null) return 0;
+    for (Item i : outputs) if (i.type == outType) return i.amount;
+    return 0;
   }
   
   
@@ -200,10 +226,9 @@ public class Structure {
       (numUpdates % 10 == 0) &&
       takesWear() && (integrity > 0)
     ) {
-      float wear = baseIntegrity * WEAR_PER_DAY ;
-      wear *= 10f / World.STANDARD_DAY_LENGTH ;
-      if (structureType == TYPE_FIXTURE) wear /= 2 ;
-      if (structureType == TYPE_CRAFTED) wear *= 2 ;
+      float wear = WEAR_PER_DAY * 10f / World.STANDARD_DAY_LENGTH;
+      if (structureType == TYPE_FIXTURE) wear /= 2;
+      if (structureType == TYPE_CRAFTED) wear *= 2;
       if (Rand.num() > armouring / (armouring + DEFAULT_ARMOUR)) {
         takeDamage(wear * Rand.num() * 2) ;
       }

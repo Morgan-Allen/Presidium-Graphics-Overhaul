@@ -477,23 +477,34 @@ public class Power implements Qualities {
             affects, (Actor) selected, Dialogue.TYPE_CONTACT
           ) ;
         }
-        if (command == null) return false ;
+        if (command == null) return false;
         
-        float priorityMod = Plan.ROUTINE ;
+        final float truePriority = command.priorityFor(affects);
+        final Behaviour root = affects.mind.rootBehaviour();
+        final float
+          oldPriority = root == null ? 0 : root.priorityFor(affects),
+          affinity = (truePriority - oldPriority) / Plan.PARAMOUNT;
+        
+        float priorityMod = Plan.ROUTINE;
         if (caster != null && ! GameSettings.psyFree) {
-          final float cost = 5f ;
-          priorityMod += caster.traits.useLevel(SUGGESTION) / 5f ;
-          caster.health.adjustPsy(0 - cost) ;
-          caster.traits.practiceAgainst(10, cost, SYNESTHESIA) ;
+          final float cost = 5f;
+          priorityMod += caster.traits.useLevel(SUGGESTION) / 5f;
+          caster.health.adjustPsy(0 - cost);
+          caster.traits.practiceAgainst(10, cost, SYNESTHESIA);
+          affects.relations.incRelation(caster, affinity, 0.1f);
         }
+        else priorityMod = Plan.PARAMOUNT;
+        
         command.setMotive(Plan.MOTIVE_EMERGENCY, priorityMod);
         
-        if (affects.mind.wouldSwitchTo(command)) {
-          affects.mind.assignBehaviour(command) ;
+        if (! affects.mind.mustIgnore(command)) {
+          DialogueUtils.utters(affects, "Yeah, maybe I'd better...", affinity);
+          affects.mind.assignBehaviour(command);
         }
         else {
-          I.say("Compulsion refused! "+command) ;
-          I.say("Priority was: "+command.priorityFor(affects)) ;
+          DialogueUtils.utters(affects, "Get out of my head!!!", affinity);
+          I.say("Compulsion refused! "+command);
+          I.say("Priority was: "+command.priorityFor(affects));
         }
         
         affects.world().ephemera.addGhost(

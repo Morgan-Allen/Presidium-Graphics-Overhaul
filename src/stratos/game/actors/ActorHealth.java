@@ -554,7 +554,7 @@ public class ActorHealth implements Qualities {
       state = STATE_STRICKEN ;
     }
     if (fatigue <= 0 && asleep()) {
-      if (verbose) I.sayAbout(actor, actor+" has revived!") ;
+      if (verbose) I.say(actor+" has revived!");
       state = STATE_ACTIVE ;
     }
     //
@@ -631,6 +631,7 @@ public class ActorHealth implements Qualities {
   
   private void advanceAge(int numUpdates) {
     if (! organic()) return ;
+    final boolean report = verbose && I.talkAbout == actor;
     
     final int DL = World.STANDARD_DAY_LENGTH ;
     float ageInc = 0 ; 
@@ -639,15 +640,15 @@ public class ActorHealth implements Qualities {
     }
     
     if (metabolism == ANIMAL_METABOLISM) {
-      float growBonus = caloryLevel() * 1f / (AGE_MAX * DL) ;
-      final int AS = agingStage() ;
-      if      (AS == AGE_JUVENILE) growBonus *= 1.00f ;
-      else if (AS == AGE_YOUNG   ) growBonus *= 0.20f ;
-      else if (AS == AGE_MATURE  ) growBonus *= 0.04f ;
-      else                         growBonus *= 0.00f ;
-      ageInc += growBonus ;
-      if (verbose) I.sayAbout(actor, "  ___LIFESPAN: "+lifespan) ;
-      if (verbose) I.sayAbout(actor, "  ___AGE INCREMENT: "+ageInc) ;
+      float growBonus = caloryLevel() * 1f / (AGE_MAX * DL);
+      final int AS = agingStage();
+      if      (AS == AGE_JUVENILE) growBonus *= 1.00f;
+      else if (AS == AGE_YOUNG   ) growBonus *= 0.20f;
+      else if (AS == AGE_MATURE  ) growBonus *= 0.04f;
+      else                         growBonus *= 0.00f;
+      ageInc += growBonus;
+      if (report) I.say("  ___LIFESPAN: "+lifespan);
+      if (report) I.say("  ___AGE INCREMENT: "+ageInc);
     }
     currentAge += ageInc ;
     

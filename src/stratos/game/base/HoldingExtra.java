@@ -120,7 +120,7 @@ public class HoldingExtra extends Fixture implements TileConstants {
     Holding holding, List <HoldingExtra> extras, int numUpdates
   ) {
     if (numUpdates % 10 != 0 || ! holding.structure.intact()) return ;
-    if (verbose) I.sayAbout(holding, "Updating extras for: "+holding) ;
+    //if (verbose) I.sayAbout(holding, "Updating extras for: "+holding) ;
     
     final int level = 1 + (int) Math.floor(holding.upgradeLevel() / 3f) ;
     addExtras(holding, extras, level) ;

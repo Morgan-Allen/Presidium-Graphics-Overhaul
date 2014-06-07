@@ -148,10 +148,12 @@ public class PathSearch extends Search <Boardable> {
       //
       //  TODO:  Stay out of the unfogged areas of hostile bases, and fogged
       //  areas of your own.
-
+      
+      //  TODO:  This is removed for the moment, until collision is worked out.
+      //  Restore later
       //  If the area or tile has other actors in it, increase the perceived
       //  cost.
-      if (spot != client.aboard()) mods += spot.inside().size() * 10 ;
+      //if (spot != client.aboard()) mods += spot.inside().size() * 10 ;
     }
     
     //  Finally, return a value based on pathing difficulties in the terrain-

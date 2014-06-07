@@ -79,7 +79,7 @@ public class Flora extends Element implements TileConstants {
   }
   
   
-  private static float growChance(Tile t) {
+  public static float growChance(Tile t) {
     if (t.habitat().floraModels == null) return -1;
     return (t.habitat().moisture / 10) / 4;
   }
@@ -110,6 +110,7 @@ public class Flora extends Element implements TileConstants {
   public static Flora tryGrowthAt(Tile t) {
     final float growChance = growChance(t);
     if (growChance == -1) return null;
+    if (verbose) I.say("Grow chance: "+growChance);
     
     if (t.owner() instanceof Flora) {
       final Flora f = (Flora) t.owner();
@@ -122,17 +123,19 @@ public class Flora extends Element implements TileConstants {
     
     if (! canGrowAt(t)) return null;
     if (Rand.num() > growChance) return null;
+    if (Rand.num() > GROWTH_PER_UPDATE) return null;
     
-    if (Rand.num() < GROWTH_PER_UPDATE) {
-      if (verbose) I.say("Seeding new tree at: "+t);
-      final Flora f = new Flora(t.habitat());
-      f.enterWorldAt(t.x, t.y,t.world);
-      f.incGrowth(1, t.world, false);
-      t.world.ecology().impingeBiomass(t, f.growth, World.GROWTH_INTERVAL);
-      return f;
-    }
-    
-    return null;
+    return newGrowthAt(t);
+  }
+  
+  
+  public static Flora newGrowthAt(Tile t) {
+    if (verbose) I.say("Seeding new tree at: "+t);
+    final Flora f = new Flora(t.habitat());
+    f.enterWorldAt(t.x, t.y, t.world);
+    f.incGrowth(1, t.world, false);
+    t.world.ecology().impingeBiomass(t, f.growth, World.GROWTH_INTERVAL);
+    return f;
   }
   
   

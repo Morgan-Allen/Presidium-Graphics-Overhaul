@@ -199,9 +199,14 @@ public class ExcavationSite extends Venue implements
     final boolean report = verbose && I.talkAbout == actor;
     
     if (report) I.say("\nGETTING NEXT EXCAVATION TASK") ;
+    final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
+      this, services(), 2, 10, 5
+    );
+    /*
     final Delivery d = Deliveries.nextDeliveryFor(
       actor, this, services(), 5, world
     ) ;
+    //*/
     if (d != null) return d ;
     final Choice choice = new Choice(actor) ;
     

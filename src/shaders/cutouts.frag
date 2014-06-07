@@ -1,6 +1,7 @@
 #version 120
 
 
+
 uniform sampler2D u_texture;
 uniform vec4 u_lighting;
 
@@ -10,6 +11,8 @@ varying vec4 v_color;
 
 
 //  TODO:  Perform glow fx (ignore lighting) here?
+//  TODO:  Certainly, you should be performing texture combinations at this
+//         stage.
 
 void main() {
   vec4 color = texture2D(u_texture, v_texCoords0);

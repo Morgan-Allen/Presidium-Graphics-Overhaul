@@ -13,10 +13,6 @@ import com.badlogic.gdx.graphics.g3d.utils.*;
 
 
 
-//  TODO:  Port over cel-shading related code here as well?
-//  TODO:  Look up the SpriteBatch code- it's not terribly complicated.
-
-
 public class SolidsPass {
   
   
@@ -80,5 +76,62 @@ public class SolidsPass {
     inPass.clear();
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//TODO:  Use this?
+//shading.setVertexAttribute(name, size, type, normalize, stride, offset);
+
+
+//TODO:  Basic mesh-rendering code is here.  (Consider discarding LibGDX
+//entirely?)  Hmm.  I still need the image composition stuff.
+
+/*
+public void render (ShaderProgram shader, int primitiveType, int offset, int count, boolean autoBind) {
+    if (count == 0) return;
+
+    if (autoBind) bind(shader);
+
+    if (isVertexArray) {
+        if (indices.getNumIndices() > 0) {
+            ShortBuffer buffer = indices.getBuffer();
+            int oldPosition = buffer.position();
+            int oldLimit = buffer.limit();
+            buffer.position(offset);
+            buffer.limit(offset + count);
+            Gdx.gl20.glDrawElements(primitiveType, count, GL20.GL_UNSIGNED_SHORT, buffer);
+            buffer.position(oldPosition);
+            buffer.limit(oldLimit);
+        } else {
+            Gdx.gl20.glDrawArrays(primitiveType, offset, count);
+        }
+    } else {
+        if (indices.getNumIndices() > 0)
+            Gdx.gl20.glDrawElements(primitiveType, count, GL20.GL_UNSIGNED_SHORT, offset * 2);
+        else
+            Gdx.gl20.glDrawArrays(primitiveType, offset, count);
+    }
+
+    if (autoBind) unbind(shader);
+}
+//*/
+
 
 

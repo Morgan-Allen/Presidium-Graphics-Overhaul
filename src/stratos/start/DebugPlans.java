@@ -16,6 +16,7 @@ import stratos.util.*;
 
 
 
+
 public class DebugPlans extends Scenario {
   
 
@@ -160,6 +161,7 @@ public class DebugPlans extends Scenario {
   private void configDialogueScenario(World world, Base base, BaseUI UI) {
     GameSettings.fogFree = true;
     GameSettings.noBlood = true;
+    GameSettings.hireFree = true;
     
     final Artificer venue = new Artificer(base);
     Placement.establishVenue(venue, world.tileAt(4, 4), true, world);
@@ -173,10 +175,18 @@ public class DebugPlans extends Scenario {
     }
     
     UI.selection.pushSelection(citizen, true);
+    
+    world.presences.togglePresence(
+      venue, venue.origin(), true, Economy.PARTS.supplyKey
+    );
+    final Delivery getting = DeliveryUtils.bestCollectionFor(
+      citizen, Economy.PARTS, 1, null, 5, false
+    );
+    getting.shouldPay = null;
+    
     final Item gift = Item.withAmount(Economy.PARTS, 1);
     final Gifting gifting = new Gifting(
-      citizen, other, gift,
-      new Delivery(gift, venue, citizen)
+      citizen, other, gift, getting
     );
     citizen.mind.assignBehaviour(gifting);
   }
@@ -192,7 +202,6 @@ public class DebugPlans extends Scenario {
       citizen.gear.incCredits(1000);
     }
     UI.selection.pushSelection(citizen, true);
-
     final Venue foundry = new Artificer(base);
     Placement.establishVenue(
       foundry, 6, 6, true, world,

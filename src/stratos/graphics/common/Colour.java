@@ -141,6 +141,11 @@ public class Colour {
   }
   
   
+  public float[] toFloatVals() {
+    return new float[] { r, g, b, a };
+  }
+  
+  
   /**
    * Sets this colour to match the argument Colour values.
    */

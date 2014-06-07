@@ -20,23 +20,36 @@ public class FindMission extends Plan implements Economy {
   final Mission applies ;
   final Venue admin ;
   
+
+  public static Venue nearestAdminFor(Actor actor) {
+    final World world = actor.world();
+    for (Object o : world.presences.matchesNear(SERVICE_ADMIN, actor, -1)) {
+      final Venue v = (Venue) o;
+      if (v.base() != actor.base()) continue;
+      return v;
+    }
+    return null;
+  }
+  
   
   public static FindMission attemptFor(Actor actor) {
     if (actor.mind.mission() != null) return null;
-    final Venue admin = Audit.nearestAdminFor(actor, false);
+    final Venue admin = nearestAdminFor(actor);
     if (admin == null) return null;
+    
+    final boolean report = verbose && I.talkAbout == actor;
     
     //  Find a mission that seems appealing at the moment (we disable culling
     //  of invalid plans, since missions might not have steps available until
     //  approved-)
-    if (verbose) I.sayAbout(actor, "\nEvaluating missions...");
+    if (report) I.say("\nEvaluating missions...");
     final Choice choice = new Choice(actor) {
       protected boolean checkPlanValid(Behaviour b) {
         return true;
       }
     };
     for (Mission mission : actor.base().allMissions()) {
-      if (verbose && I.talkAbout == actor) {
+      if (report) {
         I.say("\n  mission is: "+mission);
         I.say("  priority: "+mission.priorityFor(actor));
         I.say("  next step: "+mission.nextStepFor(actor));
@@ -48,7 +61,7 @@ public class FindMission extends Plan implements Economy {
     
     
     //  And try to apply for it-
-    if (verbose) I.sayAbout(actor, "Mission picked: "+picked);
+    if (report) I.say("Mission picked: "+picked);
     if (picked == null) return null ;
     return new FindMission(actor, picked, admin) ;
   }

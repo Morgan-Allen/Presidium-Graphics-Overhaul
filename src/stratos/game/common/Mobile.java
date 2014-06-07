@@ -155,12 +155,10 @@ public abstract class Mobile extends Element
       pos.z += aboveGroundHeight() ;
       setHeading(pos, nextRotation, true, world) ;
     }
-    if (verbose) I.sayAbout(this, "NOW aboard: "+aboard) ;
   }
   
 
   public boolean setPosition(float xp, float yp, World world) {
-    if (verbose) I.sayAbout(this, "SETTING POSITION") ;
     nextPosition.set(xp, yp, aboveGroundHeight()) ;
     return setHeading(nextPosition, nextRotation, true, world) ;
   }
@@ -179,7 +177,6 @@ public abstract class Mobile extends Element
     if (aboard == null || ! aboard.area(null).contains(newTile.x, newTile.y)) {
       if (aboard != null) aboard.setInside(this, false) ;
       (aboard = newTile).setInside(this, true) ;
-      if (verbose) I.sayAbout(this, "FORCED aboard: "+aboard) ;
     }
     if (instant) {
       this.position.setTo(pos) ;

@@ -13,16 +13,7 @@ import stratos.util.*;
 
 
 
-//
-//  TODO:  Only disappear once inside a venue.  Otherwise, stay where you are,
-//  and wait for someone to pick you up.
-
-//
-//  TODO:  Have this extend the Vehicle class, and be open-plan?  ...Yeah.
-//  That can work.
-
 public class Suspensor extends Mobile {
-  
   
 
   final static String
@@ -142,7 +133,6 @@ public class Suspensor extends Mobile {
     */
   public void renderFor(Rendering rendering, Base base) {
     if (followed.indoors()) return ;
-    //if (origin().owner() != null) return ;
     super.renderFor(rendering, base) ;
   }
   
@@ -158,8 +148,6 @@ public class Suspensor extends Mobile {
     else d.append("Idling") ;
   }
 }
-
-
 
 
 

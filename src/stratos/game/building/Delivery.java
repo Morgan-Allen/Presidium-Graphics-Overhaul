@@ -8,13 +8,11 @@
 package stratos.game.building ;
 import stratos.game.actors.*;
 import stratos.game.building.Inventory.Owner;
-import stratos.game.civilian.Audit;
 import stratos.game.common.*;
-import stratos.user.*;
 import stratos.util.*;
 
 
-//  TODO:  Barges need to be made more persistent.
+
 //  TODO:  Create a separate BulkDelivery class for vehicles.
 
 
@@ -35,7 +33,9 @@ public class Delivery extends Plan implements Economy {
   final static int
     MIN_BULK = 5 ;
   
-  private static boolean verbose = false ;
+  private static boolean
+    verbose = false,
+    stepsVerbose = false;
   
   
   final public Owner origin, destination ;
@@ -64,13 +64,11 @@ public class Delivery extends Plan implements Economy {
   
   
   public Delivery(Item items[], Owner origin, Owner destination) {
-    super(null, origin) ;
-    this.origin = origin ;
-    this.destination = destination ;
-    this.items = items ;
-    for (Item n : items) {
-      if (n.quality == -1) I.complain(n+" HAD NO QUALITY") ;
-    }
+    super(null, origin);
+    this.origin = origin;
+    this.destination = destination;
+    this.items = items;
+    this.shouldPay = destination;
   }
   
   
@@ -79,8 +77,7 @@ public class Delivery extends Plan implements Economy {
     
     items = new Item[s.loadInt()] ;
     for (int n = 0 ; n < items.length ; n++) {
-      items[n] = Item.loadFrom(s) ;
-      if (items[n].quality == -1) items[n] = Item.withQuality(items[n], 0) ;
+      items[n] = Item.loadFrom(s);
     }
     
     origin = (Owner) s.loadObject() ;
@@ -134,36 +131,27 @@ public class Delivery extends Plan implements Economy {
   
   /**  Assessing targets and priorities-
     */
-  public static float purchasePrice(Item item, Actor actor, Owner origin) {
-    float TP = origin.priceFor(item.type) ;
-    if (actor != null && actor.vocation().guild == Backgrounds.GUILD_MILITANT) {
-      TP -= Audit.MILITANT_RATION ;
-      if (TP <= 0) return 0 ;
-    }
-    return item.amount * TP ;
-  }
-  
-  
   private Item[] available(Actor actor) {
-    ///I.sayAbout(actor, "Getting available... "+items.length+" "+stage) ;
-    final Batch <Item> available = new Batch <Item> () ;
     if (actor == null) {
-      return items ;
+      return items;
     }
-    
-    //final boolean shopping = isShopping(actor) ;
+    final boolean report = stepsVerbose && I.talkAbout == actor;
+
+    final Batch <Item> available = new Batch <Item> () ;
     final boolean shopping = shouldPay == actor ;
     final Owner carrier = driven == null ? actor : driven ;
+    if (report) {
+      I.say("\nGetting items available for delivery...");
+      I.say("  Should pay: "+shouldPay);
+    }
     
     if (stage <= STAGE_PICKUP) {
       float sumPrice = 0 ;
       for (Item i : items) {
-        if (i.quality == -1) I.say(i+" has no quality!") ;
         final float amount = origin.inventory().amountOf(i) ;
-        ///I.sayAbout(actor, "Amount of "+i+" is "+amount) ;
-        if (amount <= 0) continue ;
+        if (amount <= 0) continue;
         if (shopping) {
-          sumPrice += purchasePrice(i, actor, origin) ;
+          sumPrice += i.priceAt(origin) ;
           if (sumPrice > actor.gear.credits() / 2f) break ;
         }
         available.add(i) ;
@@ -171,39 +159,44 @@ public class Delivery extends Plan implements Economy {
     }
     else {
       for (Item i : items) {
-        if (i.quality == -1) I.say(i+" has no quality!") ;
         if (! carrier.inventory().hasItem(i)) {
           final float amount = carrier.inventory().amountOf(i) ;
-          ///I.sayAbout(actor, "Amount of "+i+" is "+amount) ;
           if (amount > 0) available.add(Item.withAmount(i, amount)) ;
           continue ;
         }
         else available.add(i) ;
       }
     }
+    
+    if (report) {
+      I.say("Total available: "+available.size());
+      for (Item i : available) I.say("  "+i);
+      I.say("\n");
+    }
     return available.toArray(Item.class) ;
   }
   
 
   protected float getPriority() {
-    final Item[] available = available(actor) ;
-    if (available.length == 0) return 0 ;
+    final Item[] available = available(actor);
+    if (available.length == 0) return 0;
     final boolean report = verbose && I.talkAbout == actor;
     
     float modifier = NO_MODIFIER;
     if (shouldPay == actor && stage <= STAGE_PICKUP) {
-      int price = 0 ;
-      float foodVal = 0 ;
+      int price = 0;
+      float foodVal = 0;
       for (Item i : available) {
-        price += purchasePrice(i, actor, origin) ;
-        if (Visit.arrayIncludes(ALL_FOOD_TYPES, i.type)) foodVal += i.amount ;
+        price += i.priceAt(origin);
+        if (Visit.arrayIncludes(ALL_FOOD_TYPES, i.type)) foodVal += i.amount;
       }
-      if (price > actor.gear.credits()) return 0 ;
-      modifier -= Plan.greedLevel(actor, price) - ROUTINE ;
-      modifier += actor.health.hungerLevel() * CASUAL * foodVal ;
+      if (price > actor.gear.credits()) return 0;
+      modifier -= Plan.greedLevel(actor, price) * ROUTINE;
+      modifier += actor.health.hungerLevel() * CASUAL * foodVal;
     }
+    
     else for (Item i : available) {
-      modifier += i.amount / 5f ;
+      modifier += i.amount / 5f;
     }
     
     final float rangeDiv = driven == null ? 2f : 10f;
@@ -302,11 +295,9 @@ public class Delivery extends Plan implements Economy {
     float totalPrice = 0 ;
     for (Item i : available(actor)) {
       final float TA = a.inventory().transfer(i, b) ;
-      totalPrice += TA * purchasePrice(i, actor, origin) / i.amount ;
+      totalPrice += TA * i.priceAt(origin) / i.amount ;
       sumItems += TA ;
     }
-    
-    I.sayAbout(actor, "Should pay: "+shouldPay) ;
     
     if (shouldPay != null) {
       origin.inventory().incCredits(totalPrice) ;
@@ -336,7 +327,6 @@ public class Delivery extends Plan implements Economy {
     //  see if a suspensor is needed-
     final float sum = transferGoods(origin, actor) ;
     final boolean bulky = sum >= 5;// || passenger != null ;
-    if (verbose) I.sayAbout(actor, "Performing pickup!") ;
     if (bulky) {
       final Suspensor suspensor = new Suspensor(actor, this) ;
       final Tile o = actor.origin() ;

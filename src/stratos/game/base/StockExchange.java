@@ -1,4 +1,3 @@
-
 /**  
   *  Written by Morgan Allen.
   *  I intend to slap on some kind of open-source license here in a while, but
@@ -6,7 +5,7 @@
   */
 
 
-package stratos.game.base ;
+package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.civilian.*;
@@ -20,38 +19,14 @@ import stratos.util.*;
 
 
 /*
+I think it would be an idea to limit this primarily to luxury goods, rather
+than raw or building materials.
 
-The stock exchange needs more attention.  It multiplies the wealth of your settlement.
-
-...This falls under the heading of legislation.  Make it work there first.
-
-PROPERTY ASSESSMENT
-CREDITS SPECULATION
-SALES ADJUSTMENT
-
-CARGO VAULT
-ITEM AUCTIONS
-ADVERTISEMENT
-
-Alms and Taxation.
-
-
--Then you can have fixed prices.  Merchants are compensated by creating cash ex nihilo.  (Auditor is reponsible for checking this.)
-
-Credit speculation.  From outside.  Dividends given back, good if you have growth.
-
-Credit creation based on value of nearby housing.
-//*/
-
-//  TODO:  Ideally, this needs to be made a little more interesting...
-
-//  Credit Investment.  (Boosts overall growth, but dividends must go back.)
-//  Generate extra cash on top of existing sales.
-//  Patent Items.  (Ration Paks.  Comm Links.  Power Cells.)
-//  Attractiveness and ambience- advertising.
-
-//  Bulk transport between distant parts of settlement.  (Needs refinement,
-//  also possible at supply depot.)
+  Basic Rations:  Carbs.  Protein.  Greens.
+  Dispensary:  Soma.  Spice.  Medicine.
+  Sales Tax.  Credit Exchange.
+  Rations Stall.  Virtual Currency.
+*/
 
 
 public class StockExchange extends Venue implements Economy {
@@ -117,6 +92,7 @@ public class StockExchange extends Venue implements Economy {
   
   /**  Upgrades, behaviour and economic functions-
     */
+  /*
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
     StockExchange.class, "stock_exchange_upgrades"
   ) ;
@@ -167,7 +143,8 @@ public class StockExchange extends Venue implements Economy {
       "temporary loans, while investing a portion of profits to augment "+
       "revenue.",
       400, null, 1, VENDOR_STATION, ALL_UPGRADES
-    ) ;
+    );
+  //*/
   
   
   public int numOpenings(Background p) {
@@ -183,33 +160,52 @@ public class StockExchange extends Venue implements Economy {
     cargoBarge.setHangar(this) ;  //Might not be needed anymore...
     //
     //  See if there's a bulk delivery to be made-
-    final Batch <Venue> depots = Deliveries.nearbyDepots(this, world) ;
+    final Batch <Venue> depots = DeliveryUtils.nearbyDepots(
+      this, world, StockExchange.class, FRSD.class
+    );
+    final Service services[] = services();
+    
+    /*
     final Delivery bD = Deliveries.nextDeliveryFor(
       actor, this, ALL_COMMODITIES, depots, 50, world
-    ) ;
+    );
+    //*/
+    //  TODO:  Supply the list of Depots.
+    final Delivery bD = DeliveryUtils.bestBulkDeliveryFrom(
+      this, services, 5, 50, depots
+    );
     if (bD != null && personnel.assignedTo(bD) < 1) {
       bD.setMotive(Plan.MOTIVE_DUTY, Plan.URGENT);
       bD.driven = cargoBarge ;
       choice.add(bD) ;
     }
+    
+    /*
     final Delivery bC = Deliveries.nextCollectionFor(
       actor, this, ALL_COMMODITIES, depots, 50, null, world
-    ) ;
+    );
+    //*/
+    final Delivery bC = DeliveryUtils.bestBulkCollectionFor(
+      this, services, 5, 50, depots
+    );
     if (bC != null && personnel.assignedTo(bC) < 1) {
       bC.setMotive(Plan.MOTIVE_DUTY, Plan.URGENT);
       bC.driven = cargoBarge ;
       choice.add(bC) ;
     }
-    //
+    
     //  Otherwise, consider local deliveries and supervision of the venue-
-    final Delivery d = Deliveries.nextDeliveryFor(
-      actor, this, services(), 10, world
-    ) ;
-    if (d != null && personnel.assignedTo(d) < 1) choice.add(d) ;
-    final Delivery c = Deliveries.nextCollectionFor(
-      actor, this, services(), 10, null, world
-    ) ;
-    if (c != null && personnel.assignedTo(c) < 1) choice.add(c) ;
+    for (Service good : services) {
+      final Delivery d = DeliveryUtils.bestDeliveryFrom(
+        this, good, 10, null, 5, true
+      );
+      if (d != null && personnel.assignedTo(d) < 1) choice.add(d);
+      final Delivery c = DeliveryUtils.bestCollectionFor(
+        this, good, 10, null, 5, true
+      );
+      if (c != null && personnel.assignedTo(c) < 1) choice.add(c);
+    }
+    
     choice.add(new Supervision(actor, this)) ;
     return choice.weightedPick() ;
   }
@@ -219,18 +215,14 @@ public class StockExchange extends Venue implements Economy {
     super.updateAsScheduled(numUpdates) ;
     if (! structure.intact()) return ;
     
-    final Batch <Venue> depots = Deliveries.nearbyDepots(this, world) ;
+    final Batch <Venue> depots = DeliveryUtils.nearbyDepots(
+      this, world, StockExchange.class, FRSD.class
+    );
     for (Service type : ALL_COMMODITIES) {
-      final int demandBonus = (upgradeForGood(type) * 10) - 5 ;
-      if (demandBonus < 0) continue ;
-      stocks.incDemand(type, demandBonus, VenueStocks.TIER_TRADER, 1, this) ;
-      stocks.diffuseDemand(type, depots, 1) ;
+      final int demandBonus = 10;
+      stocks.incDemand(type, demandBonus, Stocks.TIER_TRADER, 1, this);
+      stocks.diffuseDemand(type, depots, 1);
     }
-    /*
-    for (Service type : this.services()) {
-      if (stocks.amountOf(type) < 40) stocks.bumpItem(type, 40);
-    }
-    //*/
   }
   
   
@@ -252,6 +244,9 @@ public class StockExchange extends Venue implements Economy {
   
   
   public int spaceFor(Service good) {
+    //  TODO:  Restore some subtlety here.
+    return 25;
+    /*
     switch (upgradeForGood(good)) {
       case (-1) : return 0  ;
       case ( 0) : return 20 ;
@@ -260,20 +255,24 @@ public class StockExchange extends Venue implements Economy {
       case ( 3) : return 50 ;
     }
     return 0 ;
+    //*/
   }
   
   
+  /*
   private int upgradeForGood(Service type) {
-    final Integer key = (Integer) SupplyDepot.SERVICE_KEY.get(type) ;
+    /*
+    final Integer key = (Integer) FRSD.SERVICE_KEY.get(type) ;
     final Upgrade KU ;
     if (key == null) return -1 ;
-    else if (key == SupplyDepot.KEY_RATIONS ) KU = RATIONS_STOCK      ;
-    else if (key == SupplyDepot.KEY_MINERALS) KU = PROSPECT_EXCHANGE  ;
-    else if (key == SupplyDepot.KEY_MEDICAL ) KU = MEDICAL_EXCHANGE   ;
-    else if (key == SupplyDepot.KEY_BUILDING) KU = HARDWARE_STOCK     ;
+    else if (key == FRSD.KEY_RATIONS ) KU = RATIONS_STOCK      ;
+    else if (key == FRSD.KEY_MINERALS) KU = PROSPECT_EXCHANGE  ;
+    else if (key == FRSD.KEY_MEDICAL ) KU = MEDICAL_EXCHANGE   ;
+    else if (key == FRSD.KEY_BUILDING) KU = HARDWARE_STOCK     ;
     else return -1 ;
     return structure.upgradeLevel(KU) ;
-  }
+    //*/
+  //}
   
   
   public Background[] careers() {

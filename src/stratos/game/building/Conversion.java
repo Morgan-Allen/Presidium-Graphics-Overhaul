@@ -22,7 +22,10 @@ public class Conversion implements Economy {
   final public Item raw[], out ;
   final public Skill skills[] ;
   final public float skillDCs[] ;
-  final public Class venueType ;
+  
+  //final private String venueName;
+  //private Class venueType = null;
+  
   
   
   public String toString() {
@@ -39,7 +42,7 @@ public class Conversion implements Economy {
     boolean recRaw = true ;
     //
     //  Set up temporary storage variables.
-    String venueName = null ;
+    //String venueName = null ;
     Item out = null ;
     Batch rawB = new Batch(), skillB = new Batch() ;
     Batch rawN = new Batch(), skillN = new Batch() ;
@@ -48,7 +51,7 @@ public class Conversion implements Economy {
     for (Object o : args) {
       if (o instanceof Integer) num = (Integer) o ;
       else if (o instanceof Float) num = (Float) o ;
-      else if (o instanceof String) venueName = (String) o ;
+      //else if (o instanceof String) venueName = (String) o ;
       else if (o instanceof Skill) { skillB.add(o) ; skillN.add(num) ; }
       else if (o == TO) recRaw = false ;
       else if (o instanceof Service) {
@@ -67,20 +70,24 @@ public class Conversion implements Economy {
       //if (raw[i].quality == -1) I.complain(raw[i]+" HAS NO QUALITY!") ;
     }
     this.out = out ;
-    this.venueType = venueClass(venueName);
+    //this.venueName = venueName;
+    //this.venueType = venueClass(venueName);
     skills = (Skill[]) skillB.toArray(Skill.class) ;
     skillDCs = Visit.fromFloats(skillN.toArray()) ;
   }
   
-  
-  static Class venueClass(String venueName) {
+  /*
+  public Class venueType() {
     if (venueName == null) return null;
-    try { return Class.forName("stratos.game.base."+venueName) ; }
+    if (venueType != null) return venueType;
+    try { venueType = Class.forName("stratos.game.base."+venueName); }
     catch (ClassNotFoundException e) {
-      I.say("WARNING: No class in stratos.game.base: "+venueName) ;
+      I.say("WARNING: No class in stratos.game.base: "+venueName);
+      return venueType = null;
     }
-    return null;
+    return venueType;
   }
+  //*/
   
   
   static Conversion[] parse(Object args[][]) {
@@ -104,7 +111,8 @@ public class Conversion implements Economy {
       skills[i] = (Skill) Qualities.ALL_TRAIT_TYPES[s.loadInt()] ;
       skillDCs[i] = s.loadFloat() ;
     }
-    venueType = s.loadClass() ;
+    //venueName = s.loadString();
+    //venueType = s.loadClass();
   }
   
   
@@ -122,7 +130,8 @@ public class Conversion implements Economy {
       s.saveInt(skills[i].traitID) ;
       s.saveFloat(skillDCs[i]) ;
     }
-    s.saveClass(venueType) ;
+    //s.saveString(venueName);
+    //s.saveClass(venueType) ;
   }
   
   

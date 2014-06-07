@@ -11,8 +11,7 @@ import stratos.game.actors.* ;
 import stratos.game.building.* ;
 import stratos.graphics.common.* ;
 import stratos.graphics.cutout.* ;
-import stratos.graphics.widgets.Composite;
-import stratos.graphics.widgets.HUD ;
+import stratos.graphics.widgets.* ;
 import stratos.user.* ;
 import stratos.util.* ;
 
@@ -27,7 +26,7 @@ public class BlastDoors extends ShieldWall implements TileConstants {
   public BlastDoors(Base base, int facing) {
     super(TYPE_DOORS, 4, 2, base) ;
     this.facing = facing ;
-    personnel.setShiftType(SHIFTS_BY_HOURS) ;
+    //personnel.setShiftType(SHIFTS_BY_HOURS) ;
     if (facing == X_AXIS)
       attachSprite(ShieldWall.DOORS_MODEL_LEFT.makeSprite()) ;
     if (facing == Y_AXIS)
@@ -73,6 +72,7 @@ public class BlastDoors extends ShieldWall implements TileConstants {
   
   /**  Behaviour implementation-
     */
+  /*
   public Behaviour jobFor(Actor actor) {
     if ((! structure.intact()) || (! personnel.onShift(actor))) return null ;
     final Choice choice = new Choice(actor) ;
@@ -99,6 +99,7 @@ public class BlastDoors extends ShieldWall implements TileConstants {
     if (b == Backgrounds.VOLUNTEER) return nO + 2 ;
     return 0 ;
   }
+  //*/
   
   
   

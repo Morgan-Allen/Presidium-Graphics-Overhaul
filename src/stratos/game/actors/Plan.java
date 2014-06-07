@@ -6,8 +6,6 @@
 
 
 package stratos.game.actors ;
-import java.lang.reflect.* ;
-
 import stratos.game.building.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
@@ -16,13 +14,16 @@ import stratos.game.tactical.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import java.lang.reflect.*;
 import org.apache.commons.math3.util.FastMath;
 
 
 
 //
-//  TODO:  Include a copyPlan(Actor other) method here, for the sake of asking
-//  other actors to do favours, et cetera.
+//  TODO:  I think that the whole Plan structure needs to be polished.  Keep it
+//  all recursive and internal, rather than keeping the stack within the
+//  actor's mind.
+
 
 public abstract class Plan implements Saveable, Behaviour {
   
@@ -34,7 +35,8 @@ public abstract class Plan implements Saveable, Behaviour {
     MOTIVE_LEISURE   =  0,
     MOTIVE_DUTY      =  1,
     MOTIVE_EMERGENCY =  2,
-    MOTIVE_MISSION   =  3;
+    MOTIVE_MISSION   =  3,
+    MOTIVE_CANCELLED =  5;
   final static float
     NULL_PRIORITY = -100;
   
@@ -53,8 +55,6 @@ public abstract class Plan implements Saveable, Behaviour {
   private int motiveType = MOTIVE_INIT;
   private float motiveBonus = 0;
   
-  //  TODO:  See if there's any more compact way to represent these.  A PlanType
-  //  class, for example?
   private float harmFactor, competeFactor;
   
   
@@ -126,13 +126,14 @@ public abstract class Plan implements Saveable, Behaviour {
   
   
   public void abortBehaviour() {
-    if (! hasBegun()) return ;
+    if (! hasBegun()) return;
     if (verbose && I.talkAbout == actor) {
-      I.say("\n"+actor+" Aborting plan! "+this+" "+this.hashCode()) ;
-      new Exception().printStackTrace() ;
+      I.say("\n"+actor+" Aborting plan! "+this+" "+this.hashCode());
+      new Exception().printStackTrace();
     }
-    nextStep = null ;
-    actor.mind.cancelBehaviour(this) ;
+    nextStep = lastStep = null;
+    actor.mind.cancelBehaviour(this);
+    setMotive(MOTIVE_CANCELLED, 0);
   }
   
   
@@ -154,7 +155,9 @@ public abstract class Plan implements Saveable, Behaviour {
   
   
   public Behaviour nextStepFor(Actor actor) {
-    final boolean report = verbose && hasBegun() && I.talkAbout == actor;
+    final boolean report = verbose && I.talkAbout == actor && hasBegun();
+    if (motiveType == MOTIVE_CANCELLED) return null;
+    if (report) I.say("\nFinding next step for "+this);
     
     if (this.actor != actor) {
       if (this.actor != null) ;  //TODO:  Give some kind of message here
@@ -174,33 +177,37 @@ public abstract class Plan implements Saveable, Behaviour {
     if (! actor.mind.doing(this)) {
       if (report) {
         I.say("NEXT STEP IS NULL: NOT ACTIVE");
-        new Exception().printStackTrace();
+        //new Exception().printStackTrace();
       }
-      nextStep = null ;
-      return getNextStep() ;
+      nextStep = null;
+      return getNextStep();
     }
-    else if (nextStep == null || nextStep.finished()) {
-      nextStep = getNextStep() ;
-      if (nextStep != null) lastStep = nextStep ;
+    else if (
+      nextStep == null || nextStep.finished() ||
+      nextStep.nextStepFor(actor) == null
+    ) {
+      nextStep = getNextStep();
+      if (nextStep != null) lastStep = nextStep;
       else if (report) I.say("NEXT STEP IS NULL: WAS ACTIVE");
       priorityEval = NULL_PRIORITY;
     }
-    return nextStep ;
+    return nextStep;
   }
   
   
   public boolean finished() {
     final boolean report = verbose && hasBegun() && I.talkAbout == actor;
+    if (motiveType == MOTIVE_CANCELLED) return true;
     if (actor == null) return false ;
-    //if (this == actor.mind.rootBehaviour()) {
-    if (priorityFor(actor) <= 0) {
-      if (report) I.say("NO PRIORITY: "+this+" "+hashCode()) ;
-      return true ;
-    }
-    //}
     if (nextStepFor(actor) == null) {
       if (report) I.say("NO NEXT STEP: "+this+" "+hashCode()) ;
       return true ;
+    }
+    if (this == actor.mind.rootBehaviour()) {
+      if (priorityFor(actor) <= 0) {
+        if (report) I.say("NO PRIORITY: "+this+" "+hashCode()) ;
+        return true ;
+      }
     }
     return false ;
   }
@@ -283,11 +290,14 @@ public abstract class Plan implements Saveable, Behaviour {
     boolean report
   ) {
     if (subject == null) I.complain("NO SUBJECT SPECIFIED");
+    if (motiveType == MOTIVE_CANCELLED) return 0;
+    
     this.harmFactor = subjectHarm;
     this.competeFactor = peersCompete;
     float
       priority = ROUTINE + specialModifier,
-      skillBonus = 0, traitBonus = 0,
+      skillAvg = 0, skillMax = -1, skillBonus = 0,
+      traitAvg = 0, traitMax =  0, traitBonus = 0,
       harmBonus = 0, competeBonus = 0;
     
     if (motiveType != MOTIVE_INIT) {
@@ -312,17 +322,21 @@ public abstract class Plan implements Saveable, Behaviour {
     }
     
     if (baseSkills != null) for (Skill skill : baseSkills) {
-      final float level = actor.traits.traitLevel(skill);
-      skillBonus += CASUAL * (level - 10) / (10 * baseSkills.length);
+      final float level = (actor.traits.traitLevel(skill) - 10) / 10;
+      skillAvg += level / baseSkills.length;
+      skillMax = FastMath.max(skillMax, level);
     }
+    skillBonus = (skillAvg + skillMax) / 2;
     
     if (baseTraits != null) for (Trait trait : baseTraits) {
       final float level = actor.traits.relativeLevel(trait);
-      traitBonus += level * CASUAL / baseTraits.length;
+      traitAvg += level / baseTraits.length;
+      traitMax = FastMath.max(traitMax, level);
     }
+    traitBonus = (traitAvg + traitMax) / 2;
     
     if (subjectHarm != 0) {
-      final float relation = actor.memories.relationValue(subject);
+      final float relation = actor.relations.relationValue(subject);
       harmBonus = 0 - relation * subjectHarm * PARAMOUNT;
     }
     
@@ -486,8 +500,8 @@ public abstract class Plan implements Saveable, Behaviour {
       final Target victim = other.focusFor(Combat.class);
       if (victim == actor) return 1;
       float hostility = 0;
-      if (victim != null) hostility += actor.memories.relationValue(victim);
-      hostility -= actor.memories.relationValue(other);
+      if (victim != null) hostility += actor.relations.relationValue(victim);
+      hostility -= actor.relations.relationValue(other);
       return hostility;
     }
     

@@ -175,7 +175,8 @@ public class SeedTailoring extends Plan implements Economy {
   /**  Rendering and interface-
     */
   public void describeBehaviour(Description d) {
-    if (super.needsSuffix(d, "Tailoring seed at ")) {
+    if (super.needsSuffix(d, "Tailoring seed")) {
+      d.append(" at ");
       d.append(super.lastStepTarget());
     }
   }

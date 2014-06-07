@@ -34,14 +34,6 @@ public class Service implements Session.Saveable {
     return (Service[]) allTypes.toArray(Service.class) ;
   }
   
-  //  TODO:  Get rid of this.
-  public static interface Trade extends Inventory.Owner {
-    public float importShortage(Service type) ;
-    public float exportSurplus(Service type) ;
-    public float importDemand(Service type) ;
-    public float exportDemand(Service type) ;
-  }
-  
   
   
   final public int form ;

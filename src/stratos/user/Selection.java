@@ -248,6 +248,8 @@ public class Selection implements UIConstants {
       }
     }
     
+    //  TODO:  Try using an inner-fringe here instead, and mask using the
+    //  empty tiles around the perimeter!
     final LayerType layer = new LayerType(tex, false, -1) {
       
       protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
@@ -256,10 +258,12 @@ public class Selection implements UIConstants {
       }
       
       protected int variantAt(int tx, int ty, TerrainSet terrain) {
-        return 0;
+        final Tile t = world.tileAt(tx, ty);
+        return t.blocked() ? -1 : 0;
       }
     };
     limit.expandBy(1);
+    
     final TerrainChunk overlay = world.terrain().createOverlay(limit, layer);
     overlay.colour = c;
     overlay.readyFor(r);

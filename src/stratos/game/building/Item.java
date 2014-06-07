@@ -75,6 +75,22 @@ public class Item implements Economy {
   }
   
   
+  public static void saveItemsTo(Session s, Item items[]) throws Exception {
+    if (items == null) { s.saveInt(-1); return; }
+    s.saveInt(items.length);
+    for (Item i : items) saveTo(s, i);
+  }
+  
+  
+  public static Item[] loadItemsFrom(Session s) throws Exception {
+    final int count = s.loadInt();
+    if (count == -1) return null;
+    final Item items[] = new Item[count];
+    for (int i = 0; i < count; i++) items[i] = loadFrom(s);
+    return items;
+  }
+  
+  
   
   /**  Outside-accessible factory methods-
     */
@@ -121,7 +137,7 @@ public class Item implements Economy {
   }
   
   
-  public float priceAt(Venue venue) {
+  public float priceAt(Inventory.Owner venue) {
     return venue.priceFor(type) * amount * PRICE_MULTS[(int) quality];
   }
   

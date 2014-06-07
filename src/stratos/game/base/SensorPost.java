@@ -13,6 +13,8 @@ import stratos.util.* ;
 
 
 
+//  TODO:  Get rid of this?  Too much complication.
+
 public class SensorPost extends Fixture implements Selectable {
   
   

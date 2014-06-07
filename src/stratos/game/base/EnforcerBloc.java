@@ -5,17 +5,17 @@
   */
 
 
-package stratos.game.base ;
+package stratos.game.base;
 import stratos.game.civilian.*;
-import stratos.game.common.* ;
-import stratos.game.tactical.Patrolling;
-import stratos.game.actors.* ;
-import stratos.game.building.* ;
-import stratos.graphics.common.* ;
-import stratos.graphics.cutout.* ;
-import stratos.graphics.widgets.* ;
-import stratos.user.* ;
-import stratos.util.* ;
+import stratos.game.common.*;
+import stratos.game.actors.*;
+import stratos.game.building.*;
+import stratos.game.tactical.*;
+import stratos.graphics.common.*;
+import stratos.graphics.cutout.*;
+import stratos.graphics.widgets.*;
+import stratos.user.*;
+import stratos.util.*;
 
 
 
@@ -69,21 +69,21 @@ public class EnforcerBloc extends Venue implements Economy {
       150, null, 1, null, ALL_UPGRADES
     )
   ;
-  //  TODO:  Include others
+  //  TODO:  Include others.
+  //  Rehab Program
+  //  Holding Cells
+  //  Forensics Lab
+  //  Mentat & Psy Corps
   
   
   public Behaviour jobFor(Actor actor) {
     if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
     final Choice choice = new Choice(actor);
     
-    //final int linkMod = (int) (5 * (1 - stocks.shortagePenalty(DATALINKS))) ;
-    
     if (actor.vocation() == Backgrounds.AUDITOR) {
       final Venue toAudit = Audit.nextToAuditFor(actor);
       if (toAudit != null) {
         final Audit a = new Audit(actor, toAudit);
-        //a.checkBonus = ((structure.upgradeLevel(FILE_SYSTEM) - 1) * 5) / 2 ;
-        //a.checkBonus += linkMod ;
         choice.add(a);
       }
     }

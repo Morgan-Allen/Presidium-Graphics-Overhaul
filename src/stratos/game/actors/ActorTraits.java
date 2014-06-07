@@ -244,6 +244,7 @@ public class ActorTraits implements Qualities {
       return traitLevel(type);
     }
     
+    final boolean report = verbose && I.talkAbout == actor;
     final Level TL = levels.get(type) ;
     float level = TL == null ? 0 : (TL.value + TL.bonus) ;
     
@@ -260,8 +261,8 @@ public class ActorTraits implements Qualities {
         if (! actor.health.conscious()) level /= 2 ;
         level += rootBonus(skill) ;
       }
-      if (verbose) I.sayAbout(actor, " level of "+type+" is "+level) ;
-      if (verbose) I.sayAbout(actor, " root bonus: "+rootBonus(skill)) ;
+      if (report) I.say(" level of "+type+" is "+level) ;
+      if (report) I.say(" root bonus: "+rootBonus(skill)) ;
       level *= 1 - actor.health.stressPenalty() ;
     }
     return level ;

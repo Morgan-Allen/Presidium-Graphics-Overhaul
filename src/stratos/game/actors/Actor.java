@@ -37,7 +37,7 @@ public abstract class Actor extends Mobile implements
   
   final public ActorMind mind = initAI();
   final public Senses senses = initSenses();
-  final public Memories memories = initMemories();
+  final public Relations relations = initMemories();
   
   private Action actionTaken ;
   private Base base ;
@@ -56,7 +56,7 @@ public abstract class Actor extends Mobile implements
     
     mind.loadState(s) ;
     senses.loadState(s);
-    memories.loadState(s);
+    relations.loadState(s);
     
     actionTaken = (Action) s.loadObject() ;
     base = (Base) s.loadObject() ;
@@ -72,7 +72,7 @@ public abstract class Actor extends Mobile implements
     
     mind.saveState(s) ;
     senses.saveState(s);
-    memories.saveState(s);
+    relations.saveState(s);
     
     s.saveObject(actionTaken) ;
     s.saveObject(base) ;
@@ -82,7 +82,7 @@ public abstract class Actor extends Mobile implements
   protected abstract ActorMind initAI();
   
   protected Senses initSenses() { return new Senses(this); }
-  protected Memories initMemories() { return new Memories(this); }
+  protected Relations initMemories() { return new Relations(this); }
   protected Pathing initPathing() { return new Pathing(this) ; }
   
   public float height() {
@@ -113,6 +113,11 @@ public abstract class Actor extends Mobile implements
   
   
   public void afterTransaction(Item item, float amount) {
+  }
+  
+  
+  public TalkFX chat() {
+    return chat;
   }
   
   
@@ -191,7 +196,8 @@ public abstract class Actor extends Mobile implements
         world.schedule.scheduleNow(this) ;
       }
       if (actionTaken.finished()) {
-        if (verbose) I.sayAbout(this, "  ACTION COMPLETE: "+actionTaken) ;
+        //  TODO:  RE-IMPLEMENT THIS
+        //if (verbose) I.sayAbout(this, "  ACTION COMPLETE: "+actionTaken) ;
         //world.schedule.scheduleNow(this) ;
       }
       actionTaken.updateAction(OK) ;
@@ -238,27 +244,14 @@ public abstract class Actor extends Mobile implements
       }
       senses.updateSeen();
       mind.updateAI(numUpdates) ;
-      memories.updateValues(numUpdates);
-      
-      //  TODO:  Restore this later?  Or have stealth attempts break it?
-      /*
-      if (actionTaken != null && numUpdates % 10 == 0) {
-        //  TODO:  Only perform this test once you arrive at the quarry's last
-        //  known position?
-        if ((! senses.awareOf(actionTaken.subject()))) {
-          ///I.say("HAVE LOST SIGHT OF: "+actionTarget);
-          //if (report) I.say("Have lost sight of "+actionTarget);
-          pathingAbort();
-        }
-      }
-      //*/
+      relations.updateValues(numUpdates);
     }
     
     //  Check to see if you need to wake up-
     if (checkSleep) {
       senses.updateSeen();
       mind.updateAI(numUpdates) ;
-      memories.updateValues(numUpdates);
+      relations.updateValues(numUpdates);
       mind.getNextAction() ;
       
       final Behaviour root = mind.rootBehaviour() ;
@@ -284,7 +277,7 @@ public abstract class Actor extends Mobile implements
         b.intelMap.liftFogAround(heads.x, heads.y, health.sightRange()) ;
       }
       if (! visibleTo(b)) continue ;
-      final float relation = memories.relationValue(b) ;
+      final float relation = relations.relationValue(b) ;
       final Tile o = origin();
       b.dangerMap.accumulate(0 - power * relation, 1.0f, o.x, o.y);
     }
@@ -321,6 +314,9 @@ public abstract class Actor extends Mobile implements
   }
   
   
+  //  TODO:  Move these to the Mind class-
+  
+  
   public boolean isDoingAction(String actionMethod, Target target) {
     if (actionTaken == null) return false;
     if (target != null && actionTaken.subject() != target) return false;
@@ -328,13 +324,13 @@ public abstract class Actor extends Mobile implements
   }
   
   
-  public boolean isDoing(Class planClass, Target target) {
+  public boolean isDoing(Class <? extends Plan> planClass, Target target) {
     final Target focus = focusFor(planClass);
     return (target == null) ? (focus != null) : (focus == target);
   }
   
   
-  public Target focusFor(Class planClass) {
+  public Target focusFor(Class <? extends Plan> planClass) {
     if (planClass == null) {
       if (mind.agenda.size() == 0) return null;
       return mind.topBehaviour().subject();
@@ -344,13 +340,18 @@ public abstract class Actor extends Mobile implements
   }
   
   
-  public Plan matchFor(Class planClass) {
+  public Plan matchFor(Class <? extends Plan> planClass) {
     if (planClass == null || ! Plan.class.isAssignableFrom(planClass)) {
       I.complain("NOT A PLAN CLASS!");
     }
     for (Behaviour b : mind.agenda()) {
       if (planClass.isAssignableFrom(b.getClass())) {
         return (Plan) b ;
+      }
+    }
+    for (Behaviour b : mind.todoList) {
+      if (planClass.isAssignableFrom(b.getClass())) {
+        return (Plan) b;
       }
     }
     return null;

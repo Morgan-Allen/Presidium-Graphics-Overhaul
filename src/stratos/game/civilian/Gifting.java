@@ -9,6 +9,10 @@ import stratos.util.*;
 
 
 
+//  TODO:  There's a problem with the 'greeting' phase here if the other actor
+//  isn't disposed to talk (e.g, is hostile, busy or asleep, etc.)
+
+
 public class Gifting extends Plan implements Qualities {
   
   
@@ -19,8 +23,8 @@ public class Gifting extends Plan implements Qualities {
     STAGE_DONE  =  2;
   
   private static boolean
-    evalVerbose = false,
-    rateVerbose = false,
+    evalVerbose   = false,
+    rateVerbose   = false,
     eventsVerbose = true ;
   
   
@@ -63,7 +67,6 @@ public class Gifting extends Plan implements Qualities {
   
   public Plan copyFor(Actor other) {
     return null;
-    //return Gifting.nextGiftFor(null, other, receives);
   }
   
   
@@ -76,11 +79,11 @@ public class Gifting extends Plan implements Qualities {
   
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
+    if ((! getting.finished()) && getting.priorityFor(actor) < 0) return 0;
     
-    //  TODO:  Include pricing check!
     float modifier = NO_MODIFIER;
     final float
-      novelty = receives.memories.relationNovelty(actor),
+      novelty = receives.relations.relationNovelty(actor),
       rating = rateGift(gift, actor, receives);
     if (! hasBegun()) {
       modifier -= ROUTINE;
@@ -142,8 +145,9 @@ public class Gifting extends Plan implements Qualities {
     //  If the 'get' action hasn't completed, carry it out.
     if (! getting.finished()) {
       this.stage = STAGE_GETS;
-      if (report) I.say("  Still getting.");
-      if (getting.nextStepFor(actor) == null) return null;
+      final Behaviour nextS = getting.nextStepFor(actor);
+      if (report) I.say("  Still getting, next step: "+nextS);
+      if (nextS == null) return null;
       return getting;
     }
     
@@ -208,18 +212,16 @@ public class Gifting extends Plan implements Qualities {
       final Batch <Inventory.Owner> origins = new Batch <Inventory.Owner> ();
       world.presences.sampleFromMaps(buys, world, 5, origins, gift.type);
       origins.include(buys);
-      
-      //  TODO:  Don't offer things the actor already has!
-      //  TODO:  Take stuff from home, but only if you have a surplus there.
       //origins.include(buys.mind.home());
+      //  TODO:  Don't offer things the actor already has!
       
       if (report) {
         I.say("\n  Potential vendors for "+gift+" are:");
         for (Object o : origins) I.say("    "+o);
       }
-      getting = Deliveries.bestOrigin(
-        buys, new Service[] { gift.type }, receives,
-        origins, 1, Delivery.TYPE_SHOPS
+      
+      getting = DeliveryUtils.bestCollectionFor(
+        buys, gift.type, 1, buys, 5, false
       );
     }
 
@@ -237,8 +239,8 @@ public class Gifting extends Plan implements Qualities {
     */
   static float rateGift(Item item, Actor buys, Actor receives) {
     final boolean report = rateVerbose && I.talkAbout == buys;
-    float rating = 0;
     
+    float rating = 0;
     if (Visit.arrayIncludes(Economy.ALL_FOOD_TYPES, item.type)) {
       final float hunger = receives.health.hungerLevel();
       if (hunger > 0.5f) rating += (hunger - 0.5f) * 10;

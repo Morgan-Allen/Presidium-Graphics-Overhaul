@@ -162,20 +162,23 @@ public abstract class ActorMind implements Qualities {
   
   
   protected Action getNextAction() {
+    final boolean
+      reportStep = stepsVerbose && I.talkAbout == actor,
+      reportNew = reportStep || (decisionVerbose && I.talkAbout == actor);
+    
+    
     final int MAX_LOOP = 20 ;  // Safety feature, see below...
     for (int loop = MAX_LOOP ; loop-- > 0 ;) {
-      if (stepsVerbose) I.sayAbout(actor, "...in action loop.") ;
+      if (reportStep) I.say("\n"+actor+" in action-decision loop:") ;
       //
       //  If all current behaviours are complete, generate a new one.
       if (agenda.size() == 0) {
-        if (decisionVerbose && I.talkAbout == actor) {
-          I.say("\nCurrent agenda is empty!") ;
+        final Behaviour taken = nextBehaviour();
+        if (reportNew) {
+          I.say("\nCurrent agenda was empty!");
+          I.say("  Next behaviour: "+taken);
         }
-        final Behaviour taken = nextBehaviour() ;
-        if (taken == null) {
-          if (decisionVerbose) I.sayAbout(actor, "  No next behaviour!") ;
-          return null ;
-        }
+        if (taken == null) return null;
         assignBehaviour(taken);
       }
       //
@@ -185,19 +188,20 @@ public abstract class ActorMind implements Qualities {
       final Behaviour current = topBehaviour() ;
       final Behaviour next = current.nextStepFor(actor) ;
       final boolean isDone = current.finished() ;
-      if (stepsVerbose && I.talkAbout == actor) {
-        I.say("  Current action "+current) ;
-        I.say("  Next step "+next) ;
-        I.say("  Done "+isDone) ;
+      if (reportStep) {
+        I.say("  Current action "+current);
+        I.say("  Class type: "+current.getClass().getSimpleName());
+        I.say("  Next step "+next);
+        I.say("  Done "+isDone);
       }
       if (isDone || next == null) {
         if (current == rootBehaviour() && ! isDone) {
-          todoList.add(current) ;
+          todoList.add(current);
         }
-        popBehaviour() ;
+        popBehaviour();
       }
       else if (current instanceof Action) {
-        if (stepsVerbose && I.talkAbout == actor) {
+        if (reportStep) {
           I.say("Next action: "+current) ;
           I.say("Agenda size: "+agenda.size()) ;
         }
@@ -210,14 +214,16 @@ public abstract class ActorMind implements Qualities {
     //
     //  If you exhaust the maximum number of iterations (which I assume *would*
     //  be enough for any reasonable use-case,) report the problem.
-    I.say("\n"+actor+" COULD NOT DECIDE ON NEXT STEP.") ;
-    final Behaviour root = rootBehaviour() ;
-    final Behaviour next = root.nextStepFor(actor) ;
-    I.say("  Root behaviour: "+root) ;
-    I.say("  Next step: "+next) ;
-    I.say("  Valid/finished "+next.valid()+"/"+next.finished()) ;
-    new Exception().printStackTrace() ;
-    return null ;
+    I.say("\n"+actor+" COULD NOT DECIDE ON NEXT STEP.");
+    final Behaviour root = rootBehaviour();
+    final Behaviour next = root == null ? null : root.nextStepFor(actor);
+    I.say("  Root behaviour: " + root);
+    I.say("  Next step: " + next);
+    if (next != null) {
+      I.say("  Valid/finished " + next.valid() + "/" + next.finished());
+    }
+    new Exception().printStackTrace();
+    return null;
   }
   
   

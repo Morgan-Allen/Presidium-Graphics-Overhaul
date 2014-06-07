@@ -87,13 +87,13 @@ public class ActorGear extends Inventory implements Economy {
     if (Float.isNaN(credits)) credits = 0 ;
     if (Float.isNaN(taxed)) taxed = 0 ;
     
-    if (verbose) I.sayAbout(actor, "Updating gear...") ;
+    //if (verbose) I.sayAbout(actor, "Updating gear...") ;
     if (outfit != null) regenerateShields() ;
     else currentShields = 0 ;
     for (Item item : allItems()) {
       if (item.refers instanceof Action) {
-        if (verbose) I.sayAbout(actor, "  Applying item effect: "+item.refers) ;
-        ((Action) item.refers).applyEffect() ;
+        //if (verbose) I.sayAbout(actor, "  Applying item effect: "+item.refers) ;
+        ((Action) item.refers).applyEffect();
       }
     }
     encumbrance = -1;
@@ -279,15 +279,15 @@ public class ActorGear extends Inventory implements Economy {
   
   private void regenerateShields() {
     final float max = maxShields();
-    float regen = max / SHIELD_REGEN_TIME;
-    
     if (currentShields < max) {
+      float regen = max / SHIELD_REGEN_TIME;
       regen = Visit.clamp(regen, 0, max - currentShields);
       currentShields = Visit.clamp(currentShields + regen, 0, max);
       fuelCells -= FUEL_DEPLETE * regen / (max * SHIELD_REGEN_TIME);
     }
     if (currentShields > max) {
-      currentShields = Visit.clamp(currentShields - regen, max, (max + 10) * 2);
+      final float sink = 5f / SHIELD_REGEN_TIME;
+      currentShields = Visit.clamp(currentShields - sink, max, (max + 5) * 2);
     }
   }
   

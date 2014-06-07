@@ -11,10 +11,10 @@ import stratos.game.building.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
-import stratos.game.wild.Fauna;
-import stratos.game.wild.Nest;
+import stratos.game.wild.*;
 import stratos.user.*;
 import stratos.util.*;
+import stratos.game.building.Inventory.Owner;
 
 
 
@@ -45,7 +45,7 @@ public class Hunting extends Combat implements Economy {
   
   final int type ;
   final Actor prey ;
-  final Employer depot ;
+  final Owner depot ;
   private int stage = STAGE_INIT ;
   private float beginTime = -1 ;
   
@@ -57,7 +57,7 @@ public class Hunting extends Combat implements Economy {
   
   
   public static Hunting asHarvest(
-    Actor actor, Actor prey, Employer depot, boolean hungry
+    Actor actor, Actor prey, Owner depot, boolean hungry
   ) {
     if (depot == null) return null;
     final float hunger = actor.health.hungerLevel() * Plan.PARAMOUNT;
@@ -66,14 +66,14 @@ public class Hunting extends Combat implements Economy {
   }
   
   
-  public static Hunting asSample(Actor actor, Actor prey, Employer depot) {
+  public static Hunting asSample(Actor actor, Actor prey, Owner depot) {
     if (depot == null) I.complain("NO DEPOT SPECIFIED!");
     return new Hunting(actor, prey, TYPE_SAMPLE, depot);
   }
   
   
   
-  private Hunting(Actor actor, Actor prey, int type, Employer depot) {
+  private Hunting(Actor actor, Actor prey, int type, Owner depot) {
     super(
       actor, prey, STYLE_EITHER,
       (type == TYPE_SAMPLE) ? OBJECT_SUBDUE : OBJECT_EITHER
@@ -88,7 +88,7 @@ public class Hunting extends Combat implements Economy {
     super(s) ;
     prey = (Actor) s.loadObject() ;
     type = s.loadInt() ;
-    depot = (Employer) s.loadObject() ;
+    depot = (Owner) s.loadObject() ;
     stage = s.loadInt() ;
     beginTime = s.loadFloat() ;
   }
@@ -303,7 +303,7 @@ public class Hunting extends Combat implements Economy {
   }
   
   
-  public boolean actionReturnHarvest(Actor actor, Employer depot) {
+  public boolean actionReturnHarvest(Actor actor, Owner depot) {
     actor.gear.transfer(PROTEIN, depot);
     return true;
   }
@@ -316,7 +316,7 @@ public class Hunting extends Combat implements Economy {
   }
   
   
-  public boolean actionReturnSample(Actor actor, Employer depot) {
+  public boolean actionReturnSample(Actor actor, Owner depot) {
     actor.gear.transfer(sample(), depot);
     return true;
   }

@@ -21,7 +21,7 @@ public class VenueDescription {
   
   final String categories[];
   final Venue v;
-  private static Upgrade lastCU ;  //last clicked upgrade.
+  private static Upgrade lastCU;  //last clicked upgrade.
  
   
   protected VenueDescription(Venue v, String... categories) {
@@ -51,13 +51,13 @@ public class VenueDescription {
   
   
   public static InfoPanel configSimplePanel(
-    Venue venue, InfoPanel panel, BaseUI UI, String statusMessage
+    Installation venue, InfoPanel panel, BaseUI UI, String statusMessage
   ) {
     if (panel == null) panel = new InfoPanel(UI, venue, venue.portrait(UI));
     final Description d = panel.detail();
 
-    final VenueDescription VD = new VenueDescription(venue);
-    VD.describeCondition(d, UI, false) ;
+    final VenueDescription VD = new VenueDescription(null);
+    VD.describeCondition(venue, d, UI, false) ;
     
     if (statusMessage != null) {
       d.append("\n");
@@ -79,7 +79,7 @@ public class VenueDescription {
   
   
   protected void describeCategory(Description d, BaseUI UI, String catID) {
-    if (catID == CAT_STATUS  ) describeCondition(d, UI, true) ;
+    if (catID == CAT_STATUS  ) describeCondition(v, d, UI, true) ;
     if (catID == CAT_STAFF   ) describePersonnel(d, UI) ;
     if (catID == CAT_STOCK   ) describeStocks(d, UI) ;
     if (catID == CAT_UPGRADES) describeUpgrades(d, UI) ;
@@ -87,18 +87,25 @@ public class VenueDescription {
   
   
   
-  private void describeCondition(Description d, BaseUI UI, boolean detail) {
+  private void describeCondition(
+    Installation v,
+    Description d, BaseUI UI, boolean detail
+  ) {
     
     final World world = v.world();
     d.append("Condition and Repair:") ;
     d.append("\n  Integrity: ") ;
-    d.append(v.structure.repair()+" / "+v.structure.maxIntegrity()) ;
+    d.append(v.structure().repair()+" / "+v.structure().maxIntegrity()) ;
     
     if (detail) {
-      final String CUD = v.structure.currentUpgradeDesc() ;
-      if (CUD != null) d.append("\n  "+CUD) ;
-      d.append("\n  Materials Needed: "+"None") ;
-      d.append("\n  Untaxed Credits: "+(int) v.stocks.credits()) ;
+      final String CUD = v.structure().currentUpgradeDesc();
+      if (CUD != null) d.append("\n  "+CUD);
+      d.append("\n  Materials Needed: "+"None");
+      
+      if (v instanceof Inventory.Owner) {
+        final Inventory i = ((Inventory.Owner) v).inventory();
+        d.append("\n  Untaxed Credits: "+(int) i.credits());
+      }
     }
     
     final float squalor = 0 - world.ecology().ambience.valueAt(v) ;
@@ -163,28 +170,19 @@ public class VenueDescription {
   
   
   protected boolean describeStocks(Item item, Description d) {
-    final float needed ;
-    final Service type = item.type ;
-    if (v instanceof Service.Trade) {
-      final Service.Trade trade = (Service.Trade) v ;
-      needed = Math.max(Math.max(
-        trade.exportDemand(type),
-        trade.importDemand(type)
-      ), v.stocks.demandFor(type)) ;
-    }
-    else needed = v.stocks.demandFor(type) ;
-    final float amount = v.stocks.amountOf(type) ;
-    if (needed == 0 && amount == 0) return false ;
+    final Service type = item.type;
+    final float needed = v.stocks.demandFor(type);
+    final float amount = v.stocks.amountOf(type);
+    if (needed == 0 && amount == 0)
+      return false;
+
+    final String nS = I.shorten(needed, 1);
+    d.append("\n  ");
+    item.describeTo(d);
     
-    final String nS = I.shorten(needed, 1) ;
-    d.append("\n  ") ;
-    item.describeTo(d) ;
-    
-    //if (Visit.arrayIncludes(services(), type) && item.refers == null) {
-      final int price = (int) Math.ceil(v.priceFor(type)) ;
-      d.append(" /"+nS+" (Price "+price+")") ;
-    //}
-    return true ;
+    final int price = (int) Math.ceil(v.priceFor(type));
+    d.append(" /"+nS+" (Price "+price+")");
+    return true;
   }
   
   
@@ -330,6 +328,5 @@ public class VenueDescription {
     }
   }
 }
-
 
 

@@ -19,6 +19,7 @@ import stratos.user.*;
 import stratos.util.*;
 
 
+//  TODO:  Replace with 'Person' or 'Citizen'.
 
 
 public class Human extends Actor implements Qualities {

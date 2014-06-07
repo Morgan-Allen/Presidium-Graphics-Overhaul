@@ -131,9 +131,17 @@ public class SurveyStation extends Venue implements Economy {
       }
     }
     
+    if (hasStill) {
+      final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
+        still, still.services(), 2, 10, 5
+      );
+      choice.add(d);
+    }
+    /*
     if (hasStill) choice.add(Deliveries.nextDeliveryFor(
       actor, still, still.services(), 5, world
     ));
+    //*/
     
     //  TODO:  Incorporate sensor-placement into recon missions.
     choice.add(AnimalBreeding.nextBreeding(actor, this));
@@ -166,7 +174,7 @@ public class SurveyStation extends Venue implements Economy {
   public void updateAsScheduled(int numUpdates) {
     super.updateAsScheduled(numUpdates) ;
     if (! structure.intact()) return ;
-    stocks.forceDemand(CARBS, 5, VenueStocks.TIER_CONSUMER) ;
+    stocks.forceDemand(CARBS, 5, Stocks.TIER_CONSUMER) ;
     
     if (still == null || still.destroyed()) {
       final Tile o = Spacing.pickRandomTile(this, 4, world) ;

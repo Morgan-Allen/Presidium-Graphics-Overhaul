@@ -42,7 +42,7 @@ public class Dropship extends Vehicle implements
     "The Dejah Thoris",
     "The Royal Organa",
     "The Princess Irulan",
-    "The Century Hawk",
+    "The Century Falcon",
     "The Business End",
     "The Tranquillity",
     "The Arrow of Orion",
@@ -50,14 +50,14 @@ public class Dropship extends Vehicle implements
     "The Water Bearer",
     "The Bottle of Klein",
     "The Occam Razor",
-    "The Black Horizon",
+    "The Event Horizon",
     "The Lacrimosa",
     "The HMS Magellanic",
     "The Daedalus IV",
     "The Firebrat",
     "The Wing and Prayer",
     "The Prima Noctis",
-  } ;
+  };
   
   
   final static String
@@ -82,7 +82,9 @@ public class Dropship extends Vehicle implements
   final public static float
     INIT_DIST = 10.0f,
     INIT_HIGH = 10.0f,
-    TOP_SPEED =  5.0f ;
+    TOP_SPEED =  5.0f;
+  
+  private static boolean verbose = true;
   
   
   private Vec3D aimPos = new Vec3D() ;
@@ -145,8 +147,16 @@ public class Dropship extends Vehicle implements
   }
   
   
+  public Service[] services() { return ALL_COMMODITIES; }
+  
+  
   public Behaviour jobFor(Actor actor) {
-    if (actor.isDoing(Delivery.class, null)) return null ;
+    final boolean report = verbose && (
+      I.talkAbout == actor || I.talkAbout == this
+    );
+    if (actor.isDoing(Delivery.class, null)) return null;
+    
+    if (report) I.say("\nGetting next dropship job for "+actor);
     
     if (stage >= STAGE_BOARDING) {
       final Action boardAction = new Action(
@@ -157,31 +167,24 @@ public class Dropship extends Vehicle implements
       boardAction.setPriority(
         stage == STAGE_BOARDING ? Action.PARAMOUNT : 100
       ) ;
-      I.sayAbout(actor, "Boarding priority: "+boardAction.priorityFor(actor)) ;
+      if (report) I.say("Boarding priority: "+boardAction.priorityFor(actor));
       return boardAction ;
     }
     
-    final Batch <Venue> depots = nearbyDepots() ;
-    final Delivery d = Deliveries.nextImportDelivery(
-      actor, this, ALL_COMMODITIES, depots, 10, world
-    ) ;
-    if (d != null) return d ;
+    //final Batch <Venue> depots = Deliveries.nearbyDepots(this, world);
+    final Delivery d = DeliveryUtils.bestBulkCollectionFor(
+      this, ALL_COMMODITIES, 1, 10, 5
+    );
+    if (report) I.say("Next delivery: "+d);
+    if (d != null) return d;
     
-    final Delivery c = Deliveries.nextExportCollection(
-      actor, this, ALL_COMMODITIES, depots, 10, world
-    ) ;
-    if (c != null) return c ;
-    return null ;
-  }
-  
-  
-  private Batch <Venue> nearbyDepots() {
-    final Batch <Venue> depots = new Batch <Venue> () ;
-    for (Object o : world.presences.matchesNear(SupplyDepot.class, this, -1)) {
-      if (o == this) continue ;
-      depots.add((Venue) o) ;
-    }
-    return depots ;
+    final Delivery c = DeliveryUtils.bestBulkDeliveryFrom(
+      this, ALL_COMMODITIES, 1, 10, 5
+    );
+    if (report) I.say("Next collection: "+d);
+    if (c != null) return c;
+    
+    return null;
   }
   
   
@@ -207,12 +210,27 @@ public class Dropship extends Vehicle implements
   
   
   protected void offloadPassengers() {
-    final Vec3D p = dropPoint.position(null) ;
+    final Vec3D p = dropPoint.position(null);
     
-    for (Mobile m : inside()) if (! m.inWorld()) {
-      m.setPosition(p.x, p.y, world) ;
-      m.enterWorld() ;
-      m.goAboard(dropPoint, world) ;
+    for (Mobile m : inside()) {
+      
+      if (m instanceof Actor) {
+        final Actor a = (Actor) m;
+        final boolean belongs =
+          personnel().workers().includes(a) ||
+          personnel().residents().includes(a);
+        
+        if (! belongs) {
+          m.setPosition(p.x, p.y, world);
+          m.goAboard(dropPoint, world);
+        }
+      }
+      
+      if (! m.inWorld()) {
+        m.setPosition(p.x, p.y, world);
+        m.enterWorld();
+        m.goAboard(dropPoint, world);
+      }
     }
     inside.clear() ;
   }
@@ -223,21 +241,63 @@ public class Dropship extends Vehicle implements
   }
   
   
+  public void updateAsScheduled(int numUpdates) {
+    super.updateAsScheduled(numUpdates) ;
+    if (stage == STAGE_DESCENT) {
+      if (! checkLandingArea(world, landArea())) {
+        beginAscent() ;
+      }
+    }
+    
+    if (stage == STAGE_LANDED) {
+      final Commerce commerce = base.commerce;
+      final Tally <Service> surpluses = new Tally <Service> ();
+      float sumS = 0;
+      
+      for (Service good : ALL_COMMODITIES) {
+        final float surplus = commerce.localSurplus(good);
+        if (surplus > 0) {
+          sumS += surplus;
+          surpluses.add(surplus, good);
+        }
+        else if (commerce.localShortage(good) > 0) {
+          cargo.forceDemand(good, 0, Stocks.TIER_PRODUCER);
+        }
+        else {
+          cargo.forceDemand(good, 0, Stocks.TIER_TRADER);
+        }
+      }
+      
+      for (Service good : surpluses.keys()) {
+        final float wanted = MAX_CAPACITY * surpluses.valueFor(good) / sumS;
+        cargo.forceDemand(good, wanted, Stocks.TIER_CONSUMER);
+      }
+    }
+  }
   
+  
+  public float priceFor(Service service) {
+    final Commerce c = base.commerce;
+    if (c.localSurplus(service) > 0) return c.exportPrice(service);
+    if (c.localShortage(service) > 0) return c.importPrice(service);
+    return service.basePrice;
+  }
+  
+
+
   /**  Handling the business of ascent and landing-
     */
   public void beginDescent(World world) {
-    I.sayAbout(this, "BEGINNING DESCENT") ;
     final Tile entry = Spacing.pickRandomTile(
       world.tileAt(aimPos.x, aimPos.y), INIT_DIST, world
-    ) ;
-    enterWorldAt(entry.x, entry.y, world) ;
-    nextPosition.set(entry.x, entry.y, INIT_HIGH) ;
-    nextRotation = 0 ;
-    setHeading(nextPosition, nextRotation, true, world) ;
-    entranceFace = Venue.ENTRANCE_EAST ;
-    stage = STAGE_DESCENT ;
-    stageInceptTime = world.currentTime() ;
+    );
+    enterWorldAt(entry.x, entry.y, world);
+    nextPosition.set(entry.x, entry.y, INIT_HIGH);
+    nextRotation = 0;
+    setHeading(nextPosition, nextRotation, true, world);
+    entranceFace = Venue.ENTRANCE_SOUTH;
+    stage = STAGE_DESCENT;
+    stageInceptTime = world.currentTime();
   }
   
   
@@ -270,19 +330,26 @@ public class Dropship extends Vehicle implements
   
   
   public void beginAscent() {
-    ///I.say("BEGINNING ASCENT") ;
-    if (dropPoint instanceof LandingStrip) {
-      ((LandingStrip) dropPoint).setToDock(null) ;
+    offloadPassengers();
+    
+    ///I.say("BEGINNING ASCENT");
+    //  TODO:  Restore docking at the Launch Hangar!
+    /*
+    if (dropPoint instanceof LaunchHangar) {
+      ((LaunchHangar) dropPoint).setToDock(null);
     }
-    else if (landed()) {
-      final Box2D site = new Box2D().setTo(landArea()).expandBy(-1) ;
-      for (Tile t : world.tilesIn(site, false)) t.setOwner(null) ;
+    //*/
+    //else
+    if (landed()) {
+      final Box2D site = new Box2D().setTo(landArea()).expandBy(-1);
+      for (Tile t : world.tilesIn(site, false)) t.setOwner(null);
     }
-    final Tile exits = Spacing.pickRandomTile(origin(), INIT_DIST, world) ;
-    aimPos.set(exits.x, exits.y, INIT_HIGH) ;
-    this.dropPoint = null ;
-    stage = STAGE_ASCENT ;
-    stageInceptTime = world.currentTime() ;
+    
+    final Tile exits = Spacing.pickRandomTile(origin(), INIT_DIST, world);
+    aimPos.set(exits.x, exits.y, INIT_HIGH);
+    this.dropPoint = null;
+    stage = STAGE_ASCENT;
+    stageInceptTime = world.currentTime();
   }
   
   
@@ -371,16 +438,6 @@ public class Dropship extends Vehicle implements
     nextRotation = angle ;
   }
   
-  
-  public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates) ;
-    if (stage == STAGE_DESCENT) {
-      if (! checkLandingArea(world, landArea())) {
-        beginAscent() ;
-      }
-    }
-  }
-  
 
   public Boardable[] canBoard(Boardable batch[]) {
     if (landed()) return super.canBoard(batch) ;
@@ -421,12 +478,14 @@ public class Dropship extends Vehicle implements
   public boolean findLandingSite(final Base base) {
     this.assignBase(base) ;
     final World world = base.world ;
-    LandingStrip landing = null ;
+    LaunchHangar landing = null ;
     float bestRating = Float.NEGATIVE_INFINITY ;
     
-    for (Object o : world.presences.matchesNear(SupplyDepot.class, this, -1)) {
-      final SupplyDepot depot = (SupplyDepot) o ;
-      final LandingStrip strip = depot.landingStrip() ;
+    //  TODO:  Land at the launch hangar instead.
+    /*
+    for (Object o : world.presences.matchesNear(FRSD.class, this, -1)) {
+      final FRSD depot = (FRSD) o ;
+      final LaunchHangar strip = depot.launchHangar() ;
       if (strip == null || ! depot.structure.intact()) continue ;
       if (strip.docking() != null || ! strip.structure.intact()) continue ;
       float rating = 0 ; for (Service good : ALL_COMMODITIES) {
@@ -444,6 +503,7 @@ public class Dropship extends Vehicle implements
       I.say("Landing at depot: "+dropPoint) ;
       return true ;
     }
+    //*/
     
     final Tile midTile = world.tileAt(world.size / 2, world.size / 2) ;
     final Target nearest = world.presences.randomMatchNear(base, midTile, -1) ;

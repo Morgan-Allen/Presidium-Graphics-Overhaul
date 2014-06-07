@@ -40,12 +40,12 @@ public class Holding extends Venue implements Economy {
   final public static int
     MAX_SIZE   = 2,
     MAX_HEIGHT = 4,
-    NUM_VARS   = 3 ;
+    NUM_VARS   = 3;
   final static float
     CHECK_INTERVAL = 10,
     TEST_INTERVAL  = World.STANDARD_DAY_LENGTH,
     UPGRADE_THRESH = 0.66f,
-    DEVOLVE_THRESH = 0.66f ;
+    DEVOLVE_THRESH = 0.66f;
   
   private static boolean verbose = true ;
   
@@ -142,8 +142,8 @@ public class Holding extends Venue implements Economy {
   
   private boolean needsMet(int meetLevel) {
     if (personnel.residents().size() == 0) return false ;
-    if (meetLevel <= HoldingUpgrades.LEVEL_TENT   ) return true  ;
-    if (meetLevel >  HoldingUpgrades.LEVEL_GUILDER) return false ;
+    if (meetLevel <= HoldingUpgrades.LEVEL_TENT   ) return true ;
+    if (meetLevel >  HoldingUpgrades.LEVEL_GUILDER) return false;
     final Object met = HoldingUpgrades.NEEDS_MET ;
     return
       HoldingUpgrades.checkAccess   (this, meetLevel, false) == met &&
@@ -185,7 +185,7 @@ public class Holding extends Venue implements Economy {
       }
       
       if (devolve && empty) {
-        if (verbose) I.sayAbout(this, "HOUSING IS CONDEMNED") ;
+        //if (verbose) I.sayAbout(this, "HOUSING IS CONDEMNED") ;
         structure.setState(Structure.STATE_SALVAGE, -1) ;
       }
       
@@ -207,20 +207,21 @@ public class Holding extends Venue implements Economy {
   private void consumeMaterials() {
     //
     //  Decrement stocks and update demands-
-    final float wear = Structure.WEAR_PER_DAY / World.STANDARD_DAY_LENGTH ;
-    final int maxPop = HoldingUpgrades.OCCUPANCIES[upgradeLevel] ;
-    float count = 0 ;
-    for (Actor r : personnel.residents()) if (r.aboard() == this) count++ ;
-    count = 0.5f + (count / maxPop) ;
+    float wear = Structure.WEAR_PER_DAY;
+    wear /= World.STANDARD_DAY_LENGTH * structure.maxIntegrity();
+    final int maxPop = HoldingUpgrades.OCCUPANCIES[upgradeLevel];
+    float count = 0;
+    for (Actor r : personnel.residents()) if (r.aboard() == this) count++;
+    count = 0.5f + (count / maxPop);
     //
     //  Power, water and life support are consumed at a fixed rate, but other
     //  materials wear out depending on use (and more slowly.)
     for (Item i : HoldingUpgrades.materials(upgradeLevel).raw) {
       if (i.type.form == FORM_PROVISION) {
-        stocks.bumpItem(i.type, i.amount * -0.1f) ;
+        stocks.bumpItem(i.type, i.amount * -0.1f);
       }
       else {
-        stocks.bumpItem(i.type, i.amount * count * -wear) ;
+        stocks.bumpItem(i.type, i.amount * count * -wear);
       }
     }
   }
@@ -230,18 +231,18 @@ public class Holding extends Venue implements Economy {
     targetLevel = Visit.clamp(targetLevel, HoldingUpgrades.NUM_LEVELS) ;
     
     for (Item i : HoldingUpgrades.materials(targetLevel).raw) {
-      stocks.forceDemand(i.type, i.amount + 0.5f, VenueStocks.TIER_CONSUMER) ;
+      stocks.forceDemand(i.type, i.amount + 0.5f, Stocks.TIER_CONSUMER) ;
     }
     
     final float supportNeed = HoldingUpgrades.supportNeed(this, targetLevel) ;
-    stocks.forceDemand(LIFE_SUPPORT, supportNeed, VenueStocks.TIER_CONSUMER) ;
+    stocks.forceDemand(LIFE_SUPPORT, supportNeed, Stocks.TIER_CONSUMER) ;
     
     for (Item i : HoldingUpgrades.rationNeeds(this, targetLevel)) {
-      stocks.forceDemand(i.type, i.amount, VenueStocks.TIER_CONSUMER) ;
+      stocks.forceDemand(i.type, i.amount, Stocks.TIER_CONSUMER) ;
     }
 
     for (Item i : HoldingUpgrades.specialGoods(this, targetLevel)) {
-      stocks.forceDemand(i.type, i.amount, VenueStocks.TIER_CONSUMER) ;
+      stocks.forceDemand(i.type, i.amount, Stocks.TIER_CONSUMER) ;
     }
   }
   
@@ -284,10 +285,26 @@ public class Holding extends Venue implements Economy {
   
   
   public Behaviour jobFor(Actor actor) {
-    final Service goods[] = goodsNeeded() ;
+    final Service goods[] = goodsNeeded();
+    
+    //  First of all, deliver any goods that you yourself are carrying-
+    for (Service s : goods) for (Item i : actor.gear.matches(s)) {
+      if (i.refers == null || i.refers == actor) {
+        final Delivery d = new Delivery(i, actor, this);
+        d.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL);
+        return d;
+      }
+    }
+    
+    //  Otherwise, see if it's possible to make any purchases nearby-
+    final Delivery d = DeliveryUtils.bestBulkCollectionFor(
+      this, goods, 1, 5, 5
+    );
+    /*
     final Delivery d = Deliveries.nextCollectionFor(
       actor, this, goods, 5, actor, actor.world()
-    ) ;
+    );
+    //*/
     if (d != null) d.shouldPay = actor ;
     return d ;
   }
@@ -308,6 +325,10 @@ public class Holding extends Venue implements Economy {
     */
   final static String
     IMG_DIR = "media/Buildings/civilian/" ;
+  
+  final static ImageAsset ICON = ImageAsset.fromImage(
+    "media/GUI/Buttons/holding_button.gif", Holding.class
+  );
 
   final public static ModelAsset
     SEAL_TENT_MODEL = CutoutModel.fromImage(
@@ -359,8 +380,7 @@ public class Holding extends Venue implements Economy {
   
   
   public Composite portrait(BaseUI UI) {
-    //  TODO:  Put something in here!
-    return null ;//Texture.loadTexture("media/GUI/Buttons/holding.gif") ;
+    return Composite.withImage(ICON, "holding");
   }
   
   

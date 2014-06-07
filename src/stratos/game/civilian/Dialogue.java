@@ -62,11 +62,11 @@ public class Dialogue extends Plan implements Qualities {
   
   
   private Dialogue(Actor actor, Actor other, Actor starts, int type) {
-    super(actor, other) ;
-    if (actor == other) I.complain("CANNOT TALK TO SELF!") ;
-    this.other = other ;
-    this.starts = starts ;
-    this.type = type ;
+    super(actor, other);
+    if (actor == other) I.complain("CANNOT TALK TO SELF!");
+    this.other = other;
+    this.starts = starts;
+    this.type = type;
   }
   
   
@@ -155,28 +155,30 @@ public class Dialogue extends Plan implements Qualities {
   }
   
   
-  //  TODO:  Try moving some of these methods out to the DialogueUtils class?
   private float urgency() {
-    final float curiosity = (1 + actor.traits.relativeLevel(CURIOUS)) / 2;
-    final Relation r = actor.memories.relationWith(other);
-    final float
-      value   = r == null ? actor.memories.relationValue(other) : r.value(),
-      novelty = r == null ? 1 : r.novelty();
+    final float curiosity = (1 + actor.traits.relativeLevel(CURIOUS)) / 2f;
+    final Relation r = actor.relations.relationWith(other);
+    final float solitude = solitude(actor);
     
     float urgency = 0;
-    urgency += novelty * curiosity;
-    urgency += (solitude(actor) + value) / 2f;
-    urgency = Visit.clamp(urgency, -1, 1);
-    return urgency;
+    if (r == null) {
+      urgency += (solitude + actor.relations.relationValue(other)) / 2f;
+      urgency += (1 + curiosity) * solitude;
+    }
+    else {
+      urgency += (solitude + r.value()) / 2f;
+      urgency += (1 + curiosity) * r.novelty();
+    }
+    return Visit.clamp(urgency, -1, 1);
   }
   
   
   private float solitude(Actor actor) {
-    //  TODO:  Only count positive relations?
+    //  TODO:  Only count positive relations!
     final float
-      trait = actor.traits.relativeLevel(OUTGOING) + 1,
-      baseF = 1 + (Relation.BASE_NUM_FRIENDS * trait),
-      numF  = actor.memories.relations().size();
+      trait = (1 + actor.traits.relativeLevel(OUTGOING)) / 2f,
+      baseF = Relation.BASE_NUM_FRIENDS * (trait + 0.5f),
+      numF  = actor.relations.relations().size();
     return (baseF - numF) / baseF;
   }
   
@@ -292,7 +294,8 @@ public class Dialogue extends Plan implements Qualities {
   public boolean actionGreet(Actor actor, Boardable aboard) {
     if (! other.isDoing(Dialogue.class, null)) {
       if (! canTalk(other)) {
-        if (type == TYPE_CASUAL) abortBehaviour() ;
+        if (I.talkAbout == actor) I.say("CAN'T TALK!");
+        abortBehaviour() ;
         return false ;
       }
       final Dialogue d = new Dialogue(other, actor, type) ;
@@ -311,9 +314,13 @@ public class Dialogue extends Plan implements Qualities {
   
   public boolean actionChats(Actor actor, Actor other) {
     DialogueUtils.tryChat(actor, other);
-    
-    if (urgency() <= 0) {
-      if (invitation == null && Rand.num() < actor.memories.relationValue(other)) {
+    final boolean canTalk = canTalk(other);
+
+    final float relation = actor.relations.relationValue(other);
+    //I.say("Urgency: "+urgency()+", relation: "+relation);
+    //I.say("Novelty: "+actor.memories.relationNovelty(other));
+    if (urgency() <= 0 || ! canTalk) {
+      if (invitation == null && Rand.num() < relation) {
         invitation = actor.mind.nextBehaviour();
       }
       else stage = STAGE_BYE;
@@ -358,16 +365,16 @@ public class Dialogue extends Plan implements Qualities {
     }
     if (report) {
       I.say("  Offer accepted!");
-      I.say("  Relation before: "+receives.memories.relationValue(actor));
+      I.say("  Relation before: "+receives.relations.relationValue(actor));
     }
 
     actor.gear.transfer(gift, receives);
-    receives.memories.incRelation(actor, 1, value / 2);
-    actor.memories.incRelation(receives, 1, value / 4);
+    receives.relations.incRelation(actor, 1, value / 2);
+    actor.relations.incRelation(receives, 1, value / 4);
     DialogueUtils.utters(receives, "Thank you for the "+gift.type+"!", value);
     
     if (report) {
-      I.say("  Relation after: "+receives.memories.relationValue(actor));
+      I.say("  Relation after: "+receives.relations.relationValue(actor));
     }
     return true;
   }
@@ -378,6 +385,7 @@ public class Dialogue extends Plan implements Qualities {
     this.stage = STAGE_BYE;
     
     if (! (invitation instanceof Plan)) return false;
+    if (actor.mind.hasToDo(Joining.class)) return false;
     final Plan basis = (Plan) invitation;
     if (basis.hasMotiveType(Plan.MOTIVE_DUTY)) return false;
     
@@ -398,8 +406,6 @@ public class Dialogue extends Plan implements Qualities {
       return false;
     }
     
-    //  TODO:  It would help to have a dedicated 'doing stuff with' Plan to
-    //  base this off.
     actor.mind.assignBehaviour(new Joining(actor, basis, asked));
     asked.mind.assignBehaviour(new Joining(asked, copy, actor));
     if (report) {
@@ -430,81 +436,3 @@ public class Dialogue extends Plan implements Qualities {
 
 
 
-
-
-/*
-final Batch <Dialogue> sides = sides() ;
-if (location == null) {
-  
-  //  If a location has not already been assigned, look for one either used
-  //  by existing conversants, or find a new spot nearby.
-  for (Dialogue d : sides) if (d.location != null) {
-    this.location = d.location ; break ;
-  }
-  if (location == null) {
-    if (other.indoors() && starts.indoors()) location = other.aboard();
-    else location = Spacing.bestMidpoint(starts, other);
-    if (report) I.say("Initialising talk location: "+location);
-  }
-}
-
-if (location instanceof Tile) {
-  
-  //  In the case of an open-air discussion, you need to find appropriate
-  //  spots to stand around in.  Mark any spot claimed by other conversants
-  //  and try to find one unused-
-  for (Dialogue s : sides) if (s != this && s.stands != null) {
-    s.stands.flagWith(s) ;
-  }
-  float minDist = Float.POSITIVE_INFINITY ;
-  this.stands = null ;
-  for (Tile t : ((Tile) location).allAdjacent(null)) {
-    if (t == null) continue ;
-    if (t.blocked() || t.flaggedWith() != null) continue ;
-    final float dist = Spacing.distance(t, actor) ;
-    if (dist < minDist) { stands = t ; minDist = dist ; }
-  }
-  for (Dialogue s : sides) if (s != this && s.stands != null) {
-    s.stands.flagWith(null) ;
-  }
-  
-  //  If none is available, quit and return.  Otherwise, walk over there.
-  if (stands == null) { abortBehaviour() ; return ; }
-  talkAction.setMoveTarget(stands) ;
-}
-else if (location instanceof Boardable) {
-  
-  //  In the case of an indoor discussion, just set the right venue.  If
-  //  nothing else was available, quit and return.
-  talkAction.setMoveTarget(location) ;
-}
-else abortBehaviour() ;
-//*/
-
-
-
-
-/*
-float success = 0;
-//  Suasion vs. Suasion.  Half DC.  Bonus for truth sense, esp. vs deceit.
-//  Plus a routine check for language.
-
-//  Another modifier for attitude.
-
-//  Counsel or command for instruction.  Level of skill taught for DC.
-//  ...Maybe that should be a different activity, though?
-
-//  Suasion for pleas.  Level of reluctance for DC.  Command for inferiors.
-
-/*
-public boolean actionIntro(Actor actor, Actor other) {
-  //  Used when making a first impression.
-  float success = talkResult(SUASION, SUASION, TRUTH_SENSE, other) ;
-  if (other.mind.hasRelation(actor)) {
-    other.mind.initRelation(actor, success / 2) ;
-  }
-  else other.mind.incRelation(actor, success) ;
-  stage = STAGE_CHAT ;
-  return true ;
-}
-//*/

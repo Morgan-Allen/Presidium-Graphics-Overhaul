@@ -298,7 +298,7 @@ void main() {
 		#else
 	        v_lightDiffuse = vec3(0.0);
 		#endif //ambientFlag
-
+		
 			
 		#ifdef specularFlag
 			v_lightSpecular = vec3(0.0);

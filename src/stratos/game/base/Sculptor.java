@@ -6,33 +6,34 @@
 
 
 package stratos.game.base;
-import stratos.game.civilian.Commission;
-import stratos.game.common.* ;
-import stratos.game.actors.* ;
-import stratos.game.building.* ;
-import stratos.graphics.common.* ;
-import stratos.graphics.cutout.* ;
+import stratos.game.common.*;
+import stratos.game.actors.*;
+import stratos.game.building.*;
+import stratos.game.civilian.*;
+import stratos.graphics.common.*;
+import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
-import stratos.user.* ;
-import stratos.util.* ;
+import stratos.user.*;
+import stratos.util.*;
 
 
 
-public class Fabricator extends Venue implements Economy {
+
+public class Sculptor extends Venue implements Economy {
 
   
   
   /**  Fields, constructors, and save/load methods-
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    Fabricator.class, "media/Buildings/aesthete/fabricator.png", 3, 2
-  ) ;
+    Sculptor.class, "media/Buildings/aesthete/fabricator.png", 3, 2
+  );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/fabricator_button.gif", Fabricator.class
+    "media/GUI/Buttons/fabricator_button.gif", Sculptor.class
   );
   
   
-  public Fabricator(Base base) {
+  public Sculptor(Base base) {
     super(3, 2, ENTRANCE_EAST, base) ;
     structure.setupStats(
       125, 2, 200,
@@ -43,7 +44,7 @@ public class Fabricator extends Venue implements Economy {
   }
   
   
-  public Fabricator(Session s) throws Exception {
+  public Sculptor(Session s) throws Exception {
     super(s) ;
   }
   
@@ -57,10 +58,11 @@ public class Fabricator extends Venue implements Economy {
   /**  Implementation of employee behaviour-
     */
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-    Artificer.class, "fabricator_upgrades"
+    Sculptor.class, "fabricator_upgrades"
   ) ;
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES ; }
   final public static Upgrade
+    /*
     POLYMER_LOOM = new Upgrade(
       "Polymer Loom",
       "Speeds the production of standard plastics and functional clothing.",
@@ -83,15 +85,15 @@ public class Fabricator extends Venue implements Economy {
       "Substantially eases the production of all outfit types.",
       150, null, 2, null, ALL_UPGRADES
     ),
+    //*/
     
-    //
     //  TODO:  You might move these to the Sculptor Studio instead.
     
     DESIGN_STUDIO = new Upgrade(
       "Design Studio",
       "Facilitates the design and production of custom decor and commissions "+
       "for luxury outfits.",
-      300, null, 1, CUTTING_FLOOR, ALL_UPGRADES
+      300, null, 1, null, ALL_UPGRADES
     ),
     AESTHETE_STATION = new Upgrade(
       "Aesthete Station",
@@ -106,20 +108,23 @@ public class Fabricator extends Venue implements Economy {
   
   public void updateAsScheduled(int numUpdates) {
     super.updateAsScheduled(numUpdates) ;
-    stocks.translateDemands(1, CARBS_TO_PLASTICS, this) ;
+    stocks.translateDemands(1, WASTE_TO_PLASTICS, this) ;
     
     final float powerNeed = 2 + (structure.numUpgrades() / 2f) ;
     stocks.bumpItem(POWER, powerNeed / -10) ;
-    stocks.forceDemand(POWER, powerNeed, VenueStocks.TIER_CONSUMER) ;
+    stocks.forceDemand(POWER, powerNeed, Stocks.TIER_CONSUMER) ;
     
-    int pollution = 3 - (structure.upgradeBonus(ORGANIC_BONDING) * 2) ;
-    structure.setAmbienceVal(0 - pollution) ;
+    //int pollution = 3 - (structure.upgradeBonus(ORGANIC_BONDING) * 2);
+    //structure.setAmbienceVal(0 - pollution) ;
   }
   
   
   public Behaviour jobFor(Actor actor) {
     if ((! structure.intact()) || (! personnel.onShift(actor))) return null ;
     final Choice choice = new Choice(actor) ;
+    
+    return choice.weightedPick();
+    /*
     final float powerCut = stocks.shortagePenalty(POWER) * 5 ;
     final int
       loomBonus = (5 * structure.upgradeLevel(POLYMER_LOOM)) / 2,
@@ -151,6 +156,7 @@ public class Fabricator extends Venue implements Economy {
     }
     
     return choice.weightedPick() ;
+    //*/
   }
   
   

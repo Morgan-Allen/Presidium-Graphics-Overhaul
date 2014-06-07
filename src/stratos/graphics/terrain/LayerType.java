@@ -78,6 +78,9 @@ public abstract class LayerType implements TileConstants {
       }
       return;
     }
+    else {
+      if (layerID < 0 && varID == -1) return;
+    }
     
     for (int n : N_INDEX) {
       final int x = tx + N_X[n], y = ty + N_Y[n];

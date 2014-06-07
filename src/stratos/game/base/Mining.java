@@ -309,7 +309,7 @@ public class Mining extends Plan implements Economy {
   
   
   public boolean actionDeliverOres(Actor actor, Venue venue) {
-    if (evalVerbose) I.sayAbout(actor, "Returning to "+venue) ;
+    //if (evalVerbose) I.sayAbout(actor, "Returning to "+venue) ;
     
     for (Service type : MINED_TYPES) {
       /*

@@ -185,14 +185,15 @@ public class Combat extends Plan implements Qualities {
   /**  Actual behaviour implementation-
     */
   protected Behaviour getNextStep() {
-    if (eventsVerbose && hasBegun()) {
-      I.sayAbout(actor, "NEXT COMBAT STEP "+this.hashCode()) ;
+    final boolean report = eventsVerbose && I.talkAbout == actor && hasBegun();
+    if (report) {
+      I.say("NEXT COMBAT STEP "+this.hashCode());
     }
     //
     //  This might need to be tweaked in cases of self-defence, where you just
     //  want to see off an attacker.
     if (isDowned(target, object)) {
-      if (eventsVerbose && hasBegun()) I.sayAbout(actor, "COMBAT COMPLETE") ;
+      if (report) I.say("COMBAT COMPLETE");
       return null ;
     }
 

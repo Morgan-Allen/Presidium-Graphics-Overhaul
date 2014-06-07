@@ -106,14 +106,14 @@ public class CultureVats extends Venue implements Economy {
     super.updateAsScheduled(numUpdates) ;
     if (! structure.intact()) return ;
     
-    stocks.translateDemands(1, POWER_TO_CARBS   , this) ;
-    stocks.translateDemands(1, POWER_TO_PROTEIN , this) ;
-    stocks.translateDemands(1, GREENS_TO_SOMA   , this) ;
+    stocks.translateDemands(1, WASTE_TO_CARBS   , this) ;
+    stocks.translateDemands(1, CARBS_TO_PROTEIN , this) ;
+    stocks.translateDemands(1, CARBS_TO_SOMA   , this) ;
     stocks.translateDemands(1, SPICE_TO_MEDICINE, this) ;
     
     float needPower = 5 ;
     if (! isManned()) needPower /= 2 ;
-    stocks.incDemand(POWER, needPower, VenueStocks.TIER_CONSUMER, 1, this) ;
+    stocks.incDemand(POWER, needPower, Stocks.TIER_CONSUMER, 1, this) ;
     stocks.bumpItem(POWER, needPower * -0.1f) ;
     
     final int cycleBonus = bonusFor(WASTE_DISPOSAL, 1) ;
@@ -158,8 +158,8 @@ public class CultureVats extends Venue implements Economy {
     //
     //  Foodstuffs-
     final Manufacture
-      mS = stocks.nextManufacture(actor, POWER_TO_CARBS),
-      mP = stocks.nextManufacture(actor, POWER_TO_PROTEIN) ;
+      mS = stocks.nextManufacture(actor, WASTE_TO_CARBS),
+      mP = stocks.nextManufacture(actor, CARBS_TO_PROTEIN) ;
     if (mS != null) {
       mS.checkBonus = cycleBonus * 2 ;
       mS.checkBonus -= powerCut ;
@@ -173,7 +173,7 @@ public class CultureVats extends Venue implements Economy {
     //
     //  And pharmaceuticals-
     final Manufacture
-      mA = stocks.nextManufacture(actor, GREENS_TO_SOMA),
+      mA = stocks.nextManufacture(actor, CARBS_TO_SOMA),
       mM = stocks.nextManufacture(actor, SPICE_TO_MEDICINE) ;
     if (mA != null) {
       mA.checkBonus = cycleBonus + bonusFor(SOMA_CULTURE, 1.5f) ;
