@@ -27,14 +27,13 @@ void main() {
 	v_texCoords0 = a_texCoord0;
 	v_position = a_position;
 	
-	
 	vec4 pos = vec4(v_position, 1.0);
   mat4 transform = u_worldTrans;
   
   if (u_numBones > 0) {
-    mat4 skinning = mat4(0.0);
-    skinning += (a_boneWeight0.y) * u_bones[int(a_boneWeight0.x)];
-    transform = transform * skinning;
+    mat4 boneTrans = mat4(0.0);
+    boneTrans += (a_boneWeight0.y) * u_bones[int(a_boneWeight0.x)];
+    transform = transform * boneTrans;
   }
 	
   v_normal = normalize((transform * vec4(a_normal, 0.0)).xyz);

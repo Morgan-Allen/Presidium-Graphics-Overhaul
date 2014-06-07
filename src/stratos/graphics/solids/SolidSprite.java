@@ -3,16 +3,18 @@
 package stratos.graphics.solids;
 import stratos.graphics.common.*;
 import stratos.util.*;
-import com.badlogic.gdx.graphics.Texture;
+
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g3d.*;
+import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.model.*;
 import com.badlogic.gdx.math.*;
-import com.badlogic.gdx.utils.*;
+
 import org.apache.commons.math3.util.FastMath;
 
 
 
-public class SolidSprite extends Sprite implements RenderableProvider {
+public class SolidSprite extends Sprite {
   
   
   final static float ANIM_INTRO_TIME = 0.2f;
@@ -104,48 +106,30 @@ public class SolidSprite extends Sprite implements RenderableProvider {
   
   /**  Rendering and animation-
    */
-  protected void addRenderables(Series <Renderable> renderables) {
-    //  In either case, you'll need to set up renderables for each node part-
-    for (int i = 0; i < model.allParts.length; i++) {
-      final NodePart part = model.allParts[i];
-      if ((hideMask & (1 << i)) != 0) continue;
-      final Renderable r = new Renderable();
-      
-      final int numBones = part.invBoneBindTransforms.size;
-      //  TODO:  Use an object pool for these, if possible?
-      final Matrix4 boneSet[] = new Matrix4[numBones];
-      for (int b = 0; b < numBones; b++) {
-        final Node node = part.invBoneBindTransforms.keys[b];
-        final Matrix4 offset = part.invBoneBindTransforms.values[b];
-        boneSet[b] = new Matrix4(boneFor(node)).mul(offset);
-      }
-      
-      final int matIndex = model.indexFor(part.material);
-      
-      //  TODO:  What about world transforms?
-      r.worldTransform.set(transform);
-      r.material       = materials[matIndex];
-      r.bones          = boneSet;
-      r.mesh           = part.meshPart.mesh;
-      r.meshPartOffset = part.meshPart.indexOffset;
-      r.meshPartSize   = part.meshPart.numVertices;
-      r.primitiveType  = part.meshPart.primitiveType;
-      renderables.add(r);
-    }
+  static class Part {
+    SolidSprite belongs;
+    
+    Texture texture, overlays[];
+    Colour colour;
+    
+    Mesh mesh;
+    Matrix4 meshBones[];
+    int meshType, meshIndex, meshVerts;
   }
   
-  //  TODO:  Delete the method below once the new rendering pass is set up, and
-  //  replace it with the above.
   
-  public void getRenderables(
-    Array<Renderable> renderables,
-    Pool<Renderable> pool
-  ) {
-    //  In either case, you'll need to set up renderables for each node part-
+  protected void addPartsTo(Series <Part> allParts) {
+    
+    final Colour c = new Colour();
+    if (this.colour == null) c.set(Colour.WHITE);
+    else c.set(this.colour);
+    c.r *= fog;
+    c.g *= fog;
+    c.b *= fog;
+    
     for (int i = 0; i < model.allParts.length; i++) {
       final NodePart part = model.allParts[i];
       if ((hideMask & (1 << i)) != 0) continue;
-      final Renderable r = pool.obtain();
       
       final int numBones = part.invBoneBindTransforms.size;
       //  TODO:  Use an object pool for these, if possible?
@@ -157,14 +141,25 @@ public class SolidSprite extends Sprite implements RenderableProvider {
       }
       
       final int matIndex = model.indexFor(part.material);
-      r.worldTransform.set(transform);
-      r.material       = materials[matIndex];
-      r.bones          = boneSet;
-      r.mesh           = part.meshPart.mesh;
-      r.meshPartOffset = part.meshPart.indexOffset;
-      r.meshPartSize   = part.meshPart.numVertices;
-      r.primitiveType  = part.meshPart.primitiveType;
-      renderables.add(r);
+      final Material material = materials[matIndex];
+
+      final TextureAttribute t;
+      t = (TextureAttribute) material.get(TextureAttribute.Diffuse);
+      final OverlayAttribute a;
+      a = (OverlayAttribute) material.get(OverlayAttribute.Overlay);
+      
+      final Part p = new Part();
+      p.belongs = this;
+      p.texture = t == null ? null : t.textureDescription.texture;
+      p.overlays = a == null ? null : a.textures;
+      p.colour = c;
+      
+      p.mesh = part.meshPart.mesh;
+      p.meshBones = boneSet;
+      p.meshType = part.meshPart.primitiveType;
+      p.meshIndex = part.meshPart.indexOffset;
+      p.meshVerts = part.meshPart.numVertices;
+      allParts.add(p);
     }
   }
   
@@ -215,10 +210,8 @@ public class SolidSprite extends Sprite implements RenderableProvider {
     if (v == null) v = new Vec3D();
     if (animStates.size() == 0) return v.setTo(position);
     
-    ///I.say("Getting attach point ("+function+") from "+model);
     final Integer nodeIndex = model.indexFor(function);
     if (nodeIndex == null) {
-      ///I.say("WARNING:  NO ATTACH POINT FOR "+function);
       return new Vec3D(position);
     }
     

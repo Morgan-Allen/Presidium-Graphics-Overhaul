@@ -2,18 +2,15 @@
 
 package stratos.graphics.solids;
 import stratos.graphics.common.*;
+import stratos.graphics.solids.SolidSprite.Part;
 import stratos.util.*;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g3d.*;
-import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.math.*;
 
-
-
-//TODO:  Port over cel-shading related code here as well?
 
 
 public class SolidsPass {
@@ -68,24 +65,16 @@ public class SolidsPass {
   
   public void performPass() {
     
-    //  TODO:  Go back to keying each pass off particular textures again.
-    //final Table <Texture, Batch <Renderable>> allParts = new Table();
-    
     shading.begin();
     shading.setUniformi("u_texture", 0);
     for (int i = 0 ; i < MAX_SKINS; i++) {
       shading.setUniformi(OVER_NAMES[i], i + 1);
     }
     
-    
-    //
-    //  TODO:  Insert fog and selection FX here.
-    //shading.setUniform4fv("u_texColor", new float[] {1, 1, 1, 1}, 0, 4);
-    
-    //  The ambient light, diffuse light, and diffuse light direction-
+    //  The ambient light, diffuse light, and light direction-
     final float
-      ambA[]     = rendering.lighting.ambient.toFloatVals(),
-      difA[]     = rendering.lighting.diffuse.toFloatVals();
+      ambA[] = rendering.lighting.ambient.toFloatVals(),
+      difA[] = rendering.lighting.diffuse.toFloatVals();
     final Vec3D d = rendering.lighting.direction;
     final float lightDir[] = new float[] { d.x, d.y, d.z } ;
     shading.setUniform4fv("u_ambientLight"  , ambA, 0, 4);
@@ -93,35 +82,34 @@ public class SolidsPass {
     shading.setUniform3fv("u_lightDirection", lightDir, 0, 3);
     shading.setUniformMatrix("u_camera", rendering.camera().combined);
     
-    //I.say("Ambient: "+rendering.lighting.ambient);
-    //I.say("Diffuse: "+rendering.lighting.diffuse);
-    
-    for (SolidSprite sprite : inPass) {
-      final Batch <Renderable> fromSprite = new Batch();
-      sprite.addRenderables(fromSprite);
-      
-      for (Renderable r : fromSprite) {
-        final TextureAttribute t;
-        t = (TextureAttribute) r.material.get(TextureAttribute.Diffuse);
-        if (t == null) continue;
-        final Texture key = t.textureDescription.texture;
-        
-        key.bind(0);
-        bindOverlays(key, r);
-        
-        final float[] bones = new float[MAX_BONES * 16];
-        for (int i = 0; i < r.bones.length * 16; i++) {
-          bones[i] = r.bones[i / 16].val[i % 16];
-        }
-        
-        shading.setUniformMatrix("u_worldTrans", r.worldTransform);
-        shading.setUniformi("u_numBones", r.bones.length);
-        shading.setUniformMatrix4fv("u_bones", bones, 0, bones.length);
-        
-        r.mesh.render(
-          shading, r.primitiveType, r.meshPartOffset, r.meshPartSize
-        );
+    final Sorting <SolidSprite.Part> allParts = new Sorting <SolidSprite.Part> () {
+      public int compare(Part a, Part b) {
+        //  TODO:  First, sort transparency.  Then by level.  Then by texture.
+        return 0;
       }
+    };
+    for (SolidSprite sprite : inPass) sprite.addPartsTo(allParts);
+    
+    for (SolidSprite.Part part : allParts) {
+      if (part.texture == null) continue;
+      part.texture.bind(0);
+      part.texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);  //TODO:  Make more general
+      bindOverlays(part);
+      final Colour c = part.colour;
+      shading.setUniformf("u_texColor", c.r, c.g, c.b, c.a);
+      
+      final Matrix4 partBones[] = part.meshBones;
+      final float[] bones = new float[MAX_BONES * 16];
+      for (int i = 0; i < partBones.length * 16; i++) {
+        bones[i] = partBones[i / 16].val[i % 16];
+      }
+      shading.setUniformMatrix("u_worldTrans", part.belongs.transform);
+      shading.setUniformi("u_numBones", partBones.length);
+      shading.setUniformMatrix4fv("u_bones", bones, 0, bones.length);
+      
+      part.mesh.render(
+        shading, part.meshType, part.meshIndex, part.meshVerts
+      );
     }
     
     shading.end();
@@ -132,22 +120,17 @@ public class SolidsPass {
   
   /**  Helper method for binding multiple texture overlays-
     */
-  private void bindOverlays(Texture key, Renderable r) {
-    final OverlayAttribute a;
-    a = (OverlayAttribute) r.material.get(OverlayAttribute.Overlay);
-    
-    if (a == null || a.textures == null || a.textures.length < 1) {
+  private void bindOverlays(SolidSprite.Part part) {
+    if (part == null || part.overlays == null || part.overlays.length < 1) {
       shading.setUniformi("u_numOverlays", 0);
       return;
     }
-    final int numOver = a.textures.length;
+    final int numOver = part.overlays.length;
     if (numOver > MAX_SKINS) I.complain("TOO MANY OVERLAYS!");
     
     shading.setUniformi("u_numOverlays", numOver);
-    for (int i = 0; i < numOver; i++) a.textures[i].bind(i + 1);
+    for (int i = 0; i < numOver; i++) part.overlays[i].bind(i + 1);
   }
-  
-  
 }
 
 

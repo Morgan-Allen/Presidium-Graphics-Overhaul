@@ -19,6 +19,7 @@ uniform sampler2D u_over4;
 uniform sampler2D u_over5;
 uniform sampler2D u_over6;
 uniform sampler2D u_over7;
+uniform vec4 u_texColor;
 
 uniform vec4 u_ambientLight;
 uniform vec4 u_diffuseLight;
@@ -30,7 +31,7 @@ vec4 mixOverlays();
 
 
 void main() {
-	vec4 color = mixOverlays();
+	vec4 color = mixOverlays() * u_texColor;
 	
   vec3 lightVal = u_ambientLight.rgb;
   float dotVal = dot(-u_lightDirection, v_normal);
