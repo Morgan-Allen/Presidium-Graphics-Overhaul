@@ -2,12 +2,11 @@
 
 package stratos.start;
 import stratos.graphics.common.*;
-import stratos.graphics.widgets.HUD;
+import stratos.graphics.widgets.*;
 import stratos.util.*;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Buttons;
-import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.Input.*;
 
 
 public abstract class VisualDebug implements Playable {

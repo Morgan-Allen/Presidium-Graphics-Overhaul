@@ -11,10 +11,10 @@ import stratos.graphics.widgets.*;
 import stratos.start.*;
 import stratos.util.*;
 
-import com.badlogic.gdx.Gdx;
+//import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g3d.*;
+//import com.badlogic.gdx.graphics.g3d.*;
 
 
 
@@ -122,11 +122,11 @@ public class Rendering {
     glDepthMask(true);
     glClear(GL_DEPTH_BUFFER_BIT);
     
+    
+    //  TODO:  Render transparent groups later.
     solidsPass.performPass();
-    //  NOTE:  These are apparently switched off by the solids pass (using
-    //  ModelBatch internally.)  TODO:  Fix the shader/rendercontext.
-    glEnable(GL10.GL_BLEND);
-    glEnable(GL10.GL_DEPTH_TEST);
+    //glEnable(GL10.GL_BLEND);
+    //glEnable(GL10.GL_DEPTH_TEST);
     cutoutsPass.performNormalPass();
     
     glDepthMask(false);

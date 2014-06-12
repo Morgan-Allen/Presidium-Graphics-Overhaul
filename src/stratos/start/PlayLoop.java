@@ -221,6 +221,7 @@ public final class PlayLoop {
     if (played != null && played.loadProgress() < 1) {
       if (! played.isLoading()) played.beginGameSetup();
       LoadingScreen.update("Loading Scenario", played.loadProgress());
+      
       rendering.renderDisplay(LoadingScreen.HUD);
       lastUpdate = lastFrame = time;
       if (verbose) I.say("  Content loading progress: "+played.loadProgress());

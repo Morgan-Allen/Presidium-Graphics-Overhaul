@@ -131,8 +131,6 @@ public class Minimap {
     shading.setUniformMatrix("u_ortho", screenMat);
     shading.setUniformi("u_texture", 0);
     
-    //  TODO:  There's some problem with the shader being bound here, at least
-    //  on windows.
     if (fogApplied != null) {
       fogApplied.applyToMinimap(shading);
       shading.setUniformi("u_fogFlag", GL_TRUE);
@@ -144,6 +142,10 @@ public class Minimap {
     shading.end();
   }
 }
+
+
+
+
 
 
 

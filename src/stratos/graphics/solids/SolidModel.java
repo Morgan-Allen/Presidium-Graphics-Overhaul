@@ -5,6 +5,8 @@ package stratos.graphics.solids;
 import stratos.graphics.common.*;
 import stratos.util.*;
 
+import com.badlogic.gdx.*;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.model.*;
 import com.badlogic.gdx.utils.ObjectMap;
@@ -127,11 +129,18 @@ public abstract class SolidModel extends ModelAsset {
   }
   
   
-  protected NodePart partWithName(String name) {
+  public NodePart partWithName(String name) {
     for (NodePart p : allParts) if (p.meshPart.id.equals(name)) return p;
     return null;
   }
+  
+  
+  public Mesh meshForPart(int index) {
+    return allParts[index].meshPart.mesh;
+  }
 }
+
+
 
 
 

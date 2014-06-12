@@ -283,8 +283,19 @@ public class MS3DModel extends SolidModel {
       }
       animation.nodeAnimations.add(ani);
     }
-    data.animations.add(animation);
     
+    data.animations.add(animation);
+    loadKeyframes(animation);
+    
+    if (verbose) {
+      I.say("MODEL IS: "+filePath);
+      I.say("  TOTAL ANIMATIONS LOADED: "+data.animations.size);
+    }
+  }
+  
+  
+  private void loadKeyframes(ModelAnimation animation) {
+    if (animation == null || config == null) return;
     
     final XML animConfig = config.child("animations");
     addLoop: for (XML animXML : animConfig.children()) {
@@ -327,11 +338,6 @@ public class MS3DModel extends SolidModel {
         anim.nodeAnimations.add(nd);
       }
       data.animations.add(anim);
-    }
-    
-    if (verbose) {
-      I.say("MODEL IS: "+filePath);
-      I.say("  TOTAL ANIMATIONS LOADED: "+data.animations.size);
     }
   }
   
