@@ -25,7 +25,7 @@ public class ChartDisplay {
   
   public void renderWithin(Box2D area) {
     starfield.render();
-    planet.render();
+    //planet.render();
   }
 }
 

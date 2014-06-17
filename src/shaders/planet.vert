@@ -19,6 +19,7 @@ varying vec3 v_normal;
 void main() {
 	v_texCoords0 = a_texCoord0;
 	v_position = a_position;
+	//v_position = v_position * 25 / length(v_position);
 	
 	vec4 pos = vec4(v_position, 1.0);
   mat4 transform = u_rotation;
@@ -28,15 +29,5 @@ void main() {
 	gl_Position = u_camera * pos;
 }
 
-
-  
-  /*
-  if (u_numBones > 0) {
-    mat4 boneTrans = mat4(0.0);
-    boneTrans += (a_boneWeight0.y) * u_bones[int(a_boneWeight0.x)];
-    transform = transform * boneTrans;
-  }
-  //*/
-  
   
   

@@ -64,14 +64,14 @@ public class CutoutsPass {
     for (int i = 0; i < compIndex.length ; i++) {
       compIndex[i] = (short) (((i / 6) * 4) + VERT_INDICES[i % 6]);
     }
-    compiled.setIndices(compIndex) ;
+    compiled.setIndices(compIndex);
     
     shading = new ShaderProgram(
       Gdx.files.internal("shaders/cutouts.vert"),
       Gdx.files.internal("shaders/cutouts.frag")
     );
     if (! shading.isCompiled()) {
-      throw new GdxRuntimeException("\n"+shading.getLog()) ;
+      throw new GdxRuntimeException("\n"+shading.getLog());
     }
   }
   

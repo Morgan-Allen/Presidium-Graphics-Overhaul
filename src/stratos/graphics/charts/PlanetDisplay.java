@@ -2,17 +2,19 @@
 
 
 package stratos.graphics.charts;
-//import stratos.graphics.common.*;
+import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
 import stratos.util.*;
+//import static stratos.graphics.common.GL.*;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.*;
-//import com.badlogic.gdx.graphics.g3d.*;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g3d.model.*;
 import com.badlogic.gdx.graphics.glutils.*;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import org.apache.commons.math3.util.FastMath;
 
 
 
@@ -50,7 +52,7 @@ public class PlanetDisplay {
   public void attachModel(
     SolidModel model, Texture surfaceTex, Texture sectorsTex
   ) {
-    this.rotation = new Matrix4().idt();
+    this.rotation = new Matrix4();
     this.globeModel = model;
     
     final String partNames[] = globeModel.partNames();
@@ -58,6 +60,8 @@ public class PlanetDisplay {
     this.sectorsPart = globeModel.partWithName(partNames[1]);
     this.surfaceTex = surfaceTex;
     this.sectorsTex = sectorsTex;
+    surfaceTex.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+    sectorsTex.setFilter(TextureFilter.Linear, TextureFilter.Linear);
   }
   
   
@@ -69,13 +73,19 @@ public class PlanetDisplay {
       high = Gdx.graphics.getHeight() / 10;
     screenMat.setToOrtho(-wide, wide, -high, high, -25, 25);
     
-    final Vec3D l = new Vec3D().set(1, -1, -1).normalise();
+    final float r = (float) FastMath.toRadians(Rendering.activeTime() * 30);
+    rotation.idt();
+    rotation.scl(0.2f);
+    rotation.rot(Vector3.Y, r);
+    
+    final Vec3D l = new Vec3D().set(-1, -1, -1).normalise();
     final float lightVals[] = new float[] { l.x, l.y, l.z };
     MeshPart p;
     
     shading.begin();
     shading.setUniformMatrix("u_rotation", rotation);
     shading.setUniformMatrix("u_camera", screenMat);
+    shading.setUniformMatrix("u_camera", display.rendering.camera().combined);
     
     shading.setUniformi("u_surfaceTex", 0);
     shading.setUniformi("u_sectorsTex", 1);
@@ -87,19 +97,14 @@ public class PlanetDisplay {
     shading.setUniformi("u_surfacePass", GL11.GL_TRUE );
     p.mesh.render(shading, p.primitiveType, p.indexOffset, p.numVertices);
     
-    /*
     p = sectorsPart.meshPart;
     sectorsTex.bind(1);
     shading.setUniformi("u_surfacePass", GL11.GL_FALSE);
     p.mesh.render(shading, p.primitiveType, p.indexOffset, p.numVertices);
-    //*/
     
     shading.end();
   }
   
 }
-
-
-
 
 

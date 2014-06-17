@@ -24,7 +24,13 @@ void main() {
     color += texture2D(u_surfaceTex, v_texCoords0);
     
     vec3 lightVal = vec3(1, 1, 1);
+    
     float dotVal = dot(-u_lightDirection, v_normal);
+    //  TODO:  Include specularity effects, atmosphere, etc?
+    
+    if (dotVal <= 0) dotVal = 0.25f;
+    else dotVal = clamp((dotVal * 2) + 0.25f, 0.0, 1.0);
+    
     lightVal *= dotVal;
     color.rgb *= lightVal;
   }
@@ -40,16 +46,3 @@ void main() {
 
 
 
-
-
-  /*
-  vec3 lightVal = u_ambientLight.rgb;
-  float dotVal = dot(-u_lightDirection, v_normal);
-  
-  if (dotVal > 1) dotVal = 1;
-  else if (dotVal < 0) {
-    lightVal *= (0.5f - dotVal);
-  }
-  else lightVal += u_diffuseLight.rgb * dotVal;
-  color.rgb *= lightVal;
-  //*/

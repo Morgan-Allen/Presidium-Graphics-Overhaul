@@ -112,7 +112,7 @@ public class Rendering {
     final Colour BC = backColour == null ? Colour.DARK_GREY : backColour;
     glClearColor(BC.r, BC.g, BC.b, BC.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+    
     glDisable(GL10.GL_DEPTH_TEST);
     glDepthMask(false);
     terrainPass.performPass();
@@ -124,9 +124,9 @@ public class Rendering {
     
     
     //  TODO:  Render transparent groups later.
+    glEnable(GL_CULL_FACE);
     solidsPass.performPass();
-    //glEnable(GL10.GL_BLEND);
-    //glEnable(GL10.GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
     cutoutsPass.performNormalPass();
     
     glDepthMask(false);
@@ -134,7 +134,7 @@ public class Rendering {
     glDepthMask(true);
     glClear(GL_DEPTH_BUFFER_BIT);
     cutoutsPass.performPreviewPass();
-
+    
     batch2D.begin();
     if (UI != null) {
       UI.updateInput();
@@ -144,9 +144,4 @@ public class Rendering {
     batch2D.end();
   }
 }
-
-
-
-
-
 
