@@ -44,7 +44,7 @@ public class Label extends SFX {
   }
   
   
-  static float phraseWidth(
+  public static float phraseWidth(
     String phrase, Alphabet font, float fontScale
   ) {
     float width = 0;
@@ -57,7 +57,7 @@ public class Label extends SFX {
   }
   
   
-  static void renderPhrase(
+  public static void renderPhrase(
     String phrase, Alphabet font, float fontScale, Colour colour,
     float screenX, float screenY, float screenZ,
     SFXPass pass, boolean vivid
@@ -78,3 +78,6 @@ public class Label extends SFX {
     }
   }
 }
+
+
+

@@ -221,115 +221,86 @@ public class List <T> extends ListEntry <T> implements Series <T> {
     */
   final public ListEntry <T> queueAdd(final T r) {
     ListEntry <T> l = this ;
-    while ((l = l.next) != this)
-      if (queuePriority(r) > queuePriority(l.refers)) break ;
+    while ((l = l.next) != this) {
+      if (queuePriority(r) > queuePriority(l.refers)) break;
+    }
     return new ListEntry <T> (r, this, l.last, l) ;
   }
   
   
-  /**  Sorts the elements of this list in descending order after their addition
-    *  en masse.  As nLog(n) comparisons are performed, it is strongly
-    *  recommended that the queuePriority method be efficient (e.g, by simply
-    *  returning precalculated values that can be referenced from member
-    *  elements themselves.)
+  
+  /**  Sorts this list's entries from lowest to highest queue priority.
     */
   final public void queueSort() {
-    if (size() == 0) return ;
-    //  The merge-sort has been implemented as an internal class so that
-    //  assorted 'loop' variables can be cheaply parameterised but do not have
-    //  to be reallocated or passed for each function call.
-    final class queueSorts {
-      ListEntry <T> firstSorted, current, greater ;  //pointers used in sorting.
-      int iA, iB, iS ;  //indices used in sorting.
-      
-      //  Here's the merge-sort itself.
-      final ListEntry <T> mergeSort(
-          final ListEntry <T> first,
-          final int length
-        ) {
-        //  Handle special cases first.
-        if (length == 1) {
-          first.next = null ;
-          return first ;
-        }
-        if (length == 2) {
-          final ListEntry <T> after = first.next ;
-          if (queuePriority(after.refers) > queuePriority(first.refers)) {
-            after.next = first ;
-            first.next = null ;
-            return after ;
-          }
-          else {
-            after.next = null ;
-            return first ;
-          }
-        }
-        //  Otherwise, split the list in two and perform the sort on both
-        //  sub-lists separately:
-        final int
-          lenA = length / 2,
-          lenB = length - lenA ;
-        ///I.say("\nLength of a/b: "+lenA+" "+lenB) ;
-        //  Iterate over the first sub-list's members to get to the second
-        //  sub-list.
-        ListEntry <T>
-          nextA = first,
-          nextB = first ;
-        iA = 0 ;
-        while (iA++ < lenA)
-          nextB = nextB.next ;
-        //  Then, perform recursive merge-sorts on both those sub-lists:
-        nextA = mergeSort(nextA, lenA) ;
-        nextB = mergeSort(nextB, lenB) ;
-        ///I.say("\nNow merging lists... "+length) ;
-        //  Now, perform a merging of the sorted lists-
-        current = firstSorted = null ;
-        iA = iB = iS = 0 ;
-        while (iS++ < length) {
-          //  Pick the greater member from the head of each sublist:
-          if (iA == lenA)
-            greater = nextB ;
-          else if (iB == lenB)
-            greater = nextA ;
-          else {
-            ///I.say("\ncomparing "+nextA.refers+" "+nextB.refers) ;
-            if (queuePriority(nextA.refers) > queuePriority(nextB.refers))
-              greater = nextA ;
-            else
-              greater = nextB ;
-          }
-          //  Advance the reference into the favoured list,
-          if (greater == nextA) { nextA = nextA.next ; iA++ ; }
-          else                  { nextB = nextB.next ; iB++ ; }
-          ///I.say("\n"+greater.refers+" was greater "+iA+" "+iB) ;
-          //  ...and append the chosen element to the sorted list.
-          if (firstSorted == null)
-            current = firstSorted = greater ;
-          else {
-            current.next = greater ;
-            current = greater ;
-          }
-        }
-        current.next = null ;
-        ///I.say("\nSorted sublist is: ") ;
-        ///for (ListEntry lE = firstSorted ; lE != null ; lE = lE.next)
-          ///I.say(lE.refers+" ") ;
-        //  (Allows later cleanup to know where to terminate.)
-        return firstSorted ;
-      }
-    }
-    queueSorts qS = new queueSorts() ;
-    ListEntry <T>
-      previous = this,
-      current ;
-    this.next = current = qS.mergeSort(this.next, size) ;
-    //  Finally, the full list must be reconstructed and the element entrys
-    //  stitched together correctly- the above algorithm only keeps 'next'
-    //  references to maintain ordering, so 'last' references must be restored.
-    for (; current != null ; previous = current, current = current.next)
-      current.last = previous ;
-    couple(previous, this) ;
+    final boolean verbose = false;
+    sortListFrom(next, last, size, verbose);
+    if (verbose) I.say("FINAL SORTING: "+this+"\n\n");
   }
+  
+  
+  private ListEntry <T> sortListFrom(
+    ListEntry <T> head, ListEntry <T> tail, int size, boolean verbose
+  ) {
+    if (size <= 1) return head;
+    
+    final ListEntry <T> front = head.last, back = tail.next;
+    String indent = "";
+    if (verbose) {
+      for (int i = this.size; i-- > size;) indent += " ";
+      I.say(indent+"Sorting between "+front.refers+" and "+back.refers);
+    }
+    
+    if (size == 2) {
+      final float
+        hP = queuePriority(head.refers),
+        tP = queuePriority(tail.refers);
+      if (hP > tP) {
+        couple(front, tail);
+        couple(tail, head);
+        couple(head, back);
+        return tail;
+      }
+      return head;
+    }
+    
+    int sizeA = size / 2, sizeB = size - sizeA;
+    ListEntry <T> headA = head, headB = head;
+    for (int n = sizeA; n-- > 0;) headB = headB.next;
+    
+    if (verbose) I.say(indent+"Sorting sub-lists (size "+size+"): "+this);
+    headA = sortListFrom(headA, headB.last, sizeA, verbose);
+    if (verbose) I.say(indent+"After list A (size "+sizeA+"): "+this);
+    headB = sortListFrom(headB, tail, sizeB, verbose);
+    if (verbose) I.say(indent+"After list B (size "+sizeB+"): "+this);
+    
+    ListEntry <T> pick = null, lastPick = front, firstPick = null;
+    for (int n = size; n-- > 0;) {
+      if (sizeA <= 0) pick = headB;
+      else if (sizeB <= 0) pick = headA;
+      else {
+        final float
+          aP = queuePriority(headA.refers),
+          bP = queuePriority(headB.refers);
+        pick = aP < bP ? headA : headB;
+      }
+      
+      if (verbose) {
+        I.say(indent+"  Heads of A/B: "+headA.refers+"/"+headB.refers);
+        I.say(indent+"  Next pick is: "+pick.refers);
+      }
+      
+      if (pick == headA) { headA = headA.next; sizeA--; }
+      if (pick == headB) { headB = headB.next; sizeB--; }
+      if (firstPick == null) firstPick = pick;
+      
+      couple(lastPick, pick);
+      lastPick = pick;
+    }
+    couple(lastPick, back);
+    if (verbose) I.say("");
+    return firstPick;
+  }
+  
   
   
   /**  Returns a standard iterator over this list.
@@ -376,25 +347,29 @@ public class List <T> extends ListEntry <T> implements Series <T> {
     List <Integer> list = new List <Integer> () {
       protected float queuePriority(Integer i) { return i.intValue() ; }
     } ;
+    
+    for (int n = 32; n-- > 0;) list.add(new Integer(Rand.index(32)));
+    list.queueSort();
+    
+    /*
     list.addLast(1) ;
     list.addLast(4) ;
     list.addLast(3) ;
     list.addLast(5) ;
     list.addLast(2) ;
     list.addLast(0) ;
+    list.addLast(new Integer(0)) ;
+    list.addLast(new Integer(0)) ;
+    
     list.queueSort() ;
+    //*/
+    
+    
+    /*
     for (int i : list) {
-      if (i == 4) list.remove(i) ;
+      //if (i == 4) list.remove(i);
       I.say("Entry is: "+i) ;
     }
-    /*
-    list.queueAdd(1) ;
-    list.queueAdd(4) ;
-    list.queueAdd(3) ;
-    list.queueAdd(5) ;
-    list.queueAdd(2) ;
-    list.queueAdd(0) ;
-    //*/
     I.say("  List contents: " + list) ;
     I.say("  First member is:  " + list.removeFirst()) ;
     I.say("  List contents: " + list) ;
@@ -402,5 +377,9 @@ public class List <T> extends ListEntry <T> implements Series <T> {
       I.say("  First member is:  " + list.removeFirst()) ;
     list.clear() ;
     I.say("  List contents: " + list) ;
+    //*/
   }
 }
+
+
+

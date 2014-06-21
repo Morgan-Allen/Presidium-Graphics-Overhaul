@@ -23,9 +23,17 @@ public class DebugCharts extends VisualDebug {
   final ImageAsset
     PLANET_SKIN = ImageAsset.fromImage(
       "media/Charts/planet_skin.png", DebugCharts.class
-    ),
+    );
+  
+  final ImageAsset
     FIELD_OBJECTS = ImageAsset.fromImage(
       "media/Charts/field_objects.png", DebugCharts.class
+    ),
+    SECTORS_TEX = ImageAsset.fromImage(
+      "media/Charts/chart_sectors.png", StarField.class
+    ),
+    AXIS_TEX = ImageAsset.fromImage(
+      "media/Charts/sky_axis.png", StarField.class
     );
   
   
@@ -42,30 +50,52 @@ public class DebugCharts extends VisualDebug {
   protected void loadVisuals() {
     chartDisplay = new ChartDisplay(PlayLoop.rendering());
     
+    //  Here we set up the planet display:
     chartDisplay.planet.attachModel(
       PLANET_MODEL, PLANET_SKIN.asTexture(), PLANET_SKIN.asTexture()
     );
     
+    //  And here we set up the star-charts:
+    chartDisplay.starfield.setupWith(
+      SECTORS_TEX.asTexture(),
+      AXIS_TEX.asTexture(),
+      10
+    );
     final Texture t = FIELD_OBJECTS.asTexture();
-    for (int n = 16; n-- > 0;) {
+    for (int n = 12; n-- > 0;) {
       final Vec3D starPos = new Vec3D(
         Rand.num() - 0.5f,
         Rand.num() - 0.5f,
         Rand.num() - 0.5f
       ).scale(8);
+      
       chartDisplay.starfield.addFieldObject(
-        t,  5, 5,  n / 4, n % 4,
-        0.5f,  0, 80,  starPos
+        t,  5, 5,  n % 3, n / 3,
+        0.66f,  0, 100,  starPos
       );
+      
       chartDisplay.starfield.addFieldObject(
-        t,  5, 5,  0, 4,
-        0.5f,  0, 0,  starPos
+        t,  5, 5,  Rand.index(1), 4,
+        1.25f,  0, 0,  starPos
       );
+      
+      for (int i = Rand.index(5); i-- > 0;) {
+        Vec3D companion = new Vec3D(
+          Rand.num() - 0.5f,
+          Rand.num() - 0.5f,
+          Rand.num() - 0.5f
+        ).scale(2.5f);
+        companion.add(starPos);
+        chartDisplay.starfield.addFieldObject(
+          t,  5, 5,  Rand.index(4), 4,
+          (0.5f + Rand.num()) * 0.5f * Rand.num(),  0, 0,  companion
+        );
+      }
     }
+    
     
     //  TODO:  There needs to be a neater way to implement this
     UI = new HUD();
-    
     final UINode renderNode = new UINode(UI) {
       protected void render(SpriteBatch batch2d) {
         batch2d.end();

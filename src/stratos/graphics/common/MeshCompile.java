@@ -50,7 +50,7 @@ public class MeshCompile {
     //  Next, we need to fill the index array.
     if (useQuads) {
       if (quadIndexOrder == null) quadIndexOrder = DEFAULT_QUAD_INDEX_ORDER;
-      for (int p = 0, i = 0; p < maxPieces; p += 4) {
+      for (int p = 0, i = 0; p < (maxPieces * 4); p += 4) {
         indices[i++] = (short) (p + quadIndexOrder[0]);
         indices[i++] = (short) (p + quadIndexOrder[1]);
         indices[i++] = (short) (p + quadIndexOrder[2]);
@@ -99,7 +99,6 @@ public class MeshCompile {
     compiled.setIndices(indices);
     
     final int vertsPerIndex = verts.length / indices.length;
-    
     ///I.say("\nPushing vertices: "+(marker / vertsPerIndex));
     compiled.render(shading, GL11.GL_TRIANGLES, 0, marker / vertsPerIndex);
     if (reset) reset();

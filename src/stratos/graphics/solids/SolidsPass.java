@@ -41,10 +41,6 @@ public class SolidsPass {
     if (! shading.isCompiled()) {
       throw new GdxRuntimeException("\n"+shading.getLog()) ;
     }
-    else {
-      I.say("Solids shader compilation log:");
-      I.say(shading.getLog());
-    }
   }
   
   
