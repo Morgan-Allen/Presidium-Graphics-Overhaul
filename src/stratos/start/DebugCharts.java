@@ -61,13 +61,16 @@ public class DebugCharts extends VisualDebug {
       AXIS_TEX.asTexture(),
       10
     );
+    chartDisplay.loadStarfield("media/Charts/", "coordinates.xml");
+    
+    /*
     final Texture t = FIELD_OBJECTS.asTexture();
     for (int n = 12; n-- > 0;) {
       final Vec3D starPos = new Vec3D(
         Rand.num() - 0.5f,
         Rand.num() - 0.5f,
         Rand.num() - 0.5f
-      ).scale(8);
+      ).scale(10);
       
       chartDisplay.starfield.addFieldObject(
         t,  5, 5,  n % 3, n / 3,
@@ -76,22 +79,25 @@ public class DebugCharts extends VisualDebug {
       
       chartDisplay.starfield.addFieldObject(
         t,  5, 5,  Rand.index(1), 4,
-        1.25f,  0, 0,  starPos
+        1,  0, 0,  starPos
       );
       
-      for (int i = Rand.index(5); i-- > 0;) {
+      for (int i = Rand.index(4); i-- > 0;) {
         Vec3D companion = new Vec3D(
           Rand.num() - 0.5f,
           Rand.num() - 0.5f,
           Rand.num() - 0.5f
-        ).scale(2.5f);
-        companion.add(starPos);
+        );
+        if (Rand.yes()) companion.scale(2.5f).add(starPos);
+        else companion.scale(10);
+        
         chartDisplay.starfield.addFieldObject(
           t,  5, 5,  Rand.index(4), 4,
           (0.5f + Rand.num()) * 0.5f * Rand.num(),  0, 0,  companion
         );
       }
     }
+    //*/
     
     
     //  TODO:  There needs to be a neater way to implement this

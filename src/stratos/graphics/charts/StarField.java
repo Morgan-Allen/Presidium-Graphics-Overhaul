@@ -19,10 +19,8 @@ import org.apache.commons.math3.util.FastMath;
 
 
 //  TODO:  ADD TEXT LABELS
-//  TODO:  Figure out a way to model all this in a 'soft' manner.  Preferably
-//         with xml.  And you need to be able to click on field objects to
-//         gather information, assign missions, et cetera.
-
+//  TODO:  You need to be able to click on field objects to gather information,
+//         assign missions, et cetera et cetera.
 //  TODO:  Ideally, you should have a dedicated Viewport for perspective.
 
 
@@ -137,6 +135,14 @@ public class StarField {
   }
   
   
+  
+  
+  
+  
+  
+  
+  /**  Rendering methods-
+    */
   //  TODO:  Also, A background image- distant stars, a nebula, et cetera.
   
   
@@ -168,11 +174,17 @@ public class StarField {
     shading.setUniformMatrix("u_rotation", rotation);
     shading.setUniformMatrix("u_camera", display.rendering.camera().combined);
     
-    glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
+    //glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
     glDepthMask(false);
-    renderSectorsAndAxes();
+    
+    //renderSectorsAndAxes();
     //glDepthMask(true);
     
+    
+    //  TODO:  If you want to combine axis-rendering with normal blending
+    //  functions, translucency and a depth-sort, then you'll have to partition
+    //  the field objects into quadrants first.  (Either 2, 4 or 8, depending
+    //  on how many axes you render.)
     
     for (FieldObject o : allObjects) {
       o.depth = 0 - display.rendering.view.screenDepth(o.coordinates);
@@ -185,10 +197,17 @@ public class StarField {
     final float SW = Gdx.graphics.getWidth(), SH = Gdx.graphics.getHeight();
     final Vector3 c = new Vector3();
     
+    boolean axisDone = false;
+    
     for (FieldObject object : allObjects) {
       
       Viewport.worldToGL(object.coordinates, c);
-      //if (c.y > 0) { renderSectorsAndAxes(); lastTex = null; }
+      if (c.y > 0 && ! axisDone) {
+        compiled.renderWithShader(shading, true);
+        renderSectorsAndAxes();
+        lastTex = null;
+        axisDone = true;
+      }
       
       final TextureRegion r = object.texRegion;
       final Texture t = r.getTexture();

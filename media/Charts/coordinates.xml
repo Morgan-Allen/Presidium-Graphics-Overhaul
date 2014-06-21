@@ -1,0 +1,39 @@
+
+
+
+<imageField name="field_objects.png" gridU="5" gridV="5"/>
+
+<starTypes>
+  <type name="Class A"  imgU="0"  imgV="4"/>
+  <type name="Class B"  imgU="1"  imgV="4"/>
+  <type name="Class C"  imgU="2"  imgV="4"/>
+  <type name="Class D"  imgU="3"  imgV="4"/>
+</starTypes>
+
+
+<systems>
+  
+  <system
+    name="Asra Novi"
+    imgU="1"  imgV="2"
+    x= "3"  y="-1"  z="-2"
+    type="Class A"
+  />
+  
+  <system
+    name="Haliban"
+    imgU="0"  imgV="0"
+    x="-1"  y="-1"  z= "0"
+    type="Class C"
+  />
+  
+  <system
+    name="Parem V"
+    imgU="2"  imgV="2"
+    x= "1"  y= "2"  z= "1"
+    type="Class D"
+  />
+  
+</systems>
+
+
