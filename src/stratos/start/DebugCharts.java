@@ -25,7 +25,7 @@ public class DebugCharts extends VisualDebug {
       "media/Charts/planet_skin.png", DebugCharts.class
     ),
     FIELD_OBJECTS = ImageAsset.fromImage(
-      "media/Charts/stellar_objects.png", DebugCharts.class
+      "media/Charts/field_objects.png", DebugCharts.class
     );
   
   
@@ -47,9 +47,21 @@ public class DebugCharts extends VisualDebug {
     );
     
     final Texture t = FIELD_OBJECTS.asTexture();
-    chartDisplay.starfield.addFieldObject(t, 5, 5,  2, 2,  new Vec3D(1,  0, 0));
-    chartDisplay.starfield.addFieldObject(t, 5, 5,  2, 0,  new Vec3D(0, -1, 0));
-    chartDisplay.starfield.addFieldObject(t, 5, 5,  0, 2,  new Vec3D(1, -1, 0));
+    for (int n = 16; n-- > 0;) {
+      final Vec3D starPos = new Vec3D(
+        Rand.num() - 0.5f,
+        Rand.num() - 0.5f,
+        Rand.num() - 0.5f
+      ).scale(8);
+      chartDisplay.starfield.addFieldObject(
+        t,  5, 5,  n / 4, n % 4,
+        0.5f,  0, 80,  starPos
+      );
+      chartDisplay.starfield.addFieldObject(
+        t,  5, 5,  0, 4,
+        0.5f,  0, 0,  starPos
+      );
+    }
     
     //  TODO:  There needs to be a neater way to implement this
     UI = new HUD();

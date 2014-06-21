@@ -135,6 +135,7 @@ public class Rendering {
     glClear(GL_DEPTH_BUFFER_BIT);
     cutoutsPass.performPreviewPass();
     
+    //glDepthMask(false);
     batch2D.begin();
     if (UI != null) {
       UI.updateInput();

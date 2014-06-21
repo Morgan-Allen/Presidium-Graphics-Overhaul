@@ -21,7 +21,7 @@ void main() {
   vec4 pos = vec4(a_position, 1.0);
   pos = u_rotation * pos;
   pos = u_camera * pos;
-  pos.xy += a_normal.xy / 10;
+  pos.xy += a_normal.xy;
   
   gl_Position = pos;
 }

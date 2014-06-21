@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g3d.model.*;
 import com.badlogic.gdx.graphics.glutils.*;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+
 import org.apache.commons.math3.util.FastMath;
 
 
@@ -96,6 +97,8 @@ public class PlanetDisplay {
     surfaceTex.bind(0);
     shading.setUniformi("u_surfacePass", GL11.GL_TRUE );
     p.mesh.render(shading, p.primitiveType, p.indexOffset, p.numVertices);
+    
+    //glDepthMask(false);
     
     p = sectorsPart.meshPart;
     sectorsTex.bind(1);
