@@ -213,7 +213,7 @@ public final class PlayLoop {
     if (Assets.loadProgress() < 1) {
       LoadingScreen.update("Loading Assets", Assets.loadProgress());
       Assets.advanceAssetLoading(FRAME_INTERVAL - (SLEEP_MARGIN * 2));
-      rendering.renderDisplay(LoadingScreen.HUD);
+      rendering.renderDisplay(LoadingScreen.HUD(rendering));
       return true;
     }
     
@@ -222,7 +222,7 @@ public final class PlayLoop {
       if (! played.isLoading()) played.beginGameSetup();
       LoadingScreen.update("Loading Scenario", played.loadProgress());
       
-      rendering.renderDisplay(LoadingScreen.HUD);
+      rendering.renderDisplay(LoadingScreen.HUD(rendering));
       lastUpdate = lastFrame = time;
       if (verbose) I.say("  Content loading progress: "+played.loadProgress());
       return true;

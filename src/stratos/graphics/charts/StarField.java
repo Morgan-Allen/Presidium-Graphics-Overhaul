@@ -1,46 +1,37 @@
 
 
+
 package stratos.graphics.charts;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.Label;
+import stratos.graphics.widgets.*;
+//import stratos.graphics.sfx.*;
 import stratos.util.*;
 import static stratos.graphics.common.GL.*;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.*;
 import com.badlogic.gdx.math.*;
-import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.*;
+import com.badlogic.gdx.graphics.Texture.*;
 
 import org.apache.commons.math3.util.FastMath;
 
+import java.util.Random;
 
 
-//  TODO:  ADD TEXT LABELS
-//  TODO:  You need to be able to click on field objects to gather information,
-//         assign missions, et cetera et cetera.
-//  TODO:  Ideally, you should have a dedicated Viewport for perspective.
+
+//  TODO:  Text Labels
 
 
 public class StarField {
   
   
-  final ChartDisplay display;
-  
-  static class FieldObject {
-    TextureRegion texRegion;
-    float fieldWide, fieldHigh, offX, offY;
-    
-    Vec3D coordinates;
-    float depth;
-    
-    public String toString() { return ""+depth; }
-  }
-  
-  
+  final Viewport view;
   final List <FieldObject> allObjects;
+  
   private Texture sectorsTex, axisTex;
   private float fieldSize;
   
@@ -49,12 +40,14 @@ public class StarField {
   
   
   
-  StarField(ChartDisplay display) {
-    this.display = display;
+  public StarField() {
+    view = new Viewport();
+    view.elevation = -89.999f;
+    view.rotation  = 90;
+    view.update();
     
     //  NOTE:  The normal attribute here is actually used to store the offset
-    //  of a corner from the given decal's coordinate centre (see below),
-    //  rather than re-computing vertex positions each frame.
+    //  of a corner from the given decal's coordinate centre (see below).
     compiled = new MeshCompile(
       3 + 3 + 1 + 2,                 //number of floats per vertex.
       true, 100,                     //is a quad, max. total quads
@@ -73,10 +66,9 @@ public class StarField {
       throw new GdxRuntimeException("\n"+shading.getLog());
     }
     
-    final Viewport v = display.rendering.view;
     allObjects = new List <FieldObject> () {
       protected float queuePriority(FieldObject r) {
-        return r.depth;
+        return 0 - r.depth;
       }
     };
   }
@@ -103,9 +95,10 @@ public class StarField {
   }
   
   
-  public void addFieldObject(Texture t, Vec3D position) {
+  public void addFieldObject(Texture t, String label, Vec3D position) {
     addFieldObject(
-      t, 1, 1, 0, 0,
+      t, label,
+      1, 1, 0, 0,
       1, 0, 0,
       position
     );
@@ -113,11 +106,12 @@ public class StarField {
   
   
   public void addFieldObject(
-    Texture t, int gridW, int gridH, int gridX, int gridY,
+    Texture t, String label,
+    int gridW, int gridH, int gridX, int gridY,
     float imgScale, float offX, float offY,
     Vec3D position
   ) {
-    final FieldObject object = new FieldObject();
+    final FieldObject object = new FieldObject(label);
     allObjects.add(object);
     
     final float w = 1f / gridW, h = 1f / gridH;
@@ -135,51 +129,108 @@ public class StarField {
   }
   
   
+  public void addRandomScatter(
+    Texture t, int gridW, int gridH, int[][] starTypes,
+    int maxCompanions, int randomSeed
+  ) {
+    final Random rand = new Random(randomSeed);
+    //  Note:  The array cast is needed to prevent infinite regression as more
+    //  objects are added to the list!
+    for (FieldObject object : allObjects.toArray(FieldObject.class)) {
+      if (object.label == null) continue;
+      
+      for (int i = rand.nextInt(maxCompanions); i-- > 0;) {
+        Vec3D coords = new Vec3D(
+          rand.nextFloat() - 0.5f,
+          rand.nextFloat() - 0.5f,
+          rand.nextFloat() - 0.5f
+        ).scale(2);
+        if (rand.nextBoolean()) coords.add(object.coordinates);
+        else coords.scale(fieldSize / 2);
+        
+        final int type[] = starTypes[rand.nextInt(starTypes.length)];
+        float mag = (0.5f + rand.nextFloat()) / 2;
+        if (coords.distance(object.coordinates) < 0.25f) continue;
+        
+        addFieldObject(
+          t, null,  5, 5,  type[0], type[1],
+          mag * mag,  0, 0,  coords
+        );
+      }
+    }
+  }
   
   
   
+  /**  Selection and feedback methods-
+    */
+  public Vec3D screenPosition(FieldObject object, Vec3D put) {
+    if (put == null) put = new Vec3D();
+    view.translateToScreen(put.setTo(object.coordinates));
+    return put;
+  }
+  
+  
+  public FieldObject selectedAt(Vector2 mousePos) {
+    FieldObject pick = null;
+    float minDist = Float.POSITIVE_INFINITY;
+    
+    final Vec3D v = new Vec3D();
+    for (FieldObject o : allObjects) if (o.label != null) {
+      screenPosition(o, v);
+      final float
+        dX = FastMath.abs(v.x - mousePos.x),
+        dY = FastMath.abs(v.y - mousePos.y),
+        dist = FastMath.max(dX, dY);
+      if (dX < (o.fieldWide / 2) && dY < (o.fieldHigh / 2) && dist < minDist) {
+        pick = o;
+        minDist = dist;
+      }
+    }
+    
+    return pick;
+  }
+  
+  
+  public FieldObject objectLabelled(String label) {
+    for (FieldObject o : allObjects) if (o.label != null) {
+      if (o.label.equals(label)) return o;
+    }
+    return null;
+  }
   
   
   
   /**  Rendering methods-
     */
-  //  TODO:  Also, A background image- distant stars, a nebula, et cetera.
-  
-  
-  private void renderLabels() {
-    //  TODO:  You should really use the Label class functions here.  There
-    //  must be some way to adapt 'em?
-    /*
-    Label.renderPhrase(
-      phrase, font, fontScale, colour, screenX, screenY, screenZ, pass, vivid
-    );
-    //*/
-  }
-  
-  
-  
-  void render() {
+  public void renderWith(
+    Rendering rendering, Box2D bounds, Alphabet forLabels
+  ) {
+    //view.elevation = rendering.view.elevation - 89.999f;
+    //view.rotation = rendering.view.rotation + 45;
+    view.update();
     
-    //  TODO:  This transform needs to be more general, so that it can co-exist
-    //  with the planet display.
     //  TODO:  The rotation vector will have to be applied to the coordinates,
     //  or the depth-sorting won't work correctly!
     
-    //final float time = Rendering.activeTime();
+    final float time = Rendering.activeTime();
     final Matrix4 rotation = new Matrix4().idt();
-    //rotation.rot(Vector3.Y, (float) FastMath.toRadians(30 * time));
-
+    rotation.rot(Vector3.Z, (float) FastMath.toRadians(30 * time));
+    
     shading.begin();
     shading.setUniformi("u_texture", 0);
     shading.setUniformMatrix("u_rotation", rotation);
-    shading.setUniformMatrix("u_camera", display.rendering.camera().combined);
+    shading.setUniformMatrix("u_camera", view.camera.combined);
     
-    //glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
+    glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
     glDepthMask(false);
     
     //renderSectorsAndAxes();
     //glDepthMask(true);
     
+    //  TODO:  Depth sorting for labels might have to be worked out too (bind
+    //  to a separate texture, maybe?)
+    renderLabels(forLabels);
     
     //  TODO:  If you want to combine axis-rendering with normal blending
     //  functions, translucency and a depth-sort, then you'll have to partition
@@ -187,7 +238,7 @@ public class StarField {
     //  on how many axes you render.)
     
     for (FieldObject o : allObjects) {
-      o.depth = 0 - display.rendering.view.screenDepth(o.coordinates);
+      o.depth = view.screenDepth(o.coordinates);
     }
     allObjects.queueSort();
 
@@ -247,14 +298,6 @@ public class StarField {
     float a = fieldSize / 2;
     final Colour fade = Colour.transparency(0.33f);
     
-    /*
-    final Vector3 c = new Vector3();
-    appendVertex(piece, c, -1, -1, fade, 0, 1);
-    appendVertex(piece, c, -1,  1, fade, 0, 0);
-    appendVertex(piece, c,  1, -1, fade, 1, 1);
-    appendVertex(piece, c,  1,  1, fade, 1, 0);
-    //*/
-
     appendVertex(piece, new Vector3(-a, 0, -a), 0, 0, fade, 0, 1);
     appendVertex(piece, new Vector3(-a, 0,  a), 0, 0, fade, 0, 0);
     appendVertex(piece, new Vector3( a, 0, -a), 0, 0, fade, 1, 1);
@@ -262,25 +305,43 @@ public class StarField {
     
     sectorsTex.bind(0);
     compiled.renderWithShader(shading, true);
-    
-    /*
-    a *= 2;
-    
-    appendVertex(piece, new Vector3(-a, -a, 0), 0, 0, fade, 0, 1);
-    appendVertex(piece, new Vector3(-a,  a, 0), 0, 0, fade, 0, 0);
-    appendVertex(piece, new Vector3( a, -a, 0), 0, 0, fade, 1, 1);
-    appendVertex(piece, new Vector3( a,  a, 0), 0, 0, fade, 1, 0);
-    
-    appendVertex(piece, new Vector3(0, -a, -a), 0, 0, fade, 0, 1);
-    appendVertex(piece, new Vector3(0, -a,  a), 0, 0, fade, 0, 0);
-    appendVertex(piece, new Vector3(0,  a, -a), 0, 0, fade, 1, 1);
-    appendVertex(piece, new Vector3(0,  a,  a), 0, 0, fade, 1, 0);
-    
-    axisTex.bind(0);
-    compiled.renderWithShader(shading, true);
-    //*/
   }
   
+  
+  public void renderLabels(Alphabet font) {
+
+    final float SW = Gdx.graphics.getWidth(), SH = Gdx.graphics.getHeight();
+    final float piece[] = new float[compiled.vertexSize];
+    final Vector3 pos = new Vector3();
+    font.texture().bind(0);
+    
+    //  TODO:  Why is the scale off by default?   ...Well, maybe it isn't.  It's
+    //  the default OpenGL screen coordinate system, isn't it.
+    //  TODO:  get rid of the screen-width/height scaling.  Pass that as params
+    //  to the shader once and have it do the math.
+    
+    for (FieldObject o : allObjects) if (o.label != null) {
+      Viewport.worldToGL(o.coordinates, pos);
+      float
+        x = 2 * Label.phraseWidth(o.label, font, 1.0f) / (SW * -2),
+        y = 2 * (0 - font.letterFor(' ').height * 2) / SH;
+      
+      for (char c : o.label.toCharArray()) {
+        final Alphabet.Letter l = font.letterFor(c);
+        if (l == null) continue;
+        final float w = 2 * l.width / SW, h = 2 * l.height / SH;
+        
+        appendVertex(piece, pos, x    , y    , Colour.WHITE, l.umin, l.vmax);
+        appendVertex(piece, pos, x    , y + h, Colour.WHITE, l.umin, l.vmin);
+        appendVertex(piece, pos, x + w, y    , Colour.WHITE, l.umax, l.vmax);
+        appendVertex(piece, pos, x + w, y + h, Colour.WHITE, l.umax, l.vmin);
+        x += w;
+      }
+      
+      if (compiled.meshFull()) compiled.renderWithShader(shading, true);
+    }
+    compiled.renderWithShader(shading, true);
+  }
   
   
   private void appendVertex(
@@ -306,6 +367,23 @@ public class StarField {
 
 
 
+
+/*
+a *= 2;
+
+appendVertex(piece, new Vector3(-a, -a, 0), 0, 0, fade, 0, 1);
+appendVertex(piece, new Vector3(-a,  a, 0), 0, 0, fade, 0, 0);
+appendVertex(piece, new Vector3( a, -a, 0), 0, 0, fade, 1, 1);
+appendVertex(piece, new Vector3( a,  a, 0), 0, 0, fade, 1, 0);
+
+appendVertex(piece, new Vector3(0, -a, -a), 0, 0, fade, 0, 1);
+appendVertex(piece, new Vector3(0, -a,  a), 0, 0, fade, 0, 0);
+appendVertex(piece, new Vector3(0,  a, -a), 0, 0, fade, 1, 1);
+appendVertex(piece, new Vector3(0,  a,  a), 0, 0, fade, 1, 0);
+
+axisTex.bind(0);
+compiled.renderWithShader(shading, true);
+//*/
 
 
 

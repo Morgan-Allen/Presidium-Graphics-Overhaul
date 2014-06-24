@@ -52,11 +52,11 @@ public class InfoPanel extends UIGroup implements UIConstants {
   
   
   final BaseUI UI ;
-  final Selectable selected ;
+  final Selectable selected;
   
   final Bordering border ;
   final UIGroup innerRegion;
-  final Text headerText, detailText, spillText ;
+  final Text headerText, detailText, spillText;
   final Scrollbar scrollbar;
   
   final String categories[];

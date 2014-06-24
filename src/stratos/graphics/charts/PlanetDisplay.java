@@ -22,7 +22,7 @@ import org.apache.commons.math3.util.FastMath;
 public class PlanetDisplay {
   
   
-  final ChartDisplay display;
+  //final ChartDisplay display;
   final ShaderProgram shading;
   
   Matrix4 rotation;
@@ -31,9 +31,7 @@ public class PlanetDisplay {
   Texture surfaceTex, sectorsTex;
   
   
-  PlanetDisplay(ChartDisplay display) {
-    this.display = display;
-    
+  public PlanetDisplay() {
     this.shading = new ShaderProgram(
       Gdx.files.internal("shaders/planet.vert"),
       Gdx.files.internal("shaders/planet.frag")
@@ -66,7 +64,7 @@ public class PlanetDisplay {
   }
   
   
-  void render() {
+  public void renderWith(Rendering rendering, Box2D bounds) {
     
     final Matrix4 screenMat = new Matrix4();
     final float
@@ -86,7 +84,7 @@ public class PlanetDisplay {
     shading.begin();
     shading.setUniformMatrix("u_rotation", rotation);
     shading.setUniformMatrix("u_camera", screenMat);
-    shading.setUniformMatrix("u_camera", display.rendering.camera().combined);
+    shading.setUniformMatrix("u_camera", rendering.camera().combined);
     
     shading.setUniformi("u_surfaceTex", 0);
     shading.setUniformi("u_sectorsTex", 1);

@@ -29,7 +29,7 @@ public class BaseUI extends HUD implements UIConstants {
   private UITask currentTask ;
   final public Selection selection = new Selection(this) ;
   
-  final Rendering rendering ;
+  //final Rendering rendering ;
   final public ViewTracking viewTracking ;
   
   UIGroup helpText ;
@@ -50,8 +50,9 @@ public class BaseUI extends HUD implements UIConstants {
   
   
   public BaseUI(World world, Rendering rendering) {
+    super(rendering);
     this.world = world ;
-    this.rendering = rendering ;
+    //this.rendering = rendering ;
     this.viewTracking = new ViewTracking(this, rendering.view) ;
     configLayout() ;
     configPanels() ;

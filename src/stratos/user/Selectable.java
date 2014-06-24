@@ -22,22 +22,5 @@ public interface Selectable extends Text.Clickable, Session.Saveable {
   
   Target selectionLocksOn();
   void renderSelection(Rendering rendering, boolean hovered);
-  
-  //boolean configDetail(InfoPanel panel);
-  //boolean configControl(TargetInfo panel);
-  /*
-  //  TODO:  Just return a DetailPanel and/or TargetInfo instead.
-  String[] infoCategories() ;
-  Composite portrait(HUD UI) ;
-  void writeInformation(Description description, int categoryID, HUD UI) ;
-  InfoPanel createPanel(BaseUI UI) ;
-  Target subject() ;
-  //*/
-  //void whenClicked();
 }
-
-
-
-
-
 

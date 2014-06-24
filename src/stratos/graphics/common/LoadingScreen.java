@@ -18,10 +18,16 @@ public class LoadingScreen {
     PROG_FILL_IMG_PATH = "media/GUI/prog_fill.png",
     PROG_BACK_IMG_PATH = "media/GUI/prog_back.png";
   
-  final public static HUD HUD = new HUD();
-  final static ProgressBar progBar;
-  static {
+  
+  private static HUD HUD = null;
+  private static ProgressBar progBar;
+  private static boolean initDone = false;
+  
+  
+  public static HUD HUD(Rendering rendering) {
+    if (HUD != null) return HUD;
     
+    HUD = new HUD(rendering);
     final Image blankImage = new Image(HUD, BLANK_IMG_PATH);
     blankImage.relBound.set(0, 0, 1, 1);
     blankImage.stretch = true;
@@ -41,12 +47,12 @@ public class LoadingScreen {
     progBar.attachTo(HUD);
     
     initDone = true;
+    return HUD;
   }
-  
-  private static boolean initDone = false;
   
   
   public static void update(String label, float progress) {
+    if (! initDone) return;
     progBar.progress = progress;
   }
 }

@@ -2,12 +2,14 @@
 
 
 <imageField name="field_objects.png" gridU="5" gridV="5"/>
+<sectorImage name="chart_sectors.png" size="10.0"/>
+<axisImage name="sky_axis.png" size="5.0"/>
 
 <starTypes>
   <type name="Class A"  imgU="0"  imgV="4"/>
-  <type name="Class B"  imgU="1"  imgV="4"/>
-  <type name="Class C"  imgU="2"  imgV="4"/>
-  <type name="Class D"  imgU="3"  imgV="4"/>
+  <type name="Class B"  imgU="0"  imgV="4"/>
+  <type name="Class C"  imgU="0"  imgV="4"/>
+  <type name="Class D"  imgU="0"  imgV="4"/>
 </starTypes>
 
 
@@ -16,7 +18,7 @@
   <system
     name="Asra Novi"
     imgU="1"  imgV="2"
-    x= "3"  y="-1"  z="-2"
+    x= "1.5"  y="-1.5"  z="-2.5"
     type="Class A"
   />
   
@@ -28,12 +30,61 @@
   />
   
   <system
-    name="Parem V"
-    imgU="2"  imgV="2"
-    x= "1"  y= "2"  z= "1"
+    name="Calivor"
+    imgU="2"  imgV="1"
+    x="-1.5"  y="-0.5"  z="-1"
+    type="Class B"
+  />
+  
+  <system
+    name="Axis Novena"
+    imgU="1"  imgV="1"
+    x="1"  y="1.5"  z= "1.5"
     type="Class D"
   />
   
+  <system
+    name="Parem V"
+    imgU="2"  imgV="2"
+    x= "2"  y= "2"  z= "1"
+    type="Class D"
+  />
+  
+  <system
+    name="Urym Hive"
+    imgU="0"  imgV="1"
+    x="2"  y="0.5"  z= "-0.5"
+    type="Class C"
+  />
+  
+  <system
+    name="Diapsor"
+    imgU="0"  imgV="3"
+    x="4"  y="0"  z= "0.5"
+    type="Class C"
+  />
+  
+  <system
+    name="The Weirworld"
+    imgU="3"  imgV="2"
+    x="1"  y="-3"  z= "-2"
+    type="Class A"
+  />
+  
+  <system
+    name="The Homeworld"
+    imgU="2"  imgV="0"
+    x="2.5"  y="2"  z= "4"
+    type="Class A"
+  />
+  
 </systems>
+
+
+
+
+
+
+
 
 

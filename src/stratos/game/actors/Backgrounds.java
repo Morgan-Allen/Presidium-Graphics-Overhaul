@@ -621,7 +621,7 @@ public interface Backgrounds extends Economy {
     STRONG_GRAVITY  = -1,
     NORMAL_GRAVITY  =  0,
     MILD_GRAVITY    =  1,
-    NOMINAL_GRAVITY =  2 ;
+    NOMINAL_GRAVITY =  2;
   
   final public static System
     //
@@ -716,35 +716,38 @@ public interface Backgrounds extends Economy {
     PLANET_THE_WEIRWORLD = new System(
       "The Weirworld", "House Ophiuchus (Exiled)",
       "Shrouded by dense nebulae and dark rumour, the Weirworld is reputedly "+
-      "a hollow organic world, host to fleets of Strain vessels which raid "+
+      "a hollow organic Sphere, host to fleets of Strain vessels which raid "+
       "or colonise the quadrant periphery.",
       null, 2, 2, MUTATION, MILD_GRAVITY
     ),
     
     PLANET_DIAPSOR = new System(
       "Diapsor", "No House (Freehold)",
-      "Rendered virtually uninhabitable after the Machine Wars, the world "+
-      "once known as Presidium was placed under Imperial Interdict for "+
-      "seven centuries- a controversial edict, but ruthlessly enforced.  "+
-      "Known today as Diapsor, the Bloodstone of the Gulf, intense "+
-      "population pressures on several of the Homeworlds, together with "+
-      "ecological improvement, have opened the doors to re-settlement.",
+      "Rendered all but uninhabitable after the Machine Wars, Diapsor was "+
+      "placed under Imperial Quarantine until recent population pressures, "+
+      "political change and ecological recovery permitted re-settlement.",
       null, -1, -1, MUTATION, NORMAL_GRAVITY
+    ),
+    
+    PLANET_THE_HOMEWORLD = new System(
+      "The Homeworld", "No House (Jovian Protectorate)",
+      "Surrounded by an impenetrable Null Barrier erected by the xenos "+
+      "Jovians, the Homeworld is rumoured to be the birthplace of humanity, "+
+      "transplanted by Jump Drives of unfathomable size.",
+      null, -1, -1, DESERT_BLOOD, MILD_GRAVITY
     ),
     
     ALL_PLANETS[] = {
       PLANET_ASRA_NOVI, PLANET_PAREM_V, PLANET_HALIBAN,
-      PLANET_AXIS_NOVENA,// PLANET_SOLIPSUS_VIER, PLANET_NORUSEI,
-      //PLANET_URYM_HIVE, PLANET_CALIVOR, PLANET_THE_OUTER_SPHERE
-    } ;
+      PLANET_AXIS_NOVENA, PLANET_SOLIPSUS_VIER, PLANET_NORUSEI,
+      PLANET_URYM_HIVE, PLANET_CALIVOR, PLANET_THE_WEIRWORLD,
+      PLANET_DIAPSOR, PLANET_THE_HOMEWORLD
+    };
   
   
   final public static Background
     ALL_BACKGROUNDS[] = Background.allBackgrounds();
 }
-
-
-
 
 
 

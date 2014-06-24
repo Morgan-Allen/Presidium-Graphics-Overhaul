@@ -22,7 +22,7 @@ public class Image extends UINode {
   
   public boolean stretch = false ;
   public boolean lockToPixels = false;
-  protected Texture texture ;
+  protected Texture texture;
   
   
   public Image(HUD UI, String imagePath) {
@@ -54,7 +54,7 @@ public class Image extends UINode {
   
   
   protected void render(SpriteBatch batch2D) {
-    renderTex(texture, 1, batch2D);
+    renderTex(texture, relAlpha, batch2D);
   }
   
   

@@ -26,6 +26,9 @@ public class HUD extends UIGroup {
     DRAG_DIST = 3.0f,
     HOVER_DELAY = 0.5f ;
   
+  
+  final public Rendering rendering;
+  
   private long
     hoverStart = -1 ;
   private Vector2
@@ -44,9 +47,9 @@ public class HUD extends UIGroup {
     mousePos = new Vector2() ;
   
   
-  public HUD() {
+  public HUD(Rendering rendering) {
     super(null) ;
-    //batch2D = new SpriteBatch();
+    this.rendering = rendering;
   }
   
   
@@ -67,7 +70,6 @@ public class HUD extends UIGroup {
     }
     mousePos.set(nextMP) ;
     mouseB = nextMB ;
-    
     //  TODO:  Perform the selection mechanics here?
   }
   
