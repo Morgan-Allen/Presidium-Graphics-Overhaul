@@ -69,7 +69,7 @@ public class StarField {
   }
   
   
-  void dispose() {
+  public void dispose() {
     //  TODO:  THIS MUST BE SCHEDULED
     shading.dispose();
     compiled.dispose();

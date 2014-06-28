@@ -59,6 +59,12 @@ public class ChartsPanel extends UIGroup {
   }
   
   
+  void dispose() {
+    starfield.dispose();
+    planet.dispose();
+  }
+  
+  
   
   /**  Method for loading sector display information from external XML:
     */
@@ -78,7 +84,9 @@ public class ChartsPanel extends UIGroup {
   public void loadPlanet(String path, String file) {
     final Texture tex = PLANET_SKIN.asTexture();
     planet.attachModel(PLANET_MODEL, tex, tex, SECTOR_KEYS);
-    planet.attachSector("Terra Sector", Colour.RED);
+    planet.attachSector("Terra Sector"  , Colour.MAGENTA);
+    planet.attachSector("Elysium Sector", Colour.BLUE   );
+    planet.attachSector("Pavonis Sector", Colour.GREEN  );
   }
   
   
@@ -156,11 +164,8 @@ public class ChartsPanel extends UIGroup {
   
   /**  Updates the currently hovered and selected field object:
     */
-  protected void updateState() {
-    //  TODO:  You may have to supply the true area bounds to the starfield
-    //  here, so that view transform can be calculated accordingly.
-    
-    
+  private void updateFieldSelection() {
+    //
     //  First, we determine which field object (if any) the user is currently
     //  hovering over.
     FieldObject picked = starfield.selectedAt(UI.mousePos());
@@ -177,8 +182,9 @@ public class ChartsPanel extends UIGroup {
     if (picked != null && newFocus == null) {
       I.say("WARNING:  No system with name: "+picked.label);
     }
-    
-    
+    //
+    //  Then, update the current hover-focus, along with appropriate fade-in
+    //  for the associated image-
     if (oldHover != newFocus) {
       this.hoverFocus = newFocus;
       hoverImage.relAlpha = 0;
@@ -198,7 +204,7 @@ public class ChartsPanel extends UIGroup {
     else {
       hoverImage.hidden = true;
     }
-    
+    //
     //  Then, if the user has clicked on their current focus, we make it the
     //  current selection-
     if (oldSelect != newSelect) {
@@ -221,7 +227,32 @@ public class ChartsPanel extends UIGroup {
       );
     }
     else selectImage.hidden = true;
+  }
+  
+  
+  private void updateSectorSelection() {
+    /*
+    final Vec3D surfacePos = planet.surfacePosition(UI.mousePos());
     
+    final int colourVal = planet.colourSelectedAt(UI.mousePos());
+    infoPanel.setText(
+      "Surface position: "+surfacePos+
+      "\nColour: "+colourVal
+    );
+    //*/
+    //*
+    DisplaySector sector = planet.selectedAt(UI.mousePos());
+    if (sector != null) {
+      infoPanel.setText(sector.label+" "+sector.key());
+    }
+    else infoPanel.setText("");
+    //*/
+  }
+  
+  
+  protected void updateState() {
+    //this.updateFieldSelection();
+    this.updateSectorSelection();
     super.updateState();
   }
   

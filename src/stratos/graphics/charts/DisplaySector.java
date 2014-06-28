@@ -1,6 +1,7 @@
 
 
 package stratos.graphics.charts;
+import stratos.graphics.common.*;
 
 
 
@@ -10,6 +11,16 @@ package stratos.graphics.charts;
 public class DisplaySector {
   
   
-  String label;
-  int colourKey;
+  final public String label;
+  Colour colourKey;
+  
+  
+  DisplaySector(String label) {
+    this.label = label;
+  }
+  
+  
+  public Colour key() { return colourKey; }
 }
+
+
