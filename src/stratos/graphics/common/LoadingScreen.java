@@ -2,10 +2,7 @@
 
 
 package stratos.graphics.common;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-
 import stratos.graphics.widgets.*;
-import stratos.util.*;
 
 
 

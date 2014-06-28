@@ -7,7 +7,6 @@ import stratos.graphics.terrain.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.*;
 
 
@@ -56,7 +55,7 @@ public class MapsPanel extends UIGroup {
   }
   
   
-  public void render(SpriteBatch batch2d) {
+  public void render(WidgetsPass batch2d) {
     //  TODO:  Calling begin/end here is a bit of a hack.  Fix?
     batch2d.end();
     

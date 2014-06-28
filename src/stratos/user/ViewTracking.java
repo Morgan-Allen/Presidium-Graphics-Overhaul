@@ -171,7 +171,7 @@ public class ViewTracking {
     //  Since the camera centre may be offset, we first calculate the
     //  displacement in in-world terms.
     Vec3D origin = new Vec3D(0, 0, 0), lockOff = new Vec3D(lockX, lockY, 0);
-    view.translateFromScreen(origin);
+    view.translateFromScreen(origin );
     view.translateFromScreen(lockOff);
     lockOff.sub(origin);
     //

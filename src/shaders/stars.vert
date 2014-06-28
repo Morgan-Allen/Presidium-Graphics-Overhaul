@@ -11,6 +11,7 @@ uniform mat4 u_camera;
 
 varying vec2 v_texCoords0;
 varying vec4 v_color;
+varying vec2 v_screenPos;
 
 
 
@@ -24,4 +25,5 @@ void main() {
   pos.xy += a_normal.xy;
   
   gl_Position = pos;
+  v_screenPos = pos.xy;
 }

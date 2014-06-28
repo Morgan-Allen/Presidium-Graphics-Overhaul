@@ -8,10 +8,6 @@ package stratos.graphics.widgets;
 import stratos.graphics.common.Rendering;
 import stratos.util.*;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
-import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.* ;
 
 
@@ -73,7 +69,7 @@ public abstract class UINode {
   
   /**  Methods intended for implementation by subclasses-
     */
-  protected abstract void render(SpriteBatch batch2D) ;
+  protected abstract void render(WidgetsPass pass);
   protected String info() { return null ; }
   
   
@@ -143,59 +139,6 @@ public abstract class UINode {
   protected boolean amClicked() { return UI.amSelected(this, CLICKED) ; }
   protected boolean amPressed() { return UI.amSelected(this, PRESSED) ; }
   protected boolean amDragged() { return UI.amSelected(this, DRAGGED) ; }
-  
-  
-  
-  /**  Utility methods for drawing/graphic display:
-    */
-  /*
-  //
-  //  TODO:  Consider returning a Texture instead, or just a GL texture ID?
-  final public static ByteBuffer copyPixels(Box2D area, ByteBuffer pixels) {
-    final int size = ((int) area.xdim()) * ((int) area.ydim()) * 4 ;
-    if (pixels == null || pixels.capacity() != size) {
-      pixels = BufferUtils.createByteBuffer(size) ;
-    }
-    else pixels.rewind() ;
-    GL11.glReadPixels(
-      (int) area.xpos(), (int) area.ypos(),
-      (int) area.xdim(), (int) area.ydim(),
-      GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixels
-    ) ;
-    return pixels ;
-  }
-  
-
-  private static int glID ;
-  private static boolean cached = false ;
-  
-  final public static void drawPixels(Box2D area, ByteBuffer pixels) {
-    if (! cached) {
-      final IntBuffer tmpID = BufferUtils.createIntBuffer(1) ;
-      GL11.glGenTextures(tmpID) ;
-      glID = tmpID.get(0) ;
-      cached = true ;
-    }
-    
-    GL11.glBindTexture(GL11.GL_TEXTURE_2D, glID) ;
-    Texture.setDefaultTexParams(GL11.GL_TEXTURE_2D) ;
-    GL11.glTexImage2D(
-      GL11.GL_TEXTURE_2D,
-      0, 4,
-      (int) area.xdim(), (int) area.ydim(), 0,
-      GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE,
-      pixels
-    ) ;
-    
-    GL11.glBegin(GL11.GL_QUADS) ;
-    UINode.drawQuad(
-      (int) area.xpos(), (int) area.ypos(),
-      (int) area.xmax(), (int) area.ymax(), 0, 1, 1, 0, 0
-    ) ;
-    GL11.glEnd() ;
-  }
-  //*/
-  
 }
 
 

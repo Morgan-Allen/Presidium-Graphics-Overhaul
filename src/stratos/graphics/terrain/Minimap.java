@@ -5,18 +5,16 @@
   */
 
 package stratos.graphics.terrain ;
-import static stratos.graphics.common.GL.*;
 import stratos.graphics.common.*;
 import stratos.util.*;
+import static stratos.graphics.common.GL.*;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.graphics.glutils.*;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
-import com.badlogic.gdx.graphics.g2d.*;
-import com.badlogic.gdx.graphics.glutils.PixmapTextureData;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 
 
 

@@ -5,11 +5,11 @@
   */
 package stratos.graphics.widgets ;
 import stratos.graphics.common.*;
-import stratos.graphics.widgets.Alphabet.Letter;
 import stratos.util.*;
+import stratos.graphics.widgets.Alphabet.Letter;
+
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.*;
 
@@ -276,7 +276,7 @@ public class Text extends UINode implements Description {
   /**  Returns the selectable associated with the currently hovered unit of
     *  text.
     */
-  protected void render(SpriteBatch batch2D) {
+  protected void render(WidgetsPass pass) {
     if (allEntries.size() == 0) return ;
     final Box2D textArea = new Box2D().set(0, 0, xdim(), ydim()) ;
     
@@ -293,19 +293,19 @@ public class Text extends UINode implements Description {
     //  Then we begin the rendering pass.  In order to accomodate scissor
     //  culling, we flush the pipeline of existing elements before and after,
     //  and set the bounds to fit.
-    batch2D.flush();
+    pass.flush();
     Gdx.gl.glEnable(GL11.GL_SCISSOR_TEST);
     Gdx.gl.glScissor((int) xpos(), (int) ypos(), (int) xdim(), (int) ydim());
     for (Box2D entry : allEntries) {
       if (entry instanceof TextEntry) {
-        renderText(textArea, (TextEntry) entry, link, batch2D);
+        renderText(textArea, (TextEntry) entry, link, pass);
       }
       else bullets.add((ImageEntry) entry);
     }
     for (ImageEntry entry : bullets) {
-      renderImage(textArea, entry, batch2D);
+      renderImage(textArea, entry, pass);
     }
-    batch2D.flush();
+    pass.flush();
     Gdx.gl.glDisable(GL11.GL_SCISSOR_TEST);
     
     if (UI.mouseClicked() && link != null) whenLinkClicked(link) ;
@@ -339,7 +339,7 @@ public class Text extends UINode implements Description {
   
   
   protected void renderImage(
-    Box2D bounds, ImageEntry entry, SpriteBatch batch2D
+    Box2D bounds, ImageEntry entry, WidgetsPass pass
   ) {
     if (! entry.intersects(bounds)) return ;
     final Box2D b = entry.graphic.absBound ;
@@ -350,28 +350,28 @@ public class Text extends UINode implements Description {
     entry.graphic.updateRelativeParent() ;
     entry.graphic.updateAbsoluteBounds() ;
     
-    entry.graphic.render(batch2D) ;
+    entry.graphic.render(pass) ;
   }
   
 
   protected boolean renderText(
-    Box2D area, TextEntry entry, Clickable link, SpriteBatch batch2D
+    Box2D area, TextEntry entry, Clickable link, WidgetsPass pass
   ) {
     if (entry.letter == null || ! entry.intersects(area)) return false ;
     //
     //  If this text links to something, we may need to colour the text (and
     //  possibly select it's link target if clicked.)
     if (link != null && entry.link == link) {
-      batch2D.setColor(1, 1, 0, absAlpha);
+      pass.setColor(1, 1, 0, absAlpha);
     }
     else {
       final Colour c = entry.colour != null ? entry.colour : Colour.WHITE ;
-      batch2D.setColor(c.r, c.g, c.b, c.a * absAlpha) ;
+      pass.setColor(c.r, c.g, c.b, c.a * absAlpha) ;
     }
     final float xoff = xpos() - area.xpos(), yoff = ypos() - area.ypos() ;
     //
     //  Draw the text entry-
-    batch2D.draw(
+    pass.draw(
       alphabet.fontTex,
       entry.xpos() + xoff, entry.ypos() + yoff,
       entry.xdim(), entry.ydim(),

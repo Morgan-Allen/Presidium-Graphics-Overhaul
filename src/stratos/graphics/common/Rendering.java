@@ -10,19 +10,13 @@ import stratos.graphics.terrain.*;
 import stratos.graphics.widgets.*;
 import stratos.start.*;
 import stratos.util.*;
-
-//import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-//import com.badlogic.gdx.graphics.g3d.*;
 
 
 
 
 //  NOTE:  This class should not be instantiated until the LibGdx engine has
 //  invoked the create() method for the ApplicationListener.
-
-
 public class Rendering {
   
   
@@ -40,7 +34,7 @@ public class Rendering {
   final public CutoutsPass cutoutsPass;
   final public SFXPass     sfxPass    ;
   
-  final public SpriteBatch batch2D ;
+  final public WidgetsPass widgetsPass ;
   final public Fading fading;
   
   
@@ -52,8 +46,8 @@ public class Rendering {
     solidsPass  = new SolidsPass(this);
     cutoutsPass = new CutoutsPass(this);
     sfxPass     = new SFXPass    (this);
+    widgetsPass = new WidgetsPass(this);
     
-    batch2D = new SpriteBatch();
     fading = new Fading(this);
     reportVersion();
   }
@@ -64,6 +58,10 @@ public class Rendering {
     solidsPass .dispose();
     cutoutsPass.dispose();
     sfxPass    .dispose();
+    widgetsPass.dispose();
+    //  TODO:  Also include a centralised diposal mechanism for things like the
+    //  minimap, charts display, et cetera- anything specific to a particular
+    //  game session!
   }
   
   
@@ -136,13 +134,13 @@ public class Rendering {
     cutoutsPass.performPreviewPass();
     
     //glDepthMask(false);
-    batch2D.begin();
+    widgetsPass.begin();
     if (UI != null) {
       UI.updateInput();
       UI.renderHUD(this);
     }
-    fading.applyTo(batch2D);
-    batch2D.end();
+    fading.applyTo(widgetsPass);
+    widgetsPass.end();
   }
 }
 

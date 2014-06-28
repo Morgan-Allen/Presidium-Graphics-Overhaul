@@ -7,7 +7,7 @@ import stratos.util.*;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+//import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 //import java.nio.*;
 
 
@@ -67,7 +67,7 @@ public class Fading {
   }
   
   
-  public void applyTo(SpriteBatch batch2D) {
+  public void applyTo(WidgetsPass pass) {
     final Batch <Fade> expired = new Batch <Fade> ();
     
     for (Fade fade : allFades.values()) {
@@ -79,8 +79,8 @@ public class Fading {
       }
       
       final Box2D b = fade.area;
-      batch2D.setColor(1, 1, 1, fade.alpha);
-      batch2D.draw(
+      pass.setColor(1, 1, 1, fade.alpha);
+      pass.draw(
         fade.captured,
         b.xpos(), b.ypos(), b.xdim(), b.ydim(),
         0, 0, 1, 1
@@ -94,8 +94,8 @@ public class Fading {
     
     final Colour c = rendering.foreColour;
     if (c != null) {
-      batch2D.setColor(c.r, c.g, c.b, c.a);
-      batch2D.draw(
+      pass.setColor(c.r, c.g, c.b, c.a);
+      pass.draw(
         ImageAsset.WHITE_TEX(),
         0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(),
         0, 0, 1, 1

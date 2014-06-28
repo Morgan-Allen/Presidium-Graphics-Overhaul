@@ -8,7 +8,6 @@
 package stratos.graphics.widgets ;
 import stratos.util.*;
 
-import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.* ;
 
 
@@ -25,9 +24,9 @@ public class UIGroup extends UINode {
   }
   
   
-  public void render(SpriteBatch batch2D) {
+  public void render(WidgetsPass pass) {
     for (UINode kid : kids) if (! kid.hidden) {
-      kid.render(batch2D) ;
+      kid.render(pass) ;
     }
   }
   

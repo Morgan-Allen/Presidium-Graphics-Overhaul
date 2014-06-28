@@ -8,7 +8,6 @@ package stratos.graphics.widgets ;
 import stratos.graphics.common.*;
 import stratos.util.*;
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g2d.*;
 
 
 
@@ -32,9 +31,9 @@ public class Bordering extends UINode {
   }
   
   
-  protected void render(SpriteBatch batch2D) {
+  protected void render(WidgetsPass pass) {
     renderBorder(
-      batch2D, bounds,
+      pass, bounds,
       left, right, top, bottom,
       leftU, rightU, bottomV, topV,
       borderTex
@@ -53,7 +52,7 @@ public class Bordering extends UINode {
   
   
   public static void renderBorder(
-    SpriteBatch batch2D, Box2D area,
+    WidgetsPass pass, Box2D area,
     int left, int right, int bottom, int top,
     float LU, float RU, float BV, float TV,
     Texture borderTex
@@ -83,9 +82,9 @@ public class Bordering extends UINode {
       coordY[i] = area.ymax() - coordY[i];
     }
     
-    batch2D.setColor(1, 1, 1, 1);
+    pass.setColor(1, 1, 1, 1);
     for (int x = 3 ; x-- > 0 ;) for (int y = 3 ; y-- > 0 ;) {
-      batch2D.draw(
+      pass.draw(
         borderTex,
         coordX[x],
         coordY[y],

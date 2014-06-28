@@ -11,7 +11,7 @@ import stratos.game.building.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+//import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 
 
@@ -167,7 +167,7 @@ public class InfoPanel extends UIGroup implements UIConstants {
     if (portrait != null) {
       this.portrait = portrait;
       portraitFrame = new UINode(UI) {
-        protected void render(SpriteBatch batch2d) {
+        protected void render(WidgetsPass batch2d) {
           portrait.drawTo(batch2d, bounds, absAlpha);
         }
       };

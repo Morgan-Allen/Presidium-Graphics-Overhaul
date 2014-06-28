@@ -10,7 +10,6 @@ import stratos.graphics.common.*;
 import stratos.util.*;
 
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.*;
 
 
@@ -106,14 +105,14 @@ public class Scrollbar extends UINode {
   }
   
   
-  protected void render(SpriteBatch batch2D) {
+  protected void render(WidgetsPass pass) {
     if (! showScroll) return ;
     final int
       side = (int) (grabArea.xdim() / 2),
       cap = (int) DEFAULT_TAB_HEIGHT;
     
     Bordering.renderBorder(
-      batch2D, grabArea,
+      pass, grabArea,
       side, side, cap, cap,
       0.5f, 0.5f, 0.25f, 0.75f,
       scrollTex

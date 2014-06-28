@@ -101,7 +101,7 @@ public class HUD extends UIGroup {
       case (DRAGGED) : selected.whenDragged() ; break ;
     }
     
-    super.render(rendering.batch2D);
+    super.render(rendering.widgetsPass);
   }
   
   

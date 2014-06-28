@@ -6,8 +6,6 @@ import stratos.graphics.common.*;
 import stratos.user.UIConstants;
 import stratos.util.*;
 
-import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.*;
 
 
@@ -43,8 +41,8 @@ public class Tooltips extends UIGroup {
   }
   
   
-  public void render(SpriteBatch batch2D) {
-    super.render(batch2D) ;
+  public void render(WidgetsPass pass) {
+    super.render(pass) ;
     //if (! hidden) I.say("rendering tooltip...") ;
   }
 

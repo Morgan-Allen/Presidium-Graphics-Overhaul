@@ -2,7 +2,7 @@
 
 package stratos.graphics.charts;
 import stratos.util.*;
-import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import org.apache.commons.math3.util.FastMath;
 
 

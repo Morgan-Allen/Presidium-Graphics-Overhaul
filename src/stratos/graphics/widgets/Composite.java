@@ -6,9 +6,7 @@ import stratos.graphics.common.*;
 import stratos.util.*;
 
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.Pixmap.*;
-
 import static com.badlogic.gdx.graphics.Texture.TextureFilter.*;
 
 
@@ -135,10 +133,10 @@ public class Composite {
   }
   
   
-  public void drawTo(SpriteBatch batch2D, Box2D bounds, float alpha) {
+  public void drawTo(WidgetsPass pass, Box2D bounds, float alpha) {
     texture();
-    batch2D.setColor(1, 1, 1, alpha);
-    batch2D.draw(
+    pass.setColor(1, 1, 1, alpha);
+    pass.draw(
       composed,
       bounds.xpos(), bounds.ypos(),
       bounds.xdim(), bounds.ydim(),

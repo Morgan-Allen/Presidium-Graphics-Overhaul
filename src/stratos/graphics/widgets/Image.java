@@ -8,9 +8,7 @@ package stratos.graphics.widgets;
 import stratos.graphics.common.*;
 import stratos.start.PlayLoop;
 import stratos.util.*;
-
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g2d.*;
 
 
 
@@ -53,12 +51,12 @@ public class Image extends UINode {
   }
   
   
-  protected void render(SpriteBatch batch2D) {
-    renderTex(texture, relAlpha, batch2D);
+  protected void render(WidgetsPass pass) {
+    renderTex(texture, relAlpha, pass);
   }
   
   
-  protected void renderTex(Texture tex, float alpha, SpriteBatch batch2D) {
+  protected void renderTex(Texture tex, float alpha, WidgetsPass pass) {
     final float scale = stretch ? 1 : Math.min(
       bounds.xdim() / texture.getWidth(),
       bounds.ydim() / texture.getHeight()
@@ -83,8 +81,8 @@ public class Image extends UINode {
       drawn.ydim((int) drawn.ydim()); 
     }
     
-    batch2D.setColor(1, 1, 1, alpha);
-    batch2D.draw(
+    pass.setColor(1, 1, 1, alpha);
+    pass.draw(
       tex,
       drawn.xpos(), drawn.ypos(), drawn.xdim(), drawn.ydim(),
       0.0f, 1.0f, 1.0f, 0.0f

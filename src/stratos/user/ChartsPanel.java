@@ -2,23 +2,26 @@
 
 
 package stratos.user;
-import stratos.game.campaign.*;
 import stratos.game.actors.Backgrounds;
 import stratos.game.campaign.System;
+//import stratos.game.campaign.*;
+import stratos.graphics.solids.*;
 import stratos.graphics.widgets.*;
 import stratos.graphics.charts.*;
 import stratos.graphics.common.*;
+//import stratos.start.DebugCharts;
 import stratos.util.*;
 import static stratos.graphics.common.GL.*;
 
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g2d.*;
-import com.badlogic.gdx.math.Vector2;
+//import com.badlogic.gdx.graphics.g2d.*;
+//import com.badlogic.gdx.math.Vector2;
 
 
 
 //  TODO:  This should include an InfoPanel of some kind.
 //  Consider supplying the axis and sector images directly(?)
+
 public class ChartsPanel extends UIGroup {
   
   
@@ -26,9 +29,7 @@ public class ChartsPanel extends UIGroup {
     SELECT_CIRCLE = ImageAsset.fromImage(
       "media/Charts/selection.png", ChartsPanel.class
     );
-  
-  
-  final StarField starfield;
+
   
   Bordering border;
   Image hoverImage, selectImage;
@@ -37,10 +38,14 @@ public class ChartsPanel extends UIGroup {
   
   private System hoverFocus, selectFocus;
   
+  final StarField starfield;
+  final PlanetDisplay planet;
+  
   
   public ChartsPanel(HUD UI) {
     super(UI);
     starfield = new StarField();
+    planet = new PlanetDisplay();
     
     hoverImage = new Image(UI, SELECT_CIRCLE);
     selectImage = new Image(UI, SELECT_CIRCLE);
@@ -53,6 +58,28 @@ public class ChartsPanel extends UIGroup {
     infoPanel.scale = 0.75f;
   }
   
+  
+  
+  /**  Method for loading sector display information from external XML:
+    */
+  final static SolidModel PLANET_MODEL = MS3DModel.loadFrom(
+    "media/Charts/", "Planet.ms3d",
+    ChartsPanel.class, null, null
+  );
+  final static ImageAsset
+    PLANET_SKIN = ImageAsset.fromImage(
+      "media/Charts/planet_skin.png", ChartsPanel.class
+    ),
+    SECTOR_KEYS = ImageAsset.fromImage(
+      "media/Charts/sector_keys.png", ChartsPanel.class
+    );
+  
+  //  TODO:  This is just a dummy method at the moment, more or less.  Fill in.
+  public void loadPlanet(String path, String file) {
+    final Texture tex = PLANET_SKIN.asTexture();
+    planet.attachModel(PLANET_MODEL, tex, tex, SECTOR_KEYS);
+    planet.attachSector("Terra Sector", Colour.RED);
+  }
   
   
   /**  Method for loading object coordinates from an external XML file:
@@ -202,7 +229,7 @@ public class ChartsPanel extends UIGroup {
   
   /**  Clears the screen for further UI rendering.
     */
-  public void render(SpriteBatch batch2d) {
+  public void render(WidgetsPass batch2d) {
     //  TODO:  Fiddling directly with OpenGL calls this way is messy and risky.
     //  See if you can centralise this somewhere (along with the Minimap
     //  rendering.)
@@ -212,7 +239,10 @@ public class ChartsPanel extends UIGroup {
     glEnable(GL10.GL_BLEND);
     glDepthMask(true);
     
-    starfield.renderWith(UI.rendering, trueBounds(), UIConstants.INFO_FONT);
+    
+    planet.renderWith(UI.rendering, trueBounds(), UIConstants.INFO_FONT);
+    
+    //starfield.renderWith(UI.rendering, trueBounds(), UIConstants.INFO_FONT);
     
     glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
     glDepthMask(false);

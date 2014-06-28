@@ -3,27 +3,22 @@
 
 package stratos.graphics.charts;
 import stratos.graphics.common.*;
-import stratos.graphics.sfx.Label;
+import stratos.graphics.sfx.*;
 import stratos.graphics.widgets.*;
-//import stratos.graphics.sfx.*;
 import stratos.util.*;
 import static stratos.graphics.common.GL.*;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;  //  TODO:  REPLACE
 import com.badlogic.gdx.graphics.glutils.*;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.Texture.*;
 
 import org.apache.commons.math3.util.FastMath;
-
 import java.util.Random;
 
-
-
-//  TODO:  Text Labels
 
 
 public class StarField {
@@ -42,7 +37,7 @@ public class StarField {
   
   public StarField() {
     view = new Viewport();
-    view.elevation = -89.999f;
+    view.elevation = 0;
     view.rotation  = 90;
     view.update();
     
@@ -166,7 +161,7 @@ public class StarField {
     */
   public Vec3D screenPosition(FieldObject object, Vec3D put) {
     if (put == null) put = new Vec3D();
-    view.translateToScreen(put.setTo(object.coordinates));
+    view.translateGLToScreen(put.setTo(object.coordinates));
     return put;
   }
   
@@ -206,59 +201,45 @@ public class StarField {
   public void renderWith(
     Rendering rendering, Box2D bounds, Alphabet forLabels
   ) {
-    //view.elevation = rendering.view.elevation - 89.999f;
-    //view.rotation = rendering.view.rotation + 45;
-    view.update();
-    
-    //  TODO:  The rotation vector will have to be applied to the coordinates,
-    //  or the depth-sorting won't work correctly!
-    
+    final float SW = Gdx.graphics.getWidth(), SH = Gdx.graphics.getHeight();
     final float time = Rendering.activeTime();
+    view.rotation = (90 + (time * 15)) % 360;
+    view.update();
     final Matrix4 rotation = new Matrix4().idt();
-    rotation.rot(Vector3.Z, (float) FastMath.toRadians(30 * time));
     
     shading.begin();
     shading.setUniformi("u_texture", 0);
     shading.setUniformMatrix("u_rotation", rotation);
+    shading.setUniformf("u_portalRadius", fieldSize * view.screenScale() / 2);
+    shading.setUniformf("u_screenWide", SW);
+    shading.setUniformf("u_screenHigh", SH);
     shading.setUniformMatrix("u_camera", view.camera.combined);
     
     glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
     glDepthMask(false);
     
-    //renderSectorsAndAxes();
-    //glDepthMask(true);
-    
     //  TODO:  Depth sorting for labels might have to be worked out too (bind
     //  to a separate texture, maybe?)
-    renderLabels(forLabels);
-    
     //  TODO:  If you want to combine axis-rendering with normal blending
     //  functions, translucency and a depth-sort, then you'll have to partition
     //  the field objects into quadrants first.  (Either 2, 4 or 8, depending
     //  on how many axes you render.)
+    renderLabels(forLabels);
+    renderSectorsAndAxes();
     
     for (FieldObject o : allObjects) {
       o.depth = view.screenDepth(o.coordinates);
     }
     allObjects.queueSort();
 
-    
     Texture lastTex = null;
     float piece[] = new float[compiled.vertexSize];
-    final float SW = Gdx.graphics.getWidth(), SH = Gdx.graphics.getHeight();
     final Vector3 c = new Vector3();
-    
-    boolean axisDone = false;
     
     for (FieldObject object : allObjects) {
       
-      Viewport.worldToGL(object.coordinates, c);
-      if (c.y > 0 && ! axisDone) {
-        compiled.renderWithShader(shading, true);
-        renderSectorsAndAxes();
-        lastTex = null;
-        axisDone = true;
-      }
+      final Vec3D v = object.coordinates;
+      c.set(v.x, v.y, v.z);
       
       final TextureRegion r = object.texRegion;
       final Texture t = r.getTexture();
@@ -296,14 +277,23 @@ public class StarField {
     
     float piece[] = new float[compiled.vertexSize];
     float a = fieldSize / 2;
-    final Colour fade = Colour.transparency(0.33f);
     
-    appendVertex(piece, new Vector3(-a, 0, -a), 0, 0, fade, 0, 1);
-    appendVertex(piece, new Vector3(-a, 0,  a), 0, 0, fade, 0, 0);
-    appendVertex(piece, new Vector3( a, 0, -a), 0, 0, fade, 1, 1);
-    appendVertex(piece, new Vector3( a, 0,  a), 0, 0, fade, 1, 0);
+    Colour fade = Colour.transparency(0.5f);
+    appendVertex(piece, new Vector3(-a, -a, 0), 0, 0, fade, 0, 1);
+    appendVertex(piece, new Vector3(-a,  a, 0), 0, 0, fade, 0, 0);
+    appendVertex(piece, new Vector3( a, -a, 0), 0, 0, fade, 1, 1);
+    appendVertex(piece, new Vector3( a,  a, 0), 0, 0, fade, 1, 0);
     
     sectorsTex.bind(0);
+    compiled.renderWithShader(shading, true);
+    
+    fade = Colour.transparency(0.2f);
+    appendVertex(piece, new Vector3(0, -a, -a), 0, 0, fade, 0, 1);
+    appendVertex(piece, new Vector3(0, -a,  a), 0, 0, fade, 0, 0);
+    appendVertex(piece, new Vector3(0,  a, -a), 0, 0, fade, 1, 1);
+    appendVertex(piece, new Vector3(0,  a,  a), 0, 0, fade, 1, 0);
+
+    axisTex.bind(0);
     compiled.renderWithShader(shading, true);
   }
   
@@ -321,7 +311,10 @@ public class StarField {
     //  to the shader once and have it do the math.
     
     for (FieldObject o : allObjects) if (o.label != null) {
-      Viewport.worldToGL(o.coordinates, pos);
+
+      final Vec3D v = o.coordinates;
+      pos.set(v.x, v.y, v.z);
+      //Viewport.worldToGL(o.coordinates, pos);
       float
         x = 2 * Label.phraseWidth(o.label, font, 1.0f) / (SW * -2),
         y = 2 * (0 - font.letterFor(' ').height * 2) / SH;

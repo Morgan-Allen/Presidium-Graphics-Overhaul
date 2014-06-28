@@ -14,6 +14,8 @@ import org.apache.commons.math3.util.FastMath;
 public class Viewport {
   
   
+  /**  Data fields, constructors, etc.
+    */
   final public static float
     DEFAULT_SCALE   = 60.0f,
     DEFAULT_ROTATE  = 45,
@@ -39,9 +41,12 @@ public class Viewport {
   }
   
   
+  
+  /**  Matrix updates-
+    */
   public void update() {
     final float
-      wide = Gdx.graphics.getWidth(),
+      wide = Gdx.graphics.getWidth (),
       high = Gdx.graphics.getHeight();
     final float screenScale = screenScale();
     camera.setToOrtho(false, wide / screenScale, high / screenScale);
@@ -63,11 +68,14 @@ public class Viewport {
     camera.position.add(temp);
     camera.update();
     
-    translateToScreen(originWtS.set(0, 0, 0));
+    translateToScreen  (originWtS.set(0, 0, 0));
     translateFromScreen(originStW.set(0, 0, 0));
   }
   
   
+  
+  /**  UI utility methods (mouse-intersection, etc.)-
+    */
   public float screenScale() {
     return DEFAULT_SCALE * zoomLevel;
   }
@@ -89,8 +97,32 @@ public class Viewport {
   }
   
   
+  
+  /**  Coordinate translation methods-
+    */
   public Vec3D translateToScreen(Vec3D point) {
-    worldToGL(point, temp);
+    return translateToScreen(point, true);
+  }
+  
+  
+  public Vec3D translateGLToScreen(Vec3D point) {
+    return translateToScreen(point, false);
+  }
+  
+  
+  public Vec3D translateFromScreen(Vec3D point) {
+    return translateFromScreen(point, true);
+  }
+  
+  
+  public Vec3D translateGLFromScreen(Vec3D point) {
+    return translateFromScreen(point, false);
+  }
+  
+  
+  private Vec3D translateToScreen(Vec3D point, boolean WTG) {
+    if (WTG) worldToGL(point, temp);
+    else temp.set(point.x, point.y, point.z);
     camera.project(temp);
     point.x = temp.x;
     point.y = temp.y;
@@ -101,7 +133,7 @@ public class Viewport {
   }
   
   
-  public Vec3D translateFromScreen(Vec3D point) {
+  private Vec3D translateFromScreen(Vec3D point, boolean GTW) {
     //  Note:  We have to treat the y values differently from screen
     //  translation, thanks to how LibGDX implements these functions.
     temp.x = point.x;
@@ -109,7 +141,8 @@ public class Viewport {
     temp.z = point.z;
     temp.z /= (camera.far - camera.near);
     camera.unproject(temp);
-    GLToWorld(temp, point);
+    if (GTW) GLToWorld(temp, point);
+    else point.set(temp.x, temp.y, temp.z);
     return point;
   }
   

@@ -6,8 +6,6 @@
 
 
 package stratos.graphics.widgets;
-import java.io.*;
-
 import stratos.graphics.common.*;
 import stratos.util.*;
 
@@ -15,9 +13,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Pixmap.Blending;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
-import com.badlogic.gdx.graphics.g2d.*;
-import com.badlogic.gdx.math.*;
-import com.badlogic.gdx.files.*;
+import java.io.*;
 
 
 

@@ -9,7 +9,6 @@ import stratos.graphics.common.*;
 import stratos.util.*;
 
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.*;
 
 
@@ -71,15 +70,15 @@ public class Button extends Image {
   }
   
 
-  protected void render(SpriteBatch batch2D) {
-    super.renderTex(texture, absAlpha, batch2D);
+  protected void render(WidgetsPass pass) {
+    super.renderTex(texture, absAlpha, pass);
     if (amPressed() || amDragged() || amClicked()) {
-      super.renderTex(highlit, pressLit * absAlpha, batch2D);
+      super.renderTex(highlit, pressLit * absAlpha, pass);
     }
     else if (amHovered()) {
       float alpha = absAlpha * hoverLit;
       alpha *= Visit.clamp(UI.timeHovered() / DEFAULT_FADE_TIME, 0, 1);
-      super.renderTex(highlit, alpha, batch2D);
+      super.renderTex(highlit, alpha, pass);
     }
   }
 }
