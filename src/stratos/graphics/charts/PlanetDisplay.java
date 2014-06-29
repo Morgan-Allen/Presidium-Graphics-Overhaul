@@ -21,25 +21,20 @@ import org.apache.commons.math3.util.FastMath;
 public class PlanetDisplay {
   
   
-  private static boolean verbose = true;
+  private static boolean verbose = false;
   
   final ShaderProgram shading;
   final Viewport view;
+  private float rotation = 0;
   
-  Matrix4 rotation;
   SolidModel globeModel;
   NodePart surfacePart, sectorsPart;
   Texture surfaceTex, sectorsTex;
   
   ImageAsset sectorsKeyTex;
   final List <DisplaySector> sectors = new List <DisplaySector> ();
-  
-  private static class FaceData {
-    Vec3D c1, c2, c3, e1, e2, e3, n1, n2, n3;  //corners, edges, edge-normals
-    Vec2D t1, t2, t3;  //texture coordinates
-  }
-  private FaceData faceData[];
-  private float matchU, matchV;  //search results.
+  private Colour sectorKey;
+  private Vec3D surfacePos;
   
   
   
@@ -72,7 +67,7 @@ public class PlanetDisplay {
     SolidModel model, Texture surfaceTex,
     Texture sectorsTex, ImageAsset sectorsKeyTex
   ) {
-    this.rotation = new Matrix4();
+    this.rotation = 0;
     this.globeModel = model;
     
     final String partNames[] = globeModel.partNames();
@@ -100,6 +95,18 @@ public class PlanetDisplay {
   
   /**  Selection, feedback and highlighting-
     */
+  //  Stores corners, edges, edge-normals, texture coordinates, and corner
+  //  distances.
+  private static class FaceData {
+    int ID;
+    Vec3D c1, c2, c3, e21, e32, e13, n21, n32, n13;
+    Vec2D t1, t2, t3;
+    float d1, d2, d3;
+  }
+  private FaceData faceData[];  //Cached for convenience...
+  private float matchU, matchV;  //search results.
+  
+  
   private void cacheFaceData() {
     //
     //  Firstly, determine how many faces are on the globe surface, and how the
@@ -110,8 +117,10 @@ public class PlanetDisplay {
       meshFaces = part.mesh.getNumIndices() / 3,
       vertSize = 3 + 3 + 2 + 2,  //position, normal, tex coord and bone weight.
       offset   = part.indexOffset / vertSize;
-    I.say("PART FACES: "+partFaces+", MESH FACES: "+meshFaces);
-    I.say("Vertex Size: "+vertSize+", index offset: "+offset);
+    if (verbose) {
+      I.say("PART FACES: "+partFaces+", MESH FACES: "+meshFaces);
+      I.say("Vertex Size: "+vertSize+", index offset: "+offset);
+    }
     //
     //  Secondly, retrieve the data, and set up structures for receipt after
     //  processing.
@@ -136,28 +145,54 @@ public class PlanetDisplay {
       }
       //
       final FaceData f = faceData[n] = new FaceData();
+      f.ID = n;
+      //
       f.c1 = tempV[0]; f.c2 = tempV[1]; f.c3 = tempV[2];
       f.t1 = tempT[0]; f.t2 = tempT[1]; f.t3 = tempT[2];
-      
-      if (f.c1.length() == 0 && f.c2.length() == 0 && f.c3.length() == 0) {
-        I.say("WARNING: Blank face geometry at index "+n);
-      }
-      
-      f.n1 = f.c2.cross(f.c1, null);
-      f.n2 = f.c3.cross(f.c2, null);
-      f.n3 = f.c1.cross(f.c3, null);
-      f.e1 = f.c2.sub(f.c1, null);
-      f.e2 = f.c3.sub(f.c2, null);
-      f.e3 = f.c1.sub(f.c3, null);
+      f.e21 = f.c2.sub(f.c1, null);
+      f.e32 = f.c3.sub(f.c2, null);
+      f.e13 = f.c1.sub(f.c3, null);
+      f.n21 = f.c2.cross(f.c1, null);
+      f.n32 = f.c3.cross(f.c2, null);
+      f.n13 = f.c1.cross(f.c3, null);
+      //
+      f.d1 = f.n32.dot(f.e21);
+      f.d2 = f.n13.dot(f.e32);
+      f.d3 = f.n21.dot(f.e13);
     }
+  }
+  
+  
+  private boolean checkIntersection(
+    Vec3D point, FaceData f
+  ) {
+    final float
+      w1 = f.n32.dot(f.c2.sub(point, null)) / f.d1,
+      w2 = f.n13.dot(f.c3.sub(point, null)) / f.d2,
+      w3 = f.n21.dot(f.c1.sub(point, null)) / f.d3;
+    
+    if (w1 < 0 || w2 < 0 || w3 < 0) return false;
+    float u = 0, v = 0, sum = w1 + w2 + w3;
+    
+    u += f.t1.x * w1 / sum;
+    u += f.t2.x * w2 / sum;
+    u += f.t3.x * w3 / sum;
+    
+    v += f.t1.y * w1 / sum;
+    v += f.t2.y * w2 / sum;
+    v += f.t3.y * w3 / sum;
+    
+    this.matchU = u;
+    this.matchV = v;
+    
+    return true;
   }
   
   
   public Vec3D surfacePosition(Vector2 mousePos) {
     
-    Vec3D centre = new Vec3D(0, 0, 0);  //Correct?
-    float radius = 3.0f;  //  Question mark, TODO:  ESTABLISH?
-    float rotation = 0f;  //  Also, this?
+    final Vec3D centre = new Vec3D(0, 0, 0);
+    float radius = 3.0f;  //  TODO:  ESTABLISH IN SHADER
     
     final Vec3D screenPos = new Vec3D(centre);
     view.translateGLToScreen(screenPos);
@@ -185,40 +220,15 @@ public class PlanetDisplay {
   }
   
   
-  private boolean checkIntersection(
-    Vec3D point, int faceIndex
-  ) {
-    final FaceData f = faceData[faceIndex];
-    final float
-      d1 = f.n1.dot(f.c1.sub(point, null)) / f.n1.dot(f.e3),
-      d2 = f.n2.dot(f.c2.sub(point, null)) / f.n2.dot(f.e1),
-      d3 = f.n3.dot(f.c3.sub(point, null)) / f.n3.dot(f.e2);
-    if (d1 < 0 || d2 < 0 || d3 < 0) return false;
-    
-    float u = 0, v = 0;
-    float w1 = d1 / (d1 + d2), w2 = d2 / (d1 + d2), w3 = 1 - d3;
-    
-    u = (w1 * f.t1.x) + (w2 * f.t2.x);
-    u = (w3 * f.t3.x) + ((1 - w3) * u);
-    
-    v = (w1 * f.t1.y) + (w2 * f.t2.y);
-    v = (w3 * f.t3.y) + ((1 - w3) * v);
-    
-    this.matchU = u;
-    this.matchV = v;
-    
-    return true;
-  }
-  
-  
   public int colourSelectedAt(Vector2 mousePos) {
     final int nullVal = 0;
     final Vec3D onSurface = surfacePosition(mousePos);
+    this.surfacePos = onSurface;
     if (onSurface == null) return nullVal;
     
     boolean matchFound = false;
-    for (int n = faceData.length; n-- > 0;) {
-      if (checkIntersection(onSurface, n)) { matchFound = true; break; }
+    for (FaceData f : faceData) {
+      if (checkIntersection(onSurface, f)) { matchFound = true; break; }
     }
     if (! matchFound) return nullVal;
     
@@ -233,10 +243,14 @@ public class PlanetDisplay {
   
   public DisplaySector selectedAt(Vector2 mousePos) {
     final int colourVal = colourSelectedAt(mousePos);
-    if (colourVal == 0) return null;
+    if (colourVal == 0) {
+      this.sectorKey = new Colour(0, 0, 0, 0);
+      return null;
+    }
     
     final Colour match = new Colour();
     match.setFromRGBA(colourVal);
+    this.sectorKey = match;
     
     //  Now, you need to get the closest match from all sectors...
     DisplaySector pick = null;
@@ -261,13 +275,13 @@ public class PlanetDisplay {
     */
   public void renderWith(Rendering rendering, Box2D bounds, Alphabet font) {
     
-    //final float r = (float) FastMath.toRadians(Rendering.activeTime() * 30);
-    rotation.idt();
-    rotation.scl(0.2f);  //TODO:  FIX THE RADIUS INSTEAD
-    //rotation.rot(Vector3.Y, r);
-    ///view.rotation = rendering.view.rotation;
+    rotation = (Rendering.activeTime() * 15) % 360;//  TODO:  Manual control!
     view.rotation = 90;
     view.update();
+    
+    final Matrix4 trans = new Matrix4().idt();
+    trans.scl(0.2f);  //TODO:  FIX THE RADIUS INSTEAD
+    trans.rotate(Vector3.Y, 0 - rotation);
     
     
     final Vec3D l = new Vec3D().set(-1, -1, -1).normalise();
@@ -275,20 +289,19 @@ public class PlanetDisplay {
     MeshPart p;
     
     shading.begin();
-    shading.setUniformMatrix("u_rotation", rotation);
+    shading.setUniformMatrix("u_rotation", trans);
     shading.setUniformMatrix("u_camera", view.camera.combined);
     
     shading.setUniformi("u_surfaceTex", 0);
     shading.setUniformi("u_sectorsTex", 1);
+    shading.setUniformi("u_sectorsMap", 2);
     shading.setUniform3fv("u_lightDirection", lightVals, 0, 3);
+    final Colour k = sectorKey;
+    shading.setUniformf("u_sectorKey", k.r, k.g, k.b, k.a);
     
     p = surfacePart.meshPart;
     surfaceTex.bind(0);
-    shading.setUniformi("u_surfacePass", GL11.GL_TRUE );
-    p.mesh.render(shading, p.primitiveType, p.indexOffset, p.numVertices);
-    
-    p = surfacePart.meshPart;
-    sectorsKeyTex.asTexture().bind(0);
+    sectorsKeyTex.asTexture().bind(2);
     shading.setUniformi("u_surfacePass", GL11.GL_TRUE );
     p.mesh.render(shading, p.primitiveType, p.indexOffset, p.numVertices);
     
@@ -301,11 +314,6 @@ public class PlanetDisplay {
   }
   
 }
-
-
-
-
-
 
 
 

@@ -245,7 +245,9 @@ public class ChartsPanel extends UIGroup {
     if (sector != null) {
       infoPanel.setText(sector.label+" "+sector.key());
     }
-    else infoPanel.setText("");
+    else {
+      infoPanel.setText("Mouse: "+UI.mousePos());
+    }
     //*/
   }
   
