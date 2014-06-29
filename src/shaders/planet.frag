@@ -1,13 +1,11 @@
 
 #version 120
 
-
-#define maxOverlays 8
-
-
-varying vec3 v_position;
-varying vec3 v_normal;
-varying vec2 v_texCoords0;
+uniform float u_screenX;
+uniform float u_screenY;
+uniform float u_screenWide;
+uniform float u_screenHigh;
+uniform float u_portalRadius;
 
 uniform bool u_surfacePass;
 uniform sampler2D u_surfaceTex;
@@ -17,10 +15,22 @@ uniform vec4 u_sectorKey;
 
 uniform vec3 u_lightDirection;
 
+varying vec3 v_position;
+varying vec3 v_normal;
+varying vec2 v_texCoords0;
+varying vec2 v_screenPos;
+
 
 
 
 void main() {
+  
+  vec2 dist = vec2(
+    (v_screenPos.x * u_screenWide) - u_screenX,
+    (v_screenPos.y * u_screenHigh) - u_screenY
+  );
+  if (length(dist) > u_portalRadius) discard;
+  
   vec4 color = vec4(0), over = vec4(1, 1, 1, 1);
   if (u_surfacePass) {
     vec4 key = texture2D(u_sectorsMap, v_texCoords0);

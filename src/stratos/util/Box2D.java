@@ -128,8 +128,8 @@ public class Box2D {
   }
   
   
-  public Vector2 centre() {
-    return new Vector2().set((xpos + xmax) / 2, (ypos + ymax) / 2) ;
+  public Vec2D centre() {
+    return new Vec2D().set((xpos + xmax) / 2, (ypos + ymax) / 2);
   }
   
   

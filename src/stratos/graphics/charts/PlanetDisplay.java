@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g3d.model.*;
 import com.badlogic.gdx.graphics.glutils.*;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+
 import org.apache.commons.math3.util.FastMath;
 
 
@@ -48,9 +49,6 @@ public class PlanetDisplay {
     }
     
     this.view = new Viewport();
-    view.elevation = 0;
-    view.rotation  = 0;
-    view.update();
   }
   
   
@@ -275,14 +273,13 @@ public class PlanetDisplay {
     */
   public void renderWith(Rendering rendering, Box2D bounds, Alphabet font) {
     
+    final float radius = 3.0f;  //  TODO:  FIX
     rotation = (Rendering.activeTime() * 15) % 360;//  TODO:  Manual control!
-    view.rotation = 90;
-    view.update();
+    view.updateForWidget(bounds, (radius * 2) + 0, 90, 0);
     
     final Matrix4 trans = new Matrix4().idt();
     trans.scl(0.2f);  //TODO:  FIX THE RADIUS INSTEAD
     trans.rotate(Vector3.Y, 0 - rotation);
-    
     
     final Vec3D l = new Vec3D().set(-1, -1, -1).normalise();
     final float lightVals[] = new float[] { l.x, l.y, l.z };
@@ -291,6 +288,15 @@ public class PlanetDisplay {
     shading.begin();
     shading.setUniformMatrix("u_rotation", trans);
     shading.setUniformMatrix("u_camera", view.camera.combined);
+    
+    final float SW = Gdx.graphics.getWidth(), SH = Gdx.graphics.getHeight();
+    final float portalSize = FastMath.min(bounds.xdim(), bounds.ydim());
+    final Vec2D centre = bounds.centre();
+    shading.setUniformf("u_portalRadius", portalSize / 2);
+    shading.setUniformf("u_screenX", centre.x - (SW / 2));
+    shading.setUniformf("u_screenY", centre.y - (SH / 2));
+    shading.setUniformf("u_screenWide", SW / 2);
+    shading.setUniformf("u_screenHigh", SH / 2);
     
     shading.setUniformi("u_surfaceTex", 0);
     shading.setUniformi("u_sectorsTex", 1);

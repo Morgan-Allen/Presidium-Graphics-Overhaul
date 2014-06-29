@@ -40,12 +40,21 @@ public class ChartsPanel extends UIGroup {
   
   final StarField starfield;
   final PlanetDisplay planet;
+  private UIGroup starfieldGroup, planetGroup;
   
   
   public ChartsPanel(HUD UI) {
     super(UI);
+    
     starfield = new StarField();
+    starfieldGroup = new UIGroup(UI);
+    starfieldGroup.relBound.set(0.25f, 0.5f, 0.5f, 0.5f);
+    starfieldGroup.attachTo(this);
+
     planet = new PlanetDisplay();
+    planetGroup = new UIGroup(UI);
+    planetGroup.relBound.set   (0.25f, 0.0f, 0.5f, 0.5f);
+    planetGroup.attachTo(this);
     
     hoverImage = new Image(UI, SELECT_CIRCLE);
     selectImage = new Image(UI, SELECT_CIRCLE);
@@ -233,7 +242,6 @@ public class ChartsPanel extends UIGroup {
   private void updateSectorSelection() {
     /*
     final Vec3D surfacePos = planet.surfacePosition(UI.mousePos());
-    
     final int colourVal = planet.colourSelectedAt(UI.mousePos());
     infoPanel.setText(
       "Surface position: "+surfacePos+
@@ -272,10 +280,11 @@ public class ChartsPanel extends UIGroup {
     glEnable(GL10.GL_BLEND);
     glDepthMask(true);
     
+    final Box2D planetBounds = planetGroup.trueBounds();
+    planet.renderWith(UI.rendering, planetBounds, UIConstants.INFO_FONT);
     
-    planet.renderWith(UI.rendering, trueBounds(), UIConstants.INFO_FONT);
-    
-    //starfield.renderWith(UI.rendering, trueBounds(), UIConstants.INFO_FONT);
+    final Box2D fieldBounds = starfieldGroup.trueBounds();
+    starfield.renderWith(UI.rendering, fieldBounds, UIConstants.INFO_FONT);
     
     glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
     glDepthMask(false);

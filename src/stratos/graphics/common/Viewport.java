@@ -44,28 +44,62 @@ public class Viewport {
   
   /**  Matrix updates-
     */
+  //
+  //  Modifies translation and screen scale for the purpose of fitting within
+  //  a UI widget's rendering area-
+  public void updateForWidget(
+    Box2D area, float maxField,
+    float rotDegrees, float elevDegrees
+  ) {
+    final float
+      wide = Gdx.graphics.getWidth (),
+      high = Gdx.graphics.getHeight();
+    final Vec2D
+      midArea = area.centre(),
+      midScreen = new Vec2D(wide, high).scale(0.5f);
+    
+    final float spanX = wide / DEFAULT_SCALE, spanY = high / DEFAULT_SCALE;
+    zoomLevel = FastMath.min(
+      (spanX / maxField) * area.xdim() / wide,
+      (spanY / maxField) * area.ydim() / high
+    );
+    rotation = rotDegrees;
+    elevation = elevDegrees;
+    
+    final Vector3 trans = new Vector3(
+      0,
+      midArea.y - midScreen.y,
+      midArea.x - midScreen.x
+    );
+    trans.rotate(Vector3.Z, 0 - elevation);
+    trans.rotate(Vector3.Y, rotation);
+    
+    trans.scl(-1f / screenScale());
+    GLToWorld(trans, lookedAt);
+    update();
+  }
+  
+  
   public void update() {
     final float
       wide = Gdx.graphics.getWidth (),
       high = Gdx.graphics.getHeight();
     final float screenScale = screenScale();
     camera.setToOrtho(false, wide / screenScale, high / screenScale);
+
+    worldToGL(lookedAt, temp);
+    camera.position.set(temp);
     
     final float
       ER  = (float) FastMath.toRadians(elevation),
       opp = (float) FastMath.sin(ER) * 100,
       adj = (float) FastMath.cos(ER) * 100;
-    
-    camera.position.set(adj, opp, 0);
-    temp.set(0, 0, 0);
+    camera.position.add(adj, opp, 0);
     camera.lookAt(temp);
-    
     camera.rotateAround(temp, Vector3.Y, 180 + rotation);
+    
     camera.near = 0.1f;
     camera.far = 200.1f;
-    
-    worldToGL(lookedAt, temp);
-    camera.position.add(temp);
     camera.update();
     
     translateToScreen  (originWtS.set(0, 0, 0));

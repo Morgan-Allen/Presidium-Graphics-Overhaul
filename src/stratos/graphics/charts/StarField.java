@@ -37,9 +37,6 @@ public class StarField {
   
   public StarField() {
     view = new Viewport();
-    view.elevation = 0;
-    view.rotation  = 90;
-    view.update();
     
     //  NOTE:  The normal attribute here is actually used to store the offset
     //  of a corner from the given decal's coordinate centre (see below).
@@ -201,36 +198,28 @@ public class StarField {
   public void renderWith(
     Rendering rendering, Box2D bounds, Alphabet forLabels
   ) {
-    final float SW = Gdx.graphics.getWidth(), SH = Gdx.graphics.getHeight();
     final float time = Rendering.activeTime();
-    view.rotation = (90 + (time * 15)) % 360;
-    view.update();
-    final Matrix4 rotation = new Matrix4().idt();
-    
-    shading.begin();
-    shading.setUniformi("u_texture", 0);
-    shading.setUniformMatrix("u_rotation", rotation);
-    shading.setUniformf("u_portalRadius", fieldSize * view.screenScale() / 2);
-    shading.setUniformf("u_screenWide", SW);
-    shading.setUniformf("u_screenHigh", SH);
-    shading.setUniformMatrix("u_camera", view.camera.combined);
+    view.updateForWidget(bounds, fieldSize, (90 + (time * 15)) % 360, 0);
     
     glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
     glDepthMask(false);
     
-    //  TODO:  Depth sorting for labels might have to be worked out too (bind
-    //  to a separate texture, maybe?)
-    //  TODO:  If you want to combine axis-rendering with normal blending
-    //  functions, translucency and a depth-sort, then you'll have to partition
-    //  the field objects into quadrants first.  (Either 2, 4 or 8, depending
-    //  on how many axes you render.)
+    shading.begin();
+    shading.setUniformi("u_texture", 0);
+    shading.setUniformMatrix("u_rotation", new Matrix4().idt());
+    shading.setUniformMatrix("u_camera", view.camera.combined);
+
+    final float SW = Gdx.graphics.getWidth(), SH = Gdx.graphics.getHeight();
+    final float portalSize = FastMath.min(bounds.xdim(), bounds.ydim());
+    final Vec2D centre = bounds.centre();
+    shading.setUniformf("u_portalRadius", portalSize / 2);
+    shading.setUniformf("u_screenX", centre.x - (SW / 2));
+    shading.setUniformf("u_screenY", centre.y - (SH / 2));
+    shading.setUniformf("u_screenWide", SW / 2);
+    shading.setUniformf("u_screenHigh", SH / 2);
+    
     renderLabels(forLabels);
     renderSectorsAndAxes();
-    
-    for (FieldObject o : allObjects) {
-      o.depth = view.screenDepth(o.coordinates);
-    }
-    allObjects.queueSort();
 
     Texture lastTex = null;
     float piece[] = new float[compiled.vertexSize];
@@ -298,7 +287,7 @@ public class StarField {
   }
   
   
-  public void renderLabels(Alphabet font) {
+  private void renderLabels(Alphabet font) {
 
     final float SW = Gdx.graphics.getWidth(), SH = Gdx.graphics.getHeight();
     final float piece[] = new float[compiled.vertexSize];
@@ -314,7 +303,6 @@ public class StarField {
 
       final Vec3D v = o.coordinates;
       pos.set(v.x, v.y, v.z);
-      //Viewport.worldToGL(o.coordinates, pos);
       float
         x = 2 * Label.phraseWidth(o.label, font, 1.0f) / (SW * -2),
         y = 2 * (0 - font.letterFor(' ').height * 2) / SH;
@@ -357,26 +345,5 @@ public class StarField {
     compiled.appendVertex(piece);
   }
 }
-
-
-
-
-/*
-a *= 2;
-
-appendVertex(piece, new Vector3(-a, -a, 0), 0, 0, fade, 0, 1);
-appendVertex(piece, new Vector3(-a,  a, 0), 0, 0, fade, 0, 0);
-appendVertex(piece, new Vector3( a, -a, 0), 0, 0, fade, 1, 1);
-appendVertex(piece, new Vector3( a,  a, 0), 0, 0, fade, 1, 0);
-
-appendVertex(piece, new Vector3(0, -a, -a), 0, 0, fade, 0, 1);
-appendVertex(piece, new Vector3(0, -a,  a), 0, 0, fade, 0, 0);
-appendVertex(piece, new Vector3(0,  a, -a), 0, 0, fade, 1, 1);
-appendVertex(piece, new Vector3(0,  a,  a), 0, 0, fade, 1, 0);
-
-axisTex.bind(0);
-compiled.renderWithShader(shading, true);
-//*/
-
 
 

@@ -13,6 +13,7 @@ uniform mat4 u_camera;
 varying vec2 v_texCoords0;
 varying vec3 v_position;
 varying vec3 v_normal;
+varying vec2 v_screenPos;
 
 
 
@@ -26,7 +27,9 @@ void main() {
 	
   v_normal = normalize((transform * vec4(a_normal, 0.0)).xyz);
 	pos = transform * pos;
+  
 	gl_Position = u_camera * pos;
+	v_screenPos = gl_Position.xy;
 }
 
   

@@ -5,7 +5,8 @@
 
 uniform sampler2D u_texture;
 
-
+uniform float u_screenX;
+uniform float u_screenY;
 uniform float u_screenWide;
 uniform float u_screenHigh;
 uniform float u_portalRadius;
@@ -15,12 +16,11 @@ varying vec2 v_texCoords0;
 varying vec2 v_screenPos;
 
 
-//  TODO:  Implement portal exclusion!  (Also view offset.)
 
 void main() {
   vec2 dist = vec2(
-    v_screenPos.x * u_screenWide / 2,
-    v_screenPos.y * u_screenHigh / 2
+    (v_screenPos.x * u_screenWide) - u_screenX,
+    (v_screenPos.y * u_screenHigh) - u_screenY
   );
   if (length(dist) > u_portalRadius) discard;
   
@@ -37,5 +37,4 @@ void main() {
   
   gl_FragColor = color;
 }
-
 
