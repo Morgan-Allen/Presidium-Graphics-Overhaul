@@ -1,6 +1,5 @@
 
 
-
 package stratos.graphics.charts;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
@@ -19,14 +18,25 @@ import org.apache.commons.math3.util.FastMath;
 
 
 
+//  TODO:
+//  *  Add labels to each sector.
+//  *  Unify selection functions with the starfield results.
+
+//  *  Update the info-panel layout, plus bordering/skins.
+//  *  Add suitable control widgets, and add to the main user-interface.
+
+
+
+
 public class PlanetDisplay {
   
   
+  final static int DEFAULT_RADIUS = 10;
   private static boolean verbose = false;
   
   final ShaderProgram shading;
   final Viewport view;
-  private float rotation = 0;
+  private float rotation = 0, radius = DEFAULT_RADIUS;
   
   SolidModel globeModel;
   NodePart surfacePart, sectorsPart;
@@ -36,6 +46,10 @@ public class PlanetDisplay {
   final List <DisplaySector> sectors = new List <DisplaySector> ();
   private Colour sectorKey;
   private Vec3D surfacePos;
+  
+  //  TODO:  I am likely to need hover and select functions for sectors.
+  //  ...Well, I have some of that already.  No big deal?
+  
   
   
   
@@ -113,8 +127,8 @@ public class PlanetDisplay {
     final int
       partFaces = part.numVertices / 3,
       meshFaces = part.mesh.getNumIndices() / 3,
-      vertSize = 3 + 3 + 2 + 2,  //position, normal, tex coord and bone weight.
-      offset   = part.indexOffset / vertSize;
+      vertSize  = 3 + 3 + 2 + 2,  //position, normal, tex coord and bone weight.
+      offset    = part.indexOffset / vertSize;
     if (verbose) {
       I.say("PART FACES: "+partFaces+", MESH FACES: "+meshFaces);
       I.say("Vertex Size: "+vertSize+", index offset: "+offset);
@@ -122,9 +136,9 @@ public class PlanetDisplay {
     //
     //  Secondly, retrieve the data, and set up structures for receipt after
     //  processing.
-    float vertData[] = new float[partFaces * 3 * vertSize];
-    part.mesh.getVertices(part.indexOffset, vertData.length, vertData);
+    final float vertData[] = new float[meshFaces * 3 * vertSize];
     final short indices[] = new short[meshFaces * 3];
+    part.mesh.getVertices(vertData);
     part.mesh.getIndices(indices);
     Vec3D tempV[] = new Vec3D[3];
     Vec2D tempT[] = new Vec2D[3];
@@ -133,8 +147,10 @@ public class PlanetDisplay {
     //  Finally, extract the vertex and tex-coord data, calculate edge and
     //  edge-normal vectors, and cache them for later reference-
     for (int n = 0; n < partFaces; n++) {
-      for (int i = 3; i-- > 0;) {
-        final int off = (indices[offset + (n * 3) + i] - offset) * vertSize;
+      for (int i = 0; i < 3; i++) {
+        final int index = indices[offset + (n * 3) + i];
+        if (verbose) I.say("  Face/corner: "+n+"/"+i+", index is: "+index);
+        final int off = index * vertSize;
         //
         final Vec3D c = tempV[i] = new Vec3D();
         c.set(vertData[off + 0], vertData[off + 1], vertData[off + 2]);
@@ -150,9 +166,9 @@ public class PlanetDisplay {
       f.e21 = f.c2.sub(f.c1, null);
       f.e32 = f.c3.sub(f.c2, null);
       f.e13 = f.c1.sub(f.c3, null);
-      f.n21 = f.c2.cross(f.c1, null);
-      f.n32 = f.c3.cross(f.c2, null);
-      f.n13 = f.c1.cross(f.c3, null);
+      f.n21 = f.c2.cross(f.c1, null).normalise();
+      f.n32 = f.c3.cross(f.c2, null).normalise();
+      f.n13 = f.c1.cross(f.c3, null).normalise();
       //
       f.d1 = f.n32.dot(f.e21);
       f.d2 = f.n13.dot(f.e32);
@@ -190,8 +206,6 @@ public class PlanetDisplay {
   public Vec3D surfacePosition(Vector2 mousePos) {
     
     final Vec3D centre = new Vec3D(0, 0, 0);
-    float radius = 3.0f;  //  TODO:  ESTABLISH IN SHADER
-    
     final Vec3D screenPos = new Vec3D(centre);
     view.translateGLToScreen(screenPos);
     final float
@@ -268,17 +282,31 @@ public class PlanetDisplay {
   }
   
   
+  public DisplaySector sectorLabelled(String label) {
+    for (DisplaySector sector : sectors) if (sector.label != null) {
+      if (sector.label.equals(label)) return sector;
+    }
+    return null;
+  }
+  
+  
+  public Vec3D screenPosition(DisplaySector sector, Vec3D put) {
+    if (put == null) put = new Vec3D();
+    //  TODO:  Refine this.
+    put.set(0, 0, 0);
+    view.translateGLToScreen(put);
+    return put;
+  }
+  
   
   /**  Render methods and helper functions-
     */
   public void renderWith(Rendering rendering, Box2D bounds, Alphabet font) {
     
-    final float radius = 3.0f;  //  TODO:  FIX
     rotation = (Rendering.activeTime() * 15) % 360;//  TODO:  Manual control!
     view.updateForWidget(bounds, (radius * 2) + 0, 90, 0);
     
     final Matrix4 trans = new Matrix4().idt();
-    trans.scl(0.2f);  //TODO:  FIX THE RADIUS INSTEAD
     trans.rotate(Vector3.Y, 0 - rotation);
     
     final Vec3D l = new Vec3D().set(-1, -1, -1).normalise();
@@ -286,6 +314,7 @@ public class PlanetDisplay {
     MeshPart p;
     
     shading.begin();
+    shading.setUniformf("u_globeRadius", radius);
     shading.setUniformMatrix("u_rotation", trans);
     shading.setUniformMatrix("u_camera", view.camera.combined);
     
@@ -311,10 +340,14 @@ public class PlanetDisplay {
     shading.setUniformi("u_surfacePass", GL11.GL_TRUE );
     p.mesh.render(shading, p.primitiveType, p.indexOffset, p.numVertices);
     
+    //  TODO:  Probably get rid of this.  It doesn't look good.  Use a separate
+    //  pass to render sector outlines instead.
+    /*
     p = sectorsPart.meshPart;
     sectorsTex.bind(1);
     shading.setUniformi("u_surfacePass", GL11.GL_FALSE);
     p.mesh.render(shading, p.primitiveType, p.indexOffset, p.numVertices);
+    //*/
     
     shading.end();
   }

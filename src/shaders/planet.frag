@@ -1,6 +1,8 @@
 
 #version 120
 
+#define M_PI 3.1415926535897932384626433832795
+
 uniform float u_screenX;
 uniform float u_screenY;
 uniform float u_screenWide;
@@ -8,6 +10,8 @@ uniform float u_screenHigh;
 uniform float u_portalRadius;
 
 uniform bool u_surfacePass;
+uniform float u_globeRadius;
+
 uniform sampler2D u_surfaceTex;
 uniform sampler2D u_sectorsTex;
 uniform sampler2D u_sectorsMap;
@@ -35,7 +39,6 @@ void main() {
   if (u_surfacePass) {
     vec4 key = texture2D(u_sectorsMap, v_texCoords0);
     color += texture2D(u_surfaceTex, v_texCoords0);
-    if (key == u_sectorKey) color = mix(color, over, 0.5);
     
     vec3 lightVal = vec3(1, 1, 1);
     float dotVal = dot(-u_lightDirection, v_normal);
@@ -44,11 +47,22 @@ void main() {
     
     lightVal *= dotVal;
     color.rgb *= lightVal;
+    
+    if (key == u_sectorKey) {
+      color.rgb += over.rgb * 0.25f;
+      //color = mix(color, over, 0.5);
+    }
   }
   else {
-    color += texture2D(u_sectorsTex, v_texCoords0);
-    color.a = (color.r + color.g + color.b) / 3;
-    color = mix(color, vec4(1, 1, 1, 0), 0.5);
+    float angle = asin(v_position.x / length(v_position.xz));
+    if (v_position.x < 0) angle += M_PI;
+    vec2 texCoord = vec2(
+      mod(angle / M_PI, 1),
+      (1 + (v_position.y / u_globeRadius)) / 2
+    );
+    color += texture2D(u_sectorsTex, texCoord);
+    color.a = (color.r + color.g + color.b) * 0.5f / 3;
+    color.rgb = vec3(1, 1, 1);
   }
 	
   gl_FragColor = color;

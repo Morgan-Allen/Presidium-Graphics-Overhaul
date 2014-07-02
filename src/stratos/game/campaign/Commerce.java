@@ -29,8 +29,8 @@ public class Commerce implements Economy {
   
   
   final Base base;
-  System homeworld;
-  final List <System> partners = new List <System> ();
+  Sector homeworld;
+  final List <Sector> partners = new List <Sector> ();
   
   final static int NUM_J = Backgrounds.ALL_BACKGROUNDS.length;
   final float
@@ -64,9 +64,9 @@ public class Commerce implements Economy {
   public void loadState(Session s) throws Exception {
     
     final int hID = s.loadInt() ;
-    homeworld = hID == -1 ? null : (System) Backgrounds.ALL_BACKGROUNDS[hID] ;
+    homeworld = hID == -1 ? null : (Sector) Backgrounds.ALL_BACKGROUNDS[hID] ;
     for (int n = s.loadInt() ; n-- > 0 ;) {
-      partners.add((System) Backgrounds.ALL_BACKGROUNDS[s.loadInt()]) ;
+      partners.add((Sector) Backgrounds.ALL_BACKGROUNDS[s.loadInt()]) ;
     }
     
     for (int i = NUM_J ; i-- > 0 ;) {
@@ -92,7 +92,7 @@ public class Commerce implements Economy {
     
     s.saveInt(homeworld == null ? -1 : homeworld.ID) ;
     s.saveInt(partners.size()) ;
-    for (System p : partners) s.saveInt(p.ID) ;
+    for (Sector p : partners) s.saveInt(p.ID) ;
     
     for (int i = NUM_J ; i-- > 0 ;) {
       s.saveFloat(jobSupply[i]) ;
@@ -113,18 +113,18 @@ public class Commerce implements Economy {
   }
   
   
-  public void assignHomeworld(System s) {
+  public void assignHomeworld(Sector s) {
     homeworld = s ;
     togglePartner(s, true) ;
   }
   
   
-  public System homeworld() {
+  public Sector homeworld() {
     return homeworld ;
   }
   
   
-  public void togglePartner(System s, boolean is) {
+  public void togglePartner(Sector s, boolean is) {
     if (is) {
       partners.include(s) ;
     }
@@ -135,7 +135,7 @@ public class Commerce implements Economy {
   }
   
   
-  public List <System> partners() {
+  public List <Sector> partners() {
     return partners ;
   }
   
@@ -310,7 +310,7 @@ public class Commerce implements Economy {
         importMul = 2 + (shortages.amountOf(type) / 1000f),
         exportDiv = 2 + (surpluses.amountOf(type) / 1000f) ;
       
-      for (System system : partners) {
+      for (Sector system : partners) {
         if (Visit.arrayIncludes(system.goodsMade, type)) {
           basePrice *= 0.75f ;
           if (system == homeworld) importMul /= 1.50f ;

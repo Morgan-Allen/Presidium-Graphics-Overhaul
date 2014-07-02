@@ -9,7 +9,7 @@
 package stratos.game.actors ;
 import stratos.game.building.*;
 import stratos.game.common.*;
-import stratos.game.campaign.System;
+import stratos.game.campaign.*;
 import stratos.util.*;
 
 
@@ -118,7 +118,7 @@ public class Career implements Qualities {
     subject = actor;
     
     applyBackgrounds(actor);
-    applySystem((System) homeworld, actor);
+    applySystem((Sector) homeworld, actor);
     applySex(actor);
     setupAttributes(actor);
     fillPersonality(actor);
@@ -167,11 +167,11 @@ public class Career implements Qualities {
     }
     if (homeworld == null) {
       final Batch <Float> weights = new Batch <Float> () ;
-      for (Background v : Backgrounds.ALL_PLANETS) {
+      for (Background v : Sectors.ALL_PLANETS) {
         weights.add(ratePromotion(root, actor)) ;
       }
       homeworld = (Background) Rand.pickFrom(
-        Backgrounds.ALL_PLANETS, weights.toArray()
+        Sectors.ALL_PLANETS, weights.toArray()
       ) ;
     }
     applyVocation(homeworld, actor) ;
@@ -232,7 +232,7 @@ public class Career implements Qualities {
   
   //
   //  TODO:  Try incorporating these trait-FX into the rankings first.
-  private void applySystem(System world, Actor actor) {
+  private void applySystem(Sector world, Actor actor) {
     //
     //  Assign skin texture based on prevailing climate-
     //  TODO:  Blend these a bit more, once you have the graphics in order.

@@ -5,12 +5,15 @@
 <sectorImage name="chart_sectors.png" size="10.0"/>
 <axisImage name="sky_axis.png" size="5.0"/>
 
-<starTypes>
+<logoTypes>
   <type name="Class A"  imgU="0"  imgV="4"/>
   <type name="Class B"  imgU="0"  imgV="4"/>
   <type name="Class C"  imgU="0"  imgV="4"/>
   <type name="Class D"  imgU="0"  imgV="4"/>
-</starTypes>
+  
+  <type name="Selected"   imgU="4"  imgV="3"/>
+  <type name="Formation"  imgU="4"  imgV="4"/>
+</logoTypes>
 
 
 <systems>

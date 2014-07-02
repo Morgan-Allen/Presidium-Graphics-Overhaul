@@ -6,7 +6,10 @@ import stratos.game.actors.* ;
 import stratos.game.building.* ;
 import stratos.game.common.* ;
 import stratos.game.maps.*;
-import static stratos.game.actors.Backgrounds.*;
+
+import static stratos.game.actors.Backgrounds.*;  //  TODO:  Work on this.
+import stratos.game.campaign.Sectors;
+
 import stratos.graphics.common.* ;
 import stratos.graphics.cutout.* ;
 import stratos.graphics.widgets.* ;
@@ -225,7 +228,7 @@ public class NativeHut extends Venue {
   public static Batch <Actor> populateHut(NativeHut hut, NativeHall parent) {
     final Batch <Actor> populace = new Batch <Actor> ();
     final World world = hut.world() ;
-    final Background NB = NATIVE_BIRTH, NH = PLANET_DIAPSOR ;
+    final Background NB = NATIVE_BIRTH, NH = Sectors.PLANET_DIAPSOR;
     Background cleric = Backgrounds.SHAMAN ;
     /*
     if (parent.tribeID == TRIBE_WASTES || Rand.index(5) == 0) {

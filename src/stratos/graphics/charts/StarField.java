@@ -26,6 +26,7 @@ public class StarField {
   
   final Viewport view;
   final List <FieldObject> allObjects;
+  private FieldObject selectCircle;
   
   private Texture sectorsTex, axisTex;
   private float fieldSize;

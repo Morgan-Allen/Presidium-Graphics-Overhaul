@@ -1,0 +1,27 @@
+
+
+
+<globeModel name="Planet5.ms3d" />
+<surfaceTex name="planet_5_skin_new.png" />
+<sectorsTex name="planet_grid_skin.png" />
+<sectorKeys name="planet_5_sector_keys.png" />
+
+
+<sectors>
+  
+  <sector
+    name="Pavonis Sector"
+    R="0" G="0.75" B="0"
+  />
+  
+  <sector
+    name="Terra Sector"
+    R="0.75" G="0" B="0.75"
+  />
+  
+  <sector
+    name="Elysium Sector"
+    R="0" G="0" B="0.75"
+  />
+  
+</sectors>

@@ -7,7 +7,7 @@
 
 package stratos.game.actors;
 import stratos.game.building.*;
-import stratos.game.campaign.System;
+import stratos.game.campaign.Sector;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.util.*;

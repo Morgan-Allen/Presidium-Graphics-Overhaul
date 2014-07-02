@@ -5,7 +5,7 @@ import stratos.game.actors.*;
 import stratos.game.campaign.*;
 import static stratos.game.campaign.StartupScenario.*;
 import static stratos.game.actors.Backgrounds.*;
-import stratos.game.campaign.System;
+import stratos.game.campaign.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.start.*;
@@ -83,9 +83,9 @@ public class MainMenu extends UIGroup {
     
     text.append("\n  House:") ;
     I.say("  HOUSE IS: "+config.house);
-    if (config.house == null) config.house = Backgrounds.ALL_PLANETS[0];
-    for (Background b : Backgrounds.ALL_PLANETS) {
-      final System s = (System) b ;
+    if (config.house == null) config.house = Sectors.ALL_PLANETS[0];
+    for (Background b : Sectors.ALL_PLANETS) {
+      final Sector s = (Sector) b ;
       final Colour c = config.house == s ? Colour.CYAN : null ;
       Call.add("\n    "+s.houseName, c, this, "setHouse", text, s) ;
     }

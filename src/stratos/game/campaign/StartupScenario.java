@@ -189,7 +189,7 @@ public class StartupScenario extends Scenario {
     }
     base.incCredits(funding) ;
     base.setInterestPaid(interest) ;
-    base.commerce.assignHomeworld((System) config.house) ;
+    base.commerce.assignHomeworld((Sector) config.house) ;
     return base ;
   }
   

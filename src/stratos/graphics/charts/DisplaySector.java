@@ -8,6 +8,8 @@ import stratos.graphics.common.*;
 //  TODO:  Is this class even necessary?  There's a lot less data associated
 //  than for starfield objects.
 
+//  TODO:  Try unifying with the FieldObject class?  Maybe?
+
 public class DisplaySector {
   
   

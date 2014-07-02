@@ -4,6 +4,7 @@ package stratos.game.campaign;
 import stratos.game.common.*;
 import stratos.util.*;
 import static stratos.game.actors.Backgrounds.*;
+import static stratos.game.campaign.Sectors.*;
 
 
 

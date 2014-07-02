@@ -2,25 +2,19 @@
 
 
 package stratos.user;
-import stratos.game.actors.Backgrounds;
-import stratos.game.campaign.System;
-//import stratos.game.campaign.*;
+import stratos.game.campaign.*;
 import stratos.graphics.solids.*;
 import stratos.graphics.widgets.*;
 import stratos.graphics.charts.*;
 import stratos.graphics.common.*;
-//import stratos.start.DebugCharts;
 import stratos.util.*;
-import static stratos.graphics.common.GL.*;
 
+import static stratos.graphics.common.GL.*;
 import com.badlogic.gdx.graphics.*;
-//import com.badlogic.gdx.graphics.g2d.*;
-//import com.badlogic.gdx.math.Vector2;
 
 
 
 //  TODO:  This should include an InfoPanel of some kind.
-//  Consider supplying the axis and sector images directly(?)
 
 public class ChartsPanel extends UIGroup {
   
@@ -36,7 +30,7 @@ public class ChartsPanel extends UIGroup {
   //  TODO:  The info panel must be re-sized for this.  REPLACE
   Text infoPanel;
   
-  private System hoverFocus, selectFocus;
+  private Sector hoverFocus, selectFocus;
   
   final StarField starfield;
   final PlanetDisplay planet;
@@ -77,26 +71,45 @@ public class ChartsPanel extends UIGroup {
   
   /**  Method for loading sector display information from external XML:
     */
-  final static SolidModel PLANET_MODEL = MS3DModel.loadFrom(
-    "media/Charts/", "Planet.ms3d",
-    ChartsPanel.class, null, null
-  );
-  final static ImageAsset
-    PLANET_SKIN = ImageAsset.fromImage(
-      "media/Charts/planet_skin.png", ChartsPanel.class
-    ),
-    SECTOR_KEYS = ImageAsset.fromImage(
-      "media/Charts/sector_keys.png", ChartsPanel.class
-    );
-  
-  //  TODO:  This is just a dummy method at the moment, more or less.  Fill in.
   public void loadPlanet(String path, String file) {
-    final Texture tex = PLANET_SKIN.asTexture();
-    planet.attachModel(PLANET_MODEL, tex, tex, SECTOR_KEYS);
-    planet.attachSector("Terra Sector"  , Colour.MAGENTA);
-    planet.attachSector("Elysium Sector", Colour.BLUE   );
-    planet.attachSector("Pavonis Sector", Colour.GREEN  );
+    final XML xml = XML.load(path+file);
+    
+    final XML
+      modelNode   = xml.child("globeModel"),
+      surfaceNode = xml.child("surfaceTex"),
+      sectorsNode = xml.child("sectorsTex"),
+      keysNode    = xml.child("sectorKeys");
+    
+    final MS3DModel globeModel = MS3DModel.loadFrom(
+      path, modelNode.value("name"), ChartsPanel.class, null, null
+    );
+    final ImageAsset sectorKeys = ImageAsset.fromImage(
+      path + keysNode.value("name"), ChartsPanel.class
+    );
+    Assets.loadNow(globeModel);
+    Assets.loadNow(sectorKeys);
+    final String
+      surfaceFile = path + surfaceNode.value("name"),
+      sectorsFile = path + sectorsNode.value("name");
+    final Texture
+      surfaceTex = ImageAsset.getTexture(surfaceFile),
+      sectorsTex = ImageAsset.getTexture(sectorsFile);
+    
+    planet.attachModel(globeModel, surfaceTex, sectorsTex, sectorKeys);
+    
+    final XML sectors = xml.child("sectors");
+    for (XML sector : sectors.children()) {
+      final String name = sector.value("name");
+      final Colour key = new Colour().set(
+        sector.getFloat("R"),
+        sector.getFloat("G"),
+        sector.getFloat("B"),
+        1
+      );
+      planet.attachSector(name, key);
+    }
   }
+  
   
   
   /**  Method for loading object coordinates from an external XML file:
@@ -125,19 +138,20 @@ public class ChartsPanel extends UIGroup {
     final float
       fieldSize = chartNode.getFloat("size");
     
-    starfield.setupWith(chartImg, axisImg, fieldSize);
-    
     //  Then, load up the array of different star types and the specific
     //  systems associated-
-    final Table <String, int[]> starImages = new Table <String, int[]> ();
-    for (XML type : xml.child("starTypes").children()) {
+    final Table <String, int[]> logoImages = new Table <String, int[]> ();
+    for (XML type : xml.child("logoTypes").children()) {
       final String name = type.value("name");
       final int coords[] = new int[] {
         type.getInt("imgU"),
         type.getInt("imgV")
       };
-      starImages.put(name, coords);
+      logoImages.put(name, coords);
     }
+    
+    final int selectCoords[] = logoImages.get("Selected");  //TODO:  USE
+    starfield.setupWith(chartImg, axisImg, fieldSize);
     
     final XML systems = xml.child("systems");
     for (XML system : systems.children()) {
@@ -156,7 +170,7 @@ public class ChartsPanel extends UIGroup {
         0.67f, 0, 100 * 0.67f, position
       );
       
-      final int starImg[] = starImages.get(type);
+      final int starImg[] = logoImages.get(type);
       starfield.addFieldObject(
         image, name,
         gridW, gridH, starImg[0], starImg[1],
@@ -165,7 +179,7 @@ public class ChartsPanel extends UIGroup {
     }
     
     final int[][] starTypes = new int[1][];
-    for (int[] type : starImages.values()) { starTypes[0] = type; break; }
+    for (int[] type : logoImages.values()) { starTypes[0] = type; break; }
     starfield.addRandomScatter(image, gridW, gridH, starTypes, 10, 1);
   }
   
@@ -173,24 +187,44 @@ public class ChartsPanel extends UIGroup {
   
   /**  Updates the currently hovered and selected field object:
     */
-  private void updateFieldSelection() {
+  private Sector hoveredSystem() {
+    final FieldObject fieldPick = starfield.selectedAt(UI.mousePos());
+    final DisplaySector dispPick = planet.selectedAt(UI.mousePos());
+    
+    final String label;
+    if      (fieldPick != null) label = fieldPick.label;
+    else if (dispPick  != null) label = dispPick.label;
+    else                        label = "";
+    
+    for (Sector system : Sectors.ALL_SECTORS) {
+      if (label.equals(system.name)) {
+        return system;
+      }
+    }
+    return null;
+  }
+  
+  
+  //  TODO:  I'm going to have to implement separate selection/highlighting
+  //  functions here, aren't I?  Use that instead.
+  private Vec3D screenPosition(Sector system) {
+    if (system == null) return null;
+    final FieldObject fieldMatch = starfield.objectLabelled(system.name);
+    if (fieldMatch != null) return starfield.screenPosition(fieldMatch, null);
+    
+    final DisplaySector dispMatch = planet.sectorLabelled(system.name);
+    if (dispMatch != null) return planet.screenPosition(dispMatch, null);
+    
+    return null;
+  }
+  
+  
+  private void updateHovered() {
     //
     //  First, we determine which field object (if any) the user is currently
     //  hovering over.
-    FieldObject picked = starfield.selectedAt(UI.mousePos());
-    final String label = picked == null ? "" : picked.label;
-    
-    final System oldHover = this.hoverFocus, oldSelect = this.selectFocus;
-    System newFocus = null, newSelect = oldSelect;
-    
-    for (System system : Backgrounds.ALL_PLANETS) {
-      if (label.equals(system.name)) {
-        newFocus = system;
-      }
-    }
-    if (picked != null && newFocus == null) {
-      I.say("WARNING:  No system with name: "+picked.label);
-    }
+    final Sector oldHover = this.hoverFocus;//, oldSelect = this.selectFocus;
+    Sector newFocus = hoveredSystem();//, newSelect = oldSelect;
     //
     //  Then, update the current hover-focus, along with appropriate fade-in
     //  for the associated image-
@@ -198,39 +232,43 @@ public class ChartsPanel extends UIGroup {
       this.hoverFocus = newFocus;
       hoverImage.relAlpha = 0;
     }
-    if (hoverFocus != null && hoverFocus != selectFocus) {
-      final Vec3D screenPos = new Vec3D();
-      starfield.screenPosition(picked, screenPos);
-      final float size = picked.radius(), hS = size / 2;
+    final Vec3D hoverPos = screenPosition(hoverFocus);
+    if (hoverPos != null && hoverFocus != selectFocus) {
+      final float size = 60, hS = size / 2;  //  TODO:  REPLACE THIS
       hoverImage.hidden = false;
-      hoverImage.absBound.set(screenPos.x - hS, screenPos.y - hS, size, size);
+      hoverImage.absBound.set(hoverPos.x - hS, hoverPos.y - hS, size, size);
       
       hoverImage.relAlpha = Visit.clamp(
         hoverImage.relAlpha + (1f / Rendering.FRAMES_PER_SECOND), 0, 0.5f
       );
-      if (UI.mouseClicked()) newSelect = newFocus;
+      //if (UI.mouseClicked()) newSelect = newFocus;
     }
     else {
       hoverImage.hidden = true;
     }
+  }
+  
+  
+  private void updateSelected() {
+    final Sector oldSelect = this.selectFocus, newSelect = hoverFocus;
     //
     //  Then, if the user has clicked on their current focus, we make it the
     //  current selection-
-    if (oldSelect != newSelect) {
+    if (oldSelect != newSelect && UI.mouseClicked()) {
       this.selectFocus = newSelect;
       selectImage.relAlpha = 0.0f;
-      if (selectFocus != null) infoPanel.setText(hoverFocus.description);
+      if (selectFocus != null) {
+        infoPanel.setText(hoverFocus.name+"\n\n");
+        infoPanel.append(hoverFocus.description);
+      }
       else infoPanel.setText("");
     }
-    if (selectFocus != null) {
-      final FieldObject match = starfield.objectLabelled(selectFocus.name);
-      
-      final Vec3D screenPos = new Vec3D();
-      starfield.screenPosition(match, screenPos);
-      final float size = match.radius(), hS = size / 2;
+    final Vec3D selectPos = screenPosition(selectFocus);
+    if (selectPos != null) {
+      final float size = 60, hS = size / 2;  //  TODO:  REPLACE THIS
       selectImage.hidden = false;
-      selectImage.absBound.set(screenPos.x - hS, screenPos.y - hS, size, size);
-
+      selectImage.absBound.set(selectPos.x - hS, selectPos.y - hS, size, size);
+      
       selectImage.relAlpha = Visit.clamp(
         selectImage.relAlpha + (1f / Rendering.FRAMES_PER_SECOND), 0, 1
       );
@@ -239,30 +277,9 @@ public class ChartsPanel extends UIGroup {
   }
   
   
-  private void updateSectorSelection() {
-    /*
-    final Vec3D surfacePos = planet.surfacePosition(UI.mousePos());
-    final int colourVal = planet.colourSelectedAt(UI.mousePos());
-    infoPanel.setText(
-      "Surface position: "+surfacePos+
-      "\nColour: "+colourVal
-    );
-    //*/
-    //*
-    DisplaySector sector = planet.selectedAt(UI.mousePos());
-    if (sector != null) {
-      infoPanel.setText(sector.label+" "+sector.key());
-    }
-    else {
-      infoPanel.setText("Mouse: "+UI.mousePos());
-    }
-    //*/
-  }
-  
-  
   protected void updateState() {
-    //this.updateFieldSelection();
-    this.updateSectorSelection();
+    updateHovered();
+    updateSelected();
     super.updateState();
   }
   
