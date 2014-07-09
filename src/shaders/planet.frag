@@ -13,10 +13,10 @@ uniform bool u_surfacePass;
 uniform float u_globeRadius;
 
 uniform sampler2D u_surfaceTex;
-uniform sampler2D u_sectorsTex;
 uniform sampler2D u_sectorsMap;
 uniform vec4 u_sectorKey;
 
+uniform sampler2D u_labelsTex;
 uniform vec3 u_lightDirection;
 
 varying vec3 v_position;
@@ -50,10 +50,11 @@ void main() {
     
     if (key == u_sectorKey) {
       color.rgb += over.rgb * 0.25f;
-      //color = mix(color, over, 0.5);
     }
   }
   else {
+    color += texture2D(u_labelsTex, v_texCoords0);
+    /*
     float angle = asin(v_position.x / length(v_position.xz));
     if (v_position.x < 0) angle += M_PI;
     vec2 texCoord = vec2(
@@ -63,6 +64,7 @@ void main() {
     color += texture2D(u_sectorsTex, texCoord);
     color.a = (color.r + color.g + color.b) * 0.5f / 3;
     color.rgb = vec3(1, 1, 1);
+    //*/
   }
 	
   gl_FragColor = color;

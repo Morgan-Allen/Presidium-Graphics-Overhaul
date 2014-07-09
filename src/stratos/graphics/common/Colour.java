@@ -139,6 +139,18 @@ public class Colour {
   }
   
   
+  /**  Returns the average value different between these two colours-
+    */
+  public float difference(Colour c) {
+    float diff = 0;
+    diff += FastMath.abs(r - c.r);
+    diff += FastMath.abs(g - c.g);
+    diff += FastMath.abs(b - c.b);
+    diff += FastMath.abs(a - c.a);
+    return diff / 4;
+  }
+  
+  
   /**
    * Sets this colour to match given RGBA component values.
    */

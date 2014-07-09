@@ -21,6 +21,8 @@ public class MeshCompile {
     pieceSize,
     maxPieces,
     maxSize;
+  final public boolean
+    useQuads;
   
   final Mesh compiled;
   final float verts[];
@@ -37,6 +39,7 @@ public class MeshCompile {
     this.pieceSize = useQuads ? (vertexSize * 4) : (vertexSize * 3);
     this.maxPieces = maxPieces;
     this.maxSize = pieceSize * maxPieces;
+    this.useQuads = useQuads;
     
     verts = new float[maxSize];
     indices = new short[maxPieces * (useQuads ? 6 : 3)];
@@ -98,15 +101,17 @@ public class MeshCompile {
     compiled.setVertices(verts);
     compiled.setIndices(indices);
     
-    final int vertsPerIndex = verts.length / indices.length;
-    ///I.say("\nPushing vertices: "+(marker / vertsPerIndex));
-    compiled.render(shading, GL11.GL_TRIANGLES, 0, marker / vertsPerIndex);
+    final int numIndices = (marker / pieceSize) * (useQuads ? 6 : 3);
+    compiled.render(shading, GL11.GL_TRIANGLES, 0, numIndices);
+    
     if (reset) reset();
   }
   
   
   public boolean reset() {
     if (marker == 0) return false;
+    //  NOTE:  Not needed any more, but included as a reminder if needed.
+    //for (int i = marker; i-- > 0;) verts[i] = 0;
     marker = 0;
     return true;
   }

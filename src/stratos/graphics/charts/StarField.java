@@ -30,6 +30,7 @@ public class StarField {
   
   private Texture sectorsTex, axisTex;
   private float fieldSize;
+  private float rotation = 0, elevation = 0;
   
   private MeshCompile compiled;
   private ShaderProgram shading;
@@ -193,14 +194,33 @@ public class StarField {
   }
   
   
+  public void setRotation(float rotation) {
+    this.rotation = rotation;
+  }
+  
+  
+  public float rotation() {
+    return this.rotation;
+  }
+  
+  
+  public void setElevation(float elevation) {
+    this.elevation = elevation;
+  }
+  
+  
+  public float elevation() {
+    return this.elevation;
+  }
+  
+  
   
   /**  Rendering methods-
     */
   public void renderWith(
     Rendering rendering, Box2D bounds, Alphabet forLabels
   ) {
-    final float time = Rendering.activeTime();
-    view.updateForWidget(bounds, fieldSize, (90 + (time * 15)) % 360, 0);
+    view.updateForWidget(bounds, fieldSize, rotation, elevation);
     
     glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
     glDepthMask(false);
@@ -289,29 +309,28 @@ public class StarField {
   
   
   private void renderLabels(Alphabet font) {
-
-    final float SW = Gdx.graphics.getWidth(), SH = Gdx.graphics.getHeight();
+    //  NOTE:  The divide-by-2 is to allow for the OpenGL coordinate system.
+    //  TODO:  get rid of the screen-width/height scaling.  Pass that as params
+    //  to the shader once and have it do the math.
+    final float
+      SW = Gdx.graphics.getWidth()  / 2,
+      SH = Gdx.graphics.getHeight() / 2;
     final float piece[] = new float[compiled.vertexSize];
     final Vector3 pos = new Vector3();
     font.texture().bind(0);
-    
-    //  TODO:  Why is the scale off by default?   ...Well, maybe it isn't.  It's
-    //  the default OpenGL screen coordinate system, isn't it.
-    //  TODO:  get rid of the screen-width/height scaling.  Pass that as params
-    //  to the shader once and have it do the math.
     
     for (FieldObject o : allObjects) if (o.label != null) {
 
       final Vec3D v = o.coordinates;
       pos.set(v.x, v.y, v.z);
       float
-        x = 2 * Label.phraseWidth(o.label, font, 1.0f) / (SW * -2),
-        y = 2 * (0 - font.letterFor(' ').height * 2) / SH;
+        x = Label.phraseWidth(o.label, font, 1.0f) / (SW * -2),
+        y = (0 - font.letterFor(' ').height * 2  ) / SH;
       
       for (char c : o.label.toCharArray()) {
         final Alphabet.Letter l = font.letterFor(c);
         if (l == null) continue;
-        final float w = 2 * l.width / SW, h = 2 * l.height / SH;
+        final float w = l.width / SW, h = l.height / SH;
         
         appendVertex(piece, pos, x    , y    , Colour.WHITE, l.umin, l.vmax);
         appendVertex(piece, pos, x    , y + h, Colour.WHITE, l.umin, l.vmin);

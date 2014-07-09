@@ -2,6 +2,7 @@
 
 package stratos.graphics.charts;
 import stratos.graphics.common.*;
+import stratos.graphics.sfx.Label;
 import stratos.graphics.solids.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
@@ -33,27 +34,32 @@ public class PlanetDisplay {
   
   final static int DEFAULT_RADIUS = 10;
   private static boolean verbose = false;
-  
-  final ShaderProgram shading;
+
   final Viewport view;
-  private float rotation = 0, radius = DEFAULT_RADIUS;
+  final ShaderProgram shading;
   
-  SolidModel globeModel;
-  NodePart surfacePart, sectorsPart;
-  Texture surfaceTex, sectorsTex;
+  private float
+    rotation  = 0,
+    elevation = 0,
+    radius    = DEFAULT_RADIUS;
+  private Mat3D
+    rotMatrix = new Mat3D().setIdentity();
   
-  ImageAsset sectorsKeyTex;
-  final List <DisplaySector> sectors = new List <DisplaySector> ();
+  private SolidModel globeModel;
+  private NodePart surfacePart, sectorsPart;
+  private Texture surfaceTex, sectorsTex;
+  
+  private ImageAsset sectorsKeyTex;
+  private List <DisplaySector> sectors = new List <DisplaySector> ();
   private Colour sectorKey;
-  private Vec3D surfacePos;
-  
-  //  TODO:  I am likely to need hover and select functions for sectors.
-  //  ...Well, I have some of that already.  No big deal?
+  private MeshCompile labelling;
   
   
   
   
   public PlanetDisplay() {
+    this.view = new Viewport();
+    
     this.shading = new ShaderProgram(
       Gdx.files.internal("shaders/planet.vert"),
       Gdx.files.internal("shaders/planet.frag")
@@ -62,13 +68,22 @@ public class PlanetDisplay {
       throw new GdxRuntimeException("\n"+shading.getLog()) ;
     }
     
-    this.view = new Viewport();
+    this.labelling = new MeshCompile(
+        3 + 3 + 2 + 2,                 //number of floats per vertex.
+        true, 100,                     //is a quad, max. total quads
+        new int[] {0, 1, 2, 1, 2, 3},  //indices for quad vertices
+        VertexAttribute.Position(),
+        VertexAttribute.Normal(),
+        VertexAttribute.TexCoords(0),
+        VertexAttribute.BoneWeight(0)
+    );
   }
   
   
   public void dispose() {
     //  TODO:  THIS MUST BE SCHEDULED
     shading.dispose();
+    labelling.dispose();
   }
   
   
@@ -101,16 +116,20 @@ public class PlanetDisplay {
     final DisplaySector sector = new DisplaySector(label);
     sector.colourKey = key;
     sectors.add(sector);
+    cacheFaceData();
+    calcCoordinates(sector);
   }
   
   
   
-  /**  Selection, feedback and highlighting-
+  /**  Helper method for storing corners, edges, edge-normals, texture
+    *  coordinates, and corner distances- later used to perform selection.
     */
-  //  Stores corners, edges, edge-normals, texture coordinates, and corner
-  //  distances.
   private static class FaceData {
     int ID;
+    Colour key;
+    Vec3D midpoint;
+    
     Vec3D c1, c2, c3, e21, e32, e13, n21, n32, n13;
     Vec2D t1, t2, t3;
     float d1, d2, d3;
@@ -120,10 +139,12 @@ public class PlanetDisplay {
   
   
   private void cacheFaceData() {
+    if (faceData != null) return;
     //
     //  Firstly, determine how many faces are on the globe surface, and how the
     //  data is partitioned for each.
     final MeshPart part = surfacePart.meshPart;
+    final Pixmap keyTex = sectorsKeyTex.asPixels();
     final int
       partFaces = part.numVertices / 3,
       meshFaces = part.mesh.getNumIndices() / 3,
@@ -161,6 +182,7 @@ public class PlanetDisplay {
       final FaceData f = faceData[n] = new FaceData();
       f.ID = n;
       //
+      //  Having obtained geometry data, calculate and store edges & normals.
       f.c1 = tempV[0]; f.c2 = tempV[1]; f.c3 = tempV[2];
       f.t1 = tempT[0]; f.t2 = tempT[1]; f.t3 = tempT[2];
       f.e21 = f.c2.sub(f.c1, null);
@@ -173,6 +195,18 @@ public class PlanetDisplay {
       f.d1 = f.n32.dot(f.e21);
       f.d2 = f.n13.dot(f.e32);
       f.d3 = f.n21.dot(f.e13);
+      //
+      //  Finally, obtain a sample of the colour key and midpoints-
+      f.midpoint = new Vec3D().add(f.c1).add(f.c2).add(f.c3).scale(1f / 3);
+      final float
+        u = (f.t1.x + f.t2.x + f.t3.x) / 3,
+        v = (f.t1.y + f.t2.y + f.t3.y) / 3;
+      final int colourVal = keyTex.getPixel(
+        (int) (u * keyTex.getWidth()),
+        (int) (v * keyTex.getHeight())
+      );
+      f.key = new Colour();
+      f.key.setFromRGBA(colourVal);
     }
   }
   
@@ -203,39 +237,44 @@ public class PlanetDisplay {
   }
   
   
+  
+  /**  Selection, feedback and highlighting-
+    */
   public Vec3D surfacePosition(Vector2 mousePos) {
     
-    final Vec3D centre = new Vec3D(0, 0, 0);
-    final Vec3D screenPos = new Vec3D(centre);
-    view.translateGLToScreen(screenPos);
-    final float
-      distY = (mousePos.y - screenPos.y) / view.screenScale(),
-      distX = (mousePos.x - screenPos.x) / view.screenScale();
-    if (FastMath.abs(distY) > radius) return null;
+    final Vec3D
+      origin    = new Vec3D(0, 0, 0),
+      screenPos = new Vec3D(mousePos.x, mousePos.y, 0);
     
-    final float latitudeRadius = (float) FastMath.sqrt(
-      (radius * radius) - (distY * distY)
+    view.translateGLToScreen(origin);
+    origin.z = 0;
+    view.translateGLFromScreen(origin);
+    view.translateGLFromScreen(screenPos);
+    screenPos.sub(origin);
+    
+    final float len = screenPos.length();
+    if (len > radius) return null;
+    
+    final float offset = (float) FastMath.sqrt(
+      (radius * radius) - (len * len)
     );
-    if (FastMath.abs(distX) > latitudeRadius) return null;
+    final Vec3D depth = new Vec3D(0, 0, -1);
+    view.translateGLFromScreen(depth);
+    origin.set(0, 0, 0);
+    view.translateGLFromScreen(origin);
+    depth.sub(origin);
+    depth.normalise().scale(offset);
     
-    final float
-      angle = (float) FastMath.asin(distX / latitudeRadius),
-      longitude = angle + (float) FastMath.toRadians(rotation);
-    
-    final Vec3D onSurface = new Vec3D(
-      latitudeRadius * (float) FastMath.sin(longitude),
-      distY,
-      latitudeRadius * (float) FastMath.cos(longitude)
-    );
-    onSurface.add(centre);
-    return onSurface;
+    screenPos.add(depth);
+    final Mat3D invRot = rotMatrix.inverse(null);
+    invRot.trans(screenPos);
+    return screenPos;
   }
   
   
   public int colourSelectedAt(Vector2 mousePos) {
     final int nullVal = 0;
     final Vec3D onSurface = surfacePosition(mousePos);
-    this.surfacePos = onSurface;
     if (onSurface == null) return nullVal;
     
     boolean matchFound = false;
@@ -264,21 +303,22 @@ public class PlanetDisplay {
     match.setFromRGBA(colourVal);
     this.sectorKey = match;
     
-    //  Now, you need to get the closest match from all sectors...
-    DisplaySector pick = null;
-    float minDiff = 10;
-    
     for (DisplaySector sector : sectors) {
-      final Colour c = sector.colourKey;
-      float diff = 0;
-      diff += FastMath.abs(match.r - c.r);
-      diff += FastMath.abs(match.g - c.g);
-      diff += FastMath.abs(match.b - c.b);
-      if ((diff / 3) > 0.1f) continue;
-      
-      if (diff < minDiff) { pick = sector; minDiff = diff; }
+      final float diff = match.difference(sector.colourKey);
+      if (diff < 0.1f) return sector;
     }
-    return pick;
+    return null;
+  }
+  
+  
+  private void calcCoordinates(DisplaySector sector) {
+    sector.coordinates.set(0, 0, 0);
+    for (FaceData f : faceData) {
+      final float diff = sector.colourKey.difference(f.key);
+      if (diff > 0.1f) continue;
+      sector.coordinates.add(f.midpoint);
+    }
+    sector.coordinates.normalise().scale(radius);
   }
   
   
@@ -292,19 +332,41 @@ public class PlanetDisplay {
   
   public Vec3D screenPosition(DisplaySector sector, Vec3D put) {
     if (put == null) put = new Vec3D();
-    //  TODO:  Refine this.
-    put.set(0, 0, 0);
+    put.setTo(sector.coordinates);
+    rotMatrix.trans(put);
     view.translateGLToScreen(put);
     return put;
   }
+  
+  
+  public void setRotation(float rotation) {
+    this.rotation = rotation;
+  }
+  
+  
+  public float rotation() {
+    return this.rotation;
+  }
+  
+  
+  public void setElevation(float elevation) {
+    this.elevation = elevation;
+  }
+  
+  
+  public float elevation() {
+    return this.elevation;
+  }
+  
   
   
   /**  Render methods and helper functions-
     */
   public void renderWith(Rendering rendering, Box2D bounds, Alphabet font) {
     
-    rotation = (Rendering.activeTime() * 15) % 360;//  TODO:  Manual control!
-    view.updateForWidget(bounds, (radius * 2) + 0, 90, 0);
+    rotMatrix.setIdentity();
+    rotMatrix.rotateY((float) FastMath.toRadians(0 - rotation));
+    view.updateForWidget(bounds, (radius * 2) + 0, 90, elevation);
     
     final Matrix4 trans = new Matrix4().idt();
     trans.rotate(Vector3.Y, 0 - rotation);
@@ -328,7 +390,7 @@ public class PlanetDisplay {
     shading.setUniformf("u_screenHigh", SH / 2);
     
     shading.setUniformi("u_surfaceTex", 0);
-    shading.setUniformi("u_sectorsTex", 1);
+    shading.setUniformi("u_labelsTex" , 1);
     shading.setUniformi("u_sectorsMap", 2);
     shading.setUniform3fv("u_lightDirection", lightVals, 0, 3);
     final Colour k = sectorKey;
@@ -340,19 +402,98 @@ public class PlanetDisplay {
     shading.setUniformi("u_surfacePass", GL11.GL_TRUE );
     p.mesh.render(shading, p.primitiveType, p.indexOffset, p.numVertices);
     
-    //  TODO:  Probably get rid of this.  It doesn't look good.  Use a separate
-    //  pass to render sector outlines instead.
-    /*
-    p = sectorsPart.meshPart;
-    sectorsTex.bind(1);
+    Gdx.gl.glDisable(GL11.GL_DEPTH_TEST);
+    Gdx.gl.glDepthMask(false);
+    font.texture().bind(1);
     shading.setUniformi("u_surfacePass", GL11.GL_FALSE);
+    /*
+    //  TODO:  Render sector outlines here instead...
+    p = sectorsPart.meshPart;
     p.mesh.render(shading, p.primitiveType, p.indexOffset, p.numVertices);
     //*/
+    renderLabels(font);
     
     shading.end();
   }
   
+  
+  private void renderLabels(Alphabet font) {
+    //
+    //  NOTE:  The divide-by-2 is to allow for the OpenGL coordinate system.
+    //  TODO:  get rid of the screen-width/height scaling.  Pass that as params
+    //  to the shader once and have it do the math.
+    final float
+      SW = Gdx.graphics.getWidth()  / 2,
+      SH = Gdx.graphics.getHeight() / 2;
+    final float piece[] = new float[labelling.vertexSize];
+    final Vector3 pos = new Vector3();
+    final Vec3D onScreen = new Vec3D(), origin = new Vec3D(0, 0, 0);
+    font.texture().bind(0);
+    view.translateGLToScreen(origin);
+    //
+    //  Having performed initial setup, iterate across each labelled sector and
+    //  compile text geometry, with appropriate offsets to allow for global
+    //  rotation.
+    for (DisplaySector s : sectors) if (s.label != null) {
+      //
+      final Vec3D v = s.coordinates;
+      pos.set(v.x, v.y, v.z);
+      rotMatrix.trans(v, onScreen);
+      view.translateGLToScreen(onScreen);
+      if (onScreen.z > origin.z) continue;
+      //
+      float
+        a = (onScreen.x - origin.x) / (radius * view.screenScale()),
+        x = Label.phraseWidth(s.label, font, 1.0f) / SW,
+        y = (0 - font.letterFor(' ').height * 2  ) / SH;
+      a *= FastMath.abs(a);
+      x *= (1 - a) / -2;
+      //
+      //  NOTE:  Texture-v is flipped due to differences in pixel order in
+      //  images vs. on-screen.
+      for (char c : s.label.toCharArray()) {
+        final Alphabet.Letter l = font.letterFor(c);
+        if (l == null) continue;
+        final float w = l.width / SW, h = l.height / SH;
+        //
+        appendVertex(piece, pos, x    , y    , l.umin, l.vmax);
+        appendVertex(piece, pos, x    , y + h, l.umin, l.vmin);
+        appendVertex(piece, pos, x + w, y    , l.umax, l.vmax);
+        appendVertex(piece, pos, x + w, y + h, l.umax, l.vmin);
+        x += w;
+      }
+      if (labelling.meshFull()) labelling.renderWithShader(shading, true);
+    }
+    labelling.renderWithShader(shading, true);
+  }
+  
+  
+  private void appendVertex(
+    float piece[],
+    Vector3 pos, float offX, float offY,
+    float tu, float tv
+  ) {
+    int v = 0;
+    piece[v++] = pos.x;
+    piece[v++] = pos.y;
+    piece[v++] = pos.z;
+    //  Corner offset-
+    piece[v++] = offX;
+    piece[v++] = offY;
+    piece[v++] = 0;
+    //  Texture coordinates-
+    piece[v++] = tu;
+    piece[v++] = tv;
+    //  Bone weights-
+    piece[v++] = -1;
+    piece[v++] =  0;
+    labelling.appendVertex(piece);
+  }
 }
+
+
+
+
 
 
 

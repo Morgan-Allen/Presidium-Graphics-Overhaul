@@ -2,19 +2,20 @@
 
 package stratos.graphics.charts;
 import stratos.graphics.common.*;
+import stratos.util.*;
 
 
 
 //  TODO:  Is this class even necessary?  There's a lot less data associated
 //  than for starfield objects.
 
-//  TODO:  Try unifying with the FieldObject class?  Maybe?
-
 public class DisplaySector {
   
   
   final public String label;
+  
   Colour colourKey;
+  Vec3D coordinates = new Vec3D();
   
   
   DisplaySector(String label) {

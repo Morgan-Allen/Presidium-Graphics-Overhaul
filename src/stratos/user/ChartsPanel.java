@@ -8,8 +8,8 @@ import stratos.graphics.widgets.*;
 import stratos.graphics.charts.*;
 import stratos.graphics.common.*;
 import stratos.util.*;
-
 import static stratos.graphics.common.GL.*;
+
 import com.badlogic.gdx.graphics.*;
 
 
@@ -297,10 +297,18 @@ public class ChartsPanel extends UIGroup {
     glEnable(GL10.GL_BLEND);
     glDepthMask(true);
     
+    //  TODO:  Add manual control for these
+    float rotation = (Rendering.activeTime() * 15) % 360;
+    float elevation = 45.0f;
+    
     final Box2D planetBounds = planetGroup.trueBounds();
+    planet.setRotation(rotation);
+    planet.setElevation(elevation);
     planet.renderWith(UI.rendering, planetBounds, UIConstants.INFO_FONT);
     
     final Box2D fieldBounds = starfieldGroup.trueBounds();
+    starfield.setRotation(rotation);
+    starfield.setElevation(elevation);
     starfield.renderWith(UI.rendering, fieldBounds, UIConstants.INFO_FONT);
     
     glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);

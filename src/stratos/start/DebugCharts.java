@@ -29,8 +29,8 @@ public class DebugCharts extends VisualDebug {
     chartsPanel.loadStarfield("media/Charts/", "coordinates.xml");
     chartsPanel.loadPlanet("media/Charts/", "sectors.xml");
   }
-  
-  
+
+
   public HUD UI() { return UI; }
   protected void onRendering(Sprite sprite) {}
 }

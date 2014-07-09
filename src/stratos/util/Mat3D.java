@@ -6,6 +6,7 @@
 
 package stratos.util ;
 import java.io.* ;
+import org.apache.commons.math3.util.FastMath;
 
 
 /**  3x3 Matrix used commonly in vector rotations, optimised for certain
@@ -13,6 +14,7 @@ import java.io.* ;
   */
 
 public class Mat3D {
+  
 	
   public float
     r0c0, r0c1, r0c2,
@@ -96,12 +98,12 @@ public class Mat3D {
     *  values (i.e roll, pitch, and yaw.)
     */
   public Mat3D setEuler(float er, float ep, float ey) {
-    cr = (float) (Math.cos(er)) ;
-    sr = (float) (Math.sin(er)) ;
-    cp = (float) (Math.cos(ep)) ;
-    sp = (float) (Math.sin(ep)) ;
-    cy = (float) (Math.cos(ey)) ;
-    sy = (float) (Math.sin(ey)) ;
+    cr = (float) (FastMath.cos(er)) ;
+    sr = (float) (FastMath.sin(er)) ;
+    cp = (float) (FastMath.cos(ep)) ;
+    sp = (float) (FastMath.sin(ep)) ;
+    cy = (float) (FastMath.cos(ey)) ;
+    sy = (float) (FastMath.sin(ey)) ;
     
     r0c0 = cp * cy ;
     r1c0 = cp * sy ;
@@ -118,8 +120,8 @@ public class Mat3D {
   /**  Rotates this matrix by the given value about the X axis.
     */
   public Mat3D rotateX(float radians) {
-    cr = (float) (Math.cos(radians)) ;
-    sr = (float) (Math.sin(radians)) ;
+    cr = (float) (FastMath.cos(radians)) ;
+    sr = (float) (FastMath.sin(radians)) ;
     tempM.setIdentity() ;
     tempM.r1c1 = cr ;
     tempM.r1c2 = sr ;
@@ -132,8 +134,8 @@ public class Mat3D {
   /**  Rotates this matrix by the given value about the Y axis.
     */
   public Mat3D rotateY(float radians) {
-    cr = (float) (Math.cos(radians)) ;
-    sr = (float) (Math.sin(radians)) ;
+    cr = (float) (FastMath.cos(radians)) ;
+    sr = (float) (FastMath.sin(radians)) ;
     tempM.setIdentity() ;
     tempM.r0c0 = cr ;
     tempM.r0c2 = sr ;
@@ -146,8 +148,8 @@ public class Mat3D {
   /**  Rotates this matrix by the given value about the Z axis.
     */
   public Mat3D rotateZ(float radians) {
-    cr = (float) (Math.cos(radians)) ;
-    sr = (float) (Math.sin(radians)) ;
+    cr = (float) (FastMath.cos(radians)) ;
+    sr = (float) (FastMath.sin(radians)) ;
     tempM.setIdentity() ;
     tempM.r0c0 = cr ;
     tempM.r0c1 = sr ;
@@ -206,8 +208,9 @@ public class Mat3D {
   /**  Multiplies the vector given in-place and return the same vector.
     */
   public Vec3D trans(Vec3D vector, Vec3D result) {
+    if (result == null) result = new Vec3D();
     result.setTo(vector) ;
-    return trans(vector) ;
+    return trans(result) ;
   }
   
   /**  Multiplies the matrix given in-place and return the same matrix.
@@ -221,7 +224,6 @@ public class Mat3D {
   /**  Transforms the vector given.
     */
   public final Vec3D trans(final Vec3D vector) {
-    //if (result == null) result = new Vec3D() ;
     final float
       vx = vector.x,
       vy = vector.y,
@@ -231,6 +233,7 @@ public class Mat3D {
     vector.z = (vx * r2c0) + (vy * r2c1) + (vz * r2c2) ;
     return vector ;
   }
+  
   
   /**  Multiplies the matrix given and places the result in a second matrix.
     *  (If the second argument is null, a new Mat3D is initialised and
@@ -273,14 +276,13 @@ public class Mat3D {
   public Mat3D inverse(Mat3D result) {
     if (result == null) result = new Mat3D() ;
     else if (result == this) {
-      //
-    	//  Don't go altering your own data in mid-algorithm...
+      //  Don't go altering your own data in mid-algorithm...
       inverse(tempM) ;
       setTo(tempM) ;
       return this ;
     }
     float det = determinant() ;
-    if (Math.abs(det) < 0.0001f) det = 1.0f ;
+    if (FastMath.abs(det) < 0.0001f) det = 1.0f ;
     else det = 1 / det ;
     //
     //  Straightforward cookbook formula used:
