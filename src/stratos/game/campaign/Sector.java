@@ -85,6 +85,13 @@ public class Sector extends Background {
     goodsMade   = madeB.toArray(Service.class) ;
     goodsNeeded = needB.toArray(Service.class) ;
   }
+  
+  
+  
+  public static Sector sectorNamed(String name) {
+    for (Sector s : Sectors.ALL_SECTORS) if (s.name.equals(name)) return s;
+    return null;
+  }
 }
 
 

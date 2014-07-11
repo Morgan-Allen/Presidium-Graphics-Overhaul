@@ -19,15 +19,19 @@ public class Button extends Image {
   
   /**  Data fields and basic constructors-
     */
-  final static ImageAsset DEFAULT_LIT = ImageAsset.fromImage(
-    "media/GUI/iconLit.gif", Button.class
-  );
+  final public static ImageAsset
+    DEFAULT_LIT = ImageAsset.fromImage(
+      "media/GUI/iconLit.gif", Button.class
+    ),
+    CIRCLE_LIT = ImageAsset.fromImage(
+      "media/GUI/icon_lit_circle.png", Button.class
+    );
   
   public float
     hoverLit = DEFAULT_HOVER_ALPHA,
     pressLit = DEFAULT_PRESS_ALPHA;
-  protected Texture highlit ;
-  protected String info ;
+  protected Texture highlit;
+  protected String info;
   
   
   public Button(HUD myHUD, ImageAsset norm, String infoS) {
@@ -65,8 +69,7 @@ public class Button extends Image {
   /**  UI method overrides/implementations-
     */
   protected UINode selectionAt(Vector2 mousePos) {
-    if (super.selectionAt(mousePos) == null) return null ;
-    return this;
+    return (bounds.contains(mousePos.x, mousePos.y)) ? this : null ;
   }
   
 

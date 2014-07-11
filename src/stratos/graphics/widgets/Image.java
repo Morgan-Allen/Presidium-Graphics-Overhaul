@@ -8,7 +8,9 @@ package stratos.graphics.widgets;
 import stratos.graphics.common.*;
 import stratos.start.PlayLoop;
 import stratos.util.*;
+
 import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.math.Vector2;
 
 
 
@@ -18,8 +20,8 @@ import com.badlogic.gdx.graphics.*;
 public class Image extends UINode {
   
   
-  public boolean stretch = false ;
   public boolean lockToPixels = false;
+  public boolean blocksSelect = false;
   protected Texture texture;
   
   
@@ -48,6 +50,12 @@ public class Image extends UINode {
       absBound.xpos(absBound.xpos() - absBound.xdim() / 2);
       absBound.ypos(absBound.ypos() - absBound.ydim() / 2);
     }
+  }
+  
+  
+  protected UINode selectionAt(Vector2 mousePos) {
+    if (blocksSelect) return super.selectionAt(mousePos);
+    else return null;
   }
   
   

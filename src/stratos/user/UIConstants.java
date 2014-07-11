@@ -50,7 +50,8 @@ public interface UIConstants {
     GUILD_BUTTONS_HIGH = 65,
     GUILDS_PANEL_WIDE = 320,
     READOUT_HIGH = 40,
-    INFO_PANEL_HIGH = 240;
+    INFO_PANEL_HIGH = 240,
+    INFO_PANEL_WIDE = 320;
   
   /*
   final public static int

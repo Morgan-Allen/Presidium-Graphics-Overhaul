@@ -26,11 +26,14 @@ public class StarField {
   
   final Viewport view;
   final List <FieldObject> allObjects;
-  private FieldObject selectCircle;
+  private FieldObject selectObject;
+  private FieldObject hoverFocus, selectFocus;
+  private float hoverAlpha = 1, selectAlpha = 1;
+  
   
   private Texture sectorsTex, axisTex;
-  private float fieldSize;
-  private float rotation = 0, elevation = 0;
+  private float fieldSize, objectScale = 1f;
+  private float rotation = 90, elevation = 0;
   
   private MeshCompile compiled;
   private ShaderProgram shading;
@@ -89,8 +92,8 @@ public class StarField {
   }
   
   
-  public void addFieldObject(Texture t, String label, Vec3D position) {
-    addFieldObject(
+  public FieldObject addFieldObject(Texture t, String label, Vec3D position) {
+    return addFieldObject(
       t, label,
       1, 1, 0, 0,
       1, 0, 0,
@@ -99,7 +102,7 @@ public class StarField {
   }
   
   
-  public void addFieldObject(
+  public FieldObject addFieldObject(
     Texture t, String label,
     int gridW, int gridH, int gridX, int gridY,
     float imgScale, float offX, float offY,
@@ -120,6 +123,18 @@ public class StarField {
     object.offY = offY;
     
     object.coordinates = position;
+    return object;
+  }
+  
+  
+  public void setSelectObject(
+    Texture t, int gridW, int gridH, int gridX, int gridY
+  ) {
+    final FieldObject object = addFieldObject(
+      t, null, gridW, gridH, gridX, gridY, 1, 0, 0, new Vec3D()
+    );
+    allObjects.remove(object);
+    this.selectObject = object;
   }
   
   
@@ -182,6 +197,8 @@ public class StarField {
       }
     }
     
+    if (pick != hoverFocus) hoverAlpha = 0;
+    this.hoverFocus = pick;
     return pick;
   }
   
@@ -211,6 +228,13 @@ public class StarField {
   
   public float elevation() {
     return this.elevation;
+  }
+  
+  
+  public void setSelection(String sectorLabel) {
+    final FieldObject OS = objectLabelled(sectorLabel);
+    this.selectFocus = OS;
+    selectAlpha = 0;
   }
   
   
@@ -248,37 +272,64 @@ public class StarField {
     
     for (FieldObject object : allObjects) {
       
-      final Vec3D v = object.coordinates;
-      c.set(v.x, v.y, v.z);
-      
-      final TextureRegion r = object.texRegion;
-      final Texture t = r.getTexture();
-      
+      final Texture t = object.texRegion.getTexture();
       if (t != lastTex) {
         t.setFilter(TextureFilter.Linear, TextureFilter.Linear);
         t.bind(0);
         lastTex = t;
       }
-      
       if (compiled.meshFull() || t != lastTex) {
         compiled.renderWithShader(shading, true);
       }
-      
-      final float
-        x = object.offX / SW,
-        y = object.offY / SH,
-        w = object.fieldWide / SW,
-        h = object.fieldHigh / SH;
-      
-      final Colour fade = Colour.WHITE;
-      appendVertex(piece, c, x - w, y - h, fade, r.u , r.v2);
-      appendVertex(piece, c, x - w, y + h, fade, r.u , r.v );
-      appendVertex(piece, c, x + w, y - h, fade, r.u2, r.v2);
-      appendVertex(piece, c, x + w, y + h, fade, r.u2, r.v );
+
+      final Vec3D v = object.coordinates;
+      c.set(v.x, v.y, v.z);
+      renderObject(object, SW, SH, c, Colour.WHITE, piece);
     }
     compiled.renderWithShader(shading, true);
     
+    //
+    //  Finally, we render selection on top of this-
+    selectObject.texRegion.getTexture().bind(0);
+    final Colour fade = new Colour();
+    final float alphaInc = 1f / Rendering.FRAMES_PER_SECOND;
+    hoverAlpha  = Visit.clamp(hoverAlpha  + alphaInc, 0, 1);
+    selectAlpha = Visit.clamp(selectAlpha + alphaInc, 0, 1);
+    
+    if (hoverFocus != null && hoverFocus != selectFocus) {
+      final Vec3D hC = hoverFocus .coordinates;
+      fade.set(1, 1, 1, hoverAlpha / 2);
+      c.set(hC.x, hC.y, hC.z);
+      renderObject(selectObject, SW, SH, c, fade, piece);
+    }
+    if (selectFocus != null) {
+      final Vec3D sC = selectFocus.coordinates;
+      fade.set(1, 1, 1, selectAlpha   );
+      c.set(sC.x, sC.y, sC.z);
+      renderObject(selectObject, SW, SH, c, fade, piece);
+    }
+    
+    compiled.renderWithShader(shading, true);
     shading.end();
+  }
+  
+  
+  private void renderObject(
+    FieldObject object, float SW, float SH,
+    Vector3 c, Colour hue, float piece[]
+  ) {
+    
+    final float
+      x = object.offX / SW,
+      y = object.offY / SH,
+      w = object.fieldWide * objectScale / SW,
+      h = object.fieldHigh * objectScale / SH;
+    
+    final TextureRegion r = object.texRegion;
+    appendVertex(piece, c, x - w, y - h, hue, r.u , r.v2);
+    appendVertex(piece, c, x - w, y + h, hue, r.u , r.v );
+    appendVertex(piece, c, x + w, y - h, hue, r.u2, r.v2);
+    appendVertex(piece, c, x + w, y + h, hue, r.u2, r.v );
   }
   
 
@@ -298,10 +349,10 @@ public class StarField {
     compiled.renderWithShader(shading, true);
     
     fade = Colour.transparency(0.2f);
-    appendVertex(piece, new Vector3(0, -a, -a), 0, 0, fade, 0, 1);
-    appendVertex(piece, new Vector3(0, -a,  a), 0, 0, fade, 0, 0);
-    appendVertex(piece, new Vector3(0,  a, -a), 0, 0, fade, 1, 1);
-    appendVertex(piece, new Vector3(0,  a,  a), 0, 0, fade, 1, 0);
+    appendVertex(piece, new Vector3(-a, 0, -a), 0, 0, fade, 0, 1);
+    appendVertex(piece, new Vector3(-a, 0,  a), 0, 0, fade, 0, 0);
+    appendVertex(piece, new Vector3( a, 0, -a), 0, 0, fade, 1, 1);
+    appendVertex(piece, new Vector3( a, 0,  a), 0, 0, fade, 1, 0);
 
     axisTex.bind(0);
     compiled.renderWithShader(shading, true);
@@ -324,13 +375,15 @@ public class StarField {
       final Vec3D v = o.coordinates;
       pos.set(v.x, v.y, v.z);
       float
-        x = Label.phraseWidth(o.label, font, 1.0f) / (SW * -2),
-        y = (0 - font.letterFor(' ').height * 2  ) / SH;
+        x = Label.phraseWidth(o.label, font, 1.0f) * objectScale / (SW * -2),
+        y = (0 - font.letterFor(' ').height * 2 * objectScale) / SH;
       
       for (char c : o.label.toCharArray()) {
         final Alphabet.Letter l = font.letterFor(c);
         if (l == null) continue;
-        final float w = l.width / SW, h = l.height / SH;
+        final float
+          w = l.width  * objectScale / SW,
+          h = l.height * objectScale / SH;
         
         appendVertex(piece, pos, x    , y    , Colour.WHITE, l.umin, l.vmax);
         appendVertex(piece, pos, x    , y + h, Colour.WHITE, l.umin, l.vmin);

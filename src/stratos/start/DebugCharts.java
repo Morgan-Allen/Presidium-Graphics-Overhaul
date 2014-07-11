@@ -11,8 +11,6 @@ public class DebugCharts extends VisualDebug {
   
   
   private HUD UI;
-  private ChartsPanel chartsPanel;
-  
   
 
   public static void main(String args[]) {
@@ -22,16 +20,31 @@ public class DebugCharts extends VisualDebug {
   
   protected void loadVisuals() {
     UI = new HUD(PlayLoop.rendering());
-    chartsPanel = new ChartsPanel(UI);
-    chartsPanel.relBound.set(0, 0, 1, 1);
-    chartsPanel.attachTo(UI);
-    
-    chartsPanel.loadStarfield("media/Charts/", "coordinates.xml");
-    chartsPanel.loadPlanet("media/Charts/", "sectors.xml");
+    /*
+    StarsPanel starsPanel = new StarsPanel(UI);
+    starsPanel.relBound.set(0.0f, 0, 0.5f, 1);
+    //starsPanel.absBound.set(50, 50, -100, -100);
+    starsPanel.attachTo(UI);
+    starsPanel.loadStarfield("media/Charts/", "coordinates.xml");
+    //*/
+    //*
+    PlanetPanel planetPanel = new PlanetPanel(UI);
+    planetPanel.relBound.set(0.0f, 0, 0.5f, 1);
+    //planetPanel.absBound.set(50, 50, -100, -100);
+    planetPanel.attachTo(UI);
+    planetPanel.loadPlanet("media/Charts/", "sectors.xml");
+    //*/
   }
 
 
   public HUD UI() { return UI; }
   protected void onRendering(Sprite sprite) {}
 }
+
+
+
+
+
+
+
 

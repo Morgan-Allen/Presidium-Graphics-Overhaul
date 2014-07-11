@@ -142,6 +142,7 @@ public class Colour {
   /**  Returns the average value different between these two colours-
     */
   public float difference(Colour c) {
+    if (c == null) return 1;
     float diff = 0;
     diff += FastMath.abs(r - c.r);
     diff += FastMath.abs(g - c.g);

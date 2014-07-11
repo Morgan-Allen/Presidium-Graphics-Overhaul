@@ -5,10 +5,11 @@
   */
 
 package stratos.graphics.widgets;
-import stratos.graphics.common.Rendering;
+import stratos.graphics.common.*;
 import stratos.util.*;
 
-import com.badlogic.gdx.math.* ;
+import com.badlogic.gdx.math.*;
+import org.apache.commons.math3.util.FastMath;
 
 
 
@@ -21,7 +22,7 @@ public abstract class UINode {
     HOVERED = 0,
     CLICKED = 1,
     PRESSED = 2,
-    DRAGGED = 3 ;
+    DRAGGED = 3;
   final public static float
     DEFAULT_FADE_TIME = 0.25f,
     DEFAULT_FADE_INC = 1f / (DEFAULT_FADE_TIME * Rendering.FRAMES_PER_SECOND),
@@ -31,22 +32,23 @@ public abstract class UINode {
   
   final public Box2D
     relBound = new Box2D(),
-    absBound = new Box2D() ;
+    absBound = new Box2D();
   public float
     relDepth = 0,
-    absDepth = 0 ;
+    absDepth = 0;
   final protected Box2D
-    bounds = new Box2D() ;
+    bounds = new Box2D();
   public float
     relAlpha = 1,
-    absAlpha = 1 ;
+    absAlpha = 1;
   public boolean
-    hidden = false ;
+    hidden  = false,
+    stretch = true;
   
   
-  final protected HUD UI ;
-  private UIGroup parent ;
-  private ListEntry <UINode> kidEntry ;
+  final protected HUD UI;
+  private UIGroup parent;
+  private ListEntry <UINode> kidEntry;
   
   
   public UINode(HUD myHUD) {
@@ -55,7 +57,7 @@ public abstract class UINode {
   
   
   protected UINode selectionAt(Vector2 mousePos) {
-    return (bounds.contains(mousePos.x, mousePos.y)) ? this : null ;
+    return (bounds.contains(mousePos.x, mousePos.y)) ? this : null;
   }
   
   
@@ -106,17 +108,6 @@ public abstract class UINode {
   }
   
   
-  void updateRelativeParent(Box2D base) {
-    bounds.xdim(absBound.xdim() + (base.xdim() * relBound.xdim())) ;
-    bounds.ydim(absBound.ydim() + (base.ydim() * relBound.ydim())) ;
-    bounds.xpos(absBound.xpos()) ;
-    bounds.ypos(absBound.ypos()) ;
-  }
-  
-  
-  
-  /**  Sets the absolute position and bounds of this node.
-    */
   protected void updateAbsoluteBounds() {
     if (parent == null) updateAbsoluteBounds(new Box2D()) ;
     else {
@@ -125,12 +116,48 @@ public abstract class UINode {
   }
   
   
-  void updateAbsoluteBounds(Box2D base) {
-    bounds.xpos(bounds.xpos() + base.xpos() + (relBound.xpos() * base.xdim())) ;
-    bounds.ypos(bounds.ypos() + base.ypos() + (relBound.ypos() * base.ydim())) ;
+  void updateRelativeParent(Box2D base) {
+    
+    //boolean stretch = true;
+    float
+      wide = absBound.xdim() + (base.xdim() * relBound.xdim()),
+      high = absBound.ydim() + (base.ydim() * relBound.ydim()),
+      x = absBound.xpos(),
+      y = absBound.ypos();
+    
+    if (! stretch) {
+      //  In this case we shrink either width or height to maintain a constant
+      //  aspect ratio.
+      final float
+        oldWide = wide, oldHigh = high,
+        aspW  = wide / absBound.xdim(),
+        aspH  = high / absBound.ydim(),
+        scale = FastMath.max(aspW, aspH);
+      wide = absBound.xdim() * scale;
+      high = absBound.ydim() * scale;
+      x += (oldWide - wide) / 2;
+      y += (oldHigh - high) / 2;
+    }
+    
+    bounds.xdim(wide);
+    bounds.ydim(high);
+    bounds.xpos(x);
+    bounds.ypos(y);
   }
   
   
+  void updateAbsoluteBounds(Box2D base) {
+    final float
+      x = bounds.xpos() + base.xpos() + (relBound.xpos() * base.xdim()),
+      y = bounds.ypos() + base.ypos() + (relBound.ypos() * base.ydim());
+    bounds.xpos(x);
+    bounds.ypos(y);
+  }
+  
+  
+  
+  /**  Blank feedback methods for override by subclasses-
+    */
   protected void whenHovered() {}
   protected void whenClicked() {}
   protected void whenPressed() {}

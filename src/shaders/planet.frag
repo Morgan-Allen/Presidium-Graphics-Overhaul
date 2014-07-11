@@ -14,7 +14,8 @@ uniform float u_globeRadius;
 
 uniform sampler2D u_surfaceTex;
 uniform sampler2D u_sectorsMap;
-uniform vec4 u_sectorKey;
+uniform vec4 u_hoverKey;
+uniform vec4 u_selectKey;
 
 uniform sampler2D u_labelsTex;
 uniform vec3 u_lightDirection;
@@ -34,8 +35,8 @@ void main() {
     (v_screenPos.y * u_screenHigh) - u_screenY
   );
   if (length(dist) > u_portalRadius) discard;
-  
   vec4 color = vec4(0), over = vec4(1, 1, 1, 1);
+  
   if (u_surfacePass) {
     vec4 key = texture2D(u_sectorsMap, v_texCoords0);
     color += texture2D(u_surfaceTex, v_texCoords0);
@@ -48,12 +49,33 @@ void main() {
     lightVal *= dotVal;
     color.rgb *= lightVal;
     
-    if (key == u_sectorKey) {
-      color.rgb += over.rgb * 0.25f;
+    if (key.rgb == u_hoverKey.rgb) {
+      color.rgb += over.rgb * 0.25f * u_hoverKey.a ;
+    }
+    if (key.rgb == u_selectKey.rgb) {
+      color.rgb += over.rgb * 0.25f * u_selectKey.a;
     }
   }
   else {
     color += texture2D(u_labelsTex, v_texCoords0);
+  }
+	
+  gl_FragColor = color;
+  if (gl_FragColor.a <= 0.001) discard;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
     /*
     float angle = asin(v_position.x / length(v_position.xz));
     if (v_position.x < 0) angle += M_PI;
@@ -65,13 +87,5 @@ void main() {
     color.a = (color.r + color.g + color.b) * 0.5f / 3;
     color.rgb = vec3(1, 1, 1);
     //*/
-  }
-	
-  gl_FragColor = color;
-  if (gl_FragColor.a <= 0.001) discard;
-}
-
-
-
 
 

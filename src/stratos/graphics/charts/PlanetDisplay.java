@@ -14,17 +14,7 @@ import com.badlogic.gdx.graphics.g3d.model.*;
 import com.badlogic.gdx.graphics.glutils.*;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-
 import org.apache.commons.math3.util.FastMath;
-
-
-
-//  TODO:
-//  *  Add labels to each sector.
-//  *  Unify selection functions with the starfield results.
-
-//  *  Update the info-panel layout, plus bordering/skins.
-//  *  Add suitable control widgets, and add to the main user-interface.
 
 
 
@@ -33,6 +23,7 @@ public class PlanetDisplay {
   
   
   final static int DEFAULT_RADIUS = 10;
+  final static float KEY_TOLERANCE = 0.02f;
   private static boolean verbose = false;
 
   final Viewport view;
@@ -51,7 +42,9 @@ public class PlanetDisplay {
   
   private ImageAsset sectorsKeyTex;
   private List <DisplaySector> sectors = new List <DisplaySector> ();
-  private Colour sectorKey;
+  
+  private Colour hoverKey, selectKey;
+  private float hoverAlpha = 0, selectAlpha = 0;
   private MeshCompile labelling;
   
   
@@ -136,6 +129,7 @@ public class PlanetDisplay {
   }
   private FaceData faceData[];  //Cached for convenience...
   private float matchU, matchV;  //search results.
+  private Vec3D temp = new Vec3D();
   
   
   private void cacheFaceData() {
@@ -158,7 +152,7 @@ public class PlanetDisplay {
     //  Secondly, retrieve the data, and set up structures for receipt after
     //  processing.
     final float vertData[] = new float[meshFaces * 3 * vertSize];
-    final short indices[] = new short[meshFaces * 3];
+    final short indices [] = new short[meshFaces * 3];
     part.mesh.getVertices(vertData);
     part.mesh.getIndices(indices);
     Vec3D tempV[] = new Vec3D[3];
@@ -215,9 +209,9 @@ public class PlanetDisplay {
     Vec3D point, FaceData f
   ) {
     final float
-      w1 = f.n32.dot(f.c2.sub(point, null)) / f.d1,
-      w2 = f.n13.dot(f.c3.sub(point, null)) / f.d2,
-      w3 = f.n21.dot(f.c1.sub(point, null)) / f.d3;
+      w1 = f.n32.dot(f.c2.sub(point, temp)) / f.d1,
+      w2 = f.n13.dot(f.c3.sub(point, temp)) / f.d2,
+      w3 = f.n21.dot(f.c1.sub(point, temp)) / f.d3;
     
     if (w1 < 0 || w2 < 0 || w3 < 0) return false;
     float u = 0, v = 0, sum = w1 + w2 + w3;
@@ -273,15 +267,18 @@ public class PlanetDisplay {
   
   
   public int colourSelectedAt(Vector2 mousePos) {
-    final int nullVal = 0;
     final Vec3D onSurface = surfacePosition(mousePos);
-    if (onSurface == null) return nullVal;
-    
+    if (onSurface == null) return 0;
+    return colourOnSurface(onSurface);
+  }
+  
+  
+  private int colourOnSurface(Vec3D onSurface) {
     boolean matchFound = false;
     for (FaceData f : faceData) {
       if (checkIntersection(onSurface, f)) { matchFound = true; break; }
     }
-    if (! matchFound) return nullVal;
+    if (! matchFound) return 0;
     
     final Pixmap keyTex = sectorsKeyTex.asPixels();
     final int colourVal = keyTex.getPixel(
@@ -295,18 +292,22 @@ public class PlanetDisplay {
   public DisplaySector selectedAt(Vector2 mousePos) {
     final int colourVal = colourSelectedAt(mousePos);
     if (colourVal == 0) {
-      this.sectorKey = new Colour(0, 0, 0, 0);
+      this.hoverKey = null;
       return null;
     }
     
     final Colour match = new Colour();
     match.setFromRGBA(colourVal);
-    this.sectorKey = match;
+    if (match.difference(hoverKey) >= KEY_TOLERANCE) {
+      this.hoverAlpha = 0;
+      this.hoverKey = match;
+    }
     
     for (DisplaySector sector : sectors) {
       final float diff = match.difference(sector.colourKey);
-      if (diff < 0.1f) return sector;
+      if (diff < KEY_TOLERANCE) return sector;
     }
+    
     return null;
   }
   
@@ -315,7 +316,7 @@ public class PlanetDisplay {
     sector.coordinates.set(0, 0, 0);
     for (FaceData f : faceData) {
       final float diff = sector.colourKey.difference(f.key);
-      if (diff > 0.1f) continue;
+      if (diff > KEY_TOLERANCE) continue;
       sector.coordinates.add(f.midpoint);
     }
     sector.coordinates.normalise().scale(radius);
@@ -359,58 +360,85 @@ public class PlanetDisplay {
   }
   
   
+  public void setSelection(String sectorLabel) {
+    final DisplaySector DS = sectorLabelled(sectorLabel);
+    final int key = DS == null ? 0 : colourOnSurface(DS.coordinates);
+    if (key == 0) selectKey = null;
+    else (selectKey = new Colour()).setFromRGBA(key);
+    selectAlpha = 0;
+  }
+  
+  
   
   /**  Render methods and helper functions-
     */
   public void renderWith(Rendering rendering, Box2D bounds, Alphabet font) {
     
+    //
+    //  First of all, we configure viewing perspective, aperture size, rotation
+    //  and offset:
     rotMatrix.setIdentity();
     rotMatrix.rotateY((float) FastMath.toRadians(0 - rotation));
     view.updateForWidget(bounds, (radius * 2) + 0, 90, elevation);
     
     final Matrix4 trans = new Matrix4().idt();
     trans.rotate(Vector3.Y, 0 - rotation);
-    
-    final Vec3D l = new Vec3D().set(-1, -1, -1).normalise();
-    final float lightVals[] = new float[] { l.x, l.y, l.z };
-    MeshPart p;
-    
+
+    final float SW = Gdx.graphics.getWidth(), SH = Gdx.graphics.getHeight();
+    final float portalSize = FastMath.min(bounds.xdim(), bounds.ydim());
+    final Vec2D centre = bounds.centre();
     shading.begin();
     shading.setUniformf("u_globeRadius", radius);
     shading.setUniformMatrix("u_rotation", trans);
     shading.setUniformMatrix("u_camera", view.camera.combined);
-    
-    final float SW = Gdx.graphics.getWidth(), SH = Gdx.graphics.getHeight();
-    final float portalSize = FastMath.min(bounds.xdim(), bounds.ydim());
-    final Vec2D centre = bounds.centre();
     shading.setUniformf("u_portalRadius", portalSize / 2);
     shading.setUniformf("u_screenX", centre.x - (SW / 2));
     shading.setUniformf("u_screenY", centre.y - (SH / 2));
     shading.setUniformf("u_screenWide", SW / 2);
     shading.setUniformf("u_screenHigh", SH / 2);
     
+    //
+    //  Then, we configure parameters for selection/hover/highlight FX.
+    final float alphaInc = 1f / Rendering.FRAMES_PER_SECOND;
+    hoverAlpha  = Visit.clamp(hoverAlpha  + alphaInc, 0, 1);
+    selectAlpha = Visit.clamp(selectAlpha + alphaInc, 0, 1);
+    final Colour h, s;
+    if (hoverKey != null && hoverKey.difference(selectKey) > 0) {
+      h = hoverKey;
+    }
+    else h = Colour.HIDE;
+    s = selectKey == null ? Colour.HIDE : selectKey;
+    shading.setUniformf("u_hoverKey" , h.r, h.g, h.b, hoverAlpha / 2);
+    shading.setUniformf("u_selectKey", s.r, s.g, s.b, selectAlpha   );
+    
+    //
+    //  One these are prepared, we can set up lighting and textures for the
+    //  initial surface pass.
+    final Vec3D l = new Vec3D().set(-1, -1, -1).normalise();
+    final float lightVals[] = new float[] { l.x, l.y, l.z };
+    MeshPart p;
     shading.setUniformi("u_surfaceTex", 0);
     shading.setUniformi("u_labelsTex" , 1);
     shading.setUniformi("u_sectorsMap", 2);
     shading.setUniform3fv("u_lightDirection", lightVals, 0, 3);
-    final Colour k = sectorKey;
-    shading.setUniformf("u_sectorKey", k.r, k.g, k.b, k.a);
     
     p = surfacePart.meshPart;
     surfaceTex.bind(0);
     sectorsKeyTex.asTexture().bind(2);
     shading.setUniformi("u_surfacePass", GL11.GL_TRUE );
     p.mesh.render(shading, p.primitiveType, p.indexOffset, p.numVertices);
+    //  TODO:  Render sector outlines here too...
+    /*
+    p = sectorsPart.meshPart;
+    p.mesh.render(shading, p.primitiveType, p.indexOffset, p.numVertices);
+    //*/
     
+    //
+    //  And on top of all these, the labels for each sector.
     Gdx.gl.glDisable(GL11.GL_DEPTH_TEST);
     Gdx.gl.glDepthMask(false);
     font.texture().bind(1);
     shading.setUniformi("u_surfacePass", GL11.GL_FALSE);
-    /*
-    //  TODO:  Render sector outlines here instead...
-    p = sectorsPart.meshPart;
-    p.mesh.render(shading, p.primitiveType, p.indexOffset, p.numVertices);
-    //*/
     renderLabels(font);
     
     shading.end();
