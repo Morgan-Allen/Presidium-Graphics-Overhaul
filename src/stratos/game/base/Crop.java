@@ -5,13 +5,13 @@
   */
 
 
-package stratos.game.base ;
-import stratos.game.common.* ;
+package stratos.game.base;
+import stratos.game.common.*;
 import stratos.game.maps.*;
 import stratos.game.building.*;
-import stratos.graphics.common.* ;
-import stratos.graphics.cutout.* ;
-import stratos.util.* ;
+import stratos.graphics.common.*;
+import stratos.graphics.cutout.*;
+import stratos.util.*;
 
 
 //
@@ -21,35 +21,35 @@ import stratos.util.* ;
 public class Crop implements Session.Saveable, Target {
   
   
-  final static int
+  final public static int
     NOT_PLANTED =  0,
     MIN_GROWTH  =  1,
     MIN_HARVEST =  3,
     MAX_GROWTH  =  4;
-  final static float
+  final public static float
     NO_HEALTH  = -1,
     MIN_HEALTH =  0,
     MAX_HEALTH =  2;
   
-  final static String STAGE_NAMES[] = {
+  final public static String STAGE_NAMES[] = {
     "Unplanted ",
     "Sprouting ",
     "Growing ",
     "Mature ",
     "Ripened "
-  } ;
-  final static String HEALTH_NAMES[] = {
+  };
+  final public static String HEALTH_NAMES[] = {
     "Feeble",
     "Poor",
     "Fair",
     "Good",
     "Excellent",
     "Perfect"
-  } ;
+  };
   
   
-  final Plantation parent;
-  final Tile tile;
+  final public Plantation parent;
+  final public Tile tile;
   
   private Species species;
   private float growStage, quality;
@@ -57,61 +57,61 @@ public class Crop implements Session.Saveable, Target {
   
   
   protected Crop(Plantation parent, Species species, Tile t) {
-    this.parent = parent ;
-    this.species = species ;
-    this.tile = t ;
-    growStage = NOT_PLANTED ;
-    quality = 1.0f ;
+    this.parent = parent;
+    this.species = species;
+    this.tile = t;
+    growStage = NOT_PLANTED;
+    quality = 1.0f;
   }
   
   
   public Crop(Session s) throws Exception {
-    s.cacheInstance(this) ;
-    parent = (Plantation) s.loadObject() ;
-    tile = (Tile) s.loadTarget() ;
-    species = (Species) s.loadObject() ;
-    growStage = s.loadFloat() ;
-    quality = s.loadFloat() ;
+    s.cacheInstance(this);
+    parent = (Plantation) s.loadObject();
+    tile = (Tile) s.loadTarget();
+    species = (Species) s.loadObject();
+    growStage = s.loadFloat();
+    quality = s.loadFloat();
   }
   
   
   public void saveState(Session s) throws Exception {
-    s.saveObject(parent) ;
-    s.saveTarget(tile) ;
-    s.saveObject(species) ;
-    s.saveFloat(growStage) ;
-    s.saveFloat(quality) ;
+    s.saveObject(parent);
+    s.saveTarget(tile);
+    s.saveObject(species);
+    s.saveFloat(growStage);
+    s.saveFloat(quality);
   }
   
   
   
   /**  Implementing the Target interface-
     */
-  private Object flagged ;
+  private Object flagged;
   
-  public boolean inWorld() { return parent.inWorld() ; }
-  public boolean destroyed() { return parent.destroyed() ; }
-  public World world() { return parent.world() ; }
+  public boolean inWorld() { return parent.inWorld(); }
+  public boolean destroyed() { return parent.destroyed(); }
+  public World world() { return parent.world(); }
   
-  public Vec3D position(Vec3D v) { return tile.position(v) ; }
-  public float height() { return tile.height() ; }
-  public float radius() { return tile.radius() ; }
-  public boolean isMobile() { return false ; }
+  public Vec3D position(Vec3D v) { return tile.position(v); }
+  public float height() { return tile.height(); }
+  public float radius() { return tile.radius(); }
+  public boolean isMobile() { return false; }
   
-  public void flagWith(Object f) { this.flagged = f ; }
-  public Object flaggedWith() { return flagged ; }
+  public void flagWith(Object f) { this.flagged = f; }
+  public Object flaggedWith() { return flagged; }
   
   
   
   /**  Growth calculations-
     */
   static boolean isHive(Species s) {
-    return s == Species.HIVE_GRUBS || s == Species.BLUE_VALVES ;
+    return s == Species.HIVE_GRUBS || s == Species.BLUE_VALVES;
   }
   
   
   static boolean isCereal(Species s) {
-    return s == Species.DURWHEAT || s == Species.ONI_RICE ;
+    return s == Species.DURWHEAT || s == Species.ONI_RICE;
   }
   
   
@@ -131,7 +131,7 @@ public class Crop implements Session.Saveable, Target {
   }
   
   
-  protected static Service yieldType(Species species) {
+  public static Service yieldType(Species species) {
     final Service type;
     if (isHive(species)) {
       type = Economy.PROTEIN;
@@ -144,7 +144,7 @@ public class Crop implements Session.Saveable, Target {
   }
   
   
-  static float habitatBonus(Tile t, Species s, BotanicalStation parent) {
+  public static float habitatBonus(Tile t, Species s, BotanicalStation parent) {
     final Upgrade PU;
     float bonus = 0.0f;
     
@@ -175,20 +175,19 @@ public class Crop implements Session.Saveable, Target {
   }
   
   
-  protected void seedWith(Species s, float quality) {
+  public void seedWith(Species s, float quality) {
     this.species = s;
     this.quality = Visit.clamp(quality, 0, Plantation.MAX_HEALTH_BONUS);
     this.growStage = MIN_GROWTH;
+
+    parent.refreshCropSprites();
+    parent.checkCropStates();
   }
   
   
-  //  TODO:  Treat each crop individually as a fixture or element.  Use road
-  //  network to get water.
-  //final float fertility = tile.habitat().moisture() / 10f;
-  
   protected void onGrowth(Tile t) {
-    if (growStage == NOT_PLANTED) return ;
-    final World world = parent.world() ;
+    if (growStage == NOT_PLANTED) return;
+    final World world = parent.world();
     final float pollution = Visit.clamp(
       tile.world.ecology().ambience.valueAt(tile), 0, 1
     );
@@ -231,40 +230,44 @@ public class Crop implements Session.Saveable, Target {
   }
   
   
-  protected void disinfest() {
+  public void disinfest() {
     blighted = false;
   }
   
   
-  protected Item yieldCrop() {
+  public Item yieldCrop() {
     final Service type = yieldType(species);
     final float amount = growStage / MAX_GROWTH;
     growStage = NOT_PLANTED;
     quality = NO_HEALTH;
     blighted = false;
+
+    parent.refreshCropSprites();
+    parent.checkCropStates();
+    
     return Item.withAmount(type, amount);
   }
   
   
-  boolean needsTending() {
+  public boolean needsTending() {
     return
       blighted ||
       growStage == NOT_PLANTED ||
-      growStage >= MIN_HARVEST ;
+      growStage >= MIN_HARVEST;
   }
   
   
-  boolean blighted() {
+  public boolean blighted() {
     return blighted;
   }
   
   
-  int growStage() {
+  public int growStage() {
     return (int) growStage;
   }
   
   
-  Species species() {
+  public Species species() {
     return species;
   }
   
@@ -274,14 +277,14 @@ public class Crop implements Session.Saveable, Target {
     */
   //  TODO:  Pass a Description object here instead?
   public String toString() {
-    final int stage = (int) Visit.clamp(growStage, 0, MAX_GROWTH) ;
-    final String HD ;
-    if (blighted) HD = " (Infested)" ;
+    final int stage = (int) Visit.clamp(growStage, 0, MAX_GROWTH);
+    final String HD;
+    if (blighted) HD = " (Infested)";
     else {
-      final int HL = Visit.clamp((int) quality, 5) ;
-      HD = " ("+HEALTH_NAMES[HL]+" health)" ;
+      final int HL = Visit.clamp((int) quality, 5);
+      HD = " ("+HEALTH_NAMES[HL]+" health)";
     }
-    return STAGE_NAMES[stage]+""+species.name+HD ;
+    return STAGE_NAMES[stage]+""+species.name+HD;
   }
 }
 

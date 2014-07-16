@@ -5,7 +5,7 @@
   */
 
 
-package stratos.game.actors ;
+package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.util.*;
 
@@ -29,19 +29,19 @@ public interface Behaviour extends Session.Saveable {
     MOTION_ANY    = -1,
     MOTION_NORMAL =  0,
     MOTION_FAST   =  1,
-    MOTION_SNEAK  =  2 ;
+    MOTION_SNEAK  =  2;
   
-  Behaviour nextStepFor(Actor actor) ;
-  int motionType(Actor actor) ;
-  void abortBehaviour() ;
+  Behaviour nextStepFor(Actor actor);
+  int motionType(Actor actor);
+  void abortBehaviour();
   Target subject();
   
-  float priorityFor(Actor actor) ;
-  boolean finished() ;
-  boolean valid() ;
-  boolean hasBegun() ;
+  float priorityFor(Actor actor);
+  boolean finished();
+  boolean valid();
+  boolean hasBegun();
   
-  void describeBehaviour(Description d) ;
+  void describeBehaviour(Description d);
 }
 
 

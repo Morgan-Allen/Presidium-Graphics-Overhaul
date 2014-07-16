@@ -5,16 +5,16 @@
   */
 
 
-package stratos.game.base ;
+package stratos.game.base;
 import stratos.game.civilian.*;
-import stratos.game.common.* ;
-import stratos.game.actors.* ;
-import stratos.game.building.* ;
-import stratos.graphics.common.* ;
-import stratos.graphics.cutout.* ;
-import stratos.graphics.widgets.* ;
-import stratos.user.* ;
-import stratos.util.* ;
+import stratos.game.common.*;
+import stratos.game.actors.*;
+import stratos.game.building.*;
+import stratos.graphics.common.*;
+import stratos.graphics.cutout.*;
+import stratos.graphics.widgets.*;
+import stratos.user.*;
+import stratos.util.*;
 
 
 
@@ -30,33 +30,33 @@ public class Billboard extends Venue implements Economy {
   );
   
   
-  //final AuditOffice parent ;
+  //final AuditOffice parent;
   
   
   public Billboard(Base base) {
-    super(1, 2, ENTRANCE_WEST, base) ;
-    //this.parent = parent ;
+    super(1, 2, ENTRANCE_WEST, base);
+    //this.parent = parent;
     structure.setupStats(
       20,  //integrity
       2,   //armour
       50,  //build cost
       0,   //max upgrades
       Structure.TYPE_FIXTURE
-    ) ;
-    personnel.setShiftType(SHIFTS_ALWAYS) ;
-    this.attachSprite(MODEL.makeSprite()) ;
+    );
+    personnel.setShiftType(SHIFTS_ALWAYS);
+    this.attachSprite(MODEL.makeSprite());
   }
   
   
   public Billboard(Session s) throws Exception {
-    super(s) ;
-    //parent = (AuditOffice) s.loadObject() ;
+    super(s);
+    //parent = (AuditOffice) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
-    //s.saveObject(parent) ;
+    super.saveState(s);
+    //s.saveObject(parent);
   }
   
   
@@ -79,17 +79,17 @@ public class Billboard extends Venue implements Economy {
   
   
   public Behaviour jobFor(Actor actor) {
-    return null ;
+    return null;
   }
   
   
   public Background[] careers() {
-    return null ;
+    return null;
   }
   
   
   public Service[] services() {
-    return null ;
+    return null;
   }
   
   
@@ -97,7 +97,7 @@ public class Billboard extends Venue implements Economy {
   /**  Rendering and interface methods-
     */
   public String fullName() {
-    return "Billboard" ;
+    return "Billboard";
   }
   
   
@@ -114,7 +114,7 @@ public class Billboard extends Venue implements Economy {
   
 
   public String buildCategory() {
-    return UIConstants.TYPE_AESTHETE ;
+    return UIConstants.TYPE_AESTHETE;
   }
 }
 

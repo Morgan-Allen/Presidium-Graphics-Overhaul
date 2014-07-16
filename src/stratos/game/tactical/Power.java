@@ -1,11 +1,16 @@
 
 
 
-package stratos.game.tactical ;
+package stratos.game.tactical;
 import stratos.game.actors.*;
 import stratos.game.campaign.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
+import stratos.game.plans.Combat;
+import stratos.game.plans.Dialogue;
+import stratos.game.plans.DialogueUtils;
+import stratos.game.plans.FirstAid;
+import stratos.game.plans.Retreat;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
 import stratos.start.*;
@@ -30,19 +35,19 @@ public class Power implements Qualities {
   final public static int
     NONE        = 0,
     PLAYER_ONLY = 1,
-    MAINTAINED  = 2 ;
+    MAINTAINED  = 2;
   
   
-  final public String name, helpInfo ;
+  final public String name, helpInfo;
   final public ImageAsset buttonImage;
-  final int properties ;
+  final int properties;
   
   
   Power(String name, int properties, String imgFile, String helpInfo) {
-    this.name = name ;
-    this.helpInfo = helpInfo ;
+    this.name = name;
+    this.helpInfo = helpInfo;
     this.buttonImage = ImageAsset.fromImage(IMG_DIR+imgFile, Power.class);
-    this.properties = properties ;
+    this.properties = properties;
   }
   
   
@@ -50,12 +55,12 @@ public class Power implements Qualities {
     Actor caster, String option,
     Target selected, boolean clicked
   ) {
-    return false ;
+    return false;
   }
   
   
   public String[] options() {
-    return null ;
+    return null;
   }
   
   
@@ -89,60 +94,60 @@ public class Power implements Qualities {
     VOICE_OF_COMMAND_FX_MODEL = new PlaneFX.Model(
       "voice_command_fx", Power.class,
       SFX_DIR+"voice_of_command.png", 1, 360, 1, true, true
-    ) ;
+    );
   
   
   public static void applyTimeDilation(float gameSpeed, Scenario scenario) {
-    final Actor caster = scenario.base().ruler() ;
-    if (caster == null || GameSettings.psyFree) return ;
+    final Actor caster = scenario.base().ruler();
+    if (caster == null || GameSettings.psyFree) return;
     
     final float
       bonus = caster.traits.useLevel(PROJECTION) / 10f,
-      drain = 1f / ((1 + bonus) * PlayLoop.UPDATES_PER_SECOND * gameSpeed) ;
-    caster.health.adjustPsy(0 - drain) ;
-    caster.traits.practiceAgainst(10, drain * 2, PROJECTION) ;
+      drain = 1f / ((1 + bonus) * PlayLoop.UPDATES_PER_SECOND * gameSpeed);
+    caster.health.adjustPsy(0 - drain);
+    caster.traits.practiceAgainst(10, drain * 2, PROJECTION);
   }
   
   
   public static void applyResting(float gameSpeed, Scenario scenario) {
-    final Actor caster = scenario.base().ruler() ;
+    final Actor caster = scenario.base().ruler();
     if (caster == null || GameSettings.psyFree) {
-      PlayLoop.setGameSpeed(1) ;
-      return ;
+      PlayLoop.setGameSpeed(1);
+      return;
     }
     //
     //  Restore psi points/fatigue/etc. and return to normal speed when done.
-    caster.health.adjustPsy(2 / PlayLoop.UPDATES_PER_SECOND) ;
-    PlayLoop.setNoInput(true) ;
+    caster.health.adjustPsy(2 / PlayLoop.UPDATES_PER_SECOND);
+    PlayLoop.setNoInput(true);
     if (caster.health.psyPoints() >= caster.health.maxPsy()) {
-      PlayLoop.setGameSpeed(1) ;
-      PlayLoop.setNoInput(false) ;
+      PlayLoop.setGameSpeed(1);
+      PlayLoop.setNoInput(false);
     }
   }
   
   
   public static void applyWalkPath(Scenario scenario) {
-    final Actor caster = scenario.base().ruler() ;
-    if (caster == null || GameSettings.psyFree) return ;
+    final Actor caster = scenario.base().ruler();
+    if (caster == null || GameSettings.psyFree) return;
     
     final float
       bonus = caster.traits.useLevel(PREMONITION) / 10,
       lastSave = Scenario.current().timeSinceLastSave(),
-      boost = (lastSave / 1000f) * (0.5f + bonus) ;
-    caster.health.adjustPsy(boost) ;
-    caster.traits.practiceAgainst(10, boost / 2, PREMONITION) ;
+      boost = (lastSave / 1000f) * (0.5f + bonus);
+    caster.health.adjustPsy(boost);
+    caster.traits.practiceAgainst(10, boost / 2, PREMONITION);
   }
   
   
   public static void applyDenyVision(Scenario scenario) {
-    final Actor caster = scenario.base().ruler() ;
-    if (caster == null || GameSettings.psyFree) return ;
+    final Actor caster = scenario.base().ruler();
+    if (caster == null || GameSettings.psyFree) return;
     
     final float
       bonus = caster.traits.useLevel(PREMONITION) / 10,
-      cost = 10f / (0.5f + bonus) ;
-    caster.health.adjustPsy(0 - cost) ;
-    caster.traits.practiceAgainst(10, cost, PREMONITION) ;
+      cost = 10f / (0.5f + bonus);
+    caster.health.adjustPsy(0 - cost);
+    caster.traits.practiceAgainst(10, cost, PREMONITION);
   }
   
   
@@ -156,12 +161,12 @@ public class Power implements Qualities {
       final String
         OPTION_QUIT = "Save and Exit",
         OPTION_REST = "Save and Rest",
-        OPTION_MARK = "Save and Remember" ;
+        OPTION_MARK = "Save and Remember";
     
       public String[] options() {
         return new String[] {
           OPTION_QUIT, OPTION_REST, OPTION_MARK
-        } ;
+        };
       }
       
       public boolean finishedWith(
@@ -169,16 +174,16 @@ public class Power implements Qualities {
         Target selected, boolean clicked
       ) {
         if (option.equals(OPTION_QUIT)) {
-          Scenario.current().saveProgress(true, true) ;
+          Scenario.current().saveProgress(true, true);
         }
         if (option.equals(OPTION_REST)) {
-          Scenario.current().saveProgress(true, false) ;
-          PlayLoop.setGameSpeed(5.0f) ;
+          Scenario.current().saveProgress(true, false);
+          PlayLoop.setGameSpeed(5.0f);
         }
         if (option.equals(OPTION_MARK)) {
-          Scenario.current().saveProgress(false, false) ;
+          Scenario.current().saveProgress(false, false);
         }
-        return true ;
+        return true;
       }
     },
     
@@ -188,7 +193,7 @@ public class Power implements Qualities {
       "\n(Loads a previous game.)"
     ) {
       public String[] options() {
-        return Scenario.current().loadOptions() ;
+        return Scenario.current().loadOptions();
       }
       
       public boolean finishedWith(
@@ -197,10 +202,10 @@ public class Power implements Qualities {
       ) {
         //  Clean up arguments to allow garbage collection, and go back in the
         //  timeline-
-        caster = null ;
-        selected = null ;
-        Scenario.current().revertTo(option) ;
-        return true ;
+        caster = null;
+        selected = null;
+        Scenario.current().revertTo(option);
+        return true;
       }
     },
     
@@ -212,13 +217,13 @@ public class Power implements Qualities {
         "66% speed",
         "50% speed",
         "33% speed"
-      } ;
-      final float SPEED_VALS[] = { 0.66f, 0.5f, 0.33f } ;
+      };
+      final float SPEED_VALS[] = { 0.66f, 0.5f, 0.33f };
       
       
       public String[] options() {
-        if (PlayLoop.gameSpeed() < 1) return null ;
-        return SPEED_SETTINGS ;
+        if (PlayLoop.gameSpeed() < 1) return null;
+        return SPEED_SETTINGS;
       }
       
       
@@ -227,17 +232,17 @@ public class Power implements Qualities {
         Target selected, boolean clicked
       ) {
         if (option == null) {
-          PlayLoop.setGameSpeed(1) ;
-          return true ;
+          PlayLoop.setGameSpeed(1);
+          return true;
         }
         
-        float speedVal = SPEED_VALS[Visit.indexOf(option, SPEED_SETTINGS)] ;
+        float speedVal = SPEED_VALS[Visit.indexOf(option, SPEED_SETTINGS)];
         if (caster == null || GameSettings.psyFree) {
-          PlayLoop.setGameSpeed(speedVal) ;
-          return true ;
+          PlayLoop.setGameSpeed(speedVal);
+          return true;
         }
-        PlayLoop.setGameSpeed(speedVal) ;
-        return true ;
+        PlayLoop.setGameSpeed(speedVal);
+        return true;
       }
     },
     
@@ -250,38 +255,38 @@ public class Power implements Qualities {
         Actor caster, String option,
         Target selected, boolean clicked
       ) {
-        if (clicked != true || ! (selected instanceof Tile)) return false ;
-        final Tile tile = (Tile) selected ;
+        if (clicked != true || ! (selected instanceof Tile)) return false;
+        final Tile tile = (Tile) selected;
         
-        float bonus = 0 ;
+        float bonus = 0;
         if (caster != null && ! GameSettings.psyFree) {
-          bonus += caster.traits.useLevel(PROJECTION) / 5 ;
+          bonus += caster.traits.useLevel(PROJECTION) / 5;
 
-          float dist = (float) Math.sqrt(Spacing.distance(tile, caster)) ;
-          float cost = 10 * (1 + (dist / World.SECTOR_SIZE)) ;
-          caster.health.adjustPsy(0 - cost) ;
-          caster.traits.practiceAgainst(10, cost, PROJECTION) ;
+          float dist = (float) Math.sqrt(Spacing.distance(tile, caster));
+          float cost = 10 * (1 + (dist / World.SECTOR_SIZE));
+          caster.health.adjustPsy(0 - cost);
+          caster.traits.practiceAgainst(10, cost, PROJECTION);
         }
         
-        final float radius = (9 + (bonus * bonus)) / 2f ;
-        final Base played = Scenario.current().base() ;
-        played.intelMap.liftFogAround(tile.x, tile.y, radius) ;
+        final float radius = (9 + (bonus * bonus)) / 2f;
+        final Base played = Scenario.current().base();
+        played.intelMap.liftFogAround(tile.x, tile.y, radius);
         
-        final float SS = radius / 1.5f ;
-        final Vec3D p = tile.position(null) ;
-        p.z += 0.5f ;
+        final float SS = radius / 1.5f;
+        final Vec3D p = tile.position(null);
+        p.z += 0.5f;
         
-        final Sprite swirlFX = REMOTE_VIEWING_FX_MODEL.makeSprite() ;
-        swirlFX.scale = SS / 2 ;
-        swirlFX.position.setTo(p) ;
-        tile.world.ephemera.addGhost(null, SS, swirlFX, 1.0f) ;
+        final Sprite swirlFX = REMOTE_VIEWING_FX_MODEL.makeSprite();
+        swirlFX.scale = SS / 2;
+        swirlFX.position.setTo(p);
+        tile.world.ephemera.addGhost(null, SS, swirlFX, 1.0f);
         
-        final Sprite burstFX = LIGHT_BURST_MODEL.makeSprite() ;
-        burstFX.scale = SS / 2 ;
-        burstFX.position.setTo(p) ;
-        tile.world.ephemera.addGhost(null, SS, burstFX, 2.0f) ;
+        final Sprite burstFX = LIGHT_BURST_MODEL.makeSprite();
+        burstFX.scale = SS / 2;
+        burstFX.position.setTo(p);
+        tile.world.ephemera.addGhost(null, SS, burstFX, 2.0f);
         
-        return true ;
+        return true;
       }
     },
     
@@ -290,7 +295,7 @@ public class Power implements Qualities {
       "Imparts spatial moment to a chosen material object.\n(Hurls or carries "+
       "the target in an indicated direction.)"
     ) {
-      private Mobile grabbed = null ;
+      private Mobile grabbed = null;
       
       
       public boolean finishedWith(
@@ -299,45 +304,45 @@ public class Power implements Qualities {
       ) {
         if (grabbed == null) {
           if (clicked && selected instanceof Mobile) {
-            grabbed = (Mobile) selected ;
+            grabbed = (Mobile) selected;
           }
-          return false ;
+          return false;
         }
         else if (clicked) {
-          grabbed = null ;
-          return true ;
+          grabbed = null;
+          return true;
         }
-        else return ! pushGrabbed(caster, selected) ;
+        else return ! pushGrabbed(caster, selected);
       }
       
       
       private boolean pushGrabbed(Actor caster, Target toward) {
-        if (grabbed == null) return false ;
+        if (grabbed == null) return false;
         
         if (grabbed instanceof Actor) {
-          ((Actor) grabbed).enterStateKO(Action.FALL) ;
+          ((Actor) grabbed).enterStateKO(Action.FALL);
         }
         
-        float maxDist = 1 ;
+        float maxDist = 1;
         if (caster != null && ! GameSettings.psyFree) {
-          maxDist = 1 + (caster.traits.useLevel(TRANSDUCTION) / 10f) ;
-          final float drain = 4f / PlayLoop.FRAMES_PER_SECOND ;
-          caster.health.adjustPsy(0 - drain) ;
-          caster.traits.practiceAgainst(10, drain, TRANSDUCTION) ;
+          maxDist = 1 + (caster.traits.useLevel(TRANSDUCTION) / 10f);
+          final float drain = 4f / PlayLoop.FRAMES_PER_SECOND;
+          caster.health.adjustPsy(0 - drain);
+          caster.traits.practiceAgainst(10, drain, TRANSDUCTION);
         }
-        maxDist *= 10f / PlayLoop.FRAMES_PER_SECOND ;
+        maxDist *= 10f / PlayLoop.FRAMES_PER_SECOND;
         maxDist /= 4 * grabbed.radius();
         
         final Vec3D pushed = new Vec3D();
-        toward.position(pushed).sub(grabbed.position(null)) ;
-        if (pushed.length() > maxDist) pushed.normalise().scale(maxDist) ;
-        pushed.add(grabbed.position(null)) ;
+        toward.position(pushed).sub(grabbed.position(null));
+        if (pushed.length() > maxDist) pushed.normalise().scale(maxDist);
+        pushed.add(grabbed.position(null));
         
-        grabbed.setHeading(pushed, -1, false, grabbed.world()) ;
+        grabbed.setHeading(pushed, -1, false, grabbed.world());
         grabbed.world().ephemera.updateGhost(
           grabbed, 1, TELEKINESIS_FX_MODEL, 0.2f
-        ) ;
-        return true ;
+        );
+        return true;
       }
     },
     
@@ -350,21 +355,21 @@ public class Power implements Qualities {
         Actor caster, String option,
         Target selected, boolean clicked
       ) {
-        if (clicked != true || ! (selected instanceof Actor)) return false ;
-        final Actor subject = (Actor) selected ;
+        if (clicked != true || ! (selected instanceof Actor)) return false;
+        final Actor subject = (Actor) selected;
         
         if (caster == null || GameSettings.psyFree) {
-          subject.gear.boostShields(5, false) ;
-          return true ;
+          subject.gear.boostShields(5, false);
+          return true;
         }
         
         final float
           bonus = caster.traits.useLevel(TRANSDUCTION) / 2,
-          cost = 5 ;
-        subject.gear.boostShields(5 + bonus, false) ;
-        caster.health.adjustPsy(0 - cost) ;
-        caster.traits.practiceAgainst(10, cost, TRANSDUCTION) ;
-        return true ;
+          cost = 5;
+        subject.gear.boostShields(5 + bonus, false);
+        caster.health.adjustPsy(0 - cost);
+        caster.traits.practiceAgainst(10, cost, TRANSDUCTION);
+        return true;
       }
     },
     
@@ -377,26 +382,26 @@ public class Power implements Qualities {
         Actor caster, String option,
         Target selected, boolean clicked
       ) {
-        if (clicked != true || ! (selected instanceof Actor)) return false ;
-        final Actor subject = (Actor) selected ;
+        if (clicked != true || ! (selected instanceof Actor)) return false;
+        final Actor subject = (Actor) selected;
         
-        float bonus = 1 ;
+        float bonus = 1;
         if (caster != null && ! GameSettings.psyFree) {
-          final float cost = 5 ;
-          caster.health.adjustPsy(0 - cost) ;
-          bonus += caster.traits.useLevel(METABOLISM) / 2 ;
-          caster.traits.practiceAgainst(10, cost, METABOLISM) ;
+          final float cost = 5;
+          caster.health.adjustPsy(0 - cost);
+          bonus += caster.traits.useLevel(METABOLISM) / 2;
+          caster.traits.practiceAgainst(10, cost, METABOLISM);
         }
         
         if (subject.health.conscious()) {
-          if (subject.traits.test(IMMUNE, 10 + bonus, 10)) bonus = 0 ;
+          if (subject.traits.test(IMMUNE, 10 + bonus, 10)) bonus = 0;
         }
         if (bonus > 0) {
-          subject.health.setState(ActorHealth.STATE_SUSPEND) ;
+          subject.health.setState(ActorHealth.STATE_SUSPEND);
         }
-        else bonus = 0.1f ;
-        subject.traits.incLevel(SUSPENSION_EFFECT, bonus * 2 / 10f) ;
-        return true ;
+        else bonus = 0.1f;
+        subject.traits.incLevel(SUSPENSION_EFFECT, bonus * 2 / 10f);
+        return true;
       }
     },
     
@@ -410,18 +415,18 @@ public class Power implements Qualities {
         Actor caster, String option,
         Target selected, boolean clicked
       ) {
-        if (clicked != true || ! (selected instanceof Actor)) return false ;
-        final Actor subject = (Actor) selected ;
-        float bonus = 5f ;
+        if (clicked != true || ! (selected instanceof Actor)) return false;
+        final Actor subject = (Actor) selected;
+        float bonus = 5f;
         
         if (caster != null && ! GameSettings.psyFree) {
-          bonus += caster.traits.useLevel(SYNESTHESIA) / 2 ;
-          final float cost = 2.5f ;
-          caster.health.adjustPsy(0 - cost) ;
-          caster.traits.practiceAgainst(10, cost, SYNESTHESIA) ;
+          bonus += caster.traits.useLevel(SYNESTHESIA) / 2;
+          final float cost = 2.5f;
+          caster.health.adjustPsy(0 - cost);
+          caster.traits.practiceAgainst(10, cost, SYNESTHESIA);
         }
-        subject.traits.incLevel(KINESTHESIA_EFFECT, bonus * 2 / 10f) ;
-        return true ;
+        subject.traits.incLevel(KINESTHESIA_EFFECT, bonus * 2 / 10f);
+        return true;
       }
     },
     
@@ -436,11 +441,11 @@ public class Power implements Qualities {
         "Fight",
         "Treat",
         "Talk"
-      } ;
+      };
       
-      Actor affects = null ;
+      Actor affects = null;
       
-      public String[] options() { return options ; }
+      public String[] options() { return options; }
       
       
       public boolean finishedWith(
@@ -449,33 +454,33 @@ public class Power implements Qualities {
       ) {
         if (affects == null) {
           if (clicked && selected instanceof Actor) {
-            affects = (Actor) selected ;
+            affects = (Actor) selected;
           }
         }
         else {
-          if (clicked) return applyEffect(caster, option, selected) ;
+          if (clicked) return applyEffect(caster, option, selected);
         }
-        return false ;
+        return false;
       }
       
       
       private boolean applyEffect(
         Actor caster, String option, Target selected
       ) {
-        Plan command = null ;
+        Plan command = null;
         if (option == options[0] && selected instanceof Tile) {
-          command = new Retreat(affects, (Tile) selected) ;
+          command = new Retreat(affects, (Tile) selected);
         }
         if (option == options[1] && selected instanceof Actor) {
-          command = new Combat(affects, (Actor) selected) ;
+          command = new Combat(affects, (Actor) selected);
         }
         if (option == options[2] && selected instanceof Actor) {
-          command = new FirstAid(affects, (Actor) selected) ;
+          command = new FirstAid(affects, (Actor) selected);
         }
         if (option == options[3] && selected instanceof Actor) {
           command = new Dialogue(
             affects, (Actor) selected, Dialogue.TYPE_CONTACT
-          ) ;
+          );
         }
         if (command == null) return false;
         
@@ -509,16 +514,16 @@ public class Power implements Qualities {
         
         affects.world().ephemera.addGhost(
           affects, 1, VOICE_OF_COMMAND_FX_MODEL.makeSprite(), 0.5f
-        ) ;
-        final Sprite selectFX = VOICE_OF_COMMAND_FX_MODEL.makeSprite() ;
+        );
+        final Sprite selectFX = VOICE_OF_COMMAND_FX_MODEL.makeSprite();
         selectFX.scale = selected.radius();
         selected.position(selectFX.position);
         affects.world().ephemera.addGhost(
           null, 1, selectFX, 0.5f
-        ) ;
+        );
 
-        affects = null ;
-        return true ;
+        affects = null;
+        return true;
       }
     },
     
@@ -531,7 +536,7 @@ public class Power implements Qualities {
         KINESTHESIA,
         VOICE_OF_COMMAND
     }
-  ;
+ ;
 }
 
 

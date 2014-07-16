@@ -1,6 +1,6 @@
 
 
-package stratos.user ;
+package stratos.user;
 import stratos.game.actors.*;
 import stratos.game.campaign.*;
 import static stratos.game.campaign.StartupScenario.*;
@@ -27,7 +27,7 @@ public class MainMenu extends UIGroup {
     MODE_NEW_GAME        = 1,
     MODE_CONTINUE_GAME   = 2,
     MODE_CHANGE_SETTINGS = 3,
-    MODE_CONFIRM_QUIT    = 4 ;
+    MODE_CONFIRM_QUIT    = 4;
   
   
   final Text text;
@@ -36,22 +36,22 @@ public class MainMenu extends UIGroup {
   
   
   public MainMenu(HUD UI) {
-    super(UI) ;
-    text = new Text(UI, UIConstants.INFO_FONT) ;
-    text.relBound.set(0, 0, 1, 1) ;
-    text.scale = 1.25f ;
-    text.attachTo(this) ;
-    configMainText(null) ;
+    super(UI);
+    text = new Text(UI, UIConstants.INFO_FONT);
+    text.relBound.set(0, 0, 1, 1);
+    text.scale = 1.25f;
+    text.attachTo(this);
+    configMainText(null);
   }
   
   
   public void configMainText(Object args[]) {
-    text.setText("") ;
-    Call.add("\n  New Game"       , this, "configForNew"     , text) ;
-    Call.add("\n  Quick Tutorial" , this, "configQuickstart" , text) ;
-    Call.add("\n  Continue Game"  , this, "configToContinue" , text) ;
-    //Call.add("\n  Change Settings", this, "configForSettings", text) ;
-    Call.add("\n  Quit"           , this, "configToQuit"     , text) ;
+    text.setText("");
+    Call.add("\n  New Game"       , this, "configForNew"     , text);
+    Call.add("\n  Quick Tutorial" , this, "configQuickstart" , text);
+    Call.add("\n  Continue Game"  , this, "configToContinue" , text);
+    //Call.add("\n  Change Settings", this, "configForSettings", text);
+    Call.add("\n  Quit"           , this, "configToQuit"     , text);
   }
   
   
@@ -66,105 +66,105 @@ public class MainMenu extends UIGroup {
     Call.add(
       "\n    Male", (config.gender == MALE_BIRTH) ? Colour.CYAN : null,
       this, "setGender", text, true
-    ) ;
+    );
     Call.add(
       "\n    Female", (config.gender == FEMALE_BIRTH) ? Colour.CYAN : null,
       this, "setGender", text, false
-    ) ;
-    text.append("\n      ") ;
-    final Background g = config.gender ;
+    );
+    text.append("\n      ");
+    final Background g = config.gender;
     for (Skill s : g.skills()) {
-      text.append(s.name+" +"+g.skillLevel(s)+" ", Colour.LIGHT_GREY) ;
+      text.append(s.name+" +"+g.skillLevel(s)+" ", Colour.LIGHT_GREY);
     }
     
     //
     //  TODO:  Give an accompanying description of the House in question, using
     //  a preview image and side-text.
     
-    text.append("\n  House:") ;
+    text.append("\n  House:");
     I.say("  HOUSE IS: "+config.house);
     if (config.house == null) config.house = Sectors.ALL_PLANETS[0];
     for (Background b : Sectors.ALL_PLANETS) {
-      final Sector s = (Sector) b ;
-      final Colour c = config.house == s ? Colour.CYAN : null ;
-      Call.add("\n    "+s.houseName, c, this, "setHouse", text, s) ;
+      final Sector s = (Sector) b;
+      final Colour c = config.house == s ? Colour.CYAN : null;
+      Call.add("\n    "+s.houseName, c, this, "setHouse", text, s);
     }
     for (Skill s : config.house.skills()) {
-      text.append("\n      ("+s.name+" +5)", Colour.LIGHT_GREY) ;
+      text.append("\n      ("+s.name+" +5)", Colour.LIGHT_GREY);
     }
     
-    text.append("\n  Favoured skills: ") ;
-    text.append("("+config.chosenSkills.size()+"/"+MAX_SKILLS+")") ;
+    text.append("\n  Favoured skills: ");
+    text.append("("+config.chosenSkills.size()+"/"+MAX_SKILLS+")");
     for (Skill s : Backgrounds.KNIGHTED.skills()) {
-      if (Backgrounds.KNIGHTED.skillLevel(s) <= 5) continue ;
-      final Colour c = config.chosenSkills.includes(s) ? Colour.CYAN : null ;
-      Call.add("\n    "+s.name, c, this, "toggleSkill", text, s) ;
+      if (Backgrounds.KNIGHTED.skillLevel(s) <= 5) continue;
+      final Colour c = config.chosenSkills.includes(s) ? Colour.CYAN : null;
+      Call.add("\n    "+s.name, c, this, "toggleSkill", text, s);
     }
     
-    text.append("\n  Favoured traits: ") ;
-    text.append("("+config.chosenTraits.size()+"/"+MAX_TRAITS+")") ;
+    text.append("\n  Favoured traits: ");
+    text.append("("+config.chosenTraits.size()+"/"+MAX_TRAITS+")");
     for (Trait t : Backgrounds.KNIGHTED.traits()) {
-      final float l = Backgrounds.KNIGHTED.traitChance(t) > 0 ? 2 : -2 ;
-      final String name = Trait.descriptionFor(t, l) ;
-      final Colour c = config.chosenTraits.includes(t) ? Colour.CYAN : null ;
-      Call.add("\n    "+name, c, this, "toggleTrait", text, t) ;
+      final float l = Backgrounds.KNIGHTED.traitChance(t) > 0 ? 2 : -2;
+      final String name = Trait.descriptionFor(t, l);
+      final Colour c = config.chosenTraits.includes(t) ? Colour.CYAN : null;
+      Call.add("\n    "+name, c, this, "toggleTrait", text, t);
     }
     
     //
     //  Only allow continuation once all sections are filled-
-    boolean canProceed = true ;
-    if (config.chosenSkills.size() < MAX_SKILLS) canProceed = false ;
-    if (config.chosenTraits.size() < MAX_TRAITS) canProceed = false ;
+    boolean canProceed = true;
+    if (config.chosenSkills.size() < MAX_SKILLS) canProceed = false;
+    if (config.chosenTraits.size() < MAX_TRAITS) canProceed = false;
     if (canProceed) {
-      text.append("\n\n  (Sections complete)", Colour.LIGHT_GREY) ;
-      Call.add("\n    Expedition Settings", this, "configForLanding", text) ;
+      text.append("\n\n  (Sections complete)", Colour.LIGHT_GREY);
+      Call.add("\n    Expedition Settings", this, "configForLanding", text);
     }
     else {
-      text.append("\n\n  (Please fill all sections)", Colour.LIGHT_GREY) ;
-      text.append("\n    Expedition Settings", Colour.LIGHT_GREY) ;
+      text.append("\n\n  (Please fill all sections)", Colour.LIGHT_GREY);
+      text.append("\n    Expedition Settings", Colour.LIGHT_GREY);
     }
-    Call.add("\n  Go Back", this, "configMainText", text) ;
+    Call.add("\n  Go Back", this, "configMainText", text);
   }
   
   
   public void setGender(Object args[]) {
-    config.gender = ((Boolean) args[0]) ? MALE_BIRTH : FEMALE_BIRTH ;
-    configForNew(null) ;
+    config.gender = ((Boolean) args[0]) ? MALE_BIRTH : FEMALE_BIRTH;
+    configForNew(null);
   }
   
   
   public void setHouse(Object args[]) {
-    config.house = (Background) args[0] ;
+    config.house = (Background) args[0];
     I.say("  HOUSE IS NOW: "+config.house);
-    configForNew(null) ;
+    configForNew(null);
   }
   
   
   public void toggleSkill(Object args[]) {
-    final Skill s = (Skill) args[0] ;
+    final Skill s = (Skill) args[0];
     final List <Skill> skills = config.chosenSkills;
     if (skills.includes(s)) {
       skills.remove(s);
     }
     else {
       skills.addLast(s);
-      if (skills.size() > MAX_SKILLS) skills.removeFirst() ;
+      if (skills.size() > MAX_SKILLS) skills.removeFirst();
     }
-    configForNew(null) ;
+    configForNew(null);
   }
   
   
   public void toggleTrait(Object args[]) {
-    final Trait t = (Trait) args[0] ;
+    final Trait t = (Trait) args[0];
     final List <Trait> traits = config.chosenTraits;
     if (traits.includes(t)) {
-      traits.remove(t) ;
+      traits.remove(t);
     }
     else {
-      traits.addLast(t) ;
-      if (traits.size() > MAX_TRAITS) traits.removeFirst() ;
+      traits.addLast(t);
+      if (traits.size() > MAX_TRAITS) traits.removeFirst();
     }
-    configForNew(null) ;
+    configForNew(null);
   }
   
   
@@ -177,85 +177,85 @@ public class MainMenu extends UIGroup {
   
   
   private void describePerk(int index, int level, String label, String desc[]) {
-    text.append("\n  "+label) ;
-    final int perkLeft = MAX_PERKS + level - perkSpent() ;
-    for (int i = 0 ; i < 3 ; i++) {
-      text.append("\n    ") ;
+    text.append("\n  "+label);
+    final int perkLeft = MAX_PERKS + level - perkSpent();
+    for (int i = 0; i < 3; i++) {
+      text.append("\n    ");
       if (i <= perkLeft) {
-        final Colour c = level == i ? Colour.CYAN : null ;
-        Call.add(desc[i], c, this, "setPerkLevel", text, index, i) ;
+        final Colour c = level == i ? Colour.CYAN : null;
+        Call.add(desc[i], c, this, "setPerkLevel", text, index, i);
       }
-      else text.append(desc[i], Colour.GREY) ;
+      else text.append(desc[i], Colour.GREY);
     }
   }
   
   
   public void setPerkLevel(Object args[]) {
-    final int index = (Integer) args[0], level = (Integer) args[1] ;
+    final int index = (Integer) args[0], level = (Integer) args[1];
     if (index == 0) config.siteLevel  = level;
     if (index == 1) config.fundsLevel = level;
     if (index == 2) config.titleLevel = level;
-    configForLanding(null) ;
+    configForLanding(null);
   }
   
   
   public void configForLanding(Object arg[]) {
-    text.setText("") ;
-    text.append("\nExpedition Settings:\n") ;
+    text.setText("");
+    text.append("\nExpedition Settings:\n");
     
-    describePerk(0, config.siteLevel, "Site Type"    , SITE_DESC   ) ;
-    describePerk(1, config.fundsLevel, "Funding Level", FUNDING_DESC) ;
+    describePerk(0, config.siteLevel, "Site Type"    , SITE_DESC   );
+    describePerk(1, config.fundsLevel, "Funding Level", FUNDING_DESC);
     describePerk(
       2, config.titleLevel, "Granted Title",
       (config.gender == MALE_BIRTH) ? TITLE_MALE : TITLE_FEMALE
-    ) ;
+    );
     
-    text.append("\n  Colonists:") ;
-    int totalColonists = 0 ;
+    text.append("\n  Colonists:");
+    int totalColonists = 0;
     for (Background b : COLONIST_BACKGROUNDS) {
       totalColonists += config.numCrew(b);
     }
-    text.append(" ("+totalColonists+"/"+MAX_COLONISTS+")") ;
+    text.append(" ("+totalColonists+"/"+MAX_COLONISTS+")");
     for (Background b : COLONIST_BACKGROUNDS) {
-      text.append("\n    "+config.numCrew(b)+" ") ;
-      Call.add(" More", Colour.CYAN, this, "incColonists", text, b,  1) ;
-      Call.add(" Less", Colour.CYAN, this, "incColonists", text, b, -1) ;
-      text.append(" "+b.name) ;
+      text.append("\n    "+config.numCrew(b)+" ");
+      Call.add(" More", Colour.CYAN, this, "incColonists", text, b,  1);
+      Call.add(" Less", Colour.CYAN, this, "incColonists", text, b, -1);
+      text.append(" "+b.name);
     }
     
-    text.append("\n  Accompanying Household:") ;
-    text.append(" ("+config.advisors.size()+"/"+MAX_ADVISORS+")") ;
+    text.append("\n  Accompanying Household:");
+    text.append(" ("+config.advisors.size()+"/"+MAX_ADVISORS+")");
     for (Background b : ADVISOR_BACKGROUNDS) {
-      final Colour c = config.advisors.includes(b) ? Colour.CYAN : null ;
-      Call.add("\n    "+b.name, c, this, "setAdvisor", text, b) ;
+      final Colour c = config.advisors.includes(b) ? Colour.CYAN : null;
+      Call.add("\n    "+b.name, c, this, "setAdvisor", text, b);
     }
     
-    boolean canBegin = true ;
-    if (perkSpent() < MAX_PERKS) canBegin = false ;
-    if (totalColonists < MAX_COLONISTS) canBegin = false ;
-    if (config.advisors.size() < MAX_ADVISORS) canBegin = false ;
+    boolean canBegin = true;
+    if (perkSpent() < MAX_PERKS) canBegin = false;
+    if (totalColonists < MAX_COLONISTS) canBegin = false;
+    if (config.advisors.size() < MAX_ADVISORS) canBegin = false;
     
     if (canBegin) {
-      text.append("\n\n  (Sections complete)", Colour.LIGHT_GREY) ;
-      Call.add("\n    Begin Game", this, "beginNewGame", text) ;
+      text.append("\n\n  (Sections complete)", Colour.LIGHT_GREY);
+      Call.add("\n    Begin Game", this, "beginNewGame", text);
     }
     else {
-      text.append("\n\n  (Please fill all sections)", Colour.LIGHT_GREY) ;
-      text.append("\n    Begin Game", Colour.LIGHT_GREY) ;
+      text.append("\n\n  (Please fill all sections)", Colour.LIGHT_GREY);
+      text.append("\n    Begin Game", Colour.LIGHT_GREY);
     }
-    Call.add("\n  Go Back", this, "configForNew", text) ;
+    Call.add("\n  Go Back", this, "configForNew", text);
   }
   
   
   public void setAdvisor(Object args[]) {
-    final Background b = (Background) args[0] ;
+    final Background b = (Background) args[0];
     if (config.advisors.includes(b)) {
-      config.advisors.remove(b) ;
+      config.advisors.remove(b);
     }
     else if (config.advisors.size() < MAX_ADVISORS) {
-      config.advisors.add(b) ;
+      config.advisors.add(b);
     }
-    configForLanding(null) ;
+    configForLanding(null);
   }
   
   
@@ -298,42 +298,42 @@ public class MainMenu extends UIGroup {
   /**  Loading games, settings, and quitting-
     */
   public void configToContinue(Object args[]) {
-    text.setText("") ;
+    text.setText("");
     
-    text.append("\n  Saved Games:") ;
+    text.append("\n  Saved Games:");
     for (String fileName : Scenario.savedFiles(null)) {
-      text.append("\n    ") ;
-      int cutoff = (Scenario.CURRENT_SAVE+".rep").length() ;
-      String playName = fileName.substring(0, fileName.length() - cutoff) ;
-      Call.add(playName, this, "loadSavedGame", text, fileName) ;
+      text.append("\n    ");
+      int cutoff = (Scenario.CURRENT_SAVE+".rep").length();
+      String playName = fileName.substring(0, fileName.length() - cutoff);
+      Call.add(playName, this, "loadSavedGame", text, fileName);
     }
     
-    Call.add("\n\n  Back", this, "configMainText", text) ;
+    Call.add("\n\n  Back", this, "configMainText", text);
   }
   
   
   public void loadSavedGame(Object args[]) {
-    final String fullPath = "saves/"+(String) args[0] ;
-    I.say("Loading game: "+fullPath) ;
+    final String fullPath = "saves/"+(String) args[0];
+    I.say("Loading game: "+fullPath);
     Scenario.loadGame(fullPath, true);
   }
   
   
   public void configForSettings(Object args[]) {
-    text.setText("\nChange Settings\n") ;
-    Call.add("\n  Back", this, "configMainText", text) ;
+    text.setText("\nChange Settings\n");
+    Call.add("\n  Back", this, "configMainText", text);
   }
   
   
   public void configToQuit(Object args[]) {
-    text.setText("\nAre you sure you want to quit?\n") ;
-    Call.add("\n  Just Quit Already", this, "quitConfirmed", text) ;
-    Call.add("\n  Back", this, "configMainText", text) ;
+    text.setText("\nAre you sure you want to quit?\n");
+    Call.add("\n  Just Quit Already", this, "quitConfirmed", text);
+    Call.add("\n  Back", this, "configMainText", text);
   }
   
   
   public void quitConfirmed(Object args[]) {
-    PlayLoop.exitLoop() ;
+    PlayLoop.exitLoop();
   }
 }
 

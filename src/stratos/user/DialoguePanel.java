@@ -12,7 +12,7 @@ import stratos.util.*;
 
 
 
-public class DialoguePanel extends InfoPanel implements UIConstants {
+public class DialoguePanel extends SelectionInfoPane implements UIConstants {
   
   
   final String title;

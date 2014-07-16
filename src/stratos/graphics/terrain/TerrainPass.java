@@ -33,7 +33,7 @@ public class TerrainPass {
       Gdx.files.internal("shaders/terrain.frag")
     );
     if (! shader.isCompiled()) {
-      throw new GdxRuntimeException("\n"+shader.getLog()) ;
+      throw new GdxRuntimeException("\n"+shader.getLog());
     }
   }
   

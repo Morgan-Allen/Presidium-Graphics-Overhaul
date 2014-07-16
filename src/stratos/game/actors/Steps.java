@@ -1,7 +1,7 @@
 
 
 
-package stratos.game.actors ;
+package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.game.common.Session.Saveable;
 import stratos.user.*;
@@ -14,31 +14,31 @@ import stratos.util.*;
 public class Steps extends Plan {
   
   
-  final float priority ;
-  final Stack <Action> actions = new Stack <Action> () ;
+  final float priority;
+  final Stack <Action> actions = new Stack <Action> ();
   
   
   public Steps(
     Actor actor, Target key, float priority,
     Action... actions
   ) {
-    super(actor, key) ;
-    this.priority = priority ;
-    for (Action a : actions) this.actions.add(a) ;
+    super(actor, key);
+    this.priority = priority;
+    for (Action a : actions) this.actions.add(a);
   }
   
   
   public Steps(Session s) throws Exception {
-    super(s) ;
-    priority = s.loadFloat() ;
-    s.loadObjects(actions) ;
+    super(s);
+    priority = s.loadFloat();
+    s.loadObjects(actions);
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
-    s.saveFloat(priority) ;
-    s.saveObjects(actions) ;
+    super.saveState(s);
+    s.saveFloat(priority);
+    s.saveObjects(actions);
   }
   
   
@@ -51,14 +51,14 @@ public class Steps extends Plan {
   /**  
     */
   protected float getPriority() {
-    return priority ;
+    return priority;
   }
   
   
   protected Behaviour getNextStep() {
-    final int index = actions.indexOf((Action) lastStep) + 1 ;
-    if (index >= actions.size()) return null ;
-    return actions.atIndex(index) ;
+    final int index = actions.indexOf((Action) lastStep) + 1;
+    if (index >= actions.size()) return null;
+    return actions.atIndex(index);
   }
   
   

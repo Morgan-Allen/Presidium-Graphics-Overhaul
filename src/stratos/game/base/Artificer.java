@@ -5,16 +5,16 @@
   */
 
 
-package stratos.game.base ;
-import stratos.game.civilian.Commission;
-import stratos.game.common.* ;
-import stratos.game.actors.* ;
-import stratos.game.building.* ;
-import stratos.graphics.common.* ;
-import stratos.graphics.cutout.* ;
-import stratos.graphics.widgets.* ;
-import stratos.user.* ;
-import stratos.util.* ;
+package stratos.game.base;
+import stratos.game.common.*;
+import stratos.game.plans.Commission;
+import stratos.game.actors.*;
+import stratos.game.building.*;
+import stratos.graphics.common.*;
+import stratos.graphics.cutout.*;
+import stratos.graphics.widgets.*;
+import stratos.user.*;
+import stratos.util.*;
 
 
 
@@ -33,23 +33,23 @@ public class Artificer extends Venue implements Economy {
   
   
   public Artificer(Base base) {
-    super(3, 2, ENTRANCE_WEST, base) ;
+    super(3, 2, ENTRANCE_WEST, base);
     structure.setupStats(
       200, 5, 350,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
-    ) ;
-    personnel.setShiftType(SHIFTS_BY_DAY) ;
-    this.attachSprite(MODEL.makeSprite()) ;
+    );
+    personnel.setShiftType(SHIFTS_BY_DAY);
+    this.attachSprite(MODEL.makeSprite());
   }
   
   
   public Artificer(Session s) throws Exception {
-    super(s) ;
+    super(s);
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
+    super.saveState(s);
   }
   
   
@@ -58,8 +58,8 @@ public class Artificer extends Venue implements Economy {
     */
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
     Artificer.class, "foundry_upgrades"
-  ) ;
-  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES ; }
+  );
+  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
     ASSEMBLY_LINE = new Upgrade(
       "Assembly Line",
@@ -104,24 +104,24 @@ public class Artificer extends Venue implements Economy {
       "technologies.",
       150,
       Backgrounds.ARTIFICER, 1, TECHNICIAN_STATION, ALL_UPGRADES
-    ) ;
+    );
   
   
   public Service[] services() {
-    return new Service[] { PARTS, CIRCUITRY, SERVICE_ARMAMENT } ;
+    return new Service[] { PARTS, CIRCUITRY, SERVICE_ARMAMENT };
   }
   
   
   public Background[] careers() {
-    return new Background[] { Backgrounds.TECHNICIAN, Backgrounds.ARTIFICER } ;
+    return new Background[] { Backgrounds.TECHNICIAN, Backgrounds.ARTIFICER };
   }
   
   
   public int numOpenings(Background v) {
     int num = super.numOpenings(v);
-    if (v == Backgrounds.TECHNICIAN) return num + 2 ;
-    if (v == Backgrounds.ARTIFICER ) return num + 1 ;
-    return 0 ;
+    if (v == Backgrounds.TECHNICIAN) return num + 2;
+    if (v == Backgrounds.ARTIFICER ) return num + 1;
+    return 0;
   }
   
   
@@ -132,12 +132,12 @@ public class Artificer extends Venue implements Economy {
     stocks.incDemand(PARTS, 10, Stocks.TIER_PRODUCER, 1, this);
     stocks.translateDemands(1, METALS_TO_PARTS, this);
     
-    float pollution = 5, powerNeed = 5 ;
+    float pollution = 5, powerNeed = 5;
     if (! isManned()) {
-      pollution /= 2 ;
-      powerNeed /= 2 ;
+      pollution /= 2;
+      powerNeed /= 2;
     }
-    powerNeed *= (3 + structure.numUpgrades()) / 3 ;
+    powerNeed *= (3 + structure.numUpgrades()) / 3;
     pollution *= 2f / (2 + structure.upgradeLevel(MOLDING_PRESS));
     stocks.forceDemand(POWER, powerNeed, Stocks.TIER_CONSUMER);
     structure.setAmbienceVal(0 - pollution);
@@ -145,62 +145,62 @@ public class Artificer extends Venue implements Economy {
   
   
   public Behaviour jobFor(Actor actor) {
-    if ((! structure.intact()) || (! personnel.onShift(actor))) return null ;
-    final float powerCut = stocks.shortagePenalty(POWER) * 10 ;
+    if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
+    final float powerCut = stocks.shortagePenalty(POWER) * 10;
     
     //  Consider special commissions for weapons and armour-
-    final Manufacture o = stocks.nextSpecialOrder(actor) ;
+    final Manufacture o = stocks.nextSpecialOrder(actor);
     if (o != null && personnel.assignedTo(o) < 1) {
-      o.checkBonus = structure.upgradeLevel(MOLDING_PRESS) + 5 ;
-      final int CMB = structure.upgradeLevel(COMPOSITE_MATERIALS) + 2 ;
-      final int FCB = structure.upgradeBonus(FLUX_CONTAINMENT) + 2 ;
-      final Service made = o.made().type ;
+      o.checkBonus = structure.upgradeLevel(MOLDING_PRESS) + 5;
+      final int CMB = structure.upgradeLevel(COMPOSITE_MATERIALS) + 2;
+      final int FCB = structure.upgradeBonus(FLUX_CONTAINMENT) + 2;
+      final Service made = o.made().type;
       
       if (made instanceof DeviceType) {
-        final DeviceType DT = (DeviceType) made ;
-        if (DT.hasProperty(PHYSICAL)) o.checkBonus += CMB ;
-        if (DT.hasProperty(ENERGY)) o.checkBonus += FCB ;
+        final DeviceType DT = (DeviceType) made;
+        if (DT.hasProperty(PHYSICAL)) o.checkBonus += CMB;
+        if (DT.hasProperty(ENERGY)) o.checkBonus += FCB;
       }
       
       if (made instanceof OutfitType) {
-        final OutfitType OT = (OutfitType) made ;
-        o.checkBonus += OT.shieldBonus * FCB / 10f ;
-        o.checkBonus += OT.defence * CMB / 10f ;
+        final OutfitType OT = (OutfitType) made;
+        o.checkBonus += OT.shieldBonus * FCB / 10f;
+        o.checkBonus += OT.defence * CMB / 10f;
       }
-      o.checkBonus -= powerCut ;
+      o.checkBonus -= powerCut;
       o.setMotive(Plan.MOTIVE_DUTY, Plan.URGENT);
-      return o ;
-      //choice.add(o) ;
+      return o;
+      //choice.add(o);
     }
     
     //  Consider contributing toward local repairs-
-    final Choice choice = new Choice(actor) ;
-    choice.add(Repairs.getNextRepairFor(actor, Plan.ROUTINE)) ;
+    final Choice choice = new Choice(actor);
+    choice.add(Repairs.getNextRepairFor(actor, Plan.ROUTINE));
     
     //  Finally, consider the production of general bulk commodities-
-    final int PB = 1 + structure.upgradeLevel(ASSEMBLY_LINE) ;
-    final Manufacture mP = stocks.nextManufacture(actor, METALS_TO_PARTS) ;
+    final int PB = 1 + structure.upgradeLevel(ASSEMBLY_LINE);
+    final Manufacture mP = stocks.nextManufacture(actor, METALS_TO_PARTS);
     if (mP != null) {
       //I.sayAbout(this, "Making parts priority: "+mP.priorityFor(actor));
-      mP.checkBonus = (PB * 5) / 2 ;
-      mP.checkBonus -= powerCut ;
-      choice.add(mP) ;
+      mP.checkBonus = (PB * 5) / 2;
+      mP.checkBonus -= powerCut;
+      choice.add(mP);
     }
-    final Manufacture mC = stocks.nextManufacture(actor, PARTS_TO_CIRCUITRY) ;
+    final Manufacture mC = stocks.nextManufacture(actor, PARTS_TO_CIRCUITRY);
     if (mC != null) {
-      mC.checkBonus = (PB * 5) / 2 ;
-      mC.checkBonus -= powerCut ;
-      choice.add(mC) ;
+      mC.checkBonus = (PB * 5) / 2;
+      mC.checkBonus -= powerCut;
+      choice.add(mC);
     }
     
     //  And return whatever suits the actor best-
     choice.isVerbose = I.talkAbout == this;
-    return choice.weightedPick() ;
+    return choice.weightedPick();
   }
   
   
   public void addServices(Choice choice, Actor forActor) {
-    Commission.addCommissions(forActor, this, choice) ;
+    Commission.addCommissions(forActor, this, choice);
   }
   
 
@@ -208,7 +208,7 @@ public class Artificer extends Venue implements Economy {
   /**  Rendering and interface methods-
     */
   protected Service[] goodsToShow() {
-    return new Service[] { METALS, CIRCUITRY, PARTS } ;
+    return new Service[] { METALS, CIRCUITRY, PARTS };
   }
   
   
@@ -218,7 +218,7 @@ public class Artificer extends Venue implements Economy {
 
 
   public String fullName() {
-    return "Artificer" ;
+    return "Artificer";
   }
   
   
@@ -230,7 +230,7 @@ public class Artificer extends Venue implements Economy {
   
   
   public String buildCategory() {
-    return InstallTab.TYPE_ARTIFICER ;
+    return InstallTab.TYPE_ARTIFICER;
   }
 }
 

@@ -1,17 +1,17 @@
 
 
-package stratos.game.base ;
+package stratos.game.base;
 import javax.net.ssl.SSLEngineResult.Status;
 
-import stratos.game.common.* ;
+import stratos.game.common.*;
 import stratos.game.maps.*;
-import stratos.game.actors.* ;
-import stratos.game.building.* ;
-import stratos.graphics.common.* ;
-import stratos.graphics.cutout.* ;
-import stratos.graphics.widgets.* ;
-import stratos.user.* ;
-import stratos.util.* ;
+import stratos.game.actors.*;
+import stratos.game.building.*;
+import stratos.graphics.common.*;
+import stratos.graphics.cutout.*;
+import stratos.graphics.widgets.*;
+import stratos.user.*;
+import stratos.util.*;
 
 
 
@@ -61,15 +61,15 @@ public class Plantation extends Venue implements
     ),
     GRUB_BOX_MODEL = CutoutModel.fromImage(
       Plantation.class, IMG_DIR+"grub_box.png", 0.5f, 0.5f
-    ) ;
+    );
   
   
   
-  final static int
+  final public static int
     TYPE_NURSERY = 0,
     TYPE_BED     = 1,
-    TYPE_COVERED = 2 ;
-  final static float
+    TYPE_COVERED = 2;
+  final public static float
     MATURE_DURATION = World.STANDARD_DAY_LENGTH * 5,
     GROW_INCREMENT  = World.GROWTH_INTERVAL / MATURE_DURATION,
     
@@ -87,82 +87,81 @@ public class Plantation extends Venue implements
     NURSERY_PROTEIN = 0.5f;
   
   
-  final BotanicalStation belongs ;
-  final int type ;
-  final int facing ;
-  final Plantation strip[] ;
-  final Crop planted[] = new Crop[4] ;
-  
-  private float needsTending = 0 ;
+  final public BotanicalStation belongs;
+  final public Plantation strip[];
+  final public int type;
+  final public Crop planted[] = new Crop[4];
+  final int facing;
+  private float needsTending = 0;
   
   
   
   public Plantation(
     BotanicalStation belongs, int type, int facing, Plantation strip[]
   ) {
-    super(2, 2, (ENTRANCE_SOUTH + (facing / 2)) % 4, belongs.base()) ;
-    final boolean IN = type == TYPE_NURSERY ;
+    super(2, 2, (ENTRANCE_SOUTH + (facing / 2)) % 4, belongs.base());
+    final boolean IN = type == TYPE_NURSERY;
     structure.setupStats(
       IN ? 25 : 5,  //integrity
       5,  //armour
       IN ? 15 : 2,  //build cost
       0,  //max upgrades
       Structure.TYPE_FIXTURE
-    ) ;
-    this.belongs = belongs ;
-    this.type = type ;
-    this.facing = facing ;
-    this.strip = strip ;
+    );
+    this.belongs = belongs;
+    this.type = type;
+    this.facing = facing;
+    this.strip = strip;
   }
   
 
   public Plantation(Session s) throws Exception {
-    super(s) ;
-    belongs = (BotanicalStation) s.loadObject() ;
-    type = s.loadInt() ;
-    facing = s.loadInt() ;
+    super(s);
+    belongs = (BotanicalStation) s.loadObject();
+    type = s.loadInt();
+    facing = s.loadInt();
     
-    final int SS = s.loadInt() ;
-    strip = new Plantation[SS] ;
-    for (int p = SS ; p-- > 0 ;) strip[p] = (Plantation) s.loadObject() ;
-    for (int i = 0 ; i < 4 ; i++) {
-      planted[i] = (Crop) s.loadObject() ;
+    final int SS = s.loadInt();
+    strip = new Plantation[SS];
+    for (int p = SS; p-- > 0;) strip[p] = (Plantation) s.loadObject();
+    for (int i = 0; i < 4; i++) {
+      planted[i] = (Crop) s.loadObject();
     }
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
-    s.saveObject(belongs) ;
-    s.saveInt(type) ;
-    s.saveInt(facing) ;
+    super.saveState(s);
+    s.saveObject(belongs);
+    s.saveInt(type);
+    s.saveInt(facing);
     
-    s.saveInt(strip.length) ;
-    for (Plantation p : strip) s.saveObject(p) ;
-    for (Crop c : planted) s.saveObject(c) ;
+    s.saveInt(strip.length);
+    for (Plantation p : strip) s.saveObject(p);
+    for (Crop c : planted) s.saveObject(c);
   }
   
   
   public int owningType() {
-    return FIXTURE_OWNS ;
+    return FIXTURE_OWNS;
   }
   
   
   public boolean privateProperty() {
-    return true ;
+    return true;
   }
   
   
   public int pathType() {
     return Tile.PATH_BLOCKS;
-    //if (type == TYPE_NURSERY) return Tile.PATH_BLOCKS ;
-    //if (type == TYPE_COVERED) return Tile.PATH_BLOCKS ;
-    //return Tile.PATH_HINDERS ;
+    //if (type == TYPE_NURSERY) return Tile.PATH_BLOCKS;
+    //if (type == TYPE_COVERED) return Tile.PATH_BLOCKS;
+    //return Tile.PATH_HINDERS;
   }
   
   
   protected void updatePaving(boolean inWorld) {
-    if (type == TYPE_NURSERY) super.updatePaving(inWorld) ;
+    if (type == TYPE_NURSERY) super.updatePaving(inWorld);
   }
   
   
@@ -171,33 +170,33 @@ public class Plantation extends Venue implements
     */
   final static int
     STRIP_DIRS[]  = { N, E, S, W },
-    CROPS_POS[] = { 0, 0, 0, 1, 1, 0, 1, 1 } ;
+    CROPS_POS[] = { 0, 0, 0, 1, 1, 0, 1, 1 };
   
   
   public boolean enterWorldAt(int x, int y, World world) {
-    if (! super.enterWorldAt(x, y, world)) return false ;
+    if (! super.enterWorldAt(x, y, world)) return false;
     if (type == TYPE_NURSERY) {
-      attachModel(NURSERY_MODEL) ;
+      attachModel(NURSERY_MODEL);
     }
     else {
-      for (int c = 0, i = 0 ; c < 4 ; c++) {
-        final Tile t = world.tileAt(x + CROPS_POS[i++], y + CROPS_POS[i++]) ;
-        ///I.say("Creating new bed, species: "+Species.CROP_SPECIES[0]) ;
+      for (int c = 0, i = 0; c < 4; c++) {
+        final Tile t = world.tileAt(x + CROPS_POS[i++], y + CROPS_POS[i++]);
+        ///I.say("Creating new bed, species: "+Species.CROP_SPECIES[0]);
         planted[c] = new Crop(
           this, Species.CROP_SPECIES[0], t
-        ) ;
+        );
       }
-      refreshCropSprites() ;
+      refreshCropSprites();
     }
-    return true ;
+    return true;
   }
   
   
   public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates) ;
+    super.updateAsScheduled(numUpdates);
     
-    if (! structure.intact()) return ;
-    structure.setAmbienceVal(2) ;
+    if (! structure.intact()) return;
+    structure.setAmbienceVal(2);
     
     if (type == TYPE_NURSERY && numUpdates % 10 == 0) {
       final float
@@ -214,73 +213,73 @@ public class Plantation extends Venue implements
   
   
   public void onGrowth(Tile t) {
-    if (! structure.intact()) return ;
+    if (! structure.intact()) return;
     //
     //  Here, we average fertility over the plantation as a whole-
     //  TODO:  Possibly combine with irrigation effects from water supply or
     //  life support?
     //  TODO:  Restore this.
     /*
-    float avgMoisture = 0, count = 0 ;
+    float avgMoisture = 0, count = 0;
     for (Plantation p : strip) {
-      final Tile o = p.origin() ;
-      for (int c = 0, i = 0 ; c < 4 ; c++) {
+      final Tile o = p.origin();
+      for (int c = 0, i = 0; c < 4; c++) {
         final Tile u = world.tileAt(
           o.x + CROPS_POS[i++],
           o.y + CROPS_POS[i++]
-        ) ;
-        avgMoisture += u.habitat().moisture() ;
-        count++ ;
+        );
+        avgMoisture += u.habitat().moisture();
+        count++;
       }
     }
-    avgMoisture /= count * 10 ;
-    if (type == TYPE_COVERED) avgMoisture = (avgMoisture + 1) / 2f ;
+    avgMoisture /= count * 10;
+    if (type == TYPE_COVERED) avgMoisture = (avgMoisture + 1) / 2f;
     //*/
     
     //  Then apply growth to each crop-
-    boolean anyChange = false ;
+    boolean anyChange = false;
     for (Crop c : planted) if (c != null && c.tile == t) {
-      final int oldGrowth = (int) c.growStage() ;
-      c.onGrowth(t) ;
-      final int newGrowth = (int) c.growStage() ;
-      if (oldGrowth != newGrowth) anyChange = true ;
+      final int oldGrowth = (int) c.growStage();
+      c.onGrowth(t);
+      final int newGrowth = (int) c.growStage();
+      if (oldGrowth != newGrowth) anyChange = true;
       
       world.ecology().impingeBiomass(
         t, c.growStage() / 2f, World.GROWTH_INTERVAL
       );
     }
-    checkCropStates() ;
-    if (anyChange) refreshCropSprites() ;
+    checkCropStates();
+    if (anyChange) refreshCropSprites();
   }
   
   
   protected void checkCropStates() {
-    needsTending = 0 ;
-    for (Crop c : planted) if (c != null && c.needsTending()) needsTending++ ;
-    needsTending /= planted.length ;
+    needsTending = 0;
+    for (Crop c : planted) if (c != null && c.needsTending()) needsTending++;
+    needsTending /= planted.length;
   }
   
   
   protected void refreshCropSprites() {
     if (sprite() != null) {
-      final GroupSprite oldSprite = (GroupSprite) buildSprite.baseSprite() ;
-      world.ephemera.addGhost(this, 2, oldSprite, 2.0f) ;
+      final GroupSprite oldSprite = (GroupSprite) buildSprite.baseSprite();
+      world.ephemera.addGhost(this, 2, oldSprite, 2.0f);
     }
     
-    final GroupSprite GS = new GroupSprite() ;
-    final Tile o = origin() ;
-    for (int i = 4 ; i-- > 0 ;) {
-      final Crop c = planted[i] ;
-      if (c == null) continue ;
+    final GroupSprite GS = new GroupSprite();
+    final Tile o = origin();
+    for (int i = 4; i-- > 0;) {
+      final Crop c = planted[i];
+      if (c == null) continue;
       //
       //  Update the sprite-
-      Sprite s = null ;
+      Sprite s = null;
       if (type == TYPE_COVERED) {
         if ((facing == N || facing == S) && c.tile.x == o.x + 1) {
-          s = COVERING_RIGHT.makeSprite() ;
+          s = COVERING_RIGHT.makeSprite();
         }
         if ((facing == E || facing == W) && c.tile.y == o.y + 0) {
-          s = COVERING_LEFT.makeSprite() ;
+          s = COVERING_LEFT.makeSprite();
         }
       }
       if (s == null) {
@@ -301,37 +300,37 @@ public class Plantation extends Venue implements
         CROPS_POS[i * 2] - 0.5f,
         CROPS_POS[(i * 2) + 1] - 0.5f,
         0
-      ) ;
+      );
     }
-    attachSprite(GS) ;
-    setAsEstablished(false) ;
+    attachSprite(GS);
+    setAsEstablished(false);
   }
   
   
   Crop[] planted() {
-    return planted ;
+    return planted;
   }
   
   
-  protected Crop plantedAt(Tile t) {
-    for (Crop c : planted) if (c != null && c.tile == t) return c ;
-    return null ;
+  public Crop plantedAt(Tile t) {
+    for (Crop c : planted) if (c != null && c.tile == t) return c;
+    return null;
   }
   
   
-  protected float needForTending() {
-    if (type != TYPE_NURSERY || ! structure.intact()) return 0 ;
-    float sum = 0 ;
-    for (Plantation p : strip) sum += p.needsTending ;
-    return sum / (strip.length - 1) ;
+  public float needForTending() {
+    if (type != TYPE_NURSERY || ! structure.intact()) return 0;
+    float sum = 0;
+    for (Plantation p : strip) sum += p.needsTending;
+    return sum / (strip.length - 1);
   }
   
   
-  public Service[] services() { return null ; }
+  public Service[] services() { return null; }
   
-  public Background[] careers() { return null ; }
+  public Background[] careers() { return null; }
   
-  public Behaviour jobFor(Actor actor) { return null ; }
+  public Behaviour jobFor(Actor actor) { return null; }
   
   
   
@@ -343,19 +342,19 @@ public class Plantation extends Venue implements
   static Plantation[] placeAllotment(
     final BotanicalStation parent, final int minSize, boolean covered
   ) {
-    final World world = parent.world() ;
+    final World world = parent.world();
     Plantation strip[] = new Plantation[4];
     
-    for (int n = 4 ; n-- > 0 ;) {
+    for (int n = 4; n-- > 0;) {
       final Plantation p = strip[n] = new Plantation(
         parent, n == 0 ? TYPE_NURSERY : (covered ? TYPE_COVERED : TYPE_BED),
         0, strip
-      ) ;
+      );
     }
     
     if (Placement.findClearanceFor(strip, parent, world)) {
       final int dir = Placement.directionOf(strip);
-      for (int n = 4 ; n-- > 0 ;) {
+      for (int n = 4; n-- > 0;) {
         final Tile o = strip[n].origin();
         final Plantation p = strip[n] = new Plantation(
           parent, n == 0 ? TYPE_NURSERY : (covered ? TYPE_COVERED : TYPE_BED),
@@ -368,27 +367,27 @@ public class Plantation extends Venue implements
     }
     return null;
     /*
-    Plantation bestSite[] = null ;
-    float bestRating = 0 ;
+    Plantation bestSite[] = null;
+    float bestRating = 0;
     
-    for (int m = 10 ; m-- > 0 ;) {
-      final Tile t = Spacing.pickRandomTile(parent, 12, world) ;
-      if (t == null) continue ;
-      final int off = Rand.index(4) ;
-      for (int n = 4 ; n-- > 0 ;) {
-        final Plantation allots[] = new Plantation[minSize] ;
-        final int i = (n + off) % 4 ;
+    for (int m = 10; m-- > 0;) {
+      final Tile t = Spacing.pickRandomTile(parent, 12, world);
+      if (t == null) continue;
+      final int off = Rand.index(4);
+      for (int n = 4; n-- > 0;) {
+        final Plantation allots[] = new Plantation[minSize];
+        final int i = (n + off) % 4;
         if (tryPlacementAt(t, parent, allots, STRIP_DIRS[i], covered)) {
-          final float rating = rateArea(allots, world) ;
-          if (rating > bestRating) { bestSite = allots ; bestRating = rating ; }
+          final float rating = rateArea(allots, world);
+          if (rating > bestRating) { bestSite = allots; bestRating = rating; }
         }
       }
     }
     if (bestSite != null) {
       for (Plantation p : bestSite) p.placeFromOrigin();
-      return bestSite ;
+      return bestSite;
     }
-    return null ;
+    return null;
     //*/
   }
   
@@ -400,26 +399,26 @@ public class Plantation extends Venue implements
     //  farther from other structures-
     float
       fertility = 0, num = 0,
-      minDist = World.SECTOR_SIZE, parentDist = 0 ;
+      minDist = World.SECTOR_SIZE, parentDist = 0;
     for (Plantation p : allots) {
-      parentDist += Spacing.distance(p, p.belongs) ;
-      Target close = world.presences.nearestMatch(Venue.class, p, minDist) ;
+      parentDist += Spacing.distance(p, p.belongs);
+      Target close = world.presences.nearestMatch(Venue.class, p, minDist);
       if (
         close != null && close != p.belongs &&
         ! (close instanceof Plantation)
       ) {
-        minDist = Spacing.distance(p, close) ;
+        minDist = Spacing.distance(p, close);
       }
       for (Tile t : world.tilesIn(p.area(), false)) {
-        fertility += t.habitat().moisture() ;
-        if (t.pathType() == Tile.PATH_ROAD) fertility /= 2 ;
-        num++ ;
+        fertility += t.habitat().moisture();
+        if (t.pathType() == Tile.PATH_ROAD) fertility /= 2;
+        num++;
       }
     }
-    float rating = fertility / num ;
-    rating *= 1 - (parentDist / (allots.length * World.SECTOR_SIZE)) ;
-    rating *= minDist / World.SECTOR_SIZE ;
-    return rating ;
+    float rating = fertility / num;
+    rating *= 1 - (parentDist / (allots.length * World.SECTOR_SIZE));
+    rating *= minDist / World.SECTOR_SIZE;
+    return rating;
   }
   
   /*
@@ -427,25 +426,25 @@ public class Plantation extends Venue implements
     Tile t, BotanicalStation parent, Plantation allots[],
     int dir, boolean covered
   ) {
-    for (int i = 0 ; i < allots.length ; i++) try {
+    for (int i = 0; i < allots.length; i++) try {
       final Plantation p = allots[i] = new Plantation(
         parent, i == 0 ? TYPE_NURSERY : (covered ? TYPE_COVERED : TYPE_BED),
         dir, allots
-      ) ;
+      );
       p.setPosition(
         t.x + (N_X[dir] * 2 * i),
         t.y + (N_Y[dir] * 2 * i),
         t.world
-      ) ;
-      if (! p.canPlace()) return false ;
-    } catch (Exception e) { return false ; }
-    return true ;
+      );
+      if (! p.canPlace()) return false;
+    } catch (Exception e) { return false; }
+    return true;
   }
   //*/
   
 
   protected boolean canTouch(Element e) {
-    return e.owningType() < this.owningType() ;
+    return e.owningType() < this.owningType();
   }
   
   
@@ -458,7 +457,7 @@ public class Plantation extends Venue implements
     Species.TUBER_LILY,
     Species.BROADFRUITS,
     Species.HIVE_GRUBS
-  } ;
+  };
   
   //
   //  TODO:  Move most or all of this out to the Species class, where it
@@ -475,13 +474,13 @@ public class Plantation extends Venue implements
     null,
     null,
     new Object[] { Species.TIMBER, GREENS, null },
-  } ;
+  };
   
   
   public static ModelAsset speciesModel(Species s, int growStage) {
-    final int varID = Visit.indexOf(s, ALL_VARIETIES) ;
-    final ModelAsset seq[] = (ModelAsset[]) CROP_SPECIES[varID][2] ;
-    return seq[Visit.clamp(growStage, seq.length)] ;
+    final int varID = Visit.indexOf(s, ALL_VARIETIES);
+    final ModelAsset seq[] = (ModelAsset[]) CROP_SPECIES[varID][2];
+    return seq[Visit.clamp(growStage, seq.length)];
   }
   
   
@@ -494,7 +493,7 @@ public class Plantation extends Venue implements
   
   
   public String fullName() {
-    return type == TYPE_NURSERY ? "Nursery" : "Plantation" ;
+    return type == TYPE_NURSERY ? "Nursery" : "Plantation";
   }
   
   
@@ -502,35 +501,35 @@ public class Plantation extends Venue implements
     if (type == TYPE_NURSERY) return
       "Nurseries allow young plants to be cultivated in a secure environment "+
       "prior to outdoor planting, and provide a small but steady food yield "+
-      "regardless of outside conditions." ;
+      "regardless of outside conditions.";
     return
       "Plantations of managed, mixed-culture cropland secure a high-quality "+
-      "food source for your base, but require space and constant attention." ;
+      "food source for your base, but require space and constant attention.";
   }
   
   
   public String buildCategory() {
-    return InstallTab.TYPE_ECOLOGIST ;
+    return InstallTab.TYPE_ECOLOGIST;
   }
   
   
-  public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
+  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
     final StringBuffer d = new StringBuffer();
     if (type == TYPE_NURSERY) {
-      d.append("\n") ;
-      boolean any = false ;
+      d.append("\n");
+      boolean any = false;
       for (Item seed : stocks.matches(SAMPLES)) {
-        final Species s = (Species) seed.refers ;
-        d.append("\n  Seed for "+s+" (") ;
-        d.append(Crop.HEALTH_NAMES[(int) seed.quality]+" quality)") ;
-        any = true ;
+        final Species s = (Species) seed.refers;
+        d.append("\n  Seed for "+s+" (");
+        d.append(Crop.HEALTH_NAMES[(int) seed.quality]+" quality)");
+        any = true;
       }
       if (! any) d.append("\nNo seed stock.");
     }
     else {
-      d.append("\n") ;
+      d.append("\n");
       for (Crop c : planted) {
-        d.append("\n  "+c) ;
+        d.append("\n  "+c);
       }
     }
     panel = VenueDescription.configSimplePanel(this, panel, UI, d.toString());

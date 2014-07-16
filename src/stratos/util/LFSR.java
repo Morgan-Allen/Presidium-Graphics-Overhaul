@@ -5,7 +5,7 @@
   */
 
 
-package stratos.util ;
+package stratos.util;
 
 
 
@@ -18,7 +18,7 @@ public class LFSR {
   
   final static int
     MIN_BITS = 2,
-    MAX_BITS = 24 ;
+    MAX_BITS = 24;
   final static int TAP_INDICES[][] = {
     null, null,
     {1, 0},//2
@@ -44,51 +44,51 @@ public class LFSR {
     {21, 20},//22
     {22, 17},//23
     {23, 22, 21, 16},//24
-  } ;
+  };
   
-  final int bitSize ;
-  final int taps[] ;
-  final int mask ;
-  int state = 1 ;
+  final int bitSize;
+  final int taps[];
+  final int mask;
+  int state = 1;
   
   public LFSR(int bitSize, int seed) {
     if (bitSize < MIN_BITS || bitSize > MAX_BITS)
-      throw new RuntimeException("Illegal bit size for register!") ;
-    this.bitSize = bitSize ;
-    this.taps = TAP_INDICES[bitSize] ;
-    mask = (1 << bitSize) - 1 ;
-    state = seed ;
+      throw new RuntimeException("Illegal bit size for register!");
+    this.bitSize = bitSize;
+    this.taps = TAP_INDICES[bitSize];
+    mask = (1 << bitSize) - 1;
+    state = seed;
   }
   
   public int nextVal() {
-    boolean bit = false ; for (int t : taps) bit ^= bitAt(t, state) ;
-    state = (state << 1) & mask ; if (bit) state++ ;
-    return state ;
+    boolean bit = false; for (int t : taps) bit ^= bitAt(t, state);
+    state = (state << 1) & mask; if (bit) state++;
+    return state;
   }
   
   final private static boolean bitAt(final int i, final int state) {
-    return (state & (1 << i)) != 0 ;
+    return (state & (1 << i)) != 0;
   }
   
   public static void main(String s[]) {
-    testLoop: for (int bits = MIN_BITS ; bits <= MAX_BITS ; bits++) {
-      final int period = (1 << bits) - 1 ;
-      final boolean reg[] = new boolean[period] ;
-      final LFSR lfsr = new LFSR(bits, 1) ;
-      I.say("\nBeginning test for "+bits+" bit LFSR...") ;
+    testLoop: for (int bits = MIN_BITS; bits <= MAX_BITS; bits++) {
+      final int period = (1 << bits) - 1;
+      final boolean reg[] = new boolean[period];
+      final LFSR lfsr = new LFSR(bits, 1);
+      I.say("\nBeginning test for "+bits+" bit LFSR...");
       //
       //  Begin an exhaustive check.
-      for (int i = 0 ; i++ <= period ;) {
-        final int val = lfsr.nextVal() ;
+      for (int i = 0; i++ <= period;) {
+        final int val = lfsr.nextVal();
         if (reg[val - 1] == true) {
-          I.say("Duplicated value after "+i+" steps- ") ;
-          if (i < period) I.add("___TEST FAILED___") ;
-          else I.add("Test successful!") ;
-          continue testLoop ;
+          I.say("Duplicated value after "+i+" steps- ");
+          if (i < period) I.add("___TEST FAILED___");
+          else I.add("Test successful!");
+          continue testLoop;
         }
-        else reg[val - 1] = true ;
+        else reg[val - 1] = true;
       }
-      I.say("Test failed- seed value does not recur.") ;
+      I.say("Test failed- seed value does not recur.");
     }
   }
 }

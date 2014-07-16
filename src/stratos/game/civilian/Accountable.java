@@ -1,7 +1,7 @@
 
 
 
-package stratos.game.civilian ;
+package stratos.game.civilian;
 import stratos.game.common.*;
 
 
@@ -9,5 +9,5 @@ import stratos.game.common.*;
 public interface Accountable {
   
   
-  Base base() ;
+  Base base();
 }

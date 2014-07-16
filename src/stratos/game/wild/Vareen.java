@@ -5,12 +5,12 @@
   */
 
 
-package stratos.game.wild ;
+package stratos.game.wild;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
-import stratos.game.tactical.Hunting;
+import stratos.game.plans.Hunting;
 import stratos.util.*;
 
 
@@ -21,51 +21,51 @@ public class Vareen extends Fauna {
   
   /**  Fields, constructors, and save/load methods-
     */
-  final static float DEFAULT_FLY_HEIGHT = 2.5f ;
-  final static int FLY_PATH_LIMIT = 16 ;
+  final static float DEFAULT_FLY_HEIGHT = 2.5f;
+  final static int FLY_PATH_LIMIT = 16;
   
-  private float flyHeight = DEFAULT_FLY_HEIGHT ;
-  private Nest nest = null ;
+  private float flyHeight = DEFAULT_FLY_HEIGHT;
+  private Nest nest = null;
   
   
   
   public Vareen(Base base) {
-    super(Species.HAREEN, base) ;
+    super(Species.HAREEN, base);
   }
   
   
   public Vareen(Session s) throws Exception {
-    super(s) ;
-    flyHeight = s.loadFloat() ;
-    nest = (Nest) s.loadObject() ;
+    super(s);
+    flyHeight = s.loadFloat();
+    nest = (Nest) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
-    s.saveFloat(flyHeight) ;
-    s.saveObject(nest) ;
+    super.saveState(s);
+    s.saveFloat(flyHeight);
+    s.saveObject(nest);
   }
   
   
   protected void initStats() {
     //
     //  TODO:  PUT ALL THESE ATTRIBUTES IN THE SPECIES FIELDS
-    traits.initAtts(10, 20, 3) ;
+    traits.initAtts(10, 20, 3);
     health.initStats(
       5,    //lifespan
       species.baseBulk , //bulk bonus
       species.baseSight, //sight range
       species.baseSpeed, //speed rate
       ActorHealth.ANIMAL_METABOLISM
-    ) ;
-    gear.setDamage(4) ;
-    gear.setArmour(2) ;
+    );
+    gear.setDamage(4);
+    gear.setArmour(2);
   }
   
   
   public float radius() {
-    return 0.5f ;
+    return 0.5f;
   }
   
   
@@ -73,33 +73,33 @@ public class Vareen extends Fauna {
   /**  Behaviour modifications/implementation-
     */
   protected void updateAsMobile() {
-    final Target target = this.focusFor(null) ;
-    float idealHeight = DEFAULT_FLY_HEIGHT ;
+    final Target target = this.focusFor(null);
+    float idealHeight = DEFAULT_FLY_HEIGHT;
     
-    if (! health.conscious()) idealHeight = 0 ;
-    else if (target == null) idealHeight = flyHeight ;
-    else if (target instanceof Tile) idealHeight = DEFAULT_FLY_HEIGHT ;
+    if (! health.conscious()) idealHeight = 0;
+    else if (target == null) idealHeight = flyHeight;
+    else if (target instanceof Tile) idealHeight = DEFAULT_FLY_HEIGHT;
     else if (Spacing.distance(target, this) < health.sightRange()) {
-      idealHeight = target.position(null).z + (target.height() / 2f) - 0.5f ;
+      idealHeight = target.position(null).z + (target.height() / 2f) - 0.5f;
     }
     
-    final float MFI = 1f / (2 * World.UPDATES_PER_SECOND) ;
-    flyHeight = Visit.clamp(idealHeight, flyHeight - MFI, flyHeight + MFI) ;
-    super.updateAsMobile() ;
+    final float MFI = 1f / (2 * World.UPDATES_PER_SECOND);
+    flyHeight = Visit.clamp(idealHeight, flyHeight - MFI, flyHeight + MFI);
+    super.updateAsMobile();
   }
   
 
   public void updateAsScheduled(int numUpdates) {
     if (! indoors()) {
-      final float value = Planet.dayValue(world) / World.STANDARD_DAY_LENGTH ;
-      health.takeCalories(value, 1) ;
+      final float value = Planet.dayValue(world) / World.STANDARD_DAY_LENGTH;
+      health.takeCalories(value, 1);
     }
-    super.updateAsScheduled(numUpdates) ;
+    super.updateAsScheduled(numUpdates);
   }
   
   
   protected float aboveGroundHeight() {
-    return flyHeight ;
+    return flyHeight;
   }
   
   
@@ -113,14 +113,14 @@ public class Vareen extends Fauna {
     }
     final Behaviour p = c.pickMostUrgent();
     if (p != null) return p;
-    return super.nextBrowsing() ;
+    return super.nextBrowsing();
   }
   
 
 
   /**  Rendering and interface methods-
     */
-  protected float moveAnimStride() { return 1.0f ; }
+  protected float moveAnimStride() { return 1.0f; }
 }
 
 
@@ -130,18 +130,18 @@ public class Vareen extends Fauna {
 //  TODO:  Try to restore flight-pathing later on.
 /*
 protected MobilePathing initPathing() {
-  final Vareen actor = this ;
+  final Vareen actor = this;
   //
   //  We use a modified form of pathing search that can bypass most
   //  tiles.
   return new MobilePathing(actor) {
     protected Boardable[] refreshPath(Boardable initB, Boardable destB) {
-      final Lair lair = (Lair) actor.AI.home() ;
+      final Lair lair = (Lair) actor.AI.home();
       
       final PathingSearch flightPS = new PathingSearch(
         initB, destB, FLY_PATH_LIMIT
       ) {
-        final Boardable tileB[] = new Boardable[8] ;
+        final Boardable tileB[] = new Boardable[8];
         
         protected Boardable[] adjacent(Boardable spot) {
           //
@@ -151,48 +151,48 @@ protected MobilePathing initPathing() {
           //  ...Also, it can't make use of the pathingCache class, though
           //  that's less vital here.
           if (spot instanceof Tile) {
-            final Tile tile = ((Tile) spot) ;
+            final Tile tile = ((Tile) spot);
             for (int i : Tile.N_DIAGONAL) {
               final Tile near = world.tileAt(
                 tile.x + Tile.N_X[i],
                 tile.y + Tile.N_Y[i]
-              ) ;
-              tileB[i] = blocksMotion(near) ? null : near ;
+              );
+              tileB[i] = blocksMotion(near) ? null : near;
             }
             for (int i : Tile.N_ADJACENT) {
               final Tile near = world.tileAt(
                 tile.x + Tile.N_X[i],
                 tile.y + Tile.N_Y[i]
-              ) ;
+              );
               if (
                 near != null && near.owner() == lair &&
                 lair != null && tile == lair.mainEntrance()
-              ) tileB[i] = lair ;
-              else tileB[i] = blocksMotion(near) ? null : near ;
+              ) tileB[i] = lair;
+              else tileB[i] = blocksMotion(near) ? null : near;
             }
-            Spacing.cullDiagonals(tileB) ;
-            return tileB ;
+            Spacing.cullDiagonals(tileB);
+            return tileB;
           }
-          return super.adjacent(spot) ;
+          return super.adjacent(spot);
         }
         
         protected boolean canEnter(Boardable spot) {
-          return ! blocksMotion(spot) ;
+          return ! blocksMotion(spot);
         }
-      } ;
-      flightPS.doSearch() ;
-      return flightPS.bestPath(Boardable.class) ;
+      };
+      flightPS.doSearch();
+      return flightPS.bestPath(Boardable.class);
     }
-  } ;
+  };
 }
 
 
 public boolean blocksMotion(Boardable t) {
   if (t instanceof Tile) {
-    final Element owner = ((Tile) t).owner() ;
-    return owner != null && owner.height() > 2.5f ;
+    final Element owner = ((Tile) t).owner();
+    return owner != null && owner.height() > 2.5f;
   }
-  return false ;
+  return false;
 }
 //*/
 
@@ -208,29 +208,29 @@ protected Behaviour nextFeeding() {
       this, origin(),
       this, "actionBask",
       Action.MOVE, "Basking"
-    ) ;
-    basking.setProperties(Action.CAREFUL) ;
-    ///basking.setDuration(2.0f) ;
-    return basking ;
+    );
+    basking.setProperties(Action.CAREFUL);
+    ///basking.setDuration(2.0f);
+    return basking;
   }
   //
   //  Otherwise, go pluck some fruit or whatever-
-  if (pick == null) return null ;
+  if (pick == null) return null;
   final Action foraging = new Action(
     this, pick,
     this, "actionForage",
     Action.STRIKE, "Foraging"
-  ) ;
-  foraging.setMoveTarget(Spacing.nearestOpenTile(pick, this)) ;
-  return foraging ;
+  );
+  foraging.setMoveTarget(Spacing.nearestOpenTile(pick, this));
+  return foraging;
 }
 
 
 public boolean actionBask(Vareen actor, Tile location) {
   //
   //  Adjust this based on night/day values?
-  health.takeSustenance(location.habitat().insolation() / 100f, 1.0f) ;
-  return true ;
+  health.takeSustenance(location.habitat().insolation() / 100f, 1.0f);
+  return true;
 }
 //*/
 

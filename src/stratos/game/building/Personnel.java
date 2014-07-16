@@ -5,7 +5,7 @@
   */
 
 
-package stratos.game.building ;
+package stratos.game.building;
 import stratos.game.actors.*;
 import stratos.game.campaign.*;
 import stratos.game.civilian.*;
@@ -33,70 +33,70 @@ public class Personnel {
     */
   final static int
     REFRESH_INTERVAL = 10,
-    AUDIT_INTERVAL   = World.STANDARD_DAY_LENGTH / 10 ;
+    AUDIT_INTERVAL   = World.STANDARD_DAY_LENGTH / 10;
   
-  private static boolean verbose = false ;
+  private static boolean verbose = false;
   
   
-  final Employer employs ;
+  final Employer employs;
   final List <Application>
-    applications = new List <Application> () ;
+    applications = new List <Application> ();
   final List <Actor>
     workers   = new List <Actor> (),
-    residents = new List <Actor> () ;
+    residents = new List <Actor> ();
   private int
-    shiftType = -1 ;
+    shiftType = -1;
   
   
   
   Personnel(Employer venue) {
-    this.employs = venue ;
+    this.employs = venue;
   }
   
   
   void loadState(Session s) throws Exception {
-    shiftType = s.loadInt() ;
-    s.loadObjects(applications) ;
-    s.loadObjects(workers) ;
-    s.loadObjects(residents) ;
+    shiftType = s.loadInt();
+    s.loadObjects(applications);
+    s.loadObjects(workers);
+    s.loadObjects(residents);
   }
   
   
   void saveState(Session s) throws Exception {
-    s.saveInt(shiftType) ;
-    s.saveObjects(applications) ;
-    s.saveObjects(workers) ;
-    s.saveObjects(residents) ;
+    s.saveInt(shiftType);
+    s.saveObjects(applications);
+    s.saveObjects(workers);
+    s.saveObjects(residents);
   }
   
   
   public List <Actor> workers() {
-    return workers ;
+    return workers;
   }
   
   
   public List <Actor> residents() {
-    return residents ;
+    return residents;
   }
   
   
   public void setShiftType(int type) {
-    this.shiftType = type ;
+    this.shiftType = type;
   }
   
   
   public boolean unoccupied() {
-    return residents.size() == 0 ;
+    return residents.size() == 0;
   }
   
   
   public int population() {
-    return residents.size() ;
+    return residents.size();
   }
   
   
   public int workforce() {
-    return workers.size() ;
+    return workers.size();
   }
   
   
@@ -104,98 +104,98 @@ public class Personnel {
   /**  Handling shifts and being off-duty:
     */
   public int shiftFor(Actor worker) {
-    if (shiftType == -1) return Venue.OFF_DUTY ;
+    if (shiftType == -1) return Venue.OFF_DUTY;
     if (shiftType == Venue.SHIFTS_ALWAYS) {
-      return Venue.PRIMARY_SHIFT ;
+      return Venue.PRIMARY_SHIFT;
     }
-    final World world = employs.base().world ;
+    final World world = employs.base().world;
     
     //
     //  Simplified versions in use for the present...
     if (shiftType == Venue.SHIFTS_BY_HOURS) {
-      final int day = (int) (world.currentTime() / World.STANDARD_DAY_LENGTH) ;
-      final int index = (workers.indexOf(worker) + day) % 3 ;
+      final int day = (int) (world.currentTime() / World.STANDARD_DAY_LENGTH);
+      final int index = (workers.indexOf(worker) + day) % 3;
       final int hour =
         Planet.isMorning(world) ? 1 :
-        (Planet.isEvening(world) ? 2 : 0) ;
+        (Planet.isEvening(world) ? 2 : 0);
       
-      if (index == hour) return Venue.PRIMARY_SHIFT ;
-      else if (index == (hour + 1 % 3)) return Venue.SECONDARY_SHIFT ;
-      else return Venue.OFF_DUTY ;
+      if (index == hour) return Venue.PRIMARY_SHIFT;
+      else if (index == (hour + 1 % 3)) return Venue.SECONDARY_SHIFT;
+      else return Venue.OFF_DUTY;
     }
     
     if (shiftType == Venue.SHIFTS_BY_DAY) {
-      final int day = (int) (world.currentTime() / World.STANDARD_DAY_LENGTH) ;
-      final int index = workers.indexOf(worker) ;
+      final int day = (int) (world.currentTime() / World.STANDARD_DAY_LENGTH);
+      final int index = workers.indexOf(worker);
       
-      if (Planet.isNight(world)) return Venue.OFF_DUTY ;
+      if (Planet.isNight(world)) return Venue.OFF_DUTY;
       else if ((index % 3) == (day % 3) || Planet.dayValue(world) < 0.5f) {
-        return Venue.SECONDARY_SHIFT ;
+        return Venue.SECONDARY_SHIFT;
       }
-      else return Venue.PRIMARY_SHIFT ;
+      else return Venue.PRIMARY_SHIFT;
     }
     
     if (shiftType == Venue.SHIFTS_BY_CALENDAR) {
-      I.complain("CALENDAR NOT IMPLEMENTED YET.") ;
+      I.complain("CALENDAR NOT IMPLEMENTED YET.");
     }
     
-    return Venue.OFF_DUTY ;
+    return Venue.OFF_DUTY;
   }
   
   
   public boolean onShift(Actor worker) {
-    if (! workers.includes(worker)) return false ;
-    return shiftFor(worker) == Venue.PRIMARY_SHIFT ;
+    if (! workers.includes(worker)) return false;
+    return shiftFor(worker) == Venue.PRIMARY_SHIFT;
   }
   
   
   public int assignedTo(Class planClass) {
-    int num = 0 ; for (Actor actor : workers) {
-      if (actor.isDoing(planClass, null)) num++ ;
+    int num = 0; for (Actor actor : workers) {
+      if (actor.isDoing(planClass, null)) num++;
     }
-    return num ;
+    return num;
   }
   
   
   public int assignedTo(Plan matchPlan) {
-    if (matchPlan == null) return 0 ;
-    int count = 0 ;
+    if (matchPlan == null) return 0;
+    int count = 0;
     for (Actor actor : workers) {
       for (Behaviour b : actor.mind.agenda()) if (b instanceof Plan) {
         if (((Plan) b).matchesPlan(matchPlan)) {
-          count++ ;
+          count++;
         }
       }
     }
-    return count ;
+    return count;
   }
   
   
   public int numPresent(Background match) {
-    int num = 0 ;
+    int num = 0;
     for (Mobile m : employs.inside()) if (m instanceof Actor) {
-      if (((Actor) m).vocation() == match) num++ ;
+      if (((Actor) m).vocation() == match) num++;
     }
-    return num ;
+    return num;
   }
   
   
   public Batch <Actor> visitors() {
-    final Batch <Actor> visitors = new Batch <Actor> () ;
+    final Batch <Actor> visitors = new Batch <Actor> ();
     for (Mobile m : employs.inside()) if (m instanceof Actor) {
-      visitors.add((Actor) m) ;
+      visitors.add((Actor) m);
     }
-    return visitors ;
+    return visitors;
   }
   
   
   public Batch <Actor> visitorsDoing(Class planClass) {
-    final Batch <Actor> doing = new Batch <Actor> () ;
+    final Batch <Actor> doing = new Batch <Actor> ();
     for (Mobile m : employs.inside()) if (m instanceof Actor) {
-      final Actor a = (Actor) m ;
-      if (a.isDoing(planClass, null)) doing.add(a) ;
+      final Actor a = (Actor) m;
+      if (a.isDoing(planClass, null)) doing.add(a);
     }
-    return doing ;
+    return doing;
   }
   
   
@@ -203,44 +203,44 @@ public class Personnel {
   /**  Handling applications and recruitment-
     */
   public List <Application> applications() {
-    return applications ;
+    return applications;
   }
   
   
   public void setApplicant(Application app, boolean is) {
     if (is) {
-      for (Application a : applications) if (a.matches(app)) return ;
-      applications.add(app) ;
+      for (Application a : applications) if (a.matches(app)) return;
+      applications.add(app);
     }
     else for (Application a : applications) if (a.matches(app)) {
-      applications.remove(a) ;
+      applications.remove(a);
     }
   }
   
   
   public void confirmApplication(Application a) {
-    employs.base().incCredits(0 - a.hiringFee()) ;
-    final Actor works = a.applies ;
+    employs.base().incCredits(0 - a.hiringFee());
+    final Actor works = a.applies;
     //
     //  TODO:  Once you have incentives worked out, restore this-
-    //works.gear.incCredits(app.salary / 2) ;
-    //works.gear.taxDone() ;
-    works.setVocation(a.position) ;
-    works.mind.setWork(employs) ;
+    //works.gear.incCredits(app.salary / 2);
+    //works.gear.taxDone();
+    works.setVocation(a.position);
+    works.mind.setWork(employs);
     //
     //  If there are no remaining openings for this background, cull any
     //  existing applications.  Otherwise, refresh signing costs.
     for (Application oA : applications) if (oA.position == a.position) {
       if (employs.numOpenings(oA.position) == 0) {
-        a.applies.mind.switchApplication(null) ;
-        applications.remove(oA) ;
+        a.applies.mind.switchApplication(null);
+        applications.remove(oA);
       }
     }
     //
     //  If the actor needs transport, arrange it-
     if (! works.inWorld()) {
-      final Commerce commerce = employs.base().commerce ;
-      commerce.addImmigrant(works) ;
+      final Commerce commerce = employs.base().commerce;
+      commerce.addImmigrant(works);
     }
   }
   
@@ -250,7 +250,7 @@ public class Personnel {
     */
   protected void updatePersonnel(int numUpdates) {
     if (numUpdates % REFRESH_INTERVAL == 0) {
-      final Base base = employs.base() ;
+      final Base base = employs.base();
       
       //  Clear out the office for anyone dead-
       for (Actor a : workers) if (a.destroyed() || a.base() != base) {
@@ -265,16 +265,16 @@ public class Personnel {
       if (employs.careers() == null) return;
       
       for (Background v : employs.careers()) {
-        final int numOpenings = employs.numOpenings(v) ;
+        final int numOpenings = employs.numOpenings(v);
         if (numOpenings > 0) {
           if (GameSettings.hireFree) {
-            final Human citizen = new Human(v, employs.base()) ;
-            citizen.mind.setWork(employs) ;
-            final Boardable t = employs.canBoard(null)[0] ;
-            citizen.enterWorldAt(t, base.world) ;
+            final Human citizen = new Human(v, employs.base());
+            citizen.mind.setWork(employs);
+            final Boardable t = employs.canBoard(null)[0];
+            citizen.enterWorldAt(t, base.world);
           }
           else {
-            base.commerce.incDemand(v, numOpenings, REFRESH_INTERVAL) ;
+            base.commerce.incDemand(v, numOpenings, REFRESH_INTERVAL);
           }
         }
       }
@@ -287,39 +287,39 @@ public class Personnel {
   
   
   protected void onDecommission() {
-    for (Actor c : workers()) c.mind.setWork(null) ;
-    for (Actor c : residents()) c.mind.setHome(null) ;
+    for (Actor c : workers()) c.mind.setWork(null);
+    for (Actor c : residents()) c.mind.setHome(null);
   }
   
   
   public void setWorker(Actor c, boolean is) {
     for (Application a : applications) if (a.applies == c) {
-      applications.remove(a) ;
+      applications.remove(a);
     }
-    if (is) workers.include(c) ;
-    else workers.remove(c) ;
+    if (is) workers.include(c);
+    else workers.remove(c);
   }
   
   
   public void setResident(Actor c, boolean is) {
-    if (is) residents.include(c) ;
-    else residents.remove(c) ;
+    if (is) residents.include(c);
+    else residents.remove(c);
   }
   
   
   public int numHired(Background match) {
-    int num = 0 ; for (Actor c : workers) {
-      if (c.vocation() == match) num++ ;
+    int num = 0; for (Actor c : workers) {
+      if (c.vocation() == match) num++;
     }
-    return num ;
+    return num;
   }
   
   
   public int numResident(Species match) {
-    int num = 0 ; for (Actor c : residents) {
-      if (c.species() == match) num++ ;
+    int num = 0; for (Actor c : residents) {
+      if (c.species() == match) num++;
     }
-    return num ;
+    return num;
   }
 }
 

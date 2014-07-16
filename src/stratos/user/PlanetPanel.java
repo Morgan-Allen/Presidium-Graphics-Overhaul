@@ -13,14 +13,20 @@ import com.badlogic.gdx.graphics.*;
 
 
 
-//  TODO:  Add the selection functions back in.
+//TODO:  Enclose together with the sector info in a single large panel?
 
 
 public class PlanetPanel extends UIGroup {
   
   
   final static ImageAsset
-    LEFT_BUTTON_IMG = ImageAsset.fromImage(
+    PLANET_ICON     = ImageAsset.fromImage(
+      "media/GUI/Panels/planet_tab.png", PlanetPanel.class
+    ),
+    PLANET_ICON_LIT = Button.CIRCLE_LIT;
+  
+  final static ImageAsset
+    LEFT_BUTTON_IMG  = ImageAsset.fromImage(
       "media/Charts/button_left.png" , PlanetPanel.class
     ),
     RIGHT_BUTTON_IMG = ImageAsset.fromImage(
@@ -90,12 +96,6 @@ public class PlanetPanel extends UIGroup {
     right.relBound.set(0, 0, 0, 0);
     right.absBound.set(55, 0, 55, 55);
     right.attachTo(displayArea);
-  }
-  
-  
-  public void dispose() {
-    //  TODO:  CALL THIS
-    display.dispose();
   }
   
   

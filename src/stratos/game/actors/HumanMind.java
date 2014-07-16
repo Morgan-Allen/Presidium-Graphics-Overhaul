@@ -5,12 +5,26 @@
   */
 
 
-package stratos.game.actors ;
+package stratos.game.actors;
 import stratos.game.building.*;
 import stratos.game.campaign.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
+import stratos.game.plans.Combat;
+import stratos.game.plans.Dialogue;
+import stratos.game.plans.Exploring;
+import stratos.game.plans.FindHome;
+import stratos.game.plans.FindMission;
+import stratos.game.plans.FindWork;
+import stratos.game.plans.FirstAid;
+import stratos.game.plans.Foraging;
+import stratos.game.plans.Gifting;
+import stratos.game.plans.Hunting;
+import stratos.game.plans.ItemDisposal;
+import stratos.game.plans.Patrolling;
+import stratos.game.plans.Resting;
+import stratos.game.plans.Retreat;
 import stratos.game.tactical.*;
 import stratos.user.*;
 import stratos.util.*;
@@ -93,24 +107,24 @@ public class HumanMind extends ActorMind implements Qualities {
   
   /**  Constructor and save/load functions-
     */
-  private static boolean verbose = false ;
+  private static boolean verbose = false;
   
   //  Ambition, Philosophy, Allegiance.
   
   
   
   protected HumanMind(Actor actor) {
-    super(actor) ;
+    super(actor);
   }
   
   
   protected void loadState(Session s) throws Exception {
-    super.loadState(s) ;
+    super.loadState(s);
   }
   
   
   protected void saveState(Session s) throws Exception {
-    super.saveState(s) ;
+    super.saveState(s);
   }
   
   
@@ -174,10 +188,10 @@ public class HumanMind extends ActorMind implements Qualities {
       }
     }
     
-    choice.add(Exploring.nextExplorationFor(actor)) ;
-    choice.add(Patrolling.wandering(actor)) ;
-    choice.add(new Foraging(actor, null)) ;
-    choice.add(new Retreat(actor)) ;
+    choice.add(Exploring.nextExplorationFor(actor));
+    choice.add(Patrolling.wandering(actor));
+    choice.add(new Foraging(actor, null));
+    choice.add(new Retreat(actor));
 
     final boolean timeoff = work == null || ! work.personnel().onShift(actor);
     if (work != null) {
@@ -198,15 +212,15 @@ public class HumanMind extends ActorMind implements Qualities {
   
   
   private void addVenueResponses(Choice choice) {
-    final World world = actor.world() ;
-    final Batch <Venue> around = new Batch <Venue> () ;
-    float numSampled = 5 + (actor.traits.traitLevel(COGNITION) / 4) ;
+    final World world = actor.world();
+    final Batch <Venue> around = new Batch <Venue> ();
+    float numSampled = 5 + (actor.traits.traitLevel(COGNITION) / 4);
     
     world.presences.sampleFromMaps(
       actor, world, (int) numSampled, around, Venue.class
     );
     
-    final boolean timeoff = work == null || ! work.personnel().onShift(actor) ;
+    final boolean timeoff = work == null || ! work.personnel().onShift(actor);
     for (Venue venue : around) {
       if (timeoff && venue.structure().intact()) {
         venue.addServices(choice, actor);

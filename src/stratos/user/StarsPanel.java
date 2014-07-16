@@ -1,5 +1,6 @@
 
 
+
 package stratos.user;
 import stratos.game.campaign.*;
 import stratos.graphics.common.*;
@@ -14,8 +15,17 @@ import com.badlogic.gdx.math.Vector2;
 
 
 
+//  TODO:  Enclose together with the sector info in a single large panel?
+
+
 public class StarsPanel extends UIGroup {
   
+  
+  final static ImageAsset
+    STARS_ICON = ImageAsset.fromImage(
+      "media/GUI/Panels/charts_tab.png", StarsPanel.class
+    ),
+    STARS_ICON_LIT = Button.CIRCLE_LIT;
   
   final static ImageAsset
     UP_BUTTON_IMG = ImageAsset.fromImage(
@@ -99,12 +109,6 @@ public class StarsPanel extends UIGroup {
     down.relBound.set(0, 0, 0, 0);
     down.absBound.set(0, 0, 55, 55);
     down.attachTo(displayArea);
-  }
-  
-  
-  public void dispose() {
-    //  TODO:  CALL THIS
-    display.dispose();
   }
   
   

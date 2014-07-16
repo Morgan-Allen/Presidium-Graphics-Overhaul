@@ -6,7 +6,6 @@ import stratos.graphics.common.*;
 import stratos.graphics.terrain.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
-
 import com.badlogic.gdx.math.*;
 
 
@@ -24,17 +23,17 @@ public class MapsPanel extends UIGroup {
   
   
   public MapsPanel(BaseUI UI, World world, Base base) {
-    super(UI) ;
-    this.UI = UI ;
-    this.world = world ;
-    this.base = base ;
+    super(UI);
+    this.UI = UI;
+    this.world = world;
+    this.base = base;
     minimap = new Minimap();
     RGBA = new int[world.size][world.size];
   }
   
 
   public void setBase(Base base) {
-    this.base = base ;
+    this.base = base;
   }
   
   

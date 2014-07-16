@@ -71,7 +71,7 @@ public class Personality {
   
   
   protected static Trait[] setupRelations(Trait personalityTraits[]) {
-    for (int row = 0; row < NUM_ROWS ; row++) {
+    for (int row = 0; row < NUM_ROWS; row++) {
       final Trait bracket[] = TRAIT_MATRIX[row];
       final boolean even = row % 2 == 0;
       final int invertIndex = row + (even ? 1 : -1);
@@ -117,7 +117,7 @@ public class Personality {
     }
     
     //  Do some final housekeeping, compile the results, and return-
-    for (int i = YANG.length ; i-- > 0;) {
+    for (int i = YANG.length; i-- > 0;) {
       correlate(YANG[i], YIN[i], -1);
       correlate(YIN[i], YANG[i], -1);
     }

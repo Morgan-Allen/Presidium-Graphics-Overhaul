@@ -1,7 +1,7 @@
 
 
 
-package stratos.game.building ;
+package stratos.game.building;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -23,23 +23,23 @@ public abstract class Structural extends Fixture implements
   
   final public Structure structure = new Structure(this);
   protected Base base;
-  protected int facing = -1, type = -1 ;
+  protected int facing = -1, type = -1;
   
   protected BuildingSprite buildSprite;
   
   
   public Structural(int size, int high, Base base) {
-    super(size, high) ;
+    super(size, high);
     this.base = base;
   }
   
   
   public Structural(Session s) throws Exception {
-    super(s) ;
+    super(s);
     structure.loadState(s);
     this.base = (Base) s.loadObject();
-    this.facing = s.loadInt() ;
-    this.type = s.loadInt() ;
+    this.facing = s.loadInt();
+    this.type = s.loadInt();
     
     this.buildSprite = (BuildingSprite) sprite();
   }
@@ -64,28 +64,28 @@ public abstract class Structural extends Fixture implements
   
   
   public void onCompletion() {
-    world.ephemera.addGhost(this, size, buildSprite.scaffolding(), 2.0f) ;
-    setAsEstablished(false) ;
+    world.ephemera.addGhost(this, size, buildSprite.scaffolding(), 2.0f);
+    setAsEstablished(false);
   }
   
   
   public void onDestruction() {
-    Wreckage.reduceToSlag(area(), world) ;
+    Wreckage.reduceToSlag(area(), world);
   }
   
   
   public void setAsDestroyed() {
-    buildSprite.clearFX() ;
-    super.setAsDestroyed() ;
+    buildSprite.clearFX();
+    super.setAsDestroyed();
   }
   
   
 
   public boolean enterWorldAt(int x, int y, World world) {
-    if (! super.enterWorldAt(x, y, world)) return false ;
+    if (! super.enterWorldAt(x, y, world)) return false;
     //world.presences.togglePresence(this, true);
     world.schedule.scheduleForUpdates(this);
-    return true ;
+    return true;
   }
   
   
@@ -93,7 +93,7 @@ public abstract class Structural extends Fixture implements
     //world.presences.togglePresence(this, false);
     if (base != null) updatePaving(false);
     world.schedule.unschedule(this);
-    super.exitWorld() ;
+    super.exitWorld();
   }
   
   
@@ -126,8 +126,8 @@ public abstract class Structural extends Fixture implements
   protected List <Structural> installedBetween(Tile start, Tile end) {
     
     //  Basic variables setup and sanity checks-
-    if (start == null) return null ;
-    if (end   == null) end = start ;
+    if (start == null) return null;
+    if (end   == null) end = start;
 
     final int unit = this.size;
     final World world = start.world;
@@ -169,16 +169,16 @@ public abstract class Structural extends Fixture implements
     
     //  Then determine their facing/appearance, and return.
     for (Structural s : installed) s.refreshFromNear(installed);
-    return installed ;
+    return installed;
   }
   
   
   private void refreshFromNear(List <Structural> prior) {
-    final Tile o = origin() ;
-    if (o == null) return ;
-    final World world = o.world ;
+    final Tile o = origin();
+    if (o == null) return;
+    final World world = o.world;
     
-    if (prior != null) for (Structural s : prior) s.origin().flagWith(this) ;
+    if (prior != null) for (Structural s : prior) s.origin().flagWith(this);
     
     final int unit = this.size;
     final boolean near[] = new boolean[8];
@@ -186,18 +186,18 @@ public abstract class Structural extends Fixture implements
     
     for (int i : N_ADJACENT) {
       final Tile n = world.tileAt(o.x + (N_X[i] * unit), o.y + (N_Y[i] * unit));
-      if (n == null) continue ;
-      boolean isNear = false ;
+      if (n == null) continue;
+      boolean isNear = false;
       if (n.owner() instanceof Structural) {
         final Structural s = (Structural) n.owner();
         if (s.origin() == n && s.getClass() == this.getClass()) isNear = true;
       }
-      if (n.flaggedWith() == this) isNear = true ;
-      if (isNear) { numNear++ ; near[i] = true ; }
+      if (n.flaggedWith() == this) isNear = true;
+      if (isNear) { numNear++; near[i] = true; }
     }
     
-    if (prior != null) for (Structural s : prior) s.origin().flagWith(null) ;
-    configFromAdjacent(near, numNear) ;
+    if (prior != null) for (Structural s : prior) s.origin().flagWith(null);
+    configFromAdjacent(near, numNear);
   }
   
   
@@ -217,8 +217,8 @@ public abstract class Structural extends Fixture implements
   
   protected void singlePlacing(List <Structural> prior) {
     if (sprite() != null) sprite().colour = null;
-    clearSurrounds() ;
-    enterWorld() ;
+    clearSurrounds();
+    enterWorld();
     
     if (GameSettings.buildFree) structure.setState(Structure.STATE_INTACT, 1);
     else structure.setState(Structure.STATE_INSTALL, 0);
@@ -257,44 +257,44 @@ public abstract class Structural extends Fixture implements
   
   protected boolean singlePointOkay() {
     final Tile at = origin();
-    setPosition(at.x, at.y, at.world) ;
+    setPosition(at.x, at.y, at.world);
     return canPlace();
   }
   
   
   public boolean canPlace() {
-    if (super.canPlace()) return true ;
-    ///I.say("Couldn't place normally!") ;
-    final Tile o = origin() ;
-    if (o == null || o.owner() == null) return false ;
-    if (o.owner().getClass() == this.getClass()) return true ;
-    return false ;
+    if (super.canPlace()) return true;
+    ///I.say("Couldn't place normally!");
+    final Tile o = origin();
+    if (o == null || o.owner() == null) return false;
+    if (o.owner().getClass() == this.getClass()) return true;
+    return false;
   }
   
   
   public boolean pointsOkay(Tile from, Tile to) {
-    toInstall = installedBetween(from, to) ;
-    ///I.say("TO INSTALL IS: "+toInstall+", between "+from+" and "+to) ;
-    if (toInstall == null) return false ;
+    toInstall = installedBetween(from, to);
+    ///I.say("TO INSTALL IS: "+toInstall+", between "+from+" and "+to);
+    if (toInstall == null) return false;
     for (Structural s : toInstall) {
-      if (! s.singlePointOkay()) return false ;
+      if (! s.singlePointOkay()) return false;
     }
-    ///I.say("INSTALL OKAY...") ;
-    return true ;
+    ///I.say("INSTALL OKAY...");
+    return true;
   }
   
   
   public void doPlace(Tile from, Tile to) {
-    if (toInstall == null) return ;
-    for (Structural v : toInstall) v.singlePlacing(toInstall) ;
+    if (toInstall == null) return;
+    for (Structural v : toInstall) v.singlePlacing(toInstall);
   }
   
   
   public void preview(
     boolean canPlace, Rendering rendering, Tile from, Tile to
   ) {
-    if (toInstall == null) return ;
-    for (Structural v : toInstall) v.singlePreview(canPlace, rendering) ;
+    if (toInstall == null) return;
+    for (Structural v : toInstall) v.singlePreview(canPlace, rendering);
   }
   
 
@@ -311,8 +311,8 @@ public abstract class Structural extends Fixture implements
   
   
   protected float fogFor(Base base) {
-    if (base == this.base) return (1 + super.fogFor(base)) / 2f ;
-    return super.fogFor(base) ;
+    if (base == this.base) return (1 + super.fogFor(base)) / 2f;
+    return super.fogFor(base);
   }
   
   
@@ -322,10 +322,10 @@ public abstract class Structural extends Fixture implements
       structure.repairLevel(),
       structure.intact(),
       structure.burning()
-    ) ;
+    );
     buildSprite.passType = Sprite.PASS_NORMAL;
     super.renderFor(rendering, base);
-    renderHealthbars(rendering, base) ;
+    renderHealthbars(rendering, base);
   }
   
   
@@ -392,19 +392,19 @@ public abstract class Structural extends Fixture implements
   }
   
   
-  public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
+  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
     return VenueDescription.configSimplePanel(this, panel, UI, "");
   }
   
   
-  public TargetInfo configInfo(TargetInfo info, BaseUI UI) {
-    if (info == null) info = new TargetInfo(UI, this);
+  public TargetOptions configInfo(TargetOptions info, BaseUI UI) {
+    if (info == null) info = new TargetOptions(UI, this);
     return info;
   }
   
   
   public void renderSelection(Rendering rendering, boolean hovered) {
-    if (destroyed() || ! inWorld()) return ;
+    if (destroyed() || ! inWorld()) return;
     BaseUI.current().selection.renderTileOverlay(
       rendering, world,
       hovered ? Colour.transparency(0.5f) : Colour.WHITE,

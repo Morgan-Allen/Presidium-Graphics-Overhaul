@@ -1,12 +1,13 @@
 
 
-package stratos.game.building ;
+package stratos.game.building;
 import org.apache.commons.math3.util.FastMath;
 
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
+import stratos.game.plans.FindWork;
 import stratos.util.*;
 
 
@@ -18,9 +19,9 @@ import stratos.util.*;
 public class Placement implements TileConstants {
   
   
-  private static boolean verbose = false, cacheVerbose = false ;
+  private static boolean verbose = false, cacheVerbose = false;
   
-  final private static Coord footprintCache[][][] = new Coord[100][100][] ;
+  final private static Coord footprintCache[][][] = new Coord[100][100][];
   //
   //  NOTE:  This method is intended to generate a sequence of coordinates to
   //  check that should eliminate unfit placement-sites for buildings faster
@@ -39,41 +40,41 @@ public class Placement implements TileConstants {
   private static Coord[] footprintFor(int sizeX, int sizeY) {
     //
     //  Return the cached version if available, initialise otherwise-
-    Coord offsets[] = footprintCache[sizeX][sizeY] ;
-    if (offsets != null) return offsets ;
-    else offsets = footprintCache[sizeX][sizeY] = new Coord[sizeX * sizeY] ;
+    Coord offsets[] = footprintCache[sizeX][sizeY];
+    if (offsets != null) return offsets;
+    else offsets = footprintCache[sizeX][sizeY] = new Coord[sizeX * sizeY];
     //
     //  Find the initial 'step' size for the grid.
-    int stepX = 1, stepY = 1, i = 0 ;
-    while (stepX <= sizeX * 2) stepX *= 2 ;
-    while (stepY <= sizeY * 2) stepY *= 2 ;
-    final int maxX = sizeX - 1, maxY = sizeY - 1 ;
-    final boolean mask[][] = new boolean[sizeX][sizeY] ;
+    int stepX = 1, stepY = 1, i = 0;
+    while (stepX <= sizeX * 2) stepX *= 2;
+    while (stepY <= sizeY * 2) stepY *= 2;
+    final int maxX = sizeX - 1, maxY = sizeY - 1;
+    final boolean mask[][] = new boolean[sizeX][sizeY];
     //
     //  Shrink the grid with every step, skipping over any previously-used
     //  coordinates, and return the sequence of coordinates compiled-
     while (stepX > 1 || stepY > 1) {
-      if (stepX > 1) stepX /= 2 ;
-      if (stepY > 1) stepY /= 2 ;
-      for (int x = 0 ;;) {
-        for (int y = 0 ;;) {
+      if (stepX > 1) stepX /= 2;
+      if (stepY > 1) stepY /= 2;
+      for (int x = 0;;) {
+        for (int y = 0;;) {
           if (! mask[x][y]) {
-            if (cacheVerbose) I.say("X/Y: "+x+"/"+y) ;
-            mask[x][y] = true ;
-            offsets[i++] = new Coord(x, y) ;
+            if (cacheVerbose) I.say("X/Y: "+x+"/"+y);
+            mask[x][y] = true;
+            offsets[i++] = new Coord(x, y);
           }
-          if (y == maxY) break ;
-          y += stepY ;
-          if (y >= sizeY) y = maxY ;
+          if (y == maxY) break;
+          y += stepY;
+          if (y >= sizeY) y = maxY;
         }
-        if (x == maxX) break ;
-        x += stepX ;
-        if (x >= sizeX) x = maxX ;
+        if (x == maxX) break;
+        x += stepX;
+        if (x >= sizeX) x = maxX;
       }
     }
-    if (cacheVerbose) I.say("SIZE X/Y: "+sizeX+"/"+sizeY) ;
-    if (cacheVerbose) I.say("OFFSETS GENERATED: "+i) ;
-    return offsets ;
+    if (cacheVerbose) I.say("SIZE X/Y: "+sizeX+"/"+sizeY);
+    if (cacheVerbose) I.say("OFFSETS GENERATED: "+i);
+    return offsets;
   }
   
   
@@ -82,10 +83,10 @@ public class Placement implements TileConstants {
   ) {
     if (origin == null || sizeX <= 0 || sizeY <= 0) return false;
     for (Coord c : footprintFor(sizeX, sizeY)) {
-      final Tile t = origin.world.tileAt(origin.x + c.x, origin.y + c.y) ;
-      if (t == null || t.owningType() >= owningPriority) return false ;
+      final Tile t = origin.world.tileAt(origin.x + c.x, origin.y + c.y);
+      if (t == null || t.owningType() >= owningPriority) return false;
     }
-    return true ;
+    return true;
   }
   
   
@@ -95,61 +96,61 @@ public class Placement implements TileConstants {
   public static boolean checkPlacement(
     Fixture fixtures[], World world
   ) {
-    Box2D limits = null ;
+    Box2D limits = null;
     for (Fixture f : fixtures) {
-      if (limits == null) f.area(limits = new Box2D()) ;
-      else limits.include(f.area()) ;
+      if (limits == null) f.area(limits = new Box2D());
+      else limits.include(f.area());
     }
     if (! checkAreaClear(
       world.tileAt(limits.xpos() + 0.5f, limits.ypos() + 0.5f),
       (int) limits.xdim(),
       (int) limits.ydim(),
       fixtures[0].owningType()
-    )) return false ;
+    )) return false;
     
-    for (Fixture f : fixtures) if (! f.canPlace()) return false ;
-    return true ;
+    for (Fixture f : fixtures) if (! f.canPlace()) return false;
+    return true;
   }
   
   
   public static boolean findClearanceFor(
     final Venue v, final Target near, final World world
   ) {
-    final float maxDist = World.SECTOR_SIZE / 2 ;
-    Tile init = world.tileAt(near) ;
-    init = Spacing.nearestOpenTile(init, init) ;
-    if (init == null) return false ;
+    final float maxDist = World.SECTOR_SIZE / 2;
+    Tile init = world.tileAt(near);
+    init = Spacing.nearestOpenTile(init, init);
+    if (init == null) return false;
     
     final TileSpread search = new TileSpread(init) {
       protected boolean canAccess(Tile t) {
-        if (Spacing.distance(t, near) > maxDist) return false ;
-        return ! t.blocked() ;
+        if (Spacing.distance(t, near) > maxDist) return false;
+        return ! t.blocked();
       }
       protected boolean canPlaceAt(Tile t) {
-        v.setPosition(t.x, t.y, world) ;
-        if (! checkAreaClear(t, v.size, v.size, v.owningType())) return false ;
-        return v.canPlace() ;
+        v.setPosition(t.x, t.y, world);
+        if (! checkAreaClear(t, v.size, v.size, v.owningType())) return false;
+        return v.canPlace();
       }
-    } ;
-    search.doSearch() ;
-    return search.success() ;
+    };
+    search.doSearch();
+    return search.success();
   }
   
   
   public static Venue establishVenue(
     final Venue v, final Target near, boolean intact, World world
   ) {
-    if (! findClearanceFor(v, near, world)) return null ;
-    v.placeFromOrigin() ;
+    if (! findClearanceFor(v, near, world)) return null;
+    v.placeFromOrigin();
     if (intact || GameSettings.buildFree) {
-      v.structure.setState(Structure.STATE_INTACT, 1.0f) ;
-      ///v.onCompletion() ;
+      v.structure.setState(Structure.STATE_INTACT, 1.0f);
+      ///v.onCompletion();
     }
     else {
-      v.structure.setState(Structure.STATE_INSTALL, 0.0f) ;
+      v.structure.setState(Structure.STATE_INSTALL, 0.0f);
     }
-    v.setAsEstablished(true) ;
-    return v ;
+    v.setAsEstablished(true);
+    return v;
   }
   
 
@@ -158,12 +159,12 @@ public class Placement implements TileConstants {
   ) {
     if (findClearanceFor(strip, near, world)) {
       for (Venue s : strip) {
-        s.placeFromOrigin() ;
+        s.placeFromOrigin();
         if (intact || GameSettings.buildFree) {
-          s.structure.setState(Structure.STATE_INTACT, 1.0f) ;
+          s.structure.setState(Structure.STATE_INTACT, 1.0f);
         }
-        else s.structure.setState(Structure.STATE_INSTALL, 0.0f) ;
-        s.setAsEstablished(true) ;
+        else s.structure.setState(Structure.STATE_INSTALL, 0.0f);
+        s.setAsEstablished(true);
       }
       return strip;
     }
@@ -197,9 +198,9 @@ public class Placement implements TileConstants {
       int minX, minY;
       
       protected boolean canAccess(Tile t) {
-        if (Spacing.distance(t, near) > maxDist) return false ;
+        if (Spacing.distance(t, near) > maxDist) return false;
         if (t.owner() == near) return true;
-        return ! t.blocked() ;
+        return ! t.blocked();
       }
       
       protected boolean canPlaceAt(Tile t) {
@@ -235,7 +236,7 @@ public class Placement implements TileConstants {
         }
         return false;
       }
-    } ;
+    };
     search.verbose = verbose;
     search.doSearch();
     
@@ -253,18 +254,18 @@ public class Placement implements TileConstants {
     Actor... employed
   ) {
     if (establishVenue(v, world.tileAt(atX, atY), intact, world) == null) {
-      return null ;
+      return null;
     }
     for (Actor a : employed) {
       if (! a.inWorld()) {
-        a.assignBase(v.base()) ;
-        a.enterWorldAt(v, world) ;
-        a.goAboard(v, world) ;
+        a.assignBase(v.base());
+        a.enterWorldAt(v, world);
+        a.goAboard(v, world);
       }
-      a.mind.setWork(v) ;
+      a.mind.setWork(v);
     }
-    if (GameSettings.hireFree) FindWork.fillVacancies(v, intact) ;
-    return v ;
+    if (GameSettings.hireFree) FindWork.fillVacancies(v, intact);
+    return v;
   }
 }
 

@@ -6,6 +6,7 @@
 
 package stratos.game.actors;
 import stratos.util.*;
+import org.apache.commons.math3.util.FastMath;
 
 
 
@@ -24,13 +25,13 @@ public class Choice implements Qualities {
   
   
   public Choice(Actor actor) {
-    this.actor = actor ;
+    this.actor = actor;
   }
   
   
   public Choice(Actor actor, Series <Behaviour> plans) {
-    this.actor = actor ;
-    for (Behaviour p : plans) add(p) ;
+    this.actor = actor;
+    for (Behaviour p : plans) add(p);
   }
   
   
@@ -63,7 +64,7 @@ public class Choice implements Qualities {
   
   
   public int size() {
-    return plans.size() ;
+    return plans.size();
   }
   
   
@@ -77,7 +78,7 @@ public class Choice implements Qualities {
   
   
   public Behaviour weightedPick() {
-    return weightedPick(true) ;
+    return weightedPick(true);
   }
   
   
@@ -85,12 +86,14 @@ public class Choice implements Qualities {
     Actor actor, float topPriority, boolean fromCurrent
   ) {
     final float stubborn = actor.traits.relativeLevel(STUBBORN) / 2f;
+    
     float thresh = topPriority;
     if (fromCurrent) thresh -= 1 + stubborn;
     else thresh -= stubborn;
+    
     if (topPriority > Plan.PARAMOUNT) {
       final float extra = (topPriority - Plan.PARAMOUNT) / Plan.PARAMOUNT;
-      thresh -= Plan.DEFAULT_SWITCH_THRESHOLD * extra ;
+      thresh -= Plan.DEFAULT_SWITCH_THRESHOLD * extra;
     }
     thresh -= Plan.DEFAULT_SWITCH_THRESHOLD;
     
@@ -101,11 +104,11 @@ public class Choice implements Qualities {
   private Behaviour weightedPick(boolean free) {
     final boolean report = (verbose && I.talkAbout == actor) || isVerbose;
     if (plans.size() == 0) {
-      if (verboseReject && I.talkAbout == actor) I.say("  ...Empty choice!") ;
-      return null ;
+      if (verboseReject && I.talkAbout == actor) I.say("  ...Empty choice!");
+      return null;
     }
     if (report) {
-      String label = "Actor";
+      String label = actor.getClass().getSimpleName();
       if (actor.vocation() != null) label = actor.vocation().name;
       else if (actor.species() != null) label = actor.species().toString();
       I.say("\n"+actor+" ("+label+") is making a choice.");
@@ -114,19 +117,19 @@ public class Choice implements Qualities {
     //
     //  Firstly, acquire the priorities for each plan.  If the permitted range
     //  of priorities is zero, simply return the most promising.
-    float bestPriority = 0 ;
-    Behaviour picked = null ;
-    final float weights[] = new float[plans.size()] ;
-    int i = 0 ;
+    float bestPriority = 0;
+    Behaviour picked = null;
+    final float weights[] = new float[plans.size()];
+    int i = 0;
     for (Behaviour plan : plans) {
-      final float priority = plan.priorityFor(actor) ;
-      if (priority > bestPriority) { bestPriority = priority ; picked = plan ; }
-      weights[i++] = priority ;
-      if (report) I.say("  "+plan+" has priority: "+priority) ;
+      final float priority = plan.priorityFor(actor);
+      if (priority > bestPriority) { bestPriority = priority; picked = plan; }
+      weights[i++] = priority;
+      if (report) I.say("  "+plan+" has priority: "+priority);
     }
     if (! free) {
-      if (report) I.say("    Picked: "+picked) ;
-      return picked ;
+      if (report) I.say("    Picked: "+picked);
+      return picked;
     }
     //
     //  Eliminate all weights outside the permitted range, so that only plans
@@ -136,27 +139,27 @@ public class Choice implements Qualities {
       I.say("  Best priority: "+bestPriority);
       I.say("  Min. priority: "+minPriority);
     }
-    float sumWeights = 0 ;
-    for (i = weights.length ; i-- > 0 ;) {
-      weights[i] = Math.max(0, weights[i] - minPriority) ;
-      sumWeights += weights[i] ;
+    float sumWeights = 0;
+    for (i = weights.length; i-- > 0;) {
+      weights[i] = FastMath.max(0, weights[i] - minPriority);
+      sumWeights += weights[i];
     }
     if (sumWeights == 0) {
-      if (report) I.say("    Picked: "+picked) ;
-      return picked ;
+      if (report) I.say("    Picked: "+picked);
+      return picked;
     }
     //
     //  Finally, select a candidate at random using weights based on priority-
-    float randPick = Rand.num() * sumWeights ;
-    picked = null ;
-    i = 0 ;
+    float randPick = Rand.num() * sumWeights;
+    i = 0;
+    
     for (Behaviour plan : plans) {
-      final float chance = weights[i++] ;
-      if (randPick < chance) { picked = plan ; break ; }
-      else randPick -= chance ;
+      final float chance = weights[i++];
+      if (randPick < chance) { picked = plan; break; }
+      else randPick -= chance;
     }
-    if (report) I.say("    Picked: "+picked) ;
-    return picked ;
+    if (report) I.say("    Picked: "+picked);
+    return picked;
   }
   
   

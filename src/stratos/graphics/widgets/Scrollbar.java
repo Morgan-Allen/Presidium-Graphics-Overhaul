@@ -5,7 +5,7 @@
   */
 
 
-package stratos.graphics.widgets ;
+package stratos.graphics.widgets;
 import stratos.graphics.common.*;
 import stratos.util.*;
 
@@ -26,87 +26,87 @@ public class Scrollbar extends UINode {
     DEFAULT_TAB_HEIGHT = 25,  //default size of 'rounded edge' for grab-widget.
     DEFAULT_TAB_UV = 0.25f,  //default UV portion for that rounded edge.
     MAX_GRAB_PORTION = 0.5f,  //max area the grab-widget will occupy.
-    MIN_SCROLL_DIST = 5 ;
+    MIN_SCROLL_DIST = 5;
   
   
-  final Box2D mapArea ;
-  private float scrollPos = 1, initScrollPos = -1 ;
+  final Box2D mapArea;
+  private float scrollPos = 1, initScrollPos = -1;
   
-  final Texture scrollTex ;
-  final private Box2D grabArea = new Box2D() ;
-  private boolean showScroll = false ;
+  final Texture scrollTex;
+  final private Box2D grabArea = new Box2D();
+  private boolean showScroll = false;
   
   
   
   protected Scrollbar(HUD myHUD, ImageAsset tex, Box2D mapArea) {
-    super(myHUD) ;
-    this.mapArea = mapArea ;
-    this.scrollTex = tex.asTexture() ;
+    super(myHUD);
+    this.mapArea = mapArea;
+    this.scrollTex = tex.asTexture();
   }
   
   
   protected float scrollPos() {
-    return scrollPos ;
+    return scrollPos;
   }
   
   
   private float mapRatio() {
-    return ydim() / mapArea.ydim() ;
+    return ydim() / mapArea.ydim();
   }
   
   
   protected void updateAbsoluteBounds() {
-    super.updateAbsoluteBounds() ;
-    grabArea.setTo(bounds) ;
-    final float mapRatio = mapRatio() ;
+    super.updateAbsoluteBounds();
+    grabArea.setTo(bounds);
+    final float mapRatio = mapRatio();
     if (mapRatio < 1) {
-      final float grabSize = Math.min(MAX_GRAB_PORTION, mapRatio) ;
-      showScroll = true ;
-      final float offset = scrollPos * (1 - grabSize) ;
-      grabArea.ydim(ydim() * grabSize) ;
-      grabArea.ypos(ypos() + (ydim() * offset)) ;
+      final float grabSize = Math.min(MAX_GRAB_PORTION, mapRatio);
+      showScroll = true;
+      final float offset = scrollPos * (1 - grabSize);
+      grabArea.ydim(ydim() * grabSize);
+      grabArea.ypos(ypos() + (ydim() * offset));
     }
-    else showScroll = false ;
+    else showScroll = false;
   }
   
   
   protected void whenClicked() {
-    if (! showScroll) return ;
-    final float mX = UI.mouseX(), mY = UI.mouseY() ;
+    if (! showScroll) return;
+    final float mX = UI.mouseX(), mY = UI.mouseY();
     if (grabArea.contains(mX, mY)) {
-      initScrollPos = scrollPos ;
+      initScrollPos = scrollPos;
     }
     else {
-      initScrollPos = -1 ;
+      initScrollPos = -1;
       final float inc = Math.max(
         MIN_SCROLL_DIST / (mapArea.ydim() - ydim()), 0.1f
-      ) ;
-      if (mY > grabArea.ymax()) scrollPos += inc ;
-      if (mY < grabArea.ypos()) scrollPos -= inc ;
-      if (scrollPos < 0) scrollPos = 0 ;
-      if (scrollPos > 1) scrollPos = 1 ;
+      );
+      if (mY > grabArea.ymax()) scrollPos += inc;
+      if (mY < grabArea.ypos()) scrollPos -= inc;
+      if (scrollPos < 0) scrollPos = 0;
+      if (scrollPos > 1) scrollPos = 1;
     }
   }
   
   
   protected void whenPressed() {
-    whenDragged() ;
+    whenDragged();
   }
   
   
   protected void whenDragged() {
-    if (initScrollPos == -1 || ! showScroll) return ;
-    final Vector2 mP = UI.mousePos(), dP = UI.dragOrigin() ;
-    final float mapRatio = Math.min(mapRatio(), MAX_GRAB_PORTION) ;
-    final float stretch = (mP.y - dP.y) / (ydim() * (1 - mapRatio)) ;
-    scrollPos = initScrollPos + stretch ;
-    if (scrollPos < 0) scrollPos = 0 ;
-    if (scrollPos > 1) scrollPos = 1 ;
+    if (initScrollPos == -1 || ! showScroll) return;
+    final Vector2 mP = UI.mousePos(), dP = UI.dragOrigin();
+    final float mapRatio = Math.min(mapRatio(), MAX_GRAB_PORTION);
+    final float stretch = (mP.y - dP.y) / (ydim() * (1 - mapRatio));
+    scrollPos = initScrollPos + stretch;
+    if (scrollPos < 0) scrollPos = 0;
+    if (scrollPos > 1) scrollPos = 1;
   }
   
   
   protected void render(WidgetsPass pass) {
-    if (! showScroll) return ;
+    if (! showScroll) return;
     final int
       side = (int) (grabArea.xdim() / 2),
       cap = (int) DEFAULT_TAB_HEIGHT;

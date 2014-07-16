@@ -1,12 +1,12 @@
 
 
-package stratos.graphics.cutout ;
+package stratos.graphics.cutout;
 import stratos.graphics.common.*;
 import stratos.util.*;
 
-import com.badlogic.gdx.graphics.* ;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;  //TODO:  Dispose of
-import com.badlogic.gdx.math.* ;
+import com.badlogic.gdx.math.*;
 
 
 
@@ -25,7 +25,7 @@ public class CutoutModel extends ModelAsset {
     1, 1, 0,
     0, 0, 0,
     1, 0, 0
-  } ;
+  };
   final public static short VERT_INDICES[] = {
     0, 2, 1, 1, 2, 3
   };
@@ -38,8 +38,8 @@ public class CutoutModel extends ModelAsset {
   Texture texture;
   Texture lightSkin;
   
-  TextureRegion region ;
-  Vector2 offset, dimension ;
+  TextureRegion region;
+  Vector2 offset, dimension;
   
   final boolean splat;
   final float vertices[] = new float[SIZE];
@@ -93,7 +93,7 @@ public class CutoutModel extends ModelAsset {
   
   
   public Sprite makeSprite() {
-    if (! loaded) I.complain("CANNOT CREATE SPRITE UNTIL LOADED!") ;
+    if (! loaded) I.complain("CANNOT CREATE SPRITE UNTIL LOADED!");
     return new CutoutSprite(this);
   }
   
@@ -119,7 +119,7 @@ public class CutoutModel extends ModelAsset {
     String... files
   ) {
     final CutoutModel models[] = new CutoutModel[files.length];
-    for (int i = 0 ; i < files.length ; i++) {
+    for (int i = 0; i < files.length; i++) {
       final String fileName = path+files[i];
       final Box2D window = new Box2D().set(0, 0, 1, 1);
       models[i] = new CutoutModel(fileName, sourceClass, window, size, splat);
@@ -141,7 +141,7 @@ public class CutoutModel extends ModelAsset {
         fileName, sourceClass, window, size, false
       );
     }
-    return grid ;
+    return grid;
   }
   
   

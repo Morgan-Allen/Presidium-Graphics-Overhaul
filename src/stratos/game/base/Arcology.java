@@ -4,15 +4,15 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package stratos.game.base ;
-import stratos.game.common.* ;
-import stratos.game.actors.* ;
-import stratos.game.building.* ;
-import stratos.graphics.common.* ;
-import stratos.graphics.cutout.* ;
-import stratos.graphics.widgets.* ;
-import stratos.user.* ;
-import stratos.util.* ;
+package stratos.game.base;
+import stratos.game.common.*;
+import stratos.game.actors.*;
+import stratos.game.building.*;
+import stratos.graphics.common.*;
+import stratos.graphics.cutout.*;
+import stratos.graphics.widgets.*;
+import stratos.user.*;
+import stratos.util.*;
 
 
 
@@ -24,7 +24,7 @@ public class Arcology extends Structural {
   
   /**  Data fields, constructors, setup and save/load methods-
     */
-  final static String IMG_DIR = "media/Buildings/aesthete/" ;
+  final static String IMG_DIR = "media/Buildings/aesthete/";
   final static ModelAsset
     BEDS_MODELS[][] = CutoutModel.fromImageGrid(
       Arcology.class, IMG_DIR+"all_arcology.png",
@@ -42,28 +42,28 @@ public class Arcology extends Structural {
     ART_MODELS[] = {
       BEDS_MODELS[0][2], BEDS_MODELS[1][2], BEDS_MODELS[2][2],
       BEDS_MODELS[0][3], BEDS_MODELS[1][3], BEDS_MODELS[2][3]
-    } ;
+    };
   final static ImageAsset ICON = ImageAsset.fromImage(
     "media/GUI/Buttons/arcology_button.gif", Arcology.class
   );
   
   
-  private float plantsHealth = 0.5f ;
+  private float plantsHealth = 0.5f;
   
   
   public Arcology(Base base) {
-    super(1, 1, base) ;
-    structure.setupStats(15, 1, 100, 0, Structure.TYPE_FIXTURE) ;
+    super(1, 1, base);
+    structure.setupStats(15, 1, 100, 0, Structure.TYPE_FIXTURE);
   }
   
   
   public Arcology(Session s) throws Exception {
-    super(s) ;
+    super(s);
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
+    super.saveState(s);
   }
   
   
@@ -79,42 +79,42 @@ public class Arcology extends Structural {
   
   protected void configFromAdjacent(boolean[] near, int numNear) {
 
-    final Tile o = origin() ;
-    final int varID = (o.world.terrain().varAt(o) + o.x + o.y) % 6 ;
-    int capIndex = -1 ;
+    final Tile o = origin();
+    final int varID = (o.world.terrain().varAt(o) + o.x + o.y) % 6;
+    int capIndex = -1;
     
     if (numNear == 2) {
-      if (near[N] && near[S]) facing = X_AXIS ;
-      if (near[W] && near[E]) facing = Y_AXIS ;
+      if (near[N] && near[S]) facing = X_AXIS;
+      if (near[W] && near[E]) facing = Y_AXIS;
     }
     else if (numNear == 1) {
       if (near[N] || near[S]) {
-        facing = X_AXIS ;
-        capIndex = near[N] ? 6 : 2 ;
+        facing = X_AXIS;
+        capIndex = near[N] ? 6 : 2;
       }
       if (near[W] || near[E]) {
-        facing = Y_AXIS ;
-        capIndex = near[W] ? 2 : 6 ;
+        facing = Y_AXIS;
+        capIndex = near[W] ? 2 : 6;
       }
     }
-    if (facing == -1) facing = CORNER ;
+    if (facing == -1) facing = CORNER;
 
     if (facing == X_AXIS) {
-      final int x = o.y % 8 ;
-      if (false);//if (x == 0 || x == capIndex) attachModel(ART_MODELS[varID]) ;
-      else if (capIndex == 2) attachModel(MODEL_BEDS_EAST ) ;
-      else if (capIndex == 6) attachModel(MODEL_BEDS_WEST ) ;
-      else attachModel(MODEL_BEDS_RIGHT) ;
+      final int x = o.y % 8;
+      if (false);//if (x == 0 || x == capIndex) attachModel(ART_MODELS[varID]);
+      else if (capIndex == 2) attachModel(MODEL_BEDS_EAST );
+      else if (capIndex == 6) attachModel(MODEL_BEDS_WEST );
+      else attachModel(MODEL_BEDS_RIGHT);
     }
     if (facing == Y_AXIS) {
-      final int y = o.x % 8 ;
-      if (false);//if (y == 0 || y == capIndex) attachModel(ART_MODELS[varID]) ;
-      else if (capIndex == 2) attachModel(MODEL_BEDS_NORTH) ;
-      else if (capIndex == 6) attachModel(MODEL_BEDS_SOUTH) ;
-      else attachModel(MODEL_BEDS_LEFT ) ;
+      final int y = o.x % 8;
+      if (false);//if (y == 0 || y == capIndex) attachModel(ART_MODELS[varID]);
+      else if (capIndex == 2) attachModel(MODEL_BEDS_NORTH);
+      else if (capIndex == 6) attachModel(MODEL_BEDS_SOUTH);
+      else attachModel(MODEL_BEDS_LEFT );
     }
     if (facing == CORNER) {
-      attachModel(ART_MODELS[varID]) ;
+      attachModel(ART_MODELS[varID]);
     }
   }
   
@@ -127,26 +127,26 @@ public class Arcology extends Structural {
     //
     //  Demand water in proportion to dryness of the surrounding terrain.
     //  TODO:  You'll also need input of greens or saplings, in all likelihood.
-    float needWater = 1 - (origin().habitat().moisture() / 10f) ;
-    needWater *= needWater ;
-    stocks.incDemand(WATER, needWater, VenueStocks.TIER_CONSUMER, 1) ;
-    stocks.bumpItem(WATER, needWater / -10f, 1) ;
-    final float shortWater = stocks.shortagePenalty(WATER) ;
+    float needWater = 1 - (origin().habitat().moisture() / 10f);
+    needWater *= needWater;
+    stocks.incDemand(WATER, needWater, VenueStocks.TIER_CONSUMER, 1);
+    stocks.bumpItem(WATER, needWater / -10f, 1);
+    final float shortWater = stocks.shortagePenalty(WATER);
     //
     //  Kill off the plants if you don't have enough.  Grow 'em otherwise.
     if (shortWater > 0) {
-      plantsHealth -= shortWater * needWater / World.STANDARD_DAY_LENGTH ;
+      plantsHealth -= shortWater * needWater / World.STANDARD_DAY_LENGTH;
     }
     else {
-      plantsHealth += 1f / World.STANDARD_DAY_LENGTH ;
+      plantsHealth += 1f / World.STANDARD_DAY_LENGTH;
     }
-    plantsHealth = Visit.clamp(plantsHealth, 0, 1) ;
+    plantsHealth = Visit.clamp(plantsHealth, 0, 1);
     //
     //  TODO:  UPDATE SPRITE TO REFLECT THIS.
     //*/
     if (t != origin() || ! structure.intact()) return;
     
-    plantsHealth = 1 ;
+    plantsHealth = 1;
     world.ecology().impingeBiomass(
       origin(), 5 * plantsHealth, World.GROWTH_INTERVAL
     );
@@ -159,12 +159,12 @@ public class Arcology extends Structural {
   //  suited to the local climate.
   /*
   private float numSaplings() {
-    float num = 0 ;
+    float num = 0;
     for (Item i : stocks.matches(SAMPLES)) {
-      final Crop crop = (Crop) i.refers ;
-      num += i.amount ;
+      final Crop crop = (Crop) i.refers;
+      num += i.amount;
     }
-    return num ;
+    return num;
   }
   
   
@@ -182,18 +182,18 @@ public class Arcology extends Structural {
   }
   
   
-  public String fullName() { return "Arcology" ; }
+  public String fullName() { return "Arcology"; }
   
   
   public String helpInfo() {
     return
       "Arcology provides beauty and life support to your settlement, helping "+
-      "to improve ambience and minimise squalor." ;
+      "to improve ambience and minimise squalor.";
   }
   
   
   public String buildCategory() {
-    return InstallTab.TYPE_AESTHETE ;
+    return InstallTab.TYPE_AESTHETE;
   }
 }
 

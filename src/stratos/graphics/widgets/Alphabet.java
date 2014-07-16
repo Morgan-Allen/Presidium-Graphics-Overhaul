@@ -46,17 +46,17 @@ public class Alphabet {
   
   
   public static Alphabet loadAlphabet(String path, String mmlFile) {
-    path = Assets.safePath(path) ;
-    XML info = (XML.load(path + mmlFile)).child(0) ;
+    path = Assets.safePath(path);
+    XML info = (XML.load(path + mmlFile)).child(0);
     String
       texFile = info.value("texture"),
       alphaFile = info.value("alpha"),
-      mapFile = info.value("mapping") ;
+      mapFile = info.value("mapping");
     final int
       numLines = Integer.parseInt(info.value("lines")),
       lineHigh = Integer.parseInt(info.value("lhigh")) 
-      ;
-    return new Alphabet(path, texFile, alphaFile, mapFile, numLines, lineHigh) ;
+     ;
+    return new Alphabet(path, texFile, alphaFile, mapFile, numLines, lineHigh);
   }
   
   
@@ -90,11 +90,11 @@ public class Alphabet {
     //
     //  Secondly, we load up the sequence of characters that the alphabet is
     //  mapped to-
-    int charMap[] = null ;
+    int charMap[] = null;
     try {
       final InputStream mapInput = Gdx.files.internal(path+mapFile).read();
-      charMap = new int[mapInput.available()] ;
-      for(int n = 0 ; n < charMap.length ; n++) charMap[n] = mapInput.read() ;
+      charMap = new int[mapInput.available()];
+      for(int n = 0; n < charMap.length; n++) charMap[n] = mapInput.read();
     }
     catch (IOException e) { I.report(e); return;}
     
@@ -106,41 +106,41 @@ public class Alphabet {
     Letter letter = null;
     int maxMap = 0;
     
-    for (int line = 0 ; line < numLines ; line++) {
+    for (int line = 0; line < numLines; line++) {
       final int y = line * lineHigh;
-      for (int x = 0 ; x < wide ; x++) {
+      for (int x = 0; x < wide; x++) {
         final int alphaBits = alphaMap.getPixel(x, y) & 0xff;
         if (alphaBits != 0) {
           if (scan) {
             //...a letter starts here.
-            scan = false ;
-            letter = new Letter() ;
-            letter.umin = ((float) x) / wide ;
-            letter.map = (char) (charMap[scanned.size()]) ;
-            if (letter.map > maxMap) maxMap = letter.map ;
+            scan = false;
+            letter = new Letter();
+            letter.umin = ((float) x) / wide;
+            letter.map = (char) (charMap[scanned.size()]);
+            if (letter.map > maxMap) maxMap = letter.map;
           }
         }
         else {
           if(! scan) {
             //...and ends afterward on the first transparent pixel.
-            scan = true ;
-            letter.umax = ((float) x) / wide ;
-            letter.vmin = ((float) y) / high ;
-            letter.vmax = ((float) y + lineHigh) / high ;
-            letter.height = lineHigh ;
-            letter.width = (int) ((letter.umax - letter.umin) * wide) ;
-            scanned.addLast(letter) ;
+            scan = true;
+            letter.umax = ((float) x) / wide;
+            letter.vmin = ((float) y) / high;
+            letter.vmax = ((float) y + lineHigh) / high;
+            letter.height = lineHigh;
+            letter.width = (int) ((letter.umax - letter.umin) * wide);
+            scanned.addLast(letter);
             ///I.say("UV for: "+letter.map+", "+letter.umin+"|"+letter.vmin);
           }
         }
       }
     }
     
-    map = new Letter[maxMap + 1] ;
-    letters = new Letter[scanned.size()] ;
-    int ind = 0 ;
+    map = new Letter[maxMap + 1];
+    letters = new Letter[scanned.size()];
+    int ind = 0;
     for (Letter sLetter : scanned) {
-      map[(int) (sLetter.map)] = letters[ind++] = sLetter ;
+      map[(int) (sLetter.map)] = letters[ind++] = sLetter;
     }
   }
 }

@@ -1,7 +1,7 @@
 
 
 
-package stratos.game.campaign ;
+package stratos.game.campaign;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.base.*;

@@ -1,12 +1,13 @@
 
 
 
-package stratos.game.campaign ;
+package stratos.game.campaign;
 import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.building.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
+import stratos.game.plans.FindWork;
 import stratos.util.*;
 
 
@@ -23,7 +24,7 @@ public class Commerce implements Economy {
     APPLY_INTERVAL  = World.STANDARD_DAY_LENGTH / 2f,
     UPDATE_INTERVAL = 10,
     DEMAND_INC      = 0.15f,
-    MAX_APPLICANTS  = 3 ;
+    MAX_APPLICANTS  = 3;
   
   private static boolean verbose = false;
   
@@ -53,90 +54,90 @@ public class Commerce implements Economy {
   
   
   public Commerce(Base base) {
-    this.base = base ;
+    this.base = base;
     for (Service type : ALL_COMMODITIES) {
-      importPrices.put(type, (float) type.basePrice) ;
-      exportPrices.put(type, (float) type.basePrice) ;
+      importPrices.put(type, (float) type.basePrice);
+      exportPrices.put(type, (float) type.basePrice);
     }
   }
   
   
   public void loadState(Session s) throws Exception {
     
-    final int hID = s.loadInt() ;
-    homeworld = hID == -1 ? null : (Sector) Backgrounds.ALL_BACKGROUNDS[hID] ;
-    for (int n = s.loadInt() ; n-- > 0 ;) {
-      partners.add((Sector) Backgrounds.ALL_BACKGROUNDS[s.loadInt()]) ;
+    final int hID = s.loadInt();
+    homeworld = hID == -1 ? null : (Sector) Backgrounds.ALL_BACKGROUNDS[hID];
+    for (int n = s.loadInt(); n-- > 0;) {
+      partners.add((Sector) Backgrounds.ALL_BACKGROUNDS[s.loadInt()]);
     }
     
-    for (int i = NUM_J ; i-- > 0 ;) {
-      jobSupply[i] = s.loadFloat() ;
-      jobDemand[i] = s.loadFloat() ;
+    for (int i = NUM_J; i-- > 0;) {
+      jobSupply[i] = s.loadFloat();
+      jobDemand[i] = s.loadFloat();
     }
     
-    shortages.loadState(s) ;
-    surpluses.loadState(s) ;
+    shortages.loadState(s);
+    surpluses.loadState(s);
     for (Service type : ALL_COMMODITIES) {
-      importPrices.put(type, s.loadFloat()) ;
-      exportPrices.put(type, s.loadFloat()) ;
+      importPrices.put(type, s.loadFloat());
+      exportPrices.put(type, s.loadFloat());
     }
     
-    s.loadObjects(candidates) ;
-    s.loadObjects(migrantsIn) ;
-    ship = (Dropship) s.loadObject() ;
-    nextVisitTime = s.loadFloat() ;
+    s.loadObjects(candidates);
+    s.loadObjects(migrantsIn);
+    ship = (Dropship) s.loadObject();
+    nextVisitTime = s.loadFloat();
   }
   
   
   public void saveState(Session s) throws Exception {
     
-    s.saveInt(homeworld == null ? -1 : homeworld.ID) ;
-    s.saveInt(partners.size()) ;
-    for (Sector p : partners) s.saveInt(p.ID) ;
+    s.saveInt(homeworld == null ? -1 : homeworld.ID);
+    s.saveInt(partners.size());
+    for (Sector p : partners) s.saveInt(p.ID);
     
-    for (int i = NUM_J ; i-- > 0 ;) {
-      s.saveFloat(jobSupply[i]) ;
-      s.saveFloat(jobDemand[i]) ;
+    for (int i = NUM_J; i-- > 0;) {
+      s.saveFloat(jobSupply[i]);
+      s.saveFloat(jobDemand[i]);
     }
     
-    shortages.saveState(s) ;
-    surpluses.saveState(s) ;
+    shortages.saveState(s);
+    surpluses.saveState(s);
     for (Service type : ALL_COMMODITIES) {
-      s.saveFloat(importPrices.get(type)) ;
-      s.saveFloat(exportPrices.get(type)) ;
+      s.saveFloat(importPrices.get(type));
+      s.saveFloat(exportPrices.get(type));
     }
     
-    s.saveObjects(candidates) ;
-    s.saveObjects(migrantsIn) ;
-    s.saveObject(ship) ;
-    s.saveFloat(nextVisitTime) ;
+    s.saveObjects(candidates);
+    s.saveObjects(migrantsIn);
+    s.saveObject(ship);
+    s.saveFloat(nextVisitTime);
   }
   
   
   public void assignHomeworld(Sector s) {
-    homeworld = s ;
-    togglePartner(s, true) ;
+    homeworld = s;
+    togglePartner(s, true);
   }
   
   
   public Sector homeworld() {
-    return homeworld ;
+    return homeworld;
   }
   
   
   public void togglePartner(Sector s, boolean is) {
     if (is) {
-      partners.include(s) ;
+      partners.include(s);
     }
     else {
-      partners.remove(s) ;
-      if (s == homeworld) homeworld = null ;
+      partners.remove(s);
+      if (s == homeworld) homeworld = null;
     }
   }
   
   
   public List <Sector> partners() {
-    return partners ;
+    return partners;
   }
   
   
@@ -144,51 +145,51 @@ public class Commerce implements Economy {
   /**  Dealing with migrants and cargo-
     */
   public void addImmigrant(Actor actor) {
-    migrantsIn.add(actor) ;
+    migrantsIn.add(actor);
   }
   
   
   protected void updateCandidates(int numUpdates) {
-    if ((numUpdates % UPDATE_INTERVAL) != 0) return ;
+    if ((numUpdates % UPDATE_INTERVAL) != 0) return;
     
-    final float inc = DEMAND_INC, timeGone = UPDATE_INTERVAL / APPLY_INTERVAL ;
+    final float inc = DEMAND_INC, timeGone = UPDATE_INTERVAL / APPLY_INTERVAL;
     for (Background b : Backgrounds.ALL_BACKGROUNDS) {
-      final int i = b.ID ;
-      jobDemand[i] *= (1 - inc) ;
-      jobDemand[i] = Math.max(jobDemand[i] - (inc / 100), 0) ;
-      jobSupply[i] = 0 ;
+      final int i = b.ID;
+      jobDemand[i] *= (1 - inc);
+      jobDemand[i] = Math.max(jobDemand[i] - (inc / 100), 0);
+      jobSupply[i] = 0;
     }
     
     for (Actor c : candidates) {
-      final Application a = c.mind.application() ;
-      if (a == null) continue ;
-      jobSupply[a.position.ID]++ ;
+      final Application a = c.mind.application();
+      if (a == null) continue;
+      jobSupply[a.position.ID]++;
     }
     
     if (verbose) I.say("\nChecking for new candidates...");
     
     for (Background b : Backgrounds.ALL_BACKGROUNDS) {
-      final float supply = jobSupply[b.ID], demand = jobDemand[b.ID] ;
-      if (demand == 0) continue ;
-      //float applyChance = (demand * MAX_APPLICANTS) - supply ;
-      float applyChance = demand * demand / (supply + demand) ;
-      applyChance *= timeGone ;
+      final float supply = jobSupply[b.ID], demand = jobDemand[b.ID];
+      if (demand == 0) continue;
+      //float applyChance = (demand * MAX_APPLICANTS) - supply;
+      float applyChance = demand * demand / (supply + demand);
+      applyChance *= timeGone;
       
       if (verbose) {
-        I.say("  Hire chance for "+b+" is "+applyChance) ;
-        I.say("  Supply/demand "+supply+" / "+demand) ;
+        I.say("  Hire chance for "+b+" is "+applyChance);
+        I.say("  Supply/demand "+supply+" / "+demand);
       }
       
       while (Rand.num() < applyChance) {
-        final Human applies = new Human(b, base) ;
+        final Human applies = new Human(b, base);
         if (verbose) I.say("  New candidate: "+applies);
-        candidates.addFirst(applies) ;
+        candidates.addFirst(applies);
         Application a = FindWork.lookForWork((Human) applies, base, verbose);
         if (a != null) {
           if (verbose) I.say("  Applying at: "+a.employer);
           applies.mind.switchApplication(a);
         }
-        applyChance-- ;
+        applyChance--;
       }
     }
     
@@ -196,7 +197,7 @@ public class Commerce implements Economy {
     //  settlements.
     if (verbose) I.say("\nTotal candidates "+candidates.size());
     
-    for (ListEntry e = candidates; (e = e.nextEntry()) != candidates ;) {
+    for (ListEntry e = candidates; (e = e.nextEntry()) != candidates;) {
       final Human c = (Human) e.refers;
       final Application a = c.mind.application();
       float quitChance = timeGone;
@@ -223,7 +224,7 @@ public class Commerce implements Economy {
       }
       else {
         if (verbose) I.say(c+"("+c.vocation()+") is quitting...");
-        candidates.removeEntry(e) ;
+        candidates.removeEntry(e);
         if (a != null) a.employer.personnel().setApplicant(a, false);
       }
     }
@@ -304,31 +305,31 @@ public class Commerce implements Economy {
     //  more in general.
     
     for (Service type : ALL_COMMODITIES) {
-      ///final boolean offworld = true ; //For now.
+      ///final boolean offworld = true; //For now.
       float
         basePrice = 1 * type.basePrice,
         importMul = 2 + (shortages.amountOf(type) / 1000f),
-        exportDiv = 2 + (surpluses.amountOf(type) / 1000f) ;
+        exportDiv = 2 + (surpluses.amountOf(type) / 1000f);
       
       for (Sector system : partners) {
         if (Visit.arrayIncludes(system.goodsMade, type)) {
-          basePrice *= 0.75f ;
-          if (system == homeworld) importMul /= 1.50f ;
+          basePrice *= 0.75f;
+          if (system == homeworld) importMul /= 1.50f;
         }
         if (Visit.arrayIncludes(system.goodsNeeded, type)) {
-          basePrice *= 1.5f ;
-          if (system == homeworld) exportDiv *= 0.75f ;
+          basePrice *= 1.5f;
+          if (system == homeworld) exportDiv *= 0.75f;
         }
       }
       
       if (homeworld != null) {
-        final float sizeBonus = base.communitySpirit() ;
-        importMul *= (1 - sizeBonus) ;
-        exportDiv = (1 * sizeBonus) + (exportDiv * (1 - sizeBonus)) ;
+        final float sizeBonus = base.communitySpirit();
+        importMul *= (1 - sizeBonus);
+        exportDiv = (1 * sizeBonus) + (exportDiv * (1 - sizeBonus));
       }
       
-      importPrices.put(type, basePrice * importMul) ;
-      exportPrices.put(type, basePrice / exportDiv) ;
+      importPrices.put(type, basePrice * importMul);
+      exportPrices.put(type, basePrice / exportDiv);
     }
   }
   
@@ -344,16 +345,16 @@ public class Commerce implements Economy {
   
   
   public float importPrice(Service type) {
-    final Float price = importPrices.get(type) ;
-    if (price == null) return type.basePrice * 10f ;
-    return price ;
+    final Float price = importPrices.get(type);
+    if (price == null) return type.basePrice * 10f;
+    return price;
   }
   
   
   public float exportPrice(Service type) {
-    final Float price = exportPrices.get(type) ;
-    if (price == null) return type.basePrice / 10f ;
-    return price ;
+    final Float price = exportPrices.get(type);
+    if (price == null) return type.basePrice / 10f;
+    return price;
   }
   
   
@@ -369,20 +370,20 @@ public class Commerce implements Economy {
     //  Get rid of fatigue and hunger, modulate mood, et cetera- account for
     //  the effects of time spent offworld.
     for (Actor works : ship.crew()) {
-      final float MH = works.health.maxHealth() ;
-      works.health.liftFatigue(MH * Rand.num()) ;
-      works.health.takeCalories(MH, 0.25f + Rand.num()) ;
-      works.health.adjustMorale(Rand.num() / 2f) ;
-      works.mind.clearAgenda() ;
+      final float MH = works.health.maxHealth();
+      works.health.liftFatigue(MH * Rand.num());
+      works.health.takeCalories(MH, 0.25f + Rand.num());
+      works.health.adjustMorale(Rand.num() / 2f);
+      works.mind.clearAgenda();
     }
   }
   
   
   private void addCrew(Dropship ship, Background... positions) {
     for (Background v : positions) {
-      final Human staff = new Human(new Career(v), base) ;
-      staff.mind.setWork(ship) ;
-      //staff.mind.setHomeVenue(ship) ;
+      final Human staff = new Human(new Career(v), base);
+      staff.mind.setWork(ship);
+      //staff.mind.setHomeVenue(ship);
     }
   }
   
@@ -390,36 +391,36 @@ public class Commerce implements Economy {
   private void loadCargo(
     Dropship ship, Inventory available, final boolean imports
   ) {
-    ship.cargo.removeAllItems() ;
-    I.say("Loading cargo...") ;
+    ship.cargo.removeAllItems();
+    I.say("Loading cargo...");
     //
     //  We prioritise items based on the amount of demand and the price of the
     //  goods in question-
     final Sorting <Item> sorting = new Sorting <Item> () {
       public int compare(Item a, Item b) {
-        if (a == b) return 0 ;
+        if (a == b) return 0;
         final float
           pA = a.amount / a.type.basePrice,
-          pB = b.amount / b.type.basePrice ;
-        return (imports ? 1 : -1) * (pA > pB ? 1 : -1) ;
+          pB = b.amount / b.type.basePrice;
+        return (imports ? 1 : -1) * (pA > pB ? 1 : -1);
       }
-    } ;
-    for (Item item : available.allItems()) sorting.add(item) ;
-    float totalAmount = 0 ;
+    };
+    for (Item item : available.allItems()) sorting.add(item);
+    float totalAmount = 0;
     for (Item item : sorting) {
-      if (totalAmount + item.amount > ship.MAX_CAPACITY) break ;
-      available.removeItem(item) ;
-      ship.cargo.addItem(item) ;
-      totalAmount += item.amount ;
-      I.say("Loading cargo: "+item) ;
+      if (totalAmount + item.amount > ship.MAX_CAPACITY) break;
+      available.removeItem(item);
+      ship.cargo.addItem(item);
+      totalAmount += item.amount;
+      I.say("Loading cargo: "+item);
     }
   }
   
   
   public Batch <Dropship> allVessels() {
-    final Batch <Dropship> vessels = new Batch <Dropship> () ;
-    vessels.add(ship) ;
-    return vessels ;
+    final Batch <Dropship> vessels = new Batch <Dropship> ();
+    vessels.add(ship);
+    return vessels;
   }
   
   
@@ -428,65 +429,65 @@ public class Commerce implements Economy {
     */
   public void updateCommerce(int numUpdates) {
     if (ship == null) {
-      ship = new Dropship() ;
-      ship.assignBase(base) ;
+      ship = new Dropship();
+      ship.assignBase(base);
       addCrew(ship,
         Backgrounds.SHIP_CAPTAIN,
         Backgrounds.SHIP_MECHANIC
-      ) ;
+      );
       nextVisitTime = base.world.currentTime() + (Rand.num() * SUPPLY_INTERVAL);
     }
     
-    updateCandidates(numUpdates) ;
+    updateCandidates(numUpdates);
     if (numUpdates % 10 == 0) {
-      summariseDemand(base) ;
-      calculatePrices() ;
+      summariseDemand(base);
+      calculatePrices();
     }
-    updateShipping() ;
+    updateShipping();
   }
   
   
   protected void updateShipping() {
     
-    final int shipStage = ship.flightStage() ;
+    final int shipStage = ship.flightStage();
     if (ship.landed()) {
-      final float sinceDescent = ship.timeLanded() ;
+      final float sinceDescent = ship.timeLanded();
       if (sinceDescent > SUPPLY_DURATION) {
-        if (shipStage == Dropship.STAGE_LANDED) ship.beginBoarding() ;
+        if (shipStage == Dropship.STAGE_LANDED) ship.beginBoarding();
         if (ship.allAboard() && shipStage == Dropship.STAGE_BOARDING) {
-          ship.beginAscent() ;
-          nextVisitTime = base.world.currentTime() ;
-          nextVisitTime += SUPPLY_INTERVAL * (0.5f + Rand.num()) ;
+          ship.beginAscent();
+          nextVisitTime = base.world.currentTime();
+          nextVisitTime += SUPPLY_INTERVAL * (0.5f + Rand.num());
         }
       }
     }
     if (! ship.inWorld()) {
-      boolean shouldVisit = migrantsIn.size() > 0 ;
-      if ((! shortages.empty()) || (! surpluses.empty())) shouldVisit = true ;
-      shouldVisit &= base.world.currentTime() > nextVisitTime ;
-      shouldVisit &= ship.timeAway(base.world) > SUPPLY_INTERVAL ;
+      boolean shouldVisit = migrantsIn.size() > 0;
+      if ((! shortages.empty()) || (! surpluses.empty())) shouldVisit = true;
+      shouldVisit &= base.world.currentTime() > nextVisitTime;
+      shouldVisit &= ship.timeAway(base.world) > SUPPLY_INTERVAL;
       
       if (shouldVisit) {
-        I.say("SENDING SHIP...") ;
-        final boolean canLand = ship.findLandingSite(base) ;
-        if (! canLand) return ;
+        I.say("SENDING SHIP...");
+        final boolean canLand = ship.findLandingSite(base);
+        if (! canLand) return;
         /*
-        final Box2D zone = Dropship.findLandingSite(ship, base) ;
-        if (zone == null) return ;
+        final Box2D zone = Dropship.findLandingSite(ship, base);
+        if (zone == null) return;
         //*/
-        I.say("Sending ship to land at: "+ship.dropPoint()) ;
+        I.say("Sending ship to land at: "+ship.dropPoint());
         
         while (ship.inside().size() < Dropship.MAX_PASSENGERS) {
-          if (migrantsIn.size() == 0) break ;
-          final Actor migrant = migrantsIn.removeFirst() ;
-          ship.setInside(migrant, true) ;
+          if (migrantsIn.size() == 0) break;
+          final Actor migrant = migrantsIn.removeFirst();
+          ship.setInside(migrant, true);
         }
         
-        loadCargo(ship, shortages, true) ;
-        refreshCrew(ship) ;
-        for (Actor c : ship.crew()) ship.setInside(c, true) ;
+        loadCargo(ship, shortages, true);
+        refreshCrew(ship);
+        for (Actor c : ship.crew()) ship.setInside(c, true);
         
-        ship.beginDescent(base.world) ;
+        ship.beginDescent(base.world);
       }
     }
   }
@@ -503,33 +504,33 @@ public boolean genCandidate(Background vocation, Venue venue, int numOpen) {
   //  You might want to introduce limits on the probability of finding
   //  candidates based on the relative sizes of the source and destination
   //  settlements, and the number of existing applicants for a position.
-  final int numA = venue.personnel.numApplicants(vocation) ;
-  if (numA >= numOpen * MAX_APPLICANTS) return false ;
-  final Human candidate = new Human(vocation, venue.base()) ;
+  final int numA = venue.personnel.numApplicants(vocation);
+  if (numA >= numOpen * MAX_APPLICANTS) return false;
+  final Human candidate = new Human(vocation, venue.base());
   //
   //  This requires more work on the subject of pricing.  Some will join for
   //  free, but others need enticement, depending on distance and willingness
   //  to relocate, and the friendliness of the home system.
-  final int signingCost = Backgrounds.HIRE_COSTS[vocation.standing] ;
-  venue.personnel.applyFor(vocation, candidate, signingCost) ;
+  final int signingCost = Backgrounds.HIRE_COSTS[vocation.standing];
+  venue.personnel.applyFor(vocation, candidate, signingCost);
   //
   //  Insert the candidate in local records, and return.
-  List <Actor> list = candidates.get(venue) ;
-  if (list == null) candidates.put(venue, list = new List <Actor> ()) ;
-  list.add(candidate) ;
-  return true ;
+  List <Actor> list = candidates.get(venue);
+  if (list == null) candidates.put(venue, list = new List <Actor> ());
+  list.add(candidate);
+  return true;
 }
 
 
 public void cullCandidates(Background vocation, Venue venue) {
-  final List <Actor> list = candidates.get(venue) ;
-  if (list == null) return ;
-  final int numOpenings = venue.numOpenings(vocation) ;
-  if (numOpenings > 0) return ;
+  final List <Actor> list = candidates.get(venue);
+  if (list == null) return;
+  final int numOpenings = venue.numOpenings(vocation);
+  if (numOpenings > 0) return;
   for (Actor actor : list) if (actor.vocation() == vocation) {
-    list.remove(actor) ;
-    venue.personnel.removeApplicant(actor) ;
+    list.remove(actor);
+    venue.personnel.removeApplicant(actor);
   }
-  if (list.size() == 0) candidates.remove(venue) ;
+  if (list.size() == 0) candidates.remove(venue);
 }
 //*/

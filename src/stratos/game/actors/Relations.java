@@ -16,31 +16,31 @@ public class Relations {
     */
   final static int
     DEFAULT_MAX_MEMORY = 10,
-    DEFAULT_MAX_ASSOC  = 100 ;
+    DEFAULT_MAX_ASSOC  = 100;
   
-  private static boolean verbose = false ;
+  private static boolean verbose = false;
   
   
-  final Actor actor ;
-  final Table <Accountable, Relation> relations = new Table() ;
+  final Actor actor;
+  final Table <Accountable, Relation> relations = new Table();
   
   
   public Relations(Actor actor) {
-    this.actor = actor ;
+    this.actor = actor;
   }
   
   
   protected void loadState(Session s) throws Exception {
-    for (int n = s.loadInt() ; n-- > 0 ;) {
-      final Relation r = Relation.loadFrom(s) ;
-      relations.put((Accountable) r.subject, r) ;
+    for (int n = s.loadInt(); n-- > 0;) {
+      final Relation r = Relation.loadFrom(s);
+      relations.put((Accountable) r.subject, r);
     }
   }
   
   
   protected void saveState(Session s) throws Exception {
-    s.saveInt(relations.size()) ;
-    for (Relation r : relations.values()) Relation.saveTo(s, r) ;
+    s.saveInt(relations.size());
+    for (Relation r : relations.values()) Relation.saveTo(s, r);
   }
   
   
@@ -104,21 +104,21 @@ public class Relations {
   /**  Handling relationships and attitudes-
     */
   public float relationValue(Base base) {
-    final Base AB = actor.base() ;
+    final Base AB = actor.base();
     if (AB != null) {
-      if (base == AB) return 1 ;
-      if (base == null) return 0 ;
-      return AB.relationWith(base) ;
+      if (base == AB) return 1;
+      if (base == null) return 0;
+      return AB.relationWith(base);
     }
-    else return 0 ;
+    else return 0;
   }
   
   
   public float relationValue(Installation venue) {
-    if (venue == null) return 0 ;
-    if (venue == actor.mind.home) return 1.0f ;
-    if (venue == actor.mind.work) return 0.5f ;
-    return relationValue(venue.base()) / 2f ;
+    if (venue == null) return 0;
+    if (venue == actor.mind.home) return 1.0f;
+    if (venue == actor.mind.work) return 0.5f;
+    return relationValue(venue.base()) / 2f;
   }
   
   
@@ -136,7 +136,7 @@ public class Relations {
     }
     if (other instanceof Actor) return relationValue((Actor) other);
     if (other instanceof Base ) return relationValue((Base ) other);
-    return 0 ;
+    return 0;
   }
   
   
@@ -169,9 +169,9 @@ public class Relations {
   
   
   public Batch <Relation> relations() {
-    final Batch <Relation> all = new Batch <Relation> () ;
-    for (Relation r : relations.values()) all.add(r) ;
-    return all ;
+    final Batch <Relation> all = new Batch <Relation> ();
+    for (Relation r : relations.values()) all.add(r);
+    return all;
   }
   
   
@@ -181,7 +181,7 @@ public class Relations {
   
   
   public boolean hasRelation(Accountable other) {
-    return relations.get(other) != null ;
+    return relations.get(other) != null;
   }
   
   
@@ -193,20 +193,20 @@ public class Relations {
   //
   //  TODO:  Allow for varying degrees of association.
   public void associateWithCurrentBehaviour(Saveable s) {
-    final Behaviour current = actor.mind.rootBehaviour() ;
-    if (current == null) return ;
-    final List <Saveable> assoc = associations.get(current) ;
-    assoc.include(s) ;
+    final Behaviour current = actor.mind.rootBehaviour();
+    if (current == null) return;
+    final List <Saveable> assoc = associations.get(current);
+    assoc.include(s);
   }
   
   
   public Series <Plan> remembered() {
-    return remembered ;
+    return remembered;
   }
   
   
   public Series <Saveable> associationsFor(Plan p) {
-    return associations.get(p) ;
+    return associations.get(p);
   }
   //*/
 }

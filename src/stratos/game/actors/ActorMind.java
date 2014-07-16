@@ -6,7 +6,7 @@
 
 
 
-package stratos.game.actors ;
+package stratos.game.actors;
 import org.apache.commons.math3.util.FastMath;
 
 import stratos.game.building.*;
@@ -33,44 +33,44 @@ public abstract class ActorMind implements Qualities {
     stepsVerbose    = false;
   
   
-  final protected Actor actor ;
+  final protected Actor actor;
   
-  final List <Behaviour> agenda = new List <Behaviour> () ;
-  final List <Behaviour> todoList = new List <Behaviour> () ;
+  final List <Behaviour> agenda = new List <Behaviour> ();
+  final List <Behaviour> todoList = new List <Behaviour> ();
   
-  protected Mission mission ;
-  protected Employer home, work ;
-  protected Application application ;
-  protected Actor master ;
+  protected Mission mission;
+  protected Employer home, work;
+  protected Application application;
+  protected Actor master;
   
   
   
   protected ActorMind(Actor actor) {
-    this.actor = actor ;
+    this.actor = actor;
   }
   
   
   protected void loadState(Session s) throws Exception {
-    s.loadObjects(agenda) ;
-    s.loadObjects(todoList) ;
+    s.loadObjects(agenda);
+    s.loadObjects(todoList);
     
-    mission = (Mission) s.loadObject() ;
-    home = (Employer) s.loadObject() ;
-    work = (Employer) s.loadObject() ;
-    application = (Application) s.loadObject() ;
-    master = (Actor) s.loadObject() ;
+    mission = (Mission) s.loadObject();
+    home = (Employer) s.loadObject();
+    work = (Employer) s.loadObject();
+    application = (Application) s.loadObject();
+    master = (Actor) s.loadObject();
   }
   
   
   protected void saveState(Session s) throws Exception {
-    s.saveObjects(agenda) ;
-    s.saveObjects(todoList) ;
+    s.saveObjects(agenda);
+    s.saveObjects(todoList);
     
-    s.saveObject(mission) ;
-    s.saveObject(home) ;
-    s.saveObject(work) ;
-    s.saveObject(application) ;
-    s.saveObject(master) ;
+    s.saveObject(mission);
+    s.saveObject(home);
+    s.saveObject(work);
+    s.saveObject(application);
+    s.saveObject(master);
   }
   
   
@@ -82,38 +82,38 @@ public abstract class ActorMind implements Qualities {
   /**  Calling regular, periodic updates and triggering AI refreshments-
     */
   protected void updateAI(int numUpdates) {
-    if (numUpdates % 10 != 0) return ;
+    if (numUpdates % 10 != 0) return;
     //
     //  Remove any expired behaviour-sources:
     if (home != null && home.destroyed()) {
-      setHome(null) ;
+      setHome(null);
     }
     if (work != null && work.destroyed()) {
-      setWork(null) ;
+      setWork(null);
     }
     if (application != null && ! application.valid()) {
-      switchApplication(null) ;
+      switchApplication(null);
     }
     if (mission != null && mission.finished()) {
-      assignMission(null) ;
+      assignMission(null);
     }
     //
     //  Cull any expired items on the to-do list, and see if it's worth
     //  switching to a different behaviour-
-    for (Behaviour b : todoList) if (b.finished()) todoList.remove(b) ;
-    final Behaviour last = rootBehaviour() ;
-    final Behaviour next = nextBehaviour() ;
+    for (Behaviour b : todoList) if (b.finished()) todoList.remove(b);
+    final Behaviour last = rootBehaviour();
+    final Behaviour next = nextBehaviour();
     
     if (decisionVerbose && I.talkAbout == actor) {
-      I.say("\nPerformed periodic AI update.") ;
+      I.say("\nPerformed periodic AI update.");
       final float
         lastP = last == null ? -1 : last.priorityFor(actor),
-        nextP = next == null ? -1 : next.priorityFor(actor) ;
-      I.say("  LAST PLAN: "+last+" "+lastP) ;
-      I.say("  NEXT PLAN: "+next+" "+nextP) ;
-      I.say("\n") ;
+        nextP = next == null ? -1 : next.priorityFor(actor);
+      I.say("  LAST PLAN: "+last+" "+lastP);
+      I.say("  NEXT PLAN: "+next+" "+nextP);
+      I.say("\n");
     }
-    if (Choice.wouldSwitch(actor, last, next, true)) assignBehaviour(next) ;
+    if (Choice.wouldSwitch(actor, last, next, true)) assignBehaviour(next);
   }
   
   
@@ -135,15 +135,15 @@ public abstract class ActorMind implements Qualities {
     
     if (report) {
       I.say("\nPLANS ACQUIRED:");
-      I.say("  LAST PLAN: "+rootBehaviour()) ;
+      I.say("  LAST PLAN: "+rootBehaviour());
       final float
         notP = notDone == null ? -1 : notDone.priorityFor(actor),
         newP = newChoice == null ? -1 : newChoice.priorityFor(actor);
-      I.say("  NOT DONE: "+notDone+", PRIORITY: "+notP) ;
-      I.say("  NEW CHOICE: "+newChoice+", PRIORITY: "+newP) ;
-      I.say("  CURRENT FAVOURITE: "+taken) ;
+      I.say("  NOT DONE: "+notDone+", PRIORITY: "+notP);
+      I.say("  NEW CHOICE: "+newChoice+", PRIORITY: "+newP);
+      I.say("  CURRENT FAVOURITE: "+taken);
     }
-    return taken ;
+    return taken;
   }
   
   
@@ -157,8 +157,8 @@ public abstract class ActorMind implements Qualities {
   }
   
   
-  protected abstract Choice createNewBehaviours(Choice choice) ;
-  protected abstract void addReactions(Target m, Choice choice) ;
+  protected abstract Choice createNewBehaviours(Choice choice);
+  protected abstract void addReactions(Target m, Choice choice);
   
   
   protected Action getNextAction() {
@@ -167,9 +167,9 @@ public abstract class ActorMind implements Qualities {
       reportNew = reportStep || (decisionVerbose && I.talkAbout == actor);
     
     
-    final int MAX_LOOP = 20 ;  // Safety feature, see below...
-    for (int loop = MAX_LOOP ; loop-- > 0 ;) {
-      if (reportStep) I.say("\n"+actor+" in action-decision loop:") ;
+    final int MAX_LOOP = 20;  // Safety feature, see below...
+    for (int loop = MAX_LOOP; loop-- > 0;) {
+      if (reportStep) I.say("\n"+actor+" in action-decision loop:");
       //
       //  If all current behaviours are complete, generate a new one.
       if (agenda.size() == 0) {
@@ -185,9 +185,9 @@ public abstract class ActorMind implements Qualities {
       //  Root behaviours which return null, but aren't complete, should be
       //  stored for later.  Otherwise, unfinished behaviours should return
       //  their next step.
-      final Behaviour current = topBehaviour() ;
-      final Behaviour next = current.nextStepFor(actor) ;
-      final boolean isDone = current.finished() ;
+      final Behaviour current = topBehaviour();
+      final Behaviour next = current.nextStepFor(actor);
+      final boolean isDone = current.finished();
       if (reportStep) {
         I.say("  Current action "+current);
         I.say("  Class type: "+current.getClass().getSimpleName());
@@ -202,13 +202,13 @@ public abstract class ActorMind implements Qualities {
       }
       else if (current instanceof Action) {
         if (reportStep) {
-          I.say("Next action: "+current) ;
-          I.say("Agenda size: "+agenda.size()) ;
+          I.say("Next action: "+current);
+          I.say("Agenda size: "+agenda.size());
         }
-        return (Action) current ;
+        return (Action) current;
       }
       else {
-        pushBehaviour(next) ;
+        pushBehaviour(next);
       }
     }
     //
@@ -231,46 +231,46 @@ public abstract class ActorMind implements Qualities {
   /**  Setting home and work venues & applications, plus missions-
     */
   public void switchApplication(Application a) {
-    if (this.application == a) return ;
+    if (this.application == a) return;
     if (application != null) {
-      application.employer.personnel().setApplicant(application, false) ;
+      application.employer.personnel().setApplicant(application, false);
     }
-    application = a ;
+    application = a;
     if (application != null) {
-      application.employer.personnel().setApplicant(application, true) ;
+      application.employer.personnel().setApplicant(application, true);
     }
   }
   
   
   public Application application() {
-    return application ;
+    return application;
   }
   
   
   public void setWork(Employer e) {
-    if (work == e) return ;
-    if (work != null) work.personnel().setWorker(actor, false) ;
-    work = e ;
-    if (work != null) work.personnel().setWorker(actor, true) ;
+    if (work == e) return;
+    if (work != null) work.personnel().setWorker(actor, false);
+    work = e;
+    if (work != null) work.personnel().setWorker(actor, true);
   }
   
   
   public Employer work() {
-    return work ;
+    return work;
   }
   
   
   public void setHome(Employer home) {
-    final Employer old = this.home ;
-    if (old == home) return ;
-    if (old != null) old.personnel().setResident(actor, false) ;
-    this.home = home ;
-    if (home != null) home.personnel().setResident(actor, true) ;
+    final Employer old = this.home;
+    if (old == home) return;
+    if (old != null) old.personnel().setResident(actor, false);
+    this.home = home;
+    if (home != null) home.personnel().setResident(actor, true);
   }
   
   
   public Employer home() {
-    return home ;
+    return home;
   }
   
   
@@ -290,17 +290,17 @@ public abstract class ActorMind implements Qualities {
   
   
   public Mission mission() {
-    return mission ;
+    return mission;
   }
   
   
   public void assignMaster(Actor master) {
-    this.master = master ;
+    this.master = master;
   }
   
   
   public Actor master() {
-    return master ;
+    return master;
   }
   
   
@@ -308,24 +308,24 @@ public abstract class ActorMind implements Qualities {
   /**  Methods related to maintaining the agenda stack-
     */
   private void pushBehaviour(Behaviour b) {
-    if (todoList.includes(b)) todoList.remove(b) ;
-    agenda.addFirst(b) ;
+    if (todoList.includes(b)) todoList.remove(b);
+    agenda.addFirst(b);
     if (stepsVerbose && I.talkAbout == actor) {
-      I.say("PUSHING BEHAVIOUR: "+b) ;
+      I.say("PUSHING BEHAVIOUR: "+b);
     }
-    actor.world().activities.toggleBehaviour(b, true) ;
+    actor.world().activities.toggleBehaviour(b, true);
   }
   
   
   private Behaviour popBehaviour() {
-    final Behaviour b = agenda.removeFirst() ;
+    final Behaviour b = agenda.removeFirst();
     if (stepsVerbose && I.talkAbout == actor) {
-      I.say("POPPING BEHAVIOUR: "+b) ;
+      I.say("POPPING BEHAVIOUR: "+b);
       I.say("  Finished/valid: "+b.finished()+"/"+b.valid());
       I.say("  Priority "+b.priorityFor(actor));
     }
-    actor.world().activities.toggleBehaviour(b, false) ;
-    return b ;
+    actor.world().activities.toggleBehaviour(b, false);
+    return b;
   }
   
   
@@ -336,11 +336,11 @@ public abstract class ActorMind implements Qualities {
   
   
   public void assignBehaviour(Behaviour behaviour) {
-    if (behaviour == null) I.complain("CANNOT ASSIGN NULL BEHAVIOUR.") ;
+    if (behaviour == null) I.complain("CANNOT ASSIGN NULL BEHAVIOUR.");
     final boolean report = decisionVerbose && I.talkAbout == actor;
     
-    if (report) I.say("Assigning behaviour "+behaviour) ;
-    actor.assignAction(null) ;
+    if (report) I.say("Assigning behaviour "+behaviour);
+    actor.assignAction(null);
     
     final Behaviour replaced = rootBehaviour();
     final boolean saveTodo = replaced != null && ! replaced.finished();
@@ -348,34 +348,34 @@ public abstract class ActorMind implements Qualities {
     pushBehaviour(behaviour);
     
     if (saveTodo) {
-      if (report) I.say(" SAVING PLAN AS TODO: "+replaced) ;
-      todoList.include(replaced) ;
+      if (report) I.say(" SAVING PLAN AS TODO: "+replaced);
+      todoList.include(replaced);
     }
   }
   
   
   public void pushFromParent(Behaviour b, Behaviour parent) {
     if (! agenda.includes(parent)) {
-      //I.complain("Behaviour not active.") ;
-      return ;
+      //I.complain("Behaviour not active.");
+      return;
     }
-    cancelBehaviour(parent) ;
-    pushBehaviour(parent) ;
-    pushBehaviour(b) ;
-    actor.assignAction(null) ;
+    cancelBehaviour(parent);
+    pushBehaviour(parent);
+    pushBehaviour(b);
+    actor.assignAction(null);
   }
   
   
   public void cancelBehaviour(Behaviour b) {
-    if (b == null) return ;
+    if (b == null) return;
     if (decisionVerbose && I.talkAbout == actor) {
       I.say("\nCANCELLING "+b);
       ///new Exception().printStackTrace();
     }
     
     if (agenda.includes(b)) while (agenda.size() > 0) {
-      final Behaviour popped = popBehaviour() ;
-      if (popped == b) break ;
+      final Behaviour popped = popBehaviour();
+      if (popped == b) break;
     }
     if (agenda.includes(b)) I.complain("Duplicate behaviour!");
     todoList.remove(b);
@@ -384,42 +384,42 @@ public abstract class ActorMind implements Qualities {
   
   
   public boolean wouldSwitchTo(Behaviour next) {
-    if (! actor.health.conscious()) return false ;
-    return Choice.wouldSwitch(actor, rootBehaviour(), next, true) ;
+    if (! actor.health.conscious()) return false;
+    return Choice.wouldSwitch(actor, rootBehaviour(), next, true);
   }
   
   
   public boolean mustIgnore(Behaviour next) {
-    if (! actor.health.conscious()) return true ;
-    return Choice.wouldSwitch(actor, next, rootBehaviour(), false) ;
+    if (! actor.health.conscious()) return true;
+    return Choice.wouldSwitch(actor, next, rootBehaviour(), false);
   }
   
   
   public void clearAgenda() {
-    if (rootBehaviour() != null) cancelBehaviour(rootBehaviour()) ;
-    todoList.clear() ;
+    if (rootBehaviour() != null) cancelBehaviour(rootBehaviour());
+    todoList.clear();
   }
   
   
   public Series <Behaviour> agenda() {
-    return agenda ;
+    return agenda;
   }
   
   
   public Behaviour topBehaviour() {
-    return agenda.first() ;
+    return agenda.first();
   }
   
   
   public Behaviour rootBehaviour() {
-    return agenda.last() ;
+    return agenda.last();
   }
   
   
   public boolean hasToDo(Class planClass) {
-    for (Behaviour b : agenda) if (b.getClass() == planClass) return true ;
-    for (Behaviour b : todoList) if (b.getClass() == planClass) return true ;
-    return false ;
+    for (Behaviour b : agenda) if (b.getClass() == planClass) return true;
+    for (Behaviour b : todoList) if (b.getClass() == planClass) return true;
+    return false;
   }
   
   
@@ -438,46 +438,46 @@ public abstract class ActorMind implements Qualities {
   //  TODO:  MOVE TO THE RELATION CLASS
   
   public float attraction(Actor other) {
-    if (this.actor.species() != Species.HUMAN) return 0 ;
-    if (other.species() != Species.HUMAN) return 0 ;
+    if (this.actor.species() != Species.HUMAN) return 0;
+    if (other.species() != Species.HUMAN) return 0;
     //
     //  TODO:  Create exceptions based on age and kinship modifiers.
     //
     //  First, we establish a few facts about each actor's sexual identity:
-    float actorG = 0, otherG = 0 ;
-    if (actor.traits.hasTrait(GENDER, "Male"  )) actorG = -1 ;
-    if (actor.traits.hasTrait(GENDER, "Female")) actorG =  1 ;
-    if (other.traits.hasTrait(GENDER, "Male"  )) otherG = -1 ;
-    if (other.traits.hasTrait(GENDER, "Female")) otherG =  1 ;
-    float attraction = other.traits.traitLevel(HANDSOME) * 3.33f ;
-    attraction += otherG * other.traits.traitLevel(FEMININE) * 3.33f ;
-    attraction *= (actor.traits.relativeLevel(INDULGENT) + 1f) / 2 ;
+    float actorG = 0, otherG = 0;
+    if (actor.traits.hasTrait(GENDER, "Male"  )) actorG = -1;
+    if (actor.traits.hasTrait(GENDER, "Female")) actorG =  1;
+    if (other.traits.hasTrait(GENDER, "Male"  )) otherG = -1;
+    if (other.traits.hasTrait(GENDER, "Female")) otherG =  1;
+    float attraction = other.traits.traitLevel(HANDSOME) * 3.33f;
+    attraction += otherG * other.traits.traitLevel(FEMININE) * 3.33f;
+    attraction *= (actor.traits.relativeLevel(INDULGENT) + 1f) / 2;
     //
     //  Then compute attraction based on orientation-
-    final String descO = actor.traits.levelDesc(ORIENTATION) ;
-    float matchO = 0 ;
+    final String descO = actor.traits.levelDesc(ORIENTATION);
+    float matchO = 0;
     if (descO.equals("Heterosexual")) {
-      matchO = (actorG * otherG < 0) ? 1 : 0.33f ;
+      matchO = (actorG * otherG < 0) ? 1 : 0.33f;
     }
     else if (descO.equals("Bisexual")) {
-      matchO = 0.66f ;
+      matchO = 0.66f;
     }
     else if (descO.equals("Homosexual")) {
-      matchO = (actorG * otherG > 0) ? 1 : 0.33f ;
+      matchO = (actorG * otherG > 0) ? 1 : 0.33f;
     }
-    return attraction * matchO / 10f ;
+    return attraction * matchO / 10f;
   }
   
   
   public String preferredGender() {
-    final boolean male = actor.traits.male() ;
+    final boolean male = actor.traits.male();
     if (actor.traits.hasTrait(ORIENTATION, "Heterosexual")) {
-      return male ? "Female" : "Male" ;
+      return male ? "Female" : "Male";
     }
     if (actor.traits.hasTrait(ORIENTATION, "Homosexual")) {
-      return male ? "Male" : "Female" ;
+      return male ? "Male" : "Female";
     }
-    return Rand.yes() ? "Male" : "Female" ;
+    return Rand.yes() ? "Male" : "Female";
   }
 }
 
@@ -489,18 +489,18 @@ public abstract class ActorMind implements Qualities {
 //  TODO:  CONSIDER GETTING RID OF THIS CLAUSE?  It's handy in certain
 //  situations, (e.g, where completing the current plan would come at 'no
 //  cost' to the next plan,) but may be more trouble than it's worth.
-final Target NT = targetFor(next) ;
+final Target NT = targetFor(next);
 if (NT != null && targetFor(last) == NT && NT != actor.aboard()) {
-  return false ;
+  return false;
 }
 //*/
 
 /*
 private Target targetFor(Behaviour b) {
-  final Behaviour n = b.nextStepFor(actor) ;
-  if (n instanceof Action) return ((Action) n).subject() ;
-  else if (n == null || n.finished()) return null ;
-  else return targetFor(n) ;
+  final Behaviour n = b.nextStepFor(actor);
+  if (n instanceof Action) return ((Action) n).subject();
+  else if (n == null || n.finished()) return null;
+  else return targetFor(n);
 }
 //*/
 

@@ -5,7 +5,7 @@
   */
 
 
-package stratos.game.building ;
+package stratos.game.building;
 import stratos.game.actors.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
@@ -25,59 +25,59 @@ public abstract class Vehicle extends Mobile implements
   
   /**  Fields, constants, constructors and save/load methods-
     */
-  protected Base base ;
-  final public Stocks cargo = new Stocks(this) ;
-  final public Structure structure = new Structure(this) ;
-  final Personnel personnel = new Personnel(this) ;
+  protected Base base;
+  final public Stocks cargo = new Stocks(this);
+  final public Structure structure = new Structure(this);
+  final Personnel personnel = new Personnel(this);
   
-  final protected List <Mobile> inside = new List <Mobile> () ;
-  private Actor pilot ;
-  private Venue hangar ;
-  private float pilotBonus ;
+  final protected List <Mobile> inside = new List <Mobile> ();
+  private Actor pilot;
+  private Venue hangar;
+  private float pilotBonus;
   
-  protected float entranceFace = Venue.ENTRANCE_NONE ;
-  protected Boardable dropPoint ;
+  protected float entranceFace = Venue.ENTRANCE_NONE;
+  protected Boardable dropPoint;
   
   final TalkFX chat = new TalkFX();
   
   
   public Vehicle() {
-    super() ;
-    structure.setState(Structure.STATE_INTACT, 1) ;
+    super();
+    structure.setState(Structure.STATE_INTACT, 1);
   }
 
   public Vehicle(Session s) throws Exception {
-    super(s) ;
-    cargo.loadState(s) ;
-    structure.loadState(s) ;
-    personnel.loadState(s) ;
-    s.loadObjects(inside) ;
-    dropPoint = (Boardable) s.loadTarget() ;
-    entranceFace = s.loadFloat() ;
-    base = (Base) s.loadObject() ;
-    pilot = (Actor) s.loadObject() ;
-    hangar = (Venue) s.loadObject() ;
+    super(s);
+    cargo.loadState(s);
+    structure.loadState(s);
+    personnel.loadState(s);
+    s.loadObjects(inside);
+    dropPoint = (Boardable) s.loadTarget();
+    entranceFace = s.loadFloat();
+    base = (Base) s.loadObject();
+    pilot = (Actor) s.loadObject();
+    hangar = (Venue) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
-    cargo.saveState(s) ;
-    structure.saveState(s) ;
-    personnel.saveState(s) ;
-    s.saveObjects(inside) ;
-    s.saveTarget(dropPoint) ;
-    s.saveFloat(entranceFace) ;
-    s.saveObject(base) ;
-    s.saveObject(pilot) ;
-    s.saveObject(hangar) ;
+    super.saveState(s);
+    cargo.saveState(s);
+    structure.saveState(s);
+    personnel.saveState(s);
+    s.saveObjects(inside);
+    s.saveTarget(dropPoint);
+    s.saveFloat(entranceFace);
+    s.saveObject(base);
+    s.saveObject(pilot);
+    s.saveObject(hangar);
   }
   
   
-  public void assignBase(Base base) { this.base = base ; }
-  public Base base() { return base ; }
-  public Personnel personnel() { return personnel ; }
-  public Structure structure() { return structure ; }
+  public void assignBase(Base base) { this.base = base; }
+  public Base base() { return base; }
+  public Personnel personnel() { return personnel; }
+  public Structure structure() { return structure; }
   
   
   
@@ -85,35 +85,35 @@ public abstract class Vehicle extends Mobile implements
     */
   public boolean canPilot(Actor actor) {
     if (pilot != null && actor != null && actor != pilot) {
-      return false ;
+      return false;
     }
-    return true ;
+    return true;
   }
   
   
   public boolean setPilot(Actor actor) {
     if (! canPilot(actor)) {
-      //I.complain("CANNOT SET AS PILOT") ;
-      return false ;
+      //I.complain("CANNOT SET AS PILOT");
+      return false;
     }
-    this.pilot = actor ;
-    return true ;
+    this.pilot = actor;
+    return true;
   }
   
   
   public Actor pilot() {
-    return pilot ;
+    return pilot;
   }
   
   
   public void setHangar(Venue hangar) {
-    this.hangar = hangar ;
-    assignBase(hangar.base()) ;
+    this.hangar = hangar;
+    assignBase(hangar.base());
   }
   
   
   public Venue hangar() {
-    return hangar ;
+    return hangar;
   }
   
   
@@ -121,17 +121,17 @@ public abstract class Vehicle extends Mobile implements
   /**  Dealing with items, inventory and structural requirements-
     */
   public Inventory inventory() {
-    return cargo ;
+    return cargo;
   }
   
   
   public float priceFor(Service service) {
-    return service.basePrice ;
+    return service.basePrice;
   }
   
   
   public int spaceFor(Service good) {
-    return structure.maxIntegrity() ;//- cargo.spaceUsed() ;
+    return structure.maxIntegrity();//- cargo.spaceUsed();
   }
   
   
@@ -161,10 +161,10 @@ public abstract class Vehicle extends Mobile implements
   /**  Vehicles are generally commissioned as an accompaniment to venues by the
     *  venues themselves, so these methods aren't much used.
     */
-  public int buildCost() { return structure.buildCost() ; }
-  public String buildCategory() { return UIConstants.TYPE_HIDDEN ; }
+  public int buildCost() { return structure.buildCost(); }
+  public String buildCategory() { return UIConstants.TYPE_HIDDEN; }
 
-  public boolean pointsOkay(Tile from, Tile to) { return false ; }
+  public boolean pointsOkay(Tile from, Tile to) { return false; }
   public void doPlace(Tile from, Tile to) {}
   public void preview(
     boolean canPlace, Rendering rendering, Tile from, Tile to
@@ -175,40 +175,40 @@ public abstract class Vehicle extends Mobile implements
   /**  Handling pathing-
     */
   protected Pathing initPathing() {
-    return new Pathing(this) ;
+    return new Pathing(this);
   }
   
   
   protected void updateAsMobile() {
-    super.updateAsMobile() ;
-    if (pilot != null) updatePiloting() ;
-    else pathing.updateTarget(pathing.target()) ;
-    final Boardable step = pathing.nextStep() ;
+    super.updateAsMobile();
+    if (pilot != null) updatePiloting();
+    else pathing.updateTarget(pathing.target());
+    final Boardable step = pathing.nextStep();
     
     if (pathing.checkPathingOkay() && step != null) {
-      float moveRate = baseMoveRate() ;
-      if (origin().pathType() == Tile.PATH_ROAD) moveRate *= 1.5f ;
+      float moveRate = baseMoveRate();
+      if (origin().pathType() == Tile.PATH_ROAD) moveRate *= 1.5f;
       //  TODO:  RESTORE THIS
-      //if (origin().owner() instanceof Causeway) moveRate *= 1.5f ;
-      moveRate *= (pilotBonus + 1) / 2 ;
-      pathing.headTowards(step, moveRate, true) ;
+      //if (origin().owner() instanceof Causeway) moveRate *= 1.5f;
+      moveRate *= (pilotBonus + 1) / 2;
+      pathing.headTowards(step, moveRate, true);
     }
-    else world.schedule.scheduleNow(this) ;
+    else world.schedule.scheduleNow(this);
   }
   
   
   protected float baseMoveRate() {
-    return 1.0f ;
+    return 1.0f;
   }
   
   
   protected void updatePiloting() {
     if (pilot.aboard() != this) {
-      pathing.updateTarget(null) ;
-      return ;
+      pathing.updateTarget(null);
+      return;
     }
-    if (pilot.currentAction() == null) return ;
-    pathing.updateTarget(pilot.currentAction().subject()) ;
+    if (pilot.currentAction() == null) return;
+    pathing.updateTarget(pilot.currentAction().subject());
   }
   
   
@@ -218,35 +218,35 @@ public abstract class Vehicle extends Mobile implements
     cargo.updateStocks(numUpdates, services());
     //
     //  TODO:  Restore this once building/salvage of vehicles is complete.
-    ///if (! structure.intact()) return ;
+    ///if (! structure.intact()) return;
     
     if (pilot != null && pilot.aboard() == this) {
-      pilotBonus = 1 ;
-      if (! pilot.traits.test(PILOTING, SIMPLE_DC, 0.5f)) pilotBonus /= 1.5f ;
-      if (pilot.traits.test(PILOTING, MODERATE_DC, 0.5f)) pilotBonus *= 1.5f ;
+      pilotBonus = 1;
+      if (! pilot.traits.test(PILOTING, SIMPLE_DC, 0.5f)) pilotBonus /= 1.5f;
+      if (pilot.traits.test(PILOTING, MODERATE_DC, 0.5f)) pilotBonus *= 1.5f;
     }
     else {
-      pilotBonus = 0.5f ;
-      pilot = null ;
+      pilotBonus = 0.5f;
+      pilot = null;
     }
-    if (! pathing.checkPathingOkay()) pathing.refreshFullPath() ;
+    if (! pathing.checkPathingOkay()) pathing.refreshFullPath();
     if (hangar != null && hangar.destroyed()) {
       //  TODO:  REGISTER FOR SALVAGE
-      setAsDestroyed() ;
+      setAsDestroyed();
     }
   }
   
   /*
   public boolean blocksMotion(Boardable b) {
-    if (super.blocksMotion(b)) return true ;
+    if (super.blocksMotion(b)) return true;
     if (b instanceof Tile && b != aboard()) {
-      final Tile t = (Tile) b ;
+      final Tile t = (Tile) b;
       if (Spacing.distance(t, origin()) > MobilePathing.MAX_PATH_SCAN) {
-        return false ; 
+        return false; 
       }
-      if (t.inside().size() > 0) return true ;
+      if (t.inside().size() > 0) return true;
     }
-    return false ;
+    return false;
   }
   //*/
   
@@ -258,37 +258,37 @@ public abstract class Vehicle extends Mobile implements
   /**  Assigning jobs to crew members-
     */
   public Behaviour jobFor(Actor actor) {
-    return null ;
+    return null;
   }
   
   
   public void addServices(Choice actor, Actor forActor) {}
-  public Background[] careers() { return null ; }
+  public Background[] careers() { return null; }
   
   
   public void setWorker(Actor actor, boolean is) {
-    personnel.setWorker(actor, is) ;
+    personnel.setWorker(actor, is);
   }
 
   
   public void setApplicant(Application app, boolean is) {
-    //I.complain("NOT IMPLEMENTED YET!") ;
-    personnel.setApplicant(app, is) ;
+    //I.complain("NOT IMPLEMENTED YET!");
+    personnel.setApplicant(app, is);
   }
   
   
   public int numOpenings(Background b) {
-    return 0 ;
+    return 0;
   }
   
   
   public List <Actor> crew() {
-    return personnel.workers() ;
+    return personnel.workers();
   }
   
   
   public boolean actionDrive(Actor actor, Vehicle driven) {
-    return true ;
+    return true;
   }
   
   
@@ -297,87 +297,87 @@ public abstract class Vehicle extends Mobile implements
     */
   public void setInside(Mobile m, boolean is) {
     if (is) {
-      inside.include(m) ;
+      inside.include(m);
     }
     else {
-      inside.remove(m) ;
+      inside.remove(m);
     }
   }
   
   
   public List <Mobile> inside() {
-    return inside ;
+    return inside;
   }
   
   
   public Boardable[] canBoard(Boardable batch[]) {
-    if (batch == null) batch = new Boardable[2] ;
-    else for (int i = batch.length ; i-- > 0 ;) batch[i] = null ;
-    batch[0] = dropPoint ;
-    if (aboard() != null) batch[1] = aboard ;
-    return batch ;
+    if (batch == null) batch = new Boardable[2];
+    else for (int i = batch.length; i-- > 0;) batch[i] = null;
+    batch[0] = dropPoint;
+    if (aboard() != null) batch[1] = aboard;
+    return batch;
   }
   
   
   public boolean isEntrance(Boardable b) {
-    return dropPoint == b ;
+    return dropPoint == b;
   }
   
   
   public boolean allowsEntry(Mobile m) {
-    return m.base() == base() ;
+    return m.base() == base();
   }
   
   
   public int boardableType() {
-    return Boardable.BOARDABLE_VEHICLE ;
+    return Boardable.BOARDABLE_VEHICLE;
   }
   
   
   public Box2D area(Box2D put) {
-    if (put == null) put = new Box2D() ;
-    final Vec3D p = position ;
-    final float r = radius() ;
-    put.set(p.x - r, p.y - r, r * 2, r * 2) ;
-    return put ;
+    if (put == null) put = new Box2D();
+    final Vec3D p = position;
+    final float r = radius();
+    put.set(p.x - r, p.y - r, r * 2, r * 2);
+    return put;
   }
   
   
   public boolean landed() {
-    return true ;
+    return true;
   }
   
   
   public Boardable dropPoint() {
-    return dropPoint ;
+    return dropPoint;
   }
   
   
   
   /**  Rendering and interface methods-
     */
-  public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
-    if (panel == null) panel = new InfoPanel(UI, this, portrait(UI));
+  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
+    if (panel == null) panel = new SelectionInfoPane(UI, this, portrait(UI));
     
     final Description d = panel.detail();
-    describeStatus(d) ;
-    if (crew().size() > 0) d.appendList("\n\nCrew: ", crew()) ;
-    if (inside.size() > 0) d.appendList("\n\nPassengers: ", inside) ;
-    if (! cargo.empty()) d.appendList("\n\nCargo: ", cargo.allItems()) ;
-    d.append("\n\n") ; d.append(helpInfo(), Colour.LIGHT_GREY) ;
+    describeStatus(d);
+    if (crew().size() > 0) d.appendList("\n\nCrew: ", crew());
+    if (inside.size() > 0) d.appendList("\n\nPassengers: ", inside);
+    if (! cargo.empty()) d.appendList("\n\nCargo: ", cargo.allItems());
+    d.append("\n\n"); d.append(helpInfo(), Colour.LIGHT_GREY);
     return panel;
   }
   
   
-  public TargetInfo configInfo(TargetInfo info, BaseUI UI) {
-    if (info == null) info = new TargetInfo(UI, this);
+  public TargetOptions configInfo(TargetOptions info, BaseUI UI) {
+    if (info == null) info = new TargetOptions(UI, this);
     return info;
   }
   
   
   protected float fogFor(Base base) {
-    if (base == this.base) return (1 + super.fogFor(base)) / 2f ;
-    return super.fogFor(base) ;
+    if (base == this.base) return (1 + super.fogFor(base)) / 2f;
+    return super.fogFor(base);
   }
   
   
@@ -392,22 +392,22 @@ public abstract class Vehicle extends Mobile implements
   
 
   public void renderSelection(Rendering rendering, boolean hovered) {
-    if (indoors() || ! inWorld()) return ;
+    if (indoors() || ! inWorld()) return;
     Selection.renderPlane(
       rendering, viewPosition(null), radius() + 0.5f,
       hovered ? Colour.transparency(0.5f) : Colour.WHITE,
       Selection.SELECT_CIRCLE
-    ) ;
+    );
   }
   
   
   public Target selectionLocksOn() {
-    return this ;
+    return this;
   }
   
 
   public String toString() {
-    return fullName() ;
+    return fullName();
   }
   
   
@@ -418,15 +418,15 @@ public abstract class Vehicle extends Mobile implements
   
   public void describeStatus(Description d) {
     if (pilot != null && pilot.mind.rootBehaviour() != null) {
-      pilot.mind.rootBehaviour().describeBehaviour(d) ;
+      pilot.mind.rootBehaviour().describeBehaviour(d);
     }
     else if (pathing.target() != null) {
-      if (pathing.target() == aboard()) d.append("Aboard ") ;
-      else d.append("Heading for ") ;
-      d.append(pathing.target()) ;
+      if (pathing.target() == aboard()) d.append("Aboard ");
+      else d.append("Heading for ");
+      d.append(pathing.target());
     }
     else {
-      d.append("Idling") ;
+      d.append("Idling");
     }
   }
 }

@@ -47,19 +47,19 @@ public class Senses implements Qualities {
   
   
   public void loadState(Session s) throws Exception {
-    for (int n = s.loadInt() ; n-- > 0 ;) {
-      final Target e = s.loadTarget() ;
-      seen.put(e, s.loadObject()) ;
+    for (int n = s.loadInt(); n-- > 0;) {
+      final Target e = s.loadTarget();
+      seen.put(e, s.loadObject());
       seenBatch.add(e);
     }
   }
   
   
   public void saveState(Session s) throws Exception {
-    s.saveInt(seen.size()) ;
+    s.saveInt(seen.size());
     for (Target e : seen.keySet()) {
-      s.saveTarget(e) ;
-      s.saveObject(seen.get(e)) ;
+      s.saveTarget(e);
+      s.saveObject(seen.get(e));
     }
   }
   
@@ -220,7 +220,7 @@ public class Senses implements Qualities {
       return i.structure().cloaking() / 10f;
     }
     
-    return 0 ;
+    return 0;
   }
   
   
@@ -242,12 +242,12 @@ public class Senses implements Qualities {
   
   
   public boolean awareOf(Target e) {
-    return seen.get(e) != null ;
+    return seen.get(e) != null;
   }
   
   
   public boolean hasSeen(Target e) {
-    return seen.get(e) != null ;
+    return seen.get(e) != null;
   }
   
   
@@ -262,50 +262,50 @@ public class Senses implements Qualities {
   public static boolean hasLineOfSight(
     Target origin, Target target, float maxRange
   ) {
-    if (origin == null || target == null) return false ;
+    if (origin == null || target == null) return false;
     if (maxRange > 0 && Spacing.distance(origin, target) > maxRange) {
-      return false ;
+      return false;
     }
-    final boolean reports = sightVerbose && I.talkAbout == origin ;
+    final boolean reports = sightVerbose && I.talkAbout == origin;
     
     //  Firstly, we determine the start and end points for the line segment,
     //  and the vector connecting the two-
-    final World world = origin.world() ;
+    final World world = origin.world();
     final Vec2D
       orig = new Vec2D().setTo(origin.position(null)),
       dest = new Vec2D().setTo(target.position(null)),
-      line = new Vec2D().setTo(dest).sub(orig) ;
-    final float fullLength = line.length() ;
-    final Batch <Tile> considered = new Batch <Tile> () ;
-    final Vec2D toCheck = new Vec2D() ;
+      line = new Vec2D().setTo(dest).sub(orig);
+    final float fullLength = line.length();
+    final Batch <Tile> considered = new Batch <Tile> ();
+    final Vec2D toCheck = new Vec2D();
     
     //  Next, we assemble a list of each tile that might plausibly intersect
     //  the line segment-
-    for (int i = 0 ; i < fullLength ; i++) {
-      toCheck.setTo(line).normalise().scale(i).add(orig) ;
-      final Tile t = world.tileAt(toCheck.x, toCheck.y) ;
-      if (t == null || t.flaggedWith() != null) continue ;
-      considered.add(t) ;
-      t.flagWith(considered) ;
+    for (int i = 0; i < fullLength; i++) {
+      toCheck.setTo(line).normalise().scale(i).add(orig);
+      final Tile t = world.tileAt(toCheck.x, toCheck.y);
+      if (t == null || t.flaggedWith() != null) continue;
+      considered.add(t);
+      t.flagWith(considered);
       for (Tile n : t.edgeAdjacent(Spacing.tempT4)) {
-        if (n == null || n.flaggedWith() != null) continue ;
-        considered.add(n) ;
-        n.flagWith(considered) ;
+        if (n == null || n.flaggedWith() != null) continue;
+        considered.add(n);
+        n.flagWith(considered);
       }
     }
-    for (Tile t : considered) t.flagWith(null) ;
+    for (Tile t : considered) t.flagWith(null);
     
     //  Then, we check to see if any such tiles are actually blocked, and
     //  perform a more exacting intersection test-
     if (reports) {
-      I.say("\nCHECKING LINE OF SIGHT TO: "+target) ;
-      I.say("  Mobile origin: "+orig) ;
-      I.say("  Target position: "+dest) ;
+      I.say("\nCHECKING LINE OF SIGHT TO: "+target);
+      I.say("  Mobile origin: "+orig);
+      I.say("  Target position: "+dest);
     }
-    boolean blocked = false ;
-    boolean onRight, onLeft ;
+    boolean blocked = false;
+    boolean onRight, onLeft;
     for (Tile t : considered) if (t.blocked()) {
-      if (t == target || t.owner() == target) continue ;
+      if (t == target || t.owner() == target) continue;
       
       //  We first check whether the centre of the tile in question falls
       //  between the start and end points of the line segment-
@@ -320,22 +320,22 @@ public class Senses implements Qualities {
         toCheck.set(
           t.x - (Tile.N_X[d] / 2f),
           t.y - (Tile.N_Y[d] / 2f)
-        ).sub(orig) ;
-        final float side = line.side(toCheck) ;
-        if (side < 0) onLeft = true ;
-        if (side > 0) onRight  = true ;
+        ).sub(orig);
+        final float side = line.side(toCheck);
+        if (side < 0) onLeft = true;
+        if (side > 0) onRight  = true;
       }
       
       //  If both checks are positive, we consider the tile blocked, and return
       //  the result-
       if (reports) {
-        I.say("  Might be blocked at: "+t) ;
-        I.say("  On right/left? "+onRight+"/"+onLeft) ;
+        I.say("  Might be blocked at: "+t);
+        I.say("  On right/left? "+onRight+"/"+onLeft);
       }
-      if (onRight && onLeft) { blocked = true ; break ; }
+      if (onRight && onLeft) { blocked = true; break; }
     }
-    if (reports) I.say(blocked ? "L_O_S BLOCKED!" : "L_O_S OKAY...") ;
-    return ! blocked ;
+    if (reports) I.say(blocked ? "L_O_S BLOCKED!" : "L_O_S OKAY...");
+    return ! blocked;
   }
 }
 

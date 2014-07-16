@@ -4,24 +4,24 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package stratos.game.common ;
+package stratos.game.common;
 import stratos.util.*;
 
 
 
 public interface Target {
   
-  boolean inWorld() ;
-  boolean destroyed() ;
-  World world() ;
+  boolean inWorld();
+  boolean destroyed();
+  World world();
   
-  Vec3D position(Vec3D v) ;
-  float height() ;
-  float radius() ;
+  Vec3D position(Vec3D v);
+  float height();
+  float radius();
   boolean isMobile();
   
-  void flagWith(Object f) ;
-  Object flaggedWith() ;
+  void flagWith(Object f);
+  Object flaggedWith();
   
   
   //  TODO:  Move this elsewhere?

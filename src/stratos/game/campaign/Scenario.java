@@ -21,14 +21,14 @@ import com.badlogic.gdx.Input.Keys;
 public abstract class Scenario implements Session.Saveable, Playable {
   
   
-  private World world ;
-  private Base base ;
-  final boolean isDebug ;
+  private World world;
+  private Base base;
+  final boolean isDebug;
   private float loadProgress = -1;
   
-  private BaseUI UI ;
-  private List <String> timeStamps = new List <String> () ;
-  private String savesPrefix ;
+  private BaseUI UI;
+  private List <String> timeStamps = new List <String> ();
+  private String savesPrefix;
   private float lastSaveTime = -1;
   
   
@@ -39,41 +39,41 @@ public abstract class Scenario implements Session.Saveable, Playable {
   
   
   protected Scenario(String saveFile, boolean isDebug) {
-    this.savesPrefix = saveFile ;
-    this.isDebug = isDebug ;
+    this.savesPrefix = saveFile;
+    this.isDebug = isDebug;
   }
   
   
   public Scenario(Session s) throws Exception {
-    s.cacheInstance(this) ;
-    world = s.world() ;
-    base = (Base) s.loadObject() ;
-    savesPrefix = s.loadString() ;
+    s.cacheInstance(this);
+    world = s.world();
+    base = (Base) s.loadObject();
+    savesPrefix = s.loadString();
     lastSaveTime = s.loadFloat();
-    isDebug = s.loadBool() ;
-    for (int i = s.loadInt() ; i-- > 0 ;) timeStamps.add(s.loadString()) ;
+    isDebug = s.loadBool();
+    for (int i = s.loadInt(); i-- > 0;) timeStamps.add(s.loadString());
     
     loadProgress = 1;
     UI = createUI(base, PlayLoop.rendering());
-    UI.loadState(s) ;
+    UI.loadState(s);
   }
   
   
   public void saveState(Session s) throws Exception {
-    s.saveObject(base) ;
-    s.saveString(savesPrefix) ;
+    s.saveObject(base);
+    s.saveString(savesPrefix);
     s.saveFloat(lastSaveTime);
-    s.saveBool(isDebug) ;
-    s.saveInt(timeStamps.size()) ;
-    for (String stamp : timeStamps) s.saveString(stamp) ;
+    s.saveBool(isDebug);
+    s.saveInt(timeStamps.size());
+    for (String stamp : timeStamps) s.saveString(stamp);
     
-    UI.saveState(s) ;
+    UI.saveState(s);
   }
   
   
-  public World world() { return world ; }
-  public Base base() { return base ; }
-  public BaseUI UI() { return UI ; }
+  public World world() { return world; }
+  public Base base() { return base; }
+  public BaseUI UI() { return UI; }
   
   
   public static Scenario current() {
@@ -166,9 +166,9 @@ public abstract class Scenario implements Session.Saveable, Playable {
   
   
   protected BaseUI createUI(Base base, Rendering rendering) {
-    BaseUI UI = new BaseUI(base.world, rendering) ;
-    UI.assignBaseSetup(base, new Vec3D(8, 8, 0)) ;
-    return UI ;
+    BaseUI UI = new BaseUI(base.world, rendering);
+    UI.assignBaseSetup(base, new Vec3D(8, 8, 0));
+    return UI;
   }
   
   
@@ -196,9 +196,9 @@ public abstract class Scenario implements Session.Saveable, Playable {
   //  So there's always a strictly ascending chronological order.
   
   final public static String
-    CURRENT_SAVE = "-current" ;
+    CURRENT_SAVE = "-current";
   final public static int
-    MAX_SAVES = 3 ;
+    MAX_SAVES = 3;
   
   
   public void saveProgress(final boolean overwrite, final boolean quit) {
@@ -207,30 +207,30 @@ public abstract class Scenario implements Session.Saveable, Playable {
         
         //  In the case of an overwrite, just save under the current file-
         if (overwrite) {
-          saveGame(fullSavePath(savesPrefix, CURRENT_SAVE)) ;
+          saveGame(fullSavePath(savesPrefix, CURRENT_SAVE));
           if (quit) PlayLoop.exitLoop();
-          return ;
+          return;
         }
         
         //  If necessary, delete the least recent save.
         if (timeStamps.size() >= MAX_SAVES) {
-          final String oldStamp = timeStamps.removeFirst() ;
-          final File f = new File(fullSavePath(savesPrefix, oldStamp)) ;
-          if (f.exists()) f.delete() ;
+          final String oldStamp = timeStamps.removeFirst();
+          final File f = new File(fullSavePath(savesPrefix, oldStamp));
+          if (f.exists()) f.delete();
         }
         
         //  Create a new save.
-        final float time = world.currentTime() / World.STANDARD_DAY_LENGTH ;
+        final float time = world.currentTime() / World.STANDARD_DAY_LENGTH;
         String
           day = "Day "+(int) time,
           hour = ""+(int) (24 * (time % 1)),
-          minute = ""+(int) (((24 * (time % 1)) % 1) * 60) ;
-        while (hour.length() < 2) hour = "0"+hour ;
-        while (minute.length() < 2) minute = "0"+minute ;
+          minute = ""+(int) (((24 * (time % 1)) % 1) * 60);
+        while (hour.length() < 2) hour = "0"+hour;
+        while (minute.length() < 2) minute = "0"+minute;
         
-        final String newStamp = day+", "+hour+minute+" Hours" ;
-        timeStamps.addLast(newStamp) ;
-        saveGame(fullSavePath(savesPrefix, newStamp)) ;
+        final String newStamp = day+", "+hour+minute+" Hours";
+        timeStamps.addLast(newStamp);
+        saveGame(fullSavePath(savesPrefix, newStamp));
         if (quit) PlayLoop.exitLoop();
       }
     };
@@ -302,8 +302,8 @@ public abstract class Scenario implements Session.Saveable, Playable {
   
   
   public static boolean saveExists(String saveFile) {
-    final File file = new File(saveFile) ;
-    if (! file.exists()) return false ;
+    final File file = new File(saveFile);
+    if (! file.exists()) return false;
     else return true;
   }
   
@@ -316,25 +316,25 @@ public abstract class Scenario implements Session.Saveable, Playable {
   
   public static String fullSavePath(String prefix, String suffix) {
     if (suffix == null) suffix = CURRENT_SAVE;
-    return "saves/"+prefix+suffix+".rep" ;
+    return "saves/"+prefix+suffix+".rep";
   }
   
   
   public static List <String> savedFiles(String prefix) {
-    final List <String> allSaved = new List <String> () ;
-    final File savesDir = new File("saves/") ;
+    final List <String> allSaved = new List <String> ();
+    final File savesDir = new File("saves/");
     
     for (File saved : savesDir.listFiles()) {
-      final String name = saved.getName() ;
-      if (! name.endsWith(".rep")) continue ;
+      final String name = saved.getName();
+      if (! name.endsWith(".rep")) continue;
       if (prefix == null) {
-        if (! name.endsWith(CURRENT_SAVE+".rep")) continue ;
+        if (! name.endsWith(CURRENT_SAVE+".rep")) continue;
       }
-      else if (! name.startsWith(prefix)) continue ;
-      allSaved.add(name) ;
+      else if (! name.startsWith(prefix)) continue;
+      allSaved.add(name);
     }
     
-    return allSaved ;
+    return allSaved;
   }
   
   
@@ -342,16 +342,16 @@ public abstract class Scenario implements Session.Saveable, Playable {
     //
     //  Strip away any missing entries-
     for (String stamp : timeStamps) {
-      final File f = new File(fullSavePath(savesPrefix, stamp)) ;
-      if (! f.exists()) timeStamps.remove(stamp) ;
+      final File f = new File(fullSavePath(savesPrefix, stamp));
+      if (! f.exists()) timeStamps.remove(stamp);
     }
-    return timeStamps.toArray(String.class) ;
+    return timeStamps.toArray(String.class);
   }
   
   
   public void revertTo(String option) {
     //  Delete any subsequent time-stamp entries.
-    boolean matched = false ; for (String stamp : timeStamps) {
+    boolean matched = false; for (String stamp : timeStamps) {
       if (matched) timeStamps.remove(stamp);
       if (stamp.equals(option)) matched = true;
     }
@@ -371,7 +371,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
     }
     
     //  And finally, load the earlier game-
-    Scenario.loadGame(Scenario.fullSavePath(savesPrefix, option), false) ;
+    Scenario.loadGame(Scenario.fullSavePath(savesPrefix, option), false);
   }
   
   
@@ -383,37 +383,37 @@ public abstract class Scenario implements Session.Saveable, Playable {
     //  TODO:  These should only be available in debug situations...
     if (isDebug || true) {
       if (Gdx.input.isKeyPressed(Keys.R)) {
-        I.say("RESET MISSION?") ;
-        resetScenario() ;
-        return false ;
+        I.say("RESET MISSION?");
+        resetScenario();
+        return false;
       }
       if (Gdx.input.isKeyPressed(Keys.F)) {
-        I.say("Paused? "+PlayLoop.paused()) ;
-        PlayLoop.setPaused(! PlayLoop.paused()) ;
+        I.say("Paused? "+PlayLoop.paused());
+        PlayLoop.setPaused(! PlayLoop.paused());
       }
       if (Gdx.input.isKeyPressed(Keys.S)) {
-        I.say("SAVING GAME...") ;
-        saveGame(fullSavePath(savesPrefix, CURRENT_SAVE)) ;
-        return false ;
+        I.say("SAVING GAME...");
+        saveGame(fullSavePath(savesPrefix, CURRENT_SAVE));
+        return false;
       }
       if (Gdx.input.isKeyPressed(Keys.L)) {
-        I.say("LOADING GAME...") ;
-        loadGame(fullSavePath(savesPrefix, CURRENT_SAVE), true) ;
-        return false ;
+        I.say("LOADING GAME...");
+        loadGame(fullSavePath(savesPrefix, CURRENT_SAVE), true);
+        return false;
       }
     }
-    return false ;
+    return false;
   }
   
   
   public void renderVisuals(Rendering rendering) {
     if (world == null) return;
     if ((! isDebug) && PlayLoop.gameSpeed() != 1) {
-      final Colour blur = new Colour().set(0.5f, 0.5f, 0.1f, 0.4f) ;
-      world.ephemera.applyFadeColour(blur) ;
+      final Colour blur = new Colour().set(0.5f, 0.5f, 0.1f, 0.4f);
+      world.ephemera.applyFadeColour(blur);
     }
-    world.renderFor(rendering, base) ;
-    base.renderFor(rendering) ;
+    world.renderFor(rendering, base);
+    base.renderFor(rendering);
     UI.renderWorldFX();
   }
   
@@ -431,14 +431,14 @@ public abstract class Scenario implements Session.Saveable, Playable {
   
   
   public void afterSaving() {
-    world.ephemera.applyFadeColour(Colour.GREY) ;
-    if (! isDebug) Power.applyWalkPath(this) ;
+    world.ephemera.applyFadeColour(Colour.GREY);
+    if (! isDebug) Power.applyWalkPath(this);
   }
   
   
   public void afterLoading(boolean fromMenu) {
-    world.ephemera.applyFadeColour(Colour.BLACK) ;
-    if ((! isDebug) && ! fromMenu) Power.applyDenyVision(this) ;
+    world.ephemera.applyFadeColour(Colour.BLACK);
+    if ((! isDebug) && ! fromMenu) Power.applyDenyVision(this);
   }
   
   
@@ -447,7 +447,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
   /**  Helper/Utility methods-
     */
   public Behaviour taskFor(Actor actor) {
-    return null ;
+    return null;
   }
 }
 

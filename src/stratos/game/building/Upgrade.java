@@ -1,6 +1,6 @@
 
 
-package stratos.game.building ;
+package stratos.game.building;
 import stratos.game.actors.Backgrounds;
 import stratos.util.*;
 
@@ -13,13 +13,13 @@ public class Upgrade extends Index.Member implements Backgrounds {
   //  Upgrades tend to either expand employment, give a bonus to production
   //  of a particular item type, or enhance a particular kind of service.
   
-  final public String name ;
-  final public String description ;
+  final public String name;
+  final public String description;
   
-  final public int buildCost ;
-  final public Object refers ;
-  final public int bonus ;
-  final public Upgrade required ;
+  final public int buildCost;
+  final public Object refers;
+  final public int bonus;
+  final public Upgrade required;
   
   
   public Upgrade(
@@ -44,7 +44,7 @@ public class Upgrade extends Index.Member implements Backgrounds {
   
   
   public String toString() {
-    return name ;
+    return name;
   }
 }
 

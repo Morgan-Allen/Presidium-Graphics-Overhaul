@@ -5,7 +5,7 @@
   */
 
 
-package stratos.game.common ;
+package stratos.game.common;
 import stratos.game.actors.*;
 import stratos.game.common.WorldSections.Section;
 import stratos.game.maps.*;
@@ -40,45 +40,45 @@ public class World {
   private static boolean verbose = false;
   
   
-  final public int size ;
-  final Tile tiles[][] ;
-  final public WorldSections sections ;
+  final public int size;
+  final Tile tiles[][];
+  final public WorldSections sections;
   
-  final public Schedule schedule ;
-  private float currentTime = DEFAULT_INIT_TIME ;
-  private List <Mobile> mobiles = new List <Mobile> () ;
+  final public Schedule schedule;
+  private float currentTime = DEFAULT_INIT_TIME;
+  private List <Mobile> mobiles = new List <Mobile> ();
   
-  private WorldTerrain terrain ;
-  private Ecology ecology ;
-  private List <Base> bases = new List <Base> () ;
+  private WorldTerrain terrain;
+  private Ecology ecology;
+  private List <Base> bases = new List <Base> ();
   
   final public Setting setting = new Setting();
-  final public Activities activities ;
-  final public PathingCache pathingCache ;
-  final public Presences presences ;
-  final public Ephemera ephemera ;
+  final public Activities activities;
+  final public PathingCache pathingCache;
+  final public Presences presences;
+  final public Ephemera ephemera;
   
   
   public World(int size) {
-    this.size = size ;
-    tiles = new Tile[size][size] ;
+    this.size = size;
+    tiles = new Tile[size][size];
     for (Coord c : Visit.grid(0, 0, size, size, 1)) {
-      tiles[c.x][c.y] = new Tile(this, c.x, c.y) ;
+      tiles[c.x][c.y] = new Tile(this, c.x, c.y);
     }
-    sections = new WorldSections(this, PATCH_RESOLUTION) ;
-    schedule = new Schedule(currentTime) ;
+    sections = new WorldSections(this, PATCH_RESOLUTION);
+    schedule = new Schedule(currentTime);
     
-    ecology = new Ecology(this) ;
-    activities = new Activities(this) ;
-    pathingCache = new PathingCache(this) ;
-    presences = new Presences(this) ;
-    ephemera = new Ephemera(this) ;
+    ecology = new Ecology(this);
+    activities = new Activities(this);
+    pathingCache = new PathingCache(this);
+    presences = new Presences(this);
+    ephemera = new Ephemera(this);
   }
   
   
   public World(WorldTerrain terrain) {
-    this(terrain.mapSize) ;
-    this.terrain = terrain ;
+    this(terrain.mapSize);
+    this.terrain = terrain;
     terrain.initTerrainMesh(Habitat.ALL_HABITATS);
   }
   
@@ -87,23 +87,23 @@ public class World {
     //
     //  We load the tile-states first, as other objects may depend on this.
     for (Coord c : Visit.grid(0, 0, size, size, 1)) {
-      tiles[c.x][c.y].loadTileState(s) ;
+      tiles[c.x][c.y].loadTileState(s);
     }
-    currentTime = s.loadFloat() ;
-    schedule.loadFrom(s) ;
+    currentTime = s.loadFloat();
+    schedule.loadFrom(s);
     
-    terrain = (WorldTerrain) s.loadObject() ;
+    terrain = (WorldTerrain) s.loadObject();
     terrain.initTerrainMesh(Habitat.ALL_HABITATS);
-    ecology.loadState(s) ;
+    ecology.loadState(s);
     
-    s.loadObjects(bases) ;
-    for (int n = s.loadInt() ; n-- > 0 ;) {
-      toggleActive((Mobile) s.loadObject(), true) ;
+    s.loadObjects(bases);
+    for (int n = s.loadInt(); n-- > 0;) {
+      toggleActive((Mobile) s.loadObject(), true);
     }
     setting.loadState(s);
-    activities.loadState(s) ;
-    presences.loadState(s) ;
-    ephemera.loadState(s) ;
+    activities.loadState(s);
+    presences.loadState(s);
+    ephemera.loadState(s);
   }
   
   
@@ -111,21 +111,21 @@ public class World {
     //
     //  We save the tile-states first, as other objects may depend on this.
     for (Coord c : Visit.grid(0, 0, size, size, 1)) {
-      tiles[c.x][c.y].saveTileState(s) ;
+      tiles[c.x][c.y].saveTileState(s);
     }
-    s.saveFloat(currentTime) ;
-    schedule.saveTo(s) ;
+    s.saveFloat(currentTime);
+    schedule.saveTo(s);
     
-    s.saveObject(terrain) ;
-    ecology.saveState(s) ;
+    s.saveObject(terrain);
+    ecology.saveState(s);
     
-    s.saveObjects(bases) ;
-    s.saveInt(mobiles.size()) ;
-    for (Mobile m : mobiles) s.saveObject(m) ;
+    s.saveObjects(bases);
+    s.saveInt(mobiles.size());
+    for (Mobile m : mobiles) s.saveObject(m);
     setting.saveState(s);
-    activities.saveState(s) ;
-    presences.saveState(s) ;
-    ephemera.saveState(s) ;
+    activities.saveState(s);
+    presences.saveState(s);
+    ephemera.saveState(s);
   }
   
   
@@ -135,78 +135,78 @@ public class World {
   private Vec3D tempV = new Vec3D();
   
   public Tile tileAt(float x, float y) {
-    try { return tiles[(int) (x + 0.5f)][(int) (y + 0.5f)] ; }
-    catch (ArrayIndexOutOfBoundsException e) { return null ; }
+    try { return tiles[(int) (x + 0.5f)][(int) (y + 0.5f)]; }
+    catch (ArrayIndexOutOfBoundsException e) { return null; }
   }
   
   
   public Tile tileAt(int x, int y) {
-    try { return tiles[x][y] ; }
-    catch (ArrayIndexOutOfBoundsException e) { return null ; }
+    try { return tiles[x][y]; }
+    catch (ArrayIndexOutOfBoundsException e) { return null; }
   }
   
   
   public Tile tileAt(Target t) {
-    final Vec3D v = t.position(tempV) ;
-    return tileAt(v.x, v.y) ;
+    final Vec3D v = t.position(tempV);
+    return tileAt(v.x, v.y);
   }
   
   
   public Iterable <Tile> tilesIn(Box2D area, boolean safe) {
-    final Box2D b = new Box2D().setTo(area) ;
-    if (safe) b.cropBy(new Box2D().set(-0.5f, -0.5f, size, size)) ;
+    final Box2D b = new Box2D().setTo(area);
+    if (safe) b.cropBy(new Box2D().set(-0.5f, -0.5f, size, size));
     final int
       minX = (int) (b.xpos() + 0.5f),
       minY = (int) (b.ypos() + 0.5f),
       dimX = (int) (b.xmax() + 0.5f) - minX,
-      dimY = (int) (b.ymax() + 0.5f) - minY ;
+      dimY = (int) (b.ymax() + 0.5f) - minY;
     return new Visit <Tile> ().grid(
       minX, minY, dimX, dimY,
       tiles
-    ) ;
+    );
   }
   
   
   public Batch <Element> fixturesFrom(Box2D area) {
-    final Batch <Element> from = new Batch <Element> () ;
+    final Batch <Element> from = new Batch <Element> ();
     for (Tile t : tilesIn(area, true)) {
-      final Element o = t.owner() ;
-      if (o != null && o.origin() == t) from.add(o) ;
+      final Element o = t.owner();
+      if (o != null && o.origin() == t) from.add(o);
     }
-    return from ;
+    return from;
   }
   
 
   public float surfaceAt(float x, float y, boolean floor) {
     //
     //  Sample the height of the 4 nearby tiles, and interpolate between them.
-    final Tile o = tileAt((int) x, (int) y) ;
+    final Tile o = tileAt((int) x, (int) y);
     final float
       xA = x - o.x, yA = y - o.y,
       TSW = heightFor(o.x    , o.y    , floor),
       TSE = heightFor(o.x + 1, o.y    , floor),
       TNW = heightFor(o.x    , o.y + 1, floor),
-      TNE = heightFor(o.x + 1, o.y + 1, floor) ;
+      TNE = heightFor(o.x + 1, o.y + 1, floor);
     return
       (((TSW * (1 - xA)) + (TSE * xA)) * (1 - yA)) +
-      (((TNW * (1 - xA)) + (TNE * xA)) *      yA ) ;
+      (((TNW * (1 - xA)) + (TNE * xA)) *      yA );
   }
   
   
   private float heightFor(int tX, int tY, boolean floor) {
-    final Tile t = tileAt(Visit.clamp(tX, size), Visit.clamp(tY, size)) ;
-    if (t.owner() == null) return t.elevation() ;
-    return floor ? t.owner().position(null).z : t.owner().height() ;
+    final Tile t = tileAt(Visit.clamp(tX, size), Visit.clamp(tY, size));
+    if (t.owner() == null) return t.elevation();
+    return floor ? t.owner().position(null).z : t.owner().height();
   }
   
   
   public Box2D area() {
-    return new Box2D().set(-0.5f, -0.5f, size, size) ;
+    return new Box2D().set(-0.5f, -0.5f, size, size);
   }
   
   
   public List <Base> bases() {
-    return bases ;
+    return bases;
   }
   
   
@@ -214,66 +214,66 @@ public class World {
   /**  Update methods.
     */
   public void updateWorld() {
-    sections.updateBounds() ;
-    final float oldTime = currentTime ;
-    currentTime += 1f / PlayLoop.UPDATES_PER_SECOND ;
+    sections.updateBounds();
+    final float oldTime = currentTime;
+    currentTime += 1f / PlayLoop.UPDATES_PER_SECOND;
     
     for (Base base : bases) {
-      base.paving.checkConsistency() ;
+      base.paving.checkConsistency();
       if (((int) (oldTime / 2)) != ((int) (currentTime / 2))) {
-        base.intelMap.updateFogValues() ;
+        base.intelMap.updateFogValues();
       }
     }
     
-    schedule.advanceSchedule(currentTime) ;
-    ecology.updateEcology() ;
+    schedule.advanceSchedule(currentTime);
+    ecology.updateEcology();
     for (Mobile m : mobiles) {
-      m.updateAsMobile() ;
+      m.updateAsMobile();
     }
   }
   
   
   protected void toggleActive(Mobile m, boolean is) {
     if (is) {
-      m.setEntry(mobiles.addLast(m)) ;
-      presences.togglePresence(m, m.origin(), true ) ;
+      m.setEntry(mobiles.addLast(m));
+      presences.togglePresence(m, m.origin(), true );
     }
     else {
-      mobiles.removeEntry(m.entry()) ;
-      presences.togglePresence(m, m.origin(), false) ;
+      mobiles.removeEntry(m.entry());
+      presences.togglePresence(m, m.origin(), false);
     }
   }
   
   
   protected void registerBase(Base base, boolean active) {
     if (active) {
-      bases.include(base) ;
-      schedule.scheduleForUpdates(base) ;
+      bases.include(base);
+      schedule.scheduleForUpdates(base);
     }
     else {
-      schedule.unschedule(base) ;
-      bases.remove(base) ;
+      schedule.unschedule(base);
+      bases.remove(base);
     }
   }
   
   
   public WorldTerrain terrain() {
-    return terrain ;
+    return terrain;
   }
   
   
   public Ecology ecology() {
-    return ecology ;
+    return ecology;
   }
   
   
   public float currentTime() {
-    return currentTime ;
+    return currentTime;
   }
   
   
   public float dayValue() {
-    return Planet.dayValue(this) ;
+    return Planet.dayValue(this);
   }
   
   
@@ -287,9 +287,9 @@ public class World {
   
   
   public Batch <Section> visibleSections(Rendering rendering) {
-    final Batch <Section> visibleSections = new Batch <Section> () ;
-    sections.compileVisible(rendering.view, null, visibleSections, null) ;
-    return visibleSections ;
+    final Batch <Section> visibleSections = new Batch <Section> ();
+    sections.compileVisible(rendering.view, null, visibleSections, null);
+    return visibleSections;
   }
   
   
@@ -302,56 +302,56 @@ public class World {
     //
     //  First, we obtain lists of all current visible fixtures, actors, and
     //  terrain sections.
-    final Batch <Section> visibleSections = new Batch <Section> () ;
+    final Batch <Section> visibleSections = new Batch <Section> ();
     final List <Visible> allVisible = new List <Visible> () {
       protected float queuePriority(Visible e) {
-        return e.sprite().depth ;
+        return e.sprite().depth;
       }
-    } ;
+    };
     sections.compileVisible(
       rendering.view, base,
       visibleSections, allVisible
-    ) ;
+    );
     //
     //  We register terrain for rendering first, partly to update fog values
     //  for the purpose of allowing fog-culling of sprites-
     renderTerrain(visibleSections, rendering, base);
     //
     //  We also render visible mobiles and ghosted SFX-
-    Vec3D viewPos = new Vec3D() ;
-    float viewRad = -1 ;
+    Vec3D viewPos = new Vec3D();
+    float viewRad = -1;
     for (Mobile active : this.mobiles) {
       if (active.sprite() == null || ! active.visibleTo(base)) continue;
       active.viewPosition(viewPos);
-      viewRad = (active.height() / 2) + active.radius() ;
+      viewRad = (active.height() / 2) + active.radius();
       if (rendering.view.intersects(viewPos, viewRad)) {
-        allVisible.add(active) ;
+        allVisible.add(active);
       }
     }
     //
     //  Then we register their associated media for rendering, in the correctly
     //  sorted order.
-    Vec3D deep = new Vec3D() ;
+    Vec3D deep = new Vec3D();
     for (Visible visible : allVisible) {
-      final Sprite sprite = visible.sprite() ;
+      final Sprite sprite = visible.sprite();
       rendering.view.translateToScreen(deep.setTo(sprite.position));
       sprite.depth = deep.z;
     }
-    allVisible.queueSort() ;
+    allVisible.queueSort();
     for (Visible visible : allVisible) {
-      visible.renderFor(rendering, base) ;
+      visible.renderFor(rendering, base);
     }
     //
     //  Ephemera are rendered last, to accommodate transparency effects-
-    allVisible.clear() ;
+    allVisible.clear();
     for (Visible ghost : ephemera.visibleFor(rendering, base)) {
-      allVisible.add(ghost) ;
+      allVisible.add(ghost);
     }
-    allVisible.queueSort() ;
+    allVisible.queueSort();
     for (Visible visible : allVisible) {
-      visible.renderFor(rendering, base) ;
+      visible.renderFor(rendering, base);
     }
-    ephemera.applyScreenFade(rendering) ;
+    ephemera.applyScreenFade(rendering);
   }
   
   
@@ -391,37 +391,37 @@ public class World {
   
   
   public Tile pickedTile(final HUD UI, final Viewport port, Base base) {
-    final Vec3D onGround = pickedGroundPoint(UI, port) ;
-    return tileAt(onGround.x, onGround.y) ;
+    final Vec3D onGround = pickedGroundPoint(UI, port);
+    return tileAt(onGround.x, onGround.y);
   }
   
   
   public Fixture pickedFixture(final HUD UI, final Viewport port, Base base) {
-    final Tile t = pickedTile(UI, port, base) ;
-    if (t == null) return null ;
+    final Tile t = pickedTile(UI, port, base);
+    if (t == null) return null;
     if (t.owner() instanceof Fixture) {
-      if (! t.owner().visibleTo(base)) return null ;
-      return (Fixture) t.owner() ;
+      if (! t.owner().visibleTo(base)) return null;
+      return (Fixture) t.owner();
     }
-    else return null ;
+    else return null;
   }
   
   
   public Mobile pickedMobile(final HUD UI, final Viewport port, Base base) {
     //
     //  TODO:  You may want to use some pre-emptive culling here in future.
-    Mobile nearest = null ;
-    float minDist = Float.POSITIVE_INFINITY ;
+    Mobile nearest = null;
+    float minDist = Float.POSITIVE_INFINITY;
     for (Mobile m : mobiles) {
-      if (m.indoors() || ! (m instanceof Selectable)) continue ;
-      if (! m.visibleTo(base)) continue ;
-      final float selRad = (m.height() + m.radius()) / 2 ;
+      if (m.indoors() || ! (m instanceof Selectable)) continue;
+      if (! m.visibleTo(base)) continue;
+      final float selRad = (m.height() + m.radius()) / 2;
       final Vec3D selPos = m.viewPosition(null);
-      if (! port.mouseIntersects(selPos, selRad, UI)) continue ;
-      final float dist = port.translateToScreen(selPos).z ;
-      if (dist < minDist) { nearest = m ; minDist = dist ; }
+      if (! port.mouseIntersects(selPos, selRad, UI)) continue;
+      final float dist = port.translateToScreen(selPos).z;
+      if (dist < minDist) { nearest = m; minDist = dist; }
     }
-    return nearest ;
+    return nearest;
   }
 }
 

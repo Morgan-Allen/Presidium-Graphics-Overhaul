@@ -1,8 +1,8 @@
 
 
 
-package stratos.user ;
-import java.lang.reflect.* ;
+package stratos.user;
+import java.lang.reflect.*;
 
 import stratos.graphics.common.Colour;
 import stratos.graphics.widgets.Text;
@@ -14,31 +14,31 @@ import stratos.util.*;
 public class Call implements Clickable {
   
   
-  final String label ;
-  final Object client, args ;
-  private Method method ;
+  final String label;
+  final Object client, args;
+  private Method method;
   
   
   private Call(String label, Object client, String methodName, Object args) {
-    this.label = label ;
-    this.client = client ;
-    this.args = args ;
+    this.label = label;
+    this.client = client;
+    this.args = args;
     try {
-      this.method = client.getClass().getMethod(methodName, Object[].class) ;
-      method.setAccessible(true) ;
+      this.method = client.getClass().getMethod(methodName, Object[].class);
+      method.setAccessible(true);
     }
-    catch (Exception e) { I.report(e) ; }
+    catch (Exception e) { I.report(e); }
   }
   
   
   public String fullName() {
-    return label ;
+    return label;
   }
   
   
   public void whenTextClicked() {
-    try { method.invoke(client, args) ; }
-    catch (Exception e) { I.report(e) ; }
+    try { method.invoke(client, args); }
+    catch (Exception e) { I.report(e); }
   }
   
   
@@ -46,7 +46,7 @@ public class Call implements Clickable {
     String label, Object client, String methodName, Description d,
     Object... args
   ) {
-    d.append(new Call(label, client, methodName, args)) ;
+    d.append(new Call(label, client, methodName, args));
   }
   
   
@@ -55,8 +55,8 @@ public class Call implements Clickable {
     Object client, String methodName, Description d,
     Object... args
   ) {
-    if (c == null) c = Text.LINK_COLOUR ;
-    d.append(new Call(label, client, methodName, args), c) ;
+    if (c == null) c = Text.LINK_COLOUR;
+    d.append(new Call(label, client, methodName, args), c);
   }
 }
 

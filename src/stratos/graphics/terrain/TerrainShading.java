@@ -1,6 +1,6 @@
 
 
-package stratos.graphics.terrain ;
+package stratos.graphics.terrain;
 
 
 

@@ -5,7 +5,7 @@
   */
 
 
-package stratos.game.maps ;
+package stratos.game.maps;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.terrain.*;
@@ -31,10 +31,10 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
   final public static int
     MAX_INSOLATION  = 10,
     MAX_MOISTURE    = 10,
-    MAX_RADIATION   = 10 ;
+    MAX_RADIATION   = 10;
   final public static String MINERAL_NAMES[] = {
     "None", "Metal Ore", "Artifacts", "Fuel Isotopes"
-  } ;
+  };
   
   final public static byte
     TYPE_METALS   = 1,
@@ -54,7 +54,7 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
     NUM_TYPES   = 4,
     NUM_DEGREES = 4,
     VAR_LIMIT   = 4,
-    MAX_MINERAL_AMOUNT = 10 ;
+    MAX_MINERAL_AMOUNT = 10;
   
   final static int
     TIME_INIT = -1,
@@ -63,18 +63,18 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
     SAMPLE_AREA = SAMPLE_RESOLUTION * SAMPLE_RESOLUTION;
   
   final public int
-    mapSize ;
+    mapSize;
   private byte
     heightVals[][],
     typeIndex[][],
     varsIndex[][];
   
   final Habitat
-    habitats[][] ;
+    habitats[][];
   private byte
     minerals[][],
     roadCounter[][],
-    dirtVals[][] ;
+    dirtVals[][];
   
   private TerrainSet meshSet;
   private LayerType dirtLayer, roadLayer;
@@ -95,58 +95,58 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
     byte varsIndex[][],
     byte heightVals[][]
   ) {
-    this.mapSize = typeIndex.length ;
-    this.typeIndex = typeIndex ;
-    this.varsIndex = varsIndex ;
-    this.heightVals = heightVals ;
-    this.roadCounter = new byte[mapSize][mapSize] ;
-    this.habitats = new Habitat[mapSize][mapSize] ;
+    this.mapSize = typeIndex.length;
+    this.typeIndex = typeIndex;
+    this.varsIndex = varsIndex;
+    this.heightVals = heightVals;
+    this.roadCounter = new byte[mapSize][mapSize];
+    this.habitats = new Habitat[mapSize][mapSize];
     for (Coord c : Visit.grid(0, 0, mapSize, mapSize, 1)) {
-      habitats[c.x][c.y] = Habitat.ALL_HABITATS[typeIndex[c.x][c.y]] ;
+      habitats[c.x][c.y] = Habitat.ALL_HABITATS[typeIndex[c.x][c.y]];
     }
-    this.minerals = new byte[mapSize][mapSize] ;
-    this.dirtVals = new byte[mapSize][mapSize] ;
+    this.minerals = new byte[mapSize][mapSize];
+    this.dirtVals = new byte[mapSize][mapSize];
     
     initSamples();
   }
   
   
   public WorldTerrain(Session s) throws Exception {
-    s.cacheInstance(this) ;
-    mapSize = s.loadInt() ;
+    s.cacheInstance(this);
+    mapSize = s.loadInt();
     
-    heightVals = new byte[mapSize + 1][mapSize + 1] ;
-    typeIndex = new byte[mapSize][mapSize] ;
-    varsIndex = new byte[mapSize][mapSize] ;
-    s.loadByteArray(heightVals) ;
-    s.loadByteArray(typeIndex) ;
-    s.loadByteArray(varsIndex) ;
+    heightVals = new byte[mapSize + 1][mapSize + 1];
+    typeIndex = new byte[mapSize][mapSize];
+    varsIndex = new byte[mapSize][mapSize];
+    s.loadByteArray(heightVals);
+    s.loadByteArray(typeIndex);
+    s.loadByteArray(varsIndex);
     
-    roadCounter = new byte[mapSize][mapSize] ;
-    s.loadByteArray(roadCounter) ;
+    roadCounter = new byte[mapSize][mapSize];
+    s.loadByteArray(roadCounter);
     
-    habitats = new Habitat[mapSize][mapSize] ;
+    habitats = new Habitat[mapSize][mapSize];
     for (Coord c : Visit.grid(0, 0, mapSize, mapSize, 1)) {
-      habitats[c.x][c.y] = Habitat.ALL_HABITATS[typeIndex[c.x][c.y]] ;
+      habitats[c.x][c.y] = Habitat.ALL_HABITATS[typeIndex[c.x][c.y]];
     }
-    minerals = new byte[mapSize][mapSize] ;
-    dirtVals = new byte[mapSize][mapSize] ;
-    s.loadByteArray(minerals) ;
-    s.loadByteArray(dirtVals) ;
+    minerals = new byte[mapSize][mapSize];
+    dirtVals = new byte[mapSize][mapSize];
+    s.loadByteArray(minerals);
+    s.loadByteArray(dirtVals);
     
     initSamples();
   }
   
   
   public void saveState(Session s) throws Exception {
-    s.saveInt(mapSize) ;
-    s.saveByteArray(heightVals) ;
-    s.saveByteArray(typeIndex) ;
-    s.saveByteArray(varsIndex) ;
+    s.saveInt(mapSize);
+    s.saveByteArray(heightVals);
+    s.saveByteArray(typeIndex);
+    s.saveByteArray(varsIndex);
     
-    s.saveByteArray(roadCounter) ;
-    s.saveByteArray(minerals) ;
-    s.saveByteArray(dirtVals) ;
+    s.saveByteArray(roadCounter);
+    s.saveByteArray(minerals);
+    s.saveByteArray(dirtVals);
   }
   
   
@@ -203,17 +203,17 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
   
   /**  Habitats and mineral deposits-
     */
-  private static Tile tempV[] = new Tile[9] ;
+  private static Tile tempV[] = new Tile[9];
   
   
   public void setHabitat(Tile t, Habitat h) {
     final Habitat old = habitats[t.x][t.y];
     incSampleAt(t.x, t.y, old, -1);
-    habitats[t.x][t.y] = h ;
-    typeIndex[t.x][t.y] = (byte) h.ID ;
+    habitats[t.x][t.y] = h;
+    typeIndex[t.x][t.y] = (byte) h.ID;
     incSampleAt(t.x, t.y, h, 1);
     
-    t.refreshHabitat() ;
+    t.refreshHabitat();
     for (Tile n : t.vicinity(tempV)) if (n != null) {
       meshSet.flagUpdateAt(n.x, n.y);
     }
@@ -221,71 +221,71 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
   
   
   public Habitat habitatAt(int x, int y) {
-    try { return habitats[x][y] ; }
-    catch (ArrayIndexOutOfBoundsException e) { return null ; }
+    try { return habitats[x][y]; }
+    catch (ArrayIndexOutOfBoundsException e) { return null; }
   }
   
   
   public float mineralsAt(Tile t, byte type) {
-    byte m = minerals[t.x][t.y] ;
-    if (m == 0) return 0 ;
-    if (m / NUM_TYPES != type) return 0 ;
+    byte m = minerals[t.x][t.y];
+    if (m == 0) return 0;
+    if (m / NUM_TYPES != type) return 0;
     switch (m % NUM_TYPES) {
-      case (DEGREE_TRACE)  : return AMOUNT_TRACE  ;
-      case (DEGREE_COMMON) : return AMOUNT_COMMON ;
-      case (DEGREE_HEAVY ) : return AMOUNT_HEAVY  ;
+      case (DEGREE_TRACE)  : return AMOUNT_TRACE ;
+      case (DEGREE_COMMON) : return AMOUNT_COMMON;
+      case (DEGREE_HEAVY ) : return AMOUNT_HEAVY ;
     }
-    return 0 ;
+    return 0;
   }
   
   
   public byte mineralType(Tile t) {
-    return (byte) (minerals[t.x][t.y] / NUM_TYPES) ;
+    return (byte) (minerals[t.x][t.y] / NUM_TYPES);
   }
   
   
   public byte mineralDegree(Tile t) {
-    return (byte) (minerals[t.x][t.y] % NUM_TYPES) ;
+    return (byte) (minerals[t.x][t.y] % NUM_TYPES);
   }
   
   
   public float extractMineralAt(Tile t, byte type) {
-    final float amount = mineralsAt(t, type) ;
-    if (amount <= 0) I.complain("Can't extract that mineral type!") ;
-    minerals[t.x][t.y] = (byte) ((type * NUM_DEGREES) + DEGREE_TAKEN) ;
-    return amount ;
+    final float amount = mineralsAt(t, type);
+    if (amount <= 0) I.complain("Can't extract that mineral type!");
+    minerals[t.x][t.y] = (byte) ((type * NUM_DEGREES) + DEGREE_TAKEN);
+    return amount;
   }
   
   
   public void setMinerals(Tile t, byte type, byte degree) {
-    minerals[t.x][t.y] = (byte) ((type * NUM_DEGREES) + degree) ;
+    minerals[t.x][t.y] = (byte) ((type * NUM_DEGREES) + degree);
   }
   
   
   public void incMineralDegree(Tile t, byte type, int inc) {
-    int degree = Visit.clamp(mineralDegree(t) + inc, DEGREE_HEAVY + 1) ;
-    setMinerals(t, type, (byte) degree) ;
+    int degree = Visit.clamp(mineralDegree(t) + inc, DEGREE_HEAVY + 1);
+    setMinerals(t, type, (byte) degree);
   }
   
   
   public void setSqualor(Tile t, byte newVal) {
-    final byte oldVal = dirtVals[t.x][t.y] ;
-    dirtVals[t.x][t.y] = newVal ;
+    final byte oldVal = dirtVals[t.x][t.y];
+    dirtVals[t.x][t.y] = newVal;
     if (oldVal != newVal) for (Tile n : t.vicinity(tempV)) if (n != null) {
       meshSet.flagUpdateAt(n.x, n.y, dirtLayer);
-      //final MeshPatch patch = patches[t.x / patchSize][t.y / patchSize] ;
-      //patch.updateDirt = true ;
+      //final MeshPatch patch = patches[t.x / patchSize][t.y / patchSize];
+      //patch.updateDirt = true;
     }
   }
   
   
   public float trueHeight(float x, float y) {
-    return Visit.sampleMap(mapSize, heightVals, x, y) / 4 ;
+    return Visit.sampleMap(mapSize, heightVals, x, y) / 4;
   }
   
   
   public int varAt(Tile t) {
-    return varsIndex[t.x][t.y] ;
+    return varsIndex[t.x][t.y];
   }
   
   
@@ -293,25 +293,25 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
   /**  Methods for handling road-masking of tiles-
     */
   public boolean isRoad(Tile t) {
-    return roadCounter[t.x][t.y] > 0 ;
+    return roadCounter[t.x][t.y] > 0;
   }
   
   
   public int roadMask(Tile t) {
-    return roadCounter[t.x][t.y] ;
+    return roadCounter[t.x][t.y];
   }
   
   
   public void maskAsPaved(Tile tiles[], boolean is) {
-    if (tiles == null || tiles.length == 0) return ;
-    //Box2D bounds = null ;
+    if (tiles == null || tiles.length == 0) return;
+    //Box2D bounds = null;
     for (Tile t : tiles) if (t != null) {
-      final boolean wasRoad = roadCounter[t.x][t.y] > 0 ;
-      final byte c = (roadCounter[t.x][t.y] += is ? 1 : -1) ;
-      if (c < 0) I.complain("CANNOT HAVE NEGATIVE ROAD COUNTER: "+t) ;
-      if (wasRoad == roadCounter[t.x][t.y] > 0) continue ;
-      //if (bounds == null) bounds = new Box2D().set(t.x, t.y, 0, 0) ;
-      //bounds.include(t.x, t.y, 0.5f) ;
+      final boolean wasRoad = roadCounter[t.x][t.y] > 0;
+      final byte c = (roadCounter[t.x][t.y] += is ? 1 : -1);
+      if (c < 0) I.complain("CANNOT HAVE NEGATIVE ROAD COUNTER: "+t);
+      if (wasRoad == roadCounter[t.x][t.y] > 0) continue;
+      //if (bounds == null) bounds = new Box2D().set(t.x, t.y, 0, 0);
+      //bounds.include(t.x, t.y, 0.5f);
       
       for (Tile n : t.vicinity(tempV)) if (n != null) {
         meshSet.flagUpdateAt(n.x, n.y, roadLayer);
@@ -343,12 +343,12 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
       Habitat.SQUALOR_TEXTURE, true, lID
     ) {
       protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
-        final byte ID = varsIndex[tx][ty] ;
-        final byte squalor = dirtVals[tx][ty] ;
-        return ID * squalor > 10 ;
+        final byte ID = varsIndex[tx][ty];
+        final byte squalor = dirtVals[tx][ty];
+        return ID * squalor > 10;
       }
       protected int variantAt(int tx, int ty, TerrainSet terrain) {
-        return (tx + ty) % 4 ;
+        return (tx + ty) % 4;
       }
     };
     lID++;
@@ -356,10 +356,10 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
       Habitat.ROAD_TEXTURE, true, lID
     ) {
       protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
-        return roadCounter[tx][ty] > 0 ;
+        return roadCounter[tx][ty] > 0;
       }
       protected int variantAt(int tx, int ty, TerrainSet terrain) {
-        return ((tx + ty) % 3 == 0) ? 0 : 1 ;
+        return ((tx + ty) % 3 == 0) ? 0 : 1;
       }
     };
     
@@ -372,17 +372,17 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
     final boolean nullsCount, ImageAsset tex
   ) {
     if (tiles == null || tiles.length < 1) I.complain("No tiles in overlay!");
-    final Table <Tile, Tile> pathTable = new Table(tiles.length * 2) ;
-    Box2D area = null ;
+    final Table <Tile, Tile> pathTable = new Table(tiles.length * 2);
+    Box2D area = null;
     for (Tile t : tiles) if (t != null) {
-      if (area == null) area = new Box2D().set(t.x, t.y, 0, 0) ;
-      pathTable.put(t, t) ;
-      area.include(t.x, t.y, 0.5f) ;
+      if (area == null) area = new Box2D().set(t.x, t.y, 0, 0);
+      pathTable.put(t, t);
+      area.include(t.x, t.y, 0.5f);
     }
     final LayerType layer = new LayerType(tex, false, -1) {
       protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
-        final Tile t = world.tileAt(tx, ty) ;
-        return (t == null) ? false : (pathTable.get(t) != null) ;
+        final Tile t = world.tileAt(tx, ty);
+        return (t == null) ? false : (pathTable.get(t) != null);
       }
       protected int variantAt(int tx, int ty, TerrainSet terrain) {
         return 0;
@@ -403,9 +403,9 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
     final TerrainChunk overlay = new TerrainChunk(
       dimX, dimY, minX, minY,
       layer, meshSet
-    ) ;
+    );
     overlay.generateMeshData();
-    return overlay ;
+    return overlay;
   }
   
   

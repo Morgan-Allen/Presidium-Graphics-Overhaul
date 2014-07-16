@@ -1,7 +1,7 @@
 
 
 
-package stratos.graphics.cutout ;
+package stratos.graphics.cutout;
 import static stratos.graphics.common.GL.*;
 import static stratos.graphics.cutout.CutoutModel.*;
 import stratos.graphics.common.*;
@@ -24,7 +24,7 @@ public class CutoutsPass {
   
   final static int
     MAX_SPRITES   = 1000,
-    COMPILE_LIMIT = MAX_SPRITES * SIZE ;
+    COMPILE_LIMIT = MAX_SPRITES * SIZE;
   
   private static Vector3 temp = new Vector3(), temp2 = new Vector3();
   final static float GLOW_LIGHTS[] = { 1, 1, 1, 1 };
@@ -36,14 +36,14 @@ public class CutoutsPass {
     passNormal  = new Batch <CutoutSprite> (),
     passPreview = new Batch <CutoutSprite> ();
   
-  private Mesh compiled ;
-  private float vertComp[] ;
-  private short compIndex[] ;
+  private Mesh compiled;
+  private float vertComp[];
+  private short compIndex[];
   
-  private int total = 0 ;
-  private Texture lastTex = null ;
-  private boolean wasLit = false ;
-  private ShaderProgram shading ;
+  private int total = 0;
+  private Texture lastTex = null;
+  private boolean wasLit = false;
+  private ShaderProgram shading;
   
   
   
@@ -61,7 +61,7 @@ public class CutoutsPass {
     vertComp = new float[COMPILE_LIMIT];
     compIndex = new short[MAX_SPRITES * 6];
     
-    for (int i = 0; i < compIndex.length ; i++) {
+    for (int i = 0; i < compIndex.length; i++) {
       compIndex[i] = (short) (((i / 6) * 4) + VERT_INDICES[i % 6]);
     }
     compiled.setIndices(compIndex);
@@ -174,7 +174,7 @@ public class CutoutsPass {
     else if (! s.colour.blank()) colourBits = s.colour.bitValue;
     else colourBits = Colour.combineAlphaBits(fog, s.colour);
     
-    for (int off = 0 ; off < SIZE ; off += VERTEX_SIZE) {
+    for (int off = 0; off < SIZE; off += VERTEX_SIZE) {
       final int offset = total + off;
       temp.set(
         s.model.vertices[X0 + off],

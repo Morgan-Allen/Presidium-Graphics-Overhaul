@@ -90,20 +90,20 @@ public abstract class Mission implements
   private static boolean verbose = false;
   
   
-  final Base base ;
-  final Target subject ;
+  final Base base;
+  final Target subject;
   
   final Stack <Role> roles = new Stack <Role> ();
   private int
     priority,
     missionType,
-    objectIndex ;
+    objectIndex;
   private boolean
     begun = false,
     done  = false;
   
-  final CutoutSprite flagSprite ;
-  final String description ;
+  final CutoutSprite flagSprite;
+  final String description;
   
   
   
@@ -111,10 +111,10 @@ public abstract class Mission implements
     Base base, Target subject,
     CutoutModel flagModel, String description
   ) {
-    this.base = base ;
-    this.subject = subject ;
-    this.flagSprite = (CutoutSprite) flagModel.makeSprite() ;
-    this.description = description ;
+    this.base = base;
+    this.subject = subject;
+    this.flagSprite = (CutoutSprite) flagModel.makeSprite();
+    this.description = description;
   }
   
   
@@ -128,16 +128,16 @@ public abstract class Mission implements
     begun = s.loadBool();
     done = s.loadBool();
     
-    for (int i = s.loadInt() ; i-- > 0 ;) {
-      final Role role = new Role() ;
-      role.applicant = (Actor) s.loadObject() ;
-      role.approved = s.loadBool() ;
+    for (int i = s.loadInt(); i-- > 0;) {
+      final Role role = new Role();
+      role.applicant = (Actor) s.loadObject();
+      role.approved = s.loadBool();
       roles.add(role);
     }
     
-    flagSprite = (CutoutSprite) ModelAsset.loadSprite(s.input()) ;
-    //flagTex = ((CutoutModel) flagSprite.model()).texture() ;
-    description = s.loadString() ;
+    flagSprite = (CutoutSprite) ModelAsset.loadSprite(s.input());
+    //flagTex = ((CutoutModel) flagSprite.model()).texture();
+    description = s.loadString();
   }
   
   
@@ -150,14 +150,14 @@ public abstract class Mission implements
     s.saveBool(begun);
     s.saveBool(done);
     
-    s.saveInt(roles.size()) ;
+    s.saveInt(roles.size());
     for (Role role : roles) {
-      s.saveObject(role.applicant) ;
-      s.saveBool(role.approved) ;
+      s.saveObject(role.applicant);
+      s.saveBool(role.approved);
     }
     
-    ModelAsset.saveSprite(flagSprite, s.output()) ;
-    s.saveString(description) ;
+    ModelAsset.saveSprite(flagSprite, s.output());
+    s.saveString(description);
   }
   
   
@@ -167,7 +167,7 @@ public abstract class Mission implements
   
   
   public Base base() {
-    return base ;
+    return base;
   }
   
   
@@ -177,7 +177,7 @@ public abstract class Mission implements
   
   
   public Target selectionLocksOn() {
-    return subject ;
+    return subject;
   }
   
   
@@ -192,7 +192,7 @@ public abstract class Mission implements
     */
   class Role {
     Actor applicant;
-    ///Pledge pledgeMade ;  //Not used at the moment.  TODO:  IMPLEMENT
+    ///Pledge pledgeMade;  //Not used at the moment.  TODO:  IMPLEMENT
     boolean approved;
   }
   
@@ -219,9 +219,9 @@ public abstract class Mission implements
   
   
   protected int rolesApproved() {
-    int count = 0 ;
+    int count = 0;
     for (Role role : roles) if (role.approved) count++;
-    return count ;
+    return count;
   }
   
   
@@ -238,7 +238,7 @@ public abstract class Mission implements
   
   
   public int totalApplied() {
-    return roles.size() ;
+    return roles.size();
   }
   
   
@@ -265,7 +265,7 @@ public abstract class Mission implements
   
   
   public boolean hasBegun() {
-    return begun ;
+    return begun;
   }
   
   
@@ -274,9 +274,9 @@ public abstract class Mission implements
   }
   
   
-  public int motionType(Actor actor) { return MOTION_ANY ; }
+  public int motionType(Actor actor) { return MOTION_ANY; }
   public void abortBehaviour() {}
-  public boolean valid() { return ! subject.destroyed() ; }
+  public boolean valid() { return ! subject.destroyed(); }
   
   
   
@@ -284,25 +284,25 @@ public abstract class Mission implements
     *  method, and not independantly.
     */
   public void setApplicant(Actor actor, boolean is) {
-    final Role oldRole = roleFor(actor) ;
+    final Role oldRole = roleFor(actor);
     if (is) {
       if (oldRole != null) return;
       Role role = new Role();
       role.applicant = actor;
-      role.approved = missionType == TYPE_PUBLIC ? true : false ;
+      role.approved = missionType == TYPE_PUBLIC ? true : false;
       roles.add(role);
     }
     else {
-      if (oldRole == null) return ;
-      roles.remove(oldRole) ;
+      if (oldRole == null) return;
+      roles.remove(oldRole);
     }
   }
   
   
   public void setApprovalFor(Actor actor, boolean is) {
-    final Role role = roleFor(actor) ;
-    if (role == null) I.complain(actor+" never applied for "+this) ;
-    role.approved = is ;
+    final Role role = roleFor(actor);
+    if (role == null) I.complain(actor+" never applied for "+this);
+    role.approved = is;
   }
   
   
@@ -370,8 +370,8 @@ public abstract class Mission implements
   
   /**  Rendering and interface methods-
     */
-  public String fullName() { return description ; }
-  public String toString() { return description ; }
+  public String fullName() { return description; }
+  public String toString() { return description; }
   
   
   public Composite portrait(BaseUI UI) {
@@ -383,7 +383,7 @@ public abstract class Mission implements
     int flagIndex = Visit.indexOf(flagModel, MissionsTab.ALL_MODELS);
     final ImageAsset icon = MissionsTab.ALL_ICONS[flagIndex];
     
-    final int size = InfoPanel.PORTRAIT_SIZE;
+    final int size = SelectionInfoPane.PORTRAIT_SIZE;
     final Composite c = Composite.withSize(size, size, key);
     c.layerFromGrid(icon, 0, 0, 1, 1);
     
@@ -396,13 +396,13 @@ public abstract class Mission implements
   }
   
   
-  public TargetInfo configInfo(TargetInfo info, BaseUI UI) {
+  public TargetOptions configInfo(TargetOptions info, BaseUI UI) {
     return null;
   }
   
   
-  public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
-    if (panel == null) panel = new InfoPanel(UI, this, portrait(UI));
+  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
+    if (panel == null) panel = new SelectionInfoPane(UI, this, portrait(UI));
     final Description d = panel.detail();
     
     d.append("Mission Type:  ");
@@ -471,12 +471,12 @@ public abstract class Mission implements
       
       if (mustConfirm) {
         d.append("\n");
-        final String option = role.approved ? "(DISMISS)" : "(APPROVE)" ;
+        final String option = role.approved ? "(DISMISS)" : "(APPROVE)";
         d.append(new Description.Link(option) {
           public void whenTextClicked() {
-            setApprovalFor(role.applicant, ! role.approved) ;
+            setApprovalFor(role.applicant, ! role.approved);
           }
-        }) ;
+        });
       }
     }
 
@@ -502,7 +502,7 @@ public abstract class Mission implements
   
   
   public void whenTextClicked() {
-    BaseUI.current().selection.pushSelection(this, true) ;
+    BaseUI.current().selection.pushSelection(this, true);
   }
   
   
@@ -512,7 +512,7 @@ public abstract class Mission implements
     if (BaseUI.isSelectedOrHovered(this)) alpha = 1.0f;
     else alpha = 0.75f;
     flagSprite.colour = Colour.glow(alpha);
-    return flagSprite ;
+    return flagSprite;
   }
   
   
@@ -526,15 +526,15 @@ public abstract class Mission implements
   
   public static void placeFlag(Sprite flag, Target subject) {
     if (subject instanceof Element) {
-      final Element e = (Element) subject ;
-      flag.position.setTo(e.viewPosition(null)) ;
-      flag.position.z += e.height() + 1 ;
+      final Element e = (Element) subject;
+      flag.position.setTo(e.viewPosition(null));
+      flag.position.z += e.height() + 1;
     }
     else {
-      flag.position.setTo(subject.position(null)) ;
-      flag.position.z += 1.5f ;
+      flag.position.setTo(subject.position(null));
+      flag.position.z += 1.5f;
     }
-    flag.scale = 0.5f ;
+    flag.scale = 0.5f;
   }
   
   
@@ -545,12 +545,12 @@ public abstract class Mission implements
     }
     final Vec3D pos = (subject instanceof Mobile) ?
       ((Mobile) subject).viewPosition(null) :
-      subject.position(null) ;
+      subject.position(null);
     Selection.renderPlane(
       rendering, pos, subject.radius() + 0.5f,
       hovered ? Colour.transparency(0.5f) : Colour.WHITE,
       Selection.SELECT_CIRCLE
-    ) ;
+    );
   }
 }
 

@@ -1,7 +1,7 @@
 
 
 
-package stratos.game.base ;
+package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
@@ -21,7 +21,7 @@ public class CargoBarge extends Vehicle implements
     */
   final static String
     FILE_DIR = "media/Vehicles/",
-    XML_FILE = "VehicleModels.xml" ;
+    XML_FILE = "VehicleModels.xml";
   final static ModelAsset BARGE_MODEL = MS3DModel.loadFrom(
     FILE_DIR, "loader_2.ms3d", CargoBarge.class, XML_FILE, "CargoBarge"
   );
@@ -29,30 +29,30 @@ public class CargoBarge extends Vehicle implements
   
   
   public CargoBarge() {
-    super() ;
-    attachSprite(BARGE_MODEL.makeSprite()) ;
+    super();
+    attachSprite(BARGE_MODEL.makeSprite());
   }
   
   
   public CargoBarge(Session s) throws Exception {
-    super(s) ;
+    super(s);
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
+    super.saveState(s);
   }
   
   
-  public float height() { return 1.0f ; }
-  public float radius() { return 1.0f ; }
+  public float height() { return 1.0f; }
+  public float radius() { return 1.0f; }
   
   
   
   /**  Economic and behavioural functions-
     */
   public Behaviour jobFor(Actor actor) {
-    return null ;
+    return null;
   }
   
   
@@ -67,29 +67,29 @@ public class CargoBarge extends Vehicle implements
   
   
   public boolean actionBoard(Actor actor, CargoBarge ship) {
-    ship.setInside(actor, true) ;
-    return true ;
+    ship.setInside(actor, true);
+    return true;
   }
   
   /*
   protected void offloadPassengers() {
-    final int size = 2 * (int) Math.ceil(radius()) ;
-    final int EC[] = Spacing.entranceCoords(size, size, entranceFace) ;
-    final Box2D site = this.area(null) ;
-    final Tile o = world.tileAt(site.xpos() + 0.5f, site.ypos() + 0.5f) ;
-    final Tile exit = world.tileAt(o.x + EC[0], o.y + EC[1]) ;
-    this.dropPoint = exit ;
+    final int size = 2 * (int) Math.ceil(radius());
+    final int EC[] = Spacing.entranceCoords(size, size, entranceFace);
+    final Box2D site = this.area(null);
+    final Tile o = world.tileAt(site.xpos() + 0.5f, site.ypos() + 0.5f);
+    final Tile exit = world.tileAt(o.x + EC[0], o.y + EC[1]);
+    this.dropPoint = exit;
     
     for (Mobile m : inside()) if (! m.inWorld()) {
-      m.enterWorldAt(exit.x, exit.y, world) ;
+      m.enterWorldAt(exit.x, exit.y, world);
     }
-    inside.clear() ;
+    inside.clear();
   }
   //*/
   
   
   public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates) ;
+    super.updateAsScheduled(numUpdates);
   }
   
   
@@ -100,12 +100,12 @@ public class CargoBarge extends Vehicle implements
   /**  Rendering and interface methods-
     */
   public String fullName() {
-    return "Cargo Barge" ;
+    return "Cargo Barge";
   }
   
   
   public Composite portrait(BaseUI UI) {
-    return null ;
+    return null;
   }
   
   
@@ -115,7 +115,7 @@ public class CargoBarge extends Vehicle implements
       "of your settlement.\n\n"+
       "  'She kicks like a mule and stinks of raw carbons, but she'll "+
       "getcha from A to B.  Assuming B is downhill.'\n"+
-      "  -Tev Marlo, Supply Corps" ;
+      "  -Tev Marlo, Supply Corps";
   }
 }
 

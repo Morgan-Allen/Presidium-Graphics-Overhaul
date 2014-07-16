@@ -5,7 +5,7 @@
   */
 
 
-package stratos.game.building ;
+package stratos.game.building;
 import stratos.game.actors.*;
 import stratos.graphics.common.*;
 
@@ -17,14 +17,14 @@ public interface Economy extends Qualities {
   final static float
     NUM_WEAR_DAYS = Backgrounds.NUM_DAYS_PAY;
   
-  final static Class BC = Economy.class ;
+  final static Class BC = Economy.class;
   final public static int
     FORM_COMMODITY      = 0, FC = 0,
     FORM_PROVISION      = 1, FP = 1,
     FORM_UNIQUE         = 2, FU = 2,
     FORM_DEVICE         = 3, FD = 3,
     FORM_OUTFIT         = 4, FO = 4,
-    FORM_SERVICE        = 5, FS = 5 ;
+    FORM_SERVICE        = 5, FS = 5;
   
   final public static Service
     //
@@ -91,7 +91,7 @@ public interface Economy extends Qualities {
     LIFE_SUPPORT = new Service(BC, "Life Support", "life_S.png"   , FP, 10),
     POWER        = new Service(BC, "Power"       , "power.png"    , FP, 10),
     
-    ALL_PROVISIONS[] = Service.typesSoFar() ;
+    ALL_PROVISIONS[] = Service.typesSoFar();
   
   final public static Service
     SERVICE_ADMIN    = new Service(BC, FORM_SERVICE, "Admin"      , 0),
@@ -126,7 +126,7 @@ public interface Economy extends Qualities {
     GRAPPLE      = 1 << 8,
     CAUSTIC      = 1 << 9,
     TRANSMORPHIC = 1 << 10,
-    ENERGY_DRAIN = 1 << 12 ;
+    ENERGY_DRAIN = 1 << 12;
   
   
   final public static DeviceType
@@ -221,9 +221,9 @@ public interface Economy extends Qualities {
     INTRINSIC_ENERGY_WEAPON = new DeviceType(
       BC, "Intrinsic Energy Weapon", 0, RANGED | ENERGY, 0,
       null, null, AnimNames.FIRE
-    ) ;
+    );
   final public static Service
-    ALL_IMPLEMENTS[] = Service.typesSoFar() ;
+    ALL_IMPLEMENTS[] = Service.typesSoFar();
   
   
   //
@@ -282,17 +282,17 @@ public interface Economy extends Qualities {
     ),
     ARTILECT_ARMOUR = new OutfitType(
       BC, "Artilect Armour", 0, 10, 0, null
-    ) ;
+    );
   final public static Service
-    ALL_OUTFITS[] = Service.typesSoFar() ;
+    ALL_OUTFITS[] = Service.typesSoFar();
   
   final public static Service
-    ALL_ITEM_TYPES[] = Service.allTypes() ;
+    ALL_ITEM_TYPES[] = Service.allTypes();
   
   
   
   
-  final public static Object TO = new Object() ;
+  final public static Object TO = new Object();
   
   final public static Conversion
     //
@@ -387,7 +387,7 @@ public interface Economy extends Qualities {
       5, PROTEIN, 5, POWER, TO, 1, REPLICANTS,
       "CultureVats",
       MODERATE_DC, GENE_CULTURE, ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
-    ) ;
+    );
 }
 
 

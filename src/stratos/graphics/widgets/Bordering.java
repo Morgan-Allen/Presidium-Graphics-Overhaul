@@ -4,19 +4,20 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package stratos.graphics.widgets ;
+package stratos.graphics.widgets;
 import stratos.graphics.common.*;
 import stratos.util.*;
 import com.badlogic.gdx.graphics.*;
 
 
 
-public class Bordering extends UINode {
+public class Bordering extends UIGroup {
   
   
   /**  
     */
   final Texture borderTex;
+  final public UIGroup inside;
   public int
     left = 10, right = 10,
     bottom = 10, top = 10;
@@ -28,6 +29,15 @@ public class Bordering extends UINode {
   public Bordering(HUD UI, ImageAsset tex) {
     super(UI);
     this.borderTex = tex.asTexture();
+    this.inside = new UIGroup(UI);
+    inside.attachTo(this);
+  }
+  
+  
+  protected void updateState() {
+    inside.relBound.set(0, 0, 1, 1);
+    inside.absBound.set(left, bottom, 0 - (left + right), 0 - (top + bottom));
+    super.updateState();
   }
   
   
@@ -38,6 +48,7 @@ public class Bordering extends UINode {
       leftU, rightU, bottomV, topV,
       borderTex
     );
+    super.render(pass);
   }
   
   
@@ -83,7 +94,7 @@ public class Bordering extends UINode {
     }
     
     pass.setColor(1, 1, 1, 1);
-    for (int x = 3 ; x-- > 0 ;) for (int y = 3 ; y-- > 0 ;) {
+    for (int x = 3; x-- > 0;) for (int y = 3; y-- > 0;) {
       pass.draw(
         borderTex,
         coordX[x],

@@ -83,7 +83,7 @@ public class DebugGraphics {
         sprites.add(spriteA);
         
         
-        for (int i = 10 ; i-- > 0;) {
+        for (int i = 10; i-- > 0;) {
           final Sprite CS = CM.makeSprite();
           CS.position.set(i, -i, 0);
           CS.fog = (i + 1) / 10f;

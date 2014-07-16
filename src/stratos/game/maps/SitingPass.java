@@ -6,7 +6,7 @@
 
 
 
-package stratos.game.maps ;
+package stratos.game.maps;
 import stratos.game.common.*;
 import stratos.util.*;
 

@@ -4,7 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package stratos.game.maps ;
+package stratos.game.maps;
 import stratos.game.common.*;
 import stratos.util.*;
 
@@ -15,17 +15,17 @@ import stratos.util.*;
 public class HeightMap {
   
   
-  private int size ;
-  private float maxHigh ;
-  private float mapHigh[][] ;
-  private float limit ;
+  private int size;
+  private float maxHigh;
+  private float mapHigh[][];
+  private float limit;
   
   
   /**  Most basic constructor, using maximum height of 1 and step ratio of 0.5.
     *  Size must be a power of 2, plus 1.
     */
   public HeightMap(int size) {
-    this(size, 1, 0.5f) ;
+    this(size, 1, 0.5f);
   }
   
   
@@ -34,18 +34,18 @@ public class HeightMap {
     *  value of n, and it's overall height should be proportionate to maxHigh.)
     */
   public HeightMap(int size, float seed[][], float maxHigh, float stepRatio) {
-    this.size = size ;
-    this.maxHigh = maxHigh ;
-    this.mapHigh = new float[size][size] ;
-    final int step = (size - 1) / (seed.length - 1) ;
+    this.size = size;
+    this.maxHigh = maxHigh;
+    this.mapHigh = new float[size][size];
+    final int step = (size - 1) / (seed.length - 1);
     //
     //  We need to insert the seed values provided at appropriate intervals
     //  within the height map (to serve as a basis for subsequent fractal
     //  descent.)
-    for (int x = 0 ; x * step < size ; x++)
-      for (int y = 0 ; y * step < size ; y++)
-        mapHigh[x * step][y * step] = seed[x][y] ;
-    fractalGen(step, maxHigh, stepRatio) ;
+    for (int x = 0; x * step < size; x++)
+      for (int y = 0; y * step < size; y++)
+        mapHigh[x * step][y * step] = seed[x][y];
+    fractalGen(step, maxHigh, stepRatio);
   }
   
   
@@ -55,23 +55,23 @@ public class HeightMap {
   public HeightMap(int minSize, float maxHigh, float stepRatio) {
     //
     //  size must be a power of 2, + 1:
-    size = 1 ; while (size + 1 < minSize) size *= 2 ; size++ ;
-    this.mapHigh = new float[size][size] ;
-    this.maxHigh = maxHigh ;
-    final int step = size - 1 ;
+    size = 1; while (size + 1 < minSize) size *= 2; size++;
+    this.mapHigh = new float[size][size];
+    this.maxHigh = maxHigh;
+    final int step = size - 1;
     //
     //  Firstly, we initialise seed values at the corners:
-    mapHigh[0   ][0   ] = nextHigh() ;
-    mapHigh[0   ][step] = nextHigh() ;
-    mapHigh[step][0   ] = nextHigh() ;
-    mapHigh[step][step] = nextHigh() ;
-    fractalGen(step, maxHigh, stepRatio) ;
+    mapHigh[0   ][0   ] = nextHigh();
+    mapHigh[0   ][step] = nextHigh();
+    mapHigh[step][0   ] = nextHigh();
+    mapHigh[step][step] = nextHigh();
+    fractalGen(step, maxHigh, stepRatio);
   }
   
   
   final private static int
     DAC[] = { 1, 1, 1, -1, -1, -1, -1, 1 }, // Diamond-adjacent-coordinates,
-    SAC[] = { 0, 1, 1, 0, 0, -1, -1, 0 } ;  // and Square-adjacent-coordinates.
+    SAC[] = { 0, 1, 1, 0, 0, -1, -1, 0 };  // and Square-adjacent-coordinates.
   
   
   /**  Performs actual fractal height generation.
@@ -83,26 +83,26 @@ public class HeightMap {
     //  single diamond and two square passes (which ensure even averaging of
     //  heigh values along and between both axes.)  Each time, you reduce the
     //  step size and limit for random height adjustment.
-    int halfStep ;
-    limit = maxHigh ;
+    int halfStep;
+    limit = maxHigh;
     //
     //  Then iterate down in detail-
     while (step > 1) {
-      halfStep = step / 2 ;
-      limit *= stepRatio ;
+      halfStep = step / 2;
+      limit *= stepRatio;
       //
       //  The diamond step:
-      for (int x = 0 ; x < size ; x += step)
-        for (int y = 0 ; y < size ; y += step)
-          avgVal(x + halfStep, y + halfStep, halfStep, DAC) ;
+      for (int x = 0; x < size; x += step)
+        for (int y = 0; y < size; y += step)
+          avgVal(x + halfStep, y + halfStep, halfStep, DAC);
       //
       //  The square step:
-      for (int x = 0 ; x < size ; x += step)
-        for (int y = 0 ; y < size ; y += step) {
-          avgVal(x + halfStep, y, halfStep, SAC) ;
-          avgVal(x, y + halfStep, halfStep, SAC) ;
+      for (int x = 0; x < size; x += step)
+        for (int y = 0; y < size; y += step) {
+          avgVal(x + halfStep, y, halfStep, SAC);
+          avgVal(x, y + halfStep, halfStep, SAC);
         }
-      step = halfStep ;
+      step = halfStep;
     }
     //
     //  Then we must adjust the entire map to exactly fit into the desired
@@ -110,17 +110,17 @@ public class HeightMap {
     float
       max = Float.NEGATIVE_INFINITY,
       min = Float.POSITIVE_INFINITY,
-      high ;
-    for (int x = size ; x-- > 0 ;)
-      for (int y = size ; y-- > 0 ;) {
-        high = mapHigh[x][y] ;
-        max = Math.max(max, high) ;
-        min = Math.min(min, high) ;
+      high;
+    for (int x = size; x-- > 0;)
+      for (int y = size; y-- > 0;) {
+        high = mapHigh[x][y];
+        max = Math.max(max, high);
+        min = Math.min(min, high);
       }
-    if (max == min) max = min + 1 ;  // Hugely unlikely, but anyway...
-    for (int x = size ; x-- > 0 ;)
-      for (int y = size ; y-- > 0 ;)
-        mapHigh[x][y] = maxHigh * (mapHigh[x][y] - min) / (max - min) ;
+    if (max == min) max = min + 1;  // Hugely unlikely, but anyway...
+    for (int x = size; x-- > 0;)
+      for (int y = size; y-- > 0;)
+        mapHigh[x][y] = maxHigh * (mapHigh[x][y] - min) / (max - min);
   }
   
   
@@ -133,59 +133,59 @@ public class HeightMap {
   private void avgVal(int x, int y, int step, int AC[]) {
     //
     //  Return if the point is outside the grid-
-    float val = val(mapHigh, x, y) ;
-    if (val == Float.NEGATIVE_INFINITY) return ;
+    float val = val(mapHigh, x, y);
+    if (val == Float.NEGATIVE_INFINITY) return;
     //
     //  Otherwise:
-    float average = 0 ;
-    int num = 0 ;
-    for (int n = 0 ; n < AC.length ;) {
-      val = val(mapHigh, x + (AC[n++] * step), y + (AC[n++] * step)) ;
+    float average = 0;
+    int num = 0;
+    for (int n = 0; n < AC.length;) {
+      val = val(mapHigh, x + (AC[n++] * step), y + (AC[n++] * step));
       //
       //  Again, ignore points outside the grid-
-      if (val == Float.NEGATIVE_INFINITY) continue ;
-      num++ ;
-      average += val ;
+      if (val == Float.NEGATIVE_INFINITY) continue;
+      num++;
+      average += val;
     }
-    average /= num ;
-    mapHigh[x][y] = average + nextHigh() ;
+    average /= num;
+    mapHigh[x][y] = average + nextHigh();
   }
   
   
   private static float val(final float map[][], final int x, final int y) {
-    try { return map[x][y] ; }
-    catch (Exception e) { return Float.NEGATIVE_INFINITY ; }
+    try { return map[x][y]; }
+    catch (Exception e) { return Float.NEGATIVE_INFINITY; }
   }
   
   
   /**  Supplies random height adjustments for 'seeding' the map at each
     *  resolution.
     */
-  private float nextHigh() { return ((Rand.num() - 0.5f) * limit) ; }
+  private float nextHigh() { return ((Rand.num() - 0.5f) * limit); }
   
   
   /**  Returns the finished product of this computation.
     */
   public float[][] value() {
-    return mapHigh ;
+    return mapHigh;
   }
   
   
   /**  Returns the map's value set in byte format:
     */
   public byte[][] asScaledBytes(float scaleHigh) {
-    byte result[][] = new byte[size][size] ;
-    for (int x = size ; x-- > 0 ;) for (int y = size ; y-- > 0 ;) {
-      result[x][y] = (byte) ((mapHigh[x][y] * scaleHigh) / this.maxHigh) ;
+    byte result[][] = new byte[size][size];
+    for (int x = size; x-- > 0;) for (int y = size; y-- > 0;) {
+      result[x][y] = (byte) ((mapHigh[x][y] * scaleHigh) / this.maxHigh);
     }
-    return result ;
+    return result;
   }
   
   
   /**  Returns the amount of ground spanned by this height map.
     */
   public int span() {
-    return size - 1 ;
+    return size - 1;
   }
   
   
@@ -216,24 +216,24 @@ public class HeightMap {
     *  individual maps can and will vary significantly.  Caveat Emptor.
     */
   public static float areaUnderHeight(float height) {
-    height = Visit.clamp(height, 0, 1) ;
-    final boolean subHalf = height < 0.5f ;
-    if (subHalf) height = 1 - height ;
+    height = Visit.clamp(height, 0, 1);
+    final boolean subHalf = height < 0.5f;
+    if (subHalf) height = 1 - height;
     
-    double N = Math.log(0.5 / (1 - height)) * Math.E / 2 ;
-    float areaOver = (float) (1 / (2 * (Math.pow(4, N)))) ;
-    return subHalf ? areaOver : (1 - areaOver) ;
+    double N = Math.log(0.5 / (1 - height)) * Math.E / 2;
+    float areaOver = (float) (1 / (2 * (Math.pow(4, N))));
+    return subHalf ? areaOver : (1 - areaOver);
   }
   
   
   public static float heightCoveringArea(float areaUnder) {
-    areaUnder = Visit.clamp(areaUnder, 0, 1) ;
-    final boolean subHalf = areaUnder < 0.5f ;
-    if (subHalf) areaUnder = 1 - areaUnder ;
+    areaUnder = Visit.clamp(areaUnder, 0, 1);
+    final boolean subHalf = areaUnder < 0.5f;
+    if (subHalf) areaUnder = 1 - areaUnder;
     
-    double N = Math.log(0.5 / (1 - areaUnder)) * Math.E / 4 ;
-    float height = (float) (2 - (1 / (Math.pow(2, N)))) / 2 ;
-    return subHalf ? (1 - height) : height ;
+    double N = Math.log(0.5 / (1 - areaUnder)) * Math.E / 4;
+    float height = (float) (2 - (1 / (Math.pow(2, N)))) / 2;
+    return subHalf ? (1 - height) : height;
   }
   
   //
@@ -244,11 +244,11 @@ public class HeightMap {
   /**  Prints out the height values of the terrain generated.
     */
   void report() {
-    I.add("\nPrinting height values:") ;
-    for (int y = 0; y < size ; y++) {
-      I.add("\n") ;
-      for (int x = 0 ; x < size ; x++)
-        I.add(" " + (int) (mapHigh[x][y] * 10)) ;
+    I.add("\nPrinting height values:");
+    for (int y = 0; y < size; y++) {
+      I.add("\n");
+      for (int x = 0; x < size; x++)
+        I.add(" " + (int) (mapHigh[x][y] * 10));
     }
   }
 

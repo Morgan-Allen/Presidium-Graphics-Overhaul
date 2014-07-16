@@ -30,7 +30,7 @@ public abstract class LayerType implements TileConstants {
     this.innerFringe = innerFringe;
     this.layerID = layerID;
     this.textures = new Texture[tex.length];
-    for (int i = tex.length ; i-- > 0;) {
+    for (int i = tex.length; i-- > 0;) {
       this.textures[i] = tex[i].asTexture();
     }
   }
@@ -85,7 +85,7 @@ public abstract class LayerType implements TileConstants {
     for (int n : N_INDEX) {
       final int x = tx + N_X[n], y = ty + N_Y[n];
       try { near[n] = maskedAt(x, y, terrain); }
-      catch (ArrayIndexOutOfBoundsException e) { near[n] = false ; }
+      catch (ArrayIndexOutOfBoundsException e) { near[n] = false; }
     }
     
     final float fringes[][] = innerFringe ?

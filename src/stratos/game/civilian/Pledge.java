@@ -1,7 +1,7 @@
 
 
 
-package stratos.game.civilian ;
+package stratos.game.civilian;
 import stratos.game.common.*;
 
 
@@ -37,52 +37,52 @@ public class Pledge implements Session.Saveable {
   }
   
   
-  final Type type ;
-  final float amount ;
-  final Session.Saveable refers ;
-  final Accountable madeTo ;
+  final Type type;
+  final float amount;
+  final Session.Saveable refers;
+  final Accountable madeTo;
 
   
 
   public Pledge(Type type, Accountable madeTo) {
-    this(type, -1, null, madeTo) ;
+    this(type, -1, null, madeTo);
   }
   
   
   public Pledge(Type type, float amount, Accountable madeTo) {
-    this(type, amount, null, madeTo) ;
+    this(type, amount, null, madeTo);
   }
   
 
   public Pledge(Type type, Session.Saveable refers, Accountable madeTo) {
-    this(type, -1, refers, madeTo) ;
+    this(type, -1, refers, madeTo);
   }
   
   
   protected Pledge(
     Type type, float amount, Session.Saveable refers, Accountable madeTo
   ) {
-    this.type = type ;
-    this.amount = amount ;
-    this.refers = refers ;
-    this.madeTo = madeTo ;
+    this.type = type;
+    this.amount = amount;
+    this.refers = refers;
+    this.madeTo = madeTo;
   }
   
   
   public Pledge(Session s) throws Exception {
-    s.cacheInstance(this) ;
-    this.type = Type.values()[s.loadInt()] ;
-    this.amount = s.loadFloat() ;
-    this.refers = s.loadObject() ;
-    this.madeTo = (Accountable) s.loadObject() ;
+    s.cacheInstance(this);
+    this.type = Type.values()[s.loadInt()];
+    this.amount = s.loadFloat();
+    this.refers = s.loadObject();
+    this.madeTo = (Accountable) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
-    s.saveInt(type.ordinal()) ;
-    s.saveFloat(amount) ;
-    s.saveObject(refers) ;
-    s.saveObject((Session.Saveable) madeTo) ;
+    s.saveInt(type.ordinal());
+    s.saveFloat(amount);
+    s.saveObject(refers);
+    s.saveObject((Session.Saveable) madeTo);
   }
   
   

@@ -102,7 +102,7 @@ public interface Backgrounds extends Economy {
       NOVICE, NOBLE_ETIQUETTE, LEARNING, COMMAND, HAND_TO_HAND, ANCIENT_LORE
     ),
     
-    OPEN_CLASSES[] = { DREGS_BIRTH, PYON_BIRTH, FREE_BIRTH, GELDER_BIRTH } ;
+    OPEN_CLASSES[] = { DREGS_BIRTH, PYON_BIRTH, FREE_BIRTH, GELDER_BIRTH };
   
   
   
@@ -144,7 +144,7 @@ public interface Backgrounds extends Economy {
     ),
     
     ARTIFICER_CIRCLES[] = { EXCAVATOR, TECHNICIAN, CORE_TECHNICIAN, ARTIFICER }
-  ;
+ ;
 
   final public static Background
     
@@ -194,7 +194,7 @@ public interface Backgrounds extends Economy {
     ),
     
     PHYSICIAN_CIRCLES[] = { MINDER, VATS_BREEDER, ENFORCER, PHYSICIAN }
-  ;
+ ;
   
   final public static Background
     
@@ -237,7 +237,7 @@ public interface Backgrounds extends Economy {
     ECOLOGIST_CIRCLES[] = {
       CULTIVATOR, FORMER_ENGINEER, EXPLORER, ECOLOGIST
     }
-  ;
+ ;
   
   final public static Background
     
@@ -275,7 +275,7 @@ public interface Backgrounds extends Economy {
     ),
     
     VENDOR_CIRCLES[] = { FAB_WORKER, SOMA_VENDOR, STOCK_VENDOR, AUDITOR }
-  ;
+ ;
   
   final public static Background
     
@@ -316,7 +316,7 @@ public interface Backgrounds extends Economy {
     ),
     
     MILITARY_CIRCLES[] = { VOLUNTEER, AIR_CORPS, MECH_LEGION, VETERAN }
-  ;
+ ;
   
   final public static Background
     
@@ -327,9 +327,9 @@ public interface Backgrounds extends Economy {
       OFTEN, HANDSOME, RARELY, STOUT, SOMETIMES, EMPATHIC, INDULGENT,
       FINERY
     ) {
-      final ImageAsset male_skin = costumeFor("aesthete_male_skin.gif") ;
+      final ImageAsset male_skin = costumeFor("aesthete_male_skin.gif");
       public ImageAsset costumeFor(Actor actor) {
-        return actor.traits.female() ? costume : male_skin ;
+        return actor.traits.female() ? costume : male_skin;
       }
     },
     
@@ -360,7 +360,7 @@ public interface Backgrounds extends Economy {
     ),
     
     AESTHETE_CIRCLES[] = { PERFORMER, FABRICATOR, ADVERTISER, AESTHETE }
-  ;
+ ;
   
   
   final public static Background
@@ -414,16 +414,16 @@ public interface Backgrounds extends Economy {
       ALWAYS, HANDSOME, OFTEN, FEMININE, EMPATHIC, TALL, RARELY, STOUT,
       FINERY
     ) {
-    final ImageAsset male_skin = costumeFor("aesthete_male_skin.gif") ;
+    final ImageAsset male_skin = costumeFor("aesthete_male_skin.gif");
       public ImageAsset costumeFor(Actor actor) {
-        return actor.traits.female() ? costume : male_skin ;
+        return actor.traits.female() ? costume : male_skin;
       }
     },
     
     OUTLAW_CIRCLES[] = {
         SCAVENGER, FREE_TRADER, SHIP_MECHANIC,
         SHIP_CAPTAIN, RUNNER, COMPANION
-    } ;
+    };
   
   
   final public static Background
@@ -468,7 +468,7 @@ public interface Backgrounds extends Economy {
       GATHERER, HUNTER, SHAMAN, CHIEFTAIN
     },
     NATIVE_MALE_JOBS[]   = { HUNTER, CHIEFTAIN },
-    NATIVE_FEMALE_JOBS[] = { GATHERER, SHAMAN  } ;
+    NATIVE_FEMALE_JOBS[] = { GATHERER, SHAMAN  };
   
   
   final public static Background
@@ -482,12 +482,12 @@ public interface Backgrounds extends Economy {
       LEARNING, SUGGESTION, PREMONITION, PROJECTION,
       SOMETIMES, PSYONIC, OFTEN, TRADITIONAL, RARELY, NERVOUS
     ) {
-      final ImageAsset female_skin = costumeFor("highborn_male_skin.gif") ;
+      final ImageAsset female_skin = costumeFor("highborn_male_skin.gif");
       public String nameFor(Actor actor) {
-        return actor.traits.male() ? "Knighted" : "Knighted" ;
+        return actor.traits.male() ? "Knighted" : "Knighted";
       }
       public ImageAsset costumeFor(Actor actor) {
-        return actor.traits.male() ? costume : female_skin ;
+        return actor.traits.male() ? costume : female_skin;
       }
     },
     BARON = new Background(
@@ -498,12 +498,12 @@ public interface Backgrounds extends Economy {
       NOVICE, SUGGESTION, PREMONITION, PROJECTION,
       OFTEN, PSYONIC, OFTEN, TRADITIONAL, RARELY, NERVOUS
     ) {
-      final ImageAsset female_skin = costumeFor("highborn_male_skin.gif") ;
+      final ImageAsset female_skin = costumeFor("highborn_male_skin.gif");
       public String nameFor(Actor actor) {
-        return actor.traits.male() ? "Baron" : "Baroness" ;
+        return actor.traits.male() ? "Baron" : "Baroness";
       }
       public ImageAsset costumeFor(Actor actor) {
-        return actor.traits.male() ? costume : female_skin ;
+        return actor.traits.male() ? costume : female_skin;
       }
     },
     COUNT = new Background(
@@ -514,12 +514,12 @@ public interface Backgrounds extends Economy {
       PRACTICED, SUGGESTION, PREMONITION, PROJECTION,
       ALWAYS, PSYONIC, OFTEN, TRADITIONAL, RARELY, NERVOUS
     ) {
-      final ImageAsset female_skin = costumeFor("highborn_male_skin.gif") ;
+      final ImageAsset female_skin = costumeFor("highborn_male_skin.gif");
       public String nameFor(Actor actor) {
-        return actor.traits.male() ? "Count" : "Countess" ;
+        return actor.traits.male() ? "Count" : "Countess";
       }
       public ImageAsset costumeFor(Actor actor) {
-        return actor.traits.male() ? costume : female_skin ;
+        return actor.traits.male() ? costume : female_skin;
       }
     },
     //  TODO:  Duke may also be called Prince in some systems.  Lord Solar
@@ -536,15 +536,15 @@ public interface Backgrounds extends Economy {
       RARELY, IMPASSIVE, STUBBORN, OFTEN, AMBITIOUS, ACQUISITIVE,
       SOMETIMES, POSITIVE
     ) {
-      final ImageAsset male_skin = costumeFor("highborn_female_skin.gif") ;
+      final ImageAsset male_skin = costumeFor("highborn_female_skin.gif");
       public String nameFor(Actor actor) {
-        final boolean male = actor.traits.male() ;
-        final Background rank = actor.base().ruler().vocation() ;
-        if (rank == KNIGHTED) return male ? "Lord Consort" : "Lady Consort" ;
-        if (rank == COUNT) return male ? "Count Consort" : "Countess Consort" ;
-        if (rank == BARON) return male ? "Baron Consort" : "Baroness Consort" ;
-        if (rank == DUKE ) return male ? "Duke Consort"  : "Duchess Consort"  ;
-        return name ;
+        final boolean male = actor.traits.male();
+        final Background rank = actor.base().ruler().vocation();
+        if (rank == KNIGHTED) return male ? "Lord Consort" : "Lady Consort";
+        if (rank == COUNT) return male ? "Count Consort" : "Countess Consort";
+        if (rank == BARON) return male ? "Baron Consort" : "Baroness Consort";
+        if (rank == DUKE ) return male ? "Duke Consort"  : "Duchess Consort" ;
+        return name;
       }
       public ImageAsset costumeFor(Actor actor) {
         return actor.traits.female() ? costume : male_skin;
@@ -613,7 +613,7 @@ public interface Backgrounds extends Economy {
     MSSID_REPRESENTATIVE = null,  //metahuman-stable-strain-ID program
     
     STRAIN_CIRCLES[] = { STRAIN_AGENT, MSSID_REPRESENTATIVE }
-  ;
+ ;
   
   
   final public static Background

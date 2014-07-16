@@ -20,14 +20,14 @@ public class DebugCharts extends VisualDebug {
   
   protected void loadVisuals() {
     UI = new HUD(PlayLoop.rendering());
-    /*
+    //*
     StarsPanel starsPanel = new StarsPanel(UI);
     starsPanel.relBound.set(0.0f, 0, 0.5f, 1);
     //starsPanel.absBound.set(50, 50, -100, -100);
     starsPanel.attachTo(UI);
     starsPanel.loadStarfield("media/Charts/", "coordinates.xml");
     //*/
-    //*
+    /*
     PlanetPanel planetPanel = new PlanetPanel(UI);
     planetPanel.relBound.set(0.0f, 0, 0.5f, 1);
     //planetPanel.absBound.set(50, 50, -100, -100);

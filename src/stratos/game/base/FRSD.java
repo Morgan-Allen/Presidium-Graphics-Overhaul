@@ -5,11 +5,12 @@
   */
 
 
-package stratos.game.base ;
+package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
+import stratos.game.plans.Commission;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
@@ -44,7 +45,7 @@ public class FRSD extends Venue implements Economy {
       Structure.NORMAL_MAX_UPGRADES,
       Structure.TYPE_VENUE
     );
-    personnel.setShiftType(SHIFTS_ALWAYS) ;
+    personnel.setShiftType(SHIFTS_ALWAYS);
     
     final GroupSprite sprite = new GroupSprite();
     sprite.attach(MODEL_UNDER, 0, 0, -0.05f);
@@ -70,7 +71,7 @@ public class FRSD extends Venue implements Economy {
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
     FRSD.class, "FRSD_upgrades"
   );
-  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES ; }
+  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
     POLYMER_FAB = new Upgrade(
       "Polymer Fab",
@@ -90,8 +91,8 @@ public class FRSD extends Venue implements Economy {
   
   
   public Behaviour jobFor(Actor actor) {
-    if ((! structure.intact()) || (! personnel.onShift(actor))) return null ;
-    final Choice choice = new Choice(actor) ;
+    if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
+    final Choice choice = new Choice(actor);
     
     final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
       this, services(), 2, 10, 5
@@ -116,7 +117,7 @@ public class FRSD extends Venue implements Economy {
   
   public void addServices(Choice choice, Actor forActor) {
     //  TODO:  Specify just overalls?
-    Commission.addCommissions(forActor, this, choice) ;
+    Commission.addCommissions(forActor, this, choice);
   }
   
   
@@ -139,7 +140,7 @@ public class FRSD extends Venue implements Economy {
   
   
   public Background[] careers() {
-    return new Background[] { Backgrounds.FAB_WORKER } ;
+    return new Background[] { Backgrounds.FAB_WORKER };
   }
   
   
@@ -163,20 +164,20 @@ public class FRSD extends Venue implements Economy {
   /**  Rendering and interface methods-
     */
   protected float[] goodDisplayOffsets() {
-    return new float[] { 0.0f, 3.0f } ;
+    return new float[] { 0.0f, 3.0f };
   }
   
   
   protected Service[] goodsToShow() {
     //  TODO:  Have different colours of crate for each category.
-    return new Service[] { SAMPLES } ;
+    return new Service[] { SAMPLES };
   }
   
   
   protected float goodDisplayAmount(Service good) {
-    float amount = 0 ;
-    for (Item i : stocks.allItems()) amount += i.amount ;
-    return amount ;
+    float amount = 0;
+    for (Item i : stocks.allItems()) amount += i.amount;
+    return amount;
   }
   
   
@@ -199,7 +200,7 @@ public class FRSD extends Venue implements Economy {
   
   
   public String buildCategory() {
-    return UIConstants.TYPE_MERCHANT ;
+    return UIConstants.TYPE_MERCHANT;
   }
   
   

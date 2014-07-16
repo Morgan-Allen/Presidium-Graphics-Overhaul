@@ -1,7 +1,7 @@
 
 
 
-package stratos.graphics.common ;
+package stratos.graphics.common;
 import static stratos.graphics.common.GL.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.sfx.*;
@@ -24,17 +24,17 @@ public class Rendering {
   
   final public Viewport view;
   final public Lighting lighting;
-  public Colour backColour = null, foreColour = null ;
+  public Colour backColour = null, foreColour = null;
   
-  private static float activeTime, frameAlpha ;
+  private static float activeTime, frameAlpha;
   
   //  first terrain, then cutouts, then solids, then sfx, then the UI.
   final public TerrainPass terrainPass;
-  final public SolidsPass solidsPass ;
+  final public SolidsPass solidsPass;
   final public CutoutsPass cutoutsPass;
-  final public SFXPass     sfxPass    ;
+  final public SFXPass     sfxPass   ;
   
-  final public WidgetsPass widgetsPass ;
+  final public WidgetsPass widgetsPass;
   final public Fading fading;
   
   

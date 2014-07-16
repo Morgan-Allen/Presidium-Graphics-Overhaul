@@ -5,6 +5,9 @@ package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
+import stratos.game.plans.AnimalBreeding;
+import stratos.game.plans.Exploring;
+import stratos.game.plans.Hunting;
 import stratos.game.tactical.*;
 import stratos.game.wild.*;
 import stratos.graphics.common.*;
@@ -22,7 +25,7 @@ public class SurveyStation extends Venue implements Economy {
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
     SurveyStation.class, "media/Buildings/ecologist/surveyor.png", 4, 1
-  ) ;
+  );
   final static ImageAsset ICON = ImageAsset.fromImage(
     "media/GUI/Buttons/redoubt_button.gif", SurveyStation.class
   );
@@ -34,26 +37,26 @@ public class SurveyStation extends Venue implements Economy {
   
   
   public SurveyStation(Base base) {
-    super(4, 1, Venue.ENTRANCE_NORTH, base) ;
+    super(4, 1, Venue.ENTRANCE_NORTH, base);
     structure.setupStats(
       150, 4, 150,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
-    ) ;
-    personnel.setShiftType(SHIFTS_BY_HOURS) ;
-    attachSprite(MODEL.makeSprite()) ;
-    camouflaged = new GroupSprite() ;
+    );
+    personnel.setShiftType(SHIFTS_BY_HOURS);
+    attachSprite(MODEL.makeSprite());
+    camouflaged = new GroupSprite();
   }
   
   
   public SurveyStation(Session s) throws Exception {
-    super(s) ;
-    still = (FleshStill) s.loadObject() ;
+    super(s);
+    still = (FleshStill) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
-    s.saveObject(still) ;
+    super.saveState(s);
+    s.saveObject(still);
   }
   
   
@@ -62,8 +65,8 @@ public class SurveyStation extends Venue implements Economy {
     */
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
     SurveyStation.class, "surveillance_post_upgrades"
-  ) ;
-  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES ; }
+  );
+  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
     THERMAL_CAMOUFLAGE = new Upgrade(
       "Thermal Camouflage",
@@ -106,7 +109,7 @@ public class SurveyStation extends Venue implements Economy {
       "with a respect for natural ecosystems and basic self-defence training.",
       100,
       Backgrounds.EXPLORER, 1, null, ALL_UPGRADES
-    ) ;
+    );
   
   
   public Behaviour jobFor(Actor actor) {
@@ -153,7 +156,7 @@ public class SurveyStation extends Venue implements Economy {
   
   
   public Background[] careers() {
-    return new Background[] { Backgrounds.EXPLORER } ;
+    return new Background[] { Backgrounds.EXPLORER };
   }
   
   
@@ -167,20 +170,20 @@ public class SurveyStation extends Venue implements Economy {
   
   
   public Service[] services() {
-    return null ; //new Service[] { WATER, PROTEIN, SPICE } ;
+    return null; //new Service[] { WATER, PROTEIN, SPICE };
   }
   
   
   public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates) ;
-    if (! structure.intact()) return ;
-    stocks.forceDemand(CARBS, 5, Stocks.TIER_CONSUMER) ;
+    super.updateAsScheduled(numUpdates);
+    if (! structure.intact()) return;
+    stocks.forceDemand(CARBS, 5, Stocks.TIER_CONSUMER);
     
     if (still == null || still.destroyed()) {
-      final Tile o = Spacing.pickRandomTile(this, 4, world) ;
+      final Tile o = Spacing.pickRandomTile(this, 4, world);
       still = (FleshStill) Placement.establishVenue(
         new FleshStill(this), o.x, o.y, GameSettings.buildFree, world
-      ) ;
+      );
     }
   }
   
@@ -193,19 +196,19 @@ public class SurveyStation extends Venue implements Economy {
   /**  Rendering and interface-
     */
   public void renderFor(Rendering rendering, Base base) {
-    if (base == this.base()) super.renderFor(rendering, base) ;
+    if (base == this.base()) super.renderFor(rendering, base);
     else {
       //
       //  Render a bunch of rocks instead.  Also, make this non-selectable.
-      this.position(camouflaged.position) ;
-      camouflaged.fog = this.fogFor(base) ;
+      this.position(camouflaged.position);
+      camouflaged.fog = this.fogFor(base);
       camouflaged.readyFor(rendering);
     }
   }
   
   
   public String fullName() {
-    return "Survey Station" ;
+    return "Survey Station";
   }
   
   
@@ -217,12 +220,12 @@ public class SurveyStation extends Venue implements Economy {
   public String helpInfo() {
     return
       "Survey Stations are responsible for exploring the hinterland of your "+
-      "settlement, scouting for danger and regulating animal populations." ;
+      "settlement, scouting for danger and regulating animal populations.";
   }
   
   
   public String buildCategory() {
-    return UIConstants.TYPE_ECOLOGIST ;
+    return UIConstants.TYPE_ECOLOGIST;
   }
 }
 
@@ -232,50 +235,50 @@ public class SurveyStation extends Venue implements Economy {
 
 /*
 if (structure.upgradeLevel(CAPTIVE_BREEDING) > 0) {
-  final Fauna toTend = AnimalHusbandry.nextHandled(this) ;
+  final Fauna toTend = AnimalHusbandry.nextHandled(this);
   if (toTend != null) {
-    choice.add(new AnimalHusbandry(actor, this, toTend)) ;
+    choice.add(new AnimalHusbandry(actor, this, toTend));
   }
 }
 
-final SensorPost newPost = SensorPost.locateNewPost(this) ;
+final SensorPost newPost = SensorPost.locateNewPost(this);
 if (newPost != null) {
   final Action collects = new Action(
     actor, newPost,
     this, "actionCollectSensor",
     Action.REACH_DOWN, "Collecting sensor"
-  ) ;
-  collects.setMoveTarget(this) ;
+  );
+  collects.setMoveTarget(this);
   final Action plants = new Action(
     actor, newPost.origin(),
     this, "actionPlantSensor",
     Action.REACH_DOWN, "Planting sensor"
-  ) ;
-  plants.setMoveTarget(Spacing.pickFreeTileAround(newPost, actor)) ;
-  choice.add(new Steps(actor, this, Plan.ROUTINE, collects, plants)) ;
+  );
+  plants.setMoveTarget(Spacing.pickFreeTileAround(newPost, actor));
+  choice.add(new Steps(actor, this, Plan.ROUTINE, collects, plants));
 }
 //*/
 
 /*
 public boolean actionCollectSensor(Actor actor, SensorPost post) {
-  actor.gear.addItem(Item.withReference(SAMPLES, post)) ;
-  return true ;
+  actor.gear.addItem(Item.withReference(SAMPLES, post));
+  return true;
 }
 
 
 public boolean actionPlantSensor(Actor actor, Tile t) {
-  SensorPost post = null ;
+  SensorPost post = null;
   for (Item i : actor.gear.matches(SAMPLES)) {
     if (i.refers instanceof SensorPost) {
-      post = (SensorPost) i.refers ;
-      actor.gear.removeItem(i) ;
+      post = (SensorPost) i.refers;
+      actor.gear.removeItem(i);
     }
   }
-  if (post == null) return false ;
-  post.setPosition(t.x, t.y, world) ;
-  if (! Spacing.perimeterFits(post)) return false ;
-  post.enterWorld() ;
-  return true ;
+  if (post == null) return false;
+  post.setPosition(t.x, t.y, world);
+  if (! Spacing.perimeterFits(post)) return false;
+  post.enterWorld();
+  return true;
 }
 //*/
 

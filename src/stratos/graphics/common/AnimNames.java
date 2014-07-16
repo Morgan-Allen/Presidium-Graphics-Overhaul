@@ -1,6 +1,6 @@
 
 
-package stratos.graphics.common ;
+package stratos.graphics.common;
 
 public interface AnimNames {
   static String
@@ -24,7 +24,7 @@ public interface AnimNames {
     REACH_DOWN = "reach_down",
     
     FULL_RANGE = "full_range"
-  ;
+ ;
   
   //  These are names for group parts.
   static String

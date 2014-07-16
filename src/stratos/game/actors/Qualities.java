@@ -3,7 +3,7 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-package stratos.game.actors ;
+package stratos.game.actors;
 import stratos.game.tactical.Power;
 import stratos.util.*;
 
@@ -18,7 +18,7 @@ public interface Qualities {
     CATEGORIC   = 2,
     ARTIFICIAL  = 3,
     SKILL       = 4,
-    CONDITION   = 5 ;
+    CONDITION   = 5;
   
   final public static int
     EFFORTLESS_DC  = -10,
@@ -37,7 +37,7 @@ public interface Qualities {
     FORM_SENSITIVE = 2,
     FORM_COGNITIVE = 3,
     FORM_PSYONIC   = 4,
-    FORM_INSTINCT  = 5 ;
+    FORM_INSTINCT  = 5;
   
   
   final public static Skill
@@ -102,7 +102,7 @@ public interface Qualities {
     COGNITIVE_SKILLS[] = (Skill[]) Visit.compose(
       Skill.class,
       ARTIFICER_SKILLS, ECOLOGIST_SKILLS, PHYSICIAN_SKILLS, ADMIN_SKILLS
-    ) ;
+    );
   
   final public static Skill
     //
@@ -126,7 +126,7 @@ public interface Qualities {
     MUSIC_AND_SONG    = new Skill("Music and Song" , FORM_SENSITIVE, MOTOR  ),
     GRAPHIC_DESIGN    = new Skill("Graphic Design" , FORM_SENSITIVE, PERCEPT),
     
-    SENSITIVE_SKILLS[] = Trait.skillsSoFar() ;
+    SENSITIVE_SKILLS[] = Trait.skillsSoFar();
   
   final public static Skill
     //
@@ -165,7 +165,7 @@ public interface Qualities {
   final public static Skill ALL_SKILLS[] = (Skill[]) Visit.compose(Skill.class,
     ATTRIBUTES, INSTINCT_SKILLS, PSYONIC_SKILLS,
     COGNITIVE_SKILLS, SENSITIVE_SKILLS, PHYSICAL_SKILLS
-  ) ;
+  );
   
   
   //  TODO:  I think only about half of these are needed.
@@ -299,7 +299,7 @@ public interface Qualities {
     BLOOD_TRAITS[] = {
       DESERT_BLOOD, TUNDRA_BLOOD, FOREST_BLOOD, WASTES_BLOOD
     },
-    CATEGORIC_TRAITS[] = Trait.traitsSoFar() ;
+    CATEGORIC_TRAITS[] = Trait.traitsSoFar();
   //
   //  TODO:  Create a list of freaky mutations to pick from, some good, some
   //  bad.  (Bad is more likely when acquired at random, good more likely as a
@@ -324,7 +324,7 @@ public interface Qualities {
     LOW_VIRULENCE       = 10,
     AVERAGE_VIRULENCE   = 15,
     HIGH_VIRULENCE      = 20,
-    EXTREME_VIRULENCE   = 25 ;
+    EXTREME_VIRULENCE   = 25;
   
   final public static Condition
     //
@@ -474,8 +474,8 @@ public interface Qualities {
       ILLNESS, SOMA_HAZE, SPICE_ADDICTION,
       CANCER, RAGE_INFECTION, HIREX_PARASITE,
       ALBEDAN_STRAIN, SILVERQUICK, MOEBIUS_PLAGUE
-    } ;
-  final public static Trait CONDITIONS[] = Trait.traitsSoFar() ;
+    };
+  final public static Trait CONDITIONS[] = Trait.traitsSoFar();
   
   
   final public static Trait
@@ -486,8 +486,8 @@ public interface Qualities {
       "Kinesthesia", "Kinesthesia", "Kinesthesia", null
     ) {
       public void affect(Actor a) {
-        super.affect(a) ;
-        a.world().ephemera.updateGhost(a, 1, Power.KINESTHESIA_FX_MODEL, 1) ;
+        super.affect(a);
+        a.world().ephemera.updateGhost(a, 1, Power.KINESTHESIA_FX_MODEL, 1);
       }
     },
     SUSPENSION_EFFECT = new Condition(
@@ -495,13 +495,13 @@ public interface Qualities {
       "Suspension", "Suspension", "Suspension", null
     ) {
       public void affect(Actor a) {
-        super.affect(a) ;
+        super.affect(a);
         if (a.traits.useLevel(this) <= 0) {
-          a.health.setState(ActorHealth.STATE_RESTING) ;
+          a.health.setState(ActorHealth.STATE_RESTING);
         }
         else {
-          a.health.liftInjury(0.1f) ;
-          a.world().ephemera.updateGhost(a, 1, Power.SUSPENSION_FX_MODEL, 1) ;
+          a.health.liftInjury(0.1f);
+          a.world().ephemera.updateGhost(a, 1, Power.SUSPENSION_FX_MODEL, 1);
         }
       }
     },
@@ -512,17 +512,17 @@ public interface Qualities {
       "Spice Vision", "Spice Vision", "Spice Vision", null
     ) {
       public void affect(Actor a) {
-        super.affect(a) ;
+        super.affect(a);
         if (a.traits.traitLevel(SPICE_ADDICTION) <= 0) {
-          a.traits.incLevel(SPICE_ADDICTION, Rand.num() / 10f) ;
+          a.traits.incLevel(SPICE_ADDICTION, Rand.num() / 10f);
         }
       }
     },
-    EFFECTS[] = Trait.traitsSoFar() ;
+    EFFECTS[] = Trait.traitsSoFar();
   
   
   final public static Trait
-    ALL_TRAIT_TYPES[] = Trait.from(Trait.allTraits) ;
+    ALL_TRAIT_TYPES[] = Trait.from(Trait.allTraits);
 }
 
 
@@ -554,7 +554,7 @@ LEPROUS        = new Trait(PHYSICAL, "Leprous"       ),
 NULL_EMPATH    = new Trait(PHYSICAL, "Null Empath"   ),
 ATAVIST        = new Trait(PHYSICAL, "Atavist"       ),
 ABOMINATION    = new Trait(PHYSICAL, "Abomination"   ),
-MUTANT_TRAITS[] = Trait.traitsSoFar() ;
+MUTANT_TRAITS[] = Trait.traitsSoFar();
 //*/
 
 /*
@@ -588,7 +588,7 @@ MUTANT_TRAITS[] = Trait.traitsSoFar() ;
     SPECIES_TRAITS[] = Trait.traitsSoFar(),
     
     ALL_TRAITS[] = Trait.allTraits()
-  ;
+ ;
 //*/
 
 

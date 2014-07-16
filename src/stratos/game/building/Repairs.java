@@ -1,7 +1,7 @@
 
 
 
-package stratos.game.building ;
+package stratos.game.building;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.user.*;
@@ -25,24 +25,24 @@ public class Repairs extends Plan implements Qualities {
     evalVerbose   = false,
     eventsVerbose = false;
   
-  final Installation built ;
+  final Installation built;
   
   
   public Repairs(Actor actor, Installation repaired) {
-    super(actor, (Target) repaired) ;
-    this.built = repaired ;
+    super(actor, (Target) repaired);
+    this.built = repaired;
   }
   
   
   public Repairs(Session s) throws Exception {
-    super(s) ;
-    built = (Installation) s.loadObject() ;
+    super(s);
+    built = (Installation) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
-    s.saveObject(built) ;
+    super.saveState(s);
+    s.saveObject(built);
   }
   
   
@@ -59,7 +59,7 @@ public class Repairs extends Plan implements Qualities {
     final Structure structure = built.structure();
     if (! structure.intact()) needRepair = 1.0f;
     else needRepair = (1 - structure.repairLevel()) * 1.5f;
-    if (structure.burning()) needRepair += 1.0f ;
+    if (structure.burning()) needRepair += 1.0f;
     if (structure.needsUpgrade()) needRepair = Math.max(needRepair, 1);
     return needRepair;
   }
@@ -67,8 +67,8 @@ public class Repairs extends Plan implements Qualities {
   
   public static Repairs getNextRepairFor(Actor client, float motiveBonus) {
     
-    final World world = client.world() ;
-    final Batch <Installation> toRepair = new Batch <Installation> () ;
+    final World world = client.world();
+    final Batch <Installation> toRepair = new Batch <Installation> ();
     world.presences.sampleFromMaps(
       client, world, 3, toRepair, "damaged"
     );
@@ -78,10 +78,10 @@ public class Repairs extends Plan implements Qualities {
       if (needForRepair(near) <= 0) continue;
       final Repairs b = new Repairs(client, near);
       b.setMotive(Plan.MOTIVE_DUTY, motiveBonus);
-      choice.add(b) ;
+      choice.add(b);
     }
     choice.isVerbose = evalVerbose && I.talkAbout == client;
-    return (Repairs) choice.pickMostUrgent() ;
+    return (Repairs) choice.pickMostUrgent();
   }
   
   
@@ -133,16 +133,16 @@ public class Repairs extends Plan implements Qualities {
   /**  Behaviour implementation-
     */
   public boolean finished() {
-    if (super.finished()) return true ;
-    if (built.structure().hasWear()) return false ;
-    if (built.structure().needsUpgrade()) return false ;
-    return true ;
+    if (super.finished()) return true;
+    if (built.structure().hasWear()) return false;
+    if (built.structure().needsUpgrade()) return false;
+    return true;
   }
   
   
   protected Behaviour getNextStep() {
     final boolean report = eventsVerbose && I.talkAbout == actor && hasBegun();
-    if (report) I.say("\nGetting next build step?") ;
+    if (report) I.say("\nGetting next build step?");
     final Structure structure = built.structure();
     final Element basis = (Element) built;
     
@@ -153,7 +153,7 @@ public class Repairs extends Plan implements Qualities {
         Action.BUILD, "Upgrading "+built
       );
       if (report) I.say("  Returning next upgrade action.");
-      return upgrades ;
+      return upgrades;
     }
     
     if (structure.hasWear()) {
@@ -165,18 +165,18 @@ public class Repairs extends Plan implements Qualities {
       if (! Spacing.adjacent(actor.origin(), basis) || Rand.num() < 0.2f) {
         final Tile t = Spacing.pickFreeTileAround(built, actor);
         if (t == null) {
-          abortBehaviour() ;
-          return null ;
+          abortBehaviour();
+          return null;
         }
-        building.setMoveTarget(t) ;
+        building.setMoveTarget(t);
       }
-      else building.setMoveTarget(actor.origin()) ;
+      else building.setMoveTarget(actor.origin());
       if (report) I.say("  Returning next build action.");
-      return building ;
+      return building;
     }
     
     if (report) I.say("NOTHING TO BUILD");
-    return null ;
+    return null;
   }
   
   
@@ -186,49 +186,49 @@ public class Repairs extends Plan implements Qualities {
     //  TODO:  Double the rate of repair again if you have proper tools and
     //  materials.
     final Structure structure = built.structure();
-    final boolean salvage = structure.needsSalvage() ;
-    final boolean free = GameSettings.buildFree ;
+    final boolean salvage = structure.needsSalvage();
+    final boolean free = GameSettings.buildFree;
     final Base base = built.base();
     
-    float success = actor.traits.test(HARD_LABOUR, ROUTINE_DC, 1) ? 1 : 0 ;
+    float success = actor.traits.test(HARD_LABOUR, ROUTINE_DC, 1) ? 1 : 0;
     success *= 25f / TIME_PER_25_HP;
     
     //  TODO:  Base assembly DC (or other skills) on a Conversion for the
     //  structure.  Require construction materials for full efficiency.
     if (salvage) {
-      success *= actor.traits.test(ASSEMBLY, 5, 1) ? 1 : 0.5f ;
-      final float amount = structure.repairBy(0 - success) ;
-      final float cost = amount * structure.buildCost() ;
-      if (! free) base.incCredits(cost * 0.5f) ;
+      success *= actor.traits.test(ASSEMBLY, 5, 1) ? 1 : 0.5f;
+      final float amount = structure.repairBy(0 - success);
+      final float cost = amount * structure.buildCost();
+      if (! free) base.incCredits(cost * 0.5f);
       if (report) I.say("Salvage sucess: "+success);
       if (report) I.say("Repair level: "+structure.repairLevel());
     }
     
     else {
-      success *= actor.traits.test(ASSEMBLY, 10, 0.5f) ? 1 : 0.5f ;
-      success *= actor.traits.test(ASSEMBLY, 20, 0.5f) ? 2 : 1 ;
-      final boolean intact = structure.intact() ;
-      final float amount = structure.repairBy(success) ;
-      final float cost = amount * structure.buildCost() ;
-      if (! free) base.incCredits((0 - cost) * (intact ? 0.5f : 1)) ;
+      success *= actor.traits.test(ASSEMBLY, 10, 0.5f) ? 1 : 0.5f;
+      success *= actor.traits.test(ASSEMBLY, 20, 0.5f) ? 2 : 1;
+      final boolean intact = structure.intact();
+      final float amount = structure.repairBy(success);
+      final float cost = amount * structure.buildCost();
+      if (! free) base.incCredits((0 - cost) * (intact ? 0.5f : 1));
     }
-    return true ;
+    return true;
   }
   
   
   public boolean actionUpgrade(Actor actor, Installation built) {
     final Structure structure = built.structure();
-    final Upgrade upgrade = structure.upgradeInProgress() ;
-    ///if (upgrade == null) I.say("NO UPGRADE!") ;
-    if (upgrade == null) return false ;
-    ///I.say("Advancing upgrade: "+upgrade.name) ;
-    int success = 1 ;
-    success *= actor.traits.test(ASSEMBLY, 10, 0.5f) ? 2 : 1 ;
-    success *= actor.traits.test(ASSEMBLY, 20, 0.5f) ? 2 : 1 ;
-    final float amount = structure.advanceUpgrade(success * 1f / 100) ;
-    final float cost = amount * upgrade.buildCost ;
-    built.base().incCredits((0 - cost)) ;
-    return true ;
+    final Upgrade upgrade = structure.upgradeInProgress();
+    ///if (upgrade == null) I.say("NO UPGRADE!");
+    if (upgrade == null) return false;
+    ///I.say("Advancing upgrade: "+upgrade.name);
+    int success = 1;
+    success *= actor.traits.test(ASSEMBLY, 10, 0.5f) ? 2 : 1;
+    success *= actor.traits.test(ASSEMBLY, 20, 0.5f) ? 2 : 1;
+    final float amount = structure.advanceUpgrade(success * 1f / 100);
+    final float cost = amount * upgrade.buildCost;
+    built.base().incCredits((0 - cost));
+    return true;
   }
   
   
@@ -236,8 +236,8 @@ public class Repairs extends Plan implements Qualities {
   /**  Rendering and interface methods-
     */
   public void describeBehaviour(Description d) {
-    d.append("Repairing ") ;
-    d.append(built) ;
+    d.append("Repairing ");
+    d.append(built);
   }
 }
 

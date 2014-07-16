@@ -39,7 +39,7 @@ public class SolidsPass {
       Gdx.files.internal("shaders/solids.frag")
     );
     if (! shading.isCompiled()) {
-      throw new GdxRuntimeException("\n"+shading.getLog()) ;
+      throw new GdxRuntimeException("\n"+shading.getLog());
     }
   }
   
@@ -63,7 +63,7 @@ public class SolidsPass {
     
     shading.begin();
     shading.setUniformi("u_texture", 0);
-    for (int i = 0 ; i < MAX_SKINS; i++) {
+    for (int i = 0; i < MAX_SKINS; i++) {
       shading.setUniformi(OVER_NAMES[i], i + 1);
     }
     
@@ -72,7 +72,7 @@ public class SolidsPass {
       ambA[] = rendering.lighting.ambient.toFloatVals(),
       difA[] = rendering.lighting.diffuse.toFloatVals();
     final Vec3D d = rendering.lighting.direction;
-    final float lightDir[] = new float[] { d.x, d.y, d.z } ;
+    final float lightDir[] = new float[] { d.x, d.y, d.z };
     shading.setUniform4fv("u_ambientLight"  , ambA, 0, 4);
     shading.setUniform4fv("u_diffuseLight"  , difA, 0, 4);
     shading.setUniform3fv("u_lightDirection", lightDir, 0, 3);

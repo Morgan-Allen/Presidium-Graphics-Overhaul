@@ -1,7 +1,7 @@
 
 
 
-package stratos.user ;
+package stratos.user;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.PlaneFX;
 import stratos.graphics.widgets.*;
@@ -14,7 +14,7 @@ public interface UIConstants {
   
   final public static String
     BUTTONS_PATH = "media/GUI/Buttons/",
-    TABS_PATH    = "media/GUI/Tabs/" ;
+    TABS_PATH    = "media/GUI/Tabs/";
   
   final public static Alphabet INFO_FONT = Alphabet.loadAlphabet(
     "media/GUI/", "FontVerdana.xml"
@@ -30,9 +30,9 @@ public interface UIConstants {
   //  optionally filter them along those lines.
   
   final public static String
-    TYPE_MILITANT  = "Militant",
-    TYPE_MERCHANT  = "Merchant",
-    TYPE_AESTHETE  = "Aesthete",
+    TYPE_MILITANT  = "Militant" ,
+    TYPE_MERCHANT  = "Merchant" ,
+    TYPE_AESTHETE  = "Aesthete" ,
     TYPE_ARTIFICER = "Artificer",
     TYPE_ECOLOGIST = "Ecologist",
     TYPE_PHYSICIAN = "Physician",
@@ -41,55 +41,23 @@ public interface UIConstants {
       TYPE_MILITANT, TYPE_MERCHANT, TYPE_AESTHETE,
       TYPE_ARTIFICER, TYPE_ECOLOGIST, TYPE_PHYSICIAN
     },
-    TYPE_SPECIAL   = "Special",
-    TYPE_HIDDEN    = "hidden" ;
+    TYPE_SPECIAL   = "Special" ,
+    TYPE_HIDDEN    = "<hidden>";
   
   
   
   final public static int
-    GUILD_BUTTONS_HIGH = 65,
-    GUILDS_PANEL_WIDE = 320,
-    READOUT_HIGH = 40,
-    INFO_PANEL_HIGH = 240,
-    INFO_PANEL_WIDE = 320;
-  
-  /*
-  final public static int
-    NUM_TABS         = 3,
-    NUM_QUICK_SLOTS  = 10,
-    MAX_TIP_WIDTH    = 200,
-    INFO_AREA_WIDE   = 480,
-    CAT_BUTTONS_HIGH = 65;
-  //  Move the tooltips class over to this package.
-  
-  //  ...Include insets as well?
-  final public static Box2D
-    MAIN_BOUNDS = new Box2D().set(0, 1, 0.66f, 1.0f),
-    MINI_BOUNDS = new Box2D().set(0, 1, 0, 0),
-    MINI_INSETS = new Box2D().set(0, -256, 256, 256);
-  //*/
-  /*
-  final static Box2D
+    //GUILD_BUTTONS_HIGH = 65,
+    //GUILDS_PANEL_WIDE = 320,
+    MINIMAP_WIDE    = 200,
+    READOUT_HIGH    =  40,
     
-    //  TODO:  Have a constant for the width.
-    INFO_BOUNDS = new Box2D().set(1, 0, 0, 1.0f),
-    INFO_INSETS = new Box2D().set(
-      -INFO_AREA_WIDE, CAT_BUTTONS_HIGH,
-      INFO_AREA_WIDE, -CAT_BUTTONS_HIGH
-    );
-  //*/
-    //PANE_BOUNDS = new Box2D().set(0, 0, 1.0f, 0.9f),
-    //TABS_BOUNDS = new Box2D().set(0, 0.9f, 1.0f, 0.1f),
-  
-  
-  //  The size of the tooltip text.
-  //  The size of the info header and label/category text.
-  //  The area allocated to buttons for the guilds/missions/powers tabs.
-  
-  //  The size of the minimap.
-  //  The size of the credits readout.
-  //  The area allocated to buttons for the charts/career/logs tabs.
-  //  The size of the quickbar.
+    QUICKBAR_HIGH   =  65,
+    GUILDS_WIDE     = 320,
+    
+    INFO_PANEL_HIGH = 240,
+    INFO_PANEL_WIDE = 320,
+    SCROLLBAR_WIDE  =  20;
 }
 
 

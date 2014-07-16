@@ -5,7 +5,7 @@
   */
 
 
-package stratos.game.building ;
+package stratos.game.building;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.civilian.*;
@@ -37,46 +37,46 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   private static boolean verbose = false;
   
   
-  final public Employer venue ;
-  final public Conversion conversion ;
-  public int checkBonus = 0 ;
+  final public Employer venue;
+  final public Conversion conversion;
+  public int checkBonus = 0;
   
-  private Item made, needed[] ;
-  private float amountMade = 0 ;
+  private Item made, needed[];
+  private float amountMade = 0;
   
   
   
   public Manufacture(
     Actor actor, Employer venue, Conversion conversion, Item made
   ) {
-    super(actor, venue) ;
-    this.venue = venue ;
-    this.made = made == null ? conversion.out : made ;
-    this.conversion = conversion ;
-    this.needed = conversion.raw ;
+    super(actor, venue);
+    this.venue = venue;
+    this.made = made == null ? conversion.out : made;
+    this.conversion = conversion;
+    this.needed = conversion.raw;
   }
   
   
   public Manufacture(Session s) throws Exception {
-    super(s) ;
-    venue = (Venue) s.loadObject() ;
-    conversion = Conversion.loadFrom(s) ;
-    made = Item.loadFrom(s) ;
-    this.needed = conversion.raw ;
-    //timeMult   = s.loadInt() ;
-    checkBonus = s.loadInt() ;
-    amountMade = s.loadFloat() ;
+    super(s);
+    venue = (Venue) s.loadObject();
+    conversion = Conversion.loadFrom(s);
+    made = Item.loadFrom(s);
+    this.needed = conversion.raw;
+    //timeMult   = s.loadInt();
+    checkBonus = s.loadInt();
+    amountMade = s.loadFloat();
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
-    s.saveObject(venue) ;
-    Conversion.saveTo(s, conversion) ;
-    Item.saveTo(s, made) ;
-    //s.saveInt(timeMult  ) ;
-    s.saveInt(checkBonus) ;
-    s.saveFloat(amountMade) ;
+    super.saveState(s);
+    s.saveObject(venue);
+    Conversion.saveTo(s, conversion);
+    Item.saveTo(s, made);
+    //s.saveInt(timeMult  );
+    s.saveInt(checkBonus);
+    s.saveFloat(amountMade);
   }
   
   
@@ -86,21 +86,21 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   
   
   public Item made() {
-    return made ;
+    return made;
   }
   
   
   public Item[] needed() {
-    return needed ;
+    return needed;
   }
   
   
   public boolean matchesPlan(Plan p) {
-    if (! super.matchesPlan(p)) return false ;
-    final Manufacture m = (Manufacture) p ;
-    if (m.conversion != conversion) return false ;
-    if (! m.made().matchKind(made)) return false ;
-    return true ;
+    if (! super.matchesPlan(p)) return false;
+    final Manufacture m = (Manufacture) p;
+    if (m.conversion != conversion) return false;
+    if (! m.made().matchKind(made)) return false;
+    return true;
   }
   
   
@@ -126,22 +126,22 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   
   
   protected float successChance() {
-    final Conversion c = conversion ;
-    float chance = 1.0f ;
-    for (int i = c.skills.length ; i-- > 0 ;) {
+    final Conversion c = conversion;
+    float chance = 1.0f;
+    for (int i = c.skills.length; i-- > 0;) {
       chance *= actor.traits.chance(
         c.skills[i], c.skillDCs[i] - checkBonus
-      ) ;
+      );
     }
-    chance = (chance + 1) / 2f ;
+    chance = (chance + 1) / 2f;
     if (! hasNeeded()) return chance / 2;
     return chance;
   }
   
   
   public boolean valid() {
-    if (GameSettings.hardCore && ! hasNeeded()) return false ;
-    return super.valid() ;
+    if (GameSettings.hardCore && ! hasNeeded()) return false;
+    return super.valid();
   }
   
   
@@ -149,26 +149,26 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   /**  Behaviour implementation-
     */
   public boolean finished() {
-    if (super.finished()) return true ;
+    if (super.finished()) return true;
     return
       (amountMade >= 2) || (amountMade >= made.amount) ||
-      venue.inventory().hasItem(made) ;
+      venue.inventory().hasItem(made);
   }
   
   
   public Behaviour getNextStep() {
     final float demand = venue.inventory().demandFor(made.type);
-    if (demand > 0) made = Item.withAmount(made, demand + 5) ;
+    if (demand > 0) made = Item.withAmount(made, demand + 5);
     if (venue.inventory().hasItem(made)) {
       amountMade = made.amount;
-      return null ;
+      return null;
     }
-    if (GameSettings.hardCore && ! hasNeeded()) return null ;
+    if (GameSettings.hardCore && ! hasNeeded()) return null;
     return new Action(
       actor, venue,
       this, "actionMake",
       Action.REACH_DOWN, "Working"
-    ) ;
+    );
   }
   
   
@@ -177,9 +177,9 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     //  TODO:  Average the shortage of each needed item, so that penalties are
     //  less stringent for output that demands multiple inputs?
     for (Item need : needed) {
-      if (! venue.inventory().hasItem(need)) return false ;
+      if (! venue.inventory().hasItem(need)) return false;
     }
-    return true ;
+    return true;
   }
   
   
@@ -188,20 +188,20 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     //  First, check to make sure you have adequate raw materials.  (In hard-
     //  core mode, raw materials are strictly essential, and will be depleted
     //  regardless of success.)
-    final boolean hasNeeded = hasNeeded() ;
+    final boolean hasNeeded = hasNeeded();
     if (GameSettings.hardCore && ! hasNeeded) {
-      abortBehaviour() ;
-      return false ;
+      abortBehaviour();
+      return false;
     }
-    final Conversion c = conversion ;
+    final Conversion c = conversion;
     
     //  Secondly, make sure the skill tests all check out, and deplete any raw
     //  materials used up.
-    final float checkMod = (hasNeeded ? 0 : SHORTAGE_DC_MOD) - checkBonus ;
-    boolean success = true ;
+    final float checkMod = (hasNeeded ? 0 : SHORTAGE_DC_MOD) - checkBonus;
+    boolean success = true;
     //  TODO:  Have this average results, rather than '&' them...
-    for (int i = c.skills.length ; i-- > 0 ;) {
-      success &= actor.traits.test(c.skills[i], c.skillDCs[i] + checkMod, 1) ;
+    for (int i = c.skills.length; i-- > 0;) {
+      success &= actor.traits.test(c.skills[i], c.skillDCs[i] + checkMod, 1);
     }
     
     float increment = 1f / (made.amount * TIME_PER_UNIT);
@@ -213,22 +213,22 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     if ((success || GameSettings.hardCore) && increment > 0) {
       for (Item r : c.raw) {
         final Item used = Item.withAmount(r, r.amount * increment);
-        venue.inventory().removeItem(used) ;
+        venue.inventory().removeItem(used);
       }
     }
     
     //
     //  Advance progress, and check if you're done yet.
     if (increment > 0) {
-      amountMade += increment * made.amount ;
-      final Item added = Item.withAmount(made, increment * made.amount) ;
-      venue.stocks.addItem(added) ;
+      amountMade += increment * made.amount;
+      final Item added = Item.withAmount(made, increment * made.amount);
+      venue.stocks.addItem(added);
       
       if (verbose && I.talkAbout == actor) {
-        I.say("Progress increment on "+made+": "+increment) ;
+        I.say("Progress increment on "+made+": "+increment);
       }
     }
-    return venue.stocks.hasItem(made) ;
+    return venue.stocks.hasItem(made);
   }
   
   
@@ -236,10 +236,10 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   /**  Rendering and interface behaviour-
     */
   public void describeBehaviour(Description d) {
-    d.append("Manufacturing "+made.type) ;
+    d.append("Manufacturing "+made.type);
     if (made.refers != null) {
-      d.append(" for ") ;
-      d.append(made.refers) ;
+      d.append(" for ");
+      d.append(made.refers);
     }
   }
 }

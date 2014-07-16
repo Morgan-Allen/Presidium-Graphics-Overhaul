@@ -5,43 +5,43 @@
   */
 
 
-package stratos.util ;
+package stratos.util;
 
 
 public class Coord {
   
-  public int x, y ;
+  public int x, y;
   
   
   public Coord() {}
   
   public Coord(Coord c) {
-    this.x = c.x ;
-    this.y = c.y ;
+    this.x = c.x;
+    this.y = c.y;
   }
   
   public Coord(int x, int y) {
-    this.x = x ;
-    this.y = y ;
+    this.x = x;
+    this.y = y;
   }
   
   public Coord(Coord c, int offX, int offY) {
-    this.x = c.x + offX ;
-    this.y = c.y + offY ;
+    this.x = c.x + offX;
+    this.y = c.y + offY;
   }
   
   public void setTo(Coord c) {
-    this.x = c.x ;
-    this.y = c.y ;
+    this.x = c.x;
+    this.y = c.y;
   }
   
   public boolean matches(Coord c) {
-    return this.x == c.x && this.y == c.y ;
+    return this.x == c.x && this.y == c.y;
   }
   
   
   public String toString() {
-    return "["+x+", "+y+"]" ;
+    return "["+x+", "+y+"]";
   }
 }
 

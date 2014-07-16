@@ -1,7 +1,8 @@
 
 
-package stratos.game.civilian ;
+package stratos.game.civilian;
 import stratos.game.common.*;
+import stratos.game.plans.Dialogue;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
 import stratos.util.*;
@@ -16,31 +17,31 @@ public class Transcript implements World.Visible, Session.Saveable {
   
   
   
-  final Stack <Dialogue> inputs = new Stack <Dialogue> () ;
-  final TalkFX chat = new TalkFX() ;
-  //Target around ;
+  final Stack <Dialogue> inputs = new Stack <Dialogue> ();
+  final TalkFX chat = new TalkFX();
+  //Target around;
   
   
   protected Transcript(Dialogue starts) {
-    inputs.include(starts) ;
+    inputs.include(starts);
   }
   
   
   void onExpiry(World world) {
-    world.ephemera.addGhost(null, 3, chat, 2.0f) ;
+    world.ephemera.addGhost(null, 3, chat, 2.0f);
   }
   
   
   public Transcript(Session s) throws Exception {
-    s.cacheInstance(this) ;
-    s.loadObjects(inputs) ;
-    chat.loadFrom(s.input()) ;
+    s.cacheInstance(this);
+    s.loadObjects(inputs);
+    chat.loadFrom(s.input());
   }
   
   
   public void saveState(Session s) throws Exception {
-    s.saveObjects(inputs) ;
-    chat.saveTo(s.output()) ;
+    s.saveObjects(inputs);
+    chat.saveTo(s.output());
   }
   
   
@@ -52,12 +53,12 @@ public class Transcript implements World.Visible, Session.Saveable {
   
   
   public void renderFor(Rendering r, Base b) {
-    chat.readyFor(r) ;
+    chat.readyFor(r);
   }
   
   
   public Sprite sprite() {
-    return chat ;
+    return chat;
   }
   
   
@@ -91,18 +92,18 @@ public class Transcript implements World.Visible, Session.Saveable {
 
 /*
 static Batch <Object> associationsFor(Human actor) {
-  final Batch <Object> assocs = new Batch <Object> () ;
+  final Batch <Object> assocs = new Batch <Object> ();
   
-  assocs.add(actor.career().birth()) ;
-  assocs.add(actor.career().homeworld()) ;
-  assocs.add(actor.career().vocation()) ;
+  assocs.add(actor.career().birth());
+  assocs.add(actor.career().homeworld());
+  assocs.add(actor.career().vocation());
   
-  for (Trait t : actor.traits.personality()) assocs.add(t) ;
-  for (Skill s : actor.traits.skillSet()) assocs.add(s) ;
+  for (Trait t : actor.traits.personality()) assocs.add(t);
+  for (Skill s : actor.traits.skillSet()) assocs.add(s);
   
-  //for (Plan p : actor.memories.remembered()) assocs.add(p) ;
-  for (Relation r : actor.memories.relations()) assocs.add(r.subject) ;
-  return assocs ;
+  //for (Plan p : actor.memories.remembered()) assocs.add(p);
+  for (Relation r : actor.memories.relations()) assocs.add(r.subject);
+  return assocs;
 }
 
 
@@ -110,7 +111,7 @@ static Batch <Object> associationsFor(Trait trait) {
   //
   //  So... actors who have that trait, or activities associated with that
   //  trait, or vocations with that trait, or associated homeworlds.
-  return null ;
+  return null;
 }
 //*/
 

@@ -4,7 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package stratos.util ;
+package stratos.util;
 
 
 
@@ -30,23 +30,23 @@ public interface TileConstants {
     //  Used to indicate the direction of facing for linear installations-
     X_AXIS = 0,
     Y_AXIS = 1,
-    CORNER = 2 ;
+    CORNER = 2;
   
 
   /*
   public abstract static class TileMask {
-    public abstract boolean maskAt(final int x, final int y) ;
+    public abstract boolean maskAt(final int x, final int y);
     
-    public byte varID(int x, int y) { return 0 ; }
-    public boolean nullsCount() { return false ; }
+    public byte varID(int x, int y) { return 0; }
+    public boolean nullsCount() { return false; }
     
     public int simpleLineIndex(boolean near[]) {
-      int numNear = 0 ;
-      for (int n : N_ADJACENT) if (near[n]) numNear++ ;
-      if (numNear != 2) return CORNER ;
-      if (near[N] && near[S]) return Y_AXIS ;
-      if (near[W] && near[E]) return X_AXIS ;
-      return CORNER ;
+      int numNear = 0;
+      for (int n : N_ADJACENT) if (near[n]) numNear++;
+      if (numNear != 2) return CORNER;
+      if (near[N] && near[S]) return Y_AXIS;
+      if (near[W] && near[E]) return X_AXIS;
+      return CORNER;
     }
   }
   //*/

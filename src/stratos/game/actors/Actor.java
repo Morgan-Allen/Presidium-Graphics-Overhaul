@@ -5,11 +5,13 @@
   */
 
 
-package stratos.game.actors ;
+package stratos.game.actors;
 import stratos.game.building.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
+import stratos.game.plans.CombatUtils;
+import stratos.game.plans.Resting;
 import stratos.game.tactical.*;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
@@ -25,22 +27,22 @@ public abstract class Actor extends Mobile implements
   
   /**  Field definitions, constructors and save/load functionality-
     */
-  private static boolean verbose = false ;
+  private static boolean verbose = false;
   
-  final public Healthbar healthbar = new Healthbar() ;
+  final public Healthbar healthbar = new Healthbar();
   final public Label label = new Label();
-  final public TalkFX chat = new TalkFX() ;
+  final public TalkFX chat = new TalkFX();
   
-  final public ActorHealth health = new ActorHealth(this) ;
-  final public ActorTraits traits = new ActorTraits(this) ;
-  final public ActorGear   gear   = new ActorGear  (this) ;
+  final public ActorHealth health = new ActorHealth(this);
+  final public ActorTraits traits = new ActorTraits(this);
+  final public ActorGear   gear   = new ActorGear  (this);
   
   final public ActorMind mind = initAI();
   final public Senses senses = initSenses();
   final public Relations relations = initMemories();
   
-  private Action actionTaken ;
-  private Base base ;
+  private Action actionTaken;
+  private Base base;
   
   
   public Actor() {
@@ -48,34 +50,34 @@ public abstract class Actor extends Mobile implements
   
   
   public Actor(Session s) throws Exception {
-    super(s) ;
+    super(s);
     
-    health.loadState(s) ;
-    traits.loadState(s) ;
-    gear.loadState(s) ;
+    health.loadState(s);
+    traits.loadState(s);
+    gear.loadState(s);
     
-    mind.loadState(s) ;
+    mind.loadState(s);
     senses.loadState(s);
     relations.loadState(s);
     
-    actionTaken = (Action) s.loadObject() ;
-    base = (Base) s.loadObject() ;
+    actionTaken = (Action) s.loadObject();
+    base = (Base) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
+    super.saveState(s);
     
-    health.saveState(s) ;
-    traits.saveState(s) ;
-    gear.saveState(s) ;
+    health.saveState(s);
+    traits.saveState(s);
+    gear.saveState(s);
     
-    mind.saveState(s) ;
+    mind.saveState(s);
     senses.saveState(s);
     relations.saveState(s);
     
-    s.saveObject(actionTaken) ;
-    s.saveObject(base) ;
+    s.saveObject(actionTaken);
+    s.saveObject(base);
   }
   
   
@@ -83,32 +85,32 @@ public abstract class Actor extends Mobile implements
   
   protected Senses initSenses() { return new Senses(this); }
   protected Relations initMemories() { return new Relations(this); }
-  protected Pathing initPathing() { return new Pathing(this) ; }
+  protected Pathing initPathing() { return new Pathing(this); }
   
   public float height() {
-    return 1.0f * GameSettings.actorScale ;
+    return 1.0f * GameSettings.actorScale;
   }
   
-  public Background vocation() { return null ; }
+  public Background vocation() { return null; }
   public void setVocation(Background b) {}
-  public Species species() { return null ; }
+  public Species species() { return null; }
   
   
   
   /**  Dealing with items and inventory-
     */
   public ActorGear inventory() {
-    return gear ;
+    return gear;
   }
   
   
   public float priceFor(Service service) {
-    return service.basePrice * 2 ;
+    return service.basePrice * 2;
   }
   
   
   public int spaceFor(Service good) {
-    return (int) health.maxHealth() / 2 ;
+    return (int) health.maxHealth() / 2;
   }
   
   
@@ -140,16 +142,16 @@ public abstract class Actor extends Mobile implements
   
   
   protected void pathingAbort() {
-    if (actionTaken == null) return ;
-    final Behaviour root = mind.rootBehaviour() ;
+    if (actionTaken == null) return;
+    final Behaviour root = mind.rootBehaviour();
     //  TODO:  This needs some work.  Ideally, behaviours (particularly
     //  missions) should have some method of handling this more gracefully.
-    mind.cancelBehaviour(root) ;
+    mind.cancelBehaviour(root);
   }
   
   
   public Action currentAction() {
-    return actionTaken ;
+    return actionTaken;
   }
   
   
@@ -163,7 +165,7 @@ public abstract class Actor extends Mobile implements
   
   
   public Base base() {
-    return base ;
+    return base;
   }
   
   
@@ -171,50 +173,50 @@ public abstract class Actor extends Mobile implements
   /**  Life cycle and updates-
     */
   public boolean enterWorldAt(int x, int y, World world) {
-    if (base == null) I.complain("ACTOR MUST HAVE BASE ASSIGNED: "+this) ;
-    if (! super.enterWorldAt(x, y, world)) return false ;
-    return true ;
+    if (base == null) I.complain("ACTOR MUST HAVE BASE ASSIGNED: "+this);
+    if (! super.enterWorldAt(x, y, world)) return false;
+    return true;
   }
   
   
   public void exitWorld() {
-    if (verbose) I.say(this+" IS EXITING WORLD, LAST ACTION: "+actionTaken) ;
-    assignAction(null) ;
-    mind.cancelBehaviour(mind.topBehaviour()) ;
-    mind.onWorldExit() ;
-    super.exitWorld() ;
+    if (verbose) I.say(this+" IS EXITING WORLD, LAST ACTION: "+actionTaken);
+    assignAction(null);
+    mind.cancelBehaviour(mind.topBehaviour());
+    mind.onWorldExit();
+    super.exitWorld();
   }
   
   
   protected void updateAsMobile() {
-    super.updateAsMobile() ;
-    final boolean OK = health.conscious() ;
-    if (! OK) pathing.updateTarget(null) ;
+    super.updateAsMobile();
+    final boolean OK = health.conscious();
+    if (! OK) pathing.updateTarget(null);
     
     if (actionTaken != null) {
       if (! pathing.checkPathingOkay()) {
-        world.schedule.scheduleNow(this) ;
+        world.schedule.scheduleNow(this);
       }
       if (actionTaken.finished()) {
         //  TODO:  RE-IMPLEMENT THIS
-        //if (verbose) I.sayAbout(this, "  ACTION COMPLETE: "+actionTaken) ;
-        //world.schedule.scheduleNow(this) ;
+        //if (verbose) I.sayAbout(this, "  ACTION COMPLETE: "+actionTaken);
+        //world.schedule.scheduleNow(this);
       }
-      actionTaken.updateAction(OK) ;
+      actionTaken.updateAction(OK);
     }
     
-    final Behaviour root = mind.rootBehaviour() ;
+    final Behaviour root = mind.rootBehaviour();
     if (root != null && root != actionTaken && root.finished() && OK) {
       if (verbose && I.talkAbout == this) {
-        I.say("  ROOT BEHAVIOUR COMPLETE... "+root) ;
-        I.say("  PRIORITY: "+root.priorityFor(this)) ;
-        I.say("  NEXT STEP: "+root.nextStepFor(this)) ;
+        I.say("  ROOT BEHAVIOUR COMPLETE... "+root);
+        I.say("  PRIORITY: "+root.priorityFor(this));
+        I.say("  NEXT STEP: "+root.nextStepFor(this));
       }
-      mind.cancelBehaviour(root) ;
+      mind.cancelBehaviour(root);
     }
     
     if (aboard instanceof Mobile && (pathing.nextStep() == aboard || ! OK)) {
-      aboard.position(nextPosition) ;
+      aboard.position(nextPosition);
     }
   }
   
@@ -223,61 +225,61 @@ public abstract class Actor extends Mobile implements
     super.updateAsScheduled(numUpdates);
     //
     //  Update our basic statistics and physical properties-
-    health.updateHealth(numUpdates) ;
-    gear.updateGear(numUpdates) ;
-    traits.updateTraits(numUpdates) ;
-    if (health.isDead()) setAsDestroyed() ;
+    health.updateHealth(numUpdates);
+    gear.updateGear(numUpdates);
+    traits.updateTraits(numUpdates);
+    if (health.isDead()) setAsDestroyed();
     
     //  Check to see what our current condition is-
     final boolean
       OK = health.conscious(),
-      checkSleep = (health.asleep() && numUpdates % 10 == 0) ;
-    if (! (OK || checkSleep)) return ;
+      checkSleep = (health.asleep() && numUpdates % 10 == 0);
+    if (! (OK || checkSleep)) return;
     
     //  Update our actions, pathing, and AI-
     if (OK) {
       if (actionTaken == null || actionTaken.finished()) {
-        assignAction(mind.getNextAction()) ;
+        assignAction(mind.getNextAction());
       }
       if (! pathing.checkPathingOkay()) {
-        pathing.refreshFullPath() ;
+        pathing.refreshFullPath();
       }
       senses.updateSeen();
-      mind.updateAI(numUpdates) ;
+      mind.updateAI(numUpdates);
       relations.updateValues(numUpdates);
     }
     
     //  Check to see if you need to wake up-
     if (checkSleep) {
       senses.updateSeen();
-      mind.updateAI(numUpdates) ;
+      mind.updateAI(numUpdates);
       relations.updateValues(numUpdates);
-      mind.getNextAction() ;
+      mind.getNextAction();
       
-      final Behaviour root = mind.rootBehaviour() ;
+      final Behaviour root = mind.rootBehaviour();
       final float
         wakePriority  = root == null ? 0 : root.priorityFor(this),
         sleepPriority = new Resting(this, aboard()).priorityFor(this);
       
       if (wakePriority > sleepPriority + 1 + Plan.DEFAULT_SWITCH_THRESHOLD) {
-        health.setState(ActorHealth.STATE_ACTIVE) ;
+        health.setState(ActorHealth.STATE_ACTIVE);
       }
     }
     
     //  Update the intel/danger maps associated with the world's bases.
-    final float power = CombatUtils.combatStrength(this, null) * 10 ;
+    final float power = CombatUtils.combatStrength(this, null) * 10;
     for (Base b : world.bases()) {
       if (b == base()) {
         //
         //  Actually lift fog in an area slightly ahead of the actor-
-        final Vec2D heads = new Vec2D().setFromAngle(rotation) ;
-        heads.scale(health.sightRange() / 3f) ;
-        heads.x += position.x ;
-        heads.y += position.y ;
-        b.intelMap.liftFogAround(heads.x, heads.y, health.sightRange()) ;
+        final Vec2D heads = new Vec2D().setFromAngle(rotation);
+        heads.scale(health.sightRange() / 3f);
+        heads.x += position.x;
+        heads.y += position.y;
+        b.intelMap.liftFogAround(heads.x, heads.y, health.sightRange());
       }
-      if (! visibleTo(b)) continue ;
-      final float relation = relations.relationValue(b) ;
+      if (! visibleTo(b)) continue;
+      final float relation = relations.relationValue(b);
       final Tile o = origin();
       b.dangerMap.accumulate(0 - power * relation, 1.0f, o.x, o.y);
     }
@@ -291,16 +293,16 @@ public abstract class Actor extends Mobile implements
   //  TODO:  Consider moving these elsewhere?
   
   public void enterStateKO(String animName) {
-    ///I.say(this+" HAS BEEN KO'D") ;
-    if (isDoingAction("actionFall", null)) return ;
+    ///I.say(this+" HAS BEEN KO'D");
+    if (isDoingAction("actionFall", null)) return;
     final Action falling = new Action(
       this, this, this, "actionFall",
       animName, "Stricken"
-    ) ;
+    );
     falling.setProperties(Action.NO_LOOP);
-    pathing.updateTarget(null) ;
-    mind.cancelBehaviour(mind.rootBehaviour()) ;
-    this.assignAction(falling) ;
+    pathing.updateTarget(null);
+    mind.cancelBehaviour(mind.rootBehaviour());
+    this.assignAction(falling);
   }
   
   
@@ -310,7 +312,7 @@ public abstract class Actor extends Mobile implements
   
   
   public boolean actionFall(Actor actor, Actor fallen) {
-    return true ;
+    return true;
   }
   
   
@@ -346,7 +348,7 @@ public abstract class Actor extends Mobile implements
     }
     for (Behaviour b : mind.agenda()) {
       if (planClass.isAssignableFrom(b.getClass())) {
-        return (Plan) b ;
+        return (Plan) b;
       }
     }
     for (Behaviour b : mind.todoList) {
@@ -361,7 +363,7 @@ public abstract class Actor extends Mobile implements
   public Plan matchFor(Plan matchPlan) {
     for (Behaviour b : mind.agenda()) if (b instanceof Plan) {
       if (matchPlan.matchesPlan((Plan) b)) {
-        return (Plan) b ;
+        return (Plan) b;
       }
     }
     return null;
@@ -374,15 +376,15 @@ public abstract class Actor extends Mobile implements
   public void renderAt(
     Vec3D position, float rotation, Rendering rendering
   ) {
-    final Sprite s = sprite() ;
+    final Sprite s = sprite();
     if (actionTaken != null) actionTaken.configSprite(s, rendering);
     super.renderAt(position, rotation, rendering);
   }
   
   
   public void renderFor(Rendering rendering, Base base) {
-    renderHealthbars(rendering, base) ;
-    super.renderFor(rendering, base) ;
+    renderHealthbars(rendering, base);
+    super.renderFor(rendering, base);
     //
     //  Finally, if you have anything to say, render the chat bubbles.
     if (chat.numPhrases() > 0) {
@@ -414,35 +416,35 @@ public abstract class Actor extends Mobile implements
   
   
   protected float moveAnimStride() {
-    return 1 ;
+    return 1;
   }
   
   
-  public TargetInfo configInfo(TargetInfo info, BaseUI UI) {
-    if (info == null) info = new TargetInfo(UI, this);
+  public TargetOptions configInfo(TargetOptions info, BaseUI UI) {
+    if (info == null) info = new TargetOptions(UI, this);
     return info;
   }
 
   
   public void renderSelection(Rendering rendering, boolean hovered) {
-    if (indoors() || ! inWorld()) return ;
-    final boolean t = aboard() instanceof Tile ;
+    if (indoors() || ! inWorld()) return;
+    final boolean t = aboard() instanceof Tile;
     Selection.renderPlane(
       rendering, viewPosition(null),
       (radius() + 0.5f) * (t ? 1 : 0.5f) * sprite().scale,
       Colour.transparency((hovered ? 0.5f : 1.0f) * (t ? 1 : 0.5f)),
       Selection.SELECT_CIRCLE
-    ) ;
+    );
   }
   
   
   public Target selectionLocksOn() {
-    return this ;
+    return this;
   }
   
 
   public String toString() {
-    return fullName() ;
+    return fullName();
   }
   
   
@@ -452,11 +454,11 @@ public abstract class Actor extends Mobile implements
   
   
   public void describeStatus(Description d) {
-    if (! health.conscious()) { d.append(health.stateDesc()) ; return ; }
-    if (! inWorld()) { d.append("Offworld") ; return ; }
-    final Behaviour rootB = mind.rootBehaviour() ;
-    if (rootB != null) rootB.describeBehaviour(d) ;
-    else d.append("Thinking") ;
+    if (! health.conscious()) { d.append(health.stateDesc()); return; }
+    if (! inWorld()) { d.append("Offworld"); return; }
+    final Behaviour rootB = mind.rootBehaviour();
+    if (rootB != null) rootB.describeBehaviour(d);
+    else d.append("Thinking");
   }
 }
 

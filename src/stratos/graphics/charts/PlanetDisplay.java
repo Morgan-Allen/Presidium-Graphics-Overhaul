@@ -1,6 +1,7 @@
 
 
 package stratos.graphics.charts;
+import stratos.start.Disposal;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.Label;
 import stratos.graphics.solids.*;
@@ -19,15 +20,13 @@ import org.apache.commons.math3.util.FastMath;
 
 
 
-public class PlanetDisplay {
+public class PlanetDisplay extends Disposal {
   
   
   final static int DEFAULT_RADIUS = 10;
   final static float KEY_TOLERANCE = 0.02f;
   private static boolean verbose = false;
-
-  final Viewport view;
-  final ShaderProgram shading;
+  
   
   private float
     rotation  = 0,
@@ -35,6 +34,9 @@ public class PlanetDisplay {
     radius    = DEFAULT_RADIUS;
   private Mat3D
     rotMatrix = new Mat3D().setIdentity();
+  
+  private Viewport view;
+  private ShaderProgram shading;
   
   private SolidModel globeModel;
   private NodePart surfacePart, sectorsPart;
@@ -45,36 +47,39 @@ public class PlanetDisplay {
   
   private Colour hoverKey, selectKey;
   private float hoverAlpha = 0, selectAlpha = 0;
-  private MeshCompile labelling;
+  private Stitching labelling;
   
   
   
   
   public PlanetDisplay() {
+    super(true);
     this.view = new Viewport();
-    
+  }
+  
+  
+  protected void performAssetSetup() {
     this.shading = new ShaderProgram(
       Gdx.files.internal("shaders/planet.vert"),
       Gdx.files.internal("shaders/planet.frag")
     );
     if (! shading.isCompiled()) {
-      throw new GdxRuntimeException("\n"+shading.getLog()) ;
+      throw new GdxRuntimeException("\n"+shading.getLog());
     }
     
-    this.labelling = new MeshCompile(
-        3 + 3 + 2 + 2,                 //number of floats per vertex.
-        true, 100,                     //is a quad, max. total quads
-        new int[] {0, 1, 2, 1, 2, 3},  //indices for quad vertices
-        VertexAttribute.Position(),
-        VertexAttribute.Normal(),
-        VertexAttribute.TexCoords(0),
-        VertexAttribute.BoneWeight(0)
+    this.labelling = new Stitching(
+      3 + 3 + 2 + 2,                 //number of floats per vertex.
+      true, 100,                     //is a quad, max. total quads
+      new int[] {0, 1, 2, 1, 2, 3},  //indices for quad vertices
+      VertexAttribute.Position(),
+      VertexAttribute.Normal(),
+      VertexAttribute.TexCoords(0),
+      VertexAttribute.BoneWeight(0)
     );
   }
   
   
-  public void dispose() {
-    //  TODO:  THIS MUST BE SCHEDULED
+  protected void performAssetDisposal() {
     shading.dispose();
     labelling.dispose();
   }

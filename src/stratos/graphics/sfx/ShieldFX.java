@@ -6,8 +6,8 @@
 
 
 
-package stratos.graphics.sfx ;
-import java.io.* ;
+package stratos.graphics.sfx;
+import java.io.*;
 
 import stratos.graphics.common.*;
 import stratos.util.*;
@@ -22,7 +22,7 @@ public class ShieldFX extends SFX {
   final public static ModelAsset SHIELD_MODEL = new Assets.ClassModel(
     "shield_fx_model", ShieldFX.class
   ) {
-    public Sprite makeSprite() { return new ShieldFX() ; }
+    public Sprite makeSprite() { return new ShieldFX(); }
   };
   
   final public static ImageAsset
@@ -31,18 +31,18 @@ public class ShieldFX extends SFX {
     ),
     SHIELD_HALO_TEX  = ImageAsset.fromImage(
       "media/SFX/shield_halo.png", ShieldFX.class
-    ) ;
+    );
   final public static float
     BURST_FADE_INC  = 0.033f,
     MIN_ALPHA_GLOW  = 0.00f,
-    MAX_BURST_ALPHA = 0.99f ;
+    MAX_BURST_ALPHA = 0.99f;
   
   
-  class Burst { float angle, timer ; }
-  //public float radius = 1.0f ;
-  private Stack <Burst> bursts = new Stack <Burst> () ;
-  private float glowAlpha = 0.0f ;
-  private static Mat3D rotMat = new Mat3D() ;
+  class Burst { float angle, timer; }
+  //public float radius = 1.0f;
+  private Stack <Burst> bursts = new Stack <Burst> ();
+  private float glowAlpha = 0.0f;
+  private static Mat3D rotMat = new Mat3D();
   
   
   public ShieldFX() {
@@ -50,27 +50,27 @@ public class ShieldFX extends SFX {
   }
   
   
-  public ModelAsset model() { return SHIELD_MODEL ; }
+  public ModelAsset model() { return SHIELD_MODEL; }
   
   
   public void saveTo(DataOutputStream out) throws Exception {
-    super.saveTo(out) ;
-    out.writeFloat(glowAlpha) ;
-    out.writeInt(bursts.size()) ;
+    super.saveTo(out);
+    out.writeFloat(glowAlpha);
+    out.writeInt(bursts.size());
     for (Burst b : bursts) {
-      out.writeFloat(b.angle) ;
-      out.writeFloat(b.timer) ;
+      out.writeFloat(b.angle);
+      out.writeFloat(b.timer);
     }
   }
   
   public void loadFrom(DataInputStream in) throws Exception {
-    super.loadFrom(in) ;
-    glowAlpha = in.readFloat() ;
-    for (int i = in.readInt() ; i-- > 0 ;) {
-      final Burst b = new Burst() ;
-      b.angle = in.readFloat() ;
-      b.timer = in.readFloat() ;
-      bursts.add(b) ;
+    super.loadFrom(in);
+    glowAlpha = in.readFloat();
+    for (int i = in.readInt(); i-- > 0;) {
+      final Burst b = new Burst();
+      b.angle = in.readFloat();
+      b.timer = in.readFloat();
+      bursts.add(b);
     }
   }
   
@@ -79,29 +79,29 @@ public class ShieldFX extends SFX {
   /**  Specialty methods for use by external clients-
     */
   public void attachBurstFromPoint(Vec3D point, boolean intense) {
-    final Burst burst = new Burst() ;
+    final Burst burst = new Burst();
     burst.angle = 270 - new Vec2D(
       position.x - point.x,
       position.y - point.y
-    ).toAngle() ;
-    //I.say("Angle is: "+burst.angle) ;
-    burst.timer = intense ? 1 : 2 ;
-    bursts.add(burst) ;
-    glowAlpha = 1 ;
+    ).toAngle();
+    //I.say("Angle is: "+burst.angle);
+    burst.timer = intense ? 1 : 2;
+    bursts.add(burst);
+    glowAlpha = 1;
   }
   
   
   public Vec3D interceptPoint(Vec3D origin) {
-    final Vec3D offset = new Vec3D().setTo(position).sub(origin) ;
-    final float newLength = offset.length() - scale ;
-    offset.scale(newLength / offset.length()) ;
-    offset.add(origin) ;
-    return offset ;
+    final Vec3D offset = new Vec3D().setTo(position).sub(origin);
+    final float newLength = offset.length() - scale;
+    offset.scale(newLength / offset.length());
+    offset.add(origin);
+    return offset;
   }
   
   
   public boolean visible() {
-    return glowAlpha > MIN_ALPHA_GLOW ;
+    return glowAlpha > MIN_ALPHA_GLOW;
   }
   
   
@@ -137,12 +137,12 @@ public class ShieldFX extends SFX {
     );
     //
     //  Then render each burst-
-    for (Burst burst : bursts) renderBurst(pass, burst) ;
+    for (Burst burst : bursts) renderBurst(pass, burst);
   }
   
   
   private void renderBurst(SFXPass pass, Burst burst) {
-    final float s = burst.timer * 2 ;
+    final float s = burst.timer * 2;
     final float QV[] = SFXPass.QUAD_VERTS;
     int i = 0; for (Vec3D v : verts) {
       v.set(
@@ -156,9 +156,9 @@ public class ShieldFX extends SFX {
     rotMat.rotateZ((float) Math.toRadians(burst.angle));
     rotMat.rotateX((float) Math.toRadians(90));
     for (Vec3D v : verts) {
-      rotMat.trans(v) ;
-      v.scale(scale / 2f) ;
-      v.add(position) ;
+      rotMat.trans(v);
+      v.scale(scale / 2f);
+      v.add(position);
     }
     
     pass.compileQuad(

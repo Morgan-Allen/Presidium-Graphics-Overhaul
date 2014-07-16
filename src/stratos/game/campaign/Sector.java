@@ -4,7 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package stratos.game.campaign ;
+package stratos.game.campaign;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.civilian.*;
@@ -47,14 +47,14 @@ public class Sector extends Background {
     NEEDS = new Object();
   
   
-  final public String houseName ;
-  final public String description ;
-  final String imagePath ;
-  final Vec2D starCoords ;
+  final public String houseName;
+  final public String description;
+  final String imagePath;
+  final Vec2D starCoords;
   
-  final Service goodsMade[], goodsNeeded[] ;
-  final public Trait climate ;
-  final public int gravity ;
+  final Service goodsMade[], goodsNeeded[];
+  final public Trait climate;
+  final public int gravity;
   
   
   
@@ -63,27 +63,27 @@ public class Sector extends Background {
     String imgName, float starX, float starY,
     Trait climate, int gravity, Object... args
   ) {
-    super(name, null, null, -1, Backgrounds.NOT_A_GUILD, args) ;
-    this.houseName = houseName ;
-    this.description = description ;
+    super(name, null, null, -1, Backgrounds.NOT_A_GUILD, args);
+    this.houseName = houseName;
+    this.description = description;
     this.imagePath = imgName;
-    this.starCoords = new Vec2D(starX, starY) ;
+    this.starCoords = new Vec2D(starX, starY);
     
-    this.climate = climate ;
-    this.gravity = gravity ;
+    this.climate = climate;
+    this.gravity = gravity;
     
-    final Batch <Service> madeB = new Batch(), needB = new Batch() ;
-    Object tag = null ;
+    final Batch <Service> madeB = new Batch(), needB = new Batch();
+    Object tag = null;
     for (Object arg : args) {
-      if (arg == MAKES || arg == NEEDS) tag = arg ;
+      if (arg == MAKES || arg == NEEDS) tag = arg;
       if (arg instanceof Service) {
-        if (tag == MAKES) madeB.add((Service) arg) ;
-        if (tag == NEEDS) needB.add((Service) arg) ;
+        if (tag == MAKES) madeB.add((Service) arg);
+        if (tag == NEEDS) needB.add((Service) arg);
       }
     }
     
-    goodsMade   = madeB.toArray(Service.class) ;
-    goodsNeeded = needB.toArray(Service.class) ;
+    goodsMade   = madeB.toArray(Service.class);
+    goodsNeeded = needB.toArray(Service.class);
   }
   
   

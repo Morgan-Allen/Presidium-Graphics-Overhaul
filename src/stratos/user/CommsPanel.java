@@ -9,18 +9,15 @@ import stratos.util.*;
 
 
 
-public class CommsPanel extends InfoPanel {
+public class CommsPanel extends SelectionInfoPane {
   
   
   final static ImageAsset
     COMMS_ICON = ImageAsset.fromImage(
-      "media/GUI/Panels/comms_panel.png", CommsPanel.class
+      "media/GUI/Panels/comms_tab.png", CommsPanel.class
     ),
-    COMMS_ICON_LIT = ImageAsset.fromImage(
-      "media/GUI/triangle_tab_glow.png", CommsPanel.class
-    );
-  final static String
-    ALL_CATEGORIES[] = {};
+    COMMS_ICON_LIT = Button.CIRCLE_LIT;
+  final static String ALL_CATEGORIES[] = {};
   
   
   private class Message {

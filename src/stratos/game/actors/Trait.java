@@ -5,7 +5,7 @@
   */
 
 
-package stratos.game.actors ;
+package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.util.*;
 
@@ -17,13 +17,13 @@ public class Trait implements Qualities, Session.Saveable {
   private static boolean verboseInit = false;
   
   
-  private static int nextID = 0 ;
-  final public int traitID ;
+  private static int nextID = 0;
+  final public int traitID;
   
-  final int type ;
-  final int minVal, maxVal ;
-  final String descriptors[] ;
-  final int descValues[] ;
+  final int type;
+  final int minVal, maxVal;
+  final String descriptors[];
+  final int descValues[];
   
   private Trait correlates[], opposite;
   private float weightings[];
@@ -31,45 +31,45 @@ public class Trait implements Qualities, Session.Saveable {
   
   
   protected Trait(int type, String... descriptors) {
-    this.traitID = nextID++ ;
-    this.type = type ;
-    this.descriptors = descriptors ;
-    this.descValues = new int[descriptors.length] ;
+    this.traitID = nextID++;
+    this.type = type;
+    this.descriptors = descriptors;
+    this.descValues = new int[descriptors.length];
     if (verboseInit) I.say("\n  Initialising new trait");
     
-    int zeroIndex = 0, min = -1, max = 1, val ;
-    for (String s : descriptors) { if (s == null) break ; else zeroIndex++ ; }
-    for (int i = descriptors.length ; i-- > 0 ;) {
-      val = descValues[i] = zeroIndex - i ;
+    int zeroIndex = 0, min = -1, max = 1, val;
+    for (String s : descriptors) { if (s == null) break; else zeroIndex++; }
+    for (int i = descriptors.length; i-- > 0;) {
+      val = descValues[i] = zeroIndex - i;
       
-      final String desc = descriptors[i] ;
+      final String desc = descriptors[i];
       if (verboseInit) {
-        if (desc != null) I.say("  Value for "+desc+" is "+val) ;
+        if (desc != null) I.say("  Value for "+desc+" is "+val);
         else I.say("  Empty value: "+val);
       }
       
-      if (val > max) max = val ;
-      if (val < min) min = val ;
+      if (val > max) max = val;
+      if (val < min) min = val;
     }
-    this.minVal = min ;
-    this.maxVal = max ;
+    this.minVal = min;
+    this.maxVal = max;
     
     if (verboseInit) I.say("  Min/max vals: "+minVal+"/"+maxVal);
-    traitsSoFar.add(this) ;
-    allTraits.add(this) ;
+    traitsSoFar.add(this);
+    allTraits.add(this);
   }
   
   
   public static Trait loadFrom(Session s) throws Exception {
-    final int ID = s.loadInt() ;
-    if (ID == -1) return null ;
-    return ALL_TRAIT_TYPES[ID] ;
+    final int ID = s.loadInt();
+    if (ID == -1) return null;
+    return ALL_TRAIT_TYPES[ID];
   }
   
   
   public static void saveTo(Session s, Trait t) throws Exception {
-    if (t == null) { s.saveInt(-1) ; return ; }
-    s.saveInt(t.traitID) ;
+    if (t == null) { s.saveInt(-1); return; }
+    s.saveInt(t.traitID);
   }
   
   
@@ -109,34 +109,34 @@ public class Trait implements Qualities, Session.Saveable {
     */
   static Batch <Trait>
     traitsSoFar = new Batch <Trait> (),
-    allTraits   = new Batch <Trait> () ;
+    allTraits   = new Batch <Trait> ();
   
   static Trait[] from(Batch <Trait> types) {
-    final Trait t[] = (Trait[]) types.toArray(Trait.class) ;
-    types.clear() ;
-    return t ;
+    final Trait t[] = (Trait[]) types.toArray(Trait.class);
+    types.clear();
+    return t;
   }
   
   static Skill[] skillsSoFar() {
-    final Skill t[] = (Skill[]) traitsSoFar.toArray(Skill.class) ;
-    traitsSoFar.clear() ;
-    return t ;
+    final Skill t[] = (Skill[]) traitsSoFar.toArray(Skill.class);
+    traitsSoFar.clear();
+    return t;
   }
   
   static Trait[] traitsSoFar() {
-    final Trait t[] = traitsSoFar.toArray(Trait.class) ;
-    traitsSoFar.clear() ;
-    return t ;
+    final Trait t[] = traitsSoFar.toArray(Trait.class);
+    traitsSoFar.clear();
+    return t;
   }
   
   
   public static Trait loadConstant(Session s) throws Exception {
-    return ALL_TRAIT_TYPES[s.loadInt()] ;
+    return ALL_TRAIT_TYPES[s.loadInt()];
   }
   
   
   public void saveState(Session s) throws Exception {
-    s.saveInt(traitID) ;
+    s.saveInt(traitID);
   }
   
   
@@ -153,24 +153,24 @@ public class Trait implements Qualities, Session.Saveable {
       return (level > 0 ? "" : "Not ") + trait.descriptors[0];
     }
     
-    String bestDesc = null ;
-    float minDiff = Float.POSITIVE_INFINITY ;
+    String bestDesc = null;
+    float minDiff = Float.POSITIVE_INFINITY;
     
-    int i = 0 ; for (String s : trait.descriptors) {
-      float value = trait.descValues[i] ;
+    int i = 0; for (String s : trait.descriptors) {
+      float value = trait.descValues[i];
       if (value > 0) value /= trait.maxVal;
       if (value < 0) value /= 0 - trait.minVal;
       
-      final float diff = Math.abs(level - value) ;
-      if (diff < minDiff) { minDiff = diff ; bestDesc = s ; }
-      i++ ;
+      final float diff = Math.abs(level - value);
+      if (diff < minDiff) { minDiff = diff; bestDesc = s; }
+      i++;
     }
-    return bestDesc ;
+    return bestDesc;
   }
   
   
   public String toString() {
-    return descriptionFor(this, 2) ;
+    return descriptionFor(this, 2);
   }
 }
 

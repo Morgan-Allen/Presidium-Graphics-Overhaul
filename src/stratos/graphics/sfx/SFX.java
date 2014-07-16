@@ -5,8 +5,8 @@
   */
 
 
-package stratos.graphics.sfx ;
-import java.io.* ;
+package stratos.graphics.sfx;
+import java.io.*;
 
 import stratos.graphics.common.*;
 import stratos.util.*;
@@ -34,12 +34,12 @@ public abstract class SFX extends Sprite {
   
   
   public void saveTo(DataOutputStream out) throws Exception {
-    super.saveTo(out) ;
+    super.saveTo(out);
   }
   
   
   public void loadFrom(DataInputStream in) throws Exception {
-    super.loadFrom(in) ;
+    super.loadFrom(in);
   }
   
   

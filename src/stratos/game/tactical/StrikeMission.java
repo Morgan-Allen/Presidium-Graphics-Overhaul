@@ -4,10 +4,11 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package stratos.game.tactical ;
+package stratos.game.tactical;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
+import stratos.game.plans.Combat;
 import stratos.graphics.widgets.HUD;
 import stratos.user.*;
 import stratos.util.*;
@@ -25,17 +26,17 @@ public class StrikeMission extends Mission {
     super(
       base, subject,
       MissionsTab.STRIKE_MODEL, "Striking at "+subject
-    ) ;
+    );
   }
   
   
   public StrikeMission(Session s) throws Exception {
-    super(s) ;
+    super(s);
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
+    super.saveState(s);
   }
   
   
@@ -69,8 +70,8 @@ public class StrikeMission extends Mission {
   
   
   protected boolean shouldEnd() {
-    if (Combat.isDowned((Element) subject, objectIndex())) return true ;
-    return false ;
+    if (Combat.isDowned((Element) subject, objectIndex())) return true;
+    return false;
   }
   
   
@@ -83,10 +84,10 @@ public class StrikeMission extends Mission {
   
   
   public void describeBehaviour(Description d) {
-    d.append("On ") ;
-    d.append("Strike Mission", this) ;
-    d.append(" against ") ;
-    d.append(subject) ;
+    d.append("On ");
+    d.append("Strike Mission", this);
+    d.append(" against ");
+    d.append(subject);
   }
 }
 

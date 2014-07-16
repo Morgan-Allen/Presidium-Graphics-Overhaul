@@ -5,65 +5,65 @@
   */
 
 
-package stratos.graphics.widgets ;
+package stratos.graphics.widgets;
 import stratos.util.*;
 
-import com.badlogic.gdx.math.* ;
+import com.badlogic.gdx.math.*;
 
 
 
 public class UIGroup extends UINode {
   
   
-  final List <UINode> kids = new List <UINode> () ;
+  final List <UINode> kids = new List <UINode> ();
   
   
   public UIGroup(HUD myHUD) {
-    super(myHUD) ;
-    if (myHUD == null && ! (this instanceof HUD)) I.complain("No HUD!") ;
+    super(myHUD);
+    if (myHUD == null && ! (this instanceof HUD)) I.complain("No HUD!");
   }
   
   
-  public void render(WidgetsPass pass) {
+  protected void render(WidgetsPass pass) {
     for (UINode kid : kids) if (! kid.hidden) {
-      kid.render(pass) ;
+      kid.render(pass);
     }
   }
   
   
   protected UINode selectionAt(Vector2 mousePos) {
-    UINode selected = null ;
+    UINode selected = null;
     for (UINode kid : kids) if (! kid.hidden) {
-      final UINode kidSelect = kid.selectionAt(mousePos) ;
-      if (kidSelect != null) selected = kidSelect ;
+      final UINode kidSelect = kid.selectionAt(mousePos);
+      if (kidSelect != null) selected = kidSelect;
     }
     //  Return children, if possible.
-    return selected ;
+    return selected;
   }
 
   
   public void updateAsBase(Box2D bound) {
-    updateState() ;
-    updateRelativeParent(bound) ;
-    updateAbsoluteBounds(bound) ;
+    updateState();
+    updateRelativeParent(bound);
+    updateAbsoluteBounds(bound);
   }
   
   
   protected void updateState() {
-    super.updateState() ;
-    for (UINode kid : kids) kid.updateState() ;
+    super.updateState();
+    for (UINode kid : kids) kid.updateState();
   }
   
   
   void updateRelativeParent(Box2D base) {
-    super.updateRelativeParent(base) ;
-    for (UINode kid : kids) if (! kid.hidden) kid.updateRelativeParent() ;
+    super.updateRelativeParent(base);
+    for (UINode kid : kids) if (! kid.hidden) kid.updateRelativeParent();
   }
   
   
   void updateAbsoluteBounds(Box2D base) {
-    super.updateAbsoluteBounds(base) ;
-    for (UINode kid : kids) if (! kid.hidden) kid.updateAbsoluteBounds() ;
+    super.updateAbsoluteBounds(base);
+    for (UINode kid : kids) if (! kid.hidden) kid.updateAbsoluteBounds();
   }
 }
 

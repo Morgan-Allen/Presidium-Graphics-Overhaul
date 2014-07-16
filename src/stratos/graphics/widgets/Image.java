@@ -33,13 +33,13 @@ public class Image extends UINode {
   
   
   public Image(HUD myHUD, ImageAsset tex) {
-    this(myHUD, tex.asTexture()) ;
+    this(myHUD, tex.asTexture());
   }
   
   
   public Image(HUD myHUD, Texture t) {
-    super(myHUD) ;
-    texture = t ;
+    super(myHUD);
+    texture = t;
   }
   
   

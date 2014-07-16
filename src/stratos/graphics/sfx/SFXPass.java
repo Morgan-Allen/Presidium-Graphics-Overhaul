@@ -7,12 +7,12 @@ import static stratos.graphics.cutout.CutoutModel.VERT_INDICES;
 import stratos.graphics.common.*;
 import stratos.util.*;
 
-import com.badlogic.gdx.* ;
-import com.badlogic.gdx.graphics.* ;
-import com.badlogic.gdx.math.* ;
-import com.badlogic.gdx.utils.* ;
+import com.badlogic.gdx.*;
+import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
-import com.badlogic.gdx.graphics.glutils.* ;
+import com.badlogic.gdx.graphics.glutils.*;
 
 
 
@@ -39,7 +39,7 @@ public class SFXPass {
     1, 1, 0,
     0, 0, 0,
     1, 0, 0
-  } ;
+  };
   
   
   final Rendering rendering;
@@ -49,13 +49,13 @@ public class SFXPass {
   //  based on those.
   
   
-  private Mesh compiled ;
-  private float vertComp[] ;
-  private short compIndex[] ;
+  private Mesh compiled;
+  private float vertComp[];
+  private short compIndex[];
   
-  private int total = 0 ;
-  private Texture lastTex = null ;
-  private ShaderProgram shading ;
+  private int total = 0;
+  private Texture lastTex = null;
+  private ShaderProgram shading;
 
   private boolean vividMode = false;
   private static Vector3 temp = new Vector3();
@@ -74,20 +74,20 @@ public class SFXPass {
       VertexAttribute.Color(),
       VertexAttribute.TexCoords(0)
     );
-    vertComp = new float[COMPILE_LIMIT] ;
-    compIndex = new short[MAX_QUADS * 6] ;
+    vertComp = new float[COMPILE_LIMIT];
+    compIndex = new short[MAX_QUADS * 6];
 
-    for (int i = 0; i < compIndex.length ; i++) {
+    for (int i = 0; i < compIndex.length; i++) {
       compIndex[i] = (short) (((i / 6) * 4) + VERT_INDICES[i % 6]);
     }
-    compiled.setIndices(compIndex) ;
+    compiled.setIndices(compIndex);
     
     shading = new ShaderProgram(
         Gdx.files.internal("shaders/sfx.vert"),
         Gdx.files.internal("shaders/sfx.frag")
-    ) ;
+    );
     if (! shading.isCompiled()) {
-      throw new GdxRuntimeException("\n"+shading.getLog()) ;
+      throw new GdxRuntimeException("\n"+shading.getLog());
     }
   }
   
@@ -155,7 +155,7 @@ public class SFXPass {
     }
     lastTex = tex;
     
-    for (int i = 0 ; i < 4 ; i++) {
+    for (int i = 0; i < 4; i++) {
       final int offset = total + (i * VERT_SIZE);
       Viewport.worldToGL(verts[i], temp);
       vertComp[X0 + offset] = temp.x;
@@ -181,7 +181,7 @@ public class SFXPass {
     float zpos, boolean fromScreen,
     boolean vivid
   ) {
-    int i = 0 ; for (Vec3D v : SFX.verts) {
+    int i = 0; for (Vec3D v : SFX.verts) {
       v.set(
         x + (QUAD_VERTS[i++] * wide),
         y + ((1 - QUAD_VERTS[i++]) * high),
@@ -207,7 +207,7 @@ public class SFXPass {
     compiled.render(shading, GL10.GL_TRIANGLES, 0, total / 4);
     shading.end();
 
-    total = 0 ;
+    total = 0;
   }
 }
 

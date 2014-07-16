@@ -1,6 +1,6 @@
 
 
-package stratos.graphics.cutout ;
+package stratos.graphics.cutout;
 import stratos.graphics.common.*;
 import stratos.util.I;
 
@@ -21,34 +21,34 @@ public class ItemStack extends GroupSprite {
       {L, H}, {L, L}, {H, H}, {H, L}
     },
     UP = BuildingSprite.ITEM_SIZE * 0.8f;
-  final static int ITEM_UNIT = 5 ;
+  final static int ITEM_UNIT = 5;
   
   
-  final CutoutModel itemModel ;
-  private int amount = 0 ;
+  final CutoutModel itemModel;
+  private int amount = 0;
   
   
   protected ItemStack(CutoutModel model) {
-    this.itemModel = model ;
+    this.itemModel = model;
   }
   
   
   protected void updateAmount(int newAmount) {
-    final int oldAmount = this.amount ;
-    if (oldAmount == newAmount) return ;
-    clearAllAttachments() ;
+    final int oldAmount = this.amount;
+    if (oldAmount == newAmount) return;
+    clearAllAttachments();
     
     //  First, determine how many crates and packets of the good should be
     //  shown-
-    int numPacks = (int) Math.ceil(newAmount * 1f / ITEM_UNIT), numCrates = 0 ;
-    while (numPacks > 4) { numPacks -= 4 ; numCrates++ ; }
+    int numPacks = (int) Math.ceil(newAmount * 1f / ITEM_UNIT), numCrates = 0;
+    while (numPacks > 4) { numPacks -= 4; numCrates++; }
     final int
       total = numCrates + numPacks,
       numLevels = total / 4,
-      topOffset = (4 * (int) Math.ceil(total / 4f)) - total ;
+      topOffset = (4 * (int) Math.ceil(total / 4f)) - total;
     
     //  Then iterate through the list of possible positions, and fill 'em up.
-    for (int i = 0 ; i < total ; i++) {
+    for (int i = 0; i < total; i++) {
       final int level = i / 4, coordIndex = (level < numLevels) ?
         (i % 4) :
         (i % 4) + topOffset;
@@ -59,7 +59,7 @@ public class ItemStack extends GroupSprite {
       ).makeSprite();
       attach(box, coord[0], coord[1], level * UP);
     }
-    amount = newAmount ;
+    amount = newAmount;
   }
   
   

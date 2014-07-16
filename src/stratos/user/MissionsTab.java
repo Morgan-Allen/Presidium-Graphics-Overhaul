@@ -20,13 +20,13 @@ import stratos.util.*;
 //  simplification.
 
 
-public class MissionsTab extends InfoPanel {
+public class MissionsTab extends SelectionInfoPane {
   
   
   /**  Constants, field definitions and constructors-
     */
   final static String
-    IMG_DIR = "media/GUI/Missions/" ;
+    IMG_DIR = "media/GUI/Missions/";
   final public static ImageAsset
     ALL_ICONS[] = ImageAsset.fromImages(
       MissionsTab.class, IMG_DIR,
@@ -61,49 +61,49 @@ public class MissionsTab extends InfoPanel {
   
   
   public MissionsTab(BaseUI UI) {
-    super(UI, null, null) ;
+    super(UI, null, null);
   }
   
   
   protected void updateText(
     final BaseUI UI, Text headerText, Text detailText
   ) {
-    //super.updateText(UI, headerText, detailText) ;
-    headerText.setText("Missions") ;
-    detailText.setText("") ;
+    //super.updateText(UI, headerText, detailText);
+    headerText.setText("Missions");
+    detailText.setText("");
     //
     //  List Strike, Recon, Contact and Security missions for now.
-    detailText.insert(STRIKE_ICON.asTexture(), 40) ;
-    detailText.append(" Strike Mission\n") ;
+    detailText.insert(STRIKE_ICON.asTexture(), 40);
+    detailText.append(" Strike Mission\n");
     detailText.append(new Text.Clickable() {
-      public String fullName() { return "Target" ; }
-      public void whenTextClicked() { initStrikeTask(UI) ; }
-    }) ;
-    detailText.append("\n") ;
+      public String fullName() { return "Target"; }
+      public void whenTextClicked() { initStrikeTask(UI); }
+    });
+    detailText.append("\n");
     
-    detailText.insert(RECON_ICON.asTexture(), 40) ;
-    detailText.append(" Recon Mission\n") ;
+    detailText.insert(RECON_ICON.asTexture(), 40);
+    detailText.append(" Recon Mission\n");
     detailText.append(new Text.Clickable() {
-      public String fullName() { return "Target" ; }
-      public void whenTextClicked() { initReconTask(UI) ; }
-    }) ;
-    detailText.append("\n") ;
+      public String fullName() { return "Target"; }
+      public void whenTextClicked() { initReconTask(UI); }
+    });
+    detailText.append("\n");
     
-    detailText.insert(SECURITY_ICON.asTexture(), 40) ;
-    detailText.append(" Security Mission\n") ;
+    detailText.insert(SECURITY_ICON.asTexture(), 40);
+    detailText.append(" Security Mission\n");
     detailText.append(new Text.Clickable() {
-      public String fullName() { return "Target" ; }
-      public void whenTextClicked() { initSecurityTask(UI) ; }
-    }) ;
-    detailText.append("\n") ;
+      public String fullName() { return "Target"; }
+      public void whenTextClicked() { initSecurityTask(UI); }
+    });
+    detailText.append("\n");
     
-    detailText.insert(CONTACT_ICON.asTexture(), 40) ;
-    detailText.append(" Contact Mission\n") ;
+    detailText.insert(CONTACT_ICON.asTexture(), 40);
+    detailText.append(" Contact Mission\n");
     detailText.append(new Text.Clickable() {
-      public String fullName() { return "Target" ; }
-      public void whenTextClicked() { initContactTask(UI) ; }
-    }) ;
-    detailText.append("\n") ;
+      public String fullName() { return "Target"; }
+      public void whenTextClicked() { initContactTask(UI); }
+    });
+    detailText.append("\n");
   }
   
   
@@ -112,117 +112,117 @@ public class MissionsTab extends InfoPanel {
   private static void previewFlag(
     BaseUI UI, Sprite flag, Target picked, boolean valid
   ) {
-    flag.scale = 0.5f ;
+    flag.scale = 0.5f;
     if (! valid) {
-      final World world = UI.world() ;
-      final Vec3D onGround = world.pickedGroundPoint(UI, UI.rendering.view) ;
-      flag.position.setTo(onGround) ;
-      flag.colour = Colour.RED ;
+      final World world = UI.world();
+      final Vec3D onGround = world.pickedGroundPoint(UI, UI.rendering.view);
+      flag.position.setTo(onGround);
+      flag.colour = Colour.RED;
     }
     else {
-      Mission.placeFlag(flag, picked) ;
-      flag.colour = Colour.GREEN ;
+      Mission.placeFlag(flag, picked);
+      flag.colour = Colour.GREEN;
     }
     flag.readyFor(UI.rendering);
-    //UI.rendering.addClient(flag) ;
+    //UI.rendering.addClient(flag);
   }
   
   
   protected static void initStrikeTask(BaseUI UI) {
-    final Sprite flagSprite = STRIKE_MODEL.makeSprite() ;
+    final Sprite flagSprite = STRIKE_MODEL.makeSprite();
     UI.beginTask(new TargetTask(UI, STRIKE_ICON) {
       
       boolean validPick(Target pick) {
-        if (! (pick instanceof Actor || pick instanceof Venue)) return false ;
-        if (! ((Element) pick).visibleTo(UI.played())) return false ;
-        return true ;
+        if (! (pick instanceof Actor || pick instanceof Venue)) return false;
+        if (! ((Element) pick).visibleTo(UI.played())) return false;
+        return true;
       }
       
       void previewAt(Target picked, boolean valid) {
-        previewFlag(UI, flagSprite, picked, valid) ;
+        previewFlag(UI, flagSprite, picked, valid);
       }
       
       void performAt(Target picked) {
-        final Mission mission = new StrikeMission(UI.played(), picked) ;
-        UI.played().addMission(mission) ;
-        UI.selection.pushSelection(mission, true) ;
+        final Mission mission = new StrikeMission(UI.played(), picked);
+        UI.played().addMission(mission);
+        UI.selection.pushSelection(mission, true);
       }
-    }) ;
+    });
   }
   
   
   protected static void initReconTask(BaseUI UI) {
-    final Sprite flagSprite = RECON_MODEL.makeSprite() ;
+    final Sprite flagSprite = RECON_MODEL.makeSprite();
     UI.beginTask(new TargetTask(UI, RECON_ICON) {
       
       boolean validPick(Target pick) {
-        if (! (pick instanceof Tile)) return false ;
-        final Tile tile = (Tile) pick ;
-        if (UI.played().intelMap.fogAt(tile) == 0) return true ;
-        if (! tile.habitat().pathClear) return false ;
-        return true ;
+        if (! (pick instanceof Tile)) return false;
+        final Tile tile = (Tile) pick;
+        if (UI.played().intelMap.fogAt(tile) == 0) return true;
+        if (! tile.habitat().pathClear) return false;
+        return true;
       }
       
       void previewAt(Target picked, boolean valid) {
-        previewFlag(UI, flagSprite, picked, valid) ;
+        previewFlag(UI, flagSprite, picked, valid);
       }
       
       void performAt(Target picked) {
-        final Mission mission = new ReconMission(UI.played(), (Tile) picked) ;
-        UI.played().addMission(mission) ;
-        UI.selection.pushSelection(mission, true) ;
+        final Mission mission = new ReconMission(UI.played(), (Tile) picked);
+        UI.played().addMission(mission);
+        UI.selection.pushSelection(mission, true);
       }
-    }) ;
+    });
   }
   
   
   protected static void initSecurityTask(BaseUI UI) {
-    final Sprite flagSprite = SECURITY_MODEL.makeSprite() ;
+    final Sprite flagSprite = SECURITY_MODEL.makeSprite();
     UI.beginTask(new TargetTask(UI, SECURITY_ICON) {
       
       boolean validPick(Target pick) {
-        if (! (pick instanceof Actor || pick instanceof Venue)) return false ;
-        if (! ((Element) pick).visibleTo(UI.played())) return false ;
-        return true ;
+        if (! (pick instanceof Actor || pick instanceof Venue)) return false;
+        if (! ((Element) pick).visibleTo(UI.played())) return false;
+        return true;
       }
       
       void previewAt(Target picked, boolean valid) {
-        previewFlag(UI, flagSprite, picked, valid) ;
+        previewFlag(UI, flagSprite, picked, valid);
       }
       
       void performAt(Target picked) {
-        final Mission mission = new SecurityMission(UI.played(), picked) ;
-        UI.played().addMission(mission) ;
-        UI.selection.pushSelection(mission, true) ;
+        final Mission mission = new SecurityMission(UI.played(), picked);
+        UI.played().addMission(mission);
+        UI.selection.pushSelection(mission, true);
       }
-    }) ;
+    });
   }
   
   
   protected static void initContactTask(BaseUI UI) {
 
-    final Sprite flagSprite = CONTACT_MODEL.makeSprite() ;
+    final Sprite flagSprite = CONTACT_MODEL.makeSprite();
     UI.beginTask(new TargetTask(UI, CONTACT_ICON) {
       
       boolean validPick(Target pick) {
-        if (! (pick instanceof Actor || pick instanceof Venue)) return false ;
-        if (! ((Element) pick).visibleTo(UI.played())) return false ;
-        if (((Actor) pick).base() == UI.played()) return false ;
-        return true ;
+        if (! (pick instanceof Actor || pick instanceof Venue)) return false;
+        if (! ((Element) pick).visibleTo(UI.played())) return false;
+        if (((Actor) pick).base() == UI.played()) return false;
+        return true;
       }
       
       void previewAt(Target picked, boolean valid) {
-        previewFlag(UI, flagSprite, picked, valid) ;
+        previewFlag(UI, flagSprite, picked, valid);
       }
       
       void performAt(Target picked) {
         final Mission mission = new ContactMission(
           UI.played(), (Actor) picked
-        ) ;
-        UI.played().addMission(mission) ;
-        UI.selection.pushSelection(mission, true) ;
+        );
+        UI.played().addMission(mission);
+        UI.selection.pushSelection(mission, true);
       }
-    }) ;
+    });
   }
 }
 

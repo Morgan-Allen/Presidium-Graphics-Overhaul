@@ -7,6 +7,8 @@ import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.game.campaign.*;
 import stratos.game.maps.*;
+import stratos.game.plans.FindWork;
+import stratos.game.plans.Gifting;
 import stratos.game.base.*;
 import stratos.game.tactical.*;
 import stratos.game.civilian.*;

@@ -1,10 +1,10 @@
 
 
 
-package stratos.game.wild ;
+package stratos.game.wild;
 import stratos.game.actors.*;
-import stratos.game.civilian.Dialogue;
 import stratos.game.common.*;
+import stratos.game.plans.Dialogue;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -14,17 +14,17 @@ public class Nesting extends Plan {
   
   
   public Nesting(Fauna actor, Nest nest) {
-    super(actor, nest) ;
+    super(actor, nest);
   }
   
   
   public Nesting(Session s) throws Exception {
-    super(s) ;
+    super(s);
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
+    super.saveState(s);
   }
   
   
@@ -38,12 +38,12 @@ public class Nesting extends Plan {
   
   
   protected float getPriority() {
-    return ROUTINE ;
+    return ROUTINE;
   }
   
   
   protected Behaviour getNextStep() {
-    return null ;
+    return null;
   }
   
   

@@ -52,7 +52,7 @@ public abstract class UINode {
   
   
   public UINode(HUD myHUD) {
-    this.UI = myHUD ;
+    this.UI = myHUD;
   }
   
   
@@ -61,57 +61,116 @@ public abstract class UINode {
   }
   
   
-  public float xpos() { return bounds.xpos() ; }
-  public float ypos() { return bounds.ypos() ; }
-  public float xdim() { return bounds.xdim() ; }
-  public float ydim() { return bounds.ydim() ; }
-  public Box2D trueBounds() { return bounds ; }
+  public float xpos() { return bounds.xpos(); }
+  public float ypos() { return bounds.ypos(); }
+  public float xdim() { return bounds.xdim(); }
+  public float ydim() { return bounds.ydim(); }
+  public Box2D trueBounds() { return bounds; }
   
   
   
   /**  Methods intended for implementation by subclasses-
     */
   protected abstract void render(WidgetsPass pass);
-  protected String info() { return null ; }
+  protected String info() { return null; }
   
   
   
   /**  Methods to control the order of rendering for UINodes.
     */
   public void attachTo(UIGroup group) {
-    detach() ;
-    parent = group ;
-    kidEntry = parent.kids.addLast(this) ;
+    detach();
+    parent = group;
+    kidEntry = parent.kids.addLast(this);
   }
   
   
   public void detach() {
-    if (parent == null) return ;
-    parent.kids.removeEntry(kidEntry) ;
-    kidEntry = null ;
-    parent = null ;
-  }
-  
-  
-  protected void updateState() {
-    absDepth = relDepth + (parent == null ? 0 : parent.absDepth) ;
-    absAlpha = relAlpha * (parent == null ? 1 : parent.absAlpha) ;
+    if (parent == null) return;
+    parent.kids.removeEntry(kidEntry);
+    kidEntry = null;
+    parent = null;
   }
   
   
   
-  /**  Sets the absolute size and relative (to parent) position of this node.
+  /**  Convenience methods for setting relative and absolute bounds in a more
+    *  human-legible manner-
+    */
+  public void alignLeft(int margin, int width) {
+    relBound.setX(0, 0);
+    absBound.setX(margin, width);
+  }
+  
+  public void alignRight(int margin, int width) {
+    relBound.setX(1, 0);
+    absBound.setX(0 - (margin + width), width);
+  }
+  
+  public void alignHorizontal(int marginLeft, int marginRight) {
+    relBound.setX(0, 1);
+    absBound.setX(marginLeft, 0 - (marginLeft + marginRight));
+  }
+  
+  public void alignHorizontal(float relative, int width, int offset) {
+    relBound.setX(relative, 0);
+    absBound.setX(offset - (width / 2f), width);
+  }
+  
+  public void alignAcross(float relMin, float relMax) {
+    relBound.setX(relMin, relMax - relMin);
+    absBound.setX(0, 0);
+  }
+  
+  public void alignAcross(float relMin, float relMax, int offX, int incX) {
+    relBound.setX(relMin, relMax - relMin);
+    absBound.setX(offX, incX - offX);
+  }
+  
+  public void alignBottom(int margin, int height) {
+    relBound.setY(0, 0);
+    absBound.setY(margin, height);
+  }
+  
+  public void alignTop(int margin, int height) {
+    relBound.setY(1, 0);
+    absBound.setY(0 - (margin + height), height);
+  }
+  
+  public void alignVertical(int marginBottom, int marginTop) {
+    relBound.setY(0, 1);
+    absBound.setY(marginBottom, 0 - (marginBottom + marginTop));
+  }
+  
+  public void alignVertical(float relative, int height, int offset) {
+    relBound.setY(relative, 0);
+    absBound.setY(offset - (height / 2f), height);
+  }
+  
+  public void alignDown(float relMin, float relMax) {
+    relBound.setY(relMin, relMax - relMin);
+    absBound.setY(0, 0);
+  }
+  
+  public void alignDown(float relMin, float relMax, int offY, int incY) {
+    relBound.setY(relMin, relMax - relMin);
+    absBound.setY(offY, incY - offY);
+  }
+  
+  
+  
+  /**  Internal methods for calibrating position based off parent coordinates-
     */
   protected void updateRelativeParent() {
-    if (parent == null) updateRelativeParent(new Box2D()) ;
-    else updateRelativeParent(parent.bounds) ;
+    if (parent == null) updateRelativeParent(new Box2D());
+    else updateRelativeParent(parent.bounds);
   }
   
   
   protected void updateAbsoluteBounds() {
-    if (parent == null) updateAbsoluteBounds(new Box2D()) ;
+    if (parent == null) updateAbsoluteBounds(new Box2D());
     else {
-      updateAbsoluteBounds(parent.bounds) ;
+      updateAbsoluteBounds(parent.bounds);
     }
   }
   
@@ -155,6 +214,12 @@ public abstract class UINode {
   }
   
   
+  protected void updateState() {
+    absDepth = relDepth + (parent == null ? 0 : parent.absDepth);
+    absAlpha = relAlpha * (parent == null ? 1 : parent.absAlpha);
+  }
+  
+  
   
   /**  Blank feedback methods for override by subclasses-
     */
@@ -162,10 +227,10 @@ public abstract class UINode {
   protected void whenClicked() {}
   protected void whenPressed() {}
   protected void whenDragged() {}
-  protected boolean amHovered() { return UI.amSelected(this, HOVERED) ; }
-  protected boolean amClicked() { return UI.amSelected(this, CLICKED) ; }
-  protected boolean amPressed() { return UI.amSelected(this, PRESSED) ; }
-  protected boolean amDragged() { return UI.amSelected(this, DRAGGED) ; }
+  protected boolean amHovered() { return UI.amSelected(this, HOVERED); }
+  protected boolean amClicked() { return UI.amSelected(this, CLICKED); }
+  protected boolean amPressed() { return UI.amSelected(this, PRESSED); }
+  protected boolean amDragged() { return UI.amSelected(this, DRAGGED); }
 }
 
 

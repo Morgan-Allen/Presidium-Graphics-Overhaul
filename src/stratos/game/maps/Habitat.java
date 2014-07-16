@@ -4,7 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package stratos.game.maps ;
+package stratos.game.maps;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.util.*;
@@ -17,9 +17,9 @@ import stratos.util.*;
 public class Habitat {
   
   
-  private static Batch <Habitat> allHabs = new Batch <Habitat> () ;
-  private static int nextID = 0 ;
-  final public int ID = nextID++ ;
+  private static Batch <Habitat> allHabs = new Batch <Habitat> ();
+  private static int nextID = 0;
+  final public int ID = nextID++;
   
   
   final static String
@@ -60,7 +60,7 @@ public class Habitat {
     INSOLATION = "insolation",
     MINERALS   = "minerals",
     IS_OCEAN   = "is ocean",
-    IS_WASTE  = "is wastes" ;
+    IS_WASTE  = "is wastes";
   
   
   //
@@ -153,9 +153,9 @@ public class Habitat {
       BARRENS,
       DUNE,
       //CURSED_EARTH
-    } ;
+    };
   final public static Habitat
-    ALL_HABITATS[] = (Habitat[]) allHabs.toArray(Habitat.class) ;
+    ALL_HABITATS[] = (Habitat[]) allHabs.toArray(Habitat.class);
   final public static ImageAsset
     BASE_TEXTURES[] = new ImageAsset[ALL_HABITATS.length],
     ROAD_TEXTURE = ImageAsset.fromImage(
@@ -165,20 +165,20 @@ public class Habitat {
       TERRAIN_PATH+"black_wastes_ground.png", Habitat.class
     );
   static {
-    for (Habitat h : ALL_HABITATS) BASE_TEXTURES[h.ID] = h.baseTex ;
+    for (Habitat h : ALL_HABITATS) BASE_TEXTURES[h.ID] = h.baseTex;
   }
   
   
   
   
-  final public String name ;
-  final public ImageAsset animTex[], baseTex ;
-  final public CutoutModel floraModels[][] ;
-  final public boolean pathClear ;
+  final public String name;
+  final public ImageAsset animTex[], baseTex;
+  final public CutoutModel floraModels[][];
+  final public boolean pathClear;
   
-  final int biosphere ;
-  float moisture, insolation, rockiness ;
-  boolean isOcean, isWaste ;
+  final int biosphere;
+  float moisture, insolation, rockiness;
+  boolean isOcean, isWaste;
   
   
   Habitat(
@@ -188,15 +188,15 @@ public class Habitat {
     this(
       name, new String[] { TERRAIN_PATH+texName }, fM,
       biosphere, pathClear, traits
-    ) ;
+    );
   }
   
   Habitat(
     String name, String groundTex[], CutoutModel fM[][],
     int biosphere, boolean pathClear, Object... traits
   ) {
-    allHabs.add(this) ;
-    this.name = name ;
+    allHabs.add(this);
+    this.name = name;
     
     this.animTex = new ImageAsset[groundTex.length];
     for (int i = animTex.length; i-- > 0;) {
@@ -204,23 +204,23 @@ public class Habitat {
     }
     this.baseTex = animTex[0];
     
-    this.floraModels = fM ;
-    this.biosphere = biosphere ;
-    this.pathClear = pathClear ;
-    for (int i = 0 ; i < traits.length ; i++) {
-      if (traits[i] == MOISTURE  ) moisture   = (Integer) traits[i + 1] ;
-      if (traits[i] == MINERALS  ) rockiness   = (Integer) traits[i + 1] ;
-      if (traits[i] == INSOLATION) insolation = (Integer) traits[i + 1] ;
-      if (traits[i] == IS_OCEAN) isOcean = true ;
-      if (traits[i] == IS_WASTE) isWaste = true ;
+    this.floraModels = fM;
+    this.biosphere = biosphere;
+    this.pathClear = pathClear;
+    for (int i = 0; i < traits.length; i++) {
+      if (traits[i] == MOISTURE  ) moisture   = (Integer) traits[i + 1];
+      if (traits[i] == MINERALS  ) rockiness   = (Integer) traits[i + 1];
+      if (traits[i] == INSOLATION) insolation = (Integer) traits[i + 1];
+      if (traits[i] == IS_OCEAN) isOcean = true;
+      if (traits[i] == IS_WASTE) isWaste = true;
     }
   }
   
-  public float moisture() { return moisture ; }
-  public float insolation() { return insolation ; }
-  public float minerals() { return rockiness ; }
-  public boolean isOcean() { return isOcean ; }
-  public boolean isWaste() { return isWaste ; }
+  public float moisture() { return moisture; }
+  public float insolation() { return insolation; }
+  public float minerals() { return rockiness; }
+  public boolean isOcean() { return isOcean; }
+  public boolean isWaste() { return isWaste; }
   
 }
 

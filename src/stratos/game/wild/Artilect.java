@@ -1,11 +1,17 @@
 
 
 
-package stratos.game.wild ;
+package stratos.game.wild;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
+import stratos.game.plans.Combat;
+import stratos.game.plans.CombatUtils;
+import stratos.game.plans.Patrolling;
+import stratos.game.plans.Resting;
+import stratos.game.plans.Retreat;
+import stratos.game.plans.StretcherDelivery;
 import stratos.game.tactical.*;
 import stratos.game.civilian.*;
 import stratos.graphics.common.*;
@@ -28,7 +34,7 @@ public abstract class Artilect extends Actor {
   
   final static String
     FILE_DIR = "media/Actors/artilects/",
-    XML_FILE = "ArtilectModels.xml" ;
+    XML_FILE = "ArtilectModels.xml";
   final public static ModelAsset
     MODEL_TRIPOD = MS3DModel.loadFrom(
       FILE_DIR, "Tripod.ms3d", Species.class,
@@ -58,7 +64,7 @@ public abstract class Artilect extends Actor {
       FILE_DIR, "Tesseract.ms3d", Species.class,
       XML_FILE, "Tesseract"
     )
-  ;
+ ;
   
   private static boolean verbose = false;
   
@@ -91,7 +97,7 @@ public abstract class Artilect extends Actor {
   
 
   protected ActorMind initAI() {
-    final Artilect actor = this ;
+    final Artilect actor = this;
     return new ActorMind(actor) {
       
       protected Choice createNewBehaviours(Choice choice) {
@@ -101,18 +107,18 @@ public abstract class Artilect extends Actor {
       }
       
       protected void updateAI(int numUpdates) {
-        super.updateAI(numUpdates) ;
+        super.updateAI(numUpdates);
       }
       
       protected void addReactions(Target seen, Choice choice) {
-        if (seen instanceof Actor) choice.add(nextDefence((Actor) seen)) ;
+        if (seen instanceof Actor) choice.add(nextDefence((Actor) seen));
       }
-    } ;
+    };
   }
   
   
   protected Relations initMemories() {
-    final Artilect actor = this ;
+    final Artilect actor = this;
     
     return new Relations(this) {
       public float relationValue(Venue venue) {
@@ -121,22 +127,22 @@ public abstract class Artilect extends Actor {
       }
       
       public float relationValue(Actor other) {
-        if (actor.base() != null && other.base() == actor.base()) return 0.5f ;
-        if (other.health.artilect()) return 1.0f ;
-        return -1.0f ;
+        if (actor.base() != null && other.base() == actor.base()) return 0.5f;
+        if (other.health.artilect()) return 1.0f;
+        return -1.0f;
       }
     };
   }
   
   
   protected Behaviour nextDefence(Actor near) {
-    if (near == null) return null ;
+    if (near == null) return null;
     final Plan defence = new Combat(this, near).setMotive(
       Plan.MOTIVE_EMERGENCY, Plan.ROUTINE
     );
-    //I.sayAbout(this, "Have just seen: "+near) ;
-    //I.sayAbout(this, "Defence priority: "+defence.priorityFor(this)) ;
-    return defence ;
+    //I.sayAbout(this, "Have just seen: "+near);
+    //I.sayAbout(this, "Defence priority: "+defence.priorityFor(this));
+    return defence;
   }
   
   
@@ -158,7 +164,7 @@ public abstract class Artilect extends Actor {
     //  (Drone specialties.)
     
     final Employer home = mind.home();
-    Element guards = home == null ? this : (Element) home ;
+    Element guards = home == null ? this : (Element) home;
     final float distance = Spacing.distance(this, guards) / World.SECTOR_SIZE;
     final float danger = CombatUtils.dangerAtSpot(this, this, null);
     
@@ -239,14 +245,14 @@ public abstract class Artilect extends Actor {
   
   
   protected Plan nextAssault() {
-    if (! (mind.home() instanceof Venue)) return null ;
-    final Venue lair = (Venue) mind.home() ;
-    final Batch <Venue> sampled = new Batch <Venue> () ;
-    world.presences.sampleFromMap(this, world, 10, sampled, Venue.class) ;
+    if (! (mind.home() instanceof Venue)) return null;
+    final Venue lair = (Venue) mind.home();
+    final Batch <Venue> sampled = new Batch <Venue> ();
+    world.presences.sampleFromMap(this, world, 10, sampled, Venue.class);
     
-    final int SS = World.SECTOR_SIZE ;
-    Venue toAssault = null ;
-    float bestRating = 0 ;
+    final int SS = World.SECTOR_SIZE;
+    Venue toAssault = null;
+    float bestRating = 0;
     
     //
     //  TODO:  Base priority on proximity to your lair, along with total
@@ -258,15 +264,15 @@ public abstract class Artilect extends Actor {
       final float dist = Spacing.distance(venue, lair);
       if (dist > Ruins.MIN_RUINS_SPACING) continue;
       
-      float rating = SS / (SS + dist) ;
-      rating += 1 - relations.relationValue(venue) ;
-      if (rating > bestRating) { bestRating = rating ; toAssault = venue ; }
+      float rating = SS / (SS + dist);
+      rating += 1 - relations.relationValue(venue);
+      if (rating > bestRating) { bestRating = rating; toAssault = venue; }
     }
     
-    if (toAssault == null) return null ;
-    final Combat siege = new Combat(this, toAssault) ;
+    if (toAssault == null) return null;
+    final Combat siege = new Combat(this, toAssault);
     
-    return siege ;
+    return siege;
   }
   
   
@@ -298,34 +304,34 @@ public abstract class Artilect extends Actor {
   
   /**  Rendering and interface methods-
     */
-  public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
-    if (panel == null) panel = new InfoPanel(
+  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
+    if (panel == null) panel = new SelectionInfoPane(
       UI, this, null//, "STATUS", "SKILLS", "PROFILE"
     );
     final Description d = panel.detail();
 
-    d.append("Is: ") ;
-    super.describeStatus(d) ;
+    d.append("Is: ");
+    super.describeStatus(d);
     
-    d.append("\n\nCondition: ") ;
-    final Batch <String> healthDesc = health.conditionsDesc() ;
+    d.append("\n\nCondition: ");
+    final Batch <String> healthDesc = health.conditionsDesc();
     for (String desc : healthDesc) {
-      d.append("\n  "+desc) ;
+      d.append("\n  "+desc);
     }
-    final Batch <Condition> conditions = traits.conditions() ;
+    final Batch <Condition> conditions = traits.conditions();
     for (Condition c : conditions) {
-      d.append("\n  ") ;
-      d.append(traits.levelDesc(c)) ;
+      d.append("\n  ");
+      d.append(traits.levelDesc(c));
     }
     if (healthDesc.size() == 0 && conditions.size() == 0) {
-      d.append("\n  Okay") ;
+      d.append("\n  Okay");
     }
 
-    d.append("\n\nSkills: ") ;
+    d.append("\n\nSkills: ");
     for (Skill skill : traits.skillSet()) {
-      final int level = (int) traits.traitLevel(skill) ;
-      d.append("\n  "+skill.name+" "+level+" ") ;
-      d.append(Skill.skillDesc(level), Skill.skillTone(level)) ;
+      final int level = (int) traits.traitLevel(skill);
+      d.append("\n  "+skill.name+" "+level+" ");
+      d.append(Skill.skillDesc(level), Skill.skillTone(level));
     }
     
     d.append("\n\n");
@@ -339,12 +345,12 @@ public abstract class Artilect extends Actor {
   
   
   protected static String nameWithBase(String base) {
-    final StringBuffer nB = new StringBuffer(base) ;
-    for (int n = 4 ; n-- > 0 ;) {
-      if (Rand.yes()) nB.append((char) ('0' + Rand.index(10))) ;
-      else nB.append((char) ('A'+Rand.index(26))) ;
+    final StringBuffer nB = new StringBuffer(base);
+    for (int n = 4; n-- > 0;) {
+      if (Rand.yes()) nB.append((char) ('0' + Rand.index(10)));
+      else nB.append((char) ('A'+Rand.index(26)));
     }
-    return nB.toString() ;
+    return nB.toString();
   }
 }
 

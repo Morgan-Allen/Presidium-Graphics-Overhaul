@@ -4,7 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package stratos.game.maps ;
+package stratos.game.maps;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
@@ -71,16 +71,16 @@ public abstract class Species implements Session.Saveable, Economy {
     */
   private static Batch <Species>
     soFar      = new Batch <Species> (),
-    allSpecies = new Batch <Species> () ;
+    allSpecies = new Batch <Species> ();
   
   private static Species[] speciesSoFar() {
-    final Species s[] = soFar.toArray(Species.class) ;
-    soFar.clear() ;
-    return s ;
+    final Species s[] = soFar.toArray(Species.class);
+    soFar.clear();
+    return s;
   }
   
   private static Species[] allSpecies() {
-    return allSpecies.toArray(Species.class) ;
+    return allSpecies.toArray(Species.class);
   }
   
   
@@ -104,8 +104,8 @@ public abstract class Species implements Session.Saveable, Economy {
       null,
       Type.HUMANOID, 1, 1, 1
     ) {
-      public Actor newSpecimen(Base base) { return null ; }
-      public Nest createNest() { return null ; }
+      public Actor newSpecimen(Base base) { return null; }
+      public Nest createNest() { return null; }
     },
     
     QUD = new Species(
@@ -123,10 +123,10 @@ public abstract class Species implements Session.Saveable, Economy {
       0.15f, //speed
       0.65f  //sight
     ) {
-      public Actor newSpecimen(Base base) { return new Quud(base) ; }
+      public Actor newSpecimen(Base base) { return new Quud(base); }
       public Nest createNest() { return new Nest(
         2, 2, Venue.ENTRANCE_EAST, this, MODEL_NEST_QUUD
-      ) ; }
+      ); }
     },
     
     HAREEN = new Species(
@@ -145,10 +145,10 @@ public abstract class Species implements Session.Saveable, Economy {
       1.60f, //speed
       1.00f  //sight
     ) {
-      public Actor newSpecimen(Base base) { return new Vareen(base) ; }
+      public Actor newSpecimen(Base base) { return new Vareen(base); }
       public Nest createNest() { return new Nest(
         2, 2, Venue.ENTRANCE_EAST, this, MODEL_NEST_VAREEN
-      ) ; }
+      ); }
     },
     
     LICTOVORE = new Species(
@@ -167,10 +167,10 @@ public abstract class Species implements Session.Saveable, Economy {
       1.30f, //speed
       1.50f  //sight
     ) {
-      public Actor newSpecimen(Base base) { return new Micovore(base) ; }
+      public Actor newSpecimen(Base base) { return new Micovore(base); }
       public Nest createNest() { return new Nest(
         3, 2, Venue.ENTRANCE_EAST, this, MODEL_NEST_MICOVORE
-      ) ; }
+      ); }
     },
     
     ANIMAL_SPECIES[] = Species.speciesSoFar(),
@@ -205,7 +205,7 @@ public abstract class Species implements Session.Saveable, Economy {
       null,
       Type.ARTILECT, 1, 1, 1
     ) {
-      public Actor newSpecimen(Base base) { return new Drone(base) ; }
+      public Actor newSpecimen(Base base) { return new Drone(base); }
     },
     
     SPECIES_TRIPOD = new Species(
@@ -215,7 +215,7 @@ public abstract class Species implements Session.Saveable, Economy {
       null,
       Type.ARTILECT, 1, 1, 1
     ) {
-      public Actor newSpecimen(Base base) { return new Tripod(base) ; }
+      public Actor newSpecimen(Base base) { return new Tripod(base); }
     },
     
     SPECIES_CRANIAL = new Species(
@@ -225,31 +225,31 @@ public abstract class Species implements Session.Saveable, Economy {
       null,
       Type.ARTILECT, 1, 1, 1
     ) {
-      public Actor newSpecimen(Base base) { return new Cranial(base) ; }
+      public Actor newSpecimen(Base base) { return new Cranial(base); }
     },
     
     ARTILECT_SPECIES[] = { SPECIES_DRONE, SPECIES_TRIPOD, SPECIES_CRANIAL },
     
     ALL_SPECIES[] = Species.allSpecies()
-  ;
+ ;
   
   
   /**  Fields and constructors.
     */
-  final public String name, info ;
-  final public ImageAsset portrait ;
-  final public ModelAsset model ;
+  final public String name, info;
+  final public ImageAsset portrait;
+  final public ModelAsset model;
   
-  private static int nextID = 0 ;
-  final public int ID = nextID++ ;
+  private static int nextID = 0;
+  final public int ID = nextID++;
   
-  final public Type type ;
-  final public Item nutrients[] ;
+  final public Type type;
+  final public Item nutrients[];
   
   //  TODO:  Use a table filled with generic string keys, so that it's more
   //  self-descriptive.
   final public float
-    baseBulk, baseSpeed, baseSight ;
+    baseBulk, baseSpeed, baseSight;
   
   
   Species(
@@ -257,56 +257,56 @@ public abstract class Species implements Session.Saveable, Economy {
     Type type,
     float bulk, float speed, float sight
   ) {
-    this.name = name ;
-    this.info = info ;
-    if (portraitTex == null) this.portrait = null ;
+    this.name = name;
+    this.info = info;
+    if (portraitTex == null) this.portrait = null;
     else this.portrait = ImageAsset.fromImage(
       FILE_DIR+portraitTex, Species.class
-    ) ;
-    this.model = model ;
+    );
+    this.model = model;
     
-    this.type = type ;
-    this.baseBulk = bulk ;
-    this.baseSpeed = speed ;
-    this.baseSight = sight ;
-    nutrients = new Item[0] ;
+    this.type = type;
+    this.baseBulk = bulk;
+    this.baseSpeed = speed;
+    this.baseSight = sight;
+    nutrients = new Item[0];
     
-    soFar.add(this) ;
-    allSpecies.add(this) ;
+    soFar.add(this);
+    allSpecies.add(this);
   }
   
   
   Species(String name, Type type, Object... args) {
-    this.name = name ;
-    this.info = name ;
-    this.portrait = null ;
-    this.model = null ;
+    this.name = name;
+    this.info = name;
+    this.portrait = null;
+    this.model = null;
     
-    this.type = type ;
-    this.baseBulk = 1 ;
-    this.baseSpeed = 0 ;
-    this.baseSight = 0 ;
+    this.type = type;
+    this.baseBulk = 1;
+    this.baseSpeed = 0;
+    this.baseSight = 0;
     
-    int amount = 0 ;
-    Batch <Item> n = new Batch <Item> () ;
+    int amount = 0;
+    Batch <Item> n = new Batch <Item> ();
     for (Object o : args) {
-      if (o instanceof Integer) amount = (Integer) o ;
-      if (o instanceof Service) n.add(Item.withAmount((Service) o, amount)) ;
+      if (o instanceof Integer) amount = (Integer) o;
+      if (o instanceof Service) n.add(Item.withAmount((Service) o, amount));
     }
-    nutrients = n.toArray(Item.class) ;
+    nutrients = n.toArray(Item.class);
     
-    soFar.add(this) ;
-    allSpecies.add(this) ;
+    soFar.add(this);
+    allSpecies.add(this);
   }
   
   
   public static Session.Saveable loadConstant(Session s) throws Exception {
-    return ALL_SPECIES[s.loadInt()] ;
+    return ALL_SPECIES[s.loadInt()];
   }
   
   
   public void saveState(Session s) throws Exception {
-    s.saveInt(ID) ;
+    s.saveInt(ID);
   }
   
   
@@ -315,20 +315,20 @@ public abstract class Species implements Session.Saveable, Economy {
   
   
   public boolean browser() {
-    return type == Type.BROWSER ;
+    return type == Type.BROWSER;
   }
   
   
   public boolean predator() {
-    return type == Type.PREDATOR ;
+    return type == Type.PREDATOR;
   }
   
   
-  public String toString() { return name ; }
+  public String toString() { return name; }
   
   
-  public Item[] nutrients() { return nutrients ; }
-  public float metabolism() { return baseBulk * baseSpeed ; }
+  public Item[] nutrients() { return nutrients; }
+  public float metabolism() { return baseBulk * baseSpeed; }
 }
 
 

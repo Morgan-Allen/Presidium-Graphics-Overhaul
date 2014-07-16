@@ -5,7 +5,7 @@
   */
 
 
-package stratos.user ;
+package stratos.user;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
@@ -17,46 +17,52 @@ import com.badlogic.gdx.*;
 
 
 
+//  TODO:  The area dedicated to the current info-panel must be made more
+//         flexible, to accomodate the stars & planet-charts.
+
 public class BaseUI extends HUD implements UIConstants {
   
   
   
   /**  Core field definitions, constructors, and save/load methods-
     */
-  private World world ;
-  private Base played ;
+  private World world;
+  private Base played;
+  private UITask currentTask;
   
-  private UITask currentTask ;
-  final public Selection selection = new Selection(this) ;
+  final public Selection selection = new Selection(this);
+  final public SelectionTracking viewTracking;
   
-  //final Rendering rendering ;
-  final public ViewTracking viewTracking ;
+  private UIGroup helpText;
+  private MapsPanel mapsPanel;
+  private Readout readout;
   
-  UIGroup helpText ;
-  MapsPanel mapsPanel;
-  Readout readout;
+  //  TODO:  Also a policies panel?  ...Yeah.  Why not.
+  private CommsPanel  commsPanel;
+  private PlanetPanel planetPanel;
+  private StarsPanel  starsPanel;
+  private Button
+    commsButton ,
+    planetButton,
+    starsButton;
   
-  //  TODO:  Also a starcharts and policies panel.
-  CommsPanel commsPanel;
-  Button commsButton;
   
-  UIGroup panelArea, infoArea ;
-  Quickbar quickbar ;
+  private UIGroup panelArea, infoArea;
+  private Quickbar quickbar;
   
-  private InfoPanel currentPanel, newPanel;
-  private TargetInfo currentInfo, newInfo;
+  private UIGroup currentPanel, newPanel;
+  private TargetOptions currentInfo, newInfo;
   private boolean capturePanel = false;
   
   
   
   public BaseUI(World world, Rendering rendering) {
     super(rendering);
-    this.world = world ;
-    //this.rendering = rendering ;
-    this.viewTracking = new ViewTracking(this, rendering.view) ;
-    configLayout() ;
-    configPanels() ;
-    configHovers() ;
+    this.world = world;
+    this.viewTracking = new SelectionTracking(this, rendering.view);
+    configLayout();
+    configPanels();
+    configHovers();
   }
   
   
@@ -68,22 +74,22 @@ public class BaseUI extends HUD implements UIConstants {
   
   
   public void loadState(Session s) throws Exception {
-    final Base played = (Base) s.loadObject() ;
-    assignBaseSetup(played, null) ;
-    viewTracking.loadState(s) ;
-    selection.loadState(s) ;
+    final Base played = (Base) s.loadObject();
+    assignBaseSetup(played, null);
+    viewTracking.loadState(s);
+    selection.loadState(s);
   }
   
   
   public void saveState(Session s) throws Exception {
-    s.saveObject(played) ;
-    viewTracking.saveState(s) ;
-    selection.saveState(s) ;
+    s.saveObject(played);
+    viewTracking.saveState(s);
+    selection.saveState(s);
   }
   
   
-  public Base played() { return played ; }
-  public World world() { return world  ; }
+  public Base played() { return played; }
+  public World world() { return world ; }
   
   
   public CommsPanel commsPanel() { return commsPanel; }
@@ -119,39 +125,39 @@ public class BaseUI extends HUD implements UIConstants {
     */
   private void configLayout() {
     
-    this.mapsPanel = new MapsPanel(this, world, null) ;
+    this.mapsPanel = new MapsPanel(this, world, null);
     mapsPanel.relBound.set(0, 1, 0, 0);
     mapsPanel.absBound.set(0, -256, 256, 256);
-    mapsPanel.attachTo(this) ;
+    mapsPanel.attachTo(this);
     
-    this.readout = new Readout(this) ;
-    readout.relBound.set(0, 1, 1, 0) ;
-    readout.absBound.set(200, -50, -300, READOUT_HIGH) ;
-    readout.attachTo(this) ;
+    this.readout = new Readout(this);
+    readout.relBound.set(0, 1, 1, 0);
+    readout.absBound.set(200, -50, -300, READOUT_HIGH);
+    readout.attachTo(this);
     
-    this.panelArea = new UIGroup(this) ;
-    panelArea.relBound.set(0.25f, 1, 0.5f, 0);
-    panelArea.absBound.set(
-      0, -(INFO_PANEL_HIGH + READOUT_HIGH),
-      0, INFO_PANEL_HIGH
-    );
-    panelArea.attachTo(this) ;
+    this.panelArea = new UIGroup(this);
+    panelArea.alignVertical(QUICKBAR_HIGH, READOUT_HIGH);
+    panelArea.alignHorizontal(MINIMAP_WIDE, 0);
+    panelArea.attachTo(this);
     
     this.infoArea = new UIGroup(this);
-    infoArea.relBound.set(0, 0, 1, 1);
+    infoArea.alignVertical(QUICKBAR_HIGH, READOUT_HIGH);
+    infoArea.alignHorizontal(MINIMAP_WIDE, 0);
     infoArea.attachTo(this);
-    currentPanel = newPanel = null ;
+    
+    currentPanel = newPanel = null;
     currentInfo = newInfo = null;
     
-    this.quickbar = new Quickbar(this) ;
-    quickbar.relBound.set(0, 0, 1, 0) ;
-    quickbar.attachTo(this) ;
-    quickbar.setupPowersButtons() ;
-    quickbar.setupInstallButtons() ;
+    this.quickbar = new Quickbar(this);
+    quickbar.relBound.set(0, 0, 1, 0);
+    quickbar.attachTo(this);
+    quickbar.setupPowersButtons();
+    quickbar.setupInstallButtons();
   }
   
   
   private void configPanels() {
+    
     this.commsPanel = new CommsPanel(this);
     this.commsButton = new Button(
       this,
@@ -163,62 +169,80 @@ public class BaseUI extends HUD implements UIConstants {
         setInfoPanels(commsPanel, null);
       }
     };
-    commsButton.relBound.set(0, 1, 0, 0);
-    commsButton.absBound.set(256 - 60, 0 - 100, 80, 80);
+    commsButton.alignTop(20, 80);
+    commsButton.alignHorizontal(0.5f, 80, 0);
     commsButton.attachTo(this);
+    
+    this.planetPanel = new PlanetPanel(this);
+    this.planetButton = new Button(
+      this,
+      PlanetPanel.PLANET_ICON.asTexture(),
+      PlanetPanel.PLANET_ICON_LIT.asTexture(),
+      "planet sectors"
+    ) {
+      protected void whenClicked() {
+        setInfoPanels(planetPanel, null);
+      }
+    };
+    planetButton.alignTop(20, 80);
+    planetButton.alignHorizontal(0.5f, 80, 80);
+    planetButton.attachTo(this);
+    
+    this.starsPanel = new StarsPanel(this);
+    this.starsButton = new Button(
+      this,
+      StarsPanel.STARS_ICON.asTexture(),
+      StarsPanel.STARS_ICON_LIT.asTexture(),
+      "starcharts"
+    ) {
+      protected void whenClicked() {
+        setInfoPanels(starsPanel, null);
+      }
+    };
+    starsButton.alignTop(20, 80);
+    starsButton.alignHorizontal(0.5f, 80, 160);
+    starsButton.attachTo(this);
   }
   
   
   private void configHovers() {
     this.helpText = new Tooltips(this);
-    helpText.attachTo(this) ;
+    helpText.attachTo(this);
   }
   
   
   
-  /**  Modifying the interface layout-
+  /**  Tasks and target-selection helper methods-
     */
-  public void setInfoPanels(InfoPanel infoPanel, TargetInfo targetInfo) {
-    if (infoPanel != currentPanel) {
-      beginPanelFade();
-      newPanel = infoPanel;
-    }
-    if (targetInfo != currentInfo) {
-      if (currentInfo != null) currentInfo.active = false;
-      newInfo = targetInfo;
-    }
-  }
-  
-  
   protected UITask currentTask() {
-    return currentTask ;
+    return currentTask;
   }
   
   
-  protected InfoPanel currentPanel() {
-    return currentPanel ;
+  protected UIGroup currentPane() {
+    return currentPanel;
   }
   
   
-  protected TargetInfo currentInfo() {
+  protected TargetOptions currentInfo() {
     return currentInfo;
   }
   
   
   protected void beginTask(UITask task) {
-    currentTask = task ;
+    currentTask = task;
   }
   
   
   protected void endCurrentTask() {
-    currentTask = null ;
+    currentTask = null;
   }
   
   
   public static boolean isPicked(Object o) {
-    final HUD hud = PlayLoop.currentUI() ;
-    if (! (hud instanceof BaseUI)) return false ;
-    return (o == null) || ((BaseUI) hud).selection.selected() == o ;
+    final HUD hud = PlayLoop.currentUI();
+    if (! (hud instanceof BaseUI)) return false;
+    return (o == null) || ((BaseUI) hud).selection.selected() == o;
   }
   
   
@@ -229,29 +253,19 @@ public class BaseUI extends HUD implements UIConstants {
     super.updateInput();
     selection.updateSelection(world, rendering.view, panelArea);
   }
-  /*
-  
-  protected void updateState() {
-    super.updateState() ;
-    updateReadout() ;
-  }
-  //*/
-  
-  
-  
   
   public void renderWorldFX() {
-    selection.renderWorldFX(rendering) ;
+    selection.renderWorldFX(rendering);
     if (currentTask != null) {
-      if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) currentTask.cancelTask() ;
-      else currentTask.doTask() ;
+      if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) currentTask.cancelTask();
+      else currentTask.doTask();
     }
   }
   
   
   public void renderHUD(Rendering rendering) {
     super.renderHUD(rendering);
-    viewTracking.updateTracking() ;
+    viewTracking.updateTracking();
     
     if (currentPanel != newPanel) {
       if (currentPanel != null) currentPanel.detach();
@@ -265,15 +279,31 @@ public class BaseUI extends HUD implements UIConstants {
     
     if (capturePanel) {
       final Box2D b = new Box2D().setTo(panelArea.trueBounds());
-      b.expandBy(0 - InfoPanel.MARGIN_WIDTH);
+      b.expandBy(0 - SelectionInfoPane.MARGIN_WIDTH);
       rendering.fading.applyFadeWithin(b, "panel_fade");
-      capturePanel = false ;
+      capturePanel = false;
     }
   }
   
   
+  
+  /**  Updating the central information panel and target options-
+    */
+  public void setInfoPanels(UIGroup panel, TargetOptions options) {
+    if (panel != currentPanel) {
+      beginPanelFade();
+      newPanel = panel;
+    }
+    if (options != currentInfo) {
+      if (currentInfo != null) currentInfo.active = false;
+      newInfo = options;
+    }
+  }
+  
   protected void beginPanelFade() {
-    capturePanel = true ;
+    capturePanel = true;
   }
 }
+
+
 

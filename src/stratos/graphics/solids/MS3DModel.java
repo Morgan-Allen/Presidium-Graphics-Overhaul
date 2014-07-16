@@ -44,6 +44,8 @@ public class MS3DModel extends SolidModel {
     filePath = path+fileName;
     xmlPath = path+xmlFile;
     this.xmlName = xmlName;
+    this.associateFile(filePath);
+    this.associateFile(xmlPath);
   }
   
   
@@ -72,8 +74,6 @@ public class MS3DModel extends SolidModel {
       I.report(e);
       return;
     }
-    
-    //this.scale = config.getFloat("scale");
     
     data = new ModelData();
     processMaterials();
@@ -116,15 +116,17 @@ public class MS3DModel extends SolidModel {
 
         if (!mat.texture.isEmpty()) {
           ModelTexture tex = new ModelTexture();
-          if (mat.texture.startsWith(".\\") || mat.texture.startsWith("//"))
+          if (mat.texture.startsWith(".\\") || mat.texture.startsWith("//")) {
             mat.texture = mat.texture.substring(2);
+          }
           if (verbose) I.say(""+mat.texture);
           tex.fileName = baseDir.child(mat.texture).path();
+          this.associateFile(tex.fileName);
           // + "/" +
           // mat.texture;
           tex.id = mat.texture;
           tex.usage = ModelTexture.USAGE_DIFFUSE;
-          m.textures = new Array<ModelTexture>();
+          m.textures = new Array <ModelTexture> ();
           m.textures.add(tex);
         }
         data.materials.add(m);

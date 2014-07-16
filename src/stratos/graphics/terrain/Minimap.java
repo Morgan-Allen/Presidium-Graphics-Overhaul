@@ -4,7 +4,8 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package stratos.graphics.terrain ;
+package stratos.graphics.terrain;
+import stratos.start.Disposal;
 import stratos.graphics.common.*;
 import stratos.util.*;
 import static stratos.graphics.common.GL.*;
@@ -28,12 +29,17 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 
 
 
-public class Minimap {
+public class Minimap extends Disposal {
   
   
   private Texture mapImage;
   private Mesh mapMesh;
   private ShaderProgram shading;
+  
+  
+  public Minimap() {
+    super(true);
+  }
   
   
   public void updateTexture(int texSize, int RGBA[][]) {
@@ -74,6 +80,7 @@ public class Minimap {
         throw new GdxRuntimeException("\n"+shading.getLog());
       }
     }
+    if (bound == null) return;
     
     //  You draw a diamond-shaped area around the four points-
     final float
@@ -97,7 +104,12 @@ public class Minimap {
   }
   
   
-  public void dispose() {
+  protected void performAssetSetup() {
+    updateGeometry(null);
+  }
+  
+  
+  protected void performAssetDisposal() {
     mapImage.dispose();
     mapMesh.dispose();
     shading.dispose();

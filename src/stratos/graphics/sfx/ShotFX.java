@@ -22,8 +22,8 @@ public class ShotFX extends SFX {
   public static class Model extends stratos.graphics.common.ModelAsset {
     
     final String texName;
-    final float arc, period, width, length ;
-    final boolean repeats, vivid ;
+    final float arc, period, width, length;
+    final boolean repeats, vivid;
     
     private Texture tex;
     private boolean loaded = false;
@@ -35,14 +35,14 @@ public class ShotFX extends SFX {
       float width, float length,
       boolean repeats, boolean vivid
     ) {
-      super(modelName, modelClass) ;
-      this.texName = texName ;
-      //this.tex = Texture.loadTexture(texName) ;
-      this.period = period ;
-      this.arc = arc ;
-      this.width = width ;
-      this.length = length ;
-      this.repeats = repeats ;
+      super(modelName, modelClass);
+      this.texName = texName;
+      //this.tex = Texture.loadTexture(texName);
+      this.period = period;
+      this.arc = arc;
+      this.width = width;
+      this.length = length;
+      this.repeats = repeats;
       this.vivid = vivid;
     }
     
@@ -63,7 +63,7 @@ public class ShotFX extends SFX {
     
     
     public Sprite makeSprite() {
-      return new ShotFX(this) ;
+      return new ShotFX(this);
     }
   }
   
@@ -77,28 +77,28 @@ public class ShotFX extends SFX {
   
   public ShotFX(Model model) {
     super(PRIORITY_MIDDLE);
-    this.model = model ;
+    this.model = model;
   }
   
   
   public void saveTo(DataOutputStream out) throws Exception {
-    super.saveTo(out) ;
-    origin.saveTo(out) ;
-    target.saveTo(out) ;
-    out.writeFloat(inceptTime) ;
+    super.saveTo(out);
+    origin.saveTo(out);
+    target.saveTo(out);
+    out.writeFloat(inceptTime);
   }
   
   
   public void loadFrom(DataInputStream in) throws Exception {
-    super.loadFrom(in) ;
-    origin.loadFrom(in) ;
-    target.loadFrom(in) ;
-    inceptTime = in.readFloat() ;
+    super.loadFrom(in);
+    origin.loadFrom(in);
+    target.loadFrom(in);
+    inceptTime = in.readFloat();
   }
   
   
   public Model model() {
-    return model ;
+    return model;
   }
   
   
@@ -106,10 +106,10 @@ public class ShotFX extends SFX {
   /**  Updates and modifications-
     */
   public void readyFor(Rendering rendering) {
-    final Vec2D line = new Vec2D() ;
-    line.x = target.x - origin.x ;
-    line.y = target.y - origin.y ;
-    this.position.setTo(origin).add(target).scale(0.5f) ;
+    final Vec2D line = new Vec2D();
+    line.x = target.x - origin.x;
+    line.y = target.y - origin.y;
+    this.position.setTo(origin).add(target).scale(0.5f);
     super.readyFor(rendering);
   }
   
@@ -131,7 +131,7 @@ public class ShotFX extends SFX {
     perp  = new Vec3D(),
     line  = new Vec3D(),
     start = new Vec3D(),
-    end   = new Vec3D() ;
+    end   = new Vec3D();
   
   
   protected void renderInPass(SFXPass pass) {

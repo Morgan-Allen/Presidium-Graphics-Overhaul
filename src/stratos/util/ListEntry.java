@@ -4,7 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package stratos.util ;
+package stratos.util;
 
 
 /**  Serves as a 'bookmark' within a given List, allowing for deletion in
@@ -12,15 +12,15 @@ package stratos.util ;
   */
 public class ListEntry <T> {
   
-  final public T refers ;
-  protected ListEntry <T> next, last ;
-  protected List <T> list ;
+  final public T refers;
+  protected ListEntry <T> next, last;
+  protected List <T> list;
   
   
   ListEntry() {
-    refers = null ;
-    list = (List <T>) this ;
-    next = last = this ;
+    refers = null;
+    list = (List <T>) this;
+    next = last = this;
   }
   
   
@@ -30,27 +30,27 @@ public class ListEntry <T> {
     final ListEntry <T> l,
     final ListEntry <T> n
   ) {
-    list = c ;
-    refers = r ;
-    couple(this, n) ;
-    couple(l, this) ;
-    list.size++ ;
+    list = c;
+    refers = r;
+    couple(this, n);
+    couple(l, this);
+    list.size++;
   }
   
   
   /**  Deletes this entry from it's own list.
     */
   final public void delete() {
-    list.removeEntry(this) ;
+    list.removeEntry(this);
   }
   
   /**  Links the two given entries within their list.
     */
   final static void couple(final ListEntry l, final ListEntry n) {
-    l.next = n ;
-    n.last = l ;
+    l.next = n;
+    n.last = l;
   }
   
-  final public ListEntry <T> nextEntry() { return next ; }
-  final public ListEntry <T> lastEntry() { return last ; }
+  final public ListEntry <T> nextEntry() { return next; }
+  final public ListEntry <T> lastEntry() { return last; }
 }

@@ -41,7 +41,7 @@ public class ImageAsset extends Assets.Loadable {
   private ImageAsset(String filePath, Class sourceClass) {
     super("image_asset_"+filePath, sourceClass);
     this.filePath = filePath;
-    if (! Assets.exists(filePath)) I.complain("NO SUCH FILE: "+filePath) ;
+    if (! Assets.exists(filePath)) I.complain("NO SUCH FILE: "+filePath);
     Assets.registerForLoading(this);
   }
   
@@ -55,7 +55,7 @@ public class ImageAsset extends Assets.Loadable {
     Class sourceClass, String path, String... files
   ) {
     final ImageAsset assets[] = new ImageAsset[files.length];
-    for (int i = 0 ; i < files.length ; i++) {
+    for (int i = 0; i < files.length; i++) {
       assets[i] = new ImageAsset(path+files[i], sourceClass);
     }
     return assets;

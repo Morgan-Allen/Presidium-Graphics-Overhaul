@@ -113,7 +113,7 @@ public class FogOverlay {
     final byte rawData[] = new byte[pixels.capacity()];
     final int lineLen = drawnTo.getWidth() * 4;
     
-    for (int i = 0 ; i < rawData.length ;) {
+    for (int i = 0; i < rawData.length;) {
       final int
         x = (i % lineLen) / 4,
         y = i / lineLen;

@@ -1,7 +1,7 @@
 
 
 
-package stratos.game.tactical ;
+package stratos.game.tactical;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.util.*;
@@ -15,24 +15,24 @@ public class DangerMap extends FadingMap {
     */
   private boolean verbose = false;
   
-  final Base base ;
+  final Base base;
   
   
   public DangerMap(World world, Base base) {
-    super(world, world.sections.resolution, -1) ;
+    super(world, world.sections.resolution, -1);
     //TODO:  Use Sector Size for grid resolution, and enhance pathfinding with
     //       enemy fog-of-war.
-    this.base = base ;
+    this.base = base;
   }
   
   
   public void loadState(Session s) throws Exception {
-    super.loadState(s) ;
+    super.loadState(s);
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
+    super.saveState(s);
   }
   
   
@@ -56,7 +56,7 @@ public class DangerMap extends FadingMap {
     }
     
     //if (base == PlayLoop.currentScenario().base()) {
-      //I.present(shortTermVals, "Danger map", 200, 200, 20, -20) ;
+      //I.present(shortTermVals, "Danger map", 200, 200, 20, -20);
     //}
   }
   

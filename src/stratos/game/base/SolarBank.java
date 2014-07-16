@@ -17,7 +17,7 @@ public class SolarBank extends Structural implements Economy {
   
   
   final static String
-    IMG_DIR = "media/Buildings/ecologist/" ;
+    IMG_DIR = "media/Buildings/ecologist/";
   final public static ModelAsset
     ARRAY_MODELS[] = CutoutModel.fromImages(
       IMG_DIR, SolarBank.class, 2, 2, false,
@@ -36,23 +36,23 @@ public class SolarBank extends Structural implements Economy {
   final int
     TYPE_SOLAR = 0,
     TYPE_WIND  = 1,
-    TYPE_HUB   = 2 ;
+    TYPE_HUB   = 2;
   
   
   
   public SolarBank(Base base) {
-    super(2, 2, base) ;
-    structure.setupStats(10, 5, 40, 0, Structure.TYPE_FIXTURE) ;
+    super(2, 2, base);
+    structure.setupStats(10, 5, 40, 0, Structure.TYPE_FIXTURE);
   }
   
   
   public SolarBank(Session s) throws Exception {
-    super(s) ;
+    super(s);
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
+    super.saveState(s);
   }
   
   
@@ -67,32 +67,32 @@ public class SolarBank extends Structural implements Economy {
   
 
   protected void configFromAdjacent(boolean[] near, int numNear) {
-    final Tile o = origin() ;
-    type = TYPE_SOLAR ;
+    final Tile o = origin();
+    type = TYPE_SOLAR;
     
     if (numNear > 0 && numNear <= 2) {
       if (near[N] || near[S]) {
-        facing = X_AXIS ;
+        facing = X_AXIS;
         if (o.y % 8 == 0) {
-          type = TYPE_WIND ;
-          attachModel(MODEL_CENTRE) ;
+          type = TYPE_WIND;
+          attachModel(MODEL_CENTRE);
         }
-        else attachModel(MODEL_LEFT) ;
-        return ;
+        else attachModel(MODEL_LEFT);
+        return;
       }
       if (near[W] || near[E]) {
-        facing = Y_AXIS ;
+        facing = Y_AXIS;
         if (o.x % 8 == 0) {
-          type = TYPE_WIND ;
-          attachModel(MODEL_CENTRE) ;
+          type = TYPE_WIND;
+          attachModel(MODEL_CENTRE);
         }
-        else attachModel(MODEL_RIGHT) ;
-        return ;
+        else attachModel(MODEL_RIGHT);
+        return;
       }
     }
     
-    facing = CORNER ;
-    attachModel(MODEL_RIGHT) ;
+    facing = CORNER;
+    attachModel(MODEL_RIGHT);
   }
   
 
@@ -123,12 +123,12 @@ public class SolarBank extends Structural implements Economy {
   
   
   protected void updatePaving(boolean inWorld) {
-    if (type != TYPE_HUB) return ;
+    if (type != TYPE_HUB) return;
     final Paving paving = base().paving;
     paving.updatePerimeter(this, inWorld);
     
     final Tile perim[] = Spacing.perimeter(area(), world);
-    for (int n = 0 ; n < perim.length ; n += 4) {
+    for (int n = 0; n < perim.length; n += 4) {
       final Tile t = perim[n];
       if (t != null) paving.updateJunction(this, t, inWorld && ! t.blocked());
     }
@@ -139,7 +139,7 @@ public class SolarBank extends Structural implements Economy {
   /**  Rendering and interface methods-
     */
   public String fullName() {
-    return "Solar Bank" ;
+    return "Solar Bank";
   }
 
 
@@ -156,7 +156,7 @@ public class SolarBank extends Structural implements Economy {
   
   
   public String buildCategory() {
-    return InstallTab.TYPE_ECOLOGIST ;
+    return InstallTab.TYPE_ECOLOGIST;
   }
 }
 

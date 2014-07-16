@@ -3,11 +3,12 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-package stratos.game.tactical ;
+package stratos.game.tactical;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.game.civilian.*;
+import stratos.game.plans.Patrolling;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
@@ -32,7 +33,7 @@ public class SecurityMission extends Mission implements Qualities {
   private static boolean verbose = false;
   
   
-  float inceptTime = -1 ;
+  float inceptTime = -1;
   
   
   public SecurityMission(Base base, Target subject) {
@@ -40,24 +41,24 @@ public class SecurityMission extends Mission implements Qualities {
       base, subject,
       MissionsTab.SECURITY_MODEL,
       "Securing "+subject
-    ) ;
+    );
   }
   
   
   public SecurityMission(Session s) throws Exception {
-    super(s) ;
-    inceptTime = s.loadFloat() ;
+    super(s);
+    inceptTime = s.loadFloat();
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
-    s.saveFloat(inceptTime) ;
+    super.saveState(s);
+    s.saveFloat(inceptTime);
   }
   
   
   public float duration() {
-    return DURATION_LENGTHS[objectIndex()] ;
+    return DURATION_LENGTHS[objectIndex()];
   }
   
   
@@ -87,9 +88,9 @@ public class SecurityMission extends Mission implements Qualities {
   
   
   protected boolean shouldEnd() {
-    if (subject.destroyed()) return true ;
-    if (inceptTime == -1) return false ;
-    return (base.world.currentTime() - inceptTime) > duration() ;
+    if (subject.destroyed()) return true;
+    if (inceptTime == -1) return false;
+    return (base.world.currentTime() - inceptTime) > duration();
   }
   
   
@@ -113,10 +114,10 @@ public class SecurityMission extends Mission implements Qualities {
     //  TODO:  Implement item salvage?
     /*
     if (subject instanceof ItemDrop) {
-      final ItemDrop SI = (ItemDrop) subject ;
-      final Recovery RS = new Recovery(actor, SI, admin) ;
-      RS.setMotive(Plan.MOTIVE_DUTY, priority) ;
-      choice.add(RS) ;
+      final ItemDrop SI = (ItemDrop) subject;
+      final Recovery RS = new Recovery(actor, SI, admin);
+      RS.setMotive(Plan.MOTIVE_DUTY, priority);
+      choice.add(RS);
     }
     //*/
     
@@ -146,10 +147,10 @@ public class SecurityMission extends Mission implements Qualities {
   
   
   public void describeBehaviour(Description d) {
-    d.append("On ") ;
-    d.append("Security Mission", this) ;
-    d.append(" around ") ;
-    d.append(subject) ;
+    d.append("On ");
+    d.append("Security Mission", this);
+    d.append(" around ");
+    d.append(subject);
   }
 }
 

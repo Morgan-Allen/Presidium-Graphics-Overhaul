@@ -5,10 +5,11 @@
   */
 
 
-package stratos.game.building ;
+package stratos.game.building;
 import stratos.game.actors.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
+import stratos.game.plans.Audit;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -21,24 +22,24 @@ public class Payday extends Plan implements Economy {
     */
   private static boolean verbose = false;
   
-  final Employer pays ;
+  final Employer pays;
   
   
   public Payday(Actor actor, Employer pays) {
-    super(actor, pays) ;
-    this.pays = pays ;
+    super(actor, pays);
+    this.pays = pays;
   }
   
   
   public Payday(Session s) throws Exception {
-    super(s) ;
-    this.pays = (Employer) s.loadObject() ;
+    super(s);
+    this.pays = (Employer) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
-    s.saveObject(pays) ;
+    super.saveState(s);
+    s.saveObject(pays);
   }
   
   
@@ -91,8 +92,8 @@ public class Payday extends Plan implements Economy {
     //  function, anyway.
     /*
     if (pays instanceof AuditOffice) {
-      final AuditOffice office = (AuditOffice) pays ;
-      if (office.assessRelief(actor, false) <= 0) return null ;
+      final AuditOffice office = (AuditOffice) pays;
+      if (office.assessRelief(actor, false) <= 0) return null;
     }
     else
     //*/
@@ -101,8 +102,8 @@ public class Payday extends Plan implements Economy {
       actor, pays,
       this, "actionGetPaid",
       Action.TALK_LONG, "Getting Paid"
-    ) ;
-    return getPaid ;
+    );
+    return getPaid;
   }
   
   
@@ -110,13 +111,13 @@ public class Payday extends Plan implements Economy {
     final boolean report = verbose && I.talkAbout == actor;
     final Profile p = venue.base().profiles.profileFor(actor);
     if (report) I.say("Getting paid at "+venue);
-    //Audit.auditEmployer(actor, venue) ;
+    //Audit.auditEmployer(actor, venue);
     
     if (p.paymentDue() == 0) {
       /*
       if (venue instanceof AuditOffice) {
-        I.sayAbout(actor, "Dispensing relief...") ;
-        ((AuditOffice) venue).assessRelief(actor, true) ;
+        I.sayAbout(actor, "Dispensing relief...");
+        ((AuditOffice) venue).assessRelief(actor, true);
       }
       else {
       }
@@ -138,8 +139,8 @@ public class Payday extends Plan implements Economy {
   /**  Rendering and interface-
     */
   public void describeBehaviour(Description d) {
-    d.append("Collecting wages at ") ;
-    d.append(pays) ;
+    d.append("Collecting wages at ");
+    d.append(pays);
   }
 }
 

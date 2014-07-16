@@ -4,18 +4,20 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package stratos.game.base ;
-import stratos.game.civilian.Foraging;
-import stratos.game.civilian.Forestry;
-import stratos.game.common.* ;
+package stratos.game.base;
+import stratos.game.common.*;
 import stratos.game.maps.*;
-import stratos.game.actors.* ;
-import stratos.game.building.* ;
-import stratos.graphics.common.* ;
-import stratos.graphics.cutout.* ;
-import stratos.graphics.widgets.* ;
-import stratos.user.* ;
-import stratos.util.* ;
+import stratos.game.plans.Farming;
+import stratos.game.plans.Foraging;
+import stratos.game.plans.Forestry;
+import stratos.game.plans.SeedTailoring;
+import stratos.game.actors.*;
+import stratos.game.building.*;
+import stratos.graphics.common.*;
+import stratos.graphics.cutout.*;
+import stratos.graphics.widgets.*;
+import stratos.user.*;
+import stratos.util.*;
 
 
 
@@ -25,39 +27,39 @@ public class BotanicalStation extends Venue implements Economy {
   
   /**  Fields, constructors, and save/load methods-
     */
-  final static String IMG_DIR = "media/Buildings/ecologist/" ;
+  final static String IMG_DIR = "media/Buildings/ecologist/";
   final static ImageAsset ICON = ImageAsset.fromImage(
     "media/GUI/Buttons/nursery_button.gif", BotanicalStation.class
   );
   final static ModelAsset
     STATION_MODEL = CutoutModel.fromImage(
       BotanicalStation.class, IMG_DIR+"botanical_station.png", 4, 3
-    ) ;
+    );
   
   
-  final List <Plantation> allotments = new List <Plantation> () ;
+  final List <Plantation> allotments = new List <Plantation> ();
   
   
   public BotanicalStation(Base belongs) {
-    super(4, 3, Venue.ENTRANCE_SOUTH, belongs) ;
+    super(4, 3, Venue.ENTRANCE_SOUTH, belongs);
     structure.setupStats(
       150, 3, 250,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
-    ) ;
-    personnel.setShiftType(SHIFTS_BY_DAY) ;
-    attachSprite(STATION_MODEL.makeSprite()) ;
+    );
+    personnel.setShiftType(SHIFTS_BY_DAY);
+    attachSprite(STATION_MODEL.makeSprite());
   }
   
   
   public BotanicalStation(Session s) throws Exception {
-    super(s) ;
-    s.loadObjects(allotments) ;
+    super(s);
+    s.loadObjects(allotments);
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
-    s.saveObjects(allotments) ;
+    super.saveState(s);
+    s.saveObjects(allotments);
   }
   
   
@@ -66,8 +68,8 @@ public class BotanicalStation extends Venue implements Economy {
     */
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
     BotanicalStation.class, "botanical_upgrades"
-  ) ;
-  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES ; }
+  );
+  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
     CEREAL_LAB = new Upgrade(
       "Cereal Lab",
@@ -118,12 +120,12 @@ public class BotanicalStation extends Venue implements Economy {
       150,
       Backgrounds.ECOLOGIST, 1,
       TREE_FARMING, ALL_UPGRADES
-    ) ;
+    );
   
   
   public Behaviour jobFor(Actor actor) {
-    if (! structure.intact()) return null ;
-    final Choice choice = new Choice(actor) ;
+    if (! structure.intact()) return null;
+    final Choice choice = new Choice(actor);
     
     //  If you're really short on food, consider foraging in the surrounds-
     final float shortages = (
@@ -133,30 +135,30 @@ public class BotanicalStation extends Venue implements Economy {
     if (shortages > 0) {
       final Foraging foraging = new Foraging(actor, this);
       foraging.setMotive(Plan.MOTIVE_EMERGENCY, Plan.PARAMOUNT * shortages);
-      choice.add(foraging) ;
+      choice.add(foraging);
     }
     
     //  If the harvest is really coming in, pitch in regardless-
     if (! Planet.isNight(world)) for (Plantation p : allotments) {
       if (p.needForTending() > 0.5f) choice.add(new Farming(actor, p));
     }
-    if (choice.size() > 0) return choice.pickMostUrgent() ;
+    if (choice.size() > 0) return choice.pickMostUrgent();
     
     //  Otherwise, perform deliveries and more casual work-
-    if (! personnel.onShift(actor)) return null ;
+    if (! personnel.onShift(actor)) return null;
     final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
       this, services(), 2, 10, 5
     );
     /*
     final Delivery d = Deliveries.nextDeliveryFor(
       actor, this, services(), 10, world
-    ) ;
+    );
     //*/
-    choice.add(d) ;
+    choice.add(d);
     
     //  Forestry may have to be performed, depending on need for gene samples-
     final boolean needsSeed = stocks.amountOf(GENE_SEED) < 5;
-    final Forestry f = new Forestry(actor, this) ;
+    final Forestry f = new Forestry(actor, this);
     if (needsSeed && actor.vocation() == Backgrounds.ECOLOGIST) {
       f.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
       f.configureFor(Forestry.STAGE_SAMPLING);
@@ -165,39 +167,39 @@ public class BotanicalStation extends Venue implements Economy {
       f.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
       f.configureFor(Forestry.STAGE_GET_SEED);
     }
-    choice.add(f) ;
+    choice.add(f);
     
     //  And lower-priority tending and upkeep also gets an appearance-
     for (Plantation p : allotments) if (p.type == Plantation.TYPE_NURSERY) {
       for (Species s : Plantation.ALL_VARIETIES) {
         if (actor.vocation() == Backgrounds.ECOLOGIST) {
-          final SeedTailoring t = new SeedTailoring(actor, p, s) ;
-          if (personnel.assignedTo(t) > 0) continue ;
-          choice.add(t) ;
+          final SeedTailoring t = new SeedTailoring(actor, p, s);
+          if (personnel.assignedTo(t) > 0) continue;
+          choice.add(t);
         }
       }
       //  TODO:  Do this for every crop type?
-      choice.add(new Farming(actor, p)) ;
+      choice.add(new Farming(actor, p));
     }
-    return choice.weightedPick() ;
+    return choice.weightedPick();
   }
   
   
   public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates) ;
-    if (! structure.intact()) return ;
-    updateAllotments(numUpdates) ;
+    super.updateAsScheduled(numUpdates);
+    if (! structure.intact()) return;
+    updateAllotments(numUpdates);
     //
     //  Increment demand for gene seed, and decay current stocks-
-    stocks.incDemand(GENE_SEED, 5, Stocks.TIER_CONSUMER, 1, this) ;
-    final float decay = 0.1f / World.STANDARD_DAY_LENGTH ;
+    stocks.incDemand(GENE_SEED, 5, Stocks.TIER_CONSUMER, 1, this);
+    final float decay = 0.1f / World.STANDARD_DAY_LENGTH;
     for (Item seed : stocks.matches(GENE_SEED)) {
-      stocks.removeItem(Item.withAmount(seed, decay)) ;
+      stocks.removeItem(Item.withAmount(seed, decay));
     }
     for (Item seed : stocks.matches(SAMPLES)) {
-      stocks.removeItem(Item.withAmount(seed, decay)) ;
+      stocks.removeItem(Item.withAmount(seed, decay));
     }
-    structure.setAmbienceVal(2) ;
+    structure.setAmbienceVal(2);
   }
   
   /*
@@ -205,13 +207,13 @@ public class BotanicalStation extends Venue implements Economy {
   //  TODO:  You need to cover the case of de-commissioning aura structures.
   //  ...in fact, try to generalise that more robustly.
   public void onDecommission() {
-    super.onDecommission() ;
+    super.onDecommission();
   }
   //*/
   
   
   public void onDestruction() {
-    super.onDestruction() ;
+    super.onDestruction();
   }
 
 
@@ -219,46 +221,46 @@ public class BotanicalStation extends Venue implements Economy {
     //
     //  Then update the current set of allotments-
     if (numUpdates % 10 == 0) {
-      final int STRIP_SIZE = 4 ;
-      int numCovered = 0 ;
+      final int STRIP_SIZE = 4;
+      int numCovered = 0;
       //
       //  First of all, remove any missing allotments (and their siblings in
       //  the same strip.)
       for (Plantation p : allotments) {
         if (p.destroyed()) {
-          allotments.remove(p) ;
+          allotments.remove(p);
           for (Plantation s : p.strip) if (s != p) {
-            s.structure.setState(Structure.STATE_SALVAGE, -1) ;
+            s.structure.setState(Structure.STATE_SALVAGE, -1);
           }
         }
-        else if (p.type == Plantation.TYPE_COVERED) numCovered++ ;
+        else if (p.type == Plantation.TYPE_COVERED) numCovered++;
       }
       //
       //  Then, calculate how many allotments one should have.
       int maxAllots = 1 + personnel.numHired(Backgrounds.CULTIVATOR);
-      maxAllots *= STRIP_SIZE ;
+      maxAllots *= STRIP_SIZE;
       if (maxAllots > allotments.size()) {
         //
         //  If you have too few, try to find a place for more-
-        final boolean covered = numCovered <= allotments.size() / 3 ;
+        final boolean covered = numCovered <= allotments.size() / 3;
         Plantation allots[] = Plantation.placeAllotment(
           this, covered ? STRIP_SIZE : STRIP_SIZE, covered
-        ) ;
+        );
         if (allots != null) for (Plantation p : allots) {
-          allotments.add(p) ;
+          allotments.add(p);
         }
       }
       if (maxAllots + STRIP_SIZE < allotments.size()) {
         //
         //  And if you have too many, flag the least productive for salvage.
-        float minRating = Float.POSITIVE_INFINITY ;
-        Plantation toRemove[] = null ;
+        float minRating = Float.POSITIVE_INFINITY;
+        Plantation toRemove[] = null;
         for (Plantation p : allotments) {
-          final float rating = Plantation.rateArea(p.strip, world) ;
-          if (rating < minRating) { toRemove = p.strip ; minRating = rating ; }
+          final float rating = Plantation.rateArea(p.strip, world);
+          if (rating < minRating) { toRemove = p.strip; minRating = rating; }
         }
         if (toRemove != null) for (Plantation p : toRemove) {
-          p.structure.setState(Structure.STATE_SALVAGE, -1) ;
+          p.structure.setState(Structure.STATE_SALVAGE, -1);
         }
       }
     }
@@ -266,25 +268,25 @@ public class BotanicalStation extends Venue implements Economy {
   
 
   public int numOpenings(Background v) {
-    int num = super.numOpenings(v) ;
-    if (v == Backgrounds.CULTIVATOR) return num + 2 ;
-    if (v == Backgrounds.ECOLOGIST ) return num + 1 ;
-    return 0 ;
+    int num = super.numOpenings(v);
+    if (v == Backgrounds.CULTIVATOR) return num + 2;
+    if (v == Backgrounds.ECOLOGIST ) return num + 1;
+    return 0;
   }
   
   
   protected List <Plantation> allotments() {
-    return allotments ;
+    return allotments;
   }
   
   
   public Service[] services() {
-    return new Service[] { GREENS, PROTEIN, CARBS } ;
+    return new Service[] { GREENS, PROTEIN, CARBS };
   }
   
   
   public Background[] careers() {
-    return new Background[] { Backgrounds.ECOLOGIST, Backgrounds.CULTIVATOR } ;
+    return new Background[] { Backgrounds.ECOLOGIST, Backgrounds.CULTIVATOR };
   }
   
   
@@ -300,18 +302,18 @@ public class BotanicalStation extends Venue implements Economy {
   
   
   protected float[] goodDisplayOffsets() {
-    return GOOD_DISPLAY_OFFSETS ;
+    return GOOD_DISPLAY_OFFSETS;
   }
   
   
   protected Service[] goodsToShow() {
-    return new Service[] { GENE_SEED, CARBS, GREENS, PROTEIN } ;
+    return new Service[] { GENE_SEED, CARBS, GREENS, PROTEIN };
   }
   
   
   protected float goodDisplayAmount(Service good) {
-    if (good == GENE_SEED) return stocks.amountOf(good) > 0 ? 5 : 0 ;
-    return super.goodDisplayAmount(good) ;
+    if (good == GENE_SEED) return stocks.amountOf(good) > 0 ? 5 : 0;
+    return super.goodDisplayAmount(good);
   }
   
   
@@ -320,18 +322,18 @@ public class BotanicalStation extends Venue implements Economy {
   }
   
   
-  public String fullName() { return "Botanical Station" ; }
+  public String fullName() { return "Botanical Station"; }
   
   
   public String helpInfo() {
     return
       "Botanical Stations are responsible for agriculture and forestry, "+
-      "helping to secure food supplies and advance terraforming efforts." ;
+      "helping to secure food supplies and advance terraforming efforts.";
   }
   
   
   public String buildCategory() {
-    return InstallTab.TYPE_ECOLOGIST ;
+    return InstallTab.TYPE_ECOLOGIST;
   }
 }
 

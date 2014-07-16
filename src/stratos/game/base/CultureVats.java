@@ -5,7 +5,7 @@
   */
 
 
-package stratos.game.base ;
+package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
@@ -32,25 +32,25 @@ public class CultureVats extends Venue implements Economy {
   
   
   public CultureVats(Base base) {
-    super(3, 2, ENTRANCE_NORTH, base) ;
+    super(3, 2, ENTRANCE_NORTH, base);
     structure.setupStats(
       400, 3, 450,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
-    ) ;
-    personnel.setShiftType(SHIFTS_BY_DAY) ;
-    this.attachSprite(MODEL.makeSprite()) ;
+    );
+    personnel.setShiftType(SHIFTS_BY_DAY);
+    this.attachSprite(MODEL.makeSprite());
   }
   
   
   public CultureVats(Session s) throws Exception {
-    super(s) ;
-    //stocks.bumpItem(CARBS, 100) ;
-    //stocks.bumpItem(PROTEIN, 100) ;
+    super(s);
+    //stocks.bumpItem(CARBS, 100);
+    //stocks.bumpItem(PROTEIN, 100);
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
+    super.saveState(s);
   }
   
   
@@ -59,8 +59,8 @@ public class CultureVats extends Venue implements Economy {
     */
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
     CultureVats.class, "culture_vats_upgrades"
-  ) ;
-  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES ; }
+  );
+  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
     WASTE_DISPOSAL = new Upgrade(
       "Waste Disposal",
@@ -99,115 +99,115 @@ public class CultureVats extends Venue implements Economy {
       "samples.",
       100, Backgrounds.VATS_BREEDER, 1, null, ALL_UPGRADES
     )
-  ;
+ ;
   
   
   public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates) ;
-    if (! structure.intact()) return ;
+    super.updateAsScheduled(numUpdates);
+    if (! structure.intact()) return;
     
-    stocks.translateDemands(1, WASTE_TO_CARBS   , this) ;
-    stocks.translateDemands(1, CARBS_TO_PROTEIN , this) ;
-    stocks.translateDemands(1, CARBS_TO_SOMA   , this) ;
-    stocks.translateDemands(1, SPICE_TO_MEDICINE, this) ;
+    stocks.translateDemands(1, WASTE_TO_CARBS   , this);
+    stocks.translateDemands(1, CARBS_TO_PROTEIN , this);
+    stocks.translateDemands(1, CARBS_TO_SOMA   , this);
+    stocks.translateDemands(1, SPICE_TO_MEDICINE, this);
     
-    float needPower = 5 ;
-    if (! isManned()) needPower /= 2 ;
-    stocks.incDemand(POWER, needPower, Stocks.TIER_CONSUMER, 1, this) ;
-    stocks.bumpItem(POWER, needPower * -0.1f) ;
+    float needPower = 5;
+    if (! isManned()) needPower /= 2;
+    stocks.incDemand(POWER, needPower, Stocks.TIER_CONSUMER, 1, this);
+    stocks.bumpItem(POWER, needPower * -0.1f);
     
-    final int cycleBonus = bonusFor(WASTE_DISPOSAL, 1) ;
-    float pollution = 5 - cycleBonus ;
+    final int cycleBonus = bonusFor(WASTE_DISPOSAL, 1);
+    float pollution = 5 - cycleBonus;
     //
     //  TODO:  vary this based on current power and the number of ongoing
     //  cultures instead.
-    if (! isManned()) pollution /= 2 ;
-    structure.setAmbienceVal(0 - pollution) ;
+    if (! isManned()) pollution /= 2;
+    structure.setAmbienceVal(0 - pollution);
   }
   
   
   private int bonusFor(Upgrade u, float mult) {
-    return (int) (mult * structure.upgradeLevel(u)) ;
+    return (int) (mult * structure.upgradeLevel(u));
   }
   
   
   public Behaviour jobFor(Actor actor) {
-    if ((! structure.intact()) || (! personnel.onShift(actor))) return null ;
-    final Choice choice = new Choice(actor) ;
+    if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
+    final Choice choice = new Choice(actor);
     //
     //  Replicants need to be delivered to their Sickbays once ready.
     for (Item match : stocks.matches(REPLICANTS)) {
-      if (match.amount < 1) continue ;
-      final Actor a = (Actor) match.refers ;
+      if (match.amount < 1) continue;
+      final Actor a = (Actor) match.refers;
       if (a.aboard() instanceof Venue) {
-        final Delivery d = new Delivery(match, this, (Venue) a.aboard()) ;
+        final Delivery d = new Delivery(match, this, (Venue) a.aboard());
         d.setMotive(Plan.MOTIVE_EMERGENCY, Plan.URGENT);
-        choice.add(d) ;
+        choice.add(d);
       }
     }
     //
     //  Otherwise, see to custom manufacturing-
-    final float powerCut = stocks.shortagePenalty(POWER) * 10 ;
-    final int cycleBonus = bonusFor(WASTE_DISPOSAL, 1) ;
+    final float powerCut = stocks.shortagePenalty(POWER) * 10;
+    final int cycleBonus = bonusFor(WASTE_DISPOSAL, 1);
     
-    final Manufacture o = stocks.nextSpecialOrder(actor) ;
+    final Manufacture o = stocks.nextSpecialOrder(actor);
     if (o != null) {
-      o.checkBonus = cycleBonus + bonusFor(ORGAN_BANKS, 2) ;
-      choice.add(o) ;
+      o.checkBonus = cycleBonus + bonusFor(ORGAN_BANKS, 2);
+      choice.add(o);
     }
     //
     //  Foodstuffs-
     final Manufacture
       mS = stocks.nextManufacture(actor, WASTE_TO_CARBS),
-      mP = stocks.nextManufacture(actor, CARBS_TO_PROTEIN) ;
+      mP = stocks.nextManufacture(actor, CARBS_TO_PROTEIN);
     if (mS != null) {
-      mS.checkBonus = cycleBonus * 2 ;
-      mS.checkBonus -= powerCut ;
-      choice.add(mS) ;
+      mS.checkBonus = cycleBonus * 2;
+      mS.checkBonus -= powerCut;
+      choice.add(mS);
     }
     if (mP != null) {
-      mP.checkBonus = cycleBonus + bonusFor(PROTEIN_ASSEMBLY, 1.5f) ;
-      mP.checkBonus -= powerCut ;
-      choice.add(mP) ;
+      mP.checkBonus = cycleBonus + bonusFor(PROTEIN_ASSEMBLY, 1.5f);
+      mP.checkBonus -= powerCut;
+      choice.add(mP);
     }
     //
     //  And pharmaceuticals-
     final Manufacture
       mA = stocks.nextManufacture(actor, CARBS_TO_SOMA),
-      mM = stocks.nextManufacture(actor, SPICE_TO_MEDICINE) ;
+      mM = stocks.nextManufacture(actor, SPICE_TO_MEDICINE);
     if (mA != null) {
-      mA.checkBonus = cycleBonus + bonusFor(SOMA_CULTURE, 1.5f) ;
-      mA.checkBonus -= powerCut ;
-      choice.add(mA) ;
+      mA.checkBonus = cycleBonus + bonusFor(SOMA_CULTURE, 1.5f);
+      mA.checkBonus -= powerCut;
+      choice.add(mA);
     }
     if (mM != null) {
-      mM.checkBonus = cycleBonus + bonusFor(DRUG_SYNTHESIS, 2) ;
-      mM.checkBonus -= powerCut ;
-      choice.add(mM) ;
+      mM.checkBonus = cycleBonus + bonusFor(DRUG_SYNTHESIS, 2);
+      mM.checkBonus -= powerCut;
+      choice.add(mM);
     }
     
-    return choice.weightedPick() ;
+    return choice.weightedPick();
   }
   
   
   public Service[] services() {
     return new Service[] {
       CARBS, PROTEIN, SOMA, MEDICINE, LIFE_SUPPORT, REPLICANTS
-    } ;
+    };
   }
   
   
   public Background[] careers() {
-    return new Background[] { Backgrounds.VATS_BREEDER } ;
+    return new Background[] { Backgrounds.VATS_BREEDER };
   }
   
   
   public int numOpenings(Background v) {
-    final int nO = super.numOpenings(v) ;
+    final int nO = super.numOpenings(v);
     if (v == Backgrounds.VATS_BREEDER) {
-      return nO + 1 ;//+ structure.upgradeLevel(VATS_BREEDER_STATION) ;
+      return nO + 1;//+ structure.upgradeLevel(VATS_BREEDER_STATION);
     }
-    return 0 ;
+    return 0;
   }
   
   
@@ -220,17 +220,17 @@ public class CultureVats extends Venue implements Economy {
   
   
   public String fullName() {
-    return "Culture Vats" ;
+    return "Culture Vats";
   }
   
   public String helpInfo() {
     return
       "The Culture Vats manufacture soma, medicines, tissue cultures and "+
-      "basic foodstuffs." ;
+      "basic foodstuffs.";
   }
   
   public String buildCategory() {
-    return InstallTab.TYPE_PHYSICIAN ;
+    return InstallTab.TYPE_PHYSICIAN;
   }
 }
 

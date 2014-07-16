@@ -13,12 +13,12 @@ import stratos.util.*;
 public class BuildingSprite extends Sprite {
   
   
-  final private static Class <BuildingSprite> C = BuildingSprite.class ;
+  final private static Class <BuildingSprite> C = BuildingSprite.class;
   final static ModelAsset BUILDING_MODEL = new ModelAsset("building_model", C) {
     public boolean isLoaded() { return true; }
     protected void loadAsset() {}
     protected void disposeAsset() {}
-    public Sprite makeSprite() { return new BuildingSprite() ; }
+    public Sprite makeSprite() { return new BuildingSprite(); }
   };
   final public static float
     ITEM_SIZE = 0.33f;
@@ -154,7 +154,7 @@ public class BuildingSprite extends Sprite {
     allStacks.matchTo(this);
     allStacks.readyFor(rendering);
     
-    final PlaneFX displayed = statusFX.atIndex(statusDisplayIndex) ;
+    final PlaneFX displayed = statusFX.atIndex(statusDisplayIndex);
     if (displayed != null) {
       
       displayed.matchTo(this);
@@ -170,12 +170,12 @@ public class BuildingSprite extends Sprite {
         statusFX.atIndex(statusDisplayIndex).reset();
       }
     }
-    else statusDisplayIndex = statusFX.size() - 1 ;
+    else statusDisplayIndex = statusFX.size() - 1;
   }
   
   
-  public Sprite baseSprite()  { return baseSprite  ; }
-  public Sprite scaffolding() { return scaffolding ; }
+  public Sprite baseSprite()  { return baseSprite ; }
+  public Sprite scaffolding() { return scaffolding; }
   
   
   
@@ -203,8 +203,8 @@ public class BuildingSprite extends Sprite {
   
   
   public void clearFX() {
-    statusFX.clear() ;
-    allStacks.clearAllAttachments() ;
+    statusFX.clear();
+    allStacks.clearAllAttachments();
   }
   
   
@@ -222,8 +222,8 @@ public class BuildingSprite extends Sprite {
       }
     }
     if (amount < 1) {
-      if (match != null) allStacks.detach(match) ;
-      return ;
+      if (match != null) allStacks.detach(match);
+      return;
     }
     if (match == null) {
       match = new ItemStack(itemModel);
@@ -259,17 +259,17 @@ public class BuildingSprite extends Sprite {
   /**  Producing and updating scaffold sprites-
     */
   private int maxStages() {
-    int max = 0 ;
-    for (int z = 0 ; z < high ; z++)
-      for (int x = 1 ; x < (size - z) ; x++)
-        for (int y = 1 + z ; y < size ; y++) max++ ;
-    return max ;
+    int max = 0;
+    for (int z = 0; z < high; z++)
+      for (int x = 1; x < (size - z); x++)
+        for (int y = 1 + z; y < size; y++) max++;
+    return max;
   }
   
   
   private int scaffoldStage(int size, int high, float condition, int maxStage) {
-    final int newStage = (int) (condition * (maxStage + 1)) ;
-    return newStage ;
+    final int newStage = (int) (condition * (maxStage + 1));
+    return newStage;
   }
   
   
@@ -287,15 +287,15 @@ public class BuildingSprite extends Sprite {
     int numS = 0;
     //
     //  Iterate over the entire coordinate space as required-
-    loop: for (int z = 0 ; z < high; z++) {
+    loop: for (int z = 0; z < high; z++) {
       final float
         l = z * 1f / high,
         h = z - (l * l),
-        i = z / 2f ;
+        i = z / 2f;
       
-      for (int x = size - z ; x-- > 1;) {
-        for (int y = 1 + z ; y < size ; y++) {
-          if (++numS > stage) break loop ;
+      for (int x = size - z; x-- > 1;) {
+        for (int y = 1 + z; y < size; y++) {
+          if (++numS > stage) break loop;
           sprite.attach(
             SCAFF_MODELS[0],
             x + i - xoff,

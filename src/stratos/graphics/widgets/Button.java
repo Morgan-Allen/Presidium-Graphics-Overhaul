@@ -4,7 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package stratos.graphics.widgets ;
+package stratos.graphics.widgets;
 import stratos.graphics.common.*;
 import stratos.util.*;
 
@@ -39,7 +39,7 @@ public class Button extends Image {
       myHUD, norm.asTexture(),
       DEFAULT_LIT.asTexture(),
       infoS
-    ) ;
+    );
   }
   
 
@@ -49,19 +49,19 @@ public class Button extends Image {
   
   
   public Button(HUD myHUD, Texture norm, Texture lit, String infoS) {
-    super(myHUD, norm) ;
-    info = infoS ;
-    highlit = lit ;
+    super(myHUD, norm);
+    info = infoS;
+    highlit = lit;
   }
   
   
   public void setHighlight(Texture h) {
-    highlit = h ;
+    highlit = h;
   }
   
   
   protected String info() {
-    return info ;
+    return info;
   }
   
   
@@ -69,7 +69,8 @@ public class Button extends Image {
   /**  UI method overrides/implementations-
     */
   protected UINode selectionAt(Vector2 mousePos) {
-    return (bounds.contains(mousePos.x, mousePos.y)) ? this : null ;
+    return (bounds.contains(mousePos.x, mousePos.y)) ? this : null;
+    //  TODO:  Consider restoring multiple selection modes.
   }
   
 
@@ -95,27 +96,27 @@ public class Button extends Image {
 final public static byte
   MODE_RADIUS = 0,
   MODE_BOUNDS = 1,
-  MODE_ALPHA = 2 ;
+  MODE_ALPHA = 2;
 //*/
 
 /*
 if (selectMode == MODE_BOUNDS) {
-  return this ;
+  return this;
 }
 if (selectMode == MODE_RADIUS) {
-  final float radius = Math.max(bounds.xdim(), bounds.ydim()) / 2 ;
-  return (bounds.centre().dst(mousePos) < radius) ? this : null ;
+  final float radius = Math.max(bounds.xdim(), bounds.ydim()) / 2;
+  return (bounds.centre().dst(mousePos) < radius) ? this : null;
 }
 if (selectMode == MODE_ALPHA) {
   final float
     tU = ((mousePos.x - bounds.xpos()) / bounds.xdim()),
-    tV = ((mousePos.y - bounds.ypos()) / bounds.ydim()) ;
+    tV = ((mousePos.y - bounds.ypos()) / bounds.ydim());
   
   texture.getTextureData().consumePixmap().getPixel(tU, tV);
-  final Colour texSample = texture.getColour(tU, tV) ;
-  return (texSample.a > 0.5f) ? this : null ;
+  final Colour texSample = texture.getColour(tU, tV);
+  return (texSample.a > 0.5f) ? this : null;
 }
-return null ;
+return null;
 
 
   public Button(HUD myHUD, String path, String norm, String lit, String infoS) {

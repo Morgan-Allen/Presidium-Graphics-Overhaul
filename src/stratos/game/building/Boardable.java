@@ -5,7 +5,7 @@
   */
 
 
-package stratos.game.building ;
+package stratos.game.building;
 import stratos.game.common.*;
 import stratos.util.*;
 
@@ -20,14 +20,14 @@ public interface Boardable extends Target {
     BOARDABLE_OTHER   = 3;
   
   
-  void setInside(Mobile m, boolean is) ;
-  Series <Mobile> inside() ;
+  void setInside(Mobile m, boolean is);
+  Series <Mobile> inside();
   
-  Box2D area(Box2D put) ;
-  Boardable[] canBoard(Boardable batch[]) ;
-  boolean isEntrance(Boardable b) ;
+  Box2D area(Box2D put);
+  Boardable[] canBoard(Boardable batch[]);
+  boolean isEntrance(Boardable b);
   
-  int pathType() ;
-  boolean allowsEntry(Mobile m) ;
-  int boardableType() ;
+  int pathType();
+  boolean allowsEntry(Mobile m);
+  int boardableType();
 }

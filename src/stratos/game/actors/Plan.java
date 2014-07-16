@@ -5,16 +5,19 @@
   */
 
 
-package stratos.game.actors ;
+package stratos.game.actors;
 import stratos.game.building.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.common.Session.Saveable;
+import stratos.game.plans.Combat;
+import stratos.game.plans.CombatUtils;
 import stratos.game.tactical.*;
 import stratos.user.*;
 import stratos.util.*;
 
 import java.lang.reflect.*;
+
 import org.apache.commons.math3.util.FastMath;
 
 
@@ -100,7 +103,7 @@ public abstract class Plan implements Saveable, Behaviour {
   
   
   public boolean matchesPlan(Plan p) {
-    if (p == null || p.getClass() != this.getClass()) return false ;
+    if (p == null || p.getClass() != this.getClass()) return false;
     return this.subject == p.subject;
   }
   
@@ -114,14 +117,14 @@ public abstract class Plan implements Saveable, Behaviour {
   /**  Default implementations of Behaviour methods-
     */
   public int motionType(Actor actor) {
-    return MOTION_ANY ;
+    return MOTION_ANY;
   }
   
   
   public boolean valid() {
     if (! subject.inWorld()) return false;
-    if (actor != null && ! actor.inWorld()) return false ;
-    return true ;
+    if (actor != null && ! actor.inWorld()) return false;
+    return true;
   }
   
   
@@ -139,8 +142,8 @@ public abstract class Plan implements Saveable, Behaviour {
   
   public float priorityFor(Actor actor) {
     if (this.actor != actor) {
-      if (this.actor != null) ;  //TODO:  Give some kind of message here
-      this.actor = actor ;
+      if (this.actor != null);  //TODO:  Give some kind of message here
+      this.actor = actor;
       priorityEval = NULL_PRIORITY;
     }
     final float time = actor.world().currentTime();
@@ -160,15 +163,15 @@ public abstract class Plan implements Saveable, Behaviour {
     if (report) I.say("\nFinding next step for "+this);
     
     if (this.actor != actor) {
-      if (this.actor != null) ;  //TODO:  Give some kind of message here
-      this.actor = actor ;
-      nextStep = null ;
+      if (this.actor != null);  //TODO:  Give some kind of message here
+      this.actor = actor;
+      nextStep = null;
       if (report) I.say("NEXT STEP IS NULL: DIFFERENT ACTOR");
     }
     if (! valid()) {
-      onceInvalid() ;
+      onceInvalid();
       if (report) I.say("NEXT STEP IS NULL: NOT VALID");
-      return nextStep = null ;
+      return nextStep = null;
     }
     
     //  We do not cache steps for dormant or 'under consideration' plans, since
@@ -198,28 +201,28 @@ public abstract class Plan implements Saveable, Behaviour {
   public boolean finished() {
     final boolean report = verbose && hasBegun() && I.talkAbout == actor;
     if (motiveType == MOTIVE_CANCELLED) return true;
-    if (actor == null) return false ;
+    if (actor == null) return false;
     if (nextStepFor(actor) == null) {
-      if (report) I.say("NO NEXT STEP: "+this+" "+hashCode()) ;
-      return true ;
+      if (report) I.say("NO NEXT STEP: "+this+" "+hashCode());
+      return true;
     }
     if (this == actor.mind.rootBehaviour()) {
       if (priorityFor(actor) <= 0) {
-        if (report) I.say("NO PRIORITY: "+this+" "+hashCode()) ;
-        return true ;
+        if (report) I.say("NO PRIORITY: "+this+" "+hashCode());
+        return true;
       }
     }
-    return false ;
+    return false;
   }
   
   
   public boolean hasBegun() {
-    return actor != null && lastStep != null ;
+    return actor != null && lastStep != null;
   }
   
   
   public Actor actor() {
-    return actor ;
+    return actor;
   }
   
   
@@ -429,48 +432,48 @@ public abstract class Plan implements Saveable, Behaviour {
     //
     //  TODO:  Incorporate estimate of dangers along entire route using
     //  path-caching.
-    //if (actor.base() == null) return 0 ;
-    final Tile at = actor.world().tileAt(t) ;
-    float danger = actor.base().dangerMap.sampleAt(at.x, at.y) ;
-    if (danger < 0) return 0 ;
-    danger *= 1 + actor.traits.relativeLevel(Qualities.NERVOUS) ;
+    //if (actor.base() == null) return 0;
+    final Tile at = actor.world().tileAt(t);
+    float danger = actor.base().dangerMap.sampleAt(at.x, at.y);
+    if (danger < 0) return 0;
+    danger *= 1 + actor.traits.relativeLevel(Qualities.NERVOUS);
     final float strength = CombatUtils.combatStrength(actor, null);
     
     if (evalVerbose && I.talkAbout == actor) {
       I.say("  Combat strength: "+strength);
       I.say("  Danger sample: "+danger);
     }
-    return danger * 0.1f / (1 + strength) ;
+    return danger * 0.1f / (1 + strength);
   }
   
   
   public static float competition(Class planClass, Target t, Actor actor) {
-    float competition = 0 ;
-    final World world = actor.world() ;
+    float competition = 0;
+    final World world = actor.world();
     for (Behaviour b : world.activities.targeting(t)) {
       if (b instanceof Plan) {
-        final Plan plan = (Plan) b ;
-        if (plan.getClass() != planClass) continue ;
-        if (plan.actor() == actor) continue ;
-        competition += plan.successChance() ;
+        final Plan plan = (Plan) b;
+        if (plan.getClass() != planClass) continue;
+        if (plan.actor() == actor) continue;
+        competition += plan.successChance();
       }
     }
-    return competition ;
+    return competition;
   }
   
   
   public static float competition(Plan match, Target t, Actor actor) {
-    float competition = 0 ;
-    final World world = actor.world() ;
+    float competition = 0;
+    final World world = actor.world();
     for (Behaviour b : world.activities.targeting(t)) {
       if (b instanceof Plan) {
-        final Plan plan = (Plan) b ;
-        if (plan.actor() == actor) continue ;
-        if (! plan.matchesPlan(match)) continue ;
-        competition += plan.successChance() ;
+        final Plan plan = (Plan) b;
+        if (plan.actor() == actor) continue;
+        if (! plan.matchesPlan(match)) continue;
+        competition += plan.successChance();
       }
     }
-    return competition ;
+    return competition;
   }
   
   
@@ -515,12 +518,12 @@ public abstract class Plan implements Saveable, Behaviour {
   
   
   public static int upgradeBonus(Target location, Object refers) {
-    if (! (location instanceof Venue)) return 0 ;
-    final Venue v = (Venue) location ;
+    if (! (location instanceof Venue)) return 0;
+    final Venue v = (Venue) location;
     if (refers instanceof Upgrade) {
-      return v.structure.upgradeLevel((Upgrade) refers) ;
+      return v.structure.upgradeLevel((Upgrade) refers);
     }
-    else return v.structure.upgradeBonus(refers) ;
+    else return v.structure.upgradeBonus(refers);
   }
   
   
@@ -528,9 +531,9 @@ public abstract class Plan implements Saveable, Behaviour {
   /**  Rendering and interface methods-
     */
   public String toString() {
-    final StringDescription desc = new StringDescription() ;
-    describeBehaviour(desc) ;
-    return desc.toString() ;
+    final StringDescription desc = new StringDescription();
+    describeBehaviour(desc);
+    return desc.toString();
   }
   
   
@@ -557,10 +560,10 @@ public abstract class Plan implements Saveable, Behaviour {
   
   
   protected Target lastStepTarget() {
-    if (lastStep == null) return null ;
-    if (lastStep instanceof Action) return ((Action) lastStep).subject() ;
-    if (lastStep instanceof Plan) return ((Plan) lastStep).lastStepTarget() ;
-    return null ;
+    if (lastStep == null) return null;
+    if (lastStep instanceof Action) return ((Action) lastStep).subject();
+    if (lastStep instanceof Plan) return ((Plan) lastStep).lastStepTarget();
+    return null;
   }
   
   
@@ -570,33 +573,33 @@ public abstract class Plan implements Saveable, Behaviour {
     */
   //  TODO:  Implement this.
   /*
-  private static Table <Class, Boolean> validations = new Table(100) ;
+  private static Table <Class, Boolean> validations = new Table(100);
   
   
   private static boolean validatePlanClass(Class planClass) {
-    final Boolean valid = validations.get(planClass) ;
-    if (valid != null) return valid ;
+    final Boolean valid = validations.get(planClass);
+    if (valid != null) return valid;
     
-    final String name = planClass.getSimpleName() ;
-    boolean okay = true ;
-    int dataSize = 0 ;
+    final String name = planClass.getSimpleName();
+    boolean okay = true;
+    int dataSize = 0;
     
     for (Field field : planClass.getFields()) {
-      final Class type = field.getType() ;
-      if (type.isPrimitive()) dataSize += 4 ;
-      else if (Saveable.class.isAssignableFrom(type)) dataSize += 4 ;
+      final Class type = field.getType();
+      if (type.isPrimitive()) dataSize += 4;
+      else if (Saveable.class.isAssignableFrom(type)) dataSize += 4;
       else {
-        I.complain(name+" contains non-saveable data: "+field.getName()) ;
-        okay = false ;
+        I.complain(name+" contains non-saveable data: "+field.getName());
+        okay = false;
       }
     }
     if (dataSize > 40) {
-      I.complain(name+" has too many data fields.") ;
-      okay = false ;
+      I.complain(name+" has too many data fields.");
+      okay = false;
     }
     
-    validations.put(planClass, okay) ;
-    return okay ;
+    validations.put(planClass, okay);
+    return okay;
   }
   //*/
 }

@@ -33,22 +33,22 @@ public abstract class ModelAsset extends Assets.Loadable {
   public static void saveSprite(
       Sprite sprite, DataOutputStream out
   ) throws Exception {
-    if (sprite == null) { Assets.saveReference(null, out) ; return ; }
-    final ModelAsset model = sprite.model() ;
-    if (model == null) I.complain("Sprite must have model!") ;
-    Assets.saveReference(model, out) ;
-    sprite.saveTo(out) ;
+    if (sprite == null) { Assets.saveReference(null, out); return; }
+    final ModelAsset model = sprite.model();
+    if (model == null) I.complain("Sprite must have model!");
+    Assets.saveReference(model, out);
+    sprite.saveTo(out);
   }
   
   
   public static Sprite loadSprite(
       DataInputStream in
   ) throws Exception {
-    final ModelAsset model = (ModelAsset) Assets.loadReference(in) ;
-    if (model == null) return null ;
-    final Sprite sprite = model.makeSprite() ;
-    sprite.loadFrom(in) ;
-    return sprite ;
+    final ModelAsset model = (ModelAsset) Assets.loadReference(in);
+    if (model == null) return null;
+    final Sprite sprite = model.makeSprite();
+    sprite.loadFrom(in);
+    return sprite;
   }
 }
 

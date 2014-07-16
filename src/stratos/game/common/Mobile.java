@@ -5,7 +5,7 @@
   */
 
 
-package stratos.game.common ;
+package stratos.game.common;
 import org.apache.commons.math3.util.FastMath;
 
 import stratos.game.building.*;
@@ -24,29 +24,29 @@ public abstract class Mobile extends Element
   final public static PlaneFX.Model SHADOW_MODEL = new PlaneFX.Model(
     "ground_shadow_model", Mobile.class,
     "media/SFX/ground_shadow.png", 1, 0, 0, false, false
-  ) ;
+  );
   
   final public static int
     MOTION_WALKS = 0,
     MOTION_HOVER = 1,
     MOTION_FLYER = 2,
-    MOTION_WATER = 3 ;
+    MOTION_WATER = 3;
   final static int
-    MAX_PATH_SCAN = World.SECTOR_SIZE ;
+    MAX_PATH_SCAN = World.SECTOR_SIZE;
   
-  private static boolean verbose = false ;
+  private static boolean verbose = false;
   
   protected float
     rotation,
-    nextRotation ;
+    nextRotation;
   protected final Vec3D
     position = new Vec3D(),
-    nextPosition = new Vec3D() ;
+    nextPosition = new Vec3D();
   
-  protected Boardable aboard ;
-  private ListEntry <Mobile> entry = null ;
+  protected Boardable aboard;
+  private ListEntry <Mobile> entry = null;
   
-  final public Pathing pathing = initPathing() ;
+  final public Pathing pathing = initPathing();
   private float strengthEstimate = -1;
   
   
@@ -57,110 +57,110 @@ public abstract class Mobile extends Element
   
   
   public Mobile(Session s) throws Exception {
-    super(s) ;
-    this.rotation     = s.loadFloat() ;
-    this.nextRotation = s.loadFloat() ;
-    position.    loadFrom(s.input()) ;
-    nextPosition.loadFrom(s.input()) ;
-    aboard = (Boardable) s.loadTarget() ;
-    if (pathing != null) pathing.loadState(s) ;
+    super(s);
+    this.rotation     = s.loadFloat();
+    this.nextRotation = s.loadFloat();
+    position.    loadFrom(s.input());
+    nextPosition.loadFrom(s.input());
+    aboard = (Boardable) s.loadTarget();
+    if (pathing != null) pathing.loadState(s);
     strengthEstimate = s.loadFloat();
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
-    s.saveFloat(rotation    ) ;
-    s.saveFloat(nextRotation) ;
-    position    .saveTo(s.output()) ;
-    nextPosition.saveTo(s.output()) ;
-    s.saveTarget(aboard) ;
-    if (pathing != null) pathing.saveState(s) ;
+    super.saveState(s);
+    s.saveFloat(rotation    );
+    s.saveFloat(nextRotation);
+    position    .saveTo(s.output());
+    nextPosition.saveTo(s.output());
+    s.saveTarget(aboard);
+    if (pathing != null) pathing.saveState(s);
     s.saveFloat(strengthEstimate);
   }
   
   
-  public abstract Base base() ;
-  protected Pathing initPathing() { return null ; }
+  public abstract Base base();
+  protected Pathing initPathing() { return null; }
   
   
   
   /**  Again, more data-definition methods subclasses might well override.
     */
   public Vec3D position(Vec3D v) {
-    if (v == null) v = new Vec3D() ;
-    return v.setTo(position) ;
+    if (v == null) v = new Vec3D();
+    return v.setTo(position);
   }
   
   public float rotation() {
-    return rotation ;
+    return rotation;
   }
   
-  public float radius() { return 0.25f ; }
-  public int pathType() { return Tile.PATH_CLEAR ; }
-  public int owningType() { return NOTHING_OWNS ; }
-  public boolean isMobile() { return true ; }
+  public float radius() { return 0.25f; }
+  public int pathType() { return Tile.PATH_CLEAR; }
+  public int owningType() { return NOTHING_OWNS; }
+  public boolean isMobile() { return true; }
   
   
   
   /**  Called whenever the mobile enters/exits the world...
    */
   public boolean enterWorldAt(int x, int y, World world) {
-    if (! super.enterWorldAt(x, y, world)) return false ;
-    (aboard = origin()).setInside(this, true) ;
-    world().schedule.scheduleForUpdates(this) ;
-    world().toggleActive(this, true) ;
-    return true ;
+    if (! super.enterWorldAt(x, y, world)) return false;
+    (aboard = origin()).setInside(this, true);
+    world().schedule.scheduleForUpdates(this);
+    world().toggleActive(this, true);
+    return true;
   }
   
   
   public void exitWorld() {
-    world.toggleActive(this, false) ;
-    world().schedule.unschedule(this) ;
+    world.toggleActive(this, false);
+    world().schedule.unschedule(this);
     //
     //  To be on the safe side, unregister from both current and next tiles-
-    final Vec3D nP = nextPosition ;
-    final Tile nT = world.tileAt(nP.x, nP.y) ;
-    world.presences.togglePresence(this, nT, false) ;
-    if (aboard != null) aboard.setInside(this, false) ;
+    final Vec3D nP = nextPosition;
+    final Tile nT = world.tileAt(nP.x, nP.y);
+    world.presences.togglePresence(this, nT, false);
+    if (aboard != null) aboard.setInside(this, false);
     //
     //  And update position, so you don't get odd jitter effects if selected-
-    position.setTo(nextPosition) ;
-    rotation = nextRotation ;
-    super.exitWorld() ;
+    position.setTo(nextPosition);
+    rotation = nextRotation;
+    super.exitWorld();
   }
   
   
-  void setEntry(ListEntry <Mobile> e) { entry = e ; }
-  ListEntry <Mobile> entry() { return entry ; }
-  public float scheduledInterval() { return 1.0f ; }
+  void setEntry(ListEntry <Mobile> e) { entry = e; }
+  ListEntry <Mobile> entry() { return entry; }
+  public float scheduledInterval() { return 1.0f; }
   
   
   
   /**  Dealing with pathing-
     */
   public Boardable aboard() {
-    return aboard ;
+    return aboard;
   }
   
   
   public void goAboard(Boardable toBoard, World world) {
-    if (aboard != null) aboard.setInside(this, false) ;
-    aboard = toBoard ;
-    if (aboard != null) aboard.setInside(this, true) ;
+    if (aboard != null) aboard.setInside(this, false);
+    aboard = toBoard;
+    if (aboard != null) aboard.setInside(this, true);
     
-    final Vec3D p = this.nextPosition ;
+    final Vec3D p = this.nextPosition;
     if (! aboard.area(null).contains(p.x, p.y)) {
-      final Vec3D pos = toBoard.position(null) ;
-      pos.z += aboveGroundHeight() ;
-      setHeading(pos, nextRotation, true, world) ;
+      final Vec3D pos = toBoard.position(null);
+      pos.z += aboveGroundHeight();
+      setHeading(pos, nextRotation, true, world);
     }
   }
   
 
   public boolean setPosition(float xp, float yp, World world) {
-    nextPosition.set(xp, yp, aboveGroundHeight()) ;
-    return setHeading(nextPosition, nextRotation, true, world) ;
+    nextPosition.set(xp, yp, aboveGroundHeight());
+    return setHeading(nextPosition, nextRotation, true, world);
   }
   
   
@@ -169,78 +169,78 @@ public abstract class Mobile extends Element
   ) {
     final Tile
       oldTile = origin(),
-      newTile = world.tileAt(pos.x, pos.y) ;
-    if (! super.setPosition(pos.x, pos.y, world)) return false ;
-    if (pos != null) nextPosition.setTo(pos) ;
-    if (rotation != -1) nextRotation = rotation ;
+      newTile = world.tileAt(pos.x, pos.y);
+    if (! super.setPosition(pos.x, pos.y, world)) return false;
+    if (pos != null) nextPosition.setTo(pos);
+    if (rotation != -1) nextRotation = rotation;
     
     if (aboard == null || ! aboard.area(null).contains(newTile.x, newTile.y)) {
-      if (aboard != null) aboard.setInside(this, false) ;
-      (aboard = newTile).setInside(this, true) ;
+      if (aboard != null) aboard.setInside(this, false);
+      (aboard = newTile).setInside(this, true);
     }
     if (instant) {
-      this.position.setTo(pos) ;
-      this.rotation = rotation ;
+      this.position.setTo(pos);
+      this.rotation = rotation;
       if (inWorld() && oldTile != newTile) {
-        onTileChange(oldTile, newTile) ;
+        onTileChange(oldTile, newTile);
       }
     }
-    return true ;
+    return true;
   }
   
   
   protected void onTileChange(Tile oldTile, Tile newTile) {
-    world.presences.togglePresence(this, oldTile, false) ;
-    world.presences.togglePresence(this, newTile, true ) ;
+    world.presences.togglePresence(this, oldTile, false);
+    world.presences.togglePresence(this, newTile, true );
   }
   
   
   public boolean indoors() {
     return
       aboard != null &&
-      aboard.boardableType() != Boardable.BOARDABLE_TILE ;
+      aboard.boardableType() != Boardable.BOARDABLE_TILE;
   }
   
   
   protected void updateAsMobile() {
     final boolean report = verbose && I.talkAbout == this;
     //  
-    final Boardable next = pathing == null ? null : pathing.nextStep() ;
-    final Tile oldTile = origin() ;
-    final Vec3D p = nextPosition ;
+    final Boardable next = pathing == null ? null : pathing.nextStep();
+    final Tile oldTile = origin();
+    final Vec3D p = nextPosition;
     final boolean outOfBounds =
       (! aboard.area(null).contains(p.x, p.y)) ||
-      (aboard.destroyed()) ;
+      (aboard.destroyed());
     //
     //  We allow mobiles to 'jump' between dissimilar objects, or track the
     //  sudden motions of mobile boardables (i.e, vehicles)-
     if (aboard instanceof Mobile && outOfBounds) {
-      aboard.position(nextPosition) ;
+      aboard.position(nextPosition);
     }
     else if (next != null && next.getClass() != aboard.getClass()) {
-      if (report) I.say("Jumping to: "+next) ;
-      aboard.setInside(this, false) ;
-      (aboard = next).setInside(this, true) ;
-      next.position(nextPosition) ;
+      if (report) I.say("Jumping to: "+next);
+      aboard.setInside(this, false);
+      (aboard = next).setInside(this, true);
+      next.position(nextPosition);
     }
     //
     //  If you're not in either your current 'aboard' object, or the area
     //  corresponding to the next step in pathing, you need to default to the
     //  nearest clear tile.
-    final Tile newTile = world().tileAt(nextPosition.x, nextPosition.y) ;
+    final Tile newTile = world().tileAt(nextPosition.x, nextPosition.y);
     if (oldTile != newTile || outOfBounds) {
-      if (oldTile != newTile) onTileChange(oldTile, newTile) ;
-      final boolean awry = next != null && Spacing.distance(next, this) > 1 ;
+      if (oldTile != newTile) onTileChange(oldTile, newTile);
+      final boolean awry = next != null && Spacing.distance(next, this) > 1;
       
       if (next != null && next.area(null).contains(p.x, p.y)) {
-        aboard.setInside(this, false) ;
-        (aboard = next).setInside(this, true) ;
+        aboard.setInside(this, false);
+        (aboard = next).setInside(this, true);
       }
       else if (outOfBounds) {
-        if (awry) onMotionBlock(newTile) ;
-        if (report) I.say("Entering tile: "+newTile) ;
-        aboard.setInside(this, false) ;
-        (aboard = newTile).setInside(this, true) ;
+        if (awry) onMotionBlock(newTile);
+        if (report) I.say("Entering tile: "+newTile);
+        aboard.setInside(this, false);
+        (aboard = newTile).setInside(this, true);
       }
     }
     
@@ -256,37 +256,37 @@ public abstract class Mobile extends Element
         I.say(this+" IS ABOARD: "+aboard);
         I.say("  ESCAPING TO: "+free);
       }
-      nextPosition.x = free.x ;
-      nextPosition.y = free.y ;
+      nextPosition.x = free.x;
+      nextPosition.y = free.y;
       return;
     }
     
     //
     //  Either way, update current position-
-    position.setTo(nextPosition) ;
-    rotation = nextRotation ;
-    super.setPosition(position.x, position.y, world) ;
-    nextPosition.z = boardHeight() + aboveGroundHeight() ;
+    position.setTo(nextPosition);
+    rotation = nextRotation;
+    super.setPosition(position.x, position.y, world);
+    nextPosition.z = boardHeight() + aboveGroundHeight();
     
     if (report) {
-      I.say("Aboard: "+aboard) ;
-      I.say("Position "+nextPosition) ;
-      I.say("Next step: "+next) ;
+      I.say("Aboard: "+aboard);
+      I.say("Position "+nextPosition);
+      I.say("Next step: "+next);
     }
   }
 
   
   private float boardHeight() {
     if (aboard == origin()) {
-      return world.terrain().trueHeight(position.x, position.y) ;
+      return world.terrain().trueHeight(position.x, position.y);
     }
-    else return aboard.position(null).z ;
+    else return aboard.position(null).z;
   }
   
   
   protected void onMotionBlock(Tile t) {
-    final boolean canRoute = pathing != null && pathing.refreshFullPath() ;
-    if (! canRoute) pathingAbort() ;
+    final boolean canRoute = pathing != null && pathing.refreshFullPath();
+    if (! canRoute) pathingAbort();
   }
   
   
@@ -296,11 +296,11 @@ public abstract class Mobile extends Element
   protected boolean collides() { return true; }
   
   
-  public int motionType() { return MOTION_WALKS ; }
-  public boolean motionWalks() { return motionType() == MOTION_WALKS ; }
-  public boolean motionHover() { return motionType() == MOTION_HOVER ; }
-  public boolean motionFlyer() { return motionType() == MOTION_FLYER ; }
-  public boolean motionWater() { return motionType() == MOTION_WATER ; }
+  public int motionType() { return MOTION_WALKS; }
+  public boolean motionWalks() { return motionType() == MOTION_WALKS; }
+  public boolean motionHover() { return motionType() == MOTION_HOVER; }
+  public boolean motionFlyer() { return motionType() == MOTION_FLYER; }
+  public boolean motionWater() { return motionType() == MOTION_WATER; }
   
   
   
@@ -325,19 +325,19 @@ public abstract class Mobile extends Element
   /**  Rendering and interface methods-
     */
   public boolean visibleTo(Base base) {
-    if (indoors()) return false ;
-    return super.visibleTo(base) ;
+    if (indoors()) return false;
+    return super.visibleTo(base);
   }
   
   
   public Vec3D viewPosition(Vec3D v) {
     if (v == null) v = new Vec3D();
     final float alpha = Rendering.frameAlpha();
-    //I.sayAbout(this, "Frame time: "+alpha) ;
-    //I.sayAbout(this, "Old/new position: "+position+"/"+nextPosition) ;
-    v.setTo(position).scale(1 - alpha) ;
-    v.add(nextPosition, alpha, v) ;
-    return v ;
+    //I.sayAbout(this, "Frame time: "+alpha);
+    //I.sayAbout(this, "Old/new position: "+position+"/"+nextPosition);
+    v.setTo(position).scale(1 - alpha);
+    v.add(nextPosition, alpha, v);
+    return v;
   }
   
   
@@ -374,16 +374,16 @@ public abstract class Mobile extends Element
   
   
   protected float shadowHeight(Vec3D p) {
-    return world.terrain().trueHeight(p.x, p.y) ;
+    return world.terrain().trueHeight(p.x, p.y);
   }
   
   
   protected float spriteScale() {
-    return 1 ;
+    return 1;
   }
   
   
-  public abstract void describeStatus(Description d) ;
+  public abstract void describeStatus(Description d);
 }
 
 

@@ -63,7 +63,7 @@ public class Tailing extends Venue {
   }
   
   
-  protected void incFill(float oreAmount) {
+  public void incFill(float oreAmount) {
     if (oreAmount < 0) I.complain("Can't subtract from tailing.");
     final float inc = oreAmount / FILL_CAPACITY;
     fillLevel = Visit.clamp(fillLevel + inc, 0, 1);
@@ -128,7 +128,7 @@ public class Tailing extends Venue {
     final boolean init = oldSprite == null;
     final GroupSprite sprite = init ?
       new GroupSprite() : (GroupSprite) oldSprite
-    ;
+   ;
     if (init) sprite.attach(Smelter.TAILING_ANNEX_MODEL, 0, 0, 0);
       
     final float xo = (size - 1) / -2f, yo = (size - 1) / -2f;
@@ -172,7 +172,7 @@ public class Tailing extends Venue {
   }
   
   
-  public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
+  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
     final StringBuffer d = new StringBuffer();
     d.append("% filled: "+((int) (fillLevel * 100)));
     panel = VenueDescription.configSimplePanel(this, panel, UI, d.toString());

@@ -42,7 +42,7 @@ public class DataInput0 extends InputStream {
 		if(endian) {
 			return (short) ((read() & 0xFF) | (read() & 0xFF) << 8);
 		} else {
-			return (short) ((read() & 0xFF) <<8 | (read() & 0xFF)) ;
+			return (short) ((read() & 0xFF) <<8 | (read() & 0xFF));
 		}
 	}
 	
@@ -50,7 +50,7 @@ public class DataInput0 extends InputStream {
 		if(endian) {
 			return (char) ((read() & 0xFF) | (read() & 0xFF) << 8);
 		} else {
-			return (char) ((read() & 0xFF) <<8 | (read() & 0xFF)) ;
+			return (char) ((read() & 0xFF) <<8 | (read() & 0xFF));
 		}
 	}
 	

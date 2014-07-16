@@ -1,7 +1,7 @@
 
 
 
-package stratos.game.common ;
+package stratos.game.common;
 import stratos.util.*;
 
 
@@ -87,8 +87,8 @@ public class FadingMap implements TileConstants {
   
   
   public void presentVals(String label, float mult, boolean shortTerm) {
-    final float squareA = patchSize * mult ;
-    I.present(averages, label, 256, 256, squareA, -squareA) ;
+    final float squareA = patchSize * mult;
+    I.present(averages, label, 256, 256, squareA, -squareA);
   }
 }
 

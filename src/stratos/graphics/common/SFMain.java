@@ -32,9 +32,9 @@ public class SFMain implements ApplicationListener {
   
   
   private IsoCameraControl camControl;
-  private Environment environment ;
-  private long initTime ;
-  private boolean doneLoad = false ;
+  private Environment environment;
+  private long initTime;
+  private boolean doneLoad = false;
   
   
   private AssetManager assets;
@@ -43,15 +43,15 @@ public class SFMain implements ApplicationListener {
   //private ModelBatch modelBatch;
   
   
-  private CutoutsPass cutoutsPass ;
+  private CutoutsPass cutoutsPass;
   private Array <CutoutSprite> allCutouts = new Array <CutoutSprite> ();
   
-  private TerrainSet terrain ;
+  private TerrainSet terrain;
   //  TODO:  Maybe the TerrainSet should initialise it's own default shader,
   //         closer to previous behaviour?
-  private ShaderProgram terrainShader ;
+  private ShaderProgram terrainShader;
   
-  private HUD UI ;
+  private HUD UI;
   
   
   
@@ -73,10 +73,10 @@ public class SFMain implements ApplicationListener {
     
     assets = new AssetManager();
     
-    reportVersion() ;
-    setupTerrain() ;
-    setupCutouts() ;
-    setupSolids() ;
+    reportVersion();
+    setupTerrain();
+    setupCutouts();
+    setupSolids();
     setupHUD();
   }
   
@@ -106,36 +106,36 @@ public class SFMain implements ApplicationListener {
       "ocean.2.gif",
       "meadows_ground.gif",
       "mesa_ground.gif"
-    ) ;
+    );
     
-    for (int x = 10 ; x-- > 0 ;) terrain.maskPaving(x, 0, true) ;
-    for (int y = 10 ; y-- > 0 ;) terrain.maskPaving(2, y, true) ;
-    terrain.generateAllMeshes() ;
+    for (int x = 10; x-- > 0;) terrain.maskPaving(x, 0, true);
+    for (int y = 10; y-- > 0;) terrain.maskPaving(2, y, true);
+    terrain.generateAllMeshes();
     
     terrainShader = new ShaderProgram(
       Gdx.files.internal("shaders/terrain.vert"),
       Gdx.files.internal("shaders/terrain.frag")
-    ) ;
+    );
     if(! terrainShader.isCompiled()) {
-      throw new GdxRuntimeException("\n"+terrainShader.getLog()) ;
+      throw new GdxRuntimeException("\n"+terrainShader.getLog());
     }
   }
   
   
   private void setupCutouts() {
-    cutoutsPass = new CutoutsPass() ;
+    cutoutsPass = new CutoutsPass();
     final CutoutModel
       modelA = CutoutModel.fromImage("buildings/bastion_L1.png", 7, 7),
       modelB = CutoutModel.fromImage("buildings/bastion_L2.png", 7, 1),
       modelC = CutoutModel.fromImage("buildings/bastion_L3.png", 7, 1),
       modelG[][] = CutoutModel.fromImageGrid(
         "buildings/old_flora_resize.png", 4, 4, 2, 2
-      ) ;
+      );
     
     final CutoutSprite SC = new CutoutSprite(modelC);
     SC.position.set(3.0f, 0, 3.0f);
     //BS.colour = Color.GREEN.toFloatBits();
-    allCutouts.add(SC) ;
+    allCutouts.add(SC);
     
     final CutoutSprite SA = new CutoutSprite(modelA);
     SA.position.set(10.0f, 0, 10.0f);
@@ -145,13 +145,13 @@ public class SFMain implements ApplicationListener {
     SB.position.set(10.0f, 0, 3.0f);
     allCutouts.add(SB);
     
-    for (int n = 30 + Rand.index(20) ; n-- > 0 ;) {
-      final CutoutModel TM = modelG[Rand.index(4)][Rand.index(4)] ;
-      final CutoutSprite TS = new CutoutSprite(TM) ;
+    for (int n = 30 + Rand.index(20); n-- > 0;) {
+      final CutoutModel TM = modelG[Rand.index(4)][Rand.index(4)];
+      final CutoutSprite TS = new CutoutSprite(TM);
       TS.position.set(
         Rand.range(0, 15), 0, Rand.range(0, 15)
-      ) ;
-      allCutouts.add(TS) ;
+      );
+      allCutouts.add(TS);
     }
   }
   
@@ -168,8 +168,8 @@ public class SFMain implements ApplicationListener {
       "Micovore",
       null
     };
-    this.solidFiles = new String[assetFiles.length] ;
-    for (int i = solidFiles.length ; i-- > 0;) {
+    this.solidFiles = new String[assetFiles.length];
+    for (int i = solidFiles.length; i-- > 0;) {
       solidFiles[i] = path+""+assetFiles[i];
     }
     
@@ -178,7 +178,7 @@ public class SFMain implements ApplicationListener {
       new MS3DLoader(new InternalFileHandleResolver())
     );
     
-    for (int i = assetFiles.length ; i-- > 0 ;) {
+    for (int i = assetFiles.length; i-- > 0;) {
       MS3DLoader.beginLoading(path, assetFiles[i], xml, xmlNames[i], assets);
     }
   }
@@ -207,19 +207,19 @@ public class SFMain implements ApplicationListener {
   
   
   private void checkLoading() {
-    assets.update() ;
-    doneLoad = true ;
-    int n = 0 ;
+    assets.update();
+    doneLoad = true;
+    int n = 0;
     for (String file : solidFiles) {
-      n++ ;
+      n++;
       if (assets.isLoaded(file)) {
         final Model model = assets.get(file, Model.class);
         final JointSprite sprite = new JointSprite(model);
-        sprite.transform.translate(0, 0, -5 * n) ;
-        //sprite.setAnimation("walk") ;
-        modelSprites.add(sprite) ;
+        sprite.transform.translate(0, 0, -5 * n);
+        //sprite.setAnimation("walk");
+        modelSprites.add(sprite);
       }
-      else doneLoad = false ;
+      else doneLoad = false;
     }
   }
   
@@ -227,8 +227,8 @@ public class SFMain implements ApplicationListener {
   public void render() {
     if (! doneLoad) {
       //  TODO:  Throw up a loading screen or something here.
-      checkLoading() ;
-      return ;
+      checkLoading();
+      return;
     }
     
     camControl.update();
@@ -240,12 +240,12 @@ public class SFMain implements ApplicationListener {
     Gdx.gl.glDepthMask(true);
     Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
     
-    glClearColor(1, 0, 0, 0) ;
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) ;
+    glClearColor(1, 0, 0, 0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    long totalTime = System.currentTimeMillis() - initTime ;
-    float seconds = (float) (totalTime / 1000f) ;
-    //terrain.render(camera, terrainShader, seconds) ;
+    long totalTime = System.currentTimeMillis() - initTime;
+    float seconds = (float) (totalTime / 1000f);
+    //terrain.render(camera, terrainShader, seconds);
     //  TODO:  Just for testing purposes, remove later
     if (Math.random() < 1f / 60) {
       terrain.fog.liftAround(
@@ -254,16 +254,16 @@ public class SFMain implements ApplicationListener {
         (int) (Math.sqrt(terrain.size) * (1 + Math.random()))
       );
     }
-    glClear(GL_DEPTH_BUFFER_BIT) ;
+    glClear(GL_DEPTH_BUFFER_BIT);
     
     cutoutsPass.performPass(allCutouts, camera);
     
-    //final float delta = Gdx.graphics.getDeltaTime() ;
+    //final float delta = Gdx.graphics.getDeltaTime();
     modelBatch.begin(camera);
     for (ModelInstance MI : modelSprites) {
-      final JointSprite sprite = (JointSprite) MI ;
-      sprite.updateAnim("move", seconds % 1) ;
-      modelBatch.render(sprite, environment) ;
+      final JointSprite sprite = (JointSprite) MI;
+      sprite.updateAnim("move", seconds % 1);
+      modelBatch.render(sprite, environment);
     }
     modelBatch.end();
     
@@ -286,7 +286,7 @@ public class SFMain implements ApplicationListener {
   
   
   public void resize(int width, int height) {
-    camControl.onScreenResize(width, height) ;
+    camControl.onScreenResize(width, height);
   }
   
   

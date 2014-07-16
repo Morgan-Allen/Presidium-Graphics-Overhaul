@@ -1,15 +1,15 @@
 
 
-package stratos.game.base ;
-import stratos.game.common.* ;
-import stratos.game.maps.* ;
-import stratos.game.actors.* ;
-import stratos.game.building.* ;
-import stratos.graphics.common.* ;
-import stratos.graphics.cutout.* ;
-import stratos.graphics.widgets.* ;
-import stratos.user.* ;
-import stratos.util.* ;
+package stratos.game.base;
+import stratos.game.common.*;
+import stratos.game.maps.*;
+import stratos.game.actors.*;
+import stratos.game.building.*;
+import stratos.graphics.common.*;
+import stratos.graphics.cutout.*;
+import stratos.graphics.widgets.*;
+import stratos.user.*;
+import stratos.util.*;
 
 //
 //  TODO:  I need some method of ensuring that actors won't just walk through
@@ -21,7 +21,7 @@ public class DrillYard extends Venue {
   
   /**  Constructors, data fields, setup and save/load methods-
     */
-  final static String IMG_DIR = "media/Buildings/military/" ;
+  final static String IMG_DIR = "media/Buildings/military/";
   final static ModelAsset
     YARD_MODEL = CutoutModel.fromSplatImage(
       DrillYard.class, IMG_DIR+"drill_yard.png", 4.25f
@@ -46,7 +46,7 @@ public class DrillYard extends Venue {
     ),
     DRILL_MODELS[] = {
       MELEE_MODEL, RANGED_MODEL, ENDURE_MODEL, AID_MODEL
-    } ;
+    };
   
   
   final public static int
@@ -62,7 +62,7 @@ public class DrillYard extends Venue {
     
     NUM_DUMMIES = 2,
     NUM_OFFSETS = 4,
-    DRILL_INTERVAL = World.STANDARD_DAY_LENGTH ;
+    DRILL_INTERVAL = World.STANDARD_DAY_LENGTH;
   
   final static String DRILL_STATE_NAMES[] = {
     "Close Combat",
@@ -73,33 +73,33 @@ public class DrillYard extends Venue {
   
   
   
-  final public Garrison belongs ;
+  final public Garrison belongs;
   protected int drill = NOT_DRILLING;
-  protected boolean drillOrders[] = new boolean[NUM_DRILLS] ;
+  protected boolean drillOrders[] = new boolean[NUM_DRILLS];
   
   
   
   public DrillYard(Garrison belongs) {
-    super(4, 1, ENTRANCE_EAST, belongs.base()) ;
-    structure.setupStats(50, 10, 25, 0, Structure.TYPE_FIXTURE) ;
-    this.belongs = belongs ;
+    super(4, 1, ENTRANCE_EAST, belongs.base());
+    structure.setupStats(50, 10, 25, 0, Structure.TYPE_FIXTURE);
+    this.belongs = belongs;
     initSprite();
   }
   
 
   public DrillYard(Session s) throws Exception {
-    super(s) ;
-    belongs = (Garrison) s.loadObject() ;
-    drill = s.loadInt() ;
-    for (int i = 0 ; i < NUM_DRILLS ; i++) drillOrders[i] = s.loadBool();
+    super(s);
+    belongs = (Garrison) s.loadObject();
+    drill = s.loadInt();
+    for (int i = 0; i < NUM_DRILLS; i++) drillOrders[i] = s.loadBool();
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
-    s.saveObject(belongs) ;
-    s.saveInt(drill) ;
-    for (boolean b : drillOrders) s.saveBool(b) ;
+    super.saveState(s);
+    s.saveObject(belongs);
+    s.saveInt(drill);
+    for (boolean b : drillOrders) s.saveBool(b);
   }
   
   
@@ -107,27 +107,27 @@ public class DrillYard extends Venue {
   /**  Behaviour implementation-
     */
   public boolean enterWorldAt(int x, int y, World world) {
-    if (! super.enterWorldAt(x, y, world)) return false ;
-    //setupDummies() ;
-    return true ;
+    if (! super.enterWorldAt(x, y, world)) return false;
+    //setupDummies();
+    return true;
   }
   
   
   public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates) ;
-    if (! structure.intact()) return ;
+    super.updateAsScheduled(numUpdates);
+    if (! structure.intact()) return;
     
-    int numModes = 0 ;
-    for (boolean b : drillOrders) if (b) numModes++ ;
+    int numModes = 0;
+    for (boolean b : drillOrders) if (b) numModes++;
     if (numModes > 0) {
-      final int mode = (int) (world.currentTime() / DRILL_INTERVAL) ;
-      for (int i = 0, d = 0 ; i < drillOrders.length ; i++) {
-        if (! drillOrders[i]) continue ;
+      final int mode = (int) (world.currentTime() / DRILL_INTERVAL);
+      for (int i = 0, d = 0; i < drillOrders.length; i++) {
+        if (! drillOrders[i]) continue;
         if (d == mode % numModes) {
-          drill = DRILL_STATES[i] ;
-          break ;
+          drill = DRILL_STATES[i];
+          break;
         }
-        else d++ ;
+        else d++;
       }
     }
     
@@ -135,20 +135,20 @@ public class DrillYard extends Venue {
   }
   
   
-  public Service[] services() { return null ; }
+  public Service[] services() { return null; }
   
-  public Background[] careers() { return null ; }
+  public Background[] careers() { return null; }
   
-  public Behaviour jobFor(Actor actor) { return null ; }
+  public Behaviour jobFor(Actor actor) { return null; }
   
   
   public void addServices(Choice choice, Actor forActor) {
-    choice.add(new Drilling(forActor, this)) ;
+    choice.add(new Drilling(forActor, this));
   }
   
   
   protected boolean canTouch(Element e) {
-    return (e.owningType() < this.owningType()) || e == belongs ;
+    return (e.owningType() < this.owningType()) || e == belongs;
   }
   
   
@@ -157,17 +157,17 @@ public class DrillYard extends Venue {
     */
   protected Upgrade bonusFor(int state) {
     switch (state) {
-      case (DRILL_MELEE    ) : return Garrison.MELEE_TRAINING     ;
-      case (DRILL_RANGED   ) : return Garrison.MARKSMAN_TRAINING  ;
-      case (DRILL_ENDURANCE) : return Garrison.ENDURANCE_TRAINING ;
-      case (DRILL_AID      ) : return Garrison.AID_TRAINING       ;
+      case (DRILL_MELEE    ) : return Garrison.MELEE_TRAINING    ;
+      case (DRILL_RANGED   ) : return Garrison.MARKSMAN_TRAINING ;
+      case (DRILL_ENDURANCE) : return Garrison.ENDURANCE_TRAINING;
+      case (DRILL_AID      ) : return Garrison.AID_TRAINING      ;
     }
-    return null ;
+    return null;
   }
   
   
   public int drillType() {
-    return drill ;
+    return drill;
   }
   
   
@@ -205,10 +205,10 @@ public class DrillYard extends Venue {
   
   private void updateSprite() {
     final boolean inUse = world.activities.includes(this, Drilling.class);
-    final GroupSprite s = (GroupSprite) buildSprite.baseSprite() ;
+    final GroupSprite s = (GroupSprite) buildSprite.baseSprite();
     final ModelAsset m =
       (drill == NOT_DRILLING || drill == STATE_RED_ALERT || ! inUse) ?
-      BLANK_DRILL_MODEL : DRILL_MODELS[drill] ;
+      BLANK_DRILL_MODEL : DRILL_MODELS[drill];
     
     final CutoutSprite old = (CutoutSprite) s.atIndex(1);
     if (old.model() == m) return;
@@ -244,40 +244,40 @@ public class DrillYard extends Venue {
   
   
   public String fullName() {
-    return "Drill Yard" ;
+    return "Drill Yard";
   }
   
   
   public String helpInfo() {
     return
       "Soldiers from your garrison and other military structures will gather "+
-      "to practice at your drill yard." ;
+      "to practice at your drill yard.";
   }
   
   
   public String buildCategory() {
-    return InstallTab.TYPE_MILITANT ;
+    return InstallTab.TYPE_MILITANT;
   }
   
   
   protected void describeDrills(Description d) {
-    d.append("Drill Orders:") ;
+    d.append("Drill Orders:");
     for (final int s : DRILL_STATES) {
-      d.append("\n  ") ;
+      d.append("\n  ");
       d.append(new Description.Link(DRILL_STATE_NAMES[s]) {
         public void whenTextClicked() {
-          drillOrders[s] = ! drillOrders[s] ;
+          drillOrders[s] = ! drillOrders[s];
         }
-      }) ;
-      if (drillOrders[s]) d.append(" (Scheduled)") ;
+      });
+      if (drillOrders[s]) d.append(" (Scheduled)");
     }
     if (drill != NOT_DRILLING) {
-      d.append("\n\nCurrent Drill: "+DRILL_STATE_NAMES[drill]) ;
+      d.append("\n\nCurrent Drill: "+DRILL_STATE_NAMES[drill]);
     }
   }
   
   
-  public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
+  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
     return VenueDescription.configPanelWith(
       this, panel, UI, CAT_STATUS, CAT_STAFF
     );
@@ -292,14 +292,14 @@ public class DrillYard extends Venue {
 
 /*
 private void setupDummies() {
-  final Tile o = origin() ;
-  if (o == null) return ;
-  for (int i = NUM_DUMMIES, c = 0 ; i-- > 0 ;) {
+  final Tile o = origin();
+  if (o == null) return;
+  for (int i = NUM_DUMMIES, c = 0; i-- > 0;) {
     final Tile t = world.tileAt(
       o.x + DUMMY_OFFS[c++],
       o.y + DUMMY_OFFS[c++]
-    ) ;
-    if (dummies[i] == null) dummies[i] = new Element(t, null) ;
+    );
+    if (dummies[i] == null) dummies[i] = new Element(t, null);
   }
 }
 //*/

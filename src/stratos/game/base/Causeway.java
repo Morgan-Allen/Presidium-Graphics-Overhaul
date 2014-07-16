@@ -18,7 +18,7 @@ import stratos.util.*;
 public class Causeway extends Structural {
   
   
-  final static String IMG_DIR = "media/Buildings/civilian/" ;
+  final static String IMG_DIR = "media/Buildings/civilian/";
   final static CutoutModel
     NODE_MODELS[] = CutoutModel.fromImages(
       IMG_DIR, Causeway.class, 2, 0.1f, true,
@@ -39,7 +39,7 @@ public class Causeway extends Structural {
   final protected static int
     TYPE_SECTION  = 0,
     TYPE_HUB      = 1,
-    TYPE_TERMINAL = 2 ;
+    TYPE_TERMINAL = 2;
   
   
   
@@ -76,35 +76,35 @@ public class Causeway extends Structural {
   
 
   protected void configFromAdjacent(boolean[] near, int numNear) {
-    final Tile o = origin() ;
+    final Tile o = origin();
     if (numNear == 2) {
-      type = TYPE_SECTION ;
+      type = TYPE_SECTION;
       if (near[N] && near[S]) {
-        facing = Y_AXIS ;
+        facing = Y_AXIS;
         if (o.y % 8 == 0) {
-          type = TYPE_HUB ;
-          attachModel(MODEL_FLAT_RIGHT) ;
+          type = TYPE_HUB;
+          attachModel(MODEL_FLAT_RIGHT);
         }
-        else attachModel(NODE_MODEL_RIGHT) ;
-        return ;
+        else attachModel(NODE_MODEL_RIGHT);
+        return;
       }
       if (near[W] && near[E]) {
-        facing = X_AXIS ;
+        facing = X_AXIS;
         if (o.x % 8 == 0) {
-          type = TYPE_HUB ;
-          attachModel(MODEL_FLAT_LEFT ) ;
+          type = TYPE_HUB;
+          attachModel(MODEL_FLAT_LEFT );
         }
-        else attachModel(NODE_MODEL_LEFT) ;
-        return ;
+        else attachModel(NODE_MODEL_LEFT);
+        return;
       }
     }
-    facing = CORNER ;
-    attachModel(NODE_MODEL_CENTRE) ;
+    facing = CORNER;
+    attachModel(NODE_MODEL_CENTRE);
   }
   
   
   public int pathType() {
-    return Tile.PATH_ROAD ;
+    return Tile.PATH_ROAD;
   }
 
 
@@ -113,22 +113,22 @@ public class Causeway extends Structural {
     //  For some reason, switching the order in which these are called causes
     //  some roads to disappear.  TODO:  INVESTIGATE
     if (type != TYPE_SECTION) {
-      base().paving.updateJunction(this, origin(), inWorld) ;
+      base().paving.updateJunction(this, origin(), inWorld);
     }
-    base().paving.updatePerimeter(this, inWorld) ;
+    base().paving.updatePerimeter(this, inWorld);
   }
   
   
   public boolean enterWorldAt(int x, int y, World world) {
-    if (! super.enterWorldAt(x, y, world)) return false ;
-    world.terrain().maskAsPaved(Spacing.under(area(), world), true) ;
-    return true ;
+    if (! super.enterWorldAt(x, y, world)) return false;
+    world.terrain().maskAsPaved(Spacing.under(area(), world), true);
+    return true;
   }
   
   
   public void exitWorld() {
-    world.terrain().maskAsPaved(Spacing.under(area(), world), false) ;
-    super.exitWorld() ;
+    world.terrain().maskAsPaved(Spacing.under(area(), world), false);
+    super.exitWorld();
   }
   
 
@@ -136,7 +136,7 @@ public class Causeway extends Structural {
   /**  Rendering and interface methods-
     */
   public String fullName() {
-    return "Causeway" ;
+    return "Causeway";
   }
   
   
@@ -148,7 +148,7 @@ public class Causeway extends Structural {
   public String helpInfo() {
     return
       "Causeways facilitate long-range transport of goods and personnel, "+
-      "along with water, power and life support." ;
+      "along with water, power and life support.";
   }
   
   

@@ -5,7 +5,7 @@
   */
 
 
-package stratos.game.actors ;
+package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.graphics.sfx.*;  //TODO:  Get rid of direct reference?
 import stratos.user.*;
@@ -22,53 +22,53 @@ public class ActorTraits implements Qualities {
     */
   final static float
     MIN_FAIL_CHANCE    = 0.1f,
-    MAX_SUCCEED_CHANCE = 0.9f ;
+    MAX_SUCCEED_CHANCE = 0.9f;
   final static int 
     DNA_SIZE         = 16,
     DNA_LETTERS      = 26,
-    MUTATION_PERCENT = 5 ;
-  private static boolean verbose = false ;
+    MUTATION_PERCENT = 5;
+  private static boolean verbose = false;
   
 
   private static class Level {
     float value, bonus;
   }
   
-  private Table <Trait, Level> levels = new Table <Trait, Level> () ;
+  private Table <Trait, Level> levels = new Table <Trait, Level> ();
   
-  final Actor actor ;
-  private String DNA = null ;
-  private int geneHash = -1 ;
+  final Actor actor;
+  private String DNA = null;
+  private int geneHash = -1;
   
   
   
   protected ActorTraits(Actor actor) {
-    this.actor = actor ;
+    this.actor = actor;
   }
   
   
   public void loadState(Session s) throws Exception {
-    DNA = s.loadString() ;
-    geneHash = s.loadInt() ;
-    for (int n = s.loadInt() ; n-- > 0 ;) {
-      final Trait type = ALL_TRAIT_TYPES[s.loadInt()] ;
-      final Level level = new Level() ;
-      level.value = s.loadFloat() ;
-      level.bonus = s.loadFloat() ;
-      levels.put(type, level) ;
+    DNA = s.loadString();
+    geneHash = s.loadInt();
+    for (int n = s.loadInt(); n-- > 0;) {
+      final Trait type = ALL_TRAIT_TYPES[s.loadInt()];
+      final Level level = new Level();
+      level.value = s.loadFloat();
+      level.bonus = s.loadFloat();
+      levels.put(type, level);
     }
   }
   
   
   public void saveState(Session s) throws Exception {
-    s.saveString(DNA) ;
-    s.saveInt(geneHash) ;
-    s.saveInt(levels.size()) ;
+    s.saveString(DNA);
+    s.saveInt(geneHash);
+    s.saveInt(levels.size());
     for (Trait type : levels.keySet()) {
-      s.saveInt(type.traitID) ;
-      final Level level = levels.get(type) ;
-      s.saveFloat(level.value) ;
-      s.saveFloat(level.bonus) ;
+      s.saveInt(type.traitID);
+      final Level level = levels.get(type);
+      s.saveFloat(level.value);
+      s.saveFloat(level.bonus);
     }
   }
   
@@ -76,12 +76,12 @@ public class ActorTraits implements Qualities {
   public void initAtts(float physical, float sensitive, float cognitive) {
     //
     //  Replace these with just 3 attributes.  Simpler that way.
-    actor.traits.setLevel(MUSCULAR    , physical ) ;
-    actor.traits.setLevel(IMMUNE   , physical ) ;
-    actor.traits.setLevel(MOTOR   , sensitive) ;
-    actor.traits.setLevel(PERCEPT  , sensitive) ;
-    actor.traits.setLevel(COGNITION, cognitive) ;
-    actor.traits.setLevel(NERVE     , cognitive) ;
+    actor.traits.setLevel(MUSCULAR    , physical );
+    actor.traits.setLevel(IMMUNE   , physical );
+    actor.traits.setLevel(MOTOR   , sensitive);
+    actor.traits.setLevel(PERCEPT  , sensitive);
+    actor.traits.setLevel(COGNITION, cognitive);
+    actor.traits.setLevel(NERVE     , cognitive);
   }
   
   
@@ -92,28 +92,28 @@ public class ActorTraits implements Qualities {
   public void initDNA(int mutationMod, Actor... parents) {
     //
     //  First, if required, we sample the genetic material of the parents-
-    final boolean free = parents == null || parents.length == 0 ;
-    final char material[][] ;
-    if (free) material = null ;
+    final boolean free = parents == null || parents.length == 0;
+    final char material[][];
+    if (free) material = null;
     else {
-      material = new char[parents.length][] ;
-      for (int n = parents.length ; n-- > 0 ;) {
-        material[n] = parents[n].traits.DNA.toCharArray() ;
+      material = new char[parents.length][];
+      for (int n = parents.length; n-- > 0;) {
+        material[n] = parents[n].traits.DNA.toCharArray();
       }
     }
     //
     //  Then, we merge the source material along with a certain mutation rate.
-    final StringBuffer s = new StringBuffer() ;
-    for (int i = 0 ; i < DNA_SIZE ; i++) {
+    final StringBuffer s = new StringBuffer();
+    for (int i = 0; i < DNA_SIZE; i++) {
       if (free || Rand.index(100) < (MUTATION_PERCENT + mutationMod)) {
-        s.append((char) ('a' + Rand.index(DNA_LETTERS))) ;
+        s.append((char) ('a' + Rand.index(DNA_LETTERS)));
       }
       else {
-        s.append(material[Rand.index(parents.length)][i]) ;
+        s.append(material[Rand.index(parents.length)][i]);
       }
     }
-    DNA = s.toString() ;
-    geneHash = DNA.hashCode() ;
+    DNA = s.toString();
+    geneHash = DNA.hashCode();
   }
   
   
@@ -122,26 +122,26 @@ public class ActorTraits implements Qualities {
     //  TODO:  Also use kinship networks.
     final char[]
       mA = a.traits.DNA.toCharArray(),
-      mB = b.traits.DNA.toCharArray() ;
-    int matches = 0 ;
-    for (int n = DNA_SIZE ; n-- > 0 ;) if (mA[n] == mB[n]) matches++ ;
-    return matches * 1f / DNA_SIZE ;
+      mB = b.traits.DNA.toCharArray();
+    int matches = 0;
+    for (int n = DNA_SIZE; n-- > 0;) if (mA[n] == mB[n]) matches++;
+    return matches * 1f / DNA_SIZE;
   }
   
   
   public int geneValue(String gene, int range) {
-    final int value = (gene.hashCode() + geneHash) % range ;
-    return (value > 0) ? value : (0 - value) ;
+    final int value = (gene.hashCode() + geneHash) % range;
+    return (value > 0) ? value : (0 - value);
   }
   
   
   public boolean male() {
-    return hasTrait(Trait.GENDER, "Male") ;
+    return hasTrait(Trait.GENDER, "Male");
   }
   
   
   public boolean female() {
-    return hasTrait(Trait.GENDER, "Female") ;
+    return hasTrait(Trait.GENDER, "Female");
   }
   
   
@@ -154,21 +154,21 @@ public class ActorTraits implements Qualities {
     //  beneficial, whereas the latter are the result of random chance, and
     //  tend to be harmful.
     if (GameSettings.hardCore && (! selected) && Rand.num() < increase) {
-      incLevel(CANCER, increase * 2 * Rand.num()) ;
+      incLevel(CANCER, increase * 2 * Rand.num());
     }
     /*
-    if (Rand.num() > increase / 5f) return ;
-    final Trait MT[] = MUTANT_TRAITS ; final int ML = MT.length ;
+    if (Rand.num() > increase / 5f) return;
+    final Trait MT[] = MUTANT_TRAITS; final int ML = MT.length;
     
-    float roll = Rand.avgNums(3) ;
-    if (selected) roll = (roll * roll) - 0.1f ;
+    float roll = Rand.avgNums(3);
+    if (selected) roll = (roll * roll) - 0.1f;
     else {
-      roll = 1 - (roll * roll) ;
-      if (Rand.yes() || GameSettings.hardCore) incLevel(STERILE, Rand.num()) ;
+      roll = 1 - (roll * roll);
+      if (Rand.yes() || GameSettings.hardCore) incLevel(STERILE, Rand.num());
     }
-    if (GameSettings.hardCore) roll = Visit.clamp(roll, 0.25f, 0.75f) ;
-    final Trait gained = MT[Visit.clamp((int) (roll * ML), ML)] ;
-    incLevel(gained, 0.5f + Rand.num()) ;
+    if (GameSettings.hardCore) roll = Visit.clamp(roll, 0.25f, 0.75f);
+    final Trait gained = MT[Visit.clamp((int) (roll * ML), ML)];
+    incLevel(gained, 0.5f + Rand.num());
     //*/
   }
   
@@ -177,29 +177,29 @@ public class ActorTraits implements Qualities {
   /**  Methods for assigning temporary bonuses-
     */
   protected void updateTraits(int numUpdates) {
-    final Batch <Trait> allTraits = new Batch <Trait> (levels.size()) ;
-    for (Trait t : levels.keySet()) allTraits.add(t) ;
+    final Batch <Trait> allTraits = new Batch <Trait> (levels.size());
+    for (Trait t : levels.keySet()) allTraits.add(t);
     for (Trait t : allTraits) if (t.type != CONDITION) {
-      final Level level = levels.get(t) ;
-      if (level.bonus != 0) level.bonus = 0 ;
+      final Level level = levels.get(t);
+      if (level.bonus != 0) level.bonus = 0;
     }
     for (Trait t : allTraits) if (t.type == CONDITION) {
-      t.affect(actor) ;
+      t.affect(actor);
     }
   }
   
   
   public void incBonus(Trait type, float bonusInc) {
-    final Level level = levels.get(type) ;
-    if (level == null) return ;
-    level.bonus += bonusInc ;
+    final Level level = levels.get(type);
+    if (level == null) return;
+    level.bonus += bonusInc;
   }
   
   
   public void setBonus(Trait type, float b) {
-    final Level level = levels.get(type) ;
-    if (level == null) return ;
-    level.bonus = b ;
+    final Level level = levels.get(type);
+    if (level == null) return;
+    level.bonus = b;
   }
   
   
@@ -227,15 +227,15 @@ public class ActorTraits implements Qualities {
   
   
   public float effectBonus(Trait trait) {
-    final Level level = levels.get(trait) ;
-    if (level == null) return 0 ;
-    return level.bonus ;
+    final Level level = levels.get(trait);
+    if (level == null) return 0;
+    return level.bonus;
   }
   
   
   public int rootBonus(Skill skill) {
-    final float ageMult = actor.health.ageMultiple() ;
-    return (int) (0.5f + (traitLevel(skill.parent) * ageMult / 5f)) ;
+    final float ageMult = actor.health.ageMultiple();
+    return (int) (0.5f + (traitLevel(skill.parent) * ageMult / 5f));
   }
   
   
@@ -245,40 +245,40 @@ public class ActorTraits implements Qualities {
     }
     
     final boolean report = verbose && I.talkAbout == actor;
-    final Level TL = levels.get(type) ;
-    float level = TL == null ? 0 : (TL.value + TL.bonus) ;
+    final Level TL = levels.get(type);
+    float level = TL == null ? 0 : (TL.value + TL.bonus);
     
     if (type.type == PHYSICAL) {
-      return level * actor.health.ageMultiple() ;
+      return level * actor.health.ageMultiple();
     }
     
     if (type.type == SKILL) {
-      final Skill skill = (Skill) type ;
+      final Skill skill = (Skill) type;
       if (skill.parent == null) {
-        return level * actor.health.ageMultiple() ;
+        return level * actor.health.ageMultiple();
       }
       else {
-        if (! actor.health.conscious()) level /= 2 ;
-        level += rootBonus(skill) ;
+        if (! actor.health.conscious()) level /= 2;
+        level += rootBonus(skill);
       }
-      if (report) I.say(" level of "+type+" is "+level) ;
-      if (report) I.say(" root bonus: "+rootBonus(skill)) ;
-      level *= 1 - actor.health.stressPenalty() ;
+      if (report) I.say(" level of "+type+" is "+level);
+      if (report) I.say(" root bonus: "+rootBonus(skill));
+      level *= 1 - actor.health.stressPenalty();
     }
-    return level ;
+    return level;
   }
   
   
   public boolean hasTrait(Trait type, String desc) {
-    int i = 0 ; for (String s : type.descriptors) {
+    int i = 0; for (String s : type.descriptors) {
       if (desc.equals(s)) {
-        final float value = type.descValues[i] ;
-        if (value > 0) return traitLevel(type) >= value ;
-        else return traitLevel(type) <= value ;
+        final float value = type.descValues[i];
+        if (value > 0) return traitLevel(type) >= value;
+        else return traitLevel(type) <= value;
       }
-      else i++ ;
+      else i++;
     }
-    return false ;
+    return false;
   }
   
   
@@ -290,47 +290,47 @@ public class ActorTraits implements Qualities {
     }
     
     if (toLevel == 0) {
-      levels.remove(type) ;
-      return ;
+      levels.remove(type);
+      return;
     }
     
-    Level level = levels.get(type) ;
-    if (level == null) levels.put(type, level = new Level()) ;
+    Level level = levels.get(type);
+    if (level == null) levels.put(type, level = new Level());
     
-    final float oldVal = level.value ;
-    level.value = toLevel ;
+    final float oldVal = level.value;
+    level.value = toLevel;
     /*
     if (type == MUTATION) {
-      afterMutation(level.value - oldVal, false) ;
+      afterMutation(level.value - oldVal, false);
     }
     if (level.value > oldVal && type.type == CONDITION) {
-      type.affect(actor) ;
+      type.affect(actor);
     }
     //*/
-    tryReport(type, level.value - (int) oldVal) ;
+    tryReport(type, level.value - (int) oldVal);
   }
   
   
   public float incLevel(Trait type, float boost) {
-    final float newLevel = traitLevel(type) + boost ;
-    setLevel(type, newLevel) ;
-    return newLevel ;
+    final float newLevel = traitLevel(type) + boost;
+    setLevel(type, newLevel);
+    return newLevel;
   }
   
   
   public void raiseLevel(Trait type, float toLevel) {
-    if (toLevel < traitLevel(type)) return ;
-    setLevel(type, toLevel) ;
+    if (toLevel < traitLevel(type)) return;
+    setLevel(type, toLevel);
   }
   
   
   public void setLevel(Trait type, String desc) {
-    int i = 0 ; for (String s : type.descriptors) {
+    int i = 0; for (String s : type.descriptors) {
       if (desc.equals(s)) {
-        setLevel(type, type.descValues[i]) ;
-        return ;
+        setLevel(type, type.descValues[i]);
+        return;
       }
-      else i++ ;
+      else i++;
     }
   }
   
@@ -339,57 +339,57 @@ public class ActorTraits implements Qualities {
   /**  Accessing particular trait headings-
     */
   private Batch <Trait> getMatches(Batch <Trait> traits, Trait[] types) {
-    if (traits == null) traits = new Batch <Trait> () ;
+    if (traits == null) traits = new Batch <Trait> ();
     for (Trait t : types) {
-      final Level l = levels.get(t) ;
-      if (l == null || Math.abs(l.value) < 0.5f) continue ;
-      traits.add(t) ;
+      final Level l = levels.get(t);
+      if (l == null || Math.abs(l.value) < 0.5f) continue;
+      traits.add(t);
     }
-    return traits ;
+    return traits;
   }
   
   
   public Batch <Trait> personality() {
-    return getMatches(null, Qualities.PERSONALITY_TRAITS) ;
+    return getMatches(null, Qualities.PERSONALITY_TRAITS);
   }
   
   
   public Batch <Trait> physique() {
-    final Batch <Trait> matches = new Batch <Trait> () ;
-    getMatches(matches, Qualities.PHYSICAL_TRAITS) ;
-    getMatches(matches, Qualities.BLOOD_TRAITS) ;
-    return matches ;
+    final Batch <Trait> matches = new Batch <Trait> ();
+    getMatches(matches, Qualities.PHYSICAL_TRAITS);
+    getMatches(matches, Qualities.BLOOD_TRAITS);
+    return matches;
   }
   
   
   public Batch <Trait> characteristics() {
-    return getMatches(null, Qualities.CATEGORIC_TRAITS) ;
+    return getMatches(null, Qualities.CATEGORIC_TRAITS);
   }
   
   
   public Batch <Skill> attributes() {
-    return (Batch) getMatches(null, Qualities.ATTRIBUTES) ;
+    return (Batch) getMatches(null, Qualities.ATTRIBUTES);
   }
   
   
   public Batch <Skill> skillSet() {
-    final Batch <Trait> matches = new Batch <Trait> () ;
-    getMatches(matches, Qualities.INSTINCT_SKILLS ) ;
-    getMatches(matches, Qualities.PHYSICAL_SKILLS ) ;
-    getMatches(matches, Qualities.SENSITIVE_SKILLS) ;
-    getMatches(matches, Qualities.COGNITIVE_SKILLS) ;
-    getMatches(matches, Qualities.PSYONIC_SKILLS  ) ;
-    return (Batch) matches ;
+    final Batch <Trait> matches = new Batch <Trait> ();
+    getMatches(matches, Qualities.INSTINCT_SKILLS );
+    getMatches(matches, Qualities.PHYSICAL_SKILLS );
+    getMatches(matches, Qualities.SENSITIVE_SKILLS);
+    getMatches(matches, Qualities.COGNITIVE_SKILLS);
+    getMatches(matches, Qualities.PSYONIC_SKILLS  );
+    return (Batch) matches;
   }
   
   
   public Batch <Condition> conditions() {
-    return (Batch) getMatches(null, Qualities.CONDITIONS) ;
+    return (Batch) getMatches(null, Qualities.CONDITIONS);
   }
   
   /*
   public Batch <Trait> mutations() {
-    return (Batch) getMatches(null, Abilities.MUTANT_TRAITS) ;
+    return (Batch) getMatches(null, Abilities.MUTANT_TRAITS);
   }
   //*/
   
@@ -403,16 +403,16 @@ public class ActorTraits implements Qualities {
     Actor b, Skill opposed,
     float bonus
   ) {
-    float bonusA = useLevel(checked) + Math.max(0, bonus) ;
-    float bonusB = 0 - Math.min(0, bonus) ;
-    if (b != null && opposed != null) bonusB += b.traits.useLevel(opposed) ;
-    final float chance = Visit.clamp(bonusA + 10 - bonusB, 0, 20) / 20 ;
-    return Visit.clamp(chance, MIN_FAIL_CHANCE, MAX_SUCCEED_CHANCE) ;
+    float bonusA = useLevel(checked) + Math.max(0, bonus);
+    float bonusB = 0 - Math.min(0, bonus);
+    if (b != null && opposed != null) bonusB += b.traits.useLevel(opposed);
+    final float chance = Visit.clamp(bonusA + 10 - bonusB, 0, 20) / 20;
+    return Visit.clamp(chance, MIN_FAIL_CHANCE, MAX_SUCCEED_CHANCE);
   }
   
   
   public float chance(Skill checked, float DC) {
-    return chance(checked, null, null, 0 - DC) ;
+    return chance(checked, null, null, 0 - DC);
   }
   
   
@@ -428,15 +428,15 @@ public class ActorTraits implements Qualities {
     //  TODO:  Cognitive skills need study to advance, and exercise will/
     //  intellect.
     
-    final float chance = chance(checked, b, opposed, bonus) ;
-    float success = 0 ;
+    final float chance = chance(checked, b, opposed, bonus);
+    float success = 0;
     if (range <= 0) success = chance;
     else for (int tried = range; tried-- > 0;) {
-      if (Rand.num() < chance) success++ ;
+      if (Rand.num() < chance) success++;
     }
-    practice(checked, (1 - chance) * duration / 10) ;
-    if (b != null) b.traits.practice(opposed, chance * duration / 10) ;
-    return success ;
+    practice(checked, (1 - chance) * duration / 10);
+    if (b != null) b.traits.practice(opposed, chance * duration / 10);
+    return success;
   }
   
   
@@ -444,24 +444,24 @@ public class ActorTraits implements Qualities {
     Skill checked, Actor b, Skill opposed,
     float bonus, float fullXP
   ) {
-    return test(checked, b, opposed, bonus, fullXP, 1) > 0 ;
+    return test(checked, b, opposed, bonus, fullXP, 1) > 0;
   }
   
   
   public boolean test(Skill checked, float difficulty, float duration) {
-    return test(checked, null, null, 0 - difficulty, duration, 1) > 0 ;
+    return test(checked, null, null, 0 - difficulty, duration, 1) > 0;
   }
   
   
   public void practice(Skill skillType, float practice) {
-    incLevel(skillType, practice / (traitLevel(skillType) + 1)) ;
-    if (skillType.parent != null) practice(skillType.parent, practice / 5) ;
+    incLevel(skillType, practice / (traitLevel(skillType) + 1));
+    if (skillType.parent != null) practice(skillType.parent, practice / 5);
   }
   
   
   public void practiceAgainst(int DC, float duration, Skill skillType) {
-    final float chance = chance(skillType, null, null, 0 - DC) ;
-    practice(skillType, chance * duration / 10) ;
+    final float chance = chance(skillType, null, null, 0 - DC);
+    practice(skillType, chance * duration / 10);
   }
   
   
@@ -474,28 +474,28 @@ public class ActorTraits implements Qualities {
   
   
   private void tryReport(Trait type, float diff) {
-    if ((! actor.inWorld()) || Math.abs(diff) < 1) return ;
-    final String prefix = diff > 0 ? "+" : "" ;
-    actor.chat.addPhrase(prefix+type, TalkFX.NOT_SPOKEN) ;
+    if ((! actor.inWorld()) || Math.abs(diff) < 1) return;
+    final String prefix = diff > 0 ? "+" : "";
+    actor.chat.addPhrase(prefix+type, TalkFX.NOT_SPOKEN);
   }
   
   
   //  TODO:  Get rid of this- it's not being used.
   public void writeInformation(Description d) {
     for (Skill s : attributes()) {
-      d.append("\n  "+s.name+" "+((int) traitLevel(s))) ;
+      d.append("\n  "+s.name+" "+((int) traitLevel(s)));
     }
-    d.append("\n") ;
+    d.append("\n");
     for (Skill s : skillSet()) {
-      d.append("\n  "+s.name+" "+((int) traitLevel(s))) ;
+      d.append("\n  "+s.name+" "+((int) traitLevel(s)));
     }
-    d.append("\n") ;
+    d.append("\n");
     for (Trait t : personality()) {
-      d.append("\n  "+Trait.descriptionFor(t, traitLevel(t))) ;
+      d.append("\n  "+Trait.descriptionFor(t, traitLevel(t)));
     }
-    d.append("\n") ;
+    d.append("\n");
     for (Trait t : physique()) {
-      d.append("\n  "+Trait.descriptionFor(t, traitLevel(t))) ;
+      d.append("\n  "+Trait.descriptionFor(t, traitLevel(t)));
     }
   }
 }

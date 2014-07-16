@@ -5,7 +5,7 @@
   */
 
 
-package stratos.game.common ;
+package stratos.game.common;
 import stratos.game.building.*;
 import stratos.graphics.common.*;
 import stratos.user.*;
@@ -19,29 +19,29 @@ public abstract class Fixture extends Element {
   
   /**  Field definitions, constructors, and save/load methods-
     */
-  final public int size, high ;
-  final Box2D area = new Box2D() ;
+  final public int size, high;
+  final Box2D area = new Box2D();
   
   
   public Fixture(int size, int high) {
-    this.size = size ;
-    this.high = high ;
+    this.size = size;
+    this.high = high;
   }
   
   
   public Fixture(Session s) throws Exception {
-    super(s) ;
-    size = s.loadInt() ;
-    high = s.loadInt() ;
-    area.loadFrom(s.input()) ;
+    super(s);
+    size = s.loadInt();
+    high = s.loadInt();
+    area.loadFrom(s.input());
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
-    s.saveInt(size) ;
-    s.saveInt(high) ;
-    area.saveTo(s.output()) ;
+    super.saveState(s);
+    s.saveInt(size);
+    s.saveInt(high);
+    area.saveTo(s.output());
   }
   
   
@@ -49,58 +49,58 @@ public abstract class Fixture extends Element {
   /**  Life cycle, ownership and positioning-
     */
   public boolean canPlace() {
-    if (origin() == null) return false ;
-    final World world = origin().world ;
+    if (origin() == null) return false;
+    final World world = origin().world;
     for (Tile t : world.tilesIn(area, false)) {
-      if (t == null || ! t.habitat().pathClear) return false ;
-      if (t.owningType() >= this.owningType()) return false ;
+      if (t == null || ! t.habitat().pathClear) return false;
+      if (t.owningType() >= this.owningType()) return false;
     }
-    if (area.xdim() < 1) I.say("AREA:"+area+", size: "+size) ;
-    final Tile perim[] = Spacing.perimeter(area, world) ;
+    if (area.xdim() < 1) I.say("AREA:"+area+", size: "+size);
+    final Tile perim[] = Spacing.perimeter(area, world);
     for (Tile t : perim) if (t != null && t.owner() != null) {
-      if (! canTouch(t.owner())) return false ;
+      if (! canTouch(t.owner())) return false;
     }
-    return true ;
+    return true;
   }
   
   
   protected boolean canTouch(Element e) {
-    return e.owningType() <= this.owningType() ;
+    return e.owningType() <= this.owningType();
   }
   
   
   public void clearSurrounds() {
-    final Box2D around = new Box2D().setTo(area()).expandBy(1) ;
-    final World world = origin().world ;
+    final Box2D around = new Box2D().setTo(area()).expandBy(1);
+    final World world = origin().world;
     for (Tile t : world.tilesIn(around, false)) if (t != null) {
       if (t.owner() != null && t.owningType() < this.owningType()) {
-        t.owner().setAsDestroyed() ;
+        t.owner().setAsDestroyed();
       }
     }
-    Tile exit = null ;
-    if (this instanceof Venue) exit = ((Venue) this).mainEntrance() ;
+    Tile exit = null;
+    if (this instanceof Venue) exit = ((Venue) this).mainEntrance();
     else {
-      final Tile perim[] = Spacing.perimeter(area(), world) ;
-      for (Tile p : perim) if (! p.blocked()) { exit = p ; break ; }
+      final Tile perim[] = Spacing.perimeter(area(), world);
+      for (Tile p : perim) if (! p.blocked()) { exit = p; break; }
     }
-    if (exit == null) exit = Spacing.nearestOpenTile(this, this, world) ;
-    if (exit == null) I.complain("No exit point from "+this) ;
+    if (exit == null) exit = Spacing.nearestOpenTile(this, this, world);
+    if (exit == null) I.complain("No exit point from "+this);
     for (Tile t : world.tilesIn(area(), false)) {
       for (Mobile m : t.inside()) {
-        m.setPosition(exit.x, exit.y, world) ;
+        m.setPosition(exit.x, exit.y, world);
       }
     }
   }
   
   
   public Tile[] surrounds() {
-    final Box2D around = new Box2D().setTo(area()).expandBy(1) ;
-    final World world = origin().world ;
-    final Tile result[] = new Tile[(int) (around.xdim() * around.ydim())] ;
-    int i = 0 ; for (Tile t : world.tilesIn(around, false)) {
-      result[i++] = t ;
+    final Box2D around = new Box2D().setTo(area()).expandBy(1);
+    final World world = origin().world;
+    final Tile result[] = new Tile[(int) (around.xdim() * around.ydim())];
+    int i = 0; for (Tile t : world.tilesIn(around, false)) {
+      result[i++] = t;
     }
-    return result ;
+    return result;
   }
   
   
@@ -109,57 +109,57 @@ public abstract class Fixture extends Element {
     for (Tile t : world.tilesIn(area, false)) {
       final Element old = t.owner();
       if (old != null && old != this) old.setAsDestroyed();
-      t.setOwner(this) ;
+      t.setOwner(this);
     }
-    return true ;
+    return true;
   }
   
   
   public boolean setPosition(float x, float y, World world) {
-    if (! super.setPosition(x, y, world)) return false ;
-    final Tile o = origin() ;
-    area.set(o.x - 0.5f, o.y - 0.5f, size, size) ;
-    return true ;
+    if (! super.setPosition(x, y, world)) return false;
+    final Tile o = origin();
+    area.set(o.x - 0.5f, o.y - 0.5f, size, size);
+    return true;
   }
   
   
   public void exitWorld() {
     for (Tile t : world().tilesIn(area, false)) {
-      t.setOwner(null) ;
+      t.setOwner(null);
     }
-    super.exitWorld() ;
+    super.exitWorld();
   }
   
   
-  public int xdim() { return size ; }
-  public int ydim() { return size ; }
-  public int zdim() { return high ; }
-  public float height() { return zdim() ; }
-  public float radius() { return size / 2f ; }
-  public Box2D area() { return area ; }
+  public int xdim() { return size; }
+  public int ydim() { return size; }
+  public int zdim() { return high; }
+  public float height() { return zdim(); }
+  public float radius() { return size / 2f; }
+  public Box2D area() { return area; }
   
   
   public Box2D area(Box2D put) {
-    if (put == null) put = new Box2D() ;
-    return put.setTo(area) ;
+    if (put == null) put = new Box2D();
+    return put.setTo(area);
   }
   
   
   public Vec3D position(Vec3D v) {
-    final Tile o = origin() ;
-    if (o == null) return null ;
-    if (v == null) v = new Vec3D() ;
+    final Tile o = origin();
+    if (o == null) return null;
+    if (v == null) v = new Vec3D();
     v.set(
       o.x + (size / 2f) - 0.5f,
       o.y + (size / 2f) - 0.5f,
       o.elevation()
-    ) ;
-    return v ;
+    );
+    return v;
   }
   
   
   public int owningType() {
-    return FIXTURE_OWNS ;
+    return FIXTURE_OWNS;
   }
   
   
@@ -167,14 +167,14 @@ public abstract class Fixture extends Element {
   /**  Rendering and interface methods-
     */
   protected float fogFor(Base base) {
-    float maxFog = Float.NEGATIVE_INFINITY ;
-    final Tile o = origin() ;
+    float maxFog = Float.NEGATIVE_INFINITY;
+    final Tile o = origin();
     for (Coord c : Visit.grid(o.x, o.y, size, size, 1)) {
       final Tile t = world.tileAt(c.x, c.y);
       final float fog = base.intelMap.displayFog(t, t == o ? this : null);
-      if (fog > maxFog) maxFog = fog ;
+      if (fog > maxFog) maxFog = fog;
     }
-    return maxFog ;
+    return maxFog;
   }
 }
 

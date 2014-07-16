@@ -5,7 +5,7 @@
   */
 
 
-package stratos.game.base ;
+package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
@@ -47,65 +47,65 @@ public class Holding extends Venue implements Economy {
     UPGRADE_THRESH = 0.66f,
     DEVOLVE_THRESH = 0.66f;
   
-  private static boolean verbose = true ;
+  private static boolean verbose = true;
   
   
-  private int upgradeLevel, targetLevel, varID ;
-  private List <HoldingExtra> extras = new List <HoldingExtra> () ;
-  private int numTests = 0, upgradeCounter, devolveCounter ;
+  private int upgradeLevel, targetLevel, varID;
+  private List <HoldingExtra> extras = new List <HoldingExtra> ();
+  private int numTests = 0, upgradeCounter, devolveCounter;
   
   
   
   public Holding(Base belongs) {
-    super(2, 2, ENTRANCE_EAST, belongs) ;
-    this.upgradeLevel = 0 ;
-    this.varID = Rand.index(NUM_VARS) ;
+    super(2, 2, ENTRANCE_EAST, belongs);
+    this.upgradeLevel = 0;
+    this.varID = Rand.index(NUM_VARS);
     structure.setupStats(
       HoldingUpgrades.INTEGRITIES[0], 5, HoldingUpgrades.BUILD_COSTS[0],
       Structure.BIG_MAX_UPGRADES, Structure.TYPE_VENUE
-    ) ;
-    attachSprite(modelFor(this).makeSprite()) ;
+    );
+    attachSprite(modelFor(this).makeSprite());
   }
   
   
   public Holding(Session s) throws Exception {
-    super(s) ;
-    upgradeLevel = s.loadInt() ;
-    targetLevel  = s.loadInt() ;
-    varID = s.loadInt() ;
-    s.loadObjects(extras) ;
-    numTests = s.loadInt() ;
-    upgradeCounter = s.loadInt() ;
-    devolveCounter = s.loadInt() ;
+    super(s);
+    upgradeLevel = s.loadInt();
+    targetLevel  = s.loadInt();
+    varID = s.loadInt();
+    s.loadObjects(extras);
+    numTests = s.loadInt();
+    upgradeCounter = s.loadInt();
+    devolveCounter = s.loadInt();
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
-    s.saveInt(upgradeLevel) ;
-    s.saveInt(targetLevel ) ;
-    s.saveInt(varID) ;
-    s.saveObjects(extras) ;
-    s.saveInt(numTests) ;
-    s.saveInt(upgradeCounter) ;
-    s.saveInt(devolveCounter) ;
+    super.saveState(s);
+    s.saveInt(upgradeLevel);
+    s.saveInt(targetLevel );
+    s.saveInt(varID);
+    s.saveObjects(extras);
+    s.saveInt(numTests);
+    s.saveInt(upgradeCounter);
+    s.saveInt(devolveCounter);
   }
   
   
   public int owningType() {
-    return Element.FIXTURE_OWNS ;
+    return Element.FIXTURE_OWNS;
   }
   
   
   public int upgradeLevel() {
-    return upgradeLevel ;
+    return upgradeLevel;
   }
   
   
   
   /**  Upgrade listings-
     */
-  public Index <Upgrade> allUpgrades() { return HoldingUpgrades.ALL_UPGRADES ; }
+  public Index <Upgrade> allUpgrades() { return HoldingUpgrades.ALL_UPGRADES; }
 
   
   
@@ -114,91 +114,91 @@ public class Holding extends Venue implements Economy {
     */
   public void updateAsScheduled(int numUpdates) {
     if (numUpdates % 10 == 0 && structure.intact()) {
-      HoldingExtra.updateExtras(this, extras, numUpdates) ;
+      HoldingExtra.updateExtras(this, extras, numUpdates);
     }
-    super.updateAsScheduled(numUpdates) ;
+    super.updateAsScheduled(numUpdates);
     
-    if (! structure.intact()) return ;
-    consumeMaterials() ;
-    updateDemands(upgradeLevel + 1) ;
-    impingeSqualor() ;
+    if (! structure.intact()) return;
+    consumeMaterials();
+    updateDemands(upgradeLevel + 1);
+    impingeSqualor();
 
-    final int CHECK_TIME = 10 ;
-    if (numUpdates % CHECK_TIME == 0) checkForUpgrade(CHECK_TIME) ;
+    final int CHECK_TIME = 10;
+    if (numUpdates % CHECK_TIME == 0) checkForUpgrade(CHECK_TIME);
     
     if (
       (targetLevel != upgradeLevel) &&
       (! structure.needsUpgrade()) &&
       structure.goodCondition()
     ) {
-      upgradeLevel = targetLevel ;
-      structure.updateStats(HoldingUpgrades.INTEGRITIES[targetLevel], 5, 0) ;
-      world.ephemera.addGhost(this, MAX_SIZE, sprite(), 2.0f) ;
-      attachModel(modelFor(this)) ;
-      setAsEstablished(false) ;
+      upgradeLevel = targetLevel;
+      structure.updateStats(HoldingUpgrades.INTEGRITIES[targetLevel], 5, 0);
+      world.ephemera.addGhost(this, MAX_SIZE, sprite(), 2.0f);
+      attachModel(modelFor(this));
+      setAsEstablished(false);
     }
   }
   
   
   private boolean needsMet(int meetLevel) {
-    if (personnel.residents().size() == 0) return false ;
-    if (meetLevel <= HoldingUpgrades.LEVEL_TENT   ) return true ;
+    if (personnel.residents().size() == 0) return false;
+    if (meetLevel <= HoldingUpgrades.LEVEL_TENT   ) return true;
     if (meetLevel >  HoldingUpgrades.LEVEL_GUILDER) return false;
-    final Object met = HoldingUpgrades.NEEDS_MET ;
+    final Object met = HoldingUpgrades.NEEDS_MET;
     return
       HoldingUpgrades.checkAccess   (this, meetLevel, false) == met &&
       HoldingUpgrades.checkMaterials(this, meetLevel, false) == met &&
       HoldingUpgrades.checkSupport  (this, meetLevel, false) == met &&
       HoldingUpgrades.checkRations  (this, meetLevel, false) == met &&
       HoldingUpgrades.checkSpecial  (this, meetLevel, false) == met &&
-      HoldingUpgrades.checkSurrounds(this, meetLevel, false) == met ;
+      HoldingUpgrades.checkSurrounds(this, meetLevel, false) == met;
   }
   
   
   private void checkForUpgrade(int CHECK_TIME) {
     
-    boolean devolve = false, upgrade = false ;
-    if (! needsMet(upgradeLevel)) devolve = true ;
-    else if (needsMet(upgradeLevel + 1)) upgrade = true ;
+    boolean devolve = false, upgrade = false;
+    if (! needsMet(upgradeLevel)) devolve = true;
+    else if (needsMet(upgradeLevel + 1)) upgrade = true;
     
-    final boolean empty = personnel.residents().size() == 0 ;
-    if (empty) { devolve = true ; upgrade = false ; }
+    final boolean empty = personnel.residents().size() == 0;
+    if (empty) { devolve = true; upgrade = false; }
     
-    numTests += CHECK_TIME ;
-    if (devolve) devolveCounter += CHECK_TIME ;
-    if (upgrade) upgradeCounter += CHECK_TIME ;
+    numTests += CHECK_TIME;
+    if (devolve) devolveCounter += CHECK_TIME;
+    if (upgrade) upgradeCounter += CHECK_TIME;
     
     if (numTests >= TEST_INTERVAL) {
-      targetLevel = upgradeLevel ;
-      if (devolveCounter * 1f / numTests > DEVOLVE_THRESH) devolve = true ;
-      if (upgradeCounter * 1f / numTests > UPGRADE_THRESH) upgrade = true ;
-      if (devolve) targetLevel-- ;
-      if (upgrade) targetLevel++ ;
-      numTests = devolveCounter = upgradeCounter = 0 ;
-      targetLevel = Visit.clamp(targetLevel, HoldingUpgrades.NUM_LEVELS) ;
+      targetLevel = upgradeLevel;
+      if (devolveCounter * 1f / numTests > DEVOLVE_THRESH) devolve = true;
+      if (upgradeCounter * 1f / numTests > UPGRADE_THRESH) upgrade = true;
+      if (devolve) targetLevel--;
+      if (upgrade) targetLevel++;
+      numTests = devolveCounter = upgradeCounter = 0;
+      targetLevel = Visit.clamp(targetLevel, HoldingUpgrades.NUM_LEVELS);
       
       if (verbose && I.talkAbout == this) {
-        if (numTests == 0) I.say("HOUSING TEST INTERVAL COMPLETE") ;
-        I.say("Upgrade/Target levels: "+upgradeLevel+"/"+targetLevel) ;
-        I.say("Could upgrade? "+upgrade+", devolve? "+devolve) ;
-        I.say("Is Empty? "+empty) ;
+        if (numTests == 0) I.say("HOUSING TEST INTERVAL COMPLETE");
+        I.say("Upgrade/Target levels: "+upgradeLevel+"/"+targetLevel);
+        I.say("Could upgrade? "+upgrade+", devolve? "+devolve);
+        I.say("Is Empty? "+empty);
       }
       
       if (devolve && empty) {
-        //if (verbose) I.sayAbout(this, "HOUSING IS CONDEMNED") ;
-        structure.setState(Structure.STATE_SALVAGE, -1) ;
+        //if (verbose) I.sayAbout(this, "HOUSING IS CONDEMNED");
+        structure.setState(Structure.STATE_SALVAGE, -1);
       }
       
-      if (targetLevel == upgradeLevel) return ;
-      final Object HU[] = HoldingUpgrades.ALL_UPGRADES.members() ;
+      if (targetLevel == upgradeLevel) return;
+      final Object HU[] = HoldingUpgrades.ALL_UPGRADES.members();
       
       if (targetLevel > upgradeLevel) {
-        final Upgrade target = (Upgrade) HU[ targetLevel] ;
-        structure.beginUpgrade(target, true) ;
+        final Upgrade target = (Upgrade) HU[ targetLevel];
+        structure.beginUpgrade(target, true);
       }
       else {
-        final Upgrade target = (Upgrade) HU[upgradeLevel] ;
-        structure.resignUpgrade(target) ;
+        final Upgrade target = (Upgrade) HU[upgradeLevel];
+        structure.resignUpgrade(target);
       }
     }
   }
@@ -228,59 +228,59 @@ public class Holding extends Venue implements Economy {
   
   
   private void updateDemands(int targetLevel) {
-    targetLevel = Visit.clamp(targetLevel, HoldingUpgrades.NUM_LEVELS) ;
+    targetLevel = Visit.clamp(targetLevel, HoldingUpgrades.NUM_LEVELS);
     
     for (Item i : HoldingUpgrades.materials(targetLevel).raw) {
-      stocks.forceDemand(i.type, i.amount + 0.5f, Stocks.TIER_CONSUMER) ;
+      stocks.forceDemand(i.type, i.amount + 0.5f, Stocks.TIER_CONSUMER);
     }
     
-    final float supportNeed = HoldingUpgrades.supportNeed(this, targetLevel) ;
-    stocks.forceDemand(LIFE_SUPPORT, supportNeed, Stocks.TIER_CONSUMER) ;
+    final float supportNeed = HoldingUpgrades.supportNeed(this, targetLevel);
+    stocks.forceDemand(LIFE_SUPPORT, supportNeed, Stocks.TIER_CONSUMER);
     
     for (Item i : HoldingUpgrades.rationNeeds(this, targetLevel)) {
-      stocks.forceDemand(i.type, i.amount, Stocks.TIER_CONSUMER) ;
+      stocks.forceDemand(i.type, i.amount, Stocks.TIER_CONSUMER);
     }
 
     for (Item i : HoldingUpgrades.specialGoods(this, targetLevel)) {
-      stocks.forceDemand(i.type, i.amount, Stocks.TIER_CONSUMER) ;
+      stocks.forceDemand(i.type, i.amount, Stocks.TIER_CONSUMER);
     }
   }
   
   
   private void impingeSqualor() {
-    int ambience = 1 + ((upgradeLevel - 2) * 2) ;
-    ambience += (extras.size() * upgradeLevel) / 2 ;
-    structure.setAmbienceVal(ambience) ;
+    int ambience = 1 + ((upgradeLevel - 2) * 2);
+    ambience += (extras.size() * upgradeLevel) / 2;
+    structure.setAmbienceVal(ambience);
   }
   
   
   public Service[] goodsNeeded() {
     
-    final Batch <Service> needed = new Batch <Service> () ;
-    int targetLevel = upgradeLevel + 1 ;
-    targetLevel = Visit.clamp(targetLevel, HoldingUpgrades.NUM_LEVELS) ;
+    final Batch <Service> needed = new Batch <Service> ();
+    int targetLevel = upgradeLevel + 1;
+    targetLevel = Visit.clamp(targetLevel, HoldingUpgrades.NUM_LEVELS);
     
     //  Combine the listing of non-provisioned materials and demand for rations.
     //  (Note special goods, like pressfeed and datalinks, are delivered to the
     //  holding externally, and so are not included here.)
     for (Item i : HoldingUpgrades.materials(targetLevel).raw) {
-      if (i.type.form == FORM_PROVISION) continue ;
-      needed.add(i.type) ;
+      if (i.type.form == FORM_PROVISION) continue;
+      needed.add(i.type);
     }
     for (Item i : HoldingUpgrades.rationNeeds(this, targetLevel)) {
-      needed.add(i.type) ;
+      needed.add(i.type);
     }
-    return needed.toArray(Service.class) ;
+    return needed.toArray(Service.class);
   }
   
   
   protected List <HoldingExtra> extras() {
-    return extras ;
+    return extras;
   }
   
   
   public boolean privateProperty() {
-    return true ;
+    return true;
   }
   
   
@@ -305,8 +305,8 @@ public class Holding extends Venue implements Economy {
       actor, this, goods, 5, actor, actor.world()
     );
     //*/
-    if (d != null) d.shouldPay = actor ;
-    return d ;
+    if (d != null) d.shouldPay = actor;
+    return d;
   }
   
   
@@ -316,15 +316,15 @@ public class Holding extends Venue implements Economy {
   }
   
   
-  public Background[] careers() { return new Background[0] ; }
-  public Service[] services() { return new Service[0] ; }
+  public Background[] careers() { return new Background[0]; }
+  public Service[] services() { return new Service[0]; }
   
   
   
   /**  Rendering and interface methods-
     */
   final static String
-    IMG_DIR = "media/Buildings/civilian/" ;
+    IMG_DIR = "media/Buildings/civilian/";
   
   final static ImageAsset ICON = ImageAsset.fromImage(
     "media/GUI/Buttons/holding_button.gif", Holding.class
@@ -346,8 +346,8 @@ public class Holding extends Venue implements Economy {
   
   
   public void exitWorld() {
-    super.exitWorld() ;
-    HoldingExtra.removeExtras(this, extras) ;
+    super.exitWorld();
+    HoldingExtra.removeExtras(this, extras);
   }
   
   
@@ -355,27 +355,27 @@ public class Holding extends Venue implements Economy {
     final int level = holding.upgradeLevel, VID = holding.varID;
     if (level == 0) return SEAL_TENT_MODEL;
     if (level <= 1) {
-      return LOWER_CLASS_MODELS[VID][level + 1] ;
+      return LOWER_CLASS_MODELS[VID][level + 1];
     }
-    if (level >= 5) return UPPER_CLASS_MODELS[VID][level - 5] ;
-    return MIDDLE_CLASS_MODELS[VID][level - 2] ;
+    if (level >= 5) return UPPER_CLASS_MODELS[VID][level - 5];
+    return MIDDLE_CLASS_MODELS[VID][level - 2];
   }
   
   
   public String helpInfo() {
     return
       "Holdings provide comfort and privacy for your subjects, and create "+
-      "an additional tax base for revenue." ;
+      "an additional tax base for revenue.";
   }
   
   
   public String buildCategory() {
-    return InstallTab.TYPE_SPECIAL ;
+    return InstallTab.TYPE_SPECIAL;
   }
   
   
   public String fullName() {
-    return HoldingUpgrades.LEVEL_NAMES[upgradeLevel + 2] ;
+    return HoldingUpgrades.LEVEL_NAMES[upgradeLevel + 2];
   }
   
   
@@ -384,7 +384,7 @@ public class Holding extends Venue implements Economy {
   }
   
   
-  public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
+  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
     panel = VenueDescription.configPanelWith(
       this, panel, UI, CAT_STATUS, CAT_STAFF, CAT_STOCK
     );
@@ -392,14 +392,14 @@ public class Holding extends Venue implements Economy {
     if (panel.category() == CAT_STATUS) {
       final String
         uS = needMessage(upgradeLevel),
-        tS = needMessage(upgradeLevel + 1) ;
+        tS = needMessage(upgradeLevel + 1);
       if (uS != null) {
-        d.append("\n\n") ;
-        d.append(uS) ;
+        d.append("\n\n");
+        d.append(uS);
       }
       else if (tS != null) {
-        d.append("\n\n") ;
-        d.append(tS) ;
+        d.append("\n\n");
+        d.append(tS);
       }
     }
     return panel;
@@ -407,22 +407,22 @@ public class Holding extends Venue implements Economy {
   
   
   private String needMessage(int meetLevel) {
-    meetLevel = Visit.clamp(meetLevel, HoldingUpgrades.NUM_LEVELS) ;
-    final Object met = HoldingUpgrades.NEEDS_MET ;
+    meetLevel = Visit.clamp(meetLevel, HoldingUpgrades.NUM_LEVELS);
+    final Object met = HoldingUpgrades.NEEDS_MET;
     final Object
       access    = HoldingUpgrades.checkAccess   (this, meetLevel, true),
       materials = HoldingUpgrades.checkMaterials(this, meetLevel, true),
       support   = HoldingUpgrades.checkSupport  (this, meetLevel, true),
       rations   = HoldingUpgrades.checkRations  (this, meetLevel, true),
       special   = HoldingUpgrades.checkSpecial  (this, meetLevel, true),
-      surrounds = HoldingUpgrades.checkSurrounds(this, meetLevel, true) ;
-    if (access    != met) return (String) access    ;
-    if (materials != met) return (String) materials ;
-    if (support   != met) return (String) support   ;
-    if (rations   != met) return (String) rations   ;
-    if (special   != met) return (String) special   ;
-    if (surrounds != met) return (String) surrounds ;
-    return null ;
+      surrounds = HoldingUpgrades.checkSurrounds(this, meetLevel, true);
+    if (access    != met) return (String) access   ;
+    if (materials != met) return (String) materials;
+    if (support   != met) return (String) support  ;
+    if (rations   != met) return (String) rations  ;
+    if (special   != met) return (String) special  ;
+    if (surrounds != met) return (String) surrounds;
+    return null;
   }
 }
 

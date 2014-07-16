@@ -1,15 +1,15 @@
 
 
-package stratos.game.wild ;
-import stratos.game.actors.* ;
-import stratos.game.building.* ;
-import stratos.game.common.* ;
+package stratos.game.wild;
+import stratos.game.actors.*;
+import stratos.game.building.*;
+import stratos.game.common.*;
 import stratos.game.maps.*;
-import stratos.graphics.common.* ;
-import stratos.graphics.cutout.* ;
-import stratos.graphics.widgets.* ;
-import stratos.user.* ;
-import stratos.util.* ;
+import stratos.graphics.common.*;
+import stratos.graphics.cutout.*;
+import stratos.graphics.widgets.*;
+import stratos.user.*;
+import stratos.util.*;
 
 
 
@@ -25,8 +25,8 @@ public class Ruins extends Venue {
     "ruins_a.png",
     "ruins_b.png",
     "ruins_c.png"
-  ) ;
-  private static int NI = (int) (Math.random() * 3) ;
+  );
+  private static int NI = (int) (Math.random() * 3);
   
   final static int
     MIN_RUINS_SPACING = (int) (World.SECTOR_SIZE * 1.5f);
@@ -45,12 +45,12 @@ public class Ruins extends Venue {
   
   
   public Ruins(Session s) throws Exception {
-    super(s) ;
+    super(s);
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
+    super.saveState(s);
   }
   
   
@@ -60,13 +60,13 @@ public class Ruins extends Venue {
   public Behaviour jobFor(Actor actor) {
     //  TODO:  Fill this in?
     
-    return null ;
+    return null;
   }
   
   
   protected void updatePaving(boolean inWorld) {}
-  public Background[] careers() { return null ; }
-  public Service[] services() { return null ; }
+  public Background[] careers() { return null; }
+  public Service[] services() { return null; }
   
   
   
@@ -112,7 +112,7 @@ public class Ruins extends Venue {
         final Batch <Ruins> ruins = new Batch <Ruins> ();
         
         while (maxRuins-- > 0) {
-          final Ruins r = new Ruins(artilects) ;
+          final Ruins r = new Ruins(artilects);
           Placement.establishVenue(r, centre.x, centre.y, true, world);
           if (r.inWorld()) {
             if (verbose) I.say("  Ruin established at: "+r.origin());
@@ -124,10 +124,10 @@ public class Ruins extends Venue {
         //  TODO:  Slag/wreckage must be done in a distinct pass...
         for (Ruins r : ruins) {
           for (Tile t : world.tilesIn(r.area(), true)) {
-            Habitat h = Rand.yes() ? Habitat.CURSED_EARTH : Habitat.DUNE ;
-            world.terrain().setHabitat(t, h) ;
+            Habitat h = Rand.yes() ? Habitat.CURSED_EARTH : Habitat.DUNE;
+            world.terrain().setHabitat(t, h);
           }
-          populateArtilects(world, r, true) ;
+          populateArtilects(world, r, true);
         }
         numSited++;
         return ruins.size() > 0;
@@ -196,12 +196,12 @@ public class Ruins extends Venue {
   /**  Rendering and interface methods-
     */
   public String fullName() {
-    return "Ancient Ruins" ;
+    return "Ancient Ruins";
   }
   
   
   public Composite portrait(BaseUI UI) {
-    return null ;
+    return null;
   }
   
   
@@ -213,22 +213,22 @@ public class Ruins extends Venue {
   }
   
   
-  public String buildCategory() { return UIConstants.TYPE_HIDDEN ; }
+  public String buildCategory() { return UIConstants.TYPE_HIDDEN; }
   
   
-  public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
+  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
     //return VenueDescription.configStandardPanel(this, panel, UI);
     return VenueDescription.configSimplePanel(this, panel, UI, null);
   }
   
   
   public void renderSelection(Rendering rendering, boolean hovered) {
-    if (destroyed() || ! inWorld()) return ;
+    if (destroyed() || ! inWorld()) return;
     Selection.renderPlane(
       rendering, position(null), (xdim() / 2f) + 1,
       hovered ? Colour.transparency(0.5f) : Colour.WHITE,
       Selection.SELECT_CIRCLE
-    ) ;
+    );
   }
 }
 

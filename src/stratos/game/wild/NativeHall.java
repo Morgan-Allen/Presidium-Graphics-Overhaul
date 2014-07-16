@@ -1,15 +1,15 @@
 
 
-package stratos.game.wild ;
-import stratos.game.actors.* ;
-import static stratos.game.actors.Backgrounds.* ;
-import stratos.game.common.* ;
+package stratos.game.wild;
+import stratos.game.actors.*;
+import static stratos.game.actors.Backgrounds.*;
+import stratos.game.common.*;
 import stratos.game.maps.*;
-import stratos.game.base.* ;
-import stratos.game.building.* ;
-import stratos.graphics.widgets.* ;
-import stratos.user.* ;
-import stratos.util.* ;
+import stratos.game.base.*;
+import stratos.game.building.*;
+import stratos.graphics.widgets.*;
+import stratos.user.*;
+import stratos.util.*;
 
 
 
@@ -26,24 +26,24 @@ import stratos.util.* ;
 public class NativeHall extends NativeHut {
   
   
-  final List <NativeHut> children = new List <NativeHut> () ;
-  private float idealPopEstimate = -1 ;
+  final List <NativeHut> children = new List <NativeHut> ();
+  private float idealPopEstimate = -1;
   
   
   protected NativeHall(int tribeID, Base base) {
-    super(4, 3, TYPE_HALL, tribeID, base) ;
+    super(4, 3, TYPE_HALL, tribeID, base);
   }
 
 
   public NativeHall(Session s) throws Exception {
-    super(s) ;
-    s.loadObjects(children) ;
+    super(s);
+    s.loadObjects(children);
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
-    s.saveObjects(children) ;
+    super.saveState(s);
+    s.saveObjects(children);
   }
   
   
@@ -52,28 +52,28 @@ public class NativeHall extends NativeHut {
   /**  Updates and behavioural functions-
     */
   public Background[] careers() {
-    return super.careers() ;
+    return super.careers();
     //  Cargo Cultist, Marked One, Medicine Man, Chieftain.
   }
   
   
   public Behaviour jobFor(Actor actor) {
     //  Well, firstly determine if any more huts should be placed or repaired.
-    return super.jobFor(actor) ;
+    return super.jobFor(actor);
   }
   
   
   public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates) ;
-    if (! structure.intact()) return ;
+    super.updateAsScheduled(numUpdates);
+    if (! structure.intact()) return;
     
-    if (numUpdates % 10 == 0) updatePopEstimate(world) ;
+    if (numUpdates % 10 == 0) updatePopEstimate(world);
     
     for (NativeHut hut : children) {
       if (hut.personnel.unoccupied()) {
-        hut.structure.setState(Structure.STATE_SALVAGE,  -1) ;
+        hut.structure.setState(Structure.STATE_SALVAGE,  -1);
       }
-      if (hut.destroyed()) children.remove(hut) ;
+      if (hut.destroyed()) children.remove(hut);
     }
   }
   
@@ -87,12 +87,12 @@ public class NativeHall extends NativeHut {
     //  TODO:  Have the population-estimate routines for Nests take an argument
     //  to specify search range/minimum separation?
     
-    float estimate = Nest.idealPopulation(this, Species.HUMAN, world, false) ;
-    if (idealPopEstimate == -1) idealPopEstimate = estimate ;
+    float estimate = Nest.idealPopulation(this, Species.HUMAN, world, false);
+    if (idealPopEstimate == -1) idealPopEstimate = estimate;
     else {
-      final float inc = 10f / World.STANDARD_DAY_LENGTH ;
-      idealPopEstimate *= 1 - inc ;
-      idealPopEstimate += estimate * inc ;
+      final float inc = 10f / World.STANDARD_DAY_LENGTH;
+      idealPopEstimate *= 1 - inc;
+      idealPopEstimate += estimate * inc;
     }
   }
   
@@ -106,12 +106,12 @@ public class NativeHall extends NativeHut {
   /**  Rendering and interface-
     */
   public String fullName() {
-    return "Chief's Hall" ;
+    return "Chief's Hall";
   }
   
   
   public Composite portrait(BaseUI UI) {
-    return super.portrait(UI) ;
+    return super.portrait(UI);
   }
   
   
@@ -119,7 +119,7 @@ public class NativeHall extends NativeHut {
     return
       "Native settlements will often have a central meeting place where "+
       "the tribe's leadership and elders will gather to make decisions, "+
-      "such as arranging marriage, arbitrating dispute or mounting raids." ;
+      "such as arranging marriage, arbitrating dispute or mounting raids.";
   }
 }
 
@@ -137,37 +137,37 @@ public class NativeHall extends NativeHut {
   
   /*
   public void populateWithNatives(int tribeID) {
-    float meadowed = (1 + totalFertility) / 2f ;
+    float meadowed = (1 + totalFertility) / 2f;
     final int
       numMajorHuts = (int) ((meadowed * numMajor) + 0.5f),
-      numMinorHuts = (int) ((meadowed * numMinor) + 0.5f) ;
-    I.say("Major/minor huts: "+numMajorHuts+"/"+numMinorHuts) ;
+      numMinorHuts = (int) ((meadowed * numMinor) + 0.5f);
+    I.say("Major/minor huts: "+numMajorHuts+"/"+numMinorHuts);
     
-    final Base base = world.baseWithName("Natives", true, true) ;
+    final Base base = world.baseWithName("Natives", true, true);
     
-    for (int n = numMajorHuts + numMinorHuts ; n-- > 0 ;) {
-      final int SS = World.SECTOR_SIZE ;
-      Coord pos = findBasePosition(null, 1) ;
-      I.say("Huts site at: "+pos) ;
+    for (int n = numMajorHuts + numMinorHuts; n-- > 0;) {
+      final int SS = World.SECTOR_SIZE;
+      Coord pos = findBasePosition(null, 1);
+      I.say("Huts site at: "+pos);
       final Tile centre = world.tileAt(
         (pos.x + 0.5f) * SS,
         (pos.y + 0.5f) * SS
-      ) ;
-      final boolean minor = n < numMinorHuts ;
-      int maxHuts = (minor ? 4 : 2) + Rand.index(3) ;
-      final Batch <Venue> huts = new Batch <Venue> () ;
+      );
+      final boolean minor = n < numMinorHuts;
+      int maxHuts = (minor ? 4 : 2) + Rand.index(3);
+      final Batch <Venue> huts = new Batch <Venue> ();
       
-      final NativeHall hall = NativeHut.newHall(tribeID, base) ;
-      Placement.establishVenue(hall, centre.x, centre.y, true, world) ;
-      if (hall.inWorld()) huts.add(hall) ;
+      final NativeHall hall = NativeHut.newHall(tribeID, base);
+      Placement.establishVenue(hall, centre.x, centre.y, true, world);
+      if (hall.inWorld()) huts.add(hall);
       
       while (maxHuts-- > 0) {
-        final NativeHut r = NativeHut.newHut(hall) ;
-        Placement.establishVenue(r, centre.x, centre.y, true, world) ;
-        if (r.inWorld()) huts.add(r) ;
+        final NativeHut r = NativeHut.newHut(hall);
+        Placement.establishVenue(r, centre.x, centre.y, true, world);
+        if (r.inWorld()) huts.add(r);
       }
       
-      populateNatives(huts, minor) ;
+      populateNatives(huts, minor);
     }
   }
   

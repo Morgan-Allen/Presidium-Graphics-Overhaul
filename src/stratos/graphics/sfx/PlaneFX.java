@@ -28,8 +28,8 @@ public class PlaneFX extends SFX {
   public static class Model extends stratos.graphics.common.ModelAsset {
     
     final String imageName;
-    final float initSize, spin, growth ;
-    final boolean tilted, vivid ;
+    final float initSize, spin, growth;
+    final boolean tilted, vivid;
     
     final Box2D animUV[];
     final Box2D bounds = new Box2D();
@@ -74,8 +74,8 @@ public class PlaneFX extends SFX {
       
       final float gW = 1f / gridX, gH = 1f / gridY;
       int frame = 0;
-      for (int y = 0 ; y < gridX ; y++) {
-        for (int x = 0 ; x < gridY; x++) {
+      for (int y = 0; y < gridX; y++) {
+        for (int x = 0; x < gridY; x++) {
           if (frame >= numFrames) break;
           final Box2D b = animUV[frame++] = new Box2D();
           b.set(x * gW, y * gH, gW, gH);
@@ -109,24 +109,24 @@ public class PlaneFX extends SFX {
     }
     
     
-    public boolean isLoaded() { return loaded ; }
-    public Sprite makeSprite() { return new PlaneFX(this) ; }
+    public boolean isLoaded() { return loaded; }
+    public Sprite makeSprite() { return new PlaneFX(this); }
   }
   
   
-  final Model model ;
+  final Model model;
   public float timeScale = 1.0f;
   private float inceptTime = -1;
   
   
   protected PlaneFX(Model model) {
     super(PRIORITY_MIDDLE);
-    this.model = model ;
+    this.model = model;
   }
   
   
   public Model model() {
-    return model ;
+    return model;
   }
   
   
@@ -181,7 +181,7 @@ public class PlaneFX extends SFX {
     if (verbose) I.say("Vertices are: ");
     
     final float QV[] = SFXPass.QUAD_VERTS;
-    int i = 0 ; for (Vec3D v : verts) {
+    int i = 0; for (Vec3D v : verts) {
       v.set(QV[i++], QV[i++], QV[i++]);
       v.x = (v.x - 0.5f) * r * 2 * model.bounds.xdim();
       v.y = (v.y - 0.5f) * r * 2 * model.bounds.ydim();

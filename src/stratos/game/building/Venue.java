@@ -5,7 +5,7 @@
   */
 
 
-package stratos.game.building ;
+package stratos.game.building;
 import stratos.game.actors.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
@@ -39,7 +39,7 @@ public abstract class Venue extends Structural implements
     ENTRANCE_EAST  =  E / 2,
     ENTRANCE_SOUTH =  S / 2,
     ENTRANCE_WEST  =  W / 2,
-    NUM_SIDES      =  4 ;
+    NUM_SIDES      =  4;
   final public static int
     
     PRIMARY_SHIFT      = 1,
@@ -49,7 +49,7 @@ public abstract class Venue extends Structural implements
     SHIFTS_ALWAYS      = 0,
     SHIFTS_BY_HOURS    = 1,   //different 8-hour periods off.
     SHIFTS_BY_DAY      = 2,   //every second or third day off.
-    SHIFTS_BY_CALENDAR = 3 ;  //weekends and holidays off.  NOT DONE YET
+    SHIFTS_BY_CALENDAR = 3;  //weekends and holidays off.  NOT DONE YET
   
   
   final public TalkFX chat = new TalkFX();
@@ -66,50 +66,50 @@ public abstract class Venue extends Structural implements
   
   
   public Venue(int size, int high, int entranceFace, Base base) {
-    super(size, high, base) ;
-    this.base = base ;
-    this.entranceFace = entranceFace ;
+    super(size, high, base);
+    this.base = base;
+    this.entranceFace = entranceFace;
   }
   
   
   public Venue(Session s) throws Exception {
-    super(s) ;
-    buildSprite = (BuildingSprite) sprite() ;
+    super(s);
+    buildSprite = (BuildingSprite) sprite();
 
-    entranceFace = s.loadInt() ;
-    entrance = (Tile) s.loadTarget() ;
-    s.loadObjects(inside) ;
+    entranceFace = s.loadInt();
+    entrance = (Tile) s.loadTarget();
+    s.loadObjects(inside);
     
-    personnel.loadState(s) ;
-    stocks.loadState(s) ;
+    personnel.loadState(s);
+    stocks.loadState(s);
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
-    s.saveInt(entranceFace) ;
-    s.saveTarget(entrance) ;
-    s.saveObjects(inside) ;
+    super.saveState(s);
+    s.saveInt(entranceFace);
+    s.saveTarget(entrance);
+    s.saveObjects(inside);
     
-    personnel.saveState(s) ;
-    stocks.saveState(s) ;
+    personnel.saveState(s);
+    stocks.saveState(s);
   }
   
   
-  public Index <Upgrade> allUpgrades() { return null ; }
-  public Structure structure() { return structure ; }
-  public Personnel personnel() { return personnel ; }
+  public Index <Upgrade> allUpgrades() { return null; }
+  public Structure structure() { return structure; }
+  public Personnel personnel() { return personnel; }
   
-  public int owningType() { return VENUE_OWNS ; }
-  public Base base() { return base ; }
-  //protected BuildingSprite buildSprite() { return buildSprite ; }
+  public int owningType() { return VENUE_OWNS; }
+  public Base base() { return base; }
+  //protected BuildingSprite buildSprite() { return buildSprite; }
   
   
   public void assignBase(Base base) {
     if (! inWorld()) { this.base = base; return; }
-    world.presences.togglePresence(this, false) ;
-    this.base = base ;
-    world.presences.togglePresence(this, true) ;
+    world.presences.togglePresence(this, false);
+    this.base = base;
+    world.presences.togglePresence(this, true);
   }
   
   
@@ -117,17 +117,17 @@ public abstract class Venue extends Structural implements
   /**  Dealing with items and inventory-
     */
   public Inventory inventory() {
-    return stocks ;
+    return stocks;
   }
   
   
   public float priceFor(Service service) {
-    return stocks.priceFor(service) ;
+    return stocks.priceFor(service);
   }
   
   
   public int spaceFor(Service good) {
-    return structure.maxIntegrity() ;
+    return structure.maxIntegrity();
   }
   
   
@@ -144,23 +144,23 @@ public abstract class Venue extends Structural implements
   /**  Installation and positioning-
     */
   public boolean canPlace() {
-    if (origin() == null) return false ;
-    final World world = origin().world ;
+    if (origin() == null) return false;
+    final World world = origin().world;
     
     //  Make sure we don't displace any more important object, or occupy their
     //  entrances.  In addition, the entrance must be clear.
-    final int OT = owningType() ;
+    final int OT = owningType();
     for (Tile t : world.tilesIn(area(), false)) {
-      if (t == null || t.owningType() >= OT) return false ;
+      if (t == null || t.owningType() >= OT) return false;
       for (Element e : Spacing.entranceFor(t)) {
-        if (e.owningType() >= OT) return false ;
+        if (e.owningType() >= OT) return false;
       }
     }
     
     if (! checkPerimeter(world)) return false;
-    final Tile e = mainEntrance() ;
-    if (e != null && e.owningType() >= OT) return false ;
-    return true ;
+    final Tile e = mainEntrance();
+    if (e != null && e.owningType() >= OT) return false;
+    return true;
   }
   
   
@@ -168,36 +168,36 @@ public abstract class Venue extends Structural implements
     //  Don't abut on anything of higher priority-
     for (Tile n : Spacing.perimeter(area(), world)) {
       if (n == null || (n.owner() != null && ! canTouch(n.owner()))) {
-        return false ;
+        return false;
       }
     }
     //  And make sure we don't create isolated areas of unreachable tiles-
-    if (! Spacing.perimeterFits(this)) return false ;
+    if (! Spacing.perimeterFits(this)) return false;
     return true;
   }
   
   
   public boolean setPosition(float x, float y, World world) {
-    if (! super.setPosition(x, y, world)) return false ;
-    final Tile o = origin() ;
+    if (! super.setPosition(x, y, world)) return false;
+    final Tile o = origin();
     if (entranceFace == ENTRANCE_NONE) {
-      entrance = null ;
+      entrance = null;
     }
     else {
-      final int off[] = Spacing.entranceCoords(size, size, entranceFace) ;
-      entrance = world.tileAt(o.x + off[0], o.y + off[1]) ;
+      final int off[] = Spacing.entranceCoords(size, size, entranceFace);
+      entrance = world.tileAt(o.x + off[0], o.y + off[1]);
     }
-    return true ;
+    return true;
   }
   
   
   public boolean enterWorldAt(int x, int y, World world) {
-    if (! super.enterWorldAt(x, y, world)) return false ;
+    if (! super.enterWorldAt(x, y, world)) return false;
     world.presences.togglePresence(this, true);
     //world.schedule.scheduleForUpdates(this);
     stocks.onWorldEntry();
     personnel.onCommission();
-    return true ;
+    return true;
   }
   
   
@@ -205,24 +205,24 @@ public abstract class Venue extends Structural implements
     stocks.onWorldExit();
     personnel.onDecommission();
     world.presences.togglePresence(this, false);
-    super.exitWorld() ;
+    super.exitWorld();
   }
   
   
   public float scheduledInterval() {
-    return 1 ;
+    return 1;
   }
   
   
   public void updateAsScheduled(int numUpdates) {
     if (destroyed()) {
-      I.say(this+" IS DESTROYED! SHOULD NOT BE ON SCHEDULE!") ;
-      this.setAsDestroyed() ;
+      I.say(this+" IS DESTROYED! SHOULD NOT BE ON SCHEDULE!");
+      this.setAsDestroyed();
     }
     structure.updateStructure(numUpdates);
     if (! structure.needsSalvage()) {
-      if (base != null && numUpdates % 10 == 0) updatePaving(true) ;
-      personnel.updatePersonnel(numUpdates) ;
+      if (base != null && numUpdates % 10 == 0) updatePaving(true);
+      personnel.updatePersonnel(numUpdates);
     }
     if (structure.intact()) {
       stocks.updateStocks(numUpdates, services());
@@ -241,58 +241,58 @@ public abstract class Venue extends Structural implements
     */
   public void setInside(Mobile m, boolean is) {
     if (is) {
-      inside.include(m) ;
+      inside.include(m);
     }
     else {
-      inside.remove(m) ;
+      inside.remove(m);
     }
   }
   
   
   public List <Mobile> inside() {
-    return inside ;
+    return inside;
   }
   
   
   public Tile mainEntrance() {
-    return entrance ;
+    return entrance;
   }
   
   
   public Box2D area(Box2D put) {
-    if (put == null) put = new Box2D() ;
-    final Tile o = origin() ;
-    put.set(o.x - 0.5f, o.y - 0.5f, size, size) ;
-    return put ;
+    if (put == null) put = new Box2D();
+    final Tile o = origin();
+    put.set(o.x - 0.5f, o.y - 0.5f, size, size);
+    return put;
   }
   
   
   public Boardable[] canBoard(Boardable batch[]) {
-    final int minSize = 1 + inside.size() ;
+    final int minSize = 1 + inside.size();
     if (batch == null || batch.length < minSize) {
-      batch = new Boardable[minSize] ;
+      batch = new Boardable[minSize];
     }
-    else for (int i = batch.length ; i-- > 1 ;) batch[i] = null ;
-    batch[0] = entrance ;
-    int i = 1 ; for (Mobile m : inside) if (m instanceof Boardable) {
-      batch[i++] = (Boardable) m ;
+    else for (int i = batch.length; i-- > 1;) batch[i] = null;
+    batch[0] = entrance;
+    int i = 1; for (Mobile m : inside) if (m instanceof Boardable) {
+      batch[i++] = (Boardable) m;
     }
-    return batch ;
+    return batch;
   }
   
   
   public boolean isEntrance(Boardable t) {
-    return entrance == t ;
+    return entrance == t;
   }
   
   
   public boolean allowsEntry(Mobile m) {
-    return m.base() == base ;
+    return m.base() == base;
   }
   
   
   public int boardableType() {
-    return Boardable.BOARDABLE_VENUE ;
+    return Boardable.BOARDABLE_VENUE;
   }
   
   
@@ -306,9 +306,9 @@ public abstract class Venue extends Structural implements
   
   public boolean isManned() {
     for (Actor a : personnel.workers) {
-      if (a.health.conscious() && a.aboard() == this) return true ;
+      if (a.health.conscious() && a.aboard() == this) return true;
     }
-    return false ;
+    return false;
   }
   
   
@@ -330,13 +330,13 @@ public abstract class Venue extends Structural implements
   }
   
   
-  public abstract Background[] careers() ;
-  public abstract Service[] services() ;  //TODO:  Rename to Goods?
+  public abstract Background[] careers();
+  public abstract Service[] services();  //TODO:  Rename to Goods?
   public void addServices(Choice choice, Actor forActor) {}
   
   
   public boolean privateProperty() {
-    return false ;
+    return false;
   }
   
   
@@ -379,13 +379,13 @@ public abstract class Venue extends Structural implements
   
   /**  Interface methods-
     */
-  public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
+  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
     return VenueDescription.configStandardPanel(this, panel, UI);
   }
   
   
   protected boolean showLights() {
-    return isManned() ;
+    return isManned();
   }
   
   
@@ -405,19 +405,19 @@ public abstract class Venue extends Structural implements
   
   
   protected void renderChat(Rendering rendering, Base base) {
-    if (! structure.intact()) return ;
+    if (! structure.intact()) return;
     if (chat.numPhrases() > 0) {
-      chat.position.setTo(sprite().position) ;
-      chat.position.z += height() ;
+      chat.position.setTo(sprite().position);
+      chat.position.z += height();
       chat.readyFor(rendering);
     }
   }
   
   
   private boolean canShow(Service type) {
-    if (type.form == FORM_PROVISION) return false ;
-    if (type.picPath == Service.DEFAULT_PIC_PATH) return false ;
-    return true ;
+    if (type.form == FORM_PROVISION) return false;
+    if (type.picPath == Service.DEFAULT_PIC_PATH) return false;
+    return true;
   }
 
   
@@ -429,68 +429,68 @@ public abstract class Venue extends Structural implements
     0, 2,
     3, 0,
     0, 3
-  } ;
+  };
   
   
   protected float[] goodDisplayOffsets() {
-    return STANDARD_GOOD_SPRITE_OFFSETS ;
+    return STANDARD_GOOD_SPRITE_OFFSETS;
   }
   
   
   protected Service[] goodsToShow() {
-    return services() ;
+    return services();
   }
   
   
   protected float goodDisplayAmount(Service good) {
-    if (! structure.intact()) return 0 ;
-    return stocks.amountOf(good) ;
+    if (! structure.intact()) return 0;
+    return stocks.amountOf(good);
   }
   
   
   protected void updateItemSprites() {
-    final Service services[] = goodsToShow() ;
-    final float offsets[] = goodDisplayOffsets() ;
-    if (services == null) return ;
+    final Service services[] = goodsToShow();
+    final float offsets[] = goodDisplayOffsets();
+    if (services == null) return;
     
-    final boolean hide = ! structure.intact() ;
+    final boolean hide = ! structure.intact();
     final float
       initY = (size / 2f) - BuildingSprite.ITEM_SIZE,
-      initX = BuildingSprite.ITEM_SIZE - (size / 2f) ;
+      initX = BuildingSprite.ITEM_SIZE - (size / 2f);
     
-    int index = -1 ;
-    for (Service s : services) if (canShow(s)) index += 2 ;
-    if (index < 0) return ;
-    index = Visit.clamp(index, offsets.length) ;
+    int index = -1;
+    for (Service s : services) if (canShow(s)) index += 2;
+    if (index < 0) return;
+    index = Visit.clamp(index, offsets.length);
     
     for (int SI = services.length; SI-- > 0;) {
       final Service s = services[SI];
       if (! canShow(s)) continue;
-      if (index < 0) break ;
-      final float y = offsets[index--], x = offsets[index--] ;
-      if (y >= size || size <= -x) continue ;
+      if (index < 0) break;
+      final float y = offsets[index--], x = offsets[index--];
+      if (y >= size || size <= -x) continue;
       buildSprite.updateItemDisplay(
         s.model,
         hide ? 0 : goodDisplayAmount(s),
         initX + x,
         initY - y
-      ) ;
+      );
     }
   }
   
   
   public void renderFor(Rendering rendering, Base base) {
     super.renderFor(rendering, base);
-    toggleStatusDisplay() ;
-    updateItemSprites() ;
-    renderChat(rendering, base) ;
+    toggleStatusDisplay();
+    updateItemSprites();
+    renderChat(rendering, base);
   }
   
   
   
   /*
   public void renderSelection(Rendering rendering, boolean hovered) {
-    if (destroyed() || ! inWorld()) return ;
+    if (destroyed() || ! inWorld()) return;
     BaseUI.current().selection.renderTileOverlay(
       rendering, world,
       hovered ? Colour.transparency(0.5f) : Colour.WHITE,

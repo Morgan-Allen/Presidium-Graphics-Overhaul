@@ -1,11 +1,16 @@
 
 
-package stratos.game.tactical ;
+package stratos.game.tactical;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
+import stratos.game.plans.CombatUtils;
+import stratos.game.plans.Dialogue;
+import stratos.game.plans.DialogueUtils;
+import stratos.game.plans.Gifting;
+import stratos.game.plans.Summons;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
@@ -36,7 +41,7 @@ public class ContactMission extends Mission implements Economy {
   
   private static boolean 
     evalVerbose  = false,
-    eventVerbose = true ;
+    eventVerbose = true;
   
   
   private Actor[] talksTo = null;  //Refreshed on request, at most once/second
@@ -49,19 +54,19 @@ public class ContactMission extends Mission implements Economy {
       base, subject,
       MissionsTab.CONTACT_MODEL,
       "Making Contact with "+subject
-    ) ;
+    );
   }
   
   
   public ContactMission(Session s) throws Exception {
-    super(s) ;
+    super(s);
     s.loadObjects(agreed);
     doneContact = s.loadBool();
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
+    super.saveState(s);
     s.saveObjects(agreed);
     s.saveBool(doneContact);
   }
@@ -135,7 +140,7 @@ public class ContactMission extends Mission implements Economy {
     }
     
     if (report) I.say("  FINAL PRIORITY: "+avg);
-    return avg ;
+    return avg;
   }
   
   
@@ -174,8 +179,8 @@ public class ContactMission extends Mission implements Economy {
     /*
     //  Otherwise, just try to make yourself useful.
     if (choice.size() == 0) {
-      final Element around = (Element) subject ;
-      return Patrolling.aroundPerimeter(actor, around, actor.world()) ;
+      final Element around = (Element) subject;
+      return Patrolling.aroundPerimeter(actor, around, actor.world());
     }
     else return choice.pickMostUrgent();
     //*/
@@ -191,7 +196,7 @@ public class ContactMission extends Mission implements Economy {
     final boolean report = eventVerbose && I.talkAbout == actor;
     
     float DC = other.relations.relationValue(actor) * 10;
-    if (objectIndex() == OBJECT_FRIENDSHIP) DC += 0 ;
+    if (objectIndex() == OBJECT_FRIENDSHIP) DC += 0;
     if (objectIndex() == OBJECT_AUDIENCE  ) DC += 10;
     if (objectIndex() == OBJECT_SUBMISSION) DC += 20;
     

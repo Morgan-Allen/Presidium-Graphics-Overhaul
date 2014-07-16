@@ -41,7 +41,7 @@ public class Structure {
     "Complete",
     "Salvaging",
     "N/A"
-  } ;
+  };
   
   final public static int
     TYPE_VENUE   = 0,
@@ -49,44 +49,44 @@ public class Structure {
     TYPE_VEHICLE = 2,
     TYPE_CRAFTED = 3,
     TYPE_ANCIENT = 4,
-    TYPE_ORGANIC = 5 ;
+    TYPE_ORGANIC = 5;
   
   final public static int
     NO_UPGRADES         = 0,
     SMALL_MAX_UPGRADES  = 3,
     NORMAL_MAX_UPGRADES = 6,
     BIG_MAX_UPGRADES    = 12,
-    MAX_OF_TYPE         = 3 ;
+    MAX_OF_TYPE         = 3;
   final static float UPGRADE_HP_BONUSES[] = {
     0,
     0.15f, 0.25f, 0.35f,
     0.4f , 0.45f, 0.5f ,
     0.5f , 0.55f, 0.55f, 0.6f , 0.6f , 0.65f
-  } ;
+  };
   
   private static boolean
     verbose = false;
   
   
-  final Installation basis ;
+  final Installation basis;
   
-  private int baseIntegrity = DEFAULT_INTEGRITY ;
-  private int maxUpgrades   = NO_UPGRADES ;
+  private int baseIntegrity = DEFAULT_INTEGRITY;
+  private int maxUpgrades   = NO_UPGRADES;
   private int
     buildCost     = DEFAULT_BUILD_COST,
     armouring     = DEFAULT_ARMOUR,
     cloaking      = DEFAULT_CLOAKING,
     ambienceVal   = DEFAULT_AMBIENCE,
-    structureType = TYPE_VENUE ;
+    structureType = TYPE_VENUE;
   
-  private int state = STATE_INSTALL ;
-  private float integrity = baseIntegrity ;
-  private boolean burning ;
+  private int state = STATE_INSTALL;
+  private float integrity = baseIntegrity;
+  private boolean burning;
   
-  private float upgradeProgress = 0 ;
-  private int upgradeIndex = -1 ;
-  private Upgrade upgrades[] = null ;
-  private int upgradeStates[] = null ;
+  private float upgradeProgress = 0;
+  private int upgradeIndex = -1;
+  private Upgrade upgrades[] = null;
+  private int upgradeStates[] = null;
   
   private Item
     materials[],
@@ -95,7 +95,7 @@ public class Structure {
   
   
   Structure(Installation basis) {
-    this.basis = basis ;
+    this.basis = basis;
   }
   
   
@@ -119,7 +119,7 @@ public class Structure {
       upgrades = new Upgrade[maxUpgrades];
       upgradeStates = new int[maxUpgrades];
       
-      for (int i = 0 ; i < maxUpgrades ; i++) {
+      for (int i = 0; i < maxUpgrades; i++) {
         upgrades[i] = AU.loadMember(s.input());
         upgradeStates[i] = s.loadInt();
       }
@@ -165,14 +165,14 @@ public class Structure {
     int maxUpgrades,
     int type
   ) {
-    this.integrity = this.baseIntegrity = baseIntegrity ;
-    this.armouring = armouring ;
-    this.buildCost = buildCost ;
-    this.structureType = type ;
+    this.integrity = this.baseIntegrity = baseIntegrity;
+    this.armouring = armouring;
+    this.buildCost = buildCost;
+    this.structureType = type;
     
-    this.maxUpgrades = maxUpgrades ;
-    this.upgrades = new Upgrade[maxUpgrades] ;
-    this.upgradeStates = new int[maxUpgrades] ;
+    this.maxUpgrades = maxUpgrades;
+    this.upgrades = new Upgrade[maxUpgrades];
+    this.upgradeStates = new int[maxUpgrades];
   }
   
   
@@ -186,7 +186,7 @@ public class Structure {
   
   
   public void setAmbienceVal(float val) {
-    this.ambienceVal = (int) val ;
+    this.ambienceVal = (int) val;
   }
   
   
@@ -211,13 +211,13 @@ public class Structure {
   /**  Regular updates-
     */
   protected void updateStructure(int numUpdates) {
-    if (numUpdates % 5 == 0) checkMaintenance() ;
+    if (numUpdates % 5 == 0) checkMaintenance();
     //
     //  Firstly, check to see if you're still burning-
     if (burning) {
-      takeDamage(Rand.num() * 2 * BURN_PER_SECOND) ;
-      final float damage = maxIntegrity() - integrity ;
-      if (armouring * 0.1f > Rand.num() * damage) burning = false ;
+      takeDamage(Rand.num() * 2 * BURN_PER_SECOND);
+      final float damage = maxIntegrity() - integrity;
+      if (armouring * 0.1f > Rand.num() * damage) burning = false;
       //  TODO:  Consider spreading to nearby structures?
     }
     //
@@ -230,14 +230,14 @@ public class Structure {
       if (structureType == TYPE_FIXTURE) wear /= 2;
       if (structureType == TYPE_CRAFTED) wear *= 2;
       if (Rand.num() > armouring / (armouring + DEFAULT_ARMOUR)) {
-        takeDamage(wear * Rand.num() * 2) ;
+        takeDamage(wear * Rand.num() * 2);
       }
     }
     //
     //  And finally, organic structures can regenerate health-
     if (regenerates()) {
-      final float regen = baseIntegrity * REGEN_PER_DAY ;
-      repairBy(regen / World.STANDARD_DAY_LENGTH) ;
+      final float regen = baseIntegrity * REGEN_PER_DAY;
+      repairBy(regen / World.STANDARD_DAY_LENGTH);
     }
   }
   
@@ -245,63 +245,63 @@ public class Structure {
   
   /**  Queries and modifications-
     */
-  public int maxIntegrity() { return baseIntegrity + upgradeHP() ; }
-  public int maxUpgrades() { return upgrades == null ? 0 : maxUpgrades ; }
+  public int maxIntegrity() { return baseIntegrity + upgradeHP(); }
+  public int maxUpgrades() { return upgrades == null ? 0 : maxUpgrades; }
   
-  public int cloaking()  { return cloaking  ; }
-  public int armouring() { return armouring ; }
-  public int buildCost() { return buildCost ; }
+  public int cloaking()  { return cloaking ; }
+  public int armouring() { return armouring; }
+  public int buildCost() { return buildCost; }
   
-  public int ambienceVal() { return intact() ? ambienceVal : 0 ; }
+  public int ambienceVal() { return intact() ? ambienceVal : 0; }
   
-  public boolean intact() { return state == STATE_INTACT ; }
-  public boolean destroyed() { return state == STATE_RAZED ; }
-  public int buildState() { return state ; }
+  public boolean intact() { return state == STATE_INTACT; }
+  public boolean destroyed() { return state == STATE_RAZED; }
+  public int buildState() { return state; }
   
-  public int repair() { return (int) integrity ; }
-  public float repairLevel() { return integrity / maxIntegrity() ; }
-  public boolean burning() { return burning ; }
+  public int repair() { return (int) integrity; }
+  public float repairLevel() { return integrity / maxIntegrity(); }
+  public boolean burning() { return burning; }
   
   
   public boolean flammable() {
-    return structureType == TYPE_VENUE || structureType == TYPE_VEHICLE ;
+    return structureType == TYPE_VENUE || structureType == TYPE_VEHICLE;
   }
   
   
   public boolean takesWear() {
-    return structureType != TYPE_ANCIENT && structureType != TYPE_ORGANIC ;
+    return structureType != TYPE_ANCIENT && structureType != TYPE_ORGANIC;
   }
   
   
   public boolean regenerates() {
-    return structureType == TYPE_ORGANIC ;
+    return structureType == TYPE_ORGANIC;
   }
   
   
   
   public void setState(int state, float condition) {
-    this.state = state ;
-    if (condition >= 0) this.integrity = maxIntegrity() * condition ;
-    checkMaintenance() ;
+    this.state = state;
+    if (condition >= 0) this.integrity = maxIntegrity() * condition;
+    checkMaintenance();
   }
   
   
   public float repairBy(float inc) {
-    final int max = maxIntegrity() ;
-    final float oldI = this.integrity ;
+    final int max = maxIntegrity();
+    final float oldI = this.integrity;
     if (inc < 0 && integrity > max) {
-      inc = Math.min(inc, integrity - max) ;
+      inc = Math.min(inc, integrity - max);
     }
-    adjustRepair(inc) ;
-    if (inc > Rand.num() * maxIntegrity()) burning = false ;
-    return (integrity - oldI) / max ;
+    adjustRepair(inc);
+    if (inc > Rand.num() * maxIntegrity()) burning = false;
+    return (integrity - oldI) / max;
   }
   
   
   public void takeDamage(float damage) {
-    if (basis.destroyed()) return ;
-    if (damage < 0) I.complain("NEGATIVE DAMAGE!") ;
-    adjustRepair(0 - damage) ;
+    if (basis.destroyed()) return;
+    if (damage < 0) I.complain("NEGATIVE DAMAGE!");
+    adjustRepair(0 - damage);
     
     float burnChance = 2 * (1f - repairLevel());
     if (! flammable()) burnChance -= 0.5f;
@@ -309,31 +309,31 @@ public class Structure {
     
     if (verbose && I.talkAbout == basis) I.say("Burn chance: "+burnChance);
     if (Rand.num() < burnChance) burning = true;
-    if (integrity <= 0) basis.onDestruction() ;
+    if (integrity <= 0) basis.onDestruction();
   }
   
   
   public void setBurning(boolean burns) {
-    if (! flammable()) return ;
-    burning = burns ;
+    if (! flammable()) return;
+    burning = burns;
   }
   
   
   protected void adjustRepair(float inc) {
-    final int max = maxIntegrity() ;
-    integrity += inc ;
+    final int max = maxIntegrity();
+    integrity += inc;
     if (integrity < 0) {
-      state = STATE_RAZED ;
-      ((Element) basis).setAsDestroyed() ;
-      integrity = 0 ;
-      checkMaintenance() ;
+      state = STATE_RAZED;
+      ((Element) basis).setAsDestroyed();
+      integrity = 0;
+      checkMaintenance();
     }
     else if (integrity >= max) {
-      if (state == STATE_INSTALL) basis.onCompletion() ;
-      if (state != STATE_SALVAGE) state = STATE_INTACT ;
-      integrity = max ;
+      if (state == STATE_INSTALL) basis.onCompletion();
+      if (state != STATE_SALVAGE) state = STATE_INTACT;
+      integrity = max;
     }
-    checkMaintenance() ;
+    checkMaintenance();
   }
   
   
@@ -348,7 +348,7 @@ public class Structure {
   
   
   public boolean needsUpgrade() {
-    return nextUpgradeIndex() != -1 ;
+    return nextUpgradeIndex() != -1;
   }
   
   
@@ -371,7 +371,7 @@ public class Structure {
     final PresenceMap damaged = world.presences.mapFor("damaged");
     
     if (report) {
-      I.say(basis+" needs maintenance: "+needs) ;
+      I.say(basis+" needs maintenance: "+needs);
       I.say("In map? "+damaged.hasMember(basis, o));
     }
     damaged.toggleMember(basis, o, needs);
@@ -379,13 +379,13 @@ public class Structure {
   
   
   protected int upgradeHP() {
-    if (upgrades == null) return 0 ;
-    int numUsed = 0 ;
-    for (int i = 0 ; i < upgrades.length ; i++) {
-      if (upgrades[i] != null && upgradeStates[i] != STATE_INSTALL) numUsed++ ;
+    if (upgrades == null) return 0;
+    int numUsed = 0;
+    for (int i = 0; i < upgrades.length; i++) {
+      if (upgrades[i] != null && upgradeStates[i] != STATE_INSTALL) numUsed++;
     }
-    if (numUsed == 0) return 0 ;
-    return (int) (baseIntegrity * UPGRADE_HP_BONUSES[numUsed]) ;
+    if (numUsed == 0) return 0;
+    return (int) (baseIntegrity * UPGRADE_HP_BONUSES[numUsed]);
   }
   
   
@@ -394,153 +394,153 @@ public class Structure {
   /**  Handling upgrades-
     */
   private int nextUpgradeIndex() {
-    if (upgrades == null) return -1 ;
-    for (int i = 0 ; i < upgrades.length ; i++) {
-      if (upgrades[i] != null && upgradeStates[i] != STATE_INTACT) return i ;
+    if (upgrades == null) return -1;
+    for (int i = 0; i < upgrades.length; i++) {
+      if (upgrades[i] != null && upgradeStates[i] != STATE_INTACT) return i;
     }
-    return -1 ;
+    return -1;
   }
   
   
   private void deleteUpgrade(int atIndex) {
-    final int LI = upgrades.length - 1 ;
-    for (int i = atIndex ; i++ < LI ;) {
-      upgrades[i - 1] = upgrades[i] ;
-      upgradeStates[i - 1] = upgradeStates[i] ;
+    final int LI = upgrades.length - 1;
+    for (int i = atIndex; i++ < LI;) {
+      upgrades[i - 1] = upgrades[i];
+      upgradeStates[i - 1] = upgradeStates[i];
     }
-    upgrades[LI] = null ;
-    upgradeStates[LI] = STATE_INSTALL ;
+    upgrades[LI] = null;
+    upgradeStates[LI] = STATE_INSTALL;
   }
   
   
   public Upgrade upgradeInProgress() {
-    if (upgradeIndex == -1) upgradeIndex = nextUpgradeIndex() ;
-    if (upgradeIndex == -1) return null ;
-    return upgrades[upgradeIndex] ;
+    if (upgradeIndex == -1) upgradeIndex = nextUpgradeIndex();
+    if (upgradeIndex == -1) return null;
+    return upgrades[upgradeIndex];
   }
   
   
   public float advanceUpgrade(float progress) {
-    if (upgradeIndex == -1) upgradeIndex = nextUpgradeIndex() ;
-    if (upgradeIndex == -1) return 0 ;
+    if (upgradeIndex == -1) upgradeIndex = nextUpgradeIndex();
+    if (upgradeIndex == -1) return 0;
     //
     //  Update progress, and store the change for return later-
-    final int US = upgradeStates[upgradeIndex] ;
-    final float oldP = upgradeProgress ;
-    upgradeProgress = Visit.clamp(upgradeProgress + progress, 0, 1) ;
-    float amount = upgradeProgress - oldP ;
-    if (US == STATE_SALVAGE) amount *= -0.5f ;
+    final int US = upgradeStates[upgradeIndex];
+    final float oldP = upgradeProgress;
+    upgradeProgress = Visit.clamp(upgradeProgress + progress, 0, 1);
+    float amount = upgradeProgress - oldP;
+    if (US == STATE_SALVAGE) amount *= -0.5f;
     //
     //  If progress is complete, change the current upgrade's state:
     if (upgradeProgress >= 1) {
-      final float condition = integrity * 1f / maxIntegrity() ;
-      if (US == STATE_SALVAGE) deleteUpgrade(upgradeIndex) ;
-      else upgradeStates[upgradeIndex] = STATE_INTACT ;
-      upgradeProgress = 0 ;
-      upgradeIndex = -1 ;
-      integrity = maxIntegrity() * condition ;
+      final float condition = integrity * 1f / maxIntegrity();
+      if (US == STATE_SALVAGE) deleteUpgrade(upgradeIndex);
+      else upgradeStates[upgradeIndex] = STATE_INTACT;
+      upgradeProgress = 0;
+      upgradeIndex = -1;
+      integrity = maxIntegrity() * condition;
     }
-    return amount ;
+    return amount;
   }
   
   
   public void beginUpgrade(Upgrade upgrade, boolean checkExists) {
-    int atIndex = -1 ;
-    for (int i = 0 ; i < upgrades.length ; i++) {
-      ///I.sayAbout(venue, "Upgrade is: "+upgrades[i]) ;
-      if (checkExists && upgrades[i] == upgrade) return ;
-      if (upgrades[i] == null) { atIndex = i ; break ; }
+    int atIndex = -1;
+    for (int i = 0; i < upgrades.length; i++) {
+      ///I.sayAbout(venue, "Upgrade is: "+upgrades[i]);
+      if (checkExists && upgrades[i] == upgrade) return;
+      if (upgrades[i] == null) { atIndex = i; break; }
     }
-    if (atIndex == -1) I.complain("NO ROOM FOR UPGRADE!") ;
-    upgrades[atIndex] = upgrade ;
-    upgradeStates[atIndex] = STATE_INSTALL ;
-    if (upgradeIndex == atIndex) upgradeProgress = 0 ;
-    upgradeIndex = nextUpgradeIndex() ;
-    checkMaintenance() ;
+    if (atIndex == -1) I.complain("NO ROOM FOR UPGRADE!");
+    upgrades[atIndex] = upgrade;
+    upgradeStates[atIndex] = STATE_INSTALL;
+    if (upgradeIndex == atIndex) upgradeProgress = 0;
+    upgradeIndex = nextUpgradeIndex();
+    checkMaintenance();
   }
   
   
   public void resignUpgrade(int atIndex) {
-    if (upgrades[atIndex] == null) I.complain("NO SUCH UPGRADE!") ;
-    upgradeStates[atIndex] = STATE_SALVAGE ;
-    if (upgradeIndex == atIndex) upgradeProgress = 1 - upgradeProgress ;
-    checkMaintenance() ;
+    if (upgrades[atIndex] == null) I.complain("NO SUCH UPGRADE!");
+    upgradeStates[atIndex] = STATE_SALVAGE;
+    if (upgradeIndex == atIndex) upgradeProgress = 1 - upgradeProgress;
+    checkMaintenance();
   }
   
   
   public void resignUpgrade(Upgrade upgrade) {
-    for (int i = upgrades.length ; i-- > 0 ;) {
-      if (upgrades[i] == upgrade) { resignUpgrade(i) ; return ; }
+    for (int i = upgrades.length; i-- > 0;) {
+      if (upgrades[i] == upgrade) { resignUpgrade(i); return; }
     }
   }
   
   
   public Batch <Upgrade> workingUpgrades() {
-    final Batch <Upgrade> working = new Batch <Upgrade> () ;
-    if (upgrades == null) return working ;
-    for (int i = 0 ; i < upgrades.length ; i++) {
+    final Batch <Upgrade> working = new Batch <Upgrade> ();
+    if (upgrades == null) return working;
+    for (int i = 0; i < upgrades.length; i++) {
       if (upgrades[i] != null && upgradeStates[i] == STATE_INTACT) {
-        working.add(upgrades[i]) ;
+        working.add(upgrades[i]);
       }
     }
-    return working ;
+    return working;
   }
   
   
   public boolean upgradePossible(Upgrade upgrade) {
     //  Consider returning a String explaining the problem, if there is one?
     //  ...Or an error code of some kind?
-    if (upgrades == null) return false ;
-    boolean isSlot = false, hasReq = upgrade.required == null ;
-    int numType = 0 ;
+    if (upgrades == null) return false;
+    boolean isSlot = false, hasReq = upgrade.required == null;
+    int numType = 0;
     for (Upgrade u : upgrades) {
-      if (u == null) { isSlot = true ; break ; }
-      if (u == upgrade.required) hasReq = true ;
-      if (u == upgrade) numType++ ;
+      if (u == null) { isSlot = true; break; }
+      if (u == upgrade.required) hasReq = true;
+      if (u == upgrade) numType++;
     }
-    return isSlot && hasReq && numType < MAX_OF_TYPE ;
+    return isSlot && hasReq && numType < MAX_OF_TYPE;
   }
   
   
   public int upgradeBonus(Object refers) {
-    if (upgrades == null) return 0 ;
+    if (upgrades == null) return 0;
     final boolean report = verbose && I.talkAbout == basis;
     
-    int bonus = 0 ;
-    for (int i = 0 ; i < upgrades.length ; i++) {
-      final Upgrade u = upgrades[i] ;
-      if (u == null || upgradeStates[i] != STATE_INTACT) continue ;
+    int bonus = 0;
+    for (int i = 0; i < upgrades.length; i++) {
+      final Upgrade u = upgrades[i];
+      if (u == null || upgradeStates[i] != STATE_INTACT) continue;
       if (report) I.say("Upgrade is: "+u.name+", refers: "+u.refers);
-      if (u.refers == refers) bonus += u.bonus ;
+      if (u.refers == refers) bonus += u.bonus;
     }
     if (report) I.say("Bonus for "+refers+" is "+bonus);
-    return bonus ;
+    return bonus;
   }
   
   
   public int upgradeLevel(Upgrade type) {
-    if (upgrades == null) return 0 ;
-    int num = 0 ;
-    for (int i = 0 ; i < upgrades.length ; i++) {
-      if (upgrades[i] == type && upgradeStates[i] == STATE_INTACT) num++ ;
+    if (upgrades == null) return 0;
+    int num = 0;
+    for (int i = 0; i < upgrades.length; i++) {
+      if (upgrades[i] == type && upgradeStates[i] == STATE_INTACT) num++;
     }
-    return num ;
+    return num;
   }
   
   
   public int numUpgrades() {
-    if (upgrades == null) return 0 ;
-    int num = 0 ;
-    for (int i = 0 ; i < upgrades.length ; i++) {
-      if (upgrades[i] == null || upgradeStates[i] != STATE_INTACT) continue ;
-      num++ ;
+    if (upgrades == null) return 0;
+    int num = 0;
+    for (int i = 0; i < upgrades.length; i++) {
+      if (upgrades[i] == null || upgradeStates[i] != STATE_INTACT) continue;
+      num++;
     }
-    return num ;
+    return num;
   }
   
   
   public float upgradeProgress() {
-    return upgradeProgress ;
+    return upgradeProgress;
   }
   
   
@@ -551,24 +551,24 @@ public class Structure {
     "This facility lacks a prerequisite upgrade",
     "There are no remaining upgrade slots.",
     "No more than 3 upgrades of a single type."
-  } ;
+  };
   
   
   protected Batch <String> descOngoingUpgrades() {
-    final Batch <String> desc = new Batch <String> () ;
-    if (upgrades == null) return desc ;
-    for (int i = 0 ; i < upgrades.length ; i++) {
-      if (upgrades[i] == null || upgradeStates[i] == STATE_INTACT) continue ;
-      desc.add(upgrades[i].name+" ("+STATE_DESC[upgradeStates[i]]+")") ;
+    final Batch <String> desc = new Batch <String> ();
+    if (upgrades == null) return desc;
+    for (int i = 0; i < upgrades.length; i++) {
+      if (upgrades[i] == null || upgradeStates[i] == STATE_INTACT) continue;
+      desc.add(upgrades[i].name+" ("+STATE_DESC[upgradeStates[i]]+")");
     }
-    return desc ;
+    return desc;
   }
   
   
   protected String currentUpgradeDesc() {
-    if (upgradeIndex == -1) return null ;
-    final Upgrade u = upgrades[upgradeIndex] ;
-    return "Installing "+u.name+" ("+(int) (upgradeProgress * 100)+"%)" ;
+    if (upgradeIndex == -1) return null;
+    final Upgrade u = upgrades[upgradeIndex];
+    return "Installing "+u.name+" ("+(int) (upgradeProgress * 100)+"%)";
   }
 }
 

@@ -5,14 +5,14 @@
   */
 
 
-package stratos.game.base ;
-import stratos.game.common.* ;
-import stratos.game.actors.* ;
+package stratos.game.base;
+import stratos.game.common.*;
+import stratos.game.actors.*;
 import stratos.game.maps.Planet;
-import stratos.game.tactical.* ;
-import stratos.game.building.* ;
-import stratos.user.* ;
-import stratos.util.* ;
+import stratos.game.tactical.*;
+import stratos.game.building.*;
+import stratos.user.*;
+import stratos.util.*;
 
 
 
@@ -36,8 +36,8 @@ public class Drilling extends Plan implements Economy, Qualities {
   public Drilling(
     Actor actor, DrillYard grounds
   ) {
-    super(actor, grounds) ;
-    this.yard = grounds ;
+    super(actor, grounds);
+    this.yard = grounds;
   }
   
   
@@ -108,33 +108,33 @@ public class Drilling extends Plan implements Economy, Qualities {
       return null;
     }
     
-    final int drillType = yard.drillType() ;
-    final String actionName = "actionDrill", animName ;
+    final int drillType = yard.drillType();
+    final String actionName = "actionDrill", animName;
     
     switch (drillType) {
       case (DrillYard.DRILL_MELEE) :
-        animName = Action.STRIKE ;
-      break ;
+        animName = Action.STRIKE;
+      break;
       case (DrillYard.DRILL_RANGED) :
-        animName = Action.FIRE ;
-      break ;
+        animName = Action.FIRE;
+      break;
       case (DrillYard.DRILL_ENDURANCE) :
-        animName = Action.LOOK ;
-      break ;
+        animName = Action.LOOK;
+      break;
       case (DrillYard.DRILL_AID) :
-        animName = Action.BUILD ;
-      break ;
-      default : return null ;
+        animName = Action.BUILD;
+      break;
+      default : return null;
     }
     
-    final String DN = DrillYard.DRILL_STATE_NAMES[drillType] ;
+    final String DN = DrillYard.DRILL_STATE_NAMES[drillType];
     final Action drill = new Action(
       actor, yard,
       this, actionName,
       animName, "Training "+DN
-    ) ;
-    if (actor.aboard() == yard) drill.setProperties(Action.QUICK) ;
-    return drill ;
+    );
+    if (actor.aboard() == yard) drill.setProperties(Action.QUICK);
+    return drill;
   }
   
   
@@ -173,7 +173,7 @@ public class Drilling extends Plan implements Economy, Qualities {
     //
     //  TODO:  Incorporate a bonus to skill acquisition when you have an
     //  officer present with enough expertise and the Command skill.
-    return true ;
+    return true;
   }
   
   

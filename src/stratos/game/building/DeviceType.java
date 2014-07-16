@@ -1,6 +1,6 @@
 
 
-package stratos.game.building ;
+package stratos.game.building;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
@@ -27,7 +27,7 @@ public class DeviceType extends Service implements Economy {
     SPEAR_FX_MODEL = new ShotFX.Model(
       "spear_fx", DeviceType.class,
       "media/SFX/spear_throw.gif", 0.1f, 0.0f, 0.12f, 1.2f, false, false
-    ) ;
+    );
   final static PlaneFX.Model
     SLASH_FX_MODEL = new PlaneFX.Model(
       "slash_fx", DeviceType.class,
@@ -43,11 +43,11 @@ public class DeviceType extends Service implements Economy {
     );
   
   
-  final public float baseDamage ;
-  final public int properties ;
-  final Conversion materials ;
+  final public float baseDamage;
+  final public int properties;
+  final Conversion materials;
   
-  final public String groupName, animName ;
+  final public String groupName, animName;
   
   
   DeviceType(
@@ -59,23 +59,23 @@ public class DeviceType extends Service implements Economy {
     super(
       baseClass, FORM_DEVICE, name,
       basePrice + (materials == null ? 0 : materials.rawPriceValue())
-    ) ;
+    );
     ///I.say("Declaring device: "+name);
-    this.baseDamage = baseDamage ;
-    this.properties = properties ;
-    this.materials = materials ;
-    this.groupName = groupName ;
-    this.animName = animName ;
+    this.baseDamage = baseDamage;
+    this.properties = properties;
+    this.materials = materials;
+    this.groupName = groupName;
+    this.animName = animName;
   }
   
   
   public Conversion materials() {
-    return materials ;
+    return materials;
   }
   
   
   public boolean hasProperty(int p) {
-    return (properties & p) == p ;
+    return (properties & p) == p;
   }
   
   
@@ -83,14 +83,14 @@ public class DeviceType extends Service implements Economy {
   /**  Rendering and interface-
     */
   static Vec3D hitPoint(Target applied, boolean hits) {
-    final Vec3D HP = applied.position(null) ;
-    final float r = applied.radius(), h = applied.height() / 2 ;
-    HP.z += h ;
-    if (hits) return HP ;
-    HP.x += Rand.range(-r, r) ;
-    HP.y += Rand.range(-r, r) ;
-    HP.z += Rand.range(-h, h) ;
-    return HP ;
+    final Vec3D HP = applied.position(null);
+    final float r = applied.radius(), h = applied.height() / 2;
+    HP.z += h;
+    if (hits) return HP;
+    HP.x += Rand.range(-r, r);
+    HP.y += Rand.range(-r, r);
+    HP.z += Rand.range(-h, h);
+    return HP;
   }
   
   
@@ -105,14 +105,14 @@ public class DeviceType extends Service implements Economy {
     DeviceType type, Mobile uses, Target applied, boolean hits
   ) {
     final float distance = Spacing.distance(uses, applied);
-    final World world = uses.world() ;
+    final World world = uses.world();
     if (type == null || type.hasProperty(MELEE)) {
       //
       //  Put in a little 'splash' FX, in the direction of the arc.
-      final float r = uses.radius() ;
-      final Sprite slashFX = SLASH_FX_MODEL.makeSprite() ;
-      slashFX.scale = r * 2 ;
-      world.ephemera.addGhost(uses, r, slashFX, 0.33f) ;
+      final float r = uses.radius();
+      final Sprite slashFX = SLASH_FX_MODEL.makeSprite();
+      slashFX.scale = r * 2;
+      world.ephemera.addGhost(uses, r, slashFX, 0.33f);
     }
     
     else if (type.hasProperty(RANGED | PHYSICAL)) {
@@ -134,7 +134,7 @@ public class DeviceType extends Service implements Economy {
     ShotFX.Model model, Mobile uses, Target applied,
     boolean hits, float duration, World world
   ) {
-    final ShotFX shot = (ShotFX) model.makeSprite() ;
+    final ShotFX shot = (ShotFX) model.makeSprite();
     
     //  TODO:  Consider setting the fire point manually if the animation state
     //  hasn't matured yet.
@@ -144,9 +144,9 @@ public class DeviceType extends Service implements Economy {
     sprite.attachPoint("fire", shot.origin);
     shot.target.setTo(hitPoint(applied, hits));
     
-    shot.position.setTo(shot.origin).add(shot.target).scale(0.5f) ;
-    final float size = shot.origin.sub(shot.target, null).length() / 2 ;
-    world.ephemera.addGhost(null, size + 1, shot, duration) ;
+    shot.position.setTo(shot.origin).add(shot.target).scale(0.5f);
+    final float size = shot.origin.sub(shot.target, null).length() / 2;
+    world.ephemera.addGhost(null, size + 1, shot, duration);
     
     return shot;
   }
@@ -158,11 +158,11 @@ public class DeviceType extends Service implements Economy {
   ) {
     final Sprite
       BO = model.makeSprite(),
-      BT = model.makeSprite() ;
-    BO.position.setTo(shot.origin) ;
-    BT.position.setTo(shot.target) ;
-    world.ephemera.addGhost(null, 1, BO, duration) ;
-    world.ephemera.addGhost(null, 1, BT, duration) ;
+      BT = model.makeSprite();
+    BO.position.setTo(shot.origin);
+    BT.position.setTo(shot.target);
+    world.ephemera.addGhost(null, 1, BO, duration);
+    world.ephemera.addGhost(null, 1, BT, duration);
   }
 }
 

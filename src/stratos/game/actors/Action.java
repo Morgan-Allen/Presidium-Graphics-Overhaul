@@ -5,8 +5,8 @@
   */
 
 
-package stratos.game.actors ;
-import java.lang.reflect.* ;
+package stratos.game.actors;
+import java.lang.reflect.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
@@ -40,17 +40,17 @@ public class Action implements Behaviour, AnimNames {
   private static boolean verbose = false;
   
   
-  final public Actor actor ;
-  final public Session.Saveable basis ;
-  final public Method toCall ;
+  final public Actor actor;
+  final public Session.Saveable basis;
+  final public Method toCall;
   
-  private float priority ;
-  private int properties ;
+  private float priority;
+  private int properties;
   private byte moveState = -1;
-  private Target actionTarget, moveTarget ;
-  private float progress, oldProgress ;
+  private Target actionTarget, moveTarget;
+  private float progress, oldProgress;
   
-  final String animName, description ;
+  final String animName, description;
   
   
   
@@ -60,111 +60,111 @@ public class Action implements Behaviour, AnimNames {
     String animName, String description
   ) {
     if (actor == null || target == null)
-      I.complain("Null arguments for action!") ;
-    this.actor = actor ;
-    this.basis = basis ;
-    this.toCall = namedMethodFor(basis, methodName) ;
-    this.priority = ROUTINE ;
-    this.actionTarget = this.moveTarget = target ;
-    this.animName = animName ;
-    this.description = description ;
+      I.complain("Null arguments for action!");
+    this.actor = actor;
+    this.basis = basis;
+    this.toCall = namedMethodFor(basis, methodName);
+    this.priority = ROUTINE;
+    this.actionTarget = this.moveTarget = target;
+    this.animName = animName;
+    this.description = description;
   }
   
   
   public Action(Session s) throws Exception {
-    s.cacheInstance(this) ;
+    s.cacheInstance(this);
     
-    actor = (Actor) s.loadObject() ;
-    basis = s.loadObject() ;
-    toCall = namedMethodFor(basis, s.loadString()) ;
-    priority = s.loadFloat() ;
+    actor = (Actor) s.loadObject();
+    basis = s.loadObject();
+    toCall = namedMethodFor(basis, s.loadString());
+    priority = s.loadFloat();
     
-    properties = s.loadInt() ;
-    moveState = (byte) s.loadInt() ;
-    actionTarget = s.loadTarget() ;
-    moveTarget = s.loadTarget() ;
+    properties = s.loadInt();
+    moveState = (byte) s.loadInt();
+    actionTarget = s.loadTarget();
+    moveTarget = s.loadTarget();
     
-    progress = s.loadFloat() ;
-    oldProgress = s.loadFloat() ;
-    animName = s.loadString() ;
-    description = s.loadString() ;
+    progress = s.loadFloat();
+    oldProgress = s.loadFloat();
+    animName = s.loadString();
+    description = s.loadString();
   }
   
   
   public void saveState(Session s) throws Exception {
     
-    s.saveObject(actor) ;
-    s.saveObject(basis) ;
-    s.saveString(toCall.getName()) ;
-    s.saveFloat(priority) ;
+    s.saveObject(actor);
+    s.saveObject(basis);
+    s.saveString(toCall.getName());
+    s.saveFloat(priority);
     
-    s.saveInt(properties) ;
-    s.saveInt(moveState) ;
-    s.saveTarget(actionTarget) ;
-    s.saveTarget(moveTarget) ;
+    s.saveInt(properties);
+    s.saveInt(moveState);
+    s.saveTarget(actionTarget);
+    s.saveTarget(moveTarget);
     
-    s.saveFloat(progress) ;
-    s.saveFloat(oldProgress) ;
-    s.saveString(animName) ;
-    s.saveString(description) ;
+    s.saveFloat(progress);
+    s.saveFloat(oldProgress);
+    s.saveString(animName);
+    s.saveString(description);
   }
   
   
   
   public void setPriority(float p) {
-    this.priority = p ;
+    this.priority = p;
   }
   
   
   public void setMoveTarget(Target t) {
-    if (t == null) I.complain("MOVE TARGET MUST BE NON-NULL.") ;
-    this.moveTarget = t ;
+    if (t == null) I.complain("MOVE TARGET MUST BE NON-NULL.");
+    this.moveTarget = t;
   }
   
   
   public void setProperties(int p) {
-    this.properties = p ;
+    this.properties = p;
   }
   
   
   public Target subject() {
-    return actionTarget ;
+    return actionTarget;
   }
   
   
   public Target movesTo() {
-    return moveTarget ;
+    return moveTarget;
   }
   
   
   public String methodName() {
-    return toCall.getName() ;
+    return toCall.getName();
   }
   
   
-  public boolean ranged()  { return (properties & RANGED ) != 0 ; }
-  public boolean careful() { return (properties & CAREFUL) != 0 ; }
-  public boolean quick()   { return (properties & QUICK  ) != 0 ; }
-  public boolean tracks()  { return (properties & TRACKS ) != 0 ; }
+  public boolean ranged()  { return (properties & RANGED ) != 0; }
+  public boolean careful() { return (properties & CAREFUL) != 0; }
+  public boolean quick()   { return (properties & QUICK  ) != 0; }
+  public boolean tracks()  { return (properties & TRACKS ) != 0; }
   
   
   
   /**  Implementing the Behaviour contract-
     */
   public float priorityFor(Actor actor) {
-    return priority ;
+    return priority;
   }
   
   
   public boolean finished() {
-    if (progress == -1) return true ;
-    return (moveState == STATE_CLOSED) && (progress >= 1) ;
+    if (progress == -1) return true;
+    return (moveState == STATE_CLOSED) && (progress >= 1);
   }
   
   
   public Behaviour nextStepFor(Actor actor) {
-    if (finished()) return null ;
-    return this ;
+    if (finished()) return null;
+    return this;
   }
   
   
@@ -184,12 +184,12 @@ public class Action implements Behaviour, AnimNames {
   
   
   public boolean hasBegun() {
-    return actor.currentAction() == this ;
+    return actor.currentAction() == this;
   }
   
   
   public Actor actor() {
-    return actor ;
+    return actor;
   }
   
   
@@ -202,70 +202,70 @@ public class Action implements Behaviour, AnimNames {
   ) {
     final boolean report = false && verbose && I.talkAbout == actor;
     if (report) I.say("Deciding on motion rate:");
-    int motionType = MOTION_NORMAL ; for (Behaviour b : actor.mind.agenda) {
+    int motionType = MOTION_NORMAL; for (Behaviour b : actor.mind.agenda) {
       final int MT = b.motionType(actor);
       if (report) I.say("  Type is: "+MT);
-      if (MT != MOTION_ANY) { motionType = MT ; break ; }
+      if (MT != MOTION_ANY) { motionType = MT; break; }
     }
     if (report) I.say("  Result:  "+motionType);
 
-    float rate = actor.health.baseSpeed() ;
-    if (motionType == MOTION_SNEAK) rate /= 2 ;
-    else if (motionType == MOTION_FAST) rate *= 2 ;
+    float rate = actor.health.baseSpeed();
+    if (motionType == MOTION_SNEAK) rate /= 2;
+    else if (motionType == MOTION_FAST) rate *= 2;
     
     if (basic) return rate;
     
     //  TODO:  Must also account for the effects of fatigue and encumbrance.
     
-    final int pathType = actor.origin().pathType() ;
+    final int pathType = actor.origin().pathType();
     switch (pathType) {
-      case (Tile.PATH_HINDERS) : rate *= 0.8f ; break ;
-      case (Tile.PATH_CLEAR  ) : rate *= 1.0f ; break ;
-      case (Tile.PATH_ROAD   ) : rate *= 1.2f ; break ;
+      case (Tile.PATH_HINDERS) : rate *= 0.8f; break;
+      case (Tile.PATH_CLEAR  ) : rate *= 1.0f; break;
+      case (Tile.PATH_ROAD   ) : rate *= 1.2f; break;
     }
     
-    return rate ;
+    return rate;
   }
   //*/
 
   
   public int motionType(Actor actor) {
-    if (quick()  ) return MOTION_FAST  ;
-    if (careful()) return MOTION_SNEAK ;
-    return MOTION_ANY ;
+    if (quick()  ) return MOTION_FAST ;
+    if (careful()) return MOTION_SNEAK;
+    return MOTION_ANY;
   }
   
   
   private void updateMotion(boolean active, float moveRate) {
-    final boolean report = verbose && I.talkAbout == actor ;
+    final boolean report = verbose && I.talkAbout == actor;
     
     //  Firstly, we establish current displacements between actor and target,
     //  motion target & action target, how far the actor can see, and whether
     //  sticking to the full tile path is required-
     final boolean mustBoard = (
       (! ranged()) && (moveTarget instanceof Boardable)
-    ) ;
-    //final boolean blockage = ! actor.motion.checkEndPoint(moveTarget) ;
+    );
+    //final boolean blockage = ! actor.motion.checkEndPoint(moveTarget);
     final float
       sightRange = actor.health.sightRange(),
       motionDist = Spacing.distance(actor, moveTarget),
       actionDist = Spacing.distance(actor, actionTarget),
-      separation = Spacing.distance(moveTarget, actionTarget) ;
+      separation = Spacing.distance(moveTarget, actionTarget);
     
     //  We also need to calculate an appropriate maximum distance in order for
     //  the action to progress-
-    float maxDist = 0.01f ;
-    if (ranged()) maxDist += sightRange * (moveState == STATE_CLOSED ? 2 : 1) ;
-    else if (moveState == STATE_CLOSED) maxDist += progress + 0.5f ;
+    float maxDist = 0.01f;
+    if (ranged()) maxDist += sightRange * (moveState == STATE_CLOSED ? 2 : 1);
+    else if (moveState == STATE_CLOSED) maxDist += progress + 0.5f;
     
     //  In order for the action to execute, the actor must both be close enough
     //  to the target and facing in the right direction.  If the target is
     //  close enough to see, you can consider ignoring tile-pathing in favour
     //  of closing directly on the subject.  If, on the other hand, the target
     //  should be visible, but isn't, then path towards it more directly.
-    Target pathsTo = moveTarget ;
-    boolean closed = false, approaching = false, facing = false ;
-    final Target step = actor.pathing.nextStep(), closeOn ;
+    Target pathsTo = moveTarget;
+    boolean closed = false, approaching = false, facing = false;
+    final Target step = actor.pathing.nextStep(), closeOn;
     
     if (contactMade() && ! tracks()) {
       pathsTo = actor.aboard();
@@ -273,9 +273,9 @@ public class Action implements Behaviour, AnimNames {
       closed = approaching = facing = true;
     }
     else if (mustBoard) {
-      approaching = actor.aboard() == moveTarget ;
-      closed = approaching && (motionDist - maxDist < separation) ;
-      closeOn = closed ? actionTarget : step ;
+      approaching = actor.aboard() == moveTarget;
+      closed = approaching && (motionDist - maxDist < separation);
+      closeOn = closed ? actionTarget : step;
       facing = actor.pathing.facingTarget(closeOn);
     }
     else {
@@ -286,30 +286,30 @@ public class Action implements Behaviour, AnimNames {
       );
       
       if (Math.min(motionDist, actionDist) < maxDist && ! seen) {
-        pathsTo = actionTarget ;
+        pathsTo = actionTarget;
       }
       if (PathSearch.blockedBy(pathsTo, actor)) {
-        pathsTo = Spacing.nearestOpenTile(pathsTo, actor) ;
+        pathsTo = Spacing.nearestOpenTile(pathsTo, actor);
       }
-      closed = seen && (actionDist <= maxDist) ;
-      approaching = closed || (seen && (actionDist <= (maxDist + 1))) ;
-      closeOn = approaching ? actionTarget : step ;
+      closed = seen && (actionDist <= maxDist);
+      approaching = closed || (seen && (actionDist <= (maxDist + 1)));
+      closeOn = approaching ? actionTarget : step;
       facing = actor.pathing.facingTarget(closeOn);
     }
     actor.pathing.updateTarget(pathsTo);
     
     if (report) {
       I.say("Action is: "+methodName()+" "+hashCode());
-      I.say("  Action target is: "+actionTarget) ;
-      I.say("  Move target is: "+moveTarget) ;
-      I.say("  Path target is: "+actor.pathing.target()+", step: "+step) ;
-      I.say("  Closing on: "+closeOn+", must board: "+mustBoard) ;
+      I.say("  Action target is: "+actionTarget);
+      I.say("  Move target is: "+moveTarget);
+      I.say("  Path target is: "+actor.pathing.target()+", step: "+step);
+      I.say("  Closing on: "+closeOn+", must board: "+mustBoard);
       final boolean blocked = PathSearch.blockedBy(actor.aboard(), actor);
-      I.say("  Currently aboard: "+actor.aboard()+", blocked? "+blocked) ;
-      I.say("  Closed/facing: "+closed+"/"+facing+", doing update? "+active) ;
-      I.say("  Is ranged? "+ranged()+", approaching? "+approaching) ;
-      final float distance = Spacing.distance(actor, actor.pathing.target()) ;
-      I.say("  Distance: "+distance+", maximum: "+maxDist+"\n") ;
+      I.say("  Currently aboard: "+actor.aboard()+", blocked? "+blocked);
+      I.say("  Closed/facing: "+closed+"/"+facing+", doing update? "+active);
+      I.say("  Is ranged? "+ranged()+", approaching? "+approaching);
+      final float distance = Spacing.distance(actor, actor.pathing.target());
+      I.say("  Distance: "+distance+", maximum: "+maxDist+"\n");
     }
     
     //  If both facing and proximity are satisfied, toggle the flag which
@@ -324,8 +324,8 @@ public class Action implements Behaviour, AnimNames {
     else moveState = STATE_MOVE;
     
     if (moveState != oldState) {
-      if (oldState == STATE_CLOSED) { abortBehaviour() ; return ; }
-      else progress = oldProgress = 0 ;
+      if (oldState == STATE_CLOSED) { abortBehaviour(); return; }
+      else progress = oldProgress = 0;
     }
     
     //  If active updates to pathing & motion are called for, make them.
@@ -341,16 +341,16 @@ public class Action implements Behaviour, AnimNames {
   /**  Actual execution of associated behaviour-
     */
   private float actionDuration() {
-    float duration = 1 ;
-    if (quick()  ) duration /= 2 ;
-    if (careful()) duration *= 2 ;
-    return duration ;
+    float duration = 1;
+    if (quick()  ) duration /= 2;
+    if (careful()) duration *= 2;
+    return duration;
   }
   
   
   private float contactTime() {
-    final float duration = actionDuration() ;
-    final float contact = (duration - 0.25f) / duration ;
+    final float duration = actionDuration();
+    final float contact = (duration - 0.25f) / duration;
     return contact;
   }
   
@@ -365,19 +365,19 @@ public class Action implements Behaviour, AnimNames {
     if (report) I.say("Updating action: "+progress+", target: "+actionTarget);
     if (finished()) {
       if (report) I.say("Finished!");
-      oldProgress = progress = 1 ;
-      return ;
+      oldProgress = progress = 1;
+      return;
     }
     
     final float moveRate = moveRate(actor, false);
-    oldProgress = progress ;
-    updateMotion(active, moveRate) ;
+    oldProgress = progress;
+    updateMotion(active, moveRate);
     
     if (moveState == STATE_CLOSED) {
-      progress += 1f / (actionDuration() * World.UPDATES_PER_SECOND) ;
-      progress = Visit.clamp(progress, 0, 1) ;
+      progress += 1f / (actionDuration() * World.UPDATES_PER_SECOND);
+      progress = Visit.clamp(progress, 0, 1);
       final float contact = contactTime();
-      if (oldProgress <= contact && progress > contact) applyEffect() ;
+      if (oldProgress <= contact && progress > contact) applyEffect();
     }
     else if (moveState != STATE_INIT) {
       float speedUp = moveRate / actor.health.baseSpeed();
@@ -388,10 +388,10 @@ public class Action implements Behaviour, AnimNames {
   
   
   public void applyEffect() {
-    try { toCall.invoke(basis, actor, actionTarget) ; }
+    try { toCall.invoke(basis, actor, actionTarget); }
     catch (Exception e) {
-      I.say("PROBLEM WITH ACTION: "+toCall.getName()) ;
-      I.report(e) ;
+      I.say("PROBLEM WITH ACTION: "+toCall.getName());
+      I.report(e);
     }
   }
   
@@ -405,33 +405,33 @@ public class Action implements Behaviour, AnimNames {
   > actionMethods = new Table <
     Class <? extends Object>,
     Table <String, Method>
-  > (1000) ;
+  > (1000);
   
   
   private static Method namedMethodFor(Object plans, String methodName) {
-    if (plans == null || methodName == null) return null ;
-    Table <String, Method> aM = actionMethods.get(plans.getClass()) ;
+    if (plans == null || methodName == null) return null;
+    Table <String, Method> aM = actionMethods.get(plans.getClass());
     if (aM == null) {
-      aM = new Table <String, Method> (20) ;
+      aM = new Table <String, Method> (20);
       for (Method method : plans.getClass().getMethods()) {
-        aM.put(method.getName(), method) ;
+        aM.put(method.getName(), method);
       }
-      actionMethods.put(plans.getClass(), aM) ;
+      actionMethods.put(plans.getClass(), aM);
     }
-    final Method method = aM.get(methodName) ;
+    final Method method = aM.get(methodName);
     if (method == null) I.complain(
       "NO SUCH METHOD! "+methodName+" FOR CLASS: "+plans
-    ) ;
+    );
     if (! method.isAccessible()) {
-      final Class <? extends Object> params[] = method.getParameterTypes() ;
+      final Class <? extends Object> params[] = method.getParameterTypes();
       if (
         params.length != 2 ||
         ! Actor.class.isAssignableFrom(params[0]) ||
         ! Target.class.isAssignableFrom(params[1])
-      ) I.complain("METHOD HAS BAD ARGUMENT SET!") ;
-      method.setAccessible(true) ;
+      ) I.complain("METHOD HAS BAD ARGUMENT SET!");
+      method.setAccessible(true);
     }
-    return method ;
+    return method;
   }
   
   
@@ -458,12 +458,12 @@ public class Action implements Behaviour, AnimNames {
   
   
   public String toString() {
-    return description ;
+    return description;
   }
   
   
   public void describeBehaviour(Description d) {
-    d.append(description) ;
+    d.append(description);
   }
 }
 
@@ -480,11 +480,11 @@ public static float moveLuck(Actor actor) {
   //  This is employed during chases and stealth conflicts, so that the
   //  outcome is less (obviously) deterministic.  However, it must be
   //  constant at a given position and time.
-  final Tile o = actor.origin() ;
-  int var = o.world.terrain().varAt(o) ;
-  var += (o.x * o.world.size) + o.y ;
-  var -= o.world.currentTime() ;
-  var ^= actor.hashCode() ;
-  return (1 + (float) Math.sqrt(Math.abs(var % 10) / 4.5f)) / 2 ;
+  final Tile o = actor.origin();
+  int var = o.world.terrain().varAt(o);
+  var += (o.x * o.world.size) + o.y;
+  var -= o.world.currentTime();
+  var ^= actor.hashCode();
+  return (1 + (float) Math.sqrt(Math.abs(var % 10) / 4.5f)) / 2;
 }
 //*/

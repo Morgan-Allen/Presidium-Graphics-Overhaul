@@ -62,7 +62,7 @@ public class Assets {
     assetsLoaded = new List <Loadable> ();
   
   protected static Table <String, Object>
-    resCache = new Table <String, Object> (1000) ;
+    resCache = new Table <String, Object> (1000);
   
   
   
@@ -145,8 +145,20 @@ public class Assets {
   }
   
   
+  public static void disposeOf(Loadable asset) {
+    if (asset == null) return;
+    asset.disposeAsset();
+    assetsToLoad.remove(asset);
+    assetsLoaded.remove(asset);
+  }
+  
+  
   public static void dispose() {
-    for (Loadable asset : assetsLoaded) asset.disposeAsset();
+    for (Loadable asset : assetsLoaded) {
+      asset.disposeAsset();
+    }
+    assetsToLoad.clear();
+    assetsLoaded.clear();
   }
   
   
@@ -161,42 +173,42 @@ public class Assets {
     *  with game-save files-
     */
   static Table <String, Loadable>
-    modelCache = new Table <String, Loadable> (1000) ;
+    modelCache = new Table <String, Loadable> (1000);
   static Table <Integer, Loadable>
-    IDModels = new Table <Integer, Loadable> (1000) ;
+    IDModels = new Table <Integer, Loadable> (1000);
   static Table <Loadable, Integer>
-    modelIDs = new Table <Loadable, Integer> (1000) ;
-  static int counterID = 0 ;
+    modelIDs = new Table <Loadable, Integer> (1000);
+  static int counterID = 0;
   
   
   public static void clearReferenceIDs() {
-    IDModels.clear() ;
-    modelIDs.clear() ;
-    counterID = 0 ;
+    IDModels.clear();
+    modelIDs.clear();
+    counterID = 0;
   }
   
   
   public static void saveReference(
       Loadable model, DataOutputStream out
   ) throws Exception {
-    if (model == null) { out.writeInt(-1) ; return ; }
-    final Integer modelID = modelIDs.get(model) ;
-    if (modelID != null) { out.writeInt(modelID) ; return ; }
-    final int newID = counterID++ ;
-    modelIDs.put(model, newID) ;
-    out.writeInt(newID) ;
-    Assets.writeString(out, model.assetID) ;
-    Assets.writeString(out, model.sourceClass.getName()) ;
+    if (model == null) { out.writeInt(-1); return; }
+    final Integer modelID = modelIDs.get(model);
+    if (modelID != null) { out.writeInt(modelID); return; }
+    final int newID = counterID++;
+    modelIDs.put(model, newID);
+    out.writeInt(newID);
+    Assets.writeString(out, model.assetID);
+    Assets.writeString(out, model.sourceClass.getName());
   }
   
   
   public static Loadable loadReference(
       DataInputStream in
   ) throws Exception {
-    final int modelID = in.readInt() ;
-    if (modelID == -1) return null ;
-    Loadable loaded = IDModels.get(modelID) ;
-    if (loaded != null) return loaded ;
+    final int modelID = in.readInt();
+    if (modelID == -1) return null;
+    Loadable loaded = IDModels.get(modelID);
+    if (loaded != null) return loaded;
     final String modelName = Assets.readString(in);
     final String className = Assets.readString(in);
     Class.forName(className);
@@ -205,9 +217,9 @@ public class Assets {
     if (loaded == null) I.complain(
       "MODEL NAMED: "+modelName+
       "\nNO LONGER DEFINED IN SPECIFIED CLASS: "+className
-    ) ;
-    IDModels.put(modelID, loaded) ;
-    return loaded ;
+    );
+    IDModels.put(modelID, loaded);
+    return loaded;
   }
   
   
@@ -234,14 +246,14 @@ public class Assets {
   /**  Caches the given resource.
     */
   public static void cacheResource(Object res, String key) {
-    resCache.put(key, res) ;
+    resCache.put(key, res);
   }
   
   
   /**  Returns the resource matching the given key (if cached- null otherwise.)
     */
   public static Object getResource(String key) {
-    return resCache.get(key) ;
+    return resCache.get(key);
   }
   
   
@@ -299,22 +311,22 @@ public class Assets {
     
     try {
       final URL jarURL = file.toURI().toURL();
-      ZipInputStream zip = new ZipInputStream(jarURL.openStream()) ;
-      for (ZipEntry e ; (e = zip.getNextEntry()) != null ;) {
-        if (e.isDirectory()) continue ;
+      ZipInputStream zip = new ZipInputStream(jarURL.openStream());
+      for (ZipEntry e; (e = zip.getNextEntry()) != null;) {
+        if (e.isDirectory()) continue;
         
-        final String name = e.getName() ;
+        final String name = e.getName();
         if (verbose) I.say("Jarred file is: "+name);
-        if (! name.endsWith(".class")) continue ;
-        if (name.indexOf('$') != -1) continue ;
+        if (! name.endsWith(".class")) continue;
+        if (name.indexOf('$') != -1) continue;
         
-        final int cutoff = name.length() - ".class".length() ;
-        final String className = name.substring(0, cutoff).replace('/', '.') ;
+        final int cutoff = name.length() - ".class".length();
+        final String className = name.substring(0, cutoff).replace('/', '.');
         if (dirName != null && ! className.startsWith(dirName)) continue;
         loaded.add(className);
       }
     }
-    catch (IOException e) { I.report(e) ; }
+    catch (IOException e) { I.report(e); }
   }
   
   
@@ -324,17 +336,17 @@ public class Assets {
     *  name second.)
     */
   public static String[] sepPath(String fullPath) {
-    char[] fP = fullPath.toCharArray() ;
-    int ind ;
-    for (ind = fP.length ; ind-- > 0 ;)
-      if (fP[ind] == REP_SEP) break ;
+    char[] fP = fullPath.toCharArray();
+    int ind;
+    for (ind = fP.length; ind-- > 0;)
+      if (fP[ind] == REP_SEP) break;
     
-    if (ind < fP.length) ind++ ;
+    if (ind < fP.length) ind++;
     String PN[] = {
       new String(fP, 0, ind),
       new String(fP, ind, fP.length - ind)
-    } ;
-    return PN ;
+    };
+    return PN;
   }
   
   
@@ -342,7 +354,7 @@ public class Assets {
     *  separator.)
     */
   public static String safePath(String path) {
-    return safePath(path, java.io.File.separatorChar) ;
+    return safePath(path, java.io.File.separatorChar);
   }
   
   
@@ -350,34 +362,34 @@ public class Assets {
     *  seperator.)
     */
   public static String safePath(String path, char separator) {
-    int l = path.length() ;
-    char chars[] = new char[l] ;
-    path.getChars(0, l, chars, 0) ;
-    for (int x = 0 ; x < l ; x++) {
+    int l = path.length();
+    char chars[] = new char[l];
+    path.getChars(0, l, chars, 0);
+    for (int x = 0; x < l; x++) {
       switch(chars[x]) {
         case('/'):
         case('\\'):
-          chars[x] = separator ;
-        break ;
+          chars[x] = separator;
+        break;
       }
     }
-    return new String(chars) ;
+    return new String(chars);
   }
   
   
   public static void writeString(DataOutputStream dOut, String s)
       throws IOException {
-    byte chars[] = s.getBytes() ;
-    dOut.writeInt(chars.length) ;
-    dOut.write(chars) ;
+    byte chars[] = s.getBytes();
+    dOut.writeInt(chars.length);
+    dOut.write(chars);
   }
   
   
   public static String readString(DataInputStream dIn) throws IOException {
-    final int len = dIn.readInt() ;
-    byte chars[] = new byte[len] ;
-    dIn.read(chars) ;
-    return new String(chars) ;
+    final int len = dIn.readInt();
+    byte chars[] = new byte[len];
+    dIn.read(chars);
+    return new String(chars);
   }
 }
 

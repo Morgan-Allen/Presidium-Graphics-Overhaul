@@ -1,15 +1,16 @@
 
 
-package stratos.game.base ;
-import stratos.game.common.* ;
-import stratos.game.actors.* ;
-import stratos.game.building.* ;
-import stratos.game.tactical.* ;
-import stratos.graphics.common.* ;
-import stratos.graphics.cutout.* ;
-import stratos.graphics.widgets.* ;
-import stratos.user.* ;
-import stratos.util.* ;
+package stratos.game.base;
+import stratos.game.common.*;
+import stratos.game.actors.*;
+import stratos.game.building.*;
+import stratos.game.plans.Patrolling;
+import stratos.game.tactical.*;
+import stratos.graphics.common.*;
+import stratos.graphics.cutout.*;
+import stratos.graphics.widgets.*;
+import stratos.user.*;
+import stratos.util.*;
 
 
 
@@ -27,29 +28,29 @@ public class Garrison extends Venue implements Economy {
   );
   
   
-  private DrillYard drillYard ;
+  private DrillYard drillYard;
   
   
   public Garrison(Base base) {
-    super(4, 3, ENTRANCE_SOUTH, base) ;
+    super(4, 3, ENTRANCE_SOUTH, base);
     structure.setupStats(
       500, 20, 250,
       Structure.SMALL_MAX_UPGRADES, Structure.TYPE_FIXTURE
-    ) ;
-    personnel.setShiftType(SHIFTS_BY_HOURS) ;
-    attachSprite(MODEL.makeSprite()) ;
+    );
+    personnel.setShiftType(SHIFTS_BY_HOURS);
+    attachSprite(MODEL.makeSprite());
   }
   
   
   public Garrison(Session s) throws Exception {
-    super(s) ;
-    drillYard = (DrillYard) s.loadObject() ;
+    super(s);
+    drillYard = (DrillYard) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
-    s.saveObject(drillYard) ;
+    super.saveState(s);
+    s.saveObject(drillYard);
   }
   
   
@@ -58,8 +59,8 @@ public class Garrison extends Venue implements Economy {
     */
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
     Garrison.class, "garrison_upgrades"
-  ) ;
-  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES ; }
+  );
+  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
     MELEE_TRAINING = new Upgrade(
       "Melee Training",
@@ -95,23 +96,23 @@ public class Garrison extends Venue implements Economy {
       "officer corps and command structure.",
       150,
       Backgrounds.VETERAN, 1, VOLUNTEER_STATION, ALL_UPGRADES
-    ) ;
+    );
   
   public Background[] careers() {
-    return new Background[] { Backgrounds.VOLUNTEER, Backgrounds.VETERAN } ;
+    return new Background[] { Backgrounds.VOLUNTEER, Backgrounds.VETERAN };
   }
   
   
   public int numOpenings(Background v) {
-    int num = super.numOpenings(v) ;
-    if (v == Backgrounds.VOLUNTEER) return num + 2 ;
-    if (v == Backgrounds.VETERAN  ) return num + 1 ;
-    return 0 ;
+    int num = super.numOpenings(v);
+    if (v == Backgrounds.VOLUNTEER) return num + 2;
+    if (v == Backgrounds.VETERAN  ) return num + 1;
+    return 0;
   }
   
   
   public Service[] services() {
-    return new Service[] {} ;
+    return new Service[] {};
   }
   
   
@@ -122,16 +123,16 @@ public class Garrison extends Venue implements Economy {
   
   
   public boolean enterWorldAt(int x, int y, World world) {
-    if (! super.enterWorldAt(x, y, world)) return false ;
-    updateDrillYard() ;
-    return true ;
+    if (! super.enterWorldAt(x, y, world)) return false;
+    updateDrillYard();
+    return true;
   }
   
   
   public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates) ;
-    updateDrillYard() ;
-    if (! structure.intact()) return ;
+    super.updateAsScheduled(numUpdates);
+    updateDrillYard();
+    if (! structure.intact()) return;
   }
   
   //
@@ -153,8 +154,8 @@ public class Garrison extends Venue implements Economy {
         newYard.setPosition(o.x + (N_X[n] * S), o.y + (N_Y[n] * S), world);
         if (newYard.canPlace()) {
           newYard.placeFromOrigin();
-          drillYard = newYard ;
-          break ;
+          drillYard = newYard;
+          break;
         }
       }
     }
@@ -164,9 +165,9 @@ public class Garrison extends Venue implements Economy {
   //  TODO:  This needs to be generalised more robustly.
   /*
   public void onDecommision() {
-    super.onDecommission() ;
+    super.onDecommission();
     if (drillYard != null) {
-      drillYard.structure.setState(Structure.STATE_SALVAGE, -1) ;
+      drillYard.structure.setState(Structure.STATE_SALVAGE, -1);
     }
   }
   //*/
@@ -184,7 +185,7 @@ public class Garrison extends Venue implements Economy {
   }
   
   
-  public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
+  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
     final String CAT_DRILLS = "DRILLS";
     final VenueDescription d = new VenueDescription(
       this, CAT_STATUS, CAT_STAFF, CAT_DRILLS, CAT_UPGRADES
@@ -202,7 +203,7 @@ public class Garrison extends Venue implements Economy {
   
   
   public String fullName() {
-    return "Garrison" ;
+    return "Garrison";
   }
   
   
@@ -214,12 +215,12 @@ public class Garrison extends Venue implements Economy {
   public String helpInfo() {
     return
       "The Garrison sends regular patrols of sentries to enforce the peace "+
-      "and keep a watch out for raiders or outlaws." ;
+      "and keep a watch out for raiders or outlaws.";
   }
   
   
   public String buildCategory() {
-    return UIConstants.TYPE_MILITANT ;
+    return UIConstants.TYPE_MILITANT;
   }
 }
 

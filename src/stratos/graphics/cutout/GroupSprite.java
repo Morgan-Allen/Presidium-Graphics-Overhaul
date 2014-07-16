@@ -25,8 +25,8 @@ public class GroupSprite extends Sprite {
   private static boolean verbose = false;
   
   
-  protected Stack <Sprite> modules = new Stack <Sprite> () ;
-  protected Stack <Vec3D>  offsets = new Stack <Vec3D>  () ;
+  protected Stack <Sprite> modules = new Stack <Sprite> ();
+  protected Stack <Vec3D>  offsets = new Stack <Vec3D>  ();
   private Vec3D lastPosition = null;
   private int sortMode = SORT_BY_Z_ORDER;
   
@@ -35,27 +35,27 @@ public class GroupSprite extends Sprite {
   
   
   public void loadFrom(DataInputStream in) throws Exception {
-    super.loadFrom(in) ;
+    super.loadFrom(in);
     this.sortMode = in.read();
-    final int numMods = in.readInt() ;
-    for (int i = numMods ; i-- > 0 ;) {
-      final Sprite sprite = ModelAsset.loadSprite(in) ;
-      final Vec3D off = new Vec3D().loadFrom(in) ;
-      modules.addLast(sprite) ;
-      offsets.addLast(off) ;
+    final int numMods = in.readInt();
+    for (int i = numMods; i-- > 0;) {
+      final Sprite sprite = ModelAsset.loadSprite(in);
+      final Vec3D off = new Vec3D().loadFrom(in);
+      modules.addLast(sprite);
+      offsets.addLast(off);
     }
   }
   
   
   public void saveTo(DataOutputStream out) throws Exception {
-    super.saveTo(out) ;
+    super.saveTo(out);
     out.write(sortMode);
-    out.writeInt(modules.size()) ;
-    final Iterator <Sprite> overMods = modules.iterator() ;
-    final Iterator <Vec3D> overOffs = offsets.iterator() ;
+    out.writeInt(modules.size());
+    final Iterator <Sprite> overMods = modules.iterator();
+    final Iterator <Vec3D> overOffs = offsets.iterator();
     while (overMods.hasNext()) {
-      ModelAsset.saveSprite(overMods.next(), out) ;
-      overOffs.next().saveTo(out) ;
+      ModelAsset.saveSprite(overMods.next(), out);
+      overOffs.next().saveTo(out);
     }
   }
   
@@ -83,17 +83,17 @@ public class GroupSprite extends Sprite {
   
   
   public void clearAllAttachments() {
-    modules.clear() ;
-    offsets.clear() ;
+    modules.clear();
+    offsets.clear();
     lastPosition = null;
   }
   
   
   public void detach(Sprite sprite) {
-    final int index = modules.indexOf(sprite) ;
-    if (index == -1) return ;
-    modules.removeIndex(index) ;
-    offsets.removeIndex(index) ;
+    final int index = modules.indexOf(sprite);
+    if (index == -1) return;
+    modules.removeIndex(index);
+    offsets.removeIndex(index);
     lastPosition = null;
   }
   
@@ -104,18 +104,18 @@ public class GroupSprite extends Sprite {
   
   
   public int indexOf(Sprite sprite) {
-    if (sprite == null) return -1 ;
-    int i = 0 ;
+    if (sprite == null) return -1;
+    int i = 0;
     for (Sprite h : modules) {
-      if (h == sprite) return i ; else i++ ;
+      if (h == sprite) return i; else i++;
     }
-    return -1 ;
+    return -1;
   }
   
   
   public Sprite atIndex(int n) {
-    if (n == -1) return null ;
-    return modules.atIndex(n) ;
+    if (n == -1) return null;
+    return modules.atIndex(n);
   }
   
   
@@ -123,7 +123,7 @@ public class GroupSprite extends Sprite {
   /**  Rendering and updates-
     */
   public void setAnimation(String animName, float progress, boolean loop) {
-    for (Sprite module : modules) module.setAnimation(animName, progress, true) ;
+    for (Sprite module : modules) module.setAnimation(animName, progress, true);
   }
   
   

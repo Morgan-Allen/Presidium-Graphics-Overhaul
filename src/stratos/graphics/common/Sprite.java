@@ -43,9 +43,9 @@ public abstract class Sprite {
   
   
   public void matchTo(Sprite s) {
-    position.setTo(s.position) ;
-    scale = s.scale ;
-    fog = s.fog ;
+    position.setTo(s.position);
+    scale = s.scale;
+    fog = s.fog;
     colour = s.colour;
   }
   

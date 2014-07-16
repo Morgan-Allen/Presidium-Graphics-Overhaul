@@ -4,7 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package stratos.game.actors ;
+package stratos.game.actors;
 import stratos.game.civilian.Accountable;
 import stratos.game.common.*;
 import stratos.util.*;
@@ -60,58 +60,58 @@ public class Relation {
   
   
   
-  final public Accountable object, subject ;
-  final private int hash ;
+  final public Accountable object, subject;
+  final private int hash;
   
-  private float attitude = 0, novelty = 0 ;
-  private int type = TYPE_GENERIC ;
+  private float attitude = 0, novelty = 0;
+  private int type = TYPE_GENERIC;
   
   
   public Relation(
     Accountable object, Accountable subject, float initLevel, float initNovelty
   ) {
-    this.object = object ;
-    this.subject = subject ;
+    this.object = object;
+    this.subject = subject;
     
-    this.hash = Table.hashFor(object, subject) ;
+    this.hash = Table.hashFor(object, subject);
     this.attitude = initLevel * MAX_VALUE;
     this.novelty = initNovelty * MAX_VALUE;
   }
   
   
   public boolean equals(Object o) {
-    final Relation r = (Relation) o ;
-    return r.object == object && r.subject == subject ;
+    final Relation r = (Relation) o;
+    return r.object == object && r.subject == subject;
   }
   
   
   public int hashCode() {
-    return hash ;
+    return hash;
   }
   
   
   
   private Relation(Session s) throws Exception {
-    object = (Accountable) s.loadObject() ;
-    subject = (Accountable) s.loadObject() ;
-    hash = Table.hashFor(object, subject) ;
-    attitude = s.loadFloat() ;
+    object = (Accountable) s.loadObject();
+    subject = (Accountable) s.loadObject();
+    hash = Table.hashFor(object, subject);
+    attitude = s.loadFloat();
     novelty = s.loadFloat();
-    type = s.loadInt() ;
+    type = s.loadInt();
   }
   
   
   public static Relation loadFrom(Session s) throws Exception {
-    return new Relation(s) ;
+    return new Relation(s);
   }
   
   
   public static void saveTo(Session s, Relation r) throws Exception {
-    s.saveObject((Session.Saveable) r.object ) ;
-    s.saveObject((Session.Saveable) r.subject) ;
-    s.saveFloat(r.attitude) ;
+    s.saveObject((Session.Saveable) r.object );
+    s.saveObject((Session.Saveable) r.subject);
+    s.saveFloat(r.attitude);
     s.saveFloat(r.novelty);
-    s.saveInt(r.type) ;
+    s.saveInt(r.type);
   }
   
   
@@ -126,7 +126,7 @@ public class Relation {
   
   
   public float value() {
-    return attitude / MAX_VALUE ;
+    return attitude / MAX_VALUE;
   }
   
   
@@ -136,13 +136,13 @@ public class Relation {
   
   
   public int type() {
-    return type ;
+    return type;
   }
   
   
   protected void initRelation(float attitude, int type) {
-    this.attitude = attitude ;
-    this.type = type ;
+    this.attitude = attitude;
+    this.type = type;
   }
   
   
@@ -192,7 +192,7 @@ public class Relation {
   
   
   public void setType(int type) {
-    this.type = type ;
+    this.type = type;
   }
 
   
@@ -200,9 +200,9 @@ public class Relation {
     if (r == null) return "None";
     final float
       attSpan = MAX_VALUE * 2,
-      level   = (MAX_VALUE - r.attitude) / attSpan ;
-    final int DL = DESCRIPTORS.length ;
-    return DESCRIPTORS[Visit.clamp((int) (level * (DL + 1)), DL)] ;
+      level   = (MAX_VALUE - r.attitude) / attSpan;
+    final int DL = DESCRIPTORS.length;
+    return DESCRIPTORS[Visit.clamp((int) (level * (DL + 1)), DL)];
   }
   
   

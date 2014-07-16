@@ -10,6 +10,8 @@ import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.building.*;
+import stratos.game.plans.Audit;
+import stratos.game.plans.Patrolling;
 import stratos.game.tactical.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -26,30 +28,30 @@ public class EnforcerBloc extends Venue implements Economy {
   
   final public static ModelAsset MODEL = CutoutModel.fromImage(
     EnforcerBloc.class, "media/Buildings/physician/enforcer_bloc.png", 3, 3
-  ) ;
+  );
   final static ImageAsset ICON = ImageAsset.fromImage(
     "media/GUI/Buttons/audit_office_button.gif", EnforcerBloc.class
-  ) ;
+  );
   
   
   public EnforcerBloc(Base base) {
-    super(3, 3, ENTRANCE_EAST, base) ;
+    super(3, 3, ENTRANCE_EAST, base);
     structure.setupStats(
       450, 2, 450,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
-    ) ;
-    personnel.setShiftType(SHIFTS_BY_DAY) ;
-    this.attachSprite(MODEL.makeSprite()) ;
+    );
+    personnel.setShiftType(SHIFTS_BY_DAY);
+    this.attachSprite(MODEL.makeSprite());
   }
   
   
   public EnforcerBloc(Session s) throws Exception {
-    super(s) ;
+    super(s);
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
+    super.saveState(s);
   }
   
   
@@ -59,8 +61,8 @@ public class EnforcerBloc extends Venue implements Economy {
     */
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
     EnforcerBloc.class, "audit_office_upgrades"
-  ) ;
-  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES ; }
+  );
+  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
     PRESS_OFFICE = new Upgrade(
       "Press Office",
@@ -68,7 +70,7 @@ public class EnforcerBloc extends Venue implements Economy {
       "your employ, helping to gather information and fortify base morale.",
       150, null, 1, null, ALL_UPGRADES
     )
-  ;
+ ;
   //  TODO:  Include others.
   //  Rehab Program
   //  Holding Cells
@@ -105,12 +107,12 @@ public class EnforcerBloc extends Venue implements Economy {
   
   
   public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates) ;
+    super.updateAsScheduled(numUpdates);
   }
   
   
   public Background[] careers() {
-    return new Background[] { Backgrounds.AUDITOR, Backgrounds.ENFORCER } ;
+    return new Background[] { Backgrounds.AUDITOR, Backgrounds.ENFORCER };
   }
   
   
@@ -123,7 +125,7 @@ public class EnforcerBloc extends Venue implements Economy {
   /**  Rendering and interface methods-
     */
   public String fullName() {
-    return "Enforcer Bloc" ;
+    return "Enforcer Bloc";
   }
   
   

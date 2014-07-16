@@ -104,7 +104,7 @@ public class TerrainSet {
       minX = (int) ((area.xpos() + 1) / chunkSize),
       minY = (int) ((area.ypos() + 1) / chunkSize),
       dimX = 1 + (int) ((area.xmax() - 1) / chunkSize) - minX,
-      dimY = 1 + (int) ((area.ymax() - 1) / chunkSize) - minY ;
+      dimY = 1 + (int) ((area.ymax() - 1) / chunkSize) - minY;
     for (Coord c : Visit.grid(minX, minY, dimX, dimY, 1)) {
       for (TerrainChunk patch : chunks[c.x][c.y]) {
         patch.readyFor(rendering);

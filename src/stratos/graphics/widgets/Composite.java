@@ -2,6 +2,7 @@
 
 
 package stratos.graphics.widgets;
+import stratos.start.Disposal;
 import stratos.graphics.common.*;
 import stratos.util.*;
 
@@ -18,6 +19,16 @@ public class Composite {
   final static int MAX_CACHED = 40;
   static Table <String, Composite> recentTable = new Table();
   static Stack <Composite> recent = new Stack <Composite> ();
+  
+  final static Disposal DISPOSAL = new Disposal(false) {
+    protected void performAssetSetup() {}
+    protected void performAssetDisposal() {
+      for (Composite c : recent) c.dispose();
+      recent.clear();
+      recentTable.clear();
+    }
+  };
+  
 
   
   private String tableKey;
@@ -62,13 +73,6 @@ public class Composite {
   private void dispose() {
     drawn.dispose();
     if (composed != null) composed.dispose();
-  }
-  
-  
-  public static void wipeCache() {
-    for (Composite c : recent) c.dispose();
-    recent.clear();
-    recentTable.clear();
   }
   
   

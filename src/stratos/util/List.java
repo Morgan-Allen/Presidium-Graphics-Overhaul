@@ -4,9 +4,9 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package stratos.util ;
+package stratos.util;
 import java.lang.reflect.Array;
-import java.util.Iterator ;
+import java.util.Iterator;
 
 
 /**  This class essentially implements a doubly-linked list, the distinction
@@ -19,106 +19,106 @@ import java.util.Iterator ;
   */
 public class List <T> extends ListEntry <T> implements Series <T> {
   
-  int size ;
+  int size;
   
   
   /**  Returns an array with identical contents to this List- unless the list
     *  has zero elements- in which case null is returned.
     */
   final public T[] toArray(Class typeClass) {
-    final Object[] array = (Object[]) Array.newInstance(typeClass, size) ;
-    int i = 0 ; for (T t : this) array[i++] = t ;
-    return (T[]) array ;
+    final Object[] array = (Object[]) Array.newInstance(typeClass, size);
+    int i = 0; for (T t : this) array[i++] = t;
+    return (T[]) array;
   }
   
   final public Object[] toArray() {
-    return toArray(Object.class) ;
+    return toArray(Object.class);
   }
   
-  final public void add(final T r) { addLast(r) ; }
+  final public void add(final T r) { addLast(r); }
   
   
   /**  Adds the given member at the head of the list.
     */
   final public ListEntry <T> addFirst(final T r) {
-    return new ListEntry <T> (r, this, this, next) ;
+    return new ListEntry <T> (r, this, this, next);
   }
   
   /**  Adds the given member at the tail of the list.
     */
   final public ListEntry <T> addLast(final T r) {
-    return new ListEntry <T> (r, this, last, this) ;
+    return new ListEntry <T> (r, this, last, this);
   }
   
   /**  Adds all the given members at the head of the list.
     */
   final public void addFirst(final T[] r) {
-    for (int n = r.length ; n-- > 0 ;) addFirst(r[n]) ;
+    for (int n = r.length; n-- > 0;) addFirst(r[n]);
   }
   
   /**  Adds all the given members at the tail of the list.
     */
   final public void addLast(final T[] r) {
-    for(T t : r) addLast(t) ;
+    for(T t : r) addLast(t);
   }
   
   /**  Removes the first element from this list.
     */
   final public T removeFirst() {
-    return removeEntry(next).refers ;
+    return removeEntry(next).refers;
   }
   
   /**  Removes the first element from this list.
     */
   final public T removeLast() {
-    return removeEntry(last).refers ;
+    return removeEntry(last).refers;
   }
 
   /**  Returns the size of this list.
     */
   final public int size() {
-    return size ;
+    return size;
   }
   
   /**  Adds all the given list's elements to this list's own, starting from the
     *  front.  Order is preserved.  The argument list is cleared.
     */
   final public void mergeAll(final List <T> c) {
-    for (ListEntry <T> l = c ; (l = l.next) != c ;) l.list = this ;
-    couple(c.last, next) ;
-    couple(this, c.next) ;
-    size += c.size ;
-    c.clear() ;
+    for (ListEntry <T> l = c; (l = l.next) != c;) l.list = this;
+    couple(c.last, next);
+    couple(this, c.next);
+    size += c.size;
+    c.clear();
   }
   
   /**  Returns the entry at the specified place in the list.
     */
   final public ListEntry <T> getEntryAt(final int n) {
-    int i = 0 ;
-    for (ListEntry <T> l = this ; (l = l.next) != this ; i++)
-      if (i == n) return l ;
-    return null ;
+    int i = 0;
+    for (ListEntry <T> l = this; (l = l.next) != this; i++)
+      if (i == n) return l;
+    return null;
   }
   
   
   /**  Return the index of the given entry-
     */
   final public int indexOf(T t) {
-    int i = 0 ;
-    for (ListEntry <T> l = this ; (l = l.next) != this ; i++)
-      if (t == l.refers) return i ;
-    return -1 ;
+    int i = 0;
+    for (ListEntry <T> l = this; (l = l.next) != this; i++)
+      if (t == l.refers) return i;
+    return -1;
   }
   
   
   /**  Returns the member at the specified index-
     */
   final public T atIndex(int i) {
-    if (i < 0 || i >= size) return null ;
-    int d = 0 ;
-    for (ListEntry <T> l = this ; (l = l.next) != this ; d++)
-      if (d == i) return l.refers ;
-    return null ;
+    if (i < 0 || i >= size) return null;
+    int d = 0;
+    for (ListEntry <T> l = this; (l = l.next) != this; d++)
+      if (d == i) return l.refers;
+    return null;
   }
   
   
@@ -128,64 +128,64 @@ public class List <T> extends ListEntry <T> implements Series <T> {
     */
   final public ListEntry <T> removeEntry(final ListEntry <T> l) {
     if ((l == null) || (l.list != this)) {
-      //I.r("Invalid list entry!") ;
-      return null ;
+      //I.r("Invalid list entry!");
+      return null;
     }
-    couple(l.last, l.next) ;
+    couple(l.last, l.next);
     //
-    //  I actually don't want this:  "l.last = l.next = null ;"
+    //  I actually don't want this:  "l.last = l.next = null;"
     //  ...Because then I can't interate and remove at the same time!
-    l.list = null ;
-    size-- ;
-    return l ;
+    l.list = null;
+    size--;
+    return l;
   }
   
   /**  Adds the specified element directly after the given entry.  (This method
     *  has no effect if the given entry does not belong to the list.)
     */
   final public ListEntry <T> addAfter(final ListEntry <T> l, final T r) {
-    if ((l == null) || (l.list != this)) return null ;
-    return new ListEntry <T> (r, this, l, l.next) ;
+    if ((l == null) || (l.list != this)) return null;
+    return new ListEntry <T> (r, this, l, l.next);
   }
   
   /**  Empties this list of all members.
     */
   final public void clear() {
-    for (ListEntry <T> l = this ; (l = l.next) != this ;)
-      couple(l.last, l.next) ;
-    size = 0 ;
+    for (ListEntry <T> l = this; (l = l.next) != this;)
+      couple(l.last, l.next);
+    size = 0;
   }
   
   /**  Returns an exact copy of this list.
     */
   final public List <T> copy() {
-    final List <T> list = new List <T> () ;
-    for (T t : this) list.addFirst(t) ;
-    return list ;
+    final List <T> list = new List <T> ();
+    for (T t : this) list.addFirst(t);
+    return list;
   }
   
   /**  Finds the entry matching the given element, if present.  If more than one
     *  exists, only the first is returned.
     */
   final public ListEntry <T> match(final T r) {
-    for (ListEntry <T> l = this ; (l = l.next) != this ;)
+    for (ListEntry <T> l = this; (l = l.next) != this;)
       if (l.refers == r)
-        return l ;
-    return null ;
+        return l;
+    return null;
   }
   
   
   /**  Returns whether the given element is present in the list.
     */
   final public boolean includes(final T r) {
-    return match(r) != null ;
+    return match(r) != null;
   }
   
   
   /**  Includes the given element in this list if not already present.
     */
   final public void include(final T r) {
-    if (match(r) == null) addLast(r) ;
+    if (match(r) == null) addLast(r);
   }
   
   
@@ -193,17 +193,17 @@ public class List <T> extends ListEntry <T> implements Series <T> {
     *  once, only the first is returned.
     */
   final public void remove(final T r) {
-    removeEntry(match(r)) ;
+    removeEntry(match(r));
   }
   
   
   final public T first() {
-    return next.refers ;
+    return next.refers;
   }
   
   
   final public T last() {
-    return last.refers ;
+    return last.refers;
   }
   
   
@@ -212,7 +212,7 @@ public class List <T> extends ListEntry <T> implements Series <T> {
     *  because you might not need it, and it's default return value is zero.
     */
   protected float queuePriority(final T r) {
-    return 0 ;
+    return 0;
   }
   
   
@@ -220,11 +220,11 @@ public class List <T> extends ListEntry <T> implements Series <T> {
     *  order) within the list.
     */
   final public ListEntry <T> queueAdd(final T r) {
-    ListEntry <T> l = this ;
+    ListEntry <T> l = this;
     while ((l = l.next) != this) {
       if (queuePriority(r) > queuePriority(l.refers)) break;
     }
-    return new ListEntry <T> (r, this, l.last, l) ;
+    return new ListEntry <T> (r, this, l.last, l);
   }
   
   
@@ -307,36 +307,36 @@ public class List <T> extends ListEntry <T> implements Series <T> {
     */
   final public Iterator <T> iterator() {
     final class iterates implements Iterator <T> {
-      ListEntry <T> current = list ;
+      ListEntry <T> current = list;
       //
       public boolean hasNext() {
-        return (current.next != list) ;
+        return (current.next != list);
       }
       //
       public T next() {
-        current = current.next ;
-        return current.refers ;
+        current = current.next;
+        return current.refers;
       }
       //
       public void remove() {
-        removeEntry(current) ;
-        current = current.next ;
+        removeEntry(current);
+        current = current.next;
       }
     }
-    return new iterates() ;
+    return new iterates();
   }
   
   
   /**  Returns this list in printable form.
     */
   final public String toString() {
-    final StringBuffer sB = new StringBuffer("( ") ;
+    final StringBuffer sB = new StringBuffer("( ");
     for (T t : this) {
-      sB.append(t) ;
-      if (t != last.refers) sB.append(", ") ;
+      sB.append(t);
+      if (t != last.refers) sB.append(", ");
     }
-    sB.append(" )") ;
-    return sB.toString() ;
+    sB.append(" )");
+    return sB.toString();
   }
   
   
@@ -345,38 +345,38 @@ public class List <T> extends ListEntry <T> implements Series <T> {
     */
   public static void main(String a[]) {
     List <Integer> list = new List <Integer> () {
-      protected float queuePriority(Integer i) { return i.intValue() ; }
-    } ;
+      protected float queuePriority(Integer i) { return i.intValue(); }
+    };
     
     for (int n = 32; n-- > 0;) list.add(new Integer(Rand.index(32)));
     list.queueSort();
     
     /*
-    list.addLast(1) ;
-    list.addLast(4) ;
-    list.addLast(3) ;
-    list.addLast(5) ;
-    list.addLast(2) ;
-    list.addLast(0) ;
-    list.addLast(new Integer(0)) ;
-    list.addLast(new Integer(0)) ;
+    list.addLast(1);
+    list.addLast(4);
+    list.addLast(3);
+    list.addLast(5);
+    list.addLast(2);
+    list.addLast(0);
+    list.addLast(new Integer(0));
+    list.addLast(new Integer(0));
     
-    list.queueSort() ;
+    list.queueSort();
     //*/
     
     
     /*
     for (int i : list) {
       //if (i == 4) list.remove(i);
-      I.say("Entry is: "+i) ;
+      I.say("Entry is: "+i);
     }
-    I.say("  List contents: " + list) ;
-    I.say("  First member is:  " + list.removeFirst()) ;
-    I.say("  List contents: " + list) ;
-    for (int n = 2 ; n-- > 0 ;)
-      I.say("  First member is:  " + list.removeFirst()) ;
-    list.clear() ;
-    I.say("  List contents: " + list) ;
+    I.say("  List contents: " + list);
+    I.say("  First member is:  " + list.removeFirst());
+    I.say("  List contents: " + list);
+    for (int n = 2; n-- > 0;)
+      I.say("  First member is:  " + list.removeFirst());
+    list.clear();
+    I.say("  List contents: " + list);
     //*/
   }
 }

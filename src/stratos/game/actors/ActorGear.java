@@ -4,7 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package stratos.game.actors ;
+package stratos.game.actors;
 import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.graphics.common.AnimNames;
@@ -19,7 +19,7 @@ public class ActorGear extends Inventory implements Economy {
   final public static float
     SHIELD_CHARGE     = 5f,
     SHIELD_SHORTS     = 2f,
-    SHIELD_REGEN_TIME = 10f ;
+    SHIELD_REGEN_TIME = 10f;
   //*/
   final public static float
     SHIELD_REGEN_TIME = World.STANDARD_HOUR_LENGTH,
@@ -27,56 +27,56 @@ public class ActorGear extends Inventory implements Economy {
   final public static int
     MAX_RATIONS    = 5,
     MAX_FOOD_TYPES = 5,
-    MAX_FUEL_CELLS = 5 ;
+    MAX_FUEL_CELLS = 5;
   
-  private static boolean verbose = false ;
+  private static boolean verbose = false;
   
   
-  final Actor actor ;
-  private float baseDamage, baseArmour ;
-  private Item device = null ;
-  private Item outfit = null ;
-  private float fuelCells = 0, currentShields ;
+  final Actor actor;
+  private float baseDamage, baseArmour;
+  private Item device = null;
+  private Item outfit = null;
+  private float fuelCells = 0, currentShields;
   private float encumbrance = -1;
   
   
   public ActorGear(Actor actor) {
-    super(actor) ;
-    this.actor = actor ;
+    super(actor);
+    this.actor = actor;
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
-    s.saveFloat(baseDamage) ;
-    s.saveFloat(baseArmour) ;
-    Item.saveTo(s, device) ;
-    Item.saveTo(s, outfit) ;
-    s.saveFloat(fuelCells) ;
-    s.saveFloat(currentShields) ;
+    super.saveState(s);
+    s.saveFloat(baseDamage);
+    s.saveFloat(baseArmour);
+    Item.saveTo(s, device);
+    Item.saveTo(s, outfit);
+    s.saveFloat(fuelCells);
+    s.saveFloat(currentShields);
     s.saveFloat(encumbrance);
   }
   
 
   public void loadState(Session s) throws Exception {
-    super.loadState(s) ;
-    baseDamage = s.loadFloat() ;
-    baseArmour = s.loadFloat() ;
-    device = Item.loadFrom(s) ;
-    outfit = Item.loadFrom(s) ;
-    fuelCells = s.loadFloat() ;
-    currentShields = s.loadFloat() ;
+    super.loadState(s);
+    baseDamage = s.loadFloat();
+    baseArmour = s.loadFloat();
+    device = Item.loadFrom(s);
+    outfit = Item.loadFrom(s);
+    fuelCells = s.loadFloat();
+    currentShields = s.loadFloat();
     encumbrance = s.loadFloat();
   }
   
   
   public void setDamage(float d) {
-    baseDamage = d ;
+    baseDamage = d;
   }
   
   
   public void setArmour(float a) {
-    baseArmour = a ;
+    baseArmour = a;
   }
   
   
@@ -84,15 +84,15 @@ public class ActorGear extends Inventory implements Economy {
   /**  Maintenance, updates and spring cleaning-
     */
   public void updateGear(int numUpdates) {
-    if (Float.isNaN(credits)) credits = 0 ;
-    if (Float.isNaN(taxed)) taxed = 0 ;
+    if (Float.isNaN(credits)) credits = 0;
+    if (Float.isNaN(taxed)) taxed = 0;
     
-    //if (verbose) I.sayAbout(actor, "Updating gear...") ;
-    if (outfit != null) regenerateShields() ;
-    else currentShields = 0 ;
+    //if (verbose) I.sayAbout(actor, "Updating gear...");
+    if (outfit != null) regenerateShields();
+    else currentShields = 0;
     for (Item item : allItems()) {
       if (item.refers instanceof Action) {
-        //if (verbose) I.sayAbout(actor, "  Applying item effect: "+item.refers) ;
+        //if (verbose) I.sayAbout(actor, "  Applying item effect: "+item.refers);
         ((Action) item.refers).applyEffect();
       }
     }
@@ -108,22 +108,22 @@ public class ActorGear extends Inventory implements Economy {
   
   
   public boolean addItem(Item item) {
-    if (item == null || item.amount == 0) return false ;
+    if (item == null || item.amount == 0) return false;
     encumbrance = -1;
     
-    final int oldAmount = (int) amountOf(item) ;
-    if (item.refers == actor) item = Item.withReference(item, null) ;
-    if      (item.type instanceof DeviceType) equipDevice(item) ;
-    else if (item.type instanceof OutfitType) equipOutfit(item) ;
-    else if (! super.addItem(item)) return false ;
+    final int oldAmount = (int) amountOf(item);
+    if (item.refers == actor) item = Item.withReference(item, null);
+    if      (item.type instanceof DeviceType) equipDevice(item);
+    else if (item.type instanceof OutfitType) equipOutfit(item);
+    else if (! super.addItem(item)) return false;
 
-    final int inc = ((int) amountOf(item)) - oldAmount ;
+    final int inc = ((int) amountOf(item)) - oldAmount;
     if (actor.inWorld() && inc != 0 && ! actor.indoors()) {
-      String phrase = inc >= 0 ? "+" : "-" ;
-      phrase+=" "+Item.withAmount(item, inc) ;
-      actor.chat.addPhrase(phrase) ;
+      String phrase = inc >= 0 ? "+" : "-";
+      phrase+=" "+Item.withAmount(item, inc);
+      actor.chat.addPhrase(phrase);
     }
-    return true ;
+    return true;
   }
   
   
@@ -145,9 +145,9 @@ public class ActorGear extends Inventory implements Economy {
   
   public float encumbrance() {
     if (encumbrance != -1) return encumbrance;
-    float sum = 0 ; for (Item i : allItems()) sum += i.amount ;
-    sum /= actor.health.maxHealth() * (1 - actor.health.fatigueLevel()) ;
-    return encumbrance = sum * sum ;
+    float sum = 0; for (Item i : allItems()) sum += i.amount;
+    sum /= actor.health.maxHealth() * (1 - actor.health.fatigueLevel());
+    return encumbrance = sum * sum;
   }
   
   
@@ -157,43 +157,43 @@ public class ActorGear extends Inventory implements Economy {
     *  physical brawn.
     */
   public float attackDamage() {
-    final Item weapon = deviceEquipped() ;
-    final float brawnBonus = actor.traits.traitLevel(MUSCULAR) / 4 ;
-    if (weapon == null) return (brawnBonus / 2) + baseDamage ;
-    final DeviceType type = (DeviceType) weapon.type ;
-    final float damage = type.baseDamage * (weapon.quality + 2f) / 4 ;
-    if (type.hasProperty(MELEE)) return damage + brawnBonus + baseDamage ;
-    else return damage + baseDamage ;
+    final Item weapon = deviceEquipped();
+    final float brawnBonus = actor.traits.traitLevel(MUSCULAR) / 4;
+    if (weapon == null) return (brawnBonus / 2) + baseDamage;
+    final DeviceType type = (DeviceType) weapon.type;
+    final float damage = type.baseDamage * (weapon.quality + 2f) / 4;
+    if (type.hasProperty(MELEE)) return damage + brawnBonus + baseDamage;
+    else return damage + baseDamage;
   }
   
   
   public float attackRange() {
     if (deviceType().hasProperty(RANGED))
-      return actor.health.sightRange() ;
+      return actor.health.sightRange();
     else
-      return 1 ;
+      return 1;
   }
   
   
   public boolean meleeWeapon() {
-    final Item weapon = deviceEquipped() ;
-    if (weapon == null) return true ;
-    if (deviceType().hasProperty(MELEE)) return true ;
-    return false ;
+    final Item weapon = deviceEquipped();
+    if (weapon == null) return true;
+    if (deviceType().hasProperty(MELEE)) return true;
+    return false;
   }
   
   
   public boolean physicalWeapon() {
-    final Item weapon = deviceEquipped() ;
-    if (weapon == null) return true ;
-    if (deviceType().hasProperty(PHYSICAL)) return true ;
-    return false ;
+    final Item weapon = deviceEquipped();
+    if (weapon == null) return true;
+    if (deviceType().hasProperty(PHYSICAL)) return true;
+    return false;
   }
   
   
   public boolean armed() {
-    final DeviceType type = deviceType() ;
-    return (type != null) && type.baseDamage > 0 ;
+    final DeviceType type = deviceType();
+    return (type != null) && type.baseDamage > 0;
   }
   
   
@@ -210,13 +210,13 @@ public class ActorGear extends Inventory implements Economy {
     *  their reflexes.
     */
   public float armourRating() {
-    final Item armour = outfitEquipped() ;
-    float reflexBonus = actor.traits.traitLevel(MOTOR) / 4 ;
-    if (armour == null) return reflexBonus + baseArmour ;
+    final Item armour = outfitEquipped();
+    float reflexBonus = actor.traits.traitLevel(MOTOR) / 4;
+    if (armour == null) return reflexBonus + baseArmour;
     
-    final OutfitType type = (OutfitType) armour.type ;
-    reflexBonus *= (20 - type.defence) / 10f ;
-    final float rating = type.defence * (armour.quality + 1) / 4 ;
+    final OutfitType type = (OutfitType) armour.type;
+    reflexBonus *= (20 - type.defence) / 10f;
+    final float rating = type.defence * (armour.quality + 1) / 4;
     
     if (verbose && I.talkAbout == actor) {
       I.say("\nBase armour: "+type.defence);
@@ -224,20 +224,20 @@ public class ActorGear extends Inventory implements Economy {
       I.say("  Quality rating: "+rating);
     }
     
-    return rating + baseArmour + Math.max(0, reflexBonus) ;
+    return rating + baseArmour + Math.max(0, reflexBonus);
   }
   
   
   /**  Shield depletion and regeneration are handled here-
     */
   public float shieldCharge() {
-    return currentShields ;
+    return currentShields;
   }
   
   
   public void boostShields(float boost, boolean capped) {
-    currentShields += boost ;
-    if (capped) currentShields = Visit.clamp(currentShields, 0, maxShields()) ;
+    currentShields += boost;
+    if (capped) currentShields = Visit.clamp(currentShields, 0, maxShields());
   }
   
   
@@ -253,7 +253,7 @@ public class ActorGear extends Inventory implements Economy {
   
   
   public float fuelCells() {
-    return fuelCells ;
+    return fuelCells;
   }
   
   
@@ -265,9 +265,9 @@ public class ActorGear extends Inventory implements Economy {
   
   
   public float maxShields() {
-    if (outfit == null) return 0 ;
+    if (outfit == null) return 0;
     final float bulk = actor.health.baseBulk() / ActorHealth.DEFAULT_BULK;
-    final OutfitType type = (OutfitType) outfit.type ;
+    final OutfitType type = (OutfitType) outfit.type;
     return type.shieldBonus * bulk * (outfit.quality + 2f) / 4;
   }
   
@@ -302,13 +302,13 @@ public class ActorGear extends Inventory implements Economy {
   
   
   public Item deviceEquipped() {
-    return device ;
+    return device;
   }
   
   
   public DeviceType deviceType() {
-    if (device == null) return null ;
-    return (DeviceType) device.type ;
+    if (device == null) return null;
+    return (DeviceType) device.type;
   }
   
   
@@ -316,16 +316,16 @@ public class ActorGear extends Inventory implements Economy {
   /**  Here, we deal with applying/removing Outfits-
     */
   public void equipOutfit(Item outfit) {
-    if (! (outfit.type instanceof OutfitType)) return ;
-    final Actor actor = (Actor) owner ;
-    final SolidSprite sprite = (SolidSprite) actor.sprite() ;
-    final Item oldItem = this.outfit ;
-    this.outfit = outfit ;
-    if (hasShields()) fuelCells = MAX_FUEL_CELLS ;
+    if (! (outfit.type instanceof OutfitType)) return;
+    final Actor actor = (Actor) owner;
+    final SolidSprite sprite = (SolidSprite) actor.sprite();
+    final Item oldItem = this.outfit;
+    this.outfit = outfit;
+    if (hasShields()) fuelCells = MAX_FUEL_CELLS;
     //
     //  Attach/detach the appropriate media-
     if (oldItem != null) {
-      final OutfitType type = (OutfitType) oldItem.type ;
+      final OutfitType type = (OutfitType) oldItem.type;
       //  TODO:  FIGURE THIS OUT
       /*
       if (type.skin != null) sprite.applyOverlay(
@@ -334,26 +334,26 @@ public class ActorGear extends Inventory implements Economy {
       //*/
     }
     if (outfit != null) {
-      final OutfitType type = (OutfitType) outfit.type ;
+      final OutfitType type = (OutfitType) outfit.type;
       //  TODO:  FIGURE THIS OUT
       /*
       if (type.skin != null) sprite.applyOverlay(
         type.skin.asTexture(), AnimNames.MAIN_BODY, false
       );
       //*/
-      currentShields = maxShields() ;
+      currentShields = maxShields();
     }
   }
   
   
   public Item outfitEquipped() {
-    return outfit ;
+    return outfit;
   }
   
   
   public OutfitType outfitType() {
-    if (outfit == null) return null ;
-    return (OutfitType) outfit.type ;
+    if (outfit == null) return null;
+    return (OutfitType) outfit.type;
   }
 }
 

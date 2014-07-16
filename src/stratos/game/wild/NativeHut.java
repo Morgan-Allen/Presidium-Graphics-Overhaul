@@ -1,20 +1,20 @@
 
 
 
-package stratos.game.wild ;
-import stratos.game.actors.* ;
-import stratos.game.building.* ;
-import stratos.game.common.* ;
+package stratos.game.wild;
+import stratos.game.actors.*;
+import stratos.game.building.*;
+import stratos.game.common.*;
 import stratos.game.maps.*;
 
 import static stratos.game.actors.Backgrounds.*;  //  TODO:  Work on this.
 import stratos.game.campaign.Sectors;
 
-import stratos.graphics.common.* ;
-import stratos.graphics.cutout.* ;
-import stratos.graphics.widgets.* ;
-import stratos.user.* ;
-import stratos.util.* ;
+import stratos.graphics.common.*;
+import stratos.graphics.cutout.*;
+import stratos.graphics.widgets.*;
+import stratos.user.*;
+import stratos.util.*;
 
 
 //  You need openings for Hunters, Gatherers, and Chieftains.
@@ -27,7 +27,7 @@ import stratos.util.* ;
 public class NativeHut extends Venue {
   
   
-  final static String IMG_DIR = "media/Buildings/lairs and ruins/" ;
+  final static String IMG_DIR = "media/Buildings/lairs and ruins/";
   final static ModelAsset
     HUT_MODELS[][] = CutoutModel.fromImageGrid(
       NativeHut.class, IMG_DIR+"all_native_huts.png", 3, 3, 1, 1
@@ -38,15 +38,15 @@ public class NativeHut extends Venue {
     "Hqon (Children of Rust)",
     "Ai Baru (Sand Runners)",
     "Ybetsi (The Painted)"
-  } ;
+  };
   
   final static CutoutModel[][][] HABITAT_KEYS = {
     //Habitat.TUNDRA_FLORA_MODELS,
     Habitat.WASTES_FLORA_MODELS,
     Habitat.DESERT_FLORA_MODELS,
     Habitat.FOREST_FLORA_MODELS,
-  } ;
-  private static int nextVar = 0 ;
+  };
+  private static int nextVar = 0;
   
   
   final public static int
@@ -56,23 +56,23 @@ public class NativeHut extends Venue {
     TYPE_HUT    = 0,
     TYPE_HALL   = 1,
     TYPE_SHRINE = 2,
-    HUT_OCCUPANCY  = 2 ;
+    HUT_OCCUPANCY  = 2;
   
-  final int type, tribeID ;
+  final int type, tribeID;
   
   
   
   public static NativeHut newHut(NativeHall parent) {
     final NativeHut hut = new NativeHut(
       3, 2, TYPE_HUT, parent.tribeID, parent.base()
-    ) ;
-    parent.children.include(hut) ;
-    return hut ;
+    );
+    parent.children.include(hut);
+    return hut;
   }
   
   
   public static NativeHall newHall(int tribeID, Base base) {
-    return new NativeHall(tribeID, base) ;
+    return new NativeHall(tribeID, base);
   }
   
   
@@ -80,33 +80,33 @@ public class NativeHut extends Venue {
   protected NativeHut(
     int size, int height, int type, int tribeID, Base base
   ) {
-    super(size, height, ENTRANCE_SOUTH, base) ;
-    this.type = type ;
-    this.tribeID = tribeID ;
-    personnel.setShiftType(SHIFTS_ALWAYS) ;
+    super(size, height, ENTRANCE_SOUTH, base);
+    this.type = type;
+    this.tribeID = tribeID;
+    personnel.setShiftType(SHIFTS_ALWAYS);
     
-    final int varID = nextVar++ % 2 ;
-    ModelAsset model = null ;
-    if (type == TYPE_HUT ) model = HUT_MODELS[tribeID][varID] ;
-    if (type == TYPE_HALL) model = HUT_MODELS[tribeID][2] ;
-    attachModel(model) ;
-    sprite().scale = size ;
+    final int varID = nextVar++ % 2;
+    ModelAsset model = null;
+    if (type == TYPE_HUT ) model = HUT_MODELS[tribeID][varID];
+    if (type == TYPE_HALL) model = HUT_MODELS[tribeID][2];
+    attachModel(model);
+    sprite().scale = size;
   }
   
   
   
   public NativeHut(Session s) throws Exception {
-    super(s) ;
-    this.type = s.loadInt() ;
-    this.tribeID = s.loadInt() ;
-    sprite().scale = size ;
+    super(s);
+    this.type = s.loadInt();
+    this.tribeID = s.loadInt();
+    sprite().scale = size;
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
-    s.saveInt(type) ;
-    s.saveInt(tribeID) ;
+    super.saveState(s);
+    s.saveInt(type);
+    s.saveInt(tribeID);
   }
   
   
@@ -157,7 +157,7 @@ public class NativeHut extends Venue {
         int maxRuins = (minor ? 3 : 1) + Rand.index(3);
         final Batch <Venue> ruins = new Batch <Venue> ();
         while (maxRuins-- > 0) {
-          final Ruins r = new Ruins() ;
+          final Ruins r = new Ruins();
           Placement.establishVenue(r, centre.x, centre.y, true, world);
           if (r.inWorld()) {
             if (verbose) I.say("  Ruin established at: "+r.origin());
@@ -168,10 +168,10 @@ public class NativeHut extends Venue {
         
         //  TODO:  Slag/wreckage must be done in a distinct pass...
         for (Venue r : ruins) for (Tile t : world.tilesIn(r.area(), true)) {
-          Habitat h = Rand.yes() ? Habitat.CURSED_EARTH : Habitat.DUNE ;
-          world.terrain().setHabitat(t, h) ;
+          Habitat h = Rand.yes() ? Habitat.CURSED_EARTH : Habitat.DUNE;
+          world.terrain().setHabitat(t, h);
         }
-        populateArtilects(world, ruins, minor) ;
+        populateArtilects(world, ruins, minor);
         numSited++;
         return ruins.size() > 0;
       }
@@ -184,42 +184,42 @@ public class NativeHut extends Venue {
   public static Batch <NativeHut> establishSites(
     final int tribeID, final World world
   ) {
-    final Base natives = Base.baseWithName(world, Base.KEY_NATIVES, true) ;
-    final int res = World.SECTOR_SIZE / 2 ;
+    final Base natives = Base.baseWithName(world, Base.KEY_NATIVES, true);
+    final int res = World.SECTOR_SIZE / 2;
     final Batch <NativeHut> placed = new Batch <NativeHut> ();
     
     final RandomScan scan = new RandomScan(world.size / res) {
       protected void scanAt(int x, int y) {
-        Tile free = world.tileAt(x * res, y * res) ;
-        free = Spacing.pickRandomTile(free, res / 2, world) ;
-        free = Spacing.nearestOpenTile(free, free) ;
-        if (free == null) return ;
-        NativeHall hall = NativeHut.newHall(tribeID, natives) ;
+        Tile free = world.tileAt(x * res, y * res);
+        free = Spacing.pickRandomTile(free, res / 2, world);
+        free = Spacing.nearestOpenTile(free, free);
+        if (free == null) return;
+        NativeHall hall = NativeHut.newHall(tribeID, natives);
         
-        if (! Placement.findClearanceFor(hall, free, world)) return ;
-        hall.updatePopEstimate(world) ;
-        final int numHuts = hall.idealNumHuts() ;
+        if (! Placement.findClearanceFor(hall, free, world)) return;
+        hall.updatePopEstimate(world);
+        final int numHuts = hall.idealNumHuts();
         
-        if (numHuts <= 0) return ;
+        if (numHuts <= 0) return;
         if (Placement.establishVenue(hall, free, true, world) != null) {
-          populateHut(hall, hall) ;
+          populateHut(hall, hall);
           
-          for (int n = numHuts ; n-- > 0 ;) {
-            final NativeHut hut = NativeHut.newHut(hall) ;
-            Placement.establishVenue(hut, hall.origin(), true, world) ;
+          for (int n = numHuts; n-- > 0;) {
+            final NativeHut hut = NativeHut.newHut(hall);
+            Placement.establishVenue(hut, hall.origin(), true, world);
             
             if (hut.inWorld()) {
-              populateHut(hut, hall) ;
+              populateHut(hut, hall);
               placed.add(hut);
             }
           }
-          hall = null ;
+          hall = null;
         }
         
         //  TODO:  Also set up initial relationships.
       }
-    } ;
-    scan.doFullScan() ;
+    };
+    scan.doFullScan();
     
     return placed;
   }
@@ -227,33 +227,33 @@ public class NativeHut extends Venue {
   
   public static Batch <Actor> populateHut(NativeHut hut, NativeHall parent) {
     final Batch <Actor> populace = new Batch <Actor> ();
-    final World world = hut.world() ;
+    final World world = hut.world();
     final Background NB = NATIVE_BIRTH, NH = Sectors.PLANET_DIAPSOR;
-    Background cleric = Backgrounds.SHAMAN ;
+    Background cleric = Backgrounds.SHAMAN;
     /*
     if (parent.tribeID == TRIBE_WASTES || Rand.index(5) == 0) {
-      cleric = Rand.yes() ? Backgrounds.C CARGO_CULTIST : MUTANT_PARIAH ;
+      cleric = Rand.yes() ? Backgrounds.C CARGO_CULTIST : MUTANT_PARIAH;
     }
     //*/
     
-    int numHab = 1 + Rand.index(3) ;
+    int numHab = 1 + Rand.index(3);
     while (numHab-- > 0) {
-      boolean male = Rand.index(6) < 2 ;
-      Background b = null ;
+      boolean male = Rand.index(6) < 2;
+      Background b = null;
       if (parent == hut) {
-        b = male ? CHIEFTAIN : cleric ;
+        b = male ? CHIEFTAIN : cleric;
       }
       else {
-        b = male ? HUNTER : GATHERER ;
+        b = male ? HUNTER : GATHERER;
       }
-      if (Rand.index(5) != 0) male = ! male ;
+      if (Rand.index(5) != 0) male = ! male;
       
       final Career c = new Career(b, NB, NH, male ? MALE_BIRTH : FEMALE_BIRTH);
-      final Human lives = new Human(c, hut.base()) ;
-      lives.mind.setHome(hut) ;
-      lives.mind.setWork(hut) ;
-      lives.enterWorldAt(hut, world) ;
-      lives.goAboard(hut, world) ;
+      final Human lives = new Human(c, hut.base());
+      lives.mind.setHome(hut);
+      lives.mind.setWork(hut);
+      lives.enterWorldAt(hut, world);
+      lives.goAboard(hut, world);
       populace.add(lives);
     }
     return populace;
@@ -264,38 +264,38 @@ public class NativeHut extends Venue {
   /**  Behaviour implementation-
     */
   public Behaviour jobFor(Actor actor) {
-    return null ;
+    return null;
   }
   
   
-  public Background[] careers() { return null ; }
-  public Service[] services() { return null ; }
+  public Background[] careers() { return null; }
+  public Service[] services() { return null; }
   
   
   protected void updatePaving(boolean inWorld) {
     if (! inWorld) {
-      base().paving.updatePerimeter(this, null, false) ;
-      return ;
+      base().paving.updatePerimeter(this, null, false);
+      return;
     }
     
-    final Batch <Tile> toPave = new Batch <Tile> () ;
+    final Batch <Tile> toPave = new Batch <Tile> ();
     for (Tile t : Spacing.perimeter(area(), world)) {
-      if (t.blocked()) continue ;
-      boolean between = false ;
+      if (t.blocked()) continue;
+      boolean between = false;
       for (int n : N_INDEX) {
-        final int o = (n + 4) % 8 ;
+        final int o = (n + 4) % 8;
         final Tile
           a = world.tileAt(t.x + N_X[n], t.y + N_Y[n]),
-          b = world.tileAt(t.x + N_X[o], t.y + N_Y[o]) ;
+          b = world.tileAt(t.x + N_X[o], t.y + N_Y[o]);
         between =
           (a != null && a.owner() instanceof NativeHut) &&
-          (b != null && b.owner() instanceof NativeHut) ;
-        if (between) break ;
+          (b != null && b.owner() instanceof NativeHut);
+        if (between) break;
       }
-      if (between) toPave.add(t) ;
+      if (between) toPave.add(t);
     }
     
-    base().paving.updatePerimeter(this, toPave, true) ;
+    base().paving.updatePerimeter(this, toPave, true);
   }
 
 
@@ -303,34 +303,34 @@ public class NativeHut extends Venue {
   /**  Rendering and interface methods-
     */
   public String fullName() {
-    return "Native Hutment" ;
+    return "Native Hutment";
   }
   
   
   public Composite portrait(BaseUI UI) {
-    return null ;
+    return null;
   }
   
   
   public String helpInfo() {
     return
       "Native Hutments are simple but robust shelters constructed from local "+
-      "materials by indigenous primitives." ;
+      "materials by indigenous primitives.";
   }
   
   
   public String buildCategory() {
-    return UIConstants.TYPE_HIDDEN ;
+    return UIConstants.TYPE_HIDDEN;
   }
   
   
   public void renderSelection(Rendering rendering, boolean hovered) {
-    if (destroyed() || ! inWorld()) return ;
+    if (destroyed() || ! inWorld()) return;
     Selection.renderPlane(
       rendering, position(null), (xdim() / 2f) + 1,
       hovered ? Colour.transparency(0.5f) : Colour.WHITE,
       Selection.SELECT_CIRCLE
-    ) ;
+    );
   }
 }
 

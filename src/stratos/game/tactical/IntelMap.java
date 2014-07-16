@@ -1,7 +1,7 @@
 
 
 
-package stratos.game.tactical ;
+package stratos.game.tactical;
 import stratos.game.common.*;
 import stratos.game.maps.*;
 import stratos.graphics.common.*;
@@ -22,62 +22,62 @@ public class IntelMap {
   
   /**  Field definitions, constructors and save/load methods-
     */
-  final Base base ;
-  private World world = null ;
+  final Base base;
+  private World world = null;
   
-  float fogVals[][] ;
-  MipMap fogMap ;
+  float fogVals[][];
+  MipMap fogMap;
   
-  private FogOverlay fogOver ;
+  private FogOverlay fogOver;
   
   
   
   public IntelMap(Base base) {
-    this.base = base ;
+    this.base = base;
   }
   
   
   public void initFog(World world) {
-    this.world = world ;
-    final int size = world.size ;
-    fogVals = new float[size][size] ;
-    fogMap = new MipMap(size) ;
-    fogOver = new FogOverlay(size) ;
+    this.world = world;
+    final int size = world.size;
+    fogVals = new float[size][size];
+    fogMap = new MipMap(size);
+    fogOver = new FogOverlay(size);
   }
   
   
   public void loadState(Session s) throws Exception {
-    initFog(world = s.world()) ;
+    initFog(world = s.world());
     for (Coord c : Visit.grid(0,  0, world.size, world.size, 1)) {
-      fogVals[c.x][c.y] = s.loadFloat() ;
+      fogVals[c.x][c.y] = s.loadFloat();
     }
-    fogMap.loadFrom(s.input()) ;
-    fogOver.updateVals(-1, fogVals) ;
+    fogMap.loadFrom(s.input());
+    fogOver.updateVals(-1, fogVals);
   }
   
   
   public void saveState(Session s) throws Exception {
-    final int size = world.size ;
+    final int size = world.size;
     for (Coord c : Visit.grid(0,  0, size, size, 1)) {
-      s.saveFloat(fogVals[c.x][c.y]) ;
+      s.saveFloat(fogVals[c.x][c.y]);
     }
-    fogMap.saveTo(s.output()) ;
+    fogMap.saveTo(s.output());
   }
   
   
   public MipMap fogMap() {
-    return fogMap ;
+    return fogMap;
   }
   
   
   public World world() {
-    return world ;
+    return world;
   }
   
   
   public FogOverlay fogOver() {
     if (GameSettings.fogFree || base.primal) return null;
-    return fogOver ;
+    return fogOver;
   }
   
   
@@ -118,8 +118,8 @@ public class IntelMap {
   
   public int liftFogAround(Target t, float radius) {
     if (GameSettings.fogFree || base.primal) return (int) radius;
-    final Vec3D p = t.position(null) ;
-    return liftFogAround(p.x, p.y, radius) ;
+    final Vec3D p = t.position(null);
+    return liftFogAround(p.x, p.y, radius);
   }
   
   
@@ -130,30 +130,30 @@ public class IntelMap {
     final Box2D area = new Box2D().set(
       x - radius, y - radius,
       radius * 2, radius * 2
-    ) ;
-    float tilesSeen = 0 ;
+    );
+    float tilesSeen = 0;
     //
     //  Iterate over any tiles within a certain distance of the target point-
     for (Tile t : world.tilesIn(area, true)) {
-      final float xd = t.x - x, yd = t.y - y ;
-      final float distance = (float) Math.sqrt((xd * xd) + (yd * yd)) ;
-      if (distance > radius) continue ;
+      final float xd = t.x - x, yd = t.y - y;
+      final float distance = (float) Math.sqrt((xd * xd) + (yd * yd));
+      if (distance > radius) continue;
       //
       //  Calculate the minimum fog value, based on target proximity-
-      final float oldVal = fogVals[t.x][t.y] ;
-      final float lift = Visit.clamp((1 - (distance / radius)) * 1.5f, 0, 1) ;
-      final float newVal = Math.max(lift, oldVal) ;
-      fogVals[t.x][t.y] = newVal ;
+      final float oldVal = fogVals[t.x][t.y];
+      final float lift = Visit.clamp((1 - (distance / radius)) * 1.5f, 0, 1);
+      final float newVal = Math.max(lift, oldVal);
+      fogVals[t.x][t.y] = newVal;
       //
       //  If there's been a change in fog value, update the reference and
       //  rendering data-
       if (oldVal != newVal) {
-        if (newVal == 1) fogMap.set((byte) 1, t.x, t.y) ;
-        //stuffDisplayVal(newVal, t.x, t.y) ;
+        if (newVal == 1) fogMap.set((byte) 1, t.x, t.y);
+        //stuffDisplayVal(newVal, t.x, t.y);
       }
-      tilesSeen += lift - oldVal ;
+      tilesSeen += lift - oldVal;
     }
-    return (int) tilesSeen ;
+    return (int) tilesSeen;
   }
 }
 

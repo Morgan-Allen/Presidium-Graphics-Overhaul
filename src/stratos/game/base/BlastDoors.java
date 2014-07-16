@@ -4,16 +4,16 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package stratos.game.base ;
-import stratos.game.common.* ;
-import stratos.game.tactical.* ;
-import stratos.game.actors.* ;
-import stratos.game.building.* ;
-import stratos.graphics.common.* ;
-import stratos.graphics.cutout.* ;
-import stratos.graphics.widgets.* ;
-import stratos.user.* ;
-import stratos.util.* ;
+package stratos.game.base;
+import stratos.game.common.*;
+import stratos.game.tactical.*;
+import stratos.game.actors.*;
+import stratos.game.building.*;
+import stratos.graphics.common.*;
+import stratos.graphics.cutout.*;
+import stratos.graphics.widgets.*;
+import stratos.user.*;
+import stratos.util.*;
 
 
 
@@ -24,23 +24,23 @@ public class BlastDoors extends ShieldWall implements TileConstants {
     */
   
   public BlastDoors(Base base, int facing) {
-    super(TYPE_DOORS, 4, 2, base) ;
-    this.facing = facing ;
-    //personnel.setShiftType(SHIFTS_BY_HOURS) ;
+    super(TYPE_DOORS, 4, 2, base);
+    this.facing = facing;
+    //personnel.setShiftType(SHIFTS_BY_HOURS);
     if (facing == X_AXIS)
-      attachSprite(ShieldWall.DOORS_MODEL_LEFT.makeSprite()) ;
+      attachSprite(ShieldWall.DOORS_MODEL_LEFT.makeSprite());
     if (facing == Y_AXIS)
-      attachSprite(ShieldWall.DOORS_MODEL_RIGHT.makeSprite()) ;
+      attachSprite(ShieldWall.DOORS_MODEL_RIGHT.makeSprite());
   }
   
   
   public BlastDoors(Session s) throws Exception {
-    super(s) ;
+    super(s);
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
+    super.saveState(s);
   }
   
   
@@ -48,24 +48,24 @@ public class BlastDoors extends ShieldWall implements TileConstants {
   /**  Life cycle and placement-
     */
   protected void updatePaving(boolean inWorld) {
-    entrances() ;
-    base().paving.updatePerimeter(this, inWorld) ;
+    entrances();
+    base().paving.updatePerimeter(this, inWorld);
     for (Boardable b : entrances()) if (b instanceof Tile) {
-      base().paving.updateJunction(this, (Tile) b, inWorld) ;
+      base().paving.updateJunction(this, (Tile) b, inWorld);
     }
   }
   
   
   public boolean enterWorldAt(int x, int y, World world) {
-    if (! super.enterWorldAt(x, y, world)) return false ;
-    world.terrain().maskAsPaved(Spacing.under(area(), world), true) ;
-    return true ;
+    if (! super.enterWorldAt(x, y, world)) return false;
+    world.terrain().maskAsPaved(Spacing.under(area(), world), true);
+    return true;
   }
   
   
   public void exitWorld() {
-    world.terrain().maskAsPaved(Spacing.under(area(), world), false) ;
-    super.exitWorld() ;
+    world.terrain().maskAsPaved(Spacing.under(area(), world), false);
+    super.exitWorld();
   }
   
   
@@ -74,30 +74,30 @@ public class BlastDoors extends ShieldWall implements TileConstants {
     */
   /*
   public Behaviour jobFor(Actor actor) {
-    if ((! structure.intact()) || (! personnel.onShift(actor))) return null ;
-    final Choice choice = new Choice(actor) ;
+    if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
+    final Choice choice = new Choice(actor);
     
-    final int hour = ((int) (world.currentTime() * 12)) % 12 ;
-    final int patrolDir = TileConstants.N_ADJACENT[hour % 4] ;
-    final Patrolling p = Patrolling.sentryDuty(actor, this, patrolDir) ;
+    final int hour = ((int) (world.currentTime() * 12)) % 12;
+    final int patrolDir = TileConstants.N_ADJACENT[hour % 4];
+    final Patrolling p = Patrolling.sentryDuty(actor, this, patrolDir);
     if (p != null) {
       p.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
-      choice.add(p) ;
+      choice.add(p);
     }
     
-    return choice.weightedPick() ;
+    return choice.weightedPick();
   }
   
   
   public Background[] careers() {
-    return new Background[] { Backgrounds.VOLUNTEER } ;
+    return new Background[] { Backgrounds.VOLUNTEER };
   }
   
   
   public int numOpenings(Background b) {
-    final int nO = super.numOpenings(b) ;
-    if (b == Backgrounds.VOLUNTEER) return nO + 2 ;
-    return 0 ;
+    final int nO = super.numOpenings(b);
+    if (b == Backgrounds.VOLUNTEER) return nO + 2;
+    return 0;
   }
   //*/
   
@@ -106,7 +106,7 @@ public class BlastDoors extends ShieldWall implements TileConstants {
   /**  Rendering and interface methods-
     */
   public String fullName() {
-    return "Blast Doors" ;
+    return "Blast Doors";
   }
 
 
@@ -118,7 +118,7 @@ public class BlastDoors extends ShieldWall implements TileConstants {
   public String helpInfo() {
     return
       "Blast Doors grant your citizens access to enclosed sectors of your "+
-      "base, and can be used to restrict passage to undesireables." ;
+      "base, and can be used to restrict passage to undesireables.";
   }
   
   
@@ -128,7 +128,7 @@ public class BlastDoors extends ShieldWall implements TileConstants {
   
   
   public String buildCategory() {
-    return InstallTab.TYPE_MILITANT ;
+    return InstallTab.TYPE_MILITANT;
   }
 }
 

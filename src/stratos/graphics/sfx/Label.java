@@ -14,7 +14,7 @@ public class Label extends SFX {
   final public static ModelAsset LABEL_MODEL = new Assets.ClassModel(
     "label_fx_model", Label.class
   ) {
-    public Sprite makeSprite() { return new Label() ; }
+    public Sprite makeSprite() { return new Label(); }
   };
   
   final static Alphabet FONT = UIConstants.INFO_FONT;

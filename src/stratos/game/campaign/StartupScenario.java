@@ -30,12 +30,12 @@ public class StartupScenario extends Scenario {
     MAX_TRAITS    = 2,
     MAX_ADVISORS  = 2,
     MAX_COLONISTS = 9,
-    MAX_PERKS     = 3 ;
+    MAX_PERKS     = 3;
   final public static Background ADVISOR_BACKGROUNDS[] = {
     Backgrounds.FIRST_CONSORT,
     Backgrounds.MINISTER_FOR_ACCOUNTS,
     Backgrounds.WAR_MASTER
-  } ;
+  };
   final public static Background COLONIST_BACKGROUNDS[] = {
     Backgrounds.VOLUNTEER,
     Backgrounds.FAB_WORKER,
@@ -43,7 +43,7 @@ public class StartupScenario extends Scenario {
     Backgrounds.TECHNICIAN,
     Backgrounds.CULTIVATOR,
     Backgrounds.MINDER
-  } ;
+  };
   final public static String
     SITE_DESC[] = {
       "Wasteland",
@@ -64,7 +64,7 @@ public class StartupScenario extends Scenario {
       "Knighted Lady (Small Estate)",
       "Countess (Typical Estate)",
       "Baroness (Large Estate)"
-    } ;
+    };
   final public static int
     MAP_SIZES[] = { 64, 128, 256 },
     
@@ -147,14 +147,14 @@ public class StartupScenario extends Scenario {
   /**  Required setup methods-
     */
   protected World createWorld() {
-    final int station = config.titleLevel ;
-    float water = 2 ;
-    float forest = 0, meadow = 0, barrens = 0, desert = 0, wastes = 0 ;
+    final int station = config.titleLevel;
+    float water = 2;
+    float forest = 0, meadow = 0, barrens = 0, desert = 0, wastes = 0;
     
     switch (config.siteLevel) {
-      case(0) : wastes = 3 ; desert  = 2 ; barrens = 4 ; water = 0 ; break ;
-      case(1) : meadow = 4 ; barrens = 2 ; desert  = 2 ; water = 3 ; break ;
-      case(2) : forest = 2 ; meadow  = 3 ; barrens = 2 ; water = 1 ; break ;
+      case(0) : wastes = 3; desert  = 2; barrens = 4; water = 0; break;
+      case(1) : meadow = 4; barrens = 2; desert  = 2; water = 3; break;
+      case(2) : forest = 2; meadow  = 3; barrens = 2; water = 1; break;
     }
     
     //  TODO:  the terrain setup algorithm should not be directly interacting
@@ -174,23 +174,23 @@ public class StartupScenario extends Scenario {
     TG.setupOutcrops(world);
     world.terrain().readyAllMeshes();
     Flora.populateFlora(world);
-    return world ;
+    return world;
   }
   
   
   protected Base createBase(World world) {
-    final Base base = Base.baseWithName(world, "Player", false) ;
+    final Base base = Base.baseWithName(world, "Player", false);
     
-    int funding = -1, interest = -1 ;
+    int funding = -1, interest = -1;
     switch (config.fundsLevel) {
-      case(0) : funding = 7500  ; interest = 3 ; break ;
-      case(1) : funding = 10000 ; interest = 2 ; break ;
-      case(2) : funding = 12500 ; interest = 1 ; break ;
+      case(0) : funding = 7500 ; interest = 3; break;
+      case(1) : funding = 10000; interest = 2; break;
+      case(2) : funding = 12500; interest = 1; break;
     }
-    base.incCredits(funding) ;
-    base.setInterestPaid(interest) ;
-    base.commerce.assignHomeworld((Sector) config.house) ;
-    return base ;
+    base.incCredits(funding);
+    base.setInterestPaid(interest);
+    base.commerce.assignHomeworld((Sector) config.house);
+    return base;
   }
   
   
@@ -239,44 +239,44 @@ public class StartupScenario extends Scenario {
     */
   protected Human ruler(Base base) {
     
-    final int station = config.titleLevel ;
-    final float promoteChance = (25 - (station * 10)) / 100f ;
-    final Background vocation = Backgrounds.RULING_POSITIONS[station] ;
-    final Background birth ;
+    final int station = config.titleLevel;
+    final float promoteChance = (25 - (station * 10)) / 100f;
+    final Background vocation = Backgrounds.RULING_POSITIONS[station];
+    final Background birth;
     if (Rand.num() < promoteChance) {
-      if (Rand.num() < promoteChance) birth = Backgrounds.FREE_BIRTH ;
-      else birth = Backgrounds.GELDER_BIRTH ;
+      if (Rand.num() < promoteChance) birth = Backgrounds.FREE_BIRTH;
+      else birth = Backgrounds.GELDER_BIRTH;
     }
-    else birth = Backgrounds.HIGH_BIRTH ;
+    else birth = Backgrounds.HIGH_BIRTH;
     
     final Background house = config.house;
     final Career rulerCareer = new Career(vocation, birth, house, config.gender);
     final Human ruler = new Human(rulerCareer, base);
-    for (Skill s : house.skills()) ruler.traits.incLevel(s, 5) ;
+    for (Skill s : house.skills()) ruler.traits.incLevel(s, 5);
     
-    return ruler ;
+    return ruler;
   }
   
   
   protected List <Human> advisors(Base base, Actor ruler) {
-    final List <Human> advisors = new List <Human> () ;
-    final int numTries = 5 ;
+    final List <Human> advisors = new List <Human> ();
+    final int numTries = 5;
     for (Background b : config.advisors) {
-      Human picked = null ;
-      float bestRating = Float.NEGATIVE_INFINITY ;
+      Human picked = null;
+      float bestRating = Float.NEGATIVE_INFINITY;
       
-      for (int i = numTries ; i-- > 0 ;) {
-        final Human candidate = new Human(b, base) ;
-        float rating = Career.ratePromotion(b, candidate) ;
+      for (int i = numTries; i-- > 0;) {
+        final Human candidate = new Human(b, base);
+        float rating = Career.ratePromotion(b, candidate);
         
         if (b == Backgrounds.FIRST_CONSORT) {
           rating +=
             ruler.mind.attraction(candidate) +
-            (candidate.mind.attraction(ruler) / 2) ;
+            (candidate.mind.attraction(ruler) / 2);
         }
-        if (rating > bestRating) { picked = candidate ; bestRating = rating ; }
+        if (rating > bestRating) { picked = candidate; bestRating = rating; }
       }
-      if (picked != null) advisors.add(picked) ;
+      if (picked != null) advisors.add(picked);
     }
     
     return advisors;
@@ -284,17 +284,17 @@ public class StartupScenario extends Scenario {
   
   
   protected List <Human> colonists(Base base) {
-    final List <Human> colonists = new List <Human> () ;
+    final List <Human> colonists = new List <Human> ();
     final Background house = config.house;
     
-    for (int i = COLONIST_BACKGROUNDS.length ; i-- > 0 ;) {
+    for (int i = COLONIST_BACKGROUNDS.length; i-- > 0;) {
       final Background b = COLONIST_BACKGROUNDS[i];
-      for (int n = config.numCrew(b) ; n-- > 0 ;) {
-        final Human c = new Human(b, base) ;
+      for (int n = config.numCrew(b); n-- > 0;) {
+        final Human c = new Human(b, base);
         for (Skill s : house.skills()) if (c.traits.traitLevel(s) > 0) {
-          c.traits.incLevel(s, 5) ;
+          c.traits.incLevel(s, 5);
         }
-        colonists.add(c) ;
+        colonists.add(c);
       }
     }
     

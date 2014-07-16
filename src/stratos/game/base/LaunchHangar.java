@@ -1,6 +1,6 @@
 
 
-package stratos.game.base ;
+package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.civilian.*;
@@ -22,7 +22,7 @@ public class LaunchHangar extends Venue {
   
   /**  Constructors, data fields, setup and save/load methods-
     */
-  final static String IMG_DIR = "media/Buildings/merchant/" ;
+  final static String IMG_DIR = "media/Buildings/merchant/";
   final public static ModelAsset MODEL = CutoutModel.fromSplatImage(
     LaunchHangar.class, IMG_DIR+"landing_strip.png", 4.25f
   );
@@ -56,29 +56,29 @@ public class LaunchHangar extends Venue {
     */
   /*
   public int owningType() {
-    return VENUE_OWNS ;
+    return VENUE_OWNS;
   }
   
   
   public int pathType() {
-    return Tile.PATH_BLOCKS ;
+    return Tile.PATH_BLOCKS;
   }
   
   
   public boolean privateProperty() {
-    return true ;
+    return true;
   }
   
   
   public boolean canPlace() {
-    if (! super.canPlace()) return false ;
-    if (! Spacing.adjacent(this, belongs)) return false ;
-    return true ;
+    if (! super.canPlace()) return false;
+    if (! Spacing.adjacent(this, belongs)) return false;
+    return true;
   }
   
   
   protected boolean canTouch(Element e) {
-    return (e.owningType() < this.owningType()) || e == belongs ;
+    return (e.owningType() < this.owningType()) || e == belongs;
   }
   //*/
   
@@ -87,23 +87,23 @@ public class LaunchHangar extends Venue {
   /**  Docking functions-
     */
   public Boardable[] canBoard(Boardable batch[]) {
-    final Batch <Boardable> CB = new Batch <Boardable> () ;
-    if (mainEntrance() != null) CB.add(mainEntrance()) ;
-    if (docking != null) CB.add(docking) ;
-    int i = 2 ; for (Mobile m : inside()) if (m instanceof Boardable) {
-      CB.add((Boardable) m) ;
+    final Batch <Boardable> CB = new Batch <Boardable> ();
+    if (mainEntrance() != null) CB.add(mainEntrance());
+    if (docking != null) CB.add(docking);
+    int i = 2; for (Mobile m : inside()) if (m instanceof Boardable) {
+      CB.add((Boardable) m);
     }
-    return CB.toArray(Boardable.class) ;
+    return CB.toArray(Boardable.class);
   }
   
   
   public Dropship docking() {
-    return docking ;
+    return docking;
   }
   
   
   public void setToDock(Dropship ship) {
-    docking = ship ;
+    docking = ship;
   }
   
   
@@ -111,17 +111,17 @@ public class LaunchHangar extends Venue {
   /**  Behaviour implementation-
     */
   public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates) ;
-    if (! structure.intact()) return ;
-    if (docking != null && ! docking.inWorld()) docking = null ;
+    super.updateAsScheduled(numUpdates);
+    if (! structure.intact()) return;
+    if (docking != null && ! docking.inWorld()) docking = null;
   }
   
   
-  public Service[] services() { return null ; }
+  public Service[] services() { return null; }
   
-  public Background[] careers() { return null ; }
+  public Background[] careers() { return null; }
   
-  public Behaviour jobFor(Actor actor) { return null ; }
+  public Behaviour jobFor(Actor actor) { return null; }
   
   
   
@@ -134,7 +134,7 @@ public class LaunchHangar extends Venue {
   
   
   public String fullName() {
-    return "Launch Hangar" ;
+    return "Launch Hangar";
   }
   
   

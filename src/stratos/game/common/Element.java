@@ -5,7 +5,7 @@
   */
 
 
-package stratos.game.common ;
+package stratos.game.common;
 import stratos.graphics.common.*;
 import stratos.util.*;
 
@@ -23,26 +23,26 @@ public class Element implements
     ELEMENT_OWNS = 1,
     FIXTURE_OWNS     = 2,
     VENUE_OWNS       = 3,
-    TERRAIN_OWNS     = 4 ;
+    TERRAIN_OWNS     = 4;
   
   final protected static int
     PROP_IN_WORLD  = 1 << 0,
-    PROP_DESTROYED = 1 << 2 ;
+    PROP_DESTROYED = 1 << 2;
   
 
-  private Sprite sprite ;
-  private Object flagged ;  //This is used for temporary searches, not saved.
+  private Sprite sprite;
+  private Object flagged;  //This is used for temporary searches, not saved.
   
-  protected World world ;
-  private Tile location ;
-  private float inceptTime ;
-  private int properties ;
+  protected World world;
+  private Tile location;
+  private float inceptTime;
+  private int properties;
   
   
   
   public Element(Tile tile, Sprite sprite) {
-    if (tile != null) setPosition(tile.x, tile.y, tile.world) ;
-    if (sprite != null) attachSprite(sprite) ;
+    if (tile != null) setPosition(tile.x, tile.y, tile.world);
+    if (sprite != null) attachSprite(sprite);
   }
   
   
@@ -50,23 +50,23 @@ public class Element implements
   
   
   public Element(Session s) throws Exception {
-    s.cacheInstance(this) ;
-    world = s.loadBool() ? s.world() : null ;
-    location = (Tile) s.loadTarget() ;
-    inceptTime = s.loadFloat() ;
-    properties = s.loadInt() ;
+    s.cacheInstance(this);
+    world = s.loadBool() ? s.world() : null;
+    location = (Tile) s.loadTarget();
+    inceptTime = s.loadFloat();
+    properties = s.loadInt();
     
-    sprite = ModelAsset.loadSprite(s.input()) ;
+    sprite = ModelAsset.loadSprite(s.input());
   }
   
   
   public void saveState(Session s) throws Exception {
-    s.saveBool(world != null) ;
-    s.saveTarget(location) ;
-    s.saveFloat(inceptTime) ;
-    s.saveInt(properties) ;
+    s.saveBool(world != null);
+    s.saveTarget(location);
+    s.saveFloat(inceptTime);
+    s.saveInt(properties);
     
-    ModelAsset.saveSprite(sprite, s.output()) ;
+    ModelAsset.saveSprite(sprite, s.output());
   }
   
   
@@ -74,92 +74,92 @@ public class Element implements
   /**  Life-cycle methods-
     */
   public boolean canPlace() {
-    if (location == null) return false ;
-    if (location.blocked()) return false ;
-    if (Spacing.isEntrance(location)) return false ;
-    return true ;
+    if (location == null) return false;
+    if (location.blocked()) return false;
+    if (Spacing.isEntrance(location)) return false;
+    return true;
   }
   
   
   public boolean enterWorldAt(int x, int y, World world) {
-    if (inWorld()) I.complain("Already in world...") ;
-    if (! setPosition(x, y, world)) return false ;
-    this.toggleProperty(PROP_IN_WORLD, true) ;
-    this.world = world ;
-    this.inceptTime = world.currentTime() ;
+    if (inWorld()) I.complain("Already in world...");
+    if (! setPosition(x, y, world)) return false;
+    this.toggleProperty(PROP_IN_WORLD, true);
+    this.world = world;
+    this.inceptTime = world.currentTime();
     if (owningType() != NOTHING_OWNS && ! isMobile()) {
       if (location.owner() != null) location.owner().setAsDestroyed();
-      location.setOwner(this) ;
+      location.setOwner(this);
     }
-    return true ;
+    return true;
   }
   
   
   public void setAsDestroyed() {
     if (! inWorld()) {
-      I.say(this+" never entered world...") ;
-      return ;
+      I.say(this+" never entered world...");
+      return;
     }
-    this.toggleProperty(PROP_DESTROYED, true) ;
-    world.ephemera.addGhost(this, radius() * 2, sprite, 2.0f) ;
-    exitWorld() ;
+    this.toggleProperty(PROP_DESTROYED, true);
+    world.ephemera.addGhost(this, radius() * 2, sprite, 2.0f);
+    exitWorld();
   }
   
   
   public void exitWorld() {
     if (! inWorld()) {
-      I.say(this+" never entered world...") ;
-      return ;
+      I.say(this+" never entered world...");
+      return;
     }
     if (owningType() != NOTHING_OWNS && ! isMobile()) {
-      location.setOwner(null) ;
+      location.setOwner(null);
     }
-    this.toggleProperty(PROP_IN_WORLD, false) ;
+    this.toggleProperty(PROP_IN_WORLD, false);
   }
   
   
   public boolean setPosition(float x, float y, World world) {
-    this.location = world.tileAt(x, y) ;
-    if (location == null) return false ;
-    else return true ;
+    this.location = world.tileAt(x, y);
+    if (location == null) return false;
+    else return true;
   }
   
   
   public void enterWorld() {
-    if (location == null) I.complain("Position never set!") ;
-    enterWorldAt(location.x, location.y, location.world) ;
+    if (location == null) I.complain("Position never set!");
+    enterWorldAt(location.x, location.y, location.world);
   }
   
   
   public boolean enterWorldAt(Target t, World world) {
-    final Vec3D p = t.position(null) ;
-    if (! setPosition(p.x, p.y, world)) return false ;
+    final Vec3D p = t.position(null);
+    if (! setPosition(p.x, p.y, world)) return false;
     if (location.blocked()) {
       final Tile entry = Spacing.nearestOpenTile(location, location);
       if (entry != null) setPosition(entry.x, entry.y, world);
     }
-    enterWorld() ;
-    return true ;
+    enterWorld();
+    return true;
   }
   
   
   public boolean destroyed() {
-    return hasProperty(PROP_DESTROYED) ;
+    return hasProperty(PROP_DESTROYED);
   }
   
   
   public boolean inWorld() {
-    return hasProperty(PROP_IN_WORLD) ;
+    return hasProperty(PROP_IN_WORLD);
   }
   
   
   public boolean isMobile() {
-    return false ;
+    return false;
   }
   
   
   public World world() {
-    return world ;
+    return world;
   }
   
   
@@ -167,28 +167,28 @@ public class Element implements
   /**  Properties, both hard-wired and custom.
     */
   public int owningType() {
-    return ELEMENT_OWNS ;
+    return ELEMENT_OWNS;
   }
   
   
   public int pathType() {
-    return Tile.PATH_BLOCKS ;
+    return Tile.PATH_BLOCKS;
   }
   
   
   protected void toggleProperty(int prop, boolean has) {
-    if (has) properties |= prop ;
-    else properties &= ~prop ;
+    if (has) properties |= prop;
+    else properties &= ~prop;
   }
   
   
   protected boolean hasProperty(int prop) {
-    return (properties & prop) == prop ;
+    return (properties & prop) == prop;
   }
   
   
   public final void flagWith(final Object f) {
-    flagged = f ;
+    flagged = f;
   }
   
   
@@ -196,7 +196,7 @@ public class Element implements
   //  into creating a common superclass for all Targets, avoid the need for
   //  method calls?
   public final Object flaggedWith() {
-    return flagged ;
+    return flagged;
   }
   
   
@@ -207,8 +207,8 @@ public class Element implements
   
   
   public void setAsEstablished(boolean isGrown) {
-    if (isGrown) inceptTime = -10 ;
-    else inceptTime = world.currentTime() ;
+    if (isGrown) inceptTime = -10;
+    else inceptTime = world.currentTime();
   }
   
   
@@ -216,36 +216,36 @@ public class Element implements
   /**  Methods related to specifying position and size-
     */
   public Tile origin() {
-    return location ;
+    return location;
   }
   
   
-  public int xdim() { return 1 ; }
-  public int ydim() { return 1 ; }
-  public int zdim() { return 1 ; }
+  public int xdim() { return 1; }
+  public int ydim() { return 1; }
+  public int zdim() { return 1; }
   
   
   public Box2D area(Box2D put) {
-    if (put == null) put = new Box2D() ;
+    if (put == null) put = new Box2D();
     return put.set(
       location.x - 0.5f, location.y - 0.5f,
       xdim(), ydim()
-    ) ;
+    );
   }
   
   
   public Vec3D position(Vec3D v) {
-    return location.position(v) ;
+    return location.position(v);
   }
   
   
   public float radius() {
-    return 0.5f ;
+    return 0.5f;
   }
   
   
   public float height() {
-    return 1 ;
+    return 1;
   }
   
   
@@ -259,15 +259,15 @@ public class Element implements
   
   
   protected float fogFor(Base base) {
-    return base.intelMap.displayFog(origin(), this) ;
+    return base.intelMap.displayFog(origin(), this);
   }
   
   
   public boolean visibleTo(Base base) {
-    final float fog = base == null ? 1 : fogFor(base) ;
-    if (fog == 0 || sprite == null) return false ;
-    else sprite.fog = fog ;
-    return true ;
+    final float fog = base == null ? 1 : fogFor(base);
+    if (fog == 0 || sprite == null) return false;
+    else sprite.fog = fog;
+    return true;
   }
   
   
@@ -281,17 +281,17 @@ public class Element implements
   
   
   public void attachSprite(Sprite sprite) {
-    this.sprite = sprite ;
+    this.sprite = sprite;
   }
   
   
   public void attachModel(ModelAsset model) {
-    attachSprite(model.makeSprite()) ;
+    attachSprite(model.makeSprite());
   }
   
   
   public Sprite sprite() {
-    return sprite ;
+    return sprite;
   }
 }
 

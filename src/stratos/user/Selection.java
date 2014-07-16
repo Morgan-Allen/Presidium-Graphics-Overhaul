@@ -4,7 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package stratos.user ;
+package stratos.user;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
@@ -44,19 +44,19 @@ public class Selection implements UIConstants {
   
   private static boolean verbose = false;
   
-  final BaseUI UI ;
+  final BaseUI UI;
   
-  private Tile pickTile ;
-  private Fixture pickFixture ;
-  private Mobile pickMobile ;
-  private Mission pickMission ;
+  private Tile pickTile;
+  private Fixture pickFixture;
+  private Mobile pickMobile;
+  private Mission pickMission;
   
-  private Selectable hovered, selected ;
-  private Stack <Selectable> navStack = new Stack <Selectable> () ;
+  private Selectable hovered, selected;
+  private Stack <Selectable> navStack = new Stack <Selectable> ();
   
   
   Selection(BaseUI UI) {
-    this.UI = UI ;
+    this.UI = UI;
   }
   
   
@@ -66,17 +66,17 @@ public class Selection implements UIConstants {
   
 
   public void saveState(Session s) throws Exception {
-    s.saveObject(selected) ;
+    s.saveObject(selected);
   }
   
   
-  public Selectable hovered()  { return hovered  ; }
-  public Selectable selected() { return selected ; }
+  public Selectable hovered()  { return hovered ; }
+  public Selectable selected() { return selected; }
   
-  public Tile    pickedTile   () { return pickTile    ; }
-  public Fixture pickedFixture() { return pickFixture ; }
-  public Mobile  pickedMobile () { return pickMobile  ; }
-  public Mission pickedMission() { return pickMission ; }
+  public Tile    pickedTile   () { return pickTile   ; }
+  public Fixture pickedFixture() { return pickFixture; }
+  public Mobile  pickedMobile () { return pickMobile ; }
+  public Mission pickedMission() { return pickMission; }
   
   
   
@@ -85,7 +85,7 @@ public class Selection implements UIConstants {
   boolean updateSelection(World world, Viewport port, UIGroup infoPanel) {
     if (
       selected != null &&
-      UI.currentPanel() == null &&
+      UI.currentPane() == null &&
       UI.currentInfo() == null
     ) {
       pushSelection(selected, true);
@@ -93,21 +93,21 @@ public class Selection implements UIConstants {
     //
     //  If a UI element is selected, don't pick anything else-
     if (UI.selected() != null) {
-      pickTile = null ;
-      pickMobile = null ;
-      pickFixture = null ;
-      hovered = null ;
-      return false ;
+      pickTile = null;
+      pickMobile = null;
+      pickFixture = null;
+      hovered = null;
+      return false;
     }
     //
     //  Our first task to see what the different kinds of object currently
     //  being hovered over are-
-    final Base base = UI.played() ;
-    hovered = null ;
-    pickTile = world.pickedTile(UI, port, base) ;
-    pickFixture = world.pickedFixture(UI, port, base) ;
-    pickMobile = world.pickedMobile(UI, port, base) ;
-    pickMission = UI.played().pickedMission(UI, port) ;
+    final Base base = UI.played();
+    hovered = null;
+    pickTile = world.pickedTile(UI, port, base);
+    pickFixture = world.pickedFixture(UI, port, base);
+    pickMobile = world.pickedMobile(UI, port, base);
+    pickMission = UI.played().pickedMission(UI, port);
     
     if (
       verbose && pickTile != null &&
@@ -122,23 +122,23 @@ public class Selection implements UIConstants {
     //
     //  Then, we see which type is given priority-
     if (pickMission != null) {
-      hovered = pickMission ;
+      hovered = pickMission;
     }
     else if (pickMobile instanceof Selectable) {
-      hovered = (Selectable) pickMobile ;
+      hovered = (Selectable) pickMobile;
     }
     else if (pickFixture instanceof Selectable) {
-      hovered = (Selectable) pickFixture ;
+      hovered = (Selectable) pickFixture;
     }
     else {
-      hovered = pickTile ;
+      hovered = pickTile;
     }
     
     if (UI.mouseClicked() && UI.currentTask() == null) {
       pushSelection(hovered, true);
     }
     I.talkAbout = selected;
-    return true ;
+    return true;
   }
   
 
@@ -155,28 +155,28 @@ public class Selection implements UIConstants {
     selected = s;
     final Target locks = s.selectionLocksOn();
     if (locks.inWorld()) UI.viewTracking.lockOn(locks);
-    final InfoPanel panel = s.configPanel(null, UI);
-    final TargetInfo info = s.configInfo(null, UI);
+    final SelectionInfoPane panel = s.configPanel(null, UI);
+    final TargetOptions info = s.configInfo(null, UI);
     UI.setInfoPanels(panel, info);
     
     if (panel != null) {
-      final int SI = navStack.indexOf(selected) ;
-      Selectable previous = null ;
+      final int SI = navStack.indexOf(selected);
+      Selectable previous = null;
       if (SI != -1) {
-        if (selected == navStack.getLast()) previous = null ;
-        else previous = navStack.atIndex(SI + 1) ;
-        while (navStack.getFirst() != selected) navStack.removeFirst() ;
-        panel.setPrevious(previous) ;
+        if (selected == navStack.getLast()) previous = null;
+        else previous = navStack.atIndex(SI + 1);
+        while (navStack.getFirst() != selected) navStack.removeFirst();
+        panel.setPrevious(previous);
       }
       else {
-        previous = navStack.getFirst() ;
-        navStack.addFirst(selected) ;
-        panel.setPrevious(previous) ;
+        previous = navStack.getFirst();
+        navStack.addFirst(selected);
+        panel.setPrevious(previous);
       }
       
       if (verbose) {
-        I.say("Navigation stack is: ") ;
-        for (Selectable n : navStack) I.add("\n  "+n) ;
+        I.say("Navigation stack is: ");
+        for (Selectable n : navStack) I.add("\n  "+n);
         I.add("\n");
       }
     }
@@ -198,10 +198,10 @@ public class Selection implements UIConstants {
       HS = (hovered  == null) ? null : hovered.selectionLocksOn(),
       SS = (selected == null) ? null : selected.selectionLocksOn();
     if (HS != null && HS != SS) {
-      hovered.renderSelection(rendering, true) ;
+      hovered.renderSelection(rendering, true);
     }
     if (SS != null) {
-      selected.renderSelection(rendering, false) ;
+      selected.renderSelection(rendering, false);
     }
   }
   

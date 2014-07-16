@@ -1,10 +1,11 @@
 
 
 
-package stratos.game.actors ;
-//import stratos.game.base.* ;
+package stratos.game.actors;
+//import stratos.game.base.*;
 import stratos.game.building.*;
 import stratos.game.civilian.*;
+import stratos.game.plans.Combat;
 import stratos.game.tactical.*;
 import stratos.util.*;
 
@@ -76,52 +77,52 @@ public class Wording implements Qualities {
       "Rigel", "Ursa", "Alyph", "Rana", "Maia", "Fomalhaut", "Aldebaran",
       "Regulus", "Suhail", "Antares", "Paleides", "Algol", "Orion",
       "Deneb", "Ares",
-    } ;
+    };
   
   
   public static String[] namesFor(Human actor) {
-    final Batch <String> names = new Batch <String> () ;
-    final Background birth = actor.career().birth() ;
-    final boolean female = actor.traits.hasTrait(GENDER, "Female") ;
+    final Batch <String> names = new Batch <String> ();
+    final Background birth = actor.career().birth();
+    final boolean female = actor.traits.hasTrait(GENDER, "Female");
     
     if (birth == Backgrounds.NATIVE_BIRTH) {
-      final String pick[] = female ? NATIVE_FN : NATIVE_MN ;
-      names.add((String) Rand.pickFrom(pick)) ;
+      final String pick[] = female ? NATIVE_FN : NATIVE_MN;
+      names.add((String) Rand.pickFrom(pick));
       if (Rand.yes()) {
-        final String parents[] = female ? NATIVE_FN : NATIVE_MN ;
-        final String title = female ? "daughter of " : "son of " ;
-        names.add(title+Rand.pickFrom(parents)) ;
+        final String parents[] = female ? NATIVE_FN : NATIVE_MN;
+        final String title = female ? "daughter of " : "son of ";
+        names.add(title+Rand.pickFrom(parents));
       }
       else {
         final Batch <Trait> traits = Rand.yes() ?
-          actor.traits.physique() : actor.traits.personality() ;
-        final Trait desc = (Trait) Rand.pickFrom(traits) ;
-        if (desc != null) names.add("the "+actor.traits.levelDesc(desc)) ;
+          actor.traits.physique() : actor.traits.personality();
+        final Trait desc = (Trait) Rand.pickFrom(traits);
+        if (desc != null) names.add("the "+actor.traits.levelDesc(desc));
       }
     }
     
     if (birth == Backgrounds.PYON_BIRTH || birth == Backgrounds.DREGS_BIRTH) {
-      final String pick[] = female ? PYON_FN : PYON_MN ;
-      names.add((String) Rand.pickFrom(pick)) ;
-      final String LN[] = PYON_LN ;
-      names.add((String) Rand.pickFrom(LN)) ;
+      final String pick[] = female ? PYON_FN : PYON_MN;
+      names.add((String) Rand.pickFrom(pick));
+      final String LN[] = PYON_LN;
+      names.add((String) Rand.pickFrom(LN));
     }
     
     if (birth == Backgrounds.FREE_BIRTH || birth == Backgrounds.GELDER_BIRTH) {
-      final String pick[] = female ? CITIZEN_FN : CITIZEN_MN ;
-      names.add((String) Rand.pickFrom(pick)) ;
-      names.add((String) Rand.pickFrom(CITIZEN_LN)) ;
+      final String pick[] = female ? CITIZEN_FN : CITIZEN_MN;
+      names.add((String) Rand.pickFrom(pick));
+      names.add((String) Rand.pickFrom(CITIZEN_LN));
     }
     
     if (birth == Backgrounds.HIGH_BIRTH) {
-      final String pick[] = female ? HIGHBORN_FN : HIGHBORN_MN ;
-      names.add((String) Rand.pickFrom(pick)) ;
-      names.add((String) Rand.pickFrom(HIGHBORN_HN)) ;
-      if (Rand.yes()) names.add((String) Rand.pickFrom(HIGHBORN_TN)) ;
-      names.add("of "+actor.career().homeworld()) ;
+      final String pick[] = female ? HIGHBORN_FN : HIGHBORN_MN;
+      names.add((String) Rand.pickFrom(pick));
+      names.add((String) Rand.pickFrom(HIGHBORN_HN));
+      if (Rand.yes()) names.add((String) Rand.pickFrom(HIGHBORN_TN));
+      names.add("of "+actor.career().homeworld());
     }
     
-    return names.toArray(String.class) ;
+    return names.toArray(String.class);
   }
   
   
@@ -148,11 +149,11 @@ public class Wording implements Qualities {
     
     VOICE_AGREE    = "Sure.",
     VOICE_MAYBE    = "...Maybe.",
-    VOICE_REFUSE   = "No way!" ;
+    VOICE_REFUSE   = "No way!";
   
   
   public static String response(Actor actor, Pledge pledgeMade) {
-    return null ;
+    return null;
   }
   
   
@@ -166,7 +167,7 @@ public class Wording implements Qualities {
       
     }
     
-    return null ;
+    return null;
   }
 }
 

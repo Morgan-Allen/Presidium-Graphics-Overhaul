@@ -5,11 +5,13 @@
   */
 
 
-package stratos.game.base ;
+package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
+import stratos.game.plans.Audit;
+import stratos.game.plans.Patrolling;
 import stratos.game.tactical.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -34,23 +36,23 @@ public class Bastion extends Venue implements Economy {
   
   
   public Bastion(Base base) {
-    super(7, 4, ENTRANCE_EAST, base) ;
+    super(7, 4, ENTRANCE_EAST, base);
     structure.setupStats(
       650, 15, 1000,
       Structure.BIG_MAX_UPGRADES, Structure.TYPE_FIXTURE
-    ) ;
-    personnel.setShiftType(SHIFTS_BY_HOURS) ;
-    attachSprite(MODEL.makeSprite()) ;
+    );
+    personnel.setShiftType(SHIFTS_BY_HOURS);
+    attachSprite(MODEL.makeSprite());
   }
   
   
   public Bastion(Session s) throws Exception {
-    super(s) ;
+    super(s);
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
+    super.saveState(s);
   }
   
   
@@ -58,7 +60,7 @@ public class Bastion extends Venue implements Economy {
   //  your disposal.
   /*
   public boolean privateProperty() {
-    return true ;
+    return true;
   }
   //*/
   
@@ -67,8 +69,8 @@ public class Bastion extends Venue implements Economy {
     */
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
     Bastion.class, "bastion_upgrades"
-  ) ;
-  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES ; }
+  );
+  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
     LOGISTIC_SUPPORT = new Upgrade(
       "Logistic Support",
@@ -111,12 +113,12 @@ public class Bastion extends Venue implements Economy {
       "to function without sleep or rest.",
       500,
       null, 1, null, ALL_UPGRADES
-    ) ;
+    );
 
   
   
   public int numOpenings(Background b) {
-    final int nO = super.numOpenings(b) ;
+    final int nO = super.numOpenings(b);
     if (b == Backgrounds.VETERAN) {
       return nO + 2 + structure.upgradeLevel(SECURITY_MEASURES);
     }
@@ -131,7 +133,7 @@ public class Bastion extends Venue implements Economy {
     }
     //
     //  TODO:  Return the amount of space open to hostages and guests as well.
-    return 0 ;
+    return 0;
   }
   
   
@@ -149,62 +151,62 @@ public class Bastion extends Venue implements Economy {
       s.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
       return s;
     }
-    final Background v = actor.vocation() ;
+    final Background v = actor.vocation();
     if (v == Backgrounds.STEWARD || v == Backgrounds.FIRST_CONSORT) {
-      return new Supervision(actor, this) ;
+      return new Supervision(actor, this);
     }
     
-    if (! personnel.onShift(actor)) return null ;
+    if (! personnel.onShift(actor)) return null;
     
     if (v == Backgrounds.VETERAN || v == Backgrounds.WAR_MASTER) {
       return Patrolling.nextGuardPatrol(actor, this, Plan.ROUTINE);
     }
     if (v == Backgrounds.TECHNICIAN) {
-      return Repairs.getNextRepairFor(actor, Plan.ROUTINE) ;
+      return Repairs.getNextRepairFor(actor, Plan.ROUTINE);
     }
     if (v == Backgrounds.AUDITOR || v == Backgrounds.MINISTER_FOR_ACCOUNTS) {
-      final Venue toAudit = Audit.nextToAuditFor(actor) ;
-      return toAudit == null ? null : new Audit(actor, toAudit) ;
+      final Venue toAudit = Audit.nextToAuditFor(actor);
+      return toAudit == null ? null : new Audit(actor, toAudit);
     }
-    return new Supervision(actor, this) ;
+    return new Supervision(actor, this);
   }
   
   
   public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates) ;
-    if (! structure.intact()) return ;
+    super.updateAsScheduled(numUpdates);
+    if (! structure.intact()) return;
     //
     //  Provide power and life support-
-    final float condition = (structure.repairLevel() + 1f) / 2 ;
-    final int SB = structure.upgradeLevel(SECURITY_MEASURES) ;
-    int powerLimit = 20 + (SB * 10), lifeSLimit = 10 + (SB * 5) ;
-    powerLimit *= condition ;
-    lifeSLimit *= condition ;
+    final float condition = (structure.repairLevel() + 1f) / 2;
+    final int SB = structure.upgradeLevel(SECURITY_MEASURES);
+    int powerLimit = 20 + (SB * 10), lifeSLimit = 10 + (SB * 5);
+    powerLimit *= condition;
+    lifeSLimit *= condition;
     if (stocks.amountOf(POWER) < powerLimit) {
-      stocks.addItem(Item.withAmount(POWER, 1)) ;
+      stocks.addItem(Item.withAmount(POWER, 1));
     }
     if (stocks.amountOf(LIFE_SUPPORT) < lifeSLimit) {
-      stocks.addItem(Item.withAmount(LIFE_SUPPORT, 1)) ;
+      stocks.addItem(Item.withAmount(LIFE_SUPPORT, 1));
     }
     //
     //  Demand provisions-
-    final int foodNeed = personnel.residents().size() + 5 ;
-    stocks.forceDemand(CARBS  , foodNeed * 1.5f, Stocks.TIER_CONSUMER) ;
-    stocks.forceDemand(PROTEIN, foodNeed * 1.0f, Stocks.TIER_CONSUMER) ;
-    stocks.forceDemand(GREENS , foodNeed * 1.0f, Stocks.TIER_CONSUMER) ;
-    stocks.forceDemand(TRUE_SPICE  , foodNeed * 0.5f, Stocks.TIER_CONSUMER) ;
+    final int foodNeed = personnel.residents().size() + 5;
+    stocks.forceDemand(CARBS  , foodNeed * 1.5f, Stocks.TIER_CONSUMER);
+    stocks.forceDemand(PROTEIN, foodNeed * 1.0f, Stocks.TIER_CONSUMER);
+    stocks.forceDemand(GREENS , foodNeed * 1.0f, Stocks.TIER_CONSUMER);
+    stocks.forceDemand(TRUE_SPICE  , foodNeed * 0.5f, Stocks.TIER_CONSUMER);
     //
     //  Modify maximum integrity based on upgrades-
-    final int BB = structure.upgradeLevel(BLAST_SHIELDS) ;
-    structure.updateStats(650 + 250 * BB, 15 + 5 * BB, 0) ;
+    final int BB = structure.upgradeLevel(BLAST_SHIELDS);
+    structure.updateStats(650 + 250 * BB, 15 + 5 * BB, 0);
     
-    int ambience = structure.numUpgrades() / 4 ;
-    if (ambience == 3) ambience = 10 ;
-    if (ambience == 2) ambience = 5 ;
-    if (ambience == 1) ambience = 2 ;
-    ambience += structure.upgradeLevel(GUEST_QUARTERS) ;
-    ambience += structure.upgradeLevel(NOBLE_QUARTERS) ;
-    structure.setAmbienceVal(ambience) ;
+    int ambience = structure.numUpgrades() / 4;
+    if (ambience == 3) ambience = 10;
+    if (ambience == 2) ambience = 5;
+    if (ambience == 1) ambience = 2;
+    ambience += structure.upgradeLevel(GUEST_QUARTERS);
+    ambience += structure.upgradeLevel(NOBLE_QUARTERS);
+    structure.setAmbienceVal(ambience);
   }
   
   
@@ -233,19 +235,19 @@ public class Bastion extends Venue implements Economy {
   }
   
   
-  public String fullName() { return "Bastion" ; }
+  public String fullName() { return "Bastion"; }
   
   
   public String helpInfo() {
     return
       "The Bastion is your seat of command for the settlement as a "+
       "whole, houses your family, advisors and bodyguards, and provides "+
-      "basic logistic support." ;
+      "basic logistic support.";
   }
   
   
   public String buildCategory() {
-    return InstallTab.TYPE_MILITANT ;
+    return InstallTab.TYPE_MILITANT;
   }
 }
 

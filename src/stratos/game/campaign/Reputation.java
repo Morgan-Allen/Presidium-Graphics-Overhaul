@@ -1,7 +1,7 @@
 
 
 
-package stratos.game.campaign ;
+package stratos.game.campaign;
 import stratos.game.common.*;
 
 
@@ -13,13 +13,13 @@ public class Reputation {
   float
     knowledge, tradition,
     wealth, diversions,
-    planet, security ;
+    planet, security;
   //
   //  Overall ratings for your past dealings, history and conduct-
   float
     integrity, autonomy,
     compassion, interest,
-    courage, patience ;
+    courage, patience;
   //
   //  Taken together, these impact the attitude of the various schools toward
   //  you, how likely they are to support or attack you, ease of recruitment,
@@ -50,59 +50,59 @@ public class Reputation {
   
   
   float rateKnowledge(Base base) {
-    float rating = 0 ;
+    float rating = 0;
     //  Bonus for area of map uncovered.
     //  Bonus for citizens' average level of intellect-based skills.
     //  Bonus for access to: Senate Chamber, Archives, and Minder's Ward.
     //  Bonus for prevalence of Inquisitive, Impassive and Supercognitive
     //  traits.
-    return rating ;
+    return rating;
   }
   
   
   float rateSecurity(Base base) {
-    float rating = 0 ;
+    float rating = 0;
     //  Bonus for low levels of crime or external raiding (i.e, danger levels
     //  on map.)
     //  Bonus for low levels of disease, malnutrition or dissaffection.
     //  Bonus for access to:  Detention Bloc, Sickbay and Town Vault.
     //  Bonus for prevalance of Empathic, Pacifist and Melded traits.
-    return rating ;
+    return rating;
   }
   
   
   float ratePlanet(Base base) {
-    float rating = 0 ;
+    float rating = 0;
     //  Bonus for area of map left totally unbuilt on (i.e, wild, with a
     //  partial bonus around Flesh Stills, Plantations and Arcology.)
     //  Bonus for low levels of squalor and strong access to Life Support.
     //  Bonus for low reliance on foreign trade (especially offworld.)
     //  Bonus for diversity of animal species.
-    return rating ;
+    return rating;
   }
   
   
   float rateDiversions(Base base) {
-    float rating = 0 ;
+    float rating = 0;
     //  Bonus for high levels of aesthetic ambience and citizen morale.
     //  Bonus for access to Arena, Cantina and Training House.
-    return rating ;
+    return rating;
   }
   
   
   float rateWealth(Base base) {
-    float rating = 0 ;
+    float rating = 0;
     //  Bonus for average value of citizens' property assets.
     //  Bonus for total revenue based on commerce and taxation.
-    return rating ;
+    return rating;
   }
   
   
   float rateTradition(Base base) {
-    float rating = 0 ;
+    float rating = 0;
     //  Bonus for policies that favour minimal technology and class system.
     //  Bonus for loyalty to House Procyon and The Empress.
-    return rating ;
+    return rating;
   }
   
   

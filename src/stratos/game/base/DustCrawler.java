@@ -1,15 +1,15 @@
 
 
 
-package stratos.game.base ;
-import stratos.game.common.* ;
-import stratos.game.actors.* ;
-import stratos.game.building.* ;
-import stratos.graphics.common.* ;
-import stratos.graphics.solids.* ;
-import stratos.graphics.widgets.* ;
-import stratos.user.* ;
-import stratos.util.* ;
+package stratos.game.base;
+import stratos.game.common.*;
+import stratos.game.actors.*;
+import stratos.game.building.*;
+import stratos.graphics.common.*;
+import stratos.graphics.solids.*;
+import stratos.graphics.widgets.*;
+import stratos.user.*;
+import stratos.util.*;
 
 
 //  TODO:  Just extend Mobile instead?
@@ -22,7 +22,7 @@ public class DustCrawler extends Vehicle implements
     */
   final static String
     FILE_DIR = "media/Vehicles/",
-    XML_FILE = "VehicleModels.xml" ;
+    XML_FILE = "VehicleModels.xml";
   final static ModelAsset
     MODEL = MS3DModel.loadFrom(
       FILE_DIR, "DustCrawler.ms3d",
@@ -32,24 +32,24 @@ public class DustCrawler extends Vehicle implements
   
   
   public DustCrawler() {
-    super() ;
-    attachModel(MODEL) ;
+    super();
+    attachModel(MODEL);
   }
   
   
   public DustCrawler(Session s) throws Exception {
-    super(s) ;
-    toggleSoilDisplay() ;
+    super(s);
+    toggleSoilDisplay();
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
+    super.saveState(s);
   }
   
   
-  public float height() { return 0.3f ; }
-  public float radius() { return 0.3f ; }
+  public float height() { return 0.3f; }
+  public float radius() { return 0.3f; }
   
   public float homeCrowding(Actor actor) { return 1; }
   public float visitCrowding(Actor actor) { return 1; }
@@ -60,48 +60,48 @@ public class DustCrawler extends Vehicle implements
   /**  Behavioural methods-
     */
   public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates) ;
+    super.updateAsScheduled(numUpdates);
     
     //  TODO:  Restore once building/salvage of vehicles is complete-
-    ///if (! structure.intact()) return ;
+    ///if (! structure.intact()) return;
     
-    base().intelMap.liftFogAround(this, 3.0f) ;
+    base().intelMap.liftFogAround(this, 3.0f);
     
-    final FormerPlant plant = (FormerPlant) hangar() ;
-    final Target going = pathing.target() ;
+    final FormerPlant plant = (FormerPlant) hangar();
+    final Target going = pathing.target();
     
     if (going == null || going == aboard()) {
       if (plant == aboard()) {
         for (Item sample : cargo.matches(SAMPLES)) {
-          final Tile t = (Tile) sample.refers ;
-          plant.soilSamples += (t.habitat().minerals() / 10f) + 0.5f ;
-          cargo.removeItem(sample) ;
+          final Tile t = (Tile) sample.refers;
+          plant.soilSamples += (t.habitat().minerals() / 10f) + 0.5f;
+          cargo.removeItem(sample);
         }
         if (plant.soilSamples < 10) {
-          pathing.updateTarget(plant.pickSample()) ;
+          pathing.updateTarget(plant.pickSample());
         }
       }
       else {
-        cargo.addItem(Item.withReference(SAMPLES, origin())) ;
-        pathing.updateTarget(plant) ;
+        cargo.addItem(Item.withReference(SAMPLES, origin()));
+        pathing.updateTarget(plant);
       }
-      toggleSoilDisplay() ;
+      toggleSoilDisplay();
     }
   }
   
   
   protected float baseMoveRate() {
-    return 1.0f ;
+    return 1.0f;
   }
   
   
   protected void pathingAbort() {
-    ///I.say("PATHING ABORTED!") ;
-    super.pathingAbort() ;
+    ///I.say("PATHING ABORTED!");
+    super.pathingAbort();
     if (! pathing.checkPathingOkay()) {
-      final FormerPlant plant = (FormerPlant) hangar() ;
-      if (cargo.amountOf(SAMPLES) > 0) pathing.updateTarget(plant) ;
-      else pathing.updateTarget(plant.pickSample()) ;
+      final FormerPlant plant = (FormerPlant) hangar();
+      if (cargo.amountOf(SAMPLES) > 0) pathing.updateTarget(plant);
+      else pathing.updateTarget(plant.pickSample());
     }
   }
   
@@ -110,18 +110,18 @@ public class DustCrawler extends Vehicle implements
   /**  Rendering and interface methods-
     */
   private void toggleSoilDisplay() {
-    final SolidSprite sprite = (SolidSprite) sprite() ;
-    sprite.togglePart("soil bed", cargo.amountOf(SAMPLES) > 0) ;
+    final SolidSprite sprite = (SolidSprite) sprite();
+    sprite.togglePart("soil bed", cargo.amountOf(SAMPLES) > 0);
   }
   
   
   public String fullName() {
-    return "Dust Crawler " ;
+    return "Dust Crawler ";
   }
   
   
   public Composite portrait(BaseUI UI) {
-    return null ;
+    return null;
   }
   
   
@@ -132,7 +132,7 @@ public class DustCrawler extends Vehicle implements
       "  'This one's called Bett, and this one's Jordi.  Jordi is pretty "+
       "friendly, but you just want to stand well back when Bett starts "+
       "making that humming noise- means she don't like you.'\n"+
-      "  -Former Engineer prior to recall" ;
+      "  -Former Engineer prior to recall";
   }
 }
 

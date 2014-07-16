@@ -70,7 +70,7 @@ public class Legislation {
     GAMES_AND_TOURNEYS     = new Legislation("Games and Tourneys"),
     POLYAMORY              = new Legislation("Polyamory"),
     SOMA_DISPENSATION      = new Legislation("Soma Dispensation")
-  ;
+ ;
   
   
   /**  Data fields, constructors and setup methods-
@@ -78,44 +78,44 @@ public class Legislation {
   private static Object
     REQUIRES  = new Object(),
     CONFLICTS = new Object(),
-    APPEALS   = new Object() ;
+    APPEALS   = new Object();
   private static List <Legislation>
     soFar = new List <Legislation> (),
-    all   = new List <Legislation> () ;
+    all   = new List <Legislation> ();
   
-  final public String name ;
-  private Legislation requires[], conflicts[] ;
-  private String description ;
+  final public String name;
+  private Legislation requires[], conflicts[];
+  private String description;
   
   
   private Legislation(String name) {
-    this.name = name ;
+    this.name = name;
   }
   
   
   void setup(Object associations[], String description) {
-    Batch appB = new Batch(), reqB = new Batch(), conB = new Batch() ;
-    Batch toAdd = null ;
+    Batch appB = new Batch(), reqB = new Batch(), conB = new Batch();
+    Batch toAdd = null;
     for (Object o : associations) {
-      if      (o == APPEALS  ) toAdd = appB ;
-      else if (o == REQUIRES ) toAdd = reqB ;
-      else if (o == CONFLICTS) toAdd = conB ;
-      else toAdd.add(o) ;
+      if      (o == APPEALS  ) toAdd = appB;
+      else if (o == REQUIRES ) toAdd = reqB;
+      else if (o == CONFLICTS) toAdd = conB;
+      else toAdd.add(o);
     }
-    //appeals   = (Trait   []) appB.toArray(Trait   .class) ;
-    requires  = (Legislation[]) reqB.toArray(Legislation.class) ;
-    conflicts = (Legislation[]) conB.toArray(Legislation.class) ;
-    this.description = description ;
-    soFar.add(this) ;
-    all.add(this) ;
+    //appeals   = (Trait   []) appB.toArray(Trait   .class);
+    requires  = (Legislation[]) reqB.toArray(Legislation.class);
+    conflicts = (Legislation[]) conB.toArray(Legislation.class);
+    this.description = description;
+    soFar.add(this);
+    all.add(this);
   }
   
   public boolean conflicts(Legislation p) {
-    return Visit.arrayIncludes(conflicts, p) ;
+    return Visit.arrayIncludes(conflicts, p);
   }
   
   public boolean requires(Legislation p) {
-    return Visit.arrayIncludes(requires, p) ;
+    return Visit.arrayIncludes(requires, p);
   }
   
   
@@ -123,16 +123,16 @@ public class Legislation {
   /**  Rendering and interface methods-
     */
   public void writeInformation(Description desc) {
-    desc.append(name, Colour.WHITE) ;
-    desc.append("\n") ;
-    desc.append(description, Colour.GREY) ;
-    desc.appendList("Requires: ", (Object[]) requires) ;
-    desc.appendList("Conflicts: ", (Object[]) conflicts) ;
-    //desc.appendList("Appeals to the: ", (Object[]) appeals) ;
+    desc.append(name, Colour.WHITE);
+    desc.append("\n");
+    desc.append(description, Colour.GREY);
+    desc.appendList("Requires: ", (Object[]) requires);
+    desc.appendList("Conflicts: ", (Object[]) conflicts);
+    //desc.appendList("Appeals to the: ", (Object[]) appeals);
   }
   
   public String fullName() {
-    return name ;
+    return name;
   }
 
   public void whenClicked() {
@@ -146,13 +146,13 @@ public class Legislation {
 
 /*
   public static Legislation[] protocolsSoFar() {
-    final Object result = soFar.toArray(Legislation.class) ;
-    soFar.clear() ;
-    return (Legislation[]) result ;
+    final Object result = soFar.toArray(Legislation.class);
+    soFar.clear();
+    return (Legislation[]) result;
   }
   
   public static Legislation[] allProtocols() {
-    return (Legislation[]) all.toArray(Legislation.class) ;
+    return (Legislation[]) all.toArray(Legislation.class);
   }
 //*/
 /*
@@ -165,10 +165,10 @@ public static enum Penalty {
   TRIAL_BY_COMBAT, REHABILITATION, TORTURE
 }
 //*/
-//private Trait appeals[] ;
+//private Trait appeals[];
 /*
 public boolean appeals(Trait t) {
-  return Visit.arrayIncludes(appeals, t) ;
+  return Visit.arrayIncludes(appeals, t);
 }
 //*/
 

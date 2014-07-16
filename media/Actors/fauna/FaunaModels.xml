@@ -17,7 +17,6 @@
     <animation name="stand"      start="0"  end="0"  duration="0.5" />
     <animation name="move"       start="3"  end="11" duration="2.0" />
     <animation name="fall"       start="12" end="15" duration="3.0" />
-    
     <animation name="look"       start="0"  end="0"  duration="0.5" />
     <animation name="strike"     start="3"  end="11" duration="2.0" />
     <animation name="move_fast"  start="3"  end="11" duration="2.0" />

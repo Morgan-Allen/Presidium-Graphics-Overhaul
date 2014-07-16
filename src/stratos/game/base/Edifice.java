@@ -5,16 +5,16 @@
   */
 
 
-package stratos.game.base ;
+package stratos.game.base;
 import stratos.game.civilian.*;
-import stratos.game.common.* ;
-import stratos.game.actors.* ;
-import stratos.game.building.* ;
-import stratos.graphics.common.* ;
-import stratos.graphics.cutout.* ;
-import stratos.graphics.widgets.* ;
-import stratos.user.* ;
-import stratos.util.* ;
+import stratos.game.common.*;
+import stratos.game.actors.*;
+import stratos.game.building.*;
+import stratos.graphics.common.*;
+import stratos.graphics.cutout.*;
+import stratos.graphics.widgets.*;
+import stratos.user.*;
+import stratos.util.*;
 
 
 
@@ -24,7 +24,7 @@ public class Edifice extends Venue implements Economy {
 
   final static ModelAsset MODEL = CutoutModel.fromImage(
     Artificer.class, "media/Buildings/aesthete/edifice.png", 4, 2
-  ) ;
+  );
   final static ImageAsset ICON = ImageAsset.fromImage(
     "media/GUI/Buttons/edifice_button.gif", Edifice.class
   );
@@ -56,32 +56,32 @@ public class Edifice extends Venue implements Economy {
     
     STYLE_REPRESENTATIVE = 0,
     STYLE_GEOMETRIC      = 1,
-    STYLE_SURREALISTIC   = 2 ;
+    STYLE_SURREALISTIC   = 2;
   
   
-  int eventCode = -1, styleCode = -1 ;
+  int eventCode = -1, styleCode = -1;
   
   
   public Edifice(Base base) {
-    super(4, 2, ENTRANCE_NONE, base) ;
+    super(4, 2, ENTRANCE_NONE, base);
     structure.setupStats(
       500, 50, 800, 0, Structure.TYPE_FIXTURE
-    ) ;
-    this.attachSprite(MODEL.makeSprite()) ;
+    );
+    this.attachSprite(MODEL.makeSprite());
   }
   
   
   public Edifice(Session s) throws Exception {
-    super(s) ;
-    eventCode = s.loadInt() ;
-    styleCode = s.loadInt() ;
+    super(s);
+    eventCode = s.loadInt();
+    styleCode = s.loadInt();
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
-    s.saveInt(eventCode) ;
-    s.saveInt(styleCode) ;
+    super.saveState(s);
+    s.saveInt(eventCode);
+    s.saveInt(styleCode);
   }
   
   
@@ -89,25 +89,25 @@ public class Edifice extends Venue implements Economy {
   /**  Economic functions, upgrades and behaviour implementation-
     */
   public Behaviour jobFor(Actor actor) {
-    return null ;
+    return null;
   }
   
   
   public Background[] careers() {
-    return null ;
+    return null;
   }
   
   
   public Service[] services() {
-    return null ;
+    return null;
   }
   
   
   public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates) ;
-    if (! structure.intact()) return ;
-    ///I.sayAbout(this, "Ambience value: "+structure.ambienceVal()) ;
-    structure.setAmbienceVal(25) ;
+    super.updateAsScheduled(numUpdates);
+    if (! structure.intact()) return;
+    ///I.sayAbout(this, "Ambience value: "+structure.ambienceVal());
+    structure.setAmbienceVal(25);
   }
   
 
@@ -115,12 +115,12 @@ public class Edifice extends Venue implements Economy {
   /**  Rendering and interface methods-
     */
   public String fullName() {
-    return "Edifice" ;
+    return "Edifice";
   }
   
   
   public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "edifice") ;
+    return Composite.withImage(ICON, "edifice");
   }
   
   
@@ -132,7 +132,7 @@ public class Edifice extends Venue implements Economy {
   
 
   public String buildCategory() {
-    return UIConstants.TYPE_AESTHETE ;
+    return UIConstants.TYPE_AESTHETE;
   }
 }
 

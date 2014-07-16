@@ -18,7 +18,7 @@ public class DeliveryUtils {
   
   private static boolean
     sampleVerbose = false,
-    rateVerbose   = true ;
+    rateVerbose   = true;
   
   
   /**  Helper methods for getting suitable distribution targets-
@@ -26,11 +26,11 @@ public class DeliveryUtils {
   public static Batch <Venue> nearbyDepots(
     Target t, World world, Class <? extends Venue>... venueClasses
   ) {
-    final Batch <Venue> depots = new Batch <Venue> () ;
+    final Batch <Venue> depots = new Batch <Venue> ();
     world.presences.sampleFromMaps(
       t, world, 5, depots, (Object[]) venueClasses
-    ) ;
-    return depots ;
+    );
+    return depots;
   }
   
   

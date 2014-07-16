@@ -4,11 +4,11 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package stratos.graphics.common ;
+package stratos.graphics.common;
 import stratos.util.*;
 
-import java.awt.Color ;
-import java.io.* ;
+import java.awt.Color;
+import java.io.*;
 
 import org.apache.commons.math3.util.FastMath;
 
@@ -45,7 +45,7 @@ public class Colour {
     GREY        = new Colour().set(0.5f, 0.5f, 0.5f, 1),
     LIGHT_GREY  = new Colour().set(0.8f, 0.8f, 0.8f, 1),
     BLACK       = new Colour().set(0, 0, 0, 1),
-    TRANSLUCENT = new Colour().set(1, 1, 1, 0.5f) ;
+    TRANSLUCENT = new Colour().set(1, 1, 1, 0.5f);
   final public static int
     ALPHA_BITS = 0xff000000,
     RGB_BITS   = 0x00ffffff;
@@ -98,7 +98,7 @@ public class Colour {
       ((int) (255 * o) << 24) |
       ((int) (255 * b) << 16) |
       ((int) (255 * g) << 8 ) |
-      ((int) (255 * r) << 0 ) ;
+      ((int) (255 * r) << 0 );
     return Float.intBitsToFloat(color);
   }
   
@@ -108,7 +108,7 @@ public class Colour {
       ((int) (255 * a) << 0 ) |
       ((int) (255 * b) << 8 ) |
       ((int) (255 * g) << 16) |
-      ((int) (255 * r) << 24) ;
+      ((int) (255 * r) << 24);
   }
   
   

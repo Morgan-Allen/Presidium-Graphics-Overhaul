@@ -2,6 +2,7 @@
 
 
 package stratos.graphics.charts;
+import stratos.start.Disposal;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
 import stratos.graphics.widgets.*;
@@ -21,31 +22,41 @@ import java.util.Random;
 
 
 
-public class StarField {
+public class StarField extends Disposal {
   
   
   final Viewport view;
   final List <FieldObject> allObjects;
+  
   private FieldObject selectObject;
   private FieldObject hoverFocus, selectFocus;
   private float hoverAlpha = 1, selectAlpha = 1;
-  
   
   private Texture sectorsTex, axisTex;
   private float fieldSize, objectScale = 1f;
   private float rotation = 90, elevation = 0;
   
-  private MeshCompile compiled;
+  private Stitching compiled;
   private ShaderProgram shading;
   
   
   
   public StarField() {
+    super(true);
     view = new Viewport();
     
+    allObjects = new List <FieldObject> () {
+      protected float queuePriority(FieldObject r) {
+        return 0 - r.depth;
+      }
+    };
+  }
+  
+  
+  protected void performAssetSetup() {
     //  NOTE:  The normal attribute here is actually used to store the offset
     //  of a corner from the given decal's coordinate centre (see below).
-    compiled = new MeshCompile(
+    compiled = new Stitching(
       3 + 3 + 1 + 2,                 //number of floats per vertex.
       true, 100,                     //is a quad, max. total quads
       new int[] {0, 1, 2, 1, 2, 3},  //indices for quad vertices
@@ -62,17 +73,10 @@ public class StarField {
     if (! shading.isCompiled()) {
       throw new GdxRuntimeException("\n"+shading.getLog());
     }
-    
-    allObjects = new List <FieldObject> () {
-      protected float queuePriority(FieldObject r) {
-        return 0 - r.depth;
-      }
-    };
   }
   
   
-  public void dispose() {
-    //  TODO:  THIS MUST BE SCHEDULED
+  protected void performAssetDisposal() {
     shading.dispose();
     compiled.dispose();
   }

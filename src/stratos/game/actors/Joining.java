@@ -53,7 +53,7 @@ public class Joining extends Plan {
   }
   
   
-  public float harmFactor()    { return basis.harmFactor()   ; }
+  public float harmFactor()    { return basis.harmFactor()  ; }
   public float competeFactor() { return basis.competeFactor(); }
   
   

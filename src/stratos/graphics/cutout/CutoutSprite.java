@@ -10,18 +10,18 @@ import stratos.util.*;
 public class CutoutSprite extends Sprite {
   
   
-  protected CutoutModel model ;
+  protected CutoutModel model;
   
   
   
   public CutoutSprite(CutoutModel model) {
-    this.model = model ;
+    this.model = model;
     this.passType = model.splat ? PASS_SPLAT : PASS_NORMAL;
   }
   
   
   public ModelAsset model() {
-    return model ;
+    return model;
   }
   
   

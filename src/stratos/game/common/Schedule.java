@@ -5,7 +5,7 @@
   */
 
 
-package stratos.game.common ;
+package stratos.game.common;
 import stratos.start.*;
 import stratos.util.*;
 import stratos.util.Sorting.*;
@@ -27,67 +27,67 @@ public class Schedule {
   private static boolean
     verbose       = false,
     updateVerbose = false,
-    verboseDelays = verbose && true ;
+    verboseDelays = verbose && true;
   
-  private long initTime = -1 ;
-  private boolean lastUpdateOkay = true ;
+  private long initTime = -1;
+  private boolean lastUpdateOkay = true;
 
 
   public static interface Updates extends Session.Saveable {
-    float scheduledInterval() ;
-    void updateAsScheduled(int numUpdates) ;
+    float scheduledInterval();
+    void updateAsScheduled(int numUpdates);
   }
   
   private static class Event {
-    private float time ;
-    private int initTime, lastUpdateCount ;
-    private Updates updates ;
+    private float time;
+    private int initTime, lastUpdateCount;
+    private Updates updates;
     
     public String toString() {
-      return updates+" Update for: "+time ;
+      return updates+" Update for: "+time;
     }
   }
   
   final Sorting <Event> events = new Sorting <Event> () {
     public int compare(Event a, Event b) {
-      if (a.updates == b.updates) return 0 ;
-      return a.time > b.time ? 1 : -1 ;
+      if (a.updates == b.updates) return 0;
+      return a.time > b.time ? 1 : -1;
     }
-  } ;
+  };
   
   final Table <Updates, Object>
-    allUpdates = new Table <Updates, Object> (1000) ;
+    allUpdates = new Table <Updates, Object> (1000);
   
-  private float currentTime = 0 ;
+  private float currentTime = 0;
   
   
   Schedule(float initTime) {
-    this.currentTime = initTime ;
+    this.currentTime = initTime;
   }
   
   
   protected void saveTo(Session s) throws Exception {
-    s.saveFloat(currentTime) ;
-    s.saveInt(allUpdates.size()) ;
+    s.saveFloat(currentTime);
+    s.saveInt(allUpdates.size());
     for (Object node : allUpdates.values()) {
-      final Event event = events.refValue(node) ;
-      s.saveFloat(event.time) ;
-      s.saveInt(event.initTime) ;
-      s.saveInt(event.lastUpdateCount) ;
-      s.saveObject(event.updates) ;
+      final Event event = events.refValue(node);
+      s.saveFloat(event.time);
+      s.saveInt(event.initTime);
+      s.saveInt(event.lastUpdateCount);
+      s.saveObject(event.updates);
     }
   }
   
   
   protected void loadFrom(Session s) throws Exception {
-    currentTime = s.loadFloat() ;
-    for (int n = s.loadInt() ; n-- > 0 ;) {
-      final Event event = new Event() ;
-      event.time = s.loadFloat() ;
-      event.initTime = s.loadInt() ;
-      event.lastUpdateCount = s.loadInt() ;
-      event.updates = (Updates) s.loadObject() ;
-      allUpdates.put(event.updates, events.insert(event)) ;
+    currentTime = s.loadFloat();
+    for (int n = s.loadInt(); n-- > 0;) {
+      final Event event = new Event();
+      event.time = s.loadFloat();
+      event.initTime = s.loadInt();
+      event.lastUpdateCount = s.loadInt();
+      event.updates = (Updates) s.loadObject();
+      allUpdates.put(event.updates, events.insert(event));
     }
   }
   
@@ -99,7 +99,7 @@ public class Schedule {
     if (allUpdates.get(updates) != null) {
       I.complain(updates+" ALREADY REGISTERED FOR UPDATES!");
     }
-    final Event event = new Event() ;
+    final Event event = new Event();
     ///I.say("Scheduling "+updates+" for updates...");
     
     //  We 'fudge' the incept and scheduling times a little here to help ensure
@@ -114,21 +114,21 @@ public class Schedule {
   
   
   public void scheduleNow(Updates updates) {
-    final Object ref = allUpdates.get(updates) ;
-    if (ref == null) return ;
-    final Event event = events.refValue(ref) ;
-    event.time = currentTime ;
-    events.deleteRef(ref) ;
-    allUpdates.put(event.updates, events.insert(event)) ;
+    final Object ref = allUpdates.get(updates);
+    if (ref == null) return;
+    final Event event = events.refValue(ref);
+    event.time = currentTime;
+    events.deleteRef(ref);
+    allUpdates.put(event.updates, events.insert(event));
   }
   
   
   public void unschedule(Updates updates) {
-    final Object node = allUpdates.get(updates) ;
-    ///I.say("...Unscheduling "+updates+" node okay? "+(node != null)) ;
-    if (node == null) return ;
-    events.deleteRef(node) ;
-    allUpdates.remove(updates) ;
+    final Object node = allUpdates.get(updates);
+    ///I.say("...Unscheduling "+updates+" node okay? "+(node != null));
+    if (node == null) return;
+    events.deleteRef(node);
+    allUpdates.remove(updates);
   }
   
   
@@ -139,19 +139,19 @@ public class Schedule {
     *  the host world.
     */
   void advanceSchedule(final float currentTime) {
-    this.currentTime = currentTime ;
+    this.currentTime = currentTime;
     
-    final int NU = PlayLoop.UPDATES_PER_SECOND * 2 ;
-    final int maxInterval = (int) (1000 / (PlayLoop.gameSpeed() * NU)) - 1 ;
+    final int NU = PlayLoop.UPDATES_PER_SECOND * 2;
+    final int maxInterval = (int) (1000 / (PlayLoop.gameSpeed() * NU)) - 1;
     
-    final long oldInit = initTime ;
-    initTime = System.currentTimeMillis() ;
-    int totalUpdated = 0 ;
-    float lastEventTime = -1 ;
-    boolean finishedOK = true ;
+    final long oldInit = initTime;
+    initTime = System.currentTimeMillis();
+    int totalUpdated = 0;
+    float lastEventTime = -1;
+    boolean finishedOK = true;
     
-    Updates longestUpdate = null ;
-    long longestTime = 0 ;
+    Updates longestUpdate = null;
+    long longestTime = 0;
     
     if (verbose) I.say(
       "\nUPDATING SCHEDULE, MS SINCE LAST UPDATE: "+(initTime - oldInit)+
@@ -159,68 +159,68 @@ public class Schedule {
     );
     
     while (true) {
-      final long taken = System.currentTimeMillis() - initTime ;
+      final long taken = System.currentTimeMillis() - initTime;
       if (taken > maxInterval) {
-        finishedOK = false ;
-        break ;
+        finishedOK = false;
+        break;
       }
       
-      final Object leastRef = events.leastRef() ;
+      final Object leastRef = events.leastRef();
       if (leastRef == null) {
-        break ;
+        break;
       }
       
-      final Event event = events.refValue(leastRef) ;
-      lastEventTime = event.time ;
+      final Event event = events.refValue(leastRef);
+      lastEventTime = event.time;
       if (event.time > currentTime) {
-        finishedOK = true ;
-        break ;
+        finishedOK = true;
+        break;
       }
 
-      final float interval = event.updates.scheduledInterval() ;
-      events.deleteRef(leastRef) ;
+      final float interval = event.updates.scheduledInterval();
+      events.deleteRef(leastRef);
       
       //  TODO:  Stretch this out further based on the proportion of clients
       //  that updated successfully last cycle?
-      if (lastUpdateOkay) event.time += interval + ((Rand.num() - 0.5f) / 5) ;
-      else event.time += (interval * 2) - Rand.num() ;
-      allUpdates.put(event.updates, events.insert(event)) ;
+      if (lastUpdateOkay) event.time += interval + ((Rand.num() - 0.5f) / 5);
+      else event.time += (interval * 2) - Rand.num();
+      allUpdates.put(event.updates, events.insert(event));
       
-      final int updateCount = (int) (currentTime - event.initTime) ;
+      final int updateCount = (int) (currentTime - event.initTime);
       if (updateCount > event.lastUpdateCount) {
-        long startTime = System.nanoTime() ;
+        long startTime = System.nanoTime();
         
         if (updateVerbose) I.say("Updating: "+event.updates);
-        event.updates.updateAsScheduled(updateCount) ;
-        long updateTime = System.nanoTime() - startTime ;
+        event.updates.updateAsScheduled(updateCount);
+        long updateTime = System.nanoTime() - startTime;
         if (updateTime > longestTime) {
-          longestTime = updateTime ;
-          longestUpdate = event.updates ;
+          longestTime = updateTime;
+          longestUpdate = event.updates;
         }
-        event.lastUpdateCount = updateCount ;
-        totalUpdated++ ;
+        event.lastUpdateCount = updateCount;
+        totalUpdated++;
       }
     }
     
-    this.lastUpdateOkay = finishedOK ;
-    final long taken = System.currentTimeMillis() - initTime ;
+    this.lastUpdateOkay = finishedOK;
+    final long taken = System.currentTimeMillis() - initTime;
     
     if (verbose && taken >= maxInterval * 2) {
-      I.say("___PATHOLOGICALLY DELAYED___") ;
+      I.say("___PATHOLOGICALLY DELAYED___");
     }
     if (verbose) {
       if (finishedOK) {
-        I.say("  SCHEDULE UPDATED OKAY, OBJECTS UPDATED: "+totalUpdated) ;
+        I.say("  SCHEDULE UPDATED OKAY, OBJECTS UPDATED: "+totalUpdated);
       }
       else {
-        I.say("  SCHEDULE IS OUT OF TIME, TOTAL UPDATED: "+totalUpdated) ;
+        I.say("  SCHEDULE IS OUT OF TIME, TOTAL UPDATED: "+totalUpdated);
       }
-      I.say("  Last event time: "+lastEventTime+"\n") ;
-      I.say("  TOTAL OBJECTS NEEDING UPDATE: "+events.size()) ;
-      I.say("  TIME SPENT: "+taken) ;
-      I.say("  Longest client to update: "+longestUpdate) ;
-      I.say("  Time taken "+(longestTime / 1000000.0)+"\n") ;
-      I.say("\n") ;
+      I.say("  Last event time: "+lastEventTime+"\n");
+      I.say("  TOTAL OBJECTS NEEDING UPDATE: "+events.size());
+      I.say("  TIME SPENT: "+taken);
+      I.say("  Longest client to update: "+longestUpdate);
+      I.say("  Time taken "+(longestTime / 1000000.0)+"\n");
+      I.say("\n");
     }
   }
 }

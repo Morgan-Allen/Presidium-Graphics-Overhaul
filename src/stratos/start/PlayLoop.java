@@ -34,7 +34,7 @@ public final class PlayLoop {
     DEFAULT_HERTZ  = 60,
     
     MIN_SLEEP    = 10,
-    SLEEP_MARGIN = 2 ;
+    SLEEP_MARGIN = 2;
   private static boolean verbose = false;
   
   
@@ -111,7 +111,6 @@ public final class PlayLoop {
     if (! initDone) {
       initDone = true;
       
-      
       new LwjglApplication(new ApplicationListener() {
         public void create() {
           shouldLoop = true;
@@ -139,7 +138,11 @@ public final class PlayLoop {
             if (verbose) I.say("should not be looping...");
             return;
           }
+          
+          if (loopChanged) Disposal.performSetup();
+          KeyInput.updateInputs();
           final boolean okay = advanceLoop();
+          
           if (! okay) {
             if (verbose) I.say("Loop does not want to advance!");
             exitLoop();
@@ -151,11 +154,10 @@ public final class PlayLoop {
   
   
   public static void gameStateWipe() {
-    //  TODO:  Look into this more carefully.
-    Spacing.wipeTempArrays();
-    Composite.wipeCache();
     I.talkAbout = null;
     played = null;
+    Disposal.performDisposal();
+    
     if (rendering != null) rendering.clearAll();
   }
   
@@ -249,7 +251,7 @@ public final class PlayLoop {
       if (played.shouldExitLoop()) return false;
       
       if (verbose) I.say("  No. of updates: "+numUpdates);
-      if (! paused) for (int n = numUpdates ; n-- > 0 ;) {
+      if (! paused) for (int n = numUpdates; n-- > 0;) {
         if (loopChanged) return true;
         if (verbose) I.say("  UPDATING WORLD?");
         played.updateGameState();
@@ -271,32 +273,32 @@ public final class PlayLoop {
     *  frame rate.
     */
   public static float frameTime() {
-    return frameTime ;
+    return frameTime;
   }
   
   
   public static boolean paused() {
-    return paused ;
+    return paused;
   }
   
   
   public static float gameSpeed() {
-    return gameSpeed ;
+    return gameSpeed;
   }
   
   
   public static void setGameSpeed(float mult) {
-    gameSpeed = Math.max(0, mult) ;
+    gameSpeed = Math.max(0, mult);
   }
   
   
   public static void setPaused(boolean p) {
-    paused = p ;
+    paused = p;
   }
   
   
   public static void setNoInput(boolean n) {
-    noInput = n ;
+    noInput = n;
   }
 }
 

@@ -3,7 +3,7 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-package stratos.game.building ;
+package stratos.game.building;
 import stratos.game.common.*;
 import stratos.user.*;
 import stratos.util.*;
@@ -29,15 +29,15 @@ public class Inventory {
     TIER_TRADER   =  1,  //deliver to/from based on relative shortage.
     TIER_CONSUMER =  2;  //never deliver from a consumer.
   
-  final public Owner owner ;
-  protected float credits, taxed ;
+  final public Owner owner;
+  protected float credits, taxed;
   
   private Table <Item, Item> itemTable = new Table <Item, Item> (10);
-  //  private int sumGoods ;  //TODO:  Break into increments of 1/100th bulk?
+  //  private int sumGoods;  //TODO:  Break into increments of 1/100th bulk?
   
   
   public Inventory(Owner owner) {
-    this.owner = owner ;
+    this.owner = owner;
   }
   
   //  TODO:  Consider moving this outside.
@@ -55,20 +55,20 @@ public class Inventory {
   
   
   public void saveState(Session s) throws Exception {
-    s.saveInt(itemTable.size()) ;
-    for (Item item : itemTable.values()) Item.saveTo(s, item) ;
-    s.saveFloat(credits) ;
-    s.saveFloat(taxed  ) ;
+    s.saveInt(itemTable.size());
+    for (Item item : itemTable.values()) Item.saveTo(s, item);
+    s.saveFloat(credits);
+    s.saveFloat(taxed  );
   }
   
   
   public void loadState(Session s) throws Exception {
-    for (int i = s.loadInt() ; i-- > 0 ;) {
-      final Item item = Item.loadFrom(s) ;
-      itemTable.put(item, item) ;
+    for (int i = s.loadInt(); i-- > 0;) {
+      final Item item = Item.loadFrom(s);
+      itemTable.put(item, item);
     }
-    credits = s.loadFloat() ;
-    taxed   = s.loadFloat() ;
+    credits = s.loadFloat();
+    taxed   = s.loadFloat();
   }
   
   
@@ -77,37 +77,37 @@ public class Inventory {
     */
   public void incCredits(float inc) {
     if (inc > 0) {
-      credits += inc ;
+      credits += inc;
     }
     else {
-      credits += inc ;
+      credits += inc;
       if (credits < 0) {
-        taxed += credits ;
-        credits = 0 ;
+        taxed += credits;
+        credits = 0;
       }
     }
     if (taxed < 0) {
-      credits += taxed ;
-      taxed = 0 ;
+      credits += taxed;
+      taxed = 0;
     }
-    //owner.afterTransaction() ;
+    //owner.afterTransaction();
   }
   
   
   public float credits() {
-    return credits + taxed ;
+    return credits + taxed;
   }
   
   
   public float unTaxed() {
-    return credits ;
+    return credits;
   }
   
   
   public void taxDone() {
-    taxed += credits ;
-    credits = 0 ;
-    //owner.afterTransaction() ;
+    taxed += credits;
+    credits = 0;
+    //owner.afterTransaction();
   }
   
   
@@ -115,14 +115,14 @@ public class Inventory {
   /**  Returns whether this inventory is empty.
    */
   public boolean empty() {
-    return itemTable.size() == 0 && (credits + taxed) <= 0 ;
+    return itemTable.size() == 0 && (credits + taxed) <= 0;
   }
   
   
   public Batch <Item> allItems() {
-    final Batch <Item> allItems = new Batch <Item> () ;
-    for (Item item : itemTable.values()) allItems.add(item) ;
-    return allItems ;
+    final Batch <Item> allItems = new Batch <Item> ();
+    for (Item item : itemTable.values()) allItems.add(item);
+    return allItems;
   }
   
   
@@ -132,14 +132,14 @@ public class Inventory {
   
   
   public void clearItems(Service type) {
-    itemTable.remove(type) ;
+    itemTable.remove(type);
   }
   
   
   public void removeAllItems() {
-    itemTable.clear() ;
-    credits = taxed = 0 ;
-    //owner.afterTransaction() ;
+    itemTable.clear();
+    credits = taxed = 0;
+    //owner.afterTransaction();
   }
   
   
@@ -153,42 +153,42 @@ public class Inventory {
       if (item.isMatch()) I.complain(
         "ADDING ILLEGAL ITEM: "+item+" amount/quality:"+
         item.amount+"/"+item.quality
-      ) ;
-      new Exception().printStackTrace() ;
-      return false ;
+      );
+      new Exception().printStackTrace();
+      return false;
     }
     //
     //  Check to see if a similar item already exists.  If so, blend the new
     //  quality with the old-
-    final Item oldItem = itemTable.get(item) ;
+    final Item oldItem = itemTable.get(item);
     final int oldAmount = oldItem == null ? 0 : (int) oldItem.amount;
     
-    float amount = item.amount, quality = item.quality ;
+    float amount = item.amount, quality = item.quality;
     if (oldItem != null) {
-      itemTable.remove(oldItem) ;
-      quality = (quality * amount) + (oldItem.amount * oldItem.quality) ;
-      amount += oldItem.amount ;
-      quality /= amount ;
+      itemTable.remove(oldItem);
+      quality = (quality * amount) + (oldItem.amount * oldItem.quality);
+      amount += oldItem.amount;
+      quality /= amount;
     }
     
-    final Item entered = Item.with(item.type, item.refers, amount, quality) ;
+    final Item entered = Item.with(item.type, item.refers, amount, quality);
     itemTable.put(entered, entered);
     
     if (owner != null) owner.afterTransaction(item, item.amount);
-    return true ;
+    return true;
   }
   
   
   public void bumpItem(Service type, float amount) {
-    if (amount == 0) return ;
-    if (amount > 0) addItem(Item.withAmount(type, amount)) ;
-    else removeItem(Item.withAmount(type, 0 - amount)) ;
+    if (amount == 0) return;
+    if (amount > 0) addItem(Item.withAmount(type, amount));
+    else removeItem(Item.withAmount(type, 0 - amount));
   }
   
   
   public void bumpItem(Service type, float amount, int max) {
-    final float oldAmount = amountOf(type) ;
-    bumpItem(type, Visit.clamp(amount, 0 - oldAmount, max - oldAmount)) ;
+    final float oldAmount = amountOf(type);
+    bumpItem(type, Visit.clamp(amount, 0 - oldAmount, max - oldAmount));
   }
   
   
@@ -207,24 +207,24 @@ public class Inventory {
     */
   public boolean removeItem(Item item) {
     if (item.amount <= 0) {
-      I.say("Removing null item... "+item.amount) ;
-      new Exception().printStackTrace() ;
-      return false ;
+      I.say("Removing null item... "+item.amount);
+      new Exception().printStackTrace();
+      return false;
     }
     //
     //  Check to see if the item already exists-
-    final Item oldItem = itemTable.get(item) ;
-    if (oldItem == null) return false ;
+    final Item oldItem = itemTable.get(item);
+    if (oldItem == null) return false;
     if (oldItem.amount <= item.amount) {
-      itemTable.remove(item) ;
-      if (owner != null) owner.afterTransaction(item, oldItem.amount) ;
-      return false ;
+      itemTable.remove(item);
+      if (owner != null) owner.afterTransaction(item, oldItem.amount);
+      return false;
     }
-    final float newAmount = oldItem.amount - item.amount ;
-    final Item entered = Item.withAmount(oldItem, newAmount) ;
-    itemTable.put(entered, entered) ;
-    if (owner != null) owner.afterTransaction(item, item.amount - newAmount) ;
-    return true ;
+    final float newAmount = oldItem.amount - item.amount;
+    final Item entered = Item.withAmount(oldItem, newAmount);
+    itemTable.put(entered, entered);
+    if (owner != null) owner.afterTransaction(item, item.amount - newAmount);
+    return true;
   }
   
   
@@ -235,28 +235,28 @@ public class Inventory {
   
   
   public void removeAllMatches(Service type) {
-    for (Item match : matches(type)) itemTable.remove(match) ;
+    for (Item match : matches(type)) itemTable.remove(match);
   }
   
 
   public float transfer(Service type, Owner to) {
-    float amount = 0 ;
+    float amount = 0;
     for (Item item : matches(type)) {
-      removeItem(item) ;
-      to.inventory().addItem(item) ;
-      amount += item.amount ;
+      removeItem(item);
+      to.inventory().addItem(item);
+      amount += item.amount;
     }
-    return amount ;
+    return amount;
   }
   
   
   public float transfer(Item item, Owner to) {
-    final float amount = Math.min(item.amount, amountOf(item)) ;
-    if (amount <= 0) return 0 ;
-    final Item transfers = Item.withAmount(item, amount) ;
-    removeItem(transfers) ;
-    to.inventory().addItem(transfers) ;
-    return amount ;
+    final float amount = Math.min(item.amount, amountOf(item));
+    if (amount <= 0) return 0;
+    final Item transfers = Item.withAmount(item, amount);
+    removeItem(transfers);
+    to.inventory().addItem(transfers);
+    return amount;
   }
   
   
@@ -266,67 +266,67 @@ public class Inventory {
   public Item bestSample(
     Service type, Session.Saveable refers, float maxAmount
   ) {
-    return bestSample(Item.asMatch(type, refers), maxAmount) ;
+    return bestSample(Item.asMatch(type, refers), maxAmount);
   }
   
   
   public Item bestSample(Item match, float maxAmount) {
-    final Batch <Item> matches = matches(match) ;
-    Item best = null ;
-    float bestQuality = -1 ;
+    final Batch <Item> matches = matches(match);
+    Item best = null;
+    float bestQuality = -1;
     for (Item i : matches) {
-      if (i.quality > bestQuality) { bestQuality = i.quality ; best = i ; }
+      if (i.quality > bestQuality) { bestQuality = i.quality; best = i; }
     }
-    if (best == null) return null ;
+    if (best == null) return null;
     if (maxAmount > 0 && best.amount > maxAmount) {
-      best = Item.withAmount(best, maxAmount) ;
+      best = Item.withAmount(best, maxAmount);
     }
-    return best ;
+    return best;
   }
   
   
   public Batch <Item> matches(Item item) {
-    final Batch <Item> matches = new Batch <Item> (4) ;
+    final Batch <Item> matches = new Batch <Item> (4);
     for (Item found : itemTable.values()) {
-      if (item.matchKind(found)) matches.add(found) ;
+      if (item.matchKind(found)) matches.add(found);
     }
-    return matches ;
+    return matches;
   }
   
   
   public Batch <Item> matches(Service type) {
-    final Batch <Item> matches = new Batch <Item> (4) ;
+    final Batch <Item> matches = new Batch <Item> (4);
     for (Item found : itemTable.values()) {
-      if (found.type == type) matches.add(found) ;
+      if (found.type == type) matches.add(found);
     }
-    return matches ;
+    return matches;
   }
   
   
   public Item matchFor(Item item) {
-    return itemTable.get(item) ;
+    return itemTable.get(item);
   }
   
   
   public float amountOf(Item item) {
     //if (verbose) I.sayAbout(owner, "Seeking match for "+item);
     if (item.isMatch()) {
-      float amount = 0 ;
+      float amount = 0;
       for (Item found : itemTable.values()) {
-        if (item.matchKind(found)) amount += found.amount ;
+        if (item.matchKind(found)) amount += found.amount;
       }
-      return amount ;
+      return amount;
     }
     else {
-      final Item found = itemTable.get(item) ;
+      final Item found = itemTable.get(item);
       //if (verbose) I.sayAbout(owner, "Match for "+item+" is "+found);
-      return found == null ? 0 : found.amount ;
+      return found == null ? 0 : found.amount;
     }
   }
   
   
   public float amountOf(Service type) {
-    return amountOf(Item.asMatch(type, null)) ;
+    return amountOf(Item.asMatch(type, null));
   }
   
   
@@ -343,9 +343,9 @@ public class Inventory {
     *  match criteria.
     */
   public boolean hasItem(Item item) {
-    final float amount = amountOf(item) ;
-    if (item.amount == Item.ANY) return amount > 0 ;
-    else return item.amount > 0 && amount >= item.amount ;
+    final float amount = amountOf(item);
+    if (item.amount == Item.ANY) return amount > 0;
+    else return item.amount > 0 && amount >= item.amount;
   }
 }
 

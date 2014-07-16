@@ -1,6 +1,6 @@
 
 
-package stratos.graphics.sfx ;
+package stratos.graphics.sfx;
 import org.apache.commons.math3.util.FastMath;
 
 import stratos.graphics.common.*;
@@ -19,12 +19,12 @@ public class Healthbar extends SFX {
   final public static ModelAsset BAR_MODEL = new Assets.ClassModel(
     "shield_fx_model", Healthbar.class
   ) {
-    public Sprite makeSprite() { return new Healthbar() ; }
+    public Sprite makeSprite() { return new Healthbar(); }
   };
   
   final public static int
     BAR_HEIGHT = 5,
-    DEFAULT_WIDTH = 40 ;
+    DEFAULT_WIDTH = 40;
   final public static Colour
     AMBER_FLASH = new Colour().set(1, 0.75f, 0, 1);
   
@@ -44,7 +44,7 @@ public class Healthbar extends SFX {
     super(PRIORITY_FIRST);
   }
   
-  public ModelAsset model() { return BAR_MODEL ; }
+  public ModelAsset model() { return BAR_MODEL; }
   
   
   
@@ -53,11 +53,11 @@ public class Healthbar extends SFX {
   protected void renderInPass(SFXPass pass) {
     
     //  First, establish screen coordinates for the bottom-left corner.
-    final Vec3D base = new Vec3D().setTo(position) ;
-    pass.rendering.view.translateToScreen(base) ;
+    final Vec3D base = new Vec3D().setTo(position);
+    pass.rendering.view.translateToScreen(base);
     final int
       x = (int) (base.x - (size / 2)),
-      y = (int) (base.y + yoff - (BAR_HEIGHT / 2)) ;
+      y = (int) (base.y + yoff - (BAR_HEIGHT / 2));
     
     //  Then, establish correct colours for the fill, back, and warning-
     Colour colour = this.colour;

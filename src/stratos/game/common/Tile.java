@@ -5,7 +5,7 @@
   */
 
 
-package stratos.game.common ;
+package stratos.game.common;
 import stratos.game.building.*;
 import stratos.game.maps.*;
 import stratos.graphics.common.*;
@@ -25,60 +25,60 @@ public final class Tile implements
     PATH_ROAD    = 0,
     PATH_CLEAR   = 1,
     PATH_HINDERS = 2,
-    PATH_BLOCKS  = 3 ;
+    PATH_BLOCKS  = 3;
   private static Stack <Mobile>
-    NONE_INSIDE = new Stack <Mobile> () ;
+    NONE_INSIDE = new Stack <Mobile> ();
   
   private static boolean verbose = false;
   
   
-  final public World world ;
-  final public int x, y ;
-  private Object flagged ;
-  private Boardable boardingCache[] = null ;
+  final public World world;
+  final public int x, y;
+  private Object flagged;
+  private Boardable boardingCache[] = null;
   
-  private float elevation = Float.NEGATIVE_INFINITY ;
-  private Habitat habitat = null ;
-  private Element owner ;
-  private Stack <Mobile> inside = NONE_INSIDE ;
+  private float elevation = Float.NEGATIVE_INFINITY;
+  private Habitat habitat = null;
+  private Element owner;
+  private Stack <Mobile> inside = NONE_INSIDE;
   
   
   
   /**  Basic constructor and save/load functionality-
     */
   protected Tile(World world, int x, int y) {
-    this.world = world ;
-    this.x = x ;
-    this.y = y ;
+    this.world = world;
+    this.x = x;
+    this.y = y;
   }
   
   
   public static Tile loadConstant(Session s) throws Exception {
-    return s.world().tileAt(s.loadInt(), s.loadInt()) ;
+    return s.world().tileAt(s.loadInt(), s.loadInt());
   }
   
   
   public void saveState(Session s) throws Exception {
-    s.saveInt(x) ;
-    s.saveInt(y) ;
+    s.saveInt(x);
+    s.saveInt(y);
   }
   
   
   protected void loadTileState(Session s) throws Exception {
-    elevation = s.loadFloat() ;
-    habitat = Habitat.ALL_HABITATS[s.loadInt()] ;
-    owner = (Element) s.loadObject() ;
-    if (s.loadBool()) s.loadObjects(inside = new Stack <Mobile> ()) ;
-    else inside = NONE_INSIDE ;
+    elevation = s.loadFloat();
+    habitat = Habitat.ALL_HABITATS[s.loadInt()];
+    owner = (Element) s.loadObject();
+    if (s.loadBool()) s.loadObjects(inside = new Stack <Mobile> ());
+    else inside = NONE_INSIDE;
   }
   
   
   protected void saveTileState(Session s) throws Exception {
-    s.saveFloat(elevation) ;
-    s.saveInt(habitat().ID) ;
-    s.saveObject(owner) ;
-    if (inside == NONE_INSIDE) s.saveBool(false) ;
-    else { s.saveBool(true) ; s.saveObjects(inside) ; }
+    s.saveFloat(elevation);
+    s.saveInt(habitat().ID);
+    s.saveObject(owner);
+    if (inside == NONE_INSIDE) s.saveBool(false);
+    else { s.saveBool(true); s.saveObjects(inside); }
   }
   
   
@@ -87,121 +87,121 @@ public final class Tile implements
     */
   public float elevation() {
     if (elevation == Float.NEGATIVE_INFINITY) {
-      elevation = world.terrain().trueHeight(x, y) ;
+      elevation = world.terrain().trueHeight(x, y);
     }
-    return elevation ;
+    return elevation;
   }
   
-  public boolean inWorld() { return true ; }
-  public boolean destroyed() { return false ; }
-  public World world() { return world ; }
+  public boolean inWorld() { return true; }
+  public boolean destroyed() { return false; }
+  public World world() { return world; }
   
   public Vec3D position(Vec3D v) {
-    if (v == null) v = new Vec3D() ;
-    return v.set(x, y, elevation()) ;
+    if (v == null) v = new Vec3D();
+    return v.set(x, y, elevation());
   }
   
-  public float radius() { return 0 ; }
-  public float height() { return 0 ; }
-  public boolean isMobile() { return false ; }
+  public float radius() { return 0; }
+  public float height() { return 0; }
+  public boolean isMobile() { return false; }
   
   
   
   /**  Setting path type and occupation-
     */
   public Element owner() {
-    return owner ;
+    return owner;
   }
   
   
   public void setOwner(Element e) {
     //  TODO:  AUTOMATICALLY DISPLACE PRIOR OWNER (set as destroyed?)
-    if (e == owner) return ;
+    if (e == owner) return;
     if (e != null && this.owner != null) {
       I.complain("PREVIOUS OWNER WAS NOT CLEARED: "+this.owner);
     }
     
-    this.owner = e ;
+    this.owner = e;
     if (verbose) {
       if (e != null) I.say(this+" now owned by: "+e);
       else I.say(this+" now cleared.");
     }
     
-    world.sections.flagBoundsUpdate(x, y) ;
-    boardingCache = null ;
+    world.sections.flagBoundsUpdate(x, y);
+    boardingCache = null;
     for (int n : N_INDEX) {
-      final Tile t = world.tileAt(x + N_X[n], y + N_Y[n]) ;
-      if (t != null) t.boardingCache = null ;
+      final Tile t = world.tileAt(x + N_X[n], y + N_Y[n]);
+      if (t != null) t.boardingCache = null;
     }
   }
   
   
   public Habitat habitat() {
-    if (habitat != null) return habitat ;
-    refreshHabitat() ;
-    return habitat ;
+    if (habitat != null) return habitat;
+    refreshHabitat();
+    return habitat;
   }
   
   
   public void refreshHabitat() {
-    habitat = world.terrain().habitatAt(x, y) ;
+    habitat = world.terrain().habitatAt(x, y);
   }
   
   
   public boolean blocked() {
-    return pathType() >= PATH_BLOCKS ;
+    return pathType() >= PATH_BLOCKS;
   }
   
   
   public int pathType() {
-    if (owner != null) return owner.pathType() ;
-    if (world.terrain().isRoad(this)) return PATH_ROAD ;
-    return habitat().pathClear ? PATH_CLEAR : PATH_BLOCKS ;
+    if (owner != null) return owner.pathType();
+    if (world.terrain().isRoad(this)) return PATH_ROAD;
+    return habitat().pathClear ? PATH_CLEAR : PATH_BLOCKS;
   }
   
   
   public int owningType() {
     if (owner == null) {
-      if (habitat().pathClear) return Element.NOTHING_OWNS ;
-      else return Element.TERRAIN_OWNS ;
+      if (habitat().pathClear) return Element.NOTHING_OWNS;
+      else return Element.TERRAIN_OWNS;
     }
-    return owner.owningType() ;
+    return owner.owningType();
   }
   
   
   public final void flagWith(final Object f) {
-    flagged = f ;
+    flagged = f;
   }
   
   
   public final Object flaggedWith() {
-    return flagged ;
+    return flagged;
   }
   
   
   public Tile[] edgeAdjacent(Tile batch[]) {
-    if (batch == null) batch = new Tile[N_ADJACENT.length] ;
-    int i = 0 ; for (int n : N_ADJACENT) {
-      batch[i++] = world.tileAt(x + N_X[n], y + N_Y[n]) ;
+    if (batch == null) batch = new Tile[N_ADJACENT.length];
+    int i = 0; for (int n : N_ADJACENT) {
+      batch[i++] = world.tileAt(x + N_X[n], y + N_Y[n]);
     }
-    return batch ;
+    return batch;
   }
   
   
   public Tile[] allAdjacent(Tile batch[]) {
-    if (batch == null) batch = new Tile[N_INDEX.length] ;
+    if (batch == null) batch = new Tile[N_INDEX.length];
     for (int n : N_INDEX) {
-      batch[n] = world.tileAt(x + N_X[n], y + N_Y[n]) ;
+      batch[n] = world.tileAt(x + N_X[n], y + N_Y[n]);
     }
-    return batch ;
+    return batch;
   }
   
   
   public Tile[] vicinity(Tile batch[]) {
-    if (batch == null) batch = new Tile[9] ;
-    allAdjacent(batch) ;
-    batch[8] = this ;
-    return batch ;
+    if (batch == null) batch = new Tile[9];
+    allAdjacent(batch);
+    batch[8] = this;
+    return batch;
   }
   
   
@@ -212,23 +212,23 @@ public final class Tile implements
     //
     //  TODO:  See if this can't be made more efficient.  Try caching whenever
     //  ownership/occupants change?
-    if (boardingCache != null) return boardingCache ;
-    else batch = null ;
+    if (boardingCache != null) return boardingCache;
+    else batch = null;
     
-    if (batch == null) batch = new Boardable[8] ;
+    if (batch == null) batch = new Boardable[8];
     
     //  TODO:  RESTORE THIS FOR VEHICLES LATER, IF REQUIRED?
     /*
     if (inside != null) {
-      int numB = 0 ;
+      int numB = 0;
       for (Mobile m : inside) {
-        if (m instanceof Boardable) numB++ ;
+        if (m instanceof Boardable) numB++;
       }
       if (numB > 0) {
-        batch = new Boardable[8 + numB] ;
+        batch = new Boardable[8 + numB];
         for (Mobile m : inside) {
           if (m instanceof Boardable) {
-            batch[8 + --numB] = (Boardable) m ;
+            batch[8 + --numB] = (Boardable) m;
           }
         }
       }
@@ -237,78 +237,78 @@ public final class Tile implements
     
     //  If you're actually occupied, allow boarding of the owner-
     if (blocked() && owner() instanceof Boardable) {
-      return ((Boardable) owner()).canBoard(batch) ;
+      return ((Boardable) owner()).canBoard(batch);
     }
     
     //  Include any unblocked adjacent tiles-
     for (int n : N_INDEX) {
-      batch[n] = null ;
-      final Tile t = world.tileAt(x + N_X[n], y + N_Y[n]) ;
-      if (t == null || t.blocked()) continue ;
-      batch[n] = t ;
+      batch[n] = null;
+      final Tile t = world.tileAt(x + N_X[n], y + N_Y[n]);
+      if (t == null || t.blocked()) continue;
+      batch[n] = t;
     }
     
     //  Cull any diagonal tiles that are blocked by either adjacent neighbour-
     for (int i : Tile.N_DIAGONAL) if (batch[i] != null) {
-      if (batch[(i + 7) % 8] == null) batch[i] = null ;
-      if (batch[(i + 1) % 8] == null) batch[i] = null ;
+      if (batch[(i + 7) % 8] == null) batch[i] = null;
+      if (batch[(i + 1) % 8] == null) batch[i] = null;
     }
     
     //  Include anything that you're any entrance to-
     for (int n : N_ADJACENT) {
-      final Tile t = world.tileAt(x + N_X[n], y + N_Y[n]) ;
-      if (t == null || ! (t.owner() instanceof Boardable)) continue ;
-      final Boardable v = (Boardable) t.owner() ;
-      if (v.isEntrance(this)) batch[n] = v ;
+      final Tile t = world.tileAt(x + N_X[n], y + N_Y[n]);
+      if (t == null || ! (t.owner() instanceof Boardable)) continue;
+      final Boardable v = (Boardable) t.owner();
+      if (v.isEntrance(this)) batch[n] = v;
     }
     
     //  Cache and return-
-    boardingCache = batch ;
-    return batch ;
+    boardingCache = batch;
+    return batch;
   }
   
   
   public boolean isEntrance(Boardable b) {
     if (b instanceof Tile) {
-      final Tile t = (Tile) b ;
-      if (t.blocked()) return false ;
-      return Spacing.maxAxisDist(this, t) < 2 ;
+      final Tile t = (Tile) b;
+      if (t.blocked()) return false;
+      return Spacing.maxAxisDist(this, t) < 2;
     }
-    return (b == null) ? false : b.isEntrance(this) ;
+    return (b == null) ? false : b.isEntrance(this);
   }
   
   
   public boolean allowsEntry(Mobile m) {
-    return true ;
+    return true;
   }
   
   
   public int boardableType() {
-    return BOARDABLE_TILE ;
+    return BOARDABLE_TILE;
   }
   
   
   public Box2D area(Box2D put) {
-    if (put == null) put = new Box2D() ;
-    put.set(x - 0.5f, y - 0.5f, 1, 1) ;
-    return put ;
+    if (put == null) put = new Box2D();
+    put.set(x - 0.5f, y - 0.5f, 1, 1);
+    return put;
   }
   
   
   public void setInside(Mobile m, boolean is) {
     if (is) {
-      if (inside == NONE_INSIDE) inside = new Stack <Mobile> () ;
-      inside.include(m) ;
+      if (inside == NONE_INSIDE) inside = new Stack <Mobile> ();
+      inside.include(m);
     }
     else {
-      inside.remove(m) ;
-      if (inside.size() == 0) inside = NONE_INSIDE ;
+      inside.remove(m);
+      if (inside.size() == 0) inside = NONE_INSIDE;
     }
   }
   
   
   public Stack <Mobile> inside() {
-    return inside ;
+    return inside;
   }
   
   
@@ -316,7 +316,7 @@ public final class Tile implements
   /**  Interface and media-
     */
   public String fullName() {
-    return toString() ;
+    return toString();
   }
   
   
@@ -330,8 +330,8 @@ public final class Tile implements
   
   
   public String toString() {
-    if (habitat == null) return "Tile at X"+x+" Y"+y ;
-    return habitat.name+" at X"+x+" Y"+y ;
+    if (habitat == null) return "Tile at X"+x+" Y"+y;
+    return habitat.name+" at X"+x+" Y"+y;
   }
   
   
@@ -340,13 +340,13 @@ public final class Tile implements
   }
   
   
-  public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
+  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
     return null;
   }
   
   
-  public TargetInfo configInfo(TargetInfo info, BaseUI UI) {
-    if (info == null) info = new TargetInfo(UI, this);
+  public TargetOptions configInfo(TargetOptions info, BaseUI UI) {
+    if (info == null) info = new TargetOptions(UI, this);
     return info;
   }
   
@@ -367,7 +367,7 @@ public final class Tile implements
       return b == null ? Colour.LIGHT_GREY : b.colour;
     }
     if (world.terrain().isRoad(this)) return Habitat.ROAD_TEXTURE.average();
-    return habitat().baseTex.average() ;
+    return habitat().baseTex.average();
   }
 }
 

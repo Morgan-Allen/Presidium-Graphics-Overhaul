@@ -4,7 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package stratos.user ;
+package stratos.user;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
@@ -17,8 +17,8 @@ public interface Selectable extends Text.Clickable, Session.Saveable {
   String fullName();
   Composite portrait(BaseUI UI);
   
-  InfoPanel configPanel(InfoPanel panel, BaseUI UI);
-  TargetInfo configInfo(TargetInfo info, BaseUI UI);
+  SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI);
+  TargetOptions configInfo(TargetOptions info, BaseUI UI);
   
   Target selectionLocksOn();
   void renderSelection(Rendering rendering, boolean hovered);

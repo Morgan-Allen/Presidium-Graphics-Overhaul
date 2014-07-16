@@ -1,6 +1,6 @@
 
 
-package stratos.game.building ;
+package stratos.game.building;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;

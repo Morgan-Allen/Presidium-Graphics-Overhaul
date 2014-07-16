@@ -4,7 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package stratos.game.maps ;
+package stratos.game.maps;
 import stratos.game.common.*;
 import stratos.util.*;
 
@@ -17,13 +17,13 @@ import stratos.util.*;
 public abstract class RandomScan {
   
   
-  final int size ;
-  final int totalTiles ;
-  final private int seedBits ;
-  private LFSR lfsr ;
+  final int size;
+  final int totalTiles;
+  final private int seedBits;
+  private LFSR lfsr;
   
-  private int lastScanIndex = 0 ;
-  private int scan, seed ;
+  private int lastScanIndex = 0;
+  private int scan, seed;
   
   
   
@@ -31,25 +31,25 @@ public abstract class RandomScan {
     *  required (matching the power of the size of the world.)
     */
   public RandomScan(int size) {
-    this.size = size ;
-    totalTiles = size * size ;
-    int s = 1, d = 1 ; while ((s *= 2) < size) d++ ; seedBits = d * 2 ;
-    initSeeds() ;
+    this.size = size;
+    totalTiles = size * size;
+    int s = 1, d = 1; while ((s *= 2) < size) d++; seedBits = d * 2;
+    initSeeds();
   }
   
   
   public void loadState(Session s) throws Exception {
-    lastScanIndex = s.loadInt() ;
-    seed = s.loadInt() ;
-    scan = s.loadInt() ;
-    lfsr = new LFSR(seedBits, scan) ;
+    lastScanIndex = s.loadInt();
+    seed = s.loadInt();
+    scan = s.loadInt();
+    lfsr = new LFSR(seedBits, scan);
   }
   
   
   public void saveState(Session s) throws Exception {
-    s.saveInt(lastScanIndex) ;
-    s.saveInt(seed) ;
-    s.saveInt(scan) ;
+    s.saveInt(lastScanIndex);
+    s.saveInt(seed);
+    s.saveInt(scan);
   }
   
   
@@ -57,8 +57,8 @@ public abstract class RandomScan {
   /**  Generates the random seeds needed-
     */
   private void initSeeds() {
-    scan = seed = Rand.index(totalTiles - 1) + 1 ;
-    lfsr = new LFSR(seedBits, seed) ;
+    scan = seed = Rand.index(totalTiles - 1) + 1;
+    lfsr = new LFSR(seedBits, seed);
   }
   
   
@@ -66,25 +66,25 @@ public abstract class RandomScan {
   /**  Scans through every tile on the map.
     */
   public void doFullScan() {
-    initSeeds() ;
-    scanThrough(totalTiles) ;
+    initSeeds();
+    scanThrough(totalTiles);
   }
   
   public void scanThroughTo(int index) {
-    if (index < 0 || index == lastScanIndex) return ;
-    index %= totalTiles ;
-    if (index > lastScanIndex) scanThrough(index - lastScanIndex) ;
-    else scanThrough(index + totalTiles - lastScanIndex) ;
+    if (index < 0 || index == lastScanIndex) return;
+    index %= totalTiles;
+    if (index > lastScanIndex) scanThrough(index - lastScanIndex);
+    else scanThrough(index + totalTiles - lastScanIndex);
   }
   
   
   final static int
     GATE = genGate(),
-    INVG = ~GATE ;
+    INVG = ~GATE;
   private static int genGate() {
-    int gate = 0 ;
-    for (int i = 32, g = 1 ; i-- > 0 ; g = g << 1) gate |= g ;
-    return gate ;
+    int gate = 0;
+    for (int i = 32, g = 1; i-- > 0; g = g << 1) gate |= g;
+    return gate;
   }
   
   
@@ -92,30 +92,30 @@ public abstract class RandomScan {
   /**  Scans through a fixed number of tiles on the map surface-
     */
   public void scanThrough(int numTiles) {
-    for (int n = 0 ; n < numTiles ;) {
-      final int scanX, scanY ;
+    for (int n = 0; n < numTiles;) {
+      final int scanX, scanY;
       if (scan == 0) {
-        scanX = scanY = 0 ;
-        initSeeds() ;
+        scanX = scanY = 0;
+        initSeeds();
       }
       else {
-        scan = lfsr.nextVal() ;
-        scanX = scan / size ;
-        scanY = scan % size ;
-        if (scan == seed) scan = 0 ;
+        scan = lfsr.nextVal();
+        scanX = scan / size;
+        scanY = scan % size;
+        if (scan == seed) scan = 0;
       }
-      if (scanX >= size || scanY >= size) continue ;
-      scanAt(scanX, scanY) ;
-      n++ ;
+      if (scanX >= size || scanY >= size) continue;
+      scanAt(scanX, scanY);
+      n++;
     }
-    lastScanIndex = (lastScanIndex + numTiles) % totalTiles ;
+    lastScanIndex = (lastScanIndex + numTiles) % totalTiles;
   }
   
   
   
   /**  Scans a single tile of the map.
     */
-  protected abstract void scanAt(int x, int y) ;
+  protected abstract void scanAt(int x, int y);
 }
 
 

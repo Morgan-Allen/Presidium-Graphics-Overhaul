@@ -1,7 +1,7 @@
 
 
 
-package stratos.user ;
+package stratos.user;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.tactical.*;
@@ -19,7 +19,7 @@ public class Quickbar extends UIGroup implements UIConstants {
   
   final static int
     BUT_SIZE = 40,
-    SPACING  = 2 ;
+    SPACING  = 2;
 
   final static int NUM_GUILDS = 6;
   final static String GUILD_IMG_NAMES[] = {
@@ -50,37 +50,37 @@ public class Quickbar extends UIGroup implements UIConstants {
   }
   
   
-  final BaseUI UI ;
-  private UIGroup optionList ;
+  final BaseUI UI;
+  private UIGroup optionList;
   
   
   
   public Quickbar(BaseUI UI) {
-    super(UI) ;
-    this.UI = UI ;
+    super(UI);
+    this.UI = UI;
   }
   
   
   private void addToSlot(
     Button button, UIGroup parent, List <Button> allSlots
   ) {
-    final Button last = allSlots.last() ;
-    button.absBound.set(0, 0, BUT_SIZE, BUT_SIZE) ;
-    if (last != null) button.absBound.xpos(last.absBound.xmax() + SPACING) ;
-    allSlots.add(button) ;
-    button.attachTo(parent) ;
+    final Button last = allSlots.last();
+    button.absBound.set(0, 0, BUT_SIZE, BUT_SIZE);
+    if (last != null) button.absBound.xpos(last.absBound.xmax() + SPACING);
+    allSlots.add(button);
+    button.attachTo(parent);
   }
   
   
   private float lengthFor(List <Button> allSlots) {
-    return (allSlots.size() * (BUT_SIZE + SPACING)) - SPACING ;
+    return (allSlots.size() * (BUT_SIZE + SPACING)) - SPACING;
   }
   
   
   protected void updateState() {
-    super.updateState() ;
+    super.updateState();
     if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
-      if (optionList != null) optionList.detach() ;
+      if (optionList != null) optionList.detach();
     }
   }
   
@@ -90,28 +90,28 @@ public class Quickbar extends UIGroup implements UIConstants {
     */
   class PowerTask implements UITask {
     
-    final Power power ;
-    final String option ;
-    final Actor caster ;
-    final Image preview ;
+    final Power power;
+    final String option;
+    final Actor caster;
+    final Image preview;
     
-    final float PS = BUT_SIZE * 0.75f, HPS = PS / 2 ;
+    final float PS = BUT_SIZE * 0.75f, HPS = PS / 2;
     
     
     PowerTask(Quickbar bar, Power p, String o, Actor c) {
-      power = p ;
-      option = o ;
-      caster = c ;
+      power = p;
+      option = o;
+      caster = c;
       
       //  The preview image can't return a selection, or nothing beneath will
       //  be picked.  TODO:  CREATE A DEDICATED CURSOR CLASS
       preview = new Image(UI, power.buttonImage) {
         protected UINode selectionAt(Vector2 mousePos) {
-          return null ;
+          return null;
         }
-      } ;
-      preview.attachTo(UI) ;
-      preview.relAlpha = 0.5f ;
+      };
+      preview.attachTo(UI);
+      preview.relAlpha = 0.5f;
     }
     
     
@@ -123,23 +123,23 @@ public class Quickbar extends UIGroup implements UIConstants {
         UI.mouseX() - HPS,
         UI.mouseY() - HPS,
         PS, PS
-      ) ;
+      );
 
-      if (! (hovered instanceof Target)) hovered = null ;
-      final Target picked = (Target) hovered ;
+      if (! (hovered instanceof Target)) hovered = null;
+      final Target picked = (Target) hovered;
       if (power.finishedWith(caster, option, picked, clicked)) {
-        cancelTask() ;
+        cancelTask();
       }
     }
     
     
     public void cancelTask() {
-      UI.endCurrentTask() ;
-      preview.detach() ;
+      UI.endCurrentTask();
+      preview.detach();
     }
     
     //  TODO:  RESTORE THIS
-    public ImageAsset cursorImage() { return null ; }// power.buttonImage ; }
+    public ImageAsset cursorImage() { return null; }// power.buttonImage; }
   }
   
   
@@ -150,31 +150,31 @@ public class Quickbar extends UIGroup implements UIConstants {
   //  TODO:  Also, the escape key needs to quit options-display.
   
   private UIGroup constructOptionList(final Power power, String options[]) {
-    final UIGroup list = new UIGroup(UI) ;
-    final Quickbar bar = this ;
+    final UIGroup list = new UIGroup(UI);
+    final Quickbar bar = this;
     
-    int i = 0 ; for (final String option : options) {
-      final Text text = new Text(UI, UIConstants.INFO_FONT) ;
+    int i = 0; for (final String option : options) {
+      final Text text = new Text(UI, UIConstants.INFO_FONT);
       text.append(new Description.Link(option) {
         public void whenTextClicked() {
-          final Actor caster = UI.played().ruler() ;
-          final PowerTask task = new PowerTask(bar, power, option, caster) ;
-          UI.beginTask(task) ;
-          optionList.detach() ;
+          final Actor caster = UI.played().ruler();
+          final PowerTask task = new PowerTask(bar, power, option, caster);
+          UI.beginTask(task);
+          optionList.detach();
         }
-      }, Colour.GREY) ;
-      text.absBound.set(0, i++ * 20, 300, 16) ;
-      text.attachTo(list) ;
+      }, Colour.GREY);
+      text.absBound.set(0, i++ * 20, 300, 16);
+      text.attachTo(list);
     }
-    optionList = list ;
-    return list ;
+    optionList = list;
+    return list;
   }
   
   
   protected void setupPowersButtons() {
-    final Quickbar bar = this ;
-    final UIGroup powerGroup = new UIGroup(UI) ;
-    final List <Button> powerSlots = new List <Button> () ;
+    final Quickbar bar = this;
+    final UIGroup powerGroup = new UIGroup(UI);
+    final List <Button> powerSlots = new List <Button> ();
     
     for (final Power power : Power.BASIC_POWERS) {
       
@@ -183,50 +183,50 @@ public class Quickbar extends UIGroup implements UIConstants {
         power.name.toUpperCase()+"\n  "+power.helpInfo
       ) {
         protected void whenClicked() {
-          ///I.say(power.name+" CLICKED") ;
-          final Actor caster = BaseUI.current().played().ruler() ;
-          if (optionList != null) optionList.detach() ;
+          ///I.say(power.name+" CLICKED");
+          final Actor caster = BaseUI.current().played().ruler();
+          if (optionList != null) optionList.detach();
           //
           //  If there are options, display them instead.
-          final String options[] = power.options() ;
+          final String options[] = power.options();
           if (options != null) {
-            constructOptionList(power, options) ;
-            optionList.absBound.setTo(this.absBound) ;
-            optionList.absBound.ypos(BUT_SIZE + 2) ;
-            optionList.attachTo(bar) ;
-            return ;
+            constructOptionList(power, options);
+            optionList.absBound.setTo(this.absBound);
+            optionList.absBound.ypos(BUT_SIZE + 2);
+            optionList.attachTo(bar);
+            return;
           }
           else if (
             power.finishedWith(caster, null, null, true)
-          ) return ;
+          ) return;
           else {
-            ///I.say("Power needs a task...") ;
-            final PowerTask task = new PowerTask(bar, power, null, caster) ;
-            BaseUI.current().beginTask(task) ;
+            ///I.say("Power needs a task...");
+            final PowerTask task = new PowerTask(bar, power, null, caster);
+            BaseUI.current().beginTask(task);
           }
         }
-      } ;
-      addToSlot(button, powerGroup, powerSlots) ;
+      };
+      addToSlot(button, powerGroup, powerSlots);
     }
     
-    powerGroup.attachTo(this) ;
+    powerGroup.attachTo(this);
   }
   
   
   protected void setupInstallButtons() {
-    final UIGroup installGroup = new UIGroup(UI) ;
-    final List <Button> installSlots = new List <Button> () ;
+    final UIGroup installGroup = new UIGroup(UI);
+    final List <Button> installSlots = new List <Button> ();
     
-    for (int i = 0 ; i < NUM_GUILDS ; i++) {
+    for (int i = 0; i < NUM_GUILDS; i++) {
       createGuildButton(
         GUILD_IMG_NAMES[i], GUILD_TITLES[i],
         i, installGroup, installSlots
-      ) ;
+      );
     }
-    
-    installGroup.relBound.set(1, 0, 0, 0) ;
-    installGroup.absBound.set(-GUILDS_PANEL_WIDE, 0, 0, 0) ;
-    installGroup.attachTo(this) ;
+    installGroup.alignRight(0, GUILDS_WIDE);
+    //installGroup.relBound.set(1, 0, 0, 0);
+    //installGroup.absBound.set(-GUILDS_WIDE, 0, 0, 0);
+    installGroup.attachTo(this);
   }
   
 
@@ -234,27 +234,27 @@ public class Quickbar extends UIGroup implements UIConstants {
     String img, String help, final int buttonID,
     UIGroup installGroup, List <Button> installSlots
   ) {
-    final String catName = INSTALL_CATEGORIES[buttonID] ;
-    final InstallTab newTab = new InstallTab(UI, catName) ;
+    final String catName = INSTALL_CATEGORIES[buttonID];
+    final InstallTab newTab = new InstallTab(UI, catName);
     
     final Button button = new Button(UI, GUILD_IMG_ASSETS.get(img), help) {
       protected void whenClicked() {
         final BaseUI UI = BaseUI.current();
         ///I.say("Guild button clicked...");
-        UI.beginPanelFade() ;
-        if (UI.currentPanel() == newTab) {
-          UI.setInfoPanels(null, null) ;
+        UI.beginPanelFade();
+        if (UI.currentPane() == newTab) {
+          UI.setInfoPanels(null, null);
         }
-        else UI.setInfoPanels(newTab, null) ;
+        else UI.setInfoPanels(newTab, null);
       }
-    } ;
-    button.stretch = true ;
+    };
+    button.stretch = true;
     
-    button.absBound.set(0, 0, GUILDS_PANEL_WIDE / 6f, BUT_SIZE) ;
-    final Button last = installSlots.last() ;
-    if (last != null) button.absBound.xpos(last.absBound.xmax()) ;
-    installSlots.add(button) ;
-    button.attachTo(installGroup) ;
+    button.absBound.set(0, 0, GUILDS_WIDE / 6f, BUT_SIZE);
+    final Button last = installSlots.last();
+    if (last != null) button.absBound.xpos(last.absBound.xmax());
+    installSlots.add(button);
+    button.attachTo(installGroup);
   }
 }
 
@@ -265,45 +265,45 @@ public class Quickbar extends UIGroup implements UIConstants {
 
 /*
 protected void setupMissionButtons() {
-  final UIGroup missionGroup = new UIGroup(UI) ;
-  final List <Button> missionSlots = new List <Button> () ;
+  final UIGroup missionGroup = new UIGroup(UI);
+  final List <Button> missionSlots = new List <Button> ();
   final Quickbar bar = this;
   
   final Button strikeMB = new Button(
     UI, MissionsTab.STRIKE_ICON,
     "Strike Mission\n  Destroy, capture or neutralise a chosen target"
   ) {
-    public void whenTextClicked() { MissionsTab.initStrikeTask(bar.UI) ; }
-  } ;
-  addToSlot(strikeMB, missionGroup, missionSlots) ;
+    public void whenTextClicked() { MissionsTab.initStrikeTask(bar.UI); }
+  };
+  addToSlot(strikeMB, missionGroup, missionSlots);
   
   final Button reconMB = new Button(
     UI, MissionsTab.RECON_ICON,
     "Recon Mission\n  Explore a given area or follow a chosen subject"
   ) {
-    public void whenTextClicked() { MissionsTab.initReconTask(bar.UI) ; }
-  } ;
-  addToSlot(reconMB, missionGroup, missionSlots) ;
+    public void whenTextClicked() { MissionsTab.initReconTask(bar.UI); }
+  };
+  addToSlot(reconMB, missionGroup, missionSlots);
   
   final Button securityMB = new Button(
     UI, MissionsTab.SECURITY_ICON,
     "Security Mission\n  Protect a given area, structure or subject"
   ) {
-    public void whenTextClicked() { MissionsTab.initSecurityTask(bar.UI) ; }
-  } ;
-  addToSlot(securityMB, missionGroup, missionSlots) ;
+    public void whenTextClicked() { MissionsTab.initSecurityTask(bar.UI); }
+  };
+  addToSlot(securityMB, missionGroup, missionSlots);
   
   final Button contactMB = new Button(
     UI, MissionsTab.CONTACT_ICON,
     "Contact Mission\n  Establish better relations with the subject"
   ) {
-    public void whenTextClicked() { MissionsTab.initContactTask(bar.UI) ; }
-  } ;
-  addToSlot(contactMB, missionGroup, missionSlots) ;
+    public void whenTextClicked() { MissionsTab.initContactTask(bar.UI); }
+  };
+  addToSlot(contactMB, missionGroup, missionSlots);
   
-  final float length = this.lengthFor(missionSlots) ;
-  missionGroup.relBound.set(0.55f, 0, 0, 0) ;
-  missionGroup.absBound.set(-length / 2, 0, 0, 0) ;
-  missionGroup.attachTo(this) ;
+  final float length = this.lengthFor(missionSlots);
+  missionGroup.relBound.set(0.55f, 0, 0, 0);
+  missionGroup.absBound.set(-length / 2, 0, 0, 0);
+  missionGroup.attachTo(this);
 }
 //*/

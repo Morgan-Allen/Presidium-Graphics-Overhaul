@@ -43,7 +43,7 @@ public class SolidSprite extends Sprite {
     if (! model.compiled) I.complain("MODEL MUST BE COMPILED FIRST!");
     
     this.boneTransforms = new Matrix4[model.allNodes.length];
-    for (int i = boneTransforms.length ; i-- > 0;) {
+    for (int i = boneTransforms.length; i-- > 0;) {
       boneTransforms[i] = new Matrix4();
     }
     

@@ -44,19 +44,19 @@ Ecologist      Gatherer
 public class Background implements Session.Saveable {
   
   
-  private static int nextID = 0 ;
-  final public int ID = nextID++ ;
-  private static Batch <Background> all = new Batch() ;
+  private static int nextID = 0;
+  final public int ID = nextID++;
+  private static Batch <Background> all = new Batch();
   
   
-  final public String name ;
-  final protected ImageAsset costume, portrait ;
+  final public String name;
+  final protected ImageAsset costume, portrait;
   
-  final public int standing ;
-  final public int guild ;
-  final Table <Skill, Integer> baseSkills = new Table <Skill, Integer> () ;
-  final Table <Trait, Float> traitChances = new Table <Trait, Float> () ;
-  final List <Service> gear = new List <Service> () ;
+  final public int standing;
+  final public int guild;
+  final Table <Skill, Integer> baseSkills = new Table <Skill, Integer> ();
+  final Table <Trait, Float> traitChances = new Table <Trait, Float> ();
+  final List <Service> gear = new List <Service> ();
   
   
   
@@ -64,36 +64,36 @@ public class Background implements Session.Saveable {
     String name, String costumeTex, String portraitTex,
     int standing, int guild, Object... args
   ) {
-    this.name = name ;
+    this.name = name;
     ///I.say("Declaring background: "+name);
     
-    if (costumeTex == null) this.costume = null ;
+    if (costumeTex == null) this.costume = null;
     else this.costume = costumeFor(costumeTex);
     
-    if (portraitTex == null) this.portrait = null ;
+    if (portraitTex == null) this.portrait = null;
     else this.portrait = portraitFor(portraitTex);
     
-    this.standing = standing ;
-    this.guild = guild ;
+    this.standing = standing;
+    this.guild = guild;
     
-    int level = 10 ;
-    float chance = 0.5f ;
-    for (int i = 0 ; i < args.length ; i++) {
-      final Object o = args[i] ;
-      if      (o instanceof Integer) { level  = (Integer) o ; }
-      else if (o instanceof Float  ) { chance = (Float)   o ; }
+    int level = 10;
+    float chance = 0.5f;
+    for (int i = 0; i < args.length; i++) {
+      final Object o = args[i];
+      if      (o instanceof Integer) { level  = (Integer) o; }
+      else if (o instanceof Float  ) { chance = (Float)   o; }
       else if (o instanceof Skill) {
-        baseSkills.put((Skill) o, level) ;
+        baseSkills.put((Skill) o, level);
       }
       else if (o instanceof Trait) {
-        traitChances.put((Trait) o, chance) ;
+        traitChances.put((Trait) o, chance);
       }
       else if (o instanceof Service) {
         ///I.say("  "+name+" has gear: "+o);
-        gear.add((Service) o) ;
+        gear.add((Service) o);
       }
     }
-    all.add(this) ;
+    all.add(this);
   }
   
   
@@ -103,12 +103,12 @@ public class Background implements Session.Saveable {
   
   
   public static Background loadConstant(Session s) throws Exception {
-    return Backgrounds.ALL_BACKGROUNDS[s.loadInt()] ;
+    return Backgrounds.ALL_BACKGROUNDS[s.loadInt()];
   }
   
   
   public void saveState(Session s) throws Exception {
-    s.saveInt(ID) ;
+    s.saveInt(ID);
   }
   
   
@@ -116,32 +116,32 @@ public class Background implements Session.Saveable {
   /**  Data access-
     */
   public int skillLevel(Skill s) {
-    final Integer level = baseSkills.get(s) ;
-    return level == null ? 0 : (int) level ;
+    final Integer level = baseSkills.get(s);
+    return level == null ? 0 : (int) level;
   }
   
   
   public List <Skill> skills() {
     final List <Skill> b = new List <Skill> () {
-      protected float queuePriority(Skill r) { return r.traitID ; }
-    } ;
-    for (Skill s : baseSkills.keySet()) b.queueAdd(s) ;
-    return b ;
+      protected float queuePriority(Skill r) { return r.traitID; }
+    };
+    for (Skill s : baseSkills.keySet()) b.queueAdd(s);
+    return b;
   }
   
   
   public float traitChance(Trait t) {
-    final Float chance = traitChances.get(t) ;
-    return chance == null ? 0 : (float) chance ;
+    final Float chance = traitChances.get(t);
+    return chance == null ? 0 : (float) chance;
   }
   
   
   public List <Trait> traits() {
     final List <Trait> b = new List <Trait> () {
-      protected float queuePriority(Trait r) { return r.traitID ; }
-    } ;
-    for (Trait t : traitChances.keySet()) b.queueAdd(t) ;
-    return b ;
+      protected float queuePriority(Trait r) { return r.traitID; }
+    };
+    for (Trait t : traitChances.keySet()) b.queueAdd(t);
+    return b;
   }
   
   
@@ -153,35 +153,35 @@ public class Background implements Session.Saveable {
   
   /**  Rendering and interface helper methods-
     */
-  final static String COSTUME_DIR = "media/Actors/human/" ;
+  final static String COSTUME_DIR = "media/Actors/human/";
   
   
   protected static ImageAsset costumeFor(String texName) {
-    return ImageAsset.fromImage(COSTUME_DIR+texName, Backgrounds.class) ;
+    return ImageAsset.fromImage(COSTUME_DIR+texName, Backgrounds.class);
   }
 
   protected static ImageAsset portraitFor(String texName) {
-    return ImageAsset.fromImage(COSTUME_DIR+texName, Backgrounds.class) ;
+    return ImageAsset.fromImage(COSTUME_DIR+texName, Backgrounds.class);
   }
   
   
   public String toString() {
-    return name ;
+    return name;
   }
   
   
   public String nameFor(Actor actor) {
-    return name ;
+    return name;
   }
   
   
   public ImageAsset costumeFor(Actor actor) {
-    return costume ;
+    return costume;
   }
   
   
   public ImageAsset portraitFor(Actor actor) {
-    return portrait ;
+    return portrait;
   }
 }
 

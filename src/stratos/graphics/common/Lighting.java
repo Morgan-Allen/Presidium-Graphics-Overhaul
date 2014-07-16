@@ -1,7 +1,7 @@
 
 
 
-package stratos.graphics.common ;
+package stratos.graphics.common;
 import stratos.util.*;
 
 

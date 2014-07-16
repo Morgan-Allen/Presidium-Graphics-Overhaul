@@ -8,6 +8,7 @@ import stratos.util.*;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g3d.*;
+import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.model.*;
 import com.badlogic.gdx.utils.ObjectMap;
 
@@ -31,6 +32,8 @@ public abstract class SolidModel extends ModelAsset {
     indices = new ObjectMap <Object, Integer> ();
   private String
     partNames[];
+  private Batch <String>
+    importantFilePaths = new Batch <String> ();
   
   
   
@@ -49,6 +52,15 @@ public abstract class SolidModel extends ModelAsset {
     return new SolidSprite(this);
   }
   
+  
+  protected void associateFile(String filePath) {
+    importantFilePaths.add(filePath);
+  }
+  
+  
+  public String[] importantFiles() {
+    return importantFilePaths.toArray(String.class);
+  }
   
   
   protected void compileModel(Model model) {
@@ -99,7 +111,7 @@ public abstract class SolidModel extends ModelAsset {
   
   
   protected void loadAttachPoints(XML points) {
-    if (points == null) return ;
+    if (points == null) return;
     
     for (XML point : points.children()) {
       final String
@@ -138,6 +150,20 @@ public abstract class SolidModel extends ModelAsset {
   public Mesh meshForPart(int index) {
     return allParts[index].meshPart.mesh;
   }
+  
+  
+  public String[] animNames() {
+    if (gdxModel == null) I.complain("MODEL MUST BE COMPILED FIRST!");
+    final String names[] = new String[gdxModel.animations.size];
+    int i = 0;
+    for (Animation anim : gdxModel.animations) names[i++] = anim.id;
+    return names;
+  }
+  
+  
+  //public Texture[] textures() {
+    
+  //}
 }
 
 

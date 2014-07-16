@@ -9,17 +9,15 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.*;
 
 
+
 public abstract class VisualDebug implements Playable {
-  
-  
 
   
   private boolean loaded = false;
   List <Sprite> sprites = new List <Sprite> ();
   
-  private boolean moused = false ;
-  private float origX, origY, origR, origE ;
-  
+  private boolean moused = false;
+  private float origX, origY, origR, origE;
 
   
   
@@ -55,39 +53,40 @@ public abstract class VisualDebug implements Playable {
   
   public void renderVisuals(Rendering rendering) {
     
-    final Viewport port = rendering.view ;
-    if (Gdx.input.isKeyPressed(Keys.UP)) {
-      port.lookedAt.x-- ;
-      port.lookedAt.y++ ;
+    final Viewport port = rendering.view;
+    final float i = 0.1f;
+    if (Gdx.input.isKeyPressed(Keys.UP   )) {
+      port.lookedAt.x -= i;
+      port.lookedAt.y += i;
     }
-    if (Gdx.input.isKeyPressed(Keys.DOWN)) {
-      port.lookedAt.x++ ;
-      port.lookedAt.y-- ;
+    if (Gdx.input.isKeyPressed(Keys.DOWN )) {
+      port.lookedAt.x += i;
+      port.lookedAt.y -= i;
     }
     if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
-      port.lookedAt.x++ ;
-      port.lookedAt.y++ ;
+      port.lookedAt.x -= i;
+      port.lookedAt.y -= i;
     }
-    if (Gdx.input.isKeyPressed(Keys.LEFT)) {
-      port.lookedAt.x-- ;
-      port.lookedAt.y-- ;
+    if (Gdx.input.isKeyPressed(Keys.LEFT )) {
+      port.lookedAt.x += i;
+      port.lookedAt.y += i;
     }
     
     final int MX = Gdx.input.getX(), MY = Gdx.input.getY();
     if (Gdx.input.isButtonPressed(Buttons.LEFT)) {
       if (! moused) {
-        moused = true ;
-        origX = MX ;
-        origY = MY ;
-        origR = port.rotation  ;
-        origE = port.elevation ;
+        moused = true;
+        origX = MX;
+        origY = MY;
+        origR = port.rotation ;
+        origE = port.elevation;
       }
       else {
         port.rotation  = origR + ((origX - MX) / 2);
         port.elevation = origE + ((MY - origY) / 2);
       }
     }
-    else moused = false ;
+    else moused = false;
     
     for (Sprite sprite : sprites) {
       sprite.readyFor(rendering);
@@ -99,3 +98,9 @@ public abstract class VisualDebug implements Playable {
   protected abstract void loadVisuals();
   protected abstract void onRendering(Sprite sprite);
 }
+
+
+
+
+
+

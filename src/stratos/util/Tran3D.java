@@ -4,7 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package stratos.util ;
+package stratos.util;
 
 
 /**  A transform class that incorporates both rotation and translation for the
@@ -12,17 +12,17 @@ package stratos.util ;
   */
 public class Tran3D {
   
-  public final Vec3D position = new Vec3D().set(0, 0, 0) ;
-  public final Mat3D rotation = new Mat3D().setIdentity() ;
+  public final Vec3D position = new Vec3D().set(0, 0, 0);
+  public final Mat3D rotation = new Mat3D().setIdentity();
   
   
   /**  Setup based on existing position and rotation vector/matrix.  Returns
     *  itself.
     */
   public Tran3D setup(Vec3D pos, Mat3D rot) {
-  	position.setTo(pos) ;
-  	rotation.setTo(rot) ;
-    return this ;
+  	position.setTo(pos);
+  	rotation.setTo(rot);
+    return this;
   }
   
   
@@ -30,9 +30,9 @@ public class Tran3D {
     *  itself.
     */
   public Tran3D setTo(Tran3D transform) {
-  	rotation.setTo(transform.rotation) ;
-  	position.setTo(transform.position) ;
-    return this ;
+  	rotation.setTo(transform.rotation);
+  	position.setTo(transform.position);
+    return this;
   }
   
   
@@ -42,16 +42,16 @@ public class Tran3D {
     //
     //  NOTE:  matrix transforms are linear operations, i.e. (mat(a) + mat(b) =
     //  mat(a + b), so the following works.
-  	transform.rotation.inverse(rotation) ;
-  	position.setTo(transform.position) ;
-  	position.scale(-1, position) ;
-  	rotation.trans(position) ;
-    return this ;
+  	transform.rotation.inverse(rotation);
+  	position.setTo(transform.position);
+  	position.scale(-1, position);
+  	rotation.trans(position);
+    return this;
   }
   
   final public void trans(final Vec3D vector, final Vec3D result) {
-    result.setTo(vector) ;
-    trans(result) ;
+    result.setTo(vector);
+    trans(result);
   }
   
   
@@ -59,8 +59,8 @@ public class Tran3D {
     *  answer in the result vector.
     */
   final public void trans(final Vec3D vector) {
-    rotation.trans(vector) ;
-    vector.add(position) ;
+    rotation.trans(vector);
+    vector.add(position);
   }
   
   
@@ -69,9 +69,9 @@ public class Tran3D {
     *  transform.
     */
   public void trans(Tran3D transform, Tran3D result) {
-    result.position.setTo(transform.position) ;
-  	rotation.trans(result.position) ;
-  	rotation.trans(transform.rotation, result.rotation) ;
-  	result.position.add(position, result.position) ;
+    result.position.setTo(transform.position);
+  	rotation.trans(result.position);
+  	rotation.trans(transform.rotation, result.rotation);
+  	result.position.add(position, result.position);
   }
 }

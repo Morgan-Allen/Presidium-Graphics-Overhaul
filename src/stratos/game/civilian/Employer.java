@@ -1,6 +1,6 @@
 
 
-package stratos.game.civilian ;
+package stratos.game.civilian;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
@@ -9,10 +9,10 @@ import stratos.game.common.*;
 public interface Employer extends Installation, Inventory.Owner, Boardable {
   
   
-  Behaviour jobFor(Actor actor) ;  //  TODO:  At least use the same signature...
-  void addServices(Choice choice, Actor forActor) ;
+  Behaviour jobFor(Actor actor);  //  TODO:  At least use the same signature...
+  void addServices(Choice choice, Actor forActor);
   
-  int numOpenings(Background b) ;
+  int numOpenings(Background b);
   Background[] careers();
   
   float homeCrowding(Actor actor);
@@ -27,6 +27,6 @@ public interface Employer extends Installation, Inventory.Owner, Boardable {
   //*/
   
   Service[] services();
-  Base base() ;
-  Personnel personnel() ;
+  Base base();
+  Personnel personnel();
 }

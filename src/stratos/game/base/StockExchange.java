@@ -41,31 +41,31 @@ public class StockExchange extends Venue implements Economy {
     "media/GUI/Buttons/stock_exchange_button.gif", StockExchange.class
   );
   
-  private CargoBarge cargoBarge ;
+  private CargoBarge cargoBarge;
   
   
   
   public StockExchange(Base base) {
-    super(4, 1, ENTRANCE_SOUTH, base) ;
-    personnel.setShiftType(SHIFTS_BY_DAY) ;
+    super(4, 1, ENTRANCE_SOUTH, base);
+    personnel.setShiftType(SHIFTS_BY_DAY);
     structure.setupStats(
       150, 3, 250,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
-    ) ;
-    attachSprite(MODEL.makeSprite()) ;
+    );
+    attachSprite(MODEL.makeSprite());
   }
   
   
   public StockExchange(Session s) throws Exception {
-    super(s) ;
-    personnel.setShiftType(SHIFTS_ALWAYS) ;
-    cargoBarge = (CargoBarge) s.loadObject() ;
+    super(s);
+    personnel.setShiftType(SHIFTS_ALWAYS);
+    cargoBarge = (CargoBarge) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
-    super.saveState(s) ;
-    s.saveObject(cargoBarge) ;
+    super.saveState(s);
+    s.saveObject(cargoBarge);
   }
   
   
@@ -74,18 +74,18 @@ public class StockExchange extends Venue implements Economy {
     */
   public boolean enterWorldAt(int x, int y, World world) {
     if (! super.enterWorldAt(x, y, world)) return false;
-    cargoBarge = new CargoBarge() ;
-    cargoBarge.assignBase(base()) ;
-    cargoBarge.setHangar(this) ;
-    final Tile o = origin() ;
-    cargoBarge.enterWorldAt(o.x, o.y, world) ;
-    cargoBarge.goAboard(this, world) ;
+    cargoBarge = new CargoBarge();
+    cargoBarge.assignBase(base());
+    cargoBarge.setHangar(this);
+    final Tile o = origin();
+    cargoBarge.enterWorldAt(o.x, o.y, world);
+    cargoBarge.goAboard(this, world);
     return true;
   }
   
   
   public CargoBarge cargoBarge() {
-    return cargoBarge ;
+    return cargoBarge;
   }
   
   
@@ -95,8 +95,8 @@ public class StockExchange extends Venue implements Economy {
   /*
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
     StockExchange.class, "stock_exchange_upgrades"
-  ) ;
-  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES ; }
+  );
+  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
     
     //  These two categories get space at the front of the building...
@@ -148,16 +148,16 @@ public class StockExchange extends Venue implements Economy {
   
   
   public int numOpenings(Background p) {
-    final int nO = super.numOpenings(p) ;
-    if ( p == Backgrounds.STOCK_VENDOR) return nO + 2 ;
-    return 0 ;
+    final int nO = super.numOpenings(p);
+    if ( p == Backgrounds.STOCK_VENDOR) return nO + 2;
+    return 0;
   }
   
   
   public Behaviour jobFor(Actor actor) {
-    if ((! structure.intact()) || (! personnel.onShift(actor))) return null ;
-    final Choice choice = new Choice(actor) ;
-    cargoBarge.setHangar(this) ;  //Might not be needed anymore...
+    if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
+    final Choice choice = new Choice(actor);
+    cargoBarge.setHangar(this);  //Might not be needed anymore...
     //
     //  See if there's a bulk delivery to be made-
     final Batch <Venue> depots = DeliveryUtils.nearbyDepots(
@@ -176,8 +176,8 @@ public class StockExchange extends Venue implements Economy {
     );
     if (bD != null && personnel.assignedTo(bD) < 1) {
       bD.setMotive(Plan.MOTIVE_DUTY, Plan.URGENT);
-      bD.driven = cargoBarge ;
-      choice.add(bD) ;
+      bD.driven = cargoBarge;
+      choice.add(bD);
     }
     
     /*
@@ -190,8 +190,8 @@ public class StockExchange extends Venue implements Economy {
     );
     if (bC != null && personnel.assignedTo(bC) < 1) {
       bC.setMotive(Plan.MOTIVE_DUTY, Plan.URGENT);
-      bC.driven = cargoBarge ;
-      choice.add(bC) ;
+      bC.driven = cargoBarge;
+      choice.add(bC);
     }
     
     //  Otherwise, consider local deliveries and supervision of the venue-
@@ -206,14 +206,14 @@ public class StockExchange extends Venue implements Economy {
       if (c != null && personnel.assignedTo(c) < 1) choice.add(c);
     }
     
-    choice.add(new Supervision(actor, this)) ;
-    return choice.weightedPick() ;
+    choice.add(new Supervision(actor, this));
+    return choice.weightedPick();
   }
   
   
   public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates) ;
-    if (! structure.intact()) return ;
+    super.updateAsScheduled(numUpdates);
+    if (! structure.intact()) return;
     
     final Batch <Venue> depots = DeliveryUtils.nearbyDepots(
       this, world, StockExchange.class, FRSD.class
@@ -237,7 +237,7 @@ public class StockExchange extends Venue implements Economy {
   
   
   public void afterTransaction(Item item, float amount) {
-    super.afterTransaction(item, amount) ;
+    super.afterTransaction(item, amount);
     //
     //  TODO:  Invest a portion in the stock market...
   }
@@ -248,13 +248,13 @@ public class StockExchange extends Venue implements Economy {
     return 25;
     /*
     switch (upgradeForGood(good)) {
-      case (-1) : return 0  ;
-      case ( 0) : return 20 ;
-      case ( 1) : return 35 ;
-      case ( 2) : return 45 ;
-      case ( 3) : return 50 ;
+      case (-1) : return 0 ;
+      case ( 0) : return 20;
+      case ( 1) : return 35;
+      case ( 2) : return 45;
+      case ( 3) : return 50;
     }
-    return 0 ;
+    return 0;
     //*/
   }
   
@@ -262,26 +262,26 @@ public class StockExchange extends Venue implements Economy {
   /*
   private int upgradeForGood(Service type) {
     /*
-    final Integer key = (Integer) FRSD.SERVICE_KEY.get(type) ;
-    final Upgrade KU ;
-    if (key == null) return -1 ;
-    else if (key == FRSD.KEY_RATIONS ) KU = RATIONS_STOCK      ;
-    else if (key == FRSD.KEY_MINERALS) KU = PROSPECT_EXCHANGE  ;
-    else if (key == FRSD.KEY_MEDICAL ) KU = MEDICAL_EXCHANGE   ;
-    else if (key == FRSD.KEY_BUILDING) KU = HARDWARE_STOCK     ;
-    else return -1 ;
-    return structure.upgradeLevel(KU) ;
+    final Integer key = (Integer) FRSD.SERVICE_KEY.get(type);
+    final Upgrade KU;
+    if (key == null) return -1;
+    else if (key == FRSD.KEY_RATIONS ) KU = RATIONS_STOCK     ;
+    else if (key == FRSD.KEY_MINERALS) KU = PROSPECT_EXCHANGE ;
+    else if (key == FRSD.KEY_MEDICAL ) KU = MEDICAL_EXCHANGE  ;
+    else if (key == FRSD.KEY_BUILDING) KU = HARDWARE_STOCK    ;
+    else return -1;
+    return structure.upgradeLevel(KU);
     //*/
   //}
   
   
   public Background[] careers() {
-    return new Background[] { Backgrounds.STOCK_VENDOR } ;
+    return new Background[] { Backgrounds.STOCK_VENDOR };
   }
   
   
   public Service[] services() {
-    return ALL_COMMODITIES ;
+    return ALL_COMMODITIES;
   }
   
   
@@ -295,11 +295,11 @@ public class StockExchange extends Venue implements Economy {
     0.5f, 0,
     1.5f, 0,
     2.5f, 0,
-  } ;
+  };
   
   
   protected float[] goodDisplayOffsets() {
-    return GOOD_DISPLAY_OFFSETS ;
+    return GOOD_DISPLAY_OFFSETS;
   }
   
   
@@ -307,7 +307,7 @@ public class StockExchange extends Venue implements Economy {
     return new Service[] {
       CARBS, PROTEIN, GREENS,// SOMA,
       PARTS, PLASTICS, CIRCUITRY,// FIXTURES
-    } ;
+    };
   }
   
   //
@@ -319,7 +319,7 @@ public class StockExchange extends Venue implements Economy {
   
   
   public String fullName() {
-    return "Stock Exchange" ;
+    return "Stock Exchange";
   }
   
   
@@ -331,12 +331,12 @@ public class StockExchange extends Venue implements Economy {
   public String helpInfo() {
     return
       "The Stock Exchange facilitates small-scale purchases within the "+
-      "neighbourhood, and bulk transactions between local merchants." ;
+      "neighbourhood, and bulk transactions between local merchants.";
   }
 
 
   public String buildCategory() {
-    return UIConstants.TYPE_MERCHANT ;
+    return UIConstants.TYPE_MERCHANT;
   }
 }
 

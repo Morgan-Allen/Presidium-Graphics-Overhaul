@@ -19,7 +19,7 @@ public class Viewport {
   final public static float
     DEFAULT_SCALE   = 60.0f,
     DEFAULT_ROTATE  = 45,
-    DEFAULT_ELEVATE = 25 ;
+    DEFAULT_ELEVATE = 25;
   
   
   final public OrthographicCamera camera;
@@ -27,7 +27,7 @@ public class Viewport {
   public float
     rotation  = DEFAULT_ROTATE,
     elevation = DEFAULT_ELEVATE,
-    zoomLevel = 1.0f ;
+    zoomLevel = 1.0f;
   
   final private Vector3 temp = new Vector3();
   final Vec3D
