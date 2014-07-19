@@ -131,13 +131,13 @@ public class BaseUI extends HUD implements UIConstants {
     mapsPanel.attachTo(this);
     
     this.readout = new Readout(this);
-    readout.relBound.set(0, 1, 1, 0);
-    readout.absBound.set(200, -50, -300, READOUT_HIGH);
+    readout.alignHorizontal(MINIMAP_WIDE, GUILDS_WIDE);
+    readout.alignTop(0, READOUT_HIGH);
     readout.attachTo(this);
     
     this.panelArea = new UIGroup(this);
     panelArea.alignVertical(QUICKBAR_HIGH, READOUT_HIGH);
-    panelArea.alignHorizontal(MINIMAP_WIDE, 0);
+    panelArea.alignHorizontal(0, 0);
     panelArea.attachTo(this);
     
     this.infoArea = new UIGroup(this);
@@ -158,6 +158,8 @@ public class BaseUI extends HUD implements UIConstants {
   
   private void configPanels() {
     
+    final int PTS = PANEL_TAB_SIZE;
+    
     this.commsPanel = new CommsPanel(this);
     this.commsButton = new Button(
       this,
@@ -169,8 +171,8 @@ public class BaseUI extends HUD implements UIConstants {
         setInfoPanels(commsPanel, null);
       }
     };
-    commsButton.alignTop(20, 80);
-    commsButton.alignHorizontal(0.5f, 80, 0);
+    commsButton.alignTop(0, PTS);
+    commsButton.alignHorizontal(0.5f, PTS, PTS * 0);
     commsButton.attachTo(this);
     
     this.planetPanel = new PlanetPanel(this);
@@ -184,8 +186,8 @@ public class BaseUI extends HUD implements UIConstants {
         setInfoPanels(planetPanel, null);
       }
     };
-    planetButton.alignTop(20, 80);
-    planetButton.alignHorizontal(0.5f, 80, 80);
+    planetButton.alignTop(0, PTS);
+    planetButton.alignHorizontal(0.5f, PTS, PTS * 1);
     planetButton.attachTo(this);
     
     this.starsPanel = new StarsPanel(this);
@@ -199,8 +201,8 @@ public class BaseUI extends HUD implements UIConstants {
         setInfoPanels(starsPanel, null);
       }
     };
-    starsButton.alignTop(20, 80);
-    starsButton.alignHorizontal(0.5f, 80, 160);
+    starsButton.alignTop(0, PTS);
+    starsButton.alignHorizontal(0.5f, PTS, PTS * 2);
     starsButton.attachTo(this);
   }
   
@@ -267,6 +269,12 @@ public class BaseUI extends HUD implements UIConstants {
     super.renderHUD(rendering);
     viewTracking.updateTracking();
     
+    if (capturePanel && currentPanel != null) {
+      final Box2D b = new Box2D().setTo(currentPanel.trueBounds());
+      rendering.fading.applyFadeWithin(b, "panel_fade");
+      capturePanel = false;
+    }
+    
     if (currentPanel != newPanel) {
       if (currentPanel != null) currentPanel.detach();
       if (newPanel     != null) newPanel.attachTo(panelArea);
@@ -275,13 +283,6 @@ public class BaseUI extends HUD implements UIConstants {
     if (currentInfo != newInfo) {
       if (newInfo      != null) newInfo.attachTo(infoArea);
       currentInfo  = newInfo;
-    }
-    
-    if (capturePanel) {
-      final Box2D b = new Box2D().setTo(panelArea.trueBounds());
-      b.expandBy(0 - SelectionInfoPane.MARGIN_WIDTH);
-      rendering.fading.applyFadeWithin(b, "panel_fade");
-      capturePanel = false;
     }
   }
   
@@ -304,6 +305,7 @@ public class BaseUI extends HUD implements UIConstants {
     capturePanel = true;
   }
 }
+
 
 
 

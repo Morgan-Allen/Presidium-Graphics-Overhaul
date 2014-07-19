@@ -6,6 +6,7 @@ import java.io.*;
 import java.util.zip.*;
 import java.net.*;
 import java.security.CodeSource;
+
 import stratos.util.*;
 
 //import com.badlogic.gdx.Gdx;
@@ -165,6 +166,16 @@ public class Assets {
   public static void registerForLoading(Loadable asset) {
     if (verbose) I.say("    Registering- "+asset.assetID);
     assetsToLoad.add(asset);
+  }
+  
+  
+  public static List <String> classesToLoad() {
+    return classesToLoad;
+  }
+  
+  
+  public static List <Class> classesLoaded() {
+    return classesLoaded;
   }
   
   

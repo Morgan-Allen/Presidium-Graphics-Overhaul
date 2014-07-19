@@ -80,6 +80,7 @@ public class PlanetDisplay extends Disposal {
   
   
   protected void performAssetDisposal() {
+    if (shading == null) return;
     shading.dispose();
     labelling.dispose();
   }

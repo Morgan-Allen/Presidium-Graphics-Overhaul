@@ -33,9 +33,8 @@ import stratos.util.*;
 //  Danger & Squalor.
 //  Equality & Autonomy.
 
-
-//  TODO:  Also, houses & factions will have to be made into separate entities,
-//         so that their degree of ownership/influence can change over time.
+//  (Also, houses & factions will have to be made into separate entities, so
+//  that their degree of ownership/influence can change over time.)
 
 
 
@@ -49,25 +48,23 @@ public class Sector extends Background {
   
   final public String houseName;
   final public String description;
-  final String imagePath;
-  final Vec2D starCoords;
   
   final Service goodsMade[], goodsNeeded[];
   final public Trait climate;
   final public int gravity;
   
+  //  TODO:  Include information about distances here, loaded from XML.
+  
   
   
   public Sector(
+    Class baseClass,
     String name, String houseName, String description,
-    String imgName, float starX, float starY,
     Trait climate, int gravity, Object... args
   ) {
-    super(name, null, null, -1, Backgrounds.NOT_A_GUILD, args);
+    super(baseClass, name, null, null, -1, Backgrounds.NOT_A_GUILD, args);
     this.houseName = houseName;
     this.description = description;
-    this.imagePath = imgName;
-    this.starCoords = new Vec2D(starX, starY);
     
     this.climate = climate;
     this.gravity = gravity;
@@ -93,13 +90,5 @@ public class Sector extends Background {
     return null;
   }
 }
-
-
-
-
-
-
-
-
 
 

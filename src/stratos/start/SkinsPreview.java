@@ -35,7 +35,7 @@ public class SkinsPreview extends VisualDebug {
   private HUD UI;
   private Text modelPathEntry;
   private String lastValidPath = "";
-  private String currentPath = "media/Actors/fauna/FaunaModels.xml";
+  private String currentPath = "media/Actors/vermin/GiantRoach.ms3d";
   
   private XML currentXML;
   private SolidModel currentModel;

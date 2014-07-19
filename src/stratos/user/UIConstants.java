@@ -47,16 +47,17 @@ public interface UIConstants {
   
   
   final public static int
-    //GUILD_BUTTONS_HIGH = 65,
-    //GUILDS_PANEL_WIDE = 320,
     MINIMAP_WIDE    = 200,
+    CHARTS_WIDE     = 500,
+    CHART_INFO_WIDE = 240,
+    
     READOUT_HIGH    =  40,
-    
     QUICKBAR_HIGH   =  65,
-    GUILDS_WIDE     = 320,
+    PANEL_TAB_SIZE  =  40,
     
+    GUILDS_WIDE     = 320,
     INFO_PANEL_HIGH = 240,
-    INFO_PANEL_WIDE = 320,
+    INFO_PANEL_WIDE = 640,
     SCROLLBAR_WIDE  =  20;
 }
 

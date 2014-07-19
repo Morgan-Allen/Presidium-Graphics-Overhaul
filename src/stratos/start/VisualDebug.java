@@ -55,21 +55,32 @@ public abstract class VisualDebug implements Playable {
     
     final Viewport port = rendering.view;
     final float i = 0.1f;
+    final Mat3D r = new Mat3D();
+    final Vec3D l = rendering.lighting.direction;
+    
     if (Gdx.input.isKeyPressed(Keys.UP   )) {
-      port.lookedAt.x -= i;
-      port.lookedAt.y += i;
+      //port.lookedAt.x -= i;
+      //port.lookedAt.y += i;
+      port.zoomLevel *= 1 + i;
     }
     if (Gdx.input.isKeyPressed(Keys.DOWN )) {
-      port.lookedAt.x += i;
-      port.lookedAt.y -= i;
+      //port.lookedAt.x += i;
+      //port.lookedAt.y -= i;
+      port.zoomLevel /= 1 + i;
     }
     if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
-      port.lookedAt.x -= i;
-      port.lookedAt.y -= i;
+      //port.lookedAt.x -= i;
+      //port.lookedAt.y -= i;
+      r.setIdentity().rotateY(i *  1);
+      r.trans(l);
+      l.normalise();
     }
     if (Gdx.input.isKeyPressed(Keys.LEFT )) {
-      port.lookedAt.x += i;
-      port.lookedAt.y += i;
+      //port.lookedAt.x += i;
+      //port.lookedAt.y += i;
+      r.setIdentity().rotateY(i * -1);
+      r.trans(l);
+      l.normalise();
     }
     
     final int MX = Gdx.input.getX(), MY = Gdx.input.getY();

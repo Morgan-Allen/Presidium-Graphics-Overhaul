@@ -77,6 +77,7 @@ public class StarField extends Disposal {
   
   
   protected void performAssetDisposal() {
+    if (shading == null) return;
     shading.dispose();
     compiled.dispose();
   }

@@ -175,6 +175,9 @@ public final class PlayLoop {
       Backgrounds.class,
       Species.class
     );
+    for (String name : Assets.classesToLoad()) {
+      Session.checkSaveable(name);
+    }
     rendering = new Rendering();
   }
   

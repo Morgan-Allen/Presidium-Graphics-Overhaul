@@ -19,12 +19,16 @@ import stratos.util.*;
 //  tagged object should be reading in after writing out.  That would help to
 //  nail down any discrepancies.
 
+//  TODO:  See if it's possible to check for correct use of the cacheInstance
+//  method?  Technically there's already a check for that below, but it's
+//  better to catch early if possible.
+
 
 /**  NOTE:  Saveable objects ALSO need to implement a public constructor that
   *  takes a Session as it's sole argument, or an exception will occur, AND
   *  the object must call cacheInstance() as soon as possible once initialised,
   *  or an exception will occur.  Alternatively, they may implement a static
-  *  loadConstant method taking the Session as it's argument.
+  *  public loadConstant method taking the Session as it's argument.
   *  
   *  The Saveable interface is accessible from within the Session class.
   */
@@ -36,20 +40,19 @@ public class Session {
     OBJECT_CAPACITY = 50000;
   private static boolean verbose = false;
   
-  
-  private Table <Class, Vars.Int> classCounts = new Table(CLASS_CAPACITY);
-  
-  final Table               < Saveable, Integer>
-    saveIDs  = new Table    < Saveable, Integer> (OBJECT_CAPACITY);
-  final Table               < Class <Object>, Integer >
-    classIDs = new Table    < Class <Object>, Integer > (CLASS_CAPACITY );
-  final Table               < Integer, Saveable>
-    loadIDs  = new Table    < Integer, Saveable> (OBJECT_CAPACITY);
-  final Table               < Integer, Object>
-    loadMethods = new Table < Integer, Object> (CLASS_CAPACITY );
+  private Table             <Class <?> , Vars.Int>
+    classCounts = new Table <Class <?> , Vars.Int> (CLASS_CAPACITY );
+  final Table               < Saveable , Integer >
+    saveIDs     = new Table < Saveable , Integer > (OBJECT_CAPACITY);
+  final Table               < Class <?>, Integer >
+    classIDs    = new Table < Class <?>, Integer > (CLASS_CAPACITY );
+  final Table               < Integer  , Saveable>
+    loadIDs     = new Table < Integer  , Saveable> (OBJECT_CAPACITY);
+  final Table               < Integer  , Object  >
+    loadMethods = new Table < Integer  , Object  > (CLASS_CAPACITY );
   private int
-    nextObjectID = 0,
-    nextClassID  = 0,
+    nextObjectID =  0,
+    nextClassID  =  0,
     lastObjectID = -1;
   
   private Scenario scenario;
@@ -61,11 +64,9 @@ public class Session {
   private int bytesIn = 0, bytesOut = 0;
   
   
+  
   /**  Methods for saving and loading session data:
     */
-  //
-  //  TODO:  Also save and load game settings.
-  
   public static Session saveSession(
     World world, Scenario scenario, String saveFile
   ) throws Exception {
@@ -108,8 +109,6 @@ public class Session {
   }
   
   
-  private Session() {}
-  
   public void finish() throws Exception {
     ///I.say("FINISHING SESSION.");
     world = null;
@@ -127,6 +126,7 @@ public class Session {
   }
   
   
+  private Session() {}
   public World world() { return world; }
   public Scenario scenario() { return scenario; }
   
@@ -140,6 +140,40 @@ public class Session {
   public static interface Saveable {
     void saveState(Session s) throws Exception;
   }
+  
+  
+  private static Object loadMethodFor(Class loadClass) {
+    Object loadMethod = null;
+    try {
+      loadMethod = loadClass.getConstructor(Session.class);
+      final Constructor c = (Constructor) loadMethod;
+    }
+    catch (NoSuchMethodException e) {}
+    if (loadMethod == null) try {
+      loadMethod = loadClass.getMethod("loadConstant", Session.class);
+    }
+    catch (NoSuchMethodException e) {}
+    return loadMethod;
+  }
+  
+  
+  public static void checkSaveable(String className) {
+    try {
+      final Class <?> loadClass = Class.forName(className);
+      if (loadClass.isInterface()) return;
+      if (! Saveable.class.isAssignableFrom(loadClass)) return;
+      final Object loadMethod = loadMethodFor(loadClass);
+      
+      if (loadMethod == null) I.complain(
+        "WARNING:  Class "+className+" implements Saveable interface but does "+
+        "not implement a public Constructor, or static loadConstant method, "+
+        "with a Session argument."
+      );
+      if (verbose) I.say("Saveable class okay: "+loadClass.getSimpleName());
+    }
+    catch (ClassNotFoundException e) {}
+  }
+  
   
   
   /**  Saving and Loading series of objects-
@@ -261,29 +295,19 @@ public class Session {
     final Object loadMethod = loadMethod(classID);
     if (loadMethod instanceof Constructor)
       return ((Constructor) loadMethod).getDeclaringClass();
-    else
+    else if (loadMethod instanceof Method)
       return ((Method) loadMethod).getDeclaringClass();
+    else return (Class) loadMethod;
   }
   
   
-  
-  /**  Caches the initialisation method (static or constructor) used to create
-    *  new instances of a particular object class.
-    */
   private Object loadMethod(final int classID) throws Exception {
     Object loadMethod = loadMethods.get(classID);
     if (loadMethod == null) {
-      final String className = Assets.readString(in);
-      final Class loadClass = Class.forName(className);
-      
-      try { loadMethod = loadClass.getConstructor(Session.class); }
-      catch (NoSuchMethodException e) {}
-      if (loadMethod == null) try {
-        loadMethod = loadClass.getMethod("loadConstant", Session.class);
-      }
-      catch (NoSuchMethodException e) {
-        I.complain("NO SUITABLE LOADING METHOD FOR "+className);
-      }
+      final String    className = Assets.readString(in);
+      final Class <?> loadClass = Class.forName(className);
+      loadMethod = loadMethodFor(loadClass);
+      if (loadMethod == null) loadMethod = loadClass;
       loadMethods.put(classID, loadMethod);
     }
     return loadMethod;
@@ -318,18 +342,18 @@ public class Session {
   
   
   /**  This method is intended to help avoid self-referential loop conditions by
-    *  being called by setupDone objects IMMEDIATELY after being initialised and
+    *  being called by Saveable objects IMMEDIATELY after being initialised and
     *  BEFORE any member fields or variables have been loaded.  (NOTE:  This
-    *  does not apply to objects created by a static loadConstant() method...)
+    *  does not apply to objects created by a static loadConstant() method,
+    *  or to any subclasses invoking the constructor with super calls.)
     */
   public void cacheInstance(Saveable s) {
     loadIDs.put(lastObjectID, s);
   }
-  //
-  //  This object exists for a similar reason-
+  
+  //  This object exists for a similar reason (see below.)
   final static Saveable MARK_LOCK = new Saveable() {
     public void saveState(Session s) throws Exception {}
-    
   };
   
   
@@ -367,13 +391,14 @@ public class Session {
         if (verbose) I.say("Loading new object of type "+loadClass.getName());
         loaded = (Saveable) loadObject.newInstance(this);
       }
-      else {
+      else if (loadMethod instanceof Method) {
         final Method loadConstant = (Method) loadMethod;
         loadClass = loadConstant.getDeclaringClass();
         if (verbose) I.say("Loading new constant, type "+loadClass.getName());
         loaded = (Saveable) loadConstant.invoke(null, this);
         cacheInstance(loaded);
       }
+      else I.complain("NOT A SUITABLE LOADING METHOD: "+loadMethod);
     }
     catch (InstantiationException e) { I.complain(
       "PROBLEM WITH "+loadClass.getName()+"\n"+
@@ -384,11 +409,11 @@ public class Session {
     final Saveable cached = loadIDs.get(loadID);
     if (cached != loaded) I.complain(
       "PROBLEM WITH "+loadClass.getName()+"\n"+
-      "ALL CLASSES IMPLEMENTING SAVEABLE SHOULD CACHE THEMSELVES USING THE "+
+      "ALL OBJECTS IMPLEMENTING SAVEABLE SHOULD CACHE THEMSELVES USING THE "+
       "Session.cacheInstance(Saveable s) METHOD *IMMEDIATELY* AFTER BEING "+
-      "INSTANCED- I.E, FIRST THING IN THE ROOT CONSTRUCTOR, BEFORE ANY "+
-      "MEMBER FIELDS OR VARIABLES HAVE BEEN LOADED.  (THIS DOES NOT APPLY TO "+
-      "THOSE THAT IMPLEMENT loadConstant(Session s).)  THANK YOU."
+      "INSTANCED DURING LOADING- I.E, FIRST THING IN THE ROOT CONSTRUCTOR, "+
+      "BEFORE ANY MEMBER FIELDS OR VARIABLES HAVE BEEN LOADED.  (THIS DOES "+
+      "NOT APPLY TO THOSE THAT IMPLEMENT loadConstant(Session s).)  THANK YOU."
     );
     bytesIn = initBytes;
     return loaded;

@@ -17,25 +17,37 @@ import stratos.util.*;
 //  TODO:  Backgrounds need to include their own descriptions.
 
 
+//  TODO:  If backgrounds are going to be split up across multiple classes (
+//  which seems desireable), then you need a way to still guarantee loading
+//  correctly, regardless of order of class-loading.
+
+//  ...How, do I load those quickly.  You'll have to store a class (or class ID
+//     ) for reference, and then hash the name as well.  Actually, that seems
+//  relatively painless.  ...Given the amount of table-calls I'm doing anyway.
+//  ...you just have to cache the IDs in a deterministic manner.
+
+
+
 //TODO:  I'm going to limit this to a few basic headings now.
 /*
 VASSALS & AGENTS
 
 Trooper        Logician
-Explorer       Priest/ess
-Runner         Spacer
-Seer           Changer
-               Glaive Knight
+Ecologist      Tek Priest/ess
+Runner         Navigator
+Pseer          Jil Baru
+               Glaive Archon
 Jovian         Collective
 Changeling     
-Krech          Noble
+Krech          Kommando
+               Palatine
+Noble          Xenopath
 
+Archivist      Vendor
 Enforcer       Performer
-Auditor        Minder
-Labourer/Pyon  Trader
-Physician      
-Engineer       Brave
-Ecologist      Gatherer
+Auditor        Bartender
+Physician      Pyon
+Engineer       Dreg
 //*/
 
 
@@ -47,9 +59,11 @@ public class Background implements Session.Saveable {
   private static int nextID = 0;
   final public int ID = nextID++;
   private static Batch <Background> all = new Batch();
+  private static Table <String, Background> nameTable = new Table();
   
   
   final public String name;
+  final protected Class baseClass;
   final protected ImageAsset costume, portrait;
   
   final public int standing;
@@ -61,10 +75,13 @@ public class Background implements Session.Saveable {
   
   
   protected Background(
+    Class baseClass,
     String name, String costumeTex, String portraitTex,
     int standing, int guild, Object... args
   ) {
+    this.baseClass = baseClass;
     this.name = name;
+    nameTable.put(name, this);
     ///I.say("Declaring background: "+name);
     
     if (costumeTex == null) this.costume = null;
@@ -103,12 +120,16 @@ public class Background implements Session.Saveable {
   
   
   public static Background loadConstant(Session s) throws Exception {
-    return Backgrounds.ALL_BACKGROUNDS[s.loadInt()];
+    s.loadClass();  //TODO:  Problem.  The class might not be saveable.
+    return nameTable.get(s.loadString());  //This will work.  Ish.
+    //return Backgrounds.ALL_BACKGROUNDS[s.loadInt()];
   }
   
   
   public void saveState(Session s) throws Exception {
-    s.saveInt(ID);
+    s.saveClass(baseClass);
+    s.saveString(name);
+    //s.saveInt(ID);
   }
   
   

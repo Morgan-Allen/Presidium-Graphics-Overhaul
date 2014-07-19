@@ -18,8 +18,11 @@ import com.badlogic.gdx.math.Vector2;
 //  TODO:  Enclose together with the sector info in a single large panel?
 
 
-public class StarsPanel extends UIGroup {
+public class StarsPanel extends UIGroup implements UIConstants {
   
+  final static String
+    LOAD_PATH = "media/Charts/",
+    LOAD_FILE = "coordinates.xml";
   
   final static ImageAsset
     STARS_ICON = ImageAsset.fromImage(
@@ -28,17 +31,17 @@ public class StarsPanel extends UIGroup {
     STARS_ICON_LIT = Button.CIRCLE_LIT;
   
   final static ImageAsset
-    UP_BUTTON_IMG = ImageAsset.fromImage(
-      "media/Charts/button_up.png" , StarsPanel.class
+    LEFT_BUTTON_IMG  = ImageAsset.fromImage(
+      LOAD_PATH+"button_left.png"  , StarsPanel.class
     ),
-    DOWN_BUTTON_IMG = ImageAsset.fromImage(
-      "media/Charts/button_down.png", StarsPanel.class
+    RIGHT_BUTTON_IMG = ImageAsset.fromImage(
+      LOAD_PATH+"button_right.png" , StarsPanel.class
     ),
-    BACKING_TEX = ImageAsset.fromImage(
-      "media/Charts/stars_backing.png", StarsPanel.class
+    BACKING_TEX      = ImageAsset.fromImage(
+      LOAD_PATH+"stars_backing.png", StarsPanel.class
     ),
-    BORDER_TEX = ImageAsset.fromImage(
-      "media/Charts/planet_frame.png", StarsPanel.class
+    BORDER_TEX       = ImageAsset.fromImage(
+      LOAD_PATH+"planet_frame.png" , StarsPanel.class
     );
   
   
@@ -46,7 +49,7 @@ public class StarsPanel extends UIGroup {
   final StarField display;
   final Image border;
   final UIGroup displayArea;
-  final Button up, down;
+  final Button left, right;
   
   private Sector focus;
   final SectorPanel infoPanel;
@@ -55,14 +58,32 @@ public class StarsPanel extends UIGroup {
   public StarsPanel(HUD UI) {
     super(UI);
     
-    display = new StarField();
+    this.alignHorizontal(0.5f, CHARTS_WIDE + CHART_INFO_WIDE, 0);
+    this.alignVertical  (0.5f, CHARTS_WIDE                  , 0);
+    
+    display = new StarField() {
+      protected void performAssetSetup() {
+        super.performAssetSetup();
+        loadStarfield(LOAD_PATH, LOAD_FILE);
+      }
+    };
+    
+    final UIGroup leftSide = new UIGroup(UI);
+    leftSide.alignLeft    (0   , CHARTS_WIDE   );
+    leftSide.alignVertical(0.5f, CHARTS_WIDE, 0);
+    leftSide.stretch = false;
+    leftSide.attachTo(this);
+    
+    infoPanel = new SectorPanel(UI);
+    infoPanel.alignRight   (0, CHART_INFO_WIDE);
+    infoPanel.alignVertical(0, 0              );
+    infoPanel.attachTo(this);
     
     backdrop = new Image(UI, BACKING_TEX);
-    backdrop.relBound.set(0, 0, 1, 1);
-    backdrop.absBound.set(20, 20, -40, -40);
-    backdrop.stretch = false;
+    backdrop.alignHorizontal(20, 20);
+    backdrop.alignVertical  (20, 20);
     backdrop.blocksSelect = true;
-    backdrop.attachTo(this);
+    backdrop.attachTo(leftSide);
     
     displayArea = new UIGroup(UI) {
       public void render(WidgetsPass pass) {
@@ -70,45 +91,39 @@ public class StarsPanel extends UIGroup {
         super.render(pass);
       }
     };
-    displayArea.relBound.set(0, 0, 1, 1);
-    displayArea.absBound.set(25, 25, -50, -50);
+    displayArea.alignHorizontal(25, 25);
+    displayArea.alignVertical  (25, 25);
     displayArea.stretch = false;
-    displayArea.attachTo(this);
+    displayArea.attachTo(leftSide);
     
     border = new Image(UI, BORDER_TEX);
-    border.relBound.set(0, 0, 1, 1);
-    border.absBound.set(20, 20, -40, -40);
-    border.stretch = false;
-    border.attachTo(this);
+    border.alignHorizontal(20, 20);
+    border.alignVertical  (20, 20);
+    border.attachTo(leftSide);
     
-    infoPanel = new SectorPanel(UI);
-    infoPanel.relBound.set(1, 0, 0, 1);
-    infoPanel.absBound.set(0, 0, UIConstants.INFO_PANEL_WIDE, 0);
-    infoPanel.attachTo(this);
-    
-    up = new Button(
+    left = new Button(
       UI,
-      UP_BUTTON_IMG.asTexture(),
+      LEFT_BUTTON_IMG.asTexture(),
       Button.CIRCLE_LIT.asTexture(),
-      "Rotate up"
+      "Rotate left"
     ) {
-      protected void whenPressed() { incElevation( 15, true); }
+      protected void whenPressed() { incRotation( 15, true); }
     };
-    up.relBound.set(0, 0, 0, 0);
-    up.absBound.set(0, 55, 55, 55);
-    up.attachTo(displayArea);
+    left.relBound.set(0, 0, 0, 0);
+    left.absBound.set(0, 0, 55, 55);
+    left.attachTo(leftSide);
     
-    down = new Button(
+    right = new Button(
       UI,
-      DOWN_BUTTON_IMG.asTexture(),
+      RIGHT_BUTTON_IMG.asTexture(),
       Button.CIRCLE_LIT.asTexture(),
-      "Rotate down"
+      "Rotate right"
     ) {
-      protected void whenPressed() { incElevation(-15, true); }
+      protected void whenPressed() { incRotation(-15, true); }
     };
-    down.relBound.set(0, 0, 0, 0);
-    down.absBound.set(0, 0, 55, 55);
-    down.attachTo(displayArea);
+    right.relBound.set(0, 0, 0, 0);
+    right.absBound.set(55, 0, 55, 55);
+    right.attachTo(leftSide);
   }
   
   
@@ -194,7 +209,7 @@ public class StarsPanel extends UIGroup {
     */
   //  TODO:  Include controls for both rotation AND elevation...
   //  TODO:  Include a zoom/grab function?
-  private void incElevation(float amount, boolean inFrame) {
+  private void incRotation(float amount, boolean inFrame) {
     float oldElev = display.rotation();
     if (inFrame) amount *= 2f / Rendering.FRAMES_PER_SECOND;
     display.setRotation(oldElev + amount);

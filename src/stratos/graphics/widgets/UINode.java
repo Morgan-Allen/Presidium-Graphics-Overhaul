@@ -184,7 +184,7 @@ public abstract class UINode {
       x = absBound.xpos(),
       y = absBound.ypos();
     
-    if (! stretch) {
+    if ((! stretch) && absBound.area() != 0) {
       //  In this case we shrink either width or height to maintain a constant
       //  aspect ratio.
       final float

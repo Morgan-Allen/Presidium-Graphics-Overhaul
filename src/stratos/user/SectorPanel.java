@@ -5,7 +5,8 @@ import stratos.game.campaign.*;
 import stratos.graphics.widgets.*;
 
 
-//  TODO:  Have this extend InfoPanel?
+//  TODO:  Try merging this with much of the code from StarsPanel or
+//  PlanetPanel?
 
 public class SectorPanel extends UIGroup {
   
@@ -15,21 +16,21 @@ public class SectorPanel extends UIGroup {
   final public Text header;
   final public Text detail;
   
-  private Sector subject;
-  
   
   public SectorPanel(HUD UI) {
     super(UI);
     
-    final int
-      TM = 40, BM = 40,  //top and bottom margins
-      LM = 40, RM = 40;  //left and right margins
+    //final int
+      //TM = 20, BM = 20,  //top and bottom margins
+      //LM = 20, RM = 20;  //left and right margins
     
     this.border = new Bordering(UI, SelectionInfoPane.BORDER_TEX);
-    border.left   = LM;
-    border.right  = RM;
-    border.bottom = BM;
-    border.top    = TM;
+    border.left   = 20;
+    border.right  = 20;
+    border.bottom = 20;
+    border.top    = 20;
+    
+    
     border.relBound.set(0, 0, 1, 1);
     border.attachTo(this);
     //portrait = new Image();

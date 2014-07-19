@@ -91,7 +91,8 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
   ) {
     super(UI);
     this.UI = UI;
-    this.relBound.set(0, 0, 1, 1);
+    this.alignTop       (0   , INFO_PANEL_HIGH   );
+    this.alignHorizontal(0.5f, INFO_PANEL_WIDE, 0);
     
     final int across = portrait == null ? 0 : PORTRAIT_SIZE + 10;
     final int
@@ -103,8 +104,8 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
     border.right  = RM;
     border.bottom = BM;
     border.top    = TM;
-    border.alignTop       (0   , INFO_PANEL_HIGH   );
-    border.alignHorizontal(0.5f, INFO_PANEL_WIDE, 0);
+    border.alignAcross(0, 1);
+    border.alignDown  (0, 1);
     border.attachTo(this);
     
     this.innerRegion = new UIGroup(UI);
@@ -112,10 +113,11 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
     innerRegion.alignVertical  (-15         , -15);
     innerRegion.attachTo(border.inside);
     
+    //  TODO:  this won't work any more.
     this.viewRegion = new UIGroup(UI);
     viewRegion.alignHorizontal(0, INFO_PANEL_WIDE);
     viewRegion.alignVertical  (0, 0              );
-    viewRegion.attachTo(this);
+    //viewRegion.attachTo(this);
     
     headerText = new Text(UI, BaseUI.INFO_FONT);
     headerText.alignTop   (0, HEADER_HEIGHT);
@@ -178,7 +180,7 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
       };
       portraitFrame.alignTop (25, PORTRAIT_SIZE);
       portraitFrame.alignLeft(25, PORTRAIT_SIZE);
-      portraitFrame.attachTo(this);
+      portraitFrame.attachTo(border);
     }
     else {
       this.portrait = null;
@@ -198,7 +200,9 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
   
   
   protected Vec2D screenTrackPosition() {
-    return viewRegion.trueBounds().centre();
+    Vec2D middle = UI.trueBounds().centre();
+    middle.y -= INFO_PANEL_HIGH / 2;
+    return middle;
   }
   
   

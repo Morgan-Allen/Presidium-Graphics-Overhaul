@@ -8,16 +8,17 @@ import stratos.graphics.widgets.*;
 import stratos.graphics.charts.*;
 import stratos.util.*;
 import static stratos.graphics.common.GL.*;
-
 import com.badlogic.gdx.graphics.*;
 
 
 
-//TODO:  Enclose together with the sector info in a single large panel?
 
-
-public class PlanetPanel extends UIGroup {
+public class PlanetPanel extends UIGroup implements UIConstants {
   
+  
+  final static String
+    LOAD_PATH = "media/Charts/",
+    LOAD_FILE = "sectors.xml";
   
   final static ImageAsset
     PLANET_ICON     = ImageAsset.fromImage(
@@ -27,18 +28,21 @@ public class PlanetPanel extends UIGroup {
   
   final static ImageAsset
     LEFT_BUTTON_IMG  = ImageAsset.fromImage(
-      "media/Charts/button_left.png" , PlanetPanel.class
+      LOAD_PATH+"button_left.png" , PlanetPanel.class
     ),
     RIGHT_BUTTON_IMG = ImageAsset.fromImage(
-      "media/Charts/button_right.png", PlanetPanel.class
+      LOAD_PATH+"button_right.png", PlanetPanel.class
     ),
-    BORDER_TEX = ImageAsset.fromImage(
-      "media/Charts/planet_frame.png", PlanetPanel.class
+    BACKING_TEX      = ImageAsset.fromImage(
+      LOAD_PATH+"stars_backing.png", StarsPanel.class
+    ),
+    BORDER_TEX       = ImageAsset.fromImage(
+      LOAD_PATH+"planet_frame.png", PlanetPanel.class
     );
   
-
+  
   final PlanetDisplay display;
-  final Image border;
+  final Image backdrop, border;
   final UIGroup displayArea;
   final Button left, right;
   
@@ -49,7 +53,32 @@ public class PlanetPanel extends UIGroup {
   public PlanetPanel(HUD UI) {
     super(UI);
     
-    display = new PlanetDisplay();
+    this.alignHorizontal(0.5f, CHARTS_WIDE + CHART_INFO_WIDE, 0);
+    this.alignVertical  (0.5f, CHARTS_WIDE                  , 0);
+    
+    display = new PlanetDisplay() {
+      protected void performAssetSetup() {
+        super.performAssetSetup();
+        loadPlanet(LOAD_PATH, LOAD_FILE);
+      }
+    };
+    
+    final UIGroup leftSide = new UIGroup(UI);
+    leftSide.alignLeft    (0   , CHARTS_WIDE   );
+    leftSide.alignVertical(0.5f, CHARTS_WIDE, 0);
+    leftSide.stretch = false;
+    leftSide.attachTo(this);
+    
+    infoPanel = new SectorPanel(UI);
+    infoPanel.alignRight   (0, CHART_INFO_WIDE);
+    infoPanel.alignVertical(0, 0              );
+    infoPanel.attachTo(this);
+    
+    backdrop = new Image(UI, BACKING_TEX);
+    backdrop.alignHorizontal(20, 20);
+    backdrop.alignVertical  (20, 20);
+    backdrop.blocksSelect = true;
+    backdrop.attachTo(leftSide);
     
     displayArea = new UIGroup(UI) {
       public void render(WidgetsPass pass) {
@@ -57,21 +86,15 @@ public class PlanetPanel extends UIGroup {
         super.render(pass);
       }
     };
-    displayArea.relBound.set(0, 0, 1, 1);
-    displayArea.absBound.set(25, 25, -50, -50);
+    displayArea.alignHorizontal(25, 25);
+    displayArea.alignVertical  (25, 25);
     displayArea.stretch = false;
-    displayArea.attachTo(this);
+    displayArea.attachTo(leftSide);
     
     border = new Image(UI, BORDER_TEX);
-    border.relBound.set(0, 0, 1, 1);
-    border.absBound.set(20, 20, -40, -40);
-    border.stretch = false;
-    border.attachTo(this);
-    
-    infoPanel = new SectorPanel(UI);
-    infoPanel.relBound.set(1, 0, 0, 1);
-    infoPanel.absBound.set(0, 0, UIConstants.INFO_PANEL_WIDE, 0);
-    infoPanel.attachTo(this);
+    border.alignHorizontal(20, 20);
+    border.alignVertical  (20, 20);
+    border.attachTo(leftSide);
     
     left = new Button(
       UI,
@@ -83,7 +106,7 @@ public class PlanetPanel extends UIGroup {
     };
     left.relBound.set(0, 0, 0, 0);
     left.absBound.set(0, 0, 55, 55);
-    left.attachTo(displayArea);
+    left.attachTo(leftSide);
     
     right = new Button(
       UI,
@@ -95,7 +118,7 @@ public class PlanetPanel extends UIGroup {
     };
     right.relBound.set(0, 0, 0, 0);
     right.absBound.set(55, 0, 55, 55);
-    right.attachTo(displayArea);
+    right.attachTo(leftSide);
   }
   
   

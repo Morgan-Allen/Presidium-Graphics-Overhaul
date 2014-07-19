@@ -59,34 +59,41 @@ public interface Backgrounds extends Economy {
   
   final public static Background
     MALE_BIRTH = new Background(
+      Backgrounds.class,
       "Born Male", null, null, NOT_A_CLASS, NOT_A_GUILD,
       3, MUSCULAR, 1, MOTOR, SOMETIMES, TALL, NEVER, FEMININE
     ),
     FEMALE_BIRTH = new Background(
+      Backgrounds.class,
       "Born Female", null, null, NOT_A_CLASS, NOT_A_GUILD,
       2, IMMUNE, 2, PERCEPT, RARELY, STOUT, ALWAYS, FEMININE
     ),
     //
     //  Natives can only be recruited locally, not from offworld.
     NATIVE_BIRTH = new Background(
+      Backgrounds.class,
       "Born Native", "native_skin.gif", null, NOT_A_CLASS, NOT_A_GUILD,
       NOVICE, NATIVE_TABOO, LEARNING, HANDICRAFTS, MARKSMANSHIP, XENOZOOLOGY
     ),
     //
     //  The following are available to most actors as part of their careers-
     DREGS_BIRTH = new Background(
+      Backgrounds.class,
       "Born Dreg", "artificer_skin.gif", null, CLASS_SLAVE, NOT_A_GUILD,
       NOVICE, COMMON_CUSTOM, LEARNING, NATIVE_TABOO, HAND_TO_HAND, CHEMISTRY
     ),
     PYON_BIRTH = new Background(
+      Backgrounds.class,
       "Born Pyon", "pyon_skin.gif", null, CLASS_VASSAL, NOT_A_GUILD,
       NOVICE, COMMON_CUSTOM, LEARNING, HARD_LABOUR, DOMESTICS, ASSEMBLY
     ),
     FREE_BIRTH = new Background(
+      Backgrounds.class,
       "Born Free", "citizen_skin.gif", null, CLASS_FREEMEN, NOT_A_GUILD,
       NOVICE, COMMON_CUSTOM, LEARNING, SUASION, MARKSMANSHIP, PILOTING
     ),
     GELDER_BIRTH = new Background(
+      Backgrounds.class,
       "Born Gelder", "vendor_skin.gif", null, CLASS_FREEMEN, NOT_A_GUILD,
       NOVICE, COMMON_CUSTOM, LEARNING, NOBLE_ETIQUETTE, ACCOUNTING, COUNSEL
     ),
@@ -94,10 +101,12 @@ public interface Backgrounds extends Economy {
     //  Highborn are not available as normally-generated citizens, only as
     //  visiting NPCs or members of your household.
     LANDER_BIRTH = new Background(
+      Backgrounds.class,
       "Born Lander", "highborn_male_skin.gif", null, CLASS_STRATOI,
       NOVICE, NOBLE_ETIQUETTE, LEARNING, COMMON_CUSTOM, HAND_TO_HAND, ACCOUNTING
     ),
     HIGH_BIRTH = new Background(
+      Backgrounds.class,
       "Born High", "highborn_male_skin.gif", null, CLASS_STRATOI,
       NOVICE, NOBLE_ETIQUETTE, LEARNING, COMMAND, HAND_TO_HAND, ANCIENT_LORE
     ),
@@ -110,6 +119,7 @@ public interface Backgrounds extends Economy {
   final public static Background
     
     EXCAVATOR = new Background(
+      Backgrounds.class,
       "Excavator", "pyon_skin.gif", "pyon_portrait.png",
       CLASS_VASSAL, GUILD_ARTIFICER,
       EXPERT, HARD_LABOUR, NOVICE, GEOPHYSICS, ASSEMBLY, LEARNING, ANCIENT_LORE,
@@ -118,6 +128,7 @@ public interface Backgrounds extends Economy {
     ),
     
     TECHNICIAN = new Background(
+      Backgrounds.class,
       "Technician", "artificer_skin.gif", "artificer_portrait.png",
       CLASS_VASSAL, GUILD_ARTIFICER,
       PRACTICED, ASSEMBLY, HARD_LABOUR, NOVICE, FIELD_THEORY, CHEMISTRY,
@@ -126,6 +137,7 @@ public interface Backgrounds extends Economy {
     ),
     
     CORE_TECHNICIAN = new Background(
+      Backgrounds.class,
       "Core Technician", "citizen_skin.gif", "artificer_portrait.png",
       CLASS_FREEMEN, GUILD_ARTIFICER,
       EXPERT, FIELD_THEORY, PRACTICED, CHEMISTRY, ASSEMBLY,
@@ -135,6 +147,7 @@ public interface Backgrounds extends Economy {
     ),
     
     ARTIFICER = new Background(
+      Backgrounds.class,
       "Artificer", "artificer_skin.gif", "artificer_portrait.png",
       CLASS_FREEMEN, GUILD_ARTIFICER,
       EXPERT, ASSEMBLY, PRACTICED, FIELD_THEORY, SHIELD_AND_ARMOUR,
@@ -149,6 +162,7 @@ public interface Backgrounds extends Economy {
   final public static Background
     
     MINDER = new Background(
+      Backgrounds.class,
       "Minder", "citizen_skin.gif", "pyon_portrait.png",
       CLASS_VASSAL, GUILD_PHYSICIAN,
       PRACTICED, DOMESTICS, SUASION, NOVICE, ANATOMY, PHARMACY, COUNSEL,
@@ -157,6 +171,7 @@ public interface Backgrounds extends Economy {
     ),
     
     VATS_BREEDER = new Background(
+      Backgrounds.class,
       "Vats Breeder", "citizen_skin.gif", "pyon_portrait.png",
       CLASS_VASSAL, GUILD_PHYSICIAN,
       PRACTICED, GENE_CULTURE, PHARMACY, CHEMISTRY,
@@ -165,6 +180,7 @@ public interface Backgrounds extends Economy {
     ),
     
     ENFORCER = new Background(
+      Backgrounds.class,
       "Enforcer", "enforcer_skin.gif", "enforcer_portrait.png",
       CLASS_FREEMEN, GUILD_PHYSICIAN,
       PRACTICED, MARKSMANSHIP, SUASION, COUNSEL, STEALTH_AND_COVER, NOVICE,
@@ -175,7 +191,7 @@ public interface Backgrounds extends Economy {
     
     /*
     SAVANT = new Background(
-      "Savant", "citizen_skin.gif", null,
+      Backgrounds.class, "Savant", "citizen_skin.gif", null,
       CLASS_FREEMEN, GUILD_PHYSICIAN,
       EXPERT, ACCOUNTING, INSCRIPTION, PRACTICED, COUNSEL, ASSEMBLY,
       NOVICE, ANCIENT_LORE, LEGISLATION,
@@ -185,6 +201,7 @@ public interface Backgrounds extends Economy {
     //*/  //TODO:  Also Psychoanalyst?
     
     PHYSICIAN = new Background(
+      Backgrounds.class,
       "Physician", "physician_skin.gif", "physician_portrait.png",
       CLASS_FREEMEN, GUILD_PHYSICIAN,
       EXPERT, ANATOMY, PHARMACY,
@@ -199,6 +216,7 @@ public interface Backgrounds extends Economy {
   final public static Background
     
     CULTIVATOR = new Background(
+      Backgrounds.class,
       "Cultivator", "pyon_skin.gif", "pyon_portrait.png",
       CLASS_VASSAL, GUILD_ECOLOGIST,
       PRACTICED, CULTIVATION, HARD_LABOUR, NOVICE, DOMESTICS,
@@ -207,6 +225,7 @@ public interface Backgrounds extends Economy {
     ),
     
     FORMER_ENGINEER = new Background(
+      Backgrounds.class,
       "Former Engineer", "ecologist_skin.gif", "ecologist_portrait.png",
       CLASS_FREEMEN, GUILD_ECOLOGIST,
       PRACTICED, GEOPHYSICS, ASSEMBLY, HARD_LABOUR,
@@ -216,6 +235,7 @@ public interface Backgrounds extends Economy {
     ),
     
     EXPLORER = new Background(
+      Backgrounds.class,
       "Explorer", "ecologist_skin.gif", "ecologist_portrait.png",
       CLASS_FREEMEN, GUILD_ECOLOGIST,
       EXPERT, XENOZOOLOGY, SURVEILLANCE, STEALTH_AND_COVER,
@@ -226,6 +246,7 @@ public interface Backgrounds extends Economy {
     ),
     
     ECOLOGIST = new Background(
+      Backgrounds.class,
       "Ecologist", "ecologist_skin.gif", "ecologist_portrait.png",
       CLASS_FREEMEN, GUILD_ECOLOGIST,
       EXPERT, CULTIVATION, PRACTICED, GENE_CULTURE, XENOZOOLOGY,
@@ -242,6 +263,7 @@ public interface Backgrounds extends Economy {
   final public static Background
     
     FAB_WORKER = new Background(
+      Backgrounds.class,
       "Fab Worker", "pyon_skin.gif", "pyon_portrait.png",
       CLASS_VASSAL, GUILD_MERCHANT,
       NOVICE, CHEMISTRY, PILOTING, ASSEMBLY, HARD_LABOUR,
@@ -250,6 +272,7 @@ public interface Backgrounds extends Economy {
     ),
     
     SOMA_VENDOR = new Background(
+      Backgrounds.class,
       "Soma Vendor", "vendor_skin.gif", "vendor_portrait.png",
       CLASS_VASSAL, GUILD_MERCHANT,
       PRACTICED, COUNSEL, SUASION, NOVICE, DOMESTICS, CHEMISTRY,
@@ -259,6 +282,7 @@ public interface Backgrounds extends Economy {
     ),
     
     STOCK_VENDOR = new Background(
+      Backgrounds.class,
       "Stock Vendor", "vendor_skin.gif", "vendor_portrait.png",
       CLASS_VASSAL, GUILD_MERCHANT,
       PRACTICED, ACCOUNTING, DOMESTICS, NOVICE, SUASION, HARD_LABOUR,
@@ -266,6 +290,7 @@ public interface Backgrounds extends Economy {
     ),
     
     AUDITOR = new Background(
+      Backgrounds.class,
       "Auditor", "vendor_skin.gif", "vendor_portrait.png",
       CLASS_FREEMEN, GUILD_MERCHANT,
       EXPERT, COUNSEL, ACCOUNTING, PRACTICED, COMMAND, ANCIENT_LORE,
@@ -280,6 +305,7 @@ public interface Backgrounds extends Economy {
   final public static Background
     
     VOLUNTEER = new Background(
+      Backgrounds.class,
       "Volunteer", "militant_skin.gif", "militant_portrait.png",
       CLASS_VASSAL, GUILD_MILITANT,
       PRACTICED, HAND_TO_HAND, MARKSMANSHIP,
@@ -290,6 +316,7 @@ public interface Backgrounds extends Economy {
     
     //  TODO:  Restore traits here.
     AIR_CORPS = new Background(
+      Backgrounds.class,
       "Air Corps", "artificer_skin.gif", "militant_portrait.png",
       CLASS_FREEMEN, GUILD_MILITANT,
       PRACTICED, MARKSMANSHIP, PILOTING, SURVEILLANCE, STEALTH_AND_COVER,
@@ -299,6 +326,7 @@ public interface Backgrounds extends Economy {
     
     //  TODO:  Draw up a different set of art assets for this guy.
     MECH_LEGION = new Background(
+      Backgrounds.class,
       "Mech Legion", "militant_skin.gif", "militant_portrait.png",
       CLASS_FREEMEN, GUILD_MILITANT,
       EXPERT, HAND_TO_HAND, FORMATION_COMBAT, SHIELD_AND_ARMOUR,
@@ -307,6 +335,7 @@ public interface Backgrounds extends Economy {
     ),
     
     VETERAN = new Background(
+      Backgrounds.class,
       "Veteran", "militant_skin.gif", "militant_portrait.png",
       CLASS_FREEMEN, GUILD_MILITANT,
       EXPERT, HAND_TO_HAND, MARKSMANSHIP, PRACTICED, SURVEILLANCE,
@@ -321,6 +350,7 @@ public interface Backgrounds extends Economy {
   final public static Background
     
     PERFORMER = new Background(
+      Backgrounds.class,
       "Performer", "aesthete_female_skin.gif", "aesthete_portrait.png",
       CLASS_VASSAL, GUILD_AESTHETE,
       PRACTICED, MUSIC_AND_SONG, NOVICE, EROTICS, MASQUERADE,
@@ -334,6 +364,7 @@ public interface Backgrounds extends Economy {
     },
     
     FABRICATOR = new Background(
+      Backgrounds.class,
       "Fabricator", "citizen_skin.gif", "pyon_portrait.png",
       CLASS_VASSAL, GUILD_AESTHETE,
       PRACTICED, CHEMISTRY, HARD_LABOUR, NOVICE, GRAPHIC_DESIGN, HANDICRAFTS,
@@ -342,6 +373,7 @@ public interface Backgrounds extends Economy {
     ),
     
     ADVERTISER = new Background(
+      Backgrounds.class,
       "Advertiser", "citizen_skin.gif", "pyon_portrait.png",
       CLASS_FREEMEN, GUILD_AESTHETE,
       EXPERT, GRAPHIC_DESIGN, SUASION,
@@ -352,6 +384,7 @@ public interface Backgrounds extends Economy {
     ),
     
     AESTHETE = new Background(
+      Backgrounds.class,
       "Aesthete", "aesthete_male_skin.gif", "aesthete_portrait.png",
       CLASS_FREEMEN, GUILD_AESTHETE,
       EXPERT, GRAPHIC_DESIGN, PRACTICED, HANDICRAFTS, NOVICE, ANATOMY,
@@ -368,12 +401,14 @@ public interface Backgrounds extends Economy {
     //  Scavengers represent the unemployed/homeless/penniless who want to
     //  leave your settlement, but can't.  Free Traders peddle small goods.
     SCAVENGER = new Background(
+      Backgrounds.class,
       "Scavenger", "native_skin.gif", null,
       CLASS_VASSAL, NOT_A_GUILD,
       NOVICE, STEALTH_AND_COVER, LEARNING, HANDICRAFTS,
       OFTEN, NERVOUS, ACQUISITIVE, RARELY, RELAXED
     ),
     FREE_TRADER = new Background(
+      Backgrounds.class,
       "Free Trader", "pyon_skin.gif", "pyon_portrait.png",
       CLASS_VASSAL, NOT_A_GUILD,
       PRACTICED, SUASION, NOVICE, HANDICRAFTS, ACCOUNTING, DOMESTICS,
@@ -383,12 +418,14 @@ public interface Backgrounds extends Economy {
     //
     //  Mechanics and captains keep your dropships in working order.
     SHIP_MECHANIC = new Background(
+      Backgrounds.class,
       "Ship Mechanic", "artificer_skin.gif", "artificer_portrait.png",
       CLASS_VASSAL, NOT_A_GUILD,
       PRACTICED, ASSEMBLY, HARD_LABOUR,
       NOVICE, FIELD_THEORY, SHIELD_AND_ARMOUR
     ),
     SHIP_CAPTAIN = new Background(
+      Backgrounds.class,
       "Ship Captain", null, "pyon_portrait.png",
       CLASS_FREEMEN, NOT_A_GUILD,
       EXPERT, PILOTING, MARKSMANSHIP, PRACTICED, COMMAND, SUASION,
@@ -399,6 +436,7 @@ public interface Backgrounds extends Economy {
     //  These classes won't generally stay put, but might visit your settlement
     //  if the place needs their services.
     RUNNER = new Background(
+      Backgrounds.class,
       "Runner", "runner_skin.gif", "vendor_portrait.png",
       CLASS_FREEMEN, NOT_A_GUILD,
       EXPERT, PILOTING, MARKSMANSHIP, STEALTH_AND_COVER,
@@ -407,6 +445,7 @@ public interface Backgrounds extends Economy {
       BLASTER, CAMOUFLAGE
     ),
     COMPANION = new Background(
+      Backgrounds.class,
       "Companion", "aesthete_female_skin.gif", "aesthete_portrait.png",
       CLASS_FREEMEN, NOT_A_GUILD,
       EXPERT, EROTICS, COUNSEL, SUASION, MASQUERADE, NOBLE_ETIQUETTE,
@@ -430,6 +469,7 @@ public interface Backgrounds extends Economy {
     //
     //  You'll always get a few of these in a given native village-
     GATHERER = new Background(
+      Backgrounds.class,
       "Gatherer", "native_skin.gif", null,
       CLASS_NATIVE, NOT_A_GUILD,
       EXPERT, HANDICRAFTS, PRACTICED, DOMESTICS, CULTIVATION, HARD_LABOUR,
@@ -437,6 +477,7 @@ public interface Backgrounds extends Economy {
       RARELY, RELAXED, OFTEN, OUTGOING
     ),
     HUNTER = new Background(
+      Backgrounds.class,
       "Hunter", "native_skin.gif", null,
       CLASS_NATIVE, NOT_A_GUILD,
       EXPERT, SURVEILLANCE, STEALTH_AND_COVER,
@@ -446,6 +487,7 @@ public interface Backgrounds extends Economy {
       TOOTH_SHIV, JAVELIN
     ),
     SHAMAN = new Background(
+      Backgrounds.class,
       "Shaman", "native_skin.gif", null,
       CLASS_NATIVE, NOT_A_GUILD,
       EXPERT, NATIVE_TABOO, COUNSEL, PRACTICED, CULTIVATION,
@@ -453,6 +495,7 @@ public interface Backgrounds extends Economy {
       ALWAYS, TRADITIONAL, OFTEN, DUTIFUL, NATURALIST
     ),
     CHIEFTAIN = new Background(
+      Backgrounds.class,
       "Chieftain", "native_skin.gif", null,
       CLASS_NATIVE, NOT_A_GUILD,
       EXPERT, NATIVE_TABOO, COMMAND, SUASION, MARKSMANSHIP,
@@ -475,6 +518,7 @@ public interface Backgrounds extends Economy {
     //
     //  Aristocratic titles are for the benefit of the player-character:
     KNIGHTED = new Background(
+      Backgrounds.class,
       "Knighted", "highborn_male_skin.gif", "highborn_portrait.png",
       CLASS_STRATOI, NOT_A_GUILD,
       PRACTICED, HAND_TO_HAND, BATTLE_TACTICS, SHIELD_AND_ARMOUR, COMMAND,
@@ -491,6 +535,7 @@ public interface Backgrounds extends Economy {
       }
     },
     BARON = new Background(
+      Backgrounds.class,
       "Baron", "highborn_male_skin.gif", "highborn_portrait.png",
       CLASS_STRATOI, NOT_A_GUILD,
       EXPERT, HAND_TO_HAND, BATTLE_TACTICS, SHIELD_AND_ARMOUR, COMMAND,
@@ -507,6 +552,7 @@ public interface Backgrounds extends Economy {
       }
     },
     COUNT = new Background(
+      Backgrounds.class,
       "Count", "highborn_male_skin.gif", "highborn_portrait.png",
       CLASS_STRATOI, NOT_A_GUILD,
       MASTER, HAND_TO_HAND, BATTLE_TACTICS, SHIELD_AND_ARMOUR, COMMAND,
@@ -530,6 +576,7 @@ public interface Backgrounds extends Economy {
     //
     //  Your family, servants, bodyguards and captives-
     FIRST_CONSORT = new Background(
+      Backgrounds.class,
       "First Consort", "highborn_female_skin.gif", "aesthete_portrait.png",
       CLASS_STRATOI, NOT_A_GUILD,
       PRACTICED, COMMAND, SUASION, NOVICE, EROTICS, MASQUERADE, DOMESTICS,
@@ -554,12 +601,12 @@ public interface Backgrounds extends Economy {
       }
     },
     MINISTER_FOR_ACCOUNTS = new Background(
-      "Minister for Accounts", "vendor_skin.gif", null,
+      Backgrounds.class, "Minister for Accounts", "vendor_skin.gif", null,
       CLASS_STRATOI, NOT_A_GUILD,
       EXPERT, ACCOUNTING, PRACTICED, SOCIAL_HISTORY, COUNSEL, SUASION
     ),
     WAR_MASTER = new Background(
-      "War Master", "highborn_male_skin.gif", null,
+      Backgrounds.class, "War Master", "highborn_male_skin.gif", null,
       CLASS_STRATOI, NOT_A_GUILD,
       EXPERT, HAND_TO_HAND, SHIELD_AND_ARMOUR, BATTLE_TACTICS, PRACTICED,
       SURVEILLANCE, MARKSMANSHIP
@@ -567,7 +614,7 @@ public interface Backgrounds extends Economy {
     
     
     STEWARD = new Background(
-      "Steward", "citizen_skin.gif", null,
+      Backgrounds.class, "Steward", "citizen_skin.gif", null,
       CLASS_FREEMEN, NOT_A_GUILD,
       EXPERT, DOMESTICS, PRACTICED, PHARMACY, ANATOMY, COUNSEL,
       GENE_CULTURE, NOVICE, NOBLE_ETIQUETTE,
@@ -583,7 +630,7 @@ public interface Backgrounds extends Economy {
     //  Chamber, and politically have a similar degree of influence (Consuls,
     //  in principle, are on an equal footing with the Emperor/Empress.)
     PREFECT = new Background(
-      "Prefect", "physician_skin.gif", null,
+      Backgrounds.class, "Prefect", "physician_skin.gif", null,
       CLASS_STRATOI, NOT_A_GUILD,
       PRACTICED, COUNSEL, SUASION, ACCOUNTING, COMMON_CUSTOM,
       NOVICE, NOBLE_ETIQUETTE, SOCIAL_HISTORY, BATTLE_TACTICS, COMMAND,
@@ -613,12 +660,20 @@ public interface Backgrounds extends Economy {
     MSSID_REPRESENTATIVE = null,  //metahuman-stable-strain-ID program
     
     STRAIN_CIRCLES[] = { STRAIN_AGENT, MSSID_REPRESENTATIVE }
- ;
+  ;
   
   
+  /*
+  //  TODO:  This isn't good enough.  What about Homeworlds!?
   final public static Background
     ALL_BACKGROUNDS[] = Background.allBackgrounds();
+  //*/
 }
+
+
+
+
+
 
 
 

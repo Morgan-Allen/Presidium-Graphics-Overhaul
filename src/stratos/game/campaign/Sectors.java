@@ -68,7 +68,7 @@ public interface Sectors extends Backgrounds {
     //         Introduce Calivor, Nordsei, Solipsus, Urym Hive & The Outer
     //         Sphere. (aliens and freeholds later.)
     PLANET_ASRA_NOVI = new Sector(
-      "Asra Novi", "House Suhail",
+      Sectors.class, "Asra Novi", "House Suhail",
       "Asra Novi is a heavily-terraformed 'desert oasis' world noted for it's "+
       "expertise in ecology and botanical science, together with polyamorous "+
       "traditions and luxury exports.",
@@ -80,7 +80,7 @@ public interface Sectors extends Backgrounds {
       OFTEN, ECOLOGIST_CIRCLES, SOMETIMES, COURT_CIRCLES, AESTHETE_CIRCLES
     ),
     PLANET_PAREM_V = new Sector(
-      "Parem V", "House Procyon",
+      Sectors.class, "Parem V", "House Procyon",
       "Parem V was one of the first-settled systems in the known quadrant, "+
       "and though dour and repressive, remains host to numerous machine-"+
       "cults and revered arcane relics.",
@@ -93,7 +93,7 @@ public interface Sectors extends Backgrounds {
       RARELY, ECOLOGIST_CIRCLES, AESTHETE_CIRCLES
     ),
     PLANET_HALIBAN = new Sector(
-      "Haliban", "House Altair",
+      Sectors.class, "Haliban", "House Altair",
       "Noted for it's spartan regimen and stern justice, Haliban's early "+
       "defection to the Calivor Republic have earned it several foes- and a "+
       "crucial role in quadrant defence strategy.",
@@ -106,7 +106,7 @@ public interface Sectors extends Backgrounds {
       RARELY, VENDOR_CIRCLES
     ),
     PLANET_AXIS_NOVENA = new Sector(
-      "Axis Novena", "House Taygeta",
+      Sectors.class, "Axis Novena", "House Taygeta",
       "Aided by it's low gravity and thin atmosphere, Axis Novena became the "+
       "centre of a large shipping industry and trade network- along with "+
       "rampant smuggling and black market research.",
@@ -120,7 +120,7 @@ public interface Sectors extends Backgrounds {
     //
     //  TODO:  ...These need more detail.
     PLANET_SOLIPSUS_VIER = new Sector(
-      "Solipsus Vier", "House Fomalhaut",
+      Sectors.class, "Solipsus Vier", "House Fomalhaut",
       "Notable for it's peculiar blend of pastoral tradition and caste "+
       "eugenics, Solipsus Vier is ruled by insular scientific elites fixated "+
       "on mental and physical purity.",
@@ -129,7 +129,7 @@ public interface Sectors extends Backgrounds {
       RARELY, VENDOR_CIRCLES, NEVER, OUTLAW_CIRCLES
     ),
     PLANET_NORUSEI = new Sector(
-      "Norusei", "House Rana",
+      Sectors.class, "Norusei", "House Rana",
       "Once an idyllic tropical planet-resort, Norusei has enjoyed something "+
       "of a renaissance following the devastation of the Machine Wars, "+
       "boasting a rich tourist trade and export of celebrity cult-idols.",
@@ -139,21 +139,21 @@ public interface Sectors extends Backgrounds {
     ),
     
     PLANET_URYM_HIVE = new Sector(
-      "Urym Hive", "House Algol (Minor)",
+      Sectors.class, "Urym Hive", "House Algol (Minor)",
       "Chief factory-world of the Empire in its prime, today inescapable "+
       "poverty, desperate squalor and seething unrest render Urym Hive's "+
       "unnumbered billions governable in name only.",
       null, 0, 2, WASTES_BLOOD, INTENSE_GRAVITY
     ),
     PLANET_CALIVOR = new Sector(
-      "Calivor", "House Regulus (Minor)",
+      Sectors.class, "Calivor", "House Regulus (Minor)",
       "Capital of the Republic whose meteoric rise to prominence saw a dozen "+
       "noble houses unseated in disgrace, to many Calivor remains a gleaming "+
       "beacon of opportunity.",
       null, 1, 2, TUNDRA_BLOOD, NORMAL_GRAVITY
     ),
     PLANET_THE_WEIRWORLD = new Sector(
-      "The Weirworld", "House Ophiuchus (Exiled)",
+      Sectors.class, "The Weirworld", "House Ophiuchus (Exiled)",
       "Shrouded by dense nebulae and dark rumour, the Weirworld is reputedly "+
       "a hollow organic Sphere, host to fleets of Strain vessels which raid "+
       "or colonise the quadrant periphery.",
@@ -161,7 +161,7 @@ public interface Sectors extends Backgrounds {
     ),
     
     PLANET_DIAPSOR = new Sector(
-      "Diapsor", "No House (Freehold)",
+      Sectors.class, "Diapsor", "No House (Freehold)",
       "Rendered all but uninhabitable after the Machine Wars, Diapsor was "+
       "placed under Imperial Quarantine until recent population pressures, "+
       "political change and ecological recovery permitted re-settlement.",
@@ -169,7 +169,7 @@ public interface Sectors extends Backgrounds {
     ),
     
     PLANET_THE_HOMEWORLD = new Sector(
-      "The Homeworld", "No House (Jovian Protectorate)",
+      Sectors.class, "The Homeworld", "No House (Jovian Protectorate)",
       "Surrounded by an impenetrable Null Barrier erected by the xenos "+
       "Jovians, the Homeworld is rumoured to be the birthplace of humanity, "+
       "transplanted by Jump Drives of unfathomable size.",
@@ -188,17 +188,17 @@ public interface Sectors extends Backgrounds {
   //         Diapsor.
   final public static Sector
     SECTOR_ELYSIUM = new Sector(
-      "Elysium Sector", "No House (Freehold)",
+      Sectors.class, "Elysium Sector", "No House (Freehold)",
       "",
       null, -1, -1, WASTES_BLOOD, NORMAL_GRAVITY
     ),
     SECTOR_PAVONIS = new Sector(
-      "Pavonis Sector", "No House (Freehold)",
+      Sectors.class, "Pavonis Sector", "No House (Freehold)",
       "",
       null, -1, -1, WASTES_BLOOD, NORMAL_GRAVITY
     ),
     SECTOR_TERRA = new Sector(
-      "Terra Sector", "No House (Freehold)",
+      Sectors.class, "Terra Sector", "No House (Freehold)",
       "",
       null, -1, -1, WASTES_BLOOD, NORMAL_GRAVITY
     ),

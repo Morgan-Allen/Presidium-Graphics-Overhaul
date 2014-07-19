@@ -11,6 +11,9 @@ import stratos.game.plans.FindWork;
 import stratos.util.*;
 
 
+//  TODO:  This will have to be merged with (or rendered obsolete by) the more
+//  generalised, and powerful, supply-and-demand algorithms I need to work on.
+
 
 public class Commerce implements Economy {
   
@@ -33,10 +36,17 @@ public class Commerce implements Economy {
   Sector homeworld;
   final List <Sector> partners = new List <Sector> ();
   
-  final static int NUM_J = Backgrounds.ALL_BACKGROUNDS.length;
+  //  TODO:  Use a table here instead.  Just as a temporary kluge.
+  //final static int NUM_J = Backgrounds.ALL_BACKGROUNDS.length;
+  /*
   final float
     jobSupply[] = new float[NUM_J],
     jobDemand[] = new float[NUM_J];
+  //*/
+  final Table <Background, Float>
+    jobSupply = new Table(),
+    jobDemand = new Table();
+  
   
   final List <Actor> candidates = new List <Actor> ();
   final List <Actor> migrantsIn = new List <Actor> ();
@@ -64,15 +74,16 @@ public class Commerce implements Economy {
   
   public void loadState(Session s) throws Exception {
     
-    final int hID = s.loadInt();
-    homeworld = hID == -1 ? null : (Sector) Backgrounds.ALL_BACKGROUNDS[hID];
+    homeworld = (Sector) s.loadObject();
     for (int n = s.loadInt(); n-- > 0;) {
-      partners.add((Sector) Backgrounds.ALL_BACKGROUNDS[s.loadInt()]);
+      partners.add((Sector) s.loadObject());
     }
     
-    for (int i = NUM_J; i-- > 0;) {
-      jobSupply[i] = s.loadFloat();
-      jobDemand[i] = s.loadFloat();
+    for (int n = s.loadInt(); n-- > 0;) {
+      jobSupply.put((Background) s.loadObject(), s.loadFloat());
+    }
+    for (int n = s.loadInt(); n-- > 0;) {
+      jobDemand.put((Background) s.loadObject(), s.loadFloat());
     }
     
     shortages.loadState(s);
@@ -91,13 +102,19 @@ public class Commerce implements Economy {
   
   public void saveState(Session s) throws Exception {
     
-    s.saveInt(homeworld == null ? -1 : homeworld.ID);
+    s.saveObject(homeworld);
     s.saveInt(partners.size());
-    for (Sector p : partners) s.saveInt(p.ID);
+    for (Sector p : partners) s.saveObject(p);
     
-    for (int i = NUM_J; i-- > 0;) {
-      s.saveFloat(jobSupply[i]);
-      s.saveFloat(jobDemand[i]);
+    s.saveInt(jobSupply.size());
+    for (Background b : jobSupply.keySet()) {
+      s.saveObject(b);
+      s.saveFloat(jobSupply.get(b));
+    }
+    s.saveInt(jobDemand.size());
+    for (Background b : jobDemand.keySet()) {
+      s.saveObject(b);
+      s.saveFloat(jobDemand.get(b));
     }
     
     shortages.saveState(s);
@@ -153,24 +170,38 @@ public class Commerce implements Economy {
     if ((numUpdates % UPDATE_INTERVAL) != 0) return;
     
     final float inc = DEMAND_INC, timeGone = UPDATE_INTERVAL / APPLY_INTERVAL;
-    for (Background b : Backgrounds.ALL_BACKGROUNDS) {
-      final int i = b.ID;
-      jobDemand[i] *= (1 - inc);
-      jobDemand[i] = Math.max(jobDemand[i] - (inc / 100), 0);
-      jobSupply[i] = 0;
+    final Background demanded[] = jobDemand.keySet().toArray(
+      new Background[jobDemand.size()]
+    );
+    
+    for (Background b : demanded) {
+      //final int i = b.ID;
+      float demand = jobDemand.get(b);
+      demand = Math.max((demand * (1 - inc)) - (inc / 100), 0);
+      jobDemand.put(b, demand);
     }
+    jobSupply.clear();
     
     for (Actor c : candidates) {
       final Application a = c.mind.application();
       if (a == null) continue;
-      jobSupply[a.position.ID]++;
+      Float supply = jobSupply.get(a.position);
+      if (supply == null) jobSupply.put(a.position, 1.0f);
+      else jobSupply.put(a.position, supply + 1);
     }
     
     if (verbose) I.say("\nChecking for new candidates...");
     
-    for (Background b : Backgrounds.ALL_BACKGROUNDS) {
-      final float supply = jobSupply[b.ID], demand = jobDemand[b.ID];
-      if (demand == 0) continue;
+    for (Background b : demanded) {
+      
+      final float demand = jobDemand.get(b);
+      if (demand == 0) {
+        jobDemand.remove(b);
+        continue;
+      }
+      Float supply = jobSupply.get(b);
+      if (supply == null) supply = 0.0f;
+      
       //float applyChance = (demand * MAX_APPLICANTS) - supply;
       float applyChance = demand * demand / (supply + demand);
       applyChance *= timeGone;
@@ -205,9 +236,9 @@ public class Commerce implements Economy {
       
       if (a != null) {
         final Background b = a.position;
-        final float
-          supply = jobSupply[b.ID],
-          demand = jobDemand[b.ID];
+        final Float
+          supply = jobSupply.get(b),
+          demand = jobDemand.get(b);
         quitChance *= supply / (supply + demand);
         
         if (verbose) {
@@ -233,7 +264,10 @@ public class Commerce implements Economy {
   
   public void incDemand(Background b, float amount, int period) {
     final float inc = amount *(period / UPDATE_INTERVAL);
-    jobDemand[b.ID] += inc * DEMAND_INC * MAX_APPLICANTS;
+    Float demand = jobDemand.get(b);
+    if (demand == null) jobDemand.put(b, inc);
+    else jobDemand.put(b, demand + inc);
+    //jobDemand[b.ID] += inc * DEMAND_INC * MAX_APPLICANTS;
   }
   
   
