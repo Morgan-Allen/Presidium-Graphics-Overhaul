@@ -28,9 +28,9 @@ public class Pathing {
   
   final Mobile mobile;
   Target trueTarget;
-  Boardable pathTarget;
+  Boarding pathTarget;
   
-  Boardable path[] = null;
+  Boarding path[] = null;
   int stepIndex = -1;
   
   
@@ -41,8 +41,8 @@ public class Pathing {
   
   void loadState(Session s) throws Exception {
     trueTarget = s.loadTarget();
-    path = (Boardable[]) s.loadTargetArray(Boardable.class);
-    pathTarget = (Boardable) s.loadTarget();
+    path = (Boarding[]) s.loadTargetArray(Boarding.class);
+    pathTarget = (Boarding) s.loadTarget();
     stepIndex = s.loadInt();
   }
   
@@ -58,7 +58,7 @@ public class Pathing {
   
   /**  Updating current heading-
     */
-  private boolean inLocus(Boardable b) {
+  private boolean inLocus(Boarding b) {
     if (b == null) return false;
     return Spacing.innerDistance(mobile, b) < 0.25f;
   }
@@ -69,20 +69,20 @@ public class Pathing {
   }
   
   
-  public Boardable lastStep() {
+  public Boarding lastStep() {
     return pathTarget;
   }
   
   
-  public Boardable nextStep() {
+  public Boarding nextStep() {
     if (stepIndex == -1 || path == null) return null;
     if (! path[stepIndex].inWorld()) return null;
     return path[stepIndex];
   }
   
   
-  protected Boardable location(Target t) {
-    if (t instanceof Boardable && t != mobile) return (Boardable) t;
+  protected Boarding location(Target t) {
+    if (t instanceof Boarding && t != mobile) return (Boarding) t;
     if (t instanceof Mobile) {
       final Mobile a = (Mobile) t;
       if (a.aboard() != null) return a.aboard();
@@ -118,7 +118,7 @@ public class Pathing {
     if (path == null) return false;
     final boolean report = pathVerbose && I.talkAbout == mobile;
     
-    final Boardable dest = location(trueTarget);
+    final Boarding dest = location(trueTarget);
     boolean blocked = false, nearTarget = false, validPath = true;
     if (report) {
       I.say("\nChecking path okay for "+mobile);
@@ -132,7 +132,7 @@ public class Pathing {
     if (validPath) for (int i = 0; i < MAX_PATH_SCAN; i++) {
       final int index = stepIndex + i;
       if (index >= path.length) break;
-      final Boardable t = path[index];
+      final Boarding t = path[index];
       
       if (PathSearch.blockedBy(t, mobile)) blocked = true;
       else if (! t.inWorld()) blocked = true;
@@ -162,7 +162,7 @@ public class Pathing {
     final boolean report = verbose && I.talkAbout == mobile;
     if (report) I.say("REFRESHING PATH TO: "+trueTarget);
     
-    final Boardable origin = location(mobile);
+    final Boarding origin = location(mobile);
     if (trueTarget == null) path = null;
     else {
       
@@ -190,7 +190,7 @@ public class Pathing {
     else {
       if (report) {
         I.say("PATH IS: ");
-        for (Boardable b : path) {
+        for (Boarding b : path) {
           I.add(b+" "+PathSearch.blockedBy(b, mobile)+" ");
         }
       }
@@ -202,13 +202,13 @@ public class Pathing {
   }
   
   
-  protected Boardable[] pathBetween(Boardable initB, Boardable destB) {
+  protected Boarding[] pathBetween(Boarding initB, Boarding destB) {
     if (GameSettings.pathFree) {
       final PathSearch search = new PathSearch(initB, destB, -1);
       if (verbose && I.talkAbout == mobile) search.verbose = true;
       search.client = mobile;
       search.doSearch();
-      return search.fullPath(Boardable.class);
+      return search.fullPath(Boarding.class);
     }
     else {
       return mobile.world().pathingCache.getLocalPath(

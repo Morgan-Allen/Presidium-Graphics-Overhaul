@@ -20,7 +20,7 @@ public class Readout extends UIGroup {
     this.UI = UI;
     
     this.read = new Text(UI, SelectionInfoPane.INFO_FONT);
-    read.relBound.set(0, 0, 1, 1);
+    read.alignToFill();
     read.attachTo(this);
   }
   

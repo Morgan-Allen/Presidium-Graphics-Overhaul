@@ -183,7 +183,7 @@ public class Nest extends Venue {
   }
   
   
-  public static float crowdingFor(Boardable home, Object species, World world) {
+  public static float crowdingFor(Boarding home, Object species, World world) {
     if (home == null || world == null) return 0;
     if (! (species instanceof Species)) return 0;
     final boolean report = crowdingVerbose && I.talkAbout == home;

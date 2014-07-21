@@ -11,7 +11,7 @@ import stratos.util.*;
 
 
 
-public interface Boardable extends Target {
+public interface Boarding extends Target {
   
   final int
     BOARDABLE_TILE    = 0,
@@ -24,8 +24,8 @@ public interface Boardable extends Target {
   Series <Mobile> inside();
   
   Box2D area(Box2D put);
-  Boardable[] canBoard(Boardable batch[]);
-  boolean isEntrance(Boardable b);
+  Boarding[] canBoard(Boarding batch[]);
+  boolean isEntrance(Boarding b);
   
   int pathType();
   boolean allowsEntry(Mobile m);

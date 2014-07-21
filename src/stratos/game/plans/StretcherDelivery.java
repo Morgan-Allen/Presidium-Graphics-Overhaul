@@ -19,13 +19,13 @@ public class StretcherDelivery extends Plan implements Qualities {
   private static boolean verbose = false;
   
   final Actor patient;
-  final Boardable origin, destination;
+  final Boarding origin, destination;
   private Suspensor suspensor;
   
   
   public StretcherDelivery(
     Actor actor, Actor patient,
-    Boardable destination
+    Boarding destination
   ) {
     super(actor, patient);
     this.patient = patient;
@@ -37,8 +37,8 @@ public class StretcherDelivery extends Plan implements Qualities {
   public StretcherDelivery(Session s) throws Exception {
     super(s);
     this.patient = (Actor) s.loadObject();
-    this.origin = (Boardable) s.loadTarget();
-    this.destination = (Boardable) s.loadTarget();
+    this.origin = (Boarding) s.loadTarget();
+    this.destination = (Boarding) s.loadTarget();
     this.suspensor = (Suspensor) s.loadObject();
   }
   

@@ -146,7 +146,7 @@ public class Selection implements UIConstants {
     if (s == null) {
       navStack.clear();
       selected = null;
-      UI.viewTracking.lockOn(null);
+      UI.tracking.lockOn(null);
       UI.setInfoPanels(null, null);
       return;
     }
@@ -154,7 +154,7 @@ public class Selection implements UIConstants {
     
     selected = s;
     final Target locks = s.selectionLocksOn();
-    if (locks.inWorld()) UI.viewTracking.lockOn(locks);
+    if (locks.inWorld()) UI.tracking.lockOn(locks);
     final SelectionInfoPane panel = s.configPanel(null, UI);
     final TargetOptions info = s.configInfo(null, UI);
     UI.setInfoPanels(panel, info);

@@ -30,7 +30,7 @@ public abstract class UINode {
     DEFAULT_HOVER_ALPHA = 0.5f,
     DEFAULT_PRESS_ALPHA = 0.75f;
   
-  final public Box2D
+  final protected Box2D
     relBound = new Box2D(),
     absBound = new Box2D();
   public float
@@ -127,6 +127,7 @@ public abstract class UINode {
     absBound.setX(offX, incX - offX);
   }
   
+  
   public void alignBottom(int margin, int height) {
     relBound.setY(0, 0);
     absBound.setY(margin, height);
@@ -158,6 +159,27 @@ public abstract class UINode {
   }
   
   
+  public void alignToFill() {
+    relBound.set(0, 0, 1, 1);
+    absBound.set(0, 0, 0, 0);
+  }
+  
+  public void alignToCentre() {
+    relBound.set(0.5f, 0.5f, 0, 0);
+    absBound.set(0   , 0   , 0, 0);
+  }
+  
+  public void alignToArea(int x, int y, int w, int h) {
+    relBound.set(0, 0, 0, 0);
+    absBound.set(x, y, w, h);
+  }
+  
+  public void alignToMatch(UINode other) {
+    relBound.setTo(other.relBound);
+    absBound.setTo(other.absBound);
+  }
+  
+  
   
   /**  Internal methods for calibrating position based off parent coordinates-
     */
@@ -169,20 +191,18 @@ public abstract class UINode {
   
   protected void updateAbsoluteBounds() {
     if (parent == null) updateAbsoluteBounds(new Box2D());
-    else {
-      updateAbsoluteBounds(parent.bounds);
-    }
+    else updateAbsoluteBounds(parent.bounds);
   }
   
   
   void updateRelativeParent(Box2D base) {
-    
-    //boolean stretch = true;
+    //
+    //  Firstly, obtain some default dimensions-
     float
       wide = absBound.xdim() + (base.xdim() * relBound.xdim()),
       high = absBound.ydim() + (base.ydim() * relBound.ydim()),
-      x = absBound.xpos(),
-      y = absBound.ypos();
+      x    = absBound.xpos(),
+      y    = absBound.ypos();
     
     if ((! stretch) && absBound.area() != 0) {
       //  In this case we shrink either width or height to maintain a constant

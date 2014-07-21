@@ -12,7 +12,7 @@ import stratos.util.*;
 
 
 
-public class PathSearch extends Search <Boardable> {
+public class PathSearch extends Search <Boarding> {
   
   
   
@@ -21,13 +21,13 @@ public class PathSearch extends Search <Boardable> {
   private static boolean blocksVerbose = false;
   
   
-  final protected Boardable destination;
+  final protected Boarding destination;
   public Mobile client = null;
-  private Boardable aimPoint = null;
+  private Boarding aimPoint = null;
   
-  private Boardable closest;
+  private Boarding closest;
   private float closestDist;
-  private Boardable batch[] = new Boardable[8];
+  private Boarding batch[] = new Boarding[8];
   ///private Tile tileB[] = new Tile[8];
   //
   //  TODO:  Incorporate the Places-search constraint code here.
@@ -38,7 +38,7 @@ public class PathSearch extends Search <Boardable> {
   
   
   
-  public PathSearch(Boardable init, Boardable dest, int limit) {
+  public PathSearch(Boarding init, Boarding dest, int limit) {
     super(init, (limit > 0) ? ((limit + 2) * 8) : -1);
     if (dest == null) {
       I.complain("NO DESTINATION!");
@@ -55,14 +55,14 @@ public class PathSearch extends Search <Boardable> {
   }
   
   
-  protected static int searchLimit(Boardable init, Boardable dest) {
+  protected static int searchLimit(Boarding init, Boarding dest) {
     int limit = (int) Spacing.outerDistance(init, dest);
     limit = Math.max(limit, World.PATCH_RESOLUTION * 2);
     return limit;
   }
   
   
-  public PathSearch(Boardable init, Boardable dest) {
+  public PathSearch(Boarding init, Boarding dest) {
     this(init, dest, searchLimit(init, dest));
   }
   
@@ -98,7 +98,7 @@ public class PathSearch extends Search <Boardable> {
   }
   
   
-  protected void tryEntry(Boardable spot, Boardable prior, float cost) {
+  protected void tryEntry(Boarding spot, Boarding prior, float cost) {
     final float spotDist = Spacing.distance(spot, aimPoint);
     if (spot == aimPoint) {
       if (verbose) {
@@ -121,12 +121,12 @@ public class PathSearch extends Search <Boardable> {
   }
   
   
-  protected void setEntry(Boardable spot, Entry flag) {
+  protected void setEntry(Boarding spot, Entry flag) {
     spot.flagWith(flag);
   }
   
   
-  protected Entry entryFor(Boardable spot) {
+  protected Entry entryFor(Boarding spot) {
     return (Entry) spot.flaggedWith();
   }
   
@@ -134,12 +134,12 @@ public class PathSearch extends Search <Boardable> {
   
   /**  Actual search-execution methods-
     */
-  protected Boardable[] adjacent(Boardable spot) {
+  protected Boarding[] adjacent(Boarding spot) {
     return spot.canBoard(batch);
   }
   
   
-  protected float cost(Boardable prior, Boardable spot) {
+  protected float cost(Boarding prior, Boarding spot) {
     if (spot == null) return -1;
     if (spot == destination) return 0;
     float mods = 0;
@@ -169,8 +169,8 @@ public class PathSearch extends Search <Boardable> {
   
   public static boolean blockedBy(Target t, Mobile m) {
     if (t == null) return true;
-    if (! (t instanceof Boardable)) return false;
-    return blockedBy((Boardable) t, m);
+    if (! (t instanceof Boarding)) return false;
+    return blockedBy((Boarding) t, m);
   }
   
   
@@ -180,8 +180,8 @@ public class PathSearch extends Search <Boardable> {
   
   //  TODO:  Each client should be able to override a method to specify this.
   
-  private static boolean blockedBy(final Boardable b, final Mobile mobile) {
-    if (b.boardableType() == Boardable.BOARDABLE_TILE) {
+  private static boolean blockedBy(final Boarding b, final Mobile mobile) {
+    if (b.boardableType() == Boarding.BOARDABLE_TILE) {
       return b.pathType() == Tile.PATH_BLOCKS;
       //  TODO:  RESTORE THIS LATER, once alternative transport modes are
       //  worked out.
@@ -219,19 +219,19 @@ public class PathSearch extends Search <Boardable> {
   }
   
   
-  protected boolean canEnter(final Boardable spot) {
+  protected boolean canEnter(final Boarding spot) {
     return spot != null && ! blockedBy(spot, client);
   }
   
   
-  protected float estimate(Boardable spot) {
+  protected float estimate(Boarding spot) {
     float dist = Spacing.distance(spot, aimPoint);
     dist += Spacing.distance(closest, spot) / 3.0f;
     return dist * 1.1f;
   }
   
   
-  protected boolean endSearch(Boardable best) {
+  protected boolean endSearch(Boarding best) {
     return best == destination;
   }
 }

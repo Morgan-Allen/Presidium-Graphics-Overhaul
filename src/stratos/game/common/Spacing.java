@@ -28,9 +28,9 @@ public final class Spacing implements TileConstants {
     tempT4[] = new Tile[4],
     tempT8[] = new Tile[8],
     tempT9[] = new Tile[9];
-  public final static Boardable
-    tempB4[] = new Boardable[4],
-    tempB8[] = new Boardable[8];
+  public final static Boarding
+    tempB4[] = new Boarding[4],
+    tempB8[] = new Boarding[8];
   
   final static Tile PERIM_ARRAYS[][] = {
     new Tile[8 ],
@@ -191,8 +191,8 @@ public final class Spacing implements TileConstants {
   
   public static boolean isEntrance(Tile t) {
     for (Tile n : t.edgeAdjacent(tempT4)) {
-      if (n == null || ! (n.owner() instanceof Boardable)) continue;
-      for (Boardable b : ((Boardable) n.owner()).canBoard(tempB4)) {
+      if (n == null || ! (n.owner() instanceof Boarding)) continue;
+      for (Boarding b : ((Boarding) n.owner()).canBoard(tempB4)) {
         if (b == t) return true;
       }
     }
@@ -203,8 +203,8 @@ public final class Spacing implements TileConstants {
   public static Batch <Element> entranceFor(Tile t) {
     final Batch <Element> batch = new Batch <Element> ();
     for (Tile n : t.edgeAdjacent(tempT4)) {
-      if (n == null || ! (n.owner() instanceof Boardable)) continue;
-      for (Boardable b : ((Boardable) n.owner()).canBoard(tempB4)) {
+      if (n == null || ! (n.owner() instanceof Boarding)) continue;
+      for (Boarding b : ((Boarding) n.owner()).canBoard(tempB4)) {
         if (b == t) batch.add((Element) n.owner());
       }
     }

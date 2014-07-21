@@ -29,7 +29,7 @@ public class Retreat extends Plan implements Qualities {
   
   
   private float maxDanger = 0;
-  private Boardable safePoint = null;
+  private Boarding safePoint = null;
   
   
   public Retreat(Actor actor) {
@@ -37,7 +37,7 @@ public class Retreat extends Plan implements Qualities {
   }
   
   
-  public Retreat(Actor actor, Boardable safePoint) {
+  public Retreat(Actor actor, Boarding safePoint) {
     super(actor, safePoint);
     this.safePoint = safePoint;
   }
@@ -46,7 +46,7 @@ public class Retreat extends Plan implements Qualities {
   public Retreat(Session s) throws Exception {
     super(s);
     this.maxDanger = s.loadFloat();
-    this.safePoint = (Boardable) s.loadTarget();
+    this.safePoint = (Boarding) s.loadTarget();
   }
   
   
@@ -110,7 +110,7 @@ public class Retreat extends Plan implements Qualities {
   }
   
   
-  public static Boardable nearestHaven(Actor actor, Class prefClass) {
+  public static Boarding nearestHaven(Actor actor, Class prefClass) {
     final boolean report = havenVerbose && I.talkAbout == actor;
     
     final Presences presences = actor.world().presences;
@@ -134,14 +134,14 @@ public class Retreat extends Plan implements Qualities {
     }
     
     if (report) I.say("Haven picked is: "+picked);
-    return (Boardable) picked;
+    return (Boarding) picked;
   }
   
   
   private static float rateHaven(Object t, Actor actor, Class prefClass) {
     final boolean report = havenVerbose && I.talkAbout == actor;
     
-    if (! (t instanceof Boardable)) return -1;
+    if (! (t instanceof Boarding)) return -1;
     if (! (t instanceof Venue)) return 1;
     
     final Venue haven = (Venue) t;

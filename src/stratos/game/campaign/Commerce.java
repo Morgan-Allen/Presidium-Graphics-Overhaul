@@ -43,10 +43,12 @@ public class Commerce implements Economy {
     jobSupply[] = new float[NUM_J],
     jobDemand[] = new float[NUM_J];
   //*/
-  final Table <Background, Float>
-    jobSupply = new Table(),
-    jobDemand = new Table();
-  
+  //final Table <Background, Float>
+    //jobSupply = new Table(),
+    //jobDemand = new Table();
+  final Tally <Background>
+    jobSupply = new Tally(),
+    jobDemand = new Tally();
   
   final List <Actor> candidates = new List <Actor> ();
   final List <Actor> migrantsIn = new List <Actor> ();
@@ -80,10 +82,10 @@ public class Commerce implements Economy {
     }
     
     for (int n = s.loadInt(); n-- > 0;) {
-      jobSupply.put((Background) s.loadObject(), s.loadFloat());
+      jobSupply.set((Background) s.loadObject(), s.loadFloat());
     }
     for (int n = s.loadInt(); n-- > 0;) {
-      jobDemand.put((Background) s.loadObject(), s.loadFloat());
+      jobDemand.set((Background) s.loadObject(), s.loadFloat());
     }
     
     shortages.loadState(s);
@@ -107,14 +109,14 @@ public class Commerce implements Economy {
     for (Sector p : partners) s.saveObject(p);
     
     s.saveInt(jobSupply.size());
-    for (Background b : jobSupply.keySet()) {
+    for (Background b : jobSupply.keys()) {
       s.saveObject(b);
-      s.saveFloat(jobSupply.get(b));
+      s.saveFloat(jobSupply.valueFor(b));
     }
     s.saveInt(jobDemand.size());
-    for (Background b : jobDemand.keySet()) {
+    for (Background b : jobDemand.keys()) {
       s.saveObject(b);
-      s.saveFloat(jobDemand.get(b));
+      s.saveFloat(jobDemand.valueFor(b));
     }
     
     shortages.saveState(s);
@@ -170,39 +172,32 @@ public class Commerce implements Economy {
     if ((numUpdates % UPDATE_INTERVAL) != 0) return;
     
     final float inc = DEMAND_INC, timeGone = UPDATE_INTERVAL / APPLY_INTERVAL;
-    final Background demanded[] = jobDemand.keySet().toArray(
-      new Background[jobDemand.size()]
-    );
+    final Background demanded[] = jobDemand.keysToArray(Background.class);
     
     for (Background b : demanded) {
-      //final int i = b.ID;
-      float demand = jobDemand.get(b);
+      float demand = jobDemand.valueFor(b);
       demand = Math.max((demand * (1 - inc)) - (inc / 100), 0);
-      jobDemand.put(b, demand);
+      jobDemand.set(b, demand);
     }
-    jobSupply.clear();
     
+    jobSupply.clear();
     for (Actor c : candidates) {
       final Application a = c.mind.application();
       if (a == null) continue;
-      Float supply = jobSupply.get(a.position);
-      if (supply == null) jobSupply.put(a.position, 1.0f);
-      else jobSupply.put(a.position, supply + 1);
+      jobSupply.add(1, a.position);
     }
     
     if (verbose) I.say("\nChecking for new candidates...");
     
     for (Background b : demanded) {
-      
-      final float demand = jobDemand.get(b);
+      final float
+        demand = jobDemand.valueFor(b),
+        supply = jobSupply.valueFor(b);
       if (demand == 0) {
-        jobDemand.remove(b);
+        jobDemand.set(b, 0);
         continue;
       }
-      Float supply = jobSupply.get(b);
-      if (supply == null) supply = 0.0f;
       
-      //float applyChance = (demand * MAX_APPLICANTS) - supply;
       float applyChance = demand * demand / (supply + demand);
       applyChance *= timeGone;
       
@@ -236,9 +231,9 @@ public class Commerce implements Economy {
       
       if (a != null) {
         final Background b = a.position;
-        final Float
-          supply = jobSupply.get(b),
-          demand = jobDemand.get(b);
+        final float
+          supply = jobSupply.valueFor(b),
+          demand = jobDemand.valueFor(b);
         quitChance *= supply / (supply + demand);
         
         if (verbose) {
@@ -264,10 +259,7 @@ public class Commerce implements Economy {
   
   public void incDemand(Background b, float amount, int period) {
     final float inc = amount *(period / UPDATE_INTERVAL);
-    Float demand = jobDemand.get(b);
-    if (demand == null) jobDemand.put(b, inc);
-    else jobDemand.put(b, demand + inc);
-    //jobDemand[b.ID] += inc * DEMAND_INC * MAX_APPLICANTS;
+    jobDemand.add(inc, b);
   }
   
   

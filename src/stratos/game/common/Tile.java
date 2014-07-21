@@ -17,7 +17,7 @@ import stratos.util.*;
 
 
 public final class Tile implements
-  Target, TileConstants, Boardable, Session.Saveable, Selectable
+  Target, TileConstants, Boarding, Session.Saveable, Selectable
 {
   
   
@@ -35,7 +35,7 @@ public final class Tile implements
   final public World world;
   final public int x, y;
   private Object flagged;
-  private Boardable boardingCache[] = null;
+  private Boarding boardingCache[] = null;
   
   private float elevation = Float.NEGATIVE_INFINITY;
   private Habitat habitat = null;
@@ -208,14 +208,14 @@ public final class Tile implements
   
   /**  Implementing the Boardable interface-
     */
-  public Boardable[] canBoard(Boardable batch[]) {
+  public Boarding[] canBoard(Boarding batch[]) {
     //
     //  TODO:  See if this can't be made more efficient.  Try caching whenever
     //  ownership/occupants change?
     if (boardingCache != null) return boardingCache;
     else batch = null;
     
-    if (batch == null) batch = new Boardable[8];
+    if (batch == null) batch = new Boarding[8];
     
     //  TODO:  RESTORE THIS FOR VEHICLES LATER, IF REQUIRED?
     /*
@@ -236,8 +236,8 @@ public final class Tile implements
     //*/
     
     //  If you're actually occupied, allow boarding of the owner-
-    if (blocked() && owner() instanceof Boardable) {
-      return ((Boardable) owner()).canBoard(batch);
+    if (blocked() && owner() instanceof Boarding) {
+      return ((Boarding) owner()).canBoard(batch);
     }
     
     //  Include any unblocked adjacent tiles-
@@ -257,8 +257,8 @@ public final class Tile implements
     //  Include anything that you're any entrance to-
     for (int n : N_ADJACENT) {
       final Tile t = world.tileAt(x + N_X[n], y + N_Y[n]);
-      if (t == null || ! (t.owner() instanceof Boardable)) continue;
-      final Boardable v = (Boardable) t.owner();
+      if (t == null || ! (t.owner() instanceof Boarding)) continue;
+      final Boarding v = (Boarding) t.owner();
       if (v.isEntrance(this)) batch[n] = v;
     }
     
@@ -268,7 +268,7 @@ public final class Tile implements
   }
   
   
-  public boolean isEntrance(Boardable b) {
+  public boolean isEntrance(Boarding b) {
     if (b instanceof Tile) {
       final Tile t = (Tile) b;
       if (t.blocked()) return false;
@@ -325,7 +325,7 @@ public final class Tile implements
     //         habitat type.
     final BaseUI UI = BaseUI.current();
     UI.selection.pushSelection(null, false);
-    UI.viewTracking.lockOn(this);
+    UI.tracking.lockOn(this);
   }
   
   

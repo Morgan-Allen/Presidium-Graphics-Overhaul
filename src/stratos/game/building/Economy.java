@@ -7,6 +7,7 @@
 
 package stratos.game.building;
 import stratos.game.actors.*;
+import stratos.game.base.*;
 import stratos.graphics.common.*;
 
 
@@ -129,88 +130,93 @@ public interface Economy extends Qualities {
     ENERGY_DRAIN = 1 << 12;
   
   
+  //  TODO:  Replace most of these with a shorter set of categories.
+  //  Halberd Guns.  Blasters.  Stunners.  Burners.
+  //  Frames & Bracers.  Shivs.  
+  
+  
   final public static DeviceType
     
     MANIPLES = new DeviceType(BC, "Maniples",
       2, GRAPPLE | MELEE | PHYSICAL, 10,
-      new Conversion(3, PARTS, "Artificer", 5, ASSEMBLY),
+      new Conversion(Artificer.class, 3, PARTS, 5, ASSEMBLY),
       "maniples", AnimNames.BUILD
     ),
     LASER_DRILL = new DeviceType(BC, "Laser Drill",
       5, RANGED | ENERGY, 10,
-      new Conversion(2, PARTS, "Artificer", 5, ASSEMBLY),
+      new Conversion(Artificer.class, 2, PARTS, 5, ASSEMBLY),
       "laser drill", AnimNames.BUILD
     ),
     MODUS_LUTE = new DeviceType(BC, "Modus Lute",
       0, NONE, 40,
-      new Conversion(1, PARTS, "Artificer", 10, ASSEMBLY),
+      new Conversion(Artificer.class, 1, PARTS, 10, ASSEMBLY),
       "modus lute", AnimNames.TALK_LONG
     ),
     BIOCORDER = new DeviceType(BC, "Biocorder",
       0, NONE, 55,
-      new Conversion(2, PARTS, "Artificer", 15, ASSEMBLY),
+      new Conversion(Artificer.class, 2, PARTS, 15, ASSEMBLY),
       "biocorder", AnimNames.LOOK
     ),
     
     STUN_PISTOL = new DeviceType(BC, "Stun Pistol",
       10, RANGED | PHYSICAL | STUN | HOMING, 35,
-      new Conversion(1, PARTS, "Artificer", 10, ASSEMBLY),
+      new Conversion(Artificer.class, 1, PARTS, 10, ASSEMBLY),
       "pistol", AnimNames.FIRE
     ),
     BLASTER = new DeviceType(BC, "Blaster",
       15, RANGED | ENERGY | PLASMA, 25,
-      new Conversion(1, PARTS, "Artificer", 10, ASSEMBLY),
+      new Conversion(Artificer.class, 1, PARTS, 10, ASSEMBLY),
       "pistol", AnimNames.FIRE
     ),
     MISSILE_PACK = new DeviceType(BC, "Missile Pack",
       15, RANGED | PHYSICAL | HOMING, 30,
-      new Conversion(2, PARTS, "Artificer", 15, ASSEMBLY),
+      new Conversion(Artificer.class, 2, PARTS, 15, ASSEMBLY),
       "shoulder", AnimNames.FIRE
     ),
     MICROWAVE_BEAM = new DeviceType(BC, "Microwave Beam",
       20, RANGED | ENERGY | STUN, 45,
-      new Conversion(3, PARTS, "Artificer", 15, ASSEMBLY),
+      new Conversion(Artificer.class, 3, PARTS, 15, ASSEMBLY),
       "shoulder", AnimNames.FIRE
     ),
     RAIL_CANNON = new DeviceType(BC, "Rail Cannon",
       25, RANGED | PHYSICAL, 60,
-      new Conversion(3, PARTS, "Artificer", 20, ASSEMBLY),
+      new Conversion(Artificer.class, 3, PARTS, 20, ASSEMBLY),
       "cannon", AnimNames.FIRE
     ),
     DISINTEGRATOR = new DeviceType(BC, "Disintegrator",
       30, RANGED | ENERGY, 120,
-      new Conversion(5, PARTS, "Artificer", 25, ASSEMBLY),
+      new Conversion(Artificer.class, 5, PARTS, 25, ASSEMBLY),
       "cannon", AnimNames.FIRE
     ),
     
     JAVELIN = new DeviceType(BC, "Javelin",
       10, RANGED | PHYSICAL, 5,
-      new Conversion(5, HANDICRAFTS),
+      new Conversion(null, 5, HANDICRAFTS),
       "spear", AnimNames.STRIKE//"staff"
     ),
     TOOTH_SHIV = new DeviceType(BC, "Tooth Shiv",
       5, MELEE | PHYSICAL, 5,
-      new Conversion(5, HANDICRAFTS),
+      new Conversion(null, 5, HANDICRAFTS),
       "light blade", AnimNames.STRIKE
     ),
     NERVE_BATON = new DeviceType(BC, "Nerve Baton",
       10, MELEE | PHYSICAL | STUN, 25,
-      new Conversion(1, PARTS, "Artificer", 10, ASSEMBLY),
+      new Conversion(Artificer.class, 1, PARTS, 10, ASSEMBLY),
       "baton", AnimNames.STRIKE_BIG
     ),
     SHOCK_STAFF = new DeviceType(BC, "Shock Staff",
       15, MELEE | PHYSICAL | STUN, 40,
-      new Conversion(2, PARTS, "Artificer", 10, ASSEMBLY),
+      new Conversion(Artificer.class, 2, PARTS, 10, ASSEMBLY),
       "staff", AnimNames.STRIKE
     ),
     ARC_SABRE = new DeviceType(BC, "Arc Sabre",
       25, MELEE | ENERGY, 100,
-      new Conversion(3, PARTS, "Artificer", 15, ASSEMBLY),
+      new Conversion(Artificer.class, 3, PARTS, 15, ASSEMBLY),
       "staff", AnimNames.STRIKE
     ),
     ARC_HALBERD = new DeviceType(BC, "Konoche",
       20, MELEE | ENERGY, 45,
-      new Conversion(2, PARTS, "Artificer", 5, ASSEMBLY),
+      new Conversion(Artificer.class, 2, PARTS, 5, ASSEMBLY),
       "heavy blade", AnimNames.STRIKE_BIG
     ),
     
@@ -232,49 +238,49 @@ public interface Economy extends Qualities {
     
     OVERALLS       = new OutfitType(
       BC, "Overalls"      , 1, 0, 50,
-      new Conversion(1, PLASTICS, "Fabricator", 5, ASSEMBLY)
+      new Conversion(FRSD.class, 1, PLASTICS, 5, ASSEMBLY)
     ),
     FINERY         = new OutfitType(
       BC, "Finery"        , 1, 0 , 400,
-      new Conversion(2, PLASTICS, "Fabricator", 15, GRAPHIC_DESIGN)
+      new Conversion(FRSD.class, 2, PLASTICS, 15, GRAPHIC_DESIGN)
     ),
     SCRAP_GEAR = new OutfitType(
       BC, "Scrap Gear", 3, 0, 5,
-      new Conversion(0, HANDICRAFTS)
+      new Conversion(null, 0, HANDICRAFTS)
     ),
     
     CAMOUFLAGE     = new OutfitType(
       BC, "Camouflage"    , 3, 0, 70,
-      new Conversion(1, PLASTICS, "Fabricator", 5, HANDICRAFTS)
+      new Conversion(FRSD.class, 1, PLASTICS, 5, HANDICRAFTS)
     ),
     SEALSUIT       = new OutfitType(
       BC, "Sealsuit"      , 4, 1, 150,
-      new Conversion(1, PLASTICS, 1, PARTS, "Fabricator", 10, HANDICRAFTS)
+      new Conversion(FRSD.class, 1, PLASTICS, 1, PARTS, 10, HANDICRAFTS)
     ),
     STEALTH_SUIT   = new OutfitType(
       BC, "Stealth Suit"  , 8, 5, 250,
-      new Conversion(1, PLASTICS, 2, PARTS, "Fabricator", 15, HANDICRAFTS)
+      new Conversion(FRSD.class, 1, PLASTICS, 2, PARTS, 15, HANDICRAFTS)
     ),
     
     BELT_AND_BRACER = new OutfitType(
       BC, "Belt and Bracer"   , 5, 10, 50,
-      new Conversion(1, PARTS, "Artificer", 5, ASSEMBLY)
+      new Conversion(Artificer.class, 1, PARTS, 5, ASSEMBLY)
     ),
     PARTIAL_ARMOUR = new OutfitType(
       BC, "Partial Armour", 10, 10, 100,
-      new Conversion(2, PARTS, "Artificer", 10, ASSEMBLY)
+      new Conversion(Artificer.class, 2, PARTS, 10, ASSEMBLY)
     ),
     BODY_ARMOUR    = new OutfitType(
       BC, "Body Armour"   , 15, 10, 150,
-      new Conversion(5, PARTS, "Artificer", 15, ASSEMBLY)
+      new Conversion(Artificer.class, 5, PARTS, 15, ASSEMBLY)
     ),
     POWER_ARMOUR   = new OutfitType(
       BC, "Power Armour"  , 20, 10, 275,
-      new Conversion(8, PARTS, "Artificer", 20, ASSEMBLY)
+      new Conversion(Artificer.class, 8, PARTS, 20, ASSEMBLY)
     ),
     GOLEM_FRAME = new OutfitType(
       BC, "Golem Frame"  , 25, 10, 500,
-      new Conversion(12, PARTS, "Artificer", 25, ASSEMBLY)
+      new Conversion(Artificer.class, 12, PARTS, 25, ASSEMBLY)
     ),
     
     NATURAL_ARMOUR = new OutfitType(
@@ -298,29 +304,26 @@ public interface Economy extends Qualities {
     //
     //  Artificer conversions-
     METALS_TO_PARTS = new Conversion(
-      1, METALS, TO, 2, PARTS,
-      "Artificer",
+      Artificer.class, 1, METALS, TO, 2, PARTS,
       MODERATE_DC, ASSEMBLY, SIMPLE_DC, CHEMISTRY
     ),
     
     PARTS_TO_CIRCUITRY = new Conversion(
-      1, PARTS, TO, 5, CIRCUITRY,
-      "Artificer",
+      Artificer.class, 1, PARTS, TO, 5, CIRCUITRY,
       DIFFICULT_DC, ASSEMBLY, ROUTINE_DC, INSCRIPTION, SIMPLE_DC, FIELD_THEORY
     ),
     
     WASTE_TO_PLASTICS = new Conversion(
-      TO, 1, PLASTICS,
-      "Fabricator",
+      FRSD.class, TO, 1, PLASTICS,
       ROUTINE_DC, CHEMISTRY, SIMPLE_DC, ASSEMBLY
     ),
     
     PLASTICS_TO_DECOR = new Conversion(
-      1, PLASTICS, TO, 2, FIXTURES,
-      "Fabricator",
+      FRSD.class, 1, PLASTICS, TO, 2, FIXTURES,
       STRENUOUS_DC, GRAPHIC_DESIGN, MODERATE_DC, HANDICRAFTS
     ),
     
+    /*
     //
     //  Audit Office conversions-
     PLASTICS_TO_CREDITS = new Conversion(
@@ -334,58 +337,51 @@ public interface Economy extends Qualities {
       "AuditOffice",
       SIMPLE_DC, ACCOUNTING, DIFFICULT_DC, GRAPHIC_DESIGN
     ),
+    //*/
     
     //
     //  Archives conversions-
     CIRCUITRY_TO_DATALINKS = new Conversion(
-      1, CIRCUITRY, TO, 5, DATALINKS,
-      "Archives",
+      Archives.class, 1, CIRCUITRY, TO, 5, DATALINKS,
       MODERATE_DC, INSCRIPTION, SIMPLE_DC, ASSEMBLY, ACCOUNTING
     ),
     
     //
     //  Reactor conversions-
     METALS_TO_FUEL = new Conversion(
-      10, METALS, TO, 1, FUEL_RODS,
-      "Reactor",
+      Reactor.class, 10, METALS, TO, 1, FUEL_RODS,
       MODERATE_DC, CHEMISTRY, MODERATE_DC, FIELD_THEORY
     ),
     
     //
     //  Culture Vats/Sickbay conversions-
     WASTE_TO_CARBS = new Conversion(
-      TO, 1, CARBS,
-      "CultureVats",
+      CultureVats.class, TO, 1, CARBS,
       SIMPLE_DC, CHEMISTRY
     ),
     
     CARBS_TO_PROTEIN = new Conversion(
-      2, CARBS, TO, 1, PROTEIN,
-      "CultureVats",
+      CultureVats.class, 2, CARBS, TO, 1, PROTEIN,
       ROUTINE_DC, CHEMISTRY, ROUTINE_DC, GENE_CULTURE
     ),
     
     CARBS_TO_SOMA = new Conversion(
-      2, CARBS, TO, 1, SOMA,
-      "CultureVats",
+      CultureVats.class, 2, CARBS, TO, 1, SOMA,
       ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
     ),
     
     SPICE_TO_MEDICINE = new Conversion(
-      1, TRUE_SPICE, TO, 5, MEDICINE,
-      "CultureVats",
+      CultureVats.class, 1, TRUE_SPICE, TO, 5, MEDICINE,
       MODERATE_DC, CHEMISTRY, ROUTINE_DC, PHARMACY
     ),
     
     MEDICINE_TO_STIM_KITS = new Conversion(
-      1, MEDICINE, TO, 10, STIM_KITS,
-      "Sickbay",
+      Sickbay.class, 1, MEDICINE, TO, 10, STIM_KITS,
       ROUTINE_DC, PHARMACY, ROUTINE_DC, CHEMISTRY
     ),
     
     PROTEIN_TO_REPLICANTS = new Conversion(
-      5, PROTEIN, 5, POWER, TO, 1, REPLICANTS,
-      "CultureVats",
+      CultureVats.class, 5, PROTEIN, 5, POWER, TO, 1, REPLICANTS,
       MODERATE_DC, GENE_CULTURE, ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
     );
 }

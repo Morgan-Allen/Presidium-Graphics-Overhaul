@@ -243,7 +243,7 @@ public class Action implements Behaviour, AnimNames {
     //  motion target & action target, how far the actor can see, and whether
     //  sticking to the full tile path is required-
     final boolean mustBoard = (
-      (! ranged()) && (moveTarget instanceof Boardable)
+      (! ranged()) && (moveTarget instanceof Boarding)
     );
     //final boolean blockage = ! actor.motion.checkEndPoint(moveTarget);
     final float

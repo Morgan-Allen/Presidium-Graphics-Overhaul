@@ -104,8 +104,8 @@ public class PlanetPanel extends UIGroup implements UIConstants {
     ) {
       protected void whenPressed() { incRotation( 15, true); }
     };
-    left.relBound.set(0, 0, 0, 0);
-    left.absBound.set(0, 0, 55, 55);
+    left.alignLeft  (0, 55);
+    left.alignBottom(0, 55);
     left.attachTo(leftSide);
     
     right = new Button(
@@ -116,8 +116,8 @@ public class PlanetPanel extends UIGroup implements UIConstants {
     ) {
       protected void whenPressed() { incRotation(-15, true); }
     };
-    right.relBound.set(0, 0, 0, 0);
-    right.absBound.set(55, 0, 55, 55);
+    right.alignLeft  (55, 55);
+    right.alignBottom(0 , 55);
     right.attachTo(leftSide);
   }
   

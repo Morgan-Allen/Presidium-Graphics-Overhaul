@@ -17,7 +17,7 @@ public class FirstAid extends Plan implements Qualities, Economy {
   private static boolean verbose = false, evalVerbose = false;
   
   final Actor patient;
-  final Boardable refuge;
+  final Boarding refuge;
   private Item result = null;
   
   
@@ -26,7 +26,7 @@ public class FirstAid extends Plan implements Qualities, Economy {
   }
   
   
-  public FirstAid(Actor actor, Actor patient, Boardable refuge) {
+  public FirstAid(Actor actor, Actor patient, Boarding refuge) {
     super(actor, patient);
     this.patient = patient;
     this.refuge = refuge;
@@ -36,7 +36,7 @@ public class FirstAid extends Plan implements Qualities, Economy {
   public FirstAid(Session s) throws Exception {
     super(s);
     patient = (Actor) s.loadObject();
-    refuge = (Boardable) s.loadTarget();
+    refuge = (Boarding) s.loadTarget();
     result = Item.loadFrom(s);
   }
   
@@ -83,7 +83,7 @@ public class FirstAid extends Plan implements Qualities, Economy {
   }
   
   
-  private static Boardable findRefuge(Actor actor) {
+  private static Boarding findRefuge(Actor actor) {
     final Target t = Retreat.nearestHaven(actor, Sickbay.class);
     if (t instanceof Venue) return (Venue) t;
     return null;

@@ -26,12 +26,12 @@ public class LoadingScreen {
     
     HUD = new HUD(rendering);
     final Image blankImage = new Image(HUD, BLANK_IMG_PATH);
-    blankImage.relBound.set(0, 0, 1, 1);
+    blankImage.alignToFill();
     blankImage.stretch = true;
     blankImage.attachTo(HUD);
     
     final Image titleImage = new Image(HUD, TITLE_IMG_PATH);
-    titleImage.relBound.set(0.5f, 0.5f, 0, 0);
+    titleImage.alignToCentre();
     titleImage.expandToTexSize(1, true);
     titleImage.lockToPixels = true;
     titleImage.attachTo(HUD);
@@ -39,8 +39,8 @@ public class LoadingScreen {
     progBar = new ProgressBar(
       HUD, PROG_FILL_IMG_PATH, PROG_BACK_IMG_PATH
     );
-    progBar.relBound.set(0.15f, 0.25f, 0.7f, 0);
-    progBar.absBound.set(0, 0, 0, 25);
+    progBar.alignAcross  (0.15f, 0.85f   );
+    progBar.alignVertical(0.25f, 25   , 0);
     progBar.attachTo(HUD);
     
     initDone = true;

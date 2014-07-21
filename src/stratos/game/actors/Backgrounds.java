@@ -661,13 +661,6 @@ public interface Backgrounds extends Economy {
     
     STRAIN_CIRCLES[] = { STRAIN_AGENT, MSSID_REPRESENTATIVE }
   ;
-  
-  
-  /*
-  //  TODO:  This isn't good enough.  What about Homeworlds!?
-  final public static Background
-    ALL_BACKGROUNDS[] = Background.allBackgrounds();
-  //*/
 }
 
 

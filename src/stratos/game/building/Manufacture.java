@@ -60,7 +60,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   public Manufacture(Session s) throws Exception {
     super(s);
     venue = (Venue) s.loadObject();
-    conversion = Conversion.loadFrom(s);
+    conversion = (Conversion) s.loadObject();
     made = Item.loadFrom(s);
     this.needed = conversion.raw;
     //timeMult   = s.loadInt();
@@ -72,7 +72,8 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     s.saveObject(venue);
-    Conversion.saveTo(s, conversion);
+    s.saveObject(conversion);
+    //Conversion.saveTo(s, conversion);
     Item.saveTo(s, made);
     //s.saveInt(timeMult  );
     s.saveInt(checkBonus);

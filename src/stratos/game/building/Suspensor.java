@@ -105,7 +105,7 @@ public class Suspensor extends Mobile {
     //  And if you have a passenger, update their position.
     if (passenger != null) {
       if (followed.indoors()) {
-        final Boardable toBoard = followed.aboard();
+        final Boarding toBoard = followed.aboard();
         goAboard(toBoard, world);
         passenger.goAboard(toBoard, world);
         passenger.setHeading(toBoard.position(null), 0, false, world);

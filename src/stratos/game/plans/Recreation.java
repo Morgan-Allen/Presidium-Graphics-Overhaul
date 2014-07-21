@@ -47,12 +47,12 @@ public class Recreation extends Plan implements Economy, Qualities {
     "Meditating"
   };
   
-  final Boardable venue;
+  final Boarding venue;
   final int type;
   public float cost = 0, enjoyBonus = 1;
   
   
-  public Recreation(Actor actor, Boardable venue, int performType) {
+  public Recreation(Actor actor, Boarding venue, int performType) {
     super(actor, (Element) venue);
     this.venue = venue;
     this.type = performType;
@@ -118,7 +118,7 @@ public class Recreation extends Plan implements Economy, Qualities {
   }
   
   
-  public static float rateComfort(Boardable at, Actor actor, Recreation r) {
+  public static float rateComfort(Boarding at, Actor actor, Recreation r) {
     float performValue = Performance.performValueFor(at, r) / 10f;
     if (performValue < 0) return -1;
     //  TODO:  Average with ambienceVal for a Venue's structure?

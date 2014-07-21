@@ -98,8 +98,6 @@ public class SelectionTracking {
   
   
   
-  //  TODO:  Consider making InfoPanel an interface, so that you can obtain
-  //  the relevant x/y offsets this way?   Yeah.
   /**  Updates general camera behaviour.
     */
   protected void updateTracking() {
@@ -120,6 +118,7 @@ public class SelectionTracking {
     //if (KeyInput.isKeyDown(Keyboard.KEY_SPACE)) zoomHome();
     if (lockTarget != null) followLock();
   }
+  
   
   
   /**  Zooms the camera onto the current lock-target.

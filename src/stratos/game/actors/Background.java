@@ -17,17 +17,6 @@ import stratos.util.*;
 //  TODO:  Backgrounds need to include their own descriptions.
 
 
-//  TODO:  If backgrounds are going to be split up across multiple classes (
-//  which seems desireable), then you need a way to still guarantee loading
-//  correctly, regardless of order of class-loading.
-
-//  ...How, do I load those quickly.  You'll have to store a class (or class ID
-//     ) for reference, and then hash the name as well.  Actually, that seems
-//  relatively painless.  ...Given the amount of table-calls I'm doing anyway.
-//  ...you just have to cache the IDs in a deterministic manner.
-
-
-
 //TODO:  I'm going to limit this to a few basic headings now.
 /*
 VASSALS & AGENTS
@@ -114,22 +103,20 @@ public class Background implements Session.Saveable {
   }
   
   
-  static Background[] allBackgrounds() {
+  public static Background[] allBackgrounds() {
     return all.toArray(Background.class);
   }
   
   
   public static Background loadConstant(Session s) throws Exception {
-    s.loadClass();  //TODO:  Problem.  The class might not be saveable.
-    return nameTable.get(s.loadString());  //This will work.  Ish.
-    //return Backgrounds.ALL_BACKGROUNDS[s.loadInt()];
+    s.loadClass();
+    return nameTable.get(s.loadString());
   }
   
   
   public void saveState(Session s) throws Exception {
     s.saveClass(baseClass);
     s.saveString(name);
-    //s.saveInt(ID);
   }
   
   

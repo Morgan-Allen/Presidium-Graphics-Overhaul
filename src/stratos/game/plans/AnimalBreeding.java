@@ -258,7 +258,7 @@ public class AnimalBreeding extends Plan implements Economy {
   }
   
   
-  public boolean actionRelease(Actor actor, Boardable point) {
+  public boolean actionRelease(Actor actor, Boarding point) {
     final World world = actor.world();
     actor.gear.removeMatch(asStock);
     handled.enterWorldAt(point, world);

@@ -105,7 +105,7 @@ public class Performance extends Recreation {
   private Performance lead = null;
   
   
-  public Performance(Actor actor, Boardable venue, int type, Actor client) {
+  public Performance(Actor actor, Boarding venue, int type, Actor client) {
     super(actor, venue, type);
     this.client = client;
   }
@@ -191,7 +191,7 @@ public class Performance extends Recreation {
   }
   
   
-  public static float performValueFor(Boardable venue, Recreation r) {
+  public static float performValueFor(Boarding venue, Recreation r) {
     float value = 0, count = 0;
     for (Performance p : performancesMatching(venue, r)) {
       value += p.performValue;
@@ -205,7 +205,7 @@ public class Performance extends Recreation {
   
   
   public static Batch <Performance> performancesMatching(
-    Boardable venue, Recreation r
+    Boarding venue, Recreation r
   ) {
     final Batch <Performance> at = new Batch <Performance> ();
     final World world = ((Element) venue).world();
@@ -221,7 +221,7 @@ public class Performance extends Recreation {
   }
   
   
-  public static Batch <Recreation> audienceFor(Boardable venue, Performance p) {
+  public static Batch <Recreation> audienceFor(Boarding venue, Performance p) {
     final Batch <Recreation> audience = new Batch <Recreation> ();
     for (Mobile m : venue.inside()) if (m instanceof Actor) {
       final Actor a = (Actor) m;

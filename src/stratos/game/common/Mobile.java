@@ -43,7 +43,7 @@ public abstract class Mobile extends Element
     position = new Vec3D(),
     nextPosition = new Vec3D();
   
-  protected Boardable aboard;
+  protected Boarding aboard;
   private ListEntry <Mobile> entry = null;
   
   final public Pathing pathing = initPathing();
@@ -62,7 +62,7 @@ public abstract class Mobile extends Element
     this.nextRotation = s.loadFloat();
     position.    loadFrom(s.input());
     nextPosition.loadFrom(s.input());
-    aboard = (Boardable) s.loadTarget();
+    aboard = (Boarding) s.loadTarget();
     if (pathing != null) pathing.loadState(s);
     strengthEstimate = s.loadFloat();
   }
@@ -139,12 +139,12 @@ public abstract class Mobile extends Element
   
   /**  Dealing with pathing-
     */
-  public Boardable aboard() {
+  public Boarding aboard() {
     return aboard;
   }
   
   
-  public void goAboard(Boardable toBoard, World world) {
+  public void goAboard(Boarding toBoard, World world) {
     if (aboard != null) aboard.setInside(this, false);
     aboard = toBoard;
     if (aboard != null) aboard.setInside(this, true);
@@ -198,14 +198,14 @@ public abstract class Mobile extends Element
   public boolean indoors() {
     return
       aboard != null &&
-      aboard.boardableType() != Boardable.BOARDABLE_TILE;
+      aboard.boardableType() != Boarding.BOARDABLE_TILE;
   }
   
   
   protected void updateAsMobile() {
     final boolean report = verbose && I.talkAbout == this;
     //  
-    final Boardable next = pathing == null ? null : pathing.nextStep();
+    final Boarding next = pathing == null ? null : pathing.nextStep();
     final Tile oldTile = origin();
     final Vec3D p = nextPosition;
     final boolean outOfBounds =

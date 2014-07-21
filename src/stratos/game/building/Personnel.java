@@ -270,7 +270,7 @@ public class Personnel {
           if (GameSettings.hireFree) {
             final Human citizen = new Human(v, employs.base());
             citizen.mind.setWork(employs);
-            final Boardable t = employs.canBoard(null)[0];
+            final Boarding t = employs.canBoard(null)[0];
             citizen.enterWorldAt(t, base.world);
           }
           else {

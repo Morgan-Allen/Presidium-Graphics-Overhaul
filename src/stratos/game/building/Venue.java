@@ -22,7 +22,7 @@ import stratos.util.*;
 
 
 public abstract class Venue extends Structural implements
-  Boardable, Inventory.Owner, Employer, Economy
+  Boarding, Inventory.Owner, Employer, Economy
 {
   
   
@@ -267,21 +267,21 @@ public abstract class Venue extends Structural implements
   }
   
   
-  public Boardable[] canBoard(Boardable batch[]) {
+  public Boarding[] canBoard(Boarding batch[]) {
     final int minSize = 1 + inside.size();
     if (batch == null || batch.length < minSize) {
-      batch = new Boardable[minSize];
+      batch = new Boarding[minSize];
     }
     else for (int i = batch.length; i-- > 1;) batch[i] = null;
     batch[0] = entrance;
-    int i = 1; for (Mobile m : inside) if (m instanceof Boardable) {
-      batch[i++] = (Boardable) m;
+    int i = 1; for (Mobile m : inside) if (m instanceof Boarding) {
+      batch[i++] = (Boarding) m;
     }
     return batch;
   }
   
   
-  public boolean isEntrance(Boardable t) {
+  public boolean isEntrance(Boarding t) {
     return entrance == t;
   }
   
@@ -292,7 +292,7 @@ public abstract class Venue extends Structural implements
   
   
   public int boardableType() {
-    return Boardable.BOARDABLE_VENUE;
+    return Boarding.BOARDABLE_VENUE;
   }
   
   

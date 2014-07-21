@@ -114,7 +114,7 @@ public class Scrollbar extends UINode {
     Bordering.renderBorder(
       pass, grabArea,
       side, side, cap, cap,
-      0.5f, 0.5f, 0.25f, 0.75f,
+      0.5f, 0.5f, 0.25f, 0.25f,
       scrollTex
     );
   }

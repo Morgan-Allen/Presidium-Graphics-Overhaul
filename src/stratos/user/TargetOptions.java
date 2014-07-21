@@ -2,14 +2,14 @@
 
 package stratos.user;
 import stratos.game.common.*;
-import stratos.game.plans.Summons;
 import stratos.game.tactical.*;
 import stratos.game.actors.*;
 import stratos.game.building.*;
-import stratos.game.civilian.*;
+import stratos.game.plans.*;
+//import stratos.game.civilian.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
-import stratos.start.PlayLoop;
+//import stratos.start.PlayLoop;
 import stratos.util.*;
 
 import com.badlogic.gdx.math.Vector2;
@@ -59,6 +59,8 @@ public class TargetOptions extends UIGroup {
   }
   
   
+  //  TODO:  Just make this a function of the Contact button, if the subject
+  //         doesn't need much persuasion.
   private class SummonsButton extends Button {
     final Actor subject;
     
@@ -132,7 +134,7 @@ public class TargetOptions extends UIGroup {
     
     int sumWide = options.size() * (OB_SIZE + OB_MARGIN), across = 0;
     for (Button option : options) {
-      option.absBound.set(across - (sumWide / 2), 0, OB_SIZE, OB_SIZE);
+      option.alignToArea(across - (sumWide / 2), 0, OB_SIZE, OB_SIZE);
       option.attachTo(this);
       across += OB_SIZE + OB_MARGIN;
     }
@@ -142,19 +144,25 @@ public class TargetOptions extends UIGroup {
   protected void updateState() {
     //  TODO:  This still needs to be fixed when fading away...
     
-    final Vec3D screenPos = BUI.viewTracking.screenPosFor(subject);
+    final Vec3D screenPos = BUI.tracking.screenPosFor(subject);
     final float
-      SS = BUI.viewTracking.view.screenScale(),
+      SS   = BUI.tracking.view.screenScale(),
       high = subject.height() * SS,
       wide = subject.radius() * SS * 2;
     final int highAdjust = (int) (
-      screenPos.y + (subject instanceof Mobile ? -(wide + OB_SIZE) : (0 - OB_SIZE))
+      screenPos.y + (subject instanceof Mobile ?
+        -(wide + OB_SIZE) : (0 - OB_SIZE)
+      )
     );
     this.relBound.set(0, 0, 0, 0);
     this.absBound.set((int) screenPos.x, highAdjust, 0, 0);
+    //  ...You need the parent position for this to work.
+    
+    //absBound.incX(0 - trueBounds().xpos());
+    //absBound.incY(0 - trueBounds().ypos());
     
     if (active) {
-      if (BUI.viewTracking.fullyLocked(subject)) {
+      if (BUI.tracking.fullyLocked(subject)) {
         this.relAlpha += DEFAULT_FADE_INC;
         if (relAlpha > 1) relAlpha = 1;
       }

@@ -16,7 +16,7 @@ import stratos.util.*;
 
 
 
-public class ShieldWall extends Structural implements Boardable {
+public class ShieldWall extends Structural implements Boarding {
   
   
   /**  Construction and save/load routines-
@@ -61,7 +61,7 @@ public class ShieldWall extends Structural implements Boardable {
   
   
   final List <Mobile> inside = new List <Mobile> ();
-  private Boardable entrances[] = null;
+  private Boarding entrances[] = null;
   private Tile entrance = null;
   
   
@@ -115,24 +115,24 @@ public class ShieldWall extends Structural implements Boardable {
   
   
   public int boardableType() {
-    return Boardable.BOARDABLE_OTHER;
+    return Boarding.BOARDABLE_OTHER;
   }
   
   
-  public Boardable[] canBoard(Boardable batch[]) {
+  public Boarding[] canBoard(Boarding batch[]) {
     return entrances();
   }
   
   
-  public boolean isEntrance(Boardable t) {
+  public boolean isEntrance(Boarding t) {
     entrances();
     return Visit.arrayIncludes(entrances, t);
   }
   
   
-  public Boardable[] entrances() {
+  public Boarding[] entrances() {
     if (entrances != null) return entrances;
-    entrances = new Boardable[4];
+    entrances = new Boarding[4];
     final Tile o = origin();
     final World world = o.world;
     final int h = size / 2, s = size;

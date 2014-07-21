@@ -8,6 +8,9 @@ import static stratos.game.campaign.Sectors.*;
 
 
 
+//  TODO:  Merge this with your work on sector-states.
+
+
 public class Setting {
   
   

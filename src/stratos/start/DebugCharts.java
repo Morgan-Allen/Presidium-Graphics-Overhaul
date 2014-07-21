@@ -22,8 +22,8 @@ public class DebugCharts extends VisualDebug {
     UI = new HUD(PlayLoop.rendering());
     //*
     StarsPanel starsPanel = new StarsPanel(UI);
-    starsPanel.relBound.set(0.0f, 0, 0.5f, 1);
-    //starsPanel.absBound.set(50, 50, -100, -100);
+    starsPanel.alignAcross(0, 0.5f);
+    starsPanel.alignDown  (0, 1   );
     starsPanel.attachTo(UI);
     starsPanel.loadStarfield("media/Charts/", "coordinates.xml");
     //*/

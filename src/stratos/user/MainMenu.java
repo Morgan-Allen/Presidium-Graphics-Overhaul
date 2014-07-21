@@ -38,7 +38,7 @@ public class MainMenu extends UIGroup {
   public MainMenu(HUD UI) {
     super(UI);
     text = new Text(UI, UIConstants.INFO_FONT);
-    text.relBound.set(0, 0, 1, 1);
+    text.alignToFill();
     text.scale = 1.25f;
     text.attachTo(this);
     configMainText(null);

@@ -89,7 +89,7 @@ public class FindHome extends Plan implements Economy {
       this, "actionFindHome",
       Action.REACH_DOWN, "Finding home"
     );
-    if (newHome.boardableType() == Boardable.BOARDABLE_VENUE) {
+    if (newHome.boardableType() == Boarding.BOARDABLE_VENUE) {
       final Venue v = (Venue) newHome;
       if (actor.aboard() != v || ! v.structure.intact()) {
         finds.setMoveTarget(v.mainEntrance());

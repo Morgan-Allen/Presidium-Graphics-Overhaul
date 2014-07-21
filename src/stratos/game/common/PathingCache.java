@@ -77,7 +77,7 @@ public class PathingCache {
     */
   //
   //  TODO:  Unify this with the location() method in MobileMotion.
-  private Tile tilePosition(Boardable b, Mobile client) {
+  private Tile tilePosition(Boarding b, Mobile client) {
     if (b == null) return null;
     if (client == null || b.allowsEntry(client)) {
       if (b instanceof Venue) return ((Venue) b).mainEntrance();
@@ -85,8 +85,8 @@ public class PathingCache {
         final Tile t = (Tile) b;
         return t.blocked() ? null : t;
       }
-      if (b instanceof Boardable) {
-        for (Boardable e : ((Boardable) b).canBoard(null)) {
+      if (b instanceof Boarding) {
+        for (Boarding e : ((Boarding) b).canBoard(null)) {
           if (e instanceof Tile) return (Tile) e;
         }
         return null;
@@ -97,7 +97,7 @@ public class PathingCache {
   
   
   private Place[] placesBetween(
-    Boardable initB, Boardable destB, Mobile client, boolean reports
+    Boarding initB, Boarding destB, Mobile client, boolean reports
   ) {
     final Tile
       initT = tilePosition(initB, client),
@@ -128,11 +128,11 @@ public class PathingCache {
   
   //
   //  TODO:  Move this to the mobile pathing class?
-  public Boardable[] getLocalPath(
-    Boardable initB, Boardable destB, int maxLength,
+  public Boarding[] getLocalPath(
+    Boarding initB, Boarding destB, int maxLength,
     Mobile client, boolean reports
   ) {
-    Boardable path[] = null;
+    Boarding path[] = null;
     //*
     if (Spacing.distance(initB, destB) <= World.SECTOR_SIZE * 2) {
       if (reports) I.say(
@@ -142,7 +142,7 @@ public class PathingCache {
       search.client = client;
       search.verbose = reports;
       search.doSearch();
-      path = search.fullPath(Boardable.class);
+      path = search.fullPath(Boarding.class);
       if (path != null) return path;
     }
     final Place placesPath[] = placesBetween(initB, destB, client, reports);
@@ -158,7 +158,7 @@ public class PathingCache {
       search.client = client;
       search.verbose = reports;
       search.doSearch();
-      path = search.fullPath(Boardable.class);
+      path = search.fullPath(Boarding.class);
       if (path != null) return path;
     }
     if (placesPath != null) {
@@ -171,7 +171,7 @@ public class PathingCache {
       search.client = client;
       search.verbose = reports;
       search.doSearch();
-      path = search.fullPath(Boardable.class);
+      path = search.fullPath(Boarding.class);
       if (path != null) return path;
     }
     if (path == null) {
@@ -182,7 +182,7 @@ public class PathingCache {
       search.client = client;
       search.verbose = reports;
       search.doSearch();
-      path = search.fullPath(Boardable.class);
+      path = search.fullPath(Boarding.class);
       if (path != null) return path;
     }
     return null;
@@ -384,7 +384,7 @@ public class PathingCache {
     *  Places-
     */
   public PathSearch fullPathSearch(
-    final Boardable initB, final Boardable destB,
+    final Boarding initB, final Boarding destB,
     Object placesPathRef, final int maxLength
   ) {
     if (placesPathRef != null && ! (placesPathRef instanceof Place[])) {
@@ -420,7 +420,7 @@ public class PathingCache {
       private Box2D tempArea = new Box2D();
       
       protected boolean stepSearch() {
-        final Boardable best = closest;
+        final Boarding best = closest;
         if (best instanceof Tile) {
           final Tile tile = (Tile) best;
           final Place under = tilePlaces[tile.x][tile.y];
@@ -437,26 +437,26 @@ public class PathingCache {
         return super.stepSearch();
       }
       
-      protected boolean endSearch(Boardable best) {
+      protected boolean endSearch(Boarding best) {
         if (super.endSearch(best)) return true;
         if (best != closest) return false;
         if (maxLength > 0 && pathLength(best) >= maxLength) return true;
         return false;
       }
       
-      protected float estimate(Boardable spot) {
+      protected float estimate(Boarding spot) {
         float dist = Spacing.distance(spot, heading);
         final float closestDist = Spacing.distance(closest, heading);
         if (spot instanceof Tile && dist < closestDist) {
           closest = (Tile) spot;
         }
         dist += (PPL - (PPI + 1)) * World.PATCH_RESOLUTION;
-        final Boardable best = bestFound();
+        final Boarding best = bestFound();
         if (best != null) dist += Spacing.distance(closest, spot) / 3.0f;
         return dist * 1.1f;
       }
       
-      protected boolean canEnter(Boardable spot) {
+      protected boolean canEnter(Boarding spot) {
         if (! super.canEnter(spot)) return false;
         if (spot instanceof Tile) {
           final Tile tile = (Tile) spot;
@@ -478,7 +478,7 @@ public class PathingCache {
   
   
   private PathSearch cordonedSearch(
-    Boardable a, Boardable b, Section sA, Section sB
+    Boarding a, Boarding b, Section sA, Section sB
   ) {
     //
     //  Creates a pathing search between two points restricted to the given
@@ -487,7 +487,7 @@ public class PathingCache {
       cordon = new Box2D().setTo(sA.area).include(sB.area),
       tB = new Box2D();
     final PathSearch search = new PathSearch(a, b, -1) {
-      protected boolean canEnter(Boardable spot) {
+      protected boolean canEnter(Boarding spot) {
         if (! super.canEnter(spot)) return false;
         if (spot instanceof Tile) {
           final Tile t = (Tile) spot;
@@ -519,7 +519,7 @@ public class PathingCache {
     route.cost = search.totalCost();
     ///if (route.cost < 0) I.say("NEGATIVE COST BETWEEN "+a.core+" and "+b.core);
     final Batch <Tile> tiles = new Batch <Tile> ();
-    for (Boardable onPath : search.fullPath(Boardable.class)) {
+    for (Boarding onPath : search.fullPath(Boarding.class)) {
       if (onPath instanceof Tile) tiles.add((Tile) onPath);
     }
     route.path = tiles.toArray(Tile.class);

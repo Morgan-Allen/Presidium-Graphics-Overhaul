@@ -86,14 +86,14 @@ public class LaunchHangar extends Venue {
   
   /**  Docking functions-
     */
-  public Boardable[] canBoard(Boardable batch[]) {
-    final Batch <Boardable> CB = new Batch <Boardable> ();
+  public Boarding[] canBoard(Boarding batch[]) {
+    final Batch <Boarding> CB = new Batch <Boarding> ();
     if (mainEntrance() != null) CB.add(mainEntrance());
     if (docking != null) CB.add(docking);
-    int i = 2; for (Mobile m : inside()) if (m instanceof Boardable) {
-      CB.add((Boardable) m);
+    int i = 2; for (Mobile m : inside()) if (m instanceof Boarding) {
+      CB.add((Boarding) m);
     }
-    return CB.toArray(Boardable.class);
+    return CB.toArray(Boarding.class);
   }
   
   

@@ -22,8 +22,8 @@ public class DebugStartup {
         loading = true;
         final HUD UI = new HUD(PlayLoop.rendering());
         final MainMenu mainMenu = new MainMenu(UI);
-        mainMenu.relBound.set(0.5f, 0, 0, 1);
-        mainMenu.absBound.set(-200, 0, 400, 0);
+        mainMenu.alignHorizontal(0.5f, 400, 0);
+        mainMenu.alignVertical  (50  , 50    );
         mainMenu.attachTo(UI);
         this.UI = UI;
         loaded = true;

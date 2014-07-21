@@ -49,7 +49,7 @@ public class Dialogue extends Plan implements Qualities {
   final int type;
   
   private int stage = STAGE_INIT;
-  private Boardable location = null, stands = null;
+  private Boarding location = null, stands = null;
   
   private Item gift;
   private Behaviour invitation;
@@ -77,8 +77,8 @@ public class Dialogue extends Plan implements Qualities {
     type = s.loadInt();
     stage = s.loadInt();
     
-    location = (Boardable) s.loadTarget();
-    stands = (Boardable) s.loadTarget();
+    location = (Boarding) s.loadTarget();
+    stands = (Boarding) s.loadTarget();
     gift = Item.loadFrom(s);
     invitation = (Plan) s.loadObject();
   }
@@ -291,7 +291,7 @@ public class Dialogue extends Plan implements Qualities {
   }
   
   
-  public boolean actionGreet(Actor actor, Boardable aboard) {
+  public boolean actionGreet(Actor actor, Boarding aboard) {
     if (! other.isDoing(Dialogue.class, null)) {
       if (! canTalk(other)) {
         if (I.talkAbout == actor) I.say("CAN'T TALK!");

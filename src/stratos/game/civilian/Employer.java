@@ -6,7 +6,7 @@ import stratos.game.building.*;
 import stratos.game.common.*;
 
 
-public interface Employer extends Installation, Inventory.Owner, Boardable {
+public interface Employer extends Installation, Inventory.Owner, Boarding {
   
   
   Behaviour jobFor(Actor actor);  //  TODO:  At least use the same signature...

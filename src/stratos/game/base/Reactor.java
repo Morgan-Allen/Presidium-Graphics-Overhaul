@@ -333,7 +333,7 @@ public class Reactor extends Venue implements Economy {
     if (e == null || e.flaggedWith() != null) return;
     e.flagWith(inRange);
     inRange.add(e);
-    if (e instanceof Boardable) for (Mobile m : ((Boardable) e).inside()) {
+    if (e instanceof Boarding) for (Mobile m : ((Boarding) e).inside()) {
       markForDamage(m, inRange);
     }
   }

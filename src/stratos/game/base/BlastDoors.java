@@ -50,7 +50,7 @@ public class BlastDoors extends ShieldWall implements TileConstants {
   protected void updatePaving(boolean inWorld) {
     entrances();
     base().paving.updatePerimeter(this, inWorld);
-    for (Boardable b : entrances()) if (b instanceof Tile) {
+    for (Boarding b : entrances()) if (b instanceof Tile) {
       base().paving.updateJunction(this, (Tile) b, inWorld);
     }
   }

@@ -13,44 +13,24 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.math.*;
 
 
+//  TODO:  The list of installations may have to be moved elsewhere, like a
+//  dedicated installations pane.
 
 public class Quickbar extends UIGroup implements UIConstants {
   
   
   final static int
-    BUT_SIZE = 40,
-    SPACING  = 2;
-
-  final static int NUM_GUILDS = 6;
-  final static String GUILD_IMG_NAMES[] = {
-    "militant_category_button",
-    "merchant_category_button",
-    "aesthete_category_button",
-    "artificer_category_button",
-    "ecologist_category_button",
-    "physician_category_button",
-  };
-  final static String GUILD_TITLES[] = {
-    "Militant Structures",
-    "Merchant Structures",
-    "Aesthete Structures",
-    "Artificer Structures",
-    "Ecologist Structures",
-    "Physician Structures",
-  };
-  final static Table <String, ImageAsset> GUILD_IMG_ASSETS;
-  static {
-    GUILD_IMG_ASSETS = new Table <String, ImageAsset> ();
-    for (String name : GUILD_IMG_NAMES) {
-      final ImageAsset asset = ImageAsset.fromImage(
-        BUTTONS_PATH+name+".png", Quickbar.class
-      );
-      GUILD_IMG_ASSETS.put(name, asset);
-    }
-  }
+    BUTTON_SIZE = 40,
+    SPACING     = 2 ;
+  
+  final static int
+    NUM_GUILDS = 6,
+    MAX_SLOTS  = 9;
   
   
   final BaseUI UI;
+  final Button inSlots[] = new Button[MAX_SLOTS];
+  final UIGroup slotsGroup, guildsGroup;
   private UIGroup optionList;
   
   
@@ -58,22 +38,28 @@ public class Quickbar extends UIGroup implements UIConstants {
   public Quickbar(BaseUI UI) {
     super(UI);
     this.UI = UI;
+    
+    slotsGroup = new UIGroup(UI);
+    slotsGroup.alignLeft  (0, 0);
+    slotsGroup.alignBottom(0, 0);
+    slotsGroup.attachTo(this);
+    
+    guildsGroup = new UIGroup(UI);
+    guildsGroup.alignRight (0, GUILDS_WIDE);
+    guildsGroup.alignBottom(0, 0          );
+    guildsGroup.attachTo(this);
   }
   
   
-  private void addToSlot(
-    Button button, UIGroup parent, List <Button> allSlots
-  ) {
-    final Button last = allSlots.last();
-    button.absBound.set(0, 0, BUT_SIZE, BUT_SIZE);
-    if (last != null) button.absBound.xpos(last.absBound.xmax() + SPACING);
-    allSlots.add(button);
-    button.attachTo(parent);
-  }
-  
-  
-  private float lengthFor(List <Button> allSlots) {
-    return (allSlots.size() * (BUT_SIZE + SPACING)) - SPACING;
+  public void addToSlot(Button button, int slotID) {
+    if (slotID >= MAX_SLOTS) I.complain("INVALID QUICKBAR SLOT: "+slotID);
+    final Button prior = inSlots[slotID];
+    if (prior != null) prior.detach();
+    
+    button.alignBottom(0                               , BUTTON_SIZE);
+    button.alignLeft  (slotID * (BUTTON_SIZE + SPACING), BUTTON_SIZE);
+    button.attachTo(slotsGroup);
+    inSlots[slotID] = button;
   }
   
   
@@ -95,21 +81,16 @@ public class Quickbar extends UIGroup implements UIConstants {
     final Actor caster;
     final Image preview;
     
-    final float PS = BUT_SIZE * 0.75f, HPS = PS / 2;
+    final float PS = BUTTON_SIZE * 0.75f, HPS = PS / 2;
     
     
     PowerTask(Quickbar bar, Power p, String o, Actor c) {
       power = p;
       option = o;
       caster = c;
-      
-      //  The preview image can't return a selection, or nothing beneath will
-      //  be picked.  TODO:  CREATE A DEDICATED CURSOR CLASS
-      preview = new Image(UI, power.buttonImage) {
-        protected UINode selectionAt(Vector2 mousePos) {
-          return null;
-        }
-      };
+      //  TODO:  CREATE A DEDICATED CURSOR CLASS.
+      preview = new Image(UI, power.buttonImage);
+      preview.blocksSelect = false;
       preview.attachTo(UI);
       preview.relAlpha = 0.5f;
     }
@@ -119,10 +100,11 @@ public class Quickbar extends UIGroup implements UIConstants {
       final boolean clicked = UI.mouseClicked();
       Object hovered = UI.selection.hovered();
       if (hovered == null) hovered = UI.selection.pickedTile();
-      preview.absBound.set(
-        UI.mouseX() - HPS,
-        UI.mouseY() - HPS,
-        PS, PS
+      
+      preview.alignToArea(
+        (int) (UI.mouseX() - HPS),
+        (int) (UI.mouseY() - HPS),
+        (int) PS, (int) PS
       );
 
       if (! (hovered instanceof Target)) hovered = null;
@@ -163,7 +145,8 @@ public class Quickbar extends UIGroup implements UIConstants {
           optionList.detach();
         }
       }, Colour.GREY);
-      text.absBound.set(0, i++ * 20, 300, 16);
+      text.alignBottom(i++ * 20, 16 );
+      text.alignLeft  (0       , 300);
       text.attachTo(list);
     }
     optionList = list;
@@ -173,8 +156,7 @@ public class Quickbar extends UIGroup implements UIConstants {
   
   protected void setupPowersButtons() {
     final Quickbar bar = this;
-    final UIGroup powerGroup = new UIGroup(UI);
-    final List <Button> powerSlots = new List <Button> ();
+    int index = 0;
     
     for (final Power power : Power.BASIC_POWERS) {
       
@@ -191,8 +173,8 @@ public class Quickbar extends UIGroup implements UIConstants {
           final String options[] = power.options();
           if (options != null) {
             constructOptionList(power, options);
-            optionList.absBound.setTo(this.absBound);
-            optionList.absBound.ypos(BUT_SIZE + 2);
+            optionList.alignToMatch(this);
+            optionList.alignBottom(BUTTON_SIZE + 2, 0);
             optionList.attachTo(bar);
             return;
           }
@@ -206,55 +188,72 @@ public class Quickbar extends UIGroup implements UIConstants {
           }
         }
       };
-      addToSlot(button, powerGroup, powerSlots);
+      addToSlot(button, index++);
     }
-    
-    powerGroup.attachTo(this);
+  }
+  
+  
+
+  /**  Meanwhile, on the other side of the bar, we have the installation
+    *  buttons:
+    */
+  final static String GUILD_IMG_NAMES[] = {
+    "militant_category_button",
+    "merchant_category_button",
+    "aesthete_category_button",
+    "artificer_category_button",
+    "ecologist_category_button",
+    "physician_category_button",
+  };
+  final static String GUILD_INFO[] = {
+    "Militant Structures",
+    "Merchant Structures",
+    "Aesthete Structures",
+    "Artificer Structures",
+    "Ecologist Structures",
+    "Physician Structures",
+  };
+  final static Table <String, ImageAsset> GUILD_IMG_ASSETS;
+  static {
+    GUILD_IMG_ASSETS = new Table <String, ImageAsset> ();
+    for (String name : GUILD_IMG_NAMES) {
+      final ImageAsset asset = ImageAsset.fromImage(
+        BUTTONS_PATH+name+".png", Quickbar.class
+      );
+      GUILD_IMG_ASSETS.put(name, asset);
+    }
   }
   
   
   protected void setupInstallButtons() {
-    final UIGroup installGroup = new UIGroup(UI);
-    final List <Button> installSlots = new List <Button> ();
-    
     for (int i = 0; i < NUM_GUILDS; i++) {
-      createGuildButton(
-        GUILD_IMG_NAMES[i], GUILD_TITLES[i],
-        i, installGroup, installSlots
-      );
-    }
-    installGroup.alignRight(0, GUILDS_WIDE);
-    //installGroup.relBound.set(1, 0, 0, 0);
-    //installGroup.absBound.set(-GUILDS_WIDE, 0, 0, 0);
-    installGroup.attachTo(this);
-  }
-  
-
-  private void createGuildButton(
-    String img, String help, final int buttonID,
-    UIGroup installGroup, List <Button> installSlots
-  ) {
-    final String catName = INSTALL_CATEGORIES[buttonID];
-    final InstallTab newTab = new InstallTab(UI, catName);
-    
-    final Button button = new Button(UI, GUILD_IMG_ASSETS.get(img), help) {
-      protected void whenClicked() {
-        final BaseUI UI = BaseUI.current();
-        ///I.say("Guild button clicked...");
-        UI.beginPanelFade();
-        if (UI.currentPane() == newTab) {
-          UI.setInfoPanels(null, null);
+      final String
+        img     = GUILD_IMG_NAMES[i],
+        help    = GUILD_INFO[i],
+        catName = INSTALL_CATEGORIES[i];
+      
+      final InstallTab newTab = new InstallTab(UI, catName);
+      final Button button = new Button(UI, GUILD_IMG_ASSETS.get(img), help) {
+        protected void whenClicked() {
+          final BaseUI UI = BaseUI.current();
+          ///I.say("Guild button clicked...");
+          UI.beginPanelFade();
+          if (UI.currentPane() == newTab) {
+            UI.setInfoPanels(null, null);
+          }
+          else UI.setInfoPanels(newTab, null);
         }
-        else UI.setInfoPanels(newTab, null);
-      }
-    };
-    button.stretch = true;
-    
-    button.absBound.set(0, 0, GUILDS_WIDE / 6f, BUT_SIZE);
-    final Button last = installSlots.last();
-    if (last != null) button.absBound.xpos(last.absBound.xmax());
-    installSlots.add(button);
-    button.attachTo(installGroup);
+      };
+      button.stretch = true;
+      
+      final int maxB = INSTALL_CATEGORIES.length;
+      final float place = i * 1f / maxB;
+      button.alignBottom(0, BUTTON_SIZE);
+      button.alignAcross(place, place + (1f / maxB));
+      
+      button.attachTo(guildsGroup);
+      
+    }
   }
 }
 

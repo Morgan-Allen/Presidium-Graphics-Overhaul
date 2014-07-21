@@ -18,7 +18,7 @@ import stratos.util.*;
 
 
 public abstract class Vehicle extends Mobile implements
-  Boardable, Inventory.Owner, Employer,
+  Boarding, Inventory.Owner, Employer,
   Selectable, Economy, Installation
 {
   
@@ -36,7 +36,7 @@ public abstract class Vehicle extends Mobile implements
   private float pilotBonus;
   
   protected float entranceFace = Venue.ENTRANCE_NONE;
-  protected Boardable dropPoint;
+  protected Boarding dropPoint;
   
   final TalkFX chat = new TalkFX();
   
@@ -52,7 +52,7 @@ public abstract class Vehicle extends Mobile implements
     structure.loadState(s);
     personnel.loadState(s);
     s.loadObjects(inside);
-    dropPoint = (Boardable) s.loadTarget();
+    dropPoint = (Boarding) s.loadTarget();
     entranceFace = s.loadFloat();
     base = (Base) s.loadObject();
     pilot = (Actor) s.loadObject();
@@ -183,7 +183,7 @@ public abstract class Vehicle extends Mobile implements
     super.updateAsMobile();
     if (pilot != null) updatePiloting();
     else pathing.updateTarget(pathing.target());
-    final Boardable step = pathing.nextStep();
+    final Boarding step = pathing.nextStep();
     
     if (pathing.checkPathingOkay() && step != null) {
       float moveRate = baseMoveRate();
@@ -310,8 +310,8 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
-  public Boardable[] canBoard(Boardable batch[]) {
-    if (batch == null) batch = new Boardable[2];
+  public Boarding[] canBoard(Boarding batch[]) {
+    if (batch == null) batch = new Boarding[2];
     else for (int i = batch.length; i-- > 0;) batch[i] = null;
     batch[0] = dropPoint;
     if (aboard() != null) batch[1] = aboard;
@@ -319,7 +319,7 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
-  public boolean isEntrance(Boardable b) {
+  public boolean isEntrance(Boarding b) {
     return dropPoint == b;
   }
   
@@ -330,7 +330,7 @@ public abstract class Vehicle extends Mobile implements
   
   
   public int boardableType() {
-    return Boardable.BOARDABLE_VEHICLE;
+    return Boarding.BOARDABLE_VEHICLE;
   }
   
   
@@ -348,7 +348,7 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
-  public Boardable dropPoint() {
+  public Boarding dropPoint() {
     return dropPoint;
   }
   

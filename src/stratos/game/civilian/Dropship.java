@@ -439,9 +439,9 @@ public class Dropship extends Vehicle implements
   }
   
 
-  public Boardable[] canBoard(Boardable batch[]) {
+  public Boarding[] canBoard(Boarding batch[]) {
     if (landed()) return super.canBoard(batch);
-    else return new Boardable[0];
+    else return new Boarding[0];
   }
   
   

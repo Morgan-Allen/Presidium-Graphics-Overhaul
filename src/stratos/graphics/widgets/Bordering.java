@@ -14,16 +14,14 @@ import com.badlogic.gdx.graphics.*;
 public class Bordering extends UIGroup {
   
   
-  /**  
-    */
   final Texture borderTex;
   final public UIGroup inside;
   public int
     left = 10, right = 10,
     bottom = 10, top = 10;
   public float
-    leftU = 0.33f, rightU = 0.66f,
-    bottomV = 0.33f, topV = 0.66f;
+    leftU   = 0.33f, rightU = 0.33f,
+    bottomV = 0.33f, topV   = 0.33f;
   
   
   public Bordering(HUD UI, ImageAsset tex) {
@@ -31,6 +29,22 @@ public class Bordering extends UIGroup {
     this.borderTex = tex.asTexture();
     this.inside = new UIGroup(UI);
     inside.attachTo(this);
+  }
+  
+  
+  public void setInsets(int l, int r, int b, int t) {
+    left   = l;
+    right  = r;
+    bottom = b;
+    top    = t;
+  }
+  
+  
+  public void setUV(float l, float r, float b, float t) {
+    leftU   = l;
+    rightU  = r;
+    bottomV = b;
+    topV    = t;
   }
   
   
@@ -80,12 +94,12 @@ public class Bordering extends UIGroup {
     
     coordU[0] = 0;
     coordU[1] = LU;
-    coordU[2] = RU;
+    coordU[2] = 1 - RU;
     coordU[3] = 1;
     
     coordV[0] = 0;
     coordV[1] = BV;
-    coordV[2] = TV;
+    coordV[2] = 1 - TV;
     coordV[3] = 1;
     
     for (int i = 4; i-- > 0;) {

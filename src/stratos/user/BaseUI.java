@@ -31,7 +31,7 @@ public class BaseUI extends HUD implements UIConstants {
   private UITask currentTask;
   
   final public Selection selection = new Selection(this);
-  final public SelectionTracking viewTracking;
+  final public SelectionTracking tracking;
   
   private UIGroup helpText;
   private MapsPanel mapsPanel;
@@ -59,7 +59,7 @@ public class BaseUI extends HUD implements UIConstants {
   public BaseUI(World world, Rendering rendering) {
     super(rendering);
     this.world = world;
-    this.viewTracking = new SelectionTracking(this, rendering.view);
+    this.tracking = new SelectionTracking(this, rendering.view);
     configLayout();
     configPanels();
     configHovers();
@@ -76,14 +76,14 @@ public class BaseUI extends HUD implements UIConstants {
   public void loadState(Session s) throws Exception {
     final Base played = (Base) s.loadObject();
     assignBaseSetup(played, null);
-    viewTracking.loadState(s);
+    tracking.loadState(s);
     selection.loadState(s);
   }
   
   
   public void saveState(Session s) throws Exception {
     s.saveObject(played);
-    viewTracking.saveState(s);
+    tracking.saveState(s);
     selection.saveState(s);
   }
   
@@ -126,8 +126,8 @@ public class BaseUI extends HUD implements UIConstants {
   private void configLayout() {
     
     this.mapsPanel = new MapsPanel(this, world, null);
-    mapsPanel.relBound.set(0, 1, 0, 0);
-    mapsPanel.absBound.set(0, -256, 256, 256);
+    mapsPanel.alignTop (0, MINIMAP_WIDE);
+    mapsPanel.alignLeft(0, MINIMAP_WIDE);
     mapsPanel.attachTo(this);
     
     this.readout = new Readout(this);
@@ -141,15 +141,16 @@ public class BaseUI extends HUD implements UIConstants {
     panelArea.attachTo(this);
     
     this.infoArea = new UIGroup(this);
-    infoArea.alignVertical(QUICKBAR_HIGH, READOUT_HIGH);
-    infoArea.alignHorizontal(MINIMAP_WIDE, 0);
+    infoArea.alignVertical  (0, 0);
+    infoArea.alignHorizontal(0, 0);
     infoArea.attachTo(this);
     
     currentPanel = newPanel = null;
     currentInfo = newInfo = null;
     
     this.quickbar = new Quickbar(this);
-    quickbar.relBound.set(0, 0, 1, 0);
+    quickbar.alignAcross(0, 1);
+    quickbar.alignBottom(0, 0);
     quickbar.attachTo(this);
     quickbar.setupPowersButtons();
     quickbar.setupInstallButtons();
@@ -267,7 +268,7 @@ public class BaseUI extends HUD implements UIConstants {
   
   public void renderHUD(Rendering rendering) {
     super.renderHUD(rendering);
-    viewTracking.updateTracking();
+    tracking.updateTracking();
     
     if (capturePanel && currentPanel != null) {
       final Box2D b = new Box2D().setTo(currentPanel.trueBounds());
@@ -291,11 +292,11 @@ public class BaseUI extends HUD implements UIConstants {
   /**  Updating the central information panel and target options-
     */
   public void setInfoPanels(UIGroup panel, TargetOptions options) {
-    if (panel != currentPanel) {
+    if (panel   != currentPanel) {
       beginPanelFade();
       newPanel = panel;
     }
-    if (options != currentInfo) {
+    if (options != currentInfo ) {
       if (currentInfo != null) currentInfo.active = false;
       newInfo = options;
     }

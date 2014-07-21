@@ -77,7 +77,7 @@ public class Summons extends Plan {
     final boolean report = verbose && I.talkAbout == actor;
     if (timeStayed >= MAX_STAY_DURATION) return null;
     
-    Boardable venue = ruler.mind.home();
+    Boarding venue = ruler.mind.home();
     if (venue == null) venue = ruler.mind.work();
     if (venue == null) venue = ruler.aboard();
     if (venue == null) return null;
@@ -94,7 +94,7 @@ public class Summons extends Plan {
   }
   
   
-  public boolean actionStay(Actor actor, Boardable venue) {
+  public boolean actionStay(Actor actor, Boarding venue) {
     timeStayed += 1;
     
     if (venue instanceof Venue && actor.health.hungerLevel() > 0) {

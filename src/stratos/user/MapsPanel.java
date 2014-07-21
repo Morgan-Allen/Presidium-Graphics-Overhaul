@@ -50,7 +50,7 @@ public class MapsPanel extends UIGroup {
   protected void whenClicked() {
     final Coord c = minimap.getMapPosition(UI.mousePos(), bounds, world.size);
     if (c == null) return;
-    UI.viewTracking.lockOn(world.tileAt(c.x, c.y));
+    UI.tracking.lockOn(world.tileAt(c.x, c.y));
   }
   
   
