@@ -12,6 +12,8 @@ import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.plans.Audit;
 import stratos.game.plans.Patrolling;
+import stratos.game.plans.Repairs;
+import stratos.game.plans.Supervision;
 import stratos.game.tactical.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;

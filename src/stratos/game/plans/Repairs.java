@@ -1,8 +1,11 @@
 
 
 
-package stratos.game.building;
+package stratos.game.plans;
 import stratos.game.actors.*;
+import stratos.game.building.Installation;
+import stratos.game.building.Structure;
+import stratos.game.building.Upgrade;
 import stratos.game.common.*;
 import stratos.user.*;
 import stratos.util.*;
@@ -17,7 +20,7 @@ public class Repairs extends Plan implements Qualities {
   
   /**  Field definitions, constants and save/load methods-
     */
-  final static float
+  final public static float
     TIME_PER_25_HP = World.STANDARD_HOUR_LENGTH,
     MIN_SERVICE_DAMAGE = 0.25f;
   

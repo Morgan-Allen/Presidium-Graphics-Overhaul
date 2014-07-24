@@ -10,6 +10,7 @@ import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
+import stratos.game.plans.Supervision;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;

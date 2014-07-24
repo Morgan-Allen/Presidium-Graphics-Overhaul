@@ -23,6 +23,8 @@ import stratos.game.plans.Gifting;
 import stratos.game.plans.Hunting;
 import stratos.game.plans.ItemDisposal;
 import stratos.game.plans.Patrolling;
+import stratos.game.plans.Payday;
+import stratos.game.plans.Repairs;
 import stratos.game.plans.Resting;
 import stratos.game.plans.Retreat;
 import stratos.game.tactical.*;

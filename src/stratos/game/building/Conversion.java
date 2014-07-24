@@ -26,8 +26,17 @@ public class Conversion implements Economy, Session.Saveable {
   final static Table <String, Conversion>
     allConversions = new Table <String, Conversion> ();
   
-
+  
   public Conversion(Class <? extends Venue> facility, Object... args) {
+    this(facility, null, args);
+  }
+  
+
+  public Conversion(
+    Class <? extends Venue> facility,
+    String customID,
+    Object... args
+  ) {
     //
     //  Initially, we record raw materials first, and assume a default
     //  quantity of 1 each (this is also the default used for skill DCs.)
@@ -69,9 +78,12 @@ public class Conversion implements Economy, Session.Saveable {
     //
     //  And compute an ID for save/load purposes-
     this.facility = facility;
-    if (facility == null) this.ID = "<none> "+out.type.name;
-    else this.ID = facility.getSimpleName()+" "+out.type.name;
+    final String outID = customID == null ? out.type.name : customID;
+    if (facility == null) this.ID = "<none> "+outID;
+    else this.ID = facility.getSimpleName()+" "+outID;
     allConversions.put(ID, this);
+    
+    //I.say("ADDING CONVERSION: "+this+" TOTAL: "+allConversions.size());
   }
   
   

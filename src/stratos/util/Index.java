@@ -48,6 +48,13 @@ public class Index <T extends Index.Member> implements Iterable <T> {
     return arrayM;
   }
   
+  
+  public T member(int index) {
+    members();
+    if (index < 0 || index >= arrayM.length) return null;
+    return (T) arrayM[index];
+  }
+  
 
   final public Iterator <T> iterator() {
     members();

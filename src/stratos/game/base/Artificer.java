@@ -8,6 +8,7 @@
 package stratos.game.base;
 import stratos.game.common.*;
 import stratos.game.plans.Commission;
+import stratos.game.plans.Repairs;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.graphics.common.*;

@@ -9,8 +9,42 @@ import stratos.util.*;
 
 
 
+//  TODO:  Replace most of these with a shorter set of categories.
+
+//  Halberd Guns.  Blasters.  Stun Wands.  Burners.
+//  Shivs.  Longblades.  Artillery.  Arc Sabres.
+
+//  Shield Bracer.  Golem Frame.  Body Armour.  Power Armour.
+//  Overalls.  Finery.  Seal Suit.  Stealth Suit.
+
+//  Biocorder.  Maniples.  Modus Lute.  Psy Staff.
+//  Sniper Kit.  Explosive.  Power Fist.  Inhibitor.
+
+
+//  Trooper-    Halberd Gun & Power Armour
+//  Noble-      Longblade & Body Armour
+//  Enforcer-   Stun Wand & Body Armour
+//  Kommando-   Shiv & Stealth Suit
+//  Runner-     Blaster & Stealth Suit
+//  Ace-        Blaster & Seal Suit
+
+//  Pseer-      Psy Staff
+//  Palatine-   Arc Sabre & Shield Bracer
+//  Xenopath-   Shield Bracer
+//  Physician-  Biocorder
+//  Artificer-  Maniples & Golem Frame
+//  Ecologist-  Stun Wand & Seal Suit
+
+//  Collective- Gestalt Psy
+//  Archon-     Zero Point Energy
+//  Jil Baru-   Pets & Microbes
+//  Logician-   Unarmed
+//  Navigator-  Psy Projection
+//  Tek Priest- Drone Minions
+
+
+
 public class DeviceType extends Service implements Economy {
-  
   
   
   /**  Data fields, property accessors-
@@ -52,18 +86,18 @@ public class DeviceType extends Service implements Economy {
   
   DeviceType(
     Class baseClass, String name,
-    float baseDamage, int properties,
-    int basePrice, Conversion materials,
-    String groupName, String animName
+    String groupName, String animName,
+    float baseDamage, int properties, int basePrice,
+    Class facility, Object... conversionArgs
   ) {
-    super(
-      baseClass, FORM_DEVICE, name,
-      basePrice + (materials == null ? 0 : materials.rawPriceValue())
-    );
-    ///I.say("Declaring device: "+name);
+    super(baseClass, FORM_DEVICE, name, basePrice);
+    
     this.baseDamage = baseDamage;
     this.properties = properties;
-    this.materials = materials;
+    this.materials = new Conversion(facility, Visit.compose(
+      Object.class, conversionArgs, new Object[] { TO, this })
+    );
+    
     this.groupName = groupName;
     this.animName = animName;
   }

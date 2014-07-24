@@ -1,7 +1,7 @@
 
 
 
-package stratos.game.building;
+package stratos.game.wild;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;

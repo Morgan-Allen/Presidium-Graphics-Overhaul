@@ -7,11 +7,9 @@ import java.util.zip.*;
 import java.net.*;
 import java.security.CodeSource;
 
+import stratos.start.PlayLoop;
 import stratos.util.*;
 
-//import com.badlogic.gdx.Gdx;
-//import com.badlogic.gdx.graphics.Texture;
-//simport com.badlogic.gdx.graphics.Texture.TextureFilter;
 
 
 
@@ -79,7 +77,9 @@ public class Assets {
     compileClassNames(sourcePackage, names);
     compileJarredClassNames(sourcePackage, names);
     
-    if (verbose) I.say("\nCompiling list of classes to load-");
+    if (verbose) {
+      I.say("\nCompiling list of classes to load from "+sourcePackage);
+    }
     final String prefix = sourcePackage+".";
     for (String name : names) {
       if (EXCLUDE_BASE_DIR) name = name.substring(prefix.length());
@@ -96,7 +96,7 @@ public class Assets {
     final long initTime = System.currentTimeMillis();
     while (true) {
       final long timeSpent = System.currentTimeMillis() - initTime;
-      if (timeSpent >= timeLimit) return;
+      if (timeLimit > 0 && timeSpent >= timeLimit) return;
       
       if (classesToLoad.size() > 0) {
         final String className = classesToLoad.removeFirst();
@@ -110,7 +110,7 @@ public class Assets {
         }
       }
       
-      else if (assetsToLoad.size() > 0) {
+      else if (assetsToLoad.size() > 0 && PlayLoop.onRenderThread()) {
         final Loadable asset = assetsToLoad.first();
         loadNow(asset);
         if (verbose) I.say("  Asset loaded okay: "+asset.assetID);
@@ -233,25 +233,6 @@ public class Assets {
     return loaded;
   }
   
-  
-  /**  
-    */
-  public static Batch <Class> loadPackage(String packageName) {
-    if (classesToLoad.size() > 0) I.complain("CLASS LOADING NOT COMPLETE");
-    
-    final String key = "package"+packageName;
-    final Batch <Class> cached = (Batch <Class>) getResource(key);
-    if (cached != null) return cached;
-    
-    final Batch <Class> matches = new Batch <Class> ();
-    for (Class checked : classesLoaded) {
-      if (checked.getName().startsWith(packageName)) matches.add(checked);
-    }
-    
-    cacheResource(matches, key);
-    return matches;
-  }
-  
 
   
   /**  Caches the given resource.
@@ -261,8 +242,6 @@ public class Assets {
   }
   
   
-  /**  Returns the resource matching the given key (if cached- null otherwise.)
-    */
   public static Object getResource(String key) {
     return resCache.get(key);
   }
@@ -274,34 +253,57 @@ public class Assets {
   }
   
   
-	/**
-	 * Recursively compiles the (presumed) full-path names of all classes in the
-	 * given file directory.
-	 */
-	private static void compileClassNames(String packg, Batch<String> loaded) {
-		File basedir = new File("bin");
-		addClasses(basedir.toURI(), new File(basedir, packg), loaded);
-	}
-	
-	private static void addClasses(URI base, File dir, Batch<String> list) {
-		File[] files = dir.listFiles();
-		if(files == null)
-			return; // not a directory
-		for(File f : files) {
-			if(f.isDirectory()) {
-				addClasses(base, f, list);
-				continue;
-			}
-			if(!f.getName().endsWith(".class"))
-				continue;
-			if(f.getName().contains("$"))
-				continue;
-			URI relative = base.relativize(f.toURI());
-			String path = relative.toString().replaceAll("/|\\\\", ".");
-			path = path.substring(0, path.length() - 6);
-			list.add(path);
-		}
-	}
+  
+  /**  Recursively compiles the (presumed) full-path names of all classes in
+    *  the given file directory.
+    */
+  private static void compileClassNames(String packg, Batch <String> loaded) {
+    final File basedir = new File("bin");
+    packg = packg.replace('.', '/');
+    addClasses(basedir.toURI(), new File(basedir, packg), loaded);
+  }
+  
+  
+  private static void addClasses(URI base, File dir, Batch<String> list) {
+    
+    if (verbose) I.say("Attempting to list clases in "+dir);
+    File[] files = dir.listFiles();
+    if (files == null) return; // not a directory
+    
+    for (File f : files) {
+      if (f.isDirectory()) {
+        addClasses(base, f, list);
+        continue;
+      }
+      if (! f.getName().endsWith(".class")) continue;
+      if (f.getName().contains("$")       ) continue;
+      URI relative = base.relativize(f.toURI());
+      String path = relative.toString().replaceAll("/|\\\\", ".");
+      path = path.substring(0, path.length() - 6);
+      if (verbose) I.say("  Found class file: "+path);
+      
+      list.add(path);
+    }
+  }
+  
+  
+  public static Batch <Class> loadPackage(String packageName) {
+    if (classesToLoad.size() > 0) I.complain("CLASS LOADING NOT COMPLETE");
+    ///I.say("LOADING PACKAGE:");
+    
+    final String key = "package"+packageName;
+    final Batch <Class> cached = (Batch<Class>) getResource(key);
+    if (cached != null) return cached;
+
+    final Batch <Class> matches = new Batch <Class> ();
+    for (Class checked : classesLoaded) {
+      if (checked.getName().startsWith(packageName)) matches.add(checked);
+    }
+    
+    cacheResource(matches, key);
+    return matches;
+  }
+  
   
   
   /**  Pulls the same trick, but applied to class files embedded in a .jar

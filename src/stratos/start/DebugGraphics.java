@@ -4,8 +4,8 @@ package stratos.start;
 import org.apache.commons.math3.util.FastMath;
 
 import stratos.game.actors.Human;
+import stratos.game.base.Suspensor;
 import stratos.game.building.Economy;
-import stratos.game.building.Suspensor;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.sfx.*;

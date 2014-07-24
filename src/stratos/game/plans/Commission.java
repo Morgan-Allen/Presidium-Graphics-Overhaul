@@ -30,6 +30,7 @@ public class Commission extends Plan implements Economy {
   final Venue shop;
   
   private Manufacture order = null;
+  private float price = -1;
   private float orderDate = -1;
   private boolean delivered = false;
   
@@ -99,7 +100,6 @@ public class Commission extends Plan implements Economy {
     Actor actor, Venue makes, Item baseItem
   ) {
     if (baseItem == null) return null;
-    //if (! Visit.arrayIncludes(makes.services(), baseItem.type)) return null;
     
     final int baseQuality = (int) baseItem.quality;
     final float baseAmount = baseItem.amount;
@@ -134,7 +134,7 @@ public class Commission extends Plan implements Economy {
     if (order != null && ! order.finished() && ! done) {
       return 0;
     }
-    final float price = item.priceAt(shop);
+    final float price = calcPrice();
     if (price > actor.gear.credits()) return 0;
     
     final float greed = Plan.greedLevel(actor, price / NUM_WEAR_DAYS) * ROUTINE;
@@ -154,6 +154,17 @@ public class Commission extends Plan implements Economy {
       I.say("  Final priority is: "+priority);
     }
     return Visit.clamp(priority, 0, ROUTINE);
+  }
+  
+  
+  private float calcPrice() {
+    if (price != -1) return price;
+    
+    price = item.priceAt(shop);
+    final Conversion m = item.type.materials();
+    if (m != null) for (Item i : m.raw) price += i.priceAt(shop);
+    
+    return price;
   }
   
   
@@ -211,7 +222,7 @@ public class Commission extends Plan implements Economy {
   
   
   public boolean actionPickupItem(Actor actor, Venue shop) {
-    final int price = (int) (shop.priceFor(item.type) * item.amount);
+    final int price = (int) calcPrice();
     shop.inventory().incCredits(price);
     actor.inventory().incCredits(0 - price);
     

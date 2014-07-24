@@ -14,6 +14,7 @@ public interface Location {
   int transportTypes();
   
   int climate();
+  float area();
   Item[] resources();
   BaseDemands profile();
 }

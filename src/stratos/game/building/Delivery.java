@@ -7,6 +7,7 @@
 
 package stratos.game.building;
 import stratos.game.actors.*;
+import stratos.game.base.Suspensor;
 import stratos.game.building.Inventory.Owner;
 import stratos.game.common.*;
 import stratos.util.*;

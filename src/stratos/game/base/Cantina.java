@@ -7,6 +7,7 @@ import stratos.game.common.*;
 import stratos.game.plans.Performance;
 import stratos.game.plans.Recreation;
 import stratos.game.plans.Resting;
+import stratos.game.plans.Supervision;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.graphics.common.*;

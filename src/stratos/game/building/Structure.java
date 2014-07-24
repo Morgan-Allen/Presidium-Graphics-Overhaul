@@ -6,8 +6,10 @@
 
 package stratos.game.building;
 import java.lang.reflect.*;
+
 import stratos.game.actors.*;
 import stratos.game.common.*;
+import stratos.game.plans.Repairs;
 import stratos.util.*;
 
 

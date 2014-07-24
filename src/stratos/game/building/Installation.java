@@ -12,6 +12,12 @@ import stratos.util.*;
 /**  This class is intended specifically to work with the InstallTab class to
   *  enable placement of irregularly-shaped fixtures and venues.
   */
+
+//  TODO:  Replace this with a 'FacilityProfile' class, so that the various
+//  economic aspects of a structure can be passed with a single object rather
+//  than a dozen methods- and can be cached for reference by the base AI.
+
+
 public interface Installation extends Session.Saveable, Target, Selectable {
   
   int buildCost();
@@ -31,12 +37,6 @@ public interface Installation extends Session.Saveable, Target, Selectable {
   String helpInfo();
   String buildCategory();
 }
-
-
-
-
-
-
 
 
 

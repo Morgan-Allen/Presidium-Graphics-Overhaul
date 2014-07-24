@@ -3,6 +3,7 @@
 
 package stratos.game.building;
 import stratos.game.common.*;
+import stratos.game.wild.Wreckage;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.sfx.Healthbar;

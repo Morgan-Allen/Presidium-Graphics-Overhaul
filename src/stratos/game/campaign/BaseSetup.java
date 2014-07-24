@@ -1,16 +1,36 @@
 
 
 package stratos.game.campaign;
+
+import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.civilian.*;
-import stratos.game.plans.DialogueUtils;
 import stratos.util.*;
+import stratos.game.plans.DialogueUtils;
+import stratos.graphics.common.Assets;
+
+import java.lang.reflect.Constructor;
 
 
 
 public class BaseSetup {
   
+  
+  private static Class allFT[] = null;
+  
+  public static Class[] facilityTypes() {
+    if (allFT != null) return allFT;
+    
+    final Batch <Class <?>> allTypes = new Batch();
+    for (Class baseClass : Assets.loadPackage("stratos.game.base")) {
+      if (! Installation.class.isAssignableFrom(baseClass)) continue;
+      allTypes.add(baseClass);
+    }
+    
+    allFT = allTypes.toArray(Class.class);
+    return allFT;
+  }
   
   
   

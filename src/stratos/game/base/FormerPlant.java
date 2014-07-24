@@ -6,6 +6,7 @@ import stratos.game.building.*;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
+import stratos.game.plans.Repairs;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.Composite;

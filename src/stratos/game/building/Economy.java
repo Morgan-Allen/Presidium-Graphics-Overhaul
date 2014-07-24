@@ -85,7 +85,13 @@ public interface Economy extends Qualities {
     ATOMICS     = new Service(BC, FORM_UNIQUE , "Atomic"        ,    1000),
     
     ALL_UNIQUE_ITEMS[] = Service.typesSoFar();
-  //*/
+  
+  
+  //  TODO:  Housing as Service?
+  //  Insolation and Land Area.
+  //  Moisture and Sea Area.
+  //  Minerals and Rock Area.
+  
   
   final public static Service
     WATER        = new Service(BC, "Water"       , "water.png"    , FP, 10),
@@ -132,101 +138,79 @@ public interface Economy extends Qualities {
   
   //  TODO:  Replace most of these with a shorter set of categories.
   //  Halberd Guns.  Blasters.  Stunners.  Burners.
-  //  Frames & Bracers.  Shivs.  
+  //  Frames & Bracers.  Shivs.  Artillery.  Arc Blades.
   
   
   final public static DeviceType
     
-    MANIPLES = new DeviceType(BC, "Maniples",
+    MANIPLES = new DeviceType(
+      BC, "Maniples",
+      "maniples", AnimNames.BUILD,
       2, GRAPPLE | MELEE | PHYSICAL, 10,
-      new Conversion(Artificer.class, 3, PARTS, 5, ASSEMBLY),
-      "maniples", AnimNames.BUILD
+      Artificer.class, 3, PARTS, 5, ASSEMBLY
     ),
-    LASER_DRILL = new DeviceType(BC, "Laser Drill",
+    LASER_DRILL = new DeviceType(
+      BC, "Laser Drill",
+      "laser drill", AnimNames.BUILD,
       5, RANGED | ENERGY, 10,
-      new Conversion(Artificer.class, 2, PARTS, 5, ASSEMBLY),
-      "laser drill", AnimNames.BUILD
+      Artificer.class, 2, PARTS, 5, ASSEMBLY
     ),
-    MODUS_LUTE = new DeviceType(BC, "Modus Lute",
+    MODUS_LUTE = new DeviceType(
+      BC, "Modus Lute",
+      "modus lute", AnimNames.TALK_LONG,
       0, NONE, 40,
-      new Conversion(Artificer.class, 1, PARTS, 10, ASSEMBLY),
-      "modus lute", AnimNames.TALK_LONG
+      Artificer.class, 1, PARTS, 10, ASSEMBLY
     ),
-    BIOCORDER = new DeviceType(BC, "Biocorder",
+    BIOCORDER = new DeviceType(
+      BC, "Biocorder",
+      "biocorder", AnimNames.LOOK,
       0, NONE, 55,
-      new Conversion(Artificer.class, 2, PARTS, 15, ASSEMBLY),
-      "biocorder", AnimNames.LOOK
+      Artificer.class, 2, PARTS, 15, ASSEMBLY
     ),
     
-    STUN_PISTOL = new DeviceType(BC, "Stun Pistol",
+    STUN_PISTOL = new DeviceType(
+      BC, "Stun Pistol",
+      "pistol", AnimNames.FIRE,
       10, RANGED | PHYSICAL | STUN | HOMING, 35,
-      new Conversion(Artificer.class, 1, PARTS, 10, ASSEMBLY),
-      "pistol", AnimNames.FIRE
+      Artificer.class, 1, PARTS, 10, ASSEMBLY
     ),
-    BLASTER = new DeviceType(BC, "Blaster",
+    BLASTER = new DeviceType(
+      BC, "Blaster",
+      "pistol", AnimNames.FIRE,
       15, RANGED | ENERGY | PLASMA, 25,
-      new Conversion(Artificer.class, 1, PARTS, 10, ASSEMBLY),
-      "pistol", AnimNames.FIRE
+      Artificer.class, 1, PARTS, 10, ASSEMBLY
     ),
-    MISSILE_PACK = new DeviceType(BC, "Missile Pack",
-      15, RANGED | PHYSICAL | HOMING, 30,
-      new Conversion(Artificer.class, 2, PARTS, 15, ASSEMBLY),
-      "shoulder", AnimNames.FIRE
-    ),
-    MICROWAVE_BEAM = new DeviceType(BC, "Microwave Beam",
-      20, RANGED | ENERGY | STUN, 45,
-      new Conversion(Artificer.class, 3, PARTS, 15, ASSEMBLY),
-      "shoulder", AnimNames.FIRE
-    ),
-    RAIL_CANNON = new DeviceType(BC, "Rail Cannon",
-      25, RANGED | PHYSICAL, 60,
-      new Conversion(Artificer.class, 3, PARTS, 20, ASSEMBLY),
-      "cannon", AnimNames.FIRE
-    ),
-    DISINTEGRATOR = new DeviceType(BC, "Disintegrator",
-      30, RANGED | ENERGY, 120,
-      new Conversion(Artificer.class, 5, PARTS, 25, ASSEMBLY),
-      "cannon", AnimNames.FIRE
+    ARC_SABRE = new DeviceType(
+      BC, "Arc Sabre",
+      "staff", AnimNames.STRIKE,
+      25, MELEE | ENERGY, 100,
+      Artificer.class, 3, PARTS, 15, ASSEMBLY
     ),
     
-    JAVELIN = new DeviceType(BC, "Javelin",
+    JAVELIN = new DeviceType(
+      BC, "Javelin",
+      "spear", AnimNames.STRIKE,//"staff"
       10, RANGED | PHYSICAL, 5,
-      new Conversion(null, 5, HANDICRAFTS),
-      "spear", AnimNames.STRIKE//"staff"
+      null, 5, HANDICRAFTS
     ),
-    TOOTH_SHIV = new DeviceType(BC, "Tooth Shiv",
+    TOOTH_SHIV = new DeviceType(
+      BC, "Tooth Shiv",
+      "light blade", AnimNames.STRIKE,
       5, MELEE | PHYSICAL, 5,
-      new Conversion(null, 5, HANDICRAFTS),
-      "light blade", AnimNames.STRIKE
-    ),
-    NERVE_BATON = new DeviceType(BC, "Nerve Baton",
-      10, MELEE | PHYSICAL | STUN, 25,
-      new Conversion(Artificer.class, 1, PARTS, 10, ASSEMBLY),
-      "baton", AnimNames.STRIKE_BIG
-    ),
-    SHOCK_STAFF = new DeviceType(BC, "Shock Staff",
-      15, MELEE | PHYSICAL | STUN, 40,
-      new Conversion(Artificer.class, 2, PARTS, 10, ASSEMBLY),
-      "staff", AnimNames.STRIKE
-    ),
-    ARC_SABRE = new DeviceType(BC, "Arc Sabre",
-      25, MELEE | ENERGY, 100,
-      new Conversion(Artificer.class, 3, PARTS, 15, ASSEMBLY),
-      "staff", AnimNames.STRIKE
-    ),
-    ARC_HALBERD = new DeviceType(BC, "Konoche",
-      20, MELEE | ENERGY, 45,
-      new Conversion(Artificer.class, 2, PARTS, 5, ASSEMBLY),
-      "heavy blade", AnimNames.STRIKE_BIG
+      null, 5, HANDICRAFTS
     ),
     
     INTRINSIC_MELEE_WEAPON = new DeviceType(
-      BC, "Intrinsic Melee Weapon", 0, MELEE | PHYSICAL, 0,
-      null, null, AnimNames.STRIKE
+      BC, "Intrinsic Melee Weapon",
+      null, AnimNames.STRIKE,
+      0, MELEE | PHYSICAL, 0,
+      null
     ),
     INTRINSIC_ENERGY_WEAPON = new DeviceType(
-      BC, "Intrinsic Energy Weapon", 0, RANGED | ENERGY, 0,
-      null, null, AnimNames.FIRE
+      BC, "Intrinsic Energy Weapon",
+      null, AnimNames.FIRE,
+      0, RANGED | ENERGY, 0,
+      null
     );
   final public static Service
     ALL_IMPLEMENTS[] = Service.typesSoFar();
@@ -238,56 +222,58 @@ public interface Economy extends Qualities {
     
     OVERALLS       = new OutfitType(
       BC, "Overalls"      , 1, 0, 50,
-      new Conversion(FRSD.class, 1, PLASTICS, 5, ASSEMBLY)
+      FRSD.class, 1, PLASTICS, 5, ASSEMBLY
     ),
     FINERY         = new OutfitType(
       BC, "Finery"        , 1, 0 , 400,
-      new Conversion(FRSD.class, 2, PLASTICS, 15, GRAPHIC_DESIGN)
+      FRSD.class, 2, PLASTICS, 15, GRAPHIC_DESIGN
     ),
     SCRAP_GEAR = new OutfitType(
       BC, "Scrap Gear", 3, 0, 5,
-      new Conversion(null, 0, HANDICRAFTS)
+      null, 0, HANDICRAFTS
     ),
     
     CAMOUFLAGE     = new OutfitType(
       BC, "Camouflage"    , 3, 0, 70,
-      new Conversion(FRSD.class, 1, PLASTICS, 5, HANDICRAFTS)
+      FRSD.class, 1, PLASTICS, 5, HANDICRAFTS
     ),
     SEALSUIT       = new OutfitType(
       BC, "Sealsuit"      , 4, 1, 150,
-      new Conversion(FRSD.class, 1, PLASTICS, 1, PARTS, 10, HANDICRAFTS)
+      FRSD.class, 1, PLASTICS, 1, PARTS, 10, HANDICRAFTS
     ),
     STEALTH_SUIT   = new OutfitType(
       BC, "Stealth Suit"  , 8, 5, 250,
-      new Conversion(FRSD.class, 1, PLASTICS, 2, PARTS, 15, HANDICRAFTS)
+      FRSD.class, 1, PLASTICS, 2, PARTS, 15, HANDICRAFTS
     ),
     
     BELT_AND_BRACER = new OutfitType(
       BC, "Belt and Bracer"   , 5, 10, 50,
-      new Conversion(Artificer.class, 1, PARTS, 5, ASSEMBLY)
+      Artificer.class, 1, PARTS, 5, ASSEMBLY
     ),
     PARTIAL_ARMOUR = new OutfitType(
       BC, "Partial Armour", 10, 10, 100,
-      new Conversion(Artificer.class, 2, PARTS, 10, ASSEMBLY)
+      Artificer.class, 2, PARTS, 10, ASSEMBLY
     ),
     BODY_ARMOUR    = new OutfitType(
       BC, "Body Armour"   , 15, 10, 150,
-      new Conversion(Artificer.class, 5, PARTS, 15, ASSEMBLY)
+      Artificer.class, 5, PARTS, 15, ASSEMBLY
     ),
     POWER_ARMOUR   = new OutfitType(
       BC, "Power Armour"  , 20, 10, 275,
-      new Conversion(Artificer.class, 8, PARTS, 20, ASSEMBLY)
+      Artificer.class, 8, PARTS, 20, ASSEMBLY
     ),
     GOLEM_FRAME = new OutfitType(
       BC, "Golem Frame"  , 25, 10, 500,
-      new Conversion(Artificer.class, 12, PARTS, 25, ASSEMBLY)
+      Artificer.class, 12, PARTS, 25, ASSEMBLY
     ),
     
     NATURAL_ARMOUR = new OutfitType(
-      BC, "Natural Armour", 0, 0, 0, null
+      BC, "Natural Armour", 0, 0, 0,
+      null
     ),
     ARTILECT_ARMOUR = new OutfitType(
-      BC, "Artilect Armour", 0, 10, 0, null
+      BC, "Artilect Armour", 0, 10, 0,
+      null
     );
   final public static Service
     ALL_OUTFITS[] = Service.typesSoFar();

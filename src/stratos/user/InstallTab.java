@@ -8,6 +8,7 @@ package stratos.user;
 import java.lang.reflect.*;
 
 import stratos.game.building.*;
+import stratos.game.campaign.BaseSetup;
 import stratos.game.common.*;
 import stratos.game.tactical.*;
 import stratos.graphics.common.*;
@@ -50,7 +51,7 @@ public class InstallTab extends SelectionInfoPane {
     initCategory(TYPE_ARTIFICER);
     initCategory(TYPE_ECOLOGIST);
     initCategory(TYPE_PHYSICIAN);
-    for (Class baseClass : Assets.loadPackage("stratos.game.base")) {
+    for (Class baseClass : BaseSetup.facilityTypes()) {
       //
       //  Firstly, we need to ensure that the class refers to a type of venue
       //  and has an appropriate constructor.
@@ -96,8 +97,6 @@ public class InstallTab extends SelectionInfoPane {
   }
   
   
-  
-
   
   /**  Interface presented-
     */

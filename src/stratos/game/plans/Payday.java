@@ -5,11 +5,12 @@
   */
 
 
-package stratos.game.building;
+package stratos.game.plans;
 import stratos.game.actors.*;
+import stratos.game.building.Economy;
+import stratos.game.building.Venue;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
-import stratos.game.plans.Audit;
 import stratos.user.*;
 import stratos.util.*;
 

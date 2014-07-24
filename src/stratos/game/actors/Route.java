@@ -5,6 +5,11 @@ import stratos.game.common.*;
 import stratos.util.*;
 
 
+//
+//  TODO:  Generalise this to arbitrary destinations, including offworld or
+//  between sectors.
+
+
 public class Route {
   
   

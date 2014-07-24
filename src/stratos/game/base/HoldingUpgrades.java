@@ -113,26 +113,39 @@ public class HoldingUpgrades implements Economy {
   //    1 power, 1 circuitry, 1 datalink and 1 trophy.
   final static Conversion MATERIALS[] = {
     new Conversion(
-      Holding.class, TRIVIAL_DC, ASSEMBLY
+      Holding.class, "Level 1",
+      TRIVIAL_DC, ASSEMBLY
     ),
     new Conversion(
-      Holding.class, 1, PARTS,
+      Holding.class, "Level 2",
+      1, PARTS,
       SIMPLE_DC, ASSEMBLY
     ),
     new Conversion(
-      Holding.class, 2, PARTS, 1, PLASTICS,
+      Holding.class, "Level 3",
+      2, PARTS, 1, PLASTICS,
       ROUTINE_DC, ASSEMBLY
     ),
     new Conversion(
-      Holding.class, 3, PARTS, 2, PLASTICS, 1, POWER,
+      Holding.class, "Level 4",
+      3, PARTS, 2, PLASTICS, 1, POWER,
       MODERATE_DC, ASSEMBLY
     ),
     new Conversion(
-      Holding.class, 3, PARTS, 2, POWER, 2, PLASTICS, 1, WATER, 1, CIRCUITRY,
+      Holding.class, "Level 5",
+      3, PARTS, 2, POWER, 2, PLASTICS, 1, WATER, 1, CIRCUITRY,
       DIFFICULT_DC, ASSEMBLY
     ),
   };
   //  "This holding needs more "+X+" before construction can proceed.";
+  
+  
+  public static Upgrade upgradeFor(int upgradeLevel) {
+    if (upgradeLevel >= 0 && upgradeLevel <= 4) {
+      return ALL_UPGRADES.member(upgradeLevel);
+    }
+    return null;
+  }
   
   
   public static Conversion materials(int upgradeLevel) {

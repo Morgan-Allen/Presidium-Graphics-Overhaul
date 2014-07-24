@@ -1,12 +1,13 @@
 
 
 package stratos.game.building;
-import java.io.*;
 
 import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.ShieldFX;
-import stratos.util.I;
+import stratos.util.*;
+
+import java.io.*;
 
 
 
@@ -17,27 +18,27 @@ public class OutfitType extends Service implements Economy {
     defence,
     shieldBonus;
   final public Conversion materials;
+  
   final public ImageAsset skin;
   
   
   public OutfitType(
     Class baseClass, String name, int defence, int shieldBonus, int basePrice,
-    Conversion materials
+    Class facility, Object... conversionArgs
   ) {
-    super(
-      baseClass, FORM_OUTFIT, name,
-      basePrice + (materials == null ? 0 : materials.rawPriceValue())
-    );
-    ///I.say("Declaring outfit: "+name);
+    super(baseClass, FORM_OUTFIT, name, basePrice);
     
     this.defence = defence;
     this.shieldBonus = shieldBonus;
-    this.materials = materials;
+    this.materials = new Conversion(facility, Visit.compose(
+      Object.class, conversionArgs, new Object[] { TO, this })
+    );
+    
     final String imagePath = ITEM_PATH+name+"_skin.gif";
-    if (new File(imagePath).exists())
+    if (new File(imagePath).exists()) {
       this.skin = ImageAsset.fromImage(imagePath, baseClass);
-    else
-      this.skin = null;
+    }
+    else this.skin = null;
   }
   
   

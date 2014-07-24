@@ -7,6 +7,7 @@ import stratos.game.building.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.plans.FirstAid;
+import stratos.game.plans.Supervision;
 import stratos.game.tactical.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;

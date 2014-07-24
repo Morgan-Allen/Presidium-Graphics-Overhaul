@@ -74,6 +74,20 @@ public class I {
   
   
   
+  /**  Console input-
+    */
+  public static String listen() {
+    final StringBuffer b = new StringBuffer();
+    while (true) try {
+      final char c = (char) System.in.read();
+      if (c == '\n') break;
+      b.append(c);
+    }
+    catch (Exception e) { return ""; }
+    return b.toString();
+  }
+  
+  
   
   /**  Visual presentations-
     */
