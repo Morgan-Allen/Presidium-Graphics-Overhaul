@@ -73,17 +73,30 @@ public class PavingMap {
   
   public Tile nextTileToPave(final Target client, final Class paveClass) {
     final Vars.Ref <Tile> result = new Vars.Ref <Tile> ();
+    final Vec3D o = client.position(null);
+    
+    //  TODO:  Try to improve/guarantee efficiency here.  In the worst case
+    //         scenario, you're looking at 256 iterations (or so.)
     
     world.sections.applyDescent(new WorldSections.Descent() {
       
+      float minDist = Float.POSITIVE_INFINITY;
+      
       public boolean descendTo(Section s) {
-        //  TODO:  Confine this to areas accessible from the actor's pathing
-        //  position!
+        final float dist = s.bounds.distance(o.x, o.y, 0);
+        if (dist > minDist) return false;
+        
+        if (s.size == world.sections.resolution) {
+          //  TODO:  Also confine search to areas accessible from the actor's
+          //         pathing position!
+          if (world.activities.includes(s, paveClass)) return false;
+        }
+        
         if (flagMap.getAvgAt(s.x, s.y, s.depth) > 0) {
           if (s.depth == 0) {
             final Tile tile = world.tileAt(s.x, s.y);
-            if (world.activities.includes(tile, paveClass)) return false;
             result.value = tile;
+            minDist = dist;
           }
           return true;
         }
@@ -103,8 +116,6 @@ public class PavingMap {
     flagMap.set((byte) (flag ? 1 : 0), t.x, t.y);
   }
 }
-
-
 
 
 

@@ -8,6 +8,8 @@ package stratos.util;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
+import org.apache.commons.math3.util.FastMath;
+
 import com.badlogic.gdx.math.*;
 
 
@@ -156,7 +158,7 @@ public class Box2D {
   
   
   public float area() {
-    return xdim * ydim;
+    return FastMath.abs(xdim * ydim);
   }
   
   

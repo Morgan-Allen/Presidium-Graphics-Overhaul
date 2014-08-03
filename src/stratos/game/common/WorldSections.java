@@ -5,8 +5,6 @@
   */
 
 package stratos.game.common;
-import org.apache.commons.math3.util.FastMath;
-
 import stratos.graphics.common.*;
 import stratos.util.*;
 
@@ -24,17 +22,21 @@ public class WorldSections implements TileConstants {
   //
   //  NOTE:  x and y coordinates are relative to position in hierarchy, not to
   //  tile coordinates.
-  public static class Section {
+  //  TODO:  Consider putting this in a separate class.
+  public static class Section implements Target {
     
-    private boolean updateBounds = true;
-    
+    final public World world;
     final public Box3D bounds = new Box3D();
     final public Box2D area = new Box2D();
     final public int x, y, absX, absY, depth, size;
     protected Section kids[], parent;
     
+    private boolean updateBounds = true;
+    private Object flagged = null;
     
-    Section(int x, int y, int d) {
+    
+    Section(World w, int x, int y, int d) {
+      this.world = w;
       this.x = x;
       this.y = y;
       this.depth = d;
@@ -42,6 +44,28 @@ public class WorldSections implements TileConstants {
       this.absX = x * size;
       this.absY = y * size;
     }
+    
+    
+    public World world() { return world; }
+    public boolean inWorld() { return true; }
+    public boolean destroyed() { return false; }
+    public boolean isMobile() { return false; }
+    
+    public Vec3D position(Vec3D v) {
+      if (v == null) v = new Vec3D();
+      return v.set((x + 0.5f) * size, (y + 0.5f) * size, 0);
+    }
+    
+    public float radius() {
+      return size / 2f;
+    }
+    
+    public float height() {
+      return bounds.zdim();
+    }
+    
+    public void flagWith(Object f) { flagged = f; }
+    public Object flaggedWith() { return flagged; }
   }
   
   
@@ -73,7 +97,7 @@ public class WorldSections implements TileConstants {
     while (deep < depth) {
       hierarchy[deep] = new Section[gridSize][gridSize];
       for (Coord c : Visit.grid(0, 0, gridSize, gridSize, 1)) {
-        final Section n = new Section(c.x, c.y, deep);
+        final Section n = new Section(world, c.x, c.y, deep);
         hierarchy[deep][c.x][c.y] = n;
         n.area.set(
           (c.x * nodeSize) - 0.5f,
@@ -102,6 +126,9 @@ public class WorldSections implements TileConstants {
   }
   
   
+  
+  /**  Positional queries and iteration methods-
+    */
   public Section sectionAt(int x, int y) {
     return hierarchy[0][x / resolution][y / resolution];
   }
@@ -117,6 +144,19 @@ public class WorldSections implements TileConstants {
       }
       catch (ArrayIndexOutOfBoundsException e) { batch [i++] = null; }
     }
+    return batch;
+  }
+  
+  
+  public Batch <Section> sectionsUnder(Box2D area) {
+    final Batch <Section> batch = new Batch <Section> ();
+    
+    final float s = 1f / resolution;
+    final Box2D clip = new Box2D();
+    clip.setX(area.xpos() * s, area.xdim() * s);
+    clip.setY(area.ypos() * s, area.ydim() * s);
+    
+    for (Coord c : Visit.grid(clip)) batch.add(hierarchy[0][c.x][c.y]);
     return batch;
   }
   

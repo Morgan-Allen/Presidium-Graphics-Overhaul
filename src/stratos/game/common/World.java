@@ -7,7 +7,6 @@
 
 package stratos.game.common;
 import stratos.game.actors.*;
-import stratos.game.common.WorldSections.Section;
 import stratos.game.maps.*;
 import stratos.game.campaign.*;
 import stratos.graphics.common.*;
@@ -15,6 +14,7 @@ import stratos.graphics.widgets.*;
 import stratos.start.*;
 import stratos.user.*;
 import stratos.util.*;
+import stratos.game.common.WorldSections.Section;
 
 
 

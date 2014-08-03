@@ -59,6 +59,7 @@ public class FindWork extends Plan {
   
   
   protected Behaviour getNextStep() {
+    if (! application.valid()) return null;
     if (actor.mind.application() == application) return null;
     if (application.employer == actor.mind.work()) return null;
     final Action applies = new Action(
@@ -156,6 +157,7 @@ public class FindWork extends Plan {
   
   
   private static float rateApplication(Application app, boolean report) {
+    if (! app.valid()) return -1;
     
     final Actor a = app.applies;
     if (! Career.qualifies(a, app.position)) {

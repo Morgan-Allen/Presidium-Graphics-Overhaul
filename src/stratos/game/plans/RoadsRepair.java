@@ -22,11 +22,11 @@ public class RoadsRepair extends Plan {
   private Tile around;
   
   
-  public RoadsRepair(Actor actor, Tile subject) {
-    super(actor, subject);
+  public RoadsRepair(Actor actor, Tile t) {
+    super(actor, actor.world().sections.sectionAt(t.x, t.y));
     this.base = actor.base();
     this.map = base.paving.map;
-    this.around = subject;
+    this.around = t;
   }
   
   
@@ -73,18 +73,14 @@ public class RoadsRepair extends Plan {
   
   /**  Behaviour implementation-
     */
-  //  TODO:  Use a simpler technique of just checking adjacent tiles here to
-  //  get next paving increments.
-  
   protected Behaviour getNextStep() {
     final boolean report = actionVerbose && I.talkAbout == actor;
-    
-    //final Base base = actor.base();
-    //final PavingMap p = base.paving.map;
     final WorldTerrain t = actor.world().terrain();
     
     if (around == null || ! map.needsPaving(around)) {
-      final Tile next = map.nextTileToPave(actor, RoadsRepair.class);
+      Tile next = null;
+      if (next == null) next = nextLocalTile();
+      if (next == null) next = map.nextTileToPave(actor, RoadsRepair.class);
       
       if (report) {
         I.say("\nCurrent tile: "+actor.aboard());
@@ -111,6 +107,18 @@ public class RoadsRepair extends Plan {
       );
       return pave;
     }
+  }
+  
+  
+  private Tile nextLocalTile() {
+    final World world = actor.world();
+    final Tile centre = world.tileAt(actor);
+    
+    for (Tile t : centre.vicinity(Spacing.tempT9)) {
+      if (t == null || ! map.needsPaving(t)) continue;
+      return t;
+    }
+    return null;
   }
   
   

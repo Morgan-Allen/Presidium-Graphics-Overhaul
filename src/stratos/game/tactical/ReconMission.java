@@ -78,12 +78,6 @@ public class ReconMission extends Mission {
     if (report) I.say(actor+" priority is: "+priority);
     
     return priority;
-    /*
-    final Tile centre = (Tile) subject;
-    final float basePriority = super.basePriority(actor);
-    float priority = Exploring.rateExplorePoint(actor, centre, basePriority);
-    priority *= SETTING_AREAS[1] / exploreRadius();
-    //*/
   }
   
   
