@@ -104,12 +104,12 @@ public abstract class Actor extends Mobile implements
   }
   
   
-  public float priceFor(Service service) {
+  public float priceFor(TradeType service) {
     return service.basePrice * 2;
   }
   
   
-  public int spaceFor(Service good) {
+  public int spaceFor(TradeType good) {
     return (int) health.maxHealth() / 2;
   }
   

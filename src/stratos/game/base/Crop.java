@@ -131,8 +131,8 @@ public class Crop implements Session.Saveable, Target {
   }
   
   
-  public static Service yieldType(Species species) {
-    final Service type;
+  public static TradeType yieldType(Species species) {
+    final TradeType type;
     if (isHive(species)) {
       type = Economy.PROTEIN;
     }
@@ -144,7 +144,7 @@ public class Crop implements Session.Saveable, Target {
   }
   
   
-  public static float habitatBonus(Tile t, Species s, BotanicalStation parent) {
+  public static float habitatBonus(Tile t, Species s, EcologistStation parent) {
     final Upgrade PU;
     float bonus = 0.0f;
     
@@ -158,13 +158,13 @@ public class Crop implements Session.Saveable, Target {
     //  Then, we determine bonus based on crop type-
     if (isHive(s)) {
       bonus += t.world.ecology().biomassRating(t);
-      PU = BotanicalStation.INSECTRY_LAB;
+      PU = EcologistStation.INSECTRY_LAB;
     }
     else if (isCereal(s)) {
       bonus *= Plantation.CEREAL_BONUS;
-      PU = BotanicalStation.CEREAL_LAB;
+      PU = EcologistStation.CEREAL_LAB;
     }
-    else PU = BotanicalStation.BROADLEAF_LAB;
+    else PU = EcologistStation.BROADLEAF_LAB;
     
     //  And, if allowed, the modifier for structure upgrades-
     if (parent != null) {
@@ -236,7 +236,7 @@ public class Crop implements Session.Saveable, Target {
   
   
   public Item yieldCrop() {
-    final Service type = yieldType(species);
+    final TradeType type = yieldType(species);
     final float amount = growStage / MAX_GROWTH;
     growStage = NOT_PLANTED;
     quality = NO_HEALTH;

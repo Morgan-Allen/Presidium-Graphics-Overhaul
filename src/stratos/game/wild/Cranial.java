@@ -12,12 +12,14 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+
 
 
 //  TODO:  Add the grapple, silver plague and psy strike abilities.
 
 
-public class Cranial extends Artilect implements Economy {
+public class Cranial extends Artilect {
   
   
   /**  Construction and save/load methods-
@@ -40,8 +42,8 @@ public class Cranial extends Artilect implements Economy {
     
     gear.setDamage(20);
     gear.setArmour(15);
-    gear.equipOutfit(Item.withQuality(ARTILECT_ARMOUR, 0));
-    gear.equipDevice(Item.withQuality(INTRINSIC_MELEE_WEAPON, 0));
+    gear.equipOutfit(Item.withQuality(Economy.INTRINSIC_ARMOUR, 0));
+    gear.equipDevice(Item.withQuality(Economy.INTRINSIC_BEAM  , 0));
     traits.setLevel(HAND_TO_HAND, 15);
     traits.setLevel(ANATOMY, 10);
     traits.setLevel(ASSEMBLY, 20);

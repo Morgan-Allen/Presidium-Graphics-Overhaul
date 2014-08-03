@@ -10,7 +10,7 @@ import java.util.Map;
 
 
 
-//  TODO:  Try adapting this to multiple mission-declarations
+//  TODO:  Try adapting this to multiple mission-declarations.
 public class BaseAI {
   
   

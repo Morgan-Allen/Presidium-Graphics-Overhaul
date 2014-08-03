@@ -5,7 +5,6 @@ package stratos.start;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.campaign.*;
-import stratos.graphics.common.Assets;
 import stratos.util.*;
 
 

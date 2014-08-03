@@ -6,18 +6,19 @@
 
 
 package stratos.game.plans;
-import stratos.game.base.BotanicalStation;
-import stratos.game.base.Crop;
-import stratos.game.base.Plantation;
+import stratos.game.base.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.maps.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.building.Economy.*;
 
 
-public class SeedTailoring extends Plan implements Economy {
+
+public class SeedTailoring extends Plan {
   
   
   
@@ -70,9 +71,9 @@ public class SeedTailoring extends Plan implements Economy {
     */
   protected float getPriority() {
     if (nursery.type != Plantation.TYPE_NURSERY) return 0;
-    final BotanicalStation station = nursery.belongs;
+    final EcologistStation station = nursery.belongs;
     
-    final Service yield = Crop.yieldType(species);
+    final TradeType yield = Crop.yieldType(species);
     return Visit.clamp(
       ROUTINE + (station.structure.upgradeBonus(yield) / 2f),
       0, URGENT
@@ -88,7 +89,7 @@ public class SeedTailoring extends Plan implements Economy {
     //
     //  If the nursery has adequate stocks, just return.
     if (nursery.stocks.amountOf(cropType) > 1) return null;
-    final BotanicalStation station = nursery.belongs;
+    final EcologistStation station = nursery.belongs;
     //
     //  If the nursery has enough of the crop type, deliver it-
     if (station.stocks.amountOf(cropType) > 1) {
@@ -123,8 +124,8 @@ public class SeedTailoring extends Plan implements Economy {
   }
   
   
-  private float cultureTest(int DC, BotanicalStation lab) {
-    final Service yield = Crop.yieldType(species);
+  private float cultureTest(int DC, EcologistStation lab) {
+    final TradeType yield = Crop.yieldType(species);
     float skillRating = 5;
     if (! actor.traits.test(GENE_CULTURE, DC, 5.0f)) skillRating /= 2;
     if (! actor.traits.test(CULTIVATION , DC, 5.0f)) skillRating /= 2;
@@ -134,7 +135,7 @@ public class SeedTailoring extends Plan implements Economy {
   }
   
   
-  public boolean actionCultureSeed(Actor actor, BotanicalStation lab) {
+  public boolean actionCultureSeed(Actor actor, EcologistStation lab) {
     final Batch <Item> seedMatch = lab.stocks.matches(seedType);
     if (seedMatch.size() == 0) return false;
     final Item seed = seedMatch.atIndex(0);
@@ -153,7 +154,7 @@ public class SeedTailoring extends Plan implements Economy {
   }
   
   
-  public boolean actionTailorGenes(Actor actor, BotanicalStation lab) {
+  public boolean actionTailorGenes(Actor actor, EcologistStation lab) {
     //
     //  Calculate odds of success based on the skill of the researcher-
     final float successChance = 0.2f;

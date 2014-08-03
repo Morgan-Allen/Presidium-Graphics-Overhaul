@@ -348,9 +348,9 @@ public class StartupScenario extends Scenario {
     bastion.stocks.bumpItem(Economy.PARTS    , 20);
     bastion.stocks.bumpItem(Economy.PLASTICS , 10);
     
-    bastion.stocks.bumpItem(Economy.GENE_SEED, 15);
-    bastion.stocks.bumpItem(Economy.MEDICINE , 5 );
-    bastion.stocks.bumpItem(Economy.STIM_KITS, 10);
+    //bastion.stocks.bumpItem(Economy.GENE_SEED, 15);
+    //bastion.stocks.bumpItem(Economy.MEDICINE , 5 );
+    //bastion.stocks.bumpItem(Economy.STIM_KITS, 10);
     
     //Placement.establishRelations(advisors, colonists);
     return bastion;

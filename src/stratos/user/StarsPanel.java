@@ -62,8 +62,8 @@ public class StarsPanel extends UIGroup implements UIConstants {
     this.alignVertical  (0.5f, CHARTS_WIDE                  , 0);
     
     display = new StarField() {
-      protected void performAssetSetup() {
-        super.performAssetSetup();
+      protected void loadAsset() {
+        super.loadAsset();
         loadStarfield(LOAD_PATH, LOAD_FILE);
       }
     };

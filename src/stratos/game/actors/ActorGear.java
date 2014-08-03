@@ -7,13 +7,16 @@
 package stratos.game.actors;
 import stratos.game.building.*;
 import stratos.game.common.*;
-import stratos.graphics.common.AnimNames;
+import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.building.Economy.*;
 
 
-public class ActorGear extends Inventory implements Economy {
+
+public class ActorGear extends Inventory {
   
   /*
   final public static float
@@ -186,7 +189,7 @@ public class ActorGear extends Inventory implements Economy {
   public boolean physicalWeapon() {
     final Item weapon = deviceEquipped();
     if (weapon == null) return true;
-    if (deviceType().hasProperty(PHYSICAL)) return true;
+    if (deviceType().hasProperty(Economy.KINETIC)) return true;
     return false;
   }
   

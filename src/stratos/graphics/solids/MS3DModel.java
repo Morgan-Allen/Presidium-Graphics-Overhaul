@@ -207,15 +207,15 @@ public class MS3DModel extends SolidModel {
 
     ModelMeshPart[] parts = new ModelMeshPart[ms3d.groups.length];
     ModelNodePart[] nparts = new ModelNodePart[ms3d.groups.length];
-
+    
     int k = 0;
     for (MS3DGroup group : ms3d.groups) {
-      ModelMeshPart part = new ModelMeshPart();
+      final ModelMeshPart part = new ModelMeshPart();
       part.id = group.name;
       part.primitiveType = GL20.GL_TRIANGLES;
       part.indices = new short[group.trindices.length * 3];
-
-      short[] trindices = group.trindices;
+      
+      final short[] trindices = group.trindices;
 
       for (int i = 0; i < trindices.length; i++) {
         part.indices[i * 3 + 0] = ms3d.triangles[trindices[i]].indices[0];
@@ -223,11 +223,12 @@ public class MS3DModel extends SolidModel {
         part.indices[i * 3 + 2] = ms3d.triangles[trindices[i]].indices[2];
       }
 
-      ModelNodePart npart = new ModelNodePart();
+      final ModelNodePart npart = new ModelNodePart();
+      final int matID = group.materialIndex;
       npart.meshPartId = group.name;
-      npart.materialId = ms3d.materials[group.materialIndex].name;
+      npart.materialId = (matID == -1) ? null : ms3d.materials[matID].name;
       npart.bones = new ArrayMap();
-
+      
       parts[k] = part;
       nparts[k] = npart;
       k++;
@@ -274,7 +275,7 @@ public class MS3DModel extends SolidModel {
 
       for (int j = 0; j < jo.positions.length; j++) {
         ModelNodeKeyframe kf = new ModelNodeKeyframe();
-
+        
         kf.keytime = jo.rotations[j].time;
         kf.translation = new Vector3(jo.positions[j].data);
         kf.translation.mul(jo.matrix);
@@ -299,7 +300,12 @@ public class MS3DModel extends SolidModel {
   private void loadKeyframes(ModelAnimation animation) {
     if (animation == null || config == null) return;
     
+    if (verbose) I.say("\nLoading animations for model: "+filePath);
+    
     final XML animConfig = config.child("animations");
+    float FPS = animConfig.getFloat("fps");
+    if (FPS == 0 || FPS == 1) FPS = 1.0f;
+    
     addLoop: for (XML animXML : animConfig.children()) {
       //
       // First, check to ensure that this animation has an approved name:
@@ -314,8 +320,8 @@ public class MS3DModel extends SolidModel {
       
       // Either way, define the data-
       final float
-        animStart  = Float.parseFloat(animXML.value("start")),
-        animEnd    = Float.parseFloat(animXML.value("end")),
+        animStart  = Float.parseFloat(animXML.value("start"   )) / FPS,
+        animEnd    = Float.parseFloat(animXML.value("end"     )) / FPS,
         animLength = Float.parseFloat(animXML.value("duration"));
       
       final ModelAnimation anim = new ModelAnimation();
@@ -323,13 +329,14 @@ public class MS3DModel extends SolidModel {
 
       // scaling for exact duration
       float scale = animLength / (animEnd - animStart);
-
+      
       for (ModelNodeAnimation node : animation.nodeAnimations) {
-        ModelNodeAnimation nd = new ModelNodeAnimation();
+        final ModelNodeAnimation nd = new ModelNodeAnimation();
         nd.nodeId = node.nodeId;
+        
         for (ModelNodeKeyframe frame : node.keyframes) {
           if (frame.keytime >= animStart && frame.keytime <= animEnd) {
-            ModelNodeKeyframe kf = copy(frame);
+            final ModelNodeKeyframe kf = copy(frame);
             
             // trimming the beggining and scaling
             kf.keytime -= animStart;
@@ -339,6 +346,8 @@ public class MS3DModel extends SolidModel {
         }
         anim.nodeAnimations.add(nd);
       }
+      
+      if (verbose) I.say("  Adding animation with name: "+name);
       data.animations.add(anim);
     }
   }

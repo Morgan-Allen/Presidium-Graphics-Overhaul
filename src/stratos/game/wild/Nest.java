@@ -75,7 +75,7 @@ public class Nest extends Venue {
     */
   public Behaviour jobFor(Actor actor) { return null; }
   public Background[] careers() { return null; }
-  public Service[] services() { return null; }
+  public TradeType[] services() { return null; }
   public int owningType() { return Element.ELEMENT_OWNS; }
   
   

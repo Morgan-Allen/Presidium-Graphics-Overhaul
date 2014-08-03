@@ -12,26 +12,29 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.actors.Backgrounds.*;
+import static stratos.game.building.Economy.*;
 
 
-public class Garrison extends Venue implements Economy {
-  
+
+public class TrooperLodge extends Venue {
   
   
   /**  Fields, constants, and save/load methods-
     */
   final static ModelAsset MODEL = CutoutModel.fromImage(
-    Garrison.class, "media/Buildings/military/house_garrison.png", 4.25f, 3
+    TrooperLodge.class, "media/Buildings/military/house_garrison.png", 4.25f, 3
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/garrison_button.gif", Garrison.class
+    "media/GUI/Buttons/garrison_button.gif", TrooperLodge.class
   );
   
   
   private DrillYard drillYard;
   
   
-  public Garrison(Base base) {
+  public TrooperLodge(Base base) {
     super(4, 3, ENTRANCE_SOUTH, base);
     structure.setupStats(
       500, 20, 250,
@@ -42,7 +45,7 @@ public class Garrison extends Venue implements Economy {
   }
   
   
-  public Garrison(Session s) throws Exception {
+  public TrooperLodge(Session s) throws Exception {
     super(s);
     drillYard = (DrillYard) s.loadObject();
   }
@@ -58,7 +61,7 @@ public class Garrison extends Venue implements Economy {
   /**  Upgrades, economic functions and actor behaviour-
     */
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-    Garrison.class, "garrison_upgrades"
+    TrooperLodge.class, "garrison_upgrades"
   );
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
@@ -111,8 +114,8 @@ public class Garrison extends Venue implements Economy {
   }
   
   
-  public Service[] services() {
-    return new Service[] {};
+  public TradeType[] services() {
+    return new TradeType[] {};
   }
   
   
@@ -203,7 +206,7 @@ public class Garrison extends Venue implements Economy {
   
   
   public String fullName() {
-    return "Garrison";
+    return "Trooper Lodge";
   }
   
   
@@ -214,8 +217,8 @@ public class Garrison extends Venue implements Economy {
   
   public String helpInfo() {
     return
-      "The Garrison sends regular patrols of sentries to enforce the peace "+
-      "and keep a watch out for raiders or outlaws.";
+      "The Trooper Lodge allows you to recruit the sturdy, disciplined and "+
+      "heavily-equipped Trooper into the rank and file of your armed forces.";
   }
   
   

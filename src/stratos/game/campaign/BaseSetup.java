@@ -6,9 +6,9 @@ import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.civilian.*;
+import stratos.start.Assets;
 import stratos.util.*;
 import stratos.game.plans.DialogueUtils;
-import stratos.graphics.common.Assets;
 
 import java.lang.reflect.Constructor;
 
@@ -17,21 +17,38 @@ import java.lang.reflect.Constructor;
 public class BaseSetup {
   
   
-  private static Class allFT[] = null;
+  private static Class           allFT[] = null;
+  private static FacilityProfile allFP[] = null;
   
   public static Class[] facilityTypes() {
     if (allFT != null) return allFT;
     
-    final Batch <Class <?>> allTypes = new Batch();
+    final Batch <Class>           allTypes    = new Batch();
+    final Batch <FacilityProfile> allProfiles = new Batch();
+    
     for (Class baseClass : Assets.loadPackage("stratos.game.base")) {
       if (! Installation.class.isAssignableFrom(baseClass)) continue;
       allTypes.add(baseClass);
+      
+      if (! Venue.class.isAssignableFrom(baseClass)) continue;
+      try {
+        final Constructor c = baseClass.getConstructor(Base.class);
+        final Venue v = (Venue) c.newInstance((Base) null);
+        allProfiles.add(v.profile);
+      }
+      catch (Exception e) {}// I.report(e); continue; }
     }
     
-    allFT = allTypes.toArray(Class.class);
+    allFT = allTypes   .toArray(Class          .class);
+    allFP = allProfiles.toArray(FacilityProfile.class);
     return allFT;
   }
   
+  
+  public static FacilityProfile[] facilityProfiles() {
+    facilityTypes();
+    return allFP;
+  }
   
   
   public static void establishRelations(Series <? extends Actor>... among) {

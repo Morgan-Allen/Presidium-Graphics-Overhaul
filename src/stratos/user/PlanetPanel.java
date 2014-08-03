@@ -6,8 +6,10 @@ import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
 import stratos.graphics.widgets.*;
 import stratos.graphics.charts.*;
+import stratos.start.Assets;
 import stratos.util.*;
 import static stratos.graphics.common.GL.*;
+
 import com.badlogic.gdx.graphics.*;
 
 
@@ -57,8 +59,8 @@ public class PlanetPanel extends UIGroup implements UIConstants {
     this.alignVertical  (0.5f, CHARTS_WIDE                  , 0);
     
     display = new PlanetDisplay() {
-      protected void performAssetSetup() {
-        super.performAssetSetup();
+      protected void loadAsset() {
+        super.loadAsset();
         loadPlanet(LOAD_PATH, LOAD_FILE);
       }
     };

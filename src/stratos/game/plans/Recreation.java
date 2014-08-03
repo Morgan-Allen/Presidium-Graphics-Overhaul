@@ -9,9 +9,12 @@ import stratos.game.maps.Planet;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.building.Economy.*;
 
 
-public class Recreation extends Plan implements Economy, Qualities {
+
+public class Recreation extends Plan {
   
   
   /**  Data fields, construction and save/load methods-

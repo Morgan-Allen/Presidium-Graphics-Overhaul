@@ -10,19 +10,12 @@ import stratos.game.common.*;
 import stratos.user.*;
 import stratos.util.*;
 
-
-
-//
-//  TODO:  Generalise this into a class for seeking alternative employment,
-//  including at different venues in the same world.
-
-//
-//  ...Also, what about looking for homes?
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.building.Economy.*;
 
 
 
-
-public class Migration extends Plan implements Economy {
+public class Migration extends Plan {
   
   
   /**  Data fields, setup and save/load functions-

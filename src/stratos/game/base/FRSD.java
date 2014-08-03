@@ -18,10 +18,13 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.actors.Backgrounds.*;
+import static stratos.game.building.Economy.*;
 
 
 
-public class FRSD extends Venue implements Economy {
+public class FRSD extends Venue {
   
   
   /**  Other data fields, constructors and save/load methods-
@@ -35,6 +38,17 @@ public class FRSD extends Venue implements Economy {
   final public static ImageAsset ICON = ImageAsset.fromImage(
     "media/GUI/Buttons/supply_depot_button.gif", FRSD.class
   );
+  /*
+  final static FacilityProfile PROFILE = new FacilityProfile(
+    EcologistStation.class, Structure.TYPE_VENUE,
+    3, 200, 2, 0,
+    new TradeType[] {},
+    new Background[] { FAB_WORKER },
+    WASTE_TO_PLASTICS,
+    SERVICE_REPAIRS,
+    SERVICE_TRADE
+  );
+  //*/
   
   
   public FRSD(Base base) {
@@ -134,7 +148,7 @@ public class FRSD extends Venue implements Economy {
     stocks.forceDemand(PROTEIN, rationLevel, Stocks.TIER_TRADER);
     
     final float scrapLevel = structure.upgradeLevel(SCRAP_EXCHANGE) * 5;
-    stocks.forceDemand(METALS   , scrapLevel, Stocks.TIER_TRADER);
+    stocks.forceDemand(ORES     , scrapLevel, Stocks.TIER_TRADER);
     stocks.forceDemand(FUEL_RODS, scrapLevel, Stocks.TIER_TRADER);
     stocks.forceDemand(PARTS, scrapLevel / 2, Stocks.TIER_TRADER);
   }
@@ -152,12 +166,8 @@ public class FRSD extends Venue implements Economy {
   }
   
   
-  public Service[] services() {
-    return new Service[] {
-      CARBS, PROTEIN, RATION_KIT,
-      METALS, FUEL_RODS, PARTS,
-      PLASTICS, OVERALLS
-    };
+  public TradeType[] services() {
+    return ALL_MATERIALS;
   }
   
   
@@ -169,13 +179,13 @@ public class FRSD extends Venue implements Economy {
   }
   
   
-  protected Service[] goodsToShow() {
+  protected TradeType[] goodsToShow() {
     //  TODO:  Have different colours of crate for each category.
-    return new Service[] { SAMPLES };
+    return new TradeType[] { SAMPLES };
   }
   
   
-  protected float goodDisplayAmount(Service good) {
+  protected float goodDisplayAmount(TradeType good) {
     float amount = 0;
     for (Item i : stocks.allItems()) amount += i.amount;
     return amount;

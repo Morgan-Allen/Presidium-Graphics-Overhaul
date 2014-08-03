@@ -15,6 +15,7 @@ import stratos.game.maps.Species;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.*;
+
 import java.awt.Dimension;
 import java.awt.Toolkit;
 
@@ -25,6 +26,12 @@ public final class PlayLoop {
   
   /**  Fields and constant definitions-
     */
+  final public static Class DEFAULT_INIT_CLASSES[] = {
+    Backgrounds.class,
+    Species.class
+  };
+  final public static String DEFAULT_INIT_PACKAGE = "stratos";
+  
   public final static int
     UPDATES_PER_SECOND = 10,
     FRAMES_PER_SECOND  = 60,
@@ -37,6 +44,9 @@ public final class PlayLoop {
     SLEEP_MARGIN = 2;
   private static boolean verbose = false;
   
+  
+  private static String initPackage  = DEFAULT_INIT_PACKAGE;
+  private static Class[] initClasses = DEFAULT_INIT_CLASSES;
   
   private static Rendering rendering;
   private static Playable played;
@@ -98,10 +108,21 @@ public final class PlayLoop {
   
   
   public static void setupAndLoop(Playable scenario) {
-    loopChanged = true;
+    setupAndLoop(scenario, DEFAULT_INIT_PACKAGE, DEFAULT_INIT_CLASSES);
+  }
+  
+  
+  public static void setupAndLoop(
+    Playable scenario, String initPackage, Class... initClasses
+  ) {
+    
+    PlayLoop.initPackage = initPackage;
+    PlayLoop.initClasses = initClasses;
+    
+    PlayLoop.loopChanged = true;
     PlayLoop.played = scenario;
-    numStateUpdates = 0;
-    gameSpeed = 1.0f;
+    PlayLoop.numStateUpdates = 0;
+    PlayLoop.gameSpeed = 1.0f;
     
     if (verbose) {
       I.say("ASSIGNED NEW PLAYABLE: "+scenario);
@@ -139,7 +160,6 @@ public final class PlayLoop {
             return;
           }
           
-          if (loopChanged) Disposal.performSetup();
           KeyInput.updateInputs();
           final boolean okay = advanceLoop();
           
@@ -153,10 +173,10 @@ public final class PlayLoop {
   }
   
   
-  public static void gameStateWipe() {
+  public static void sessionStateWipe() {
     I.talkAbout = null;
     played = null;
-    Disposal.performDisposal();
+    Assets.disposeSessionAssets();
     
     if (rendering != null) rendering.clearAll();
   }
@@ -171,9 +191,7 @@ public final class PlayLoop {
   
   private static void initLoop() {
     Assets.compileAssetList(
-      "stratos",
-      Backgrounds.class,
-      Species.class
+      initPackage, initClasses
     );
     for (String name : Assets.classesToLoad()) {
       Session.checkSaveable(name);

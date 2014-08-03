@@ -10,10 +10,7 @@ import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
-import stratos.game.plans.Audit;
-import stratos.game.plans.Patrolling;
-import stratos.game.plans.Repairs;
-import stratos.game.plans.Supervision;
+import stratos.game.plans.*;
 import stratos.game.tactical.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -21,9 +18,13 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.actors.Backgrounds.*;
+import static stratos.game.building.Economy.*;
 
 
-public class Bastion extends Venue implements Economy {
+
+public class Bastion extends Venue {
   
   
   
@@ -35,6 +36,16 @@ public class Bastion extends Venue implements Economy {
   final public static ImageAsset ICON = ImageAsset.fromImage(
     "media/GUI/Buttons/bastion_button.gif", Bastion.class
   );
+  /*
+  final static FacilityProfile PROFILE = new FacilityProfile(
+    Bastion.class, Structure.TYPE_VENUE,
+    7, 650, 15, 0,
+    new TradeType[] {},
+    new Background[] {ENFORCER, TECHNICIAN, AUDITOR},
+    METALS_TO_PARTS,
+    PARTS_TO_CIRCUITRY
+  );
+  //*/
   
   
   public Bastion(Base base) {
@@ -196,7 +207,7 @@ public class Bastion extends Venue implements Economy {
     stocks.forceDemand(CARBS  , foodNeed * 1.5f, Stocks.TIER_CONSUMER);
     stocks.forceDemand(PROTEIN, foodNeed * 1.0f, Stocks.TIER_CONSUMER);
     stocks.forceDemand(GREENS , foodNeed * 1.0f, Stocks.TIER_CONSUMER);
-    stocks.forceDemand(TRUE_SPICE  , foodNeed * 0.5f, Stocks.TIER_CONSUMER);
+    stocks.forceDemand(SPYCE  , foodNeed * 0.5f, Stocks.TIER_CONSUMER);
     //
     //  Modify maximum integrity based on upgrades-
     final int BB = structure.upgradeLevel(BLAST_SHIELDS);
@@ -213,6 +224,8 @@ public class Bastion extends Venue implements Economy {
   
   
   public Background[] careers() {
+    //  TODO:  Base this off the Court setting!
+    
     return new Background[] {
       Backgrounds.TECHNICIAN, Backgrounds.VETERAN,
       Backgrounds.AUDITOR, Backgrounds.STEWARD
@@ -222,8 +235,8 @@ public class Bastion extends Venue implements Economy {
   }
   
   
-  public Service[] services() {
-    return new Service[] {
+  public TradeType[] services() {
+    return new TradeType[] {
       SERVICE_ADMIN, SERVICE_REFUGE, POWER, LIFE_SUPPORT
     };
   }

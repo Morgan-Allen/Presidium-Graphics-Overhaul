@@ -6,22 +6,20 @@ import stratos.game.building.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
-import stratos.game.plans.CombatUtils;
-import stratos.game.plans.Dialogue;
-import stratos.game.plans.DialogueUtils;
-import stratos.game.plans.Gifting;
-import stratos.game.plans.Summons;
+import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
+
+import static stratos.game.actors.Qualities.*;
 
 
 
 //  TODO:  Allow spontaneous turn-coat behaviours for both actors and venues...
 
 
-public class ContactMission extends Mission implements Economy {
+public class ContactMission extends Mission {
   
   
   /**  Field definitions, constructors and save/load methods-

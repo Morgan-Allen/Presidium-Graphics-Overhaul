@@ -70,7 +70,7 @@ public class ReconMission extends Mission {
   /**  Behaviour implementation-
     */
   public float priorityFor(Actor actor) {
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = true;// verbose && I.talkAbout == actor;
     final Exploring exploring = new Exploring(actor, base, (Tile) subject);
     
     float priority = exploring.priorityFor(actor) + basePriority(actor);

@@ -25,7 +25,8 @@ public class Paving {
     checkConsistency = false;
   
   final World world;
-  PresenceMap junctions;
+  final public PavingMap map;
+  protected PresenceMap junctions;
   
   Table <Tile, List <Route>> tileRoutes = new Table(1000);
   Table <Route, Route> allRoutes = new Table <Route, Route> (1000);
@@ -35,12 +36,14 @@ public class Paving {
   
   public Paving(World world) {
     this.world = world;
+    this.map = new PavingMap(world, this);
     junctions = new PresenceMap(world, "junctions");
   }
   
   
   public void loadState(Session s) throws Exception {
     junctions = (PresenceMap) s.loadObject();
+    map.loadState(s);
     
     int numR = s.loadInt();
     for (int n = numR; n-- > 0;) {
@@ -54,6 +57,7 @@ public class Paving {
   
   public void saveState(Session s) throws Exception {
     s.saveObject(junctions);
+    map.saveState(s);
     
     s.saveInt(allRoutes.size());
     for (Route r : allRoutes.keySet()) {
@@ -92,7 +96,7 @@ public class Paving {
     
     for (Coord c : Visit.grid(0, 0, world.size, world.size, 1)) {
       final Tile t = world.tileAt(c.x, c.y);
-      final int pM = mask[c.x][c.y], tM = world.terrain().roadMask(t);
+      final int pM = mask[c.x][c.y], tM = map.roadCounter(t);
       if (pM != tM) {
         I.say("Discrepancy at: "+c.x+" "+c.y+", "+pM+" =/= "+tM);
         okay = false;
@@ -100,7 +104,6 @@ public class Paving {
     }
     //if (okay) I.say("No discrepancies in paving map found.");
   }
-  
   
   
   
@@ -134,17 +137,17 @@ public class Paving {
       if (report) I.say("Installing perimeter for "+v);
       
       if (match != null) {
-        world.terrain().maskAsPaved(match.path, false);
+        map.maskAsPaved(match.path, false);
         allRoutes.remove(match);
       }
-      world.terrain().maskAsPaved(key.path, true);
+      map.maskAsPaved(key.path, true);
       clearRoad(key.path, report);
       allRoutes.put(key, key);
     }
     else if (match != null) {
       if (report) I.say("Discarding perimeter for "+v);
       //reportPath("Old route", match);
-      world.terrain().maskAsPaved(match.path, false);
+      map.maskAsPaved(match.path, false);
       allRoutes.remove(key);
     }
   }
@@ -226,7 +229,7 @@ public class Paving {
       allRoutes.put(route, route);
       toggleRoute(route, route.start, true);
       toggleRoute(route, route.end  , true);
-      world.terrain().maskAsPaved(route.path, true);
+      map.maskAsPaved(route.path, true);
       clearRoad(route.path, report);
     }
     return true;
@@ -234,7 +237,7 @@ public class Paving {
   
   
   private void deleteRoute(Route route) {
-    world.terrain().maskAsPaved(route.path, false);
+    map.maskAsPaved(route.path, false);
     allRoutes.remove(route);
     toggleRoute(route, route.start, false);
     toggleRoute(route, route.end  , false);
@@ -349,7 +352,7 @@ public class Paving {
   }
   
   
-  private void distributeTo(Batch <Structural> reached, Service provided[]) {
+  private void distributeTo(Batch <Structural> reached, TradeType provided[]) {
     //
     //  First, tabulate total supply and demand within the area-
     final boolean report = distroVerbose;
@@ -362,7 +365,7 @@ public class Paving {
       if (report) I.say("  Have reached: "+s);
       
       for (int i = provided.length; i-- > 0;) {
-        final Service type = provided[i];
+        final TradeType type = provided[i];
         supply[i] += s.structure.outputOf(type);
         
         if (! (s instanceof Venue)) continue;
@@ -375,7 +378,7 @@ public class Paving {
     //  is available-
     for (int i = provided.length; i-- > 0;) {
       if (demand[i] == 0) continue;
-      final Service type = provided[i];
+      final TradeType type = provided[i];
       final float supplyRatio = Visit.clamp(supply[i] / demand[i], 0, 1);
       for (Structural s : reached) if (s instanceof Venue) {
         final Venue venue = (Venue) s;
@@ -386,7 +389,7 @@ public class Paving {
   }
   
 
-  public void distribute(Service provided[], Base base) {
+  public void distribute(TradeType provided[], Base base) {
     final boolean report = distroVerbose;
     if (report) I.say("\n\nDistributing provisions for base: "+base);
     final Batch <Batch <Structural>> allReached = new Batch();

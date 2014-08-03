@@ -9,11 +9,9 @@ package stratos.util;
 
 public abstract class QuadTree {
   
-  protected Node
-    nodes[][][];
-  int
-    size,
-    depth;
+  
+  protected Node nodes[][][];
+  int size, depth;
   
   protected abstract Node newNode();
   
@@ -24,11 +22,12 @@ public abstract class QuadTree {
     size = depth = 1;
     while (size < minSize) { size *= 2; depth++; }
     nodes = new Node[depth][][];
+    
     for (int d = 0, s = size; d < depth; d++, s /= 2) {
       nodes[d] = new Node[s][s];
-      for (int x = 0; x < s; x++)
-        for (int y = 0; y < s; y++)
-          (nodes[d][x][y] = newNode()).setup(this, x, y, d);
+      for (int x = 0; x < s; x++) for (int y = 0; y < s; y++) {
+        (nodes[d][x][y] = newNode()).setup(this, x, y, d, s);
+      }
     }
   }
   
@@ -68,21 +67,28 @@ public abstract class QuadTree {
       parent,
       kids[] = NO_KIDS;
     protected int
-      x, y, deep;
+      x, y, deep, size;
     protected QuadTree
       tree;
     
-    final public int xpos() { return x; }
-    final public int ypos() { return x; }
+    final public int mipX() { return x; }
+    final public int mipY() { return y; }
+    final public int absX() { return x * size; }
+    final public int absY() { return y * size; }
+    
     final public int depth() { return deep; }
     final public Node parent() { return parent; }
     final public Node[] kids() { return kids; }
     
     public abstract void updateNode();
     
-    void setup(final QuadTree tree, final int x, final int y, final int deep) {
-      this.x = x; this.y = y; this.deep = deep;
+    void setup(QuadTree tree, int x, int y, int deep, int size) {
+      this.x = x;
+      this.y = y;
+      this.deep = deep;
+      this.size = size;
       this.tree = tree;
+      
       if (deep > 0) {
         kids = new Node[4];
         kids[0] = tree.nodes[deep - 1][x * 2][y * 2];

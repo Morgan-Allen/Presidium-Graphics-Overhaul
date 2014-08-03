@@ -4,6 +4,8 @@ package stratos.game.campaign;
 import stratos.game.actors.*;
 import stratos.util.Visit;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.building.Economy.*;
 
 /*
 FULL LIST OF INTENDED SECTORS-
@@ -73,8 +75,8 @@ public interface Sectors extends Backgrounds {
       "expertise in ecology and botanical science, together with polyamorous "+
       "traditions and luxury exports.",
       null, 0, 1, DESERT_BLOOD, MILD_GRAVITY,
-      Sector.MAKES, SOMA, PLASTICS, FIXTURES, TRUE_SPICE,
-      Sector.NEEDS, WATER, SERVICE_CONSORTS, DATALINKS,
+      Sector.MAKES, SOMA, PLASTICS, ARTWORKS, SPYCE,
+      Sector.NEEDS, OPEN_WATER, SERVICE_ENTERTAIN, DATALINKS,
       FREE_BIRTH,
       LEARNING, CULTIVATION, CHEMISTRY,
       OFTEN, ECOLOGIST_CIRCLES, SOMETIMES, COURT_CIRCLES, AESTHETE_CIRCLES
@@ -85,8 +87,8 @@ public interface Sectors extends Backgrounds {
       "and though dour and repressive, remains host to numerous machine-"+
       "cults and revered arcane relics.",
       null, 1, 1, WASTES_BLOOD, NORMAL_GRAVITY,
-      Sector.MAKES, PARTS, DATALINKS, REPLICANTS,
-      Sector.NEEDS, ATOMICS, FIXTURES, ARTIFACTS,
+      Sector.MAKES, PARTS, DATALINKS, ORGANS,
+      Sector.NEEDS, ARTWORKS, SERVICE_REPAIRS,
       DREGS_BIRTH, PYON_BIRTH,
       LEARNING, ASSEMBLY, ANCIENT_LORE,
       OFTEN, ARTIFICER_CIRCLES, SOMETIMES, COURT_CIRCLES,
@@ -98,8 +100,8 @@ public interface Sectors extends Backgrounds {
       "defection to the Calivor Republic have earned it several foes- and a "+
       "crucial role in quadrant defence strategy.",
       null, 0, 0, FOREST_BLOOD, STRONG_GRAVITY,
-      Sector.MAKES, CARBS, GREENS, ATOMICS,
-      Sector.NEEDS, SERVICE_ARMAMENT, PARTS, MEDICINE,
+      Sector.MAKES, CARBS, GREENS, MEDICINES,
+      Sector.NEEDS, SERVICE_ARMAMENT, PARTS,
       GELDER_BIRTH, FREE_BIRTH,
       LEARNING, MARKSMANSHIP, ANATOMY,
       OFTEN, MILITARY_CIRCLES, SOMETIMES, PHYSICIAN_CIRCLES,
@@ -111,8 +113,8 @@ public interface Sectors extends Backgrounds {
       "centre of a large shipping industry and trade network- along with "+
       "rampant smuggling and black market research.",
       null, 1, 0, TUNDRA_BLOOD, NOMINAL_GRAVITY,
-      Sector.MAKES, CIRCUITRY, MEDICINE, SERVICE_SHIPPING,
-      Sector.NEEDS, GREENS, METALS, FUEL_RODS,
+      Sector.MAKES, DATALINKS, MEDICINES, SERVICE_COMMERCE,
+      Sector.NEEDS, GREENS, ORES, FUEL_RODS,
       DREGS_BIRTH, GELDER_BIRTH,
       LEARNING, FIELD_THEORY, STEALTH_AND_COVER,
       OFTEN, VENDOR_CIRCLES, OUTLAW_CIRCLES, SOMETIMES, ARTIFICER_CIRCLES

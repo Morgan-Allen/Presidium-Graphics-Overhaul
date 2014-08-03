@@ -10,9 +10,12 @@ import stratos.game.common.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.building.Economy.*;
 
 
-public class FindWork extends Plan implements Economy {
+
+public class FindWork extends Plan {
   
   
   private static boolean verbose = false;

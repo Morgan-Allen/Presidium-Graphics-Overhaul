@@ -10,6 +10,10 @@ import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.actors.Backgrounds.*;
+import static stratos.game.building.Economy.*;
+
 
 
 //  Agents go here to research history, look up info on enemies, hone their
@@ -26,10 +30,19 @@ public class Archives extends Venue {
   final public static ModelAsset MODEL = CutoutModel.fromImage(
     Archives.class, "media/Buildings/physician/archives.png", 3, 2
   );
+  /*
+  final public static FacilityProfile PROFILE = new FacilityProfile(
+    Archives.class, Structure.TYPE_VENUE,
+    3, 200, 3, 7,
+    new TradeType[] {},
+    new Background[] { ARCHIVE_SAVANT },
+    Economy.CIRCUITRY_TO_DATALINKS
+  );
+  //*/
   
   
-  public Archives(int size, int high, int entranceFace, Base base) {
-    super(size, high, entranceFace, base);
+  public Archives(Base base) {
+    super(3, 2, ENTRANCE_SOUTH, base);
   }
   
   
@@ -46,6 +59,7 @@ public class Archives extends Venue {
   
   /**  Upgrade and economy methods-
     */
+  //  TODO:  Get rid of most of these now!
   public Background[] careers() {
     return null;
   }
@@ -56,7 +70,7 @@ public class Archives extends Venue {
   }
   
   
-  public Service[] services() {
+  public TradeType[] services() {
     return null;
   }
   

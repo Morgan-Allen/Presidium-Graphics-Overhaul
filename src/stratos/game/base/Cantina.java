@@ -2,6 +2,8 @@
 
 
 package stratos.game.base;
+import static stratos.game.actors.Backgrounds.CULTIVATOR;
+import static stratos.game.actors.Backgrounds.ECOLOGIST;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.plans.Performance;
@@ -17,9 +19,13 @@ import stratos.graphics.widgets.HUD;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.actors.Backgrounds.*;
+import static stratos.game.building.Economy.*;
 
 
-public class Cantina extends Venue implements Economy {
+
+public class Cantina extends Venue {
   
   
   
@@ -64,6 +70,18 @@ public class Cantina extends Venue implements Economy {
     SOMA_MARGIN    = 1.5f,
     GAMBLE_MARGIN  = 0.2f,
     SMUGGLE_MARGIN = 2.0f;
+  /*
+  final static FacilityProfile PROFILE = new FacilityProfile(
+    Cantina.class, Structure.TYPE_VENUE,
+    4, 150, 2, 0,
+    new TradeType[] {},
+    new Background[] { SOMA_VENDOR, PERFORMER },
+    Conversion.parse(EcologistStation.class,
+      SERVICE_ENTERTAINMENT
+    )
+  );
+  //*/
+  
   
   
   private int nameID = -1;
@@ -72,7 +90,7 @@ public class Cantina extends Venue implements Economy {
   
   
   public Cantina(Base base) {
-    super(4, 3, Venue.ENTRANCE_SOUTH, base);
+    super(3, 2, Venue.ENTRANCE_SOUTH, base);
     structure.setupStats(150, 2, 200, 0, Structure.TYPE_VENUE);
     personnel.setShiftType(SHIFTS_BY_DAY);
     attachSprite(MODEL.makeSprite());
@@ -116,7 +134,7 @@ public class Cantina extends Venue implements Economy {
   public Behaviour jobFor(Actor actor) {
     if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
     if (actor.vocation() == Backgrounds.SOMA_VENDOR) {
-      final Service needed[] = { SOMA, CARBS, PROTEIN };
+      final TradeType needed[] = { SOMA, CARBS, PROTEIN };
       final Delivery d = DeliveryUtils.bestBulkCollectionFor(
         this, needed, 1, 5, 5
       );
@@ -179,14 +197,14 @@ public class Cantina extends Venue implements Economy {
   }
   
   
-  public float priceFor(Service good) {
+  public float priceFor(TradeType good) {
     if (good == SOMA) return SOMA.basePrice * SOMA_MARGIN;
     return good.basePrice * SMUGGLE_MARGIN;
   }
   
   
-  public Service[] services() {
-    return new Service[] { SERVICE_PERFORM };
+  public TradeType[] services() {
+    return new TradeType[] { SERVICE_ENTERTAIN };
   }
   
   
@@ -315,12 +333,12 @@ public class Cantina extends Venue implements Economy {
   }
   
   
-  protected Service[] goodsToShow() {
-    return new Service[] { PROTEIN, CARBS, SOMA };
+  protected TradeType[] goodsToShow() {
+    return new TradeType[] { PROTEIN, CARBS, SOMA };
   }
   
   
-  protected float goodDisplayAmount(Service good) {
+  protected float goodDisplayAmount(TradeType good) {
     return Math.min(5, stocks.amountOf(good));
   }
   

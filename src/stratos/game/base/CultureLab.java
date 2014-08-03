@@ -15,24 +15,41 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.actors.Backgrounds.*;
+import static stratos.game.building.Economy.*;
 
 
-public class CultureVats extends Venue implements Economy {
+
+public class CultureLab extends Venue {
 
   
   
   /**  Fields, constructors, and save/load methods-
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    CultureVats.class, "media/Buildings/physician/culture_vats.png", 3, 2
+    CultureLab.class, "media/Buildings/physician/culture_vats.png", 3, 2
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/culture_vats_button.gif", CultureVats.class
+    "media/GUI/Buttons/culture_vats_button.gif", CultureLab.class
   );
   
+  /*
+  final static FacilityProfile PROFILE = new FacilityProfile(
+    CultureLab.class, Structure.TYPE_VENUE,
+    2, 400, 3, -3,
+    new TradeType[] {},
+    new Background[] { VATS_BREEDER },
+    WASTE_TO_CARBS,
+    CARBS_TO_SOMA,
+    CARBS_TO_PROTEIN,
+    PROTEIN_TO_REPLICANTS
+  );
+  //*/
   
-  public CultureVats(Base base) {
-    super(3, 2, ENTRANCE_NORTH, base);
+  
+  public CultureLab(Base base) {
+    super(4, 2, ENTRANCE_NORTH, base);
     structure.setupStats(
       400, 3, 450,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
@@ -42,7 +59,7 @@ public class CultureVats extends Venue implements Economy {
   }
   
   
-  public CultureVats(Session s) throws Exception {
+  public CultureLab(Session s) throws Exception {
     super(s);
     //stocks.bumpItem(CARBS, 100);
     //stocks.bumpItem(PROTEIN, 100);
@@ -58,7 +75,7 @@ public class CultureVats extends Venue implements Economy {
   /**  Upgrades, economic functions and employee behaviour-
     */
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-    CultureVats.class, "culture_vats_upgrades"
+    CultureLab.class, "culture_vats_upgrades"
   );
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
@@ -106,10 +123,10 @@ public class CultureVats extends Venue implements Economy {
     super.updateAsScheduled(numUpdates);
     if (! structure.intact()) return;
     
-    stocks.translateDemands(1, WASTE_TO_CARBS   , this);
-    stocks.translateDemands(1, CARBS_TO_PROTEIN , this);
-    stocks.translateDemands(1, CARBS_TO_SOMA   , this);
-    stocks.translateDemands(1, SPICE_TO_MEDICINE, this);
+    stocks.translateDemands(1, WASTE_TO_CARBS      , this);
+    stocks.translateDemands(1, CARBS_TO_PROTEIN    , this);
+    stocks.translateDemands(1, CARBS_TO_SOMA       , this);
+    stocks.translateDemands(1, PROTEIN_TO_STIM_KITS, this);
     
     float needPower = 5;
     if (! isManned()) needPower /= 2;
@@ -136,7 +153,7 @@ public class CultureVats extends Venue implements Economy {
     final Choice choice = new Choice(actor);
     //
     //  Replicants need to be delivered to their Sickbays once ready.
-    for (Item match : stocks.matches(REPLICANTS)) {
+    for (Item match : stocks.matches(ORGANS)) {
       if (match.amount < 1) continue;
       final Actor a = (Actor) match.refers;
       if (a.aboard() instanceof Venue) {
@@ -174,7 +191,7 @@ public class CultureVats extends Venue implements Economy {
     //  And pharmaceuticals-
     final Manufacture
       mA = stocks.nextManufacture(actor, CARBS_TO_SOMA),
-      mM = stocks.nextManufacture(actor, SPICE_TO_MEDICINE);
+      mM = stocks.nextManufacture(actor, PROTEIN_TO_STIM_KITS);
     if (mA != null) {
       mA.checkBonus = cycleBonus + bonusFor(SOMA_CULTURE, 1.5f);
       mA.checkBonus -= powerCut;
@@ -190,9 +207,9 @@ public class CultureVats extends Venue implements Economy {
   }
   
   
-  public Service[] services() {
-    return new Service[] {
-      CARBS, PROTEIN, SOMA, MEDICINE, LIFE_SUPPORT, REPLICANTS
+  public TradeType[] services() {
+    return new TradeType[] {
+      CARBS, PROTEIN, SOMA, MEDICINES
     };
   }
   
@@ -220,13 +237,13 @@ public class CultureVats extends Venue implements Economy {
   
   
   public String fullName() {
-    return "Culture Vats";
+    return "Culture Lab";
   }
   
   public String helpInfo() {
     return
-      "The Culture Vats manufacture soma, medicines, tissue cultures and "+
-      "basic foodstuffs.";
+      "The Culture Labs manufacture soma, basic foodstuffs and even cloned "+
+      "tissues for medical purposes.";
   }
   
   public String buildCategory() {

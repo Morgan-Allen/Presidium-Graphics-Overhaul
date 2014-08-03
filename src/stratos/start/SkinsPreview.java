@@ -16,18 +16,15 @@ import java.io.*;
 
 
 
-//  TODO:  You need to automatically refresh textures too.
-
-
 public class SkinsPreview extends VisualDebug {
   
   
   public static void main(String a[]) {
-    PlayLoop.setupAndLoop(new SkinsPreview());
+    PlayLoop.setupAndLoop(new SkinsPreview(), "stratos.graphics");
   }
   
 
-  final static int MAX_PATH_LEN = 40;
+  final static int MAX_PATH_LEN = 100;
   final static char[] VALID_KEYS =
     "abcdefghijklmnopqrstuvwxyz._/01234567890"
   .toCharArray();
@@ -35,7 +32,7 @@ public class SkinsPreview extends VisualDebug {
   private HUD UI;
   private Text modelPathEntry;
   private String lastValidPath = "";
-  private String currentPath = "media/Actors/vermin/GiantRoach.ms3d";
+  private String currentPath = "media/Actors/artilects/ArtilectModels.xml";
   
   private XML currentXML;
   private SolidModel currentModel;
@@ -149,6 +146,13 @@ public class SkinsPreview extends VisualDebug {
     //  If the current model has animations, list those too-
     if (currentModel != null) {
       t.append("\n\nModel animations:");
+      
+      t.append("\n  ");
+      t.append(new Text.Clickable() {
+        public void whenTextClicked() { currentAnim = null; }
+        public String fullName() { return "(NONE)"; }
+      });
+      
       for (final String animName : currentModel.animNames()) {
         t.append("\n  ");
         t.append(new Text.Clickable() {

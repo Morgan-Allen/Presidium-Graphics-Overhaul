@@ -7,11 +7,13 @@ import stratos.graphics.common.*;
 import stratos.graphics.sfx.ShieldFX;
 import stratos.util.*;
 
+import static stratos.game.building.Economy.*;
+
 import java.io.*;
 
 
 
-public class OutfitType extends Service implements Economy {
+public class OutfitType extends TradeType {
   
   
   final public float

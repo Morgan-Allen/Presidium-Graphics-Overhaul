@@ -1,6 +1,7 @@
 
 
 package stratos.graphics.common;
+import stratos.start.Assets;
 import stratos.util.*;
 
 import com.badlogic.gdx.Gdx;
@@ -39,7 +40,7 @@ public class ImageAsset extends Assets.Loadable {
   
   
   private ImageAsset(String filePath, Class sourceClass) {
-    super("image_asset_"+filePath, sourceClass);
+    super("image_asset_"+filePath, sourceClass, false);
     this.filePath = filePath;
     if (! Assets.exists(filePath)) I.complain("NO SUCH FILE: "+filePath);
     Assets.registerForLoading(this);

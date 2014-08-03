@@ -7,12 +7,14 @@
 
 package stratos.graphics.widgets;
 import stratos.graphics.common.*;
+import stratos.start.Assets;
 import stratos.util.*;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Pixmap.Blending;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
+
 import java.io.*;
 
 

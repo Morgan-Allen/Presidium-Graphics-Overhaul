@@ -2,11 +2,12 @@
 
 
 package stratos.graphics.sfx;
-import java.io.*;
-
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
+import stratos.start.Assets;
 import stratos.util.*;
+
+import java.io.*;
 
 
 
@@ -17,7 +18,7 @@ public class TalkFX extends SFX {
   
   /**  Field definitions, constants and constructors-
     */
-  final public static ModelAsset TALK_MODEL = new Assets.ClassModel(
+  final public static ModelAsset TALK_MODEL = new ClassModel(
     "talk_fx_model", TalkFX.class
   ) {
     public Sprite makeSprite() { return new TalkFX(); }

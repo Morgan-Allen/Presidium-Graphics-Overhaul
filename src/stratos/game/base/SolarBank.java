@@ -11,9 +11,13 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.actors.Backgrounds.*;
+import static stratos.game.building.Economy.*;
 
 
-public class SolarBank extends Structural implements Economy {
+
+public class SolarBank extends Structural {
   
   
   final static String
@@ -117,7 +121,7 @@ public class SolarBank extends Structural implements Economy {
     //  past 24 hours, sunlight/moisture values, et cetera.
     structure.assignOutputs(
       Item.withAmount(POWER, 2),
-      Item.withAmount(WATER, 0.5f)
+      Item.withAmount(OPEN_WATER, 0.5f)
     );
   }
   

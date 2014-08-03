@@ -8,27 +8,8 @@
 package stratos.game.actors;
 import stratos.game.building.*;
 import stratos.game.campaign.*;
-import stratos.game.civilian.*;
 import stratos.game.common.*;
-import stratos.game.maps.*;
-import stratos.game.plans.Combat;
-import stratos.game.plans.Dialogue;
-import stratos.game.plans.Exploring;
-import stratos.game.plans.FindHome;
-import stratos.game.plans.FindMission;
-import stratos.game.plans.FindWork;
-import stratos.game.plans.FirstAid;
-import stratos.game.plans.Foraging;
-import stratos.game.plans.Gifting;
-import stratos.game.plans.Hunting;
-import stratos.game.plans.ItemDisposal;
-import stratos.game.plans.Patrolling;
-import stratos.game.plans.Payday;
-import stratos.game.plans.Repairs;
-import stratos.game.plans.Resting;
-import stratos.game.plans.Retreat;
-import stratos.game.tactical.*;
-import stratos.user.*;
+import stratos.game.plans.*;
 import stratos.util.*;
 
 

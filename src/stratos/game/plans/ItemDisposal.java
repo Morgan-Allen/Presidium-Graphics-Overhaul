@@ -46,7 +46,7 @@ public class ItemDisposal extends Plan {
   
   
   protected Behaviour getNextStep() {
-    final Batch <Service> goodTypes = new Batch <Service> ();
+    final Batch <TradeType> goodTypes = new Batch <TradeType> ();
     for (Item i : actor.gear.allItems()) {
       goodTypes.add(i.type);
     }
@@ -55,7 +55,7 @@ public class ItemDisposal extends Plan {
     //  class, in that case.
     
     final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
-      actor, goodTypes.toArray(Service.class), 1, 5, 5
+      actor, goodTypes.toArray(TradeType.class), 1, 5, 5
     );
     /*
     final Delivery d = Deliveries.nextDeliveryFor(

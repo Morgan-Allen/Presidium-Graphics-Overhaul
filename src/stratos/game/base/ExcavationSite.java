@@ -17,15 +17,14 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
-
-
-//  TODO:  USE THESE UPGRADES-
-//  Metal Ores Mining.  Fuel Cores Mining.  Artifact Assembly.  Mantle Drilling.
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.actors.Backgrounds.*;
+import static stratos.game.building.Economy.*;
 
 
 
 public class ExcavationSite extends Venue implements
-  Economy, TileConstants
+  TileConstants
 {
   
   
@@ -44,15 +43,27 @@ public class ExcavationSite extends Venue implements
     DIG_FACE_REFRESH = World.STANDARD_DAY_LENGTH / 10,
     SMELTER_REFRESH  = 10;
   
+  /*
+  final static FacilityProfile PROFILE = new FacilityProfile(
+    ExcavationSite.class, Structure.TYPE_VENUE,
+    4, 200, 15, -5,
+    new TradeType[] {},
+    new Background[] { EXCAVATOR },
+    Conversion.parse(EcologistStation.class, new Object[][] {
+      { MINERALS, TO, METALS    },
+      { MINERALS, TO, FUEL_RODS }
+    })
+  );
+  //*/
+  
   private static boolean verbose = false;
   
   
   private Tile underFaces[];
   //  TODO:  List open shafts instead
   ///private List <Smelter> smelters = new List <Smelter> ();
-  private List <Tailing> tailings = new List <Tailing> ();
+  //private List <Tailing> tailings = new List <Tailing> ();
   private Box2D stripArea = new Box2D();
-  
   
   
   
@@ -70,7 +81,7 @@ public class ExcavationSite extends Venue implements
   public ExcavationSite(Session s) throws Exception {
     super(s);
     underFaces = (Tile[]) s.loadTargetArray(Tile.class);
-    s.loadObjects(tailings);
+    //s.loadObjects(tailings);
     stripArea.loadFrom(s.input());
   }
   
@@ -78,7 +89,7 @@ public class ExcavationSite extends Venue implements
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     s.saveTargetArray(underFaces);
-    s.saveObjects(tailings);
+    //s.saveObjects(tailings);
     stripArea.saveTo(s.output());
   }
   
@@ -131,7 +142,7 @@ public class ExcavationSite extends Venue implements
       "Increases effective dig range while limiting pollution and reducing "+
       "the likelihood of artilect release.",
       100,
-      ARTIFACTS, 1, null, ALL_UPGRADES
+      null, 1, null, ALL_UPGRADES
     ),
     
     METAL_ORES_MINING = new Upgrade(
@@ -139,7 +150,7 @@ public class ExcavationSite extends Venue implements
       "Allows veins of heavy metals to be detected and excavated more "+
       "reliably.",
       150,
-      METALS, 2, null, ALL_UPGRADES
+      ORES, 2, null, ALL_UPGRADES
     ),
     
     FUEL_CORES_MINING = new Upgrade(
@@ -183,8 +194,8 @@ public class ExcavationSite extends Venue implements
   }
   
   
-  public Service[] services() {
-    return new Service[] { METALS, FUEL_RODS, ARTIFACTS };
+  public TradeType[] services() {
+    return new TradeType[] { ORES, ISOTOPES };
   }
   
   
@@ -231,16 +242,18 @@ public class ExcavationSite extends Venue implements
   }
   
   
-  public int extractionBonus(Service mineral) {
-    if (mineral == METALS) {
+  public int extractionBonus(TradeType mineral) {
+    if (mineral == ORES) {
       return (1 + structure.upgradeLevel(METAL_ORES_MINING)) * 2;
     }
-    if (mineral == FUEL_RODS) {
+    if (mineral == ISOTOPES) {
       return (1 + structure.upgradeLevel(FUEL_CORES_MINING)) * 2;
     }
+    /*
     if (mineral == ARTIFACTS) {
       return (1 + structure.upgradeLevel(ARTIFACT_ASSEMBLY)) * 2;
     }
+    //*/
     return -1;
   }
   
@@ -252,7 +265,6 @@ public class ExcavationSite extends Venue implements
     }
     return null;
   }
-  //*/
   
   
   public Tailing nextTailing() {
@@ -273,6 +285,7 @@ public class ExcavationSite extends Venue implements
     for (int i = 4; i-- > 0;) tailings.add(strip[i]);
     return nextTailing();
   }
+  //*/
   
   
   public void updateAsScheduled(int numUpdates) {
@@ -281,7 +294,7 @@ public class ExcavationSite extends Venue implements
     structure.setAmbienceVal(structure.upgradeLevel(SAFETY_PROTOCOL) - 3);
     
     //  TODO:  Remove later?
-    nextTailing();
+    //nextTailing();
     
     /*
     for (Smelter kid : smelters) if (kid.destroyed()) {

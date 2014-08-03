@@ -117,7 +117,7 @@ public class LaunchHangar extends Venue {
   }
   
   
-  public Service[] services() { return null; }
+  public TradeType[] services() { return null; }
   
   public Background[] careers() { return null; }
   

@@ -4,6 +4,7 @@
 package stratos.graphics.common;
 import java.io.*;
 
+import stratos.start.Assets;
 import stratos.util.*;
 
 
@@ -23,7 +24,7 @@ public abstract class ModelAsset extends Assets.Loadable {
   
   
   protected ModelAsset(String modelName, Class sourceClass) {
-    super(modelName, sourceClass);
+    super(modelName, sourceClass, false);
   }
   
   

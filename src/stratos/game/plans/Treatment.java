@@ -417,7 +417,7 @@ public class Treatment extends Plan implements Economy {
     final Item item = actor.gear.matchFor(accessory);
     if (item == null) return false;
     actor.gear.removeItem(item);
-    if (item.type.form == FORM_COMMODITY) theatre.stocks.addItem(item);
+    if (item.type.form == FORM_MATERIAL) theatre.stocks.addItem(item);
     return true;
   }
   

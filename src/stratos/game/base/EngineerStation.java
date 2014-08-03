@@ -4,11 +4,9 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-
 package stratos.game.base;
 import stratos.game.common.*;
-import stratos.game.plans.Commission;
-import stratos.game.plans.Repairs;
+import stratos.game.plans.*;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.graphics.common.*;
@@ -17,23 +15,37 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.actors.Backgrounds.*;
+import static stratos.game.building.Economy.*;
 
 
-public class Artificer extends Venue implements Economy {
-  
+
+public class EngineerStation extends Venue {
   
   
   /**  Fields, constructors, and save/load methods-
     */
   final static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/artificer_button.gif", Artificer.class
+    "media/GUI/Buttons/artificer_button.gif", EngineerStation.class
   );
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    Artificer.class, "media/Buildings/artificer/artificer.png", 3, 2
+    EngineerStation.class, "media/Buildings/artificer/artificer.png", 3, 2
   );
   
+  /*
+  final static FacilityProfile PROFILE = new FacilityProfile(
+    EngineerStation.class, Structure.TYPE_VENUE,
+    3, 280, 5, -2,
+    new TradeType[] {},
+    new Background[] { ARTIFICER, TECHNICIAN },
+    METALS_TO_PARTS,
+    PARTS_TO_CIRCUITRY
+  );
+  //*/
   
-  public Artificer(Base base) {
+  
+  public EngineerStation(Base base) {
     super(3, 2, ENTRANCE_WEST, base);
     structure.setupStats(
       200, 5, 350,
@@ -44,7 +56,7 @@ public class Artificer extends Venue implements Economy {
   }
   
   
-  public Artificer(Session s) throws Exception {
+  public EngineerStation(Session s) throws Exception {
     super(s);
   }
   
@@ -58,7 +70,7 @@ public class Artificer extends Venue implements Economy {
   /**  Economic functions, upgrades and employee behaviour-
     */
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-    Artificer.class, "foundry_upgrades"
+    EngineerStation.class, "foundry_upgrades"
   );
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
@@ -108,8 +120,8 @@ public class Artificer extends Venue implements Economy {
     );
   
   
-  public Service[] services() {
-    return new Service[] { PARTS, CIRCUITRY, SERVICE_ARMAMENT };
+  public TradeType[] services() {
+    return new TradeType[] { PARTS, SERVICE_ARMAMENT };
   }
   
   
@@ -129,7 +141,6 @@ public class Artificer extends Venue implements Economy {
   public void updateAsScheduled(int numUpdates) {
     super.updateAsScheduled(numUpdates);
     if (! structure.intact()) return;
-    stocks.translateDemands(1, PARTS_TO_CIRCUITRY, this);
     stocks.incDemand(PARTS, 10, Stocks.TIER_PRODUCER, 1, this);
     stocks.translateDemands(1, METALS_TO_PARTS, this);
     
@@ -155,12 +166,12 @@ public class Artificer extends Venue implements Economy {
       o.checkBonus = structure.upgradeLevel(MOLDING_PRESS) + 5;
       final int CMB = structure.upgradeLevel(COMPOSITE_MATERIALS) + 2;
       final int FCB = structure.upgradeBonus(FLUX_CONTAINMENT) + 2;
-      final Service made = o.made().type;
+      final TradeType made = o.made().type;
       
       if (made instanceof DeviceType) {
         final DeviceType DT = (DeviceType) made;
-        if (DT.hasProperty(PHYSICAL)) o.checkBonus += CMB;
-        if (DT.hasProperty(ENERGY)) o.checkBonus += FCB;
+        if (DT.hasProperty(KINETIC)) o.checkBonus += CMB;
+        if (DT.hasProperty(ENERGY )) o.checkBonus += FCB;
       }
       
       if (made instanceof OutfitType) {
@@ -187,12 +198,6 @@ public class Artificer extends Venue implements Economy {
       mP.checkBonus -= powerCut;
       choice.add(mP);
     }
-    final Manufacture mC = stocks.nextManufacture(actor, PARTS_TO_CIRCUITRY);
-    if (mC != null) {
-      mC.checkBonus = (PB * 5) / 2;
-      mC.checkBonus -= powerCut;
-      choice.add(mC);
-    }
     
     //  And return whatever suits the actor best-
     choice.isVerbose = I.talkAbout == this;
@@ -208,8 +213,8 @@ public class Artificer extends Venue implements Economy {
 
   /**  Rendering and interface methods-
     */
-  protected Service[] goodsToShow() {
-    return new Service[] { METALS, CIRCUITRY, PARTS };
+  protected TradeType[] goodsToShow() {
+    return new TradeType[] { ORES, PARTS };
   }
   
   

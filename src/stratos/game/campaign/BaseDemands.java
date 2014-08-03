@@ -1,12 +1,18 @@
 
 
 package stratos.game.campaign;
-import org.apache.commons.math3.util.FastMath;
 
 import stratos.game.base.*;
 import stratos.game.actors.*;
 import stratos.game.building.*;
+import stratos.game.common.*;
+import stratos.game.plans.*;
 import stratos.util.*;
+
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.building.Economy.*;
+
+import org.apache.commons.math3.util.FastMath;
 
 
 
@@ -32,7 +38,7 @@ import stratos.util.*;
 
 
 
-public class BaseDemands implements Economy {
+public class BaseDemands {
   
   
   /**  Data fields, constants, constructors and save/load methods-
@@ -70,6 +76,11 @@ public class BaseDemands implements Economy {
   }
   
   
+  private float shortage(Object key) {
+    return demand.valueFor(key) - supply.valueFor(key);
+  }
+  
+  
   
   /**  Regular update methods-
     */
@@ -78,12 +89,6 @@ public class BaseDemands implements Economy {
     updateDemands();
     updateConstruction(timeInterval);
     updateRecruitment (timeInterval);
-  }
-
-  
-  
-  private float shortage(Object key) {
-    return demand.valueFor(key) - supply.valueFor(key);
   }
   
   
@@ -149,17 +154,18 @@ public class BaseDemands implements Economy {
   }
   
   
+  
+  /**  Dealing with construction and salvage-
+    */
   private void updateConstruction(float timeInterval) {
-    
     //
     //  First, estimate the total available labour pool and how much work needs
     //  to be done.
     float sumWork = 0;
-    final Class facilities[] = BaseSetup.facilityTypes();
+    final FacilityProfile profiles[] = BaseSetup.facilityProfiles();
     
-    for (Class facility : facilities) {
-      //  TODO:  This has to be multiplied by the HP of the facility!
-      sumWork += FastMath.abs(shortage(facility));
+    for (FacilityProfile facility : profiles) {
+      sumWork += FastMath.abs(workRemaining(facility));
     }
     float totalLabour = 0;
     for (Background b : Backgrounds.ARTIFICER_CIRCLES) {
@@ -167,37 +173,36 @@ public class BaseDemands implements Economy {
     }
     totalLabour += supply.valueFor(ASSEMBLY) / 10f;
     if (verbose) {
-      I.say("Total facility types: "+facilities.length);
+      I.say("Total facility types: "+profiles.length);
       I.say("    Construction Needed: "+sumWork);
-      I.say("    Total Labour: "+totalLabour);
+      I.say("    Total Labour:        "+totalLabour);
     }
     
-    //  TODO:  Order work on different facilities based on urgency/primacy in
+    //  TODO:  Order work on different facilities based on urgency or stage in
     //  the supply chain?
-    for (Class facility : facilities) {
-      final float need = shortage(facility);
+    for (FacilityProfile  profile : profiles) {
+      final float need = workRemaining(profile);
       float progress = need * totalLabour * timeInterval / sumWork;
       
       if (need > 0) progress = FastMath.min(need, progress);
       else progress = FastMath.max(need, progress);
-      supply.add(progress, facility);
+      supply.add(progress, profile);
     }
   }
   
   
-  //  TODO:  Could I generalise both of these methods?  ...Quite possibly.
+  private float workRemaining(FacilityProfile profile) {
+    float work = shortage(profile.baseClass);
+    work *= profile.maxIntegrity / 25f;
+    work *= Repairs.TIME_PER_25_HP / World.STANDARD_DAY_LENGTH;
+    return work;
+  }
   
   
+  
+  /**  Dealing with personnel recruitment.
+    */
   private void updateRecruitment(float timeInterval) {
-    
-    //  TODO:  For the moment, we simply assume that folks are recruited at a
-    //         steady rate.  In reality, this should depend on birth/death
-    //         rates, ease of migration, political relations, pay scale, et
-    //         cetera.
-    
-    //  Migration would be proportionate to (relative) living conditions and
-    //  space available (i.e, estate size,) cut by cost of transport/relocation
-    //  and difficulty getting approval (political differences.)
     
     float sumDemand = 0;
     for (Background b : Background.allBackgrounds()) {

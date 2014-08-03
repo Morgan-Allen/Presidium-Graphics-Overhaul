@@ -12,9 +12,11 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
 
 
-public class Drone extends Artilect implements Economy {
+
+public class Drone extends Artilect {
   
   
   /**  Construction and save/load methods-
@@ -38,7 +40,7 @@ public class Drone extends Artilect implements Economy {
     gear.setDamage(10);
     gear.setArmour(10);
     traits.setLevel(MARKSMANSHIP, 5);
-    gear.equipDevice(Item.withQuality(INTRINSIC_ENERGY_WEAPON, 0));
+    gear.equipDevice(Item.withQuality(Economy.INTRINSIC_BEAM, 0));
     
     traits.setLevel(CURIOUS, 1);
     

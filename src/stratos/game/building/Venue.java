@@ -18,11 +18,12 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.building.Economy.*;
 
 
 
 public abstract class Venue extends Structural implements
-  Boarding, Inventory.Owner, Employer, Economy
+  Boarding, Inventory.Owner, Employer
 {
   
   
@@ -52,47 +53,66 @@ public abstract class Venue extends Structural implements
     SHIFTS_BY_CALENDAR = 3;  //weekends and holidays off.  NOT DONE YET
   
   
-  final public TalkFX chat = new TalkFX();
+  final public FacilityProfile profile;
+  final public Personnel personnel = new Personnel(this);
+  final public Stocks stocks = new Stocks(this);
   
   protected int entranceFace;
   protected Tile entrance;
-  
   private List <Mobile> inside = new List <Mobile> ();
-  //  final protected List <Structural> children = new List <Structural> ();
   
-  final public Personnel personnel = new Personnel(this);
-  final public Stocks stocks = new Stocks(this);
+  
+  final public TalkFX chat = new TalkFX();
   
   
   
   public Venue(int size, int high, int entranceFace, Base base) {
     super(size, high, base);
+    //this.profile = profile;
     this.base = base;
     this.entranceFace = entranceFace;
+    
+    //  TODO:  Create and cache the profile here, using pre-existing data.
+    //         ...Also, consider creating a dedicated constructor for this
+    //         purpose?
+    FacilityProfile profile = FacilityProfile.profileFor(this.getClass());
+    if (profile == null) {
+      final int UNKNOWN = 0;
+      profile = new FacilityProfile(
+        this.getClass(), Structure.TYPE_VENUE,
+        size, UNKNOWN, UNKNOWN, UNKNOWN,
+        null, null
+      );
+    }
+    this.profile = profile;
   }
   
   
   public Venue(Session s) throws Exception {
     super(s);
-    buildSprite = (BuildingSprite) sprite();
 
+    profile = (FacilityProfile) s.loadObject();
+    personnel.loadState(s);
+    stocks.loadState(s);
+    
     entranceFace = s.loadInt();
     entrance = (Tile) s.loadTarget();
     s.loadObjects(inside);
     
-    personnel.loadState(s);
-    stocks.loadState(s);
+    buildSprite = (BuildingSprite) sprite();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
+    
+    s.saveObject(profile);
+    personnel.saveState(s);
+    stocks.saveState(s);
+    
     s.saveInt(entranceFace);
     s.saveTarget(entrance);
     s.saveObjects(inside);
-    
-    personnel.saveState(s);
-    stocks.saveState(s);
   }
   
   
@@ -121,12 +141,12 @@ public abstract class Venue extends Structural implements
   }
   
   
-  public float priceFor(Service service) {
+  public float priceFor(TradeType service) {
     return stocks.priceFor(service);
   }
   
   
-  public int spaceFor(Service good) {
+  public int spaceFor(TradeType good) {
     return structure.maxIntegrity();
   }
   
@@ -331,7 +351,7 @@ public abstract class Venue extends Structural implements
   
   
   public abstract Background[] careers();
-  public abstract Service[] services();  //TODO:  Rename to Goods?
+  public abstract TradeType[] services();  //TODO:  Rename to Goods?
   public void addServices(Choice choice, Actor forActor) {}
   
   
@@ -389,7 +409,7 @@ public abstract class Venue extends Structural implements
   }
   
   
-  protected void toggleStatusFor(Service need, ModelAsset model) {
+  protected void toggleStatusFor(TradeType need, ModelAsset model) {
     if (! structure.intact()) buildSprite.toggleFX(need.model, false);
     buildSprite.toggleFX(model, stocks.shortagePenalty(need) > 0);
   }
@@ -400,7 +420,7 @@ public abstract class Venue extends Structural implements
     buildSprite.toggleFX(BuildingSprite.BLAST_MODEL, showBurn);
     toggleStatusFor(LIFE_SUPPORT, BuildingSprite.LIFE_SUPPORT_MODEL);
     toggleStatusFor(POWER       , BuildingSprite.POWER_MODEL);
-    toggleStatusFor(WATER       , BuildingSprite.WATER_MODEL);
+    toggleStatusFor(OPEN_WATER  , BuildingSprite.WATER_MODEL);
   }
   
   
@@ -414,9 +434,9 @@ public abstract class Venue extends Structural implements
   }
   
   
-  private boolean canShow(Service type) {
+  private boolean canShow(TradeType type) {
     if (type.form == FORM_PROVISION) return false;
-    if (type.picPath == Service.DEFAULT_PIC_PATH) return false;
+    if (type.picPath == TradeType.DEFAULT_PIC_PATH) return false;
     return true;
   }
 
@@ -437,19 +457,19 @@ public abstract class Venue extends Structural implements
   }
   
   
-  protected Service[] goodsToShow() {
+  protected TradeType[] goodsToShow() {
     return services();
   }
   
   
-  protected float goodDisplayAmount(Service good) {
+  protected float goodDisplayAmount(TradeType good) {
     if (! structure.intact()) return 0;
     return stocks.amountOf(good);
   }
   
   
   protected void updateItemSprites() {
-    final Service services[] = goodsToShow();
+    final TradeType services[] = goodsToShow();
     final float offsets[] = goodDisplayOffsets();
     if (services == null) return;
     
@@ -459,12 +479,12 @@ public abstract class Venue extends Structural implements
       initX = BuildingSprite.ITEM_SIZE - (size / 2f);
     
     int index = -1;
-    for (Service s : services) if (canShow(s)) index += 2;
+    for (TradeType s : services) if (canShow(s)) index += 2;
     if (index < 0) return;
     index = Visit.clamp(index, offsets.length);
     
     for (int SI = services.length; SI-- > 0;) {
-      final Service s = services[SI];
+      final TradeType s = services[SI];
       if (! canShow(s)) continue;
       if (index < 0) break;
       final float y = offsets[index--], x = offsets[index--];

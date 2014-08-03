@@ -16,10 +16,12 @@ import stratos.graphics.common.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.building.Economy.*;
 
 
-public class Forestry extends Plan implements Economy {
-  
+
+public class Forestry extends Plan {
   
   final public static int
     STAGE_INIT     = -1,

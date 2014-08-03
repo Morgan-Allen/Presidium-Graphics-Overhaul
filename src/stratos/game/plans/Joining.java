@@ -1,8 +1,14 @@
 
 
-package stratos.game.actors;
+package stratos.game.plans;
+import stratos.game.actors.Actor;
+import stratos.game.actors.Behaviour;
+import stratos.game.actors.Plan;
 import stratos.game.common.*;
 import stratos.util.*;
+
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.building.Economy.*;
 
 
 
@@ -15,7 +21,7 @@ public class Joining extends Plan {
   
   public Joining(Actor actor, Plan basis, Actor joined) {
     super(actor, basis.subject);
-    this.basis = (basis.actor == actor) ? basis : basis.copyFor(actor);
+    this.basis = (basis.actor() == actor) ? basis : basis.copyFor(actor);
     this.joined = joined;
   }
   
@@ -49,7 +55,7 @@ public class Joining extends Plan {
   
   protected float getPriority() {
     this.setMotiveFrom(basis, 0);
-    return basis.getPriority();
+    return basis.priorityFor(actor);
   }
   
   

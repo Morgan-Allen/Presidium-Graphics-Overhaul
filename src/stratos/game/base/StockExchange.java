@@ -17,20 +17,13 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.actors.Backgrounds.*;
+import static stratos.game.building.Economy.*;
 
 
-/*
-I think it would be an idea to limit this primarily to luxury goods, rather
-than raw or building materials.
 
-  Basic Rations:  Carbs.  Protein.  Greens.
-  Dispensary:  Soma.  Spice.  Medicine.
-  Sales Tax.  Credit Exchange.
-  Rations Stall.  Virtual Currency.
-*/
-
-
-public class StockExchange extends Venue implements Economy {
+public class StockExchange extends Venue {
   
   
   /**  Data fields, constructors and save/load functionality-
@@ -41,6 +34,16 @@ public class StockExchange extends Venue implements Economy {
   final public static ImageAsset ICON = ImageAsset.fromImage(
     "media/GUI/Buttons/stock_exchange_button.gif", StockExchange.class
   );
+  
+  /*
+  final static FacilityProfile PROFILE = new FacilityProfile(
+    StockExchange.class, Structure.TYPE_VENUE,
+    4, 300, 2, 0,
+    new TradeType[] {},
+    new Background[] { STOCK_VENDOR },
+    SERVICE_COMMERCE
+  );
+  //*/
   
   private CargoBarge cargoBarge;
   
@@ -164,11 +167,11 @@ public class StockExchange extends Venue implements Economy {
     final Batch <Venue> depots = DeliveryUtils.nearbyDepots(
       this, world, StockExchange.class, FRSD.class
     );
-    final Service services[] = services();
+    final TradeType services[] = services();
     
     /*
     final Delivery bD = Deliveries.nextDeliveryFor(
-      actor, this, ALL_COMMODITIES, depots, 50, world
+      actor, this, ALL_MATERIALS, depots, 50, world
     );
     //*/
     //  TODO:  Supply the list of Depots.
@@ -183,7 +186,7 @@ public class StockExchange extends Venue implements Economy {
     
     /*
     final Delivery bC = Deliveries.nextCollectionFor(
-      actor, this, ALL_COMMODITIES, depots, 50, null, world
+      actor, this, ALL_MATERIALS, depots, 50, null, world
     );
     //*/
     final Delivery bC = DeliveryUtils.bestBulkCollectionFor(
@@ -196,7 +199,7 @@ public class StockExchange extends Venue implements Economy {
     }
     
     //  Otherwise, consider local deliveries and supervision of the venue-
-    for (Service good : services) {
+    for (TradeType good : services) {
       final Delivery d = DeliveryUtils.bestDeliveryFrom(
         this, good, 10, null, 5, true
       );
@@ -219,7 +222,7 @@ public class StockExchange extends Venue implements Economy {
     final Batch <Venue> depots = DeliveryUtils.nearbyDepots(
       this, world, StockExchange.class, FRSD.class
     );
-    for (Service type : ALL_COMMODITIES) {
+    for (TradeType type : ALL_MATERIALS) {
       final int demandBonus = 10;
       stocks.incDemand(type, demandBonus, Stocks.TIER_TRADER, 1, this);
       stocks.diffuseDemand(type, depots, 1);
@@ -244,7 +247,7 @@ public class StockExchange extends Venue implements Economy {
   }
   
   
-  public int spaceFor(Service good) {
+  public int spaceFor(TradeType good) {
     //  TODO:  Restore some subtlety here.
     return 25;
     /*
@@ -281,8 +284,8 @@ public class StockExchange extends Venue implements Economy {
   }
   
   
-  public Service[] services() {
-    return ALL_COMMODITIES;
+  public TradeType[] services() {
+    return ALL_MATERIALS;
   }
   
   
@@ -304,17 +307,14 @@ public class StockExchange extends Venue implements Economy {
   }
   
   
-  protected Service[] goodsToShow() {
-    return new Service[] {
-      CARBS, PROTEIN, GREENS,// SOMA,
-      PARTS, PLASTICS, CIRCUITRY,// FIXTURES
-    };
+  protected TradeType[] goodsToShow() {
+    return ALL_MATERIALS;
   }
   
   //
   //  TODO:  You have to show items in the back as well, behind a sprite
   //  overlay for the facade of the structure.
-  protected float goodDisplayAmount(Service good) {
+  protected float goodDisplayAmount(TradeType good) {
     return Math.min(super.goodDisplayAmount(good), 25);
   }
   

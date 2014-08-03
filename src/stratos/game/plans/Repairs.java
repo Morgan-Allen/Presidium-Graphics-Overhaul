@@ -3,20 +3,15 @@
 
 package stratos.game.plans;
 import stratos.game.actors.*;
-import stratos.game.building.Installation;
-import stratos.game.building.Structure;
-import stratos.game.building.Upgrade;
+import stratos.game.building.*;
 import stratos.game.common.*;
-import stratos.user.*;
+import stratos.game.maps.PavingMap;
 import stratos.util.*;
+import static stratos.game.actors.Qualities.*;
 
 
 
-
-
-public class Repairs extends Plan implements Qualities {
-  
-  
+public class Repairs extends Plan {
   
   /**  Field definitions, constants and save/load methods-
     */
@@ -68,14 +63,16 @@ public class Repairs extends Plan implements Qualities {
   }
   
   
-  public static Repairs getNextRepairFor(Actor client, float motiveBonus) {
-    
+  public static Plan getNextRepairFor(Actor client, float motiveBonus) {
     final World world = client.world();
+    final Choice choice = new Choice(client);
+    //
+    //  First, sample any nearby venues that require repair, and add them to
+    //  the list.
     final Batch <Installation> toRepair = new Batch <Installation> ();
     world.presences.sampleFromMaps(
       client, world, 3, toRepair, "damaged"
     );
-    final Choice choice = new Choice(client);
     for (Installation near : toRepair) {
       if (near.base() != client.base()) continue;
       if (needForRepair(near) <= 0) continue;
@@ -83,13 +80,26 @@ public class Repairs extends Plan implements Qualities {
       b.setMotive(Plan.MOTIVE_DUTY, motiveBonus);
       choice.add(b);
     }
+    //
+    //  Then, see if there are tiles which require paving nearby-
+    final PavingMap p = client.base().paving.map;
+    final Tile toPave = p.nextTileToPave(client, RoadsRepair.class);
+    if (toPave != null) {
+      final RoadsRepair r = new RoadsRepair(client, toPave);
+      r.setMotive(Plan.MOTIVE_DUTY, motiveBonus);
+      choice.add(r);
+    }
+    //
+    //  Evaluate the most urgent task and return-
     choice.isVerbose = evalVerbose && I.talkAbout == client;
-    return (Repairs) choice.pickMostUrgent();
+    return (Plan) choice.pickMostUrgent();
   }
   
-  
-  final Trait BASE_TRAITS[] = { URBANE, ENERGETIC };
-  final Skill BASE_SKILLS[] = { ASSEMBLY, HARD_LABOUR };
+
+  /**  Target evaluation and prioritisation-
+    */
+  final static Trait BASE_TRAITS[] = { URBANE, ENERGETIC };
+  final static Skill BASE_SKILLS[] = { ASSEMBLY, HARD_LABOUR };
   
   
   protected float getPriority() {

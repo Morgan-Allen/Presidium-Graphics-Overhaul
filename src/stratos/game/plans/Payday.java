@@ -14,9 +14,12 @@ import stratos.game.common.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.building.Economy.*;
 
 
-public class Payday extends Plan implements Economy {
+
+public class Payday extends Plan {
   
   
   /**  Data fields, setup and save/load functions-

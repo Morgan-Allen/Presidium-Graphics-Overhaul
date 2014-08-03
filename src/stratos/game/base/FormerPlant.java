@@ -6,26 +6,34 @@ import stratos.game.building.*;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
-import stratos.game.plans.Repairs;
+//import stratos.game.plans.Repairs;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
-import stratos.graphics.widgets.Composite;
-import stratos.graphics.widgets.HUD;
+import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.actors.Backgrounds.*;
+import static stratos.game.building.Economy.*;
 
-//
+
+
 //  TODO:  Get rid of the water and life support output, since I have that
 //         covered by the Solar Array and Condensor?
 
+//  TODO:  Make this a spontaneous placement of some kind?  Specific to deserts,
+//         maybe.
 
-public class FormerPlant extends Venue implements Economy {
-  
+
+
+/*
+public class FormerPlant extends Venue {
   
 
   /**  Data fields, constructors and save/load methods-
     */
+/*
   final static ModelAsset MODEL = CutoutModel.fromImage(
     FormerPlant.class, "media/Buildings/ecologist/air_processor.png", 3, 2
   );
@@ -72,6 +80,7 @@ public class FormerPlant extends Venue implements Economy {
 
   /**  Upgrades, economic functions and behaviour implementations-
     */
+/*
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
     FormerPlant.class, "former_plant_upgrades"
   );
@@ -121,7 +130,7 @@ public class FormerPlant extends Venue implements Economy {
       this, services(), 2, 10, 5
     );
     if (d != null) choice.add(d);
-    choice.add(new Repairs(actor, this));
+    //choice.add(new Repairs(actor, this));
     //
     //  Have the climate engineer gather soil samples, but only if they're
     //  very low.  (Automated crawlers would do this in bulk.)
@@ -278,7 +287,7 @@ public class FormerPlant extends Venue implements Economy {
     soilSamples = Visit.clamp(soilSamples - (10f / SDL), 0, 10);
     yield *= 1 + soilBonus;
     if (report) I.say("  Yield/day with soil bonus: "+yield);
-    stocks.bumpItem(TRUE_SPICE, yield * spiceBonus / SDL, 10);
+    stocks.bumpItem(SPYCE, yield * spiceBonus / SDL, 10);
     stocks.bumpItem(METALS, yield * dustBonus / SDL, 10);
     stocks.bumpItem(FUEL_RODS, yield * dustBonus / SDL, 10);
     
@@ -335,14 +344,15 @@ public class FormerPlant extends Venue implements Economy {
   }
   
   
-  public Service[] services() {
-    return new Service[] { METALS, FUEL_RODS, WATER, TRUE_SPICE };
+  public TradeType[] services() {
+    return new TradeType[] { METALS, FUEL_RODS, WATER, SPYCE };
   }
   
   
   
   /**  Rendering and interface-
     */
+/*
   final static float GOOD_DISPLAY_OFFSETS[] = {
      0.0f, 0,
      0.5f, 0,
@@ -356,12 +366,12 @@ public class FormerPlant extends Venue implements Economy {
   }
   
   
-  protected Service[] goodsToShow() {
-    return new Service[] { METALS, FUEL_RODS, TRUE_SPICE };
+  protected TradeType[] goodsToShow() {
+    return new TradeType[] { METALS, FUEL_RODS, SPYCE };
   }
   
   
-  protected float goodDisplayAmount(Service good) {
+  protected float goodDisplayAmount(TradeType good) {
     return Math.min(5, stocks.amountOf(good));
   }
   
@@ -399,7 +409,7 @@ public class FormerPlant extends Venue implements Economy {
   }
 }
 
-
+//*/
 
 
 

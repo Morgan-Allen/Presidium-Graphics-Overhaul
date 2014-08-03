@@ -2,10 +2,10 @@
 
 
 package stratos.graphics.charts;
-import stratos.start.Disposal;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
 import stratos.graphics.widgets.*;
+import stratos.start.Assets;
 import stratos.util.*;
 import static stratos.graphics.common.GL.*;
 
@@ -18,11 +18,12 @@ import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.Texture.*;
 
 import org.apache.commons.math3.util.FastMath;
+
 import java.util.Random;
 
 
 
-public class StarField extends Disposal {
+public class StarField extends Assets.Loadable {
   
   
   final Viewport view;
@@ -42,7 +43,7 @@ public class StarField extends Disposal {
   
   
   public StarField() {
-    super(true);
+    super("STARFIELD", StarField.class, true);
     view = new Viewport();
     
     allObjects = new List <FieldObject> () {
@@ -53,7 +54,7 @@ public class StarField extends Disposal {
   }
   
   
-  protected void performAssetSetup() {
+  protected void loadAsset() {
     //  NOTE:  The normal attribute here is actually used to store the offset
     //  of a corner from the given decal's coordinate centre (see below).
     compiled = new Stitching(
@@ -76,10 +77,15 @@ public class StarField extends Disposal {
   }
   
   
-  protected void performAssetDisposal() {
+  protected void disposeAsset() {
     if (shading == null) return;
     shading.dispose();
     compiled.dispose();
+  }
+  
+  
+  public boolean isLoaded() {
+    return shading != null;
   }
   
   

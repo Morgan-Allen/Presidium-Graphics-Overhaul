@@ -3,6 +3,7 @@
 package stratos.game.base;
 import stratos.game.common.*;
 import stratos.game.maps.*;
+import stratos.game.plans.Drilling;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.graphics.common.*;
@@ -11,12 +12,13 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
-//
-//  TODO:  I need some method of ensuring that actors won't just walk through
-//  the drill yard unless they have business there.
+
+
+
+//  TODO:  I'm not certain that this is worth keeping.
+
 
 public class DrillYard extends Venue {
-  
   
   
   /**  Constructors, data fields, setup and save/load methods-
@@ -64,7 +66,7 @@ public class DrillYard extends Venue {
     NUM_OFFSETS = 4,
     DRILL_INTERVAL = World.STANDARD_DAY_LENGTH;
   
-  final static String DRILL_STATE_NAMES[] = {
+  final public static String DRILL_STATE_NAMES[] = {
     "Close Combat",
     "Target Practice",
     "Endurance Course",
@@ -73,13 +75,13 @@ public class DrillYard extends Venue {
   
   
   
-  final public Garrison belongs;
+  final public TrooperLodge belongs;
   protected int drill = NOT_DRILLING;
   protected boolean drillOrders[] = new boolean[NUM_DRILLS];
   
   
   
-  public DrillYard(Garrison belongs) {
+  public DrillYard(TrooperLodge belongs) {
     super(4, 1, ENTRANCE_EAST, belongs.base());
     structure.setupStats(50, 10, 25, 0, Structure.TYPE_FIXTURE);
     this.belongs = belongs;
@@ -89,7 +91,7 @@ public class DrillYard extends Venue {
 
   public DrillYard(Session s) throws Exception {
     super(s);
-    belongs = (Garrison) s.loadObject();
+    belongs = (TrooperLodge) s.loadObject();
     drill = s.loadInt();
     for (int i = 0; i < NUM_DRILLS; i++) drillOrders[i] = s.loadBool();
   }
@@ -135,7 +137,7 @@ public class DrillYard extends Venue {
   }
   
   
-  public Service[] services() { return null; }
+  public TradeType[] services() { return null; }
   
   public Background[] careers() { return null; }
   
@@ -155,12 +157,12 @@ public class DrillYard extends Venue {
   
   /**  Helping to configure drill actions-
     */
-  protected Upgrade bonusFor(int state) {
+  public Upgrade bonusFor(int state) {
     switch (state) {
-      case (DRILL_MELEE    ) : return Garrison.MELEE_TRAINING    ;
-      case (DRILL_RANGED   ) : return Garrison.MARKSMAN_TRAINING ;
-      case (DRILL_ENDURANCE) : return Garrison.ENDURANCE_TRAINING;
-      case (DRILL_AID      ) : return Garrison.AID_TRAINING      ;
+      case (DRILL_MELEE    ) : return TrooperLodge.MELEE_TRAINING    ;
+      case (DRILL_RANGED   ) : return TrooperLodge.MARKSMAN_TRAINING ;
+      case (DRILL_ENDURANCE) : return TrooperLodge.ENDURANCE_TRAINING;
+      case (DRILL_AID      ) : return TrooperLodge.AID_TRAINING      ;
     }
     return null;
   }
@@ -217,7 +219,7 @@ public class DrillYard extends Venue {
   }
   
   
-  protected Target.Dummy dummyFor(Actor visits) {
+  public Target.Dummy dummyFor(Actor visits) {
     Mobile shown = inside().first();
     if (visits != shown) return null;
     
@@ -239,7 +241,7 @@ public class DrillYard extends Venue {
 
 
   public Composite portrait(BaseUI UI) {
-    return Composite.withImage(Garrison.ICON, "drill_yard");
+    return Composite.withImage(TrooperLodge.ICON, "drill_yard");
   }
   
   

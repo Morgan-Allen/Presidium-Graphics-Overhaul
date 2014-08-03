@@ -14,14 +14,15 @@ import stratos.game.actors.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.building.Economy.*;
+
 //  TODO:  Only allow mining within/underneath tailings?  Huh.  Maybe.
 //  ...Yeah.  That's probably the best way.
 
 
 
-public class Mining extends Plan implements Economy {
-  
-  
+public class Mining extends Plan {
   
   /**  Fields, constructors and save/load methods-
     */
@@ -34,8 +35,8 @@ public class Mining extends Plan implements Economy {
     MAX_SAMPLE_STORE = 50,
     DEFAULT_TILE_DIG_TIME = World.STANDARD_HOUR_LENGTH;
   
-  final public static Service MINED_TYPES[] = {
-    METALS, FUEL_RODS, ARTIFACTS
+  final public static TradeType MINED_TYPES[] = {
+    ORES, FUEL_RODS//, ARTIFACTS
   };
   
   private static boolean
@@ -312,7 +313,7 @@ public class Mining extends Plan implements Economy {
   public boolean actionDeliverOres(Actor actor, Venue venue) {
     //if (evalVerbose) I.sayAbout(actor, "Returning to "+venue);
     
-    for (Service type : MINED_TYPES) {
+    for (TradeType type : MINED_TYPES) {
       /*
       if (venue instanceof Smelter) {
         final Service output = ((Smelter) venue).output;
@@ -390,7 +391,7 @@ public class Mining extends Plan implements Economy {
   
   private static float oresCarried(Actor actor) {
     float total = 0;
-    for (Service type : MINED_TYPES) {
+    for (TradeType type : MINED_TYPES) {
       total += actor.gear.amountOf(type);
     }
     /*
@@ -435,9 +436,9 @@ public class Mining extends Plan implements Economy {
       if (type == WorldTerrain.TYPE_NOTHING) return null;
     }
     else return null;
-    Service mineral = null; switch (type) {
-      case (WorldTerrain.TYPE_RUINS   ) : mineral = ARTIFACTS; break;
-      case (WorldTerrain.TYPE_METALS  ) : mineral = METALS   ; break;
+    TradeType mineral = null; switch (type) {
+      //case (WorldTerrain.TYPE_RUINS   ) : mineral = ARTIFACTS; break;
+      case (WorldTerrain.TYPE_METALS  ) : mineral = ORES     ; break;
       case (WorldTerrain.TYPE_ISOTOPES) : mineral = FUEL_RODS; break;
     }
     if (mineral == null || amount <= 0) return null;

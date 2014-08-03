@@ -1,6 +1,8 @@
 
 
 package stratos.graphics.solids;
+import org.apache.commons.math3.util.FastMath;
+
 import stratos.graphics.common.*;
 import stratos.graphics.solids.SolidSprite.Part;
 import stratos.util.*;
@@ -17,7 +19,7 @@ public class SolidsPass {
 
   final static int
     MAX_SKINS = 8,
-    MAX_BONES = 20;
+    MAX_BONES = 50;
   
   final static String OVER_NAMES[] = {
     "u_over0", "u_over1", "u_over2", "u_over3",
@@ -86,6 +88,11 @@ public class SolidsPass {
     };
     for (SolidSprite sprite : inPass) sprite.addPartsTo(allParts);
     
+    //  TODO:  Don't substitute new bone information unless it's a different
+    //  base sprite.
+    //  TODO:  In the case of texture overlays, consider using a single big
+    //  texture atlas for efficiency?
+    
     for (SolidSprite.Part part : allParts) {
       if (part.texture == null) continue;
       part.texture.bind(0);
@@ -96,7 +103,9 @@ public class SolidsPass {
       
       final Matrix4 partBones[] = part.meshBones;
       final float[] bones = new float[MAX_BONES * 16];
-      for (int i = 0; i < partBones.length * 16; i++) {
+      final int maxIter = FastMath.min(MAX_BONES, partBones.length);
+      
+      for (int i = 0; i < maxIter * 16; i++) {
         bones[i] = partBones[i / 16].val[i % 16];
       }
       shading.setUniformMatrix("u_worldTrans", part.belongs.transform);

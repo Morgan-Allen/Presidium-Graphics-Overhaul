@@ -1,7 +1,7 @@
 
 
 package stratos.game.base;
-import javax.net.ssl.SSLEngineResult.Status;
+//import javax.net.ssl.SSLEngineResult.Status;
 
 import stratos.game.common.*;
 import stratos.game.maps.*;
@@ -13,33 +13,18 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.actors.Backgrounds.*;
+import static stratos.game.building.Economy.*;
 
 
 
-/*
- Crops and Flora include:
-   Durwheat                     (primary carbs on land)
-   Bulrice                      (primary carbs in water)
-   Broadfruits                  (secondary greens on land)
-   Tuber lily                   (secondary greens in water)
-   Ant/termite/bee/worm cells   (tertiary protein on land)
-   Fish/mussel/clam farming     (tertiary protein in water)
-   
-   Vapok Canopy/Broadleaves  (tropical)
-   Mixtaob Tree/Glass Cacti  (desert)
-   Redwood/Cushion Plants    (tundra)
-   Strain XV97/Mycon Bloom   (wastes)
-   Lichens/Annuals           (pioneer species)
-   Coral Beds/Algal Forest   (rivers/oceans)
-   
-   Lumen forest (changer) + Rhizome (glaive knight) + Manna tree (collective)
-   Albedan ecology:  Carpets + Metastases + Amoeba Clade
-//*/
-
+//  TODO:  Just use this as the Nursery.  Same way that the Tailing can just
+//  be used as an entry/exit point.
 
 
 public class Plantation extends Venue implements
-  TileConstants, Economy
+  TileConstants
 {
   
   /**  Constructors, data fields, setup and save/load methods-
@@ -87,7 +72,7 @@ public class Plantation extends Venue implements
     NURSERY_PROTEIN = 0.5f;
   
   
-  final public BotanicalStation belongs;
+  final public EcologistStation belongs;
   final public Plantation strip[];
   final public int type;
   final public Crop planted[] = new Crop[4];
@@ -97,7 +82,7 @@ public class Plantation extends Venue implements
   
   
   public Plantation(
-    BotanicalStation belongs, int type, int facing, Plantation strip[]
+    EcologistStation belongs, int type, int facing, Plantation strip[]
   ) {
     super(2, 2, (ENTRANCE_SOUTH + (facing / 2)) % 4, belongs.base());
     final boolean IN = type == TYPE_NURSERY;
@@ -117,7 +102,7 @@ public class Plantation extends Venue implements
 
   public Plantation(Session s) throws Exception {
     super(s);
-    belongs = (BotanicalStation) s.loadObject();
+    belongs = (EcologistStation) s.loadObject();
     type = s.loadInt();
     facing = s.loadInt();
     
@@ -326,7 +311,7 @@ public class Plantation extends Venue implements
   }
   
   
-  public Service[] services() { return null; }
+  public TradeType[] services() { return null; }
   
   public Background[] careers() { return null; }
   
@@ -340,7 +325,7 @@ public class Plantation extends Venue implements
   //  TODO:  Outsource these to the Placement class.
   
   static Plantation[] placeAllotment(
-    final BotanicalStation parent, final int minSize, boolean covered
+    final EcologistStation parent, final int minSize, boolean covered
   ) {
     final World world = parent.world();
     Plantation strip[] = new Plantation[4];
@@ -488,7 +473,7 @@ public class Plantation extends Venue implements
   /**  Rendering and interface methods-
     */
   public Composite portrait(BaseUI UI) {
-    return Composite.withImage(BotanicalStation.ICON, "plantation");
+    return Composite.withImage(EcologistStation.ICON, "plantation");
   }
   
   

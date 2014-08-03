@@ -11,10 +11,14 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.actors.Backgrounds.*;
+import static stratos.game.building.Economy.*;
+
 
 
 public class CargoBarge extends Vehicle implements
-  Inventory.Owner, Economy
+  Inventory.Owner
 {
   
   /**  Fields, constants, constructors and save/load methods-
@@ -93,7 +97,7 @@ public class CargoBarge extends Vehicle implements
   }
   
   
-  public Service[] services() { return null; }
+  public TradeType[] services() { return null; }
   
   
   

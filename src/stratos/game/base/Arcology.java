@@ -5,6 +5,7 @@
   */
 
 package stratos.game.base;
+import static stratos.game.actors.Backgrounds.ARCHIVE_SAVANT;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.building.*;
@@ -17,9 +18,10 @@ import stratos.util.*;
 
 
 
+//  TODO:  Replace this with the PLAZA.
+
 
 public class Arcology extends Structural {
-  
   
   
   /**  Data fields, constructors, setup and save/load methods-

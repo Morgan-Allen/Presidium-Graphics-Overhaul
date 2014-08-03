@@ -17,10 +17,14 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.actors.Backgrounds.*;
+import static stratos.game.building.Economy.*;
 
 
 
-public class Sculptor extends Venue implements Economy {
+
+public class Sculptor extends Venue {
 
   
   
@@ -174,11 +178,8 @@ public class Sculptor extends Venue implements Economy {
   }
   
   
-  public Service[] services() {
-    return new Service[] {
-      PLASTICS, FIXTURES, FINERY,
-      OVERALLS, CAMOUFLAGE, SEALSUIT
-    };
+  public TradeType[] services() {
+    return new TradeType[] { ARTWORKS, FINERY };
   }
   
   
@@ -190,8 +191,8 @@ public class Sculptor extends Venue implements Economy {
   
   /**  Rendering and interface methods-
     */
-  protected Service[] goodsToShow() {
-    return new Service[] { FIXTURES, PLASTICS, CARBS };
+  protected TradeType[] goodsToShow() {
+    return new TradeType[] { ARTWORKS, PLASTICS };
   }
   
   

@@ -10,9 +10,11 @@ import stratos.game.civilian.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.building.Economy.*;
 
 
-public class Stocks extends Inventory implements Economy {
+
+public class Stocks extends Inventory {
   
   
   
@@ -29,7 +31,7 @@ public class Stocks extends Inventory implements Economy {
   
   
   static class Demand {
-    Service type;
+    TradeType type;
     int tierType = TIER_PRODUCER;
     
     private float amountInc, demandAmount;
@@ -38,7 +40,7 @@ public class Stocks extends Inventory implements Economy {
   
   
   final Employer basis;
-  final Table <Service, Demand> demands = new Table <Service, Demand> ();
+  final Table <TradeType, Demand> demands = new Table <TradeType, Demand> ();
   final List <Manufacture> specialOrders = new List <Manufacture> ();
   
   
@@ -134,8 +136,8 @@ public class Stocks extends Inventory implements Economy {
   }
   
   
-  public Batch <Service> demanded() {
-    final Batch <Service> batch = new Batch <Service> ();
+  public Batch <TradeType> demanded() {
+    final Batch <TradeType> batch = new Batch <TradeType> ();
     for (Demand d : demands.values()) batch.add(d.type);
     return batch;
   }
@@ -183,26 +185,26 @@ public class Stocks extends Inventory implements Economy {
   
   /**  Public accessor methods-
     */
-  public float demandFor(Service type) {
+  public float demandFor(TradeType type) {
     final Demand d = demands.get(type);
     if (d == null) return 0;
     return d.demandAmount;
   }
   
   
-  public int demandTier(Service type) {
+  public int demandTier(TradeType type) {
     final Demand d = demands.get(type);
     if (d == null) return TIER_OWNER;
     return d.tierType;
   }
   
   
-  public boolean hasEnough(Service type) {
+  public boolean hasEnough(TradeType type) {
     return amountOf(type) < (demandFor(type) / 2);
   }
   
   
-  public float shortagePenalty(Service type) {
+  public float shortagePenalty(TradeType type) {
     if (GameSettings.needsFree && type.form == FORM_PROVISION) return 0;
     final float
       amount = amountOf(type),
@@ -215,17 +217,17 @@ public class Stocks extends Inventory implements Economy {
   }
   
   
-  public float shortageOf(Service type) {
+  public float shortageOf(TradeType type) {
     return demandFor(type) - amountOf(type);
   }
   
   
-  public float surplusOf(Service type) {
+  public float surplusOf(TradeType type) {
     return amountOf(type) - demandFor(type);
   }
   
   
-  public float shortageUrgency(Service type) {
+  public float shortageUrgency(TradeType type) {
     final Demand d = demands.get(type);
     if (d == null) return 0;
     final float amount = amountOf(type), shortage = d.demandAmount - amount;
@@ -235,7 +237,7 @@ public class Stocks extends Inventory implements Economy {
   }
   
   
-  public float priceFor(Service type) {
+  public float priceFor(TradeType type) {
     final Demand d = demands.get(type);
     if (d == null) return type.basePrice;
     return (d.pricePaid + type.basePrice) / 2f;
@@ -270,7 +272,7 @@ public class Stocks extends Inventory implements Economy {
   
   /**  Utility methods for setting and propagating various types of demand-
     */
-  private Demand demandRecord(Service t) {
+  private Demand demandRecord(TradeType t) {
     final Demand d = demands.get(t);
     if (d != null) return d;
     Demand made = new Demand();
@@ -281,7 +283,7 @@ public class Stocks extends Inventory implements Economy {
   }
   
   
-  public void forceDemand(Service type, float amount, int tier) {
+  public void forceDemand(TradeType type, float amount, int tier) {
     if (amount < 0) amount = 0;
     final Demand d = demandRecord(type);
     d.demandAmount = amount;
@@ -291,7 +293,7 @@ public class Stocks extends Inventory implements Economy {
   
   
   public void incDemand(
-    Service type, float amount, int tier, int period, Owner source
+    TradeType type, float amount, int tier, int period, Owner source
   ) {
     if (amount == 0) return;
     final Demand d = demandRecord(type);
@@ -338,7 +340,7 @@ public class Stocks extends Inventory implements Economy {
   
   
   private void incDemand(
-    Service type, float amount, int period, Owner source
+    TradeType type, float amount, int period, Owner source
   ) {
     if (amount == 0) return;
     final Demand d = demandRecord(type);
@@ -346,13 +348,13 @@ public class Stocks extends Inventory implements Economy {
   }
   
   
-  private void incPrice(Service type, float toPrice) {
+  private void incPrice(TradeType type, float toPrice) {
     final Demand d = demandRecord(type);
     d.pricePaid += (toPrice - type.basePrice) * DEMAND_DECAY;
   }
   
   
-  public void diffuseDemand(Service type, Batch <Venue> suppliers, int period) {
+  public void diffuseDemand(TradeType type, Batch <Venue> suppliers, int period) {
     final boolean report = verbose && I.talkAbout == basis;
     final Demand d = demands.get(type);
     if (d == null) return;
@@ -422,7 +424,7 @@ public class Stocks extends Inventory implements Economy {
   }
   
   
-  public void diffuseDemand(Service type, int period) {
+  public void diffuseDemand(TradeType type, int period) {
     final Batch <Venue> suppliers = DeliveryUtils.nearbyVendors(
       type, basis, basis.world()
     );
@@ -454,7 +456,7 @@ public class Stocks extends Inventory implements Economy {
   }
   
   
-  protected void updateStocks(int numUpdates, Service services[]) {
+  protected void updateStocks(int numUpdates, TradeType services[]) {
     if (Float.isNaN(credits)) credits = 0;
     if (Float.isNaN(taxed)) taxed = 0;
     if (numUpdates % UPDATE_PERIOD == 0 && ! basis.isMobile()) {
@@ -471,7 +473,7 @@ public class Stocks extends Inventory implements Economy {
   }
   
   
-  private void diffuseExistingDemand(Service vS[]) {
+  private void diffuseExistingDemand(TradeType vS[]) {
     final boolean report = verbose && I.talkAbout == basis;
     
     if (report) I.say("\nDIFFUSING DEMAND AT: "+basis);
@@ -480,11 +482,11 @@ public class Stocks extends Inventory implements Economy {
     final Tile vO = basis.world().tileAt(basis);
     
     if ((vS == null || vS.length == 0) && demands.size() == 0) return;
-    if (vS != null) for (Service s : vS) if (demandTier(s) == TIER_OWNER) {
+    if (vS != null) for (TradeType s : vS) if (demandTier(s) == TIER_OWNER) {
       demandRecord(s).tierType = TIER_PRODUCER;
     }
     
-    for (Service s : basis.services()) {
+    for (TradeType s : basis.services()) {
       presences.togglePresence(basis, vO, amountOf(s) > 0, s.supplyKey);
     }
     

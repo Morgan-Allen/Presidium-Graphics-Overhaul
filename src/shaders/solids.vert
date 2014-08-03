@@ -2,7 +2,7 @@
 #version 120
 
 
-#define maxBones 20
+#define maxBones 50
 
 
 attribute vec3 a_position;

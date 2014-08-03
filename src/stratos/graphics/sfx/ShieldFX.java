@@ -7,10 +7,10 @@
 
 
 package stratos.graphics.sfx;
-import java.io.*;
-
 import stratos.graphics.common.*;
 import stratos.util.*;
+
+import java.io.*;
 
 
 
@@ -19,7 +19,7 @@ public class ShieldFX extends SFX {
   
   /**  Fields, constants, setup and save/load methods-
     */
-  final public static ModelAsset SHIELD_MODEL = new Assets.ClassModel(
+  final public static ModelAsset SHIELD_MODEL = new ClassModel(
     "shield_fx_model", ShieldFX.class
   ) {
     public Sprite makeSprite() { return new ShieldFX(); }

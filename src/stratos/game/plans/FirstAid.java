@@ -9,9 +9,12 @@ import stratos.game.building.*;
 import stratos.game.base.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.building.Economy.*;
 
 
-public class FirstAid extends Plan implements Qualities, Economy {
+
+public class FirstAid extends Plan {
   
   
   private static boolean verbose = false, evalVerbose = false;
@@ -70,7 +73,7 @@ public class FirstAid extends Plan implements Qualities, Economy {
   
   
   private Item treatmentFor(Actor patient) {
-    for (Item match : patient.gear.matches(SERVICE_TREAT)) {
+    for (Item match : patient.gear.matches(TREATMENT)) {
       final Action action = (Action) match.refers;
       if (action.basis instanceof FirstAid) return match;
     }
@@ -79,12 +82,12 @@ public class FirstAid extends Plan implements Qualities, Economy {
       this, "actionAsItem",
       Action.STAND, "Bandaging"
     );
-    return Item.withReference(SERVICE_TREAT, asEffect);
+    return Item.withReference(TREATMENT, asEffect);
   }
   
   
   private static Boarding findRefuge(Actor actor) {
-    final Target t = Retreat.nearestHaven(actor, Sickbay.class);
+    final Target t = Retreat.nearestHaven(actor, PhysicianStation.class);
     if (t instanceof Venue) return (Venue) t;
     return null;
   }

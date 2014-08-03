@@ -19,7 +19,7 @@ import stratos.util.*;
 
 public abstract class Vehicle extends Mobile implements
   Boarding, Inventory.Owner, Employer,
-  Selectable, Economy, Installation
+  Selectable, Installation
 {
   
   
@@ -125,12 +125,12 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
-  public float priceFor(Service service) {
+  public float priceFor(TradeType service) {
     return service.basePrice;
   }
   
   
-  public int spaceFor(Service good) {
+  public int spaceFor(TradeType good) {
     return structure.maxIntegrity();//- cargo.spaceUsed();
   }
   
@@ -219,6 +219,8 @@ public abstract class Vehicle extends Mobile implements
     //
     //  TODO:  Restore this once building/salvage of vehicles is complete.
     ///if (! structure.intact()) return;
+    //  TODO:  Create a specialised 'Travel' plan to handle piloting in general!
+    /*
     
     if (pilot != null && pilot.aboard() == this) {
       pilotBonus = 1;
@@ -234,6 +236,7 @@ public abstract class Vehicle extends Mobile implements
       //  TODO:  REGISTER FOR SALVAGE
       setAsDestroyed();
     }
+    /*/
   }
   
   /*

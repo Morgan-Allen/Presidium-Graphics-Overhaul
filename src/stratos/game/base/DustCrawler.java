@@ -11,15 +11,22 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.actors.Backgrounds.*;
+import static stratos.game.building.Economy.*;
 
-//  TODO:  Just extend Mobile instead?
 
+
+
+
+/*
 public class DustCrawler extends Vehicle implements
-  Inventory.Owner, Economy
+  Inventory.Owner
 {
   
   /**  Fields, constants, constructors and save/load methods-
     */
+/*
   final static String
     FILE_DIR = "media/Vehicles/",
     XML_FILE = "VehicleModels.xml";
@@ -53,12 +60,13 @@ public class DustCrawler extends Vehicle implements
   
   public float homeCrowding(Actor actor) { return 1; }
   public float visitCrowding(Actor actor) { return 1; }
-  public Service[] services() { return null; }
+  public TradeType[] services() { return null; }
   
   
   
   /**  Behavioural methods-
     */
+/*
   public void updateAsScheduled(int numUpdates) {
     super.updateAsScheduled(numUpdates);
     
@@ -109,6 +117,7 @@ public class DustCrawler extends Vehicle implements
   
   /**  Rendering and interface methods-
     */
+/*
   private void toggleSoilDisplay() {
     final SolidSprite sprite = (SolidSprite) sprite();
     sprite.togglePart("soil bed", cargo.amountOf(SAMPLES) > 0);
@@ -136,5 +145,5 @@ public class DustCrawler extends Vehicle implements
   }
 }
 
-
+//*/
 

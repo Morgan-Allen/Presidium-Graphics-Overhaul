@@ -6,6 +6,7 @@
 
 
 package stratos.game.base;
+import static stratos.game.actors.Backgrounds.VATS_BREEDER;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.actors.*;
@@ -19,11 +20,13 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.actors.Backgrounds.*;
+import static stratos.game.building.Economy.*;
 
 
 
-
-public class EnforcerBloc extends Venue implements Economy {
+public class EnforcerBloc extends Venue {
   
   
   final public static ModelAsset MODEL = CutoutModel.fromImage(
@@ -32,6 +35,16 @@ public class EnforcerBloc extends Venue implements Economy {
   final static ImageAsset ICON = ImageAsset.fromImage(
     "media/GUI/Buttons/audit_office_button.gif", EnforcerBloc.class
   );
+  
+  /*
+  final static FacilityProfile PROFILE = new FacilityProfile(
+    EnforcerBloc.class, Structure.TYPE_VENUE,
+    3, 450, 4, 0,
+    new TradeType[] {},
+    new Background[] { ENFORCER },
+    SERVICE_SECURITY
+  );
+  //*/
   
   
   public EnforcerBloc(Base base) {
@@ -63,14 +76,6 @@ public class EnforcerBloc extends Venue implements Economy {
     EnforcerBloc.class, "audit_office_upgrades"
   );
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
-  final public static Upgrade
-    PRESS_OFFICE = new Upgrade(
-      "Press Office",
-      "Assists in the production of pressfeed and brings Advertisers into "+
-      "your employ, helping to gather information and fortify base morale.",
-      150, null, 1, null, ALL_UPGRADES
-    )
- ;
   //  TODO:  Include others.
   //  Rehab Program
   //  Holding Cells
@@ -116,8 +121,8 @@ public class EnforcerBloc extends Venue implements Economy {
   }
   
   
-  public Service[] services() {
-    return new Service[] { SERVICE_ADMIN };
+  public TradeType[] services() {
+    return new TradeType[] { SERVICE_SECURITY };
   }
   
   

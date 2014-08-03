@@ -7,30 +7,22 @@ import stratos.graphics.sfx.*;
 import stratos.graphics.solids.*;
 import stratos.util.*;
 
+import static stratos.game.building.Economy.*;
+
 
 
 //  TODO:  Replace most of these with a shorter set of categories.
 
-//  Halberd Guns.  Blasters.  Stun Wands.  Burners.
-//  Shivs.  Longblades.  Artillery.  Arc Sabres.
-
-//  Shield Bracer.  Golem Frame.  Body Armour.  Power Armour.
-//  Overalls.  Finery.  Seal Suit.  Stealth Suit.
-
-//  Biocorder.  Maniples.  Modus Lute.  Psy Staff.
-//  Sniper Kit.  Explosive.  Power Fist.  Inhibitor.
-
-
 //  Trooper-    Halberd Gun & Power Armour
-//  Noble-      Longblade & Body Armour
+//  Noble-      Dirk & Body Armour
 //  Enforcer-   Stun Wand & Body Armour
-//  Kommando-   Shiv & Stealth Suit
+//  Kommando-   Zweihander & Stealth Suit
 //  Runner-     Blaster & Stealth Suit
 //  Ace-        Blaster & Seal Suit
 
 //  Pseer-      Psy Staff
 //  Palatine-   Arc Sabre & Shield Bracer
-//  Xenopath-   Shield Bracer
+//  Xenopath-   Inhibitor
 //  Physician-  Biocorder
 //  Artificer-  Maniples & Golem Frame
 //  Ecologist-  Stun Wand & Seal Suit
@@ -44,7 +36,7 @@ import stratos.util.*;
 
 
 
-public class DeviceType extends Service implements Economy {
+public class DeviceType extends TradeType {
   
   
   /**  Data fields, property accessors-
@@ -90,7 +82,7 @@ public class DeviceType extends Service implements Economy {
     float baseDamage, int properties, int basePrice,
     Class facility, Object... conversionArgs
   ) {
-    super(baseClass, FORM_DEVICE, name, basePrice);
+    super(baseClass, Economy.FORM_DEVICE, name, basePrice);
     
     this.baseDamage = baseDamage;
     this.properties = properties;
@@ -149,7 +141,7 @@ public class DeviceType extends Service implements Economy {
       world.ephemera.addGhost(uses, r, slashFX, 0.33f);
     }
     
-    else if (type.hasProperty(RANGED | PHYSICAL)) {
+    else if (type.hasProperty(RANGED | KINETIC)) {
       final ShotFX shot = applyShotFX(
         PISTOL_FX_MODEL, uses, applied, hits, 1 + (distance * 0.1f), world
       );

@@ -1,11 +1,12 @@
 
 
 package stratos.graphics.charts;
-import stratos.start.Disposal;
+//import stratos.start.Disposal;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.Label;
 import stratos.graphics.solids.*;
 import stratos.graphics.widgets.*;
+import stratos.start.Assets;
 import stratos.util.*;
 
 import com.badlogic.gdx.*;
@@ -15,12 +16,13 @@ import com.badlogic.gdx.graphics.g3d.model.*;
 import com.badlogic.gdx.graphics.glutils.*;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+
 import org.apache.commons.math3.util.FastMath;
 
 
 
 
-public class PlanetDisplay extends Disposal {
+public class PlanetDisplay extends Assets.Loadable {
   
   
   final static int DEFAULT_RADIUS = 10;
@@ -53,12 +55,13 @@ public class PlanetDisplay extends Disposal {
   
   
   public PlanetDisplay() {
-    super(true);
+    super("PLANET_DISPLAY", PlanetDisplay.class, true);
     this.view = new Viewport();
   }
   
   
-  protected void performAssetSetup() {
+  protected void loadAsset() {
+    
     this.shading = new ShaderProgram(
       Gdx.files.internal("shaders/planet.vert"),
       Gdx.files.internal("shaders/planet.frag")
@@ -79,10 +82,15 @@ public class PlanetDisplay extends Disposal {
   }
   
   
-  protected void performAssetDisposal() {
+  protected void disposeAsset() {
     if (shading == null) return;
     shading.dispose();
     labelling.dispose();
+  }
+  
+  
+  public boolean isLoaded() {
+    return shading != null;
   }
   
   
@@ -280,6 +288,7 @@ public class PlanetDisplay extends Disposal {
   
   
   private int colourOnSurface(Vec3D onSurface) {
+    if (faceData == null) return 0;
     boolean matchFound = false;
     for (FaceData f : faceData) {
       if (checkIntersection(onSurface, f)) { matchFound = true; break; }

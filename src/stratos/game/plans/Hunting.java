@@ -16,12 +16,13 @@ import stratos.user.*;
 import stratos.util.*;
 import stratos.game.building.Inventory.Owner;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.building.Economy.*;
 
 
 
-public class Hunting extends Combat implements Economy {
-  
-  
+
+public class Hunting extends Combat {
   
   /**  Fields, constructors, and save/load methods-
     */

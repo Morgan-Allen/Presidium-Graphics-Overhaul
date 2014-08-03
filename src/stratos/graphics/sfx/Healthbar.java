@@ -1,11 +1,10 @@
 
 
 package stratos.graphics.sfx;
-import org.apache.commons.math3.util.FastMath;
-
 import stratos.graphics.common.*;
-//import stratos.graphics.widgets.*;
 import stratos.util.*;
+
+import org.apache.commons.math3.util.FastMath;
 //import java.io.*;
 
 
@@ -16,7 +15,7 @@ public class Healthbar extends SFX {
   
   /**  Constants, field definitions, constructors and save/load methods-
     */
-  final public static ModelAsset BAR_MODEL = new Assets.ClassModel(
+  final public static ModelAsset BAR_MODEL = new ClassModel(
     "shield_fx_model", Healthbar.class
   ) {
     public Sprite makeSprite() { return new Healthbar(); }

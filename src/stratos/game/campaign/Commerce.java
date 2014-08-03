@@ -7,15 +7,17 @@ import stratos.game.base.*;
 import stratos.game.building.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
-import stratos.game.plans.FindWork;
+import stratos.game.plans.*;
 import stratos.util.*;
+
+import static stratos.game.building.Economy.*;
 
 
 //  TODO:  This will have to be merged with (or rendered obsolete by) the more
 //  generalised, and powerful, supply-and-demand algorithms I need to work on.
 
 
-public class Commerce implements Economy {
+public class Commerce {
   
   
   /**  Fields definitions, constructor, save/load methods-
@@ -56,9 +58,9 @@ public class Commerce implements Economy {
   final Inventory
     shortages = new Inventory(null),
     surpluses = new Inventory(null);
-  final Table <Service, Float>
-    importPrices = new Table <Service, Float> (),
-    exportPrices = new Table <Service, Float> ();
+  final Table <TradeType, Float>
+    importPrices = new Table <TradeType, Float> (),
+    exportPrices = new Table <TradeType, Float> ();
   
   private Dropship ship;
   private float nextVisitTime;
@@ -67,7 +69,7 @@ public class Commerce implements Economy {
   
   public Commerce(Base base) {
     this.base = base;
-    for (Service type : ALL_COMMODITIES) {
+    for (TradeType type : ALL_MATERIALS) {
       importPrices.put(type, (float) type.basePrice);
       exportPrices.put(type, (float) type.basePrice);
     }
@@ -90,7 +92,7 @@ public class Commerce implements Economy {
     
     shortages.loadState(s);
     surpluses.loadState(s);
-    for (Service type : ALL_COMMODITIES) {
+    for (TradeType type : ALL_MATERIALS) {
       importPrices.put(type, s.loadFloat());
       exportPrices.put(type, s.loadFloat());
     }
@@ -121,7 +123,7 @@ public class Commerce implements Economy {
     
     shortages.saveState(s);
     surpluses.saveState(s);
-    for (Service type : ALL_COMMODITIES) {
+    for (TradeType type : ALL_MATERIALS) {
       s.saveFloat(importPrices.get(type));
       s.saveFloat(exportPrices.get(type));
     }
@@ -280,8 +282,8 @@ public class Commerce implements Economy {
       final Venue venue = (Venue) o;
       if (venue.privateProperty()) continue;
       
-      for (Service type : venue.stocks.demanded()) {
-        if (type.form != FORM_COMMODITY) continue;
+      for (TradeType type : venue.stocks.demanded()) {
+        if (type.form != FORM_MATERIAL) continue;
         final int tier = venue.stocks.demandTier(type);
         final float
           demand = venue.stocks.shortageOf(type),
@@ -330,7 +332,7 @@ public class Commerce implements Economy {
     //  than calculated at specific structures.  Vendors make money by charging
     //  more in general.
     
-    for (Service type : ALL_COMMODITIES) {
+    for (TradeType type : ALL_MATERIALS) {
       ///final boolean offworld = true; //For now.
       float
         basePrice = 1 * type.basePrice,
@@ -360,24 +362,24 @@ public class Commerce implements Economy {
   }
   
   
-  public float localSurplus(Service type) {
+  public float localSurplus(TradeType type) {
     return surpluses.amountOf(type);
   }
   
   
-  public float localShortage(Service type) {
+  public float localShortage(TradeType type) {
     return shortages.amountOf(type);
   }
   
   
-  public float importPrice(Service type) {
+  public float importPrice(TradeType type) {
     final Float price = importPrices.get(type);
     if (price == null) return type.basePrice * 10f;
     return price;
   }
   
   
-  public float exportPrice(Service type) {
+  public float exportPrice(TradeType type) {
     final Float price = exportPrices.get(type);
     if (price == null) return type.basePrice / 10f;
     return price;

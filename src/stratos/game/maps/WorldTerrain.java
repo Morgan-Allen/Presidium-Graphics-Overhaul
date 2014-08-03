@@ -10,6 +10,7 @@ import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.terrain.*;
 import stratos.util.*;
+
 import org.apache.commons.math3.util.FastMath;
 
 
@@ -23,6 +24,7 @@ x = moisture
 t = terraform-progress  (1 as default).
 //  ...Organics.  That's the name for carbons.
 //*/
+
 
 
 public class WorldTerrain implements TileConstants, Session.Saveable {
@@ -46,6 +48,10 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
     DEGREE_COMMON = 2,
     DEGREE_HEAVY  = 3,
     DEGREE_TAKEN  = 0,
+    
+    ROAD_NONE     = 0,
+    ROAD_LIGHT    = 1,
+    ROAD_HEAVY    = 2,
     
     AMOUNT_TRACE  = 1,
     AMOUNT_COMMON = 3,
@@ -73,7 +79,8 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
     habitats[][];
   private byte
     minerals[][],
-    roadCounter[][],
+    paveVals[][],
+    //roadCounter[][],
     dirtVals[][];
   
   private TerrainSet meshSet;
@@ -99,12 +106,13 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
     this.typeIndex = typeIndex;
     this.varsIndex = varsIndex;
     this.heightVals = heightVals;
-    this.roadCounter = new byte[mapSize][mapSize];
+    
     this.habitats = new Habitat[mapSize][mapSize];
     for (Coord c : Visit.grid(0, 0, mapSize, mapSize, 1)) {
       habitats[c.x][c.y] = Habitat.ALL_HABITATS[typeIndex[c.x][c.y]];
     }
     this.minerals = new byte[mapSize][mapSize];
+    this.paveVals = new byte[mapSize][mapSize];
     this.dirtVals = new byte[mapSize][mapSize];
     
     initSamples();
@@ -122,16 +130,15 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
     s.loadByteArray(typeIndex);
     s.loadByteArray(varsIndex);
     
-    roadCounter = new byte[mapSize][mapSize];
-    s.loadByteArray(roadCounter);
-    
     habitats = new Habitat[mapSize][mapSize];
     for (Coord c : Visit.grid(0, 0, mapSize, mapSize, 1)) {
       habitats[c.x][c.y] = Habitat.ALL_HABITATS[typeIndex[c.x][c.y]];
     }
     minerals = new byte[mapSize][mapSize];
+    paveVals = new byte[mapSize][mapSize];
     dirtVals = new byte[mapSize][mapSize];
     s.loadByteArray(minerals);
+    s.loadByteArray(paveVals);
     s.loadByteArray(dirtVals);
     
     initSamples();
@@ -144,8 +151,8 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
     s.saveByteArray(typeIndex);
     s.saveByteArray(varsIndex);
     
-    s.saveByteArray(roadCounter);
     s.saveByteArray(minerals);
+    s.saveByteArray(paveVals);
     s.saveByteArray(dirtVals);
   }
   
@@ -268,6 +275,7 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
   }
   
   
+  //  TODO:  Revisit this
   public void setSqualor(Tile t, byte newVal) {
     final byte oldVal = dirtVals[t.x][t.y];
     dirtVals[t.x][t.y] = newVal;
@@ -293,29 +301,21 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
   /**  Methods for handling road-masking of tiles-
     */
   public boolean isRoad(Tile t) {
-    return roadCounter[t.x][t.y] > 0;
+    return paveVals[t.x][t.y] > 0;
   }
   
   
-  public int roadMask(Tile t) {
-    return roadCounter[t.x][t.y];
+  public int roadType(Tile t) {
+    return paveVals[t.x][t.y];
   }
   
   
-  public void maskAsPaved(Tile tiles[], boolean is) {
-    if (tiles == null || tiles.length == 0) return;
-    //Box2D bounds = null;
-    for (Tile t : tiles) if (t != null) {
-      final boolean wasRoad = roadCounter[t.x][t.y] > 0;
-      final byte c = (roadCounter[t.x][t.y] += is ? 1 : -1);
-      if (c < 0) I.complain("CANNOT HAVE NEGATIVE ROAD COUNTER: "+t);
-      if (wasRoad == roadCounter[t.x][t.y] > 0) continue;
-      //if (bounds == null) bounds = new Box2D().set(t.x, t.y, 0, 0);
-      //bounds.include(t.x, t.y, 0.5f);
-      
-      for (Tile n : t.vicinity(tempV)) if (n != null) {
-        meshSet.flagUpdateAt(n.x, n.y, roadLayer);
-      }
+  protected void setRoadType(Tile t, byte level) {
+    final byte oldLevel = paveVals[t.x][t.y];
+    paveVals[t.x][t.y] = level;
+    
+    if (level != oldLevel) for (Tile n : t.vicinity(tempV)) if (n != null) {
+      meshSet.flagUpdateAt(n.x, n.y, roadLayer);
     }
   }
   
@@ -356,7 +356,7 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
       Habitat.ROAD_TEXTURE, true, lID
     ) {
       protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
-        return roadCounter[tx][ty] > 0;
+        return paveVals[tx][ty] > 0;
       }
       protected int variantAt(int tx, int ty, TerrainSet terrain) {
         return ((tx + ty) % 3 == 0) ? 0 : 1;

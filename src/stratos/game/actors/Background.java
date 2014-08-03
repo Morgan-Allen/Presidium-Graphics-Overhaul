@@ -59,7 +59,7 @@ public class Background implements Session.Saveable {
   final public int guild;
   final Table <Skill, Integer> baseSkills = new Table <Skill, Integer> ();
   final Table <Trait, Float> traitChances = new Table <Trait, Float> ();
-  final List <Service> gear = new List <Service> ();
+  final List <TradeType> gear = new List <TradeType> ();
   
   
   
@@ -94,9 +94,9 @@ public class Background implements Session.Saveable {
       else if (o instanceof Trait) {
         traitChances.put((Trait) o, chance);
       }
-      else if (o instanceof Service) {
+      else if (o instanceof TradeType) {
         ///I.say("  "+name+" has gear: "+o);
-        gear.add((Service) o);
+        gear.add((TradeType) o);
       }
     }
     all.add(this);
@@ -153,7 +153,7 @@ public class Background implements Session.Saveable {
   }
   
   
-  public List <Service> properGear() {
+  public List <TradeType> properGear() {
     return gear;
   }
   

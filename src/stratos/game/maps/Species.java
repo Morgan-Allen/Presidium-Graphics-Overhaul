@@ -14,12 +14,38 @@ import stratos.graphics.cutout.*;
 import stratos.graphics.solids.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.actors.Backgrounds.*;
+import static stratos.game.building.Economy.*;
+
+
+
+
+/*
+ Crops and Flora include:
+   Durwheat                     (primary carbs on land)
+   Bulrice                      (primary carbs in water)
+   Broadfruits                  (secondary greens on land)
+   Tuber lily                   (secondary greens in water)
+   Ant/termite/bee/worm cells   (tertiary protein on land)
+   Fish/mussel/clam farming     (tertiary protein in water)
+   
+   Vapok Canopy/Broadleaves  (tropical)
+   Mixtaob Tree/Glass Cacti  (desert)
+   Redwood/Cushion Plants    (tundra)
+   Strain XV97/Mycon Bloom   (wastes)
+   Lichens/Annuals           (pioneer species)
+   Coral Beds/Algal Forest   (rivers/oceans)
+   
+   Lumen forest (changer) + Rhizome (glaive knight) + Manna tree (collective)
+   Albedan ecology:  Carpets + Metastases + Amoeba Clade
+//*/
 
 
 //  TODO:  This class probably needs to be moved to the wild package.  It
 //  should not be referring to objects outside the planet package.
 
-public abstract class Species implements Session.Saveable, Economy {
+public abstract class Species implements Session.Saveable {
   
   
   /**  Type, instance and media definitions-
@@ -189,7 +215,7 @@ public abstract class Species implements Session.Saveable, Economy {
     BLUE_VALVES = new Species("Blue Valves", Type.FLORA, 1, PROTEIN) {},
     CLAN_BORE   = new Species("Clan Bore"  , Type.FLORA, 1, PROTEIN) {},
     
-    GORG_APHID  = new Species("Gorg Aphid" , Type.FLORA, 1, TRUE_SPICE) {},
+    GORG_APHID  = new Species("Gorg Aphid" , Type.FLORA, 1, SPYCE) {},
     
     PIONEERS    = new Species("Pioneers"   , Type.FLORA) {},
     TIMBER      = new Species("Timber"     , Type.FLORA) {},
@@ -291,7 +317,7 @@ public abstract class Species implements Session.Saveable, Economy {
     Batch <Item> n = new Batch <Item> ();
     for (Object o : args) {
       if (o instanceof Integer) amount = (Integer) o;
-      if (o instanceof Service) n.add(Item.withAmount((Service) o, amount));
+      if (o instanceof TradeType) n.add(Item.withAmount((TradeType) o, amount));
     }
     nutrients = n.toArray(Item.class);
     

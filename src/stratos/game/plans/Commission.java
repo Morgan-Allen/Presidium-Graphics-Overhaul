@@ -8,16 +8,15 @@ import stratos.game.common.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.building.Economy.*;
 
 
-//
 //  Purchase commodities for home.
 //  Purchase a device/weapon, or outfit/armour.
 //  Purchase rations, fuel cells or a medkit.
 
-
-
-public class Commission extends Plan implements Economy {
+public class Commission extends Plan {
   
   
   
@@ -137,7 +136,7 @@ public class Commission extends Plan implements Economy {
     final float price = calcPrice();
     if (price > actor.gear.credits()) return 0;
     
-    final float greed = Plan.greedLevel(actor, price / NUM_WEAR_DAYS) * ROUTINE;
+    float greed = Plan.greedLevel(actor, price / ITEM_WEAR_DURATION) * ROUTINE;
     float modifier = NO_MODIFIER + item.quality - greed;
     
     final float priority = priorityForActorWith(

@@ -98,7 +98,7 @@ public class DebugPlans extends Scenario {
     
     final Actor treats = new Human(Backgrounds.PHYSICIAN, base);
     Placement.establishVenue(
-      new Sickbay(base), 6, 6, true, world,
+      new PhysicianStation(base), 6, 6, true, world,
       treats,
       new Human(Backgrounds.MINDER, base),
       new Human(Backgrounds.MINDER, base)
@@ -118,7 +118,7 @@ public class DebugPlans extends Scenario {
     //GameSettings.noBlood = true;
     
     final Actor hunts = new Human(Backgrounds.EXPLORER, base);
-    final Venue station = new SurveyStation(base);
+    final Venue station = new KommandoLodge(base);
     Placement.establishVenue(
       station, 6, 6, true, world,
       new Human(Backgrounds.EXPLORER, base),
@@ -161,11 +161,11 @@ public class DebugPlans extends Scenario {
   
   
   private void configDialogueScenario(World world, Base base, BaseUI UI) {
-    GameSettings.fogFree = true;
+    //GameSettings.fogFree = true;
     GameSettings.noBlood = true;
     GameSettings.hireFree = true;
     
-    final Artificer venue = new Artificer(base);
+    final EngineerStation venue = new EngineerStation(base);
     Placement.establishVenue(venue, world.tileAt(4, 4), true, world);
     venue.stocks.bumpItem(Economy.PARTS, 10);
     
@@ -204,14 +204,14 @@ public class DebugPlans extends Scenario {
       citizen.gear.incCredits(1000);
     }
     UI.selection.pushSelection(citizen, true);
-    final Venue foundry = new Artificer(base);
+    final Venue foundry = new EngineerStation(base);
     Placement.establishVenue(
       foundry, 6, 6, true, world,
       new Human(Backgrounds.TECHNICIAN, base),
       new Human(Backgrounds.TECHNICIAN, base),
       new Human(Backgrounds.ARTIFICER, base)
     );
-    foundry.stocks.bumpItem(Economy.METALS, 40);
+    foundry.stocks.bumpItem(Economy.ORES , 40);
     foundry.stocks.bumpItem(Economy.PARTS, 20);
   }
   
@@ -281,7 +281,7 @@ public class DebugPlans extends Scenario {
     final Bastion bastion = new Bastion(base);
     bastion.stocks.bumpItem(Economy.PROTEIN, 20);
     bastion.stocks.bumpItem(Economy.PLASTICS, 10);
-    bastion.stocks.bumpItem(Economy.TRUE_SPICE, 5);
+    bastion.stocks.bumpItem(Economy.SPYCE, 5);
     final Actor ruler = new Human(Backgrounds.KNIGHTED, base);
     Placement.establishVenue(
       bastion, 11, 11, true, world,
@@ -289,7 +289,7 @@ public class DebugPlans extends Scenario {
     );
     base.assignRuler(ruler);
     
-    final Garrison garrison = new Garrison(base);
+    final TrooperLodge garrison = new TrooperLodge(base);
     Placement.establishVenue(garrison, world.tileAt(3, 15), true, world);
     
     //  And introduce a native camp.

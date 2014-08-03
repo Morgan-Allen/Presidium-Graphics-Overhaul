@@ -5,9 +5,11 @@
   */
 
 package stratos.game.common;
-import stratos.start.Disposal;
+//import stratos.start.Disposal;
 import stratos.game.building.*;
+import stratos.start.Assets;
 import stratos.util.*;
+
 import org.apache.commons.math3.util.FastMath;
 
 
@@ -45,9 +47,13 @@ public final class Spacing implements TileConstants {
     new Element[20]
   };
   
-  final static Disposal DISPOSAL = new Disposal(false) {
-    protected void performAssetSetup() {}
-    protected void performAssetDisposal() {
+  final static Assets.Loadable DISPOSAL = new Assets.Loadable(
+    "SPACING_DISPOSAL", Spacing.class, true
+  ) {
+    protected void loadAsset() {}
+    public boolean isLoaded() { return true; }
+    
+    protected void disposeAsset() {
       Visit.wipe(tempT4);
       Visit.wipe(tempT8);
       Visit.wipe(tempT9);
@@ -55,6 +61,8 @@ public final class Spacing implements TileConstants {
       Visit.wipe(tempB8);
       for (Tile t[] : PERIM_ARRAYS) Visit.wipe(t);
       for (Element e[] : NEAR_ARRAYS) Visit.wipe(e);
+      
+      Assets.registerForLoading(this);
     }
   };
   

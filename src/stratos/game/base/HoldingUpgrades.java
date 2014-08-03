@@ -6,6 +6,10 @@ import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.actors.Backgrounds.*;
+import static stratos.game.building.Economy.*;
+
 
 
 //  I've decided to put this functionality in a separate class for the sake of
@@ -17,7 +21,7 @@ import stratos.util.*;
 //  degree.
 
 
-public class HoldingUpgrades implements Economy {
+public class HoldingUpgrades {
   
 
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
@@ -133,7 +137,7 @@ public class HoldingUpgrades implements Economy {
     ),
     new Conversion(
       Holding.class, "Level 5",
-      3, PARTS, 2, POWER, 2, PLASTICS, 1, WATER, 1, CIRCUITRY,
+      3, PARTS, 2, POWER, 2, PLASTICS, 1, OPEN_WATER, 1, DATALINKS,
       DIFFICULT_DC, ASSEMBLY
     ),
   };
@@ -218,7 +222,7 @@ public class HoldingUpgrades implements Economy {
   
   //
   //  TODO:  Create a fourth food type- rations at the Stock Exchange, say.
-  final static Service FOOD_TYPES[] = {
+  final static TradeType FOOD_TYPES[] = {
     CARBS, PROTEIN, GREENS,//RATIONS, SOMA, SPICE
   };
   
@@ -226,14 +230,14 @@ public class HoldingUpgrades implements Economy {
   protected static Batch <Item> rationNeeds(Holding holding, int upgradeLevel) {
     final Batch <Item> needed = new Batch <Item> ();
     float foodNeed = holding.personnel.residents().size() * 1.5f;
-    float sumFood = 0.1f; for (Service f : FOOD_TYPES) {
+    float sumFood = 0.1f; for (TradeType f : FOOD_TYPES) {
       sumFood += holding.stocks.amountOf(f);
     }
     final float min = 0.1f;
     //
     //  TODO:  Only demand minimal amounts of a given food if it's not strictly
     //  needed for housing evolution...
-    for (Service f : FOOD_TYPES) {
+    for (TradeType f : FOOD_TYPES) {
       final float amount = holding.stocks.amountOf(f);
       needed.add(Item.withAmount(f, min + (foodNeed * amount / sumFood)));
     }
@@ -251,11 +255,11 @@ public class HoldingUpgrades implements Economy {
     //  a reasonable 'balance' of food types, in terms of no less than half an
     //  equal share of the total.
     float foodNeed = holding.personnel.residents().size();
-    int numFoods = 0; for (Service f : FOOD_TYPES) {
+    int numFoods = 0; for (TradeType f : FOOD_TYPES) {
       if (holding.stocks.amountOf(f) > 0) numFoods++;
     }
     final float min = foodNeed / (2 * numFoods);
-    numFoods = 0; for (Service f : FOOD_TYPES) {
+    numFoods = 0; for (TradeType f : FOOD_TYPES) {
       if (holding.stocks.amountOf(f) > min) numFoods++;
     }
     //
@@ -320,7 +324,7 @@ public class HoldingUpgrades implements Economy {
     if (upgradeLevel >= LEVEL_PYON) {
       if (
         lacksAccess(holding, Bastion.class) &&
-        lacksAccess(holding, Sickbay.class)
+        lacksAccess(holding, PhysicianStation.class)
       ) return NV ? NOT_MET :
         "Your pyons will need access to a Bastion or Sickbay to provide "+
         "life support or health services before they will feel safe enough "+

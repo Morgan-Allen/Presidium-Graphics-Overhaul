@@ -10,6 +10,8 @@ import stratos.game.civilian.*;
 import stratos.game.maps.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.building.Economy.*;
 import org.apache.commons.math3.util.FastMath;
 
 

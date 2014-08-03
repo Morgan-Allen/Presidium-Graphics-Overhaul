@@ -7,7 +7,6 @@
 
 
 package stratos.game.actors;
-import org.apache.commons.math3.util.FastMath;
 
 import stratos.game.building.*;
 import stratos.game.civilian.*;
@@ -17,10 +16,8 @@ import stratos.game.tactical.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import org.apache.commons.math3.util.FastMath;
 
-
-//
-//  TODO:  Create a separate 'ActorSenses' class to handle some of this stuff.
 
 
 public abstract class ActorMind implements Qualities {

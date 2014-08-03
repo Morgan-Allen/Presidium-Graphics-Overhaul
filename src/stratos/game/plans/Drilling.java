@@ -5,18 +5,22 @@
   */
 
 
-package stratos.game.base;
+package stratos.game.plans;
 import stratos.game.common.*;
 import stratos.game.actors.*;
-import stratos.game.maps.Planet;
+//import stratos.game.maps.Planet;
 import stratos.game.tactical.*;
+import stratos.game.base.*;
 import stratos.game.building.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.building.Economy.*;
 
 
-public class Drilling extends Plan implements Economy, Qualities {
+
+public class Drilling extends Plan {
   
   
   
@@ -86,7 +90,7 @@ public class Drilling extends Plan implements Economy, Qualities {
     final Skill baseSkills[] = ALL_DRILL_SKILLS[yard.drillType()];
     
     final float priority = priorityForActorWith(
-      actor, yard, CASUAL * Planet.dayValue(actor.world()),
+      actor, yard, CASUAL, //* Planet.dayValue(actor.world()),
       NO_HARM, NO_COMPETITION,
       baseSkills, BASE_TRAITS,
       NO_MODIFIER, NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,

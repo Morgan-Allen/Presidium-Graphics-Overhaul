@@ -11,12 +11,14 @@ import stratos.game.common.Session.Saveable;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.building.Economy.*;
+
 
 
 /**  More representative of the abstract 'listing' of an item than a specific
   *  concrete object.
   */
-public class Item implements Economy {
+public class Item {
   
   
   /**  Type definition.
@@ -35,14 +37,14 @@ public class Item implements Economy {
   final public static int ANY = -1;
   final public static int MAX_QUALITY = 4;
   
-  final public Service type;
+  final public TradeType type;
   final public Saveable refers;
   final public float amount;
   final public float quality;
   
   
   private Item(
-    Service type, Saveable refers, float amount, float quality
+    TradeType type, Saveable refers, float amount, float quality
   ) {
     this.type = type;
     this.amount = amount;
@@ -94,7 +96,7 @@ public class Item implements Economy {
   
   /**  Outside-accessible factory methods-
     */
-  public static Item withAmount(Service type, float amount) {
+  public static Item withAmount(TradeType type, float amount) {
     return new Item(type, null, amount, 0);
   }
   
@@ -105,7 +107,7 @@ public class Item implements Economy {
   }
   
   
-  public static Item withReference(Service type, Saveable refers) {
+  public static Item withReference(TradeType type, Saveable refers) {
     return new Item(type, refers, 1, 0);
   }
   
@@ -115,7 +117,7 @@ public class Item implements Economy {
   }
   
   
-  public static Item withQuality(Service type, int quality) {
+  public static Item withQuality(TradeType type, int quality) {
     return new Item(type, null, 1, Visit.clamp(quality, 5));
   }
   
@@ -128,7 +130,7 @@ public class Item implements Economy {
   
   
   public static Item with(
-    Service type, Saveable refers, float amount, float quality
+    TradeType type, Saveable refers, float amount, float quality
   ) {
     if (amount < 0) I.complain("Amount must be positive!");
     return new Item(
@@ -150,17 +152,17 @@ public class Item implements Economy {
   
   /**  Matching/equality functions-
     */
-  public static Item asMatch(Service type, Saveable refers) {
+  public static Item asMatch(TradeType type, Saveable refers) {
     return new Item(type, refers, ANY, ANY);
   }
   
   
-  public static Item asMatch(Service type, int quality) {
+  public static Item asMatch(TradeType type, int quality) {
     return new Item(type, null, ANY, quality);
   }
   
   
-  public static Item asMatch(Service type, Saveable refers, int quality) {
+  public static Item asMatch(TradeType type, Saveable refers, int quality) {
     return new Item(type, refers, ANY, Visit.clamp(quality, 5));
   }
   
@@ -197,7 +199,7 @@ public class Item implements Economy {
     */
   public void describeTo(Description d) {
     String s = ""+type;
-    if (quality != ANY && type.form != FORM_COMMODITY) {
+    if (quality != ANY && type.form != FORM_MATERIAL) {
       s = QUAL_NAMES[(int) (quality + 0.5f)]+" "+s;
     }
     if (amount != ANY) s = (I.shorten(amount, 1))+" "+s;

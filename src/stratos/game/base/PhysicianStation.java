@@ -15,20 +15,38 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.actors.Backgrounds.*;
+import static stratos.game.building.Economy.*;
 
 
-public class Sickbay extends Venue implements Economy {
+
+public class PhysicianStation extends Venue {
   
   
   
   /**  Static constants, field definitions, constructors and save/load methods-
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    Sickbay.class, "media/Buildings/physician/physician_clinic.png", 3, 2
+    PhysicianStation.class,
+    "media/Buildings/physician/physician_clinic.png", 3, 2
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/hospice_button.gif", Sickbay.class
+    "media/GUI/Buttons/hospice_button.gif", PhysicianStation.class
   );
+  
+  /*
+  final static FacilityProfile PROFILE = new FacilityProfile(
+    PhysicianStation.class, Structure.TYPE_VENUE,
+    3, 350, 2, 5,
+    new TradeType[] {},
+    new Background[] { PHYSICIAN, MINDER },
+    SOMA_TO_MEDICINE,
+    NIL_TO_STIMKITS,
+    SERVICE_HEALTHCARE,
+    SERVICE_PSYCH_EVAL
+  );
+  //*/
   
   private static boolean verbose = false;
   
@@ -37,7 +55,7 @@ public class Sickbay extends Venue implements Economy {
   final List <Manufacture> cloneOrders = new List <Manufacture> ();
   
   
-  public Sickbay(Base base) {
+  public PhysicianStation(Base base) {
     super(3, 2, Venue.ENTRANCE_EAST, base);
     structure.setupStats(
       200, 2, 350,
@@ -48,7 +66,7 @@ public class Sickbay extends Venue implements Economy {
   }
   
   
-  public Sickbay(Session s) throws Exception {
+  public PhysicianStation(Session s) throws Exception {
     super(s);
     s.loadObjects(neuralScans);
     s.loadObjects(cloneOrders);
@@ -66,7 +84,7 @@ public class Sickbay extends Venue implements Economy {
   /**  Upgrades, economic functions and behaviour implementation-
     */
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-    Sickbay.class, "sickbay_upgrades"
+    PhysicianStation.class, "sickbay_upgrades"
   );
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
@@ -125,7 +143,7 @@ public class Sickbay extends Venue implements Economy {
     final Choice choice = new Choice(actor);
     //
     //  Manufacture Stim Kits for later use-
-    final Manufacture mS = stocks.nextManufacture(actor, MEDICINE_TO_STIM_KITS);
+    final Manufacture mS = stocks.nextManufacture(actor, STIM_KITS_TO_MEDICINE);
     if (mS != null) {
       mS.checkBonus = ((structure.upgradeLevel(EMERGENCY_AID) - 1) * 5) / 2;
       //mS.timeMult = 5;
@@ -180,8 +198,8 @@ public class Sickbay extends Venue implements Economy {
     //
     //  Sickbays consumes medicine and power based on current upgrade level,
     //  and have a mild positive effect on ambience-
-    stocks.incDemand(MEDICINE , medNeed, Stocks.TIER_CONSUMER, 1, this);
-    stocks.incDemand(STIM_KITS, medNeed, Stocks.TIER_TRADER, 1, this);
+    stocks.incDemand(MEDICINES, medNeed, Stocks.TIER_PRODUCER, 1, this);
+    stocks.incDemand(STIM_KITS, medNeed, Stocks.TIER_CONSUMER, 1, this);
     stocks.forceDemand(POWER, powerNeed, Stocks.TIER_CONSUMER);
     structure.setAmbienceVal(numU * 2);
   }
@@ -274,8 +292,8 @@ public class Sickbay extends Venue implements Economy {
   }
   
   
-  public Service[] services() {
-    return new Service[] { STIM_KITS, SERVICE_TREAT };
+  public TradeType[] services() {
+    return new TradeType[] { MEDICINES, SERVICE_HEALTHCARE };
   }
   
   
@@ -283,8 +301,8 @@ public class Sickbay extends Venue implements Economy {
   
   /**  Rendering and interface methods-
     */
-  protected Service[] goodsToShow() {
-    return new Service[] { STIM_KITS, MEDICINE, REPLICANTS };
+  protected TradeType[] goodsToShow() {
+    return new TradeType[] { STIM_KITS, MEDICINES, ORGANS };
   }
   
   

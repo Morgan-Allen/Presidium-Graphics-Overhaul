@@ -35,7 +35,7 @@ public class DeliveryUtils {
   
   
   public static Batch <Venue> nearbyVendors(
-    Service type, Target target, World world
+    TradeType type, Target target, World world
   ) {
     final Batch <Venue> vendors = new Batch <Venue> ();
     world.presences.sampleFromMap(target, world, 5, vendors, type.supplyKey);
@@ -49,13 +49,13 @@ public class DeliveryUtils {
     *  methods with shorter contracts follow below.
     */
   public static Delivery bestBulkDeliveryFrom(
-    Owner origin, Service goods[], int baseUnit, int amountLimit,
+    Owner origin, TradeType goods[], int baseUnit, int amountLimit,
     Batch <? extends Owner> destinations, int numSamples
   ) {
     final World world = origin.world();
     Tally <Owner> ratings = new Tally <Owner> ();
     
-    for (Service good : goods) {
+    for (TradeType good : goods) {
       final Batch <? extends Owner> sampled;
       if (destinations != null) sampled = destinations;
       else {
@@ -77,7 +77,7 @@ public class DeliveryUtils {
   
   
   public static Delivery bestBulkDeliveryFrom(
-    Owner origin, Service goods[], int baseUnit, int amountLimit,
+    Owner origin, TradeType goods[], int baseUnit, int amountLimit,
     Batch <? extends Owner> destinations
   ) {
     return bestBulkDeliveryFrom(
@@ -87,7 +87,7 @@ public class DeliveryUtils {
   
   
   public static Delivery bestBulkDeliveryFrom(
-    Owner origin, Service goods[], int baseUnit, int amountLimit,
+    Owner origin, TradeType goods[], int baseUnit, int amountLimit,
     int numSamples
   ) {
     return bestBulkDeliveryFrom(
@@ -102,7 +102,7 @@ public class DeliveryUtils {
     *  with shorter contracts follow below.
     */
   public static Delivery bestBulkCollectionFor(
-    Owner destination, Service goods[], int baseUnit, int amountLimit,
+    Owner destination, TradeType goods[], int baseUnit, int amountLimit,
     Batch <? extends Owner> origins, int numSamples
   ) {
     final boolean report = sampleVerbose && I.talkAbout == destination;
@@ -110,7 +110,7 @@ public class DeliveryUtils {
     Tally <Owner> ratings = new Tally <Owner> ();
     if (report) I.say("\nGetting bulk delivery for "+destination);
     
-    for (Service good : goods) {
+    for (TradeType good : goods) {
       final Batch <? extends Owner> sampled;
       if (origins != null) sampled = origins;
       else {
@@ -134,7 +134,7 @@ public class DeliveryUtils {
   
   
   public static Delivery bestBulkCollectionFor(
-    Owner destination, Service goods[], int baseUnit, int amountLimit,
+    Owner destination, TradeType goods[], int baseUnit, int amountLimit,
     Batch <? extends Owner> origins
   ) {
     return bestBulkCollectionFor(
@@ -144,7 +144,7 @@ public class DeliveryUtils {
   
   
   public static Delivery bestBulkCollectionFor(
-    Owner destination, Service goods[], int baseUnit, int amountLimit,
+    Owner destination, TradeType goods[], int baseUnit, int amountLimit,
     int numSamples
   ) {
     return bestBulkCollectionFor(
@@ -158,7 +158,7 @@ public class DeliveryUtils {
     *  destination points.
     */
   public static Delivery fillBulkOrder(
-    Owner origin, Owner destination, Service goods[],
+    Owner origin, Owner destination, TradeType goods[],
     int baseUnit, int amountLimit
   ) {
     int goodAmounts[] = new int[goods.length];
@@ -197,7 +197,7 @@ public class DeliveryUtils {
     *  and deliveries of single good-types.
     */
   public static Delivery bestCollectionFor(
-    Owner destination, Service good, int amount, Actor pays,
+    Owner destination, TradeType good, int amount, Actor pays,
     int numSamples, boolean trySmallerAmount
   ) {
     final World world = destination.world();
@@ -224,7 +224,7 @@ public class DeliveryUtils {
   
   
   public static Delivery bestDeliveryFrom(
-    Owner origin, Service good, int amount, Actor pays,
+    Owner origin, TradeType good, int amount, Actor pays,
     int numSamples, boolean trySmallerAmount
   ) {
     final World world = origin.world();
@@ -252,7 +252,7 @@ public class DeliveryUtils {
   
   public static Owner bestOrigin(
     Batch <? extends Owner> origins, Owner destination,
-    Service good, int amount
+    TradeType good, int amount
   ) {
     final boolean report = rateVerbose && I.talkAbout == destination;
     if (report) I.say("\nFinding best origin for "+good);
@@ -272,7 +272,7 @@ public class DeliveryUtils {
   
   public static Owner bestDestination(
     Owner origin, Batch <? extends Owner> destinations,
-    Service good, int amount
+    TradeType good, int amount
   ) {
     if (origin.inventory().amountOf(good) <= amount) return null;
     final boolean report = rateVerbose && I.talkAbout == origin;
@@ -296,7 +296,7 @@ public class DeliveryUtils {
     *  the given origin and destination venues-
     */
   static float rateTrading(
-    Owner orig, Owner dest, Service good, int amount
+    Owner orig, Owner dest, TradeType good, int amount
   ) {
     if (orig == dest) return -1;
     final boolean report = rateVerbose && (
@@ -365,7 +365,7 @@ public class DeliveryUtils {
   }
   
   
-  static float futureBalance(Owner e, Service good, boolean positive) {
+  static float futureBalance(Owner e, TradeType good, boolean positive) {
     final Activities a = e.world().activities;
     
     //  TODO:  Cache this locally if possible.

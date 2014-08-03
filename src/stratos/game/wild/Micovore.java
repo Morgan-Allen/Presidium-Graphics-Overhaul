@@ -15,9 +15,12 @@ import stratos.game.plans.Combat;
 import stratos.game.tactical.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.building.Economy.*;
 
 
-public class Micovore extends Fauna implements Economy {
+
+public class Micovore extends Fauna {
   
   
   

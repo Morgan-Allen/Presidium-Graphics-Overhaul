@@ -9,7 +9,7 @@ import java.io.*;
 import java.lang.reflect.*;
 
 import stratos.game.campaign.*;
-import stratos.graphics.common.Assets;
+import stratos.start.Assets;
 import stratos.util.*;
 
 

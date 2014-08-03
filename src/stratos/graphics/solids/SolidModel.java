@@ -159,11 +159,6 @@ public abstract class SolidModel extends ModelAsset {
     for (Animation anim : gdxModel.animations) names[i++] = anim.id;
     return names;
   }
-  
-  
-  //public Texture[] textures() {
-    
-  //}
 }
 
 

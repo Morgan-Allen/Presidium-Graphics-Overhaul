@@ -1,14 +1,15 @@
 
 
 
-package stratos.graphics.common;
+package stratos.start;
 import java.io.*;
 import java.util.zip.*;
 import java.net.*;
 import java.security.CodeSource;
 
-import stratos.start.PlayLoop;
+//import stratos.graphics.common.ModelAsset;
 import stratos.util.*;
+
 
 
 
@@ -21,14 +22,19 @@ public class Assets {
   private static boolean verbose = false;
   
   
-  protected static abstract class Loadable {
+  public static abstract class Loadable {
 
     final String assetID;
     final Class sourceClass;
+    final boolean disposeWithSession;
     
-    Loadable(String modelName, Class sourceClass) {
+    
+    protected Loadable(
+      String modelName, Class sourceClass, boolean disposeWithSession
+    ) {
       this.assetID = modelName;
       this.sourceClass = sourceClass;
+      this.disposeWithSession = disposeWithSession;
       Assets.registerForLoading(this);
     }
     
@@ -38,16 +44,6 @@ public class Assets {
     public abstract boolean isLoaded();
     protected abstract void loadAsset();
     protected abstract void disposeAsset();
-  }
-  
-  
-  public static abstract class ClassModel extends ModelAsset {
-    public ClassModel(String modelName, Class sourceClass) {
-      super(modelName, sourceClass);
-    }
-    public boolean isLoaded() { return true; }
-    protected void loadAsset() {}
-    protected void disposeAsset() {}
   }
   
   
@@ -154,6 +150,16 @@ public class Assets {
   }
   
   
+  public static void disposeSessionAssets() {
+    for (ListEntry <Loadable> e : assetsLoaded.entries()) {
+      if (e.refers.disposeWithSession) {
+        e.refers.disposeAsset();
+        assetsLoaded.removeEntry(e);
+      }
+    }
+  }
+  
+  
   public static void dispose() {
     for (Loadable asset : assetsLoaded) {
       asset.disposeAsset();
@@ -165,6 +171,15 @@ public class Assets {
   
   public static void registerForLoading(Loadable asset) {
     if (verbose) I.say("    Registering- "+asset.assetID);
+    
+    //  TODO:  Put in a specialised debug option for this?
+    /*
+    if (asset instanceof stratos.graphics.solids.SolidModel) {
+      I.say("    Registering- "+asset.assetID);
+      new Exception().printStackTrace();
+    }
+    //*/
+    
     assetsToLoad.add(asset);
   }
   

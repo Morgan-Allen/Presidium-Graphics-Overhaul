@@ -7,10 +7,7 @@
 package stratos.game.base;
 import stratos.game.common.*;
 import stratos.game.maps.*;
-import stratos.game.plans.Farming;
-import stratos.game.plans.Foraging;
-import stratos.game.plans.Forestry;
-import stratos.game.plans.SeedTailoring;
+import stratos.game.plans.*;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.graphics.common.*;
@@ -19,28 +16,42 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.actors.Backgrounds.*;
+import static stratos.game.building.Economy.*;
 
 
-public class BotanicalStation extends Venue implements Economy {
-  
+
+public class EcologistStation extends Venue {
   
   
   /**  Fields, constructors, and save/load methods-
     */
   final static String IMG_DIR = "media/Buildings/ecologist/";
   final static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/nursery_button.gif", BotanicalStation.class
+    "media/GUI/Buttons/nursery_button.gif", EcologistStation.class
   );
   final static ModelAsset
     STATION_MODEL = CutoutModel.fromImage(
-      BotanicalStation.class, IMG_DIR+"botanical_station.png", 4, 3
+      EcologistStation.class, IMG_DIR+"botanical_station.png", 4, 3
     );
+  /*
+  final static FacilityProfile PROFILE = new FacilityProfile(
+    EcologistStation.class, Structure.TYPE_VENUE,
+    4, 150, 3, 3,
+    new TradeType[] {},
+    new Background[] { ECOLOGIST, CULTIVATOR },
+    Conversion.parse(EcologistStation.class, new Object[][] {
+      { TO, GENE_SEED }
+    })
+  );
+  //*/
   
   
   final List <Plantation> allotments = new List <Plantation> ();
   
   
-  public BotanicalStation(Base belongs) {
+  public EcologistStation(Base belongs) {
     super(4, 3, Venue.ENTRANCE_SOUTH, belongs);
     structure.setupStats(
       150, 3, 250,
@@ -51,7 +62,7 @@ public class BotanicalStation extends Venue implements Economy {
   }
   
   
-  public BotanicalStation(Session s) throws Exception {
+  public EcologistStation(Session s) throws Exception {
     super(s);
     s.loadObjects(allotments);
   }
@@ -67,7 +78,7 @@ public class BotanicalStation extends Venue implements Economy {
   /**  Handling upgrades and economic functions-
     */
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-    BotanicalStation.class, "botanical_upgrades"
+    EcologistStation.class, "botanical_upgrades"
   );
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
@@ -280,8 +291,8 @@ public class BotanicalStation extends Venue implements Economy {
   }
   
   
-  public Service[] services() {
-    return new Service[] { GREENS, PROTEIN, CARBS };
+  public TradeType[] services() {
+    return new TradeType[] { GREENS, PROTEIN, CARBS };
   }
   
   
@@ -306,12 +317,12 @@ public class BotanicalStation extends Venue implements Economy {
   }
   
   
-  protected Service[] goodsToShow() {
-    return new Service[] { GENE_SEED, CARBS, GREENS, PROTEIN };
+  protected TradeType[] goodsToShow() {
+    return new TradeType[] { GENE_SEED, CARBS, GREENS, PROTEIN };
   }
   
   
-  protected float goodDisplayAmount(Service good) {
+  protected float goodDisplayAmount(TradeType good) {
     if (good == GENE_SEED) return stocks.amountOf(good) > 0 ? 5 : 0;
     return super.goodDisplayAmount(good);
   }
@@ -322,12 +333,12 @@ public class BotanicalStation extends Venue implements Economy {
   }
   
   
-  public String fullName() { return "Botanical Station"; }
+  public String fullName() { return "Ecologist Station"; }
   
   
   public String helpInfo() {
     return
-      "Botanical Stations are responsible for agriculture and forestry, "+
+      "Ecologist Stations are responsible for agriculture and forestry, "+
       "helping to secure food supplies and advance terraforming efforts.";
   }
   

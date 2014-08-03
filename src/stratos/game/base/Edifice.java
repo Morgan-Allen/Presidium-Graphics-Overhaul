@@ -16,14 +16,22 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.actors.Backgrounds.*;
+import static stratos.game.building.Economy.*;
 
 
 
-public class Edifice extends Venue implements Economy {
+
+//  TODO:  Merge with Shrines to a particular Founder for each School?
+//  ...maybe rename to Effigy?
+
+
+public class Edifice extends Venue {
   
 
   final static ModelAsset MODEL = CutoutModel.fromImage(
-    Artificer.class, "media/Buildings/aesthete/edifice.png", 4, 2
+    EngineerStation.class, "media/Buildings/aesthete/edifice.png", 4, 2
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
     "media/GUI/Buttons/edifice_button.gif", Edifice.class
@@ -98,7 +106,7 @@ public class Edifice extends Venue implements Economy {
   }
   
   
-  public Service[] services() {
+  public TradeType[] services() {
     return null;
   }
   

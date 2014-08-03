@@ -4,12 +4,15 @@ package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.game.building.*;
 import stratos.game.campaign.Sector;
-import stratos.graphics.common.ImageAsset;
+import stratos.graphics.common.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.building.Economy.*;
 
 
-public interface Backgrounds extends Economy {
+
+public interface Backgrounds {
   
   
   final public static Float
@@ -186,12 +189,12 @@ public interface Backgrounds extends Economy {
       PRACTICED, MARKSMANSHIP, SUASION, COUNSEL, STEALTH_AND_COVER, NOVICE,
       HAND_TO_HAND, ANATOMY, PHARMACY, COMMAND, BATTLE_TACTICS,
       OFTEN, FEARLESS, STUBBORN, SOMETIMES, DUTIFUL, CURIOUS, CRUEL,
-      PARTIAL_ARMOUR, STUN_PISTOL
+      BODY_ARMOUR, STUN_WAND
     ),
     
-    /*
-    SAVANT = new Background(
-      Backgrounds.class, "Savant", "citizen_skin.gif", null,
+    //*
+    ARCHIVE_SAVANT = new Background(
+      Backgrounds.class, "Archive Savant", "citizen_skin.gif", null,
       CLASS_FREEMEN, GUILD_PHYSICIAN,
       EXPERT, ACCOUNTING, INSCRIPTION, PRACTICED, COUNSEL, ASSEMBLY,
       NOVICE, ANCIENT_LORE, LEGISLATION,
@@ -242,7 +245,7 @@ public interface Backgrounds extends Economy {
       PRACTICED, MARKSMANSHIP, NATIVE_TABOO,
       NOVICE, BATTLE_TACTICS, HAND_TO_HAND,
       RARELY, NERVOUS, RELAXED, OFTEN, NATURALIST,
-      STUN_PISTOL, CAMOUFLAGE
+      STUN_WAND, STEALTH_SUIT
     ),
     
     ECOLOGIST = new Background(
@@ -311,7 +314,7 @@ public interface Backgrounds extends Economy {
       PRACTICED, HAND_TO_HAND, MARKSMANSHIP,
       NOVICE, SURVEILLANCE, ASSEMBLY, HARD_LABOUR, SHIELD_AND_ARMOUR,
       SOMETIMES, DUTIFUL, DEFENSIVE, RARELY, NERVOUS, FEMININE,
-      BLASTER, PARTIAL_ARMOUR
+      BLASTER, BODY_ARMOUR
     ),
     
     //  TODO:  Restore traits here.
@@ -321,7 +324,7 @@ public interface Backgrounds extends Economy {
       CLASS_FREEMEN, GUILD_MILITANT,
       PRACTICED, MARKSMANSHIP, PILOTING, SURVEILLANCE, STEALTH_AND_COVER,
       NOVICE, HARD_LABOUR, ASSEMBLY,
-      STUN_PISTOL, BELT_AND_BRACER
+      BLASTER, SEALSUIT
     ),
     
     //  TODO:  Draw up a different set of art assets for this guy.
@@ -430,7 +433,7 @@ public interface Backgrounds extends Economy {
       CLASS_FREEMEN, NOT_A_GUILD,
       EXPERT, PILOTING, MARKSMANSHIP, PRACTICED, COMMAND, SUASION,
       NOVICE, ASTROGATION, BATTLE_TACTICS, COMMON_CUSTOM,
-      STUN_PISTOL, PARTIAL_ARMOUR
+      BLASTER, BELT_AND_BRACER
     ),
     //
     //  These classes won't generally stay put, but might visit your settlement
@@ -442,7 +445,7 @@ public interface Backgrounds extends Economy {
       EXPERT, PILOTING, MARKSMANSHIP, STEALTH_AND_COVER,
       PRACTICED, SUASION, SURVEILLANCE, MASQUERADE,
       OFTEN, ACQUISITIVE, SOMETIMES, NERVOUS, RARELY, URBANE,
-      BLASTER, CAMOUFLAGE
+      BLASTER, STEALTH_SUIT
     ),
     COMPANION = new Background(
       Backgrounds.class,
@@ -484,7 +487,7 @@ public interface Backgrounds extends Economy {
       PRACTICED, MARKSMANSHIP, XENOZOOLOGY, ATHLETICS,
       NOVICE, HAND_TO_HAND, HANDICRAFTS, MASQUERADE,
       SOMETIMES, NATURALIST,
-      TOOTH_SHIV, JAVELIN
+      HUNTING_LANCE, SCRAP_GEAR
     ),
     SHAMAN = new Background(
       Backgrounds.class,
@@ -501,7 +504,7 @@ public interface Backgrounds extends Economy {
       EXPERT, NATIVE_TABOO, COMMAND, SUASION, MARKSMANSHIP,
       PRACTICED, HAND_TO_HAND, BATTLE_TACTICS,
       RARELY, NERVOUS, OFTEN, TRADITIONAL,
-      TOOTH_SHIV, JAVELIN, SCRAP_GEAR
+      HUNTING_LANCE, SCRAP_GEAR
     ),
     //  TODO:  Restore Cargo Cultist and Mutant Pseer.
     CARGO_CULTIST = null,

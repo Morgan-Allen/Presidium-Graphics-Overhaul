@@ -154,7 +154,7 @@ public class VenueDescription {
       }
     };
     for (Item item : v.stocks.allItems()) listing.add(item);
-    for (Service type : Economy.ALL_ITEM_TYPES) {
+    for (TradeType type : Economy.ALL_ITEM_TYPES) {
       if (v.stocks.demandFor(type) > 0 && v.stocks.amountOf(type) == 0) {
         listing.add(Item.withAmount(type, 0));
       }
@@ -170,7 +170,7 @@ public class VenueDescription {
   
   
   protected boolean describeStocks(Item item, Description d) {
-    final Service type = item.type;
+    final TradeType type = item.type;
     final float needed = v.stocks.demandFor(type);
     final float amount = v.stocks.amountOf(type);
     if (needed == 0 && amount == 0)

@@ -2,6 +2,7 @@
 
 package stratos.graphics.cutout;
 import stratos.graphics.common.*;
+import stratos.start.Assets;
 import stratos.util.*;
 
 import com.badlogic.gdx.graphics.*;

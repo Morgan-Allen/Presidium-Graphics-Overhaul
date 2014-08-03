@@ -9,7 +9,7 @@
 package stratos.game.plans;
 import org.apache.commons.math3.util.FastMath;
 
-import stratos.game.base.BotanicalStation;
+import stratos.game.base.EcologistStation;
 import stratos.game.base.Crop;
 import stratos.game.base.Plantation;
 import stratos.game.building.*;
@@ -20,9 +20,12 @@ import stratos.graphics.common.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.building.Economy.*;
 
 
-public class Farming extends Plan implements Economy {
+
+public class Farming extends Plan {
   
   
   private static boolean verbose = false;
@@ -180,7 +183,7 @@ public class Farming extends Plan implements Economy {
   }
   
   
-  private Species pickSpecies(Tile t, BotanicalStation parent) {
+  private Species pickSpecies(Tile t, EcologistStation parent) {
     final Float chances[] = new Float[5];
     int i = 0;
     for (Species s : Plantation.ALL_VARIETIES) {

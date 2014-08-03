@@ -6,7 +6,7 @@
 
 package stratos.game.plans;
 
-import stratos.game.base.SurveyStation;
+import stratos.game.base.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.game.actors.*;
@@ -15,6 +15,9 @@ import stratos.game.wild.*;
 import stratos.game.civilian.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.building.Economy.*;
+
 
 
 //  TODO:  Speed production if you have gene seed (or make mandatory?)
@@ -22,8 +25,8 @@ import stratos.util.*;
 //  TODO:  Predators, by contrast, are domesticated and used to assist in
 //  hunting and patrols.  (Possibly as cavalry!)
 
-public class AnimalBreeding extends Plan implements Economy {
-  
+
+public class AnimalBreeding extends Plan {
   
   final static int
     BREED_TIME_PER_10_HP = World.STANDARD_DAY_LENGTH;
@@ -33,7 +36,7 @@ public class AnimalBreeding extends Plan implements Economy {
     stepsVerbose = false;
   
   
-  final SurveyStation station;
+  final KommandoLodge station;
   final Fauna handled;
   final Target releasePoint;
   final Item asStock;
@@ -41,22 +44,22 @@ public class AnimalBreeding extends Plan implements Economy {
   
   
   private AnimalBreeding(
-    Actor actor, SurveyStation station, Fauna handled, Target releasePoint
+    Actor actor, KommandoLodge station, Fauna handled, Target releasePoint
   ) {
     super(actor, station);
     this.station = station;
     this.handled = handled;
     this.releasePoint = releasePoint;
-    this.asStock = Item.withReference(REPLICANTS, handled);
+    this.asStock = Item.withReference(ORGANS, handled);
   }
   
   
   public AnimalBreeding(Session s) throws Exception {
     super(s);
-    station = (SurveyStation) s.loadObject();
+    station = (KommandoLodge) s.loadObject();
     handled = (Fauna) s.loadObject();
     releasePoint = s.loadTarget();
-    this.asStock = Item.withReference(REPLICANTS, handled);
+    this.asStock = Item.withReference(ORGANS, handled);
   }
   
   
@@ -74,12 +77,12 @@ public class AnimalBreeding extends Plan implements Economy {
   
   
   public static AnimalBreeding nextBreeding(
-    Actor actor, SurveyStation station
+    Actor actor, KommandoLodge station
   ) {
     final boolean report = evalVerbose && I.talkAbout == station;
     if (report) I.say("\nGETTING NEXT FAUNA TO BREED");
     
-    for (Item match : station.stocks.matches(REPLICANTS)) {
+    for (Item match : station.stocks.matches(ORGANS)) {
       if (match.refers instanceof Fauna) {
         if (report) I.say("  Fauna being bred: "+match.refers);
         final Fauna fauna = (Fauna) match.refers;
@@ -202,7 +205,7 @@ public class AnimalBreeding extends Plan implements Economy {
     if (report) I.say("\nTending to "+fauna);
     
     final float upgrade = station.structure.upgradeLevel(
-      SurveyStation.CAPTIVE_BREEDING
+      KommandoLodge.CAPTIVE_BREEDING
     );
     float success = 0;
     if (actor.traits.test(XENOZOOLOGY, ROUTINE_DC, 1)) success++;
@@ -223,7 +226,7 @@ public class AnimalBreeding extends Plan implements Economy {
     
     Item basis = station.stocks.matchFor(asStock);
     if (basis == null) {
-      basis = Item.with(REPLICANTS, fauna, inc, 0);
+      basis = Item.with(ORGANS, fauna, inc, 0);
       fauna.health.setupHealth(0, 1, 0);
       station.stocks.addItem(basis);
     }

@@ -30,7 +30,7 @@ public class WorldSections implements TileConstants {
     
     final public Box3D bounds = new Box3D();
     final public Box2D area = new Box2D();
-    final public int x, y, depth;
+    final public int x, y, absX, absY, depth, size;
     protected Section kids[], parent;
     
     
@@ -38,6 +38,9 @@ public class WorldSections implements TileConstants {
       this.x = x;
       this.y = y;
       this.depth = d;
+      this.size = 1 << depth;
+      this.absX = x * size;
+      this.absY = y * size;
     }
   }
   

@@ -16,27 +16,33 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.actors.Backgrounds.*;
+import static stratos.game.building.Economy.*;
 
 
-public class SurveyStation extends Venue implements Economy {
+
+//  TODO:  Rework the flesh still as a smaller fixture.
+
+public class KommandoLodge extends Venue {
   
   
   /**  Data fields, constructors and save/load methods-
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    SurveyStation.class, "media/Buildings/ecologist/surveyor.png", 4, 1
+    KommandoLodge.class, "media/Buildings/ecologist/surveyor.png", 4, 1
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/redoubt_button.gif", SurveyStation.class
+    "media/GUI/Buttons/redoubt_button.gif", KommandoLodge.class
   );
   private static boolean verbose = true;
   
   
   private GroupSprite camouflaged;
-  private FleshStill still;
+  //private FleshStill still;
   
   
-  public SurveyStation(Base base) {
+  public KommandoLodge(Base base) {
     super(4, 1, Venue.ENTRANCE_NORTH, base);
     structure.setupStats(
       150, 4, 150,
@@ -48,15 +54,15 @@ public class SurveyStation extends Venue implements Economy {
   }
   
   
-  public SurveyStation(Session s) throws Exception {
+  public KommandoLodge(Session s) throws Exception {
     super(s);
-    still = (FleshStill) s.loadObject();
+    //still = (FleshStill) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(still);
+    //s.saveObject(still);
   }
   
   
@@ -64,7 +70,7 @@ public class SurveyStation extends Venue implements Economy {
   /**  Upgrades, economic functions and behaviour implementations-
     */
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-    SurveyStation.class, "surveillance_post_upgrades"
+    KommandoLodge.class, "surveillance_post_upgrades"
   );
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
@@ -123,6 +129,7 @@ public class SurveyStation extends Venue implements Economy {
       choice.add(e);
     }
     
+    /*
     final boolean hasStill = still != null && ! still.destroyed();
     for (Target t : actor.senses.awareOf()) {
       if (hasStill && Hunting.validPrey(t, actor, true)) {
@@ -140,6 +147,7 @@ public class SurveyStation extends Venue implements Economy {
       );
       choice.add(d);
     }
+    //*/
     /*
     if (hasStill) choice.add(Deliveries.nextDeliveryFor(
       actor, still, still.services(), 5, world
@@ -169,7 +177,7 @@ public class SurveyStation extends Venue implements Economy {
   }
   
   
-  public Service[] services() {
+  public TradeType[] services() {
     return null; //new Service[] { WATER, PROTEIN, SPICE };
   }
   
@@ -179,12 +187,14 @@ public class SurveyStation extends Venue implements Economy {
     if (! structure.intact()) return;
     stocks.forceDemand(CARBS, 5, Stocks.TIER_CONSUMER);
     
+    /*
     if (still == null || still.destroyed()) {
       final Tile o = Spacing.pickRandomTile(this, 4, world);
       still = (FleshStill) Placement.establishVenue(
         new FleshStill(this), o.x, o.y, GameSettings.buildFree, world
       );
     }
+    //*/
   }
   
   
@@ -208,7 +218,7 @@ public class SurveyStation extends Venue implements Economy {
   
   
   public String fullName() {
-    return "Survey Station";
+    return "Kommando Lodge";
   }
   
   
@@ -219,8 +229,8 @@ public class SurveyStation extends Venue implements Economy {
   
   public String helpInfo() {
     return
-      "Survey Stations are responsible for exploring the hinterland of your "+
-      "settlement, scouting for danger and regulating animal populations.";
+      "The Kommando Lodge allows you to recruit the tough, ruthless and self-"+
+      "sufficient Kommandos to patrol your untamed hinterlands.";
   }
   
   
@@ -281,6 +291,146 @@ public boolean actionPlantSensor(Actor actor, Tile t) {
   return true;
 }
 //*/
+
+
+
+
+
+/*
+package stratos.game.base;
+import stratos.game.actors.*;
+import stratos.game.building.*;
+import stratos.game.common.*;
+import stratos.game.maps.*;
+import stratos.game.tactical.*;
+import stratos.graphics.common.*;
+import stratos.graphics.cutout.*;
+import stratos.graphics.widgets.*;
+import stratos.user.*;
+import stratos.util.*;
+
+
+
+public class FleshStill extends Venue implements Economy {
+  
+  
+  /**  Data fields, constructors and save/load methods-
+  final public static ModelAsset MODEL = CutoutModel.fromImage(
+    FleshStill.class, "media/Buildings/ecologist/flesh_still.png", 3, 1
+  );
+  
+  
+  final KommandoLodge parent;
+  GroupSprite camouflaged;
+  
+  
+  public FleshStill(KommandoLodge parent) {
+    super(3, 1, Venue.ENTRANCE_EAST, parent.base());
+    structure.setupStats(
+      100, 4, 150, 0, Structure.TYPE_FIXTURE
+    );
+    this.parent = parent;
+    attachSprite(MODEL.makeSprite());
+    camouflaged = new GroupSprite();
+  }
+  
+  
+  public FleshStill(Session s) throws Exception {
+    super(s);
+    parent = (KommandoLodge) s.loadObject();
+  }
+  
+  
+  public void saveState(Session s) throws Exception {
+    super.saveState(s);
+    s.saveObject(parent);
+  }
+  
+  
+  
+  /**  Upgrades, economic functions and behaviour implementations-
+  public Behaviour jobFor(Actor actor) {
+    return null;
+  }
+  
+  public Background[] careers() { return null; }
+  
+  public Service[] services() {
+    return new Service[] { WATER, PROTEIN, SPYCE };
+  }
+  
+  
+  protected void updatePaving(boolean inWorld) {
+  }
+  
+  
+  public boolean canPlace() {
+    if (! super.canPlace()) return false;
+    for (Tile t : Spacing.perimeter(area(), origin().world)) if (t != null) {
+      if (t.owningType() >= this.owningType()) return false;
+    }
+    return true;
+  }
+  
+  
+  
+  /**  Rendering and interface-
+  public void renderFor(Rendering rendering, Base base) {
+    if (base == this.base()) super.renderFor(rendering, base);
+    else {
+      //
+      //  Render a bunch of rocks instead.  Also, make this non-selectable.
+      this.position(camouflaged.position);
+      camouflaged.fog = this.fogFor(base);
+      camouflaged.readyFor(rendering);
+    }
+  }
+  
+  
+  public String fullName() {
+    return "Flesh Still";
+  }
+  
+  
+  public Composite portrait(BaseUI UI) {
+    return Composite.withImage(KommandoLodge.ICON, "flesh_still");
+  }
+  
+  
+  public String helpInfo() {
+    return
+      "Flesh Stills help to extract protein and spice from culled specimens "+
+      "of native wildlife.";
+  }
+  
+  
+  public String buildCategory() {
+    return UIConstants.TYPE_ECOLOGIST;
+  }
+}
+
+//*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -10,9 +10,11 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.util.*;
 
+import static stratos.game.building.Economy.*;
 
 
-public class Conversion implements Economy, Session.Saveable {
+
+public class Conversion implements Session.Saveable {
   
   
   /**  Fields, constructors, and save/load methods-
@@ -57,9 +59,9 @@ public class Conversion implements Economy, Session.Saveable {
         skillN.add(num);
       }
       else if (o == TO             ) recRaw = false;
-      else if (o instanceof Service) {
+      else if (o instanceof TradeType) {
         if (recRaw) { rawB.add(o); rawN.add(num); }
-        else { out = Item.withAmount((Service) o, num); }
+        else { out = Item.withAmount((TradeType) o, num); }
       }
     }
     //
@@ -68,7 +70,7 @@ public class Conversion implements Economy, Session.Saveable {
     raw = new Item[rawB.size()];
     for (i = 0; i < rawB.size(); i++) {
       raw[i] = Item.withAmount(
-        (Service) rawB.atIndex(i),
+        (TradeType) rawB.atIndex(i),
         (Float  ) rawN.atIndex(i)
       );
     }
@@ -87,9 +89,15 @@ public class Conversion implements Economy, Session.Saveable {
   }
   
   
+  public static Conversion parse(
+    Class <? extends Venue> facility, Object... args
+  ) {
+    return new Conversion(facility, args);
+  }
+  
+  
   public static Conversion[] parse(
-    Class <? extends Venue> facility,
-    Object args[][]
+    Class <? extends Venue> facility, Object args[][]
   ) {
     Conversion c[] = new Conversion[args.length];
     for (int i = c.length; i-- > 0;) c[i] = new Conversion(facility, args[i]);

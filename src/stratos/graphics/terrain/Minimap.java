@@ -5,8 +5,9 @@
   */
 
 package stratos.graphics.terrain;
-import stratos.start.Disposal;
+//import stratos.start.Disposal;
 import stratos.graphics.common.*;
+import stratos.start.Assets;
 import stratos.util.*;
 import static stratos.graphics.common.GL.*;
 
@@ -29,7 +30,7 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 
 
 
-public class Minimap extends Disposal {
+public class Minimap extends Assets.Loadable {
   
   
   private Texture mapImage;
@@ -38,7 +39,7 @@ public class Minimap extends Disposal {
   
   
   public Minimap() {
-    super(true);
+    super("MINIMAP", Minimap.class, true);
   }
   
   
@@ -104,12 +105,17 @@ public class Minimap extends Disposal {
   }
   
   
-  protected void performAssetSetup() {
+  protected void loadAsset() {
     updateGeometry(null);
   }
   
   
-  protected void performAssetDisposal() {
+  public boolean isLoaded() {
+    return mapMesh != null;
+  }
+  
+  
+  protected void disposeAsset() {
     mapImage.dispose();
     mapMesh.dispose();
     shading.dispose();

@@ -269,7 +269,7 @@ public class NativeHut extends Venue {
   
   
   public Background[] careers() { return null; }
-  public Service[] services() { return null; }
+  public TradeType[] services() { return null; }
   
   
   protected void updatePaving(boolean inWorld) {

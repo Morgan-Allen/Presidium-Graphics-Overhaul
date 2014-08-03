@@ -202,7 +202,7 @@ public class Structure {
   }
   
   
-  public float outputOf(Service outType) {
+  public float outputOf(TradeType outType) {
     if (outputs == null) return 0;
     for (Item i : outputs) if (i.type == outType) return i.amount;
     return 0;

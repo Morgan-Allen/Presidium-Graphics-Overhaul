@@ -16,6 +16,10 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.actors.Backgrounds.*;
+import static stratos.game.building.Economy.*;
+
 
 
 //
@@ -32,7 +36,7 @@ import stratos.util.*;
 //  home.
 
 
-public class Holding extends Venue implements Economy {
+public class Holding extends Venue {
   
   
   /**  Fields, constructors, and save/load methods-
@@ -254,9 +258,9 @@ public class Holding extends Venue implements Economy {
   }
   
   
-  public Service[] goodsNeeded() {
+  public TradeType[] goodsNeeded() {
     
-    final Batch <Service> needed = new Batch <Service> ();
+    final Batch <TradeType> needed = new Batch <TradeType> ();
     int targetLevel = upgradeLevel + 1;
     targetLevel = Visit.clamp(targetLevel, HoldingUpgrades.NUM_LEVELS);
     
@@ -270,7 +274,7 @@ public class Holding extends Venue implements Economy {
     for (Item i : HoldingUpgrades.rationNeeds(this, targetLevel)) {
       needed.add(i.type);
     }
-    return needed.toArray(Service.class);
+    return needed.toArray(TradeType.class);
   }
   
   
@@ -285,10 +289,10 @@ public class Holding extends Venue implements Economy {
   
   
   public Behaviour jobFor(Actor actor) {
-    final Service goods[] = goodsNeeded();
+    final TradeType goods[] = goodsNeeded();
     
     //  First of all, deliver any goods that you yourself are carrying-
-    for (Service s : goods) for (Item i : actor.gear.matches(s)) {
+    for (TradeType s : goods) for (Item i : actor.gear.matches(s)) {
       if (i.refers == null || i.refers == actor) {
         final Delivery d = new Delivery(i, actor, this);
         d.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL);
@@ -317,7 +321,7 @@ public class Holding extends Venue implements Economy {
   
   
   public Background[] careers() { return new Background[0]; }
-  public Service[] services() { return new Service[0]; }
+  public TradeType[] services() { return new TradeType[0]; }
   
   
   

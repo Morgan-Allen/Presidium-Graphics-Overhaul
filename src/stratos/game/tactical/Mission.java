@@ -225,7 +225,7 @@ public abstract class Mission implements
   }
   
   
-  protected boolean isApproved(Actor a) {
+  public boolean isApproved(Actor a) {
     final Role role = roleFor(a);
     if (missionType == TYPE_PUBLIC) return role != null;
     return role == null ? false : role.approved;

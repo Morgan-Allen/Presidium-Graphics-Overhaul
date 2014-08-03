@@ -2,14 +2,14 @@
 
 
 package stratos.graphics.widgets;
-import stratos.start.Disposal;
 import stratos.graphics.common.*;
+import stratos.start.Assets;
 import stratos.util.*;
 
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Pixmap.*;
-import static com.badlogic.gdx.graphics.Texture.TextureFilter.*;
 
+import static com.badlogic.gdx.graphics.Texture.TextureFilter.*;
 
 
 
@@ -20,16 +20,22 @@ public class Composite {
   static Table <String, Composite> recentTable = new Table();
   static Stack <Composite> recent = new Stack <Composite> ();
   
-  final static Disposal DISPOSAL = new Disposal(false) {
-    protected void performAssetSetup() {}
-    protected void performAssetDisposal() {
+  
+  final static Assets.Loadable DISPOSAL = new Assets.Loadable(
+    "COMPOSITE_DISPOSAL", Composite.class, true
+  ) {
+    protected void loadAsset() {}
+    public boolean isLoaded() { return true; }
+    
+    protected void disposeAsset() {
       for (Composite c : recent) c.dispose();
       recent.clear();
       recentTable.clear();
+      
+      Assets.registerForLoading(this);
     }
   };
   
-
   
   private String tableKey;
   private Pixmap drawn;

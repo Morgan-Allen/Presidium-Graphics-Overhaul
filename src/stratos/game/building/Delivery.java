@@ -12,12 +12,11 @@ import stratos.game.building.Inventory.Owner;
 import stratos.game.common.*;
 import stratos.util.*;
 
+import static stratos.game.building.Economy.*;
 
 
-//  TODO:  Create a separate BulkDelivery class for vehicles.
 
-
-public class Delivery extends Plan implements Economy {
+public class Delivery extends Plan {
   
   
   final public static int
@@ -49,7 +48,7 @@ public class Delivery extends Plan implements Economy {
   public Vehicle driven;
   
   
-  public Delivery(Service s, Owner origin, Owner destination) {
+  public Delivery(TradeType s, Owner origin, Owner destination) {
     this(origin.inventory().matches(s), origin, destination);
   }
   
@@ -350,7 +349,7 @@ public class Delivery extends Plan implements Economy {
       if (! driven.setPilot(actor)) abortBehaviour();
       driven.pathing.updateTarget(target);
       if (driven.aboard() == target) {
-        for (Service t : ALL_COMMODITIES) {
+        for (TradeType t : ALL_MATERIALS) {
           driven.cargo.transfer(t, target);
         }
         stage = STAGE_RETURN;
@@ -393,7 +392,7 @@ public class Delivery extends Plan implements Economy {
     
     d.append("Delivering ");
     final Item available[] = available(actor);
-    final Batch <Service> types = new Batch <Service> ();
+    final Batch <TradeType> types = new Batch <TradeType> ();
     for (Item i : available) types.add(i.type);
     d.appendList("", types);
     d.append(" from ");

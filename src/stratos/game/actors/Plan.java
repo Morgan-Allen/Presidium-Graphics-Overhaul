@@ -45,7 +45,7 @@ public abstract class Plan implements Saveable, Behaviour {
   
   private static boolean verbose = false, evalVerbose = false;
   
-  final Target subject;
+  final public Target subject;
   protected Actor actor;
   
   protected float

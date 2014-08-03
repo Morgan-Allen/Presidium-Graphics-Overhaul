@@ -2,18 +2,18 @@
 
 
 package stratos.graphics.cutout;
-import java.io.*;
-import java.util.Iterator;
-
 import stratos.graphics.common.*;
 import stratos.util.*;
+
+import java.io.*;
+import java.util.Iterator;
 
 
 
 public class GroupSprite extends Sprite {
   
   
-  final static ModelAsset GROUP_MODEL = new Assets.ClassModel(
+  final static ModelAsset GROUP_MODEL = new ClassModel(
     "GROUP-MODEL", GroupSprite.class
   ) {
     public Sprite makeSprite() { return new GroupSprite(); }

@@ -15,9 +15,13 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.actors.Backgrounds.*;
+import static stratos.game.building.Economy.*;
 
 
-public class Reactor extends Venue implements Economy {
+
+public class Reactor extends Venue {
   
   
 
@@ -160,7 +164,7 @@ public class Reactor extends Venue implements Economy {
     //
     //  Then check to see if anything needs manufacture-
     final Manufacture m = stocks.nextManufacture(actor, METALS_TO_FUEL);
-    if (m != null && stocks.amountOf(METALS) >= 1) {
+    if (m != null && stocks.amountOf(ORES) >= 1) {
       m.checkBonus = 5 * structure.upgradeLevel(ISOTOPE_CONVERSION);
       choice.add(m);
     }
@@ -376,8 +380,8 @@ public class Reactor extends Venue implements Economy {
   }
   
   
-  public Service[] services() {
-    return new Service[] { POWER, ATOMICS };
+  public TradeType[] services() {
+    return new TradeType[] { POWER, FUEL_RODS };
   }
   
   

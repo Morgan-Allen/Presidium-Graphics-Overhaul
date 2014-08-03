@@ -15,6 +15,10 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.actors.Backgrounds.*;
+import static stratos.game.building.Economy.*;
+
 
 
 /**  Trade ships come to deposit and collect personnel and cargo.
@@ -28,7 +32,7 @@ import stratos.util.*;
 
 
 public class Dropship extends Vehicle implements
-  Inventory.Owner, Economy
+  Inventory.Owner
 {
   
   
@@ -147,7 +151,7 @@ public class Dropship extends Vehicle implements
   }
   
   
-  public Service[] services() { return ALL_COMMODITIES; }
+  public TradeType[] services() { return ALL_MATERIALS; }
   
   
   public Behaviour jobFor(Actor actor) {
@@ -173,13 +177,13 @@ public class Dropship extends Vehicle implements
     
     //final Batch <Venue> depots = Deliveries.nearbyDepots(this, world);
     final Delivery d = DeliveryUtils.bestBulkCollectionFor(
-      this, ALL_COMMODITIES, 1, 10, 5
+      this, ALL_MATERIALS, 1, 10, 5
     );
     if (report) I.say("Next delivery: "+d);
     if (d != null) return d;
     
     final Delivery c = DeliveryUtils.bestBulkDeliveryFrom(
-      this, ALL_COMMODITIES, 1, 10, 5
+      this, ALL_MATERIALS, 1, 10, 5
     );
     if (report) I.say("Next collection: "+d);
     if (c != null) return c;
@@ -236,7 +240,7 @@ public class Dropship extends Vehicle implements
   }
   
   
-  public int spaceFor(Service good) {
+  public int spaceFor(TradeType good) {
     return MAX_CAPACITY;
   }
   
@@ -251,10 +255,10 @@ public class Dropship extends Vehicle implements
     
     if (stage == STAGE_LANDED) {
       final Commerce commerce = base.commerce;
-      final Tally <Service> surpluses = new Tally <Service> ();
+      final Tally <TradeType> surpluses = new Tally <TradeType> ();
       float sumS = 0;
       
-      for (Service good : ALL_COMMODITIES) {
+      for (TradeType good : ALL_MATERIALS) {
         final float surplus = commerce.localSurplus(good);
         if (surplus > 0) {
           sumS += surplus;
@@ -268,7 +272,7 @@ public class Dropship extends Vehicle implements
         }
       }
       
-      for (Service good : surpluses.keys()) {
+      for (TradeType good : surpluses.keys()) {
         final float wanted = MAX_CAPACITY * surpluses.valueFor(good) / sumS;
         cargo.forceDemand(good, wanted, Stocks.TIER_CONSUMER);
       }
@@ -276,7 +280,7 @@ public class Dropship extends Vehicle implements
   }
   
   
-  public float priceFor(Service service) {
+  public float priceFor(TradeType service) {
     final Commerce c = base.commerce;
     if (c.localSurplus(service) > 0) return c.exportPrice(service);
     if (c.localShortage(service) > 0) return c.importPrice(service);
@@ -488,11 +492,11 @@ public class Dropship extends Vehicle implements
       final LaunchHangar strip = depot.launchHangar();
       if (strip == null || ! depot.structure.intact()) continue;
       if (strip.docking() != null || ! strip.structure.intact()) continue;
-      float rating = 0; for (Service good : ALL_COMMODITIES) {
+      float rating = 0; for (Service good : ALL_MATERIALS) {
         rating += depot.exportDemand(good);
         rating += depot.importShortage(good);
       }
-      rating /= 2 * ALL_COMMODITIES.length;
+      rating /= 2 * ALL_MATERIALS.length;
       if (rating > bestRating) { landing = strip; bestRating = rating; }
     }
     

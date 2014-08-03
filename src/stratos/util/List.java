@@ -306,7 +306,7 @@ public class List <T> extends ListEntry <T> implements Series <T> {
   /**  Returns a standard iterator over this list.
     */
   final public Iterator <T> iterator() {
-    final class iterates implements Iterator <T> {
+    return new Iterator <T> () {
       ListEntry <T> current = list;
       //
       public boolean hasNext() {
@@ -322,8 +322,35 @@ public class List <T> extends ListEntry <T> implements Series <T> {
         removeEntry(current);
         current = current.next;
       }
-    }
-    return new iterates();
+    };
+  }
+  
+  
+  final public Iterable <ListEntry <T>> entries() {
+    final class entryList implements
+      Iterable <ListEntry <T>>, Iterator <ListEntry <T>>
+    {
+      ListEntry <T> current = list;
+      //
+      public boolean hasNext() {
+        return (current.next != list);
+      }
+      //
+      public ListEntry <T> next() {
+        current = current.next;
+        return current;
+      }
+      //
+      public void remove() {
+        removeEntry(current);
+        current = current.next;
+      }
+      
+      public Iterator <ListEntry<T>> iterator() {
+        return this;
+      }
+    };
+    return new entryList();
   }
   
   

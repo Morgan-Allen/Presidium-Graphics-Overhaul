@@ -3,15 +3,16 @@
 
 package stratos.graphics.sfx;
 import stratos.graphics.common.*;
-import stratos.graphics.widgets.Alphabet;
-import stratos.user.UIConstants;
+import stratos.graphics.widgets.*;
+
+import stratos.user.UIConstants;  //   TODO:  GET RID OF THIS REFERENCE
 import stratos.util.*;
 
 
 public class Label extends SFX {
   
   
-  final public static ModelAsset LABEL_MODEL = new Assets.ClassModel(
+  final public static ModelAsset LABEL_MODEL = new ClassModel(
     "label_fx_model", Label.class
   ) {
     public Sprite makeSprite() { return new Label(); }

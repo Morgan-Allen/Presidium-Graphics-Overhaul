@@ -8,12 +8,15 @@ import stratos.game.common.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.building.Economy.*;
+
 
 
 //  TODO:  Use this to perform domestic chores, cleanup, and child-minding.
 
 
-public class Supervision extends Plan implements Economy {
+public class Supervision extends Plan {
   
   
   /**  Data fields, setup and save/load functions-
@@ -104,7 +107,7 @@ public class Supervision extends Plan implements Economy {
     //
     //  If you have any items demanded by the venue, put them away-
     for (Item i : actor.gear.allItems()) {
-      if (i.refers != null || i.type.form != FORM_COMMODITY) continue;
+      if (i.refers != null || i.type.form != FORM_MATERIAL) continue;
       if (venue.stocks.demandFor(i.type) > 0) actor.gear.transfer(i, venue);
     }
     return true;

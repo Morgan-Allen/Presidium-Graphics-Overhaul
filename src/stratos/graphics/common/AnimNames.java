@@ -4,18 +4,20 @@ package stratos.graphics.common;
 
 public interface AnimNames {
   static String
+    
     STAND      = "stand",
     LOOK       = "look",
     MOVE       = "move",
     MOVE_FAST  = "move_fast",
     MOVE_SNEAK = "move_sneak",
+    FALL       = "fall",
     
     FIRE       = "fire",
+    FIRE_SIDE  = "fire_side",
     EVADE      = "evade",
     BLOCK      = "block",
     STRIKE     = "strike",
     STRIKE_BIG = "strike_big",
-    FALL       = "fall",
     
     TALK       = "talk",
     TALK_LONG  = "talk_long",

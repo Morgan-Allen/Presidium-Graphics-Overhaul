@@ -21,15 +21,15 @@ public class SensorPost extends Fixture implements Selectable {
   /**  Construction and save/load methods-
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    SurveyStation.class, "media/Buildings/ecologist/sensor_array.png", 0.75f, 3
+    KommandoLodge.class, "media/Buildings/ecologist/sensor_array.png", 0.75f, 3
   );
   
-  final SurveyStation parent;
+  final KommandoLodge parent;
   private float batteryLife;
   protected Sprite camouflage;
   
   
-  protected SensorPost(SurveyStation parent, float batteryLife) {
+  protected SensorPost(KommandoLodge parent, float batteryLife) {
     super(1, 3);
     this.parent = parent;
     this.batteryLife = batteryLife;
@@ -39,7 +39,7 @@ public class SensorPost extends Fixture implements Selectable {
   
   public SensorPost(Session s) throws Exception {
     super(s);
-    parent = (SurveyStation) s.loadObject();
+    parent = (KommandoLodge) s.loadObject();
     batteryLife = s.loadFloat();
   }
   
@@ -54,10 +54,10 @@ public class SensorPost extends Fixture implements Selectable {
   
   /**  Registration, life cycle and physical properties-
     */
-  protected static SensorPost locateNewPost(SurveyStation parent) {
+  protected static SensorPost locateNewPost(KommandoLodge parent) {
     final World world = parent.world();
     final int numAttempts = 5, bonus = parent.structure.upgradeLevel(
-      SurveyStation.SENSOR_PERIMETER
+      KommandoLodge.SENSOR_PERIMETER
     );
     
     float range = World.SECTOR_SIZE / 2f, spacing = 10;
@@ -145,7 +145,7 @@ public class SensorPost extends Fixture implements Selectable {
 
 
   public Composite portrait(BaseUI UI) {
-    return Composite.withImage(SurveyStation.ICON, "sensor_post");
+    return Composite.withImage(KommandoLodge.ICON, "sensor_post");
   }
   
   

@@ -12,10 +12,12 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
 
 
 
-public class Tripod extends Artilect implements Economy {
+
+public class Tripod extends Artilect {
   
   
   final String name;
@@ -38,8 +40,8 @@ public class Tripod extends Artilect implements Economy {
     gear.setArmour(20);
     traits.setLevel(MARKSMANSHIP, 10);
     traits.setLevel(HAND_TO_HAND, 10);
-    gear.equipOutfit(Item.withQuality(ARTILECT_ARMOUR, 0));
-    gear.equipDevice(Item.withQuality(INTRINSIC_ENERGY_WEAPON, 0));
+    gear.equipOutfit(Item.withQuality(Economy.INTRINSIC_ARMOUR, 0));
+    gear.equipDevice(Item.withQuality(Economy.INTRINSIC_BEAM  , 0));
     
     traits.setLevel(FEARLESS, 1);
     

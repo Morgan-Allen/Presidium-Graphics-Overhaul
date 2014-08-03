@@ -149,7 +149,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
     this.world = null;
     this.base = null;
     this.UI = null;
-    PlayLoop.gameStateWipe();
+    PlayLoop.sessionStateWipe();
     initScenario(null);
     PlayLoop.setupAndLoop(this);
   }
@@ -258,8 +258,9 @@ public abstract class Scenario implements Session.Saveable, Playable {
   ) {
     I.say("Should be loading game from: "+saveFile);
     
-    PlayLoop.gameStateWipe();
-    PlayLoop.setupAndLoop(new Playable() {
+    PlayLoop.sessionStateWipe();
+    final Playable loading = new Playable() {
+      
       private boolean begun = false, done = false;
       
       public void updateGameState() {}
@@ -297,7 +298,8 @@ public abstract class Scenario implements Session.Saveable, Playable {
         //  TODO:  Implement some kind of progress readout here.
         return done ? 0.999f : 0;//Session.loadProgress();
       }
-    });
+    };
+    PlayLoop.setupAndLoop(loading);
   }
   
   

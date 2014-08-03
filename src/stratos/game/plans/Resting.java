@@ -13,9 +13,12 @@ import stratos.game.building.Inventory.Owner;
 import stratos.user.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.building.Economy.*;
 
 
-public class Resting extends Plan implements Economy {
+
+public class Resting extends Plan {
   
   
   
@@ -100,7 +103,7 @@ public class Resting extends Plan implements Economy {
     
     //  Include effects of hunger-
     float sumFood = 0;
-    for (Service s : menuFor(restPoint)) {
+    for (TradeType s : menuFor(restPoint)) {
       sumFood += restPoint.inventory().amountOf(s);
     }
     if (sumFood > 1) sumFood = 1;
@@ -123,9 +126,9 @@ public class Resting extends Plan implements Economy {
   }
   
   
-  private static Batch <Service> menuFor(Owner place) {
-    Batch <Service> menu = new Batch <Service> ();
-    for (Service type : ALL_FOOD_TYPES) {
+  private static Batch <TradeType> menuFor(Owner place) {
+    Batch <TradeType> menu = new Batch <TradeType> ();
+    for (TradeType type : ALL_FOOD_TYPES) {
       if (place.inventory().amountOf(type) >= 0.1f) menu.add(type);
     }
     return menu;
@@ -170,7 +173,7 @@ public class Resting extends Plan implements Economy {
   public boolean actionRest(Actor actor, Owner place) {
     //
     //  Transfer any incidental groceries-
-    if (place == actor.mind.home()) for (Service food : ALL_FOOD_TYPES) {
+    if (place == actor.mind.home()) for (TradeType food : ALL_FOOD_TYPES) {
       actor.gear.transfer(food, (Employer) place);
     }
     //
@@ -206,14 +209,14 @@ public class Resting extends Plan implements Economy {
   
   
   public static boolean dineFrom(Actor actor, Owner stores) {
-    final Batch <Service> menu = menuFor(stores);
+    final Batch <TradeType> menu = menuFor(stores);
     final int numFoods = menu.size();
     
     if (numFoods > 0 && actor.health.hungerLevel() > 0.1f) {
       final int FTC = ActorHealth.FOOD_TO_CALORIES;
       float sumFood = 0;
       
-      for (Service type : menu) {
+      for (TradeType type : menu) {
         final Item portion = Item.withAmount(type, 0.2f / (numFoods * FTC));
         stores.inventory().removeItem(portion);
         sumFood += portion.amount;
