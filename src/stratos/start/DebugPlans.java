@@ -7,11 +7,9 @@ import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.game.campaign.*;
 import stratos.game.maps.*;
-import stratos.game.plans.FindWork;
-import stratos.game.plans.Gifting;
+import stratos.game.plans.*;
 import stratos.game.base.*;
 import stratos.game.tactical.*;
-import stratos.game.civilian.*;
 import stratos.game.wild.*;
 import stratos.user.*;
 import stratos.util.*;
@@ -21,7 +19,7 @@ import stratos.util.*;
 
 public class DebugPlans extends Scenario {
   
-
+  
   public static void main(String args[]) {
     PlayLoop.setupAndLoop(new DebugPlans());
   }

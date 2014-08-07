@@ -78,6 +78,16 @@ public class Box2D {
   }
   
   
+  public void expandToUnit(int unit) {
+    xpos = unit * (float) FastMath.floor(xpos / unit);
+    ypos = unit * (float) FastMath.floor(ypos / unit);
+    xmax = unit * (float) FastMath.ceil (xmax / unit);
+    ymax = unit * (float) FastMath.ceil (ymax / unit);
+    xdim = xmax - xpos;
+    ydim = ymax = ypos;
+  }
+  
+  
   /**  Default setup method.  The first two arguments specify position, the
     *  last two specif y size, in x and y, respectively.
     */
@@ -135,6 +145,15 @@ public class Box2D {
     if (ymax < box.ypos) return false;
     if (xpos > box.xmax) return false;
     if (ypos > box.ymax) return false;
+    return true;
+  }
+  
+  
+  public boolean overlaps(Box2D box) {
+    if (xmax <= box.xpos) return false;
+    if (ymax <= box.ypos) return false;
+    if (xpos >= box.xmax) return false;
+    if (ypos >= box.ymax) return false;
     return true;
   }
   

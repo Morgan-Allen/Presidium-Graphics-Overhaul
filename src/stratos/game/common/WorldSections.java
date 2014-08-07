@@ -5,6 +5,8 @@
   */
 
 package stratos.game.common;
+import org.apache.commons.math3.util.FastMath;
+
 import stratos.graphics.common.*;
 import stratos.util.*;
 
@@ -151,12 +153,18 @@ public class WorldSections implements TileConstants {
   public Batch <Section> sectionsUnder(Box2D area) {
     final Batch <Section> batch = new Batch <Section> ();
     
-    final float s = 1f / resolution;
+    final float s = 1f / resolution, dim = world.size / resolution;
     final Box2D clip = new Box2D();
     clip.setX(area.xpos() * s, area.xdim() * s);
     clip.setY(area.ypos() * s, area.ydim() * s);
+    clip.expandBy(1);
     
-    for (Coord c : Visit.grid(clip)) batch.add(hierarchy[0][c.x][c.y]);
+    for (Coord c : Visit.grid(clip)) {
+      if (c.x < 0 || c.x >= dim || c.y < 0 || c.y >= dim) continue;
+      final Section under = hierarchy[0][c.x][c.y];
+      if (! under.area.overlaps(area)) continue;
+      batch.add(under);
+    }
     return batch;
   }
   

@@ -113,10 +113,10 @@ public class Farming extends Plan {
     //  Find the next tile for seeding, tending or harvest.
     float minDist = Float.POSITIVE_INFINITY, dist;
     Crop picked = null;
-    for (Plantation p : nursery.strip) for (Crop c : p.planted) {
+    for (Crop c : nursery.planted()) {
       if (c != null && c.needsTending()) {
-        dist = Spacing.distance(actor, c.tile);
-        if (Spacing.edgeAdjacent(c.tile, actor.origin())) dist /= 2;
+        dist = Spacing.distance(actor, c);
+        if (Spacing.edgeAdjacent(c.origin(), actor.origin())) dist /= 2;
         if (dist < minDist) { picked = c; minDist = dist; }
       }
     }
@@ -142,7 +142,7 @@ public class Farming extends Plan {
         this, actionName,
         anim, desc
       );
-      plants.setMoveTarget(Spacing.nearestOpenTile(picked.tile, actor));
+      plants.setMoveTarget(Spacing.nearestOpenTile(picked, actor));
       return plants;
     }
     return null;
@@ -186,16 +186,16 @@ public class Farming extends Plan {
   private Species pickSpecies(Tile t, EcologistStation parent) {
     final Float chances[] = new Float[5];
     int i = 0;
-    for (Species s : Plantation.ALL_VARIETIES) {
+    for (Species s : Crop.ALL_VARIETIES) {
       final float stocked = 50 + parent.stocks.amountOf(Crop.yieldType(s));
       chances[i++] = Crop.habitatBonus(t, s, parent) / stocked;
     }
-    return (Species) Rand.pickFrom(Plantation.ALL_VARIETIES, chances);
+    return (Species) Rand.pickFrom(Crop.ALL_VARIETIES, chances);
   }
   
   
   private Item nextSeedNeeded() {
-    for (Species s : Plantation.ALL_VARIETIES) {
+    for (Species s : Crop.ALL_VARIETIES) {
       final Item seed = Item.asMatch(SAMPLES, s);
       if (nursery.stocks.amountOf(seed) == 0) continue;
       if (actor.gear.amountOf(seed) > 0) continue;
@@ -226,6 +226,8 @@ public class Farming extends Plan {
   
   public boolean actionPlant(Actor actor, Crop crop) {
     
+    if (! crop.inWorld()) crop.enterWorld();
+    
     //  Initial seed quality has a substantial impact on crop health.
     final Item seed = actor.gear.bestSample(
       Item.asMatch(SAMPLES, crop.species()), 0.1f
@@ -247,7 +249,7 @@ public class Farming extends Plan {
     health += actor.traits.test(CULTIVATION, plantDC, 1) ? 1 : 0;
     health += actor.traits.test(HARD_LABOUR, ROUTINE_DC, 1) ? 1 : 0;
     health *= Plantation.MAX_HEALTH_BONUS / 5;
-    final Species s = pickSpecies(crop.tile, nursery.belongs);
+    final Species s = pickSpecies(crop.origin(), nursery.belongs);
     crop.seedWith(s, health);
     return true;
   }

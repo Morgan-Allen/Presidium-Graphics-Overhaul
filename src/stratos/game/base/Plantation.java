@@ -20,12 +20,11 @@ import static stratos.game.building.Economy.*;
 
 
 //  TODO:  Just use this as the Nursery.  Same way that the Tailing can just
-//  be used as an entry/exit point.
+//  be used as an entry/exit point for excavations.
 
 
-public class Plantation extends Venue implements
-  TileConstants
-{
+public class Plantation extends Venue implements TileConstants {
+  
   
   /**  Constructors, data fields, setup and save/load methods-
     */
@@ -33,27 +32,10 @@ public class Plantation extends Venue implements
   final static ModelAsset
     NURSERY_MODEL = CutoutModel.fromImage(
       Plantation.class, IMG_DIR+"nursery.png", 2, 2
-    ),
-    COVERING_LEFT = CutoutModel.fromImage(
-      Plantation.class, IMG_DIR+"covering_left.png", 1, 1
-    ),
-    COVERING_RIGHT = CutoutModel.fromImage(
-      Plantation.class, IMG_DIR+"covering_right.png", 1, 1
-    ),
-    CROP_MODELS[][] = CutoutModel.fromImageGrid(
-      Plantation.class, IMG_DIR+"all_crops.png",
-      4, 4, 0.5f, 0.5f
-    ),
-    GRUB_BOX_MODEL = CutoutModel.fromImage(
-      Plantation.class, IMG_DIR+"grub_box.png", 0.5f, 0.5f
     );
   
-  
-  
   final public static int
-    TYPE_NURSERY = 0,
-    TYPE_BED     = 1,
-    TYPE_COVERED = 2;
+    TYPE_NURSERY = 0;
   final public static float
     MATURE_DURATION = World.STANDARD_DAY_LENGTH * 5,
     GROW_INCREMENT  = World.GROWTH_INTERVAL / MATURE_DURATION,
@@ -70,21 +52,23 @@ public class Plantation extends Venue implements
     NURSERY_CARBS   = 1,
     NURSERY_GREENS  = 0.5f,
     NURSERY_PROTEIN = 0.5f;
+  final static Crop[]
+    NO_CROPS = new Crop[0];
   
   
   final public EcologistStation belongs;
-  final public Plantation strip[];
+  
   final public int type;
-  final public Crop planted[] = new Crop[4];
-  final int facing;
+  private Crop planted[] = null;
   private float needsTending = 0;
   
   
-  
   public Plantation(
-    EcologistStation belongs, int type, int facing, Plantation strip[]
+    EcologistStation belongs, int type//, int facing//, Plantation strip[]
   ) {
-    super(2, 2, (ENTRANCE_SOUTH + (facing / 2)) % 4, belongs.base());
+    super(2, 2, ENTRANCE_SOUTH, belongs.base());
+    this.attachModel(NURSERY_MODEL);
+    
     final boolean IN = type == TYPE_NURSERY;
     structure.setupStats(
       IN ? 25 : 5,  //integrity
@@ -95,8 +79,6 @@ public class Plantation extends Venue implements
     );
     this.belongs = belongs;
     this.type = type;
-    this.facing = facing;
-    this.strip = strip;
   }
   
 
@@ -104,14 +86,7 @@ public class Plantation extends Venue implements
     super(s);
     belongs = (EcologistStation) s.loadObject();
     type = s.loadInt();
-    facing = s.loadInt();
-    
-    final int SS = s.loadInt();
-    strip = new Plantation[SS];
-    for (int p = SS; p-- > 0;) strip[p] = (Plantation) s.loadObject();
-    for (int i = 0; i < 4; i++) {
-      planted[i] = (Crop) s.loadObject();
-    }
+    planted = (Crop[]) s.loadObjectArray(Crop.class);
   }
   
   
@@ -119,11 +94,7 @@ public class Plantation extends Venue implements
     super.saveState(s);
     s.saveObject(belongs);
     s.saveInt(type);
-    s.saveInt(facing);
-    
-    s.saveInt(strip.length);
-    for (Plantation p : strip) s.saveObject(p);
-    for (Crop c : planted) s.saveObject(c);
+    s.saveObjectArray(planted);
   }
   
   
@@ -153,6 +124,7 @@ public class Plantation extends Venue implements
   
   /**  Establishing crop areas-
     */
+  /*
   final static int
     STRIP_DIRS[]  = { N, E, S, W },
     CROPS_POS[] = { 0, 0, 0, 1, 1, 0, 1, 1 };
@@ -168,19 +140,25 @@ public class Plantation extends Venue implements
         final Tile t = world.tileAt(x + CROPS_POS[i++], y + CROPS_POS[i++]);
         ///I.say("Creating new bed, species: "+Species.CROP_SPECIES[0]);
         planted[c] = new Crop(
-          this, Species.CROP_SPECIES[0], t
+          this, Species.CROP_SPECIES[0]
         );
+        planted[c].setPosition(t.x, t.y, world);
       }
-      refreshCropSprites();
+      //refreshCropSprites();
     }
     return true;
   }
+  //*/
   
   
   public void updateAsScheduled(int numUpdates) {
     super.updateAsScheduled(numUpdates);
-    
     if (! structure.intact()) return;
+
+    if (! belongs.structure.intact()) {
+      structure.setState(Structure.STATE_SALVAGE, -1);
+      return;
+    }
     structure.setAmbienceVal(2);
     
     if (type == TYPE_NURSERY && numUpdates % 10 == 0) {
@@ -199,42 +177,24 @@ public class Plantation extends Venue implements
   
   public void onGrowth(Tile t) {
     if (! structure.intact()) return;
+    
+    //  TODO:  Just update growth for any plants inside the nursery.
     //
     //  Here, we average fertility over the plantation as a whole-
-    //  TODO:  Possibly combine with irrigation effects from water supply or
-    //  life support?
-    //  TODO:  Restore this.
-    /*
-    float avgMoisture = 0, count = 0;
-    for (Plantation p : strip) {
-      final Tile o = p.origin();
-      for (int c = 0, i = 0; c < 4; c++) {
-        final Tile u = world.tileAt(
-          o.x + CROPS_POS[i++],
-          o.y + CROPS_POS[i++]
-        );
-        avgMoisture += u.habitat().moisture();
-        count++;
-      }
-    }
-    avgMoisture /= count * 10;
-    if (type == TYPE_COVERED) avgMoisture = (avgMoisture + 1) / 2f;
-    //*/
     
     //  Then apply growth to each crop-
+    /*
     boolean anyChange = false;
-    for (Crop c : planted) if (c != null && c.tile == t) {
+    for (Crop c : planted) if (c != null && c.origin() == t) {
       final int oldGrowth = (int) c.growStage();
       c.onGrowth(t);
       final int newGrowth = (int) c.growStage();
       if (oldGrowth != newGrowth) anyChange = true;
       
-      world.ecology().impingeBiomass(
-        t, c.growStage() / 2f, World.GROWTH_INTERVAL
-      );
     }
+    //*/
     checkCropStates();
-    if (anyChange) refreshCropSprites();
+    //if (anyChange) refreshCropSprites();
   }
   
   
@@ -245,72 +205,25 @@ public class Plantation extends Venue implements
   }
   
   
-  protected void refreshCropSprites() {
-    if (sprite() != null) {
-      final GroupSprite oldSprite = (GroupSprite) buildSprite.baseSprite();
-      world.ephemera.addGhost(this, 2, oldSprite, 2.0f);
-    }
-    
-    final GroupSprite GS = new GroupSprite();
-    final Tile o = origin();
-    for (int i = 4; i-- > 0;) {
-      final Crop c = planted[i];
-      if (c == null) continue;
-      //
-      //  Update the sprite-
-      Sprite s = null;
-      if (type == TYPE_COVERED) {
-        if ((facing == N || facing == S) && c.tile.x == o.x + 1) {
-          s = COVERING_RIGHT.makeSprite();
-        }
-        if ((facing == E || facing == W) && c.tile.y == o.y + 0) {
-          s = COVERING_LEFT.makeSprite();
-        }
-      }
-      if (s == null) {
-        final ModelAsset m = speciesModel(c.species(), c.growStage());
-        final GroupSprite CS = new GroupSprite();
-        for (int j = 0; j < 8;) {
-          CS.attach(
-            m,
-            (CROPS_POS[j++] - 0.5f) / 2,
-            (CROPS_POS[j++] - 0.5f) / 2,
-            0
-         );
-        }
-        s = CS;
-      }
-      GS.attach(
-        s,
-        CROPS_POS[i * 2] - 0.5f,
-        CROPS_POS[(i * 2) + 1] - 0.5f,
-        0
-      );
-    }
-    attachSprite(GS);
-    setAsEstablished(false);
-  }
-  
-  
-  Crop[] planted() {
+  public Crop[] planted() {
+    if (planted == null) return NO_CROPS;
     return planted;
   }
   
   
   public Crop plantedAt(Tile t) {
-    for (Crop c : planted) if (c != null && c.tile == t) return c;
+    for (Crop c : planted) if (c != null && c.origin() == t) return c;
     return null;
   }
   
   
   public float needForTending() {
-    if (type != TYPE_NURSERY || ! structure.intact()) return 0;
-    float sum = 0;
-    for (Plantation p : strip) sum += p.needsTending;
-    return sum / (strip.length - 1);
+    return needsTending;
   }
   
   
+  
+  //  TODO:  Consider changing these to employ 1 or 2 cultivators each.
   public TradeType[] services() { return null; }
   
   public Background[] careers() { return null; }
@@ -321,151 +234,26 @@ public class Plantation extends Venue implements
   
   /**  Finding space.
     */
-  
-  //  TODO:  Outsource these to the Placement class.
-  
-  static Plantation[] placeAllotment(
-    final EcologistStation parent, final int minSize, boolean covered
-  ) {
-    final World world = parent.world();
-    Plantation strip[] = new Plantation[4];
-    
-    for (int n = 4; n-- > 0;) {
-      final Plantation p = strip[n] = new Plantation(
-        parent, n == 0 ? TYPE_NURSERY : (covered ? TYPE_COVERED : TYPE_BED),
-        0, strip
-      );
-    }
-    
-    if (Placement.findClearanceFor(strip, parent, world)) {
-      final int dir = Placement.directionOf(strip);
-      for (int n = 4; n-- > 0;) {
-        final Tile o = strip[n].origin();
-        final Plantation p = strip[n] = new Plantation(
-          parent, n == 0 ? TYPE_NURSERY : (covered ? TYPE_COVERED : TYPE_BED),
-          dir, strip
-        );
-        p.setPosition(o.x, o.y, world);
-        p.placeFromOrigin();
-      }
-      return strip;
-    }
-    return null;
-    /*
-    Plantation bestSite[] = null;
-    float bestRating = 0;
-    
-    for (int m = 10; m-- > 0;) {
-      final Tile t = Spacing.pickRandomTile(parent, 12, world);
-      if (t == null) continue;
-      final int off = Rand.index(4);
-      for (int n = 4; n-- > 0;) {
-        final Plantation allots[] = new Plantation[minSize];
-        final int i = (n + off) % 4;
-        if (tryPlacementAt(t, parent, allots, STRIP_DIRS[i], covered)) {
-          final float rating = rateArea(allots, world);
-          if (rating > bestRating) { bestSite = allots; bestRating = rating; }
-        }
-      }
-    }
-    if (bestSite != null) {
-      for (Plantation p : bestSite) p.placeFromOrigin();
-      return bestSite;
-    }
-    return null;
-    //*/
-  }
-  
-  
-  //  TODO:  INCORPORATE THIS INTO THE PLACEMENT ALGORITHM
-  static float rateArea(Plantation allots[], World world) {
-    //
-    //  Favour fertile, unpaved areas close to the parent botanical station but
-    //  farther from other structures-
-    float
-      fertility = 0, num = 0,
-      minDist = World.SECTOR_SIZE, parentDist = 0;
-    for (Plantation p : allots) {
-      parentDist += Spacing.distance(p, p.belongs);
-      Target close = world.presences.nearestMatch(Venue.class, p, minDist);
-      if (
-        close != null && close != p.belongs &&
-        ! (close instanceof Plantation)
-      ) {
-        minDist = Spacing.distance(p, close);
-      }
-      for (Tile t : world.tilesIn(p.area(), false)) {
-        fertility += t.habitat().moisture();
-        if (t.pathType() == Tile.PATH_ROAD) fertility /= 2;
-        num++;
-      }
-    }
-    float rating = fertility / num;
-    rating *= 1 - (parentDist / (allots.length * World.SECTOR_SIZE));
-    rating *= minDist / World.SECTOR_SIZE;
-    return rating;
-  }
-  
-  /*
-  private static boolean tryPlacementAt(
-    Tile t, BotanicalStation parent, Plantation allots[],
-    int dir, boolean covered
-  ) {
-    for (int i = 0; i < allots.length; i++) try {
-      final Plantation p = allots[i] = new Plantation(
-        parent, i == 0 ? TYPE_NURSERY : (covered ? TYPE_COVERED : TYPE_BED),
-        dir, allots
-      );
-      p.setPosition(
-        t.x + (N_X[dir] * 2 * i),
-        t.y + (N_Y[dir] * 2 * i),
-        t.world
-      );
-      if (! p.canPlace()) return false;
-    } catch (Exception e) { return false; }
-    return true;
-  }
-  //*/
-  
-
   protected boolean canTouch(Element e) {
     return e.owningType() < this.owningType();
   }
   
   
-  
-  /**  Selecting crop type and accessing properties-
-    */
-  final public static Species ALL_VARIETIES[] = {
-    Species.ONI_RICE,
-    Species.DURWHEAT,
-    Species.TUBER_LILY,
-    Species.BROADFRUITS,
-    Species.HIVE_GRUBS
-  };
-  
-  //
-  //  TODO:  Move most or all of this out to the Species class, where it
-  //         belongs.
-  final static Object CROP_SPECIES[][] = {
-    new Object[] { Species.ONI_RICE, CARBS    , CROP_MODELS[0] },
-    new Object[] { Species.DURWHEAT, CARBS    , CROP_MODELS[1] },
-    new Object[] { Species.TUBER_LILY, GREENS , CROP_MODELS[3] },
-    new Object[] { Species.BROADFRUITS, GREENS, CROP_MODELS[2] },
-    new Object[] {
-      Species.HIVE_GRUBS, PROTEIN ,
-      new ModelAsset[] { GRUB_BOX_MODEL }
-    },
-    null,
-    null,
-    new Object[] { Species.TIMBER, GREENS, null },
-  };
+  //  TODO:  I want a more cohesive method for deciding on the placement of
+  //  spontaneous structures.  ...I think, on balance, that the growth method
+  //  would not be the worst of systems.  Get supply and demand, and find the
+  //  best unclaimed area.
   
   
-  public static ModelAsset speciesModel(Species s, int growStage) {
-    final int varID = Visit.indexOf(s, ALL_VARIETIES);
-    final ModelAsset seq[] = (ModelAsset[]) CROP_SPECIES[varID][2];
-    return seq[Visit.clamp(growStage, seq.length)];
+  public static Plantation placeAllotmentFor(EcologistStation parent) {
+    
+    
+    return null;
+  }
+  
+  
+  public static float rateAllotment(Plantation alloted, World world) {
+    return 0;
   }
   
   
@@ -526,12 +314,121 @@ public class Plantation extends Venue implements
     BaseUI.current().selection.renderTileOverlay(
       rendering, world,
       hovered ? Colour.transparency(0.5f) : Colour.WHITE,
-      Selection.SELECT_OVERLAY, true, strip[0], strip
+      Selection.SELECT_OVERLAY, true, this
     );
   }
 }
 
 
 
+
+
+//  TODO:  Outsource these to the Placement class.
+/*
+static Plantation[] placeAllotment(
+  final EcologistStation parent, final int minSize, boolean covered
+) {
+  final World world = parent.world();
+  Plantation strip[] = new Plantation[4];
+  
+  for (int n = 4; n-- > 0;) {
+    final Plantation p = strip[n] = new Plantation(
+      parent, n == 0 ? TYPE_NURSERY : (covered ? TYPE_COVERED : TYPE_BED),
+      0, strip
+    );
+  }
+  
+  if (Placement.findClearanceFor(strip, parent, world)) {
+    final int dir = Placement.directionOf(strip);
+    for (int n = 4; n-- > 0;) {
+      final Tile o = strip[n].origin();
+      final Plantation p = strip[n] = new Plantation(
+        parent, n == 0 ? TYPE_NURSERY : (covered ? TYPE_COVERED : TYPE_BED),
+        dir, strip
+      );
+      p.setPosition(o.x, o.y, world);
+      p.placeFromOrigin();
+    }
+    return strip;
+  }
+  return null;
+}
+
+
+//  TODO:  INCORPORATE THIS INTO THE PLACEMENT ALGORITHM
+static float rateArea(Plantation allots[], World world) {
+  //
+  //  Favour fertile, unpaved areas close to the parent botanical station but
+  //  farther from other structures-
+  float
+    fertility = 0, num = 0,
+    minDist = World.SECTOR_SIZE, parentDist = 0;
+  for (Plantation p : allots) {
+    parentDist += Spacing.distance(p, p.belongs);
+    Target close = world.presences.nearestMatch(Venue.class, p, minDist);
+    if (
+      close != null && close != p.belongs &&
+      ! (close instanceof Plantation)
+    ) {
+      minDist = Spacing.distance(p, close);
+    }
+    for (Tile t : world.tilesIn(p.area(), false)) {
+      fertility += t.habitat().moisture();
+      if (t.pathType() == Tile.PATH_ROAD) fertility /= 2;
+      num++;
+    }
+  }
+  float rating = fertility / num;
+  rating *= 1 - (parentDist / (allots.length * World.SECTOR_SIZE));
+  rating *= minDist / World.SECTOR_SIZE;
+  return rating;
+}
+//*/
+
+/*
+private static boolean tryPlacementAt(
+  Tile t, BotanicalStation parent, Plantation allots[],
+  int dir, boolean covered
+) {
+  for (int i = 0; i < allots.length; i++) try {
+    final Plantation p = allots[i] = new Plantation(
+      parent, i == 0 ? TYPE_NURSERY : (covered ? TYPE_COVERED : TYPE_BED),
+      dir, allots
+    );
+    p.setPosition(
+      t.x + (N_X[dir] * 2 * i),
+      t.y + (N_Y[dir] * 2 * i),
+      t.world
+    );
+    if (! p.canPlace()) return false;
+  } catch (Exception e) { return false; }
+  return true;
+}
+//*/
+
+
+/*
+Plantation bestSite[] = null;
+float bestRating = 0;
+
+for (int m = 10; m-- > 0;) {
+  final Tile t = Spacing.pickRandomTile(parent, 12, world);
+  if (t == null) continue;
+  final int off = Rand.index(4);
+  for (int n = 4; n-- > 0;) {
+    final Plantation allots[] = new Plantation[minSize];
+    final int i = (n + off) % 4;
+    if (tryPlacementAt(t, parent, allots, STRIP_DIRS[i], covered)) {
+      final float rating = rateArea(allots, world);
+      if (rating > bestRating) { bestSite = allots; bestRating = rating; }
+    }
+  }
+}
+if (bestSite != null) {
+  for (Plantation p : bestSite) p.placeFromOrigin();
+  return bestSite;
+}
+return null;
+//*/
 
 

@@ -76,7 +76,7 @@ public class PavingMap {
     final Vec3D o = client.position(null);
     
     //  TODO:  Try to improve/guarantee efficiency here.  In the worst case
-    //         scenario, you're looking at 256 iterations (or so.)
+    //         scenario, you're looking at 256 iterations or so.
     
     world.sections.applyDescent(new WorldSections.Descent() {
       
@@ -88,7 +88,7 @@ public class PavingMap {
         
         if (s.size == world.sections.resolution) {
           //  TODO:  Also confine search to areas accessible from the actor's
-          //         pathing position!
+          //         pathing position!  ...And use that to estimate proximity.
           if (world.activities.includes(s, paveClass)) return false;
         }
         

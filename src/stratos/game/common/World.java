@@ -43,6 +43,7 @@ public class World {
   final public int size;
   final Tile tiles[][];
   final public WorldSections sections;
+  final public PlacementGrid grid;
   
   final public Schedule schedule;
   private float currentTime = DEFAULT_INIT_TIME;
@@ -66,6 +67,7 @@ public class World {
       tiles[c.x][c.y] = new Tile(this, c.x, c.y);
     }
     sections = new WorldSections(this, PATCH_RESOLUTION);
+    grid     = new PlacementGrid(this);
     schedule = new Schedule(currentTime);
     
     ecology = new Ecology(this);
@@ -89,6 +91,7 @@ public class World {
     for (Coord c : Visit.grid(0, 0, size, size, 1)) {
       tiles[c.x][c.y].loadTileState(s);
     }
+    grid.loadState(s);
     currentTime = s.loadFloat();
     schedule.loadFrom(s);
     
@@ -113,6 +116,7 @@ public class World {
     for (Coord c : Visit.grid(0, 0, size, size, 1)) {
       tiles[c.x][c.y].saveTileState(s);
     }
+    grid.saveState(s);
     s.saveFloat(currentTime);
     schedule.saveTo(s);
     

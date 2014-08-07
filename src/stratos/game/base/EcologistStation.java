@@ -3,7 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.game.base;
 import stratos.game.common.*;
 import stratos.game.maps.*;
@@ -35,20 +34,12 @@ public class EcologistStation extends Venue {
     STATION_MODEL = CutoutModel.fromImage(
       EcologistStation.class, IMG_DIR+"botanical_station.png", 4, 3
     );
-  /*
-  final static FacilityProfile PROFILE = new FacilityProfile(
-    EcologistStation.class, Structure.TYPE_VENUE,
-    4, 150, 3, 3,
-    new TradeType[] {},
-    new Background[] { ECOLOGIST, CULTIVATOR },
-    Conversion.parse(EcologistStation.class, new Object[][] {
-      { TO, GENE_SEED }
-    })
-  );
-  //*/
   
   
   final List <Plantation> allotments = new List <Plantation> ();
+  //private List <Plantation> nurseries = new List <Plantation> ();
+  //private List <Crop[]> allotments = new List <Crop[]> ();
+  
   
   
   public EcologistStation(Base belongs) {
@@ -182,7 +173,7 @@ public class EcologistStation extends Venue {
     
     //  And lower-priority tending and upkeep also gets an appearance-
     for (Plantation p : allotments) if (p.type == Plantation.TYPE_NURSERY) {
-      for (Species s : Plantation.ALL_VARIETIES) {
+      for (Species s : Crop.ALL_VARIETIES) {
         if (actor.vocation() == Backgrounds.ECOLOGIST) {
           final SeedTailoring t = new SeedTailoring(actor, p, s);
           if (personnel.assignedTo(t) > 0) continue;
@@ -213,65 +204,45 @@ public class EcologistStation extends Venue {
     structure.setAmbienceVal(2);
   }
   
-  /*
-  //
-  //  TODO:  You need to cover the case of de-commissioning aura structures.
-  //  ...in fact, try to generalise that more robustly.
-  public void onDecommission() {
-    super.onDecommission();
-  }
-  //*/
-  
   
   public void onDestruction() {
     super.onDestruction();
   }
-
-
+  
+  
   protected void updateAllotments(int numUpdates) {
     //
     //  Then update the current set of allotments-
     if (numUpdates % 10 == 0) {
-      final int STRIP_SIZE = 4;
-      int numCovered = 0;
+      //final int STRIP_SIZE = 4;
+      //int numCovered = 0;
       //
       //  First of all, remove any missing allotments (and their siblings in
       //  the same strip.)
       for (Plantation p : allotments) {
-        if (p.destroyed()) {
-          allotments.remove(p);
-          for (Plantation s : p.strip) if (s != p) {
-            s.structure.setState(Structure.STATE_SALVAGE, -1);
-          }
-        }
-        else if (p.type == Plantation.TYPE_COVERED) numCovered++;
+        if (p.destroyed()) allotments.remove(p);
       }
       //
       //  Then, calculate how many allotments one should have.
       int maxAllots = 1 + personnel.numHired(Backgrounds.CULTIVATOR);
-      maxAllots *= STRIP_SIZE;
       if (maxAllots > allotments.size()) {
         //
         //  If you have too few, try to find a place for more-
-        final boolean covered = numCovered <= allotments.size() / 3;
-        Plantation allots[] = Plantation.placeAllotment(
-          this, covered ? STRIP_SIZE : STRIP_SIZE, covered
-        );
-        if (allots != null) for (Plantation p : allots) {
-          allotments.add(p);
-        }
+        //final boolean covered = numCovered <= allotments.size() / 3;
+        Plantation allots = Plantation.placeAllotmentFor(this);
+        if (allots != null) allotments.add(allots);
       }
-      if (maxAllots + STRIP_SIZE < allotments.size()) {
+      if (maxAllots + 1 < allotments.size()) {
         //
         //  And if you have too many, flag the least productive for salvage.
         float minRating = Float.POSITIVE_INFINITY;
-        Plantation toRemove[] = null;
+        Plantation toRemove = null;
         for (Plantation p : allotments) {
-          final float rating = Plantation.rateArea(p.strip, world);
-          if (rating < minRating) { toRemove = p.strip; minRating = rating; }
+          final float rating = Plantation.rateAllotment(p, world);
+          if (rating < minRating) { toRemove = p; minRating = rating; }
         }
-        if (toRemove != null) for (Plantation p : toRemove) {
-          p.structure.setState(Structure.STATE_SALVAGE, -1);
+        if (toRemove != null) {
+          toRemove.structure.setState(Structure.STATE_SALVAGE, -1);
         }
       }
     }

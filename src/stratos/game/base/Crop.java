@@ -6,6 +6,9 @@
 
 
 package stratos.game.base;
+import static stratos.game.building.Economy.CARBS;
+import static stratos.game.building.Economy.GREENS;
+import static stratos.game.building.Economy.PROTEIN;
 import stratos.game.common.*;
 import stratos.game.maps.*;
 import stratos.game.building.*;
@@ -18,7 +21,24 @@ import stratos.util.*;
 //  TODO:  Try and simplify this.  Replace with a fixture of some type,
 //  ideally?
 
-public class Crop implements Session.Saveable, Target {
+public class Crop extends Fixture {
+  
+
+  final static String IMG_DIR = "media/Buildings/ecologist/";
+  final static CutoutModel
+    COVERING_LEFT = CutoutModel.fromImage(
+      Plantation.class, IMG_DIR+"covering_left.png", 1, 1
+    ),
+    COVERING_RIGHT = CutoutModel.fromImage(
+      Plantation.class, IMG_DIR+"covering_right.png", 1, 1
+    ),
+    CROP_MODELS[][] = CutoutModel.fromImageGrid(
+      Plantation.class, IMG_DIR+"all_crops.png",
+      4, 4, 0.5f, 0.5f
+    ),
+    GRUB_BOX_MODEL = CutoutModel.fromImage(
+      Plantation.class, IMG_DIR+"grub_box.png", 0.5f, 0.5f
+    );
   
   
   final public static int
@@ -49,26 +69,26 @@ public class Crop implements Session.Saveable, Target {
   
   
   final public Plantation parent;
-  final public Tile tile;
-  
+  //final public Tile tile;
   private Species species;
   private float growStage, quality;
   private boolean blighted;
   
   
-  protected Crop(Plantation parent, Species species, Tile t) {
+  protected Crop(Plantation parent, Species species) {
+    super(1, 1);
     this.parent = parent;
     this.species = species;
-    this.tile = t;
     growStage = NOT_PLANTED;
     quality = 1.0f;
   }
   
   
   public Crop(Session s) throws Exception {
+    super(s);
     s.cacheInstance(this);
     parent = (Plantation) s.loadObject();
-    tile = (Tile) s.loadTarget();
+    //tile = (Tile) s.loadTarget();
     species = (Species) s.loadObject();
     growStage = s.loadFloat();
     quality = s.loadFloat();
@@ -76,35 +96,49 @@ public class Crop implements Session.Saveable, Target {
   
   
   public void saveState(Session s) throws Exception {
+    super.saveState(s);
     s.saveObject(parent);
-    s.saveTarget(tile);
+    //s.saveTarget(tile);
     s.saveObject(species);
     s.saveFloat(growStage);
     s.saveFloat(quality);
   }
   
   
-  
-  /**  Implementing the Target interface-
-    */
-  private Object flagged;
-  
-  public boolean inWorld() { return parent.inWorld(); }
-  public boolean destroyed() { return parent.destroyed(); }
-  public World world() { return parent.world(); }
-  
-  public Vec3D position(Vec3D v) { return tile.position(v); }
-  public float height() { return tile.height(); }
-  public float radius() { return tile.radius(); }
-  public boolean isMobile() { return false; }
-  
-  public void flagWith(Object f) { this.flagged = f; }
-  public Object flaggedWith() { return flagged; }
-  
-  
-  
   /**  Growth calculations-
     */
+  final public static Species ALL_VARIETIES[] = {
+    Species.ONI_RICE,
+    Species.DURWHEAT,
+    Species.TUBER_LILY,
+    Species.BROADFRUITS,
+    Species.HIVE_GRUBS
+  };
+  
+  //
+  //  TODO:  Move most or all of this out to the Species or Crop class, where it
+  //         belongs.
+  final static Object CROP_SPECIES[][] = {
+    new Object[] { Species.ONI_RICE, CARBS    , CROP_MODELS[0] },
+    new Object[] { Species.DURWHEAT, CARBS    , CROP_MODELS[1] },
+    new Object[] { Species.TUBER_LILY, GREENS , CROP_MODELS[3] },
+    new Object[] { Species.BROADFRUITS, GREENS, CROP_MODELS[2] },
+    new Object[] {
+      Species.HIVE_GRUBS, PROTEIN ,
+      new ModelAsset[] { GRUB_BOX_MODEL }
+    },
+    null,
+    null,
+    new Object[] { Species.TIMBER, GREENS, null },
+  };
+  
+  
+  public static ModelAsset speciesModel(Species s, int growStage) {
+    final int varID = Visit.indexOf(s, ALL_VARIETIES);
+    final ModelAsset seq[] = (ModelAsset[]) CROP_SPECIES[varID][2];
+    return seq[Visit.clamp(growStage, seq.length)];
+  }
+  
   static boolean isHive(Species s) {
     return s == Species.HIVE_GRUBS || s == Species.BLUE_VALVES;
   }
@@ -121,11 +155,8 @@ public class Crop implements Session.Saveable, Target {
   
   
   static Crop cropAt(Tile t) {
-    //  TODO:  try and use tile-ownership, directly, as a fixture.
-    if (t.owner() instanceof Plantation) {
-      for (Crop c : ((Plantation) t.owner()).planted) {
-        if (c != null && c.tile == t) return c;
-      }
+    if (t.owner() instanceof Crop) {
+      return (Crop) t.owner();
     }
     return null;
   }
@@ -180,13 +211,18 @@ public class Crop implements Session.Saveable, Target {
     this.quality = Visit.clamp(quality, 0, Plantation.MAX_HEALTH_BONUS);
     this.growStage = MIN_GROWTH;
 
-    parent.refreshCropSprites();
+    //parent.refreshCropSprites();
     parent.checkCropStates();
+    updateSprite();
   }
   
   
-  protected void onGrowth(Tile t) {
+  public void onGrowth(Tile tile) {
     if (growStage == NOT_PLANTED) return;
+
+    //  TODO:  Possibly combine with irrigation effects from water supply or
+    //  life support?
+    
     final World world = parent.world();
     final float pollution = Visit.clamp(
       tile.world.ecology().ambience.valueAt(tile), 0, 1
@@ -203,6 +239,12 @@ public class Crop implements Session.Saveable, Target {
     
     growStage = Visit.clamp(growStage + increment, MIN_GROWTH, MAX_GROWTH);
     checkBlight(pollution);
+
+    //  Update biomass and possibly sprite state-
+    world.ecology().impingeBiomass(
+      origin(), growStage() / 2f, World.GROWTH_INTERVAL
+    );
+    updateSprite();
   }
   
   
@@ -212,7 +254,8 @@ public class Crop implements Session.Saveable, Target {
     
     //  The chance of contracting disease increases if near infected plants of
     //  the same species, and decreases with access to a hive.
-    final Tile t = Spacing.pickRandomTile(this, 4, tile.world);
+    final Tile o = this.origin();
+    final Tile t = Spacing.pickRandomTile(this, 4, o.world);
     final Crop c = cropAt(t);
     if (c != null) {
       if (c.species == this.species && c.blighted) blightChance += 1;
@@ -230,22 +273,21 @@ public class Crop implements Session.Saveable, Target {
   }
   
   
-  public void disinfest() {
-    blighted = false;
-  }
-  
-  
   public Item yieldCrop() {
     final TradeType type = yieldType(species);
     final float amount = growStage / MAX_GROWTH;
     growStage = NOT_PLANTED;
     quality = NO_HEALTH;
     blighted = false;
-
-    parent.refreshCropSprites();
     parent.checkCropStates();
     
+    updateSprite();
     return Item.withAmount(type, amount);
+  }
+  
+  
+  public void disinfest() {
+    blighted = false;
   }
   
   
@@ -275,6 +317,14 @@ public class Crop implements Session.Saveable, Target {
   
   /**  Rendering and interface-
     */
+  protected void updateSprite() {
+    final ModelAsset
+      old   = sprite().model(),
+      model = speciesModel(species, (int) growStage);
+    if (model != old) attachModel(model);
+  }
+  
+  
   //  TODO:  Pass a Description object here instead?
   public String toString() {
     final int stage = (int) Visit.clamp(growStage, 0, MAX_GROWTH);
