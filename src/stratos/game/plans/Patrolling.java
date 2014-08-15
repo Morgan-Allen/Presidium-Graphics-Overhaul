@@ -307,7 +307,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
 
     Boarding init = start, next = null;
     float minDist = Float.POSITIVE_INFINITY;
-    for (Boarding b : init.canBoard(Spacing.tempB4)) {
+    for (Boarding b : init.canBoard()) {
       if (! (b instanceof ShieldWall)) continue;
       final float dist = Spacing.distance(b, ideal);
       if (dist < minDist) {
@@ -324,7 +324,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
 
     while (true) {
       Boarding near = null;
-      for (Boarding b : next.canBoard(Spacing.tempB4)) {
+      for (Boarding b : next.canBoard()) {
         if (!(b instanceof ShieldWall))
           continue;
         if (b.flaggedWith() != null)

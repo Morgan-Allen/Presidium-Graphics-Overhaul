@@ -12,8 +12,7 @@ import stratos.user.*;
 import stratos.util.*;
 
 
-
-
+//  TODO:  Different mission types need to have different options.
 /*
 MISSION OPTIONS
   Public Contract  Screened  Covert
@@ -23,6 +22,13 @@ MISSION OPTIONS
   Credits.  Goods.  Rare Artifacts.
   Obedience.  Loyalty.  Blackmail.
   Promotion.  Marriage.  Legislation.
+  
+  
+//  TODO:  You must create a location interface.
+//  Cash.  Promotion.  Artifact.
+//  Policy.  Pardon.  Marriage.
+//  Declare Mission.
+//  Under Orders.
 
 
 RECON FACTORS

@@ -3,6 +3,7 @@
 package stratos.start;
 import stratos.game.building.*;
 import stratos.game.common.*;
+import stratos.game.base.*;
 import stratos.game.campaign.*;
 import stratos.game.maps.*;
 import stratos.user.*;
@@ -62,8 +63,14 @@ public class DebugPlacing extends Scenario {
   protected void configureScenario(World world, Base base, BaseUI UI) {
     GameSettings.setDefaults();
     
-    final PlacementGrid placeMap = new PlacementGrid(world);
-    placeMap.createLattice();
+    //final PlacementGrid placeMap = new PlacementGrid(world);
+    //placeMap.createLattice();
+    
+    //  TODO:  Create a Botanical Station, and see how long it takes for a
+    //  plantation to be established.
+    
+    final EcologistStation station = new EcologistStation(base);
+    Placement.establishVenue(station, 8, 8, true, world);
   }
   
   

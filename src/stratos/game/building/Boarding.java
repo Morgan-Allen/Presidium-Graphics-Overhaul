@@ -24,7 +24,7 @@ public interface Boarding extends Target {
   Series <Mobile> inside();
   
   Box2D area(Box2D put);
-  Boarding[] canBoard(Boarding batch[]);
+  Boarding[] canBoard();
   boolean isEntrance(Boarding b);
   
   int pathType();

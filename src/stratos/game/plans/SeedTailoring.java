@@ -24,38 +24,38 @@ public class SeedTailoring extends Plan {
   
   /**  Data, fields, constructors, setup and save/load functions-
     */
-  final Plantation nursery;
+  final Venue lab;
   final Species species;
   final Item cropType, seedType;
   
   
-  public SeedTailoring(Actor actor, Plantation plantation, Species s) {
-    super(actor, plantation.belongs);
-    this.nursery = plantation;
+  public SeedTailoring(Actor actor, Venue lab, Species s) {
+    super(actor, lab);
+    this.lab = lab;
     this.species = s;
-    this.cropType = Item.asMatch(SAMPLES, s);
+    this.cropType = Item.asMatch(SAMPLES  , s);
     this.seedType = Item.asMatch(GENE_SEED, s);
   }
   
   
   public SeedTailoring(Session s) throws Exception {
     super(s);
-    nursery = (Plantation) s.loadObject();
+    lab     = (Venue  ) s.loadObject();
     species = (Species) s.loadObject();
-    this.cropType = Item.asMatch(SAMPLES, species);
+    this.cropType = Item.asMatch(SAMPLES  , species);
     this.seedType = Item.asMatch(GENE_SEED, species);
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(nursery);
+    s.saveObject(lab    );
     s.saveObject(species);
   }
   
   
   public Plan copyFor(Actor other) {
-    return new SeedTailoring(other, nursery, species);
+    return new SeedTailoring(other, lab, species);
   }
   
   
@@ -70,12 +70,9 @@ public class SeedTailoring extends Plan {
   /**  Obtaining and evaluating targets-
     */
   protected float getPriority() {
-    if (nursery.type != Plantation.TYPE_NURSERY) return 0;
-    final EcologistStation station = nursery.belongs;
-    
-    final TradeType yield = Crop.yieldType(species);
+    //final EcologistStation station = nursery.belongs;
     return Visit.clamp(
-      ROUTINE + (station.structure.upgradeBonus(yield) / 2f),
+      ROUTINE + (lab.structure.upgradeBonus(species) / 2f),
       0, URGENT
     );
   }
@@ -85,22 +82,14 @@ public class SeedTailoring extends Plan {
   /**  Step implementation/sequence-
     */
   protected Behaviour getNextStep() {
-    if (nursery.type != Plantation.TYPE_NURSERY) return null;
     //
-    //  If the nursery has adequate stocks, just return.
-    if (nursery.stocks.amountOf(cropType) > 1) return null;
-    final EcologistStation station = nursery.belongs;
-    //
-    //  If the nursery has enough of the crop type, deliver it-
-    if (station.stocks.amountOf(cropType) > 1) {
-      final Batch <Item> matches = station.stocks.matches(cropType);
-      return new Delivery(matches, station, nursery);
-    }
+    //  If the laboratory has adequate stocks, just return.
+    if (lab.stocks.amountOf(cropType) > 1) return null;
     //
     //  If the nursery has enough of the seed type, culture it-
-    if (station.stocks.amountOf(seedType) > 1) {
+    if (lab.stocks.amountOf(seedType) > 1) {
       final Action culture = new Action(
-        actor, station,
+        actor, lab,
         this, "actionCultureSeed",
         Action.STAND, "Culturing seed"
       );
@@ -108,9 +97,9 @@ public class SeedTailoring extends Plan {
     }
     //
     //  Otherwise, prepare the basic gene seed-
-    if (station.stocks.amountOf(GENE_SEED) > 1) {
+    if (lab.stocks.amountOf(GENE_SEED) > 1) {
       final Action prepare = new Action(
-        actor, station,
+        actor, lab,
         this, "actionTailorGenes",
         Action.STAND, "Tailoring genes"
       );
@@ -124,7 +113,7 @@ public class SeedTailoring extends Plan {
   }
   
   
-  private float cultureTest(int DC, EcologistStation lab) {
+  private float cultureTest(int DC, Venue lab) {
     final TradeType yield = Crop.yieldType(species);
     float skillRating = 5;
     if (! actor.traits.test(GENE_CULTURE, DC, 5.0f)) skillRating /= 2;
@@ -135,7 +124,7 @@ public class SeedTailoring extends Plan {
   }
   
   
-  public boolean actionCultureSeed(Actor actor, EcologistStation lab) {
+  public boolean actionCultureSeed(Actor actor, Venue lab) {
     final Batch <Item> seedMatch = lab.stocks.matches(seedType);
     if (seedMatch.size() == 0) return false;
     final Item seed = seedMatch.atIndex(0);
@@ -154,7 +143,7 @@ public class SeedTailoring extends Plan {
   }
   
   
-  public boolean actionTailorGenes(Actor actor, EcologistStation lab) {
+  public boolean actionTailorGenes(Actor actor, Venue lab) {
     //
     //  Calculate odds of success based on the skill of the researcher-
     final float successChance = 0.2f;

@@ -79,10 +79,10 @@ public class PathSearch extends Search <Boarding> {
         I.say("\n  Failed.");
         if (client != null) {
 
-          if (! Visit.arrayIncludes(destination.canBoard(null), aimPoint)) {
+          if (! Visit.arrayIncludes(destination.canBoard(), aimPoint)) {
             I.say("NO EXIT!");
           }
-          if (! Visit.arrayIncludes(aimPoint.canBoard(null), destination)) {
+          if (! Visit.arrayIncludes(aimPoint.canBoard(), destination)) {
             I.say("NO ENTRY!");
           }
           
@@ -105,7 +105,7 @@ public class PathSearch extends Search <Boarding> {
         I.say("\nMET AIM POINT: "+aimPoint);
         final boolean couldEnter =
           (aimPoint == destination) || Visit.arrayIncludes(
-            aimPoint.canBoard(null), destination
+            aimPoint.canBoard(), destination
           );
         final float DC = cost(aimPoint, destination);
         I.say("COULD ENTER DESTINATION? "+couldEnter+", COST: "+DC);
@@ -135,7 +135,7 @@ public class PathSearch extends Search <Boarding> {
   /**  Actual search-execution methods-
     */
   protected Boarding[] adjacent(Boarding spot) {
-    return spot.canBoard(batch);
+    return spot.canBoard();
   }
   
   

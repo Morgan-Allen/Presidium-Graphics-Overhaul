@@ -210,7 +210,7 @@ public class Micovore extends Fauna {
   
   
   public boolean actionMarkTerritory(Micovore actor, Tile toMark) {
-    if (toMark.owner() != null || toMark.blocked()) return false;
+    if (toMark.onTop() != null || toMark.blocked()) return false;
     final SpiceMidden midden = new SpiceMidden();
     midden.enterWorldAt(toMark.x, toMark.y, world);
     return true;

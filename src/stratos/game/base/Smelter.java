@@ -186,7 +186,7 @@ public class Smelter extends Venue {
     
     final TileSpread spread = new TileSpread(init) {
       protected boolean canAccess(Tile t) {
-        if (t.owner() == site) return true;
+        if (t.onTop() == site) return true;
         if (t.owningType() >= Element.FIXTURE_OWNS) return false;
         return true;
       }

@@ -114,7 +114,7 @@ public class Repairs extends Plan {
     
     float competition = FULL_COMPETITION;
     competition /= 1 + (built.structure().maxIntegrity() / 100f);
-    final float help = REAL_HELP * actor.base().communitySpirit();
+    final float help = REAL_HELP * actor.base().relations.communitySpirit();
     
     final float priority = priorityForActorWith(
       actor, (Target) built, CASUAL * Visit.clamp(urgency, 0, 1),

@@ -305,7 +305,7 @@ public class Senses implements Qualities {
     boolean blocked = false;
     boolean onRight, onLeft;
     for (Tile t : considered) if (t.blocked()) {
-      if (t == target || t.owner() == target) continue;
+      if (t == target || t.onTop() == target) continue;
       
       //  We first check whether the centre of the tile in question falls
       //  between the start and end points of the line segment-

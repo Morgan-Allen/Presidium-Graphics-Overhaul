@@ -73,7 +73,7 @@ public abstract class TileSpread extends Search <Tile> {
     final TileSpread spread = new TileSpread(initTile) {
       protected boolean canAccess(Tile t) {
         if (limit != null && ! limit.contains(t.x, t.y)) return false;
-        if (parent != null && t.owner() == parent) return true;
+        if (parent != null && t.onTop() == parent) return true;
         return t.owningType() < owningType && t.habitat().pathClear;
       }
       protected boolean canPlaceAt(Tile t) {
@@ -105,7 +105,7 @@ public abstract class TileSpread extends Search <Tile> {
     final TileSpread spread = new TileSpread(initTile) {
       protected boolean canAccess(Tile t) {
         if (limit != null && ! limit.contains(t.x, t.y)) return false;
-        if (parent != null && t.owner() == parent) return true;
+        if (parent != null && t.onTop() == parent) return true;
         return t.owningType() < owningType && t.habitat().pathClear;
       }
       protected boolean canPlaceAt(Tile t) {

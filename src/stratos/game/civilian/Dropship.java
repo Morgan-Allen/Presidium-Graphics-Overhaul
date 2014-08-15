@@ -311,10 +311,10 @@ public class Dropship extends Vehicle implements
       //  Clear any detritus around the perimeter, Claim tiles in the middle as
       //  owned, and evacuate any occupants-
       for (Tile t : world.tilesIn(site, false)) {
-        if (t.owner() != null) t.owner().setAsDestroyed();
+        if (t.onTop() != null) t.onTop().setAsDestroyed();
       }
       site = new Box2D().setTo(site).expandBy(-1);
-      for (Tile t : world.tilesIn(site, false)) t.setOwner(this);
+      for (Tile t : world.tilesIn(site, false)) t.setOnTop(this);
       for (Tile t : world.tilesIn(site, false)) {
         for (Mobile m : t.inside()) if (m != this) {
           final Tile e = Spacing.nearestOpenTile(m.origin(), m);
@@ -337,7 +337,7 @@ public class Dropship extends Vehicle implements
     offloadPassengers();
     
     ///I.say("BEGINNING ASCENT");
-    //  TODO:  Restore docking at the Launch Hangar!
+    //  TODO:  Restore docking at a launch hangar!
     /*
     if (dropPoint instanceof LaunchHangar) {
       ((LaunchHangar) dropPoint).setToDock(null);
@@ -346,7 +346,7 @@ public class Dropship extends Vehicle implements
     //else
     if (landed()) {
       final Box2D site = new Box2D().setTo(landArea()).expandBy(-1);
-      for (Tile t : world.tilesIn(site, false)) t.setOwner(null);
+      for (Tile t : world.tilesIn(site, false)) t.setOnTop(null);
     }
     
     final Tile exits = Spacing.pickRandomTile(origin(), INIT_DIST, world);
@@ -443,8 +443,8 @@ public class Dropship extends Vehicle implements
   }
   
 
-  public Boarding[] canBoard(Boarding batch[]) {
-    if (landed()) return super.canBoard(batch);
+  public Boarding[] canBoard() {
+    if (landed()) return super.canBoard();
     else return new Boarding[0];
   }
   
@@ -472,7 +472,7 @@ public class Dropship extends Vehicle implements
     }
     else for (Tile t : world.tilesIn(area, false)) {
       if (t == null) return false;
-      if (t.owner() == this) continue;
+      if (t.onTop() == this) continue;
       if (t.owningType() > Element.ELEMENT_OWNS) return false;
     }
     return true;

@@ -119,7 +119,7 @@ public class ShieldWall extends Structural implements Boarding {
   }
   
   
-  public Boarding[] canBoard(Boarding batch[]) {
+  public Boarding[] canBoard() {
     return entrances();
   }
   
@@ -146,8 +146,8 @@ public class ShieldWall extends Structural implements Boarding {
     for (int i = 4; i-- > 0;) {
       final Tile t = (Tile) entrances[i];
       if (t == null) continue;
-      if (t.owner() instanceof ShieldWall) {
-        entrances[i] = (ShieldWall) t.owner();
+      if (t.onTop() instanceof ShieldWall) {
+        entrances[i] = (ShieldWall) t.onTop();
       }
       else if (type == TYPE_DOORS && ! t.blocked()) {
         entrances[i] = entrance = t;
@@ -216,7 +216,7 @@ public class ShieldWall extends Structural implements Boarding {
   
   protected boolean checkPerimeter(World world) {
     for (Tile n : Spacing.perimeter(area(), world)) {
-      if (n == null || n.owner() instanceof ShieldWall) continue;
+      if (n == null || n.onTop() instanceof ShieldWall) continue;
       if (n.owningType() >= this.owningType()) return false;
     }
     return true;

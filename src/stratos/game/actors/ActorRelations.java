@@ -9,7 +9,7 @@ import stratos.util.*;
 
 
 
-public class Relations {
+public class ActorRelations {
   
   
   /**  Data fields, constructors and save/load methods-
@@ -25,7 +25,7 @@ public class Relations {
   final Table <Accountable, Relation> relations = new Table();
   
   
-  public Relations(Actor actor) {
+  public ActorRelations(Actor actor) {
     this.actor = actor;
   }
   
@@ -108,7 +108,7 @@ public class Relations {
     if (AB != null) {
       if (base == AB) return 1;
       if (base == null) return 0;
-      return AB.relationWith(base);
+      return AB.relations.relationWith(base);
     }
     else return 0;
   }

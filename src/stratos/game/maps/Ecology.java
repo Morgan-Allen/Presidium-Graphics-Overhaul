@@ -90,7 +90,7 @@ public class Ecology {
   
   private void growthAt(Tile t) {
     Flora.tryGrowthAt(t);
-    final Element owner = t.owner();
+    final Element owner = t.onTop();
     if (owner != null) owner.onGrowth(t);
     ambience.updateAt(t);
     //world.terrain().setSqualor(t, (byte) squalorAmount(t));

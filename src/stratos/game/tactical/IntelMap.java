@@ -41,13 +41,12 @@ public class IntelMap {
     this.world = world;
     final int size = world.size;
     fogVals = new float[size][size];
-    fogMap = new MipMap(size);
+    fogMap  = new MipMap(size);
     fogOver = new FogOverlay(size);
   }
   
   
   public void loadState(Session s) throws Exception {
-    initFog(world = s.world());
     for (Coord c : Visit.grid(0,  0, world.size, world.size, 1)) {
       fogVals[c.x][c.y] = s.loadFloat();
     }
@@ -57,8 +56,7 @@ public class IntelMap {
   
   
   public void saveState(Session s) throws Exception {
-    final int size = world.size;
-    for (Coord c : Visit.grid(0,  0, size, size, 1)) {
+    for (Coord c : Visit.grid(0,  0, world.size, world.size, 1)) {
       s.saveFloat(fogVals[c.x][c.y]);
     }
     fogMap.saveTo(s.output());

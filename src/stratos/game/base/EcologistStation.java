@@ -34,11 +34,7 @@ public class EcologistStation extends Venue {
     STATION_MODEL = CutoutModel.fromImage(
       EcologistStation.class, IMG_DIR+"botanical_station.png", 4, 3
     );
-  
-  
-  final List <Plantation> allotments = new List <Plantation> ();
-  //private List <Plantation> nurseries = new List <Plantation> ();
-  //private List <Crop[]> allotments = new List <Crop[]> ();
+  //final List <Plantation> allotments = new List <Plantation> ();
   
   
   
@@ -55,13 +51,13 @@ public class EcologistStation extends Venue {
   
   public EcologistStation(Session s) throws Exception {
     super(s);
-    s.loadObjects(allotments);
+    //s.loadObjects(allotments);
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObjects(allotments);
+    //s.saveObjects(allotments);
   }
   
   
@@ -71,6 +67,13 @@ public class EcologistStation extends Venue {
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
     EcologistStation.class, "botanical_upgrades"
   );
+  
+  //  TODO:  Re-evaluate these.  Name actual species.  Make it exciting!  And
+  //  allow for direct venue upgrades.
+  
+  //  Oni Rice.  Broadfruit.  Durwheat.  Tuber Lilies.
+  //  Forest Lab.  Insect Lab.  Level 2.  Level 3.
+  
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
     CEREAL_LAB = new Upgrade(
@@ -129,35 +132,6 @@ public class EcologistStation extends Venue {
     if (! structure.intact()) return null;
     final Choice choice = new Choice(actor);
     
-    //  If you're really short on food, consider foraging in the surrounds-
-    final float shortages = (
-      stocks.shortagePenalty(CARBS) +
-      stocks.shortagePenalty(GREENS)
-    ) / 2f;
-    if (shortages > 0) {
-      final Foraging foraging = new Foraging(actor, this);
-      foraging.setMotive(Plan.MOTIVE_EMERGENCY, Plan.PARAMOUNT * shortages);
-      choice.add(foraging);
-    }
-    
-    //  If the harvest is really coming in, pitch in regardless-
-    if (! Planet.isNight(world)) for (Plantation p : allotments) {
-      if (p.needForTending() > 0.5f) choice.add(new Farming(actor, p));
-    }
-    if (choice.size() > 0) return choice.pickMostUrgent();
-    
-    //  Otherwise, perform deliveries and more casual work-
-    if (! personnel.onShift(actor)) return null;
-    final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
-      this, services(), 2, 10, 5
-    );
-    /*
-    final Delivery d = Deliveries.nextDeliveryFor(
-      actor, this, services(), 10, world
-    );
-    //*/
-    choice.add(d);
-    
     //  Forestry may have to be performed, depending on need for gene samples-
     final boolean needsSeed = stocks.amountOf(GENE_SEED) < 5;
     final Forestry f = new Forestry(actor, this);
@@ -165,24 +139,14 @@ public class EcologistStation extends Venue {
       f.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
       f.configureFor(Forestry.STAGE_SAMPLING);
     }
-    else {
-      f.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
-      f.configureFor(Forestry.STAGE_GET_SEED);
-    }
     choice.add(f);
     
-    //  And lower-priority tending and upkeep also gets an appearance-
-    for (Plantation p : allotments) if (p.type == Plantation.TYPE_NURSERY) {
-      for (Species s : Crop.ALL_VARIETIES) {
-        if (actor.vocation() == Backgrounds.ECOLOGIST) {
-          final SeedTailoring t = new SeedTailoring(actor, p, s);
-          if (personnel.assignedTo(t) > 0) continue;
-          choice.add(t);
-        }
-      }
-      //  TODO:  Do this for every crop type?
-      choice.add(new Farming(actor, p));
+    for (Species s : Crop.ALL_VARIETIES) {
+      final SeedTailoring t = new SeedTailoring(actor, this, s);
+      if (personnel.assignedTo(t) > 0) continue;
+      choice.add(t);
     }
+    
     return choice.weightedPick();
   }
   
@@ -190,11 +154,11 @@ public class EcologistStation extends Venue {
   public void updateAsScheduled(int numUpdates) {
     super.updateAsScheduled(numUpdates);
     if (! structure.intact()) return;
-    updateAllotments(numUpdates);
     //
     //  Increment demand for gene seed, and decay current stocks-
     stocks.incDemand(GENE_SEED, 5, Stocks.TIER_CONSUMER, 1, this);
     final float decay = 0.1f / World.STANDARD_DAY_LENGTH;
+    
     for (Item seed : stocks.matches(GENE_SEED)) {
       stocks.removeItem(Item.withAmount(seed, decay));
     }
@@ -210,65 +174,20 @@ public class EcologistStation extends Venue {
   }
   
   
-  protected void updateAllotments(int numUpdates) {
-    //
-    //  Then update the current set of allotments-
-    if (numUpdates % 10 == 0) {
-      //final int STRIP_SIZE = 4;
-      //int numCovered = 0;
-      //
-      //  First of all, remove any missing allotments (and their siblings in
-      //  the same strip.)
-      for (Plantation p : allotments) {
-        if (p.destroyed()) allotments.remove(p);
-      }
-      //
-      //  Then, calculate how many allotments one should have.
-      int maxAllots = 1 + personnel.numHired(Backgrounds.CULTIVATOR);
-      if (maxAllots > allotments.size()) {
-        //
-        //  If you have too few, try to find a place for more-
-        //final boolean covered = numCovered <= allotments.size() / 3;
-        Plantation allots = Plantation.placeAllotmentFor(this);
-        if (allots != null) allotments.add(allots);
-      }
-      if (maxAllots + 1 < allotments.size()) {
-        //
-        //  And if you have too many, flag the least productive for salvage.
-        float minRating = Float.POSITIVE_INFINITY;
-        Plantation toRemove = null;
-        for (Plantation p : allotments) {
-          final float rating = Plantation.rateAllotment(p, world);
-          if (rating < minRating) { toRemove = p; minRating = rating; }
-        }
-        if (toRemove != null) {
-          toRemove.structure.setState(Structure.STATE_SALVAGE, -1);
-        }
-      }
-    }
-  }
-  
-
   public int numOpenings(Background v) {
     int num = super.numOpenings(v);
-    if (v == Backgrounds.CULTIVATOR) return num + 2;
-    if (v == Backgrounds.ECOLOGIST ) return num + 1;
+    if (v == ECOLOGIST) return num + 1;
     return 0;
   }
   
   
-  protected List <Plantation> allotments() {
-    return allotments;
-  }
-  
-  
   public TradeType[] services() {
-    return new TradeType[] { GREENS, PROTEIN, CARBS };
+    return new TradeType[] { GENE_SEED };
   }
   
   
   public Background[] careers() {
-    return new Background[] { Backgrounds.ECOLOGIST, Backgrounds.CULTIVATOR };
+    return new Background[] { ECOLOGIST };
   }
   
   
@@ -320,8 +239,46 @@ public class EcologistStation extends Venue {
 }
 
 
+/*
 
-
-
-
+  
+  
+  protected void updateAllotments(int numUpdates) {
+    //
+    //  Then update the current set of allotments-
+    if (numUpdates % 10 == 0) {
+      //final int STRIP_SIZE = 4;
+      //int numCovered = 0;
+      //
+      //  First of all, remove any missing allotments (and their siblings in
+      //  the same strip.)
+      for (Plantation p : allotments) {
+        if (p.destroyed()) allotments.remove(p);
+      }
+      //
+      //  Then, calculate how many allotments one should have.
+      int maxAllots = 1 + personnel.numHired(Backgrounds.CULTIVATOR);
+      if (maxAllots > allotments.size()) {
+        //
+        //  If you have too few, try to find a place for more-
+        //final boolean covered = numCovered <= allotments.size() / 3;
+        Plantation allots = Plantation.placeAllotmentFor(this);
+        if (allots != null) allotments.add(allots);
+      }
+      if (maxAllots + 1 < allotments.size()) {
+        //
+        //  And if you have too many, flag the least productive for salvage.
+        float minRating = Float.POSITIVE_INFINITY;
+        Plantation toRemove = null;
+        for (Plantation p : allotments) {
+          final float rating = Plantation.rateAllotment(p, world);
+          if (rating < minRating) { toRemove = p; minRating = rating; }
+        }
+        if (toRemove != null) {
+          toRemove.structure.setState(Structure.STATE_SALVAGE, -1);
+        }
+      }
+    }
+  }
+//*/
 

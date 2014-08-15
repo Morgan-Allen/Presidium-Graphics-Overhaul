@@ -93,7 +93,7 @@ public class Ambience {
     */
   public void updateAt(Tile tile) {
     int value = 0;
-    final Element owner = tile.owner();
+    final Element owner = tile.onTop();
     
     if (owner instanceof Installation) {
       value = ((Installation) owner).structure().ambienceVal();

@@ -5,10 +5,8 @@
   */
 
 package stratos.user;
-import java.lang.reflect.*;
-
 import stratos.game.building.*;
-import stratos.game.campaign.BaseSetup;
+import stratos.game.campaign.*;
 import stratos.game.common.*;
 import stratos.game.tactical.*;
 import stratos.graphics.common.*;
@@ -17,33 +15,20 @@ import stratos.util.*;
 
 
 
-
 public class InstallTab extends SelectionInfoPane {
-
-  
-  /**  Field, constant and internal class definitions-
-    */
-  static class InstallType {
-    Class <Installation> buildClass;
-    Constructor buildCons;
-    Installation sample;
-  }
-  
-  
-  static class Category {
-    String name;
-    final List <InstallType> types = new List <InstallType> ();
-  }
-  
-
-  static Table <String, Category> categories = new Table <String, Category> ();
-  static Batch <InstallType> allTypes = new Batch <InstallType> ();
-  static boolean setupDone = false;
-  
   
   
   /**  Initial background setup-
     */
+  static class Category {
+    String name;
+    List <Venue> samples = new List <Venue> ();
+  }
+  
+  static Table <String, Category> categories = new Table <String, Category> ();
+  static boolean setupDone = false;
+  
+  
   protected static void setupTypes() {
     initCategory(TYPE_MILITANT );
     initCategory(TYPE_MERCHANT );
@@ -51,24 +36,14 @@ public class InstallTab extends SelectionInfoPane {
     initCategory(TYPE_ARTIFICER);
     initCategory(TYPE_ECOLOGIST);
     initCategory(TYPE_PHYSICIAN);
-    for (Class baseClass : BaseSetup.facilityTypes()) {
+    for (Class baseClass : BaseSetup.venueTypes()) {
       //
-      //  Firstly, we need to ensure that the class refers to a type of venue
-      //  and has an appropriate constructor.
-      if (! Installation.class.isAssignableFrom(baseClass)) continue;
-      final Constructor cons;
-      try { cons = baseClass.getConstructor(Base.class); }
-      catch (Exception e) { continue; }
-      //
-      //  Secondly, construct the building type with an appropriate instance.
-      final InstallType type = new InstallType();
-      type.buildClass = baseClass;
-      type.buildCons = cons;
-      refreshSample(type, null);
-      allTypes.add(type);
-      final String catName = type.sample.buildCategory();
+      //  Construct the building type with an appropriate instance.
+      final Venue sample = VenueProfile.sampleVenue(baseClass);
+      if (sample.privateProperty()) continue;
+      final String catName = sample.buildCategory();
       final Category category = categories.get(catName);
-      if (category != null) category.types.add(type);
+      if (category != null) category.samples.add(sample);
     }
     setupDone = true;
   }
@@ -81,19 +56,8 @@ public class InstallTab extends SelectionInfoPane {
   }
   
   
-  private static void refreshSample(InstallType type, Base base) {
-    try {
-      type.sample = (Installation) type.buildCons.newInstance(base);
-    }
-    catch (Exception e) {
-      I.say("PROBLEM REFRESHING SAMPLE OF: "+type.buildCons.getName());
-      I.report(e);
-    }
-  }
-  
-  
-  protected static List <InstallType> typesForCategory(String typeID) {
-    return categories.get(typeID).types;
+  protected static List <Venue> samplesForCategory(String typeID) {
+    return categories.get(typeID).samples;
   }
   
   
@@ -101,7 +65,7 @@ public class InstallTab extends SelectionInfoPane {
   /**  Interface presented-
     */
   final Category category;
-  private InstallType helpShown = null, listShown = null;
+  private Class helpShown = null, listShown = null;
   
   
   InstallTab(BaseUI UI, String catName) {
@@ -111,6 +75,17 @@ public class InstallTab extends SelectionInfoPane {
   }
   
   
+  final Batch <Installation> listInstalled(BaseUI UI, Class type) {
+    Batch <Installation> installed = new Batch <Installation> ();
+    final Tile zero = UI.world().tileAt(0, 0);
+    final Presences presences = UI.world().presences;
+    for (Object o : presences.matchesNear(type, zero, -1)) {
+      if (! (o instanceof Installation)) continue;
+      installed.add((Installation) o);
+    }
+    return installed;
+  }
+  
   
   protected void updateText(
     final BaseUI UI, Text headerText, Text detailText
@@ -119,11 +94,13 @@ public class InstallTab extends SelectionInfoPane {
     headerText.setText("");
     final String name = category.name;
     headerText.setText(name+" structures:");
-    for (final InstallType type : category.types) {
-      final Composite icon = type.sample.portrait(UI);
-      final String typeName = type.sample.fullName();
-      final String typeDesc = type.sample.helpInfo();
-      final int buildCost = type.sample.buildCost();
+    
+    for (final Venue sample : category.samples) {
+      final Composite icon      = sample.portrait(UI);
+      final String    typeName  = sample.fullName()  ;
+      final String    typeDesc  = sample.helpInfo()  ;
+      final int       buildCost = sample.buildCost() ;
+      final Class     type      = sample.getClass();
       
       if (icon != null) detailText.insert(icon.texture(), 40);
       detailText.append("  "+typeName);
@@ -173,37 +150,22 @@ public class InstallTab extends SelectionInfoPane {
   }
   
   
-  Batch <Installation> listInstalled(BaseUI UI, InstallType type) {
-    Batch <Installation> installed = new Batch <Installation> ();
-    final Tile zero = UI.world().tileAt(0, 0);
-    final Presences presences = UI.world().presences;
-    for (Object o : presences.matchesNear(type.buildClass, zero, -1)) {
-      if (! (o instanceof Installation)) continue;
-      installed.add((Installation) o);
-    }
-    return installed;
-  }
-  
-  
   
   /**  Actual placement of buildings-
     */
-  static void initInstallTask(BaseUI UI, InstallType type) {
-    refreshSample(type, UI.played());
+  private void initInstallTask(BaseUI UI, Class type) {
     final InstallTask task = new InstallTask();
     task.UI = UI;
     task.type = type;
-    task.toInstall = type.sample;
+    task.toInstall = VenueProfile.sampleVenue(type);
     UI.beginTask(task);
-    refreshSample(type, null);
   }
   
   
   static class InstallTask implements UITask {
     
-    
     BaseUI UI;
-    InstallType type;
+    Class type;
     Installation toInstall;
     private boolean hasPressed = false;
     Tile from, to;
@@ -233,13 +195,8 @@ public class InstallTab extends SelectionInfoPane {
       if (canPlace && hasPressed && ! UI.mouseDown()) {
         toInstall.doPlace(from, to);
         UI.endCurrentTask();
-        if (toInstall instanceof Structural) {
-          initInstallTask(UI, type);
-        }
       }
       else {
-        //  TODO:  RESTORE THIS
-        //UI.rendering.clearDepth();
         toInstall.preview(canPlace, UI.rendering, from, to);
       }
     }

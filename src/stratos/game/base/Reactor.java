@@ -315,7 +315,7 @@ public class Reactor extends Venue {
       }
       //
       //  And deal damage to nearby objects-
-      markForDamage(t.owner(), inRange);
+      markForDamage(t.onTop(), inRange);
       for (Mobile m : t.inside()) markForDamage(m, inRange);
     }
     markForDamage(this, inRange);

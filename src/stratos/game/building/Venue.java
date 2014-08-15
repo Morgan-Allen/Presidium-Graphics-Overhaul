@@ -53,7 +53,7 @@ public abstract class Venue extends Structural implements
     SHIFTS_BY_CALENDAR = 3;  //weekends and holidays off.  NOT DONE YET
   
   
-  final public FacilityProfile profile;
+  final public VenueProfile profile;
   final public Personnel personnel = new Personnel(this);
   final public Stocks stocks = new Stocks(this);
   
@@ -75,10 +75,10 @@ public abstract class Venue extends Structural implements
     //  TODO:  Create and cache the profile here, using pre-existing data.
     //         ...Also, consider creating a dedicated constructor for this
     //         purpose?
-    FacilityProfile profile = FacilityProfile.profileFor(this.getClass());
+    VenueProfile profile = VenueProfile.profileFor(this.getClass());
     if (profile == null) {
       final int UNKNOWN = 0;
-      profile = new FacilityProfile(
+      profile = new VenueProfile(
         this.getClass(), Structure.TYPE_VENUE,
         size, UNKNOWN, UNKNOWN, UNKNOWN,
         null, null
@@ -91,7 +91,7 @@ public abstract class Venue extends Structural implements
   public Venue(Session s) throws Exception {
     super(s);
 
-    profile = (FacilityProfile) s.loadObject();
+    profile = (VenueProfile) s.loadObject();
     personnel.loadState(s);
     stocks.loadState(s);
     
@@ -167,6 +167,12 @@ public abstract class Venue extends Structural implements
     if (origin() == null) return false;
     final World world = origin().world;
     
+    //  TODO:  Get rid of tile-based ownership in favour of nothing but claims.
+    //  TODO:  Allow modification of the area claimed!
+    final Venue conflicts[] = world.claims.venuesConflicting(area());
+    for (Venue c : conflicts) {
+      if (claimConflicts(c)) return false;
+    }
     //  Make sure we don't displace any more important object, or occupy their
     //  entrances.  In addition, the entrance must be clear.
     final int OT = owningType();
@@ -187,7 +193,7 @@ public abstract class Venue extends Structural implements
   protected boolean checkPerimeter(World world) {
     //  Don't abut on anything of higher priority-
     for (Tile n : Spacing.perimeter(area(), world)) {
-      if (n == null || (n.owner() != null && ! canTouch(n.owner()))) {
+      if (n == null || (n.onTop() != null && ! canTouch(n.onTop()))) {
         return false;
       }
     }
@@ -214,7 +220,7 @@ public abstract class Venue extends Structural implements
   public boolean enterWorldAt(int x, int y, World world) {
     if (! super.enterWorldAt(x, y, world)) return false;
     world.presences.togglePresence(this, true);
-    //world.schedule.scheduleForUpdates(this);
+    world.claims.assertNewClaim(this, areaClaimed());
     stocks.onWorldEntry();
     personnel.onCommission();
     return true;
@@ -225,6 +231,7 @@ public abstract class Venue extends Structural implements
     stocks.onWorldExit();
     personnel.onDecommission();
     world.presences.togglePresence(this, false);
+    world.claims.removeClaim(this);
     super.exitWorld();
   }
   
@@ -256,9 +263,22 @@ public abstract class Venue extends Structural implements
   }
   
   
+  protected Box2D areaClaimed() {
+    return area();
+  }
+  
+  
+  protected boolean claimConflicts(Venue other) {
+    return other.owningType() >= this.owningType();
+  }
+  
+  
   
   /**  Implementing the Boardable interface-
     */
+  private Boarding canBoard[] = null;
+  
+  
   public void setInside(Mobile m, boolean is) {
     if (is) {
       inside.include(m);
@@ -266,6 +286,7 @@ public abstract class Venue extends Structural implements
     else {
       inside.remove(m);
     }
+    canBoard = null;
   }
   
   
@@ -281,23 +302,21 @@ public abstract class Venue extends Structural implements
   
   public Box2D area(Box2D put) {
     if (put == null) put = new Box2D();
-    final Tile o = origin();
-    put.set(o.x - 0.5f, o.y - 0.5f, size, size);
-    return put;
+    return put.setTo(this.area());
   }
   
   
-  public Boarding[] canBoard(Boarding batch[]) {
+  public Boarding[] canBoard() {
+    if (canBoard != null) return canBoard;
+    
     final int minSize = 1 + inside.size();
-    if (batch == null || batch.length < minSize) {
-      batch = new Boarding[minSize];
-    }
-    else for (int i = batch.length; i-- > 1;) batch[i] = null;
+    final Boarding batch[] = new Boarding[minSize];
     batch[0] = entrance;
     int i = 1; for (Mobile m : inside) if (m instanceof Boarding) {
       batch[i++] = (Boarding) m;
     }
-    return batch;
+    
+    return canBoard = batch;
   }
   
   
@@ -307,7 +326,8 @@ public abstract class Venue extends Structural implements
   
   
   public boolean allowsEntry(Mobile m) {
-    return m.base() == base;
+    if (m.base() == this.base) return true;
+    return base.relations.relationWith(m.base()) >= 0;
   }
   
   
@@ -351,8 +371,15 @@ public abstract class Venue extends Structural implements
   
   
   public abstract Background[] careers();
-  public abstract TradeType[] services();  //TODO:  Rename to Goods?
+  public abstract TradeType[] services();
   public void addServices(Choice choice, Actor forActor) {}
+  
+  
+  
+  //  TODO:  Make these abstract?
+  public float ratePlacing(Target point) {
+    return 0;
+  }
   
   
   public boolean privateProperty() {
@@ -505,27 +532,27 @@ public abstract class Venue extends Structural implements
     updateItemSprites();
     renderChat(rendering, base);
   }
-  
-  
-  
-  /*
-  public void renderSelection(Rendering rendering, boolean hovered) {
-    if (destroyed() || ! inWorld()) return;
-    BaseUI.current().selection.renderTileOverlay(
-      rendering, world,
-      hovered ? Colour.transparency(0.5f) : Colour.WHITE,
-      Selection.SELECT_OVERLAY, true, primary, group
-    );
-    
-    BaseUI.current().selection.renderTileOverlay(
-      rendering, world,
-      hovered ? Colour.transparency(0.5f) : Colour.WHITE,
-      Selection.SELECT_OVERLAY, true, this, this, children
-    );
-  }
-  //*/
 }
 
 
 
 
+
+
+
+/*
+public void renderSelection(Rendering rendering, boolean hovered) {
+  if (destroyed() || ! inWorld()) return;
+  BaseUI.current().selection.renderTileOverlay(
+    rendering, world,
+    hovered ? Colour.transparency(0.5f) : Colour.WHITE,
+    Selection.SELECT_OVERLAY, true, primary, group
+  );
+  
+  BaseUI.current().selection.renderTileOverlay(
+    rendering, world,
+    hovered ? Colour.transparency(0.5f) : Colour.WHITE,
+    Selection.SELECT_OVERLAY, true, this, this, children
+  );
+}
+//*/

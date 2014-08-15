@@ -288,8 +288,8 @@ public class NativeHut extends Venue {
           a = world.tileAt(t.x + N_X[n], t.y + N_Y[n]),
           b = world.tileAt(t.x + N_X[o], t.y + N_Y[o]);
         between =
-          (a != null && a.owner() instanceof NativeHut) &&
-          (b != null && b.owner() instanceof NativeHut);
+          (a != null && a.onTop() instanceof NativeHut) &&
+          (b != null && b.onTop() instanceof NativeHut);
         if (between) break;
       }
       if (between) toPave.add(t);

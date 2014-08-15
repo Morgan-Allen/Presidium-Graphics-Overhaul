@@ -39,7 +39,7 @@ public final class Tile implements
   
   private float elevation = Float.NEGATIVE_INFINITY;
   private Habitat habitat = null;
-  private Element owner;
+  private Element onTop;
   private Stack <Mobile> inside = NONE_INSIDE;
   
   
@@ -67,7 +67,7 @@ public final class Tile implements
   protected void loadTileState(Session s) throws Exception {
     elevation = s.loadFloat();
     habitat = Habitat.ALL_HABITATS[s.loadInt()];
-    owner = (Element) s.loadObject();
+    onTop = (Element) s.loadObject();
     if (s.loadBool()) s.loadObjects(inside = new Stack <Mobile> ());
     else inside = NONE_INSIDE;
   }
@@ -76,7 +76,7 @@ public final class Tile implements
   protected void saveTileState(Session s) throws Exception {
     s.saveFloat(elevation);
     s.saveInt(habitat().ID);
-    s.saveObject(owner);
+    s.saveObject(onTop);
     if (inside == NONE_INSIDE) s.saveBool(false);
     else { s.saveBool(true); s.saveObjects(inside); }
   }
@@ -109,33 +109,6 @@ public final class Tile implements
   
   /**  Setting path type and occupation-
     */
-  public Element owner() {
-    return owner;
-  }
-  
-  
-  public void setOwner(Element e) {
-    //  TODO:  AUTOMATICALLY DISPLACE PRIOR OWNER (set as destroyed?)
-    if (e == owner) return;
-    if (e != null && this.owner != null) {
-      I.complain("PREVIOUS OWNER WAS NOT CLEARED: "+this.owner);
-    }
-    
-    this.owner = e;
-    if (verbose) {
-      if (e != null) I.say(this+" now owned by: "+e);
-      else I.say(this+" now cleared.");
-    }
-    
-    world.sections.flagBoundsUpdate(x, y);
-    boardingCache = null;
-    for (int n : N_INDEX) {
-      final Tile t = world.tileAt(x + N_X[n], y + N_Y[n]);
-      if (t != null) t.boardingCache = null;
-    }
-  }
-  
-  
   public Habitat habitat() {
     if (habitat != null) return habitat;
     refreshHabitat();
@@ -154,18 +127,18 @@ public final class Tile implements
   
   
   public int pathType() {
-    if (owner != null) return owner.pathType();
+    if (onTop != null) return onTop.pathType();
     if (world.terrain().isRoad(this)) return PATH_ROAD;
     return habitat().pathClear ? PATH_CLEAR : PATH_BLOCKS;
   }
   
   
   public int owningType() {
-    if (owner == null) {
+    if (onTop == null) {
       if (habitat().pathClear) return Element.NOTHING_OWNS;
       else return Element.TERRAIN_OWNS;
     }
-    return owner.owningType();
+    return onTop.owningType();
   }
   
   
@@ -205,39 +178,44 @@ public final class Tile implements
   }
   
   
+  public Element onTop() {
+    return onTop;
+  }
+  
+  
+  public void setOnTop(Element e) {
+    if (e == onTop) return;
+    
+    //  TODO:  AUTOMATICALLY DISPLACE PRIOR OCCUPANT (set as destroyed?)
+    if (e != null && this.onTop != null) {
+      I.complain("PREVIOUS OCCUPANT WAS NOT CLEARED: "+this.onTop);
+    }
+    
+    this.onTop = e;
+    if (verbose) {
+      if (e != null) I.say(this+" now owned by: "+e);
+      else I.say(this+" now cleared.");
+    }
+    
+    world.sections.flagBoundsUpdate(x, y);
+    boardingCache = null;
+    for (int n : N_INDEX) {
+      final Tile t = world.tileAt(x + N_X[n], y + N_Y[n]);
+      if (t != null) t.boardingCache = null;
+    }
+  }
+  
+  
   
   /**  Implementing the Boardable interface-
     */
-  public Boarding[] canBoard(Boarding batch[]) {
-    //
-    //  TODO:  See if this can't be made more efficient.  Try caching whenever
-    //  ownership/occupants change?
+  public Boarding[] canBoard() {
     if (boardingCache != null) return boardingCache;
-    else batch = null;
-    
-    if (batch == null) batch = new Boarding[8];
-    
-    //  TODO:  RESTORE THIS FOR VEHICLES LATER, IF REQUIRED?
-    /*
-    if (inside != null) {
-      int numB = 0;
-      for (Mobile m : inside) {
-        if (m instanceof Boardable) numB++;
-      }
-      if (numB > 0) {
-        batch = new Boardable[8 + numB];
-        for (Mobile m : inside) {
-          if (m instanceof Boardable) {
-            batch[8 + --numB] = (Boardable) m;
-          }
-        }
-      }
-    }
-    //*/
+    final Boarding batch[] = new Boarding[8];
     
     //  If you're actually occupied, allow boarding of the owner-
-    if (blocked() && owner() instanceof Boarding) {
-      return ((Boarding) owner()).canBoard(batch);
+    if (blocked() && onTop() instanceof Boarding) {
+      return boardingCache = ((Boarding) onTop()).canBoard();
     }
     
     //  Include any unblocked adjacent tiles-
@@ -257,8 +235,8 @@ public final class Tile implements
     //  Include anything that you're any entrance to-
     for (int n : N_ADJACENT) {
       final Tile t = world.tileAt(x + N_X[n], y + N_Y[n]);
-      if (t == null || ! (t.owner() instanceof Boarding)) continue;
-      final Boarding v = (Boarding) t.owner();
+      if (t == null || ! (t.onTop() instanceof Boarding)) continue;
+      final Boarding v = (Boarding) t.onTop();
       if (v.isEntrance(this)) batch[n] = v;
     }
     
@@ -362,8 +340,8 @@ public final class Tile implements
   
   
   public Colour minimapTone() {
-    if (this.owner instanceof Venue) {
-      final Base b = ((Venue) owner).base();
+    if (this.onTop instanceof Venue) {
+      final Base b = ((Venue) onTop).base();
       return b == null ? Colour.LIGHT_GREY : b.colour;
     }
     if (world.terrain().isRoad(this)) return Habitat.ROAD_TEXTURE.average();

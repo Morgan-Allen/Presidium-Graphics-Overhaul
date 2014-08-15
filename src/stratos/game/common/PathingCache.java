@@ -86,7 +86,7 @@ public class PathingCache {
         return t.blocked() ? null : t;
       }
       if (b instanceof Boarding) {
-        for (Boarding e : ((Boarding) b).canBoard(null)) {
+        for (Boarding e : ((Boarding) b).canBoard()) {
           if (e instanceof Tile) return (Tile) e;
         }
         return null;

@@ -9,15 +9,11 @@
 package stratos.game.plans;
 import org.apache.commons.math3.util.FastMath;
 
-import stratos.game.base.EcologistStation;
-import stratos.game.base.Crop;
-import stratos.game.base.Plantation;
+import stratos.game.base.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.maps.*;
-import stratos.graphics.common.*;
-import stratos.user.*;
 import stratos.util.*;
 
 import static stratos.game.actors.Qualities.*;
@@ -60,12 +56,12 @@ public class Farming extends Plan {
   /**  Behaviour implementation-
     */
   final static Skill BASE_SKILLS[] = { HARD_LABOUR, CULTIVATION };
-  final static Trait BASE_TRAITS[] = { IGNORANT, ENERGETIC, NATURALIST };
+  final static Trait BASE_TRAITS[] = { ENERGETIC, NATURALIST };
   
 
   protected float getPriority() {
     final boolean report = verbose && I.talkAbout == actor;
-    if ((! hasBegun()) && nursery.belongs.personnel.assignedTo(this) > 0) {
+    if ((! hasBegun()) && nursery.personnel.assignedTo(this) > 0) {
       return 0;
     }
     
@@ -162,7 +158,6 @@ public class Farming extends Plan {
     final float sumHarvest = sumHarvest();
     
     if (hasSample && sumHarvest == 0 && amountNeeded == 0) {
-      //  TODO:  Create a dedicated action type for this?
       final Action returnSeed = new Action(
         actor, nursery,
         this, "actionReturnHarvest",
@@ -175,22 +170,11 @@ public class Farming extends Plan {
       return null;
     }
     final Action returnAction = new Action(
-      actor, nursery.belongs,
+      actor, nursery,
       this, "actionReturnHarvest",
       Action.REACH_DOWN, "Returning harvest"
     );
     return returnAction;
-  }
-  
-  
-  private Species pickSpecies(Tile t, EcologistStation parent) {
-    final Float chances[] = new Float[5];
-    int i = 0;
-    for (Species s : Crop.ALL_VARIETIES) {
-      final float stocked = 50 + parent.stocks.amountOf(Crop.yieldType(s));
-      chances[i++] = Crop.habitatBonus(t, s, parent) / stocked;
-    }
-    return (Species) Rand.pickFrom(Crop.ALL_VARIETIES, chances);
   }
   
   
@@ -249,9 +233,24 @@ public class Farming extends Plan {
     health += actor.traits.test(CULTIVATION, plantDC, 1) ? 1 : 0;
     health += actor.traits.test(HARD_LABOUR, ROUTINE_DC, 1) ? 1 : 0;
     health *= Plantation.MAX_HEALTH_BONUS / 5;
-    final Species s = pickSpecies(crop.origin(), nursery.belongs);
+    final Species s = pickSpecies(crop.origin());
     crop.seedWith(s, health);
     return true;
+  }
+  
+  
+  private Species pickSpecies(Tile t) {
+    final Float chances[] = new Float[5];
+    int i = 0;
+    for (Species s : Crop.ALL_VARIETIES) {
+      final Item seed = actor.gear.matchFor(Item.asMatch(SAMPLES, s));
+      final float stocked = 50 + nursery.stocks.amountOf(Crop.yieldType(s));
+      
+      chances[i  ] = Crop.habitatBonus(t, s) / stocked;
+      chances[i  ] *= 1 + (seed == null ? 0 : seed.quality);
+      chances[i++] /= Item.MAX_QUALITY;
+    }
+    return (Species) Rand.pickFrom(Crop.ALL_VARIETIES, chances);
   }
   
   

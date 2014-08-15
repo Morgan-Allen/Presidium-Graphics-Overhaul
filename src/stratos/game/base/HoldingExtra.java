@@ -79,7 +79,7 @@ public class HoldingExtra extends Fixture implements TileConstants {
     if (Spacing.isEntrance(o)) return false;
     for (Tile n : o.allAdjacent(null)) {
       if (n == null) return false;
-      final Element e = n.owner();
+      final Element e = n.onTop();
       if (e == null) continue;
       if (e instanceof Holding) continue;
       if (e instanceof HoldingExtra) continue;
@@ -174,9 +174,9 @@ public class HoldingExtra extends Fixture implements TileConstants {
     //
     //  Finally, if you have space left, try a purely random placement:
     final Tile tried = Spacing.pickRandomTile(holding, 3, world);
-    if (tried == null || tried.owner() != null) return;
+    if (tried == null || tried.onTop() != null) return;
     for (Tile t : tried.allAdjacent(null)) {
-      if (t == null || t.owner() != null) return;
+      if (t == null || t.onTop() != null) return;
     }
     fits.enterWorldAt(tried, world);
     extras.add(fits);

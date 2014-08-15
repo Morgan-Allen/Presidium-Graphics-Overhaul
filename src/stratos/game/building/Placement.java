@@ -199,7 +199,7 @@ public class Placement implements TileConstants {
       
       protected boolean canAccess(Tile t) {
         if (Spacing.distance(t, near) > maxDist) return false;
-        if (t.owner() == near) return true;
+        if (t.onTop() == near) return true;
         return ! t.blocked();
       }
       

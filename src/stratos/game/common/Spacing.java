@@ -185,7 +185,7 @@ public final class Spacing implements TileConstants {
       Spacing.perimeter(element.area(tA), world);
     
     for (Tile t : perim) if (t != null) {
-      final Element o = t.owner();
+      final Element o = t.onTop();
       if (o != null && o.flaggedWith() == null) {
         near[numNeighbours++] = o;
         o.flagWith(element);
@@ -199,8 +199,8 @@ public final class Spacing implements TileConstants {
   
   public static boolean isEntrance(Tile t) {
     for (Tile n : t.edgeAdjacent(tempT4)) {
-      if (n == null || ! (n.owner() instanceof Boarding)) continue;
-      for (Boarding b : ((Boarding) n.owner()).canBoard(tempB4)) {
+      if (n == null || ! (n.onTop() instanceof Boarding)) continue;
+      for (Boarding b : ((Boarding) n.onTop()).canBoard()) {
         if (b == t) return true;
       }
     }
@@ -211,9 +211,9 @@ public final class Spacing implements TileConstants {
   public static Batch <Element> entranceFor(Tile t) {
     final Batch <Element> batch = new Batch <Element> ();
     for (Tile n : t.edgeAdjacent(tempT4)) {
-      if (n == null || ! (n.owner() instanceof Boarding)) continue;
-      for (Boarding b : ((Boarding) n.owner()).canBoard(tempB4)) {
-        if (b == t) batch.add((Element) n.owner());
+      if (n == null || ! (n.onTop() instanceof Boarding)) continue;
+      for (Boarding b : ((Boarding) n.onTop()).canBoard()) {
+        if (b == t) batch.add((Element) n.onTop());
       }
     }
     return batch;

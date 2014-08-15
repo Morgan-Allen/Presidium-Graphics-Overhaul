@@ -1,10 +1,16 @@
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 
 package stratos.game.base;
-//import javax.net.ssl.SSLEngineResult.Status;
 
 import stratos.game.common.*;
 import stratos.game.maps.*;
+import stratos.game.plans.Farming;
+import stratos.game.plans.Foraging;
+import stratos.game.plans.Forestry;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.graphics.common.*;
@@ -12,15 +18,10 @@ import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
-
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.building.Economy.*;
 
-
-
-//  TODO:  Just use this as the Nursery.  Same way that the Tailing can just
-//  be used as an entry/exit point for excavations.
 
 
 public class Plantation extends Venue implements TileConstants {
@@ -34,11 +35,12 @@ public class Plantation extends Venue implements TileConstants {
       Plantation.class, IMG_DIR+"nursery.png", 2, 2
     );
   
-  final public static int
-    TYPE_NURSERY = 0;
   final public static float
     MATURE_DURATION = World.STANDARD_DAY_LENGTH * 5,
     GROW_INCREMENT  = World.GROWTH_INTERVAL / MATURE_DURATION,
+    
+    MIN_AREA_SIDE = 4,
+    MAX_AREA_SIDE = 8,
     
     MAX_HEALTH_BONUS     = 2.0f,
     INFEST_GROW_PENALTY  = 0.5f,
@@ -56,35 +58,40 @@ public class Plantation extends Venue implements TileConstants {
     NO_CROPS = new Crop[0];
   
   
-  final public EcologistStation belongs;
+  //final public EcologistStation belongs;
   
-  final public int type;
+  //  TODO:  Get rid of the station reference?  Also the type?  Hmm.
+  
+  //final public int type;
+  private Box2D areaClaimed = new Box2D();
   private Crop planted[] = null;
   private float needsTending = 0;
   
   
-  public Plantation(
-    EcologistStation belongs, int type//, int facing//, Plantation strip[]
-  ) {
-    super(2, 2, ENTRANCE_SOUTH, belongs.base());
-    this.attachModel(NURSERY_MODEL);
-    
-    final boolean IN = type == TYPE_NURSERY;
+  //  TODO:  Use only the base as an argument.
+  public Plantation(Base base) {
+    //EcologistStation belongs, int type//, int facing//, Plantation strip[]
+  //) {
+    //super(2, 2, ENTRANCE_SOUTH, belongs.base());
+    super(2, 2, ENTRANCE_SOUTH, base);
+    //final boolean IN = type == TYPE_NURSERY;
     structure.setupStats(
-      IN ? 25 : 5,  //integrity
+      25,  //integrity
       5,  //armour
-      IN ? 15 : 2,  //build cost
+      15,  //build cost
       0,  //max upgrades
       Structure.TYPE_FIXTURE
     );
-    this.belongs = belongs;
-    this.type = type;
+    this.attachModel(NURSERY_MODEL);
+    //this.belongs = belongs;
+   // this.type = type;
   }
   
 
   public Plantation(Session s) throws Exception {
     super(s);
-    belongs = (EcologistStation) s.loadObject();
+    //belongs = (EcologistStation) s.loadObject();
+    areaClaimed.loadFrom(s.input());
     type = s.loadInt();
     planted = (Crop[]) s.loadObjectArray(Crop.class);
   }
@@ -92,7 +99,8 @@ public class Plantation extends Venue implements TileConstants {
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(belongs);
+    //s.saveObject(belongs);
+    areaClaimed.saveTo(s.output());
     s.saveInt(type);
     s.saveObjectArray(planted);
   }
@@ -115,53 +123,43 @@ public class Plantation extends Venue implements TileConstants {
     //return Tile.PATH_HINDERS;
   }
   
-  
+  /*
   protected void updatePaving(boolean inWorld) {
     if (type == TYPE_NURSERY) super.updatePaving(inWorld);
+  }
+  //*/
+
+  protected boolean canTouch(Element e) {
+    return e.owningType() < this.owningType();
+  }
+  
+  
+  protected Box2D areaClaimed() {
+    return areaClaimed;
+  }
+  
+  
+  protected boolean claimConflicts(Venue other) {
+    return super.claimConflicts(other);
+  }
+  
+  
+  public float ratePlacing(Target point) {
+    //  TODO:  base on proximity to an ecologist station and demand for food.
+    return 0;
   }
   
   
   
   /**  Establishing crop areas-
     */
-  /*
-  final static int
-    STRIP_DIRS[]  = { N, E, S, W },
-    CROPS_POS[] = { 0, 0, 0, 1, 1, 0, 1, 1 };
-  
-  
-  public boolean enterWorldAt(int x, int y, World world) {
-    if (! super.enterWorldAt(x, y, world)) return false;
-    if (type == TYPE_NURSERY) {
-      attachModel(NURSERY_MODEL);
-    }
-    else {
-      for (int c = 0, i = 0; c < 4; c++) {
-        final Tile t = world.tileAt(x + CROPS_POS[i++], y + CROPS_POS[i++]);
-        ///I.say("Creating new bed, species: "+Species.CROP_SPECIES[0]);
-        planted[c] = new Crop(
-          this, Species.CROP_SPECIES[0]
-        );
-        planted[c].setPosition(t.x, t.y, world);
-      }
-      //refreshCropSprites();
-    }
-    return true;
-  }
-  //*/
-  
-  
   public void updateAsScheduled(int numUpdates) {
     super.updateAsScheduled(numUpdates);
     if (! structure.intact()) return;
-
-    if (! belongs.structure.intact()) {
-      structure.setState(Structure.STATE_SALVAGE, -1);
-      return;
-    }
+    
     structure.setAmbienceVal(2);
     
-    if (type == TYPE_NURSERY && numUpdates % 10 == 0) {
+    if (numUpdates % 10 == 0) {
       final float
         growth = 10 * 1f / MATURE_DURATION,
         decay = growth / 10;
@@ -223,37 +221,61 @@ public class Plantation extends Venue implements TileConstants {
   
   
   
-  //  TODO:  Consider changing these to employ 1 or 2 cultivators each.
-  public TradeType[] services() { return null; }
-  
-  public Background[] careers() { return null; }
-  
-  public Behaviour jobFor(Actor actor) { return null; }
-  
-  
-  
-  /**  Finding space.
+  /**  Economic functions-
     */
-  protected boolean canTouch(Element e) {
-    return e.owningType() < this.owningType();
-  }
-  
-  
-  //  TODO:  I want a more cohesive method for deciding on the placement of
-  //  spontaneous structures.  ...I think, on balance, that the growth method
-  //  would not be the worst of systems.  Get supply and demand, and find the
-  //  best unclaimed area.
-  
-  
-  public static Plantation placeAllotmentFor(EcologistStation parent) {
-    
-    
-    return null;
-  }
-  
-  
-  public static float rateAllotment(Plantation alloted, World world) {
+  public int numOpenings(Background v) {
+    int num = super.numOpenings(v);
+    if (v == CULTIVATOR) return num + 1;
     return 0;
+  }
+  
+  //  TODO:  Consider changing these to employ 1 or 2 cultivators each.
+  public TradeType[] services() { return new TradeType[] {
+      CARBS, PROTEIN, GREENS
+  }; }
+  
+  
+  public Background[] careers() { return new Background[] {
+      CULTIVATOR
+  }; }
+  
+  public Behaviour jobFor(Actor actor) {
+    final Choice choice = new Choice(actor);
+    //
+    //  If you're really short on food, consider foraging in the surrounds-
+    final float shortages = (
+      stocks.shortagePenalty(CARBS) +
+      stocks.shortagePenalty(GREENS)
+    ) / 2f;
+    if (shortages > 0) {
+      final Foraging foraging = new Foraging(actor, this);
+      foraging.setMotive(Plan.MOTIVE_EMERGENCY, Plan.PARAMOUNT * shortages);
+      choice.add(foraging);
+    }
+    //
+    //  If the harvest is really coming in, pitch in regardless-
+    if (! Planet.isNight(world)){
+      if (needForTending() > 0.5f) choice.add(new Farming(actor, this));
+    }
+    
+    if (choice.size() > 0) return choice.pickMostUrgent();
+
+    if (! personnel.onShift(actor)) return null;
+    final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
+      this, services(), 2, 10, 5
+    );
+    choice.add(d);
+
+    final Forestry f = new Forestry(actor, this);
+    f.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
+    f.configureFor(Forestry.STAGE_GET_SEED);
+    choice.add(f);
+    
+    //  TODO:  Collect seeds from the nearest ecologist station if you can!
+    
+    choice.add(new Farming(actor, this));
+    
+    return choice.pickMostUrgent();
   }
   
   
@@ -266,18 +288,21 @@ public class Plantation extends Venue implements TileConstants {
   
   
   public String fullName() {
-    return type == TYPE_NURSERY ? "Nursery" : "Plantation";
+    return "Nursery";
   }
   
   
   public String helpInfo() {
-    if (type == TYPE_NURSERY) return
+    //if (type == TYPE_NURSERY) return
+    return
       "Nurseries allow young plants to be cultivated in a secure environment "+
       "prior to outdoor planting, and provide a small but steady food yield "+
       "regardless of outside conditions.";
+    /*
     return
       "Plantations of managed, mixed-culture cropland secure a high-quality "+
       "food source for your base, but require space and constant attention.";
+    //*/
   }
   
   
@@ -288,7 +313,7 @@ public class Plantation extends Venue implements TileConstants {
   
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
     final StringBuffer d = new StringBuffer();
-    if (type == TYPE_NURSERY) {
+    //if (type == TYPE_NURSERY) {
       d.append("\n");
       boolean any = false;
       for (Item seed : stocks.matches(SAMPLES)) {
@@ -298,6 +323,7 @@ public class Plantation extends Venue implements TileConstants {
         any = true;
       }
       if (! any) d.append("\nNo seed stock.");
+      /*
     }
     else {
       d.append("\n");
@@ -305,6 +331,7 @@ public class Plantation extends Venue implements TileConstants {
         d.append("\n  "+c);
       }
     }
+    //*/
     panel = VenueDescription.configSimplePanel(this, panel, UI, d.toString());
     return panel;
   }

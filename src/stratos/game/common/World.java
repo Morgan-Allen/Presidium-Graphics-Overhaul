@@ -43,7 +43,7 @@ public class World {
   final public int size;
   final Tile tiles[][];
   final public WorldSections sections;
-  final public PlacementGrid grid;
+  final public PlacementGrid claims;
   
   final public Schedule schedule;
   private float currentTime = DEFAULT_INIT_TIME;
@@ -67,7 +67,7 @@ public class World {
       tiles[c.x][c.y] = new Tile(this, c.x, c.y);
     }
     sections = new WorldSections(this, PATCH_RESOLUTION);
-    grid     = new PlacementGrid(this);
+    claims     = new PlacementGrid(this);
     schedule = new Schedule(currentTime);
     
     ecology = new Ecology(this);
@@ -91,7 +91,7 @@ public class World {
     for (Coord c : Visit.grid(0, 0, size, size, 1)) {
       tiles[c.x][c.y].loadTileState(s);
     }
-    grid.loadState(s);
+    claims.loadState(s);
     currentTime = s.loadFloat();
     schedule.loadFrom(s);
     
@@ -116,7 +116,7 @@ public class World {
     for (Coord c : Visit.grid(0, 0, size, size, 1)) {
       tiles[c.x][c.y].saveTileState(s);
     }
-    grid.saveState(s);
+    claims.saveState(s);
     s.saveFloat(currentTime);
     schedule.saveTo(s);
     
@@ -174,7 +174,7 @@ public class World {
   public Batch <Element> fixturesFrom(Box2D area) {
     final Batch <Element> from = new Batch <Element> ();
     for (Tile t : tilesIn(area, true)) {
-      final Element o = t.owner();
+      final Element o = t.onTop();
       if (o != null && o.origin() == t) from.add(o);
     }
     return from;
@@ -199,8 +199,8 @@ public class World {
   
   private float heightFor(int tX, int tY, boolean floor) {
     final Tile t = tileAt(Visit.clamp(tX, size), Visit.clamp(tY, size));
-    if (t.owner() == null) return t.elevation();
-    return floor ? t.owner().position(null).z : t.owner().height();
+    if (t.onTop() == null) return t.elevation();
+    return floor ? t.onTop().position(null).z : t.onTop().height();
   }
   
   
@@ -403,9 +403,9 @@ public class World {
   public Fixture pickedFixture(final HUD UI, final Viewport port, Base base) {
     final Tile t = pickedTile(UI, port, base);
     if (t == null) return null;
-    if (t.owner() instanceof Fixture) {
-      if (! t.owner().visibleTo(base)) return null;
-      return (Fixture) t.owner();
+    if (t.onTop() instanceof Fixture) {
+      if (! t.onTop().visibleTo(base)) return null;
+      return (Fixture) t.onTop();
     }
     else return null;
   }

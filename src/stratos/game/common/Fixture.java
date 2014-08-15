@@ -57,8 +57,8 @@ public abstract class Fixture extends Element {
     }
     if (area.xdim() < 1) I.say("AREA:"+area+", size: "+size);
     final Tile perim[] = Spacing.perimeter(area, world);
-    for (Tile t : perim) if (t != null && t.owner() != null) {
-      if (! canTouch(t.owner())) return false;
+    for (Tile t : perim) if (t != null && t.onTop() != null) {
+      if (! canTouch(t.onTop())) return false;
     }
     return true;
   }
@@ -73,8 +73,8 @@ public abstract class Fixture extends Element {
     final Box2D around = new Box2D().setTo(area()).expandBy(1);
     final World world = origin().world;
     for (Tile t : world.tilesIn(around, false)) if (t != null) {
-      if (t.owner() != null && t.owningType() < this.owningType()) {
-        t.owner().setAsDestroyed();
+      if (t.onTop() != null && t.owningType() < this.owningType()) {
+        t.onTop().setAsDestroyed();
       }
     }
     Tile exit = null;
@@ -107,9 +107,9 @@ public abstract class Fixture extends Element {
   public boolean enterWorldAt(int x, int y, World world) {
     if (! super.enterWorldAt(x, y, world)) return false;
     for (Tile t : world.tilesIn(area, false)) {
-      final Element old = t.owner();
+      final Element old = t.onTop();
       if (old != null && old != this) old.setAsDestroyed();
-      t.setOwner(this);
+      t.setOnTop(this);
     }
     return true;
   }
@@ -125,7 +125,7 @@ public abstract class Fixture extends Element {
   
   public void exitWorld() {
     for (Tile t : world().tilesIn(area, false)) {
-      t.setOwner(null);
+      t.setOnTop(null);
     }
     super.exitWorld();
   }

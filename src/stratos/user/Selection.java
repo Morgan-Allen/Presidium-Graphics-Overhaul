@@ -114,7 +114,7 @@ public class Selection implements UIConstants {
       Gdx.input.isKeyPressed(Input.Keys.SPACE)
     ) {
       I.say("Picked tile is: "+pickTile);
-      I.say("  Owner is: "+pickTile.owner());
+      I.say("  Owner is: "+pickTile.onTop());
       I.say("  Path type is: "+pickTile.pathType());
       I.say("  Minimap tone is: "+pickTile.minimapTone());
     }

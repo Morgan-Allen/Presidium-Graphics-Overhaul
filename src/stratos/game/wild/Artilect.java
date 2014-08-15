@@ -117,10 +117,10 @@ public abstract class Artilect extends Actor {
   }
   
   
-  protected Relations initMemories() {
+  protected ActorRelations initMemories() {
     final Artilect actor = this;
     
-    return new Relations(this) {
+    return new ActorRelations(this) {
       public float relationValue(Venue venue) {
         if (venue == actor.mind.home()) return 1;
         return super.relationValue(venue);
@@ -257,9 +257,12 @@ public abstract class Artilect extends Actor {
     //
     //  TODO:  Base priority on proximity to your lair, along with total
     //  settlement size.
+    
+    //  TODO:  Merge this with the BaseAI code!
+    
     for (Venue venue : sampled) {
       if (venue.base() == this.base()) continue;
-      final float crowding = 1 - venue.base().communitySpirit();
+      final float crowding = 1 - venue.base().relations.communitySpirit();
       
       final float dist = Spacing.distance(venue, lair);
       if (dist > Ruins.MIN_RUINS_SPACING) continue;

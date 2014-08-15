@@ -351,7 +351,7 @@ public class DeliveryUtils {
     float rating = destShort - origShort;
     if (rating <= 0) return -1;
     
-    final float baseFactor = orig.base().relationWith(dest.base());
+    final float baseFactor = orig.base().relations.relationWith(dest.base());
     if (baseFactor <= 0) return -1;
     
     final int SS = World.SECTOR_SIZE;

@@ -158,7 +158,7 @@ public abstract class Vehicle extends Mobile implements
   
   
   
-  /**  Vehicles are generally commissioned as an accompaniment to venues by the
+  /**  Vehicles are generally commissioned as an accompaniment to venues by
     *  venues themselves, so these methods aren't much used.
     */
   public int buildCost() { return structure.buildCost(); }
@@ -171,7 +171,48 @@ public abstract class Vehicle extends Mobile implements
   ) {}
   
   
+  
+  /**  TODO:  Include code here for assessing suitable landing sites?
+    */
 
+  /**  Assigning jobs to crew members-
+    */
+  public Behaviour jobFor(Actor actor) {
+    return null;
+  }
+  
+  
+  public void addServices(Choice actor, Actor forActor) {}
+  public Background[] careers() { return null; }
+  
+  
+  public void setWorker(Actor actor, boolean is) {
+    personnel.setWorker(actor, is);
+  }
+
+  
+  public void setApplicant(Application app, boolean is) {
+    //I.complain("NOT IMPLEMENTED YET!");
+    personnel.setApplicant(app, is);
+  }
+  
+  
+  public int numOpenings(Background b) {
+    return 0;
+  }
+  
+  
+  public List <Actor> crew() {
+    return personnel.workers();
+  }
+  
+  
+  public boolean actionDrive(Actor actor, Vehicle driven) {
+    return true;
+  }
+  
+  
+  
   /**  Handling pathing-
     */
   protected Pathing initPathing() {
@@ -255,49 +296,19 @@ public abstract class Vehicle extends Mobile implements
   
   
   
-  /**  TODO:  Include code here for assessing suitable landing sites?
-    */
-
-  /**  Assigning jobs to crew members-
-    */
-  public Behaviour jobFor(Actor actor) {
-    return null;
-  }
-  
-  
-  public void addServices(Choice actor, Actor forActor) {}
-  public Background[] careers() { return null; }
-  
-  
-  public void setWorker(Actor actor, boolean is) {
-    personnel.setWorker(actor, is);
-  }
-
-  
-  public void setApplicant(Application app, boolean is) {
-    //I.complain("NOT IMPLEMENTED YET!");
-    personnel.setApplicant(app, is);
-  }
-  
-  
-  public int numOpenings(Background b) {
-    return 0;
-  }
-  
-  
-  public List <Actor> crew() {
-    return personnel.workers();
-  }
-  
-  
-  public boolean actionDrive(Actor actor, Vehicle driven) {
-    return true;
-  }
-  
   
   
   /**  Handling passengers and cargo-
     */
+  private Boarding canBoard[] = null;
+  
+  
+  protected void onTileChange(Tile oldTile, Tile newTile) {
+    super.onTileChange(oldTile, newTile);
+    canBoard = null;
+  }
+  
+  
   public void setInside(Mobile m, boolean is) {
     if (is) {
       inside.include(m);
@@ -305,6 +316,7 @@ public abstract class Vehicle extends Mobile implements
     else {
       inside.remove(m);
     }
+    canBoard = null;
   }
   
   
@@ -313,12 +325,14 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
-  public Boarding[] canBoard(Boarding batch[]) {
-    if (batch == null) batch = new Boarding[2];
-    else for (int i = batch.length; i-- > 0;) batch[i] = null;
+  public Boarding[] canBoard() {
+    if (canBoard != null) return canBoard;
+    
+    final Boarding batch[] = new Boarding[2];
     batch[0] = dropPoint;
     if (aboard() != null) batch[1] = aboard;
-    return batch;
+    
+    return canBoard = batch;
   }
   
   

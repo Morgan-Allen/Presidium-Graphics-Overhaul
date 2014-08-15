@@ -278,9 +278,9 @@ public class Paving {
   private void clearRoad(Tile path[], boolean report) {
     if (report) I.say("Clearing path...");
     for (Tile t : path) {
-      if (report) I.say("Owner of "+t+" is "+t.owner());
+      if (report) I.say("Owner of "+t+" is "+t.onTop());
       if (t.owningType() < Element.FIXTURE_OWNS) {
-        if (t.owner() != null) t.owner().setAsDestroyed();
+        if (t.onTop() != null) t.onTop().setAsDestroyed();
       }
     }
   }
@@ -326,7 +326,7 @@ public class Paving {
         if (report) I.say("  Have reached: "+v);
         
         for (Tile t : Spacing.perimeter(v.area(), world)) if (t != null) {
-          if (t.owner() instanceof Structural) insertAgenda(t.owner());
+          if (t.onTop() instanceof Structural) insertAgenda(t.onTop());
           else if (tileRoutes.get(t) != null) insertAgenda(t);
         }
       }
@@ -338,7 +338,7 @@ public class Paving {
         if (o == null) continue;
         insertAgenda(o);
         for (Tile a : o.allAdjacent(tempN)) if (a != null) {
-          if (a.owner() instanceof Structural) insertAgenda(a.owner());
+          if (a.onTop() instanceof Structural) insertAgenda(a.onTop());
         }
       }
     }

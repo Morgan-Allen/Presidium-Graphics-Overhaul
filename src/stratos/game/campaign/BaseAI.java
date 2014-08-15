@@ -145,12 +145,12 @@ public class BaseAI {
     final Base other = venue.base();
     float threat = 0;
     
-    threat = 1f - other.communitySpirit();
+    threat = 1f - other.relations.communitySpirit();
     
     float avgDist = Spacing.distance(point, venue);
     threat *= 1f / (1 + (avgDist / World.SECTOR_SIZE));
     
-    threat *= base.relationWith(other);
+    threat *= 0 - base.relations.relationWith(other);
     
     //TODO:  Include an assessment of how much you dislike the inhabitants of
     //the venue in question, and how much the other base values the venue.

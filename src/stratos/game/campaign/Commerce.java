@@ -351,7 +351,7 @@ public class Commerce {
       }
       
       if (homeworld != null) {
-        final float sizeBonus = base.communitySpirit();
+        final float sizeBonus = base.relations.communitySpirit();
         importMul *= (1 - sizeBonus);
         exportDiv = (1 * sizeBonus) + (exportDiv * (1 - sizeBonus));
       }

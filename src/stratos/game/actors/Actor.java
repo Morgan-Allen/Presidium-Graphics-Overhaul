@@ -39,7 +39,7 @@ public abstract class Actor extends Mobile implements
   
   final public ActorMind mind = initAI();
   final public Senses senses = initSenses();
-  final public Relations relations = initMemories();
+  final public ActorRelations relations = initMemories();
   
   private Action actionTaken;
   private Base base;
@@ -84,7 +84,7 @@ public abstract class Actor extends Mobile implements
   protected abstract ActorMind initAI();
   
   protected Senses initSenses() { return new Senses(this); }
-  protected Relations initMemories() { return new Relations(this); }
+  protected ActorRelations initMemories() { return new ActorRelations(this); }
   protected Pathing initPathing() { return new Pathing(this); }
   
   public float height() {

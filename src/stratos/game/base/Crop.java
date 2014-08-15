@@ -4,7 +4,6 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-
 package stratos.game.base;
 import static stratos.game.building.Economy.CARBS;
 import static stratos.game.building.Economy.GREENS;
@@ -17,9 +16,6 @@ import stratos.graphics.cutout.*;
 import stratos.util.*;
 
 
-//
-//  TODO:  Try and simplify this.  Replace with a fixture of some type,
-//  ideally?
 
 public class Crop extends Fixture {
   
@@ -155,8 +151,8 @@ public class Crop extends Fixture {
   
   
   static Crop cropAt(Tile t) {
-    if (t.owner() instanceof Crop) {
-      return (Crop) t.owner();
+    if (t.onTop() instanceof Crop) {
+      return (Crop) t.onTop();
     }
     return null;
   }
@@ -175,8 +171,8 @@ public class Crop extends Fixture {
   }
   
   
-  public static float habitatBonus(Tile t, Species s, EcologistStation parent) {
-    final Upgrade PU;
+  public static float habitatBonus(Tile t, Species s) {
+    //final Upgrade PU;
     float bonus = 0.0f;
     
     //  First, apply appropriate modifier for microclimate-
@@ -189,19 +185,21 @@ public class Crop extends Fixture {
     //  Then, we determine bonus based on crop type-
     if (isHive(s)) {
       bonus += t.world.ecology().biomassRating(t);
-      PU = EcologistStation.INSECTRY_LAB;
+      //PU = EcologistStation.INSECTRY_LAB;
     }
     else if (isCereal(s)) {
       bonus *= Plantation.CEREAL_BONUS;
-      PU = EcologistStation.CEREAL_LAB;
+      //PU = EcologistStation.CEREAL_LAB;
     }
-    else PU = EcologistStation.BROADLEAF_LAB;
+    //else PU = EcologistStation.BROADLEAF_LAB;
     
+    /*
     //  And, if allowed, the modifier for structure upgrades-
     if (parent != null) {
       final int UB = parent.structure.upgradeBonus(PU);
       bonus *= 1 + (UB * Plantation.UPGRADE_GROW_BONUS);
     }
+    //*/
     return Visit.clamp(bonus, 0, Plantation.MAX_HEALTH_BONUS);
   }
   
@@ -233,7 +231,7 @@ public class Crop extends Fixture {
     if (blighted) increment -= Plantation.INFEST_GROW_PENALTY;
     if (increment > 0) {
       increment *= Planet.dayValue(world) * 2;
-      increment *= quality * habitatBonus(tile, species, null);
+      increment *= quality * habitatBonus(tile, species);
     }
     increment *= Rand.num() * 2 * Plantation.GROW_INCREMENT * MAX_GROWTH;
     

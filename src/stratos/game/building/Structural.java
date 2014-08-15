@@ -189,8 +189,8 @@ public abstract class Structural extends Fixture implements
       final Tile n = world.tileAt(o.x + (N_X[i] * unit), o.y + (N_Y[i] * unit));
       if (n == null) continue;
       boolean isNear = false;
-      if (n.owner() instanceof Structural) {
-        final Structural s = (Structural) n.owner();
+      if (n.onTop() instanceof Structural) {
+        final Structural s = (Structural) n.onTop();
         if (s.origin() == n && s.getClass() == this.getClass()) isNear = true;
       }
       if (n.flaggedWith() == this) isNear = true;
@@ -230,8 +230,8 @@ public abstract class Structural extends Fixture implements
     for (int i : N_ADJACENT) {
       final Tile n = world.tileAt(o.x + (N_X[i] * size), o.y + (N_Y[i] * size));
       if (n == null) continue;
-      if (n.owner() != null && n.owner().getClass() == this.getClass()) {
-        final Structural s = (Structural) n.owner();
+      if (n.onTop() != null && n.onTop().getClass() == this.getClass()) {
+        final Structural s = (Structural) n.onTop();
         if (prior != null && prior.includes(s)) continue;
         s.refreshFromNear(prior);
       }
@@ -267,8 +267,8 @@ public abstract class Structural extends Fixture implements
     if (super.canPlace()) return true;
     ///I.say("Couldn't place normally!");
     final Tile o = origin();
-    if (o == null || o.owner() == null) return false;
-    if (o.owner().getClass() == this.getClass()) return true;
+    if (o == null || o.onTop() == null) return false;
+    if (o.onTop().getClass() == this.getClass()) return true;
     return false;
   }
   

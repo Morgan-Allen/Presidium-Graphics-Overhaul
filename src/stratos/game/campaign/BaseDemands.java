@@ -16,12 +16,6 @@ import org.apache.commons.math3.util.FastMath;
 
 
 
-//  TODO:  You must create a location interface.
-//  Cash.  Promotion.  Artifact.
-//  Policy.  Pardon.  Marriage.
-//  Declare Mission.
-//  Under Orders.
-
 //  TODO:  These should mediate trade & defence dynamics.
 //  Vassal.  Liege.  Alliance.
 //  Vendetta.  Rebel.  Uprising.
@@ -35,8 +29,6 @@ import org.apache.commons.math3.util.FastMath;
 //  ambience structures.
 //  Presence of personnel and structures creates base-line demand for parts,
 //  devices, outfits, et cetera.
-
-
 
 public class BaseDemands {
   
@@ -162,9 +154,9 @@ public class BaseDemands {
     //  First, estimate the total available labour pool and how much work needs
     //  to be done.
     float sumWork = 0;
-    final FacilityProfile profiles[] = BaseSetup.facilityProfiles();
+    final VenueProfile profiles[] = BaseSetup.facilityProfiles();
     
-    for (FacilityProfile facility : profiles) {
+    for (VenueProfile facility : profiles) {
       sumWork += FastMath.abs(workRemaining(facility));
     }
     float totalLabour = 0;
@@ -180,7 +172,7 @@ public class BaseDemands {
     
     //  TODO:  Order work on different facilities based on urgency or stage in
     //  the supply chain?
-    for (FacilityProfile  profile : profiles) {
+    for (VenueProfile  profile : profiles) {
       final float need = workRemaining(profile);
       float progress = need * totalLabour * timeInterval / sumWork;
       
@@ -191,7 +183,7 @@ public class BaseDemands {
   }
   
   
-  private float workRemaining(FacilityProfile profile) {
+  private float workRemaining(VenueProfile profile) {
     float work = shortage(profile.baseClass);
     work *= profile.maxIntegrity / 25f;
     work *= Repairs.TIME_PER_25_HP / World.STANDARD_DAY_LENGTH;

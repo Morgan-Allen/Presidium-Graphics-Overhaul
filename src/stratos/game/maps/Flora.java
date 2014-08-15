@@ -112,8 +112,8 @@ public class Flora extends Element implements TileConstants {
     if (growChance == -1) return null;
     if (verbose) I.say("Grow chance: "+growChance);
     
-    if (t.owner() instanceof Flora) {
-      final Flora f = (Flora) t.owner();
+    if (t.onTop() instanceof Flora) {
+      final Flora f = (Flora) t.onTop();
       if (Rand.num() < (growChance * 4 * GROWTH_PER_UPDATE)) {
         f.incGrowth(1, t.world, false);
         t.world.ecology().impingeBiomass(t, f.growth, World.GROWTH_INTERVAL);

@@ -119,8 +119,8 @@ public abstract class Fauna extends Actor {
   }
   
   
-  protected Relations initMemories() {
-    return new Relations(this) {
+  protected ActorRelations initMemories() {
+    return new ActorRelations(this) {
       //
       //  We install some default relationships with other animals-
       public float relationValue(Actor other) {
