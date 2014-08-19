@@ -207,6 +207,11 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
+  public boolean privateProperty() {
+    return true;
+  }
+  
+  
   public boolean actionDrive(Actor actor, Vehicle driven) {
     return true;
   }

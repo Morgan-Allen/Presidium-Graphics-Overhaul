@@ -12,10 +12,6 @@ import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.util.*;
 import stratos.game.plans.*;
-import stratos.game.maps.*;
-import stratos.game.common.WorldSections.Section;
-
-import java.lang.reflect.*;
 import org.apache.commons.math3.util.FastMath;
 
 
@@ -25,10 +21,37 @@ public class BaseSetup {
   
   /**  Placement of assorted structure types based on internal demand:
     */
+  final static float
+    FULL_EVAL_PERIOD = World.STANDARD_DAY_LENGTH,
+    DEFAULT_PLACE_HP = 50;
+  
+  private static boolean verbose = false;
+  
   final Base base;
   final World world;
   
+  //
+  //  Data structures for handling supply-and-demand:
   //private BaseDemands demands = new BaseDemands(this);  //  Setup this.
+  
+  //
+  //  Data structures for conducting time-sliced placement of private venues:
+  static class Placing {
+    Venue   sampled  ;
+    WorldSection placed   ;
+    Tile    exactTile;
+    float   rating   ;
+  }
+  
+  final List <Placing> placings = new List <Placing> () {
+    protected float queuePriority(Placing r) {
+      return r.rating;
+    }
+  };
+  
+  private int   iterLimit = 0;  //  Matches placings.length after evaluation.
+  private float lastEval = -1;  //  Last evaluation time.
+  private float placeLimit = 0, amountPlaced = 0;
   
   
   public BaseSetup(Base base, World world) {
@@ -39,93 +62,89 @@ public class BaseSetup {
   
   public void loadState(Session s) throws Exception {
     //demands.loadState(s);
+    
+    final int numP = s.loadInt();
+    for (int n = numP ; n-- > 0;) {
+      final Placing p = new Placing();
+      p.sampled   = (Venue  ) s.loadObject();
+      p.placed    = (WorldSection) s.loadTarget();
+      p.exactTile = (Tile   ) s.loadTarget();
+      p.rating    =           s.loadFloat ();
+    }
+    iterLimit    = s.loadInt  ();
+    lastEval     = s.loadFloat();
+    placeLimit   = s.loadFloat();
+    amountPlaced = s.loadFloat();
   }
   
   
   public void saveState(Session s) throws Exception {
     //demands.saveState(s);
+    
+    s.saveInt(placings.size());
+    for (Placing p : placings) {
+      s.saveObject(p.sampled  );
+      s.saveTarget(p.placed   );
+      s.saveTarget(p.exactTile);
+      s.saveFloat (p.rating   );
+    }
+    s.saveInt  (iterLimit   );
+    s.saveFloat(lastEval    );
+    s.saveFloat(placeLimit  );
+    s.saveFloat(amountPlaced);
   }
   
   
   
   /**  Time-sliced automation of building-placement methods-
     */
-  final static float
-    FULL_EVAL_PERIOD = World.STANDARD_DAY_LENGTH,
-    DEFAULT_PLACE_HP = 50;
-  
-  static class Placing {
-    Venue sampled;
-    Section placed;
-    Tile exactTile;
-    float rating;
-  }
-  
-  final List <Placing> placings = new List <Placing> () {
-    protected float queuePriority(Placing r) {
-      return r.rating;
-    }
-  };
-  private int initLength = 0;
-  private float lastEval = -1;
-  private float placeLimit = 0, amountPlaced = 0;
-  
-  
   public void updatePlacements() {
-    if (amountPlaced > placeLimit || placings.size() == 0) {
+    
+    if (placings.size() == 0) {
+      if (verbose) I.say("Ranking sections...");
       rankSectionPlacings();
+      calcPlaceLimit();
       return;
     }
     
     final float time = world.currentTime();
     if (lastEval == -1) lastEval = time;
-    float placeCounter = 0;
-    placeCounter += initLength * time     / FULL_EVAL_PERIOD;
-    placeCounter -= initLength * lastEval / FULL_EVAL_PERIOD;
     
-    while (placeCounter > 0) {
-      final Placing best = placings.removeFirst();
-      if (best.sampled.inWorld()) continue;
+    int numIters = 0;
+    numIters += iterLimit * time     / FULL_EVAL_PERIOD;
+    numIters -= iterLimit * lastEval / FULL_EVAL_PERIOD;
+    
+    if (numIters <= 0) return;
+    lastEval = time;
+    if (verbose) I.say("Placement iterations: "+numIters+"/"+iterLimit);
+    
+    while (numIters-- > 0 && placings.size() > 0) {
+      final Placing best = placings.removeLast();
+      if (amountPlaced < placeLimit) continue;
+      if (best.sampled.inWorld() || best.rating <= 0) continue;
+      
       if (attemptExactPlacement(best)) {
         amountPlaced += best.sampled.structure.maxIntegrity();
-      }
-      placeCounter--;
-    }
-    
-    placeLimit = (float) FastMath.log(10, 1 + base.relations.population());
-    placeLimit *= DEFAULT_PLACE_HP;
-    lastEval = time;
-  }
-  
-  
-  private void rankSectionPlacings() {
-    placings.clear();
-    amountPlaced = 0;
-    final Venue samples[] = sampleVenues(Venue.VENUE_OWNS, true);
-    
-    for (Section section : world.sections.sectionsUnder(world.area())) {
-      for (Venue sample : samples) {
-        final Placing p = new Placing();
-        placings.add(p);
-        p.sampled = sample;
-        p.placed = section;
-        p.exactTile = null;
-        p.rating = sample.ratePlacing(section);
+        
+        if (verbose) descPlacing("New Placement: ", best);
+        if (verbose) I.say("  Placed: "+amountPlaced+" Limit: "+placeLimit);
       }
     }
-    
-    placings.queueSort();
-    initLength = placings.size();
   }
   
   
   private boolean attemptExactPlacement(Placing placing) {
     final Venue sample = placing.sampled;
-    float bestRating = -1;
+    float bestRating = 0;
     Tile  bestTile = null;
     
     //  TODO:  try and improve efficiency here.  (It would help if it were just
     //         a question of fixed areas.)
+    
+    //  TODO:  Time-slice this as well?  Well, as space becomes exhausted, the
+    //  number of viable placements relative to tiles drops.  On the other
+    //  hand, more tiles can be immediately discounted.  So in principle, that
+    //  evens out.
     
     for (Tile t : world.tilesIn(placing.placed.area, false)) {
       sample.setPosition(t.x, t.y, world);
@@ -135,9 +154,53 @@ public class BaseSetup {
     }
     
     if (bestRating <= 0) return false;
+    sample.assignBase(base);
     sample.setPosition(bestTile.x, bestTile.y, world);
-    sample.doPlace(bestTile, null);
+    sample.placeFromOrigin();
     return true;
+  }
+  
+  
+  private void calcPlaceLimit() {
+    placeLimit = (float) FastMath.log(10, 1 + base.relations.population());
+    placeLimit *= DEFAULT_PLACE_HP;
+    
+    //  TODO:  Also base off finances, labour force, and the amount of
+    //  structures currently in need of repairs.
+    
+  }
+  
+  
+  private void rankSectionPlacings() {
+    placings.clear();
+    amountPlaced = 0;
+    final Venue samples[] = sampleVenues(Venue.VENUE_OWNS, true);
+    
+    for (WorldSection section : world.sections.sectionsUnder(world.area())) {
+      for (Venue sample : samples) {
+        final Placing p = new Placing();
+        p.sampled = sample;
+        p.placed = section;
+        p.exactTile = null;
+        p.rating = sample.ratePlacing(section);
+        if (p.rating > 0) {
+          placings.add(p);
+          if (verbose) descPlacing("Ranking placement: ", p);
+        }
+      }
+    }
+    
+    placings.queueSort();
+    iterLimit = placings.size();
+  }
+  
+  
+  private void descPlacing(String desc, Placing best) {
+    I.say(
+      "  "+desc+""+best.sampled+
+      " "+best.placed.absX+"/"+best.placed.absY+
+      ", rating: "+best.rating
+    );
   }
   
   

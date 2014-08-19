@@ -7,7 +7,6 @@
 
 package stratos.game.common;
 import stratos.game.building.*;
-import stratos.game.common.WorldSections.Section;
 import stratos.util.*;
 import java.util.Iterator;
 
@@ -27,9 +26,9 @@ public class PresenceMap implements Session.Saveable {  //TODO:  Do not make Sav
   final Node root;
   
   static class Node extends List {
-    final Section section;
+    final WorldSection section;
     int population = 0;
-    Node(Section s) { this.section = s; }
+    Node(WorldSection s) { this.section = s; }
   }
   
   private static final class NodeMarker {
@@ -195,8 +194,8 @@ public class PresenceMap implements Session.Saveable {  //TODO:  Do not make Sav
       
       if (nodeKid == null) {
         if (is) {
-          Section worldKid = null;
-          for (Section k : n.section.kids) if (k.area.contains(x, y)) {
+          WorldSection worldKid = null;
+          for (WorldSection k : n.section.kids) if (k.area.contains(x, y)) {
             worldKid = k;
             break;
           }
@@ -324,7 +323,7 @@ public class PresenceMap implements Session.Saveable {  //TODO:  Do not make Sav
       //
       //  For a given node level, iterate across all children and calculate the
       //  probability of visiting those.
-      final Section quadKids[] = node.section.kids;
+      final WorldSection quadKids[] = node.section.kids;
       final boolean leaf = node.section.depth == 0;
       float weights[] = new float[node.size()], sumWeights = 0;
       int i = 0; for (Object k : node) {

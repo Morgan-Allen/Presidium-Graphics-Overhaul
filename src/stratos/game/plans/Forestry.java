@@ -233,6 +233,8 @@ public class Forestry extends Plan {
   
   
   public boolean actionReturnHarvest(Actor actor, Venue depot) {
+    if (eventsVerbose) I.say("RETURNING SAMPLES TO "+depot);
+    
     for (Item sample : actor.gear.matches(SAMPLES)) {
       if (! (sample.refers instanceof Flora)) continue;
       final Flora cut = (Flora) sample.refers;
@@ -241,6 +243,7 @@ public class Forestry extends Plan {
       depot.stocks.bumpItem(GENE_SEED, 1);
       actor.gear.removeItem(sample);
     }
+    
     actor.gear.transfer(GENE_SEED, depot);
     stage = STAGE_DONE;
     return true;

@@ -5,9 +5,6 @@
   */
 
 package stratos.game.base;
-import static stratos.game.building.Economy.CARBS;
-import static stratos.game.building.Economy.GREENS;
-import static stratos.game.building.Economy.PROTEIN;
 import stratos.game.common.*;
 import stratos.game.maps.*;
 import stratos.game.building.*;
@@ -15,11 +12,14 @@ import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.util.*;
 
+import static stratos.game.building.Economy.*;
+
 
 
 public class Crop extends Fixture {
   
-
+  
+  //  TODO:  Consider resizing these a bit.
   final static String IMG_DIR = "media/Buildings/ecologist/";
   final static CutoutModel
     COVERING_LEFT = CutoutModel.fromImage(
@@ -65,13 +65,12 @@ public class Crop extends Fixture {
   
   
   final public Plantation parent;
-  //final public Tile tile;
   private Species species;
   private float growStage, quality;
   private boolean blighted;
   
   
-  protected Crop(Plantation parent, Species species) {
+  public Crop(Plantation parent, Species species) {
     super(1, 1);
     this.parent = parent;
     this.species = species;
@@ -84,7 +83,6 @@ public class Crop extends Fixture {
     super(s);
     s.cacheInstance(this);
     parent = (Plantation) s.loadObject();
-    //tile = (Tile) s.loadTarget();
     species = (Species) s.loadObject();
     growStage = s.loadFloat();
     quality = s.loadFloat();
@@ -94,7 +92,6 @@ public class Crop extends Fixture {
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     s.saveObject(parent);
-    //s.saveTarget(tile);
     s.saveObject(species);
     s.saveFloat(growStage);
     s.saveFloat(quality);
@@ -111,9 +108,6 @@ public class Crop extends Fixture {
     Species.HIVE_GRUBS
   };
   
-  //
-  //  TODO:  Move most or all of this out to the Species or Crop class, where it
-  //         belongs.
   final static Object CROP_SPECIES[][] = {
     new Object[] { Species.ONI_RICE, CARBS    , CROP_MODELS[0] },
     new Object[] { Species.DURWHEAT, CARBS    , CROP_MODELS[1] },
@@ -134,6 +128,7 @@ public class Crop extends Fixture {
     final ModelAsset seq[] = (ModelAsset[]) CROP_SPECIES[varID][2];
     return seq[Visit.clamp(growStage, seq.length)];
   }
+  
   
   static boolean isHive(Species s) {
     return s == Species.HIVE_GRUBS || s == Species.BLUE_VALVES;
@@ -159,6 +154,7 @@ public class Crop extends Fixture {
   
   
   public static TradeType yieldType(Species species) {
+    if (species == null) return null;
     final TradeType type;
     if (isHive(species)) {
       type = Economy.PROTEIN;
@@ -216,7 +212,7 @@ public class Crop extends Fixture {
   
   
   public void onGrowth(Tile tile) {
-    if (growStage == NOT_PLANTED) return;
+    if (growStage == NOT_PLANTED || species == null) return;
 
     //  TODO:  Possibly combine with irrigation effects from water supply or
     //  life support?
@@ -316,10 +312,16 @@ public class Crop extends Fixture {
   /**  Rendering and interface-
     */
   protected void updateSprite() {
-    final ModelAsset
-      old   = sprite().model(),
-      model = speciesModel(species, (int) growStage);
-    if (model != old) attachModel(model);
+    final GroupSprite old = (GroupSprite) sprite();
+    final ModelAsset model = speciesModel(species, (int) growStage);
+    if (old != null && old.atIndex(0).model() == model) return;
+    
+    final GroupSprite GS = new GroupSprite();
+    GS.attach(model, -0.25f, -0.25f, 0);
+    GS.attach(model,  0.25f, -0.25f, 0);
+    GS.attach(model, -0.25f,  0.25f, 0);
+    GS.attach(model,  0.25f,  0.25f, 0);
+    attachSprite(GS);
   }
   
   
@@ -335,7 +337,6 @@ public class Crop extends Fixture {
     return STAGE_NAMES[stage]+""+species.name+HD;
   }
 }
-
 
 
 

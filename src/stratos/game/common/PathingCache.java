@@ -7,7 +7,6 @@
 
 package stratos.game.common;
 import stratos.game.building.*;
-import stratos.game.common.WorldSections.Section;
 import stratos.game.maps.*;
 import stratos.util.*;
 
@@ -46,7 +45,7 @@ public class PathingCache {
   }
   
   private class Caching {
-    Section section;
+    WorldSection section;
     Place places[];
     float lastUpdateTime;
   }
@@ -58,7 +57,7 @@ public class PathingCache {
   
   final World world;
   final Place tilePlaces[][];
-  final Table <Section, Caching> allCached = new Table <Section, Caching> ();
+  final Table <WorldSection, Caching> allCached = new Table <WorldSection, Caching> ();
   //final MipMap pathMipMap;
   
   
@@ -242,16 +241,16 @@ public class PathingCache {
   /**  Methods for refreshing the Places and Routes associated with each
     *  Section of the map:
     */
-  private void refreshWithNeighbours(Section section) {
-    final Section near[] = new Section[9];
+  private void refreshWithNeighbours(WorldSection section) {
+    final WorldSection near[] = new WorldSection[9];
     world.sections.neighbours(section, near);
     near[8] = section;
     for (int i = 9; i-- > 0;) if (! refreshPlaces(near[i])) near[i] = null;
-    for (Section n : near) refreshRoutes(n);
+    for (WorldSection n : near) refreshRoutes(n);
   }
   
   
-  private boolean refreshPlaces(Section section) {
+  private boolean refreshPlaces(WorldSection section) {
     //
     //  First of all, check to ensure that an update is required.  If so,
     //  generate new places for underlying tiles:
@@ -276,7 +275,7 @@ public class PathingCache {
   }
   
   
-  private void refreshRoutes(Section section) {
+  private void refreshRoutes(WorldSection section) {
     //
     //  Grab all nearby Places first, including those in the same or adjacent
     //  sections-
@@ -287,7 +286,7 @@ public class PathingCache {
     final Caching caching = allCached.get(section);
     final Batch <Place> near = new Batch <Place> ();
     for (Place place : caching.places) near.add(place);
-    for (Section nS : world.sections.neighbours(section, null)) {
+    for (WorldSection nS : world.sections.neighbours(section, null)) {
       if (nS == null) continue;
       final Caching nC = allCached.get(nS);
       if (nC != null) for (Place place : nC.places) near.add(place);
@@ -321,7 +320,7 @@ public class PathingCache {
   
   /**  Methods for establishing Places in the first place-
     */
-  private Place[] grabPlacesFor(Caching caching, final Section section) {
+  private Place[] grabPlacesFor(Caching caching, final WorldSection section) {
     ///I.say("Grabbing new places at: "+section.area);
     //
     //  We scan through every tile in this section, and grab any contiguous
@@ -478,7 +477,7 @@ public class PathingCache {
   
   
   private PathSearch cordonedSearch(
-    Boarding a, Boarding b, Section sA, Section sB
+    Boarding a, Boarding b, WorldSection sA, WorldSection sB
   ) {
     //
     //  Creates a pathing search between two points restricted to the given

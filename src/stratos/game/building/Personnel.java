@@ -264,6 +264,10 @@ public class Personnel {
       //  TODO:  This should really be handled more from the Commerce class?
       if (employs.careers() == null) return;
       
+      if (employs.privateProperty()) for (Application a : applications) {
+        confirmApplication(a);
+      }
+      
       for (Background v : employs.careers()) {
         final int numOpenings = employs.numOpenings(v);
         if (numOpenings > 0) {

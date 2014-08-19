@@ -262,7 +262,7 @@ public final class Spacing implements TileConstants {
   
   public static Tile nearestOpenTile(Tile tile, Target client) {
     if (tile == null) return null;
-    if (! tile.blocked()) return tile;
+    ///if (! tile.blocked()) return tile;
     return nearestOpenTile(tile.area(tB), client, tile.world);
   }
   
@@ -358,6 +358,11 @@ public final class Spacing implements TileConstants {
     if (a == null || b == null) I.complain("NULL POINT! "+a+" "+b);
     final float dist = innerDistance(a, b) - (a.radius() + b.radius());
     return (dist < 0) ? 0 : dist;
+  }
+  
+
+  final public static float sectorDistance(final Target a, final Target b) {
+    return distance(a, b) / World.SECTOR_SIZE;
   }
   
   

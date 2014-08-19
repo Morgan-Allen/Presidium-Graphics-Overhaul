@@ -14,7 +14,6 @@ import stratos.graphics.widgets.*;
 import stratos.start.*;
 import stratos.user.*;
 import stratos.util.*;
-import stratos.game.common.WorldSections.Section;
 
 
 
@@ -290,8 +289,8 @@ public class World {
   }
   
   
-  public Batch <Section> visibleSections(Rendering rendering) {
-    final Batch <Section> visibleSections = new Batch <Section> ();
+  public Batch <WorldSection> visibleSections(Rendering rendering) {
+    final Batch <WorldSection> visibleSections = new Batch <WorldSection> ();
     sections.compileVisible(rendering.view, null, visibleSections, null);
     return visibleSections;
   }
@@ -306,7 +305,7 @@ public class World {
     //
     //  First, we obtain lists of all current visible fixtures, actors, and
     //  terrain sections.
-    final Batch <Section> visibleSections = new Batch <Section> ();
+    final Batch <WorldSection> visibleSections = new Batch <WorldSection> ();
     final List <Visible> allVisible = new List <Visible> () {
       protected float queuePriority(Visible e) {
         return e.sprite().depth;
@@ -367,12 +366,12 @@ public class World {
   
   
   protected void renderTerrain(
-    Batch <Section> sections, Rendering rendering, Base base
+    Batch <WorldSection> sections, Rendering rendering, Base base
   ) {
     final float renderTime = timeMidRender();
     if (verbose) I.say("Render time: "+renderTime);
     terrain.readyAllMeshes();
-    for (Section section : sections) {
+    for (WorldSection section : sections) {
       terrain.renderFor(section.area, rendering, renderTime);
     }
     if (base != null && ! GameSettings.fogFree) {

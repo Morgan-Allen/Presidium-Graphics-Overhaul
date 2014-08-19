@@ -31,7 +31,17 @@ public class DebugPlacing extends Scenario {
   public void saveState(Session s) throws Exception {
     super.saveState(s);
   }
+
   
+  public void beginGameSetup() {
+    //super.beginGameSetup();
+    super.initScenario("debug_placing");
+  }
+  
+  
+  protected String saveFilePrefix(World world, Base base) {
+    return "debug_placing";
+  }
   
   
   protected World createWorld() {
@@ -55,28 +65,25 @@ public class DebugPlacing extends Scenario {
   }
   
   
-  protected String saveFilePrefix(World world, Base base) {
-    return "debug_placing";
-  }
-  
-  
   protected void configureScenario(World world, Base base, BaseUI UI) {
     GameSettings.setDefaults();
-    
-    //final PlacementGrid placeMap = new PlacementGrid(world);
-    //placeMap.createLattice();
-    
-    //  TODO:  Create a Botanical Station, and see how long it takes for a
-    //  plantation to be established.
+    GameSettings.hireFree  = true;
+    GameSettings.buildFree = true;
     
     final EcologistStation station = new EcologistStation(base);
     Placement.establishVenue(station, 8, 8, true, world);
+    
+    final Plantation site = new Plantation(base);
+    site.setPosition(8, 15, world);
+    if (site.canPlace()) site.placeFromOrigin();
   }
   
   
   protected void afterCreation() {
   }
 }
+
+
 
 
 

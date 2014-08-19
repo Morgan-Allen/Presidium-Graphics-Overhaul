@@ -1,7 +1,6 @@
 
 
 package stratos.game.common;
-import stratos.game.common.WorldSections.Section;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
 import stratos.util.*;
@@ -19,7 +18,7 @@ public class Ephemera {
   final World world;
   
   private Colour fadeColour = null;
-  final Table <WorldSections.Section, List <Ghost>> ghosts = new Table(100);
+  final Table <WorldSection, List <Ghost>> ghosts = new Table(100);
   
   
   protected Ephemera(World world) {
@@ -89,7 +88,7 @@ public class Ephemera {
     
     final Vec3D p = s.position;
     if (e != null) e.viewPosition(p);
-    final Section section = world.sections.sectionAt((int) p.x, (int) p.y);
+    final WorldSection section = world.sections.sectionAt((int) p.x, (int) p.y);
     List <Ghost> SG = ghosts.get(section);
     if (SG == null) ghosts.put(section, SG = new List <Ghost> ());
     SG.add(ghost);
@@ -99,7 +98,7 @@ public class Ephemera {
   
   public Ghost matchGhost(Element e, ModelAsset m) {
     final Vec3D p = e.sprite().position;
-    final Section section = world.sections.sectionAt((int) p.x, (int) p.y);
+    final WorldSection section = world.sections.sectionAt((int) p.x, (int) p.y);
     List <Ghost> SG = ghosts.get(section);
     Ghost match = null;
     if (SG != null) for (Ghost g : SG) {
@@ -121,12 +120,12 @@ public class Ephemera {
   
   
   private void trackElement(
-    Ghost ghost, Section oldSection, List <Ghost> SG
+    Ghost ghost, WorldSection oldSection, List <Ghost> SG
   ) {
     final Vec3D p = ghost.sprite.position;
     ghost.tracked.viewPosition(p);
     if (ghost.sprite instanceof SFX) p.z += ghost.tracked.height() / 2f;
-    final Section section = world.sections.sectionAt((int) p.x, (int) p.y);
+    final WorldSection section = world.sections.sectionAt((int) p.x, (int) p.y);
     if (section == oldSection) return;
     SG.remove(ghost);
     SG = ghosts.get(section);
@@ -139,7 +138,7 @@ public class Ephemera {
     final Batch <Ghost> results = new Batch <Ghost> ();
     final float timeNow = world.timeMidRender();
     
-    for (Section section : world.visibleSections(rendering)) {
+    for (WorldSection section : world.visibleSections(rendering)) {
       final List <Ghost> SG = ghosts.get(section);
       if (SG != null) for (Ghost ghost : SG) {
         final float

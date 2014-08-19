@@ -4,8 +4,6 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-
-
 package stratos.game.plans;
 import org.apache.commons.math3.util.FastMath;
 
@@ -108,15 +106,24 @@ public class Farming extends Plan {
     
     //  Find the next tile for seeding, tending or harvest.
     float minDist = Float.POSITIVE_INFINITY, dist;
-    Crop picked = null;
-    for (Crop c : nursery.planted()) {
-      if (c != null && c.needsTending()) {
-        dist = Spacing.distance(actor, c);
-        if (Spacing.edgeAdjacent(c.origin(), actor.origin())) dist /= 2;
-        if (dist < minDist) { picked = c; minDist = dist; }
+    Tile toPlant = null;
+    
+    for (Tile t : nursery.toPlant()) {
+      final Crop c = nursery.plantedAt(t);
+      if (c == null || c.needsTending()) {
+        dist = Spacing.distance(actor, t);
+        if (Spacing.edgeAdjacent(t, actor.origin())) dist /= 2;
+        if (dist < minDist) { toPlant = t; minDist = dist; }
       }
     }
-    if (picked != null) {
+    
+    if (toPlant != null) {
+      Crop picked = nursery.plantedAt(toPlant);
+      if (picked == null) {
+        picked = new Crop(nursery, pickSpecies(toPlant));
+        picked.setPosition(toPlant.x, toPlant.y, toPlant.world);
+      }
+      
       final String actionName, anim, desc;
       if (picked.blighted()) {
         actionName = "actionDisinfest";
@@ -138,7 +145,7 @@ public class Farming extends Plan {
         this, actionName,
         anim, desc
       );
-      plants.setMoveTarget(Spacing.nearestOpenTile(picked, actor));
+      plants.setMoveTarget(Spacing.nearestOpenTile(toPlant, actor));
       return plants;
     }
     return null;

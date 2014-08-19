@@ -29,4 +29,5 @@ public interface Employer extends Installation, Inventory.Owner, Boarding {
   TradeType[] services();
   Base base();
   Personnel personnel();
+  boolean privateProperty();
 }

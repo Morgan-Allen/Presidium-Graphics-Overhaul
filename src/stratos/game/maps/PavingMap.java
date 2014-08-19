@@ -5,7 +5,6 @@ import stratos.game.building.Paving;
 import stratos.game.common.*;
 import stratos.game.maps.*;
 import stratos.util.*;
-import stratos.game.common.WorldSections.Section;
 
 
 
@@ -82,7 +81,7 @@ public class PavingMap {
       
       float minDist = Float.POSITIVE_INFINITY;
       
-      public boolean descendTo(Section s) {
+      public boolean descendTo(WorldSection s) {
         final float dist = s.bounds.distance(o.x, o.y, 0);
         if (dist > minDist) return false;
         
@@ -103,7 +102,7 @@ public class PavingMap {
         return false;
       }
       
-      public void afterChildren(Section s) {}
+      public void afterChildren(WorldSection s) {}
     });
     
     return result.value;

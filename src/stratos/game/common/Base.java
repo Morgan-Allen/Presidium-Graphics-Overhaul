@@ -203,12 +203,15 @@ public class Base implements
   public void updateAsScheduled(int numUpdates) {
     
     setup.updatePlacements();
+    
     commerce.updateCommerce(numUpdates);
+    
     paving.distribute(Economy.ALL_PROVISIONS, this);
     
     dangerMap.update();
     
     for (Mission mission : missions) mission.updateMission();
+    
     if (numUpdates % (World.STANDARD_DAY_LENGTH / 3) == 0) {
       relations.updateRelations();
       

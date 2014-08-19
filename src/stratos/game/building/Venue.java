@@ -166,13 +166,7 @@ public abstract class Venue extends Structural implements
   public boolean canPlace() {
     if (origin() == null) return false;
     final World world = origin().world;
-    
-    //  TODO:  Get rid of tile-based ownership in favour of nothing but claims.
-    //  TODO:  Allow modification of the area claimed!
-    final Venue conflicts[] = world.claims.venuesConflicting(area());
-    for (Venue c : conflicts) {
-      if (claimConflicts(c)) return false;
-    }
+    //
     //  Make sure we don't displace any more important object, or occupy their
     //  entrances.  In addition, the entrance must be clear.
     final int OT = owningType();
@@ -183,6 +177,10 @@ public abstract class Venue extends Structural implements
       }
     }
     
+    for (Venue c : world.claims.venuesConflicting(areaClaimed())) {
+      if (claimConflicts(c)) return false;
+    }
+    
     if (! checkPerimeter(world)) return false;
     final Tile e = mainEntrance();
     if (e != null && e.owningType() >= OT) return false;
@@ -191,12 +189,14 @@ public abstract class Venue extends Structural implements
   
   
   protected boolean checkPerimeter(World world) {
+    //
     //  Don't abut on anything of higher priority-
     for (Tile n : Spacing.perimeter(area(), world)) {
-      if (n == null || (n.onTop() != null && ! canTouch(n.onTop()))) {
-        return false;
-      }
+      if (n == null) return false;
+      final Element top = n.onTop();
+      if (top != null && ! canTouch(top)) return false;
     }
+    //
     //  And make sure we don't create isolated areas of unreachable tiles-
     if (! Spacing.perimeterFits(this)) return false;
     return true;
@@ -219,6 +219,8 @@ public abstract class Venue extends Structural implements
   
   public boolean enterWorldAt(int x, int y, World world) {
     if (! super.enterWorldAt(x, y, world)) return false;
+    if (base == null) I.complain("VENUES MUST HAVE A BASED ASSIGNED! "+this);
+    
     world.presences.togglePresence(this, true);
     world.claims.assertNewClaim(this, areaClaimed());
     stocks.onWorldEntry();
@@ -286,7 +288,7 @@ public abstract class Venue extends Structural implements
     else {
       inside.remove(m);
     }
-    canBoard = null;
+    if (m instanceof Boarding) canBoard = null;
   }
   
   

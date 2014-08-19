@@ -118,6 +118,8 @@ public final class Economy {
     PSYCH_SCAN = new TradeType(
       BC, "Psych Scan" , null, FORM_SPECIAL, 0
     );
+  final public static TradeType
+    ALL_SPECIAL_ITEMS[] = TradeType.typesSoFar();
   
   
   final public static TradeType

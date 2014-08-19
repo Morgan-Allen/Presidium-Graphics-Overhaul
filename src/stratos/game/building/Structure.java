@@ -30,6 +30,8 @@ public class Structure {
     BURN_PER_SECOND = 1.0f,
     WEAR_PER_DAY    = 0.5f,
     REGEN_PER_DAY   = 0.2f;
+  final public static String
+    DAMAGE_KEY = "damaged";
   
   final public static int
     STATE_NONE    =  0,
@@ -370,7 +372,7 @@ public class Structure {
       (Repairs.needForRepair(basis) > Repairs.MIN_SERVICE_DAMAGE) ||
       hasWear();
     final Tile o = world.tileAt(basis);
-    final PresenceMap damaged = world.presences.mapFor("damaged");
+    final PresenceMap damaged = world.presences.mapFor(DAMAGE_KEY);
     
     if (report) {
       I.say(basis+" needs maintenance: "+needs);

@@ -19,66 +19,7 @@ public class WorldSections implements TileConstants {
     */
   final World world;
   final public int resolution, depth;
-  final Section hierarchy[][][], root;
-  
-  //
-  //  NOTE:  x and y coordinates are relative to position in hierarchy, not to
-  //  tile coordinates.
-  //  TODO:  Consider putting this in a separate class.
-  public static class Section implements Target {
-    
-    final public World world;
-    final public Box3D bounds = new Box3D();
-    final public Box2D area = new Box2D();
-    final public int x, y, absX, absY, depth, size;
-    protected Section kids[], parent;
-    
-    private boolean updateBounds = true;
-    private Object flagged = null;
-    
-    
-    Section(World w, int x, int y, int d) {
-      this.world = w;
-      this.x = x;
-      this.y = y;
-      this.depth = d;
-      this.size = 1 << depth;
-      this.absX = x * size;
-      this.absY = y * size;
-    }
-    
-    
-    public World world() { return world; }
-    public boolean inWorld() { return true; }
-    public boolean destroyed() { return false; }
-    public boolean isMobile() { return false; }
-    
-    public Vec3D position(Vec3D v) {
-      if (v == null) v = new Vec3D();
-      return v.set((x + 0.5f) * size, (y + 0.5f) * size, 0);
-    }
-    
-    public float radius() {
-      return size / 2f;
-    }
-    
-    public float height() {
-      return bounds.zdim();
-    }
-    
-    public void flagWith(Object f) { flagged = f; }
-    public Object flaggedWith() { return flagged; }
-  }
-  
-  
-  public static Section loadSection(Session s) throws Exception {
-    return s.world().sections.sectionAt(s.loadInt(), s.loadInt());
-  }
-  
-  public static void saveSection(Section sS, Session s) throws Exception {
-    s.saveInt((int) (sS.area.xpos() + 1));
-    s.saveInt((int) (sS.area.ypos() + 1));
-  }
+  final WorldSection hierarchy[][][], root;
   
   
   private int depthFor(int size) {
@@ -92,14 +33,14 @@ public class WorldSections implements TileConstants {
     this.world = world;
     this.resolution = resolution;
     this.depth = depthFor(world.size / resolution);
-    this.hierarchy = new Section[depth][][];
+    this.hierarchy = new WorldSection[depth][][];
     //
     //  Next, we generate each level of the map, and initialise nodes for each-
     int gridSize = world.size / resolution, nodeSize = resolution, deep = 0;
     while (deep < depth) {
-      hierarchy[deep] = new Section[gridSize][gridSize];
+      hierarchy[deep] = new WorldSection[gridSize][gridSize];
       for (Coord c : Visit.grid(0, 0, gridSize, gridSize, 1)) {
-        final Section n = new Section(world, c.x, c.y, deep);
+        final WorldSection n = new WorldSection(this, c.x, c.y, deep);
         hierarchy[deep][c.x][c.y] = n;
         n.area.set(
           (c.x * nodeSize) - 0.5f,
@@ -112,12 +53,12 @@ public class WorldSections implements TileConstants {
         //  Along with references to child nodes-
         if (deep > 0) {
           final int d = n.depth - 1, x = c.x * 2, y = c.y * 2;
-          n.kids = new Section[4];
+          n.kids = new WorldSection[4];
           n.kids[0] = hierarchy[d][x    ][y    ];
           n.kids[1] = hierarchy[d][x + 1][y    ];
           n.kids[2] = hierarchy[d][x    ][y + 1];
           n.kids[3] = hierarchy[d][x + 1][y + 1];
-          for (Section k : n.kids) k.parent = n;
+          for (WorldSection k : n.kids) k.parent = n;
         }
       }
       deep++;
@@ -131,17 +72,17 @@ public class WorldSections implements TileConstants {
   
   /**  Positional queries and iteration methods-
     */
-  public Section sectionAt(int x, int y) {
+  public WorldSection sectionAt(int x, int y) {
     return hierarchy[0][x / resolution][y / resolution];
   }
   
   
-  public Section[] neighbours(Section section, Section[] batch) {
-    if (batch == null) batch = new Section[8];
+  public WorldSection[] neighbours(WorldSection section, WorldSection[] batch) {
+    if (batch == null) batch = new WorldSection[8];
     int i = 0; for (int n : N_INDEX) {
       try {
         final int x = section.x + N_X[n], y = section.y + N_Y[n];
-        final Section s = hierarchy[section.depth][x][y];
+        final WorldSection s = hierarchy[section.depth][x][y];
         batch[i++] = s;
       }
       catch (ArrayIndexOutOfBoundsException e) { batch [i++] = null; }
@@ -150,8 +91,8 @@ public class WorldSections implements TileConstants {
   }
   
   
-  public Batch <Section> sectionsUnder(Box2D area) {
-    final Batch <Section> batch = new Batch <Section> ();
+  public Batch <WorldSection> sectionsUnder(Box2D area) {
+    final Batch <WorldSection> batch = new Batch <WorldSection> ();
     
     final float s = 1f / resolution, dim = world.size / resolution;
     final Box2D clip = new Box2D();
@@ -161,7 +102,7 @@ public class WorldSections implements TileConstants {
     
     for (Coord c : Visit.grid(clip)) {
       if (c.x < 0 || c.x >= dim || c.y < 0 || c.y >= dim) continue;
-      final Section under = hierarchy[0][c.x][c.y];
+      final WorldSection under = hierarchy[0][c.x][c.y];
       if (! under.area.overlaps(area)) continue;
       batch.add(under);
     }
@@ -174,8 +115,8 @@ public class WorldSections implements TileConstants {
     *  of world sections-
     */
   public static interface Descent {
-    boolean descendTo(Section s);
-    void afterChildren(Section s);
+    boolean descendTo(WorldSection s);
+    void afterChildren(WorldSection s);
   }
   
   
@@ -184,9 +125,9 @@ public class WorldSections implements TileConstants {
   }
   
   
-  private void descendTo(Section s, Descent d) {
+  private void descendTo(WorldSection s, Descent d) {
     if (! d.descendTo(s)) return;
-    if (s.depth > 0) for (Section k : s.kids) descendTo(k, d);
+    if (s.depth > 0) for (WorldSection k : s.kids) descendTo(k, d);
     d.afterChildren(s);
   }
   
@@ -195,7 +136,7 @@ public class WorldSections implements TileConstants {
     */
   protected void updateBounds() {
     final Descent update = new Descent() {
-      public boolean descendTo(Section s) {
+      public boolean descendTo(WorldSection s) {
         //
         //  If the section has already been updated, or isn't a leaf node,
         //  return.
@@ -218,11 +159,11 @@ public class WorldSections implements TileConstants {
       }
       //
       //  All non-leaf nodes base their bounds on the limits of their children.
-      public void afterChildren(Section s) {
+      public void afterChildren(WorldSection s) {
         s.updateBounds = false;
         if (s.depth == 0) return;
         s.bounds.setTo(s.kids[0].bounds);
-        for (Section k : s.kids) s.bounds.include(k.bounds);
+        for (WorldSection k : s.kids) s.bounds.include(k.bounds);
         //I.say("UPDATED BOUNDS: "+s.bounds);
         //I.say("Area "+s.area+"\nBounds: "+s.bounds+"\n___DEPTH: "+s.depth);
       }
@@ -244,7 +185,7 @@ public class WorldSections implements TileConstants {
     *  tile coordinates-
     */
   protected void flagBoundsUpdate(int x, int y) {
-    Section toFlag = hierarchy[0][x / resolution][y / resolution];
+    WorldSection toFlag = hierarchy[0][x / resolution][y / resolution];
     while (toFlag != null) {
       if (toFlag.updateBounds) break;
       toFlag.updateBounds = true;
@@ -260,18 +201,18 @@ public class WorldSections implements TileConstants {
   //  TODO:  This might be moved to the rendering method of the World instead?
   public void compileVisible(
     final Viewport view, final Base base,
-    final Batch <Section> visibleSections,
+    final Batch <WorldSection> visibleSections,
     final List <World.Visible> visibleFixtures
   ) {
     final Descent compile = new Descent() {
       final Box3D tempBounds = new Box3D();
       
-      public boolean descendTo(Section s) {
+      public boolean descendTo(WorldSection s) {
         final Box3D b = s.bounds;
         return view.intersects(b.centre(), b.diagonal() / 2);
       }
       
-      public void afterChildren(Section s) {
+      public void afterChildren(WorldSection s) {
         if (s.depth > 0) return;
         visibleSections.add(s);
         if (visibleFixtures != null) {

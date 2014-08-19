@@ -71,7 +71,7 @@ public class Repairs extends Plan {
     //  the list.
     final Batch <Installation> toRepair = new Batch <Installation> ();
     world.presences.sampleFromMaps(
-      client, world, 3, toRepair, "damaged"
+      client, world, 3, toRepair, Structure.DAMAGE_KEY
     );
     for (Installation near : toRepair) {
       if (near.base() != client.base()) continue;
