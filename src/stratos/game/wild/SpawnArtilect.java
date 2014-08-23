@@ -116,8 +116,8 @@ public class SpawnArtilect extends Plan implements Qualities {
   protected float successChance() {
     final float DC = repairDC();
     float chance = 0;
-    chance += actor.traits.chance(ASSEMBLY, DC) / 2;
-    chance += actor.traits.chance(INSCRIPTION, DC) / 2;
+    chance += actor.skills.chance(ASSEMBLY, DC) / 2;
+    chance += actor.skills.chance(INSCRIPTION, DC) / 2;
     return chance;
   }
   
@@ -129,8 +129,8 @@ public class SpawnArtilect extends Plan implements Qualities {
     final float DC = repairDC() + (repairs.inWorld() ? 0 : 5);
     final float inc = 10f / TIME_PER_10_HP;
     float success = 0;
-    success += actor.traits.test(ASSEMBLY, DC, 1) ? 1 : 0;
-    success += actor.traits.test(INSCRIPTION, DC, 1) ? 1 : 0;
+    success += actor.skills.test(ASSEMBLY, DC, 1) ? 1 : 0;
+    success += actor.skills.test(INSCRIPTION, DC, 1) ? 1 : 0;
     location.structure.repairBy(-1.0f * Rand.num() * inc);
     if (success <= 0) return false;
     

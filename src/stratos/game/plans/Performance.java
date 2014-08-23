@@ -306,7 +306,7 @@ public class Performance extends Recreation {
     float effect = 0;
     for (Skill s : PERFORM_SKILLS[type]) {
       final int DC = s == PERFORM_SKILLS[type][0] ? MODERATE_DC : ROUTINE_DC;
-      final boolean success = actor.traits.test(s, DC - checkBonus, 1);
+      final boolean success = actor.skills.test(s, DC - checkBonus, 1);
       if (success) effect++;
       else if (Rand.yes()) effect--;
     }

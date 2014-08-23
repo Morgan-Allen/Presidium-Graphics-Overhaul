@@ -407,8 +407,8 @@ public class Mining extends Plan {
   private static float successCheck(Actor actor, Habitat h) {
     //  Progress is slower in harder soils....
     float success = 1;
-    success += actor.traits.test(GEOPHYSICS , 5 , 1) ? 1 : 0;
-    success *= actor.traits.test(HARD_LABOUR, 15, 1) ? 2 : 1;
+    success += actor.skills.test(GEOPHYSICS , 5 , 1) ? 1 : 0;
+    success *= actor.skills.test(HARD_LABOUR, 15, 1) ? 2 : 1;
     if (h != null) success *= (0.5f + 1 - (h.minerals() / 10f));
     ///I.say("Base success: "+success);
     return success / 4f;

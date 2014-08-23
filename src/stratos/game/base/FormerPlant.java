@@ -178,7 +178,7 @@ public class FormerPlant extends Venue {
   
   
   public boolean actionSoilSample(Actor actor, Tile spot) {
-    final boolean success = actor.traits.test(GEOPHYSICS, MODERATE_DC, 1);
+    final boolean success = actor.skills.test(GEOPHYSICS, MODERATE_DC, 1);
     for (int n = success ? (1 + Rand.index(3)) : 1; n-- > 0;) {
       final Item sample = Item.withReference(SAMPLES, spot);
       actor.gear.addItem(sample);
@@ -267,8 +267,8 @@ public class FormerPlant extends Venue {
     float soilBonus = soilSamples / 5f;
     final Actor mans = (Actor) Rand.pickFrom(personnel.workers());
     if (mans != null && mans.aboard() == this) {
-      if (! mans.traits.test(GEOPHYSICS, SIMPLE_DC, 0.5f)) soilBonus /= 1.5f;
-      if (mans.traits.test(GEOPHYSICS, DIFFICULT_DC, 0.5f)) soilBonus *= 1.5f;
+      if (! mans.skills.test(GEOPHYSICS, SIMPLE_DC, 0.5f)) soilBonus /= 1.5f;
+      if (mans.skills.test(GEOPHYSICS, DIFFICULT_DC, 0.5f)) soilBonus *= 1.5f;
     }
     else soilBonus /= 2;
     

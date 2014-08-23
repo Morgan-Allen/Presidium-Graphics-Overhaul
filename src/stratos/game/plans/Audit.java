@@ -258,8 +258,8 @@ public class Audit extends Plan {
       audits.gear.incCredits(bribe);
     }
     else {
-      if (audits.traits.test(ACCOUNTING, 15, 5)) waste  = 0;
-      if (audits.traits.test(ACCOUNTING, 5 , 5)) waste /= 2;
+      if (audits.skills.test(ACCOUNTING, 15, 5)) waste  = 0;
+      if (audits.skills.test(ACCOUNTING, 5 , 5)) waste /= 2;
     }
     final int
       profit = (int) (balance / (1 + waste)),

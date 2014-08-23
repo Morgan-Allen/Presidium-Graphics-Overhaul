@@ -206,8 +206,8 @@ public class Forestry extends Plan {
       growStage += (1 + seed.quality) / 2f;
       break;
     }
-    if (actor.traits.test(CULTIVATION, MODERATE_DC, 5f)) growStage += 0.75f;
-    if (actor.traits.test(HARD_LABOUR, ROUTINE_DC , 5f)) growStage += 0.75f;
+    if (actor.skills.test(CULTIVATION, MODERATE_DC, 5f)) growStage += 0.75f;
+    if (actor.skills.test(HARD_LABOUR, ROUTINE_DC , 5f)) growStage += 0.75f;
     if (report) I.say("  Grow stage: "+growStage);
     if (growStage <= 0) return false;
     
@@ -223,7 +223,7 @@ public class Forestry extends Plan {
   
   
   public boolean actionCutting(Actor actor, Flora cut) {
-    if (! actor.traits.test(CULTIVATION, SIMPLE_DC, 1.0f)) return false;
+    if (! actor.skills.test(CULTIVATION, SIMPLE_DC, 1.0f)) return false;
     final Item sample = Item.withReference(SAMPLES, cut);
     actor.gear.addItem(sample);
     cut.incGrowth(-0.5f, actor.world(), false);

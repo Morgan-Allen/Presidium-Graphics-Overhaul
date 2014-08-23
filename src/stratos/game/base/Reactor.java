@@ -187,12 +187,12 @@ public class Reactor extends Venue {
     
     boolean success = true;
     if (Rand.yes()) {
-      success &= actor.traits.test(FIELD_THEORY, diagnoseDC, 0.5f);
-      success &= actor.traits.test(CHEMISTRY, 5, 0.5f);
+      success &= actor.skills.test(FIELD_THEORY, diagnoseDC, 0.5f);
+      success &= actor.skills.test(CHEMISTRY, 5, 0.5f);
     }
     else {
-      success &= actor.traits.test(ASSEMBLY, diagnoseDC, 0.5f);
-      success &= actor.traits.test(SHIELD_AND_ARMOUR, 5, 0.5f);
+      success &= actor.skills.test(ASSEMBLY, diagnoseDC, 0.5f);
+      success &= actor.skills.test(SHIELD_AND_ARMOUR, 5, 0.5f);
     }
     if (success) {
       meltdown -= (1f + FB) / World.STANDARD_DAY_LENGTH;

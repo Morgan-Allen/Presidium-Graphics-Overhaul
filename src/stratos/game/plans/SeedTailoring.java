@@ -116,8 +116,8 @@ public class SeedTailoring extends Plan {
   private float cultureTest(int DC, Venue lab) {
     final TradeType yield = Crop.yieldType(species);
     float skillRating = 5;
-    if (! actor.traits.test(GENE_CULTURE, DC, 5.0f)) skillRating /= 2;
-    if (! actor.traits.test(CULTIVATION , DC, 5.0f)) skillRating /= 2;
+    if (! actor.skills.test(GENE_CULTURE, DC, 5.0f)) skillRating /= 2;
+    if (! actor.skills.test(CULTIVATION , DC, 5.0f)) skillRating /= 2;
     skillRating += lab.structure.upgradeBonus(yield);
     skillRating *= (1 - lab.stocks.shortagePenalty(POWER));
     return skillRating;

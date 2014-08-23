@@ -35,6 +35,7 @@ public abstract class Actor extends Mobile implements
   
   final public ActorHealth health = new ActorHealth(this);
   final public ActorTraits traits = new ActorTraits(this);
+  final public ActorSkills skills = new ActorSkills(this);
   final public ActorGear   gear   = new ActorGear  (this);
   
   final public ActorMind mind = initAI();
@@ -54,7 +55,8 @@ public abstract class Actor extends Mobile implements
     
     health.loadState(s);
     traits.loadState(s);
-    gear.loadState(s);
+    skills.loadState(s);
+    gear  .loadState(s);
     
     mind.loadState(s);
     senses.loadState(s);
@@ -70,7 +72,8 @@ public abstract class Actor extends Mobile implements
     
     health.saveState(s);
     traits.saveState(s);
-    gear.saveState(s);
+    skills.saveState(s);
+    gear  .saveState(s);
     
     mind.saveState(s);
     senses.saveState(s);
@@ -226,8 +229,9 @@ public abstract class Actor extends Mobile implements
     //
     //  Update our basic statistics and physical properties-
     health.updateHealth(numUpdates);
-    gear.updateGear(numUpdates);
+    gear  .updateGear  (numUpdates);
     traits.updateTraits(numUpdates);
+    skills.updateSkills(numUpdates);
     if (health.isDead()) setAsDestroyed();
     
     //  Check to see what our current condition is-

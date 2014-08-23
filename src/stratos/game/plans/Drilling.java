@@ -153,8 +153,8 @@ public class Drilling extends Plan {
     final int DC = (1 + yard.belongs.structure.upgradeLevel(bonus)) * 5;
     
     boolean success = true;
-    success &= actor.traits.test(baseSkills[0], DC    , 0.5f);
-    success &= actor.traits.test(baseSkills[1], DC - 5, 0.5f);
+    success &= actor.skills.test(baseSkills[0], DC    , 0.5f);
+    success &= actor.skills.test(baseSkills[1], DC - 5, 0.5f);
     
     if (report) {
       I.say("Training "+baseSkills[0]+" and "+baseSkills[1]);

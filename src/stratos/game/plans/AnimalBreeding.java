@@ -208,8 +208,8 @@ public class AnimalBreeding extends Plan {
       KommandoLodge.CAPTIVE_BREEDING
     );
     float success = 0;
-    if (actor.traits.test(XENOZOOLOGY, ROUTINE_DC, 1)) success++;
-    if (actor.traits.test(DOMESTICS  , ROUTINE_DC, 1)) success++;
+    if (actor.skills.test(XENOZOOLOGY, ROUTINE_DC, 1)) success++;
+    if (actor.skills.test(DOMESTICS  , ROUTINE_DC, 1)) success++;
     if (success <= 0) return false;
     success *= 1 + (upgrade / 2f);
     

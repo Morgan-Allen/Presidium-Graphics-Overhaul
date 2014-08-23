@@ -262,8 +262,8 @@ public class Treatment extends Plan implements Economy {
     //  Modify priority based on fitness for the task, relative to skill DCs-
     float chance = 1;
     float testDC = treatDC - diagnoseBonus();
-    chance *= actor.traits.chance(majorSkill, testDC);
-    chance *= actor.traits.chance(minorSkill, testDC);
+    chance *= actor.skills.chance(majorSkill, testDC);
+    chance *= actor.skills.chance(minorSkill, testDC);
     impetus *= (1 + chance) / 2f;
     //
     //  Next, modify based on personality, distance and danger, et cetera-
@@ -431,11 +431,11 @@ public class Treatment extends Plan implements Economy {
     float checkMod = hasUsed ? 0 : +5;
     checkMod -= diagnoseBonus();
     float success = Rand.num(), speed = 1;
-    if (actor.traits.test(majorSkill, treatDC + checkMod, 0.5f)) {
+    if (actor.skills.test(majorSkill, treatDC + checkMod, 0.5f)) {
       success++;
     }
     else success--;
-    if (actor.traits.test(minorSkill, treatDC + checkMod - 5, 0.5f)) {
+    if (actor.skills.test(minorSkill, treatDC + checkMod - 5, 0.5f)) {
       success++;
     }
     else success--;

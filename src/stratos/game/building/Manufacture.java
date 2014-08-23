@@ -130,7 +130,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     final Conversion c = conversion;
     float chance = 1.0f;
     for (int i = c.skills.length; i-- > 0;) {
-      chance *= actor.traits.chance(
+      chance *= actor.skills.chance(
         c.skills[i], c.skillDCs[i] - checkBonus
       );
     }
@@ -202,7 +202,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     boolean success = true;
     //  TODO:  Have this average results, rather than '&' them...
     for (int i = c.skills.length; i-- > 0;) {
-      success &= actor.traits.test(c.skills[i], c.skillDCs[i] + checkMod, 1);
+      success &= actor.skills.test(c.skills[i], c.skillDCs[i] + checkMod, 1);
     }
     
     float increment = 1f / (made.amount * TIME_PER_UNIT);

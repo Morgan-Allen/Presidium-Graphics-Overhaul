@@ -104,8 +104,8 @@ public class Foraging extends Plan {
   
   protected float successChance() {
     float chance = 1;
-    chance *= actor.traits.chance(HARD_LABOUR, ROUTINE_DC);
-    chance *= actor.traits.chance(CULTIVATION, MODERATE_DC);
+    chance *= actor.skills.chance(HARD_LABOUR, ROUTINE_DC);
+    chance *= actor.skills.chance(CULTIVATION, MODERATE_DC);
     return chance;
   }
   
@@ -160,9 +160,9 @@ public class Foraging extends Plan {
     }
     
     float labour = 0, skill = 0;
-    if (actor.traits.test(HARD_LABOUR, ROUTINE_DC, 1.0f)) labour++;
-    if (actor.traits.test(CULTIVATION, ROUTINE_DC, 1.0f)) skill++;
-    if (actor.traits.test(CULTIVATION, DIFFICULT_DC, 1.0f)) {
+    if (actor.skills.test(HARD_LABOUR, ROUTINE_DC, 1.0f)) labour++;
+    if (actor.skills.test(CULTIVATION, ROUTINE_DC, 1.0f)) skill++;
+    if (actor.skills.test(CULTIVATION, DIFFICULT_DC, 1.0f)) {
       labour++;
       skill++;
     }

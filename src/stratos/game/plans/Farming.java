@@ -237,8 +237,8 @@ public class Farming extends Plan {
     }
     
     //  So does expertise and elbow grease.
-    health += actor.traits.test(CULTIVATION, plantDC, 1) ? 1 : 0;
-    health += actor.traits.test(HARD_LABOUR, ROUTINE_DC, 1) ? 1 : 0;
+    health += actor.skills.test(CULTIVATION, plantDC, 1) ? 1 : 0;
+    health += actor.skills.test(HARD_LABOUR, ROUTINE_DC, 1) ? 1 : 0;
     health *= Plantation.MAX_HEALTH_BONUS / 5;
     final Species s = pickSpecies(crop.origin());
     crop.seedWith(s, health);
@@ -266,8 +266,8 @@ public class Farming extends Plan {
       Item.asMatch(SAMPLES, crop.species()), 0.1f
     );
     int success = seed != null ? 2 : 0;
-    if (actor.traits.test(CULTIVATION, MODERATE_DC, 1)) success++;
-    if (actor.traits.test(HARD_LABOUR, ROUTINE_DC , 1)) success++;
+    if (actor.skills.test(CULTIVATION, MODERATE_DC, 1)) success++;
+    if (actor.skills.test(HARD_LABOUR, ROUTINE_DC , 1)) success++;
     if (Rand.index(5) <= success) {
       crop.disinfest();
       if (seed != null) actor.gear.removeItem(seed);

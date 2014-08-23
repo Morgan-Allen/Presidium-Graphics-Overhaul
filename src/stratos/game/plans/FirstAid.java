@@ -174,7 +174,7 @@ public class FirstAid extends Plan {
   public boolean actionFirstAid(Actor actor, Actor patient) {
     float DC = severity() * 5;
     boolean success = true;
-    success &= actor.traits.test(ANATOMY, DC, 10);
+    success &= actor.skills.test(ANATOMY, DC, 10);
     
     if (success) {
       patient.health.liftInjury(0);

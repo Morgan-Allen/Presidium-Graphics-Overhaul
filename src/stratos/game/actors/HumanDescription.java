@@ -134,12 +134,10 @@ public class HumanDescription implements Qualities {
       }
     }
     
-    /*
     d.append("\n\nTechniques: ");
-    for (Power p : traits.powers()) {
+    for (Technique p : h.skills.known) {
       d.append("\n  "+p.name);
     }
-    //*/
   }
   
   

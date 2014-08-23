@@ -38,8 +38,8 @@ public class DialogueUtils implements Qualities {
     final Skill language = languageFor(other);
     final float attBonus = other.relations.relationValue(actor) * ROUTINE_DC;
     int result = 0;
-    result += actor.traits.test(language, ROUTINE_DC - attBonus, 1) ? 1 : 0;
-    result += actor.traits.test(plea, opposeDC - attBonus, 1) ? 1 : 0;
+    result += actor.skills.test(language, ROUTINE_DC - attBonus, 1) ? 1 : 0;
+    result += actor.skills.test(plea, opposeDC - attBonus, 1) ? 1 : 0;
     return result / 2f;
   }
   
@@ -175,9 +175,9 @@ public class DialogueUtils implements Qualities {
     
     //  TODO:  Use the Counsel skill here.
     float effect = 0;
-    if (other.traits.test(tested, level / 2, 0.5f)) effect += 5;
+    if (other.skills.test(tested, level / 2, 0.5f)) effect += 5;
     else effect -= 5;
-    if (other.traits.test(tested, level * Rand.num(), 0.5f)) effect += 5;
+    if (other.skills.test(tested, level * Rand.num(), 0.5f)) effect += 5;
     else effect -= 5;
     effect *= Relation.MAG_CHATTING / 25f;
     other.relations.incRelation(actor, effect, 0.1f);

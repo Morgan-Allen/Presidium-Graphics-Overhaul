@@ -136,8 +136,8 @@ public class Repairs extends Plan {
   protected float successChance() {
     float chance = 1;
     //  TODO:  Base this on the conversion associated with the structure type.
-    chance *= actor.traits.chance(HARD_LABOUR, 0);
-    chance *= actor.traits.chance(ASSEMBLY, 5);
+    chance *= actor.skills.chance(HARD_LABOUR, 0);
+    chance *= actor.skills.chance(ASSEMBLY, 5);
     return (chance + 1) / 2;
   }
   
@@ -203,13 +203,13 @@ public class Repairs extends Plan {
     final boolean free = GameSettings.buildFree;
     final Base base = built.base();
     
-    float success = actor.traits.test(HARD_LABOUR, ROUTINE_DC, 1) ? 1 : 0;
+    float success = actor.skills.test(HARD_LABOUR, ROUTINE_DC, 1) ? 1 : 0;
     success *= 25f / TIME_PER_25_HP;
     
     //  TODO:  Base assembly DC (or other skills) on a Conversion for the
     //  structure.  Require construction materials for full efficiency.
     if (salvage) {
-      success *= actor.traits.test(ASSEMBLY, 5, 1) ? 1 : 0.5f;
+      success *= actor.skills.test(ASSEMBLY, 5, 1) ? 1 : 0.5f;
       final float amount = structure.repairBy(0 - success);
       final float cost = amount * structure.buildCost();
       if (! free) base.incCredits(cost * 0.5f);
@@ -218,8 +218,8 @@ public class Repairs extends Plan {
     }
     
     else {
-      success *= actor.traits.test(ASSEMBLY, 10, 0.5f) ? 1 : 0.5f;
-      success *= actor.traits.test(ASSEMBLY, 20, 0.5f) ? 2 : 1;
+      success *= actor.skills.test(ASSEMBLY, 10, 0.5f) ? 1 : 0.5f;
+      success *= actor.skills.test(ASSEMBLY, 20, 0.5f) ? 2 : 1;
       final boolean intact = structure.intact();
       final float amount = structure.repairBy(success);
       final float cost = amount * structure.buildCost();
@@ -236,8 +236,8 @@ public class Repairs extends Plan {
     if (upgrade == null) return false;
     ///I.say("Advancing upgrade: "+upgrade.name);
     int success = 1;
-    success *= actor.traits.test(ASSEMBLY, 10, 0.5f) ? 2 : 1;
-    success *= actor.traits.test(ASSEMBLY, 20, 0.5f) ? 2 : 1;
+    success *= actor.skills.test(ASSEMBLY, 10, 0.5f) ? 2 : 1;
+    success *= actor.skills.test(ASSEMBLY, 20, 0.5f) ? 2 : 1;
     final float amount = structure.advanceUpgrade(success * 1f / 100);
     final float cost = amount * upgrade.buildCost;
     built.base().incCredits((0 - cost));

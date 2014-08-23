@@ -328,7 +328,7 @@ public class Combat extends Plan implements Qualities {
     penalty -= rangePenalty(actor, target);
     if (subdue && ! canStun) penalty -= 5;
     
-    final boolean success = target.health.conscious() ? actor.traits.test(
+    final boolean success = target.health.conscious() ? actor.skills.test(
       offence, target, defence, penalty, 1
     ) : true;
       
@@ -368,11 +368,11 @@ public class Combat extends Plan implements Qualities {
     
     boolean accurate = false;
     if (actor.gear.meleeWeapon()) {
-      accurate = actor.traits.test(HAND_TO_HAND, 0, 1);
+      accurate = actor.skills.test(HAND_TO_HAND, 0, 1);
     }
     else {
       final float penalty = rangePenalty(actor, besieged);
-      accurate = actor.traits.test(MARKSMANSHIP, penalty, 1);
+      accurate = actor.skills.test(MARKSMANSHIP, penalty, 1);
     }
     
     float damage = actor.gear.attackDamage() * Rand.avgNums(2) * 1.5f;

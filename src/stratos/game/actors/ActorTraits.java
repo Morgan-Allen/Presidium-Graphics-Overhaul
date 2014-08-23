@@ -20,9 +20,6 @@ public class ActorTraits implements Qualities {
   
   /**  Common fields, constructors, and save/load methods-
     */
-  final static float
-    MIN_FAIL_CHANCE    = 0.1f,
-    MAX_SUCCEED_CHANCE = 0.9f;
   final static int 
     DNA_SIZE         = 16,
     DNA_LETTERS      = 26,
@@ -393,76 +390,6 @@ public class ActorTraits implements Qualities {
   }
   //*/
   
-  
-  
-  /**  Methods for performing actual skill tests against both static and active
-    *  opposition-
-    */
-  public float chance(
-    Skill checked,
-    Actor b, Skill opposed,
-    float bonus
-  ) {
-    float bonusA = useLevel(checked) + Math.max(0, bonus);
-    float bonusB = 0 - Math.min(0, bonus);
-    if (b != null && opposed != null) bonusB += b.traits.useLevel(opposed);
-    final float chance = Visit.clamp(bonusA + 10 - bonusB, 0, 20) / 20;
-    return Visit.clamp(chance, MIN_FAIL_CHANCE, MAX_SUCCEED_CHANCE);
-  }
-  
-  
-  public float chance(Skill checked, float DC) {
-    return chance(checked, null, null, 0 - DC);
-  }
-  
-  
-  public float test(
-    Skill checked, Actor b, Skill opposed,
-    float bonus, float duration,
-    int range
-  ) {
-    //  TODO:  Physical skills need to exercise strength/vigour and exact
-    //  fatigue!
-    //  TODO:  Sensitive skills must exercise reflex/insight, and tie in with
-    //  awareness/FoW.
-    //  TODO:  Cognitive skills need study to advance, and exercise will/
-    //  intellect.
-    
-    final float chance = chance(checked, b, opposed, bonus);
-    float success = 0;
-    if (range <= 0) success = chance;
-    else for (int tried = range; tried-- > 0;) {
-      if (Rand.num() < chance) success++;
-    }
-    practice(checked, (1 - chance) * duration / 10);
-    if (b != null) b.traits.practice(opposed, chance * duration / 10);
-    return success;
-  }
-  
-  
-  public boolean test(
-    Skill checked, Actor b, Skill opposed,
-    float bonus, float fullXP
-  ) {
-    return test(checked, b, opposed, bonus, fullXP, 1) > 0;
-  }
-  
-  
-  public boolean test(Skill checked, float difficulty, float duration) {
-    return test(checked, null, null, 0 - difficulty, duration, 1) > 0;
-  }
-  
-  
-  public void practice(Skill skillType, float practice) {
-    incLevel(skillType, practice / (traitLevel(skillType) + 1));
-    if (skillType.parent != null) practice(skillType.parent, practice / 5);
-  }
-  
-  
-  public void practiceAgainst(int DC, float duration, Skill skillType) {
-    final float chance = chance(skillType, null, null, 0 - DC);
-    practice(skillType, chance * duration / 10);
-  }
   
   
   

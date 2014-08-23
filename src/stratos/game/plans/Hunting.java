@@ -288,9 +288,9 @@ public class Hunting extends Combat {
   
   public boolean actionHarvest(Actor actor, Actor prey) {
     float success = 1;
-    if (actor.traits.test(XENOZOOLOGY, 5, 10)) success++;
-    if (actor.traits.test(DOMESTICS, 5, 5)) success++;
-    if (actor.traits.test(HARD_LABOUR, 5, 5)) success++;
+    if (actor.skills.test(XENOZOOLOGY, 5, 10)) success++;
+    if (actor.skills.test(DOMESTICS, 5, 5)) success++;
+    if (actor.skills.test(HARD_LABOUR, 5, 5)) success++;
     
     final float
       before = prey.health.injuryLevel(),
@@ -311,7 +311,7 @@ public class Hunting extends Combat {
   
   
   public boolean actionSample(Actor actor, Actor prey) {
-    if (! actor.traits.test(XENOZOOLOGY, 10, 10)) return false;
+    if (! actor.skills.test(XENOZOOLOGY, 10, 10)) return false;
     actor.gear.addItem(sample());
     return true;
   }

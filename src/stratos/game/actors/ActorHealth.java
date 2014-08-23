@@ -479,7 +479,7 @@ public class ActorHealth implements Qualities {
     sum -= (bleeds ? 0 : 0.25f) - disease;
     sum -= Visit.clamp(moraleLevel(), -0.5f, 0.5f);
     
-    if (sum > 0) sum -= actor.traits.test(NERVE, null, null, sum * 10, 1, 0);
+    if (sum > 0) sum -= actor.skills.test(NERVE, null, null, sum * 10, 1, 0);
     
     return stressCache = Visit.clamp(sum, 0, 1);
   }
@@ -594,12 +594,12 @@ public class ActorHealth implements Qualities {
     }
     if (bleeds) {
       injury += baseBulk * 1f / BLEED_OUT_TIME;
-      if (actor.traits.test(IMMUNE, 10, 1) && Rand.num() < STABILISE_CHANCE) {
+      if (actor.skills.test(IMMUNE, 10, 1) && Rand.num() < STABILISE_CHANCE) {
         bleeds = false;
       }
     }
     else if (injury > 0) {
-      final float regen = actor.traits.test(IMMUNE, null, null, -10, 0.1f, 2);
+      final float regen = actor.skills.test(IMMUNE, null, null, -10, 0.1f, 2);
       injury -= INJURY_REGEN_PER_DAY * maxHealth * regen * IM / DL;
     }
     fatigue += FATIGUE_GROW_PER_DAY * baseSpeed * maxHealth * FM / DL;
@@ -654,7 +654,7 @@ public class ActorHealth implements Qualities {
     
     if (currentAge > lifespan * (1 + (lifeExtend / 10))) {
       float deathDC = ROUTINE_DC * (1 + lifeExtend);
-      if (actor.traits.test(IMMUNE, deathDC, 0)) {
+      if (actor.skills.test(IMMUNE, deathDC, 0)) {
         lifeExtend++;
       }
       else {

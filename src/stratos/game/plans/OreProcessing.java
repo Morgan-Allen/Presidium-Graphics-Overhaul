@@ -111,9 +111,9 @@ public class OreProcessing extends Plan {
   
   public boolean actionSmelt(Actor actor, Smelter smelter) {
     int success = 0;
-    if (actor.traits.test(HARD_LABOUR, 10, 1)) success++;
-    if (! actor.traits.test(CHEMISTRY, 5, 1)) success--;
-    if (actor.traits.test(GEOPHYSICS, 15, 1)) success++;
+    if (actor.skills.test(HARD_LABOUR, 10, 1)) success++;
+    if (! actor.skills.test(CHEMISTRY, 5, 1)) success--;
+    if (actor.skills.test(GEOPHYSICS, 15, 1)) success++;
     if (success <= 0) return false;
     
     final Item sample = Item.withReference(SAMPLES, output);
@@ -220,9 +220,9 @@ public boolean actionReassemble(Actor actor, Venue site) {
     SPU = s.upgradeLevel(ExcavationSite.SAFETY_PROTOCOL);
   
   float success = 1;
-  if (actor.traits.test(ASSEMBLY, 10, 1)) success++;
+  if (actor.skills.test(ASSEMBLY, 10, 1)) success++;
   else success--;
-  if (actor.traits.test(ANCIENT_LORE, 5, 1)) success++;
+  if (actor.skills.test(ANCIENT_LORE, 5, 1)) success++;
   else success--;
 
   site.stocks.removeItem(Item.withAmount(sample, 1.0f));

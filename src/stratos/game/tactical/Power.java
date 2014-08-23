@@ -105,7 +105,7 @@ public class Power implements Qualities {
       bonus = caster.traits.useLevel(PROJECTION) / 10f,
       drain = 1f / ((1 + bonus) * PlayLoop.UPDATES_PER_SECOND * gameSpeed);
     caster.health.adjustPsy(0 - drain);
-    caster.traits.practiceAgainst(10, drain * 2, PROJECTION);
+    caster.skills.practiceAgainst(10, drain * 2, PROJECTION);
   }
   
   
@@ -135,7 +135,7 @@ public class Power implements Qualities {
       lastSave = Scenario.current().timeSinceLastSave(),
       boost = (lastSave / 1000f) * (0.5f + bonus);
     caster.health.adjustPsy(boost);
-    caster.traits.practiceAgainst(10, boost / 2, PREMONITION);
+    caster.skills.practiceAgainst(10, boost / 2, PREMONITION);
   }
   
   
@@ -147,7 +147,7 @@ public class Power implements Qualities {
       bonus = caster.traits.useLevel(PREMONITION) / 10,
       cost = 10f / (0.5f + bonus);
     caster.health.adjustPsy(0 - cost);
-    caster.traits.practiceAgainst(10, cost, PREMONITION);
+    caster.skills.practiceAgainst(10, cost, PREMONITION);
   }
   
   
@@ -265,7 +265,7 @@ public class Power implements Qualities {
           float dist = (float) Math.sqrt(Spacing.distance(tile, caster));
           float cost = 10 * (1 + (dist / World.SECTOR_SIZE));
           caster.health.adjustPsy(0 - cost);
-          caster.traits.practiceAgainst(10, cost, PROJECTION);
+          caster.skills.practiceAgainst(10, cost, PROJECTION);
         }
         
         final float radius = (9 + (bonus * bonus)) / 2f;
@@ -328,7 +328,7 @@ public class Power implements Qualities {
           maxDist = 1 + (caster.traits.useLevel(TRANSDUCTION) / 10f);
           final float drain = 4f / PlayLoop.FRAMES_PER_SECOND;
           caster.health.adjustPsy(0 - drain);
-          caster.traits.practiceAgainst(10, drain, TRANSDUCTION);
+          caster.skills.practiceAgainst(10, drain, TRANSDUCTION);
         }
         maxDist *= 10f / PlayLoop.FRAMES_PER_SECOND;
         maxDist /= 4 * grabbed.radius();
@@ -368,7 +368,7 @@ public class Power implements Qualities {
           cost = 5;
         subject.gear.boostShields(5 + bonus, false);
         caster.health.adjustPsy(0 - cost);
-        caster.traits.practiceAgainst(10, cost, TRANSDUCTION);
+        caster.skills.practiceAgainst(10, cost, TRANSDUCTION);
         return true;
       }
     },
@@ -390,11 +390,11 @@ public class Power implements Qualities {
           final float cost = 5;
           caster.health.adjustPsy(0 - cost);
           bonus += caster.traits.useLevel(METABOLISM) / 2;
-          caster.traits.practiceAgainst(10, cost, METABOLISM);
+          caster.skills.practiceAgainst(10, cost, METABOLISM);
         }
         
         if (subject.health.conscious()) {
-          if (subject.traits.test(IMMUNE, 10 + bonus, 10)) bonus = 0;
+          if (subject.skills.test(IMMUNE, 10 + bonus, 10)) bonus = 0;
         }
         if (bonus > 0) {
           subject.health.setState(ActorHealth.STATE_SUSPEND);
@@ -423,7 +423,7 @@ public class Power implements Qualities {
           bonus += caster.traits.useLevel(SYNESTHESIA) / 2;
           final float cost = 2.5f;
           caster.health.adjustPsy(0 - cost);
-          caster.traits.practiceAgainst(10, cost, SYNESTHESIA);
+          caster.skills.practiceAgainst(10, cost, SYNESTHESIA);
         }
         subject.traits.incLevel(KINESTHESIA_EFFECT, bonus * 2 / 10f);
         return true;
@@ -495,7 +495,7 @@ public class Power implements Qualities {
           final float cost = 5f;
           priorityMod += caster.traits.useLevel(SUGGESTION) / 5f;
           caster.health.adjustPsy(0 - cost);
-          caster.traits.practiceAgainst(10, cost, SYNESTHESIA);
+          caster.skills.practiceAgainst(10, cost, SYNESTHESIA);
           affects.relations.incRelation(caster, affinity, 0.1f);
         }
         else priorityMod = Plan.PARAMOUNT;

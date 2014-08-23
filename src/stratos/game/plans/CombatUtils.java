@@ -69,7 +69,7 @@ public class CombatUtils implements Qualities {
         attack = MARKSMANSHIP;
         defend = STEALTH_AND_COVER;
       }
-      final float chance = actor.traits.chance(attack, enemy, defend, 0);
+      final float chance = actor.skills.chance(attack, enemy, defend, 0);
       estimate *= 2 * chance;
       if (report) I.say("  Chance to injure "+enemy+" is: "+chance);
     }

@@ -271,9 +271,9 @@ public class Cantina extends Venue {
     venue.stocks.incCredits(price);
     
     float success = (Rand.num() * 2) - 1;
-    if (actor.traits.test(ACCOUNTING, MODERATE_DC, 1)) success++;
+    if (actor.skills.test(ACCOUNTING, MODERATE_DC, 1)) success++;
     else success--;
-    if (actor.traits.test(MASQUERADE, MODERATE_DC, 1)) success++;
+    if (actor.skills.test(MASQUERADE, MODERATE_DC, 1)) success++;
     else success--;
     
     if (success > 0) {

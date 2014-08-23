@@ -1,0 +1,52 @@
+
+
+
+
+  I want 3-4 techniques per class, for 18 classes (7 stations, 7 schools, 3
+  species, and the nobility.  Some get more, some less.)
+  I have those worked out for the schools, and working out some for alien
+  species should be easy-ish.
+
+  So now I need 3-4 each for the other 'mundane' classes:
+    Trooper
+    Enforcer
+    Runner
+    Kommando
+    Artificer
+    Physician
+    Ecologist
+    Noble
+  
+  
+  Now, in principle you could simply attach these to relevant class-specific
+  skills (mostly combat-related, in these cases.)  Or, you could have them
+  derived from special equipment or guild-specific training.
+  
+  ...Make them learnable at the guild, but dependant on skill development.
+  ...Alright.  That makes sense, at least in some cases.  But let's just
+  pretend we're taking 8-9 skills as a base here.
+  
+  Start with these:
+  Battle Tactics.  Close Combat.  Marksman.
+  Piloting.  Stealth & Cover or Surveillance.  Halberd Gun.
+  
+  
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

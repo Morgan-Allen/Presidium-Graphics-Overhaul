@@ -241,6 +241,7 @@ public interface Backgrounds {
       OVERALLS
     ),
     
+    //  TODO:  Replace with Kommando, or merge into Ecologist.
     EXPLORER = new Background(
       Backgrounds.class,
       "Explorer", "ecologist_skin.gif", "ecologist_portrait.png",
