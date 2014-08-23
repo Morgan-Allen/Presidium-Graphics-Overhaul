@@ -127,6 +127,8 @@ public class Paving {
     Fixture v, Batch <Tile> around, boolean isMember
   ) {
     final boolean report = paveVerbose && I.talkAbout == v;
+    if (report) I.say("Updating perimeter for "+v+", member? "+isMember);
+    
     final Tile o = v.origin();
     final Route key = new Route(o, o), match = allRoutes.get(key);
     
@@ -137,17 +139,16 @@ public class Paving {
       if (report) I.say("Installing perimeter for "+v);
       
       if (match != null) {
-        map.maskAsPaved(match.path, false);
+        map.flagForPaving(match.path, false);
         allRoutes.remove(match);
       }
-      map.maskAsPaved(key.path, true);
-      clearRoad(key.path, report);
+      map.flagForPaving(key.path, true);
       allRoutes.put(key, key);
     }
     else if (match != null) {
       if (report) I.say("Discarding perimeter for "+v);
       //reportPath("Old route", match);
-      map.maskAsPaved(match.path, false);
+      map.flagForPaving(match.path, false);
       allRoutes.remove(key);
     }
   }
@@ -229,15 +230,14 @@ public class Paving {
       allRoutes.put(route, route);
       toggleRoute(route, route.start, true);
       toggleRoute(route, route.end  , true);
-      map.maskAsPaved(route.path, true);
-      clearRoad(route.path, report);
+      map.flagForPaving(route.path, true);
     }
     return true;
   }
   
   
   private void deleteRoute(Route route) {
-    map.maskAsPaved(route.path, false);
+    map.flagForPaving(route.path, false);
     allRoutes.remove(route);
     toggleRoute(route, route.start, false);
     toggleRoute(route, route.end  , false);
@@ -275,6 +275,7 @@ public class Paving {
   
   /**  Methods related to physical road construction-
     */
+  /*
   private void clearRoad(Tile path[], boolean report) {
     if (report) I.say("Clearing path...");
     for (Tile t : path) {
@@ -284,6 +285,7 @@ public class Paving {
       }
     }
   }
+  //*/
   
   
   

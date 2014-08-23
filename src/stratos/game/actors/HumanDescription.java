@@ -135,6 +135,7 @@ public class HumanDescription implements Qualities {
     }
     
     d.append("\n\nTechniques: ");
+    //  TODO:  INCLUDE ICONS
     for (Technique p : h.skills.known) {
       d.append("\n  "+p.name);
     }

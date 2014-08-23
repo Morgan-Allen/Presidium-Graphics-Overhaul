@@ -151,6 +151,10 @@ public class Session {
     catch (NoSuchMethodException e) {}
     if (loadMethod == null) try {
       loadMethod = loadClass.getMethod("loadConstant", Session.class);
+      if (! Modifier.isStatic(((Method) loadMethod).getModifiers())) {
+        I.say("WARNING: loadConstant method is not static! "+loadClass);
+        loadMethod = null;
+      }
     }
     catch (NoSuchMethodException e) {}
     return loadMethod;

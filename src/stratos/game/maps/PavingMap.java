@@ -11,6 +11,8 @@ import stratos.util.*;
 public class PavingMap {
   
   
+  private static boolean verbose = false, searchVerbose = false;
+  
   final World world;
   final Paving paving;
   final int size;
@@ -42,20 +44,38 @@ public class PavingMap {
   
   
   
+  private boolean refreshed = false;
+  
+  public void refreshFlags() {
+    if (refreshed) return;
+    refreshed = true;
+    /*
+    MipMap.printVals(flagMap);
+    flagMap.clear();
+    for (Coord c : Visit.grid(0, 0, size, size, 1)) {
+      final boolean flag = needsPaving(world.tileAt(c.x, c.y));
+      flagMap.set((byte) (flag ? 1 : 0), c.x, c.y);
+    }
+    
+    MipMap.printVals(flagMap);
+    //*/
+  }
   
   
   
-  public void maskAsPaved(Tile t, boolean is) {
+  /**  Modifier methods-
+    */
+  public void flagForPaving(Tile t, boolean is) {
     final byte c = (roadCounter[t.x][t.y] += is ? 1 : -1);
     if (c < 0) I.complain("CANNOT HAVE NEGATIVE ROAD COUNTER: "+t);
-    final boolean flag = world.terrain().isRoad(t) != is;
+    final boolean flag = needsPaving(t);
     flagMap.set((byte) (flag ? 1 : 0), t.x, t.y);
   }
   
   
-  public void maskAsPaved(Tile tiles[], boolean is) {
+  public void flagForPaving(Tile tiles[], boolean is) {
     if (tiles == null || tiles.length == 0) return;
-    for (Tile t : tiles) if (t != null) maskAsPaved(t, is);
+    for (Tile t : tiles) if (t != null) flagForPaving(t, is);
   }
   
   
@@ -71,50 +91,59 @@ public class PavingMap {
   
   
   public Tile nextTileToPave(final Target client, final Class paveClass) {
+    this.refreshFlags();
+    
+    final boolean report = searchVerbose && I.talkAbout == client;
+    
     final Vars.Ref <Tile> result = new Vars.Ref <Tile> ();
-    final Vec3D o = client.position(null);
+    float minDist = Float.POSITIVE_INFINITY;
+    final int depth = MipMap.sizeToDepth(world.sections.resolution);
+    final Tile o = world.tileAt(client);
     
-    //  TODO:  Try to improve/guarantee efficiency here.  In the worst case
-    //         scenario, you're looking at 256 iterations or so.
+    //  TODO:  Try to improve efficiency here.  In the worst-case scenario
+    //  you're looking at checking half the tiles in the world...
     
-    world.sections.applyDescent(new WorldSections.Descent() {
+    for (WorldSection s : world.sections.sectionsUnder(world.area())) {
+      final float distS = s.area.distance(o.x, o.y) + 1;
+      if (distS >= minDist) continue;
       
-      float minDist = Float.POSITIVE_INFINITY;
-      
-      public boolean descendTo(WorldSection s) {
-        final float dist = s.bounds.distance(o.x, o.y, 0);
-        if (dist > minDist) return false;
-        
-        if (s.size == world.sections.resolution) {
-          //  TODO:  Also confine search to areas accessible from the actor's
-          //         pathing position!  ...And use that to estimate proximity.
-          if (world.activities.includes(s, paveClass)) return false;
-        }
-        
-        if (flagMap.getAvgAt(s.x, s.y, s.depth) > 0) {
-          if (s.depth == 0) {
-            final Tile tile = world.tileAt(s.x, s.y);
-            result.value = tile;
-            minDist = dist;
-          }
-          return true;
-        }
-        return false;
+      final float pop = flagMap.getAvgAt(s.x, s.y, depth);
+      if (pop <= 0) continue;
+      if (report) {
+        I.say("Trying section at: "+s.x+"|"+s.y);
+        I.say("  Population: "+pop);
       }
       
-      public void afterChildren(WorldSection s) {}
-    });
+      for (Tile t : world.tilesIn(s.area, false)) {
+        if (! needsPaving(t)) continue;
+        final float distT = Spacing.distance(t, client) - 1;
+        if (distT > minDist) continue;
+        
+        if (report) I.say("    Trying: "+t.x+"|"+t.y);
+        result.value = t;
+        minDist = distT;
+      }
+    }
+    
+    if (report) I.say("Next tile to pave: "+result.value);
     
     return result.value;
   }
   
+
+  public static void setPaveLevel(Tile t, byte level) {
+    t.world.terrain().setRoadType(t, level);
+  }
   
-  public void setPaveLevel(Tile t, byte level) {
-    world.terrain().setRoadType(t, level);
-    final boolean flag = (level > 0) != (roadCounter(t) > 0);
+  
+  protected void updateFlags(Tile t) {
+    final boolean flag = needsPaving(t);
     flagMap.set((byte) (flag ? 1 : 0), t.x, t.y);
   }
 }
+
+
+
 
 
 

@@ -6,7 +6,10 @@ import stratos.game.common.*;
 import stratos.game.base.*;
 import stratos.game.campaign.*;
 import stratos.game.maps.*;
+import stratos.graphics.common.Rendering;
+import stratos.graphics.widgets.KeyInput;
 import stratos.user.*;
+import stratos.util.I;
 
 
 
@@ -44,6 +47,17 @@ public class DebugPlacing extends Scenario {
   }
   
   
+  public void renderVisuals(Rendering rendering) {
+    super.renderVisuals(rendering);
+    
+    final Tile over = UI().selection.pickedTile();
+    if (KeyInput.wasTyped('p')) {
+      I.say("TILE IS: "+over);
+      I.say("  SHOULD PAVE? "+base().paving.map.needsPaving(over));
+    }
+  }
+
+
   protected World createWorld() {
     final TerrainGen TG = new TerrainGen(
       64, 0.2f,

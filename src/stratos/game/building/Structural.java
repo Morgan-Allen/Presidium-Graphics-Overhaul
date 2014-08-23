@@ -3,14 +3,16 @@
 
 package stratos.game.building;
 import stratos.game.common.*;
-import stratos.game.wild.Wreckage;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.sfx.Healthbar;
 import stratos.graphics.sfx.Label;
 import stratos.user.*;
 import stratos.util.*;
+import stratos.game.wild.Wreckage;  //  TODO:  Move to same package
 
+
+//  TODO:  Merge this back with Venue?
 
 
 public abstract class Structural extends Fixture implements

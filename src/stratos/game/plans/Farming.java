@@ -22,7 +22,7 @@ import static stratos.game.building.Economy.*;
 public class Farming extends Plan {
   
   
-  private static boolean verbose = false;
+  private static boolean verbose = true;
   
   final Plantation nursery;
   
@@ -217,7 +217,11 @@ public class Farming extends Plan {
   
   public boolean actionPlant(Actor actor, Crop crop) {
     
-    if (! crop.inWorld()) crop.enterWorld();
+    if (! crop.inWorld()) {
+      final Tile o = crop.origin();
+      PavingMap.setPaveLevel(o, WorldTerrain.ROAD_NONE);
+      crop.enterWorld();
+    }
     
     //  Initial seed quality has a substantial impact on crop health.
     final Item seed = actor.gear.bestSample(

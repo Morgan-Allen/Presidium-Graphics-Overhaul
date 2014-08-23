@@ -67,11 +67,6 @@ public class ActorSkills {
   /**  Called every 20 seconds or so.
     */
   protected void updateSkills(int numUpdates) {
-    
-    //  TODO:  TEMPORARY HACK, REMOVE!
-    if (actor.vocation() == Backgrounds.ECOLOGIST) {
-      actor.traits.raiseLevel(Qualities.MARKSMANSHIP, 20);
-    }
     //
     //  See if we've learned any new techniques based on practice in source
     //  skills or item proficiency.

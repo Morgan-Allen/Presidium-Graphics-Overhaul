@@ -64,7 +64,7 @@ public class Crop extends Fixture {
   };
   
   
-  final public Plantation parent;
+  final public Plantation parent;  //  Get rid of this...
   private Species species;
   private float growStage, quality;
   private boolean blighted;

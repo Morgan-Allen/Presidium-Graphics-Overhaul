@@ -6,6 +6,7 @@
 
 package stratos.game.maps;
 import java.io.*;
+
 import stratos.game.common.*;
 import stratos.util.*;
 
@@ -53,7 +54,9 @@ public class MipMap implements TileConstants {
   
   
   public void loadFrom(DataInputStream in) throws Exception {
-    for (int x = size; x-- > 0;) in.read(baseLevels[x]);
+    for (int x = size; x-- > 0;) {
+      in.read(baseLevels[x]);
+    }
     for (int d = 0, s = size / 2; d < high; d++, s /= 2) {
       for (Coord c : Visit.grid(0, 0, s, s, 1)) {
         quadLevels[d][c.x][c.y] = in.readShort();
@@ -63,7 +66,9 @@ public class MipMap implements TileConstants {
   
   
   public void saveTo(DataOutputStream out) throws Exception {
-    for (int x = size; x-- > 0;) out.write(baseLevels[x]);
+    for (int x = size; x-- > 0;) {
+      out.write(baseLevels[x]);
+    }
     for (int d = 0, s = size / 2; d < high; d++, s /= 2) {
       for (Coord c : Visit.grid(0, 0, s, s, 1)) {
         out.writeShort(quadLevels[d][c.x][c.y]);
@@ -86,7 +91,7 @@ public class MipMap implements TileConstants {
   
   /**  Accumulates the specified value at the given base array coordinates.
     */
-  public void accum(final byte val, final int x, final int y) {
+  public void accum(final int val, final int x, final int y) {
     baseLevels[x][y] += val;
     for (int h = 0, dX = x / 2, dY = y / 2; h < high; dX /= 2, dY /= 2, h++) {
       quadLevels[h][dX][dY] += val;
@@ -96,9 +101,9 @@ public class MipMap implements TileConstants {
   
   /**  Sets the specified value at the given base array coordinates.
     */
-  public void set(final byte val, final int x, final int y) {
-    final byte current = baseLevels[x][y];
-    accum((byte) (val - current), x, y);
+  public void set(final int val, final int x, final int y) {
+    final int current = baseLevels[x][y];
+    accum(val - current, x, y);
   }
   
   
@@ -117,6 +122,13 @@ public class MipMap implements TileConstants {
   public float getAvgAt(final int mX, final int mY, final int h) {
     final int s = 1 << h;
     return (getTotalAt(mX, mY, h) * 1f) / (s * s);
+  }
+  
+  
+  public static int sizeToDepth(int size) {
+    int d = 0;
+    while (size > 1) { d++; size /= 2; }
+    return d;
   }
   
   
@@ -229,87 +241,68 @@ public class MipMap implements TileConstants {
   
   /**  Testing routine-
     */
-  public static void main(String s[]) {
-    final int size = 256, step = 127;
-    final float maxFuzz = 2.0f;
-    final int numRuns = 100;
-    final int frameTime = 2000 / numRuns;
-    final int shownSize = 512;
-    final MipMap testMap = new MipMap(new HeightMap(size + 1), step);
+  public static void printVals(MipMap map) {
+    I.add("\n\nPRINTING MIPMAP");
+    for (int x = 0 ; x < map.size; x++) {
+      I.add("\n  ");
+      for (int y = 0; y < map.size; y++) {
+        I.add(map.baseLevels[x][y]+" ");
+      }
+    }
     
-    float greyVals[][] = new float[size][size];
-    int totalTaken = 0;
-    for (int n = 0; n < numRuns; n++) {
-      final long init = System.currentTimeMillis();
-      final float fuzz = (numRuns - (n + 1)) * maxFuzz / (numRuns - 1);
-      I.say("Fuzz Value: "+fuzz);
-      float sumVals = 0;
-      for (Coord c : Visit.grid(0, 0, size, size, 1)) {
-        greyVals[c.x][c.y] = testMap.blendValAt(c.x, c.y, fuzz) / step;
-        sumVals += greyVals[c.x][c.y];
-      }
-      totalTaken += (System.currentTimeMillis() - init);
-      I.say("Average value: "+(sumVals / (size * size)));
-      try { Thread.sleep(frameTime); } catch (Exception e) {}
-      I.present(greyVals, "mipmap blend", shownSize, shownSize, 0, 1);
-    }
-    I.say("Average time to process (in ms): "+(totalTaken / numRuns));
-  }
-  
-  
-  private static void drawCross(Coord c, float greyVals[][], int size) {
-    for (int s = 0; s < size; s++) {
-      try { greyVals[c.x + s][c.y] = 1; } catch (Exception e) {}
-      try { greyVals[c.x - s][c.y] = 1; } catch (Exception e) {}
-      try { greyVals[c.x][c.y + s] = 1; } catch (Exception e) {}
-      try { greyVals[c.x][c.y - s] = 1; } catch (Exception e) {}
-    }
-  }
-}
-
-
-
-
-/*
-final int sampleX = Rand.index(size), sampleY = Rand.index(size);
-I.say("Sampling at: "+sampleX+"|"+sampleY);
-drawCross(new Coord(sampleX, sampleY), greyVals, 4);
-final Coord minimum = testMap.doBlendDescent(
-  sampleX, sampleY, fuzz, false
-);
-I.say("Local minimum found: "+minimum);
-drawCross(minimum, greyVals, 16);
-//*/
-
-/**  Performs a gradient descent to the nearest local minimum or maximum from
-  *  the given x/y coordinates, using blended mipmap values.
-  */
-/*
-//
-//  Results at the moment are a bit disappointing.  Try restricting the
-//  search to higher-level sampling, and work your way down?
-public Coord doBlendDescent(int x, int y, float stepFade, boolean seekMax) {
-  Coord best = new Coord(x, y), tried = new Coord(), found = new Coord(best);
-  float bestVal = blendValAt(x, y, stepFade);
-  
-  while (true) {
-    for (int n : N_INDEX) {
-      tried.x = Visit.clamp(best.x + N_X[n], size);
-      tried.y = Visit.clamp(best.y + N_Y[n], size);
-      final float val = blendValAt(tried.x, tried.y, stepFade);
-      if (seekMax ? (val > bestVal) : (val < bestVal)) {
-        bestVal = val;
-        found.setTo(tried);
+    for (int d = 0, s = map.size / 2; d < map.high; d++, s /= 2) {
+      I.add("\nPRINTING LEVEL "+(d + 1)+"");
+      for (int x = 0 ; x < s; x++) {
+        I.add("\n  ");
+        for (int y = 0; y < s; y++) {
+          I.add(map.quadLevels[d][x][y]+" ");
+        }
       }
     }
-    if (found.matches(best)) break;
-    else best.setTo(found);
   }
-  return best;
+  
+  
+  public static void main(String s[]) {
+    
+    final MipMap testMap = new MipMap(16);
+    
+    for (Coord c : Visit.grid(0, 0, 16, 16, 1)) {
+      testMap.set((byte) Rand.index(4), c.x, c.y);
+    }
+    for (Coord c : Visit.grid(0, 0, 16, 16, 1)) {
+      testMap.set((byte) Rand.index(4), c.x, c.y);
+    }
+    printVals(testMap);
+    
+    final File file = new File("saves/test_mipmap.dat");
+    try {
+      final DataOutputStream out = new DataOutputStream(
+        new FileOutputStream(file)
+      );
+      testMap.saveTo(out);
+      out.close();
+      
+      final MipMap nextMap = new MipMap(16);
+      
+      final DataInputStream in = new DataInputStream(
+        new FileInputStream(file)
+      );
+      nextMap.loadFrom(in);
+      in.close();
+      
+      printVals(nextMap);
+      
+      nextMap.clear();
+      for (Coord c : Visit.grid(0, 0, 16, 16, 1)) {
+        final int flag = testMap.baseLevels[c.x][c.y];
+        nextMap.set(flag, c.x, c.y);
+      }
+      
+      printVals(nextMap);
+    }
+    catch (Exception e) { I.report(e); }
+  }
 }
-//*/
-
-
 
 
 

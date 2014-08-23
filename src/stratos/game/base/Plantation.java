@@ -99,11 +99,6 @@ public class Plantation extends Venue implements TileConstants {
   }
   
   
-  public int pathType() {
-    return Tile.PATH_BLOCKS;
-  }
-  
-  
   public boolean setPosition(float x, float y, World world) {
     final boolean okay = super.setPosition(x, y, world);
     if (okay) areaClaimed.set(x - 3.5f, y - 3.5f, 8, 8);
@@ -266,7 +261,7 @@ public class Plantation extends Venue implements TileConstants {
     }
     
     if (choice.size() > 0) return choice.pickMostUrgent();
-
+    
     if (! personnel.onShift(actor)) return null;
     final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
       this, services(), 2, 10, 5
@@ -317,7 +312,7 @@ public class Plantation extends Venue implements TileConstants {
     return InstallTab.TYPE_ECOLOGIST;
   }
   
-  
+  /*
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
     final StringBuffer d = new StringBuffer();
 
@@ -344,6 +339,7 @@ public class Plantation extends Venue implements TileConstants {
       Selection.SELECT_OVERLAY, true, this, this
     );
   }
+  //*/
 }
 
 

@@ -15,7 +15,7 @@ public class RoadsRepair extends Plan {
   
   /**  Data fields, setup and save/load methods-
     */
-  private static boolean actionVerbose = true, evalVerbose = false;
+  private static boolean actionVerbose = false, evalVerbose = false;
   
   final Base base;
   final PavingMap map;
@@ -61,9 +61,9 @@ public class RoadsRepair extends Plan {
     final boolean report = evalVerbose && I.talkAbout == actor;
     
     return super.priorityForActorWith(
-      actor, around, CASUAL,
+      actor, around, ROUTINE,
       NO_HARM, FULL_COMPETITION,
-      Repairs.BASE_SKILLS, Repairs.BASE_TRAITS,
+      BASE_SKILLS, BASE_TRAITS,
       NO_MODIFIER, NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
       report
     );
@@ -124,14 +124,14 @@ public class RoadsRepair extends Plan {
   
   public boolean actionPave(Actor actor, Tile t) {
     //  TODO:  Deduct credits (or materials?)
-    map.setPaveLevel(t, WorldTerrain.ROAD_LIGHT);
+    PavingMap.setPaveLevel(t, WorldTerrain.ROAD_LIGHT);
     return true;
   }
   
   
   public boolean actionStrip(Actor actor, Tile t) {
     //  TODO:  Reclaim credits (or materials?)
-    map.setPaveLevel(t, WorldTerrain.ROAD_NONE);
+    PavingMap.setPaveLevel(t, WorldTerrain.ROAD_NONE );
     return true;
   }
   
