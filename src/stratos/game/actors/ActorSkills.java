@@ -125,7 +125,7 @@ public class ActorSkills {
     final Action action = actor.currentAction();
     
     for (Technique t : techniquesKnownFor(checked)) {
-      final float tBonus = t.applyBonus(actor, plan, action);
+      final float tBonus = t.applyEffect(actor, plan, action);
       if (tBonus > 0) bonus += tBonus;
     }
     //

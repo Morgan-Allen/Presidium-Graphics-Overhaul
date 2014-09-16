@@ -4,11 +4,11 @@
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.building.*;
+import stratos.game.civilian.Pledge;
 import stratos.game.common.*;
 import stratos.game.maps.Planet;
 import stratos.user.*;
 import stratos.util.*;
-
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.building.Economy.*;
 
@@ -103,7 +103,7 @@ public class Recreation extends Plan {
     float modifier = NO_MODIFIER;
     modifier += Performance.performValueFor(venue, this);
     modifier += IDLE * rateComfort(venue, actor, this) / 10;
-    modifier -= Plan.greedLevel(actor, (int) cost) * ROUTINE;
+    modifier -= Pledge.greedLevel(actor, (int) cost) * ROUTINE;
     final float need = 1f - actor.health.moraleLevel();
     
     final float priority = priorityForActorWith(

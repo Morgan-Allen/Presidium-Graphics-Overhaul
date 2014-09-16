@@ -1,39 +1,17 @@
 
 
 package stratos.game.actors;
-import stratos.game.common.*;
-//import stratos.game.actors.*;
+import org.apache.commons.math3.util.FastMath;
 
+import stratos.game.common.*;
+import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.start.Assets;
 import stratos.util.*;
 
 
-/*  Techniques are obtained either from skills or from certain equipped items,
- *  and either confer bonuses to certain action-attempts, or allow the actor to
- *  pull off special moves under those circumstances.  They also count as a
- *  form of behaviour.
- *  
- *  This can probably be unified with the Power class.  (And maybe Upgrades?)
- */
-
-//  Input (trigger.)  Combat, travel, skill, behaviour.
-//  Output (effects.)  Damage, bonus, side-effects.
-//  Appeal (AI basis.)  Benefits, cost, attention needed.
-//  Source (learning curve.)  Either a skill, an item, or secret.
-
-//  Okay.  You specify certain triggers.  Give it an interface to modify.
-//  Allow it to create side-effects if needed.
-
-//  And if it's an active, attention-consuming technique, then you may have to
-//  roll against the skill involved to see if there's any effect.  You may
-//  also have to rate which of several possible techniques is the most
-//  attractive.  However, some techniques are simply passive.
 
 
-
-//  TODO:  Saving and loading techniques is causing corruption of save files.
-//         Find out why.
 
 public abstract class Technique implements Session.Saveable {
   
@@ -51,25 +29,60 @@ public abstract class Technique implements Session.Saveable {
     TRIGGER_DEFEND = new Object(),
     TRIGGER_MOTION = new Object();
   
+  final public static float
+    MINOR_POWER          = 1.0f ,
+    MEDIUM_POWER         = 3.0f ,
+    MAJOR_POWER          = 5.0f ,
+    NO_FATIGUE           = 0.0f ,
+    MINOR_FATIGUE        = 2.0f ,
+    MEDIUM_FATIGUE       = 5.0f ,
+    MAJOR_FATIGUE        = 10.0f,
+    NO_CONCENTRATION     = 0.0f ,
+    MINOR_CONCENTRATION  = 2.0f ,
+    MEDIUM_CONCENTRATION = 5.0f ,
+    MAJOR_CONCENTRATION  = 10.0f;
   
-  final public String     name;
-  final public ImageAsset icon;
+  final public static float
+    NO_HARM      = Plan.NO_HARM     ,
+    MILD_HARM    = Plan.MILD_HARM   ,
+    REAL_HARM    = Plan.REAL_HARM   ,
+    EXTREME_HARM = Plan.EXTREME_HARM,
+    MILD_HELP    = Plan.MILD_HELP   ,
+    REAL_HELP    = Plan.REAL_HELP   ,
+    EXTREME_HELP = Plan.EXTREME_HELP;
+  
   
   final public Class sourceClass;
   final public int   uniqueID   ;
   
+  final public String     name    ;
+  final public ImageAsset icon    ;
+  final public String     animName;
+  
   final public int    type      ;
   final public Object source    ;
-  final public int    minLevel  ;
   final public Object triggers[];
+  final public int    minLevel  ;
+  
+  final public float
+    powerLevel       ,
+    harmFactor       ,
+    fatigueCost      ,
+    concentrationCost;
+  
+  final public Condition asCondition = new Condition() {
+    public void affect(Actor a) { applyAsCondition(a); }
+  };
   
   
   public Technique(
-    String name, String iconFile,
+    String name, String iconFile, String animName,
     Class sourceClass, int uniqueID,
+    float power, float harm, float fatigue, float concentration,
     int type, Object source, int minLevel, Object... triggers
   ) {
-    this.name = name;
+    this.name     = name    ;
+    this.animName = animName;
     
     if (Assets.exists(iconFile)) {
       this.icon = ImageAsset.fromImage(iconFile, sourceClass);
@@ -78,6 +91,11 @@ public abstract class Technique implements Session.Saveable {
     
     this.sourceClass = sourceClass;
     this.uniqueID    = uniqueID   ;
+    
+    this.powerLevel        = power        ;
+    this.harmFactor        = harm         ;
+    this.fatigueCost       = fatigue      ;
+    this.concentrationCost = concentration;
     
     this.type     = type    ;
     this.source   = source  ;
@@ -123,8 +141,85 @@ public abstract class Technique implements Session.Saveable {
   /**  Basic interface and utility methods for use and evaluation of different
     *  techniques-
     */
-  public abstract float applyBonus(Actor using, Behaviour b, Action a);
-  //  TODO:  Also rate appeal, and model effects as a persistent condition.
+  public abstract float applyEffect(Actor using, Behaviour b, Action a);
+  
+  
+  public boolean actionUseTechnique(Actor actor, Target subject) {
+    applyEffect(actor, actor.mind.rootBehaviour(), actor.currentAction());
+    actor.health.takeFatigue      (fatigueCost      );
+    actor.health.takeConcentration(concentrationCost);
+    return true;
+  }
+  
+  
+  protected float appealFor(Actor actor, Target subject, float harmLevel) {
+    //
+    //  Techniques become less attractive based on the fraction of fatigue or
+    //  concentration they would consume.
+    final float
+      conCost = concentrationCost / actor.health.concentration(),
+      fatCost = fatigueCost       / actor.health.fatigueLimit() ;
+    if (conCost > 1 || fatCost > 1) return 0;
+    //
+    //  Don't use a harmful technique against a subject you want to help, and
+    //  try to avoid extreme harm against subjects you only want to subdue, et
+    //  cetera.
+    if (harmLevel * harmFactor <= 0) return 0;
+    float rating = 10;
+    rating -= FastMath.abs(harmLevel - harmFactor);
+    rating *= ((1 - conCost) + (1 - fatCost)) / 2f;
+    return powerLevel * rating / 10f;
+  }
+  
+  
+  protected boolean canApply(Actor using, Behaviour b) {
+    return true;
+  }
+  
+  
+  protected void configAction(Action action) {
+    action.setProperties(Action.RANGED | Action.QUICK);
+  }
+  
+  
+  protected void applyAsCondition(Actor affected) {
+    if (affected.traits.traitLevel(asCondition) > 0) {
+      affected.traits.incLevel(asCondition, -1f / conditionDuration());
+      return;
+    }
+    else affected.traits.setLevel(asCondition, 1);
+  }
+  
+  
+  protected float conditionDuration() {
+    return World.STANDARD_HOUR_LENGTH;
+  }
+  
+  
+  public static Action pickCombatAction(
+    Actor actor, Target struck, Combat combat
+  ) {
+    Technique picked = null;
+    float bestAppeal = 0;
+    
+    for (Technique t : actor.skills.known) {
+      if (Visit.arrayIncludes(t.triggers, TRIGGER_ATTACK)) {
+        if (! t.canApply(actor, combat)) continue;
+        final float appeal = t.appealFor(actor, struck, combat.harmFactor());
+        if (appeal > bestAppeal) { bestAppeal = appeal; picked = t; }
+      }
+    }
+    if (picked == null) return null;
+    
+    final Action action = new Action(
+      actor, struck,
+      picked, "actionUseTechnique",
+      picked.animName, "Using "+picked.name
+    );
+    picked.configAction(action);
+    action.setPriority(bestAppeal);
+    return action;
+  }
   
   
   

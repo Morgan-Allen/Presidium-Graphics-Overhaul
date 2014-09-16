@@ -384,30 +384,16 @@ public class Dialogue extends Plan implements Qualities {
     final boolean report = eventsVerbose && I.talkAbout == actor;
     this.stage = STAGE_BYE;
     
-    if (! (invitation instanceof Plan)) return false;
-    if (actor.mind.hasToDo(Joining.class)) return false;
+    if (! Joining.checkInvitation(actor, asked, this, invitation)) {
+      if (report) I.say("Invitation rejected!- "+invitation);
+      return false;
+    }
+    
     final Plan basis = (Plan) invitation;
-    if (basis.hasMotiveType(Plan.MOTIVE_DUTY)) return false;
-    
     final Plan copy = basis.copyFor(asked);
-    if (copy == null) {
-      I.say("Warning: no copy of "+basis+" for "+asked);
-      return false;
-    }
-    final float motiveBonus = DialogueUtils.talkResult(
-      SUASION, ROUTINE_DC, actor, asked
-    ) * CASUAL;
-    basis.setMotiveFrom(this, 0);
-    copy.setMotive(Plan.MOTIVE_LEISURE, motiveBonus);
-    if (report) I.say("\nExtending invitation: "+basis+" to "+asked);
-    
-    if (! Choice.couldJoinActivity(asked, actor, basis, copy)) {
-      if (report) I.say("  ...Invitation rejected.");
-      return false;
-    }
-    
     actor.mind.assignBehaviour(new Joining(actor, basis, asked));
     asked.mind.assignBehaviour(new Joining(asked, copy, actor));
+    
     if (report) {
       I.say("  Assigning behaviour: "+basis+" to "+actor);
       I.say("  Assigning behaviour: "+copy+" to "+asked);

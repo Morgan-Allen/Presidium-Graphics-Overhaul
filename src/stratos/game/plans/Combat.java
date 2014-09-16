@@ -10,12 +10,11 @@ import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
+import stratos.game.tactical.*;
 import stratos.user.*;
 import stratos.util.*;
 
 
-
-//  TODO:  Introduce formation-behaviours, in contrast to hit-and-run!
 
 public class Combat extends Plan implements Qualities {
   
@@ -51,7 +50,7 @@ public class Combat extends Plan implements Qualities {
   };
   
   
-  final Element target;
+  //final Element target;
   final int style, object;
   
   
@@ -64,7 +63,7 @@ public class Combat extends Plan implements Qualities {
     Actor actor, Element target, int style, int object
   ) {
     super(actor, target);
-    this.target = target;
+    //this.target = target;
     this.style = style;
     this.object = object;
   }
@@ -72,7 +71,7 @@ public class Combat extends Plan implements Qualities {
   
   public Combat(Session s) throws Exception {
     super(s);
-    this.target = (Element) s.loadObject();
+    //this.target = (Element) s.loadObject();
     this.style = s.loadInt();
     this.object = s.loadInt();
   }
@@ -80,14 +79,14 @@ public class Combat extends Plan implements Qualities {
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(target);
+    //s.saveObject(target);
     s.saveInt(style);
     s.saveInt(object);
   }
   
   
   public Plan copyFor(Actor other) {
-    return new Combat(other, target, style, object);
+    return new Combat(other, (Element) subject, style, object);
   }
   
   
@@ -103,80 +102,47 @@ public class Combat extends Plan implements Qualities {
   
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
-    if (isDowned(target, object)) return 0;
-    final boolean melee = actor.gear.meleeWeapon();
-    final boolean isActor = target instanceof Actor;
-    
-    float modifier = 0;
-    Target victim = null;
-    
+    if (CombatUtils.isDowned(subject, object)) return 0;
+
     float harmLevel = REAL_HARM;
-    if (object == OBJECT_SUBDUE ) harmLevel = MILD_HARM;
+    if (object == OBJECT_SUBDUE ) harmLevel = MILD_HARM   ;
     if (object == OBJECT_DESTROY) harmLevel = EXTREME_HARM;
-    
-    //  In the case of actors, subtract the actor's willingness to kill and add
-    //  the urge to protect another.
-    //  TODO:  Include effects of honour!
-    if (isActor) {
-      final float empathy = 1f + actor.traits.relativeLevel(EMPATHIC);
-      modifier -= ROUTINE * empathy * harmLevel;
-      ///if (report) I.say("\n  Empathy for target: "+empathy);
-      final float hostility = Plan.hostilityOf((Actor) target, actor, false);
-      modifier += PARAMOUNT * hostility;
-      ///if (report) I.say("  Hostility of target: "+hostility);
-      //final float unarmed = 1f - hostility;
-      //modifier -= ROUTINE * actor.traits.relativeLevel(HONOURABLE) * unarmed;
-    }
-    if (! actor.gear.armed()) modifier -= ROUTINE;
-    
+
+    final boolean melee = actor.gear.meleeWeapon();
+    final float appeal = CombatUtils.combatValue(subject, actor, harmLevel);
+
     final float priority = priorityForActorWith(
-      actor, target, Visit.clamp(ROUTINE + modifier, 0, PARAMOUNT),
+      actor, subject, appeal,
       harmLevel, FULL_COOPERATION,
       melee ? MELEE_SKILLS : RANGED_SKILLS, BASE_TRAITS,
-      modifier, NORMAL_DISTANCE_CHECK, REAL_FAIL_RISK,
+      0, NORMAL_DISTANCE_CHECK, REAL_FAIL_RISK,
       report
     );
-    if (report) {
-      I.say("  Victim was: "+victim);
-      I.say("  Modifier was: "+modifier);
-      I.say("  Final combat priority: "+priority);
-    }
-    return priority;
+    //  TODO:  Restore some of the code below.
+    
+    if (priority <= 0) return 0;
+    if (actor.senses.isEndangered()) return priority + PARAMOUNT;
+    else return priority;
   }
   
   
   protected float successChance() {
-    float danger;
+    float danger = 0;
     
-    if (target instanceof Actor) {
-      final Actor struck = (Actor) target;
-      danger = CombatUtils.dangerAtSpot(target, actor, struck);
-    }
-    else if (target instanceof Venue) {
-      final Venue struck = (Venue) target;
-      danger = CombatUtils.dangerAtSpot(struck, actor, null);
-    }
-    else danger = CombatUtils.dangerAtSpot(target, actor, null) / 2;
-    
-    final float chance = Visit.clamp(1 - danger, 0.1f, 0.9f);
-    return chance;
-  }
-  
-  
-  public static boolean isDowned(Element subject, int object) {
     if (subject instanceof Actor) {
       final Actor struck = (Actor) subject;
-      if (object == OBJECT_DESTROY) return ! struck.health.alive();
-      return ! struck.health.conscious();
+      danger += CombatUtils.powerLevelRelative(struck, actor);
     }
-    if (subject instanceof Venue)
-      return ((Venue) subject).structure.destroyed();
-    return false;
+    danger += actor.base().dangerMap.sampleAt(subject);
+    
+    return Visit.clamp(1 - danger, 0.1f, 0.9f);
   }
   
   
   public boolean valid() {
-    if (target instanceof Mobile && ((Mobile) target).indoors()) return false;
+    if (subject instanceof Mobile && ((Mobile) subject).indoors()) {
+      return false;
+    }
     return super.valid();
   }
   
@@ -192,21 +158,23 @@ public class Combat extends Plan implements Qualities {
     //
     //  This might need to be tweaked in cases of self-defence, where you just
     //  want to see off an attacker.
-    if (isDowned(target, object)) {
+    if (CombatUtils.isDowned(subject, object)) {
       if (report) I.say("COMBAT COMPLETE");
       return null;
     }
-
-    Target struck = CombatUtils.bestTarget(actor, this.target, true);
-    if (struck == null) struck = this.target;
+    
+    Target struck = CombatUtils.bestTarget(actor, subject, true, harmFactor());
+    if (struck == null) struck = subject;
+    
+    //  Consider using any special combat-based techniques.
+    final Action technique = Technique.pickCombatAction(actor, struck, this);
+    if (technique != null) return technique;
     
     Action strike = null;
-    final DeviceType DT = actor.gear.deviceType();
-    final boolean melee = actor.gear.meleeWeapon();
-    final boolean razes = struck instanceof Venue;
-    final float danger = CombatUtils.dangerAtSpot(
-      actor.origin(), actor, razes ? null : (Actor) struck
-    );
+    final DeviceType DT  = actor.gear.deviceType();
+    final boolean melee  = actor.gear.meleeWeapon();
+    final boolean razes  = struck instanceof Venue;
+    final float   danger = actor.senses.fearLevel();
     
     final String strikeAnim = DT == null ? Action.STRIKE : DT.animName;
     if (razes) {
@@ -226,8 +194,8 @@ public class Combat extends Plan implements Qualities {
     
     //  Depending on the type of target, and how dangerous the area is, a bit
     //  of dancing around may be in order.
-    if (melee) configMeleeAction(strike, razes, danger);
-    else configRangedAction(strike, razes, danger);
+    if (melee) configMeleeAction (strike, razes, danger);
+    else       configRangedAction(strike, razes, danger);
     return strike;
   }
   
@@ -315,7 +283,7 @@ public class Combat extends Plan implements Qualities {
   }
   
   
-  static void performStrike(
+  public static void performStrike(
     Actor actor, Actor target,
     Skill offence, Skill defence,
     boolean subdue
@@ -357,11 +325,11 @@ public class Combat extends Plan implements Qualities {
       //  TODO:  Allow for wear and tear to weapons/armour over time...
     }
     
-    DeviceType.applyFX(actor.gear.deviceType(), actor, target, success);
+    CombatFX.applyFX(actor.gear.deviceType(), actor, target, success);
   }
   
   
-  static void performSiege(
+  public static void performSiege(
     Actor actor, Venue besieged
   ) {
     final boolean report = damageVerbose && I.talkAbout == actor;
@@ -386,7 +354,7 @@ public class Combat extends Plan implements Qualities {
     if (report) I.say("Armour/Damage: "+armour+"/"+damage);
     
     if (damage > 0) besieged.structure.takeDamage(damage);
-    DeviceType.applyFX(actor.gear.deviceType(), actor, besieged, true);
+    CombatFX.applyFX(actor.gear.deviceType(), actor, besieged, true);
   }
   
   
@@ -398,7 +366,7 @@ public class Combat extends Plan implements Qualities {
   
   public void describeBehaviour(Description d) {
     d.append("In combat with ");
-    d.append(target);
+    d.append(subject);
   }
 }
 

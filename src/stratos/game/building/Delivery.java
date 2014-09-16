@@ -9,9 +9,9 @@ package stratos.game.building;
 import stratos.game.actors.*;
 import stratos.game.base.Suspensor;
 import stratos.game.building.Inventory.Owner;
+import stratos.game.civilian.Pledge;
 import stratos.game.common.*;
 import stratos.util.*;
-
 import static stratos.game.building.Economy.*;
 
 
@@ -191,7 +191,7 @@ public class Delivery extends Plan {
         if (Visit.arrayIncludes(ALL_FOOD_TYPES, i.type)) foodVal += i.amount;
       }
       if (price > actor.gear.credits()) return 0;
-      modifier -= Plan.greedLevel(actor, price) * ROUTINE;
+      modifier -= Pledge.greedLevel(actor, price) * ROUTINE;
       modifier += actor.health.hungerLevel() * CASUAL * foodVal;
     }
     

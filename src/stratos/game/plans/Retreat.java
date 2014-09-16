@@ -68,13 +68,23 @@ public class Retreat extends Plan implements Qualities {
   /**  Evaluation of priority and targets--
     */
   //  TODO:  Possibly get rid of these?
-  final Skill BASE_SKILLS[] = { };  //  TODO:  Include speed in calculation
+  final Skill BASE_SKILLS[] = { ATHLETICS, STEALTH_AND_COVER };
   final Trait BASE_TRAITS[] = { NERVOUS };
   
   
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
     
+    
+    float appeal = 0;
+    //  Only return positive appeal in the case of an emergency (you are under
+    //  direct attack, or formal enemies are near.)
+    
+    
+    
+    if (appeal <= 0) return 0;
+    return appeal + PARAMOUNT;
+    /*
     //  Make retreat more attractive the further you are from home, and the
     //  more dangerous the area is-
     float
@@ -102,6 +112,7 @@ public class Retreat extends Plan implements Qualities {
       I.say("  Retreat priority is: "+priority);
     }
     return priority;
+    //*/
   }
   
   
@@ -118,6 +129,7 @@ public class Retreat extends Plan implements Qualities {
     final Presences presences = actor.world().presences;
     
     final Batch <Target> considered = new Batch <Target> ();
+    
     considered.add(presences.nearestMatch(Venue.class, actor, -1));
     considered.add(presences.nearestMatch(Economy.SERVICE_REFUGE, actor, -1));
     considered.add(pickWithdrawPoint(
@@ -178,12 +190,15 @@ public class Retreat extends Plan implements Qualities {
   ) {
     final boolean report = havenVerbose && I.talkAbout == actor;
     
+    //  TODO:  Make this a little more detailed.
+    
+    return Spacing.pickRandomTile(actor, range, actor.world());
+    /*
     final Tile o = from == null ? actor.origin() : actor.world().tileAt(from);
     final Vec2D off = new Vec2D();
     final float salt = Rand.num();
-    
-    final Series <Target> seen = actor.senses.awareOf();
-    final float threats[] = new float[seen.size()];
+    //final Series <Target> seen = actor.senses.awareOf();
+    //final float threats[] = new float[seen.size()];
     
     int i = 0; for (Target s : seen) {
       threats[i++] = CombatUtils.threatTo(actor, s, 0, report);
@@ -212,6 +227,7 @@ public class Retreat extends Plan implements Qualities {
     }
     
     return pick;
+    //*/
   }
   
   

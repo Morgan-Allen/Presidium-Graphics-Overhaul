@@ -71,8 +71,20 @@ public class FadingMap implements TileConstants {
   }
   
   
+  
+  /**  Sampling methods-
+    */
+  private Vec3D sampled = new Vec3D();
+  
+  
   public float sampleAt(float x, float y) {
     return Visit.sampleMap(world.size, averages, x, y) / patchSize;
+  }
+  
+  
+  public float sampleAt(Target t) {
+    final Vec3D v = t.position(sampled);
+    return sampleAt(v.x, v.y);
   }
   
   

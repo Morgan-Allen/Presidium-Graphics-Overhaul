@@ -3,26 +3,14 @@
 package stratos.game.actors;
 
 import stratos.game.common.*;
+import stratos.game.plans.Combat;
+import stratos.game.plans.CombatUtils;
 import stratos.game.tactical.*;
 import stratos.game.building.*;
 import stratos.util.*;
 import stratos.game.common.Session.Saveable;
+
 import java.util.Map.Entry;
-
-
-
-//
-//  ...You need to be able to lose track of distant objects, based on stealth
-//  values.
-//
-//  ...This makes distant objects almost impossible to maintain consistent
-//  tracking of, though.
-//  Maybe... just for mobiles.  Or the stealthed.
-
-//  But then... how do you lose track of the venues?
-
-//  Wait.  If it's the current focus of your attention, reduce stealth value
-//  by 0.5f, and boost noticeRange.  Aha!  Cool!
 
 
 
@@ -37,8 +25,12 @@ public class Senses implements Qualities {
     sightVerbose  = false;
   
   final Actor actor;
-  final Table <Target, Saveable> seen = new Table();
-  final Batch <Target> seenBatch = new Batch();
+  final Table <Target, Saveable> awares = new Table();
+  final Batch <Target> awareOf = new Batch();
+
+  private boolean emergency ;
+  private float   powerLevel;
+  private float   fearLevel ;
   
   
   protected Senses(Actor actor) {
@@ -49,18 +41,24 @@ public class Senses implements Qualities {
   public void loadState(Session s) throws Exception {
     for (int n = s.loadInt(); n-- > 0;) {
       final Target e = s.loadTarget();
-      seen.put(e, s.loadObject());
-      seenBatch.add(e);
+      awares.put(e, s.loadObject());
+      awareOf.add(e);
     }
+    emergency  = s.loadBool ();
+    powerLevel = s.loadFloat();
+    fearLevel  = s.loadFloat();
   }
   
   
   public void saveState(Session s) throws Exception {
-    s.saveInt(seen.size());
-    for (Target e : seen.keySet()) {
+    s.saveInt(awares.size());
+    for (Target e : awares.keySet()) {
       s.saveTarget(e);
-      s.saveObject(seen.get(e));
+      s.saveObject(awares.get(e));
     }
+    s.saveBool (emergency );
+    s.saveFloat(powerLevel);
+    s.saveFloat(fearLevel );
   }
   
   
@@ -68,14 +66,10 @@ public class Senses implements Qualities {
   
   /**  Dealing with seen objects and reactions to them-
     */
-  protected void updateSeen() {
-    
-    final boolean report = reactVerbose && I.talkAbout == actor;
+  protected Batch <Target> toNotice(float range) {
+    final Batch <Target> noticed = new Batch <Target> ();
     final World world = actor.world();
-    final Batch <Target> unseen = new Batch(), noticed = new Batch();
-    final float range = actor.health.sightRange();
-    if (report) I.say("\nUpdating seen, sight range: "+range);
-    
+    //
     //  Automatically include home, work, anyone actively targeting you, and
     //  anything you target.
     noticed.include(actor.mind.home);
@@ -84,8 +78,8 @@ public class Senses implements Qualities {
       if (b instanceof Action) noticed.include(((Action) b).actor);
     }
     noticed.include(actor.focusFor(null));
-    
-    //  Add anything newly within range-
+    //
+    //  And add anything newly within range-
     final float percept = actor.traits.traitLevel(PERCEPT);
     final int reactLimit = (int) (2.5f + (percept / 5));
     int reactCount = 0;
@@ -98,129 +92,55 @@ public class Senses implements Qualities {
       Mobile.class,
       Venue.class
     );
-    
-    //  Check for anything new, and react to it.
+    return noticed;
+  }
+  
+  
+  protected Choice getReactions(Batch <Target> toNotice, float range) {
     final Choice reactions = new Choice(actor);
-    for (Target e : noticed) pushAwareness(e, range, reactions);
+    
+    for (Target e : toNotice) if (notices(e, range)) {
+      final Session.Saveable after = reactionKey(e), before = awares.get(e);
+      if (before != after) {
+        actor.mind.addReactions(e, reactions);
+      }
+      e.flagWith(this);
+      awares.put(e, after);
+    }
+    //
+    //  Remove anything old.
+    final Batch <Target> unseen = new Batch <Target> ();
+    for (Target e : awares.keySet()) {
+      if (e.flaggedWith() == this) {
+        e.flagWith(null);
+        continue;
+      }
+      if (! notices(e, range)) unseen.add(e);
+    }
+    for (Target e : unseen) awares.remove(e);
+    
+    return reactions;
+  }
+  
+  
+  protected void updateSenses() {
+    final boolean report = reactVerbose && I.talkAbout == actor;
+    final float range = actor.health.sightRange();
+    if (report) I.say("\nUpdating seen, sight range: "+range);
+    //
+    //  Check for anything new, and react to it.  Then cull anything that's
+    //  escaped the actor's field of vision, and update the list of seen items.
+    final Batch <Target> toNotice = toNotice(range);
+    final Choice reactions = getReactions(toNotice, range);
+    awareOf.clear();
+    for (Target e : awares.keySet()) awareOf.add(e);
+    //
+    //
+    updateDangerEval(awareOf);
     final Behaviour reaction = reactions.pickMostUrgent();
     if (actor.mind.wouldSwitchTo(reaction)) {
       actor.mind.assignBehaviour(reaction);
     }
-    
-    //  Remove anything old.
-    for (Entry <Target, Saveable> entry : seen.entrySet()) {
-      final Target e = entry.getKey();
-      if (! notices(e, range)) unseen.add(e);
-    }
-    for (Target e : unseen) {
-      if (report) I.say("  No longer visible: "+e);
-      seen.remove(e);
-    }
-    
-    //  Finally, compile a list of everything seen for easy iteration-
-    seenBatch.clear();
-    for (Target e : seen.keySet()) {
-      seenBatch.add(e);
-    }
-  }
-  
-  
-  public void pushAwareness(Target e, float sightRange, Choice reactions) {
-    if (e == null) return;
-    if (sightRange > 0 && ! notices(e, sightRange)) return;
-    
-    final boolean report = reactVerbose && I.talkAbout == actor;
-    final Session.Saveable after = reactionKey(e), before = seen.get(e);
-    
-    if (report) I.say("Before/after keys for "+e+" are "+before+"/"+after);
-    if (before != after) {
-      if (report && before == null) I.say("  Have just seen: "+e);
-      if (report) I.say("  Reacting to: "+e);
-      if (reactions != null) actor.mind.addReactions(e, reactions);
-    }
-    seen.put(e, after);
-  }
-  
-  
-  private boolean notices(Target e, float sightRange) {
-    if (e == actor) return false;
-    final boolean report = noticeVerbose && I.talkAbout == actor;
-    
-    final float hostility = Plan.hostilityOf(e, actor, false);
-    if (hostility > 0) sightRange *= 1 + hostility;
-    
-    final float distance = Spacing.distance(e, actor);
-    final Base base = actor.base();
-    final float fog = base.primal ?
-      Visit.clamp(2 - (distance / sightRange), 0, 1):
-      base.intelMap.fogAt(e);
-    if (fog == 0) {
-      if (report) {
-        I.say("\nTarget is in fog: "+e+"");
-        I.say("  Distance/sight range: "+distance+"/"+sightRange);
-      }
-      return false;
-    }
-    
-    //  Decide on the basic stats for evaluation-
-    final boolean
-      seen = this.seen.get(e) != null,
-      focus = actor.focusFor(null) == e;
-    final float
-      stealth = stealthFactor(e, actor);
-    float
-      senseFactor = sightRange * fog,
-      hideFactor = distance;
-    
-    //  The target is easier to spot if they're your current focus, or if
-    //  they've already been seen.
-    if (seen) senseFactor += sightRange;
-    if (focus) {
-      //  NOTE:  Hide factor needs to go down to zero in order for long-range
-      //  behaviours to work.  Hence, the pure multiply with stealth (if 0.)
-      senseFactor += sightRange;
-      hideFactor *= stealth;
-    }
-    else hideFactor *= 0.5f + stealth;
-    
-    //  Anything focused on you is easier to spot, and indoor targets aren't.
-    if (e instanceof Mobile) {
-      if (((Mobile) e).indoors()) senseFactor /= 2;
-    }
-    if (e instanceof Actor) {
-      if (((Actor) e).focusFor(null) == actor) senseFactor *= 2;
-    }
-    
-    //  Summarise and return-
-    final float noticeChance = senseFactor / (hideFactor + senseFactor);
-    final boolean success = Rand.num() < noticeChance;
-    if (report) {
-      I.say("  Checking to notice: "+e+", chance: "+noticeChance);
-      I.say("    Distance/stealth: "+distance+"/"+stealth);
-      I.say("    Seen/is focus: "+seen+"/"+focus);
-      I.say("    Sense/hide factors: "+senseFactor+"/"+hideFactor);
-      I.say("    Success: "+success);
-    }
-    return success;
-  }
-  
-  
-  public static float stealthFactor(Target e, Actor looks) {
-    
-    if (e instanceof Actor) {
-      final Actor a = (Actor) e;
-      if (a.base() == looks.base()) return 0;
-      float stealth = a.traits.useLevel(STEALTH_AND_COVER) / 20f;
-      stealth += a.health.baseSpeed() / Action.moveRate(a, false);
-      return stealth;
-    }
-    
-    if (e instanceof Installation) {
-      final Installation i = (Installation) e;
-      return i.structure().cloaking() / 10f;
-    }
-    
-    return 0;
   }
   
   
@@ -241,19 +161,119 @@ public class Senses implements Qualities {
   }
   
   
+  private boolean notices(Target e, final float sightRange) {
+    final boolean report = noticeVerbose && I.talkAbout == actor;
+    if (e == null || e == actor) return false;
+    
+    final float distance = Spacing.distance(e, actor);
+    final Base  base     = actor.base();
+    final float fog      = base.intelMap.fogAt(e);
+    if (fog <= 0) return false;
+    
+    float senseChance = sightRange * fog;
+    if (awareOf(e)) senseChance *= 2;
+    if (focusedOn(actor, e)) senseChance += sightRange;
+    senseChance *= Rand.saltFrom(actor.world().tileAt(e));
+    
+    float hideChance = distance * (1 + stealthFactor(e, actor));
+    if (focusedOn(e, actor)) hideChance /= 2;
+    if (indoors(e)) hideChance += sightRange;
+    hideChance *= Rand.saltFrom(actor.origin());
+
+    if (report) {
+      I.say("  Checking to notice: "+e);
+      I.say("    Distance/fog: "+distance+"/"+fog);
+      I.say("    Sense/hide chance: "+senseChance+"/"+hideChance);
+    }
+    
+    return senseChance > hideChance;
+  }
+  
+  
+  private boolean indoors(Target e) {
+    if (! (e instanceof Mobile)) return false;
+    final Mobile m = (Mobile) e;
+    if ((! m.indoors()) || m.aboard() == actor.aboard()) return false;
+    return true;
+  }
+  
+  
+  private boolean focusedOn(Target e, Target other) {
+    if (! (e instanceof Actor)) return false;
+    return ((Actor) e).focusFor(null) == other;
+  }
+  
+  
+  private float stealthFactor(Target e, Actor looks) {
+    
+    if (e instanceof Actor) {
+      final Actor a = (Actor) e;
+      if (a.base() == looks.base()) return 0;
+      float stealth = a.traits.useLevel(STEALTH_AND_COVER) / 20f;
+      stealth += a.health.baseSpeed() / Action.moveRate(a, false);
+      return stealth;
+    }
+    
+    if (e instanceof Installation) {
+      return ((Installation) e).structure().cloaking() / 10f;
+    }
+    return 0;
+  }
+  
+  
   public boolean awareOf(Target e) {
-    return seen.get(e) != null;
+    return awares.get(e) != null;
   }
   
   
   public boolean hasSeen(Target e) {
-    return seen.get(e) != null;
+    return awares.get(e) != null;
   }
   
   
   public Batch <Target> awareOf() {
-    return seenBatch;
+    return awareOf;
   }
+  
+  
+  
+  /**  Threat Evaluation methods-
+    */
+  protected void updateDangerEval(Batch <Target> awareOf) {
+    
+    powerLevel = CombatUtils.powerLevel(actor);
+    float sumAllies = 1, sumFoes = 0;
+    
+    for (Target t : awareOf) if (t instanceof Actor) {
+      final Actor near = (Actor) t;
+      
+      if (CombatUtils.isHostileTo(actor, near)) {
+        emergency = true;
+        sumFoes += CombatUtils.powerLevelRelative(actor, near);
+      }
+      else if (CombatUtils.isAllyOf(actor, near)) {
+        sumAllies += near.senses.powerLevel() * 2 / (1 + powerLevel);
+      }
+    }
+    
+    fearLevel = sumFoes / (sumFoes + sumAllies);
+  }
+  
+  
+  public boolean isEndangered() {
+    return emergency;
+  }
+  
+  
+  public float powerLevel() {
+    return powerLevel;
+  }
+  
+  
+  public float fearLevel() {
+    return fearLevel;
+  }
+  
   
   
   
@@ -338,5 +358,7 @@ public class Senses implements Qualities {
     return ! blocked;
   }
 }
+
+
 
 

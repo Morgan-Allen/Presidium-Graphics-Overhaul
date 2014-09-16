@@ -5,14 +5,11 @@
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.building.*;
-import stratos.game.civilian.Employer;
+import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
-import stratos.game.tactical.*;
 import stratos.game.building.Inventory.Owner;
-import stratos.user.*;
 import stratos.util.*;
-
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.building.Economy.*;
 
@@ -112,7 +109,7 @@ public class Resting extends Plan {
     //  Include pricing effects-
     if (cost > 0) {
       if (cost > actor.gear.credits() / 2) urgency -= ROUTINE;
-      urgency -= Plan.greedLevel(actor, cost) * ROUTINE;
+      urgency -= Pledge.greedLevel(actor, cost) * ROUTINE;
     }
     
     final float priority = priorityForActorWith(

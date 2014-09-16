@@ -77,8 +77,8 @@ public class ActorHealth implements Qualities {
     MORALE_DECAY_PER_DAY = 0.33f,
     INJURY_REGEN_PER_DAY = 0.33f,
     
-    MAX_PSY_MULTIPLE = 10,
-    PSY_REGEN_TIME   = World.STANDARD_DAY_LENGTH / 2;
+    MAX_CONCENTRATE_MULTIPLE = 10,
+    CONCENTRATE_REGEN_TIME   = World.STANDARD_HOUR_LENGTH;
   
   
   final Actor actor;
@@ -104,8 +104,9 @@ public class ActorHealth implements Qualities {
   private boolean
     bleeds = false;
   private float
-    morale    = 0,
-    psyPoints = 0;
+    morale        = 0,
+    concentration = 0;
+  //  TODO:  Action limit and need for sleep.
   
   private int
     state    = STATE_ACTIVE;
@@ -141,7 +142,7 @@ public class ActorHealth implements Qualities {
     fatigue   = s.loadFloat();
     bleeds    = s.loadBool ();
     morale    = s.loadFloat();
-    psyPoints = s.loadFloat();
+    concentration = s.loadFloat();
     
     state = s.loadInt();
   }
@@ -165,7 +166,7 @@ public class ActorHealth implements Qualities {
     s.saveFloat(fatigue  );
     s.saveBool (bleeds   );
     s.saveFloat(morale   );
-    s.saveFloat(psyPoints);
+    s.saveFloat(concentration);
     
     s.saveInt(state);
   }
@@ -253,13 +254,13 @@ public class ActorHealth implements Qualities {
   }
   
   
-  public int agingStage()    { return Visit.clamp((int) (ageLevel() * 4), 4); }
-  public float ageLevel()    { return currentAge * 1f / lifespan; }
-  public boolean juvenile()  { return agingStage() <= AGE_JUVENILE; }
-  public int exactAge()      { return (int) currentAge; }
-  public String agingDesc()  { return AGING_DESC[agingStage()]; }
-  public float ageMultiple() { return ageMultiple; }
-  public float lifespan()    { return lifespan; }
+  public int     agingStage () { return Visit.clamp((int) (ageLevel() * 4), 4); }
+  public float   ageLevel   () { return currentAge * 1f / lifespan; }
+  public boolean juvenile   () { return agingStage() <= AGE_JUVENILE; }
+  public int     exactAge   () { return (int) currentAge; }
+  public String  agingDesc  () { return AGING_DESC[agingStage()]; }
+  public float   ageMultiple() { return ageMultiple; }
+  public float   lifespan   () { return lifespan; }
   
   public float caloryLevel() { return calories / maxHealth; }
   
@@ -323,7 +324,6 @@ public class ActorHealth implements Qualities {
     fatigue += taken;
     final float max = maxHealth * MAX_FATIGUE;
     if (conscious()) morale -= taken * 0.5f / max;
-    //if (fatigue > max) fatigue = max;
   }
   
   
@@ -338,8 +338,15 @@ public class ActorHealth implements Qualities {
   }
   
   
-  public void adjustPsy(float adjust) {
-    psyPoints += adjust;
+  public void takeConcentration(float taken) {
+    if (taken <= 0) return;
+    concentration -= taken;
+  }
+  
+  
+  public void gainConcentration(float gains) {
+    if (gains <= 0) return;
+    concentration += gains;
   }
   
   
@@ -426,16 +433,21 @@ public class ActorHealth implements Qualities {
   }
   
   
-  public float maxPsy() {
-    final float
-      psyLevel = Math.abs(actor.traits.traitLevel(PSYONIC)),
-      maxPsy = (float) Math.sqrt(psyLevel) * MAX_PSY_MULTIPLE;
-    return maxPsy == 0 ? 0 : (maxPsy + (MAX_PSY_MULTIPLE / 2));
+  public float fatigueLimit() {
+    return maxHealth - fatigue;
   }
   
   
-  public float psyPoints() {
-    return psyPoints;
+  public float maxConcentration() {
+    final float
+      psyLevel = Math.abs(actor.traits.traitLevel(PSYONIC)),
+      maxPsy = (float) Math.sqrt(psyLevel) * MAX_CONCENTRATE_MULTIPLE;
+    return maxPsy == 0 ? 0 : (maxPsy + (MAX_CONCENTRATE_MULTIPLE / 2));
+  }
+  
+  
+  public float concentration() {
+    return concentration;
   }
   
   
@@ -570,7 +582,8 @@ public class ActorHealth implements Qualities {
   
   
   private void updateStresses() {
-    
+    final boolean report = verbose && I.talkAbout == actor;
+    //
     //  Inorganic targets get a different selection of perks and drawbacks-
     if (state >= STATE_SUSPEND || ! organic()) {
       bleeds = false;
@@ -579,7 +592,7 @@ public class ActorHealth implements Qualities {
       fatigue = Visit.clamp(fatigue - fatigueRegen, 0, maxHealth);
       return;
     }
-    
+    //
     //  Regeneration rates differ during sleep-
     final float DL = World.STANDARD_DAY_LENGTH;
     float MM = 1, FM = 1, IM = 1, PM = 1;
@@ -604,28 +617,25 @@ public class ActorHealth implements Qualities {
     }
     fatigue += FATIGUE_GROW_PER_DAY * baseSpeed * maxHealth * FM / DL;
     fatigue = Visit.clamp(fatigue, 0, MAX_FATIGUE * maxHealth);
-    injury = Visit.clamp(injury, 0, MAX_DECOMP * maxHealth);
-    
+    injury  = Visit.clamp(injury , 0, MAX_DECOMP  * maxHealth);
+    //
     //  Have morale converge to a default based on the cheerful trait and
     //  current stress levels.
     final float
-      stress = stressPenalty(),
+      stress        = stressPenalty(),
       defaultMorale = actor.traits.traitLevel(POSITIVE) / 10f,
-      moraleInc = MORALE_DECAY_PER_DAY * MM / DL;
+      moraleInc     = MORALE_DECAY_PER_DAY * MM / DL;
     morale = (morale * (1 - moraleInc)) + (defaultMorale * moraleInc);
     morale -= stress / DL;
-    
-    if (verbose && I.talkAbout == actor) {
-      float descL = 0 - morale / MAX_MORALE;
-      I.say("Morale is: "+morale+", desc level: "+descL);
-      I.say("Descriptor: "+Trait.descriptionFor(Qualities.POOR_MORALE, descL));
-      I.say("Current descriptor: "+moraleDesc());
-    }
-    
+    //
     //  Last but not least, update your psy points-
-    final float maxPsy = maxPsy();
-    psyPoints += maxPsy * (1 - stress) * PM / PSY_REGEN_TIME;
-    psyPoints = Visit.clamp(psyPoints, 0, maxPsy);
+    final float maxCon = maxConcentration();
+    concentration += maxCon * (1 - stress) * PM / CONCENTRATE_REGEN_TIME;
+    concentration = Visit.clamp(concentration, 0, maxCon);
+
+    if (report) {
+      I.say("Stresses updated...");
+    }
   }
   
   

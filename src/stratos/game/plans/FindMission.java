@@ -125,6 +125,11 @@ public class FindMission extends Plan {
   
   protected Behaviour getNextStep() {
     
+    if (mission.finished()) {
+      abortBehaviour();
+      return null;
+    }
+    
     boolean canJoin = false;
 
     //  TODO:  This needs to be a generalised rally point.

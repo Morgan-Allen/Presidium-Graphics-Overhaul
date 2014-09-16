@@ -4,17 +4,18 @@
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.building.*;
+import stratos.game.civilian.Pledge;
 import stratos.game.common.*;
 import stratos.user.*;
 import stratos.util.*;
-
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.building.Economy.*;
 
 
 //  Purchase commodities for home.
 //  Purchase a device/weapon, or outfit/armour.
-//  Purchase rations, fuel cells or a medkit.
+//  Purchase rations, fuel cells, ammo or medkits.
+
 
 public class Commission extends Plan {
   
@@ -29,7 +30,7 @@ public class Commission extends Plan {
   final Venue shop;
   
   private Manufacture order = null;
-  private float price = -1;
+  private float price     = -1;
   private float orderDate = -1;
   private boolean delivered = false;
   
@@ -136,8 +137,12 @@ public class Commission extends Plan {
     final float price = calcPrice();
     if (price > actor.gear.credits()) return 0;
     
-    float greed = Plan.greedLevel(actor, price / ITEM_WEAR_DURATION) * ROUTINE;
+    float greed = Pledge.greedLevel(actor, price / ITEM_WEAR_DURATION) * ROUTINE;
     float modifier = NO_MODIFIER + item.quality - greed;
+    
+    //  TODO:  You also need to purchase replacements for weapons that are
+    //  damaged or out of ammo or power cells (at half normal cost.)
+    
     
     final float priority = priorityForActorWith(
       actor, shop, CASUAL,
@@ -169,7 +174,7 @@ public class Commission extends Plan {
   
   private boolean expired() {
     if (orderDate == -1) return false;
-    final int maxTime = World.STANDARD_DAY_LENGTH * 10;
+    final int maxTime = World.STANDARD_DAY_LENGTH * 2;
     if (actor.world().currentTime() - orderDate > maxTime) return true;
     final boolean
       ongoing = shop.stocks.specialOrders().includes(order),

@@ -196,22 +196,17 @@ public class Action implements Behaviour, AnimNames {
   
   /**  Helper methods for dealing with motion-
     */
-  //*
-  public static float moveRate(
-    Actor actor, boolean basic
-  ) {
-    final boolean report = false && verbose && I.talkAbout == actor;
-    if (report) I.say("Deciding on motion rate:");
+  //  TODO:  This should possibly be moved back out to the Health clas.
+  public static float moveRate(Actor actor, boolean basic) {
+    
     int motionType = MOTION_NORMAL; for (Behaviour b : actor.mind.agenda) {
       final int MT = b.motionType(actor);
-      if (report) I.say("  Type is: "+MT);
       if (MT != MOTION_ANY) { motionType = MT; break; }
     }
-    if (report) I.say("  Result:  "+motionType);
 
     float rate = actor.health.baseSpeed();
-    if (motionType == MOTION_SNEAK) rate /= 2;
-    else if (motionType == MOTION_FAST) rate *= 2;
+    if      (motionType == MOTION_SNEAK) rate /= 2;
+    else if (motionType == MOTION_FAST ) rate *= 2;
     
     if (basic) return rate;
     
@@ -226,8 +221,7 @@ public class Action implements Behaviour, AnimNames {
     
     return rate;
   }
-  //*/
-
+  
   
   public int motionType(Actor actor) {
     if (quick()  ) return MOTION_FAST ;
@@ -379,6 +373,7 @@ public class Action implements Behaviour, AnimNames {
       final float contact = contactTime();
       if (oldProgress <= contact && progress > contact) applyEffect();
     }
+    
     else if (moveState != STATE_INIT) {
       float speedUp = moveRate / actor.health.baseSpeed();
       speedUp = (1 + speedUp) / (2 * World.UPDATES_PER_SECOND);

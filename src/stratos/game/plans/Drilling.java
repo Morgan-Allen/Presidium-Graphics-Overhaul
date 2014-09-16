@@ -164,7 +164,7 @@ public class Drilling extends Plan {
     if (type == DrillYard.DRILL_RANGED || type == DrillYard.DRILL_MELEE) {
       final Target dummy = yard.dummyFor(actor);
       if (dummy == null) return true;
-      DeviceType.applyFX(actor.gear.deviceType(), actor, dummy, success);
+      CombatFX.applyFX(actor.gear.deviceType(), actor, dummy, success);
     }
     return true;
   }

@@ -131,11 +131,13 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     final World world = actor.world();
     Target stop = onPoint;
     if (report) I.say("Goes: "+onPoint+", post time: "+postTime);
-    
+    //
     //  First, check to see if there are any supplemental behaviours you could
     //  or should be performing (first aid, repairs, or defence.)
     final Choice choice = new Choice(actor);
-    final Target threat = CombatUtils.bestTarget(actor, onPoint, false);
+    final Target threat = CombatUtils.bestTarget(
+      actor, onPoint, false, Plan.REAL_HARM
+    );
     if (threat != null) {
       choice.add(new Combat(actor, (Element) threat));
     }
@@ -149,7 +151,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     }
     final Behaviour picked = choice.pickMostUrgent();
     if (picked != null) return picked;
-    
+    //
     //  If you're on sentry duty, check to see if you've spent long enough at
     //  your post.
     if (type == TYPE_SENTRY_DUTY) {
@@ -166,7 +168,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
         }
       }
     }
-    
+    //
     //  Otherwise, find the nearest free point to stand around the next point
     //  to guard, and proceed there.
     else {

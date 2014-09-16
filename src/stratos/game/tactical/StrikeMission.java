@@ -8,7 +8,7 @@ package stratos.game.tactical;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
-import stratos.game.plans.Combat;
+import stratos.game.plans.*;
 import stratos.graphics.widgets.HUD;
 import stratos.user.*;
 import stratos.util.*;
@@ -70,7 +70,7 @@ public class StrikeMission extends Mission {
   
   
   protected boolean shouldEnd() {
-    if (Combat.isDowned((Element) subject, objectIndex())) return true;
+    if (CombatUtils.isDowned((Element) subject, objectIndex())) return true;
     return false;
   }
   

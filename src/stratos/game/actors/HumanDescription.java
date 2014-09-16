@@ -94,7 +94,7 @@ public class HumanDescription implements Qualities {
     for (Item item : h.gear.allItems()) d.append("\n  "+item);
     d.append("\n  "+((int) h.gear.credits())+" Credits");
     
-    final int FC = (int) h.gear.fuelCells();
+    final int FC = (int) h.gear.powerCells();
     if (FC > 0) d.append("\n  Fuel Cells: "+FC);
   }
   

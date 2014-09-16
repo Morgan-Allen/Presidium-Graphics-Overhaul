@@ -6,11 +6,7 @@ import stratos.game.actors.*;
 import stratos.game.campaign.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
-import stratos.game.plans.Combat;
-import stratos.game.plans.Dialogue;
-import stratos.game.plans.DialogueUtils;
-import stratos.game.plans.FirstAid;
-import stratos.game.plans.Retreat;
+import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
 import stratos.start.*;
@@ -19,10 +15,9 @@ import stratos.util.*;
 
 
 
-//
 //  TODO:  Make this available to actors, once the feedback mechanism is in
-//  place(?)  (This will most likely require individual instancing.)
-
+//  place.  (This will most likely require individual instancing.)
+//  TODO:  Merge with Techniques for the purpose.
 
 
 public class Power implements Qualities {
@@ -97,6 +92,9 @@ public class Power implements Qualities {
     );
   
   
+  
+  //  TODO:  Move this into the actual technique.
+  
   public static void applyTimeDilation(float gameSpeed, Scenario scenario) {
     final Actor caster = scenario.base().ruler();
     if (caster == null || GameSettings.psyFree) return;
@@ -104,7 +102,7 @@ public class Power implements Qualities {
     final float
       bonus = caster.traits.useLevel(PROJECTION) / 10f,
       drain = 1f / ((1 + bonus) * PlayLoop.UPDATES_PER_SECOND * gameSpeed);
-    caster.health.adjustPsy(0 - drain);
+    caster.health.takeConcentration(drain);
     caster.skills.practiceAgainst(10, drain * 2, PROJECTION);
   }
   
@@ -117,9 +115,9 @@ public class Power implements Qualities {
     }
     //
     //  Restore psi points/fatigue/etc. and return to normal speed when done.
-    caster.health.adjustPsy(2 / PlayLoop.UPDATES_PER_SECOND);
+    caster.health.gainConcentration(2f / PlayLoop.UPDATES_PER_SECOND);
     PlayLoop.setNoInput(true);
-    if (caster.health.psyPoints() >= caster.health.maxPsy()) {
+    if (caster.health.concentration() >= caster.health.maxConcentration()) {
       PlayLoop.setGameSpeed(1);
       PlayLoop.setNoInput(false);
     }
@@ -134,7 +132,7 @@ public class Power implements Qualities {
       bonus = caster.traits.useLevel(PREMONITION) / 10,
       lastSave = Scenario.current().timeSinceLastSave(),
       boost = (lastSave / 1000f) * (0.5f + bonus);
-    caster.health.adjustPsy(boost);
+    caster.health.gainConcentration(boost);
     caster.skills.practiceAgainst(10, boost / 2, PREMONITION);
   }
   
@@ -146,7 +144,7 @@ public class Power implements Qualities {
     final float
       bonus = caster.traits.useLevel(PREMONITION) / 10,
       cost = 10f / (0.5f + bonus);
-    caster.health.adjustPsy(0 - cost);
+    caster.health.takeConcentration(cost);
     caster.skills.practiceAgainst(10, cost, PREMONITION);
   }
   
@@ -264,7 +262,7 @@ public class Power implements Qualities {
 
           float dist = (float) Math.sqrt(Spacing.distance(tile, caster));
           float cost = 10 * (1 + (dist / World.SECTOR_SIZE));
-          caster.health.adjustPsy(0 - cost);
+          caster.health.takeConcentration(cost);
           caster.skills.practiceAgainst(10, cost, PROJECTION);
         }
         
@@ -327,7 +325,7 @@ public class Power implements Qualities {
         if (caster != null && ! GameSettings.psyFree) {
           maxDist = 1 + (caster.traits.useLevel(TRANSDUCTION) / 10f);
           final float drain = 4f / PlayLoop.FRAMES_PER_SECOND;
-          caster.health.adjustPsy(0 - drain);
+          caster.health.takeConcentration(drain);
           caster.skills.practiceAgainst(10, drain, TRANSDUCTION);
         }
         maxDist *= 10f / PlayLoop.FRAMES_PER_SECOND;
@@ -367,7 +365,7 @@ public class Power implements Qualities {
           bonus = caster.traits.useLevel(TRANSDUCTION) / 2,
           cost = 5;
         subject.gear.boostShields(5 + bonus, false);
-        caster.health.adjustPsy(0 - cost);
+        caster.health.takeConcentration(cost);
         caster.skills.practiceAgainst(10, cost, TRANSDUCTION);
         return true;
       }
@@ -388,7 +386,7 @@ public class Power implements Qualities {
         float bonus = 1;
         if (caster != null && ! GameSettings.psyFree) {
           final float cost = 5;
-          caster.health.adjustPsy(0 - cost);
+          caster.health.takeConcentration(cost);
           bonus += caster.traits.useLevel(METABOLISM) / 2;
           caster.skills.practiceAgainst(10, cost, METABOLISM);
         }
@@ -422,7 +420,7 @@ public class Power implements Qualities {
         if (caster != null && ! GameSettings.psyFree) {
           bonus += caster.traits.useLevel(SYNESTHESIA) / 2;
           final float cost = 2.5f;
-          caster.health.adjustPsy(0 - cost);
+          caster.health.takeConcentration(cost);
           caster.skills.practiceAgainst(10, cost, SYNESTHESIA);
         }
         subject.traits.incLevel(KINESTHESIA_EFFECT, bonus * 2 / 10f);
@@ -494,7 +492,7 @@ public class Power implements Qualities {
         if (caster != null && ! GameSettings.psyFree) {
           final float cost = 5f;
           priorityMod += caster.traits.useLevel(SUGGESTION) / 5f;
-          caster.health.adjustPsy(0 - cost);
+          caster.health.takeConcentration(cost);
           caster.skills.practiceAgainst(10, cost, SYNESTHESIA);
           affects.relations.incRelation(caster, affinity, 0.1f);
         }

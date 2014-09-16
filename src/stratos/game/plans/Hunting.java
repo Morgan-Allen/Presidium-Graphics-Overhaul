@@ -207,7 +207,7 @@ public class Hunting extends Combat {
     if (type == TYPE_HARVEST) {
       final float carried = actor.gear.amountOf(PROTEIN);
       if (carried == 0 && ! prey.inWorld()) return null;
-      if (! isDowned(prey, object)) return super.getNextStep();
+      if (! CombatUtils.isDowned(prey, object)) return super.getNextStep();
       
       if (carried >= 5 || (prey.destroyed() && carried > 0)) {
         if (depot == null) return null;
@@ -240,7 +240,7 @@ public class Hunting extends Combat {
         return returns;
       }
       if (depot.inventory().hasItem(sample)) return null;
-      if (! isDowned(prey, object)) return super.getNextStep();
+      if (! CombatUtils.isDowned(prey, object)) return super.getNextStep();
       else {
         final Action samples = new Action(
           actor, prey,
@@ -257,7 +257,7 @@ public class Hunting extends Combat {
   
   public int motionType(Actor actor) {
     if (type == TYPE_SAMPLE && actor.gear.hasItem(sample())) return MOTION_ANY;
-    if (isDowned(prey, object)) return MOTION_ANY;
+    if (CombatUtils.isDowned(prey, object)) return MOTION_ANY;
     else if (prey.senses.awareOf(actor)) return MOTION_FAST;
     else if (actor.senses.awareOf(prey)) return MOTION_SNEAK;
     else return super.motionType(actor);

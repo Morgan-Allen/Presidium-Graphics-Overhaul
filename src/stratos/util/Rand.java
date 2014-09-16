@@ -22,6 +22,11 @@ public class Rand {
   final public static boolean yes() { return GEN.nextBoolean(); }
   final public static int index(int s) { return GEN.nextInt(s); }
   
+  
+  final public static float saltFrom(Object o) {
+    return (((o.hashCode() % 13) / 13f) + 1) % 1;
+  }
+  
   final public static float range(float min, float max) {
     return min + ((max - min) * GEN.nextFloat());
   }

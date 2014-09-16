@@ -70,8 +70,8 @@ public class ReconMission extends Mission {
   /**  Behaviour implementation-
     */
   public float priorityFor(Actor actor) {
-    final boolean report = true;// verbose && I.talkAbout == actor;
-    final Exploring exploring = new Exploring(actor, base, (Tile) subject);
+    final boolean report = verbose && I.talkAbout == actor;
+    final Exploring exploring = new Exploring(actor, base, (Tile) subject, 0);
     
     float priority = exploring.priorityFor(actor) + basePriority(actor);
     priority *= SETTING_AREAS[1] / exploreRadius();
@@ -118,7 +118,7 @@ public class ReconMission extends Mission {
       return null;
     }
     
-    final Exploring e = new Exploring(actor, base, lookedAt);
+    final Exploring e = new Exploring(actor, base, lookedAt, 0);
     return e;
   }
   

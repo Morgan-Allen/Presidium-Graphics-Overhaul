@@ -60,7 +60,7 @@ public class Personality {
     {AMBITIOUS, ENERGETIC, OUTGOING   }, {HUMBLE, RELAXED, SOLITARY      },
     {CREATIVE, CURIOUS, IMPULSIVE     }, {TRADITIONAL, IGNORANT, STUBBORN},
     {SUBVERSIVE, NATURALIST, INDULGENT}, {DUTIFUL, URBANE, ABSTINENT     },
-    {CRUEL, DISHONEST, ACQUISITIVE    }, {EMPATHIC, TRUTHFUL, GENEROUS   },
+    {CRUEL, DISHONEST, ACQUISITIVE    }, {EMPATHIC, ETHICAL, GENEROUS   },
     {DEFENSIVE, NERVOUS, CRITICAL     }, {CALM, FEARLESS, POSITIVE       },
     //                <vertical associations swap here>
     {           EXCITABLE             }, {          IMPASSIVE            }

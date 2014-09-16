@@ -1,6 +1,7 @@
 
 
 package stratos.game.plans;
+import stratos.game.civilian.Pledge;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.building.*;
@@ -267,11 +268,11 @@ public class Gifting extends Plan implements Qualities {
     }
     
     final float pricedAt = item.defaultPrice() / Relation.NOVELTY_DAYS;
-    rating += Plan.greedLevel(receives, pricedAt) * ROUTINE;
+    rating += Pledge.greedLevel(receives, pricedAt) * ROUTINE;
     if (report) I.say("  Rating for "+item+" is: "+rating);
     
     if (buys != null) {
-      rating /= 1 + (Plan.greedLevel(buys, pricedAt) * ROUTINE);
+      rating /= 1 + (Pledge.greedLevel(buys, pricedAt) * ROUTINE);
       if (report) I.say("    After pricing? "+rating);
     }
     return rating;

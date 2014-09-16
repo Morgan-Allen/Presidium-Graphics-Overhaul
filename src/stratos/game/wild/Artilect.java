@@ -166,7 +166,7 @@ public abstract class Artilect extends Actor {
     final Employer home = mind.home();
     Element guards = home == null ? this : (Element) home;
     final float distance = Spacing.distance(this, guards) / World.SECTOR_SIZE;
-    final float danger = CombatUtils.dangerAtSpot(this, this, null);
+    //final float danger = CombatUtils.dangerAtSpot(this, this, null);
     
     final Plan patrol = Patrolling.aroundPerimeter(this, guards, world);
     if (isDrone) {
@@ -192,7 +192,7 @@ public abstract class Artilect extends Actor {
       choice.add(assault);
     }
     if (
-      (isTripod || isCranial) && danger == 0 &&
+      (isTripod || isCranial) &&
       home.personnel().numResident(Species.SPECIES_CRANIAL) > 0
     ) {
       //  TODO:  Restore this later, once Cybrid creation is sorted out.
@@ -299,7 +299,7 @@ public abstract class Artilect extends Actor {
   public void updateAsScheduled(int numUpdates) {
     super.updateAsScheduled(numUpdates);
     final float fuelInc = 1f / FUEL_CELLS_REGEN;
-    if (isDoing(Resting.class, null)) gear.addFuelCells(fuelInc);
+    if (isDoing(Resting.class, null)) gear.incPowerCells(fuelInc);
   }
   
   

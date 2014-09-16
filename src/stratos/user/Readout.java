@@ -54,11 +54,11 @@ public class Readout extends UIGroup {
     //  And finally current psy points-
     final boolean ruled = played.ruler() != null;
     final ActorHealth RH = ruled ? played.ruler().health : null;
-    final int PS = ruled ? 2 * (int) RH.maxPsy() : 0;
+    final int PS = ruled ? 2 * (int) RH.maxConcentration() : 0;
     float psyPoints = 0;
     if (played.ruler() != null) {
-      psyPoints += played.ruler().health.psyPoints();
-      psyPoints *= PS / RH.maxPsy();
+      psyPoints += played.ruler().health.concentration();
+      psyPoints *= PS / RH.maxConcentration();
     }
     if (PS > 0 && psyPoints > 0) {
       read.append("   Psy Points: ");

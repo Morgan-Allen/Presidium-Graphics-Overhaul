@@ -241,7 +241,7 @@ public class Reactor extends Venue {
     final int PB = structure.upgradeLevel(QUALIA_WAVEFORM_INTERFACE);
     final Actor ruler = base().ruler();
     if (PB > 0 && ruler != null && ruler.aboard() instanceof Bastion) {
-      ruler.health.adjustPsy(PB / 100f);
+      ruler.health.gainConcentration(PB / 100f);
     }
     //
     //  Output pollution-

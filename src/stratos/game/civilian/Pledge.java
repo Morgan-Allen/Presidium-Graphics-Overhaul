@@ -3,6 +3,10 @@
 
 package stratos.game.civilian;
 import stratos.game.common.*;
+import stratos.game.actors.*;
+
+import org.apache.commons.math3.util.FastMath;
+
 
 
 /*
@@ -19,7 +23,6 @@ import stratos.game.common.*;
  *  Pardon or Arrest
  *  Truce, Allegiance or Fealty
  */
-
 public class Pledge implements Session.Saveable {
   
   
@@ -83,6 +86,25 @@ public class Pledge implements Session.Saveable {
     s.saveFloat(amount);
     s.saveObject(refers);
     s.saveObject((Session.Saveable) madeTo);
+  }
+  
+  
+  
+  /**  Utility methods for calculating the appeal of different motivations.
+    */
+  public static float greedLevel(Actor actor, float creditsPerDay) {
+    float baseUnit = actor.gear.credits();
+    final float greed = 1 + actor.traits.relativeLevel(Qualities.ACQUISITIVE);
+    
+    if (actor.base() != null) {
+      final Profile p = actor.base().profiles.profileFor(actor);
+      baseUnit += (100 + p.salary()) / 2f;
+    }
+    baseUnit /= 2f;
+    
+    float mag = 1f + (creditsPerDay / baseUnit);
+    mag = ((float) FastMath.log(2, mag)) * greed;
+    return mag;
   }
   
   

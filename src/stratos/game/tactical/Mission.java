@@ -219,7 +219,7 @@ public abstract class Mission implements
       rewardEval /= 1f + fill;
     }
     
-    float value = Plan.greedLevel(actor, (int) rewardEval) * ROUTINE;
+    float value = Pledge.greedLevel(actor, (int) rewardEval) * ROUTINE;
     return value;
   }
   

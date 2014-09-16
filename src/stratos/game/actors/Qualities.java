@@ -183,7 +183,7 @@ public interface Qualities {
     ACQUISITIVE = new Trait(PERSONALITY, "Acquisitive"),
     
     EMPATHIC    = new Trait(PERSONALITY, "Empathic"),
-    TRUTHFUL    = new Trait(PERSONALITY, "Truthful"),
+    ETHICAL     = new Trait(PERSONALITY, "Ethical"),
     GENEROUS    = new Trait(PERSONALITY, "Generous"),
     
     SUBVERSIVE  = new Trait(PERSONALITY, "Subversive"),
@@ -214,6 +214,7 @@ public interface Qualities {
     IMPASSIVE   = new Trait(PERSONALITY, "Impassive"),
     
     PERSONALITY_TRAITS[] = Personality.setupRelations(Trait.traitsSoFar()),
+    
     //
     //  These are the listings for physical traits.  Physical traits are
     //  determined at birth and cannot be modified (except perhaps surgically),

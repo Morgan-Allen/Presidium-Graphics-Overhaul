@@ -163,7 +163,7 @@ public class Choice implements Qualities {
   }
   
   
-  protected static boolean wouldSwitch(
+  public static boolean wouldSwitch(
     Actor actor, Behaviour last, Behaviour next, boolean stubborn
   ) {
     if (next == null) return false;
@@ -187,52 +187,6 @@ public class Choice implements Qualities {
     }
     return lastPriority < minPriority;
   }
-  
-  
-  
-  /**
-    */
-  //  TODO:  Make this a dedicated activity.
-  public static boolean couldJoinActivity(
-    Actor actor, Actor with, Plan basis, Plan copy
-  ) {
-    final Behaviour intended = actor.mind.nextBehaviour();
-    if (wouldSwitch(actor, copy, intended, true)) return false;
-    return true;
-  }
-  
-  /*
-  public static boolean assignedJointActivity(
-    Plan parent, Actor actor, Actor partner, float motiveBonus
-  ) {
-    final boolean report = true;// verbose && I.talkAbout == actor;
-    
-    final Behaviour b = actor.mind.nextBehaviour();
-    if (! (b instanceof Plan)) return false;
-    final Plan basis = (Plan) b;
-    if (basis.hasMotiveType(Plan.MOTIVE_DUTY)) return false;
-    
-    final Plan copy = basis.copyFor(partner);
-    if (copy == null) {
-      I.say("Warning: no copy of "+basis+" for "+partner);
-      return false;
-    }
-    if (parent != null) basis.setMotiveFrom(parent, 0);
-    copy.setMotive(Plan.MOTIVE_LEISURE, motiveBonus);
-    
-    final Behaviour intended = partner.mind.nextBehaviour();
-    if (wouldSwitch(partner, copy, intended, true)) return false;
-    
-    actor.mind.assignBehaviour(basis);
-    partner.mind.assignBehaviour(copy);
-    if (report) {
-      I.say("\nPerforming joint activity!");
-      I.say("  Assigning behaviour: "+basis+" to "+actor);
-      I.say("  Assigning behaviour: "+copy+" to "+partner);
-    }
-    return true;
-  }
-  //*/
 }
 
 

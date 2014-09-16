@@ -95,6 +95,12 @@ public class IntelMap {
   }
   
   
+  public float displayFog(float x, float y, Object client) {
+    if (GameSettings.fogFree || base.primal) return 1;
+    return fogOver.sampleAt(x, y, client);
+  }
+  
+  
   
   /**  Queries and modifications-
     */

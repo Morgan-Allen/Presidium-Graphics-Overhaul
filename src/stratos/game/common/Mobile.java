@@ -47,7 +47,6 @@ public abstract class Mobile extends Element
   private ListEntry <Mobile> entry = null;
   
   final public Pathing pathing = initPathing();
-  private float strengthEstimate = -1;
   
   
   /**  Basic constructors and save/load functionality-
@@ -64,7 +63,6 @@ public abstract class Mobile extends Element
     nextPosition.loadFrom(s.input());
     aboard = (Boarding) s.loadTarget();
     if (pathing != null) pathing.loadState(s);
-    strengthEstimate = s.loadFloat();
   }
   
   
@@ -76,7 +74,6 @@ public abstract class Mobile extends Element
     nextPosition.saveTo(s.output());
     s.saveTarget(aboard);
     if (pathing != null) pathing.saveState(s);
-    s.saveFloat(strengthEstimate);
   }
   
   
@@ -304,20 +301,9 @@ public abstract class Mobile extends Element
   
   
   
-  /**  Regular updates and strength estimates-
+  /**  Regular updates-
     */
   public void updateAsScheduled(int numUpdates) {
-    if (numUpdates % 10 == 0) strengthEstimate = -1;
-  }
-  
-
-  public float strengthEstimate() {
-    return strengthEstimate;
-  }
-  
-  
-  public void setStrengthEstimate(float value) {
-    strengthEstimate = value;
   }
   
   
@@ -327,6 +313,11 @@ public abstract class Mobile extends Element
   public boolean visibleTo(Base base) {
     if (indoors()) return false;
     return super.visibleTo(base);
+  }
+  
+  
+  protected float fogFor(Base base) {
+    return base.intelMap.displayFog(position.x, position.y, this);
   }
   
   

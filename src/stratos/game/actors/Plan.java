@@ -247,7 +247,7 @@ public abstract class Plan implements Saveable, Behaviour {
   }
   
   
-  final protected static float
+  final public static float
     
     NO_FAIL_RISK      = 0.0f,
     MILD_FAIL_RISK    = 0.5f,
@@ -437,7 +437,7 @@ public abstract class Plan implements Saveable, Behaviour {
     float danger = actor.base().dangerMap.sampleAt(at.x, at.y);
     if (danger < 0) return 0;
     danger *= 1 + actor.traits.relativeLevel(Qualities.NERVOUS);
-    final float strength = CombatUtils.combatStrength(actor, null);
+    final float strength = actor.senses.powerLevel();
     
     if (evalVerbose && I.talkAbout == actor) {
       I.say("  Combat strength: "+strength);
@@ -474,56 +474,6 @@ public abstract class Plan implements Saveable, Behaviour {
       }
     }
     return competition;
-  }
-  
-  
-  public static float greedLevel(Actor actor, float creditsPerDay) {
-    float baseUnit = actor.gear.credits();
-    final float greed = 1 + actor.traits.relativeLevel(Qualities.ACQUISITIVE);
-    
-    if (actor.base() != null) {
-      final Profile p = actor.base().profiles.profileFor(actor);
-      baseUnit += (100 + p.salary()) / 2f;
-    }
-    baseUnit /= 2f;
-    
-    float mag = 1f + (creditsPerDay / baseUnit);
-    mag = ((float) FastMath.log(2, mag)) * greed;
-    return mag;
-  }
-  
-  
-  public static float hostilityOf(
-    Target threat, Actor actor, boolean general
-  ) {
-    //  TODO:  Generalise this to activities beside combat, based on the
-    //  help/harm ratings supplied in plans' priority calculations!
-    if (threat instanceof Actor) {
-      final Actor other = (Actor) threat;
-      final Target victim = other.focusFor(Combat.class);
-      if (victim == actor) return 1;
-      float hostility = 0;
-      if (victim != null) hostility += actor.relations.relationValue(victim);
-      hostility -= actor.relations.relationValue(other);
-      return hostility;
-    }
-    
-    if (threat instanceof Venue) {
-      final Venue venue = (Venue) threat;
-    }
-    
-    //  TODO:  Implement an assessment for venues as well?
-    return 0;
-  }
-  
-  
-  public static int upgradeBonus(Target location, Object refers) {
-    if (! (location instanceof Venue)) return 0;
-    final Venue v = (Venue) location;
-    if (refers instanceof Upgrade) {
-      return v.structure.upgradeLevel((Upgrade) refers);
-    }
-    else return v.structure.upgradeBonus(refers);
   }
   
   

@@ -5,7 +5,6 @@ import java.io.*;
 
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
-import stratos.graphics.sfx.PlaneFX.Model;
 import stratos.util.*;
 
 
@@ -44,17 +43,18 @@ public class BuildingSprite extends Sprite {
       "blast_model", BuildingSprite.class,
       "media/SFX/blast_anim.gif", 5, 4, 25, (25 / 25f)
     ),
+    //  TODO:  Get rid of these, or use separate image files
     POWER_MODEL = new PlaneFX.Model(
       "power_model", BuildingSprite.class,
-      "media/SFX/power.png", 0.5f, 0, 0, true, true
+      "media/items/power.png", 0.5f, 0, 0, true, true
     ),
     LIFE_SUPPORT_MODEL = new PlaneFX.Model(
       "power_model", BuildingSprite.class,
-      "media/SFX/life_S.png", 0.5f, 0, 0, true, true
+      "media/items/life_S.png", 0.5f, 0, 0, true, true
     ),
     WATER_MODEL = new PlaneFX.Model(
       "power_model", BuildingSprite.class,
-      "media/SFX/water.png", 0.5f, 0, 0, true, true
+      "media/items/water.png", 0.5f, 0, 0, true, true
     );
   
   

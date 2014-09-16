@@ -20,24 +20,27 @@ public class Exploring extends Plan implements Qualities {
   private static boolean
     evalVerbose = false;
   
-  final Base base;
-  private Tile lookedAt;
-  private float sumTravels = 0;
+  final   Base  base       ;
+  private Tile  lookedAt   ;
+  private float travelLimit;
   
   
   public static Exploring nextExplorationFor(Actor actor) {
     final Tile toExplore = getUnexplored(
-      actor.base().intelMap, actor, actor.health.sightRange(), -1
+      actor.base().intelMap, actor, World.SECTOR_SIZE, -1
     );
     if (toExplore == null) return null;
-    return new Exploring(actor, actor.base(), toExplore);
+    final float travelLimit = actor.health.sightRange();
+    
+    return new Exploring(actor, actor.base(), toExplore, travelLimit);
   }
   
   
-  public Exploring(Actor actor, Base base, Tile lookedAt) {
+  public Exploring(Actor actor, Base base, Tile lookedAt, float maxTravel) {
     super(actor, lookedAt);
-    this.base = base;
-    this.lookedAt = lookedAt;
+    this.base        = base     ;
+    this.lookedAt    = lookedAt ;
+    this.travelLimit = maxTravel;
   }
   
   
@@ -56,7 +59,7 @@ public class Exploring extends Plan implements Qualities {
   
   
   public Plan copyFor(Actor other) {
-    return new Exploring(other, base, lookedAt);
+    return new Exploring(other, base, lookedAt, 0);
   }
   
   
@@ -86,18 +89,19 @@ public class Exploring extends Plan implements Qualities {
     */
   protected Behaviour getNextStep() {
     if (actor.base().intelMap.fogAt(lookedAt) == 1) {
+      if (travelLimit <= 0) return null;
+      
       final float
         range = actor.health.sightRange(),
         maxTravel = range * 2 * (1 + actor.traits.relativeLevel(STUBBORN));
       
-      if ((sumTravels * (Rand.num() + 0.5f)) > maxTravel) return null;
       final Tile nextLook = getUnexplored(
         actor.base().intelMap, actor, range, maxTravel + range
       );
       
       if (nextLook == null) return null;
       lookedAt = nextLook;
-      sumTravels += Spacing.distance(actor, lookedAt);
+      travelLimit -= Spacing.distance(actor, lookedAt) * (Rand.num() + 0.5f);
     }
     
     final Action looking = new Action(

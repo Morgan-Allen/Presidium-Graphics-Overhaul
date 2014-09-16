@@ -136,10 +136,7 @@ public abstract class Actor extends Mobile implements
     }
     //world.activities.toggleAction(actionTaken, false);
     this.actionTaken = action;
-    if (actionTaken != null) {
-      senses.pushAwareness(actionTaken.subject(), -1, null);
-      actionTaken.updateAction(false);
-    }
+    if (actionTaken != null) actionTaken.updateAction(false);
     //world.activities.toggleAction(actionTaken, true);
   }
   
@@ -248,14 +245,14 @@ public abstract class Actor extends Mobile implements
       if (! pathing.checkPathingOkay()) {
         pathing.refreshFullPath();
       }
-      senses.updateSeen();
+      senses.updateSenses();
       mind.updateAI(numUpdates);
       relations.updateValues(numUpdates);
     }
     
     //  Check to see if you need to wake up-
     if (checkSleep) {
-      senses.updateSeen();
+      senses.updateSenses();
       mind.updateAI(numUpdates);
       relations.updateValues(numUpdates);
       mind.getNextAction();
@@ -271,7 +268,7 @@ public abstract class Actor extends Mobile implements
     }
     
     //  Update the intel/danger maps associated with the world's bases.
-    final float power = CombatUtils.combatStrength(this, null) * 10;
+    final float power = senses.powerLevel() * 10;
     for (Base b : world.bases()) {
       if (b == base()) {
         //

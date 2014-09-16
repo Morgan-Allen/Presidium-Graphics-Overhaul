@@ -193,12 +193,12 @@ public class ContactMission extends Mission {
   public boolean actionCloseTalks(Actor actor, Actor other) {
     final boolean report = eventVerbose && I.talkAbout == actor;
     
-    float DC = other.relations.relationValue(actor) * 10;
-    if (objectIndex() == OBJECT_FRIENDSHIP) DC += 0;
+    float DC = other.relations.relationValue(actor) * -10;
+    if (objectIndex() == OBJECT_FRIENDSHIP) DC += 0 ;
     if (objectIndex() == OBJECT_AUDIENCE  ) DC += 10;
     if (objectIndex() == OBJECT_SUBMISSION) DC += 20;
     
-    final float danger = CombatUtils.dangerAtSpot(other, other, null);
+    final float danger = other.senses.fearLevel();
     DC -= danger * 5;
     
     final float novelty = other.relations.relationNovelty(actor.base());

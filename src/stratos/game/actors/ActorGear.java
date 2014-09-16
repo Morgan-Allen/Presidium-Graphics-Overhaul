@@ -18,29 +18,27 @@ import static stratos.game.building.Economy.*;
 
 public class ActorGear extends Inventory {
   
-  /*
-  final public static float
-    SHIELD_CHARGE     = 5f,
-    SHIELD_SHORTS     = 2f,
-    SHIELD_REGEN_TIME = 10f;
-  //*/
+  
   final public static float
     SHIELD_REGEN_TIME = World.STANDARD_HOUR_LENGTH,
     FUEL_DEPLETE      = 0.1f;
   final public static int
-    MAX_RATIONS    = 5,
-    MAX_FOOD_TYPES = 5,
-    MAX_FUEL_CELLS = 5;
+    MAX_AMMO_COUNT = 40,
+    MAX_POWER_CELLS = 5 ;
   
   private static boolean verbose = false;
   
   
   final Actor actor;
   private float baseDamage, baseArmour;
+  
   private Item device = null;
   private Item outfit = null;
-  private float fuelCells = 0, currentShields;
-  private float encumbrance = -1;
+  
+  private int   ammoCount      =  0;
+  private float powerCells     =  0;
+  private float currentShields =  0;
+  private float encumbrance    = -1;
   
   
   public ActorGear(Actor actor) {
@@ -51,25 +49,31 @@ public class ActorGear extends Inventory {
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
+    
     s.saveFloat(baseDamage);
     s.saveFloat(baseArmour);
     Item.saveTo(s, device);
     Item.saveTo(s, outfit);
-    s.saveFloat(fuelCells);
+    
+    s.saveInt  (ammoCount     );
+    s.saveFloat(powerCells    );
     s.saveFloat(currentShields);
-    s.saveFloat(encumbrance);
+    s.saveFloat(encumbrance   );
   }
   
 
   public void loadState(Session s) throws Exception {
     super.loadState(s);
+    
     baseDamage = s.loadFloat();
     baseArmour = s.loadFloat();
     device = Item.loadFrom(s);
     outfit = Item.loadFrom(s);
-    fuelCells = s.loadFloat();
+    
+    ammoCount      = s.loadInt  ();
+    powerCells     = s.loadFloat();
     currentShields = s.loadFloat();
-    encumbrance = s.loadFloat();
+    encumbrance    = s.loadFloat();
   }
   
   
@@ -90,6 +94,8 @@ public class ActorGear extends Inventory {
     if (Float.isNaN(credits)) credits = 0;
     if (Float.isNaN(taxed)) taxed = 0;
     
+    //  TODO:  Estimate encumbrance here.
+    
     //if (verbose) I.sayAbout(actor, "Updating gear...");
     if (outfit != null) regenerateShields();
     else currentShields = 0;
@@ -100,6 +106,14 @@ public class ActorGear extends Inventory {
       }
     }
     encumbrance = -1;
+  }
+  
+  
+  public float encumbrance() {
+    if (encumbrance != -1) return encumbrance;
+    float sum = 0; for (Item i : allItems()) sum += i.amount;
+    sum /= actor.health.maxHealth() * (1 - actor.health.fatigueLevel());
+    return encumbrance = sum * sum;
   }
   
   
@@ -116,10 +130,13 @@ public class ActorGear extends Inventory {
     
     final int oldAmount = (int) amountOf(item);
     if (item.refers == actor) item = Item.withReference(item, null);
+    
     if      (item.type instanceof DeviceType) equipDevice(item);
     else if (item.type instanceof OutfitType) equipOutfit(item);
     else if (! super.addItem(item)) return false;
-
+    //
+    //  Add a special 'item acquired' message to the actor's chat bubbles, if
+    //  it crosses an integer threshold.
     final int inc = ((int) amountOf(item)) - oldAmount;
     if (actor.inWorld() && inc != 0 && ! actor.indoors()) {
       String phrase = inc >= 0 ? "+" : "-";
@@ -146,11 +163,24 @@ public class ActorGear extends Inventory {
   }
   
   
-  public float encumbrance() {
-    if (encumbrance != -1) return encumbrance;
-    float sum = 0; for (Item i : allItems()) sum += i.amount;
-    sum /= actor.health.maxHealth() * (1 - actor.health.fatigueLevel());
-    return encumbrance = sum * sum;
+  
+  /**  Here we deal with equipping/removing Devices-
+    */
+  public void equipDevice(Item device) {
+    if (device != null && ! (device.type instanceof DeviceType)) return;
+    this.device = device;
+    this.ammoCount = MAX_AMMO_COUNT;
+  }
+  
+  
+  public Item deviceEquipped() {
+    return device;
+  }
+  
+  
+  public DeviceType deviceType() {
+    if (device == null) return null;
+    return (DeviceType) device.type;
   }
   
   
@@ -161,20 +191,23 @@ public class ActorGear extends Inventory {
     */
   public float attackDamage() {
     final Item weapon = deviceEquipped();
+    
     final float brawnBonus = actor.traits.traitLevel(MUSCULAR) / 4;
     if (weapon == null) return (brawnBonus / 2) + baseDamage;
+    
     final DeviceType type = (DeviceType) weapon.type;
     final float damage = type.baseDamage * (weapon.quality + 2f) / 4;
+    
     if (type.hasProperty(MELEE)) return damage + brawnBonus + baseDamage;
     else return damage + baseDamage;
   }
   
   
   public float attackRange() {
-    if (deviceType().hasProperty(RANGED))
+    if (deviceType().hasProperty(RANGED)) {
       return actor.health.sightRange();
-    else
-      return 1;
+    }
+    else return 1;
   }
   
   
@@ -207,115 +240,23 @@ public class ActorGear extends Inventory {
   }
   
   
-  
-  /**  Returns this actor's effective armour rating.  Actors not wearing any
-    *  significant armour, or only lightly armoured, gain a bonus based on
-    *  their reflexes.
-    */
-  public float armourRating() {
-    final Item armour = outfitEquipped();
-    float reflexBonus = actor.traits.traitLevel(MOTOR) / 4;
-    if (armour == null) return reflexBonus + baseArmour;
-    
-    final OutfitType type = (OutfitType) armour.type;
-    reflexBonus *= (20 - type.defence) / 10f;
-    final float rating = type.defence * (armour.quality + 1) / 4;
-    
-    if (verbose && I.talkAbout == actor) {
-      I.say("\nBase armour: "+type.defence);
-      I.say("  Reflex bonus: "+reflexBonus);
-      I.say("  Quality rating: "+rating);
-    }
-    
-    return rating + baseArmour + Math.max(0, reflexBonus);
+  public int ammoCount() {
+    return ammoCount;
   }
   
   
-  /**  Shield depletion and regeneration are handled here-
-    */
-  public float shieldCharge() {
-    return currentShields;
+  public void incAmmo(int inc) {
+    ammoCount += inc;
+    ammoCount = Visit.clamp(ammoCount, MAX_AMMO_COUNT);
   }
   
   
-  public void boostShields(float boost, boolean capped) {
-    currentShields += boost;
-    if (capped) currentShields = Visit.clamp(currentShields, 0, maxShields());
-  }
-  
-  
-  public float afterShields(float damage, boolean physical) {
-    if (damage <= 0 || ! actor.health.conscious()) return damage;
-    float reduction = shieldCharge() * Rand.num();
-    if (reduction <= 0) return damage;
-    if (physical) reduction /= 2;
-    if (reduction > damage) reduction = damage;
-    currentShields -= reduction / 2;
-    return damage - reduction;
-  }
-  
-  
-  public float fuelCells() {
-    return fuelCells;
-  }
-  
-  
-  public void addFuelCells(float amount) {
-    if (amount <= 0) return;
-    fuelCells += amount;
-    fuelCells = Visit.clamp(fuelCells, 0, MAX_FUEL_CELLS);
-  }
-  
-  
-  public float maxShields() {
-    if (outfit == null) return 0;
-    final float bulk = actor.health.baseBulk() / ActorHealth.DEFAULT_BULK;
-    final OutfitType type = (OutfitType) outfit.type;
-    return type.shieldBonus * bulk * (outfit.quality + 2f) / 4;
-  }
-  
-  
-  public boolean hasShields() {
-    return shieldCharge() > 0;
-  }
-  
-  
-  private void regenerateShields() {
-    final float max = maxShields();
-    if (currentShields < max) {
-      float regen = max / SHIELD_REGEN_TIME;
-      regen = Visit.clamp(regen, 0, max - currentShields);
-      currentShields = Visit.clamp(currentShields + regen, 0, max);
-      fuelCells -= FUEL_DEPLETE * regen / (max * SHIELD_REGEN_TIME);
-    }
-    if (currentShields > max) {
-      final float sink = 5f / SHIELD_REGEN_TIME;
-      currentShields = Visit.clamp(currentShields - sink, max, (max + 5) * 2);
-    }
+  public float ammoLevel() {
+    return ammoCount * 1f / MAX_AMMO_COUNT;
   }
   
   
 
-  /**  Here we deal with equipping/removing Devices-
-    */
-  public void equipDevice(Item device) {
-    if (device != null && ! (device.type instanceof DeviceType)) return;
-    this.device = device;
-  }
-  
-  
-  public Item deviceEquipped() {
-    return device;
-  }
-  
-  
-  public DeviceType deviceType() {
-    if (device == null) return null;
-    return (DeviceType) device.type;
-  }
-  
-  
-  
   /**  Here, we deal with applying/removing Outfits-
     */
   public void equipOutfit(Item outfit) {
@@ -324,7 +265,7 @@ public class ActorGear extends Inventory {
     final SolidSprite sprite = (SolidSprite) actor.sprite();
     final Item oldItem = this.outfit;
     this.outfit = outfit;
-    if (hasShields()) fuelCells = MAX_FUEL_CELLS;
+    if (maxShields() > 0) powerCells = MAX_POWER_CELLS;
     //
     //  Attach/detach the appropriate media-
     if (oldItem != null) {
@@ -357,6 +298,92 @@ public class ActorGear extends Inventory {
   public OutfitType outfitType() {
     if (outfit == null) return null;
     return (OutfitType) outfit.type;
+  }
+  
+  
+  
+  /**  Returns this actor's effective armour rating.  Actors not wearing any
+    *  significant armour, or only lightly armoured, gain a bonus based on
+    *  their reflexes.
+    */
+  public float armourRating() {
+    final Item armour = outfitEquipped();
+    float reflexBonus = actor.traits.traitLevel(MOTOR) / 4;
+    if (armour == null) return reflexBonus + baseArmour;
+    
+    final OutfitType type = (OutfitType) armour.type;
+    reflexBonus *= (20 - type.defence) / 10f;
+    final float rating = type.defence * (armour.quality + 1) / 4;
+    
+    if (verbose && I.talkAbout == actor) {
+      I.say("\nBase armour: "+type.defence);
+      I.say("  Reflex bonus: "+reflexBonus);
+      I.say("  Quality rating: "+rating);
+    }
+    
+    return rating + baseArmour + Math.max(0, reflexBonus);
+  }
+  
+  
+  public float shieldCharge() {
+    return currentShields;
+  }
+  
+  
+  public void boostShields(float boost, boolean capped) {
+    currentShields += boost;
+    if (capped) currentShields = Visit.clamp(currentShields, 0, maxShields());
+  }
+  
+  
+  public float afterShields(float damage, boolean physical) {
+    if (damage <= 0 || ! actor.health.conscious()) return damage;
+    float reduction = shieldCharge() * Rand.num();
+    if (reduction <= 0) return damage;
+    if (physical) reduction /= 2;
+    if (reduction > damage) reduction = damage;
+    currentShields -= reduction / 2;
+    return damage - reduction;
+  }
+  
+  
+  public float maxShields() {
+    if (outfit == null) return 0;
+    final float bulk = actor.health.baseBulk() / ActorHealth.DEFAULT_BULK;
+    final OutfitType type = (OutfitType) outfit.type;
+    return type.shieldBonus * bulk * (outfit.quality + 2f) / 4;
+  }
+  
+  
+  public boolean hasShields() {
+    return shieldCharge() > 0;
+  }
+  
+  
+  private void regenerateShields() {
+    final float max = maxShields();
+    if (currentShields < max) {
+      float regen = max / SHIELD_REGEN_TIME;
+      regen = Visit.clamp(regen, 0, max - currentShields);
+      currentShields = Visit.clamp(currentShields + regen, 0, max);
+      powerCells -= FUEL_DEPLETE * regen / (max * SHIELD_REGEN_TIME);
+    }
+    if (currentShields > max) {
+      final float sink = 5f / SHIELD_REGEN_TIME;
+      currentShields = Visit.clamp(currentShields - sink, max, (max + 5) * 2);
+    }
+  }
+  
+  
+  public float powerCells() {
+    return powerCells;
+  }
+  
+  
+  public void incPowerCells(float inc) {
+    if (inc <= 0) return;
+    powerCells += inc;
+    powerCells = Visit.clamp(powerCells, 0, MAX_POWER_CELLS);
   }
 }
 

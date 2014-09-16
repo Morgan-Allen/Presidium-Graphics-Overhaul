@@ -147,6 +147,19 @@ public class FogOverlay {
     }
     return sample;
   }
+  
+  
+  public float sampleAt(float x, float y, Object client) {
+    final float
+      oldVal = Visit.sampleMap(size, oldVals, x, y),
+      newVal = Visit.sampleMap(size, newVals, x, y);
+    final float time = oldTime % 1;
+    final float sample = (oldVal * (1 - time)) + (time * newVal);
+    if (verbose && client != null && I.talkAbout == client) {
+      I.say("  Client time is: "+time+", sample: "+sample);
+    }
+    return sample;
+  }
 }
 
 
