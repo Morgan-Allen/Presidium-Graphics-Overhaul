@@ -40,7 +40,7 @@ public class Retreat extends Plan implements Qualities {
   
   
   public Retreat(Actor actor, Boarding safePoint) {
-    super(actor, safePoint);
+    super(actor, safePoint, false);
     this.safePoint = safePoint;
   }
 
@@ -91,7 +91,6 @@ public class Retreat extends Plan implements Qualities {
     
     if (report) {
       I.say("\n  PLAN ID IS: "+this.hashCode());
-      
       I.say("  Max Danger: "+maxDanger);
       I.say("  Fear Level: "+actor.senses.fearLevel());
       I.say("  Base priority: "+priority);

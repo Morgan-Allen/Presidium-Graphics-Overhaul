@@ -36,7 +36,7 @@ public class Commission extends Plan {
   
   
   public Commission(Actor actor, Item baseItem, Venue shop) {
-    super(actor, shop);
+    super(actor, shop, true);
     this.item = Item.withReference(baseItem, actor);
     this.shop = shop;
   }

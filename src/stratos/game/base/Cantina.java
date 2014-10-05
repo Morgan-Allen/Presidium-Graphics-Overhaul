@@ -6,6 +6,8 @@ import static stratos.game.actors.Backgrounds.CULTIVATOR;
 import static stratos.game.actors.Backgrounds.ECOLOGIST;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
+import stratos.game.plans.Delivery;
+import stratos.game.plans.DeliveryUtils;
 import stratos.game.plans.Performance;
 import stratos.game.plans.Recreation;
 import stratos.game.plans.Resting;
@@ -18,7 +20,6 @@ import stratos.graphics.widgets.Composite;
 import stratos.graphics.widgets.HUD;
 import stratos.user.*;
 import stratos.util.*;
-
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.building.Economy.*;

@@ -28,7 +28,7 @@ public class Summons extends Plan {
   
   
   public Summons(Actor actor, Actor ruler) {
-    super(actor, ruler);
+    super(actor, ruler, true);
     this.ruler = ruler;
   }
   

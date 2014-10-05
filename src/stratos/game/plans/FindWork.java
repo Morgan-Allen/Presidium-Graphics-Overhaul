@@ -25,7 +25,7 @@ public class FindWork extends Plan {
   
   
   private FindWork(Actor actor, Application newApp, float rating) {
-    super(actor, newApp.employer);
+    super(actor, newApp.employer, true);
     this.application = newApp;
     this.rating = rating;
   }

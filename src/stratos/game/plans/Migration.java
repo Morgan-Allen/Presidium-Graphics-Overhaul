@@ -31,7 +31,7 @@ public class Migration extends Plan {
   
   
   public Migration(Actor actor) {
-    super(actor, actor);
+    super(actor, actor, true);
   }
   
   

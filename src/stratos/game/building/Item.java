@@ -167,7 +167,7 @@ public class Item {
   }
   
   
-  protected boolean matchKind(Item item) {
+  public boolean matchKind(Item item) {
     if (this.type != item.type) return false;
     if (this.refers != null) {
       if (item.refers == null) return false;

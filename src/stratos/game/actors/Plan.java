@@ -46,6 +46,7 @@ public abstract class Plan implements Saveable, Behaviour {
   private static boolean verbose = false, evalVerbose = false;
   
   final public Target subject;
+  final boolean persistent;
   protected Actor actor;
   
   protected float
@@ -62,9 +63,10 @@ public abstract class Plan implements Saveable, Behaviour {
   
   
   
-  protected Plan(Actor actor, Target subject) {
+  protected Plan(Actor actor, Target subject, boolean persistent) {
     this.actor = actor;
     this.subject = subject;
+    this.persistent = persistent;
     if (subject == null) I.complain("NULL PLAN SUBJECT");
   }
   
@@ -73,6 +75,7 @@ public abstract class Plan implements Saveable, Behaviour {
     s.cacheInstance(this);
     this.actor = (Actor) s.loadObject();
     this.subject = s.loadTarget();
+    this.persistent = s.loadBool();
     
     this.lastEvalTime = s.loadFloat();
     this.priorityEval = s.loadFloat();
@@ -89,6 +92,7 @@ public abstract class Plan implements Saveable, Behaviour {
   public void saveState(Session s) throws Exception {
     s.saveObject(actor);
     s.saveTarget(subject);
+    s.saveBool(persistent);
     
     s.saveFloat(lastEvalTime);
     s.saveFloat(priorityEval);
@@ -125,6 +129,11 @@ public abstract class Plan implements Saveable, Behaviour {
     if (! subject.inWorld()) return false;
     if (actor != null && ! actor.inWorld()) return false;
     return true;
+  }
+  
+  
+  public boolean persistent() {
+    return persistent;
   }
   
   

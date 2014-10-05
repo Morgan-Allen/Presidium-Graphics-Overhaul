@@ -34,7 +34,7 @@ public class Foraging extends Plan {
   
   
   public Foraging(Actor actor, Venue store) {
-    super(actor, actor);
+    super(actor, actor, true);
     if (store == null && actor.mind.home() instanceof Venue) {
       this.store = (Venue) actor.mind.home();
     }

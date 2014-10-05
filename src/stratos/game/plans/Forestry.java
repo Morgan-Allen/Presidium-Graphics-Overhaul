@@ -42,7 +42,7 @@ public class Forestry extends Plan {
   
   
   public Forestry(Actor actor, Venue nursery) {
-    super(actor, nursery);
+    super(actor, nursery, true);
     this.nursery = nursery;
   }
   

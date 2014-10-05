@@ -7,6 +7,7 @@ import stratos.game.building.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.plans.FirstAid;
+import stratos.game.plans.Manufacture;
 import stratos.game.plans.Supervision;
 import stratos.game.tactical.*;
 import stratos.graphics.common.*;
@@ -14,7 +15,6 @@ import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
-
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.building.Economy.*;

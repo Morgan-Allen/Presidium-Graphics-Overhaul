@@ -40,7 +40,7 @@ public class Drilling extends Plan {
   public Drilling(
     Actor actor, DrillYard grounds
   ) {
-    super(actor, grounds);
+    super(actor, grounds, false);
     this.yard = grounds;
   }
   

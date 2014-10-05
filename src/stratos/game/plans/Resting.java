@@ -38,7 +38,7 @@ public class Resting extends Plan {
   
   
   public Resting(Actor actor, Target point) {
-    super(actor, point);
+    super(actor, point, false);
     this.restPoint = (point instanceof Owner) ? (Owner) point : actor;
   }
   

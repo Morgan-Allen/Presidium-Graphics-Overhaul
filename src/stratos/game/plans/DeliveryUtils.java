@@ -1,9 +1,14 @@
 
 
-package stratos.game.building;
+package stratos.game.plans;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.civilian.*;
+import stratos.game.building.Inventory;
+import stratos.game.building.Item;
+import stratos.game.building.Stocks;
+import stratos.game.building.TradeType;
+import stratos.game.building.Venue;
 import stratos.game.building.Inventory.Owner;
 import stratos.util.*;
 

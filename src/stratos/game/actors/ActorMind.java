@@ -192,7 +192,7 @@ public abstract class ActorMind implements Qualities {
         I.say("  Done "+isDone);
       }
       if (isDone || next == null) {
-        if (current == rootBehaviour() && ! isDone) {
+        if (current == rootBehaviour() && ! isDone && current.persistent()) {
           todoList.add(current);
         }
         popBehaviour();
@@ -340,11 +340,10 @@ public abstract class ActorMind implements Qualities {
     actor.assignAction(null);
     
     final Behaviour replaced = rootBehaviour();
-    final boolean saveTodo = replaced != null && ! replaced.finished();
     cancelBehaviour(replaced);
     pushBehaviour(behaviour);
     
-    if (saveTodo) {
+    if (replaced != null && ! replaced.finished() && replaced.persistent()) {
       if (report) I.say(" SAVING PLAN AS TODO: "+replaced);
       todoList.include(replaced);
     }

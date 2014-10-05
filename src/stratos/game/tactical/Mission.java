@@ -371,6 +371,7 @@ public abstract class Mission implements
   protected abstract boolean shouldEnd();
   
   public boolean finished() { return done; }
+  public boolean persistent() { return true; }
   
   
   

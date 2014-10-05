@@ -38,7 +38,7 @@ public class FindHome extends Plan {
   
 
   private FindHome(Actor actor, Employer newHome) {
-    super(actor, newHome);
+    super(actor, newHome, true);
     this.newHome = newHome;
   }
 

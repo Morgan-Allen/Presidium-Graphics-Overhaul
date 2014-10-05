@@ -7,9 +7,10 @@ package stratos.game.building;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.civilian.*;
+import stratos.game.plans.DeliveryUtils;
+import stratos.game.plans.Manufacture;
 import stratos.user.*;
 import stratos.util.*;
-
 import static stratos.game.building.Economy.*;
 
 

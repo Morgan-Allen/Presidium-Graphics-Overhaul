@@ -23,7 +23,7 @@ public class RoadsRepair extends Plan {
   
   
   public RoadsRepair(Actor actor, Tile t) {
-    super(actor, actor.world().sections.sectionAt(t.x, t.y));
+    super(actor, actor.world().sections.sectionAt(t.x, t.y), true);
     this.base = actor.base();
     this.map = base.paving.map;
     this.around = t;

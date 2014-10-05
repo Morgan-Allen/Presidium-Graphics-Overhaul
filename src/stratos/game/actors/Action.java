@@ -188,6 +188,11 @@ public class Action implements Behaviour, AnimNames {
   }
   
   
+  public boolean persistent() {
+    return false;
+  }
+  
+  
   public Actor actor() {
     return actor;
   }

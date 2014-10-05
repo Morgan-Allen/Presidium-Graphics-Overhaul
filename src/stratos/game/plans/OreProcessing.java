@@ -14,7 +14,6 @@ import stratos.game.actors.*;
 import stratos.game.wild.*;
 import stratos.user.*;
 import stratos.util.*;
-
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.building.Economy.*;
 
@@ -36,7 +35,7 @@ public class OreProcessing extends Plan {
   
   
   OreProcessing(Actor actor, Smelter smelter, TradeType output) {
-    super(actor, smelter);
+    super(actor, smelter, true);
     this.venue = smelter;
     this.output = output;
     sample = Item.withReference(SAMPLES, output);

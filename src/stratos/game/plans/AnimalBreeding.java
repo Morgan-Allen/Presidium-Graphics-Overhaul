@@ -46,7 +46,7 @@ public class AnimalBreeding extends Plan {
   private AnimalBreeding(
     Actor actor, KommandoLodge station, Fauna handled, Target releasePoint
   ) {
-    super(actor, station);
+    super(actor, station, true);
     this.station = station;
     this.handled = handled;
     this.releasePoint = releasePoint;

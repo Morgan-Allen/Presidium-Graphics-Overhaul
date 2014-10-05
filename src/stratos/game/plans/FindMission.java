@@ -65,7 +65,7 @@ public class FindMission extends Plan {
   
 
   private FindMission(Actor actor, Mission mission) {
-    super(actor, mission.subject());
+    super(actor, mission.subject(), true);
     this.mission = mission;
     //this.admin = admin;
   }

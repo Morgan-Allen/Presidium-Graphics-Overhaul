@@ -38,7 +38,7 @@ public class Gifting extends Plan implements Qualities {
   
   
   public Gifting(Actor actor, Actor receives, Item gift, Plan getting) {
-    super(actor, receives);
+    super(actor, receives, true);
     this.gift = gift;
     this.receives = receives;
     this.getting = getting;

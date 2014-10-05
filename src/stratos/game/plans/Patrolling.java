@@ -48,7 +48,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   private Patrolling(
     Actor actor, Element guarded, List <Target> patrolled, int type
   ) {
-    super(actor, guarded);
+    super(actor, guarded, true);
     this.type = type;
     this.guarded = guarded;
     this.patrolled = patrolled;

@@ -27,7 +27,7 @@ public class Repairs extends Plan {
   
   
   public Repairs(Actor actor, Installation repaired) {
-    super(actor, (Target) repaired);
+    super(actor, (Target) repaired, true);
     this.built = repaired;
   }
   

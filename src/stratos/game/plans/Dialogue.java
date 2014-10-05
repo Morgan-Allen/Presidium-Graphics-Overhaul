@@ -62,7 +62,7 @@ public class Dialogue extends Plan implements Qualities {
   
   
   private Dialogue(Actor actor, Actor other, Actor starts, int type) {
-    super(actor, other);
+    super(actor, other, false);
     if (actor == other) I.complain("CANNOT TALK TO SELF!");
     this.other = other;
     this.starts = starts;

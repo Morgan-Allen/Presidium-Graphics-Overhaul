@@ -19,10 +19,10 @@ public class Steps extends Plan {
   
   
   public Steps(
-    Actor actor, Target key, float priority,
+    Actor actor, Target key, float priority, boolean persistent,
     Action... actions
   ) {
-    super(actor, key);
+    super(actor, key, persistent);
     this.priority = priority;
     for (Action a : actions) this.actions.add(a);
   }

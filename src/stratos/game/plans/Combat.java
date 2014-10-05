@@ -62,7 +62,7 @@ public class Combat extends Plan implements Qualities {
   public Combat(
     Actor actor, Element target, int style, int object
   ) {
-    super(actor, target);
+    super(actor, target, false);
     //this.target = target;
     this.style = style;
     this.object = object;

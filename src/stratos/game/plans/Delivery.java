@@ -5,9 +5,14 @@
   */
 
 
-package stratos.game.building;
+package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.base.Suspensor;
+import stratos.game.building.Inventory;
+import stratos.game.building.Item;
+import stratos.game.building.TradeType;
+import stratos.game.building.Vehicle;
+import stratos.game.building.Venue;
 import stratos.game.building.Inventory.Owner;
 import stratos.game.civilian.Pledge;
 import stratos.game.common.*;
@@ -64,7 +69,7 @@ public class Delivery extends Plan {
   
   
   public Delivery(Item items[], Owner origin, Owner destination) {
-    super(null, origin);
+    super(null, origin, true);
     this.origin = origin;
     this.destination = destination;
     this.items = items;

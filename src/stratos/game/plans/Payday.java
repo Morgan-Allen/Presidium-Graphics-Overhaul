@@ -30,7 +30,7 @@ public class Payday extends Plan {
   
   
   public Payday(Actor actor, Employer pays) {
-    super(actor, pays);
+    super(actor, pays, true);
     this.pays = pays;
   }
   

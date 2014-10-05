@@ -18,7 +18,7 @@ public class ItemDisposal extends Plan {
   
   
   public ItemDisposal(Actor actor) {
-    super(actor, actor);
+    super(actor, actor, true);
   }
   
   

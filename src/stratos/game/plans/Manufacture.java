@@ -5,8 +5,13 @@
   */
 
 
-package stratos.game.building;
+package stratos.game.plans;
 import stratos.game.actors.*;
+import stratos.game.building.Conversion;
+import stratos.game.building.DeviceType;
+import stratos.game.building.Item;
+import stratos.game.building.OutfitType;
+import stratos.game.building.Venue;
 import stratos.game.common.*;
 import stratos.game.civilian.*;
 import stratos.user.*;
@@ -49,7 +54,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   public Manufacture(
     Actor actor, Employer venue, Conversion conversion, Item made
   ) {
-    super(actor, venue);
+    super(actor, venue, true);
     this.venue = venue;
     this.made = made == null ? conversion.out : made;
     this.conversion = conversion;

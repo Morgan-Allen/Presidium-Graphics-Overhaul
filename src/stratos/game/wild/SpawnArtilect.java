@@ -33,7 +33,7 @@ public class SpawnArtilect extends Plan implements Qualities {
   
   
   public SpawnArtilect(Actor actor, Actor repairs, Venue works) {
-    super(actor, repairs);
+    super(actor, repairs, true);
     this.repairs = repairs;
     this.works = works;
   }

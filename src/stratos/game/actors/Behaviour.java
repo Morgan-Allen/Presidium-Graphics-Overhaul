@@ -40,6 +40,7 @@ public interface Behaviour extends Session.Saveable {
   boolean finished();
   boolean valid();
   boolean hasBegun();
+  boolean persistent();
   
   void describeBehaviour(Description d);
 }

@@ -5,6 +5,7 @@ import stratos.game.actors.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
+import stratos.game.plans.Manufacture;
 import static stratos.game.building.Venue.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;

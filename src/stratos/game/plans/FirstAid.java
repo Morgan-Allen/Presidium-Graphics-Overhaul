@@ -30,7 +30,7 @@ public class FirstAid extends Plan {
   
   
   public FirstAid(Actor actor, Actor patient, Boarding refuge) {
-    super(actor, patient);
+    super(actor, patient, true);
     this.patient = patient;
     this.refuge = refuge;
   }

@@ -56,7 +56,7 @@ public class Recreation extends Plan {
   
   
   public Recreation(Actor actor, Boarding venue, int performType) {
-    super(actor, (Element) venue);
+    super(actor, (Element) venue, true);
     this.venue = venue;
     this.type = performType;
   }
