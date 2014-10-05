@@ -23,17 +23,18 @@ public class Condition extends Trait {
   final public int modifiers[];
   
   
-  public Condition(String... names) {
-    this(0, 0, 0, new Table(), names);
+  public Condition(String keyID, boolean basic, String... names) {
+    this(keyID, 0, 0, 0, new Table(), names);
   }
   
   
   public Condition(
+    String keyID,
     float latency, float virulence, float spread,
     Table effects,
     String... names
   ) {
-    super(Qualities.CONDITION, names);
+    super(keyID, Qualities.CONDITION, names);
     this.latency   = Math.max(latency, 0.1f);
     this.virulence = virulence;
     this.spread    = spread   ;

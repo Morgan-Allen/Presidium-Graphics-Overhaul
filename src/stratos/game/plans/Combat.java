@@ -107,35 +107,41 @@ public class Combat extends Plan implements Qualities {
     float harmLevel = REAL_HARM;
     if (object == OBJECT_SUBDUE ) harmLevel = MILD_HARM   ;
     if (object == OBJECT_DESTROY) harmLevel = EXTREME_HARM;
-
+    
     final boolean melee = actor.gear.meleeWeapon();
     final float appeal = CombatUtils.combatValue(subject, actor, harmLevel);
-
+    
     final float priority = priorityForActorWith(
-      actor, subject, appeal,
+      actor, subject, ROUTINE,
       harmLevel, FULL_COOPERATION,
       melee ? MELEE_SKILLS : RANGED_SKILLS, BASE_TRAITS,
-      0, NORMAL_DISTANCE_CHECK, REAL_FAIL_RISK,
+      appeal - ROUTINE, NORMAL_DISTANCE_CHECK, REAL_FAIL_RISK,
       report
     );
-    //  TODO:  Restore some of the code below.
     
-    if (priority <= 0) return 0;
+    if (report) {
+      I.say("  Basic combat priority: "+priority);
+      I.say("  Endangered? "+actor.senses.isEndangered());
+    }
     if (actor.senses.isEndangered()) return priority + PARAMOUNT;
     else return priority;
   }
   
   
   protected float successChance() {
-    float danger = 0;
+    final boolean report = evalVerbose && I.talkAbout == actor;
+    float chance = 0;
     
     if (subject instanceof Actor) {
       final Actor struck = (Actor) subject;
-      danger += CombatUtils.powerLevelRelative(struck, actor);
+      chance += CombatUtils.powerLevelRelative(actor, struck);
+      chance /= CombatUtils.MAX_DANGER;
+      if (report) I.say("    Chance vs. opponent is: "+chance);
     }
-    danger += actor.base().dangerMap.sampleAt(subject);
     
-    return Visit.clamp(1 - danger, 0.1f, 0.9f);
+    chance -= actor.base().dangerMap.sampleAt(subject);
+    if (report) I.say("    Final chance: "+chance);
+    return Visit.clamp(1 - actor.senses.fearLevel(), 0, 1);
   }
   
   
@@ -167,7 +173,9 @@ public class Combat extends Plan implements Qualities {
     if (struck == null) struck = subject;
     
     //  Consider using any special combat-based techniques.
-    final Action technique = Technique.pickCombatAction(actor, struck, this);
+    final Action technique = actor.skills.pickIndependantAction(
+      struck, Technique.TRIGGER_ATTACK, this
+    );
     if (technique != null) return technique;
     
     Action strike = null;

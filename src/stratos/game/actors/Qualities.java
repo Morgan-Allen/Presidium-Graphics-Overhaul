@@ -47,7 +47,7 @@ public interface Qualities {
     PERCEPT   = new Skill("Percept"  , FORM_NATURAL, null),
     COGNITION = new Skill("Cognition", FORM_NATURAL, null),
     NERVE     = new Skill("Nerve"    , FORM_NATURAL, null),
-    ATTRIBUTES[] = Trait.skillsSoFar();
+    ATTRIBUTES[] = (Skill[]) Trait.TRAIT_INDEX.soFar(Skill.class);
   
   
   //  TODO:  Move these down
@@ -61,7 +61,7 @@ public interface Qualities {
     PHEREMONIST    = new Skill("Pheremonist"   , FORM_INSTINCT, NERVE    ),
     IMMANENCE      = new Skill("Immanence"     , FORM_INSTINCT, COGNITION),
     
-    INSTINCT_SKILLS[] = Trait.skillsSoFar();
+    INSTINCT_SKILLS[] = (Skill[]) Trait.TRAIT_INDEX.soFar(Skill.class);
   
   final public static Skill
     //
@@ -72,7 +72,7 @@ public interface Qualities {
     FIELD_THEORY   = new Skill("Field Theory"  , FORM_COGNITIVE, COGNITION),
     ASTROGATION    = new Skill("Astrogation"   , FORM_COGNITIVE, COGNITION),
     SIMULACRA      = new Skill("Simulacra"     , FORM_COGNITIVE, COGNITION),
-    ARTIFICER_SKILLS[] = Trait.skillsSoFar(),
+    ARTIFICER_SKILLS[] = (Skill[]) Trait.TRAIT_INDEX.soFar(Skill.class),
     //
     //  Ecology-related skills:
     XENOZOOLOGY    = new Skill("Xenozoology"   , FORM_COGNITIVE, COGNITION),
@@ -81,7 +81,7 @@ public interface Qualities {
     CETANI_ECOLOGY = new Skill("Cetani Ecology", FORM_COGNITIVE, COGNITION),
     ALBEDO_ECOLOGY = new Skill("Albedo Ecology", FORM_COGNITIVE, COGNITION),
     SILICO_ECOLOGY = new Skill("Silico Ecology", FORM_COGNITIVE, COGNITION),
-    ECOLOGIST_SKILLS[] = Trait.skillsSoFar(),
+    ECOLOGIST_SKILLS[] = (Skill[]) Trait.TRAIT_INDEX.soFar(Skill.class),
     //
     //  Physician-related skills:
     PHARMACY       = new Skill("Pharmacy"      , FORM_COGNITIVE, COGNITION),
@@ -90,14 +90,14 @@ public interface Qualities {
     PSYCHOANALYSIS = new Skill("Psychoanalysis", FORM_COGNITIVE, COGNITION),
     FORENSICS      = new Skill("Forensics"     , FORM_COGNITIVE, COGNITION),
     SOCIAL_HISTORY = new Skill("Social History", FORM_COGNITIVE, COGNITION),
-    PHYSICIAN_SKILLS[] = Trait.skillsSoFar(),
+    PHYSICIAN_SKILLS[] = (Skill[]) Trait.TRAIT_INDEX.soFar(Skill.class),
     //
     //  Research and governance:
     BATTLE_TACTICS = new Skill("Battle Tactics", FORM_COGNITIVE, COGNITION),
     ACCOUNTING     = new Skill("Accounting"    , FORM_COGNITIVE, COGNITION),
     ANCIENT_LORE   = new Skill("Ancient Lore"  , FORM_COGNITIVE, COGNITION),
     LEGISLATION    = new Skill("Legislation"   , FORM_COGNITIVE, COGNITION),
-    ADMIN_SKILLS[] = Trait.skillsSoFar(),
+    ADMIN_SKILLS[] = (Skill[]) Trait.TRAIT_INDEX.soFar(Skill.class),
     
     COGNITIVE_SKILLS[] = (Skill[]) Visit.compose(
       Skill.class,
@@ -126,7 +126,7 @@ public interface Qualities {
     MUSIC_AND_SONG    = new Skill("Music and Song" , FORM_SENSITIVE, MOTOR  ),
     GRAPHIC_DESIGN    = new Skill("Graphic Design" , FORM_SENSITIVE, PERCEPT),
     
-    SENSITIVE_SKILLS[] = Trait.skillsSoFar();
+    SENSITIVE_SKILLS[] = (Skill[]) Trait.TRAIT_INDEX.soFar(Skill.class);
   
   final public static Skill
     //
@@ -150,7 +150,7 @@ public interface Qualities {
     DOMESTICS         = new Skill("Domestics"        , FORM_PHYSICAL, MOTOR),
     BODY_MEDITATION   = new Skill("Body Meditation"  , FORM_PHYSICAL, NERVE),
     
-    PHYSICAL_SKILLS[] = Trait.skillsSoFar();
+    PHYSICAL_SKILLS[] = (Skill[]) Trait.TRAIT_INDEX.soFar(Skill.class);
   
   final public static Skill
     SUGGESTION   = new Skill("Suggestion"  , FORM_PSYONIC, NERVE),
@@ -160,7 +160,7 @@ public interface Qualities {
     PROJECTION   = new Skill("Projection"  , FORM_PSYONIC, NERVE),
     PREMONITION  = new Skill("Premonition" , FORM_PSYONIC, NERVE),
     
-    PSYONIC_SKILLS[] = Trait.skillsSoFar();
+    PSYONIC_SKILLS[] = (Skill[]) Trait.TRAIT_INDEX.soFar(Skill.class);
   
   final public static Skill ALL_SKILLS[] = (Skill[]) Visit.compose(Skill.class,
     ATTRIBUTES, INSTINCT_SKILLS, PSYONIC_SKILLS,
@@ -170,50 +170,52 @@ public interface Qualities {
   
   //  TODO:  I think only about half of these are needed.
   public static Trait
-    DEFENSIVE  = new Trait(PERSONALITY, "Defensive"),
-    CRITICAL   = new Trait(PERSONALITY, "Critical"),
-    NERVOUS    = new Trait(PERSONALITY, "Nervous"),
+    DEFENSIVE  = new Trait("Defensive", PERSONALITY, "Defensive"),
+    CRITICAL   = new Trait("Critical", PERSONALITY, "Critical"),
+    NERVOUS    = new Trait("Nervous", PERSONALITY, "Nervous"),
     
-    CALM       = new Trait(PERSONALITY, "Calm"),
-    POSITIVE   = new Trait(PERSONALITY, "Positive"),
-    FEARLESS   = new Trait(PERSONALITY, "Fearless"),
+    CALM       = new Trait("Calm", PERSONALITY, "Calm"),
+    POSITIVE   = new Trait("Positive", PERSONALITY, "Positive"),
+    FEARLESS   = new Trait("Fearless", PERSONALITY, "Fearless"),
     
-    CRUEL       = new Trait(PERSONALITY, "Cruel"),
-    DISHONEST   = new Trait(PERSONALITY, "Dishonest"),
-    ACQUISITIVE = new Trait(PERSONALITY, "Acquisitive"),
+    CRUEL       = new Trait("Cruel", PERSONALITY, "Cruel"),
+    DISHONEST   = new Trait("Dishonest", PERSONALITY, "Dishonest"),
+    ACQUISITIVE = new Trait("Acquisitive", PERSONALITY, "Acquisitive"),
     
-    EMPATHIC    = new Trait(PERSONALITY, "Empathic"),
-    ETHICAL     = new Trait(PERSONALITY, "Ethical"),
-    GENEROUS    = new Trait(PERSONALITY, "Generous"),
+    EMPATHIC    = new Trait("Empathic", PERSONALITY, "Empathic"),
+    ETHICAL     = new Trait("Ethical", PERSONALITY, "Ethical"),
+    GENEROUS    = new Trait("Generous", PERSONALITY, "Generous"),
     
-    SUBVERSIVE  = new Trait(PERSONALITY, "Subversive"),
-    NATURALIST  = new Trait(PERSONALITY, "Naturalist"),
-    INDULGENT   = new Trait(PERSONALITY, "Indulgent"),
+    SUBVERSIVE  = new Trait("Subversive", PERSONALITY, "Subversive"),
+    NATURALIST  = new Trait("Naturalist", PERSONALITY, "Naturalist"),
+    INDULGENT   = new Trait("Indulgent", PERSONALITY, "Indulgent"),
     
-    DUTIFUL     = new Trait(PERSONALITY, "Dutiful"),
-    URBANE      = new Trait(PERSONALITY, "Urbane"),
-    ABSTINENT   = new Trait(PERSONALITY, "Abstinent"),
+    DUTIFUL     = new Trait("Dutiful", PERSONALITY, "Dutiful"),
+    URBANE      = new Trait("Urbane", PERSONALITY, "Urbane"),
+    ABSTINENT   = new Trait("Abstinent", PERSONALITY, "Abstinent"),
     
-    CREATIVE    = new Trait(PERSONALITY, "Creative"),
-    CURIOUS     = new Trait(PERSONALITY, "Curious"),
-    IMPULSIVE   = new Trait(PERSONALITY, "Impulsive"),
+    CREATIVE    = new Trait("Creative", PERSONALITY, "Creative"),
+    CURIOUS     = new Trait("Curious", PERSONALITY, "Curious"),
+    IMPULSIVE   = new Trait("Impulsive", PERSONALITY, "Impulsive"),
     
-    TRADITIONAL = new Trait(PERSONALITY, "Traditional"),
-    IGNORANT    = new Trait(PERSONALITY, "Ignorant"),
-    STUBBORN    = new Trait(PERSONALITY, "Stubborn"),
+    TRADITIONAL = new Trait("Traditional", PERSONALITY, "Traditional"),
+    IGNORANT    = new Trait("Ignorant", PERSONALITY, "Ignorant"),
+    STUBBORN    = new Trait("Stubborn", PERSONALITY, "Stubborn"),
     
-    AMBITIOUS   = new Trait(PERSONALITY, "Ambitious"),
-    ENERGETIC   = new Trait(PERSONALITY, "Energetic"),
-    OUTGOING    = new Trait(PERSONALITY, "Outgoing"),
+    AMBITIOUS   = new Trait("Ambitious", PERSONALITY, "Ambitious"),
+    ENERGETIC   = new Trait("Energetic", PERSONALITY, "Energetic"),
+    OUTGOING    = new Trait("Outgoing", PERSONALITY, "Outgoing"),
     
-    HUMBLE      = new Trait(PERSONALITY, "Humble"),
-    RELAXED     = new Trait(PERSONALITY, "Relaxed"),
-    SOLITARY    = new Trait(PERSONALITY, "Solitary"),
+    HUMBLE      = new Trait("Humble", PERSONALITY, "Humble"),
+    RELAXED     = new Trait("Relaxed", PERSONALITY, "Relaxed"),
+    SOLITARY    = new Trait("Solitary", PERSONALITY, "Solitary"),
     
-    EXCITABLE   = new Trait(PERSONALITY, "Excitable"),
-    IMPASSIVE   = new Trait(PERSONALITY, "Impassive"),
+    EXCITABLE   = new Trait("Excitable", PERSONALITY, "Excitable"),
+    IMPASSIVE   = new Trait("Impassive", PERSONALITY, "Impassive"),
     
-    PERSONALITY_TRAITS[] = Personality.setupRelations(Trait.traitsSoFar()),
+    PERSONALITY_TRAITS[] = Personality.setupRelations(
+      Trait.TRAIT_INDEX.soFar(Trait.class)
+    ),
     
     //
     //  These are the listings for physical traits.  Physical traits are
@@ -221,7 +223,7 @@ public interface Qualities {
     //  but do wax and wane based on aging, in a fashion similar to basic
     //  attributes.  TODO:  Implement that.
     
-    FEMININE = new Trait(PHYSICAL,
+    FEMININE = new Trait("Sex Traits", PHYSICAL,
       "Busty",
       "Curvy",
       "Gamine",
@@ -230,7 +232,7 @@ public interface Qualities {
       "Bearded",
       "Hirsute"
     ),
-    HANDSOME = new Trait(PHYSICAL,
+    HANDSOME = new Trait("Appearance", PHYSICAL,
       "Stunning",
       "Beautiful",
       "Handsome",
@@ -239,7 +241,7 @@ public interface Qualities {
       "Ugly",
       "Hideous"
     ),
-    TALL = new Trait(PHYSICAL,
+    TALL = new Trait("Height", PHYSICAL,
       "Towering",
       "Big",
       "Tall",
@@ -248,7 +250,7 @@ public interface Qualities {
       "Small",
       "Diminutive"
     ),
-    STOUT = new Trait(PHYSICAL,
+    STOUT = new Trait("Stoutness", PHYSICAL,
       "Rotund",
       "Stout",
       "Sturdy",
@@ -257,50 +259,50 @@ public interface Qualities {
       "Lean",
       "Gaunt"
     ),
-    PHYSICAL_TRAITS[] = Trait.traitsSoFar(),
+    PHYSICAL_TRAITS[] = Trait.TRAIT_INDEX.soFar(Trait.class),
     
     //
     //  Categoric traits are qualitative physical traits unaffected by aging.
-    ORIENTATION = new Trait(CATEGORIC,
+    ORIENTATION = new Trait("Orientation", CATEGORIC,
       "Heterosexual",
       "Bisexual",
       "Homosexual",
       null
     ),
-    GENDER = new Trait(CATEGORIC,
+    GENDER = new Trait("Gender", CATEGORIC,
       "Female",
       null,
       "Male"
     ),
-    DESERT_BLOOD = new Trait(CATEGORIC,
+    DESERT_BLOOD = new Trait("Desert Blood", CATEGORIC,
       "Desert Blood", // "Desertborn", "Dark"
       null
     ),
-    TUNDRA_BLOOD = new Trait(CATEGORIC,
+    TUNDRA_BLOOD = new Trait("Tundra Blood", CATEGORIC,
       "Tundra Blood", // "Tundraborn", "Sallow"
       null
     ),
-    FOREST_BLOOD = new Trait(CATEGORIC,
+    FOREST_BLOOD = new Trait("Forest Blood", CATEGORIC,
       "Forest Blood", //  "Forestborn", "Tan"
       null
     ),
-    WASTES_BLOOD = new Trait(CATEGORIC,
+    WASTES_BLOOD = new Trait("Wastes Blood", CATEGORIC,
       "Wastes Blood", //  "Wastesborn", "Pale"
       null
     ),
-    MUTATION = new Trait(CATEGORIC,
+    MUTATION = new Trait("Mutation", CATEGORIC,
       "Major Mutation",
       "Minor Mutation",
       "Nominal Mutation",
       null
     ),
-    PSYONIC = new Trait(CATEGORIC,
+    PSYONIC = new Trait("Psyonic", CATEGORIC,
       "Psyon"
     ),
     BLOOD_TRAITS[] = {
       DESERT_BLOOD, TUNDRA_BLOOD, FOREST_BLOOD, WASTES_BLOOD
     },
-    CATEGORIC_TRAITS[] = Trait.traitsSoFar();
+    CATEGORIC_TRAITS[] = Trait.TRAIT_INDEX.soFar(Trait.class);
   //
   //  TODO:  Create a list of freaky mutations to pick from, some good, some
   //  bad.  (Bad is more likely when acquired at random, good more likely as a
@@ -331,6 +333,7 @@ public interface Qualities {
     //
     //  Finally, listings for various conditions that might beset the actor-
     INJURY = new Condition(
+      "Injury", true,
       "Critical Injury",
       "Serious Injury",
       "Modest Injury",
@@ -338,6 +341,7 @@ public interface Qualities {
       null
     ),
     FATIGUE = new Condition(
+      "Fatigue", true,
       "Extreme Fatigue",
       "Heavy Fatigue",
       "Modest Fatigue",
@@ -345,6 +349,7 @@ public interface Qualities {
       null
     ),
     POOR_MORALE = new Condition(
+      "Morale", true,
       "Broken Morale",
       "Poor Morale",
       null,
@@ -353,6 +358,7 @@ public interface Qualities {
     ),
     
     HUNGER = new Condition(
+      "Hunger", true,
       "Near Starvation",
       "Hungry",
       "Peckish",
@@ -360,12 +366,14 @@ public interface Qualities {
       "Full"
     ),
     MALNOURISHMENT = new Condition(
+      "Malnourishment", true,
       "Malnourished",
       null
     ),
     //
     //  TODO:  Use this as a possible side-effect of incompetent foraging.
     POISONED = new Condition(
+      "Poisoned",
       SHORT_LATENCY, LOW_VIRULENCE, NO_SPREAD, Table.make(
         IMMUNE, -5, MUSCULAR, -5
       ),
@@ -377,6 +385,7 @@ public interface Qualities {
     ),
     
     SOMA_HAZE = new Condition(
+      "Soma Haze",
       NO_LATENCY, NO_VIRULENCE, NO_SPREAD, Table.make(
         MOTOR, -3, COGNITION, -1, PERCEPT, 1
       ),
@@ -387,6 +396,7 @@ public interface Qualities {
       "Haze Immune"
     ),
     ILLNESS = new Condition(
+      "Illness",
       SHORT_LATENCY, MINIMAL_VIRULENCE, RAPID_SPREAD, Table.make(
         IMMUNE, -5, MUSCULAR, -5
       ),
@@ -397,6 +407,7 @@ public interface Qualities {
        "Illness Immune"
     ),
     SPICE_ADDICTION = new Condition(
+      "Spice Addiction",
       LONG_LATENCY, LOW_VIRULENCE, NO_SPREAD, Table.make(
         IMMUNE, -10, PERCEPT, -5, NERVE, -5, COGNITION, -5
       ),
@@ -407,6 +418,7 @@ public interface Qualities {
       "Addiction Immune"
     ),
     CANCER = new Condition(
+      "Cancer",
       LONG_LATENCY, AVERAGE_VIRULENCE, NO_SPREAD, Table.make(
         IMMUNE, -20, MUSCULAR, -10
       ),
@@ -417,6 +429,7 @@ public interface Qualities {
       "Cancer Immune"
     ),
     RAGE_INFECTION = new Condition(
+      "Rage Infection",
       SHORT_LATENCY, HIGH_VIRULENCE, RAPID_SPREAD, Table.make(
         IMMUNE, 5, MUSCULAR, 5, DEFENSIVE, 5, COGNITION, -15
       ),
@@ -427,6 +440,7 @@ public interface Qualities {
       "Rage Immune"
     ),
     HIREX_PARASITE = new Condition(
+      "Hirex Parasite",
       MEDIUM_LATENCY, HIGH_VIRULENCE, SLOW_SPREAD, Table.make(
         COGNITION, -5, MOTOR, -5, PERCEPT, -5, MUSCULAR, -5, HANDSOME, -5
       ),
@@ -437,6 +451,7 @@ public interface Qualities {
       "Hirex Immune"
     ),
     ALBEDAN_STRAIN = new Condition(
+      "Albedan Strain",
       MEDIUM_LATENCY, EXTREME_VIRULENCE, SLOW_SPREAD, Table.make(
         INDULGENT, 2, IMMUNE, 5, PERCEPT, 5, MOTOR, -5
       ),
@@ -447,6 +462,7 @@ public interface Qualities {
       "Strain Immune"
     ),
     SILVERQUICK = new Condition(
+      "Silverquick",
       SHORT_LATENCY, EXTREME_VIRULENCE, RAPID_SPREAD, Table.make(
         IMPASSIVE, 5, IMMUNE, -20, MUSCULAR, -20
       ),
@@ -457,6 +473,7 @@ public interface Qualities {
       "Silverquick Immune"
     ),
     MOEBIUS_PLAGUE = new Condition(
+      "Moebius Plague",
       LONG_LATENCY, EXTREME_VIRULENCE, NO_SPREAD, Table.make(
         MOTOR, -20, MUSCULAR, -20
       ),
@@ -476,11 +493,12 @@ public interface Qualities {
       CANCER, RAGE_INFECTION, HIREX_PARASITE,
       ALBEDAN_STRAIN, SILVERQUICK, MOEBIUS_PLAGUE
     };
-  final public static Trait CONDITIONS[] = Trait.traitsSoFar();
+  final public static Trait CONDITIONS[] = Trait.TRAIT_INDEX.soFar(Trait.class);
   
   
   final public static Trait
     KINESTHESIA_EFFECT = new Condition(
+      "Kinesthesia Effect",
       NO_LATENCY, NO_VIRULENCE, NO_SPREAD, Table.make(
         MOTOR, 10, HAND_TO_HAND, 10, MARKSMANSHIP, 10, ATHLETICS, 10
       ),
@@ -492,6 +510,7 @@ public interface Qualities {
       }
     },
     SUSPENSION_EFFECT = new Condition(
+      "Suspension Effect",
       NO_LATENCY, NO_VIRULENCE, NO_SPREAD, Table.make(),
       "Suspension", "Suspension", "Suspension", null
     ) {
@@ -507,7 +526,8 @@ public interface Qualities {
       }
     },
     SPICE_VISION_EFFECT = new Condition(
-     SHORT_LATENCY, NO_VIRULENCE, NO_SPREAD, Table.make(
+      "Spice Vision Effect",
+      SHORT_LATENCY, NO_VIRULENCE, NO_SPREAD, Table.make(
         IMMUNE, 10, COGNITION, 5, PERCEPT, 5, NERVE, 5
       ),
       "Spice Vision", "Spice Vision", "Spice Vision", null
@@ -519,11 +539,11 @@ public interface Qualities {
         }
       }
     },
-    EFFECTS[] = Trait.traitsSoFar();
+    EFFECTS[] = Trait.TRAIT_INDEX.soFar(Trait.class);
   
   
-  final public static Trait
-    ALL_TRAIT_TYPES[] = Trait.from(Trait.allTraits);
+  //final public static Trait
+    //ALL_TRAIT_TYPES[] = Trait.from(Trait.allTraits);
 }
 
 

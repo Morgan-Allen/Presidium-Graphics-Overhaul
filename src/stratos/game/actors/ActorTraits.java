@@ -48,7 +48,7 @@ public class ActorTraits implements Qualities {
     DNA = s.loadString();
     geneHash = s.loadInt();
     for (int n = s.loadInt(); n-- > 0;) {
-      final Trait type = ALL_TRAIT_TYPES[s.loadInt()];
+      final Trait type = Trait.loadConstant(s);//   ALL_TRAIT_TYPES[s.loadInt()];
       final Level level = new Level();
       level.value = s.loadFloat();
       level.bonus = s.loadFloat();
@@ -62,7 +62,8 @@ public class ActorTraits implements Qualities {
     s.saveInt(geneHash);
     s.saveInt(levels.size());
     for (Trait type : levels.keySet()) {
-      s.saveInt(type.traitID);
+      type.saveState(s);
+      //s.saveInt(type.traitID);
       final Level level = levels.get(type);
       s.saveFloat(level.value);
       s.saveFloat(level.bonus);
@@ -262,6 +263,7 @@ public class ActorTraits implements Qualities {
       if (report) I.say(" root bonus: "+rootBonus(skill));
       level *= 1 - actor.health.stressPenalty();
     }
+    
     return level;
   }
   

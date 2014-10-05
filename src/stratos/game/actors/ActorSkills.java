@@ -1,7 +1,8 @@
 
 package stratos.game.actors;
-import stratos.game.common.Session;
-import stratos.game.common.World;
+import org.apache.commons.math3.util.FastMath;
+
+import stratos.game.common.*;
 import stratos.util.*;
 
 
@@ -18,18 +19,7 @@ public class ActorSkills {
     MAX_SUCCEED_CHANCE = 0.9f;
   
   final Actor actor;
-
-  //  This class is used to store cooldowns, previous targets, etc. specific
-  //  to a particular technique.  Stands for  Technique.  Data.  Property.
-  private static class TDP {
-    String key;
-    float expiry;
-    Session.Saveable ref;
-    float val;
-  }
-
   final List <Technique> known = new List <Technique> ();
-  final Table <String, TDP> techniqueData = new Table();
   
   
   ActorSkills(Actor actor) {
@@ -38,30 +28,14 @@ public class ActorSkills {
   
   
   void loadState(Session s) throws Exception {
-    
     s.loadObjects(known);
-    for (int n = s.loadInt(); n-- > 0;) {
-      final TDP datum = new TDP();
-      datum.key    = s.loadString();
-      datum.expiry = s.loadFloat ();
-      datum.ref    = s.loadObject();
-      datum.val    = s.loadFloat ();
-      techniqueData.put(datum.key, datum);
-    }
   }
   
   
   void saveState(Session s) throws Exception {
-    
     s.saveObjects(known);
-    s.saveInt(techniqueData.size());
-    for (TDP datum : techniqueData.values()) {
-      s.saveString(datum.key   );
-      s.saveFloat (datum.expiry);
-      s.saveObject(datum.ref   );
-      s.saveFloat (datum.val   );
-    }
   }
+  
 
   
   /**  Called every 20 seconds or so.
@@ -71,8 +45,8 @@ public class ActorSkills {
     //  See if we've learned any new techniques based on practice in source
     //  skills or item proficiency.
     for (Technique t : Technique.ALL_TECHNIQUES()) {
-      if (t.source instanceof Skill) {
-        final float level = actor.traits.traitLevel((Skill) t.source);
+      if (t.learnFrom instanceof Skill) {
+        final float level = actor.traits.traitLevel((Skill) t.learnFrom);
         if (level >= t.minLevel) known.include(t);
       }
     }
@@ -81,8 +55,13 @@ public class ActorSkills {
     
     //
     //  And decay any skills that haven't been used in a while.
-    
   }
+  
+  
+  public Series <Technique> knownTechniques() {
+    return known;
+  }
+  
   
   
   /**  Methods for performing actual skill tests against both static and active
@@ -114,20 +93,15 @@ public class ActorSkills {
     //  TODO:  Physical skills need to exercise strength/vigour and exact
     //  fatigue!
     //  TODO:  Sensitive skills must exercise reflex/insight, and tie in with
-    //  awareness/FoW.
+    //  awareness/fog levels.
     //  TODO:  Cognitive skills need study to advance, and exercise will/
     //  intellect.
     
-    //
     //  Invoke any known techniques here that are registered to be triggered
     //  by a skill of this type, and get their associated bonuses:
-    final Behaviour plan = actor.mind.rootBehaviour();
-    final Action action = actor.currentAction();
-    
-    for (Technique t : techniquesKnownFor(checked)) {
-      final float tBonus = t.applyEffect(actor, plan, action);
-      if (tBonus > 0) bonus += tBonus;
-    }
+    final Target subject = actor.focusFor(null);
+    final Technique boost = pickSkillBonus(checked, subject);
+    if (boost != null) bonus += boost.bonusFor(actor, checked, subject);
     //
     //  Then get the baseline probability of success in the task.
     final float chance = chance(checked, b, opposed, bonus);
@@ -142,7 +116,8 @@ public class ActorSkills {
     practice(checked, (1 - chance) * duration / 10);
     if (b != null) b.skills.practice(opposed, chance * duration / 10);
     //
-    //  And return the result-
+    //  And return the result.
+    if (boost != null) boost.applyEffect(actor, success > 0, subject);
     return success;
   }
   
@@ -173,45 +148,38 @@ public class ActorSkills {
   }
   
   
-  
-  /**  Handling Techniques:
+  /**  Technique-handling methods:
+    *  TODO:  Move some of the decision-handling methods for Techniques over to
+    *  here...
     */
-  //  TODO:  Use a more efficient caching system for this.
-  public Batch <Technique> techniquesKnownFor(Object trigger) {
-    final Batch <Technique> matched = new Batch();
-    for (Technique t : known) if (Visit.arrayIncludes(t.triggers, trigger)) {
-      matched.include(t);
-    }
-    return matched;
-  }
-  
-  
-  protected void storeDatumFor(
-    Technique t, String key, Session.Saveable ref, float val
+  public Action pickIndependantAction(
+    Target subject, Object trigger, Plan plan
   ) {
-    key = t.name+key;
-    TDP match = techniqueData.get(key);
-    if (match == null) techniqueData.put(key, match = new TDP());
+    Technique picked = pickBestKnown(subject, plan.harmFactor(), trigger);
+    if (picked == null) return null;
+    return picked.asActionFor(actor, subject);
+  }
+  
+  //
+  //  TODO:  Limit this to 'Passive Bonus' type techniques, and sum all such
+  //  bonuses, not just the one.
+  protected Technique pickSkillBonus(Skill s, Target subject) {
+    return pickBestKnown(subject, Plan.REAL_HELP, s);
+  }
+  
+  
+  protected Technique pickBestKnown(
+    Target subject, float harmLevel, Object trigger
+  ) {
+    Technique picked = null;
+    float bestAppeal = 0;
     
-    match.key = key;
-    match.expiry = actor.world().currentTime() + World.STANDARD_HOUR_LENGTH;
-    match.ref = ref;
-    match.val = val;
-  }
-  
-  
-  protected float datumValFor(Technique t, String key) {
-    key = t.name+key;
-    final TDP match = techniqueData.get(key);
-    if (match != null) return match.val;
-    else return 0;
-  }
-  
-  
-  protected Session.Saveable datumRefFor(Technique t, String key) {
-    key = t.name+key;
-    final TDP match = techniqueData.get(key);
-    return match == null ? null : match.ref;
+    for (Technique t : known) if (t.trigger == trigger) {
+      if (t.bonusFor(actor, t.skillUsed, subject) <= 0) continue;
+      final float appeal = t.priorityFor(actor, subject, harmLevel);
+      if (appeal > bestAppeal) { bestAppeal = appeal; picked = t; }
+    }
+    return picked;
   }
 }
 

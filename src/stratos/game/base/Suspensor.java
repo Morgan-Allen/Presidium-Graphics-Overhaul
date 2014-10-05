@@ -119,9 +119,15 @@ public class Suspensor extends Mobile {
   }
   
   
+  public boolean isMoving() {
+    return followed.isMoving();
+  }
+  
+  
   protected float aboveGroundHeight() { return 0.15f; }
   public float radius() { return 0.0f; }
   public Base base() { return followed.base(); }
+  
   
   protected float spriteScale() {
     return super.spriteScale() * GameSettings.actorScale;

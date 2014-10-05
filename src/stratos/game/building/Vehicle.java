@@ -243,6 +243,11 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
+  public boolean isMoving() {
+    return pathing.nextStep() != null;
+  }
+  
+  
   protected float baseMoveRate() {
     return 1.0f;
   }

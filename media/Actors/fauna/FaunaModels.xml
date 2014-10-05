@@ -114,18 +114,18 @@
 
 
 <model
-  name="Gigans"
+  name="Yamagur"
   format="MS3D"
   type="JOINT"
   path="media/Actors/fauna/"
-  file="Gigans.ms3d"
-  scale="0.06"
+  file="yamagur.ms3d"
+  scale="0.6"
   bound="2"
   stride="0.6"
   height="1.2"
 >
-  <animations>
-    <animation name="stand"      start="0"  end="0"  duration="0.5" />
+  <animations fps="25">
+    <animation name="move"      start="26"  end="66"  duration="0.5" />
   </animations>
 </model>
 

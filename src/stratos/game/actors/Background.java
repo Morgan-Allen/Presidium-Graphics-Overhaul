@@ -131,7 +131,7 @@ public class Background implements Session.Saveable {
   
   public List <Skill> skills() {
     final List <Skill> b = new List <Skill> () {
-      protected float queuePriority(Skill r) { return r.traitID; }
+      //protected float queuePriority(Skill r) { return r.traitID; }
     };
     for (Skill s : baseSkills.keySet()) b.queueAdd(s);
     return b;
@@ -146,7 +146,7 @@ public class Background implements Session.Saveable {
   
   public List <Trait> traits() {
     final List <Trait> b = new List <Trait> () {
-      protected float queuePriority(Trait r) { return r.traitID; }
+      //protected float queuePriority(Trait r) { return r.traitID; }
     };
     for (Trait t : traitChances.keySet()) b.queueAdd(t);
     return b;

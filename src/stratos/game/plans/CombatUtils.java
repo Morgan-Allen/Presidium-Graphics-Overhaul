@@ -24,11 +24,12 @@ public class CombatUtils {
     MAX_POWER   = 20;
   private static boolean
     threatsVerbose  = false,
-    strengthVerbose = false,
+    powerVerbose    = false,
     dangerVerbose   = false;
   
   
   public static float powerLevel(Actor actor) {
+    final boolean report = powerVerbose && I.talkAbout == actor;
     
     float estimate = 1;
     estimate *= (actor.gear.armourRating() + actor.gear.attackDamage()) / 10f;
@@ -36,12 +37,16 @@ public class CombatUtils {
     estimate *= (2 - actor.health.injuryLevel  ()) / 2f;
     estimate *= (2 - actor.health.stressPenalty()) / 2f;
     
+    if (report) {
+      I.say("\nESTIMATED POWER LEVEL OF "+actor+" IS "+estimate);
+    }
     return estimate;
   }
   
   
-  public static float powerLevelRelative(Actor other, Actor actor) {
+  public static float powerLevelRelative(Actor actor, Actor other) {
     //  TODO:  Also consider effects of psy abilities, techniques, et cetera.
+    final boolean report = powerVerbose && I.talkAbout == actor;
     
     final float
       otherPower = other.senses.powerLevel(),
@@ -61,16 +66,36 @@ public class CombatUtils {
       actorChance = actor.skills.chance(attack, other, defend, 0),
       otherChance = other.skills.chance(attack, actor, defend, 0);
     
-    float estimate = actorPower / otherPower;
+    float estimate = 1;
+    estimate *= actorPower / (otherPower + actorPower);
     estimate *= 2 * (actorChance + 1 - otherChance) / 2f;
-    return Visit.clamp(estimate, 0, MAX_POWER);
+    estimate = Visit.clamp(estimate, 0, MAX_POWER);
+    
+    if (report) {
+      I.say("\nGETTING POWER OF "+actor+" (Actor)");
+      I.say("RELATIVE TO "+other+" (Other)");
+      
+      I.say("  Actor power: "+actorPower+" chance: "+actorChance);
+      I.say("  Actor attack skill: "+actor.traits.useLevel(attack));
+      I.say("  Actor defend skill: "+actor.traits.useLevel(defend));
+
+      I.say("  Other power: "+otherPower+" chance: "+otherChance);
+      I.say("  Other attack skill: "+other.traits.useLevel(attack));
+      I.say("  Other defend skill: "+other.traits.useLevel(defend));
+      
+      I.say("  Estimated relative power level: "+estimate);
+    }
+    return estimate;
   }
   
   
   public static float combatValue(
     Target target, Actor actor, float harmLevel
   ) {
-    if (! (target instanceof Actor)) {
+    if (! (target instanceof Element)) {
+      return -1;
+    }
+    else if (! (target instanceof Actor)) {
       return actor.relations.relationValue(target);
     }
     else {
@@ -90,21 +115,29 @@ public class CombatUtils {
         value += plan.harmFactor() * relation;
       }
       
-      value /= 1 + powerLevelRelative(actor, other);
+      //value /= 1 + powerLevelRelative(actor, other);
       return value;
     }
   }
   
   
-  
-  public static boolean isHostileTo(Actor actor, Actor other) {
+  public static boolean isHostileTo(Actor actor, Target target) {
+    if (! (target instanceof Actor)) return false;
+    final Actor other = (Actor) target;
+    
+    if (! other.health.conscious()) return false;
     if (other.focusFor(Combat.class) == actor) return true;
-    if (actor.base().relations.relationWith(other.base()) < 0) return true;
+    if (actor.relations.relationValue(other) < 0) return true;
+    //if (actor.base().relations.relationWith(other.base()) < 0) return true;
     return false;
   }
   
   
-  public static boolean isAllyOf(Actor actor, Actor other) {
+  public static boolean isAllyOf(Actor actor, Target target) {
+    if (! (target instanceof Actor)) return false;
+    final Actor other = (Actor) target;
+    
+    if (! other.health.conscious()) return false;
     if (other.focusFor(Retreat.class) != null) return false;
     if (other.relations.relationValue(actor) > 0.5f) return true;
     return other.base() == actor.base();
@@ -153,7 +186,7 @@ public class CombatUtils {
       if (value > bestValue) { bestValue = value; best = t; }
     }
     
-    return best;
+    return bestValue >= 0 ? best : null;
   }
 }
 

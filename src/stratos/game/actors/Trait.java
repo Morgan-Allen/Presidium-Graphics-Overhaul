@@ -17,8 +17,11 @@ public class Trait implements Qualities, Session.Saveable {
   private static boolean verboseInit = false;
   
   
-  private static int nextID = 0;
-  final public int traitID;
+  //private static int nextID = 0;
+  //final public int traitID;
+  final public String keyID;
+  final Object indexEntry;
+  final public static StringIndex <Trait> TRAIT_INDEX = new StringIndex <Trait> ();
   
   final int type;
   final int minVal, maxVal;
@@ -30,12 +33,18 @@ public class Trait implements Qualities, Session.Saveable {
   
   
   
-  protected Trait(int type, String... descriptors) {
-    this.traitID = nextID++;
+  protected Trait(String keyID, int type, String... descriptors) {
+    
+    this.keyID = keyID;
+    this.indexEntry = TRAIT_INDEX.addEntry(this, keyID);
+    
     this.type = type;
     this.descriptors = descriptors;
     this.descValues = new int[descriptors.length];
-    if (verboseInit) I.say("\n  Initialising new trait");
+    
+    if (verboseInit) {
+      I.say("\n  Initialising new trait: "+descriptors[0]);
+    }
     
     int zeroIndex = 0, min = -1, max = 1, val;
     for (String s : descriptors) { if (s == null) break; else zeroIndex++; }
@@ -55,11 +64,22 @@ public class Trait implements Qualities, Session.Saveable {
     this.maxVal = max;
     
     if (verboseInit) I.say("  Min/max vals: "+minVal+"/"+maxVal);
-    traitsSoFar.add(this);
-    allTraits.add(this);
+    //traitsSoFar.add(this);
+    //allTraits.add(this);
+  }
+
+  
+  public static Trait loadConstant(Session s) throws Exception {
+    return TRAIT_INDEX.loadFromEntry(s.input());
   }
   
   
+  public void saveState(Session s) throws Exception {
+    TRAIT_INDEX.saveEntry(indexEntry, s.output());
+    //s.saveInt(traitID);
+  }
+  
+  /*
   public static Trait loadFrom(Session s) throws Exception {
     final int ID = s.loadInt();
     if (ID == -1) return null;
@@ -71,6 +91,7 @@ public class Trait implements Qualities, Session.Saveable {
     if (t == null) { s.saveInt(-1); return; }
     s.saveInt(t.traitID);
   }
+  //*/
   
   
   
@@ -107,6 +128,7 @@ public class Trait implements Qualities, Session.Saveable {
   
   /**  Listing, compilation, and saving/loading-
     */
+  /*
   static Batch <Trait>
     traitsSoFar = new Batch <Trait> (),
     allTraits   = new Batch <Trait> ();
@@ -128,7 +150,8 @@ public class Trait implements Qualities, Session.Saveable {
     traitsSoFar.clear();
     return t;
   }
-  
+  //*/
+  /*
   
   public static Trait loadConstant(Session s) throws Exception {
     return ALL_TRAIT_TYPES[s.loadInt()];
@@ -138,6 +161,7 @@ public class Trait implements Qualities, Session.Saveable {
   public void saveState(Session s) throws Exception {
     s.saveInt(traitID);
   }
+  //*/
   
   
   

@@ -17,16 +17,17 @@ import java.util.Map.Entry;
 public class Senses implements Qualities {
   
   
-  /**  
+  /**  Data fields, constants, constructors, and save/load methods-
     */
   private static boolean
     reactVerbose  = false,
     noticeVerbose = false,
-    sightVerbose  = false;
+    sightVerbose  = false,
+    dangerVerbose = false;
   
   final Actor actor;
-  final Table <Target, Saveable> awares = new Table();
-  final Batch <Target> awareOf = new Batch();
+  final Table <Target, Saveable> awares = new Table <Target, Saveable> ();
+  final Batch <Target> awareOf = new Batch <Target> ();
 
   private boolean emergency ;
   private float   powerLevel;
@@ -66,6 +67,45 @@ public class Senses implements Qualities {
   
   /**  Dealing with seen objects and reactions to them-
     */
+  protected void updateSenses() {
+    final boolean report = reactVerbose && I.talkAbout == actor;
+    final float range = actor.health.sightRange();
+    if (report) I.say("\nUpdating senses, sight range: "+range);
+    
+    //  Get the set of all targets that the actor could observe, and update
+    //  one's sense of personal danger on that basis-
+    final Batch <Target> toNotice  = toNotice(range);
+    final Batch <Target> justSeen  = new Batch <Target> ();
+    final Batch <Target> lostSight = new Batch <Target> ();
+
+    for (Target e : toNotice) if (notices(e, range)) {
+      final Session.Saveable after = reactionKey(e), before = awares.get(e);
+      if (before != after) justSeen.add(e);
+      e.flagWith(this);
+      awares.put(e, after);
+    }
+    
+    for (Target e : awares.keySet()) {
+      if (e.flaggedWith() == this) { e.flagWith(null); continue; }
+      if (! notices(e, range)) lostSight.add(e);
+    }
+
+    awareOf.clear();
+    for (Target e : lostSight) awares.remove(e);
+    for (Target e : awares.keySet()) awareOf.add(e);
+    updateDangerEval(awareOf);
+
+    final Choice reactions = new Choice(actor);
+    for (Target e : justSeen) {
+      actor.mind.addReactions(e, reactions);
+    }
+    final Behaviour reaction = reactions.pickMostUrgent();
+    if (actor.mind.wouldSwitchTo(reaction)) {
+      actor.mind.assignBehaviour(reaction);
+    }
+  }
+  
+  
   protected Batch <Target> toNotice(float range) {
     final Batch <Target> noticed = new Batch <Target> ();
     final World world = actor.world();
@@ -83,10 +123,12 @@ public class Senses implements Qualities {
     final float percept = actor.traits.traitLevel(PERCEPT);
     final int reactLimit = (int) (2.5f + (percept / 5));
     int reactCount = 0;
+    
     for (Object m : world.presences.matchesNear(Mobile.class, actor, range)) {
       noticed.add((Target) m);
       if (++reactCount > reactLimit) break;
     }
+    
     world.presences.sampleFromMaps(
       actor, world, reactLimit, noticed,
       Mobile.class,
@@ -96,6 +138,35 @@ public class Senses implements Qualities {
   }
   
   
+  private boolean notices(Target e, final float sightRange) {
+    final boolean report = noticeVerbose && I.talkAbout == actor;
+    if (e == null || e == actor) return false;
+    
+    final float distance = Spacing.distance(e, actor);
+    final Base  base     = actor.base();
+    final float fog      = base.intelMap.fogAt(e);
+    if (fog <= 0) return false;
+    
+    float senseChance = sightRange * fog;
+    if (awareOf(e)) senseChance *= 2;
+    if (focusedOn(actor, e)) senseChance += sightRange;
+    //senseChance *= Rand.saltFrom(actor.world().tileAt(e)) + 0.5f;
+    
+    float hideChance = distance * (1 + stealthFactor(e, actor));
+    if (focusedOn(e, actor)) hideChance /= 2;
+    if (indoors(e)) hideChance += sightRange;
+    //hideChance *= Rand.saltFrom(actor.origin()) + 0.5f;
+
+    if (report) {
+      I.say("  Checking to notice: "+e);
+      I.say("    Distance/fog: "+distance+"/"+fog);
+      I.say("    Sense/hide chance: "+senseChance+"/"+hideChance);
+    }
+    
+    return senseChance > hideChance;
+  }
+  
+  /*
   protected Choice getReactions(Batch <Target> toNotice, float range) {
     final Choice reactions = new Choice(actor);
     
@@ -121,27 +192,7 @@ public class Senses implements Qualities {
     
     return reactions;
   }
-  
-  
-  protected void updateSenses() {
-    final boolean report = reactVerbose && I.talkAbout == actor;
-    final float range = actor.health.sightRange();
-    if (report) I.say("\nUpdating seen, sight range: "+range);
-    //
-    //  Check for anything new, and react to it.  Then cull anything that's
-    //  escaped the actor's field of vision, and update the list of seen items.
-    final Batch <Target> toNotice = toNotice(range);
-    final Choice reactions = getReactions(toNotice, range);
-    awareOf.clear();
-    for (Target e : awares.keySet()) awareOf.add(e);
-    //
-    //
-    updateDangerEval(awareOf);
-    final Behaviour reaction = reactions.pickMostUrgent();
-    if (actor.mind.wouldSwitchTo(reaction)) {
-      actor.mind.assignBehaviour(reaction);
-    }
-  }
+  //*/
   
   
   private Session.Saveable reactionKey(Target seen) {
@@ -158,35 +209,6 @@ public class Senses implements Qualities {
       return (Tile) seen;
     }
     return null;
-  }
-  
-  
-  private boolean notices(Target e, final float sightRange) {
-    final boolean report = noticeVerbose && I.talkAbout == actor;
-    if (e == null || e == actor) return false;
-    
-    final float distance = Spacing.distance(e, actor);
-    final Base  base     = actor.base();
-    final float fog      = base.intelMap.fogAt(e);
-    if (fog <= 0) return false;
-    
-    float senseChance = sightRange * fog;
-    if (awareOf(e)) senseChance *= 2;
-    if (focusedOn(actor, e)) senseChance += sightRange;
-    senseChance *= Rand.saltFrom(actor.world().tileAt(e));
-    
-    float hideChance = distance * (1 + stealthFactor(e, actor));
-    if (focusedOn(e, actor)) hideChance /= 2;
-    if (indoors(e)) hideChance += sightRange;
-    hideChance *= Rand.saltFrom(actor.origin());
-
-    if (report) {
-      I.say("  Checking to notice: "+e);
-      I.say("    Distance/fog: "+distance+"/"+fog);
-      I.say("    Sense/hide chance: "+senseChance+"/"+hideChance);
-    }
-    
-    return senseChance > hideChance;
   }
   
   
@@ -240,23 +262,34 @@ public class Senses implements Qualities {
   /**  Threat Evaluation methods-
     */
   protected void updateDangerEval(Batch <Target> awareOf) {
+    final boolean report = dangerVerbose && I.talkAbout == actor;
     
+    emergency = false;
     powerLevel = CombatUtils.powerLevel(actor);
     float sumAllies = 1, sumFoes = 0;
     
-    for (Target t : awareOf) if (t instanceof Actor) {
+    for (Target t : awareOf) if ((t instanceof Actor) && (t != actor)) {
       final Actor near = (Actor) t;
       
       if (CombatUtils.isHostileTo(actor, near)) {
+        if (report) I.say("Enemy nearby: "+near);
         emergency = true;
-        sumFoes += CombatUtils.powerLevelRelative(actor, near);
+        sumFoes += CombatUtils.powerLevelRelative(near, actor);
       }
       else if (CombatUtils.isAllyOf(actor, near)) {
+        if (report) I.say("Ally nearby: "+near);
         sumAllies += near.senses.powerLevel() * 2 / (1 + powerLevel);
       }
     }
     
     fearLevel = sumFoes / (sumFoes + sumAllies);
+    fearLevel += actor.base().dangerMap.sampleAt(actor);
+    
+    if (report) {
+      I.say("Sum allies: "+sumAllies);
+      I.say("Sum of foes: "+sumFoes);
+      I.say("Fear level: "+fearLevel);
+    }
   }
   
   

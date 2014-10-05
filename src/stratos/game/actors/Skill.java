@@ -60,7 +60,7 @@ public class Skill extends Trait {
   
   
   Skill(String name, int form, Skill parent) {
-    super(SKILL, descLevelsFor(name));
+    super(name, SKILL, descLevelsFor(name));
     this.name = name;
     this.form = form;
     this.parent = parent;

@@ -40,7 +40,7 @@ public class MS3DFile {
     parseGroups(in);
     parseMaterials(in);
     parseJoints(in);
-
+    
     // ignoring rest of the file
     // all weights are 1 in my test model anyway
 
@@ -174,6 +174,7 @@ public class MS3DFile {
       mat.emissive = in.readFloats(new float[4]);
       mat.shininess = in.readFloat();
       mat.transparency = in.readFloat();
+      
       mat.mode = in.readByte();
       mat.texture = in.readUTF(128);
       mat.alphamap = in.readUTF(128);

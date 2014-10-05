@@ -154,10 +154,14 @@ public class InstallTab extends SelectionInfoPane {
   /**  Actual placement of buildings-
     */
   private void initInstallTask(BaseUI UI, Class type) {
+    final Venue venue = VenueProfile.sampleVenue(type);
+    if (venue == null) return;
+    else venue.assignBase(UI.played());
+    
     final InstallTask task = new InstallTask();
     task.UI = UI;
     task.type = type;
-    task.toInstall = VenueProfile.sampleVenue(type);
+    task.toInstall = venue;
     UI.beginTask(task);
   }
   

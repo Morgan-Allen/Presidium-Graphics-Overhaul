@@ -94,6 +94,11 @@ public abstract class Actor extends Mobile implements
     return 1.0f * GameSettings.actorScale;
   }
   
+  public boolean isMoving() {
+    if (actionTaken == null) return false;
+    return actionTaken.isMoving();
+  }
+  
   public Background vocation() { return null; }
   public void setVocation(Background b) {}
   public Species species() { return null; }
@@ -317,8 +322,8 @@ public abstract class Actor extends Mobile implements
   }
   
   
-  //  TODO:  Move these to the Mind class-
   
+  //  TODO:  Move these to the Mind class-
   
   public boolean isDoingAction(String actionMethod, Target target) {
     if (actionTaken == null) return false;

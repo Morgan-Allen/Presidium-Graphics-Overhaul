@@ -55,7 +55,6 @@ public abstract class Fauna extends Actor {
     species = Species.ALL_SPECIES[s.loadInt()];
     breedMetre = s.loadFloat();
     lastMigrateCheck = s.loadFloat();
-    initStats();
   }
   
   
@@ -83,10 +82,12 @@ public abstract class Fauna extends Actor {
   
   public void updateAsScheduled(int numUpdates) {
     super.updateAsScheduled(numUpdates);
+    
     if (numUpdates % 10 == 0 && health.alive()) {
       world.ecology().impingeAbundance(this, 10);
       float crowding = Nest.crowdingFor(this);
       if (crowding == 1) crowding += 0.1f;
+      
       float fertility = (health.agingStage() - 0.5f) * health.caloryLevel();
       float breedInc = (1 - crowding) * 10 / Nest.DEFAULT_BREED_INTERVAL;
       breedInc *= Visit.clamp(fertility, 0, ActorHealth.AGE_MAX);
@@ -99,21 +100,21 @@ public abstract class Fauna extends Actor {
   /**  Shared behavioural methods-
     */
   protected ActorMind initAI() {
-    final Fauna actor = this;
-    
-    return new ActorMind(actor) {
+    final Fauna fauna = this;
+    return new ActorMind(fauna) {
+      
       protected Choice createNewBehaviours(Choice choice) {
         if (choice == null) choice = new Choice(actor);
-        addChoices(choice);
+        fauna.addChoices(choice);
         return choice;
+      }
+      
+      protected void addReactions(Target seen, Choice choice) {
+        fauna.addReactions(seen, choice);
       }
       
       protected void updateAI(int numUpdates) {
         super.updateAI(numUpdates);
-      }
-      
-      protected void addReactions(Target seen, Choice choice) {
-        if (seen instanceof Actor) choice.add(nextDefence((Actor) seen));
       }
     };
   }
@@ -136,6 +137,27 @@ public abstract class Fauna extends Actor {
   }
   
   
+  protected void addChoices(Choice choice) {
+    for (Target t : senses.awareOf()) {
+      addReactions(t, choice);
+    }
+    if (species.browser()) choice.add(nextBrowsing());
+    if (species.predator()) choice.add(nextHunting());
+    if (breedMetre >= 0.99f) choice.add(nextBreeding());
+    choice.add(nextResting());
+    choice.add(nextMigration());
+    choice.add(nextBuildingNest());
+  }
+  
+  
+  protected void addReactions(Target seen, Choice choice) {
+    if (seen instanceof Actor) choice.add(nextDefence((Actor) seen));
+  }
+  
+  
+  
+  /**  Specific, generalised implementations for common behaviour types-
+    */
   protected Behaviour nextHunting() {
     final Choice c = new Choice(this);
     for (Target e : senses.awareOf()) {
@@ -145,6 +167,11 @@ public abstract class Fauna extends Actor {
       }
     }
     return c.pickMostUrgent();
+  }
+  
+  
+  protected Behaviour nextDefence(Actor near) {
+    return new Retreat(this);
   }
   
   
@@ -340,21 +367,6 @@ public abstract class Fauna extends Actor {
       I.say("Giving birth to new "+actor.species.name+" at: "+nests);
     }
     return true;
-  }
-  
-  
-  protected Behaviour nextDefence(Actor near) {
-    return new Retreat(this);
-  }
-  
-  
-  protected void addChoices(Choice choice) {
-    if (species.browser()) choice.add(nextBrowsing());
-    if (species.predator()) choice.add(nextHunting());
-    if (breedMetre >= 0.99f) choice.add(nextBreeding());
-    choice.add(nextResting());
-    choice.add(nextMigration());
-    choice.add(nextBuildingNest());
   }
   
   

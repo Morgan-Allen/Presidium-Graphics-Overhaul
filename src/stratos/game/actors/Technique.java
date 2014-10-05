@@ -16,14 +16,16 @@ import stratos.util.*;
 public abstract class Technique implements Session.Saveable {
   
   
+  //*
   final public static int
-    TYPE_PASSIVE_EFFECT   = 0,
-    TYPE_COMBINED_ACTION  = 1,
-    TYPE_EXCLUSIVE_ACTION = 2;
+    TYPE_SKILL_USE_BASED    = 0,
+    TYPE_INDEPENDANT_ACTION = 1;
+  /*
   final public static int
     SOURCE_SKILL  = 2,
     SOURCE_ITEM   = 1,
     SOURCE_SECRET = 0;
+  //*/
   final public static Object
     TRIGGER_ATTACK = new Object(),
     TRIGGER_DEFEND = new Object(),
@@ -59,10 +61,11 @@ public abstract class Technique implements Session.Saveable {
   final public ImageAsset icon    ;
   final public String     animName;
   
-  final public int    type      ;
-  final public Object source    ;
-  final public Object triggers[];
-  final public int    minLevel  ;
+  final public int    type     ;
+  final public Skill  skillUsed;
+  final public Object learnFrom;
+  final public Object trigger  ;
+  final public int    minLevel ;
   
   final public float
     powerLevel       ,
@@ -70,16 +73,31 @@ public abstract class Technique implements Session.Saveable {
     fatigueCost      ,
     concentrationCost;
   
-  final public Condition asCondition = new Condition() {
-    public void affect(Actor a) { applyAsCondition(a); }
-  };
+  final public Condition asCondition;
+
   
   
   public Technique(
     String name, String iconFile, String animName,
     Class sourceClass, int uniqueID,
     float power, float harm, float fatigue, float concentration,
-    int type, Object source, int minLevel, Object... triggers
+    int type, Skill skillUsed, int minLevel
+  ) {
+    this(
+      name, iconFile, animName,
+      sourceClass, uniqueID,
+      power, harm, fatigue, concentration,
+      type, skillUsed, minLevel, skillUsed, skillUsed
+    );
+  }
+  
+  
+  public Technique(
+    String name, String iconFile, String animName,
+    Class sourceClass, int uniqueID,
+    float power, float harm, float fatigue, float concentration,
+    int type, Skill skillUsed, int minLevel,
+    Object learnFrom, Object trigger
   ) {
     this.name     = name    ;
     this.animName = animName;
@@ -97,10 +115,19 @@ public abstract class Technique implements Session.Saveable {
     this.fatigueCost       = fatigue      ;
     this.concentrationCost = concentration;
     
-    this.type     = type    ;
-    this.source   = source  ;
-    this.minLevel = minLevel;
-    this.triggers = triggers;
+    this.type      = type     ;
+    this.skillUsed = skillUsed;
+    this.minLevel  = minLevel ;
+    this.learnFrom = learnFrom;
+    this.trigger   = trigger  ;
+
+    //  TODO:  Saving and loading of this condition (which is a trait, keyed off
+    //  ID,) also needs to work properly!  For that to work, you just need to
+    //  supply unique numeric IDs, or key off strings instead.
+    
+    this.asCondition = new Condition(name, false) {
+      public void affect(Actor a) { applyAsCondition(a); }
+    };
     
     if (ATT.get(uniqueID) != null) I.complain(
       "NON-UNIQUE TECHNIQUE ID: "+uniqueID
@@ -113,6 +140,7 @@ public abstract class Technique implements Session.Saveable {
   }
   
   
+  //  TODO:  REPLACE WITH REFS TO A STRINGINDEX
   private static Batch <Technique> allTechniques = new Batch();
   private static Technique ATA[] = null;
   private static Table <Integer, Technique> ATT = new Table();
@@ -141,44 +169,33 @@ public abstract class Technique implements Session.Saveable {
   /**  Basic interface and utility methods for use and evaluation of different
     *  techniques-
     */
-  public abstract float applyEffect(Actor using, Behaviour b, Action a);
+  //  TODO:  You need separate methods here for each of the main types of
+  //  Technique- e.g, passive bonus v. independent action v. piggyback
+  //  action, etc.
+  public abstract float bonusFor(Actor using, Skill skill, Target subject);
+  
+  
+  public void applyEffect(Actor using, boolean success, Target subject) {
+    using.health.takeFatigue      (fatigueCost      );
+    using.health.takeConcentration(concentrationCost);
+  }
+  
+  
+  protected Action asActionFor(Actor actor, Target subject) {
+    final Action action = new Action(
+      actor, subject,
+      this, "actionUseTechnique",
+      animName, "Using "+name
+    );
+    action.setProperties(Action.RANGED | Action.QUICK);
+    action.setPriority(Action.ROUTINE);
+    return action;
+  }
   
   
   public boolean actionUseTechnique(Actor actor, Target subject) {
-    applyEffect(actor, actor.mind.rootBehaviour(), actor.currentAction());
-    actor.health.takeFatigue      (fatigueCost      );
-    actor.health.takeConcentration(concentrationCost);
+    applyEffect(actor, true, subject);
     return true;
-  }
-  
-  
-  protected float appealFor(Actor actor, Target subject, float harmLevel) {
-    //
-    //  Techniques become less attractive based on the fraction of fatigue or
-    //  concentration they would consume.
-    final float
-      conCost = concentrationCost / actor.health.concentration(),
-      fatCost = fatigueCost       / actor.health.fatigueLimit() ;
-    if (conCost > 1 || fatCost > 1) return 0;
-    //
-    //  Don't use a harmful technique against a subject you want to help, and
-    //  try to avoid extreme harm against subjects you only want to subdue, et
-    //  cetera.
-    if (harmLevel * harmFactor <= 0) return 0;
-    float rating = 10;
-    rating -= FastMath.abs(harmLevel - harmFactor);
-    rating *= ((1 - conCost) + (1 - fatCost)) / 2f;
-    return powerLevel * rating / 10f;
-  }
-  
-  
-  protected boolean canApply(Actor using, Behaviour b) {
-    return true;
-  }
-  
-  
-  protected void configAction(Action action) {
-    action.setProperties(Action.RANGED | Action.QUICK);
   }
   
   
@@ -196,70 +213,33 @@ public abstract class Technique implements Session.Saveable {
   }
   
   
-  public static Action pickCombatAction(
-    Actor actor, Target struck, Combat combat
-  ) {
-    Technique picked = null;
-    float bestAppeal = 0;
-    
-    for (Technique t : actor.skills.known) {
-      if (Visit.arrayIncludes(t.triggers, TRIGGER_ATTACK)) {
-        if (! t.canApply(actor, combat)) continue;
-        final float appeal = t.appealFor(actor, struck, combat.harmFactor());
-        if (appeal > bestAppeal) { bestAppeal = appeal; picked = t; }
-      }
-    }
-    if (picked == null) return null;
-    
-    final Action action = new Action(
-      actor, struck,
-      picked, "actionUseTechnique",
-      picked.animName, "Using "+picked.name
-    );
-    picked.configAction(action);
-    action.setPriority(bestAppeal);
-    return action;
-  }
   
-  
-  
-  /**  Utility methods for storing values associated with a given source for
-    *  the technique (e.g, ability cooldowns, previous targets, etc.)  Also
-    *  tracks acquisition of the technique.
+  /**  Decision methods for settling on a particular Technique to use in a
+    *  given situation-
     */
-  protected void storeVal(Actor actor, float val, String key) {
-    actor.skills.storeDatumFor(this, key, null, val);
-  }
-  
-  
-  protected void storeRef(Actor actor, Object ref, String key) {
-    actor.skills.storeDatumFor(this, key, (Session.Saveable) ref, -1);
-  }
-  
-  
-  protected float valStored(Actor actor, String key) {
-    return actor.skills.datumValFor(this, key);
-  }
-  
-  
-  protected Object refStored(Actor actor, String key) {
-    return actor.skills.datumRefFor(this, key);
-  }
-  
-  
-  protected float valBeforeStore(Actor actor, float val, String key) {
-    final float before = valStored(actor, key);
-    storeVal(actor, val, key);
-    return before;
-  }
-  
-  
-  protected Object refBeforeStore(Actor actor, Object ref, String key) {
-    final Object before = refStored(actor, key);
-    storeRef(actor, (Session.Saveable) ref, key);
-    return before;
+  public float priorityFor(Actor actor, Target subject, float harmLevel) {
+    //
+    //  Techniques become less attractive based on the fraction of fatigue or
+    //  concentration they would consume.
+    final float
+      conCost = concentrationCost / actor.health.concentration(),
+      fatCost = fatigueCost       / actor.health.fatigueLimit() ;
+    if (conCost > 1 || fatCost > 1) return 0;
+    //
+    //  Don't use a harmful technique against a subject you want to help, and
+    //  try to avoid extreme harm against subjects you only want to subdue, et
+    //  cetera.
+    if (harmLevel * harmFactor <= 0) return 0;
+    float rating = 10;
+    rating -= FastMath.abs(harmLevel - harmFactor);
+    rating *= ((1 - conCost) + (1 - fatCost)) / 2f;
+    return powerLevel * rating / 10f;
   }
 }
+
+
+
+
 
 
 

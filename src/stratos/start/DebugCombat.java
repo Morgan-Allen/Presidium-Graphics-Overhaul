@@ -1,17 +1,17 @@
 
 
 package stratos.start;
+import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.game.base.*;
 import stratos.game.campaign.*;
 import stratos.game.maps.*;
 import stratos.game.wild.*;
-
-import stratos.graphics.common.Rendering;
-import stratos.graphics.widgets.KeyInput;
+//import stratos.graphics.common.Rendering;
+//import stratos.graphics.widgets.KeyInput;
 import stratos.user.*;
-import stratos.util.I;
+import stratos.util.*;
 
 
 
@@ -49,8 +49,8 @@ public class DebugCombat extends Scenario {
   }
   
   
-  public void renderVisuals(Rendering rendering) {
-    super.renderVisuals(rendering);
+  //public void renderVisuals(Rendering rendering) {
+    //super.renderVisuals(rendering);
     /*
     final Tile over = UI().selection.pickedTile();
     if (KeyInput.wasTyped('p')) {
@@ -58,7 +58,7 @@ public class DebugCombat extends Scenario {
       I.say("  SHOULD PAVE? "+base().paving.map.needsPaving(over));
     }
     //*/
-  }
+  //}
   
   
   protected World createWorld() {
@@ -86,29 +86,36 @@ public class DebugCombat extends Scenario {
     GameSettings.setDefaults();
     GameSettings.hireFree  = true;
     GameSettings.buildFree = true;
+    GameSettings.fogFree   = true;
     
+    final Base wildlife = Base.baseWithName(world, Base.KEY_WILDLIFE, true);
+    
+    final Actor actor = new Human(Backgrounds.VETERAN, base);
+    actor.enterWorldAt(4, 4, world);
+    
+    final Actor fauna = (Micovore) Species.LICTOVORE.newSpecimen(wildlife);
+    fauna.enterWorldAt(5, 5, world);
+    UI.selection.pushSelection(fauna, true);
+    
+    /*
     final TrooperLodge station = new TrooperLodge(base);
     Placement.establishVenue(station, 8, 8, true, world);
-    
     
     final Base wildlife = Base.baseWithName(world, Base.KEY_WILDLIFE, true);
     
     //  ...I need to simplify their behaviour here.  Defensive/territorial-
     //  no fear as long as they're close to their lair.
     
-    //  TODO:  I need some special FX for the various techniques.
-    
-    //*
     //  ...Let's introduce a nest of Yamagur.  See how they get along.
     final Nest nest = Species.LICTOVORE.createNest();
     nest.assignBase(wildlife);
     Placement.establishVenue(nest, 20, 20, true, world);
-    //*/
     
     for (int n = 4; n-- > 0;) {
       final Micovore foe = (Micovore) Species.LICTOVORE.newSpecimen(wildlife);
       foe.enterWorldAt(nest, world);
     }
+    //*/
   }
   
   

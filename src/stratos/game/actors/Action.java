@@ -193,10 +193,15 @@ public class Action implements Behaviour, AnimNames {
   }
   
   
+  public boolean isMoving() {
+    return moveState != STATE_INIT && moveState != STATE_CLOSED;
+  }
+  
+  
   
   /**  Helper methods for dealing with motion-
     */
-  //  TODO:  This should possibly be moved back out to the Health clas.
+  //  TODO:  This should possibly be moved back out to the Health class.
   public static float moveRate(Actor actor, boolean basic) {
     
     int motionType = MOTION_NORMAL; for (Behaviour b : actor.mind.agenda) {

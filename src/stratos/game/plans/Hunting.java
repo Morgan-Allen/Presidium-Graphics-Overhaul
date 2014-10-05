@@ -116,8 +116,13 @@ public class Hunting extends Combat {
   public static boolean validPrey(Target prey, Actor hunts, boolean conserve) {
     if (! (prey instanceof Actor)) return false;
     final Actor a = (Actor) prey;
-    if (a.species() == hunts.species() || ! a.health.organic()) return false;
-    if (conserve && Nest.crowdingFor(a) < 1) return false;
+    if (! a.health.organic()) return false;
+    final boolean starved = hunts.health.hungerLevel() >= 1;
+    
+    if (a.species() == hunts.species() || ! (prey instanceof Fauna)) {
+      if (! starved) return false;
+    }
+    if (conserve && (Nest.crowdingFor(a) < 1) && ! starved) return false;
     return true;
   }
   

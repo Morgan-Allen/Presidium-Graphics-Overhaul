@@ -80,13 +80,6 @@ public class Quud extends Fauna {
   
 
   protected void addChoices(Choice choice) {
-    /*
-    final Behaviour defence = nextDefence(null);
-    if (defence != null) {
-      if (! isDoing("actionHunker", null)) choice.add(defence);
-      return;
-    }
-    //*/
     super.addChoices(choice);
   }
   

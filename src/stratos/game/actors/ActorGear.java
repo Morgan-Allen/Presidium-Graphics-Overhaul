@@ -94,9 +94,8 @@ public class ActorGear extends Inventory {
     if (Float.isNaN(credits)) credits = 0;
     if (Float.isNaN(taxed)) taxed = 0;
     
-    //  TODO:  Estimate encumbrance here.
+    if (verbose && I.talkAbout == actor) I.say("Updating gear...");
     
-    //if (verbose) I.sayAbout(actor, "Updating gear...");
     if (outfit != null) regenerateShields();
     else currentShields = 0;
     for (Item item : allItems()) {
@@ -106,6 +105,7 @@ public class ActorGear extends Inventory {
       }
     }
     encumbrance = -1;
+    encumbrance();
   }
   
   
@@ -229,7 +229,7 @@ public class ActorGear extends Inventory {
   
   public boolean armed() {
     final DeviceType type = deviceType();
-    return (type != null) && type.baseDamage > 0;
+    return baseDamage > 0 || ((type != null) && type.baseDamage > 0);
   }
   
   

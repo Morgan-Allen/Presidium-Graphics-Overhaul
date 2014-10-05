@@ -32,7 +32,7 @@ public class SkinsPreview extends VisualDebug {
   private HUD UI;
   private Text modelPathEntry;
   private String lastValidPath = "";
-  private String currentPath = "media/Actors/artilects/ArtilectModels.xml";
+  private String currentPath = "media/Actors/vermin/VerminModels.xml";
   
   private XML currentXML;
   private SolidModel currentModel;
@@ -194,7 +194,11 @@ public class SkinsPreview extends VisualDebug {
       Assets.loadNow(model);
       if (model != null) newModel = model;
     }
-    catch(Exception e) { I.report(e); currentPath = ""; }
+    catch(Exception e) {
+      I.say("ERROR LOADING "+path+file);
+      I.report(e);
+      currentPath = "";
+    }
 
     //
     //  If the file loads successfully, then dispose of the old model and
@@ -219,7 +223,7 @@ public class SkinsPreview extends VisualDebug {
       final File asset = new File(s);
       if (! asset.exists()) continue;
       final String stamp = ""+asset.lastModified();
-      String oldVal = assetStamps.get(s);
+      final String oldVal = assetStamps.get(s);
       if (oldVal != null && ! oldVal.equals(stamp)) shouldReload = true;
       assetStamps.put(s, stamp);
     }

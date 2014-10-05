@@ -78,7 +78,9 @@ public abstract class Mobile extends Element
   
   
   public abstract Base base();
+  
   protected Pathing initPathing() { return null; }
+  public abstract boolean isMoving();
   
   
   

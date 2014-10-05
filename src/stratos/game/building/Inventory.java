@@ -11,10 +11,6 @@ import stratos.graphics.sfx.*;
 
 
 
-
-//  TODO:  Allow demand to be attached to this?
-
-
 /**  An inventory allows for the storage, transfer and tracking of discrete
   *  items.
   */

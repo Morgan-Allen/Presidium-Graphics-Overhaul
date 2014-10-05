@@ -11,10 +11,8 @@ import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
-import stratos.game.plans.Combat;
-import stratos.game.tactical.*;
+import stratos.game.plans.*;
 import stratos.util.*;
-
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.building.Economy.*;
 
@@ -33,11 +31,13 @@ public class Micovore extends Fauna {
   
   public Micovore(Session s) throws Exception {
     super(s);
+    /*
     if (! inWorld()) I.say("Must be dead...");
     if (! health.alive()) {
       I.say("DEAD MICOVORE STILL REFERENCED");
       //new Exception().printStackTrace();
     }
+    //*/
   }
   
   
@@ -50,6 +50,9 @@ public class Micovore extends Fauna {
     //
     //  TODO:  PUT ALL THESE ATTRIBUTES IN THE SPECIES FIELDS
     traits.initAtts(20, 15, 5);
+    traits.setLevel(HAND_TO_HAND, 10);
+    traits.setLevel(STEALTH_AND_COVER, 10);
+    
     health.initStats(
       20,  //lifespan
       species.baseBulk ,//bulk bonus
@@ -70,15 +73,13 @@ public class Micovore extends Fauna {
   
   /**  Supplemental behaviour methods-
     */
-  protected Behaviour nextDefence(Actor near) {
-    //  TODO:  Sort out the retreat behaviours here-
-    return null;
-    /*
-    final Choice choice = new Choice(this);
-    choice.add(new Retreat(this));
-    if (near != null) choice.add(new Combat(this, near));
-    return choice.pickMostUrgent();
-    //*/
+  protected void addReactions(Target seen, Choice choice) {
+    if (seen == null) return;
+    if (seen instanceof Actor) {
+      I.say("\nHAVE SEEN: "+seen+"\n");
+      choice.add(new Retreat(this));
+      choice.add(new Combat(this, (Actor) seen));
+    }
   }
   
 
@@ -111,33 +112,11 @@ public class Micovore extends Fauna {
         Plan.MOTIVE_EMERGENCY,
         (crowding - 1) * Plan.PARAMOUNT
       );
-      //I.sayAbout(this, "  Crowding is: "+crowding);
-      //I.sayAbout(this, "  Fighting priority: "+fighting.priorityFor(this));
       choice.add(fighting);
     }
     //
     //  Determine whether to regurgitate meat at home-
-    if (mind.home() instanceof Venue) {
-      final Venue nest = (Venue) mind.home();
-      if (health.juvenile() && nest != null) {
-        int numYoung = 0; for (Actor a : nest.personnel().residents()) {
-          if (a.health.juvenile()) numYoung++;
-        }
-        final float excessFood = health.caloryLevel() - 1;
-        if (
-          numYoung > 0 && excessFood > 0 &&
-          nest.inventory().amountOf(PROTEIN) < (numYoung * 5)
-        ) {
-          final Action deposit = new Action(
-            this, nest,
-            this, "actionDepositFood",
-            Action.REACH_DOWN, "Returning with food for young"
-          );
-          deposit.setPriority(excessFood * Action.PARAMOUNT * numYoung);
-          choice.add(deposit);
-        }
-      }
-    }
+    choice.add(nextRegurgitation());
     //
     //  Determine whether you should mark your territory-
     final Tile toMark = findTileToMark();
@@ -151,6 +130,28 @@ public class Micovore extends Fauna {
       marking.setPriority(Action.CASUAL);
       choice.add(marking);
     }
+  }
+  
+  
+  private Action nextRegurgitation() {
+    if (health.juvenile() || ! (mind.home() instanceof Venue)) return null;
+    final Venue nest = (Venue) mind.home();
+    
+    int numYoung = 0;
+    for (Actor a : nest.personnel().residents()) {
+      if (a.health.juvenile()) numYoung++;
+    }
+    final float excessFood = health.caloryLevel() - 1;
+    if (numYoung == 0 || excessFood <= 0) return null;
+    if (nest.inventory().amountOf(PROTEIN) >= (numYoung * 5)) return null;
+    
+    final Action deposit = new Action(
+      this, nest,
+      this, "actionDepositFood",
+      Action.REACH_DOWN, "Returning with food for young"
+    );
+    deposit.setPriority(excessFood * Action.PARAMOUNT * numYoung);
+    return deposit;
   }
   
   

@@ -366,9 +366,7 @@ public abstract class Plan implements Saveable, Behaviour {
     priority = Visit.clamp(priority, min, max);
     if (report) I.say("  Priority after clamp/scale: "+priority);
     
-    float
-      chancePenalty = 0, rangePenalty = 0, dangerPenalty = 0,
-      classBonus = 0;
+    float chancePenalty = 0, rangePenalty = 0, dangerPenalty = 0;
     
     if (failRisk > 0) {
       final float chance = successChance();
@@ -380,29 +378,30 @@ public abstract class Plan implements Saveable, Behaviour {
       final float danger = dangerPenalty(subject, actor) * (1f + failRisk);
       dangerPenalty = danger * (rangePenalty + 2) / 2f;
     }
-    
+    /*
     if (actor.vocation() != null && motiveType == MOTIVE_DUTY) {
       final float workBonus = Plan.DEFAULT_SWITCH_THRESHOLD;
       final int standing = actor.vocation().standing;
       if (standing == Backgrounds.CLASS_STRATOI) classBonus -= workBonus;
       if (standing == Backgrounds.CLASS_NATIVE ) classBonus += workBonus;
     }
+    //*/
     
     priority -= chancePenalty;
-    priority -= rangePenalty;
+    priority -= rangePenalty ;
     priority -= dangerPenalty;
-    priority += classBonus;
+    //priority += classBonus   ;
     if (report) {
       I.say("  Chance penalty is: "+chancePenalty);
       I.say("  Range/Danger penalty is: "+rangePenalty+"/"+dangerPenalty);
-      I.say("  Class bonus is: "+classBonus);
+      //I.say("  Class bonus is: "+classBonus);
       I.say("  Priority after clamp/scale, dist/danger: "+priority);
     }
     return priority;
   }
   
   
-  public float harmFactor() { return harmFactor; }
+  public float harmFactor()    { return harmFactor   ; }
   public float competeFactor() { return competeFactor; }
   
   protected float successChance() { return 1; }
