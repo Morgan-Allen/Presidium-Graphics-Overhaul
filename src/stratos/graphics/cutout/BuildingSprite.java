@@ -46,15 +46,15 @@ public class BuildingSprite extends Sprite {
     //  TODO:  Get rid of these, or use separate image files
     POWER_MODEL = new PlaneFX.Model(
       "power_model", BuildingSprite.class,
-      "media/items/power.png", 0.5f, 0, 0, true, true
+      "media/Items/power.png", 0.5f, 0, 0, true, true
     ),
     LIFE_SUPPORT_MODEL = new PlaneFX.Model(
       "power_model", BuildingSprite.class,
-      "media/items/life_S.png", 0.5f, 0, 0, true, true
+      "media/Items/life_S.png", 0.5f, 0, 0, true, true
     ),
     WATER_MODEL = new PlaneFX.Model(
       "power_model", BuildingSprite.class,
-      "media/items/water.png", 0.5f, 0, 0, true, true
+      "media/Items/water.png", 0.5f, 0, 0, true, true
     );
   
   
