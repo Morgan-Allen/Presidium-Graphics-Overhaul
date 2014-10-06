@@ -77,7 +77,7 @@ public class Hunting extends Combat {
   private Hunting(Actor actor, Actor prey, int type, Owner depot) {
     super(
       actor, prey, STYLE_EITHER,
-      (type == TYPE_SAMPLE) ? OBJECT_SUBDUE : OBJECT_EITHER
+      (type == TYPE_SAMPLE) ? OBJECT_SUBDUE : OBJECT_EITHER, true
     );
     this.prey = prey;
     this.type = type;

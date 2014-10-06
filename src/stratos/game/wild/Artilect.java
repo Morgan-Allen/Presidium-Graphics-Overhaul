@@ -97,12 +97,12 @@ public abstract class Artilect extends Actor {
   
 
   protected ActorMind initAI() {
-    final Artilect actor = this;
-    return new ActorMind(actor) {
+    final Artilect artilect = this;
+    return new ActorMind(artilect) {
       
       protected Choice createNewBehaviours(Choice choice) {
         if (choice == null) choice = new Choice(actor);
-        addChoices(choice);
+        artilect.addChoices(choice);
         return choice;
       }
       
@@ -111,7 +111,11 @@ public abstract class Artilect extends Actor {
       }
       
       protected void addReactions(Target seen, Choice choice) {
-        if (seen instanceof Actor) choice.add(nextDefence((Actor) seen));
+        artilect.addReactions(seen, choice);
+      }
+      
+      protected void putEmergencyResponse(Choice choice) {
+        artilect.putEmergencyResponse(choice);
       }
     };
   }
@@ -135,14 +139,17 @@ public abstract class Artilect extends Actor {
   }
   
   
-  protected Behaviour nextDefence(Actor near) {
-    if (near == null) return null;
-    final Plan defence = new Combat(this, near).setMotive(
-      Plan.MOTIVE_EMERGENCY, Plan.ROUTINE
-    );
-    //I.sayAbout(this, "Have just seen: "+near);
-    //I.sayAbout(this, "Defence priority: "+defence.priorityFor(this));
-    return defence;
+  protected void addReactions(Target seen, Choice choice) {
+    if (seen instanceof Actor) {
+      final Plan defence = new Combat(this, (Actor) seen);
+      defence.setMotive(Plan.MOTIVE_EMERGENCY, Plan.ROUTINE);
+      choice.add(defence);
+    }
+  }
+  
+  
+  protected void putEmergencyResponse(Choice choice) {
+    choice.add(new Retreat(this));
   }
   
   

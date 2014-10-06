@@ -4,16 +4,15 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.actors;
-import org.apache.commons.math3.util.FastMath;
-
 import stratos.game.common.*;
 import stratos.util.*;
+import org.apache.commons.math3.util.FastMath;
 
 
+
+//  TODO:  This could probably use a thorough cleanup for organisation/clarity.
 
 public class ActorHealth implements Qualities {
-  
-  
   
   /**  Fields, constructors, and save/load methods-
     */
@@ -70,15 +69,15 @@ public class ActorHealth implements Qualities {
     MIN_MORALE       = -1.5f,
     REVIVE_THRESHOLD =  0.5f,
     STABILISE_CHANCE =  0.05f,
-    BLEED_OUT_TIME   =  World.STANDARD_DAY_LENGTH / 10,
-    DECOMPOSE_TIME   =  World.STANDARD_DAY_LENGTH / 2,
+    BLEED_OUT_TIME   =  World.STANDARD_HOUR_LENGTH * 2,
+    DECOMPOSE_TIME   =  World.STANDARD_DAY_LENGTH,
     
     FATIGUE_GROW_PER_DAY = 0.33f,
     MORALE_DECAY_PER_DAY = 0.33f,
     INJURY_REGEN_PER_DAY = 0.33f,
     
-    MAX_CONCENTRATE_MULTIPLE = 10,
-    CONCENTRATE_REGEN_TIME   = World.STANDARD_HOUR_LENGTH;
+    DEFAULT_CONCENTRATION  = 10,
+    CONCENTRATE_REGEN_TIME = World.STANDARD_HOUR_LENGTH;
   
   
   final Actor actor;
@@ -142,8 +141,8 @@ public class ActorHealth implements Qualities {
     fatigue   = s.loadFloat();
     bleeds    = s.loadBool ();
     morale    = s.loadFloat();
-    concentration = s.loadFloat();
     
+    concentration = s.loadFloat();
     state = s.loadInt();
   }
   
@@ -166,8 +165,8 @@ public class ActorHealth implements Qualities {
     s.saveFloat(fatigue  );
     s.saveBool (bleeds   );
     s.saveFloat(morale   );
-    s.saveFloat(concentration);
     
+    s.saveFloat(concentration);
     s.saveInt(state);
   }
   
@@ -439,10 +438,8 @@ public class ActorHealth implements Qualities {
   
   
   public float maxConcentration() {
-    final float
-      psyLevel = Math.abs(actor.traits.traitLevel(PSYONIC)),
-      maxPsy = (float) Math.sqrt(psyLevel) * MAX_CONCENTRATE_MULTIPLE;
-    return maxPsy == 0 ? 0 : (maxPsy + (MAX_CONCENTRATE_MULTIPLE / 2));
+    final float willLevel = actor.traits.useLevel(NERVE) / 10f;
+    return DEFAULT_CONCENTRATION * (1 + willLevel) / 2f;
   }
   
   
@@ -498,7 +495,7 @@ public class ActorHealth implements Qualities {
   
   
   protected void updateHealth(int numUpdates) {
-    //
+    
     //  Define primary attributes-
     ageMultiple = calcAgeMultiple();
     if (metabolism == HUMAN_METABOLISM) {
@@ -512,14 +509,14 @@ public class ActorHealth implements Qualities {
     else maxHealth = DEFAULT_HEALTH;
     maxHealth *= baseBulk * ageMultiple;
     if (numUpdates < 0) return;
-    //
+    
     //  Deal with injury, fatigue and stress.
     stressCache = -1;
     final int oldState = state;
     checkStateChange();
     updateStresses();
     advanceAge(numUpdates);
-    //
+    
     //  Check for disease or sudden death due to senescence.
     if (oldState != state && state != STATE_ACTIVE) {
       if (state < STATE_STRICKEN && ! organic()) state = STATE_STRICKEN;
@@ -628,11 +625,11 @@ public class ActorHealth implements Qualities {
     morale = (morale * (1 - moraleInc)) + (defaultMorale * moraleInc);
     morale -= stress / DL;
     //
-    //  Last but not least, update your psy points-
+    //  Last but not least, update your reserves of concentration-
     final float maxCon = maxConcentration();
     concentration += maxCon * (1 - stress) * PM / CONCENTRATE_REGEN_TIME;
     concentration = Visit.clamp(concentration, 0, maxCon);
-
+    
     if (report) {
       I.say("Stresses updated...");
     }

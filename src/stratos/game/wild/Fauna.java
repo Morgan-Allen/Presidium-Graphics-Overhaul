@@ -10,10 +10,7 @@ import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
-import stratos.game.maps.Species.Type;
-import stratos.game.plans.Hunting;
-import stratos.game.plans.Retreat;
-import stratos.game.tactical.*;
+import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
@@ -21,12 +18,10 @@ import stratos.util.*;
 
 
 
-//
-//  TODO:  You need to implement defence of home!
 
+//  TODO:  Home defence
 
 public abstract class Fauna extends Actor {
-  
   
   
   /**  Field definitions, constructors, and save/load functionality-
@@ -113,6 +108,10 @@ public abstract class Fauna extends Actor {
         fauna.addReactions(seen, choice);
       }
       
+      protected void putEmergencyResponse(Choice choice) {
+        fauna.putEmergencyResponse(choice);
+      }
+      
       protected void updateAI(int numUpdates) {
         super.updateAI(numUpdates);
       }
@@ -151,7 +150,12 @@ public abstract class Fauna extends Actor {
   
   
   protected void addReactions(Target seen, Choice choice) {
-    if (seen instanceof Actor) choice.add(nextDefence((Actor) seen));
+    if (seen instanceof Actor) choice.add(new Combat(this, (Actor) seen));
+  }
+  
+  
+  protected void putEmergencyResponse(Choice choice) {
+    choice.add(new Retreat(this));
   }
   
   
@@ -167,11 +171,6 @@ public abstract class Fauna extends Actor {
       }
     }
     return c.pickMostUrgent();
-  }
-  
-  
-  protected Behaviour nextDefence(Actor near) {
-    return new Retreat(this);
   }
   
   

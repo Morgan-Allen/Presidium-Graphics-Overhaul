@@ -72,12 +72,12 @@ public class Senses implements Qualities {
     final float range = actor.health.sightRange();
     if (report) I.say("\nUpdating senses, sight range: "+range);
     
-    //  Get the set of all targets that the actor could observe, and update
-    //  one's sense of personal danger on that basis-
+    //  First, get the set of all targets that the actor might observe.
     final Batch <Target> toNotice  = toNotice(range);
     final Batch <Target> justSeen  = new Batch <Target> ();
     final Batch <Target> lostSight = new Batch <Target> ();
-
+    
+    //  Get the set of all freshly-spotted targets-
     for (Target e : toNotice) if (notices(e, range)) {
       final Session.Saveable after = reactionKey(e), before = awares.get(e);
       if (before != after) justSeen.add(e);
@@ -85,17 +85,25 @@ public class Senses implements Qualities {
       awares.put(e, after);
     }
     
+    //  And get the set of all targets we've lost sight of-
     for (Target e : awares.keySet()) {
       if (e.flaggedWith() == this) { e.flagWith(null); continue; }
       if (! notices(e, range)) lostSight.add(e);
     }
-
+    
+    //  Remove the latter from the list, and having added the former, update
+    //  our sense of personal endangerment-
     awareOf.clear();
     for (Target e : lostSight) awares.remove(e);
     for (Target e : awares.keySet()) awareOf.add(e);
     updateDangerEval(awareOf);
-
+    
+    //  And finally, add any reactions to freshly-spotted targets-
+    //  TODO:  Delegate all this to the ActorMind class..?
     final Choice reactions = new Choice(actor);
+    if (isEndangered()) {
+      actor.mind.putEmergencyResponse(reactions);
+    }
     for (Target e : justSeen) {
       actor.mind.addReactions(e, reactions);
     }
@@ -114,21 +122,16 @@ public class Senses implements Qualities {
     //  anything you target.
     noticed.include(actor.mind.home);
     noticed.include(actor.mind.work);
-    for (Behaviour b : world.activities.targeting(actor)) {
-      if (b instanceof Action) noticed.include(((Action) b).actor);
-    }
     noticed.include(actor.focusFor(null));
+    for (Behaviour b : world.activities.targeting(actor)) {
+      if (b instanceof Action) {
+        noticed.include(((Action) b).actor);
+      }
+    }
     //
     //  And add anything newly within range-
-    final float percept = actor.traits.traitLevel(PERCEPT);
+    final float percept = actor.traits.useLevel(PERCEPT);
     final int reactLimit = (int) (2.5f + (percept / 5));
-    int reactCount = 0;
-    
-    for (Object m : world.presences.matchesNear(Mobile.class, actor, range)) {
-      noticed.add((Target) m);
-      if (++reactCount > reactLimit) break;
-    }
-    
     world.presences.sampleFromMaps(
       actor, world, reactLimit, noticed,
       Mobile.class,
@@ -139,8 +142,8 @@ public class Senses implements Qualities {
   
   
   private boolean notices(Target e, final float sightRange) {
-    final boolean report = noticeVerbose && I.talkAbout == actor;
     if (e == null || e == actor) return false;
+    final boolean report = noticeVerbose && I.talkAbout == actor;
     
     final float distance = Spacing.distance(e, actor);
     final Base  base     = actor.base();

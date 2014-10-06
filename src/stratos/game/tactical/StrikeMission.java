@@ -47,7 +47,7 @@ public class StrikeMission extends Mission {
   
   public float priorityFor(Actor actor) {
     final Combat combat = new Combat(
-      actor, (Element) subject, Combat.STYLE_EITHER, objectIndex()
+      actor, (Element) subject, Combat.STYLE_EITHER, objectIndex(), true
     );
     final float BP = basePriority(actor);
     combat.setMotive(Plan.MOTIVE_MISSION, BP);
@@ -64,7 +64,7 @@ public class StrikeMission extends Mission {
     if (! isActive()) return null;
     return new Combat(
       actor, (Element) subject,
-      Combat.STYLE_EITHER, objectIndex()
+      Combat.STYLE_EITHER, objectIndex(), true
     );
   }
   

@@ -61,11 +61,12 @@ public class PlaneFX extends SFX {
     
     public Model(
       String modelName, Class modelClass,
-      String image, int gridX, int gridY, int numFrames, float duration
+      String image, int gridX, int gridY, int numFrames,
+      float duration, float scale
     ) {
       super(modelName, modelClass);
       this.imageName = image;
-      this.initSize = 1;
+      this.initSize = 1 * scale;
       this.spin = 0;
       this.growth = 0;
       this.tilted = true;

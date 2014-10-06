@@ -22,12 +22,12 @@ public class Retreat extends Plan implements Qualities {
   /**  Constants, field definitions, constructors and save/load methods-
     */
   final static float
-    DANGER_MEMORY_FADE = 0.9f;
+    DANGER_MEMORY_FADE = 0.9f;  //TODO:  use a time-limit instead.
   
   private static boolean
-    evalVerbose  = true ,
-    havenVerbose = true ,
-    stepsVerbose = true ;
+    evalVerbose  = false,
+    havenVerbose = false,
+    stepsVerbose = false;
   
   
   private float maxDanger = 0;

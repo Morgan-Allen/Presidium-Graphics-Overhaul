@@ -33,7 +33,8 @@ public class MarksmanTechniques {
   final public static PlaneFX.Model
     AIM_MODEL = new PlaneFX.Model(
       "aim_model", MarksmanTechniques.class,
-      "media/SFX/aiming_anim.png", 4, 4, 16, (16 / 25f)
+      "media/SFX/aiming_anim.png", 4, 4, 16,
+      (8 / 25f), 0.25f
     );
   final static PlaneFX.Model
     PIERCE_FX_MODEL = new PlaneFX.Model(
@@ -69,7 +70,7 @@ public class MarksmanTechniques {
       
       //  Last but not least, include special FX-
       final Vec3D posFX = using.position(null);
-      posFX.z += using.height();
+      posFX.z += using.height() + 0.25f;
       CombatFX.applyBurstFX(AIM_MODEL, posFX, 1, using.world());
     }
   };
@@ -81,7 +82,7 @@ public class MarksmanTechniques {
   final public static Technique SUPPRESSION_FIRE = new Technique(
     "Suppression Fire", DIR+"suppression_fire.png", Action.FIRE,
     MarksmanTechniques.class, 01,
-    MINOR_POWER        ,
+    MEDIUM_POWER       ,
     REAL_HARM          ,
     NO_FATIGUE         ,
     MAJOR_CONCENTRATION,
@@ -93,6 +94,7 @@ public class MarksmanTechniques {
     }
     
     public void applyEffect(Actor using, boolean success, Target subject) {
+      super.applyEffect(using, success, subject);
       I.say("Applying suppression: "+using+" to "+subject);
 
       final Tile o = using.world().tileAt(subject);

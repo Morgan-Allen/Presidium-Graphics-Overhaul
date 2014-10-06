@@ -193,7 +193,7 @@ public abstract class Species implements Session.Saveable {
       1.30f, //speed
       1.50f  //sight
     ) {
-      public Actor newSpecimen(Base base) { return new Micovore(base); }
+      public Actor newSpecimen(Base base) { return new Lictovore(base); }
       public Nest createNest() { return new Nest(
         3, 2, Venue.ENTRANCE_EAST, this, MODEL_NEST_MICOVORE
       ); }

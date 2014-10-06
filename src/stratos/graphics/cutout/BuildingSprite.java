@@ -41,7 +41,8 @@ public class BuildingSprite extends Sprite {
   final public static PlaneFX.Model
     BLAST_MODEL = new PlaneFX.Model(
       "blast_model", BuildingSprite.class,
-      "media/SFX/blast_anim.gif", 5, 4, 25, (25 / 25f)
+      "media/SFX/blast_anim.gif", 5, 4, 25,
+      (25 / 25f), 1.0f
     ),
     //  TODO:  Get rid of these, or use separate image files
     POWER_MODEL = new PlaneFX.Model(

@@ -42,7 +42,7 @@ public abstract class Technique implements Session.Saveable {
     NO_CONCENTRATION     = 0.0f ,
     MINOR_CONCENTRATION  = 2.0f ,
     MEDIUM_CONCENTRATION = 5.0f ,
-    MAJOR_CONCENTRATION  = 10.0f;
+    MAJOR_CONCENTRATION  = 8.0f ;
   
   final public static float
     NO_HARM      = Plan.NO_HARM     ,
@@ -221,9 +221,11 @@ public abstract class Technique implements Session.Saveable {
     //
     //  Techniques become less attractive based on the fraction of fatigue or
     //  concentration they would consume.
+    final boolean report = ActorSkills.techsVerbose && I.talkAbout == actor;
     final float
       conCost = concentrationCost / actor.health.concentration(),
       fatCost = fatigueCost       / actor.health.fatigueLimit() ;
+    if (report) I.say("  Con/Fat costs: "+conCost+"/"+fatCost);
     if (conCost > 1 || fatCost > 1) return 0;
     //
     //  Don't use a harmful technique against a subject you want to help, and
@@ -233,12 +235,18 @@ public abstract class Technique implements Session.Saveable {
     float rating = 10;
     rating -= FastMath.abs(harmLevel - harmFactor);
     rating *= ((1 - conCost) + (1 - fatCost)) / 2f;
-    return powerLevel * rating / 10f;
+    rating = powerLevel * rating / 10f;
+    if (report) I.say("  Overall rating: "+rating);
+    return rating;
+  }
+  
+  
+  /**  Rendering, interface and printout methods-
+    */
+  public String toString() {
+    return name;
   }
 }
-
-
-
 
 
 

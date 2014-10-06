@@ -338,6 +338,16 @@ public abstract class Actor extends Mobile implements
   }
   
   
+  public float hostilityTo(Target subject) {
+    if (mind.rootBehaviour() instanceof Plan) {
+      final Plan root = (Plan) mind.rootBehaviour();
+      if (subject != null && root.subject != subject) return 0;
+      return root.harmFactor();
+    }
+    return 0;
+  }
+  
+  
   public Target focusFor(Class <? extends Plan> planClass) {
     if (planClass == null) {
       if (mind.agenda.size() == 0) return null;

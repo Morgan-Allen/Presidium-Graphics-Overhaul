@@ -84,18 +84,15 @@ public class Quud extends Fauna {
   }
   
   
-  protected Behaviour nextDefence(Actor near) {
-    if (near.isDoing(Combat.class, this)) {
-      final Action hunker = new Action(
-        this, this,
-        this, "actionHunker",
-        Action.FALL, "Hunkering Down"
-      );
-      hunker.setProperties(Action.QUICK);
-      hunker.setPriority(Action.PARAMOUNT);
-      return hunker;
-    }
-    return null;
+  protected void putEmergencyResponse(Choice choice) {
+    final Action hunker = new Action(
+      this, this,
+      this, "actionHunker",
+      Action.FALL, "Hunkering Down"
+    );
+    hunker.setProperties(Action.QUICK);
+    hunker.setPriority(Action.PARAMOUNT);
+    choice.add(hunker);
   }
   
   
@@ -112,9 +109,6 @@ public class Quud extends Fauna {
   protected float moveAnimStride() { return super.moveAnimStride() * 0.8f; }
   protected float spriteScale() { return super.spriteScale() * 0.8f; }
 }
-
-
-
 
 
 

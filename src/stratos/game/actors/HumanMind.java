@@ -143,20 +143,19 @@ public class HumanMind extends ActorMind implements Qualities {
   }
   
   
-  private void addActorResponses(Actor nearby, Choice choice) {
-    choice.add(new Combat(actor, nearby));
-    //  TODO:  Add objections!
-    choice.add(new FirstAid(actor, nearby));
-    choice.add(new Dialogue(actor, nearby, Dialogue.TYPE_CASUAL));
+  protected void addReactions(Target seen, Choice choice) {
+    if (seen instanceof Actor) {
+      final Actor nearby = (Actor) seen;
+      choice.add(new Combat(actor, nearby));
+      //  TODO:  Add pleas & objections.
+      choice.add(new FirstAid(actor, nearby));
+      choice.add(new Dialogue(actor, nearby, Dialogue.TYPE_CASUAL));
+    }
   }
   
   
-  protected void addReactions(Target seen, Choice choice) {
-    if (seen instanceof Actor) if (seen != actor) {
-      final Actor nearby = (Actor) seen;
-      choice.add(new Retreat(actor));
-      addActorResponses(nearby, choice);
-    }
+  protected void putEmergencyResponse(Choice choice) {
+    choice.add(new Retreat(actor));
   }
   
   
@@ -165,7 +164,7 @@ public class HumanMind extends ActorMind implements Qualities {
     for (Target e : actor.senses.awareOf()) {
       if (e instanceof Actor) {
         final Actor nearby = (Actor) e;
-        addActorResponses(nearby, choice);
+        addReactions(nearby, choice);
         choice.add(Hunting.asHarvest(actor, nearby, home, true));
         choice.add(Gifting.nextGifting(null, actor, nearby));
       }

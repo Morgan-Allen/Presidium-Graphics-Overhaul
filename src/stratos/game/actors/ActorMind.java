@@ -156,6 +156,7 @@ public abstract class ActorMind implements Qualities {
   
   protected abstract Choice createNewBehaviours(Choice choice);
   protected abstract void addReactions(Target m, Choice choice);
+  protected abstract void putEmergencyResponse(Choice choice);
   
   
   protected Action getNextAction() {

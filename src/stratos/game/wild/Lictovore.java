@@ -18,23 +18,23 @@ import static stratos.game.building.Economy.*;
 
 
 
-public class Micovore extends Fauna {
+public class Lictovore extends Fauna {
   
   
   
   /**  Constructors, setup and save/load methods-
     */
-  public Micovore(Base base) {
+  public Lictovore(Base base) {
     super(Species.LICTOVORE, base);
   }
   
   
-  public Micovore(Session s) throws Exception {
+  public Lictovore(Session s) throws Exception {
     super(s);
     /*
     if (! inWorld()) I.say("Must be dead...");
     if (! health.alive()) {
-      I.say("DEAD MICOVORE STILL REFERENCED");
+      I.say("DEAD LICTOVORE STILL REFERENCED");
       //new Exception().printStackTrace();
     }
     //*/
@@ -76,7 +76,7 @@ public class Micovore extends Fauna {
   protected void addReactions(Target seen, Choice choice) {
     if (seen == null) return;
     if (seen instanceof Actor) {
-      I.say("\nHAVE SEEN: "+seen+"\n");
+      ///I.say("\nHAVE SEEN: "+seen+"\n");
       choice.add(new Retreat(this));
       choice.add(new Combat(this, (Actor) seen));
     }
@@ -178,9 +178,9 @@ public class Micovore extends Fauna {
   
   private Fauna findCompetition() {
     final Batch <Fauna> tried = new Batch <Fauna> ();
-    for (Target e : senses.awareOf()) if (e instanceof Micovore) {
+    for (Target e : senses.awareOf()) if (e instanceof Lictovore) {
       if (e == this) continue;
-      final Micovore m = (Micovore) e;
+      final Lictovore m = (Lictovore) e;
       tried.add(m);
     }
     return (Fauna) Rand.pickFrom(tried);
@@ -210,7 +210,7 @@ public class Micovore extends Fauna {
   }
   
   
-  public boolean actionMarkTerritory(Micovore actor, Tile toMark) {
+  public boolean actionMarkTerritory(Lictovore actor, Tile toMark) {
     if (toMark.onTop() != null || toMark.blocked()) return false;
     final SpiceMidden midden = new SpiceMidden();
     midden.enterWorldAt(toMark.x, toMark.y, world);

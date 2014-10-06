@@ -1,7 +1,5 @@
 
 package stratos.game.actors;
-import org.apache.commons.math3.util.FastMath;
-
 import stratos.game.common.*;
 import stratos.util.*;
 
@@ -13,10 +11,15 @@ import stratos.util.*;
 
 public class ActorSkills {
   
-
+  
   final static float
     MIN_FAIL_CHANCE    = 0.1f,
     MAX_SUCCEED_CHANCE = 0.9f;
+  
+  protected static boolean
+    testsVerbose = false,
+    techsVerbose = false;
+  
   
   final Actor actor;
   final List <Technique> known = new List <Technique> ();
@@ -138,7 +141,7 @@ public class ActorSkills {
   public void practice(Skill skillType, float practice) {
     final float level = actor.traits.traitLevel(skillType);
     actor.traits.incLevel(skillType, practice / (level + 1));
-    if (skillType.parent != null) practice(skillType.parent, practice / 5);
+    if (skillType.parent != null) practice(skillType.parent, practice / 4);
   }
   
   
@@ -146,6 +149,7 @@ public class ActorSkills {
     final float chance = chance(skillType, null, null, 0 - DC);
     practice(skillType, chance * duration / 10);
   }
+  
   
   
   /**  Technique-handling methods:
@@ -164,19 +168,31 @@ public class ActorSkills {
   //  TODO:  Limit this to 'Passive Bonus' type techniques, and sum all such
   //  bonuses, not just the one.
   protected Technique pickSkillBonus(Skill s, Target subject) {
-    return pickBestKnown(subject, Plan.REAL_HELP, s);
+    final boolean report = techsVerbose && I.talkAbout == actor;
+    if (report) {
+      I.say("\n"+actor+" getting technique bonus for "+s+"...");
+      I.say("  Fatigue: "+actor.health.fatigueLevel());
+      I.say("  Concentration: "+actor.health.concentration());
+    }
+    final float harm = actor.hostilityTo(subject);
+    final Technique picked = pickBestKnown(subject, harm, s);
+    
+    if (report) I.say("  Technique picked: "+picked);
+    return picked;
   }
   
   
   protected Technique pickBestKnown(
     Target subject, float harmLevel, Object trigger
   ) {
+    final boolean report = techsVerbose && I.talkAbout == actor;
     Technique picked = null;
     float bestAppeal = 0;
     
     for (Technique t : known) if (t.trigger == trigger) {
-      if (t.bonusFor(actor, t.skillUsed, subject) <= 0) continue;
+      //if (t.bonusFor(actor, t.skillUsed, subject) <= 0) continue;
       final float appeal = t.priorityFor(actor, subject, harmLevel);
+      if (report) I.say("  "+t.name+" has appeal: "+appeal);
       if (appeal > bestAppeal) { bestAppeal = appeal; picked = t; }
     }
     return picked;

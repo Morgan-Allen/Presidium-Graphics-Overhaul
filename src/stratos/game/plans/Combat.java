@@ -50,43 +50,43 @@ public class Combat extends Plan implements Qualities {
   };
   
   
-  //final Element target;
   final int style, object;
+  final boolean pursue;
   
   
   public Combat(Actor actor, Element target) {
-    this(actor, target, STYLE_EITHER, OBJECT_EITHER);
+    this(actor, target, STYLE_EITHER, OBJECT_EITHER, false);
   }
   
   
   public Combat(
-    Actor actor, Element target, int style, int object
+    Actor actor, Element target, int style, int object, boolean pursue
   ) {
-    super(actor, target, false);
-    //this.target = target;
-    this.style = style;
+    super(actor, target, pursue);
+    this.style  = style ;
     this.object = object;
+    this.pursue = pursue;
   }
   
   
   public Combat(Session s) throws Exception {
     super(s);
-    //this.target = (Element) s.loadObject();
-    this.style = s.loadInt();
+    this.style  = s.loadInt();
     this.object = s.loadInt();
+    this.pursue = s.loadBool();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    //s.saveObject(target);
     s.saveInt(style);
     s.saveInt(object);
+    s.saveBool(pursue);
   }
   
   
   public Plan copyFor(Actor other) {
-    return new Combat(other, (Element) subject, style, object);
+    return new Combat(other, (Element) subject, style, object, pursue);
   }
   
   
@@ -120,6 +120,7 @@ public class Combat extends Plan implements Qualities {
     );
     
     if (report) {
+      I.say("\n  Value of target: "+appeal);
       I.say("  Basic combat priority: "+priority);
       I.say("  Endangered? "+actor.senses.isEndangered());
     }
@@ -171,6 +172,14 @@ public class Combat extends Plan implements Qualities {
     
     Target struck = CombatUtils.bestTarget(actor, subject, true, harmFactor());
     if (struck == null) struck = subject;
+
+    //  If we're not in pursuit, call off the activity when or if the enemy is
+    //  in retreat.
+    /*
+    if ((! pursue) && CombatUtils.isFleeing(subject) && Rand.yes()) {
+      return null;
+    }
+    //*/
     
     //  Consider using any special combat-based techniques.
     final Action technique = actor.skills.pickIndependantAction(

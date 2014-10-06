@@ -93,10 +93,11 @@ public class DebugCombat extends Scenario {
     final Actor actor = new Human(Backgrounds.VETERAN, base);
     actor.enterWorldAt(4, 4, world);
     
-    final Actor fauna = (Micovore) Species.LICTOVORE.newSpecimen(wildlife);
+    final Actor fauna = (Lictovore) Species.LICTOVORE.newSpecimen(wildlife);
+    fauna.health.setupHealth(0.5f, 1, 0);
     fauna.enterWorldAt(5, 5, world);
-    UI.selection.pushSelection(fauna, true);
     
+    UI.selection.pushSelection(actor, true);
     /*
     final TrooperLodge station = new TrooperLodge(base);
     Placement.establishVenue(station, 8, 8, true, world);
