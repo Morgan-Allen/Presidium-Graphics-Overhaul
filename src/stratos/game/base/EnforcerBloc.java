@@ -33,7 +33,7 @@ public class EnforcerBloc extends Venue {
     EnforcerBloc.class, "media/Buildings/physician/enforcer_bloc.png", 3, 3
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/audit_office_button.gif", EnforcerBloc.class
+    EnforcerBloc.class, "media/GUI/Buttons/audit_office_button.gif"
   );
   
   /*

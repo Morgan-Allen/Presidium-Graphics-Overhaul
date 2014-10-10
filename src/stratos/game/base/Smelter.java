@@ -33,7 +33,7 @@ public class Smelter extends Venue {
   final static String IMG_DIR = "media/Buildings/artificer/";
   final static ModelAsset
     DRILLING_MODELS[] = CutoutModel.fromImages(
-      IMG_DIR, Smelter.class, 2, 2, false,
+      Smelter.class, IMG_DIR, 2, 2, false,
       "metals_smelter.gif",
       "isotopes_smelter.gif",
       "sunk_shaft.gif"
@@ -198,7 +198,7 @@ public class Smelter extends Venue {
     };
     spread.doSearch();
     if (spread.success()) {
-      smelter.placeFromOrigin();
+      smelter.doPlacement();
       return smelter;
     }
     return null;

@@ -89,7 +89,7 @@ public class DebugPlacing extends Scenario {
     
     final Plantation site = new Plantation(base);
     site.setPosition(8, 15, world);
-    if (site.canPlace()) site.placeFromOrigin();
+    if (site.canPlace()) site.doPlacement();
   }
   
   

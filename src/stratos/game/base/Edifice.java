@@ -34,7 +34,7 @@ public class Edifice extends Venue {
     EngineerStation.class, "media/Buildings/aesthete/edifice.png", 4, 2
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/edifice_button.gif", Edifice.class
+    Edifice.class, "media/GUI/Buttons/edifice_button.gif"
   );
   
   

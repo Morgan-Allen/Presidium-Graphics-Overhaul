@@ -24,8 +24,8 @@ public class BuildingSprite extends Sprite {
   
   final public static ModelAsset
     SCAFF_MODELS[] = CutoutModel.fromImages(
-      "media/Buildings/civilian/",
-      BuildingSprite.class, 1, 1, false,
+      BuildingSprite.class,
+      "media/Buildings/civilian/", 1, 1, false,
       "scaff_0.png",
       "scaff_1.png",
       "scaff_2.png",

@@ -14,7 +14,7 @@ public class CommsPanel extends SelectionInfoPane {
   
   final static ImageAsset
     COMMS_ICON = ImageAsset.fromImage(
-      "media/GUI/Panels/comms_tab.png", CommsPanel.class
+      CommsPanel.class, "media/GUI/Panels/comms_tab.png"
     ),
     COMMS_ICON_LIT = Button.CIRCLE_LIT;
   final static String ALL_CATEGORIES[] = {};

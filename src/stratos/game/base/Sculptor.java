@@ -34,7 +34,7 @@ public class Sculptor extends Venue {
     Sculptor.class, "media/Buildings/aesthete/fabricator.png", 3, 2
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/fabricator_button.gif", Sculptor.class
+    Sculptor.class, "media/GUI/Buttons/fabricator_button.gif"
   );
   
   

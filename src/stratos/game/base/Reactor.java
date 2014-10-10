@@ -31,7 +31,7 @@ public class Reactor extends Venue {
     Reactor.class, "media/Buildings/artificer/reactor.png", 4.0f, 2
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/reactor_button.gif", Reactor.class
+    Reactor.class, "media/GUI/Buttons/reactor_button.gif"
   );
   final static String RISK_DESC[] = {
     "Negligible",

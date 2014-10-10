@@ -116,7 +116,7 @@ public class CutoutModel extends ModelAsset {
   
   
   public static CutoutModel[] fromImages(
-    String path, Class sourceClass, float size, float height, boolean splat,
+    Class sourceClass, String path, float size, float height, boolean splat,
     String... files
   ) {
     final CutoutModel models[] = new CutoutModel[files.length];

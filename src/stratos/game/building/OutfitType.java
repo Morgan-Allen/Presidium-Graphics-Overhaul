@@ -38,7 +38,7 @@ public class OutfitType extends TradeType {
     
     final String imagePath = ITEM_PATH+name+"_skin.gif";
     if (new File(imagePath).exists()) {
-      this.skin = ImageAsset.fromImage(imagePath, baseClass);
+      this.skin = ImageAsset.fromImage(baseClass, imagePath);
     }
     else this.skin = null;
   }

@@ -16,6 +16,11 @@ import stratos.util.*;
 
 
 
+//  ...I think that distance needs to be made a more significant factor here,
+//  and 'active dodge' needs to be implemented.  Point-blank attacks should
+//  never miss unless the enemy is visibly dancing around.
+
+
 public class Combat extends Plan implements Qualities {
   
   

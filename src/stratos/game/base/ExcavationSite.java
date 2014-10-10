@@ -36,7 +36,7 @@ public class ExcavationSite extends Venue implements
     ExcavationSite.class, IMG_DIR+"excavation_site.png", 4, 1
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/excavation_button.gif", ExcavationSite.class
+    ExcavationSite.class, "media/GUI/Buttons/excavation_button.gif"
   );
   
   final static int

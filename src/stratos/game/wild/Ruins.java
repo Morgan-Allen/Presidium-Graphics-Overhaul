@@ -21,7 +21,7 @@ public class Ruins extends Venue {
   /**  Construction and save/load methods-
     */
   final static ModelAsset MODEL_RUINS[] = CutoutModel.fromImages(
-    "media/Buildings/lairs and ruins/", Ruins.class, 4, 2, false,
+    Ruins.class, "media/Buildings/lairs and ruins/", 4, 2, false,
     "ruins_a.png",
     "ruins_b.png",
     "ruins_c.png"

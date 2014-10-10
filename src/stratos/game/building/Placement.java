@@ -141,7 +141,7 @@ public class Placement implements TileConstants {
     final Venue v, final Target near, boolean intact, World world
   ) {
     if (! findClearanceFor(v, near, world)) return null;
-    v.placeFromOrigin();
+    v.doPlacement();
     if (intact || GameSettings.buildFree) {
       v.structure.setState(Structure.STATE_INTACT, 1.0f);
       ///v.onCompletion();
@@ -159,7 +159,7 @@ public class Placement implements TileConstants {
   ) {
     if (findClearanceFor(strip, near, world)) {
       for (Venue s : strip) {
-        s.placeFromOrigin();
+        s.doPlacement();
         if (intact || GameSettings.buildFree) {
           s.structure.setState(Structure.STATE_INTACT, 1.0f);
         }

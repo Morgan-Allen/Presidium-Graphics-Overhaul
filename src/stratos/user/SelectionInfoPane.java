@@ -25,10 +25,10 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
     */
   final public static ImageAsset
     BORDER_TEX = ImageAsset.fromImage(
-      "media/GUI/Panel.png", SelectionInfoPane.class
+      SelectionInfoPane.class, "media/GUI/Panel.png"
     ),
     SCROLL_TEX = ImageAsset.fromImage(
-      "media/GUI/scrollbox.gif", SelectionInfoPane.class
+      SelectionInfoPane.class, "media/GUI/scrollbox.gif"
     );
   final public static int
     MARGIN_WIDTH  = 10,

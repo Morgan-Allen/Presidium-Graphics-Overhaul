@@ -165,11 +165,11 @@ public class Background implements Session.Saveable {
   
   
   protected static ImageAsset costumeFor(String texName) {
-    return ImageAsset.fromImage(COSTUME_DIR+texName, Backgrounds.class);
+    return ImageAsset.fromImage(Backgrounds.class, COSTUME_DIR+texName);
   }
 
   protected static ImageAsset portraitFor(String texName) {
-    return ImageAsset.fromImage(COSTUME_DIR+texName, Backgrounds.class);
+    return ImageAsset.fromImage(Backgrounds.class, COSTUME_DIR+texName);
   }
   
   

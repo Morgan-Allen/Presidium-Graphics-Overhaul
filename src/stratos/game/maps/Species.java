@@ -77,7 +77,7 @@ public abstract class Species implements Session.Saveable {
       Species.class, LAIR_DIR+"nest_micovore.png", 3.5f, 3
     ),
     MODEL_MIDDENS[] = CutoutModel.fromImages(
-      LAIR_DIR, Species.class, 1.35f, 1, false,
+      Species.class, LAIR_DIR, 1.35f, 1, false,
       "midden_a.png",
       "midden_b.png",
       "midden_c.png"
@@ -287,7 +287,7 @@ public abstract class Species implements Session.Saveable {
     this.info = info;
     if (portraitTex == null) this.portrait = null;
     else this.portrait = ImageAsset.fromImage(
-      FILE_DIR+portraitTex, Species.class
+      Species.class, FILE_DIR+portraitTex
     );
     this.model = model;
     

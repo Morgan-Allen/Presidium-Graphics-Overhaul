@@ -190,7 +190,6 @@ public class ActorSkills {
     float bestAppeal = 0;
     
     for (Technique t : known) if (t.trigger == trigger) {
-      //if (t.bonusFor(actor, t.skillUsed, subject) <= 0) continue;
       final float appeal = t.priorityFor(actor, subject, harmLevel);
       if (report) I.say("  "+t.name+" has appeal: "+appeal);
       if (appeal > bestAppeal) { bestAppeal = appeal; picked = t; }

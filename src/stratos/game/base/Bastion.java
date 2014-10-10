@@ -34,7 +34,7 @@ public class Bastion extends Venue {
     Bastion.class, "media/Buildings/military/bastion.png", 7, 4
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/bastion_button.gif", Bastion.class
+    Bastion.class, "media/GUI/Buttons/bastion_button.gif"
   );
   /*
   final static FacilityProfile PROFILE = new FacilityProfile(

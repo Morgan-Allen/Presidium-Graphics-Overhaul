@@ -33,7 +33,7 @@ public class StockExchange extends Venue {
     StockExchange.class, "media/Buildings/merchant/stock_exchange.png", 3.7f, 1
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/stock_exchange_button.gif", StockExchange.class
+    StockExchange.class, "media/GUI/Buttons/stock_exchange_button.gif"
   );
   
   /*

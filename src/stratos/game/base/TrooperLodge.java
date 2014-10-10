@@ -27,7 +27,7 @@ public class TrooperLodge extends Venue {
     TrooperLodge.class, "media/Buildings/military/house_garrison.png", 4.25f, 3
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/garrison_button.gif", TrooperLodge.class
+    TrooperLodge.class, "media/GUI/Buttons/garrison_button.gif"
   );
   
   
@@ -156,7 +156,7 @@ public class TrooperLodge extends Venue {
         n = (n + 2) % 8;
         newYard.setPosition(o.x + (N_X[n] * S), o.y + (N_Y[n] * S), world);
         if (newYard.canPlace()) {
-          newYard.placeFromOrigin();
+          newYard.doPlacement();
           drillYard = newYard;
           break;
         }

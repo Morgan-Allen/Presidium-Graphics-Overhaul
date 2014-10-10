@@ -35,10 +35,10 @@ public class Selection implements UIConstants {
     );
   final public static ImageAsset
     SELECT_OVERLAY = ImageAsset.fromImage(
-      "media/GUI/selectOverlay.png", Selection.class
+      Selection.class, "media/GUI/selectOverlay.png"
     ),
     PLACE_OVERLAY = ImageAsset.fromImage(
-      "media/GUI/placeOverlay.png", Selection.class
+      Selection.class, "media/GUI/placeOverlay.png"
     );
   
   

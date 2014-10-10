@@ -24,22 +24,22 @@ public class PlanetPanel extends UIGroup implements UIConstants {
   
   final static ImageAsset
     PLANET_ICON     = ImageAsset.fromImage(
-      "media/GUI/Panels/planet_tab.png", PlanetPanel.class
+      PlanetPanel.class, "media/GUI/Panels/planet_tab.png"
     ),
     PLANET_ICON_LIT = Button.CIRCLE_LIT;
   
   final static ImageAsset
     LEFT_BUTTON_IMG  = ImageAsset.fromImage(
-      LOAD_PATH+"button_left.png" , PlanetPanel.class
+      PlanetPanel.class , LOAD_PATH+"button_left.png"
     ),
     RIGHT_BUTTON_IMG = ImageAsset.fromImage(
-      LOAD_PATH+"button_right.png", PlanetPanel.class
+      PlanetPanel.class, LOAD_PATH+"button_right.png"
     ),
     BACKING_TEX      = ImageAsset.fromImage(
-      LOAD_PATH+"stars_backing.png", StarsPanel.class
+      StarsPanel.class, LOAD_PATH+"stars_backing.png"
     ),
     BORDER_TEX       = ImageAsset.fromImage(
-      LOAD_PATH+"planet_frame.png", PlanetPanel.class
+      PlanetPanel.class, LOAD_PATH+"planet_frame.png"
     );
   
   
@@ -140,7 +140,7 @@ public class PlanetPanel extends UIGroup implements UIConstants {
       path, modelNode.value("name"), PlanetPanel.class, null, null
     );
     final ImageAsset sectorKeys = ImageAsset.fromImage(
-      path + keysNode.value("name"), PlanetPanel.class
+      PlanetPanel.class, path + keysNode.value("name")
     );
     Assets.loadNow(globeModel);
     Assets.loadNow(sectorKeys);

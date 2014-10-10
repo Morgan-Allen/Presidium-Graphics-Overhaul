@@ -159,10 +159,10 @@ public class Habitat {
   final public static ImageAsset
     BASE_TEXTURES[] = new ImageAsset[ALL_HABITATS.length],
     ROAD_TEXTURE = ImageAsset.fromImage(
-      TERRAIN_PATH+"road_map_new.png", Habitat.class
+      Habitat.class, TERRAIN_PATH+"road_map_new.png"
     ),
     SQUALOR_TEXTURE = ImageAsset.fromImage(
-      TERRAIN_PATH+"black_wastes_ground.png", Habitat.class
+      Habitat.class, TERRAIN_PATH+"black_wastes_ground.png"
     );
   static {
     for (Habitat h : ALL_HABITATS) BASE_TEXTURES[h.ID] = h.baseTex;
@@ -200,7 +200,7 @@ public class Habitat {
     
     this.animTex = new ImageAsset[groundTex.length];
     for (int i = animTex.length; i-- > 0;) {
-      this.animTex[i] = ImageAsset.fromImage(groundTex[i], Habitat.class);
+      this.animTex[i] = ImageAsset.fromImage(Habitat.class, groundTex[i]);
     }
     this.baseTex = animTex[0];
     

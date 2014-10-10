@@ -156,7 +156,7 @@ public class BaseSetup {
     if (bestRating <= 0) return false;
     sample.assignBase(base);
     sample.setPosition(bestTile.x, bestTile.y, world);
-    sample.placeFromOrigin();
+    sample.doPlacement();
     return true;
   }
   

@@ -371,7 +371,7 @@ public class Nest extends Venue {
       
       if (toPlace != null) {
         I.say("New lair for "+toPlace.species+" at "+toPlace.origin());
-        toPlace.doPlace(toPlace.origin(), null);
+        toPlace.doPlacement();
         toPlace.assignBase(wildlife);
         toPlace.structure.setState(Structure.STATE_INTACT, 1);
         final Species s = toPlace.species;

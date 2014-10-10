@@ -21,7 +21,7 @@ public class Causeway extends Structural {
   final static String IMG_DIR = "media/Buildings/civilian/";
   final static CutoutModel
     NODE_MODELS[] = CutoutModel.fromImages(
-      IMG_DIR, Causeway.class, 2, 0.1f, true,
+      Causeway.class, IMG_DIR, 2, 0.1f, true,
       "causeway_left.png",
       "causeway_right.png",
       "causeway_hub.png"
@@ -32,7 +32,7 @@ public class Causeway extends Structural {
     MODEL_FLAT_LEFT   = NODE_MODELS[2],
     MODEL_FLAT_RIGHT  = NODE_MODELS[2];
   final public static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/mag_line_button.gif", Causeway.class
+    Causeway.class, "media/GUI/Buttons/mag_line_button.gif"
   );
   
   

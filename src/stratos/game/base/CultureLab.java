@@ -32,7 +32,7 @@ public class CultureLab extends Venue {
     CultureLab.class, "media/Buildings/physician/culture_vats.png", 3, 2
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/culture_vats_button.gif", CultureLab.class
+    CultureLab.class, "media/GUI/Buttons/culture_vats_button.gif"
   );
   
   /*

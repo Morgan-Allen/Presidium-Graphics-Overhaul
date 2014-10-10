@@ -42,10 +42,10 @@ public class Human extends Actor implements Qualities {
   
   final static ImageAsset
     PORTRAIT_BASE = ImageAsset.fromImage(
-      FILE_DIR+"portrait_base.png", Human.class
+      Human.class, FILE_DIR+"portrait_base.png"
     ),
     BASE_FACES = ImageAsset.fromImage(
-      FILE_DIR+"face_portraits.png", Human.class
+      Human.class, FILE_DIR+"face_portraits.png"
     );
   
   final static ImageAsset BLOOD_SKINS[] = ImageAsset.fromImages(

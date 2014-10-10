@@ -392,6 +392,7 @@ public abstract class Venue extends Structural implements
   
   /**  Installation interface-
     */
+  /*
   protected boolean lockToGrid() { return false; }
   protected Structural instance(Base base) { return this; }
   protected void configFromAdjacent(boolean near[], int numNear) {}
@@ -423,6 +424,7 @@ public abstract class Venue extends Structural implements
   ) {
     if (setPreviewAt(from)) singlePreview(canPlace, rendering);
   }
+  //*/
   
   
   

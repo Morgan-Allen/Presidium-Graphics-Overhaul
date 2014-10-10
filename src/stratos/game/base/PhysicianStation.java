@@ -32,7 +32,7 @@ public class PhysicianStation extends Venue {
     "media/Buildings/physician/physician_clinic.png", 3, 2
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/hospice_button.gif", PhysicianStation.class
+    PhysicianStation.class, "media/GUI/Buttons/hospice_button.gif"
   );
   
   /*

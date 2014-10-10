@@ -163,12 +163,9 @@ public abstract class Vehicle extends Mobile implements
     */
   public int buildCost() { return structure.buildCost(); }
   public String buildCategory() { return UIConstants.TYPE_HIDDEN; }
-
-  public boolean pointsOkay(Tile from, Tile to) { return false; }
-  public void doPlace(Tile from, Tile to) {}
-  public void preview(
-    boolean canPlace, Rendering rendering, Tile from, Tile to
-  ) {}
+  
+  public void doPlacement() {}
+  public void previewPlacement(boolean canPlace, Rendering rendering) {}
   
   
   

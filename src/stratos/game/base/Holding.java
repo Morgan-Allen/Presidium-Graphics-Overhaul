@@ -332,7 +332,7 @@ public class Holding extends Venue {
     IMG_DIR = "media/Buildings/civilian/";
   
   final static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/holding_button.gif", Holding.class
+    Holding.class, "media/GUI/Buttons/holding_button.gif"
   );
 
   final public static ModelAsset

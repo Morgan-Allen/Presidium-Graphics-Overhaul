@@ -22,7 +22,6 @@ public class BlastDoors extends ShieldWall implements TileConstants {
   
   /**  Fields, constants, constructors and save/load methods-
     */
-  
   public BlastDoors(Base base, int facing) {
     super(TYPE_DOORS, 4, 2, base);
     this.facing = facing;

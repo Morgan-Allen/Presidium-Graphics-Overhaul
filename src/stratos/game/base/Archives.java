@@ -25,7 +25,7 @@ public class Archives extends Venue {
   
 
   final static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/archives_button.gif", Archives.class
+    Archives.class, "media/GUI/Buttons/archives_button.gif"
   );
   final public static ModelAsset MODEL = CutoutModel.fromImage(
     Archives.class, "media/Buildings/physician/archives.png", 3, 2

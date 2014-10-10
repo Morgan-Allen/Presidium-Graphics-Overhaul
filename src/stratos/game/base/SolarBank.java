@@ -24,7 +24,7 @@ public class SolarBank extends Structural {
     IMG_DIR = "media/Buildings/ecologist/";
   final public static ModelAsset
     ARRAY_MODELS[] = CutoutModel.fromImages(
-      IMG_DIR, SolarBank.class, 2, 2, false,
+      SolarBank.class, IMG_DIR, 2, 2, false,
       "solar_bank_left.png",
       "solar_bank_right.png",
       "solar_bank_centre.png"
@@ -34,7 +34,7 @@ public class SolarBank extends Structural {
     MODEL_CENTRE     = ARRAY_MODELS[2];
   
   final static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/solar_array_button.gif", SolarBank.class
+    SolarBank.class, "media/GUI/Buttons/solar_array_button.gif"
   );
   
   final int
@@ -60,16 +60,9 @@ public class SolarBank extends Structural {
   }
   
   
-  protected Structural instance(Base base) {
-    return new SolarBank(base);
-  }
   
+  //  TODO:  Restore the use of this:
   
-  protected boolean lockToGrid() {
-    return false;
-  }
-  
-
   protected void configFromAdjacent(boolean[] near, int numNear) {
     final Tile o = origin();
     type = TYPE_SOLAR;
@@ -99,7 +92,7 @@ public class SolarBank extends Structural {
     attachModel(MODEL_RIGHT);
   }
   
-
+  /*
   protected List <Structural> installedBetween(Tile start, Tile end) {
     final List <Structural> installed = super.installedBetween(start, end);
     if (installed == null) return installed;
@@ -112,6 +105,7 @@ public class SolarBank extends Structural {
     
     return installed;
   }
+  //*/
   
   
   public void updateAsScheduled(int numUpdates) {
@@ -168,3 +162,13 @@ public class SolarBank extends Structural {
 
 
 
+/*
+protected Structural instance(Base base) {
+  return new SolarBank(base);
+}
+
+
+protected boolean lockToGrid() {
+  return false;
+}
+//*/

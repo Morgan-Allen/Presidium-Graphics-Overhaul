@@ -41,7 +41,7 @@ public class Power implements Qualities {
   Power(String name, int properties, String imgFile, String helpInfo) {
     this.name = name;
     this.helpInfo = helpInfo;
-    this.buttonImage = ImageAsset.fromImage(IMG_DIR+imgFile, Power.class);
+    this.buttonImage = ImageAsset.fromImage(Power.class, IMG_DIR+imgFile);
     this.properties = properties;
   }
   

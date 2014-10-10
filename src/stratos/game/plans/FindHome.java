@@ -116,7 +116,7 @@ public class FindHome extends Plan {
   public boolean actionSiteHome(Actor client, Target site) {
     if (! canPlace()) { abortBehaviour(); return false; }
     final Venue v = (Venue) newHome;
-    v.placeFromOrigin();
+    v.doPlacement();
     client.mind.setHome(v);
     return true;
   }

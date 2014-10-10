@@ -38,7 +38,7 @@ public class FRSD extends Venue {
     FRSD.class, "media/Buildings/merchant/depot_core.png", 2, 2
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/supply_depot_button.gif", FRSD.class
+    FRSD.class, "media/GUI/Buttons/supply_depot_button.gif"
   );
   /*
   final static FacilityProfile PROFILE = new FacilityProfile(

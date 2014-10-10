@@ -27,10 +27,10 @@ public class ShieldFX extends SFX {
   
   final public static ImageAsset
     SHIELD_BURST_TEX = ImageAsset.fromImage(
-      "media/SFX/shield_burst.png", ShieldFX.class
+      ShieldFX.class, "media/SFX/shield_burst.png"
     ),
     SHIELD_HALO_TEX  = ImageAsset.fromImage(
-      "media/SFX/shield_halo.png", ShieldFX.class
+      ShieldFX.class, "media/SFX/shield_halo.png"
     );
   final public static float
     BURST_FADE_INC  = 0.033f,

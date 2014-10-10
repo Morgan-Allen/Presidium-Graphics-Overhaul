@@ -15,6 +15,12 @@ import stratos.user.*;
 import stratos.util.*;
 
 
+//  This will need to extend Venue again, so it can show up in the install
+//  UI.
+
+//  Or maybe... create a Fence Pylon structure, and use that?  ...I think I
+//  like that idea.
+
 
 public class ShieldWall extends Structural implements Boarding {
   
@@ -25,15 +31,15 @@ public class ShieldWall extends Structural implements Boarding {
     IMG_DIR = "media/Buildings/military/";
   final static ModelAsset
     SECTION_MODELS[] = CutoutModel.fromImages(
-      IMG_DIR, ShieldWall.class, 2, 4, false,
+      ShieldWall.class, IMG_DIR, 2, 4, false,
       "wall_corner.png",
       "wall_tower_left.png",
       "wall_tower_right.png"
     ),
-    SECTION_MODEL_LEFT   = CutoutModel.fromImage(
+    SECTION_MODEL_LEFT = CutoutModel.fromImage(
       ShieldWall.class, IMG_DIR+"wall_segment_left.png" , 2, 1.33f
     ),
-    SECTION_MODEL_RIGHT  = CutoutModel.fromImage(
+    SECTION_MODEL_RIGHT = CutoutModel.fromImage(
       ShieldWall.class, IMG_DIR+"wall_segment_right.png", 2, 1.33f
     ),
     SECTION_MODEL_CORNER = SECTION_MODELS[0],
@@ -46,9 +52,10 @@ public class ShieldWall extends Structural implements Boarding {
       ShieldWall.class, IMG_DIR+"wall_gate_right.png", 4, 2.5f
     );
   
-  final static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/shield_wall_button.gif", ShieldWall.class
-  );
+  final static ImageAsset
+    ICON = ImageAsset.fromImage(
+      ShieldWall.class, "media/GUI/Buttons/shield_wall_button.gif"
+    );
   
   final protected static int
     TYPE_SECTION = 0,
@@ -189,40 +196,23 @@ public class ShieldWall extends Structural implements Boarding {
     return true;
   }
   
-  /*
-  public Vec3D position(Vec3D v) {
-    if (v == null) v = new Vec3D();
-    super.position(v);
-    if      (type == TYPE_SECTION) v.z += 1.33f;
-    else if (type == TYPE_TOWER  ) v.z += 2.50f;
-    else if (type == TYPE_SQUARE ) v.z += 1.00f;
-    return v;
-  }
-  //*/
-  
   
   
   /**  Configuring sections of the line-
     */
-  protected Structural instance(Base base) {
-    return new ShieldWall(base);
+  //  TODO:  You need to restore the bits and pieces for setting up sprite
+  //  data based on facing & adjacency, et cetera.
+  
+  
+
+  protected void setupSpritesFrom(ShieldWall segments[]) {
+    //  TODO:  Make a little more elaborate.
+    facing = CORNER;
+    attachModel(SECTION_MODEL_CORNER);
   }
   
-  
-  protected boolean lockToGrid() {
-    return true;
-  }
-  
-  
-  protected boolean checkPerimeter(World world) {
-    for (Tile n : Spacing.perimeter(area(), world)) {
-      if (n == null || n.onTop() instanceof ShieldWall) continue;
-      if (n.owningType() >= this.owningType()) return false;
-    }
-    return true;
-  }
-  
-  
+  //  TODO:  Restore this later.
+  /*
   protected void configFromAdjacent(boolean[] near, int numNear) {
     final Tile o = origin();
     entrances = null;
@@ -250,8 +240,11 @@ public class ShieldWall extends Structural implements Boarding {
     facing = CORNER;
     attachModel(SECTION_MODEL_CORNER);
   }
+  //*/
   
   
+  //  TODO:  Restore this later.
+  /*
   protected List <Structural> installedBetween(Tile start, Tile end) {
     final List <Structural> installed = super.installedBetween(start, end);
     if (installed == null || installed.size() < 4) return installed;
@@ -281,6 +274,7 @@ public class ShieldWall extends Structural implements Boarding {
     installed.add(doors);
     return installed;
   }
+  //*/
   
   
   
@@ -315,3 +309,32 @@ public class ShieldWall extends Structural implements Boarding {
 
 
 
+/*
+public Vec3D position(Vec3D v) {
+  if (v == null) v = new Vec3D();
+  super.position(v);
+  if      (type == TYPE_SECTION) v.z += 1.33f;
+  else if (type == TYPE_TOWER  ) v.z += 2.50f;
+  else if (type == TYPE_SQUARE ) v.z += 1.00f;
+  return v;
+}
+//*/
+/*
+protected Structural instance(Base base) {
+  return new ShieldWall(base);
+}
+
+
+protected boolean lockToGrid() {
+  return true;
+}
+
+
+protected boolean checkPerimeter(World world) {
+  for (Tile n : Spacing.perimeter(area(), world)) {
+    if (n == null || n.onTop() instanceof ShieldWall) continue;
+    if (n.owningType() >= this.owningType()) return false;
+  }
+  return true;
+}
+//*/

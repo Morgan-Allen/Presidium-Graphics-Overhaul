@@ -47,7 +47,7 @@ public class ImageAsset extends Assets.Loadable {
   }
   
   
-  public static ImageAsset fromImage(String filePath, Class sourceClass) {
+  public static ImageAsset fromImage(Class sourceClass, String filePath) {
     return new ImageAsset(filePath, sourceClass);
   }
   

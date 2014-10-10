@@ -103,7 +103,7 @@ public abstract class Technique implements Session.Saveable {
     this.animName = animName;
     
     if (Assets.exists(iconFile)) {
-      this.icon = ImageAsset.fromImage(iconFile, sourceClass);
+      this.icon = ImageAsset.fromImage(sourceClass, iconFile);
     }
     else this.icon = null;
     

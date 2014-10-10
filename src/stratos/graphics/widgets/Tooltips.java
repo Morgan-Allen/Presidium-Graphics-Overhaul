@@ -14,7 +14,7 @@ public class Tooltips extends UIGroup {
 
   
   final public static ImageAsset TIPS_TEX = ImageAsset.fromImage(
-    "media/GUI/tips_frame.png", UIConstants.class
+    UIConstants.class, "media/GUI/tips_frame.png"
   );
   //  TODO:  Pass in the texture as a parameter.
   

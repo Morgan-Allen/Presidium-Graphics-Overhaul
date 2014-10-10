@@ -171,37 +171,23 @@ public class InstallTab extends SelectionInfoPane {
     BaseUI UI;
     Class type;
     Installation toInstall;
-    private boolean hasPressed = false;
-    Tile from, to;
     
     
     public void doTask() {
       final IntelMap map = UI.played().intelMap;
-      Tile picked = UI.selection.pickedTile();
-      //if (picked != null && map.fogAt(picked) == 0) picked = null;
+      final Tile picked = UI.selection.pickedTile();
       
-      if (hasPressed) {
-        if (picked != null) to = picked;
-      }
-      else {
-        if (picked != null) to = from = picked;
-        if (UI.mouseDown() && from != null) {
-          hasPressed = true;
-        }
-      }
-      //
-      //  TODO:  Consider a different rendering mode for stuck-in-fog.
       final boolean canPlace =
-        (from == null || map.fogAt(from) > 0) &&
-        (to   == null || map.fogAt(to  ) > 0) &&
-        toInstall.pointsOkay(from, to);
+        picked != null && map.fogAt(picked) > 0 &&
+        toInstall.setPosition(picked.x, picked.y, UI.world()) &&
+        toInstall.canPlace();
       
-      if (canPlace && hasPressed && ! UI.mouseDown()) {
-        toInstall.doPlace(from, to);
+      if (canPlace && UI.mouseClicked()) {
+        toInstall.doPlacement();
         UI.endCurrentTask();
       }
       else {
-        toInstall.preview(canPlace, UI.rendering, from, to);
+        toInstall.previewPlacement(canPlace, UI.rendering);
       }
     }
     

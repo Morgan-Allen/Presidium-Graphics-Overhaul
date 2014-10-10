@@ -33,7 +33,7 @@ public class KommandoLodge extends Venue {
     KommandoLodge.class, "media/Buildings/ecologist/surveyor.png", 4, 1
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/redoubt_button.gif", KommandoLodge.class
+    KommandoLodge.class, "media/GUI/Buttons/redoubt_button.gif"
   );
   private static boolean verbose = true;
   

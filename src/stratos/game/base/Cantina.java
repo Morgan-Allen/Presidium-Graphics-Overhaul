@@ -36,7 +36,7 @@ public class Cantina extends Venue {
     Cantina.class, "media/Buildings/merchant/cantina.png", 4, 3
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/cantina_button.gif", Cantina.class
+    Cantina.class, "media/GUI/Buttons/cantina_button.gif"
   );
   
   final static String VENUE_NAMES[] = {

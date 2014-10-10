@@ -26,7 +26,7 @@ public class EngineerStation extends Venue {
   /**  Fields, constructors, and save/load methods-
     */
   final static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/artificer_button.gif", EngineerStation.class
+    EngineerStation.class, "media/GUI/Buttons/artificer_button.gif"
   );
   final public static ModelAsset MODEL = CutoutModel.fromImage(
     EngineerStation.class, "media/Buildings/artificer/artificer.png", 3, 2

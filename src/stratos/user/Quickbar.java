@@ -218,7 +218,7 @@ public class Quickbar extends UIGroup implements UIConstants {
     GUILD_IMG_ASSETS = new Table <String, ImageAsset> ();
     for (String name : GUILD_IMG_NAMES) {
       final ImageAsset asset = ImageAsset.fromImage(
-        BUTTONS_PATH+name+".png", Quickbar.class
+        Quickbar.class, BUTTONS_PATH+name+".png"
       );
       GUILD_IMG_ASSETS.put(name, asset);
     }

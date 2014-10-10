@@ -46,7 +46,7 @@ public class Arcology extends Structural {
       BEDS_MODELS[0][3], BEDS_MODELS[1][3], BEDS_MODELS[2][3]
     };
   final static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/arcology_button.gif", Arcology.class
+    Arcology.class, "media/GUI/Buttons/arcology_button.gif"
   );
   
   

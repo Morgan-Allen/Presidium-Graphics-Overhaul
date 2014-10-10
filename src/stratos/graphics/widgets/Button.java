@@ -21,10 +21,10 @@ public class Button extends Image {
     */
   final public static ImageAsset
     DEFAULT_LIT = ImageAsset.fromImage(
-      "media/GUI/iconLit.gif", Button.class
+      Button.class, "media/GUI/iconLit.gif"
     ),
     CIRCLE_LIT = ImageAsset.fromImage(
-      "media/GUI/icon_lit_circle.png", Button.class
+      Button.class, "media/GUI/icon_lit_circle.png"
     );
   
   public float

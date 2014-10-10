@@ -27,10 +27,11 @@ public interface Installation extends Session.Saveable, Target, Selectable {
   void onCompletion();
   void onDestruction();
   Structure structure();
-
-  boolean pointsOkay(Tile from, Tile to);
-  void doPlace(Tile from, Tile to);
-  void preview(boolean canPlace, Rendering rendering, Tile from, Tile to);
+  
+  boolean setPosition(float x, float y, World world);
+  boolean canPlace();
+  void doPlacement();
+  void previewPlacement(boolean canPlace, Rendering rendering);
 
   String fullName();
   Composite portrait(BaseUI UI);
