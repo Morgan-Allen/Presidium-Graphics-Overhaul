@@ -285,7 +285,7 @@ public abstract class Actor extends Mobile implements
         b.intelMap.liftFogAround(heads.x, heads.y, health.sightRange());
       }
       if (! visibleTo(b)) continue;
-      final float relation = relations.relationValue(b);
+      final float relation = relations.valueFor(b);
       final Tile o = origin();
       b.dangerMap.accumulate(0 - power * relation, 1.0f, o.x, o.y);
     }

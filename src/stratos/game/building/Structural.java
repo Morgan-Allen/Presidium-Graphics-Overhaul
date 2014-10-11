@@ -22,11 +22,11 @@ public abstract class Structural extends Fixture implements
   
   /**  Setup and save/load methods-
     */
-  private static boolean verbose = false;
+  //private static boolean verbose = false;
   
   final public Structure structure = new Structure(this);
   protected Base base;
-  protected int facing = -1, type = -1;
+  protected int facing = -1, type = -1;  //  TODO:  Dispense with
   
   protected BuildingSprite buildSprite;
   

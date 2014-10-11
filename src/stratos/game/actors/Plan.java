@@ -348,7 +348,7 @@ public abstract class Plan implements Saveable, Behaviour {
     traitBonus = (traitAvg + traitMax) / 2;
     
     if (subjectHarm != 0) {
-      final float relation = actor.relations.relationValue(subject);
+      final float relation = actor.relations.valueFor(subject);
       harmBonus = 0 - relation * subjectHarm * PARAMOUNT;
     }
     

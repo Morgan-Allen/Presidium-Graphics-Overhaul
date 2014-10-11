@@ -106,7 +106,7 @@ public class Repairs extends Plan {
     final boolean report = I.talkAbout == actor && evalVerbose && hasBegun();
     
     float urgency = needForRepair(built);
-    urgency *= actor.relations.relationValue(built.base());
+    urgency *= actor.relations.valueFor(built.base());
     
     final float debt = 0 - built.base().credits();
     if (debt > 0 && urgency > 0) urgency -= debt / 500f;

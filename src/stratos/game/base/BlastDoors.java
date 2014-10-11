@@ -6,11 +6,7 @@
 
 package stratos.game.base;
 import stratos.game.common.*;
-import stratos.game.tactical.*;
-import stratos.game.actors.*;
 import stratos.game.building.*;
-import stratos.graphics.common.*;
-import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
@@ -22,14 +18,16 @@ public class BlastDoors extends ShieldWall implements TileConstants {
   
   /**  Fields, constants, constructors and save/load methods-
     */
-  public BlastDoors(Base base, int facing) {
-    super(TYPE_DOORS, 4, 2, base);
-    this.facing = facing;
-    //personnel.setShiftType(SHIFTS_BY_HOURS);
+  public BlastDoors(Base base, boolean faceLeft) {
+    super(faceLeft ? TYPE_DOOR_LEFT : TYPE_DOOR_RIGHT, 4, 2, base);
+    this.facing = faceLeft ? X_AXIS : Y_AXIS;
+    //  TODO:  Sort this out shortly.
+    /*
     if (facing == X_AXIS)
       attachSprite(ShieldWall.DOORS_MODEL_LEFT.makeSprite());
     if (facing == Y_AXIS)
       attachSprite(ShieldWall.DOORS_MODEL_RIGHT.makeSprite());
+    //*/
   }
   
   
@@ -47,9 +45,8 @@ public class BlastDoors extends ShieldWall implements TileConstants {
   /**  Life cycle and placement-
     */
   protected void updatePaving(boolean inWorld) {
-    entrances();
     base().paving.updatePerimeter(this, inWorld);
-    for (Boarding b : entrances()) if (b instanceof Tile) {
+    for (Boarding b : canBoard()) if (b instanceof Tile) {
       base().paving.updateJunction(this, (Tile) b, inWorld);
     }
   }

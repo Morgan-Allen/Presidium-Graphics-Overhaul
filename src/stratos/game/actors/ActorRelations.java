@@ -103,7 +103,7 @@ public class ActorRelations {
   
   /**  Handling relationships and attitudes-
     */
-  public float relationValue(Base base) {
+  public float valueFor(Base base) {
     final Base AB = actor.base();
     if (AB != null) {
       if (base == AB) return 1;
@@ -114,33 +114,33 @@ public class ActorRelations {
   }
   
   
-  public float relationValue(Installation venue) {
+  public float valueFor(Installation venue) {
     if (venue == null) return 0;
     if (venue == actor.mind.home) return 1.0f;
     if (venue == actor.mind.work) return 0.5f;
-    return relationValue(venue.base()) / 2f;
+    return valueFor(venue.base()) / 2f;
   }
   
   
-  public float relationValue(Actor other) {
+  public float valueFor(Actor other) {
     final Relation r = relations.get(other);
-    if (r == null) return relationValue(other.base()) / 2;
+    if (r == null) return valueFor(other.base()) / 2;
     if (r.subject == actor) return Visit.clamp(r.value() + 1, 0, 1);
-    return r.value() + (relationValue(other.base()) / 4);
+    return r.value() + (valueFor(other.base()) / 4);
   }
   
   
-  public float relationValue(Object other) {
+  public float valueFor(Object other) {
     if (other instanceof Installation) {
-      return relationValue((Installation) other);
+      return valueFor((Installation) other);
     }
-    if (other instanceof Actor) return relationValue((Actor) other);
-    if (other instanceof Base ) return relationValue((Base ) other);
+    if (other instanceof Actor) return valueFor((Actor) other);
+    if (other instanceof Base ) return valueFor((Base ) other);
     return 0;
   }
   
   
-  public float relationNovelty(Accountable other) {
+  public float noveltyFor(Accountable other) {
     final Relation r = relations.get(other);
     if (r == null) return 1;
     return r.novelty();
@@ -161,7 +161,7 @@ public class ActorRelations {
   public void incRelation(Accountable other, float level, float weight) {
     Relation r = relations.get(other);
     if (r == null) {
-      final float baseVal = relationValue(other) / 2;
+      final float baseVal = valueFor(other) / 2;
       r = setRelation(other, baseVal + (level * weight), 1);
     }
     r.incValue(level, weight);
@@ -175,13 +175,23 @@ public class ActorRelations {
   }
   
   
-  public Relation relationWith(Accountable other) {
+  public Relation relationWith(Object other) {
     return relations.get(other);
   }
   
   
-  public boolean hasRelation(Accountable other) {
+  public boolean hasRelation(Object other) {
     return relations.get(other) != null;
+  }
+  
+  
+  public boolean likes(Object other) {
+    return valueFor(other) > 0;
+  }
+  
+  
+  public boolean dislikes(Object other) {
+    return valueFor(other) < 0;
   }
   
   

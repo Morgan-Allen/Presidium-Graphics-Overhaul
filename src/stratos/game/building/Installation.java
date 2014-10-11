@@ -30,8 +30,8 @@ public interface Installation extends Session.Saveable, Target, Selectable {
   
   boolean setPosition(float x, float y, World world);
   boolean canPlace();
-  void doPlacement();
   void previewPlacement(boolean canPlace, Rendering rendering);
+  void doPlacement();
 
   String fullName();
   Composite portrait(BaseUI UI);

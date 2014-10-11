@@ -162,7 +162,7 @@ public class Dialogue extends Plan implements Qualities {
     
     float urgency = 0;
     if (r == null) {
-      urgency += (solitude + actor.relations.relationValue(other)) / 2f;
+      urgency += (solitude + actor.relations.valueFor(other)) / 2f;
       urgency += (1 + curiosity) * solitude;
     }
     else {
@@ -316,7 +316,7 @@ public class Dialogue extends Plan implements Qualities {
     DialogueUtils.tryChat(actor, other);
     final boolean canTalk = canTalk(other);
 
-    final float relation = actor.relations.relationValue(other);
+    final float relation = actor.relations.valueFor(other);
     //I.say("Urgency: "+urgency()+", relation: "+relation);
     //I.say("Novelty: "+actor.memories.relationNovelty(other));
     if (urgency() <= 0 || ! canTalk) {
@@ -365,7 +365,7 @@ public class Dialogue extends Plan implements Qualities {
     }
     if (report) {
       I.say("  Offer accepted!");
-      I.say("  Relation before: "+receives.relations.relationValue(actor));
+      I.say("  Relation before: "+receives.relations.valueFor(actor));
     }
 
     actor.gear.transfer(gift, receives);
@@ -374,7 +374,7 @@ public class Dialogue extends Plan implements Qualities {
     DialogueUtils.utters(receives, "Thank you for the "+gift.type+"!", value);
     
     if (report) {
-      I.say("  Relation after: "+receives.relations.relationValue(actor));
+      I.say("  Relation after: "+receives.relations.valueFor(actor));
     }
     return true;
   }

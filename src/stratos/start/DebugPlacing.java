@@ -83,13 +83,16 @@ public class DebugPlacing extends Scenario {
     GameSettings.setDefaults();
     GameSettings.hireFree  = true;
     GameSettings.buildFree = true;
+    GameSettings.fogFree   = true;
     
+    /*
     final EcologistStation station = new EcologistStation(base);
     Placement.establishVenue(station, 8, 8, true, world);
     
     final Plantation site = new Plantation(base);
     site.setPosition(8, 15, world);
     if (site.canPlace()) site.doPlacement();
+    //*/
   }
   
   

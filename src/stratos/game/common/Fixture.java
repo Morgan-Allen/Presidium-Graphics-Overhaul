@@ -77,11 +77,14 @@ public abstract class Fixture extends Element {
         t.onTop().setAsDestroyed();
       }
     }
+    //
+    //  As a final step, we take anything mobile within our footprint area and
+    //  kick it outside:
     Tile exit = null;
     if (this instanceof Venue) exit = ((Venue) this).mainEntrance();
     else {
       final Tile perim[] = Spacing.perimeter(area(), world);
-      for (Tile p : perim) if (! p.blocked()) { exit = p; break; }
+      for (Tile p : perim) if (p != null && ! p.blocked()) { exit = p; break; }
     }
     if (exit == null) exit = Spacing.nearestOpenTile(this, this, world);
     if (exit == null) I.complain("No exit point from "+this);

@@ -125,12 +125,12 @@ public abstract class Artilect extends Actor {
     final Artilect actor = this;
     
     return new ActorRelations(this) {
-      public float relationValue(Venue venue) {
+      public float valueFor(Installation venue) {
         if (venue == actor.mind.home()) return 1;
-        return super.relationValue(venue);
+        return super.valueFor(venue);
       }
       
-      public float relationValue(Actor other) {
+      public float valueFor(Actor other) {
         if (actor.base() != null && other.base() == actor.base()) return 0.5f;
         if (other.health.artilect()) return 1.0f;
         return -1.0f;
@@ -275,7 +275,7 @@ public abstract class Artilect extends Actor {
       if (dist > Ruins.MIN_RUINS_SPACING) continue;
       
       float rating = SS / (SS + dist);
-      rating += 1 - relations.relationValue(venue);
+      rating += 1 - relations.valueFor(venue);
       if (rating > bestRating) { bestRating = rating; toAssault = venue; }
     }
     

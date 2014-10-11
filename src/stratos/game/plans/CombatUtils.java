@@ -94,11 +94,15 @@ public class CombatUtils {
   public static boolean isHostileTo(Actor actor, Target target) {
     if (! (target instanceof Actor)) return false;
     final Actor other = (Actor) target;
+    final ActorRelations relations = actor.relations;
     
     if (! other.health.conscious()) return false;
-    if (other.focusFor(Combat.class) == actor) return true;
-    if (actor.relations.relationValue(other) < 0) return true;
-    //if (actor.base().relations.relationWith(other.base()) < 0) return true;
+    if (relations.dislikes(other)) return true;
+    
+    final Target victim = other.focusFor(Combat.class);
+    if (victim != null && relations.likes(victim)) {
+      return relations.valueFor(victim) > relations.valueFor(other);
+    }
     return false;
   }
   
@@ -109,7 +113,7 @@ public class CombatUtils {
     
     if (! other.health.conscious()) return false;
     if (other.focusFor(Retreat.class) != null) return false;
-    if (other.relations.relationValue(actor) > 0.5f) return true;
+    if (other.relations.valueFor(actor) > 0.5f) return true;
     return other.base() == actor.base();
   }
   
@@ -179,7 +183,7 @@ public class CombatUtils {
       return value;
     }
     else if (target instanceof Element) {
-      return actor.relations.relationValue(target);
+      return actor.relations.valueFor(target);
     }
     else return -1;
   }

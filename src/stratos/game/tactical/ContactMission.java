@@ -91,7 +91,7 @@ public class ContactMission extends Mission {
   
   private boolean doneTalking(Actor a) {
     if (agreed.includes(a)) return true;
-    return a.relations.relationNovelty(base) < 0;
+    return a.relations.noveltyFor(base) < 0;
   }
   
   
@@ -150,7 +150,7 @@ public class ContactMission extends Mission {
     //  First of all, try to complete normal dialogue efforts with everyone
     //  involved.
     for (Actor a : talksTo()) {
-      final float novelty = a.relations.relationNovelty(actor);
+      final float novelty = a.relations.noveltyFor(actor);
       if (novelty <= 0) continue;
       final Dialogue talk = new Dialogue(actor, a, Dialogue.TYPE_CONTACT);
       talk.setMotive(Plan.MOTIVE_MISSION, basePriority);
@@ -163,7 +163,7 @@ public class ContactMission extends Mission {
     //  If that is complete, try closing the talks.
     if (choice.size() == 0) for (Actor a : talksTo) {
       if (doneTalking(a)) continue;
-      final float relation = a.relations.relationValue(actor);
+      final float relation = a.relations.valueFor(actor);
       final Action closeTalks = new Action(
         actor, a,
         this, "actionCloseTalks",
@@ -193,7 +193,7 @@ public class ContactMission extends Mission {
   public boolean actionCloseTalks(Actor actor, Actor other) {
     final boolean report = eventVerbose && I.talkAbout == actor;
     
-    float DC = other.relations.relationValue(actor) * -10;
+    float DC = other.relations.valueFor(actor) * -10;
     if (objectIndex() == OBJECT_FRIENDSHIP) DC += 0 ;
     if (objectIndex() == OBJECT_AUDIENCE  ) DC += 10;
     if (objectIndex() == OBJECT_SUBMISSION) DC += 20;
@@ -201,7 +201,7 @@ public class ContactMission extends Mission {
     final float danger = other.senses.fearLevel();
     DC -= danger * 5;
     
-    final float novelty = other.relations.relationNovelty(actor.base());
+    final float novelty = other.relations.noveltyFor(actor.base());
     if (novelty < 0) DC += novelty * 10;
     float success = DialogueUtils.talkResult(SUASION, DC, actor, other);
     

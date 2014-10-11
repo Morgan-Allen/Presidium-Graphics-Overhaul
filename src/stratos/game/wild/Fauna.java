@@ -123,7 +123,7 @@ public abstract class Fauna extends Actor {
     return new ActorRelations(this) {
       //
       //  We install some default relationships with other animals-
-      public float relationValue(Actor other) {
+      public float valueFor(Actor other) {
         if (other.health.animal()) {
           final Fauna f = (Fauna) other;
           if (f.species == species) return 0.25f;

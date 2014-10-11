@@ -36,7 +36,7 @@ public class DialogueUtils implements Qualities {
     Skill plea, float opposeDC, Actor actor, Actor other
   ) {
     final Skill language = languageFor(other);
-    final float attBonus = other.relations.relationValue(actor) * ROUTINE_DC;
+    final float attBonus = other.relations.valueFor(actor) * ROUTINE_DC;
     int result = 0;
     result += actor.skills.test(language, ROUTINE_DC - attBonus, 1) ? 1 : 0;
     result += actor.skills.test(plea, opposeDC - attBonus, 1) ? 1 : 0;
@@ -115,7 +115,7 @@ public class DialogueUtils implements Qualities {
     for (Relation r : actor.relations.relations()) {
       if (r.subject == other || ! (r.subject instanceof Actor)) continue;
       final float
-        otherR = other.relations.relationValue(r.subject),
+        otherR = other.relations.valueFor(r.subject),
         rating = (FastMath.abs(otherR * r.value()) + 0.5f) * Rand.num();
       if (rating > bestRating) { pick = r; bestRating = rating; }
     }
@@ -126,8 +126,8 @@ public class DialogueUtils implements Qualities {
     }
     final Actor about = (Actor) pick.subject;
     final float
-      attA = actor.relations.relationValue(about),
-      attO = other.relations.relationValue(about);
+      attA = actor.relations.valueFor(about),
+      attO = other.relations.valueFor(about);
     
 
     final boolean agrees = FastMath.abs(attA - attO) < 0.5f;

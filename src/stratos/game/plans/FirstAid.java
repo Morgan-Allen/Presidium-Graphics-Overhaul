@@ -100,7 +100,7 @@ public class FirstAid extends Plan {
     
     //  TODO:  You need a generalised method for this.
     if (patient.base() != actor.base()) {
-      modifier -= (1 - actor.relations.relationValue(patient.base())) * ROUTINE;
+      modifier -= (1 - actor.relations.valueFor(patient.base())) * ROUTINE;
     }
     if (patient.species() != actor.species()) {
       modifier -= ROUTINE;

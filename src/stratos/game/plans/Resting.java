@@ -85,7 +85,7 @@ public class Resting extends Plan {
       if (! venue.structure.intact()) return 0;
     }
     if (restPoint != actor) {
-      modifier += actor.relations.relationValue(restPoint) * CASUAL;
+      modifier += actor.relations.valueFor(restPoint) * CASUAL;
     }
     
     //  Include effects of fatigue-

@@ -40,7 +40,7 @@ public class Visit <T> {
   public static int round(float value, int unit, boolean up) {
     final float fraction = (value * 1f) / unit;
     if (up) return (int) (Math.ceil(fraction) * unit);
-    return (int) (fraction * unit);
+    return unit * (int) fraction;
   }
   
   

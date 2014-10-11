@@ -84,7 +84,7 @@ public class Gifting extends Plan implements Qualities {
     
     float modifier = NO_MODIFIER;
     final float
-      novelty = receives.relations.relationNovelty(actor),
+      novelty = receives.relations.noveltyFor(actor),
       rating = rateGift(gift, actor, receives);
     if (! hasBegun()) {
       modifier -= ROUTINE;
