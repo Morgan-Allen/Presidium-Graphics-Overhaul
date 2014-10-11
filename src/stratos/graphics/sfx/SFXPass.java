@@ -125,6 +125,8 @@ public class SFXPass {
         compileAndRender(rendering.camera());
       }
     }
+    
+    glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
     clearAll();
   }
   

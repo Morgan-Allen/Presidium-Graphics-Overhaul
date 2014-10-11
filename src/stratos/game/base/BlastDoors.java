@@ -18,16 +18,14 @@ public class BlastDoors extends ShieldWall implements TileConstants {
   
   /**  Fields, constants, constructors and save/load methods-
     */
-  public BlastDoors(Base base, boolean faceLeft) {
-    super(faceLeft ? TYPE_DOOR_LEFT : TYPE_DOOR_RIGHT, 4, 2, base);
-    this.facing = faceLeft ? X_AXIS : Y_AXIS;
-    //  TODO:  Sort this out shortly.
-    /*
-    if (facing == X_AXIS)
-      attachSprite(ShieldWall.DOORS_MODEL_LEFT.makeSprite());
-    if (facing == Y_AXIS)
-      attachSprite(ShieldWall.DOORS_MODEL_RIGHT.makeSprite());
-    //*/
+  public BlastDoors(Base base) {
+    super(TYPE_PLACING, 4, 2, base);
+  }
+  
+  
+  public BlastDoors(Base base, int type, int facing) {
+    super(type, 4, 2, base);
+    this.facing = facing;
   }
   
   

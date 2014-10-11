@@ -129,8 +129,7 @@ public class ShieldWall extends Venue {
     */
   //  TODO:  Include upgrades here to represent the transition to sturdier
   //  walls, or a different type of turret, or changes to a new facing, or the
-  //  inclusion of a checkpoint.
-  
+  //  inclusion of a checkpoint/blast doors.
   
   public Behaviour jobFor(Actor actor) {
     return null;
@@ -149,26 +148,24 @@ public class ShieldWall extends Venue {
   
   public void updateAsScheduled(int numUpdates) {
     super.updateAsScheduled(numUpdates);
-    //  TODO:  Update your own type, depending on adjacency, and possibly
-    //  schedule reconstruction for the purpose.
-    if (numUpdates == 10) {
-      final int oldType = this.type, newType = getFacingType(null, world);
+    
+    if (numUpdates % 10 == 0) {
+      final int oldType = this.type, newType = getFacingType(world, null);
       
       if (oldType != newType) {
+        I.say("Old/new types: "+oldType+"/"+newType);
         if (GameSettings.buildFree) {
+          this.type = newType;
           attachModel(MODEL_TYPES[newType]);
         }
-        //  TODO:  Implement-
         /*
-        else {
-        if (structure.upgradeLevel(FACING_CHANGE) > 0) {
-          structure.resignUpgrade(FACING_CHANGE);
-          attachModel(newModel);
-        }
-        else {
+        else if (structure.upgradeLevel(FACING_CHANGE) < 1) {
           structure.beginUpgrade(FACING_CHANGE, true);
-          attachModel(oldModel);
         }
+        else {
+          structure.resignUpgrade(FACING_CHANGE);
+          this.type = newType;
+          attachModel(MODEL_TYPES[newType]);
         }
         //*/
       }
@@ -237,7 +234,7 @@ public class ShieldWall extends Venue {
   }
   
   
-  private int getFacingType(ShieldWall segments[], World world) {
+  private int getFacingType(World world, ShieldWall newWall[]) {
     
     final boolean near[] = new boolean[8];
     int numNear = 0;
@@ -247,10 +244,16 @@ public class ShieldWall extends Venue {
       final Tile t = world.tileAt(o.x + (N_X[n] * 2), o.y + (N_Y[n] * 2));
       if (t == null) continue;
       if (t.onTop() instanceof ShieldWall) near[n] = true;
-      if (segments != null) for (ShieldWall s : segments) {
+      if (newWall != null) for (ShieldWall s : newWall) {
         if (t == s.origin()) { near[n] = true; break; }
       }
       if (near[n]) numNear++;
+    }
+    
+    if (this instanceof BlastDoors) {
+      if (facing == W || facing == E) return TYPE_DOOR_LEFT ;
+      if (facing == N || facing == S) return TYPE_DOOR_RIGHT;
+      return TYPE_SINGLE;
     }
     
     if (numNear == 0) return TYPE_SINGLE;
@@ -279,6 +282,13 @@ public class ShieldWall extends Venue {
       {-2,  0,  0, 0,  2, 0,  4, 0,  6, 0,  8, 0},
       {-2,  6,  0, 6,  2, 6,  4, 6,  6, 6,  8, 6},
     },
+    DOOR_COORDS[][] = {
+      {-1,  2},
+      { 5,  2},
+      { 2, -1},
+      { 2,  5},
+    },
+    ALL_FACINGS[] = { E, W, S, N },
     SIDE_LENGTH = 8;
   
   
@@ -310,7 +320,7 @@ public class ShieldWall extends Venue {
     //
     //  Then take every second tile on that side, and generate a segment of
     //  shield wall to go with it.
-    final Batch <ShieldWall> barrier = new Batch <ShieldWall> ();
+    final List <ShieldWall> barrier = new List <ShieldWall> ();
     for (int n = 0; n < pickedCoords.length;) {
       final Tile under = world.tileAt(
         pickedCoords[n++] + corner.x,
@@ -320,27 +330,63 @@ public class ShieldWall extends Venue {
       final ShieldWall segment = new ShieldWall(base);
       segment.type = TYPE_JUNCTION;
       segment.setPosition(under.x, under.y, world);
-      //
-      //  We only allow the ends to be capped if they abut on something else
-      //  (see below.)
-      if (checkForCaps(segment, n, world)) barrier.add(segment);
+      barrier.add(segment);
     }
+    //
+    //  We only allow the ends to be capped if they abut on something else
+    //  (see below), and may have to insert blast doors as well, before
+    //  returning the final result.
+    final Box2D mainArea = new Box2D().set(
+      corner.x - 0.5f, corner.y - 0.5f,
+      SIDE_LENGTH    , SIDE_LENGTH
+    );
+    final int sideID = Visit.indexOf(pickedCoords, SIDE_COORDS);
+    checkForCaps(barrier, mainArea, world);
+    if (! checkDoorInsert(barrier, sideID, corner, world)) return null;
     return barrier.toArray(ShieldWall.class);
   }
   
   
-  private boolean checkForCaps(ShieldWall s, int index, World world) {
-    //  TODO:  This needs more refinement.  Interior angles still count!  BLAH
-    //
+  private void checkForCaps(
+    List <ShieldWall> segments, Box2D mainArea, World world
+  ) {
     //  Any segments in the middle of the wall should be fine.  Otherwise, we
     //  check to see if there would be any segments adjoining- if so, we allow
-    //  the extension, so as to fill in the corner neatly.
-    if (index > 2 && index <= SIDE_LENGTH + 2) return true;
-    final int type = s.getFacingType(null, world);
-    if (type != TYPE_SINGLE) return true;
-    return false;
+    //  the extension, so as to fill in the corner neatly.  (Otherwise, we cull
+    //  that segment from the list.)
+    final ShieldWall newWall[] = segments.toArray(ShieldWall.class);
+    for (ShieldWall s : newWall) {
+      final Tile o = s.origin();
+      if (mainArea.contains(o.x, o.y)) continue;
+      final int type = s.getFacingType(world, newWall);
+      if (type == TYPE_END_CAP) segments.remove(s);
+    }
   }
   
+  
+  private boolean checkDoorInsert(
+    List <ShieldWall> segments, int sideID, Tile corner, World world
+  ) {
+    if (! (this instanceof BlastDoors)) return true;
+    //
+    //  Firstly, we establish where the doors should be placed.
+    final int coords[] = DOOR_COORDS[sideID];
+    final Tile at = world.tileAt(corner.x + coords[0], corner.y + coords[1]);
+    if (at == null) return false;
+    //
+    //  Then, initialise and set their location-
+    final int facing = ALL_FACINGS[sideID];
+    final BlastDoors doors = new BlastDoors(base, TYPE_SINGLE, facing);
+    doors.setPosition(at.x, at.y, world);
+    //
+    //  Then, replace any prior intersecting segments, and return.
+    for (ShieldWall s : segments) {
+      final Tile o = s.origin();
+      if (doors.area().contains(o.x, o.y)) segments.remove(s);
+    }
+    segments.add(doors);
+    return true;
+  }
   
   
   public boolean setPosition(float x, float y, World world) {
@@ -351,7 +397,7 @@ public class ShieldWall extends Venue {
     if (barrier == null) return false;
     
     for (ShieldWall segment : barrier) {
-      final int type = segment.getFacingType(barrier, world);
+      final int type = segment.getFacingType(world, barrier);
       segment.type = type;
       segment.attachModel(MODEL_TYPES[type]);
     }
