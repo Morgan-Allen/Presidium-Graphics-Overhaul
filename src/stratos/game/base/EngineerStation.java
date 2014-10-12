@@ -186,7 +186,7 @@ public class EngineerStation extends Venue {
     
     //  Consider contributing toward local repairs-
     final Choice choice = new Choice(actor);
-    choice.add(Repairs.getNextRepairFor(actor, Plan.ROUTINE));
+    choice.add(Repairs.getNextRepairFor(actor, Plan.CASUAL));
     
     //  Finally, consider the production of general bulk commodities-
     final int PB = 1 + structure.upgradeLevel(ASSEMBLY_LINE);

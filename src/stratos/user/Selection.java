@@ -189,8 +189,8 @@ public class Selection implements UIConstants {
   /**  Rendering FX-
     */
   final static int MAX_CACHE = 5;
-  private Table <Element, TerrainChunk> overlayCache = new Table();
-  private List <Element> recentOverlays = new List();
+  private Table <Installation, TerrainChunk> overlayCache = new Table();
+  private List <Installation> recentOverlays = new List();
   
   
   protected void renderWorldFX(Rendering rendering) {
@@ -220,7 +220,7 @@ public class Selection implements UIConstants {
   public void renderTileOverlay(
     Rendering r, final World world,
     Colour c, ImageAsset tex, boolean cache,
-    final Fixture key, final Fixture... group
+    final Installation key, final Installation... group
   ) {
     //  Use a glow-colour:
     c = new Colour().set(c);
@@ -233,13 +233,13 @@ public class Selection implements UIConstants {
       return;
     }
     if (cache && recentOverlays.size() > MAX_CACHE) {
-      final Element oldest = recentOverlays.removeLast();
+      final Installation oldest = recentOverlays.removeLast();
       overlayCache.remove(oldest);
     }
     
-    final Box2D limit = key.area(null);
+    final Box2D limit = new Box2D().setTo(key.area());
     final Batch <Tile> under = new Batch <Tile> ();
-    for (Fixture f : group) {
+    for (Installation f : group) {
       if (f == null) continue;
       for (Tile t : world.tilesIn(f.area(), true)) {
         limit.include(t.x, t.y, 0.5f);

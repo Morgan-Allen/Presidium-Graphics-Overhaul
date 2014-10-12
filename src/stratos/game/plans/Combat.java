@@ -233,9 +233,12 @@ public class Combat extends Plan implements Qualities {
       if (! Spacing.adjacent(actor, struck)) {
         strike.setMoveTarget(Spacing.nearestOpenTile(struck, actor, world));
       }
+      //  TODO:  Properly incorporate dodge mechanics here.
+      /*
       else if (Rand.num() < 0.2f) {
         strike.setMoveTarget(Spacing.pickFreeTileAround(struck, actor));
       }
+      //*/
       else strike.setMoveTarget(actor.origin());
     }
   }

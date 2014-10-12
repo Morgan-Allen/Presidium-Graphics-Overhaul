@@ -16,8 +16,6 @@ import stratos.util.*;
 
 public class Structure {
   
-  
-  
   /**  Fields, definitions and save/load methods-
     */
   final public static int
@@ -68,33 +66,31 @@ public class Structure {
     0.5f , 0.55f, 0.55f, 0.6f , 0.6f , 0.65f
   };
   
-  private static boolean
-    verbose = false;
+  private static boolean verbose = false;
   
   
   final Installation basis;
-  
+  private Installation group[];
+
+  private int structureType = TYPE_VENUE       ;
   private int baseIntegrity = DEFAULT_INTEGRITY;
-  private int maxUpgrades   = NO_UPGRADES;
+  private int maxUpgrades   = NO_UPGRADES      ;
+  private Item materials[], outputs[];
   private int
     buildCost     = DEFAULT_BUILD_COST,
-    armouring     = DEFAULT_ARMOUR,
-    cloaking      = DEFAULT_CLOAKING,
-    ambienceVal   = DEFAULT_AMBIENCE,
-    structureType = TYPE_VENUE;
+    armouring     = DEFAULT_ARMOUR    ,
+    cloaking      = DEFAULT_CLOAKING  ,
+    ambienceVal   = DEFAULT_AMBIENCE  ;
   
-  private int state = STATE_INSTALL;
-  private float integrity = baseIntegrity;
-  private boolean burning;
+  private int     state         = STATE_INSTALL;
+  private float   integrity     = baseIntegrity;
+  private boolean burning       = false        ;
   
-  private float upgradeProgress = 0;
-  private int upgradeIndex = -1;
-  private Upgrade upgrades[] = null;
-  private int upgradeStates[] = null;
+  private float   upgradeProgress =  0  ;
+  private int     upgradeIndex    = -1  ;
+  private Upgrade upgrades[]      = null;
+  private int     upgradeStates[] = null;
   
-  private Item
-    materials[],
-    outputs[];
   
   
   
@@ -104,24 +100,26 @@ public class Structure {
   
   
   public void loadState(Session s) throws Exception {
+    group = (Installation[]) s.loadObjectArray(Installation.class);
+    
     baseIntegrity = s.loadInt();
-    maxUpgrades = s.loadInt();
-    buildCost = s.loadInt();
-    armouring = s.loadInt();
-    cloaking = s.loadInt();
-    ambienceVal = s.loadInt();
+    maxUpgrades   = s.loadInt();
+    buildCost     = s.loadInt();
+    armouring     = s.loadInt();
+    cloaking      = s.loadInt();
+    ambienceVal   = s.loadInt();
     structureType = s.loadInt();
-
-    state = s.loadInt();
+    
+    state     = s.loadInt()  ;
     integrity = s.loadFloat();
-    burning = s.loadBool();
+    burning   = s.loadBool() ;
     
     Index <Upgrade> AU = basis.allUpgrades();
     if (AU != null) {
       upgradeProgress = s.loadFloat();
-      upgradeIndex = s.loadInt();
-      upgrades = new Upgrade[maxUpgrades];
-      upgradeStates = new int[maxUpgrades];
+      upgradeIndex    = s.loadInt()  ;
+      upgrades        = new Upgrade[maxUpgrades];
+      upgradeStates   = new int[maxUpgrades]    ;
       
       for (int i = 0; i < maxUpgrades; i++) {
         upgrades[i] = AU.loadMember(s.input());
@@ -130,22 +128,24 @@ public class Structure {
     }
     
     materials = Item.loadItemsFrom(s);
-    outputs = Item.loadItemsFrom(s);
+    outputs   = Item.loadItemsFrom(s);
   }
   
   
   public void saveState(Session s) throws Exception {
+    s.saveObjectArray(group);
+    
     s.saveInt(baseIntegrity);
-    s.saveInt(maxUpgrades);
-    s.saveInt(buildCost);
-    s.saveInt(armouring);
-    s.saveInt(cloaking);
-    s.saveInt(ambienceVal);
+    s.saveInt(maxUpgrades  );
+    s.saveInt(buildCost    );
+    s.saveInt(armouring    );
+    s.saveInt(cloaking     );
+    s.saveInt(ambienceVal  );
     s.saveInt(structureType);
 
-    s.saveInt(state);
+    s.saveInt  (state    );
     s.saveFloat(integrity);
-    s.saveBool(burning);
+    s.saveBool (burning  );
     
     Index <Upgrade> AU = basis.allUpgrades();
     if (AU != null) {
@@ -158,7 +158,7 @@ public class Structure {
     }
     
     Item.saveItemsTo(s, materials);
-    Item.saveItemsTo(s, outputs);
+    Item.saveItemsTo(s, outputs  );
   }
   
   
@@ -177,6 +177,11 @@ public class Structure {
     this.maxUpgrades = maxUpgrades;
     this.upgrades = new Upgrade[maxUpgrades];
     this.upgradeStates = new int[maxUpgrades];
+  }
+  
+  
+  public void assignGroup(Installation... group) {
+    this.group = group;
   }
   
   
@@ -201,13 +206,6 @@ public class Structure {
   
   public void assignOutputs(Item... outputs) {
     this.outputs = outputs;
-  }
-  
-  
-  public float outputOf(TradeType outType) {
-    if (outputs == null) return 0;
-    for (Item i : outputs) if (i.type == outType) return i.amount;
-    return 0;
   }
   
   
@@ -247,7 +245,7 @@ public class Structure {
   
   
   
-  /**  Queries and modifications-
+  /**  General state queries-
     */
   public int maxIntegrity() { return baseIntegrity + upgradeHP(); }
   public int maxUpgrades() { return upgrades == null ? 0 : maxUpgrades; }
@@ -258,13 +256,13 @@ public class Structure {
   
   public int ambienceVal() { return intact() ? ambienceVal : 0; }
   
-  public boolean intact() { return state == STATE_INTACT; }
-  public boolean destroyed() { return state == STATE_RAZED; }
-  public int buildState() { return state; }
+  public boolean intact()     { return state == STATE_INTACT; }
+  public boolean destroyed()  { return state == STATE_RAZED ; }
+  public int     buildState() { return state; }
   
-  public int repair() { return (int) integrity; }
-  public float repairLevel() { return integrity / maxIntegrity(); }
-  public boolean burning() { return burning; }
+  public int     repair()      { return (int) integrity; }
+  public float   repairLevel() { return integrity / maxIntegrity(); }
+  public boolean burning()     { return burning; }
   
   
   public boolean flammable() {
@@ -281,6 +279,41 @@ public class Structure {
     return structureType == TYPE_ORGANIC;
   }
   
+  
+  public float outputOf(TradeType outType) {
+    if (outputs == null) return 0;
+    for (Item i : outputs) if (i.type == outType) return i.amount;
+    return 0;
+  }
+  
+  
+  public Installation[] group() {
+    return group;
+  }
+  
+  
+  
+  /**  State Modifications-
+    */
+  public void beginSalvage() {
+    if (state == STATE_SALVAGE || ! basis.inWorld()) return;
+    if (GameSettings.buildFree && (basis instanceof Element)) {
+      ((Element) basis).exitWorld();
+    }
+    else setState(Structure.STATE_SALVAGE, -1);
+    if (group != null) for (Installation i : group) {
+      i.structure().beginSalvage();
+    }
+  }
+  
+  
+  public void cancelSalvage() {
+    if (state == STATE_INTACT) return;
+    setState(Structure.STATE_INTACT, -1);
+    if (group != null) for (Installation i : group) {
+      i.structure().cancelSalvage();
+    }
+  }
   
   
   public void setState(int state, float condition) {
@@ -464,17 +497,24 @@ public class Structure {
   }
   
   
-  public void resignUpgrade(int atIndex) {
+  public void resignUpgrade(int atIndex, boolean instant) {
     if (upgrades[atIndex] == null) I.complain("NO SUCH UPGRADE!");
-    upgradeStates[atIndex] = STATE_SALVAGE;
-    if (upgradeIndex == atIndex) upgradeProgress = 1 - upgradeProgress;
+    if (instant) {
+      upgrades[atIndex] = null;
+      upgradeStates[atIndex] = STATE_NONE;
+      if (upgradeIndex == atIndex) upgradeProgress = 0;
+    }
+    else {
+      upgradeStates[atIndex] = STATE_SALVAGE;
+      if (upgradeIndex == atIndex) upgradeProgress = 1 - upgradeProgress;
+    }
     checkMaintenance();
   }
   
   
-  public void resignUpgrade(Upgrade upgrade) {
+  public void resignUpgrade(Upgrade upgrade, boolean instant) {
     for (int i = upgrades.length; i-- > 0;) {
-      if (upgrades[i] == upgrade) { resignUpgrade(i); return; }
+      if (upgrades[i] == upgrade) { resignUpgrade(i, instant); return; }
     }
   }
   

@@ -487,7 +487,8 @@ public class Stocks extends Inventory {
       demandRecord(s).tierType = TIER_PRODUCER;
     }
     
-    for (TradeType s : basis.services()) {
+    final TradeType services[] = basis.services();
+    if (services != null) for (TradeType s : services) {
       presences.togglePresence(basis, vO, amountOf(s) > 0, s.supplyKey);
     }
     

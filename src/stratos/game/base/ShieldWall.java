@@ -6,6 +6,7 @@
 
 
 package stratos.game.base;
+import static stratos.game.building.Economy.CARBS;
 import stratos.game.actors.Actor;
 import stratos.game.actors.Background;
 import stratos.game.actors.Behaviour;
@@ -16,11 +17,6 @@ import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
-
-
-//  This will need to extend Venue again, so it can show up in the install
-//  UI.  Merge with the work done in the FencePylon class.
-
 
 
 
@@ -87,9 +83,8 @@ public class ShieldWall extends Venue {
   };
   
   
-  final List <Mobile> inside = new List <Mobile> ();
   private Boarding entrances[] = null;
-  private ShieldWall barrier[] = null;  //  TODO:  Save/load this.
+  //private ShieldWall wallGroup[] = null;
   
   
   public ShieldWall(Base base) {
@@ -114,22 +109,41 @@ public class ShieldWall extends Venue {
   
   public ShieldWall(Session s) throws Exception {
     super(s);
-    s.loadObjects(inside);
+    //  TODO:  No.  You'll want this as a fundamental aspect of the Structure
+    //         class, I think.  Move the function out there.
+    //wallGroup = (ShieldWall[]) s.loadObjectArray(ShieldWall.class);
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObjects(inside);
+    //  TODO:  Ditto.
+    //s.saveObjectArray(wallGroup);
   }
   
-
+  
   
   /**  Registration, life cycle and economic functions-
     */
-  //  TODO:  Include upgrades here to represent the transition to sturdier
-  //  walls, or a different type of turret, or changes to a new facing, or the
-  //  inclusion of a checkpoint/blast doors.
+  final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
+    ShieldWall.class, "shield_wall_upgrades"
+  );
+  
+  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
+  final public static Upgrade
+    FACING_CHANGE = new Upgrade(
+      "Facing Change", "",
+      0, null, 1, null, ALL_UPGRADES
+    ),
+    BLAST_SHIELDS = new Upgrade(
+      "Blast Shields", "",
+      0, null, 1, null, ALL_UPGRADES
+    ),
+    NULL_BARRIER  = new Upgrade(
+      "Null Barrier", "",
+      0, null, 1, null, ALL_UPGRADES
+    );
+  
   
   public Behaviour jobFor(Actor actor) {
     return null;
@@ -153,21 +167,19 @@ public class ShieldWall extends Venue {
       final int oldType = this.type, newType = getFacingType(world, null);
       
       if (oldType != newType) {
-        I.say("Old/new types: "+oldType+"/"+newType);
+        ///I.say("Old/new types: "+oldType+"/"+newType);
         if (GameSettings.buildFree) {
           this.type = newType;
           attachModel(MODEL_TYPES[newType]);
         }
-        /*
         else if (structure.upgradeLevel(FACING_CHANGE) < 1) {
           structure.beginUpgrade(FACING_CHANGE, true);
         }
         else {
-          structure.resignUpgrade(FACING_CHANGE);
+          structure.resignUpgrade(FACING_CHANGE, true);
           this.type = newType;
           attachModel(MODEL_TYPES[newType]);
         }
-        //*/
       }
     }
   }
@@ -393,12 +405,15 @@ public class ShieldWall extends Venue {
     if (! isPlacing()) return super.setPosition(x, y, world);
     
     super.setPosition(x, y, world);
-    barrier = barrierForBorderNear(origin(), base);
-    if (barrier == null) return false;
+    final ShieldWall wallGroup[] = barrierForBorderNear(origin(), base);
+    if (wallGroup == null) return false;
+    structure.assignGroup(wallGroup);
     
-    for (ShieldWall segment : barrier) {
-      final int type = segment.getFacingType(world, barrier);
+    for (ShieldWall segment : wallGroup) {
+      final int type = segment.getFacingType(world, wallGroup);
+      //  TODO:  Create a properly-encapsulated method for this.
       segment.type = type;
+      segment.structure.assignGroup(wallGroup);
       segment.attachModel(MODEL_TYPES[type]);
     }
     return true;
@@ -408,14 +423,14 @@ public class ShieldWall extends Venue {
   public boolean canPlace() {
     if (! isPlacing()) return super.canPlace();
     
-    if (barrier == null) return false;
-    for (ShieldWall segment : barrier) {
+    if (structure.group() == null) return false;
+    for (ShieldWall segment : (ShieldWall[]) structure.group()) {
       if (! segment.canPlace()) return false;
     }
     return true;
   }
   
-
+  
   protected boolean checkPerimeter(World world) {
     //  TODO:  This might require some modification later.
     return true;
@@ -427,27 +442,37 @@ public class ShieldWall extends Venue {
       super.doPlacement();
       return;
     }
-    for (ShieldWall segment : barrier) {
+    for (ShieldWall segment : (ShieldWall[]) structure.group()) {
       segment.doPlacement();
     }
   }
   
   
+  
+  /**  Rendering and interface methods-
+    */
   public void previewPlacement(boolean canPlace, Rendering rendering) {
     if (! isPlacing()) {
       super.previewPlacement(canPlace, rendering);
       return;
     }
-    if (barrier != null) for (ShieldWall segment : barrier) {
+    final ShieldWall wallGroup[] = (ShieldWall[]) structure.group();
+    if (wallGroup != null) for (ShieldWall segment : wallGroup) {
       segment.previewPlacement(canPlace, rendering);
     }
   }
   
   
+  public void renderSelection(Rendering rendering, boolean hovered) {
+    if (destroyed() || ! inWorld()) return;
+    BaseUI.current().selection.renderTileOverlay(
+      rendering, world,
+      hovered ? Colour.transparency(0.5f) : Colour.WHITE,
+      Selection.SELECT_OVERLAY, true, this, structure.group()
+    );
+  }
   
   
-  /**  Rendering and interface methods-
-    */
   public Vec3D viewPosition(Vec3D v) {
     return super.position(v);
   }
@@ -477,63 +502,3 @@ public class ShieldWall extends Venue {
 
 
 
-/*
-public Vec3D position(Vec3D v) {
-  if (v == null) v = new Vec3D();
-  super.position(v);
-  if      (type == TYPE_SECTION) v.z += 1.33f;
-  else if (type == TYPE_TOWER  ) v.z += 2.50f;
-  else if (type == TYPE_SQUARE ) v.z += 1.00f;
-  return v;
-}
-//*/
-/*
-protected Structural instance(Base base) {
-  return new ShieldWall(base);
-}
-
-
-protected boolean lockToGrid() {
-  return true;
-}
-
-
-protected boolean checkPerimeter(World world) {
-  for (Tile n : Spacing.perimeter(area(), world)) {
-    if (n == null || n.onTop() instanceof ShieldWall) continue;
-    if (n.owningType() >= this.owningType()) return false;
-  }
-  return true;
-}
-//*/
-/*
-protected List <Structural> installedBetween(Tile start, Tile end) {
-  final List <Structural> installed = super.installedBetween(start, end);
-  if (installed == null || installed.size() < 4) return installed;
-  //
-  //  If the stretch to install is long enough, we cut out the middle two
-  //  segments and install a set of Blast Doors in their place-
-  final World world = start.world;
-  final int cut = installed.size() / 2;
-  final ShieldWall
-    a = (ShieldWall) installed.atIndex(cut),
-    b = (ShieldWall) installed.atIndex(cut - 1);
-  if (a.facing != b.facing || a.facing == CORNER) return installed;
-  //
-  //  The doors occupy the exact centre of this area, with the same facing-
-  final Vec3D centre = a.position(null).add(b.position(null)).scale(0.5f);
-  final BlastDoors doors = new BlastDoors(a.base(), a.facing);
-  doors.setPosition(centre.x - 1.5f, centre.y - 1.5f, world);
-  final Box2D bound = doors.area(null);
-  for (Structural v : installed) {
-    if (v == a || v == b) continue;
-    if (v.area(null).cropBy(bound).area() > 0) return installed;
-  }
-  //
-  //  Update and return the list-
-  installed.remove(a);
-  installed.remove(b);
-  installed.add(doors);
-  return installed;
-}
-//*/

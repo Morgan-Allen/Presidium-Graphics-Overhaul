@@ -390,44 +390,6 @@ public abstract class Venue extends Structural implements
   
   
   
-  /**  Installation interface-
-    */
-  /*
-  protected boolean lockToGrid() { return false; }
-  protected Structural instance(Base base) { return this; }
-  protected void configFromAdjacent(boolean near[], int numNear) {}
-  
-  
-  private boolean setPreviewAt(Tile from) {
-    if (from == null) return false;
-    final int HS = size / 2;
-    final Tile at = from.world.tileAt(from.x - HS, from.y - HS);
-    if (at == null) return false;
-    setPosition(at.x, at.y, at.world);
-    return true;
-  }
-  
-  
-  public boolean pointsOkay(Tile from, Tile to) {
-    if (setPreviewAt(from)) return singlePointOkay();
-    return false;
-  }
-  
-  
-  public void doPlace(Tile from, Tile to) {
-    if (setPreviewAt(from)) singlePlacing(null);
-  }
-  
-  
-  public void preview(
-    boolean canPlace, Rendering rendering, Tile from, Tile to
-  ) {
-    if (setPreviewAt(from)) singlePreview(canPlace, rendering);
-  }
-  //*/
-  
-  
-  
   /**  Interface methods-
     */
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {

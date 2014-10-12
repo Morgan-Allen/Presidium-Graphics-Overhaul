@@ -20,8 +20,9 @@ import stratos.util.*;
 
 public interface Installation extends Session.Saveable, Target, Selectable {
   
-  int buildCost();
   Base base();
+  int buildCost();
+  Box2D area();
 
   Index<Upgrade> allUpgrades();
   void onCompletion();

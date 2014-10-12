@@ -203,7 +203,7 @@ public class Holding extends Venue {
       }
       else {
         final Upgrade target = (Upgrade) HU[upgradeLevel];
-        structure.resignUpgrade(target);
+        structure.resignUpgrade(target, false);
       }
     }
   }

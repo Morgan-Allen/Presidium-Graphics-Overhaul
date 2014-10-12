@@ -275,16 +275,14 @@ public class VenueDescription {
       if (v.structure.needsSalvage()) {
         d.append(new Description.Link("\n  Cancel Salvage") {
           public void whenTextClicked() {
-            v.structure.setState(Structure.STATE_INTACT, -1);
-            //world.ephemera.addGhost(v, size, buildSprite.scaffolding(), 2.0f);
+            v.structure.cancelSalvage();
           }
         });
       }
       else {
         d.append(new Description.Link("\n  Begin Salvage") {
           public void whenTextClicked() {
-            v.structure.setState(Structure.STATE_SALVAGE, -1);
-            //world.ephemera.addGhost(v, size, buildSprite.baseSprite(), 2.0f);
+            v.structure.beginSalvage();
           }
         });
       }
