@@ -255,13 +255,23 @@ public abstract class Structural extends Fixture implements
   
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (destroyed() || ! inWorld()) return;
+    
+    final Installation group[];
+    if (structure.group() == null) group = new Installation[] {this};
+    else group = structure.group();
+    
     BaseUI.current().selection.renderTileOverlay(
       rendering, world,
       hovered ? Colour.transparency(0.5f) : Colour.WHITE,
-      Selection.SELECT_OVERLAY, true, this, this
+      Selection.SELECT_OVERLAY, true, this, group
     );
   }
 }
+
+
+
+
+
 
 
 

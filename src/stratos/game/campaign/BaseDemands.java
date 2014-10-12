@@ -154,7 +154,7 @@ public class BaseDemands {
     //  First, estimate the total available labour pool and how much work needs
     //  to be done.
     float sumWork = 0;
-    final VenueProfile profiles[] = BaseSetup.facilityProfiles();
+    final VenueProfile profiles[] = VenueProfile.facilityProfiles();
     
     for (VenueProfile facility : profiles) {
       sumWork += FastMath.abs(workRemaining(facility));

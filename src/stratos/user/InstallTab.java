@@ -36,7 +36,7 @@ public class InstallTab extends SelectionInfoPane {
     initCategory(TYPE_ARTIFICER);
     initCategory(TYPE_ECOLOGIST);
     initCategory(TYPE_PHYSICIAN);
-    for (Class baseClass : BaseSetup.venueTypes()) {
+    for (Class baseClass : VenueProfile.venueTypes()) {
       //
       //  Construct the building type with an appropriate instance.
       final Venue sample = VenueProfile.sampleVenue(baseClass);

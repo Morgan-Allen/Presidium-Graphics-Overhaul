@@ -95,6 +95,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
   protected void initScenario(String fromSave) {
     final String savePath = fullSavePath(fromSave, null);
     if (Scenario.saveExists(savePath)) {
+      //BaseSetup.venueTypes();
       Scenario.loadGame(savePath, false);
       return;
     }
@@ -147,8 +148,8 @@ public abstract class Scenario implements Session.Saveable, Playable {
   protected void resetScenario() {
     loadProgress = -1;
     this.world = null;
-    this.base = null;
-    this.UI = null;
+    this.base  = null;
+    this.UI    = null;
     PlayLoop.sessionStateWipe();
     initScenario(null);
     PlayLoop.setupAndLoop(this);

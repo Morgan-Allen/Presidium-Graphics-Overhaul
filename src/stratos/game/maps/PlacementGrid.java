@@ -202,7 +202,7 @@ public class PlacementGrid {
     tileLoop: for (Coord c : Visit.grid(area)) {
       
       final Tile t = world.tileAt(c.x, c.y);
-      if (t.flaggedWith() == lattice) continue;
+      if (t == null || t.flaggedWith() == lattice) continue;
       
       final Box2D around = new Box2D();
       around.xpos(t.x - 0.5f);

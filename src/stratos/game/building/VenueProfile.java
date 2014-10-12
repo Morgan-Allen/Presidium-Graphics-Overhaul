@@ -7,7 +7,9 @@
 package stratos.game.building;
 
 import stratos.game.actors.*;
+import stratos.game.campaign.BaseSetup;
 import stratos.game.common.*;
+import stratos.start.Assets;
 import stratos.util.*;
 
 import java.lang.reflect.*;
@@ -73,6 +75,7 @@ public class VenueProfile implements Session.Saveable {
   
   
   public static VenueProfile loadConstant(Session s) throws Exception {
+    venueTypes();
     final Class key = s.loadClass();
     return allProfiles.get(key);
   }
@@ -85,6 +88,53 @@ public class VenueProfile implements Session.Saveable {
   
   public static VenueProfile profileFor(Class venueClass) {
     return allProfiles.get(venueClass);
+  }
+  
+
+  
+  /**  Compiles a list of all facility types and their behaviour profiles for
+    *  ease of iteration, etc.
+    */
+  private static Class        allFT[] = null;
+  private static VenueProfile allFP[] = null;
+  
+  
+  public static Class[] venueTypes() {
+    if (allFT != null) return allFT;
+    
+    final Batch <Class       > allTypes    = new Batch();
+    final Batch <VenueProfile> allProfiles = new Batch();
+    
+    for (Class baseClass : Assets.loadPackage("stratos.game.base")) {
+      final Venue sample = VenueProfile.sampleVenue(baseClass);
+      if (sample != null) {
+        allTypes.add(baseClass);
+        allProfiles.add(sample.profile);
+      }
+    }
+    
+    allFT = allTypes   .toArray(Class       .class);
+    allFP = allProfiles.toArray(VenueProfile.class);
+    return allFT;
+  }
+  
+  
+  public static VenueProfile[] facilityProfiles() {
+    venueTypes();
+    return allFP;
+  }
+  
+  
+  public static Venue[] sampleVenues(int owningType, boolean privateProperty) {
+    final Batch <Venue> typeBatch = new Batch <Venue> ();
+    
+    for (VenueProfile p : facilityProfiles()) {
+      final Venue sample = VenueProfile.sampleVenue(p.baseClass);
+      if (sample.owningType() > owningType) continue;
+      if (sample.privateProperty() != privateProperty) continue;
+      typeBatch.add(sample);
+    }
+    return typeBatch.toArray(Venue.class);
   }
   
   

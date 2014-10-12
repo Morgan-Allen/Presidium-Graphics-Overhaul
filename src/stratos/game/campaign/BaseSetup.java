@@ -174,15 +174,15 @@ public class BaseSetup {
   private void rankSectionPlacings() {
     placings.clear();
     amountPlaced = 0;
-    final Venue samples[] = sampleVenues(Venue.VENUE_OWNS, true);
+    final Venue samples[] = VenueProfile.sampleVenues(Venue.VENUE_OWNS, true);
     
     for (WorldSection section : world.sections.sectionsUnder(world.area())) {
       for (Venue sample : samples) {
         final Placing p = new Placing();
-        p.sampled = sample;
-        p.placed = section;
-        p.exactTile = null;
-        p.rating = sample.ratePlacing(section);
+        p.sampled   = sample ;
+        p.placed    = section;
+        p.exactTile = null   ;
+        p.rating    = sample.ratePlacing(section);
         if (p.rating > 0) {
           placings.add(p);
           if (verbose) descPlacing("Ranking placement: ", p);
@@ -222,51 +222,6 @@ public class BaseSetup {
   }
   
 
-  
-  /**  Compiles a list of all facility types and their behaviour profiles for
-    *  ease of iteration, etc.
-    */
-  private static Class        allFT[] = null;
-  private static VenueProfile allFP[] = null;
-  
-  
-  public static Class[] venueTypes() {
-    if (allFT != null) return allFT;
-    
-    final Batch <Class       > allTypes    = new Batch();
-    final Batch <VenueProfile> allProfiles = new Batch();
-    
-    for (Class baseClass : Assets.loadPackage("stratos.game.base")) {
-      final Venue sample = VenueProfile.sampleVenue(baseClass);
-      if (sample != null) {
-        allTypes.add(baseClass);
-        allProfiles.add(sample.profile);
-      }
-    }
-    
-    allFT = allTypes   .toArray(Class       .class);
-    allFP = allProfiles.toArray(VenueProfile.class);
-    return allFT;
-  }
-  
-  
-  public static VenueProfile[] facilityProfiles() {
-    venueTypes();
-    return allFP;
-  }
-  
-  
-  public static Venue[] sampleVenues(int owningType, boolean privateProperty) {
-    final Batch <Venue> typeBatch = new Batch <Venue> ();
-    
-    for (VenueProfile p : facilityProfiles()) {
-      final Venue sample = VenueProfile.sampleVenue(p.baseClass);
-      if (sample.owningType() > owningType) continue;
-      if (sample.privateProperty() != privateProperty) continue;
-      typeBatch.add(sample);
-    }
-    return typeBatch.toArray(Venue.class);
-  }
 }
 
 

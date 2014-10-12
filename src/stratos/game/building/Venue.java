@@ -90,7 +90,7 @@ public abstract class Venue extends Structural implements
   
   public Venue(Session s) throws Exception {
     super(s);
-
+    
     profile = (VenueProfile) s.loadObject();
     personnel.loadState(s);
     stocks.loadState(s);
@@ -220,6 +220,10 @@ public abstract class Venue extends Structural implements
   public boolean enterWorldAt(int x, int y, World world) {
     if (! super.enterWorldAt(x, y, world)) return false;
     if (base == null) I.complain("VENUES MUST HAVE A BASED ASSIGNED! "+this);
+    
+    for (Venue c : world.claims.venuesConflicting(areaClaimed())) {
+      c.exitWorld();
+    }
     
     world.presences.togglePresence(this, true);
     world.claims.assertNewClaim(this, areaClaimed());
@@ -503,22 +507,3 @@ public abstract class Venue extends Structural implements
 
 
 
-
-
-
-/*
-public void renderSelection(Rendering rendering, boolean hovered) {
-  if (destroyed() || ! inWorld()) return;
-  BaseUI.current().selection.renderTileOverlay(
-    rendering, world,
-    hovered ? Colour.transparency(0.5f) : Colour.WHITE,
-    Selection.SELECT_OVERLAY, true, primary, group
-  );
-  
-  BaseUI.current().selection.renderTileOverlay(
-    rendering, world,
-    hovered ? Colour.transparency(0.5f) : Colour.WHITE,
-    Selection.SELECT_OVERLAY, true, this, this, children
-  );
-}
-//*/

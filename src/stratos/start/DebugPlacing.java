@@ -34,10 +34,9 @@ public class DebugPlacing extends Scenario {
   public void saveState(Session s) throws Exception {
     super.saveState(s);
   }
-
+  
   
   public void beginGameSetup() {
-    //super.beginGameSetup();
     super.initScenario("debug_placing");
   }
   

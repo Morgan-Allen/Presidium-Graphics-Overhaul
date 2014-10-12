@@ -55,10 +55,12 @@ public class HoldingUpgrades {
     LEVEL_GUILDER  = 4,
     NUM_LEVELS     = 5;
   final public static int
-    OCCUPANCIES[] = { 2, 2, 2, 2, 2 },
+    OCCUPANCIES[] = { 4, 4, 4, 4, 4 },
     TAX_LEVELS[]  = { 0, 5, 10, 20, 35 },
     INTEGRITIES[] = { 15, 35, 80, 125, 200 },
     BUILD_COSTS[] = { 25, 60, 135, 225, 350 };
+  final static float
+    BIOMASS_SUPPORT = 5;
   
   final static String LEVEL_NAMES[] = {
     
@@ -182,8 +184,10 @@ public class HoldingUpgrades {
   
   protected static float supportNeed(Holding holding, int upgradeLevel) {
     final int population = holding.personnel.residents().size();
-    final float biomass = holding.world().ecology().globalBiomass();
-    return Visit.clamp(population * (1 - biomass), 0, population);
+    final float
+      biomass  = holding.world().ecology().globalBiomass(),
+      bioBonus = Visit.clamp(biomass * BIOMASS_SUPPORT, 0, BIOMASS_SUPPORT);
+    return Visit.clamp(population - bioBonus, 0, population);
   }
   
   

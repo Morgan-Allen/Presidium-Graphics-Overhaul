@@ -13,6 +13,16 @@ import stratos.util.*;
 
 
 
+
+//  TODO:  Allow the player to control access to a given area by restricting
+//  what kind of personnel are allowed through given doors?
+
+//  Actually, it might be better to make that area-specific, rather than door-
+//  specific (i.e, only available once you enclose an area, and automatically
+//  applied to all the checkpoints.)
+
+
+
 public class BlastDoors extends ShieldWall implements TileConstants {
   
   
@@ -114,11 +124,6 @@ public class BlastDoors extends ShieldWall implements TileConstants {
       "Blast Doors grant your citizens access to enclosed sectors of your "+
       "base, and can be used to restrict passage to undesireables.";
   }
-  
-  
-  //
-  //  TODO:  Allow the player to control access to a given area by restricting
-  //  what kind of personnel are allowed through given doors.
   
   
   public String buildCategory() {

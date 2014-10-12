@@ -232,6 +232,13 @@ public class Holding extends Venue {
   }
   
   
+  private void impingeSqualor() {
+    int ambience = 1 + ((upgradeLevel - 2) * 2);
+    ambience += (extras.size() * upgradeLevel) / 2;
+    structure.setAmbienceVal(ambience);
+  }
+  
+  
   private void updateDemands(int targetLevel) {
     targetLevel = Visit.clamp(targetLevel, HoldingUpgrades.NUM_LEVELS);
     
@@ -249,13 +256,6 @@ public class Holding extends Venue {
     for (Item i : HoldingUpgrades.specialGoods(this, targetLevel)) {
       stocks.forceDemand(i.type, i.amount, Stocks.TIER_CONSUMER);
     }
-  }
-  
-  
-  private void impingeSqualor() {
-    int ambience = 1 + ((upgradeLevel - 2) * 2);
-    ambience += (extras.size() * upgradeLevel) / 2;
-    structure.setAmbienceVal(ambience);
   }
   
   
@@ -291,6 +291,9 @@ public class Holding extends Venue {
   
   public Behaviour jobFor(Actor actor) {
     final TradeType goods[] = goodsNeeded();
+    
+    //  TODO:  Move these out of here- possibly to the HumanMind class.  This
+    //  should be where servant AI is placed.
     
     //  First of all, deliver any goods that you yourself are carrying-
     for (TradeType s : goods) for (Item i : actor.gear.matches(s)) {

@@ -88,9 +88,11 @@ public class Plantation extends Venue implements TileConstants {
   }
   
   
+  //*
   public int owningType() {
     return FIXTURE_OWNS;
   }
+  //*/
   
   
   public boolean privateProperty() {

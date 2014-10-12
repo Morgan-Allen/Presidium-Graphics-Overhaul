@@ -109,16 +109,11 @@ public class ShieldWall extends Venue {
   
   public ShieldWall(Session s) throws Exception {
     super(s);
-    //  TODO:  No.  You'll want this as a fundamental aspect of the Structure
-    //         class, I think.  Move the function out there.
-    //wallGroup = (ShieldWall[]) s.loadObjectArray(ShieldWall.class);
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    //  TODO:  Ditto.
-    //s.saveObjectArray(wallGroup);
   }
   
   
@@ -402,16 +397,15 @@ public class ShieldWall extends Venue {
   
   
   public boolean setPosition(float x, float y, World world) {
-    if (! isPlacing()) return super.setPosition(x, y, world);
+    if (! super.setPosition(x, y, world)) return false;
+    if (! isPlacing()) return true;
     
-    super.setPosition(x, y, world);
     final ShieldWall wallGroup[] = barrierForBorderNear(origin(), base);
     if (wallGroup == null) return false;
     structure.assignGroup(wallGroup);
     
     for (ShieldWall segment : wallGroup) {
       final int type = segment.getFacingType(world, wallGroup);
-      //  TODO:  Create a properly-encapsulated method for this.
       segment.type = type;
       segment.structure.assignGroup(wallGroup);
       segment.attachModel(MODEL_TYPES[type]);
@@ -432,7 +426,8 @@ public class ShieldWall extends Venue {
   
   
   protected boolean checkPerimeter(World world) {
-    //  TODO:  This might require some modification later.
+    //  TODO:  This might require some modification later.  Ideally, you want
+    //  to give walls at least one tile of space (excepting blast doors.)
     return true;
   }
   
@@ -462,7 +457,7 @@ public class ShieldWall extends Venue {
     }
   }
   
-  
+  /*
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (destroyed() || ! inWorld()) return;
     BaseUI.current().selection.renderTileOverlay(
@@ -471,6 +466,7 @@ public class ShieldWall extends Venue {
       Selection.SELECT_OVERLAY, true, this, structure.group()
     );
   }
+  //*/
   
   
   public Vec3D viewPosition(Vec3D v) {

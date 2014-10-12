@@ -19,6 +19,21 @@ import static stratos.game.building.Economy.*;
 
 
 
+//  TODO:  WHOA!  There's a bug here where planting on tiles that are now
+//  occupied by buildings will erase the building in question!
+
+//  (In theory, other buildings shouldn't be placeable there, but never mind-
+//   it's still an unacceptable danger.)
+
+
+//  I just need to get mines working, and more importantly, housing evolution.
+
+//  For that, I just need parts (the artificer), plastics (the supply depot),
+//  datalinks (the archives), 2 food types (the culture vats or ecologist) and
+//  medicines (the physician.)  Plus enough beauty, power and water.
+
+
+
 public class Farming extends Plan {
   
   
@@ -109,6 +124,8 @@ public class Farming extends Plan {
     Tile toPlant = null;
     
     for (Tile t : nursery.toPlant()) {
+      if (t.owningType() >= nursery.owningType()) continue;
+      
       final Crop c = nursery.plantedAt(t);
       if (c == null || c.needsTending()) {
         dist = Spacing.distance(actor, t);
@@ -216,6 +233,7 @@ public class Farming extends Plan {
   
   
   public boolean actionPlant(Actor actor, Crop crop) {
+    if (crop.origin().owningType() >= nursery.owningType()) return false;
     
     if (! crop.inWorld()) {
       final Tile o = crop.origin();
