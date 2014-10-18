@@ -192,6 +192,11 @@ public final class Tile implements
     }
     
     this.onTop = e;
+    
+    if (this.onTop != null) {
+      PavingMap.setPaveLevel(this, WorldTerrain.ROAD_NONE);
+    }
+    
     if (verbose) {
       if (e != null) I.say(this+" now owned by: "+e);
       else I.say(this+" now cleared.");

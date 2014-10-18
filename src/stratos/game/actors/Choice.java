@@ -44,18 +44,18 @@ public class Choice implements Qualities {
   
   
   protected boolean checkPlanValid(Behaviour plan) {
+    final boolean report = isVerbose || (verboseReject && I.talkAbout == actor);
+    
     final boolean finished = plan.finished();
     final float priority = plan.priorityFor(actor);
     final Behaviour nextStep = plan.nextStepFor(actor);
     
     if (finished || priority <= 0 || nextStep == null) {
-      if (I.talkAbout == actor) {
-        if (verboseReject) {
-          I.say("  Rejected option: " + plan + " (" + plan.getClass() + ")");
-          I.say("  Priority: " + priority);
-          I.say("  Finished/valid: " + finished + "/" + plan.valid());
-          I.say("  Next step: " + nextStep + "\n");
-        }
+      if (report) {
+        I.say("  Rejected option: " + plan + " (" + plan.getClass() + ")");
+        I.say("  Priority: " + priority);
+        I.say("  Finished/valid: " + finished + "/" + plan.valid());
+        I.say("  Next step: " + nextStep + "\n");
       }
       return false;
     }
@@ -65,6 +65,11 @@ public class Choice implements Qualities {
   
   public int size() {
     return plans.size();
+  }
+  
+  
+  public boolean empty() {
+    return plans.size() == 0;
   }
   
   

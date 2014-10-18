@@ -30,7 +30,7 @@ public class Planet {
   
   //
   //  TODO:  Make use of these...
-  float dayPeriod, gravity, insolation;
+  float dayPeriod, gravity, insolation, atmosphere;
   
   
   

@@ -19,21 +19,6 @@ import static stratos.game.building.Economy.*;
 
 
 
-//  TODO:  WHOA!  There's a bug here where planting on tiles that are now
-//  occupied by buildings will erase the building in question!
-
-//  (In theory, other buildings shouldn't be placeable there, but never mind-
-//   it's still an unacceptable danger.)
-
-
-//  I just need to get mines working, and more importantly, housing evolution.
-
-//  For that, I just need parts (the artificer), plastics (the supply depot),
-//  datalinks (the archives), 2 food types (the culture vats or ecologist) and
-//  medicines (the physician.)  Plus enough beauty, power and water.
-
-
-
 public class Farming extends Plan {
   
   

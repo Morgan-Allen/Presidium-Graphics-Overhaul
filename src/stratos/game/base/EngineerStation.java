@@ -205,7 +205,7 @@ public class EngineerStation extends Venue {
   
   
   public void addServices(Choice choice, Actor forActor) {
-    Commission.addCommissions(forActor, this, choice);
+    Commission.addCommissions(forActor, this, choice, services());
   }
   
 

@@ -20,7 +20,7 @@ public class Inventory {
   /**  Fields, constructors, and save/load methods-
     */
   final public static int
-    TIER_OWNER    = -1,  //
+    TIER_NONE    = -1,  //
     TIER_PRODUCER =  0,  //never deliver to a producer.
     TIER_TRADER   =  1,  //deliver to/from based on relative shortage.
     TIER_CONSUMER =  2;  //never deliver from a consumer.
@@ -342,7 +342,7 @@ public class Inventory {
     */
   public float demandFor(TradeType type) { return 0; }
   public float shortageOf(TradeType type) { return 0; }
-  public int demandTier(TradeType type) { return TIER_OWNER; }
+  public int demandTier(TradeType type) { return TIER_NONE; }
   
   
   

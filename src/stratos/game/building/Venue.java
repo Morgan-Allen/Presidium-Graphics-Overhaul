@@ -221,6 +221,7 @@ public abstract class Venue extends Structural implements
     if (! super.enterWorldAt(x, y, world)) return false;
     if (base == null) I.complain("VENUES MUST HAVE A BASED ASSIGNED! "+this);
     
+    //  TODO:  Review this process more thoroughly.
     for (Venue c : world.claims.venuesConflicting(areaClaimed())) {
       c.exitWorld();
     }

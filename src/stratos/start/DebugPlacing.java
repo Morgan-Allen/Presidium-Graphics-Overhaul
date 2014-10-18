@@ -13,6 +13,19 @@ import stratos.util.I;
 
 
 
+
+
+//  Now I just need to get mines working, and more importantly, housing
+//  evolution.
+
+//  For that, I just need parts (the artificer), plastics (the supply depot),
+//  datalinks (the archives), 2 food types (the culture vats or ecologist) and
+//  medicines (the physician.)  Plus enough beauty, power and water.
+
+
+
+
+
 public class DebugPlacing extends Scenario {
   
   

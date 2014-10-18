@@ -10,6 +10,10 @@ import static stratos.game.actors.Qualities.*;
 
 
 
+//  TODO:  Division of responsibility here isn't nearly efficient enough.  Work
+//  on that.
+
+
 public class RoadsRepair extends Plan {
   
   

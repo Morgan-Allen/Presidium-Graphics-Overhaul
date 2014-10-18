@@ -249,11 +249,14 @@ public class Human extends Actor implements Qualities {
     //
     //  TODO:  make this a general 3D scaling vector, and incorporate other
     //  physical traits.
+    return 1;
+    /*
     final int stage = health.agingStage();
     final float scale = (float) Math.pow(traits.relativeLevel(TALL) + 1, 0.1f);
     if (stage == 0) return 0.8f * scale;
     if (stage >= 2) return 0.95f * scale;
     return 1 * scale;
+    //*/
   }
   
   

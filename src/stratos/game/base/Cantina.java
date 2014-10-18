@@ -33,7 +33,7 @@ public class Cantina extends Venue {
   /**  Constants, field definitions, constructors and save/load methods-
     */
   final static ModelAsset MODEL = CutoutModel.fromImage(
-    Cantina.class, "media/Buildings/merchant/cantina.png", 4, 3
+    Cantina.class, "media/Buildings/merchant/cantina.png", 3, 2
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
     Cantina.class, "media/GUI/Buttons/cantina_button.gif"

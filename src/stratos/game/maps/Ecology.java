@@ -7,8 +7,9 @@ import stratos.util.*;
 
 
 
-//  TODO:  You might be able to get rid of this class entirely, or merge with
-//  the WorldTerrain class instead.
+//  TODO:  This can probably, in some fashion, be merged with the generalised
+//  supply-and-demand mechanics from the BaseSetup class- just use the
+//  ratePlacing() methods for individual nests.
 
 
 public class Ecology {
@@ -133,17 +134,21 @@ public class Ecology {
     return biomass.longTermVal(t);
   }
   //*/
+  //  TODO:  This needs to be more up-to-date?
   
   
   public float biomassRating(Tile t) {
-    return biomass.sampleAt(t.x, t.y);
+    return biomass.sampleAt(t.x, t.y) * 4;
   }
   
   
   public float globalBiomass() {
-    return biomass.overallValue();
+    return biomass.overallValue() * 4;
   }
 }
+
+
+
 
 
 

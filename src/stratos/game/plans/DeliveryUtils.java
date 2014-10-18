@@ -4,26 +4,23 @@ package stratos.game.plans;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.civilian.*;
-import stratos.game.building.Inventory;
-import stratos.game.building.Item;
-import stratos.game.building.Stocks;
-import stratos.game.building.TradeType;
-import stratos.game.building.Venue;
+import stratos.game.building.*;
 import stratos.game.building.Inventory.Owner;
 import stratos.util.*;
 
-
-//  TODO:  Instance this class internally and use it to cache information on
-//  future deliveries, et cetera?
-//  TODO:  Include price/capacity limits as a factor for consideration.
 
 
 public class DeliveryUtils {
   
   
+  //  NOTE:  See the rateTrading method below for how these are used...
   private static boolean
     sampleVerbose = false,
-    rateVerbose   = true;
+    rateVerbose   = false;
+  
+  private static TradeType verboseGoodType = null;
+  private static Class     verboseDestType = null;
+  private static Class     verboseOrigType = null;
   
   
   /**  Helper methods for getting suitable distribution targets-
@@ -300,19 +297,30 @@ public class DeliveryUtils {
   /**  Rates the attractiveness of trading a particular good types between
     *  the given origin and destination venues-
     */
+  //  TODO:  In the case of personal purchases, you'll want to limit by
+  //  cash available...
+  //  TODO:  Also include capacity limits as a factor for consideration?
   static float rateTrading(
     Owner orig, Owner dest, TradeType good, int amount
   ) {
     if (orig == dest) return -1;
-    final boolean report = rateVerbose && (
-      I.talkAbout == orig || I.talkAbout == dest
-    );
-    if (report) {
-      I.say("  Getting trade rating for "+good+" between "+orig+" and "+dest);
-    }
     
-    //  TODO:  In the case of personal purchases, you'll need to limit by
-    //  cash available.
+    //  Supply and demand can quickly get very hairy, so to help in tracking it
+    //  we have some moderately elaborate reporting criteria.
+    final boolean report;
+    if (verboseGoodType != null) {
+      report =
+        (verboseGoodType == good) &&
+        (verboseDestType == null || dest.getClass() == verboseDestType) &&
+        (verboseOrigType == null || orig.getClass() == verboseOrigType);
+    }
+    else {
+      report = rateVerbose && (I.talkAbout == orig || I.talkAbout == dest);
+    }
+    if (report) {
+      I.say("\n  Getting trade rating for "+good+" between "+orig+" and "+dest);
+      I.say("  Trade unit is "+amount);
+    }
     
     //  First of all secure some preliminary variables-
     final Inventory
@@ -320,14 +328,16 @@ public class DeliveryUtils {
       DS = dest.inventory();
     final float
       OA = OS.amountOf(good);
-    if (OA <= amount) return -1;
+    if (OA < amount) return -1;
     
     final int
       OT = OS.demandTier(good),
       DT = DS.demandTier(good);
+    
     final float
-      OD = (OT == Stocks.TIER_OWNER) ? 0             : OS.demandFor(good),
-      DD = (DT == Stocks.TIER_OWNER) ? (amount * 10) : DS.demandFor(good);
+      OD = (OT == Stocks.TIER_NONE) ? 0             : OS.demandFor(good),
+      DD = (DT == Stocks.TIER_NONE) ? (amount * 10) : DS.demandFor(good);
+    if (DD < amount / 2f) return -1;
     
     //  Secondly, obtain an estimate of stocks before and after the exchange-
     float origAfter = 0, destAfter = 0;
@@ -346,8 +356,11 @@ public class DeliveryUtils {
     
     if (DT == Stocks.TIER_PRODUCER) destShort /= 2;
     if (DT == Stocks.TIER_CONSUMER) destShort += 1;
+    
     if (report) {
-      I.say("  Origin shortage: "+origShort);
+      I.say("  Origin      after   : "+origAfter+"  Demand: "+OD);
+      I.say("  Destination after   : "+destAfter+"  Demand: "+DD);
+      I.say("  Origin      shortage: "+origShort);
       I.say("  Destination shortage: "+destShort);
     }
     

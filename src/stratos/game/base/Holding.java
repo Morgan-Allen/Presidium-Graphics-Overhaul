@@ -36,6 +36,9 @@ import static stratos.game.building.Economy.*;
 //  TODO:  Allow actors to study, relax, make love, play with kids, etc. at
 //  home.
 
+//  TODO:  Massive mega-block tower apartments need to operate under different
+//  rules, I think.  Save that for expansions with hyperstructures built in.
+
 
 public class Holding extends Venue {
   

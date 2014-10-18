@@ -10,11 +10,7 @@ import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
-import stratos.game.plans.Commission;
-import stratos.game.plans.Delivery;
-import stratos.game.plans.DeliveryUtils;
-import stratos.game.plans.Manufacture;
-import stratos.game.plans.Supervision;
+import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
@@ -32,10 +28,10 @@ public class FRSD extends Venue {
   /**  Other data fields, constructors and save/load methods-
     */
   final public static ModelAsset MODEL_UNDER = CutoutModel.fromSplatImage(
-    FRSD.class, "media/Buildings/merchant/depot_under.gif", 3.0f
+    FRSD.class, "media/Buildings/merchant/depot_under.gif", 4.0f
   );
   final public static ModelAsset MODEL_CORE = CutoutModel.fromImage(
-    FRSD.class, "media/Buildings/merchant/depot_core.png", 2, 2
+    FRSD.class, "media/Buildings/merchant/depot_core.png", 3, 2
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
     FRSD.class, "media/GUI/Buttons/supply_depot_button.gif"
@@ -54,7 +50,7 @@ public class FRSD extends Venue {
   
   
   public FRSD(Base base) {
-    super(3, 2, ENTRANCE_WEST, base);
+    super(4, 2, ENTRANCE_WEST, base);
     structure.setupStats(
       100,  //integrity
       2,    //armour
@@ -62,11 +58,11 @@ public class FRSD extends Venue {
       Structure.NORMAL_MAX_UPGRADES,
       Structure.TYPE_VENUE
     );
-    personnel.setShiftType(SHIFTS_ALWAYS);
+    personnel.setShiftType(SHIFTS_BY_HOURS);
     
     final GroupSprite sprite = new GroupSprite();
-    sprite.attach(MODEL_UNDER, 0, 0, -0.05f);
-    sprite.attach(MODEL_CORE, 0.25f, -0.25f, 0);
+    sprite.attach(MODEL_UNDER, 0   ,  0   , -0.05f);
+    sprite.attach(MODEL_CORE , 0.1f, -0.1f,  0    );
     sprite.setSortMode(GroupSprite.SORT_BY_ADDITION);
     attachSprite(sprite);
   }
@@ -92,24 +88,37 @@ public class FRSD extends Venue {
   final public static Upgrade
     POLYMER_FAB = new Upgrade(
       "Polymer Fab",
-      "Permits fabrication of basic clothing and plastics.",
+      "Permits faster fabrication of basic clothing and plastics.",
       150, null, 1, null, ALL_UPGRADES
     ),
-    RATIONS_STALL = new Upgrade(
-      "Rations Stall",
-      "Increases space available for trading in carbs and protein.",
+    FAB_WORKER_STATION = new Upgrade(
+      "Fab Worker Station",
+      "Fab Workers see to the basic construction needs of your settlement, "+
+      "along with manufacturing of essential supplies.",
+      100, Backgrounds.FAB_WORKER, 1, null, ALL_UPGRADES
+    ),
+    RATIONS_EXCHANGE = new Upgrade(
+      "Rations Exchange",
+      "Increases space available for trading in carbs and protein.  "+
+      "Provides a small bonus to plastics fabrication.",
       100, null, 1, null, ALL_UPGRADES
     ),
-    SCRAP_EXCHANGE = new Upgrade(
-      "Scrap Exchange",
-      "Increases space available for trading in metals, parts and fuel rods.",
+    HARDWARE_EXCHANGE = new Upgrade(
+      "Hardware Exchange",
+      "Increases space available for trading in ores, parts and fuel.",
       200, null, 1, POLYMER_FAB, ALL_UPGRADES
     );
+  
+  //  ...That, plus storage options for raw materials.
+  
   
   
   public Behaviour jobFor(Actor actor) {
     if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
     final Choice choice = new Choice(actor);
+    
+    final Plan r = Repairs.getNextRepairFor(actor, Plan.ROUTINE);
+    choice.add(r);
     
     final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
       this, services(), 2, 10, 5
@@ -127,14 +136,14 @@ public class FRSD extends Venue {
     final Manufacture o = stocks.nextSpecialOrder(actor);
     choice.add(o);
     
-    choice.add(new Supervision(actor, this));
+    if (choice.empty()) choice.add(new Supervision(actor, this));
+    
     return choice.weightedPick();
   }
   
   
   public void addServices(Choice choice, Actor forActor) {
-    //  TODO:  Specify just overalls?
-    Commission.addCommissions(forActor, this, choice);
+    Commission.addCommissions(forActor, this, choice, OVERALLS);
   }
   
   
@@ -142,17 +151,17 @@ public class FRSD extends Venue {
     super.updateAsScheduled(numUpdates);
     if (! structure.intact()) return;
     
-    final float plasticLevel = structure.upgradeLevel(POLYMER_FAB) * 5;
-    stocks.forceDemand(PLASTICS, plasticLevel, Stocks.TIER_PRODUCER);
+    final float
+      plasticLevel = (structure.upgradeLevel(POLYMER_FAB      ) + 1) * 5,
+      rationLevel  = (structure.upgradeLevel(RATIONS_EXCHANGE ) + 1) * 5,
+      scrapLevel   = (structure.upgradeLevel(HARDWARE_EXCHANGE) + 1) * 5;
     
-    final float rationLevel = structure.upgradeLevel(RATIONS_STALL) * 5;
-    stocks.forceDemand(CARBS  , rationLevel, Stocks.TIER_TRADER);
-    stocks.forceDemand(PROTEIN, rationLevel, Stocks.TIER_TRADER);
-    
-    final float scrapLevel = structure.upgradeLevel(SCRAP_EXCHANGE) * 5;
-    stocks.forceDemand(ORES     , scrapLevel, Stocks.TIER_TRADER);
-    stocks.forceDemand(FUEL_RODS, scrapLevel, Stocks.TIER_TRADER);
-    stocks.forceDemand(PARTS, scrapLevel / 2, Stocks.TIER_TRADER);
+    stocks.forceDemand(PLASTICS , plasticLevel  , Stocks.TIER_PRODUCER);
+    stocks.forceDemand(CARBS    , rationLevel   , Stocks.TIER_TRADER  );
+    stocks.forceDemand(PROTEIN  , rationLevel   , Stocks.TIER_TRADER  );
+    stocks.forceDemand(ORES     , scrapLevel    , Stocks.TIER_TRADER  );
+    stocks.forceDemand(FUEL_RODS, scrapLevel    , Stocks.TIER_TRADER  );
+    stocks.forceDemand(PARTS    , scrapLevel / 2, Stocks.TIER_TRADER  );
   }
   
   
@@ -163,13 +172,17 @@ public class FRSD extends Venue {
   
   public int numOpenings(Background v) {
     final int nO = super.numOpenings(v);
-    if (v == Backgrounds.FAB_WORKER) return nO + 2;
+    if (v == Backgrounds.FAB_WORKER) return nO + 3;
     return 0;
   }
   
   
   public TradeType[] services() {
-    return ALL_MATERIALS;
+    return new TradeType[] {
+      CARBS, PROTEIN, PLASTICS, OVERALLS,
+      ORES, FUEL_RODS, PARTS,
+      SERVICE_COMMERCE, SERVICE_REPAIRS
+    };
   }
   
   

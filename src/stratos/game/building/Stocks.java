@@ -195,7 +195,7 @@ public class Stocks extends Inventory {
   
   public int demandTier(TradeType type) {
     final Demand d = demands.get(type);
-    if (d == null) return TIER_OWNER;
+    if (d == null) return TIER_PRODUCER;
     return d.tierType;
   }
   
@@ -307,7 +307,7 @@ public class Stocks extends Inventory {
         "\n    Source is: "+source+", base inc: "+inc
       );
     }
-    if (tier != TIER_OWNER) d.tierType = tier;
+    if (tier != TIER_NONE) d.tierType = tier;
   }
   
   
@@ -483,7 +483,7 @@ public class Stocks extends Inventory {
     final Tile vO = basis.world().tileAt(basis);
     
     if ((vS == null || vS.length == 0) && demands.size() == 0) return;
-    if (vS != null) for (TradeType s : vS) if (demandTier(s) == TIER_OWNER) {
+    if (vS != null) for (TradeType s : vS) if (demandTier(s) == TIER_NONE) {
       demandRecord(s).tierType = TIER_PRODUCER;
     }
     

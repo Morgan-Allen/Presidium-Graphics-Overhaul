@@ -76,8 +76,26 @@ public class Commission extends Plan {
   
   /**  Assessing and locating targets-
     */
+  public static void addCommissions(
+    Actor actor, Venue makes, Choice choice, TradeType... itemTypes
+  ) {
+    final boolean hasCommission = actor.mind.hasToDo(Commission.class);
+    if (hasCommission) return;
+    
+    if (Visit.arrayIncludes(itemTypes, actor.gear.deviceType())) {
+      choice.add(nextCommission(actor, makes, actor.gear.deviceEquipped()));
+    }
+    if (Visit.arrayIncludes(itemTypes, actor.gear.outfitType())) {
+      choice.add(nextCommission(actor, makes, actor.gear.outfitEquipped()));
+    }
+  }
+  
+  
   public static Commission forItem(Actor actor, Item baseItem) {
     if (baseItem == null || actor == null) return null;
+    final boolean hasCommission = actor.mind.hasToDo(Commission.class);
+    if (hasCommission) return null;
+    
     final Venue match = (Venue) actor.world().presences.nearestMatch(
       baseItem.type, actor, World.SECTOR_SIZE
     );
@@ -86,17 +104,7 @@ public class Commission extends Plan {
   }
   
   
-  public static void addCommissions(
-    Actor actor, Venue makes, Choice choice
-  ) {
-    final boolean hasCommission = actor.mind.hasToDo(Commission.class);
-    if (hasCommission) return;
-    choice.add(nextCommission(actor, makes, actor.gear.deviceEquipped()));
-    choice.add(nextCommission(actor, makes, actor.gear.outfitEquipped()));
-  }
-  
-  
-  public static Commission nextCommission(
+  private static Commission nextCommission(
     Actor actor, Venue makes, Item baseItem
   ) {
     if (baseItem == null) return null;

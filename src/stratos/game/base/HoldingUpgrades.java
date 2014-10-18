@@ -2,10 +2,12 @@
 
 
 package stratos.game.base;
+import org.apache.commons.math3.util.FastMath;
+
 import stratos.game.building.*;
 import stratos.game.common.*;
+import stratos.game.maps.*;
 import stratos.util.*;
-
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.building.Economy.*;
@@ -183,11 +185,13 @@ public class HoldingUpgrades {
   
   
   protected static float supportNeed(Holding holding, int upgradeLevel) {
-    final int population = holding.personnel.residents().size();
+    final float
+      population = holding.personnel.residents().size(),
+      popDemand  = population * upgradeLevel * 1f / NUM_LEVELS;
     final float
       biomass  = holding.world().ecology().globalBiomass(),
-      bioBonus = Visit.clamp(biomass * BIOMASS_SUPPORT, 0, BIOMASS_SUPPORT);
-    return Visit.clamp(population - bioBonus, 0, population);
+      bioBonus = (float) FastMath.sqrt(biomass) * BIOMASS_SUPPORT;
+    return Visit.clamp(popDemand - bioBonus, 0, population);
   }
   
   
@@ -327,7 +331,7 @@ public class HoldingUpgrades {
     
     if (upgradeLevel >= LEVEL_PYON) {
       if (
-        lacksAccess(holding, Bastion.class) &&
+        lacksAccess(holding, Bastion.class         ) &&
         lacksAccess(holding, PhysicianStation.class)
       ) return NV ? NOT_MET :
         "Your pyons will need access to a Bastion or Sickbay to provide "+
@@ -336,15 +340,15 @@ public class HoldingUpgrades {
     }
     if (upgradeLevel >= LEVEL_CITIZEN) {
       if (
-        lacksAccess(holding, StockExchange.class)// &&
-        //lacksAccess(holding, Cantina.class)
+        lacksAccess(holding, StockExchange.class) &&
+        lacksAccess(holding, Cantina.class      )
       ) return NV ? NOT_MET :
         "Your citizens want access to a Cantina or Stock Exchange to allow "+
         "access to luxury goods or services.";
     }
     if (upgradeLevel >= LEVEL_GUILDER) {
       if (
-        //lacksAccess(holding, Archives.class) &&
+        lacksAccess(holding, Archives.class) &&
         true //lacksAccess(holding, CounselChamber.class)
       ) return NV ? NOT_MET :
         "Your upwardly-mobile gelders require access to an Archives or "+

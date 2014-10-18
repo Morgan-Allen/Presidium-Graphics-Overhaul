@@ -42,7 +42,7 @@ public class TradeType implements Session.Saveable {
   
   final public String supplyKey, demandKey;
   
-  final public int basePrice;
+  final public float basePrice;
   final public String picPath;
   final public CutoutModel model;
   
@@ -61,7 +61,7 @@ public class TradeType implements Session.Saveable {
   ) {
     this.form = form;
     this.name = name;
-    this.basePrice = basePrice;
+    this.basePrice = basePrice / 5f;
     final String imagePath = ITEM_PATH+imgName;
     final float IS = BuildingSprite.ITEM_SIZE;
     if (new java.io.File(imagePath).exists()) {

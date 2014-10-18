@@ -7,6 +7,8 @@
 
 package stratos.game.common;
 import stratos.game.building.*;
+import stratos.game.maps.PavingMap;
+import stratos.game.maps.WorldTerrain;
 import stratos.graphics.common.*;
 import stratos.user.*;
 import stratos.util.*;

@@ -66,6 +66,8 @@ public class Repairs extends Plan {
   public static Plan getNextRepairFor(Actor client, float motiveBonus) {
     final World world = client.world();
     final Choice choice = new Choice(client);
+    final boolean report = evalVerbose && I.talkAbout == client;
+    choice.isVerbose = report;
     //
     //  First, sample any nearby venues that require repair, and add them to
     //  the list.
@@ -79,6 +81,12 @@ public class Repairs extends Plan {
       final Repairs b = new Repairs(client, near);
       b.setMotive(Plan.MOTIVE_DUTY, motiveBonus);
       choice.add(b);
+      
+      if (report) {
+        I.say("\n  "+near+" needs repair?");
+        I.say("  Need is: "+needForRepair(near));
+        I.say("  Needs upgrade? "+near.structure().needsUpgrade());
+      }
     }
     //
     //  Then, see if there are tiles which require paving nearby-
@@ -91,7 +99,7 @@ public class Repairs extends Plan {
     }
     //
     //  Evaluate the most urgent task and return-
-    choice.isVerbose = evalVerbose && I.talkAbout == client;
+    if (report) I.say("\n  Total choices: "+choice.size());
     return (Plan) choice.pickMostUrgent();
   }
   
@@ -103,13 +111,17 @@ public class Repairs extends Plan {
   
   
   protected float getPriority() {
-    final boolean report = I.talkAbout == actor && evalVerbose && hasBegun();
+    final boolean report = I.talkAbout == actor && evalVerbose;// && hasBegun();
     
     float urgency = needForRepair(built);
     urgency *= actor.relations.valueFor(built.base());
     
-    final float debt = 0 - built.base().credits();
-    if (debt > 0 && urgency > 0) urgency -= debt / 500f;
+    if (! GameSettings.buildFree) {
+      final float debt = 0 - built.base().credits();
+      if (report) I.say("  Basic urgency: "+urgency+", debt level: "+debt);
+      if (debt > 0 && urgency > 0) urgency -= debt / 500f;
+    }
+    
     if (urgency <= 0) return 0;
     
     float competition = FULL_COMPETITION;
@@ -125,7 +137,6 @@ public class Repairs extends Plan {
     );
     if (report) {
       I.say("Repairing "+built+", base: "+built.base());
-      I.say("  Basic urgency: "+urgency+", debt level: "+debt);
       I.say("  Help/Competition: "+help+"/"+competition);
       I.say("  Final priority: "+priority);
     }

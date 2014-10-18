@@ -122,9 +122,6 @@ public class Plantation extends Venue implements TileConstants {
   }
   
   
-  //  TODO:  You need to be able to efficiently rate placement against an
-  //  array of possible locations.  ...I think.
-  
   public float ratePlacing(Target point) {
     //
     //  TODO:  base on proximity to an ecologist station and demand for food.

@@ -187,6 +187,12 @@ public class Gifting extends Plan implements Qualities {
       }
     }
     
+    //  TODO:  Consider restoring this later.  (At the moment, there are
+    //         problems with giving someone an outfit they already have!)
+    
+    //  TODO:  Exclude commissions if any other such commission is scheduled by
+    //         the recipient, or at the same venue- or just *exists*?
+    /*
     final Commission
       forDevice = Commission.forItem(buys, receives.gear.deviceEquipped()),
       forOutfit = Commission.forItem(buys, receives.gear.outfitEquipped());
@@ -207,6 +213,7 @@ public class Gifting extends Plan implements Qualities {
         getting = forOutfit;
       }
     }
+    //*/
     
     if (gift != null && getting == null) {
       final World world = buys.world();
