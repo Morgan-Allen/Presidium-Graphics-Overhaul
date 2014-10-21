@@ -123,9 +123,9 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     
     final float priority = priorityForActorWith(
       actor, venue, shift == Venue.SECONDARY_SHIFT ? IDLE : ROUTINE,
-      MILD_HELP, FULL_COMPETITION,
-      conversion.skills, BASE_TRAITS,
-      NO_MODIFIER, NO_DISTANCE_CHECK, MILD_FAIL_RISK, report
+      NO_MODIFIER, MILD_HELP,
+      FULL_COMPETITION, conversion.skills,
+      BASE_TRAITS, NO_DISTANCE_CHECK, MILD_FAIL_RISK, report
     );
     return priority;
   }

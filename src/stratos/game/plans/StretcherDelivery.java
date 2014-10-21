@@ -66,9 +66,9 @@ public class StretcherDelivery extends Plan implements Qualities {
     
     final float priority = priorityForActorWith(
       actor, patient, ROUTINE,
-      NO_HARM, FULL_COMPETITION,
-      NO_SKILLS, NO_TRAITS,
-      NO_MODIFIER, PARTIAL_DISTANCE_CHECK, NO_FAIL_RISK,
+      NO_MODIFIER, NO_HARM,
+      FULL_COMPETITION, NO_SKILLS,
+      NO_TRAITS, PARTIAL_DISTANCE_CHECK, NO_FAIL_RISK,
       report
     );
     return priority;

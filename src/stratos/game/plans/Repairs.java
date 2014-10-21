@@ -130,9 +130,9 @@ public class Repairs extends Plan {
     
     final float priority = priorityForActorWith(
       actor, (Target) built, CASUAL * Visit.clamp(urgency, 0, 1),
-      help, competition,
-      BASE_SKILLS, BASE_TRAITS,
-      NO_MODIFIER, NORMAL_DISTANCE_CHECK, MILD_FAIL_RISK,
+      NO_MODIFIER, help,
+      competition, BASE_SKILLS,
+      BASE_TRAITS, NORMAL_DISTANCE_CHECK, MILD_FAIL_RISK,
       report
     );
     if (report) {

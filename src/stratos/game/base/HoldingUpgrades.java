@@ -18,12 +18,19 @@ import static stratos.game.building.Economy.*;
 //  de-cluttering and headspace.  And for now, I'm limiting myself to the 5
 //  basic housing types.
 
-//
-//  TODO:  Have biomass reduce life support needs by an absolute, not relative,
-//  degree.
-
 
 public class HoldingUpgrades {
+  
+  
+  //  Level 0- squalor or danger.
+  //  Level 1- food.  life support.
+  //  Level 2- plastics.  2 food types.
+  //  Level 3- parts.  power.
+  //  Level 4- medicine or soma.
+  //  Level 5- datalinks.  Citizen status.  3 food types.  open water.
+  
+  //  Safety & ambience requirements.
+  
   
 
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
@@ -81,44 +88,14 @@ public class HoldingUpgrades {
   };
   
   
-  //
-  //  Requirements for housing upgrades come under a couple of main headings.
-  //  1.  Building materials.
-  //  2.  Food types and general health of inhabitants.
-  //  3.  Safety and ambience.
-  //  4.  Access to educational, representative and entertainment venues.
   
-  //
-  //  You'll need to return a list of requirements for each, say whether they've
-  //  been satisfied, and, if not, return an error String saying what needs to
-  //  be done to satisfy them.
+  
   
   
   
   
   /**  Building materials/furnishings-
     */
-  //
-  //  All housing levels require life support in proportion to population, and
-  //    more if the map has a low biomass rating.
-  //  Pyon Shacks require:
-  //    1 parts.
-  //  Freeborn Holdings require:
-  //    2 parts and 1 power.
-  //  Citizen Apartments require:
-  //    3 parts, 2 power and 1 plastics.
-  //  Gelder Manses require:
-  //    3 parts, 2 power, 2 plastics, 1 water, 1 circuitry and 1 datalink.
-  //
-  //  Scavenger slums require 1 parts.  Dreg towers require 3, and 1 power.
-  //
-  //  Knighted Estates require:
-  //    2 parts and 1 plastics.
-  //  Highborn Villas require:
-  //    3 parts, 2 plastics, 1 water and 1 decor.
-  //  Forbidden Palaces require:
-  //    4 parts, 3 plastics, 2 water, 2 decor,
-  //    1 power, 1 circuitry, 1 datalink and 1 trophy.
   final static Conversion MATERIALS[] = {
     new Conversion(
       Holding.class, "Level 1",
@@ -145,7 +122,6 @@ public class HoldingUpgrades {
       DIFFICULT_DC, ASSEMBLY
     ),
   };
-  //  "This holding needs more "+X+" before construction can proceed.";
   
   
   public static Upgrade upgradeFor(int upgradeLevel) {
@@ -215,21 +191,6 @@ public class HoldingUpgrades {
   
   /**  Rations/foodstuffs-
     */
-  //
-  //  All housing levels will put out demand for all food types in proportion
-  //    to population- enough for five days per resident.
-  //  Pyon Shacks require 1 food type.
-  //  Freeborn Holdings require 2 food types.
-  //  Citizen Apartments require 2 food types and either Rations or Soma.
-  //  Gelder Manses require 3 food types and either Greens or Soma.
-  //
-  //  Dreg Towers require at least 2 food types or 1 food type and Soma.
-  //
-  //  Knighted Estates require 2 food types and either Spice or Soma.
-  //  Highborn Villas require 4 food types, Soma and Spice.
-  
-  //
-  //  TODO:  Create a fourth food type- rations at the Stock Exchange, say.
   final static TradeType FOOD_TYPES[] = {
     CARBS, PROTEIN, GREENS,//RATIONS, SOMA, SPICE
   };
@@ -304,24 +265,6 @@ public class HoldingUpgrades {
   
   /**  Venues access-
     */
-  //
-  //  Danger and Ambience, based on area.  (modified by security.)
-  //  Health and morale, based on inhabitants.  (modified by entertainment.)
-  //  Food stocks and building materials.  (modified by health & services.)
-  
-  //  Security (bastion, enforcer bloc, shield wall.)
-  //  Health & services (sickbay, archives, stock exchange.)
-  //  Entertainment (cantina, arena, counsel chamber.)
-  
-  //  Merge 'wastes huts' with slum housing, and allow those to upgrade to Dreg
-  //  Towers.  Seal tents are intermediate.
-  //
-  //  Knighted Estates require access to a Bastion, and 2 servants per
-  //    inhabitant.
-  //  Highborn Villas require access to a Counsel Chamber or Arena, and 5
-  //    servants per inhabitant, 2 of them Pyons or better.
-  
-  
   protected static Object checkAccess(
     Holding holding, int upgradeLevel, boolean verbose
   ) {
@@ -414,17 +357,6 @@ public class HoldingUpgrades {
   
   /**  Ambience requirements-
     */
-  //  Guilder manses require positive ambience.  (5 or better.)
-  //  Citizen apartments require mild positive ambience.  (2 or better.)
-  //  Freeborn holdings require squalor no worse than 2, Pyon shacks, 5.
-  
-  //  Field Tents/Scavenger Slums/Dreg Towers are indifferent to ambience, while
-  //  allowing for higher population densities.
-  
-  //  Knighted Estates require non-negative ambience.  (0 or better.)
-  //  Highborn Villas require positive ambience.  (5 or better.)
-  //  Forbidden Palaces require perfect ambience.  (10 or better.)
-  
   final static int SAFETY_NEEDS[] = {
     -20,
     -5,

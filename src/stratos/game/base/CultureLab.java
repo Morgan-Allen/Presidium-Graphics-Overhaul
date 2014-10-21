@@ -210,7 +210,7 @@ public class CultureLab extends Venue {
   
   public TradeType[] services() {
     return new TradeType[] {
-      CARBS, PROTEIN, SOMA, MEDICINES
+      CARBS, PROTEIN, SOMA, MEDICINE
     };
   }
   

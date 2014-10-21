@@ -1,20 +1,20 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 
 package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.building.*;
-import stratos.game.civilian.*;
 import stratos.game.common.*;
-import stratos.game.plans.FirstAid;
-import stratos.game.plans.Manufacture;
-import stratos.game.plans.Supervision;
-import stratos.game.tactical.*;
+import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
+
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.building.Economy.*;
@@ -22,8 +22,6 @@ import static stratos.game.building.Economy.*;
 
 
 public class PhysicianStation extends Venue {
-  
-  
   
   /**  Static constants, field definitions, constructors and save/load methods-
     */
@@ -198,8 +196,8 @@ public class PhysicianStation extends Venue {
     //
     //  Sickbays consumes medicine and power based on current upgrade level,
     //  and have a mild positive effect on ambience-
-    stocks.incDemand(MEDICINES, medNeed, Stocks.TIER_PRODUCER, 1, this);
-    stocks.incDemand(STIM_KITS, medNeed, Stocks.TIER_CONSUMER, 1, this);
+    stocks.incDemand(MEDICINE, medNeed, Stocks.TIER_PRODUCER, 1, this);
+    stocks.incDemand(REAGENTS, medNeed, Stocks.TIER_CONSUMER, 1, this);
     stocks.forceDemand(POWER, powerNeed, Stocks.TIER_CONSUMER);
     structure.setAmbienceVal(numU * 2);
   }
@@ -286,14 +284,14 @@ public class PhysicianStation extends Venue {
   
   public int numOpenings(Background v) {
     final int nO = super.numOpenings(v);
-    if (v == Backgrounds.MINDER) return nO + 1;
+    if (v == Backgrounds.MINDER   ) return nO + 1;
     if (v == Backgrounds.PHYSICIAN) return nO + 1;
     return 0;
   }
   
   
   public TradeType[] services() {
-    return new TradeType[] { MEDICINES, SERVICE_HEALTHCARE };
+    return new TradeType[] { MEDICINE, SERVICE_HEALTHCARE };
   }
   
   
@@ -302,7 +300,7 @@ public class PhysicianStation extends Venue {
   /**  Rendering and interface methods-
     */
   protected TradeType[] goodsToShow() {
-    return new TradeType[] { STIM_KITS, MEDICINES, ORGANS };
+    return new TradeType[] { REAGENTS, MEDICINE, ORGANS };
   }
   
   

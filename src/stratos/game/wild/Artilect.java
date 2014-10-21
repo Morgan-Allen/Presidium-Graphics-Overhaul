@@ -121,7 +121,7 @@ public abstract class Artilect extends Actor {
   }
   
   
-  protected ActorRelations initMemories() {
+  protected ActorRelations initRelations() {
     final Artilect actor = this;
     
     return new ActorRelations(this) {

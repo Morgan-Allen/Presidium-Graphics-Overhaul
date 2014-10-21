@@ -363,12 +363,12 @@ public class StartupScenario extends Scenario {
       Ruins.placeRuins(world, maxRuins);
     }
     if (config.siteLevel == SITE_SETTLED) {
-      Nest.placeNests(world, Species.QUD, Species.HAREEN);
+      Nest.placeNests(world, Species.QUDU, Species.HAREEN);
     }
     if (config.siteLevel == SITE_WILDERNESS) {
       final int maxRuins = world.size / (World.SECTOR_SIZE * 4);
       Ruins.placeRuins(world, maxRuins);
-      Nest.placeNests(world, Species.QUD, Species.HAREEN, Species.LICTOVORE);
+      Nest.placeNests(world, Species.QUDU, Species.HAREEN, Species.LICTOVORE);
     }
   }
 }

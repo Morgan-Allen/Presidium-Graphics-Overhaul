@@ -282,7 +282,9 @@ public abstract class Plan implements Saveable, Behaviour {
     NORMAL_DISTANCE_CHECK  = 1.0f,
     HEAVY_DISTANCE_CHECK   = 2.0f,
     
-    NO_MODIFIER = 0;
+    NO_MODIFIER = 0,
+    
+    PRIORITY_NEVER = 0 - PARAMOUNT;
   final protected static Skill NO_SKILLS[] = null;
   final protected static Trait NO_TRAITS[] = null;
   
@@ -292,25 +294,23 @@ public abstract class Plan implements Saveable, Behaviour {
     Actor actor,
     Target subject,
     float defaultPriority,
+    float specialModifier,
     float subjectHarm,
     float peersCompete,
     Skill baseSkills[],
     Trait baseTraits[],
-    float specialModifier,
     float distanceCheck,
     float failRisk,
     boolean report
   ) {
-    if (subject == null) I.complain("NO SUBJECT SPECIFIED");
-    if (motiveType == MOTIVE_CANCELLED) return 0;
+    if (subject == null || motiveType == MOTIVE_CANCELLED) {
+      if (subject == null) I.complain("NO SUBJECT SPECIFIED");
+      return PRIORITY_NEVER;
+    }
     
-    this.harmFactor = subjectHarm;
+    this.harmFactor    = subjectHarm ;
     this.competeFactor = peersCompete;
-    float
-      priority = ROUTINE + specialModifier,
-      skillAvg = 0, skillMax = -1, skillBonus = 0,
-      traitAvg = 0, traitMax =  0, traitBonus = 0,
-      harmBonus = 0, competeBonus = 0;
+    float priority = ROUTINE + specialModifier;
     
     if (motiveType != MOTIVE_INIT) {
       if (defaultPriority == FROM_MOTIVE) defaultPriority = motiveBonus;
@@ -318,20 +318,25 @@ public abstract class Plan implements Saveable, Behaviour {
     }
     else if (defaultPriority == FROM_MOTIVE) {
       I.complain("NO MOTIVATION!");
-      return -1;
+      return PRIORITY_NEVER;
     }
     if (motiveType == MOTIVE_MISSION) {
       priority = (priority + motiveBonus) / 2;
       if (defaultPriority < motiveBonus) defaultPriority = motiveBonus;
     }
-    if (defaultPriority <= 0) return 0;
     
+    if (defaultPriority <= 0) return PRIORITY_NEVER;
     if (report) {
       I.say("\nEvaluating priority for "+this);
       I.say("  Motive type/bonus: "+motiveType+"/"+motiveBonus);
       I.say("  Initialised at: "+priority+", default: "+defaultPriority);
       I.say("  Special modifier: "+specialModifier);
     }
+    
+    float
+      skillAvg = 0, skillMax = -1, skillBonus = 0,
+      traitAvg = 0, traitMax =  0, traitBonus = 0,
+      harmBonus = 0, competeBonus = 0;
     
     if (baseSkills != null) for (Skill skill : baseSkills) {
       final float level = (actor.traits.traitLevel(skill) - 10) / 10;
@@ -357,9 +362,9 @@ public abstract class Plan implements Saveable, Behaviour {
       competeBonus = 0 - competition * peersCompete * CASUAL / 2;
     }
     
-    priority += skillBonus;
-    priority += traitBonus;
-    priority += harmBonus;
+    priority += skillBonus  ;
+    priority += traitBonus  ;
+    priority += harmBonus   ;
     priority += competeBonus;
     if (report) {
       I.say("  Skill/traits bonus: "+skillBonus+"/"+traitBonus);
@@ -369,41 +374,33 @@ public abstract class Plan implements Saveable, Behaviour {
     
     priority *= defaultPriority * 1f / ROUTINE;
     final float
-      min = defaultPriority * 0.5f,
+      min = defaultPriority * 0.0f,
       max = defaultPriority * 2.0f;
-    if (priority < min) return priority - min;
     priority = Visit.clamp(priority, min, max);
+    //  TODO:  The special modifier should be introduced here, after clamping
+    //         and scaling.  Easier to understand.
     if (report) I.say("  Priority after clamp/scale: "+priority);
     
-    float chancePenalty = 0, rangePenalty = 0, dangerPenalty = 0;
-    
+    float
+      chancePenalty = 0,
+      rangePenalty  = 0,
+      dangerPenalty = 0;
     if (failRisk > 0) {
       final float chance = successChance();
       chancePenalty = (1 - chance) * failRisk * PARAMOUNT;
     }
-    
     if (distanceCheck != 0) {
       rangePenalty = rangePenalty(actor, subject) * distanceCheck;
       final float danger = dangerPenalty(subject, actor) * (1f + failRisk);
       dangerPenalty = danger * (rangePenalty + 2) / 2f;
     }
-    /*
-    if (actor.vocation() != null && motiveType == MOTIVE_DUTY) {
-      final float workBonus = Plan.DEFAULT_SWITCH_THRESHOLD;
-      final int standing = actor.vocation().standing;
-      if (standing == Backgrounds.CLASS_STRATOI) classBonus -= workBonus;
-      if (standing == Backgrounds.CLASS_NATIVE ) classBonus += workBonus;
-    }
-    //*/
     
     priority -= chancePenalty;
     priority -= rangePenalty ;
     priority -= dangerPenalty;
-    //priority += classBonus   ;
     if (report) {
       I.say("  Chance penalty is: "+chancePenalty);
       I.say("  Range/Danger penalty is: "+rangePenalty+"/"+dangerPenalty);
-      //I.say("  Class bonus is: "+classBonus);
       I.say("  Priority after clamp/scale, dist/danger: "+priority);
     }
     return priority;

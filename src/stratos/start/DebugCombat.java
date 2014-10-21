@@ -8,6 +8,7 @@ import stratos.game.base.*;
 import stratos.game.campaign.*;
 import stratos.game.maps.*;
 import stratos.game.wild.*;
+import stratos.game.plans.*;
 //import stratos.graphics.common.Rendering;
 //import stratos.graphics.widgets.KeyInput;
 import stratos.user.*;
@@ -81,6 +82,14 @@ public class DebugCombat extends Scenario {
     return Base.baseWithName(world, "Player Base", false);
   }
   
+
+  //  TODO:  I want a situation where lictovores are usually hostile, vareen
+  //  sometimes are, and quud basically never are, based on power and
+  //  aggression.
+  
+  //  70%, 30%, and -10% chance to attack.  +30% if under attack.  -20% if
+  //  matched by enemy, -50% if heavily outmatched.  +30% if they can't
+  //  escape.
   
   protected void configureScenario(World world, Base base, BaseUI UI) {
     GameSettings.setDefaults();
@@ -90,18 +99,22 @@ public class DebugCombat extends Scenario {
     
     final Base wildlife = Base.baseWithName(world, Base.KEY_WILDLIFE, true);
     
-    final Actor actor = new Human(Backgrounds.VETERAN, base);
+    final Actor actor = new Human(Backgrounds.VOLUNTEER, base);
     actor.enterWorldAt(4, 4, world);
     
-    final Actor fauna = (Lictovore) Species.LICTOVORE.newSpecimen(wildlife);
+    final Actor fauna = Species.LICTOVORE.newSpecimen(wildlife);
     fauna.health.setupHealth(0.5f, 1, 0);
     fauna.enterWorldAt(5, 5, world);
     
+    final Combat combat = new Combat(fauna, actor);
+    combat.setMotive(Plan.MOTIVE_EMERGENCY, 100);
+    fauna.mind.assignBehaviour(combat);
+    
     UI.selection.pushSelection(actor, true);
+    
     /*
     final TrooperLodge station = new TrooperLodge(base);
     Placement.establishVenue(station, 8, 8, true, world);
-    
     final Base wildlife = Base.baseWithName(world, Base.KEY_WILDLIFE, true);
     
     //  ...I need to simplify their behaviour here.  Defensive/territorial-

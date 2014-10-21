@@ -112,9 +112,9 @@ public class Forestry extends Plan {
     
     final float priority = priorityForActorWith(
       actor, subject, ROUTINE,
-      NO_HARM, FULL_COMPETITION,
-      BASE_SKILLS, BASE_TRAITS,
-      NO_MODIFIER, NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
+      NO_MODIFIER, NO_HARM,
+      FULL_COMPETITION, BASE_SKILLS,
+      BASE_TRAITS, NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
       report
     );
     return priority;

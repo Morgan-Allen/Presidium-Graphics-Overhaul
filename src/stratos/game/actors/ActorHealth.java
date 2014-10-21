@@ -16,7 +16,7 @@ public class ActorHealth implements Qualities {
   
   /**  Fields, constructors, and save/load methods-
     */
-  private static boolean verbose = false;
+  private static boolean verbose = true;
   
   final public static int
     HUMAN_METABOLISM    = 0,
@@ -27,13 +27,13 @@ public class ActorHealth implements Qualities {
     STATE_ACTIVE   = 0,
     STATE_RESTING  = 1,
     STATE_SUSPEND  = 2,
-    STATE_STRICKEN = 3,
+    STATE_DYING    = 3,
     STATE_DECOMP   = 4;
   final static String STATE_DESC[] = {
     "Active",
     "Asleep",
     "In Suspended Animation",
-    "Mortally Hurt",
+    "Dead",
     "Decomposed",
   };
   final public static int
@@ -68,7 +68,7 @@ public class ActorHealth implements Qualities {
     MAX_MORALE       =  0.5f,
     MIN_MORALE       = -1.5f,
     REVIVE_THRESHOLD =  0.5f,
-    STABILISE_CHANCE =  0.05f,
+    //STABILISE_CHANCE =  0.05f,
     BLEED_OUT_TIME   =  World.STANDARD_HOUR_LENGTH * 2,
     DECOMPOSE_TIME   =  World.STANDARD_DAY_LENGTH,
     
@@ -294,35 +294,40 @@ public class ActorHealth implements Qualities {
   
   /**  State modifications-
     */
-  public void takeInjury(float taken) {
-    injury += taken;
-    final float max;
-    if (alive()) {
-      max = (maxHealth * MAX_INJURY) + 1;
-      if (organic()) {
-        if (Rand.num() * maxHealth < taken) bleeds = true;
-        morale -= taken * 0.1f / max;
-      }
+  public void takeInjury(float taken, boolean terminal) {
+    final boolean report = verbose && I.talkAbout == actor;
+    if (report) {
+      I.say("\n"+actor+" has been injured.");
+      I.say("  Prior injury: "+injury+", taken: "+taken);
     }
-    else {
-      max = maxHealth * (MAX_INJURY + 1);
+    
+    final float limit;
+    if (terminal) limit = maxHealth * MAX_INJURY;
+    else if (conscious()) limit = maxHealth;
+    else limit = injury;
+    
+    if (organic()) {
+      if ((Rand.num() * maxHealth / 2f) < taken) bleeds = true;
     }
-    injury = Visit.clamp(injury, 0, max);
+    injury = Visit.clamp(injury + taken, 0, limit + 1);
+    
+    if (report) {
+      I.say("  Injury capped at: "+limit);
+      I.say("  Final injury:     "+injury+", bleeding? "+bleeds);
+    }
   }
   
   
   public void liftInjury(float lifted) {
     injury -= lifted;
-    if (conscious()) morale += lifted * injuryLevel() / maxHealth;
     if (Rand.num() > injuryLevel()) bleeds = false;
     if (injury < 0) injury = 0;
   }
   
   
   public void takeFatigue(float taken) {
-    fatigue += taken;
     final float max = maxHealth * MAX_FATIGUE;
-    if (conscious()) morale -= taken * 0.5f / max;
+    fatigue = Visit.clamp(fatigue + taken, 0, max);
   }
   
   
@@ -408,7 +413,7 @@ public class ActorHealth implements Qualities {
   
   
   public boolean dying() {
-    return state >= STATE_STRICKEN;
+    return state >= STATE_DYING;
   }
   
   
@@ -519,7 +524,7 @@ public class ActorHealth implements Qualities {
     
     //  Check for disease or sudden death due to senescence.
     if (oldState != state && state != STATE_ACTIVE) {
-      if (state < STATE_STRICKEN && ! organic()) state = STATE_STRICKEN;
+      if (state < STATE_DYING && ! organic()) state = STATE_DYING;
       I.say(actor+" has entered a non-active state: "+stateDesc());
       actor.enterStateKO(Action.FALL);
     }
@@ -531,13 +536,14 @@ public class ActorHealth implements Qualities {
   
   private void checkStateChange() {
     if (verbose && I.talkAbout == actor) {
-      I.say("Injury/fatigue:"+injury+"/"+fatigue+", max: "+maxHealth);
-      I.say("STATE IS: "+state);
+      I.say("\nUpdating health state for "+actor);
+      I.say("  Injury/fatigue: "+injury+"/"+fatigue+", max: "+maxHealth);
+      I.say("  State is: "+STATE_DESC[state]);
     }
     //
     //  Check for state effects-
     if (state == STATE_SUSPEND) return;
-    if (state == STATE_STRICKEN) {
+    if (state == STATE_DYING) {
       injury += maxHealth * 1f / DECOMPOSE_TIME;
       if (injury > maxHealth * (MAX_INJURY + 1)) {
         state = STATE_DECOMP;
@@ -556,11 +562,11 @@ public class ActorHealth implements Qualities {
         if (level <= 0) continue;
         I.add(t.toString()+": "+level+", ");
       }
-      state = STATE_STRICKEN;
+      state = STATE_DYING;
     }
     if (injury >= maxHealth * MAX_INJURY) {
       I.say(actor+" has died of injury.");
-      state = STATE_STRICKEN;
+      state = STATE_DYING;
     }
     if (fatigue <= 0 && asleep()) {
       if (verbose) I.say(actor+" has revived!");
@@ -573,7 +579,7 @@ public class ActorHealth implements Qualities {
     calories = Visit.clamp(calories, 0, maxCalories());
     if (calories <= 0) {
       I.say(actor+" has died from starvation.");
-      state = STATE_STRICKEN;
+      state = STATE_DYING;
     }
   }
   
@@ -593,6 +599,7 @@ public class ActorHealth implements Qualities {
     //  Regeneration rates differ during sleep-
     final float DL = World.STANDARD_DAY_LENGTH;
     float MM = 1, FM = 1, IM = 1, PM = 1;
+    final float regen = actor.skills.chance(IMMUNE, 10);
     if (state == STATE_RESTING) {
       FM = -3;
       IM =  2;
@@ -602,16 +609,25 @@ public class ActorHealth implements Qualities {
     else if (actor.currentAction() != null) {
       FM *= Action.moveRate(actor, true);
     }
+    
     if (bleeds) {
-      injury += baseBulk * 1f / BLEED_OUT_TIME;
-      if (actor.skills.test(IMMUNE, 10, 1) && Rand.num() < STABILISE_CHANCE) {
-        bleeds = false;
+      final float
+        bleedMargin  = MAX_INJURY - 1f,
+        bleedAmount  = maxHealth * bleedMargin / BLEED_OUT_TIME,
+        stableChance = regen * 2 * 1f          / BLEED_OUT_TIME;
+      if (Rand.num() < stableChance) bleeds = false;
+      else injury += bleedAmount;
+      if (report) {
+        I.say("  bleedout time:    "+BLEED_OUT_TIME);
+        I.say("  bleeding for:     "+bleedAmount   );
+        I.say("  stabilise chance: "+stableChance  );
       }
     }
     else if (injury > 0) {
-      final float regen = actor.skills.test(IMMUNE, null, null, -10, 0.1f, 2);
+      actor.skills.test(IMMUNE, 10, 1f / World.STANDARD_HOUR_LENGTH);
       injury -= INJURY_REGEN_PER_DAY * maxHealth * regen * IM / DL;
     }
+    
     fatigue += FATIGUE_GROW_PER_DAY * baseSpeed * maxHealth * FM / DL;
     fatigue = Visit.clamp(fatigue, 0, MAX_FATIGUE * maxHealth);
     injury  = Visit.clamp(injury , 0, MAX_DECOMP  * maxHealth);
@@ -631,7 +647,7 @@ public class ActorHealth implements Qualities {
     concentration = Visit.clamp(concentration, 0, maxCon);
     
     if (report) {
-      I.say("Stresses updated...");
+      I.say("\n  Stresses updated for "+actor);
     }
   }
   
@@ -666,7 +682,7 @@ public class ActorHealth implements Qualities {
       }
       else {
         I.say(actor+" has died of old age.");
-        state = STATE_STRICKEN;
+        state = STATE_DYING;
       }
     }
   }

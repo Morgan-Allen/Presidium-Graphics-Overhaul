@@ -65,9 +65,9 @@ public class Supervision extends Plan {
     
     return super.priorityForActorWith(
       actor, venue, CASUAL,
-      MILD_HELP, FULL_COMPETITION,
-      NO_SKILLS, BASE_TRAITS,
-      NO_MODIFIER, PARTIAL_DISTANCE_CHECK, NO_FAIL_RISK,
+      NO_MODIFIER, MILD_HELP,
+      FULL_COMPETITION, NO_SKILLS,
+      BASE_TRAITS, PARTIAL_DISTANCE_CHECK, NO_FAIL_RISK,
       report
     );
   }

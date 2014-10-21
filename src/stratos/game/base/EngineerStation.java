@@ -140,7 +140,7 @@ public class EngineerStation extends Venue {
   public void updateAsScheduled(int numUpdates) {
     super.updateAsScheduled(numUpdates);
     if (! structure.intact()) return;
-    stocks.incDemand(PARTS, 10, Stocks.TIER_PRODUCER, 1, this);
+    stocks.incDemand(PARTS, 5, Stocks.TIER_PRODUCER, 1, this);
     stocks.translateDemands(1, METALS_TO_PARTS, this);
     
     float pollution = 5, powerNeed = 5;
@@ -223,14 +223,13 @@ public class EngineerStation extends Venue {
 
 
   public String fullName() {
-    return "Artificer";
+    return "Engineer Station";
   }
   
   
   public String helpInfo() {
     return
-      "The Artificer manufactures parts, inscriptions, devices and armour "+
-      "for your citizens.";
+      "Your Engineers manufacture parts, devices and armour for your citizens.";
   }
   
   

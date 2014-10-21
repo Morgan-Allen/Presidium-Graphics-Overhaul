@@ -114,9 +114,9 @@ public class Resting extends Plan {
     
     final float priority = priorityForActorWith(
       actor, restPoint, Visit.clamp(urgency, IDLE, URGENT),
-      NO_HARM, NO_COMPETITION,
-      NO_SKILLS, BASE_TRAITS,
-      modifier, NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
+      modifier, NO_HARM,
+      NO_COMPETITION, NO_SKILLS,
+      BASE_TRAITS, NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
       report
     );
     return priority;
@@ -168,6 +168,8 @@ public class Resting extends Plan {
   
   
   public boolean actionRest(Actor actor, Owner place) {
+    
+    //    TODO:  Reconsider these.
     //
     //  Transfer any incidental groceries-
     if (place == actor.mind.home()) for (TradeType food : ALL_FOOD_TYPES) {

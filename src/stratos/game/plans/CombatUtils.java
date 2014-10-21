@@ -13,14 +13,11 @@ import static stratos.game.actors.Qualities.*;
 //  TODO:  JUST CACHE THREAT RATINGS LIKE YOU DO STRENGTH RATINGS, WITHOUT
 //         DISTANCE FACTORS.
 
-//  TODO:  The entire combat/retreat system needs a good cleanup.
-
 
 public class CombatUtils {
   
   
   final static float
-    MAX_DANGER  = 2.0f,
     MAX_POWER   = 20;
   private static boolean
     threatsVerbose  = false,
@@ -67,9 +64,12 @@ public class CombatUtils {
     final float
       actorChance = actor.skills.chance(attack, other, defend, 0),
       otherChance = other.skills.chance(attack, actor, defend, 0);
-    
+    //
+    //  Get actor power as a fraction of total power, and scale by the average
+    //  of actor chance and inverse of the other's chance.  Then clamp to a
+    //  manageable range.
     float estimate = 1;
-    estimate *= actorPower / (otherPower + actorPower);
+    estimate *= 2 * actorPower / (otherPower + actorPower);
     estimate *= 2 * (actorChance + 1 - otherChance) / 2f;
     estimate = Visit.clamp(estimate, 0, MAX_POWER);
     
@@ -91,19 +91,42 @@ public class CombatUtils {
   }
   
   
-  public static boolean isHostileTo(Actor actor, Target target) {
-    if (! (target instanceof Actor)) return false;
-    final Actor other = (Actor) target;
-    final ActorRelations relations = actor.relations;
+  public static float hostileRating(Actor actor, Target near) {
+    final boolean report = dangerVerbose && I.talkAbout == actor;
+    //
+    //  Only consider conscious actors as capable of hostility.  Then, by
+    //  default, base the rating off intrinsic dislike of the subject.
+    if (! (near instanceof Actor)) return 0;
+    final Actor other = (Actor) near;
+    if (! other.health.conscious()) return 0;
+    float rating = 0;
+    final ActorRelations mind = actor.relations;
+    rating -= mind.valueFor(other);
     
-    if (! other.health.conscious()) return false;
-    if (relations.dislikes(other)) return true;
-    
-    final Target victim = other.focusFor(Combat.class);
-    if (victim != null && relations.likes(victim)) {
-      return relations.valueFor(victim) > relations.valueFor(other);
+    if (report) I.say("\n  "+near+" dislike rating: "+rating);
+    //
+    //  However, this is modified by the context of the subject's behaviour.
+    //  If they are doing something harmful to another the actor cares about,
+    //  (including self), then up the rating.
+    final Target victim = other.focusFor(null);
+    final float harmDone = other.hostilityTo(victim);
+    if (victim != null && mind.likes(victim)) {
+      final float likeGap = mind.valueFor(victim) - mind.valueFor(other);
+      rating += likeGap * harmDone;
+      
+      if (report) {
+        I.say("  Victim: "+victim+", value: "+mind.valueFor(victim));
+        I.say("  Like gap: "+likeGap+" harm done: "+harmDone);
+      }
     }
-    return false;
+    //
+    //  Limit to the range of normal plan priorities, and return...
+    return Visit.clamp(rating, -1, 1) * Plan.PARAMOUNT;
+  }
+  
+  
+  public static boolean isHostileTo(Actor actor, Target near) {
+    return hostileRating(actor, near) > 0;
   }
   
   
@@ -143,7 +166,7 @@ public class CombatUtils {
     *  asThreat is true, primary is evaluated as a threat itself.)
     */
   public static Target bestTarget(
-    Actor actor, Target primary, boolean asThreat, float harmLevel
+    Actor actor, Target primary, boolean asThreat
   ) {
     final boolean report = threatsVerbose && I.talkAbout == actor;
     
@@ -153,14 +176,14 @@ public class CombatUtils {
     
     if (asThreat) {
       best = primary;
-      bestValue = combatValue(primary, actor, harmLevel) * 1.5f;
+      bestValue = hostileRating(actor, primary) * 1.5f;
     }
     
     for (Target t : actor.senses.awareOf()) {
       final float distance = Spacing.distance(t, primary);
       if (distance > World.SECTOR_SIZE) continue;
 
-      float value = combatValue(t, actor, harmLevel);
+      float value = hostileRating(actor, t);
       
       if (melee) value /= 1 + distance;
       else       value /= 1 + (distance / (World.SECTOR_SIZE / 2));
@@ -169,59 +192,6 @@ public class CombatUtils {
     
     return bestValue >= 0 ? best : null;
   }
-  
-  
-  public static float combatValue(
-    Target target, Actor actor, float harmLevel
-  ) {
-    if (target instanceof Actor) {
-      final Actor struck = (Actor) target;
-      float value = isHostileTo(actor, struck) ? 5 : 0;
-      
-      //  TODO:  Include other modifiers.
-      
-      return value;
-    }
-    else if (target instanceof Element) {
-      return actor.relations.valueFor(target);
-    }
-    else return -1;
-  }
-  
-  
-  /*
-  public static float combatValue(
-    Target target, Actor actor, float harmLevel
-  ) {
-    if (! (target instanceof Element)) {
-      return -1;
-    }
-    else if (! (target instanceof Actor)) {
-      return actor.relations.relationValue(target);
-    }
-    else {
-      final Actor other = (Actor) target;
-      float value = isHostileTo(actor, other) ? 5 : 0;
-      value -= actor.relations.relationValue(other) * 10 * harmLevel;
-      value -= actor.traits.relativeLevel(EMPATHIC) * 5  * harmLevel;
-      
-      if (! other.gear.armed()) {
-        value -= actor.traits.relativeLevel(ETHICAL) * 5;
-      }
-      
-      final Behaviour doing = other.mind.rootBehaviour();
-      if (doing instanceof Plan) {
-        final Plan plan = (Plan) doing;
-        final float relation = actor.relations.relationValue(plan.subject);
-        value += plan.harmFactor() * relation;
-      }
-      
-      //value /= 1 + powerLevelRelative(actor, other);
-      return value;
-    }
-  }
-  //*/
-  
 }
 
 

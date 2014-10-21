@@ -142,9 +142,9 @@ public class Dialogue extends Plan implements Qualities {
     
     final float priority = priorityForActorWith(
       actor, other, casual ? (CASUAL * urgency) : URGENT,
-      MILD_HELP, NO_COMPETITION,
-      BASE_SKILLS, BASE_TRAITS,
-      NO_MODIFIER, distCheck, NO_FAIL_RISK,
+      NO_MODIFIER, MILD_HELP,
+      NO_COMPETITION, BASE_SKILLS,
+      BASE_TRAITS, distCheck, NO_FAIL_RISK,
       report
     );
     if (report) {

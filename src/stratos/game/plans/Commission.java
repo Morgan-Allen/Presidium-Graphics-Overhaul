@@ -154,9 +154,9 @@ public class Commission extends Plan {
     
     final float priority = priorityForActorWith(
       actor, shop, CASUAL,
-      MILD_HELP, MILD_COMPETITION,
-      NO_SKILLS, BASE_TRAITS,
-      modifier, NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
+      modifier, MILD_HELP,
+      MILD_COMPETITION, NO_SKILLS,
+      BASE_TRAITS, NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
       report
     );
     

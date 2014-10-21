@@ -17,7 +17,7 @@ public class Choice implements Qualities {
     */
   public static boolean
     verbose       = false,
-    verboseReject = verbose && true;
+    verboseReject = verbose && false;
   
   final Actor actor;
   final Batch <Behaviour> plans = new Batch <Behaviour> ();
@@ -52,10 +52,10 @@ public class Choice implements Qualities {
     
     if (finished || priority <= 0 || nextStep == null) {
       if (report) {
-        I.say("  Rejected option: " + plan + " (" + plan.getClass() + ")");
-        I.say("  Priority: " + priority);
-        I.say("  Finished/valid: " + finished + "/" + plan.valid());
-        I.say("  Next step: " + nextStep + "\n");
+        I.say("  Rejected option: "+plan+" ("+plan.getClass()+")");
+        I.say("  Priority: "+priority);
+        I.say("  Finished/valid: "+finished+"/"+plan.valid());
+        I.say("  Next step: "+nextStep+"\n");
       }
       return false;
     }

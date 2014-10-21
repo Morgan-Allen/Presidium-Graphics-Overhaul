@@ -144,7 +144,7 @@ public class MarksmanTechniques {
         CombatFX.applyBurstFX(
           PIERCE_FX_MODEL, subject.position(null), 0.5f, using.world()
         );
-        ((Actor) subject).health.takeInjury(Rand.index(2) + 0.5f);
+        ((Actor) subject).health.takeInjury(Rand.index(2) + 0.5f, true);
       }
     }
   };

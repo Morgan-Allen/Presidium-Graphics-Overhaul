@@ -9,24 +9,24 @@ package stratos.game.wild;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
-import stratos.game.plans.Combat;
-import stratos.game.tactical.*;
 import stratos.util.*;
 
+import static stratos.game.actors.Qualities.*;
 
 
-public class Quud extends Fauna {
+
+public class Qudu extends Fauna {
   
   
   
   /**  Field definitions, constructors and save/load methods-
     */
-  public Quud(Base base) {
-    super(Species.QUD, base);
+  public Qudu(Base base) {
+    super(Species.QUDU, base);
   }
   
   
-  public Quud(Session s) throws Exception {
+  public Qudu(Session s) throws Exception {
     super(s);
   }
   
@@ -47,6 +47,9 @@ public class Quud extends Fauna {
     );
     gear.setDamage(2);
     gear.setArmour(15);
+    
+    traits.setLevel(DEFENSIVE, -1);
+    traits.setLevel(FEARLESS , -2);
   }
   
   
@@ -85,18 +88,29 @@ public class Quud extends Fauna {
   
   
   protected void putEmergencyResponse(Choice choice) {
-    final Action hunker = new Action(
+    final Batch <Action> hunkering = new Batch <Action> ();
+    
+    for (int n = World.STANDARD_HOUR_LENGTH; n-- > 0;) {
+      final Action hunker = new Action(
+        this, this,
+        this, "actionHunker",
+        Action.FALL, "Hunkering Down"
+      );
+      hunker.setProperties(Action.QUICK | Action.NO_LOOP);
+      hunkering.add(hunker);
+    }
+    
+    final Steps steps = new Steps(
       this, this,
-      this, "actionHunker",
-      Action.FALL, "Hunkering Down"
+      Action.PARAMOUNT + (senses.fearLevel() * Plan.ROUTINE), false,
+      "Hunkering",
+      hunkering.toArray(Action.class)
     );
-    hunker.setProperties(Action.QUICK);
-    hunker.setPriority(Action.PARAMOUNT);
-    choice.add(hunker);
+    choice.add(steps);
   }
   
   
-  public boolean actionHunker(Quud actor, Quud doing) {
+  public boolean actionHunker(Qudu actor, Qudu doing) {
     if (actor != this || doing != this) I.complain("No outside access.");
     doing.gear.setArmour(25);
     return true;

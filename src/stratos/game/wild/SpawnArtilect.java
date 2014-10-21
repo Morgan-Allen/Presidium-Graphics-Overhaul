@@ -82,9 +82,9 @@ public class SpawnArtilect extends Plan implements Qualities {
     
     final float priority = priorityForActorWith(
       actor, repairs, ROUTINE,
-      MILD_HELP, MILD_COOPERATION,
-      BASE_SKILLS, NO_TRAITS,
-      NO_MODIFIER, NORMAL_DISTANCE_CHECK, MILD_FAIL_RISK,
+      NO_MODIFIER, MILD_HELP,
+      MILD_COOPERATION, BASE_SKILLS,
+      NO_TRAITS, NORMAL_DISTANCE_CHECK, MILD_FAIL_RISK,
       report
     );
     return priority;

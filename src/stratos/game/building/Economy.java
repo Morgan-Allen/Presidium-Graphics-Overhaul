@@ -59,11 +59,11 @@ public final class Economy {
     SOMA = new TradeType(
       BC, "Soma"     , "soma.gif"     , FORM_MATERIAL, 40
     ),
-    STIM_KITS = new TradeType(
-      BC, "Stim Kits", "stimkit.gif"  , FORM_MATERIAL, 60
+    REAGENTS = new TradeType(
+      BC, "Reagents" , "stimkit.gif"  , FORM_MATERIAL, 60
     ),
-    MEDICINES = new TradeType(
-      BC, "Medicines", "medicines.gif", FORM_MATERIAL, 120
+    MEDICINE = new TradeType(
+      BC, "Medicine" , "medicines.gif", FORM_MATERIAL, 120
     ),
     ORGANS = new TradeType(
       BC, "Organs"   , "organs.gif"   , FORM_MATERIAL, 250
@@ -376,7 +376,7 @@ public final class Economy {
     ),
     
     PROTEIN_TO_STIM_KITS = new Conversion(
-      CultureLab.class, 1, PROTEIN, TO, 10, STIM_KITS,
+      CultureLab.class, 1, PROTEIN, TO, 10, REAGENTS,
       ROUTINE_DC, PHARMACY, ROUTINE_DC, CHEMISTRY
     ),
     PROTEIN_TO_ORGANS = new Conversion(
@@ -385,7 +385,7 @@ public final class Economy {
     ),
     
     STIM_KITS_TO_MEDICINE = new Conversion(
-      PhysicianStation.class, 1, STIM_KITS, TO, 5, MEDICINES,
+      PhysicianStation.class, 1, REAGENTS, TO, 5, MEDICINE,
       MODERATE_DC, CHEMISTRY, ROUTINE_DC, PHARMACY
     );
   

@@ -358,7 +358,7 @@ public class Reactor extends Venue {
     }
     else if (e instanceof Actor) {
       final Actor a = (Actor) e;
-      a.health.takeInjury(damage / 2f);
+      a.health.takeInjury(damage / 2f, true);
       a.traits.setLevel(POISONED, radiation / 25f);
       if (Rand.index(100) < radiation) a.traits.incLevel(CANCER, Rand.num());
       if (Rand.index(100) < radiation) a.traits.incLevel(MUTATION, Rand.num());

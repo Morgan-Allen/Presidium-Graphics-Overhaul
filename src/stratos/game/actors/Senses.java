@@ -29,9 +29,9 @@ public class Senses implements Qualities {
   final Table <Target, Saveable> awares = new Table <Target, Saveable> ();
   final Batch <Target> awareOf = new Batch <Target> ();
 
-  private boolean emergency ;
-  private float   powerLevel;
-  private float   fearLevel ;
+  private boolean emergency  = false;
+  private float   powerLevel = -1   ;
+  private float   fearLevel  = -1   ;
   
   
   protected Senses(Actor actor) {
@@ -168,34 +168,6 @@ public class Senses implements Qualities {
     
     return senseChance > hideChance;
   }
-  
-  /*
-  protected Choice getReactions(Batch <Target> toNotice, float range) {
-    final Choice reactions = new Choice(actor);
-    
-    for (Target e : toNotice) if (notices(e, range)) {
-      final Session.Saveable after = reactionKey(e), before = awares.get(e);
-      if (before != after) {
-        actor.mind.addReactions(e, reactions);
-      }
-      e.flagWith(this);
-      awares.put(e, after);
-    }
-    //
-    //  Remove anything old.
-    final Batch <Target> unseen = new Batch <Target> ();
-    for (Target e : awares.keySet()) {
-      if (e.flaggedWith() == this) {
-        e.flagWith(null);
-        continue;
-      }
-      if (! notices(e, range)) unseen.add(e);
-    }
-    for (Target e : unseen) awares.remove(e);
-    
-    return reactions;
-  }
-  //*/
   
   
   private Session.Saveable reactionKey(Target seen) {

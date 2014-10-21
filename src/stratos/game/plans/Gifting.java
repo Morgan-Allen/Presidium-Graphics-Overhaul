@@ -93,9 +93,9 @@ public class Gifting extends Plan implements Qualities {
     
     final float priority = priorityForActorWith(
       actor, receives, CASUAL,
-      MILD_HELP, NO_COMPETITION,
-      NO_SKILLS, BASE_TRAITS,
-      modifier, NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
+      modifier, MILD_HELP,
+      NO_COMPETITION, NO_SKILLS,
+      BASE_TRAITS, NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
       report
     );
     if (report) {

@@ -17,14 +17,19 @@ public class Steps extends Plan {
   final float priority;
   final Stack <Action> actions = new Stack <Action> ();
   
+  final String title;
+  
   
   public Steps(
     Actor actor, Target key, float priority, boolean persistent,
+    String title,
     Action... actions
   ) {
     super(actor, key, persistent);
     this.priority = priority;
     for (Action a : actions) this.actions.add(a);
+    
+    this.title = title;
   }
   
   
@@ -32,6 +37,8 @@ public class Steps extends Plan {
     super(s);
     priority = s.loadFloat();
     s.loadObjects(actions);
+    
+    title = s.loadString();
   }
   
   
@@ -39,6 +46,8 @@ public class Steps extends Plan {
     super.saveState(s);
     s.saveFloat(priority);
     s.saveObjects(actions);
+    
+    s.saveString(title);
   }
   
   
@@ -62,8 +71,11 @@ public class Steps extends Plan {
   }
   
   
+  
+  /**  Rendering and interface-
+    */
   public void describeBehaviour(Description d) {
-    super.needsSuffix(d, "");
+    super.needsSuffix(d, title);
   }
 }
 

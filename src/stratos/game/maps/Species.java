@@ -134,9 +134,9 @@ public abstract class Species implements Session.Saveable {
       public Nest createNest() { return null; }
     },
     
-    QUD = new Species(
-      "Qud",
-      "Qud are placid, slow-moving, vegetarian browsers that rely on their "+
+    QUDU = new Species(
+      "Qudu",
+      "Qudu are placid, slow-moving, vegetarian browsers that rely on their "+
       "dense, leathery hides and intractable grip on the ground to protect "+
       "themselves from most predators.",
       "QuudPortrait.png",
@@ -149,7 +149,7 @@ public abstract class Species implements Session.Saveable {
       0.15f, //speed
       0.65f  //sight
     ) {
-      public Actor newSpecimen(Base base) { return new Quud(base); }
+      public Actor newSpecimen(Base base) { return new Qudu(base); }
       public Nest createNest() { return new Nest(
         2, 2, Venue.ENTRANCE_EAST, this, MODEL_NEST_QUUD
       ); }
@@ -215,7 +215,7 @@ public abstract class Species implements Session.Saveable {
     BLUE_VALVES = new Species("Blue Valves", Type.FLORA, 1, PROTEIN) {},
     CLAN_BORE   = new Species("Clan Bore"  , Type.FLORA, 1, PROTEIN) {},
     
-    GORG_APHID  = new Species("Gorg Aphid" , Type.FLORA, 1, SPYCE) {},
+    GORG_APHID  = new Species("Gorg Aphid" , Type.FLORA, 1, SPYCE  ) {},
     
     PIONEERS    = new Species("Pioneers"   , Type.FLORA) {},
     TIMBER      = new Species("Timber"     , Type.FLORA) {},

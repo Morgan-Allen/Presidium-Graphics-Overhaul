@@ -100,7 +100,7 @@ public interface Sectors extends Backgrounds {
       "defection to the Calivor Republic have earned it several foes- and a "+
       "crucial role in quadrant defence strategy.",
       null, 0, 0, FOREST_BLOOD, STRONG_GRAVITY,
-      Sector.MAKES, CARBS, GREENS, MEDICINES,
+      Sector.MAKES, CARBS, GREENS, MEDICINE,
       Sector.NEEDS, SERVICE_ARMAMENT, PARTS,
       GELDER_BIRTH, FREE_BIRTH,
       LEARNING, MARKSMANSHIP, ANATOMY,
@@ -113,7 +113,7 @@ public interface Sectors extends Backgrounds {
       "centre of a large shipping industry and trade network- along with "+
       "rampant smuggling and black market research.",
       null, 1, 0, TUNDRA_BLOOD, NOMINAL_GRAVITY,
-      Sector.MAKES, DATALINKS, MEDICINES, SERVICE_COMMERCE,
+      Sector.MAKES, DATALINKS, MEDICINE, SERVICE_COMMERCE,
       Sector.NEEDS, GREENS, ORES, FUEL_RODS,
       DREGS_BIRTH, GELDER_BIRTH,
       LEARNING, FIELD_THEORY, STEALTH_AND_COVER,

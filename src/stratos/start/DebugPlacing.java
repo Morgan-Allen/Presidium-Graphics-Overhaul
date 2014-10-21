@@ -9,18 +9,34 @@ import stratos.game.maps.*;
 import stratos.graphics.common.Rendering;
 import stratos.graphics.widgets.KeyInput;
 import stratos.user.*;
-import stratos.util.I;
+import stratos.util.*;
 
 
 
 
 
-//  Now I just need to get mines working, and more importantly, housing
-//  evolution.
+//  Get mines working.
+//  Set up exclusion zone around kommando lodge, ecologist station, and
+//  excavation shaft.
 
-//  For that, I just need parts (the artificer), plastics (the supply depot),
-//  datalinks (the archives), 2 food types (the culture vats or ecologist) and
-//  medicines (the physician.)  Plus enough beauty, power and water.
+//  Divide venue description into two panes- one for general status, and the
+//  other for specific sub-headings.  Don't bother with spill-over.
+
+//  Rework art for roads, the shield wall, the physician station, the engineer
+//  station, the polymer fab, the solar bank, and the archives.
+
+//  Re-introduce the polymer fab.
+//  Re-work the culture vats- produce either food/organs OR soma/reagents.
+//  Produce medicine at the physician station.
+//  Test datalink-production at the archives.
+//  Test study behaviour at the archives.
+
+//  Fix bug with stripping/paving of roads happening at same time.
+//  Fix bug with resting in random locations.
+
+//  Remove combat from wandering behaviours (make part of exploration, not
+//  patrolling.)
+
 
 
 

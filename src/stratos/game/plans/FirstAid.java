@@ -110,11 +110,11 @@ public class FirstAid extends Plan {
     final float priority = priorityForActorWith(
       actor, patient,
       severity() * PARAMOUNT,
+      modifier,
       REAL_HELP,
       FULL_COMPETITION,
       BASE_SKILLS,
       BASE_TRAITS,
-      modifier,
       NORMAL_DISTANCE_CHECK,
       NO_FAIL_RISK,
       report

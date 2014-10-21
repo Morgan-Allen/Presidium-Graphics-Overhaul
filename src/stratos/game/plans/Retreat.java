@@ -83,9 +83,9 @@ public class Retreat extends Plan implements Qualities {
     
     final float priority = priorityForActorWith(
       actor, safePoint, maxDanger * PARAMOUNT,
-      NO_HARM, NO_COMPETITION,
-      BASE_SKILLS, BASE_TRAITS,
-      NO_MODIFIER, NO_DISTANCE_CHECK, NO_FAIL_RISK,
+      NO_MODIFIER, NO_HARM,
+      NO_COMPETITION, BASE_SKILLS,
+      BASE_TRAITS, NO_DISTANCE_CHECK, NO_FAIL_RISK,
       report
     );
     

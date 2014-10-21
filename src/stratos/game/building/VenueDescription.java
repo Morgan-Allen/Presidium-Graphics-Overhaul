@@ -45,7 +45,7 @@ public class VenueDescription {
     Venue venue, SelectionInfoPane panel, BaseUI UI
   ) {
     final VenueDescription VD = new VenueDescription(
-      venue, CAT_STATUS, CAT_STAFF, CAT_STOCK, CAT_UPGRADES
+      venue, CAT_UPGRADES, CAT_STATUS, CAT_STAFF, CAT_STOCK
     );
     return VD.configPanel(panel, UI);
   }
@@ -80,10 +80,10 @@ public class VenueDescription {
   
   
   protected void describeCategory(Description d, BaseUI UI, String catID) {
+    if (catID == CAT_UPGRADES) describeUpgrades(d, UI);
     if (catID == CAT_STATUS  ) describeCondition(v, d, UI, true);
     if (catID == CAT_STAFF   ) describePersonnel(d, UI);
     if (catID == CAT_STOCK   ) describeStocks(d, UI);
-    if (catID == CAT_UPGRADES) describeUpgrades(d, UI);
   }
   
   

@@ -108,9 +108,9 @@ public class Recreation extends Plan {
     
     final float priority = priorityForActorWith(
       actor, venue, CASUAL * need,
-      NO_HARM, NO_COMPETITION,
-      NO_SKILLS, ENJOYMENT_TRAITS[type],
-      modifier, NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
+      modifier, NO_HARM,
+      NO_COMPETITION, NO_SKILLS,
+      ENJOYMENT_TRAITS[type], NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
       report
     );
     if (report) {

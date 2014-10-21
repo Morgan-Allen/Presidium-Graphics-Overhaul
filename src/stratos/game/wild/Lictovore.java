@@ -53,6 +53,9 @@ public class Lictovore extends Fauna {
     traits.setLevel(HAND_TO_HAND, 10);
     traits.setLevel(STEALTH_AND_COVER, 10);
     
+    traits.setLevel(DEFENSIVE, 2);
+    traits.setLevel(FEARLESS , 1);
+    
     health.initStats(
       20,  //lifespan
       species.baseBulk ,//bulk bonus

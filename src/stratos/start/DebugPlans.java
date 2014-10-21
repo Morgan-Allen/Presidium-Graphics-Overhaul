@@ -104,7 +104,7 @@ public class DebugPlans extends Scenario {
     
     final Actor patient = new Human(Backgrounds.VETERAN, base);
     patient.enterWorldAt(world.tileAt(10, 10), world);
-    patient.health.takeInjury(patient.health.maxHealth());
+    patient.health.takeInjury(patient.health.maxHealth(), false);
     
     UI.selection.pushSelection(patient, true);
   }
@@ -132,7 +132,7 @@ public class DebugPlans extends Scenario {
     //hunts.mind.assignBehaviour(Hunting.asHarvest(hunts, prey, station));
     UI.selection.pushSelection(hunts, true);
     
-    Nest.placeNests(world, Species.HAREEN, Species.QUD);
+    Nest.placeNests(world, Species.HAREEN, Species.QUDU);
   }
   
   
@@ -148,7 +148,7 @@ public class DebugPlans extends Scenario {
     
     final Actor civilian = new Human(Backgrounds.STOCK_VENDOR, base);
     civilian.enterWorldAt(world.tileAt(5, 4), world);
-    civilian.health.takeInjury(civilian.health.maxHealth() * 2);
+    civilian.health.takeInjury(civilian.health.maxHealth() * 2, true);
     
     final Base artilects = Base.baseWithName(world, Base.KEY_ARTILECTS, true);
     final Actor threat = new Tripod(artilects);
@@ -253,8 +253,8 @@ public class DebugPlans extends Scenario {
     
     final Human subject = new Human(Backgrounds.AESTHETE, base);
     subject.enterWorldAt(ruins, world);
-    subject.health.takeInjury(subject.health.maxHealth() + 1);
-    subject.health.setState(ActorHealth.STATE_STRICKEN);
+    subject.health.takeInjury(subject.health.maxHealth() + 1, true);
+    subject.health.setState(ActorHealth.STATE_DYING);
     
     UI.selection.pushSelection(lives, true);
   }

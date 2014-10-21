@@ -161,9 +161,9 @@ public class Hunting extends Combat {
     
     final float priority = priorityForActorWith(
       actor, prey, urgency,
-      harmLevel, MILD_COMPETITION,
-      RANGED_SKILLS, baseTraits,
-      NO_MODIFIER, NORMAL_DISTANCE_CHECK, REAL_FAIL_RISK,
+      NO_MODIFIER, harmLevel,
+      MILD_COMPETITION, RANGED_SKILLS,
+      baseTraits, NORMAL_DISTANCE_CHECK, REAL_FAIL_RISK,
       report
     );
     
@@ -274,12 +274,12 @@ public class Hunting extends Combat {
     final float
       before = prey.health.injuryLevel(),
       damage = actor.gear.attackDamage() * (Rand.num() + 0.5f) / 10;
-    prey.health.takeInjury(damage);
+    prey.health.takeInjury(damage, true);
     float taken = prey.health.injuryLevel() - before;
     taken *= prey.health.maxHealth();
     
     //  Then dispose of it appropriately-
-    if (! prey.health.dying()) prey.health.setState(ActorHealth.STATE_STRICKEN);
+    if (! prey.health.dying()) prey.health.setState(ActorHealth.STATE_DYING);
     actor.health.takeCalories(taken * Fauna.MEAT_CONVERSION, 1);
     return true;
   }
@@ -300,10 +300,10 @@ public class Hunting extends Combat {
     final float
       before = prey.health.injuryLevel(),
       damage = success * 2;
-    prey.health.takeInjury(damage);
+    prey.health.takeInjury(damage, true);
     final float taken = prey.health.injuryLevel() - before;
     
-    if (! prey.health.dying()) prey.health.setState(ActorHealth.STATE_STRICKEN);
+    if (! prey.health.dying()) prey.health.setState(ActorHealth.STATE_DYING);
     actor.gear.bumpItem(PROTEIN, taken * prey.health.maxHealth());
     return true;
   }

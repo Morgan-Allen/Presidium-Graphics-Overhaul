@@ -66,9 +66,9 @@ public class RoadsRepair extends Plan {
     
     return super.priorityForActorWith(
       actor, around, ROUTINE,
-      NO_HARM, FULL_COMPETITION,
-      BASE_SKILLS, BASE_TRAITS,
-      NO_MODIFIER, NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
+      NO_MODIFIER, NO_HARM,
+      FULL_COMPETITION, BASE_SKILLS,
+      BASE_TRAITS, NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
       report
     );
   }

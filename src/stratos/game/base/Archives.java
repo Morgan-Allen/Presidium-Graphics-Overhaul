@@ -1,15 +1,19 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 
 package stratos.game.base;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.building.*;
+import stratos.game.civilian.*;
+import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
-
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.building.Economy.*;
@@ -43,6 +47,13 @@ public class Archives extends Venue {
   
   public Archives(Base base) {
     super(3, 2, ENTRANCE_SOUTH, base);
+    structure.setupStats(
+      250, 3, 350,
+      Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
+    );
+    personnel.setShiftType(SHIFTS_BY_DAY);
+    
+    attachSprite(MODEL.makeSprite());
   }
   
   
@@ -59,24 +70,50 @@ public class Archives extends Venue {
   
   /**  Upgrade and economy methods-
     */
-  //  TODO:  Get rid of most of these now!
+  //  TODO:  Decide on an appropriate set of upgrades here.
+  
+  
+  
   public Background[] careers() {
-    return null;
+    return new Background[] { ARCHIVE_SAVANT };
+  }
+  
+  
+  public int numOpenings(Background b) {
+    final int nO = super.numOpenings(b);
+    if (b == ARCHIVE_SAVANT) return nO + 2;
+    return 0;
   }
   
   
   public Behaviour jobFor(Actor actor) {
-    return null;
+    if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
+    
+    return stocks.nextSpecialOrder(actor);
+    //return stocks.nextManufacture(actor, PARTS_TO_DATALINKS);
   }
   
   
   public TradeType[] services() {
-    return null;
+    return new TradeType[] { DATALINKS, SERVICE_ADMIN };
   }
   
   
-  public void addServices(Choice choice, Actor forActor) {
+  public void addServices(Choice choice, Actor actor) {
+    choice.add(new Studying(actor, this));
     
+    final Employer home = actor.mind.home();
+    if (home != null && home.inventory().shortageOf(DATALINKS) > 0) {
+      Commission.addCommissions(actor, this, choice, DATALINKS);
+    }
+  }
+  
+  
+  public void updateAsScheduled(int numUpdates) {
+    stocks.translateDemands(1, PARTS_TO_DATALINKS, this);
+    
+    structure.setAmbienceVal(5);
+    structure.assignOutputs(Item.withAmount(POWER, 3));
   }
   
   

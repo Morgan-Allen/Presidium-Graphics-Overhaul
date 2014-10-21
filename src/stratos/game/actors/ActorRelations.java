@@ -21,7 +21,7 @@ public class ActorRelations {
   private static boolean verbose = false;
   
   
-  final Actor actor;
+  final protected Actor actor;
   final Table <Accountable, Relation> relations = new Table();
   
   
@@ -123,6 +123,7 @@ public class ActorRelations {
   
   
   public float valueFor(Actor other) {
+    if (other == actor) return 1;
     final Relation r = relations.get(other);
     if (r == null) return valueFor(other.base()) / 2;
     if (r.subject == actor) return Visit.clamp(r.value() + 1, 0, 1);

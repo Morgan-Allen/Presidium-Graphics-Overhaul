@@ -93,6 +93,7 @@ public class HumanMind extends ActorMind implements Qualities {
   private static boolean verbose = false;
   
   //  Ambition, Philosophy, Allegiance.
+  private Background ambition;  //TODO:  Make location-specific too.
   
   
   
@@ -103,11 +104,18 @@ public class HumanMind extends ActorMind implements Qualities {
   
   protected void loadState(Session s) throws Exception {
     super.loadState(s);
+    ambition = (Background) s.loadObject();
   }
   
   
   protected void saveState(Session s) throws Exception {
     super.saveState(s);
+    s.saveObject(ambition);
+  }
+  
+  
+  public Background ambition() {
+    return ambition;
   }
   
   
@@ -232,7 +240,39 @@ public class HumanMind extends ActorMind implements Qualities {
       //choice.add(new Migration(actor));
     }
   }
+  
+  
+  public void updateAI(int numUpdates) {
+    super.updateAI(numUpdates);
+    
+    if (numUpdates % World.STANDARD_DAY_LENGTH == 0) {
+      updateAmbition();
+    }
+  }
+  
+  
+  private void updateAmbition() {
+    
+    Background picked = ambition;
+    float bestRating = 0;
+    if (picked != null) bestRating = Career.ratePromotion(picked, actor);
+    bestRating *= 1.5f + (actor.traits.relativeLevel(STUBBORN) / 2f);
+    
+    for (Background b : Background.allBackgrounds()) {
+      final float rating = Career.ratePromotion(b, actor);
+      if (rating > bestRating) { picked = b; bestRating = rating; }
+    }
+    
+    this.ambition = picked;
+  }
 }
+
+
+
+
+
+
+
 
 
 

@@ -91,9 +91,9 @@ public class Drilling extends Plan {
     
     final float priority = priorityForActorWith(
       actor, yard, CASUAL, //* Planet.dayValue(actor.world()),
-      NO_HARM, NO_COMPETITION,
-      baseSkills, BASE_TRAITS,
-      NO_MODIFIER, NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
+      NO_MODIFIER, NO_HARM,
+      NO_COMPETITION, baseSkills,
+      BASE_TRAITS, NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
       report
     );
     //  TODO:  VARY ASSOCIATED TRAITS (not defensive for first aid, say.)

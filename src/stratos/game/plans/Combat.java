@@ -101,8 +101,8 @@ public class Combat extends Plan implements Qualities {
     */
   final static Trait BASE_TRAITS[] = { FEARLESS, DEFENSIVE, CRUEL };
   final static Skill
-    MELEE_SKILLS[]  = { HAND_TO_HAND },//, SHIELD_AND_ARMOUR, FORMATION_COMBAT },
-    RANGED_SKILLS[] = { MARKSMANSHIP, STEALTH_AND_COVER };//, FORMATION_COMBAT };
+    MELEE_SKILLS[]  = { HAND_TO_HAND },
+    RANGED_SKILLS[] = { MARKSMANSHIP, STEALTH_AND_COVER };
   
   
   protected float getPriority() {
@@ -114,13 +114,14 @@ public class Combat extends Plan implements Qualities {
     if (object == OBJECT_DESTROY) harmLevel = EXTREME_HARM;
     
     final boolean melee = actor.gear.meleeWeapon();
-    final float appeal = CombatUtils.combatValue(subject, actor, harmLevel);
+    final float appeal = CombatUtils.hostileRating(actor, subject);
     
     final float priority = priorityForActorWith(
-      actor, subject, ROUTINE,
+      actor, subject,
+      ROUTINE, ROUTINE * ((appeal / PARAMOUNT) - 1f),
       harmLevel, FULL_COOPERATION,
       melee ? MELEE_SKILLS : RANGED_SKILLS, BASE_TRAITS,
-      appeal - ROUTINE, NORMAL_DISTANCE_CHECK, REAL_FAIL_RISK,
+      NORMAL_DISTANCE_CHECK, REAL_FAIL_RISK,
       report
     );
     
@@ -136,18 +137,15 @@ public class Combat extends Plan implements Qualities {
   
   protected float successChance() {
     final boolean report = evalVerbose && I.talkAbout == actor;
-    float chance = 0;
     
     if (subject instanceof Actor) {
       final Actor struck = (Actor) subject;
-      chance += CombatUtils.powerLevelRelative(actor, struck);
-      chance /= CombatUtils.MAX_DANGER;
+      float chance = CombatUtils.powerLevelRelative(actor, struck) / 2f;
       if (report) I.say("    Chance vs. opponent is: "+chance);
+      return Visit.clamp(chance, 0, 1);
     }
     
-    chance -= actor.base().dangerMap.sampleAt(subject);
-    if (report) I.say("    Final chance: "+chance);
-    return Visit.clamp(1 - actor.senses.fearLevel(), 0, 1);
+    else return 1;
   }
   
   
@@ -175,7 +173,7 @@ public class Combat extends Plan implements Qualities {
       return null;
     }
     
-    Target struck = CombatUtils.bestTarget(actor, subject, true, harmFactor());
+    Target struck = CombatUtils.bestTarget(actor, subject, true);
     if (struck == null) struck = subject;
 
     //  If we're not in pursuit, call off the activity when or if the enemy is
@@ -314,40 +312,62 @@ public class Combat extends Plan implements Qualities {
     boolean subdue
   ) {
     final boolean report = damageVerbose && I.talkAbout == actor;
+    if (report) I.say("\n"+actor+" performing strike against "+target);
     
     //  TODO:  Move weapon/armour properties to dedicated subclasses.
     final boolean canStun = actor.gear.hasDeviceProperty(Economy.STUN);
     float penalty = 0, damage = 0;
-    penalty -= rangePenalty(actor, target);
-    if (subdue && ! canStun) penalty -= 5;
+    penalty = rangePenalty(actor, target);
+    final float bypass = Visit.clamp(0 - penalty, 0, 5);
+    if (subdue && ! canStun) penalty += 5;
+    
     
     final boolean success = target.health.conscious() ? actor.skills.test(
-      offence, target, defence, penalty, 1
+      offence, target, defence, 0 - penalty, 1
     ) : true;
+    
+    if (report) {
+      I.say("  Max. damage:    "+actor.gear.attackDamage()+", stun: "+canStun);
+      I.say("  Vs. Armour:     "+target.gear.armourRating()+", pass "+bypass);
+      I.say("  Range penalty:  "+penalty+", success? "+success);
+    }
       
     if (success) {
-      damage = actor.gear.attackDamage() * Rand.avgNums(2);
-      final float absorb = target.gear.armourRating() * Rand.avgNums(2);
-      damage -= absorb;
+      damage = actor.gear.attackDamage() * Rand.num();
+      final float afterShields = target.gear.afterShields(
+        damage, actor.gear.physicalWeapon()
+      );
+      final float
+        armourSoak  = (target.gear.armourRating() * Rand.num()) - bypass,
+        afterArmour = Visit.clamp(afterShields - armourSoak, 0, damage);
       
-      if (report) I.say("Damage/absorbed: "+damage+"/"+absorb);
-      
-      final float oldDamage = damage;
-      damage = target.gear.afterShields(damage, actor.gear.physicalWeapon());
-      final boolean hit = damage > 0;
-      if (damage != oldDamage) {
+      if (report) {
+        I.say("  Base damage:    "+damage      );
+        I.say("  After shields:  "+afterShields);
+        I.say("  Armour absorbs: "+armourSoak  );
+        I.say("  Final total:    "+afterArmour );
+      }
+      if (damage != afterArmour) {
+        final boolean hit = damage > 0;
         OutfitType.applyFX(target.gear.outfitType(), target, actor, hit);
       }
+      damage = afterArmour;
     }
     
     if (damage > 0 && ! GameSettings.noBlood) {
-      if (subdue && canStun) target.health.takeFatigue(damage);
-      else if (subdue || canStun) {
-        target.health.takeFatigue(damage / 2);
-        target.health.takeInjury(damage / 2);
+      //  TODO:  Allow for wear and tear to weapons/armour over time.
+      
+      float fatDamage = 0, injDamage = 0;
+      if (subdue && canStun) fatDamage = damage;
+      else if (subdue || canStun) fatDamage = injDamage = damage / 2;
+      else injDamage = damage;
+      
+      if (report) {
+        I.say("  Fatigue damage: "+fatDamage);
+        I.say("  Injury damage:  "+injDamage);
       }
-      else target.health.takeInjury(damage);
-      //  TODO:  Allow for wear and tear to weapons/armour over time...
+      if (injDamage > 0) target.health.takeInjury (injDamage, false);
+      if (fatDamage > 0) target.health.takeFatigue(fatDamage       );
     }
     
     CombatFX.applyFX(actor.gear.deviceType(), actor, target, success);
@@ -384,8 +404,15 @@ public class Combat extends Plan implements Qualities {
   
   
   static float rangePenalty(Actor a, Target t) {
-    final float range = Spacing.distance(a, t) / 2;
-    return range * 5 / (a.health.sightRange() + 1f);
+    final boolean report = damageVerbose && I.talkAbout == a;
+    
+    final float range = Spacing.distance(a, t);
+    if (report) {
+      I.say("  Target range:   "+range);
+      I.say("  Sight range:    "+a.health.sightRange());
+    }
+    
+    return ((range / (a.health.sightRange() + 1f)) - 1) * 5;
   }
   
   

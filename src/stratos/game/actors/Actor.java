@@ -40,7 +40,7 @@ public abstract class Actor extends Mobile implements
   
   final public ActorMind mind = initAI();
   final public Senses senses = initSenses();
-  final public ActorRelations relations = initMemories();
+  final public ActorRelations relations = initRelations();
   
   private Action actionTaken;
   private Base base;
@@ -87,7 +87,7 @@ public abstract class Actor extends Mobile implements
   protected abstract ActorMind initAI();
   
   protected Senses initSenses() { return new Senses(this); }
-  protected ActorRelations initMemories() { return new ActorRelations(this); }
+  protected ActorRelations initRelations() { return new ActorRelations(this); }
   protected Pathing initPathing() { return new Pathing(this); }
   
   public float height() {
@@ -339,12 +339,10 @@ public abstract class Actor extends Mobile implements
   
   
   public float hostilityTo(Target subject) {
-    if (mind.rootBehaviour() instanceof Plan) {
-      final Plan root = (Plan) mind.rootBehaviour();
-      if (subject != null && root.subject != subject) return 0;
-      return root.harmFactor();
-    }
-    return 0;
+    final Behaviour root = mind.rootBehaviour();
+    if (! (root instanceof Plan)) return 0;
+    if (subject != null && root.subject() != subject) return 0;
+    return ((Plan) root).harmFactor();
   }
   
   

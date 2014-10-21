@@ -113,9 +113,9 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     
     final float priority = priorityForActorWith(
       actor, onPoint, urgency,
-      MILD_HELP, NO_COMPETITION,
-      BASE_SKILLS, BASE_TRAITS,
-      NO_MODIFIER, NORMAL_DISTANCE_CHECK, MILD_FAIL_RISK,
+      NO_MODIFIER, MILD_HELP,
+      NO_COMPETITION, BASE_SKILLS,
+      BASE_TRAITS, NORMAL_DISTANCE_CHECK, MILD_FAIL_RISK,
       report
     );
     return priority;
@@ -136,7 +136,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     //  or should be performing (first aid, repairs, or defence.)
     final Choice choice = new Choice(actor);
     final Target threat = CombatUtils.bestTarget(
-      actor, onPoint, false, Plan.REAL_HARM
+      actor, onPoint, false
     );
     if (threat != null) {
       choice.add(new Combat(actor, (Element) threat));

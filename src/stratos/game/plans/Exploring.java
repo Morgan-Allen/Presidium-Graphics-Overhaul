@@ -75,9 +75,9 @@ public class Exploring extends Plan implements Qualities {
     
     final float priority = priorityForActorWith(
       actor, lookedAt, CASUAL * Planet.dayValue(actor.world()),
-      NO_HARM, MILD_COMPETITION,
-      BASE_SKILLS, BASE_TRAITS,
-      NO_MODIFIER, HEAVY_DISTANCE_CHECK, NO_FAIL_RISK,
+      NO_MODIFIER, NO_HARM,
+      MILD_COMPETITION, BASE_SKILLS,
+      BASE_TRAITS, HEAVY_DISTANCE_CHECK, NO_FAIL_RISK,
       report
     );
     return priority;
