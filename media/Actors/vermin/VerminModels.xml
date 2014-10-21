@@ -23,22 +23,41 @@
   </animations>
 </model>
 
-
-
 <model
   name="Roachman"
   format="MS3D"
   type="JOINT"
   path="media/Actors/vermin/"
   file="Roachman2.ms3d"
-  scale="0.06"
-  bound="2"
-  stride="0.6"
-  height="1.2"
+  scale="0.2"
+  bound="2.5"
+  stride="1.5"
+  height="2.5"
 >
   <animations fps="25">
-    <animation name="stand"      start="0"  end="0"   duration="0.5" />
+    <animation name="move start" start="0"   end="11"  duration="1" />
+    <animation name="move"       start="11"  end="38"  duration="1" />
+    <animation name="move stop"  start="38"  end="50"  duration="1" />
+    
+    <animation name="move fast start"  start="50"  end="58"  duration="1" />
+    <animation name="move fast"        start="58"  end="78"  duration="1" />
+    <animation name="move fast stop"   start="78"  end="91"  duration="1" />
+    
+    <animation name="move sneak start" start="91"   end="101"  duration="1" />
+    <animation name="move sneak"       start="101"  end="139"  duration="1" />
+    <animation name="move sneak stop"  start="139"  end="151"  duration="1" />
+    
+    <animation name="strike"  start="151"  end="191"  duration="1" />
+    <animation name="feeding" start="191"  end="366"  duration="1" />
+    <animation name="idle"    start="366"  end="416"  duration="1" />
+    <animation name="groom"   start="416"  end="526"  duration="1" />
+    <animation name="look"    start="526"  end="701"  duration="1" />
+    <animation name="die"     start="701"  end="741"  duration="1" />
   </animations>
+  
+  <attachPoints>
+  <attachPoint function="target" joint="head"/>
+  </attachPoints>
 </model>
 
 
