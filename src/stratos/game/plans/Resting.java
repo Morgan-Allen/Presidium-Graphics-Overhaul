@@ -232,11 +232,7 @@ public class Resting extends Plan {
   /**  Rendering and interface-
     */
   public void describeBehaviour(Description d) {
-    final boolean noLoc =
-      restPoint == actor ||
-      restPoint == null ||
-      restPoint == actor.aboard();
-    if (noLoc) {
+    if (restPoint == actor || restPoint == null) {
       if (currentMode == MODE_DINE) d.append("Dining");
       else d.append("Resting");
       return;

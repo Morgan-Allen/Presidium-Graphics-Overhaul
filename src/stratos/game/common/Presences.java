@@ -139,6 +139,7 @@ public class Presences {
   
   
   public Iterable matchesNear(Object service, Target client, Box2D area) {
+    if (service == null) return nullStack;
     final PresenceMap map = allMaps.get(service);
     if (map == null) return nullStack;
     return map.visitNear(world.tileAt(client), -1, area);

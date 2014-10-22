@@ -1,6 +1,7 @@
 
 
 package stratos.start;
+import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.game.base.*;
@@ -32,7 +33,6 @@ import stratos.util.*;
 //  Test study behaviour at the archives.
 
 //  Fix bug with stripping/paving of roads happening at same time.
-//  Fix bug with resting in random locations.
 
 //  Remove combat from wandering behaviours (make part of exploration, not
 //  patrolling.)
@@ -112,6 +112,20 @@ public class DebugPlacing extends Scenario {
     GameSettings.hireFree  = true;
     GameSettings.buildFree = true;
     GameSettings.fogFree   = true;
+    
+    
+    final ExcavationSite station = new ExcavationSite(base);
+    final Human worksA, worksB;
+    Placement.establishVenue(
+      station, 8, 8, true, world,
+      worksA = new Human(Backgrounds.EXCAVATOR, base),
+      worksB = new Human(Backgrounds.EXCAVATOR, base)
+    );
+    worksA.goAboard(station.mainEntrance(), world);
+    worksB.goAboard(station.mainEntrance(), world);
+    
+    UI.selection.pushSelection(worksB, true);
+    
     
     /*
     final EcologistStation station = new EcologistStation(base);

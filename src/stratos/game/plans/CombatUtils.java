@@ -11,7 +11,7 @@ import static stratos.game.actors.Qualities.*;
 
 
 //  TODO:  JUST CACHE THREAT RATINGS LIKE YOU DO STRENGTH RATINGS, WITHOUT
-//         DISTANCE FACTORS.
+//         DISTANCE FACTORS?
 
 
 public class CombatUtils {
@@ -169,27 +169,31 @@ public class CombatUtils {
     Actor actor, Target primary, boolean asThreat
   ) {
     final boolean report = threatsVerbose && I.talkAbout == actor;
-    
-    Target best = null;
-    float bestValue = 0;
-    final boolean melee = actor.gear.meleeWeapon();
-    
-    if (asThreat) {
-      best = primary;
-      bestValue = hostileRating(actor, primary) * 1.5f;
+    if (report) {
+      I.say("\nGetting best target for "+actor+" around "+primary);
+      I.say("  Treating as threat? "+asThreat);
     }
+    
+    final boolean melee = actor.gear.meleeWeapon();
+    Target best = asThreat ? primary : null;
+    float bestValue = asThreat ? (hostileRating(actor, primary) * 1.5f) : 0;
     
     for (Target t : actor.senses.awareOf()) {
       final float distance = Spacing.distance(t, primary);
       if (distance > World.SECTOR_SIZE) continue;
-
-      float value = hostileRating(actor, t);
       
+      float value = hostileRating(actor, t);
+      if (value <= 0) continue;
       if (melee) value /= 1 + distance;
       else       value /= 1 + (distance / (World.SECTOR_SIZE / 2));
+      
+      if (report) {
+        I.say("  Value for "+t+" is "+value);
+      }
       if (value > bestValue) { bestValue = value; best = t; }
     }
     
+    if (report) I.say("  Final pick: "+best+", rating: "+bestValue);
     return bestValue >= 0 ? best : null;
   }
 }

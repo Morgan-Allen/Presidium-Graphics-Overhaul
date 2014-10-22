@@ -87,7 +87,7 @@ public class FirstAid extends Plan {
   
   
   private static Boarding findRefuge(Actor actor) {
-    final Target t = Retreat.nearestHaven(actor, PhysicianStation.class);
+    final Target t = Retreat.nearestHaven(actor, PhysicianStation.class, false);
     if (t instanceof Venue) return (Venue) t;
     return null;
   }

@@ -195,8 +195,8 @@ public class HumanMind extends ActorMind implements Qualities {
       choice.add(new Resting(actor, home));
     }
     else {
-      final Target hidesAt = Retreat.nearestHaven(actor, null);
-      choice.add(new Resting(actor, hidesAt));
+      final Target restsAt = Retreat.nearestHaven(actor, null, false);
+      choice.add(new Resting(actor, restsAt));
     }
   }
   

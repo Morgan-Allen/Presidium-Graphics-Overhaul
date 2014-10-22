@@ -163,18 +163,23 @@ public class Combat extends Plan implements Qualities {
   protected Behaviour getNextStep() {
     final boolean report = eventsVerbose && I.talkAbout == actor && hasBegun();
     if (report) {
-      I.say("NEXT COMBAT STEP "+this.hashCode());
+      I.say("\nNEXT COMBAT STEP "+this.hashCode());
     }
     //
     //  This might need to be tweaked in cases of self-defence, where you just
     //  want to see off an attacker.
     if (CombatUtils.isDowned(subject, object)) {
-      if (report) I.say("COMBAT COMPLETE");
+      if (report) I.say("  COMBAT COMPLETE");
       return null;
     }
     
     Target struck = CombatUtils.bestTarget(actor, subject, true);
     if (struck == null) struck = subject;
+    
+    if (report) {
+      I.say("  Main target: "+this.subject);
+      I.say("  Struck is: "+struck);
+    }
 
     //  If we're not in pursuit, call off the activity when or if the enemy is
     //  in retreat.
@@ -224,6 +229,7 @@ public class Combat extends Plan implements Qualities {
     Action strike, boolean razes, float danger
   ) {
     ///if (eventsVerbose) I.sayAbout(actor, "Configuring melee attack.\n");
+    
     final Element struck = (Element) strike.subject();
     final World world = actor.world();
     strike.setProperties(Action.QUICK);
@@ -288,7 +294,7 @@ public class Combat extends Plan implements Qualities {
     if (target.health.dying()) return false;
     final boolean subdue = object == OBJECT_SUBDUE;
     //
-    //  TODO:  You may want a separate category for animals.
+    //  TODO:  You may want a separate category for animals?  Or Psy?
     if (actor.gear.meleeWeapon()) {
       performStrike(actor, target, HAND_TO_HAND, HAND_TO_HAND, subdue);
     }

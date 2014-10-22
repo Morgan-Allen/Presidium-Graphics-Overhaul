@@ -101,7 +101,6 @@ public class Habitat {
       "estuary_ground.png", FOREST_FLORA_MODELS,
       1, true, MOISTURE, 7, INSOLATION, 7, MINERALS, 2
     ),
-
     MEADOW = new Habitat("Meadow",
       "meadows_ground.gif", FOREST_FLORA_MODELS,
       0, true, MOISTURE, 6, INSOLATION, 5, MINERALS, 3

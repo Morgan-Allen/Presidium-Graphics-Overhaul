@@ -35,7 +35,7 @@ public class Retreat extends Plan implements Qualities {
   
   
   public Retreat(Actor actor) {
-    this(actor, nearestHaven(actor, null));
+    this(actor, nearestHaven(actor, null, true));
   }
   
   
@@ -123,13 +123,43 @@ public class Retreat extends Plan implements Qualities {
   }
   
   
-  public static Boarding nearestHaven(Actor actor, Class prefClass) {
+  public static Boarding nearestHaven(
+    final Actor actor, Class prefClass, final boolean emergency
+  ) {
+    final Pick <Target> pick = new Pick <Target> () {
+      
+      public void compare(Target next, float rating) {
+        if (next == null) return;
+        //  TODO:  Add some random salt here?
+        final float dist = Spacing.distance(actor, next) / World.SECTOR_SIZE;
+        super.compare(next, rating - (dist * (emergency ? 5 : 2)));
+      }
+    };
     
-    //  TODO:  Increase the range of options here.
+    pick.compare(actor.mind.home(), 10);
+    pick.compare(actor.mind.work(), 5 );
     
-    return (Tile) pickWithdrawPoint(
-      actor, actor.health.sightRange() + World.SECTOR_SIZE, actor, false
+    final Presences presences = actor.world().presences;
+    final Target refuge = presences.nearestMatch(
+      Economy.SERVICE_REFUGE, actor, -1
     );
+    final Target pref   = presences.nearestMatch(
+      prefClass             , actor, -1
+    );
+    final Target cover  = presences.nearestMatch(
+      Venue.class           , actor, -1
+    );
+    pick.compare(refuge, emergency ? 5 : 10);
+    pick.compare(pref  , 10                );
+    pick.compare(cover , emergency ? 1 : 2 );
+    
+    final Tile ground = emergency ? (Tile) pickWithdrawPoint(
+      actor, actor.health.sightRange() + World.SECTOR_SIZE,
+      actor, false
+    ) : null;
+    pick.compare(ground, 0);
+    
+    return (Boarding) pick.result();
   }
   
   
@@ -187,7 +217,7 @@ public class Retreat extends Plan implements Qualities {
       safePoint == null || actor.aboard() == safePoint ||
       safePoint.pathType() == Tile.PATH_BLOCKS
     ) {
-      safePoint = nearestHaven(actor, null);
+      safePoint = nearestHaven(actor, null, urgent);
     }
     if (safePoint == null) {
       abortBehaviour();
