@@ -72,7 +72,6 @@ public class Smelter extends Venue {
   
   
   //final public ExcavationSite parent;
-  //final public TradeType output;
   protected ExcavationSite parent;
   protected TradeType output;
   private int oldProgress = 0;
@@ -83,7 +82,6 @@ public class Smelter extends Venue {
     super(3, 2, ENTRANCE_WEST, base);
     structure.setupStats(75, 6, 150, 0, Structure.TYPE_FIXTURE);
     //this.parent = parent;
-    //this.output = mined;
   }
   
   
@@ -99,7 +97,6 @@ public class Smelter extends Venue {
     super.saveState(s);
     s.saveObject(parent);
     s.saveObject(output);
-    //s.saveTargetArray(strip);
     s.saveInt(oldProgress);
   }
   

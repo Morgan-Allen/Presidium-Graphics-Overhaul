@@ -42,7 +42,6 @@ public class ExcavationSite extends Venue implements
     DIG_LIMITS[] = { 8, 12, 15, 16 },
     DIG_FACE_REFRESH = World.STANDARD_DAY_LENGTH / 10,
     SMELTER_REFRESH  = 10;
-  
   /*
   final static FacilityProfile PROFILE = new FacilityProfile(
     ExcavationSite.class, Structure.TYPE_VENUE,

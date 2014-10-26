@@ -16,8 +16,8 @@ import stratos.util.*;
 
 
 
-//  Set up exclusion zone around kommando lodge, ecologist station, and
-//  excavation shaft.  Get surface mines and plantations working inside.
+//  Set up exclusion zone around kommando lodge and excavation shaft.  Get
+//  surface mines working inside.
 
 //  Fix bug with stripping/paving of roads happening at same time.  It doesn't
 //  show up often, so just keep an eye out for it.
@@ -126,8 +126,8 @@ public class DebugPlacing extends Scenario {
     //GameSettings.fogFree   = true;
     
     if (false) configRoadsTest(world, base, UI);
-    if (false) configMinesTest(world, base, UI);
-    if (true ) configPlantTest(world, base, UI);
+    if (true ) configMinesTest(world, base, UI);
+    if (false) configPlantTest(world, base, UI);
   }
   
   

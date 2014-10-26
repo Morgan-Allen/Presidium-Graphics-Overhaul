@@ -48,7 +48,6 @@
   </animations>
 </model>
 
-
 <model
   name="Micovore"
   format="MS3D"
@@ -60,15 +59,14 @@
   stride="0.6"
   height="1.5"
 >
-  <animations>
-    <animation name="stand"      start="0"  end="0"  duration="0.5" />
-    <animation name="move"       start="2"  end="14" duration="1.0" />
-    <animation name="strike"     start="15" end="19" duration="0.4" />
-    <animation name="fall"       start="20" end="26" duration="1.5" />
-    
-    <animation name="look"       start="15" end="19" duration="0.4" />
-    <animation name="move_sneak" start="2"  end="14" duration="1.0" />
-    <animation name="move_fast"  start="2"  end="14" duration="1.0" />
+  <animations fps="1">
+    <animation name="walk start" start="0"   end="11"  duration="1" />
+    <animation name="walk"       start="11"  end="40"  duration="1" />
+    <animation name="walk stop"  start="41"  end="52"  duration="1" />
+    <animation name="build"      start="52"  end="142" duration="1" />
+    <animation name="idle"       start="142" end="192" duration="1" />
+    <animation name="attack"     start="192" end="215" duration="1" />
+    <animation name="die"        start="215" end="265" duration="1" />
   </animations>
 </model>
 
