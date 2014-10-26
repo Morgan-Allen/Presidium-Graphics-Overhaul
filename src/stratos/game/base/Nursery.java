@@ -276,18 +276,23 @@ public class Nursery extends Venue implements TileConstants {
     );
     choice.add(d);
     
-    /*
-    final Forestry f = new Forestry(actor, this);
-    f.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
-    f.configureFor(Forestry.STAGE_GET_SEED);
-    choice.add(f);
-    //*/
     
-    //  TODO:  Collect seeds from the nearest ecologist station if you can!
+    final Batch <Item> seedTypes = new Batch <Item> ();
+    for (Species s : Crop.ALL_VARIETIES) {
+      final Item seed = Item.withReference(SAMPLES, s);
+      if (stocks.hasItem(seed)) continue;
+      seedTypes.add(seed);
+    }
+    
+    for (Object t : world.presences.sampleFromMap(
+      this, world, 3, null, EcologistStation.class
+    )) {
+      final EcologistStation station = (EcologistStation) t;
+      final Delivery seedD = new Delivery(seedTypes, station, this);
+      choice.add(seedD);
+    }
     
     choice.add(new Farming(actor, this));
-    
-    //I.say("Plantation choices: "+choice.size());
     
     return choice.pickMostUrgent();
   }

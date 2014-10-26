@@ -100,17 +100,6 @@ public class Farming extends Plan {
     final Action returns = returnHarvestAction(5);
     if (returns != null) return returns;
     
-    //  If you're out of gene seed, and there's any in the nursery, pick up
-    //  some more-
-    if (nextSeedNeeded() != null) {
-      final Action pickup = new Action(
-        actor, nursery,
-        this, "actionCollectSeed",
-        Action.REACH_DOWN, "Collecting seed"
-      );
-      return pickup;
-    }
-    
     //  Find the next tile for seeding, tending or harvest.
     final boolean canPlant = nursery.needForTending() > 0 && canPlant();
     float minDist = Float.POSITIVE_INFINITY, dist;
@@ -130,6 +119,17 @@ public class Farming extends Plan {
     if (report) {
       I.say("  Tiles claimed: "+nursery.toPlant().length);
       I.say("  TILE TO PLANT: "+toPlant);
+    }
+    
+    //  If you're out of raw seed, and there's any in the nursery, and there's
+    //  planting to be done, pick up some seed.
+    if (toPlant != null && nextSeedNeeded() != null) {
+      final Action pickup = new Action(
+        actor, nursery,
+        this, "actionCollectSeed",
+        Action.REACH_DOWN, "Collecting seed"
+      );
+      return pickup;
     }
     
     if (toPlant != null) {
@@ -232,6 +232,9 @@ public class Farming extends Plan {
   }
   
   
+  
+  /**  Action Implementations-
+    */
   public boolean actionPlant(Actor actor, Crop crop) {
     if (crop.origin().owningType() >= nursery.owningType()) return false;
     
