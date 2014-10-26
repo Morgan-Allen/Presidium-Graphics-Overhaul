@@ -22,12 +22,15 @@ import static stratos.game.building.Economy.*;
 public class Farming extends Plan {
   
   
-  private static boolean verbose = true;
+  private static boolean
+    evalVerbose = false,
+    stepVerbose = false;
   
-  final Plantation nursery;
+  final Nursery nursery;
   
   
-  public Farming(Actor actor, Plantation plantation) {
+  
+  public Farming(Actor actor, Nursery plantation) {
     super(actor, plantation, true);
     this.nursery = plantation;
   }
@@ -35,7 +38,7 @@ public class Farming extends Plan {
   
   public Farming(Session s) throws Exception {
     super(s);
-    nursery = (Plantation) s.loadObject();
+    nursery = (Nursery) s.loadObject();
   }
   
   
@@ -58,8 +61,8 @@ public class Farming extends Plan {
   
 
   protected float getPriority() {
-    final boolean report = verbose && I.talkAbout == actor;
-    if ((! hasBegun()) && nursery.personnel.assignedTo(this) > 0) {
+    final boolean report = evalVerbose && I.talkAbout == actor;
+    if ((! hasBegun()) && Plan.competition(this, nursery, actor) > 0) {
       return 0;
     }
     
@@ -85,13 +88,17 @@ public class Farming extends Plan {
   
   
   public Behaviour getNextStep() {
-    //
+    final boolean report = stepVerbose && I.talkAbout == actor;
+    
+    if (report) {
+      I.say("\nGETTING NEXT FARMING STEP");
+      I.say("  Need for tending: "+nursery.needForTending());
+      I.say("  Sum of harvest:   "+sumHarvest());
+    }
+    
     //  If you've harvested enough, bring it back to the depot-
     final Action returns = returnHarvestAction(5);
     if (returns != null) return returns;
-    if (nursery.needForTending() == 0 || ! canPlant()) {
-      return returnHarvestAction(0);
-    }
     
     //  If you're out of gene seed, and there's any in the nursery, pick up
     //  some more-
@@ -105,10 +112,11 @@ public class Farming extends Plan {
     }
     
     //  Find the next tile for seeding, tending or harvest.
+    final boolean canPlant = nursery.needForTending() > 0 && canPlant();
     float minDist = Float.POSITIVE_INFINITY, dist;
     Tile toPlant = null;
     
-    for (Tile t : nursery.toPlant()) {
+    if (canPlant) for (Tile t : nursery.toPlant()) {
       if (t.owningType() >= nursery.owningType()) continue;
       
       final Crop c = nursery.plantedAt(t);
@@ -117,6 +125,11 @@ public class Farming extends Plan {
         if (Spacing.edgeAdjacent(t, actor.origin())) dist /= 2;
         if (dist < minDist) { toPlant = t; minDist = dist; }
       }
+    }
+    
+    if (report) {
+      I.say("  Tiles claimed: "+nursery.toPlant().length);
+      I.say("  TILE TO PLANT: "+toPlant);
     }
     
     if (toPlant != null) {
@@ -150,7 +163,9 @@ public class Farming extends Plan {
       plants.setMoveTarget(Spacing.nearestOpenTile(toPlant, actor));
       return plants;
     }
-    return null;
+    
+    //  If you've harvested anything else, deliver that back to the depot.
+    return returnHarvestAction(0);
   }
   
   
@@ -209,7 +224,7 @@ public class Farming extends Plan {
   }
   
   
-  public boolean actionCollectSeed(Actor actor, Plantation nursery) {
+  public boolean actionCollectSeed(Actor actor, Nursery nursery) {
     Item seed = nextSeedNeeded();
     if (seed == null) return false;
     actor.gear.addItem(nursery.stocks.bestSample(seed, 1));
@@ -246,7 +261,7 @@ public class Farming extends Plan {
     //  So does expertise and elbow grease.
     health += actor.skills.test(CULTIVATION, plantDC, 1) ? 1 : 0;
     health += actor.skills.test(HARD_LABOUR, ROUTINE_DC, 1) ? 1 : 0;
-    health *= Plantation.MAX_HEALTH_BONUS / 5;
+    health *= Nursery.MAX_HEALTH_BONUS / 5;
     final Species s = pickSpecies(crop.origin());
     crop.seedWith(s, health);
     return true;

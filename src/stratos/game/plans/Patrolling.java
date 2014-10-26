@@ -23,12 +23,12 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   
   /**  Fields, constructors, and save/load methods-
     */
-  final public static int
+  final static int
     TYPE_SECURITY      = 0,
     TYPE_STREET_PATROL = 1,
-    TYPE_SENTRY_DUTY   = 2,
-    TYPE_WANDERING     = 3,
-    
+    TYPE_SENTRY_DUTY   = 2;
+    //TYPE_WANDERING     = 3,
+  final static int
     WATCH_TIME = 10;
   
   
@@ -95,21 +95,16 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (onPoint == null) return 0;
     
-    float urgency;
-    if (type == TYPE_WANDERING) {
-      urgency = IDLE * Planet.dayValue(actor.world());
+    float urgency, relDanger = 0;
+    
+    if (actor.base() != null) for (Target t : patrolled) {
+      relDanger += Plan.dangerPenalty(t, actor);
     }
-    else {
-      //  Favour patrols through more (relatively) dangerous areas.
-      float relDanger = 0;
-      if (actor.base() != null) for (Target t : patrolled) {
-        relDanger += Plan.dangerPenalty(t, actor);
-      }
-      relDanger /= patrolled.size();
-      if (relDanger < 0) relDanger = 0;
-      urgency = relDanger * ROUTINE;
-      if (urgency < IDLE) urgency = IDLE;
-    }
+    relDanger /= patrolled.size();
+    if (relDanger < 0) relDanger = 0;
+    
+    urgency = relDanger * ROUTINE;
+    if (urgency < IDLE) urgency = IDLE;
     
     final float priority = priorityForActorWith(
       actor, onPoint, urgency,
@@ -244,12 +239,14 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   
   /**  External factory methods-
     */
+  /*
   public static Patrolling wandering(Actor actor) {
     final List<Target> patrolled = new List<Target>();
     final float range = actor.health.sightRange() + actor.aboard().radius();
     patrolled.add(Spacing.pickRandomTile(actor, range, actor.world()));
     return new Patrolling(actor, actor, patrolled, TYPE_WANDERING);
   }
+  //*/
   
   
   public static Patrolling aroundPerimeter(
@@ -421,9 +418,6 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   /**  Rendering and interface methods-
     */
   public void describeBehaviour(Description d) {
-    if (type == TYPE_WANDERING) {
-      d.append("Wandering");
-    }
     if (type == TYPE_SECURITY) {
       d.append("Securing perimeter for ");
       d.append(guarded);

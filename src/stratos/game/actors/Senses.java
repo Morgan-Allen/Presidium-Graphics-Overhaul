@@ -5,6 +5,7 @@ package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.game.plans.Combat;
 import stratos.game.plans.CombatUtils;
+import stratos.game.plans.Retreat;
 import stratos.game.tactical.*;
 import stratos.game.building.*;
 import stratos.util.*;
@@ -32,6 +33,7 @@ public class Senses implements Qualities {
   private boolean emergency  = false;
   private float   powerLevel = -1   ;
   private float   fearLevel  = -1   ;
+  private Target  safePoint  = null ;
   
   
   protected Senses(Actor actor) {
@@ -45,9 +47,10 @@ public class Senses implements Qualities {
       awares.put(e, s.loadObject());
       awareOf.add(e);
     }
-    emergency  = s.loadBool ();
-    powerLevel = s.loadFloat();
-    fearLevel  = s.loadFloat();
+    emergency  = s.loadBool  ();
+    powerLevel = s.loadFloat ();
+    fearLevel  = s.loadFloat ();
+    safePoint  = s.loadTarget();
   }
   
   
@@ -57,9 +60,10 @@ public class Senses implements Qualities {
       s.saveTarget(e);
       s.saveObject(awares.get(e));
     }
-    s.saveBool (emergency );
-    s.saveFloat(powerLevel);
-    s.saveFloat(fearLevel );
+    s.saveBool  (emergency );
+    s.saveFloat (powerLevel);
+    s.saveFloat (fearLevel );
+    s.saveTarget(safePoint );
   }
   
   
@@ -177,11 +181,8 @@ public class Senses implements Qualities {
       final Behaviour b = a.mind.rootBehaviour();
       return b == null ? a : b;
     }
-    if (seen instanceof Element) {
-      return (Element) seen;
-    }
-    if (seen instanceof Tile) {
-      return (Tile) seen;
+    if (seen instanceof Session.Saveable) {
+      return (Session.Saveable) seen;
     }
     return null;
   }
@@ -259,11 +260,13 @@ public class Senses implements Qualities {
     
     fearLevel = sumFoes / (sumFoes + sumAllies);
     fearLevel += actor.base().dangerMap.sampleAt(actor);
+    safePoint = Retreat.nearestHaven(actor, null, emergency);
     
     if (report) {
-      I.say("Sum allies: "+sumAllies);
-      I.say("Sum of foes: "+sumFoes);
-      I.say("Fear level: "+fearLevel);
+      I.say("Sum allies:  "+sumAllies);
+      I.say("Sum foes:    "+sumFoes  );
+      I.say("Fear level:  "+fearLevel);
+      I.say("Safe point:  "+safePoint);
     }
   }
   
@@ -280,6 +283,11 @@ public class Senses implements Qualities {
   
   public float fearLevel() {
     return fearLevel;
+  }
+  
+  
+  public Boarding haven() {
+    return (Boarding) safePoint;
   }
   
   

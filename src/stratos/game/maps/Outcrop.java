@@ -127,7 +127,7 @@ public class Outcrop extends Fixture {// implements Selectable {
     //  put this here.  TODO:  Move the location-verification code from the
     //  TerrainGen class to here?  ...Might be neater.
     final World world = origin().world;
-    for (Tile t : world.tilesIn(area(), false)) {
+    for (Tile t : world.tilesIn(footprint(), false)) {
       if (t == null || t.blocked()) return false;
       if (type == TYPE_DUNE && t.habitat() != Habitat.DUNE) return false;
     }

@@ -19,21 +19,20 @@ import static stratos.game.building.Economy.*;
 public class Crop extends Fixture {
   
   
-  //  TODO:  Consider resizing these a bit.
   final static String IMG_DIR = "media/Buildings/ecologist/";
   final static CutoutModel
     COVERING_LEFT = CutoutModel.fromImage(
-      Plantation.class, IMG_DIR+"covering_left.png", 1, 1
+      Nursery.class, IMG_DIR+"covering_left.png", 1, 1
     ),
     COVERING_RIGHT = CutoutModel.fromImage(
-      Plantation.class, IMG_DIR+"covering_right.png", 1, 1
+      Nursery.class, IMG_DIR+"covering_right.png", 1, 1
     ),
     CROP_MODELS[][] = CutoutModel.fromImageGrid(
-      Plantation.class, IMG_DIR+"all_crops.png",
+      Nursery.class, IMG_DIR+"all_crops.png",
       4, 4, 0.5f, 0.5f
     ),
     GRUB_BOX_MODEL = CutoutModel.fromImage(
-      Plantation.class, IMG_DIR+"grub_box.png", 0.5f, 0.5f
+      Nursery.class, IMG_DIR+"grub_box.png", 0.5f, 0.5f
     );
   
   
@@ -64,13 +63,14 @@ public class Crop extends Fixture {
   };
   
   
-  final public Plantation parent;  //  Get rid of this...
+  final public Nursery parent;
+  
   private Species species;
   private float growStage, quality;
-  private boolean blighted;
+  private boolean blighted, covered;
   
   
-  public Crop(Plantation parent, Species species) {
+  public Crop(Nursery parent, Species species) {
     super(1, 1);
     this.parent = parent;
     this.species = species;
@@ -82,20 +82,35 @@ public class Crop extends Fixture {
   public Crop(Session s) throws Exception {
     super(s);
     s.cacheInstance(this);
-    parent = (Plantation) s.loadObject();
-    species = (Species) s.loadObject();
+    parent    = (Nursery) s.loadObject();
+    species   = (Species) s.loadObject();
     growStage = s.loadFloat();
-    quality = s.loadFloat();
+    quality   = s.loadFloat();
+    blighted  = s.loadBool ();
+    covered   = s.loadBool ();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(parent);
-    s.saveObject(species);
-    s.saveFloat(growStage);
-    s.saveFloat(quality);
+    s.saveObject(parent   );
+    s.saveObject(species  );
+    s.saveFloat (growStage);
+    s.saveFloat (quality  );
+    s.saveBool  (blighted );
+    s.saveBool  (covered  );
   }
+  
+  
+  public int pathType() {
+    return Tile.PATH_HINDERS;
+  }
+  
+  
+  public int owningType() {
+    return Element.ELEMENT_OWNS;
+  }
+  
   
   
   /**  Growth calculations-
@@ -174,9 +189,9 @@ public class Crop extends Fixture {
     //  First, apply appropriate modifier for microclimate-
     final float moisture = t.habitat().moisture() / 10f;
     if (isDryland(s)) {
-      bonus = Plantation.DRYLAND_MULT * (1 + moisture) / 2f;
+      bonus = Nursery.DRYLAND_MULT * (1 + moisture) / 2f;
     }
-    else bonus = moisture * Plantation.WETLAND_MULT;
+    else bonus = moisture * Nursery.WETLAND_MULT;
     
     //  Then, we determine bonus based on crop type-
     if (isHive(s)) {
@@ -184,7 +199,7 @@ public class Crop extends Fixture {
       //PU = EcologistStation.INSECTRY_LAB;
     }
     else if (isCereal(s)) {
-      bonus *= Plantation.CEREAL_BONUS;
+      bonus *= Nursery.CEREAL_BONUS;
       //PU = EcologistStation.CEREAL_LAB;
     }
     //else PU = EcologistStation.BROADLEAF_LAB;
@@ -196,24 +211,28 @@ public class Crop extends Fixture {
       bonus *= 1 + (UB * Plantation.UPGRADE_GROW_BONUS);
     }
     //*/
-    return Visit.clamp(bonus, 0, Plantation.MAX_HEALTH_BONUS);
+    return Visit.clamp(bonus, 0, Nursery.MAX_HEALTH_BONUS);
   }
   
   
   public void seedWith(Species s, float quality) {
-    this.species = s;
-    this.quality = Visit.clamp(quality, 0, Plantation.MAX_HEALTH_BONUS);
+    this.species   = s;
+    this.quality   = Visit.clamp(quality, 0, Nursery.MAX_HEALTH_BONUS);
     this.growStage = MIN_GROWTH;
-
-    //parent.refreshCropSprites();
-    parent.checkCropStates();
+    this.covered   = origin().x % 4 == 0;
+    //  TODO:  Try to smarten up the system for determining coverage.
     updateSprite();
   }
   
   
   public void onGrowth(Tile tile) {
+    
+    if (parent == null || ! parent.inWorld()) {
+      setAsDestroyed();
+      return;
+    }
     if (growStage == NOT_PLANTED || species == null) return;
-
+    
     //  TODO:  Possibly combine with irrigation effects from water supply or
     //  life support?
     
@@ -223,13 +242,13 @@ public class Crop extends Fixture {
     );
     
     float increment = 1f;
-    increment -= (pollution * Plantation.POLLUTE_GROW_PENALTY);
-    if (blighted) increment -= Plantation.INFEST_GROW_PENALTY;
+    increment -= (pollution * Nursery.POLLUTE_GROW_PENALTY);
+    if (blighted) increment -= Nursery.INFEST_GROW_PENALTY;
     if (increment > 0) {
       increment *= Planet.dayValue(world) * 2;
       increment *= quality * habitatBonus(tile, species);
     }
-    increment *= Rand.num() * 2 * Plantation.GROW_INCREMENT * MAX_GROWTH;
+    increment *= Rand.num() * 2 * Nursery.GROW_INCREMENT * MAX_GROWTH;
     
     growStage = Visit.clamp(growStage + increment, MIN_GROWTH, MAX_GROWTH);
     checkBlight(pollution);
@@ -259,8 +278,8 @@ public class Crop extends Fixture {
     //  Better-established plants can fight off infection more easily, and if
     //  infection-chance is low, spontaneous recovery can occur.
     blightChance *= 2f / (2 + (growStage / MAX_GROWTH));
-    float recoverChance = (1f - blightChance) * Plantation.GROW_INCREMENT / 2;
-    blightChance *= Plantation.GROW_INCREMENT;
+    float recoverChance = (1f - blightChance) * Nursery.GROW_INCREMENT / 2;
+    blightChance *= Nursery.GROW_INCREMENT;
     if (blighted && Rand.num() < recoverChance) blighted = false;
     if (Rand.num() < blightChance && ! blighted) blighted = true;
     if (growStage <= MIN_GROWTH) blighted = false;
@@ -312,6 +331,10 @@ public class Crop extends Fixture {
   /**  Rendering and interface-
     */
   protected void updateSprite() {
+    if (covered) {
+      attachModel(COVERING_RIGHT);
+      return;
+    }
     final GroupSprite old = (GroupSprite) sprite();
     final ModelAsset model = speciesModel(species, (int) growStage);
     if (old != null && old.atIndex(0).model() == model) return;

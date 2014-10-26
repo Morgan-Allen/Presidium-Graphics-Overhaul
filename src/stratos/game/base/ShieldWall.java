@@ -84,7 +84,6 @@ public class ShieldWall extends Venue {
   
   
   private Boarding entrances[] = null;
-  //private ShieldWall wallGroup[] = null;
   
   
   public ShieldWall(Base base) {
@@ -98,11 +97,17 @@ public class ShieldWall extends Venue {
   protected ShieldWall(int type, int size, int high, Base base) {
     super(size, high, ENTRANCE_NONE, base);
     this.type = type;
-    if (isSection()) {
-      structure.setupStats(75, 35, 40, 0, Structure.TYPE_FIXTURE);
+    if (isGate()) {
+      structure.setupStats(
+        200, 25, 100,  //integrity, armour, and build cost
+        Structure.SMALL_MAX_UPGRADES, Structure.TYPE_FIXTURE
+      );
     }
     else {
-      structure.setupStats(200, 35, 100, 0, Structure.TYPE_FIXTURE);
+      structure.setupStats(
+        75, 15, 40,  //integrity, armour, and build cost
+        Structure.SMALL_MAX_UPGRADES, Structure.TYPE_FIXTURE
+      );
     }
   }
   
@@ -389,7 +394,7 @@ public class ShieldWall extends Venue {
     //  Then, replace any prior intersecting segments, and return.
     for (ShieldWall s : segments) {
       final Tile o = s.origin();
-      if (doors.area().contains(o.x, o.y)) segments.remove(s);
+      if (doors.footprint().contains(o.x, o.y)) segments.remove(s);
     }
     segments.add(doors);
     return true;

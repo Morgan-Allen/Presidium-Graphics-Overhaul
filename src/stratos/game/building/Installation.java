@@ -22,7 +22,7 @@ public interface Installation extends Session.Saveable, Target, Selectable {
   
   Base base();
   int buildCost();
-  Box2D area();
+  Box2D footprint();
 
   Index<Upgrade> allUpgrades();
   void onCompletion();

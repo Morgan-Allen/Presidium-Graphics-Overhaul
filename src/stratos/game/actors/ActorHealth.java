@@ -16,7 +16,7 @@ public class ActorHealth implements Qualities {
   
   /**  Fields, constructors, and save/load methods-
     */
-  private static boolean verbose = true;
+  private static boolean verbose = false;
   
   final public static int
     HUMAN_METABOLISM    = 0,

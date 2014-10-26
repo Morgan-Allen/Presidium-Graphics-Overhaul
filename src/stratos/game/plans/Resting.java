@@ -89,12 +89,16 @@ public class Resting extends Plan {
     }
     
     //  Include effects of fatigue-
-    final float fatigue = actor.health.fatigueLevel();
-    if (fatigue < 0.5f) {
-      urgency *= fatigue * 2;
+    final float stress = (
+      actor.health.fatigueLevel () +
+      actor.health.stressPenalty() +
+      actor.health.injuryLevel  ()
+    ) / 2f;
+    if (stress < 0.5f) {
+      urgency *= stress * 2;
     }
     else {
-      final float f = (fatigue - 0.5f) * 2;
+      final float f = (stress - 0.5f) * 2;
       urgency = (urgency * f) + (PARAMOUNT * (1 - f));
     }
     
@@ -112,8 +116,11 @@ public class Resting extends Plan {
       urgency -= Pledge.greedLevel(actor, cost) * ROUTINE;
     }
     
+    //  Include day/night effects-
+    urgency += (IDLE + 1 - Planet.dayValue(actor.world())) / 2f;
+    
     final float priority = priorityForActorWith(
-      actor, restPoint, Visit.clamp(urgency, IDLE, URGENT),
+      actor, restPoint, Visit.clamp(urgency, 0, URGENT),
       modifier, NO_HARM,
       NO_COMPETITION, NO_SKILLS,
       BASE_TRAITS, NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,

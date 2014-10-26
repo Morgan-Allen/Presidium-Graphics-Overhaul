@@ -36,9 +36,9 @@ public class Base implements
   final public World   world ;
   final public boolean primal;
   
-  final public BaseSetup setup   ;
-  final public Commerce  commerce;
-  final public Paving    paving  ;
+  final public BaseSetup    setup     ;
+  final public Commerce     commerce  ;
+  final public PavingRoutes paveRoutes;
   float credits = 0, interest = 0;
   
   final public BaseProfiles profiles ;
@@ -82,7 +82,7 @@ public class Base implements
     
     setup     = new BaseSetup(this, world);
     commerce  = new Commerce(this)        ;
-    paving    = new Paving(world)         ;
+    paveRoutes    = new PavingRoutes(world)         ;
     
     profiles  = new BaseProfiles(this)    ;
     dangerMap = new DangerMap(world, this);
@@ -98,7 +98,7 @@ public class Base implements
     s.cacheInstance(this);
     
     commerce.loadState(s);
-    paving  .loadState(s);
+    paveRoutes  .loadState(s);
     credits  = s.loadFloat();
     interest = s.loadFloat();
     
@@ -120,7 +120,7 @@ public class Base implements
     s.saveBool(primal);
     
     commerce.saveState(s);
-    paving  .saveState(s);
+    paveRoutes  .saveState(s);
     s.saveFloat(credits );
     s.saveFloat(interest);
     
@@ -201,12 +201,13 @@ public class Base implements
   
   
   public void updateAsScheduled(int numUpdates) {
+    ///I.say("UPDATING BASE, NUM UPDATES: "+numUpdates);
     
     setup.updatePlacements();
     
     commerce.updateCommerce(numUpdates);
     
-    paving.distribute(Economy.ALL_PROVISIONS, this);
+    paveRoutes.distribute(Economy.ALL_PROVISIONS, this);
     
     dangerMap.update();
     

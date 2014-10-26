@@ -73,7 +73,7 @@ public abstract class Structural extends Fixture implements
   
   
   public void onDestruction() {
-    Wreckage.reduceToSlag(area(), world);
+    Wreckage.reduceToSlag(footprint(), world);
   }
   
   
@@ -111,7 +111,7 @@ public abstract class Structural extends Fixture implements
   
   
   protected void updatePaving(boolean inWorld) {
-    base.paving.updatePerimeter(this, inWorld);
+    base.paveRoutes.updatePerimeter(this, inWorld);
   }
   
   

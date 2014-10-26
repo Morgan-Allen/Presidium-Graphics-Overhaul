@@ -7,6 +7,7 @@ import stratos.game.common.*;
 import stratos.game.base.*;
 import stratos.game.campaign.*;
 import stratos.game.maps.*;
+import stratos.game.plans.*;
 import stratos.graphics.common.Rendering;
 import stratos.graphics.widgets.KeyInput;
 import stratos.user.*;
@@ -15,10 +16,25 @@ import stratos.util.*;
 
 
 
-
-//  Get mines working.
 //  Set up exclusion zone around kommando lodge, ecologist station, and
-//  excavation shaft.
+//  excavation shaft.  Get surface mines and plantations working inside.
+
+//  Fix bug with stripping/paving of roads happening at same time.  It doesn't
+//  show up often, so just keep an eye out for it.
+
+//  There's still a bug with offworld trade- fuel rods etc. get delivered to a
+//  depot, then delivered straight back again.  Revise FRSD options.
+
+//  Re-introduce the polymer fab.
+//  Re-work the culture lab- produce either food/organs OR soma/reagents.
+//  Produce medicine at the physician station.
+//  Test datalink-production at the archives.
+//  Test study behaviour at the archives.
+//  Introduce the Air Field.
+
+//  Have solar banks primarily exist as water supply, not power per se.  The
+//  reactor complex can provide most of that.
+//  Get rid of the Drill Yard.  It's not working out for now.
 
 //  Divide venue description into two panes- one for general status, and the
 //  other for specific sub-headings.  Don't bother with spill-over.
@@ -26,16 +42,6 @@ import stratos.util.*;
 //  Rework art for roads, the shield wall, the physician station, the engineer
 //  station, the polymer fab, the solar bank, and the archives.
 
-//  Re-introduce the polymer fab.
-//  Re-work the culture vats- produce either food/organs OR soma/reagents.
-//  Produce medicine at the physician station.
-//  Test datalink-production at the archives.
-//  Test study behaviour at the archives.
-
-//  Fix bug with stripping/paving of roads happening at same time.
-
-//  Remove combat from wandering behaviours (make part of exploration, not
-//  patrolling.)
 
 
 
@@ -75,20 +81,25 @@ public class DebugPlacing extends Scenario {
   }
   
   
+  public void updateGameState() {
+    super.updateGameState();
+  }
+  
+  
   public void renderVisuals(Rendering rendering) {
     super.renderVisuals(rendering);
     
     final Tile over = UI().selection.pickedTile();
     if (KeyInput.wasTyped('p')) {
       I.say("TILE IS: "+over);
-      I.say("  SHOULD PAVE? "+base().paving.map.needsPaving(over));
+      I.say("  SHOULD PAVE? "+base().paveRoutes.map.needsPaving(over));
     }
   }
 
 
   protected World createWorld() {
     final TerrainGen TG = new TerrainGen(
-      64, 0.2f,
+      32, 0.2f,
       Habitat.ESTUARY     , 2f,
       Habitat.MEADOW      , 3f,
       Habitat.BARRENS     , 2f,
@@ -111,9 +122,36 @@ public class DebugPlacing extends Scenario {
     GameSettings.setDefaults();
     GameSettings.hireFree  = true;
     GameSettings.buildFree = true;
-    GameSettings.fogFree   = true;
+    GameSettings.paveFree  = true;
+    //GameSettings.fogFree   = true;
     
+    if (false) configRoadsTest(world, base, UI);
+    if (false) configMinesTest(world, base, UI);
+    if (true ) configPlantTest(world, base, UI);
+  }
+  
+  
+  private void configRoadsTest(World world, Base base, BaseUI UI) {
     
+    final Venue pointA = new TrooperLodge(base);
+    final Venue pointB = new TrooperLodge(base);
+    Placement.establishVenue(pointA, 5, 5 , false, world);
+    Placement.establishVenue(pointB, 5, 15, false, world);
+    pointA.updateAsScheduled(0);
+    pointB.updateAsScheduled(0);
+    
+    for (int n = 2; n-- > 0;) {
+      final Human tech = new Human(Backgrounds.TECHNICIAN, base);
+      tech.enterWorldAt(5, 10, world);
+      final Plan roadBuild = new RoadsRepair(tech, tech.origin());
+      roadBuild.setMotive(Plan.MOTIVE_DUTY, 100);
+      tech.mind.assignBehaviour(roadBuild);
+      UI.selection.pushSelection(tech, true);
+    }
+  }
+  
+  
+  private void configMinesTest(World world, Base base, BaseUI UI) {
     final ExcavationSite station = new ExcavationSite(base);
     final Human worksA, worksB;
     Placement.establishVenue(
@@ -125,16 +163,16 @@ public class DebugPlacing extends Scenario {
     worksB.goAboard(station.mainEntrance(), world);
     
     UI.selection.pushSelection(worksB, true);
-    
-    
-    /*
+  }
+  
+  
+  private void configPlantTest(World world, Base base, BaseUI UI) {
     final EcologistStation station = new EcologistStation(base);
     Placement.establishVenue(station, 8, 8, true, world);
     
-    final Plantation site = new Plantation(base);
+    final Nursery site = new Nursery(base);
     site.setPosition(8, 15, world);
     if (site.canPlace()) site.doPlacement();
-    //*/
   }
   
   

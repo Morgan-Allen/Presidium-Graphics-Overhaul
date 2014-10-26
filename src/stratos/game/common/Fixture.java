@@ -72,7 +72,7 @@ public abstract class Fixture extends Element {
   
   
   public void clearSurrounds() {
-    final Box2D around = new Box2D().setTo(area()).expandBy(1);
+    final Box2D around = new Box2D().setTo(footprint()).expandBy(1);
     final World world = origin().world;
     for (Tile t : world.tilesIn(around, false)) if (t != null) {
       if (t.onTop() != null && t.owningType() < this.owningType()) {
@@ -85,12 +85,12 @@ public abstract class Fixture extends Element {
     Tile exit = null;
     if (this instanceof Venue) exit = ((Venue) this).mainEntrance();
     else {
-      final Tile perim[] = Spacing.perimeter(area(), world);
+      final Tile perim[] = Spacing.perimeter(footprint(), world);
       for (Tile p : perim) if (p != null && ! p.blocked()) { exit = p; break; }
     }
     if (exit == null) exit = Spacing.nearestOpenTile(this, this, world);
     if (exit == null) I.complain("No exit point from "+this);
-    for (Tile t : world.tilesIn(area(), false)) {
+    for (Tile t : world.tilesIn(footprint(), false)) {
       for (Mobile m : t.inside()) {
         m.setPosition(exit.x, exit.y, world);
       }
@@ -99,7 +99,7 @@ public abstract class Fixture extends Element {
   
   
   public Tile[] surrounds() {
-    final Box2D around = new Box2D().setTo(area()).expandBy(1);
+    final Box2D around = new Box2D().setTo(footprint()).expandBy(1);
     final World world = origin().world;
     final Tile result[] = new Tile[(int) (around.xdim() * around.ydim())];
     int i = 0; for (Tile t : world.tilesIn(around, false)) {
@@ -141,7 +141,7 @@ public abstract class Fixture extends Element {
   public int zdim() { return high; }
   public float height() { return zdim(); }
   public float radius() { return size / 2f; }
-  public Box2D area() { return area; }
+  public Box2D footprint() { return area; }
   
   
   public Box2D area(Box2D put) {

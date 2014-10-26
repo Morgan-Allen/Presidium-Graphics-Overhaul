@@ -117,7 +117,7 @@ public class FogOverlay {
       final int
         x = (i % lineLen) / 4,
         y = i / lineLen;
-      final float fog = updateVals[x][y];
+      final float fog = Visit.clamp(updateVals[x][y], 0, 1);
       newVals[x][y] = fog;
       
       final byte fogByte = (byte) (((int) (fog * 255)) & 0xff);

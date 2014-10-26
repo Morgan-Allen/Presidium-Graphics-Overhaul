@@ -237,11 +237,11 @@ public class Selection implements UIConstants {
       overlayCache.remove(oldest);
     }
     
-    final Box2D limit = new Box2D().setTo(key.area());
+    final Box2D limit = new Box2D().setTo(key.footprint());
     final Batch <Tile> under = new Batch <Tile> ();
     for (Installation f : group) {
       if (f == null) continue;
-      for (Tile t : world.tilesIn(f.area(), true)) {
+      for (Tile t : world.tilesIn(f.footprint(), true)) {
         limit.include(t.x, t.y, 0.5f);
         under.add(t);
         t.flagWith(under);

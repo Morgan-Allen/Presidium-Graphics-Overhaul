@@ -23,10 +23,6 @@ import static stratos.game.building.Economy.*;
 
 
 
-//  TODO:  I'm going to completely cut this out for the moment.  More of a
-//  complication than I need right now.
-
-
 public class Smelter extends Venue {
   
   
@@ -75,19 +71,19 @@ public class Smelter extends Venue {
   final public static int SMELT_AMOUNT = 10;
   
   
-  final public ExcavationSite parent;
-  final public TradeType output;
+  //final public ExcavationSite parent;
+  //final public TradeType output;
+  protected ExcavationSite parent;
+  protected TradeType output;
   private int oldProgress = 0;
   
   
   
-  public Smelter(
-    ExcavationSite parent, TradeType mined
-  ) {
-    super(3, 2, ENTRANCE_WEST, parent.base());
+  public Smelter(Base base) {
+    super(3, 2, ENTRANCE_WEST, base);
     structure.setupStats(75, 6, 150, 0, Structure.TYPE_FIXTURE);
-    this.parent = parent;
-    this.output = mined;
+    //this.parent = parent;
+    //this.output = mined;
   }
   
   
@@ -108,6 +104,19 @@ public class Smelter extends Venue {
   }
   
   
+  public Smelter assignTo(ExcavationSite belongs, TradeType output) {
+    this.parent = belongs;
+    this.output = output ;
+    updateSprite(0);
+    return this;
+  }
+  
+  
+  public ExcavationSite belongs() {
+    return parent;
+  }
+  
+  
   public int owningType() {
     return FIXTURE_OWNS;
   }
@@ -123,7 +132,6 @@ public class Smelter extends Venue {
     */
   public boolean enterWorldAt(int x, int y, World world) {
     if (! super.enterWorldAt(x, y, world)) return false;
-    updateSprite(0);
     return true;
   }
   
@@ -170,7 +178,7 @@ public class Smelter extends Venue {
     */
   public boolean canPlace() {
     if (! super.canPlace()) return false;
-    for (Tile t : Spacing.perimeter(area(), origin().world)) if (t != null) {
+    for (Tile t : Spacing.perimeter(footprint(), origin().world)) if (t != null) {
       if (t.owningType() >= this.owningType()) return false;
     }
     return true;
@@ -182,7 +190,7 @@ public class Smelter extends Venue {
   ) {
     final World world = site.world();
     final Tile init = Spacing.pickRandomTile(site.origin(), 4, world);
-    final Smelter smelter = new Smelter(site, mined);
+    final Smelter smelter = new Smelter(site.base()).assignTo(site, mined);
     
     final TileSpread spread = new TileSpread(init) {
       protected boolean canAccess(Tile t) {

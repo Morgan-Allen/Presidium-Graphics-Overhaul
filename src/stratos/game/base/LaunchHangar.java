@@ -32,8 +32,8 @@ public class LaunchHangar extends Venue {
   
   
   
-  public LaunchHangar(FRSD belongs) {
-    super(4, 1, ENTRANCE_NORTH, belongs.base());
+  public LaunchHangar(Base base) {
+    super(4, 1, ENTRANCE_NORTH, base);
     structure.setupStats(50, 10, 25, 0, Structure.TYPE_FIXTURE);
     attachModel(MODEL);
   }

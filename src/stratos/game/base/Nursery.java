@@ -22,23 +22,24 @@ import static stratos.game.building.Economy.*;
 
 
 
-public class Plantation extends Venue implements TileConstants {
+public class Nursery extends Venue implements TileConstants {
   
   
   /**  Constructors, data fields, setup and save/load methods-
     */
+  private static boolean verbose = false;
+  
   final static String IMG_DIR = "media/Buildings/ecologist/";
   final static ModelAsset
     NURSERY_MODEL = CutoutModel.fromImage(
-      Plantation.class, IMG_DIR+"nursery.png", 2, 2
+      Nursery.class, IMG_DIR+"nursery.png", 2, 2
     );
   
   final public static float
     MATURE_DURATION = World.STANDARD_DAY_LENGTH * 5,
     GROW_INCREMENT  = World.GROWTH_INTERVAL / MATURE_DURATION,
     
-    MIN_AREA_SIDE = 4,
-    MAX_AREA_SIDE = 8,
+    EXTRA_CLAIM_SIZE = 4,
     
     MAX_HEALTH_BONUS     = 2.0f,
     INFEST_GROW_PENALTY  = 0.5f,
@@ -59,7 +60,7 @@ public class Plantation extends Venue implements TileConstants {
   private float needsTending = 0;
   
   
-  public Plantation(Base base) {
+  public Nursery(Base base) {
     super(2, 2, ENTRANCE_SOUTH, base);
     structure.setupStats(
       25,  //integrity
@@ -68,11 +69,12 @@ public class Plantation extends Venue implements TileConstants {
       0,  //max upgrades
       Structure.TYPE_FIXTURE
     );
+    personnel.setShiftType(SHIFTS_BY_DAY);
     this.attachModel(NURSERY_MODEL);
   }
   
-
-  public Plantation(Session s) throws Exception {
+  
+  public Nursery(Session s) throws Exception {
     super(s);
     areaClaimed.loadFrom(s.input());
     type    = s.loadInt();
@@ -88,11 +90,9 @@ public class Plantation extends Venue implements TileConstants {
   }
   
   
-  //*
   public int owningType() {
-    return FIXTURE_OWNS;
+    return VENUE_OWNS;
   }
-  //*/
   
   
   public boolean privateProperty() {
@@ -100,9 +100,12 @@ public class Plantation extends Venue implements TileConstants {
   }
   
   
+  
+  /**  Placement and supply-demand functions-
+    */
   public boolean setPosition(float x, float y, World world) {
     final boolean okay = super.setPosition(x, y, world);
-    if (okay) areaClaimed.set(x - 3.5f, y - 3.5f, 8, 8);
+    if (okay) areaClaimed.setTo(footprint()).expandBy((int) EXTRA_CLAIM_SIZE);
     return okay;
   }
 
@@ -116,10 +119,12 @@ public class Plantation extends Venue implements TileConstants {
     return e.owningType() < this.owningType();
   }
   
-  
-  protected boolean claimConflicts(Venue other) {
-    return super.claimConflicts(other);
+  /*
+  public boolean preventsClaimBy(Venue other) {
+    //if (other instanceof EcologistStation) return false;
+    return super.preventsClaimBy(other);
   }
+  //*/
   
   
   public float ratePlacing(Target point) {
@@ -128,7 +133,7 @@ public class Plantation extends Venue implements TileConstants {
     //      ...also, fertility & insolation.
     
     final Presences presences = point.world().presences;
-    float supply = presences.mapFor(Plantation.class).population();
+    float supply = presences.mapFor(Nursery.class).population();
     float demand = presences.mapFor(EcologistStation.class).population();
     demand *= 3;
     
@@ -146,18 +151,38 @@ public class Plantation extends Venue implements TileConstants {
   
   
   private void scanForCropTiles() {
-    if (toPlant == null || toPlant.length == 0) {
-      final Box2D plots[] = world.claims.placeLatticeWithin(
-        areaClaimed, this, 2, 4, true
-      );
-      I.say("Getting plots to farm for plantation: "+plots.length);
-      
-      final Batch <Tile> plantB = new Batch <Tile> ();
-      for (Box2D plot : plots) for (Tile t : world.tilesIn(plot, false)) {
-        plantB.add(t);
-      }
-      toPlant = (Tile[]) plantB.toArray(Tile.class);
+    final boolean report = verbose && I.talkAbout == this;
+    
+    final Box2D cropArea = new Box2D().setTo(areaClaimed).expandBy(-1);
+    final Batch <Tile> grabbed = new Batch <Tile> ();
+    if (report) I.say("\nCROP AREA: "+cropArea);
+    
+    for (Tile t : world.tilesIn(cropArea, true)) {
+      if (world.terrain().isRoad(t)) continue;
+      if (base.paveRoutes.map.roadCounter(t) > 0) continue;
+      if (t.owningType() > Element.ELEMENT_OWNS ) continue;
+      grabbed.add(t);
+      if (report && plantedAt(t) == null) I.say("  ADDING TILE: "+t);
     }
+    
+    //  TODO:  Grab contiguous areas and put 'covered' crops along one edge.
+    
+    toPlant = grabbed.toArray(Tile.class);
+  }
+  
+  
+  protected void checkCropStates() {
+    final boolean report = verbose && I.talkAbout == this;
+    
+    if (report) I.say("CHECKING CROP STATES");
+    needsTending = 0;
+    for (Tile t : toPlant) {
+      final Crop c = plantedAt(t);
+      if (c == null || c.needsTending()) needsTending++;
+    }
+    
+    if (report) I.say("NEEDS TENDING: "+needsTending);
+    needsTending /= toPlant.length;
   }
   
   
@@ -172,6 +197,7 @@ public class Plantation extends Venue implements TileConstants {
     
     if (numUpdates % 10 == 0) {
       scanForCropTiles();
+      checkCropStates();
       
       final float
         growth = 10 * 1f / MATURE_DURATION,
@@ -183,23 +209,6 @@ public class Plantation extends Venue implements TileConstants {
       stocks.bumpItem(GREENS , growth * NURSERY_GREENS );
       stocks.bumpItem(PROTEIN, growth * NURSERY_PROTEIN);
     }
-  }
-  
-  
-  public void onGrowth(Tile t) {
-    if (! structure.intact()) return;
-    //  TODO:  Also update growth for any plants inside the nursery.
-    checkCropStates();
-  }
-  
-  
-  protected void checkCropStates() {
-    needsTending = 0;
-    for (Tile t : toPlant) {
-      final Crop c = plantedAt(t);
-      if (c == null || c.needsTending()) needsTending++;
-    }
-    needsTending /= toPlant.length;
   }
   
   
@@ -224,24 +233,24 @@ public class Plantation extends Venue implements TileConstants {
     */
   public int numOpenings(Background v) {
     int num = super.numOpenings(v);
-    if (v == CULTIVATOR) return num + 1;
+    if (v == CULTIVATOR) return num + 2;
     return 0;
   }
   
-  //  TODO:  Consider changing these to employ 1 or 2 cultivators each.
+  
   public TradeType[] services() { return new TradeType[] {
-      CARBS, PROTEIN, GREENS
+    CARBS, PROTEIN, GREENS
   }; }
   
   
   public Background[] careers() { return new Background[] {
-      CULTIVATOR
+    CULTIVATOR
   }; }
   
   
   public Behaviour jobFor(Actor actor) {
     final Choice choice = new Choice(actor);
-    //
+    
     //  If you're really short on food, consider foraging in the surrounds-
     final float shortages = (
       stocks.shortagePenalty(CARBS) +
@@ -253,6 +262,7 @@ public class Plantation extends Venue implements TileConstants {
       choice.add(foraging);
     }
     //
+    
     //  If the harvest is really coming in, pitch in regardless-
     if (! Planet.isNight(world)){
       if (needForTending() > 0.5f) choice.add(new Farming(actor, this));
@@ -265,15 +275,19 @@ public class Plantation extends Venue implements TileConstants {
       this, services(), 2, 10, 5
     );
     choice.add(d);
-
+    
+    /*
     final Forestry f = new Forestry(actor, this);
     f.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
     f.configureFor(Forestry.STAGE_GET_SEED);
     choice.add(f);
+    //*/
     
     //  TODO:  Collect seeds from the nearest ecologist station if you can!
     
     choice.add(new Farming(actor, this));
+    
+    //I.say("Plantation choices: "+choice.size());
     
     return choice.pickMostUrgent();
   }
@@ -309,37 +323,37 @@ public class Plantation extends Venue implements TileConstants {
   public String buildCategory() {
     return InstallTab.TYPE_ECOLOGIST;
   }
-  
-  /*
-  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
-    final StringBuffer d = new StringBuffer();
-
-    d.append("\n");
-    boolean any = false;
-    for (Item seed : stocks.matches(SAMPLES)) {
-      final Species s = (Species) seed.refers;
-      d.append("\n  Seed for "+s+" (");
-      d.append(Crop.HEALTH_NAMES[(int) seed.quality]+" quality)");
-      any = true;
-    }
-    if (! any) d.append("\nNo seed stock.");
-    
-    //  TODO:  Summarise the amount of crops planted and their overall health!
-    panel = VenueDescription.configSimplePanel(this, panel, UI, d.toString());
-    return panel;
-  }
-  
-  
-  public void renderSelection(Rendering rendering, boolean hovered) {
-    BaseUI.current().selection.renderTileOverlay(
-      rendering, world,
-      hovered ? Colour.transparency(0.5f) : Colour.WHITE,
-      Selection.SELECT_OVERLAY, true, this, this
-    );
-  }
-  //*/
 }
 
 
 
+
+/*
+public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
+  final StringBuffer d = new StringBuffer();
+
+  d.append("\n");
+  boolean any = false;
+  for (Item seed : stocks.matches(SAMPLES)) {
+    final Species s = (Species) seed.refers;
+    d.append("\n  Seed for "+s+" (");
+    d.append(Crop.HEALTH_NAMES[(int) seed.quality]+" quality)");
+    any = true;
+  }
+  if (! any) d.append("\nNo seed stock.");
+  
+  //  TODO:  Summarise the amount of crops planted and their overall health!
+  panel = VenueDescription.configSimplePanel(this, panel, UI, d.toString());
+  return panel;
+}
+
+
+public void renderSelection(Rendering rendering, boolean hovered) {
+  BaseUI.current().selection.renderTileOverlay(
+    rendering, world,
+    hovered ? Colour.transparency(0.5f) : Colour.WHITE,
+    Selection.SELECT_OVERLAY, true, this, this
+  );
+}
+//*/
 

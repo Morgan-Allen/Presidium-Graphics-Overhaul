@@ -65,12 +65,14 @@ public class List <T> extends ListEntry <T> implements Series <T> {
   /**  Removes the first element from this list.
     */
   final public T removeFirst() {
+    if (size == 0) return null;
     return removeEntry(next).refers;
   }
   
   /**  Removes the first element from this list.
     */
   final public T removeLast() {
+    if (size == 0) return null;
     return removeEntry(last).refers;
   }
 
@@ -127,15 +129,12 @@ public class List <T> extends ListEntry <T> implements Series <T> {
     *  the given entry does not belong to the list.)
     */
   final public ListEntry <T> removeEntry(final ListEntry <T> l) {
-    if ((l == null) || (l.list != this)) {
-      //I.r("Invalid list entry!");
+    if ((l == null) || (l.list != this) || (l == this)) {
       return null;
     }
     couple(l.last, l.next);
-    //
-    //  I actually don't want this:  "l.last = l.next = null;"
-    //  ...Because then I can't interate and remove at the same time!
     l.list = null;
+    if (size == 0) I.complain("LIST ALREADY HAS 0 ELEMENTS!");
     size--;
     return l;
   }
@@ -306,11 +305,12 @@ public class List <T> extends ListEntry <T> implements Series <T> {
   /**  Returns a standard iterator over this list.
     */
   final public Iterator <T> iterator() {
+    final List <T> list = this;
     return new Iterator <T> () {
       ListEntry <T> current = list;
       //
       public boolean hasNext() {
-        return (current.next != list);
+        return current.next != list;
       }
       //
       public T next() {

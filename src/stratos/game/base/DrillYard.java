@@ -75,20 +75,20 @@ public class DrillYard extends Venue {
   
   
   
-  final public TrooperLodge belongs;
+  //final public TrooperLodge belongs;
+  protected TrooperLodge belongs;
   protected int drill = NOT_DRILLING;
   protected boolean drillOrders[] = new boolean[NUM_DRILLS];
   
   
   
-  public DrillYard(TrooperLodge belongs) {
-    super(4, 1, ENTRANCE_EAST, belongs.base());
+  public DrillYard(Base base) {
+    super(4, 1, ENTRANCE_EAST, base);
     structure.setupStats(50, 10, 25, 0, Structure.TYPE_FIXTURE);
-    this.belongs = belongs;
     initSprite();
   }
   
-
+  
   public DrillYard(Session s) throws Exception {
     super(s);
     belongs = (TrooperLodge) s.loadObject();
@@ -102,6 +102,17 @@ public class DrillYard extends Venue {
     s.saveObject(belongs);
     s.saveInt(drill);
     for (boolean b : drillOrders) s.saveBool(b);
+  }
+  
+  
+  protected DrillYard assignTo(TrooperLodge belongs) {
+    this.belongs = belongs;
+    return this;
+  }
+  
+  
+  public TrooperLodge belongs() {
+    return belongs;
   }
   
   
@@ -258,7 +269,7 @@ public class DrillYard extends Venue {
   
   
   public String buildCategory() {
-    return InstallTab.TYPE_MILITANT;
+    return InstallTab.TYPE_HIDDEN;
   }
   
   

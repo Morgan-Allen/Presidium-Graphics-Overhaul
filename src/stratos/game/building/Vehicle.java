@@ -358,7 +358,7 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
-  public Box2D area() {
+  public Box2D footprint() {
     return area(null);
   }
   

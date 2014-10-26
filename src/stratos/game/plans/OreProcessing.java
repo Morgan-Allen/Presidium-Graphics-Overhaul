@@ -84,7 +84,7 @@ public class OreProcessing extends Plan {
     //final Tailing dumpsAt = venue.parent.nextTailing();
     //if (dumpsAt == null) return null;
     
-    final Venue parent = ((Smelter) venue).parent;
+    final Venue parent = ((Smelter) venue).belongs();
     if ((rawAmount == 0 && newAmount > 0) || newAmount >= BASE_AMOUNT) {
       final Delivery d = new Delivery(output, venue, parent);
       if (Plan.competition(d, parent, actor) == 0) return d;

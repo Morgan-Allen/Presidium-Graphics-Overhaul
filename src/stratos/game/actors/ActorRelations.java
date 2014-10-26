@@ -118,7 +118,7 @@ public class ActorRelations {
     if (venue == null) return 0;
     if (venue == actor.mind.home) return 1.0f;
     if (venue == actor.mind.work) return 0.5f;
-    return valueFor(venue.base()) / 2f;
+    return valueFor(venue.base()) / 4f;
   }
   
   

@@ -274,12 +274,12 @@ public class NativeHut extends Venue {
   
   protected void updatePaving(boolean inWorld) {
     if (! inWorld) {
-      base().paving.updatePerimeter(this, null, false);
+      base().paveRoutes.updatePerimeter(this, null, false);
       return;
     }
     
     final Batch <Tile> toPave = new Batch <Tile> ();
-    for (Tile t : Spacing.perimeter(area(), world)) {
+    for (Tile t : Spacing.perimeter(footprint(), world)) {
       if (t.blocked()) continue;
       boolean between = false;
       for (int n : N_INDEX) {
@@ -295,7 +295,7 @@ public class NativeHut extends Venue {
       if (between) toPave.add(t);
     }
     
-    base().paving.updatePerimeter(this, toPave, true);
+    base().paveRoutes.updatePerimeter(this, toPave, true);
   }
 
 

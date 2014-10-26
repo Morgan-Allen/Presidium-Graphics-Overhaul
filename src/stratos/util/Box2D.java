@@ -195,6 +195,17 @@ public class Box2D {
   }
   
   
+  public Box2D asQuadrant(Box2D parent, int sizeUnit, int offX, int offY) {
+    if (parent != null) setTo(parent);
+    final float sizeX = xdim / sizeUnit, sizeY = ydim / sizeUnit;
+    xdim(sizeX);
+    ydim(sizeY);
+    incX(offX * sizeX);
+    incY(offY * sizeY);
+    return this;
+  }
+  
+  
   
   /**  Returns whether this box is contained (bounded) by the argument box.
     */

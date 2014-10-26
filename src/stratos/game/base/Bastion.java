@@ -175,7 +175,7 @@ public class Bastion extends Venue {
       return Patrolling.nextGuardPatrol(actor, this, Plan.ROUTINE);
     }
     if (v == Backgrounds.TECHNICIAN) {
-      return Repairs.getNextRepairFor(actor, Plan.ROUTINE);
+      return Repairs.getNextRepairFor(actor, true);
     }
     if (v == Backgrounds.AUDITOR || v == Backgrounds.MINISTER_FOR_ACCOUNTS) {
       final Venue toAudit = Audit.nextToAuditFor(actor);

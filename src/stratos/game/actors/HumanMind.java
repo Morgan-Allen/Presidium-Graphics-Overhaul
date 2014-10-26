@@ -169,6 +169,7 @@ public class HumanMind extends ActorMind implements Qualities {
   
   private void addConstantResponses(Choice choice) {
     
+    //  TODO:  You need to respond to more distant actors here.
     for (Target e : actor.senses.awareOf()) {
       if (e instanceof Actor) {
         final Actor nearby = (Actor) e;
@@ -178,10 +179,10 @@ public class HumanMind extends ActorMind implements Qualities {
       }
     }
     
-    choice.add(Exploring.nextExplorationFor(actor));
-    choice.add(Patrolling.wandering(actor));
+    choice.add(Exploring.nextExploration(actor));
+    choice.add(Exploring.nextWandering  (actor));
     choice.add(new Foraging(actor, null));
-    choice.add(new Retreat(actor));
+    choice.add(new Retreat (actor));
 
     final boolean timeoff = work == null || ! work.personnel().onShift(actor);
     if (work != null) {
@@ -217,7 +218,7 @@ public class HumanMind extends ActorMind implements Qualities {
       }
     }
     if (timeoff) {
-      choice.add(Repairs.getNextRepairFor(actor, 0));
+      choice.add(Repairs.getNextRepairFor(actor, false));
       choice.add(new ItemDisposal(actor));
     }
   }

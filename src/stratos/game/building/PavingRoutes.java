@@ -13,7 +13,7 @@ import stratos.util.*;
 
 
 
-public class Paving {
+public class PavingRoutes {
   
   
   /**  Field definitions, constructor and save/load methods-
@@ -34,7 +34,7 @@ public class Paving {
   
   
   
-  public Paving(World world) {
+  public PavingRoutes(World world) {
     this.world = world;
     this.map = new PavingMap(world, this);
     junctions = new PresenceMap(world, "junctions");
@@ -135,7 +135,7 @@ public class Paving {
     if (isMember) {
       key.path = around.toArray(Tile.class);
       key.cost = -1;
-      if (roadsEqual(key, match)) return;
+      if (roadsEqual(key, match) && map.refreshTiles(key.path)) return;
       if (report) I.say("Installing perimeter for "+v);
       
       if (match != null) {
@@ -157,7 +157,7 @@ public class Paving {
   public void updatePerimeter(Fixture v, boolean isMember) {
     if (isMember) {
       final Batch <Tile> around = new Batch <Tile> ();
-      for (Tile t : Spacing.perimeter(v.area(), world)) if (t != null) {
+      for (Tile t : Spacing.perimeter(v.footprint(), world)) if (t != null) {
         if (t.owningType() <= Element.ELEMENT_OWNS) around.add(t);
       }
       updatePerimeter(v, around, true);
@@ -215,7 +215,9 @@ public class Paving {
     //
     //  If the new route differs from the old, delete it.  Otherwise return.
     final Route oldRoute = allRoutes.get(route);
-    if (roadsEqual(route, oldRoute)) return false;
+    if (roadsEqual(route, oldRoute) && map.refreshTiles(route.path)) {
+      return false;
+    }
     
     if (report) {
       I.say("Route between "+a+" and "+b+" has changed!");
@@ -327,7 +329,7 @@ public class Paving {
         reached.add(v);
         if (report) I.say("  Have reached: "+v);
         
-        for (Tile t : Spacing.perimeter(v.area(), world)) if (t != null) {
+        for (Tile t : Spacing.perimeter(v.footprint(), world)) if (t != null) {
           if (t.onTop() instanceof Structural) insertAgenda(t.onTop());
           else if (tileRoutes.get(t) != null) insertAgenda(t);
         }

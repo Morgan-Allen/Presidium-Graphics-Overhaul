@@ -148,7 +148,7 @@ public class TrooperLodge extends Venue {
   
   protected void updateDrillYard() {
     if (drillYard == null || drillYard.destroyed()) {
-      final DrillYard newYard = new DrillYard(this);
+      final DrillYard newYard = new DrillYard(base).assignTo(this);
       final Tile o = origin();
       final int S = this.size;
       

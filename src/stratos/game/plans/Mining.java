@@ -104,7 +104,7 @@ public class Mining extends Plan {
     };
     final World world = site.world();
     final int range = site.digLimit(), SS = World.SECTOR_SIZE;
-    final Box2D area = new Box2D().setTo(site.area());
+    final Box2D area = new Box2D().setTo(site.footprint());
     //
     //  Firstly, we spread out from beneath the excavation site and claim all
     //  tiles which are either mined out, or directly under the structure, up

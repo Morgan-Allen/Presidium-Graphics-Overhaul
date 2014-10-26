@@ -282,7 +282,11 @@ public abstract class Mission implements
   
   public int motionType(Actor actor) { return MOTION_ANY; }
   public void abortBehaviour() {}
-  public boolean valid() { return ! subject.destroyed(); }
+  
+  public boolean valid() {
+    if (finished()) return false;
+    return ! subject.destroyed();
+  }
   
   
   
@@ -333,25 +337,25 @@ public abstract class Mission implements
         rejected.mind.assignMission(null);
       }
     }
-    ///I.say("Mission begun...");
   }
   
   
-  //  I know what happened here.  Ah, feck.
-  
-  public void endMission(boolean cancelled) {
+  public void endMission() {
     if (verbose) I.say("\nMISSION COMPLETE: "+this);
+    
+    base.removeMission(this);
+    done = true;
     
     final float reward = REWARD_AMOUNTS[priority] * 1f / roles.size();
     for (Role role : roles) {
       role.applicant.mind.assignMission(null);
-      if (! cancelled) {
+      
+      if (begun) {
         if (verbose) I.say("Dispensing "+reward+" to "+role.applicant);
         role.applicant.gear.incCredits(reward);
+        base.incCredits(0 - reward);
       }
-      base.incCredits(0 - reward);
     }
-    base.removeMission(this);
     
     if (BaseUI.isSelected(this)) {
       BaseUI.current().selection.pushSelection(null, false);
@@ -361,10 +365,7 @@ public abstract class Mission implements
   
   public void updateMission() {
     if (missionType == TYPE_PUBLIC && priority > 0) beginMission();
-    if (shouldEnd()) {
-      endMission(false);
-      done = true;
-    }
+    if (shouldEnd()) endMission();
   }
   
   
@@ -441,8 +442,7 @@ public abstract class Mission implements
     d.append("\n\nApplications:");
     d.append(new Description.Link(" (ABORT)") {
       public void whenTextClicked() {
-        if (begun) endMission(true);
-        else endMission(false);
+        endMission();
       }
     });
     if (rolesApproved() > 0 && mustConfirm) {

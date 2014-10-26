@@ -14,7 +14,6 @@ import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
-
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.building.Economy.*;
@@ -34,7 +33,9 @@ public class EcologistStation extends Venue {
     STATION_MODEL = CutoutModel.fromImage(
       EcologistStation.class, IMG_DIR+"botanical_station.png", 4, 3
     );
-  //final List <Plantation> allotments = new List <Plantation> ();
+  
+  final static int
+    EXTRA_CLAIM_SIZE = 4;
   
   
   
@@ -61,6 +62,17 @@ public class EcologistStation extends Venue {
   }
   
   
+  protected Box2D areaClaimed() {
+    return new Box2D().setTo(footprint()).expandBy(EXTRA_CLAIM_SIZE);
+  }
+  
+  
+  public boolean preventsClaimBy(Venue other) {
+    if (other.privateProperty()) return false;
+    return super.preventsClaimBy(other);
+  }
+  
+  
   
   /**  Handling upgrades and economic functions-
     */
@@ -68,11 +80,10 @@ public class EcologistStation extends Venue {
     EcologistStation.class, "botanical_upgrades"
   );
   
+  //  Tree Farming.  Durwheat.  Oni Rice.  Tuber Lily.  Hive Grubs.
+  
   //  TODO:  Re-evaluate these.  Name actual species.  Make it exciting!  And
   //  allow for direct venue upgrades.
-  
-  //  Oni Rice.  Broadfruit.  Durwheat.  Tuber Lilies.
-  //  Forest Lab.  Insect Lab.  Level 2.  Level 3.
   
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade

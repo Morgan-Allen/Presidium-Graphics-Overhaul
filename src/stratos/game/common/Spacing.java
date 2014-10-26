@@ -280,6 +280,12 @@ public final class Spacing implements TileConstants {
   }
   
   
+  public static Vec3D getPositionWithDefault(Object o, Vec3D d) {
+    if (o instanceof Target) return ((Target) o).position(null);
+    else return d;
+  }
+  
+  
   
   /**  Returns a semi-random unblocked tile around the given element.
     */

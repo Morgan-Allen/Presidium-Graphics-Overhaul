@@ -123,7 +123,7 @@ public class KommandoLodge extends Venue {
     final Choice choice = new Choice(actor);
     final boolean report = verbose && I.talkAbout == actor;
     
-    final Exploring e = Exploring.nextExplorationFor(actor);
+    final Exploring e = Exploring.nextExploration(actor);
     if (e != null) {
       e.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
       choice.add(e);

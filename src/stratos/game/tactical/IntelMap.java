@@ -2,6 +2,8 @@
 
 
 package stratos.game.tactical;
+import org.apache.commons.math3.util.FastMath;
+
 import stratos.game.common.*;
 import stratos.game.maps.*;
 import stratos.graphics.common.*;
@@ -9,25 +11,22 @@ import stratos.graphics.terrain.*;
 import stratos.util.*;
 
 
-//
-//  TODO:  Now implement gradual decay of fog-values over time.
-
-//  Note:  Any previously-explored tile will have a minimum fog value of
-//  0.5, or 0.3, or something.  That way, you still get the 'fadeout' effect
-//  at the edge of an actor's vision.
 
 public class IntelMap {
   
-  
-  
   /**  Field definitions, constructors and save/load methods-
     */
+  final static float
+    MIN_FOG        = 0,
+    MAX_FOG        = 1.5f,
+    FOG_DECAY_TIME = World.STANDARD_DAY_LENGTH,
+    FOG_SEEN_MIN   = 0.5f;
+  
   final Base base;
-  private World world = null;
   
-  float fogVals[][];
-  MipMap fogMap;
-  
+  private World      world;
+  private float      fogVals[][];
+  private MipMap     fogMap;
   private FogOverlay fogOver;
   
   
@@ -91,13 +90,13 @@ public class IntelMap {
   
   public float displayFog(Tile t, Object client) {
     if (GameSettings.fogFree || base.primal) return 1;
-    return fogOver.sampleAt(t.x, t.y, client);
+    return Visit.clamp(fogOver.sampleAt(t.x, t.y, client), 0, 1);
   }
   
   
   public float displayFog(float x, float y, Object client) {
     if (GameSettings.fogFree || base.primal) return 1;
-    return fogOver.sampleAt(x, y, client);
+    return Visit.clamp(fogOver.sampleAt(x, y, client), 0, 1);
   }
   
   
@@ -105,6 +104,16 @@ public class IntelMap {
   /**  Queries and modifications-
     */
   public void updateFogValues() {
+    for (Coord c : Visit.grid(0,  0, world.size, world.size, 1)) {
+      float val = fogVals[c.x][c.y];
+      final boolean seen = val >= FOG_SEEN_MIN;
+      
+      val -= 1f / FOG_DECAY_TIME;
+      val = Visit.clamp(val, seen ? FOG_SEEN_MIN : MIN_FOG, MAX_FOG);
+      
+      fogVals[c.x][c.y] = val;
+      if (val < FOG_SEEN_MIN) fogMap.set(0, c.x, c.y);
+    }
   }
   
   
@@ -145,16 +154,13 @@ public class IntelMap {
       //
       //  Calculate the minimum fog value, based on target proximity-
       final float oldVal = fogVals[t.x][t.y];
-      final float lift = Visit.clamp((1 - (distance / radius)) * 1.5f, 0, 1);
-      final float newVal = Math.max(lift, oldVal);
+      final float lift = (1 - (distance / radius)) * MAX_FOG;
+      final float newVal = FastMath.max(lift, oldVal);
       fogVals[t.x][t.y] = newVal;
       //
       //  If there's been a change in fog value, update the reference and
       //  rendering data-
-      if (oldVal != newVal) {
-        if (newVal == 1) fogMap.set((byte) 1, t.x, t.y);
-        //stuffDisplayVal(newVal, t.x, t.y);
-      }
+      if (oldVal != newVal && newVal >= FOG_SEEN_MIN) fogMap.set(1, t.x, t.y);
       tilesSeen += lift - oldVal;
     }
     return (int) tilesSeen;

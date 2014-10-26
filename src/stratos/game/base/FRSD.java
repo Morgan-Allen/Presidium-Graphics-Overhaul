@@ -117,7 +117,7 @@ public class FRSD extends Venue {
     if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
     final Choice choice = new Choice(actor);
     
-    final Plan r = Repairs.getNextRepairFor(actor, Plan.ROUTINE);
+    final Plan r = Repairs.getNextRepairFor(actor, false);
     choice.add(r);
     
     final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(

@@ -144,7 +144,7 @@ public class Personnel {
   
   
   public boolean onShift(Actor worker) {
-    if (! workers.includes(worker)) return false;
+    if (! employs.structure().intact()) return false;
     return shiftFor(worker) == Venue.PRIMARY_SHIFT;
   }
   

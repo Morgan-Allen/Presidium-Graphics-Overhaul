@@ -35,12 +35,12 @@ public class Retreat extends Plan implements Qualities {
   
   
   public Retreat(Actor actor) {
-    this(actor, nearestHaven(actor, null, true));
+    this(actor, actor.senses.haven());
   }
   
   
   public Retreat(Actor actor, Boarding safePoint) {
-    super(actor, safePoint, false);
+    super(actor, actor, false);
     this.safePoint = safePoint;
   }
 
@@ -67,18 +67,18 @@ public class Retreat extends Plan implements Qualities {
   
   /**  Evaluation of priority and targets--
     */
-  //  TODO:  Possibly get rid of these?
   final Skill BASE_SKILLS[] = { ATHLETICS, STEALTH_AND_COVER };
-  final Trait BASE_TRAITS[] = { NERVOUS };
+  final Trait BASE_TRAITS[] = { NERVOUS, HUMBLE };
   
   
   protected float getPriority() {
-    final boolean report = evalVerbose && I.talkAbout == actor;
+    if (safePoint == null) return 0;
     
+    final boolean report = evalVerbose && I.talkAbout == actor;
     final boolean emergency = actor.senses.isEndangered();
-    float danger = actor.senses.fearLevel();
-    if (emergency) danger += actor.health.injuryLevel();
-    else maxDanger = 0;
+    float danger = actor.senses.fearLevel() + actor.health.injuryLevel();
+    
+    if (! emergency) maxDanger = 0;
     maxDanger = FastMath.max(danger, maxDanger);
     
     final float priority = priorityForActorWith(
@@ -116,20 +116,13 @@ public class Retreat extends Plan implements Qualities {
   }
   
   
-  public boolean finished() {
-    if (super.finished()) return true;
-    if (hasBegun() && ! actor.isDoing(Retreat.class, null)) return true;
-    return false;
-  }
-  
-  
   public static Boarding nearestHaven(
     final Actor actor, Class prefClass, final boolean emergency
   ) {
-    final Pick <Target> pick = new Pick <Target> () {
+    final Pick <Boarding> pick = new Pick <Boarding> () {
       
-      public void compare(Target next, float rating) {
-        if (next == null) return;
+      public void compare(Boarding next, float rating) {
+        if (next == null || ! next.allowsEntry(actor)) return;
         //  TODO:  Add some random salt here?
         final float dist = Spacing.distance(actor, next) / World.SECTOR_SIZE;
         super.compare(next, rating - (dist * (emergency ? 5 : 2)));
@@ -138,6 +131,14 @@ public class Retreat extends Plan implements Qualities {
     
     pick.compare(actor.mind.home(), 10);
     pick.compare(actor.mind.work(), 5 );
+    
+    final Tile ground = emergency ? (Tile) pickWithdrawPoint(
+      actor, actor.health.sightRange() + World.SECTOR_SIZE,
+      actor, false
+    ) : null;
+    pick.compare(ground, 0);
+    
+    //if (! (actor instanceof Human)) return pick.result();
     
     final Presences presences = actor.world().presences;
     final Target refuge = presences.nearestMatch(
@@ -149,17 +150,11 @@ public class Retreat extends Plan implements Qualities {
     final Target cover  = presences.nearestMatch(
       Venue.class           , actor, -1
     );
-    pick.compare(refuge, emergency ? 5 : 10);
-    pick.compare(pref  , 10                );
-    pick.compare(cover , emergency ? 1 : 2 );
+    pick.compare((Boarding) refuge, emergency ? 5 : 10);
+    pick.compare((Boarding) pref  , 10                );
+    pick.compare((Boarding) cover , emergency ? 1 : 2 );
     
-    final Tile ground = emergency ? (Tile) pickWithdrawPoint(
-      actor, actor.health.sightRange() + World.SECTOR_SIZE,
-      actor, false
-    ) : null;
-    pick.compare(ground, 0);
-    
-    return (Boarding) pick.result();
+    return pick.result();
   }
   
   
@@ -211,13 +206,13 @@ public class Retreat extends Plan implements Qualities {
     */
   protected Behaviour getNextStep() {
     final boolean report = stepsVerbose && I.talkAbout == actor;
-    final boolean urgent = urgent();
+    final boolean urgent = actor.senses.isEndangered();
     
     if (
       safePoint == null || actor.aboard() == safePoint ||
       safePoint.pathType() == Tile.PATH_BLOCKS
     ) {
-      safePoint = nearestHaven(actor, null, urgent);
+      safePoint = actor.senses.haven();
     }
     if (safePoint == null) {
       abortBehaviour();
@@ -225,7 +220,7 @@ public class Retreat extends Plan implements Qualities {
     }
     
     final Target home = actor.mind.home();
-    final boolean goHome = (! urgent) && home != null;// (rateHaven(home, actor, null) > 0);
+    final boolean goHome = (! urgent) && home != null;
     
     final Action flees = new Action(
       actor, goHome ? home : safePoint,
@@ -240,15 +235,16 @@ public class Retreat extends Plan implements Qualities {
     return flees;
   }
   
-  
+  /*
   private boolean urgent() {
     return priorityFor(actor) >= ROUTINE;
   }
+  //*/
   
   
   public boolean actionFlee(Actor actor, Target safePoint) {
     
-    if (actor.indoors() && ! urgent()) {
+    if (actor.indoors() && ! actor.senses.isEndangered()) {
       final Resting rest = new Resting(actor, safePoint);
       rest.setMotive(Plan.MOTIVE_LEISURE, priorityFor(actor));
       maxDanger = 0;
@@ -275,7 +271,7 @@ public class Retreat extends Plan implements Qualities {
   /**  Rendering and interface methods-
     */
   public void describeBehaviour(Description d) {
-    if (! urgent()) {
+    if (! actor.senses.isEndangered()) {
       d.append("Retiring to safety");
       return;
     }

@@ -29,7 +29,7 @@ public class RoadsRepair extends Plan {
   public RoadsRepair(Actor actor, Tile t) {
     super(actor, actor.world().sections.sectionAt(t.x, t.y), true);
     this.base = actor.base();
-    this.map = base.paving.map;
+    this.map = base.paveRoutes.map;
     this.around = t;
   }
   
@@ -37,7 +37,7 @@ public class RoadsRepair extends Plan {
   public RoadsRepair(Session s) throws Exception {
     super(s);
     this.base = (Base) s.loadObject();
-    this.map = base.paving.map;
+    this.map = base.paveRoutes.map;
     this.around = (Tile) s.loadObject();
   }
   
@@ -62,15 +62,34 @@ public class RoadsRepair extends Plan {
   
   
   protected float getPriority() {
+    if (GameSettings.paveFree) return 0;
+    //if (Plan.competition(RoadsRepair.class, subject, actor) > 0) return 0;
     final boolean report = evalVerbose && I.talkAbout == actor;
     
     return super.priorityForActorWith(
-      actor, around, ROUTINE,
+      actor, around, CASUAL,
       NO_MODIFIER, NO_HARM,
       FULL_COMPETITION, BASE_SKILLS,
-      BASE_TRAITS, NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
+      BASE_TRAITS, NORMAL_DISTANCE_CHECK, MILD_FAIL_RISK,
       report
     );
+  }
+  
+  
+  //  TODO:  Merge this with the Repair class for simplicity?
+  protected float successChance() {
+    float chance = 1;
+    //  TODO:  Base this on the conversion associated with the structure type.
+    chance *= actor.skills.chance(HARD_LABOUR, 0);
+    chance *= actor.skills.chance(ASSEMBLY   , 5);
+    return (chance + 1) / 2;
+  }
+  
+  
+  public boolean valid() {
+    if (! super.valid()) return false;
+    if (around != null && ! map.needsPaving(around)) return false;
+    return true;
   }
   
   
@@ -85,22 +104,20 @@ public class RoadsRepair extends Plan {
       Tile next = null;
       if (next == null) next = nextLocalTile();
       if (next == null) next = map.nextTileToPave(actor, RoadsRepair.class);
-      
       if (report) {
-        I.say("\nCurrent tile: "+actor.aboard());
+        I.say("\n  Current tile: "+actor.origin());
         I.say("  Next tile to pave: "+next);
       }
       if (next == null) return null;
       else around = next;
-      //return null;
     }
-    
     if (t.isRoad(around)) {
       final Action strip = new Action(
         actor, around,
         this, "actionStrip",
         Action.BUILD, "Stripping "
       );
+      strip.setMoveTarget(Spacing.nearestOpenTile(around, actor));
       return strip;
     }
     else {
@@ -109,24 +126,22 @@ public class RoadsRepair extends Plan {
         this, "actionPave",
         Action.BUILD, "Paving "
       );
+      pave.setMoveTarget(Spacing.nearestOpenTile(around, actor));
       return pave;
     }
   }
   
   
   private Tile nextLocalTile() {
-    final World world = actor.world();
-    final Tile centre = world.tileAt(actor);
-    
-    for (Tile t : centre.vicinity(Spacing.tempT9)) {
-      if (t == null || ! map.needsPaving(t)) continue;
-      return t;
+    for (Tile t : actor.origin().vicinity(Spacing.tempT9)) {
+      if (t != null && map.needsPaving(t)) return t;
     }
     return null;
   }
   
   
   public boolean actionPave(Actor actor, Tile t) {
+    if (t.owningType() > Element.ELEMENT_OWNS) return false;
     //  TODO:  Deduct credits (or materials?)
     PavingMap.setPaveLevel(t, WorldTerrain.ROAD_LIGHT);
     return true;
@@ -134,6 +149,7 @@ public class RoadsRepair extends Plan {
   
   
   public boolean actionStrip(Actor actor, Tile t) {
+    if (t.owningType() > Element.ELEMENT_OWNS) return false;
     //  TODO:  Reclaim credits (or materials?)
     PavingMap.setPaveLevel(t, WorldTerrain.ROAD_NONE );
     return true;

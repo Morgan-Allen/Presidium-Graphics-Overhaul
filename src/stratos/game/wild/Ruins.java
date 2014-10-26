@@ -123,7 +123,7 @@ public class Ruins extends Venue {
         
         //  TODO:  Slag/wreckage must be done in a distinct pass...
         for (Ruins r : ruins) {
-          for (Tile t : world.tilesIn(r.area(), true)) {
+          for (Tile t : world.tilesIn(r.footprint(), true)) {
             Habitat h = Rand.yes() ? Habitat.CURSED_EARTH : Habitat.DUNE;
             world.terrain().setHabitat(t, h);
           }

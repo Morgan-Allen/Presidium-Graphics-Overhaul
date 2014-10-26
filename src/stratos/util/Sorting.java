@@ -168,6 +168,22 @@ public abstract class Sorting <K> implements Series <K> {
     return ref == null ? null : (K) ((Node) ref).value;
   }
   
+  
+  public K removeGreatest() {
+    final Object ref = greatestRef();
+    if (ref == null) return null;
+    deleteRef(ref);
+    return (K) ((Node) ref).value;
+  }
+  
+  
+  public K removeLeast() {
+    final Object ref = leastRef();
+    if (ref == null) return null;
+    deleteRef(ref);
+    return (K) ((Node) ref).value;
+  }
+  
 
   public Object greatestRef() {
     return furthestBranch(root, Side.R);

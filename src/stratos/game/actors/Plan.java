@@ -211,6 +211,7 @@ public abstract class Plan implements Saveable, Behaviour {
     final boolean report = verbose && hasBegun() && I.talkAbout == actor;
     if (motiveType == MOTIVE_CANCELLED) return true;
     if (actor == null) return false;
+    
     if (nextStepFor(actor) == null) {
       if (report) I.say("NO NEXT STEP: "+this+" "+hashCode());
       return true;
@@ -426,7 +427,7 @@ public abstract class Plan implements Saveable, Behaviour {
     */
   public static float rangePenalty(Target a, Target b) {
     if (a == null || b == null) return 0;
-    final float SS = World.SECTOR_SIZE;
+    final float SS = World.SECTOR_SIZE;  //  TODO:  Modify by move speed!
     final float dist = Spacing.distance(a, b) / SS;
     if (dist <= 1) return dist / 2;
     return ((float) FastMath.log(2, dist)) + 0.5f;

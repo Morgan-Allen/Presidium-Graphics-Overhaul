@@ -160,19 +160,19 @@ public abstract class ActorMind implements Qualities {
   
   
   protected Action getNextAction() {
-    final boolean
-      reportStep = stepsVerbose && I.talkAbout == actor,
-      reportNew = reportStep || (decisionVerbose && I.talkAbout == actor);
+    final boolean report = I.talkAbout == actor && stepsVerbose;
+    final int MAX_LOOP = 20;  // Safety feature (see below.)
     
-    
-    final int MAX_LOOP = 20;  // Safety feature, see below...
     for (int loop = MAX_LOOP; loop-- > 0;) {
-      if (reportStep) I.say("\n"+actor+" in action-decision loop:");
+      if (report) {
+        I.say("\n"+actor+" in action-decision loop:");
+        for (Behaviour b : agenda) I.say("  "+b);
+      }
       //
       //  If all current behaviours are complete, generate a new one.
       if (agenda.size() == 0) {
         final Behaviour taken = nextBehaviour();
-        if (reportNew) {
+        if (report) {
           I.say("\nCurrent agenda was empty!");
           I.say("  Next behaviour: "+taken);
         }
@@ -183,26 +183,25 @@ public abstract class ActorMind implements Qualities {
       //  Root behaviours which return null, but aren't complete, should be
       //  stored for later.  Otherwise, unfinished behaviours should return
       //  their next step.
-      final Behaviour current = topBehaviour();
+      final Behaviour current = topBehaviour(), root = rootBehaviour();
+      if (current == null) continue;
       final Behaviour next = current.nextStepFor(actor);
-      final boolean isDone = current.finished();
-      if (reportStep) {
-        I.say("  Current action "+current);
-        I.say("  Class type: "+current.getClass().getSimpleName());
-        I.say("  Next step "+next);
-        I.say("  Done "+isDone);
+      final boolean
+        isDone  = current.finished(),
+        doLater = current == root && current.persistent() && ! isDone;
+      
+      if (report) {
+        I.say("\n  Current step:   "+current);
+        I.say("  Class type:     "+current.getClass().getSimpleName());
+        I.say("  Next step:      "+next);
+        I.say("  Done:           "+isDone);
+        I.say("  Will do later:  "+doLater);
       }
       if (isDone || next == null) {
-        if (current == rootBehaviour() && ! isDone && current.persistent()) {
-          todoList.add(current);
-        }
+        if (doLater) todoList.add(current);
         popBehaviour();
       }
       else if (current instanceof Action) {
-        if (reportStep) {
-          I.say("Next action: "+current);
-          I.say("Agenda size: "+agenda.size());
-        }
         return (Action) current;
       }
       else {
@@ -216,13 +215,21 @@ public abstract class ActorMind implements Qualities {
     final Behaviour root = rootBehaviour();
     final Behaviour next = root == null ? null : root.nextStepFor(actor);
     I.say("  Root behaviour: " + root);
-    I.say("  Next step: " + next);
+    I.say("  Next step:      " + next);
     if (next != null) {
-      I.say("  Valid/finished " + next.valid() + "/" + next.finished());
+      I.say("  Valid/finished  " + next.valid() + "/" + next.finished());
     }
     new Exception().printStackTrace();
     return null;
   }
+  
+  
+  protected boolean needsUpdate() {
+    final Behaviour current = topBehaviour(), root = rootBehaviour();
+    if (current instanceof Action && current == root) return false;
+    return root == null || root.finished();
+  }
+  
   
   
   
@@ -309,7 +316,7 @@ public abstract class ActorMind implements Qualities {
     if (todoList.includes(b)) todoList.remove(b);
     agenda.addFirst(b);
     if (stepsVerbose && I.talkAbout == actor) {
-      I.say("PUSHING BEHAVIOUR: "+b);
+      I.say("\nPUSHING BEHAVIOUR: "+b);
     }
     actor.world().activities.toggleBehaviour(b, true);
   }
@@ -318,7 +325,7 @@ public abstract class ActorMind implements Qualities {
   private Behaviour popBehaviour() {
     final Behaviour b = agenda.removeFirst();
     if (stepsVerbose && I.talkAbout == actor) {
-      I.say("POPPING BEHAVIOUR: "+b);
+      I.say("\nPOPPING BEHAVIOUR: "+b);
       I.say("  Finished/valid: "+b.finished()+"/"+b.valid());
       I.say("  Priority "+b.priorityFor(actor));
     }

@@ -8,9 +8,7 @@
 package stratos.game.base;
 import stratos.game.common.*;
 import stratos.game.maps.*;
-import stratos.game.plans.Delivery;
-import stratos.game.plans.DeliveryUtils;
-import stratos.game.plans.Mining;
+import stratos.game.plans.*;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.graphics.common.*;
@@ -18,6 +16,7 @@ import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
+
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.building.Economy.*;
@@ -33,7 +32,7 @@ public class ExcavationSite extends Venue implements
     */
   final static String IMG_DIR = "media/Buildings/artificer/";
   final static CutoutModel SHAFT_MODEL = CutoutModel.fromImage(
-    ExcavationSite.class, IMG_DIR+"excavation_site.png", 4, 1
+    ExcavationSite.class, IMG_DIR+"excavation_shaft.gif", 4, 1
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
     ExcavationSite.class, "media/GUI/Buttons/excavation_button.gif"

@@ -170,15 +170,15 @@ public abstract class Venue extends Structural implements
     //  Make sure we don't displace any more important object, or occupy their
     //  entrances.  In addition, the entrance must be clear.
     final int OT = owningType();
-    for (Tile t : world.tilesIn(area(), false)) {
+    for (Tile t : world.tilesIn(footprint(), false)) {
       if (t == null || t.owningType() >= OT) return false;
       for (Element e : Spacing.entranceFor(t)) {
         if (e.owningType() >= OT) return false;
       }
     }
     
-    for (Venue c : world.claims.venuesConflicting(areaClaimed())) {
-      if (claimConflicts(c)) return false;
+    for (Venue c : world.claims.venuesConflicting(areaClaimed(), this)) {
+      return false;
     }
     
     if (! checkPerimeter(world)) return false;
@@ -191,7 +191,7 @@ public abstract class Venue extends Structural implements
   protected boolean checkPerimeter(World world) {
     //
     //  Don't abut on anything of higher priority-
-    for (Tile n : Spacing.perimeter(area(), world)) {
+    for (Tile n : Spacing.perimeter(footprint(), world)) {
       if (n == null) return false;
       final Element top = n.onTop();
       if (top != null && ! canTouch(top)) return false;
@@ -221,8 +221,7 @@ public abstract class Venue extends Structural implements
     if (! super.enterWorldAt(x, y, world)) return false;
     if (base == null) I.complain("VENUES MUST HAVE A BASED ASSIGNED! "+this);
     
-    //  TODO:  Review this process more thoroughly.
-    for (Venue c : world.claims.venuesConflicting(areaClaimed())) {
+    for (Venue c : world.claims.venuesConflicting(areaClaimed(), this)) {
       c.exitWorld();
     }
     
@@ -266,17 +265,17 @@ public abstract class Venue extends Structural implements
   
   protected void updatePaving(boolean inWorld) {
     super.updatePaving(inWorld);
-    base.paving.updateJunction(this, mainEntrance(), inWorld);
+    base.paveRoutes.updateJunction(this, mainEntrance(), inWorld);
   }
   
   
   protected Box2D areaClaimed() {
-    return area();
+    return footprint();
   }
   
   
-  protected boolean claimConflicts(Venue other) {
-    return other.owningType() >= this.owningType();
+  public boolean preventsClaimBy(Venue other) {
+    return other.owningType() <= this.owningType();
   }
   
   
@@ -309,7 +308,7 @@ public abstract class Venue extends Structural implements
   
   public Box2D area(Box2D put) {
     if (put == null) put = new Box2D();
-    return put.setTo(this.area());
+    return put.setTo(this.footprint());
   }
   
   

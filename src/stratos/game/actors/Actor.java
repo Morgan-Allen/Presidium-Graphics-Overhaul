@@ -210,15 +210,7 @@ public abstract class Actor extends Mobile implements
       actionTaken.updateAction(OK);
     }
     
-    final Behaviour root = mind.rootBehaviour();
-    if (root != null && root != actionTaken && root.finished() && OK) {
-      if (verbose && I.talkAbout == this) {
-        I.say("  ROOT BEHAVIOUR COMPLETE... "+root);
-        I.say("  PRIORITY: "+root.priorityFor(this));
-        I.say("  NEXT STEP: "+root.nextStepFor(this));
-      }
-      mind.cancelBehaviour(root);
-    }
+    if (OK && mind.needsUpdate()) mind.getNextAction();
     
     if (aboard instanceof Mobile && (pathing.nextStep() == aboard || ! OK)) {
       aboard.position(nextPosition);

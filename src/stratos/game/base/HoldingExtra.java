@@ -59,7 +59,7 @@ public class HoldingExtra extends Fixture implements TileConstants {
   
   public void exitWorld() {
     super.exitWorld();
-    parent.base().paving.updatePerimeter(this, false);
+    parent.base().paveRoutes.updatePerimeter(this, false);
   }
   
   
@@ -130,7 +130,7 @@ public class HoldingExtra extends Fixture implements TileConstants {
     for (HoldingExtra extra : extras) {
       if (extra.destroyed()) extras.remove(extra);
       else {
-        holding.base().paving.updatePerimeter(extra, true);
+        holding.base().paveRoutes.updatePerimeter(extra, true);
         extra.updateLevel(level);
       }
     }
@@ -151,7 +151,7 @@ public class HoldingExtra extends Fixture implements TileConstants {
     //
     //  If you don't have enough extras yet, see if there's space for some on
     //  one side of the holding-
-    final Tile perim[] = Spacing.perimeter(holding.area(), world);
+    final Tile perim[] = Spacing.perimeter(holding.footprint(), world);
     final int n = Rand.index(4) * (sideSize + 1);
     boolean sideClear = true;
     final Batch <Tile> claimed = new Batch <Tile> ();

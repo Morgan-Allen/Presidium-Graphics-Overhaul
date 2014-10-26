@@ -105,6 +105,11 @@ public class Holding extends Venue {
   }
   
   
+  public boolean privateProperty() {
+    return true;
+  }
+  
+  
   public int upgradeLevel() {
     return upgradeLevel;
   }
@@ -284,11 +289,6 @@ public class Holding extends Venue {
   
   protected List <HoldingExtra> extras() {
     return extras;
-  }
-  
-  
-  public boolean privateProperty() {
-    return true;
   }
   
   

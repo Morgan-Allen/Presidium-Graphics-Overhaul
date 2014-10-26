@@ -13,15 +13,13 @@ import static stratos.game.actors.Qualities.*;
 
 public class Repairs extends Plan {
   
-  /**  Field definitions, constants and save/load methods-
-    */
-  final public static float
-    TIME_PER_25_HP = World.STANDARD_HOUR_LENGTH,
-    MIN_SERVICE_DAMAGE = 0.25f;
-  
   private static boolean
     evalVerbose   = false,
     eventsVerbose = false;
+  
+  final public static float
+    TIME_PER_25_HP     = World.STANDARD_HOUR_LENGTH / 2,
+    MIN_SERVICE_DAMAGE = 0.25f;
   
   final Installation built;
   
@@ -63,7 +61,7 @@ public class Repairs extends Plan {
   }
   
   
-  public static Plan getNextRepairFor(Actor client, float motiveBonus) {
+  public static Plan getNextRepairFor(Actor client, boolean asDuty) {
     final World world = client.world();
     final Choice choice = new Choice(client);
     final boolean report = evalVerbose && I.talkAbout == client;
@@ -79,7 +77,7 @@ public class Repairs extends Plan {
       if (near.base() != client.base()) continue;
       if (needForRepair(near) <= 0) continue;
       final Repairs b = new Repairs(client, near);
-      b.setMotive(Plan.MOTIVE_DUTY, motiveBonus);
+      if (asDuty) b.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
       choice.add(b);
       
       if (report) {
@@ -90,11 +88,11 @@ public class Repairs extends Plan {
     }
     //
     //  Then, see if there are tiles which require paving nearby-
-    final PavingMap p = client.base().paving.map;
+    final PavingMap p = client.base().paveRoutes.map;
     final Tile toPave = p.nextTileToPave(client, RoadsRepair.class);
     if (toPave != null) {
       final RoadsRepair r = new RoadsRepair(client, toPave);
-      r.setMotive(Plan.MOTIVE_DUTY, motiveBonus);
+      if (asDuty) r.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
       choice.add(r);
     }
     //
@@ -111,34 +109,41 @@ public class Repairs extends Plan {
   
   
   protected float getPriority() {
-    final boolean report = I.talkAbout == actor && evalVerbose;// && hasBegun();
+    final boolean report = I.talkAbout == actor && evalVerbose;
     
     float urgency = needForRepair(built);
-    urgency *= actor.relations.valueFor(built.base());
+    urgency *= actor.relations.valueFor(built);
+    urgency *= (1 + actor.base().relations.communitySpirit()) / 2f;
     
+    //  TODO:  Factor this in elsewhere, such as general citizen satisfaction
+    //  ratings.
+    /*
     if (! GameSettings.buildFree) {
       final float debt = 0 - built.base().credits();
       if (report) I.say("  Basic urgency: "+urgency+", debt level: "+debt);
       if (debt > 0 && urgency > 0) urgency -= debt / 500f;
     }
-    
+    //*/
     if (urgency <= 0) return 0;
     
     float competition = FULL_COMPETITION;
     competition /= 1 + (built.structure().maxIntegrity() / 100f);
-    final float help = REAL_HELP * actor.base().relations.communitySpirit();
     
     final float priority = priorityForActorWith(
-      actor, (Target) built, CASUAL * Visit.clamp(urgency, 0, 1),
-      NO_MODIFIER, help,
-      competition, BASE_SKILLS,
-      BASE_TRAITS, NORMAL_DISTANCE_CHECK, MILD_FAIL_RISK,
+      actor, (Target) built,
+      ROUTINE * Visit.clamp(urgency, 0, 1), NO_MODIFIER,
+      REAL_HELP, competition,
+      BASE_SKILLS, BASE_TRAITS,
+      NORMAL_DISTANCE_CHECK, MILD_FAIL_RISK,
       report
     );
     if (report) {
-      I.say("Repairing "+built+", base: "+built.base());
-      I.say("  Help/Competition: "+help+"/"+competition);
-      I.say("  Final priority: "+priority);
+      I.say("  Repairing "+built+", base: "+built.base()+"?");
+      I.say("  Intrinsic urgency: "+urgency);
+      I.say("  PRIORITY:          "+(ROUTINE * Visit.clamp(urgency, 0, 1)));
+      I.say("  Community spirit:  "+actor.base().relations.communitySpirit());
+      I.say("  Competition:       "+competition);
+      I.say("  Final priority:    "+priority);
     }
     return priority;
   }
@@ -148,7 +153,7 @@ public class Repairs extends Plan {
     float chance = 1;
     //  TODO:  Base this on the conversion associated with the structure type.
     chance *= actor.skills.chance(HARD_LABOUR, 0);
-    chance *= actor.skills.chance(ASSEMBLY, 5);
+    chance *= actor.skills.chance(ASSEMBLY   , 5);
     return (chance + 1) / 2;
   }
   

@@ -168,15 +168,8 @@ public class FindHome extends Plan {
     }
     
     if (best == null || Rand.index(10) == 0) {
-      //  TODO:  IMPLEMENT CONSTRUCTION OF NATIVE HUTS
-      final Venue refuge = (Venue) world.presences.nearestMatch(
-        SERVICE_REFUGE, client, World.SECTOR_SIZE
-      );
-      if (report) I.say("Refuge is: "+refuge);
       
-      final Holding h = (refuge == null || refuge.base() != client.base()) ?
-        null : newHoldingFor(client);  //  Use newHutFor(client)!
-      //final Holding h = newHoldingFor(client);
+      final Holding h = newHoldingFor(client);
       final float rating = rateHolding(client, h);
       if (report) I.say("Rating for new site "+h+" is "+rating);
       if (rating > bestRating) { bestRating = rating; best = h; }

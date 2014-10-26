@@ -64,7 +64,18 @@ public class VenueProfile implements Session.Saveable {
       final Constructor c = baseClass.getConstructor(Base.class);
       return (Venue) c.newInstance((Base) null);
     }
-    catch (Exception e) { return null; }
+    catch (NoSuchMethodException e) {
+      I.say(
+        "\n  WARNING: NO BASE CONSTRUCTOR FOR: "+baseClass.getName()+
+        "\n  All Venues should implement a public constructor taking a Base "+
+        "\n  as the sole argument, or they may not save & load properly.\n"
+      );
+      return null;
+    }
+    catch (Exception e) {
+      I.say("ERROR INSTANCING "+baseClass.getSimpleName()+": "+e);
+      return null;
+    }
   }
   
   
@@ -73,16 +84,22 @@ public class VenueProfile implements Session.Saveable {
     */
   private static Table <Class, VenueProfile> allProfiles = new Table();
   
-  
   public static VenueProfile loadConstant(Session s) throws Exception {
     venueTypes();
-    final Class key = s.loadClass();
-    return allProfiles.get(key);
+    final String className = s.loadString();
+    final Class key = Class.forName(className);
+    final VenueProfile profile = key == null ? null : allProfiles.get(key);
+    
+    if (profile == null) I.say(
+      "NO PROFILE FOUND FOR "+className+
+      ", WILL NOT LOAD PROPERLY AFTER FIRST REFERENCE!"
+    );
+    return profile;
   }
   
   
   public void saveState(Session s) throws Exception {
-    s.saveClass(baseClass);
+    s.saveString(baseClass.getName());
   }
   
   

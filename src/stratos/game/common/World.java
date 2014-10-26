@@ -222,7 +222,7 @@ public class World {
     currentTime += 1f / PlayLoop.UPDATES_PER_SECOND;
     
     for (Base base : bases) {
-      base.paving.checkConsistency();
+      base.paveRoutes.checkConsistency();
       if (((int) (oldTime / 2)) != ((int) (currentTime / 2))) {
         base.intelMap.updateFogValues();
       }
@@ -230,9 +230,7 @@ public class World {
     
     schedule.advanceSchedule(currentTime);
     ecology.updateEcology();
-    for (Mobile m : mobiles) {
-      m.updateAsMobile();
-    }
+    for (Mobile m : mobiles)  m.updateAsMobile();
   }
   
   

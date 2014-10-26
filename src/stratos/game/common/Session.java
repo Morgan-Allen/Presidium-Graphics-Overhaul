@@ -34,11 +34,11 @@ import stratos.util.*;
   */
 public class Session {
   
+  private static boolean verbose = false;
   
   final static int
     CLASS_CAPACITY  = 200,
     OBJECT_CAPACITY = 50000;
-  private static boolean verbose = false;
   
   private Table             <Class <?> , Vars.Int>
     classCounts = new Table <Class <?> , Vars.Int> (CLASS_CAPACITY );
@@ -352,6 +352,7 @@ public class Session {
     *  or to any subclasses invoking the constructor with super calls.)
     */
   public void cacheInstance(Saveable s) {
+    if (s == null) I.complain("CANNOT CACHE NULL INSTANCE!");
     loadIDs.put(lastObjectID, s);
   }
   

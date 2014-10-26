@@ -1,6 +1,8 @@
 
 
 package stratos.game.campaign;
+import org.apache.commons.math3.util.FastMath;
+
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.civilian.*;
@@ -28,12 +30,12 @@ public class BaseRelations {
   private int
     population;
   private float
-    communitySpirit,
-    alertLevel,
-    crimeLevel,
-    averageMood,
-    propertyValues,
-    creditCirculation;
+    communitySpirit   = 1.0f,
+    alertLevel        = 0.5f,
+    crimeLevel        = 0.0f,
+    averageMood       = 0.5f,
+    propertyValues    = 0.0f,
+    creditCirculation = 0.0f;
   
   
   public BaseRelations(Base base) {
@@ -146,6 +148,7 @@ public class BaseRelations {
   /**  Performing regular updates-
     */
   public void updateRelations() {
+    I.say("UPDATING BASE RELATIONS!");
     
     final Tile t = base.world.tileAt(0, 0);
     int numResidents  = 0;
@@ -153,7 +156,6 @@ public class BaseRelations {
     propertyValues    = 0;
     creditCirculation = base.credits();
     
-    //
     //  Compute overall credits in circulation, so that adjustments to money
     //  supply can be made by your auditors.
     for (Object o : base.world.presences.matchesNear(this, t, -1)) {
@@ -167,20 +169,17 @@ public class BaseRelations {
         averageMood += resident.health.moraleLevel();
       }
     }
-
-    //
+    
     //  Once per day, iterate across all personnel to get a sense of citizen
     //  mood, and compute community spirit.  (This declines as your settlement
     //  gets bigger and citizens become less happy.)
     averageMood /= (numResidents + 1);
-    communitySpirit = 1f / (1 + (numResidents / 100f));
-    communitySpirit = (communitySpirit + averageMood) / 2f;
+    final float s = (float) FastMath.log(10, 1 + numResidents);
+    final float m = averageMood / 2f;
+    communitySpirit = Visit.clamp(1 + m - (s / 4), 0, 1);
     population = numResidents;
   }
 }
-
-
-
 
 
 

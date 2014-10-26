@@ -72,7 +72,7 @@ public class Wreckage extends Fixture {
       while (size-- > 1) {
         final Wreckage heap = new Wreckage(false, size);
         heap.setPosition(t.x, t.y, world);
-        if (! heap.area().containedBy(area)) continue;
+        if (! heap.footprint().containedBy(area)) continue;
         if (! heap.canPlace()) continue;
         heap.enterWorldAt(t.x, t.y, world);
         break;

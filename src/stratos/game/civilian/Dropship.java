@@ -45,9 +45,9 @@ public class Dropship extends Vehicle implements
     "The Solar Wind",
     "The Blue Nebula",
     "The Dejah Thoris",
-    "The Royal Organa",
+    "The Leia Organa",
     "The Princess Irulan",
-    "The Century Falcon",
+    "The Kestrel Century",
     "The Business End",
     "The Tranquillity",
     "The Arrow of Orion",
@@ -62,6 +62,9 @@ public class Dropship extends Vehicle implements
     "The Firebrat",
     "The Wing and Prayer",
     "The Prima Noctis",
+    "The Nova Dodger",
+    "The Terminal Drift",
+    "The Halcyon",
   };
   
   

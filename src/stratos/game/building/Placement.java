@@ -13,7 +13,8 @@ import stratos.util.*;
 
 
 //
-//  TODO:  Try merging this with the TileSpread class.
+//  TODO:  Try merging this with the TileSpread class, or the PlacementGrid
+//  class.  Placement2 can probably be got rid off completely.
 
 
 public class Placement implements TileConstants {
@@ -99,7 +100,7 @@ public class Placement implements TileConstants {
     Box2D limits = null;
     for (Fixture f : fixtures) {
       if (limits == null) f.area(limits = new Box2D());
-      else limits.include(f.area());
+      else limits.include(f.footprint());
     }
     if (! checkAreaClear(
       world.tileAt(limits.xpos() + 0.5f, limits.ypos() + 0.5f),

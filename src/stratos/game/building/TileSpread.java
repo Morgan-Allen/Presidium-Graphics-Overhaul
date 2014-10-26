@@ -78,7 +78,7 @@ public abstract class TileSpread extends Search <Tile> {
       }
       protected boolean canPlaceAt(Tile t) {
         toPlace.setPosition(t.x, t.y, t.world);
-        if (limit != null && ! toPlace.area().containedBy(limit)) return false;
+        if (limit != null && ! toPlace.footprint().containedBy(limit)) return false;
         return toPlace.canPlace();
       }
     };
@@ -115,7 +115,7 @@ public abstract class TileSpread extends Search <Tile> {
           final Tile o = t.world.tileAt(t.x + c.x, t.y + c.y);
           if (o == null) return false;
           f.setPosition(o.x, o.y, o.world);
-          if (limit != null && ! f.area().containedBy(limit)) return false;
+          if (limit != null && ! f.footprint().containedBy(limit)) return false;
           if (! f.canPlace()) return false;
         }
         return true;

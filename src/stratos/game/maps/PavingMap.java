@@ -1,27 +1,26 @@
 
 
 package stratos.game.maps;
-import stratos.game.building.Paving;
+import stratos.game.building.*;
 import stratos.game.common.*;
-import stratos.game.maps.*;
 import stratos.util.*;
+import static stratos.game.maps.WorldTerrain.*;
 
 
 
 public class PavingMap {
   
-  
   private static boolean verbose = false, searchVerbose = false;
   
   final World world;
-  final Paving paving;
+  final PavingRoutes paving;
   final int size;
   
   final byte roadCounter[][];
   final MipMap flagMap;
   
   
-  public PavingMap(World world, Paving paving) {
+  public PavingMap(World world, PavingRoutes paving) {
     this.world  = world ;
     this.paving = paving;
     
@@ -56,7 +55,6 @@ public class PavingMap {
       final boolean flag = needsPaving(world.tileAt(c.x, c.y));
       flagMap.set((byte) (flag ? 1 : 0), c.x, c.y);
     }
-    
     MipMap.printVals(flagMap);
     //*/
   }
@@ -68,14 +66,34 @@ public class PavingMap {
   public void flagForPaving(Tile t, boolean is) {
     final byte c = (roadCounter[t.x][t.y] += is ? 1 : -1);
     if (c < 0) I.complain("CANNOT HAVE NEGATIVE ROAD COUNTER: "+t);
+    
     final boolean flag = needsPaving(t);
     flagMap.set((byte) (flag ? 1 : 0), t.x, t.y);
+    
+    if (GameSettings.paveFree) {
+      setPaveLevel(t, c > 0 ? ROAD_LIGHT : ROAD_NONE);
+    }
   }
   
   
   public void flagForPaving(Tile tiles[], boolean is) {
     if (tiles == null || tiles.length == 0) return;
     for (Tile t : tiles) if (t != null) flagForPaving(t, is);
+  }
+  
+  
+  public boolean refreshTiles(Tile tiles[]) {
+    for (Tile t : tiles) {
+      final byte c = roadCounter[t.x][t.y];
+      
+      final boolean flag = needsPaving(t);
+      flagMap.set((byte) (flag ? 1 : 0), t.x, t.y);
+      
+      if (GameSettings.paveFree) {
+        setPaveLevel(t, c > 0 ? ROAD_LIGHT : ROAD_NONE);
+      }
+    }
+    return true;
   }
   
   
@@ -88,8 +106,29 @@ public class PavingMap {
     return world.terrain().isRoad(t) != (roadCounter(t) > 0);
   }
   
+
+  public static void setPaveLevel(Tile t, byte level) {
+    t.world.terrain().setRoadType(t, level);
+    
+    if (level > ROAD_NONE && t.onTop() != null) {
+      t.onTop().setAsDestroyed();
+    }
+  }
   
   
+  protected void updateFlags(Tile t) {
+    final boolean flag = needsPaving(t);
+    flagMap.set((byte) (flag ? 1 : 0), t.x, t.y);
+  }
+  
+
+  /**  Search method for getting the next tile that needs paving.
+    * 
+    */
+  //  TODO:  Try to improve efficiency here.  In the worst-case scenario
+  //  you're looking at checking half the tiles in the world...
+  //  TODO:  Limit to the maximum distance that auto-paving can extend, then
+  //  just check around buildings?
   public Tile nextTileToPave(final Target client, final Class paveClass) {
     this.refreshFlags();
     
@@ -100,8 +139,6 @@ public class PavingMap {
     final int depth = MipMap.sizeToDepth(world.sections.resolution);
     final Tile o = world.tileAt(client);
     
-    //  TODO:  Try to improve efficiency here.  In the worst-case scenario
-    //  you're looking at checking half the tiles in the world...
     
     for (WorldSection s : world.sections.sectionsUnder(world.area())) {
       final float distS = s.area.distance(o.x, o.y) + 1;
@@ -128,17 +165,6 @@ public class PavingMap {
     if (report) I.say("Next tile to pave: "+result.value);
     
     return result.value;
-  }
-  
-
-  public static void setPaveLevel(Tile t, byte level) {
-    t.world.terrain().setRoadType(t, level);
-  }
-  
-  
-  protected void updateFlags(Tile t) {
-    final boolean flag = needsPaving(t);
-    flagMap.set((byte) (flag ? 1 : 0), t.x, t.y);
   }
 }
 

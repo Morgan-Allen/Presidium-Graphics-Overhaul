@@ -17,8 +17,6 @@ public class PlacementGrid {
   final World world;
   final Table <Venue, Claim> venueClaims;
   final List <Claim> areaClaims[][];
-  //
-  //final Bitmap freeLattice;
   
   
   static class Claim {
@@ -63,8 +61,8 @@ public class PlacementGrid {
   
   /**  Public methods for querying and asserting area-specific claims.
     */
-  public Venue[] venuesConflicting(Box2D newClaim) {
-    final Batch <Claim> against = claimsConflicting(newClaim);
+  public Venue[] venuesConflicting(Box2D newClaim, Venue owner) {
+    final Batch <Claim> against = claimsConflicting(newClaim, owner);
     final Venue conflict[] = new Venue[against.size()];
     int n = 0;
     for (Claim c : against) conflict[n++] = c.owner;
@@ -72,16 +70,22 @@ public class PlacementGrid {
   }
   
   
-  private Batch <Claim> claimsConflicting(Box2D newClaim) {
+  private Batch <Claim> claimsConflicting(Box2D area, Venue owner) {
     final Batch <Claim> conflict = new Batch <Claim> ();
-    if (verbose) I.say("NEW CLAIM IS: "+newClaim);
+    if (verbose) I.say("NEW CLAIM IS: "+area);
     
-    for (WorldSection s : world.sections.sectionsUnder(newClaim)) {
+    for (WorldSection s : world.sections.sectionsUnder(area)) {
       final List <Claim> claims = areaClaims[s.x][s.y];
+      
       if (claims != null) for (Claim claim : claims) {
-        if ((! claim.flag) && claim.area.overlaps(newClaim)) {
-          if (verbose) I.say("CONFLICTS WITH: "+claim.owner);
+        if ((! claim.flag) && claim.area.overlaps(area)) {
           
+          final boolean clash = owner == null  ||
+            claim.owner.preventsClaimBy(owner) ||
+            claim.owner.footprint().overlaps(area);
+          if (! clash) continue;
+          
+          if (verbose) I.say("CONFLICTS WITH: "+claim.owner);
           conflict.add(claim);
           claim.flag = true;
         }
@@ -94,7 +98,7 @@ public class PlacementGrid {
   
   
   public Claim assertNewClaim(Venue owner) {
-    return assertNewClaim(owner, owner.area());
+    return assertNewClaim(owner, owner.footprint());
   }
   
   
@@ -132,17 +136,27 @@ public class PlacementGrid {
   }
   
   
-  private void clearAllClaims() {
+  public void clearAllClaims() {
     venueClaims.clear();
     final int NS = world.size / world.sections.resolution;
     for (Coord c : Visit.grid(0, 0, NS, NS, 1)) areaClaims[c.x][c.y] = null;
   }
+}
+
+
+
+
+
+
+  
+  
   
   
   
   /**  Utility methods for finding the largest claim which might fit within
     *  currently free space.
     */
+  /*
   public Box2D cropNewClaim(Box2D area) {
     final Box2D cropped = new Box2D().setTo(area);
     final Box2D sides[] = {
@@ -188,6 +202,8 @@ public class PlacementGrid {
   /**  Prototype code for dividing up the map into a laticework of spaces for
     *  ease of deterministic placement.
     */
+  /*
+  //  TODO:  This can probably be gotten rid of.  Not used
   public Box2D[] placeLatticeWithin(
     Box2D area, Venue client, int laneSize, int maxUnits, boolean useLeftovers
   ) {
@@ -263,10 +279,4 @@ public class PlacementGrid {
     }
     return false;
   }
-}
-
-
-
-
-
-
+  //*/

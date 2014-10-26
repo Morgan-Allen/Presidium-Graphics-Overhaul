@@ -314,7 +314,7 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
     final byte oldLevel = paveVals[t.x][t.y];
     paveVals[t.x][t.y] = level;
     
-    for (Base b : t.world.bases()) b.paving.map.updateFlags(t);
+    for (Base b : t.world.bases()) b.paveRoutes.map.updateFlags(t);
     
     if (level != oldLevel) for (Tile n : t.vicinity(tempV)) if (n != null) {
       meshSet.flagUpdateAt(n.x, n.y, roadLayer);

@@ -150,7 +150,7 @@ public class Drilling extends Plan {
     if (type == -1) return false;
     final Skill baseSkills[] = ALL_DRILL_SKILLS[type];
     final Upgrade bonus = yard.bonusFor(type);
-    final int DC = (1 + yard.belongs.structure.upgradeLevel(bonus)) * 5;
+    final int DC = (1 + yard.belongs().structure.upgradeLevel(bonus)) * 5;
     
     boolean success = true;
     success &= actor.skills.test(baseSkills[0], DC    , 0.5f);
