@@ -49,8 +49,10 @@ public class Delivery extends Plan {
   
   private byte stage = STAGE_INIT;
   private float pricePaid = 0;
-  private Suspensor suspensor;
+  
+  private Suspensor suspensor; //  TODO:  Unify with vehicle...
   public Vehicle driven;
+  public boolean replace = false;
   
   
   public Delivery(TradeType s, Owner origin, Owner destination) {
@@ -93,6 +95,7 @@ public class Delivery extends Plan {
     pricePaid = s.loadFloat();
     suspensor = (Suspensor) s.loadObject();
     driven = (Vehicle) s.loadObject();
+    replace = s.loadBool();
   }
   
   
@@ -110,6 +113,7 @@ public class Delivery extends Plan {
     s.saveFloat(pricePaid);
     s.saveObject(suspensor);
     s.saveObject(driven);
+    s.saveBool(replace);
   }
   
   
@@ -348,6 +352,12 @@ public class Delivery extends Plan {
     
     if (shouldPay != null && pricePaid > 0) {
       shouldPay.inventory().incCredits(0 - pricePaid);
+    }
+    
+    if (replace) for (Item i : items) {
+      final Item match = target.inventory().matchFor(i);
+      if (match == null || (i.amount < 1) && (match.amount < 1)) continue;
+      target.inventory().removeItem(match);
     }
     
     if (driven != null) {

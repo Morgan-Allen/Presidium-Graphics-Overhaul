@@ -224,6 +224,8 @@ public class Smelter extends Venue {
   
   
   private void updateSprite(int progress) {
+    //  TODO:  Consider a simple teardown-and-replace scheme instead?
+    
     final boolean inWorld = inWorld() && sprite() != null;
     //
     //  Otherwise, put together a group sprite-
@@ -234,7 +236,7 @@ public class Smelter extends Venue {
     }
     else {
       s = new GroupSprite();
-      s.attach(DRILLING_MODELS[1], -0.5f, -0.5f, 0);
+      s.attach(DRILLING_MODELS[0], -0.5f, -0.5f, 0);
       attachSprite(s);
     }
     //
@@ -296,7 +298,7 @@ public class Smelter extends Venue {
   
   
   public String buildCategory() {
-    return InstallTab.TYPE_ARTIFICER;
+    return InstallTab.TYPE_HIDDEN;
   }
 }
 

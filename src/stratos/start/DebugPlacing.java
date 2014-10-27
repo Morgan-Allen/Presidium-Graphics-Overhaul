@@ -19,6 +19,7 @@ import stratos.util.*;
 //  Set up exclusion zone around kommando lodge and excavation shaft.  Get
 //  surface mines working inside.
 
+//  Underground excavations are way too fast!
 
 //  There's a bug where placement of shield-walls at a corner results in the
 //  deletion of the corner tile.  Fix.

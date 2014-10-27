@@ -103,8 +103,8 @@ public final class Economy {
     SAMPLES = new TradeType(
       BC, "Samples"    , null, FORM_SPECIAL, 0
     ),
-    CREDITS = new TradeType(
-      BC, "Credits"    , null, FORM_SPECIAL, 0
+    ARTIFACTS = new TradeType(
+      BC, "Artifacts"  , null, FORM_SPECIAL, 0
     ),
     DECOR_ITEMS = new TradeType(
       BC, "Decor Items", null, FORM_SPECIAL, 0

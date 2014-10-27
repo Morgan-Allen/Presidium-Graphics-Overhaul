@@ -251,50 +251,63 @@ public class Nursery extends Venue implements TileConstants {
   public Behaviour jobFor(Actor actor) {
     final Choice choice = new Choice(actor);
     
-    //  If you're really short on food, consider foraging in the surrounds-
+    //  If you're really short on food, consider foraging in the surrounds or
+    //  farming 24/7.
     final float shortages = (
-      stocks.shortagePenalty(CARBS) +
+      stocks.shortagePenalty(CARBS ) +
       stocks.shortagePenalty(GREENS)
     ) / 2f;
     if (shortages > 0) {
+      choice.add(new Farming(actor, this));
+      
       final Foraging foraging = new Foraging(actor, this);
       foraging.setMotive(Plan.MOTIVE_EMERGENCY, Plan.PARAMOUNT * shortages);
       choice.add(foraging);
     }
-    //
-    
-    //  If the harvest is really coming in, pitch in regardless-
-    if (! Planet.isNight(world)){
-      if (needForTending() > 0.5f) choice.add(new Farming(actor, this));
-    }
     
     if (choice.size() > 0) return choice.pickMostUrgent();
-    
     if (! personnel.onShift(actor)) return null;
+    
+    //  Otherwise, consider normal deliveries and routine tending-
     final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
       this, services(), 2, 10, 5
     );
     choice.add(d);
     
+    choice.add(bestSeedCollection(actor));
+    choice.add(new Farming(actor, this));
     
-    final Batch <Item> seedTypes = new Batch <Item> ();
-    for (Species s : Crop.ALL_VARIETIES) {
-      final Item seed = Item.withReference(SAMPLES, s);
-      if (stocks.hasItem(seed)) continue;
-      seedTypes.add(seed);
-    }
+    return choice.pickMostUrgent();
+  }
+  
+  
+  private Delivery bestSeedCollection(Actor actor) {
+    final Pick <Delivery> pick = new Pick <Delivery> ();
     
     for (Object t : world.presences.sampleFromMap(
       this, world, 3, null, EcologistStation.class
     )) {
       final EcologistStation station = (EcologistStation) t;
+      if (! station.allowsEntry(actor)) continue;
+      
+      final Batch <Item> seedTypes = new Batch <Item> ();
+      float rating = 0;
+      
+      for (Species s : Crop.ALL_VARIETIES) {
+        Item seed = Item.withReference(SAMPLES, s);
+        seed = station.stocks.bestSample(seed, 1);
+        if (seed == null || stocks.hasItem(seed)) continue;
+        seedTypes.add(seed);
+        rating += seed.quality + 0.5f;
+      }
+      
       final Delivery seedD = new Delivery(seedTypes, station, this);
-      choice.add(seedD);
+      if (Plan.competition(seedD, station, actor) > 0) continue;
+      seedD.replace = true;
+      pick.compare(seedD, rating);
     }
     
-    choice.add(new Farming(actor, this));
-    
-    return choice.pickMostUrgent();
+    return pick.result();
   }
   
   

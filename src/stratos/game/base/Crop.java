@@ -219,7 +219,7 @@ public class Crop extends Fixture {
     this.species   = s;
     this.quality   = Visit.clamp(quality, 0, Nursery.MAX_HEALTH_BONUS);
     this.growStage = MIN_GROWTH;
-    this.covered   = origin().x % 4 == 0;
+    this.covered   = (origin().x - parent.origin().x) % 4 == 0;
     //  TODO:  Try to smarten up the system for determining coverage.
     updateSprite();
   }

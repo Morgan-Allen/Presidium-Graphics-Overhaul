@@ -7,7 +7,7 @@
 
 package stratos.game.plans;
 import stratos.game.common.*;
-import stratos.game.base.ExcavationSite;
+import stratos.game.base.*;
 import stratos.game.building.*;
 import stratos.game.maps.*;
 import stratos.game.actors.*;
@@ -383,6 +383,7 @@ public class Mining extends Plan {
 
     if (Rand.num() < digChance) {
       terrain.setMinerals(face, oreType, WorldTerrain.DEGREE_TAKEN);
+      MineOpening.checkForPlacementAt(site, face);
     }
     return true;
   }
