@@ -23,9 +23,24 @@ import static stratos.game.building.Economy.*;
 
 
 
-public class ExcavationSite extends Venue implements
-  TileConstants
-{
+//  So what does the central shaft do?  Provide entry to the openings, and a
+//  central facility for ore processing.
+
+//  ...Just get the openings working for the moment, probably based on
+//  proximity.  When an area is completely worked out, then you can think about
+//  adding mantle drills.
+
+
+//  Crops, Nurseries and Ecologist Station ->
+//  Openings, Smelters and Excavation Site.
+
+//  Okay:  ONE smelter.  No subdivision of types.
+
+
+
+
+
+public class ExcavationSite extends Venue implements TileConstants {
   
   
   /**  Constants, fields, constructors and save/load methods-

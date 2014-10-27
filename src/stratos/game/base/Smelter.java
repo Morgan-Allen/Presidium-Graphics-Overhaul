@@ -29,24 +29,23 @@ public class Smelter extends Venue {
   final static String IMG_DIR = "media/Buildings/artificer/";
   final static ModelAsset
     DRILLING_MODELS[] = CutoutModel.fromImages(
-      Smelter.class, IMG_DIR, 2, 2, false,
-      "metals_smelter.gif",
-      "isotopes_smelter.gif",
-      "sunk_shaft.gif"
+      Smelter.class, IMG_DIR, 3, 2, false,
+      "mantle_drill_1.png",
+      "mantle_drill_2.gif",
+      "open_shaft.png"
     ),
-    TAILING_SHAFT_MODEL = DRILLING_MODELS[2],
-    TAILING_ANNEX_MODEL = CutoutModel.fromSplatImage(
-      Smelter.class, IMG_DIR+"tailing_annex.png", 2
-    ),
-    TAILING_SLAB_MODEL = CutoutModel.fromImage(
-      Smelter.class, IMG_DIR+"slab.png", 1, 1
-    ),
-    SMELTER_STACK_MODEL = CutoutModel.fromImage(
-      Smelter.class, IMG_DIR+"drain_cover.png", 1, 1
+    OPENING_SHAFT_MODEL = CutoutModel.fromImage(
+      Smelter.class, IMG_DIR+"sunk_shaft.gif", 2, 1
     ),
     ALL_MOLD_MODELS[][] = CutoutModel.fromImageGrid(
       Smelter.class, IMG_DIR+"all_molds.png",
       4, 5, 1, 1
+    ),
+    SMOKE_STACK_MODEL = CutoutModel.fromImage(
+      Smelter.class, IMG_DIR+"smoke_stack.png", 1, 1
+    ),
+    TAILING_SLAB_MODEL = CutoutModel.fromImage(
+      Smelter.class, IMG_DIR+"slab.png", 1, 1
     ),
     SMELTER_MOLD_MODELS[][] = {
       ALL_MOLD_MODELS[1],
@@ -56,17 +55,6 @@ public class Smelter extends Venue {
       ALL_MOLD_MODELS[2],
       ALL_MOLD_MODELS[3]
     };
-  
-  final static int
-    MOLD_COORDS[] = {
-      0, 0,
-      0, 1,
-      0, 2,
-      1, 2,
-      2, 2
-    },
-    NUM_MOLDS = MOLD_COORDS.length / 2,
-    NUM_MOLD_LEVELS = 5;
   
   final public static int SMELT_AMOUNT = 10;
   
@@ -79,8 +67,10 @@ public class Smelter extends Venue {
   
   
   public Smelter(Base base) {
-    super(3, 2, ENTRANCE_WEST, base);
+    super(4, 2, ENTRANCE_WEST, base);
     structure.setupStats(75, 6, 150, 0, Structure.TYPE_FIXTURE);
+    
+    this.assignTo(null, ORES);
     //this.parent = parent;
   }
   
@@ -120,7 +110,7 @@ public class Smelter extends Venue {
   
   
   public boolean privateProperty() {
-    return true;
+    return false;
   }
   
   
@@ -138,10 +128,10 @@ public class Smelter extends Venue {
     if (! structure.intact()) return;
     //
     //  Vary pollution based on structural upgrades-
-    final Structure s = parent.structure;
+    //final Structure s = parent.structure;
     int pollution = 6;
-    pollution -= s.upgradeLevel(ExcavationSite.SAFETY_PROTOCOL);
-    pollution += s.upgradeLevel(ExcavationSite.MANTLE_DRILLING) * 2;
+    //pollution -= s.upgradeLevel(ExcavationSite.SAFETY_PROTOCOL);
+    //pollution += s.upgradeLevel(ExcavationSite.MANTLE_DRILLING) * 2;
     if (! isWorking()) pollution /= 2;
     structure.setAmbienceVal(0 - pollution);
   }
@@ -217,6 +207,21 @@ public class Smelter extends Venue {
     return Visit.indexOf(output, Mining.MINED_TYPES);
   }
   
+  //  TODO:  This looks right, but I need some way to fill in the gap along
+  //  the edge.
+  final private static int
+    MOLD_COORDS[] = {
+      0, 3,
+      1, 3,
+      2, 3,
+      3, 3,
+      3, 2,
+      3, 1,
+      3, 0
+    },
+    NUM_MOLDS = MOLD_COORDS.length / 2,
+    NUM_MOLD_LEVELS = 5;
+  
   
   private void updateSprite(int progress) {
     final boolean inWorld = inWorld() && sprite() != null;
@@ -229,7 +234,7 @@ public class Smelter extends Venue {
     }
     else {
       s = new GroupSprite();
-      s.attach(DRILLING_MODELS[spriteVariant()], 1.5f + xo, 0.5f + yo, 0);
+      s.attach(DRILLING_MODELS[1], -0.5f, -0.5f, 0);
       attachSprite(s);
     }
     //
@@ -239,8 +244,9 @@ public class Smelter extends Venue {
       int moldLevel = 0;
       if (i < fillThresh) moldLevel = NUM_MOLD_LEVELS - 1;
       else if (i < fillThresh + 1) moldLevel = progress % NUM_MOLD_LEVELS;
+      
       ModelAsset model = SMELTER_MOLD_MODELS[spriteVariant()][moldLevel];
-      if (i == NUM_MOLDS - 4) model = SMELTER_STACK_MODEL;
+      if (i == 0) model = SMOKE_STACK_MODEL;
       
       if (inWorld) {
         final CutoutSprite old = (CutoutSprite) s.atIndex(i + 1);

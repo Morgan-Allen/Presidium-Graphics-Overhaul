@@ -19,11 +19,17 @@ import stratos.util.*;
 //  Set up exclusion zone around kommando lodge and excavation shaft.  Get
 //  surface mines working inside.
 
+
+//  There's a bug where placement of shield-walls at a corner results in the
+//  deletion of the corner tile.  Fix.
+
 //  Fix bug with stripping/paving of roads happening at same time.  It doesn't
 //  show up often, so just keep an eye out for it.
 
 //  There's still a bug with offworld trade- fuel rods etc. get delivered to a
 //  depot, then delivered straight back again.  Revise FRSD options.
+
+
 
 //  Re-introduce the polymer fab.
 //  Re-work the culture lab- produce either food/organs OR soma/reagents.

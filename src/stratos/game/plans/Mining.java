@@ -17,9 +17,10 @@ import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.building.Economy.*;
 
-//  TODO:  Only allow mining within/underneath tailings?  Huh.  Maybe.
-//  ...Yeah.  That's probably the best way.
 
+
+//  TODO:  SPECIALISE THIS FOR SURFACE-MINING OF OUTCROPS?
+//  ...Or get rid of that entirely?
 
 
 public class Mining extends Plan {

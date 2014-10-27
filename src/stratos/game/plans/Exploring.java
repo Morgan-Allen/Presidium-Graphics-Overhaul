@@ -124,7 +124,7 @@ public class Exploring extends Plan implements Qualities {
     
     final float priority = priorityForActorWith(
       actor, lookedAt,
-      basePriority * Planet.dayValue(actor.world()), 0 - distFactor,
+      basePriority * Planet.dayValue(actor.world()), 0 - distFactor * 2,
       NO_HARM, MILD_COMPETITION,
       BASE_SKILLS, BASE_TRAITS,
       HEAVY_DISTANCE_CHECK, NO_FAIL_RISK,
@@ -152,7 +152,7 @@ public class Exploring extends Plan implements Qualities {
   
   public boolean actionLook(Actor actor, Tile point) {
     final IntelMap map = base.intelMap;
-    map.liftFogAround(point, actor.health.sightRange() / 2);
+    map.liftFogAround(point, actor.health.sightRange());
     
     if (travelled > 0) {
       final float range = actor.health.sightRange();
