@@ -18,7 +18,7 @@ public class Repairs extends Plan {
     eventsVerbose = false;
   
   final public static float
-    TIME_PER_25_HP     = World.STANDARD_HOUR_LENGTH / 2,
+    TIME_PER_25_HP     = Stage.STANDARD_HOUR_LENGTH / 2,
     MIN_SERVICE_DAMAGE = 0.25f;
   
   final Installation built;
@@ -62,7 +62,7 @@ public class Repairs extends Plan {
   
   
   public static Plan getNextRepairFor(Actor client, boolean asDuty) {
-    final World world = client.world();
+    final Stage world = client.world();
     final Choice choice = new Choice(client);
     final boolean report = evalVerbose && I.talkAbout == client;
     choice.isVerbose = report;

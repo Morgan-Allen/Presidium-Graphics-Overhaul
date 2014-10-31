@@ -231,7 +231,7 @@ public class Combat extends Plan implements Qualities {
     ///if (eventsVerbose) I.sayAbout(actor, "Configuring melee attack.\n");
     
     final Element struck = (Element) strike.subject();
-    final World world = actor.world();
+    final Stage world = actor.world();
     strike.setProperties(Action.QUICK);
     if (razes) {
       if (! Spacing.adjacent(actor, struck)) {

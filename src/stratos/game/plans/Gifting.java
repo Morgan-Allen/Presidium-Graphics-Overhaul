@@ -173,7 +173,7 @@ public class Gifting extends Plan implements Qualities {
     Item gift = null;
     Plan getting = null;
     
-    for (TradeType f : Economy.ALL_FOOD_TYPES) {
+    for (Traded f : Economy.ALL_FOOD_TYPES) {
       final Item food = Item.withAmount(f, 1);
       rating = rateGift(food, buys, receives);
       if (rating > bestRating) { bestRating = rating; gift = food; }
@@ -216,7 +216,7 @@ public class Gifting extends Plan implements Qualities {
     //*/
     
     if (gift != null && getting == null) {
-      final World world = buys.world();
+      final Stage world = buys.world();
       final Batch <Inventory.Owner> origins = new Batch <Inventory.Owner> ();
       world.presences.sampleFromMaps(buys, world, 5, origins, gift.type);
       origins.include(buys);

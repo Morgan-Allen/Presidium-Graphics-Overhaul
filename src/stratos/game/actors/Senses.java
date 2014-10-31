@@ -120,7 +120,7 @@ public class Senses implements Qualities {
   
   protected Batch <Target> toNotice(float range) {
     final Batch <Target> noticed = new Batch <Target> ();
-    final World world = actor.world();
+    final Stage world = actor.world();
     //
     //  Automatically include home, work, anyone actively targeting you, and
     //  anything you target.
@@ -306,7 +306,7 @@ public class Senses implements Qualities {
     
     //  Firstly, we determine the start and end points for the line segment,
     //  and the vector connecting the two-
-    final World world = origin.world();
+    final Stage world = origin.world();
     final Vec2D
       orig = new Vec2D().setTo(origin.position(null)),
       dest = new Vec2D().setTo(target.position(null)),

@@ -5,7 +5,7 @@ package stratos.start;
 import stratos.game.campaign.*;
 import stratos.game.common.Base;
 import stratos.game.common.Session;
-import stratos.game.common.World;
+import stratos.game.common.Stage;
 import stratos.user.BaseUI;
 
 
@@ -38,12 +38,12 @@ public class DebugTutorial extends TutorialScenario {
   }
   
   
-  protected String saveFilePrefix(World world, Base base) {
+  protected String saveFilePrefix(Stage world, Base base) {
     return "debug_tutorial";
   }
   
 
-  protected void configureScenario(World world, Base base, BaseUI UI) {
+  protected void configureScenario(Stage world, Base base, BaseUI UI) {
     super.configureScenario(world, base, UI);
     UI.selection.pushSelection(base.ruler(), true);
   }

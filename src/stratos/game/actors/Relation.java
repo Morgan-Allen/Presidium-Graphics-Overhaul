@@ -39,7 +39,7 @@ public class Relation {
   final public static int
     MAX_VALUE        = 100,
     NOVELTY_DAYS     = 2,
-    NOVELTY_INTERVAL = World.STANDARD_DAY_LENGTH * NOVELTY_DAYS,
+    NOVELTY_INTERVAL = Stage.STANDARD_DAY_LENGTH * NOVELTY_DAYS,
     FAMILIARITY_UNIT = 10,
     BASE_NUM_FRIENDS = 5 ,
     MAX_RELATIONS    = 10;

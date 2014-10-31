@@ -54,10 +54,7 @@ public class RoadSearch extends Search <Tile> {
   
   protected boolean canEnter(Tile t) {
     if (t == init || t == destination) return true;
-    return t.habitat().pathClear && (
-      t.onTop() == null ||
-      t.onTop().owningType() < priority
-    );
+    return t.owningType() < priority;
   }
   
   

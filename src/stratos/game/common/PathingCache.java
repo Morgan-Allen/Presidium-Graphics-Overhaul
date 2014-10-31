@@ -55,14 +55,14 @@ public class PathingCache {
   }
   
   
-  final World world;
+  final Stage world;
   final Place tilePlaces[][];
   final Table <WorldSection, Caching> allCached = new Table <WorldSection, Caching> ();
   //final MipMap pathMipMap;
   
   
   
-  public PathingCache(World world) {
+  public PathingCache(Stage world) {
     this.world = world;
     this.tilePlaces = new Place[world.size][world.size];
     //this.pathMipMap = new MipMap(world.size);
@@ -133,7 +133,7 @@ public class PathingCache {
   ) {
     Boarding path[] = null;
     //*
-    if (Spacing.distance(initB, destB) <= World.SECTOR_SIZE * 2) {
+    if (Spacing.distance(initB, destB) <= Stage.SECTOR_SIZE * 2) {
       if (reports) I.say(
         "Using simple agenda-bounded pathing between "+initB+" "+destB
       );
@@ -449,7 +449,7 @@ public class PathingCache {
         if (spot instanceof Tile && dist < closestDist) {
           closest = (Tile) spot;
         }
-        dist += (PPL - (PPI + 1)) * World.PATCH_RESOLUTION;
+        dist += (PPL - (PPI + 1)) * Stage.PATCH_RESOLUTION;
         final Boarding best = bestFound();
         if (best != null) dist += Spacing.distance(closest, spot) / 3.0f;
         return dist * 1.1f;

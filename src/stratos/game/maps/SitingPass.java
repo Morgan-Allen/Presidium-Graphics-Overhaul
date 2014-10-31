@@ -15,7 +15,7 @@ import stratos.util.*;
 public abstract class SitingPass {
   
   
-  int resolution = World.SECTOR_SIZE;
+  int resolution = Stage.SECTOR_SIZE;
   
   
   private static class Site {
@@ -26,7 +26,7 @@ public abstract class SitingPass {
   
   
   //  TODO:  Return a list of the sites generated...
-  public void applyPassTo(final World world, final int numSites) {
+  public void applyPassTo(final Stage world, final int numSites) {
     
     final List <Site> allSites = new List <Site> () {
       protected float queuePriority(Site site) {

@@ -31,7 +31,7 @@ public class Sculptor extends Venue {
   /**  Fields, constructors, and save/load methods-
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    Sculptor.class, "media/Buildings/aesthete/fabricator.png", 3, 2
+    Sculptor.class, "media/Buildings/aesthete/fabricator_new.png", 3, 2
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
     Sculptor.class, "media/GUI/Buttons/fabricator_button.gif"
@@ -178,8 +178,8 @@ public class Sculptor extends Venue {
   }
   
   
-  public TradeType[] services() {
-    return new TradeType[] { ARTWORKS, FINERY };
+  public Traded[] services() {
+    return new Traded[] { ARTWORKS, FINERY };
   }
   
   
@@ -191,8 +191,8 @@ public class Sculptor extends Venue {
   
   /**  Rendering and interface methods-
     */
-  protected TradeType[] goodsToShow() {
-    return new TradeType[] { ARTWORKS, PLASTICS };
+  protected Traded[] goodsToShow() {
+    return new Traded[] { ARTWORKS, PLASTICS };
   }
   
   

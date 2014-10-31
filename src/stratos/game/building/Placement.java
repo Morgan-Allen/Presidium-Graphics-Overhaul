@@ -95,7 +95,7 @@ public class Placement implements TileConstants {
   //  NOTE:  This method assumes that the fixtures in question will occupy a
   //  contiguous 'strip' or bloc for placement purposes.
   public static boolean checkPlacement(
-    Fixture fixtures[], World world
+    Fixture fixtures[], Stage world
   ) {
     Box2D limits = null;
     for (Fixture f : fixtures) {
@@ -115,9 +115,9 @@ public class Placement implements TileConstants {
   
   
   public static boolean findClearanceFor(
-    final Venue v, final Target near, final World world
+    final Venue v, final Target near, final Stage world
   ) {
-    final float maxDist = World.SECTOR_SIZE / 2;
+    final float maxDist = Stage.SECTOR_SIZE / 2;
     Tile init = world.tileAt(near);
     init = Spacing.nearestOpenTile(init, init);
     if (init == null) return false;
@@ -139,7 +139,7 @@ public class Placement implements TileConstants {
   
   
   public static Venue establishVenue(
-    final Venue v, final Target near, boolean intact, World world
+    final Venue v, final Target near, boolean intact, Stage world
   ) {
     if (! findClearanceFor(v, near, world)) return null;
     v.doPlacement();
@@ -156,7 +156,7 @@ public class Placement implements TileConstants {
   
 
   public static Venue[] establishVenueStrip(
-    final Venue strip[], final Target near, boolean intact, final World world
+    final Venue strip[], final Target near, boolean intact, final Stage world
   ) {
     if (findClearanceFor(strip, near, world)) {
       for (Venue s : strip) {
@@ -188,12 +188,12 @@ public class Placement implements TileConstants {
   
   
   public static boolean findClearanceFor(
-    final Venue strip[], final Target near, final World world
+    final Venue strip[], final Target near, final Stage world
   ) {
     final Venue v = strip[0];
     final int deep = v.size;
     final Tile init = world.tileAt(near);
-    final int maxDist = World.SECTOR_SIZE / 2;
+    final int maxDist = Stage.SECTOR_SIZE / 2;
     
     final TileSpread search = new TileSpread(init) {
       int minX, minY;
@@ -251,7 +251,7 @@ public class Placement implements TileConstants {
   
   
   public static Venue establishVenue(
-    final Venue v, int atX, int atY, boolean intact, final World world,
+    final Venue v, int atX, int atY, boolean intact, final Stage world,
     Actor... employed
   ) {
     if (establishVenue(v, world.tileAt(atX, atY), intact, world) == null) {

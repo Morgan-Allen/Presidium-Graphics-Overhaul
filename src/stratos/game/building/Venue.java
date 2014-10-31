@@ -141,12 +141,12 @@ public abstract class Venue extends Structural implements
   }
   
   
-  public float priceFor(TradeType service) {
+  public float priceFor(Traded service) {
     return stocks.priceFor(service);
   }
   
   
-  public int spaceFor(TradeType good) {
+  public int spaceFor(Traded good) {
     return structure.maxIntegrity();
   }
   
@@ -165,7 +165,7 @@ public abstract class Venue extends Structural implements
     */
   public boolean canPlace() {
     if (origin() == null) return false;
-    final World world = origin().world;
+    final Stage world = origin().world;
     //
     //  Make sure we don't displace any more important object, or occupy their
     //  entrances.  In addition, the entrance must be clear.
@@ -188,7 +188,7 @@ public abstract class Venue extends Structural implements
   }
   
   
-  protected boolean checkPerimeter(World world) {
+  protected boolean checkPerimeter(Stage world) {
     //
     //  Don't abut on anything of higher priority-
     for (Tile n : Spacing.perimeter(footprint(), world)) {
@@ -203,7 +203,7 @@ public abstract class Venue extends Structural implements
   }
   
   
-  public boolean setPosition(float x, float y, World world) {
+  public boolean setPosition(float x, float y, Stage world) {
     if (! super.setPosition(x, y, world)) return false;
     final Tile o = origin();
     if (entranceFace == ENTRANCE_NONE) {
@@ -217,7 +217,7 @@ public abstract class Venue extends Structural implements
   }
   
   
-  public boolean enterWorldAt(int x, int y, World world) {
+  public boolean enterWorldAt(int x, int y, Stage world) {
     if (! super.enterWorldAt(x, y, world)) return false;
     if (base == null) I.complain("VENUES MUST HAVE A BASED ASSIGNED! "+this);
     
@@ -377,7 +377,7 @@ public abstract class Venue extends Structural implements
   
   
   public abstract Background[] careers();
-  public abstract TradeType[] services();
+  public abstract Traded[] services();
   public void addServices(Choice choice, Actor forActor) {}
   
   
@@ -406,7 +406,7 @@ public abstract class Venue extends Structural implements
   }
   
   
-  protected void toggleStatusFor(TradeType need, ModelAsset model) {
+  protected void toggleStatusFor(Traded need, ModelAsset model) {
     if (! structure.intact()) buildSprite.toggleFX(need.model, false);
     buildSprite.toggleFX(model, stocks.shortagePenalty(need) > 0);
   }
@@ -431,9 +431,9 @@ public abstract class Venue extends Structural implements
   }
   
   
-  private boolean canShow(TradeType type) {
+  private boolean canShow(Traded type) {
     if (type.form == FORM_PROVISION) return false;
-    if (type.picPath == TradeType.DEFAULT_PIC_PATH) return false;
+    if (type.picPath == Traded.DEFAULT_PIC_PATH) return false;
     return true;
   }
 
@@ -454,19 +454,19 @@ public abstract class Venue extends Structural implements
   }
   
   
-  protected TradeType[] goodsToShow() {
+  protected Traded[] goodsToShow() {
     return services();
   }
   
   
-  protected float goodDisplayAmount(TradeType good) {
+  protected float goodDisplayAmount(Traded good) {
     if (! structure.intact()) return 0;
     return stocks.amountOf(good);
   }
   
   
   protected void updateItemSprites() {
-    final TradeType services[] = goodsToShow();
+    final Traded services[] = goodsToShow();
     final float offsets[] = goodDisplayOffsets();
     if (services == null) return;
     
@@ -476,12 +476,12 @@ public abstract class Venue extends Structural implements
       initX = BuildingSprite.ITEM_SIZE - (size / 2f);
     
     int index = -1;
-    for (TradeType s : services) if (canShow(s)) index += 2;
+    for (Traded s : services) if (canShow(s)) index += 2;
     if (index < 0) return;
     index = Visit.clamp(index, offsets.length);
     
     for (int SI = services.length; SI-- > 0;) {
-      final TradeType s = services[SI];
+      final Traded s = services[SI];
       if (! canShow(s)) continue;
       if (index < 0) break;
       final float y = offsets[index--], x = offsets[index--];

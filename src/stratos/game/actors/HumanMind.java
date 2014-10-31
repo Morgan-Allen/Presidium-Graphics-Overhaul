@@ -203,7 +203,7 @@ public class HumanMind extends ActorMind implements Qualities {
   
   
   private void addVenueResponses(Choice choice) {
-    final World world = actor.world();
+    final Stage world = actor.world();
     final Batch <Venue> around = new Batch <Venue> ();
     float numSampled = 5 + (actor.traits.traitLevel(COGNITION) / 4);
     
@@ -246,7 +246,7 @@ public class HumanMind extends ActorMind implements Qualities {
   public void updateAI(int numUpdates) {
     super.updateAI(numUpdates);
     
-    if (numUpdates % World.STANDARD_DAY_LENGTH == 0) {
+    if (numUpdates % Stage.STANDARD_DAY_LENGTH == 0) {
       updateAmbition();
     }
   }

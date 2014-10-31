@@ -59,9 +59,9 @@ public class Conversion implements Session.Saveable {
         skillN.add(num);
       }
       else if (o == TO             ) recRaw = false;
-      else if (o instanceof TradeType) {
+      else if (o instanceof Traded) {
         if (recRaw) { rawB.add(o); rawN.add(num); }
-        else { out = Item.withAmount((TradeType) o, num); }
+        else { out = Item.withAmount((Traded) o, num); }
       }
     }
     //
@@ -70,7 +70,7 @@ public class Conversion implements Session.Saveable {
     raw = new Item[rawB.size()];
     for (i = 0; i < rawB.size(); i++) {
       raw[i] = Item.withAmount(
-        (TradeType) rawB.atIndex(i),
+        (Traded) rawB.atIndex(i),
         (Float  ) rawN.atIndex(i)
       );
     }

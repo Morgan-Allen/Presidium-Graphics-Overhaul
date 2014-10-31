@@ -352,7 +352,7 @@ public class Career implements Qualities {
   
   public static void applyGear(Background v, Actor actor) {
     int BQ = v.standing;
-    for (TradeType gear : v.gear) {
+    for (Traded gear : v.gear) {
       if (gear instanceof DeviceType) {
         final int quality = Visit.clamp(BQ - 1 + Rand.index(3), 4);
         actor.gear.equipDevice(Item.withQuality(gear, quality));

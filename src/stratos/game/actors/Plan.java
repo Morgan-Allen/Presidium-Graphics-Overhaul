@@ -427,7 +427,7 @@ public abstract class Plan implements Saveable, Behaviour {
     */
   public static float rangePenalty(Target a, Target b) {
     if (a == null || b == null) return 0;
-    final float SS = World.SECTOR_SIZE;  //  TODO:  Modify by move speed!
+    final float SS = Stage.SECTOR_SIZE;  //  TODO:  Modify by move speed!
     final float dist = Spacing.distance(a, b) / SS;
     if (dist <= 1) return dist / 2;
     return ((float) FastMath.log(2, dist)) + 0.5f;
@@ -455,7 +455,7 @@ public abstract class Plan implements Saveable, Behaviour {
   
   public static float competition(Class planClass, Target t, Actor actor) {
     float competition = 0;
-    final World world = actor.world();
+    final Stage world = actor.world();
     for (Behaviour b : world.activities.targeting(t)) {
       if (b instanceof Plan) {
         final Plan plan = (Plan) b;
@@ -470,7 +470,7 @@ public abstract class Plan implements Saveable, Behaviour {
   
   public static float competition(Plan match, Target t, Actor actor) {
     float competition = 0;
-    final World world = actor.world();
+    final Stage world = actor.world();
     for (Behaviour b : world.activities.targeting(t)) {
       if (b instanceof Plan) {
         final Plan plan = (Plan) b;

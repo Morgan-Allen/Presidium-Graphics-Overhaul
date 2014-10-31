@@ -36,13 +36,13 @@ public class Planet {
   
   /**  Interpolating daylight values-
     */
-  private static float worldTime(World world) {
-    final float time = world.currentTime() / World.STANDARD_DAY_LENGTH;
+  private static float worldTime(Stage world) {
+    final float time = world.currentTime() / Stage.STANDARD_DAY_LENGTH;
     return (time + 1 - midday) % 1;
   }
   
   
-  public static float dayValue(World world) {
+  public static float dayValue(Stage world) {
     final float time = worldTime(world);
     
     if (time <= morning_end  ) return (time + HF) / fade;
@@ -53,7 +53,7 @@ public class Planet {
   }
   
   
-  public static Colour lightValue(World world) {
+  public static Colour lightValue(Stage world) {
     final float dayValue = dayValue(world);
     if (dayValue == 1) return DAY_LIGHT;
     if (dayValue == 0) return NIGHT_LIGHT;
@@ -84,19 +84,19 @@ public class Planet {
   }
   
   
-  public static boolean isMorning(World world) {
+  public static boolean isMorning(Stage world) {
     final float time = worldTime(world);
     return time > morning_start || time <= midday;
   }
   
   
-  public static boolean isEvening(World world) {
+  public static boolean isEvening(Stage world) {
     final float time = worldTime(world);
     return time > midday && time <= evening_end;
   }
   
   
-  public static boolean isNight(World world) {
+  public static boolean isNight(Stage world) {
     final float time = worldTime(world);
     return time > evening_end && time <= morning_start;
   }

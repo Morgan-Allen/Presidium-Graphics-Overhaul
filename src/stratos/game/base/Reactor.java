@@ -195,7 +195,7 @@ public class Reactor extends Venue {
       success &= actor.skills.test(SHIELD_AND_ARMOUR, 5, 0.5f);
     }
     if (success) {
-      meltdown -= (1f + FB) / World.STANDARD_DAY_LENGTH;
+      meltdown -= (1f + FB) / Stage.STANDARD_DAY_LENGTH;
       if (meltdown <= 0) meltdown = 0;
       if (verbose) I.say("Repairing core, meltdown level: "+meltdown);
     }
@@ -263,7 +263,7 @@ public class Reactor extends Venue {
   
   private void checkMeltdownAdvance() {
     if ((! structure.intact()) && meltdown == 0) return;
-    float chance = meltdownChance() / World.STANDARD_DAY_LENGTH;
+    float chance = meltdownChance() / Stage.STANDARD_DAY_LENGTH;
     chance += meltdown / 10f;
     if (isManned()) chance /= 2;
     if (Rand.num() < chance) {
@@ -380,8 +380,8 @@ public class Reactor extends Venue {
   }
   
   
-  public TradeType[] services() {
-    return new TradeType[] { POWER, FUEL_RODS };
+  public Traded[] services() {
+    return new Traded[] { POWER, FUEL_RODS };
   }
   
   

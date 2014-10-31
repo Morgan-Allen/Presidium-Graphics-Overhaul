@@ -15,7 +15,7 @@ import stratos.util.*;
 
 
 
-public abstract class Fixture extends Element {
+public class Fixture extends Element {
   
   
   
@@ -52,7 +52,7 @@ public abstract class Fixture extends Element {
     */
   public boolean canPlace() {
     if (origin() == null) return false;
-    final World world = origin().world;
+    final Stage world = origin().world;
     for (Tile t : world.tilesIn(area, false)) {
       if (t == null || ! t.habitat().pathClear) return false;
       if (t.owningType() >= this.owningType()) return false;
@@ -73,7 +73,7 @@ public abstract class Fixture extends Element {
   
   public void clearSurrounds() {
     final Box2D around = new Box2D().setTo(footprint()).expandBy(1);
-    final World world = origin().world;
+    final Stage world = origin().world;
     for (Tile t : world.tilesIn(around, false)) if (t != null) {
       if (t.onTop() != null && t.owningType() < this.owningType()) {
         t.onTop().setAsDestroyed();
@@ -100,7 +100,7 @@ public abstract class Fixture extends Element {
   
   public Tile[] surrounds() {
     final Box2D around = new Box2D().setTo(footprint()).expandBy(1);
-    final World world = origin().world;
+    final Stage world = origin().world;
     final Tile result[] = new Tile[(int) (around.xdim() * around.ydim())];
     int i = 0; for (Tile t : world.tilesIn(around, false)) {
       result[i++] = t;
@@ -109,7 +109,7 @@ public abstract class Fixture extends Element {
   }
   
   
-  public boolean enterWorldAt(int x, int y, World world) {
+  public boolean enterWorldAt(int x, int y, Stage world) {
     if (! super.enterWorldAt(x, y, world)) return false;
     for (Tile t : world.tilesIn(area, false)) {
       final Element old = t.onTop();
@@ -120,7 +120,7 @@ public abstract class Fixture extends Element {
   }
   
   
-  public boolean setPosition(float x, float y, World world) {
+  public boolean setPosition(float x, float y, Stage world) {
     if (! super.setPosition(x, y, world)) return false;
     final Tile o = origin();
     area.set(o.x - 0.5f, o.y - 0.5f, size, size);

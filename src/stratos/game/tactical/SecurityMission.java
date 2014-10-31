@@ -21,9 +21,9 @@ public class SecurityMission extends Mission implements Qualities {
   /**  Field definitions, constants and save/load methods-
     */
   final static int DURATION_LENGTHS[] = {
-    World.STANDARD_DAY_LENGTH / 2,
-    World.STANDARD_DAY_LENGTH * 1,
-    World.STANDARD_DAY_LENGTH * 2,
+    Stage.STANDARD_DAY_LENGTH / 2,
+    Stage.STANDARD_DAY_LENGTH * 1,
+    Stage.STANDARD_DAY_LENGTH * 2,
   };
   final static String DURATION_NAMES[] = {
     "12 hours security for ",
@@ -135,7 +135,7 @@ public class SecurityMission extends Mission implements Qualities {
     if (inceptTime != -1) {
       final int hours = (int) (
         (base.world.currentTime() - inceptTime) *
-        24f / World.STANDARD_DAY_LENGTH
+        24f / Stage.STANDARD_DAY_LENGTH
       );
       d.append(" ("+hours+" hours elapsed)");
     }

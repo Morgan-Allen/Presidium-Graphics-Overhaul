@@ -26,7 +26,7 @@ public class Inventory {
     TIER_CONSUMER =  2;  //never deliver from a consumer.
   
   private static boolean   verbose = false;
-  private static TradeType tracked = null ;
+  private static Traded tracked = null ;
   
   
   final public Owner owner;
@@ -45,8 +45,8 @@ public class Inventory {
     
     Base base();
     Inventory inventory();
-    float priceFor(TradeType service);
-    int spaceFor(TradeType good);
+    float priceFor(Traded service);
+    int spaceFor(Traded good);
     void afterTransaction(Item item, float amount);
     
     //  TODO:  You might move chat displays to the afterTransaction method.
@@ -115,7 +115,7 @@ public class Inventory {
   /**  Finding matches and quantities-
     */
   public Item bestSample(
-    TradeType type, Session.Saveable refers, float maxAmount
+    Traded type, Session.Saveable refers, float maxAmount
   ) {
     return bestSample(Item.asMatch(type, refers), maxAmount);
   }
@@ -145,7 +145,7 @@ public class Inventory {
   }
   
   
-  public Batch <Item> matches(TradeType type) {
+  public Batch <Item> matches(Traded type) {
     final Batch <Item> matches = new Batch <Item> (4);
     for (Item found : itemTable.values()) {
       if (found.type == type) matches.add(found);
@@ -178,7 +178,7 @@ public class Inventory {
   }
   
   
-  public float amountOf(TradeType type) {
+  public float amountOf(Traded type) {
     return amountOf(Item.asMatch(type, null));
   }
   
@@ -200,7 +200,7 @@ public class Inventory {
   }
   
   
-  public void clearItems(TradeType type) {
+  public void clearItems(Traded type) {
     if (verbose && type == tracked) I.say("CLEARING "+tracked);
     itemTable.remove(type);
   }
@@ -250,20 +250,20 @@ public class Inventory {
   }
   
   
-  public void bumpItem(TradeType type, float amount) {
+  public void bumpItem(Traded type, float amount) {
     if (amount == 0) return;
     if (amount > 0) addItem(Item.withAmount(type, amount));
     else removeItem(Item.withAmount(type, 0 - amount));
   }
   
   
-  public void bumpItem(TradeType type, float amount, int max) {
+  public void bumpItem(Traded type, float amount, int max) {
     final float oldAmount = amountOf(type);
     bumpItem(type, Visit.clamp(amount, 0 - oldAmount, max - oldAmount));
   }
   
   
-  public void setAmount(TradeType type, float amount) {
+  public void setAmount(Traded type, float amount) {
     final Item sets = Item.withAmount(type, amount);
     final Item match = matchFor(sets);
     
@@ -311,13 +311,13 @@ public class Inventory {
   }
   
   
-  public void removeAllMatches(TradeType type) {
+  public void removeAllMatches(Traded type) {
     if (verbose && type == tracked) I.say("REMOVING ALL "+tracked);
     for (Item match : matches(type)) itemTable.remove(match);
   }
   
 
-  public float transfer(TradeType type, Owner to) {
+  public float transfer(Traded type, Owner to) {
     float amount = 0;
     for (Item item : matches(type)) {
       removeItem(item);
@@ -342,9 +342,9 @@ public class Inventory {
   /**  Default supply-and-demand functions intended for override by certain
     *  subclasses.
     */
-  public float demandFor(TradeType type) { return 0; }
-  public float shortageOf(TradeType type) { return 0; }
-  public int demandTier(TradeType type) { return TIER_NONE; }
+  public float demandFor(Traded type) { return 0; }
+  public float shortageOf(Traded type) { return 0; }
+  public int demandTier(Traded type) { return TIER_NONE; }
   
   
   

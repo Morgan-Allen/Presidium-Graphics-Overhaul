@@ -29,7 +29,7 @@ public interface Installation extends Session.Saveable, Target, Selectable {
   void onDestruction();
   Structure structure();
   
-  boolean setPosition(float x, float y, World world);
+  boolean setPosition(float x, float y, Stage world);
   boolean canPlace();
   void previewPlacement(boolean canPlace, Rendering rendering);
   void doPlacement();

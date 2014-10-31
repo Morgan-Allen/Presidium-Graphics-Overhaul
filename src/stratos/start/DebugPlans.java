@@ -45,12 +45,12 @@ public class DebugPlans extends Scenario {
   }
   
   
-  protected String saveFilePrefix(World world, Base base) {
+  protected String saveFilePrefix(Stage world, Base base) {
     return "debug_plans";
   }
   
   
-  protected World createWorld() {
+  protected Stage createWorld() {
     final TerrainGen TG = new TerrainGen(
       64, 0.2f,
       Habitat.ESTUARY     , 2f,
@@ -58,7 +58,7 @@ public class DebugPlans extends Scenario {
       Habitat.BARRENS     , 2f,
       Habitat.DUNE        , 1f
     );
-    final World world = new World(TG.generateTerrain());
+    final Stage world = new Stage(TG.generateTerrain());
     TG.setupMinerals(world, 0.6f, 0, 0.2f);
     world.terrain().readyAllMeshes();
     //Flora.populateFlora(world);
@@ -66,12 +66,12 @@ public class DebugPlans extends Scenario {
   }
   
   
-  protected Base createBase(World world) {
+  protected Base createBase(Stage world) {
     return Base.baseWithName(world, "Player Base", false);
   }
   
   
-  protected void configureScenario(World world, Base base, BaseUI UI) {
+  protected void configureScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.setDefaults();
     //configMedicalScenario(world, base, UI);
     //configHuntingScenario(world, base, UI);
@@ -91,7 +91,7 @@ public class DebugPlans extends Scenario {
   }
   
   
-  private void configMedicalScenario(World world, Base base, BaseUI UI) {
+  private void configMedicalScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.fogFree = true;
     
     final Actor treats = new Human(Backgrounds.PHYSICIAN, base);
@@ -110,7 +110,7 @@ public class DebugPlans extends Scenario {
   }
   
   
-  private void configHuntingScenario(World world, Base base, BaseUI UI) {
+  private void configHuntingScenario(Stage world, Base base, BaseUI UI) {
     //GameSettings.fogFree = true;
     GameSettings.buildFree = true;
     //GameSettings.noBlood = true;
@@ -136,7 +136,7 @@ public class DebugPlans extends Scenario {
   }
   
   
-  private void configCombatScenario(World world, Base base, BaseUI UI) {
+  private void configCombatScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.fogFree = true;
     //GameSettings.noBlood = true;
     
@@ -158,7 +158,7 @@ public class DebugPlans extends Scenario {
   }
   
   
-  private void configDialogueScenario(World world, Base base, BaseUI UI) {
+  private void configDialogueScenario(Stage world, Base base, BaseUI UI) {
     //GameSettings.fogFree = true;
     GameSettings.noBlood = true;
     GameSettings.hireFree = true;
@@ -192,7 +192,7 @@ public class DebugPlans extends Scenario {
   }
   
   
-  private void configPurchaseScenario(World world, Base base, BaseUI UI) {
+  private void configPurchaseScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.needsFree = true;
     
     Actor citizen = null;
@@ -214,7 +214,7 @@ public class DebugPlans extends Scenario {
   }
   
   
-  private void configRaidScenario(World world, Base base, BaseUI UI) {
+  private void configRaidScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.fogFree = false;
     //GameSettings.hireFree = true;
     
@@ -235,7 +235,7 @@ public class DebugPlans extends Scenario {
   }
   
   
-  private void configArtilectScenario(World world, Base base, BaseUI UI) {
+  private void configArtilectScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.fogFree = true;
 
     final Base artilects = Base.baseWithName(world, Base.KEY_ARTILECTS, true);
@@ -260,7 +260,7 @@ public class DebugPlans extends Scenario {
   }
   
   
-  private void configContactScenario(World world, Base base, BaseUI UI) {
+  private void configContactScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.fogFree = true;
     GameSettings.hireFree = true;
     GameSettings.noBlood = true;
@@ -279,7 +279,7 @@ public class DebugPlans extends Scenario {
     final Bastion bastion = new Bastion(base);
     bastion.stocks.bumpItem(Economy.PROTEIN, 20);
     bastion.stocks.bumpItem(Economy.PLASTICS, 10);
-    bastion.stocks.bumpItem(Economy.SPYCE, 5);
+    bastion.stocks.bumpItem(Economy.RAW_SPYCE, 5);
     final Actor ruler = new Human(Backgrounds.KNIGHTED, base);
     Placement.establishVenue(
       bastion, 11, 11, true, world,
@@ -307,7 +307,7 @@ public class DebugPlans extends Scenario {
   }
   
   
-  private void configWildScenario(World world, Base base, BaseUI UI) {
+  private void configWildScenario(Stage world, Base base, BaseUI UI) {
     
     //  This is the last scenario to test.  Just introduce some animals, and
     //  see how they react to (A) eachother and (B) the nearby base.

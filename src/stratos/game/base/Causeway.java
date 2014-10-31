@@ -119,7 +119,7 @@ public class Causeway extends Structural {
   }
   
   
-  public boolean enterWorldAt(int x, int y, World world) {
+  public boolean enterWorldAt(int x, int y, Stage world) {
     if (! super.enterWorldAt(x, y, world)) return false;
     base.paveRoutes.map.flagForPaving(Spacing.under(footprint(), world), true);
     return true;

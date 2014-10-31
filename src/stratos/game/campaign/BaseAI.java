@@ -15,11 +15,11 @@ public class BaseAI {
   
   
   final public static int
-    RAID_TIME_SHORT  = World.STANDARD_DAY_LENGTH / 2,
-    RAID_TIME_NORMAL = World.STANDARD_DAY_LENGTH * 2,
-    RAID_TIME_LONG   = World.STANDARD_DAY_LENGTH * 8;
+    RAID_TIME_SHORT  = Stage.STANDARD_DAY_LENGTH / 2,
+    RAID_TIME_NORMAL = Stage.STANDARD_DAY_LENGTH * 2,
+    RAID_TIME_LONG   = Stage.STANDARD_DAY_LENGTH * 8;
   
-  final World world;
+  final Stage world;
   final Base base;
   
   private int raidInterval;
@@ -148,7 +148,7 @@ public class BaseAI {
     threat = 1f - other.relations.communitySpirit();
     
     float avgDist = Spacing.distance(point, venue);
-    threat *= 1f / (1 + (avgDist / World.SECTOR_SIZE));
+    threat *= 1f / (1 + (avgDist / Stage.SECTOR_SIZE));
     
     threat *= 0 - base.relations.relationWith(other);
     

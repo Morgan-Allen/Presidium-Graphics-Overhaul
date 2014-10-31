@@ -22,7 +22,7 @@ public class Outcrop extends Fixture {// implements Selectable {
     TYPE_DEPOSIT =  2;
   
   
-  static float rubbleFor(Outcrop outcrop, World world) {
+  static float rubbleFor(Outcrop outcrop, Stage world) {
     float rubble = 0, sum = 0;;
     for (Tile t : outcrop.surrounds()) if (t != null) {
       rubble += t.habitat().rockiness;
@@ -32,7 +32,7 @@ public class Outcrop extends Fixture {// implements Selectable {
   }
   
   
-  static int mineralTypeFor(Outcrop outcrop, World world) {
+  static int mineralTypeFor(Outcrop outcrop, Stage world) {
     //
     //  First, we sum up the total for each mineral type in the surrounding
     //  area (including the rockiness of the terrain.)
@@ -65,7 +65,7 @@ public class Outcrop extends Fixture {// implements Selectable {
   }
   
   
-  static ModelAsset modelFor(Outcrop outcrop, World world) {
+  static ModelAsset modelFor(Outcrop outcrop, Stage world) {
     
     final int mineral = mineralTypeFor(outcrop, world);
     final float rubble = rubbleFor(outcrop, world);
@@ -126,7 +126,7 @@ public class Outcrop extends Fixture {// implements Selectable {
     //  This only gets called just before entering the world, so I think I can
     //  put this here.  TODO:  Move the location-verification code from the
     //  TerrainGen class to here?  ...Might be neater.
-    final World world = origin().world;
+    final Stage world = origin().world;
     for (Tile t : world.tilesIn(footprint(), false)) {
       if (t == null || t.blocked()) return false;
       if (type == TYPE_DUNE && t.habitat() != Habitat.DUNE) return false;
@@ -135,7 +135,7 @@ public class Outcrop extends Fixture {// implements Selectable {
   }
   
   
-  public boolean enterWorldAt(int x, int y, World world) {
+  public boolean enterWorldAt(int x, int y, Stage world) {
     if (! super.enterWorldAt(x, y, world)) return false;
     final ModelAsset model = modelFor(this, world);
     final Sprite s = model.makeSprite();
@@ -182,7 +182,7 @@ public class Outcrop extends Fixture {// implements Selectable {
   
   
   public float mineralAmount() {
-    return condition * bulk() * WorldTerrain.AMOUNT_COMMON;
+    return condition * bulk() * WorldTerrain.MAX_MINERAL_AMOUNT / 2f;
   }
   
   

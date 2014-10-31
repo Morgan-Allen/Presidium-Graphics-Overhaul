@@ -16,7 +16,7 @@ import static stratos.game.building.Economy.*;
 
 
 
-public class Crop extends Fixture {
+public class Crop extends Element {
   
   
   final static String IMG_DIR = "media/Buildings/ecologist/";
@@ -71,7 +71,7 @@ public class Crop extends Fixture {
   
   
   public Crop(Nursery parent, Species species) {
-    super(1, 1);
+    super();
     this.parent = parent;
     this.species = species;
     growStage = NOT_PLANTED;
@@ -168,9 +168,9 @@ public class Crop extends Fixture {
   }
   
   
-  public static TradeType yieldType(Species species) {
+  public static Traded yieldType(Species species) {
     if (species == null) return null;
-    final TradeType type;
+    final Traded type;
     if (isHive(species)) {
       type = Economy.PROTEIN;
     }
@@ -236,7 +236,7 @@ public class Crop extends Fixture {
     //  TODO:  Possibly combine with irrigation effects from water supply or
     //  life support?
     
-    final World world = parent.world();
+    final Stage world = parent.world();
     final float pollution = Visit.clamp(
       tile.world.ecology().ambience.valueAt(tile), 0, 1
     );
@@ -255,7 +255,7 @@ public class Crop extends Fixture {
 
     //  Update biomass and possibly sprite state-
     world.ecology().impingeBiomass(
-      origin(), growStage() / 2f, World.GROWTH_INTERVAL
+      origin(), growStage() / 2f, Stage.GROWTH_INTERVAL
     );
     updateSprite();
   }
@@ -287,7 +287,7 @@ public class Crop extends Fixture {
   
   
   public Item yieldCrop() {
-    final TradeType type = yieldType(species);
+    final Traded type = yieldType(species);
     final float amount = growStage / MAX_GROWTH;
     growStage = NOT_PLANTED;
     quality = NO_HEALTH;

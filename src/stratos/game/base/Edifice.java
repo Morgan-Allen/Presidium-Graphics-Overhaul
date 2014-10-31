@@ -106,7 +106,7 @@ public class Edifice extends Venue {
   }
   
   
-  public TradeType[] services() {
+  public Traded[] services() {
     return null;
   }
   

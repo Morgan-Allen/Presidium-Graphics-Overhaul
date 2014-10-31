@@ -20,37 +20,32 @@ import static stratos.game.building.Economy.*;
 public class Commerce {
   
   
-  /**  Fields definitions, constructor, save/load methods-
+  /**  Field definitions, constructor, save/load methods-
     */
+  private static boolean
+    verbose        = true ,
+    extraVerbose   = false,
+    migrateVerbose = verbose && false,
+    tradeVerbose   = verbose && true;
+  
   final public static float
-    SUPPLY_INTERVAL = World.STANDARD_DAY_LENGTH / 2f,
+    SUPPLY_INTERVAL = Stage.STANDARD_DAY_LENGTH / 2f,
     SUPPLY_DURATION = SUPPLY_INTERVAL / 2f,
     
-    APPLY_INTERVAL  = World.STANDARD_DAY_LENGTH / 2f,
+    APPLY_INTERVAL  = Stage.STANDARD_DAY_LENGTH / 2f,
     UPDATE_INTERVAL = 10,
     DEMAND_INC      = 0.15f,
     MAX_APPLICANTS  = 3;
   
-  private static boolean verbose = false;
   
   
   final Base base;
   Sector homeworld;
   final List <Sector> partners = new List <Sector> ();
   
-  //  TODO:  Use a table here instead.  Just as a temporary kluge.
-  //final static int NUM_J = Backgrounds.ALL_BACKGROUNDS.length;
-  /*
-  final float
-    jobSupply[] = new float[NUM_J],
-    jobDemand[] = new float[NUM_J];
-  //*/
-  //final Table <Background, Float>
-    //jobSupply = new Table(),
-    //jobDemand = new Table();
   final Tally <Background>
-    jobSupply = new Tally(),
-    jobDemand = new Tally();
+    jobSupply = new Tally <Background> (),
+    jobDemand = new Tally <Background> ();
   
   final List <Actor> candidates = new List <Actor> ();
   final List <Actor> migrantsIn = new List <Actor> ();
@@ -58,9 +53,9 @@ public class Commerce {
   final Inventory
     shortages = new Inventory(null),
     surpluses = new Inventory(null);
-  final Table <TradeType, Float>
-    importPrices = new Table <TradeType, Float> (),
-    exportPrices = new Table <TradeType, Float> ();
+  final Table <Traded, Float>
+    importPrices = new Table <Traded, Float> (),
+    exportPrices = new Table <Traded, Float> ();
   
   private Dropship ship;
   private float nextVisitTime;
@@ -69,7 +64,7 @@ public class Commerce {
   
   public Commerce(Base base) {
     this.base = base;
-    for (TradeType type : ALL_MATERIALS) {
+    for (Traded type : ALL_MATERIALS) {
       importPrices.put(type, (float) type.basePrice);
       exportPrices.put(type, (float) type.basePrice);
     }
@@ -92,7 +87,7 @@ public class Commerce {
     
     shortages.loadState(s);
     surpluses.loadState(s);
-    for (TradeType type : ALL_MATERIALS) {
+    for (Traded type : ALL_MATERIALS) {
       importPrices.put(type, s.loadFloat());
       exportPrices.put(type, s.loadFloat());
     }
@@ -123,7 +118,7 @@ public class Commerce {
     
     shortages.saveState(s);
     surpluses.saveState(s);
-    for (TradeType type : ALL_MATERIALS) {
+    for (Traded type : ALL_MATERIALS) {
       s.saveFloat(importPrices.get(type));
       s.saveFloat(exportPrices.get(type));
     }
@@ -172,7 +167,8 @@ public class Commerce {
   
   protected void updateCandidates(int numUpdates) {
     if ((numUpdates % UPDATE_INTERVAL) != 0) return;
-    
+
+    final boolean report = migrateVerbose;
     final float inc = DEMAND_INC, timeGone = UPDATE_INTERVAL / APPLY_INTERVAL;
     final Background demanded[] = jobDemand.keysToArray(Background.class);
     
@@ -189,7 +185,7 @@ public class Commerce {
       jobSupply.add(1, a.position);
     }
     
-    if (verbose) I.say("\nChecking for new candidates...");
+    if (report) I.say("\nChecking for new candidates...");
     
     for (Background b : demanded) {
       final float
@@ -203,18 +199,18 @@ public class Commerce {
       float applyChance = demand * demand / (supply + demand);
       applyChance *= timeGone;
       
-      if (verbose) {
+      if (report) {
         I.say("  Hire chance for "+b+" is "+applyChance);
         I.say("  Supply/demand "+supply+" / "+demand);
       }
       
       while (Rand.num() < applyChance) {
         final Human applies = new Human(b, base);
-        if (verbose) I.say("  New candidate: "+applies);
+        if (report) I.say("  New candidate: "+applies);
         candidates.addFirst(applies);
         Application a = FindWork.lookForWork((Human) applies, base, verbose);
         if (a != null) {
-          if (verbose) I.say("  Applying at: "+a.employer);
+          if (report) I.say("  Applying at: "+a.employer);
           applies.mind.switchApplication(a);
         }
         applyChance--;
@@ -223,13 +219,13 @@ public class Commerce {
     
     //  TODO:  Consider time-slicing this again, at least for larger
     //  settlements.
-    if (verbose) I.say("\nTotal candidates "+candidates.size());
+    if (report) I.say("\nTotal candidates "+candidates.size());
     
     for (ListEntry e = candidates; (e = e.nextEntry()) != candidates;) {
       final Human c = (Human) e.refers;
       final Application a = c.mind.application();
       float quitChance = timeGone;
-      if (verbose) I.say("  Updating "+c);
+      if (report) I.say("  Updating "+c);
       
       if (a != null) {
         final Background b = a.position;
@@ -238,7 +234,7 @@ public class Commerce {
           demand = jobDemand.valueFor(b);
         quitChance *= supply / (supply + demand);
         
-        if (verbose) {
+        if (report) {
           I.say("  Quit chance for "+a.position+" "+c+" is: "+quitChance);
         }
       }
@@ -246,12 +242,12 @@ public class Commerce {
       if (Rand.num() > quitChance) {
         Application newApp = FindWork.lookForWork((Human) c, base, verbose);
         if (newApp != null) {
-          if (verbose) I.say("  Applying at: "+newApp.employer);
+          if (report) I.say("  Applying at: "+newApp.employer);
           c.mind.switchApplication(newApp);
         }
       }
       else {
-        if (verbose) I.say(c+"("+c.vocation()+") is quitting...");
+        if (report) I.say(c+"("+c.vocation()+") is quitting...");
         candidates.removeEntry(e);
         if (a != null) a.employer.personnel().setApplicant(a, false);
       }
@@ -269,33 +265,39 @@ public class Commerce {
   /**  Assessing supply and demand associated with goods-
     */
   private void summariseDemand(Base base) {
-    final boolean report = verbose;
+    final boolean report = tradeVerbose;
     if (report) I.say("\nSummarising demand for base: "+base);
     
     shortages.removeAllItems();
     surpluses.removeAllItems();
     
-    final World world = base.world;
+    final Stage world = base.world;
     final Tile t = world.tileAt(0, 0);
     
     for (Object o : world.presences.matchesNear(base, t, -1)) {
       final Venue venue = (Venue) o;
       if (venue.privateProperty()) continue;
       
-      for (TradeType type : venue.stocks.demanded()) {
+      for (Traded type : venue.stocks.demanded()) {
         if (type.form != FORM_MATERIAL) continue;
         final int tier = venue.stocks.demandTier(type);
         final float
           demand = venue.stocks.shortageOf(type),
-          amount = venue.stocks.amountOf(type),
+          supply = venue.stocks.surplusOf (type),
           shortage,
           surplus;
         
+        if (report && extraVerbose) {
+          I.say("  "+venue+" "+type+" (tier: "+tier+")");
+          I.say("    Supply: "+supply);
+          I.say("    Demand: "+demand);
+        }
+        
         if (tier == Stocks.TIER_PRODUCER) shortage = 0;
-        else shortage = Visit.round(demand - amount, 5, true);
+        else shortage = Visit.round(demand, 5, true );
         
         if (tier == Stocks.TIER_CONSUMER) surplus  = 0;
-        else surplus  = Visit.round(amount - demand, 5, true);
+        else surplus  = Visit.round(supply, 5, false);
         
         shortages.bumpItem(type, shortage);
         surpluses.bumpItem(type, surplus );
@@ -332,7 +334,7 @@ public class Commerce {
     //  than calculated at specific structures.  Vendors make money by charging
     //  more in general.
     
-    for (TradeType type : ALL_MATERIALS) {
+    for (Traded type : ALL_MATERIALS) {
       ///final boolean offworld = true; //For now.
       float
         basePrice = 1 * type.basePrice,
@@ -362,24 +364,24 @@ public class Commerce {
   }
   
   
-  public float localSurplus(TradeType type) {
+  public float localSurplus(Traded type) {
     return surpluses.amountOf(type);
   }
   
   
-  public float localShortage(TradeType type) {
+  public float localShortage(Traded type) {
     return shortages.amountOf(type);
   }
   
   
-  public float importPrice(TradeType type) {
+  public float importPrice(Traded type) {
     final Float price = importPrices.get(type);
     if (price == null) return type.basePrice * 10f;
     return price;
   }
   
   
-  public float exportPrice(TradeType type) {
+  public float exportPrice(Traded type) {
     final Float price = exportPrices.get(type);
     if (price == null) return type.basePrice / 10f;
     return price;
@@ -390,16 +392,23 @@ public class Commerce {
   
   /**  Dealing with shipping and crew complements-
     */
-  private void refreshCrew(Dropship ship) {
+  private void refreshCrew(Dropship ship, Background... positions) {
     //
-    //  TODO:  This crew will need to be updated every now and then- in the
-    //         sense of changing the roster.
+    //  This crew will need to be updated every now and then- in the sense of
+    //  changing the roster due to losses or career changes.
+    for (Background b : positions) {
+      if (ship.personnel().numHired(b) < 1) {
+        final Human staff = new Human(new Career(b), base);
+        staff.mind.setWork(ship);
+        staff.mind.setHome(ship);
+      }
+    }
     //
     //  Get rid of fatigue and hunger, modulate mood, et cetera- account for
     //  the effects of time spent offworld.
     for (Actor works : ship.crew()) {
       final float MH = works.health.maxHealth();
-      works.health.liftFatigue(MH * Rand.num());
+      works.health.liftFatigue (MH * Rand.num());
       works.health.takeCalories(MH, 0.25f + Rand.num());
       works.health.adjustMorale(Rand.num() / 2f);
       works.mind.clearAgenda();
@@ -407,20 +416,29 @@ public class Commerce {
   }
   
   
-  private void addCrew(Dropship ship, Background... positions) {
-    for (Background v : positions) {
-      final Human staff = new Human(new Career(v), base);
-      staff.mind.setWork(ship);
-      //staff.mind.setHomeVenue(ship);
+  private void refreshShip() {
+    if (ship == null || ship.destroyed()) {
+      ship = new Dropship();
+      ship.assignBase(base);
+      nextVisitTime = base.world.currentTime() + (Rand.num() * SUPPLY_INTERVAL);
     }
+    else {
+      final float repair = Visit.clamp(1.25f - (Rand.num() / 2), 0, 1);
+      ship.structure.setState(Structure.STATE_INTACT, repair);
+    }
+    refreshCrew(ship,
+      Backgrounds.SHIP_CAPTAIN,
+      Backgrounds.SHIP_MECHANIC
+    );
   }
   
   
   private void loadCargo(
     Dropship ship, Inventory available, final boolean imports
   ) {
+    final boolean report = tradeVerbose;
     ship.cargo.removeAllItems();
-    I.say("Loading cargo...");
+    if (report) I.say("\nLoading dropship cargo...");
     //
     //  We prioritise items based on the amount of demand and the price of the
     //  goods in question-
@@ -440,7 +458,7 @@ public class Commerce {
       available.removeItem(item);
       ship.cargo.addItem(item);
       totalAmount += item.amount;
-      I.say("Loading cargo: "+item);
+      if (report) I.say("  "+item);
     }
   }
   
@@ -452,19 +470,19 @@ public class Commerce {
   }
   
   
+  public void scheduleDrop(float delay) {
+    if (ship == null) refreshShip();
+    nextVisitTime = base.world.currentTime() + delay;
+    ship.resetAwayTime();
+  }
+  
+  
   
   /**  Perform updates to trigger new events or assess local needs-
     */
   public void updateCommerce(int numUpdates) {
-    if (ship == null) {
-      ship = new Dropship();
-      ship.assignBase(base);
-      addCrew(ship,
-        Backgrounds.SHIP_CAPTAIN,
-        Backgrounds.SHIP_MECHANIC
-      );
-      nextVisitTime = base.world.currentTime() + (Rand.num() * SUPPLY_INTERVAL);
-    }
+    
+    if (ship == null) refreshShip();
     
     updateCandidates(numUpdates);
     if (numUpdates % 10 == 0) {
@@ -476,8 +494,10 @@ public class Commerce {
   
   
   protected void updateShipping() {
+    final boolean report = verbose;
     
     final int shipStage = ship.flightStage();
+    
     if (ship.landed()) {
       final float sinceDescent = ship.timeLanded();
       if (sinceDescent > SUPPLY_DURATION) {
@@ -490,32 +510,35 @@ public class Commerce {
       }
     }
     if (! ship.inWorld()) {
-      boolean shouldVisit = migrantsIn.size() > 0;
-      if ((! shortages.empty()) || (! surpluses.empty())) shouldVisit = true;
-      shouldVisit &= base.world.currentTime() > nextVisitTime;
-      shouldVisit &= ship.timeAway(base.world) > SUPPLY_INTERVAL;
+      final boolean
+        needMigrate = migrantsIn.size() > 0, //  TODO:  Include emmigration.
+        needTrade   = (! shortages.empty()) || (! surpluses.empty()),
+        visitDue    = base.world.currentTime()  > nextVisitTime,
+        travelDone  = ship.timeAway(base.world) > SUPPLY_DURATION,
+        shouldVisit =
+          (needMigrate || needTrade) &&
+          (visitDue && travelDone),
+        willLand = shouldVisit && ship.findLandingSite(base);
       
-      if (shouldVisit) {
-        I.say("SENDING SHIP...");
-        final boolean canLand = ship.findLandingSite(base);
-        if (! canLand) return;
-        /*
-        final Box2D zone = Dropship.findLandingSite(ship, base);
-        if (zone == null) return;
-        //*/
-        I.say("Sending ship to land at: "+ship.dropPoint());
+      if (willLand) {
+        if (report) I.say("\nSENDING DROPSHIP TO "+ship.landArea());
         
-        while (ship.inside().size() < Dropship.MAX_PASSENGERS) {
-          if (migrantsIn.size() == 0) break;
+        while(migrantsIn.size() > 0) {
           final Actor migrant = migrantsIn.removeFirst();
           ship.setInside(migrant, true);
+          if (ship.inside().size() >= Dropship.MAX_PASSENGERS) break;
         }
-        
         loadCargo(ship, shortages, true);
         refreshCrew(ship);
-        for (Actor c : ship.crew()) ship.setInside(c, true);
         
+        for (Actor c : ship.crew()) ship.setInside(c, true);
         ship.beginDescent(base.world);
+      }
+      else if (visitDue && report) {
+        I.say("\nNo time for commerce?  Inconceivable!");
+        I.say("  Travel done:   "+travelDone );
+        I.say("  Need migrants: "+needMigrate);
+        I.say("  Need trade:    "+needTrade  );
       }
     }
   }

@@ -64,14 +64,14 @@ public class TutorialScenario extends StartupScenario {
   }
   
   
-  protected void configureScenario(World world, Base base, BaseUI UI) {
+  protected void configureScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.hireFree = true;
     super.configureScenario(world, base, UI);
   }
   
   
   protected Bastion establishBastion(
-    World world, Base base, Human ruler,
+    Stage world, Base base, Human ruler,
     List<Human> advisors, List<Human> colonists
   ) {
     bastion = super.establishBastion(world, base, ruler, advisors, colonists);
@@ -79,7 +79,7 @@ public class TutorialScenario extends StartupScenario {
   }
   
   
-  protected void establishLocals(World world) {
+  protected void establishLocals(Stage world) {
     ruins = Ruins.placeRuins(world, 1);
     huts = NativeHut.establishSites(NativeHut.TRIBE_FOREST, world);
   }

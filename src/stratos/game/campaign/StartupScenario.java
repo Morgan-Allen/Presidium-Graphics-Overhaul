@@ -146,7 +146,7 @@ public class StartupScenario extends Scenario {
   
   /**  Required setup methods-
     */
-  protected World createWorld() {
+  protected Stage createWorld() {
     final int station = config.titleLevel;
     float water = 2;
     float forest = 0, meadow = 0, barrens = 0, desert = 0, wastes = 0;
@@ -169,7 +169,7 @@ public class StartupScenario extends Scenario {
       Habitat.DUNE        , desert ,
       Habitat.CURSED_EARTH, wastes
     );
-    final World world = new World(TG.generateTerrain());
+    final Stage world = new Stage(TG.generateTerrain());
     TG.setupMinerals(world, 0, 0, 0);
     TG.setupOutcrops(world);
     world.terrain().readyAllMeshes();
@@ -178,7 +178,7 @@ public class StartupScenario extends Scenario {
   }
   
   
-  protected Base createBase(World world) {
+  protected Base createBase(Stage world) {
     final Base base = Base.baseWithName(world, "Player", false);
     
     int funding = -1, interest = -1;
@@ -194,7 +194,7 @@ public class StartupScenario extends Scenario {
   }
   
   
-  protected void configureScenario(World world, Base base, BaseUI UI) {
+  protected void configureScenario(Stage world, Base base, BaseUI UI) {
     //
     //  Determine relevant attributes for the ruler-
     final Human ruler = ruler(base);
@@ -218,7 +218,7 @@ public class StartupScenario extends Scenario {
   }
   
   
-  protected String saveFilePrefix(World world, Base base) {
+  protected String saveFilePrefix(Stage world, Base base) {
     String title = base.ruler().fullName();
     while (true) {
       File match = new File(Scenario.fullSavePath(title, null));
@@ -303,7 +303,7 @@ public class StartupScenario extends Scenario {
   
   
   protected Bastion establishBastion(
-    final World world, Base base,
+    final Stage world, Base base,
     Human ruler, List <Human> advisors, List <Human> colonists
   ) {
     final Bastion bastion = new Bastion(base);
@@ -315,7 +315,7 @@ public class StartupScenario extends Scenario {
     final SitingPass siting = new SitingPass() {
       protected float rateSite(Tile centre) {
         float rating = world.terrain().fertilitySample(centre);
-        rating -= Spacing.distance(centre, target) / World.SECTOR_SIZE;
+        rating -= Spacing.distance(centre, target) / Stage.SECTOR_SIZE;
         return rating;
       }
       protected boolean createSite(Tile centre) {
@@ -357,16 +357,16 @@ public class StartupScenario extends Scenario {
   }
   
   
-  protected void establishLocals(World world) {
+  protected void establishLocals(Stage world) {
     if (config.siteLevel == SITE_WASTELAND) {
-      final int maxRuins = world.size / (World.SECTOR_SIZE * 2);
+      final int maxRuins = world.size / (Stage.SECTOR_SIZE * 2);
       Ruins.placeRuins(world, maxRuins);
     }
     if (config.siteLevel == SITE_SETTLED) {
       Nest.placeNests(world, Species.QUDU, Species.HAREEN);
     }
     if (config.siteLevel == SITE_WILDERNESS) {
-      final int maxRuins = world.size / (World.SECTOR_SIZE * 4);
+      final int maxRuins = world.size / (Stage.SECTOR_SIZE * 4);
       Ruins.placeRuins(world, maxRuins);
       Nest.placeNests(world, Species.QUDU, Species.HAREEN, Species.LICTOVORE);
     }

@@ -65,6 +65,10 @@ public class Box2D {
   }
   
   
+  public Box2D() {
+  }
+  
+  
   /**  Copies the argument's values naturally.
     */
   public Box2D setTo(Box2D box) {
@@ -78,13 +82,8 @@ public class Box2D {
   }
   
   
-  public void expandToUnit(int unit) {
-    xpos = unit * (float) FastMath.floor(xpos / unit);
-    ypos = unit * (float) FastMath.floor(ypos / unit);
-    xmax = unit * (float) FastMath.ceil (xmax / unit);
-    ymax = unit * (float) FastMath.ceil (ymax / unit);
-    xdim = xmax - xpos;
-    ydim = ymax = ypos;
+  public Box2D(Box2D box) {
+    setTo(box);
   }
   
   
@@ -99,6 +98,11 @@ public class Box2D {
     xmax = xpos + xdim;
     ymax = ypos + ydim;
     return this;
+  }
+  
+  
+  public Box2D(float x, float y, float xs, float ys) {
+    set(x, y, xs, ys);
   }
   
   
@@ -149,6 +153,10 @@ public class Box2D {
   }
   
   
+  
+  /**  Returns whether this box and the argument have a non-zero overlapping
+    *  area.
+    */
   public boolean overlaps(Box2D box) {
     if (xmax <= box.xpos) return false;
     if (ymax <= box.ypos) return false;
@@ -187,6 +195,16 @@ public class Box2D {
     while ((ym += m) < ydim);
     xdim(xm);
     ydim(ym);
+  }
+  
+  
+  public void expandToUnit(int unit) {
+    xpos = unit * (float) FastMath.floor(xpos / unit);
+    ypos = unit * (float) FastMath.floor(ypos / unit);
+    xmax = unit * (float) FastMath.ceil (xmax / unit);
+    ymax = unit * (float) FastMath.ceil (ymax / unit);
+    xdim = xmax - xpos;
+    ydim = ymax = ypos;
   }
   
   

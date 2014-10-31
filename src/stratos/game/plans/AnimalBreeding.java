@@ -29,7 +29,7 @@ import static stratos.game.building.Economy.*;
 public class AnimalBreeding extends Plan {
   
   final static int
-    BREED_TIME_PER_10_HP = World.STANDARD_DAY_LENGTH;
+    BREED_TIME_PER_10_HP = Stage.STANDARD_DAY_LENGTH;
   
   private static boolean
     evalVerbose  = false,
@@ -50,7 +50,7 @@ public class AnimalBreeding extends Plan {
     this.station = station;
     this.handled = handled;
     this.releasePoint = releasePoint;
-    this.asStock = Item.withReference(ORGANS, handled);
+    this.asStock = Item.withReference(GENE_SEED, handled);
   }
   
   
@@ -59,7 +59,7 @@ public class AnimalBreeding extends Plan {
     station = (KommandoLodge) s.loadObject();
     handled = (Fauna) s.loadObject();
     releasePoint = s.loadTarget();
-    this.asStock = Item.withReference(ORGANS, handled);
+    this.asStock = Item.withReference(GENE_SEED, handled);
   }
   
   
@@ -82,7 +82,7 @@ public class AnimalBreeding extends Plan {
     final boolean report = evalVerbose && I.talkAbout == station;
     if (report) I.say("\nGETTING NEXT FAUNA TO BREED");
     
-    for (Item match : station.stocks.matches(ORGANS)) {
+    for (Item match : station.stocks.matches(GENE_SEED)) {
       if (match.refers instanceof Fauna) {
         if (report) I.say("  Fauna being bred: "+match.refers);
         final Fauna fauna = (Fauna) match.refers;
@@ -91,7 +91,7 @@ public class AnimalBreeding extends Plan {
       }
     }
     
-    final World world = station.world();
+    final Stage world = station.world();
     final Tile releasePoint = Spacing.pickRandomTile(
       station, Nest.MAX_SEPARATION, world
     );
@@ -226,7 +226,7 @@ public class AnimalBreeding extends Plan {
     
     Item basis = station.stocks.matchFor(asStock);
     if (basis == null) {
-      basis = Item.with(ORGANS, fauna, inc, 0);
+      basis = Item.with(GENE_SEED, fauna, inc, 0);
       fauna.health.setupHealth(0, 1, 0);
       station.stocks.addItem(basis);
     }
@@ -262,7 +262,7 @@ public class AnimalBreeding extends Plan {
   
   
   public boolean actionRelease(Actor actor, Boarding point) {
-    final World world = actor.world();
+    final Stage world = actor.world();
     actor.gear.removeMatch(asStock);
     handled.enterWorldAt(point, world);
     

@@ -19,12 +19,12 @@ public class IntelMap {
   final static float
     MIN_FOG        = 0,
     MAX_FOG        = 1.5f,
-    FOG_DECAY_TIME = World.STANDARD_DAY_LENGTH,
+    FOG_DECAY_TIME = Stage.STANDARD_DAY_LENGTH,
     FOG_SEEN_MIN   = 0.5f;
   
   final Base base;
   
-  private World      world;
+  private Stage      world;
   private float      fogVals[][];
   private MipMap     fogMap;
   private FogOverlay fogOver;
@@ -36,7 +36,7 @@ public class IntelMap {
   }
   
   
-  public void initFog(World world) {
+  public void initFog(Stage world) {
     this.world = world;
     final int size = world.size;
     fogVals = new float[size][size];
@@ -67,7 +67,7 @@ public class IntelMap {
   }
   
   
-  public World world() {
+  public Stage world() {
     return world;
   }
   

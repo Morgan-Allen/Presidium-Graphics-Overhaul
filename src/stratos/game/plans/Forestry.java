@@ -264,11 +264,11 @@ public class Forestry extends Plan {
     
     for (int n = 10; n-- > 0;) {
       tried = Spacing.pickRandomTile(
-        actor, World.SECTOR_SIZE / 2, actor.world()
+        actor, Stage.SECTOR_SIZE / 2, actor.world()
       );
       tried = Spacing.nearestOpenTile(tried, actor);
       if (tried == null || ! Flora.canGrowAt(tried)) continue;
-      if (Spacing.distance(tried, nursery) > World.SECTOR_SIZE) continue;
+      if (Spacing.distance(tried, nursery) > Stage.SECTOR_SIZE) continue;
       
       float rating = tried.habitat().moisture() / 10f;
       rating -= Plan.rangePenalty(tried, actor);
@@ -283,10 +283,10 @@ public class Forestry extends Plan {
   
   public static Flora findCutting(Actor actor) {
     if (Rand.yes()) return (Flora) actor.world().presences.randomMatchNear(
-      Flora.class, actor, World.SECTOR_SIZE
+      Flora.class, actor, Stage.SECTOR_SIZE
     );
     return (Flora) actor.world().presences.nearestMatch(
-      Flora.class, actor, World.SECTOR_SIZE
+      Flora.class, actor, Stage.SECTOR_SIZE
     );
     /*
     Series <Target> sample = actor.world().presences.sampleFromKey(

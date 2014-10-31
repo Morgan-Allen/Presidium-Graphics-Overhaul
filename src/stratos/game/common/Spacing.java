@@ -69,7 +69,7 @@ public final class Spacing implements TileConstants {
   
   //
   //  Method for getting all tiles around the perimeter of a venue/area.
-  public static Tile[] perimeter(Box2D area, World world) {
+  public static Tile[] perimeter(Box2D area, Stage world) {
     final int
       minX = (int) Math.floor(area.xpos()),
       minY = (int) Math.floor(area.ypos()),
@@ -90,7 +90,7 @@ public final class Spacing implements TileConstants {
   }
   
   
-  public static Tile[] under(Box2D area, World world) {
+  public static Tile[] under(Box2D area, Stage world) {
     final Batch <Tile> under = new Batch <Tile> ();
     for (Tile t : world.tilesIn(area, true)) under.add(t);
     return (Tile[]) under.toArray(Tile.class);
@@ -173,7 +173,7 @@ public final class Spacing implements TileConstants {
   
   
   
-  public static int numNeighbours(Element element, World world) {
+  public static int numNeighbours(Element element, Stage world) {
     if (element.xdim() > 4 || element.xdim() != element.ydim()) {
       I.complain("This method is intended only for small, regular elements.");
     }
@@ -234,7 +234,7 @@ public final class Spacing implements TileConstants {
   
 
   public static Tile nearestOpenTile(
-    Box2D area, Target client, World world
+    Box2D area, Target client, Stage world
   ) {
     final Vec3D p = client.position(pA);
     final Tile o = world.tileAt(p.x, p.y);
@@ -268,7 +268,7 @@ public final class Spacing implements TileConstants {
   
   
   public static Tile nearestOpenTile(
-    Element element, Target client, World world
+    Element element, Target client, Stage world
   ) {
     if (element.pathType() >= Tile.PATH_HINDERS) {
       return nearestOpenTile(element.area(tA), client, world);
@@ -332,7 +332,7 @@ public final class Spacing implements TileConstants {
   }
   
   
-  public static Tile pickRandomTile(Target t, float range, World world) {
+  public static Tile pickRandomTile(Target t, float range, Stage world) {
     final double angle = Rand.num() * Math.PI * 2;
     final float dist = Rand.num() * range, max = world.size - 1;
     final Vec3D o = t.position(pA);
@@ -368,7 +368,7 @@ public final class Spacing implements TileConstants {
   
 
   final public static float sectorDistance(final Target a, final Target b) {
-    return distance(a, b) / World.SECTOR_SIZE;
+    return distance(a, b) / Stage.SECTOR_SIZE;
   }
   
   
@@ -412,18 +412,35 @@ public final class Spacing implements TileConstants {
   }
   
   
-  public static boolean edgeAdjacent(Tile a, Tile b) {
-    if (a.x == b.x) return a.y == b.y + 1 || a.y == b.y - 1;
-    if (a.y == b.y) return a.x == b.x + 1 || a.x == b.x - 1;
-    return false;
-  }
-  
-  
   public static boolean adjacent(Element a, Element b) {
     if (a == null || b == null) return false;
     a.area(tA);
     b.area(tB);
     return tA.intersects(tB);
+  }
+  
+  
+  public static boolean adjacent(Target a, Target b) {
+    areaFor(a, tA);
+    areaFor(b, tB);
+    return tA.overlaps(tB.expandBy(1));
+  }
+  
+  
+  public static Box2D areaFor(Target a, Box2D put) {
+    if (put == null) put = new Box2D();
+    if (a instanceof Element) return ((Element) a).area(put);
+    if (a instanceof Tile   ) return ((Tile   ) a).area(put);
+    final Vec3D p = a.position(pA);
+    final float r = a.radius();
+    return put.set(p.x - r, p.y - r, r * 2, r * 2);
+  }
+  
+  
+  public static boolean edgeAdjacent(Tile a, Tile b) {
+    if (a.x == b.x) return a.y == b.y + 1 || a.y == b.y - 1;
+    if (a.y == b.y) return a.x == b.x + 1 || a.x == b.x - 1;
+    return false;
   }
 }
 

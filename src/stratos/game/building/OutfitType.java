@@ -13,7 +13,7 @@ import java.io.*;
 
 
 
-public class OutfitType extends TradeType {
+public class OutfitType extends Traded {
   
   
   final public float
@@ -52,8 +52,8 @@ public class OutfitType extends TradeType {
   public static void applyFX(
     OutfitType type, Mobile uses, Target attackedBy, boolean hits
   ) {
-    final World world = uses.world();
-    final World.Visible visible = world.ephemera.matchGhost(
+    final Stage world = uses.world();
+    final Stage.Visible visible = world.ephemera.matchGhost(
       uses, ShieldFX.SHIELD_MODEL
     );
     if (visible != null) {

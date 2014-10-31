@@ -82,7 +82,7 @@ public class Selection implements UIConstants {
   
   /**  
     */
-  boolean updateSelection(World world, Viewport port, UIGroup infoPanel) {
+  boolean updateSelection(Stage world, Viewport port, UIGroup infoPanel) {
     if (
       selected != null &&
       UI.currentPane() == null &&
@@ -218,7 +218,7 @@ public class Selection implements UIConstants {
   
   
   public void renderTileOverlay(
-    Rendering r, final World world,
+    Rendering r, final Stage world,
     Colour c, ImageAsset tex, boolean cache,
     final Installation key, final Installation... group
   ) {

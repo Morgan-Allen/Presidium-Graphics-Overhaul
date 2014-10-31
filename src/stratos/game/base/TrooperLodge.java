@@ -114,8 +114,8 @@ public class TrooperLodge extends Venue {
   }
   
   
-  public TradeType[] services() {
-    return new TradeType[] {};
+  public Traded[] services() {
+    return new Traded[] {};
   }
   
   
@@ -125,7 +125,7 @@ public class TrooperLodge extends Venue {
   }
   
   
-  public boolean enterWorldAt(int x, int y, World world) {
+  public boolean enterWorldAt(int x, int y, Stage world) {
     if (! super.enterWorldAt(x, y, world)) return false;
     updateDrillYard();
     return true;

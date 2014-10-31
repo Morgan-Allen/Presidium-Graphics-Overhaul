@@ -42,7 +42,7 @@ public class TerrainGen implements TileConstants {
   public TerrainGen(int minSize, float typeNoise, Object... gradient) {
     this.mapSize = checkMapSize(minSize);
     this.typeNoise = Visit.clamp(typeNoise, 0, 1);
-    this.sectorGridSize = mapSize / World.SECTOR_SIZE;
+    this.sectorGridSize = mapSize / Stage.SECTOR_SIZE;
     //
     //  Here, we verify amd compile the gradient of habitat proportions.
     final Batch <Habitat> habB  = new Batch <Habitat> ();
@@ -83,7 +83,7 @@ public class TerrainGen implements TileConstants {
   
   
   protected Habitat baseHabitat(Coord c, int resolution) {
-    final int grid = World.SECTOR_SIZE / resolution;
+    final int grid = Stage.SECTOR_SIZE / resolution;
     final int ID = sectors[c.x / grid][c.y / grid].gradientID;
     return habitats[ID];
   }
@@ -93,7 +93,7 @@ public class TerrainGen implements TileConstants {
   /**  Generating the overall region layout:
     */
   private int checkMapSize(int minSize) {
-    int mapSize = World.SECTOR_SIZE * 2;
+    int mapSize = Stage.SECTOR_SIZE * 2;
     while (mapSize < minSize) mapSize *= 2;
     if (mapSize == minSize) return mapSize;
     I.complain("MAP SIZE MUST BE A POWER OF 2 MULTIPLE OF SECTOR SIZE.");
@@ -115,8 +115,8 @@ public class TerrainGen implements TileConstants {
     sectors = new Sector[GS][GS];
     for (Coord c : Visit.grid(0, 0, GS, GS, 1)) {
       final Sector s = new Sector();
-      s.coreX = (int) ((c.x + 0.5f) * World.SECTOR_SIZE);
-      s.coreY = (int) ((c.y + 0.5f) * World.SECTOR_SIZE);
+      s.coreX = (int) ((c.x + 0.5f) * Stage.SECTOR_SIZE);
+      s.coreY = (int) ((c.y + 0.5f) * Stage.SECTOR_SIZE);
       s.gradientID = sectorVal[c.x][c.y];
       ///I.say("Type ID: "+s.gradientID+", core: "+s.coreX+"|"+s.coreY);
       sectors[c.x][c.y] = s;
@@ -178,7 +178,7 @@ public class TerrainGen implements TileConstants {
   private void initSectorBlends(int GS) {
     blendsX = new float[GS - 1][];
     blendsY = new float[GS - 1][];
-    final int SS = World.SECTOR_SIZE, DR = DETAIL_RESOLUTION;
+    final int SS = Stage.SECTOR_SIZE, DR = DETAIL_RESOLUTION;
     for (int n = GS - 1; n-- > 0;) {
       blendsX[n] = staggeredLine(mapSize + 1, DR, SS / 2, true);
       blendsY[n] = staggeredLine(mapSize + 1, DR, SS / 2, true);
@@ -274,7 +274,7 @@ public class TerrainGen implements TileConstants {
     try { sampleVar = varsIndex[x + N_X[dir]][y + N_Y[dir]]; }
     catch (ArrayIndexOutOfBoundsException e) { sampleVar = 0; }
     
-    final int MV = WorldTerrain.VAR_LIMIT;
+    final int MV = WorldTerrain.TILE_VAR_LIMIT;
     if (sampleVar == 0) sampleVar = (byte) (Rand.index(MV + 1) % MV);
     varsIndex[x][y] = sampleVar;
     return sampleVar;
@@ -321,7 +321,7 @@ public class TerrainGen implements TileConstants {
   //  While it's not critical, it would be nice to have some method of fine-
   //  tuning this.  Perhaps the dither-map?
   public void setupMinerals(
-    final World world,
+    final Stage world,
     float chanceMetals, float chanceArtifacts, float chanceIsotopes
   ) {
     final WorldTerrain terrain = world.terrain();
@@ -371,19 +371,19 @@ public class TerrainGen implements TileConstants {
       if (pickHighest) chance *= abundances[var];
       final float minChance = terrain.habitatAt(c.x, c.y).minerals() / 10f;
       chance *= minChance;
-      byte degree = (byte) ((minChance * WorldTerrain.NUM_DEGREES));
-      if (Rand.num() > chance) degree--;
-      if (Rand.num() < chance) degree++;
-      degree = (byte) Visit.clamp(degree, WorldTerrain.NUM_DEGREES);
-      if (degree == 0) continue;
+      
+      float minAmount = minChance * (1.5f - Rand.num());
+      if (Rand.num() < minChance) minAmount += 0.5f;
+      minAmount *= WorldTerrain.MAX_MINERAL_AMOUNT / 2f;
+      if (minAmount <= 0) continue;
       //
       //  Store and summarise-
       final Tile location = world.tileAt(c.x, c.y);
-      terrain.setMinerals(location, (byte) var, degree);
+      terrain.setMinerals(location, (byte) var, minAmount);
       totals[var] += terrain.mineralsAt(location, (byte) var);
     }
-    /*
-    final boolean report = true;
+    
+    final boolean report = false;
     if (report) {
       I.say(
         "Total metals/carbons/isotopes: "+
@@ -391,14 +391,13 @@ public class TerrainGen implements TileConstants {
       );
       presentMineralMap(world, terrain);
     }
-    //*/
   }
   
   
   //
   //  Put the various tiles for processing in different batches and treat 'em
   //  that way?
-  public void setupOutcrops(final World world) {
+  public void setupOutcrops(final Stage world) {
     final WorldTerrain worldTerrain = world.terrain();
     final int seedSize = (mapSize / DETAIL_RESOLUTION) + 1;
     final HeightMap heightDetail = new HeightMap(
@@ -468,7 +467,7 @@ public class TerrainGen implements TileConstants {
   
   /**  Utility methods for debugging-
     */
-  public void presentMineralMap(World world, WorldTerrain worldTerrain) {
+  public void presentMineralMap(Stage world, WorldTerrain worldTerrain) {
     final int colourKey[][] = new int[mapSize][mapSize];
     final int typeColours[] = {
       0xff000000,
@@ -487,13 +486,14 @@ public class TerrainGen implements TileConstants {
       final Tile t = world.tileAt(c.x, c.y);
       final byte type = worldTerrain.mineralType(t);
       final float amount = worldTerrain.mineralsAt(t, type);
-      byte degree = 0;
-      if (amount == WorldTerrain.AMOUNT_TRACE) degree = 1;
-      if (amount == WorldTerrain.AMOUNT_COMMON) degree = 2;
-      if (amount == WorldTerrain.AMOUNT_HEAVY ) degree = 3;
+      int degree = (int) (amount * 3.99f / WorldTerrain.MAX_MINERAL_AMOUNT);
       colourKey[c.x][c.y] = typeColours[type] & degreeMasks[degree];
     }
     I.present(colourKey, "minerals map", 256, 256);
   }
 }
+
+
+
+
 

@@ -28,7 +28,7 @@ public class Readout extends UIGroup {
   protected void updateState() {
     super.updateState();
     
-    final World world = UI.world();
+    final Stage world = UI.world();
     final Base played = UI.played();
     
     if (read == null) return;
@@ -42,7 +42,7 @@ public class Readout extends UIGroup {
     //
     //  Then time and date-
     final float
-      time = world.currentTime() / World.STANDARD_DAY_LENGTH;
+      time = world.currentTime() / Stage.STANDARD_DAY_LENGTH;
     final int
       days  = (int) time,
       hours = (int) ((time - days) * 24);

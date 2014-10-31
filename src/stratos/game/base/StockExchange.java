@@ -77,7 +77,7 @@ public class StockExchange extends Venue {
   
   /**  Supplementary setup methods-
     */
-  public boolean enterWorldAt(int x, int y, World world) {
+  public boolean enterWorldAt(int x, int y, Stage world) {
     if (! super.enterWorldAt(x, y, world)) return false;
     cargoBarge = new CargoBarge();
     cargoBarge.assignBase(base());
@@ -168,7 +168,7 @@ public class StockExchange extends Venue {
     final Batch <Venue> depots = DeliveryUtils.nearbyDepots(
       this, world, StockExchange.class, FRSD.class
     );
-    final TradeType services[] = services();
+    final Traded services[] = services();
     
     /*
     final Delivery bD = Deliveries.nextDeliveryFor(
@@ -200,7 +200,7 @@ public class StockExchange extends Venue {
     }
     
     //  Otherwise, consider local deliveries and supervision of the venue-
-    for (TradeType good : services) {
+    for (Traded good : services) {
       final Delivery d = DeliveryUtils.bestDeliveryFrom(
         this, good, 10, null, 5, true
       );
@@ -223,7 +223,7 @@ public class StockExchange extends Venue {
     final Batch <Venue> depots = DeliveryUtils.nearbyDepots(
       this, world, StockExchange.class, FRSD.class
     );
-    for (TradeType type : ALL_MATERIALS) {
+    for (Traded type : ALL_MATERIALS) {
       final int demandBonus = 10;
       stocks.incDemand(type, demandBonus, Stocks.TIER_TRADER, 1, this);
       stocks.diffuseDemand(type, depots, 1);
@@ -248,7 +248,7 @@ public class StockExchange extends Venue {
   }
   
   
-  public int spaceFor(TradeType good) {
+  public int spaceFor(Traded good) {
     //  TODO:  Restore some subtlety here.
     return 25;
     /*
@@ -285,7 +285,7 @@ public class StockExchange extends Venue {
   }
   
   
-  public TradeType[] services() {
+  public Traded[] services() {
     return ALL_MATERIALS;
   }
   
@@ -308,14 +308,14 @@ public class StockExchange extends Venue {
   }
   
   
-  protected TradeType[] goodsToShow() {
+  protected Traded[] goodsToShow() {
     return ALL_MATERIALS;
   }
   
   //
   //  TODO:  You have to show items in the back as well, behind a sprite
   //  overlay for the facade of the structure.
-  protected float goodDisplayAmount(TradeType good) {
+  protected float goodDisplayAmount(Traded good) {
     return Math.min(super.goodDisplayAmount(good), 25);
   }
   

@@ -90,7 +90,6 @@ public class Pathing {
     }
     if (t instanceof Element) {
       return mobile.world.tileAt(t);
-      //return Spacing.nearestOpenTile((Element) t, mobile, mobile.world());
     }
     I.complain("CANNOT GET LOCATION FOR: "+t);
     return null;
@@ -149,7 +148,7 @@ public class Pathing {
     //  we're approaching the terminus-
     if (validPath && (! nearTarget) && (Visit.last(path) != dest)) {
       final int dist = path.length - (stepIndex + 1);
-      if (dist < World.PATCH_RESOLUTION / 2) {
+      if (dist < Stage.PATCH_RESOLUTION / 2) {
         if (report) I.say("  NEAR END OF PATH");
         validPath = false;
       }
@@ -252,20 +251,19 @@ public class Pathing {
         speed /= 2;
       }
     }
-    
     //
     //  Determine the appropriate offset and angle for this target-
     if (target == null) return;
     final Vec2D disp = displacement(target);
     final float dist = disp.length();
     float angle = dist == 0 ? 0 : disp.normalise().toAngle();
-    float moveRate = moves ? (speed / World.UPDATES_PER_SECOND) : 0;
+    float moveRate = moves ? (speed / Stage.UPDATES_PER_SECOND) : 0;
     if (report) I.say("  MOVE DIST: "+dist);
     //
     //  Determine how far one can move this update, including limits on
     //  maximum rotation-
     final float maxRotate = speed * 180 / (
-      World.UPDATES_PER_SECOND * GameSettings.actorScale
+      Stage.UPDATES_PER_SECOND * GameSettings.actorScale
     );
     final float
       angleDif = Vec2D.degreeDif(angle, mobile.rotation),
@@ -296,7 +294,7 @@ public class Pathing {
     if (true) return false;
     final Vec2D
       heading = temp2.setFromAngle(mobile.rotation),
-      disp = displacement(other);
+      disp    = displacement(other);
     if (heading.dot(disp) < 0) return false;
     
     return other.hashCode() > mobile.hashCode();
@@ -323,7 +321,6 @@ public class Pathing {
       return;
     }
     
-    ///if (true) return;
     final Mobile m = mobile;
     if (m.indoors() || ! m.collides()) return;
     final Vec2D sum = new Vec2D(), disp = new Vec2D();
@@ -378,7 +375,7 @@ public class Pathing {
     final Vec2D facing = new Vec2D().setFromAngle(mobile.rotation);
     final float SL = sum.length(), push = sum.dot(facing) * -1f / SL;
     if (push > 0 && SL > 0) {
-      final float minDisp = moveRate * 0.5f / World.UPDATES_PER_SECOND;
+      final float minDisp = moveRate * 0.5f / Stage.UPDATES_PER_SECOND;
       facing.scale((SL - minDisp) * push);
       sum.add(facing).normalise().scale((minDisp + SL) / 2);
     }

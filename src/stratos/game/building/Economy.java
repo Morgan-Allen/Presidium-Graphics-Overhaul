@@ -33,142 +33,150 @@ public final class Economy {
     FORM_SPECIAL   = 7;
   
   
-  final public static TradeType
-    MINERALS   = new TradeType(BC, "Minerals"  , null, FORM_RESOURCE, 0),
-    MOISTURE   = new TradeType(BC, "Moisture"  , null, FORM_RESOURCE, 0),
-    INSOLATION = new TradeType(BC, "Insolation", null, FORM_RESOURCE, 0),
-    LAND_AREA  = new TradeType(BC, "Land Area" , null, FORM_RESOURCE, 0);
-  final public static TradeType
-    ALL_RESOURCES[] = TradeType.typesSoFar();
+  final public static Traded
+    MINERALS   = new Traded(BC, "Minerals"  , null, FORM_RESOURCE, 0),
+    MOISTURE   = new Traded(BC, "Moisture"  , null, FORM_RESOURCE, 0),
+    INSOLATION = new Traded(BC, "Insolation", null, FORM_RESOURCE, 0),
+    LAND_AREA  = new Traded(BC, "Land Area" , null, FORM_RESOURCE, 0);
+  final public static Traded
+    ALL_RESOURCES[] = Traded.typesSoFar();
   
   
-  final public static TradeType
-    CARBS = new TradeType(
+  final public static Traded
+    CARBS = new Traded(
       BC, "Carbs"    , "carbs.gif"    , FORM_MATERIAL, 10
     ),
-    GREENS = new TradeType(
+    GREENS = new Traded(
       BC, "Greens"   , "greens.gif"   , FORM_MATERIAL, 20
     ),
-    PROTEIN = new TradeType(
+    PROTEIN = new Traded(
       BC, "Protein"  , "protein.gif"  , FORM_MATERIAL, 50
     ),
-    SPYCE = new TradeType(
-      BC, "Spyce"    , "spyce.gif"    , FORM_MATERIAL, 100
+    RAW_SPYCE = new Traded(
+      BC, "Raw Spyce", "organs.gif"   , FORM_MATERIAL, 100
     ),
     
-    SOMA = new TradeType(
+    SOMA = new Traded(
       BC, "Soma"     , "soma.gif"     , FORM_MATERIAL, 40
     ),
-    REAGENTS = new TradeType(
+    REAGENTS = new Traded(
       BC, "Reagents" , "stimkit.gif"  , FORM_MATERIAL, 60
     ),
-    MEDICINE = new TradeType(
+    MEDICINE = new Traded(
       BC, "Medicine" , "medicines.gif", FORM_MATERIAL, 120
     ),
-    ORGANS = new TradeType(
-      BC, "Organs"   , "organs.gif"   , FORM_MATERIAL, 250
+    SPYCE = new Traded(
+      BC, "Spyce"    , "spyce.gif"    , FORM_MATERIAL, 250
     ),
     
-    ORES = new TradeType(
+    ORES = new Traded(
       BC, "Ores"     , "ores.gif"     , FORM_MATERIAL, 25
     ),
-    ISOTOPES = new TradeType(
+    ISOTOPES = new Traded(
       BC, "Isotopes" , "isotopes.gif" , FORM_MATERIAL, 55
     ),
-    PARTS = new TradeType(
+    PARTS = new Traded(
       BC, "Parts"    , "parts.gif"    , FORM_MATERIAL, 40
     ),
-    FUEL_RODS = new TradeType(
+    FUEL_RODS = new Traded(
       BC, "Fuel Rods", "fuel_rods.gif", FORM_MATERIAL, 85
     ),
     
-    PLASTICS = new TradeType(
+    PLASTICS = new Traded(
       BC, "Plastics" , "plastics.gif" , FORM_MATERIAL, 25
     ),
-    PRESSFEED = new TradeType(
+    PRESSFEED = new Traded(
       BC, "Pressfeed", "pressfeed.gif", FORM_MATERIAL, 50
     ),
-    ARTWORKS = new TradeType(
+    ARTWORKS = new Traded(
       BC, "Artworks" , "decor.gif"    , FORM_MATERIAL, 100
     ),
-    DATALINKS = new TradeType(
+    DATALINKS = new Traded(
       BC, "Datalinks", "datalinks.gif", FORM_MATERIAL, 125
     );
   
-  final public static TradeType
+  final public static Traded
     ALL_FOOD_TYPES[] = { CARBS, GREENS, PROTEIN },
-    ALL_MATERIALS[] = TradeType.typesSoFar();
+    ALL_MATERIALS[] = Traded.typesSoFar();
   
-  final public static TradeType
-    SAMPLES = new TradeType(
+  final public static Traded
+    SAMPLES = new Traded(
       BC, "Samples"    , null, FORM_SPECIAL, 0
     ),
-    ARTIFACTS = new TradeType(
+    SLAG = new Traded(
+      BC, "Slag"       , null, FORM_SPECIAL, 0
+    ),
+    
+    ARTIFACTS = new Traded(
       BC, "Artifacts"  , null, FORM_SPECIAL, 0
     ),
-    DECOR_ITEMS = new TradeType(
+    DECOR_ITEMS = new Traded(
       BC, "Decor Items", null, FORM_SPECIAL, 0
     ),
-    TREATMENT = new TradeType(
+    
+    TREATMENT = new Traded(
       BC, "Treatment"  , null, FORM_SPECIAL, 0
     ),
-    GENE_SEED = new TradeType(
+    GENE_SEED = new Traded(
       BC, "Gene Seed"  , null, FORM_SPECIAL, 0
     ),
-    PSYCH_SCAN = new TradeType(
+    PSYCH_SCAN = new Traded(
       BC, "Psych Scan" , null, FORM_SPECIAL, 0
+    ),
+    REPLICANTS = new Traded(
+      BC, "Replicants" , null, FORM_SPECIAL, 0
     );
-  final public static TradeType
-    ALL_SPECIAL_ITEMS[] = TradeType.typesSoFar();
+  final public static Traded
+    ALL_SPECIAL_ITEMS[] = Traded.typesSoFar();
   
   
-  final public static TradeType
-    LIFE_SUPPORT = new TradeType(
+  final public static Traded
+    LIFE_SUPPORT = new Traded(
       BC, "Life Support", "life_S.png", FORM_PROVISION, 5
     ),
-    POWER = new TradeType(
+    POWER = new Traded(
       BC, "Power"       , "power.png" , FORM_PROVISION, 10
     ),
-    ADMIN = new TradeType(
+    ADMIN = new Traded(
       BC, "Admin"       , "admin.png" , FORM_PROVISION, 15
     ),
-    OPEN_WATER = new TradeType(
+    OPEN_WATER = new Traded(
       BC, "Open Water"  , "water.png" , FORM_PROVISION, 20
     );
-  final public static TradeType
-    ALL_PROVISIONS[] = TradeType.typesSoFar();
+  final public static Traded
+    ALL_PROVISIONS[] = Traded.typesSoFar();
   
   
-  final public static TradeType
-    SERVICE_ENTERTAIN = new TradeType(
+  final public static Traded
+    SERVICE_ENTERTAIN = new Traded(
       BC, "Entertainment", null, FORM_SERVICE, 0
     ),
-    SERVICE_HEALTHCARE = new TradeType(
+    SERVICE_HEALTHCARE = new Traded(
       BC, "Healthcare"   , null, FORM_SERVICE, 0
     ),
-    SERVICE_HOUSING = new TradeType(
+    SERVICE_HOUSING = new Traded(
       BC, "Housing"      , null, FORM_SERVICE, 0
     ),
-    SERVICE_REFUGE = new TradeType(
+    SERVICE_REFUGE = new Traded(
       BC, "Refuge"       , null, FORM_SERVICE, 0
     ),
-    SERVICE_SECURITY = new TradeType(
+    SERVICE_SECURITY = new Traded(
       BC, "Security"     , null, FORM_SERVICE, 0
     ),
-    SERVICE_ADMIN = new TradeType(
+    SERVICE_ADMIN = new Traded(
       BC, "Admin"        , null, FORM_SERVICE, 0
     ),
-    SERVICE_COMMERCE = new TradeType(
+    SERVICE_COMMERCE = new Traded(
       BC, "Commerce"     , null, FORM_SERVICE, 0
     ),
-    SERVICE_REPAIRS = new TradeType(
+    SERVICE_REPAIRS = new Traded(
       BC, "Repairs"      , null, FORM_SERVICE, 0
     ),
-    SERVICE_ARMAMENT = new TradeType(
+    SERVICE_ARMAMENT = new Traded(
       BC, "Armament"     , null, FORM_SERVICE, 0
     );
-  final public static TradeType
-    ALL_SERVICES[] = TradeType.typesSoFar();
+  final public static Traded
+    ALL_SERVICES[] = Traded.typesSoFar();
   
   
 
@@ -271,8 +279,8 @@ public final class Economy {
       0, NONE, 55,
       EngineerStation.class, 2, PARTS, 15, ASSEMBLY
     );
-  final public static TradeType
-    ALL_DEVICES[] = TradeType.typesSoFar();
+  final public static Traded
+    ALL_DEVICES[] = Traded.typesSoFar();
   
   
   //  TODO:  You should have skins associated with some of these...
@@ -320,12 +328,12 @@ public final class Economy {
       BC, "Golem Frame"  , 25, 10, 500,
       EngineerStation.class, 12, PARTS, 25, ASSEMBLY
     );
-  final public static TradeType
-    ALL_OUTFITS[] = TradeType.typesSoFar();
+  final public static Traded
+    ALL_OUTFITS[] = Traded.typesSoFar();
   
   
-  final public static TradeType
-    ALL_ITEM_TYPES[] = TradeType.allTypes();
+  final public static Traded
+    ALL_ITEM_TYPES[] = Traded.allTypes();
   
   
   final public static Conversion
@@ -360,30 +368,27 @@ public final class Economy {
       MODERATE_DC, CHEMISTRY, MODERATE_DC, FIELD_THEORY
     ),
     
+    //  TODO:  These all need re-working.
     WASTE_TO_CARBS = new Conversion(
       CultureLab.class, TO, 1, CARBS,
       SIMPLE_DC, CHEMISTRY
     ),
-    
     CARBS_TO_PROTEIN = new Conversion(
       CultureLab.class, 2, CARBS, TO, 1, PROTEIN,
       ROUTINE_DC, CHEMISTRY, ROUTINE_DC, GENE_CULTURE
     ),
-    
     CARBS_TO_SOMA = new Conversion(
       CultureLab.class, 2, CARBS, TO, 1, SOMA,
       ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
     ),
-    
     PROTEIN_TO_STIM_KITS = new Conversion(
       CultureLab.class, 1, PROTEIN, TO, 10, REAGENTS,
       ROUTINE_DC, PHARMACY, ROUTINE_DC, CHEMISTRY
     ),
     PROTEIN_TO_ORGANS = new Conversion(
-      CultureLab.class, 5, PROTEIN, 5, POWER, TO, 1, ORGANS,
+      CultureLab.class, 5, PROTEIN, 5, POWER, TO, 1, SPYCE,
       MODERATE_DC, GENE_CULTURE, ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
     ),
-    
     STIM_KITS_TO_MEDICINE = new Conversion(
       PhysicianStation.class, 1, REAGENTS, TO, 5, MEDICINE,
       MODERATE_DC, CHEMISTRY, ROUTINE_DC, PHARMACY

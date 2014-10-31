@@ -49,7 +49,7 @@ public class SpiceMidden extends Fixture implements Selectable {
   
   /**  Registration, life cycle and physical properties-
     */
-  public boolean enterWorldAt(int x, int y, World world) {
+  public boolean enterWorldAt(int x, int y, Stage world) {
     if (! super.enterWorldAt(x, y, world)) return false;
     world.presences.togglePresence(this, origin(), true, SpiceMidden.class);
     return true;
@@ -79,7 +79,7 @@ public class SpiceMidden extends Fixture implements Selectable {
   
   
   public Item spice() {
-    return Item.withAmount(Economy.SPYCE, spiceAmount);
+    return Item.withAmount(Economy.RAW_SPYCE, spiceAmount);
   }
   
   

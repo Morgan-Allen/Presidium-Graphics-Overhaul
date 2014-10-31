@@ -74,7 +74,7 @@ public class CombatFX {
     DeviceType type, Mobile uses, Target applied, boolean hits
   ) {
     final float distance = Spacing.distance(uses, applied);
-    final World world = uses.world();
+    final Stage world = uses.world();
     if (type == null || type.hasProperty(MELEE)) {
       //
       //  Put in a little 'splash' FX, in the direction of the arc.
@@ -103,7 +103,7 @@ public class CombatFX {
   
   public static ShotFX applyShotFX(
     ShotFX.Model model, Mobile uses, Target applied,
-    boolean hits, float duration, World world
+    boolean hits, float duration, Stage world
   ) {
     final ShotFX shot = (ShotFX) model.makeSprite();
     //  TODO:  Consider setting the fire point manually if the animation state
@@ -123,7 +123,7 @@ public class CombatFX {
   
 
   public static void applyBurstFX(
-    PlaneFX.Model model, Vec3D point, float duration, World world
+    PlaneFX.Model model, Vec3D point, float duration, Stage world
   ) {
     final Sprite s = model.makeSprite();
     s.position.setTo(point);

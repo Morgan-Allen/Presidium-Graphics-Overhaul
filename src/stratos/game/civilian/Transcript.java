@@ -13,7 +13,7 @@ import stratos.util.*;
 //  more elaborate conversation-tree.
 
 
-public class Transcript implements World.Visible, Session.Saveable {
+public class Transcript implements Stage.Visible, Session.Saveable {
   
   
   
@@ -27,7 +27,7 @@ public class Transcript implements World.Visible, Session.Saveable {
   }
   
   
-  void onExpiry(World world) {
+  void onExpiry(Stage world) {
     world.ephemera.addGhost(null, 3, chat, 2.0f);
   }
   

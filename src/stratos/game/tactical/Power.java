@@ -261,7 +261,7 @@ public class Power implements Qualities {
           bonus += caster.traits.useLevel(PROJECTION) / 5;
 
           float dist = (float) Math.sqrt(Spacing.distance(tile, caster));
-          float cost = 10 * (1 + (dist / World.SECTOR_SIZE));
+          float cost = 10 * (1 + (dist / Stage.SECTOR_SIZE));
           caster.health.takeConcentration(cost);
           caster.skills.practiceAgainst(10, cost, PROJECTION);
         }

@@ -75,7 +75,7 @@ public class Qudu extends Fauna {
   protected void onTileChange(Tile oldTile, Tile newTile) {
     super.onTileChange(oldTile, newTile);
     if (health.conscious()) {
-      float eaten = 1f / World.STANDARD_DAY_LENGTH;
+      float eaten = 1f / Stage.STANDARD_DAY_LENGTH;
       eaten *= newTile.habitat().moisture() / 100f;
       health.takeCalories(eaten, 1);
     }
@@ -90,7 +90,7 @@ public class Qudu extends Fauna {
   protected void putEmergencyResponse(Choice choice) {
     final Batch <Action> hunkering = new Batch <Action> ();
     
-    for (int n = World.STANDARD_HOUR_LENGTH; n-- > 0;) {
+    for (int n = Stage.STANDARD_HOUR_LENGTH; n-- > 0;) {
       final Action hunker = new Action(
         this, this,
         this, "actionHunker",

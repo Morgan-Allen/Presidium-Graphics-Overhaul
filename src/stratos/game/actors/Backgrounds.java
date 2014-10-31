@@ -53,7 +53,7 @@ public interface Backgrounds {
   
   final public static float
     NUM_DAYS_PAY = 20,
-    PAY_INTERVAL = World.STANDARD_DAY_LENGTH * 20;
+    PAY_INTERVAL = Stage.STANDARD_DAY_LENGTH * 20;
   final public static int
     HIRE_COSTS[] = {
       150, 250, 500, 1000 //Represents PAY_INTERVAL days' salary.

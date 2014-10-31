@@ -36,8 +36,8 @@ public class Nursery extends Venue implements TileConstants {
     );
   
   final public static float
-    MATURE_DURATION = World.STANDARD_DAY_LENGTH * 5,
-    GROW_INCREMENT  = World.GROWTH_INTERVAL / MATURE_DURATION,
+    MATURE_DURATION = Stage.STANDARD_DAY_LENGTH * 5,
+    GROW_INCREMENT  = Stage.GROWTH_INTERVAL / MATURE_DURATION,
     
     EXTRA_CLAIM_SIZE = 4,
     
@@ -103,7 +103,7 @@ public class Nursery extends Venue implements TileConstants {
   
   /**  Placement and supply-demand functions-
     */
-  public boolean setPosition(float x, float y, World world) {
+  public boolean setPosition(float x, float y, Stage world) {
     final boolean okay = super.setPosition(x, y, world);
     if (okay) areaClaimed.setTo(footprint()).expandBy((int) EXTRA_CLAIM_SIZE);
     return okay;
@@ -238,7 +238,7 @@ public class Nursery extends Venue implements TileConstants {
   }
   
   
-  public TradeType[] services() { return new TradeType[] {
+  public Traded[] services() { return new Traded[] {
     CARBS, PROTEIN, GREENS
   }; }
   

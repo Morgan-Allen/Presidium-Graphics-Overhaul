@@ -17,7 +17,7 @@ import org.apache.commons.math3.util.FastMath;
 /*
 Forest, Grassland, Barrens, Spice Desert.
 Ocean, Shallows, Albedan, Swamp.
-Mesa, Deep Desert, Cursed Earth, Strip Mining.
+Mesa, Dune Sea, Cursed Earth, Strip Mining.
 
 terrain chance (scaled proportionately) = x * (1 - x) * (1 + tx)
 x = moisture
@@ -35,37 +35,29 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
     MAX_MOISTURE    = 10,
     MAX_RADIATION   = 10;
   final public static String MINERAL_NAMES[] = {
-    "None", "Metal Ore", "Artifacts", "Fuel Isotopes"
+    "Rubble", "Metal Ore", "Artifacts", "Fuel Isotopes"
   };
   
   final public static byte
     TYPE_METALS   = 1,
     TYPE_RUINS    = 2,
     TYPE_ISOTOPES = 3,
-    TYPE_NOTHING  = 0,
+    TYPE_RUBBLE   = 0,
     
-    DEGREE_TRACE  = 1,
-    DEGREE_COMMON = 2,
-    DEGREE_HEAVY  = 3,
-    DEGREE_TAKEN  = 0,
+    NUM_MINERAL_TYPES  = 4 ,
+    MAX_MINERAL_COUNT  = 32,
+    MAX_MINERAL_AMOUNT = 10,
     
     ROAD_NONE     = 0,
     ROAD_LIGHT    = 1,
     ROAD_HEAVY    = 2,
     
-    AMOUNT_TRACE  = 1,
-    AMOUNT_COMMON = 3,
-    AMOUNT_HEAVY  = 9,
-    
-    NUM_TYPES   = 4,
-    NUM_DEGREES = 4,
-    VAR_LIMIT   = 4,
-    MAX_MINERAL_AMOUNT = 10;
+    TILE_VAR_LIMIT = 4;
   
   final static int
     TIME_INIT = -1,
     TIME_DONE = -2,
-    SAMPLE_RESOLUTION = World.SECTOR_SIZE,
+    SAMPLE_RESOLUTION = Stage.SECTOR_SIZE,
     SAMPLE_AREA = SAMPLE_RESOLUTION * SAMPLE_RESOLUTION;
   
   final public int
@@ -236,42 +228,27 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
   public float mineralsAt(Tile t, byte type) {
     byte m = minerals[t.x][t.y];
     if (m == 0) return 0;
-    if (m / NUM_TYPES != type) return 0;
-    switch (m % NUM_TYPES) {
-      case (DEGREE_TRACE)  : return AMOUNT_TRACE ;
-      case (DEGREE_COMMON) : return AMOUNT_COMMON;
-      case (DEGREE_HEAVY ) : return AMOUNT_HEAVY ;
-    }
-    return 0;
+    
+    if (m / MAX_MINERAL_COUNT != type) return 0;
+    final int count = m % MAX_MINERAL_COUNT;
+    return count * MAX_MINERAL_AMOUNT * 1f / MAX_MINERAL_COUNT;
   }
   
   
   public byte mineralType(Tile t) {
-    return (byte) (minerals[t.x][t.y] / NUM_TYPES);
+    return (byte) (minerals[t.x][t.y] / MAX_MINERAL_COUNT);
   }
   
   
-  public byte mineralDegree(Tile t) {
-    return (byte) (minerals[t.x][t.y] % NUM_TYPES);
+  public float mineralsAt(Tile t) {
+    return mineralsAt(t, mineralType(t));
   }
   
   
-  public float extractMineralAt(Tile t, byte type) {
-    final float amount = mineralsAt(t, type);
-    if (amount <= 0) I.complain("Can't extract that mineral type!");
-    minerals[t.x][t.y] = (byte) ((type * NUM_DEGREES) + DEGREE_TAKEN);
-    return amount;
-  }
-  
-  
-  public void setMinerals(Tile t, byte type, byte degree) {
-    minerals[t.x][t.y] = (byte) ((type * NUM_DEGREES) + degree);
-  }
-  
-  
-  public void incMineralDegree(Tile t, byte type, int inc) {
-    int degree = Visit.clamp(mineralDegree(t) + inc, DEGREE_HEAVY + 1);
-    setMinerals(t, type, (byte) degree);
+  public void setMinerals(Tile t, byte type, float amount) {
+    amount = amount * MAX_MINERAL_COUNT * 1f / MAX_MINERAL_AMOUNT;
+    final int count = Visit.clamp((int) amount, MAX_MINERAL_COUNT);
+    minerals[t.x][t.y] = (byte) ((type * MAX_MINERAL_COUNT) + count);
   }
   
   
@@ -370,7 +347,7 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
   
   
   public TerrainChunk createOverlay(
-    final World world, Tile tiles[],
+    final Stage world, Tile tiles[],
     final boolean nullsCount, ImageAsset tex
   ) {
     if (tiles == null || tiles.length < 1) I.complain("No tiles in overlay!");

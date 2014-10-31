@@ -22,10 +22,10 @@ public class Nest extends Venue {
   /**  Fields, constructors, and save/load methods-
     */
   final public static int
-    BROWSER_SEPARATION = World.SECTOR_SIZE / 2,
-    SPECIES_SEPARATION = World.SECTOR_SIZE / 2,
+    BROWSER_SEPARATION = Stage.SECTOR_SIZE / 2,
+    SPECIES_SEPARATION = Stage.SECTOR_SIZE / 2,
     PREDATOR_SEPARATION = BROWSER_SEPARATION * 2,
-    MAX_SEPARATION  = World.SECTOR_SIZE * 2,
+    MAX_SEPARATION  = Stage.SECTOR_SIZE * 2,
     
     BROWSING_SAMPLE = 8 ,
     BROWSER_RATIO   = 12,
@@ -34,7 +34,7 @@ public class Nest extends Venue {
     
     MAX_CROWDING    = 10,
     NEW_SITE_SAMPLE = 2 ,
-    DEFAULT_BREED_INTERVAL = World.STANDARD_DAY_LENGTH;
+    DEFAULT_BREED_INTERVAL = Stage.STANDARD_DAY_LENGTH;
   
   private static boolean
     crowdingVerbose = false,
@@ -75,7 +75,7 @@ public class Nest extends Venue {
     */
   public Behaviour jobFor(Actor actor) { return null; }
   public Background[] careers() { return null; }
-  public TradeType[] services() { return null; }
+  public Traded[] services() { return null; }
   public int owningType() { return Element.ELEMENT_OWNS; }
   
   
@@ -98,7 +98,7 @@ public class Nest extends Venue {
   
   
   public static int idealPopulation(
-    Target site, Species species, World world, boolean cached
+    Target site, Species species, Stage world, boolean cached
   ) {
     final boolean report = idealVerbose && I.talkAbout == site;
     if (report) {
@@ -183,7 +183,7 @@ public class Nest extends Venue {
   }
   
   
-  public static float crowdingFor(Boarding home, Object species, World world) {
+  public static float crowdingFor(Boarding home, Object species, Stage world) {
     if (home == null || world == null) return 0;
     if (! (species instanceof Species)) return 0;
     final boolean report = crowdingVerbose && I.talkAbout == home;
@@ -226,7 +226,7 @@ public class Nest extends Venue {
     //  If you're homeless, or if home is overcrowded, consider moving into a
     //  vacant lair, or building a new one.
     final Target home = fauna.mind.home();
-    final World world = fauna.world();
+    final Stage world = fauna.world();
     final float range = forageRange(fauna.species);
     if (home == null || crowdingFor(fauna) > 0.5f) {
       Nest bestNear = null;
@@ -263,8 +263,8 @@ public class Nest extends Venue {
     
     for (int n : N_ADJACENT) {
       final Tile toTry = world.tileAt(
-        o.x + (N_X[n] * World.SECTOR_SIZE) + (Rand.num() * range),
-        o.y + (N_Y[n] * World.SECTOR_SIZE) + (Rand.num() * range)
+        o.x + (N_X[n] * Stage.SECTOR_SIZE) + (Rand.num() * range),
+        o.y + (N_Y[n] * Stage.SECTOR_SIZE) + (Rand.num() * range)
       );
       crowd = Nest.crowdingFor(toTry, species, world);
       if (crowd < leastCrowd) { pick = toTry; leastCrowd = crowd; }
@@ -281,7 +281,7 @@ public class Nest extends Venue {
   
   
   protected static Nest siteNewNest(
-    Species species, final Target client, final World world, boolean report
+    Species species, final Target client, final Stage world, boolean report
   ) {
     if (client == null || species == null) return null;
     final float range = forageRange(species);
@@ -318,7 +318,7 @@ public class Nest extends Venue {
     if (numUpdates % 10 != 0) return;
     
     final float idealPop = idealPopulation(this, species, world, false);
-    final float inc = 10f / World.STANDARD_DAY_LENGTH;
+    final float inc = 10f / Stage.STANDARD_DAY_LENGTH;
     if (idealPopEstimate == -1) {
       idealPopEstimate = idealPop;
     }
@@ -340,12 +340,12 @@ public class Nest extends Venue {
   /**  Placing the site-
     */
   public static void placeNests(
-    final World world, final Species... species
+    final Stage world, final Species... species
   ) {
     final boolean report = idealVerbose;
     //  TODO:  Use the SitingPass code for this
     
-    final int SS = World.SECTOR_SIZE;
+    final int SS = Stage.SECTOR_SIZE;
     int numAttempts = (world.size * world.size * 4) / (SS * SS);
     final Base wildlife = Base.baseWithName(world, Base.KEY_WILDLIFE, true);
     

@@ -83,7 +83,7 @@ public class Vareen extends Fauna {
       idealHeight = target.position(null).z + (target.height() / 2f) - 0.5f;
     }
     
-    final float MFI = 1f / (2 * World.UPDATES_PER_SECOND);
+    final float MFI = 1f / (2 * Stage.UPDATES_PER_SECOND);
     flyHeight = Visit.clamp(idealHeight, flyHeight - MFI, flyHeight + MFI);
     super.updateAsMobile();
   }
@@ -91,7 +91,7 @@ public class Vareen extends Fauna {
 
   public void updateAsScheduled(int numUpdates) {
     if (! indoors()) {
-      final float value = Planet.dayValue(world) / World.STANDARD_DAY_LENGTH;
+      final float value = Planet.dayValue(world) / Stage.STANDARD_DAY_LENGTH;
       health.takeCalories(value, 1);
     }
     super.updateAsScheduled(numUpdates);

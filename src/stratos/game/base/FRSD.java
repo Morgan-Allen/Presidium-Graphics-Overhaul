@@ -177,8 +177,8 @@ public class FRSD extends Venue {
   }
   
   
-  public TradeType[] services() {
-    return new TradeType[] {
+  public Traded[] services() {
+    return new Traded[] {
       CARBS, PROTEIN, PLASTICS, OVERALLS,
       ORES, FUEL_RODS, PARTS,
       SERVICE_COMMERCE, SERVICE_REPAIRS
@@ -194,13 +194,13 @@ public class FRSD extends Venue {
   }
   
   
-  protected TradeType[] goodsToShow() {
+  protected Traded[] goodsToShow() {
     //  TODO:  Have different colours of crate for each category.
-    return new TradeType[] { SAMPLES };
+    return new Traded[] { SAMPLES };
   }
   
   
-  protected float goodDisplayAmount(TradeType good) {
+  protected float goodDisplayAmount(Traded good) {
     float amount = 0;
     for (Item i : stocks.allItems()) amount += i.amount;
     return amount;

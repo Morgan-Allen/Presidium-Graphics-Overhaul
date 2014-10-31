@@ -52,7 +52,7 @@ public class Flora extends Element implements TileConstants {
   /**
    * Attempts to seed or grow new flora at the given coordinates.
    */
-  public static void populateFlora(World world) {
+  public static void populateFlora(Stage world) {
     for (Coord c : Visit.grid(0, 0, world.size, world.size, 1)) {
       final Tile t = world.tileAt(c.x, c.y);
       if (t.blocked()) continue;
@@ -74,7 +74,7 @@ public class Flora extends Element implements TileConstants {
       f.setAsEstablished(true);
       
       if (verbose) I.say("Initial flora at: " + t);
-      world.ecology().impingeBiomass(t, f.growth, World.STANDARD_DAY_LENGTH);
+      world.ecology().impingeBiomass(t, f.growth, Stage.STANDARD_DAY_LENGTH);
     }
   }
   
@@ -116,7 +116,7 @@ public class Flora extends Element implements TileConstants {
       final Flora f = (Flora) t.onTop();
       if (Rand.num() < (growChance * 4 * GROWTH_PER_UPDATE)) {
         f.incGrowth(1, t.world, false);
-        t.world.ecology().impingeBiomass(t, f.growth, World.GROWTH_INTERVAL);
+        t.world.ecology().impingeBiomass(t, f.growth, Stage.GROWTH_INTERVAL);
       }
       return f;
     }
@@ -134,12 +134,12 @@ public class Flora extends Element implements TileConstants {
     final Flora f = new Flora(t.habitat());
     f.enterWorldAt(t.x, t.y, t.world);
     f.incGrowth(1, t.world, false);
-    t.world.ecology().impingeBiomass(t, f.growth, World.GROWTH_INTERVAL);
+    t.world.ecology().impingeBiomass(t, f.growth, Stage.GROWTH_INTERVAL);
     return f;
   }
   
   
-  public void incGrowth(float inc, World world, boolean init) {
+  public void incGrowth(float inc, Stage world, boolean init) {
     final int oldGrowth = (int) growth;
     growth += inc;
     if (growth <= 0) {
@@ -175,7 +175,7 @@ public class Flora extends Element implements TileConstants {
   }
   
   
-  public boolean enterWorldAt(int x, int y, World world) {
+  public boolean enterWorldAt(int x, int y, Stage world) {
     if (!super.enterWorldAt(x, y, world))
       return false;
     world.presences.togglePresence(this, true);

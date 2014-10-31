@@ -32,21 +32,21 @@ public final class Tile implements
   private static boolean verbose = false;
   
   
-  final public World world;
+  final public Stage world;
   final public int x, y;
   private Object flagged;
   private Boarding boardingCache[] = null;
   
   private float elevation = Float.NEGATIVE_INFINITY;
   private Habitat habitat = null;
-  private Element onTop;
+  private Element onTop, below;
   private Stack <Mobile> inside = NONE_INSIDE;
   
   
   
   /**  Basic constructor and save/load functionality-
     */
-  protected Tile(World world, int x, int y) {
+  protected Tile(Stage world, int x, int y) {
     this.world = world;
     this.x = x;
     this.y = y;
@@ -94,7 +94,7 @@ public final class Tile implements
   
   public boolean inWorld() { return true; }
   public boolean destroyed() { return false; }
-  public World world() { return world; }
+  public Stage world() { return world; }
   
   public Vec3D position(Vec3D v) {
     if (v == null) v = new Vec3D();
@@ -194,7 +194,7 @@ public final class Tile implements
     this.onTop = e;
     
     if (this.onTop != null) {
-      PavingMap.setPaveLevel(this, WorldTerrain.ROAD_NONE);
+      PavingMap.setPaveLevel(this, WorldTerrain.ROAD_NONE, false);
     }
     
     if (verbose) {

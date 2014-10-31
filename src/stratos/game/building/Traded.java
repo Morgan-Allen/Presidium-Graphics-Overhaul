@@ -13,7 +13,9 @@ import stratos.util.*;
 /**  Used to represent the types of goods and services that venues can provide
   *  or produce.
   */
-public class TradeType implements Session.Saveable {
+//  TODO:  Use an index for this.
+
+public class Traded implements Session.Saveable {
   
   
   private static int nextID = 0;
@@ -24,14 +26,14 @@ public class TradeType implements Session.Saveable {
     DEFAULT_PIC_PATH = ITEM_PATH+"crate.gif";
   
   
-  static TradeType[] typesSoFar() {
-    TradeType t[] = (TradeType[]) soFar.toArray(TradeType.class);
+  static Traded[] typesSoFar() {
+    Traded t[] = (Traded[]) soFar.toArray(Traded.class);
     soFar.clear();
     return t;
   }
   
-  static TradeType[] allTypes() {
-    return (TradeType[]) allTypes.toArray(TradeType.class);
+  static Traded[] allTypes() {
+    return (Traded[]) allTypes.toArray(Traded.class);
   }
   
   
@@ -47,7 +49,7 @@ public class TradeType implements Session.Saveable {
   final public CutoutModel model;
   
   
-  protected TradeType(
+  protected Traded(
     Class typeClass, int form, String name,
     int basePrice
   ) {
@@ -55,7 +57,7 @@ public class TradeType implements Session.Saveable {
   }
   
   
-  protected TradeType(
+  protected Traded(
     Class typeClass, String name, String imgName,
     int form, int basePrice
   ) {
@@ -80,7 +82,7 @@ public class TradeType implements Session.Saveable {
   }
   
   
-  public static TradeType loadConstant(Session s) throws Exception {
+  public static Traded loadConstant(Session s) throws Exception {
     return Economy.ALL_ITEM_TYPES[s.loadInt()];
   }
   

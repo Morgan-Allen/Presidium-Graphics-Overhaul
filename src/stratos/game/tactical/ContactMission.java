@@ -25,7 +25,7 @@ public class ContactMission extends Mission {
   /**  Field definitions, constructors and save/load methods-
     */
   final static float
-    MAX_DURATION = World.STANDARD_DAY_LENGTH * 2;
+    MAX_DURATION = Stage.STANDARD_DAY_LENGTH * 2;
   
   final public static int
     OBJECT_FRIENDSHIP = 0,

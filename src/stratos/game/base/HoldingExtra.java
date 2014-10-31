@@ -141,7 +141,7 @@ public class HoldingExtra extends Fixture implements TileConstants {
     Holding holding, List <HoldingExtra> extras, int level
   ) {
     final int sideSize = holding.size;
-    final World world = holding.world();
+    final Stage world = holding.world();
     
     if (holding.upgradeLevel() == HoldingUpgrades.LEVEL_TENT) {
       if (extras.size() > 0) removeExtras(holding, extras);

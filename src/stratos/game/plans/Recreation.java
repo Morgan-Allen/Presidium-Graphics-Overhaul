@@ -23,8 +23,8 @@ public class Recreation extends Plan {
   
   
   final static int
-    PERFORM_TIME = World.STANDARD_HOUR_LENGTH,
-    STAY_TIME    = World.STANDARD_HOUR_LENGTH;
+    PERFORM_TIME = Stage.STANDARD_HOUR_LENGTH,
+    STAY_TIME    = Stage.STANDARD_HOUR_LENGTH;
   final public static int
     TYPE_ANY      = -1,
     TYPE_SONG     =  0,
@@ -154,7 +154,7 @@ public class Recreation extends Plan {
       cost = 0;
     }
     
-    final float interval = 1f / World.STANDARD_DAY_LENGTH;
+    final float interval = 1f / Stage.STANDARD_DAY_LENGTH;
     if (actor.traits.traitLevel(SOMA_HAZE) > 0) {
       comfort++;
     }

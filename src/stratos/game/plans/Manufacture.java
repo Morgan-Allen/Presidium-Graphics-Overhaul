@@ -31,7 +31,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     */
   final static int
     MAX_UNITS_PER_DAY = 5,
-    TIME_PER_UNIT     = World.STANDARD_DAY_LENGTH / (3 * MAX_UNITS_PER_DAY),
+    TIME_PER_UNIT     = Stage.STANDARD_DAY_LENGTH / (3 * MAX_UNITS_PER_DAY),
     DEVICE_TIME_MULT  = 2,
     OUTFIT_TIME_MULT  = 2;
   final static float

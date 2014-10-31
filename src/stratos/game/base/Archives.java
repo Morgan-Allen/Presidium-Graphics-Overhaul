@@ -94,8 +94,8 @@ public class Archives extends Venue {
   }
   
   
-  public TradeType[] services() {
-    return new TradeType[] { DATALINKS, SERVICE_ADMIN };
+  public Traded[] services() {
+    return new Traded[] { DATALINKS, SERVICE_ADMIN };
   }
   
   

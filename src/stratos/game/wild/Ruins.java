@@ -29,7 +29,7 @@ public class Ruins extends Venue {
   private static int NI = (int) (Math.random() * 3);
   
   final static int
-    MIN_RUINS_SPACING = (int) (World.SECTOR_SIZE * 1.5f);
+    MIN_RUINS_SPACING = (int) (Stage.SECTOR_SIZE * 1.5f);
   
   private static boolean verbose = false;
   
@@ -66,14 +66,14 @@ public class Ruins extends Venue {
   
   protected void updatePaving(boolean inWorld) {}
   public Background[] careers() { return null; }
-  public TradeType[] services() { return null; }
+  public Traded[] services() { return null; }
   
   
   
   /**  Siting and placement-
     */
   public static Batch <Ruins> placeRuins(
-    final World world, final int maxPlaced
+    final Stage world, final int maxPlaced
   ) {
     final Presences presences = world.presences;
     final Batch <Ruins> placed = new Batch <Ruins> ();
@@ -139,7 +139,7 @@ public class Ruins extends Venue {
   
   
   public static Batch <Artilect> populateArtilects(
-    World world, Ruins ruins, boolean fillSpaces, Artilect... living
+    Stage world, Ruins ruins, boolean fillSpaces, Artilect... living
   ) {
     final Batch <Artilect> populace = new Batch <Artilect> ();
     
@@ -177,7 +177,7 @@ public class Ruins extends Venue {
     //  referring to terrain variation.
     float spaceLevel = structure.repairLevel();
     spaceLevel *= 1 + world.terrain().varAt(origin());
-    spaceLevel *= 1f / WorldTerrain.VAR_LIMIT;
+    spaceLevel *= 1f / WorldTerrain.TILE_VAR_LIMIT;
     
     int numLiving = 0;
     for (Actor a : personnel.residents()) if (a.species() == s) numLiving++;

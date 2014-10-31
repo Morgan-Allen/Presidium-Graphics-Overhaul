@@ -62,7 +62,7 @@ public class ForcePylon extends Venue implements Selectable {
   }
   
   
-  public TradeType[] services() {
+  public Traded[] services() {
     return null;
   }
   

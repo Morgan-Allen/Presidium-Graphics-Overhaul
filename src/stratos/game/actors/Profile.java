@@ -52,12 +52,12 @@ public class Profile {
   
   /**  Psych evaluation-
     */
-  public float daysSincePsychEval(World world) {
+  public float daysSincePsychEval(Stage world) {
     ///I.sayAbout(actor, "Last time: "+lastPsychEval);
     final float interval;
-    if (lastPsychEval == -1) interval = World.STANDARD_YEAR_LENGTH;
+    if (lastPsychEval == -1) interval = Stage.STANDARD_YEAR_LENGTH;
     else interval = world.currentTime() - lastPsychEval;
-    return interval / World.STANDARD_DAY_LENGTH;
+    return interval / Stage.STANDARD_DAY_LENGTH;
   }
   
   
@@ -109,13 +109,13 @@ public class Profile {
   }
   
   
-  public float daysSincePayment(World world) {
+  public float daysSincePayment(Stage world) {
     final float interval = world.currentTime() - lastWageEval;
-    return interval / World.STANDARD_DAY_LENGTH;
+    return interval / Stage.STANDARD_DAY_LENGTH;
   }
   
   
-  public void clearWages(World world) {
+  public void clearWages(Stage world) {
     paymentDue = 0;
     lastWageEval = world.currentTime();
   }

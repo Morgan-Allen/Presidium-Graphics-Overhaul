@@ -80,7 +80,7 @@ public class Exploring extends Plan implements Qualities {
   
   public static Exploring nextExploration(Actor actor) {
     final Tile toExplore = getUnexplored(
-      actor.base().intelMap, actor, actor, World.SECTOR_SIZE, -1
+      actor.base().intelMap, actor, actor, Stage.SECTOR_SIZE, -1
     );
     if (toExplore == null) return null;
     final float range = actor.health.sightRange();
@@ -93,7 +93,7 @@ public class Exploring extends Plan implements Qualities {
   ) {
     final Tile core = Spacing.nearestOpenTile(point, point);
     final Tile toExplore = (range > 0) ? getUnexplored(
-      base.intelMap, actor, point, World.SECTOR_SIZE, range
+      base.intelMap, actor, point, Stage.SECTOR_SIZE, range
     ) : core;
     if (toExplore == null) return null;
     
@@ -193,7 +193,7 @@ public class Exploring extends Plan implements Qualities {
       }
     };
     final MipMap map = intelMap.fogMap();
-    final World world = centre.world();
+    final Stage world = centre.world();
     Tile picked = null;
     final Area kids[] = new Area[4];
     final Vec3D

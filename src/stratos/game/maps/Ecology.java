@@ -22,7 +22,7 @@ public class Ecology {
   
   private static boolean verbose = false;
   
-  final World world;
+  final Stage world;
   final int SR, SS;
   final RandomScan growthMap;
   final public Ambience ambience;
@@ -36,9 +36,9 @@ public class Ecology {
   
   
   
-  public Ecology(final World world) {
+  public Ecology(final Stage world) {
     this.world = world;
-    SR = World.PATCH_RESOLUTION;
+    SR = Stage.PATCH_RESOLUTION;
     SS = world.size / SR;
     growthMap = new RandomScan(world.size) {
       protected void scanAt(int x, int y) { growthAt(world.tileAt(x, y)); }
@@ -79,8 +79,8 @@ public class Ecology {
     final int size = world.size;
     final float time = world.currentTime();
     
-    float growIndex = (time % World.GROWTH_INTERVAL);
-    growIndex *= size * size * 1f / World.GROWTH_INTERVAL;
+    float growIndex = (time % Stage.GROWTH_INTERVAL);
+    growIndex *= size * size * 1f / Stage.GROWTH_INTERVAL;
     growthMap.scanThroughTo((int) growIndex);
     for (FadingMap map : allMaps) map.update();
     //

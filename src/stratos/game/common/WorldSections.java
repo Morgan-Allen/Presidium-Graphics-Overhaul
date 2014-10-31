@@ -17,7 +17,7 @@ public class WorldSections implements TileConstants {
   
   /**  Common fields, constructors and utility methods.
     */
-  final World world;
+  final Stage world;
   final public int resolution, depth;
   final WorldSection hierarchy[][][], root;
   
@@ -29,7 +29,7 @@ public class WorldSections implements TileConstants {
   }
   
   
-  protected WorldSections(World world, int resolution) {
+  protected WorldSections(Stage world, int resolution) {
     this.world = world;
     this.resolution = resolution;
     this.depth = depthFor(world.size / resolution);
@@ -202,7 +202,7 @@ public class WorldSections implements TileConstants {
   public void compileVisible(
     final Viewport view, final Base base,
     final Batch <WorldSection> visibleSections,
-    final List <World.Visible> visibleFixtures
+    final List <Stage.Visible> visibleFixtures
   ) {
     final Descent compile = new Descent() {
       final Box3D tempBounds = new Box3D();

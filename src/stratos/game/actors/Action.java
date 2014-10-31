@@ -303,15 +303,17 @@ public class Action implements Behaviour, AnimNames {
     actor.pathing.updateTarget(pathsTo);
     
     if (report) {
-      I.say("Action is: "+methodName()+" "+hashCode());
+      I.say("\nAction is: "+methodName()+" "+hashCode());
       I.say("  Action target is: "+actionTarget);
       I.say("  Move target is: "+moveTarget);
       I.say("  Path target is: "+actor.pathing.target()+", step: "+step);
       I.say("  Closing on: "+closeOn+", must board: "+mustBoard);
+      
       final boolean blocked = PathSearch.blockedBy(actor.aboard(), actor);
       I.say("  Currently aboard: "+actor.aboard()+", blocked? "+blocked);
       I.say("  Closed/facing: "+closed+"/"+facing+", doing update? "+active);
       I.say("  Is ranged? "+ranged()+", approaching? "+approaching);
+      
       final float distance = Spacing.distance(actor, actor.pathing.target());
       I.say("  Distance: "+distance+", maximum: "+maxDist+"\n");
     }
@@ -378,7 +380,7 @@ public class Action implements Behaviour, AnimNames {
     updateMotion(active, moveRate);
     
     if (moveState == STATE_CLOSED) {
-      progress += 1f / (actionDuration() * World.UPDATES_PER_SECOND);
+      progress += 1f / (actionDuration() * Stage.UPDATES_PER_SECOND);
       progress = Visit.clamp(progress, 0, 1);
       final float contact = contactTime();
       if (oldProgress <= contact && progress > contact) applyEffect();
@@ -386,7 +388,7 @@ public class Action implements Behaviour, AnimNames {
     
     else if (moveState != STATE_INIT) {
       float speedUp = moveRate / actor.health.baseSpeed();
-      speedUp = (1 + speedUp) / (2 * World.UPDATES_PER_SECOND);
+      speedUp = (1 + speedUp) / (2 * Stage.UPDATES_PER_SECOND);
       progress += actor.moveAnimStride() * speedUp;
     }
   }

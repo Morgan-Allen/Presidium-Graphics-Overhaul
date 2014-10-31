@@ -15,13 +15,13 @@ public class Ephemera {
   
   /**  Fields, constants, and save/load methods.
     */
-  final World world;
+  final Stage world;
   
   private Colour fadeColour = null;
   final Table <WorldSection, List <Ghost>> ghosts = new Table(100);
   
   
-  protected Ephemera(World world) {
+  protected Ephemera(Stage world) {
     this.world = world;
   }
   
@@ -56,7 +56,7 @@ public class Ephemera {
   
   /**  Adding ghost FX to the register-
     */
-  static class Ghost implements World.Visible {
+  static class Ghost implements Stage.Visible {
     
     int size;
     Element tracked = null;

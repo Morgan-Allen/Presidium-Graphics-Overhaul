@@ -51,7 +51,7 @@ public class Holding extends Venue {
     NUM_VARS   = 3;
   final static float
     CHECK_INTERVAL = 10,
-    TEST_INTERVAL  = World.STANDARD_DAY_LENGTH,
+    TEST_INTERVAL  = Stage.STANDARD_DAY_LENGTH,
     UPGRADE_THRESH = 0.66f,
     DEVOLVE_THRESH = 0.66f;
   
@@ -221,7 +221,7 @@ public class Holding extends Venue {
     //
     //  Decrement stocks and update demands-
     float wear = Structure.WEAR_PER_DAY;
-    wear /= World.STANDARD_DAY_LENGTH * structure.maxIntegrity();
+    wear /= Stage.STANDARD_DAY_LENGTH * structure.maxIntegrity();
     final int maxPop = HoldingUpgrades.OCCUPANCIES[upgradeLevel];
     float count = 0;
     for (Actor r : personnel.residents()) if (r.aboard() == this) count++;
@@ -267,9 +267,9 @@ public class Holding extends Venue {
   }
   
   
-  public TradeType[] goodsNeeded() {
+  public Traded[] goodsNeeded() {
     
-    final Batch <TradeType> needed = new Batch <TradeType> ();
+    final Batch <Traded> needed = new Batch <Traded> ();
     int targetLevel = upgradeLevel + 1;
     targetLevel = Visit.clamp(targetLevel, HoldingUpgrades.NUM_LEVELS);
     
@@ -283,7 +283,7 @@ public class Holding extends Venue {
     for (Item i : HoldingUpgrades.rationNeeds(this, targetLevel)) {
       needed.add(i.type);
     }
-    return needed.toArray(TradeType.class);
+    return needed.toArray(Traded.class);
   }
   
   
@@ -293,13 +293,13 @@ public class Holding extends Venue {
   
   
   public Behaviour jobFor(Actor actor) {
-    final TradeType goods[] = goodsNeeded();
+    final Traded goods[] = goodsNeeded();
     
     //  TODO:  Move these out of here- possibly to the HumanMind class.  This
     //  should be where servant AI is placed.
     
     //  First of all, deliver any goods that you yourself are carrying-
-    for (TradeType s : goods) for (Item i : actor.gear.matches(s)) {
+    for (Traded s : goods) for (Item i : actor.gear.matches(s)) {
       if (i.refers == null || i.refers == actor) {
         final Delivery d = new Delivery(i, actor, this);
         d.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL);
@@ -328,7 +328,7 @@ public class Holding extends Venue {
   
   
   public Background[] careers() { return new Background[0]; }
-  public TradeType[] services() { return new TradeType[0]; }
+  public Traded[] services() { return new Traded[0]; }
   
   
   

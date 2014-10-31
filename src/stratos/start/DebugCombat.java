@@ -45,7 +45,7 @@ public class DebugCombat extends Scenario {
   }
   
   
-  protected String saveFilePrefix(World world, Base base) {
+  protected String saveFilePrefix(Stage world, Base base) {
     return "debug_combat";
   }
   
@@ -62,7 +62,7 @@ public class DebugCombat extends Scenario {
   //}
   
   
-  protected World createWorld() {
+  protected Stage createWorld() {
     final TerrainGen TG = new TerrainGen(
       64, 0.2f,
       Habitat.ESTUARY     , 2f,
@@ -70,7 +70,7 @@ public class DebugCombat extends Scenario {
       Habitat.BARRENS     , 2f,
       Habitat.DUNE        , 1f
     );
-    final World world = new World(TG.generateTerrain());
+    final Stage world = new Stage(TG.generateTerrain());
     TG.setupMinerals(world, 0.6f, 0, 0.2f);
     world.terrain().readyAllMeshes();
     Flora.populateFlora(world);
@@ -78,7 +78,7 @@ public class DebugCombat extends Scenario {
   }
   
   
-  protected Base createBase(World world) {
+  protected Base createBase(Stage world) {
     return Base.baseWithName(world, "Player Base", false);
   }
   
@@ -91,7 +91,7 @@ public class DebugCombat extends Scenario {
   //  matched by enemy, -50% if heavily outmatched.  +30% if they can't
   //  escape.
   
-  protected void configureScenario(World world, Base base, BaseUI UI) {
+  protected void configureScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.setDefaults();
     GameSettings.hireFree  = true;
     GameSettings.buildFree = true;

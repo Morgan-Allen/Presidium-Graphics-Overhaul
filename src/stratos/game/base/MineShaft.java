@@ -1,34 +1,28 @@
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 
 
 package stratos.game.base;
 import stratos.game.building.*;
+import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
+import stratos.game.plans.*;
 import stratos.util.*;
 import static stratos.game.building.Economy.*;
 import static stratos.game.maps.WorldTerrain.*;
 
 
 
-
-//  TODO:  This will have to be a venue, if you want construction, claims, etc.
-//  to go correctly.  Tailings will be the crop-equivalent.
-
-
-
-
-public class MineOpening extends Fixture implements Boarding {
+public class MineShaft extends Fixture implements Boarding {
   
   
   final static int
     OPENING_SIZE = 2;
   
-  final static Table TYPE_MAP = Table.make(
-    TYPE_METALS  , ORES     ,
-    TYPE_ISOTOPES, ISOTOPES ,
-    TYPE_RUINS   , ARTIFACTS
-  );
   final static List <Mobile> NONE_INSIDE = new List <Mobile> ();
   
   
@@ -41,7 +35,7 @@ public class MineOpening extends Fixture implements Boarding {
   
   
   
-  protected MineOpening(ExcavationSite opens, boolean onSurface) {
+  protected MineShaft(ExcavationSite opens, boolean onSurface) {
     super(OPENING_SIZE, onSurface ? 1 : 0);
     this.parent = opens;
     this.onSurface = onSurface;
@@ -50,7 +44,7 @@ public class MineOpening extends Fixture implements Boarding {
   }
   
   
-  public MineOpening(Session s) throws Exception {
+  public MineShaft(Session s) throws Exception {
     super(s);
     this.parent = (ExcavationSite) s.loadObject();
     this.onSurface = s.loadBool();
@@ -117,8 +111,8 @@ public class MineOpening extends Fixture implements Boarding {
   
   
   public void openFace() {
-    for (Boarding b : canBoard()) if (b instanceof MineOpening) {
-      ((MineOpening) b).canBoard = null;
+    for (Boarding b : canBoard()) if (b instanceof MineShaft) {
+      ((MineShaft) b).canBoard = null;
     }
   }
   
@@ -129,16 +123,11 @@ public class MineOpening extends Fixture implements Boarding {
   public Item[] mineralsLeft() {
     if (mineralsLeft != null) return mineralsLeft;
     
-    final WorldTerrain t = world.terrain();
     final Batch <Item> left = new Batch <Item> ();
-    
     for (Tile under : world.tilesIn(footprint(), false)) {
-      final byte  type   = t.mineralType(under      );
-      final float amount = t.mineralsAt (under, type);
-      if (type == TYPE_NOTHING || amount <= 0) continue;
-      left.add(Item.withAmount((TradeType) TYPE_MAP.get(type), amount));
+      final Item at = Mining.mineralsAt(under);
+      if (at != null) left.add(at);
     }
-    
     return mineralsLeft = left.toArray(Item.class);
   }
   
@@ -154,14 +143,14 @@ public class MineOpening extends Fixture implements Boarding {
     I.say("\nChecking for opening at "+under);
     I.say("  Site position: "+site.origin());
     
-    final MineOpening open = new MineOpening(site, true);
+    final MineShaft open = new MineShaft(site, true);
     open.setPosition(under.x, under.y, under.world);
     
     final Presences p = under.world.presences;
     final Target nearE = p.nearestMatch(ExcavationSite.class, open, 3);
     if (nearE != null) return false;
     
-    final Target nearO = p.nearestMatch(MineOpening.class, open, 3);
+    final Target nearO = p.nearestMatch(MineShaft.class, open, 3);
     if (nearO != null) return false;
     
     if (! open.canPlace()) return false;
@@ -171,9 +160,9 @@ public class MineOpening extends Fixture implements Boarding {
   }
   
   
-  public boolean enterWorldAt(int x, int y, World world) {
+  public boolean enterWorldAt(int x, int y, Stage world) {
     if (! super.enterWorldAt(x, y, world)) return false;
-    world.presences.togglePresence(this, origin(), true, MineOpening.class);
+    world.presences.togglePresence(this, origin(), true, MineShaft.class);
     
     parent.base().paveRoutes.updatePerimeter(this, true);
     return true;
@@ -181,7 +170,7 @@ public class MineOpening extends Fixture implements Boarding {
   
   
   public void exitWorld() {
-    world.presences.togglePresence(this, origin(), false, MineOpening.class);
+    world.presences.togglePresence(this, origin(), false, MineShaft.class);
     super.exitWorld();
   }
   

@@ -68,9 +68,9 @@ public abstract class Fauna extends Actor {
   
   /**  Registering abundance with the ecology class-
     */
-  public boolean enterWorldAt(int x, int y, World world) {
+  public boolean enterWorldAt(int x, int y, Stage world) {
     if (! super.enterWorldAt(x, y, world)) return false;
-    world.ecology().impingeAbundance(this, World.STANDARD_DAY_LENGTH);
+    world.ecology().impingeAbundance(this, Stage.STANDARD_DAY_LENGTH);
     return true;
   }
   
@@ -259,10 +259,10 @@ public abstract class Fauna extends Actor {
     final float timeSinceCheck = world.currentTime() - lastMigrateCheck;
     if (report) {
       I.say("\nChecking migration for "+this);
-      I.say("  Last check: "+timeSinceCheck+"/"+World.GROWTH_INTERVAL);
+      I.say("  Last check: "+timeSinceCheck+"/"+Stage.GROWTH_INTERVAL);
     }
     
-    if (timeSinceCheck > World.GROWTH_INTERVAL) {
+    if (timeSinceCheck > Stage.GROWTH_INTERVAL) {
       final boolean crowded = home == null || Nest.crowdingFor(this) > 0.5f;
       if (report) I.say("  Crowded? "+crowded);
       newNest = crowded ? Nest.findNestFor(this) : null;

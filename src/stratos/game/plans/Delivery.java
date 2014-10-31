@@ -10,7 +10,7 @@ import stratos.game.actors.*;
 import stratos.game.base.Suspensor;
 import stratos.game.building.Inventory;
 import stratos.game.building.Item;
-import stratos.game.building.TradeType;
+import stratos.game.building.Traded;
 import stratos.game.building.Vehicle;
 import stratos.game.building.Venue;
 import stratos.game.building.Inventory.Owner;
@@ -55,7 +55,7 @@ public class Delivery extends Plan {
   public boolean replace = false;
   
   
-  public Delivery(TradeType s, Owner origin, Owner destination) {
+  public Delivery(Traded s, Owner origin, Owner destination) {
     this(origin.inventory().matches(s), origin, destination);
   }
   
@@ -364,7 +364,7 @@ public class Delivery extends Plan {
       if (! driven.setPilot(actor)) abortBehaviour();
       driven.pathing.updateTarget(target);
       if (driven.aboard() == target) {
-        for (TradeType t : ALL_MATERIALS) {
+        for (Traded t : ALL_MATERIALS) {
           driven.cargo.transfer(t, target);
         }
         stage = STAGE_RETURN;
@@ -407,11 +407,13 @@ public class Delivery extends Plan {
     
     d.append("Delivering ");
     final Item available[] = available(actor);
-    final Batch <TradeType> types = new Batch <TradeType> ();
+    final Batch <Traded> types = new Batch <Traded> ();
     for (Item i : available) types.add(i.type);
     d.appendList("", types);
-    d.append(" from ");
-    d.append(origin);
+    if (origin != actor) {
+      d.append(" from ");
+      d.append(origin);
+    }
     d.append(" to ");
     d.append(destination);
   }

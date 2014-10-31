@@ -93,7 +93,7 @@ public class VenueDescription {
     Description d, BaseUI UI, boolean detail
   ) {
     
-    final World world = v.world();
+    final Stage world = v.world();
     d.append("Condition and Repair:");
     d.append("\n  Integrity: ");
     d.append(v.structure().repair()+" / "+v.structure().maxIntegrity());
@@ -155,7 +155,7 @@ public class VenueDescription {
       }
     };
     for (Item item : v.stocks.allItems()) listing.add(item);
-    for (TradeType type : Economy.ALL_ITEM_TYPES) {
+    for (Traded type : Economy.ALL_ITEM_TYPES) {
       if (v.stocks.demandFor(type) > 0 && v.stocks.amountOf(type) == 0) {
         listing.add(Item.withAmount(type, 0));
       }
@@ -171,7 +171,7 @@ public class VenueDescription {
   
   
   protected boolean describeStocks(Item item, Description d) {
-    final TradeType type = item.type;
+    final Traded type = item.type;
     final float needed = v.stocks.demandFor(type);
     final float amount = v.stocks.amountOf(type);
     if (needed == 0 && amount == 0)

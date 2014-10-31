@@ -112,12 +112,12 @@ public abstract class Actor extends Mobile implements
   }
   
   
-  public float priceFor(TradeType service) {
+  public float priceFor(Traded service) {
     return service.basePrice * 2;
   }
   
   
-  public int spaceFor(TradeType good) {
+  public int spaceFor(Traded good) {
     return (int) health.maxHealth() / 2;
   }
   
@@ -177,7 +177,7 @@ public abstract class Actor extends Mobile implements
   
   /**  Life cycle and updates-
     */
-  public boolean enterWorldAt(int x, int y, World world) {
+  public boolean enterWorldAt(int x, int y, Stage world) {
     if (base == null) I.complain("ACTOR MUST HAVE BASE ASSIGNED: "+this);
     if (! super.enterWorldAt(x, y, world)) return false;
     return true;

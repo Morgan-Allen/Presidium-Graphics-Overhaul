@@ -114,7 +114,7 @@ public class MissionsTab extends SelectionInfoPane {
   ) {
     flag.scale = 0.5f;
     if (! valid) {
-      final World world = UI.world();
+      final Stage world = UI.world();
       final Vec3D onGround = world.pickedGroundPoint(UI, UI.rendering.view);
       flag.position.setTo(onGround);
       flag.colour = Colour.RED;

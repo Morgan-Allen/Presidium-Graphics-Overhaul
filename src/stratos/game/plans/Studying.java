@@ -21,7 +21,7 @@ public class Studying extends Plan {
   
   /**  Data fields, setup and save/load functions-
     */
-  final static float STAY_TIME = World.STANDARD_HOUR_LENGTH;
+  final static float STAY_TIME = Stage.STANDARD_HOUR_LENGTH;
   final static Skill NO_STUDY[] = new Skill[0];
   
   private static boolean verbose = false;

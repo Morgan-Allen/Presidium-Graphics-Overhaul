@@ -113,7 +113,7 @@ public class SolarBank extends Venue {
   }
   
   
-  public TradeType[] services() {
+  public Traded[] services() {
     return null;
   }
   
@@ -132,7 +132,7 @@ public class SolarBank extends Venue {
     //  Firstly, determine which sector this point lies within, and the corner
     //  tile of that sector.
     if (point == null) return null;
-    final World world = point.world;
+    final Stage world = point.world;
     final Tile corner = world.tileAt(
       Visit.round(point.x, 1, false),
       Visit.round(point.y, 1, false)
@@ -155,7 +155,7 @@ public class SolarBank extends Venue {
   }
   
   
-  public boolean setPosition(float x, float y, World world) {
+  public boolean setPosition(float x, float y, Stage world) {
     if (! super.setPosition(x, y, world)) return false;
     if (type != TYPE_PLACING) return true;
     
@@ -184,7 +184,7 @@ public class SolarBank extends Venue {
   }
   
   
-  protected boolean checkPerimeter(World world) {
+  protected boolean checkPerimeter(Stage world) {
     //  TODO:  This might require some modification later.  Ideally, you want
     //  to give solar banks at least one tile of space.
     return true;

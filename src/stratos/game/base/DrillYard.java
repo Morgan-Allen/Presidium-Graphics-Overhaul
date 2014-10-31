@@ -64,7 +64,7 @@ public class DrillYard extends Venue {
     
     NUM_DUMMIES = 2,
     NUM_OFFSETS = 4,
-    DRILL_INTERVAL = World.STANDARD_DAY_LENGTH;
+    DRILL_INTERVAL = Stage.STANDARD_DAY_LENGTH;
   
   final public static String DRILL_STATE_NAMES[] = {
     "Close Combat",
@@ -119,7 +119,7 @@ public class DrillYard extends Venue {
   
   /**  Behaviour implementation-
     */
-  public boolean enterWorldAt(int x, int y, World world) {
+  public boolean enterWorldAt(int x, int y, Stage world) {
     if (! super.enterWorldAt(x, y, world)) return false;
     //setupDummies();
     return true;
@@ -148,7 +148,7 @@ public class DrillYard extends Venue {
   }
   
   
-  public TradeType[] services() { return null; }
+  public Traded[] services() { return null; }
   
   public Background[] careers() { return null; }
   
@@ -230,11 +230,34 @@ public class DrillYard extends Venue {
   }
   
   
-  public Target.Dummy dummyFor(Actor visits) {
+  //  TODO:  A lot of this could be moved to the Arena instead.
+  public Target dummyFor(Actor visits) {
     Mobile shown = inside().first();
     if (visits != shown) return null;
     
-    final Target.Dummy dummy = new Target.Dummy(world);
+    final class Dummy implements Target {
+      
+      public Vec3D position = new Vec3D();
+      public float height = 1, radius = 0.5f;
+      final Stage world;
+      private Object flag;
+      
+      public Dummy(Stage world) { this.world = world; }
+      
+      public boolean inWorld() { return true; }
+      public boolean destroyed() { return false; }
+      public Stage world() { return world; }
+      public Vec3D position(Vec3D v) { return position; }
+      
+      public float height() { return height; }
+      public float radius() { return radius; }
+      public boolean isMobile() { return false; }
+      
+      public void flagWith(Object f) { flag = f; }
+      public Object flaggedWith() { return flag; }
+    }
+    
+    final Dummy dummy = new Dummy(world);
     this.position(dummy.position);
     dummy.position.y -= 1.5f;
     return dummy;

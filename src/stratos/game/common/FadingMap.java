@@ -14,17 +14,17 @@ import stratos.util.*;
 public class FadingMap implements TileConstants {
   
   
-  final public World world;
+  final public Stage world;
   final public int resolution, gridSize, patchSize, interval;
   private float averages[][], overall, lastTime = -1;
   
 
-  public FadingMap(World world, int resolution, int interval) {
+  public FadingMap(Stage world, int resolution, int interval) {
     this.world = world;
     this.resolution = resolution;
     this.gridSize = world.size / resolution;
     this.patchSize = resolution * resolution;
-    this.interval = interval > 0 ? interval : World.STANDARD_DAY_LENGTH;
+    this.interval = interval > 0 ? interval : Stage.STANDARD_DAY_LENGTH;
     this.averages = new float[gridSize][gridSize];
   }
   

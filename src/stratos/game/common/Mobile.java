@@ -32,7 +32,7 @@ public abstract class Mobile extends Element
     MOTION_FLYER = 2,
     MOTION_WATER = 3;
   final static int
-    MAX_PATH_SCAN = World.SECTOR_SIZE;
+    MAX_PATH_SCAN = Stage.SECTOR_SIZE;
   
   private static boolean verbose = false;
   
@@ -104,7 +104,7 @@ public abstract class Mobile extends Element
   
   /**  Called whenever the mobile enters/exits the world...
    */
-  public boolean enterWorldAt(int x, int y, World world) {
+  public boolean enterWorldAt(int x, int y, Stage world) {
     if (! super.enterWorldAt(x, y, world)) return false;
     (aboard = origin()).setInside(this, true);
     world().schedule.scheduleForUpdates(this);
@@ -143,7 +143,7 @@ public abstract class Mobile extends Element
   }
   
   
-  public void goAboard(Boarding toBoard, World world) {
+  public void goAboard(Boarding toBoard, Stage world) {
     if (aboard != null) aboard.setInside(this, false);
     aboard = toBoard;
     if (aboard != null) aboard.setInside(this, true);
@@ -157,14 +157,14 @@ public abstract class Mobile extends Element
   }
   
 
-  public boolean setPosition(float xp, float yp, World world) {
+  public boolean setPosition(float xp, float yp, Stage world) {
     nextPosition.set(xp, yp, aboveGroundHeight());
     return setHeading(nextPosition, nextRotation, true, world);
   }
   
   
   public boolean setHeading(
-    Vec3D pos, float rotation, boolean instant, World world
+    Vec3D pos, float rotation, boolean instant, Stage world
   ) {
     final Tile
       oldTile = origin(),

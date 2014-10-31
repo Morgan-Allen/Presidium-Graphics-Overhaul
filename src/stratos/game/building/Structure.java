@@ -228,7 +228,7 @@ public class Structure {
       (numUpdates % 10 == 0) &&
       takesWear() && (integrity > 0)
     ) {
-      float wear = WEAR_PER_DAY * 10f / World.STANDARD_DAY_LENGTH;
+      float wear = WEAR_PER_DAY * 10f / Stage.STANDARD_DAY_LENGTH;
       if (structureType == TYPE_FIXTURE) wear /= 2;
       if (structureType == TYPE_CRAFTED) wear *= 2;
       if (Rand.num() > armouring / (armouring + DEFAULT_ARMOUR)) {
@@ -239,7 +239,7 @@ public class Structure {
     //  And finally, organic structures can regenerate health-
     if (regenerates()) {
       final float regen = baseIntegrity * REGEN_PER_DAY;
-      repairBy(regen / World.STANDARD_DAY_LENGTH);
+      repairBy(regen / Stage.STANDARD_DAY_LENGTH);
     }
   }
   
@@ -280,7 +280,7 @@ public class Structure {
   }
   
   
-  public float outputOf(TradeType outType) {
+  public float outputOf(Traded outType) {
     if (outputs == null) return 0;
     for (Item i : outputs) if (i.type == outType) return i.amount;
     return 0;
@@ -397,7 +397,7 @@ public class Structure {
   
   
   protected void checkMaintenance() {
-    final World world = basis.world();
+    final Stage world = basis.world();
     if (world == null || basis.isMobile()) return;
     final boolean report = verbose && I.talkAbout == basis;
     

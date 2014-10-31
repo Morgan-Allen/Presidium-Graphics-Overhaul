@@ -21,7 +21,7 @@ import com.badlogic.gdx.Input.Keys;
 public abstract class Scenario implements Session.Saveable, Playable {
   
   
-  private World world;
+  private Stage world;
   private Base base;
   final boolean isDebug;
   private float loadProgress = -1;
@@ -71,7 +71,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
   }
   
   
-  public World world() { return world; }
+  public Stage world() { return world; }
   public Base base() { return base; }
   public BaseUI UI() { return UI; }
   
@@ -173,10 +173,10 @@ public abstract class Scenario implements Session.Saveable, Playable {
   }
   
   
-  protected abstract World createWorld();
-  protected abstract Base createBase(World world);
-  protected abstract void configureScenario(World world, Base base, BaseUI UI);
-  protected abstract String saveFilePrefix(World world, Base base);
+  protected abstract Stage createWorld();
+  protected abstract Base createBase(Stage world);
+  protected abstract void configureScenario(Stage world, Base base, BaseUI UI);
+  protected abstract String saveFilePrefix(Stage world, Base base);
   protected abstract void afterCreation();
   
   
@@ -221,7 +221,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
         }
         
         //  Create a new save.
-        final float time = world.currentTime() / World.STANDARD_DAY_LENGTH;
+        final float time = world.currentTime() / Stage.STANDARD_DAY_LENGTH;
         String
           day = "Day "+(int) time,
           hour = ""+(int) (24 * (time % 1)),

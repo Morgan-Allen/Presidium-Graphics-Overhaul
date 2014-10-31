@@ -168,7 +168,7 @@ public class EcologistStation extends Venue {
     //
     //  Increment demand for gene seed, and decay current stocks-
     stocks.incDemand(GENE_SEED, 5, Stocks.TIER_CONSUMER, 1, this);
-    final float decay = 0.1f / World.STANDARD_DAY_LENGTH;
+    final float decay = 0.1f / Stage.STANDARD_DAY_LENGTH;
     
     for (Item seed : stocks.matches(GENE_SEED)) {
       stocks.removeItem(Item.withAmount(seed, decay));
@@ -192,8 +192,8 @@ public class EcologistStation extends Venue {
   }
   
   
-  public TradeType[] services() {
-    return new TradeType[] { GENE_SEED };
+  public Traded[] services() {
+    return new Traded[] { GENE_SEED };
   }
   
   
@@ -218,12 +218,12 @@ public class EcologistStation extends Venue {
   }
   
   
-  protected TradeType[] goodsToShow() {
-    return new TradeType[] { GENE_SEED, CARBS, GREENS, PROTEIN };
+  protected Traded[] goodsToShow() {
+    return new Traded[] { GENE_SEED, CARBS, GREENS, PROTEIN };
   }
   
   
-  protected float goodDisplayAmount(TradeType good) {
+  protected float goodDisplayAmount(Traded good) {
     if (good == GENE_SEED) return stocks.amountOf(good) > 0 ? 5 : 0;
     return super.goodDisplayAmount(good);
   }

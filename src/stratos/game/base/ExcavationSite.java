@@ -16,27 +16,9 @@ import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
-
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.building.Economy.*;
-
-
-
-//  So what does the central shaft do?  Provide entry to the openings, and a
-//  central facility for ore processing.
-
-//  ...Just get the openings working for the moment, probably based on
-//  proximity.  When an area is completely worked out, then you can think about
-//  adding mantle drills.
-
-
-//  Crops, Nurseries and Ecologist Station ->
-//  Openings, Smelters and Excavation Site.
-
-//  Okay:  ONE smelter.  No subdivision of types.
-
-
 
 
 
@@ -54,9 +36,10 @@ public class ExcavationSite extends Venue implements TileConstants {
   );
   
   final static int
-    DIG_LIMITS[] = { 8, 12, 15, 16 },
-    DIG_FACE_REFRESH = World.STANDARD_DAY_LENGTH / 10,
-    SMELTER_REFRESH  = 10;
+    DIG_LIMITS[]      = { 8, 12, 15, 16 },
+    EXTRA_CLAIM_RANGE = 4,
+    DIG_FACE_REFRESH  = Stage.STANDARD_DAY_LENGTH / 10,
+    SMELTER_REFRESH   = 10;
   /*
   final static FacilityProfile PROFILE = new FacilityProfile(
     ExcavationSite.class, Structure.TYPE_VENUE,
@@ -72,17 +55,14 @@ public class ExcavationSite extends Venue implements TileConstants {
   
   private static boolean verbose = false;
   
-  
-  private Tile underFaces[];
-  //  TODO:  List open shafts instead
-  ///private List <Smelter> smelters = new List <Smelter> ();
-  //private List <Tailing> tailings = new List <Tailing> ();
-  private Box2D stripArea = new Box2D();
-  
+  //private MineShaft worked;
+  private MineShaft active;
+  private List <MineShaft> allShafts = new List <MineShaft> ();
+  private Tile corridor[];
   
   
   public ExcavationSite(Base base) {
-    super(4, 1, Venue.ENTRANCE_EAST, base);
+    super(4, 1, Venue.ENTRANCE_WEST, base);
     structure.setupStats(
       200, 15, 350,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_FIXTURE
@@ -94,24 +74,20 @@ public class ExcavationSite extends Venue implements TileConstants {
 
   public ExcavationSite(Session s) throws Exception {
     super(s);
-    underFaces = (Tile[]) s.loadTargetArray(Tile.class);
-    //s.loadObjects(tailings);
-    stripArea.loadFrom(s.input());
+    corridor = (Tile[]) s.loadTargetArray(Tile.class);
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveTargetArray(underFaces);
-    //s.saveObjects(tailings);
-    stripArea.saveTo(s.output());
+    s.saveTargetArray(corridor);
   }
   
   
   
   /**  Presence in the world and boardability-
     */
-  public boolean enterWorldAt(int x, int y, World world) {
+  public boolean enterWorldAt(int x, int y, Stage world) {
     if (! super.enterWorldAt(x, y, world)) return false;
     return true;
   }
@@ -141,6 +117,17 @@ public class ExcavationSite extends Venue implements TileConstants {
     final int level = structure.upgradeLevel(SAFETY_PROTOCOL);
     return DIG_LIMITS[level];
   }
+  
+  
+  protected Box2D areaClaimed() {
+    return new Box2D(footprint()).expandBy(EXTRA_CLAIM_RANGE);
+  }
+  
+  
+  protected boolean canTouch(Element e) {
+    return e.owningType() < this.owningType();
+  }
+  
   
   
   
@@ -208,8 +195,8 @@ public class ExcavationSite extends Venue implements TileConstants {
   }
   
   
-  public TradeType[] services() {
-    return new TradeType[] { ORES, ISOTOPES };
+  public Traded[] services() {
+    return new Traded[] { ORES, ISOTOPES };
   }
   
   
@@ -232,18 +219,13 @@ public class ExcavationSite extends Venue implements TileConstants {
     if (d != null) return d;
     final Choice choice = new Choice(actor);
     
-    /*
-    for (Smelter s : smelters) {
-      choice.add(new OreProcessing(actor, s, s.output));
+    if (corridor != null) {
+      int numTaken = 0;
+      for (Tile t : corridor) if (world.terrain().mineralsAt(t) == 0) numTaken++;
+      I.say("  Faces processed: "+numTaken+"/"+corridor.length);
     }
-    //  TODO:  RESTORE AND TEST THIS
-    /*
-    if (structure.upgradeLevel(ARTIFACT_ASSEMBLY) > 0) {
-      choice.add(new OreProcessing(actor, this, ARTIFACTS));
-    }
-    //*/
     
-    final Target face = Mining.nextMineFace(this, underFaces);
+    final Tile face = Mining.nextMineFace(this, corridor);
     if (report) I.say("  Mine face is: "+face);
     if (face != null) {
       choice.add(new Mining(actor, face, this));
@@ -252,18 +234,16 @@ public class ExcavationSite extends Venue implements TileConstants {
   }
   
   
-  public int extractionBonus(TradeType mineral) {
+  public int extractionBonus(Traded mineral) {
     if (mineral == ORES) {
-      return (1 + structure.upgradeLevel(METAL_ORES_MINING)) * 2;
+      return (0 + structure.upgradeLevel(METAL_ORES_MINING)) * 2;
     }
     if (mineral == ISOTOPES) {
-      return (1 + structure.upgradeLevel(FUEL_CORES_MINING)) * 2;
+      return (0 + structure.upgradeLevel(FUEL_CORES_MINING)) * 2;
     }
-    /*
     if (mineral == ARTIFACTS) {
-      return (1 + structure.upgradeLevel(ARTIFACT_ASSEMBLY)) * 2;
+      return (0 + structure.upgradeLevel(ARTIFACT_ASSEMBLY)) * 2;
     }
-    //*/
     return -1;
   }
   
@@ -329,8 +309,8 @@ public class ExcavationSite extends Venue implements TileConstants {
     }
     //*/
     
-    if (underFaces == null || numUpdates % DIG_FACE_REFRESH == 0) {
-      underFaces = Mining.getTilesUnder(this);
+    if (corridor == null || numUpdates % DIG_FACE_REFRESH == 0) {
+      corridor = Mining.getTilesUnder(this);
     }
   }
   

@@ -122,7 +122,7 @@ public class Cantina extends Venue {
   }
   
   
-  public boolean enterWorldAt(int x, int y, World world) {
+  public boolean enterWorldAt(int x, int y, Stage world) {
     if (! super.enterWorldAt(x, y, world)) return false;
     nameID = Rand.index(VENUE_NAMES.length);
     return true;
@@ -135,7 +135,7 @@ public class Cantina extends Venue {
   public Behaviour jobFor(Actor actor) {
     if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
     if (actor.vocation() == Backgrounds.SOMA_VENDOR) {
-      final TradeType needed[] = { SOMA, CARBS, PROTEIN };
+      final Traded needed[] = { SOMA, CARBS, PROTEIN };
       final Delivery d = DeliveryUtils.bestBulkCollectionFor(
         this, needed, 1, 5, 5
       );
@@ -198,14 +198,14 @@ public class Cantina extends Venue {
   }
   
   
-  public float priceFor(TradeType good) {
+  public float priceFor(Traded good) {
     if (good == SOMA) return SOMA.basePrice * SOMA_MARGIN;
     return good.basePrice * SMUGGLE_MARGIN;
   }
   
   
-  public TradeType[] services() {
-    return new TradeType[] { SERVICE_ENTERTAIN };
+  public Traded[] services() {
+    return new Traded[] { SERVICE_ENTERTAIN };
   }
   
   
@@ -334,12 +334,12 @@ public class Cantina extends Venue {
   }
   
   
-  protected TradeType[] goodsToShow() {
-    return new TradeType[] { PROTEIN, CARBS, SOMA };
+  protected Traded[] goodsToShow() {
+    return new Traded[] { PROTEIN, CARBS, SOMA };
   }
   
   
-  protected float goodDisplayAmount(TradeType good) {
+  protected float goodDisplayAmount(Traded good) {
     return Math.min(5, stocks.amountOf(good));
   }
   

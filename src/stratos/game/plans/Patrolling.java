@@ -123,7 +123,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   public Behaviour getNextStep() {
     if (onPoint == null) return null;
     final boolean report = verbose && I.talkAbout == actor;
-    final World world = actor.world();
+    final Stage world = actor.world();
     Target stop = onPoint;
     if (report) I.say("Goes: "+onPoint+", post time: "+postTime);
     //
@@ -250,7 +250,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   
   
   public static Patrolling aroundPerimeter(
-    Actor actor, Element guarded, World world
+    Actor actor, Element guarded, Stage world
   ) {
     final List <Target> patrolled = new List <Target> ();
     final float range = Math.max(
@@ -270,7 +270,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   
   
   public static Patrolling streetPatrol(
-    Actor actor, Element init, Element dest, World world
+    Actor actor, Element init, Element dest, Stage world
   ) {
     final List <Target> patrolled = new List <Target> ();
     final Tile
@@ -281,7 +281,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     search.doSearch();
     if (! search.success()) return null;
     final Boarding path[] = search.fullPath(Boarding.class);
-    float interval = World.PATCH_RESOLUTION;
+    float interval = Stage.PATCH_RESOLUTION;
     
     for (int i = 0; i < path.length; i += interval) {
       patrolled.include(path[i]);
@@ -296,7 +296,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   ) {
     final Batch<Target> enRoute = new Batch<Target>();
 
-    final float maxDist = World.SECTOR_SIZE * 1.5f;
+    final float maxDist = Stage.SECTOR_SIZE * 1.5f;
     final Vec3D p = start.position(null);
     Tile ideal = actor.world().tileAt(
       p.x + (N_X[initDir] * 2),
@@ -361,11 +361,11 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   public static Patrolling nextGuardPatrol(
     Actor actor, Venue origin, float priority
   ) {
-    final World world = actor.world();
+    final Stage world = actor.world();
     final Base base = origin.base();
     //
     //  Grab a random building nearby and patrol around it.
-    final float range = World.SECTOR_SIZE / 2f;
+    final float range = Stage.SECTOR_SIZE / 2f;
     //
     //  TODO:  try to pick points far apart from eachother, and employ
     //  multiple samples for the purpose?

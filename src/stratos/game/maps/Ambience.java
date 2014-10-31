@@ -48,11 +48,11 @@ public class Ambience {
     RATE_MULT = 4.0f,
     MAX_LEVEL = 10.0f;
   
-  final World world;
+  final Stage world;
   final MipMap mapValues;
   
   
-  public Ambience(World world) {
+  public Ambience(Stage world) {
     this.world = world;
     this.mapValues = new MipMap(world.size);
   }

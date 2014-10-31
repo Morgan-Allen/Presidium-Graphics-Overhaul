@@ -119,8 +119,8 @@ public class EngineerStation extends Venue {
     );
   
   
-  public TradeType[] services() {
-    return new TradeType[] { PARTS, SERVICE_ARMAMENT };
+  public Traded[] services() {
+    return new Traded[] { PARTS, SERVICE_ARMAMENT };
   }
   
   
@@ -165,7 +165,7 @@ public class EngineerStation extends Venue {
       o.checkBonus = structure.upgradeLevel(MOLDING_PRESS) + 5;
       final int CMB = structure.upgradeLevel(COMPOSITE_MATERIALS) + 2;
       final int FCB = structure.upgradeBonus(FLUX_CONTAINMENT) + 2;
-      final TradeType made = o.made().type;
+      final Traded made = o.made().type;
       
       if (made instanceof DeviceType) {
         final DeviceType DT = (DeviceType) made;
@@ -212,8 +212,8 @@ public class EngineerStation extends Venue {
 
   /**  Rendering and interface methods-
     */
-  protected TradeType[] goodsToShow() {
-    return new TradeType[] { ORES, PARTS };
+  protected Traded[] goodsToShow() {
+    return new Traded[] { ORES, PARTS };
   }
   
   

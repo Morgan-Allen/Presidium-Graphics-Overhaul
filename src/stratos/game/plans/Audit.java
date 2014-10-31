@@ -77,7 +77,7 @@ public class Audit extends Plan {
   
   public static Venue nextToAuditFor(Actor actor) {
     
-    final World world = actor.world();
+    final Stage world = actor.world();
     final Venue work = (Venue) actor.mind.work();
     final Batch <Venue> batch = new Batch <Venue> ();
     world.presences.sampleFromMap(work, world, 10, batch, work.base());

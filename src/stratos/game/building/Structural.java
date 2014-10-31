@@ -1,12 +1,14 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 
 package stratos.game.building;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
-import stratos.graphics.sfx.Healthbar;
-import stratos.graphics.sfx.Label;
+import stratos.graphics.sfx.*;
 import stratos.user.*;
 import stratos.util.*;
 import stratos.game.wild.Wreckage;  //  TODO:  Move to same package
@@ -83,7 +85,7 @@ public abstract class Structural extends Fixture implements
   }
   
 
-  public boolean enterWorldAt(int x, int y, World world) {
+  public boolean enterWorldAt(int x, int y, Stage world) {
     if (! super.enterWorldAt(x, y, world)) return false;
     //world.presences.togglePresence(this, true);
     world.schedule.scheduleForUpdates(this);

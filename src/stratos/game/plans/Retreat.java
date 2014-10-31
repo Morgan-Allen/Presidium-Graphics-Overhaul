@@ -124,7 +124,7 @@ public class Retreat extends Plan implements Qualities {
       public void compare(Boarding next, float rating) {
         if (next == null || ! next.allowsEntry(actor)) return;
         //  TODO:  Add some random salt here?
-        final float dist = Spacing.distance(actor, next) / World.SECTOR_SIZE;
+        final float dist = Spacing.distance(actor, next) / Stage.SECTOR_SIZE;
         super.compare(next, rating - (dist * (emergency ? 5 : 2)));
       }
     };
@@ -133,7 +133,7 @@ public class Retreat extends Plan implements Qualities {
     pick.compare(actor.mind.work(), 5 );
     
     final Tile ground = emergency ? (Tile) pickWithdrawPoint(
-      actor, actor.health.sightRange() + World.SECTOR_SIZE,
+      actor, actor.health.sightRange() + Stage.SECTOR_SIZE,
       actor, false
     ) : null;
     pick.compare(ground, 0);
@@ -168,7 +168,7 @@ public class Retreat extends Plan implements Qualities {
   ) {
     final boolean report = havenVerbose && I.talkAbout == actor;
     
-    final World world = actor.world();
+    final Stage world = actor.world();
     final Tile at = actor.origin();
     Target pick = Spacing.pickRandomTile(actor, range, world);
     float bestRating = 0;

@@ -35,4 +35,9 @@ public class Pick <T> {
   public T result() {
     return picked;
   }
+  
+  
+  public float bestRating() {
+    return bestRating;
+  }
 }

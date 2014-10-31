@@ -18,7 +18,7 @@ public class DangerMap extends FadingMap {
   final Base base;
   
   
-  public DangerMap(World world, Base base) {
+  public DangerMap(Stage world, Base base) {
     super(world, world.sections.resolution, -1);
     //TODO:  Use Sector Size for grid resolution, and enhance pathfinding with
     //       enemy fog-of-war.

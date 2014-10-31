@@ -207,7 +207,7 @@ public class Bastion extends Venue {
     stocks.forceDemand(CARBS  , foodNeed * 1.5f, Stocks.TIER_CONSUMER);
     stocks.forceDemand(PROTEIN, foodNeed * 1.0f, Stocks.TIER_CONSUMER);
     stocks.forceDemand(GREENS , foodNeed * 1.0f, Stocks.TIER_CONSUMER);
-    stocks.forceDemand(SPYCE  , foodNeed * 0.5f, Stocks.TIER_CONSUMER);
+    stocks.forceDemand(RAW_SPYCE  , foodNeed * 0.5f, Stocks.TIER_CONSUMER);
     //
     //  Modify maximum integrity based on upgrades-
     final int BB = structure.upgradeLevel(BLAST_SHIELDS);
@@ -235,8 +235,8 @@ public class Bastion extends Venue {
   }
   
   
-  public TradeType[] services() {
-    return new TradeType[] {
+  public Traded[] services() {
+    return new Traded[] {
       SERVICE_ADMIN, SERVICE_REFUGE, POWER, LIFE_SUPPORT
     };
   }

@@ -93,7 +93,7 @@ public class ActorRelations {
           I.say("Relation with "+base+" is "+relation);
           I.say("Base sum/base count: "+sum+"/"+count);
         }
-        incRelation(base, relation, 10f / World.STANDARD_DAY_LENGTH);
+        incRelation(base, relation, 10f / Stage.STANDARD_DAY_LENGTH);
         BID++;
       }
     }

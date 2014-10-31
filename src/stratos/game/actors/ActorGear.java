@@ -20,7 +20,7 @@ public class ActorGear extends Inventory {
   
   
   final public static float
-    SHIELD_REGEN_TIME = World.STANDARD_HOUR_LENGTH,
+    SHIELD_REGEN_TIME = Stage.STANDARD_HOUR_LENGTH,
     FUEL_DEPLETE      = 0.1f;
   final public static int
     MAX_AMMO_COUNT = 40,

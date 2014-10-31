@@ -33,7 +33,7 @@ public class Personnel {
     */
   final static int
     REFRESH_INTERVAL = 10,
-    AUDIT_INTERVAL   = World.STANDARD_DAY_LENGTH / 10;
+    AUDIT_INTERVAL   = Stage.STANDARD_DAY_LENGTH / 10;
   
   private static boolean verbose = false;
   
@@ -108,12 +108,12 @@ public class Personnel {
     if (shiftType == Venue.SHIFTS_ALWAYS) {
       return Venue.PRIMARY_SHIFT;
     }
-    final World world = employs.base().world;
+    final Stage world = employs.base().world;
     
     //
     //  Simplified versions in use for the present...
     if (shiftType == Venue.SHIFTS_BY_HOURS) {
-      final int day = (int) (world.currentTime() / World.STANDARD_DAY_LENGTH);
+      final int day = (int) (world.currentTime() / Stage.STANDARD_DAY_LENGTH);
       final int index = (workers.indexOf(worker) + day) % 3;
       final int hour =
         Planet.isMorning(world) ? 1 :
@@ -125,7 +125,7 @@ public class Personnel {
     }
     
     if (shiftType == Venue.SHIFTS_BY_DAY) {
-      final int day = (int) (world.currentTime() / World.STANDARD_DAY_LENGTH);
+      final int day = (int) (world.currentTime() / Stage.STANDARD_DAY_LENGTH);
       final int index = workers.indexOf(worker);
       
       if (Planet.isNight(world)) return Venue.OFF_DUTY;

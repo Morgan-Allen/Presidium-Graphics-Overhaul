@@ -21,7 +21,7 @@ public class Supervision extends Plan {
   
   /**  Data fields, setup and save/load functions-
     */
-  final static float WAIT_TIME = World.STANDARD_HOUR_LENGTH;
+  final static float WAIT_TIME = Stage.STANDARD_HOUR_LENGTH;
   private static boolean verbose = false;
   
   final Venue venue;

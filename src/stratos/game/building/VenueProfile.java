@@ -29,7 +29,7 @@ public class VenueProfile implements Session.Saveable {
   final public int
     size, maxIntegrity, armouring, ambience;
   
-  final public TradeType  materials[];
+  final public Traded  materials[];
   final public Background careers  [];
   final public Conversion services [];
   
@@ -37,7 +37,7 @@ public class VenueProfile implements Session.Saveable {
   public VenueProfile(
     Class <? extends Venue> baseClass, int facilityType,
     int size, int maxIntegrity, int armouring, int ambience,
-    TradeType materials[],
+    Traded materials[],
     Background careers[],
     Conversion... services
   ) {

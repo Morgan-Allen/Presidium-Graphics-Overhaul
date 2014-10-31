@@ -97,7 +97,7 @@ public class CargoBarge extends Vehicle implements
   }
   
   
-  public TradeType[] services() { return null; }
+  public Traded[] services() { return null; }
   
   
   

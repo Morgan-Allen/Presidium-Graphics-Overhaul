@@ -17,13 +17,13 @@ public class Activities {
   
   /**  Fields, constructors, and save/load methods.
     */
-  final World world;
+  final Stage world;
   
   final Table <Target, List <Behaviour>> activeTable = new Table(1000);
   final Table <Behaviour, Behaviour> behaviours = new Table(1000);
   
   
-  public Activities(World world) {
+  public Activities(Stage world) {
     this.world = world;
   }
   

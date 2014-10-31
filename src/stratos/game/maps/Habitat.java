@@ -138,7 +138,7 @@ public class Habitat {
       IS_WASTE
     ),
     STRIP_MINING = new Habitat("Strip Mining",
-      "strip_mining_ground.gif", NO_FLORA,//WASTES_FLORA_MODELS,
+      "strip_mining_ground.png", NO_FLORA,//WASTES_FLORA_MODELS,
       -1, true, MOISTURE, 5, INSOLATION, 7, MINERALS, 0,
       IS_WASTE
     ),

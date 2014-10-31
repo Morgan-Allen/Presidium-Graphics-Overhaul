@@ -37,14 +37,14 @@ public class Item {
   final public static int ANY = -1;
   final public static int MAX_QUALITY = 4;
   
-  final public TradeType type;
+  final public Traded type;
   final public Saveable refers;
   final public float amount;
   final public float quality;
   
   
   private Item(
-    TradeType type, Saveable refers, float amount, float quality
+    Traded type, Saveable refers, float amount, float quality
   ) {
     this.type = type;
     this.amount = amount;
@@ -96,7 +96,7 @@ public class Item {
   
   /**  Outside-accessible factory methods-
     */
-  public static Item withAmount(TradeType type, float amount) {
+  public static Item withAmount(Traded type, float amount) {
     return new Item(type, null, amount, 0);
   }
   
@@ -107,7 +107,7 @@ public class Item {
   }
   
   
-  public static Item withReference(TradeType type, Saveable refers) {
+  public static Item withReference(Traded type, Saveable refers) {
     return new Item(type, refers, 1, 0);
   }
   
@@ -117,7 +117,7 @@ public class Item {
   }
   
   
-  public static Item withQuality(TradeType type, int quality) {
+  public static Item withQuality(Traded type, int quality) {
     return new Item(type, null, 1, Visit.clamp(quality, 5));
   }
   
@@ -130,7 +130,7 @@ public class Item {
   
   
   public static Item with(
-    TradeType type, Saveable refers, float amount, float quality
+    Traded type, Saveable refers, float amount, float quality
   ) {
     if (amount < 0) I.complain("Amount must be positive!");
     return new Item(
@@ -152,17 +152,17 @@ public class Item {
   
   /**  Matching/equality functions-
     */
-  public static Item asMatch(TradeType type, Saveable refers) {
+  public static Item asMatch(Traded type, Saveable refers) {
     return new Item(type, refers, ANY, ANY);
   }
   
   
-  public static Item asMatch(TradeType type, int quality) {
+  public static Item asMatch(Traded type, int quality) {
     return new Item(type, null, ANY, quality);
   }
   
   
-  public static Item asMatch(TradeType type, Saveable refers, int quality) {
+  public static Item asMatch(Traded type, Saveable refers, int quality) {
     return new Item(type, refers, ANY, Visit.clamp(quality, 5));
   }
   

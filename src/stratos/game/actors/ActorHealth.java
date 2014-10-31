@@ -60,7 +60,7 @@ public class ActorHealth implements Qualities {
 
     DEFAULT_HEALTH  = 10,
     MAX_CALORIES    = 1.5f,
-    STARVE_INTERVAL = World.STANDARD_DAY_LENGTH * 5,
+    STARVE_INTERVAL = Stage.STANDARD_DAY_LENGTH * 5,
     
     MAX_INJURY       =  1.5f,
     MAX_DECOMP       =  2.5f,
@@ -69,15 +69,15 @@ public class ActorHealth implements Qualities {
     MIN_MORALE       = -1.5f,
     REVIVE_THRESHOLD =  0.5f,
     //STABILISE_CHANCE =  0.05f,
-    BLEED_OUT_TIME   =  World.STANDARD_HOUR_LENGTH * 2,
-    DECOMPOSE_TIME   =  World.STANDARD_DAY_LENGTH,
+    BLEED_OUT_TIME   =  Stage.STANDARD_HOUR_LENGTH * 2,
+    DECOMPOSE_TIME   =  Stage.STANDARD_DAY_LENGTH,
     
     FATIGUE_GROW_PER_DAY = 0.33f,
     MORALE_DECAY_PER_DAY = 0.33f,
     INJURY_REGEN_PER_DAY = 0.33f,
     
     DEFAULT_CONCENTRATION  = 10,
-    CONCENTRATE_REGEN_TIME = World.STANDARD_HOUR_LENGTH;
+    CONCENTRATE_REGEN_TIME = Stage.STANDARD_HOUR_LENGTH;
   
   
   final Actor actor;
@@ -597,7 +597,7 @@ public class ActorHealth implements Qualities {
     }
     //
     //  Regeneration rates differ during sleep-
-    final float DL = World.STANDARD_DAY_LENGTH;
+    final float DL = Stage.STANDARD_DAY_LENGTH;
     float MM = 1, FM = 1, IM = 1, PM = 1;
     final float regen = actor.skills.chance(IMMUNE, 10);
     if (state == STATE_RESTING) {
@@ -624,7 +624,7 @@ public class ActorHealth implements Qualities {
       }
     }
     else if (injury > 0) {
-      actor.skills.test(IMMUNE, 10, 1f / World.STANDARD_HOUR_LENGTH);
+      actor.skills.test(IMMUNE, 10, 1f / Stage.STANDARD_HOUR_LENGTH);
       injury -= INJURY_REGEN_PER_DAY * maxHealth * regen * IM / DL;
     }
     
@@ -656,10 +656,10 @@ public class ActorHealth implements Qualities {
     if (! organic()) return;
     final boolean report = verbose && I.talkAbout == actor;
     
-    final int DL = World.STANDARD_DAY_LENGTH;
+    final int DL = Stage.STANDARD_DAY_LENGTH;
     float ageInc = 0; 
     if ((numUpdates + 1) % DL == 0) {
-      ageInc += DL * 1f / World.STANDARD_YEAR_LENGTH;
+      ageInc += DL * 1f / Stage.STANDARD_YEAR_LENGTH;
     }
     
     if (metabolism == ANIMAL_METABOLISM) {

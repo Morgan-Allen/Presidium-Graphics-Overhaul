@@ -121,8 +121,8 @@ public class EnforcerBloc extends Venue {
   }
   
   
-  public TradeType[] services() {
-    return new TradeType[] { SERVICE_SECURITY };
+  public Traded[] services() {
+    return new Traded[] { SERVICE_SECURITY };
   }
   
   

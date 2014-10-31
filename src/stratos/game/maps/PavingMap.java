@@ -12,7 +12,7 @@ public class PavingMap {
   
   private static boolean verbose = false, searchVerbose = false;
   
-  final World world;
+  final Stage world;
   final PavingRoutes paving;
   final int size;
   
@@ -20,7 +20,7 @@ public class PavingMap {
   final MipMap flagMap;
   
   
-  public PavingMap(World world, PavingRoutes paving) {
+  public PavingMap(Stage world, PavingRoutes paving) {
     this.world  = world ;
     this.paving = paving;
     
@@ -64,6 +64,7 @@ public class PavingMap {
   /**  Modifier methods-
     */
   public void flagForPaving(Tile t, boolean is) {
+    
     final byte c = (roadCounter[t.x][t.y] += is ? 1 : -1);
     if (c < 0) I.complain("CANNOT HAVE NEGATIVE ROAD COUNTER: "+t);
     
@@ -71,7 +72,7 @@ public class PavingMap {
     flagMap.set((byte) (flag ? 1 : 0), t.x, t.y);
     
     if (GameSettings.paveFree) {
-      setPaveLevel(t, c > 0 ? ROAD_LIGHT : ROAD_NONE);
+      setPaveLevel(t, c > 0 ? ROAD_LIGHT : ROAD_NONE, is);
     }
   }
   
@@ -83,14 +84,14 @@ public class PavingMap {
   
   
   public boolean refreshTiles(Tile tiles[]) {
-    for (Tile t : tiles) {
+    for (Tile t : tiles) if (t.owningType() <= Element.ELEMENT_OWNS) {
       final byte c = roadCounter[t.x][t.y];
       
       final boolean flag = needsPaving(t);
       flagMap.set((byte) (flag ? 1 : 0), t.x, t.y);
       
       if (GameSettings.paveFree) {
-        setPaveLevel(t, c > 0 ? ROAD_LIGHT : ROAD_NONE);
+        setPaveLevel(t, c > 0 ? ROAD_LIGHT : ROAD_NONE, true);
       }
     }
     return true;
@@ -106,19 +107,23 @@ public class PavingMap {
     return world.terrain().isRoad(t) != (roadCounter(t) > 0);
   }
   
-
-  public static void setPaveLevel(Tile t, byte level) {
-    t.world.terrain().setRoadType(t, level);
-    
-    if (level > ROAD_NONE && t.onTop() != null) {
-      t.onTop().setAsDestroyed();
-    }
-  }
-  
   
   protected void updateFlags(Tile t) {
     final boolean flag = needsPaving(t);
     flagMap.set((byte) (flag ? 1 : 0), t.x, t.y);
+  }
+  
+
+  public static void setPaveLevel(Tile t, byte level, boolean clear) {
+    if (level > ROAD_NONE && t.onTop() != null && clear) {
+      t.onTop().setAsDestroyed();
+    }
+    t.world.terrain().setRoadType(t, level);
+  }
+  
+  
+  public static boolean isRoad(Tile t) {
+    return t.world.terrain().isRoad(t);
   }
   
 

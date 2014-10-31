@@ -22,13 +22,13 @@ public class BaseSetup {
   /**  Placement of assorted structure types based on internal demand:
     */
   final static float
-    FULL_EVAL_PERIOD = World.STANDARD_DAY_LENGTH,
+    FULL_EVAL_PERIOD = Stage.STANDARD_DAY_LENGTH,
     DEFAULT_PLACE_HP = 50;
   
   private static boolean verbose = false;
   
   final Base base;
-  final World world;
+  final Stage world;
   
   //
   //  Data structures for handling supply-and-demand:
@@ -54,7 +54,7 @@ public class BaseSetup {
   private float placeLimit = 0, amountPlaced = 0;
   
   
-  public BaseSetup(Base base, World world) {
+  public BaseSetup(Base base, Stage world) {
     this.base  = base ;
     this.world = world;
   }

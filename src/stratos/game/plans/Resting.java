@@ -28,7 +28,7 @@ public class Resting extends Plan {
     MODE_DINE     =  0,
     MODE_LODGE    =  1,
     MODE_SLEEP    =  2,
-    RELAX_TIME = World.STANDARD_HOUR_LENGTH / 2;
+    RELAX_TIME = Stage.STANDARD_HOUR_LENGTH / 2;
   
   final Owner restPoint;
   public int cost;
@@ -104,7 +104,7 @@ public class Resting extends Plan {
     
     //  Include effects of hunger-
     float sumFood = 0;
-    for (TradeType s : menuFor(restPoint)) {
+    for (Traded s : menuFor(restPoint)) {
       sumFood += restPoint.inventory().amountOf(s);
     }
     if (sumFood > 1) sumFood = 1;
@@ -130,9 +130,9 @@ public class Resting extends Plan {
   }
   
   
-  private static Batch <TradeType> menuFor(Owner place) {
-    Batch <TradeType> menu = new Batch <TradeType> ();
-    for (TradeType type : ALL_FOOD_TYPES) {
+  private static Batch <Traded> menuFor(Owner place) {
+    Batch <Traded> menu = new Batch <Traded> ();
+    for (Traded type : ALL_FOOD_TYPES) {
       if (place.inventory().amountOf(type) >= 0.1f) menu.add(type);
     }
     return menu;
@@ -179,7 +179,7 @@ public class Resting extends Plan {
     //    TODO:  Reconsider these.
     //
     //  Transfer any incidental groceries-
-    if (place == actor.mind.home()) for (TradeType food : ALL_FOOD_TYPES) {
+    if (place == actor.mind.home()) for (Traded food : ALL_FOOD_TYPES) {
       actor.gear.transfer(food, (Employer) place);
     }
     //
@@ -215,14 +215,14 @@ public class Resting extends Plan {
   
   
   public static boolean dineFrom(Actor actor, Owner stores) {
-    final Batch <TradeType> menu = menuFor(stores);
+    final Batch <Traded> menu = menuFor(stores);
     final int numFoods = menu.size();
     
     if (numFoods > 0 && actor.health.hungerLevel() > 0.1f) {
       final int FTC = ActorHealth.FOOD_TO_CALORIES;
       float sumFood = 0;
       
-      for (TradeType type : menu) {
+      for (Traded type : menu) {
         final Item portion = Item.withAmount(type, 0.2f / (numFoods * FTC));
         stores.inventory().removeItem(portion);
         sumFood += portion.amount;

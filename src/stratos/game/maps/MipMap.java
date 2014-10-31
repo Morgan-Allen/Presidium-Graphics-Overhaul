@@ -183,7 +183,7 @@ public class MipMap implements TileConstants {
   /**  Returns a list of all actors within range of the given point.
     */
   public Batch <Coord> allNear(
-    final World world, final Target t, final float radius
+    final Stage world, final Target t, final float radius
   ) {
     final Batch <Coord> near = new Batch <Coord> ();
     final Vec3D tP = t.position(null);

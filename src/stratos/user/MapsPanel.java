@@ -14,7 +14,7 @@ public class MapsPanel extends UIGroup {
   
 
   final BaseUI UI;
-  final World world;
+  final Stage world;
   private Base base;
   
   private float lastTime = -1;
@@ -22,7 +22,7 @@ public class MapsPanel extends UIGroup {
   final int RGBA[][];
   
   
-  public MapsPanel(BaseUI UI, World world, Base base) {
+  public MapsPanel(BaseUI UI, Stage world, Base base) {
     super(UI);
     this.UI = UI;
     this.world = world;

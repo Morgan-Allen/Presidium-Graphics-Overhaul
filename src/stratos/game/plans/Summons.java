@@ -19,7 +19,7 @@ public class Summons extends Plan {
   
   
   final static float
-    MAX_STAY_DURATION = World.STANDARD_DAY_LENGTH;
+    MAX_STAY_DURATION = Stage.STANDARD_DAY_LENGTH;
   
   private static boolean verbose = true;
   final Actor ruler;

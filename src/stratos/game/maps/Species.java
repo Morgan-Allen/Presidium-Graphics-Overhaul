@@ -215,7 +215,7 @@ public abstract class Species implements Session.Saveable {
     BLUE_VALVES = new Species("Blue Valves", Type.FLORA, 1, PROTEIN) {},
     CLAN_BORE   = new Species("Clan Bore"  , Type.FLORA, 1, PROTEIN) {},
     
-    GORG_APHID  = new Species("Gorg Aphid" , Type.FLORA, 1, SPYCE  ) {},
+    GORG_APHID  = new Species("Gorg Aphid" , Type.FLORA, 1, RAW_SPYCE  ) {},
     
     PIONEERS    = new Species("Pioneers"   , Type.FLORA) {},
     TIMBER      = new Species("Timber"     , Type.FLORA) {},
@@ -317,7 +317,7 @@ public abstract class Species implements Session.Saveable {
     Batch <Item> n = new Batch <Item> ();
     for (Object o : args) {
       if (o instanceof Integer) amount = (Integer) o;
-      if (o instanceof TradeType) n.add(Item.withAmount((TradeType) o, amount));
+      if (o instanceof Traded) n.add(Item.withAmount((Traded) o, amount));
     }
     nutrients = n.toArray(Item.class);
     

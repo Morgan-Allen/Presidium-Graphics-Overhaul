@@ -16,7 +16,7 @@ public class Presences {
 	
   /**  fields, constructors and save/load functionality-
     */
-	final World world;
+	final Stage world;
   final Table <Object, PresenceMap> allMaps;
   
   private PresenceMap floraMap;
@@ -28,7 +28,7 @@ public class Presences {
   
   
   
-  Presences(World world) {
+  Presences(Stage world) {
   	this.world = world;
   	allMaps = new Table <Object, PresenceMap> ();
   	floraMap = new PresenceMap(world, Flora.class);
@@ -160,7 +160,7 @@ public class Presences {
   
   
   public Series <Target> sampleFromMaps(
-    Target t, World world, int limit,
+    Target t, Stage world, int limit,
     Series <? extends Target> sampled, Object... keys
   ) {
     if (sampled == null) sampled = new Batch();
@@ -178,7 +178,7 @@ public class Presences {
   
   
   public Series <Target> sampleFromMap(
-    Target t, World world, int limit,
+    Target t, Stage world, int limit,
     Series <? extends Target> sampled, Object key
   ) {
     if (sampled == null) sampled = new Batch();
@@ -194,7 +194,7 @@ public class Presences {
   
   
   private Series <Target> sampleTargets(
-    Object key, Target t, World world, int limit, Series sampled
+    Object key, Target t, Stage world, int limit, Series sampled
   ) {
     for (int n = limit / 2; n-- > 0;) {
       final Target v = randomMatchNear(key, t, -1);

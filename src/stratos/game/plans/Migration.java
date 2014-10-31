@@ -65,7 +65,7 @@ public class Migration extends Plan {
     if (actor.mind.work() != null) return 0;
     if (initTime == -1) return ROUTINE;
     final float timeSpent = actor.world().currentTime() + 10 - initTime;
-    float impetus = ROUTINE * timeSpent / World.STANDARD_DAY_LENGTH;
+    float impetus = ROUTINE * timeSpent / Stage.STANDARD_DAY_LENGTH;
     impetus *= ((1 - actor.health.moraleLevel()) + 1) / 2;
     return Visit.clamp(impetus, 0, URGENT);
   }

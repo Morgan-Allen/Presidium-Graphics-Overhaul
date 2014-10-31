@@ -18,13 +18,13 @@ public class PavingRoutes {
   
   /**  Field definitions, constructor and save/load methods-
     */
-  final static int PATH_RANGE = World.SECTOR_SIZE / 2;
+  final static int PATH_RANGE = Stage.SECTOR_SIZE / 2;
   private static boolean
     paveVerbose      = false,
     distroVerbose    = false,
     checkConsistency = false;
   
-  final World world;
+  final Stage world;
   final public PavingMap map;
   protected PresenceMap junctions;
   
@@ -34,7 +34,7 @@ public class PavingRoutes {
   
   
   
-  public PavingRoutes(World world) {
+  public PavingRoutes(Stage world) {
     this.world = world;
     this.map = new PavingMap(world, this);
     junctions = new PresenceMap(world, "junctions");
@@ -200,6 +200,7 @@ public class PavingRoutes {
   
   
   private boolean routeBetween(Tile a, Tile b, boolean report) {
+    ///if (true) return false;
     if (a == b) return false;
     //
     //  Firstly, determine the correct current route.
@@ -356,7 +357,7 @@ public class PavingRoutes {
   }
   
   
-  private void distributeTo(Batch <Structural> reached, TradeType provided[]) {
+  private void distributeTo(Batch <Structural> reached, Traded provided[]) {
     //
     //  First, tabulate total supply and demand within the area-
     final boolean report = distroVerbose;
@@ -369,7 +370,7 @@ public class PavingRoutes {
       if (report) I.say("  Have reached: "+s);
       
       for (int i = provided.length; i-- > 0;) {
-        final TradeType type = provided[i];
+        final Traded type = provided[i];
         supply[i] += s.structure.outputOf(type);
         
         if (! (s instanceof Venue)) continue;
@@ -382,7 +383,7 @@ public class PavingRoutes {
     //  is available-
     for (int i = provided.length; i-- > 0;) {
       if (demand[i] == 0) continue;
-      final TradeType type = provided[i];
+      final Traded type = provided[i];
       final float supplyRatio = Visit.clamp(supply[i] / demand[i], 0, 1);
       for (Structural s : reached) if (s instanceof Venue) {
         final Venue venue = (Venue) s;
@@ -393,7 +394,7 @@ public class PavingRoutes {
   }
   
 
-  public void distribute(TradeType provided[], Base base) {
+  public void distribute(Traded provided[], Base base) {
     final boolean report = distroVerbose;
     if (report) I.say("\n\nDistributing provisions for base: "+base);
     final Batch <Batch <Structural>> allReached = new Batch();

@@ -186,7 +186,7 @@ public class BaseDemands {
   private float workRemaining(VenueProfile profile) {
     float work = shortage(profile.baseClass);
     work *= profile.maxIntegrity / 25f;
-    work *= Repairs.TIME_PER_25_HP / World.STANDARD_DAY_LENGTH;
+    work *= Repairs.TIME_PER_25_HP / Stage.STANDARD_DAY_LENGTH;
     return work;
   }
   

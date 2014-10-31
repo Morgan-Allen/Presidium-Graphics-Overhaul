@@ -30,7 +30,7 @@ public abstract class Artilect extends Actor {
   /**  Construction and save/load methods-
     */
   final static float
-    FUEL_CELLS_REGEN = World.STANDARD_DAY_LENGTH;
+    FUEL_CELLS_REGEN = Stage.STANDARD_DAY_LENGTH;
   
   final static String
     FILE_DIR = "media/Actors/artilects/",
@@ -172,7 +172,7 @@ public abstract class Artilect extends Actor {
     
     final Employer home = mind.home();
     Element guards = home == null ? this : (Element) home;
-    final float distance = Spacing.distance(this, guards) / World.SECTOR_SIZE;
+    final float distance = Spacing.distance(this, guards) / Stage.SECTOR_SIZE;
     //final float danger = CombatUtils.dangerAtSpot(this, this, null);
     
     final Plan patrol = Patrolling.aroundPerimeter(this, guards, world);
@@ -230,7 +230,7 @@ public abstract class Artilect extends Actor {
         choice.add(new SpawnArtilect(this, other, venue));
       }
       final Ruins ruins = (Ruins) world.presences.randomMatchNear(
-        Ruins.class, this, World.SECTOR_SIZE
+        Ruins.class, this, Stage.SECTOR_SIZE
       );
       choice.add(nextSpawning(this, ruins));
     }
@@ -257,7 +257,7 @@ public abstract class Artilect extends Actor {
     final Batch <Venue> sampled = new Batch <Venue> ();
     world.presences.sampleFromMap(this, world, 10, sampled, Venue.class);
     
-    final int SS = World.SECTOR_SIZE;
+    final int SS = Stage.SECTOR_SIZE;
     Venue toAssault = null;
     float bestRating = 0;
     

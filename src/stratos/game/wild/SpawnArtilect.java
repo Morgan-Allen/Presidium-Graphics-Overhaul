@@ -24,7 +24,7 @@ public class SpawnArtilect extends Plan implements Qualities {
     effectVerbose = false;
   
   final static float
-    TIME_PER_10_HP = World.STANDARD_DAY_LENGTH,
+    TIME_PER_10_HP = Stage.STANDARD_DAY_LENGTH,
     MIN_DAMAGE     = 0.4f / ActorHealth.MAX_INJURY,
     INIT_HEALTH    = 0.1f;
   

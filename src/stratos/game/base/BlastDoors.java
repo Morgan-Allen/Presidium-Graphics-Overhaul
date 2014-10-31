@@ -60,7 +60,7 @@ public class BlastDoors extends ShieldWall implements TileConstants {
   }
   
   
-  public boolean enterWorldAt(int x, int y, World world) {
+  public boolean enterWorldAt(int x, int y, Stage world) {
     if (! super.enterWorldAt(x, y, world)) return false;
     //base.paving.map.flagForPaving(Spacing.under(area(), world), true);
     return true;

@@ -125,12 +125,12 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
-  public float priceFor(TradeType service) {
+  public float priceFor(Traded service) {
     return service.basePrice;
   }
   
   
-  public int spaceFor(TradeType good) {
+  public int spaceFor(Traded good) {
     return structure.maxIntegrity();//- cargo.spaceUsed();
   }
   
@@ -377,7 +377,7 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
-  public Boarding dropPoint() {
+  public Boarding mainEntrance() {
     return dropPoint;
   }
   

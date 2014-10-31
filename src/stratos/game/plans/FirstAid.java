@@ -190,7 +190,7 @@ public class FirstAid extends Plan {
       patient.health.setState(ActorHealth.STATE_SUSPEND);
     }
     
-    float effect = 1.0f / World.STANDARD_DAY_LENGTH;
+    float effect = 1.0f / Stage.STANDARD_DAY_LENGTH;
     float regen = ActorHealth.INJURY_REGEN_PER_DAY;
     regen *= 3 * effect * patient.health.maxHealth();
     patient.health.liftInjury(regen);

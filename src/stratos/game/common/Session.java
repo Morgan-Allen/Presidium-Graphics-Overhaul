@@ -56,7 +56,7 @@ public class Session {
     lastObjectID = -1;
   
   private Scenario scenario;
-  private World world = null;
+  private Stage world = null;
   
   private boolean saving;
   private DataOutputStream out;
@@ -68,7 +68,7 @@ public class Session {
   /**  Methods for saving and loading session data:
     */
   public static Session saveSession(
-    World world, Scenario scenario, String saveFile
+    Stage world, Scenario scenario, String saveFile
   ) throws Exception {
     final Session s = new Session();
     s.out = new DataOutputStream(new BufferedOutputStream(
@@ -100,7 +100,7 @@ public class Session {
     );
     s.saving = false;
     Assets.clearReferenceIDs();
-    s.world = new World(s.loadInt());
+    s.world = new Stage(s.loadInt());
     s.world.loadState(s);
     s.scenario = (Scenario) s.loadObject();
     GameSettings.loadSettings(s);
@@ -127,7 +127,7 @@ public class Session {
   
   
   private Session() {}
-  public World world() { return world; }
+  public Stage world() { return world; }
   public Scenario scenario() { return scenario; }
   
   

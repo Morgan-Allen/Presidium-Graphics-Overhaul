@@ -22,8 +22,8 @@ public class Stocks extends Inventory {
   /**  Fields, constructors, and save/load methods-
     */
   final public static float
-    UPDATE_PERIOD = World.STANDARD_HOUR_LENGTH,
-    DEMAND_DECAY  = UPDATE_PERIOD * 1f / (World.STANDARD_DAY_LENGTH / 2),
+    UPDATE_PERIOD = Stage.STANDARD_HOUR_LENGTH,
+    DEMAND_DECAY  = UPDATE_PERIOD * 1f / (Stage.STANDARD_DAY_LENGTH / 2),
     SEARCH_RADIUS = 16,
     MAX_CHECKED   = 5;
   
@@ -32,7 +32,7 @@ public class Stocks extends Inventory {
   
   
   static class Demand {
-    TradeType type;
+    Traded type;
     int tierType = TIER_PRODUCER;
     
     private float amountInc, demandAmount;
@@ -41,7 +41,7 @@ public class Stocks extends Inventory {
   
   
   final Employer basis;
-  final Table <TradeType, Demand> demands = new Table <TradeType, Demand> ();
+  final Table <Traded, Demand> demands = new Table <Traded, Demand> ();
   final List <Manufacture> specialOrders = new List <Manufacture> ();
   
   
@@ -137,8 +137,8 @@ public class Stocks extends Inventory {
   }
   
   
-  public Batch <TradeType> demanded() {
-    final Batch <TradeType> batch = new Batch <TradeType> ();
+  public Batch <Traded> demanded() {
+    final Batch <Traded> batch = new Batch <Traded> ();
     for (Demand d : demands.values()) batch.add(d.type);
     return batch;
   }
@@ -186,26 +186,26 @@ public class Stocks extends Inventory {
   
   /**  Public accessor methods-
     */
-  public float demandFor(TradeType type) {
+  public float demandFor(Traded type) {
     final Demand d = demands.get(type);
     if (d == null) return 0;
     return d.demandAmount;
   }
   
   
-  public int demandTier(TradeType type) {
+  public int demandTier(Traded type) {
     final Demand d = demands.get(type);
     if (d == null) return TIER_PRODUCER;
     return d.tierType;
   }
   
   
-  public boolean hasEnough(TradeType type) {
+  public boolean hasEnough(Traded type) {
     return amountOf(type) < (demandFor(type) / 2);
   }
   
   
-  public float shortagePenalty(TradeType type) {
+  public float shortagePenalty(Traded type) {
     if (GameSettings.needsFree && type.form == FORM_PROVISION) return 0;
     final float
       amount = amountOf(type),
@@ -218,17 +218,17 @@ public class Stocks extends Inventory {
   }
   
   
-  public float shortageOf(TradeType type) {
+  public float shortageOf(Traded type) {
     return demandFor(type) - amountOf(type);
   }
   
   
-  public float surplusOf(TradeType type) {
+  public float surplusOf(Traded type) {
     return amountOf(type) - demandFor(type);
   }
   
   
-  public float shortageUrgency(TradeType type) {
+  public float shortageUrgency(Traded type) {
     final Demand d = demands.get(type);
     if (d == null) return 0;
     final float amount = amountOf(type), shortage = d.demandAmount - amount;
@@ -238,7 +238,7 @@ public class Stocks extends Inventory {
   }
   
   
-  public float priceFor(TradeType type) {
+  public float priceFor(Traded type) {
     final Demand d = demands.get(type);
     if (d == null) return type.basePrice;
     return (d.pricePaid + type.basePrice) / 2f;
@@ -273,7 +273,7 @@ public class Stocks extends Inventory {
   
   /**  Utility methods for setting and propagating various types of demand-
     */
-  private Demand demandRecord(TradeType t) {
+  private Demand demandRecord(Traded t) {
     final Demand d = demands.get(t);
     if (d != null) return d;
     Demand made = new Demand();
@@ -284,7 +284,7 @@ public class Stocks extends Inventory {
   }
   
   
-  public void forceDemand(TradeType type, float amount, int tier) {
+  public void forceDemand(Traded type, float amount, int tier) {
     if (amount < 0) amount = 0;
     final Demand d = demandRecord(type);
     d.demandAmount = amount;
@@ -294,7 +294,7 @@ public class Stocks extends Inventory {
   
   
   public void incDemand(
-    TradeType type, float amount, int tier, int period, Owner source
+    Traded type, float amount, int tier, int period, Owner source
   ) {
     if (amount == 0) return;
     final Demand d = demandRecord(type);
@@ -341,7 +341,7 @@ public class Stocks extends Inventory {
   
   
   private void incDemand(
-    TradeType type, float amount, int period, Owner source
+    Traded type, float amount, int period, Owner source
   ) {
     if (amount == 0) return;
     final Demand d = demandRecord(type);
@@ -349,13 +349,13 @@ public class Stocks extends Inventory {
   }
   
   
-  private void incPrice(TradeType type, float toPrice) {
+  private void incPrice(Traded type, float toPrice) {
     final Demand d = demandRecord(type);
     d.pricePaid += (toPrice - type.basePrice) * DEMAND_DECAY;
   }
   
   
-  public void diffuseDemand(TradeType type, Batch <Venue> suppliers, int period) {
+  public void diffuseDemand(Traded type, Batch <Venue> suppliers, int period) {
     final boolean report = verbose && I.talkAbout == basis;
     final Demand d = demands.get(type);
     if (d == null) return;
@@ -425,7 +425,7 @@ public class Stocks extends Inventory {
   }
   
   
-  public void diffuseDemand(TradeType type, int period) {
+  public void diffuseDemand(Traded type, int period) {
     final Batch <Venue> suppliers = DeliveryUtils.nearbyVendors(
       type, basis, basis.world()
     );
@@ -457,7 +457,7 @@ public class Stocks extends Inventory {
   }
   
   
-  protected void updateStocks(int numUpdates, TradeType services[]) {
+  protected void updateStocks(int numUpdates, Traded services[]) {
     if (Float.isNaN(credits)) credits = 0;
     if (Float.isNaN(taxed)) taxed = 0;
     if (numUpdates % UPDATE_PERIOD == 0 && ! basis.isMobile()) {
@@ -474,7 +474,7 @@ public class Stocks extends Inventory {
   }
   
   
-  private void diffuseExistingDemand(TradeType vS[]) {
+  private void diffuseExistingDemand(Traded vS[]) {
     final boolean report = verbose && I.talkAbout == basis;
     
     if (report) I.say("\nDIFFUSING DEMAND AT: "+basis);
@@ -483,12 +483,12 @@ public class Stocks extends Inventory {
     final Tile vO = basis.world().tileAt(basis);
     
     if ((vS == null || vS.length == 0) && demands.size() == 0) return;
-    if (vS != null) for (TradeType s : vS) if (demandTier(s) == TIER_NONE) {
+    if (vS != null) for (Traded s : vS) if (demandTier(s) == TIER_NONE) {
       demandRecord(s).tierType = TIER_PRODUCER;
     }
     
-    final TradeType services[] = basis.services();
-    if (services != null) for (TradeType s : services) {
+    final Traded services[] = basis.services();
+    if (services != null) for (Traded s : services) {
       presences.togglePresence(basis, vO, amountOf(s) > 0, s.supplyKey);
     }
     

@@ -101,7 +101,7 @@ public class FindWork extends Plan {
     if (work instanceof Vehicle) return null;
     //
     //  Set up key comparison variables-
-    final World world = base.world;
+    final Stage world = base.world;
     float bestRating = 0;
     Application picked = null;
     final Batch <Venue> batch = new Batch <Venue> ();

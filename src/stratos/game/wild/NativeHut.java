@@ -182,10 +182,10 @@ public class NativeHut extends Venue {
   //*/
   
   public static Batch <NativeHut> establishSites(
-    final int tribeID, final World world
+    final int tribeID, final Stage world
   ) {
     final Base natives = Base.baseWithName(world, Base.KEY_NATIVES, true);
-    final int res = World.SECTOR_SIZE / 2;
+    final int res = Stage.SECTOR_SIZE / 2;
     final Batch <NativeHut> placed = new Batch <NativeHut> ();
     
     final RandomScan scan = new RandomScan(world.size / res) {
@@ -227,7 +227,7 @@ public class NativeHut extends Venue {
   
   public static Batch <Actor> populateHut(NativeHut hut, NativeHall parent) {
     final Batch <Actor> populace = new Batch <Actor> ();
-    final World world = hut.world();
+    final Stage world = hut.world();
     final Background NB = NATIVE_BIRTH, NH = Sectors.PLANET_DIAPSOR;
     Background cleric = Backgrounds.SHAMAN;
     /*
@@ -269,7 +269,7 @@ public class NativeHut extends Venue {
   
   
   public Background[] careers() { return null; }
-  public TradeType[] services() { return null; }
+  public Traded[] services() { return null; }
   
   
   protected void updatePaving(boolean inWorld) {

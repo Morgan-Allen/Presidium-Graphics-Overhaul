@@ -8,16 +8,15 @@ import stratos.game.building.*;
 import stratos.game.campaign.Commerce;
 import stratos.game.common.*;
 import stratos.game.maps.*;
-import stratos.game.plans.Delivery;
-import stratos.game.plans.DeliveryUtils;
+import stratos.game.plans.*;
 import stratos.graphics.common.*;
-import stratos.graphics.cutout.CutoutModel;
 import stratos.graphics.solids.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
-import static stratos.game.actors.Qualities.*;
-import static stratos.game.actors.Backgrounds.*;
+
+//import static stratos.game.actors.Qualities.*;
+//import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.building.Economy.*;
 
 
@@ -41,13 +40,13 @@ public class Dropship extends Vehicle implements
   /**  Fields, constants, constructors and save/load methods-
     */
   final static String SHIP_NAMES[] = {
-    "The Lusty Mariner",
+    "The Space Marine",
     "The Solar Wind",
     "The Blue Nebula",
     "The Dejah Thoris",
     "The Leia Organa",
     "The Princess Irulan",
-    "The Kestrel Century",
+    "The Century Kestrel",
     "The Business End",
     "The Tranquillity",
     "The Arrow of Orion",
@@ -65,6 +64,7 @@ public class Dropship extends Vehicle implements
     "The Nova Dodger",
     "The Terminal Drift",
     "The Halcyon",
+    "The Zen Reciprocal"
   };
   
   
@@ -155,7 +155,7 @@ public class Dropship extends Vehicle implements
   }
   
   
-  public TradeType[] services() { return ALL_MATERIALS; }
+  public Traded[] services() { return ALL_MATERIALS; }
   
   
   public Behaviour jobFor(Actor actor) {
@@ -244,7 +244,7 @@ public class Dropship extends Vehicle implements
   }
   
   
-  public int spaceFor(TradeType good) {
+  public int spaceFor(Traded good) {
     return MAX_CAPACITY;
   }
   
@@ -259,10 +259,10 @@ public class Dropship extends Vehicle implements
     
     if (stage == STAGE_LANDED) {
       final Commerce commerce = base.commerce;
-      final Tally <TradeType> surpluses = new Tally <TradeType> ();
+      final Tally <Traded> surpluses = new Tally <Traded> ();
       float sumS = 0;
       
-      for (TradeType good : ALL_MATERIALS) {
+      for (Traded good : ALL_MATERIALS) {
         final float surplus = commerce.localSurplus(good);
         if (surplus > 0) {
           sumS += surplus;
@@ -276,7 +276,7 @@ public class Dropship extends Vehicle implements
         }
       }
       
-      for (TradeType good : surpluses.keys()) {
+      for (Traded good : surpluses.keys()) {
         final float wanted = MAX_CAPACITY * surpluses.valueFor(good) / sumS;
         cargo.forceDemand(good, wanted, Stocks.TIER_CONSUMER);
       }
@@ -284,7 +284,7 @@ public class Dropship extends Vehicle implements
   }
   
   
-  public float priceFor(TradeType service) {
+  public float priceFor(Traded service) {
     final Commerce c = base.commerce;
     if (c.localSurplus(service) > 0) return c.exportPrice(service);
     if (c.localShortage(service) > 0) return c.importPrice(service);
@@ -295,7 +295,7 @@ public class Dropship extends Vehicle implements
 
   /**  Handling the business of ascent and landing-
     */
-  public void beginDescent(World world) {
+  public void beginDescent(Stage world) {
     final Tile entry = Spacing.pickRandomTile(
       world.tileAt(aimPos.x, aimPos.y), INIT_DIST, world
     );
@@ -309,7 +309,7 @@ public class Dropship extends Vehicle implements
   }
   
   
-  private void performLanding(World world, Box2D site) {
+  private void performLanding(Stage world, Box2D site) {
     if (! (dropPoint instanceof Venue)) {
       //
       //  Clear any detritus around the perimeter, Claim tiles in the middle as
@@ -371,6 +371,12 @@ public class Dropship extends Vehicle implements
   }
   
   
+  public void resetAwayTime() {
+    if (stage != STAGE_AWAY) return;
+    stageInceptTime = 0 - Commerce.SUPPLY_INTERVAL;
+  }
+  
+  
   public boolean landed() {
     return stage == STAGE_LANDED || stage == STAGE_BOARDING;
   }
@@ -382,7 +388,7 @@ public class Dropship extends Vehicle implements
   }
   
   
-  public float timeAway(World world) {
+  public float timeAway(Stage world) {
     return world.currentTime() - stageInceptTime;
   }
   
@@ -422,7 +428,7 @@ public class Dropship extends Vehicle implements
     final Vec2D heading = new Vec2D().setTo(disp).scale(-1);
     //
     //  Calculate rate of lateral speed and descent-
-    final float UPS = 1f / World.UPDATES_PER_SECOND;
+    final float UPS = 1f / Stage.UPDATES_PER_SECOND;
     final float speed = TOP_SPEED * height * UPS;
     float ascent = TOP_SPEED * UPS / 4;
     ascent = Math.min(ascent, Math.abs(position.z - aimPos.z));
@@ -462,7 +468,7 @@ public class Dropship extends Vehicle implements
   
   /**  Code for finding a suitable landing site-
     */
-  private Box2D landArea() {
+  public Box2D landArea() {
     final int size = (int) Math.ceil(radius());
     final Box2D area = new Box2D().set(aimPos.x, aimPos.y, 0, 0);
     area.expandBy(size + 1);
@@ -470,7 +476,7 @@ public class Dropship extends Vehicle implements
   }
   
   
-  protected boolean checkLandingArea(World world, Box2D area) {
+  protected boolean checkLandingArea(Stage world, Box2D area) {
     if (dropPoint instanceof Venue) {
       return dropPoint.inWorld();
     }
@@ -485,9 +491,9 @@ public class Dropship extends Vehicle implements
   
   public boolean findLandingSite(final Base base) {
     this.assignBase(base);
-    final World world = base.world;
-    LaunchHangar landing = null;
-    float bestRating = Float.NEGATIVE_INFINITY;
+    final Stage world = base.world;
+    //LaunchHangar landing = null;
+    //float bestRating = Float.NEGATIVE_INFINITY;
     
     //  TODO:  Land at the launch hangar instead.
     /*
@@ -529,7 +535,7 @@ public class Dropship extends Vehicle implements
     //
     //  Then, spread out to try and find a decent landing site-
     final Box2D area = landArea();
-    final int maxDist = World.SECTOR_SIZE * 2;
+    final int maxDist = Stage.SECTOR_SIZE * 2;
     final TileSpread spread = new TileSpread(init) {
       protected boolean canAccess(Tile t) {
         if (Spacing.distance(t, init) > maxDist) return false;

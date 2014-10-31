@@ -209,7 +209,7 @@ public abstract class Technique implements Session.Saveable {
   
   
   protected float conditionDuration() {
-    return World.STANDARD_HOUR_LENGTH;
+    return Stage.STANDARD_HOUR_LENGTH;
   }
   
   

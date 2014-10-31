@@ -14,7 +14,7 @@ public class PlacementGrid {
     */
   private static boolean verbose = false;
   
-  final World world;
+  final Stage world;
   final Table <Venue, Claim> venueClaims;
   final List <Claim> areaClaims[][];
   
@@ -26,7 +26,7 @@ public class PlacementGrid {
   }
   
   
-  public PlacementGrid(World world) {
+  public PlacementGrid(Stage world) {
     this.world = world;
     this.venueClaims = new Table <Venue, Claim> ();
     final int NS = world.size / world.sections.resolution;

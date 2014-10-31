@@ -211,7 +211,7 @@ public class Performance extends Recreation {
     Boarding venue, Recreation r
   ) {
     final Batch <Performance> at = new Batch <Performance> ();
-    final World world = ((Element) venue).world();
+    final Stage world = ((Element) venue).world();
     //
     //  TODO:  This will have to match up with visitors instead.
     final Performance match = new Performance(null, venue, r.type, null);

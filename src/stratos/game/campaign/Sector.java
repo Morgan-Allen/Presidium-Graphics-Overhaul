@@ -49,7 +49,7 @@ public class Sector extends Background {
   final public String houseName;
   final public String description;
   
-  final TradeType goodsMade[], goodsNeeded[];
+  final Traded goodsMade[], goodsNeeded[];
   final public Trait climate;
   final public int gravity;
   
@@ -69,18 +69,18 @@ public class Sector extends Background {
     this.climate = climate;
     this.gravity = gravity;
     
-    final Batch <TradeType> madeB = new Batch(), needB = new Batch();
+    final Batch <Traded> madeB = new Batch(), needB = new Batch();
     Object tag = null;
     for (Object arg : args) {
       if (arg == MAKES || arg == NEEDS) tag = arg;
-      if (arg instanceof TradeType) {
-        if (tag == MAKES) madeB.add((TradeType) arg);
-        if (tag == NEEDS) needB.add((TradeType) arg);
+      if (arg instanceof Traded) {
+        if (tag == MAKES) madeB.add((Traded) arg);
+        if (tag == NEEDS) needB.add((Traded) arg);
       }
     }
     
-    goodsMade   = madeB.toArray(TradeType.class);
-    goodsNeeded = needB.toArray(TradeType.class);
+    goodsMade   = madeB.toArray(Traded.class);
+    goodsNeeded = needB.toArray(Traded.class);
   }
   
   

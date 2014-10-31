@@ -143,7 +143,7 @@ public class RoadsRepair extends Plan {
   public boolean actionPave(Actor actor, Tile t) {
     if (t.owningType() > Element.ELEMENT_OWNS) return false;
     //  TODO:  Deduct credits (or materials?)
-    PavingMap.setPaveLevel(t, WorldTerrain.ROAD_LIGHT);
+    PavingMap.setPaveLevel(t, WorldTerrain.ROAD_LIGHT, true );
     return true;
   }
   
@@ -151,7 +151,7 @@ public class RoadsRepair extends Plan {
   public boolean actionStrip(Actor actor, Tile t) {
     if (t.owningType() > Element.ELEMENT_OWNS) return false;
     //  TODO:  Reclaim credits (or materials?)
-    PavingMap.setPaveLevel(t, WorldTerrain.ROAD_NONE );
+    PavingMap.setPaveLevel(t, WorldTerrain.ROAD_NONE , false);
     return true;
   }
   

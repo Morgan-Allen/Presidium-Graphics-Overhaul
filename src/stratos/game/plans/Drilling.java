@@ -26,7 +26,7 @@ public class Drilling extends Plan {
   
   /**  Data fields, static constants, constructors and save/load methods-
     */
-  final static float MAX_TIME = World.STANDARD_HOUR_LENGTH;
+  final static float MAX_TIME = Stage.STANDARD_HOUR_LENGTH;
   
   private static boolean
     evalVerbose  = false,

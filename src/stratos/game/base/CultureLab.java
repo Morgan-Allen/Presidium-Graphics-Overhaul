@@ -154,7 +154,7 @@ public class CultureLab extends Venue {
     final Choice choice = new Choice(actor);
     //
     //  Replicants need to be delivered to their Sickbays once ready.
-    for (Item match : stocks.matches(ORGANS)) {
+    for (Item match : stocks.matches(REPLICANTS)) {
       if (match.amount < 1) continue;
       final Actor a = (Actor) match.refers;
       if (a.aboard() instanceof Venue) {
@@ -208,8 +208,8 @@ public class CultureLab extends Venue {
   }
   
   
-  public TradeType[] services() {
-    return new TradeType[] {
+  public Traded[] services() {
+    return new Traded[] {
       CARBS, PROTEIN, SOMA, MEDICINE
     };
   }

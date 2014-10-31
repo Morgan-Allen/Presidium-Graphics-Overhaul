@@ -150,7 +150,7 @@ public class Arcology extends Structural {
     
     plantsHealth = 1;
     world.ecology().impingeBiomass(
-      origin(), 5 * plantsHealth, World.GROWTH_INTERVAL
+      origin(), 5 * plantsHealth, Stage.GROWTH_INTERVAL
     );
     structure.setAmbienceVal(10 * plantsHealth);
     //base().paving.updatePerimeter(this, inWorld());

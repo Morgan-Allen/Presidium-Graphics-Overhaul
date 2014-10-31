@@ -155,7 +155,7 @@ public class ShieldWall extends Venue {
   }
   
   
-  public TradeType[] services() {
+  public Traded[] services() {
     return null;
   }
   
@@ -198,7 +198,7 @@ public class ShieldWall extends Venue {
     
     entrances = new Boarding[4];
     final Tile o = origin();
-    final World world = o.world;
+    final Stage world = o.world;
     final int h = size / 2, s = size;
     
     entrance = null;
@@ -246,7 +246,7 @@ public class ShieldWall extends Venue {
   }
   
   
-  private int getFacingType(World world, ShieldWall newWall[]) {
+  private int getFacingType(Stage world, ShieldWall newWall[]) {
     
     final boolean near[] = new boolean[8];
     int numNear = 0;
@@ -309,7 +309,7 @@ public class ShieldWall extends Venue {
     //  Firstly, determine which sector this point lies within, and the corner
     //  tile of that sector.
     if (point == null) return null;
-    final World world = point.world;
+    final Stage world = point.world;
     final Tile corner = world.tileAt(
       Visit.round(point.x, SIDE_LENGTH, false),
       Visit.round(point.y, SIDE_LENGTH, false)
@@ -360,7 +360,7 @@ public class ShieldWall extends Venue {
   
   
   private void checkForCaps(
-    List <ShieldWall> segments, Box2D mainArea, World world
+    List <ShieldWall> segments, Box2D mainArea, Stage world
   ) {
     //  Any segments in the middle of the wall should be fine.  Otherwise, we
     //  check to see if there would be any segments adjoining- if so, we allow
@@ -377,7 +377,7 @@ public class ShieldWall extends Venue {
   
   
   private boolean checkDoorInsert(
-    List <ShieldWall> segments, int sideID, Tile corner, World world
+    List <ShieldWall> segments, int sideID, Tile corner, Stage world
   ) {
     if (! (this instanceof BlastDoors)) return true;
     //
@@ -401,7 +401,7 @@ public class ShieldWall extends Venue {
   }
   
   
-  public boolean setPosition(float x, float y, World world) {
+  public boolean setPosition(float x, float y, Stage world) {
     if (! super.setPosition(x, y, world)) return false;
     if (! isPlacing()) return true;
     
@@ -430,7 +430,7 @@ public class ShieldWall extends Venue {
   }
   
   
-  protected boolean checkPerimeter(World world) {
+  protected boolean checkPerimeter(Stage world) {
     //  TODO:  This might require some modification later.  Ideally, you want
     //  to give walls at least one tile of space (excepting blast doors.)
     return true;

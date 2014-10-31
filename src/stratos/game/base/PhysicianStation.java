@@ -290,8 +290,8 @@ public class PhysicianStation extends Venue {
   }
   
   
-  public TradeType[] services() {
-    return new TradeType[] { MEDICINE, SERVICE_HEALTHCARE };
+  public Traded[] services() {
+    return new Traded[] { MEDICINE, SPYCE, SERVICE_HEALTHCARE };
   }
   
   
@@ -299,8 +299,8 @@ public class PhysicianStation extends Venue {
   
   /**  Rendering and interface methods-
     */
-  protected TradeType[] goodsToShow() {
-    return new TradeType[] { REAGENTS, MEDICINE, ORGANS };
+  protected Traded[] goodsToShow() {
+    return new Traded[] { REAGENTS, MEDICINE, RAW_SPYCE, SPYCE };
   }
   
   

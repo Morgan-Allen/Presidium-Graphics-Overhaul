@@ -92,7 +92,7 @@ public class Condition extends Trait {
       infectChance *= (c.spread + 0.1f) / 10.2f;
       
       ///I.sayAbout(actor, "Contract chance/day for "+c+" is: "+infectChance);
-      if (Rand.num() > (infectChance / World.STANDARD_DAY_LENGTH)) continue;
+      if (Rand.num() > (infectChance / Stage.STANDARD_DAY_LENGTH)) continue;
       if (actor.skills.test(IMMUNE, c.virulence - 10, 1.0f)) continue;
       
       if (verbose) I.say("INFECTING "+actor+" WITH "+c);
@@ -146,7 +146,7 @@ public class Condition extends Trait {
       ageBonus = 1.5f - a.health.ageLevel(),
       immuneDC = (virulence + noticeDC) / (1 + ageBonus);
     final float
-      inc = 1 * 1f / (latency * World.STANDARD_DAY_LENGTH);
+      inc = 1 * 1f / (latency * Stage.STANDARD_DAY_LENGTH);
     //
     //  If you've acquired an immunity, have it fade over time-
     if (progress <= 0) {
@@ -208,7 +208,7 @@ public class Condition extends Trait {
       affectAsDisease(a, progress, response);
     }
     else {
-      final float inc = 1 * 1f / (latency * World.STANDARD_DAY_LENGTH);
+      final float inc = 1 * 1f / (latency * Stage.STANDARD_DAY_LENGTH);
       a.traits.setLevel(this, Math.max(0, progress - inc));
     }
   }

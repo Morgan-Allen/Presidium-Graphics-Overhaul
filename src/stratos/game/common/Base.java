@@ -33,7 +33,7 @@ public class Base implements
     KEY_FREEHOLD  = "Freehold";
   
   
-  final public World   world ;
+  final public Stage   world ;
   final public boolean primal;
   
   final public BaseSetup    setup     ;
@@ -56,7 +56,7 @@ public class Base implements
   
   
   public static Base baseWithName(
-    World world, String title, boolean primal
+    Stage world, String title, boolean primal
   ) {
     for (Base base : world.bases()) if (
       base.title != null &&
@@ -76,7 +76,7 @@ public class Base implements
   }
   
   
-  private Base(World world, boolean primal) {
+  private Base(Stage world, boolean primal) {
     this.world = world;
     this.primal = primal;
     
@@ -213,7 +213,7 @@ public class Base implements
     
     for (Mission mission : missions) mission.updateMission();
     
-    if (numUpdates % (World.STANDARD_DAY_LENGTH / 3) == 0) {
+    if (numUpdates % (Stage.STANDARD_DAY_LENGTH / 3) == 0) {
       relations.updateRelations();
       
       final float repaid = credits * interest / 100f;

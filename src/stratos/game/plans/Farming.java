@@ -238,11 +238,7 @@ public class Farming extends Plan {
   public boolean actionPlant(Actor actor, Crop crop) {
     if (crop.origin().owningType() >= nursery.owningType()) return false;
     
-    if (! crop.inWorld()) {
-      final Tile o = crop.origin();
-      PavingMap.setPaveLevel(o, WorldTerrain.ROAD_NONE);
-      crop.enterWorld();
-    }
+    if (! crop.inWorld()) crop.enterWorld();
     
     //  Initial seed quality has a substantial impact on crop health.
     final Item seed = actor.gear.bestSample(

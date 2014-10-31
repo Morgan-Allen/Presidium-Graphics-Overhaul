@@ -77,7 +77,7 @@ public class Commission extends Plan {
   /**  Assessing and locating targets-
     */
   public static void addCommissions(
-    Actor actor, Venue makes, Choice choice, TradeType... itemTypes
+    Actor actor, Venue makes, Choice choice, Traded... itemTypes
   ) {
     final boolean hasCommission = actor.mind.hasToDo(Commission.class);
     if (hasCommission) return;
@@ -97,7 +97,7 @@ public class Commission extends Plan {
     if (hasCommission) return null;
     
     final Venue match = (Venue) actor.world().presences.nearestMatch(
-      baseItem.type, actor, World.SECTOR_SIZE
+      baseItem.type, actor, Stage.SECTOR_SIZE
     );
     if (match == null) return null;
     return nextCommission(actor, match, baseItem);
@@ -182,7 +182,7 @@ public class Commission extends Plan {
   
   private boolean expired() {
     if (orderDate == -1) return false;
-    final int maxTime = World.STANDARD_DAY_LENGTH * 2;
+    final int maxTime = Stage.STANDARD_DAY_LENGTH * 2;
     if (actor.world().currentTime() - orderDate > maxTime) return true;
     final boolean
       ongoing = shop.stocks.specialOrders().includes(order),

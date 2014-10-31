@@ -26,7 +26,7 @@ public class BaseUI extends HUD implements UIConstants {
   
   /**  Core field definitions, constructors, and save/load methods-
     */
-  private World world;
+  private Stage world;
   private Base played;
   private UITask currentTask;
   
@@ -56,7 +56,7 @@ public class BaseUI extends HUD implements UIConstants {
   
   
   
-  public BaseUI(World world, Rendering rendering) {
+  public BaseUI(Stage world, Rendering rendering) {
     super(rendering);
     this.world = world;
     this.tracking = new SelectionTracking(this, rendering.view);
@@ -89,7 +89,7 @@ public class BaseUI extends HUD implements UIConstants {
   
   
   public Base played() { return played; }
-  public World world() { return world ; }
+  public Stage world() { return world ; }
   
   
   public CommsPanel commsPanel() { return commsPanel; }

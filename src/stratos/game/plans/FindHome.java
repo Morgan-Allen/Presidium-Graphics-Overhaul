@@ -149,7 +149,7 @@ public class FindHome extends Plan {
   public static Employer lookForHome(Actor client, Base base) {
     final boolean report = verbose && I.talkAbout == client;
     
-    final World world = base.world;
+    final Stage world = base.world;
     final Employer oldHome = client.mind.home(), work = client.mind.work();
     
     if (work instanceof Vehicle) return work;
@@ -184,8 +184,8 @@ public class FindHome extends Plan {
   
   
   private static Holding newHoldingFor(Actor client) {
-    final World world = client.world();
-    final int maxDist = World.SECTOR_SIZE;
+    final Stage world = client.world();
+    final int maxDist = Stage.SECTOR_SIZE;
     final Holding holding = new Holding(client.base());
     final Tile origin = searchPoint(client);
     final Vars.Bool found = new Vars.Bool();

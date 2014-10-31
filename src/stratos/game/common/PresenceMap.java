@@ -22,7 +22,7 @@ public class PresenceMap implements Session.Saveable {  //TODO:  Do not make Sav
     MAX_VISITED = 100;
   
   final Object key;  //  TODO:  Move this stuff to the Presences class(?)
-  final World world;
+  final Stage world;
   final Node root;
   
   static class Node extends List {
@@ -44,7 +44,7 @@ public class PresenceMap implements Session.Saveable {  //TODO:  Do not make Sav
   
   
   
-  public PresenceMap(World world, Object key) {
+  public PresenceMap(Stage world, Object key) {
     this.world = world;
     this.root = new Node(world.sections.root);
     //
@@ -53,7 +53,7 @@ public class PresenceMap implements Session.Saveable {  //TODO:  Do not make Sav
     if (key instanceof String) keyOkay = true;
     if (key instanceof Class) keyOkay = true;
     if (key instanceof Session.Saveable) keyOkay = true;
-    if (key instanceof TradeType) keyOkay = true;
+    if (key instanceof Traded) keyOkay = true;
     if (! keyOkay) I.complain("INVALID FLAGGING KEY: "+key);
     this.key = key;
   }
@@ -338,7 +338,7 @@ public class PresenceMap implements Session.Saveable {  //TODO:  Do not make Sav
         }
         if (range > 0 && dist > range) continue;
         sumWeights += weights[i++] =
-          pop * World.PATCH_RESOLUTION / (World.PATCH_RESOLUTION + dist);
+          pop * Stage.PATCH_RESOLUTION / (Stage.PATCH_RESOLUTION + dist);
       }
       //
       //  If no child is a valid selection, quit.  Otherwise, choose one child

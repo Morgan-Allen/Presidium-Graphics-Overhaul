@@ -191,7 +191,7 @@ public class HoldingUpgrades {
   
   /**  Rations/foodstuffs-
     */
-  final static TradeType FOOD_TYPES[] = {
+  final static Traded FOOD_TYPES[] = {
     CARBS, PROTEIN, GREENS,//RATIONS, SOMA, SPICE
   };
   
@@ -199,14 +199,14 @@ public class HoldingUpgrades {
   protected static Batch <Item> rationNeeds(Holding holding, int upgradeLevel) {
     final Batch <Item> needed = new Batch <Item> ();
     float foodNeed = holding.personnel.residents().size() * 1.5f;
-    float sumFood = 0.1f; for (TradeType f : FOOD_TYPES) {
+    float sumFood = 0.1f; for (Traded f : FOOD_TYPES) {
       sumFood += holding.stocks.amountOf(f);
     }
     final float min = 0.1f;
     //
     //  TODO:  Only demand minimal amounts of a given food if it's not strictly
     //  needed for housing evolution...
-    for (TradeType f : FOOD_TYPES) {
+    for (Traded f : FOOD_TYPES) {
       final float amount = holding.stocks.amountOf(f);
       needed.add(Item.withAmount(f, min + (foodNeed * amount / sumFood)));
     }
@@ -224,11 +224,11 @@ public class HoldingUpgrades {
     //  a reasonable 'balance' of food types, in terms of no less than half an
     //  equal share of the total.
     float foodNeed = holding.personnel.residents().size();
-    int numFoods = 0; for (TradeType f : FOOD_TYPES) {
+    int numFoods = 0; for (Traded f : FOOD_TYPES) {
       if (holding.stocks.amountOf(f) > 0) numFoods++;
     }
     final float min = foodNeed / (2 * numFoods);
-    numFoods = 0; for (TradeType f : FOOD_TYPES) {
+    numFoods = 0; for (Traded f : FOOD_TYPES) {
       if (holding.stocks.amountOf(f) > min) numFoods++;
     }
     //
@@ -303,7 +303,7 @@ public class HoldingUpgrades {
   
   protected static boolean lacksAccess(Holding holding, Class venueClass) {
     for (Object o : holding.world().presences.matchesNear(
-      venueClass, holding, World.SECTOR_SIZE * 1.414f
+      venueClass, holding, Stage.SECTOR_SIZE * 1.414f
     )) {
       final Venue v = (Venue) o;
       if (v.base() != holding.base() || ! v.structure.intact()) continue;

@@ -177,7 +177,7 @@ public class KommandoLodge extends Venue {
   }
   
   
-  public TradeType[] services() {
+  public Traded[] services() {
     return null; //new Service[] { WATER, PROTEIN, SPICE };
   }
   

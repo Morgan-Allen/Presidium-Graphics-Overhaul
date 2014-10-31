@@ -17,7 +17,7 @@ import stratos.util.*;
 
 
 
-public class World {
+public class Stage {
   
   
   /**  Common fields, default constructors, and save/load methods-
@@ -59,7 +59,7 @@ public class World {
   final public Ephemera ephemera;
   
   
-  public World(int size) {
+  public Stage(int size) {
     this.size = size;
     tiles = new Tile[size][size];
     for (Coord c : Visit.grid(0, 0, size, size, 1)) {
@@ -77,7 +77,7 @@ public class World {
   }
   
   
-  public World(WorldTerrain terrain) {
+  public Stage(WorldTerrain terrain) {
     this(terrain.mapSize);
     this.terrain = terrain;
     terrain.initTerrainMesh(Habitat.ALL_HABITATS);

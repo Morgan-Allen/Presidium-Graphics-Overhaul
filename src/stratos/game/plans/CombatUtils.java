@@ -180,12 +180,12 @@ public class CombatUtils {
     
     for (Target t : actor.senses.awareOf()) {
       final float distance = Spacing.distance(t, primary);
-      if (distance > World.SECTOR_SIZE) continue;
+      if (distance > Stage.SECTOR_SIZE) continue;
       
       float value = hostileRating(actor, t);
       if (value <= 0) continue;
       if (melee) value /= 1 + distance;
-      else       value /= 1 + (distance / (World.SECTOR_SIZE / 2));
+      else       value /= 1 + (distance / (Stage.SECTOR_SIZE / 2));
       
       if (report) {
         I.say("  Value for "+t+" is "+value);

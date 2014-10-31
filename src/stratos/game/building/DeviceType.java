@@ -36,7 +36,7 @@ import static stratos.game.building.Economy.*;
 
 
 
-public class DeviceType extends TradeType {
+public class DeviceType extends Traded {
   
   
   final public float baseDamage;
