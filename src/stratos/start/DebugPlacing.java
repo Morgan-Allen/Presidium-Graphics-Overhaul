@@ -20,7 +20,7 @@ import stratos.util.*;
 
 
 
-//  Set up exclusion zone around kommando lodge.   Revise FRSD options.
+//  Set up exclusion zone around kommando lodge.  Revise FRSD options.
 
 //  Re-introduce the polymer fab.
 //  Re-work the culture lab- produce either food/organs OR soma/reagents.

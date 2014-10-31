@@ -282,25 +282,20 @@ public class Commerce {
         if (type.form != FORM_MATERIAL) continue;
         final int tier = venue.stocks.demandTier(type);
         final float
-          demand = venue.stocks.shortageOf(type),
-          supply = venue.stocks.surplusOf (type),
-          shortage,
-          surplus;
+          shortage = venue.stocks.shortageOf(type),
+          surplus  = venue.stocks.surplusOf (type);
         
         if (report && extraVerbose) {
           I.say("  "+venue+" "+type+" (tier: "+tier+")");
-          I.say("    Supply: "+supply);
-          I.say("    Demand: "+demand);
+          I.say("    Supply: "+surplus);
+          I.say("    Demand: "+shortage);
         }
         
-        if (tier == Stocks.TIER_PRODUCER) shortage = 0;
-        else shortage = Visit.round(demand, 5, true );
+        if (tier == Stocks.TIER_PRODUCER);
+        else shortages.bumpItem(type, Visit.round(shortage, 5, true ));
         
-        if (tier == Stocks.TIER_CONSUMER) surplus  = 0;
-        else surplus  = Visit.round(supply, 5, false);
-        
-        shortages.bumpItem(type, shortage);
-        surpluses.bumpItem(type, surplus );
+        if (tier == Stocks.TIER_CONSUMER);
+        else surpluses.bumpItem(type, Visit.round(surplus , 5, false));
       }
     }
     
