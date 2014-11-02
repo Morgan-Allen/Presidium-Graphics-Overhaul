@@ -20,12 +20,22 @@ import stratos.util.*;
 
 
 
-//  Set up exclusion zone around kommando lodge.
 
 //  Re-work the culture lab- produce either food/organs OR soma/reagents.
-//  Produce medicine at the physician station.
+//  Make sure treatment-quality factors into first aid and medication.
+
+//  Major vendors, like the supply depot or dropships, should not be delivering
+//  straight to housing or other private property.
+
 //  Test datalink-production at the archives.
 //  Test study behaviour at the archives.
+
+//  Set up exclusion zone around kommando lodge, and try to restore animal
+//  breeding.
+
+//  Try to arrange that actors will seek out new Holdings if anything existing
+//  is at or above half crowding.
+
 
 //  Introduce the Air Field?  (Bring back the Landing Strip at least.)
 
@@ -41,9 +51,6 @@ import stratos.util.*;
 
 //  Rework art for roads, the shield wall, the physician station, the engineer
 //  station, the solar bank, and the archives.
-
-
-
 
 
 

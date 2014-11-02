@@ -112,7 +112,6 @@ public class Fabricator extends Venue {
     if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
     
     final Choice choice = new Choice(actor);
-    ///choice.isVerbose = true;
     
     final Manufacture c = stocks.nextManufacture(actor, CARBS_TO_LCHC);
     if (c != null) {

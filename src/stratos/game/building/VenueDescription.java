@@ -191,8 +191,8 @@ public class VenueDescription {
       for (Item i : sortedOrders) {
         d.append("\n  ");
         i.describeTo(d);
-        float progress = v.stocks.amountOf(i) / 1f;
-        d.append(" ("+((int) (progress * 100))+"%)");
+        //float progress = v.stocks.amountOf(i) / 1f;
+        //d.append(" ("+((int) (progress * 100))+"%)");
       }
     }
     

@@ -6,8 +6,7 @@ import stratos.game.building.*;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
-import stratos.game.plans.Manufacture;
-import stratos.game.plans.Supervision;
+import stratos.game.plans.*;
 import stratos.game.wild.Wreckage;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -15,6 +14,8 @@ import stratos.graphics.sfx.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
+
+import static stratos.game.actors.Conditions.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.building.Economy.*;
@@ -364,7 +365,7 @@ public class Reactor extends Venue {
     else if (e instanceof Actor) {
       final Actor a = (Actor) e;
       a.health.takeInjury(damage / 2f, true);
-      a.traits.setLevel(POISONED, radiation / 25f);
+      a.traits.setLevel(POISONING, radiation / 25f);
       if (Rand.index(100) < radiation) a.traits.incLevel(CANCER, Rand.num());
       if (Rand.index(100) < radiation) a.traits.incLevel(MUTATION, Rand.num());
     }

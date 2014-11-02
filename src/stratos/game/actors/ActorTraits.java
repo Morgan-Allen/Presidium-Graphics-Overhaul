@@ -152,7 +152,7 @@ public class ActorTraits implements Qualities {
     //  beneficial, whereas the latter are the result of random chance, and
     //  tend to be harmful.
     if (GameSettings.hardCore && (! selected) && Rand.num() < increase) {
-      incLevel(CANCER, increase * 2 * Rand.num());
+      incLevel(Conditions.CANCER, increase * 2 * Rand.num());
     }
     /*
     if (Rand.num() > increase / 5f) return;
@@ -177,6 +177,7 @@ public class ActorTraits implements Qualities {
   protected void updateTraits(int numUpdates) {
     final Batch <Trait> allTraits = new Batch <Trait> (levels.size());
     for (Trait t : levels.keySet()) allTraits.add(t);
+    
     for (Trait t : allTraits) if (t.type != CONDITION) {
       final Level level = levels.get(t);
       if (level.bonus != 0) level.bonus = 0;
@@ -237,7 +238,7 @@ public class ActorTraits implements Qualities {
   }
   
   
-  public float useLevel(Trait type) {
+  public float usedLevel(Trait type) {
     if (type.type == PERSONALITY) {
       return traitLevel(type);
     }
@@ -383,7 +384,7 @@ public class ActorTraits implements Qualities {
   
   
   public Batch <Condition> conditions() {
-    return (Batch) getMatches(null, Qualities.CONDITIONS);
+    return (Batch) getMatches(null, Conditions.CONDITIONS);
   }
   
   /*
@@ -398,7 +399,7 @@ public class ActorTraits implements Qualities {
   /**  Rendering and interface methods-
     */
   public String levelDesc(Trait type) {
-    return Trait.descriptionFor(type, useLevel(type));
+    return Trait.descriptionFor(type, usedLevel(type));
   }
   
   

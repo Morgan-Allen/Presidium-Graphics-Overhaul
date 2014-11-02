@@ -100,7 +100,7 @@ public class Power implements Qualities {
     if (caster == null || GameSettings.psyFree) return;
     
     final float
-      bonus = caster.traits.useLevel(PROJECTION) / 10f,
+      bonus = caster.traits.usedLevel(PROJECTION) / 10f,
       drain = 1f / ((1 + bonus) * PlayLoop.UPDATES_PER_SECOND * gameSpeed);
     caster.health.takeConcentration(drain);
     caster.skills.practiceAgainst(10, drain * 2, PROJECTION);
@@ -129,7 +129,7 @@ public class Power implements Qualities {
     if (caster == null || GameSettings.psyFree) return;
     
     final float
-      bonus = caster.traits.useLevel(PREMONITION) / 10,
+      bonus = caster.traits.usedLevel(PREMONITION) / 10,
       lastSave = Scenario.current().timeSinceLastSave(),
       boost = (lastSave / 1000f) * (0.5f + bonus);
     caster.health.gainConcentration(boost);
@@ -142,7 +142,7 @@ public class Power implements Qualities {
     if (caster == null || GameSettings.psyFree) return;
     
     final float
-      bonus = caster.traits.useLevel(PREMONITION) / 10,
+      bonus = caster.traits.usedLevel(PREMONITION) / 10,
       cost = 10f / (0.5f + bonus);
     caster.health.takeConcentration(cost);
     caster.skills.practiceAgainst(10, cost, PREMONITION);
@@ -258,7 +258,7 @@ public class Power implements Qualities {
         
         float bonus = 0;
         if (caster != null && ! GameSettings.psyFree) {
-          bonus += caster.traits.useLevel(PROJECTION) / 5;
+          bonus += caster.traits.usedLevel(PROJECTION) / 5;
 
           float dist = (float) Math.sqrt(Spacing.distance(tile, caster));
           float cost = 10 * (1 + (dist / Stage.SECTOR_SIZE));
@@ -323,7 +323,7 @@ public class Power implements Qualities {
         
         float maxDist = 1;
         if (caster != null && ! GameSettings.psyFree) {
-          maxDist = 1 + (caster.traits.useLevel(TRANSDUCTION) / 10f);
+          maxDist = 1 + (caster.traits.usedLevel(TRANSDUCTION) / 10f);
           final float drain = 4f / PlayLoop.FRAMES_PER_SECOND;
           caster.health.takeConcentration(drain);
           caster.skills.practiceAgainst(10, drain, TRANSDUCTION);
@@ -362,7 +362,7 @@ public class Power implements Qualities {
         }
         
         final float
-          bonus = caster.traits.useLevel(TRANSDUCTION) / 2,
+          bonus = caster.traits.usedLevel(TRANSDUCTION) / 2,
           cost = 5;
         subject.gear.boostShields(5 + bonus, false);
         caster.health.takeConcentration(cost);
@@ -387,7 +387,7 @@ public class Power implements Qualities {
         if (caster != null && ! GameSettings.psyFree) {
           final float cost = 5;
           caster.health.takeConcentration(cost);
-          bonus += caster.traits.useLevel(METABOLISM) / 2;
+          bonus += caster.traits.usedLevel(METABOLISM) / 2;
           caster.skills.practiceAgainst(10, cost, METABOLISM);
         }
         
@@ -418,7 +418,7 @@ public class Power implements Qualities {
         float bonus = 5f;
         
         if (caster != null && ! GameSettings.psyFree) {
-          bonus += caster.traits.useLevel(SYNESTHESIA) / 2;
+          bonus += caster.traits.usedLevel(SYNESTHESIA) / 2;
           final float cost = 2.5f;
           caster.health.takeConcentration(cost);
           caster.skills.practiceAgainst(10, cost, SYNESTHESIA);
@@ -491,7 +491,7 @@ public class Power implements Qualities {
         float priorityMod = Plan.ROUTINE;
         if (caster != null && ! GameSettings.psyFree) {
           final float cost = 5f;
-          priorityMod += caster.traits.useLevel(SUGGESTION) / 5f;
+          priorityMod += caster.traits.usedLevel(SUGGESTION) / 5f;
           caster.health.takeConcentration(cost);
           caster.skills.practiceAgainst(10, cost, SYNESTHESIA);
           affects.relations.incRelation(caster, affinity, 0.1f);

@@ -94,16 +94,19 @@ public class ActorGear extends Inventory {
     if (Float.isNaN(credits)) credits = 0;
     if (Float.isNaN(taxed)) taxed = 0;
     
-    if (verbose && I.talkAbout == actor) I.say("Updating gear...");
+    final boolean report = verbose && I.talkAbout == actor;
+    if (report) I.say("\nUpdating gear");
     
     if (outfit != null) regenerateShields();
     else currentShields = 0;
+    
     for (Item item : allItems()) {
-      if (item.refers instanceof Action) {
-        //if (verbose) I.sayAbout(actor, "  Applying item effect: "+item.refers);
-        ((Action) item.refers).applyEffect();
+      if (item.refers instanceof Item.Passive) {
+        if (report) I.say("  Applying item effect: "+item.refers);
+        ((Item.Passive) item.refers).applyPassiveItem(actor, item);
       }
     }
+    
     encumbrance = -1;
     encumbrance();
   }

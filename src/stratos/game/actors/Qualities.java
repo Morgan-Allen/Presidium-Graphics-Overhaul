@@ -309,197 +309,12 @@ public interface Qualities {
   //  result of natural selection/eugenics.)
   
   
-  
-  
-  
-  final static int
-    NO_LATENCY     = 0,
-    SHORT_LATENCY  = 1,
-    MEDIUM_LATENCY = 10,
-    LONG_LATENCY   = 100,
-    
-    NO_SPREAD    = 0,
-    SLOW_SPREAD  = 2,
-    RAPID_SPREAD = 5,
-    
-    NO_VIRULENCE        = 0,
-    MINIMAL_VIRULENCE   = 5,
-    LOW_VIRULENCE       = 10,
-    AVERAGE_VIRULENCE   = 15,
-    HIGH_VIRULENCE      = 20,
-    EXTREME_VIRULENCE   = 25;
-  
-  final public static Condition
-    //
-    //  Finally, listings for various conditions that might beset the actor-
-    INJURY = new Condition(
-      "Injury", true,
-      "Critical Injury",
-      "Serious Injury",
-      "Modest Injury",
-      "Slight Injury",
-      null
-    ),
-    FATIGUE = new Condition(
-      "Fatigue", true,
-      "Extreme Fatigue",
-      "Heavy Fatigue",
-      "Modest Fatigue",
-      "Mild Fatigue",
-      null
-    ),
-    POOR_MORALE = new Condition(
-      "Morale", true,
-      "Broken Morale",
-      "Poor Morale",
-      null,
-      "Good Morale",
-      "Superb Morale"
-    ),
-    
-    HUNGER = new Condition(
-      "Hunger", true,
-      "Near Starvation",
-      "Hungry",
-      "Peckish",
-      null,
-      "Full"
-    ),
-    MALNOURISHMENT = new Condition(
-      "Malnourishment", true,
-      "Malnourished",
-      null
-    ),
-    //
-    //  TODO:  Use this as a possible side-effect of incompetent foraging.
-    POISONED = new Condition(
-      "Poisoned",
-      SHORT_LATENCY, LOW_VIRULENCE, NO_SPREAD, Table.make(
-        IMMUNE, -5, MUSCULAR, -5
-      ),
-      "Severe Poisoning",
-      "Bad Poisoning",
-      "Mild Poisoning",
-      null,
-      "Poison Immune"
-    ),
-    
-    SOMA_HAZE = new Condition(
-      "Soma Haze",
-      NO_LATENCY, NO_VIRULENCE, NO_SPREAD, Table.make(
-        MOTOR, -3, COGNITION, -1, PERCEPT, 1
-      ),
-      "Soma Haze",
-      "Soma Haze",
-      "Soma Haze",
-      null,
-      "Haze Immune"
-    ),
-    ILLNESS = new Condition(
-      "Illness",
-      SHORT_LATENCY, MINIMAL_VIRULENCE, RAPID_SPREAD, Table.make(
-        IMMUNE, -5, MUSCULAR, -5
-      ),
-      "Debilitating Illness",
-      "Serious Illness",
-      "Mild Illness",
-       null,
-       "Illness Immune"
-    ),
-    SPICE_ADDICTION = new Condition(
-      "Spice Addiction",
-      LONG_LATENCY, LOW_VIRULENCE, NO_SPREAD, Table.make(
-        IMMUNE, -10, PERCEPT, -5, NERVE, -5, COGNITION, -5
-      ),
-      "Complete Spice Addiction",
-      "Heavy Spice Addiction",
-      "Mild Spice Addiction",
-      null,
-      "Addiction Immune"
-    ),
-    CANCER = new Condition(
-      "Cancer",
-      LONG_LATENCY, AVERAGE_VIRULENCE, NO_SPREAD, Table.make(
-        IMMUNE, -20, MUSCULAR, -10
-      ),
-      "Terminal Cancer",
-      "Advanced Cancer",
-      "Early Cancer",
-      null,
-      "Cancer Immune"
-    ),
-    RAGE_INFECTION = new Condition(
-      "Rage Infection",
-      SHORT_LATENCY, HIGH_VIRULENCE, RAPID_SPREAD, Table.make(
-        IMMUNE, 5, MUSCULAR, 5, DEFENSIVE, 5, COGNITION, -15
-      ),
-      "Rage Frenzy",
-      "Rage Fever",
-      "Rage Onset",
-      null,
-      "Rage Immune"
-    ),
-    HIREX_PARASITE = new Condition(
-      "Hirex Parasite",
-      MEDIUM_LATENCY, HIGH_VIRULENCE, SLOW_SPREAD, Table.make(
-        COGNITION, -5, MOTOR, -5, PERCEPT, -5, MUSCULAR, -5, HANDSOME, -5
-      ),
-      "Hirex Fruiting",
-      "Hirex Infestation",
-      "Hirex Gestation",
-      null,
-      "Hirex Immune"
-    ),
-    ALBEDAN_STRAIN = new Condition(
-      "Albedan Strain",
-      MEDIUM_LATENCY, EXTREME_VIRULENCE, SLOW_SPREAD, Table.make(
-        INDULGENT, 2, IMMUNE, 5, PERCEPT, 5, MOTOR, -5
-      ),
-      "Albedan Strain",
-      "Albedan Strain",
-      "Albedan Strain",
-      null,
-      "Strain Immune"
-    ),
-    SILVERQUICK = new Condition(
-      "Silverquick",
-      SHORT_LATENCY, EXTREME_VIRULENCE, RAPID_SPREAD, Table.make(
-        IMPASSIVE, 5, IMMUNE, -20, MUSCULAR, -20
-      ),
-      "Silverquick Rictus",
-      "Silverquick Scale",
-      "Silverquick Taint",
-      null,
-      "Silverquick Immune"
-    ),
-    MOEBIUS_PLAGUE = new Condition(
-      "Moebius Plague",
-      LONG_LATENCY, EXTREME_VIRULENCE, NO_SPREAD, Table.make(
-        MOTOR, -20, MUSCULAR, -20
-      ),
-      "Moebius Sublimation",
-      "Moebius Displacement",
-      "Moebius Plague",
-      null,
-      "Plague Immune"
-    ),
-    
-    SPONTANEOUS_DISEASE[] = {
-      ILLNESS, CANCER, HIREX_PARASITE
-    },
-    TREATABLE_CONDITIONS[] = {
-      INJURY, POOR_MORALE, POISONED,
-      ILLNESS, SOMA_HAZE, SPICE_ADDICTION,
-      CANCER, RAGE_INFECTION, HIREX_PARASITE,
-      ALBEDAN_STRAIN, SILVERQUICK, MOEBIUS_PLAGUE
-    };
-  final public static Trait CONDITIONS[] = Trait.TRAIT_INDEX.soFar(Trait.class);
-  
+  //  TODO:  Move these to the individual Powers classes, (or subsume into the
+  //  Technique interfaces.)
   
   final public static Trait
     KINESTHESIA_EFFECT = new Condition(
-      "Kinesthesia Effect",
-      NO_LATENCY, NO_VIRULENCE, NO_SPREAD, Table.make(
+      "Kinesthesia Effect", Table.make(
         MOTOR, 10, HAND_TO_HAND, 10, MARKSMANSHIP, 10, ATHLETICS, 10
       ),
       "Kinesthesia", "Kinesthesia", "Kinesthesia", null
@@ -510,13 +325,12 @@ public interface Qualities {
       }
     },
     SUSPENSION_EFFECT = new Condition(
-      "Suspension Effect",
-      NO_LATENCY, NO_VIRULENCE, NO_SPREAD, Table.make(),
+      "Suspension Effect", Table.make(),
       "Suspension", "Suspension", "Suspension", null
     ) {
       public void affect(Actor a) {
         super.affect(a);
-        if (a.traits.useLevel(this) <= 0) {
+        if (a.traits.usedLevel(this) <= 0) {
           a.health.setState(ActorHealth.STATE_RESTING);
         }
         else {
@@ -526,24 +340,19 @@ public interface Qualities {
       }
     },
     SPICE_VISION_EFFECT = new Condition(
-      "Spice Vision Effect",
-      SHORT_LATENCY, NO_VIRULENCE, NO_SPREAD, Table.make(
+      "Spice Vision Effect", Table.make(
         IMMUNE, 10, COGNITION, 5, PERCEPT, 5, NERVE, 5
       ),
       "Spice Vision", "Spice Vision", "Spice Vision", null
     ) {
       public void affect(Actor a) {
         super.affect(a);
-        if (a.traits.traitLevel(SPICE_ADDICTION) <= 0) {
-          a.traits.incLevel(SPICE_ADDICTION, Rand.num() / 10f);
+        if (a.traits.traitLevel(Conditions.SPICE_ADDICTION) <= 0) {
+          a.traits.incLevel(Conditions.SPICE_ADDICTION, Rand.num() / 10f);
         }
       }
     },
     EFFECTS[] = Trait.TRAIT_INDEX.soFar(Trait.class);
-  
-  
-  //final public static Trait
-    //ALL_TRAIT_TYPES[] = Trait.from(Trait.allTraits);
 }
 
 

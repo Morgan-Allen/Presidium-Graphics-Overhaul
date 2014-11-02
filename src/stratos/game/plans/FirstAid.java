@@ -8,52 +8,43 @@ import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.base.*;
 import stratos.util.*;
-
 import static stratos.game.actors.Qualities.*;
+import static stratos.game.actors.Conditions.*;
 import static stratos.game.building.Economy.*;
 
 
 
-public class FirstAid extends Plan {
+public class FirstAid extends Treatment {
   
   
-  private static boolean verbose = false, evalVerbose = false;
-  
-  final Actor patient;
-  final Boarding refuge;
-  private Item result = null;
+  private static boolean
+    verbose     = false,
+    evalVerbose = false;
   
   
   public FirstAid(Actor actor, Actor patient) {
-    this(actor, patient, findRefuge(actor));
+    this(actor, patient, null);
   }
   
   
   public FirstAid(Actor actor, Actor patient, Boarding refuge) {
-    super(actor, patient, true);
-    this.patient = patient;
-    this.refuge = refuge;
+    super(actor, patient, INJURY, refuge);
   }
   
   
   public FirstAid(Session s) throws Exception {
     super(s);
-    patient = (Actor) s.loadObject();
-    refuge = (Boarding) s.loadTarget();
-    result = Item.loadFrom(s);
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(patient);
-    s.saveTarget(refuge);
-    Item.saveTo(s, result);
   }
   
   
   public Plan copyFor(Actor other) {
-    return new FirstAid(other, patient, refuge);
+    if (sickbay == null) sickbay = findRefuge(actor);
+    return new FirstAid(other, patient, sickbay);
   }
   
   
@@ -64,25 +55,11 @@ public class FirstAid extends Plan {
   final static Trait BASE_TRAITS[] = { EMPATHIC, DUTIFUL };
   
   
-  private float severity() {
+  protected float severity() {
     if (! patient.health.alive()) return 0.25f;
     float severity = patient.health.injuryLevel();
     if (patient.health.bleeding()) severity += 0.5f;
     return severity;
-  }
-  
-  
-  private Item treatmentFor(Actor patient) {
-    for (Item match : patient.gear.matches(TREATMENT)) {
-      final Action action = (Action) match.refers;
-      if (action.basis instanceof FirstAid) return match;
-    }
-    final Action asEffect = new Action(
-      patient, patient,
-      this, "actionAsItem",
-      Action.STAND, "Bandaging"
-    );
-    return Item.withReference(TREATMENT, asEffect);
   }
   
   
@@ -96,30 +73,18 @@ public class FirstAid extends Plan {
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (patient.health.conscious() || ! patient.health.organic()) return 0;
-    float modifier = 0;
     
-    //  TODO:  You need a generalised method for this.
-    if (patient.base() != actor.base()) {
-      modifier -= (1 - actor.relations.valueFor(patient.base())) * ROUTINE;
-    }
-    if (patient.species() != actor.species()) {
-      modifier -= ROUTINE;
-    }
-    modifier /= 2;
+    final float severity = severity(), modifier = typeModifier();
+    if (severity <= 0) return 0;
     
     final float priority = priorityForActorWith(
       actor, patient,
-      severity() * PARAMOUNT,
-      modifier,
-      REAL_HELP,
-      FULL_COMPETITION,
-      BASE_SKILLS,
-      BASE_TRAITS,
-      NORMAL_DISTANCE_CHECK,
-      NO_FAIL_RISK,
+      severity * PARAMOUNT, modifier,
+      REAL_HELP, FULL_COMPETITION,
+      BASE_SKILLS, BASE_TRAITS,
+      NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
       report
     );
-    
     if (report) {
       I.say("Considering first aid of "+patient);
       I.say("  Severity of injury: "+severity());
@@ -128,9 +93,12 @@ public class FirstAid extends Plan {
     return priority;
   }
   
+
+  protected float successChance() { return 0.5f; }
+  
   
   protected Behaviour getNextStep() {
-    final boolean report = verbose && I.talkAbout == actor && hasBegun();
+    final boolean report = verbose && I.talkAbout == actor;
     
     if (patient.health.bleeding()) {
       final Action aids = new Action(
@@ -141,28 +109,24 @@ public class FirstAid extends Plan {
       return aids;
     }
     
-    if (refuge != null && ! patient.indoors()) {
-      final StretcherDelivery d = new StretcherDelivery(actor, patient, refuge);
+    if (sickbay == null) sickbay = findRefuge(actor);
+    if (sickbay != null && ! patient.indoors()) {
+      final StretcherDelivery d = new StretcherDelivery(
+        actor, patient, sickbay
+      );
       if (d.nextStepFor(actor) != null) {
         if (report) I.say("Returning new stretcher delivery...");
         return d;
       }
     }
     
-    result = treatmentFor(patient);
-    final float AR = patient.gear.amountOf(result);
-    if (report) I.say("Amount of treatment is: "+AR);
-    
-    if (AR < (hasBegun() ? 1 : 0.5f)) {
-      final Action aids = new Action(
-        actor, patient,
-        this, "actionFirstAid",
-        Action.BUILD, "Applying bandages to "
-      );
-      return aids;
-    }
-    
-    return null;
+    if (Treatment.hasTreatment(INJURY, patient, hasBegun())) return null;
+    final Action aids = new Action(
+      actor, patient,
+      this, "actionFirstAid",
+      Action.BUILD, "Applying bandages to "
+    );
+    return aids;
   }
   
   
@@ -172,30 +136,38 @@ public class FirstAid extends Plan {
   
   
   public boolean actionFirstAid(Actor actor, Actor patient) {
-    float DC = severity() * 5;
+    
+    final float
+      DC    = severity() * 5,
+      bonus = getVenueBonus(true, PhysicianStation.INTENSIVE_CARE);
+    
     boolean success = true;
-    success &= actor.skills.test(ANATOMY, DC, 10);
+    success &= actor.skills.test(ANATOMY , DC - bonus, 10);
+    success &= actor.skills.test(PHARMACY, 5  - bonus, 10);
+    
+    Item current = existingTreatment(INJURY, patient);
+    if (current == null) current = Item.withReference(TREATMENT, this);
     
     if (success) {
       patient.health.liftInjury(0);
-      result = treatmentFor(patient);
-      patient.gear.addItem(Item.withAmount(result, 0.1f));
+      patient.gear.addItem(Item.withAmount(current, 0.1f));
     }
     return true;
   }
   
   
-  public boolean actionAsItem(Actor patient, Actor same) {
+  public void applyPassiveItem(Actor carries, Item from) {
     if (! patient.health.alive()) {
       patient.health.setState(ActorHealth.STATE_SUSPEND);
     }
+    //  TODO:  Modify effectiveness based on item quality.
     
     float effect = 1.0f / Stage.STANDARD_DAY_LENGTH;
     float regen = ActorHealth.INJURY_REGEN_PER_DAY;
     regen *= 3 * effect * patient.health.maxHealth();
     patient.health.liftInjury(regen);
-    patient.gear.removeItem(Item.withAmount(result, effect));
-    return true;
+    
+    carries.gear.removeItem(Item.withAmount(from, effect));
   }
   
   

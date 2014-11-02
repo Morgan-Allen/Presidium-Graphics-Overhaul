@@ -75,9 +75,9 @@ public class ActorSkills {
     Actor b, Skill opposed,
     float bonus
   ) {
-    float bonusA = actor.traits.useLevel(checked) + Math.max(0, bonus);
+    float bonusA = actor.traits.usedLevel(checked) + Math.max(0, bonus);
     float bonusB = 0 - Math.min(0, bonus);
-    if (b != null && opposed != null) bonusB += b.traits.useLevel(opposed);
+    if (b != null && opposed != null) bonusB += b.traits.usedLevel(opposed);
     final float chance = Visit.clamp(bonusA + 10 - bonusB, 0, 20) / 20;
     return Visit.clamp(chance, MIN_FAIL_CHANCE, MAX_SUCCEED_CHANCE);
   }
@@ -90,8 +90,7 @@ public class ActorSkills {
   
   public float test(
     Skill checked, Actor b, Skill opposed,
-    float bonus, float duration,
-    int range
+    float bonus, float duration, int range
   ) {
     //  TODO:  Physical skills need to exercise strength/vigour and exact
     //  fatigue!

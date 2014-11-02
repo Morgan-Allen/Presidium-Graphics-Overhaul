@@ -28,6 +28,11 @@ public class Condition extends Trait {
   }
   
   
+  public Condition(String keyID, Table effects, String... names) {
+    this(keyID, 0, 0, 0, effects, names);
+  }
+  
+  
   public Condition(
     String keyID,
     float latency, float virulence, float spread,
@@ -47,21 +52,21 @@ public class Condition extends Trait {
     }
   }
   
-  
+
+  /*
   private static float cleanFactor(Actor actor) {
     float factor = 1;
     final Target at = actor.aboard();
     //  TODO:  CONSIDER RESTORING.
-    /*
     if (at instanceof stratos.game.base.Sickbay) {
       factor /= 2;
     }
     if (actor.gear.outfitType() == stratos.game.building.Economy.SEALSUIT) {
       factor /= 5;
     }
-    //*/
     return factor;
   }
+    //*/
   
   
   //
@@ -74,12 +79,12 @@ public class Condition extends Trait {
     final Tile o = actor.origin();
     final float squalor = actor.world().ecology().ambience.valueAt(o) / -10;
     
-    for (Object d : Qualities.SPONTANEOUS_DISEASE) {
+    for (Object d : Conditions.SPONTANEOUS_DISEASE) {
       final Condition c = (Condition) d;
       //
       //  Let's say that under average squalor, you have a 10% chance of
       //  contracting an illness per day.  (Before immune function kicks in.)
-      float infectChance = 0.1f * cleanFactor(actor);
+      float infectChance = 0.1f;// * cleanFactor(actor);
       //
       //  Let's say that perfect hygiene reduces the chance by a factor of 2,
       //  and perfect squalor multiplies by a factor of 5.
@@ -129,7 +134,7 @@ public class Condition extends Trait {
   protected void affectAsDisease(Actor a, float progress, float response) {
     //
     //  If this is contagious, consider spreading to nearby actors.
-    if (spread > 0 && Rand.index(10) < spread * cleanFactor(a)) {
+    if (spread > 0 && Rand.index(10) < spread) {
       for (Object o : a.world().presences.matchesNear(Mobile.class, a, 2)) {
         if (o instanceof Actor) {
           final Actor near = (Actor) o;
@@ -159,7 +164,7 @@ public class Condition extends Trait {
     else if (a.skills.test(IMMUNE, immuneDC, inc)) {
       a.traits.incBonus(this, 0 - (inc * 2));
       a.traits.incLevel(this, 0 - inc);
-      if (a.traits.useLevel(this) < 0) {
+      if (a.traits.usedLevel(this) < 0) {
         final float immunity = virulence / -10f;
         a.traits.setLevel(this, immunity);
         a.traits.setBonus(this, 0);
@@ -173,7 +178,7 @@ public class Condition extends Trait {
     }
     if (verbose && I.talkAbout == a) {
       I.say("Reporting on: "+this+" for "+a);
-      I.say("  Immune DC/vigour: "+immuneDC+"/"+a.traits.useLevel(IMMUNE));
+      I.say("  Immune DC/vigour: "+immuneDC+"/"+a.traits.usedLevel(IMMUNE));
       I.say("  Test chance: "+a.skills.chance(IMMUNE, immuneDC));
       I.say("  Progress/response: "+progress+"/"+response);
     }

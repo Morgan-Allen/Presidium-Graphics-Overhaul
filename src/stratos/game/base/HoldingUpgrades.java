@@ -21,17 +21,6 @@ import static stratos.game.building.Economy.*;
 
 public class HoldingUpgrades {
   
-  
-  //  Level 0- squalor or danger.
-  //  Level 1- food.  life support.
-  //  Level 2- plastics.  2 food types.
-  //  Level 3- parts.  power.
-  //  Level 4- medicine or soma.
-  //  Level 5- datalinks.  Citizen status.  3 food types.  open water.
-  
-  //  Safety & ambience requirements.
-  
-  
 
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
   );
@@ -118,12 +107,12 @@ public class HoldingUpgrades {
     ),
     new Conversion(
       Holding.class, "Level 4",
-      3, PARTS, 2, PLASTICS, 1, POWER,
+      2, PLASTICS, 2, PARTS, 1, POWER, 1, MEDICINE,
       MODERATE_DC, ASSEMBLY
     ),
     new Conversion(
       Holding.class, "Level 5",
-      3, PARTS, 2, POWER, 2, PLASTICS, 1, OPEN_WATER, 1, DATALINKS,
+      2, PLASTICS, 3, PARTS, 2, POWER, 1, MEDICINE, 1, OPEN_WATER, 1, DATALINKS,
       DIFFICULT_DC, ASSEMBLY
     ),
   };
@@ -197,10 +186,11 @@ public class HoldingUpgrades {
   /**  Rations/foodstuffs-
     */
   final static Traded FOOD_TYPES[] = {
-    CARBS, PROTEIN, GREENS,//RATIONS, SOMA, SPICE
+    CARBS, PROTEIN, GREENS, MEDICINE
   };
   
   
+  //  TODO:  Try to unify these more closely.
   protected static Batch <Item> rationNeeds(Holding holding, int upgradeLevel) {
     final Batch <Item> needed = new Batch <Item> ();
     float foodNeed = holding.personnel.residents().size() * 1.5f;

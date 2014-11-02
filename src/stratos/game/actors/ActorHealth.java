@@ -6,6 +6,8 @@
 package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.util.*;
+
+import static stratos.game.actors.Conditions.*;
 import org.apache.commons.math3.util.FastMath;
 
 
@@ -284,7 +286,7 @@ public class ActorHealth implements Qualities {
   
   
   public float sightRange() {
-    float range = 0.5f + (actor.traits.useLevel(SURVEILLANCE) / 10f);
+    float range = 0.5f + (actor.traits.usedLevel(SURVEILLANCE) / 10f);
     range *= (actor.world().dayValue() + 1) / 2;
     range *= GameSettings.actorScale;
     return baseSight * (float) FastMath.sqrt(range * ageMultiple);
@@ -443,7 +445,7 @@ public class ActorHealth implements Qualities {
   
   
   public float maxConcentration() {
-    final float willLevel = actor.traits.useLevel(NERVE) / 10f;
+    final float willLevel = actor.traits.usedLevel(NERVE) / 10f;
     return DEFAULT_CONCENTRATION * (1 + willLevel) / 2f;
   }
   
@@ -481,7 +483,7 @@ public class ActorHealth implements Qualities {
     if (! organic()) return stressCache = 0;
     
     float disease = 0;
-    for (Trait t : Qualities.TREATABLE_CONDITIONS) {
+    for (Trait t : TREATABLE_CONDITIONS) {
       disease += ((Condition) t).virulence * actor.traits.traitLevel(t) / 100f;
     }
     
@@ -553,12 +555,12 @@ public class ActorHealth implements Qualities {
     if (fatigue + injury >= maxHealth) {
       state = STATE_RESTING;
     }
-    if (actor.traits.useLevel(IMMUNE) < -5) {
+    if (actor.traits.usedLevel(IMMUNE) < -5) {
       I.say(actor+" has died of disease.");
-      I.say("Effective vigour: "+actor.traits.useLevel(IMMUNE));
+      I.say("Effective vigour: "+actor.traits.usedLevel(IMMUNE));
       I.say("Maximum vigour: "+actor.traits.traitLevel(IMMUNE));
       I.say("Conditions: "); for (Trait t : CONDITIONS) {
-        final float level = actor.traits.useLevel(t);
+        final float level = actor.traits.usedLevel(t);
         if (level <= 0) continue;
         I.add(t.toString()+": "+level+", ");
       }

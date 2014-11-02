@@ -27,7 +27,7 @@ public abstract class ActorMind implements Qualities {
     */
   private static boolean
     decisionVerbose = Choice.verbose,
-    stepsVerbose    = false;
+    stepsVerbose    = Choice.verbose;
   
   
   final protected Actor actor;
@@ -142,7 +142,7 @@ public abstract class ActorMind implements Qualities {
         newP = newChoice == null ? -1 : newChoice.priorityFor(actor);
       I.say("  From Todo:  "+notDone+  "  (priority "+notP+")");
       I.say("  New choice: "+newChoice+"  (priority "+newP+")");
-      I.say("  Taken: "+taken);
+      I.say("TAKEN: "+taken);
     }
     return taken;
   }

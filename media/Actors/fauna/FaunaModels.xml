@@ -78,6 +78,9 @@
     <animation name="die"    start="460" end="510" duration="1" />
     <animation name="idle"   start="267" end="317" duration="1" />
     <animation name="idle2"  start="511" end="591" duration="1" />
+    
+    <animation name="attack2" start="591" end="621" duration="1" />
+    <animation name="attack3" start="621" end="651" duration="1" />
   </animations>
 </model>
 

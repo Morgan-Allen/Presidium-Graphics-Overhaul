@@ -6,6 +6,10 @@ import stratos.util.*;
 
 
 
+//  TODO:  Allow upgrades to define how many levels they allow, and their
+//  precise type (level-upgrade, tech-upgrade, or policy-upgrade.)
+
+
 public class Upgrade extends Index.Entry implements Backgrounds {
   
   
@@ -13,13 +17,21 @@ public class Upgrade extends Index.Entry implements Backgrounds {
   //  Upgrades tend to either expand employment, give a bonus to production
   //  of a particular item type, or enhance a particular kind of service.
   
+  public static enum Type { VENUE_LEVEL, TECH_MODULE, POLICY };
+  
   final public String name;
   final public String description;
+  String levelNames[];
   
+  Type type;
   final public int buildCost;
+  final public Upgrade required;
+  int numLevels;
+  
+  //  TODO:  ...either get rid of these, or make them more flexible.
   final public Object refers;
   final public int bonus;
-  final public Upgrade required;
+  
   
   private static Table <Class, Batch <Upgrade>> byVenue = new Table();
   

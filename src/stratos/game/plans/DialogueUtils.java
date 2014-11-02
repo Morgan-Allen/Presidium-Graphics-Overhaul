@@ -48,7 +48,7 @@ public class DialogueUtils implements Qualities {
     //  Base on comparison of recent activities and associated traits, skills
     //  or actors involved.
     
-    final float DC = other.traits.useLevel(SUASION) / 2;
+    final float DC = other.traits.usedLevel(SUASION) / 2;
     float success = talkResult(SUASION, DC, actor, other);
     other.relations.incRelation(actor, success * Relation.MAG_CHATTING, 0.1f);
     
@@ -158,8 +158,8 @@ public class DialogueUtils implements Qualities {
     float bestRating = 0;
     for (Skill s : other.traits.skillSet()) {
       final float
-        levelA = actor.traits.useLevel(s),
-        levelO = other.traits.useLevel(s),
+        levelA = actor.traits.usedLevel(s),
+        levelO = other.traits.usedLevel(s),
         rating = levelA * levelO * Rand.num();
       if (levelA < 0 || levelO < 0) continue;
       if (rating > bestRating) { tested = s; bestRating = rating; }
@@ -169,7 +169,7 @@ public class DialogueUtils implements Qualities {
       utters(actor, "Oh, nothing you'd find interesting.", 0);
       return;
     }
-    final float level = actor.traits.useLevel(tested);
+    final float level = actor.traits.usedLevel(tested);
     utters(actor, "Well, I'm interested in "+tested+".", 0);
     utters(actor, "Let me show you a few tricks...", 0);
     

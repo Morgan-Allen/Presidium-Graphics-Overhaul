@@ -19,7 +19,9 @@ public class RoadsRepair extends Plan {
   
   /**  Data fields, setup and save/load methods-
     */
-  private static boolean actionVerbose = false, evalVerbose = false;
+  private static boolean
+    eventsVerbose = false,
+    evalVerbose   = false;
   
   final Base base;
   final PavingMap map;
@@ -63,9 +65,8 @@ public class RoadsRepair extends Plan {
   
   protected float getPriority() {
     if (GameSettings.paveFree) return 0;
-    //if (Plan.competition(RoadsRepair.class, subject, actor) > 0) return 0;
-    final boolean report = evalVerbose && I.talkAbout == actor;
     
+    final boolean report = evalVerbose && I.talkAbout == actor;
     return super.priorityForActorWith(
       actor, around, CASUAL,
       NO_MODIFIER, NO_HARM,
@@ -79,17 +80,9 @@ public class RoadsRepair extends Plan {
   //  TODO:  Merge this with the Repair class for simplicity?
   protected float successChance() {
     float chance = 1;
-    //  TODO:  Base this on the conversion associated with the structure type.
     chance *= actor.skills.chance(HARD_LABOUR, 0);
     chance *= actor.skills.chance(ASSEMBLY   , 5);
     return (chance + 1) / 2;
-  }
-  
-  
-  public boolean valid() {
-    if (! super.valid()) return false;
-    if (around != null && ! map.needsPaving(around)) return false;
-    return true;
   }
   
   
@@ -97,20 +90,23 @@ public class RoadsRepair extends Plan {
   /**  Behaviour implementation-
     */
   protected Behaviour getNextStep() {
-    final boolean report = actionVerbose && I.talkAbout == actor;
+    final boolean report = eventsVerbose && I.talkAbout == actor;
     final WorldTerrain t = actor.world().terrain();
+    
+    if (report) {
+      I.say("\nCurrent tile: "+around);
+      I.say("  Needs paving? "+map.needsPaving(around));
+    }
     
     if (around == null || ! map.needsPaving(around)) {
       Tile next = null;
       if (next == null) next = nextLocalTile();
       if (next == null) next = map.nextTileToPave(actor, RoadsRepair.class);
-      if (report) {
-        I.say("\n  Current tile: "+actor.origin());
-        I.say("  Next tile to pave: "+next);
-      }
+      if (report) I.say("  Next tile to pave: "+next);
       if (next == null) return null;
       else around = next;
     }
+    
     if (t.isRoad(around)) {
       final Action strip = new Action(
         actor, around,

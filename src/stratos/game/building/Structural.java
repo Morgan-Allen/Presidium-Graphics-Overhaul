@@ -265,7 +265,7 @@ public abstract class Structural extends Fixture implements
     BaseUI.current().selection.renderTileOverlay(
       rendering, world,
       hovered ? Colour.transparency(0.5f) : Colour.WHITE,
-      Selection.SELECT_OVERLAY, true, this, group
+      Selection.SELECT_OVERLAY, true, this, (Object[]) group
     );
   }
 }

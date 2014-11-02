@@ -84,6 +84,14 @@ public class PhysicianStation extends Venue {
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
   );
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
+  
+  //  TODO:
+  //  Apothecary.       Eugenics Lab.           Intensive Care.
+  //  Stimulants.       Hypnotics & Sedatives.  Minder Training.
+  //  Neural Scanning.  Cold Storage.           Reconstruction.
+  //  
+  //  Level 2 Upgrade.  Level 3 Upgrade.
+  
   final public static Upgrade
     APOTHECARY = new Upgrade(
       "Apothecary",
@@ -142,40 +150,39 @@ public class PhysicianStation extends Venue {
   
   public Behaviour jobFor(Actor actor) {
     if (! structure.intact()) return null;
+    
+    //  If there are patients inside, make sure somebody's available.
     if (numPatients() == 0 && ! personnel.onShift(actor)) return null;
     final Choice choice = new Choice(actor);
-    //
-    //  Manufacture Stim Kits for later use-
+    
+    //  Manufacture basic medicines for later use.
     final Manufacture mS = stocks.nextManufacture(actor, REAGENTS_TO_MEDICINE);
     if (mS != null) {
-      mS.checkBonus = ((structure.upgradeLevel(EMERGENCY_AID) - 1) * 5) / 2;
-      //mS.timeMult = 5;
+      mS.setBonusFrom(this, APOTHECARY);
       choice.add(mS);
     }
-    //
+    
     //  If anyone is waiting for treatment, tend to them- including outside the
     //  building.
-    final Batch <Mobile> around = new Batch <Mobile> ();
-    world.presences.sampleFromMap(this, world, 5, around, Mobile.class);
+    final Batch <Target> around = new Batch <Target> ();
+    for (Target t : actor.senses.awareOf()) around.include(t);
     for (Mobile m : this.inside()) around.include(m);
-    for (Mobile m : around) if (m instanceof Actor) {
+    
+    for (Target m : around) if (m instanceof Actor) {
       final FirstAid t = new FirstAid(actor, (Actor) m, this);
       t.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
       choice.add(t);
+      choice.add(Treatment.nextTreatment(actor, (Actor) m, this));
     }
-    final Behaviour picked = (numPatients() > 0) ?
-      choice.pickMostUrgent() :
-      choice.weightedPick();
-    if (picked != null) return picked;
-    //
-    //  Otherwise, just tend the desk...
-    return new Supervision(actor, this);
+    
+    //  Otherwise, just tend the desk.
+    if (choice.empty()) choice.add(new Supervision(actor, this));
+    return choice.pickMostUrgent();
   }
   
   
   public void addServices(Choice choice, Actor forActor) {
-    //  TODO:  RESTORE ONCE TREATMENT IS CLEANED UP
-    //choice.add(new SickLeave(forActor, this));
+    choice.add(SickLeave.nextLeaveFor(forActor, this));
   }
   
   
@@ -183,9 +190,9 @@ public class PhysicianStation extends Venue {
     int count = 0;
     for (Mobile m : inside()) if (m instanceof Actor) {
       final Actor actor = (Actor) m;
-      if (! actor.health.conscious()) count++;
-      else if (actor.health.injuryLevel() > 0) count++;
-      //else if (actor.isDoing(SickLeave.class, null)) count++;
+      if      (actor.health.conscious() == false   ) count++;
+      else if (actor.health.injuryLevel() > 0      ) count++;
+      else if (actor.isDoing(SickLeave.class, null)) count++;
     }
     return count;
   }
@@ -208,80 +215,6 @@ public class PhysicianStation extends Venue {
   }
   
   
-  //  TODO:  Restore this once the Treatment behaviour is cleaned up!
-  /*
-  private void updateCloneOrders(int numUpdates) {
-    if (numUpdates % 10 != 0) return;
-    //
-    //  Clean out any orders that have expired.
-    for (Manufacture order : cloneOrders) {
-      final Actor patient = (Actor) order.made().refers;
-      final boolean done =
-          patient.aboard() != this ||
-          (! order.venue.structure.intact()) ||
-          order.finished() ||
-          (! order.venue.stocks.specialOrders().includes(order));
-      if (done) {
-        if (verbose) I.sayAbout(this, "Removing order: "+order);
-        cloneOrders.remove(order);
-      }
-    }
-    //
-    //  Place part-cloning orders for actors in a critical condition-
-    //
-    //  TODO:  Allow for placement of orders at the Artificer as well?
-    for (Mobile m : inside()) if (m instanceof Actor) {
-      final Actor actor = (Actor) m;
-      if ((! actor.health.suspended()) || hasCloneOrder(actor)) continue;
-      final Venue venue = findCloningVenue();
-      if (venue == null) continue;
-      final Item ordered = Treatment.replicantFor(actor);
-      if (ordered == null) continue;
-      final Manufacture order = new Manufacture(
-        null, venue, PROTEIN_TO_REPLICANTS, Item.withAmount(ordered, 1)
-      );
-      venue.stocks.addSpecialOrder(order);
-      cloneOrders.add(order);
-      if (verbose) I.sayAbout(this, "Placing order: "+order);
-    }
-  }
-  
-  
-  private boolean hasCloneOrder(Actor a) {
-    for (Manufacture order : cloneOrders) {
-      if (order.made().refers == a) return true;
-    }
-    return false;
-  }
-  
-  
-  private Venue findCloningVenue() {
-    final Batch <Venue> near = new Batch <Venue> ();
-    world.presences.sampleFromKey(this, world, 5, near, CultureVats.class);
-    Venue picked = null;
-    float bestRating = 0;
-    for (Venue v : near) {
-      final float rating = rateCloneVenue(v);
-      if (rating > bestRating) { bestRating = rating; picked = v; }
-    }
-    return picked;
-  }
-  
-  
-  private float rateCloneVenue(Venue v) {
-    if (! v.structure.intact()) return -1;
-    final int UL = v.structure.upgradeLevel(CultureVats.ORGAN_BANKS);
-    if (UL <= 0) return -1;
-    final int SS = World.SECTOR_SIZE * 2;
-    float rating = 10;
-    rating *= SS / (SS + Spacing.distance(this, v));
-    rating *= 1 + UL;
-    rating *= 2 / (2 + v.stocks.specialOrders().size());
-    return rating;
-  }
-  //*/
-  
-  
   public Background[] careers() {
     return new Background[] { Backgrounds.MINDER, Backgrounds.PHYSICIAN };
   }
@@ -296,7 +229,7 @@ public class PhysicianStation extends Venue {
   
   
   public Traded[] services() {
-    return new Traded[] { MEDICINE, NATRI_SPYCE, SERVICE_HEALTHCARE };
+    return new Traded[] { MEDICINE, SERVICE_HEALTHCARE };
   }
   
   
@@ -305,7 +238,7 @@ public class PhysicianStation extends Venue {
   /**  Rendering and interface methods-
     */
   protected Traded[] goodsToShow() {
-    return new Traded[] { REAGENTS, MEDICINE, TINER_SPYCE, NATRI_SPYCE };
+    return new Traded[] { REAGENTS, MEDICINE };
   }
   
   
@@ -334,5 +267,79 @@ public class PhysicianStation extends Venue {
 
 
 
+
+
+//  TODO:  Restore this once the Treatment behaviour is cleaned up!
+/*
+private void updateCloneOrders(int numUpdates) {
+  if (numUpdates % 10 != 0) return;
+  //
+  //  Clean out any orders that have expired.
+  for (Manufacture order : cloneOrders) {
+    final Actor patient = (Actor) order.made().refers;
+    final boolean done =
+        patient.aboard() != this ||
+        (! order.venue.structure.intact()) ||
+        order.finished() ||
+        (! order.venue.stocks.specialOrders().includes(order));
+    if (done) {
+      if (verbose) I.sayAbout(this, "Removing order: "+order);
+      cloneOrders.remove(order);
+    }
+  }
+  //
+  //  Place part-cloning orders for actors in a critical condition-
+  //
+  //  TODO:  Allow for placement of orders at the Artificer as well?
+  for (Mobile m : inside()) if (m instanceof Actor) {
+    final Actor actor = (Actor) m;
+    if ((! actor.health.suspended()) || hasCloneOrder(actor)) continue;
+    final Venue venue = findCloningVenue();
+    if (venue == null) continue;
+    final Item ordered = Treatment.replicantFor(actor);
+    if (ordered == null) continue;
+    final Manufacture order = new Manufacture(
+      null, venue, PROTEIN_TO_REPLICANTS, Item.withAmount(ordered, 1)
+    );
+    venue.stocks.addSpecialOrder(order);
+    cloneOrders.add(order);
+    if (verbose) I.sayAbout(this, "Placing order: "+order);
+  }
+}
+
+
+private boolean hasCloneOrder(Actor a) {
+  for (Manufacture order : cloneOrders) {
+    if (order.made().refers == a) return true;
+  }
+  return false;
+}
+
+
+private Venue findCloningVenue() {
+  final Batch <Venue> near = new Batch <Venue> ();
+  world.presences.sampleFromKey(this, world, 5, near, CultureVats.class);
+  Venue picked = null;
+  float bestRating = 0;
+  for (Venue v : near) {
+    final float rating = rateCloneVenue(v);
+    if (rating > bestRating) { bestRating = rating; picked = v; }
+  }
+  return picked;
+}
+
+
+private float rateCloneVenue(Venue v) {
+  if (! v.structure.intact()) return -1;
+  final int UL = v.structure.upgradeLevel(CultureVats.ORGAN_BANKS);
+  if (UL <= 0) return -1;
+  final int SS = World.SECTOR_SIZE * 2;
+  float rating = 10;
+  rating *= SS / (SS + Spacing.distance(this, v));
+  rating *= 1 + UL;
+  rating *= 2 / (2 + v.stocks.specialOrders().size());
+  return rating;
+}
+//*/
 
 

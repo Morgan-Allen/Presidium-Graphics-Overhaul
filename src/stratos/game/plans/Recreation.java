@@ -155,7 +155,7 @@ public class Recreation extends Plan {
     }
     
     final float interval = 1f / Stage.STANDARD_DAY_LENGTH;
-    if (actor.traits.traitLevel(SOMA_HAZE) > 0) {
+    if (actor.traits.traitLevel(Conditions.SOMA_HAZE) > 0) {
       comfort++;
     }
     comfort += enjoyBonus;

@@ -2,24 +2,17 @@
 
 
 package stratos.game.base;
-import static stratos.game.actors.Backgrounds.CULTIVATOR;
-import static stratos.game.actors.Backgrounds.ECOLOGIST;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
-import stratos.game.plans.Delivery;
-import stratos.game.plans.DeliveryUtils;
-import stratos.game.plans.Performance;
-import stratos.game.plans.Recreation;
-import stratos.game.plans.Resting;
-import stratos.game.plans.Supervision;
+import stratos.game.plans.*;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
-import stratos.graphics.widgets.Composite;
-import stratos.graphics.widgets.HUD;
+import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
+
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.building.Economy.*;
@@ -214,7 +207,7 @@ public class Cantina extends Venue {
     */
   private Action nextSomaOrderFor(Actor actor) {
     if (stocks.amountOf(SOMA) <= 0) return null;
-    if (actor.traits.traitLevel(SOMA_HAZE) > 0) return null;
+    if (actor.traits.traitLevel(Conditions.SOMA_HAZE) > 0) return null;
     final float price = priceFor(SOMA) / 10f;
     if ((price > actor.gear.credits() / 2) || ! isManned()) return null;
     
@@ -238,7 +231,7 @@ public class Cantina extends Venue {
     venue.stocks.incCredits(price);
     actor.gear.incCredits(-price);
     stocks.removeItem(Item.withAmount(SOMA, 0.1f));
-    actor.traits.incLevel(SOMA_HAZE, 0.1f);
+    actor.traits.incLevel(Conditions.SOMA_HAZE, 0.1f);
     return true;
   }
   

@@ -134,7 +134,7 @@ public class Senses implements Qualities {
     }
     //
     //  And add anything newly within range-
-    final float percept = actor.traits.useLevel(PERCEPT);
+    final float percept = actor.traits.usedLevel(PERCEPT);
     final int reactLimit = (int) (2.5f + (percept / 5));
     world.presences.sampleFromMaps(
       actor, world, reactLimit, noticed,
@@ -207,7 +207,7 @@ public class Senses implements Qualities {
     if (e instanceof Actor) {
       final Actor a = (Actor) e;
       if (a.base() == looks.base()) return 0;
-      float stealth = a.traits.useLevel(STEALTH_AND_COVER) / 20f;
+      float stealth = a.traits.usedLevel(STEALTH_AND_COVER) / 20f;
       stealth += a.health.baseSpeed() / Action.moveRate(a, false);
       return stealth;
     }

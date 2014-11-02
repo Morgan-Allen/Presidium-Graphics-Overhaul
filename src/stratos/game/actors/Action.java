@@ -59,8 +59,9 @@ public class Action implements Behaviour, AnimNames {
     Session.Saveable basis, String methodName,
     String animName, String description
   ) {
-    if (actor == null || target == null)
+    if (actor == null || target == null) {
       I.complain("Null arguments for action!");
+    }
     this.actor = actor;
     this.basis = basis;
     this.toCall = namedMethodFor(basis, methodName);

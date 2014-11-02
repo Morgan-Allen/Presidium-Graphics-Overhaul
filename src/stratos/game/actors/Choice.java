@@ -141,7 +141,7 @@ public class Choice implements Qualities {
       if (report) I.say("  "+plan+" has priority: "+priority);
     }
     if (! free) {
-      if (report) I.say("    Picked: "+picked);
+      if (report) I.say("Picked: "+picked);
       return picked;
     }
     //

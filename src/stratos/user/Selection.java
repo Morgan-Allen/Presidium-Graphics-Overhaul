@@ -220,7 +220,7 @@ public class Selection implements UIConstants {
   public void renderTileOverlay(
     Rendering r, final Stage world,
     Colour c, ImageAsset tex, boolean cache,
-    final Installation key, final Installation... group
+    final Installation key, final Object... group
   ) {
     //  Use a glow-colour:
     c = new Colour().set(c);
@@ -239,9 +239,8 @@ public class Selection implements UIConstants {
     
     final Box2D limit = new Box2D().setTo(key.footprint());
     final Batch <Tile> under = new Batch <Tile> ();
-    for (Installation f : group) {
-      if (f == null) continue;
-      for (Tile t : world.tilesIn(f.footprint(), true)) {
+    for (Object o : group) if (o instanceof Fixture) {
+      for (Tile t : world.tilesIn(((Fixture) o).footprint(), true)) {
         limit.include(t.x, t.y, 0.5f);
         under.add(t);
         t.flagWith(under);

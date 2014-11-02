@@ -230,12 +230,8 @@ public class Holding extends Venue {
     //  Power, water and life support are consumed at a fixed rate, but other
     //  materials wear out depending on use (and more slowly.)
     for (Item i : HoldingUpgrades.materials(upgradeLevel).raw) {
-      if (i.type.form == FORM_PROVISION) {
-        stocks.bumpItem(i.type, i.amount * -0.1f);
-      }
-      else {
-        stocks.bumpItem(i.type, i.amount * count * -wear);
-      }
+      if (i.type.form == FORM_PROVISION) continue;
+      stocks.bumpItem(i.type, i.amount * count * -wear);
     }
   }
   
@@ -387,6 +383,23 @@ public class Holding extends Venue {
   
   public Composite portrait(BaseUI UI) {
     return Composite.withImage(ICON, "holding");
+  }
+  
+  
+  public void renderSelection(Rendering rendering, boolean hovered) {
+    if (destroyed() || ! inWorld()) return;
+    
+    //  TODO:  Add holding-extras to the structural group!
+    
+    final Batch <Fixture> group = new Batch <Fixture> ();
+    group.add(this);
+    for (Fixture f : extras) group.add(f);
+    
+    BaseUI.current().selection.renderTileOverlay(
+      rendering, world,
+      hovered ? Colour.transparency(0.5f) : Colour.WHITE,
+      Selection.SELECT_OVERLAY, true, this, group.toArray()
+    );
   }
   
   

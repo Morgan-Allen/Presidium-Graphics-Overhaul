@@ -78,12 +78,12 @@ public class CombatUtils {
       I.say("RELATIVE TO "+other+" (Other)");
       
       I.say("  Actor power: "+actorPower+" chance: "+actorChance);
-      I.say("  Actor attack skill: "+actor.traits.useLevel(attack));
-      I.say("  Actor defend skill: "+actor.traits.useLevel(defend));
+      I.say("  Actor attack skill: "+actor.traits.usedLevel(attack));
+      I.say("  Actor defend skill: "+actor.traits.usedLevel(defend));
 
       I.say("  Other power: "+otherPower+" chance: "+otherChance);
-      I.say("  Other attack skill: "+other.traits.useLevel(attack));
-      I.say("  Other defend skill: "+other.traits.useLevel(defend));
+      I.say("  Other attack skill: "+other.traits.usedLevel(attack));
+      I.say("  Other defend skill: "+other.traits.usedLevel(defend));
       
       I.say("  Estimated relative power level: "+estimate);
     }

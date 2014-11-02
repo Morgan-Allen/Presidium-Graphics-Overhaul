@@ -91,6 +91,15 @@ public class Item {
   
   
   
+  /**  Methods for delivering special FX-
+    */
+  public static interface Passive extends Session.Saveable {
+    public void applyPassiveItem(Actor carries, Item from);
+    public String describePassiveItem(Item from);
+  }
+  
+  
+  
   /**  Outside-accessible factory methods-
     */
   public static Item withAmount(Traded type, float amount) {
@@ -195,6 +204,7 @@ public class Item {
   /**  Rendering/interface functions-
     */
   public void describeTo(Description d) {
+    
     String s = ""+type;
     if (quality != ANY && type.form != FORM_MATERIAL) {
       s = QUAL_NAMES[(int) (quality + 0.5f)]+" "+s;
@@ -203,10 +213,18 @@ public class Item {
       s = (I.shorten(amount, 1))+" "+s;
     }
     d.append(s);
-    if (refers != null) {
+    
+    if (refers instanceof Passive) {
+      d.append(((Passive) refers).describePassiveItem(this));
+    }
+    else if (refers != null) {
       d.append(" (");
       d.append(refers);
       d.append(")");
+    }
+    if (refers != null && amount < 1) {
+      final int percent = (int) (100 * Visit.clamp(amount, 0, 1));
+      d.append(" ("+percent+"%)");
     }
   }
   
