@@ -27,7 +27,7 @@ public class Item {
     "Crude", "Basic", "Standard", "Quality", "Luxury"
   };
   final static float PRICE_MULTS[] = {
-    1.0f, 2.0f, 3.0f, 4.0f, 5.0f
+    0.75f, 1.0f, 1.35f, 1.85f, 2.5f
   };
   
   
@@ -54,13 +54,10 @@ public class Item {
   
   
   public static Item loadFrom(Session s) throws Exception {
-    final int typeID = s.loadInt();
-    if (typeID == -1) return null;
-    //
-    //  TODO:  Save/load names instead of numeric IDs, so that you safely
-    //  modify the listing between sessions.
+    final Traded type = (Traded) s.loadObject();
+    if (type == null) return null;
     return new Item(
-      ALL_ITEM_TYPES[typeID],
+      type,
       s.loadObject(),
       s.loadFloat(),
       s.loadFloat()
@@ -69,8 +66,8 @@ public class Item {
   
   
   public static void saveTo(Session s, Item item) throws Exception {
-    if (item == null) { s.saveInt(-1); return; }
-    s.saveInt(item.type.typeID);
+    if (item == null) { s.saveObject(null); return; }
+    s.saveObject(item.type);
     s.saveObject(item.refers);
     s.saveFloat(item.amount);
     s.saveFloat(item.quality);
@@ -145,7 +142,7 @@ public class Item {
   
   
   public float defaultPrice() {
-    return type.basePrice * amount * PRICE_MULTS[(int) quality];
+    return type.basePrice() * amount * PRICE_MULTS[(int) quality];
   }
   
   
@@ -189,7 +186,7 @@ public class Item {
   
   public int hashCode() {
     return
-      (type.typeID * 13 * 5) +
+      (type.uniqueID() * 13 * 5) +
       ((refers == null ? 0 : (refers.hashCode() % 13)) * 5);
   }
   
@@ -202,7 +199,9 @@ public class Item {
     if (quality != ANY && type.form != FORM_MATERIAL) {
       s = QUAL_NAMES[(int) (quality + 0.5f)]+" "+s;
     }
-    if (amount != ANY) s = (I.shorten(amount, 1))+" "+s;
+    if (refers == null && amount != ANY) {
+      s = (I.shorten(amount, 1))+" "+s;
+    }
     d.append(s);
     if (refers != null) {
       d.append(" (");
@@ -210,7 +209,8 @@ public class Item {
       d.append(")");
     }
   }
-
+  
+  
   public String toString() {
     final StringDescription SD = new StringDescription();
     describeTo(SD);

@@ -6,7 +6,7 @@ import stratos.util.*;
 
 
 
-public class Upgrade extends Index.Member implements Backgrounds {
+public class Upgrade extends Index.Entry implements Backgrounds {
   
   
   //
@@ -21,25 +21,33 @@ public class Upgrade extends Index.Member implements Backgrounds {
   final public int bonus;
   final public Upgrade required;
   
+  private static Table <Class, Batch <Upgrade>> byVenue = new Table();
+  
   
   public Upgrade(
     String name, String desc,
     int buildCost,
     Object refers, int bonus,
-    Upgrade required, Index index
+    Upgrade required,
+    Class origin, Index index
   ) {
-    super(index);
+    super(index, name);
     this.name = name;
     this.description = desc;
     this.buildCost = buildCost;
     this.refers = refers;
     this.bonus = bonus;
     this.required = required;
-    /*
-    if (name.endsWith("Station")) {
-      I.say(name+" upgrade refers to: "+refers);
-    }
-    //*/
+    
+    Batch <Upgrade> VU = byVenue.get(origin);
+    if (VU == null) byVenue.put(origin, VU = new Batch());
+    VU.add(this);
+  }
+  
+  
+  public static Upgrade[] upgradesFor(Class venueType) {
+    final Batch <Upgrade> VU = byVenue.get(venueType);
+    return VU == null ? new Upgrade[0] : VU.toArray(Upgrade.class);
   }
   
   
@@ -47,4 +55,11 @@ public class Upgrade extends Index.Member implements Backgrounds {
     return name;
   }
 }
+
+
+
+
+
+
+
 

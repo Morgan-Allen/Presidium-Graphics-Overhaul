@@ -76,7 +76,6 @@ public class CultureLab extends Venue {
   /**  Upgrades, economic functions and employee behaviour-
     */
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-    CultureLab.class, "culture_vats_upgrades"
   );
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
@@ -84,38 +83,44 @@ public class CultureLab extends Venue {
       "Waste Disposal",
       "Reduces pollution, increases marginal efficiency, and permits some "+
       "degree of life support.",
-      200, null, 1, null, ALL_UPGRADES
+      200, null, 1, null,
+      CultureLab.class, ALL_UPGRADES
     ),
     PROTEIN_ASSEMBLY = new Upgrade(
       "Protein Assembly",
       "Permits direct manufacture of Protein, a basic foodstuff needed to "+
       "keep your population healthy.",
-      150, null, 1, null, ALL_UPGRADES
+      150, null, 1, null,
+      CultureLab.class, ALL_UPGRADES
     ),
     DRUG_SYNTHESIS = new Upgrade(
       "Drug Synthesis",
       "Employs gene-tailored microbes to synthesise complex molecules, "+
       "permitting manufacture of medicines and stimulants.",
-      200, null, 1, null, ALL_UPGRADES
+      200, null, 1, null,
+      CultureLab.class, ALL_UPGRADES
     ),
     SOMA_CULTURE = new Upgrade(
       "Soma Culture",
       "Allows mass production of Soma, a cheap recreational narcotic with "+
       "minimal side effects.",
-      250, null, 1, DRUG_SYNTHESIS, ALL_UPGRADES
+      250, null, 1, DRUG_SYNTHESIS,
+      CultureLab.class, ALL_UPGRADES
     ),
     ORGAN_BANKS = new Upgrade(
       "Organ Banks",
       "Allows production of spare organs for use in medical emergencies, up "+
       "to and including full-body cloning.",
-      400, null, 1, PROTEIN_ASSEMBLY, ALL_UPGRADES
+      400, null, 1, PROTEIN_ASSEMBLY,
+      CultureLab.class, ALL_UPGRADES
     ),
     VAT_BREEDER_STATION = new Upgrade(
       "Vat Breeder Station",
       "Vat Breeders supervise the cultivation and harvesting of the chemical "+
       "and biological processes needed to produce pharmaceuticals and tissue "+
       "samples.",
-      100, Backgrounds.VATS_BREEDER, 1, null, ALL_UPGRADES
+      100, Backgrounds.VATS_BREEDER, 1, null,
+      CultureLab.class, ALL_UPGRADES
     )
  ;
   
@@ -126,8 +131,8 @@ public class CultureLab extends Venue {
     
     stocks.translateDemands(1, WASTE_TO_CARBS      , this);
     stocks.translateDemands(1, CARBS_TO_PROTEIN    , this);
-    stocks.translateDemands(1, CARBS_TO_SOMA       , this);
-    stocks.translateDemands(1, PROTEIN_TO_STIM_KITS, this);
+    stocks.translateDemands(1, WASTE_TO_SOMA       , this);
+    stocks.translateDemands(1, WASTE_TO_REAGENTS, this);
     
     float needPower = 5;
     if (! isManned()) needPower /= 2;
@@ -168,8 +173,7 @@ public class CultureLab extends Venue {
     final float powerCut = stocks.shortagePenalty(POWER) * 10;
     final int cycleBonus = bonusFor(WASTE_DISPOSAL, 1);
     
-    final Manufacture o = stocks.nextSpecialOrder(actor);
-    if (o != null) {
+    for (Manufacture o : stocks.specialOrders()) {
       o.checkBonus = cycleBonus + bonusFor(ORGAN_BANKS, 2);
       choice.add(o);
     }
@@ -191,8 +195,8 @@ public class CultureLab extends Venue {
     //
     //  And pharmaceuticals-
     final Manufacture
-      mA = stocks.nextManufacture(actor, CARBS_TO_SOMA),
-      mM = stocks.nextManufacture(actor, PROTEIN_TO_STIM_KITS);
+      mA = stocks.nextManufacture(actor, WASTE_TO_SOMA),
+      mM = stocks.nextManufacture(actor, WASTE_TO_REAGENTS);
     if (mA != null) {
       mA.checkBonus = cycleBonus + bonusFor(SOMA_CULTURE, 1.5f);
       mA.checkBonus -= powerCut;

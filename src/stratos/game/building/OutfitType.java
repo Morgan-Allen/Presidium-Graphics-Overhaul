@@ -28,24 +28,20 @@ public class OutfitType extends Traded {
     Class baseClass, String name, int defence, int shieldBonus, int basePrice,
     Class facility, Object... conversionArgs
   ) {
-    super(baseClass, FORM_OUTFIT, name, basePrice);
+    super(baseClass, FORM_OUTFIT, name, basePrice, null);
     
     this.defence = defence;
     this.shieldBonus = shieldBonus;
     this.materials = new Conversion(facility, Visit.compose(
-      Object.class, conversionArgs, new Object[] { TO, this })
+      Object.class, conversionArgs, new Object[] { TO, 1, this })
     );
+    setPrice(basePrice, materials);
     
     final String imagePath = ITEM_PATH+name+"_skin.gif";
     if (new File(imagePath).exists()) {
       this.skin = ImageAsset.fromImage(baseClass, imagePath);
     }
     else this.skin = null;
-  }
-  
-  
-  public Conversion materials() {
-    return materials;
   }
   
   

@@ -23,10 +23,10 @@ public class Commerce {
   /**  Field definitions, constructor, save/load methods-
     */
   private static boolean
-    verbose        = true ,
+    verbose        = false,
     extraVerbose   = false,
     migrateVerbose = verbose && false,
-    tradeVerbose   = verbose && true;
+    tradeVerbose   = verbose && false;
   
   final public static float
     SUPPLY_INTERVAL = Stage.STANDARD_DAY_LENGTH / 2f,
@@ -65,8 +65,8 @@ public class Commerce {
   public Commerce(Base base) {
     this.base = base;
     for (Traded type : ALL_MATERIALS) {
-      importPrices.put(type, (float) type.basePrice);
-      exportPrices.put(type, (float) type.basePrice);
+      importPrices.put(type, (float) type.basePrice());
+      exportPrices.put(type, (float) type.basePrice());
     }
   }
   
@@ -332,7 +332,7 @@ public class Commerce {
     for (Traded type : ALL_MATERIALS) {
       ///final boolean offworld = true; //For now.
       float
-        basePrice = 1 * type.basePrice,
+        basePrice = 1 * type.basePrice(),
         importMul = 2 + (shortages.amountOf(type) / 1000f),
         exportDiv = 2 + (surpluses.amountOf(type) / 1000f);
       
@@ -371,14 +371,14 @@ public class Commerce {
   
   public float importPrice(Traded type) {
     final Float price = importPrices.get(type);
-    if (price == null) return type.basePrice * 10f;
+    if (price == null) return type.basePrice() * 10f;
     return price;
   }
   
   
   public float exportPrice(Traded type) {
     final Float price = exportPrices.get(type);
-    if (price == null) return type.basePrice / 10f;
+    if (price == null) return type.basePrice() / 10f;
     return price;
   }
   
@@ -441,8 +441,8 @@ public class Commerce {
       public int compare(Item a, Item b) {
         if (a == b) return 0;
         final float
-          pA = a.amount / a.type.basePrice,
-          pB = b.amount / b.type.basePrice;
+          pA = a.amount / a.type.basePrice(),
+          pB = b.amount / b.type.basePrice();
         return (imports ? 1 : -1) * (pA > pB ? 1 : -1);
       }
     };

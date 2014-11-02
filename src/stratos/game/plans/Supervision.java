@@ -21,8 +21,10 @@ public class Supervision extends Plan {
   
   /**  Data fields, setup and save/load functions-
     */
+  private static boolean
+    verbose = false;
+  
   final static float WAIT_TIME = Stage.STANDARD_HOUR_LENGTH;
-  private static boolean verbose = false;
   
   final Venue venue;
   private float beginTime = -1;
@@ -56,15 +58,14 @@ public class Supervision extends Plan {
   
   /**  Evaluating targets and priority-
     */
-  final static Trait BASE_TRAITS[] = { RELAXED, IGNORANT };
+  final static Trait BASE_TRAITS[] = { RELAXED, IGNORANT, DUTIFUL };
 
   protected float getPriority() {
-    if (Plan.competition(Supervision.class, venue, actor) > 0) return 0;
-    ///if (! actor.mind.work().personnel().onShift(actor)) return 0;
     final boolean report = verbose && I.talkAbout == actor;
+    if (report) I.say("\nAssessing priority for supervision of "+venue);
     
     return super.priorityForActorWith(
-      actor, venue, CASUAL,
+      actor, venue, ROUTINE,
       NO_MODIFIER, MILD_HELP,
       FULL_COMPETITION, NO_SKILLS,
       BASE_TRAITS, PARTIAL_DISTANCE_CHECK, NO_FAIL_RISK,

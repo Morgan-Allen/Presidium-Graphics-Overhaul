@@ -203,7 +203,7 @@ public class Holding extends Venue {
       }
       
       if (targetLevel == upgradeLevel) return;
-      final Object HU[] = HoldingUpgrades.ALL_UPGRADES.members();
+      final Object HU[] = HoldingUpgrades.UPGRADE_ARRAY;
       
       if (targetLevel > upgradeLevel) {
         final Upgrade target = (Upgrade) HU[ targetLevel];
@@ -311,11 +311,6 @@ public class Holding extends Venue {
     final Delivery d = DeliveryUtils.bestBulkCollectionFor(
       this, goods, 1, 5, 5
     );
-    /*
-    final Delivery d = Deliveries.nextCollectionFor(
-      actor, this, goods, 5, actor, actor.world()
-    );
-    //*/
     if (d != null) d.shouldPay = actor;
     return d;
   }

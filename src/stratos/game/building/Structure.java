@@ -122,7 +122,7 @@ public class Structure {
       upgradeStates   = new int[maxUpgrades]    ;
       
       for (int i = 0; i < maxUpgrades; i++) {
-        upgrades[i] = AU.loadMember(s.input());
+        upgrades[i] = AU.loadFromEntry(s.input());
         upgradeStates[i] = s.loadInt();
       }
     }
@@ -152,7 +152,7 @@ public class Structure {
       s.saveFloat(upgradeProgress);
       s.saveInt(upgradeIndex);
       for (int i = 0; i < maxUpgrades; i++) {
-        AU.saveMember(upgrades[i], s.output());
+        AU.saveEntry(upgrades[i], s.output());
         s.saveInt(upgradeStates[i]);
       }
     }

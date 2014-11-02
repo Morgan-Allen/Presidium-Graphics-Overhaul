@@ -121,7 +121,7 @@ public class Conversion implements Session.Saveable {
   /**  Economic helper methods-
     */
   protected int rawPriceValue() {
-    int sum = 0; for (Item i : raw) sum += i.type.basePrice;
+    int sum = 0; for (Item i : raw) sum += i.type.basePrice();
     return sum;
   }
   

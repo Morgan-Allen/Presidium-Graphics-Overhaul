@@ -137,45 +137,76 @@ public class VenueDescription {
   
   
   protected void describeStocks(Description d, BaseUI UI) {
-    d.append("Stocks and Orders:");
+    d.append("Stocks:");
     boolean empty = true;
     
-    final Sorting <Item> listing = new Sorting <Item> () {
+    final Sorting <Item> sortedItems = new Sorting <Item> () {
       public int compare(Item a, Item b) {
         if (a.equals(b)) return 0;
-        if (a.type.typeID > b.type.typeID) return  1;
-        if (a.type.typeID < b.type.typeID) return -1;
+        if (a.type.basePrice() > b.type.basePrice()) return  1;
+        if (a.type.basePrice() < b.type.basePrice()) return -1;
+        /*
         if (a.refers != null && b.refers != null) {
+          if (a.refers == b.refers) return 0;
           if (a.refers.hashCode() > b.refers.hashCode()) return  1;
           if (a.refers.hashCode() < b.refers.hashCode()) return -1;
         }
+        //*/
         if (a.quality > b.quality) return  1;
         if (a.quality < b.quality) return -1;
         return 0;
       }
     };
-    for (Item item : v.stocks.allItems()) listing.add(item);
-    for (Traded type : Economy.ALL_ITEM_TYPES) {
-      if (v.stocks.demandFor(type) > 0 && v.stocks.amountOf(type) == 0) {
-        listing.add(Item.withAmount(type, 0));
+    
+    for (Item item : v.stocks.allItems()) {
+      sortedItems.add(item);
+    }
+    for (Traded type : v.stocks.demanded()) if (v.stocks.amountOf(type) == 0) {
+      sortedItems.add(Item.withAmount(type, 0));
+    }
+    if (sortedItems.size() > 0) empty = false;
+    for (Item item : sortedItems) describeStocks(item, d);
+    
+
+    final Sorting <Item> sortedOrders = new Sorting <Item> () {
+      public int compare(Item a, Item b) {
+        if (a.equals(b)) return 0;
+        return v.stocks.amountOf(a) < v.stocks.amountOf(b) ? 1 : -1;
+      }
+    };
+    for (Manufacture m : v.stocks.specialOrders()) {
+      sortedOrders.add(m.made());
+    }
+    for (Item i : v.stocks.allItems()) {
+      if (i.type.form == Economy.FORM_MATERIAL ) continue;
+      if (i.type.form == Economy.FORM_PROVISION) continue;
+      if (sortedOrders.includes(i)) continue;
+      sortedOrders.add(i);
+    }
+    
+    if (sortedOrders.size() > 0) {
+      empty = false;
+      d.append("\n\nSpecial Orders:");
+
+      for (Item i : sortedOrders) {
+        d.append("\n  ");
+        i.describeTo(d);
+        float progress = v.stocks.amountOf(i) / 1f;
+        d.append(" ("+((int) (progress * 100))+"%)");
       }
     }
-    if (listing.size() > 0) empty = false;
-    for (Item item : listing) describeStocks(item, d);
     
-    for (Manufacture m : v.stocks.specialOrders()) {
-      d.append("\n  "); m.describeBehaviour(d); empty = false;
-    }
     if (empty) d.append("\n  No stocks or orders.");
   }
   
   
   protected boolean describeStocks(Item item, Description d) {
     final Traded type = item.type;
+    if (type.form != Economy.FORM_MATERIAL) return false;
+    
     final float needed = v.stocks.demandFor(type);
     final float amount = v.stocks.amountOf(type);
-    if (needed == 0 && amount == 0)
-      return false;
+    if (needed == 0 && amount == 0) return false;
 
     final String nS = I.shorten(needed, 1);
     d.append("\n  ");
@@ -288,42 +319,42 @@ public class VenueDescription {
       }
       d.append("\n\n");
     }
-    
-    final int
-      numU = v.structure.numUpgrades(),
-      maxU = v.structure.maxUpgrades();
-    if (maxU > 0) {
+
+    final Upgrade UA[] = Upgrade.upgradesFor(v.getClass());
+    if (UA.length > 0) {
+      final int
+        numU = v.structure.numUpgrades(),
+        maxU = v.structure.maxUpgrades();
+      
       final Batch <String> DU = v.structure.descOngoingUpgrades();
       d.append("Upgrade slots ("+numU+"/"+maxU+")");
       for (String s : DU) d.append("\n  "+s);
       d.append("\n\nUpgrades available: ");
       
-      final Index <Upgrade> upgrades = v.allUpgrades();
-      if (upgrades != null && upgrades.members().length > 0) {
-        for (final Upgrade upgrade : upgrades) {
-          d.append("\n  ");
-          d.append(new Description.Link(upgrade.name) {
-            public void whenTextClicked() { lastCU = upgrade; }
-          });
-          d.append(" (x"+v.structure.upgradeLevel(upgrade)+")");
+      if (UA.length > 0) for (final Upgrade upgrade : UA) {
+        d.append("\n  ");
+        d.append(new Description.Link(upgrade.name) {
+          public void whenTextClicked() { lastCU = upgrade; }
+        });
+        d.append(" (x"+v.structure.upgradeLevel(upgrade)+")");
+      }
+      if (! Visit.arrayIncludes(UA, lastCU)) lastCU = UA[0];
+      
+      if (lastCU != null) {
+        d.append("\n\n");
+        d.append(lastCU.description);
+        d.append("\n  Cost: "+lastCU.buildCost+"   ");
+        if (lastCU.required != null) {
+          d.append("\n  Requires: "+lastCU.required.name);
         }
-        if (lastCU != null) {
-          d.append("\n\n");
-          d.append(lastCU.description);
-          d.append("\n  Cost: "+lastCU.buildCost+"   ");
-          if (lastCU.required != null) {
-            d.append("\n  Requires: "+lastCU.required.name);
-          }
-          if (v.structure.upgradePossible(lastCU)) {
-            d.append(new Description.Link("\n\n  BEGIN UPGRADE") {
-              public void whenTextClicked() {
-                v.structure.beginUpgrade(lastCU, false);
-              }
-            });
-          }
+        if (v.structure.upgradePossible(lastCU)) {
+          d.append(new Description.Link("\n\n  BEGIN UPGRADE") {
+            public void whenTextClicked() {
+              v.structure.beginUpgrade(lastCU, false);
+            }
+          });
         }
       }
-      else d.append("\n  No upgrades.");
     }
   }
 }

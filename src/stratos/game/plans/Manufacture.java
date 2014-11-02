@@ -7,11 +7,7 @@
 
 package stratos.game.plans;
 import stratos.game.actors.*;
-import stratos.game.building.Conversion;
-import stratos.game.building.DeviceType;
-import stratos.game.building.Item;
-import stratos.game.building.OutfitType;
-import stratos.game.building.Venue;
+import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.game.civilian.*;
 import stratos.user.*;
@@ -19,16 +15,15 @@ import stratos.util.*;
 
 
 
-//
-//  TODO:  Quit after a certain total amount made.
-
 public class Manufacture extends Plan implements Behaviour, Qualities {
-  
-  
   
   
   /**  Fields, constructors, and save/load methods-
     */
+  private static boolean
+    evalVerbose = false,
+    verbose     = false;
+  
   final static int
     MAX_UNITS_PER_DAY = 5,
     TIME_PER_UNIT     = Stage.STANDARD_DAY_LENGTH / (3 * MAX_UNITS_PER_DAY),
@@ -39,12 +34,12 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     SHORTAGE_TIME_MULT = 5,
     FAILURE_TIME_MULT  = 5;
   
-  private static boolean verbose = false;
-  
   
   final public Employer venue;
   final public Conversion conversion;
+  
   public int checkBonus = 0;
+  public Commission commission = null;
   
   private Item made, needed[];
   private float amountMade = 0;
@@ -68,9 +63,9 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     conversion = (Conversion) s.loadObject();
     made = Item.loadFrom(s);
     this.needed = conversion.raw;
-    //timeMult   = s.loadInt();
     checkBonus = s.loadInt();
     amountMade = s.loadFloat();
+    commission = (Commission) s.loadObject();
   }
   
   
@@ -78,11 +73,10 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     super.saveState(s);
     s.saveObject(venue);
     s.saveObject(conversion);
-    //Conversion.saveTo(s, conversion);
     Item.saveTo(s, made);
-    //s.saveInt(timeMult  );
     s.saveInt(checkBonus);
     s.saveFloat(amountMade);
+    s.saveObject(commission);
   }
   
   
@@ -110,6 +104,15 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   }
   
   
+  public void setBonusFrom(Venue works, Upgrade upgrades) {
+    //  TODO:  Limit the maximum quality that can be achieved in the absence of
+    //  a suitable facility upgrade.
+    final float powerCut = works.stocks.shortagePenalty(Economy.POWER);
+    float upgradeBonus = works.structure.upgradeLevel(upgrades) / 3;
+    this.checkBonus = (int) (10 * (upgradeBonus - powerCut));
+  }
+  
+  
   
   /**  Vary this based on delay since inception and demand at the venue-
     */
@@ -117,17 +120,57 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   
 
   protected float getPriority() {
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = evalVerbose && I.talkAbout == actor;
+    if (report) I.say("\nAssessing priority for manufacturing "+made);
+    
     final int shift = venue.personnel().shiftFor(actor);
     if (shift == Venue.OFF_DUTY) return 0;
+    if (commission != null && commission.finished()) {
+      if (report) I.say("  Commission done!");
+      return 0;
+    }
+    
+    final float
+      amount   = venue.inventory().amountOf (made     ) - 1,
+      demand   = venue.inventory().demandFor(made.type) + 1;
+    if (demand < amount) {
+      if (report) I.say("  Insufficient demand: "+demand+"/"+amount);
+      return 0;
+    }
+    
+    float urgency = shift == Venue.SECONDARY_SHIFT ? IDLE : ROUTINE;
+    if (! hasNeeded()) urgency /= 2;
+    final float boost = IDLE * (demand - amount) / demand;
     
     final float priority = priorityForActorWith(
-      actor, venue, shift == Venue.SECONDARY_SHIFT ? IDLE : ROUTINE,
-      NO_MODIFIER, MILD_HELP,
-      FULL_COMPETITION, conversion.skills,
-      BASE_TRAITS, NO_DISTANCE_CHECK, MILD_FAIL_RISK, report
+      actor, venue,
+      urgency, NO_MODIFIER,
+      NO_HARM, FULL_COMPETITION,
+      conversion.skills, BASE_TRAITS,
+      NO_DISTANCE_CHECK, MILD_FAIL_RISK,
+      report
     );
-    return priority;
+    if (report) {
+      I.say("\n  Basic urgency:  "+urgency+", boost: "+boost);
+      I.say("  Amount/Demand: "+amount+"/"+demand);
+      I.say("  Check bonus:  "+checkBonus);
+      I.say("  Needed items: ");
+      for (Item need : needed) {
+        I.say("    "+need+", has "+venue.inventory().amountOf(need));
+      }
+    }
+    return priority + boost;
+  }
+  
+  
+  private boolean hasNeeded() {
+    //
+    //  TODO:  Average the shortage of each needed item, so that penalties are
+    //  less stringent for output that demands multiple inputs?
+    for (Item need : needed) {
+      if (! venue.inventory().hasItem(need)) return false;
+    }
+    return true;
   }
   
   
@@ -156,36 +199,42 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     */
   public boolean finished() {
     if (super.finished()) return true;
+    if (selfCommission()) return false;
     return
       (amountMade >= 2) || (amountMade >= made.amount) ||
       venue.inventory().hasItem(made);
   }
   
   
-  public Behaviour getNextStep() {
-    final float demand = venue.inventory().demandFor(made.type);
-    if (demand > 0) made = Item.withAmount(made, demand + 5);
-    if (venue.inventory().hasItem(made)) {
-      amountMade = made.amount;
-      return null;
-    }
-    if (GameSettings.hardCore && ! hasNeeded()) return null;
-    return new Action(
-      actor, venue,
-      this, "actionMake",
-      Action.REACH_DOWN, "Working"
-    );
+  private boolean selfCommission() {
+    return
+      commission != null && commission.actor() == actor &&
+      ! commission.finished();
   }
   
   
-  private boolean hasNeeded() {
-    //
-    //  TODO:  Average the shortage of each needed item, so that penalties are
-    //  less stringent for output that demands multiple inputs?
-    for (Item need : needed) {
-      if (! venue.inventory().hasItem(need)) return false;
+  public Behaviour getNextStep() {
+    final float demand = venue.inventory().demandFor(made.type);
+    if (made.type.form == Economy.FORM_MATERIAL) {
+      made = Item.withAmount(made, demand + 1);
     }
-    return true;
+    
+    if (venue.inventory().hasItem(made)) {
+      if (selfCommission()) return commission;
+      amountMade = made.amount;
+      return null;
+    }
+    
+    if (! hasNeeded()) {
+      if (GameSettings.hardCore) return null;
+      //  TODO:  if (venue.stocks.hasConversion(needed)) return etc.
+    }
+    
+    return new Action(
+      actor, venue,
+      this, "actionMake",
+      Action.REACH_DOWN, "Manufacturing "
+    );
   }
   
   
@@ -229,7 +278,6 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
       amountMade += increment * made.amount;
       final Item added = Item.withAmount(made, increment * made.amount);
       venue.stocks.addItem(added);
-      
       if (verbose && I.talkAbout == actor) {
         I.say("Progress increment on "+made+": "+increment);
       }
@@ -242,10 +290,12 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   /**  Rendering and interface behaviour-
     */
   public void describeBehaviour(Description d) {
-    d.append("Manufacturing "+made.type);
-    if (made.refers != null) {
-      d.append(" for ");
-      d.append(made.refers);
+    if (super.needsSuffix(d, "Manufacturing ")) {
+      d.append(made.type);
+      if (made.refers != null) {
+        d.append(" for ");
+        d.append(made.refers);
+      }
     }
   }
 }

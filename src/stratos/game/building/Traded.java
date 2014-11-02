@@ -15,54 +15,58 @@ import stratos.util.*;
   */
 //  TODO:  Use an index for this.
 
-public class Traded implements Session.Saveable {
+public class Traded extends Index.Entry implements Session.Saveable {
   
-  
-  private static int nextID = 0;
-  private static Batch allTypes = new Batch(), soFar = new Batch();
   
   final static String
     ITEM_PATH = "media/Items/",
     DEFAULT_PIC_PATH = ITEM_PATH+"crate.gif";
   
-  
-  static Traded[] typesSoFar() {
-    Traded t[] = (Traded[]) soFar.toArray(Traded.class);
-    soFar.clear();
-    return t;
-  }
-  
-  static Traded[] allTypes() {
-    return (Traded[]) allTypes.toArray(Traded.class);
-  }
-  
-  
+  final public static Index <Traded> INDEX = new Index <Traded> ();
   
   final public int form;
-  final public String name;
-  final public int typeID = nextID++;
+  final public String name, description;
   
-  final public String supplyKey, demandKey;
-  
-  final public float basePrice;
   final public String picPath;
   final public CutoutModel model;
   
+  final public String supplyKey, demandKey;
+  
+  private Conversion materials;
+  private float basePrice;
+  
   
   protected Traded(
-    Class typeClass, int form, String name,
-    int basePrice
+    Class typeClass, int form,
+    String name,
+    int basePrice,
+    String description
   ) {
-    this(typeClass, name, null, form, basePrice);
+    this(typeClass, name, null, form, basePrice, description);
+  }
+  
+
+  protected Traded(
+    Class typeClass,
+    String name, String imgName,
+    int form, int basePrice
+  ) {
+    this(typeClass, name, null, form, basePrice, null);
   }
   
   
   protected Traded(
-    Class typeClass, String name, String imgName,
-    int form, int basePrice
+    Class typeClass,
+    String name, String imgName,
+    int form, int basePrice,
+    String description
   ) {
+    super(INDEX, name);
+    
     this.form = form;
     this.name = name;
+    this.description = description;
+    
     this.basePrice = basePrice / 5f;
     final String imagePath = ITEM_PATH+imgName;
     final float IS = BuildingSprite.ITEM_SIZE;
@@ -77,22 +81,30 @@ public class Traded implements Session.Saveable {
     
     this.supplyKey = name+"_supply";
     this.demandKey = name+"_demand";
-    soFar.add(this);
-    allTypes.add(this);
+  }
+  
+  
+  protected void setPrice(float base, Conversion materials) {
+    this.basePrice = base / 5f;
+    this.materials = materials;
+    if (materials != null) for (Item i : materials.raw) {
+      this.basePrice += i.defaultPrice();
+    }
   }
   
   
   public static Traded loadConstant(Session s) throws Exception {
-    return Economy.ALL_ITEM_TYPES[s.loadInt()];
+    return INDEX.loadFromEntry(s.input());
   }
   
   
   public void saveState(Session s) throws Exception {
-    s.saveInt(typeID);
+    INDEX.saveEntry(this, s.output());
   }
   
   
-  public Conversion materials() { return null; }
+  public Conversion materials() { return materials; }
+  public float basePrice() { return basePrice; }
   
   
   

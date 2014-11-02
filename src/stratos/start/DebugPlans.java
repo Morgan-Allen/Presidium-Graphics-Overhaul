@@ -279,7 +279,7 @@ public class DebugPlans extends Scenario {
     final Bastion bastion = new Bastion(base);
     bastion.stocks.bumpItem(Economy.PROTEIN, 20);
     bastion.stocks.bumpItem(Economy.PLASTICS, 10);
-    bastion.stocks.bumpItem(Economy.RAW_SPYCE, 5);
+    bastion.stocks.bumpItem(Economy.TINER_SPYCE, 5);
     final Actor ruler = new Human(Backgrounds.KNIGHTED, base);
     Placement.establishVenue(
       bastion, 11, 11, true, world,

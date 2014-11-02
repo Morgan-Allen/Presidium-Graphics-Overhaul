@@ -19,8 +19,8 @@ public class DeliveryUtils {
     rateVerbose   = false;
   
   private static Traded verboseGoodType = null;
-  private static Class     verboseDestType = null;
-  private static Class     verboseOrigType = null;
+  private static Class  verboseDestType = null;
+  private static Class  verboseOrigType = null;
   
   
   /**  Helper methods for getting suitable distribution targets-
@@ -256,8 +256,14 @@ public class DeliveryUtils {
     Batch <? extends Owner> origins, Owner destination,
     Traded good, int amount
   ) {
+    if (origins.size() == 0) return null;
+    if (destination.inventory().shortageOf(good) < 0) return null;
+    
     final boolean report = rateVerbose && I.talkAbout == destination;
-    if (report) I.say("\nFinding best origin for "+good);
+    if (report) {
+      I.say("\nFinding best origin for "+good);
+      I.say("  ("+origins.size()+" available)");
+    }
     
     Owner pick = null;
     float bestRating = 0;
@@ -267,7 +273,7 @@ public class DeliveryUtils {
       if (report) I.say("  Rating for "+origin+" is "+rating);
     }
     
-    if (report) I.say("Final selection: "+pick);
+    if (report) I.say("  Final selection: "+pick);
     return pick;
   }
   
@@ -276,9 +282,14 @@ public class DeliveryUtils {
     Owner origin, Batch <? extends Owner> destinations,
     Traded good, int amount
   ) {
+    if (destinations.size() == 0) return null;
     if (origin.inventory().amountOf(good) <= amount) return null;
+    
     final boolean report = rateVerbose && I.talkAbout == origin;
-    if (report) I.say("\nFinding best destination for "+good);
+    if (report) {
+      I.say("\nFinding best destination for "+good);
+      I.say("  ("+destinations.size()+" available)");
+    }
     
     Owner pick = null;
     float bestRating = 0;
@@ -288,7 +299,7 @@ public class DeliveryUtils {
       if (report) I.say("  Rating for "+destination+" is "+rating);
     }
     
-    if (report) I.say("Final selection: "+pick);
+    if (report) I.say("  Final selection: "+pick);
     return pick;
   }
   
@@ -317,10 +328,6 @@ public class DeliveryUtils {
     else {
       report = rateVerbose && (I.talkAbout == orig || I.talkAbout == dest);
     }
-    if (report) {
-      I.say("\n  Getting trade rating for "+good+" between "+orig+" and "+dest);
-      I.say("  Trade unit is "+amount);
-    }
     
     //  First of all secure some preliminary variables-
     final Inventory
@@ -333,6 +340,7 @@ public class DeliveryUtils {
     final int
       OT = OS.demandTier(good),
       DT = DS.demandTier(good);
+    if (DT != Stocks.TIER_NONE && DS.shortageOf(good) <= 0) return -1;
     
     final float
       OD = (OT == Stocks.TIER_NONE) ? 0             : OS.demandFor(good),
@@ -358,6 +366,8 @@ public class DeliveryUtils {
     if (DT == Stocks.TIER_CONSUMER) destShort += 1;
     
     if (report) {
+      I.say("\n  Getting trade rating for "+good+" between "+orig+" and "+dest);
+      I.say("  Trade unit is "+amount);
       I.say("  Origin      after   : "+origAfter+"  Demand: "+OD);
       I.say("  Destination after   : "+destAfter+"  Demand: "+DD);
       I.say("  Origin      shortage: "+origShort);
@@ -368,6 +378,9 @@ public class DeliveryUtils {
     //  along with penalties for distance and base relations:
     float rating = destShort - origShort;
     if (rating <= 0) return -1;
+    
+    if (OT == Stocks.TIER_TRADER) rating *= 1.5f;
+    if (DT == Stocks.TIER_TRADER) rating *= 1.5f;
     
     final float baseFactor = orig.base().relations.relationWith(dest.base());
     if (baseFactor <= 0) return -1;

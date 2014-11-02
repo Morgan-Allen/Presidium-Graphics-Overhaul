@@ -70,11 +70,22 @@ public class Exploring extends Plan implements Qualities {
   
   
   public static Exploring nextWandering(Actor actor) {
+    final boolean report = evalVerbose && I.talkAbout == actor;
+    if (report) I.say("\nGetting next wandering for "+actor);
+    
     final float range = actor.health.sightRange() * 2;
     Tile picked = Spacing.pickRandomTile(actor, range, actor.world());
     picked = Spacing.nearestOpenTile(picked, picked);
     if (picked == null) return null;
-    return new Exploring(actor, actor.base(), TYPE_WANDER, picked, range);
+    
+    final Exploring wander = new Exploring(
+      actor, actor.base(), TYPE_WANDER, picked, range
+    );
+    if (report) {
+      I.say("  Point picked: "+picked);
+      I.say("  Priority: "+wander.priorityFor(actor));
+    }
+    return wander;
   }
   
   
@@ -113,18 +124,22 @@ public class Exploring extends Plan implements Qualities {
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
     
+    
     float basePriority = CASUAL;
     if (type == TYPE_WANDER) basePriority = IDLE   ;
     if (type == TYPE_SURVEY) basePriority = ROUTINE;
+    basePriority *= Planet.dayValue(actor.world());
     
     //
     //  Make this less attractive as you get further from home/safety.
     final Target haven = actor.senses.haven();
     float distFactor = (haven == null) ? 0 : Plan.rangePenalty(haven, actor);
     
+    if (report) I.say("Getting explore priority, base: "+basePriority);
+    
     final float priority = priorityForActorWith(
       actor, lookedAt,
-      basePriority * Planet.dayValue(actor.world()), 0 - distFactor * 2,
+      basePriority, 0 - distFactor * 2,
       NO_HARM, MILD_COMPETITION,
       BASE_SKILLS, BASE_TRAITS,
       HEAVY_DISTANCE_CHECK, NO_FAIL_RISK,

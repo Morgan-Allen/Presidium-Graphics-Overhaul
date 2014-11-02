@@ -11,17 +11,12 @@ import stratos.util.*;
 
 
 
-public class Trait implements Qualities, Session.Saveable {
+public class Trait extends Index.Entry implements Qualities, Session.Saveable {
   
   
   private static boolean verboseInit = false;
   
-  
-  //private static int nextID = 0;
-  //final public int traitID;
-  final public String keyID;
-  final Object indexEntry;
-  final public static StringIndex <Trait> TRAIT_INDEX = new StringIndex <Trait> ();
+  final public static Index <Trait> TRAIT_INDEX = new Index <Trait> ();
   
   final int type;
   final int minVal, maxVal;
@@ -34,9 +29,9 @@ public class Trait implements Qualities, Session.Saveable {
   
   
   protected Trait(String keyID, int type, String... descriptors) {
-    
-    this.keyID = keyID;
-    this.indexEntry = TRAIT_INDEX.addEntry(this, keyID);
+    super(TRAIT_INDEX, keyID);
+    //this.keyID = keyID;
+    //this.indexEntry = TRAIT_INDEX.addEntry(this, keyID);
     
     this.type = type;
     this.descriptors = descriptors;
@@ -64,8 +59,6 @@ public class Trait implements Qualities, Session.Saveable {
     this.maxVal = max;
     
     if (verboseInit) I.say("  Min/max vals: "+minVal+"/"+maxVal);
-    //traitsSoFar.add(this);
-    //allTraits.add(this);
   }
 
   
@@ -75,23 +68,8 @@ public class Trait implements Qualities, Session.Saveable {
   
   
   public void saveState(Session s) throws Exception {
-    TRAIT_INDEX.saveEntry(indexEntry, s.output());
-    //s.saveInt(traitID);
+    TRAIT_INDEX.saveEntry(this, s.output());
   }
-  
-  /*
-  public static Trait loadFrom(Session s) throws Exception {
-    final int ID = s.loadInt();
-    if (ID == -1) return null;
-    return ALL_TRAIT_TYPES[ID];
-  }
-  
-  
-  public static void saveTo(Session s, Trait t) throws Exception {
-    if (t == null) { s.saveInt(-1); return; }
-    s.saveInt(t.traitID);
-  }
-  //*/
   
   
   
@@ -123,46 +101,6 @@ public class Trait implements Qualities, Session.Saveable {
   public Trait opposite() { return opposite; }
   public Trait[] correlates() { return correlates; }
   public float[] correlateWeights() { return weightings; }
-  
-  
-  
-  /**  Listing, compilation, and saving/loading-
-    */
-  /*
-  static Batch <Trait>
-    traitsSoFar = new Batch <Trait> (),
-    allTraits   = new Batch <Trait> ();
-  
-  static Trait[] from(Batch <Trait> types) {
-    final Trait t[] = (Trait[]) types.toArray(Trait.class);
-    types.clear();
-    return t;
-  }
-  
-  static Skill[] skillsSoFar() {
-    final Skill t[] = (Skill[]) traitsSoFar.toArray(Skill.class);
-    traitsSoFar.clear();
-    return t;
-  }
-  
-  static Trait[] traitsSoFar() {
-    final Trait t[] = traitsSoFar.toArray(Trait.class);
-    traitsSoFar.clear();
-    return t;
-  }
-  //*/
-  /*
-  
-  public static Trait loadConstant(Session s) throws Exception {
-    return ALL_TRAIT_TYPES[s.loadInt()];
-  }
-  
-  
-  public void saveState(Session s) throws Exception {
-    s.saveInt(traitID);
-  }
-  //*/
-  
   
   
   /**  Returns the appropriate description for the given trait-level.

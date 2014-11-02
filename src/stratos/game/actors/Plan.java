@@ -6,18 +6,10 @@
 
 
 package stratos.game.actors;
-import stratos.game.building.*;
-import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.common.Session.Saveable;
-import stratos.game.plans.Combat;
-import stratos.game.plans.CombatUtils;
-import stratos.game.tactical.*;
 import stratos.user.*;
 import stratos.util.*;
-
-import java.lang.reflect.*;
-
 import org.apache.commons.math3.util.FastMath;
 
 
@@ -25,7 +17,7 @@ import org.apache.commons.math3.util.FastMath;
 //
 //  TODO:  I think that the whole Plan structure needs to be polished.  Keep it
 //  all recursive and internal, rather than keeping the stack within the
-//  actor's mind.
+//  actor's mind?
 
 
 public abstract class Plan implements Saveable, Behaviour {
@@ -460,7 +452,7 @@ public abstract class Plan implements Saveable, Behaviour {
       if (b instanceof Plan) {
         final Plan plan = (Plan) b;
         if (plan.getClass() != planClass) continue;
-        if (plan.actor() == actor) continue;
+        if (plan.actor() == null || plan.actor() == actor) continue;
         competition += plan.successChance();
       }
     }

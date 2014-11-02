@@ -77,7 +77,6 @@ public class EcologistStation extends Venue {
   /**  Handling upgrades and economic functions-
     */
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-    EcologistStation.class, "botanical_upgrades"
   );
   
   //  Tree Farming.  Durwheat.  Oni Rice.  Tuber Lily.  Hive Grubs.
@@ -94,7 +93,8 @@ public class EcologistStation extends Venue {
       "diet.",
       100,
       CARBS, 1,
-      null, ALL_UPGRADES
+      null,
+      EcologistStation.class, ALL_UPGRADES
     ),
     BROADLEAF_LAB = new Upgrade(
       "Broadleaf Lab",
@@ -102,7 +102,8 @@ public class EcologistStation extends Venue {
       "nutrients, and are valued as luxury exports, but their yield is small.",
       150,
       GREENS, 1,
-      null, ALL_UPGRADES
+      null,
+      EcologistStation.class, ALL_UPGRADES
     ),
     FIELD_HAND_STATION = new Upgrade(
       "Field Hand Station",
@@ -110,7 +111,8 @@ public class EcologistStation extends Venue {
       "quickly, maintain equipment, and bring land under cultivation.",
       50,
       Backgrounds.CULTIVATOR, 1,
-      null, ALL_UPGRADES
+      null,
+      EcologistStation.class, ALL_UPGRADES
     ),
     TREE_FARMING = new Upgrade(
       "Tree Farming",
@@ -118,7 +120,8 @@ public class EcologistStation extends Venue {
       "moderation, as well as providing carbons for plastic production.",
       100,
       null, 1,
-      BROADLEAF_LAB, ALL_UPGRADES
+      BROADLEAF_LAB,
+      EcologistStation.class, ALL_UPGRADES
     ),
     INSECTRY_LAB = new Upgrade(
       "Insectry Lab",
@@ -127,7 +130,8 @@ public class EcologistStation extends Venue {
       "control, or recycling services.",
       150,
       PROTEIN, 1,
-      BROADLEAF_LAB, ALL_UPGRADES
+      BROADLEAF_LAB,
+      EcologistStation.class, ALL_UPGRADES
     ),
     ECOLOGIST_STATION = new Upgrade(
       "Ecologist Station",
@@ -135,7 +139,8 @@ public class EcologistStation extends Venue {
       "modification, capable of adapting species to local climate conditions.",
       150,
       Backgrounds.ECOLOGIST, 1,
-      TREE_FARMING, ALL_UPGRADES
+      TREE_FARMING,
+      EcologistStation.class, ALL_UPGRADES
     );
   
   

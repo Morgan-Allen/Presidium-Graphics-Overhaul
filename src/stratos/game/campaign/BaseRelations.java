@@ -148,7 +148,8 @@ public class BaseRelations {
   /**  Performing regular updates-
     */
   public void updateRelations() {
-    I.say("UPDATING BASE RELATIONS!");
+    
+    //I.say("\nUPDATING BASE RELATIONS");
     
     final Tile t = base.world.tileAt(0, 0);
     int numResidents  = 0;

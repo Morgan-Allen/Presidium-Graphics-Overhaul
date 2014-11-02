@@ -104,7 +104,7 @@ public class DebugGraphics {
           Economy.SOMA.model, 15, -1.5f, -0.5f
         );
         BS.updateItemDisplay(
-          Economy.FUEL_RODS.model, 15, -1.5f, -1.5f
+          Economy.ANTIMASS.model, 15, -1.5f, -1.5f
         );
         BS.updateCondition(0.0f, false, false);
         BS.toggleFX(BuildingSprite.POWER_MODEL, true);

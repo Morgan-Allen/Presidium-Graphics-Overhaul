@@ -81,7 +81,6 @@ public class Bastion extends Venue {
   /**  Upgrades, economic functions and behaviour implementation-
     */
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-    Bastion.class, "bastion_upgrades"
   );
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
@@ -90,42 +89,48 @@ public class Bastion extends Venue {
       "Provides more openings for your Reservists and Auditors, thereby "+
       "aiding construction efforts and revenue flow.",
       200,
-      null, 1, null, ALL_UPGRADES
+      null, 1, null,
+      Bastion.class, ALL_UPGRADES
     ),
     SECURITY_MEASURES = new Upgrade(
       "Security Measures",
       "Increases patrols of Veterans in and around your settlement and "+
       "augments your Bastion's output of power and life support.",
       300,
-      null, 1, null, ALL_UPGRADES
+      null, 1, null,
+      Bastion.class, ALL_UPGRADES
     ),
     NOBLE_QUARTERS = new Upgrade(
       "Noble Quarters",
       "Increases the space available to your family, advisors, honour guard "+
       "and honoured guests.",
       400,
-      null, 1, null, ALL_UPGRADES
+      null, 1, null,
+      Bastion.class, ALL_UPGRADES
     ),
     GUEST_QUARTERS = new Upgrade(
       "Guest Quarters",
       "Makes more space for prisoners and hostages, and creates openings for "+
       "Stewards in your employ.",
       250,
-      null, 1, null, ALL_UPGRADES
+      null, 1, null,
+      Bastion.class, ALL_UPGRADES
     ),
     BLAST_SHIELDS = new Upgrade(
       "Blast Shields",
       "Increases the structural integrity of the Bastion, particularly vital "+
       "in the event of atomic attack.",
       450,
-      null, 1, null, ALL_UPGRADES
+      null, 1, null,
+      Bastion.class, ALL_UPGRADES
     ),
     SEAT_OF_POWER = new Upgrade(
       "Seat of Power",
       "Augments the strength and range of your psyonic powers and capacity "+
       "to function without sleep or rest.",
       500,
-      null, 1, null, ALL_UPGRADES
+      null, 1, null,
+      Bastion.class, ALL_UPGRADES
     );
 
   
@@ -207,7 +212,7 @@ public class Bastion extends Venue {
     stocks.forceDemand(CARBS  , foodNeed * 1.5f, Stocks.TIER_CONSUMER);
     stocks.forceDemand(PROTEIN, foodNeed * 1.0f, Stocks.TIER_CONSUMER);
     stocks.forceDemand(GREENS , foodNeed * 1.0f, Stocks.TIER_CONSUMER);
-    stocks.forceDemand(RAW_SPYCE  , foodNeed * 0.5f, Stocks.TIER_CONSUMER);
+    stocks.forceDemand(TINER_SPYCE  , foodNeed * 0.5f, Stocks.TIER_CONSUMER);
     //
     //  Modify maximum integrity based on upgrades-
     final int BB = structure.upgradeLevel(BLAST_SHIELDS);

@@ -1,98 +1,128 @@
 
 
-
 package stratos.util;
 import java.io.*;
-import java.util.*;
+import java.lang.reflect.Array;
+import java.util.Iterator;
 
 
+//  TODO:  Sort additions by class of origin, instead of by key?
 
-//
-//  Since I seem to be indexing things all over the place, a utility class for
-//  the purpose seems in order.
-public class Index <T extends Index.Member> implements Iterable <T> {
+public class Index <T extends Index.Entry> implements Iterable <T> {
+  
+  
+  final private Sorting <Entry> allEntries = new Sorting <Entry> () {
+    public int compare(Entry a, Entry b) {
+      return a.key.compareTo(b.key);
+    }
+  };
+  
+  public static class Entry {
+    
+    final String key;
+    final Index index;
+    private int uniqueID = -1;
+    
+    protected Entry(Index index, String key) {
+      this.index = index;
+      this.key = key;
+      index.addEntry(this, key);
+    }
+    
+    public int uniqueID() {
+      index.assignIDs();
+      return uniqueID;
+    }
+  }
+  
+  private Object asArray[] = null;
+  private Batch <T> addedSoFar = new Batch <T> ();
+  private Batch <T> allAdded = new Batch <T> ();
   
   
   
-  final String indexID;
-  final Class declares;
-  private Batch <T> members = new Batch <T> ();
-  private Object arrayM[];
-  
-  
-  
-  public Index(Class declares, String indexID) {
-    this.declares = declares;
-    this.indexID = indexID;
+  /**  Saving and loading methods-
+    */
+  private void addEntry(T entry, String key) {
+    if (asArray != null) {
+      I.complain(
+        "ENTRIES CANNOT BE ADDED TO INDEX AFTER UNIQUE IDS HAVE BEEN ASSIGNED!"
+      );
+      return;
+    }
+    
+    allEntries.insert(entry);
+    addedSoFar.add   (entry);
+    allAdded  .add   (entry);
   }
   
   
-  public void saveMember(T m, DataOutputStream out) throws Exception {
-    if (m == null) { out.writeInt(-1); return; }
-    members();
-    out.writeInt(m.indexID);
+  private void assignIDs() {
+    //  This method is only intended to be called once, so if new entries are
+    //  added after this point, you're screwed.
+    if (asArray != null) return;
+    asArray = new Object[allEntries.size()];
+    int nextID = 0;
+    for (Entry e : allEntries) {
+      e.uniqueID = nextID;
+      asArray[nextID++] = e;
+    }
   }
   
   
-  public T loadMember(DataInputStream in) throws Exception {
-    final int index = in.readInt();
-    if (index == -1) return null;
-    return (T) members()[index];
+  public void saveEntry(T entry, DataOutputStream out) throws Exception {
+    assignIDs();
+    out.writeInt(entry == null ? -1 : entry.uniqueID);
   }
   
   
-  public Object[] members() {
-    if (arrayM != null) return arrayM;
-    arrayM = members.toArray();
-    members = null;
-    return arrayM;
+  public T loadFromEntry(DataInputStream in) throws Exception {
+    assignIDs();
+    final int ID = in.readInt();
+    return ID == -1 ? null : (T) asArray[ID];
   }
   
   
-  public T member(int index) {
-    members();
-    if (index < 0 || index >= arrayM.length) return null;
-    return (T) arrayM[index];
+  
+  /**  Other commonly-used utility methods:
+    */
+  public T[] soFar(Class typeClass) {
+    final T array[] = addedSoFar.toArray(typeClass);
+    addedSoFar.clear();
+    return array;
   }
   
 
   final public Iterator <T> iterator() {
-    members();
     return new Iterator <T> () {
-      int index = 0;
+      int index = asArray == null ? -1 : 0;
       
-      final public boolean hasNext() {
-        return index < arrayM.length;
+      public boolean hasNext() {
+        return index > -1 && index < asArray.length;
       }
       
-      final public T next() {
-        final T t = (T) arrayM[index];
+      public T next() {
+        final T next = (T) asArray[index];
         index++;
-        return t;
+        return next;
       }
       
-      public void remove() { I.complain("NOT SUPPORTED"); }
+      public void remove() {
+        I.complain("DELETION NOT SUPPORTED");
+      }
     };
   }
-  
-  
-  
-  /**  Intended for subclassing by external clients.
-    */
-  public static class Member {
-    
-    final public int indexID;
-    final public Index index;
-    
-    
-    protected Member(Index index) {
-      if (index.arrayM != null) I.complain("CANNOT ADD MEMBERS AFTER INIT!");
-      this.index = index;
-      this.indexID = index.members.size();
-      index.members.add(this);
-    }
-  }
 }
+
+
+
+
+
+
+
+
+
+
 
 
 

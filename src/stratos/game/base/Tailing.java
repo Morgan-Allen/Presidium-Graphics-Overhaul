@@ -178,7 +178,7 @@ public class Tailing extends Element {
     final int stage = 1 + (int) ((fillLevel / MAX_FILL) * 3);
     final ModelAsset model;
     
-    if      (wasteType == ISOTOPES ) model = ISOTOPE_TAILING_MODEL    ;
+    if      (wasteType == TOPES ) model = ISOTOPE_TAILING_MODEL    ;
     else if (wasteType == ORES     ) model = METAL_ORE_TAILINGS[stage];
     else if (wasteType == ARTIFACTS) model = ISOTOPE_TAILING_MODEL    ;
     else                             model = RAW_SLAG_TAILINGS [stage];

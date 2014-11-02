@@ -306,6 +306,7 @@ public abstract class Sorting <K> implements Series <K> {
   
   private Batch <Node> matchesFor(K value) {
     final Batch <Node> matches = new Batch <Node> ();
+    if (root == null) return matches;
     matchFrom(value, root, matches);
     return matches;
   }
@@ -330,7 +331,7 @@ public abstract class Sorting <K> implements Series <K> {
   public boolean includes(K value) {
     final Batch <Node> matches = matchesFor(value);
     for (Node node : matches) {
-      if (node.value == value) return true;
+      if (compare(value, (K) node.value) == 0) return true;
     }
     return false;
   }

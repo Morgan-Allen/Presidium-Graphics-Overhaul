@@ -61,44 +61,49 @@ public class TrooperLodge extends Venue {
   /**  Upgrades, economic functions and actor behaviour-
     */
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-    TrooperLodge.class, "garrison_upgrades"
   );
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
     MELEE_TRAINING = new Upgrade(
       "Melee Training",
       "Prepares your soldiers for the rigours of close combat.",
-      150, null, 3, null, ALL_UPGRADES
+      150, null, 3, null,
+      TrooperLodge.class, ALL_UPGRADES
     ),
     MARKSMAN_TRAINING = new Upgrade(
       "Marksman Training",
       "Prepares your soldiers for ranged marksmanship.",
-      150, null, 3, null, ALL_UPGRADES
+      150, null, 3, null,
+      TrooperLodge.class, ALL_UPGRADES
     ),
     ENDURANCE_TRAINING = new Upgrade(
       "Endurance Training",
       "Prepares your soldiers for guerilla warfare and wilderness survival.",
-      200, null, 3, null, ALL_UPGRADES
+      200, null, 3, null,
+      TrooperLodge.class, ALL_UPGRADES
     ),
     AID_TRAINING = new Upgrade(
       "Peacekeeper Training",
       "Educates your soldiers about the use of minimal force, local "+
       "contacts, and proper treatment of prisoners.",
-      200, null, 3, null, ALL_UPGRADES
+      200, null, 3, null,
+      TrooperLodge.class, ALL_UPGRADES
     ),
     VOLUNTEER_STATION = new Upgrade(
       "Volunteer Station",
       "Dedicated in defence of their homes, a volunteer militia provides the "+
       "mainstay of your domestic forces.",
       100,
-      Backgrounds.VOLUNTEER, 2, null, ALL_UPGRADES
+      Backgrounds.VOLUNTEER, 2, null,
+      TrooperLodge.class, ALL_UPGRADES
     ),
     VETERAN_STATION = new Upgrade(
       "Veteran Station",
       "Seasoned professional soldiers, veterans provide the backbone of your "+
       "officer corps and command structure.",
       150,
-      Backgrounds.VETERAN, 1, VOLUNTEER_STATION, ALL_UPGRADES
+      Backgrounds.VETERAN, 1, VOLUNTEER_STATION,
+      TrooperLodge.class, ALL_UPGRADES
     );
   
   public Background[] careers() {

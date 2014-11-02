@@ -73,7 +73,6 @@ public class EnforcerBloc extends Venue {
   /**  Economic functions, upgrades and behaviour implementation-
     */
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-    EnforcerBloc.class, "audit_office_upgrades"
   );
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   //  TODO:  Include others.

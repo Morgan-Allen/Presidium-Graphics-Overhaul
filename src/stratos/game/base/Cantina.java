@@ -199,8 +199,8 @@ public class Cantina extends Venue {
   
   
   public float priceFor(Traded good) {
-    if (good == SOMA) return SOMA.basePrice * SOMA_MARGIN;
-    return good.basePrice * SMUGGLE_MARGIN;
+    if (good == SOMA) return SOMA.basePrice() * SOMA_MARGIN;
+    return good.basePrice() * SMUGGLE_MARGIN;
   }
   
   

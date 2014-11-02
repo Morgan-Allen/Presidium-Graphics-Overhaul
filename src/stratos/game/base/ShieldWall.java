@@ -126,22 +126,24 @@ public class ShieldWall extends Venue {
   /**  Registration, life cycle and economic functions-
     */
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-    ShieldWall.class, "shield_wall_upgrades"
   );
   
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
     FACING_CHANGE = new Upgrade(
       "Facing Change", "",
-      0, null, 1, null, ALL_UPGRADES
+      0, null, 1, null,
+      ShieldWall.class, ALL_UPGRADES
     ),
     BLAST_SHIELDS = new Upgrade(
       "Blast Shields", "",
-      0, null, 1, null, ALL_UPGRADES
+      0, null, 1, null,
+      ShieldWall.class, ALL_UPGRADES
     ),
     NULL_BARRIER  = new Upgrade(
       "Null Barrier", "",
-      0, null, 1, null, ALL_UPGRADES
+      0, null, 1, null,
+      ShieldWall.class, ALL_UPGRADES
     );
   
   

@@ -85,7 +85,6 @@ public class Reactor extends Venue {
   /**  Upgrades, economic functions and behaviour implementations-
     */
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-    Reactor.class, "reactor_upgrades"
   );
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
@@ -94,7 +93,8 @@ public class Reactor extends Venue {
       "Reduces the rate at which fuel rods are consumed and ameliorates "+
       "pollution.",
       150,
-      null, 1, null, ALL_UPGRADES
+      null, 1, null,
+      Reactor.class, ALL_UPGRADES
     ),
     
     ISOTOPE_CONVERSION = new Upgrade(
@@ -102,7 +102,8 @@ public class Reactor extends Venue {
       "Allows metal ores to be synthesised into fuel rods and facilitates "+
       "production of atomics.",
       350,
-      null, 1, WASTE_PROCESSING, ALL_UPGRADES
+      null, 1, WASTE_PROCESSING,
+      Reactor.class, ALL_UPGRADES
     ),
     
     FEEDBACK_MONITORS = new Upgrade(
@@ -111,7 +112,8 @@ public class Reactor extends Venue {
       "damaged or under-supervised, and reduces the likelihood of sabotage or "+
       "infiltration.",
       200,
-      null, 1, null, ALL_UPGRADES
+      null, 1, null,
+      Reactor.class, ALL_UPGRADES
     ),
     
     //
@@ -122,7 +124,8 @@ public class Reactor extends Venue {
       "Allows reactor output to contribute slightly towards regeneration of "+
       "psi points and range of psyon abilities.",
       250,
-      null, 1, FEEDBACK_MONITORS, ALL_UPGRADES
+      null, 1, FEEDBACK_MONITORS,
+      Reactor.class, ALL_UPGRADES
     ),
     
     FUSION_CONFINEMENT = new Upgrade(
@@ -130,7 +133,8 @@ public class Reactor extends Venue {
       "Increases power output while limiting pollution and decreasing the "+
       "severity of any meltdowns.",
       500,
-      null, 1, FEEDBACK_MONITORS, ALL_UPGRADES
+      null, 1, FEEDBACK_MONITORS,
+      Reactor.class, ALL_UPGRADES
     ),
     
     CORE_TECHNICIAN_STATION = new Upgrade(
@@ -138,7 +142,8 @@ public class Reactor extends Venue {
       "Core Technicians provide the expertise and vigilance neccesary to "+
       "monitor core output and manufacture atomics or antimass.",
       100,
-      Backgrounds.CORE_TECHNICIAN, 1, null, ALL_UPGRADES
+      Backgrounds.CORE_TECHNICIAN, 1, null,
+      Reactor.class, ALL_UPGRADES
     )
  ;
   
@@ -168,8 +173,8 @@ public class Reactor extends Venue {
       m.checkBonus = 5 * structure.upgradeLevel(ISOTOPE_CONVERSION);
       choice.add(m);
     }
-    final Manufacture o = stocks.nextSpecialOrder(actor);
-    if (o != null) {
+    
+    for (Manufacture o : stocks.specialOrders()) {
       o.checkBonus = 5 * structure.upgradeLevel(ISOTOPE_CONVERSION);
       choice.add(o);
     }
@@ -222,7 +227,7 @@ public class Reactor extends Venue {
     fuelConsumed *= 2 / (2f + structure.upgradeLevel(WASTE_PROCESSING));
     powerOutput *= (2f + structure.upgradeLevel(FUSION_CONFINEMENT)) / 2;
     
-    final Item fuel = Item.withAmount(FUEL_RODS, fuelConsumed);
+    final Item fuel = Item.withAmount(ANTIMASS, fuelConsumed);
     if (stocks.hasItem(fuel)) stocks.removeItem(fuel);
     else powerOutput /= 5;
     
@@ -230,7 +235,7 @@ public class Reactor extends Venue {
     
     //  Update demand for raw materials-
     stocks.forceDemand(
-      FUEL_RODS, stocks.demandFor(POWER) / 5f,
+      ANTIMASS, stocks.demandFor(POWER) / 5f,
       Stocks.TIER_CONSUMER
     );
     if (structure.upgradeLevel(ISOTOPE_CONVERSION) > 0) {
@@ -255,7 +260,7 @@ public class Reactor extends Venue {
   private float meltdownChance() {
     float chance = 1.5f - structure.repairLevel();
     chance *= 1 + (stocks.demandFor(POWER) / 20f);
-    if (stocks.amountOf(FUEL_RODS) == 0) chance /= 5;
+    if (stocks.amountOf(ANTIMASS) == 0) chance /= 5;
     chance /= (1f + structure.upgradeLevel(FEEDBACK_MONITORS));
     return chance;
   }
@@ -381,7 +386,7 @@ public class Reactor extends Venue {
   
   
   public Traded[] services() {
-    return new Traded[] { POWER, FUEL_RODS };
+    return new Traded[] { POWER, ANTIMASS };
   }
   
   

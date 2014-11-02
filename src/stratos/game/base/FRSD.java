@@ -15,9 +15,14 @@ import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
+
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.building.Economy.*;
+
+
+
+//  Okay.  I want individual control over import levels.
 
 
 
@@ -80,36 +85,24 @@ public class FRSD extends Venue {
   
   /**  Upgrades, economic functions and behaviour implementation-
     */
-  final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-    FRSD.class, "FRSD_upgrades"
-  );
+  final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> ();
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
-  final public static Upgrade
-    POLYMER_FAB = new Upgrade(
-      "Polymer Fab",
-      "Permits faster fabrication of basic clothing and plastics.",
-      150, null, 1, null, ALL_UPGRADES
-    ),
-    FAB_WORKER_STATION = new Upgrade(
-      "Fab Worker Station",
-      "Fab Workers see to the basic construction needs of your settlement, "+
-      "along with manufacturing of essential supplies.",
-      100, Backgrounds.FAB_WORKER, 1, null, ALL_UPGRADES
-    ),
-    RATIONS_EXCHANGE = new Upgrade(
-      "Rations Exchange",
-      "Increases space available for trading in carbs and protein.  "+
-      "Provides a small bonus to plastics fabrication.",
-      100, null, 1, null, ALL_UPGRADES
-    ),
-    HARDWARE_EXCHANGE = new Upgrade(
-      "Hardware Exchange",
-      "Increases space available for trading in ores, parts and fuel.",
-      200, null, 1, POLYMER_FAB, ALL_UPGRADES
-    );
   
-  //  ...That, plus storage options for raw materials.
+  final static Traded ALL_TRADE_TYPES[] = {
+    CARBS, PROTEIN, GREENS, LCHC,
+    ORES, TOPES, PARTS, PLASTICS
+  };
   
+  
+  public void updateAsScheduled(int numUpdates) {
+    super.updateAsScheduled(numUpdates);
+    if (! structure.intact()) return;
+    
+    final int interval = (int) scheduledInterval();
+    for (Traded type : ALL_TRADE_TYPES) {
+      stocks.incDemand(type, 0, Stocks.TIER_TRADER, interval, this);
+    }
+  }
   
   
   public Behaviour jobFor(Actor actor) {
@@ -118,6 +111,10 @@ public class FRSD extends Venue {
     
     final Plan r = Repairs.getNextRepairFor(actor, false);
     choice.add(r);
+    
+    
+    //  TODO:  There's a problem at the moment where deliveries directly to
+    //  housing can occur.  They should not be happening.
     
     final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
       this, services(), 2, 10, 5
@@ -129,38 +126,8 @@ public class FRSD extends Venue {
     );
     if (c != null && personnel.assignedTo(c) < 1) choice.add(c);
     
-    final Manufacture m = stocks.nextManufacture(actor, WASTE_TO_PLASTICS);
-    choice.add(m);
-    
-    final Manufacture o = stocks.nextSpecialOrder(actor);
-    choice.add(o);
-    
     if (choice.empty()) choice.add(new Supervision(actor, this));
-    
     return choice.weightedPick();
-  }
-  
-  
-  public void addServices(Choice choice, Actor forActor) {
-    Commission.addCommissions(forActor, this, choice, OVERALLS);
-  }
-  
-  
-  public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates);
-    if (! structure.intact()) return;
-    
-    final float
-      plasticLevel = (structure.upgradeLevel(POLYMER_FAB      ) + 1) * 5,
-      rationLevel  = (structure.upgradeLevel(RATIONS_EXCHANGE ) + 1) * 5,
-      scrapLevel   = (structure.upgradeLevel(HARDWARE_EXCHANGE) + 1) * 5;
-    
-    stocks.forceDemand(PLASTICS , plasticLevel  , Stocks.TIER_PRODUCER);
-    stocks.forceDemand(CARBS    , rationLevel   , Stocks.TIER_TRADER  );
-    stocks.forceDemand(PROTEIN  , rationLevel   , Stocks.TIER_TRADER  );
-    stocks.forceDemand(ORES     , scrapLevel    , Stocks.TIER_TRADER  );
-    stocks.forceDemand(FUEL_RODS, scrapLevel    , Stocks.TIER_TRADER  );
-    stocks.forceDemand(PARTS    , scrapLevel / 2, Stocks.TIER_TRADER  );
   }
   
   
@@ -177,11 +144,7 @@ public class FRSD extends Venue {
   
   
   public Traded[] services() {
-    return new Traded[] {
-      CARBS, PROTEIN, PLASTICS, OVERALLS,
-      ORES, FUEL_RODS, PARTS,
-      SERVICE_COMMERCE, SERVICE_REPAIRS
-    };
+    return ALL_TRADE_TYPES;
   }
   
   

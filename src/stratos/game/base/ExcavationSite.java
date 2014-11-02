@@ -134,7 +134,6 @@ public class ExcavationSite extends Venue implements TileConstants {
   /**  Economic functions-
     */
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-    ExcavationSite.class, "excavation_upgrades"
   );
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
@@ -143,7 +142,8 @@ public class ExcavationSite extends Venue implements TileConstants {
       "Increases effective dig range while limiting pollution and reducing "+
       "the likelihood of artilect release.",
       100,
-      null, 1, null, ALL_UPGRADES
+      null, 1, null,
+      ExcavationSite.class, ALL_UPGRADES
     ),
     
     METAL_ORES_MINING = new Upgrade(
@@ -151,7 +151,8 @@ public class ExcavationSite extends Venue implements TileConstants {
       "Allows veins of heavy metals to be detected and excavated more "+
       "reliably.",
       150,
-      ORES, 2, null, ALL_UPGRADES
+      ORES, 2, null,
+      ExcavationSite.class, ALL_UPGRADES
     ),
     
     FUEL_CORES_MINING = new Upgrade(
@@ -159,7 +160,8 @@ public class ExcavationSite extends Venue implements TileConstants {
       "Allows deposits of radiactive isotopes to be sought out and extracted "+
       "more reliably.",
       200,
-      FUEL_RODS, 2, null, ALL_UPGRADES
+      ANTIMASS, 2, null,
+      ExcavationSite.class, ALL_UPGRADES
     ),
     
     EXCAVATOR_STATION = new Upgrade(
@@ -167,7 +169,8 @@ public class ExcavationSite extends Venue implements TileConstants {
       "Excavators are responsible for seeking out subterranean mineral "+
       "deposits and bringing them to the surface.",
       50,
-      Backgrounds.EXCAVATOR, 1, null, ALL_UPGRADES
+      Backgrounds.EXCAVATOR, 1, null,
+      ExcavationSite.class, ALL_UPGRADES
     ),
     
     ARTIFACT_ASSEMBLY = new Upgrade(
@@ -175,7 +178,8 @@ public class ExcavationSite extends Venue implements TileConstants {
       "Allows fragmentary artifacts to be reconstructed with greater skill "+
       "and confidence.",
       150,
-      null, 1, EXCAVATOR_STATION, ALL_UPGRADES
+      null, 1, EXCAVATOR_STATION,
+      ExcavationSite.class, ALL_UPGRADES
     ),
     
     MANTLE_DRILLING = new Upgrade(
@@ -184,7 +188,8 @@ public class ExcavationSite extends Venue implements TileConstants {
       "metals and isotopes from the planet's molten core, at the cost of "+
       "heavy pollution.",
       350,
-      null, 1, METAL_ORES_MINING, ALL_UPGRADES
+      null, 1, METAL_ORES_MINING,
+      ExcavationSite.class, ALL_UPGRADES
     )
  ;
   
@@ -196,7 +201,7 @@ public class ExcavationSite extends Venue implements TileConstants {
   
   
   public Traded[] services() {
-    return new Traded[] { ORES, ISOTOPES };
+    return new Traded[] { ORES, TOPES };
   }
   
   
@@ -238,7 +243,7 @@ public class ExcavationSite extends Venue implements TileConstants {
     if (mineral == ORES) {
       return (0 + structure.upgradeLevel(METAL_ORES_MINING)) * 2;
     }
-    if (mineral == ISOTOPES) {
+    if (mineral == TOPES) {
       return (0 + structure.upgradeLevel(FUEL_CORES_MINING)) * 2;
     }
     if (mineral == ARTIFACTS) {

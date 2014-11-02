@@ -182,8 +182,8 @@ public class HumanMind extends ActorMind implements Qualities {
     choice.add(Exploring.nextExploration(actor));
     choice.add(Exploring.nextWandering  (actor));
     choice.add(new Foraging(actor, null));
-    choice.add(new Retreat (actor));
-
+    choice.add(new Retreat(actor));
+    
     final boolean timeoff = work == null || ! work.personnel().onShift(actor);
     if (work != null) {
       choice.add(work.jobFor(actor));

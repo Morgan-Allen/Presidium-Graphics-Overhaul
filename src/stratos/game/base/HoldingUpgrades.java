@@ -34,24 +34,29 @@ public class HoldingUpgrades {
   
 
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-    HoldingUpgrades.class, "holding_upgrades"
   );
   final public static Upgrade
     TENT_LEVEL = new Upgrade(
-      "Seal Tent", "", 0, null, 0, null, ALL_UPGRADES
+      "Seal Tent", "", 0, null, 0, null,
+      Holding.class, ALL_UPGRADES
     ),
     PYON_LEVEL = new Upgrade(
-      "Pyon Shacks", "", 0, null, 0, null, ALL_UPGRADES
+      "Pyon Shacks", "", 0, null, 0, null,
+      Holding.class, ALL_UPGRADES
     ),
     FREEBORN_LEVEL = new Upgrade(
-      "Freeborn Holding", "", 0, null, 0, PYON_LEVEL, ALL_UPGRADES
+      "Freeborn Holding", "", 0, null, 0, PYON_LEVEL,
+      Holding.class, ALL_UPGRADES
     ),
     CITIZEN_LEVEL = new Upgrade(
-      "Citizen Apartment", "", 0, null, 0, FREEBORN_LEVEL, ALL_UPGRADES
+      "Citizen Apartment", "", 0, null, 0, FREEBORN_LEVEL,
+      Holding.class, ALL_UPGRADES
     ),
     GELDER_LEVEL = new Upgrade(
-      "Gelder Manse", "", 0, null, 0, CITIZEN_LEVEL, ALL_UPGRADES
-    );
+      "Gelder Manse", "", 0, null, 0, CITIZEN_LEVEL,
+      Holding.class, ALL_UPGRADES
+    ),
+    UPGRADE_ARRAY[] = Upgrade.upgradesFor(Holding.class);
   
   final static Object
     NEEDS_MET = "OKAY",
@@ -103,12 +108,12 @@ public class HoldingUpgrades {
     ),
     new Conversion(
       Holding.class, "Level 2",
-      1, PARTS,
+      1, PLASTICS,
       SIMPLE_DC, ASSEMBLY
     ),
     new Conversion(
       Holding.class, "Level 3",
-      2, PARTS, 1, PLASTICS,
+      2, PLASTICS, 1, PARTS,
       ROUTINE_DC, ASSEMBLY
     ),
     new Conversion(
@@ -126,7 +131,7 @@ public class HoldingUpgrades {
   
   public static Upgrade upgradeFor(int upgradeLevel) {
     if (upgradeLevel >= 0 && upgradeLevel <= 4) {
-      return ALL_UPGRADES.member(upgradeLevel);
+      return UPGRADE_ARRAY[upgradeLevel];
     }
     return null;
   }

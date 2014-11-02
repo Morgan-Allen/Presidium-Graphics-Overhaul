@@ -21,7 +21,8 @@ public class Resting extends Plan {
   
   /**  Static constants, field definitions, constructors and save/load methods-
     */
-  private static boolean verbose = false;
+  private static boolean
+    verbose = false;
   
   final static int
     MODE_NONE     = -1,
@@ -89,10 +90,11 @@ public class Resting extends Plan {
     }
     
     //  Include effects of fatigue-
-    final float stress = (
+    final float stress = Visit.clamp(
       actor.health.fatigueLevel () +
       actor.health.stressPenalty() +
-      actor.health.injuryLevel  ()
+      actor.health.injuryLevel  (),
+      0, 2
     ) / 2f;
     if (stress < 0.5f) {
       urgency *= stress * 2;
@@ -103,12 +105,12 @@ public class Resting extends Plan {
     }
     
     //  Include effects of hunger-
-    float sumFood = 0;
+    float sumFood = 0, hunger = Visit.clamp(actor.health.hungerLevel(), 0, 1);
     for (Traded s : menuFor(restPoint)) {
       sumFood += restPoint.inventory().amountOf(s);
     }
     if (sumFood > 1) sumFood = 1;
-    urgency += actor.health.hungerLevel() * sumFood * PARAMOUNT;
+    urgency += hunger * sumFood * PARAMOUNT;
     
     //  Include pricing effects-
     if (cost > 0) {

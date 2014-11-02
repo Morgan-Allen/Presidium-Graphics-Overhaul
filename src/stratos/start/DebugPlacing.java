@@ -20,14 +20,14 @@ import stratos.util.*;
 
 
 
-//  Set up exclusion zone around kommando lodge.  Revise FRSD options.
+//  Set up exclusion zone around kommando lodge.
 
-//  Re-introduce the polymer fab.
 //  Re-work the culture lab- produce either food/organs OR soma/reagents.
 //  Produce medicine at the physician station.
 //  Test datalink-production at the archives.
 //  Test study behaviour at the archives.
-//  Introduce the Air Field.
+
+//  Introduce the Air Field?  (Bring back the Landing Strip at least.)
 
 //  Have solar banks primarily exist as water supply, not power per se.  The
 //  reactor complex can provide most of that.
@@ -137,8 +137,12 @@ public class DebugPlacing extends Scenario {
   private void configTradeTest(Stage world, Base base, BaseUI UI) {
     
     final Venue depot = new FRSD(base);
-    Placement.establishVenue(depot, 5, 5, true, world);
+    Placement.establishVenue(depot, 5 , 5 , true, world);
     depot.updateAsScheduled(0);
+    
+    final Venue works = new Fabricator(base);
+    Placement.establishVenue(works, 5 , 10, true, world);
+    works.updateAsScheduled(0);
     
     base.commerce.updateCommerce(0);
     base.commerce.scheduleDrop(5);

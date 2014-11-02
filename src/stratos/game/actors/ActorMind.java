@@ -108,37 +108,41 @@ public abstract class ActorMind implements Qualities {
         nextP = next == null ? -1 : next.priorityFor(actor);
       I.say("  LAST PLAN: "+last+" "+lastP);
       I.say("  NEXT PLAN: "+next+" "+nextP);
-      I.say("\n");
     }
-    if (Choice.wouldSwitch(actor, last, next, true)) assignBehaviour(next);
+    if (Choice.wouldSwitch(actor, last, next, true, false)) {
+      assignBehaviour(next);
+      I.say("  Switching to next plan!");
+    }
   }
   
   
   public Behaviour nextBehaviour() {
     final boolean report = decisionVerbose && I.talkAbout == actor;
+    if (report) I.say("\n\nACTOR IS GETTING NEXT BEHAVIOUR...");
     
     if (report) I.say("\nGetting next from to-do list:");
     final Choice fromTodo = new Choice(actor, todoList);
     final Behaviour notDone = fromTodo.pickMostUrgent();
+    if (report && fromTodo.empty()) I.say("  Nothing on todo list.");
     
     if (report) I.say("\nGetting newly created behaviour:");
     final Choice fromNew = createNewBehaviours(new Choice(actor));
     final Behaviour newChoice = fromNew.weightedPick();
+    if (report && fromNew.empty()) I.say("  No new behaviour.");
     
-    if (report) I.say("\nChecking for switch from undone to new choice:");
     final Behaviour taken =
-      Choice.wouldSwitch(actor, notDone, newChoice, false) ?
+      Choice.wouldSwitch(actor, notDone, newChoice, false, false) ?
       newChoice : notDone;
     
     if (report) {
-      I.say("\nPLANS ACQUIRED:");
-      I.say("  LAST PLAN: "+rootBehaviour());
+      I.say("\nNext plans acquired...");
+      I.say("  Last plan: "+rootBehaviour());
       final float
         notP = notDone == null ? -1 : notDone.priorityFor(actor),
         newP = newChoice == null ? -1 : newChoice.priorityFor(actor);
-      I.say("  NOT DONE: "+notDone+", PRIORITY: "+notP);
-      I.say("  NEW CHOICE: "+newChoice+", PRIORITY: "+newP);
-      I.say("  CURRENT FAVOURITE: "+taken);
+      I.say("  From Todo:  "+notDone+  "  (priority "+notP+")");
+      I.say("  New choice: "+newChoice+"  (priority "+newP+")");
+      I.say("  Taken: "+taken);
     }
     return taken;
   }
@@ -389,13 +393,13 @@ public abstract class ActorMind implements Qualities {
   
   public boolean wouldSwitchTo(Behaviour next) {
     if (! actor.health.conscious()) return false;
-    return Choice.wouldSwitch(actor, rootBehaviour(), next, true);
+    return Choice.wouldSwitch(actor, rootBehaviour(), next, true, false);
   }
   
   
   public boolean mustIgnore(Behaviour next) {
     if (! actor.health.conscious()) return true;
-    return Choice.wouldSwitch(actor, next, rootBehaviour(), false);
+    return Choice.wouldSwitch(actor, next, rootBehaviour(), false, false);
   }
   
   

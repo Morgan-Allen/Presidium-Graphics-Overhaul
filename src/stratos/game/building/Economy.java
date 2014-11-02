@@ -39,65 +39,91 @@ public final class Economy {
     INSOLATION = new Traded(BC, "Insolation", null, FORM_RESOURCE, 0),
     LAND_AREA  = new Traded(BC, "Land Area" , null, FORM_RESOURCE, 0);
   final public static Traded
-    ALL_RESOURCES[] = Traded.typesSoFar();
+    ALL_RESOURCES[] = Traded.INDEX.soFar(Traded.class);
   
   
   final public static Traded
     CARBS = new Traded(
-      BC, "Carbs"    , "carbs.gif"    , FORM_MATERIAL, 10
+      BC, "Carbs"    , "carbs.gif"    , FORM_MATERIAL, 10,
+      "Carbohydrate-based and oily foodstuffs"
     ),
     GREENS = new Traded(
-      BC, "Greens"   , "greens.gif"   , FORM_MATERIAL, 20
+      BC, "Greens"   , "greens.gif"   , FORM_MATERIAL, 30,
+      "Fresh vegetable and fibrous foodstuffs"
     ),
     PROTEIN = new Traded(
-      BC, "Protein"  , "protein.gif"  , FORM_MATERIAL, 50
+      BC, "Protein"  , "protein.gif"  , FORM_MATERIAL, 55,
+      "Game meat and cultured yeast foodstuffs"
     ),
-    RAW_SPYCE = new Traded(
-      BC, "Raw Spyce", "organs.gif"   , FORM_MATERIAL, 100
+    
+    TINER_SPYCE = new Traded(
+      BC, "Tiner Spyce", "spyce.gif"  , FORM_MATERIAL, 100,
+      "Tinerazine, a spyce compound found in animal galls"
+    ),
+    HALEB_SPYCE = new Traded(
+      BC, "Haleb Spyce", "spyce.gif"  , FORM_MATERIAL, 100,
+      "Halebdynum, a spyce compound found as a dessicated salt"
+    ),
+    NATRI_SPYCE = new Traded(
+      BC, "Natri Spyce", "spyce.gif"  , FORM_MATERIAL, 100,
+      "Natrizoral, a spyce compound found in plant oils"
     ),
     
     SOMA = new Traded(
-      BC, "Soma"     , "soma.gif"     , FORM_MATERIAL, 40
+      BC, "Soma"     , "soma.gif"     , FORM_MATERIAL, 40,
+      "A mild recreational narcotic with minimal side-effects"
     ),
     REAGENTS = new Traded(
-      BC, "Reagents" , "stimkit.gif"  , FORM_MATERIAL, 60
+      BC, "Reagents" , "stimkit.gif"  , FORM_MATERIAL, 60,
+      "Common stimulants and metabolic tracers used in lab work"
     ),
     MEDICINE = new Traded(
-      BC, "Medicine" , "medicines.gif", FORM_MATERIAL, 120
-    ),
-    SPYCE = new Traded(
-      BC, "Spyce"    , "spyce.gif"    , FORM_MATERIAL, 250
+      BC, "Medicine" , "medicines.gif", FORM_MATERIAL, 120,
+      "Drugs and supplements tailored to treat common diseases"
     ),
     
-    ORES = new Traded(
-      BC, "Ores"     , "ores.gif"     , FORM_MATERIAL, 25
+    LCHC = new Traded(
+      BC, "LCHC"     , "carbons.gif"  , FORM_MATERIAL, 10,
+      "Long-chain hydrocarbons, used in plastics production"
     ),
-    ISOTOPES = new Traded(
-      BC, "Isotopes" , "isotopes.gif" , FORM_MATERIAL, 55
+    ORES = new Traded(
+      BC, "Ores"     , "ores.gif"     , FORM_MATERIAL, 25,
+      "Common metal ores, used in construction and industry"
+    ),
+    TOPES = new Traded(
+      BC, "Topes"    , "isotopes.gif" , FORM_MATERIAL, 55,
+      "Heavy isotopes, often toxic, used in nuclear synthesis"
+    ),
+
+    PLASTICS = new Traded(
+      BC, "Plastics" , "plastics.gif" , FORM_MATERIAL, 25,
+      "Flexible and light-weight, used for cloth and home fittings"
     ),
     PARTS = new Traded(
-      BC, "Parts"    , "parts.gif"    , FORM_MATERIAL, 40
+      BC, "Parts"    , "parts.gif"    , FORM_MATERIAL, 40,
+      "Durable and heat-resistant, needed for heavy engineering"
     ),
-    FUEL_RODS = new Traded(
-      BC, "Fuel Rods", "fuel_rods.gif", FORM_MATERIAL, 85
+    ANTIMASS = new Traded(
+      BC, "Antimass", "fuel_rods.gif", FORM_MATERIAL, 85,
+      "A potent energy source needed for atomics and space travel"
     ),
     
-    PLASTICS = new Traded(
-      BC, "Plastics" , "plastics.gif" , FORM_MATERIAL, 25
-    ),
     PRESSFEED = new Traded(
-      BC, "Pressfeed", "pressfeed.gif", FORM_MATERIAL, 50
+      BC, "Pressfeed", "pressfeed.gif", FORM_MATERIAL, 50,
+      "Disposable propaganda used to raise morale"
     ),
     ARTWORKS = new Traded(
-      BC, "Artworks" , "decor.gif"    , FORM_MATERIAL, 100
+      BC, "Artworks" , "decor.gif"    , FORM_MATERIAL, 100,
+      "Interior decoration for the homes of the upper crust"
     ),
     DATALINKS = new Traded(
-      BC, "Datalinks", "datalinks.gif", FORM_MATERIAL, 125
+      BC, "Datalinks", "datalinks.gif", FORM_MATERIAL, 125,
+      "Encrypted information relays suited to advanced study"
     );
   
   final public static Traded
     ALL_FOOD_TYPES[] = { CARBS, GREENS, PROTEIN },
-    ALL_MATERIALS[] = Traded.typesSoFar();
+    ALL_MATERIALS [] = Traded.INDEX.soFar(Traded.class);
   
   final public static Traded
     SAMPLES = new Traded(
@@ -127,7 +153,7 @@ public final class Economy {
       BC, "Replicants" , null, FORM_SPECIAL, 0
     );
   final public static Traded
-    ALL_SPECIAL_ITEMS[] = Traded.typesSoFar();
+    ALL_SPECIAL_ITEMS[] = Traded.INDEX.soFar(Traded.class);
   
   
   final public static Traded
@@ -144,7 +170,7 @@ public final class Economy {
       BC, "Open Water"  , "water.png" , FORM_PROVISION, 20
     );
   final public static Traded
-    ALL_PROVISIONS[] = Traded.typesSoFar();
+    ALL_PROVISIONS[] = Traded.INDEX.soFar(Traded.class);
   
   
   final public static Traded
@@ -176,7 +202,7 @@ public final class Economy {
       BC, "Armament"     , null, FORM_SERVICE, 0
     );
   final public static Traded
-    ALL_SERVICES[] = Traded.typesSoFar();
+    ALL_SERVICES[] = Traded.INDEX.soFar(Traded.class);
   
   
 
@@ -201,7 +227,10 @@ public final class Economy {
   
   final public static Object
     TO = new Object();
-
+  
+  
+  
+  //  TODO:  Move the various armour/device types to their own catalogues.
   
   final public static DeviceType
     STUN_WAND = new DeviceType(
@@ -280,7 +309,7 @@ public final class Economy {
       EngineerStation.class, 2, PARTS, 15, ASSEMBLY
     );
   final public static Traded
-    ALL_DEVICES[] = Traded.typesSoFar();
+    ALL_DEVICES[] = Traded.INDEX.soFar(Traded.class);
   
   
   //  TODO:  You should have skins associated with some of these...
@@ -329,11 +358,7 @@ public final class Economy {
       EngineerStation.class, 12, PARTS, 25, ASSEMBLY
     );
   final public static Traded
-    ALL_OUTFITS[] = Traded.typesSoFar();
-  
-  
-  final public static Traded
-    ALL_ITEM_TYPES[] = Traded.allTypes();
+    ALL_OUTFITS[] = Traded.INDEX.soFar(Traded.class);
   
   
   final public static Conversion
@@ -343,18 +368,23 @@ public final class Economy {
       MODERATE_DC, ASSEMBLY, SIMPLE_DC, CHEMISTRY
     ),
     
-    WASTE_TO_PLASTICS = new Conversion(
-      FRSD.class, TO, 1, PLASTICS,
-      ROUTINE_DC, CHEMISTRY, SIMPLE_DC, ASSEMBLY
+    CARBS_TO_LCHC = new Conversion(
+      Fabricator.class, 1, CARBS, TO, 1, LCHC,
+      SIMPLE_DC, CHEMISTRY
+    ),
+    
+    LCHC_TO_PLASTICS = new Conversion(
+      Fabricator.class, 1, LCHC, TO, 1, PLASTICS,
+      ROUTINE_DC, CHEMISTRY, SIMPLE_DC, HANDICRAFTS
     ),
     
     PLASTICS_TO_DECOR = new Conversion(
-      FRSD.class, 1, PLASTICS, TO, 2, ARTWORKS,
+      Fabricator.class, 2, PLASTICS, TO, 1, ARTWORKS,
       STRENUOUS_DC, GRAPHIC_DESIGN, MODERATE_DC, HANDICRAFTS
     ),
     
     PLASTICS_TO_PRESSFEED = new Conversion(
-      Bastion.class, 1, PLASTICS, TO, 10, PRESSFEED,
+      EnforcerBloc.class, 1, PLASTICS, TO, 10, PRESSFEED,
       SIMPLE_DC, ACCOUNTING, DIFFICULT_DC, GRAPHIC_DESIGN
     ),
     
@@ -364,11 +394,10 @@ public final class Economy {
     ),
     
     METALS_TO_FUEL = new Conversion(
-      Reactor.class, 10, ORES, TO, 1, FUEL_RODS,
+      Reactor.class, 10, ORES, TO, 1, ANTIMASS,
       MODERATE_DC, CHEMISTRY, MODERATE_DC, FIELD_THEORY
     ),
     
-    //  TODO:  These all need re-working.
     WASTE_TO_CARBS = new Conversion(
       CultureLab.class, TO, 1, CARBS,
       SIMPLE_DC, CHEMISTRY
@@ -377,20 +406,21 @@ public final class Economy {
       CultureLab.class, 2, CARBS, TO, 1, PROTEIN,
       ROUTINE_DC, CHEMISTRY, ROUTINE_DC, GENE_CULTURE
     ),
-    CARBS_TO_SOMA = new Conversion(
-      CultureLab.class, 2, CARBS, TO, 1, SOMA,
-      ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
-    ),
-    PROTEIN_TO_STIM_KITS = new Conversion(
-      CultureLab.class, 1, PROTEIN, TO, 10, REAGENTS,
-      ROUTINE_DC, PHARMACY, ROUTINE_DC, CHEMISTRY
-    ),
-    PROTEIN_TO_ORGANS = new Conversion(
-      CultureLab.class, 5, PROTEIN, 5, POWER, TO, 1, SPYCE,
+    PROTEIN_TO_REPLICANTS = new Conversion(
+      CultureLab.class, 5, PROTEIN, TO, 1, REPLICANTS,
       MODERATE_DC, GENE_CULTURE, ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
     ),
-    STIM_KITS_TO_MEDICINE = new Conversion(
-      PhysicianStation.class, 1, REAGENTS, TO, 5, MEDICINE,
+    
+    WASTE_TO_SOMA = new Conversion(
+      CultureLab.class, TO, 1, SOMA,
+      ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
+    ),
+    WASTE_TO_REAGENTS = new Conversion(
+      CultureLab.class, TO, 1, REAGENTS,
+      ROUTINE_DC, PHARMACY, ROUTINE_DC, CHEMISTRY
+    ),
+    REAGENTS_TO_MEDICINE = new Conversion(
+      PhysicianStation.class, 1, REAGENTS, TO, 1, MEDICINE,
       MODERATE_DC, CHEMISTRY, ROUTINE_DC, PHARMACY
     );
   

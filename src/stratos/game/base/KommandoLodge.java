@@ -70,7 +70,6 @@ public class KommandoLodge extends Venue {
   /**  Upgrades, economic functions and behaviour implementations-
     */
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-    KommandoLodge.class, "surveillance_post_upgrades"
   );
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
@@ -79,42 +78,48 @@ public class KommandoLodge extends Venue {
       "Reduces the Surveillance Post's thermal signature and light output, "+
       "making it harder for outsiders to detect.",
       200,
-      null, 1, null, ALL_UPGRADES
+      null, 1, null,
+      KommandoLodge.class, ALL_UPGRADES
     ),
     SENSOR_PERIMETER = new Upgrade(
       "Sensor Perimeter",
       "Installs automatic sensors attuned to sound and motion, making it "+
       "difficult for intruders to approach unannounced.",
       100,
-      null, 1, null, ALL_UPGRADES
+      null, 1, null,
+      KommandoLodge.class, ALL_UPGRADES
     ),
     NATIVE_MISSION = new Upgrade(
       "Native Mission",
       "Improves outreach to local tribal communities, raising the odds of "+
       "peaceful contact and recruitment from their ranks.",
       300,
-      null, 1, null, ALL_UPGRADES
+      null, 1, null,
+      KommandoLodge.class, ALL_UPGRADES
     ),
     CAPTIVE_BREEDING = new Upgrade(
       "Animal Breeding",
       "Breeds new specimens of local wildlife for use as food stock or "+
       "personal companions.",
       300,
-      null, 1, SENSOR_PERIMETER, ALL_UPGRADES
+      null, 1, SENSOR_PERIMETER,
+      KommandoLodge.class, ALL_UPGRADES
     ),
     GUERILLA_TRAINING = new Upgrade(
       "Guerilla Training",
       "Emphasises combat, stealth and survival exercises relevant in a "+
       "military capacity.",
       200,
-      null, 1, THERMAL_CAMOUFLAGE, ALL_UPGRADES
+      null, 1, THERMAL_CAMOUFLAGE,
+      KommandoLodge.class, ALL_UPGRADES
     ),
     EXPLORER_STATION = new Upgrade(
       "Explorer Station",
       "Explorers are rugged outdoorsman that combine scientific curiosity "+
       "with a respect for natural ecosystems and basic self-defence training.",
       100,
-      Backgrounds.EXPLORER, 1, null, ALL_UPGRADES
+      Backgrounds.EXPLORER, 1, null,
+      KommandoLodge.class, ALL_UPGRADES
     );
   
   

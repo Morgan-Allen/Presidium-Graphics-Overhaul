@@ -7,13 +7,16 @@ package stratos.game.building;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.civilian.*;
-import stratos.game.plans.DeliveryUtils;
-import stratos.game.plans.Manufacture;
+import stratos.game.plans.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.building.Economy.*;
 
 
+
+
+//  TODO:  A lot of this will have to be upgraded & replaced by the
+//  newer DemandProfile class
 
 public class Stocks extends Inventory {
   
@@ -22,13 +25,14 @@ public class Stocks extends Inventory {
   /**  Fields, constructors, and save/load methods-
     */
   final public static float
-    UPDATE_PERIOD = Stage.STANDARD_HOUR_LENGTH,
+    UPDATE_PERIOD = Stage.STANDARD_HOUR_LENGTH / 2,
     DEMAND_DECAY  = UPDATE_PERIOD * 1f / (Stage.STANDARD_DAY_LENGTH / 2),
     SEARCH_RADIUS = 16,
-    MAX_CHECKED   = 5;
+    MAX_CHECKED   = 5 ;
   
   private static boolean
-    verbose = false;
+    verbose      = false,
+    extraVerbose = false;
   
   
   static class Demand {
@@ -57,7 +61,7 @@ public class Stocks extends Inventory {
     int numC = s.loadInt();
     while (numC-- > 0) {
       final Demand d = new Demand();
-      d.type = Economy.ALL_ITEM_TYPES[s.loadInt()];
+      d.type         = (Traded) s.loadObject();
       d.amountInc    = s.loadFloat();
       d.demandAmount = s.loadFloat();
       d.tierType     = (int) s.loadFloat();
@@ -72,17 +76,12 @@ public class Stocks extends Inventory {
     s.saveObjects(specialOrders);
     s.saveInt(demands.size());
     for (Demand d : demands.values()) {
-      s.saveInt(d.type.typeID);
-      s.saveFloat(d.amountInc   );
-      s.saveFloat(d.demandAmount);
-      s.saveFloat(d.tierType    );
-      s.saveFloat(d.pricePaid   );
+      s.saveObject(d.type        );
+      s.saveFloat (d.amountInc   );
+      s.saveFloat (d.demandAmount);
+      s.saveFloat (d.tierType    );
+      s.saveFloat (d.pricePaid   );
     }
-  }
-  
-  
-  public List <Manufacture> specialOrders() {
-    return specialOrders;
   }
   
   
@@ -155,13 +154,7 @@ public class Stocks extends Inventory {
   }
   
   
-  public Manufacture nextSpecialOrder(Actor actor) {
-    final Choice choice = new Choice(actor);
-    for (Manufacture order : specialOrders) choice.add(order);
-    return (Manufacture) choice.weightedPick();
-  }
-  
-  
+  //  TODO:  Get rid of this?  Or fold into 'special orders?'
   public Manufacture nextManufacture(Actor actor, Conversion c) {
     final float shortage = shortageOf(c.out.type);
     if (shortage <= 0) return null;
@@ -170,17 +163,13 @@ public class Stocks extends Inventory {
       actor, basis, c,
       Item.withAmount(c.out, shortage + 5)
     );
-    m.setMotive(Plan.MOTIVE_DUTY, shortageUrgency(c.out.type));
     return m;
   }
   
-  /*
-  public Manufacture bestManufacture(Actor actor, Conversion... cons) {
-    final Conversion picked = bestConversion(cons);
-    if (picked != null) return nextManufacture(actor, picked);
-    else return null;
+  
+  public List <Manufacture> specialOrders() {
+    return specialOrders;
   }
-  //*/
   
   
   
@@ -218,16 +207,6 @@ public class Stocks extends Inventory {
   }
   
   
-  public float shortageOf(Traded type) {
-    return demandFor(type) - amountOf(type);
-  }
-  
-  
-  public float surplusOf(Traded type) {
-    return amountOf(type) - demandFor(type);
-  }
-  
-  
   public float shortageUrgency(Traded type) {
     final Demand d = demands.get(type);
     if (d == null) return 0;
@@ -238,36 +217,21 @@ public class Stocks extends Inventory {
   }
   
   
-  public float priceFor(Traded type) {
-    final Demand d = demands.get(type);
-    if (d == null) return type.basePrice;
-    return (d.pricePaid + type.basePrice) / 2f;
+  public float shortageOf(Traded type) {
+    return demandFor(type) - amountOf(type);
   }
   
-  /*
-  private Conversion bestConversion(Conversion... cons) {
-    Item made = cons[0].out;
-    Conversion picked = null;
-    float minPrice = Float.POSITIVE_INFINITY;
-    for (Conversion c : cons) {
-      if (c.out.type != made.type) I.complain("Only for same good!");
-      float unitPrice = 0;
-      for (Item raw : c.raw) {
-        final float amount = amountOf(raw.type);
-        ///if (amount == 0) continue consLoop;
-        float rawPrice = priceFor(raw.type) * raw.amount;
-        //I.say("Raw price for "+raw+" is "+rawPrice);
-        rawPrice *= 5 / (5 + amount);
-        rawPrice *= 1 + shortagePenalty(raw.type);
-        unitPrice += rawPrice;
-      }
-      unitPrice /= c.out.amount;
-      //I.say("Unit price for "+c+" is "+unitPrice);
-      if (unitPrice < minPrice) { minPrice = unitPrice; picked = c; }
-    }
-    return picked;
+  
+  public float surplusOf(Traded type) {
+    return amountOf(type) - demandFor(type);
   }
-  //*/
+  
+  
+  public float priceFor(Traded type) {
+    final Demand d = demands.get(type);
+    if (d == null) return type.basePrice();
+    return (d.pricePaid + type.basePrice()) / 2f;
+  }
   
   
   
@@ -278,7 +242,7 @@ public class Stocks extends Inventory {
     if (d != null) return d;
     Demand made = new Demand();
     made.type = t;
-    made.pricePaid = t.basePrice;
+    made.pricePaid = t.basePrice();
     demands.put(t, made);
     return made;
   }
@@ -296,17 +260,18 @@ public class Stocks extends Inventory {
   public void incDemand(
     Traded type, float amount, int tier, int period, Owner source
   ) {
-    if (amount == 0) return;
     final Demand d = demandRecord(type);
     final float inc = period * 1f / UPDATE_PERIOD;
     d.amountInc += amount * inc;
     
-    if (verbose && I.talkAbout == basis) {
+    /*
+    if (extraVerbose && I.talkAbout == basis) {
       I.say(
         "  "+type+" demand inc is: "+d.amountInc+" raw amount: "+amount+
         "\n    Source is: "+source+", base inc: "+inc
       );
     }
+    //*/
     if (tier != TIER_NONE) d.tierType = tier;
   }
   
@@ -315,7 +280,7 @@ public class Stocks extends Inventory {
     
     //  Firstly, we check to see if the output good is in demand, and if so,
     //  reset demand for the raw materials-
-    final boolean report = verbose && I.talkAbout == basis;
+    final boolean report = extraVerbose && I.talkAbout == basis;
     final float demand = shortageOf(cons.out.type);
     if (demand <= 0) return;
     
@@ -327,7 +292,7 @@ public class Stocks extends Inventory {
     //  We adjust our prices to ensure we can make a profit, and adjust demand
     //  for the inputs to match demand for the outputs-
     final Demand o = demandRecord(cons.out.type);
-    o.pricePaid = o.type.basePrice * priceBump / (1f + cons.raw.length);
+    o.pricePaid = o.type.basePrice() * priceBump / (1f + cons.raw.length);
     for (Item raw : cons.raw) {
       final float needed = raw.amount * demand / cons.out.amount;
       if (report) I.say("  Need "+needed+" "+raw.type+" as raw materials");
@@ -351,33 +316,35 @@ public class Stocks extends Inventory {
   
   private void incPrice(Traded type, float toPrice) {
     final Demand d = demandRecord(type);
-    d.pricePaid += (toPrice - type.basePrice) * DEMAND_DECAY;
+    d.pricePaid += (toPrice - type.basePrice()) * DEMAND_DECAY;
   }
   
   
   public void diffuseDemand(Traded type, Batch <Venue> suppliers, int period) {
     final boolean report = verbose && I.talkAbout == basis;
-    final Demand d = demands.get(type);
-    if (d == null) return;
     
     final float
       shortage = shortageOf(type),
-      urgency = shortageUrgency(type);
-    if (shortage <= 0 || urgency <= 0) return;
+      urgency  = shortageUrgency(type),
+      tier     = demandTier(type);
     
-    final int tier = demandTier(type);
-    if (report) I.say(
-      basis+" has shortage of "+shortage+
-      " for "+type+" of urgency "+urgency
-    );
+    if (report) {
+      I.say(
+        "\n  "+basis+" has shortage of "+shortage+
+        " for "+type+" of urgency "+urgency
+      );
+      I.say("  Total suppliers: "+suppliers.size()+", tier: "+tier);
+    }
+    if (shortage <= 0 || urgency <= 0 || suppliers.size() == 0) return;
+    
     final float
-      ratings[] = new float[suppliers.size()],
+      ratings  [] = new float[suppliers.size()],
       distances[] = new float[suppliers.size()];
     float sumRatings = 0;
     
     int i = 0;
     for (Venue supplies : suppliers) {
-      final int ST = supplies.stocks.demandTier(type);
+      final int   ST = supplies.stocks.demandTier(type);
       if (ST > tier) { i++; continue; }
       
       final float SU = supplies.stocks.shortageUrgency(type);
@@ -403,7 +370,7 @@ public class Stocks extends Inventory {
       final float
         weight = rating / sumRatings,
         shortBump = shortage * weight,
-        priceBump = type.basePrice * distance / 10f;
+        priceBump = type.basePrice() * distance / 10f;
       
       supplies.stocks.incDemand(type, shortBump, period, basis);
       final float price = supplies.priceFor(type);
@@ -433,17 +400,6 @@ public class Stocks extends Inventory {
   }
   
   
-  public void clearDemands() {
-    final Presences presences = basis.world().presences;
-    final Tile at = basis.world().tileAt(basis);
-    for (Demand d : demands.values()) {
-      d.demandAmount = 0;
-      d.tierType = TIER_PRODUCER;
-      presences.togglePresence(basis, at, false, d.type.demandKey);
-    }
-  }
-  
-  
   
   /**  Calling regular updates-
     */
@@ -457,6 +413,23 @@ public class Stocks extends Inventory {
   }
   
   
+  public void clearDemands() {
+    final Presences presences = basis.world().presences;
+    final Tile at = basis.world().tileAt(basis);
+
+    final Traded services[] = basis.services();
+    if (services != null) for (Traded s : services) {
+      presences.togglePresence(basis, at, false, s.supplyKey);
+    }
+    
+    for (Demand d : demands.values()) {
+      d.demandAmount = 0;
+      d.tierType = TIER_PRODUCER;
+      presences.togglePresence(basis, at, false, d.type.demandKey);
+    }
+  }
+  
+  
   protected void updateStocks(int numUpdates, Traded services[]) {
     if (Float.isNaN(credits)) credits = 0;
     if (Float.isNaN(taxed)) taxed = 0;
@@ -467,9 +440,8 @@ public class Stocks extends Inventory {
     //  Here, we clear out any expired orders or useless items.  (Consider
     //  recycling materials or sending elswhere?)
     for (Manufacture m : specialOrders) {
-      if (m.finished()) specialOrders.remove(m);
+      if (m.commission == null || m.finished()) specialOrders.remove(m);
     }
-    
     //  TODO:  Have all stocks wear out/go off, given enough time.
   }
   
@@ -480,7 +452,7 @@ public class Stocks extends Inventory {
     if (report) I.say("\nDIFFUSING DEMAND AT: "+basis);
     
     final Presences presences = basis.world().presences;
-    final Tile vO = basis.world().tileAt(basis);
+    final Tile at = basis.world().tileAt(basis);
     
     if ((vS == null || vS.length == 0) && demands.size() == 0) return;
     if (vS != null) for (Traded s : vS) if (demandTier(s) == TIER_NONE) {
@@ -489,33 +461,40 @@ public class Stocks extends Inventory {
     
     final Traded services[] = basis.services();
     if (services != null) for (Traded s : services) {
-      presences.togglePresence(basis, vO, amountOf(s) > 0, s.supplyKey);
+      presences.togglePresence(basis, at, true, s.supplyKey);
     }
     
     for (Demand d : demands.values()) {
-      if (report) I.say("  Demand inc for "+d.type+" is "+d.amountInc);
-      d.demandAmount += d.amountInc * DEMAND_DECAY;
+      final float inc = d.amountInc * DEMAND_DECAY;
       d.demandAmount *= 1 - DEMAND_DECAY;
+      d.demandAmount += inc;
       d.amountInc = 0;
-      
-      d.pricePaid -= d.type.basePrice;
+      d.pricePaid -= d.type.basePrice();
       d.pricePaid *= 1 - DEMAND_DECAY;
-      d.pricePaid += d.type.basePrice;
-      if (report) I.say("  "+d.type+" demand is: "+d.demandAmount);
+      d.pricePaid += d.type.basePrice();
       
-      if (d.tierType == TIER_PRODUCER) continue;
-      diffuseDemand(d.type, (int) UPDATE_PERIOD);
-      
-      final boolean shortage = d.demandAmount > amountOf(d.type);
-      presences.togglePresence(basis, vO, shortage, d.type.demandKey);
+      if (report) {
+        I.say("  "+d.type+" demand is: "+d.demandAmount+", bump: "+inc);
+      }
     }
     
     for (Manufacture m : specialOrders) {
       final Item out = m.conversion.out;
       final float amount = m.made().amount / (out == null ? 1 : out.amount);
+      
       for (Item i : m.conversion.raw) {
-        incDemand(i.type, i.amount * amount, -1, (int) UPDATE_PERIOD, basis);
+        final Demand d = demandRecord(i.type);
+        d.demandAmount += i.amount * amount * DEMAND_DECAY;
+        if (report) I.say("  "+m.made()+" requires "+i);
       }
+    }
+    
+    for (Demand d : demands.values()) {
+      if (d.tierType == TIER_PRODUCER) continue;
+      
+      final boolean shortage = d.demandAmount > amountOf(d.type);
+      if (shortage) diffuseDemand(d.type, (int) UPDATE_PERIOD);
+      presences.togglePresence(basis, at, shortage, d.type.demandKey);
     }
   }
 }

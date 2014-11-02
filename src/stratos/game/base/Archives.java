@@ -88,9 +88,14 @@ public class Archives extends Venue {
   
   public Behaviour jobFor(Actor actor) {
     if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
+    final Choice choice = new Choice(actor);
     
-    return stocks.nextSpecialOrder(actor);
+    for (Manufacture o : stocks.specialOrders()) {
+      choice.add(o);
+    }
     //return stocks.nextManufacture(actor, PARTS_TO_DATALINKS);
+    
+    return choice.weightedPick();
   }
   
   

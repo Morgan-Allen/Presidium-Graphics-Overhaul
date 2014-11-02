@@ -31,14 +31,13 @@ import static stratos.game.building.Economy.*;
 
 
 
-public class Dropship extends Vehicle implements
-  Inventory.Owner
-{
-  
-  
+public class Dropship extends Vehicle implements Inventory.Owner {
   
   /**  Fields, constants, constructors and save/load methods-
     */
+  private static boolean
+    verbose = false;
+  
   final static String SHIP_NAMES[] = {
     "The Space Marine",
     "The Solar Wind",
@@ -67,7 +66,6 @@ public class Dropship extends Vehicle implements
     "The Zen Reciprocal"
   };
   
-  
   final static String
     FILE_DIR = "media/Vehicles/",
     XML_FILE = "VehicleModels.xml";
@@ -91,8 +89,6 @@ public class Dropship extends Vehicle implements
     INIT_DIST = 10.0f,
     INIT_HIGH = 10.0f,
     TOP_SPEED =  5.0f;
-  
-  private static boolean verbose = true;
   
   
   private Vec3D aimPos = new Vec3D();
@@ -288,7 +284,7 @@ public class Dropship extends Vehicle implements
     final Commerce c = base.commerce;
     if (c.localSurplus(service) > 0) return c.exportPrice(service);
     if (c.localShortage(service) > 0) return c.importPrice(service);
-    return service.basePrice;
+    return service.basePrice();
   }
   
 

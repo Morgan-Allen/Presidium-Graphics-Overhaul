@@ -69,7 +69,6 @@ public class EngineerStation extends Venue {
   /**  Economic functions, upgrades and employee behaviour-
     */
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-    EngineerStation.class, "foundry_upgrades"
   );
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
@@ -78,14 +77,16 @@ public class EngineerStation extends Venue {
       "Allows standardised parts and miniaturised circuitry to manufactured "+
       "quickly and in greater abundance.",
       200,
-      PARTS, 2, null, ALL_UPGRADES
+      PARTS, 2, null,
+      EngineerStation.class, ALL_UPGRADES
     ),
     MOLDING_PRESS = new Upgrade(
       "Molding Press",
       "Allows materials to be recycled and sculpted to fit new purposes, "+
       "reducing waste and pollution, and speeding production of custom parts.",
       150,
-      PLASTICS, 1, null, ALL_UPGRADES
+      PLASTICS, 1, null,
+      EngineerStation.class, ALL_UPGRADES
     ),
     TECHNICIAN_STATION = new Upgrade(
       "Technician Station",
@@ -93,21 +94,24 @@ public class EngineerStation extends Venue {
       "common machinery, but lack the theoretical grounding needed for "+
       "fundamental design or customisation.",
       50,
-      Backgrounds.TECHNICIAN, 1, null, ALL_UPGRADES
+      Backgrounds.TECHNICIAN, 1, null,
+      EngineerStation.class, ALL_UPGRADES
     ),
     COMPOSITE_MATERIALS = new Upgrade(
       "Composite Materials",
       "Enhances the production of lightweight and flexible armours, as well "+
       "as close-range melee weaponry.",
       200,
-      null, 2, MOLDING_PRESS, ALL_UPGRADES
+      null, 2, MOLDING_PRESS,
+      EngineerStation.class, ALL_UPGRADES
     ),
     FLUX_CONTAINMENT = new Upgrade(
       "Flux Containment",
       "Allows high-energy plasmas to be generated and controlled, permitting "+
       "refinements to shield technology and ranged energy weapons.",
       250,
-      null, 2, TECHNICIAN_STATION, ALL_UPGRADES
+      null, 2, TECHNICIAN_STATION,
+      EngineerStation.class, ALL_UPGRADES
     ),
     ARTIFICER_STATION = new Upgrade(
       "Artificer Station",
@@ -115,7 +119,8 @@ public class EngineerStation extends Venue {
       "tackle the most taxing commissions reliant on dangerous or arcane "+
       "technologies.",
       150,
-      Backgrounds.ARTIFICER, 1, TECHNICIAN_STATION, ALL_UPGRADES
+      Backgrounds.ARTIFICER, 1, TECHNICIAN_STATION,
+      EngineerStation.class, ALL_UPGRADES
     );
   
   
@@ -160,8 +165,7 @@ public class EngineerStation extends Venue {
     final float powerCut = stocks.shortagePenalty(POWER) * 10;
     
     //  Consider special commissions for weapons and armour-
-    final Manufacture o = stocks.nextSpecialOrder(actor);
-    if (o != null && personnel.assignedTo(o) < 1) {
+    for (Manufacture o : stocks.specialOrders()) {
       o.checkBonus = structure.upgradeLevel(MOLDING_PRESS) + 5;
       final int CMB = structure.upgradeLevel(COMPOSITE_MATERIALS) + 2;
       final int FCB = structure.upgradeBonus(FLUX_CONTAINMENT) + 2;

@@ -53,6 +53,8 @@ public class Joining extends Plan {
   public static boolean checkInvitation(
     Actor actor, Actor asked, Dialogue origin, Behaviour invitation
   ) {
+    final boolean report = false;
+    
     if (! (invitation instanceof Plan)) return false;
     if (actor.mind.hasToDo(Joining.class)) return false;
     
@@ -69,7 +71,7 @@ public class Joining extends Plan {
     copy.setMotive(Plan.MOTIVE_LEISURE, motiveBonus);
 
     final Behaviour intended = actor.mind.nextBehaviour();
-    if (Choice.wouldSwitch(actor, copy, intended, true)) return false;
+    if (Choice.wouldSwitch(actor, copy, intended, true, report)) return false;
     return true;
   }
   

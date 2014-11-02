@@ -23,15 +23,18 @@ public class Commission extends Plan {
   
   /**  Data fields, construction and save/load methods-
     */
-  private static boolean verbose = false;
+  private static boolean
+    verbose       = false,
+    actionVerbose = false;
   
+  final static int EXPIRE_TIME = Stage.STANDARD_DAY_LENGTH * 2;
   
   final Item item;
   final Venue shop;
   
   private Manufacture order = null;
-  private float price     = -1;
-  private float orderDate = -1;
+  private float price       = -1;
+  private float orderDate   = -1;
   private boolean delivered = false;
   
   
@@ -79,6 +82,9 @@ public class Commission extends Plan {
   public static void addCommissions(
     Actor actor, Venue makes, Choice choice, Traded... itemTypes
   ) {
+    final boolean report = verbose && I.talkAbout == actor;
+    if (report) I.say("\nChecking commissions for "+actor);
+    
     final boolean hasCommission = actor.mind.hasToDo(Commission.class);
     if (hasCommission) return;
     
@@ -108,26 +114,35 @@ public class Commission extends Plan {
     Actor actor, Venue makes, Item baseItem
   ) {
     if (baseItem == null) return null;
-    
+
+    final boolean report = verbose && I.talkAbout == actor;
     final int baseQuality = (int) baseItem.quality;
     final float baseAmount = baseItem.amount;
     
     int quality = Item.MAX_QUALITY + 1;
     Commission added = null;
+    Item upgrade = null;
     
     while (--quality > 0) {
-      final Item upgrade = Item.withQuality(baseItem.type, quality);
+      upgrade = Item.withQuality(baseItem.type, quality);
       final float price = upgrade.priceAt(makes);
       if (price >= actor.gear.credits()) continue;
+      if (quality <= baseQuality) continue;
+      
       added = new Commission(actor, upgrade, makes);
       if (added.priorityFor(actor) <= 0) continue;
       break;
     }
     
-    if (quality >= 0 && (baseAmount <= 0.5f || quality > baseQuality)) {
-      return added;
+    if (report) {
+      I.say("\nRejected commission for "+baseItem);
+      I.say("  Owner cash:   "+actor.gear.credits());
+      I.say("  New item:     "+upgrade);
+      I.say("  Base price:   "+upgrade.defaultPrice());
+      I.say("  Vended price: "+upgrade.priceAt(makes));
+      if (added == null) I.say("  Can't afford replacement!");
     }
-    return null;
+    return added;
   }
   
   
@@ -136,21 +151,29 @@ public class Commission extends Plan {
   
   protected float getPriority() {
     final boolean report = verbose && I.talkAbout == actor;
-    if (report) I.say("Getting priority for commision of "+item);
-    
+    if (report) I.say("Getting priority for commission of "+item);
+    //
+    //  See if we're still waiting on completion-
     final boolean done = shop.stocks.hasItem(item);
     if (order != null && ! order.finished() && ! done) {
+      if (report) I.say("  Manufacture not complete.");
       return 0;
     }
+    //
+    //  Include effects of pricing and quality-
     final float price = calcPrice();
-    if (price > actor.gear.credits()) return 0;
-    
-    float greed = Pledge.greedLevel(actor, price / ITEM_WEAR_DURATION) * ROUTINE;
-    float modifier = NO_MODIFIER + item.quality - greed;
+    float modifier = NO_MODIFIER + item.quality;
+    if (order == null) {
+      if (price > actor.gear.credits()) {
+        if (report) I.say("  Can't afford item.");
+        return 0;
+      }
+      float greed = Pledge.greedLevel(actor, price / ITEM_WEAR_DURATION);
+      modifier -= greed * ROUTINE;
+    }
     
     //  TODO:  You also need to purchase replacements for weapons that are
     //  damaged or out of ammo or power cells (at half normal cost.)
-    
     
     final float priority = priorityForActorWith(
       actor, shop, CASUAL,
@@ -159,11 +182,10 @@ public class Commission extends Plan {
       BASE_TRAITS, NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
       report
     );
-    
     if (report) {
-      I.say("\nGetting priority for commission of "+item);
-      I.say("  Price/greed value: "+price+"/"+greed);
-      I.say("  Final priority is: "+priority);
+      I.say("  Price value:      "+price   );
+      I.say("  Manufacture done: "+done    );
+      I.say("  Final priority:   "+priority);
     }
     return Visit.clamp(priority, 0, ROUTINE);
   }
@@ -181,19 +203,16 @@ public class Commission extends Plan {
   
   
   private boolean expired() {
-    if (orderDate == -1) return false;
-    final int maxTime = Stage.STANDARD_DAY_LENGTH * 2;
-    if (actor.world().currentTime() - orderDate > maxTime) return true;
-    final boolean
-      ongoing = shop.stocks.specialOrders().includes(order),
-      hasItem = shop.stocks.hasItem(item);
-    if (ongoing || hasItem) return false;
-    return true;
+    if (orderDate == -1 || shop.stocks.hasItem(item)) return false;
+    if (actor.world().currentTime() - orderDate > EXPIRE_TIME) {
+      return true;
+    }
+    return ! shop.stocks.specialOrders().includes(order);
   }
   
   
   public boolean finished() {
-    return delivered || expired();
+    return delivered;
   }
   
   
@@ -202,22 +221,31 @@ public class Commission extends Plan {
     */
   protected Behaviour getNextStep() {
     if (finished()) return null;
-    final boolean report = I.talkAbout == actor;
+    final boolean report = actionVerbose && I.talkAbout == actor;
     
     if (order == null && shop.structure().intact()) {
       final Action placeOrder = new Action(
         actor, shop,
         this, "actionPlaceOrder",
-        Action.TALK_LONG, "Placing Order"
+        Action.TALK_LONG, "Placing order for "
       );
       return placeOrder;
+    }
+    
+    if (shop.isManned() && expired()) {
+      final Action refund = new Action(
+        actor, shop,
+        this, "actionCollectRefund",
+        Action.TALK_LONG, "Getting refund for "
+      );
+      return refund;
     }
     
     if (shop.isManned() && shop.stocks.hasItem(item)) {
       final Action pickup = new Action(
         actor, shop,
         this, "actionPickupItem",
-        Action.REACH_DOWN, "Collecting"
+        Action.REACH_DOWN, "Collecting "
       );
       return pickup;
     }
@@ -227,21 +255,31 @@ public class Commission extends Plan {
   
   public boolean actionPlaceOrder(Actor actor, Venue shop) {
     order = new Manufacture(null, shop, item.type.materials(), item);
+    order.commission = this;
     shop.stocks.addSpecialOrder(order);
     orderDate = shop.world().currentTime();
+    
+    final int price = (int) calcPrice();
+    shop .inventory().incCredits(    price);
+    actor.inventory().incCredits(0 - price);
     return true;
   }
   
   
   public boolean actionPickupItem(Actor actor, Venue shop) {
-    final int price = (int) calcPrice();
-    shop.inventory().incCredits(price);
-    actor.inventory().incCredits(0 - price);
-    
     shop.inventory().removeMatch(item);
-    actor.inventory().addItem(Item.withReference(item, null));
+    actor.inventory().addItem(item);
     delivered = true;
-    ///I.say(actor+" picking up: "+item);
+    return true;
+  }
+  
+  
+  public boolean actionCollectRefund(Actor actor, Venue shop) {
+    final int price = (int) calcPrice();
+    shop .inventory().incCredits(0 - price);
+    actor.inventory().incCredits(    price);
+    order.setMotive(Plan.MOTIVE_CANCELLED, 0);
+    delivered = true;
     return true;
   }
   
@@ -250,12 +288,9 @@ public class Commission extends Plan {
   /**  Rendering and interface methods-
     */
   public void describeBehaviour(Description d) {
-    if (shop.stocks.hasItem(item)) {
-      d.append("Collecting "+item+" at ");
-      d.append(shop);
-    }
-    else {
-      d.append("Placing order for "+item+" at ");
+    if (super.needsSuffix(d, "Placing order for ")) {
+      item.describeTo(d);
+      d.append(" at ");
       d.append(shop);
     }
   }

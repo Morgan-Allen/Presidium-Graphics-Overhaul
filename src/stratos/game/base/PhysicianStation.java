@@ -82,7 +82,6 @@ public class PhysicianStation extends Venue {
   /**  Upgrades, economic functions and behaviour implementation-
     */
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-    PhysicianStation.class, "sickbay_upgrades"
   );
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
@@ -91,7 +90,8 @@ public class PhysicianStation extends Venue {
       "A selection of therapeutic drugs and immune modulators help to curb "+
       "the spread of contagious disease and assist in birth control.",
       250,
-      null, 1, null, ALL_UPGRADES
+      null, 1, null,
+      PhysicianStation.class, ALL_UPGRADES
     ),
     EMERGENCY_AID = new Upgrade(
       "Emergency Aid",
@@ -99,7 +99,8 @@ public class PhysicianStation extends Venue {
       "(but non-fatal) injuries can be dealt with quickly, and speeds the "+
       "local production of Stim Kits.",
       300,
-      null, 1, null, ALL_UPGRADES
+      null, 1, null,
+      PhysicianStation.class, ALL_UPGRADES
     ),
     MINDER_STATION = new Upgrade(
       "Minder Station",
@@ -107,7 +108,8 @@ public class PhysicianStation extends Venue {
       "to diet and sanitary needs, but are only familiar with more common "+
       "medications and standard emergency protocol.",
       50,
-      Backgrounds.MINDER, 1, APOTHECARY, ALL_UPGRADES
+      Backgrounds.MINDER, 1, APOTHECARY,
+      PhysicianStation.class, ALL_UPGRADES
     ),
     NEURAL_SCANNING = new Upgrade(
       "Neural Scanning",
@@ -115,7 +117,8 @@ public class PhysicianStation extends Venue {
       "of mental disturbance or subversion, and permitting engram backups in "+
       "case of death.  Mandatory for key personnel.",
       350,
-      null, 1, EMERGENCY_AID, ALL_UPGRADES
+      null, 1, EMERGENCY_AID,
+      PhysicianStation.class, ALL_UPGRADES
     ),
     INTENSIVE_CARE = new Upgrade(
       "Intensive Care",
@@ -123,7 +126,8 @@ public class PhysicianStation extends Venue {
       "gradual comeback, covering everything from life support and tissue "+
       "grafting to cybernetic prosthesis and engram fusion.",
       400,
-      null, 1, MINDER_STATION, ALL_UPGRADES
+      null, 1, MINDER_STATION,
+      PhysicianStation.class, ALL_UPGRADES
     ),
     PHYSICIAN_STATION = new Upgrade(
       "Physician Station",
@@ -131,7 +135,8 @@ public class PhysicianStation extends Venue {
       "metabolism and anatomy, are adept as surgeons, and can tailor their "+
       "treatments to the idiosyncracies of a given patient.",
       150,
-      Backgrounds.PHYSICIAN, 1, EMERGENCY_AID, ALL_UPGRADES
+      Backgrounds.PHYSICIAN, 1, EMERGENCY_AID,
+      PhysicianStation.class, ALL_UPGRADES
     );
   
   
@@ -141,7 +146,7 @@ public class PhysicianStation extends Venue {
     final Choice choice = new Choice(actor);
     //
     //  Manufacture Stim Kits for later use-
-    final Manufacture mS = stocks.nextManufacture(actor, STIM_KITS_TO_MEDICINE);
+    final Manufacture mS = stocks.nextManufacture(actor, REAGENTS_TO_MEDICINE);
     if (mS != null) {
       mS.checkBonus = ((structure.upgradeLevel(EMERGENCY_AID) - 1) * 5) / 2;
       //mS.timeMult = 5;
@@ -291,7 +296,7 @@ public class PhysicianStation extends Venue {
   
   
   public Traded[] services() {
-    return new Traded[] { MEDICINE, SPYCE, SERVICE_HEALTHCARE };
+    return new Traded[] { MEDICINE, NATRI_SPYCE, SERVICE_HEALTHCARE };
   }
   
   
@@ -300,7 +305,7 @@ public class PhysicianStation extends Venue {
   /**  Rendering and interface methods-
     */
   protected Traded[] goodsToShow() {
-    return new Traded[] { REAGENTS, MEDICINE, RAW_SPYCE, SPYCE };
+    return new Traded[] { REAGENTS, MEDICINE, TINER_SPYCE, NATRI_SPYCE };
   }
   
   

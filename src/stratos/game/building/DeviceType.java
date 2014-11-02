@@ -52,21 +52,17 @@ public class DeviceType extends Traded {
     float baseDamage, int properties, int basePrice,
     Class facility, Object... conversionArgs
   ) {
-    super(baseClass, Economy.FORM_DEVICE, name, basePrice);
+    super(baseClass, Economy.FORM_DEVICE, name, basePrice, null);
     
     this.baseDamage = baseDamage;
     this.properties = properties;
     this.materials = new Conversion(facility, Visit.compose(
-      Object.class, conversionArgs, new Object[] { TO, this })
+      Object.class, conversionArgs, new Object[] { TO, 1, this })
     );
+    setPrice(basePrice, materials);
     
     this.groupName = groupName;
     this.animName = animName;
-  }
-  
-  
-  public Conversion materials() {
-    return materials;
   }
   
   

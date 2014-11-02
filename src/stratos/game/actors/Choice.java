@@ -17,7 +17,7 @@ public class Choice implements Qualities {
     */
   public static boolean
     verbose       = false,
-    verboseReject = verbose && true;
+    verboseReject = false;
   
   final Actor actor;
   final Batch <Behaviour> plans = new Batch <Behaviour> ();
@@ -49,7 +49,7 @@ public class Choice implements Qualities {
     final boolean finished = plan.finished();
     if (finished) {
       if (report) {
-        I.say("  "+plan+" rejected.");
+        I.say("\n  "+plan+" rejected: is finished.");
         I.say("    Priority:  "+plan.priorityFor(actor));
         I.say("    Next step: "+plan.nextStepFor(actor));
       }
@@ -57,12 +57,12 @@ public class Choice implements Qualities {
     }
     final float priority = plan.priorityFor(actor);
     if (priority <= 0) {
-      if (report) I.say("  "+plan+" rejected- priority "+priority);
+      if (report) I.say("\n  "+plan+" rejected- priority "+priority);
       return false;
     }
     final Behaviour nextStep = plan.nextStepFor(actor);
     if (nextStep == null) {
-      if (report) I.say("  "+plan+" rejected- no next step.");
+      if (report) I.say("\n  "+plan+" rejected- no next step.");
       return false;
     }
     
@@ -158,7 +158,7 @@ public class Choice implements Qualities {
       sumWeights += weights[i];
     }
     if (sumWeights == 0) {
-      if (report) I.say("    Picked: "+picked);
+      if (report) I.say("Picked: "+picked);
       return picked;
     }
     //
@@ -170,13 +170,14 @@ public class Choice implements Qualities {
       if (randPick < chance) { picked = plan; break; }
       else randPick -= chance;
     }
-    if (report) I.say("    Picked: "+picked);
+    if (report) I.say("Picked: "+picked);
     return picked;
   }
   
   
   public static boolean wouldSwitch(
-    Actor actor, Behaviour last, Behaviour next, boolean stubborn
+    Actor actor, Behaviour last, Behaviour next, boolean stubborn,
+    boolean report
   ) {
     if (next == null) return false;
     if (last == null) return true;
@@ -186,11 +187,11 @@ public class Choice implements Qualities {
     if (nextPriority <= 0) return false;
     if (lastPriority <= 0) return true;
 
-    final boolean report = verbose && I.talkAbout == actor && last.hasBegun();
+    //final boolean report = verbose && I.talkAbout == actor && last.hasBegun();
     final float minPriority = stubborn ?
       competeThreshold(actor, nextPriority, true) :
       nextPriority;
-
+      
     if (report) {
       I.say("\nConsidering plan switch...");
       I.say("  Last plan: "+last+", priority: "+lastPriority);

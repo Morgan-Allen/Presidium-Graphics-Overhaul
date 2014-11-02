@@ -34,7 +34,7 @@ public class StripMining extends Plan {
     DEFAULT_TILE_DIG_TIME = Stage.STANDARD_HOUR_LENGTH;
   
   final public static Traded MINED_TYPES[] = {
-    ORES, FUEL_RODS, ARTIFACTS
+    ORES, ANTIMASS, ARTIFACTS
   };
   
   private static boolean
