@@ -7,6 +7,9 @@
 
 package stratos.game.actors;
 import java.lang.reflect.*;
+
+import org.apache.commons.math3.util.FastMath;
+
 import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
@@ -272,30 +275,36 @@ public class Action implements Behaviour, AnimNames {
     boolean closed = false, approaching = false, facing = false;
     final Target step = actor.pathing.nextStep(), closeOn;
     
+    if (report) I.say("\nAction is: "+methodName()+" "+hashCode());
+    
     if (contactMade() && ! tracks()) {
+      if (report) I.say("  Have closed on target.");
       pathsTo = actor.aboard();
       closeOn = actor;
       closed = approaching = facing = true;
     }
     else if (mustBoard) {
+      if (report) I.say("  Must board target.");
       approaching = actor.aboard() == moveTarget;
       closed = approaching && (motionDist - maxDist < separation);
       closeOn = closed ? actionTarget : step;
       facing = actor.pathing.facingTarget(closeOn);
     }
     else {
+      if (report) I.say("  Must have facing and line of sight.");
       //  TODO:  Build line-of-sight considerations into the actor's reaction
       //  algorithms instead?
       final boolean seen = Senses.hasLineOfSight(
         actor, actionTarget, Math.max(maxDist, sightRange)
       );
       
-      if (Math.min(motionDist, actionDist) < maxDist && ! seen) {
+      if (FastMath.min(motionDist, actionDist) < maxDist && ! seen) {
         pathsTo = actionTarget;
       }
       if (PathSearch.blockedBy(pathsTo, actor)) {
         pathsTo = Spacing.nearestOpenTile(pathsTo, actor);
       }
+      
       closed = seen && (actionDist <= maxDist);
       approaching = closed || (seen && (actionDist <= (maxDist + 1)));
       closeOn = approaching ? actionTarget : step;
@@ -304,10 +313,8 @@ public class Action implements Behaviour, AnimNames {
     actor.pathing.updateTarget(pathsTo);
     
     if (report) {
-      I.say("\nAction is: "+methodName()+" "+hashCode());
       I.say("  Action target is: "+actionTarget);
       I.say("  Move target is: "+moveTarget);
-      I.say("  Path target is: "+actor.pathing.target()+", step: "+step);
       I.say("  Closing on: "+closeOn+", must board: "+mustBoard);
       
       final boolean blocked = PathSearch.blockedBy(actor.aboard(), actor);
@@ -315,8 +322,16 @@ public class Action implements Behaviour, AnimNames {
       I.say("  Closed/facing: "+closed+"/"+facing+", doing update? "+active);
       I.say("  Is ranged? "+ranged()+", approaching? "+approaching);
       
-      final float distance = Spacing.distance(actor, actor.pathing.target());
-      I.say("  Distance: "+distance+", maximum: "+maxDist+"\n");
+      final Target PT = actor.pathing.target();
+      I.say("  Path target is: "+PT+", step: "+step);
+      if (PT != null) {
+        final float distance = Spacing.distance(actor, PT);
+        I.say("  Distance: "+distance+", maximum: "+maxDist+"\n");
+      }
+      else {
+        final boolean MB = PathSearch.blockedBy(moveTarget, actor);
+        I.say("  Move target blocked? "+MB);
+      }
     }
     
     //  If both facing and proximity are satisfied, toggle the flag which

@@ -224,6 +224,7 @@ public abstract class Actor extends Mobile implements
   
   
   public void updateAsScheduled(int numUpdates) {
+    final boolean report = verbose && I.talkAbout == this;
     super.updateAsScheduled(numUpdates);
     //
     //  Update our basic statistics and physical properties-
@@ -233,6 +234,8 @@ public abstract class Actor extends Mobile implements
     skills.updateSkills(numUpdates);
     if (health.isDead()) setAsDestroyed();
     
+    if (report) I.say("\nUpdating actor!");
+    
     //  Check to see what our current condition is-
     final boolean
       OK = health.conscious(),
@@ -241,6 +244,8 @@ public abstract class Actor extends Mobile implements
     
     //  Update our actions, pathing, and AI-
     if (OK) {
+      if (report) I.say("Checking pathing...");
+      
       if (actionTaken == null || actionTaken.finished()) {
         assignAction(mind.getNextAction());
       }

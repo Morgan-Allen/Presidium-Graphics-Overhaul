@@ -98,6 +98,7 @@ public class Pathing {
   
   public void updateTarget(Target moveTarget) {
     final boolean report = verbose && I.talkAbout == mobile;
+    if (report) I.say("\nUpdating path target: "+moveTarget);
     
     final Target oldTarget = trueTarget;
     this.trueTarget = moveTarget;
@@ -113,9 +114,15 @@ public class Pathing {
   
   
   public boolean checkPathingOkay() {
-    if (trueTarget == null) return true;
-    if (path == null) return false;
     final boolean report = pathVerbose && I.talkAbout == mobile;
+    if (trueTarget == null) {
+      if (report) I.say("\nNo current path target!");
+      return false;
+    }
+    if (path == null) {
+      if (report) I.say("\nNo current path to target: "+trueTarget);
+      return false;
+    }
     
     final Boarding dest = location(trueTarget);
     boolean blocked = false, nearTarget = false, validPath = true;
@@ -164,7 +171,6 @@ public class Pathing {
     final Boarding origin = location(mobile);
     if (trueTarget == null) path = null;
     else {
-      
       //  Firstly, we perform some basic sanity checks on the start and end
       //  points of the prospective route.
       pathTarget = location(trueTarget);
@@ -240,8 +246,6 @@ public class Pathing {
     final boolean report = I.talkAbout == mobile && verbose;
     if (report) {
       I.say("\n"+mobile+" HEADING TOWARDS: "+target+" FROM: "+mobile.origin());
-      final Tile TA = mobile.world.tileAt(target);
-      I.say("  Target position: "+TA+", blocked? "+TA.blocked());
     }
     
     //  Don't move if something ahead is blocking entrance-

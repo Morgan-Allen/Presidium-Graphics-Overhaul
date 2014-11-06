@@ -10,6 +10,10 @@ import stratos.game.tactical.IntelMap;
 import stratos.util.*;
 
 
+//  TODO:  There's a problem here in the case where unexplored areas lie in
+//  impossible-to-reach areas (such as in the middle of an ocean.)  You'll need
+//  to set up the large-scale path-culling sooner.
+
 
 public class Exploring extends Plan implements Qualities {
   
