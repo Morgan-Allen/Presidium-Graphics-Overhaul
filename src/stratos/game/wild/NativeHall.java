@@ -18,9 +18,9 @@ import stratos.util.*;
 //  external migration isn't yet implemented.
 
 
-//  These guys should get access to their own school/temple- like the
-//  barbarians?
-
+//  TODO:  All of this crap is gonna be replaced with a more cohesive supply-
+//  and-demand system- the ecology system, the stocks-demand-diffusion, the
+//  native-huts placement- everything.
 
 
 public class NativeHall extends NativeHut {
@@ -28,6 +28,12 @@ public class NativeHall extends NativeHut {
   
   final List <NativeHut> children = new List <NativeHut> ();
   private float idealPopEstimate = -1;
+  
+  
+  public NativeHall(Base base) {
+    //  NOTE:  Not intended for actual construction purposes.
+    this(TYPE_PLACES, base);
+  }
   
   
   protected NativeHall(int tribeID, Base base) {

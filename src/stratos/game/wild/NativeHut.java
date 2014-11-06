@@ -53,18 +53,20 @@ public class NativeHut extends Venue {
     TRIBE_WASTES = 0,
     TRIBE_DESERT = 1,
     TRIBE_FOREST = 2,
-    TYPE_HUT    = 0,
-    TYPE_HALL   = 1,
-    TYPE_SHRINE = 2,
+    
+    TYPE_PLACES  = -1,
+    TYPE_HUT     =  0,
+    TYPE_HALL    =  1,
+    TYPE_SHRINE  =  2,
     HUT_OCCUPANCY  = 2;
   
-  final int type, tribeID;
+  private int type, tribeID;
   
   
   
   public static NativeHut newHut(NativeHall parent) {
     final NativeHut hut = new NativeHut(
-      3, 2, TYPE_HUT, parent.tribeID, parent.base()
+      3, 2, TYPE_HUT, parent.tribeID(), parent.base()
     );
     parent.children.include(hut);
     return hut;
@@ -76,6 +78,11 @@ public class NativeHut extends Venue {
   }
   
   
+  public NativeHut(Base base) {
+    //  NOTE:  Not intended for actual construction purposes.
+    this(2, 2, TYPE_HUT, TYPE_PLACES, base);
+  }
+  
   
   protected NativeHut(
     int size, int height, int type, int tribeID, Base base
@@ -85,12 +92,14 @@ public class NativeHut extends Venue {
     this.tribeID = tribeID;
     personnel.setShiftType(SHIFTS_ALWAYS);
     
-    final int varID = nextVar++ % 2;
-    ModelAsset model = null;
-    if (type == TYPE_HUT ) model = HUT_MODELS[tribeID][varID];
-    if (type == TYPE_HALL) model = HUT_MODELS[tribeID][2];
-    attachModel(model);
-    sprite().scale = size;
+    if (type != TYPE_PLACES && tribeID >= 0) {
+      final int varID = nextVar++ % 2;
+      ModelAsset model = null;
+      if (type == TYPE_HUT ) model = HUT_MODELS[tribeID][varID];
+      if (type == TYPE_HALL) model = HUT_MODELS[tribeID][2];
+      attachModel(model);
+      sprite().scale = size;
+    }
   }
   
   
@@ -107,6 +116,16 @@ public class NativeHut extends Venue {
     super.saveState(s);
     s.saveInt(type);
     s.saveInt(tribeID);
+  }
+  
+  
+  protected int tribeID() {
+    return tribeID;
+  }
+  
+  
+  protected int hutType() {
+    return type;
   }
   
   

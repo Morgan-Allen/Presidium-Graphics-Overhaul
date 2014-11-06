@@ -110,6 +110,13 @@ public class HoldingUpgrades {
     ),
   };
   
+  private static boolean checks(int targetLevel, int upgradeLevel) {
+    if (GameSettings.freeHousingLevel >= upgradeLevel) return false;
+    return (targetLevel >= upgradeLevel);
+  }
+  
+  
+  
   
   public static Upgrade upgradeFor(int upgradeLevel) {
     if (upgradeLevel >= 0 && upgradeLevel <= 4) {
@@ -144,10 +151,10 @@ public class HoldingUpgrades {
   }
   
   
-  protected static float supportNeed(Holding holding, int upgradeLevel) {
+  protected static float supportNeed(Holding holding, int targetLevel) {
     final float
       population = holding.personnel.residents().size(),
-      popDemand  = population * upgradeLevel * 1f / NUM_LEVELS;
+      popDemand  = population * targetLevel * 1f / NUM_LEVELS;
     final float
       biomass  = holding.world().ecology().globalBiomass(),
       bioBonus = (float) FastMath.sqrt(biomass) * BIOMASS_SUPPORT;
@@ -156,12 +163,9 @@ public class HoldingUpgrades {
   
   
   protected static Object checkSupport(
-    Holding holding, int upgradeLevel, boolean verbose
+    Holding holding, int targetLevel, boolean verbose
   ) {
-    //
-    //  TODO:  This absence needs to be more prolongued before it becomes a
-    //  real problem.
-    final float need = supportNeed(holding, upgradeLevel);
+    final float need = supportNeed(holding, targetLevel);
     if (holding.stocks.amountOf(LIFE_SUPPORT) < need - 0.5f) {
       if (verbose) return
         "This holding needs more "+LIFE_SUPPORT+" to sustain it's population "+
@@ -200,9 +204,9 @@ public class HoldingUpgrades {
   
   
   protected static Object checkRations(
-    Holding holding, int upgradeLevel, boolean verbose
+    Holding holding, int targetLevel, boolean verbose
   ) {
-    if (upgradeLevel == LEVEL_TENT) return NEEDS_MET;
+    if (targetLevel == LEVEL_TENT) return NEEDS_MET;
     final boolean NV = ! verbose;
     //
     //  1 unit of food per resident is the standard.  However, you need to have
@@ -218,25 +222,25 @@ public class HoldingUpgrades {
     }
     //
     //  Now, check against the correct upgrade level.
-    if (upgradeLevel >= LEVEL_PYON) {
+    if (checks(targetLevel, LEVEL_PYON)) {
       if (numFoods < 1) return NV ? NOT_MET :
         "Your pyons need enough of at least one food type before they will "+
         "feel confident about settling down.";
       else return NEEDS_MET;
     }
-    if (upgradeLevel >= LEVEL_FREEBORN) {
+    if (checks(targetLevel, LEVEL_FREEBORN)) {
       if (numFoods < 2) return NV ? NOT_MET :
         "Your freeborn need to have a more varied diet before they will "+
         "consider their claim here settled.";
       else return NEEDS_MET;
     }
-    if (upgradeLevel >= LEVEL_CITIZEN) {
+    if (checks(targetLevel, LEVEL_CITIZEN)) {
       if (numFoods < 2) return NV ? NOT_MET :
         "Your citizens demand a more varied diet as part of their "+
         "modern lifestyle.";
       else return NEEDS_MET;
     }
-    if (upgradeLevel >= LEVEL_GUILDER) {
+    if (checks(targetLevel, LEVEL_GUILDER)) {
       if (numFoods < 3) return NV ? NOT_MET :
         "Your guilders need at least three food types to satisfy the demands "+
         "of an upper-class lifestyle.";
@@ -251,13 +255,13 @@ public class HoldingUpgrades {
   /**  Venues access-
     */
   protected static Object checkAccess(
-    Holding holding, int upgradeLevel, boolean verbose
+    Holding holding, int targetLevel, boolean verbose
   ) {
-    if (upgradeLevel == LEVEL_TENT) return NEEDS_MET;
+    if (targetLevel == LEVEL_TENT) return NEEDS_MET;
     final boolean NV = ! verbose;
     //  TODO:  RESTORE THE LIST OF REQUIREMENTS HERE!  IF NEEDED.
     
-    if (upgradeLevel >= LEVEL_PYON) {
+    if (checks(targetLevel, LEVEL_PYON)) {
       if (
         lacksAccess(holding, Bastion.class         ) &&
         lacksAccess(holding, PhysicianStation.class)
@@ -266,7 +270,7 @@ public class HoldingUpgrades {
         "life support or health services before they will feel safe enough "+
         "to settle down.";
     }
-    if (upgradeLevel >= LEVEL_CITIZEN) {
+    if (checks(targetLevel, LEVEL_CITIZEN)) {
       if (
         lacksAccess(holding, StockExchange.class) &&
         lacksAccess(holding, Cantina.class      )
@@ -274,7 +278,7 @@ public class HoldingUpgrades {
         "Your citizens want access to a Cantina or Stock Exchange to allow "+
         "access to luxury goods or services.";
     }
-    if (upgradeLevel >= LEVEL_GUILDER) {
+    if (checks(targetLevel, LEVEL_GUILDER)) {
       if (
         lacksAccess(holding, Archives.class) &&
         true //lacksAccess(holding, CounselChamber.class)
@@ -299,47 +303,6 @@ public class HoldingUpgrades {
   
   
   
-  /**  Special good demands, for pressfeed and inscriptions-
-    */
-  protected static Batch <Item> specialGoods(Holding holding, int targetLevel) {
-    final Batch <Item> needed = new Batch <Item> ();
-    
-    if (targetLevel >= LEVEL_FREEBORN) {
-      needed.add(Item.withAmount(PRESSFEED, 1));
-    }
-    
-    if (targetLevel >= LEVEL_GUILDER) {
-      needed.add(Item.withAmount(DATALINKS, 1));
-    }
-    
-    return needed;
-  }
-  
-  
-  protected static Object checkSpecial(
-    Holding holding, int upgradeLevel, boolean verbose
-  ) {
-    /*
-    if (upgradeLevel >= LEVEL_FREEBORN) {
-      if (verbose && holding.stocks.shortagePenalty(PRESSFEED) > 0) {
-        return
-          "Your freeborn would like a supply of pressfeed to keep up to "+
-          "date with current events.  An Audit Office should supply this.";
-      }
-    }
-    if (upgradeLevel >= LEVEL_GUILDER) {
-      if (holding.stocks.shortagePenalty(DATALINKS) > 0) {
-        return (! verbose) ? NOT_MET :
-          "Your wealthy guilders need access to the privileged information "+
-          "that resides in an Archives' encrypted datalinks.";
-      }
-    }
-    //*/
-    return NEEDS_MET;
-  }
-  
-  
-  
   /**  Ambience requirements-
     */
   final static int SAFETY_NEEDS[] = {
@@ -359,20 +322,21 @@ public class HoldingUpgrades {
   
   
   protected static Object checkSurrounds(
-    Holding holding, int upgradeLevel, boolean verbose
+    Holding holding, int targetLevel, boolean verbose
   ) {
     final boolean NV = ! verbose;
+    if (targetLevel <= GameSettings.freeHousingLevel) return NEEDS_MET;
     
     final Tile t = holding.world().tileAt(holding);
     float safety = 0 - holding.base().dangerMap.sampleAt(t.x, t.y);
     if (holding.stocks.amountOf(PRESSFEED) > 0.5f) safety += 1.5f;
-    if (safety < SAFETY_NEEDS[upgradeLevel]) return NV ? NOT_MET :
+    if (safety < SAFETY_NEEDS[targetLevel]) return NV ? NOT_MET :
       "This area feels too unsettled for your subjects' comfort, hindering "+
       "further investment in a life here.";
     
     float ambience = holding.world().ecology().ambience.valueAt(holding);
     ambience += holding.extras().size() / 2f;
-    if (ambience < AMBIENCE_NEEDS[upgradeLevel]) return NV ? NOT_MET :
+    if (ambience < AMBIENCE_NEEDS[targetLevel]) return NV ? NOT_MET :
       "The aesthetics of the area could stand improvement before the "+
       "residents will commit to improving their property.";
     
@@ -384,5 +348,48 @@ public class HoldingUpgrades {
 
 
 
+
+
+
+/**  Special good demands, for pressfeed and inscriptions-
+  */
+/*
+protected static Batch <Item> specialGoods(Holding holding, int targetLevel) {
+  final Batch <Item> needed = new Batch <Item> ();
+  
+  if (checks(targetLevel, LEVEL_FREEBORN)) {
+    needed.add(Item.withAmount(PRESSFEED, 1));
+  }
+  
+  if (checks(targetLevel, LEVEL_GUILDER)) {
+    needed.add(Item.withAmount(DATALINKS, 1));
+  }
+  
+  return needed;
+}
+//*/
+/*
+
+protected static Object checkSpecial(
+  Holding holding, int upgradeLevel, boolean verbose
+) {
+  /*
+  if (upgradeLevel >= LEVEL_FREEBORN) {
+    if (verbose && holding.stocks.shortagePenalty(PRESSFEED) > 0) {
+      return
+        "Your freeborn would like a supply of pressfeed to keep up to "+
+        "date with current events.  An Audit Office should supply this.";
+    }
+  }
+  if (upgradeLevel >= LEVEL_GUILDER) {
+    if (holding.stocks.shortagePenalty(DATALINKS) > 0) {
+      return (! verbose) ? NOT_MET :
+        "Your wealthy guilders need access to the privileged information "+
+        "that resides in an Archives' encrypted datalinks.";
+    }
+  }
+  //*/
+  //return NEEDS_MET;
+//}
 
 

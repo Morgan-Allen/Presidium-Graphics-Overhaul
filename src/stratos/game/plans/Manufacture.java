@@ -21,7 +21,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   /**  Fields, constructors, and save/load methods-
     */
   private static boolean
-    evalVerbose = false,
+    evalVerbose = true ,
     verbose     = false;
   
   final static int
@@ -158,6 +158,14 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
       for (Item need : needed) {
         I.say("    "+need+", has "+venue.inventory().amountOf(need));
       }
+      I.say("  Needed skill checks:");
+      final Conversion c = conversion;
+      for (int i = c.skills.length; i-- > 0;) {
+        final int knownLevel = (int) actor.traits.usedLevel(c.skills[i]);
+        I.say("    "+c.skills[i]+" "+c.skillDCs[i]+" (has "+knownLevel+")");
+      }
+      I.say("  Success chance: "+successChance());
+      I.say("  Final priority: "+(priority + boost));
     }
     return priority + boost;
   }
@@ -183,7 +191,6 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
       );
     }
     chance = (chance + 1) / 2f;
-    if (! hasNeeded()) return chance / 2;
     return chance;
   }
   

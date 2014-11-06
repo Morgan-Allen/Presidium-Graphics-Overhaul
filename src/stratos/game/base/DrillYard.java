@@ -15,7 +15,7 @@ import stratos.util.*;
 
 
 
-//  TODO:  I'm not certain that this is worth keeping.
+//  TODO:  Convert this into the Arena.
 
 
 public class DrillYard extends Venue {

@@ -9,18 +9,16 @@ package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
-import stratos.game.plans.Delivery;
-import stratos.game.plans.DeliveryUtils;
-import static stratos.game.building.VenueDescription.*;
+import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
-import static stratos.game.actors.Qualities.*;
-import static stratos.game.actors.Backgrounds.*;
-import static stratos.game.building.Economy.*;
 
+//import static stratos.game.actors.Qualities.*;
+//import static stratos.game.actors.Backgrounds.*;
+import static stratos.game.building.Economy.*;
 
 
 //
@@ -39,7 +37,6 @@ import static stratos.game.building.Economy.*;
 //  TODO:  Massive mega-block tower apartments need to operate under different
 //  rules, I think.  Save that for expansions with hyperstructures built in.
 
-
 public class Holding extends Venue {
   
   
@@ -55,7 +52,8 @@ public class Holding extends Venue {
     UPGRADE_THRESH = 0.66f,
     DEVOLVE_THRESH = 0.66f;
   
-  private static boolean verbose = true;
+  private static boolean
+    verbose = false;
   
   
   private int upgradeLevel, targetLevel, varID;
@@ -163,7 +161,6 @@ public class Holding extends Venue {
       HoldingUpgrades.checkMaterials(this, meetLevel, false) == met &&
       HoldingUpgrades.checkSupport  (this, meetLevel, false) == met &&
       HoldingUpgrades.checkRations  (this, meetLevel, false) == met &&
-      HoldingUpgrades.checkSpecial  (this, meetLevel, false) == met &&
       HoldingUpgrades.checkSurrounds(this, meetLevel, false) == met;
   }
   
@@ -236,11 +233,11 @@ public class Holding extends Venue {
     count = 0.5f + (count / maxPop);
     
     //  If upgrades are free, make sure it includes rations:
-    final boolean freeUp = GameSettings.freeHousingLevel > this.upgradeLevel;
-    if (freeUp) for (Item i : HoldingUpgrades.rationNeeds(this, upgradeLevel)) {
+    int maxFree = Visit.clamp(GameSettings.freeHousingLevel, upgradeLevel + 1);
+    for (Item i : HoldingUpgrades.rationNeeds(this, maxFree)) {
       stocks.setAmount(i.type, i.amount + 1);
     }
-    if (freeUp) for (Item i : HoldingUpgrades.materials(upgradeLevel + 1).raw) {
+    for (Item i : HoldingUpgrades.materials(maxFree).raw) {
       stocks.setAmount(i.type, i.amount + 1);
     }
     
@@ -271,10 +268,6 @@ public class Holding extends Venue {
     stocks.forceDemand(LIFE_SUPPORT, supportNeed, Stocks.TIER_CONSUMER);
     
     for (Item i : HoldingUpgrades.rationNeeds(this, targetLevel)) {
-      stocks.forceDemand(i.type, i.amount, Stocks.TIER_CONSUMER);
-    }
-
-    for (Item i : HoldingUpgrades.specialGoods(this, targetLevel)) {
       stocks.forceDemand(i.type, i.amount, Stocks.TIER_CONSUMER);
     }
   }
@@ -450,13 +443,11 @@ public class Holding extends Venue {
       materials = HoldingUpgrades.checkMaterials(this, meetLevel, true),
       support   = HoldingUpgrades.checkSupport  (this, meetLevel, true),
       rations   = HoldingUpgrades.checkRations  (this, meetLevel, true),
-      special   = HoldingUpgrades.checkSpecial  (this, meetLevel, true),
       surrounds = HoldingUpgrades.checkSurrounds(this, meetLevel, true);
     if (access    != met) return (String) access   ;
     if (materials != met) return (String) materials;
     if (support   != met) return (String) support  ;
     if (rations   != met) return (String) rations  ;
-    if (special   != met) return (String) special  ;
     if (surrounds != met) return (String) surrounds;
     return null;
   }

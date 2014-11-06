@@ -31,9 +31,6 @@ public class TrooperLodge extends Venue {
   );
   
   
-  private DrillYard drillYard;
-  
-  
   public TrooperLodge(Base base) {
     super(4, 3, ENTRANCE_SOUTH, base);
     structure.setupStats(
@@ -47,13 +44,11 @@ public class TrooperLodge extends Venue {
   
   public TrooperLodge(Session s) throws Exception {
     super(s);
-    drillYard = (DrillYard) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(drillYard);
   }
   
   
@@ -130,86 +125,14 @@ public class TrooperLodge extends Venue {
   }
   
   
-  public boolean enterWorldAt(int x, int y, Stage world) {
-    if (! super.enterWorldAt(x, y, world)) return false;
-    updateDrillYard();
-    return true;
-  }
-  
-  
   public void updateAsScheduled(int numUpdates) {
     super.updateAsScheduled(numUpdates);
-    updateDrillYard();
-    if (! structure.intact()) return;
   }
-  
-  //
-  //  TODO:  Have the drill yard be visible during placement previews?  Ideally,
-  //  yeah.
-  
-  //
-  //  TODO:  For that to work, you'll need to override the previewAt(),
-  //  setPosition(), and doPlace() methods.
-  
-  protected void updateDrillYard() {
-    if (drillYard == null || drillYard.destroyed()) {
-      final DrillYard newYard = new DrillYard(base).assignTo(this);
-      final Tile o = origin();
-      final int S = this.size;
-      
-      for (int n : TileConstants.N_ADJACENT) {
-        n = (n + 2) % 8;
-        newYard.setPosition(o.x + (N_X[n] * S), o.y + (N_Y[n] * S), world);
-        if (newYard.canPlace()) {
-          newYard.doPlacement();
-          drillYard = newYard;
-          break;
-        }
-      }
-    }
-  }
-  
-  
-  //  TODO:  This needs to be generalised more robustly.
-  /*
-  public void onDecommision() {
-    super.onDecommission();
-    if (drillYard != null) {
-      drillYard.structure.setState(Structure.STATE_SALVAGE, -1);
-    }
-  }
-  //*/
   
   
   
   /**  Rendering and interface methods-
     */
-  public void renderSelection(Rendering rendering, boolean hovered) {
-    BaseUI.current().selection.renderTileOverlay(
-      rendering, world,
-      hovered ? Colour.transparency(0.5f) : Colour.WHITE,
-      Selection.SELECT_OVERLAY, true, this, this, drillYard
-    );
-  }
-  
-  
-  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
-    final String CAT_DRILLS = "DRILLS";
-    final VenueDescription d = new VenueDescription(
-      this, CAT_STATUS, CAT_STAFF, CAT_DRILLS, CAT_UPGRADES
-    ) {
-      protected void describeCategory(Description d, BaseUI UI, String catID) {
-        if (catID.equals(CAT_DRILLS)) {
-          if (drillYard == null) d.append("No drill yard!");
-          else drillYard.describeDrills(d);
-        }
-        else super.describeCategory(d, UI, catID);
-      }
-    };
-    return d.configPanel(panel, UI);
-  }
-  
-  
   public String fullName() {
     return "Trooper Lodge";
   }

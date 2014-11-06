@@ -34,6 +34,10 @@ public class Archives extends Venue {
   final public static ModelAsset MODEL = CutoutModel.fromImage(
     Archives.class, "media/Buildings/physician/archives.png", 3, 2
   );
+  
+  final static float
+    STUDY_FEE = Backgrounds.MIN_DAILY_EXPENSE;
+  
   /*
   final public static FacilityProfile PROFILE = new FacilityProfile(
     Archives.class, Structure.TYPE_VENUE,
@@ -90,10 +94,7 @@ public class Archives extends Venue {
     if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
     final Choice choice = new Choice(actor);
     
-    for (Manufacture o : stocks.specialOrders()) {
-      choice.add(o);
-    }
-    //return stocks.nextManufacture(actor, PARTS_TO_DATALINKS);
+    choice.add(stocks.nextManufacture(actor, PARTS_TO_DATALINKS));
     
     if (choice.empty()) choice.add(new Supervision(actor, this));
     return choice.weightedPick();
@@ -106,12 +107,7 @@ public class Archives extends Venue {
   
   
   public void addServices(Choice choice, Actor actor) {
-    choice.add(new Studying(actor, this));
-    
-    final Employer home = actor.mind.home();
-    if (home != null && home.inventory().shortageOf(DATALINKS) > 0) {
-      Commission.addCommissions(actor, this, choice, DATALINKS);
-    }
+    choice.add(new Studying(actor, this, STUDY_FEE));
   }
   
   

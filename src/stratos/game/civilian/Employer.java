@@ -26,7 +26,8 @@ public interface Employer extends Installation, Inventory.Owner, Boarding {
   int openingsFor(Actor a, Use use);
   //*/
   
-  Traded[] services();
+  Traded[] services();  //  TODO:  Use Conversions instead.
+  
   Base base();
   Personnel personnel();
   boolean privateProperty();

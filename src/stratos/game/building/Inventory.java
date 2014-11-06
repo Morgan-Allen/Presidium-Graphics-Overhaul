@@ -40,11 +40,15 @@ public class Inventory {
     this.owner = owner;
   }
   
-  //  TODO:  Consider moving this outside.
+  
+  //  TODO:  Consider moving this outside.  Or, make these properties of the
+  //  Inventory itself.
   public static interface Owner extends Target, Session.Saveable {
     
     Base base();
     Inventory inventory();
+    boolean privateProperty();
+    
     float priceFor(Traded service);
     int spaceFor(Traded good);
     void afterTransaction(Item item, float amount);

@@ -98,10 +98,10 @@ public class Pledge implements Session.Saveable {
     
     if (actor.base() != null) {
       final Profile p = actor.base().profiles.profileFor(actor);
-      baseUnit += (100 + p.salary()) / 2f;
+      baseUnit += (100 + p.salary()) / 10;
     }
-    baseUnit /= 2f;
     
+    baseUnit /= Backgrounds.PAY_INTERVAL;
     float mag = 1f + (creditsPerDay / baseUnit);
     mag = ((float) FastMath.log(2, mag)) * greed;
     return mag;

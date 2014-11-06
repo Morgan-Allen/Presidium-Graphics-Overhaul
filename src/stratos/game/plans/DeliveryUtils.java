@@ -16,7 +16,7 @@ public class DeliveryUtils {
   //  NOTE:  See the rateTrading method below for how these are used...
   private static boolean
     sampleVerbose = false,
-    rateVerbose   = false;
+    rateVerbose   = true ;
   
   private static Traded verboseGoodType = null;
   private static Class  verboseDestType = null;
@@ -261,13 +261,15 @@ public class DeliveryUtils {
     
     final boolean report = rateVerbose && I.talkAbout == destination;
     if (report) {
-      I.say("\nFinding best origin for "+good);
+      I.say("\nFinding best origin of "+good+" for "+destination);
       I.say("  ("+origins.size()+" available)");
     }
     
     Owner pick = null;
     float bestRating = 0;
     for (Owner origin : origins) {
+      if (origin.privateProperty()) continue;
+      
       final float rating = rateTrading(origin, destination, good, amount);
       if (rating > bestRating) { bestRating = rating; pick = origin; }
       if (report) I.say("  Rating for "+origin+" is "+rating);
@@ -287,13 +289,15 @@ public class DeliveryUtils {
     
     final boolean report = rateVerbose && I.talkAbout == origin;
     if (report) {
-      I.say("\nFinding best destination for "+good);
+      I.say("\nFinding best destination for "+good+" from "+origin);
       I.say("  ("+destinations.size()+" available)");
     }
     
     Owner pick = null;
     float bestRating = 0;
     for (Owner destination : destinations) {
+      if (destination.privateProperty()) continue;
+      
       final float rating = rateTrading(origin, destination, good, amount);
       if (rating > bestRating) { bestRating = rating; pick = destination; }
       if (report) I.say("  Rating for "+destination+" is "+rating);
@@ -329,23 +333,32 @@ public class DeliveryUtils {
       report = rateVerbose && (I.talkAbout == orig || I.talkAbout == dest);
     }
     
-    //  First of all secure some preliminary variables-
+    //  First of all secure some preliminary variables.
+    //  OS/DS == origin/destination stocks
+    //  OA/DA == origin/destination amount
+    //  OD/DD == origin/destination demand
     final Inventory
       OS = orig.inventory(),
       DS = dest.inventory();
     final float
       OA = OS.amountOf(good);
     if (OA < amount) return -1;
-    
     final int
       OT = OS.demandTier(good),
       DT = DS.demandTier(good);
-    if (DT != Stocks.TIER_NONE && DS.shortageOf(good) <= 0) return -1;
-    
+    if (DT != Stocks.TIER_NONE && DS.shortageOf(good) <= 0) {
+      if (report) I.say("\nNo shortage at "+dest+".");
+      return -1;
+    }
     final float
       OD = (OT == Stocks.TIER_NONE) ? 0             : OS.demandFor(good),
       DD = (DT == Stocks.TIER_NONE) ? (amount * 10) : DS.demandFor(good);
-    if (DD < amount / 2f) return -1;
+    if (DD == 0 || (DD + 1) < (amount / 2f) || amount > (DD + 1)) {
+      if (report) {
+        I.say("\nAmounts out of proportion at "+dest+": "+amount+"/"+DD);
+      }
+      return -1;
+    }
     
     //  Secondly, obtain an estimate of stocks before and after the exchange-
     float origAfter = 0, destAfter = 0;

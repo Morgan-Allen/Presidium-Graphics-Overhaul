@@ -74,6 +74,7 @@ public class VenueProfile implements Session.Saveable {
     }
     catch (Exception e) {
       I.say("ERROR INSTANCING "+baseClass.getSimpleName()+": "+e);
+      e.printStackTrace();
       return null;
     }
   }
@@ -122,7 +123,7 @@ public class VenueProfile implements Session.Saveable {
     final Batch <Class       > allTypes    = new Batch();
     final Batch <VenueProfile> allProfiles = new Batch();
     
-    for (Class baseClass : Assets.loadPackage("stratos.game.base")) {
+    for (Class baseClass : Assets.loadPackage("stratos.game")) {
       final Venue sample = VenueProfile.sampleVenue(baseClass);
       if (sample != null) {
         allTypes.add(baseClass);

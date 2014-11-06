@@ -126,6 +126,11 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
+  public boolean privateProperty() {
+    return true;
+  }
+  
+  
   public float priceFor(Traded service) {
     return service.basePrice();
   }
@@ -202,11 +207,6 @@ public abstract class Vehicle extends Mobile implements
   
   public List <Actor> crew() {
     return personnel.workers();
-  }
-  
-  
-  public boolean privateProperty() {
-    return true;
   }
   
   

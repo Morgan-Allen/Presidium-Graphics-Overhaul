@@ -38,10 +38,14 @@ public class Commission extends Plan {
   private boolean delivered = false;
   
   
-  public Commission(Actor actor, Item baseItem, Venue shop) {
+  private Commission(Actor actor, Item baseItem, Venue shop) {
     super(actor, shop, true);
     this.item = Item.withReference(baseItem, actor);
     this.shop = shop;
+    
+    if (item.type.materials() == null) {
+      I.complain("COMMISSIONED ITEMS MUST HAVE A CONVERSION SPECIFIED!");
+    }
   }
   
   
@@ -96,18 +100,23 @@ public class Commission extends Plan {
     }
   }
   
-  
-  public static Commission forItem(Actor actor, Item baseItem) {
+  /*
+  public static Commission forItem(
+    Actor actor, Item baseItem, Conversion used, Venue at, boolean upgrade
+  ) {
     if (baseItem == null || actor == null) return null;
     final boolean hasCommission = actor.mind.hasToDo(Commission.class);
     if (hasCommission) return null;
     
-    final Venue match = (Venue) actor.world().presences.nearestMatch(
+    if (! upgrade) return new Commission(actor, baseItem, at);
+    
+    if (at == null) at = (Venue) actor.world().presences.nearestMatch(
       baseItem.type, actor, Stage.SECTOR_SIZE
     );
-    if (match == null) return null;
-    return nextCommission(actor, match, baseItem);
+    if (at == null) return null;
+    return nextCommission(actor, at, baseItem);
   }
+  //*/
   
   
   private static Commission nextCommission(
@@ -172,9 +181,6 @@ public class Commission extends Plan {
       modifier -= greed * ROUTINE;
     }
     
-    //  TODO:  You also need to purchase replacements for weapons that are
-    //  damaged or out of ammo or power cells (at half normal cost.)
-    
     final float priority = priorityForActorWith(
       actor, shop, CASUAL,
       modifier, MILD_HELP,
@@ -220,7 +226,7 @@ public class Commission extends Plan {
   /**  Behaviour implementation-
     */
   protected Behaviour getNextStep() {
-    if (finished()) return null;
+    if (finished() || item.type.materials() == null) return null;
     final boolean report = actionVerbose && I.talkAbout == actor;
     
     if (order == null && shop.structure().intact()) {

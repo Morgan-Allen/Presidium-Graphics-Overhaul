@@ -264,14 +264,10 @@ public class Stocks extends Inventory {
     final float inc = period * 1f / UPDATE_PERIOD;
     d.amountInc += amount * inc;
     
-    /*
-    if (extraVerbose && I.talkAbout == basis) {
-      I.say(
-        "  "+type+" demand inc is: "+d.amountInc+" raw amount: "+amount+
-        "\n    Source is: "+source+", base inc: "+inc
-      );
-    }
-    //*/
+    if (extraVerbose && I.talkAbout == basis) I.say(
+      "  "+type+" demand inc is: "+d.amountInc+" raw amount: "+amount+
+      "\n    Source is: "+source+", base inc: "+inc
+    );
     if (tier != TIER_NONE) d.tierType = tier;
   }
   
@@ -283,11 +279,8 @@ public class Stocks extends Inventory {
     final boolean report = extraVerbose && I.talkAbout == basis;
     final float demand = shortageOf(cons.out.type);
     if (demand <= 0) return;
-    
-    if (report) {
-      I.say("\nTranslating demand for "+cons.out.type+" at: "+demand);
-    }
     float priceBump = 1;
+    if (report) I.say("\nTranslating demand for "+cons.out.type+" at: "+demand);
     
     //  We adjust our prices to ensure we can make a profit, and adjust demand
     //  for the inputs to match demand for the outputs-
@@ -295,14 +288,11 @@ public class Stocks extends Inventory {
     o.pricePaid = o.type.basePrice() * priceBump / (1f + cons.raw.length);
     for (Item raw : cons.raw) {
       final float needed = raw.amount * demand / cons.out.amount;
+      
       if (report) I.say("  Need "+needed+" "+raw.type+" as raw materials");
       incDemand(raw.type, needed, TIER_CONSUMER, period, source);
     }
   }
-  
-  //  TODO:  Put a method in here for dealing with special orders' demands.
-  
-  
   
   
   private void incDemand(

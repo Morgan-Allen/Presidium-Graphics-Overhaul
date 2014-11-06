@@ -166,6 +166,8 @@ public class FindWork extends Plan {
   //  automatically, and never actually finishes.
   
   public static FindWork attemptFor(Actor actor, Employer at) {
+    if (at.careers() == null) return null;
+    
     FindWork find = (FindWork) actor.matchFor(FindWork.class);
     if (find == null) {
       find = new FindWork(actor, null, null);

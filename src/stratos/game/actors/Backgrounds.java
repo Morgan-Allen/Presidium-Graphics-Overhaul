@@ -52,15 +52,16 @@ public interface Backgrounds {
     NOT_A_GUILD     = -1;
   
   final public static float
-    NUM_DAYS_PAY = 20,
-    PAY_INTERVAL = Stage.STANDARD_DAY_LENGTH * 20;
+    NUM_DAYS_PAY      = 20,
+    PAY_INTERVAL      = Stage.STANDARD_DAY_LENGTH * 20,
+    MIN_DAILY_EXPENSE = 100 / (PAY_INTERVAL * 5);
   final public static int
     HIRE_COSTS[] = {
-      150, 250, 500, 1000 //Represents PAY_INTERVAL days' salary.
+      150, 250, 500, 1000 //Represents (PAY_INTERVAL x 5) days' salary.
     },
-    DEFAULT_RELIEF = 100,
-    DEFAULT_TAX_PERCENT = 50,
-    DEFAULT_SURPLUS_PERCENT = 10,
+    DEFAULT_RELIEF          = 100 ,
+    DEFAULT_TAX_PERCENT     = 50  ,
+    DEFAULT_SURPLUS_PERCENT = 10  ,
     DEFAULT_RULER_STIPEND   = 2000;
   
   

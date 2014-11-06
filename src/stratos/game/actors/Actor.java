@@ -112,6 +112,11 @@ public abstract class Actor extends Mobile implements
   }
   
   
+  public boolean privateProperty() {
+    return true;
+  }
+  
+  
   public float priceFor(Traded service) {
     return service.basePrice() * 2;
   }

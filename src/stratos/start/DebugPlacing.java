@@ -19,42 +19,6 @@ import stratos.util.*;
 
 
 
-
-
-//  Re-work the culture lab- produce either food/organs OR soma/reagents.
-//  Make sure treatment-quality factors into first aid and medication.
-
-//  Major vendors, like the supply depot or dropships, should not be delivering
-//  straight to housing or other private property.
-
-//  Test datalink-production at the archives.
-//  Test study behaviour at the archives.
-
-//  Set up exclusion zone around kommando lodge, and try to restore animal
-//  breeding.
-
-//  Try to arrange that actors will seek out new Holdings if anything existing
-//  is at or above half crowding.
-
-
-//  Introduce the Air Field?  (Bring back the Landing Strip at least.)
-
-//  Have solar banks primarily exist as water supply, not power per se.  The
-//  reactor complex can provide most of that.
-//  Get rid of the Drill Yard.  It's not working out for now.
-
-//  Fix bug with stripping/paving of roads happening at same time.  It doesn't
-//  show up often, so just keep an eye out for it.
-
-//  Divide venue description into two panes- one for general status, and the
-//  other for specific sub-headings.  Don't bother with spill-over.
-
-//  Rework art for roads, the shield wall, the physician station, the engineer
-//  station, the solar bank, and the archives.
-
-
-
-
 public class DebugPlacing extends Scenario {
   
   

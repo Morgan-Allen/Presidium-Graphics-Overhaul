@@ -159,7 +159,6 @@ public class Recreation extends Plan {
       comfort++;
     }
     comfort += enjoyBonus;
-    //  TODO:  Chat at random with other occupants (using the Dialogue class.)
     //
     //  TODO:  Have morale converge to a particular level based on surroundings,
     //  rather than gaining a continual increase!
