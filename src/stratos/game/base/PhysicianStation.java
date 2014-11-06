@@ -222,7 +222,7 @@ public class PhysicianStation extends Venue {
   
   public int numOpenings(Background v) {
     final int nO = super.numOpenings(v);
-    if (v == Backgrounds.MINDER   ) return nO + 1;
+    if (v == Backgrounds.MINDER   ) return nO + 2;
     if (v == Backgrounds.PHYSICIAN) return nO + 1;
     return 0;
   }

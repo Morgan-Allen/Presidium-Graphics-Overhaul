@@ -180,9 +180,9 @@ public class Commerce {
     
     jobSupply.clear();
     for (Actor c : candidates) {
-      final Application a = c.mind.application();
+      final Background a = FindWork.ambitionOf(c);
       if (a == null) continue;
-      jobSupply.add(1, a.position);
+      jobSupply.add(1, a);
     }
     
     if (report) I.say("\nChecking for new candidates...");
@@ -207,11 +207,12 @@ public class Commerce {
       while (Rand.num() < applyChance) {
         final Human applies = new Human(b, base);
         if (report) I.say("  New candidate: "+applies);
+        
         candidates.addFirst(applies);
-        Application a = FindWork.lookForWork((Human) applies, base, verbose);
-        if (a != null) {
-          if (report) I.say("  Applying at: "+a.employer);
-          applies.mind.switchApplication(a);
+        final FindWork a = FindWork.attemptFor(applies, b, base);
+        if (a.position() != null) {
+          if (report) I.say("  Applying at: "+a.position());
+          a.confirmApplication();
         }
         applyChance--;
       }
@@ -223,33 +224,33 @@ public class Commerce {
     
     for (ListEntry e = candidates; (e = e.nextEntry()) != candidates;) {
       final Human c = (Human) e.refers;
-      final Application a = c.mind.application();
+      
+      final Background a = FindWork.ambitionOf(c);
       float quitChance = timeGone;
       if (report) I.say("  Updating "+c);
       
       if (a != null) {
-        final Background b = a.position;
         final float
-          supply = jobSupply.valueFor(b),
-          demand = jobDemand.valueFor(b);
+          supply = jobSupply.valueFor(a),
+          demand = jobDemand.valueFor(a);
         quitChance *= supply / (supply + demand);
         
         if (report) {
-          I.say("  Quit chance for "+a.position+" "+c+" is: "+quitChance);
+          I.say("  Quit chance for "+a+" "+c+" is: "+quitChance);
         }
       }
       
+      final FindWork b = FindWork.attemptFor(c, a, base);
       if (Rand.num() > quitChance) {
-        Application newApp = FindWork.lookForWork((Human) c, base, verbose);
-        if (newApp != null) {
-          if (report) I.say("  Applying at: "+newApp.employer);
-          c.mind.switchApplication(newApp);
+        if (b.position() != null) {
+          if (report) I.say("  Applying at: "+b.employer());
+          b.confirmApplication();
         }
       }
       else {
         if (report) I.say(c+"("+c.vocation()+") is quitting...");
         candidates.removeEntry(e);
-        if (a != null) a.employer.personnel().setApplicant(a, false);
+        b.cancelApplication();
       }
     }
   }

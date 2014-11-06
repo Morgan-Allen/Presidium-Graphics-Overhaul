@@ -196,16 +196,15 @@ public interface Backgrounds {
       BODY_ARMOUR, STUN_WAND
     ),
     
-    //*
-    ARCHIVE_SAVANT = new Background(
-      Backgrounds.class, "Archive Savant", "citizen_skin.gif", null,
+    SAVANT = new Background(
+      Backgrounds.class,
+      "Savant", "citizen_skin.gif", null,
       CLASS_FREEMEN, GUILD_PHYSICIAN,
-      EXPERT, ACCOUNTING, INSCRIPTION, PRACTICED, COUNSEL, ASSEMBLY,
-      NOVICE, ANCIENT_LORE, LEGISLATION,
+      EXPERT, ACCOUNTING, INSCRIPTION, PRACTICED, ANCIENT_LORE, LEGISLATION,
+      NOVICE, COUNSEL, ASSEMBLY,
       ALWAYS, CURIOUS, SOMETIMES, NERVOUS, IMPASSIVE,
       OVERALLS
     ),
-    //*/  //TODO:  Also Psychoanalyst?
     
     PHYSICIAN = new Background(
       Backgrounds.class,

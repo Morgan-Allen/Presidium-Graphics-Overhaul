@@ -81,13 +81,6 @@ public class HoldingUpgrades {
     "Forbidden Palace"
   };
   
-  
-  
-  
-  
-  
-  
-  
   /**  Building materials/furnishings-
     */
   final static Conversion MATERIALS[] = {
@@ -127,10 +120,7 @@ public class HoldingUpgrades {
   
   
   public static Conversion materials(int upgradeLevel) {
-    if (upgradeLevel >= 0 && upgradeLevel <= 4) {
-      return MATERIALS[upgradeLevel];
-    }
-    return null;
+    return MATERIALS[Visit.clamp(upgradeLevel, NUM_LEVELS)];
   }
   
   

@@ -9,6 +9,7 @@ package stratos.game.building;
 import stratos.game.actors.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
+import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.TalkFX;
 import stratos.user.*;
@@ -188,7 +189,7 @@ public abstract class Vehicle extends Mobile implements
   }
 
   
-  public void setApplicant(Application app, boolean is) {
+  public void setApplicant(FindWork app, boolean is) {
     //I.complain("NOT IMPLEMENTED YET!");
     personnel.setApplicant(app, is);
   }

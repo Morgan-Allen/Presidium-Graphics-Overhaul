@@ -181,12 +181,20 @@ public class Holding extends Venue {
     if (devolve) devolveCounter += CHECK_TIME;
     if (upgrade) upgradeCounter += CHECK_TIME;
     
-    if (numTests >= TEST_INTERVAL) {
+    final boolean freeUp = GameSettings.freeHousingLevel > this.upgradeLevel;
+    
+    if (numTests >= TEST_INTERVAL || freeUp) {
       targetLevel = upgradeLevel;
       if (devolveCounter * 1f / numTests > DEVOLVE_THRESH) devolve = true;
       if (upgradeCounter * 1f / numTests > UPGRADE_THRESH) upgrade = true;
       if (devolve) targetLevel--;
       if (upgrade) targetLevel++;
+      
+      if (freeUp) {
+        targetLevel = upgradeLevel + 1;
+        upgrade = true;
+        devolve = false;
+      }
       numTests = devolveCounter = upgradeCounter = 0;
       targetLevel = Visit.clamp(targetLevel, HoldingUpgrades.NUM_LEVELS);
       
@@ -218,7 +226,7 @@ public class Holding extends Venue {
   
   
   private void consumeMaterials() {
-    //
+    
     //  Decrement stocks and update demands-
     float wear = Structure.WEAR_PER_DAY;
     wear /= Stage.STANDARD_DAY_LENGTH * structure.maxIntegrity();
@@ -226,7 +234,16 @@ public class Holding extends Venue {
     float count = 0;
     for (Actor r : personnel.residents()) if (r.aboard() == this) count++;
     count = 0.5f + (count / maxPop);
-    //
+    
+    //  If upgrades are free, make sure it includes rations:
+    final boolean freeUp = GameSettings.freeHousingLevel > this.upgradeLevel;
+    if (freeUp) for (Item i : HoldingUpgrades.rationNeeds(this, upgradeLevel)) {
+      stocks.setAmount(i.type, i.amount + 1);
+    }
+    if (freeUp) for (Item i : HoldingUpgrades.materials(upgradeLevel + 1).raw) {
+      stocks.setAmount(i.type, i.amount + 1);
+    }
+    
     //  Power, water and life support are consumed at a fixed rate, but other
     //  materials wear out depending on use (and more slowly.)
     for (Item i : HoldingUpgrades.materials(upgradeLevel).raw) {

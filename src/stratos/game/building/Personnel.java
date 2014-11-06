@@ -10,6 +10,7 @@ import stratos.game.actors.*;
 import stratos.game.campaign.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
+import stratos.game.plans.*;
 import stratos.game.maps.*;
 import stratos.util.*;
 
@@ -39,8 +40,8 @@ public class Personnel {
   
   
   final Employer employs;
-  final List <Application>
-    applications = new List <Application> ();
+  final List <FindWork>
+    applications = new List <FindWork> ();
   final List <Actor>
     workers   = new List <Actor> (),
     residents = new List <Actor> ();
@@ -202,37 +203,36 @@ public class Personnel {
   
   /**  Handling applications and recruitment-
     */
-  public List <Application> applications() {
+  public List <FindWork> applications() {
     return applications;
   }
   
   
-  public void setApplicant(Application app, boolean is) {
+  public void setApplicant(FindWork app, boolean is) {
     if (is) {
-      for (Application a : applications) if (a.matches(app)) return;
+      for (FindWork a : applications) if (a.matchesPlan(app)) return;
       applications.add(app);
     }
-    else for (Application a : applications) if (a.matches(app)) {
+    else for (FindWork a : applications) if (a.matchesPlan(app)) {
       applications.remove(a);
     }
   }
   
   
-  public void confirmApplication(Application a) {
+  public void confirmApplication(FindWork a) {
     employs.base().incCredits(0 - a.hiringFee());
-    final Actor works = a.applies;
+    final Actor works = a.actor();
     //
     //  TODO:  Once you have incentives worked out, restore this-
     //works.gear.incCredits(app.salary / 2);
     //works.gear.taxDone();
-    works.setVocation(a.position);
+    works.setVocation(a.position());
     works.mind.setWork(employs);
     //
     //  If there are no remaining openings for this background, cull any
     //  existing applications.  Otherwise, refresh signing costs.
-    for (Application oA : applications) if (oA.position == a.position) {
-      if (employs.numOpenings(oA.position) == 0) {
-        a.applies.mind.switchApplication(null);
+    for (FindWork oA : applications) if (oA.position() == a.position()) {
+      if (employs.numOpenings(oA.position()) == 0) {
         applications.remove(oA);
       }
     }
@@ -259,12 +259,15 @@ public class Personnel {
       for (Actor a : residents) if (a.destroyed() || a.base() != base) {
         setResident(a, false);
       }
+      for (FindWork a : applications) if (a.employer() != employs) {
+        setApplicant(a, false);
+      }
       
       //  If there's an unfilled opening, look for someone to fill it.
       //  TODO:  This should really be handled more from the Commerce class?
       if (employs.careers() == null) return;
       
-      if (employs.privateProperty()) for (Application a : applications) {
+      if (employs.privateProperty()) for (FindWork a : applications) {
         confirmApplication(a);
       }
       
@@ -297,7 +300,7 @@ public class Personnel {
   
   
   public void setWorker(Actor c, boolean is) {
-    for (Application a : applications) if (a.applies == c) {
+    for (FindWork a : applications) if (a.actor() == c) {
       applications.remove(a);
     }
     if (is) workers.include(c);

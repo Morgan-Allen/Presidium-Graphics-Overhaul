@@ -17,8 +17,7 @@ public class Exploring extends Plan implements Qualities {
   /**  Construction and save/load methods-
     */
   private static boolean
-    evalVerbose = false,
-    pickVerbose = false;
+    evalVerbose = false;
   
   final static int
     TYPE_WANDER  = 0,
@@ -37,20 +36,19 @@ public class Exploring extends Plan implements Qualities {
     Actor actor, Base base, int type, Tile lookedAt, float maxTravel
   ) {
     super(actor, lookedAt, false);
-    this.base        = base     ;
-    this.type        = type     ;
-    this.lookedAt    = lookedAt ;
-    this.travelled   = maxTravel;
+    this.base      = base     ;
+    this.type      = type     ;
+    this.lookedAt  = lookedAt ;
+    this.travelled = maxTravel;
   }
   
   
   public Exploring(Session s) throws Exception {
     super(s);
-    base = (Base) s.loadObject();
-    type = s.loadInt();
+    base      = (Base) s.loadObject();
+    type      = s.loadInt();
     lookedAt  = (Tile) s.loadTarget();
     travelled = s.loadFloat();
-    //sample    = s.loadBool();
   }
   
   
@@ -60,7 +58,6 @@ public class Exploring extends Plan implements Qualities {
     s.saveInt   (type);
     s.saveTarget(lookedAt );
     s.saveFloat (travelled);
-    //s.saveBool  (sample   );
   }
   
   
@@ -90,8 +87,8 @@ public class Exploring extends Plan implements Qualities {
   
   
   public static Exploring nextExploration(Actor actor) {
-    final Tile toExplore = getUnexplored(
-      actor.base().intelMap, actor, actor, Stage.SECTOR_SIZE, -1
+    final Tile toExplore = IntelMap.getUnexplored(
+      actor.base(), actor, actor, Stage.SECTOR_SIZE, -1
     );
     if (toExplore == null) return null;
     final float range = actor.health.sightRange();
@@ -103,8 +100,8 @@ public class Exploring extends Plan implements Qualities {
     Base base, Actor actor, Target point, float range
   ) {
     final Tile core = Spacing.nearestOpenTile(point, point);
-    final Tile toExplore = (range > 0) ? getUnexplored(
-      base.intelMap, actor, point, Stage.SECTOR_SIZE, range
+    final Tile toExplore = (range > 0) ? IntelMap.getUnexplored(
+      base, actor, point, Stage.SECTOR_SIZE, range
     ) : core;
     if (toExplore == null) return null;
     
@@ -123,7 +120,6 @@ public class Exploring extends Plan implements Qualities {
   
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
-    
     
     float basePriority = CASUAL;
     if (type == TYPE_WANDER) basePriority = IDLE   ;
@@ -171,105 +167,14 @@ public class Exploring extends Plan implements Qualities {
     
     if (travelled > 0) {
       final float range = actor.health.sightRange();
-      lookedAt = Exploring.getUnexplored(
-        base.intelMap, actor, actor, range, range
+      lookedAt = IntelMap.getUnexplored(
+        base, actor, actor, range, range
       );
       if (lookedAt == null) { lookedAt = actor.origin(); travelled = -1; }
       else travelled -= Spacing.distance(actor, lookedAt) * Rand.num();
     }
     else travelled = -1;
     return false;
-  }
-  
-  
-  
-  /**  Helper methods for grabbing unexplored tiles-
-    */
-  public static Tile getUnexplored(
-    IntelMap intelMap, Object client,
-    Target centre, float distanceUnit, final float maxDist
-  ) {
-    final boolean report = pickVerbose && I.talkAbout == client;
-    if (report) {
-      I.say("\nGetting next unexplored area near "+centre);
-      I.say("  Max. distance is: "+maxDist+", units: "+distanceUnit);
-    }
-    //
-    //  Rather than searching exhaustively over every tile in the world, we're
-    //  going to split it recursively into sub-sections and check the fog-
-    //  density of each.
-    final class Area extends Box2D {
-      float rating;
-    }
-    final Sorting <Area> sorting = new Sorting <Area> () {
-      public int compare(Area a, Area b) {
-        if (a == b) return 0;
-        return a.rating < b.rating ? -1 : 1;
-      }
-    };
-    final MipMap map = intelMap.fogMap();
-    final Stage world = centre.world();
-    Tile picked = null;
-    final Area kids[] = new Area[4];
-    final Vec3D
-      centrePos = centre.position(null),
-      clientPos = Spacing.getPositionWithDefault(client, centrePos);
-    //
-    //  The complication here (which necessitates a sorted agenda), is that
-    //  parent nodes can, in theory, have positive ratings even when none of
-    //  their children are suitable (because fog is measured in aggregate, but
-    //  the only unexplored children may lie outside the maximum distance.)  So
-    //  we need the ability to retrace our steps back to ancestor areas if none
-    //  of the children prove suitable.
-    boolean init = true; while (init || sorting.size() > 0) {
-      //
-      //  We begin the search with the 'root node', covering the world as a
-      //  whole.  After that, we simply take the highest-ranking descendants.
-      final Area best;
-      if (init) {
-        best = new Area();
-        best.setTo(world.area());
-        init = false;
-      }
-      else best = sorting.removeGreatest();
-      //
-      //  If we've narrowed the area down to a single tile, just return that.
-      if (best.xdim() < 2) {
-        picked = world.tileAt(best.xpos() + 0.5f, best.ypos() + 0.5f);
-        break;
-      }
-      //
-      //  Otherwise, get the sub-quadrants of this section, and rate each of
-      //  those that fit within the maximum distance.
-      kids[0] = (Area) new Area().asQuadrant(best, 2, 0, 0);
-      kids[1] = (Area) new Area().asQuadrant(best, 2, 1, 0);
-      kids[2] = (Area) new Area().asQuadrant(best, 2, 0, 1);
-      kids[3] = (Area) new Area().asQuadrant(best, 2, 1, 1);
-      for (Area kid : kids) {
-        final float centreDist = kid.distance(centrePos.x, centrePos.y);
-        if (maxDist > 0 && centreDist >= maxDist) continue;
-        final int size = (int) kid.xdim();
-        final float fog = map.getAvgAt(
-          (int) ((kid.xpos() + 1) / size),
-          (int) ((kid.ypos() + 1) / size),
-          MipMap.sizeToDepth(size)
-        );
-        if (fog >= 1) continue;
-        //
-        //  Having skipped any fully-explored areas outside of maximum range,
-        //  we can add the remainder to the agenda, and add some randomness
-        //  for spice.
-        final float clientDist = kid.distance(clientPos.x, clientPos.y);
-        kid.rating = (1 - fog) * distanceUnit / (clientDist + distanceUnit);
-        kid.rating *= (1.5f + Rand.num()) / 2f;
-        sorting.add(kid);
-        if (report) {
-          I.say("  X/Y:    "+kid.xpos()+"/"+kid.ypos()+", size "+size);
-          I.say("  Rating: "+kid.rating);
-        }
-      }
-    }
-    return picked;
   }
   
   

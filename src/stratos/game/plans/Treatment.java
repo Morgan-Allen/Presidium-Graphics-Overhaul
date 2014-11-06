@@ -9,17 +9,22 @@ import stratos.game.common.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.building.Economy.*;
-import static stratos.game.actors.Conditions.INJURY;
+import static stratos.game.actors.Conditions.*;
 import static stratos.game.actors.Qualities.*;
 
 
 
+//  TODO:  There's room for some additional refactoring here...
+
 public class Treatment extends Plan implements Item.Passive {
-  
+
+  final static int
+    STANDARD_TREAT_TIME  = Stage.STANDARD_HOUR_LENGTH,
+    STANDARD_EFFECT_TIME = Stage.STANDARD_DAY_LENGTH ;
   
   private static boolean
-    evalVerbose  = true ,
-    eventVerbose = true ;
+    evalVerbose  = false,
+    eventVerbose = false;
   
   final Actor patient;
   final Condition sickness;
@@ -213,17 +218,22 @@ public class Treatment extends Plan implements Item.Passive {
   public boolean actionDoTreatment(Actor actor, Actor patient) {
     
     Item current = existingTreatment(sickness, patient);
-    if (current == null) current = Item.withReference(TREATMENT, this);
+    if (current == null) current = Item.with(TREATMENT, this, 0, 0);
     
     final float
-      severity = severity(),
-      bonus    = getVenueBonus(true, PhysicianStation.APOTHECARY);
-    boolean success = true;
-    success &= actor.skills.test(PHARMACY    , (severity * 10) - bonus, 5f);
-    success &= actor.skills.test(GENE_CULTURE, 5 - bonus              , 5f);
+      inc   = 1f / STANDARD_TREAT_TIME,
+      DC    = severity() * 10,
+      bonus = getVenueBonus(true, PhysicianStation.APOTHECARY);
     
-    if (success) {
-      patient.gear.addItem(Item.withAmount(current, 0.1f));
+    float check = Rand.yes() ? -1 : 1;
+    if (actor.skills.test(PHARMACY    , DC - bonus, 5f)) check++;
+    if (actor.skills.test(GENE_CULTURE, 5  - bonus, 5f)) check++;
+    
+    if (check > 0) {
+      final float quality = current.amount == 0 ? 1 :
+        (Item.MAX_QUALITY * (check - 1) / 2);
+      current = Item.with(current.type, current.refers, inc, quality);
+      patient.gear.addItem(current);
       return true;
     }
     else return false;
@@ -257,10 +267,11 @@ public class Treatment extends Plan implements Item.Passive {
   
   
   public void applyPassiveItem(Actor carries, Item from) {
-    float effect = 1.0f / Stage.STANDARD_DAY_LENGTH;
-    //  TODO:  Modify effectiveness based on item quality.
+    if (carries.traits.traitLevel(sickness) <= 0) return;
     
-    carries.traits.incLevel(sickness, 0 - effect);
+    float effect = 1.0f / Stage.STANDARD_DAY_LENGTH;
+    float bonus = (5 + from.quality) / 10f;
+    carries.traits.incLevel(sickness, 0 - effect * bonus);
     carries.gear.removeItem(Item.withAmount(from, effect));
     
     I.say("\nLevel of "+sickness+" is "+carries.traits.traitLevel(sickness));

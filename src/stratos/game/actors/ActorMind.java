@@ -32,12 +32,12 @@ public abstract class ActorMind implements Qualities {
   
   final protected Actor actor;
   
-  final List <Behaviour> agenda = new List <Behaviour> ();
+  final List <Behaviour> agenda   = new List <Behaviour> ();
   final List <Behaviour> todoList = new List <Behaviour> ();
   
   protected Mission mission;
   protected Employer home, work;
-  protected Application application;
+  //protected Application application;
   protected Actor master;
   
   
@@ -54,7 +54,7 @@ public abstract class ActorMind implements Qualities {
     mission = (Mission) s.loadObject();
     home = (Employer) s.loadObject();
     work = (Employer) s.loadObject();
-    application = (Application) s.loadObject();
+    //application = (Application) s.loadObject();
     master = (Actor) s.loadObject();
   }
   
@@ -66,7 +66,7 @@ public abstract class ActorMind implements Qualities {
     s.saveObject(mission);
     s.saveObject(home);
     s.saveObject(work);
-    s.saveObject(application);
+    //s.saveObject(application);
     s.saveObject(master);
   }
   
@@ -88,9 +88,11 @@ public abstract class ActorMind implements Qualities {
     if (work != null && work.destroyed()) {
       setWork(null);
     }
+    /*
     if (application != null && ! application.valid()) {
       switchApplication(null);
     }
+    //*/
     if (mission != null && mission.finished()) {
       assignMission(null);
     }
@@ -239,6 +241,7 @@ public abstract class ActorMind implements Qualities {
   
   /**  Setting home and work venues & applications, plus missions-
     */
+  /*
   public void switchApplication(Application a) {
     if (this.application == a) return;
     if (application != null) {
@@ -254,6 +257,7 @@ public abstract class ActorMind implements Qualities {
   public Application application() {
     return application;
   }
+  //*/
   
   
   public void setWork(Employer e) {

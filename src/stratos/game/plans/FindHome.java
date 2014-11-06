@@ -17,6 +17,11 @@ import static stratos.game.building.Economy.*;
 
 
 
+//  TODO:  Have Holdings appear spontaneously (much like nurseries), and then
+//  have actors set up residence inside.  Don't make them directly responsible
+//  for initial siting.
+
+
 public class FindHome extends Plan {
   
   
@@ -30,7 +35,7 @@ public class FindHome extends Plan {
   final Employer newHome;
   
   
-  public static FindHome attemptFor(Actor actor) {
+  public static FindHome attemptFor(Actor actor, Employer at) {
     Employer newHome = lookForHome(actor, actor.base());
     if (newHome == null || newHome == actor.mind.home()) return null;
     return new FindHome(actor, newHome);

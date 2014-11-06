@@ -229,6 +229,11 @@ public class ActorHealth implements Qualities {
   }
   
   
+  public void setBleeding(boolean is) {
+    bleeds = is;
+  }
+  
+  
   
   /**  Methods related to growth, reproduction, aging and death.
     */

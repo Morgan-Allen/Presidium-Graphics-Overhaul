@@ -37,14 +37,13 @@
   height="1.0"
 >
   <animations>
-    <animation name="stand"      start="5"  end="5"  duration="1.0" />
-    <animation name="strike"     start="3"  end="7"  duration="0.6" />
-    <animation name="move"       start="3"  end="7"  duration="0.6" />
-    <animation name="fall"       start="8"  end="13" duration="2.5" />
-    
-    <animation name="move_sneak" start="3"  end="7"  duration="0.6" />
-    <animation name="move_fast"  start="3"  end="7"  duration="0.6" />
-    <animation name="look"       start="3"  end="7"  duration="0.6" />
+    <animation name="stand"      start="1"    end="30"   duration="1.0" />
+    <animation name="move"       start="32"   end="54"   duration="1.0" />
+    <animation name="move_sneak" start="56"   end="78"   duration="1.0" />
+    <animation name="move_fast"  start="80"   end="98"   duration="0.7" />
+    <animation name="strike"     start="99"   end="122"  duration="1.0" />
+    <animation name="look"       start="123"  end="214"  duration="1.0" />
+    <animation name="fall"       start="216"  end="244"  duration="1.0" />
   </animations>
 </model>
 
@@ -59,7 +58,7 @@
   stride="0.6"
   height="1.5"
 >
-  <animations fps="25">
+  <animations fps="1">
     <animation name="walk start" start="0"  end="11" duration="1" />
     <animation name="walk"       start="11" end="40" duration="1" />
     <animation name="walk stop"  start="41" end="52" duration="1" />
@@ -79,8 +78,7 @@
     <animation name="idle"   start="267" end="317" duration="1" />
     <animation name="idle2"  start="511" end="591" duration="1" />
     
-    <animation name="attack2" start="591" end="621" duration="1" />
-    <animation name="attack3" start="621" end="651" duration="1" />
+    <animation name="attack2" start="592" end="622" duration="1" />
   </animations>
 </model>
 

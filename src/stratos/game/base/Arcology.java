@@ -5,7 +5,7 @@
   */
 
 package stratos.game.base;
-import static stratos.game.actors.Backgrounds.ARCHIVE_SAVANT;
+import static stratos.game.actors.Backgrounds.SAVANT;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.building.*;

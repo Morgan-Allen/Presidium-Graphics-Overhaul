@@ -69,10 +69,12 @@ public class DebugTreating extends Scenario {
   
   
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
+    
     GameSettings.setDefaults();
     GameSettings.hireFree  = true;
     GameSettings.buildFree = true;
     GameSettings.fogFree   = true;
+    GameSettings.paveFree  = true;
     
     final Actor treats = new Human(Backgrounds.PHYSICIAN, base);
     final Venue station = new PhysicianStation(base);
@@ -85,8 +87,8 @@ public class DebugTreating extends Scenario {
     treated.enterWorldAt(4, 10, world);
     
     //  And now, we proceed to do various horrible things to the subject...
-    treated.traits.incLevel(Conditions.HIREX_PARASITE, 0.99f);
-    //treated.health.takeInjury(treated.health.maxHealth() + 1, true);
+    //treated.traits.incLevel(Conditions.HIREX_PARASITE, 0.99f);
+    treated.health.takeInjury(treated.health.maxHealth() + 1, true);
     
     UI.selection.pushSelection(treats, true);
   }

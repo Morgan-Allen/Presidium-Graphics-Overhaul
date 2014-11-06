@@ -221,6 +221,31 @@ public class BaseSetup {
     }
   }
   
+  
+  public static void fillVacancies(Venue venue, boolean enterWorld) {
+    //
+    //  We automatically fill any positions available when the venue is
+    //  established.  This is done for free, but candidates cannot be screened.
+    if (venue.careers() == null) return;
+    for (Background v : venue.careers()) {
+      final int numOpen = venue.numOpenings(v);
+      if (numOpen <= 0) continue;
+      
+      for (int i = numOpen; i-- > 0;) {
+        final Human worker = new Human(v, venue.base());
+        worker.mind.setWork(venue);
+        
+        if (GameSettings.hireFree || enterWorld) {
+          worker.enterWorldAt(venue, venue.world());
+          worker.goAboard(venue, venue.world());
+        }
+        
+        else {
+          venue.base().commerce.addImmigrant(worker);
+        }
+      }
+    }
+  }
 
 }
 

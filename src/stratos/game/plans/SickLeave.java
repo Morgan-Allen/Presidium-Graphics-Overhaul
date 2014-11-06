@@ -13,6 +13,10 @@ import static stratos.game.actors.Qualities.*;
 
 
 
+
+//  TODO:  It's possible the actor should be paying for this?
+
+
 public class SickLeave extends Plan {
   
   
@@ -69,7 +73,7 @@ public class SickLeave extends Plan {
     final boolean report = evalVerbose && I.talkAbout == actor;
     
     if (sickbay == null || sickness == null           ) return 0;
-    if (Treatment.hasTreatment(sickness, actor, false)) return 0;
+    if (Treatment.hasTreatment(sickness, actor, hasBegun())) return 0;
     
     final float urgency = Treatment.dangerRating(sickness, actor);
     final float priority = priorityForActorWith(

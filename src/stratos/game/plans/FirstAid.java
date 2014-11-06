@@ -17,6 +17,7 @@ import static stratos.game.building.Economy.*;
 public class FirstAid extends Treatment {
   
   
+  
   private static boolean
     verbose     = false,
     evalVerbose = false;
@@ -137,20 +138,26 @@ public class FirstAid extends Treatment {
   
   public boolean actionFirstAid(Actor actor, Actor patient) {
     
+    Item current = existingTreatment(INJURY, patient);
+    if (current == null) current = Item.with(TREATMENT, this, 0, 0);
+    
     final float
+      inc   = 1f / STANDARD_TREAT_TIME,
       DC    = severity() * 5,
       bonus = getVenueBonus(true, PhysicianStation.INTENSIVE_CARE);
     
-    boolean success = true;
-    success &= actor.skills.test(ANATOMY , DC - bonus, 10);
-    success &= actor.skills.test(PHARMACY, 5  - bonus, 10);
+    float check = Rand.yes() ? -1 : 1;
+    if (actor.skills.test(ANATOMY , DC - bonus, 10)) check++;
+    if (actor.skills.test(PHARMACY, 5  - bonus, 10)) check++;
     
-    Item current = existingTreatment(INJURY, patient);
-    if (current == null) current = Item.withReference(TREATMENT, this);
-    
-    if (success) {
-      patient.health.liftInjury(0);
-      patient.gear.addItem(Item.withAmount(current, 0.1f));
+    if (check > 0) {
+      final float quality = current.amount == 0 ? 1 :
+        (Item.MAX_QUALITY * (check - 1) / 2);
+      current = Item.with(current.type, current.refers, inc, quality);
+      patient.gear.addItem(current);
+      
+      if (check > 1) patient.health.setBleeding(false);
+      else patient.health.liftInjury(0);
     }
     return true;
   }
@@ -160,11 +167,11 @@ public class FirstAid extends Treatment {
     if (! patient.health.alive()) {
       patient.health.setState(ActorHealth.STATE_SUSPEND);
     }
-    //  TODO:  Modify effectiveness based on item quality.
     
-    float effect = 1.0f / Stage.STANDARD_DAY_LENGTH;
+    float bonus = (5 + from.quality) / 10f;
+    float effect = 1.0f / STANDARD_EFFECT_TIME;
     float regen = ActorHealth.INJURY_REGEN_PER_DAY;
-    regen *= 3 * effect * patient.health.maxHealth();
+    regen *= 3 * effect * patient.health.maxHealth() * bonus;
     patient.health.liftInjury(regen);
     
     carries.gear.removeItem(Item.withAmount(from, effect));

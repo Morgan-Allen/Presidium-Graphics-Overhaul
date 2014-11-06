@@ -1,15 +1,12 @@
 
 
 package stratos.game.building;
-import org.apache.commons.math3.util.FastMath;
-
 import stratos.game.actors.*;
-import stratos.game.building.*;
-import stratos.game.civilian.*;
+import stratos.game.campaign.*;
 import stratos.game.common.*;
-import stratos.game.plans.FindWork;
 import stratos.util.*;
 
+import org.apache.commons.math3.util.FastMath;
 
 
 //
@@ -265,7 +262,7 @@ public class Placement implements TileConstants {
       }
       a.mind.setWork(v);
     }
-    if (GameSettings.hireFree) FindWork.fillVacancies(v, intact);
+    if (GameSettings.hireFree) BaseSetup.fillVacancies(v, intact);
     return v;
   }
 }

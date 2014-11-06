@@ -18,9 +18,11 @@ public class Trait extends Index.Entry implements Qualities, Session.Saveable {
   
   final public static Index <Trait> TRAIT_INDEX = new Index <Trait> ();
   
+  final String name;
+  final String descriptors[];
+  
   final int type;
   final int minVal, maxVal;
-  final String descriptors[];
   final int descValues[];
   
   private Trait correlates[], opposite;
@@ -28,11 +30,12 @@ public class Trait extends Index.Entry implements Qualities, Session.Saveable {
   
   
   
-  protected Trait(String keyID, int type, String... descriptors) {
-    super(TRAIT_INDEX, keyID);
+  protected Trait(String name, int type, String... descriptors) {
+    super(TRAIT_INDEX, name);
     //this.keyID = keyID;
     //this.indexEntry = TRAIT_INDEX.addEntry(this, keyID);
     
+    this.name = name;
     this.type = type;
     this.descriptors = descriptors;
     this.descValues = new int[descriptors.length];
@@ -132,7 +135,7 @@ public class Trait extends Index.Entry implements Qualities, Session.Saveable {
   
   
   public String toString() {
-    return descriptionFor(this, 2);
+    return name;
   }
 }
 

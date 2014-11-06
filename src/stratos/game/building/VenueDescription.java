@@ -5,12 +5,13 @@ import stratos.game.actors.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
-import stratos.game.plans.Manufacture;
-import static stratos.game.building.Venue.*;
+import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
+
+import static stratos.game.building.Venue.*;
 
 
 
@@ -253,8 +254,9 @@ public class VenueDescription {
       m.describeStatus(d);
     }
 
-    for (final Application a : v.personnel.applications) {
-      final Actor p = a.applies;
+    for (final FindWork a : v.personnel.applications) {
+      if (a.employer() != v) continue;
+      final Actor p = a.actor();
       d.append("\n\n");
       
       ((Text) d).insert(p.portrait(UI).texture(), 40);
@@ -268,7 +270,7 @@ public class VenueDescription {
       
       int numS = 0;
       for (Trait s : SD) {
-        if (a.position.skillLevel((Skill) s) <= 0) continue;
+        if (a.position().skillLevel((Skill) s) <= 0) continue;
         if (++numS > 3) break;
         d.append("\n  "+s+" ("+((int) p.traits.traitLevel(s))+") ");
       }

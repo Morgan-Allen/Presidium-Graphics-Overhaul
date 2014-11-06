@@ -8,11 +8,11 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
-//NOTE:  I'm moving these methods here essentially for the sake of reducing
-//clutter/space demands within the main Human or Actor classes.
+//  NOTE:  I'm moving these methods here essentially for the sake of reducing
+//  clutter/space demands within the main Human or Actor classes.
+//   TODO:  Adapt this to actors in general instead?
 
 
-//   TODO:  Adapt this to actors in general instead.
 public class HumanDescription implements Qualities {
   
   
@@ -115,7 +115,7 @@ public class HumanDescription implements Qualities {
     d.append("\n\nSkills: ");
     final List <Skill> sorting = new List <Skill> () {
       protected float queuePriority(Skill skill) {
-        return h.traits.traitLevel(skill);
+        return 0 - h.traits.traitLevel(skill);
       }
     };
     

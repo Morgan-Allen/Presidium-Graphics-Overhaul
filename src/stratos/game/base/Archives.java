@@ -75,13 +75,13 @@ public class Archives extends Venue {
   
   
   public Background[] careers() {
-    return new Background[] { ARCHIVE_SAVANT };
+    return new Background[] { SAVANT };
   }
   
   
   public int numOpenings(Background b) {
     final int nO = super.numOpenings(b);
-    if (b == ARCHIVE_SAVANT) return nO + 2;
+    if (b == SAVANT) return nO + 2;
     return 0;
   }
   
@@ -95,6 +95,7 @@ public class Archives extends Venue {
     }
     //return stocks.nextManufacture(actor, PARTS_TO_DATALINKS);
     
+    if (choice.empty()) choice.add(new Supervision(actor, this));
     return choice.weightedPick();
   }
   
@@ -115,6 +116,7 @@ public class Archives extends Venue {
   
   
   public void updateAsScheduled(int numUpdates) {
+    super.updateAsScheduled(numUpdates);
     stocks.translateDemands(1, PARTS_TO_DATALINKS, this);
     
     structure.setAmbienceVal(5);

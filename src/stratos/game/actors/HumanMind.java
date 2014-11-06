@@ -92,10 +92,6 @@ public class HumanMind extends ActorMind implements Qualities {
     */
   private static boolean verbose = false;
   
-  //  Ambition, Philosophy, Allegiance.
-  private Background ambition;  //TODO:  Make location-specific too.
-  
-  
   
   protected HumanMind(Actor actor) {
     super(actor);
@@ -104,18 +100,11 @@ public class HumanMind extends ActorMind implements Qualities {
   
   protected void loadState(Session s) throws Exception {
     super.loadState(s);
-    ambition = (Background) s.loadObject();
   }
   
   
   protected void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(ambition);
-  }
-  
-  
-  public Background ambition() {
-    return ambition;
   }
   
   
@@ -215,6 +204,8 @@ public class HumanMind extends ActorMind implements Qualities {
     for (Venue venue : around) {
       if (timeoff && venue.structure().intact()) {
         venue.addServices(choice, actor);
+        choice.add(FindWork.attemptFor(actor, venue));
+        choice.add(FindHome.attemptFor(actor, venue));
       }
     }
     if (timeoff) {
@@ -229,42 +220,16 @@ public class HumanMind extends ActorMind implements Qualities {
     //  Derive tasks from missions or the scenario.
     choice.add(mission);
     choice.add(Scenario.current().taskFor(actor));
+    choice.add(FindMission.attemptFor(actor));
     //
     // Apply for missions, migration, work and home.
-    choice.add(FindWork.attemptFor(actor));
-    choice.add(FindHome.attemptFor(actor));
-    //
-    //  Finally, free-born actors may apply for missions.
-    final int standing = actor.vocation().standing;
-    if (standing >= Backgrounds.CLASS_FREEMEN) {
-      choice.add(FindMission.attemptFor(actor));
-      //choice.add(new Migration(actor));
-    }
+    //choice.add(FindWork.attemptFor(actor));
+    //choice.add(FindHome.attemptFor(actor));
   }
   
   
   public void updateAI(int numUpdates) {
     super.updateAI(numUpdates);
-    
-    if (numUpdates % Stage.STANDARD_DAY_LENGTH == 0) {
-      updateAmbition();
-    }
-  }
-  
-  
-  private void updateAmbition() {
-    
-    Background picked = ambition;
-    float bestRating = 0;
-    if (picked != null) bestRating = Career.ratePromotion(picked, actor);
-    bestRating *= 1.5f + (actor.traits.relativeLevel(STUBBORN) / 2f);
-    
-    for (Background b : Background.allBackgrounds()) {
-      final float rating = Career.ratePromotion(b, actor);
-      if (rating > bestRating) { picked = b; bestRating = rating; }
-    }
-    
-    this.ambition = picked;
   }
 }
 
