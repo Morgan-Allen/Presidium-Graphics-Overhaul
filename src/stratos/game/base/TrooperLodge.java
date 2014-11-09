@@ -121,6 +121,7 @@ public class TrooperLodge extends Venue {
   
   public Behaviour jobFor(Actor actor) {
     if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
+    
     return Patrolling.nextGuardPatrol(actor, this, Plan.ROUTINE);
   }
   

@@ -301,7 +301,8 @@ public class Selection implements UIConstants {
         radius * 2,
         radius * 2
       );
-      I.say("Overlay area is: "+area);
+      I.say("\nOverlay area is: "+area);
+      I.say("  Position: "+pos+", radius: "+radius);
       
       final float
         xp = area.xpos(), yp = area.ypos(),
@@ -322,23 +323,22 @@ public class Selection implements UIConstants {
           Batch <Coord> gridBatch,
           Batch <float[]> textBatch
         ) {
-          
           final int len = LayerPattern.UV_PATTERN.length;
           final float UV[] = new float[len];
-          
+
+          //  Subtract the origin coordinates from the lower corner of each
+          //  tile, add the UV offset, and divide by the size of area.
           for (int i = len; i-- > 0;) {
             final float f = LayerPattern.UV_PATTERN[i];
             UV[i] = (i % 2 == 0) ?
-              ((tx - xp + f    ) / (xd + 1)) :
-              ((ty - yp + 1 - f) / (yd + 1)) ;
+              (((tx - 0.5f - xp) + f    ) / xd) :
+              (((ty - 0.5f - yp) + 1 - f) / yd) ;
           }
-          
           gridBatch.add(new Coord(tx, ty));
           textBatch.add(UV);
         }
       };
       
-      //area.expandBy(1);
       overlay = world.terrain().createOverlay(area, layer);
       if (cache) addToCache(overlay, key);
     }

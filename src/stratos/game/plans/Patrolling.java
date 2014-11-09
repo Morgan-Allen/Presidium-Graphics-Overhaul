@@ -27,7 +27,6 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     TYPE_SECURITY      = 0,
     TYPE_STREET_PATROL = 1,
     TYPE_SENTRY_DUTY   = 2;
-    //TYPE_WANDERING     = 3,
   final static int
     WATCH_TIME = 10;
   
@@ -239,32 +238,31 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   
   /**  External factory methods-
     */
-  /*
-  public static Patrolling wandering(Actor actor) {
-    final List<Target> patrolled = new List<Target>();
-    final float range = actor.health.sightRange() + actor.aboard().radius();
-    patrolled.add(Spacing.pickRandomTile(actor, range, actor.world()));
-    return new Patrolling(actor, actor, patrolled, TYPE_WANDERING);
-  }
-  //*/
-  
-  
   public static Patrolling aroundPerimeter(
     Actor actor, Element guarded, Stage world
   ) {
+    final boolean report = evalVerbose && I.talkAbout == actor;
+    if (report) I.say("\nGetting next perimeter patrol for "+actor);
+    
     final List <Target> patrolled = new List <Target> ();
     final float range = Math.max(
       guarded.radius() * 2,
       actor.health.sightRange() / 2
     );
     final Vec3D centre = guarded.position(null);
+    if (report) I.say("  Range is: "+range+", centre: "+centre);
+    
     for (int n : N_ADJACENT) {
       Tile point = world.tileAt(
         Visit.clamp(centre.x + (N_X[n] * range), 0, world.size - 1),
         Visit.clamp(centre.y + (N_Y[n] * range), 0, world.size - 1)
       );
-      if (point != null) patrolled.include(point);
+      if (point != null) {
+        if (report) I.say("  Patrol point: "+point);
+        patrolled.include(point);
+      }
     }
+    
     return new Patrolling(actor, guarded, patrolled, TYPE_SECURITY);
   }
   
@@ -361,17 +359,22 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   public static Patrolling nextGuardPatrol(
     Actor actor, Venue origin, float priority
   ) {
+    final boolean report = evalVerbose && I.talkAbout == actor;
+    if (report) {
+      I.say("\nGetting next guard patrol for "+actor);
+      I.say("  Base: "+origin.base());
+      final PresenceMap map = actor.world().presences.mapFor(origin.base());
+      I.say("  Total targets: "+map.population());
+    }
+
+    //  Grab a random building nearby and patrol around it.
     final Stage world = actor.world();
     final Base base = origin.base();
-    //
-    //  Grab a random building nearby and patrol around it.
     final float range = Stage.SECTOR_SIZE / 2f;
-    //
-    //  TODO:  try to pick points far apart from eachother, and employ
-    //  multiple samples for the purpose?
     final Venue pick = (Venue) world.presences.randomMatchNear(
       base, origin, range
     );
+    if (report) I.say("  Venue picked: "+pick);
     if (pick != null) {
       final Patrolling p = Patrolling.aroundPerimeter(actor, pick, world);
       p.setMotive(Plan.MOTIVE_DUTY, priority);

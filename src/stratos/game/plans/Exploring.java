@@ -21,7 +21,7 @@ public class Exploring extends Plan implements Qualities {
   /**  Construction and save/load methods-
     */
   private static boolean
-    evalVerbose = false;
+    evalVerbose = true ;
   
   final static int
     TYPE_WANDER  = 0,
@@ -130,21 +130,23 @@ public class Exploring extends Plan implements Qualities {
     if (type == TYPE_SURVEY) basePriority = ROUTINE;
     basePriority *= Planet.dayValue(actor.world());
     
-    //
     //  Make this less attractive as you get further from home/safety.
     final Target haven = actor.senses.haven();
-    float distFactor = (haven == null) ? 0 : Plan.rangePenalty(haven, actor);
-    
-    if (report) I.say("Getting explore priority, base: "+basePriority);
+    float distFactor = (haven == null) ? 0 :
+      Plan.rangePenalty(haven, actor);
     
     final float priority = priorityForActorWith(
       actor, lookedAt,
-      basePriority, 0 - distFactor * 2,
+      basePriority, 0 - distFactor * CASUAL,
       NO_HARM, MILD_COMPETITION,
       BASE_SKILLS, BASE_TRAITS,
-      HEAVY_DISTANCE_CHECK, NO_FAIL_RISK,
+      PARTIAL_DISTANCE_CHECK, MILD_FAIL_RISK,
       report
     );
+    if (report) {
+      I.say("  Got explore priority, base: "+basePriority);
+      I.say("  Haven distance factor: "+distFactor);
+    }
     return priority;
   }
   

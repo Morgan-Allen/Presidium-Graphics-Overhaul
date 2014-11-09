@@ -29,15 +29,15 @@ public class TerrainChunk implements TileConstants {
   
   public Colour colour = Colour.WHITE;
   
-
+  
   public TerrainChunk(int width, int height, int gridX, int gridY,
     LayerType layer, TerrainSet belongs
   ) {
-    this.width = width;
-    this.height = height;
-    this.gridX = gridX;
-    this.gridY = gridY;
-    this.layer = layer;
+    this.gridX   = gridX  ;
+    this.gridY   = gridY  ;
+    this.width   = width  ;
+    this.height  = height ;
+    this.layer   = layer  ;
     this.belongs = belongs;
   }
   
@@ -53,12 +53,9 @@ public class TerrainChunk implements TileConstants {
   protected Mesh mesh() {
     if (mesh == null) {
       if (verbose && vertices.length > 0) {
-        I.say("Setting up mesh object for "+this.hashCode());
+        I.say("Setting up mesh object for "+hashCode());
         I.say("Vertex/index length: "+vertices.length+"/"+indices.length);
-        I.say("Layer ID: "+this.layer.layerID);
-        //I.add("\nVertices:  ");
-        //for (float f : vertices) I.add(f+", ");
-        //I.add("\n\n");
+        I.say("Layer ID: "+layer.layerID);
       }
       mesh = new Mesh(
         true, vertices.length, indices.length,

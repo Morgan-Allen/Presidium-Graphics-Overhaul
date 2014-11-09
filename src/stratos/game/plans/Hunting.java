@@ -332,7 +332,7 @@ public class Hunting extends Combat {
   /**  Rendering and interface-
     */
   public void describeBehaviour(Description d) {
-    final boolean dead = ! prey.health.conscious();
+    final boolean dead = ! prey.health.alive();
     
     if (type == TYPE_SAMPLE) {
       final Item sample = sample();
@@ -353,7 +353,7 @@ public class Hunting extends Combat {
     }
     
     if (type == TYPE_HARVEST) {
-      if (dead) {
+      if (! dead) {
         d.append("Culling ");
         d.append(prey);
       }

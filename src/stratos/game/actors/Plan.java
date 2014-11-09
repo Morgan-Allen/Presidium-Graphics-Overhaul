@@ -332,7 +332,7 @@ public abstract class Plan implements Saveable, Behaviour {
     
     float
       skillAvg = 0, skillMax = -1, skillBonus = 0,
-      traitAvg = 0, traitMax =  0, traitBonus = 0,
+      traitAvg = 0, traitMax = -1, traitBonus = 0,
       harmBonus = 0, competeBonus = 0;
     
     if (baseSkills != null) for (Skill skill : baseSkills) {
@@ -340,6 +340,7 @@ public abstract class Plan implements Saveable, Behaviour {
       skillAvg += level / baseSkills.length;
       skillMax = FastMath.max(skillMax, level);
     }
+    else skillMax = 0;
     skillBonus = (skillAvg + skillMax) / 2;
     
     if (baseTraits != null) for (Trait trait : baseTraits) {
@@ -347,6 +348,7 @@ public abstract class Plan implements Saveable, Behaviour {
       traitAvg += level / baseTraits.length;
       traitMax = FastMath.max(traitMax, level);
     }
+    else traitMax = 0;
     traitBonus = (traitAvg + traitMax) / 2;
     
     if (subjectHarm != 0) {
@@ -387,15 +389,17 @@ public abstract class Plan implements Saveable, Behaviour {
       chancePenalty = (1 - chance) * failRisk * PARAMOUNT;
     }
     if (distanceCheck != 0) {
-      rangePenalty = rangePenalty(actor, subject) * distanceCheck;
+      final float range = rangePenalty(actor, subject);
+      rangePenalty = range * distanceCheck;
       final float danger = dangerPenalty(subject, actor) * (1f + failRisk);
-      dangerPenalty = danger * (rangePenalty + 2) / 2f;
+      dangerPenalty = danger * range / 2f;
     }
-    
     priority -= chancePenalty;
     priority -= rangePenalty ;
     priority -= dangerPenalty;
+    
     if (report) {
+      I.say("  Distance is: "+Spacing.distance(actor, subject));
       I.say("  Chance penalty is: "+chancePenalty);
       I.say("  Range/Danger penalty is: "+rangePenalty+"/"+dangerPenalty);
       I.say("  Priority after clamp/scale, dist/danger: "+priority);

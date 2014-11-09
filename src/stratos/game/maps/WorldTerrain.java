@@ -377,13 +377,13 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
   
   
   public TerrainChunk createOverlay(
-    Box2D area, LayerType layer
+    Box2D b, LayerType layer
   ) {
     final int
-      minX = (int) FastMath.ceil(area.xpos()),
-      minY = (int) FastMath.ceil(area.ypos()),
-      dimX = (int) area.xdim(),
-      dimY = (int) area.ydim();
+      minX = (int) (b.xpos() + 0.5f),
+      minY = (int) (b.ypos() + 0.5f),
+      dimX = (int) (b.xmax() + 0.5f) - minX,
+      dimY = (int) (b.ymax() + 0.5f) - minY;
     final TerrainChunk overlay = new TerrainChunk(
       dimX, dimY, minX, minY,
       layer, meshSet
@@ -406,4 +406,11 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
 
 
 
+/*
+final int
+  minX = (int) FastMath.ceil(area.xpos()),
+  minY = (int) FastMath.ceil(area.ypos()),
+  dimX = (int) FastMath.ceil(area.xmax()) - minX,
+  dimY = (int) FastMath.ceil(area.ymax()) - minY;
+//*/
 

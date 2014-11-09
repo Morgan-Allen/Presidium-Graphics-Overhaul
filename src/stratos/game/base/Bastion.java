@@ -164,11 +164,14 @@ public class Bastion extends Venue {
   
   public Behaviour jobFor(Actor actor) {
     if (! structure.intact()) return null;
+    
     if (actor == base().ruler()) {
       final Supervision s = new Supervision(actor, this);
       s.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
       return s;
     }
+    
+    //  TODO:  Apply to all advisors!
     final Background v = actor.vocation();
     if (v == Backgrounds.STEWARD || v == Backgrounds.FIRST_CONSORT) {
       return new Supervision(actor, this);

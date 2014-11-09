@@ -90,7 +90,8 @@ public class HumanMind extends ActorMind implements Qualities {
   
   /**  Constructor and save/load functions-
     */
-  private static boolean verbose = false;
+  private static boolean
+    verbose = false;
   
   
   protected HumanMind(Actor actor) {
@@ -157,10 +158,13 @@ public class HumanMind extends ActorMind implements Qualities {
   
   
   private void addConstantResponses(Choice choice) {
+    final boolean report = verbose && I.talkAbout == actor;
+    if (report) I.say("\nGettting constant responses.");
     
     //  TODO:  You need to respond to more distant actors here.
     for (Target e : actor.senses.awareOf()) {
       if (e instanceof Actor) {
+        if (report) I.say("  Responding to actor: "+e);
         final Actor nearby = (Actor) e;
         addReactions(nearby, choice);
         choice.add(Hunting.asHarvest(actor, nearby, home, true));

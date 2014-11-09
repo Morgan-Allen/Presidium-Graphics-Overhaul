@@ -12,12 +12,13 @@ import java.util.Iterator;
 
 
 
-public class PresenceMap implements Session.Saveable {  //TODO:  Do not make Saveable.
-  
-  
+public class PresenceMap implements Session.Saveable {
+  //TODO:  Do not make Saveable.
   
   /**  Fields, constructors, and save/load methods-
     */
+  private static boolean verbose = false;
+  
   final static int
     MAX_VISITED = 100;
   
@@ -316,16 +317,22 @@ public class PresenceMap implements Session.Saveable {  //TODO:  Do not make Sav
   
   
   public Target pickRandomAround(final Target origin, final float range) {
-    origin.position(temp);
+    final boolean report = verbose && I.talkAbout == origin;
+    if (report) I.say("\nPicking random target around "+origin);
+    
+    final Vec3D temp = origin.position(null);
     final int oX = (int) temp.x, oY = (int) temp.y;
     Node node = root;
     while (true) {
-      //
+      
       //  For a given node level, iterate across all children and calculate the
       //  probability of visiting those.
       final WorldSection quadKids[] = node.section.kids;
       final boolean leaf = node.section.depth == 0;
       float weights[] = new float[node.size()], sumWeights = 0;
+      
+      if (report) I.say("  "+node.size()+" kids from "+node.hashCode());
+      
       int i = 0; for (Object k : node) {
         final float dist, pop;
         if (leaf) {
@@ -336,11 +343,18 @@ public class PresenceMap implements Session.Saveable {  //TODO:  Do not make Sav
           dist = ((Node) k).section.area.distance(oX, oY);
           pop = ((Node) k).population;
         }
-        if (range > 0 && dist > range) continue;
-        sumWeights += weights[i++] =
-          pop * Stage.PATCH_RESOLUTION / (Stage.PATCH_RESOLUTION + dist);
+        if (range > 0 && dist > range) {
+          sumWeights += weights[i++] = 0;
+          if (report) I.say("  "+k.hashCode()+" is too distant!");
+        }
+        else {
+          float rating = pop * Stage.PATCH_RESOLUTION;
+          rating /= (Stage.PATCH_RESOLUTION + dist);
+          sumWeights += weights[i++] = rating;
+          if (report) I.say("  Rating for "+k.hashCode()+" is "+rating);
+        }
       }
-      //
+      
       //  If no child is a valid selection, quit.  Otherwise, choose one child
       //  at random.
       if (sumWeights == 0) return null;

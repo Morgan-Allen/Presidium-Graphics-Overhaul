@@ -62,11 +62,14 @@ public class Supervision extends Plan {
 
   protected float getPriority() {
     final boolean report = verbose && I.talkAbout == actor;
-    if (report) I.say("\nAssessing priority for supervision of "+venue);
+    if (report) {
+      I.say("\nAssessing priority for supervision of "+venue);
+      I.say("  Value of subject: "+actor.relations.valueFor(subject));
+    }
     
-    return super.priorityForActorWith(
+    return priorityForActorWith(
       actor, venue, ROUTINE,
-      NO_MODIFIER, MILD_HELP,
+      NO_MODIFIER, NO_HARM,
       FULL_COMPETITION, NO_SKILLS,
       BASE_TRAITS, PARTIAL_DISTANCE_CHECK, NO_FAIL_RISK,
       report
@@ -105,7 +108,6 @@ public class Supervision extends Plan {
   
   public boolean actionSupervise(Actor actor, Venue venue) {
     
-    //
     //  If you have any items demanded by the venue, put them away-
     for (Item i : actor.gear.allItems()) {
       if (i.refers != null || i.type.form != FORM_MATERIAL) continue;
@@ -120,14 +122,6 @@ public class Supervision extends Plan {
     d.append(venue);
   }
 }
-
-
-
-
-
-
-
-
 
 
 

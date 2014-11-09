@@ -105,7 +105,7 @@ public class Visit <T> {
     */
   public static Iterable <Coord> grid(
     final int minX, final int minY,
-    final int xD, final int yD,
+    final int xD  , final int yD  ,
     final int step
   ) {
     final int maxX = minX + xD, maxY = minY + yD;
@@ -121,7 +121,7 @@ public class Visit <T> {
       final public Coord next() {
         passed.x = x;
         passed.y = y;
-        if ((y += step) == maxY) { y = minY; x += step; }
+        if ((y += step) >= maxY) { y = minY; x += step; }
         return passed;
       }
       

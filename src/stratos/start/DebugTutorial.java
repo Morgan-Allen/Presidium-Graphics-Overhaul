@@ -1,11 +1,7 @@
 
-
-
 package stratos.start;
 import stratos.game.campaign.*;
-import stratos.game.common.Base;
-import stratos.game.common.Session;
-import stratos.game.common.Stage;
+import stratos.game.common.*;
 import stratos.user.BaseUI;
 
 
@@ -28,8 +24,6 @@ import stratos.user.BaseUI;
 //  other for specific sub-headings.  Don't bother with spill-over.
 //  Rework art for roads, the shield wall, the physician station, the engineer
 //  station, the solar bank, and the archives.
-
-
 
 public class DebugTutorial extends TutorialScenario {
   
