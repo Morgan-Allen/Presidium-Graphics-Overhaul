@@ -10,10 +10,10 @@ import stratos.game.tactical.IntelMap;
 import stratos.util.*;
 
 
-//  TODO:  There's a problem here in the case where unexplored areas lie in
-//  impossible-to-reach areas (such as in the middle of an ocean.)  You'll need
-//  to set up the large-scale path-culling sooner.
 
+//  TODO:  There's a problem here in the case where unexplored areas lie in
+//  impossible-to-reach areas (such as islands in the middle of an ocean.)
+//  You'll need to set up large-scale path-culling soon.
 
 public class Exploring extends Plan implements Qualities {
   
@@ -198,132 +198,8 @@ public class Exploring extends Plan implements Qualities {
       d.append(lookedAt);
     }
   }
-  
 }
 
 
 
 
-    /*
-    final Vec3D pos = target.position(null);
-    final MipMap map = intelMap.fogMap();
-    int high = map.high() + 1, x = 0, y = 0, kX, kY;
-    final Coord kids[] = new Coord[] {
-      new Coord(0, 0), new Coord(0, 1),
-      new Coord(1, 0), new Coord(1, 1)
-    };
-    float mX, mY, rating = 0;
-    //
-    //  Work your way down from the topmost sections, picking the most
-    //  appealing child at each point.
-    while (high-- > 1) {
-      final float s = 1 << high;
-      Coord picked = null;
-      float bestRating = 0;
-      for (int i = 4; i-- > 0;) {
-        //
-        //  We calculate the coordinates for each child-section, both within
-        //  the mip-map, and in terms of world-coordinates midpoint, and skip
-        //  over anything outside the supplied bounds.
-        final Coord c = kids[i];
-        kX = (x * 2) + c.x;
-        kY = (y * 2) + c.y;
-        mX = (kX + 0.5f) * s;
-        mY = (kY + 0.5f) * s;
-        //
-        //  Otherwise, favour closer areas that are partially unexplored.
-        final float level = map.getAvgAt(kX, kY, high - 1) < 1 ? 1 : 0;
-        final float distance = pos.distance(mX, mY, 0);
-        if (level == 0 || (maxDist > 0 && (distance - s) > maxDist)) continue;
-        
-        rating = level * Rand.avgNums(2);
-        rating /= 1 + (distance / distanceUnit);
-        if (rating > bestRating) { picked = c; bestRating = rating; }
-      }
-      if (picked == null) return null;
-      x = (x * 2) + picked.x;
-      y = (y * 2) + picked.y;
-    }
-    
-    final Tile looks = intelMap.world().tileAt(x, y);
-    if (intelMap.fogAt(looks) == 1) return null;
-    if (looks.blocked()) return Spacing.nearestOpenTile(looks, target);
-    else return looks;
-    //*/
-
-/*
-public static Tile[] grabExploreArea(
-  final IntelMap intelMap, final Tile point, final float radius
-) {
-  //
-  //  Firstly, we grab all contiguous nearby tiles.
-  final TileSpread spread = new TileSpread(point) {
-    
-    protected boolean canAccess(Tile t) {
-      return Spacing.distance(t,  point) < radius;
-    }
-    
-    protected boolean canPlaceAt(Tile t) {
-      return false;
-    }
-  };
-  spread.doSearch();
-  //
-  //  As a final touch, we sort and return these tiles in random order.
-  final List <Tile> sorting = new List <Tile> () {
-    protected float queuePriority(Tile r) {
-      return (Float) r.flaggedWith();
-    }
-  };
-  for (Tile t : spread.allSearched(Tile.class)) {
-    t.flagWith(Rand.num());
-    sorting.add(t);
-  }
-  sorting.queueSort();
-  for (Tile t : sorting) t.flagWith(null);
-  return (Tile[]) sorting.toArray(Tile.class);
-}
-//*/
-
-
-//  TODO:  Consider integrating these...
-/*
-  final SensorPost newPost = SensorPost.locateNewPost(this);
-  if (newPost != null) {
-    final Action collects = new Action(
-      actor, newPost,
-      this, "actionCollectSensor",
-      Action.REACH_DOWN, "Collecting sensor"
-    );
-    collects.setMoveTarget(this);
-    final Action plants = new Action(
-      actor, newPost.origin(),
-      this, "actionPlantSensor",
-      Action.REACH_DOWN, "Planting sensor"
-    );
-    plants.setMoveTarget(Spacing.pickFreeTileAround(newPost, actor));
-    choice.add(new Steps(actor, this, Plan.ROUTINE, collects, plants));
-  }
-
-
-public boolean actionCollectSensor(Actor actor, SensorPost post) {
-  actor.gear.addItem(Item.withReference(SAMPLES, post));
-  return true;
-}
-
-
-public boolean actionPlantSensor(Actor actor, Tile t) {
-  SensorPost post = null;
-  for (Item i : actor.gear.matches(SAMPLES)) {
-    if (i.refers instanceof SensorPost) {
-      post = (SensorPost) i.refers;
-      actor.gear.removeItem(i);
-    }
-  }
-  if (post == null) return false;
-  post.setPosition(t.x, t.y, world);
-  if (! Spacing.perimeterFits(post)) return false;
-  post.enterWorld();
-  return true;
-}
-//*/

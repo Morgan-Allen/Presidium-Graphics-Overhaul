@@ -42,7 +42,7 @@ public class TerrainChunk implements TileConstants {
   }
   
   
-  protected void dispose() {
+  public void dispose() {
     if (mesh != null) {
       mesh.dispose();
       mesh = null;
@@ -74,6 +74,7 @@ public class TerrainChunk implements TileConstants {
   
   public void generateMeshData() {
     if (verbose) I.say("Generating mesh data for "+this.hashCode());
+    
     // First of all, compile a list of all occupied tiles and their
     // associated UV fringing, based on the position of any adjacent tiles
     // with the same layer assignment.
@@ -83,7 +84,7 @@ public class TerrainChunk implements TileConstants {
     for (Coord c : Visit.grid(gridX, gridY, width, height, 1)) try {
       layer.addFringes(c.x, c.y, belongs, gridBatch, textBatch);
     } catch (Exception e) {}
-
+    
     // We have 4 vertices per tile and 2 tiles per face.
     // Each vertex requires 3 floats for geometry and 2 for tex coords.
     // Each face requires 3 vertex indices.
@@ -91,7 +92,6 @@ public class TerrainChunk implements TileConstants {
     vertices = new float[numTiles * 4 * (3 + 2)];
     indices = new short[numTiles * 2 * 3];
     final Iterator iterV = gridBatch.iterator(), iterT = textBatch.iterator();
-    ///I.say("Total tiles accumulated: " + numTiles);
     
     // Then we just fill up the arrays with the appropriate concatenation
     // of data-

@@ -331,6 +331,7 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
       }
     };
     lID++;
+    
     roadLayer = layers[lID] = new LayerType(
       Habitat.ROAD_TEXTURE, true, lID
     ) {
@@ -351,13 +352,17 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
     final boolean nullsCount, ImageAsset tex
   ) {
     if (tiles == null || tiles.length < 1) I.complain("No tiles in overlay!");
-    final Table <Tile, Tile> pathTable = new Table(tiles.length * 2);
+    final int maxT = tiles.length * 2;
+    
+    final Table <Tile, Tile> pathTable = new Table <Tile, Tile> (maxT);
     Box2D area = null;
+    
     for (Tile t : tiles) if (t != null) {
       if (area == null) area = new Box2D().set(t.x, t.y, 0, 0);
       pathTable.put(t, t);
       area.include(t.x, t.y, 0.5f);
     }
+    
     final LayerType layer = new LayerType(tex, false, -1) {
       protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
         final Tile t = world.tileAt(tx, ty);

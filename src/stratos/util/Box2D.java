@@ -204,7 +204,7 @@ public class Box2D {
     xmax = unit * (float) FastMath.ceil (xmax / unit);
     ymax = unit * (float) FastMath.ceil (ymax / unit);
     xdim = xmax - xpos;
-    ydim = ymax = ypos;
+    ydim = ymax - ypos;
   }
   
   

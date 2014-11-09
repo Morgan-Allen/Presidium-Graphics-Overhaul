@@ -132,10 +132,13 @@ public class SpiceMidden extends Fixture implements Selectable {
   
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (destroyed() || ! inWorld()) return;
-    Selection.renderPlane(
-      rendering, position(null), (xdim() / 2f) + 0.5f,
+    
+    BaseUI.current().selection.renderPlane(
+      rendering, world,
+      position(null), (xdim() / 2f) + 0.5f,
       Colour.transparency(hovered ?  0.25f : 0.5f),
-      Selection.SELECT_CIRCLE
+      Selection.SELECT_CIRCLE,
+      true, this
     );
   }
 }

@@ -553,10 +553,13 @@ public abstract class Mission implements
     final Vec3D pos = (subject instanceof Mobile) ?
       ((Mobile) subject).viewPosition(null) :
       subject.position(null);
-    Selection.renderPlane(
-      rendering, pos, subject.radius() + 0.5f,
+    
+    BaseUI.current().selection.renderPlane(
+      rendering, base.world,
+      pos, subject.radius() + 0.5f,
       hovered ? Colour.transparency(0.5f) : Colour.WHITE,
-      Selection.SELECT_CIRCLE
+      Selection.SELECT_CIRCLE,
+      true, this
     );
   }
 }

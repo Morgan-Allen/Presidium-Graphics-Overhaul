@@ -306,15 +306,15 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   
   
   private void performLanding(Stage world, Box2D site) {
-    if (! (dropPoint instanceof Venue)) {
-      //
-      //  Clear any detritus around the perimeter, Claim tiles in the middle as
-      //  owned, and evacuate any occupants-
+    if (dropPoint instanceof Venue) {
+    }
+    else {
+      //  Claim any tiles underneath as owned, and evacuate any occupants-
+      site = new Box2D().setTo(site).expandBy(-1);
       for (Tile t : world.tilesIn(site, false)) {
         if (t.onTop() != null) t.onTop().setAsDestroyed();
+        t.setOnTop(this);
       }
-      site = new Box2D().setTo(site).expandBy(-1);
-      for (Tile t : world.tilesIn(site, false)) t.setOnTop(this);
       for (Tile t : world.tilesIn(site, false)) {
         for (Mobile m : t.inside()) if (m != this) {
           final Tile e = Spacing.nearestOpenTile(m.origin(), m);
@@ -325,9 +325,12 @@ public class Dropship extends Vehicle implements Inventory.Owner {
       final int EC[] = Spacing.entranceCoords(size, size, entranceFace);
       final Tile o = world.tileAt(site.xpos() + 0.5f, site.ypos() + 0.5f);
       final Tile exit = world.tileAt(o.x + EC[0], o.y + EC[1]);
+      
+      //  And just make sure the exit is clear-
+      if (exit.onTop() != null) exit.onTop().setAsDestroyed();
       this.dropPoint = exit;
     }
-    //
+    
     //  Offload cargo and passengers-
     offloadPassengers();
   }
@@ -479,6 +482,7 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     else for (Tile t : world.tilesIn(area, false)) {
       if (t == null) return false;
       if (t.onTop() == this) continue;
+      if (PavingMap.pavingReserved(t)) return false;
       if (t.owningType() > Element.ELEMENT_OWNS) return false;
     }
     return true;
@@ -575,7 +579,8 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     super.renderFor(rendering, base);
   }
   
-
+  
+  /*
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (indoors() || ! inWorld()) return;
     float fadeout = sprite().colour.a;
@@ -585,6 +590,7 @@ public class Dropship extends Vehicle implements Inventory.Owner {
       Selection.SELECT_CIRCLE
     );
   }
+  //*/
   
   
   public String fullName() {

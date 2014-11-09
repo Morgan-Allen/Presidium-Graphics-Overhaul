@@ -5,9 +5,6 @@
   */
 
 package stratos.user;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-
 import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.game.tactical.*;
@@ -15,7 +12,11 @@ import stratos.graphics.common.*;
 import stratos.graphics.terrain.*;
 import stratos.graphics.sfx.*;
 import stratos.graphics.widgets.*;
+import stratos.start.Assets;
 import stratos.util.*;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 
 
 
@@ -25,15 +26,17 @@ public class Selection implements UIConstants {
   /**  Field definitions and accessors-
     */
   final public static PlaneFX.Model
-    SELECT_CIRCLE = new PlaneFX.Model(
+    SIMPLE_SELECT_MODEL = new PlaneFX.Model(
       "select_circle_fx", Selection.class,
       "media/GUI/selectCircle.png", 1, 0, 0, false, false
-    ),
-    SELECT_SQUARE = new PlaneFX.Model(
-      "select_square_fx", Selection.class,
-      "media/GUI/selectSquare.png", 1, 0, 0, false, false
     );
   final public static ImageAsset
+    SELECT_CIRCLE = ImageAsset.fromImage(
+      Selection.class, "media/GUI/selectCircle.png"
+    ),
+    SELECT_SQUARE = ImageAsset.fromImage(
+      Selection.class, "media/GUI/selectSquare.png"
+    ),
     SELECT_OVERLAY = ImageAsset.fromImage(
       Selection.class, "media/GUI/selectOverlay.png"
     ),
@@ -189,8 +192,8 @@ public class Selection implements UIConstants {
   /**  Rendering FX-
     */
   final static int MAX_CACHE = 5;
-  private Table <Installation, TerrainChunk> overlayCache = new Table();
-  private List <Installation> recentOverlays = new List();
+  private Table <Object, TerrainChunk> overlayCache = new Table();
+  private List <Object> recentOverlays = new List();
   
   
   protected void renderWorldFX(Rendering rendering) {
@@ -206,77 +209,147 @@ public class Selection implements UIConstants {
   }
   
   
-  public static void renderPlane(
-    Rendering r, Vec3D pos, float radius, Colour c, PlaneFX.Model texModel
+  public static void renderSimpleCircle(
+    Target target, Vec3D pos, Rendering r, Colour c
   ) {
-    final PlaneFX ring = (PlaneFX) texModel.makeSprite();
+    final PlaneFX ring = (PlaneFX) SIMPLE_SELECT_MODEL.makeSprite();
     ring.colour = c;
-    ring.scale = radius;
+    ring.scale = target.radius();
     ring.position.setTo(pos);
     ring.readyFor(r);
+    ring.passType = Sprite.PASS_SPLAT;
+  }
+  
+  
+  private void addToCache(TerrainChunk overlay, Object key) {
+    recentOverlays.addFirst(key);
+    overlayCache.put(key, overlay);
+
+    if (recentOverlays.size() > MAX_CACHE) {
+      final Object oldest = recentOverlays.removeLast();
+      final TerrainChunk gone = overlayCache.get(oldest);
+      gone.dispose();
+      overlayCache.remove(oldest);
+    }
   }
   
   
   public void renderTileOverlay(
     Rendering r, final Stage world,
-    Colour c, ImageAsset tex, boolean cache,
-    final Installation key, final Object... group
+    Colour c, ImageAsset tex,
+    boolean cache, final Installation key, final Object... group
   ) {
-    //  Use a glow-colour:
-    c = new Colour().set(c);
-    c.a *= -1;
+    TerrainChunk overlay = null;
     
     if (cache && recentOverlays.includes(key)) {
-      final TerrainChunk overlay = overlayCache.get(key);
-      overlay.colour = c;
-      overlay.readyFor(r);
-      return;
+      overlay = overlayCache.get(key);
     }
-    if (cache && recentOverlays.size() > MAX_CACHE) {
-      final Installation oldest = recentOverlays.removeLast();
-      overlayCache.remove(oldest);
-    }
-    
-    final Box2D limit = new Box2D().setTo(key.footprint());
-    final Batch <Tile> under = new Batch <Tile> ();
-    for (Object o : group) if (o instanceof Fixture) {
-      for (Tile t : world.tilesIn(((Fixture) o).footprint(), true)) {
-        limit.include(t.x, t.y, 0.5f);
-        under.add(t);
-        t.flagWith(under);
-      }
-    }
-    
-    //  TODO:  Try using an inner-fringe here instead, and mask using the
-    //  empty tiles around the perimeter!
-    final LayerType layer = new LayerType(tex, false, -1) {
-      
-      protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
-        final Tile t = world.tileAt(tx, ty);
-        return t != null && t.flaggedWith() == under;
+    else {
+      //  Otherwise, put together a fresh overlay-
+      final Box2D limit = new Box2D().setTo(key.footprint());
+      final Batch <Tile> under = new Batch <Tile> ();
+      for (Object o : group) if (o instanceof Fixture) {
+        for (Tile t : world.tilesIn(((Fixture) o).footprint(), true)) {
+          limit.include(t.x, t.y, 0.5f);
+          under.add(t);
+          t.flagWith(under);
+        }
       }
       
-      protected int variantAt(int tx, int ty, TerrainSet terrain) {
-        final Tile t = world.tileAt(tx, ty);
-        return t.blocked() ? -1 : 0;
-      }
-    };
-    limit.expandBy(1);
+      final LayerType layer = new LayerType(tex, false, -1) {
+        
+        protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
+          final Tile t = world.tileAt(tx, ty);
+          return t != null && t.flaggedWith() == under;
+        }
+        
+        protected int variantAt(int tx, int ty, TerrainSet terrain) {
+          final Tile t = world.tileAt(tx, ty);
+          return t.blocked() ? -1 : 0;
+        }
+      };
+      limit.expandBy(1);
+      
+      overlay = world.terrain().createOverlay(limit, layer);
+      for (Tile t : under) t.flagWith(null);
+      if (cache) addToCache(overlay, key);
+    }
     
-    final TerrainChunk overlay = world.terrain().createOverlay(limit, layer);
+    //  Use a glow-colour, and ready for rendering-
+    c = new Colour(c);
+    c.a = -1;
     overlay.colour = c;
     overlay.readyFor(r);
+  }
+  
+  
+  public void renderPlane(
+    Rendering r, Stage world,
+    Vec3D pos, float radius,
+    Colour c, ImageAsset texture,
+    boolean cache, Object key
+  ) {
+    TerrainChunk overlay = null;
     
-    for (Tile t : under) t.flagWith(null);
-    if (cache) {
-      recentOverlays.addFirst(key);
-      overlayCache.put(key, overlay);
+    if (cache && recentOverlays.includes(key)) {
+      overlay = overlayCache.get(key);
     }
+    else {
+      final Box2D area = new Box2D(
+        pos.x - radius,
+        pos.y - radius,
+        radius * 2,
+        radius * 2
+      );
+      I.say("Overlay area is: "+area);
+      
+      final float
+        xp = area.xpos(), yp = area.ypos(),
+        xd = area.ydim(), yd = area.ydim();
+      
+      final LayerType layer = new LayerType(texture, true, -1) {
+        
+        protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
+          return true;
+        }
+        
+        protected int variantAt(int tx, int ty, TerrainSet terrain) {
+          return 0;
+        }
+        
+        protected void addFringes(
+          int tx, int ty, TerrainSet terrain,
+          Batch <Coord> gridBatch,
+          Batch <float[]> textBatch
+        ) {
+          
+          final int len = LayerPattern.UV_PATTERN.length;
+          final float UV[] = new float[len];
+          
+          for (int i = len; i-- > 0;) {
+            final float f = LayerPattern.UV_PATTERN[i];
+            UV[i] = (i % 2 == 0) ?
+              ((tx - xp + f    ) / (xd + 1)) :
+              ((ty - yp + 1 - f) / (yd + 1)) ;
+          }
+          
+          gridBatch.add(new Coord(tx, ty));
+          textBatch.add(UV);
+        }
+      };
+      
+      //area.expandBy(1);
+      overlay = world.terrain().createOverlay(area, layer);
+      if (cache) addToCache(overlay, key);
+    }
+    
+    //  Use a glow-colour and ready for rendering-
+    c = new Colour().set(c);
+    c.a *= -1;
+    overlay.colour = c;
+    overlay.readyFor(r);
   }
 }
-
-
-
 
 
 

@@ -128,10 +128,20 @@ public class FindHome extends Plan {
   
   
   public boolean actionFindHome(Actor client, Employer best) {
-    if (best.homeCrowding(client) >= 1) {
+    final boolean report = verbose && I.talkAbout == client;
+    
+    if (report) {
+      I.say("\nAttempting to move into "+best+", ID: "+hashCode());
+      I.say("  Rating is: "+rateHolding(client, best));
+    }
+    
+    if (rateHolding(client, best) <= 0) {
+      if (report) I.say("  Venue unsuitable!");
       abortBehaviour();
       return false;
     }
+    
+    if (report) I.say("  Huge success!");
     client.mind.setHome(best);
     return true;
   }

@@ -149,7 +149,6 @@ public class FindMission extends Plan {
     }
     
     if (actor.mind.mission() != mission) {
-
       final Action applies = new Action(
         actor, HQ,
         this, "actionApplies",
@@ -160,7 +159,7 @@ public class FindMission extends Plan {
     else {
       final Action waitForOK = new Action(
         actor, HQ,
-        this, "action",
+        this, "actionWait",
         Action.STAND, "Waiting for party"
       );
       return waitForOK;
@@ -177,6 +176,11 @@ public class FindMission extends Plan {
   
   public boolean actionApplies(Actor client, Venue admin) {
     client.mind.assignMission(mission);
+    return true;
+  }
+  
+  
+  public boolean actionWait(Actor client, Venue admin) {
     return true;
   }
   

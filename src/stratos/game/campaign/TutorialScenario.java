@@ -1,6 +1,4 @@
 
-
-
 package stratos.game.campaign;
 import stratos.game.common.*;
 import stratos.game.actors.*;
@@ -16,8 +14,9 @@ import stratos.util.*;
 public class TutorialScenario extends StartupScenario {
   
   
-  Bastion bastion;
+  private static boolean verbose = false;
   
+  Bastion bastion;
   Batch <Ruins> ruins;
   Batch <NativeHut> huts;
   
@@ -29,15 +28,15 @@ public class TutorialScenario extends StartupScenario {
   
   public TutorialScenario(Session s) throws Exception {
     super(s);
-    s.loadObjects(ruins = new Batch <Ruins> ());
-    s.loadObjects(huts = new Batch <NativeHut> ());
+    s.loadObjects(ruins = new Batch <Ruins    > ());
+    s.loadObjects(huts  = new Batch <NativeHut> ());
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     s.saveObjects(ruins);
-    s.saveObjects(huts);
+    s.saveObjects(huts );
   }
   
   
@@ -55,9 +54,9 @@ public class TutorialScenario extends StartupScenario {
     
     //  TODO:  Don't need this if hiring is free...
     /*
-    config.numCrew.put(Backgrounds.VETERAN, 2);
+    config.numCrew.put(Backgrounds.VETERAN   , 2);
     config.numCrew.put(Backgrounds.TECHNICIAN, 2);
-    config.numCrew.put(Backgrounds.AUDITOR, 1);
+    config.numCrew.put(Backgrounds.AUDITOR   , 1);
     config.numCrew.put(Backgrounds.CULTIVATOR, 3);
     //*/
     return config;
@@ -178,6 +177,7 @@ public class TutorialScenario extends StartupScenario {
   private void pushMessage(String title) {
     final CommsPanel comms = UI().commsPanel();
     if (! comms.hasMessage(title)) {
+      if (verbose) I.say("PUSHING NEW MESSAGE: "+title);
       UI().setInfoPanels(messageFor(TITLE_WELCOME), null);
     }
   }
@@ -213,9 +213,9 @@ public class TutorialScenario extends StartupScenario {
     if (title == TITLE_OBJECTIVES) {
       return comms.addMessage(
         TITLE_OBJECTIVES, null,
-        "What you do first is up to you, but for the moment, we'll specify "+
-        "three basic objectives for you to tackle.  Complete two of the "+
-        "three, and we will proceed to the next stage of this tutorial.",
+        "For the moment, we'll specify three basic objectives for you to "+
+        "tackle.  Complete two of the three, and we will proceed to the next "+
+        "stage of this tutorial.  What you tackle first is up to you.",
         linkFor("Tell me about the security objective.", TITLE_SECURITY),
         linkFor("Tell me about the contact objective.", TITLE_CONTACT),
         linkFor("Tell me about the economic objective.", TITLE_ECONOMY),

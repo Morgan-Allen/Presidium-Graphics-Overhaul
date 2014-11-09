@@ -174,31 +174,31 @@ public final class Economy {
   
   
   final public static Traded
-    SERVICE_ENTERTAIN = new Traded(
+    SERVICE_ENTERTAIN  = new Traded(
       BC, "Entertainment", null, FORM_SERVICE, 0
     ),
     SERVICE_HEALTHCARE = new Traded(
       BC, "Healthcare"   , null, FORM_SERVICE, 0
     ),
-    SERVICE_HOUSING = new Traded(
+    SERVICE_HOUSING    = new Traded(
       BC, "Housing"      , null, FORM_SERVICE, 0
     ),
-    SERVICE_REFUGE = new Traded(
+    SERVICE_REFUGE     = new Traded(
       BC, "Refuge"       , null, FORM_SERVICE, 0
     ),
-    SERVICE_SECURITY = new Traded(
+    SERVICE_SECURITY   = new Traded(
       BC, "Security"     , null, FORM_SERVICE, 0
     ),
-    SERVICE_ADMIN = new Traded(
+    SERVICE_ADMIN      = new Traded(
       BC, "Admin"        , null, FORM_SERVICE, 0
     ),
-    SERVICE_COMMERCE = new Traded(
+    SERVICE_COMMERCE   = new Traded(
       BC, "Commerce"     , null, FORM_SERVICE, 0
     ),
-    SERVICE_REPAIRS = new Traded(
+    SERVICE_REPAIRS    = new Traded(
       BC, "Repairs"      , null, FORM_SERVICE, 0
     ),
-    SERVICE_ARMAMENT = new Traded(
+    SERVICE_ARMAMENT   = new Traded(
       BC, "Armament"     , null, FORM_SERVICE, 0
     );
   final public static Traded

@@ -126,6 +126,16 @@ public class PavingMap {
     return t.world.terrain().isRoad(t);
   }
   
+  
+  public static boolean pavingReserved(Tile t) {
+    final Stage world = t.world;
+    if (world.terrain().isRoad(t)) return true;
+    for (Base b : world.bases()) {
+      if (b.paveRoutes.map.roadCounter(t) > 0) return true;
+    }
+    return false;
+  }
+  
 
   /**  Search method for getting the next tile that needs paving.
     * 

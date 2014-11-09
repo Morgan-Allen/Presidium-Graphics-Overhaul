@@ -156,7 +156,7 @@ public class Bastion extends Venue {
   
   
   public float homeCrowding(Actor actor) {
-    if (actor.mind.work() != this) return 1;
+    if (actor.mind.work() == this) return 0;
     final int maxPop = 6 + (structure.upgradeLevel(NOBLE_QUARTERS) * 2);
     return personnel.residents().size() * 1f / maxPop;
   }

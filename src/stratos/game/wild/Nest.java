@@ -443,10 +443,13 @@ public class Nest extends Venue {
 
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (destroyed() || ! inWorld()) return;
-    Selection.renderPlane(
-      rendering, position(null), (xdim() / 2f) + 1,
+
+    BaseUI.current().selection.renderPlane(
+      rendering, world,
+      position(null), (xdim() / 2f) + 1,
       hovered ? Colour.transparency(0.5f) : Colour.WHITE,
-      Selection.SELECT_CIRCLE
+      Selection.SELECT_CIRCLE,
+      true, this
     );
   }
 }
@@ -455,104 +458,3 @@ public class Nest extends Venue {
 
 
 
-
-/*
-private static int idealPopulation(
-  Venue nest, Species species, World world
-) {
-  final boolean reports = idealVerbose && I.talkAbout == nest;
-  if (reports) {
-    I.say("\nGetting ideal population for "+species.name+" at "+nest);
-    I.say("  Metabolism: "+species.metabolism());
-  }
-  //
-  //  Firstly, ensure there is no other lair within lair placement range.
-  //final int range = minSpacing(null, spot, species) * 2;
-  final int range = MAX_SEPARATION;
-  int numLairsNear = 0;
-  float alikeLairs = 0;
-  float preySupply = 0;
-  for (Object o : world.presences.matchesNear(Venue.class, nest, range)) {
-    final Venue v = (Venue) o;
-    final List <Actor> resident = v.personnel.residents();
-    if (v == nest || resident.size() == 0) continue;
-    
-    final int spacing = minSpacing(nest, v, species);
-    final float distance = Spacing.distance(nest, v);
-    if (distance < spacing) {
-      if (reports) {
-        I.say("Too close to "+v+"!");
-        I.say("Spacing: "+spacing+", distance: "+distance);
-      }
-      return -1;
-    }
-    
-    float alike = 0;
-    for (Actor a : resident) {
-      final Species s = a.species();
-      if (s != null && s == species) alike++;
-      if (s != null && s.browser()) preySupply += a.species().metabolism();
-    }
-    numLairsNear++;
-    alikeLairs += alike / resident.size();
-  }
-  //
-  //  Secondly, sample the fertility & biomass of nearby terrain (within half
-  //  of lair placement range.)  (We average with presumed default growth
-  //  levels for local flora.)
-  final int browseRange = BROWSER_SEPARATION * 2;
-  float fertility = 0;
-  
-  float moisture = world.terrain().fertilitySample(nest.origin());
-  float biomass = world.ecology().biomassRating(nest.origin()) * 2;
-  fertility += biomass * moisture / 10f;
-  moisture = (moisture - 2) / 10f;
-  fertility += moisture / 4f;
-  fertility *= browseRange * browseRange;
-  
-  //  TODO:  Okay.  Answers here should be in the region of 15-40.
-  if (reports) {
-    I.say("  Total fertility at "+nest+" is "+fertility);
-    I.say("  Moisture/Biomass: "+moisture+"/"+biomass);
-  }
-  //
-  //  Then return the correct number of inhabitants for the location-
-  float foodSupply, ratio;
-  if (species.predator()) {
-    foodSupply = preySupply;
-    ratio = PREDATOR_RATIO;
-  }
-  else {
-    foodSupply = fertility;
-    ratio = BROWSER_RATIO;
-    if (! species.browser()) foodSupply *= OMNIVORE_BONUS;
-  }
-  
-  final float
-    metabolism = species.metabolism(),
-    rarity = 1f - (alikeLairs / (numLairsNear + 1)),
-    idealPop = (foodSupply * rarity) / (metabolism * ratio);
-  if (reports) I.say("  Ideal population is: "+idealPop);
-  
-  return (int) (idealPop - 0.5f);
-}
-
-
-
-//  TODO:  Merge with methods below?
-public static float idealNestPop(
-  Species species, Venue site, World world, boolean cached
-) {
-  final Nest nest = (cached && site instanceof Nest) ? (Nest) site : null;
-  if (nest != null && nest.idealPopEstimate != -1) {
-    return nest.idealPopEstimate;
-  }
-  float estimate = idealPopulation(site, species, world);
-  if (nest != null && nest.idealPopEstimate == -1) {
-    nest.idealPopEstimate = estimate;
-  }
-  return estimate;
-}
-
-
-//*/

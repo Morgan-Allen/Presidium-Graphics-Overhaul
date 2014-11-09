@@ -445,11 +445,9 @@ public abstract class Actor extends Mobile implements
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (indoors() || ! inWorld()) return;
     final boolean t = aboard() instanceof Tile;
-    Selection.renderPlane(
-      rendering, viewPosition(null),
-      (radius() + 0.5f) * (t ? 1 : 0.5f) * sprite().scale,
-      Colour.transparency((hovered ? 0.5f : 1.0f) * (t ? 1 : 0.5f)),
-      Selection.SELECT_CIRCLE
+    Selection.renderSimpleCircle(
+      this, viewPosition(null), rendering,
+      Colour.transparency((hovered ? 0.5f : 1.0f) * (t ? 1 : 0.5f))
     );
   }
   

@@ -6,10 +6,7 @@
 
 
 package stratos.game.base;
-import static stratos.game.building.Economy.CARBS;
-import stratos.game.actors.Actor;
-import stratos.game.actors.Background;
-import stratos.game.actors.Behaviour;
+import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
@@ -169,7 +166,6 @@ public class ShieldWall extends Venue {
       final int oldType = this.type, newType = getFacingType(world, null);
       
       if (oldType != newType) {
-        ///I.say("Old/new types: "+oldType+"/"+newType);
         if (GameSettings.buildFree) {
           this.type = newType;
           attachModel(MODEL_TYPES[newType]);
@@ -344,7 +340,7 @@ public class ShieldWall extends Venue {
       final ShieldWall segment = new ShieldWall(base);
       segment.type = TYPE_JUNCTION;
       segment.setPosition(under.x, under.y, world);
-      barrier.add(segment);
+      if (segment.canPlace()) barrier.add(segment);
     }
     //
     //  We only allow the ends to be capped if they abut on something else
@@ -422,7 +418,25 @@ public class ShieldWall extends Venue {
   
   
   public boolean canPlace() {
-    if (! isPlacing()) return super.canPlace();
+    if (! isPlacing()) {
+      
+      //  Basic sanity checks first-
+      if (origin() == null) return false;
+      final Stage world = origin().world;
+      
+      //  In essence, we allow construction as long as at least one tile
+      //  beneath is free, along with a tile along the perimeter.
+      boolean underFree = false, perimFree = false;
+      for (Tile t : world.tilesIn(footprint(), false)) {
+        if (cannotUse(t)) return false;
+        underFree |= t.habitat().pathClear;
+      }
+      for (Tile t : Spacing.perimeter(footprint(), world)) {
+        if (cannotUse(t)) return false;
+        perimFree |= t.habitat().pathClear;
+      }
+      return underFree && perimFree;
+    }
     
     if (structure.group() == null) return false;
     for (ShieldWall segment : (ShieldWall[]) structure.group()) {
@@ -432,10 +446,11 @@ public class ShieldWall extends Venue {
   }
   
   
-  protected boolean checkPerimeter(Stage world) {
-    //  TODO:  This might require some modification later.  Ideally, you want
-    //  to give walls at least one tile of space (excepting blast doors.)
-    return true;
+  private boolean cannotUse(Tile t) {
+    if (t == null) return true;
+    final Element top = t.onTop();
+    if (top instanceof ShieldWall) return false;
+    return top != null && top.owningType() >= owningType();
   }
   
   

@@ -109,14 +109,24 @@ public class IntelMap {
     */
   public void updateFogValues() {
     for (Coord c : Visit.grid(0,  0, world.size, world.size, 1)) {
+      
+      //  Fog values decay steadily over time, but those that have been
+      //  thoroughly explored never decay below a minimum value.
       float val = fogVals[c.x][c.y];
       final boolean seen = val >= FOG_SEEN_MIN;
-      
       val -= 1f / FOG_DECAY_TIME;
       val = Visit.clamp(val, seen ? FOG_SEEN_MIN : MIN_FOG, MAX_FOG);
-      
       fogVals[c.x][c.y] = val;
-      if (val < FOG_SEEN_MIN) fogMap.set(0, c.x, c.y);
+      
+      //  We mask out any tiles that are considered unexplorable (i.e, cannot
+      //  be pathed upon.)  Otherwise, we flag as unexplored any tiles where
+      //  the fog value has decayed below a minimum threshold.
+      final Tile t = world.tileAt(c.x, c.y);
+      if (t.blocked()) {
+        fogMap.set(1, c.x, c.y);
+        continue;
+      }
+      else if (val < FOG_SEEN_MIN) fogMap.set(0, c.x, c.y);
     }
   }
   
@@ -171,11 +181,12 @@ public class IntelMap {
   }
   
   
-
   
-  
-  /**  Helper methods for grabbing unexplored tiles-
+  /**  Helper method for grabbing unexplored tiles-
     */
+  //  TODO:  You'll need to use large-scale pathing-culling here as soon as
+  //  it's available.
+  
   public static Tile getUnexplored(
     Base base, Object client,
     Target centre, float distanceUnit, final float maxDist

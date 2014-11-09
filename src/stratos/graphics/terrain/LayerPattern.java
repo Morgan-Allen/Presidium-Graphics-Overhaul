@@ -16,7 +16,7 @@ public class LayerPattern implements TileConstants {
     *  scaled version based on vertex coordinates within standard UV limits
     *  (i.e, [1, 0].  This allows UV to be specified more naturally below.)
     */
-  final static float
+  final public static float
     VERT_PATTERN[] = {
       0, 0, 0,
       0, 0, 1,
@@ -105,7 +105,7 @@ public class LayerPattern implements TileConstants {
       {3, 6},  //14- northeast, southeast and southwest
       {1, 5}   //15- all 4 corners
     },
-    INNER_FRINGE_UV[][] = shrinkUVMap(INNER_FRINGE_INDEX, 8, 0, 0),
+    INNER_FRINGE_UV[][]     = shrinkUVMap(INNER_FRINGE_INDEX, 8, 0, 0),
     INNER_FRINGE_ALT_UV[][] = shrinkUVMap(INNER_FRINGE_INDEX, 8, 4, 0);
   private final static int innerIndices[] = new int[2];
   private static float innerUV[][] = new float[2][];
@@ -193,7 +193,7 @@ public class LayerPattern implements TileConstants {
       {2, 3},  //near southwest (corner)
       {2, 5}   //near northwest (corner)
     },
-    OUTER_FRINGE_UV[][] = shrinkUVMap(OUTER_FRINGE_INDEX, 6, 0, 0),
+    OUTER_FRINGE_UV[][]   = shrinkUVMap(OUTER_FRINGE_INDEX, 6, 0, 0),
     OUTER_FRINGE_CENTRE[] = OUTER_FRINGE_UV[0];
   //
   //  Having done that, we can now define some convenient constants:

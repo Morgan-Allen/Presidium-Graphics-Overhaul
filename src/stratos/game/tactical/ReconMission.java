@@ -123,41 +123,15 @@ public class ReconMission extends Mission {
   
   
   public void renderSelection(Rendering rendering, boolean hovered) {
-    Selection.renderPlane(
-      rendering, subject.position(null), exploreRadius(),
+
+    BaseUI.current().selection.renderPlane(
+      rendering, base.world,
+      subject.position(null), exploreRadius(),
       hovered ? Colour.transparency(0.25f) : Colour.transparency(0.5f),
-      Selection.SELECT_CIRCLE
+      Selection.SELECT_CIRCLE,
+      true, this
     );
   }
 }
-
-
-
-//final IntelMap map = base.intelMap;
-//Tile lookedAt = null;
-//float bestRating = 0;
-
-//
-//  TODO:  Try just picking an unexplored tile at random?
-/*
-for (Tile t : inRange) if (! t.blocked()) {
-  final float fog = map.fogAt(t);
-  float rating = fog < 1 ? 1 : 0;
-  
-  for (Role role : roles) if (role.applicant != actor) {
-    Target looks = role.applicant.focusFor(Exploring.class);
-    if (looks == null) looks = role.applicant;
-    rating *= (10 + Spacing.distance(actor, looks)) / 10f;
-  }
-  if (rating > bestRating) {
-    lookedAt = t;
-    bestRating = rating;
-  }
-}
-if (lookedAt == null) {
-  doneRecon = true;
-  return null;
-}
-//*/
 
 

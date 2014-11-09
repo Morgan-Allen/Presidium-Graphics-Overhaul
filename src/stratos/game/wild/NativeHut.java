@@ -345,10 +345,14 @@ public class NativeHut extends Venue {
   
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (destroyed() || ! inWorld()) return;
-    Selection.renderPlane(
-      rendering, position(null), (xdim() / 2f) + 1,
+    
+    BaseUI.current().selection.renderPlane(
+      rendering, world,
+      position(null),
+      (xdim() / 2f) + 1,
       hovered ? Colour.transparency(0.5f) : Colour.WHITE,
-      Selection.SELECT_CIRCLE
+      Selection.SELECT_CIRCLE,
+      true, this
     );
   }
 }

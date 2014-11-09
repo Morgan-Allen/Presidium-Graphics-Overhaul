@@ -1,5 +1,4 @@
 
-
 package stratos.graphics.terrain;
 import stratos.graphics.common.*;
 import stratos.util.*;
@@ -8,8 +7,6 @@ import com.badlogic.gdx.graphics.Texture;
 
 
 public abstract class LayerType implements TileConstants {
-  
-  
   
   /**  Data, constants, constructors, setup and cleanup-
     */
@@ -59,10 +56,11 @@ public abstract class LayerType implements TileConstants {
 
   protected void addFringes(
     int tx, int ty, TerrainSet terrain,
-    Batch<Coord> gridBatch, Batch<float[]> textBatch
+    Batch <Coord> gridBatch, Batch <float[]> textBatch
   ) {
     final boolean masked = maskedAt(tx, ty, terrain);
     if (innerFringe && ! masked) return;
+    
     final int tileID = terrain.layerIndices[tx][ty];
     final int varID = variantAt(tx, ty, terrain);
     final boolean central = layerID >= 0 ? (tileID >= layerID) : masked;
