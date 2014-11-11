@@ -111,8 +111,8 @@ public class StripMining extends Plan {
     final float priority = priorityForActorWith(
       actor, site, ROUTINE,
       NO_MODIFIER, NO_HARM,
-      MILD_COOPERATION, BASE_SKILLS,
-      BASE_TRAITS, NORMAL_DISTANCE_CHECK, MILD_FAIL_RISK,
+      MILD_COOPERATION, MILD_FAIL_RISK,
+      BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report
     );
     return priority;

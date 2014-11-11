@@ -42,7 +42,7 @@ public class Dialogue extends Plan implements Qualities {
   
   private static boolean
     evalVerbose   = false,
-    eventsVerbose = true;
+    eventsVerbose = false;
   
   
   final Actor starts, other;
@@ -123,54 +123,67 @@ public class Dialogue extends Plan implements Qualities {
   
   
   protected float getPriority() {
-    final boolean report = evalVerbose && I.talkAbout == actor;
+    final boolean report = evalVerbose && (
+      I.talkAbout == actor || I.talkAbout == other
+    );
     
     if (stage == STAGE_DONE) return 0;
-    if (stage == STAGE_BYE) return CASUAL;  //Move down?
+    if (stage == STAGE_BYE ) return CASUAL;
     
-    float urgency = 0;
-    float distCheck = NORMAL_DISTANCE_CHECK;
-    
-    final boolean casual = type == TYPE_CASUAL;
-    if (casual) {
-      if (! canTalk(other)) return 0;
-      urgency = urgency();
-      if (urgency <= 0) return 0;
-      urgency = Visit.clamp(urgency, 0.5f, 1);
-      distCheck = HEAVY_DISTANCE_CHECK;
+    float maxRange = actor.health.sightRange() * 2;
+    final float
+      curiosity = (1 + actor.traits.relativeLevel(CURIOUS)) / 2f,
+      solitude  = solitude(actor),
+      novelty   = actor.relations.noveltyFor(other);
+    float bonus = 0;
+    if (type == TYPE_CASUAL) {
+      bonus = solitude + (curiosity * novelty);
+    }
+    if (type == TYPE_PLEA) {
+      bonus = novelty;
+      bonus += CombatUtils.isActiveHostile(actor, other) ? 0 : 1;
+    }
+    if (type == TYPE_CONTACT) {
+      bonus += 1;
+    }
+    else if (Spacing.distance(actor, other) > maxRange) {
+      return 0;
+    }
+    if (report) {
+      I.say("\n  Checking for dialogue between "+actor+" and "+other);
+      I.say("  Type is:           "+type);
+      I.say("  Solitude:          "+solitude);
+      I.say("  Curiosity/novelty: "+curiosity+"/"+novelty);
+      I.say("  Bonus:             "+bonus);
+    }
+    if (novelty <= 0 || ! canTalk(other)) {
+      if (report) I.say("  "+other+" has nothing to say to "+actor+".");
+      return 0;
     }
     
     final float priority = priorityForActorWith(
-      actor, other, casual ? (CASUAL * urgency) : URGENT,
-      NO_MODIFIER, MILD_HELP,
-      NO_COMPETITION, BASE_SKILLS,
-      BASE_TRAITS, distCheck, NO_FAIL_RISK,
+      actor, other,
+      CASUAL, bonus * ROUTINE,
+      MILD_HELP, NO_COMPETITION, NO_FAIL_RISK,
+      BASE_SKILLS, BASE_TRAITS, HEAVY_DISTANCE_CHECK,
       report
     );
-    if (report) {
-      I.say("  Urgency of dialogue was: "+urgency);
-      ///I.say("  Prior relationship? "+(r != null)+", curiosity: "+curiosity);
-    }
     return priority;
   }
   
-  
+  /*
   private float urgency() {
-    final float curiosity = (1 + actor.traits.relativeLevel(CURIOUS)) / 2f;
-    final Relation r = actor.relations.relationWith(other);
-    final float solitude = solitude(actor);
-    
+    final float
+      curiosity = (1 + actor.traits.relativeLevel(CURIOUS)) / 2f,
+      solitude  = solitude(actor),
+      value     = actor.relations.valueFor(other),
+      novelty   = actor.relations.noveltyFor(other);
     float urgency = 0;
-    if (r == null) {
-      urgency += (solitude + actor.relations.valueFor(other)) / 2f;
-      urgency += (1 + curiosity) * solitude;
-    }
-    else {
-      urgency += (solitude + r.value()) / 2f;
-      urgency += (1 + curiosity) * r.novelty();
-    }
+    urgency += (solitude + value) / 2f;
+    urgency += curiosity * novelty;
     return Visit.clamp(urgency, -1, 1);
   }
+  //*/
   
   
   private float solitude(Actor actor) {
@@ -187,6 +200,7 @@ public class Dialogue extends Plan implements Qualities {
     if (! other.health.conscious()) return false;
     if (! other.health.human()) return false;
     if (other == starts && ! hasBegun()) return true;
+    
     final Target talksWith = other.focusFor(Dialogue.class);
     if (talksWith == actor) return true;
     if (talksWith != null) return false;
@@ -194,10 +208,12 @@ public class Dialogue extends Plan implements Qualities {
     final Dialogue d = new Dialogue(other, actor, actor, type);
     final boolean can = ! other.mind.mustIgnore(d);
     
-    final boolean report = evalVerbose && I.talkAbout == actor;
+    final boolean report = evalVerbose && (
+      I.talkAbout == actor || I.talkAbout == other
+    );
     if (report) {
-      I.say("  "+other+" can talk? "+can);
-      I.say("  Talk priority: "+d.priorityFor(other));
+      I.say("\n  "+actor+" checking if "+other+" can talk? "+can);
+      I.say("  Chat priority: "+d.priorityFor(other));
     }
     return can;
   }
@@ -315,11 +331,9 @@ public class Dialogue extends Plan implements Qualities {
   public boolean actionChats(Actor actor, Actor other) {
     DialogueUtils.tryChat(actor, other);
     final boolean canTalk = canTalk(other);
-
     final float relation = actor.relations.valueFor(other);
-    //I.say("Urgency: "+urgency()+", relation: "+relation);
-    //I.say("Novelty: "+actor.memories.relationNovelty(other));
-    if (urgency() <= 0 || ! canTalk) {
+    
+    if (actor.relations.noveltyFor(other) <= 0 || ! canTalk) {
       if (invitation == null && Rand.num() < relation) {
         invitation = actor.mind.nextBehaviour();
       }

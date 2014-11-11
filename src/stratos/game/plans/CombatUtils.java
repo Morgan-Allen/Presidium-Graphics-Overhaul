@@ -93,43 +93,48 @@ public class CombatUtils {
   
   public static float hostileRating(Actor actor, Target near) {
     final boolean report = dangerVerbose && I.talkAbout == actor;
-    //
+    
     //  Only consider conscious actors as capable of hostility.  Then, by
     //  default, base the rating off intrinsic dislike of the subject.
     if (! (near instanceof Actor)) return 0;
     final Actor other = (Actor) near;
     if (! other.health.conscious()) return 0;
-    float rating = 0;
-    final ActorRelations mind = actor.relations;
-    rating -= mind.valueFor(other);
     
+    final ActorRelations mind = actor.relations;
+    float rating = 0 - mind.valueFor(other);
     if (report) I.say("\n  "+near+" dislike rating: "+rating);
-    //
+    
     //  However, this is modified by the context of the subject's behaviour.
     //  If they are doing something harmful to another the actor cares about,
     //  (including self), then up the rating.
-    final Target victim = other.focusFor(null);
-    final float harmDone = other.hostilityTo(victim);
-    if (victim != null && mind.likes(victim)) {
-      final float likeGap = mind.valueFor(victim) - mind.valueFor(other);
-      rating += likeGap * harmDone;
+    if (isActiveHostile(actor, near)) {
+      final Target victim = other.focusFor(null);
+      final float
+        harmDone    = other.harmDoneTo(victim),
+        protectUrge = harmDone * mind.valueFor(victim);
+      rating += protectUrge;
       
       if (report) {
         I.say("  Victim: "+victim+", value: "+mind.valueFor(victim));
-        I.say("  Like gap: "+likeGap+" harm done: "+harmDone);
+        I.say("  Protect urge: "+protectUrge);
       }
     }
-    //
-    //  Limit to the range of normal plan priorities, and return...
-    return Visit.clamp(rating, -1, 1) * Plan.PARAMOUNT;
+    
+    //  Limit to the range of +/- 1, and return.
+    return Visit.clamp(rating, -1, 1);// * Plan.PARAMOUNT;
   }
   
   
-  public static boolean isHostileTo(Actor actor, Target near) {
-    return hostileRating(actor, near) > 0;
+  public static boolean isActiveHostile(Actor actor, Target near) {
+    if (! (near instanceof Actor)) return false;
+    final Actor other = (Actor) near;
+
+    final Target victim = other.focusFor(null);
+    final float harmDone = other.harmDoneTo(victim);
+    return victim != null && actor.relations.likes(victim) && harmDone > 0;
   }
   
-  
+  /*
   public static boolean isAllyOf(Actor actor, Target target) {
     if (! (target instanceof Actor)) return false;
     final Actor other = (Actor) target;
@@ -139,6 +144,7 @@ public class CombatUtils {
     if (other.relations.valueFor(actor) > 0.5f) return true;
     return other.base() == actor.base();
   }
+  //*/
   
   
   public static boolean isDowned(Target subject, int object) {

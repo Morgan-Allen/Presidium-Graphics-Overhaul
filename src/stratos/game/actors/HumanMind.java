@@ -142,12 +142,18 @@ public class HumanMind extends ActorMind implements Qualities {
   
   
   protected void addReactions(Target seen, Choice choice) {
+    final boolean report = I.talkAbout == actor;
     if (seen instanceof Actor) {
       final Actor nearby = (Actor) seen;
       choice.add(new Combat(actor, nearby));
       //  TODO:  Add pleas & objections.
       choice.add(new FirstAid(actor, nearby));
-      choice.add(new Dialogue(actor, nearby, Dialogue.TYPE_CASUAL));
+      
+      if (report) I.say("  ADDING DIALOGUE WITH "+seen);
+      if (CombatUtils.hostileRating(actor, nearby) > 0) {
+        choice.add(new Dialogue(actor, nearby, Dialogue.TYPE_PLEA));
+      }
+      else choice.add(new Dialogue(actor, nearby, Dialogue.TYPE_CASUAL));
     }
   }
   
@@ -159,7 +165,7 @@ public class HumanMind extends ActorMind implements Qualities {
   
   private void addConstantResponses(Choice choice) {
     final boolean report = verbose && I.talkAbout == actor;
-    if (report) I.say("\nGettting constant responses.");
+    if (report) I.say("\nGetting constant responses.");
     
     //  TODO:  You need to respond to more distant actors here.
     for (Target e : actor.senses.awareOf()) {

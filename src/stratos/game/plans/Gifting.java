@@ -94,8 +94,8 @@ public class Gifting extends Plan implements Qualities {
     final float priority = priorityForActorWith(
       actor, receives, CASUAL,
       modifier, MILD_HELP,
-      NO_COMPETITION, NO_SKILLS,
-      BASE_TRAITS, NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
+      NO_COMPETITION, NO_FAIL_RISK,
+      NO_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report
     );
     if (report) {
@@ -274,7 +274,7 @@ public class Gifting extends Plan implements Qualities {
       }
     }
     
-    final float pricedAt = item.defaultPrice() / Relation.NOVELTY_DAYS;
+    final float pricedAt = item.defaultPrice();
     rating += Pledge.greedLevel(receives, pricedAt) * ROUTINE;
     if (report) I.say("  Rating for "+item+" is: "+rating);
     

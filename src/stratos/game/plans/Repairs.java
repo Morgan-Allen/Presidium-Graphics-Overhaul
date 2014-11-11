@@ -133,8 +133,8 @@ public class Repairs extends Plan {
       actor, (Target) built,
       ROUTINE * Visit.clamp(urgency, 0, 1), NO_MODIFIER,
       REAL_HELP, competition,
-      BASE_SKILLS, BASE_TRAITS,
-      NORMAL_DISTANCE_CHECK, MILD_FAIL_RISK,
+      MILD_FAIL_RISK, BASE_SKILLS,
+      BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report
     );
     if (report) {

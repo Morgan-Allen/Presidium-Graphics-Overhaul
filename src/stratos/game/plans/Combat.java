@@ -114,24 +114,26 @@ public class Combat extends Plan implements Qualities {
     if (object == OBJECT_DESTROY) harmLevel = EXTREME_HARM;
     
     final boolean melee = actor.gear.meleeWeapon();
-    final float appeal = CombatUtils.hostileRating(actor, subject);
+    final float danger  = actor.senses.fearLevel();
+    
+    float bonus = danger + (actor.senses.isEmergency() ? 1 : 0);
+    bonus *= CombatUtils.hostileRating(actor, subject) * ROUTINE;
     
     final float priority = priorityForActorWith(
       actor, subject,
-      ROUTINE, ROUTINE * ((appeal / PARAMOUNT) - 1f),
+      ROUTINE, bonus,
       harmLevel, FULL_COOPERATION,
-      melee ? MELEE_SKILLS : RANGED_SKILLS, BASE_TRAITS,
-      NORMAL_DISTANCE_CHECK, REAL_FAIL_RISK,
+      REAL_FAIL_RISK, melee ? MELEE_SKILLS : RANGED_SKILLS,
+      BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report
     );
-    
     if (report) {
-      I.say("\n  Value of target: "+appeal);
+      I.say("\n  Value of target: "+bonus);
       I.say("  Basic combat priority: "+priority);
-      I.say("  Endangered? "+actor.senses.isEndangered());
+      I.say("  Endangered?            "+actor.senses.isEmergency());
     }
-    if (actor.senses.isEndangered()) return priority + PARAMOUNT;
-    else return priority;
+    //if (actor.senses.isEndangered()) return priority + PARAMOUNT;
+    return priority;
   }
   
   

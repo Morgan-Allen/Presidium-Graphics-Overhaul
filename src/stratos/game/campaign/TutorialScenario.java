@@ -90,6 +90,13 @@ public class TutorialScenario extends StartupScenario {
   public void updateGameState() {
     super.updateGameState();
     
+    /*
+    final Base natives = Base.baseWithName(world(), Base.KEY_NATIVES, true);
+    I.say("\nGetting base relations-");
+    I.say("  Player -> natives: "+base().relations.relationWith(natives));
+    I.say("  Natives -> player: "+natives.relations.relationWith(base()));
+    //*/
+    
     if (showMessages()) {
       pushMessage(TITLE_WELCOME);
     }

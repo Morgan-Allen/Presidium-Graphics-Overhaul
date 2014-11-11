@@ -72,8 +72,8 @@ public class Farming extends Plan {
     final float priority = priorityForActorWith(
       actor, nursery, ROUTINE,
       (need - 0.5f) * ROUTINE, MILD_HELP,
-      MILD_COMPETITION, BASE_SKILLS,
-      BASE_TRAITS, PARTIAL_DISTANCE_CHECK, NO_FAIL_RISK,
+      MILD_COMPETITION, NO_FAIL_RISK,
+      BASE_SKILLS, BASE_TRAITS, PARTIAL_DISTANCE_CHECK,
       report
     );
     return FastMath.max(min, priority);

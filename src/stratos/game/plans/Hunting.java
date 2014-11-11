@@ -162,8 +162,8 @@ public class Hunting extends Combat {
     final float priority = priorityForActorWith(
       actor, prey, urgency,
       NO_MODIFIER, harmLevel,
-      MILD_COMPETITION, RANGED_SKILLS,
-      baseTraits, NORMAL_DISTANCE_CHECK, REAL_FAIL_RISK,
+      MILD_COMPETITION, REAL_FAIL_RISK,
+      RANGED_SKILLS, baseTraits, NORMAL_DISTANCE_CHECK,
       report
     );
     

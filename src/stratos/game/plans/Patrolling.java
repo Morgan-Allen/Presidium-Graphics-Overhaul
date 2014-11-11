@@ -108,8 +108,8 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     final float priority = priorityForActorWith(
       actor, onPoint, urgency,
       NO_MODIFIER, MILD_HELP,
-      NO_COMPETITION, BASE_SKILLS,
-      BASE_TRAITS, NORMAL_DISTANCE_CHECK, MILD_FAIL_RISK,
+      NO_COMPETITION, MILD_FAIL_RISK,
+      BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report
     );
     return priority;

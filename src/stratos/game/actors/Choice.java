@@ -186,8 +186,7 @@ public class Choice implements Qualities {
       nextPriority = next.priorityFor(actor);
     if (nextPriority <= 0) return false;
     if (lastPriority <= 0) return true;
-
-    //final boolean report = verbose && I.talkAbout == actor && last.hasBegun();
+    
     final float minPriority = stubborn ?
       competeThreshold(actor, nextPriority, true) :
       nextPriority;

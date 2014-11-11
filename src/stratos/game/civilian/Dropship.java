@@ -337,7 +337,7 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   
   
   public void beginAscent() {
-    offloadPassengers();
+    if (stage == STAGE_LANDED) offloadPassengers();
     
     ///I.say("BEGINNING ASCENT");
     //  TODO:  Restore docking at a launch hangar!

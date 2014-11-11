@@ -72,8 +72,8 @@ public class Payday extends Plan {
     final float priority = priorityForActorWith(
       actor, venue, ROUTINE,
       modifier, NO_HARM,
-      NO_COMPETITION, NO_SKILLS,
-      NO_TRAITS, PARTIAL_DISTANCE_CHECK, NO_FAIL_RISK, report
+      NO_COMPETITION, NO_FAIL_RISK,
+      NO_SKILLS, NO_TRAITS, PARTIAL_DISTANCE_CHECK, report
     );
     if (report) {
       I.say("  Payment due: "+p.paymentDue()+", pay gap: "+payGap+" days");

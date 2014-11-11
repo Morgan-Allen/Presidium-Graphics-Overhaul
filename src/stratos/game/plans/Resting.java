@@ -124,8 +124,8 @@ public class Resting extends Plan {
     final float priority = priorityForActorWith(
       actor, restPoint, Visit.clamp(urgency, 0, URGENT),
       modifier, NO_HARM,
-      NO_COMPETITION, NO_SKILLS,
-      BASE_TRAITS, NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
+      NO_COMPETITION, NO_FAIL_RISK,
+      NO_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report
     );
     return priority;

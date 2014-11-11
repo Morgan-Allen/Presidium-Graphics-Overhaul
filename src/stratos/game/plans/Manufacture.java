@@ -146,8 +146,8 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
       actor, venue,
       urgency, NO_MODIFIER,
       NO_HARM, FULL_COMPETITION,
-      conversion.skills, BASE_TRAITS,
-      NO_DISTANCE_CHECK, MILD_FAIL_RISK,
+      MILD_FAIL_RISK, conversion.skills,
+      BASE_TRAITS, NO_DISTANCE_CHECK,
       report
     );
     if (report) {

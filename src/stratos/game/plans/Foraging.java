@@ -90,8 +90,8 @@ public class Foraging extends Plan {
     final float priority = priorityForActorWith(
       actor, source, hunger * PARAMOUNT,
       modifier, NO_HARM,
-      FULL_COMPETITION, BASE_SKILLS,
-      BASE_TRAITS, NORMAL_DISTANCE_CHECK, MILD_FAIL_RISK,
+      FULL_COMPETITION, MILD_FAIL_RISK,
+      BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report
     );
     if (report) {

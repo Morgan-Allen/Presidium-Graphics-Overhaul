@@ -340,7 +340,7 @@ public abstract class Actor extends Mobile implements
   }
   
   
-  public float hostilityTo(Target subject) {
+  public float harmDoneTo(Target subject) {
     final Behaviour root = mind.rootBehaviour();
     if (! (root instanceof Plan)) return 0;
     if (subject != null && root.subject() != subject) return 0;

@@ -80,6 +80,7 @@ public abstract class ActorMind implements Qualities {
     */
   protected void updateAI(int numUpdates) {
     if (numUpdates % 10 != 0) return;
+    final boolean report = decisionVerbose && I.talkAbout == actor;
     //
     //  Remove any expired behaviour-sources:
     if (home != null && home.destroyed()) {
@@ -103,7 +104,7 @@ public abstract class ActorMind implements Qualities {
     final Behaviour last = rootBehaviour();
     final Behaviour next = nextBehaviour();
     
-    if (decisionVerbose && I.talkAbout == actor) {
+    if (report) {
       I.say("\nPerformed periodic AI update.");
       final float
         lastP = last == null ? -1 : last.priorityFor(actor),
@@ -113,7 +114,7 @@ public abstract class ActorMind implements Qualities {
     }
     if (Choice.wouldSwitch(actor, last, next, true, false)) {
       assignBehaviour(next);
-      I.say("  Switching to next plan!");
+      if (report) I.say("  Switching to next plan!");
     }
   }
   
@@ -397,13 +398,15 @@ public abstract class ActorMind implements Qualities {
   
   public boolean wouldSwitchTo(Behaviour next) {
     if (! actor.health.conscious()) return false;
-    return Choice.wouldSwitch(actor, rootBehaviour(), next, true, false);
+    final boolean report = decisionVerbose && I.talkAbout == actor;
+    return Choice.wouldSwitch(actor, rootBehaviour(), next, true, report);
   }
   
   
   public boolean mustIgnore(Behaviour next) {
     if (! actor.health.conscious()) return true;
-    return Choice.wouldSwitch(actor, next, rootBehaviour(), false, false);
+    final boolean report = decisionVerbose && I.talkAbout == actor;
+    return Choice.wouldSwitch(actor, next, rootBehaviour(), false, report);
   }
   
   

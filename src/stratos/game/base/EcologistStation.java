@@ -8,6 +8,7 @@ import stratos.game.common.*;
 import stratos.game.maps.*;
 import stratos.game.plans.*;
 import stratos.game.actors.*;
+import stratos.game.wild.*;
 import stratos.game.building.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -163,6 +164,14 @@ public class EcologistStation extends Venue {
       choice.add(t);
     }
     
+    final Exploring x = Exploring.nextExploration(actor);
+    if (x != null) choice.add(x.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE));
+    
+    for (Target e : actor.senses.awareOf()) if (e instanceof Fauna) {
+      choice.add(Hunting.asSample(actor, (Fauna) e, this));
+    }
+    
+    if (choice.empty()) choice.add(new Supervision(actor, this));
     return choice.weightedPick();
   }
   

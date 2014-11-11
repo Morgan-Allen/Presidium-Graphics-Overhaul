@@ -143,8 +143,8 @@ public class Treatment extends Plan implements Item.Passive {
       actor, patient,
       CASUAL + (severity * ROUTINE), modifier,
       REAL_HELP, FULL_COOPERATION,
-      BASE_SKILLS, BASE_TRAITS,
-      PARTIAL_DISTANCE_CHECK, MILD_FAIL_RISK * severity,
+      MILD_FAIL_RISK * severity, BASE_SKILLS,
+      BASE_TRAITS, PARTIAL_DISTANCE_CHECK,
       report
     );
     return priority;

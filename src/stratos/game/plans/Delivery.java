@@ -217,8 +217,8 @@ public class Delivery extends Plan {
     final float priority = priorityForActorWith(
       actor, destination, ROUTINE,
       modifier, NO_HARM,
-      NO_COMPETITION, NO_SKILLS,
-      NO_TRAITS, NORMAL_DISTANCE_CHECK / rangeDiv, NO_FAIL_RISK,
+      NO_COMPETITION, NO_FAIL_RISK,
+      NO_SKILLS, NO_TRAITS, NORMAL_DISTANCE_CHECK / rangeDiv,
       report
     ) - extraRangePenalty;
     return priority;

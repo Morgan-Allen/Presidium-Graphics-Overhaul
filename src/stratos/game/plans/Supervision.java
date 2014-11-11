@@ -70,8 +70,8 @@ public class Supervision extends Plan {
     return priorityForActorWith(
       actor, venue, ROUTINE,
       NO_MODIFIER, NO_HARM,
-      FULL_COMPETITION, NO_SKILLS,
-      BASE_TRAITS, PARTIAL_DISTANCE_CHECK, NO_FAIL_RISK,
+      FULL_COMPETITION, NO_FAIL_RISK,
+      NO_SKILLS, BASE_TRAITS, PARTIAL_DISTANCE_CHECK,
       report
     );
   }

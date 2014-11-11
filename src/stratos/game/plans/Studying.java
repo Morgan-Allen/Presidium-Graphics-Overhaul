@@ -88,8 +88,8 @@ public class Studying extends Plan {
       actor, venue,
       CASUAL, modifier,
       MILD_HELP, NO_COMPETITION,
-      BASE_SKILLS, BASE_TRAITS,
-      PARTIAL_DISTANCE_CHECK, MILD_FAIL_RISK,
+      MILD_FAIL_RISK, BASE_SKILLS,
+      BASE_TRAITS, PARTIAL_DISTANCE_CHECK,
       report
     );
   }

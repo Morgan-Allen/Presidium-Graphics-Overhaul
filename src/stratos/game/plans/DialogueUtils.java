@@ -50,6 +50,9 @@ public class DialogueUtils implements Qualities {
     
     final float DC = other.traits.usedLevel(SUASION) / 2;
     float success = talkResult(SUASION, DC, actor, other);
+    
+    //  TODO:  Decrease novelty through a separate call?  Or base on having
+    //  fresh information?
     other.relations.incRelation(actor, success * Relation.MAG_CHATTING, 0.1f);
     
     switch (Rand.index(3)) {

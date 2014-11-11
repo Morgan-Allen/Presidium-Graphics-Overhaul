@@ -249,8 +249,8 @@ public class Performance extends Recreation {
     final float priority = priorityForActorWith(
       actor, venue, CASUAL,
       NO_MODIFIER, MILD_HELP,
-      MILD_COOPERATION, PERFORM_SKILLS[type],
-      BASE_TRAITS, NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
+      MILD_COOPERATION, NO_FAIL_RISK,
+      PERFORM_SKILLS[type], BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report
     );
     return priority;

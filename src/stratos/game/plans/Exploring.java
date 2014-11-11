@@ -21,7 +21,7 @@ public class Exploring extends Plan implements Qualities {
   /**  Construction and save/load methods-
     */
   private static boolean
-    evalVerbose = true ;
+    evalVerbose = false;
   
   final static int
     TYPE_WANDER  = 0,
@@ -125,10 +125,9 @@ public class Exploring extends Plan implements Qualities {
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
     
-    float basePriority = CASUAL;
+    float basePriority = CASUAL * Planet.dayValue(actor.world());
     if (type == TYPE_WANDER) basePriority = IDLE   ;
-    if (type == TYPE_SURVEY) basePriority = ROUTINE;
-    basePriority *= Planet.dayValue(actor.world());
+    if (type == TYPE_SURVEY) basePriority += CASUAL;
     
     //  Make this less attractive as you get further from home/safety.
     final Target haven = actor.senses.haven();
@@ -139,8 +138,8 @@ public class Exploring extends Plan implements Qualities {
       actor, lookedAt,
       basePriority, 0 - distFactor * CASUAL,
       NO_HARM, MILD_COMPETITION,
-      BASE_SKILLS, BASE_TRAITS,
-      PARTIAL_DISTANCE_CHECK, MILD_FAIL_RISK,
+      MILD_FAIL_RISK, BASE_SKILLS,
+      BASE_TRAITS, PARTIAL_DISTANCE_CHECK,
       report
     );
     if (report) {

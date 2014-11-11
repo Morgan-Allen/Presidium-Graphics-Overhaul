@@ -173,7 +173,7 @@ public class ActorSkills {
       I.say("  Fatigue: "+actor.health.fatigueLevel());
       I.say("  Concentration: "+actor.health.concentration());
     }
-    final float harm = actor.hostilityTo(subject);
+    final float harm = actor.harmDoneTo(subject);
     final Technique picked = pickBestKnown(subject, harm, s);
     
     if (report) I.say("  Technique picked: "+picked);

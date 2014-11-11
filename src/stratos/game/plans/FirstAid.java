@@ -82,8 +82,8 @@ public class FirstAid extends Treatment {
       actor, patient,
       severity * PARAMOUNT, modifier,
       REAL_HELP, FULL_COMPETITION,
-      BASE_SKILLS, BASE_TRAITS,
-      NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
+      NO_FAIL_RISK, BASE_SKILLS,
+      BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report
     );
     if (report) {

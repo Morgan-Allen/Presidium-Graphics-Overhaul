@@ -22,7 +22,7 @@ public class Senses implements Qualities {
     */
   private static boolean
     reactVerbose  = false,
-    noticeVerbose = false,
+    noticeVerbose = true ,
     sightVerbose  = false,
     dangerVerbose = false;
   
@@ -89,7 +89,8 @@ public class Senses implements Qualities {
       awares.put(e, after);
     }
     
-    //  And get the set of all targets we've lost sight of-
+    //  Then iterate over anything you're currently aware of, and get the set
+    //  of all targets we've lost sight of-
     for (Target e : awares.keySet()) {
       if (e.flaggedWith() == this) { e.flagWith(null); continue; }
       if (! notices(e, range)) lostSight.add(e);
@@ -105,14 +106,17 @@ public class Senses implements Qualities {
     //  And finally, add any reactions to freshly-spotted targets-
     //  TODO:  Delegate all this to the ActorMind class..?
     final Choice reactions = new Choice(actor);
-    if (isEndangered()) {
+    if (isEmergency()) {
       actor.mind.putEmergencyResponse(reactions);
     }
     for (Target e : justSeen) {
       actor.mind.addReactions(e, reactions);
     }
+    
     final Behaviour reaction = reactions.pickMostUrgent();
+    if (report) I.say("TOP REACTION IS: "+reaction);
     if (actor.mind.wouldSwitchTo(reaction)) {
+      if (report) I.say("  SWITCHING OVER!");
       actor.mind.assignBehaviour(reaction);
     }
   }
@@ -163,13 +167,19 @@ public class Senses implements Qualities {
     if (focusedOn(e, actor)) hideChance /= 2;
     if (indoors(e)) hideChance += sightRange;
     //hideChance *= Rand.saltFrom(actor.origin()) + 0.5f;
-
-    if (report) {
-      I.say("  Checking to notice: "+e);
-      I.say("    Distance/fog: "+distance+"/"+fog);
+    
+    if (report && senseChance > hideChance) {
+      I.say("\n  Have noticed:     "+e);
+      I.say("    Stealth value:  "+stealthFactor(e, actor));
+      if (e instanceof Actor) {
+        final Actor o = (Actor) e;
+        I.say("    Current motion: "+Action.moveRate(o, true));
+        I.say("    Base speed:     "+o.health.baseSpeed());
+        I.say("    Stealth skill:  "+o.traits.usedLevel(STEALTH_AND_COVER));
+      }
+      I.say("    Distance/fog:   "+distance+"/"+fog);
       I.say("    Sense/hide chance: "+senseChance+"/"+hideChance);
     }
-    
     return senseChance > hideChance;
   }
   
@@ -203,15 +213,16 @@ public class Senses implements Qualities {
   
   
   private float stealthFactor(Target e, Actor looks) {
-    
     if (e instanceof Actor) {
       final Actor a = (Actor) e;
       if (a.base() == looks.base()) return 0;
+      
+      final float speed = a.health.baseSpeed();
       float stealth = a.traits.usedLevel(STEALTH_AND_COVER) / 20f;
-      stealth += a.health.baseSpeed() / Action.moveRate(a, false);
-      return stealth;
+      stealth += 0.5f - (Action.moveRate(a, false) / (speed * 1));
+      
+      return Visit.clamp(stealth, 0, 2);
     }
-    
     if (e instanceof Installation) {
       return ((Installation) e).structure().cloaking() / 10f;
     }
@@ -239,6 +250,10 @@ public class Senses implements Qualities {
     */
   protected void updateDangerEval(Batch <Target> awareOf) {
     final boolean report = dangerVerbose && I.talkAbout == actor;
+    if (report) {
+      I.say("\nUpdating danger assessment for "+actor);
+      I.say("  Vocation: "+actor.vocation());
+    }
     
     emergency = false;
     powerLevel = CombatUtils.powerLevel(actor);
@@ -246,15 +261,19 @@ public class Senses implements Qualities {
     
     for (Target t : awareOf) if ((t instanceof Actor) && (t != actor)) {
       final Actor near = (Actor) t;
+      float hostility = CombatUtils.hostileRating(actor, near);
       
-      if (CombatUtils.isHostileTo(actor, near)) {
-        if (report) I.say("Enemy nearby: "+near);
-        emergency = true;
-        sumFoes += CombatUtils.powerLevelRelative(near, actor);
+      if (hostility > 0) {
+        if (report) I.say("  Enemy nearby: "+near+", hostility: "+hostility);
+        emergency |= CombatUtils.isActiveHostile(actor, near);
+        emergency |= actor.relations.valueFor(near.base()) < 0;
+        hostility = Visit.clamp(hostility + 0.5f, 0, 1);
+        sumFoes += CombatUtils.powerLevelRelative(near, actor) * hostility;
       }
-      else if (CombatUtils.isAllyOf(actor, near)) {
-        if (report) I.say("Ally nearby: "+near);
-        sumAllies += near.senses.powerLevel() * 2 / (1 + powerLevel);
+      else {
+        final float backup = (0.5f - hostility) * near.senses.powerLevel();
+        if (report) I.say("  Ally nearby: "+near+", bond: "+(0 - hostility));
+        sumAllies += backup * 2 / (1 + powerLevel);
       }
     }
     
@@ -270,10 +289,11 @@ public class Senses implements Qualities {
     }
   }
   
-  
-  public boolean isEndangered() {
+  //*
+  public boolean isEmergency() {
     return emergency;
   }
+  //*/
   
   
   public float powerLevel() {

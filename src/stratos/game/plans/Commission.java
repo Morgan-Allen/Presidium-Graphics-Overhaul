@@ -83,6 +83,9 @@ public class Commission extends Plan {
   
   /**  Assessing and locating targets-
     */
+  //  TODO:  Specify the actor who buys and the actor it's intended for
+  //  separately!
+  
   public static void addCommissions(
     Actor actor, Venue makes, Choice choice, Traded... itemTypes
   ) {
@@ -184,8 +187,8 @@ public class Commission extends Plan {
     final float priority = priorityForActorWith(
       actor, shop, CASUAL,
       modifier, MILD_HELP,
-      MILD_COMPETITION, NO_SKILLS,
-      BASE_TRAITS, NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
+      MILD_COMPETITION, NO_FAIL_RISK,
+      NO_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report
     );
     if (report) {

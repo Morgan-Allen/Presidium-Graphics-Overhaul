@@ -9,9 +9,9 @@ import stratos.game.common.*;
 import stratos.game.civilian.*;
 import stratos.game.maps.*;
 import stratos.util.*;
-
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.building.Economy.*;
+
 import org.apache.commons.math3.util.FastMath;
 
 
@@ -25,7 +25,7 @@ public class Retreat extends Plan implements Qualities {
     DANGER_MEMORY_FADE = 0.9f;  //TODO:  use a time-limit instead.
   
   private static boolean
-    evalVerbose  = false,
+    evalVerbose  = true ,
     havenVerbose = false,
     stepsVerbose = false;
   
@@ -75,44 +75,33 @@ public class Retreat extends Plan implements Qualities {
     if (safePoint == null) return 0;
     
     final boolean report = evalVerbose && I.talkAbout == actor;
-    final boolean emergency = actor.senses.isEndangered();
+    final boolean emergency = actor.senses.isEmergency();
     float danger = actor.senses.fearLevel() + actor.health.injuryLevel();
     
-    if (! emergency) maxDanger = 0;
+    if (emergency) danger += 0.5f;
+    else maxDanger = 0;
     maxDanger = FastMath.max(danger, maxDanger);
     
+    float bonus = 0;
+    final Target haven = actor.senses.haven();
+    bonus += (haven == null) ? 0 : Plan.rangePenalty(haven, actor) * CASUAL;
+    
     final float priority = priorityForActorWith(
-      actor, safePoint, maxDanger * PARAMOUNT,
-      NO_MODIFIER, NO_HARM,
-      NO_COMPETITION, BASE_SKILLS,
-      BASE_TRAITS, NO_DISTANCE_CHECK, NO_FAIL_RISK,
+      actor, safePoint,
+      maxDanger * PARAMOUNT, bonus,
+      NO_HARM, NO_COMPETITION, NO_FAIL_RISK,
+      BASE_SKILLS, BASE_TRAITS, NO_DISTANCE_CHECK,
       report
     );
     
     if (report) {
-      I.say("\n  PLAN ID IS: "+this.hashCode());
+      I.say("\n  PLAN ID IS: "+hashCode());
       I.say("  Max Danger: "+maxDanger);
       I.say("  Fear Level: "+actor.senses.fearLevel());
-      I.say("  Base priority: "+priority);
-      I.say("  Endangered? "+actor.senses.isEndangered());
+      I.say("  Bonus priority: "+bonus);
+      I.say("  Endangered? "+actor.senses.isEmergency());
     }
-    if (emergency) return priority + PARAMOUNT;
-    else return priority;
-    
-    //  TODO:  Consider re-introducing the code below-
-    /*
-    //  Make retreat more attractive the further you are from home, and the
-    //  more dangerous the area is-
-    float
-      danger = CombatUtils.dangerAtSpot(actor.origin(), actor, null),
-      distFactor = 0, nightVal = 1f - Planet.dayValue(actor.world());
-    maxDanger = FastMath.max(danger, maxDanger);
-    
-    if (rateHaven(safePoint, actor, null) > 1) {
-      distFactor = Plan.rangePenalty(actor, safePoint);
-      distFactor *= (2 + actor.traits.relativeLevel(NERVOUS)) / 2f;
-    }
-    //*/
+    return priority;
   }
   
   
@@ -183,7 +172,7 @@ public class Retreat extends Plan implements Qualities {
       
       float rating = 0;
       for (Target s : actor.senses.awareOf()) {
-        if (! CombatUtils.isHostileTo(actor, s)) continue;
+        if (CombatUtils.hostileRating(actor, s) <= 0) continue;
         final float distance = Spacing.distance(t, s);
         final float threat = CombatUtils.powerLevelRelative(actor, (Actor) s);
         rating += distance * threat;
@@ -206,7 +195,7 @@ public class Retreat extends Plan implements Qualities {
     */
   protected Behaviour getNextStep() {
     final boolean report = stepsVerbose && I.talkAbout == actor;
-    final boolean urgent = actor.senses.isEndangered();
+    final boolean urgent = actor.senses.isEmergency();
     
     if (
       safePoint == null || actor.aboard() == safePoint ||
@@ -243,8 +232,9 @@ public class Retreat extends Plan implements Qualities {
   
   
   public boolean actionFlee(Actor actor, Target safePoint) {
+    final boolean emergency = actor.senses.isEmergency();
     
-    if (actor.indoors() && ! actor.senses.isEndangered()) {
+    if (actor.indoors() && ! emergency) {
       final Resting rest = new Resting(actor, safePoint);
       rest.setMotive(Plan.MOTIVE_LEISURE, priorityFor(actor));
       maxDanger = 0;
@@ -254,10 +244,10 @@ public class Retreat extends Plan implements Qualities {
     
     if (stepsVerbose && I.talkAbout == actor) {
       I.say("Max. danger: "+maxDanger);
-      I.say("Still in danger? "+actor.senses.isEndangered());
+      I.say("Still in danger? "+emergency);
     }
     
-    if (maxDanger < 0.5f || ! actor.senses.isEndangered()) {
+    if (maxDanger < 0.5f || ! emergency) {
       maxDanger = 0;
     }
     else {
@@ -271,7 +261,7 @@ public class Retreat extends Plan implements Qualities {
   /**  Rendering and interface methods-
     */
   public void describeBehaviour(Description d) {
-    if (! actor.senses.isEndangered()) {
+    if (! actor.senses.isEmergency()) {
       d.append("Retiring to safety");
       return;
     }

@@ -38,9 +38,8 @@ public class Relation {
   
   final public static int
     MAX_VALUE        = 100,
-    NOVELTY_DAYS     = 2,
-    NOVELTY_INTERVAL = Stage.STANDARD_DAY_LENGTH * NOVELTY_DAYS,
-    FAMILIARITY_UNIT = 10,
+    NOVELTY_INTERVAL = Stage.STANDARD_DAY_LENGTH  * 2,
+    BORED_DURATION   = Stage.STANDARD_HOUR_LENGTH * 2,
     BASE_NUM_FRIENDS = 5 ,
     MAX_RELATIONS    = 10;
   
@@ -178,10 +177,9 @@ public class Relation {
       I.say("  Budge factor: "+budge+", gap factor: "+gap);
       I.say("  Final value: "+value());
     }
-    
     //  TODO:  Only decrease novelty as a result of conversation- other
     //  impact factors actually *increase* the novelty of the relationship.
-    novelty -= FAMILIARITY_UNIT * (MIN_ADJUST + 1 - value);
+    novelty -= MAX_VALUE * 1f / BORED_DURATION;
   }
   
   

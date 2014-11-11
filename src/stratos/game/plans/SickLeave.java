@@ -80,8 +80,8 @@ public class SickLeave extends Plan {
       actor, sickbay,
       urgency * PARAMOUNT, NO_MODIFIER,
       NO_HARM, FULL_COMPETITION,
-      NO_SKILLS, BASE_TRAITS,
-      NORMAL_DISTANCE_CHECK, NO_FAIL_RISK,
+      NO_FAIL_RISK, NO_SKILLS,
+      BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report
     );
     if (report) {
