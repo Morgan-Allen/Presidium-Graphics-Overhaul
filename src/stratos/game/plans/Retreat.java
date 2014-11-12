@@ -25,7 +25,7 @@ public class Retreat extends Plan implements Qualities {
     DANGER_MEMORY_FADE = 0.9f;  //TODO:  use a time-limit instead.
   
   private static boolean
-    evalVerbose  = true ,
+    evalVerbose  = false,
     havenVerbose = false,
     stepsVerbose = false;
   

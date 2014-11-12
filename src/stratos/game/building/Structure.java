@@ -401,12 +401,12 @@ public class Structure {
     if (world == null || basis.isMobile()) return;
     final boolean report = verbose && I.talkAbout == basis;
     
-    final boolean needs =
-      (Repairs.needForRepair(basis) > Repairs.MIN_SERVICE_DAMAGE) ||
-      hasWear();
     final Tile o = world.tileAt(basis);
-    final PresenceMap damaged = world.presences.mapFor(DAMAGE_KEY);
+    final boolean needs = (
+      Repairs.needForRepair(basis) > Repairs.MIN_SERVICE_DAMAGE
+    );
     
+    final PresenceMap damaged = world.presences.mapFor(DAMAGE_KEY);
     if (report) {
       I.say(basis+" needs maintenance: "+needs);
       I.say("In map? "+damaged.hasMember(basis, o));

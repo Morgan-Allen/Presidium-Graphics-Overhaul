@@ -305,6 +305,7 @@ public class MS3DModel extends SolidModel {
     final XML animConfig = config.child("animations");
     float FPS = animConfig.getFloat("fps");
     if (FPS == 0 || FPS == 1) FPS = 1.0f;
+    this.rotateOffset = animConfig.getFloat("rotate");
     
     addLoop: for (XML animXML : animConfig.children()) {
       //

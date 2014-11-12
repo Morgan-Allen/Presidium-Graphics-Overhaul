@@ -12,7 +12,7 @@
   stride="0.6"
   height="1.0"
 >
-  <animations>
+  <animations rotate="90">
     <animation name="stand"      start="0"  end="0"  duration="0.5" />
     <animation name="move"       start="5"  end="21" duration="1.5" />
     <animation name="fire"       start="26" end="28" duration="1.5" />
@@ -49,7 +49,7 @@
   stride="0.6"
   height="1.0"
 >
-  <animations>
+  <animations rotate="90">
     <animation name="stand"      start="0"  end="0"  duration="0.5" />
     <animation name="move"       start="5"  end="21" duration="1.5" />
     <animation name="fire"       start="26" end="28" duration="1.5" />

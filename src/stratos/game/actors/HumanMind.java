@@ -142,7 +142,7 @@ public class HumanMind extends ActorMind implements Qualities {
   
   
   protected void addReactions(Target seen, Choice choice) {
-    final boolean report = I.talkAbout == actor;
+    final boolean report = verbose && I.talkAbout == actor;
     if (seen instanceof Actor) {
       final Actor nearby = (Actor) seen;
       choice.add(new Combat(actor, nearby));
@@ -195,8 +195,8 @@ public class HumanMind extends ActorMind implements Qualities {
       choice.add(new Resting(actor, home));
     }
     else {
-      final Target restsAt = Retreat.nearestHaven(actor, null, false);
-      choice.add(new Resting(actor, restsAt));
+      final Target restsAt = actor.senses.haven();
+      if (restsAt != null) choice.add(new Resting(actor, restsAt));
     }
   }
   

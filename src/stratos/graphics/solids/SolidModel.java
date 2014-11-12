@@ -27,6 +27,7 @@ public abstract class SolidModel extends ModelAsset {
   protected Node     allNodes[];
   protected NodePart allParts[];
   protected Material allMaterials[];
+  protected float    rotateOffset;
   
   private ObjectMap <Object, Integer>
     indices = new ObjectMap <Object, Integer> ();

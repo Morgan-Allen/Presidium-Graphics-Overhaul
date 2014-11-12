@@ -58,27 +58,27 @@
   stride="0.6"
   height="1.5"
 >
-  <animations fps="1">
+  <animations fps="1" rotate="0">
     <animation name="walk start" start="0"  end="11" duration="1" />
-    <animation name="walk"       start="11" end="40" duration="1" />
+    <animation name="move"       start="11" end="40" duration="1" />
     <animation name="walk stop"  start="41" end="52" duration="1" />
-  
+    
     <animation name="sneak start" start="52"  end="67"  duration="1" />
-    <animation name="sneak"       start="67"  end="107" duration="1" />
+    <animation name="move_sneak"  start="67"  end="107" duration="1" />
     <animation name="sneak stop"  start="107" end="123" duration="1" />
-  
+      
     <animation name="run start" start="123" end="137" duration="1" />
-    <animation name="run"       start="137" end="163" duration="1" />
+    <animation name="move_fast" start="137" end="163" duration="1" />
     <animation name="run stop"  start="163" end="177" duration="1" />
     
     <animation name="build"  start="177" end="267" duration="1" />
-    <animation name="attack" start="317" end="370" duration="1" />
+    <animation name="strike" start="317" end="370" duration="1" />
     <animation name="look"   start="370" end="460" duration="1" />
-    <animation name="die"    start="460" end="510" duration="1" />
+    <animation name="fall"   start="460" end="510" duration="1" />
     <animation name="idle"   start="267" end="317" duration="1" />
     <animation name="idle2"  start="511" end="591" duration="1" />
     
-    <animation name="attack2" start="592" end="622" duration="1" />
+    <animation name="strike2" start="592" end="622" duration="1" />
   </animations>
 </model>
 

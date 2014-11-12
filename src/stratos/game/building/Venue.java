@@ -50,7 +50,8 @@ public abstract class Venue extends Structural implements
     SHIFTS_ALWAYS      = 0,
     SHIFTS_BY_HOURS    = 1,   //different 8-hour periods off.
     SHIFTS_BY_DAY      = 2,   //every second or third day off.
-    SHIFTS_BY_CALENDAR = 3;  //weekends and holidays off.  NOT DONE YET
+    SHIFTS_BY_24_HOUR  = 3,   //on for an entire day at a time.
+    SHIFTS_BY_CALENDAR = 4;   //weekends and holidays off.  NOT DONE YET
   
   
   final public VenueProfile profile;

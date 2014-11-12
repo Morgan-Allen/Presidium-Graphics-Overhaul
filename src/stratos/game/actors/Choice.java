@@ -191,7 +191,7 @@ public class Choice implements Qualities {
       competeThreshold(actor, nextPriority, true) :
       nextPriority;
       
-    if (report) {
+    if (report && false) {
       I.say("\nConsidering plan switch...");
       I.say("  Last plan: "+last+", priority: "+lastPriority);
       I.say("  Next plan: "+next+", priority: "+nextPriority);

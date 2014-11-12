@@ -41,7 +41,7 @@ public class MissionsTab extends SelectionInfoPane {
     RECON_ICON    = ALL_ICONS[1],
     CONTACT_ICON  = ALL_ICONS[2],
     SECURITY_ICON = ALL_ICONS[3],
-    SUMMONS_ICON  = ALL_ICONS[4],
+    SUMMONS_ICON  = ALL_ICONS[2],
     MISSION_ICON_LIT = ALL_ICONS[5];
   //
   //  These icons need to be worked on a little more...

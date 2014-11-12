@@ -16,7 +16,7 @@ public class DeliveryUtils {
   //  NOTE:  See the rateTrading method below for how these are used...
   private static boolean
     sampleVerbose = false,
-    rateVerbose   = true ;
+    rateVerbose   = false;
   
   private static Traded verboseGoodType = null;
   private static Class  verboseDestType = null;

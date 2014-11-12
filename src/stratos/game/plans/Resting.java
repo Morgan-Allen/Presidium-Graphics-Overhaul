@@ -75,18 +75,11 @@ public class Resting extends Plan {
   
   protected float getPriority() {
     final boolean report = verbose && I.talkAbout == actor;
-    float modifier = NO_MODIFIER, urgency = CASUAL;
-    
-    //  Include location effects-
-    final Ambience ambience = actor.world().ecology().ambience;
-    modifier += ambience.valueAt(restPoint) * ROUTINE;
+    float urgency = CASUAL;
     
     if (restPoint instanceof Venue) {
       final Venue venue = (Venue) restPoint;
       if (! venue.structure.intact()) return 0;
-    }
-    if (restPoint != actor) {
-      modifier += actor.relations.valueFor(restPoint) * CASUAL;
     }
     
     //  Include effects of fatigue-
@@ -119,12 +112,19 @@ public class Resting extends Plan {
     }
     
     //  Include day/night effects-
-    urgency += (IDLE + 1 - Planet.dayValue(actor.world())) / 2f;
+    urgency += (1 - Planet.dayValue(actor.world())) * 2;
+
+    //  Include location effects-
+    if (restPoint != actor) {
+      //urgency += actor.relations.valueFor(restPoint) * CASUAL;
+    }
+    //final Ambience ambience = actor.world().ecology().ambience;
+    //urgency *= 1 + ambience.valueAt(restPoint);
     
     final float priority = priorityForActorWith(
-      actor, restPoint, Visit.clamp(urgency, 0, URGENT),
-      modifier, NO_HARM,
-      NO_COMPETITION, NO_FAIL_RISK,
+      actor, restPoint,
+      Visit.clamp(urgency, 0, URGENT), NO_MODIFIER,
+      MILD_HELP, NO_COMPETITION, NO_FAIL_RISK,
       NO_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report
     );

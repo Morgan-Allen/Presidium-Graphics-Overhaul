@@ -62,11 +62,14 @@ public class SolidSprite extends Sprite {
   
   
   public void readyFor(Rendering rendering) {
+    
     //  Set up the translation matrix based on game-world position and facing-
     Viewport.worldToGL(position, tempV);
     transform.setToTranslation(tempV);
     transform.scl(tempV.set(scale, scale, scale));
-    final float radians = (float) FastMath.toRadians(90 - rotation);
+    final float radians = (float) FastMath.toRadians(
+      model.rotateOffset - rotation
+    );
     transform.rot(Vector3.Y, radians);
     
     model.animControl.begin(this);

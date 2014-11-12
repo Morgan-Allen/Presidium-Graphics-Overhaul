@@ -125,6 +125,14 @@ public class Personnel {
       else return Venue.OFF_DUTY;
     }
     
+    if (shiftType == Venue.SHIFTS_BY_24_HOUR) {
+      final int day = (int) (world.currentTime() / Stage.STANDARD_DAY_LENGTH);
+      final int index = workers.indexOf(worker);
+      if (day % 3 == index % 3) return Venue.PRIMARY_SHIFT;
+      if (day % 3 == (index + 1) % 3) return Venue.SECONDARY_SHIFT;
+      return Venue.OFF_DUTY;
+    }
+    
     if (shiftType == Venue.SHIFTS_BY_DAY) {
       final int day = (int) (world.currentTime() / Stage.STANDARD_DAY_LENGTH);
       final int index = workers.indexOf(worker);

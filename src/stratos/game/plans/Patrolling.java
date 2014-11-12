@@ -106,9 +106,9 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     if (urgency < IDLE) urgency = IDLE;
     
     final float priority = priorityForActorWith(
-      actor, onPoint, urgency,
-      NO_MODIFIER, MILD_HELP,
-      NO_COMPETITION, MILD_FAIL_RISK,
+      actor, guarded,
+      urgency, NO_MODIFIER,
+      MILD_HELP, NO_COMPETITION, MILD_FAIL_RISK,
       BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report
     );

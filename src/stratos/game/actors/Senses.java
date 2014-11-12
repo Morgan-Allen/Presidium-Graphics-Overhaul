@@ -3,9 +3,7 @@
 package stratos.game.actors;
 
 import stratos.game.common.*;
-import stratos.game.plans.Combat;
-import stratos.game.plans.CombatUtils;
-import stratos.game.plans.Retreat;
+import stratos.game.plans.*;
 import stratos.game.tactical.*;
 import stratos.game.building.*;
 import stratos.util.*;
@@ -22,7 +20,7 @@ public class Senses implements Qualities {
     */
   private static boolean
     reactVerbose  = false,
-    noticeVerbose = true ,
+    noticeVerbose = false,
     sightVerbose  = false,
     dangerVerbose = false;
   
@@ -130,7 +128,10 @@ public class Senses implements Qualities {
     //  anything you target.
     noticed.include(actor.mind.home);
     noticed.include(actor.mind.work);
-    noticed.include(actor.focusFor(null));
+    final Target focus = actor.focusFor(null);
+    if (focus instanceof Element) {
+      noticed.include(focus);
+    }
     for (Behaviour b : world.activities.targeting(actor)) {
       if (b instanceof Action) {
         noticed.include(((Action) b).actor);
@@ -178,7 +179,7 @@ public class Senses implements Qualities {
         I.say("    Stealth skill:  "+o.traits.usedLevel(STEALTH_AND_COVER));
       }
       I.say("    Distance/fog:   "+distance+"/"+fog);
-      I.say("    Sense/hide chance: "+senseChance+"/"+hideChance);
+      I.say("    Sense vs. hide: "+senseChance+" vs. "+hideChance);
     }
     return senseChance > hideChance;
   }
@@ -262,11 +263,11 @@ public class Senses implements Qualities {
     for (Target t : awareOf) if ((t instanceof Actor) && (t != actor)) {
       final Actor near = (Actor) t;
       float hostility = CombatUtils.hostileRating(actor, near);
+      emergency |= actor.relations.valueFor(near.base()) <= 0;
       
       if (hostility > 0) {
         if (report) I.say("  Enemy nearby: "+near+", hostility: "+hostility);
         emergency |= CombatUtils.isActiveHostile(actor, near);
-        emergency |= actor.relations.valueFor(near.base()) < 0;
         hostility = Visit.clamp(hostility + 0.5f, 0, 1);
         sumFoes += CombatUtils.powerLevelRelative(near, actor) * hostility;
       }

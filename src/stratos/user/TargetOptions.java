@@ -111,7 +111,8 @@ public class TargetOptions extends UIGroup {
       ));
     }
     if (
-      subject instanceof Actor
+      subject instanceof Actor &&
+      ((Actor) subject).base() != BUI.played()
     ) {
       options.add(new OptionButton(
         BUI, MissionsTab.CONTACT_ICON, "Contact subject",

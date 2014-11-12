@@ -91,6 +91,10 @@ public class DebugCombat extends Scenario {
   //  matched by enemy, -50% if heavily outmatched.  +30% if they can't
   //  escape.
   
+  //  TODO:  Test this for native tribes as well.  Both negotiation and
+  //  dialogue.
+  
+  
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.setDefaults();
     GameSettings.hireFree  = true;

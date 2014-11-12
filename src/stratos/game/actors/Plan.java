@@ -35,7 +35,10 @@ public abstract class Plan implements Saveable, Behaviour {
   final static float
     NULL_PRIORITY = -100;
   
-  private static boolean verbose = false, evalVerbose = false;
+  private static boolean
+    verbose     = false,
+    evalVerbose = false,
+    doesVerbose = true ;
   
   final public Target subject;
   final boolean persistent;
@@ -320,11 +323,8 @@ public abstract class Plan implements Saveable, Behaviour {
     boolean report
   ) {
     if (motiveType == MOTIVE_CANCELLED) return PRIORITY_NEVER;
+    if (doesVerbose && hasBegun() && I.talkAbout == actor) report = true;
     
-    if (report) {
-      I.say("\nEvaluating priority for "+this);
-      I.say("  Default priority range:      "+defaultRange);
-    }
     this.harmFactor    = subjectHarm ;
     this.competeFactor = peersCompete;
     float priority = PARAMOUNT, relation = 0;
@@ -340,73 +340,84 @@ public abstract class Plan implements Saveable, Behaviour {
         mulLevel  = priority * relation * mulSign;
       priority = (priority * (1 - mulWeight)) + (mulLevel * mulWeight);
     }
-    if (specialBonus != 0) {
-      defaultRange += specialBonus / 2f;
-      priority     += specialBonus;
-    }
-    if (motiveType != MOTIVE_INIT) {
-      defaultRange = (motiveBonus + defaultRange) / 2f;
-      priority     = (motiveBonus + priority    ) / 2f;
-    }
+
     if (report) {
-      I.say("  Motive type/bonus:           "+motiveType+"/"+motiveBonus);
+      I.say("\nEvaluating priority for "+this);
+      I.say("  Actor/Subject:               "+actor+"/"+subject);
       I.say("  Harm factor/relation:        "+subjectHarm+"/"+relation);
+      I.say("  After relation effects:      "+priority+"/"+PARAMOUNT);
+    }
+    
+    float maxRange = defaultRange + ((specialBonus + motiveBonus) / 2);
+    priority *= maxRange * 1f / PARAMOUNT;
+    priority += (specialBonus + motiveBonus) / 2;
+    priority = Visit.clamp(priority + specialBonus, 0, maxRange + ROUTINE);
+    
+    if (report) {
+      I.say("  Default priority range:      "+defaultRange);
+      I.say("  Motive type/bonus:           "+motiveType+"/"+motiveBonus);
       I.say("  Special modifier:            "+specialBonus);
-      I.say("  After motive effects:        "+priority);
+      I.say("  After motive effects:        "+priority+"/"+maxRange);
     }
-    if (defaultRange <= 0 || priority <= 0) return PRIORITY_NEVER;
+    if (maxRange <= 0 || priority <= 0) return PRIORITY_NEVER;
     
-    //  Then we incorporate quantitative adjustments based on temperament and
-    //  skill aptitudes, along with the effects of competition or co-operation:
-    float
-      skillAvg = 0, skillMax = -1, skillBonus = 0,
-      traitAvg = 0, traitMax = -1, traitBonus = 0,
-      peersCount = 0, competePenalty = 0;
+    //  Okay.  You want to have 10 in at *least* one relevant skill in order for
+    //  the activity to be at full strength.
+    if (baseSkills != null && baseSkills.length > 0) {
+      if (report) I.say("  Getting skill effects...");
+      float maxSkill = 0, avgSkill = 0;
+      
+      for (Skill s : baseSkills) {
+        final float level = actor.traits.usedLevel(s);
+        if (report) I.say("    "+s+" "+level);
+        maxSkill = FastMath.max(maxSkill, level / 10);
+        avgSkill += level / 10;
+      }
+      
+      avgSkill /= baseSkills.length;
+      maxSkill = Visit.clamp((maxSkill + avgSkill) / 2, 0, 2);
+      priority *= FastMath.sqrt(maxSkill);
+      
+      if (report) {
+        I.say("  After skill adjustments:     "+priority);
+      }
+    }
     
+    //  You also want to have at least one relevant trait in the *positive*
+    //  range, in order for the activity to be at full strength.  Traits in the
+    //  negative range make it less likely.
+    if (baseTraits != null && baseTraits.length > 0) {
+      if (report) I.say("  Getting trait effects...");
+      float maxTrait = -1, avgTrait = 0;
+      
+      for (Trait t : baseTraits) {
+        final float level = actor.traits.relativeLevel(t);
+        if (report) I.say("    "+t+" "+level);
+        maxTrait = FastMath.max(maxTrait, level);
+        avgTrait += (level - 0.5f) * 2;
+      }
+      
+      avgTrait /= baseTraits.length;
+      maxTrait = Visit.clamp((maxTrait + avgTrait) / 2, -1, 1);
+      priority *= FastMath.sqrt(1 + maxTrait);
+      
+      if (report) {
+        I.say("  After trait adjustments:     "+priority);
+      }
+    }
+    
+    //  Finally, include effects of competition.
     if (peersCompete != 0 && (peersCompete < 0 || ! hasBegun())) {
-      peersCount = competition(this, subject, actor);
-      competePenalty = peersCount * peersCompete * CASUAL;
-    }
-    
-    if (baseSkills != null) for (Skill skill : baseSkills) {
-      final float level = (actor.traits.traitLevel(skill) - 5) / 20;
-      skillAvg += level / baseSkills.length;
-      skillMax = FastMath.max(skillMax, level);
-    }
-    else skillMax = 0;
-    skillBonus = ROUTINE * (skillAvg + skillMax) / 2;
-    
-    if (baseTraits != null) for (Trait trait : baseTraits) {
-      final float level = actor.traits.relativeLevel(trait);
-      traitAvg += level / baseTraits.length;
-      traitMax = FastMath.max(traitMax, level);
-    }
-    else traitMax = 0;
-    traitBonus = ROUTINE * (traitAvg + traitMax) / 2;
-    
-    priority += skillBonus;
-    priority += traitBonus;
-    priority -= competePenalty;
-    if (report) {
-      I.say("  Skill/traits effect:         "+skillBonus+"/"+traitBonus);
-      I.say("  Peers/competition penalty:   "+peersCount+"/"+competePenalty);
-      I.say("  Priority before clamp/scale: "+priority);
-    }
-    
-    //  With all that done, we clamp the priority to within something
-    //  resembling the default range.
-    priority *= defaultRange * 1f / PARAMOUNT;
-    final float
-      min = defaultRange * 0.0f,
-      max = defaultRange * 2.0f;
-    priority = Visit.clamp(priority, min, max);
-    if (report) {
-      I.say("  Priority after clamp/scale:  "+priority);
+      float peerFactor = CASUAL * defaultRange / ROUTINE;
+      float peersCount = competition(this, subject, actor);
+      priority -= peersCount * peersCompete * peerFactor;
+      if (report) {
+        I.say("  After competition effects:   "+priority);
+      }
     }
     
     //  And finally, we include the off-putting effects of distance, danger,
-    //  and the potential costs of failure, together with any special bonuses
-    //  thrown in at the start.
+    //  and the potential costs of failure.
     float
       chancePenalty = 0,
       rangePenalty  = 0,
@@ -424,6 +435,7 @@ public abstract class Plan implements Saveable, Behaviour {
     priority -= chancePenalty;
     priority -= rangePenalty ;
     priority -= dangerPenalty;
+    priority = Visit.clamp(priority, 0, maxRange + ROUTINE);
     
     if (report) {
       I.say("  Distance is:                 "+Spacing.distance(actor, subject));
@@ -465,7 +477,6 @@ public abstract class Plan implements Saveable, Behaviour {
     //
     //  TODO:  Incorporate estimate of dangers along entire route using
     //  path-caching.
-    //if (actor.base() == null) return 0;
     final Tile at = actor.world().tileAt(t);
     float danger = actor.base().dangerMap.sampleAt(at.x, at.y);
     if (danger < 0) return 0;

@@ -37,7 +37,7 @@ public class TrooperLodge extends Venue {
       500, 20, 250,
       Structure.SMALL_MAX_UPGRADES, Structure.TYPE_FIXTURE
     );
-    personnel.setShiftType(SHIFTS_BY_HOURS);
+    personnel.setShiftType(Venue.SHIFTS_BY_24_HOUR);
     attachSprite(MODEL.makeSprite());
   }
   
