@@ -148,7 +148,7 @@ public class Career implements Qualities {
       I.say("  Personality:");
       for (Trait t : actor.traits.personality()) {
         final float level = actor.traits.traitLevel(t);
-        I.say("    "+actor.traits.levelDesc(t)+" ("+level+")");
+        I.say("    "+actor.traits.description(t)+" ("+level+")");
       }
     }
   }

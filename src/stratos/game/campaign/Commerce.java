@@ -8,8 +8,8 @@ import stratos.game.building.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.plans.*;
+import stratos.user.BaseUI;
 import stratos.util.*;
-
 import static stratos.game.building.Economy.*;
 
 
@@ -51,8 +51,10 @@ public class Commerce {
   final List <Actor> migrantsIn = new List <Actor> ();
   
   final Inventory
-    shortages = new Inventory(null),
-    surpluses = new Inventory(null);
+    localShortages  = new Inventory(null),
+    localSurpluses  = new Inventory(null),
+    globalShortages = new Inventory(null),
+    globalSurpluses = new Inventory(null);
   final Table <Traded, Float>
     importPrices = new Table <Traded, Float> (),
     exportPrices = new Table <Traded, Float> ();
@@ -85,8 +87,10 @@ public class Commerce {
       jobDemand.set((Background) s.loadObject(), s.loadFloat());
     }
     
-    shortages.loadState(s);
-    surpluses.loadState(s);
+    localShortages.loadState(s);
+    localSurpluses.loadState(s);
+    globalShortages.loadState(s);
+    globalSurpluses.loadState(s);
     for (Traded type : ALL_MATERIALS) {
       importPrices.put(type, s.loadFloat());
       exportPrices.put(type, s.loadFloat());
@@ -116,8 +120,10 @@ public class Commerce {
       s.saveFloat(jobDemand.valueFor(b));
     }
     
-    shortages.saveState(s);
-    surpluses.saveState(s);
+    localShortages.saveState(s);
+    localSurpluses.saveState(s);
+    globalShortages.saveState(s);
+    globalSurpluses.saveState(s);
     for (Traded type : ALL_MATERIALS) {
       s.saveFloat(importPrices.get(type));
       s.saveFloat(exportPrices.get(type));
@@ -266,11 +272,11 @@ public class Commerce {
   /**  Assessing supply and demand associated with goods-
     */
   private void summariseDemand(Base base) {
-    final boolean report = tradeVerbose;
+    final boolean report = tradeVerbose && base == BaseUI.current().played();
     if (report) I.say("\nSummarising demand for base: "+base);
     
-    shortages.removeAllItems();
-    surpluses.removeAllItems();
+    localShortages.removeAllItems();
+    localSurpluses.removeAllItems();
     
     final Stage world = base.world;
     final Tile t = world.tileAt(0, 0);
@@ -283,28 +289,39 @@ public class Commerce {
         if (type.form != FORM_MATERIAL) continue;
         final int tier = venue.stocks.demandTier(type);
         final float
+          amount   = venue.stocks.amountOf  (type),
+          demand   = venue.stocks.demandFor (type),
           shortage = venue.stocks.shortageOf(type),
           surplus  = venue.stocks.surplusOf (type);
         
         if (report && extraVerbose) {
           I.say("  "+venue+" "+type+" (tier: "+tier+")");
-          I.say("    Supply: "+surplus);
-          I.say("    Demand: "+shortage);
+          I.say("    Amount:   "+amount+"/"+demand);
+          I.say("    Surplus:  "+surplus );
+          I.say("    Shortage: "+shortage);
         }
         
-        if (tier == Stocks.TIER_PRODUCER);
-        else shortages.bumpItem(type, Visit.round(shortage, 5, true ));
+        if (tier == Stocks.TIER_EXPORTER) {
+          localSurpluses.bumpItem(type, Visit.round(amount  , 5, false));
+        }
+        else if (tier != Stocks.TIER_PRODUCER) {
+          localShortages.bumpItem(type, Visit.round(shortage, 5, true ));
+        }
         
-        if (tier == Stocks.TIER_CONSUMER);
-        else surpluses.bumpItem(type, Visit.round(surplus , 5, false));
+        if (tier == Stocks.TIER_IMPORTER) {
+          localShortages.bumpItem(type, Visit.round(shortage, 5, true ));
+        }
+        else if (tier != Stocks.TIER_CONSUMER) {
+          localSurpluses.bumpItem(type, Visit.round(surplus , 5, false));
+        }
       }
     }
     
     if (report) {
-      I.say("Shortages for "+shortages.size()+" items");
-      for (Item i : shortages.allItems()) I.say("  "+i);
-      I.say("Surpluses for "+surpluses.size()+" items");
-      for (Item i : surpluses.allItems()) I.say("  "+i);
+      I.say("Shortages for "+localShortages.size()+" items");
+      for (Item i : localShortages.allItems()) I.say("  "+i);
+      I.say("Surpluses for "+localSurpluses.size()+" items");
+      for (Item i : localSurpluses.allItems()) I.say("  "+i);
       I.say("");
     }
   }
@@ -329,13 +346,15 @@ public class Commerce {
     //  TODO:  Have price levels be global for the settlement as a whole, rather
     //  than calculated at specific structures.  Vendors make money by charging
     //  more in general.
+    globalShortages.removeAllItems();
+    globalSurpluses.removeAllItems();
     
     for (Traded type : ALL_MATERIALS) {
       ///final boolean offworld = true; //For now.
       float
         basePrice = 1 * type.basePrice(),
-        importMul = 2 + (shortages.amountOf(type) / 1000f),
-        exportDiv = 2 + (surpluses.amountOf(type) / 1000f);
+        importMul = 2 + (localShortages.amountOf(type) / 1000f),
+        exportDiv = 2 + (localSurpluses.amountOf(type) / 1000f);
       
       for (Sector system : partners) {
         if (Visit.arrayIncludes(system.goodsMade, type)) {
@@ -346,6 +365,13 @@ public class Commerce {
           basePrice *= 1.5f;
           if (system == homeworld) exportDiv *= 0.75f;
         }
+      }
+      
+      if (basePrice > type.basePrice()) {
+        globalShortages.addItem(Item.withAmount(type, 1));
+      }
+      else if (basePrice < type.basePrice()) {
+        globalSurpluses.addItem(Item.withAmount(type, 1));
       }
       
       if (homeworld != null) {
@@ -361,12 +387,22 @@ public class Commerce {
   
   
   public float localSurplus(Traded type) {
-    return surpluses.amountOf(type);
+    return localSurpluses.amountOf(type);
   }
   
   
   public float localShortage(Traded type) {
-    return shortages.amountOf(type);
+    return localShortages.amountOf(type);
+  }
+  
+  
+  public Traded[] globalShortages() {
+    return globalShortages.allItemTypes();
+  }
+  
+  
+  public Traded[] globalSurpluses() {
+    return globalSurpluses.allItemTypes();
   }
   
   
@@ -432,7 +468,7 @@ public class Commerce {
   private void loadCargo(
     Dropship ship, Inventory available, final boolean imports
   ) {
-    final boolean report = tradeVerbose;
+    final boolean report = tradeVerbose && base == BaseUI.current().played();
     ship.cargo.removeAllItems();
     if (report) I.say("\nLoading dropship cargo...");
     //
@@ -451,7 +487,6 @@ public class Commerce {
     float totalAmount = 0;
     for (Item item : sorting) {
       if (totalAmount + item.amount > ship.MAX_CAPACITY) break;
-      available.removeItem(item);
       ship.cargo.addItem(item);
       totalAmount += item.amount;
       if (report) I.say("  "+item);
@@ -477,20 +512,21 @@ public class Commerce {
   /**  Perform updates to trigger new events or assess local needs-
     */
   public void updateCommerce(int numUpdates) {
+    //final boolean report = verbose && BaseUI.current().played() == base;
     
     if (ship == null) refreshShip();
-    
     updateCandidates(numUpdates);
     if (numUpdates % 10 == 0) {
       summariseDemand(base);
       calculatePrices();
+      updateShipping();
     }
-    updateShipping();
   }
   
   
   protected void updateShipping() {
-    final boolean report = verbose;
+    if (base.primal) return;
+    final boolean report = verbose && BaseUI.current().played() == base;
     
     final int shipStage = ship.flightStage();
     
@@ -508,23 +544,22 @@ public class Commerce {
     if (! ship.inWorld()) {
       final boolean
         needMigrate = migrantsIn.size() > 0, //  TODO:  Include emmigration.
-        needTrade   = (! shortages.empty()) || (! surpluses.empty()),
+        needTrade   = (! localShortages.empty()) || (! localSurpluses.empty()),
         visitDue    = base.world.currentTime()  > nextVisitTime,
         travelDone  = ship.timeAway(base.world) > SUPPLY_DURATION,
-        shouldVisit =
-          (needMigrate || needTrade) &&
-          (visitDue && travelDone),
-        willLand = shouldVisit && ship.findLandingSite(base);
+        shouldVisit = (needMigrate || needTrade) && (visitDue && travelDone),
+        canLand     = ship.findLandingSite(base),
+        willLand    = shouldVisit && canLand;
       
       if (willLand) {
         if (report) I.say("\nSENDING DROPSHIP TO "+ship.landArea());
         
-        while(migrantsIn.size() > 0) {
+        while (migrantsIn.size() > 0) {
           final Actor migrant = migrantsIn.removeFirst();
           ship.setInside(migrant, true);
           if (ship.inside().size() >= Dropship.MAX_PASSENGERS) break;
         }
-        loadCargo(ship, shortages, true);
+        loadCargo(ship, localShortages, true);
         refreshCrew(ship);
         
         for (Actor c : ship.crew()) ship.setInside(c, true);
@@ -535,6 +570,11 @@ public class Commerce {
         I.say("  Travel done:   "+travelDone );
         I.say("  Need migrants: "+needMigrate);
         I.say("  Need trade:    "+needTrade  );
+        I.say("  Can land:      "+canLand    );
+      }
+      else if (report) {
+        final float interval = nextVisitTime - base.world.currentTime();
+        I.say("\nNext ship drop due in "+interval);
       }
     }
   }

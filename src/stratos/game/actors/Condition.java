@@ -16,7 +16,9 @@ import stratos.util.*;
 public class Condition extends Trait {
   
   
-  private static boolean verbose = false, reportEffects = false;
+  private static boolean
+    verbose       = true ,
+    effectVerbose = true ;
   
   final public float latency, virulence, spread;
   final public Trait affected[];
@@ -132,16 +134,16 @@ public class Condition extends Trait {
   
   
   protected void affectAsDisease(Actor a, float progress, float response) {
+    final boolean report = effectVerbose && I.talkAbout == a;
     //
     //  If this is contagious, consider spreading to nearby actors.
     if (spread > 0 && Rand.index(10) < spread) {
       for (Object o : a.world().presences.matchesNear(Mobile.class, a, 2)) {
-        if (o instanceof Actor) {
-          final Actor near = (Actor) o;
-          final float chance = transmitChance(a, near);
-          if (chance == 0 || Rand.num() > chance) continue;
-          near.traits.incLevel(this, 0.1f);
-        }
+        if (! (o instanceof Actor)) continue;
+        final Actor near = (Actor) o;
+        final float chance = transmitChance(a, near);
+        if (chance <= 0 || Rand.num() > chance) continue;
+        near.traits.incLevel(this, 0.1f);
       }
     }
     //
@@ -176,34 +178,38 @@ public class Condition extends Trait {
       a.traits.setBonus(this, Visit.clamp((inc / 2) - response, -3, 0));
       a.traits.setLevel(this, Visit.clamp(progress + inc, 0, 3));
     }
-    if (verbose && I.talkAbout == a) {
-      I.say("Reporting on: "+this+" for "+a);
-      I.say("  Immune DC/vigour: "+immuneDC+"/"+a.traits.usedLevel(IMMUNE));
-      I.say("  Test chance: "+a.skills.chance(IMMUNE, immuneDC));
+    if (report) {
+      I.say("\nReporting on progress of "+this+" for "+a);
+      final float
+        chance     = a.skills.chance(IMMUNE, immuneDC),
+        usedImmune = a.traits.usedLevel (IMMUNE),
+        trueImmune = a.traits.traitLevel(IMMUNE);
+      I.say("  Immune DC          "+immuneDC+" (chance "+chance+")");
+      I.say("  Immune strength:   "+usedImmune+"/"+trueImmune);
       I.say("  Progress/response: "+progress+"/"+response);
     }
   }
   
   
   public void affect(Actor a) {
+    final boolean report = effectVerbose && I.talkAbout == a;
     //
     //  Impose penalties/bonuses to various attributes, if still symptomatic-
     final float
-      progress = a.traits.traitLevel(this),
+      progress =     a.traits.traitLevel (this),
       response = 0 - a.traits.effectBonus(this),
       symptoms = progress - response;
     
-    if (reportEffects && I.talkAbout == a) {
-      I.say(this+" has symptoms: "+symptoms);
-      //new Exception().printStackTrace();
+    if (report) {
+      I.say("\n"+this+" has symptoms: "+symptoms);
     }
     //  ...Shoot.  It really does seem to be potentially fatal.
     
     if (symptoms > 0) for (int i = affected.length; i-- > 0;) {
       final float impact = modifiers[i] * symptoms / 2;
-      if (reportEffects && I.talkAbout == a) {
-        I.say("Affecting: "+affected[i]+", impact: "+impact);
-        I.say("Normal level: "+a.traits.traitLevel(affected[i]));
+      if (report) {
+        final float normal = a.traits.traitLevel(affected[i]);
+        I.say("  Affecting:  "+affected[i]+" ("+impact+"/"+normal+")");
       }
       a.traits.incBonus(affected[i], impact);
     }

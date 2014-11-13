@@ -68,7 +68,7 @@ public class RoadsRepair extends Plan {
     
     final boolean report = evalVerbose && I.talkAbout == actor;
     return super.priorityForActorWith(
-      actor, around, CASUAL,
+      actor, around, CASUAL * actor.base().relations.communitySpirit(),
       NO_MODIFIER, NO_HARM,
       FULL_COMPETITION, MILD_FAIL_RISK,
       BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,

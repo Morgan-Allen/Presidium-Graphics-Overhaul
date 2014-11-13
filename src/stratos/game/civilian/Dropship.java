@@ -30,6 +30,10 @@ import static stratos.game.building.Economy.*;
 //all tiles as passable to compensate.
 
 
+//  TODO:  Dropships should have their supply/demand levels calibrated in
+//  advance whenever cargo is loaded.
+
+
 
 public class Dropship extends Vehicle implements Inventory.Owner {
   
@@ -175,20 +179,66 @@ public class Dropship extends Vehicle implements Inventory.Owner {
       return boardAction;
     }
     
-    //final Batch <Venue> depots = Deliveries.nearbyDepots(this, world);
-    final Delivery d = DeliveryUtils.bestBulkCollectionFor(
-      this, ALL_MATERIALS, 1, 10, 5
+    final Batch <Venue> depots = DeliveryUtils.nearbyDepots(
+      this, world, FRSD.class, StockExchange.class
     );
-    if (report) I.say("Next delivery: "+d);
-    if (d != null) return d;
+    final Commerce c = this.base.commerce;
+    final Choice choice = new Choice(actor);
     
-    final Delivery c = DeliveryUtils.bestBulkDeliveryFrom(
-      this, ALL_MATERIALS, 1, 10, 5
-    );
-    if (report) I.say("Next collection: "+d);
-    if (c != null) return c;
+    choice.add(DeliveryUtils.bestExportDelivery(this, depots, 10));
+    choice.add(DeliveryUtils.bestImportDelivery(this, depots, 10));
     
-    return null;
+    final Traded lacks[] = c.globalShortages();
+    choice.add(DeliveryUtils.bestBulkCollectionFor(this, lacks, 1, 10, 2));
+    
+    final Traded goods[] = c.globalSurpluses();
+    choice.add(DeliveryUtils.bestBulkDeliveryFrom (this, goods, 1, 10, 2));
+    
+    final Plan pick = (Plan) choice.pickMostUrgent();
+    
+    I.say("Plan picked is: "+pick);
+    return pick;
+    //return choice.pickMostUrgent();
+  }
+  
+  
+  public void updateAsScheduled(int numUpdates) {
+    super.updateAsScheduled(numUpdates);
+    if (stage != STAGE_LANDED) return;
+    
+    /*
+    final int period = (int) scheduledInterval();
+    for (Traded good : ALL_MATERIALS) {
+      cargo.incDemand(good, 0, Stocks.TIER_TRADER, period, this);
+    }
+    //*/
+    
+    //  TODO:  Supply/demand here needs to be based on supply/demand from
+    //  trading partners.
+    //*
+    final Commerce commerce = base.commerce;
+    final Tally <Traded> surpluses = new Tally <Traded> ();
+    float sumS = 0;
+    
+    for (Traded good : ALL_MATERIALS) {
+      final float surplus = commerce.localSurplus(good);
+      if (surplus > 0) {
+        sumS += surplus;
+        surpluses.add(surplus, good);
+      }
+      else if (commerce.localShortage(good) > 0) {
+        cargo.forceDemand(good, 0, Stocks.TIER_PRODUCER);
+      }
+      else {
+        cargo.forceDemand(good, 0, Stocks.TIER_TRADER);
+      }
+    }
+    
+    for (Traded good : surpluses.keys()) {
+      final float wanted = MAX_CAPACITY * surpluses.valueFor(good) / sumS;
+      cargo.forceDemand(good, wanted, Stocks.TIER_CONSUMER);
+    }
+    //*/
   }
   
   
@@ -242,41 +292,6 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   
   public int spaceFor(Traded good) {
     return MAX_CAPACITY;
-  }
-  
-  
-  public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates);
-    if (stage == STAGE_DESCENT) {
-      if (! checkLandingArea(world, landArea())) {
-        beginAscent();
-      }
-    }
-    
-    if (stage == STAGE_LANDED) {
-      final Commerce commerce = base.commerce;
-      final Tally <Traded> surpluses = new Tally <Traded> ();
-      float sumS = 0;
-      
-      for (Traded good : ALL_MATERIALS) {
-        final float surplus = commerce.localSurplus(good);
-        if (surplus > 0) {
-          sumS += surplus;
-          surpluses.add(surplus, good);
-        }
-        else if (commerce.localShortage(good) > 0) {
-          cargo.forceDemand(good, 0, Stocks.TIER_PRODUCER);
-        }
-        else {
-          cargo.forceDemand(good, 0, Stocks.TIER_TRADER);
-        }
-      }
-      
-      for (Traded good : surpluses.keys()) {
-        final float wanted = MAX_CAPACITY * surpluses.valueFor(good) / sumS;
-        cargo.forceDemand(good, wanted, Stocks.TIER_CONSUMER);
-      }
-    }
   }
   
   
@@ -399,9 +414,16 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   
   protected void updateAsMobile() {
     super.updateAsMobile();
-    final float height = position.z / INIT_HIGH;
+    //
+    //  If obstructions appear during the descent, restart the flight-path-
+    if (stage == STAGE_DESCENT) {
+      if (! checkLandingArea(world, landArea())) {
+        beginAscent();
+      }
+    }
     //
     //  Check to see if ascent or descent are complete-
+    final float height = position.z / INIT_HIGH;
     if (stage == STAGE_ASCENT && height >= 1) {
       for (Mobile m : inside()) m.exitWorld();
       exitWorld();
@@ -520,18 +542,26 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     //*/
     
     final Tile midTile = world.tileAt(world.size / 2, world.size / 2);
-    final Target nearest = world.presences.randomMatchNear(base, midTile, -1);
-    if (nearest == null) return false;
+    final Presences p = world.presences;
+    Target nearest = null;
     
-    final Tile init = Spacing.nearestOpenTile(world.tileAt(nearest), midTile);
-    if (init == null) return false;
-    return findLandingSite(init, base);
+    //  TODO:  There needs to be a more elegant solution here...
+    nearest = p.randomMatchNear(FRSD.class, midTile, -1);
+    if (findLandingSite(nearest, base)) return true;
+    nearest = p.randomMatchNear(base, midTile, -1);
+    if (findLandingSite(nearest, base)) return true;
+    nearest = p.nearestMatch(base, midTile, -1);
+    if (findLandingSite(nearest, base)) return true;
+    return false;
   }
 
   
   private boolean findLandingSite(
-    final Tile init, final Base base
+    Target from, final Base base
   ) {
+    if (from == null) return false;
+    final Tile init = Spacing.nearestOpenTile(world.tileAt(from), from);
+    if (init == null) return false;
     //
     //  Then, spread out to try and find a decent landing site-
     final Box2D area = landArea();

@@ -23,8 +23,8 @@ public class Treatment extends Plan implements Item.Passive {
     STANDARD_EFFECT_TIME = Stage.STANDARD_DAY_LENGTH ;
   
   private static boolean
-    evalVerbose  = false,
-    eventVerbose = false;
+    evalVerbose   = false,
+    eventVerbose  = true ;
   
   final Actor patient;
   final Condition sickness;
@@ -268,13 +268,24 @@ public class Treatment extends Plan implements Item.Passive {
   
   public void applyPassiveItem(Actor carries, Item from) {
     if (carries.traits.traitLevel(sickness) <= 0) return;
+    final boolean report = eventVerbose && I.talkAbout == carries;
     
     float effect = 1.0f / Stage.STANDARD_DAY_LENGTH;
-    float bonus = (5 + from.quality) / 10f;
+    float bonus = (5 + from.quality) / 5f;
     carries.traits.incLevel(sickness, 0 - effect * bonus);
     carries.gear.removeItem(Item.withAmount(from, effect));
     
-    I.say("\nLevel of "+sickness+" is "+carries.traits.traitLevel(sickness));
+    if (report) {
+      final float
+        level   = carries.traits.traitLevel(sickness),
+        symptom = carries.traits.usedLevel (sickness);
+      final String
+        desc = carries.traits.description(sickness);
+      I.say("\nApply treatment for "+sickness+" to "+carries);
+      I.say("  Disease progression: "+level);
+      I.say("  Symptom level:       "+symptom+" ("+desc+")");
+      I.say("  Bonus/effect:        "+bonus+"/"+effect);
+    }
   }
   
   

@@ -38,7 +38,7 @@ public abstract class Plan implements Saveable, Behaviour {
   private static boolean
     verbose     = false,
     evalVerbose = false,
-    doesVerbose = true ;
+    doesVerbose = false;
   
   final public Target subject;
   final boolean persistent;

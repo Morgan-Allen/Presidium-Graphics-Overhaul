@@ -13,6 +13,11 @@ import org.apache.commons.math3.util.FastMath;
 
 
 //  TODO:  Have relation changes NOT due to dialogue *increase* novelty
+//  TODO:  Have relations start out with novelty of *more* than 100%, to allow
+//         for a period of 'first impressions' where relation adjustments are
+//         stronger.  (This also lets you define 'strangers' more strongly.)
+
+
 public class Relation {
   
   

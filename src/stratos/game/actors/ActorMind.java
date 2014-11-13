@@ -469,7 +469,7 @@ public abstract class ActorMind implements Qualities {
     attraction *= (actor.traits.relativeLevel(INDULGENT) + 1f) / 2;
     //
     //  Then compute attraction based on orientation-
-    final String descO = actor.traits.levelDesc(ORIENTATION);
+    final String descO = actor.traits.description(ORIENTATION);
     float matchO = 0;
     if (descO.equals("Heterosexual")) {
       matchO = (actorG * otherG < 0) ? 1 : 0.33f;

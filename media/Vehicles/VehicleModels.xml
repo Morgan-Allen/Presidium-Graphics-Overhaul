@@ -10,7 +10,7 @@
   stride="1.0"
   height="2.0"
 >
-  <animations>
+  <animations rotate="90">
     <animation name="stand"      start="1"  end="3"  duration="0.35" />
     <animation name="descend"    start="4"  end="7"  duration="3" />
   </animations>
@@ -31,7 +31,7 @@
   stride="1.0"
   height="1.5"
 >
-  <animations>
+  <animations rotate="90">
     <animation name="stand"      start="0"  end="0"  duration="1.0" />
   </animations>
   
@@ -51,7 +51,7 @@
   stride="1.0"
   height="2.0"
 >
-  <animations>
+  <animations rotate="90">
     <animation name="stand"      start="0"  end="0"  duration="1.0" />
   </animations>
   
@@ -71,7 +71,7 @@
   stride="1.0"
   height="1.0"
 >
-  <animations>
+  <animations rotate="90">
     <animation name="stand"      start="0"  end="0"  duration="1.0" />
   </animations>
   
@@ -92,7 +92,7 @@
   stride="1.0"
   height="1.5"
 >
-  <animations>
+  <animations rotate="90">
     <animation name="stand"      start="0"  end="0"  duration="1.0" />
   </animations>
   

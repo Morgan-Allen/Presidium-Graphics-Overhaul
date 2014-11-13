@@ -15,7 +15,6 @@ import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
-
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.building.Economy.*;
@@ -51,6 +50,23 @@ public class FRSD extends Venue {
     SERVICE_TRADE
   );
   //*/
+
+  final static Traded ALL_TRADE_TYPES[] = {
+    CARBS, PROTEIN, GREENS, LCHC,
+    ORES, TOPES, PARTS, PLASTICS
+  };
+  
+  final static int
+    TRADE_IMPORT = -1,
+    TRADE_EXPORT =  1,
+    TRADE_AUTO   =  0,
+    MIN_TRADE    = 5 ,
+    MAX_TRADE    = 40,
+    NUM_TYPES    = ALL_TRADE_TYPES.length;
+  
+  final byte
+    tradeLevels[] = new byte[NUM_TYPES],
+    tradeTypes [] = new byte[NUM_TYPES];
   
   
   public FRSD(Base base) {
@@ -74,11 +90,15 @@ public class FRSD extends Venue {
   
   public FRSD(Session s) throws Exception {
     super(s);
+    s.loadByteArray(tradeLevels);
+    s.loadByteArray(tradeTypes );
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
+    s.saveByteArray(tradeLevels);
+    s.saveByteArray(tradeTypes );
   }
   
   
@@ -88,10 +108,12 @@ public class FRSD extends Venue {
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> ();
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   
-  final static Traded ALL_TRADE_TYPES[] = {
-    CARBS, PROTEIN, GREENS, LCHC,
-    ORES, TOPES, PARTS, PLASTICS
-  };
+  
+  private void setTrading(Traded t, int type, int level) {
+    final int index = Visit.indexOf(t, ALL_TRADE_TYPES);
+    tradeLevels[index] = (byte) Visit.clamp(level, MIN_TRADE, MAX_TRADE);
+    tradeTypes [index] = (byte) type ;
+  }
   
   
   public void updateAsScheduled(int numUpdates) {
@@ -99,8 +121,20 @@ public class FRSD extends Venue {
     if (! structure.intact()) return;
     
     final int interval = (int) scheduledInterval();
-    for (Traded type : ALL_TRADE_TYPES) {
-      stocks.incDemand(type, 0, Stocks.TIER_TRADER, interval, this);
+    
+    for (int i = 0 ; i < NUM_TYPES; i++) {
+      final Traded t = ALL_TRADE_TYPES[i];
+      final int type = tradeTypes[i], level = tradeLevels[i];
+      
+      if      (type == TRADE_AUTO  ) {
+        stocks.incDemand(t, 0, Stocks.TIER_TRADER, interval, this);
+      }
+      else if (type == TRADE_IMPORT) {
+        stocks.forceDemand(t, level, Stocks.TIER_IMPORTER);
+      }
+      else if (type == TRADE_EXPORT) {
+        stocks.forceDemand(t, level, Stocks.TIER_EXPORTER);
+      }
     }
   }
   
@@ -110,11 +144,7 @@ public class FRSD extends Venue {
     final Choice choice = new Choice(actor);
     
     final Plan r = Repairs.getNextRepairFor(actor, false);
-    choice.add(r);
-    
-    
-    //  TODO:  There's a problem at the moment where deliveries directly to
-    //  housing can occur.  They should not be happening.
+    if (r != null) choice.add(r.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE));
     
     final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
       this, services(), 2, 10, 5
@@ -151,6 +181,55 @@ public class FRSD extends Venue {
   
   /**  Rendering and interface methods-
     */
+  final static String CAT_ORDERS = "ORDERS";
+  
+  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
+    panel = VenueDescription.configPanelWith(
+      this, panel, UI, CAT_ORDERS, CAT_STATUS, CAT_STOCK, CAT_STAFF
+    );
+    if (panel.category() == CAT_ORDERS) {
+      final Description d = panel.detail();
+      
+      d.append("Orders:");
+      
+      for (int i = 0 ; i < NUM_TYPES; i++) {
+        final Traded t = ALL_TRADE_TYPES[i];
+        final int type = tradeTypes[i], level = tradeLevels[i];
+        
+        d.append("\n  ");
+        
+        if (type == TRADE_IMPORT) d.append(new Description.Link("IMPORT") {
+          public void whenTextClicked() {
+            setTrading(t, TRADE_EXPORT, 0);
+          }
+        }, Colour.GREEN);
+        if (type == TRADE_AUTO) d.append(new Description.Link("FREE TRADE") {
+          public void whenTextClicked() {
+            setTrading(t, TRADE_IMPORT, 0);
+          }
+        }, Colour.BLUE);
+        if (type == TRADE_EXPORT) d.append(new Description.Link("EXPORT") {
+          public void whenTextClicked() {
+            setTrading(t, TRADE_AUTO  , 0);
+          }
+        }, Colour.MAGENTA);
+        if (type != TRADE_AUTO) {
+          d.append(" ");
+          d.append(new Description.Link(I.lengthen(level, 4)) {
+            public void whenTextClicked() {
+              setTrading(t, type, (level == MAX_TRADE) ? 0 : (level * 2));
+            }
+          });
+          d.append(" ");
+        }
+        else d.append("  ");
+        d.append(t);
+      }
+    }
+    return panel;
+  }
+  
+  
   protected float[] goodDisplayOffsets() {
     return new float[] { 0.0f, 3.0f };
   }

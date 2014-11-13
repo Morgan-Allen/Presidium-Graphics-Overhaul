@@ -1,12 +1,17 @@
 
 
 package stratos.game.plans;
+
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.civilian.*;
 import stratos.game.building.*;
-import stratos.game.building.Inventory.Owner;
 import stratos.util.*;
+
+import stratos.game.campaign.Commerce;
+import stratos.game.building.Inventory.Owner;
+import static stratos.game.building.Inventory.*;
+import org.apache.commons.math3.util.FastMath;
 
 
 
@@ -16,7 +21,8 @@ public class DeliveryUtils {
   //  NOTE:  See the rateTrading method below for how these are used...
   private static boolean
     sampleVerbose = false,
-    rateVerbose   = false;
+    rateVerbose   = false,
+    shipsVerbose  = false;
   
   private static Traded verboseGoodType = null;
   private static Class  verboseDestType = null;
@@ -26,7 +32,7 @@ public class DeliveryUtils {
   /**  Helper methods for getting suitable distribution targets-
     */
   public static Batch <Venue> nearbyDepots(
-    Target t, Stage world, Class <? extends Venue>... venueClasses
+    Target t, Stage world, Class... venueClasses
   ) {
     final Batch <Venue> depots = new Batch <Venue> ();
     world.presences.sampleFromMaps(
@@ -42,6 +48,92 @@ public class DeliveryUtils {
     final Batch <Venue> vendors = new Batch <Venue> ();
     world.presences.sampleFromMap(target, world, 5, vendors, type.supplyKey);
     return vendors;
+  }
+  
+  
+  private static Batch <Item> compressOrder(
+    float amounts[], Traded s[], float sumAmount, int maxAmount
+  ) {
+    final Batch <Item> order = new Batch <Item> ();
+    int sumOrder = 0;
+    
+    for (int i = s.length; i-- > 0;) {
+      int amount = (int) FastMath.ceil(amounts[i] * maxAmount / sumAmount);
+      sumOrder += amount;
+      if (sumOrder > maxAmount) amount -= sumOrder - maxAmount;
+      
+      final Item item = Item.withAmount(s[i], amount);
+      order.add(item);
+      if (sumOrder >= maxAmount) break;
+    }
+    return order;
+  }
+  
+  
+  private static Delivery bestShipDelivery(
+    Vehicle ship, Batch <Venue> depots, int maxAmount, boolean export
+  ) {
+    final boolean report = shipsVerbose && I.talkAbout == ship;
+    
+    final Pick <Delivery> pick = new Pick <Delivery> ();
+    if (report) {
+      I.say("\nGetting best ship delivery for "+ship);
+      I.say("  Depots found: "+depots.size());
+    }
+    
+    for (Venue depot : depots) {
+      if (report) I.say("  Assessing "+depot);
+      
+      final Traded s[] = depot.services();
+      if (s == null) continue;
+      final float amounts[] = new float[s.length];
+      float sumAmount = 0;
+      
+      for (int i = s.length; i-- > 0;) {
+        final Traded t = s[i];
+        if (export) {
+          if (depot.stocks.demandTier(t) != TIER_EXPORTER) continue;
+          sumAmount += amounts[i] = depot.stocks.amountOf(t);
+        }
+        else {
+          if (depot.stocks.demandTier(t) != TIER_IMPORTER) continue;
+          sumAmount += amounts[i] = ship.inventory().amountOf(t);
+        }
+        if (report) I.say("    "+amounts[i]+" of "+t+" available");
+      }
+      if (sumAmount <= 0) continue;
+      
+      final Commerce c = ship.base().commerce;
+      Batch <Item> order = compressOrder(amounts, s, sumAmount, maxAmount);
+      float sumValue = 0;
+      for (Item item : order) sumValue += item.amount * (export ?
+        c.exportPrice(item.type) :
+        c.importPrice(item.type)
+      );
+      if (report) I.say("   Total value: "+sumValue);
+      
+      final Delivery d = export ?
+        new Delivery(order, depot, ship ) :
+        new Delivery(order, ship , depot) ;
+      pick.compare(d, sumValue);
+    }
+    
+    if (report) I.say("  Final pick: "+pick.result());
+    return pick.result();
+  }
+  
+  
+  public static Delivery bestImportDelivery(
+    Vehicle ship, Batch <Venue> depots, int maxAmount
+  ) {
+    return bestShipDelivery(ship, depots, maxAmount, false);
+  }
+  
+  
+  public static Delivery bestExportDelivery(
+    Vehicle ship, Batch <Venue> depots, int maxAmount
+  ) {
+    return bestShipDelivery(ship, depots, maxAmount, true );
   }
   
   
@@ -341,18 +433,21 @@ public class DeliveryUtils {
       OS = orig.inventory(),
       DS = dest.inventory();
     final float
-      OA = OS.amountOf(good);
+      OA = OS.amountOf(good),
+      DA = DS.amountOf(good);
     if (OA < amount) return -1;
+    
     final int
       OT = OS.demandTier(good),
       DT = DS.demandTier(good);
-    if (DT != Stocks.TIER_NONE && DS.shortageOf(good) <= 0) {
-      if (report) I.say("\nNo shortage at "+dest+".");
-      return -1;
-    }
+    if (OT == TIER_NONE || DT == TIER_NONE) return -1;
+    if (OT >= TIER_CONSUMER || DT <= TIER_PRODUCER) return -1;
+    if (DS.shortageOf(good) <= 0) return -1;
+    
     final float
-      OD = (OT == Stocks.TIER_NONE) ? 0             : OS.demandFor(good),
-      DD = (DT == Stocks.TIER_NONE) ? (amount * 10) : DS.demandFor(good);
+      OD = OS.demandFor(good),
+      DD = DS.demandFor(good);
+    
     if (DD == 0 || (DD + 1) < (amount / 2f) || amount > (DD + 1)) {
       if (report) {
         I.say("\nAmounts out of proportion at "+dest+": "+amount+"/"+DD);
@@ -363,7 +458,7 @@ public class DeliveryUtils {
     //  Secondly, obtain an estimate of stocks before and after the exchange-
     float origAfter = 0, destAfter = 0;
     origAfter = OA - (amount / 2f);
-    destAfter = DS.amountOf(good) + (amount / 2f);
+    destAfter = DA + (amount / 2f);
     origAfter -= futureBalance(orig, good, false);
     destAfter += futureBalance(dest, good, true );
     
@@ -372,11 +467,11 @@ public class DeliveryUtils {
     origShort = 1 - (origAfter / (OD + amount));
     destShort = 1 - (destAfter / (DD + amount));
     
-    if (OT == Stocks.TIER_PRODUCER) origShort /= 2;
-    if (OT == Stocks.TIER_CONSUMER) origShort += 1;
+    if (OT <= TIER_PRODUCER) origShort /= 2;
+    if (OT >= TIER_CONSUMER) origShort += 1;
     
-    if (DT == Stocks.TIER_PRODUCER) destShort /= 2;
-    if (DT == Stocks.TIER_CONSUMER) destShort += 1;
+    if (DT <= TIER_PRODUCER) destShort /= 2;
+    if (DT >= TIER_CONSUMER) destShort += 1;
     
     if (report) {
       I.say("\n  Getting trade rating for "+good+" between "+orig+" and "+dest);
@@ -392,8 +487,8 @@ public class DeliveryUtils {
     float rating = destShort - origShort;
     if (rating <= 0) return -1;
     
-    if (OT == Stocks.TIER_TRADER) rating *= 1.5f;
-    if (DT == Stocks.TIER_TRADER) rating *= 1.5f;
+    if (OT == TIER_TRADER) rating *= 1.5f;
+    if (DT == TIER_TRADER) rating *= 1.5f;
     
     final float baseFactor = orig.base().relations.relationWith(dest.base());
     if (baseFactor <= 0) return -1;

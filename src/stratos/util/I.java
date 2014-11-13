@@ -73,6 +73,13 @@ public class I {
   }
   
   
+  public static String lengthen(int i, int decimals) {
+    String s = ""+(float) i;
+    while (s.length() < decimals) s+="0";
+    return s;
+  }
+  
+  
   
   /**  Console input-
     */

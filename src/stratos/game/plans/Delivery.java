@@ -156,7 +156,7 @@ public class Delivery extends Plan {
     
     if (stage <= STAGE_PICKUP) {
       float sumPrice = 0;
-      for (Item i : items) {
+      for (Item i : items) if (i.amount > 0) {
         final float amount = origin.inventory().amountOf(i);
         if (amount <= 0) continue;
         if (shopping) {
@@ -167,7 +167,7 @@ public class Delivery extends Plan {
       }
     }
     else {
-      for (Item i : items) {
+      for (Item i : items) if (i.amount > 0) {
         if (! carrier.inventory().hasItem(i)) {
           final float amount = carrier.inventory().amountOf(i);
           if (amount > 0) available.add(Item.withAmount(i, amount));
@@ -192,6 +192,9 @@ public class Delivery extends Plan {
     final boolean report = verbose && I.talkAbout == actor;
     
     float modifier = NO_MODIFIER;
+    
+    //  TODO:  Move food-purchases to a dedicated subclass?  Or rank items in
+    //  general by perceived need/value?
     if (shouldPay == actor && stage <= STAGE_PICKUP) {
       int price = 0;
       float foodVal = 0;
@@ -215,12 +218,12 @@ public class Delivery extends Plan {
     ) / rangeDiv;
     
     final float priority = priorityForActorWith(
-      actor, destination, ROUTINE,
-      modifier, NO_HARM,
-      NO_COMPETITION, NO_FAIL_RISK,
+      actor, destination,
+      ROUTINE, modifier - extraRangePenalty,
+      NO_HARM, NO_COMPETITION, NO_FAIL_RISK,
       NO_SKILLS, NO_TRAITS, NORMAL_DISTANCE_CHECK / rangeDiv,
       report
-    ) - extraRangePenalty;
+    );
     return priority;
   }
   
@@ -405,11 +408,13 @@ public class Delivery extends Plan {
       return;
     }
     
-    d.append("Delivering ");
+    d.append("Delivering");
     final Item available[] = available(actor);
-    final Batch <Traded> types = new Batch <Traded> ();
-    for (Item i : available) types.add(i.type);
-    d.appendList("", types);
+    
+    for (Item i : available) {
+      d.append(" "+i);
+    }
+    
     if (origin != actor) {
       d.append(" from ");
       d.append(origin);

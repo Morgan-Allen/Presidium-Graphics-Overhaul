@@ -2,9 +2,14 @@
 package stratos.start;
 import stratos.game.campaign.*;
 import stratos.game.common.*;
-import stratos.user.BaseUI;
+import stratos.game.actors.*;
+import stratos.graphics.common.Rendering;
+import stratos.graphics.widgets.KeyInput;
+import stratos.user.*;
+import stratos.util.I;
 
 
+//  ENSURE THE FRSD IS WORKING CORRECTLY, PLUS OTHER LANDING MECHANICS.
 
 //  Ensure that jobseeking is still working after the changes made.
 
@@ -61,6 +66,30 @@ public class DebugTutorial extends TutorialScenario {
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
     super.configureScenario(world, base, UI);
     UI.selection.pushSelection(base.ruler(), true);
+  }
+  
+  
+  public void updateGameState() {
+    super.updateGameState();
+    
+    //  TODO:  If I put the key-input check here, there's a good chance it
+    //  wont' be noticed.  Find out why.
+  }
+  
+  
+  public void renderVisuals(Rendering rendering) {
+    super.renderVisuals(rendering);
+    
+    /*
+    if (BaseUI.current().selection.selected() instanceof Actor) {
+      final Actor a = (Actor) BaseUI.current().selection.selected();
+      
+      if (KeyInput.wasTyped('i')) {
+        I.say("\nBOOSTING IMMUNE RESPONSE!!!");
+        a.traits.incLevel(Qualities.IMMUNE, 5);
+      }
+    }
+    //*/
   }
   
   

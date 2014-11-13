@@ -20,13 +20,17 @@ public class Inventory {
   /**  Fields, constructors, and save/load methods-
     */
   final public static int
-    TIER_NONE    = -1,  //
+    TIER_NONE     = -2,  //
+    TIER_IMPORTER = -1,
     TIER_PRODUCER =  0,  //never deliver to a producer.
     TIER_TRADER   =  1,  //deliver to/from based on relative shortage.
-    TIER_CONSUMER =  2;  //never deliver from a consumer.
+    TIER_CONSUMER =  2,  //never deliver from a consumer.
+    TIER_EXPORTER =  3;
   
-  private static boolean   verbose = false;
-  private static Traded tracked = null ;
+  private static boolean
+    verbose = false;
+  private static Traded
+    tracked = null;
   
   
   final public Owner owner;
@@ -196,6 +200,13 @@ public class Inventory {
     final Batch <Item> allItems = new Batch <Item> ();
     for (Item item : itemTable.values()) allItems.add(item);
     return allItems;
+  }
+  
+  
+  public Traded[] allItemTypes() {
+    final Batch <Traded> allTypes = new Batch <Traded> ();
+    for (Item item : itemTable.keySet()) allTypes.include(item.type);
+    return allTypes.toArray(Traded.class);
   }
   
   

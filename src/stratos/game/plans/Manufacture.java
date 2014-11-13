@@ -144,30 +144,34 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     
     final float priority = priorityForActorWith(
       actor, venue,
-      urgency, NO_MODIFIER,
+      urgency, boost,
       NO_HARM, FULL_COMPETITION,
       MILD_FAIL_RISK, conversion.skills,
       BASE_TRAITS, NO_DISTANCE_CHECK,
       report
     );
+    
     if (report) {
-      I.say("\n  Basic urgency:  "+urgency+", boost: "+boost);
+      I.say("\n  Basic urgency: "+urgency+", boost: "+boost);
       I.say("  Amount/Demand: "+amount+"/"+demand);
-      I.say("  Check bonus:  "+checkBonus);
-      I.say("  Needed items: ");
+      I.say("  Check bonus:   "+checkBonus);
+      
+      I.say("\n  Needed items:");
       for (Item need : needed) {
-        I.say("    "+need+", has "+venue.inventory().amountOf(need));
+        I.say("    "+need+" (has "+venue.inventory().amountOf(need)+")");
       }
-      I.say("  Needed skill checks:");
+      
+      I.say("\n  Needed skills:");
       final Conversion c = conversion;
       for (int i = c.skills.length; i-- > 0;) {
         final int knownLevel = (int) actor.traits.usedLevel(c.skills[i]);
         I.say("    "+c.skills[i]+" "+c.skillDCs[i]+" (has "+knownLevel+")");
       }
+      
       I.say("  Success chance: "+successChance());
-      I.say("  Final priority: "+(priority + boost));
+      I.say("  Final priority: "+priority);
     }
-    return priority + boost;
+    return priority;
   }
   
   

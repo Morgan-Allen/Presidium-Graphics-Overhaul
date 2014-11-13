@@ -97,7 +97,7 @@ public class Wording implements Qualities {
         final Batch <Trait> traits = Rand.yes() ?
           actor.traits.physique() : actor.traits.personality();
         final Trait desc = (Trait) Rand.pickFrom(traits);
-        if (desc != null) names.add("the "+actor.traits.levelDesc(desc));
+        if (desc != null) names.add("the "+actor.traits.description(desc));
       }
     }
     

@@ -331,7 +331,7 @@ public abstract class Artilect extends Actor {
     final Batch <Condition> conditions = traits.conditions();
     for (Condition c : conditions) {
       d.append("\n  ");
-      d.append(traits.levelDesc(c));
+      d.append(traits.description(c));
     }
     if (healthDesc.size() == 0 && conditions.size() == 0) {
       d.append("\n  Okay");

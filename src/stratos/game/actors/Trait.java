@@ -41,7 +41,7 @@ public class Trait extends Index.Entry implements Qualities, Session.Saveable {
     this.descValues = new int[descriptors.length];
     
     if (verboseInit) {
-      I.say("\n  Initialising new trait: "+descriptors[0]);
+      I.say("\n  Initialising new trait: "+name);
     }
     
     int zeroIndex = 0, min = -1, max = 1, val;
@@ -106,7 +106,8 @@ public class Trait extends Index.Entry implements Qualities, Session.Saveable {
   public float[] correlateWeights() { return weightings; }
   
   
-  /**  Returns the appropriate description for the given trait-level.
+  
+  /**  Interface, feedback and debug methods-
     */
   public static String descriptionFor(Trait trait, float level) {
     if (trait.opposite != null && level < 0) {

@@ -219,7 +219,7 @@ public class ActorTraits implements Qualities {
   
   public float relativeLevel(Trait type) {
     //  Returns a value between -1 (for minimum) and +1 (for maximum).
-    final float level = traitLevel(type);
+    final float level = usedLevel(type);
     if (level > 0) return level / type.maxVal;
     else return 0 - level / type.minVal;
   }
@@ -398,8 +398,8 @@ public class ActorTraits implements Qualities {
   
   /**  Rendering and interface methods-
     */
-  public String levelDesc(Trait type) {
-    return Trait.descriptionFor(type, usedLevel(type));
+  public String description(Trait type) {
+    return Trait.descriptionFor(type, relativeLevel(type));
   }
   
   
@@ -407,26 +407,6 @@ public class ActorTraits implements Qualities {
     if ((! actor.inWorld()) || Math.abs(diff) < 1) return;
     final String prefix = diff > 0 ? "+" : "";
     actor.chat.addPhrase(prefix+type, TalkFX.NOT_SPOKEN);
-  }
-  
-  
-  //  TODO:  Get rid of this- it's not being used.
-  public void writeInformation(Description d) {
-    for (Skill s : attributes()) {
-      d.append("\n  "+s.name+" "+((int) traitLevel(s)));
-    }
-    d.append("\n");
-    for (Skill s : skillSet()) {
-      d.append("\n  "+s.name+" "+((int) traitLevel(s)));
-    }
-    d.append("\n");
-    for (Trait t : personality()) {
-      d.append("\n  "+Trait.descriptionFor(t, traitLevel(t)));
-    }
-    d.append("\n");
-    for (Trait t : physique()) {
-      d.append("\n  "+Trait.descriptionFor(t, traitLevel(t)));
-    }
   }
 }
 

@@ -227,7 +227,7 @@ public class ExcavationSite extends Venue implements TileConstants {
     if (corridor != null) {
       int numTaken = 0;
       for (Tile t : corridor) if (world.terrain().mineralsAt(t) == 0) numTaken++;
-      I.say("  Faces processed: "+numTaken+"/"+corridor.length);
+      if (report) I.say("  Faces processed: "+numTaken+"/"+corridor.length);
     }
     
     final Tile face = Mining.nextMineFace(this, corridor);

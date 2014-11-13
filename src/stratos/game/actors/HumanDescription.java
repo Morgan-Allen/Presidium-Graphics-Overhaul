@@ -66,7 +66,7 @@ public class HumanDescription implements Qualities {
     }
     final Batch <Condition> conditions = h.traits.conditions();
     for (Condition c : conditions) {
-      final String desc = h.traits.levelDesc(c);
+      final String desc = h.traits.description(c);
       if (desc != null) d.append("\n  "+desc);
     }
     if (healthDesc.size() == 0 && conditions.size() == 0) {
@@ -149,8 +149,8 @@ public class HumanDescription implements Qualities {
     d.append("Background: ");
     d.append("\n  "+h.career.birth()+" on "+h.career.homeworld());
     d.append("\n  Trained as "+h.career.vocation().nameFor(h));
-    d.append("\n  "+h.traits.levelDesc(ORIENTATION));
-    d.append(" "+h.traits.levelDesc(GENDER));
+    d.append("\n  "+h.traits.description(ORIENTATION));
+    d.append(" "+h.traits.description(GENDER));
     d.append("\n  Age: "+h.health.exactAge()+" ("+h.health.agingDesc()+")");
     
     ///d.appendList("\n\nAppearance: " , descTraits(h.traits.physique   ()));
@@ -185,7 +185,7 @@ public class HumanDescription implements Qualities {
   ) {
     final List <Trait> sorting = sortTraits(traits, h);
     final Batch <String> desc = new Batch <String> ();
-    for (Trait t : sorting) desc.add(h.traits.levelDesc(t));
+    for (Trait t : sorting) desc.add(h.traits.description(t));
     return desc;
   }
 }

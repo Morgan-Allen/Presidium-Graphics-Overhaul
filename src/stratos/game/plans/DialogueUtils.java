@@ -96,7 +96,7 @@ public class DialogueUtils implements Qualities {
       levelA = actor.traits.relativeLevel(comp),
       levelO = other.traits.relativeLevel(comp),
       similarity = (1 - Math.abs(levelA - levelO));
-    final String desc = actor.traits.levelDesc(comp);
+    final String desc = actor.traits.description(comp);
     
     final float effect = similarity * Relation.MAG_CHATTING;
     other.relations.incRelation(actor, effect, 0.1f);

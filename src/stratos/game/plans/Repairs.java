@@ -112,29 +112,16 @@ public class Repairs extends Plan {
     final boolean report = I.talkAbout == actor && evalVerbose;
     
     float urgency = needForRepair(built);
-    urgency *= actor.relations.valueFor(built);
-    urgency *= (1 + actor.base().relations.communitySpirit()) / 2f;
-    
-    //  TODO:  Factor this in elsewhere, such as general citizen satisfaction
-    //  ratings.
-    /*
-    if (! GameSettings.buildFree) {
-      final float debt = 0 - built.base().credits();
-      if (report) I.say("  Basic urgency: "+urgency+", debt level: "+debt);
-      if (debt > 0 && urgency > 0) urgency -= debt / 500f;
-    }
-    //*/
     if (urgency <= 0) return 0;
-    
+    float bonus = (1 + actor.base().relations.communitySpirit()) / 2f;
     float competition = FULL_COMPETITION;
     competition /= 1 + (built.structure().maxIntegrity() / 100f);
     
     final float priority = priorityForActorWith(
       actor, (Target) built,
-      ROUTINE * Visit.clamp(urgency, 0, 1), NO_MODIFIER,
-      REAL_HELP, competition,
-      MILD_FAIL_RISK, BASE_SKILLS,
-      BASE_TRAITS, NORMAL_DISTANCE_CHECK,
+      ROUTINE * Visit.clamp(urgency, 0, 1), bonus * CASUAL,
+      REAL_HELP, competition, MILD_FAIL_RISK,
+      BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report
     );
     if (report) {

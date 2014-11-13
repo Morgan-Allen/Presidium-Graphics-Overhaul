@@ -104,8 +104,8 @@ public class MainMenu extends UIGroup {
     text.append("\n  Favoured traits: ");
     text.append("("+config.chosenTraits.size()+"/"+MAX_TRAITS+")");
     for (Trait t : Backgrounds.KNIGHTED.traits()) {
-      final float l = Backgrounds.KNIGHTED.traitChance(t) > 0 ? 2 : -2;
-      final String name = Trait.descriptionFor(t, l);
+      //final float l = Backgrounds.KNIGHTED.traitChance(t) > 0 ? 2 : -2;
+      final String name = t.toString();// Trait.descriptionFor(t, l);
       final Colour c = config.chosenTraits.includes(t) ? Colour.CYAN : null;
       Call.add("\n    "+name, c, this, "toggleTrait", text, t);
     }
