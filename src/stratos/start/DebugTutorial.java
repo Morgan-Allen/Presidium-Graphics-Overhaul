@@ -71,25 +71,11 @@ public class DebugTutorial extends TutorialScenario {
   
   public void updateGameState() {
     super.updateGameState();
-    
-    //  TODO:  If I put the key-input check here, there's a good chance it
-    //  wont' be noticed.  Find out why.
   }
   
   
   public void renderVisuals(Rendering rendering) {
     super.renderVisuals(rendering);
-    
-    /*
-    if (BaseUI.current().selection.selected() instanceof Actor) {
-      final Actor a = (Actor) BaseUI.current().selection.selected();
-      
-      if (KeyInput.wasTyped('i')) {
-        I.say("\nBOOSTING IMMUNE RESPONSE!!!");
-        a.traits.incLevel(Qualities.IMMUNE, 5);
-      }
-    }
-    //*/
   }
   
   

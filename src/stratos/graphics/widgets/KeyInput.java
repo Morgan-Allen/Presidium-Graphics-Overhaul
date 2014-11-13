@@ -7,7 +7,6 @@
 package stratos.graphics.widgets;
 
 import stratos.util.*;
-
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.input.*;

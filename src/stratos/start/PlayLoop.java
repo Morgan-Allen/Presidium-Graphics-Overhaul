@@ -160,7 +160,6 @@ public final class PlayLoop {
             return;
           }
           
-          KeyInput.updateInputs();
           final boolean okay = advanceLoop();
           
           if (! okay) {
@@ -258,6 +257,7 @@ public final class PlayLoop {
     if (frameGap >= FRAME_INTERVAL || true) {
       if (played != null) played.renderVisuals(rendering);
       rendering.renderDisplay(played == null ? null : played.UI());
+      KeyInput.updateInputs();
       lastFrame = time;
     }
     if (verbose) I.say("  Played is: "+played);
