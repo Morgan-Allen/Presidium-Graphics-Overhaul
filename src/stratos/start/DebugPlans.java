@@ -87,7 +87,7 @@ public class DebugPlans extends Scenario {
   
   public void updateGameState() {
     super.updateGameState();
-    if (base().credits() < 0) base().incCredits(100);
+    if (base().finance.credits() < 0) base().finance.incCredits(100, "CHARITY");
   }
   
   

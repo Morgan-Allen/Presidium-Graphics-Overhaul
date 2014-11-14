@@ -8,13 +8,14 @@ package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.building.*;
+import stratos.game.campaign.BaseFinance;
 import stratos.game.civilian.BaseProfiles;
 import stratos.game.common.*;
 import stratos.user.*;
 import stratos.util.*;
-
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.building.Economy.*;
+
 import org.apache.commons.math3.util.FastMath;
 
 
@@ -155,11 +156,14 @@ public class Audit extends Plan {
   
   public static void fileEarnings(Actor actor, Venue office, float balance) {
     final Base base = office.base();
-    base.incCredits(balance);
+    
+    //  TODO:  The source-listing needs to be made a lot more specific!
     if (balance > 0) {
+      base.finance.incCredits(balance, BaseFinance.SOURCE_TAXES);
       office.chat.addPhrase((int) balance+" credits in profit");
     }
     if (balance < 0) {
+      base.finance.incCredits(balance, BaseFinance.SOURCE_WAGES);
       office.chat.addPhrase((int) (0 - balance)+" credits in debt");
     }
   }

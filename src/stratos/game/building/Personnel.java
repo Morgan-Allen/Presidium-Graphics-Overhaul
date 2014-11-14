@@ -228,7 +228,9 @@ public class Personnel {
   
   
   public void confirmApplication(FindWork a) {
-    employs.base().incCredits(0 - a.hiringFee());
+    employs.base().finance.incCredits(
+      0 - a.hiringFee(), BaseFinance.SOURCE_HIRING
+    );
     final Actor works = a.actor();
     //
     //  TODO:  Once you have incentives worked out, restore this-

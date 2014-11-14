@@ -9,9 +9,13 @@ import stratos.user.*;
 import stratos.util.I;
 
 
-//  ENSURE THE FRSD IS WORKING CORRECTLY, PLUS OTHER LANDING MECHANICS.
+//  Restore the Landing Strip for the convenience of dropships (and have their
+//  supply/demand profile set when cargo is loaded.)
+
+//  Make sure combat and diplomacy are working (plus security jobs.)
 
 //  Ensure that jobseeking is still working after the changes made.
+//  Introduce a finance-report UI!  And try to get all the details.
 
 //  Re-work the culture lab- produce either food/organs OR soma/reagents.
 //  Set up exclusion zone around kommando lodge, and try to restore animal
@@ -19,16 +23,13 @@ import stratos.util.I;
 //  Try to arrange that actors will seek out new Holdings if anything existing
 //  is at or above half crowding.
 
-
-//  Introduce the Air Field?  (Bring back the Landing Strip at least.)
-//  Have solar banks primarily exist as water supply, not power per se.  The
-//  reactor complex can provide most of that.
 //  Fix bug with stripping/paving of roads happening at same time.  It doesn't
 //  show up often, so just keep an eye out for it.
 //  Divide venue description into two panes- one for general status, and the
 //  other for specific sub-headings.  Don't bother with spill-over.
 //  Rework art for roads, the shield wall, the physician station, the engineer
 //  station, the solar bank, and the archives.
+
 
 public class DebugTutorial extends TutorialScenario {
   

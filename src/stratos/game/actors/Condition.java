@@ -17,8 +17,8 @@ public class Condition extends Trait {
   
   
   private static boolean
-    verbose       = true ,
-    effectVerbose = true ;
+    verbose       = false,
+    effectVerbose = false;
   
   final public float latency, virulence, spread;
   final public Trait affected[];

@@ -4,6 +4,7 @@
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.building.*;
+import stratos.game.campaign.BaseFinance;
 import stratos.game.common.*;
 import stratos.game.maps.PavingMap;
 import stratos.util.*;
@@ -214,8 +215,10 @@ public class Repairs extends Plan {
     if (salvage) {
       success *= actor.skills.test(ASSEMBLY, 5, 1) ? 1 : 0.5f;
       final float amount = structure.repairBy(0 - success);
-      final float cost = amount * structure.buildCost();
-      if (! free) base.incCredits(cost * 0.5f);
+      if (! free) {
+        final float cost = amount * structure.buildCost();
+        base.finance.incCredits(cost * 0.5f, BaseFinance.SOURCE_REPAIRS);
+      }
       if (report) I.say("Salvage sucess: "+success);
       if (report) I.say("Repair level: "+structure.repairLevel());
     }
@@ -225,8 +228,11 @@ public class Repairs extends Plan {
       success *= actor.skills.test(ASSEMBLY, 20, 0.5f) ? 2 : 1;
       final boolean intact = structure.intact();
       final float amount = structure.repairBy(success);
-      final float cost = amount * structure.buildCost();
-      if (! free) base.incCredits((0 - cost) * (intact ? 0.5f : 1));
+      if (! free) {
+        float cost = amount * structure.buildCost();
+        cost *= -1 * (intact ? 0.5f : 1);
+        base.finance.incCredits(cost, BaseFinance.SOURCE_REPAIRS);
+      }
     }
     return true;
   }
@@ -243,7 +249,7 @@ public class Repairs extends Plan {
     success *= actor.skills.test(ASSEMBLY, 20, 0.5f) ? 2 : 1;
     final float amount = structure.advanceUpgrade(success * 1f / 100);
     final float cost = amount * upgrade.buildCost;
-    built.base().incCredits((0 - cost));
+    built.base().finance.incCredits((0 - cost), BaseFinance.SOURCE_REPAIRS);
     return true;
   }
   

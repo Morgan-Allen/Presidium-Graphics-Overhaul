@@ -24,7 +24,7 @@ public class Treatment extends Plan implements Item.Passive {
   
   private static boolean
     evalVerbose   = false,
-    eventVerbose  = true ;
+    eventVerbose  = false;
   
   final Actor patient;
   final Condition sickness;

@@ -150,7 +150,7 @@ public class TutorialScenario extends StartupScenario {
       hasHolding = true;
       if (h.upgradeLevel() < HoldingUpgrades.LEVEL_FREEBORN) return false;
     }
-    if (base().credits() < 0 || ! hasHolding) return false;
+    if (base().finance.credits() < 0 || ! hasHolding) return false;
     return true;
   }
   

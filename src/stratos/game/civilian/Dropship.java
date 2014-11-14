@@ -40,7 +40,7 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   /**  Fields, constants, constructors and save/load methods-
     */
   private static boolean
-    verbose = false;
+    verbose = true ;
   
   final static String SHIP_NAMES[] = {
     "The Space Marine",
@@ -90,12 +90,13 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     MAX_PASSENGERS = 5,
     MAX_CREW       = 5;
   final public static float
-    INIT_DIST = 10.0f,
-    INIT_HIGH = 10.0f,
-    TOP_SPEED =  5.0f;
+    INIT_DIST  = 10.0f,
+    INIT_HIGH  = 10.0f,
+    TOP_SPEED  =  5.0f,
+    NO_LANDING =  -100;
   
   
-  private Vec3D aimPos = new Vec3D();
+  private Vec3D aimPos = new Vec3D(0, 0, NO_LANDING);
   private float stageInceptTime = 0;
   private int stage = STAGE_AWAY;
   private int nameID = -1;
@@ -320,6 +321,16 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   }
   
   
+  public void completeDescent() {
+    nextPosition.setTo(position.setTo(aimPos));
+    rotation = nextRotation = 0;
+    performLanding(world, landArea());
+    offloadPassengers();
+    stageInceptTime = world.currentTime();
+    stage = STAGE_LANDED;
+  }
+  
+  
   private void performLanding(Stage world, Box2D site) {
     if (dropPoint instanceof Venue) {
     }
@@ -375,16 +386,6 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   }
   
   
-  public void completeDescent() {
-    nextPosition.setTo(position.setTo(aimPos));
-    rotation = nextRotation = 0;
-    performLanding(world, landArea());
-    offloadPassengers();
-    stageInceptTime = world.currentTime();
-    stage = STAGE_LANDED;
-  }
-  
-  
   public void resetAwayTime() {
     if (stage != STAGE_AWAY) return;
     stageInceptTime = 0 - Commerce.SUPPLY_INTERVAL;
@@ -429,6 +430,7 @@ public class Dropship extends Vehicle implements Inventory.Owner {
       exitWorld();
       stage = STAGE_AWAY;
       stageInceptTime = world.currentTime();
+      aimPos.set(0, 0, NO_LANDING);
     }
     if (stage == STAGE_DESCENT && height <= 0) {
       performLanding(world, landArea());
@@ -512,8 +514,11 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   
   
   public boolean findLandingSite(final Base base) {
+    final boolean report = verbose && BaseUI.current().played() == base;
+    
     this.assignBase(base);
     final Stage world = base.world;
+    
     //LaunchHangar landing = null;
     //float bestRating = Float.NEGATIVE_INFINITY;
     
@@ -541,6 +546,14 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     }
     //*/
     
+    if (aimPos.z != NO_LANDING && checkLandingArea(world, landArea())) {
+      if (report) {
+        I.say("\nCurrent landing site valid for "+this+":");
+        I.say("  "+landArea());
+      }
+      return true;
+    }
+    
     final Tile midTile = world.tileAt(world.size / 2, world.size / 2);
     final Presences p = world.presences;
     Target nearest = null;
@@ -562,6 +575,8 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     if (from == null) return false;
     final Tile init = Spacing.nearestOpenTile(world.tileAt(from), from);
     if (init == null) return false;
+    final boolean report = verbose && BaseUI.current().played() == base;
+    
     //
     //  Then, spread out to try and find a decent landing site-
     final Box2D area = landArea();
@@ -578,6 +593,7 @@ public class Dropship extends Vehicle implements Inventory.Owner {
       }
     };
     spread.doSearch();
+    
     if (spread.success()) {
       aimPos.set(
         area.xpos() + (area.xdim() / 2f),
@@ -586,10 +602,16 @@ public class Dropship extends Vehicle implements Inventory.Owner {
       );
       aimPos.z = base.world.terrain().trueHeight(aimPos.x, aimPos.y);
       dropPoint = null;
-      I.say("Landing at point: "+aimPos);
+      
+      if (report) I.say("\n"+this+" found landing at point: "+aimPos);
       return true;
     }
-    return false;
+    else {
+      aimPos.set(0, 0, NO_LANDING);
+      
+      if (report) I.say("No landing site found for "+this+".");
+      return false;
+    }
   }
   
   

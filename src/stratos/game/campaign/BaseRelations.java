@@ -155,7 +155,7 @@ public class BaseRelations {
     int numResidents  = 0;
     averageMood       = 0.5f;
     propertyValues    = 0;
-    creditCirculation = base.credits();
+    creditCirculation = base.finance.credits();
     
     //  Compute overall credits in circulation, so that adjustments to money
     //  supply can be made by your auditors.

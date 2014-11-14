@@ -35,7 +35,7 @@ public class Readout extends UIGroup {
     read.setText("");
     //
     //  Credits first-
-    final int credits = played.credits();
+    final int credits = played.finance.credits();
     if (credits >= 0) read.append(credits+" Credits", Colour.WHITE);
     else read.append((0 - credits)+" In Debt", Colour.YELLOW);
     read.append("   ");

@@ -9,11 +9,11 @@ package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.building.Economy;
 import stratos.game.building.Venue;
+import stratos.game.campaign.BaseFinance;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.user.*;
 import stratos.util.*;
-
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.building.Economy.*;
 
@@ -128,7 +128,7 @@ public class Payday extends Plan {
       //*/
       final float balance = Audit.auditForBalance(actor, venue, true);
       if (report) I.say("Getting balance: "+balance);
-      venue.base().incCredits(balance);
+      venue.base().finance.incCredits(balance, BaseFinance.SOURCE_WAGES);
     }
 
     final float wages = p.paymentDue();

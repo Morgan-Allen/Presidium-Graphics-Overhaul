@@ -17,8 +17,6 @@ import stratos.util.*;
 
 
 
-//  TODO:  Primal bases shouldn't employ commerce transactions.  (I think?)
-
 public class Base implements
   Session.Saveable, Schedule.Updates, Accountable
 {
@@ -39,9 +37,10 @@ public class Base implements
   final public BaseSetup    setup     ;
   final public Commerce     commerce  ;
   final public PavingRoutes paveRoutes;
-  float credits = 0, interest = 0;
   
+  final public BaseFinance  finance  ;
   final public BaseProfiles profiles ;
+  
   final public DangerMap    dangerMap;
   final public IntelMap     intelMap ;
   
@@ -80,11 +79,13 @@ public class Base implements
     this.world = world;
     this.primal = primal;
     
-    setup     = new BaseSetup(this, world);
-    commerce  = new Commerce(this)        ;
-    paveRoutes    = new PavingRoutes(world)         ;
+    setup      = new BaseSetup(this, world);
+    commerce   = new Commerce(this)        ;
+    paveRoutes = new PavingRoutes(world)   ;
     
+    finance   = new BaseFinance(this);
     profiles  = new BaseProfiles(this)    ;
+    
     dangerMap = new DangerMap(world, this);
     intelMap  = new IntelMap(this)        ;
     intelMap.initFog(world);
@@ -97,11 +98,10 @@ public class Base implements
     this(s.world(), s.loadBool());
     s.cacheInstance(this);
     
-    commerce.loadState(s);
-    paveRoutes  .loadState(s);
-    credits  = s.loadFloat();
-    interest = s.loadFloat();
+    commerce  .loadState(s);
+    paveRoutes.loadState(s);
     
+    finance  .loadState(s);
     profiles .loadState(s);
     dangerMap.loadState(s);
     intelMap .loadState(s);
@@ -121,9 +121,8 @@ public class Base implements
     
     commerce.saveState(s);
     paveRoutes  .saveState(s);
-    s.saveFloat(credits );
-    s.saveFloat(interest);
     
+    finance  .saveState(s);
     profiles .saveState(s);
     dangerMap.saveState(s);
     intelMap .saveState(s);
@@ -165,30 +164,6 @@ public class Base implements
     this.ruler = rules;
   }
   
-  
-  
-  /**  Dealing with finances, trade and taxation-
-    */
-  public int credits() {
-    return (int) credits;
-  }
-  
-  
-  public void incCredits(float inc) {
-    credits += inc;
-  }
-  
-  
-  public boolean hasCredits(float sum) {
-    return credits >= sum;
-  }
-  
-  
-  public void setInterestPaid(float paid) {
-    this.interest = paid;
-  }
-  
-  
   public Base base() { return this; }
   
   
@@ -213,11 +188,10 @@ public class Base implements
     
     for (Mission mission : missions) mission.updateMission();
     
-    if (numUpdates % (Stage.STANDARD_DAY_LENGTH / 3) == 0) {
+    final int interval = Stage.STANDARD_DAY_LENGTH / 3;
+    if (numUpdates % interval == 0) {
       relations.updateRelations();
-      
-      final float repaid = credits * interest / 100f;
-      if (repaid > 0) incCredits(0 - repaid);
+      finance.updateFinances(interval);
     }
   }
   

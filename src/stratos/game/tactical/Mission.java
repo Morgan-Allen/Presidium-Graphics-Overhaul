@@ -2,6 +2,7 @@
 
 package stratos.game.tactical;
 import stratos.game.actors.*;
+import stratos.game.campaign.BaseFinance;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
@@ -353,7 +354,7 @@ public abstract class Mission implements
       if (begun) {
         if (verbose) I.say("Dispensing "+reward+" to "+role.applicant);
         role.applicant.gear.incCredits(reward);
-        base.incCredits(0 - reward);
+        base.finance.incCredits(0 - reward, BaseFinance.SOURCE_REWARDS);
       }
     }
     
