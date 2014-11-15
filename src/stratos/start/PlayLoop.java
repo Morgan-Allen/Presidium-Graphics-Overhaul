@@ -62,6 +62,7 @@ public final class PlayLoop {
     initDone   = false,
     shouldLoop = false,
     paused     = false,
+    background = false,
     noInput    = false;
   
   
@@ -146,11 +147,11 @@ public final class PlayLoop {
         }
         
         public void pause() {
-          setPaused(true);
+          background = true;
         }
         
         public void resume() {
-          setPaused(false);
+          background = false;
         }
         
         public void render() {
@@ -206,22 +207,24 @@ public final class PlayLoop {
   
   
   private static boolean advanceLoop() {
-    final long
-      time      = timeMS(),
-      frameGap  = time - lastFrame,
-      updateGap = time - lastUpdate;
+    final long time = timeMS(), frameGap = time - lastFrame, updateGap;
     final int FRAME_INTERVAL  = 1000 / FRAMES_PER_SECOND;
     final int UPDATE_INTERVAL = (int) (
       1000 / (UPDATES_PER_SECOND * gameSpeed)
     );
+    final boolean freeze = paused || background;
     
-    if (! paused) {
+    if (freeze || (time - lastUpdate) > UPDATE_INTERVAL * 10) {
+      lastUpdate = time;
+      updateGap = 0;
+    }
+    else {
+      updateGap = time - lastUpdate;
       frameTime = (updateGap - 0) * 1.0f / UPDATE_INTERVAL;
       frameTime = Visit.clamp(frameTime, 0, 1);
     }
     
     loopChanged = false;
-    //final Playable current = played;
     float worldTime = (numStateUpdates + frameTime) / UPDATES_PER_SECOND;
     rendering.updateViews(worldTime, frameTime);
     
@@ -272,7 +275,7 @@ public final class PlayLoop {
       if (played.shouldExitLoop()) return false;
       
       if (verbose) I.say("  No. of updates: "+numUpdates);
-      if (! paused) for (int n = numUpdates; n-- > 0;) {
+      if (! freeze) for (int n = numUpdates; n-- > 0;) {
         if (loopChanged) return true;
         if (verbose) I.say("  UPDATING WORLD?");
         played.updateGameState();

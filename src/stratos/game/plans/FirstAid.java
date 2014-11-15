@@ -20,7 +20,7 @@ public class FirstAid extends Treatment {
   
   private static boolean
     verbose     = false,
-    evalVerbose = false;
+    evalVerbose = true ;
   
   
   public FirstAid(Actor actor, Actor patient) {
@@ -58,7 +58,7 @@ public class FirstAid extends Treatment {
   
   protected float severity() {
     if (! patient.health.alive()) return 0.25f;
-    float severity = patient.health.injuryLevel();
+    float severity = patient.health.injuryLevel() * ActorHealth.MAX_INJURY;
     if (patient.health.bleeding()) severity += 0.5f;
     return severity;
   }
@@ -75,19 +75,23 @@ public class FirstAid extends Treatment {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (patient.health.conscious() || ! patient.health.organic()) return 0;
     
-    final float severity = severity(), modifier = typeModifier();
+    final float severity = Visit.clamp(severity(), -1, 1);
     if (severity <= 0) return 0;
+    
+    float modifier = 0;
+    final boolean ally = CombatUtils.isAllyOf(actor, patient);
+    if (ally) modifier += severity + (actor.senses.isEmergency() ? 0 : 1);
     
     final float priority = priorityForActorWith(
       actor, patient,
-      severity * PARAMOUNT, modifier,
-      REAL_HELP, FULL_COMPETITION,
-      NO_FAIL_RISK, BASE_SKILLS,
-      BASE_TRAITS, NORMAL_DISTANCE_CHECK,
+      severity * PARAMOUNT, modifier * ROUTINE,
+      REAL_HELP, FULL_COMPETITION, NO_FAIL_RISK,
+      BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report
     );
     if (report) {
       I.say("Considering first aid of "+patient);
+      I.say("  Is ally?:           "+ally);
       I.say("  Severity of injury: "+severity());
       I.say("  Priority is: "+priority);
     }
@@ -180,7 +184,7 @@ public class FirstAid extends Treatment {
   
   
   public void describeBehaviour(Description d) {
-    if (super.needsSuffix(d, "Treating ")) {
+    if (super.needsSuffix(d, "Giving First Aid to ")) {
       d.append(patient);
     }
   }

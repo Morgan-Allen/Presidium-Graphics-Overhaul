@@ -37,7 +37,7 @@ public class NativeHall extends NativeHut {
   
   
   protected NativeHall(int tribeID, Base base) {
-    super(4, 3, TYPE_HALL, tribeID, base);
+    super(3, 2, TYPE_HALL, tribeID, base);
   }
 
 

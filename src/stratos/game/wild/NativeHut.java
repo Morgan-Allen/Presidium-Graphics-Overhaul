@@ -66,7 +66,7 @@ public class NativeHut extends Venue {
   
   public static NativeHut newHut(NativeHall parent) {
     final NativeHut hut = new NativeHut(
-      3, 2, TYPE_HUT, parent.tribeID(), parent.base()
+      2, 1, TYPE_HUT, parent.tribeID(), parent.base()
     );
     parent.children.include(hut);
     return hut;

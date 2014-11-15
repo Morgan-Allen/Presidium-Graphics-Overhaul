@@ -134,17 +134,13 @@ public class CombatUtils {
     return victim != null && actor.relations.likes(victim) && harmDone > 0;
   }
   
-  /*
+  
   public static boolean isAllyOf(Actor actor, Target target) {
     if (! (target instanceof Actor)) return false;
     final Actor other = (Actor) target;
-    
-    if (! other.health.conscious()) return false;
-    if (other.focusFor(Retreat.class) != null) return false;
-    if (other.relations.valueFor(actor) > 0.5f) return true;
+    if (other.relations.valueFor(actor) > 0) return true;
     return other.base() == actor.base();
   }
-  //*/
   
   
   public static boolean isDowned(Target subject, int object) {

@@ -138,10 +138,10 @@ public class Treatment extends Plan implements Item.Passive {
     }
     //*/
     
-    final float severity = severity(), modifier = typeModifier();
+    final float severity = severity();//, modifier = typeModifier();
     final float priority = priorityForActorWith(
       actor, patient,
-      CASUAL + (severity * ROUTINE), modifier,
+      CASUAL + (severity * ROUTINE), NO_MODIFIER,
       REAL_HELP, FULL_COOPERATION,
       MILD_FAIL_RISK * severity, BASE_SKILLS,
       BASE_TRAITS, PARTIAL_DISTANCE_CHECK,
@@ -150,7 +150,7 @@ public class Treatment extends Plan implements Item.Passive {
     return priority;
   }
   
-  
+  /*
   protected float typeModifier() {
     float modifier = NO_MODIFIER;
     //  TODO:  You need a generalised method for this?
@@ -163,6 +163,7 @@ public class Treatment extends Plan implements Item.Passive {
     }
     return modifier / 2;
   }
+  //*/
   
   
   protected float severity() {

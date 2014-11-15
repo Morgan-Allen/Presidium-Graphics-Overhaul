@@ -93,7 +93,7 @@
   stride="1.5"
   height="2.5"
 >
-  <animations>
+  <animations rotate="90">
     <animation name="stand"       start="0"  end="0"  duration="1"   />
     <animation name="move"        start="14" end="15" duration="1.5" />
     <animation name="move_fast"   start="14" end="15" duration="1.5" />

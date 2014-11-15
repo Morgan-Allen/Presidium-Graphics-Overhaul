@@ -78,13 +78,13 @@ public class Retreat extends Plan implements Qualities {
     final boolean emergency = actor.senses.isEmergency();
     float danger = actor.senses.fearLevel() + actor.health.injuryLevel();
     
-    if (emergency) danger += 0.5f;
-    else maxDanger = 0;
-    maxDanger = FastMath.max(danger, maxDanger);
-    
     float bonus = 0;
     final Target haven = actor.senses.haven();
     bonus += (haven == null) ? 0 : Plan.rangePenalty(haven, actor) * CASUAL;
+
+    maxDanger = FastMath.max(danger, maxDanger);
+    if (emergency) bonus += PARAMOUNT;
+    else maxDanger = 0;
     
     final float priority = priorityForActorWith(
       actor, safePoint,
@@ -96,10 +96,11 @@ public class Retreat extends Plan implements Qualities {
     
     if (report) {
       I.say("\n  PLAN ID IS: "+hashCode());
-      I.say("  Max Danger: "+maxDanger);
-      I.say("  Fear Level: "+actor.senses.fearLevel());
+      I.say("  Max Danger:     "+maxDanger);
+      I.say("  Fear Level:     "+actor.senses.fearLevel());
+      I.say("  Injury:         "+actor.health.injuryLevel());
       I.say("  Bonus priority: "+bonus);
-      I.say("  Endangered? "+actor.senses.isEmergency());
+      I.say("  Endangered?     "+actor.senses.isEmergency());
     }
     return priority;
   }

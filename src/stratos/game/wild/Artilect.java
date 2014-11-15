@@ -199,7 +199,7 @@ public abstract class Artilect extends Actor {
       choice.add(assault);
     }
     if (
-      (isTripod || isCranial) &&
+      (isTripod || isCranial) && home != null &&
       home.personnel().numResident(Species.SPECIES_CRANIAL) > 0
     ) {
       //  TODO:  Restore this later, once Cybrid creation is sorted out.

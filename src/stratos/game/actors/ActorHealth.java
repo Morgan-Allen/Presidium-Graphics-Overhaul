@@ -70,7 +70,7 @@ public class ActorHealth implements Qualities {
     MAX_MORALE       =  0.5f,
     MIN_MORALE       = -1.5f,
     REVIVE_THRESHOLD =  0.5f,
-    //STABILISE_CHANCE =  0.05f,
+    RUN_FATIGUE_MULT = 10.0f,
     BLEED_OUT_TIME   =  Stage.STANDARD_HOUR_LENGTH * 2,
     DECOMPOSE_TIME   =  Stage.STANDARD_DAY_LENGTH,
     
@@ -593,6 +593,7 @@ public class ActorHealth implements Qualities {
   
   private void updateStresses() {
     final boolean report = verbose && I.talkAbout == actor;
+    if (report) I.say("\nUpdating stresses for "+actor);
     //
     //  Inorganic targets get a different selection of perks and drawbacks-
     if (state >= STATE_SUSPEND || ! organic()) {
@@ -614,7 +615,14 @@ public class ActorHealth implements Qualities {
       PM =  0;
     }
     else if (actor.currentAction() != null) {
-      FM *= Action.moveRate(actor, true);
+      final float mult = Action.moveRate(actor, true) / baseSpeed();
+      if (mult > 1) FM += (mult - 1) * RUN_FATIGUE_MULT;
+    }
+    if (report) {
+      I.say("  Fatigue multiple: "+FM);
+      I.say("  Injury  multiple: "+IM);
+      I.say("  Morale  multiple: "+MM);
+      I.say("  Psych   multiple: "+PM);
     }
     
     if (bleeds) {
@@ -652,10 +660,6 @@ public class ActorHealth implements Qualities {
     final float maxCon = maxConcentration();
     concentration += maxCon * (1 - stress) * PM / CONCENTRATE_REGEN_TIME;
     concentration = Visit.clamp(concentration, 0, maxCon);
-    
-    if (report) {
-      I.say("\n  Stresses updated for "+actor);
-    }
   }
   
   

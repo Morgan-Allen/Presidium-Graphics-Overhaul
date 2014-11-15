@@ -29,8 +29,8 @@ public class Senses implements Qualities {
   final Batch <Target> awareOf = new Batch <Target> ();
 
   private boolean emergency  = false;
-  private float   powerLevel = -1   ;
-  private float   fearLevel  = -1   ;
+  private float   powerLevel = 0    ;
+  private float   fearLevel  = 0    ;
   private Target  safePoint  = null ;
   
   
@@ -263,18 +263,25 @@ public class Senses implements Qualities {
     for (Target t : awareOf) if ((t instanceof Actor) && (t != actor)) {
       final Actor near = (Actor) t;
       float hostility = CombatUtils.hostileRating(actor, near);
-      emergency |= actor.relations.valueFor(near.base()) <= 0;
+      ///emergency |= actor.relations.valueFor(near.base()) <= 0;
       
       if (hostility > 0) {
         if (report) I.say("  Enemy nearby: "+near+", hostility: "+hostility);
-        emergency |= CombatUtils.isActiveHostile(actor, near);
+        
+        float power = CombatUtils.powerLevelRelative(near, actor);
         hostility = Visit.clamp(hostility + 0.5f, 0, 1);
-        sumFoes += CombatUtils.powerLevelRelative(near, actor) * hostility;
+        
+        if (CombatUtils.isActiveHostile(actor, near)) {
+          emergency = true;
+          hostility += 1;
+          if (near.focusFor(Combat.class) == actor) power *= 2;
+        }
+        sumFoes += power * hostility;
       }
       else {
-        final float backup = (0.5f - hostility) * near.senses.powerLevel();
+        float power = near.senses.powerLevel();
         if (report) I.say("  Ally nearby: "+near+", bond: "+(0 - hostility));
-        sumAllies += backup * 2 / (1 + powerLevel);
+        sumAllies += power * (0.5f - hostility) * 2 / (1 + powerLevel);
       }
     }
     

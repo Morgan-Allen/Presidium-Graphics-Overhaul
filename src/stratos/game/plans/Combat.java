@@ -27,7 +27,7 @@ public class Combat extends Plan implements Qualities {
   /**  Data fields, constructors and save/load methods-
     */
   private static boolean
-    evalVerbose   = false,
+    evalVerbose   = true ,
     eventsVerbose = false,
     damageVerbose = false;
   
@@ -113,16 +113,16 @@ public class Combat extends Plan implements Qualities {
     if (object == OBJECT_SUBDUE ) harmLevel = MILD_HARM   ;
     if (object == OBJECT_DESTROY) harmLevel = EXTREME_HARM;
     
-    final boolean melee = actor.gear.meleeWeapon();
-    final float danger  = actor.senses.fearLevel();
+    final boolean melee  = actor.gear.meleeWeapon();
+    final float   danger = actor.senses.fearLevel();
     
     final float hostility = CombatUtils.hostileRating(actor, subject);
-    float bonus = danger + (actor.senses.isEmergency() ? 1 : 0);
-    bonus = Visit.clamp(bonus, 0, 2) * hostility * ROUTINE;
+    if (hostility <= 0) return 0;
+    float bonus = (actor.senses.isEmergency() ? 1 : 0) + hostility - danger;
     
     final float priority = priorityForActorWith(
       actor, subject,
-      ROUTINE, bonus,
+      ROUTINE, bonus * PARAMOUNT,
       harmLevel, FULL_COOPERATION,
       REAL_FAIL_RISK, melee ? MELEE_SKILLS : RANGED_SKILLS,
       BASE_TRAITS, NORMAL_DISTANCE_CHECK,
@@ -130,8 +130,9 @@ public class Combat extends Plan implements Qualities {
     );
     if (report) {
       I.say("\n  Priority bonus:        "+bonus);
+      I.say("  Danger level:          "+danger);
       I.say("  Hostility rating:      "+hostility);
-      I.say("  Endangered?            "+actor.senses.isEmergency());
+      I.say("  Emergency?             "+actor.senses.isEmergency());
       I.say("  Basic combat priority: "+priority);
     }
     return priority;
@@ -139,6 +140,10 @@ public class Combat extends Plan implements Qualities {
   
   
   protected float successChance() {
+    //  TODO:  Switch between these two evaluation methods based on
+    //  intelligence?  (Or maybe the battle-tactics skill?)
+    return 1 - actor.senses.fearLevel();
+    /*
     final boolean report = evalVerbose && I.talkAbout == actor;
     
     if (subject instanceof Actor) {
@@ -147,8 +152,8 @@ public class Combat extends Plan implements Qualities {
       if (report) I.say("    Chance vs. opponent is: "+chance);
       return Visit.clamp(chance, 0, 1);
     }
-    
     else return 1;
+    //*/
   }
   
   

@@ -16,6 +16,14 @@ import stratos.util.*;
 
 
 
+
+//  Find some way to freeze/unfreeze the game again.
+
+//  Natives will occasionally get attacked with little or no provocation.  Find
+//  out why.
+
+
+
 public class DebugCombat extends Scenario {
   
   
@@ -37,7 +45,7 @@ public class DebugCombat extends Scenario {
   public void saveState(Session s) throws Exception {
     super.saveState(s);
   }
-
+  
   
   public void beginGameSetup() {
     //super.beginGameSetup();
@@ -101,6 +109,57 @@ public class DebugCombat extends Scenario {
     GameSettings.buildFree = true;
     GameSettings.fogFree   = true;
     
+    if (false) animalScenario  (world, base, UI);
+    if (false) artilectScenario(world, base, UI);
+    if (true ) nativeScenario  (world, base, UI);
+  }
+  
+  
+  private void nativeScenario(Stage world, Base base, BaseUI UI) {
+    final Base natives = Base.baseWithName(world, Base.KEY_NATIVES, true);
+    
+    final NativeHut hut = NativeHut.newHall(1, natives);
+    Placement.establishVenue(hut, 4, 4, true, world);
+    
+    for (int i = 3; i-- > 0;) {
+      final Actor actor = new Human(Backgrounds.GATHERER, natives);
+      actor.enterWorldAt(hut.mainEntrance(), world);
+      actor.mind.setHome(hut);
+      actor.mind.setWork(hut);
+    }
+    
+    for (int i = 3; i-- > 0;) {
+      final Actor actor = new Human(Backgrounds.VOLUNTEER, base);
+      actor.enterWorldAt(2, 2, world);
+      UI.selection.pushSelection(actor, true);
+    }
+  }
+  
+  
+  private void artilectScenario(Stage world, Base base, BaseUI UI) {
+    final Base artilects = Base.baseWithName(world, Base.KEY_ARTILECTS, true);
+    
+    final Actor robot = Species.SPECIES_TRIPOD.newSpecimen(artilects);
+    robot.enterWorldAt(5, 5, world);
+    
+    final Actor vet = new Human(Backgrounds.VETERAN, base);
+    vet.enterWorldAt(4, 4, world);
+    
+    final Combat combat = new Combat(robot, vet);
+    combat.setMotive(Plan.MOTIVE_EMERGENCY, 100);
+    robot.mind.assignBehaviour(combat);
+    
+    for (int i = 5; i-- > 0;) {
+      final Actor actor = new Human(Backgrounds.VOLUNTEER, base);
+      final Tile entry = Spacing.pickRandomTile(robot, 4, world);
+      actor.enterWorldAt(entry.x, entry.y, world);
+      
+      UI.selection.pushSelection(actor, true);
+    }
+  }
+  
+  
+  private void animalScenario(Stage world, Base base, BaseUI UI) {
     final Base wildlife = Base.baseWithName(world, Base.KEY_WILDLIFE, true);
     
     final Actor actor = new Human(Backgrounds.VOLUNTEER, base);
@@ -115,26 +174,26 @@ public class DebugCombat extends Scenario {
     fauna.mind.assignBehaviour(combat);
     
     UI.selection.pushSelection(actor, true);
-    
-    /*
-    final TrooperLodge station = new TrooperLodge(base);
-    Placement.establishVenue(station, 8, 8, true, world);
-    final Base wildlife = Base.baseWithName(world, Base.KEY_WILDLIFE, true);
-    
-    //  ...I need to simplify their behaviour here.  Defensive/territorial-
-    //  no fear as long as they're close to their lair.
-    
-    //  ...Let's introduce a nest of Yamagur.  See how they get along.
-    final Nest nest = Species.LICTOVORE.createNest();
-    nest.assignBase(wildlife);
-    Placement.establishVenue(nest, 20, 20, true, world);
-    
-    for (int n = 4; n-- > 0;) {
-      final Micovore foe = (Micovore) Species.LICTOVORE.newSpecimen(wildlife);
-      foe.enterWorldAt(nest, world);
-    }
-    //*/
   }
+
+  /*
+  final TrooperLodge station = new TrooperLodge(base);
+  Placement.establishVenue(station, 8, 8, true, world);
+  final Base wildlife = Base.baseWithName(world, Base.KEY_WILDLIFE, true);
+  
+  //  ...I need to simplify their behaviour here.  Defensive/territorial-
+  //  no fear as long as they're close to their lair.
+  
+  //  ...Let's introduce a nest of Yamagur.  See how they get along.
+  final Nest nest = Species.LICTOVORE.createNest();
+  nest.assignBase(wildlife);
+  Placement.establishVenue(nest, 20, 20, true, world);
+  
+  for (int n = 4; n-- > 0;) {
+    final Micovore foe = (Micovore) Species.LICTOVORE.newSpecimen(wildlife);
+    foe.enterWorldAt(nest, world);
+  }
+  //*/
   
   
   protected void afterCreation() {

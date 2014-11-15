@@ -8,7 +8,8 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.tactical.*;
 import stratos.graphics.common.*;
-import stratos.graphics.widgets.HUD;
+import stratos.graphics.widgets.*;
+//import stratos.graphics.widgets.KeyInput;
 import stratos.start.*;
 import stratos.user.*;
 import stratos.util.*;
@@ -383,23 +384,23 @@ public abstract class Scenario implements Session.Saveable, Playable {
   /**  Methods for override by subclasses-
     */
   public boolean shouldExitLoop() {
-    //  TODO:  These should only be available in debug situations...
+    //  TODO:  These should only be available in debug situations.
     if (isDebug || true) {
-      if (Gdx.input.isKeyPressed(Keys.R)) {
+      if (KeyInput.wasTyped('r')) {
         I.say("RESET MISSION?");
         resetScenario();
         return false;
       }
-      if (Gdx.input.isKeyPressed(Keys.F)) {
+      if (KeyInput.wasTyped('f')) {
         I.say("Paused? "+PlayLoop.paused());
         PlayLoop.setPaused(! PlayLoop.paused());
       }
-      if (Gdx.input.isKeyPressed(Keys.S)) {
+      if (KeyInput.wasTyped('s')) {
         I.say("SAVING GAME...");
         saveGame(fullSavePath(savesPrefix, CURRENT_SAVE));
         return false;
       }
-      if (Gdx.input.isKeyPressed(Keys.L)) {
+      if (KeyInput.wasTyped('l')) {
         I.say("LOADING GAME...");
         loadGame(fullSavePath(savesPrefix, CURRENT_SAVE), true);
         return false;

@@ -573,7 +573,7 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     Target from, final Base base
   ) {
     if (from == null) return false;
-    final Tile init = Spacing.nearestOpenTile(world.tileAt(from), from);
+    final Tile init = Spacing.nearestOpenTile(base.world.tileAt(from), from);
     if (init == null) return false;
     final boolean report = verbose && BaseUI.current().played() == base;
     

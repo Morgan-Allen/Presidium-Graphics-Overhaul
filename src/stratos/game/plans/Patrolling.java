@@ -33,7 +33,8 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   
   private static boolean
     verbose     = false,
-    evalVerbose = false;
+    evalVerbose = false,
+    stepVerbose = false;
   
   final int type;
   final Element guarded;
@@ -121,14 +122,21 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     */
   public Behaviour getNextStep() {
     if (onPoint == null) return null;
-    final boolean report = verbose && I.talkAbout == actor;
+    
+    final boolean report = stepVerbose && I.talkAbout == actor;
+    if (report) {
+      I.say("\nGetting next patrol step for "+actor);
+      I.say("  Going to: "+onPoint+", post time: "+postTime);
+    }
+    
     final Stage world = actor.world();
     Target stop = onPoint;
-    if (report) I.say("Goes: "+onPoint+", post time: "+postTime);
+    
     //
     //  First, check to see if there are any supplemental behaviours you could
     //  or should be performing (first aid, repairs, or defence.)
     final Choice choice = new Choice(actor);
+    choice.isVerbose = report;
     final Target threat = CombatUtils.bestTarget(
       actor, onPoint, false
     );
@@ -144,8 +152,10 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
       choice.add(new Repairs(actor, (Venue) onPoint));
     }
     final Behaviour picked = choice.pickMostUrgent();
-    if (picked != null) return picked;
-    //
+    if (picked != null) {
+      return picked;
+    }
+    
     //  If you're on sentry duty, check to see if you've spent long enough at
     //  your post.
     if (type == TYPE_SENTRY_DUTY) {
