@@ -40,8 +40,8 @@ public class Cranial extends Artilect {
     );
     health.setupHealth(0, Rand.avgNums(2), Rand.avgNums(2));
     
-    gear.setDamage(20);
-    gear.setArmour(15);
+    gear.setBaseDamage(20);
+    gear.setBaseArmour(15);
     gear.equipOutfit(Item.withQuality(Economy.INTRINSIC_ARMOUR, 0));
     gear.equipDevice(Item.withQuality(Economy.INTRINSIC_BEAM  , 0));
     traits.setLevel(HAND_TO_HAND, 15);

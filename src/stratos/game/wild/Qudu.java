@@ -45,8 +45,8 @@ public class Qudu extends Fauna {
       species.baseSpeed, //speed rate
       ActorHealth.ANIMAL_METABOLISM
     );
-    gear.setDamage(2);
-    gear.setArmour(15);
+    gear.setBaseDamage(2);
+    gear.setBaseArmour(15);
     
     traits.setLevel(DEFENSIVE, -1);
     traits.setLevel(FEARLESS , -2);
@@ -68,7 +68,7 @@ public class Qudu extends Fauna {
     */
   public void updateAsScheduled(int numUpdates) {
     super.updateAsScheduled(numUpdates);
-    if (! isDoingAction("actionHunker", null)) gear.setArmour(15);
+    if (! isDoingAction("actionHunker", null)) gear.setBaseArmour(15);
   }
   
   
@@ -112,7 +112,7 @@ public class Qudu extends Fauna {
   
   public boolean actionHunker(Qudu actor, Qudu doing) {
     if (actor != this || doing != this) I.complain("No outside access.");
-    doing.gear.setArmour(25);
+    doing.gear.setBaseArmour(25);
     return true;
   }
   

@@ -21,6 +21,7 @@ import stratos.util.*;
 //  never miss unless the enemy is visibly dancing around.
 
 
+
 public class Combat extends Plan implements Qualities {
   
   
@@ -128,28 +129,35 @@ public class Combat extends Plan implements Qualities {
       BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report
     );
+    
+    //  NOTE:  This may seem like a bit of kluge, but on balance it seems to
+    //  result in much more sensible behaviour (unless you're a psychopath,
+    //  you don't 'casually' decide to kill something.)
+    float threshold = (1 + actor.traits.relativeLevel(EMPATHIC)) / 2;
+    threshold *= PARAMOUNT;
     if (report) {
       I.say("\n  Priority bonus:        "+bonus);
       I.say("  Danger level:          "+danger);
       I.say("  Hostility rating:      "+hostility);
       I.say("  Emergency?             "+actor.senses.isEmergency());
       I.say("  Basic combat priority: "+priority);
+      I.say("  Empathy threshold:     "+threshold);
     }
-    return priority;
+    return priority >= threshold ? priority : 0;
   }
   
   
   protected float successChance() {
     //  TODO:  Switch between these two evaluation methods based on
     //  intelligence?  (Or maybe the battle-tactics skill?)
-    return 1 - actor.senses.fearLevel();
+    return Visit.clamp(1 - actor.senses.fearLevel(), 0.1f, 0.9f);
     /*
     final boolean report = evalVerbose && I.talkAbout == actor;
     
     if (subject instanceof Actor) {
       final Actor struck = (Actor) subject;
       float chance = CombatUtils.powerLevelRelative(actor, struck) / 2f;
-      if (report) I.say("    Chance vs. opponent is: "+chance);
+      chance = (chance + 1 - actor.senses.fearLevel()) / 2f;
       return Visit.clamp(chance, 0, 1);
     }
     else return 1;

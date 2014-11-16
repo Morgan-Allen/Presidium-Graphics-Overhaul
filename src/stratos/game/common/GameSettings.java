@@ -4,7 +4,9 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.common;
+import stratos.start.PlayLoop;
 import stratos.util.*;
+
 import java.lang.reflect.*;
 
 
@@ -84,6 +86,7 @@ public class GameSettings {
   
   
   protected static void saveSettings(Session s) throws Exception {
+    
     for (Field f : settings) try {
       final Type t = f.getType();
       if      (t == Boolean.TYPE) s.saveBool (f.getBoolean(null));
@@ -91,6 +94,8 @@ public class GameSettings {
       else if (t == Integer.TYPE) s.saveInt  (f.getInt    (null));
     }
     catch (Exception e) { I.report(e); }
+    
+    s.saveBool(PlayLoop.paused());
   }
   
   
@@ -103,6 +108,8 @@ public class GameSettings {
       else if (t == Integer.TYPE) f.setInt    (null, s.loadInt  ());
     }
     catch (Exception e) { I.report(e); }
+    
+    PlayLoop.setPaused(s.loadBool());
   }
 }
 

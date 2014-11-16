@@ -78,18 +78,24 @@ public abstract class SolidModel extends ModelAsset {
     int i = 0; for (Node n : allNodes) {
       indices.put(n, i++);
     }
+    
     allParts = partB.toArray(NodePart.class);
     partNames = new String[allParts.length];
     int j = 0; for (NodePart p : allParts) {
       partNames[j] = p.meshPart.id;
       indices.put(p, j++);
     }
+    
     allMaterials = matsB.toArray(Material.class);
     int k = 0; for (Material m : allMaterials) {
       indices.put(m, k++);
     }
     
     animControl = new AnimControl(this);
+    int a = 0; for (Animation anim : gdxModel.animations) {
+      indices.put(anim, a++);
+    }
+    
     compiled = true;
   }
   

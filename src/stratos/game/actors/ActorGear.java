@@ -77,13 +77,23 @@ public class ActorGear extends Inventory {
   }
   
   
-  public void setDamage(float d) {
+  public void setBaseDamage(float d) {
     baseDamage = d;
   }
   
   
-  public void setArmour(float a) {
+  public void setBaseArmour(float a) {
     baseArmour = a;
+  }
+  
+  
+  public float baseDamage() {
+    return baseDamage;
+  }
+  
+  
+  public float baseArmour() {
+    return baseArmour;
   }
   
   
@@ -227,12 +237,6 @@ public class ActorGear extends Inventory {
     if (weapon == null) return true;
     if (deviceType().hasProperty(Economy.KINETIC)) return true;
     return false;
-  }
-  
-  
-  public boolean armed() {
-    final DeviceType type = deviceType();
-    return baseDamage > 0 || ((type != null) && type.baseDamage > 0);
   }
   
   

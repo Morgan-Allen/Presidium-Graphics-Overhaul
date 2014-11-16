@@ -37,8 +37,8 @@ public class Drone extends Artilect {
     );
     health.setupHealth(0, Rand.avgNums(2), Rand.avgNums(2));
 
-    gear.setDamage(10);
-    gear.setArmour(10);
+    gear.setBaseDamage(10);
+    gear.setBaseArmour(10);
     traits.setLevel(MARKSMANSHIP, 5);
     gear.equipDevice(Item.withQuality(Economy.INTRINSIC_BEAM, 0));
     

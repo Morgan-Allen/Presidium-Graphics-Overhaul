@@ -107,21 +107,24 @@ public class CombatUtils {
     //  However, this is modified by the context of the subject's behaviour.
     //  If they are doing something harmful to another the actor cares about,
     //  (including self), then up the rating.
-    if (isActiveHostile(actor, near)) {
-      final Target victim = other.focusFor(null);
-      final float
-        harmDone    = other.harmDoneTo(victim),
-        protectUrge = harmDone * mind.valueFor(victim);
-      rating += protectUrge;
-      
-      if (report) {
-        I.say("  Victim: "+victim+", value: "+mind.valueFor(victim));
-        I.say("  Protect urge: "+protectUrge);
-      }
+    final Target victim = other.focusFor(null);
+    final float
+      harmDone    = other.harmDoneTo(victim),
+      protectUrge = harmDone * mind.valueFor(victim);
+    rating += protectUrge;
+    
+    if (report) {
+      I.say("  Victim: "+victim+", value: "+mind.valueFor(victim));
+      I.say("  Protect urge: "+protectUrge);
     }
     
-    //  Limit to the range of +/- 1, and return.
-    return Visit.clamp(rating, -1, 1);// * Plan.PARAMOUNT;
+    //  Include a penalty if the subject is unarmed, based on ethics.
+    if (! isArmed(other)) {
+      rating -= actor.traits.relativeLevel(ETHICAL);
+    }
+    
+    //  Limit to the range of +/-1, and return.
+    return Visit.clamp(rating, -1, 1);
   }
   
   
@@ -140,6 +143,13 @@ public class CombatUtils {
     final Actor other = (Actor) target;
     if (other.relations.valueFor(actor) > 0) return true;
     return other.base() == actor.base();
+  }
+  
+  
+  public static boolean isArmed(Actor actor) {
+    final DeviceType type = actor.gear.deviceType();
+    final float baseDamage = actor.gear.baseDamage();
+    return baseDamage > 0 || ((type != null) && type.baseDamage > 0);
   }
   
   

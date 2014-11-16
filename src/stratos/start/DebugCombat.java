@@ -9,19 +9,23 @@ import stratos.game.campaign.*;
 import stratos.game.maps.*;
 import stratos.game.wild.*;
 import stratos.game.plans.*;
-//import stratos.graphics.common.Rendering;
-//import stratos.graphics.widgets.KeyInput;
 import stratos.user.*;
 import stratos.util.*;
 
 
 
 
-//  Find some way to freeze/unfreeze the game again.
 
-//  Natives will occasionally get attacked with little or no provocation.  Find
-//  out why.
+//  Okay.  I think that just leaves negotiation to iron out.  Implement the
+//  'first impressions' system for relations, plus the modifier for different
+//  bases, (and maybe backgrounds, et cetera.)
 
+//  The implement a system which sets relations for the base as a whole at the
+//  average of relations for acquainted members.  In theory, this *should*
+//  overcome the problem of individual members being hostile/attacking while
+//  others are blithe and indifferent.
+
+//  Just be sure to test this in Mission form too.
 
 
 public class DebugCombat extends Scenario {
@@ -117,6 +121,7 @@ public class DebugCombat extends Scenario {
   
   private void nativeScenario(Stage world, Base base, BaseUI UI) {
     final Base natives = Base.baseWithName(world, Base.KEY_NATIVES, true);
+    natives.relations.setRelation(base, -0.25f, true);
     
     final NativeHut hut = NativeHut.newHall(1, natives);
     Placement.establishVenue(hut, 4, 4, true, world);

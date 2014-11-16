@@ -565,8 +565,15 @@ public abstract class Plan implements Saveable, Behaviour {
   protected Target lastStepTarget() {
     if (lastStep == null) return null;
     if (lastStep instanceof Action) return ((Action) lastStep).subject();
-    if (lastStep instanceof Plan) return ((Plan) lastStep).lastStepTarget();
+    if (lastStep instanceof Plan  ) return ((Plan  ) lastStep).lastStepTarget();
     return null;
+  }
+  
+  
+  public static String priorityDescription(float priority) {
+    final int maxIndex = PRIORITY_DESCRIPTIONS.length;
+    final float index = (priority / PARAMOUNT) * (maxIndex - 1);
+    return PRIORITY_DESCRIPTIONS[Visit.clamp((int) index, maxIndex)];
   }
   
   
@@ -574,7 +581,7 @@ public abstract class Plan implements Saveable, Behaviour {
   /**  Validation methods, intended to ensure that Plans can be stored
     *  compactly as memories-
     */
-  //  TODO:  Implement this.
+  //  TODO:  Implement this?
   /*
   private static Table <Class, Boolean> validations = new Table(100);
   

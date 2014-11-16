@@ -285,8 +285,11 @@ public class Senses implements Qualities {
       }
     }
     
+    final float ambientDanger = actor.base().dangerMap.sampleAt(actor);
+    if (ambientDanger > 0) sumFoes += ambientDanger / powerLevel;
+    else sumAllies += 0 - ambientDanger / powerLevel;
+    
     fearLevel = sumFoes / (sumFoes + sumAllies);
-    fearLevel += actor.base().dangerMap.sampleAt(actor);
     safePoint = Retreat.nearestHaven(actor, null, emergency);
     
     if (report) {
@@ -297,11 +300,10 @@ public class Senses implements Qualities {
     }
   }
   
-  //*
+  
   public boolean isEmergency() {
     return emergency;
   }
-  //*/
   
   
   public float powerLevel() {

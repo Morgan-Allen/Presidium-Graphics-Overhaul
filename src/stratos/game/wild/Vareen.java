@@ -59,8 +59,8 @@ public class Vareen extends Fauna {
       species.baseSpeed, //speed rate
       ActorHealth.ANIMAL_METABOLISM
     );
-    gear.setDamage(4);
-    gear.setArmour(2);
+    gear.setBaseDamage(4);
+    gear.setBaseArmour(2);
   }
   
   

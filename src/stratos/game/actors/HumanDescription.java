@@ -8,13 +8,18 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
+
+
 //  NOTE:  I'm moving these methods here essentially for the sake of reducing
 //  clutter/space demands within the main Human or Actor classes.
 //   TODO:  Adapt this to actors in general instead?
 
-
 public class HumanDescription implements Qualities {
   
+  
+  private static boolean
+    showPriorities = true ,
+    showRelations  = true ;
   
   final Human h;
   
@@ -43,8 +48,16 @@ public class HumanDescription implements Qualities {
   
   private void describeStatus(Description d, HUD UI) {
     //
-    //  Describe your job, place of work, and current residence:
+    //  Describe the actor's current behaviour first.
     d.append("Is: "); h.describeStatus(d);
+    if (showPriorities) {
+      final Behaviour b = h.mind.rootBehaviour();
+      final float priority = b == null ? -1 : b.priorityFor(h);
+      d.append("\n  (Priority "+I.shorten(priority, 2)+" ");
+      d.append(": "+Plan.priorityDescription(priority)+")");
+    }
+    //
+    //  Describe your job, place of work, and current residence:
     final String VN = h.vocation().nameFor(h);
     d.append("\nVocation: ");
     if (h.mind.work() != null) {
@@ -145,7 +158,8 @@ public class HumanDescription implements Qualities {
   private void describeProfile(Description d, HUD UI) {
     //
     //  Describe background, personality, relationships and memories.
-    //  TODO:  Allow for a chain of arbitrary vocations in a career?
+    //  TODO:  Allow for a chain of arbitrary vocations in a career.  Later!
+    
     d.append("Background: ");
     d.append("\n  "+h.career.birth()+" on "+h.career.homeworld());
     d.append("\n  Trained as "+h.career.vocation().nameFor(h));
@@ -162,6 +176,10 @@ public class HumanDescription implements Qualities {
       if (! (r.subject instanceof Actor)) continue;
       d.append("\n  ");
       d.append(r.subject);
+      if (showRelations) {
+        final int percent = (int) (r.value() * 100);
+        d.append(" "+percent+"%");
+      }
       d.append(" ("+Relation.describe(r)+")");
     }
   }

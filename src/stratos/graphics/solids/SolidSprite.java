@@ -1,7 +1,11 @@
 
 
 package stratos.graphics.solids;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+
 import stratos.graphics.common.*;
+import stratos.start.Assets;
 import stratos.util.*;
 
 import com.badlogic.gdx.graphics.*;
@@ -31,7 +35,7 @@ public class SolidSprite extends Sprite {
     Animation current;
     float time, incept;
   }
-  final Stack <AnimState> animStates = new Stack <AnimState>();
+  final Stack <AnimState> animStates = new Stack <AnimState> ();
   
   private static Vector3 tempV = new Vector3();
   private static Matrix4 tempM = new Matrix4();
@@ -58,6 +62,33 @@ public class SolidSprite extends Sprite {
   
   public ModelAsset model() {
     return model;
+  }
+  
+  
+  protected void saveTo(DataOutputStream out) throws Exception {
+    super.saveTo(out);
+    
+    final float AT = Rendering.activeTime();
+    out.write(animStates.size());
+    for (AnimState state : animStates) {
+      out.writeInt  (model.indexFor(state.current));
+      out.writeFloat(state.time  );
+      out.writeFloat(AT - state.incept);
+    }
+  }
+  
+  
+  protected void loadFrom(DataInputStream in) throws Exception {
+    super.loadFrom(in);
+    
+    final float AT = Rendering.activeTime();
+    for (int n = in.read(); n-- > 0;) {
+      final AnimState state = new AnimState();
+      state.current = model.gdxModel.animations.get(in.readInt());
+      state.time    = in.readFloat();
+      state.incept  = AT - in.readFloat();
+      animStates.add(state);
+    }
   }
   
   

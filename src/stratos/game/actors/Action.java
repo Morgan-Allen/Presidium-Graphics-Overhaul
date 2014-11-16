@@ -40,7 +40,9 @@ public class Action implements Behaviour, AnimNames {
     STATE_SNEAK  =  2,
     STATE_RUN    =  3;
   
-  private static boolean verbose = false;
+  private static boolean
+    verbose     = false,
+    verboseAnim = false;
   
   
   final public Actor actor;
@@ -463,19 +465,24 @@ public class Action implements Behaviour, AnimNames {
     */
   protected void configSprite(Sprite s, Rendering rendering) {
     final SolidSprite sprite = (SolidSprite) s;
-    //
-    //  In the case of a pushing animation, you actually need to set different
-    //  animations for the upper and lower body.  TODO:  THAT
+    
+    final boolean report = verboseAnim && I.talkAbout == actor;
     
     final String animName;
-    if (moveState == STATE_CLOSED) animName = this.animName;
-    else if (moveState == STATE_SNEAK) animName = MOVE_SNEAK;
-    else if (moveState == STATE_RUN) animName = MOVE_FAST;
+    if      (moveState == STATE_CLOSED) animName = this.animName;
+    else if (moveState == STATE_SNEAK ) animName = MOVE_SNEAK;
+    else if (moveState == STATE_RUN   ) animName = MOVE_FAST;
     else animName = MOVE;
     boolean loop = animName != this.animName || (properties & NO_LOOP) == 0;
     
     final float alpha = Rendering.frameAlpha();
     final float AP = ((progress * alpha) + (oldProgress * (1 - alpha)));
+    
+    if (report) {
+      I.say("\nAction configuring animation for "+actor);
+      I.say("  Range name: "+animName);
+      I.say("  Progress:   "+AP);
+    }
     sprite.setAnimation(animName, (AP > 1) ? (AP % 1) : AP, loop);
   }
   

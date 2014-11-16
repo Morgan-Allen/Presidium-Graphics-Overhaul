@@ -63,8 +63,8 @@ public class Lictovore extends Fauna {
       species.baseSpeed,//move speed,
       ActorHealth.ANIMAL_METABOLISM
     );
-    gear.setDamage(15);
-    gear.setArmour(5);
+    gear.setBaseDamage(15);
+    gear.setBaseArmour(5);
   }
   
   

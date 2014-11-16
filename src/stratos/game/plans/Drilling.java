@@ -77,7 +77,7 @@ public class Drilling extends Plan {
   
   
   protected float getPriority() {
-    if (! actor.gear.armed()) return 0;
+    if (! CombatUtils.isArmed(actor)) return 0;
     
     final boolean report = evalVerbose && I.talkAbout == actor;
     final int type = yard.drillType();

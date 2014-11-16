@@ -22,6 +22,10 @@ public interface Behaviour extends Session.Saveable {
     
     DEFAULT_SWITCH_THRESHOLD = 2.5f;
   
+  final public static String PRIORITY_DESCRIPTIONS[] = {
+    "Idle", "Casual", "Routine", "Urgent", "Paramount"
+  };
+  
   //  TODO:  Just base these off urgency?  Anything above urgent triggers
   //  running, say?
   final public static int

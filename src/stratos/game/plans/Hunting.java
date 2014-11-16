@@ -135,7 +135,7 @@ public class Hunting extends Combat {
   public float priorityFor(Actor actor) {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (! validPrey(prey, actor, false)) return -1;
-    if (! actor.gear.armed()) return 0;
+    if (! CombatUtils.isArmed(actor)) return 0;
     
     float urgency, harmLevel;
     final Trait baseTraits[];
