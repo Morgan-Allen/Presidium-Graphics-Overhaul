@@ -32,8 +32,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   
   
   private static boolean
-    verbose     = false,
-    evalVerbose = false,
+    evalVerbose = true ,
     stepVerbose = false;
   
   final int type;
@@ -85,34 +84,34 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   /**  Obtaining and evaluating patrols targets-
     */
   final static Trait BASE_TRAITS[] = { FEARLESS, IGNORANT, SOLITARY };
-  final static Skill
-    BASE_SKILLS[] = { SURVEILLANCE, MARKSMANSHIP, HAND_TO_HAND };
+  final static Skill BASE_SKILLS[] = { SURVEILLANCE, FORENSICS };
   
   //  TODO:  Include bonus from first aid or assembly skills, depending on the
-  //  target.
+  //  target?
 
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
-    if (onPoint == null) return 0;
+    if (onPoint == null || patrolled.size() == 0) return 0;
     
     float urgency, relDanger = 0;
-    
     if (actor.base() != null) for (Target t : patrolled) {
-      relDanger += Plan.dangerPenalty(t, actor);
+      relDanger += actor.base().dangerMap.sampleAt(t);
     }
     relDanger /= patrolled.size();
-    if (relDanger < 0) relDanger = 0;
-    
-    urgency = relDanger * ROUTINE;
-    if (urgency < IDLE) urgency = IDLE;
+    urgency = Visit.clamp(relDanger * ROUTINE, IDLE, ROUTINE);
     
     final float priority = priorityForActorWith(
       actor, guarded,
       urgency, NO_MODIFIER,
-      MILD_HELP, NO_COMPETITION, MILD_FAIL_RISK,
+      MILD_HELP, NO_COMPETITION, REAL_FAIL_RISK,
       BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report
     );
+    if (report) {
+      I.say("\nExtra patrolling factors:");
+      I.say("  Relative danger: "+relDanger);
+      I.say("  Base urgency:    "+urgency);
+    }
     return priority;
   }
   

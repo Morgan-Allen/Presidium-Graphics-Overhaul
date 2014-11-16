@@ -75,16 +75,20 @@ public class FirstAid extends Treatment {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (patient.health.conscious() || ! patient.health.organic()) return 0;
     
-    final float severity = Visit.clamp(severity(), -1, 1);
+    final float severity = severity();
     if (severity <= 0) return 0;
     
     float modifier = 0;
     final boolean ally = CombatUtils.isAllyOf(actor, patient);
-    if (ally) modifier += severity + (actor.senses.isEmergency() ? 0 : 1);
+    if (ally) modifier += severity;
+    
+    if (! CombatUtils.isArmed(patient)) {
+      modifier += severity * (1f + actor.traits.relativeLevel(ETHICAL)) / 2;
+    }
     
     final float priority = priorityForActorWith(
       actor, patient,
-      severity * PARAMOUNT, modifier * ROUTINE,
+      severity * ROUTINE, modifier * ROUTINE,
       REAL_HELP, FULL_COMPETITION, NO_FAIL_RISK,
       BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report

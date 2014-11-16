@@ -48,18 +48,6 @@ public class Relation {
     BASE_NUM_FRIENDS = 5 ,
     MAX_RELATIONS    = 10;
   
-  final static String DESCRIPTORS[] = {
-    "Soulmate",
-    "Close",
-    "Friendly",
-    "Civil",
-    "Ambivalent",
-    "Tense",
-    "Strained",
-    "Hostile",
-    "Nemesis"
-  };
-  
   private static boolean verbose = false;
   
   
@@ -199,15 +187,27 @@ public class Relation {
   }
 
   
+  
+  /**  Interface and printout methods-
+    */
+  final static String DESCRIPTORS[] = {
+    "Soulmate",
+    "Close",
+    "Friendly",
+    "Civil",
+    "Ambivalent",
+    "Tense",
+    "Strained",
+    "Hostile",
+    "Nemesis"
+  };
+  
   public static String describe(Relation r) {
     if (r == null) return "None";
-    final float
-      attSpan = MAX_VALUE * 2,
-      level   = (MAX_VALUE - r.attitude) / attSpan;
+    final float level = (MAX_VALUE - r.attitude) / (MAX_VALUE * 2);
     final int DL = DESCRIPTORS.length;
-    return DESCRIPTORS[Visit.clamp((int) (level * (DL + 1)), DL)];
+    return DESCRIPTORS[Visit.clamp((int) (level * DL), DL)];
   }
-  
   
   
   public String toString() {

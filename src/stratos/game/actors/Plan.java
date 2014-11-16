@@ -430,7 +430,7 @@ public abstract class Plan implements Saveable, Behaviour {
       final float range = rangePenalty(actor, subject);
       rangePenalty = range * distanceCheck;
       final float danger = dangerPenalty(subject, actor) * (1f + failRisk);
-      dangerPenalty = danger * range / 2f;
+      dangerPenalty = danger * (1 + range) / 2f;
     }
     
     
@@ -489,7 +489,7 @@ public abstract class Plan implements Saveable, Behaviour {
     danger *= 1 + actor.traits.relativeLevel(Qualities.NERVOUS);
     final float strength = actor.senses.powerLevel();
     
-    float penalty = danger * 0.1f / (1 + strength);
+    float penalty = danger / (1 + strength);
     if (report) {
       I.say("\nGetting danger penalty for "+actor);
       I.say("  Combat strength: "+strength);

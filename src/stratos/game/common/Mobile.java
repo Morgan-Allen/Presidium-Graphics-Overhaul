@@ -290,12 +290,14 @@ public abstract class Mobile extends Element
   
   
   //  TODO:  Make this abstract?
+  //  TODO:  Outsource these methods to the Pathing class, I'd say.  Make them
+  //  configurable.
   protected void pathingAbort() {}
   protected float aboveGroundHeight() { return 0; }
   protected boolean collides() { return true; }
   
   
-  public int motionType() { return MOTION_WALKS; }
+  public int     motionType()  { return MOTION_WALKS; }
   public boolean motionWalks() { return motionType() == MOTION_WALKS; }
   public boolean motionHover() { return motionType() == MOTION_HOVER; }
   public boolean motionFlyer() { return motionType() == MOTION_FLYER; }
@@ -326,8 +328,6 @@ public abstract class Mobile extends Element
   public Vec3D viewPosition(Vec3D v) {
     if (v == null) v = new Vec3D();
     final float alpha = Rendering.frameAlpha();
-    //I.sayAbout(this, "Frame time: "+alpha);
-    //I.sayAbout(this, "Old/new position: "+position+"/"+nextPosition);
     v.setTo(position).scale(1 - alpha);
     v.add(nextPosition, alpha, v);
     return v;
@@ -336,7 +336,7 @@ public abstract class Mobile extends Element
   
   public void renderFor(Rendering rendering, Base base) {
     final Sprite s = this.sprite();
-    this.viewPosition(s.position);
+    viewPosition(s.position);
     final float alpha = Rendering.frameAlpha();
     final float rotateChange = Vec2D.degreeDif(nextRotation, rotation);
     s.rotation = (rotation + (rotateChange * alpha) + 360) % 360;

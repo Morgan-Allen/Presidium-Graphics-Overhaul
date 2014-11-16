@@ -317,16 +317,19 @@ public class Audit extends Plan {
     if (stage == STAGE_AUDIT && audited != null) {
       d.append("Auditing: ");
       d.append(audited);
-      d.append(" (Balance "+balance+")");
+      d.append(" (Balance "+(int) balance+")");
     }
     else if (stage == STAGE_REPORT) {
       d.append("Filing a financial report at ");
       d.append(actor.mind.work());
-      d.append(" (Balance "+balance+")");
+      d.append(" (Balance "+(int) balance+")");
     }
     else d.append("Auditing "+audited);
   }
 }
+
+
+
 
 
 

@@ -98,6 +98,7 @@ public class SolidSprite extends Sprite {
     Viewport.worldToGL(position, tempV);
     transform.setToTranslation(tempV);
     transform.scl(tempV.set(scale, scale, scale));
+    
     final float radians = (float) FastMath.toRadians(
       model.rotateOffset - rotation
     );

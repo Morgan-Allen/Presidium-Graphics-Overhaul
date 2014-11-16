@@ -2,6 +2,8 @@
 
 
 package stratos.graphics.solids;
+import stratos.util.I;
+
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.model.*;
 import com.badlogic.gdx.math.*;
@@ -55,47 +57,55 @@ public class AnimControl {
       "You must call begin() before adding an animation"
     );
     for (final NodeAnimation nodeAnim : animation.nodeAnimations) {
-      final Node node = nodeAnim.node;
       
-      // Find the keyframe(s)
-      //  TODO:  See if this can't be cached somehow
-      final NodeKeyframe frames[] = nodeAnim.keyframes.toArray(NodeKeyframe.class);
+      //  Basic sanity checks and data hooks-
+      //  TODO:  See if this can't be cached somewhere?
+      final NodeKeyframe frames[];
+      frames = nodeAnim.keyframes.toArray(NodeKeyframe.class);
+      if (frames.length == 0) continue;
       
-      int first = 0, second = -1;
-      for (int i = 0; i < frames.length - 1; i++) if (
-        time >= frames[i].keytime &&
-        time <= frames[i + 1].keytime
-      ) {
-        first = i;
-        second = i + 1;
-        break;
+      //  Firstly, find the keyframe(s) before and after the reference time.
+      //  NOTE:  We apply a binary search here for efficiency, as some models
+      //  can have hundreds of animation-frames:
+      int top = frames.length - 2, bot = 0, mid;
+      NodeKeyframe firstFrame = null, secondFrame = null;
+      
+      if (top <= bot) firstFrame = frames[0];
+      else while (true) {
+        mid = (top + bot) / 2;
+        final float
+          time1 = (firstFrame  = frames[mid    ]).keytime,
+          time2 = (secondFrame = frames[mid + 1]).keytime;
+        
+        if ((time >= time1 && time <= time2) || ((top - bot) < 2)) break;
+        else if (time < time2) top = mid;
+        else if (time > time1) bot = mid;
       }
+      if (firstFrame == null) continue;
       
-      // Apply the first keyframe:
-      //final Transform transform = temp;
-      final NodeKeyframe firstFrame = frames[first];
+      //  Apply the first keyframe found.
       temp.set(
         firstFrame.translation,
         firstFrame.rotation,
         firstFrame.scale
       );
       
-      // Lerp the second keyframe
-      if (second > first) {
-        final NodeKeyframe secondFrame = frames[second];
-        final float t =
+      //  Then interpolate towards the second keyframe:
+      if (secondFrame != null && secondFrame != firstFrame) {
+        final float progress =
           (time - firstFrame.keytime) /
           (secondFrame.keytime - firstFrame.keytime);
         temp.lerp(
           secondFrame.translation,
           secondFrame.rotation,
-          secondFrame.scale, t
+          secondFrame.scale,
+          progress
         );
       }
       
-      // Apply the transform-
-      final Transform t = transforms.get(node);
-      if (alpha > 0.999999f) t.set(temp);
+      //  And apply the transform-
+      final Transform t = transforms.get(nodeAnim.node);
+      if (alpha > 0.999f) t.set(temp);
       else t.lerp(temp, alpha);
     }
   }
