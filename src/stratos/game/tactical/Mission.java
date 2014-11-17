@@ -94,7 +94,9 @@ public abstract class Mission implements
     0, 3, 3, 4, 4, 5
   };
   
-  private static boolean verbose = false;
+  private static boolean
+    verbose     = false,
+    evalVerbose = true ;
   
   
   final Base base;
@@ -138,7 +140,8 @@ public abstract class Mission implements
     for (int i = s.loadInt(); i-- > 0;) {
       final Role role = new Role();
       role.applicant = (Actor) s.loadObject();
-      role.approved = s.loadBool();
+      role.approved  = s.loadBool();
+      role.cached   = (Behaviour) s.loadObject();
       roles.add(role);
     }
     
@@ -160,7 +163,8 @@ public abstract class Mission implements
     s.saveInt(roles.size());
     for (Role role : roles) {
       s.saveObject(role.applicant);
-      s.saveBool(role.approved);
+      s.saveBool  (role.approved );
+      s.saveObject(role.cached  );
     }
     
     ModelAsset.saveSprite(flagSprite, s.output());
@@ -199,8 +203,8 @@ public abstract class Mission implements
     */
   class Role {
     Actor applicant;
-    ///Pledge pledgeMade;  //Not used at the moment.  TODO:  IMPLEMENT
     boolean approved;
+    Behaviour cached;
   }
   
   
@@ -211,16 +215,27 @@ public abstract class Mission implements
   
   
   protected float basePriority(Actor actor) {
+    final boolean report = evalVerbose && I.talkAbout == actor;
+    
     float rewardEval = REWARD_AMOUNTS[priority];
     rewardEval *= REWARD_TYPE_MULTS[missionType];
     
+    final int partySize = rolesApproved(), limit = PARTY_LIMITS[priority];
     if (! isApproved(actor)) {
-      final float fill = rolesApproved() * 1f / PARTY_LIMITS[priority];
-      if (fill >= 1) return -1;
-      rewardEval /= 1f + fill;
+      if (partySize >= limit) return -1;
+      rewardEval /= limit;
     }
+    else rewardEval /= partySize;
+    final float value = Pledge.greedPriority(actor, (int) rewardEval);
     
-    float value = Pledge.greedLevel(actor, (int) rewardEval) * ROUTINE;
+    if (report) {
+      I.say("\nEvaluating reward for "+this);
+      I.say("  True reward total: "+REWARD_AMOUNTS[priority]);
+      I.say("  Type multiplier:   "+REWARD_TYPE_MULTS[missionType]);
+      I.say("  Party capacity:    "+partySize+"/"+limit);
+      I.say("  Evaluated reward:  "+rewardEval);
+      I.say("  Priority value:    "+value);
+    }
     return value;
   }
   
@@ -265,7 +280,7 @@ public abstract class Mission implements
   
   
   public boolean openToPublic() {
-    if (missionType == TYPE_PUBLIC) return true;
+    if (missionType == TYPE_PUBLIC) return true ;
     if (missionType == TYPE_COVERT) return false;
     return ! begun;
   }
@@ -281,12 +296,44 @@ public abstract class Mission implements
   }
   
   
-  public int motionType(Actor actor) { return MOTION_ANY; }
-  public void abortBehaviour() {}
+  public int motionType(Actor actor) {
+    return MOTION_ANY;
+  }
+  
   
   public boolean valid() {
     if (finished()) return false;
     return ! subject.destroyed();
+  }
+  
+  
+  protected Behaviour cachedStepFor(Actor actor, boolean create) {
+    final Role role = roleFor(actor);
+    if (role == null) return create ? nextStepFor(actor) : null;
+    final Behaviour cached = role.cached;
+    if (cached == null || cached.finished()) {
+      return role.cached = create ? nextStepFor(actor) : null;
+    }
+    return cached;
+  }
+  
+  
+  protected Behaviour cacheStepFor(Actor actor, Behaviour step) {
+    final Role role = roleFor(actor);
+    if (role == null) return step;
+    return role.cached = step;
+  }
+
+  
+  public float priorityFor(Actor actor) {
+    final Behaviour step = cachedStepFor(actor, true);
+    return step == null ? -1 : step.priorityFor(actor);
+  }
+  
+  
+  public void abortBehaviour() {
+    //  TODO:  There needs to be a special-case handler for this.  You also
+    //  need to identify the cancelling actor.
   }
   
   
@@ -297,6 +344,7 @@ public abstract class Mission implements
   public void setApplicant(Actor actor, boolean is) {
     final Role oldRole = roleFor(actor);
     if (is) {
+      if (actor.mind.mission() != this) I.complain("MUST CALL setMission()!");
       if (oldRole != null) return;
       Role role = new Role();
       role.applicant = actor;
@@ -304,6 +352,7 @@ public abstract class Mission implements
       roles.add(role);
     }
     else {
+      if (actor.mind.mission() == this) I.complain("MUST CALL setMission()!");
       if (oldRole == null) return;
       roles.remove(oldRole);
     }

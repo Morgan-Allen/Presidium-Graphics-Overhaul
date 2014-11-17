@@ -39,7 +39,7 @@ public class ContactMission extends Mission {
   
   private static boolean 
     evalVerbose  = false,
-    eventVerbose = true;
+    eventVerbose = true ;
   
   
   private Actor[] talksTo = null;  //Refreshed on request, at most once/second
@@ -118,6 +118,9 @@ public class ContactMission extends Mission {
   
   
   public float priorityFor(Actor actor) {
+    final Behaviour current = cachedStepFor(actor, true);
+    return current == null ? -1 : current.priorityFor(actor);
+    /*
     final boolean report = evalVerbose && I.talkAbout == actor;
     final float basePriority = basePriority(actor);
     if (report) {
@@ -139,11 +142,15 @@ public class ContactMission extends Mission {
     
     if (report) I.say("  FINAL PRIORITY: "+avg);
     return avg;
+    //*/
   }
   
   
   public Behaviour nextStepFor(Actor actor) {
     if (! isActive()) return null;
+    final Behaviour cached = cachedStepFor(actor, false);
+    if (cached != null) return cached;
+    
     final Choice choice = new Choice(actor);
     final float basePriority = basePriority(actor);
     
@@ -173,15 +180,7 @@ public class ContactMission extends Mission {
       choice.add(closeTalks);
     }
     
-    return choice.pickMostUrgent();
-    /*
-    //  Otherwise, just try to make yourself useful.
-    if (choice.size() == 0) {
-      final Element around = (Element) subject;
-      return Patrolling.aroundPerimeter(actor, around, actor.world());
-    }
-    else return choice.pickMostUrgent();
-    //*/
+    return cacheStepFor(actor, choice.pickMostUrgent());
   }
   
   

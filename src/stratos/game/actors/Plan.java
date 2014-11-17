@@ -147,7 +147,7 @@ public abstract class Plan implements Saveable, Behaviour {
   public float priorityFor(Actor actor) {
     if (this.actor != actor) {
       if (this.actor != null) {
-        I.complain("PLAN CANNOT SWITCH ACTOR! "+actor+" vs. "+this.actor);
+        I.complain(this+" CANNOT SWITCH ACTOR! "+actor+" vs. "+this.actor);
         return -1;
       }
       else {

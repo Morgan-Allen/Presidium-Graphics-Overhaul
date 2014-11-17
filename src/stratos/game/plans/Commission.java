@@ -180,8 +180,8 @@ public class Commission extends Plan {
         if (report) I.say("  Can't afford item.");
         return 0;
       }
-      float greed = Pledge.greedLevel(actor, price / ITEM_WEAR_DURATION);
-      modifier -= greed * ROUTINE;
+      float greed = Pledge.greedPriority(actor, price / ITEM_WEAR_DURATION);
+      modifier -= greed;
     }
     
     final float priority = priorityForActorWith(

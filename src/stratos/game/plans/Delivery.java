@@ -203,7 +203,7 @@ public class Delivery extends Plan {
         if (Visit.arrayIncludes(ALL_FOOD_TYPES, i.type)) foodVal += i.amount;
       }
       if (price > actor.gear.credits()) return 0;
-      modifier -= Pledge.greedLevel(actor, price) * ROUTINE;
+      modifier -= Pledge.greedPriority(actor, price);
       modifier += actor.health.hungerLevel() * CASUAL * foodVal;
     }
     

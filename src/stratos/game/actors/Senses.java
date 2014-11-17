@@ -112,11 +112,15 @@ public class Senses implements Qualities {
     }
     
     final Behaviour reaction = reactions.pickMostUrgent();
-    if (report) I.say("TOP REACTION IS: "+reaction);
+    if (report) {
+      I.say("\nTOP REACTION IS: "+reaction);
+      I.say("  Current behaviour: "+actor.mind.rootBehaviour());
+    }
     if (actor.mind.wouldSwitchTo(reaction)) {
-      if (report) I.say("  SWITCHING OVER!");
+      if (report) I.say("  Switching over!");
       actor.mind.assignBehaviour(reaction);
     }
+    else if (report) I.say("  Sticking with current plan.");
   }
   
   

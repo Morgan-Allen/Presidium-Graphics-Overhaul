@@ -17,11 +17,14 @@ import stratos.user.*;
 import stratos.util.*;
 
 
+
 //  You need openings for Hunters, Gatherers, and Chieftains.
 //  Plus the Medicine Man, Marked One and Cargo Cultist.
 
 //  Do I need a wider selection of structures?  ...For the moment.  For the
 //  sake of safety.  Might expand on functions later.
+
+//  TODO:  Give this an exclusion radius using the claims system.
 
 
 public class NativeHut extends Venue {

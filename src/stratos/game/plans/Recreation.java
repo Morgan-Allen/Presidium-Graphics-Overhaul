@@ -103,7 +103,7 @@ public class Recreation extends Plan {
     float modifier = NO_MODIFIER;
     modifier += Performance.performValueFor(venue, this);
     modifier += IDLE * rateComfort(venue, actor, this) / 10;
-    modifier -= Pledge.greedLevel(actor, (int) cost) * ROUTINE;
+    modifier -= Pledge.greedPriority(actor, (int) cost);
     final float need = 1f - actor.health.moraleLevel();
     
     final float priority = priorityForActorWith(

@@ -6,6 +6,7 @@ import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.game.base.*;
 import stratos.game.campaign.*;
+import stratos.game.tactical.*;
 import stratos.game.maps.*;
 import stratos.game.wild.*;
 import stratos.game.plans.*;
@@ -103,14 +104,12 @@ public class DebugCombat extends Scenario {
   //  matched by enemy, -50% if heavily outmatched.  +30% if they can't
   //  escape.
   
-  //  TODO:  Test this for native tribes as well.  Both negotiation and
-  //  dialogue.
-  
   
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.setDefaults();
-    GameSettings.hireFree  = true;
+    GameSettings.hireFree  = false;
     GameSettings.buildFree = true;
+    GameSettings.paveFree  = true;
     GameSettings.fogFree   = true;
     
     if (false) animalScenario  (world, base, UI);
@@ -133,11 +132,20 @@ public class DebugCombat extends Scenario {
       actor.mind.setWork(hut);
     }
     
-    for (int i = 3; i-- > 0;) {
+    final Mission contact = new ContactMission(base, hut);
+    contact.setMissionType(Mission.TYPE_SCREENED  );
+    contact.assignPriority(Mission.PRIORITY_URGENT);
+    
+    for (int i = 1; i-- > 0;) {
       final Actor actor = new Human(Backgrounds.VOLUNTEER, base);
       actor.enterWorldAt(2, 2, world);
+      actor.mind.assignMission(contact);
+      contact.setApprovalFor(actor, true);
       UI.selection.pushSelection(actor, true);
     }
+    
+    base.addMission(contact);
+    contact.beginMission();
   }
   
   

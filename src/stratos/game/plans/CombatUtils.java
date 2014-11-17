@@ -120,7 +120,7 @@ public class CombatUtils {
     
     //  Include a penalty if the subject is unarmed, based on ethics.
     if (! isArmed(other)) {
-      rating -= actor.traits.relativeLevel(ETHICAL);
+      rating -= (1 + actor.traits.relativeLevel(ETHICAL)) / 2;
     }
     
     //  Limit to the range of +/-1, and return.

@@ -4,6 +4,7 @@
 package stratos.game.civilian;
 import stratos.game.common.*;
 import stratos.game.actors.*;
+import stratos.util.I;
 
 import org.apache.commons.math3.util.FastMath;
 
@@ -25,6 +26,9 @@ import org.apache.commons.math3.util.FastMath;
  */
 public class Pledge implements Session.Saveable {
   
+  
+  private static boolean
+    evalVerbose = true;
   
   public static enum Type {
     
@@ -92,26 +96,38 @@ public class Pledge implements Session.Saveable {
   
   /**  Utility methods for calculating the appeal of different motivations.
     */
-  public static float greedLevel(Actor actor, float creditsPerDay) {
-    float baseUnit = actor.gear.credits();
+  public static float greedPriority(Actor actor, float creditsPerDay) {
+    if (creditsPerDay <= 0) return 0;
+    final boolean report = evalVerbose && I.talkAbout == actor;
+    
     final float greed = 1 + actor.traits.relativeLevel(Qualities.ACQUISITIVE);
+    final Profile p = actor.base().profiles.profileFor(actor);
     
-    if (actor.base() != null) {
-      final Profile p = actor.base().profiles.profileFor(actor);
-      baseUnit += (100 + p.salary()) / 10;
-    }
+    float baseUnit = actor.gear.credits();
+    baseUnit += (100 + p.salary()) / 2;
+    baseUnit /= Backgrounds.NUM_DAYS_PAY;
     
-    baseUnit /= Backgrounds.PAY_INTERVAL;
     float mag = 1f + (creditsPerDay / baseUnit);
     mag = ((float) FastMath.log(2, mag)) * greed;
-    return mag;
+    
+    final float level;
+    if (mag <= 1) level = mag * Plan.ROUTINE;
+    else          level = mag + Plan.ROUTINE - 1;
+    
+    if (report) {
+      I.say("\nEvaluating greed value of "+creditsPerDay+" credits.");
+      I.say("  Salary: "+p.salary()+", credits: "+actor.gear.credits());
+      I.say("  Pay interval: "+Backgrounds.NUM_DAYS_PAY+", greed: "+greed);
+      I.say("  Base unit: "+baseUnit+", magnitude: "+mag);
+      I.say("  Final level: "+level);
+    }
+    return level;
   }
   
   
   
   /**  UI and interface methods-
     */
-  
 }
 
 

@@ -41,7 +41,7 @@ public class Dialogue extends Plan implements Qualities {
     STAGE_DONE   =  7;
   
   private static boolean
-    evalVerbose   = false,
+    evalVerbose   = true ,
     eventsVerbose = false;
   
   
@@ -126,9 +126,12 @@ public class Dialogue extends Plan implements Qualities {
     final boolean report = evalVerbose && (
       I.talkAbout == actor || I.talkAbout == other
     );
-    
-    if (stage == STAGE_DONE) return 0;
+
     if (stage == STAGE_BYE ) return CASUAL;
+    if (stage == STAGE_DONE || shouldQuit()) {
+      if (report) I.say("\nDialogue should quit!");
+      return 0;
+    }
     
     float maxRange = actor.health.sightRange() * 2;
     final float
@@ -150,15 +153,11 @@ public class Dialogue extends Plan implements Qualities {
       return 0;
     }
     if (report) {
-      I.say("\n  Checking for dialogue between "+actor+" and "+other);
+      I.say("\nChecking for dialogue between "+actor+" and "+other);
       I.say("  Type is:           "+type);
       I.say("  Solitude:          "+solitude);
       I.say("  Curiosity/novelty: "+curiosity+"/"+novelty);
       I.say("  Bonus:             "+bonus);
-    }
-    if (novelty <= 0 || ! canTalk(other)) {
-      if (report) I.say("  "+other+" has nothing to say to "+actor+".");
-      return 0;
     }
     
     final float priority = priorityForActorWith(
@@ -171,20 +170,6 @@ public class Dialogue extends Plan implements Qualities {
     return priority;
   }
   
-  /*
-  private float urgency() {
-    final float
-      curiosity = (1 + actor.traits.relativeLevel(CURIOUS)) / 2f,
-      solitude  = solitude(actor),
-      value     = actor.relations.valueFor(other),
-      novelty   = actor.relations.noveltyFor(other);
-    float urgency = 0;
-    urgency += (solitude + value) / 2f;
-    urgency += curiosity * novelty;
-    return Visit.clamp(urgency, -1, 1);
-  }
-  //*/
-  
   
   private float solitude(Actor actor) {
     //  TODO:  Only count positive relations!
@@ -196,9 +181,18 @@ public class Dialogue extends Plan implements Qualities {
   }
   
   
+  private boolean shouldQuit() {
+    if (invitation != null) return false;
+    return
+      (actor.relations.noveltyFor(other) <= 0) ||
+      (type != TYPE_CONTACT && ! canTalk(other));
+  }
+  
+  
   private boolean canTalk(Actor other) {
     if (! other.health.conscious()) return false;
     if (! other.health.human()) return false;
+    
     if (other == starts && ! hasBegun()) return true;
     
     final Target talksWith = other.focusFor(Dialogue.class);
@@ -238,11 +232,6 @@ public class Dialogue extends Plan implements Qualities {
   protected Behaviour getNextStep() {
     if (stage >= STAGE_DONE) return null;
     final boolean report = eventsVerbose && I.talkAbout == actor;
-    
-    if (type != TYPE_CONTACT && ! canTalk(other)) {
-      abortBehaviour();
-      return null;
-    }
     
     if (starts == actor && stage == STAGE_INIT) {
       final Action greeting = new Action(
@@ -309,36 +298,38 @@ public class Dialogue extends Plan implements Qualities {
   
   public boolean actionGreet(Actor actor, Boarding aboard) {
     if (! other.isDoing(Dialogue.class, null)) {
-      if (! canTalk(other)) {
-        if (I.talkAbout == actor) I.say("CAN'T TALK!");
+      if (canTalk(other)) {
+        final Dialogue d = new Dialogue(other, actor, type);
+        d.stage = STAGE_CHAT;
+        other.mind.assignBehaviour(d);
+      }
+      else if (shouldQuit()) {
         abortBehaviour();
         return false;
       }
-      final Dialogue d = new Dialogue(other, actor, type);
-      d.stage = STAGE_CHAT;
-      other.mind.assignBehaviour(d);
     }
     this.stage = STAGE_CHAT;
     return true;
   }
   
   
-  public boolean actionWait(Actor actor, Actor other) {
-    return true;
-  }
-  
-  
   public boolean actionChats(Actor actor, Actor other) {
     DialogueUtils.tryChat(actor, other);
-    final boolean canTalk = canTalk(other);
+    //final boolean canTalk = canTalk(other);
     final float relation = actor.relations.valueFor(other);
     
-    if (actor.relations.noveltyFor(other) <= 0 || ! canTalk) {
+    if (shouldQuit()) {
       if (invitation == null && Rand.num() < relation) {
         invitation = actor.mind.nextBehaviour();
       }
       else stage = STAGE_BYE;
     }
+    
+    return true;
+  }
+  
+  
+  public boolean actionWait(Actor actor, Actor other) {
     return true;
   }
   

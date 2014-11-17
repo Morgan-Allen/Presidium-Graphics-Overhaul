@@ -275,11 +275,11 @@ public class Gifting extends Plan implements Qualities {
     }
     
     final float pricedAt = item.defaultPrice();
-    rating += Pledge.greedLevel(receives, pricedAt) * ROUTINE;
+    rating += Pledge.greedPriority(receives, pricedAt);
     if (report) I.say("  Rating for "+item+" is: "+rating);
     
     if (buys != null) {
-      rating /= 1 + (Pledge.greedLevel(buys, pricedAt) * ROUTINE);
+      rating /= 1 + (Pledge.greedPriority(buys, pricedAt));
       if (report) I.say("    After pricing? "+rating);
     }
     return rating;

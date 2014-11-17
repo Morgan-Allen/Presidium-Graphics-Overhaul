@@ -7,6 +7,7 @@
 package stratos.util;
 import java.awt.*;
 import java.awt.image.*;
+
 import javax.swing.*;
 
 
@@ -51,6 +52,13 @@ public class I {
       System.out.println("\nERROR:  "+e.getMessage());
       e.printStackTrace();
     }
+  }
+  
+  
+  public static void reportStackTrace() {
+    String trace = "";
+    for (Object o : new Exception().getStackTrace()) trace+="\n  "+o;
+    I.say("  STACK TRACE: "+trace);
   }
   
   

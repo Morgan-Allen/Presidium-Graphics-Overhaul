@@ -179,26 +179,29 @@ public class Choice implements Qualities {
     Actor actor, Behaviour last, Behaviour next, boolean stubborn,
     boolean report
   ) {
+    if (report) I.say("\nConsidering switch from "+last+" to "+next);
     if (next == null) return false;
-    if (last == null) return true;
+    if (last == null) return true ;
+    
     final float
       lastPriority = last.priorityFor(actor),
       nextPriority = next.priorityFor(actor);
+    if (report) {
+      I.say("  Last priority: "+lastPriority);
+      I.say("  Next priority: "+nextPriority);
+    }
+    
     if (nextPriority <= 0) return false;
-    if (lastPriority <= 0) return true;
+    if (lastPriority <= 0) return true ;
     
     final float minPriority = stubborn ?
       competeThreshold(actor, nextPriority, true) :
       nextPriority;
-      
-    if (report && false) {
-      I.say("\nConsidering plan switch...");
-      I.say("  Last plan: "+last+", priority: "+lastPriority);
-      I.say("  Next plan: "+next+", priority: "+nextPriority);
+    
+    if (report) {
       I.say("  Min. priority for last is: "+minPriority);
       I.say("  Would switch from last to next? "+(lastPriority < minPriority));
     }
-    
     return lastPriority < minPriority;
   }
 }

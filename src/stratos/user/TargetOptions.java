@@ -96,7 +96,7 @@ public class TargetOptions extends UIGroup {
       subject instanceof Venue
     ) {
       options.add(new OptionButton(
-        BUI, MissionsTab.STRIKE_ICON, "Neutralise subject",
+        BUI, MissionsTab.STRIKE_ICON, "Destroy or capture subject",
         new StrikeMission(base, subject)
       ));
     }
@@ -106,7 +106,7 @@ public class TargetOptions extends UIGroup {
       subject instanceof Item
     ) {
       options.add(new OptionButton(
-        BUI, MissionsTab.SECURITY_ICON, "Secure subject",
+        BUI, MissionsTab.SECURITY_ICON, "Secure or protect subject",
         new SecurityMission(base, subject)
       ));
     }
@@ -115,7 +115,7 @@ public class TargetOptions extends UIGroup {
       ((Actor) subject).base() != BUI.played()
     ) {
       options.add(new OptionButton(
-        BUI, MissionsTab.CONTACT_ICON, "Contact subject",
+        BUI, MissionsTab.CONTACT_ICON, "Contact or negotiate with subject",
         new ContactMission(base, subject)
       ));
     }
@@ -123,7 +123,7 @@ public class TargetOptions extends UIGroup {
       subject instanceof Tile
     ) {
       options.add(new OptionButton(
-        BUI, MissionsTab.RECON_ICON, "Surveil subject",
+        BUI, MissionsTab.RECON_ICON, "Surveil or follow subject",
         new ReconMission(base, (Tile) subject)
       ));
     }

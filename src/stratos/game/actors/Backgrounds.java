@@ -53,7 +53,7 @@ public interface Backgrounds {
   
   final public static float
     NUM_DAYS_PAY      = 20,
-    PAY_INTERVAL      = Stage.STANDARD_DAY_LENGTH * 20,
+    PAY_INTERVAL      = Stage.STANDARD_DAY_LENGTH * NUM_DAYS_PAY,
     MIN_DAILY_EXPENSE = 100 / (PAY_INTERVAL * 5);
   final public static int
     HIRE_COSTS[] = {

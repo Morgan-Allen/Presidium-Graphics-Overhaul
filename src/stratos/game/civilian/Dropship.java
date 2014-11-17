@@ -40,7 +40,7 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   /**  Fields, constants, constructors and save/load methods-
     */
   private static boolean
-    verbose = true ;
+    verbose = false;
   
   final static String SHIP_NAMES[] = {
     "The Space Marine",

@@ -275,7 +275,7 @@ public class FindHome extends Plan {
     if (newHome instanceof Holding) {
       final int UL = ((Holding) newHome).upgradeLevel();
       final float TL = HoldingUpgrades.TAX_LEVELS[UL];
-      rating -= Pledge.greedLevel(actor, TL) * ROUTINE;
+      rating -= Pledge.greedPriority(actor, TL);
       rating += UL;
     }
     

@@ -242,10 +242,6 @@ public class HumanMind extends ActorMind implements Qualities {
     choice.add(mission);
     choice.add(Scenario.current().taskFor(actor));
     choice.add(FindMission.attemptFor(actor));
-    //
-    // Apply for missions, migration, work and home.
-    //choice.add(FindWork.attemptFor(actor));
-    //choice.add(FindHome.attemptFor(actor));
   }
   
   

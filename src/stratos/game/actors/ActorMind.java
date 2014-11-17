@@ -37,7 +37,6 @@ public abstract class ActorMind implements Qualities {
   
   protected Mission mission;
   protected Employer home, work;
-  //protected Application application;
   protected Actor master;
   
   
@@ -89,11 +88,6 @@ public abstract class ActorMind implements Qualities {
     if (work != null && work.destroyed()) {
       setWork(null);
     }
-    /*
-    if (application != null && ! application.valid()) {
-      switchApplication(null);
-    }
-    //*/
     if (mission != null && mission.finished()) {
       assignMission(null);
     }
@@ -289,17 +283,18 @@ public abstract class ActorMind implements Qualities {
   
   
   public void assignMission(Mission mission) {
-    if (this.mission == mission) {
-      return;
-    }
-    if (this.mission != null) {
-      cancelBehaviour(this.mission);
-      this.mission.setApplicant(actor, false);
+    
+    final Mission oldMission = this.mission;
+    if (mission == oldMission) return;
+    this.mission = mission;
+    
+    if (oldMission != null) {
+      cancelBehaviour(oldMission);
+      oldMission.setApplicant(actor, false);
     }
     if (mission != null) {
       mission.setApplicant(actor, true);
     }
-    this.mission = mission;
   }
   
   
@@ -383,9 +378,7 @@ public abstract class ActorMind implements Qualities {
     if (b == null) return;
     if (decisionVerbose && I.talkAbout == actor) {
       I.say("\nCANCELLING "+b);
-      ///new Exception().printStackTrace();
     }
-    
     if (agenda.includes(b)) while (agenda.size() > 0) {
       final Behaviour popped = popBehaviour();
       if (popped == b) break;
