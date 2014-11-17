@@ -13,6 +13,8 @@ import com.badlogic.gdx.utils.*;
 
 import java.util.Arrays;
 
+import org.apache.commons.math3.util.FastMath;
+
 import stratos.graphics.common.*;
 import stratos.graphics.solids.MS3DFile.*;
 import stratos.util.*;
@@ -307,6 +309,15 @@ public class MS3DModel extends SolidModel {
     if (FPS == 0 || FPS == 1) FPS = 1.0f;
     this.rotateOffset = animConfig.getFloat("rotate");
     
+    if (verbose) for (ModelNodeAnimation node : animation.nodeAnimations) {
+      I.add("\n  Total animations in "+node.nodeId+": "+node.keyframes.size);
+      I.add(" (");
+      for (ModelNodeKeyframe frame : node.keyframes) {
+        I.add(" "+frame.keytime);
+      }
+      I.add(")");
+    }
+    
     addLoop: for (XML animXML : animConfig.children()) {
       //
       // First, check to ensure that this animation has an approved name:
@@ -330,10 +341,12 @@ public class MS3DModel extends SolidModel {
 
       // scaling for exact duration
       float scale = animLength / (animEnd - animStart);
+      int maxFrames = 0;
       
       for (ModelNodeAnimation node : animation.nodeAnimations) {
         final ModelNodeAnimation nd = new ModelNodeAnimation();
         nd.nodeId = node.nodeId;
+        int numFrames = 0;
         
         for (ModelNodeKeyframe frame : node.keyframes) {
           if (frame.keytime >= animStart && frame.keytime <= animEnd) {
@@ -343,12 +356,18 @@ public class MS3DModel extends SolidModel {
             kf.keytime -= animStart;
             kf.keytime *= scale;
             nd.keyframes.add(kf);
+            numFrames++;
           }
         }
         anim.nodeAnimations.add(nd);
+        maxFrames = FastMath.max(maxFrames, numFrames);
       }
       
-      if (verbose) I.say("  Adding animation with name: "+name);
+      if (verbose) {
+        I.say("  Adding animation with name: "+name);
+        I.say("  Start/end:                  "+animStart+"/"+animEnd);
+        I.say("  Total frames:               "+maxFrames);
+      }
       data.animations.add(anim);
     }
   }

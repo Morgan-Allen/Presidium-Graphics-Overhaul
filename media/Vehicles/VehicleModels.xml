@@ -10,7 +10,7 @@
   stride="1.0"
   height="2.0"
 >
-  <animations rotate="90">
+  <animations fps="1" rotate="90">
     <animation name="stand"      start="1"  end="3"  duration="0.35" />
     <animation name="descend"    start="4"  end="7"  duration="3" />
   </animations>

@@ -6,6 +6,7 @@ import org.apache.commons.math3.util.FastMath;
 import stratos.game.actors.Human;
 import stratos.game.base.Suspensor;
 import stratos.game.building.Economy;
+import stratos.game.maps.Species;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.sfx.*;
@@ -45,7 +46,11 @@ public class DebugGraphics {
       "media/Actors/human/", "male_final.ms3d",
       Human.class, "HumanModels.xml", "MalePrime"
     ),
-    SM = MICOVORE_MODEL;
+    DROPSHIP_MODEL =  MS3DModel.loadFrom(
+      "media/Vehicles/", "dropship.ms3d", Species.class,
+      "VehicleModels.xml", "Dropship"
+    ),
+    SM = DROPSHIP_MODEL;
   
   final static ShotFX.Model
     BEAM_FX_MODEL = new ShotFX.Model(
@@ -62,13 +67,14 @@ public class DebugGraphics {
   
   
   public static void main(String args[]) {
-
-    PlayLoop.setupAndLoop(new VisualDebug() {
+    final VisualDebug debug = new VisualDebug() {
       protected void loadVisuals() {
         final SolidSprite SS = (SolidSprite) SM.makeSprite();
         sprites.add(SS);
         SS.position.y = 2;
         SS.scale = 1.5f;
+        
+        
         
         final SolidSprite spriteA = (SolidSprite) HUMAN_MODEL.makeSprite();
         spriteA.showOnly(AnimNames.MAIN_BODY);
@@ -80,7 +86,7 @@ public class DebugGraphics {
         spriteA.togglePart("pistol", true);
         spriteA.scale = 2.0f;
         spriteA.position.set(-2, 2, 0);
-        sprites.add(spriteA);
+        //sprites.add(spriteA);
         
         
         for (int i = 10; i-- > 0;) {
@@ -89,7 +95,7 @@ public class DebugGraphics {
           CS.fog = (i + 1) / 10f;
           CS.colour = Colour.transparency(CS.fog);
           CS.scale = 0.5f;
-          sprites.add(CS);
+          //sprites.add(CS);
         }
         
         final BuildingSprite BS = BuildingSprite.fromBase(VM, 4, 2);
@@ -122,7 +128,7 @@ public class DebugGraphics {
           }
         };
         FX1.position.set(0, 0, 2);
-        sprites.add(FX1);
+        //sprites.add(FX1);
         
         final ShieldFX FX2 = new ShieldFX() {
           public void readyFor(Rendering r) {
@@ -138,7 +144,7 @@ public class DebugGraphics {
         };
         FX2.scale = 1.5f;
         FX2.position.set(-2, 2, 0);
-        sprites.add(FX2);
+        //sprites.add(FX2);
         
         final ShotFX FX3 = new ShotFX(FM) {
           float lastTime = 0;
@@ -154,7 +160,7 @@ public class DebugGraphics {
         FX3.position.set(-2, 2, 0);
         FX3.origin.set(-1, 1, 0);
         FX3.target.set(-4, 4, 0);
-        sprites.add(FX3);
+        //sprites.add(FX3);
         
         PlayLoop.rendering().backColour = new Colour(0, 0, 1, 0);
       }
@@ -168,14 +174,20 @@ public class DebugGraphics {
         }
         if (sprite.model() == SM) {
           final float progress = Rendering.activeTime() * 6 / 10f;
-          sprite.setAnimation(AnimNames.FIRE, progress % 1, true);
-          sprite.rotation += 120 / Rendering.FRAMES_PER_SECOND;
+          sprite.setAnimation("descend", progress % 1, false);
+          //sprite.setAnimation(AnimNames.FIRE, progress % 1, true);
+          //sprite.rotation += 120 / Rendering.FRAMES_PER_SECOND;
         }
         if (sprite.model() == HUMAN_MODEL) {
           sprite.rotation += 120 / Rendering.FRAMES_PER_SECOND;
         }
       }
-    });
+    };
+    
+    PlayLoop.setupAndLoop(
+      debug, "stratos.graphics",
+      DebugHumanSprites.class, Economy.class
+    );
   }
 }
 

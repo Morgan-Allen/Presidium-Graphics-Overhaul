@@ -70,7 +70,7 @@ public class AnimControl {
       int top = frames.length - 2, bot = 0, mid;
       NodeKeyframe firstFrame = null, secondFrame = null;
       
-      if (top <= bot) firstFrame = frames[0];
+      if (top < bot) firstFrame = frames[0];
       else while (true) {
         mid = (top + bot) / 2;
         final float

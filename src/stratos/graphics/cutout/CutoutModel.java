@@ -94,7 +94,7 @@ public class CutoutModel extends ModelAsset {
   
   
   public Sprite makeSprite() {
-    if (! loaded) I.complain("CANNOT CREATE SPRITE UNTIL LOADED!");
+    if (! loaded) I.complain("CANNOT CREATE SPRITE UNTIL LOADED: "+fileName);
     return new CutoutSprite(this);
   }
   
