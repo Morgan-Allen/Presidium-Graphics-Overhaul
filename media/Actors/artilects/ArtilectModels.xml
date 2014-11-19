@@ -93,13 +93,14 @@
   stride="1.5"
   height="2.5"
 >
-  <animations rotate="90">
-    <animation name="stand"       start="0"  end="0"  duration="1"   />
-    <animation name="move"        start="14" end="15" duration="1.5" />
-    <animation name="move_fast"   start="14" end="15" duration="1.5" />
-    <animation name="strike"      start="0"  end="7"  duration="1.5" />
-    <animation name="fire"        start="14" end="15" duration="1.5" />
-    <animation name="fall"        start="8"  end="13" duration="3"   />
+  <animations rotate="0" fps="1">
+    <animation name="stand"       start="0"   end="0"   duration="1" />
+    <animation name="idle"        start="0"   end="48"  duration="1" />
+    <animation name="walk_begin"  start="48"  end="58"  duration="1" />
+    <animation name="walk_cycle"  start="58"  end="106" duration="1" />
+    <animation name="walk_stop"   start="107" end="116" duration="1" />
+    <animation name="attack"      start="116" end="165" duration="1" />
+    <animation name="die"         start="165" end="204" duration="1" />
   </animations>
   
   <attachPoints>

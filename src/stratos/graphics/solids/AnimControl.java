@@ -3,6 +3,7 @@
 
 package stratos.graphics.solids;
 import stratos.util.I;
+import stratos.util.Visit;
 
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.model.*;
@@ -71,15 +72,21 @@ public class AnimControl {
       NodeKeyframe firstFrame = null, secondFrame = null;
       
       if (top < bot) firstFrame = frames[0];
-      else while (true) {
+      else while (bot >= 0 && top < frames.length) {
         mid = (top + bot) / 2;
         final float
-          time1 = (firstFrame  = frames[mid    ]).keytime,
-          time2 = (secondFrame = frames[mid + 1]).keytime;
+          time1 = (frames[mid    ]).keytime,
+          time2 = (frames[mid + 1]).keytime;
         
-        if ((time >= time1 && time <= time2) || ((top - bot) < 2)) break;
-        else if (time < time2) top = mid;
-        else if (time > time1) bot = mid;
+        if (time >= time1 && time <= time2) {
+          firstFrame  = frames[mid    ];
+          secondFrame = frames[mid + 1];
+          break;
+        }
+        else if (top == bot     ) top = --bot;
+        else if ((top - bot) < 2) bot = top  ;
+        else if (time < time2   ) top = mid  ;
+        else if (time > time1   ) bot = mid  ;
       }
       if (firstFrame == null) continue;
       

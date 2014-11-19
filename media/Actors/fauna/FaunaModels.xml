@@ -36,14 +36,16 @@
   stride="2.0"
   height="1.0"
 >
-  <animations>
-    <animation name="stand"      start="1"    end="30"   duration="1.0" />
-    <animation name="move"       start="32"   end="54"   duration="1.0" />
-    <animation name="move_sneak" start="56"   end="78"   duration="1.0" />
-    <animation name="move_fast"  start="80"   end="98"   duration="0.7" />
-    <animation name="strike"     start="99"   end="122"  duration="1.0" />
-    <animation name="look"       start="123"  end="214"  duration="1.0" />
-    <animation name="fall"       start="216"  end="244"  duration="1.0" />
+  <animations fps="1" rotate="0">
+    <animation name="fly"        start="1"    end="23"   duration="1.0" />
+    <animation name="move"       start="25"   end="47"   duration="1.0" />
+    <animation name="move_sneak" start="49"   end="72"   duration="1.0" />
+    <animation name="move_fast"  start="25"   end="47"   duration="0.7" />
+    <animation name="strike"     start="74"   end="136"  duration="1.0" />
+    <animation name="build"      start="137"  end="245"  duration="1.0" />
+    <animation name="look"       start="246"  end="338"  duration="1.0" />
+    <animation name="fall"       start="339"  end="367"  duration="1.0" />
+    <animation name="stand"      start="373"  end="410"  duration="1.0" />
   </animations>
 </model>
 
@@ -78,7 +80,8 @@
     <animation name="idle"   start="267" end="317" duration="1" />
     <animation name="idle2"  start="511" end="591" duration="1" />
     
-    <animation name="strike2" start="592" end="622" duration="1" />
+    <animation name="strike2" start="592" end="625" duration="1" />
+    <animation name="die2"    start="626" end="698" duration="1" />
   </animations>
 </model>
 
