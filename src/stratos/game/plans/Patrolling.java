@@ -38,8 +38,11 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   final int type;
   final Element guarded;
   
+  //  TODO:  The list of patrol points needs to be more randomised, and needs
+  //  to keep up with moving targets better.
+  
   private List <Target> patrolled;
-  private Boarding onPoint;
+  private Target onPoint;
   private float postTime = -1;
   
   
@@ -51,7 +54,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     this.type = type;
     this.guarded = guarded;
     this.patrolled = patrolled;
-    onPoint = (Boarding) patrolled.first();
+    onPoint = (Target) patrolled.first();
   }
   
   
@@ -60,7 +63,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     type = s.loadInt();
     guarded = (Element) s.loadObject();
     s.loadTargets(patrolled = new List <Target> ());
-    onPoint = (Boarding) s.loadTarget();
+    onPoint = (Target) s.loadTarget();
     postTime = s.loadFloat();
   }
   
@@ -100,9 +103,12 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     relDanger /= patrolled.size();
     urgency = Visit.clamp(relDanger * ROUTINE, IDLE, ROUTINE);
     
+    float modifier = 0 - actor.senses.fearLevel();
+    if (actor.senses.isEmergency()) modifier = PARAMOUNT;
+    
     final float priority = priorityForActorWith(
       actor, guarded,
-      urgency, NO_MODIFIER,
+      urgency, modifier,
       MILD_HELP, NO_COMPETITION, REAL_FAIL_RISK,
       BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report
@@ -129,31 +135,26 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     }
     
     final Stage world = actor.world();
+    final Activities actives = actor.world().activities;
     Target stop = onPoint;
     
-    //
     //  First, check to see if there are any supplemental behaviours you could
     //  or should be performing (first aid, repairs, or defence.)
     final Choice choice = new Choice(actor);
     choice.isVerbose = report;
-    final Target threat = CombatUtils.bestTarget(
-      actor, onPoint, false
-    );
-    if (threat != null) {
-      choice.add(new Combat(actor, (Element) threat));
+    for (Plan attack : actives.activePlanMatches(guarded, Combat.class)) {
+      final Actor threat = attack.actor();
+      if (! actor.senses.awareOf(threat)) continue;
+      choice.add(new Combat(actor, threat).setMotiveFrom(this, 0));
     }
-    for (Target defends : actor.senses.awareOf()) {
-      if (defends instanceof Actor) {
-        choice.add(new FirstAid(actor, (Actor) defends));
-      }
+    if (guarded instanceof Actor) {
+      choice.add(new FirstAid(actor, (Actor) guarded).setMotiveFrom(this, 0));
     }
-    if (onPoint instanceof Venue) {
-      choice.add(new Repairs(actor, (Venue) onPoint));
+    if (guarded instanceof Venue) {
+      choice.add(new Repairs(actor, (Venue) onPoint).setMotiveFrom(this, 0));
     }
     final Behaviour picked = choice.pickMostUrgent();
-    if (picked != null) {
-      return picked;
-    }
+    if (picked != null) return picked;
     
     //  If you're on sentry duty, check to see if you've spent long enough at
     //  your post.
@@ -171,9 +172,16 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
         }
       }
     }
-    //
+    
     //  Otherwise, find the nearest free point to stand around the next point
     //  to guard, and proceed there.
+    else if (onPoint.isMobile()) {
+      final float range = actor.health.sightRange() / 2;
+      Tile open = Spacing.pickRandomTile(onPoint, range, actor.world());
+      open = Spacing.nearestOpenTile(open, actor);
+      if (open == null) { abortBehaviour(); return null; }
+      else stop = open;
+    }
     else {
       Tile open = world.tileAt(onPoint);
       open = Spacing.nearestOpenTile(open, actor);
@@ -181,7 +189,10 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
       else stop = open;
     }
     
-    if (report) I.say("Next stop: "+stop+" "+stop.hashCode());
+    //  Either way, return a patrolling action-
+    if (report) {
+      I.say("  Next stop: "+stop+" "+stop.hashCode());
+    }
     final Action patrol = new Action(
       actor, stop,
       this, "actionPatrol",
@@ -191,18 +202,19 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   }
   
   
-  
-  
-  
   public boolean finished() {
-    if (super.finished()) return true;
-    return onPoint == null;
+    if (onPoint == null) return true;
+    return super.finished();
   }
   
   
   public int motionType(Actor actor) {
-    //
-    //  TODO:  You should be able to implement motion and chase behaviour here.
+    if (
+      actor.world().activities.includesActivePlan(guarded, Combat.class) &&
+      Spacing.distance(actor, guarded) >= actor.health.sightRange()
+    ) {
+      return MOTION_FAST;
+    }
     return super.motionType(actor);
   }
 
@@ -254,6 +266,12 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     if (report) I.say("\nGetting next perimeter patrol for "+actor);
     
     final List <Target> patrolled = new List <Target> ();
+    
+    if (guarded.isMobile()) {
+      patrolled.add(guarded);
+      return new Patrolling(actor, guarded, patrolled, TYPE_SECURITY);
+    }
+    
     final float range = Math.max(
       guarded.radius() * 2,
       actor.health.sightRange() / 2

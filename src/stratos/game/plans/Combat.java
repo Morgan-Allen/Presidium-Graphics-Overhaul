@@ -272,7 +272,7 @@ public class Combat extends Plan implements Qualities {
     final Element struck = (Element) strike.subject();
     final float range = actor.health.sightRange();
     
-    boolean underFire = activities.includesAction(actor, "actionStrike");
+    boolean underFire = activities.includesActivePlan(actor, Combat.class);
     boolean shouldDodge = actor.senses.hasSeen(struck);
     if (razes && Rand.num() > danger) shouldDodge = false;
     else if (Rand.yes() || Rand.num() > danger) shouldDodge = false;

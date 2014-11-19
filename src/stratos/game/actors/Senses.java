@@ -136,7 +136,7 @@ public class Senses implements Qualities {
     if (focus instanceof Element) {
       noticed.include(focus);
     }
-    for (Behaviour b : world.activities.targeting(actor)) {
+    for (Behaviour b : world.activities.activePlanMatches(actor, null)) {
       if (b instanceof Action) {
         noticed.include(((Action) b).actor);
       }
@@ -165,13 +165,11 @@ public class Senses implements Qualities {
     
     float senseChance = sightRange * fog;
     if (awareOf(e)) senseChance *= 2;
-    if (focusedOn(actor, e)) senseChance += sightRange;
-    //senseChance *= Rand.saltFrom(actor.world().tileAt(e)) + 0.5f;
+    senseChance += focusBonus(e    , null, sightRange    );
+    senseChance += focusBonus(actor, e   , sightRange * 2);
     
     float hideChance = distance * (1 + stealthFactor(e, actor));
-    if (focusedOn(e, actor)) hideChance /= 2;
     if (indoors(e)) hideChance += sightRange;
-    //hideChance *= Rand.saltFrom(actor.origin()) + 0.5f;
     
     if (report && senseChance > hideChance) {
       I.say("\n  Have noticed:     "+e);
@@ -211,9 +209,16 @@ public class Senses implements Qualities {
   }
   
   
-  private boolean focusedOn(Target e, Target other) {
-    if (! (e instanceof Actor)) return false;
-    return ((Actor) e).focusFor(null) == other;
+  //  In essence, this gives to spot an actor- or be spotted yourself- in cases
+  //  where you're actively targetting something at range (e.g, gunshots or
+  //  dialogue.)
+  private float focusBonus(Target e, Target with, float maxRange) {
+    if (! (e instanceof Actor)) return 0;
+    final Actor other = (Actor) e;
+    final Target focus = other.focusFor(null);
+    if (with != null && with != focus) return 0;
+    if (focus == null || Spacing.distance(actor, focus) > maxRange) return 0;
+    return Spacing.distance(other, focus);
   }
   
   

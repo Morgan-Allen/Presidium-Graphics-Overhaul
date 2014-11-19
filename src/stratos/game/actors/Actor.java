@@ -349,19 +349,18 @@ public abstract class Actor extends Mobile implements
   
   
   public Target focusFor(Class <? extends Plan> planClass) {
-    if (planClass == null) {
-      if (mind.agenda.size() == 0) return null;
-      return mind.topBehaviour().subject();
-    }
+    if (currentAction() == null || ! currentAction().hasBegun()) return null;
     final Plan match = matchFor(planClass);
     return match == null ? null : match.subject();
   }
   
   
   public Plan matchFor(Class <? extends Plan> planClass) {
-    if (planClass == null || ! Plan.class.isAssignableFrom(planClass)) {
+    if (planClass != null && ! Plan.class.isAssignableFrom(planClass)) {
       I.complain("NOT A PLAN CLASS!");
     }
+    else if (planClass == null) planClass = Plan.class;
+    
     for (Behaviour b : mind.agenda()) {
       if (planClass.isAssignableFrom(b.getClass())) {
         return (Plan) b;

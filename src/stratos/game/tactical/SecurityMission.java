@@ -65,6 +65,7 @@ public class SecurityMission extends Mission implements Qualities {
   
   /**  Behaviour implementation-
     */
+  /*
   public float priorityFor(Actor actor) {
     if (actor == subject) return 0;
     final boolean report = verbose && I.talkAbout == actor;
@@ -85,6 +86,7 @@ public class SecurityMission extends Mission implements Qualities {
     }
     return priority;
   }
+  //*/
   
   
   protected boolean shouldEnd() {
@@ -104,26 +106,18 @@ public class SecurityMission extends Mission implements Qualities {
   
   /**  Behaviour implementation-
     */
-  //  TODO:  Consider implementing shifts or supply logistics, in the case of
-  //  longer security details?
-  
   public Behaviour nextStepFor(Actor actor) {
-    ///final boolean report = verbose && I.talkAbout == actor;
     if (! isActive()) return null;
-    
+    final Behaviour cached = cachedStepFor(actor, false);
+    if (cached != null) return cached;
     //  TODO:  Implement item salvage?
-    /*
-    if (subject instanceof ItemDrop) {
-      final ItemDrop SI = (ItemDrop) subject;
-      final Recovery RS = new Recovery(actor, SI, admin);
-      RS.setMotive(Plan.MOTIVE_DUTY, priority);
-      choice.add(RS);
-    }
-    //*/
     
-    return Patrolling.aroundPerimeter(
+    final Patrolling patrol = Patrolling.aroundPerimeter(
       actor, (Element) subject, base.world
     );
+    final float basePriority = basePriority(actor);
+    patrol.setMotive(Plan.MOTIVE_MISSION, basePriority);
+    return cacheStepFor(actor, patrol);
   }
   
   

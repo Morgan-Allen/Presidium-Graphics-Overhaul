@@ -348,15 +348,15 @@ public abstract class Plan implements Saveable, Behaviour {
       I.say("  After relation effects:      "+priority+"/"+PARAMOUNT);
     }
     
-    float maxRange = defaultRange + (motiveBonus / 2);
-    priority *= maxRange * 1f / PARAMOUNT;
-    priority += (motiveBonus + flatBonus) / 2;
-    priority = Visit.clamp(priority, 0, maxRange + ROUTINE);
+    final float extraPriority = flatBonus + motiveBonus;
+    priority *= defaultRange * 1f / PARAMOUNT;
+    priority += (extraPriority) / 2;
+    priority = Visit.clamp(priority, 0, defaultRange + ROUTINE);
     
     if (report) {
       I.say("  Default priority range:      "+defaultRange);
       I.say("  Motive type/bonus:           "+motiveType+"/"+motiveBonus);
-      I.say("  After motive effects:        "+priority+"/"+maxRange);
+      I.say("  After motive effects:        "+priority+"/"+defaultRange);
     }
     //if (maxRange <= 0 || priority <= 0) return PRIORITY_NEVER;
     
@@ -406,7 +406,6 @@ public abstract class Plan implements Saveable, Behaviour {
       }
     }
     
-    
     //  And finally, we include the off-putting effects of distance, danger,
     //  the potential costs of failure, and any flat modifier included.
     float
@@ -433,12 +432,12 @@ public abstract class Plan implements Saveable, Behaviour {
       dangerPenalty = danger * (1 + range) / 2f;
     }
     
-    
-    priority += flatBonus / 2;
+    priority += extraPriority / 2;
     priority -= competeFactor;
     priority -= chancePenalty;
     priority -= rangePenalty ;
     priority -= dangerPenalty;
+    priority = Visit.clamp(priority, 0, defaultRange + extraPriority + ROUTINE);
     
     if (report) {
       I.say("  Distance is:                 "+Spacing.distance(actor, subject));
@@ -503,7 +502,7 @@ public abstract class Plan implements Saveable, Behaviour {
   public static float competition(Class planClass, Target t, Actor actor) {
     float competition = 0;
     final Stage world = actor.world();
-    for (Behaviour b : world.activities.targeting(t)) {
+    for (Behaviour b : world.activities.allTargeting(t)) {
       if (b instanceof Plan) {
         final Plan plan = (Plan) b;
         if (plan.getClass() != planClass) continue;
@@ -518,7 +517,7 @@ public abstract class Plan implements Saveable, Behaviour {
   public static float competition(Plan match, Target t, Actor actor) {
     float competition = 0;
     final Stage world = actor.world();
-    for (Behaviour b : world.activities.targeting(t)) {
+    for (Behaviour b : world.activities.allTargeting(t)) {
       if (b instanceof Plan) {
         final Plan plan = (Plan) b;
         if (plan.actor() == actor) continue;

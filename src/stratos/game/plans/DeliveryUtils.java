@@ -505,10 +505,10 @@ public class DeliveryUtils {
   
   
   static float futureBalance(Owner e, Traded good, boolean positive) {
-    final Activities a = e.world().activities;
     
     //  TODO:  Cache this locally if possible.
-    final Batch <Delivery> matches = (Batch) a.actionMatches(e, Delivery.class);
+    final Activities a = e.world().activities;
+    final Batch <Delivery> matches = (Batch) a.activePlanMatches(e, Delivery.class);
     float balance = 0;
     
     for (Delivery d : matches) {

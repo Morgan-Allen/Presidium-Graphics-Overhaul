@@ -116,7 +116,7 @@ public class ContactMission extends Mission {
     }
   }
   
-  
+  /*
   public float priorityFor(Actor actor) {
     final Behaviour current = cachedStepFor(actor, true);
     return current == null ? -1 : current.priorityFor(actor);
@@ -143,7 +143,7 @@ public class ContactMission extends Mission {
     if (report) I.say("  FINAL PRIORITY: "+avg);
     return avg;
     //*/
-  }
+  //}
   
   
   public Behaviour nextStepFor(Actor actor) {

@@ -19,6 +19,11 @@ import stratos.util.*;
 //  urgency-based quits for now, and just allow for 3 exchanges at a time, say.
 
 
+
+//  TODO:  Try and improve on the mechanics here in general.  Restore sensible
+//  location-setting, and allow for multiple participants.
+
+
 public class Dialogue extends Plan implements Qualities {
   
   

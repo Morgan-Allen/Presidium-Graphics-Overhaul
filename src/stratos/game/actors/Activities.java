@@ -104,28 +104,7 @@ public class Activities {
   }
   
   
-  public boolean includes(Target t, Class behaviourClass) {
-    final List <Behaviour> onTarget = activeTable.get(t);
-    if (onTarget == null) return false;
-    for (Behaviour b : onTarget) {
-      if (b.getClass() == behaviourClass) return true;
-    }
-    return false;
-  }
-  
-  
-  public boolean includesAction(Target t, String methodName) {
-    final List <Behaviour> onTarget = activeTable.get(t);
-    if (onTarget == null) return false;
-    for (Behaviour b : onTarget) if (b instanceof Action) {
-      final String name = ((Action) b).methodName();
-      if (name.equals(methodName)) return true;
-    }
-    return false;
-  }
-  
-  
-  public Batch <Behaviour> targeting(Target t) {
+  public Batch <Behaviour> allTargeting(Target t) {
     final Batch <Behaviour> batch = new Batch <Behaviour> ();
     final List <Behaviour> onTarget = activeTable.get(t);
     if (onTarget == null) return batch;
@@ -134,14 +113,21 @@ public class Activities {
   }
   
   
-  public Batch <Behaviour> actionMatches(Target t, Class planClass) {
-    final Batch <Behaviour> batch = new Batch <Behaviour> ();
+  public boolean includesActivePlan(Target t, Class planClass) {
+    return activePlanMatches(t, planClass).size() > 0;
+  }
+  
+  
+  public Batch <Plan> activePlanMatches(Target t, Class planClass) {
+    final Batch <Plan> batch = new Batch <Plan> ();
     final List <Behaviour> onTarget = activeTable.get(t);
     if (onTarget == null) return batch;
     
     for (Behaviour b : onTarget) if (b instanceof Action) {
-      final Plan match = ((Action) b).actor.matchFor(planClass);
-      if (match != null) batch.add(match);
+      final Actor actor = ((Action) b).actor;
+      if (actor.focusFor(planClass) == null) continue;
+      final Plan match = actor.matchFor(planClass);
+      if (match != null && match.hasBegun()) batch.add(match);
     }
     return batch;
   }

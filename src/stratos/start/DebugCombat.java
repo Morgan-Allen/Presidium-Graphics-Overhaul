@@ -21,7 +21,7 @@ import stratos.util.*;
 //  'first impressions' system for relations, plus the modifier for different
 //  bases, (and maybe backgrounds, et cetera.)
 
-//  The implement a system which sets relations for the base as a whole at the
+//  Then implement a system which sets relations for the base as a whole at the
 //  average of relations for acquainted members.  In theory, this *should*
 //  overcome the problem of individual members being hostile/attacking while
 //  others are blithe and indifferent.
@@ -113,8 +113,8 @@ public class DebugCombat extends Scenario {
     GameSettings.fogFree   = true;
     
     if (false) animalScenario  (world, base, UI);
-    if (false) artilectScenario(world, base, UI);
-    if (true ) nativeScenario  (world, base, UI);
+    if (true ) artilectScenario(world, base, UI);
+    if (false) nativeScenario  (world, base, UI);
   }
   
   
@@ -153,7 +153,7 @@ public class DebugCombat extends Scenario {
     final Base artilects = Base.baseWithName(world, Base.KEY_ARTILECTS, true);
     
     final Actor robot = Species.SPECIES_TRIPOD.newSpecimen(artilects);
-    robot.enterWorldAt(5, 5, world);
+    robot.enterWorldAt(32, 32, world);
     
     final Actor vet = new Human(Backgrounds.VETERAN, base);
     vet.enterWorldAt(4, 4, world);
@@ -162,13 +162,21 @@ public class DebugCombat extends Scenario {
     combat.setMotive(Plan.MOTIVE_EMERGENCY, 100);
     robot.mind.assignBehaviour(combat);
     
+    final Mission security = new SecurityMission(base, vet);
+    security.setMissionType(Mission.TYPE_SCREENED  );
+    security.assignPriority(Mission.PRIORITY_URGENT);
+    
     for (int i = 5; i-- > 0;) {
       final Actor actor = new Human(Backgrounds.VOLUNTEER, base);
-      final Tile entry = Spacing.pickRandomTile(robot, 4, world);
+      final Tile entry = Spacing.pickRandomTile(vet, 4, world);
       actor.enterWorldAt(entry.x, entry.y, world);
-      
+      actor.mind.assignMission(security);
+      security.setApprovalFor(actor, true);
       UI.selection.pushSelection(actor, true);
     }
+    
+    base.addMission(security);
+    security.beginMission();
   }
   
   

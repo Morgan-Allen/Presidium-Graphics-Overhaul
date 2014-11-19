@@ -7,7 +7,7 @@
 	<target name="build">
 		<jar destfile="build/stratos.jar" basedir="bin">
 			<manifest>
-				<attribute name="Main-Class" value="debug.DebugStartup"/>
+				<attribute name="Main-Class" value="stratos.start.DebugStartup"/>
 			</manifest>
 		</jar>
 		<copy todir="build">
