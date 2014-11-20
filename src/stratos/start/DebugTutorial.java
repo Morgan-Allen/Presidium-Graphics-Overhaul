@@ -31,6 +31,10 @@ import stratos.util.I;
 //  station, the solar bank, and the archives.
 
 
+//  TODO:  Arrange for contact missions to come back with a desired price from
+//         the subject/s.
+
+
 public class DebugTutorial extends TutorialScenario {
   
   

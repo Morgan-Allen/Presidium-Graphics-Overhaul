@@ -72,19 +72,28 @@ public class Retreat extends Plan implements Qualities {
   
   
   protected float getPriority() {
+    final boolean report = evalVerbose && I.talkAbout == actor;
     if (safePoint == null) return 0;
     
-    final boolean report = evalVerbose && I.talkAbout == actor;
     final boolean emergency = actor.senses.isEmergency();
-    float danger = actor.senses.fearLevel() + actor.health.injuryLevel();
     
+    float danger = actor.senses.fearLevel() + actor.health.injuryLevel();
     float bonus = 0;
-    final Target haven = actor.senses.haven();
-    bonus += (haven == null) ? 0 : Plan.rangePenalty(haven, actor) * CASUAL;
-
-    maxDanger = FastMath.max(danger, maxDanger);
-    if (emergency) bonus += PARAMOUNT;
-    else maxDanger = 0;
+    
+    //  Retreat becomes less attractive as you get closer to home and more
+    //  exhausted.
+    final Target haven = safePoint;
+    final float homeBonus = CombatUtils.homeDefenceBonus(actor, actor);
+    if (emergency) {
+      bonus += PARAMOUNT - homeBonus;
+      bonus -= actor.health.fatigueLevel() * PARAMOUNT;
+      maxDanger = FastMath.max(danger, maxDanger);
+    }
+    else {
+      if (actor.aboard() == safePoint) return 0;
+      maxDanger = 0;
+      bonus += (haven == null) ? 0 : Plan.rangePenalty(haven, actor) * CASUAL;
+    }
     
     final float priority = priorityForActorWith(
       actor, safePoint,
@@ -99,6 +108,7 @@ public class Retreat extends Plan implements Qualities {
       I.say("  Max Danger:     "+maxDanger);
       I.say("  Fear Level:     "+actor.senses.fearLevel());
       I.say("  Injury:         "+actor.health.injuryLevel());
+      I.say("  Fatigue:        "+actor.health.fatigueLevel());
       I.say("  Bonus priority: "+bonus);
       I.say("  Endangered?     "+actor.senses.isEmergency());
     }
@@ -106,29 +116,34 @@ public class Retreat extends Plan implements Qualities {
   }
   
   
+  //  TODO:  Get rid of this if you can.  It's a little flaky.
+  
   public static Boarding nearestHaven(
     final Actor actor, Class prefClass, final boolean emergency
   ) {
+    //  TODO:  Use baseSpeed here instead?
+    final float runRange = actor.health.sightRange() + Stage.SECTOR_SIZE;
+    
     final Pick <Boarding> pick = new Pick <Boarding> () {
       
       public void compare(Boarding next, float rating) {
         if (next == null || ! next.allowsEntry(actor)) return;
         //  TODO:  Add some random salt here?
-        final float dist = Spacing.distance(actor, next) / Stage.SECTOR_SIZE;
+        if (PathSearch.blockedBy(next, actor)) return;
+        final float dist = Spacing.distance(actor, next) / runRange;
         super.compare(next, rating - (dist * (emergency ? 5 : 2)));
       }
     };
     
+    pick.compare(actor.senses.haven(), 5);
     pick.compare(actor.mind.home(), 10);
     pick.compare(actor.mind.work(), 5 );
     
     final Tile ground = emergency ? (Tile) pickWithdrawPoint(
-      actor, actor.health.sightRange() + Stage.SECTOR_SIZE,
+      actor, runRange,
       actor, false
     ) : null;
     pick.compare(ground, 0);
-    
-    //if (! (actor instanceof Human)) return pick.result();
     
     final Presences presences = actor.world().presences;
     final Target refuge = presences.nearestMatch(
@@ -217,7 +232,8 @@ public class Retreat extends Plan implements Qualities {
       this, "actionFlee",
       Action.MOVE_SNEAK, "Fleeing to "
     );
-    if (urgent) flees.setProperties(Action.QUICK);
+    if (urgent) flees.setProperties(Action.QUICK | Action.NO_LOOP);
+    else flees.setProperties(Action.NO_LOOP);
     
     if (report) {
       I.say("\nFleeing to "+safePoint+", urgent? "+urgent);

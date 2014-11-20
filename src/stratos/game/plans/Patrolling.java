@@ -9,13 +9,14 @@ package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
-import stratos.game.base.ShieldWall;
-import stratos.game.base.BlastDoors;
-import stratos.game.maps.Planet;
-import stratos.game.tactical.IntelMap;
+import stratos.game.base.*;
+import stratos.game.tactical.*;
 import stratos.util.*;
 
 
+
+//  TODO:  The list of patrol points needs to be more randomised, and needs
+//  to keep up with moving targets more elegantly.
 
 
 public class Patrolling extends Plan implements TileConstants, Qualities {
@@ -37,9 +38,6 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   
   final int type;
   final Element guarded;
-  
-  //  TODO:  The list of patrol points needs to be more randomised, and needs
-  //  to keep up with moving targets better.
   
   private List <Target> patrolled;
   private Target onPoint;

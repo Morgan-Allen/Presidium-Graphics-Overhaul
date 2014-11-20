@@ -308,6 +308,9 @@ public abstract class Mission implements
   
   
   protected Behaviour cachedStepFor(Actor actor, boolean create) {
+    updateMission();
+    if (done) return null;
+    
     final Role role = roleFor(actor);
     if (role == null) return create ? nextStepFor(actor) : null;
     final Behaviour cached = role.cached;

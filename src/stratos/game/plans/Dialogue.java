@@ -29,6 +29,10 @@ public class Dialogue extends Plan implements Qualities {
   
   /**  Constants, data fields, constructors and save/load methods-
     */
+  private static boolean
+    evalVerbose   = false,
+    eventsVerbose = false;
+  
   final public static int
     TYPE_CONTACT = 0,
     TYPE_CASUAL  = 1,
@@ -44,10 +48,6 @@ public class Dialogue extends Plan implements Qualities {
     STAGE_INVITE =  5,
     STAGE_BYE    =  6,
     STAGE_DONE   =  7;
-  
-  private static boolean
-    evalVerbose   = true ,
-    eventsVerbose = false;
   
   
   final Actor starts, other;

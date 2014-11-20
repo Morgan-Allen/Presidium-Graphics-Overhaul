@@ -93,7 +93,7 @@
   stride="1.5"
   height="2.5"
 >
-  <animations rotate="0" fps="1">
+  <animations rotate="0" fps="25">
     <animation name="stand"       start="0"   end="0"   duration="1" />
     <animation name="idle"        start="0"   end="48"  duration="1" />
     <animation name="walk_begin"  start="48"  end="58"  duration="1" />

@@ -77,7 +77,8 @@ public class Joining extends Plan {
   
   
   protected float getPriority() {
-    this.setMotiveFrom(basis, 0);
+    if (! joined.isDoing(basis.getClass(), basis.subject())) return -1;
+    setMotiveFrom(basis, 0);
     return basis.priorityFor(actor);
   }
   

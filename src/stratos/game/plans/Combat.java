@@ -114,16 +114,28 @@ public class Combat extends Plan implements Qualities {
     if (object == OBJECT_SUBDUE ) harmLevel = MILD_HARM   ;
     if (object == OBJECT_DESTROY) harmLevel = EXTREME_HARM;
     
-    final boolean melee  = actor.gear.meleeWeapon();
-    final float   danger = actor.senses.fearLevel();
+    final boolean melee = actor.gear.meleeWeapon();
+    float bonus = 0;
+    if (CombatUtils.isActiveHostile(actor, subject)) {
+      final float hostility = CombatUtils.hostileRating(actor, subject);
+      bonus += PARAMOUNT;
+      bonus += CombatUtils.homeDefenceBonus(actor, subject);
+      bonus *= (hostility + 1f) / 2;
+    }
     
+    /*
     final float hostility = CombatUtils.hostileRating(actor, subject);
-    if (hostility <= 0) return 0;
-    float bonus = (actor.senses.isEmergency() ? 1 : 0) + hostility - danger;
+    float bonus = hostility - danger;
+    if (hostility > 0 && actor.senses.isEmergency()) {
+      bonus += 1;
+      final float homeBonus = CombatUtils.homeDefenceBonus(actor, subject);
+      bonus += (homeBonus / Plan.PARAMOUNT) * hostility;
+    }
+    //*/
     
     final float priority = priorityForActorWith(
       actor, subject,
-      ROUTINE, bonus * PARAMOUNT,
+      ROUTINE, bonus,
       harmLevel, FULL_COOPERATION,
       REAL_FAIL_RISK, melee ? MELEE_SKILLS : RANGED_SKILLS,
       BASE_TRAITS, NORMAL_DISTANCE_CHECK,
@@ -137,8 +149,8 @@ public class Combat extends Plan implements Qualities {
     threshold *= PARAMOUNT;
     if (report) {
       I.say("\n  Priority bonus:        "+bonus);
-      I.say("  Danger level:          "+danger);
-      I.say("  Hostility rating:      "+hostility);
+      //I.say("  Danger level:          "+danger);
+      //I.say("  Hostility rating:      "+hostility);
       I.say("  Emergency?             "+actor.senses.isEmergency());
       I.say("  Basic combat priority: "+priority);
       I.say("  Empathy threshold:     "+threshold);

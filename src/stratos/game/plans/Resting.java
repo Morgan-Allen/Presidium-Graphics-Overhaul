@@ -115,11 +115,9 @@ public class Resting extends Plan {
     urgency += (1 - Planet.dayValue(actor.world())) * 2;
 
     //  Include location effects-
-    if (restPoint != actor) {
-      //urgency += actor.relations.valueFor(restPoint) * CASUAL;
+    if (restPoint == actor && ! actor.indoors()) {
+      urgency -= CASUAL;
     }
-    //final Ambience ambience = actor.world().ecology().ambience;
-    //urgency *= 1 + ambience.valueAt(restPoint);
     
     final float priority = priorityForActorWith(
       actor, restPoint,

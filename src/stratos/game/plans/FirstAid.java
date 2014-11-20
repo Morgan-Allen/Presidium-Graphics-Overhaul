@@ -20,7 +20,7 @@ public class FirstAid extends Treatment {
   
   private static boolean
     verbose     = false,
-    evalVerbose = true ;
+    evalVerbose = false;
   
   
   public FirstAid(Actor actor, Actor patient) {
@@ -75,10 +75,11 @@ public class FirstAid extends Treatment {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (patient.health.conscious() || ! patient.health.organic()) return 0;
     
-    final float severity = Visit.clamp(severity(), 0, 1);
-    if (severity <= 0 || actor.senses.isEmergency()) return 0;
+    final float severity = severity();
+    if (severity <= 0) return 0;
     
-    float modifier = 0;
+    //  Try to avoid giving first aid in the middle of a firefight...
+    float modifier = actor.senses.isEmergency() ? -1 : 0;
     final boolean ally = CombatUtils.isAllyOf(actor, patient);
     if (ally) modifier += severity;
     

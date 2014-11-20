@@ -98,7 +98,8 @@ public class CombatUtils {
     //  default, base the rating off intrinsic dislike of the subject.
     if (! (near instanceof Actor)) return 0;
     final Actor other = (Actor) near;
-    if (! other.health.conscious()) return 0;
+    if (! other.health.alive()) return 0;
+    //if (CombatUtils.isDowned(actor, Combat.OBJECT_EITHER)) return 0;
     
     final ActorRelations mind = actor.relations;
     float rating = 0 - mind.valueFor(other);
@@ -128,10 +129,21 @@ public class CombatUtils {
   }
   
   
+  public static float homeDefenceBonus(Actor actor, Target from) {
+    final Target haven = actor.mind.home();
+    if (haven == null) return Plan.PARAMOUNT;
+    else {
+      float homeDist = Spacing.distance(from, haven);
+      homeDist = Visit.clamp(homeDist / Stage.SECTOR_SIZE, 0, 1);
+      return Plan.PARAMOUNT * (1 - homeDist);
+    }
+  }
+  
+  
   public static boolean isActiveHostile(Actor actor, Target near) {
     if (! (near instanceof Actor)) return false;
     final Actor other = (Actor) near;
-
+    
     final Target victim = other.focusFor(null);
     final float harmDone = other.harmDoneTo(victim);
     return victim != null && actor.relations.likes(victim) && harmDone > 0;
@@ -156,8 +168,9 @@ public class CombatUtils {
   public static boolean isDowned(Target subject, int object) {
     if (subject instanceof Actor) {
       final Actor struck = (Actor) subject;
+      if (object == Combat.OBJECT_SUBDUE ) return ! struck.health.conscious();
       if (object == Combat.OBJECT_DESTROY) return ! struck.health.alive();
-      return ! struck.health.conscious();
+      return (! struck.health.conscious()) && (! struck.health.asleep());
     }
     if (subject instanceof Venue) {
       return ((Venue) subject).structure.destroyed();

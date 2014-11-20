@@ -306,6 +306,7 @@ public class Senses implements Qualities {
       I.say("Sum foes:    "+sumFoes  );
       I.say("Fear level:  "+fearLevel);
       I.say("Safe point:  "+safePoint);
+      I.say("Emergency:   "+emergency);
     }
   }
   

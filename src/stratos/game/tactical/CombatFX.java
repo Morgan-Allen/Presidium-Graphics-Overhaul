@@ -53,7 +53,7 @@ public class CombatFX {
     */
   static Vec3D hitPoint(Target applied, boolean hits) {
     final Vec3D HP = applied.position(null);
-    final float r = applied.radius(), h = applied.height() / 2;
+    final float r = applied.radius() * 2, h = applied.height() / 2;
     HP.z += h;
     if (hits) return HP;
     HP.x += Rand.range(-r, r);

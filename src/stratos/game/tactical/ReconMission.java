@@ -74,29 +74,25 @@ public class ReconMission extends Mission {
   
   /**  Behaviour implementation-
     */
-  public float priorityFor(Actor actor) {
-    final boolean report = verbose && I.talkAbout == actor;
-    final Exploring exploring = Exploring.nextSurvey(base, actor, subject, 0);
-    if (exploring == null) return 0;
-    
-    float priority = exploring.priorityFor(actor) + basePriority(actor);
-    priority *= SETTING_AREAS[1] / exploreRadius();
-    if (report) I.say(actor+" priority is: "+priority);
-    
-    return priority;
-  }
-  
-  
   public Behaviour nextStepFor(Actor actor) {
     if (! isActive()) return null;
+    final Behaviour cached = cachedStepFor(actor, false);
+    if (cached != null) return cached;
     
     final float range = exploreRadius();
-    final Exploring e = Exploring.nextSurvey(base, actor, subject, range);
-    if (e == null) {
+    final Exploring explore = Exploring.nextSurvey(base, actor, subject, range);
+    
+    if (true) {
+      I.say("\nNext exploring: "+explore);
+      I.say("  Explore radius: "+range+" around "+subject);
+    }
+    
+    if (explore == null) {
       endMission();
       doneRecon = true;
     }
-    return e;
+    else explore.setMotive(Plan.MOTIVE_MISSION, basePriority(actor));
+    return cacheStepFor(actor, explore);
   }
   
   

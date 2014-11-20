@@ -191,7 +191,7 @@ public class IntelMap {
     Base base, Object client,
     Target centre, float distanceUnit, final float maxDist
   ) {
-    if (GameSettings.buildFree || base.primal) return null;
+    if (GameSettings.fogFree || base.primal) return null;
     final boolean report = pickVerbose && I.talkAbout == client;
     if (report) {
       I.say("\nGetting next unexplored area near "+centre);

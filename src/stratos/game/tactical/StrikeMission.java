@@ -43,29 +43,17 @@ public class StrikeMission extends Mission {
   
   /**  Behaviour implementation-
     */
-  //  TODO:  Learn to cache steps for each actor engaged in a mission?
-  
-  public float priorityFor(Actor actor) {
-    final Combat combat = new Combat(
-      actor, (Element) subject, Combat.STYLE_EITHER, objectIndex(), true
-    );
-    final float BP = basePriority(actor);
-    combat.setMotive(Plan.MOTIVE_MISSION, BP);
-    final float priority = combat.priorityFor(actor);
-    
-    if (verbose && I.talkAbout == actor) {
-      I.say("\nBase and final strike mission priority: "+BP+"/"+priority);
-    }
-    return priority;
-  }
-  
-  
   public Behaviour nextStepFor(Actor actor) {
     if (! isActive()) return null;
-    return new Combat(
+    final Behaviour cached = cachedStepFor(actor, false);
+    if (cached != null) return cached;
+    
+    final Combat combat = new Combat(
       actor, (Element) subject,
       Combat.STYLE_EITHER, objectIndex(), true
     );
+    combat.setMotive(Plan.MOTIVE_MISSION, basePriority(actor));
+    return cacheStepFor(actor, combat);
   }
   
   
