@@ -44,7 +44,7 @@ public class StrikeMission extends Mission {
   /**  Behaviour implementation-
     */
   public Behaviour nextStepFor(Actor actor) {
-    if (! isActive()) return null;
+    if (finished()) return null;
     final Behaviour cached = cachedStepFor(actor, false);
     if (cached != null) return cached;
     

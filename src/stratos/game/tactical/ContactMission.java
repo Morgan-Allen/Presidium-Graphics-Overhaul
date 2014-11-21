@@ -116,38 +116,9 @@ public class ContactMission extends Mission {
     }
   }
   
-  /*
-  public float priorityFor(Actor actor) {
-    final Behaviour current = cachedStepFor(actor, true);
-    return current == null ? -1 : current.priorityFor(actor);
-    /*
-    final boolean report = evalVerbose && I.talkAbout == actor;
-    final float basePriority = basePriority(actor);
-    if (report) {
-      I.say("\nAssessing priority of contact mission");
-      I.say("  Base priority: "+basePriority);
-    }
-    
-    final Actor with[] = talksTo();
-    float avg = 0;
-    for (Actor other : with) {
-      final Dialogue d = new Dialogue(actor, other, Dialogue.TYPE_CONTACT);
-      d.setMotive(Plan.MOTIVE_MISSION, basePriority);
-      final float otherP = d.priorityFor(actor);
-      if (report) {
-        I.say("  Priority of contact with: "+other+": "+otherP);
-      }
-      avg += otherP / with.length;
-    }
-    
-    if (report) I.say("  FINAL PRIORITY: "+avg);
-    return avg;
-    //*/
-  //}
-  
   
   public Behaviour nextStepFor(Actor actor) {
-    if (! isActive()) return null;
+    if (finished()) return null;
     final Behaviour cached = cachedStepFor(actor, false);
     if (cached != null) return cached;
     

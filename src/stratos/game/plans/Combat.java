@@ -123,16 +123,6 @@ public class Combat extends Plan implements Qualities {
       bonus *= (hostility + 1f) / 2;
     }
     
-    /*
-    final float hostility = CombatUtils.hostileRating(actor, subject);
-    float bonus = hostility - danger;
-    if (hostility > 0 && actor.senses.isEmergency()) {
-      bonus += 1;
-      final float homeBonus = CombatUtils.homeDefenceBonus(actor, subject);
-      bonus += (homeBonus / Plan.PARAMOUNT) * hostility;
-    }
-    //*/
-    
     final float priority = priorityForActorWith(
       actor, subject,
       ROUTINE, bonus,

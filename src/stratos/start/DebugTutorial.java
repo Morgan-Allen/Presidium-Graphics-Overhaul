@@ -11,28 +11,20 @@ import stratos.util.I;
 
 //  Restore the Landing Strip for the convenience of dropships (and have their
 //  supply/demand profile set when cargo is loaded.)
+//  Restore lchc production, animal breeding, and reagents at the culture labs.
+//  Remove any non-functional structures!
 
-//  Make sure combat and diplomacy are working (plus security jobs.)
+//  Arrange for contact missions to come back with a desired price from the
+//  subject/s.
 
-//  Ensure that jobseeking is still working after the changes made.
+
 //  Introduce a finance-report UI!  And try to get all the details.
-
-//  Re-work the culture lab- produce either food/organs OR soma/reagents.
-//  Set up exclusion zone around kommando lodge, and try to restore animal
-//  breeding.
 //  Try to arrange that actors will seek out new Holdings if anything existing
 //  is at or above half crowding.
-
-//  Fix bug with stripping/paving of roads happening at same time.  It doesn't
-//  show up often, so just keep an eye out for it.
 //  Divide venue description into two panes- one for general status, and the
 //  other for specific sub-headings.  Don't bother with spill-over.
 //  Rework art for roads, the shield wall, the physician station, the engineer
 //  station, the solar bank, and the archives.
-
-
-//  TODO:  Arrange for contact missions to come back with a desired price from
-//         the subject/s.
 
 
 public class DebugTutorial extends TutorialScenario {

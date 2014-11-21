@@ -214,32 +214,6 @@ public abstract class Mission implements
   }
   
   
-  protected float basePriority(Actor actor) {
-    final boolean report = evalVerbose && I.talkAbout == actor;
-    
-    float rewardEval = REWARD_AMOUNTS[priority];
-    rewardEval *= REWARD_TYPE_MULTS[missionType];
-    
-    final int partySize = rolesApproved(), limit = PARTY_LIMITS[priority];
-    if (! isApproved(actor)) {
-      if (partySize >= limit) return -1;
-      rewardEval /= limit;
-    }
-    else rewardEval /= partySize;
-    final float value = Pledge.greedPriority(actor, (int) rewardEval);
-    
-    if (report) {
-      I.say("\nEvaluating reward for "+this);
-      I.say("  True reward total: "+REWARD_AMOUNTS[priority]);
-      I.say("  Type multiplier:   "+REWARD_TYPE_MULTS[missionType]);
-      I.say("  Party capacity:    "+partySize+"/"+limit);
-      I.say("  Evaluated reward:  "+rewardEval);
-      I.say("  Priority value:    "+value);
-    }
-    return value;
-  }
-  
-  
   protected int rolesApproved() {
     int count = 0;
     for (Role role : roles) if (role.approved) count++;
@@ -280,6 +254,7 @@ public abstract class Mission implements
   
   
   public boolean openToPublic() {
+    //if (roles.size() >= PARTY_LIMITS[missionType]) return false;
     if (missionType == TYPE_PUBLIC) return true ;
     if (missionType == TYPE_COVERT) return false;
     return ! begun;
@@ -308,7 +283,7 @@ public abstract class Mission implements
   
   
   protected Behaviour cachedStepFor(Actor actor, boolean create) {
-    updateMission();
+    if (begun) updateMission();
     if (done) return null;
     
     final Role role = roleFor(actor);
@@ -321,16 +296,51 @@ public abstract class Mission implements
   }
   
   
+  public float priorityFor(Actor actor) {
+    //  TODO:  Vary this based on loyalty to the governor that declared the
+    //  mission in question.
+    
+    final Behaviour step = cachedStepFor(actor, true);
+    final float priority = step == null ? -1 : step.priorityFor(actor);
+    return priority;
+  }
+  
+  
+  protected float basePriority(Actor actor) {
+    final boolean report = evalVerbose && I.talkAbout == actor;
+    
+    float rewardEval = REWARD_AMOUNTS[priority];
+    rewardEval *= REWARD_TYPE_MULTS[missionType];
+    
+    final int partySize = rolesApproved(), limit = PARTY_LIMITS[priority];
+    if (! isApproved(actor)) {
+      if (partySize >= limit) return -1;
+      rewardEval /= limit;
+    }
+    else rewardEval /= partySize;
+    
+    float value = Pledge.greedPriority(actor, (int) rewardEval);
+    
+    final int standing = actor.vocation().standing;
+    value *= standing * 1f / Backgrounds.CLASS_STRATOI;
+    
+    if (report) {
+      I.say("\nEvaluating reward for "+this);
+      I.say("  True reward total: "+REWARD_AMOUNTS[priority]);
+      I.say("  Type multiplier:   "+REWARD_TYPE_MULTS[missionType]);
+      I.say("  Party capacity:    "+partySize+"/"+limit);
+      I.say("  Evaluated reward:  "+rewardEval);
+      I.say("  Social standing:   "+standing);
+      I.say("  Priority value:    "+value);
+    }
+    return value;
+  }
+  
+  
   protected Behaviour cacheStepFor(Actor actor, Behaviour step) {
     final Role role = roleFor(actor);
     if (role == null) return step;
     return role.cached = step;
-  }
-
-  
-  public float priorityFor(Actor actor) {
-    final Behaviour step = cachedStepFor(actor, true);
-    return step == null ? -1 : step.priorityFor(actor);
   }
   
   
@@ -353,6 +363,9 @@ public abstract class Mission implements
       role.applicant = actor;
       role.approved = missionType == TYPE_PUBLIC ? true : false;
       roles.add(role);
+      
+      I.say("Role added for "+actor+"!");
+      I.reportStackTrace();
     }
     else {
       if (actor.mind.mission() == this) I.complain("MUST CALL setMission()!");

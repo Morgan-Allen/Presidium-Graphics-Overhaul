@@ -126,6 +126,7 @@ public class FindWork extends Plan {
   
   public void confirmApplication() {
     if (! canApply()) return;
+    if (actor.mind.work() == employer) return;
     employer.personnel().setApplicant(this, true);
   }
   
@@ -165,18 +166,19 @@ public class FindWork extends Plan {
   //  FindWork plan for a given actor.  This is why it gets 'assigned to do'
   //  automatically, and never actually finishes.
   
+  //*
   public static FindWork attemptFor(Actor actor, Employer at) {
     if (at.careers() == null) return null;
     
-    FindWork find = (FindWork) actor.matchFor(FindWork.class);
-    if (find == null) {
-      find = new FindWork(actor, null, null);
-      actor.mind.assignToDo(find);
+    FindWork main = (FindWork) actor.matchFor(FindWork.class);
+    if (main == null) {
+      main = new FindWork(actor, null, null);
+      actor.mind.assignToDo(main);
     }
     
     final Pick <FindWork> pick = new Pick <FindWork> ();
-    if (find.position != null) {
-      pick.compare(find, find.rateOpening(find.position, find.employer) * 1.5f);
+    if (main.position != null) {
+      pick.compare(main, main.rateOpening(main.position, main.employer) * 1.5f);
     }
     
     final Employer work = actor.mind.work();
@@ -187,18 +189,19 @@ public class FindWork extends Plan {
     
     for (Background c : at.careers()) {
       final FindWork app = new FindWork(actor, c, at);
-      pick.compare(app, find.rateOpening(app.position, app.employer));
+      pick.compare(app, main.rateOpening(app.position, app.employer));
     }
     
     if (pick.result() != null) {
       final FindWork app = pick.result();
-      find.position = app.position;
-      find.employer = app.employer;
-      find.rating   = app.rating  ;
-      find.calcHiringFee();
+      main.position = app.position;
+      main.employer = app.employer;
+      main.rating   = app.rating  ;
+      main.calcHiringFee();
     }
-    return find;
+    return main;
   }
+  //*/
   
   
   public static Background ambitionOf(Actor actor) {

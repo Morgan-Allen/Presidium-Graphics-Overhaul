@@ -75,17 +75,12 @@ public class ReconMission extends Mission {
   /**  Behaviour implementation-
     */
   public Behaviour nextStepFor(Actor actor) {
-    if (! isActive()) return null;
+    if (finished()) return null;
     final Behaviour cached = cachedStepFor(actor, false);
     if (cached != null) return cached;
     
     final float range = exploreRadius();
     final Exploring explore = Exploring.nextSurvey(base, actor, subject, range);
-    
-    if (true) {
-      I.say("\nNext exploring: "+explore);
-      I.say("  Explore radius: "+range+" around "+subject);
-    }
     
     if (explore == null) {
       endMission();

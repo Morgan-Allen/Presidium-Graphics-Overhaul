@@ -146,6 +146,9 @@ public abstract class Plan implements Saveable, Behaviour {
   
   public float priorityFor(Actor actor) {
     if (this.actor != actor) {
+      //  TODO:  Try and avoid situations where this happens (e.g, with
+      //  queued manufacture-orders.)
+      /*
       if (this.actor != null) {
         I.complain(this+" CANNOT SWITCH ACTOR! "+actor+" vs. "+this.actor);
         return -1;
@@ -154,6 +157,9 @@ public abstract class Plan implements Saveable, Behaviour {
         this.actor = actor;
         priorityEval = NULL_PRIORITY;
       }
+      //*/
+      this.actor = actor;
+      priorityEval = NULL_PRIORITY;
     }
     final float time = actor.world().currentTime();
     if (priorityEval != NULL_PRIORITY && time - lastEvalTime < 1) {

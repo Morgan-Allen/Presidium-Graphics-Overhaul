@@ -532,6 +532,13 @@ public class Commerce {
     
     if (ship.landed()) {
       final float sinceDescent = ship.timeLanded();
+      
+      if (report) {
+        I.say("\nTime since descent: "+sinceDescent+"/"+SUPPLY_DURATION);
+        I.say("  All aboard?   "+ship.allAboard());
+        I.say("  Flight stage? "+shipStage+" vs. "+Dropship.STAGE_BOARDING);
+      }
+      
       if (sinceDescent > SUPPLY_DURATION) {
         if (shipStage == Dropship.STAGE_LANDED) ship.beginBoarding();
         if (ship.allAboard() && shipStage == Dropship.STAGE_BOARDING) {

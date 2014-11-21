@@ -258,7 +258,7 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   public boolean allAboard() {
     for (Actor c : crew()) {
       if (c.aboard() != this) return false;
-      if (c.focusFor(null) != this) return false;
+      if (! c.isDoingAction("actionBoard", this)) return false;
     }
     return true;
   }

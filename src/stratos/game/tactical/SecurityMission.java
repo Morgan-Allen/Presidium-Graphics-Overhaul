@@ -65,30 +65,6 @@ public class SecurityMission extends Mission implements Qualities {
   
   /**  Behaviour implementation-
     */
-  /*
-  public float priorityFor(Actor actor) {
-    if (actor == subject) return 0;
-    final boolean report = verbose && I.talkAbout == actor;
-    final float motive = basePriority(actor);
-    if (motive <= 0) return 0;
-    
-    final Patrolling patrol = Patrolling.aroundPerimeter(
-      actor, (Element) subject, subject.world()
-    );
-    patrol.setMotive(Plan.MOTIVE_MISSION, motive);
-    
-    final float priority = patrol.priorityFor(actor);
-    if (report) {
-      I.say("\nSecurity mission priority "+priority+" for "+actor);
-      I.say("  Reward priority: "+motive);
-      patrol.setMotive(Plan.MOTIVE_INIT, 0);
-      I.say("  Intrinsic priority: "+patrol.priorityFor(actor));
-    }
-    return priority;
-  }
-  //*/
-  
-  
   protected boolean shouldEnd() {
     if (subject.destroyed()) return true;
     if (inceptTime == -1) return false;
@@ -104,10 +80,8 @@ public class SecurityMission extends Mission implements Qualities {
   
   
   
-  /**  Behaviour implementation-
-    */
   public Behaviour nextStepFor(Actor actor) {
-    if (! isActive()) return null;
+    if (finished()) return null;
     final Behaviour cached = cachedStepFor(actor, false);
     if (cached != null) return cached;
     //  TODO:  Implement item salvage?

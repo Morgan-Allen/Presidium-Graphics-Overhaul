@@ -149,7 +149,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
       choice.add(new FirstAid(actor, (Actor) guarded).setMotiveFrom(this, 0));
     }
     if (guarded instanceof Venue) {
-      choice.add(new Repairs(actor, (Venue) onPoint).setMotiveFrom(this, 0));
+      choice.add(new Repairs(actor, (Venue) guarded).setMotiveFrom(this, 0));
     }
     final Behaviour picked = choice.pickMostUrgent();
     if (picked != null) return picked;

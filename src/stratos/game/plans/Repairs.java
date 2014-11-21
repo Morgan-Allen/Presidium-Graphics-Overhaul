@@ -114,13 +114,13 @@ public class Repairs extends Plan {
     
     float urgency = needForRepair(built);
     if (urgency <= 0) return 0;
-    float bonus = (1 + actor.base().relations.communitySpirit()) / 2f;
+    //float bonus = (1 + actor.base().relations.communitySpirit()) / 2f;
     float competition = FULL_COMPETITION;
     competition /= 1 + (built.structure().maxIntegrity() / 100f);
     
     final float priority = priorityForActorWith(
       actor, (Target) built,
-      ROUTINE * Visit.clamp(urgency, 0, 1), bonus * CASUAL,
+      ROUTINE * Visit.clamp(urgency, 0, 1), NO_MODIFIER,
       REAL_HELP, competition, MILD_FAIL_RISK,
       BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report

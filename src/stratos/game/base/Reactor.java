@@ -224,21 +224,19 @@ public class Reactor extends Venue {
     if (! structure.intact()) return;
     
     //  Calculate output of power and consumption of fuel-
-    float fuelConsumed = 0.01f, powerOutput = 5;
+    float fuelConsumed = 0.01f, powerOutput = 25;
     fuelConsumed *= 2 / (2f + structure.upgradeLevel(WASTE_PROCESSING));
     powerOutput *= (2f + structure.upgradeLevel(FUSION_CONFINEMENT)) / 2;
     
-    final Item fuel = Item.withAmount(ANTIMASS, fuelConsumed);
+    final Item fuel = Item.withAmount(TOPES, fuelConsumed);
     if (stocks.hasItem(fuel)) stocks.removeItem(fuel);
     else powerOutput /= 5;
     
+    ///I.say("POWER OUTPUT: "+powerOutput);
     structure.assignOutputs(Item.withAmount(POWER, powerOutput));
     
     //  Update demand for raw materials-
-    stocks.forceDemand(
-      ANTIMASS, stocks.demandFor(POWER) / 5f,
-      Stocks.TIER_CONSUMER
-    );
+    stocks.forceDemand(TOPES, powerOutput / 5f, Stocks.TIER_CONSUMER);
     if (structure.upgradeLevel(ISOTOPE_CONVERSION) > 0) {
       stocks.translateDemands(1, METALS_TO_FUEL, this);
     }

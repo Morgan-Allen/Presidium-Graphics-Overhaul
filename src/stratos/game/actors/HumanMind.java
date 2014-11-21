@@ -239,7 +239,9 @@ public class HumanMind extends ActorMind implements Qualities {
   private void addBaseResponses(Choice choice) {
     //
     //  Derive tasks from missions or the scenario.
-    choice.add(mission);
+    if (mission != null && mission.hasBegun() && mission.isApproved(actor)) {
+      choice.add(mission);
+    }
     choice.add(Scenario.current().taskFor(actor));
     choice.add(FindMission.attemptFor(actor));
   }

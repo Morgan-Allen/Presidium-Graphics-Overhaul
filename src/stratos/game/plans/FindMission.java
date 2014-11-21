@@ -27,10 +27,12 @@ public class FindMission extends Plan {
   
   
   public static FindMission attemptFor(Actor actor) {
-    if (actor.mind.mission() != null) return null;
+    if (actor.mind.mission() != null) {
+      return null;
+      //return new FindMission(actor, actor.mind.mission());
+    }
     //final Venue admin = nearestAdminFor(actor);
     //if (admin == null) return null;
-    
     final boolean report = verbose && I.talkAbout == actor;
     
     //  Find a mission that seems appealing at the moment (we disable culling
@@ -45,13 +47,14 @@ public class FindMission extends Plan {
     for (Mission mission : actor.base().allMissions()) {
       final Venue HQ = missionHQ(actor, mission);
       final boolean open = mission.openToPublic();
+      if (! open) continue;
+      
       if (report) {
         I.say("\n  mission is: "+mission);
         I.say("  headquarters: "+HQ+", open to public? "+open);
         I.say("  priority: "+mission.priorityFor(actor));
         I.say("  next step: "+mission.nextStepFor(actor));
       }
-      if (! open) continue;
       choice.add(mission);
     }
     final Mission picked = (Mission) choice.weightedPick();
@@ -95,14 +98,7 @@ public class FindMission extends Plan {
     */
   protected float getPriority() {
     if (actor.mind.mission() == mission) return 0;
-    
-    //  TODO:  Vary this based on loyalty to the governor that declared the
-    //  mission in question.
-    
     return mission.priorityFor(actor);
-    //float penalty = Plan.rangePenalty(admin, actor);
-    //penalty += Plan.dangerPenalty(admin, actor);
-    //return applies.priorityFor(actor) - (penalty / 2);
   }
   
   
@@ -124,22 +120,12 @@ public class FindMission extends Plan {
   
   
   protected Behaviour getNextStep() {
-    
-    if (mission.finished()) {
+    if (! canStillApply()) {
       abortBehaviour();
       return null;
     }
     
-    boolean canJoin = false;
-
-    //  TODO:  This needs to be a generalised rally point.
-    final Venue HQ = missionHQ(actor, mission);
-    
-    if (mission.missionType() == Mission.TYPE_PUBLIC) canJoin = true;
-    else if (mission.isApproved(actor)) canJoin = true;
-    else if (HQ == null) canJoin = true;
-    
-    if (canJoin) {
+    if (mission.isApproved(actor)) {
       final Action joins = new Action(
         actor, actor,
         this, "actionJoins",
@@ -147,6 +133,10 @@ public class FindMission extends Plan {
       );
       return joins;
     }
+
+    //  TODO:  This needs to be a generalised rally point.
+    final Venue HQ = missionHQ(actor, mission);
+    if (HQ == null && mission.missionType() != Mission.TYPE_PUBLIC) return null;
     
     if (actor.mind.mission() != mission) {
       final Action applies = new Action(
@@ -167,7 +157,23 @@ public class FindMission extends Plan {
   }
   
   
+  private boolean canStillApply() {
+    if (mission.finished()) return false;
+    if (mission.hasBegun() && ! mission.isApproved(actor)) return false;
+    return true;
+  }
+  
+  
   public boolean actionJoins(Actor client, Actor self) {
+    if (! canStillApply()) return false;
+    final boolean report = verbose && I.talkAbout == client;
+    
+    if (report) {
+      I.say("\nJoining mission: "+mission);
+      I.say("  Has begun?      "+mission.hasBegun());
+      I.say("  Open to public? "+mission.openToPublic());
+      I.say("  Applicants:     "+mission.totalApplied());
+    }
     client.mind.assignMission(mission);
     client.mind.assignBehaviour(mission);
     return true;
@@ -175,6 +181,7 @@ public class FindMission extends Plan {
   
   
   public boolean actionApplies(Actor client, Venue admin) {
+    if (! canStillApply()) return false;
     client.mind.assignMission(mission);
     return true;
   }

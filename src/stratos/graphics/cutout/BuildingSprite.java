@@ -247,7 +247,7 @@ public class BuildingSprite extends Sprite {
         maxStage = maxStages(),
         oldStage = scaffoldStage(size, high, oldCondition, maxStage),
         newStage = scaffoldStage(size, high, newCondition, maxStage);
-      if (oldStage == newStage) return;
+      if (scaffolding != null && oldStage == newStage) return;
       scaffolding = scaffoldFor(size, high, newCondition);
     }
     else {

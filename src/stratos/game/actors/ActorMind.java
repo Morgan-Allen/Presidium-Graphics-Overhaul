@@ -283,6 +283,7 @@ public abstract class ActorMind implements Qualities {
   
   
   public void assignMission(Mission mission) {
+    //  TODO:  Add some safety checks here...
     
     final Mission oldMission = this.mission;
     if (mission == oldMission) return;
@@ -390,7 +391,7 @@ public abstract class ActorMind implements Qualities {
   
   
   public boolean wouldSwitchTo(Behaviour next) {
-    if (! actor.health.conscious()) return false;
+    if ((! actor.health.conscious()) || (! actor.inWorld())) return false;
     final boolean report = decisionVerbose && I.talkAbout == actor;
     return Choice.wouldSwitch(actor, rootBehaviour(), next, true, report);
   }
