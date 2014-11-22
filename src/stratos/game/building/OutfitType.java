@@ -43,26 +43,6 @@ public class OutfitType extends Traded {
     }
     else this.skin = null;
   }
-  
-  
-  public static void applyFX(
-    OutfitType type, Mobile uses, Target attackedBy, boolean hits
-  ) {
-    final Stage world = uses.world();
-    final Stage.Visible visible = world.ephemera.matchGhost(
-      uses, ShieldFX.SHIELD_MODEL
-    );
-    if (visible != null) {
-      final ShieldFX shieldFX = (ShieldFX) visible.sprite();
-      shieldFX.attachBurstFromPoint(attackedBy.position(null), hits);
-      world.ephemera.updateGhost(uses, 1, ShieldFX.SHIELD_MODEL, 2);
-    }
-    else {
-      final ShieldFX shieldFX = new ShieldFX();
-      shieldFX.scale = 0.5f * uses.height();
-      world.ephemera.addGhost(uses, 1, shieldFX, 2);
-    }
-  }
 }
 
 

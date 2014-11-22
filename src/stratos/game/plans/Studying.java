@@ -24,7 +24,7 @@ public class Studying extends Plan {
   /**  Data fields, setup and save/load functions-
     */
   private static boolean
-    evalVerbose  = true ,
+    evalVerbose  = false,
     studyVerbose = false,
     eventVerbose = false;
   

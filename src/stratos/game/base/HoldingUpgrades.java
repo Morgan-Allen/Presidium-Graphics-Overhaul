@@ -182,23 +182,26 @@ public class HoldingUpgrades {
   final static Traded FOOD_TYPES[] = {
     CARBS, PROTEIN, GREENS, MEDICINE
   };
+  final static int LEVEL_TYPES_NEEDED[] = {
+    0, 1, 2, 2, 3
+  };
   
   
   //  TODO:  Try to unify these more closely.
   protected static Batch <Item> rationNeeds(Holding holding, int upgradeLevel) {
+    
+    //  TODO:  Get pricing-levels for the base as a whole, and use that to
+    //  adjust what's demanded?
+    final int typesNeeded = LEVEL_TYPES_NEEDED[upgradeLevel];
+    final float foodNeed = holding.personnel.residents().size() * 1.5f;
+    
     final Batch <Item> needed = new Batch <Item> ();
-    float foodNeed = holding.personnel.residents().size() * 1.5f;
-    float sumFood = 0.1f; for (Traded f : FOOD_TYPES) {
-      sumFood += holding.stocks.amountOf(f);
+    for (Traded type : FOOD_TYPES) {
+      if (needed.size() >= typesNeeded) break;
+      if (lacksAccess(holding, type.supplyKey)) continue;
+      needed.add(Item.withAmount(type, foodNeed / typesNeeded));
     }
-    final float min = 0.1f;
-    //
-    //  TODO:  Only demand minimal amounts of a given food if it's not strictly
-    //  needed for housing evolution...
-    for (Traded f : FOOD_TYPES) {
-      final float amount = holding.stocks.amountOf(f);
-      needed.add(Item.withAmount(f, min + (foodNeed * amount / sumFood)));
-    }
+    
     return needed;
   }
   
@@ -223,25 +226,25 @@ public class HoldingUpgrades {
     //
     //  Now, check against the correct upgrade level.
     if (checks(targetLevel, LEVEL_PYON)) {
-      if (numFoods < 1) return NV ? NOT_MET :
+      if (numFoods < LEVEL_TYPES_NEEDED[1]) return NV ? NOT_MET :
         "Your pyons need enough of at least one food type before they will "+
         "feel confident about settling down.";
       else return NEEDS_MET;
     }
     if (checks(targetLevel, LEVEL_FREEBORN)) {
-      if (numFoods < 2) return NV ? NOT_MET :
+      if (numFoods < LEVEL_TYPES_NEEDED[2]) return NV ? NOT_MET :
         "Your freeborn need to have a more varied diet before they will "+
         "consider their claim here settled.";
       else return NEEDS_MET;
     }
     if (checks(targetLevel, LEVEL_CITIZEN)) {
-      if (numFoods < 2) return NV ? NOT_MET :
+      if (numFoods < LEVEL_TYPES_NEEDED[3]) return NV ? NOT_MET :
         "Your citizens demand a more varied diet as part of their "+
         "modern lifestyle.";
       else return NEEDS_MET;
     }
     if (checks(targetLevel, LEVEL_GUILDER)) {
-      if (numFoods < 3) return NV ? NOT_MET :
+      if (numFoods < LEVEL_TYPES_NEEDED[4]) return NV ? NOT_MET :
         "Your guilders need at least three food types to satisfy the demands "+
         "of an upper-class lifestyle.";
       else return NEEDS_MET;
@@ -290,9 +293,9 @@ public class HoldingUpgrades {
   }
   
   
-  protected static boolean lacksAccess(Holding holding, Class venueClass) {
+  protected static boolean lacksAccess(Holding holding, Object service) {
     for (Object o : holding.world().presences.matchesNear(
-      venueClass, holding, Stage.SECTOR_SIZE * 1.414f
+      service, holding, Stage.SECTOR_SIZE * 1.414f
     )) {
       final Venue v = (Venue) o;
       if (v.base() != holding.base() || ! v.structure.intact()) continue;

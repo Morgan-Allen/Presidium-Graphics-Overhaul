@@ -236,7 +236,7 @@ public class Reactor extends Venue {
     structure.assignOutputs(Item.withAmount(POWER, powerOutput));
     
     //  Update demand for raw materials-
-    stocks.forceDemand(TOPES, powerOutput / 5f, Stocks.TIER_CONSUMER);
+    stocks.forceDemand(TOPES, 5 + (powerOutput / 5f), Stocks.TIER_CONSUMER);
     if (structure.upgradeLevel(ISOTOPE_CONVERSION) > 0) {
       stocks.translateDemands(1, METALS_TO_FUEL, this);
     }

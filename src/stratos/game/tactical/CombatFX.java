@@ -8,7 +8,6 @@ import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
 import stratos.graphics.solids.*;
 import stratos.util.*;
-
 import stratos.game.building.DeviceType;
 import stratos.game.building.OutfitType;
 import static stratos.game.building.Economy.*;
@@ -75,6 +74,7 @@ public class CombatFX {
   ) {
     final float distance = Spacing.distance(uses, applied);
     final Stage world = uses.world();
+    
     if (type == null || type.hasProperty(MELEE)) {
       //
       //  Put in a little 'splash' FX, in the direction of the arc.
@@ -91,6 +91,7 @@ public class CombatFX {
       applyBurstFX(PISTOL_BURST_MODEL, shot.origin, 0.66f, world);
       applyBurstFX(PISTOL_BURST_MODEL, shot.target, 0.66f, world);
     }
+    
     else if (type.hasProperty(RANGED | ENERGY)) {
       final ShotFX shot = applyShotFX(
         LASER_FX_MODEL, uses, applied, hits, 0.66f, world
@@ -121,7 +122,7 @@ public class CombatFX {
     return shot;
   }
   
-
+  
   public static void applyBurstFX(
     PlaneFX.Model model, Vec3D point, float duration, Stage world
   ) {
@@ -129,4 +130,32 @@ public class CombatFX {
     s.position.setTo(point);
     world.ephemera.addGhost(null, 1, s, duration);
   }
+  
+  
+  public static void applyShieldFX(
+    OutfitType type, Mobile uses, Target attackedBy, boolean hits
+  ) {
+    final Stage world = uses.world();
+    final Stage.Visible visible = world.ephemera.matchGhost(
+      uses, ShieldFX.SHIELD_MODEL
+    );
+    final ShieldFX shieldFX;
+    if (visible != null) {
+      shieldFX = (ShieldFX) visible.sprite();
+      world.ephemera.updateGhost(uses, 1, ShieldFX.SHIELD_MODEL, 2);
+    }
+    else {
+      shieldFX = new ShieldFX();
+      shieldFX.scale = 0.5f * uses.height();
+      world.ephemera.addGhost(uses, 1, shieldFX, 2);
+    }
+    if (attackedBy != null) {
+      shieldFX.attachBurstFromPoint(attackedBy.position(null), hits);
+    }
+    else shieldFX.resetGlow();
+  }
 }
+
+
+
+

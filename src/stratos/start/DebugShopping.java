@@ -70,11 +70,14 @@ public class DebugShopping extends Scenario {
   
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.setDefaults();
-    //GameSettings.hireFree  = true;
+    GameSettings.hireFree  = true;
     GameSettings.buildFree = true;
     GameSettings.fogFree   = true;
     GameSettings.paveFree  = true;
-    GameSettings.freeHousingLevel = 3;
+    
+    //  TODO:  Try giving the residents pots of money instead...
+    
+    //GameSettings.freeHousingLevel = 0;
     
     if (true ) archivesScenario(world, base, UI);
   }

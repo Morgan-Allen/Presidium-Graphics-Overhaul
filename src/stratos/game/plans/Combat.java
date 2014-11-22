@@ -381,7 +381,7 @@ public class Combat extends Plan implements Qualities {
       }
       if (damage != afterArmour) {
         final boolean hit = damage > 0;
-        OutfitType.applyFX(target.gear.outfitType(), target, actor, hit);
+        CombatFX.applyShieldFX(target.gear.outfitType(), target, actor, hit);
       }
       damage = afterArmour;
     }

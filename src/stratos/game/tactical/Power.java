@@ -360,6 +360,7 @@ public class Power implements Qualities {
           subject.gear.boostShields(5, false);
           return true;
         }
+        ///I.say("BOOSTING SHIELDS FOR "+selected);
         
         final float
           bonus = caster.traits.usedLevel(TRANSDUCTION) / 2,

@@ -11,6 +11,7 @@ import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
 import stratos.game.plans.Combat;
+import stratos.game.tactical.CombatFX;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
 import stratos.graphics.solids.*;
@@ -236,6 +237,12 @@ public class Human extends Actor implements Qualities {
     if (DT != null) {
       ((SolidSprite) sprite()).togglePart(DT.groupName, c != null);
     }
+    
+    //  TODO:  Also a bit of a hack.  Remove later.
+    if (gear.shieldCharge() > gear.maxShields()) {
+      CombatFX.applyShieldFX(gear.outfitType(), this, null, false);
+    }
+    
     super.renderFor(rendering, base);
   }
   

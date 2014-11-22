@@ -369,6 +369,14 @@ public class ActorGear extends Inventory {
   
   private void regenerateShields() {
     final float max = maxShields();
+    
+    //  TODO:  Log these properly.
+    /*
+    if (I.talkAbout == actor) {
+      I.say("\nShields are: "+currentShields+"/"+max);
+    }
+    //*/
+    
     if (currentShields < max) {
       float regen = max / SHIELD_REGEN_TIME;
       regen = Visit.clamp(regen, 0, max - currentShields);

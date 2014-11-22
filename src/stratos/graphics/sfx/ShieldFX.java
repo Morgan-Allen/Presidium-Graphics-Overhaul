@@ -91,6 +91,11 @@ public class ShieldFX extends SFX {
   }
   
   
+  public void resetGlow() {
+    glowAlpha = 1;
+  }
+  
+  
   public Vec3D interceptPoint(Vec3D origin) {
     final Vec3D offset = new Vec3D().setTo(position).sub(origin);
     final float newLength = offset.length() - scale;

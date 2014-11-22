@@ -259,6 +259,7 @@ public class Holding extends Venue {
   
   private void updateDemands(int targetLevel) {
     targetLevel = Visit.clamp(targetLevel, HoldingUpgrades.NUM_LEVELS);
+    stocks.clearDemands();
     
     for (Item i : HoldingUpgrades.materials(targetLevel).raw) {
       stocks.forceDemand(i.type, i.amount + 0.5f, Stocks.TIER_CONSUMER);

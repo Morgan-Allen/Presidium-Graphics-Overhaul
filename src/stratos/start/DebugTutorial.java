@@ -12,7 +12,6 @@ import stratos.util.*;
 //  Restore the Landing Strip for the convenience of dropships (and have their
 //  supply/demand profile set when cargo is loaded.)
 
-//  TODO:  Make sure the main Powers are working!
 //  TODO:  Tweak the UI for visibility and cull any unused structures.
 
 
