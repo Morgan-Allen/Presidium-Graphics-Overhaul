@@ -116,7 +116,8 @@ public class Minimap extends Assets.Loadable {
   
   
   protected void disposeAsset() {
-    mapImage.dispose();
+    if (! isLoaded()) return;
+    if (mapImage != null) mapImage.dispose();
     mapMesh.dispose();
     shading.dispose();
   }

@@ -133,7 +133,7 @@ public class IntelMap {
   
   public float fogAt(Tile t) {
     if (GameSettings.fogFree || base.primal) return 1;
-    return fogVals[t.x][t.y];
+    return t == null ? -1 : fogVals[t.x][t.y];
   }
   
   

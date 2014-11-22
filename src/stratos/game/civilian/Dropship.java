@@ -2,6 +2,7 @@
 
 
 package stratos.game.civilian;
+
 import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.building.*;
@@ -14,10 +15,10 @@ import stratos.graphics.solids.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
-
 //import static stratos.game.actors.Qualities.*;
 //import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.building.Economy.*;
+import org.apache.commons.math3.util.FastMath;
 
 
 
@@ -196,50 +197,7 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     choice.add(DeliveryUtils.bestBulkDeliveryFrom (this, goods, 1, 10, 2));
     
     final Plan pick = (Plan) choice.pickMostUrgent();
-    
-    I.say("Plan picked is: "+pick);
     return pick;
-    //return choice.pickMostUrgent();
-  }
-  
-  
-  public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates);
-    if (stage != STAGE_LANDED) return;
-    
-    /*
-    final int period = (int) scheduledInterval();
-    for (Traded good : ALL_MATERIALS) {
-      cargo.incDemand(good, 0, Stocks.TIER_TRADER, period, this);
-    }
-    //*/
-    
-    //  TODO:  Supply/demand here needs to be based on supply/demand from
-    //  trading partners.
-    //*
-    final Commerce commerce = base.commerce;
-    final Tally <Traded> surpluses = new Tally <Traded> ();
-    float sumS = 0;
-    
-    for (Traded good : ALL_MATERIALS) {
-      final float surplus = commerce.localSurplus(good);
-      if (surplus > 0) {
-        sumS += surplus;
-        surpluses.add(surplus, good);
-      }
-      else if (commerce.localShortage(good) > 0) {
-        cargo.forceDemand(good, 0, Stocks.TIER_PRODUCER);
-      }
-      else {
-        cargo.forceDemand(good, 0, Stocks.TIER_TRADER);
-      }
-    }
-    
-    for (Traded good : surpluses.keys()) {
-      final float wanted = MAX_CAPACITY * surpluses.valueFor(good) / sumS;
-      cargo.forceDemand(good, wanted, Stocks.TIER_CONSUMER);
-    }
-    //*/
   }
   
   
@@ -333,6 +291,8 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   
   private void performLanding(Stage world, Box2D site) {
     if (dropPoint instanceof Venue) {
+      //  Rely on the docking functions of the landing site...
+      ((LaunchHangar) dropPoint).setToDock(this);
     }
     else {
       //  Claim any tiles underneath as owned, and evacuate any occupants-
@@ -366,14 +326,10 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     if (stage == STAGE_LANDED) offloadPassengers();
     
     ///I.say("BEGINNING ASCENT");
-    //  TODO:  Restore docking at a launch hangar!
-    /*
     if (dropPoint instanceof LaunchHangar) {
       ((LaunchHangar) dropPoint).setToDock(null);
     }
-    //*/
-    //else
-    if (landed()) {
+    else if (landed()) {
       final Box2D site = new Box2D().setTo(landArea()).expandBy(-1);
       for (Tile t : world.tilesIn(site, false)) t.setOnTop(null);
     }
@@ -426,7 +382,7 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     //  Check to see if ascent or descent are complete-
     final float height = position.z / INIT_HIGH;
     if (stage == STAGE_ASCENT && height >= 1) {
-      for (Mobile m : inside()) m.exitWorld();
+      for (Mobile m : inside()) if (m.inWorld()) m.exitWorld();
       exitWorld();
       stage = STAGE_AWAY;
       stageInceptTime = world.currentTime();
@@ -519,32 +475,36 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     this.assignBase(base);
     final Stage world = base.world;
     
-    //LaunchHangar landing = null;
-    //float bestRating = Float.NEGATIVE_INFINITY;
+    //  TODO:  Use DeliveryUtils here instead- that will give you the single
+    //  best building to start off nearby.
     
-    //  TODO:  Land at the launch hangar instead.
-    /*
-    for (Object o : world.presences.matchesNear(FRSD.class, this, -1)) {
-      final FRSD depot = (FRSD) o;
-      final LaunchHangar strip = depot.launchHangar();
-      if (strip == null || ! depot.structure.intact()) continue;
+    //  First of all, check to see if landing at a supply depot/launch hangar
+    //  is possible:
+    final Pick <LaunchHangar> pick = new Pick <LaunchHangar> ();
+    
+    for (Object o : world.presences.matchesNear(LaunchHangar.class, this, -1)) {
+      final LaunchHangar strip = (LaunchHangar) o;
       if (strip.docking() != null || ! strip.structure.intact()) continue;
-      float rating = 0; for (Service good : ALL_MATERIALS) {
-        rating += depot.exportDemand(good);
-        rating += depot.importShortage(good);
+      
+      final FRSD parent = strip.parentDepot();
+      float rating = 0;
+      for (Traded good : Economy.ALL_MATERIALS) {
+        rating += FastMath.max(0, parent.stocks.shortageOf(good));
+        rating += FastMath.max(0, parent.stocks.surplusOf (good));
       }
       rating /= 2 * ALL_MATERIALS.length;
-      if (rating > bestRating) { landing = strip; bestRating = rating; }
+      pick.compare(strip, rating);
     }
-    
-    if (landing != null) {
-      landing.position(aimPos);
-      dropPoint = landing;
-      landing.setToDock(this);
+
+    final LaunchHangar strip = pick.result();
+    if (strip != null) {
+      strip.position(aimPos);
+      dropPoint = strip;
+      strip.setToDock(this);
+      
       I.say("Landing at depot: "+dropPoint);
       return true;
     }
-    //*/
     
     if (aimPos.z != NO_LANDING && checkLandingArea(world, landArea())) {
       if (report) {

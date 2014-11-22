@@ -177,17 +177,26 @@ public class InstallTab extends SelectionInfoPane {
       final IntelMap map = UI.played().intelMap;
       final Tile picked = UI.selection.pickedTile();
       
-      final boolean canPlace =
-        picked != null && map.fogAt(picked) > 0 &&
-        toInstall.setPosition(picked.x, picked.y, UI.world()) &&
-        toInstall.canPlace();
+      //  First of all, we place the main structure at the selected tile (which
+      //  gives it the chance to update the location of any kids it has.)
+      boolean canPlace =
+        picked != null &&
+        toInstall.setPosition(picked.x, picked.y, picked.world);
       
+      //  TODO:  Hook directly into the utility methods in Placement.class?
+      
+      //  We then determine whether all the components of that larger structure
+      //  are in fact place-able:
+      final Installation group[] = toInstall.structure().asGroup();
+      for (Installation i : group) {
+        canPlace &= map.fogAt(i) > 0 && i.canPlace();
+      }
       if (canPlace && UI.mouseClicked()) {
-        toInstall.doPlacement();
+        for (Installation i : group) i.doPlacement();
         UI.endCurrentTask();
       }
-      else {
-        toInstall.previewPlacement(canPlace, UI.rendering);
+      else for (Installation i : group) {
+        i.previewPlacement(canPlace, UI.rendering);
       }
     }
     

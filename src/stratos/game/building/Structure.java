@@ -287,7 +287,8 @@ public class Structure {
   }
   
   
-  public Installation[] group() {
+  public Installation[] asGroup() {
+    if (group == null || group.length == 0) return new Installation[] {basis};
     return group;
   }
   

@@ -141,11 +141,6 @@ public class Resting extends Plan {
   
   protected Behaviour getNextStep() {
     if (restPoint == null) return null;
-    /*
-    if (restPoint instanceof Tile) {
-      if (((Tile) restPoint).blocked()) return null;
-    }
-    //*/
     
     //  TODO:  Split dining off into a separate behaviour.
     if (menuFor(restPoint).size() > 0) {
@@ -220,17 +215,26 @@ public class Resting extends Plan {
     
     if (numFoods > 0 && actor.health.hungerLevel() > 0.1f) {
       final int FTC = ActorHealth.FOOD_TO_CALORIES;
-      float sumFood = 0;
+      float sumFood = 0, sumTypes = 0;
       
       for (Traded type : menu) {
         final Item portion = Item.withAmount(type, 0.2f / (numFoods * FTC));
         stores.inventory().removeItem(portion);
         sumFood += portion.amount;
+        sumTypes++;
       }
       
-      actor.health.takeCalories(1, sumFood * FTC);
+      if (stores.inventory().amountOf(MEDICINE) > 0) {
+        final Item meds = Item.withAmount(MEDICINE, 0.1f / FTC);
+        stores.inventory().removeItem(meds);
+        sumTypes++;
+      }
+      
+      sumTypes /= Economy.ALL_FOOD_TYPES.length;
+      actor.health.takeCalories(sumFood * FTC, sumTypes);
       return true;
     }
+    
     return false;
   }
   

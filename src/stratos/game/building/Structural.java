@@ -117,6 +117,9 @@ public abstract class Structural extends Fixture implements
   }
   
   
+  
+  /**  Placement and construction-preview methods-
+    */
   public void doPlacement() {
     clearSurrounds();
     enterWorld();
@@ -131,9 +134,6 @@ public abstract class Structural extends Fixture implements
   }
   
   
-  
-  /**  Rendering and interface methods-
-    */
   public void previewPlacement(boolean canPlace, Rendering rendering) {
     //final Tile at = origin();
     /*
@@ -153,6 +153,9 @@ public abstract class Structural extends Fixture implements
   }
   
   
+  
+  /**  Rendering and interface methods-
+    */
   public void attachSprite(Sprite sprite) {
     if (sprite == null) super.attachSprite(null);
     else {
@@ -258,14 +261,10 @@ public abstract class Structural extends Fixture implements
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (destroyed() || ! inWorld()) return;
     
-    final Installation group[];
-    if (structure.group() == null) group = new Installation[] {this};
-    else group = structure.group();
-    
     BaseUI.current().selection.renderTileOverlay(
       rendering, world,
       hovered ? Colour.transparency(0.5f) : Colour.WHITE,
-      Selection.SELECT_OVERLAY, true, this, (Object[]) group
+      Selection.SELECT_OVERLAY, true, this, (Object[]) structure.asGroup()
     );
   }
 }

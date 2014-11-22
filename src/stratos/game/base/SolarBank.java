@@ -7,19 +7,16 @@ import stratos.game.actors.Actor;
 import stratos.game.actors.Background;
 import stratos.game.actors.Behaviour;
 import stratos.game.building.*;
-import stratos.game.maps.*;
+//import stratos.game.maps.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
-import static stratos.game.actors.Qualities.*;
-import static stratos.game.actors.Backgrounds.*;
+//import static stratos.game.actors.Qualities.*;
+//import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.building.Economy.*;
 
-
-
-//  TODO:  Use the same tricks here that you did for the shield wall.
 
 
 public class SolarBank extends Venue {
@@ -79,9 +76,12 @@ public class SolarBank extends Venue {
     */
   public void updateAsScheduled(int numUpdates) {
     super.updateAsScheduled(numUpdates);
+    if (! structure.intact()) {
+      structure.assignOutputs();
+      return;
+    }
     
-    //  TODO:  Vary this based on how much you have stocked of each over the
-    //  past 24 hours, sunlight/moisture values, et cetera.
+    //  TODO:  Base this off climate values.
     structure.assignOutputs(
       Item.withAmount(POWER, 2),
       Item.withAmount(OPEN_WATER, 0.5f)
@@ -173,17 +173,6 @@ public class SolarBank extends Venue {
   }
   
   
-  public boolean canPlace() {
-    if (type != TYPE_PLACING) return super.canPlace();
-    
-    if (structure.group() == null) return false;
-    for (SolarBank bank : (SolarBank[]) structure.group()) {
-      if (! bank.canPlace()) return false;
-    }
-    return true;
-  }
-  
-  
   protected boolean checkPerimeter(Stage world) {
     //  TODO:  This might require some modification later.  Ideally, you want
     //  to give solar banks at least one tile of space.
@@ -191,32 +180,9 @@ public class SolarBank extends Venue {
   }
   
   
-  public void doPlacement() {
-    if (type != TYPE_PLACING) {
-      super.doPlacement();
-      return;
-    }
-    for (SolarBank bank : (SolarBank[]) structure.group()) {
-      bank.doPlacement();
-    }
-  }
-  
-  
   
   /**  Rendering and interface methods-
     */
-  public void previewPlacement(boolean canPlace, Rendering rendering) {
-    if (type != TYPE_PLACING) {
-      super.previewPlacement(canPlace, rendering);
-      return;
-    }
-    final SolarBank group[] = (SolarBank[]) structure.group();
-    if (group != null) for (SolarBank bank : group) {
-      bank.previewPlacement(canPlace, rendering);
-    }
-  }
-  
-  
   public String fullName() {
     return "Solar Bank";
   }
@@ -241,7 +207,7 @@ public class SolarBank extends Venue {
 
 
 /*
-//  TODO:  Restore the use of this:
+//  TODO:  Restore this?
 
 protected void configFromAdjacent(boolean[] near, int numNear) {
   final Tile o = origin();

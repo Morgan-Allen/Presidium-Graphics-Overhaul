@@ -92,11 +92,11 @@ public class Placement implements TileConstants {
   //  NOTE:  This method assumes that the fixtures in question will occupy a
   //  contiguous 'strip' or bloc for placement purposes.
   public static boolean checkPlacement(
-    Fixture fixtures[], Stage world
+    Installation fixtures[], Stage world
   ) {
     Box2D limits = null;
-    for (Fixture f : fixtures) {
-      if (limits == null) f.area(limits = new Box2D());
+    for (Installation f : fixtures) {
+      if (limits == null) limits = new Box2D(f.footprint());
       else limits.include(f.footprint());
     }
     if (! checkAreaClear(
@@ -106,7 +106,7 @@ public class Placement implements TileConstants {
       fixtures[0].owningType()
     )) return false;
     
-    for (Fixture f : fixtures) if (! f.canPlace()) return false;
+    for (Installation f : fixtures) if (! f.canPlace()) return false;
     return true;
   }
   
@@ -126,8 +126,7 @@ public class Placement implements TileConstants {
       }
       protected boolean canPlaceAt(Tile t) {
         v.setPosition(t.x, t.y, world);
-        if (! checkAreaClear(t, v.size, v.size, v.owningType())) return false;
-        return v.canPlace();
+        return checkPlacement(v.structure.asGroup(), world);
       }
     };
     search.doSearch();
@@ -139,19 +138,47 @@ public class Placement implements TileConstants {
     final Venue v, final Target near, boolean intact, Stage world
   ) {
     if (! findClearanceFor(v, near, world)) return null;
-    v.doPlacement();
-    if (intact || GameSettings.buildFree) {
-      v.structure.setState(Structure.STATE_INTACT, 1.0f);
-      ///v.onCompletion();
+    
+    for (Installation i : v.structure.asGroup()) {
+      i.doPlacement();
+      if (intact || GameSettings.buildFree) {
+        i.structure().setState(Structure.STATE_INTACT, 1.0f);
+      }
+      else {
+        i.structure().setState(Structure.STATE_INSTALL, 0.0f);
+      }
+      ((Element) i).setAsEstablished(true);
     }
-    else {
-      v.structure.setState(Structure.STATE_INSTALL, 0.0f);
-    }
-    v.setAsEstablished(true);
     return v;
   }
   
+  
+  public static Venue establishVenue(
+    final Venue v, int atX, int atY, boolean intact, final Stage world,
+    Actor... employed
+  ) {
+    if (establishVenue(v, world.tileAt(atX, atY), intact, world) == null) {
+      return null;
+    }
+    for (Actor a : employed) {
+      if (! a.inWorld()) {
+        a.assignBase(v.base());
+        a.enterWorldAt(v, world);
+        a.goAboard(v, world);
+      }
+      a.mind.setWork(v);
+    }
+    if (GameSettings.hireFree) BaseSetup.fillVacancies(v, intact);
+    return v;
+  }
+}
 
+
+
+
+  
+  
+  /*
   public static Venue[] establishVenueStrip(
     final Venue strip[], final Target near, boolean intact, final Stage world
   ) {
@@ -245,27 +272,4 @@ public class Placement implements TileConstants {
     
     return false;
   }
-  
-  
-  public static Venue establishVenue(
-    final Venue v, int atX, int atY, boolean intact, final Stage world,
-    Actor... employed
-  ) {
-    if (establishVenue(v, world.tileAt(atX, atY), intact, world) == null) {
-      return null;
-    }
-    for (Actor a : employed) {
-      if (! a.inWorld()) {
-        a.assignBase(v.base());
-        a.enterWorldAt(v, world);
-        a.goAboard(v, world);
-      }
-      a.mind.setWork(v);
-    }
-    if (GameSettings.hireFree) BaseSetup.fillVacancies(v, intact);
-    return v;
-  }
-}
-
-
-
+  //*/

@@ -167,6 +167,7 @@ public class PhysicianStation extends Venue {
     final Batch <Target> around = new Batch <Target> ();
     for (Target t : actor.senses.awareOf()) around.include(t);
     for (Mobile m : this.inside()) around.include(m);
+    if (base.ruler() != null) around.include(base.ruler());
     
     for (Target m : around) if (m instanceof Actor) {
       final FirstAid t = new FirstAid(actor, (Actor) m, this);

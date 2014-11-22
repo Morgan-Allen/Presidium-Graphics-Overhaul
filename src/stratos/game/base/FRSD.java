@@ -15,13 +15,13 @@ import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
-import static stratos.game.actors.Qualities.*;
-import static stratos.game.actors.Backgrounds.*;
+//import static stratos.game.actors.Qualities.*;
+//import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.building.Economy.*;
 
 
 
-//  TODO:  Add the landing strip here.
+//  TODO:  Add the landing strip back here.
 
 public class FRSD extends Venue {
   
@@ -176,6 +176,33 @@ public class FRSD extends Venue {
   }
   
   
+  /**  Placement and construction previews-
+    */
+  public boolean setPosition(float x, float y, Stage world) {
+    if (! super.setPosition(x, y, world)) {
+      return false;
+    }
+    
+    final Tile o = origin();
+    final LaunchHangar hangar = new LaunchHangar(base);
+    if (! hangar.setPosition(o.x, o.y + ydim(), world)) {
+      return false;
+    }
+    
+    hangar.structure.assignGroup(this, hangar);
+    this.  structure.assignGroup(this, hangar);
+    return true;
+  }
+  
+  
+  public LaunchHangar childHangar() {
+    for (Installation i : structure.asGroup()) if (i instanceof LaunchHangar) {
+      return (LaunchHangar) i;
+    }
+    return null;
+  }
+  
+  
   
   /**  Rendering and interface methods-
     */
@@ -269,6 +296,7 @@ public class FRSD extends Venue {
   }
   
   
+  /*
   public void renderSelection(Rendering rendering, boolean hovered) {
     BaseUI.current().selection.renderTileOverlay(
       rendering, world,
@@ -276,6 +304,7 @@ public class FRSD extends Venue {
       Selection.SELECT_OVERLAY, true, this, this
     );
   }
+  //*/
 }
 
 

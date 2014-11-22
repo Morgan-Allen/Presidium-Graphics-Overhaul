@@ -24,7 +24,7 @@ public class ActorHealth implements Qualities {
     HUMAN_METABOLISM    = 0,
     ANIMAL_METABOLISM   = 1,
     ARTILECT_METABOLISM = 2,
-    FOOD_TO_CALORIES   = 10;
+    FOOD_TO_CALORIES    = 10;
   final public static int
     STATE_ACTIVE   = 0,
     STATE_RESTING  = 1,

@@ -418,31 +418,21 @@ public class ShieldWall extends Venue {
   
   
   public boolean canPlace() {
-    if (! isPlacing()) {
-      
-      //  Basic sanity checks first-
-      if (origin() == null) return false;
-      final Stage world = origin().world;
-      
-      //  In essence, we allow construction as long as at least one tile
-      //  beneath is free, along with a tile along the perimeter.
-      boolean underFree = false, perimFree = false;
-      for (Tile t : world.tilesIn(footprint(), false)) {
-        if (cannotUse(t)) return false;
-        underFree |= t.habitat().pathClear;
-      }
-      for (Tile t : Spacing.perimeter(footprint(), world)) {
-        if (cannotUse(t)) return false;
-        perimFree |= t.habitat().pathClear;
-      }
-      return underFree && perimFree;
-    }
+    if (origin() == null) return false;
+    final Stage world = origin().world;
     
-    if (structure.group() == null) return false;
-    for (ShieldWall segment : (ShieldWall[]) structure.group()) {
-      if (! segment.canPlace()) return false;
+    //  In essence, we allow construction as long as at least one tile
+    //  beneath is free, along with a tile along the perimeter.
+    boolean underFree = false, perimFree = false;
+    for (Tile t : world.tilesIn(footprint(), false)) {
+      if (cannotUse(t)) return false;
+      underFree |= t.habitat().pathClear;
     }
-    return true;
+    for (Tile t : Spacing.perimeter(footprint(), world)) {
+      if (cannotUse(t)) return false;
+      perimFree |= t.habitat().pathClear;
+    }
+    return underFree && perimFree;
   }
   
   
@@ -454,43 +444,9 @@ public class ShieldWall extends Venue {
   }
   
   
-  public void doPlacement() {
-    if (! isPlacing()) {
-      super.doPlacement();
-      return;
-    }
-    for (ShieldWall segment : (ShieldWall[]) structure.group()) {
-      segment.doPlacement();
-    }
-  }
-  
-  
   
   /**  Rendering and interface methods-
     */
-  public void previewPlacement(boolean canPlace, Rendering rendering) {
-    if (! isPlacing()) {
-      super.previewPlacement(canPlace, rendering);
-      return;
-    }
-    final ShieldWall wallGroup[] = (ShieldWall[]) structure.group();
-    if (wallGroup != null) for (ShieldWall segment : wallGroup) {
-      segment.previewPlacement(canPlace, rendering);
-    }
-  }
-  
-  /*
-  public void renderSelection(Rendering rendering, boolean hovered) {
-    if (destroyed() || ! inWorld()) return;
-    BaseUI.current().selection.renderTileOverlay(
-      rendering, world,
-      hovered ? Colour.transparency(0.5f) : Colour.WHITE,
-      Selection.SELECT_OVERLAY, true, this, structure.group()
-    );
-  }
-  //*/
-  
-  
   public Vec3D viewPosition(Vec3D v) {
     return super.position(v);
   }

@@ -24,8 +24,9 @@ public class LaunchHangar extends Venue {
     */
   final static String IMG_DIR = "media/Buildings/merchant/";
   final public static ModelAsset MODEL = CutoutModel.fromSplatImage(
-    LaunchHangar.class, IMG_DIR+"landing_strip.png", 4.25f
+    LaunchHangar.class, IMG_DIR+"landing_strip.png", 4.0f
   );
+  
   
   
   private Dropship docking;
@@ -33,7 +34,7 @@ public class LaunchHangar extends Venue {
   
   
   public LaunchHangar(Base base) {
-    super(4, 1, ENTRANCE_NORTH, base);
+    super(4, 1, ENTRANCE_SOUTH, base);
     structure.setupStats(50, 10, 25, 0, Structure.TYPE_FIXTURE);
     attachModel(MODEL);
   }
@@ -86,12 +87,13 @@ public class LaunchHangar extends Venue {
   
   /**  Docking functions-
     */
-  public Boarding[] canBoard(Boarding batch[]) {
+  public Boarding[] canBoard() {
     final Batch <Boarding> CB = new Batch <Boarding> ();
     if (mainEntrance() != null) CB.add(mainEntrance());
-    if (docking != null) CB.add(docking);
-    int i = 2; for (Mobile m : inside()) if (m instanceof Boarding) {
-      CB.add((Boarding) m);
+    
+    if (docking != null) CB.include(docking);
+    for (Mobile m : inside()) if (m instanceof Boarding) {
+      CB.include((Boarding) m);
     }
     return CB.toArray(Boarding.class);
   }
@@ -104,6 +106,14 @@ public class LaunchHangar extends Venue {
   
   public void setToDock(Dropship ship) {
     docking = ship;
+  }
+  
+  
+  public FRSD parentDepot() {
+    for (Installation i : structure.asGroup()) if (i instanceof FRSD) {
+      return (FRSD) i;
+    }
+    return null;
   }
   
   
@@ -147,25 +157,8 @@ public class LaunchHangar extends Venue {
   
   
   public String buildCategory() {
-    return InstallTab.TYPE_MILITANT;
+    return InstallTab.TYPE_HIDDEN;
   }
-  
-  
-  /*
-  public TargetInfo configInfo(TargetInfo info, BaseUI UI) {
-    return belongs.configInfo(info, UI);
-  }
-  
-  
-  public InfoPanel configPanel(InfoPanel panel, BaseUI UI) {
-    return belongs.configPanel(panel, UI);
-  }
-  
-  
-  public void renderSelection(Rendering rendering, boolean hovered) {
-    belongs.renderSelection(rendering, hovered);
-  }
-  //*/
 }
 
 

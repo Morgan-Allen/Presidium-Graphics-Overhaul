@@ -151,7 +151,7 @@ public class Stage {
   
   public Tile tileAt(Target t) {
     final Vec3D v = t.position(tempV);
-    return tileAt(v.x, v.y);
+    return v== null ? null : tileAt(v.x, v.y);
   }
   
   

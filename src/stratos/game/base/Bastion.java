@@ -167,7 +167,6 @@ public class Bastion extends Venue {
     
     if (actor == base().ruler()) {
       final Supervision s = new Supervision(actor, this);
-      s.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
       return s;
     }
     
@@ -193,9 +192,31 @@ public class Bastion extends Venue {
   }
   
   
+  private void updateRulerStatus() {
+    final Actor ruler = base.ruler();
+    if (ruler == null || ruler.aboard() != this) return;
+    
+    final float bonus = (structure.upgradeLevel(SEAT_OF_POWER) + 2) / 5f;
+    
+    float psiGain = ruler.health.maxConcentration();
+    psiGain *= bonus / ActorHealth.CONCENTRATE_REGEN_TIME;
+    ruler.health.gainConcentration(psiGain);
+    
+    float hitGain = ruler.health.maxHealth();
+    hitGain *= bonus / Stage.STANDARD_DAY_LENGTH;
+    ruler.health.liftFatigue(hitGain);
+    ruler.health.liftInjury (hitGain);
+    
+    Resting.dineFrom(ruler, this);
+  }
+  
+  
   public void updateAsScheduled(int numUpdates) {
     super.updateAsScheduled(numUpdates);
     if (! structure.intact()) return;
+    //
+    //  Look after the ruler and any other housebound guests-
+    updateRulerStatus();
     //
     //  Provide power and life support-
     final float condition = (structure.repairLevel() + 1f) / 2;
@@ -211,11 +232,20 @@ public class Bastion extends Venue {
     }
     //
     //  Demand provisions-
-    final int foodNeed = personnel.residents().size() + 5;
-    stocks.forceDemand(CARBS  , foodNeed * 1.5f, Stocks.TIER_CONSUMER);
-    stocks.forceDemand(PROTEIN, foodNeed * 1.0f, Stocks.TIER_CONSUMER);
-    stocks.forceDemand(GREENS , foodNeed * 1.0f, Stocks.TIER_CONSUMER);
-    stocks.forceDemand(TINER_SPYCE  , foodNeed * 0.5f, Stocks.TIER_CONSUMER);
+    final int foodNeed = personnel.residents().size() + 2;
+    stocks.forceDemand(CARBS   , foodNeed * 1.5f, Stocks.TIER_CONSUMER);
+    stocks.forceDemand(PROTEIN , foodNeed * 1.0f, Stocks.TIER_CONSUMER);
+    stocks.forceDemand(GREENS  , foodNeed * 1.0f, Stocks.TIER_CONSUMER);
+    stocks.forceDemand(MEDICINE, foodNeed * 0.5f, Stocks.TIER_CONSUMER);
+    
+    final int partNeed = structure.upgradeLevel(LOGISTIC_SUPPORT) + 2;
+    stocks.forceDemand(PARTS   , partNeed * 1.0f, Stocks.TIER_CONSUMER);
+    stocks.forceDemand(PLASTICS, partNeed * 0.5f, Stocks.TIER_CONSUMER);
+    
+    for (Traded type : Economy.ALL_MATERIALS) {
+      if (stocks.demandTier(type) == Stocks.TIER_CONSUMER) continue;
+      stocks.forceDemand(type, 0, Stocks.TIER_TRADER);
+    }
     //
     //  Modify maximum integrity based on upgrades-
     final int BB = structure.upgradeLevel(BLAST_SHIELDS);

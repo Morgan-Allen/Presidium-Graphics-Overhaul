@@ -203,6 +203,14 @@ public final class Tile implements
     }
     
     world.sections.flagBoundsUpdate(x, y);
+    refreshAdjacent();
+  }
+  
+  
+  
+  /**  Implementing the Boardable interface-
+    */
+  public void refreshAdjacent() {
     boardingCache = null;
     for (int n : N_INDEX) {
       final Tile t = world.tileAt(x + N_X[n], y + N_Y[n]);
@@ -211,9 +219,6 @@ public final class Tile implements
   }
   
   
-  
-  /**  Implementing the Boardable interface-
-    */
   public Boarding[] canBoard() {
     if (boardingCache != null) return boardingCache;
     final Boarding batch[] = new Boarding[8];

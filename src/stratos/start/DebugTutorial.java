@@ -9,21 +9,16 @@ import stratos.user.*;
 import stratos.util.*;
 
 
-//  TODO:  Restore the Landing Strip for the convenience of dropships (and have
-//  their supply/demand profile set when cargo is loaded.)
 
-//  TODO:  Fix the problem of 'the starving sovereign'...
+//  Remove any non-functional structures, and test lchc/reagents production.
 
-
-//  Restore lchc production, animal breeding, and reagents at the culture labs.
-//  Remove any non-functional structures!
 
 //  Arrange for contact missions to come back with a desired price from the
 //  subject/s.
 
 //  TODO:  Introduce hunting by the natives, and allow trading with them as a
 //  source of carbs/greens/protein.  (Also, add singer performance?)  ...Just
-//  make them less static/idle, I guess.
+//  make them less static/idle, I guess.  And try to restore animal breeding.
 
 //  Introduce a finance-report UI!  And try to get all the details.
 //  Try to arrange that actors will seek out new Holdings if anything existing

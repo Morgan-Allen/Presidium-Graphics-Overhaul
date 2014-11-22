@@ -23,7 +23,7 @@ public class Commerce {
   /**  Field definitions, constructor, save/load methods-
     */
   private static boolean
-    verbose        = false,
+    verbose        = true ,
     extraVerbose   = false,
     migrateVerbose = verbose && false,
     tradeVerbose   = verbose && false;
@@ -486,10 +486,34 @@ public class Commerce {
     for (Item item : available.allItems()) sorting.add(item);
     float totalAmount = 0;
     for (Item item : sorting) {
-      if (totalAmount + item.amount > ship.MAX_CAPACITY) break;
+      if (totalAmount + item.amount > Dropship.MAX_CAPACITY) break;
       ship.cargo.addItem(item);
       totalAmount += item.amount;
       if (report) I.say("  "+item);
+    }
+    
+    //  And, last but not least, we calibrate supply and demand in advance of
+    //  landing:
+    final Tally <Traded> surpluses = new Tally <Traded> ();
+    float sumS = 0;
+    
+    for (Traded good : ALL_MATERIALS) {
+      final float surplus = localSurplus(good);
+      if (surplus > 0) {
+        sumS += surplus;
+        surpluses.add(surplus, good);
+      }
+      else if (localShortage(good) > 0) {
+        ship.cargo.forceDemand(good, 0, Stocks.TIER_PRODUCER);
+      }
+      else {
+        ship.cargo.forceDemand(good, 0, Stocks.TIER_TRADER);
+      }
+    }
+    
+    for (Traded good : surpluses.keys()) {
+      float wanted = Dropship.MAX_CAPACITY * surpluses.valueFor(good) / sumS;
+      ship.cargo.forceDemand(good, wanted, Stocks.TIER_CONSUMER);
     }
   }
   
