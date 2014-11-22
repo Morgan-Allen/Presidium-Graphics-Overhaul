@@ -6,17 +6,25 @@ import stratos.game.actors.*;
 import stratos.graphics.common.Rendering;
 import stratos.graphics.widgets.KeyInput;
 import stratos.user.*;
-import stratos.util.I;
+import stratos.util.*;
 
 
 //  Restore the Landing Strip for the convenience of dropships (and have their
 //  supply/demand profile set when cargo is loaded.)
+
+//  TODO:  Make sure the main Powers are working!
+//  TODO:  Tweak the UI for visibility and cull any unused structures.
+
+
 //  Restore lchc production, animal breeding, and reagents at the culture labs.
 //  Remove any non-functional structures!
 
 //  Arrange for contact missions to come back with a desired price from the
 //  subject/s.
 
+//  TODO:  Introduce hunting by the natives, and allow trading with them as a
+//  source of carbs/greens/protein.  (Also, add singer performance?)  ...Just
+//  make them less static/idle, I guess.
 
 //  Introduce a finance-report UI!  And try to get all the details.
 //  Try to arrange that actors will seek out new Holdings if anything existing
@@ -25,6 +33,7 @@ import stratos.util.I;
 //  other for specific sub-headings.  Don't bother with spill-over.
 //  Rework art for roads, the shield wall, the physician station, the engineer
 //  station, the solar bank, and the archives.
+
 
 
 public class DebugTutorial extends TutorialScenario {

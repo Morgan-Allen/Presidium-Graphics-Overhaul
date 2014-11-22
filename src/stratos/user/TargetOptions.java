@@ -53,14 +53,24 @@ public class TargetOptions extends UIGroup {
     }
     
     protected void whenClicked() {
-      BUI.played().addMission(mission);
+      final Base base = BUI.played();
+      
+      //  If an existing mission matches this one, just select that instead.
+      for (Mission match : base.allMissions()) {
+        if (match.getClass() != mission.getClass()) continue;
+        if (match.subject() != mission.subject()) continue;
+        BUI.selection.pushSelection(match, true);
+        return;
+      }
+      
+      //  Otherwise, create a new mission for the target.
+      base.addMission(mission);
       BUI.selection.pushSelection(mission, true);
     }
   }
   
   
-  //  TODO:  Just make this a function of the Contact button, if the subject
-  //         doesn't need much persuasion.
+  //  TODO:  Just make this a function of the Contact mission.
   private class SummonsButton extends Button {
     final Actor subject;
     

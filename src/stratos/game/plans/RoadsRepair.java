@@ -67,7 +67,7 @@ public class RoadsRepair extends Plan {
     if (GameSettings.paveFree) return 0;
     
     final boolean report = evalVerbose && I.talkAbout == actor;
-    return super.priorityForActorWith(
+    return priorityForActorWith(
       actor, around, CASUAL * actor.base().relations.communitySpirit(),
       NO_MODIFIER, NO_HARM,
       FULL_COMPETITION, MILD_FAIL_RISK,
@@ -137,6 +137,7 @@ public class RoadsRepair extends Plan {
   
   
   public boolean actionPave(Actor actor, Tile t) {
+    if (! map.needsPaving(t)) return false;
     if (t.owningType() > Element.ELEMENT_OWNS) return false;
     //  TODO:  Deduct credits (or materials?)
     PavingMap.setPaveLevel(t, WorldTerrain.ROAD_LIGHT, true );
@@ -145,6 +146,7 @@ public class RoadsRepair extends Plan {
   
   
   public boolean actionStrip(Actor actor, Tile t) {
+    if (! map.needsPaving(t)) return false;
     if (t.owningType() > Element.ELEMENT_OWNS) return false;
     //  TODO:  Reclaim credits (or materials?)
     PavingMap.setPaveLevel(t, WorldTerrain.ROAD_NONE , false);

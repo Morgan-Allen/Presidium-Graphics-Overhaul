@@ -14,7 +14,9 @@ import stratos.util.*;
 public class TutorialScenario extends StartupScenario {
   
   
-  private static boolean verbose = false;
+  private static boolean
+    verbose          = false,
+    objectiveVerbose = false;
   
   Bastion bastion;
   Batch <Ruins> ruins;
@@ -123,35 +125,63 @@ public class TutorialScenario extends StartupScenario {
   
   
   private boolean checkSecurityObjective() {
-    if (ruins.size() == 0) return false;
+    final boolean report = objectiveVerbose;
+    int numRuins = 0, numRazed = 0;
+    
     for (Ruins ruin : ruins) {
-      if (ruin.destroyed());
-      else return false;
+      numRuins++;
+      if (ruin.destroyed()) numRazed++;
     }
-    return true;
+    
+    if (report) {
+      I.say("\nChecking security objective:");
+      I.say("  "+numRazed+"/"+numRuins+" destroyed.");
+    }
+    return numRazed == numRuins;
   }
   
   
   private boolean checkContactObjective() {
-    if (huts.size() == 0) return false;
+    final boolean report = objectiveVerbose;
+    int numHuts = 0, numRazed = 0, numConverts = 0;
+    
     for (NativeHut hut : huts) {
-      if (hut.destroyed() || hut.base() == base());
-      else return false;
+      numHuts++;
+      if (hut.destroyed()) numRazed++;
+      else if (hut.base() == base()) numConverts++;
     }
-    return true;
+    
+    if (report) {
+      I.say("\nChecking contact objective:");
+      I.say("  "+numHuts+" huts in total.");
+      I.say("  "+numRazed+" razed, "+numConverts+" converted.");
+    }
+    return (numRazed + numConverts) == numHuts;
   }
   
   
   private boolean checkEconomicObjective() {
-    boolean hasHolding = false;
+    final boolean report = objectiveVerbose;
+    final int needLevel = HoldingUpgrades.LEVEL_PYON;
+    int numHoldings = 0, totalLevel = 0;
+    
     final Tile t = world().tileAt(0, 0);
     for (Object o : world().presences.matchesNear(Holding.class, t, -1)) {
       final Holding h = (Holding) o;
-      hasHolding = true;
-      if (h.upgradeLevel() < HoldingUpgrades.LEVEL_FREEBORN) return false;
+      if (h.base() != base()) continue;
+      numHoldings++;
+      totalLevel += h.upgradeLevel();
     }
-    if (base().finance.credits() < 0 || ! hasHolding) return false;
-    return true;
+    
+    final int avgLevel = numHoldings == 0 ? 0 : (totalLevel / numHoldings);
+    if (report) {
+      I.say("\nChecking economic objective:");
+      I.say("  "+numHoldings+" total holdings, total levels: "+totalLevel);
+      I.say("  Average level: "+avgLevel+"/"+needLevel);
+      I.say("  Current credits: "+base().finance.credits());
+    }
+    if (base().finance.credits() < 0 || numHoldings == 0) return false;
+    return avgLevel >= needLevel;
   }
   
   
@@ -166,27 +196,27 @@ public class TutorialScenario extends StartupScenario {
     TITLE_ECONOMY    = "Objective 3: Economy Basics",
     TITLE_NAVIGATION = "Navigation Basics",
     
-    TITLE_EXPLAIN_EXPAND    = "Expanding your base",
-    TITLE_EXPLAIN_DEFEND    = "Defending your base",
-    TITLE_EXPLAIN_CONTACT   = "Diplomacy missions",
-    TITLE_EXPLAIN_INTERVIEW = "Interviewing citizens",
+    TITLE_EXPLAIN_EXPAND    = "Expanding your Base",
+    TITLE_EXPLAIN_DEFEND    = "Defending your Base",
+    TITLE_EXPLAIN_CONTACT   = "Diplomacy Missions",
+    TITLE_EXPLAIN_INTERVIEW = "Interviewing Citizens",
     TITLE_EXPLAIN_SUPPLY    = "Getting Supplies",
     TITLE_EXPLAIN_INDUSTRY  = "Housing and Industry",
     
-    TITLE_SECURITY_DONE   = "Security objective complete",
-    TITLE_CONTACT_DONE    = "Contact objective complete",
-    TITLE_ECONOMY_DONE    = "Economy objective complete",
-    TITLE_CONGRATULATIONS = "Tutorial complete!";
+    TITLE_SECURITY_DONE   = "Security Objective Complete",
+    TITLE_CONTACT_DONE    = "Contact Objective Complete",
+    TITLE_ECONOMY_DONE    = "Economy Objective Complete",
+    TITLE_CONGRATULATIONS = "Tutorial Complete!";
   
   protected boolean showMessages() { return true; }
   
   
   private void pushMessage(String title) {
-    if (UI().selection.selected() != null) return;
     final CommsPanel comms = UI().commsPanel();
+    
     if (! comms.hasMessage(title)) {
       if (verbose) I.say("PUSHING NEW MESSAGE: "+title);
-      UI().setInfoPanels(messageFor(TITLE_WELCOME), null);
+      UI().setInfoPanels(messageFor(title), null);
     }
   }
   
@@ -350,15 +380,15 @@ public class TutorialScenario extends StartupScenario {
         TITLE_ECONOMY, null,
         "In order for your settlement to provide a viable power base for "+
         "later expansion, you will need to establish exports and gather tax "+
-        "from your citizens.  Try to put all your citizens in pyon housing or "+
-        "better without running short of money.",
+        "from your citizens.  Try to get your citizens' average housing level "+
+        "up to pyon grade or better.",
         linkFor("How do I get money and supplies?", TITLE_EXPLAIN_SUPPLY),
         linkFor("How do I improve my housing?", TITLE_EXPLAIN_INDUSTRY),
         linkFor("Tell me about the security objective.", TITLE_SECURITY),
         linkFor("Tell me about the contact objective.", TITLE_CONTACT)
       );
     }
-
+    
     if (title == TITLE_EXPLAIN_SUPPLY) {
       return comms.addMessage(
         TITLE_EXPLAIN_SUPPLY, null,

@@ -98,16 +98,6 @@ public class PavingMap {
   }
   
   
-  public int roadCounter(Tile t) {
-    return roadCounter[t.x][t.y];
-  }
-  
-  
-  public boolean needsPaving(Tile t) {
-    return world.terrain().isRoad(t) != (roadCounter(t) > 0);
-  }
-  
-  
   protected void updateFlags(Tile t) {
     final boolean flag = needsPaving(t);
     flagMap.set((byte) (flag ? 1 : 0), t.x, t.y);
@@ -127,12 +117,27 @@ public class PavingMap {
   }
   
   
+  public int roadCounter(Tile t) {
+    return roadCounter[t.x][t.y];
+  }
+  
+  
   public static boolean pavingReserved(Tile t) {
     final Stage world = t.world;
-    if (world.terrain().isRoad(t)) return true;
+    if (isRoad(t)) return true;
     for (Base b : world.bases()) {
       if (b.paveRoutes.map.roadCounter(t) > 0) return true;
     }
+    return false;
+  }
+  
+  
+  public boolean needsPaving(Tile t) {
+    //  If flagged positive by *your own* base, and unpaved, return true.
+    if (roadCounter[t.x][t.y] > 0 && ! isRoad(t)) return true;
+    //  If paved and flagged negative by *all* bases, return true.
+    if (! isRoad(t) && pavingReserved(t)) return true;
+    //  Otherwise return false.
     return false;
   }
   

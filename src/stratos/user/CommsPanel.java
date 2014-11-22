@@ -38,6 +38,13 @@ public class CommsPanel extends SelectionInfoPane {
   }
   
   
+  public Batch <String> messageTitles() {
+    final Batch <String> titles = new Batch <String> ();
+    for (Message m : messages) titles.add(m.keyTitle);
+    return titles;
+  }
+  
+  
   public DialoguePanel messageWith(String keyTitle) {
     for (Message m : messages) if (m.keyTitle.equals(keyTitle)) {
       return m.panel;

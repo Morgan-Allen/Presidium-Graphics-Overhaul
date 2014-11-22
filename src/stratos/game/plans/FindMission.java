@@ -20,20 +20,18 @@ import static stratos.game.building.Economy.*;
 public class FindMission extends Plan {
   
   
-  private static boolean verbose = false;
+  private static boolean
+    evalVerbose  = false,
+    stepsVerbose = true ;
   final Mission mission;
-  //final Venue admin;
   
   
   
   public static FindMission attemptFor(Actor actor) {
     if (actor.mind.mission() != null) {
       return null;
-      //return new FindMission(actor, actor.mind.mission());
     }
-    //final Venue admin = nearestAdminFor(actor);
-    //if (admin == null) return null;
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = evalVerbose && I.talkAbout == actor;
     
     //  Find a mission that seems appealing at the moment (we disable culling
     //  of invalid plans, since missions might not have steps available until
@@ -59,10 +57,9 @@ public class FindMission extends Plan {
     }
     final Mission picked = (Mission) choice.weightedPick();
     
-    
     //  And try to apply for it-
-    if (report) I.say("Mission picked: "+picked);
     if (picked == null) return null;
+    if (report) I.say("Mission picked: "+picked);
     return new FindMission(actor, picked);
   }
   
@@ -112,20 +109,22 @@ public class FindMission extends Plan {
   }
   
   
-  //  Couple of potential cases here.
-  //  Public bounties.  (Attack flag only, open to anyone.)
-  //  Screened mission- appointed by selection from household & guild heads.
-  //                    actors may also petition for inclusion.
-  //  Covert mission- must approach individually.
-  
-  
   protected Behaviour getNextStep() {
+    final boolean report = stepsVerbose && I.talkAbout == actor;
+    if (report) I.say("\nGetting next step for joining "+mission);
+    
     if (! canStillApply()) {
+      if (report) {
+        I.say("  Cannot apply!");
+        I.say("  Finished/Begun: "+mission.finished()+"/"+mission.hasBegun());
+        I.say("  Has approval:   "+mission.isApproved(actor));
+      }
       abortBehaviour();
       return null;
     }
     
     if (mission.isApproved(actor)) {
+      if (report) I.say("  Joining now.");
       final Action joins = new Action(
         actor, actor,
         this, "actionJoins",
@@ -136,9 +135,13 @@ public class FindMission extends Plan {
 
     //  TODO:  This needs to be a generalised rally point.
     final Venue HQ = missionHQ(actor, mission);
-    if (HQ == null && mission.missionType() != Mission.TYPE_PUBLIC) return null;
+    if (HQ == null && mission.missionType() != Mission.TYPE_PUBLIC) {
+      if (report) I.say("  Nowhere to apply at!");
+      return null;
+    }
     
     if (actor.mind.mission() != mission) {
+      if (report) I.say("  Applying at "+HQ);
       final Action applies = new Action(
         actor, HQ,
         this, "actionApplies",
@@ -147,6 +150,7 @@ public class FindMission extends Plan {
       return applies;
     }
     else {
+      if (report) I.say("  Waiting for OK at "+HQ);
       final Action waitForOK = new Action(
         actor, HQ,
         this, "actionWait",
@@ -165,8 +169,11 @@ public class FindMission extends Plan {
   
   
   public boolean actionJoins(Actor client, Actor self) {
+    
+    I.say(actor+" joining mission: "+mission);
+    
     if (! canStillApply()) return false;
-    final boolean report = verbose && I.talkAbout == client;
+    final boolean report = stepsVerbose && I.talkAbout == client;
     
     if (report) {
       I.say("\nJoining mission: "+mission);

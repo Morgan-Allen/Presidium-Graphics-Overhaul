@@ -249,6 +249,13 @@ public class BaseUI extends HUD implements UIConstants {
   }
   
   
+  public static boolean isOpen(UIGroup panel) {
+    final HUD hud = PlayLoop.currentUI();
+    if (! (hud instanceof BaseUI)) return false;
+    return ((BaseUI) hud).currentPane() == panel;
+  }
+  
+  
   
   /**  Core update and rendering methods, in order of execution per-frame.
     */

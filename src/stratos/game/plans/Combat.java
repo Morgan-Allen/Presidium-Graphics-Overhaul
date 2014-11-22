@@ -28,7 +28,7 @@ public class Combat extends Plan implements Qualities {
   /**  Data fields, constructors and save/load methods-
     */
   private static boolean
-    evalVerbose   = false,
+    evalVerbose   = true ,
     eventsVerbose = false,
     damageVerbose = false;
   
@@ -108,16 +108,20 @@ public class Combat extends Plan implements Qualities {
   
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
+    
     if (CombatUtils.isDowned(subject, object)) return 0;
 
     float harmLevel = REAL_HARM;
     if (object == OBJECT_SUBDUE ) harmLevel = MILD_HARM   ;
     if (object == OBJECT_DESTROY) harmLevel = EXTREME_HARM;
-    
+
+    final float hostility = CombatUtils.hostileRating(actor, subject);
     final boolean melee = actor.gear.meleeWeapon();
+    if (hostility <= 0 && motiveBonus() <= 0) return 0;
+    if (hostility < 0.5f && ! CombatUtils.isArmed(actor)) return 0;
+    
     float bonus = 0;
     if (CombatUtils.isActiveHostile(actor, subject)) {
-      final float hostility = CombatUtils.hostileRating(actor, subject);
       bonus += PARAMOUNT;
       bonus += CombatUtils.homeDefenceBonus(actor, subject);
       bonus *= (hostility + 1f) / 2;
@@ -136,7 +140,7 @@ public class Combat extends Plan implements Qualities {
     //  result in much more sensible behaviour (unless you're a psychopath,
     //  you don't 'casually' decide to kill something.)
     float threshold = (1 + actor.traits.relativeLevel(EMPATHIC)) / 2;
-    threshold *= PARAMOUNT;
+    threshold *= (subject instanceof Actor) ? PARAMOUNT : ROUTINE;
     if (report) {
       I.say("\n  Priority bonus:        "+bonus);
       //I.say("  Danger level:          "+danger);
@@ -152,6 +156,10 @@ public class Combat extends Plan implements Qualities {
   protected float successChance() {
     //  TODO:  Switch between these two evaluation methods based on
     //  intelligence?  (Or maybe the battle-tactics skill?)
+    
+    //  TODO:  This has to be based on danger levels *at the target*, not on
+    //  immediate danger (at least as long as you're far away.)
+    
     return Visit.clamp(1 - actor.senses.fearLevel(), 0.1f, 0.9f);
     /*
     final boolean report = evalVerbose && I.talkAbout == actor;

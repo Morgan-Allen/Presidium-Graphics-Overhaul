@@ -163,7 +163,7 @@ public class Nursery extends Venue implements TileConstants {
     
     for (Tile t : world.tilesIn(cropArea, true)) {
       if (world.terrain().isRoad(t)) continue;
-      if (base.paveRoutes.map.roadCounter(t) > 0) continue;
+      if (PavingMap.pavingReserved(t)) continue;
       if (t.owningType() > Element.ELEMENT_OWNS ) continue;
       grabbed.add(t);
       if (report && plantedAt(t) == null) I.say("  ADDING TILE: "+t);

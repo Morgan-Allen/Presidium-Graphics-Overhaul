@@ -262,6 +262,11 @@ public abstract class Plan implements Saveable, Behaviour {
   }
   
   
+  public float motiveBonus() {
+    return this.motiveBonus;
+  }
+  
+  
   final public static float
     
     NO_FAIL_RISK      = 0.0f,
@@ -364,7 +369,13 @@ public abstract class Plan implements Saveable, Behaviour {
       I.say("  Motive type/bonus:           "+motiveType+"/"+motiveBonus);
       I.say("  After motive effects:        "+priority+"/"+defaultRange);
     }
-    //if (maxRange <= 0 || priority <= 0) return PRIORITY_NEVER;
+    
+    //  We also inject the effects of competition/cooperation from peers.
+    if (peersCompete != 0 && (peersCompete < 0 || ! hasBegun())) {
+      float competeSum = competition(this, subject, actor) * peersCompete;
+      priority *= Visit.clamp(1 - competeSum, 0, 1.5f);
+      if (report) I.say("  After competition effects:   "+priority);
+    }
     
     //  Okay.  You want to have 10 in at *least* one relevant skill in order for
     //  the activity to be at full strength.
@@ -417,18 +428,11 @@ public abstract class Plan implements Saveable, Behaviour {
     float
       chancePenalty = 0,
       rangePenalty  = 0,
-      dangerPenalty = 0,
-      competeFactor = 0;
-    
-    if (peersCompete != 0 && (peersCompete < 0 || ! hasBegun())) {
-      competeFactor += competition(this, subject, actor) * peersCompete;
-    }
-    if (competeFactor > 0) competeFactor *= CASUAL / ROUTINE;
+      dangerPenalty = 0;
     
     if (failRisk > 0) {
       final float chance = successChance();
       chancePenalty = (1 - chance) * failRisk * PARAMOUNT;
-      if (competeFactor < 0) chancePenalty /= 1 - competeFactor;
     }
     
     if (distanceCheck != 0) {
@@ -439,7 +443,6 @@ public abstract class Plan implements Saveable, Behaviour {
     }
     
     priority += extraPriority / 2;
-    priority -= competeFactor;
     priority -= chancePenalty;
     priority -= rangePenalty ;
     priority -= dangerPenalty;

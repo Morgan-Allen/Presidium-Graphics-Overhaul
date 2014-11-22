@@ -1,6 +1,7 @@
 
 
 package stratos.game.plans;
+import stratos.game.campaign.BaseFinance;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.building.*;
@@ -182,6 +183,12 @@ public class Summons extends Plan {
     
     //  Offer a gift.
     
+    responses.add(new Link("I'd like to offer you a gift.") {
+      public void whenTextClicked() {
+        pushGiftDialogue(UI, with, "What do you have in mind?");
+      }
+    });
+    
     //  Order banishment, execution, or arrest.
     
     //  TODO:  Say farewell or dismiss from summons.
@@ -204,11 +211,49 @@ public class Summons extends Plan {
     return panel;
   }
   
+  static void pushGiftDialogue(
+    final BaseUI UI, final Actor with, String lead
+  ) {
+    final Stack <Link> responses = new Stack <Link> ();
+    //  TODO:  Include possibility of rejection here, along with relation
+    //  effects!
+    
+    responses.add(new Link("How about 50 credits?") {
+        public void whenTextClicked() {
+          UI.played().finance.incCredits(-50, BaseFinance.SOURCE_REWARDS);
+          with.gear.incCredits(50);
+          pushGiftResponse(UI, with, "Thank you, your grace!");
+        }
+    });
+    
+    final DialoguePanel panel = new DialoguePanel(
+      UI, with.portrait(UI), "Audience with "+with,
+      lead, responses
+    );
+    UI.setInfoPanels(panel, null);
+  }
+  
+  
+  static void pushGiftResponse(
+    final BaseUI UI, final Actor with, String lead
+  ) {
+    final DialoguePanel panel = new DialoguePanel(
+      UI, with.portrait(UI), "Audience with "+with,
+      lead,
+      new Link("Very well, then...") {
+        public void whenTextClicked() {
+          configDialogueFor(UI, with, true);
+        }
+      }
+    );
+    UI.setInfoPanels(panel, null);
+  }
+  
   
   static void pushMissionDialogue(
     final BaseUI UI, final Actor with, String lead
   ) {
-    final Stack <Link> responses = new Stack();
+    final Stack <Link> responses = new Stack <Link> ();
     
     for (final Mission m : UI.played().allMissions()) {
       responses.add(new Link(""+m.toString()) {
@@ -237,13 +282,15 @@ public class Summons extends Plan {
   static void pushMissionResponse(
     final BaseUI UI, final Actor with, final Mission taken
   ) {
-    final Actor ruler = UI.played().ruler();
+    //final Actor ruler = UI.played().ruler();
     final DialoguePanel panel = new DialoguePanel(
       UI, with.portrait(UI), "Audience with "+with,
       "My pleasure, your grace.",
       new Link("Very well, then...") {
         public void whenTextClicked() {
           UI.selection.pushSelection(taken, true);
+          taken.setApprovalFor(with, true);
+          with.mind.assignMission(taken);
         }
       }
     );

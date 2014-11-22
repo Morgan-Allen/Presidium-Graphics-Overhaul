@@ -199,6 +199,9 @@ public class FindHome extends Plan {
   
   
   private static Holding newHoldingFor(Actor client) {
+    //  TODO:  ESTABLISH HUTS INSTEAD
+    if (client.base().primal) return null;
+    
     final Stage world = client.world();
     final int maxDist = Stage.SECTOR_SIZE;
     final Holding holding = new Holding(client.base());

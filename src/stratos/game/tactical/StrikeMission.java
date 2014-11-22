@@ -53,6 +53,7 @@ public class StrikeMission extends Mission {
       Combat.STYLE_EITHER, objectIndex(), true
     );
     combat.setMotive(Plan.MOTIVE_MISSION, basePriority(actor));
+    
     return cacheStepFor(actor, combat);
   }
   

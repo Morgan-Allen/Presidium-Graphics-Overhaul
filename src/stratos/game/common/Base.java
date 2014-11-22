@@ -164,6 +164,7 @@ public class Base implements
     this.ruler = rules;
   }
   
+  
   public Base base() { return this; }
   
   

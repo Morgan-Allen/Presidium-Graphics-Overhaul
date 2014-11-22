@@ -28,7 +28,7 @@ public class Pledge implements Session.Saveable {
   
   
   private static boolean
-    evalVerbose = true;
+    evalVerbose = false;
   
   public static enum Type {
     

@@ -221,13 +221,6 @@ public abstract class Mission implements
   }
   
   
-  public boolean isApproved(Actor a) {
-    final Role role = roleFor(a);
-    if (missionType == TYPE_PUBLIC) return role != null;
-    return role == null ? false : role.approved;
-  }
-  
-  
   protected int objectIndex() {
     return objectIndex;
   }
@@ -242,6 +235,13 @@ public abstract class Mission implements
     final List <Actor> all = new List <Actor> ();
     for (Role r : roles) if (isApproved(r.applicant)) all.add(r.applicant);
     return all;
+  }
+  
+  
+  public boolean isApproved(Actor a) {
+    final Role role = roleFor(a);
+    if (missionType == TYPE_PUBLIC) return true;
+    return role == null ? false : role.approved;
   }
   
   
@@ -301,7 +301,15 @@ public abstract class Mission implements
     //  mission in question.
     
     final Behaviour step = cachedStepFor(actor, true);
-    final float priority = step == null ? -1 : step.priorityFor(actor);
+    if (step == null) return -1;
+    float priority = step.priorityFor(actor);
+    
+    final Actor ruler = base.ruler();
+    if (ruler != null) {
+      priority += ROUTINE * actor.relations.valueFor(ruler);
+    }
+    
+    if (priority < ROUTINE && actor.mind.mission() != this) return 0;
     return priority;
   }
   
@@ -320,9 +328,8 @@ public abstract class Mission implements
     else rewardEval /= partySize;
     
     float value = Pledge.greedPriority(actor, (int) rewardEval);
-    
     final int standing = actor.vocation().standing;
-    value *= standing * 1f / Backgrounds.CLASS_STRATOI;
+    value *= standing * 1.5f / Backgrounds.CLASS_STRATOI;
     
     if (report) {
       I.say("\nEvaluating reward for "+this);
@@ -363,9 +370,8 @@ public abstract class Mission implements
       role.applicant = actor;
       role.approved = missionType == TYPE_PUBLIC ? true : false;
       roles.add(role);
-      
-      I.say("Role added for "+actor+"!");
-      I.reportStackTrace();
+      //I.say("Role added for "+actor+"!");
+      //I.reportStackTrace();
     }
     else {
       if (actor.mind.mission() == this) I.complain("MUST CALL setMission()!");
