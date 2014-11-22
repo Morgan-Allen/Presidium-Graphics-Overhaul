@@ -165,8 +165,12 @@ public class TargetOptions extends UIGroup {
         -(wide + OB_SIZE) : (0 - OB_SIZE)
       )
     );
-    this.relBound.set(0, 0, 0, 0);
-    this.absBound.set((int) screenPos.x, highAdjust, 0, 0);
+    
+    this.alignBottom(0, 0);
+    this.alignHorizontal(0.5f, 0, 0);
+    
+    //this.relBound.set(0, 0, 0, 0);
+    //this.absBound.set((int) screenPos.x, highAdjust, 0, 0);
     //  ...You need the parent position for this to work.
     
     //absBound.incX(0 - trueBounds().xpos());

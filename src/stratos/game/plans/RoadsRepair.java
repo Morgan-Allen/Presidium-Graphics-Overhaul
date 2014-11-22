@@ -21,7 +21,7 @@ public class RoadsRepair extends Plan {
     */
   private static boolean
     eventsVerbose = false,
-    evalVerbose   = false;
+    evalVerbose   = true ;
   
   final Base base;
   final PavingMap map;
@@ -68,9 +68,9 @@ public class RoadsRepair extends Plan {
     
     final boolean report = evalVerbose && I.talkAbout == actor;
     return priorityForActorWith(
-      actor, around, CASUAL * actor.base().relations.communitySpirit(),
-      NO_MODIFIER, NO_HARM,
-      FULL_COMPETITION, MILD_FAIL_RISK,
+      actor, around,
+      CASUAL, NO_MODIFIER,
+      NO_HARM, FULL_COMPETITION, MILD_FAIL_RISK,
       BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report
     );

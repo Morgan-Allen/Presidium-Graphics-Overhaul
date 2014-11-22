@@ -8,6 +8,7 @@ import org.apache.commons.math3.util.FastMath;
 
 import stratos.game.common.*;
 import stratos.graphics.common.*;
+import stratos.graphics.widgets.KeyInput;
 import stratos.util.*;
 
 import com.badlogic.gdx.Gdx;
@@ -101,7 +102,12 @@ public class SelectionTracking {
   /**  Updates general camera behaviour.
     */
   protected void updateTracking() {
-    lockX = lockY = 0;
+    
+    if (KeyInput.wasTyped(' ')) {
+      final Selectable ruler = UI.played().ruler();
+      if (ruler != null) UI.selection.pushSelection(ruler, true);
+    }
+    
     if (UI.currentPane() instanceof SelectionInfoPane) {
       final SelectionInfoPane pane = (SelectionInfoPane) UI.currentPane();
       final Vec2D
@@ -115,7 +121,7 @@ public class SelectionTracking {
     if (Gdx.input.isKeyPressed(Keys.DOWN )) pushCamera(-1,  1);
     if (Gdx.input.isKeyPressed(Keys.RIGHT)) pushCamera( 1,  1);
     if (Gdx.input.isKeyPressed(Keys.LEFT )) pushCamera(-1, -1);
-    //if (KeyInput.isKeyDown(Keyboard.KEY_SPACE)) zoomHome();
+    
     if (lockTarget != null) followLock();
   }
   

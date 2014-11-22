@@ -40,11 +40,11 @@ public class BaseUI extends HUD implements UIConstants {
   //  TODO:  Also a policies panel?  ...Yeah.  Why not.
   private CommsPanel  commsPanel;
   private PlanetPanel planetPanel;
-  private StarsPanel  starsPanel;
+  //private StarsPanel  starsPanel;  //Just use the homeworld.
   private Button
     commsButton ,
-    planetButton,
-    starsButton;
+    planetButton;
+    //starsButton;
   
   
   private UIGroup panelArea, infoArea;
@@ -131,7 +131,7 @@ public class BaseUI extends HUD implements UIConstants {
     mapsPanel.attachTo(this);
     
     this.readout = new Readout(this);
-    readout.alignHorizontal(MINIMAP_WIDE, GUILDS_WIDE);
+    readout.alignHorizontal(MINIMAP_WIDE + PANEL_TAB_SIZE, GUILDS_WIDE);
     readout.alignTop(0, READOUT_HIGH);
     readout.attachTo(this);
     
@@ -159,7 +159,7 @@ public class BaseUI extends HUD implements UIConstants {
   
   private void configPanels() {
     
-    final int PTS = PANEL_TAB_SIZE;
+    final int PTS = PANEL_TAB_SIZE, HS = PTS / 2;
     
     this.commsPanel = new CommsPanel(this);
     this.commsButton = new Button(
@@ -172,8 +172,9 @@ public class BaseUI extends HUD implements UIConstants {
         setInfoPanels(commsPanel, null);
       }
     };
+    commsButton.stretch = false;
     commsButton.alignTop(0, PTS);
-    commsButton.alignHorizontal(0.5f, PTS, PTS * 0);
+    commsButton.alignLeft(MINIMAP_WIDE + HS - (PTS * 2), PTS);
     commsButton.attachTo(this);
     
     this.planetPanel = new PlanetPanel(this);
@@ -187,24 +188,10 @@ public class BaseUI extends HUD implements UIConstants {
         setInfoPanels(planetPanel, null);
       }
     };
+    planetButton.stretch = false;
     planetButton.alignTop(0, PTS);
-    planetButton.alignHorizontal(0.5f, PTS, PTS * 1);
+    planetButton.alignLeft(MINIMAP_WIDE + HS - (PTS * 1), PTS);
     planetButton.attachTo(this);
-    
-    this.starsPanel = new StarsPanel(this);
-    this.starsButton = new Button(
-      this,
-      StarsPanel.STARS_ICON.asTexture(),
-      StarsPanel.STARS_ICON_LIT.asTexture(),
-      "starcharts"
-    ) {
-      protected void whenClicked() {
-        setInfoPanels(starsPanel, null);
-      }
-    };
-    starsButton.alignTop(0, PTS);
-    starsButton.alignHorizontal(0.5f, PTS, PTS * 2);
-    starsButton.attachTo(this);
   }
   
   

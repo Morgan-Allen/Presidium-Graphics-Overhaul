@@ -93,7 +93,7 @@ public class Repairs extends Plan {
     final Tile toPave = p.nextTileToPave(client, RoadsRepair.class);
     if (toPave != null) {
       final RoadsRepair r = new RoadsRepair(client, toPave);
-      if (asDuty) r.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
+      if (asDuty) r.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL);
       choice.add(r);
     }
     //

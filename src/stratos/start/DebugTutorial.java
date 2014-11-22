@@ -9,10 +9,10 @@ import stratos.user.*;
 import stratos.util.*;
 
 
-//  Restore the Landing Strip for the convenience of dropships (and have their
-//  supply/demand profile set when cargo is loaded.)
+//  TODO:  Restore the Landing Strip for the convenience of dropships (and have
+//  their supply/demand profile set when cargo is loaded.)
 
-//  TODO:  Tweak the UI for visibility and cull any unused structures.
+//  TODO:  Fix the problem of 'the starving sovereign'...
 
 
 //  Restore lchc production, animal breeding, and reagents at the culture labs.
