@@ -104,12 +104,22 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   }
   
   
-  public void setBonusFrom(Venue works, Upgrade upgrades) {
+  public Manufacture setBonusFrom(
+    Venue works, boolean required, Upgrade... upgrades
+  ) {
+    float upgradeBonus = 0;
+    for (Upgrade upgrade : upgrades) {
+      final float bonus = works.structure.upgradeLevel(upgrade);
+      upgradeBonus += bonus / (Structure.MAX_OF_TYPE * upgrades.length);
+    }
+    if (required && upgradeBonus <= 0) return null;
+    
     //  TODO:  Limit the maximum quality that can be achieved in the absence of
     //  a suitable facility upgrade.
+    
     final float powerCut = works.stocks.shortagePenalty(Economy.POWER);
-    float upgradeBonus = works.structure.upgradeLevel(upgrades) / 3;
     this.checkBonus = (int) (10 * (upgradeBonus - powerCut));
+    return this;
   }
   
   

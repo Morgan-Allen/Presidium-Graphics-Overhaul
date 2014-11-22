@@ -158,7 +158,7 @@ public class PhysicianStation extends Venue {
     //  Manufacture basic medicines for later use.
     final Manufacture mS = stocks.nextManufacture(actor, REAGENTS_TO_MEDICINE);
     if (mS != null) {
-      mS.setBonusFrom(this, APOTHECARY);
+      mS.setBonusFrom(this, false, APOTHECARY);
       choice.add(mS);
     }
     

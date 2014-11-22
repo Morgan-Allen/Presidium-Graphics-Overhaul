@@ -9,8 +9,7 @@ package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.common.*;
-import stratos.game.plans.Delivery;
-import stratos.game.plans.Manufacture;
+import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
@@ -75,51 +74,45 @@ public class CultureLab extends Venue {
   
   /**  Upgrades, economic functions and employee behaviour-
     */
-  final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-  );
+  final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> ();
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
-    WASTE_DISPOSAL = new Upgrade(
-      "Waste Disposal",
-      "Reduces pollution, increases marginal efficiency, and permits some "+
-      "degree of life support.",
+    YEAST_DISPOSAL = new Upgrade(
+      "Yeast Disposal",
+      "Employs gene-tailored microbes to recycle waste emissions and produce "+
+      "basic carbs.",
       200, null, 1, null,
-      CultureLab.class, ALL_UPGRADES
-    ),
-    PROTEIN_ASSEMBLY = new Upgrade(
-      "Protein Assembly",
-      "Permits direct manufacture of Protein, a basic foodstuff needed to "+
-      "keep your population healthy.",
-      150, null, 1, null,
       CultureLab.class, ALL_UPGRADES
     ),
     DRUG_SYNTHESIS = new Upgrade(
       "Drug Synthesis",
       "Employs gene-tailored microbes to synthesise complex molecules, "+
-      "permitting manufacture of medicines and stimulants.",
-      200, null, 1, null,
+      "permitting manufacture of soma and reagents.",
+      250, null, 1, null,
       CultureLab.class, ALL_UPGRADES
     ),
-    SOMA_CULTURE = new Upgrade(
-      "Soma Culture",
-      "Allows mass production of Soma, a cheap recreational narcotic with "+
-      "minimal side effects.",
-      250, null, 1, DRUG_SYNTHESIS,
+    TISSUE_CULTURE = new Upgrade(
+      "Tissue Culture",
+      "Allows production of protein for consumption and replicant organs for "+
+      "use in medical emergencies.",
+      400, null, 1, YEAST_DISPOSAL,
       CultureLab.class, ALL_UPGRADES
     ),
-    ORGAN_BANKS = new Upgrade(
-      "Organ Banks",
-      "Allows production of spare organs for use in medical emergencies, up "+
-      "to and including full-body cloning.",
-      400, null, 1, PROTEIN_ASSEMBLY,
+    SPYCE_CHEMISTRY = new Upgrade(
+      "Spyce Chemistry",
+      "Allows minute quantities of spyce to be synthesised from simpler "+
+      "compounds, based on carb or protein production.",
+      500, null, 1, DRUG_SYNTHESIS,
       CultureLab.class, ALL_UPGRADES
     ),
+    
+    //  TODO:  Just have a general structure-upgrade here-
     VAT_BREEDER_STATION = new Upgrade(
       "Vat Breeder Station",
       "Vat Breeders supervise the cultivation and harvesting of the chemical "+
       "and biological processes needed to produce pharmaceuticals and tissue "+
       "samples.",
-      100, Backgrounds.VATS_BREEDER, 1, null,
+      100, Backgrounds.VATS_BREEDER, 1, DRUG_SYNTHESIS,
       CultureLab.class, ALL_UPGRADES
     )
  ;
@@ -129,9 +122,9 @@ public class CultureLab extends Venue {
     super.updateAsScheduled(numUpdates);
     if (! structure.intact()) return;
     
-    stocks.translateDemands(1, WASTE_TO_CARBS      , this);
-    stocks.translateDemands(1, CARBS_TO_PROTEIN    , this);
-    stocks.translateDemands(1, WASTE_TO_SOMA       , this);
+    stocks.translateDemands(1, WASTE_TO_CARBS   , this);
+    stocks.translateDemands(1, CARBS_TO_PROTEIN , this);
+    stocks.translateDemands(1, WASTE_TO_SOMA    , this);
     stocks.translateDemands(1, WASTE_TO_REAGENTS, this);
     
     float needPower = 5;
@@ -139,7 +132,7 @@ public class CultureLab extends Venue {
     stocks.incDemand(POWER, needPower, Stocks.TIER_CONSUMER, 1, this);
     stocks.bumpItem(POWER, needPower * -0.1f);
     
-    final int cycleBonus = bonusFor(WASTE_DISPOSAL, 1);
+    final int cycleBonus = structure.upgradeLevel(YEAST_DISPOSAL);
     float pollution = 5 - cycleBonus;
     //
     //  TODO:  vary this based on current power and the number of ongoing
@@ -149,14 +142,39 @@ public class CultureLab extends Venue {
   }
   
   
-  private int bonusFor(Upgrade u, float mult) {
-    return (int) (mult * structure.upgradeLevel(u));
-  }
-  
-  
   public Behaviour jobFor(Actor actor) {
     if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
     final Choice choice = new Choice(actor);
+    //
+    //  Foodstuffs-
+    final Manufacture mS = stocks.nextManufacture(actor, WASTE_TO_CARBS);
+    if (mS != null) {
+      choice.add(mS.setBonusFrom(this, true, YEAST_DISPOSAL));
+    }
+    final Manufacture mP = stocks.nextManufacture(actor, CARBS_TO_PROTEIN);
+    if (mP != null) {
+      choice.add(mP.setBonusFrom(this, true, TISSUE_CULTURE));
+    }
+    //
+    //  And pharmaceuticals-
+    final Manufacture mA = stocks.nextManufacture(actor, WASTE_TO_SOMA);
+    if (mA != null) {
+      choice.add(mA.setBonusFrom(this, false, DRUG_SYNTHESIS));
+    }
+    final Manufacture mM = stocks.nextManufacture(actor, WASTE_TO_REAGENTS);
+    if (mM != null) {
+      choice.add(mM.setBonusFrom(this, true, DRUG_SYNTHESIS));
+    }
+    //
+    //  And spyce production-
+    final Manufacture mT = stocks.nextManufacture(actor, CARBS_TO_NATRI_SPYCE);
+    if (mT != null) {
+      choice.add(mT.setBonusFrom(this, true, SPYCE_CHEMISTRY));
+    }
+    final Manufacture mN = stocks.nextManufacture(actor, PROTEIN_TO_TINER_SPYCE);
+    if (mN != null) {
+      choice.add(mN.setBonusFrom(this, true, SPYCE_CHEMISTRY));
+    }
     //
     //  Replicants need to be delivered to their Sickbays once ready.
     for (Item match : stocks.matches(REPLICANTS)) {
@@ -169,52 +187,23 @@ public class CultureLab extends Venue {
       }
     }
     //
-    //  Otherwise, see to custom manufacturing-
-    final float powerCut = stocks.shortagePenalty(POWER) * 10;
-    final int cycleBonus = bonusFor(WASTE_DISPOSAL, 1);
-    
+    //  Otherwise, see to custom manufacturing of said replicants-
     for (Manufacture o : stocks.specialOrders()) {
-      o.checkBonus = cycleBonus + bonusFor(ORGAN_BANKS, 2);
-      choice.add(o);
+      choice.add(o.setBonusFrom(this, true, TISSUE_CULTURE));
     }
-    //
-    //  Foodstuffs-
-    final Manufacture
-      mS = stocks.nextManufacture(actor, WASTE_TO_CARBS),
-      mP = stocks.nextManufacture(actor, CARBS_TO_PROTEIN);
-    if (mS != null) {
-      mS.checkBonus = cycleBonus * 2;
-      mS.checkBonus -= powerCut;
-      choice.add(mS);
-    }
-    if (mP != null) {
-      mP.checkBonus = cycleBonus + bonusFor(PROTEIN_ASSEMBLY, 1.5f);
-      mP.checkBonus -= powerCut;
-      choice.add(mP);
-    }
-    //
-    //  And pharmaceuticals-
-    final Manufacture
-      mA = stocks.nextManufacture(actor, WASTE_TO_SOMA),
-      mM = stocks.nextManufacture(actor, WASTE_TO_REAGENTS);
-    if (mA != null) {
-      mA.checkBonus = cycleBonus + bonusFor(SOMA_CULTURE, 1.5f);
-      mA.checkBonus -= powerCut;
-      choice.add(mA);
-    }
-    if (mM != null) {
-      mM.checkBonus = cycleBonus + bonusFor(DRUG_SYNTHESIS, 2);
-      mM.checkBonus -= powerCut;
-      choice.add(mM);
-    }
-    
     return choice.weightedPick();
   }
   
   
+  public void addServices(Choice choice, Actor forActor) {
+    //  TODO:  Add functions here?
+    //super.addServices(choice, forActor);
+  }
+
+
   public Traded[] services() {
     return new Traded[] {
-      CARBS, PROTEIN, SOMA, MEDICINE
+      CARBS, PROTEIN, SOMA, REAGENTS, HALEB_SPYCE, NATRI_SPYCE
     };
   }
   

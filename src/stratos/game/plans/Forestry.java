@@ -28,11 +28,12 @@ public class Forestry extends Plan {
     STAGE_GET_SEED =  0,
     STAGE_PLANTING =  1,
     STAGE_SAMPLING =  2,
-    STAGE_RETURN   =  3,
-    STAGE_DONE     =  4;
+    STAGE_CUTTING  =  3,
+    STAGE_RETURN   =  4,
+    STAGE_DONE     =  5;
   private static boolean
     evalVerbose   = false,
-    eventsVerbose = true;
+    eventsVerbose = false;
   
   
   final Venue nursery;
@@ -41,7 +42,28 @@ public class Forestry extends Plan {
   private Flora toCut = null;
   
   
-  public Forestry(Actor actor, Venue nursery) {
+  public static Forestry nextSampling(Actor actor, Venue nursery) {
+    final Forestry f = new Forestry(actor, nursery);
+    f.configureFor(STAGE_SAMPLING);
+    return f;
+  }
+  
+  
+  public static Forestry nextPlanting(Actor actor, Venue nursery) {
+    final Forestry f = new Forestry(actor, nursery);
+    f.configureFor(STAGE_PLANTING);
+    return f;
+  }
+  
+  
+  public static Forestry nextCutting(Actor actor, Venue nursery) {
+    final Forestry f = new Forestry(actor, nursery);
+    f.configureFor(STAGE_CUTTING);
+    return f;
+  }
+  
+  
+  private Forestry(Actor actor, Venue nursery) {
     super(actor, nursery, true);
     this.nursery = nursery;
   }
@@ -74,6 +96,7 @@ public class Forestry extends Plan {
   /**  Behaviour implementation-
     */
   public boolean configureFor(int stage) {
+    
     if (stage == STAGE_GET_SEED) {
       toPlant = findPlantTile(actor, nursery);
       if (toPlant == null) { abortBehaviour(); return false; }
@@ -82,11 +105,13 @@ public class Forestry extends Plan {
       }
       else this.stage = STAGE_PLANTING;
     }
-    if (stage == STAGE_SAMPLING) {
+    
+    if (stage == STAGE_SAMPLING || stage == STAGE_CUTTING) {
       toCut = findCutting(actor);
       if (toCut == null) { abortBehaviour(); return false; }
       this.stage = STAGE_SAMPLING;
     }
+    
     return false;
   }
   
@@ -100,6 +125,8 @@ public class Forestry extends Plan {
   }
   
   
+  //  TODO:  Vary these for the different activity types (sample, harvest or
+  //         planting.)
   final static Skill BASE_SKILLS[] = { CULTIVATION, HARD_LABOUR };
   final static Trait BASE_TRAITS[] = { NATURALIST, ENERGETIC };
   
@@ -107,13 +134,27 @@ public class Forestry extends Plan {
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (! configured()) return 0;
+    
     final Target subject = toPlant == null ? toCut : toPlant;
     if (subject == null) return 0;
     
+    //  As the abundance of flora increases, harvest becomes more attractive,
+    //  and vice-versa for planting as abundance decreases.
+    final float abundance = actor.world().ecology().globalBiomass();
+    float bonus = 0;
+    if (stage == STAGE_GET_SEED) {
+      bonus += 0.5f - abundance;
+    }
+    if (stage == STAGE_CUTTING ) {
+      bonus += abundance - 0.5f;
+    }
+    bonus *= ROUTINE;
+    
+    //  Otherwise, it's generally a routine activity.
     final float priority = priorityForActorWith(
-      actor, subject, ROUTINE,
-      NO_MODIFIER, NO_HARM,
-      FULL_COMPETITION, NO_FAIL_RISK,
+      actor, subject,
+      ROUTINE, bonus,
+      NO_HARM, FULL_COMPETITION, NO_FAIL_RISK,
       BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report
     );
@@ -133,6 +174,7 @@ public class Forestry extends Plan {
       );
       return collects;
     }
+    
     if (stage == STAGE_PLANTING) {
       final Action plants = new Action(
         actor, toPlant,
@@ -149,7 +191,8 @@ public class Forestry extends Plan {
       }
       return plants;
     }
-    if (stage == STAGE_SAMPLING) {
+    
+    if (stage == STAGE_CUTTING) {
       final Action cuts = new Action(
         actor, toCut,
         this, "actionCutting",
@@ -158,6 +201,17 @@ public class Forestry extends Plan {
       cuts.setMoveTarget(Spacing.nearestOpenTile(toCut.origin(), actor));
       return cuts;
     }
+    
+    if (stage == STAGE_SAMPLING) {
+      final Action sample = new Action(
+        actor, toCut,
+        this, "actionSampling",
+        Action.BUILD, "Sampling"
+      );
+      sample.setMoveTarget(Spacing.nearestOpenTile(toCut.origin(), actor));
+      return sample;
+    }
+    
     if (stage == STAGE_RETURN) {
       final Action returns = new Action(
         actor, nursery,
@@ -224,9 +278,22 @@ public class Forestry extends Plan {
   
   public boolean actionCutting(Actor actor, Flora cut) {
     if (! actor.skills.test(CULTIVATION, SIMPLE_DC, 1.0f)) return false;
-    final Item sample = Item.withReference(SAMPLES, cut);
-    actor.gear.addItem(sample);
-    cut.incGrowth(-0.5f, actor.world(), false);
+    cut.setAsDestroyed();
+    
+    final int growStage = cut.growStage();
+    actor.gear.bumpItem(LCHC, growStage);
+    actor.gear.bumpItem(GREENS, growStage * Rand.num() / Flora.MAX_GROWTH);
+    if (Rand.num() < 0.1f * growStage) actor.gear.bumpItem(NATRI_SPYCE, 1);
+    
+    stage = STAGE_RETURN;
+    return true;
+  }
+  
+  
+  public boolean actionSampling(Actor actor, Flora cut) {
+    if (! actor.skills.test(CULTIVATION, SIMPLE_DC, 1.0f)) return false;
+    
+    actor.gear.addItem(Item.withReference(GENE_SEED, cut));
     stage = STAGE_RETURN;
     return true;
   }
@@ -235,16 +302,11 @@ public class Forestry extends Plan {
   public boolean actionReturnHarvest(Actor actor, Venue depot) {
     if (eventsVerbose) I.say("RETURNING SAMPLES TO "+depot);
     
-    for (Item sample : actor.gear.matches(SAMPLES)) {
-      if (! (sample.refers instanceof Flora)) continue;
-      final Flora cut = (Flora) sample.refers;
-      int stage = cut.growStage();
-      depot.stocks.bumpItem(GREENS, stage * Rand.num() / Flora.MAX_GROWTH);
-      depot.stocks.bumpItem(GENE_SEED, 1);
-      actor.gear.removeItem(sample);
-    }
+    actor.gear.transfer(GENE_SEED  , depot);
+    actor.gear.transfer(LCHC       , depot);
+    actor.gear.transfer(GREENS     , depot);
+    actor.gear.transfer(NATRI_SPYCE, depot);
     
-    actor.gear.transfer(GENE_SEED, depot);
     stage = STAGE_DONE;
     return true;
   }

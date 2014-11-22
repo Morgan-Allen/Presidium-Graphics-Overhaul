@@ -57,15 +57,15 @@ public final class Economy {
     ),
     
     TINER_SPYCE = new Traded(
-      BC, "Tiner Spyce", "spyce.gif"  , FORM_MATERIAL, 100,
+      BC, "Tiner Spyce", "spyce.gif"  , FORM_MATERIAL, 200,
       "Tinerazine, a spyce compound found in animal galls"
     ),
     HALEB_SPYCE = new Traded(
-      BC, "Haleb Spyce", "spyce.gif"  , FORM_MATERIAL, 100,
+      BC, "Haleb Spyce", "spyce.gif"  , FORM_MATERIAL, 200,
       "Halebdynum, a spyce compound found as a dessicated salt"
     ),
     NATRI_SPYCE = new Traded(
-      BC, "Natri Spyce", "spyce.gif"  , FORM_MATERIAL, 100,
+      BC, "Natri Spyce", "spyce.gif"  , FORM_MATERIAL, 200,
       "Natrizoral, a spyce compound found in plant oils"
     ),
     
@@ -410,7 +410,6 @@ public final class Economy {
       CultureLab.class, 5, PROTEIN, TO, 1, REPLICANTS,
       MODERATE_DC, GENE_CULTURE, ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
     ),
-    
     WASTE_TO_SOMA = new Conversion(
       CultureLab.class, TO, 1, SOMA,
       ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
@@ -419,6 +418,16 @@ public final class Economy {
       CultureLab.class, TO, 1, REAGENTS,
       ROUTINE_DC, PHARMACY, ROUTINE_DC, CHEMISTRY
     ),
+    CARBS_TO_NATRI_SPYCE = new Conversion(
+      CultureLab.class, 2, CARBS, 5, REAGENTS, TO, 1, NATRI_SPYCE,
+      DIFFICULT_DC, PHARMACY, DIFFICULT_DC, CHEMISTRY
+    ),
+    PROTEIN_TO_TINER_SPYCE = new Conversion(
+      CultureLab.class, 2, PROTEIN, 5, REAGENTS, TO, 1, TINER_SPYCE,
+      DIFFICULT_DC, PHARMACY, DIFFICULT_DC, CHEMISTRY
+    ),
+    
+    
     REAGENTS_TO_MEDICINE = new Conversion(
       PhysicianStation.class, 1, REAGENTS, TO, 1, MEDICINE,
       MODERATE_DC, CHEMISTRY, ROUTINE_DC, PHARMACY

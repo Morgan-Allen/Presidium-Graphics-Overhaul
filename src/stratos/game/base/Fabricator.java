@@ -115,26 +115,26 @@ public class Fabricator extends Venue {
     
     final Manufacture c = stocks.nextManufacture(actor, CARBS_TO_LCHC);
     if (c != null) {
-      c.setBonusFrom(this, POLYMER_CONVERSION);
+      c.setBonusFrom(this, true, POLYMER_CONVERSION);
       choice.add(c);
     }
     
     final Manufacture m = stocks.nextManufacture(actor, LCHC_TO_PLASTICS);
     if (m != null) {
-      m.setBonusFrom(this, ADVANCED_PLASTICS);
+      m.setBonusFrom(this, false, ADVANCED_PLASTICS);
       choice.add(m);
     }
     
     for (Manufacture o : stocks.specialOrders()) {
       final Traded type = o.made().type;
       if (type == ARTWORKS || type == FINERY) {
-        o.setBonusFrom(this, FINERY_FLOOR);
+        o.setBonusFrom(this, true, FINERY_FLOOR);
       }
       else if (type == STEALTH_SUIT || type == SEALSUIT) {
-        o.setBonusFrom(this, CAMOUFLAGE_FLOOR);
+        o.setBonusFrom(this, true, CAMOUFLAGE_FLOOR);
       }
       else {
-        o.setBonusFrom(this, ADVANCED_PLASTICS);
+        o.setBonusFrom(this, false, ADVANCED_PLASTICS);
       }
       choice.add(o);
     }

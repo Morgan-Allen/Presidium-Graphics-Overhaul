@@ -21,6 +21,8 @@ import static stratos.game.building.Economy.*;
 
 
 
+//  TODO:  Demand reagents to perform gene tailoring?
+
 public class EcologistStation extends Venue {
   
   
@@ -151,13 +153,10 @@ public class EcologistStation extends Venue {
     
     //  Forestry may have to be performed, depending on need for gene samples-
     final boolean needsSeed = stocks.amountOf(GENE_SEED) < 5;
-    final Forestry f = new Forestry(actor, this);
-    if (needsSeed && actor.vocation() == Backgrounds.ECOLOGIST) {
-      f.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
-      f.configureFor(Forestry.STAGE_SAMPLING);
-    }
-    choice.add(f);
+    if (needsSeed) choice.add(Forestry.nextSampling(actor, this));
+    else choice.add(Forestry.nextPlanting(actor, this));
     
+    //  Tailor seed varieties
     for (Species s : Crop.ALL_VARIETIES) {
       final SeedTailoring t = new SeedTailoring(actor, this, s);
       if (personnel.assignedTo(t) > 0) continue;

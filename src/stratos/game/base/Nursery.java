@@ -22,6 +22,10 @@ import static stratos.game.building.Economy.*;
 
 
 
+//  TODO:  Introduce sub-classes of the nursery specifically intended for
+//  aquaculture and forestry.
+
+
 public class Nursery extends Venue implements TileConstants {
   
   
@@ -273,9 +277,12 @@ public class Nursery extends Venue implements TileConstants {
       this, services(), 2, 10, 5
     );
     choice.add(d);
-    
     choice.add(bestSeedCollection(actor));
     choice.add(new Farming(actor, this));
+    
+    //  In addition to forestry operations-
+    choice.add(Forestry.nextPlanting(actor, this));
+    choice.add(Forestry.nextCutting (actor, this));
     
     return choice.pickMostUrgent();
   }

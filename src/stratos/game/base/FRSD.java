@@ -21,9 +21,7 @@ import static stratos.game.building.Economy.*;
 
 
 
-//  Okay.  I want individual control over import levels.
-
-
+//  TODO:  Add the landing strip here.
 
 public class FRSD extends Venue {
   

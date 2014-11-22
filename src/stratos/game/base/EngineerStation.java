@@ -162,45 +162,38 @@ public class EngineerStation extends Venue {
   
   public Behaviour jobFor(Actor actor) {
     if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
-    final float powerCut = stocks.shortagePenalty(POWER) * 10;
+    
+    //  Consider contributing toward local repairs-
+    final Choice choice = new Choice(actor);
     
     //  Consider special commissions for weapons and armour-
     for (Manufacture o : stocks.specialOrders()) {
-      o.checkBonus = structure.upgradeLevel(MOLDING_PRESS) + 5;
-      final int CMB = structure.upgradeLevel(COMPOSITE_MATERIALS) + 2;
-      final int FCB = structure.upgradeBonus(FLUX_CONTAINMENT) + 2;
       final Traded made = o.made().type;
       
       if (made instanceof DeviceType) {
         final DeviceType DT = (DeviceType) made;
-        if (DT.hasProperty(KINETIC)) o.checkBonus += CMB;
-        if (DT.hasProperty(ENERGY )) o.checkBonus += FCB;
+        Upgrade forType = MOLDING_PRESS;
+        if (DT.hasProperty(KINETIC)) forType = COMPOSITE_MATERIALS;
+        if (DT.hasProperty(ENERGY )) forType = FLUX_CONTAINMENT;
+        o.setBonusFrom(this, true, MOLDING_PRESS, forType);
       }
+      else if (made instanceof OutfitType) {
+        o.setBonusFrom(this, true,
+          MOLDING_PRESS, COMPOSITE_MATERIALS, FLUX_CONTAINMENT
+        );
+      }
+      else o.setBonusFrom(this, true, MOLDING_PRESS);
       
-      if (made instanceof OutfitType) {
-        final OutfitType OT = (OutfitType) made;
-        o.checkBonus += OT.shieldBonus * FCB / 10f;
-        o.checkBonus += OT.defence * CMB / 10f;
-      }
-      o.checkBonus -= powerCut;
-      o.setMotive(Plan.MOTIVE_DUTY, Plan.URGENT);
-      return o;
-      //choice.add(o);
+      choice.add(o);
     }
-    
-    //  Consider contributing toward local repairs-
-    final Choice choice = new Choice(actor);
-    choice.add(Repairs.getNextRepairFor(actor, false));
     
     //  Finally, consider the production of general bulk commodities-
-    final int PB = 1 + structure.upgradeLevel(ASSEMBLY_LINE);
     final Manufacture mP = stocks.nextManufacture(actor, METALS_TO_PARTS);
     if (mP != null) {
-      //I.sayAbout(this, "Making parts priority: "+mP.priorityFor(actor));
-      mP.checkBonus = (PB * 5) / 2;
-      mP.checkBonus -= powerCut;
-      choice.add(mP);
+      choice.add(mP.setBonusFrom(this, false, ASSEMBLY_LINE));
     }
+    
+    choice.add(Repairs.getNextRepairFor(actor, false));
     
     //  And return whatever suits the actor best-
     choice.isVerbose = I.talkAbout == this;
