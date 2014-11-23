@@ -93,42 +93,16 @@
   stride="1.5"
   height="2.5"
 >
-  <animations rotate="90" fps="25">
+  <animations rotate="90" fps="1">
     <animation name="stand"       start="0"   end="0"   duration="1" />
     <animation name="idle"        start="0"   end="48"  duration="1" />
-    <animation name="walk_begin"  start="48"  end="58"  duration="1" />
-    <animation name="walk_cycle"  start="58"  end="106" duration="1" />
-    <animation name="walk_stop"   start="107" end="116" duration="1" />
-    <animation name="attack"      start="116" end="165" duration="1" />
-    <animation name="die"         start="165" end="204" duration="1" />
-  </animations>
-  
-  <attachPoints>
-    <attachPoint function="fire" joint="head"/>
-    <attachPoint function="target" joint="head"/>
-  </attachPoints>
-</model>
-
-
-<model
-  name="Tripod2"
-  format="MS3D"
-  type="JOINT"
-  path="media/Actors/artilects/"
-  file="tripod_gorion.ms3d"
-  scale="0.075"
-  bound="2.5"
-  stride="1.5"
-  height="2.5"
->
-  <animations rotate="90" fps="25">
-    <animation name="stand"       start="0"   end="0"   duration="0.5" />
-    <animation name="idle"        start="0"   end="48"  duration="0.5" />
-    <animation name="walk_begin"  start="48"  end="58"  duration="0.5" />
-    <animation name="walk_cycle"  start="58"  end="107" duration="0.5" />
-    <animation name="walk_stop"   start="107" end="116" duration="0.5" />
-    <animation name="attack"      start="116" end="165" duration="0.5" />
-    <animation name="die"         start="165" end="204" duration="0.5" />
+    <animation name="walk_begin"  start="55"  end="75"  duration="1" />
+    <animation name="move"        start="77"  end="136" duration="1" />
+    <animation name="walk_stop"   start="138" end="155" duration="1" />
+    <animation name="build"       start="156" end="262" duration="1" />
+    <animation name="carry"       start="263" end="443" duration="1" />
+    <animation name="attack"      start="444" end="493" duration="1" />
+    <animation name="die"         start="493" end="532" duration="1" />
   </animations>
   
   <attachPoints>
