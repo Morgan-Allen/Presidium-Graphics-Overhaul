@@ -200,17 +200,12 @@ public abstract class Actor extends Mobile implements
   
   protected void updateAsMobile() {
     super.updateAsMobile();
-    final boolean OK = health.conscious();
+    final boolean OK = health.conscious() && ! doingPhysFX();
     if (! OK) pathing.updateTarget(null);
     
     if (actionTaken != null) {
       if (! pathing.checkPathingOkay()) {
         world.schedule.scheduleNow(this);
-      }
-      if (actionTaken.finished()) {
-        //  TODO:  RE-IMPLEMENT THIS
-        //if (verbose) I.sayAbout(this, "  ACTION COMPLETE: "+actionTaken);
-        //world.schedule.scheduleNow(this);
       }
       actionTaken.updateAction(OK);
     }
@@ -238,17 +233,22 @@ public abstract class Actor extends Mobile implements
     
     //  Check to see what our current condition is-
     final boolean
-      OK = health.conscious(),
+      OK         = health.conscious() && ! doingPhysFX(),
       checkSleep = (health.asleep() && numUpdates % 10 == 0);
     if (! (OK || checkSleep)) return;
     
     //  Update our actions, pathing, and AI-
     if (OK) {
-      if (report) I.say("Checking pathing...");
-      
-      if (actionTaken == null || actionTaken.finished()) {
-        assignAction(mind.getNextAction());
+      if (report) I.say("  Checking for actions update...");
+      final Action nextAction = mind.getNextAction();
+      if (
+        actionTaken == null || actionTaken.finished() ||
+        (nextAction != null && ! nextAction.matchesSignature(actionTaken))
+      ) {
+        assignAction(nextAction);
       }
+      
+      if (report) I.say("  Checking pathing...");
       if (! pathing.checkPathingOkay()) {
         pathing.refreshFullPath();
       }
@@ -267,9 +267,10 @@ public abstract class Actor extends Mobile implements
       final Behaviour root = mind.rootBehaviour();
       final float
         wakePriority  = root == null ? 0 : root.priorityFor(this),
-        sleepPriority = new Resting(this, aboard()).priorityFor(this);
+        sleepPriority = new Resting(this, aboard()).priorityFor(this),
+        tireBonus     = (health.fatigueLevel() + 0.5f) * Plan.ROUTINE;
       
-      if (wakePriority > sleepPriority + 1 + Plan.DEFAULT_SWITCH_THRESHOLD) {
+      if (wakePriority > sleepPriority + tireBonus) {
         health.setState(ActorHealth.STATE_ACTIVE);
       }
     }
@@ -300,6 +301,11 @@ public abstract class Actor extends Mobile implements
   //
   //  TODO:  Consider moving these elsewhere?
   
+  protected boolean doingPhysFX() {
+    return actionTaken != null && actionTaken.physFX();
+  }
+  
+  
   public void enterStateKO(String animName) {
     ///I.say(this+" HAS BEEN KO'D");
     if (isDoingAction("actionFall", null)) return;
@@ -307,7 +313,7 @@ public abstract class Actor extends Mobile implements
       this, this, this, "actionFall",
       animName, "Stricken"
     );
-    falling.setProperties(Action.NO_LOOP);
+    falling.setProperties(Action.NO_LOOP | Action.PHYS_FX);
     pathing.updateTarget(null);
     mind.cancelBehaviour(mind.rootBehaviour());
     this.assignAction(falling);
@@ -413,8 +419,8 @@ public abstract class Actor extends Mobile implements
   
   
   protected void renderHealthbars(Rendering rendering, Base base) {
-    if (health.dying()) return;
-    if (! (this instanceof Human)) {
+    
+    if (base != this.base()) {
       if (! BaseUI.isSelectedOrHovered(this)) return;
     }
     
@@ -422,6 +428,8 @@ public abstract class Actor extends Mobile implements
     label.position.z -= radius() + 0.25f;
     label.phrase = fullName();
     label.readyFor(rendering);
+
+    if (health.dying()) return;
     
     healthbar.matchTo(sprite());
     healthbar.level = (1 - health.injuryLevel());

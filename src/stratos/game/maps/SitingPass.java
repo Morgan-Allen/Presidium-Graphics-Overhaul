@@ -30,7 +30,7 @@ public abstract class SitingPass {
     
     final List <Site> allSites = new List <Site> () {
       protected float queuePriority(Site site) {
-        return site.rating;
+        return 0 - site.rating;
       }
     };
     

@@ -147,8 +147,11 @@ public class EnforcerBloc extends Venue {
   
   
   public String buildCategory() {
-    return UIConstants.TYPE_PHYSICIAN;
+    return UIConstants.TYPE_HIDDEN;
+    //return UIConstants.TYPE_MILITANT;
   }
 }
+
+
 
 

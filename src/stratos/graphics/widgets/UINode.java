@@ -93,6 +93,11 @@ public abstract class UINode {
   }
   
   
+  public boolean attached() {
+    return parent != null;
+  }
+  
+  
   
   /**  Convenience methods for setting relative and absolute bounds in a more
     *  human-legible manner-

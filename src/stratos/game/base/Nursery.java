@@ -253,6 +253,15 @@ public class Nursery extends Venue implements TileConstants {
   
   
   public Behaviour jobFor(Actor actor) {
+    /*
+    if (true) {
+      final Forestry f = Forestry.nextCutting(actor, this);
+      f.setMotive(Plan.MOTIVE_DUTY, 100);
+      return f;
+    }
+    //*/
+    
+    
     final Choice choice = new Choice(actor);
     
     //  If you're really short on food, consider foraging in the surrounds or
@@ -262,15 +271,16 @@ public class Nursery extends Venue implements TileConstants {
       stocks.shortagePenalty(GREENS)
     ) / 2f;
     if (shortages > 0) {
-      choice.add(new Farming(actor, this));
+      final Farming farming = new Farming(actor, this);
+      choice.add(farming);
       
       final Foraging foraging = new Foraging(actor, this);
       foraging.setMotive(Plan.MOTIVE_EMERGENCY, Plan.PARAMOUNT * shortages);
       choice.add(foraging);
     }
     
-    if (choice.size() > 0) return choice.pickMostUrgent();
-    if (! personnel.onShift(actor)) return null;
+    //if (choice.size() > 0) return choice.pickMostUrgent();
+    if (! personnel.onShift(actor)) return choice.pickMostUrgent();
     
     //  Otherwise, consider normal deliveries and routine tending-
     final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
@@ -303,7 +313,7 @@ public class Nursery extends Venue implements TileConstants {
       for (Species s : Crop.ALL_VARIETIES) {
         Item seed = Item.withReference(SAMPLES, s);
         seed = station.stocks.bestSample(seed, 1);
-        if (seed == null || stocks.hasItem(seed)) continue;
+        if (seed == null || stocks.hasItem(seed) || seed.amount < 1) continue;
         seedTypes.add(seed);
         rating += seed.quality + 0.5f;
       }

@@ -106,10 +106,10 @@ public class Selection implements UIConstants {
     //  Our first task to see what the different kinds of object currently
     //  being hovered over are-
     final Base base = UI.played();
-    hovered = null;
-    pickTile = world.pickedTile(UI, port, base);
+    hovered     = null;
+    pickTile    = world.pickedTile   (UI, port, base);
     pickFixture = world.pickedFixture(UI, port, base);
-    pickMobile = world.pickedMobile(UI, port, base);
+    pickMobile  = world.pickedMobile (UI, port, base);
     pickMission = UI.played().pickedMission(UI, port);
     
     if (
@@ -161,28 +161,6 @@ public class Selection implements UIConstants {
     final SelectionInfoPane panel = s.configPanel(null, UI);
     final TargetOptions info = s.configInfo(null, UI);
     UI.setInfoPanels(panel, info);
-    
-    if (panel != null) {
-      final int SI = navStack.indexOf(selected);
-      Selectable previous = null;
-      if (SI != -1) {
-        if (selected == navStack.getLast()) previous = null;
-        else previous = navStack.atIndex(SI + 1);
-        while (navStack.getFirst() != selected) navStack.removeFirst();
-        panel.setPrevious(previous);
-      }
-      else {
-        previous = navStack.getFirst();
-        navStack.addFirst(selected);
-        panel.setPrevious(previous);
-      }
-      
-      if (verbose) {
-        I.say("Navigation stack is: ");
-        for (Selectable n : navStack) I.add("\n  "+n);
-        I.add("\n");
-      }
-    }
     
     I.talkAbout = selected;
   }

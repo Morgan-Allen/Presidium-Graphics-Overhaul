@@ -378,11 +378,13 @@ public class Stage {
   }
   
   
-  public Vec3D pickedGroundPoint(final HUD UI, final Viewport view) {
+  public Vec3D pickedGroundPoint(
+    final HUD UI, final Viewport view, float screenX, float screenY
+  ) {
     //
     //  Here, we find the point of intersection between the line-of-sight
     //  underneath the mouse cursor, and the plane of the ground-
-    final Vec3D origin = new Vec3D(UI.mouseX(), UI.mouseY(), 0);
+    final Vec3D origin = new Vec3D(screenX, screenY, 0);
     view.translateFromScreen(origin);
     final Vec3D vector = view.direction();
     vector.scale(0 - origin.z / vector.z);
@@ -392,7 +394,7 @@ public class Stage {
   
   
   public Tile pickedTile(final HUD UI, final Viewport port, Base base) {
-    final Vec3D onGround = pickedGroundPoint(UI, port);
+    Vec3D onGround = pickedGroundPoint(UI, port, UI.mouseX(), UI.mouseY());
     return tileAt(onGround.x, onGround.y);
   }
   

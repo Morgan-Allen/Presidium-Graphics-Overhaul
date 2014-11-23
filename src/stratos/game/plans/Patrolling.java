@@ -33,8 +33,8 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   
   
   private static boolean
-    evalVerbose = false,
-    stepVerbose = false;
+    evalVerbose  = false,
+    stepsVerbose = false;
   
   final int type;
   final Element guarded;
@@ -126,7 +126,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   public Behaviour getNextStep() {
     if (onPoint == null) return null;
     
-    final boolean report = stepVerbose && I.talkAbout == actor;
+    final boolean report = stepsVerbose && I.talkAbout == actor;
     if (report) {
       I.say("\nGetting next patrol step for "+actor);
       I.say("  Going to: "+onPoint+", post time: "+postTime);

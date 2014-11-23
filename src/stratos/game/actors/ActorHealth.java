@@ -56,13 +56,13 @@ public class ActorHealth implements Qualities {
     DEFAULT_LIFESPAN = 60,
     LIFE_EXTENDS     = 0.1f,
     
-    DEFAULT_BULK  = 1.0f,
-    DEFAULT_SPEED = 1.0f,
-    DEFAULT_SIGHT = 8.0f,
+    DEFAULT_BULK     = 1.0f,
+    DEFAULT_SPEED    = 1.0f,
+    DEFAULT_SIGHT    = 8.0f,
 
-    DEFAULT_HEALTH  = 10,
-    MAX_CALORIES    = 1.5f,
-    STARVE_INTERVAL = Stage.STANDARD_DAY_LENGTH * 5,
+    DEFAULT_HEALTH   = 10,
+    MAX_CALORIES     = 1.5f,
+    STARVE_INTERVAL  = Stage.STANDARD_DAY_LENGTH * 5,
     
     MAX_INJURY       =  1.5f,
     MAX_DECOMP       =  2.5f,
@@ -71,8 +71,8 @@ public class ActorHealth implements Qualities {
     MIN_MORALE       = -1.5f,
     REVIVE_THRESHOLD =  0.5f,
     RUN_FATIGUE_MULT = 10.0f,
-    BLEED_OUT_TIME   =  Stage.STANDARD_HOUR_LENGTH * 2,
-    DECOMPOSE_TIME   =  Stage.STANDARD_DAY_LENGTH,
+    BLEED_OUT_TIME   = Stage.STANDARD_HOUR_LENGTH * 2,
+    DECOMPOSE_TIME   = Stage.STANDARD_DAY_LENGTH  * 2,
     
     FATIGUE_GROW_PER_DAY = 0.33f,
     MORALE_DECAY_PER_DAY = 0.33f,
@@ -317,6 +317,7 @@ public class ActorHealth implements Qualities {
       if ((Rand.num() * maxHealth / 2f) < taken) bleeds = true;
     }
     injury = Visit.clamp(injury + taken, 0, limit + 1);
+    checkStateChange();
     
     if (report) {
       I.say("  Injury capped at: "+limit);
@@ -522,71 +523,69 @@ public class ActorHealth implements Qualities {
     maxHealth *= baseBulk * ageMultiple;
     if (numUpdates < 0) return;
     
-    //  Deal with injury, fatigue and stress.
-    stressCache = -1;
-    final int oldState = state;
-    checkStateChange();
-    updateStresses();
-    advanceAge(numUpdates);
-    
-    //  Check for disease or sudden death due to senescence.
-    if (oldState != state && state != STATE_ACTIVE) {
-      if (state < STATE_DYING && ! organic()) state = STATE_DYING;
-      I.say(actor+" has entered a non-active state: "+stateDesc());
-      actor.enterStateKO(Action.FALL);
+    //  Check for disease and hunger as well-
+    if (organic()) {
+      calories -= (1f * maxHealth * baseSpeed) / STARVE_INTERVAL;
+      calories = Visit.clamp(calories, 0, maxCalories());
     }
     if (state <= STATE_RESTING && metabolism == HUMAN_METABOLISM) {
       Condition.checkContagion(actor);
     }
+    if (state == STATE_DYING) {
+      injury += maxHealth * 1f / DECOMPOSE_TIME;
+    }
+    
+    //  Deal with injury, fatigue and stress.
+    stressCache = -1;
+    checkStateChange();
+    updateStresses();
+    advanceAge(numUpdates);
   }
   
   
   private void checkStateChange() {
-    if (verbose && I.talkAbout == actor) {
+    final boolean report = verbose && I.talkAbout == actor;
+    if (report) {
       I.say("\nUpdating health state for "+actor);
       I.say("  Injury/fatigue: "+injury+"/"+fatigue+", max: "+maxHealth);
       I.say("  State is: "+STATE_DESC[state]);
     }
+    final int oldState = state;
     //
     //  Check for state effects-
-    if (state == STATE_SUSPEND) return;
-    if (state == STATE_DYING) {
-      injury += maxHealth * 1f / DECOMPOSE_TIME;
-      if (injury > maxHealth * (MAX_INJURY + 1)) {
+    if (state == STATE_SUSPEND) {
+      if (report) I.say("  "+actor+" is in suspended animation.");
+    }
+    else if (state == STATE_DYING || state == STATE_DECOMP) {
+      if (injury >= maxHealth * MAX_DECOMP) {
+        if (report) I.say("  "+actor+" is decomposing...");
         state = STATE_DECOMP;
       }
-      return;
     }
-    if (fatigue + injury >= maxHealth) {
+    else if (injury >= maxHealth * MAX_INJURY) {
+      if (report) I.say("  "+actor+" has died of injury.");
+      state = STATE_DYING;
+    }
+    else if (organic() && calories <= 0) {
+      if (report) I.say("  "+actor+" has died from starvation.");
+      state = STATE_DYING;
+    }
+    else if (actor.traits.usedLevel(IMMUNE) < -5) {
+      if (report) I.say("  "+actor+" has died of disease.");
+      state = STATE_DYING;
+    }
+    else if (fatigue + (injury / 2) >= maxHealth) {
       state = STATE_RESTING;
     }
-    if (actor.traits.usedLevel(IMMUNE) < -5) {
-      I.say(actor+" has died of disease.");
-      I.say("Effective vigour: "+actor.traits.usedLevel(IMMUNE));
-      I.say("Maximum vigour: "+actor.traits.traitLevel(IMMUNE));
-      I.say("Conditions: "); for (Trait t : CONDITIONS) {
-        final float level = actor.traits.usedLevel(t);
-        if (level <= 0) continue;
-        I.add(t.toString()+": "+level+", ");
-      }
-      state = STATE_DYING;
-    }
-    if (injury >= maxHealth * MAX_INJURY) {
-      I.say(actor+" has died of injury.");
-      state = STATE_DYING;
-    }
-    if (fatigue <= 0 && asleep()) {
-      if (verbose) I.say(actor+" has revived!");
+    else if (fatigue <= 0 && asleep()) {
+      if (verbose) I.say("  "+actor+" has revived!");
       state = STATE_ACTIVE;
     }
-    //
-    //  Deplete your current calorie reserve-
-    if (! organic()) return;
-    calories -= (1f * maxHealth * baseSpeed) / STARVE_INTERVAL;
-    calories = Visit.clamp(calories, 0, maxCalories());
-    if (calories <= 0) {
-      I.say(actor+" has died from starvation.");
-      state = STATE_DYING;
+    
+    if (oldState != state && state != STATE_ACTIVE) {
+      if (state < STATE_DYING && ! organic()) state = STATE_DYING;
+      I.say("  "+actor+" has entered a non-active state: "+stateDesc());
+      actor.enterStateKO(Action.FALL);
     }
   }
   

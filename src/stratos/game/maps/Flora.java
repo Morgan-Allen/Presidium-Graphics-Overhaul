@@ -140,17 +140,16 @@ public class Flora extends Element implements TileConstants {
   
   
   public void incGrowth(float inc, Stage world, boolean init) {
-    final int oldGrowth = (int) growth;
+    final int oldGrowth = Visit.clamp((int) growth, MAX_GROWTH);
     growth += inc;
     if (growth <= 0) {
       setAsDestroyed();
       return;
     }
-    final int newGrowth = (int) growth;
-    if (oldGrowth == newGrowth && !init)
-      return;
-
-    if (inc > 0 && !init) {
+    final int newGrowth = Visit.clamp((int) growth, MAX_GROWTH);
+    if (oldGrowth == newGrowth && ! init) return;
+    
+    if (inc > 0 && ! init) {
       final float moisture = origin().habitat().moisture / 10f;
       final int minGrowth = (int) ((moisture * moisture * MAX_GROWTH) + 1f);
       final float dieChance = 1 - moisture;
@@ -160,13 +159,14 @@ public class Flora extends Element implements TileConstants {
         return;
       }
     }
-    final int tier = Visit.clamp((int) growth, MAX_GROWTH);
-    final CutoutModel model = habitat.floraModels[varID][tier];
+    
     final Sprite oldSprite = this.sprite();
-    attachSprite(model.makeSprite());
-    setAsEstablished(false);
-    if (oldSprite != null)
-      world.ephemera.addGhost(this, 1, oldSprite, 2.0f);
+    if (oldGrowth != newGrowth || oldSprite == null) {
+      final CutoutModel model = habitat.floraModels[varID][newGrowth];
+      attachSprite(model.makeSprite());
+      setAsEstablished(false);
+      if (oldSprite != null) world.ephemera.addGhost(this, 1, oldSprite, 2.0f);
+    }
   }
   
   

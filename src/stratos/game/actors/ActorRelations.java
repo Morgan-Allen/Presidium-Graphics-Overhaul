@@ -116,9 +116,17 @@ public class ActorRelations {
   
   public float valueFor(Installation venue) {
     if (venue == null) return 0;
-    if (venue == actor.mind.home) return 1.0f;
-    if (venue == actor.mind.work) return 0.5f;
-    return valueFor(venue.base()) / 4f;
+    //  TODO:  Cache this and modify slowly over time.
+    
+    final float baseVal = valueFor(venue.base());
+    float relVal = 0;
+    if (venue.base() == actor.base()) {
+      relVal += actor.base().relations.communitySpirit() / 2;
+    }
+    if (venue == actor.mind.home) relVal += 1.0f;
+    if (venue == actor.mind.work) relVal += 0.5f;
+    
+    return (baseVal + Visit.clamp(relVal, 0, 1)) / 2f;
   }
   
   

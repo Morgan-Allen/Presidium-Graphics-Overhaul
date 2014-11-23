@@ -107,15 +107,15 @@ public class MissionsTab extends SelectionInfoPane {
   }
   
   
-  
-  
   private static void previewFlag(
     BaseUI UI, Sprite flag, Target picked, boolean valid
   ) {
     flag.scale = 0.5f;
     if (! valid) {
       final Stage world = UI.world();
-      final Vec3D onGround = world.pickedGroundPoint(UI, UI.rendering.view);
+      final Vec3D onGround = world.pickedGroundPoint(
+        UI, UI.rendering.view, UI.mouseX(), UI.mouseY()
+      );
       flag.position.setTo(onGround);
       flag.colour = Colour.RED;
     }
@@ -124,7 +124,6 @@ public class MissionsTab extends SelectionInfoPane {
       flag.colour = Colour.GREEN;
     }
     flag.readyFor(UI.rendering);
-    //UI.rendering.addClient(flag);
   }
   
   

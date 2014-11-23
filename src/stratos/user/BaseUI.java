@@ -264,20 +264,30 @@ public class BaseUI extends HUD implements UIConstants {
     super.renderHUD(rendering);
     tracking.updateTracking();
     
+    //  In order to transition smoothly between the old and new information
+    //  panes, we essentially capture a local screenshot of the old panel, then
+    //  fade that out on top of the new panel.
+    //  TODO:  This doesn't look terribly smooth if you inspect it closely-
+    //  either use simple alpha-fadeouts or start rendering-to-texture instead
     if (capturePanel && currentPanel != null) {
       final Box2D b = new Box2D().setTo(currentPanel.trueBounds());
       rendering.fading.applyFadeWithin(b, "panel_fade");
       capturePanel = false;
     }
-    
     if (currentPanel != newPanel) {
       if (currentPanel != null) currentPanel.detach();
       if (newPanel     != null) newPanel.attachTo(panelArea);
       currentPanel = newPanel;
     }
-    if (currentInfo != newInfo) {
-      if (newInfo      != null) newInfo.attachTo(infoArea);
-      currentInfo  = newInfo;
+    
+    //  Only attach the new information panel once the old one is done fading
+    //  out.  TODO:  Use a similar trick above...
+    if (
+      (currentInfo != newInfo) &&
+      (currentInfo == null || ! currentInfo.attached())
+    ) {
+      if (newInfo != null) newInfo.attachTo(infoArea);
+      currentInfo = newInfo;
     }
   }
   

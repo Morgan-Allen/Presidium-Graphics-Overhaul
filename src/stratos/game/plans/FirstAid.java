@@ -79,7 +79,7 @@ public class FirstAid extends Treatment {
     if (severity <= 0) return 0;
     
     //  Try to avoid giving first aid in the middle of a firefight...
-    float modifier = actor.senses.isEmergency() ? -1 : 0;
+    float modifier = 0;//actor.senses.isEmergency() ? -1 : 0;
     final boolean ally = CombatUtils.isAllyOf(actor, patient);
     if (ally) modifier += severity;
     
@@ -109,8 +109,9 @@ public class FirstAid extends Treatment {
   
   protected Behaviour getNextStep() {
     final boolean report = verbose && I.talkAbout == actor;
+    final boolean underFire = actor.senses.isEmergency();
     
-    if (patient.health.bleeding()) {
+    if (patient.health.bleeding() && ! underFire) {
       final Action aids = new Action(
         actor, patient,
         this, "actionFirstAid",
@@ -130,6 +131,7 @@ public class FirstAid extends Treatment {
       }
     }
     
+    if (underFire) return null;
     if (Treatment.hasTreatment(INJURY, patient, hasBegun())) return null;
     final Action aids = new Action(
       actor, patient,

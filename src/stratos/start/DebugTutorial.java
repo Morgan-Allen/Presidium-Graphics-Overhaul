@@ -10,8 +10,7 @@ import stratos.util.*;
 
 
 
-//  Remove any non-functional structures, and test lchc/reagents production.
-
+//  TODO: Test reagents production.
 
 //  Arrange for contact missions to come back with a desired price from the
 //  subject/s.

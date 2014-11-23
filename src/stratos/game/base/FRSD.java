@@ -139,10 +139,9 @@ public class FRSD extends Venue {
   
   public Behaviour jobFor(Actor actor) {
     if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
-    final Choice choice = new Choice(actor);
     
-    final Plan r = Repairs.getNextRepairFor(actor, false);
-    if (r != null) choice.add(r.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE));
+    final Choice choice = new Choice(actor);
+    choice.add(Repairs.getNextRepairFor(actor, true));
     
     final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
       this, services(), 2, 10, 5

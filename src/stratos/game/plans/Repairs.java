@@ -15,7 +15,7 @@ import static stratos.game.actors.Qualities.*;
 public class Repairs extends Plan {
   
   private static boolean
-    evalVerbose   = false,
+    evalVerbose   = true ,
     eventsVerbose = false;
   
   final public static float
@@ -52,8 +52,9 @@ public class Repairs extends Plan {
   /**  Assessing targets and priority-
     */
   public static float needForRepair(Installation built) {
-    float needRepair;
     final Structure structure = built.structure();
+    if (! structure.takesWear()) return 0;
+    float needRepair;
     if (! structure.intact()) needRepair = 1.0f;
     else needRepair = (1 - structure.repairLevel()) * 1.5f;
     if (structure.burning()) needRepair += 1.0f;

@@ -77,7 +77,9 @@ public class Retreat extends Plan implements Qualities {
     
     final boolean emergency = actor.senses.isEmergency();
     
-    float danger = actor.senses.fearLevel() + actor.health.injuryLevel();
+    float danger = FastMath.max(
+      actor.senses.fearLevel(), Plan.dangerPenalty(actor, actor)
+    ) + actor.health.injuryLevel();
     float bonus = 0;
     
     //  Retreat becomes less attractive as you get closer to home and more
@@ -91,7 +93,7 @@ public class Retreat extends Plan implements Qualities {
     }
     else {
       if (actor.aboard() == safePoint) return 0;
-      maxDanger = 0;
+      maxDanger = danger;
       bonus += (haven == null) ? 0 : Plan.rangePenalty(haven, actor) * CASUAL;
     }
     

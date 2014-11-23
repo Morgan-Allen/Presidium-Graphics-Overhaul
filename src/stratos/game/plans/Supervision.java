@@ -22,7 +22,7 @@ public class Supervision extends Plan {
   /**  Data fields, setup and save/load functions-
     */
   private static boolean
-    evalVerbose = true ;
+    evalVerbose = false;
   
   final static float WAIT_TIME = Stage.STANDARD_HOUR_LENGTH;
   

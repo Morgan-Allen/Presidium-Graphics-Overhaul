@@ -94,12 +94,13 @@ public class CombatUtils {
   public static float hostileRating(Actor actor, Target near) {
     final boolean report = dangerVerbose && I.talkAbout == actor;
     
+    
+    
     //  Only consider conscious actors as capable of hostility.  Then, by
     //  default, base the rating off intrinsic dislike of the subject.
     if (! (near instanceof Actor)) return 0;
     final Actor other = (Actor) near;
     if (! other.health.alive()) return 0;
-    //if (CombatUtils.isDowned(actor, Combat.OBJECT_EITHER)) return 0;
     
     final ActorRelations mind = actor.relations;
     float rating = 0 - mind.valueFor(other);
@@ -131,7 +132,7 @@ public class CombatUtils {
   
   public static float homeDefenceBonus(Actor actor, Target from) {
     final Target haven = actor.mind.home();
-    if (haven == null) return Plan.PARAMOUNT;
+    if (haven == null) return 0;// Plan.PARAMOUNT;
     else {
       float homeDist = Spacing.distance(from, haven);
       homeDist = Visit.clamp(homeDist / Stage.SECTOR_SIZE, 0, 1);
@@ -141,12 +142,16 @@ public class CombatUtils {
   
   
   public static boolean isActiveHostile(Actor actor, Target near) {
-    if (! (near instanceof Actor)) return false;
-    final Actor other = (Actor) near;
-    
-    final Target victim = other.focusFor(null);
-    final float harmDone = other.harmDoneTo(victim);
-    return victim != null && actor.relations.likes(victim) && harmDone > 0;
+    if (near instanceof Venue) {
+      return false;
+    }
+    else if (near instanceof Actor) {
+      final Actor other = (Actor) near;
+      final Target victim = other.focusFor(null);
+      final float harmDone = other.harmDoneTo(victim);
+      return victim != null && actor.relations.likes(victim) && harmDone > 0;
+    }
+    else return false;
   }
   
   
@@ -193,7 +198,7 @@ public class CombatUtils {
   public static Target bestTarget(
     Actor actor, Target primary, boolean asThreat
   ) {
-    final boolean report = threatsVerbose && I.talkAbout == actor;
+    final boolean report = Combat.stepsVerbose && I.talkAbout == actor;
     if (report) {
       I.say("\nGetting best target for "+actor+" around "+primary);
       I.say("  Treating as threat? "+asThreat);
@@ -204,7 +209,7 @@ public class CombatUtils {
     float bestValue = asThreat ? (hostileRating(actor, primary) * 1.5f) : 0;
     
     for (Target t : actor.senses.awareOf()) {
-      final float distance = Spacing.distance(t, primary);
+      final float distance = Spacing.distance(t, actor);
       if (distance > Stage.SECTOR_SIZE) continue;
       
       float value = hostileRating(actor, t);
@@ -213,13 +218,15 @@ public class CombatUtils {
       else       value /= 1 + (distance / (Stage.SECTOR_SIZE / 2));
       
       if (report) {
-        I.say("  Value for "+t+" is "+value);
+        I.say("    Value for "+t+" is "+value);
+        I.say("    Distance: "+distance);
       }
       if (value > bestValue) { bestValue = value; best = t; }
     }
     
     if (report) I.say("  Final pick: "+best+", rating: "+bestValue);
-    return bestValue >= 0 ? best : null;
+    if (bestValue >= 0) return best;
+    return asThreat ? primary : null;
   }
 }
 

@@ -20,6 +20,10 @@ public class Ruins extends Venue {
   
   /**  Construction and save/load methods-
     */
+  private static boolean
+    placeVerbose  = true ,
+    updateVerbose = false;
+  
   final static ModelAsset MODEL_RUINS[] = CutoutModel.fromImages(
     Ruins.class, "media/Buildings/lairs and ruins/", 4, 2, false,
     "ruins_a.png",
@@ -30,8 +34,6 @@ public class Ruins extends Venue {
   
   final static int
     MIN_RUINS_SPACING = (int) (Stage.SECTOR_SIZE * 1.5f);
-  
-  private static boolean verbose = false;
   
   
   public Ruins(Base base) {
@@ -75,6 +77,8 @@ public class Ruins extends Venue {
   public static Batch <Ruins> placeRuins(
     final Stage world, final int maxPlaced
   ) {
+    final boolean report = placeVerbose;
+    
     final Presences presences = world.presences;
     final Batch <Ruins> placed = new Batch <Ruins> ();
     final Base artilects = Base.baseWithName(world, Base.KEY_ARTILECTS, true);
@@ -82,15 +86,14 @@ public class Ruins extends Venue {
     final SitingPass siting = new SitingPass() {
       int numSited = 0;
       
-      
       protected float rateSite(Tile centre) {
-        if (verbose) I.say("Rating site at: "+centre);
+        if (report) I.say("Rating site at: "+centre);
         final Venue nearest = (Venue) presences.nearestMatch(
           Venue.class, centre, -1
         );
         if (nearest != null) {
           final float distance = Spacing.distance(nearest, centre);
-          if (verbose) I.say("Neighbour is: "+nearest+", distance: "+distance);
+          if (report) I.say("Neighbour is: "+nearest+", distance: "+distance);
           if (distance < MIN_RUINS_SPACING) return -1;
         }
         float rating = 2;
@@ -102,23 +105,23 @@ public class Ruins extends Venue {
       
       protected boolean createSite(Tile centre) {
         final float rating = rateSite(centre);
-        if (verbose) {
+        if (report) {
           I.say("Trying to place ruins at "+centre+", rating "+rating);
         }
-        if (rating <= 0) return false;
         
         final boolean minor = numSited >= maxPlaced / 2;
         int maxRuins = (minor ? 3 : 1) + Rand.index(3);
         final Batch <Ruins> ruins = new Batch <Ruins> ();
         
-        while (maxRuins-- > 0) {
+        while (maxRuins-- > 0 && numSited < maxPlaced) {
           final Ruins r = new Ruins(artilects);
           Placement.establishVenue(r, centre.x, centre.y, true, world);
           if (r.inWorld()) {
-            if (verbose) I.say("  Ruin established at: "+r.origin());
+            if (report) I.say("  Ruin established at: "+r.origin());
             ruins.add(r);
             placed.add(r);
           }
+          numSited++;
         }
         
         //  TODO:  Slag/wreckage must be done in a distinct pass...
@@ -129,7 +132,6 @@ public class Ruins extends Venue {
           }
           populateArtilects(world, r, true);
         }
-        numSited++;
         return ruins.size() > 0;
       }
     };
@@ -141,6 +143,7 @@ public class Ruins extends Venue {
   public static Batch <Artilect> populateArtilects(
     Stage world, Ruins ruins, boolean fillSpaces, Artilect... living
   ) {
+    final boolean report = placeVerbose;
     final Batch <Artilect> populace = new Batch <Artilect> ();
     
     //  Add any artilects passed as arguments, or that there's room for
@@ -153,7 +156,7 @@ public class Ruins extends Venue {
     if (living == null || living.length == 0 || fillSpaces) {
       for (Species s : Species.ARTILECT_SPECIES) {
         final int space = ruins.spaceFor(s);
-        if (verbose) I.say("  SPACE FOR "+s+" is "+space);
+        if (report) I.say("  SPACE FOR "+s+" is "+space);
         for (int n = space; n-- > 0;) {
           populace.add((Artilect) s.newSpecimen(ruins.base()));
         }
@@ -170,8 +173,8 @@ public class Ruins extends Venue {
   }
   
   
-  
   protected int spaceFor(Species s) {
+    final boolean report = updateVerbose;
     
     //  We 'salt' this estimate in a semi-random but deterministic way by
     //  referring to terrain variation.
@@ -184,10 +187,10 @@ public class Ruins extends Venue {
     
     int space = 0;
     if (s == Species.SPECIES_CRANIAL) space = spaceLevel > 0.5f ? 1 : 0;
-    if (s == Species.SPECIES_TRIPOD ) space = 1 + (int) (spaceLevel * 3);
-    if (s == Species.SPECIES_DRONE  ) space = 1 + (int) (spaceLevel * 5);
+    if (s == Species.SPECIES_TRIPOD ) space = 1 + (int) (spaceLevel * 1);
+    if (s == Species.SPECIES_DRONE  ) space = 2 + (int) (spaceLevel * 2);
     
-    if (verbose) I.say("\n  BASE-SPACE/NUM-LIVING: "+space+"/"+numLiving);
+    if (report) I.say("\n  BASE-SPACE/NUM-LIVING: "+space+"/"+numLiving);
     return space - numLiving;
   }
   

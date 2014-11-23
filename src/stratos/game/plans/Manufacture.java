@@ -155,7 +155,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     final float priority = priorityForActorWith(
       actor, venue,
       urgency, boost,
-      NO_HARM, FULL_COMPETITION,
+      NO_HARM, NO_COMPETITION,
       MILD_FAIL_RISK, conversion.skills,
       BASE_TRAITS, NO_DISTANCE_CHECK,
       report

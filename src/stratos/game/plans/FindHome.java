@@ -237,18 +237,22 @@ public class FindHome extends Plan {
     final Presences presences = client.world().presences;
     final Batch <Target> amenities = new Batch <Target> ();
     
-    if (client.mind.work() instanceof Venue) {
-      amenities.add(client.mind.work());
-    }
-    final Target first = amenities.size() == 0 ? client : amenities.first();
-    
-    final Target refuge = presences.nearestMatch(SERVICE_REFUGE, first, -1);
-    if (refuge != null) amenities.add(refuge);
-    final Target nearby = presences.nearestMatch(Venue.class, first, -1);
-    if (nearby != null) amenities.add(nearby);
+    vetAmenity(client.mind.work(), amenities, client);
+    final Target refuge = presences.nearestMatch(SERVICE_REFUGE, client, -1);
+    vetAmenity(refuge, amenities, client);
+    final Target nearby = presences.nearestMatch(Venue.class, client, -1);
+    vetAmenity(nearby, amenities, client);
     if (amenities.size() == 0) amenities.add(client);
     
     return Spacing.bestMidpoint(amenities.toArray(Target.class));
+  }
+  
+  
+  private static void vetAmenity(Object t, Batch <Target> toAdd, Actor client) {
+    if (! (t instanceof Venue)) return;
+    final Venue v = (Venue) t;
+    if (v.base() != client.base()) return;
+    toAdd.add(v);
   }
   
   

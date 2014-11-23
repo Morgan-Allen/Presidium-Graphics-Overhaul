@@ -28,11 +28,12 @@ public class Action implements Behaviour, AnimNames {
   /**  Field definitions, constants and constructors-
     */
   final public static int
-    QUICK    = 1,
-    CAREFUL  = 2,
-    TRACKS   = 4,
-    RANGED   = 8,
-    NO_LOOP  = 16;
+    QUICK    = 1,   //  Done while running.
+    CAREFUL  = 2,   //  Done in stealth mode.
+    TRACKS   = 4,   //  Should track facing with the target.
+    RANGED   = 8,   //  Don't need to be adjacent to the target.
+    NO_LOOP  = 16,  //  Don't loop the animation.
+    PHYS_FX  = 32;  //  An involuntary effect, such as being stunned or thrown.
   final static byte
     STATE_INIT   = -1,
     STATE_CLOSED =  0,
@@ -74,6 +75,14 @@ public class Action implements Behaviour, AnimNames {
     this.actionTarget = this.moveTarget = target;
     this.animName = animName;
     this.description = description;
+  }
+  
+  
+  protected boolean matchesSignature(Action oldAction) {
+    if (oldAction == null || oldAction.subject() != subject()) return false;
+    if (basis != oldAction.basis || toCall != oldAction.toCall) return false;
+    if (properties != oldAction.properties) return false;
+    return true;
   }
   
   
@@ -152,6 +161,7 @@ public class Action implements Behaviour, AnimNames {
   public boolean careful() { return (properties & CAREFUL) != 0; }
   public boolean quick()   { return (properties & QUICK  ) != 0; }
   public boolean tracks()  { return (properties & TRACKS ) != 0; }
+  public boolean physFX()  { return (properties & PHYS_FX) != 0; }
   
   
   
@@ -215,7 +225,12 @@ public class Action implements Behaviour, AnimNames {
   //  TODO:  This should possibly be moved back out to the Health class.
   public static float moveRate(Actor actor, boolean basic) {
     
-    int motionType = MOTION_NORMAL; for (Behaviour b : actor.mind.agenda) {
+    int motionType = MOTION_NORMAL;
+    if (actor.currentAction() != null) {
+      motionType = actor.currentAction().motionType(actor);
+    }
+    
+    for (Behaviour b : actor.mind.agenda) {
       final int MT = b.motionType(actor);
       if (MT != MOTION_ANY) { motionType = MT; break; }
     }

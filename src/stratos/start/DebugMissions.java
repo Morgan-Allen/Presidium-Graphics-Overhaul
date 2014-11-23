@@ -100,10 +100,10 @@ public class DebugMissions extends Scenario {
     GameSettings.paveFree  = true;
     GameSettings.fogFree   = true;
     
-    if (false) strikeScenario  (world, base, UI);
+    if (true ) strikeScenario  (world, base, UI);
     if (false) securityScenario(world, base, UI);
     if (false) contactScenario (world, base, UI);
-    if (true ) reconScenario   (world, base, UI);
+    if (false) reconScenario   (world, base, UI);
   }
   
   
@@ -170,14 +170,14 @@ public class DebugMissions extends Scenario {
   
   
   private void strikeScenario(Stage world, Base base, BaseUI UI) {
-    final Base wildlife = Base.baseWithName(world, Base.KEY_WILDLIFE, true);
+    final Base artilects = Base.baseWithName(world, Base.KEY_ARTILECTS, true);
+    base.relations.setRelation(artilects, -1, true);
     
-    final Actor fauna = Species.LICTOVORE.newSpecimen(wildlife);
-    fauna.health.setupHealth(0.5f, 1, 0);
-    fauna.enterWorldAt(10, 10, world);
-    UI.selection.pushSelection(fauna, true);
+    final Batch <Ruins> ruins = Ruins.placeRuins(world, 1);
+    final Ruins ruin = ruins.first();
+    //  TODO:  That's way too many ruins!  I only want one!
     
-    final Mission strike = new StrikeMission(base, fauna);
+    final Mission strike = new StrikeMission(base, ruin);
     strike.setMissionType(Mission.TYPE_SCREENED  );
     strike.assignPriority(Mission.PRIORITY_URGENT);
     
@@ -187,6 +187,7 @@ public class DebugMissions extends Scenario {
       actor.enterWorldAt(entry.x, entry.y, world);
       actor.mind.assignMission(strike);
       strike.setApprovalFor(actor, true);
+      UI.selection.pushSelection(actor, true);
     }
     
     base.addMission(strike);

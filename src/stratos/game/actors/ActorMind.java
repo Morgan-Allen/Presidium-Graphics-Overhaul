@@ -202,8 +202,8 @@ public abstract class ActorMind implements Qualities {
         if (doLater) todoList.add(current);
         popBehaviour();
       }
-      else if (current instanceof Action) {
-        return (Action) current;
+      else if (next instanceof Action) {
+        return (Action) next;
       }
       else {
         pushBehaviour(next);

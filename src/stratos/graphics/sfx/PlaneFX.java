@@ -145,8 +145,8 @@ public class PlaneFX extends SFX {
   
   public float animProgress() {
     final float gap = Rendering.activeTime() - inceptTime;
-    if (model.duration <= 0) return (gap / timeScale);
-    else return gap / (model.duration * timeScale);
+    if (model.duration <= 0) return Visit.clamp(gap / timeScale, 0, 1);
+    else return Visit.clamp(gap / (model.duration * timeScale), 0, 1);
   }
   
   

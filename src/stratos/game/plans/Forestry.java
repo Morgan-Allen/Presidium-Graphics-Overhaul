@@ -33,7 +33,7 @@ public class Forestry extends Plan {
     STAGE_DONE     =  5;
   private static boolean
     evalVerbose   = false,
-    eventsVerbose = false;
+    eventsVerbose = true ;
   
   
   final Venue nursery;
@@ -51,7 +51,7 @@ public class Forestry extends Plan {
   
   public static Forestry nextPlanting(Actor actor, Venue nursery) {
     final Forestry f = new Forestry(actor, nursery);
-    f.configureFor(STAGE_PLANTING);
+    f.configureFor(STAGE_GET_SEED);
     return f;
   }
   
@@ -97,7 +97,7 @@ public class Forestry extends Plan {
     */
   public boolean configureFor(int stage) {
     
-    if (stage == STAGE_GET_SEED) {
+    if (stage == STAGE_GET_SEED || stage == STAGE_PLANTING) {
       toPlant = findPlantTile(actor, nursery);
       if (toPlant == null) { abortBehaviour(); return false; }
       if (nursery.stocks.amountOf(seedMatch()) > 0) {
@@ -109,7 +109,7 @@ public class Forestry extends Plan {
     if (stage == STAGE_SAMPLING || stage == STAGE_CUTTING) {
       toCut = findCutting(actor);
       if (toCut == null) { abortBehaviour(); return false; }
-      this.stage = STAGE_SAMPLING;
+      this.stage = stage;
     }
     
     return false;
@@ -120,7 +120,7 @@ public class Forestry extends Plan {
     if (stage != STAGE_INIT) return true;
     final float abundance = actor.world().ecology().globalBiomass();
     return configureFor(
-      Rand.num() < abundance ? STAGE_SAMPLING : STAGE_GET_SEED
+      Rand.num() < abundance ? STAGE_CUTTING : STAGE_GET_SEED
     );
   }
   
@@ -142,22 +142,29 @@ public class Forestry extends Plan {
     //  and vice-versa for planting as abundance decreases.
     final float abundance = actor.world().ecology().globalBiomass();
     float bonus = 0;
-    if (stage == STAGE_GET_SEED) {
+    if (stage == STAGE_GET_SEED || stage == STAGE_PLANTING) {
       bonus += 0.5f - abundance;
     }
-    if (stage == STAGE_CUTTING ) {
+    else if (stage == STAGE_CUTTING) {
       bonus += abundance - 0.5f;
     }
-    bonus *= ROUTINE;
+    else if (stage == STAGE_RETURN) {
+      bonus = 0.5f;
+    }
     
     //  Otherwise, it's generally a routine activity.
     final float priority = priorityForActorWith(
       actor, subject,
-      ROUTINE, bonus,
+      CASUAL * (1 + bonus), CASUAL * bonus,
       NO_HARM, FULL_COMPETITION, NO_FAIL_RISK,
       BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report
     );
+    if (report) {
+      I.say("\nGetting forestry priority for "+actor);
+      I.say("  Is planting?          "+(toPlant != null));
+      I.say("  Vegetation abundance: "+abundance);
+    }
     return priority;
   }
   
@@ -165,8 +172,10 @@ public class Forestry extends Plan {
   public Behaviour getNextStep() {
     if (! configured()) return null;
     final boolean report = eventsVerbose && I.talkAbout == actor;
+    if (report) I.say("\nGetting next forestry step...");
     
     if (stage == STAGE_GET_SEED) {
+      if (report) I.say("  Getting seed.");
       final Action collects = new Action(
         actor, nursery,
         this, "actionCollectSeed",
@@ -176,6 +185,7 @@ public class Forestry extends Plan {
     }
     
     if (stage == STAGE_PLANTING) {
+      if (report) I.say("  Getting seed.");
       final Action plants = new Action(
         actor, toPlant,
         this, "actionPlant",
@@ -193,6 +203,7 @@ public class Forestry extends Plan {
     }
     
     if (stage == STAGE_CUTTING) {
+      if (report) I.say("  Going to perform cutting.");
       final Action cuts = new Action(
         actor, toCut,
         this, "actionCutting",
@@ -203,6 +214,7 @@ public class Forestry extends Plan {
     }
     
     if (stage == STAGE_SAMPLING) {
+      if (report) I.say("  Getting sample.");
       final Action sample = new Action(
         actor, toCut,
         this, "actionSampling",
@@ -213,6 +225,7 @@ public class Forestry extends Plan {
     }
     
     if (stage == STAGE_RETURN) {
+      if (report) I.say("  Returning with cuttings.");
       final Action returns = new Action(
         actor, nursery,
         this, "actionReturnHarvest",
@@ -270,8 +283,7 @@ public class Forestry extends Plan {
     f.incGrowth(growStage * (Rand.num() + 1) / 4, toPlant.world, true);
     
     if (report) I.say("  SUCCESS! Grow stage: "+growStage);
-    
-    stage = STAGE_RETURN;
+    stage = STAGE_DONE;
     return true;
   }
   
@@ -302,6 +314,9 @@ public class Forestry extends Plan {
   public boolean actionReturnHarvest(Actor actor, Venue depot) {
     if (eventsVerbose) I.say("RETURNING SAMPLES TO "+depot);
     
+    for (Item seed : actor.gear.matches(seedMatch())) {
+      actor.gear.transfer(seed, depot);
+    }
     actor.gear.transfer(GENE_SEED  , depot);
     actor.gear.transfer(LCHC       , depot);
     actor.gear.transfer(GREENS     , depot);
@@ -313,7 +328,24 @@ public class Forestry extends Plan {
   
   
   public void describeBehaviour(Description d) {
-    d.append("Performing Forestry");
+    if (stage == STAGE_INIT) {
+      d.append("Performing forestry");
+    }
+    if (stage == STAGE_GET_SEED) {
+      d.append("Getting timber seed");
+    }
+    if (stage == STAGE_PLANTING) {
+      d.append("Planting timber");
+    }
+    if (stage == STAGE_CUTTING) {
+      d.append("Felling timber");
+    }
+    if (stage == STAGE_SAMPLING) {
+      d.append("Taking vegetation samples");
+    }
+    if (stage == STAGE_RETURN) {
+      d.append("Returning harvest");
+    }
   }
   
   

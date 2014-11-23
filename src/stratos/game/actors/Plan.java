@@ -144,29 +144,32 @@ public abstract class Plan implements Saveable, Behaviour {
   }
   
   
+  private boolean newEvaluationDue() {
+    if (priorityEval == NULL_PRIORITY) return true;
+    final float interval = actor.senses.isEmergency() ? 1 : 10;
+    return (actor.world().currentTime() - lastEvalTime) >= interval;
+  }
+  
+  
   public float priorityFor(Actor actor) {
+    final boolean report = verbose && I.talkAbout == actor && hasBegun();
+    
     if (this.actor != actor) {
-      //  TODO:  Try and avoid situations where this happens (e.g, with
-      //  queued manufacture-orders.)
-      /*
-      if (this.actor != null) {
-        I.complain(this+" CANNOT SWITCH ACTOR! "+actor+" vs. "+this.actor);
-        return -1;
-      }
-      else {
-        this.actor = actor;
-        priorityEval = NULL_PRIORITY;
-      }
-      //*/
       this.actor = actor;
       priorityEval = NULL_PRIORITY;
+      nextStep     = null;
     }
+    
+    if (! newEvaluationDue()) return priorityEval;
+    
     final float time = actor.world().currentTime();
-    if (priorityEval != NULL_PRIORITY && time - lastEvalTime < 1) {
-      return priorityEval;
+    if (report) {
+      I.say("\nGetting fresh priority... "+this);
+      I.say("  Current/last time: "+time+"/"+lastEvalTime);
     }
+    
     lastEvalTime = time;
-    priorityEval = 0;  //Note: This helps avoid certain types of infinite loop.
+    priorityEval = 0;  //  Note: This avoids certain types of infinite loop.
     priorityEval = getPriority();
     return priorityEval;
   }
@@ -179,9 +182,11 @@ public abstract class Plan implements Saveable, Behaviour {
     
     if (this.actor != actor) {
       this.actor = actor;
-      nextStep = null;
+      priorityEval = NULL_PRIORITY;
+      nextStep     = null;
       if (report) I.say("NEXT STEP IS NULL: DIFFERENT ACTOR");
     }
+    
     if (! valid()) {
       onceInvalid();
       if (report) I.say("NEXT STEP IS NULL: NOT VALID");
@@ -192,16 +197,14 @@ public abstract class Plan implements Saveable, Behaviour {
     //  that can screw up proper sequence of evaluation/execution.  Start from
     //  scratch instead.
     if (! actor.mind.doing(this)) {
-      if (report) {
-        I.say("NEXT STEP IS NULL: NOT ACTIVE");
-        //new Exception().printStackTrace();
-      }
+      if (report) I.say("NEXT STEP IS NULL: NOT ACTIVE");
       nextStep = null;
       return getNextStep();
     }
     else if (
       nextStep == null || nextStep.finished() ||
-      nextStep.nextStepFor(actor) == null
+      nextStep.nextStepFor(actor) == null ||
+      newEvaluationDue()
     ) {
       nextStep = getNextStep();
       if (nextStep != null) lastStep = nextStep;

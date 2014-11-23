@@ -49,7 +49,7 @@ public class CultureLab extends Venue {
   
   
   public CultureLab(Base base) {
-    super(4, 2, ENTRANCE_NORTH, base);
+    super(3, 2, ENTRANCE_NORTH, base);
     structure.setupStats(
       400, 3, 450,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
@@ -122,6 +122,9 @@ public class CultureLab extends Venue {
     super.updateAsScheduled(numUpdates);
     if (! structure.intact()) return;
     
+    for (Traded t : this.services()) {
+      stocks.incDemand(t, 0, Stocks.TIER_PRODUCER, 1, this);
+    }
     stocks.translateDemands(1, WASTE_TO_CARBS   , this);
     stocks.translateDemands(1, CARBS_TO_PROTEIN , this);
     stocks.translateDemands(1, WASTE_TO_SOMA    , this);

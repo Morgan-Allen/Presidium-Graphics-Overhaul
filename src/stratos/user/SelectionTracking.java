@@ -94,6 +94,19 @@ public class SelectionTracking {
     p.x += x;
     p.y += y;
     UI.selection.pushSelection(null, true);
+    
+    final Vec2D centre = UI.trueBounds().centre();
+    final Vec3D groundPos = UI.world().pickedGroundPoint(
+      UI, view, centre.x, centre.y
+    );
+    final Tile under = UI.world().tileAt(groundPos.x, groundPos.y);
+    
+    if (under != null) {
+      final SelectionInfoPane pane = under.configPanel(null, UI);
+      final TargetOptions options = under.configInfo(null, UI);
+      UI.setInfoPanels(pane, options);
+    }
+    
     lockTarget = null;
   }
   

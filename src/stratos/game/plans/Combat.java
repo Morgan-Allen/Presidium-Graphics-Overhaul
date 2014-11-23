@@ -6,6 +6,8 @@
 
 
 package stratos.game.plans;
+import org.apache.commons.math3.util.FastMath;
+
 import stratos.game.actors.*;
 import stratos.game.building.*;
 import stratos.game.civilian.*;
@@ -27,9 +29,9 @@ public class Combat extends Plan implements Qualities {
   
   /**  Data fields, constructors and save/load methods-
     */
-  private static boolean
-    evalVerbose   = true ,
-    eventsVerbose = false,
+  protected static boolean
+    evalVerbose   = false,
+    stepsVerbose  = false,
     damageVerbose = false;
   
   
@@ -106,6 +108,8 @@ public class Combat extends Plan implements Qualities {
     RANGED_SKILLS[] = { MARKSMANSHIP, STEALTH_AND_COVER };
   
   
+  //  TODO:  Consider creating a separate 'SiegeCombat' behaviour...
+  
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
     
@@ -117,14 +121,16 @@ public class Combat extends Plan implements Qualities {
 
     final float hostility = CombatUtils.hostileRating(actor, subject);
     final boolean melee = actor.gear.meleeWeapon();
+    final boolean siege = (subject instanceof Venue);
+    
     if (hostility <= 0 && motiveBonus() <= 0) return 0;
     if (hostility < 0.5f && ! CombatUtils.isArmed(actor)) return 0;
     
     float bonus = 0;
-    if (CombatUtils.isActiveHostile(actor, subject)) {
+    if (siege || CombatUtils.isActiveHostile(actor, subject)) {
       bonus += PARAMOUNT;
       bonus += CombatUtils.homeDefenceBonus(actor, subject);
-      bonus *= (hostility + 1f) / 2;
+      bonus *= (hostility + 1f) / (siege ? 2 : 4);
     }
     
     final float priority = priorityForActorWith(
@@ -140,7 +146,7 @@ public class Combat extends Plan implements Qualities {
     //  result in much more sensible behaviour (unless you're a psychopath,
     //  you don't 'casually' decide to kill something.)
     float threshold = (1 + actor.traits.relativeLevel(EMPATHIC)) / 2;
-    threshold *= (subject instanceof Actor) ? PARAMOUNT : ROUTINE;
+    threshold *= siege ? ROUTINE : PARAMOUNT;
     if (report) {
       I.say("\n  Priority bonus:        "+bonus);
       //I.say("  Danger level:          "+danger);
@@ -157,10 +163,11 @@ public class Combat extends Plan implements Qualities {
     //  TODO:  Switch between these two evaluation methods based on
     //  intelligence?  (Or maybe the battle-tactics skill?)
     
-    //  TODO:  This has to be based on danger levels *at the target*, not on
-    //  immediate danger (at least as long as you're far away.)
-    
-    return Visit.clamp(1 - actor.senses.fearLevel(), 0.1f, 0.9f);
+    final float danger = FastMath.max(
+      actor.senses.fearLevel(),
+      Plan.dangerPenalty(subject, actor)
+    );
+    return Visit.clamp(1 - danger, 0, 1);
     /*
     final boolean report = evalVerbose && I.talkAbout == actor;
     
@@ -183,37 +190,41 @@ public class Combat extends Plan implements Qualities {
   }
   
   
+  public int motionType(Actor actor) {
+    final int type = super.motionType(actor);
+    return type;
+  }
   
+  
+
   /**  Actual behaviour implementation-
     */
   protected Behaviour getNextStep() {
-    final boolean report = eventsVerbose && I.talkAbout == actor && hasBegun();
+    final boolean report = stepsVerbose && I.talkAbout == actor && hasBegun();
     if (report) {
       I.say("\nNEXT COMBAT STEP "+this.hashCode());
     }
-    //
+    
     //  This might need to be tweaked in cases of self-defence, where you just
-    //  want to see off an attacker.
+    //  want to see off an attacker.  TODO:  THAT
+    //  If we're not in pursuit, call off the activity when or if the enemy is
+    //  in retreat.  TODO:  THAT
     if (CombatUtils.isDowned(subject, object)) {
       if (report) I.say("  COMBAT COMPLETE");
       return null;
     }
-    
-    Target struck = CombatUtils.bestTarget(actor, subject, true);
-    if (struck == null) struck = subject;
-    
-    if (report) {
-      I.say("  Main target: "+this.subject);
-      I.say("  Struck is: "+struck);
-    }
-
-    //  If we're not in pursuit, call off the activity when or if the enemy is
-    //  in retreat.
     /*
     if ((! pursue) && CombatUtils.isFleeing(subject) && Rand.yes()) {
       return null;
     }
     //*/
+    
+    final Target struck = (! hasBegun()) ? subject :
+      CombatUtils.bestTarget(actor, subject, true);
+    if (report) {
+      I.say("  Main target: "+this.subject);
+      I.say("  Best target: "+struck);
+    }
     
     //  Consider using any special combat-based techniques.
     final Action technique = actor.skills.pickIndependantAction(
@@ -229,6 +240,7 @@ public class Combat extends Plan implements Qualities {
     
     final String strikeAnim = DT == null ? Action.STRIKE : DT.animName;
     if (razes) {
+      if (report) I.say("  Laying siege: "+struck);
       strike = new Action(
         actor, struck,
         this, "actionSiege",
@@ -236,6 +248,7 @@ public class Combat extends Plan implements Qualities {
       );
     }
     else {
+      if (report) I.say("  Striking at: "+struck);
       strike = new Action(
         actor, struck,
         this, "actionStrike",
@@ -318,14 +331,13 @@ public class Combat extends Plan implements Qualities {
     */
   public boolean actionStrike(Actor actor, Actor target) {
     if (target.health.dying()) return false;
-    final boolean subdue = object == OBJECT_SUBDUE;
     //
     //  TODO:  You may want a separate category for animals?  Or Psy?
     if (actor.gear.meleeWeapon()) {
-      performStrike(actor, target, HAND_TO_HAND, HAND_TO_HAND, subdue);
+      performStrike(actor, target, HAND_TO_HAND, HAND_TO_HAND, object);
     }
     else {
-      performStrike(actor, target, MARKSMANSHIP, STEALTH_AND_COVER, subdue);
+      performStrike(actor, target, MARKSMANSHIP, STEALTH_AND_COVER, object);
     }
     return true;
   }
@@ -341,10 +353,15 @@ public class Combat extends Plan implements Qualities {
   public static void performStrike(
     Actor actor, Actor target,
     Skill offence, Skill defence,
-    boolean subdue
+    int strikeType
+    //boolean subdue
   ) {
     final boolean report = damageVerbose && I.talkAbout == actor;
     if (report) I.say("\n"+actor+" performing strike against "+target);
+    
+    final boolean
+      subdue = strikeType == OBJECT_SUBDUE ,
+      lethal = strikeType == OBJECT_DESTROY;
     
     //  TODO:  Move weapon/armour properties to dedicated subclasses.
     final boolean canStun = actor.gear.hasDeviceProperty(Economy.STUN);
@@ -352,7 +369,6 @@ public class Combat extends Plan implements Qualities {
     penalty = rangePenalty(actor, target);
     final float bypass = Visit.clamp(0 - penalty, 0, 5);
     if (subdue && ! canStun) penalty += 5;
-    
     
     final boolean success = target.health.conscious() ? actor.skills.test(
       offence, target, defence, 0 - penalty, 1
@@ -387,7 +403,7 @@ public class Combat extends Plan implements Qualities {
     }
     
     if (damage > 0 && ! GameSettings.noBlood) {
-      //  TODO:  Allow for wear and tear to weapons/armour over time.
+      //  TODO:  Allow for wear and tear to weapons/armour over time...
       
       float fatDamage = 0, injDamage = 0;
       if (subdue && canStun) fatDamage = damage;
@@ -398,8 +414,8 @@ public class Combat extends Plan implements Qualities {
         I.say("  Fatigue damage: "+fatDamage);
         I.say("  Injury damage:  "+injDamage);
       }
-      if (injDamage > 0) target.health.takeInjury (injDamage, false);
-      if (fatDamage > 0) target.health.takeFatigue(fatDamage       );
+      if (injDamage > 0) target.health.takeInjury (injDamage, lethal);
+      if (fatDamage > 0) target.health.takeFatigue(fatDamage        );
     }
     
     CombatFX.applyFX(actor.gear.deviceType(), actor, target, success);

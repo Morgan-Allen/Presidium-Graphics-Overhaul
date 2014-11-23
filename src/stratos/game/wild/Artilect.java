@@ -141,9 +141,10 @@ public abstract class Artilect extends Actor {
   
   protected void addReactions(Target seen, Choice choice) {
     if (seen instanceof Actor) {
-      final Plan defence = new Combat(this, (Actor) seen);
-      defence.setMotive(Plan.MOTIVE_EMERGENCY, Plan.ROUTINE);
-      choice.add(defence);
+      final Combat combat = new Combat(
+        this, (Actor) seen, Combat.STYLE_EITHER, Combat.OBJECT_DESTROY, true
+      );
+      choice.add(combat);
     }
   }
   

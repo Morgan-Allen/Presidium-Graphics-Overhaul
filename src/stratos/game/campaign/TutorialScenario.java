@@ -82,7 +82,7 @@ public class TutorialScenario extends StartupScenario {
   
   protected void establishLocals(Stage world) {
     ruins = Ruins.placeRuins(world, 1);
-    huts = NativeHut.establishSites(NativeHut.TRIBE_FOREST, world);
+    huts  = NativeHut.establishSites(NativeHut.TRIBE_FOREST, world);
   }
   
   

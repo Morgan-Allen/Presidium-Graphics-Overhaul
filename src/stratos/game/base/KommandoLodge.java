@@ -18,7 +18,8 @@ import static stratos.game.building.Economy.*;
 
 
 
-//  TODO:  Rework the flesh still as a smaller fixture.
+//  TODO:  Allow this to work as a Survey Lodge.
+
 
 public class KommandoLodge extends Venue {
   
@@ -236,7 +237,8 @@ public class KommandoLodge extends Venue {
   
   
   public String buildCategory() {
-    return UIConstants.TYPE_ECOLOGIST;
+    return UIConstants.TYPE_HIDDEN;
+    //return UIConstants.TYPE_ECOLOGIST;
   }
 }
 

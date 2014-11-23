@@ -142,7 +142,6 @@ public class TargetOptions extends UIGroup {
       options.add(new SummonsButton(BUI, (Actor) subject));
     }
     
-    
     int sumWide = options.size() * (OB_SIZE + OB_MARGIN), across = 0;
     for (Button option : options) {
       option.alignToArea(across - (sumWide / 2), 0, OB_SIZE, OB_SIZE);
@@ -153,34 +152,13 @@ public class TargetOptions extends UIGroup {
   
   
   protected void updateState() {
-    //  TODO:  This still needs to be fixed when fading away...
-    
-    final Vec3D screenPos = BUI.tracking.screenPosFor(subject);
-    final float
-      SS   = BUI.tracking.view.screenScale(),
-      high = subject.height() * SS,
-      wide = subject.radius() * SS * 2;
-    final int highAdjust = (int) (
-      screenPos.y + (subject instanceof Mobile ?
-        -(wide + OB_SIZE) : (0 - OB_SIZE)
-      )
-    );
     
     this.alignBottom(0, 0);
     this.alignHorizontal(0.5f, 0, 0);
     
-    //this.relBound.set(0, 0, 0, 0);
-    //this.absBound.set((int) screenPos.x, highAdjust, 0, 0);
-    //  ...You need the parent position for this to work.
-    
-    //absBound.incX(0 - trueBounds().xpos());
-    //absBound.incY(0 - trueBounds().ypos());
-    
     if (active) {
-      if (BUI.tracking.fullyLocked(subject)) {
-        this.relAlpha += DEFAULT_FADE_INC;
-        if (relAlpha > 1) relAlpha = 1;
-      }
+      this.relAlpha += DEFAULT_FADE_INC;
+      if (relAlpha > 1) relAlpha = 1;
     }
     else {
       this.relAlpha -= DEFAULT_FADE_INC;

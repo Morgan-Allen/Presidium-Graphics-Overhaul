@@ -12,7 +12,7 @@
   stride="1.5"
   height="2.5"
 >
-  <animations>
+  <animations rotate="90">
     <animation name="stand"       start="1"  end="1"  duration="1"   />
     <animation name="move"        start="1"  end="3"  duration="1"   />
     <animation name="move_fast"   start="1"  end="3"  duration="1"   />
@@ -39,7 +39,7 @@
   stride="1.5"
   height="2.5"
 >
-  <animations>
+  <animations rotate="90">
     <animation name="stand"       start="1"  end="1"  duration="1"   />
     <animation name="move"        start="1"  end="3"  duration="1"   />
     <animation name="move_fast"   start="1"  end="3"  duration="1"   />
@@ -66,7 +66,7 @@
   stride="1.5"
   height="2.5"
 >
-  <animations>
+  <animations rotate="90">
     <animation name="stand"       start="1"  end="1"  duration="1"   />
     <animation name="move"        start="1"  end="3"  duration="1"   />
     <animation name="move_fast"   start="1"  end="3"  duration="1"   />
@@ -93,7 +93,7 @@
   stride="1.5"
   height="2.5"
 >
-  <animations rotate="0" fps="25">
+  <animations rotate="90" fps="25">
     <animation name="stand"       start="0"   end="0"   duration="1" />
     <animation name="idle"        start="0"   end="48"  duration="1" />
     <animation name="walk_begin"  start="48"  end="58"  duration="1" />
@@ -121,7 +121,7 @@
   stride="1.5"
   height="2.5"
 >
-  <animations fps="25">
+  <animations rotate="90" fps="25">
     <animation name="stand"       start="0"   end="0"   duration="0.5" />
     <animation name="idle"        start="0"   end="48"  duration="0.5" />
     <animation name="walk_begin"  start="48"  end="58"  duration="0.5" />
@@ -150,7 +150,7 @@
   stride="1.5"
   height="2.5"
 >
-  <animations>
+  <animations rotate="90">
     <animation name="stand"       start="1"  end="1"  duration="1"   />
     <animation name="move"        start="1"  end="3"  duration="1.5" />
     <animation name="move_fast"   start="1"  end="3"  duration="1.5" />
@@ -178,7 +178,7 @@
   stride="1.5"
   height="2.5"
 >
-  <animations>
+  <animations rotate="90">
     <animation name="stand"       start="1"  end="1"  duration="1"   />
   </animations>
   

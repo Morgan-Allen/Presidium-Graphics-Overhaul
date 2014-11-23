@@ -120,6 +120,7 @@ public abstract class Mission implements
     Base base, Target subject,
     CutoutModel flagModel, String description
   ) {
+    if (subject == null) I.complain("CANNOT HAVE NULL SUBJECT!");
     this.base = base;
     this.subject = subject;
     this.flagSprite = (CutoutSprite) flagModel.makeSprite();

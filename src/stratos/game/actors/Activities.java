@@ -78,13 +78,7 @@ public class Activities {
   public void toggleBehaviour(Behaviour b, boolean is) {
     if (is) behaviours.put(b, b);
     else behaviours.remove(b);
-
     if (b == null) return;
-    /*
-    if (! b.actor.inWorld()) {
-      I.complain(b+" TOGGLED BY DEFUNCT ACTOR: "+a.actor);
-    }
-    //*/
     
     final Target t = b.subject();
     List <Behaviour> forT = activeTable.get(t);
@@ -123,11 +117,9 @@ public class Activities {
     final List <Behaviour> onTarget = activeTable.get(t);
     if (onTarget == null) return batch;
     
-    for (Behaviour b : onTarget) if (b instanceof Action) {
-      final Actor actor = ((Action) b).actor;
-      if (actor.focusFor(planClass) == null) continue;
-      final Plan match = actor.matchFor(planClass);
-      if (match != null && match.hasBegun()) batch.add(match);
+    for (Behaviour b : onTarget) if (b.getClass() == planClass) {
+      final Plan p = (Plan) b;
+      if (p.actor.focusFor(null) == t) batch.add(p);
     }
     return batch;
   }

@@ -24,6 +24,10 @@ import static stratos.game.building.Economy.*;
 
 
 
+
+//  TODO:  Restore the functions of this structure!
+
+
 public class StockExchange extends Venue {
   
   
@@ -338,7 +342,8 @@ public class StockExchange extends Venue {
 
 
   public String buildCategory() {
-    return UIConstants.TYPE_MERCHANT;
+    return UIConstants.TYPE_HIDDEN;
+    //return UIConstants.TYPE_MERCHANT;
   }
 }
 
