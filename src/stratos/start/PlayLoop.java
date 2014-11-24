@@ -42,7 +42,8 @@ public final class PlayLoop {
     
     MIN_SLEEP    = 10,
     SLEEP_MARGIN = 2;
-  private static boolean verbose = false;
+  private static boolean
+    verbose = false;
   
   
   private static String initPackage  = DEFAULT_INIT_PACKAGE;
@@ -127,7 +128,7 @@ public final class PlayLoop {
     
     if (verbose) {
       I.say("ASSIGNED NEW PLAYABLE: "+scenario);
-      new Exception().printStackTrace();
+      I.reportStackTrace();
     }
     
     if (! initDone) {
@@ -229,41 +230,61 @@ public final class PlayLoop {
     rendering.updateViews(worldTime, frameTime);
     
     if (verbose) {
-      I.say("Advancing play loop, time: "+time);
+      I.say("\nAdvancing play loop, time: "+time);
       I.say("  Last frame/last update: "+lastFrame+"/"+lastUpdate);
       I.say("  Frame/update gap: "+frameGap+"/"+updateGap);
       I.say("  FRAME/UPDATE INTERVAL: "+FRAME_INTERVAL+"/"+UPDATE_INTERVAL);
     }
     
     if (Assets.loadProgress() < 1) {
+      if (verbose) {
+        I.say("  Loading assets!");
+        I.say("  Loading progress: "+Assets.loadProgress());
+      }
+      
       LoadingScreen.update("Loading Assets", Assets.loadProgress());
       Assets.advanceAssetLoading(FRAME_INTERVAL - (SLEEP_MARGIN * 2));
       rendering.renderDisplay(LoadingScreen.HUD(rendering));
       return true;
     }
     
-    if (loopChanged) return true;
+    if (loopChanged) {
+      if (verbose) I.say("  Loop changed!  Will return");
+      return true;
+    }
     if (played != null && played.loadProgress() < 1) {
-      if (! played.isLoading()) played.beginGameSetup();
-      LoadingScreen.update("Loading Scenario", played.loadProgress());
+      if (verbose) {
+        I.say("  Loading simulation: "+played);
+        I.say("  Is loading?       "+played.isLoading());
+        I.say("  Loading progress: "+played.loadProgress());
+      }
+      
+      if (! played.isLoading()) {
+        if (verbose) I.say("  Beginning simulation setup...");
+        played.beginGameSetup();
+      }
+      LoadingScreen.update("Loading Simulation", played.loadProgress());
       
       rendering.renderDisplay(LoadingScreen.HUD(rendering));
       lastUpdate = lastFrame = time;
-      if (verbose) I.say("  Content loading progress: "+played.loadProgress());
       return true;
     }
     
     //  TODO:  I'm updating graphics as fast as possible for the moment, since
     //  I get occasional flicker problems otherwise.  Still seems wasteful,
     //  mind...
-    if (loopChanged) return true;
+    if (loopChanged) {
+      if (verbose) I.say("  Loop changed!  Will return");
+      return true;
+    }
     if (frameGap >= FRAME_INTERVAL || true) {
+      if (verbose) I.say("  Rendering graphics.");
+      
       if (played != null) played.renderVisuals(rendering);
       rendering.renderDisplay(played == null ? null : played.UI());
       KeyInput.updateInputs();
       lastFrame = time;
     }
-    if (verbose) I.say("  Played is: "+played);
     
     //  Now we essentially 'pretend' that updates were occurring once every
     //  UPDATE_INTERVAL milliseconds:
@@ -272,12 +293,19 @@ public final class PlayLoop {
         (int) (updateGap / UPDATE_INTERVAL),
         (1 + (FRAME_INTERVAL / UPDATE_INTERVAL))
       );
-      if (played.shouldExitLoop()) return false;
+      if (played.shouldExitLoop()) {
+        if (verbose) I.say("  Exiting loop!  Will return");
+        return false;
+      }
       
       if (verbose) I.say("  No. of updates: "+numUpdates);
       if (! freeze) for (int n = numUpdates; n-- > 0;) {
-        if (loopChanged) return true;
-        if (verbose) I.say("  UPDATING WORLD?");
+        
+        if (loopChanged) {
+          if (verbose) I.say("  Loop changed!  Will return");
+          return true;
+        }
+        if (verbose) I.say("  Updating simulation.");
         played.updateGameState();
         numStateUpdates++;
         lastUpdate += UPDATE_INTERVAL;

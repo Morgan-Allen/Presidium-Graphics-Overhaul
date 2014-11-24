@@ -95,8 +95,8 @@ public abstract class Scenario implements Session.Saveable, Playable {
   
   protected void initScenario(String fromSave) {
     final String savePath = fullSavePath(fromSave, null);
-    if (Scenario.saveExists(savePath)) {
-      //BaseSetup.venueTypes();
+    if (fromSave != null && Scenario.saveExists(savePath)) {
+      I.say("Loading scenario from save file...");
       Scenario.loadGame(savePath, false);
       return;
     }

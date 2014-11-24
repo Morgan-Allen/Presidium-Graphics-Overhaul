@@ -43,7 +43,6 @@ public class ImageAsset extends Assets.Loadable {
     super("image_asset_"+filePath, sourceClass, false);
     this.filePath = filePath;
     if (! Assets.exists(filePath)) I.complain("NO SUCH FILE: "+filePath);
-    Assets.registerForLoading(this);
   }
   
   

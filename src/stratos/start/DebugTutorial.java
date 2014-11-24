@@ -10,8 +10,6 @@ import stratos.util.*;
 
 
 
-//  TODO: Test reagents production.
-
 //  Arrange for contact missions to come back with a desired price from the
 //  subject/s.
 

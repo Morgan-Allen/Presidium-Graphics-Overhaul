@@ -1,16 +1,10 @@
 
-
-
 package stratos.start;
 import java.io.*;
 import java.util.zip.*;
 import java.net.*;
 import java.security.CodeSource;
-
-//import stratos.graphics.common.ModelAsset;
 import stratos.util.*;
-
-
 
 
 
@@ -19,7 +13,9 @@ public class Assets {
   
   final static boolean EXCLUDE_BASE_DIR = false;
   final public static char REP_SEP = '/';
-  private static boolean verbose = false;
+  private static boolean
+    callsVerbose = true ,
+    extraVerbose = false;
   
   
   public static abstract class Loadable {
@@ -66,6 +62,11 @@ public class Assets {
   public static void compileAssetList(
     String sourcePackage, Class... loadFirst
   ) {
+    if (callsVerbose) {
+      I.say("\nCompiling list of classes to load from "+sourcePackage);
+      for (Class c : loadFirst) I.say("  Also: "+c.getName());
+    }
+    
     try { for (Class l : loadFirst) Class.forName(l.getName()); }
     catch (Exception e) { I.report(e); }
     
@@ -73,72 +74,103 @@ public class Assets {
     compileClassNames(sourcePackage, names);
     compileJarredClassNames(sourcePackage, names);
     
-    if (verbose) {
-      I.say("\nCompiling list of classes to load from "+sourcePackage);
-    }
     final String prefix = sourcePackage+".";
     for (String name : names) {
       if (EXCLUDE_BASE_DIR) name = name.substring(prefix.length());
-      if (verbose) I.say("  Class to load is: "+name);
+      if (extraVerbose) I.say("  Class to load is: "+name);
       classesToLoad.add(name);
     }
   }
   
   
   public static void advanceAssetLoading(int timeLimit) {
-    if (classesToLoad.size() <= 0 && assetsToLoad.size() <= 0) return;
-    if (verbose) I.say("Advancing asset loading...");
+    if (classesToLoad.size() <= 0 && assetsToLoad.size() <= 0) {
+      if (extraVerbose) I.say("No assets left to load!");
+      return;
+    }
+    if (extraVerbose) I.say("Advancing asset loading...");
     
+    //  We limit the time spent in this loop so as to ensure a smooth external
+    //  frame-rate:
     final long initTime = System.currentTimeMillis();
     while (true) {
-      final long timeSpent = System.currentTimeMillis() - initTime;
-      if (timeLimit > 0 && timeSpent >= timeLimit) return;
+      final long time = System.currentTimeMillis(), timeSpent = time - initTime;
+      if (extraVerbose) {
+        I.say("  Advancing load loop, time: "+timeSpent+"/"+timeLimit);
+        I.say("  Current system time: "+time+", init: "+initTime);
+      }
       
+      if (timeLimit > 0 && timeSpent >= timeLimit) {
+        if (extraVerbose) I.say("  ...Load loop ran out of time!");
+        return;
+      }
+      
+      //  While there are still classes to load, load those-
       if (classesToLoad.size() > 0) {
         final String className = classesToLoad.removeFirst();
         try {
           final Class match = Class.forName(className);
           classesLoaded.add(match);
-          if (verbose) I.say("  Class loaded okay: "+match);
+          if (extraVerbose) I.say("  Class loaded okay: "+match);
         }
         catch (ClassNotFoundException e) {
           I.say("CLASS NOT FOUND: "+className);
         }
       }
       
+      //  Otherwise, move on to loading any registered assets-
       else if (assetsToLoad.size() > 0 && PlayLoop.onRenderThread()) {
         final Loadable asset = assetsToLoad.first();
         loadNow(asset);
-        if (verbose) I.say("  Asset loaded okay: "+asset.assetID);
       }
       
-      else return;
+      else {
+        if (extraVerbose) I.say("  ...Load loop done for now.");
+        return;
+      }
     }
-  }
-  
-  
-  public static void loadNow(Loadable asset) {
-    asset.loadAsset();
-    assetsToLoad.remove(asset);
-    assetsLoaded.add(asset);
-    modelCache.put(asset.assetID, asset);
   }
   
   
   public static float loadProgress() {
     final int classTotal = classesToLoad.size() + classesLoaded.size();
     final float classProgress = (classTotal == 0) ?
-      0 : classesLoaded.size() * 1f / classTotal;
+      1 : classesLoaded.size() * 1f / classTotal;
     
     final int assetTotal = assetsToLoad.size() + assetsLoaded.size();
     final float assetProgress = (assetTotal == 0) ?
-      0 : assetsLoaded.size() * 1f / assetTotal;
+      1 : assetsLoaded.size() * 1f / assetTotal;
     
     if (classProgress == 1 && assetTotal == 0) return 1;
     float progress = 0;
     progress += classProgress * 0.1f;
     progress += assetProgress * 0.9f;
+    
+    if (extraVerbose && progress < 1) {
+      I.say("Class/assets load progress: "+classProgress+"/"+assetProgress);
+      I.say("Total load progress: "+progress);
+    }
     return progress;
+  }
+  
+  
+  private static Table <Object, Object> regTable = new Table(1000);
+  
+  public static void registerForLoading(Loadable asset) {
+    if (regTable.get(asset) != null) return;
+    if (extraVerbose) I.say("    Registering- "+asset.assetID);
+    regTable.put(asset, asset);
+    assetsToLoad.add(asset);
+  }
+  
+  
+  public static void loadNow(Loadable asset) {
+    if (extraVerbose) I.add("  Begun loading of:  "+asset.assetID+"...");
+    asset.loadAsset();
+    assetsToLoad.remove(asset);
+    assetsLoaded.add(asset);
+    modelCache.put(asset.assetID, asset);
+    if (extraVerbose) I.say(" ...OK.");
   }
   
   
@@ -147,6 +179,7 @@ public class Assets {
     asset.disposeAsset();
     assetsToLoad.remove(asset);
     assetsLoaded.remove(asset);
+    regTable.remove(asset);
   }
   
   
@@ -155,6 +188,7 @@ public class Assets {
       if (e.refers.disposeWithSession) {
         e.refers.disposeAsset();
         assetsLoaded.removeEntry(e);
+        regTable.remove(e.refers);
       }
     }
   }
@@ -166,21 +200,7 @@ public class Assets {
     }
     assetsToLoad.clear();
     assetsLoaded.clear();
-  }
-  
-  
-  public static void registerForLoading(Loadable asset) {
-    if (verbose) I.say("    Registering- "+asset.assetID);
-    
-    //  TODO:  Put in a specialised debug option for this?
-    /*
-    if (asset instanceof stratos.graphics.solids.SolidModel) {
-      I.say("    Registering- "+asset.assetID);
-      new Exception().printStackTrace();
-    }
-    //*/
-    
-    assetsToLoad.add(asset);
+    regTable.clear();
   }
   
   
@@ -279,9 +299,9 @@ public class Assets {
   }
   
   
-  private static void addClasses(URI base, File dir, Batch<String> list) {
+  private static void addClasses(URI base, File dir, Batch <String> list) {
     
-    if (verbose) I.say("Attempting to list clases in "+dir);
+    if (callsVerbose) I.say("Attempting to list classes in "+dir);
     File[] files = dir.listFiles();
     if (files == null) return; // not a directory
     
@@ -295,7 +315,7 @@ public class Assets {
       URI relative = base.relativize(f.toURI());
       String path = relative.toString().replaceAll("/|\\\\", ".");
       path = path.substring(0, path.length() - 6);
-      if (verbose) I.say("  Found class file: "+path);
+      if (extraVerbose) I.say("  Found class file: "+path);
       
       list.add(path);
     }
@@ -328,12 +348,25 @@ public class Assets {
     String dirName, Batch <String> loaded
   ) {
     CodeSource code = Assets.class.getProtectionDomain().getCodeSource();
-    if (code == null) return;
-    File file = new File(code.getLocation().getFile());
-    if (verbose) I.say("Code location: "+file+", exists? "+file.exists());
+    if (code == null) {
+      if (callsVerbose) I.say("COULD NOT FIND JARRED CLASSES!");
+      return;
+    }
+    
+    String jarPath = code.getLocation().getFile();
+    //  NOTE:  CLASSES WILL NOT BE REGISTERED UNDER OSX FILEPATHS WITH SPACES
+    //  UNLESS THIS SUBSTITUTION IS PERFORMED.  DO NOT DELETE.
+    jarPath = jarPath.replace("%20", " ");
+    
+    File file = new File(jarPath);
+    if (callsVerbose) {
+      I.say("Code location: "+jarPath+", exists? "+file.exists());
+    }
     
     if (! file.exists()) file = new File(file.getName());
-    if (verbose) I.say("Relative location: "+file+", exists? "+file.exists());
+    if (callsVerbose) {
+      I.say("Relative location: "+file+", exists? "+file.exists());
+    }
     
     if (! file.exists()) return;
     
@@ -344,7 +377,7 @@ public class Assets {
         if (e.isDirectory()) continue;
         
         final String name = e.getName();
-        if (verbose) I.say("Jarred file is: "+name);
+        if (extraVerbose) I.say("Jarred file is: "+name);
         if (! name.endsWith(".class")) continue;
         if (name.indexOf('$') != -1) continue;
         

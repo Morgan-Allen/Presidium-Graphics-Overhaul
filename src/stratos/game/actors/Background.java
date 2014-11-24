@@ -164,11 +164,11 @@ public class Background implements Session.Saveable {
   final static String COSTUME_DIR = "media/Actors/human/";
   
   
-  protected static ImageAsset costumeFor(String texName) {
+  protected ImageAsset costumeFor(String texName) {
     return ImageAsset.fromImage(Backgrounds.class, COSTUME_DIR+texName);
   }
 
-  protected static ImageAsset portraitFor(String texName) {
+  protected ImageAsset portraitFor(String texName) {
     return ImageAsset.fromImage(Backgrounds.class, COSTUME_DIR+texName);
   }
   

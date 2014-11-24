@@ -461,7 +461,7 @@ public interface Backgrounds {
       ALWAYS, HANDSOME, OFTEN, FEMININE, EMPATHIC, TALL, RARELY, STOUT,
       FINERY
     ) {
-    final ImageAsset male_skin = costumeFor("aesthete_male_skin.gif");
+      final ImageAsset male_skin = costumeFor("aesthete_male_skin.gif");
       public ImageAsset costumeFor(Actor actor) {
         return actor.traits.female() ? costume : male_skin;
       }
