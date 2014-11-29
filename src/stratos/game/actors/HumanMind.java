@@ -147,24 +147,10 @@ public class HumanMind extends ActorMind implements Qualities {
       if (report) I.say("  Have seen other actor: "+seen);
       
       final Actor nearby = (Actor) seen;
-      choice.add(new Combat(actor, nearby));
+      choice.add(new Combat  (actor, nearby));
       choice.add(new FirstAid(actor, nearby));
-
-      //  TODO:  Add pleas & objections- specifically if the other actor is
-      //  doing something objectionable, and you want them to stop.
-      
-      if (CombatUtils.isActiveHostile(actor, nearby)) {
-        if (report) I.say("  Pleading with them to stop!");
-        choice.add(new Dialogue(actor, nearby, Dialogue.TYPE_PLEA));
-      }
-      /*
-      if (report) I.say("  ADDING DIALOGUE WITH "+seen);
-      if (CombatUtils.hostileRating(actor, nearby) > 0) {
-        choice.add(new Dialogue(actor, nearby, Dialogue.TYPE_PLEA));
-      }
-      else
-      //*/
-      else choice.add(new Dialogue(actor, nearby, Dialogue.TYPE_CASUAL));
+      choice.add(new Arrest  (actor, nearby));
+      choice.add(new Dialogue(actor, nearby));
     }
   }
   

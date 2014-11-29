@@ -61,6 +61,11 @@ public class Dialogue extends Plan implements Qualities {
   
   
   
+  public Dialogue(Actor actor, Actor other) {
+    this(actor, other, actor, TYPE_CASUAL);
+  }
+  
+  
   public Dialogue(Actor actor, Actor other, int type) {
     this(actor, other, actor, type);
   }
@@ -104,7 +109,7 @@ public class Dialogue extends Plan implements Qualities {
   
   
   public Plan copyFor(Actor other) {
-    return new Dialogue(other, this.other, type);
+    return new Dialogue(other, this.other, other, type);
   }
   
   
@@ -128,6 +133,8 @@ public class Dialogue extends Plan implements Qualities {
   
   
   protected float getPriority() {
+    //if (GameSettings.noChat) return -1;
+    
     final boolean report = evalVerbose && (
       I.talkAbout == actor || I.talkAbout == other
     );
@@ -304,7 +311,7 @@ public class Dialogue extends Plan implements Qualities {
   public boolean actionGreet(Actor actor, Boarding aboard) {
     if (! other.isDoing(Dialogue.class, null)) {
       if (canTalk(other)) {
-        final Dialogue d = new Dialogue(other, actor, type);
+        final Dialogue d = new Dialogue(other, actor, actor, type);
         d.stage = STAGE_CHAT;
         other.mind.assignBehaviour(d);
       }
@@ -358,7 +365,7 @@ public class Dialogue extends Plan implements Qualities {
     
     //  TODO:  Modify DC by the greed and honour of the subject.
     DialogueUtils.utters(actor, "I have a gift for you...", 0);
-    final float value = Gifting.rateGift(gift, null, receives) / 10f;
+    final float value = ActorDesires.rateDesire(gift, null, receives) / 10f;
     float acceptDC = (0 - value) * ROUTINE_DC;
     float success = DialogueUtils.talkResult(
       SUASION, acceptDC, actor, receives

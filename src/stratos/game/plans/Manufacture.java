@@ -21,7 +21,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   /**  Fields, constructors, and save/load methods-
     */
   private static boolean
-    evalVerbose = true ,
+    evalVerbose = false,
     verbose     = false;
   
   final static int

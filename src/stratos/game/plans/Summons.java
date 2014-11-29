@@ -17,39 +17,53 @@ import stratos.util.*;
 
 
 public class Summons extends Plan {
+
   
+  private static boolean verbose = true;
   
+  final static int
+    TYPE_GUEST   = 0,
+    TYPE_SULKING = 1,
+    TYPE_CAPTIVE = 2;
   final static float
     MAX_STAY_DURATION = Stage.STANDARD_DAY_LENGTH;
   
-  private static boolean verbose = true;
-  final Actor ruler;
+
+  final Actor invites;
+  final Venue stays;
+  final int type;
   private int timeStayed = 0;
   
   
   
-  public Summons(Actor actor, Actor ruler) {
-    super(actor, ruler, true);
-    this.ruler = ruler;
+  public Summons(Actor actor, Actor invites, Venue stays, int type) {
+    super(actor, invites, true);
+    this.invites = invites;
+    this.stays   = stays  ;
+    this.type    = type   ;
   }
   
   
   public Summons(Session s) throws Exception {
     super(s);
-    this.ruler = (Actor) s.loadObject();
+    this.invites = (Actor) s.loadObject();
+    this.stays   = (Venue) s.loadObject();
+    this.type    = s.loadInt();
     this.timeStayed = s.loadInt();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(ruler);
+    s.saveObject(invites);
+    s.saveObject(stays  );
+    s.saveInt   (type   );
     s.saveInt(timeStayed);
   }
   
   
   public Plan copyFor(Actor other) {
-    return new Summons(other, ruler);
+    return null;
   }
   
   
@@ -58,12 +72,14 @@ public class Summons extends Plan {
     */
   protected float getPriority() {
     final boolean report = verbose && I.talkAbout == actor;
-    if (report) I.say("\nGetting priority for summons from "+ruler);
+    if (report) I.say("\nGetting priority for summons from "+invites);
+    
+    if (type == TYPE_CAPTIVE) return 100;
     
     //  TODO:  Include enforcement bonus, once crime/punishment are done...
     final float
       waited = timeStayed / MAX_STAY_DURATION,
-      relation = actor.relations.valueFor(ruler);
+      relation = actor.relations.valueFor(invites);
     
     final float priority = URGENT + (relation * CASUAL) - (ROUTINE * waited);
     if (report) {
@@ -75,29 +91,40 @@ public class Summons extends Plan {
   
   
   protected Behaviour getNextStep() {
-    final boolean report = verbose && I.talkAbout == actor;
-    if (timeStayed >= MAX_STAY_DURATION) return null;
+    if (! stays.structure.intact()) return null;
+    if (type != TYPE_CAPTIVE && timeStayed >= MAX_STAY_DURATION) return null;
     
-    Boarding venue = ruler.mind.home();
-    if (venue == null) venue = ruler.mind.work();
-    if (venue == null) venue = ruler.aboard();
-    if (venue == null) return null;
-    if (venue instanceof Installation) {
-      if (! ((Installation) venue).structure().intact()) return null;
+    final boolean report = verbose && I.talkAbout == actor;
+    if (report) I.say("\nGetting next summons step for "+actor);
+    
+    if (type == TYPE_CAPTIVE && actor.aboard() != stays) {
+      if (report) I.say("  Following "+invites);
+      final Action follow = new Action(
+        actor, invites,
+        this, "actionFollow",
+        Action.MOVE_SNEAK, "Following "
+      );
+      return follow;
     }
     
+    if (report) I.say("  Staying at "+stays);
     final Action stay = new Action(
-      actor, venue,
+      actor, stays,
       this, "actionStay",
-      Action.STAND, "Staying at "+venue
+      Action.STAND, "Staying at "
     );
+    if (type == TYPE_CAPTIVE) stay.setProperties(Action.PHYS_FX);
     return stay;
+  }
+  
+  
+  public boolean actionFollow(Actor actor, Actor captor) {
+    return true;
   }
   
   
   public boolean actionStay(Actor actor, Boarding venue) {
     timeStayed += 1;
-    
     if (venue instanceof Venue && actor.health.hungerLevel() > 0) {
       Resting.dineFrom(actor, (Venue) venue);
     }
@@ -111,10 +138,48 @@ public class Summons extends Plan {
   }
   
   
+  
+  /**  Rendering and interface-
+    */
+  public void describeBehaviour(Description d) {
+    if (type == TYPE_GUEST) {
+      d.append("Staying as guest at ");
+      d.append(stays);
+    }
+    if (type == TYPE_SULKING) {
+      d.append("Sulking at ");
+      d.append(stays);
+    }
+    if (type == TYPE_CAPTIVE) {
+      if (actor.aboard() == stays) {
+        d.append("Being held captive at ");
+        d.append(stays);
+      }
+      else {
+        d.append("Being taken captive to ");
+        d.append(stays);
+      }
+    }
+  }
+  
+  
+  
+  /**  Helper methods for the player's UI-
+    */
+  //  TODO:  Replace this with a variety of contact mission?
+  
   public static void beginSummons(Actor subject) {
     final Actor ruler = subject.base().ruler();
     if (ruler == null) I.complain("NO RULER TO VISIT");
-    final Summons summons = new Summons(subject, ruler);
+    
+    Boarding venue = ruler.mind.home();
+    if (venue == null) venue = ruler.mind.work();
+    if (venue == null) venue = ruler.aboard();
+    if (! (venue instanceof Venue)) return;
+    
+    final Summons summons = new Summons(
+      subject, ruler, (Venue) venue, TYPE_GUEST
+    );
     subject.mind.assignToDo(summons);
   }
   
@@ -129,21 +194,6 @@ public class Summons extends Plan {
     final Target aboard = subject.aboard();
     if (UI != null && aboard instanceof Selectable) {
       UI.selection.pushSelection((Selectable) subject.aboard(), false);
-    }
-  }
-  
-  
-  
-  /**  Rendering and interface-
-    */
-  public void describeBehaviour(Description d) {
-    if (actor.aboard() == ruler.mind.home()) {
-      d.append("Staying at ");
-      d.append(ruler.mind.home());
-    }
-    else {
-      d.append("Granting audience to ");
-      d.append(ruler);
     }
   }
   

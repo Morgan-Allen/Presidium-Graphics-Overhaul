@@ -14,7 +14,7 @@ public class Assets {
   final static boolean EXCLUDE_BASE_DIR = false;
   final public static char REP_SEP = '/';
   private static boolean
-    callsVerbose = true ,
+    callsVerbose = false,
     extraVerbose = false;
   
   

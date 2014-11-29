@@ -8,14 +8,15 @@
 package stratos.game.actors;
 import java.lang.reflect.*;
 
-import org.apache.commons.math3.util.FastMath;
-
 import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
 import stratos.user.*;
 import stratos.util.*;
+
+import org.apache.commons.math3.util.FastMath;
+import static stratos.game.actors.Qualities.*;
 
 
 
@@ -222,25 +223,37 @@ public class Action implements Behaviour, AnimNames {
   
   /**  Helper methods for dealing with motion-
     */
-  //  TODO:  This should possibly be moved back out to the Health class.
-  public static float moveRate(Actor actor, boolean basic) {
-    
+  //  TODO:  Move these functions out to a 'MotionUtils' utility class.
+  
+  public int motionType(Actor actor) {
     int motionType = MOTION_NORMAL;
-    if (actor.currentAction() != null) {
-      motionType = actor.currentAction().motionType(actor);
-    }
+    if (quick()  ) motionType = MOTION_FAST ;
+    if (careful()) motionType = MOTION_SNEAK;
     
-    for (Behaviour b : actor.mind.agenda) {
+    for (Behaviour b : actor.mind.agenda) if (b != this) {
       final int MT = b.motionType(actor);
       if (MT != MOTION_ANY) { motionType = MT; break; }
     }
-
-    float rate = actor.health.baseSpeed();
-    if      (motionType == MOTION_SNEAK) rate /= 2;
-    else if (motionType == MOTION_FAST ) rate *= 2;
+    
+    return motionType;
+  }
+  
+  
+  public static float speedMultiple(Actor actor, boolean basic) {
+    final Action a = actor.currentAction();
+    if (a == null) return 0;
+    
+    float rate = 1;
+    if (a.moveState == STATE_SNEAK) {
+      rate /= 2;
+      if (! basic) rate *= (1 + actor.skills.chance(STEALTH_AND_COVER, 15));
+    }
+    else if (a.moveState == STATE_RUN) {
+      rate *= 2;
+      if (! basic) rate *= (1 + actor.skills.chance(ATHLETICS, 15));
+    }
     
     if (basic) return rate;
-    
     //  TODO:  Must also account for the effects of fatigue and encumbrance.
     
     final int pathType = actor.origin().pathType();
@@ -249,19 +262,11 @@ public class Action implements Behaviour, AnimNames {
       case (Tile.PATH_CLEAR  ) : rate *= 1.0f; break;
       case (Tile.PATH_ROAD   ) : rate *= 1.2f; break;
     }
-    
     return rate;
   }
   
   
-  public int motionType(Actor actor) {
-    if (quick()  ) return MOTION_FAST ;
-    if (careful()) return MOTION_SNEAK;
-    return MOTION_ANY;
-  }
-  
-  
-  private void updateMotion(boolean active, float moveRate) {
+  private float updateMotion(boolean active, int motionType) {
     final boolean report = verbose && I.talkAbout == actor;
     
     //  Firstly, we establish current displacements between actor and target,
@@ -355,24 +360,25 @@ public class Action implements Behaviour, AnimNames {
     //  allows action delivery to proceed.  (If delivery was already underway,
     //  cancel the action.)
     final byte oldState = moveState;
-    final float animRate = moveRate / actor.health.baseSpeed();
-    
     if (closed && facing) moveState = STATE_CLOSED;
-    else if (animRate < 0.75f) moveState = STATE_SNEAK;
-    else if (animRate > 1.5f ) moveState = STATE_RUN;
+    else if (motionType == MOTION_SNEAK) moveState = STATE_SNEAK;
+    else if (motionType == MOTION_FAST ) moveState = STATE_RUN  ;
     else moveState = STATE_MOVE;
     
     if (moveState != oldState) {
-      if (oldState == STATE_CLOSED) { abortBehaviour(); return; }
+      if (oldState == STATE_CLOSED) { abortBehaviour(); return 0; }
       else progress = oldProgress = 0;
     }
     
     //  If active updates to pathing & motion are called for, make them.
+    float moveRate = speedMultiple(actor, false) * actor.health.baseSpeed();
     if (active) {
       if (report) I.say("Move rate: "+moveRate);
       actor.pathing.headTowards(closeOn, moveRate, ! closed);
       if (! closed) actor.pathing.applyCollision(moveRate, actionTarget);
+      return moveRate;
     }
+    else return 0;
   }
   
   
@@ -408,9 +414,9 @@ public class Action implements Behaviour, AnimNames {
       return;
     }
     
-    final float moveRate = moveRate(actor, false);
+    final int motionType = motionType(actor);
     oldProgress = progress;
-    updateMotion(active, moveRate);
+    final float moveRate = updateMotion(active, motionType);
     
     if (moveState == STATE_CLOSED) {
       progress += 1f / (actionDuration() * Stage.UPDATES_PER_SECOND);

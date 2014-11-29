@@ -6,13 +6,11 @@
 
 
 package stratos.game.base;
-import static stratos.game.actors.Backgrounds.VATS_BREEDER;
-import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.building.*;
-import stratos.game.plans.Audit;
-import stratos.game.plans.Patrolling;
+import stratos.game.plans.*;
+import stratos.game.civilian.*;
 import stratos.game.tactical.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -116,7 +114,8 @@ public class EnforcerBloc extends Venue {
   
   
   public Background[] careers() {
-    return new Background[] { Backgrounds.AUDITOR, Backgrounds.ENFORCER };
+    //  TODO:  INCLUDE PSY CORPS!
+    return new Background[] { AUDITOR, ENFORCER };
   }
   
   

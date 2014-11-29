@@ -21,7 +21,7 @@ public class RoadsRepair extends Plan {
     */
   private static boolean
     eventsVerbose = false,
-    evalVerbose   = true ;
+    evalVerbose   = false;
   
   final Base base;
   final PavingMap map;

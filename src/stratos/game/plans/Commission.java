@@ -38,6 +38,8 @@ public class Commission extends Plan {
   private boolean delivered = false;
   
   
+  //  TODO:  Pass in the Conversion used for manufacture as well!
+  
   private Commission(Actor actor, Item baseItem, Venue shop) {
     super(actor, shop, true);
     this.item = Item.withReference(baseItem, actor);

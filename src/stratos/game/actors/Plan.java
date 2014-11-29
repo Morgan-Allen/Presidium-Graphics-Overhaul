@@ -220,15 +220,15 @@ public abstract class Plan implements Saveable, Behaviour {
     if (motiveType == MOTIVE_CANCELLED) return true;
     if (actor == null) return false;
     
-    if (nextStepFor(actor) == null) {
-      if (report) I.say("NO NEXT STEP: "+this+" "+hashCode());
-      return true;
-    }
     if (this == actor.mind.rootBehaviour()) {
       if (priorityFor(actor) <= 0) {
         if (report) I.say("NO PRIORITY: "+this+" "+hashCode());
         return true;
       }
+    }
+    if (nextStepFor(actor) == null) {
+      if (report) I.say("NO NEXT STEP: "+this+" "+hashCode());
+      return true;
     }
     return false;
   }

@@ -197,16 +197,13 @@ public class Delivery extends Plan {
     //  general by perceived need/value?
     if (shouldPay == actor && stage <= STAGE_PICKUP) {
       int price = 0;
-      float foodVal = 0;
       for (Item i : available) {
         price += i.priceAt(origin);
-        if (Visit.arrayIncludes(ALL_FOOD_TYPES, i.type)) foodVal += i.amount;
+        modifier += ActorDesires.rateDesire(i, null, actor);
       }
       if (price > actor.gear.credits()) return 0;
       modifier -= Pledge.greedPriority(actor, price);
-      modifier += actor.health.hungerLevel() * CASUAL * foodVal;
     }
-    
     else for (Item i : available) {
       modifier += i.amount / 5f;
     }

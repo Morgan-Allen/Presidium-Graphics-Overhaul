@@ -8,7 +8,6 @@
 package stratos.game.plans;
 import stratos.game.common.*;
 import stratos.game.actors.*;
-//import stratos.game.maps.Planet;
 import stratos.game.tactical.*;
 import stratos.game.base.*;
 import stratos.game.building.*;
@@ -17,6 +16,7 @@ import stratos.util.*;
 
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.building.Economy.*;
+
 
 
 

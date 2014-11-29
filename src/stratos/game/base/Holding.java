@@ -339,10 +339,14 @@ public class Holding extends Venue {
   final static String
     IMG_DIR = "media/Buildings/civilian/";
   
-  final static ImageAsset ICON = ImageAsset.fromImage(
-    Holding.class, "media/GUI/Buttons/holding_button.gif"
+  final static ImageAsset ICONS[] = ImageAsset.fromImages(
+    Holding.class, "media/GUI/Buttons/",
+    "housing0_button.gif",
+    "housing1_button.gif",
+    "housing2_button.gif",
+    "housing3_button.gif",
+    "housing4_button.gif"
   );
-
   final public static ModelAsset
     SEAL_TENT_MODEL = CutoutModel.fromImage(
       Holding.class, IMG_DIR+"field_tent.png", 2, 2
@@ -393,13 +397,12 @@ public class Holding extends Venue {
   
   
   public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "holding");
+    return Composite.withImage(ICONS[upgradeLevel], "holding"+upgradeLevel);
   }
   
   
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (destroyed() || ! inWorld()) return;
-    
     //  TODO:  Add holding-extras to the structural group!
     
     final Batch <Fixture> group = new Batch <Fixture> ();

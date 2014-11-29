@@ -54,12 +54,12 @@ public class DebugMissions extends Scenario {
   
   public void beginGameSetup() {
     //super.beginGameSetup();
-    super.initScenario("debug_combat");
+    super.initScenario("debug_missions");
   }
   
   
   protected String saveFilePrefix(Stage world, Base base) {
-    return "debug_combat";
+    return "debug_missions";
   }
   
   
@@ -100,8 +100,8 @@ public class DebugMissions extends Scenario {
     GameSettings.paveFree  = true;
     GameSettings.fogFree   = true;
     
-    if (true ) strikeScenario  (world, base, UI);
-    if (false) securityScenario(world, base, UI);
+    if (false) strikeScenario  (world, base, UI);
+    if (true ) securityScenario(world, base, UI);
     if (false) contactScenario (world, base, UI);
     if (false) reconScenario   (world, base, UI);
   }

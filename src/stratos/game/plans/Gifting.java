@@ -85,7 +85,7 @@ public class Gifting extends Plan implements Qualities {
     float modifier = NO_MODIFIER;
     final float
       novelty = receives.relations.noveltyFor(actor),
-      rating = rateGift(gift, actor, receives);
+      rating = ActorDesires.rateDesire(gift, actor, receives);
     if (! hasBegun()) {
       modifier -= ROUTINE;
       modifier += (novelty + rating) * ROUTINE;
@@ -160,12 +160,17 @@ public class Gifting extends Plan implements Qualities {
   
   /**  Returns the next suitable gift between the given actors-
     */
+  //  TODO:  Cache ratings for all these items in some global location,
+  //  including bonuses for hunger, et cetera.
+  
+  
+  //  TODO:  Just iterate across all desires from the ActorDesires class.
   public static Gifting nextGifting(Plan parent, Actor buys, Actor receives) {
     final boolean report = rateVerbose && I.talkAbout == buys;
     if (report) I.say("\nGetting next gift from "+buys+" for "+receives);
     
     if (buys.mind.hasToDo(Gifting.class)) return null;
-    final Dialogue d = new Dialogue(buys, receives, Dialogue.TYPE_CASUAL);
+    final Dialogue d = new Dialogue(buys, receives);
     if (parent != null) d.setMotiveFrom(parent, 0);
     if (d.priorityFor(buys) <= 0) return null;
     
@@ -175,14 +180,14 @@ public class Gifting extends Plan implements Qualities {
     
     for (Traded f : Economy.ALL_FOOD_TYPES) {
       final Item food = Item.withAmount(f, 1);
-      rating = rateGift(food, buys, receives);
+      rating = ActorDesires.rateDesire(food, buys, receives);
       if (rating > bestRating) { bestRating = rating; gift = food; }
     }
     
     if (receives.mind.home() instanceof Venue) {
       final Venue home = (Venue) receives.mind.home();
       for (Item needs : home.stocks.shortages()) {
-        rating = rateGift(needs, buys, receives);
+        rating = ActorDesires.rateDesire(needs, buys, receives);
         if (rating > bestRating) { bestRating = rating; gift = needs; }
       }
     }
@@ -239,50 +244,6 @@ public class Gifting extends Plan implements Qualities {
     }
     if (gift == null || getting == null) return null;
     return new Gifting(buys, receives, gift, getting);
-  }
-  
-  
-  
-  /**  Return a rating for a given gift between 0 and 10.
-    */
-  static float rateGift(Item item, Actor buys, Actor receives) {
-    final boolean report = rateVerbose && I.talkAbout == buys;
-    
-    float rating = 0;
-    if (Visit.arrayIncludes(Economy.ALL_FOOD_TYPES, item.type)) {
-      final float hunger = receives.health.hungerLevel();
-      if (hunger > 0.5f) rating += (hunger - 0.5f) * 10;
-    }
-    
-    if (receives.mind.home() instanceof Venue) {
-      final Venue home = (Venue) receives.mind.home();
-      final float need = home.stocks.shortageOf(item.type);
-      if (need > 0) rating += need;
-    }
-    
-    if (item.type == receives.gear.deviceType()) {
-      final Item device = receives.gear.deviceEquipped();
-      if (item.quality > device.quality) {
-        rating += 2 * (item.quality - device.quality);
-      }
-    }
-    
-    if (item.type == receives.gear.outfitType()) {
-      final Item outfit = receives.gear.outfitEquipped();
-      if (item.quality > outfit.quality) {
-        rating += 2 * (item.quality - outfit.quality);
-      }
-    }
-    
-    final float pricedAt = item.defaultPrice();
-    rating += Pledge.greedPriority(receives, pricedAt);
-    if (report) I.say("  Rating for "+item+" is: "+rating);
-    
-    if (buys != null) {
-      rating /= 1 + (Pledge.greedPriority(buys, pricedAt));
-      if (report) I.say("    After pricing? "+rating);
-    }
-    return rating;
   }
   
   

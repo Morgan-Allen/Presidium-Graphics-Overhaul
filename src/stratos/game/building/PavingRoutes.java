@@ -20,7 +20,7 @@ public class PavingRoutes {
     */
   final static int PATH_RANGE = Stage.SECTOR_SIZE / 2;
   private static boolean
-    paveVerbose      = false,
+    paveVerbose      = true ,
     distroVerbose    = false,
     checkConsistency = false;
   
@@ -180,6 +180,12 @@ public class PavingRoutes {
       final int range = PATH_RANGE + 1 + HS;
       if (report) I.say("Updating road junction "+t+", range: "+range);
       
+      for (Object o : t.world.presences.matchesNear(Venue.class, v, range)) {
+        final Tile jT = ((Venue) o).mainEntrance();
+        if (report) I.say("Paving to: "+jT);
+        routeBetween(t, jT, report);
+      }
+      
       for (Target o : junctions.visitNear(centre, range, null)) {
         final Tile jT = (Tile) o;
         if (report) I.say("Paving to: "+jT);
@@ -200,8 +206,7 @@ public class PavingRoutes {
   
   
   private boolean routeBetween(Tile a, Tile b, boolean report) {
-    ///if (true) return false;
-    if (a == b) return false;
+    if (a == b || a == null || b == null) return false;
     //
     //  Firstly, determine the correct current route.
     //  TODO:  Allow the road search to go through arbitrary Boardables, and

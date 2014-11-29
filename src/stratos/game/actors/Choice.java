@@ -46,15 +46,6 @@ public class Choice implements Qualities {
   protected boolean checkPlanValid(Behaviour plan) {
     final boolean report = isVerbose || (verboseReject && I.talkAbout == actor);
     
-    final boolean finished = plan.finished();
-    if (finished) {
-      if (report) {
-        I.say("\n  "+plan+" rejected: is finished.");
-        I.say("    Priority:  "+plan.priorityFor(actor));
-        I.say("    Next step: "+plan.nextStepFor(actor));
-      }
-      return false;
-    }
     final float priority = plan.priorityFor(actor);
     if (priority <= 0) {
       if (report) I.say("\n  "+plan+" rejected- priority "+priority);
@@ -65,7 +56,15 @@ public class Choice implements Qualities {
       if (report) I.say("\n  "+plan+" rejected- no next step.");
       return false;
     }
-    
+    final boolean finished = plan.finished();
+    if (finished) {
+      if (report) {
+        I.say("\n  "+plan+" rejected: is finished.");
+        I.say("    Priority:  "+priority);
+        I.say("    Next step: "+nextStep);
+      }
+      return false;
+    }
     return true;
   }
   

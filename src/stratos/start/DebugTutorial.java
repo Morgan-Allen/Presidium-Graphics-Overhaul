@@ -10,6 +10,8 @@ import stratos.util.*;
 
 
 
+//  Assign drills directly at the trooper lodge.  That'll keep 'em busy!
+
 //  Arrange for contact missions to come back with a desired price from the
 //  subject/s.
 

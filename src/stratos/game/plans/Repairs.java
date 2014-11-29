@@ -15,7 +15,7 @@ import static stratos.game.actors.Qualities.*;
 public class Repairs extends Plan {
   
   private static boolean
-    evalVerbose   = true ,
+    evalVerbose   = false,
     eventsVerbose = false;
   
   final public static float

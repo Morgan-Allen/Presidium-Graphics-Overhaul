@@ -176,7 +176,7 @@ public class Senses implements Qualities {
       I.say("    Stealth value:  "+stealthFactor(e, actor));
       if (e instanceof Actor) {
         final Actor o = (Actor) e;
-        I.say("    Current motion: "+Action.moveRate(o, true));
+        I.say("    Current motion: "+Action.speedMultiple(o, true));
         I.say("    Base speed:     "+o.health.baseSpeed());
         I.say("    Stealth skill:  "+o.traits.usedLevel(STEALTH_AND_COVER));
       }
@@ -229,7 +229,7 @@ public class Senses implements Qualities {
       
       final float speed = a.health.baseSpeed();
       float stealth = a.traits.usedLevel(STEALTH_AND_COVER) / 20f;
-      stealth += 0.5f - (Action.moveRate(a, false) / (speed * 1));
+      stealth += 0.5f - (Action.speedMultiple(a, true) / (speed * 1));
       
       return Visit.clamp(stealth, 0, 2);
     }

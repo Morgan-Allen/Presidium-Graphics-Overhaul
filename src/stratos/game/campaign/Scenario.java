@@ -95,13 +95,15 @@ public abstract class Scenario implements Session.Saveable, Playable {
   
   protected void initScenario(String fromSave) {
     final String savePath = fullSavePath(fromSave, null);
+    I.say("\nSave path is: "+savePath);
+    
     if (fromSave != null && Scenario.saveExists(savePath)) {
       I.say("Loading scenario from save file...");
       Scenario.loadGame(savePath, false);
       return;
     }
     
-    I.say("Beginning scenario setup...");
+    I.say("Beginning scenario setup from scratch...");
     loadProgress = 0;
     final Thread loadingThread = new Thread() {
       public void run() {

@@ -203,18 +203,8 @@ public class Stage {
   }
   
   
-  public Box2D area() {
-    return new Box2D().set(-0.5f, -0.5f, size, size);
-  }
   
-  
-  public List <Base> bases() {
-    return bases;
-  }
-  
-  
-  
-  /**  Update methods.
+  /**  Update and scheduling methods.
     */
   public void updateWorld() {
     sections.updateBounds();
@@ -258,6 +248,15 @@ public class Stage {
   }
   
   
+  public void advanceCurrentTime(float interval) {
+    this.currentTime += interval;
+  }
+  
+  
+  
+  
+  /**  Other query methods/accessors-
+    */
   public WorldTerrain terrain() {
     return terrain;
   }
@@ -272,9 +271,20 @@ public class Stage {
     return currentTime;
   }
   
-  
+  /*
   public float dayValue() {
     return Planet.dayValue(this);
+  }
+  //*/
+  
+  
+  public Box2D area() {
+    return new Box2D().set(-0.5f, -0.5f, size, size);
+  }
+  
+  
+  public List <Base> bases() {
+    return bases;
   }
   
   

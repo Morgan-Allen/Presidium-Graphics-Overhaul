@@ -275,7 +275,8 @@ public class Bastion extends Venue {
   
   public Traded[] services() {
     return new Traded[] {
-      SERVICE_ADMIN, SERVICE_REFUGE, POWER, LIFE_SUPPORT
+      SERVICE_ADMIN, SERVICE_REFUGE, SERVICE_SECURITY,
+      POWER, LIFE_SUPPORT
     };
   }
   

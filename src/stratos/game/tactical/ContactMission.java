@@ -211,8 +211,7 @@ public class ContactMission extends Mission {
       }
       if (objectIndex() == OBJECT_AUDIENCE && ruler != null) {
         I.say("Issuing summons to: "+other);
-        final Summons summons = new Summons(other, ruler);
-        other.mind.assignBehaviour(summons);
+        Summons.beginSummons(other);
       }
       if (objectIndex() == OBJECT_SUBMISSION) {
         other.relations.incRelation(base, Relation.MAG_HARMING, 0.5f);

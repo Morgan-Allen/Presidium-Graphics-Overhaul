@@ -37,8 +37,7 @@ public class EcologistStation extends Venue {
       EcologistStation.class, IMG_DIR+"botanical_station.png", 4, 3
     );
   
-  final static int
-    EXTRA_CLAIM_SIZE = 4;
+  final static int EXTRA_CLAIM_SIZE = 4;
   
   
   
@@ -263,46 +262,4 @@ public class EcologistStation extends Venue {
 }
 
 
-/*
-
-  
-  
-  protected void updateAllotments(int numUpdates) {
-    //
-    //  Then update the current set of allotments-
-    if (numUpdates % 10 == 0) {
-      //final int STRIP_SIZE = 4;
-      //int numCovered = 0;
-      //
-      //  First of all, remove any missing allotments (and their siblings in
-      //  the same strip.)
-      for (Plantation p : allotments) {
-        if (p.destroyed()) allotments.remove(p);
-      }
-      //
-      //  Then, calculate how many allotments one should have.
-      int maxAllots = 1 + personnel.numHired(Backgrounds.CULTIVATOR);
-      if (maxAllots > allotments.size()) {
-        //
-        //  If you have too few, try to find a place for more-
-        //final boolean covered = numCovered <= allotments.size() / 3;
-        Plantation allots = Plantation.placeAllotmentFor(this);
-        if (allots != null) allotments.add(allots);
-      }
-      if (maxAllots + 1 < allotments.size()) {
-        //
-        //  And if you have too many, flag the least productive for salvage.
-        float minRating = Float.POSITIVE_INFINITY;
-        Plantation toRemove = null;
-        for (Plantation p : allotments) {
-          final float rating = Plantation.rateAllotment(p, world);
-          if (rating < minRating) { toRemove = p; minRating = rating; }
-        }
-        if (toRemove != null) {
-          toRemove.structure.setState(Structure.STATE_SALVAGE, -1);
-        }
-      }
-    }
-  }
-//*/
 

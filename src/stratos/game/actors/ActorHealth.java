@@ -5,9 +5,10 @@
   */
 package stratos.game.actors;
 import stratos.game.common.*;
+import stratos.game.maps.Planet;
 import stratos.util.*;
-
 import static stratos.game.actors.Conditions.*;
+
 import org.apache.commons.math3.util.FastMath;
 
 
@@ -292,7 +293,7 @@ public class ActorHealth implements Qualities {
   
   public float sightRange() {
     float range = 0.5f + (actor.traits.usedLevel(SURVEILLANCE) / 10f);
-    range *= (actor.world().dayValue() + 1) / 2;  //  TODO:  Take this out?
+    range *= (Planet.dayValue(actor.world()) + 1) / 2;  //  TODO:  Take this out?
     range *= GameSettings.actorScale;
     return baseSight * (float) FastMath.sqrt(range * ageMultiple);
   }
@@ -607,15 +608,17 @@ public class ActorHealth implements Qualities {
     final float DL = Stage.STANDARD_DAY_LENGTH;
     float MM = 1, FM = 1, IM = 1, PM = 1;
     final float regen = actor.skills.chance(IMMUNE, 10);
+    final Action taken = actor.currentAction();
+    
     if (state == STATE_RESTING) {
       FM = -3;
       IM =  2;
       MM =  1;
       PM =  0;
     }
-    else if (actor.currentAction() != null) {
-      final float mult = Action.moveRate(actor, true) / baseSpeed();
-      if (mult > 1) FM += (mult - 1) * RUN_FATIGUE_MULT;
+    else if (taken != null) {
+      final int moveType = taken.motionType(actor);
+      if (moveType == Plan.MOTION_FAST) FM = RUN_FATIGUE_MULT;
     }
     if (report) {
       I.say("  Fatigue multiple: "+FM);

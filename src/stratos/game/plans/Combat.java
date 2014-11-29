@@ -114,11 +114,10 @@ public class Combat extends Plan implements Qualities {
     final boolean report = evalVerbose && I.talkAbout == actor;
     
     if (CombatUtils.isDowned(subject, object)) return 0;
-
     float harmLevel = REAL_HARM;
     if (object == OBJECT_SUBDUE ) harmLevel = MILD_HARM   ;
     if (object == OBJECT_DESTROY) harmLevel = EXTREME_HARM;
-
+    
     final float hostility = CombatUtils.hostileRating(actor, subject);
     final boolean melee = actor.gear.meleeWeapon();
     final boolean siege = (subject instanceof Venue);
@@ -149,8 +148,6 @@ public class Combat extends Plan implements Qualities {
     threshold *= siege ? ROUTINE : PARAMOUNT;
     if (report) {
       I.say("\n  Priority bonus:        "+bonus);
-      //I.say("  Danger level:          "+danger);
-      //I.say("  Hostility rating:      "+hostility);
       I.say("  Emergency?             "+actor.senses.isEmergency());
       I.say("  Basic combat priority: "+priority);
       I.say("  Empathy threshold:     "+threshold);

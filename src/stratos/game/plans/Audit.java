@@ -76,6 +76,22 @@ public class Audit extends Plan {
   }
   
   
+  /*
+  public static Venue nearestAdminFor(Actor actor) {
+    final Stage world = actor.world();
+    int maxCheck = 5;  //  TODO:  Base off actor attributes?  Or sense range?
+    
+    for (Object o : world.presences.matchesNear(SERVICE_ADMIN, actor, -1)) {
+      final Venue near = (Venue) o;
+      if (near.base() != actor.base()) continue;
+      if (maxCheck-- <= 0) break;
+      return near;
+    }
+    return null;
+  }
+  //*/
+  
+  
   public static Venue nextToAuditFor(Actor actor) {
     
     final Stage world = actor.world();
@@ -86,13 +102,11 @@ public class Audit extends Plan {
     Venue picked = null;
     float bestRating = 0, rating;
     for (Venue v : batch) {
-      //if (v.privateProperty()) continue;
       rating = Math.abs(v.inventory().credits()) / 100f;
       rating -= Plan.rangePenalty(v, actor);
       rating -= Plan.competition(Audit.class, v, actor);
       if (rating > bestRating) { bestRating = rating; picked = v; }
     }
-    //I.sayAbout(actor, "Chosen for audit: "+picked);
     return picked;
   }
   
