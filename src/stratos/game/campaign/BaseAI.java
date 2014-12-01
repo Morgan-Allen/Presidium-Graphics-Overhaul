@@ -2,10 +2,11 @@
 
 package stratos.game.campaign;
 import stratos.game.common.*;
+import stratos.game.economic.*;
 import stratos.game.actors.*;
-import stratos.game.building.*;
 import stratos.game.tactical.*;
 import stratos.util.*;
+
 import java.util.Map;
 
 

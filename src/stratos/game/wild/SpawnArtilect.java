@@ -2,9 +2,9 @@
 
 package stratos.game.wild;
 import stratos.game.common.*;
+import stratos.game.economic.*;
 import stratos.game.plans.Dialogue;
 import stratos.game.actors.*;
-import stratos.game.building.*;
 import stratos.util.*;
 
 

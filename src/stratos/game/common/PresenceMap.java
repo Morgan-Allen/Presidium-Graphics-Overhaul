@@ -6,8 +6,9 @@
 
 
 package stratos.game.common;
-import stratos.game.building.*;
+import stratos.game.economic.*;
 import stratos.util.*;
+
 import java.util.Iterator;
 
 

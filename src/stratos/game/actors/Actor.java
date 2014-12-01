@@ -6,9 +6,9 @@
 
 
 package stratos.game.actors;
-import stratos.game.building.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
+import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.plans.CombatUtils;
 import stratos.game.plans.Resting;

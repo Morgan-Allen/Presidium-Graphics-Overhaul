@@ -5,9 +5,9 @@ package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.game.plans.*;
 import stratos.game.tactical.*;
-import stratos.game.building.*;
 import stratos.util.*;
 import stratos.game.common.Session.Saveable;
+import stratos.game.economic.*;
 
 import java.util.Map.Entry;
 

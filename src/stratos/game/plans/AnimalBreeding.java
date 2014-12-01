@@ -7,16 +7,15 @@
 package stratos.game.plans;
 
 import stratos.game.base.*;
-import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.maps.*;
 import stratos.game.wild.*;
 import stratos.game.civilian.*;
+import stratos.game.economic.*;
 import stratos.util.*;
-
 import static stratos.game.actors.Qualities.*;
-import static stratos.game.building.Economy.*;
+import static stratos.game.economic.Economy.*;
 
 
 

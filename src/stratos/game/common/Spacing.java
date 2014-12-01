@@ -6,7 +6,7 @@
 
 package stratos.game.common;
 //import stratos.start.Disposal;
-import stratos.game.building.*;
+import stratos.game.economic.*;
 import stratos.start.Assets;
 import stratos.util.*;
 

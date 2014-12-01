@@ -3,9 +3,8 @@
 package stratos.game.campaign;
 import stratos.game.actors.*;
 import stratos.util.Visit;
-
 import static stratos.game.actors.Qualities.*;
-import static stratos.game.building.Economy.*;
+import static stratos.game.economic.Economy.*;
 
 /*
 FULL LIST OF INTENDED SECTORS-

@@ -8,16 +8,16 @@
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.base.Suspensor;
-import stratos.game.building.Inventory;
-import stratos.game.building.Item;
-import stratos.game.building.Traded;
-import stratos.game.building.Vehicle;
-import stratos.game.building.Venue;
-import stratos.game.building.Inventory.Owner;
 import stratos.game.civilian.Pledge;
 import stratos.game.common.*;
+import stratos.game.economic.Inventory;
+import stratos.game.economic.Item;
+import stratos.game.economic.Traded;
+import stratos.game.economic.Vehicle;
+import stratos.game.economic.Venue;
+import stratos.game.economic.Inventory.Owner;
 import stratos.util.*;
-import static stratos.game.building.Economy.*;
+import static stratos.game.economic.Economy.*;
 
 
 
@@ -199,7 +199,7 @@ public class Delivery extends Plan {
       int price = 0;
       for (Item i : available) {
         price += i.priceAt(origin);
-        modifier += ActorDesires.rateDesire(i, null, actor);
+        modifier += ActorMotives.rateDesire(i, null, actor);
       }
       if (price > actor.gear.credits()) return 0;
       modifier -= Pledge.greedPriority(actor, price);

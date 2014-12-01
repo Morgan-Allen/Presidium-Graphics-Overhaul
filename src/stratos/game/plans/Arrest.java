@@ -2,11 +2,13 @@
 
 package stratos.game.plans;
 import stratos.game.actors.*;
-import stratos.game.building.*;
 import stratos.game.common.*;
+import stratos.game.civilian.*;
+import stratos.game.economic.*;
+import stratos.start.PlayLoop;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
-import static stratos.game.building.Economy.*;
+import static stratos.game.economic.Economy.*;
 
 
 
@@ -61,7 +63,7 @@ public class Arrest extends Plan {
   //  the sovereign?
   
   protected float getPriority() {
-    final boolean report = evalVerbose && I.talkAbout == actor;
+    final boolean report = evalVerbose && I.talkAbout == subject;
     
     //  Don't arrest other arresters!  Other than that, priority is based on
     //  the harm-level and criminality of the act in question.
@@ -73,9 +75,11 @@ public class Arrest extends Plan {
     
     //  TODO:  Modify priority (and command-chance) based on difference in
     //  social standing.
+    //  TODO:  Use command/suasion as key skills when giving orders.
     
     float urge = 0, bonus = 0;
     urge += other.harmDoneTo(victim) * actor.relations.valueFor(victim);
+    bonus += urge;
     
     final float priority = priorityForActorWith(
       actor, other,
@@ -91,7 +95,9 @@ public class Arrest extends Plan {
   
   private boolean hasAuthority() {
     if (! CombatUtils.isArmed(actor)) return false;
-    if (Visit.arrayIncludes(actor.mind.home().services(), SERVICE_SECURITY)) {
+    final Employer work = actor.mind.work();
+    if (work == null) return false;
+    if (Visit.arrayIncludes(work.services(), SERVICE_SECURITY)) {
       return true;
     }
     else return false;
@@ -99,7 +105,7 @@ public class Arrest extends Plan {
   
   
   protected Behaviour getNextStep() {
-    final boolean report = stepsVerbose && I.talkAbout == actor;
+    final boolean report = stepsVerbose && hasBegun();
     final Actor other = (Actor) subject;
     final boolean authority = hasAuthority();
     
@@ -108,6 +114,8 @@ public class Arrest extends Plan {
       I.say("  Arresting:     "+other    );
       I.say("  Has authority? "+authority);
     }
+    PlayLoop.setPaused(true);
+    
     //  TODO:  If you're *not* an official authority, just send them home
     //  without an escort.
     

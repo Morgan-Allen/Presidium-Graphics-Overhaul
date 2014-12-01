@@ -4,13 +4,12 @@ package stratos.game.campaign;
 
 import stratos.game.base.*;
 import stratos.game.actors.*;
-import stratos.game.building.*;
 import stratos.game.common.*;
+import stratos.game.economic.*;
 import stratos.game.plans.*;
 import stratos.util.*;
-
 import static stratos.game.actors.Qualities.*;
-import static stratos.game.building.Economy.*;
+import static stratos.game.economic.Economy.*;
 
 import org.apache.commons.math3.util.FastMath;
 

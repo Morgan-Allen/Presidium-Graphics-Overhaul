@@ -4,14 +4,14 @@ package stratos.game.plans;
 import org.apache.commons.math3.util.FastMath;
 
 import stratos.game.common.*;
+import stratos.game.economic.*;
+import stratos.game.economic.Inventory.Owner;
 import stratos.game.maps.Planet;
 import stratos.game.actors.*;
-import stratos.game.building.*;
 import stratos.game.base.*;
 import stratos.util.*;
-import stratos.game.building.Inventory.Owner;
 import static stratos.game.actors.Qualities.*;
-import static stratos.game.building.Economy.*;
+import static stratos.game.economic.Economy.*;
 
 
 
@@ -21,8 +21,8 @@ public class Looting extends Plan {
   /**  Data fields, construction and save/load methods-
     */
   private static boolean
-    evalVerbose  = true ,
-    stepsVerbose = true ;
+    evalVerbose  = false,
+    stepsVerbose = false;
   
   final Owner mark;
   final Item taken;
@@ -79,7 +79,7 @@ public class Looting extends Plan {
       
       final Owner mark = (Owner) t;
       for (Item taken : mark.inventory().allItems()) {
-        final float rating = ActorDesires.rateDesire(taken, null, actor);
+        final float rating = ActorMotives.rateDesire(taken, null, actor);
         if (rating * (1 + Rand.num()) > bestRating) {
           bestTaken  = Item.withAmount(taken, FastMath.min(1, taken.amount));
           bestMark   = mark  ;
@@ -97,7 +97,7 @@ public class Looting extends Plan {
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
     
-    float urge = ActorDesires.rateDesire(taken, null, actor) / Plan.ROUTINE;
+    float urge = ActorMotives.rateDesire(taken, null, actor) / Plan.ROUTINE;
     
     urge *= (1.5f - Planet.dayValue(actor.world()));  //  TODO:  USE SUCCESS-CHANCE INSTEAD
     if (mark.privateProperty()) urge -= 0.5f;

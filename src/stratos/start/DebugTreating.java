@@ -2,10 +2,10 @@
 
 package stratos.start;
 import stratos.game.actors.*;
-import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.game.base.*;
 import stratos.game.campaign.*;
+import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.wild.*;
 import stratos.game.plans.*;

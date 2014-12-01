@@ -5,7 +5,7 @@
   */
 
 
-package stratos.game.building;
+package stratos.game.economic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
@@ -20,7 +20,7 @@ public class PavingRoutes {
     */
   final static int PATH_RANGE = Stage.SECTOR_SIZE / 2;
   private static boolean
-    paveVerbose      = true ,
+    paveVerbose      = false,
     distroVerbose    = false,
     checkConsistency = false;
   
@@ -135,7 +135,7 @@ public class PavingRoutes {
     if (isMember) {
       key.path = around.toArray(Tile.class);
       key.cost = -1;
-      if (roadsEqual(key, match) && map.refreshTiles(key.path)) return;
+      if (roadsEqual(key, match) && map.refreshPaving(key.path)) return;
       if (report) I.say("Installing perimeter for "+v);
       
       if (match != null) {
@@ -178,16 +178,29 @@ public class PavingRoutes {
       final int HS = v.size / 2;
       final Tile c = v.origin(), centre = world.tileAt(c.x + HS, c.y + HS);
       final int range = PATH_RANGE + 1 + HS;
+      final Batch <Tile> routesTo = new Batch <Tile> ();
       if (report) I.say("Updating road junction "+t+", range: "+range);
       
+      //  We visit all nearby junctions (and associated venues), and flag any
+      //  visited tiles to avoid duplicated work-
       for (Object o : t.world.presences.matchesNear(Venue.class, v, range)) {
         final Tile jT = ((Venue) o).mainEntrance();
-        if (report) I.say("Paving to: "+jT);
-        routeBetween(t, jT, report);
+        if (jT.flaggedWith() != null) continue;
+        jT.flagWith(routesTo);
+        routesTo.add(jT);
       }
       
       for (Target o : junctions.visitNear(centre, range, null)) {
         final Tile jT = (Tile) o;
+        if (jT.flaggedWith() != null) continue;
+        jT.flagWith(routesTo);
+        routesTo.add(jT);
+      }
+      
+      //  Note:  We perform the un-flag op in a separate pass to avoid any
+      //  interference with pathing-searches-
+      for (Tile jT : routesTo) jT.flagWith(null);
+      for (Tile jT : routesTo) {
         if (report) I.say("Paving to: "+jT);
         routeBetween(t, jT, report);
       }
@@ -218,10 +231,14 @@ public class PavingRoutes {
     search.doSearch();
     route.path = search.fullPath(Tile.class);
     route.cost = search.totalCost();
+
+    //  TODO:  Also check if these routes are fully-paved (for distribution
+    //  purposes.)
+    
     //
     //  If the new route differs from the old, delete it.  Otherwise return.
     final Route oldRoute = allRoutes.get(route);
-    if (roadsEqual(route, oldRoute) && map.refreshTiles(route.path)) {
+    if (roadsEqual(route, oldRoute) && map.refreshPaving(route.path)) {
       return false;
     }
     
@@ -278,22 +295,6 @@ public class PavingRoutes {
     else atTile.remove(route);
     if (atTile.size() == 0) tileRoutes.remove(t);
   }
-  
-  
-  
-  /**  Methods related to physical road construction-
-    */
-  /*
-  private void clearRoad(Tile path[], boolean report) {
-    if (report) I.say("Clearing path...");
-    for (Tile t : path) {
-      if (report) I.say("Owner of "+t+" is "+t.onTop());
-      if (t.owningType() < Element.FIXTURE_OWNS) {
-        if (t.onTop() != null) t.onTop().setAsDestroyed();
-      }
-    }
-  }
-  //*/
   
   
   

@@ -8,14 +8,15 @@
 package stratos.game.actors;
 import java.lang.reflect.*;
 
-import stratos.game.building.*;
 import stratos.game.common.*;
+import stratos.game.economic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
 import stratos.user.*;
 import stratos.util.*;
 
 import org.apache.commons.math3.util.FastMath;
+
 import static stratos.game.actors.Qualities.*;
 
 

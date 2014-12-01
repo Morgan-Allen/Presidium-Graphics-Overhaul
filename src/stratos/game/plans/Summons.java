@@ -1,14 +1,14 @@
 
 
 package stratos.game.plans;
-import stratos.game.campaign.BaseFinance;
 import stratos.game.common.*;
 import stratos.game.actors.*;
-import stratos.game.building.*;
 import stratos.game.tactical.*;
 import stratos.user.*;
-import stratos.util.Description.Link;
 import stratos.util.*;
+import stratos.game.campaign.BaseFinance;
+import stratos.game.economic.*;
+import stratos.util.Description.Link;
 
 
 
@@ -76,7 +76,11 @@ public class Summons extends Plan {
     
     if (type == TYPE_CAPTIVE) return 100;
     
-    //  TODO:  Include enforcement bonus, once crime/punishment are done...
+    
+    //  TODO:  Allow priority to be assigned externally!  This is way too high
+    //  for casual scolding, say.
+    //  TODO:  What about the stay duration?  That needs to be fixed up too.
+    /*
     final float
       waited = timeStayed / MAX_STAY_DURATION,
       relation = actor.relations.valueFor(invites);
@@ -86,7 +90,9 @@ public class Summons extends Plan {
       I.say("  Relation and wait-time: "+relation+"/"+waited);
       I.say("  Final priority: "+priority);
     }
+    //*/
     return priority;
+    //return 0 + motiveBonus();
   }
   
   

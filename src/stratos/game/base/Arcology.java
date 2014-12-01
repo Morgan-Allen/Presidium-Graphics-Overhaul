@@ -7,8 +7,8 @@
 package stratos.game.base;
 import static stratos.game.actors.Backgrounds.SAVANT;
 import stratos.game.common.*;
+import stratos.game.economic.*;
 import stratos.game.actors.*;
-import stratos.game.building.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;

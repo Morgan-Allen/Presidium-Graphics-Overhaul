@@ -1,6 +1,6 @@
 
 
-package stratos.game.building;
+package stratos.game.economic;
 import stratos.game.actors.Backgrounds;
 import stratos.util.*;
 

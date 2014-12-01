@@ -2,8 +2,8 @@
 
 package stratos.game.civilian;
 import stratos.game.actors.*;
-import stratos.game.building.*;
 import stratos.game.common.*;
+import stratos.game.economic.*;
 
 
 public interface Employer extends Installation, Inventory.Owner, Boarding {

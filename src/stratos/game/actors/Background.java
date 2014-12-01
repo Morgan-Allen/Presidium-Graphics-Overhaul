@@ -6,9 +6,9 @@
 
 
 package stratos.game.actors;
-import stratos.game.building.*;
 import stratos.game.campaign.Sector;
 import stratos.game.common.*;
+import stratos.game.economic.*;
 import stratos.graphics.common.*;
 import stratos.util.*;
 

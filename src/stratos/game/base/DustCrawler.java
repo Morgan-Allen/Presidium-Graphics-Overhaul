@@ -3,17 +3,16 @@
 
 package stratos.game.base;
 import stratos.game.common.*;
+import stratos.game.economic.*;
 import stratos.game.actors.*;
-import stratos.game.building.*;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
-
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
-import static stratos.game.building.Economy.*;
+import static stratos.game.economic.Economy.*;
 
 
 

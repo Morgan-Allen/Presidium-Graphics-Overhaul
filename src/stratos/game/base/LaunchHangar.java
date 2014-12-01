@@ -2,9 +2,9 @@
 
 package stratos.game.base;
 import stratos.game.actors.*;
-import stratos.game.building.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
+import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;

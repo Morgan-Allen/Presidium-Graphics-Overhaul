@@ -3,9 +3,9 @@
 package stratos.game.plans;
 import stratos.game.common.*;
 import stratos.game.common.Session.Saveable;
+import stratos.game.economic.*;
 import stratos.game.actors.*;
 import stratos.game.base.Suspensor;
-import stratos.game.building.*;
 import stratos.util.*;
 
 

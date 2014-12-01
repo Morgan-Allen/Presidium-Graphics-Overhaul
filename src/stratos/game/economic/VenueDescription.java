@@ -1,6 +1,6 @@
 
 
-package stratos.game.building;
+package stratos.game.economic;
 import stratos.game.actors.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
@@ -10,8 +10,7 @@ import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
-
-import static stratos.game.building.Venue.*;
+import static stratos.game.economic.Venue.*;
 
 
 

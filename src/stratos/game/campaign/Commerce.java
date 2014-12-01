@@ -4,13 +4,13 @@
 package stratos.game.campaign;
 import stratos.game.actors.*;
 import stratos.game.base.*;
-import stratos.game.building.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
+import stratos.game.economic.*;
 import stratos.game.plans.*;
 import stratos.user.BaseUI;
 import stratos.util.*;
-import static stratos.game.building.Economy.*;
+import static stratos.game.economic.Economy.*;
 
 
 //  TODO:  This will have to be merged with (or rendered obsolete by) the more

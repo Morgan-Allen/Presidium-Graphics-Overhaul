@@ -1,11 +1,9 @@
 
 
 package stratos.game.actors;
-import stratos.game.building.Economy;
-import stratos.game.building.Item;
-import stratos.game.building.Venue;
-import stratos.game.civilian.Pledge;
 import stratos.game.common.*;
+import stratos.game.civilian.*;
+import stratos.game.economic.*;
 import stratos.util.*;
 import stratos.game.common.Session.Saveable;
 
@@ -15,19 +13,21 @@ import stratos.game.common.Session.Saveable;
 //         'desires'.
 
 
-public class ActorDesires {
+public class ActorMotives {
   
   
   private static boolean
-    rateVerbose = true ;
+    rateVerbose = false;
   
   
   final Actor actor;
-  final List <Saveable> desires = new List <Saveable> ();
+  //  TODO:  Include overall contentment-assessment here.
+  //  TODO:  Move ambition-evaluation here?
+  //  TODO:  Record memories?
   
   
   
-  protected ActorDesires(Actor actor) {
+  protected ActorMotives(Actor actor) {
     this.actor = actor;
   }
   

@@ -4,13 +4,13 @@
 package stratos.game.tactical;
 
 import stratos.game.common.*;
+import stratos.game.economic.DeviceType;
+import stratos.game.economic.OutfitType;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
 import stratos.graphics.solids.*;
 import stratos.util.*;
-import stratos.game.building.DeviceType;
-import stratos.game.building.OutfitType;
-import static stratos.game.building.Economy.*;
+import static stratos.game.economic.Economy.*;
 
 
 

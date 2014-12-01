@@ -5,8 +5,8 @@ import java.io.*;
 
 import stratos.game.actors.*;
 import stratos.game.base.*;
-import stratos.game.building.*;
 import stratos.game.common.*;
+import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.wild.Nest;
 import stratos.game.wild.Ruins;

@@ -1,7 +1,7 @@
 
 
 
-package stratos.game.building;
+package stratos.game.economic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;

@@ -3,9 +3,9 @@
 
 package stratos.game.plans;
 import stratos.game.actors.*;
-import stratos.game.building.*;
 import stratos.game.campaign.BaseFinance;
 import stratos.game.common.*;
+import stratos.game.economic.*;
 import stratos.game.maps.PavingMap;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;

@@ -1,8 +1,8 @@
 
 
 package stratos.game.maps;
-import stratos.game.building.*;
 import stratos.game.common.*;
+import stratos.game.economic.*;
 import stratos.util.*;
 import static stratos.game.maps.WorldTerrain.*;
 
@@ -83,7 +83,7 @@ public class PavingMap {
   }
   
   
-  public boolean refreshTiles(Tile tiles[]) {
+  public boolean refreshPaving(Tile tiles[]) {
     for (Tile t : tiles) if (t.owningType() <= Element.ELEMENT_OWNS) {
       final byte c = roadCounter[t.x][t.y];
       

@@ -6,13 +6,12 @@
 
 package stratos.game.base;
 import stratos.game.common.*;
+import stratos.game.economic.*;
 import stratos.game.maps.*;
-import stratos.game.building.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.util.*;
-
-import static stratos.game.building.Economy.*;
+import static stratos.game.economic.Economy.*;
 
 
 

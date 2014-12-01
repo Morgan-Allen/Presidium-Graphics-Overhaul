@@ -7,9 +7,9 @@
 
 package stratos.game.common;
 import stratos.game.actors.*;
-import stratos.game.building.*;
 import stratos.game.campaign.*;
 import stratos.game.civilian.*;
+import stratos.game.economic.*;
 import stratos.game.tactical.*;
 import stratos.graphics.common.*;
 import stratos.user.*;

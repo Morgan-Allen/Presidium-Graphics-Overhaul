@@ -3,14 +3,14 @@
 
 package stratos.game.plans;
 import stratos.game.common.*;
+import stratos.game.economic.*;
 import stratos.game.tactical.*;
 import stratos.game.actors.*;
-import stratos.game.building.*;
 import stratos.game.base.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Conditions.*;
-import static stratos.game.building.Economy.*;
+import static stratos.game.economic.Economy.*;
 
 
 

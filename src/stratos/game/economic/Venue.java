@@ -5,7 +5,7 @@
   */
 
 
-package stratos.game.building;
+package stratos.game.economic;
 import stratos.game.actors.*;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
@@ -17,8 +17,7 @@ import stratos.graphics.terrain.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
-
-import static stratos.game.building.Economy.*;
+import static stratos.game.economic.Economy.*;
 
 
 

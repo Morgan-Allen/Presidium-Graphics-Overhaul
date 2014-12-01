@@ -4,7 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 
-package stratos.game.building;
+package stratos.game.economic;
 
 import stratos.game.actors.*;
 import stratos.game.campaign.BaseSetup;

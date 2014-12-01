@@ -5,12 +5,12 @@ package stratos.game.plans;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.civilian.*;
-import stratos.game.building.*;
 import stratos.util.*;
-
 import stratos.game.campaign.Commerce;
-import stratos.game.building.Inventory.Owner;
-import static stratos.game.building.Inventory.*;
+import stratos.game.economic.*;
+import stratos.game.economic.Inventory.Owner;
+import static stratos.game.economic.Inventory.*;
+
 import org.apache.commons.math3.util.FastMath;
 
 

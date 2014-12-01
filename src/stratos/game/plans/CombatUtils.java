@@ -2,8 +2,8 @@
 
 package stratos.game.plans;
 import stratos.game.common.*;
+import stratos.game.economic.*;
 import stratos.game.actors.*;
-import stratos.game.building.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 

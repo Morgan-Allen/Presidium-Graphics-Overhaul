@@ -3,8 +3,8 @@
 package stratos.game.plans;
 import stratos.game.civilian.Pledge;
 import stratos.game.common.*;
+import stratos.game.economic.*;
 import stratos.game.actors.*;
-import stratos.game.building.*;
 import stratos.game.base.*;
 import stratos.util.*;
 
@@ -85,7 +85,7 @@ public class Gifting extends Plan implements Qualities {
     float modifier = NO_MODIFIER;
     final float
       novelty = receives.relations.noveltyFor(actor),
-      rating = ActorDesires.rateDesire(gift, actor, receives);
+      rating = ActorMotives.rateDesire(gift, actor, receives);
     if (! hasBegun()) {
       modifier -= ROUTINE;
       modifier += (novelty + rating) * ROUTINE;
@@ -180,14 +180,14 @@ public class Gifting extends Plan implements Qualities {
     
     for (Traded f : Economy.ALL_FOOD_TYPES) {
       final Item food = Item.withAmount(f, 1);
-      rating = ActorDesires.rateDesire(food, buys, receives);
+      rating = ActorMotives.rateDesire(food, buys, receives);
       if (rating > bestRating) { bestRating = rating; gift = food; }
     }
     
     if (receives.mind.home() instanceof Venue) {
       final Venue home = (Venue) receives.mind.home();
       for (Item needs : home.stocks.shortages()) {
-        rating = ActorDesires.rateDesire(needs, buys, receives);
+        rating = ActorMotives.rateDesire(needs, buys, receives);
         if (rating > bestRating) { bestRating = rating; gift = needs; }
       }
     }

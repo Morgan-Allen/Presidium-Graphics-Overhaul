@@ -7,11 +7,12 @@
 package stratos.game.campaign;
 
 import stratos.start.*;
-import stratos.game.building.*;
 import stratos.game.common.*;
+import stratos.game.economic.*;
 import stratos.game.actors.*;
 import stratos.util.*;
 import stratos.game.plans.*;
+
 import org.apache.commons.math3.util.FastMath;
 
 

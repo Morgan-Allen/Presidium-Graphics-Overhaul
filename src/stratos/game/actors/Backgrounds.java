@@ -6,13 +6,12 @@
 
 package stratos.game.actors;
 import stratos.game.common.*;
-import stratos.game.building.*;
 import stratos.game.campaign.Sector;
+import stratos.game.economic.*;
 import stratos.graphics.common.*;
 import stratos.util.*;
-
 import static stratos.game.actors.Qualities.*;
-import static stratos.game.building.Economy.*;
+import static stratos.game.economic.Economy.*;
 
 
 

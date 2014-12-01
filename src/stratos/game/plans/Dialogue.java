@@ -3,8 +3,8 @@
 
 package stratos.game.plans;
 import stratos.game.actors.*;
-import stratos.game.building.*;
 import stratos.game.common.*;
+import stratos.game.economic.*;
 import stratos.util.*;
 
 
@@ -133,7 +133,7 @@ public class Dialogue extends Plan implements Qualities {
   
   
   protected float getPriority() {
-    //if (GameSettings.noChat) return -1;
+    if (GameSettings.noChat) return -1;
     
     final boolean report = evalVerbose && (
       I.talkAbout == actor || I.talkAbout == other
@@ -365,7 +365,7 @@ public class Dialogue extends Plan implements Qualities {
     
     //  TODO:  Modify DC by the greed and honour of the subject.
     DialogueUtils.utters(actor, "I have a gift for you...", 0);
-    final float value = ActorDesires.rateDesire(gift, null, receives) / 10f;
+    final float value = ActorMotives.rateDesire(gift, null, receives) / 10f;
     float acceptDC = (0 - value) * ROUTINE_DC;
     float success = DialogueUtils.talkResult(
       SUASION, acceptDC, actor, receives

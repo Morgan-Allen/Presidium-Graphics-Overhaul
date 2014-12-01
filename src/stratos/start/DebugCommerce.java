@@ -2,10 +2,10 @@
 
 package stratos.start;
 import stratos.game.actors.*;
-import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.game.base.*;
 import stratos.game.campaign.*;
+import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.wild.*;
 import stratos.game.plans.*;
@@ -74,7 +74,7 @@ public class DebugCommerce extends Scenario {
     GameSettings.buildFree = true;
     GameSettings.fogFree   = true;
     GameSettings.paveFree  = true;
-    //GameSettings.noChat    = true;
+    GameSettings.noChat    = true;
     
     //  TODO:  Try giving the residents pots of money instead...
     //GameSettings.freeHousingLevel = 0;
@@ -98,20 +98,25 @@ public class DebugCommerce extends Scenario {
     final Venue runnerMarket = new RunnerLodge(base);
     Placement.establishVenue(runnerMarket, 10,  5, true, world, runner);
     
+    final Actor vendor = new Human(Backgrounds.STOCK_VENDOR, base);
     final Venue looted = new StockExchange(base);
     for (Traded t : looted.services()) {
       looted.stocks.bumpItem(t, 10);
     }
-    Placement.establishVenue(looted, 5, 10, true, world);
+    Placement.establishVenue(looted, 5, 10, true, world, vendor);
     
     final Looting loots = new Looting(
       runner, looted, Item.withAmount(Economy.GREENS, 1)
     );
-    loots.setMotive(Plan.MOTIVE_LEISURE, Plan.PARAMOUNT);
+    loots.setMotive(Plan.MOTIVE_EMERGENCY, Plan.ROUTINE);
     runner.mind.assignBehaviour(loots);
     UI.selection.pushSelection(runner, true);
     
-    //  TODO:  Set up initial relationships!
+    final Arrest arrest = new Arrest(vendor, runner);
+    arrest.setMotive(Plan.MOTIVE_EMERGENCY, Plan.ROUTINE);
+    vendor.mind.assignBehaviour(arrest);
+    
+    //  TODO:  Set up initial relationships...
   }
 
   

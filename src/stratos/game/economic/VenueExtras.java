@@ -1,7 +1,7 @@
 
 
 
-package stratos.game.building;
+package stratos.game.economic;
 import stratos.game.common.*;
 import stratos.util.*;
 

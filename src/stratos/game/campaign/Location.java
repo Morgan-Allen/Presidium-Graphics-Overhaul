@@ -2,7 +2,7 @@
 
 
 package stratos.game.campaign;
-import stratos.game.building.*;
+import stratos.game.economic.*;
 
 
 

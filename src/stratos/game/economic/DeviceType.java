@@ -1,13 +1,12 @@
 
 
-package stratos.game.building;
+package stratos.game.economic;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
 import stratos.graphics.solids.*;
 import stratos.util.*;
-
-import static stratos.game.building.Economy.*;
+import static stratos.game.economic.Economy.*;
 
 
 

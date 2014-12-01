@@ -3,7 +3,6 @@
 
 package stratos.game.wild;
 import stratos.game.actors.*;
-import stratos.game.building.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
 import stratos.game.plans.Combat;
@@ -14,6 +13,7 @@ import stratos.game.plans.Retreat;
 import stratos.game.plans.StretcherDelivery;
 import stratos.game.tactical.*;
 import stratos.game.civilian.*;
+import stratos.game.economic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
 import stratos.graphics.widgets.HUD;

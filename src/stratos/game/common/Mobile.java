@@ -8,7 +8,7 @@
 package stratos.game.common;
 import org.apache.commons.math3.util.FastMath;
 
-import stratos.game.building.*;
+import stratos.game.economic.*;
 import stratos.game.actors.*;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.PlaneFX;

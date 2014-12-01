@@ -6,8 +6,8 @@ import org.apache.commons.math3.util.FastMath;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.civilian.*;
+import stratos.game.economic.Venue;
 import stratos.game.plans.Audit;
-import stratos.game.building.Venue;
 import stratos.util.*;
 
 

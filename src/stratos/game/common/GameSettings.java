@@ -34,7 +34,7 @@ public class GameSettings {
     pathFree  = false,
     needsFree = false,
     noBlood   = false,
-//    noChat    = false,
+    noChat    = false,
     
     hardCore  = false;
   

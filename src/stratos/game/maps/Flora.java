@@ -5,8 +5,8 @@
  */
 
 package stratos.game.maps;
-import stratos.game.building.*;
 import stratos.game.common.*;
+import stratos.game.economic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.util.*;

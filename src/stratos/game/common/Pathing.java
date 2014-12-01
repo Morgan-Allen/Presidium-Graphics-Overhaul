@@ -9,8 +9,8 @@ package stratos.game.common;
 import org.apache.commons.math3.util.FastMath;
 
 import stratos.game.actors.Choice;
-import stratos.game.building.*;
 import stratos.game.common.*;
+import stratos.game.economic.*;
 import stratos.user.*;
 import stratos.util.*;
 
