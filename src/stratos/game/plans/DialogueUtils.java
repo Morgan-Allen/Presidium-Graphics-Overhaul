@@ -7,7 +7,6 @@ import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.graphics.sfx.TalkFX;
 import stratos.util.*;
-import org.apache.commons.math3.util.FastMath;
 
 
 
@@ -85,7 +84,7 @@ public class DialogueUtils implements Qualities {
       final float
         levelA = actor.traits.relativeLevel(t),
         levelO = actor.traits.relativeLevel(t),
-        rating = (2f - FastMath.abs(levelA - levelO)) * Rand.num();
+        rating = (2f - Nums.abs(levelA - levelO)) * Rand.num();
       if (rating > bestRating) { bestRating = rating; comp = t; }
     }
     if (comp == null) {
@@ -120,7 +119,7 @@ public class DialogueUtils implements Qualities {
       if (r.subject == other || ! (r.subject instanceof Actor)) continue;
       final float
         otherR = other.relations.valueFor(r.subject),
-        rating = (FastMath.abs(otherR * r.value()) + 0.5f) * Rand.num();
+        rating = (Nums.abs(otherR * r.value()) + 0.5f) * Rand.num();
       if (rating > bestRating) { pick = r; bestRating = rating; }
     }
     
@@ -133,7 +132,7 @@ public class DialogueUtils implements Qualities {
       attA = actor.relations.valueFor(about),
       attO = other.relations.valueFor(about);
     
-    final boolean agrees = FastMath.abs(attA - attO) < 0.5f;
+    final boolean agrees = Nums.abs(attA - attO) < 0.5f;
     final float effect = 0.2f * (agrees ? 1 : -1) * Dialogue.RELATION_BOOST;
     
     final float noveltyInc = -1f / Dialogue.BORED_DURATION;

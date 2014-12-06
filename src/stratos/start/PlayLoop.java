@@ -222,7 +222,7 @@ public final class PlayLoop {
     else {
       updateGap = time - lastUpdate;
       frameTime = (updateGap - 0) * 1.0f / UPDATE_INTERVAL;
-      frameTime = Visit.clamp(frameTime, 0, 1);
+      frameTime = Nums.clamp(frameTime, 0, 1);
     }
     
     loopChanged = false;

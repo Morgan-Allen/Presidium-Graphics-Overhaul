@@ -4,9 +4,7 @@
 package stratos.game.civilian;
 import stratos.game.common.*;
 import stratos.game.actors.*;
-import stratos.util.I;
-
-import org.apache.commons.math3.util.FastMath;
+import stratos.util.*;
 
 
 
@@ -108,7 +106,7 @@ public class Pledge implements Session.Saveable {
     baseUnit /= Backgrounds.NUM_DAYS_PAY;
     
     float mag = 1f + (creditsPerDay / baseUnit);
-    mag = ((float) FastMath.log(2, mag)) * greed;
+    mag = Nums.log(2, mag) * greed;
     
     final float level;
     if (mag <= 1) level = mag * Plan.ROUTINE;

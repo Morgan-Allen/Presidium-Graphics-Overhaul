@@ -2,8 +2,8 @@
 
 package stratos.graphics.charts;
 import stratos.util.*;
+
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import org.apache.commons.math3.util.FastMath;
 
 
 
@@ -30,7 +30,7 @@ public class FieldObject {
   
   
   public float radius() {
-    return FastMath.min(fieldWide, fieldHigh);
+    return Nums.min(fieldWide, fieldHigh);
   }
   
   

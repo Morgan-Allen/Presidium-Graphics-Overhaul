@@ -3,21 +3,12 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.game.common.Session.Saveable;
 import stratos.user.*;
 import stratos.util.*;
-import org.apache.commons.math3.util.FastMath;
 
-
-
-//
-//  TODO:  I think that the whole Plan structure needs to be polished.  Keep it
-//  all recursive and internal, rather than keeping the stack within the
-//  actor's mind?
 
 
 public abstract class Plan implements Saveable, Behaviour {
@@ -361,7 +352,7 @@ public abstract class Plan implements Saveable, Behaviour {
     if (subjectHarm != 0) {
       relation = actor.relations.valueFor(subject);
       final float
-        mulWeight = FastMath.abs(subjectHarm),
+        mulWeight = Nums.abs(subjectHarm),
         mulSign   = subjectHarm > 0 ? -1 : 1,
         mulLevel  = priority * relation * mulSign;
       priority = (priority * (1 - mulWeight)) + (mulLevel * mulWeight);
@@ -377,7 +368,7 @@ public abstract class Plan implements Saveable, Behaviour {
     final float extraPriority = flatBonus + motiveBonus;
     priority *= defaultRange * 1f / PARAMOUNT;
     priority += (extraPriority) / 2;
-    priority = Visit.clamp(priority, 0, defaultRange + ROUTINE);
+    priority = Nums.clamp(priority, 0, defaultRange + ROUTINE);
     
     if (report) {
       I.say("  Default priority range:      "+defaultRange);
@@ -388,7 +379,7 @@ public abstract class Plan implements Saveable, Behaviour {
     //  We also inject the effects of competition/cooperation from peers.
     if (peersCompete != 0 && (peersCompete < 0 || ! hasBegun())) {
       float competeSum = competition(this, subject, actor) * peersCompete;
-      priority *= Visit.clamp(1 - competeSum, 0, 1.5f);
+      priority *= Nums.clamp(1 - competeSum, 0, 1.5f);
       if (report) I.say("  After competition effects:   "+priority);
     }
     
@@ -401,13 +392,13 @@ public abstract class Plan implements Saveable, Behaviour {
       for (Skill s : baseSkills) {
         final float level = actor.traits.usedLevel(s);
         if (report) I.say("    "+s+" "+level);
-        maxSkill = FastMath.max(maxSkill, level / 10);
+        maxSkill = Nums.max(maxSkill, level / 10);
         avgSkill += level / 10;
       }
       
       avgSkill /= baseSkills.length;
-      maxSkill = Visit.clamp((maxSkill + avgSkill) / 2, 0, 2);
-      priority *= FastMath.sqrt(maxSkill);
+      maxSkill = Nums.clamp((maxSkill + avgSkill) / 2, 0, 2);
+      priority *= Nums.sqrt(maxSkill);
       
       if (report) {
         I.say("  After skill adjustments:     "+priority);
@@ -424,14 +415,14 @@ public abstract class Plan implements Saveable, Behaviour {
       for (Trait t : baseTraits) {
         final float level = actor.traits.relativeLevel(t);
         if (report) I.say("    "+t+" "+level);
-        maxTrait = FastMath.max(maxTrait, level);
+        maxTrait = Nums.max(maxTrait, level);
         if (level >= 0.5f) avgTrait += (level - 0.5f) / 0.5f;
         else avgTrait += (level - 0.5f) / 1.5f;
       }
       
       avgTrait /= baseTraits.length;
-      maxTrait = Visit.clamp((maxTrait + avgTrait) / 2, -1, 1);
-      priority *= FastMath.sqrt(1 + maxTrait);
+      maxTrait = Nums.clamp((maxTrait + avgTrait) / 2, -1, 1);
+      priority *= Nums.sqrt(1 + maxTrait);
       
       if (report) {
         I.say("  After trait adjustments:     "+priority);
@@ -461,7 +452,7 @@ public abstract class Plan implements Saveable, Behaviour {
     priority -= chancePenalty;
     priority -= rangePenalty ;
     priority -= dangerPenalty;
-    priority = Visit.clamp(priority, 0, defaultRange + extraPriority + ROUTINE);
+    priority = Nums.clamp(priority, 0, defaultRange + extraPriority + ROUTINE);
     
     if (report) {
       I.say("  Distance is:                 "+Spacing.distance(actor, subject));
@@ -497,7 +488,7 @@ public abstract class Plan implements Saveable, Behaviour {
     final float SS = Stage.SECTOR_SIZE;  //  TODO:  Modify by move speed!
     final float dist = Spacing.distance(a, b) / SS;
     if (dist <= 1) return dist / 2;
-    return ((float) FastMath.log(2, dist)) + 0.5f;
+    return Nums.log(2, dist) + 0.5f;
   }
   
   
@@ -596,7 +587,7 @@ public abstract class Plan implements Saveable, Behaviour {
   public static String priorityDescription(float priority) {
     final int maxIndex = PRIORITY_DESCRIPTIONS.length;
     final float index = (priority / PARAMOUNT) * (maxIndex - 1);
-    return PRIORITY_DESCRIPTIONS[Visit.clamp((int) index, maxIndex)];
+    return PRIORITY_DESCRIPTIONS[Nums.clamp((int) index, maxIndex)];
   }
   
   

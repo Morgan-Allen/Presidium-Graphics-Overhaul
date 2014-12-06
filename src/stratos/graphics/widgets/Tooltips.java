@@ -57,7 +57,7 @@ public class Tooltips extends UIGroup {
     ) {
       final String info = UI.selected().info();
       if (info != null) {
-        final float alpha = Visit.clamp(
+        final float alpha = Nums.clamp(
           (UI.timeHovered() - HOVER_TIME) / HOVER_FADE, 0, 1
         );
         hidden = false;
@@ -73,11 +73,11 @@ public class Tooltips extends UIGroup {
         final float wide = TB.xdim(), high = TB.ydim();
         absBound.xdim(wide);
         absBound.ydim(high);
-        absBound.xpos(Visit.clamp(
+        absBound.xpos(Nums.clamp(
           UI.mousePos().x, 0 - bordering.left,
           SB.xdim() - (wide + bordering.right)
         ));
-        absBound.ypos(Visit.clamp(
+        absBound.ypos(Nums.clamp(
           UI.mousePos().y, 0 - bordering.bottom,
           SB.ydim() - (high + bordering.top)
         ));

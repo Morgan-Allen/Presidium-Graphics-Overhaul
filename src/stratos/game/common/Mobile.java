@@ -11,9 +11,7 @@ import stratos.game.economic.*;
 import stratos.game.actors.*;
 import stratos.graphics.common.*;
 import stratos.util.*;
-
 import stratos.graphics.sfx.PlaneFX;
-import org.apache.commons.math3.util.FastMath;
 
 
 
@@ -355,7 +353,7 @@ public abstract class Mobile extends Element
     s.rotation = rotation;
     //
     //  Render your shadow, either on the ground or on top of occupants-
-    final float R2 = (float) FastMath.sqrt(2);
+    final float R2 = Nums.sqrt(2);
     final PlaneFX shadow = (PlaneFX) SHADOW_MODEL.makeSprite();
     shadow.scale = radius() * scale * R2;
     final Vec3D p = s.position;

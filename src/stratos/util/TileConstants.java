@@ -32,6 +32,11 @@ public interface TileConstants {
     Y_AXIS = 1,
     CORNER = 2;
   
+  final public static String DIR_NAMES[] = {
+    "North", "Northeast", "East", "Southeast",
+    "South", "Southwest", "West", "Northwest"
+  };
+  
 }
 
 

@@ -216,7 +216,7 @@ public class HeightMap {
     *  individual maps can and will vary significantly.  Caveat Emptor.
     */
   public static float areaUnderHeight(float height) {
-    height = Visit.clamp(height, 0, 1);
+    height = Nums.clamp(height, 0, 1);
     final boolean subHalf = height < 0.5f;
     if (subHalf) height = 1 - height;
     
@@ -227,7 +227,7 @@ public class HeightMap {
   
   
   public static float heightCoveringArea(float areaUnder) {
-    areaUnder = Visit.clamp(areaUnder, 0, 1);
+    areaUnder = Nums.clamp(areaUnder, 0, 1);
     final boolean subHalf = areaUnder < 0.5f;
     if (subHalf) areaUnder = 1 - areaUnder;
     

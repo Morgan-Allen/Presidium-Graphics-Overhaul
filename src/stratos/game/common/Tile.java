@@ -96,6 +96,7 @@ public final class Tile implements
   public boolean inWorld() { return true; }
   public boolean destroyed() { return false; }
   public Stage world() { return world; }
+  public Base base() { return null; }
   
   public Vec3D position(Vec3D v) {
     if (v == null) v = new Vec3D();

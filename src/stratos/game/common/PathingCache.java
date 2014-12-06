@@ -426,7 +426,7 @@ public class PathingCache {
           if (under != lastPlace) {
             for (int i = PPL; i-- > 0;) if (placesPath[i] == under) {
               if (this.verbose) I.say("  Best Tile: "+best);
-              PPI = Visit.clamp(i + 1, PPL);
+              PPI = Nums.clamp(i + 1, PPL);
               break;
             }
           }
@@ -461,8 +461,8 @@ public class PathingCache {
           final Tile tile = (Tile) spot;
           final Place
             curr = placesPath[PPI],
-            next = placesPath[Visit.clamp(PPI + 1, PPL)],
-            last = placesPath[Visit.clamp(PPI - 1, PPL)];
+            next = placesPath[Nums.clamp(PPI + 1, PPL)],
+            last = placesPath[Nums.clamp(PPI - 1, PPL)];
           tempArea.setTo(curr.caching.section.area);
           tempArea.include(next.caching.section.area);
           tempArea.include(last.caching.section.area);

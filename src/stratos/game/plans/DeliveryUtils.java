@@ -1,7 +1,6 @@
 
 
 package stratos.game.plans;
-
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.civilian.*;
@@ -10,8 +9,6 @@ import stratos.game.campaign.Commerce;
 import stratos.game.economic.*;
 import stratos.game.economic.Inventory.Owner;
 import static stratos.game.economic.Inventory.*;
-
-import org.apache.commons.math3.util.FastMath;
 
 
 
@@ -58,7 +55,7 @@ public class DeliveryUtils {
     int sumOrder = 0;
     
     for (int i = s.length; i-- > 0;) {
-      int amount = (int) FastMath.ceil(amounts[i] * maxAmount / sumAmount);
+      int amount = (int) Nums.ceil(amounts[i] * maxAmount / sumAmount);
       sumOrder += amount;
       if (sumOrder > maxAmount) amount -= sumOrder - maxAmount;
       

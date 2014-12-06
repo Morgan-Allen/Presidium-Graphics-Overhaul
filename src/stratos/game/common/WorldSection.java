@@ -42,6 +42,8 @@ public class WorldSection implements Target, Session.Saveable {
   
   
   public Stage world() { return world; }
+  public Base base() { return null; }
+  
   public boolean inWorld() { return true; }
   public boolean destroyed() { return false; }
   public boolean isMobile() { return false; }

@@ -3,14 +3,11 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.graphics.common;
 import stratos.util.*;
 
 import java.awt.Color;
 import java.io.*;
-
-import org.apache.commons.math3.util.FastMath;
 
 
 
@@ -93,7 +90,7 @@ public class Colour {
   }
   
   private float toFloatBits() {
-    final float o = FastMath.abs(a);
+    final float o = Nums.abs(a);
     final int color =
       ((int) (255 * o) << 24) |
       ((int) (255 * b) << 16) |
@@ -144,10 +141,10 @@ public class Colour {
   public float difference(Colour c) {
     if (c == null) return 1;
     float diff = 0;
-    diff += FastMath.abs(r - c.r);
-    diff += FastMath.abs(g - c.g);
-    diff += FastMath.abs(b - c.b);
-    diff += FastMath.abs(a - c.a);
+    diff += Nums.abs(r - c.r);
+    diff += Nums.abs(g - c.g);
+    diff += Nums.abs(b - c.b);
+    diff += Nums.abs(a - c.a);
     return diff / 4;
   }
   
@@ -266,15 +263,15 @@ public class Colour {
   }
 
   public static Colour transparency(float a) {
-    return TRANSPARENCIES[Visit.clamp((int) (a * 100), 100)];
+    return TRANSPARENCIES[Nums.clamp((int) (a * 100), 100)];
   }
   
   public static Colour greyscale(float a) {
-    return GREYSCALES[Visit.clamp((int) (a * 100), 100)];
+    return GREYSCALES[Nums.clamp((int) (a * 100), 100)];
   }
   
   public static Colour glow(float a) {
-    return GLOWS[Visit.clamp((int) (a * 100), 100)];
+    return GLOWS[Nums.clamp((int) (a * 100), 100)];
   }
   
   public static float combineAlphaBits(Colour base, Colour alpha) {

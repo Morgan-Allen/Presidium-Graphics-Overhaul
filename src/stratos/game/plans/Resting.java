@@ -83,7 +83,7 @@ public class Resting extends Plan {
     }
     
     //  Include effects of fatigue-
-    final float stress = Visit.clamp(
+    final float stress = Nums.clamp(
       actor.health.fatigueLevel () +
       actor.health.stressPenalty() +
       actor.health.injuryLevel  (),
@@ -98,7 +98,7 @@ public class Resting extends Plan {
     }
     
     //  Include effects of hunger-
-    float sumFood = 0, hunger = Visit.clamp(actor.health.hungerLevel(), 0, 1);
+    float sumFood = 0, hunger = Nums.clamp(actor.health.hungerLevel(), 0, 1);
     for (Traded s : menuFor(restPoint)) {
       sumFood += restPoint.inventory().amountOf(s);
     }
@@ -121,7 +121,7 @@ public class Resting extends Plan {
     
     final float priority = priorityForActorWith(
       actor, restPoint,
-      Visit.clamp(urgency, 0, URGENT), NO_MODIFIER,
+      Nums.clamp(urgency, 0, URGENT), NO_MODIFIER,
       MILD_HELP, NO_COMPETITION, NO_FAIL_RISK,
       NO_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report

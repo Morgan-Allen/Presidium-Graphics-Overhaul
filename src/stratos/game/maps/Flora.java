@@ -69,7 +69,7 @@ public class Flora extends Element implements TileConstants {
         if (Rand.num() < growChance * 4)
           stage++;
       }
-      stage = Visit.clamp(stage, 0, MAX_GROWTH - 0.5f);
+      stage = Nums.clamp(stage, 0, MAX_GROWTH - 0.5f);
       f.incGrowth(stage, world, true);
       f.setAsEstablished(true);
       
@@ -140,13 +140,13 @@ public class Flora extends Element implements TileConstants {
   
   
   public void incGrowth(float inc, Stage world, boolean init) {
-    final int oldGrowth = Visit.clamp((int) growth, MAX_GROWTH);
+    final int oldGrowth = Nums.clamp((int) growth, MAX_GROWTH);
     growth += inc;
     if (growth <= 0) {
       setAsDestroyed();
       return;
     }
-    final int newGrowth = Visit.clamp((int) growth, MAX_GROWTH);
+    final int newGrowth = Nums.clamp((int) growth, MAX_GROWTH);
     if (oldGrowth == newGrowth && ! init) return;
     
     if (inc > 0 && ! init) {
@@ -171,7 +171,7 @@ public class Flora extends Element implements TileConstants {
   
   
   public int growStage() {
-    return Visit.clamp((int) growth, MAX_GROWTH);
+    return Nums.clamp((int) growth, MAX_GROWTH);
   }
   
   

@@ -309,8 +309,8 @@ public class ShieldWall extends Venue {
     if (point == null) return null;
     final Stage world = point.world;
     final Tile corner = world.tileAt(
-      Visit.round(point.x, SIDE_LENGTH, false),
-      Visit.round(point.y, SIDE_LENGTH, false)
+      Nums.round(point.x, SIDE_LENGTH, false),
+      Nums.round(point.y, SIDE_LENGTH, false)
     );
     //
     //  Find which side of the sector the given point is closest to (measured

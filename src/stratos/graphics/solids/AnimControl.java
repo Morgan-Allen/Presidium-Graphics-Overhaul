@@ -3,7 +3,7 @@
 
 package stratos.graphics.solids;
 import stratos.util.I;
-import stratos.util.Visit;
+import stratos.util.Nums;
 
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.model.*;

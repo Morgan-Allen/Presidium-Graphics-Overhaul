@@ -165,6 +165,11 @@ public class Element implements
   }
   
   
+  public Base base() {
+    return null;
+  }
+  
+  
   
   /**  Properties, both hard-wired and custom.
     */

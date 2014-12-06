@@ -123,13 +123,13 @@ public class Item {
   
   
   public static Item withQuality(Traded type, int quality) {
-    return new Item(type, null, 1, Visit.clamp(quality, 5));
+    return new Item(type, null, 1, Nums.clamp(quality, 5));
   }
   
   
   public static Item withQuality(Item item, int quality) {
     return new Item(
-      item.type, item.refers, item.amount, Visit.clamp(quality, 5)
+      item.type, item.refers, item.amount, Nums.clamp(quality, 5)
     );
   }
   
@@ -139,7 +139,7 @@ public class Item {
   ) {
     if (amount < 0) I.complain("Amount must be positive!");
     return new Item(
-      type, refers, amount, Visit.clamp(quality, 0, 4)
+      type, refers, amount, Nums.clamp(quality, 0, 4)
     );
   }
   
@@ -168,7 +168,7 @@ public class Item {
   
   
   public static Item asMatch(Traded type, Saveable refers, int quality) {
-    return new Item(type, refers, ANY, Visit.clamp(quality, 5));
+    return new Item(type, refers, ANY, Nums.clamp(quality, 5));
   }
   
   
@@ -222,7 +222,7 @@ public class Item {
       d.append(")");
     }
     if (refers != null && amount < 1) {
-      final int percent = (int) (100 * Visit.clamp(amount, 0, 1));
+      final int percent = (int) (100 * Nums.clamp(amount, 0, 1));
       d.append(" ("+percent+"%)");
     }
   }

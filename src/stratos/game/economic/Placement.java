@@ -6,13 +6,11 @@ import stratos.game.campaign.*;
 import stratos.game.common.*;
 import stratos.util.*;
 
-import org.apache.commons.math3.util.FastMath;
 
 
 //
 //  TODO:  Try merging this with the TileSpread class, or the PlacementGrid
 //  class.  Placement2 can probably be got rid off completely.
-
 
 public class Placement implements TileConstants {
   
@@ -246,8 +244,8 @@ public class Placement implements TileConstants {
           if (verbose) I.say("Area clear: "+c.x+" "+c.y+" "+xdim+" "+ydim);
           int i = 0; for (Venue s : strip) {
             s.setPosition(
-              minX + (i * deep * FastMath.abs(N_Y[dir])),
-              minY + (i * deep * FastMath.abs(N_X[dir])),
+              minX + (i * deep * Count.abs(N_Y[dir])),
+              minY + (i * deep * Count.abs(N_X[dir])),
               world
             );
             if (verbose) I.say("Checking at: "+s.origin());

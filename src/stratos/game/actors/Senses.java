@@ -5,6 +5,7 @@ import stratos.game.common.*;
 import stratos.game.plans.*;
 import stratos.util.*;
 import stratos.game.economic.*;
+
 import stratos.game.common.Session.Saveable;
 
 
@@ -18,7 +19,7 @@ public class Senses implements Qualities {
     reactVerbose  = false,
     noticeVerbose = false,
     sightVerbose  = false,
-    dangerVerbose = false;
+    dangerVerbose = true ;
   
   final static int NUM_DIRS = TileConstants.T_INDEX.length / 2;
   
@@ -232,7 +233,7 @@ public class Senses implements Qualities {
       float stealth = a.traits.usedLevel(STEALTH_AND_COVER) / 20f;
       stealth += 0.5f - (Action.speedMultiple(a, true) / (speed * 1));
       
-      return Visit.clamp(stealth, 0, 2);
+      return Nums.clamp(stealth, 0, 2);
     }
     if (e instanceof Installation) {
       return ((Installation) e).structure().cloaking() / 10f;
@@ -274,18 +275,19 @@ public class Senses implements Qualities {
     for (int n = NUM_DIRS; n-- > 0;) fearByDirection[n] = 0;
     emergency = false;
     powerLevel = CombatUtils.powerLevel(actor);
+    final Base attacked = CombatUtils.baseAttacked(actor);
     
     for (Target t : awareOf) if ((t instanceof Actor) && (t != actor)) {
       final Actor near = (Actor) t;
-      float hostility = CombatUtils.hostileRating(actor, near);
+      float hostility = CombatUtils.hostileRating(actor, near), avoidance = 0;
       
-      //  We set the emergency flag only if the actor is actively doing
+      //  We set the emergency flag only if the other actor is actively doing
       //  something dangerous, and provide some bonuses to threat rating.
       if (hostility > 0) {
         if (report) I.say("  Enemy nearby: "+near+", hostility: "+hostility);
         
         float power = CombatUtils.powerLevelRelative(near, actor);
-        hostility = Visit.clamp(hostility + 0.5f, 0, 1);
+        hostility = Nums.clamp(hostility + 0.5f, 0, 1);
         
         if (CombatUtils.isActiveHostile(actor, near)) {
           emergency = true;
@@ -294,23 +296,35 @@ public class Senses implements Qualities {
         }
         final float foeRating = power * hostility;
         sumFoes += foeRating;
-        
-        //  Lastly, we record the quadrant this threat lies in (with a partial
-        //  bonus to either side.)
-        int quadrant = Spacing.compassDirection(actor.origin(), near.origin());
-        int left  = ((quadrant /= 2) + 1      ) % NUM_DIRS;
-        int right = (quadrant + (NUM_DIRS - 1)) % NUM_DIRS;
-        fearByDirection[quadrant] += foeRating    ;
-        fearByDirection[left    ] += foeRating / 2;
-        fearByDirection[right   ] += foeRating / 2;
+        avoidance = foeRating;
       }
       else {
         float power = near.senses.powerLevel();
         if (report) I.say("  Ally nearby: "+near+", bond: "+(0 - hostility));
         sumAllies += power * (0.5f - hostility) * 2 / (1 + powerLevel);
       }
+
+      //  If you're doing something harmful to a member of a given base, then
+      //  anyone from that base is considered a potential fear-source (at least
+      //  for pathing and cover-taking purposes.  Naturally, this also applies
+      //  to any real enemies detected.)  So we record the quadrant this threat
+      //  lies in, with a partial bonus to either side:
+      if (near.base() == attacked) {
+        if (report) I.say("  Belongs to base attacked...");
+        avoidance = Nums.max(avoidance, 1);
+      }
+      if (avoidance > 0) {
+        int quadrant = Spacing.compassDirection(actor.origin(), near.origin());
+        int left  = ((quadrant /= 2) + 1      ) % NUM_DIRS;
+        int right = (quadrant + (NUM_DIRS - 1)) % NUM_DIRS;
+        fearByDirection[quadrant] += avoidance    ;
+        fearByDirection[left    ] += avoidance / 2;
+        fearByDirection[right   ] += avoidance / 2;
+      }
     }
     
+    //  Finally, we adjust our sense of danger/safety based on ambient danger
+    //  levels for the region as a whole:
     final float ambientDanger = actor.base().dangerMap.sampleAt(actor);
     if (ambientDanger > 0) sumFoes += ambientDanger / powerLevel;
     else sumAllies += 0 - ambientDanger / powerLevel;
@@ -324,6 +338,11 @@ public class Senses implements Qualities {
       I.say("Fear level:  "+fearLevel);
       I.say("Safe point:  "+safePoint);
       I.say("Emergency:   "+emergency);
+      
+      I.say("Danger by direction:");
+      for (int n : TileConstants.T_ADJACENT) {
+        I.say("  "+TileConstants.DIR_NAMES[n]+": "+dangerFromDirection(n));
+      }
     }
   }
   

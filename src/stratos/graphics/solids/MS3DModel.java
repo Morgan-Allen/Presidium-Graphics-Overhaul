@@ -2,23 +2,21 @@
 
 
 package stratos.graphics.solids;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g3d.*;
-import com.badlogic.gdx.graphics.g3d.model.data.*;
-import com.badlogic.gdx.graphics.g3d.model.data.ModelMaterial.MaterialType;
-import com.badlogic.gdx.math.*;
-import com.badlogic.gdx.utils.*;
-
-import java.util.Arrays;
-
-import org.apache.commons.math3.util.FastMath;
 
 import stratos.graphics.common.*;
 import stratos.graphics.solids.MS3DFile.*;
 import stratos.util.*;
 
+import java.util.Arrays;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.g3d.*;
+import com.badlogic.gdx.graphics.g3d.model.data.*;
+import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.utils.*;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.g3d.model.data.ModelMaterial.MaterialType;
 
 
 public class MS3DModel extends SolidModel {
@@ -360,7 +358,7 @@ public class MS3DModel extends SolidModel {
           }
         }
         anim.nodeAnimations.add(nd);
-        maxFrames = FastMath.max(maxFrames, numFrames);
+        maxFrames = Nums.max(maxFrames, numFrames);
       }
       
       if (verbose) {

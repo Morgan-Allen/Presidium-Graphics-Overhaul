@@ -71,7 +71,7 @@ public class CombatUtils {
     float estimate = 1;
     estimate *= 2 * actorPower / (otherPower + actorPower);
     estimate *= 2 * (actorChance + 1 - otherChance) / 2f;
-    estimate = Visit.clamp(estimate, 0, MAX_POWER);
+    estimate = Nums.clamp(estimate, 0, MAX_POWER);
     
     if (report) {
       I.say("\nGETTING POWER OF "+actor+" (Actor)");
@@ -119,12 +119,25 @@ public class CombatUtils {
     }
     
     //  Include a penalty if the subject is unarmed, based on ethics.
+    //  TODO:  This might belong in the priority-method for Combat, rather than
+    //  here?
     if (! isArmed(other)) {
       rating /= 1 + (actor.traits.relativeLevel(ETHICAL) * 2);
     }
     
     //  Limit to the range of +/-1, and return.
-    return Visit.clamp(rating, -1, 1);
+    return Nums.clamp(rating, -1, 1);
+  }
+  
+  
+  public static Base baseAttacked(Actor actor) {
+    //  TODO:  Consider having the actor's agenda contain *only* plans:  
+    //  Actions and Missions can be handled separately.
+    final Behaviour current = actor.mind.rootBehaviour();
+    if (! (current instanceof Plan)) return null;
+    final Plan plan = (Plan) current;
+    if (plan.harmFactor() <= 0) return null;
+    else return plan.subject().base();
   }
   
   
@@ -133,7 +146,7 @@ public class CombatUtils {
     if (haven == null) return 0;// Plan.PARAMOUNT;
     else {
       float homeDist = Spacing.distance(from, haven);
-      homeDist = Visit.clamp(homeDist / Stage.SECTOR_SIZE, 0, 1);
+      homeDist = Nums.clamp(homeDist / Stage.SECTOR_SIZE, 0, 1);
       return Plan.PARAMOUNT * (1 - homeDist);
     }
   }

@@ -200,7 +200,7 @@ public class Stocks extends Inventory {
       amount = amountOf(type),
       demand = demandFor(type),
       shortage = demand - amount;
-    return Visit.clamp(
+    return Nums.clamp(
       (shortage - ((demand + 1f) / 2)) / (amount + 1),
       0, 1
     );

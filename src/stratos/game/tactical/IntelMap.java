@@ -2,8 +2,6 @@
 
 
 package stratos.game.tactical;
-import org.apache.commons.math3.util.FastMath;
-
 import stratos.game.common.*;
 import stratos.game.maps.*;
 import stratos.graphics.common.*;
@@ -94,13 +92,13 @@ public class IntelMap {
   
   public float displayFog(Tile t, Object client) {
     if (GameSettings.fogFree || base.primal) return 1;
-    return Visit.clamp(fogOver.sampleAt(t.x, t.y, client), 0, 1);
+    return Nums.clamp(fogOver.sampleAt(t.x, t.y, client), 0, 1);
   }
   
   
   public float displayFog(float x, float y, Object client) {
     if (GameSettings.fogFree || base.primal) return 1;
-    return Visit.clamp(fogOver.sampleAt(x, y, client), 0, 1);
+    return Nums.clamp(fogOver.sampleAt(x, y, client), 0, 1);
   }
   
   
@@ -115,7 +113,7 @@ public class IntelMap {
       float val = fogVals[c.x][c.y];
       final boolean seen = val >= FOG_SEEN_MIN;
       val -= 1f / FOG_DECAY_TIME;
-      val = Visit.clamp(val, seen ? FOG_SEEN_MIN : MIN_FOG, MAX_FOG);
+      val = Nums.clamp(val, seen ? FOG_SEEN_MIN : MIN_FOG, MAX_FOG);
       fogVals[c.x][c.y] = val;
       
       //  We mask out any tiles that are considered unexplorable (i.e, cannot
@@ -169,7 +167,7 @@ public class IntelMap {
       //  Calculate the minimum fog value, based on target proximity-
       final float oldVal = fogVals[t.x][t.y];
       final float lift = (1 - (distance / radius)) * MAX_FOG;
-      final float newVal = FastMath.max(lift, oldVal);
+      final float newVal = Nums.max(lift, oldVal);
       fogVals[t.x][t.y] = newVal;
       //
       //  If there's been a change in fog value, update the reference and

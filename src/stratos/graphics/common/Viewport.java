@@ -7,7 +7,6 @@ import stratos.util.*;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.math.*;
-import org.apache.commons.math3.util.FastMath;
 
 
 
@@ -59,7 +58,7 @@ public class Viewport {
       midScreen = new Vec2D(wide, high).scale(0.5f);
     
     final float spanX = wide / DEFAULT_SCALE, spanY = high / DEFAULT_SCALE;
-    zoomLevel = FastMath.min(
+    zoomLevel = Nums.min(
       (spanX / maxField) * area.xdim() / wide,
       (spanY / maxField) * area.ydim() / high
     );
@@ -91,9 +90,9 @@ public class Viewport {
     camera.position.set(temp);
     
     final float
-      ER  = (float) FastMath.toRadians(elevation),
-      opp = (float) FastMath.sin(ER) * 100,
-      adj = (float) FastMath.cos(ER) * 100;
+      ER  = Nums.toRadians(elevation),
+      opp = Nums.sin(ER) * 100,
+      adj = Nums.cos(ER) * 100;
     camera.position.add(adj, opp, 0);
     camera.lookAt(temp);
     camera.rotateAround(temp, Vector3.Y, 180 + rotation);

@@ -2,17 +2,13 @@
 
 
 package stratos.game.actors;
-import org.apache.commons.math3.util.FastMath;
-
 import stratos.game.civilian.*;
 import stratos.game.common.*;
-import stratos.game.economic.*;
 import stratos.util.*;
 
 
 
-//  TODO:  Allow this to store relations with arbitrary saveables.
-
+//  TODO:  Allow this to store relations with arbitrary saveables?
 
 public class ActorRelations {
   
@@ -114,7 +110,7 @@ public class ActorRelations {
   protected void updateRelation(Relation r, int period) {
     
     float value = r.value(), novelty = r.novelty();
-    final float magnitude = 1 - FastMath.abs(value);
+    final float magnitude = 1 - Nums.abs(value);
     
     float noveltyInc = period * 1f;
     if (novelty <= 1) {
@@ -157,7 +153,7 @@ public class ActorRelations {
     if (other.base() == actor.base()) {
       relVal += actor.base().relations.communitySpirit() / 2;
     }
-    return (baseVal + Visit.clamp(relVal, 0, 2)) / 3f;
+    return (baseVal + Nums.clamp(relVal, 0, 2)) / 3f;
   }
   
   

@@ -138,8 +138,8 @@ public class MipMap implements TileConstants {
   //
   //  Higher levels of stepFade don't seem to average correctly.  Work on that.
   public float blendValAt(float x, float y, float stepFade) {
-    x = Visit.clamp(x, 0.5f, size - 0.5f);
-    y = Visit.clamp(y, 0.5f, size - 0.5f);
+    x = Nums.clamp(x, 0.5f, size - 0.5f);
+    y = Nums.clamp(y, 0.5f, size - 0.5f);
     if (stepFade < 0) stepFade = 0;
     float sum = 0, weight = 1, sumWeights = 0;
     int minX, minY, maxX, maxY, range;

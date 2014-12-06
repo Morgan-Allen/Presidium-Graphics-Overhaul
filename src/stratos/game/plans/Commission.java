@@ -198,7 +198,7 @@ public class Commission extends Plan {
       I.say("  Manufacture done: "+done    );
       I.say("  Final priority:   "+priority);
     }
-    return Visit.clamp(priority, 0, ROUTINE);
+    return Nums.clamp(priority, 0, ROUTINE);
   }
   
   

@@ -16,8 +16,6 @@ import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
 
-import org.apache.commons.math3.util.FastMath;
-
 
 
 public class Audit extends Plan {
@@ -254,7 +252,7 @@ public class Audit extends Plan {
     
     /*
     final float balance = venue.stocks.credits();
-    venue.stocks.incCredits(0 - FastMath.max(balance, sumWages));
+    venue.stocks.incCredits(0 - Count.max(balance, sumWages));
     venue.stocks.taxDone();
     I.sayAbout(venue, "Balance is now: "+venue.stocks.credits());
     return balance;

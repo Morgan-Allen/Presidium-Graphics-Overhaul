@@ -90,7 +90,7 @@ public class VenueExtras {
   /**  TODO:  Include various helper methods for siting new satellite
     *  structures...
     */
-  boolean lookForSite(Fixture f, Visit rating) {
+  boolean lookForSite(Fixture f, Nums rating) {
     
     return false;
   }

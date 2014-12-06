@@ -166,7 +166,7 @@ public class Outcrop extends Fixture {// implements Selectable {
   
   
   public void incCondition(float inc) {
-    condition = Visit.clamp(condition + inc, 0, 1);
+    condition = Nums.clamp(condition + inc, 0, 1);
     if (condition <= 0) setAsDestroyed();
   }
   

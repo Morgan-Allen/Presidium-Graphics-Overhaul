@@ -78,7 +78,7 @@ public class FadingMap implements TileConstants {
   
   
   public float sampleAt(float x, float y) {
-    return Visit.sampleMap(world.size, averages, x, y) / patchSize;
+    return Nums.sampleMap(world.size, averages, x, y) / patchSize;
   }
   
   

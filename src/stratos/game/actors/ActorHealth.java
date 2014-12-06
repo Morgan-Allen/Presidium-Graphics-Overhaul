@@ -9,8 +9,6 @@ import stratos.game.maps.Planet;
 import stratos.util.*;
 import static stratos.game.actors.Conditions.*;
 
-import org.apache.commons.math3.util.FastMath;
-
 
 
 //  TODO:  This could probably use a thorough cleanup for organisation/clarity.
@@ -200,9 +198,9 @@ public class ActorHealth implements Qualities {
     this.currentAge = lifespan * agingFactor;
     updateHealth(-1);
     if (metabolism != ARTILECT_METABOLISM) {
-      calories = Visit.clamp(Rand.num() + (overallHealth / 2), 0, 1);
+      calories = Nums.clamp(Rand.num() + (overallHealth / 2), 0, 1);
       calories *= maxHealth;
-      nutrition = Visit.clamp(Rand.num() + overallHealth, 0, 1);
+      nutrition = Nums.clamp(Rand.num() + overallHealth, 0, 1);
     }
     else {
       nutrition = 1;
@@ -244,7 +242,7 @@ public class ActorHealth implements Qualities {
   
   
   public void takeCalories(float amount, float quality) {
-    amount = Visit.clamp(amount, 0, maxCalories() - calories);
+    amount = Nums.clamp(amount, 0, maxCalories() - calories);
     final float oldQual = nutrition * calories;
     calories += amount;
     nutrition = (oldQual + (quality * amount)) / calories;
@@ -261,7 +259,7 @@ public class ActorHealth implements Qualities {
   }
   
   
-  public int     agingStage () { return Visit.clamp((int) (ageLevel() * 4), 4); }
+  public int     agingStage () { return Nums.clamp((int) (ageLevel() * 4), 4); }
   public float   ageLevel   () { return currentAge * 1f / lifespan; }
   public boolean juvenile   () { return agingStage() <= AGE_JUVENILE; }
   public int     exactAge   () { return (int) currentAge; }
@@ -287,7 +285,7 @@ public class ActorHealth implements Qualities {
   
   public float baseSpeed() {
     float rate = baseSpeed * GameSettings.actorScale;
-    return rate * (float) FastMath.sqrt(ageMultiple);
+    return rate * Nums.sqrt(ageMultiple);
   }
   
   
@@ -295,7 +293,7 @@ public class ActorHealth implements Qualities {
     float range = 0.5f + (actor.traits.usedLevel(SURVEILLANCE) / 10f);
     range *= (Planet.dayValue(actor.world()) + 1) / 2;  //  TODO:  Take this out?
     range *= GameSettings.actorScale;
-    return baseSight * (float) FastMath.sqrt(range * ageMultiple);
+    return baseSight * Nums.sqrt(range * ageMultiple);
   }
   
   
@@ -317,7 +315,7 @@ public class ActorHealth implements Qualities {
     if (organic()) {
       if ((Rand.num() * maxHealth / 2f) < taken) bleeds = true;
     }
-    injury = Visit.clamp(injury + taken, 0, limit + 1);
+    injury = Nums.clamp(injury + taken, 0, limit + 1);
     checkStateChange();
     
     if (report) {
@@ -336,7 +334,7 @@ public class ActorHealth implements Qualities {
   
   public void takeFatigue(float taken) {
     final float max = maxHealth * MAX_FATIGUE;
-    fatigue = Visit.clamp(fatigue + taken, 0, max);
+    fatigue = Nums.clamp(fatigue + taken, 0, max);
   }
   
   
@@ -347,7 +345,7 @@ public class ActorHealth implements Qualities {
   
   
   public void adjustMorale(float adjust) {
-    morale = Visit.clamp(morale + adjust, MIN_MORALE, MAX_MORALE);
+    morale = Nums.clamp(morale + adjust, MIN_MORALE, MAX_MORALE);
   }
   
   
@@ -392,7 +390,7 @@ public class ActorHealth implements Qualities {
   
   
   public float moraleLevel() {
-    return Visit.clamp(morale + 0.5f, 0, 1);
+    return Nums.clamp(morale + 0.5f, 0, 1);
   }
   
   
@@ -500,11 +498,11 @@ public class ActorHealth implements Qualities {
     sum += hungerLevel();
     
     sum -= (bleeds ? 0 : 0.25f) - disease;
-    sum -= Visit.clamp(moraleLevel(), -0.5f, 0.5f);
+    sum -= Nums.clamp(moraleLevel(), -0.5f, 0.5f);
     
     if (sum > 0) sum -= actor.skills.test(NERVE, null, null, sum * 10, 1, 0);
     
-    return stressCache = Visit.clamp(sum, 0, 1);
+    return stressCache = Nums.clamp(sum, 0, 1);
   }
   
   
@@ -527,7 +525,7 @@ public class ActorHealth implements Qualities {
     //  Check for disease and hunger as well-
     if (organic()) {
       calories -= (1f * maxHealth * baseSpeed) / STARVE_INTERVAL;
-      calories = Visit.clamp(calories, 0, maxCalories());
+      calories = Nums.clamp(calories, 0, maxCalories());
     }
     if (state <= STATE_RESTING && metabolism == HUMAN_METABOLISM) {
       Condition.checkContagion(actor);
@@ -600,7 +598,7 @@ public class ActorHealth implements Qualities {
       bleeds = false;
       morale = 0;
       float fatigueRegen = maxHealth * FATIGUE_GROW_PER_DAY / DEFAULT_HEALTH;
-      fatigue = Visit.clamp(fatigue - fatigueRegen, 0, maxHealth);
+      fatigue = Nums.clamp(fatigue - fatigueRegen, 0, maxHealth);
       return;
     }
     //
@@ -646,8 +644,8 @@ public class ActorHealth implements Qualities {
     }
     
     fatigue += FATIGUE_GROW_PER_DAY * baseSpeed * maxHealth * FM / DL;
-    fatigue = Visit.clamp(fatigue, 0, MAX_FATIGUE * maxHealth);
-    injury  = Visit.clamp(injury , 0, MAX_DECOMP  * maxHealth);
+    fatigue = Nums.clamp(fatigue, 0, MAX_FATIGUE * maxHealth);
+    injury  = Nums.clamp(injury , 0, MAX_DECOMP  * maxHealth);
     //
     //  Have morale converge to a default based on the cheerful trait and
     //  current stress levels.
@@ -661,7 +659,7 @@ public class ActorHealth implements Qualities {
     //  Last but not least, update your reserves of concentration-
     final float maxCon = maxConcentration();
     concentration += maxCon * (1 - stress) * PM / CONCENTRATE_REGEN_TIME;
-    concentration = Visit.clamp(concentration, 0, maxCon);
+    concentration = Nums.clamp(concentration, 0, maxCon);
   }
   
   

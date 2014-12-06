@@ -1,7 +1,6 @@
 
 
 
-
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -11,8 +10,6 @@ import stratos.game.maps.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
-
-import org.apache.commons.math3.util.FastMath;
 
 
 
@@ -77,7 +74,7 @@ public class Retreat extends Plan implements Qualities {
     
     final boolean emergency = actor.senses.isEmergency();
     
-    float danger = FastMath.max(
+    float danger = Nums.max(
       actor.senses.fearLevel(), Plan.dangerPenalty(actor, actor)
     ) + actor.health.injuryLevel();
     float bonus = 0;
@@ -89,7 +86,7 @@ public class Retreat extends Plan implements Qualities {
     if (emergency) {
       bonus += PARAMOUNT - homeBonus;
       bonus -= actor.health.fatigueLevel() * PARAMOUNT;
-      maxDanger = FastMath.max(danger, maxDanger);
+      maxDanger = Nums.max(danger, maxDanger);
     }
     else {
       if (actor.aboard() == safePoint) return 0;
@@ -198,8 +195,8 @@ public class Retreat extends Plan implements Qualities {
     
     for (int n : TileConstants.T_ADJACENT) {
       Tile t = world.tileAt(
-        Visit.clamp(at.x + (TileConstants.T_X[n] * range), 0, world.size),
-        Visit.clamp(at.y + (TileConstants.T_Y[n] * range), 0, world.size)
+        Nums.clamp(at.x + (TileConstants.T_X[n] * range), 0, world.size),
+        Nums.clamp(at.y + (TileConstants.T_Y[n] * range), 0, world.size)
       );
       t = Spacing.pickRandomTile(t, range, world);
       t = Spacing.nearestOpenTile(t, t);
@@ -242,7 +239,7 @@ public class Retreat extends Plan implements Qualities {
     
     float dirBonus = actor.senses.dangerFromDirection(direction);
     dirBonus *= distance * (advance ? 1 : -1) / maxMove;
-    return rating * Visit.clamp(1 + dirBonus, 0, 2);
+    return rating * Nums.clamp(1 + dirBonus, 0, 2);
   }
   
   

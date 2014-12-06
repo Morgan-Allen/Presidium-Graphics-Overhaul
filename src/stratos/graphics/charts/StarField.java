@@ -17,8 +17,6 @@ import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.Texture.*;
 
-import org.apache.commons.math3.util.FastMath;
-
 import java.util.Random;
 
 
@@ -199,9 +197,9 @@ public class StarField extends Assets.Loadable {
     for (FieldObject o : allObjects) if (o.label != null) {
       screenPosition(o, v);
       final float
-        dX = FastMath.abs(v.x - mousePos.x),
-        dY = FastMath.abs(v.y - mousePos.y),
-        dist = FastMath.max(dX, dY);
+        dX = Nums.abs(v.x - mousePos.x),
+        dY = Nums.abs(v.y - mousePos.y),
+        dist = Nums.max(dX, dY);
       if (dX < (o.fieldWide / 2) && dY < (o.fieldHigh / 2) && dist < minDist) {
         pick = o;
         minDist = dist;
@@ -266,7 +264,7 @@ public class StarField extends Assets.Loadable {
     shading.setUniformMatrix("u_camera", view.camera.combined);
 
     final float SW = Gdx.graphics.getWidth(), SH = Gdx.graphics.getHeight();
-    final float portalSize = FastMath.min(bounds.xdim(), bounds.ydim());
+    final float portalSize = Nums.min(bounds.xdim(), bounds.ydim());
     final Vec2D centre = bounds.centre();
     shading.setUniformf("u_portalRadius", portalSize / 2);
     shading.setUniformf("u_screenX", centre.x - (SW / 2));
@@ -304,8 +302,8 @@ public class StarField extends Assets.Loadable {
     selectObject.texRegion.getTexture().bind(0);
     final Colour fade = new Colour();
     final float alphaInc = 1f / Rendering.FRAMES_PER_SECOND;
-    hoverAlpha  = Visit.clamp(hoverAlpha  + alphaInc, 0, 1);
-    selectAlpha = Visit.clamp(selectAlpha + alphaInc, 0, 1);
+    hoverAlpha  = Nums.clamp(hoverAlpha  + alphaInc, 0, 1);
+    selectAlpha = Nums.clamp(selectAlpha + alphaInc, 0, 1);
     
     if (hoverFocus != null && hoverFocus != selectFocus) {
       final Vec3D hC = hoverFocus .coordinates;

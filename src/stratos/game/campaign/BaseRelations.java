@@ -1,8 +1,6 @@
 
 
 package stratos.game.campaign;
-import org.apache.commons.math3.util.FastMath;
-
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.civilian.*;
@@ -175,9 +173,9 @@ public class BaseRelations {
     //  mood, and compute community spirit.  (This declines as your settlement
     //  gets bigger and citizens become less happy.)
     averageMood /= (numResidents + 1);
-    final float s = (float) FastMath.log(10, 1 + numResidents);
+    final float s = Nums.log(10, 1 + numResidents);
     final float m = averageMood / 2f;
-    communitySpirit = Visit.clamp(1 + m - (s / 4), 0, 1);
+    communitySpirit = Nums.clamp(1 + m - (s / 4), 0, 1);
     population = numResidents;
   }
 }

@@ -6,13 +6,11 @@
 
 
 package stratos.game.common;
-import org.apache.commons.math3.util.FastMath;
-
-import stratos.game.actors.Choice;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.user.*;
 import stratos.util.*;
+import stratos.game.actors.Choice;
 
 
 
@@ -107,7 +105,7 @@ public class Pathing {
       path = null; stepIndex = -1; return;
     }
     else if (inLocus(nextStep())) {
-      stepIndex = Visit.clamp(stepIndex + 1, path.length);
+      stepIndex = Nums.clamp(stepIndex + 1, path.length);
     }
     else if (report) I.say("Not in locus of: "+nextStep());
   }
@@ -201,7 +199,7 @@ public class Pathing {
       }
       int index = 0;
       while (index < path.length) if (path[index++] == origin) break;
-      stepIndex = Visit.clamp(index, path.length);
+      stepIndex = Nums.clamp(index, path.length);
       return true;
     }
   }
@@ -385,8 +383,8 @@ public class Pathing {
     }
     
     final int WS = m.world.size - 1;
-    m.nextPosition.x = Visit.clamp(sum.x + m.nextPosition.x, 0, WS);
-    m.nextPosition.y = Visit.clamp(sum.y + m.nextPosition.y, 0, WS);
+    m.nextPosition.x = Nums.clamp(sum.x + m.nextPosition.x, 0, WS);
+    m.nextPosition.y = Nums.clamp(sum.y + m.nextPosition.y, 0, WS);
     
     //  If your current location is blocked, you need to escape to a free tile-
     if (PathSearch.blockedBy(mobile.aboard(), mobile)) {
@@ -409,7 +407,7 @@ public class Pathing {
     
     final Vec2D disp = displacement(target);
     if (disp.length() == 0) return true;
-    final float angleDif = FastMath.abs(Vec2D.degreeDif(
+    final float angleDif = Nums.abs(Vec2D.degreeDif(
       disp.normalise().toAngle(), mobile.rotation
     ));
     if (report) I.say("Angle difference is: "+angleDif);

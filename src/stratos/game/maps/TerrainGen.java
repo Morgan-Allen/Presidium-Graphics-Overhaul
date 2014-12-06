@@ -41,7 +41,7 @@ public class TerrainGen implements TileConstants {
     */
   public TerrainGen(int minSize, float typeNoise, Object... gradient) {
     this.mapSize = checkMapSize(minSize);
-    this.typeNoise = Visit.clamp(typeNoise, 0, 1);
+    this.typeNoise = Nums.clamp(typeNoise, 0, 1);
     this.sectorGridSize = mapSize / Stage.SECTOR_SIZE;
     //
     //  Here, we verify amd compile the gradient of habitat proportions.
@@ -206,16 +206,16 @@ public class TerrainGen implements TileConstants {
         XBI = (int) ((c.x * 1f / mapSize) * blendsX.length),
         YBI = (int) ((c.y * 1f / mapSize) * blendsY.length);
       final float
-        sampleX = Visit.clamp(c.x + blendsX[XBI][c.y], 0, mapSize - 1),
-        sampleY = Visit.clamp(c.y + blendsY[YBI][c.x], 0, mapSize - 1);
-      float sum = Visit.sampleMap(mapSize, sectorVal, sampleX, sampleY);
+        sampleX = Nums.clamp(c.x + blendsX[XBI][c.y], 0, mapSize - 1),
+        sampleY = Nums.clamp(c.y + blendsY[YBI][c.x], 0, mapSize - 1);
+      float sum = Nums.sampleMap(mapSize, sectorVal, sampleX, sampleY);
       
-      Habitat under = habitats[Visit.clamp((int) sum, habitats.length)];
+      Habitat under = habitats[Nums.clamp((int) sum, habitats.length)];
       
       if (! under.isOcean) {
-        float detail = Visit.sampleMap(mapSize, detailGrid, c.x, c.y) / 10f;
+        float detail = Nums.sampleMap(mapSize, detailGrid, c.x, c.y) / 10f;
         sum += detail * detail * 2;
-        under = habitats[Visit.clamp((int) sum, habitats.length)];
+        under = habitats[Nums.clamp((int) sum, habitats.length)];
         typeIndex[c.x][c.y] = (byte) under.ID;
         
         if (under == Habitat.ESTUARY && Rand.index(4) == 0) {
@@ -238,7 +238,7 @@ public class TerrainGen implements TileConstants {
       final byte type = typeIndex[c.x][c.y];
       //if (! Habitat.ALL_HABITATS[type].isOcean) continue;
       if (type >= Habitat.SHALLOWS.ID) continue;
-      float detail = Visit.sampleMap(mapSize, detailGrid, c.x, c.y) / 10f;
+      float detail = Nums.sampleMap(mapSize, detailGrid, c.x, c.y) / 10f;
       detail *= detail * 1.5f;
       typeIndex[c.x][c.y] = (byte) (((detail * detail) > 0.25f) ?
         Habitat.SHALLOWS.ID : Habitat.OCEAN.ID
@@ -343,7 +343,7 @@ public class TerrainGen implements TileConstants {
       final boolean pickHighest = Rand.num() < 0.33f;
       float sumChances = chances[0] = 0.5f;
       for (int i = 4; i-- > 1;) {
-        float sample = Visit.sampleMap(mapSize, allMaps[i], c.x, c.y) / 10f;
+        float sample = Nums.sampleMap(mapSize, allMaps[i], c.x, c.y) / 10f;
         sample *= (1 * sample) + ((1 - sample) * abundances[i]);
         chances[i] = sample;
         sumChances += sample;

@@ -4,8 +4,6 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.user;
-import org.apache.commons.math3.util.FastMath;
-
 import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.KeyInput;
@@ -167,7 +165,7 @@ public class SelectionTracking {
     if (distance >= maxLock) return actualPos;
     
     final float
-      alpha = (float) FastMath.sqrt(distance / maxLock),
+      alpha = Nums.sqrt(distance / maxLock),
       i = 1 - alpha;
     return new Vec3D(
       (actualPos.x * alpha) + (idealPos.x * i),

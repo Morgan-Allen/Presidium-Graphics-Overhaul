@@ -1,11 +1,8 @@
 
 
 package stratos.graphics.solids;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 
 import stratos.graphics.common.*;
-import stratos.start.Assets;
 import stratos.util.*;
 
 import com.badlogic.gdx.graphics.*;
@@ -14,8 +11,8 @@ import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.model.*;
 import com.badlogic.gdx.math.*;
 
-import org.apache.commons.math3.util.FastMath;
-
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 
 
 public class SolidSprite extends Sprite {
@@ -99,9 +96,7 @@ public class SolidSprite extends Sprite {
     transform.setToTranslation(tempV);
     transform.scl(tempV.set(scale, scale, scale));
     
-    final float radians = (float) FastMath.toRadians(
-      model.rotateOffset - rotation
-    );
+    final float radians = Nums.toRadians(model.rotateOffset - rotation);
     transform.rot(Vector3.Y, radians);
     
     model.animControl.begin(this);

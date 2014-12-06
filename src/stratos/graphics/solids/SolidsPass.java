@@ -1,11 +1,9 @@
 
 
 package stratos.graphics.solids;
-import org.apache.commons.math3.util.FastMath;
-
 import stratos.graphics.common.*;
-import stratos.graphics.solids.SolidSprite.Part;
 import stratos.util.*;
+import stratos.graphics.solids.SolidSprite.Part;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
@@ -103,7 +101,7 @@ public class SolidsPass {
       
       final Matrix4 partBones[] = part.meshBones;
       final float[] bones = new float[MAX_BONES * 16];
-      final int maxIter = FastMath.min(MAX_BONES, partBones.length);
+      final int maxIter = Nums.min(MAX_BONES, partBones.length);
       
       for (int i = 0; i < maxIter * 16; i++) {
         bones[i] = partBones[i / 16].val[i % 16];

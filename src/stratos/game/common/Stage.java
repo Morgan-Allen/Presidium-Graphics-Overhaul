@@ -159,15 +159,19 @@ public class Stage {
   public Iterable <Tile> tilesIn(Box2D area, boolean safe) {
     final Box2D b = new Box2D().setTo(area);
     if (safe) b.cropBy(new Box2D().set(-0.5f, -0.5f, size, size));
-    final int
-      minX = (int) (b.xpos() + 0.5f),
-      minY = (int) (b.ypos() + 0.5f),
-      dimX = (int) (b.xmax() + 0.5f) - minX,
-      dimY = (int) (b.ymax() + 0.5f) - minY;
-    return new Visit <Tile> ().grid(
-      minX, minY, dimX, dimY,
-      tiles
-    );
+
+    final Visit <Coord> grid = Visit.grid(b);
+    return new Visit <Tile> () {
+
+      public Tile next() {
+        final Coord c = grid.next();
+        return tileAt(c.x, c.y);
+      }
+      
+      public boolean hasNext() {
+        return grid.hasNext();
+      }
+    };
   }
   
   
@@ -198,7 +202,7 @@ public class Stage {
   
   
   private float heightFor(int tX, int tY, boolean floor) {
-    final Tile t = tileAt(Visit.clamp(tX, size), Visit.clamp(tY, size));
+    final Tile t = tileAt(Nums.clamp(tX, size), Nums.clamp(tY, size));
     if (t.onTop() == null) return t.elevation();
     return floor ? t.onTop().position(null).z : t.onTop().height();
   }

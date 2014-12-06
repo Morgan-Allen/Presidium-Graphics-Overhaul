@@ -9,9 +9,6 @@ import java.util.Random;
 
 
 
-//  TODO:  Extend FastMath, rename to Nums, and use as a general math-utils
-//  class.
-
 public class Rand {
   
   final public static Random

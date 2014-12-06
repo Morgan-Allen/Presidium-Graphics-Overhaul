@@ -37,7 +37,7 @@ public class DebugBigSim {
       
       final String input = I.listen();
       if (input.toLowerCase().equals("x")) break;
-      int numI = (int) Visit.clamp(Integer.parseInt(input), 1, 100);
+      int numI = (int) Nums.clamp(Integer.parseInt(input), 1, 100);
       
       while (numI-- > 0) {
         d1.update(1.0f);

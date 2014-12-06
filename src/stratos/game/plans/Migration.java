@@ -66,7 +66,7 @@ public class Migration extends Plan {
     final float timeSpent = actor.world().currentTime() + 10 - initTime;
     float impetus = ROUTINE * timeSpent / Stage.STANDARD_DAY_LENGTH;
     impetus *= ((1 - actor.health.moraleLevel()) + 1) / 2;
-    return Visit.clamp(impetus, 0, URGENT);
+    return Nums.clamp(impetus, 0, URGENT);
   }
   
   
@@ -99,12 +99,11 @@ public class Migration extends Plan {
       return thinks;
     }
     if (ship == null || ! ship.inWorld()) {
-      final Visit <Dropship> picks = new Visit <Dropship> () {
-        public float rate(Dropship t) {
-          return 0 - Spacing.distance(actor, t);
-        }
-      };
-      ship = picks.pickBest(actor.base().commerce.allVessels());
+      final Pick <Dropship> pick = new Pick <Dropship> ();
+      for (Dropship ship : actor.base().commerce.allVessels()) {
+        pick.compare(ship, 0 - Spacing.distance(actor, ship));
+      }
+      ship = pick.result();
     }
     if (ship == null || ! ship.inWorld()) return null;
     final Action boards = new Action(

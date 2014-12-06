@@ -6,17 +6,14 @@
 
 
 package stratos.game.actors;
-import java.lang.reflect.*;
-
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
-import stratos.user.*;
 import stratos.util.*;
 
+import java.lang.reflect.*;
 import static stratos.game.actors.Qualities.*;
-import org.apache.commons.math3.util.FastMath;
 
 
 //  TODO:  ...You need to arrange for actions to terminate if you wind up
@@ -320,7 +317,7 @@ public class Action implements Behaviour, AnimNames {
         actor, actionTarget, Math.max(maxDist, sightRange)
       );
       
-      if (FastMath.min(motionDist, actionDist) < maxDist && ! seen) {
+      if (Nums.min(motionDist, actionDist) < maxDist && ! seen) {
         pathsTo = actionTarget;
       }
       if (PathSearch.blockedBy(pathsTo, actor)) {
@@ -425,7 +422,7 @@ public class Action implements Behaviour, AnimNames {
     if (moveState == STATE_CLOSED) {
       final float contact = contactTime();
       progress += 1f / (actionDuration() * Stage.UPDATES_PER_SECOND);
-      progress = Visit.clamp(progress, 0, 1);
+      progress = Nums.clamp(progress, 0, 1);
       if (report) {
         I.say("  Have closed on target, contact at "+contact);
         I.say("  Old/new progress: "+oldProgress+"/"+progress);

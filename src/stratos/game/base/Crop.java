@@ -140,7 +140,7 @@ public class Crop extends Element {
   public static ModelAsset speciesModel(Species s, int growStage) {
     final int varID = Visit.indexOf(s, ALL_VARIETIES);
     final ModelAsset seq[] = (ModelAsset[]) CROP_SPECIES[varID][2];
-    return seq[Visit.clamp(growStage, seq.length)];
+    return seq[Nums.clamp(growStage, seq.length)];
   }
   
   
@@ -210,13 +210,13 @@ public class Crop extends Element {
       bonus *= 1 + (UB * Plantation.UPGRADE_GROW_BONUS);
     }
     //*/
-    return Visit.clamp(bonus, 0, Nursery.MAX_HEALTH_BONUS);
+    return Nums.clamp(bonus, 0, Nursery.MAX_HEALTH_BONUS);
   }
   
   
   public void seedWith(Species s, float quality) {
     this.species   = s;
-    this.quality   = Visit.clamp(quality, 0, Nursery.MAX_HEALTH_BONUS);
+    this.quality   = Nums.clamp(quality, 0, Nursery.MAX_HEALTH_BONUS);
     this.growStage = MIN_GROWTH;
     this.covered   = (origin().x - parent.origin().x) % 4 == 0;
     //  TODO:  Try to smarten up the system for determining coverage.
@@ -236,7 +236,7 @@ public class Crop extends Element {
     //  life support?
     
     final Stage world = parent.world();
-    final float pollution = Visit.clamp(
+    final float pollution = Nums.clamp(
       tile.world.ecology().ambience.valueAt(tile), 0, 1
     );
     
@@ -249,7 +249,7 @@ public class Crop extends Element {
     }
     increment *= Rand.num() * 2 * Nursery.GROW_INCREMENT * MAX_GROWTH;
     
-    growStage = Visit.clamp(growStage + increment, MIN_GROWTH, MAX_GROWTH);
+    growStage = Nums.clamp(growStage + increment, MIN_GROWTH, MAX_GROWTH);
     checkBlight(pollution);
 
     //  Update biomass and possibly sprite state-
@@ -349,11 +349,11 @@ public class Crop extends Element {
   
   //  TODO:  Pass a Description object here instead?
   public String toString() {
-    final int stage = (int) Visit.clamp(growStage, 0, MAX_GROWTH);
+    final int stage = (int) Nums.clamp(growStage, 0, MAX_GROWTH);
     final String HD;
     if (blighted) HD = " (Infested)";
     else {
-      final int HL = Visit.clamp((int) quality, 5);
+      final int HL = Nums.clamp((int) quality, 5);
       HD = " ("+HEALTH_NAMES[HL]+" health)";
     }
     return STAGE_NAMES[stage]+""+species.name+HD;

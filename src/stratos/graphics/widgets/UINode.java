@@ -7,9 +7,7 @@
 package stratos.graphics.widgets;
 import stratos.graphics.common.*;
 import stratos.util.*;
-
 import com.badlogic.gdx.math.*;
-import org.apache.commons.math3.util.FastMath;
 
 
 
@@ -216,7 +214,7 @@ public abstract class UINode {
         oldWide = wide, oldHigh = high,
         aspW  = wide / absBound.xdim(),
         aspH  = high / absBound.ydim(),
-        scale = FastMath.max(aspW, aspH);
+        scale = Nums.max(aspW, aspH);
       wide = absBound.xdim() * scale;
       high = absBound.ydim() * scale;
       x += (oldWide - wide) / 2;

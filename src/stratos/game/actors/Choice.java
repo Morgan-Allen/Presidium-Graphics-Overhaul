@@ -3,10 +3,8 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.game.actors;
 import stratos.util.*;
-import org.apache.commons.math3.util.FastMath;
 
 
 
@@ -153,7 +151,7 @@ public class Choice implements Qualities {
     }
     float sumWeights = 0;
     for (i = weights.length; i-- > 0;) {
-      weights[i] = FastMath.max(0, weights[i] - minPriority);
+      weights[i] = Nums.max(0, weights[i] - minPriority);
       sumWeights += weights[i];
     }
     if (sumWeights == 0) {

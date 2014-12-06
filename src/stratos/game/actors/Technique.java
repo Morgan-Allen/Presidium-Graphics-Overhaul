@@ -1,8 +1,6 @@
 
 
 package stratos.game.actors;
-import org.apache.commons.math3.util.FastMath;
-
 import stratos.game.common.*;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
@@ -11,12 +9,9 @@ import stratos.util.*;
 
 
 
-
-
 public abstract class Technique implements Session.Saveable {
   
   
-  //*
   final public static int
     TYPE_SKILL_USE_BASED    = 0,
     TYPE_INDEPENDANT_ACTION = 1;
@@ -233,7 +228,7 @@ public abstract class Technique implements Session.Saveable {
     //  cetera.
     if (harmLevel * harmFactor <= 0) return 0;
     float rating = 10;
-    rating -= FastMath.abs(harmLevel - harmFactor);
+    rating -= Nums.abs(harmLevel - harmFactor);
     rating *= ((1 - conCost) + (1 - fatCost)) / 2f;
     rating = powerLevel * rating / 10f;
     if (report) I.say("  Overall rating: "+rating);

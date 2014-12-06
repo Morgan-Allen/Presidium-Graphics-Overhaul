@@ -132,8 +132,8 @@ public class SolarBank extends Venue {
     if (point == null) return null;
     final Stage world = point.world;
     final Tile corner = world.tileAt(
-      Visit.round(point.x, 1, false),
-      Visit.round(point.y, 1, false)
+      Nums.round(point.x, 1, false),
+      Nums.round(point.y, 1, false)
     );
     //
     //

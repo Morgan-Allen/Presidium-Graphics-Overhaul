@@ -117,7 +117,7 @@ public class FogOverlay {
       final int
         x = (i % lineLen) / 4,
         y = i / lineLen;
-      final float fog = Visit.clamp(updateVals[x][y], 0, 1);
+      final float fog = Nums.clamp(updateVals[x][y], 0, 1);
       newVals[x][y] = fog;
       
       final byte fogByte = (byte) (((int) (fog * 255)) & 0xff);
@@ -151,8 +151,8 @@ public class FogOverlay {
   
   public float sampleAt(float x, float y, Object client) {
     final float
-      oldVal = Visit.sampleMap(size, oldVals, x, y),
-      newVal = Visit.sampleMap(size, newVals, x, y);
+      oldVal = Nums.sampleMap(size, oldVals, x, y),
+      newVal = Nums.sampleMap(size, newVals, x, y);
     final float time = oldTime % 1;
     final float sample = (oldVal * (1 - time)) + (time * newVal);
     if (verbose && client != null && I.talkAbout == client) {

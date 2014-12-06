@@ -99,7 +99,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
       relDanger += actor.base().dangerMap.sampleAt(t);
     }
     relDanger /= patrolled.size();
-    urgency = Visit.clamp(relDanger * ROUTINE, IDLE, ROUTINE);
+    urgency = Nums.clamp(relDanger * ROUTINE, IDLE, ROUTINE);
     
     float modifier = 0 - actor.senses.fearLevel();
     if (actor.senses.isEmergency()) modifier = PARAMOUNT;
@@ -279,8 +279,8 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     
     for (int n : T_ADJACENT) {
       Tile point = world.tileAt(
-        Visit.clamp(centre.x + (T_X[n] * range), 0, world.size - 1),
-        Visit.clamp(centre.y + (T_Y[n] * range), 0, world.size - 1)
+        Nums.clamp(centre.x + (T_X[n] * range), 0, world.size - 1),
+        Nums.clamp(centre.y + (T_Y[n] * range), 0, world.size - 1)
       );
       if (point != null) {
         if (report) I.say("  Patrol point: "+point);

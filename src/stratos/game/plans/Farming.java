@@ -3,10 +3,7 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.game.plans;
-import org.apache.commons.math3.util.FastMath;
-
 import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
@@ -75,7 +72,7 @@ public class Farming extends Plan {
       BASE_SKILLS, BASE_TRAITS, PARTIAL_DISTANCE_CHECK,
       report
     );
-    return FastMath.max(min, priority);
+    return Nums.max(min, priority);
   }
   
   

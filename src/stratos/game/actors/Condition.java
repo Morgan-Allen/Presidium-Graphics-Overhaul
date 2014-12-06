@@ -157,7 +157,7 @@ public class Condition extends Trait {
     //
     //  If you've acquired an immunity, have it fade over time-
     if (progress <= 0) {
-      a.traits.setLevel(this, Visit.clamp(progress + (inc / 5), -1, 0));
+      a.traits.setLevel(this, Nums.clamp(progress + (inc / 5), -1, 0));
     }
     //
     //  Otherwise, see if your immune system can respond, based on how much of
@@ -175,8 +175,8 @@ public class Condition extends Trait {
     //
     //  If that fails, advance the disease-
     else {
-      a.traits.setBonus(this, Visit.clamp((inc / 2) - response, -3, 0));
-      a.traits.setLevel(this, Visit.clamp(progress + inc, 0, 3));
+      a.traits.setBonus(this, Nums.clamp((inc / 2) - response, -3, 0));
+      a.traits.setLevel(this, Nums.clamp(progress + inc, 0, 3));
     }
     if (report) {
       I.say("\nReporting on progress of "+this+" for "+a);

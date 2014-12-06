@@ -478,7 +478,7 @@ public abstract class Venue extends Structural implements
     int index = -1;
     for (Traded s : services) if (canShow(s)) index += 2;
     if (index < 0) return;
-    index = Visit.clamp(index, offsets.length);
+    index = Nums.clamp(index, offsets.length);
     
     for (int SI = services.length; SI-- > 0;) {
       final Traded s = services[SI];

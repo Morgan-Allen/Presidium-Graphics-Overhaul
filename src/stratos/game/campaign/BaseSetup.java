@@ -3,17 +3,12 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.game.campaign;
-
-import stratos.start.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.actors.*;
 import stratos.util.*;
 import stratos.game.plans.*;
-
-import org.apache.commons.math3.util.FastMath;
 
 
 
@@ -163,7 +158,7 @@ public class BaseSetup {
   
   
   private void calcPlaceLimit() {
-    placeLimit = (float) FastMath.log(10, 1 + base.relations.population());
+    placeLimit = Nums.log(10, 1 + base.relations.population());
     placeLimit *= DEFAULT_PLACE_HP;
     
     //  TODO:  Also base off finances, labour force, and the amount of

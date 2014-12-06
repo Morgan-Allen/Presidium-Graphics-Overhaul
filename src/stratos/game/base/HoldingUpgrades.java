@@ -2,8 +2,6 @@
 
 
 package stratos.game.base;
-import org.apache.commons.math3.util.FastMath;
-
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
@@ -127,7 +125,7 @@ public class HoldingUpgrades {
   
   
   public static Conversion materials(int upgradeLevel) {
-    return MATERIALS[Visit.clamp(upgradeLevel, NUM_LEVELS)];
+    return MATERIALS[Nums.clamp(upgradeLevel, NUM_LEVELS)];
   }
   
   
@@ -157,8 +155,8 @@ public class HoldingUpgrades {
       popDemand  = population * targetLevel * 1f / NUM_LEVELS;
     final float
       biomass  = holding.world().ecology().globalBiomass(),
-      bioBonus = (float) FastMath.sqrt(biomass) * BIOMASS_SUPPORT;
-    return Visit.clamp(popDemand - bioBonus, 0, population);
+      bioBonus = Nums.sqrt(biomass) * BIOMASS_SUPPORT;
+    return Nums.clamp(popDemand - bioBonus, 0, population);
   }
   
   

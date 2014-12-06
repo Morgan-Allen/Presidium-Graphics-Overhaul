@@ -2,7 +2,7 @@
 
 package stratos.game.campaign;
 import stratos.game.actors.*;
-import stratos.util.Visit;
+import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
 

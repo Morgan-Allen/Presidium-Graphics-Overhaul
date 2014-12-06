@@ -70,7 +70,7 @@ public class SeedTailoring extends Plan {
     */
   protected float getPriority() {
     //final EcologistStation station = nursery.belongs;
-    return Visit.clamp(
+    return Nums.clamp(
       ROUTINE + (lab.structure.upgradeBonus(species) / 2f),
       0, URGENT
     );
@@ -153,7 +153,7 @@ public class SeedTailoring extends Plan {
       float quality = skillRating * Rand.avgNums(2);
       
       Item seed = seedType;
-      seed = Item.withQuality(seed, (int) Visit.clamp(quality, 0, 5));
+      seed = Item.withQuality(seed, (int) Nums.clamp(quality, 0, 5));
       seed = Item.withAmount(seed, 0.1f);
       lab.stocks.addItem(seed);
       

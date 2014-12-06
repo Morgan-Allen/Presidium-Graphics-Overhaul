@@ -3,15 +3,13 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.maps;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.terrain.*;
 import stratos.util.*;
 
-import org.apache.commons.math3.util.FastMath;
+
 
 
 /*
@@ -24,8 +22,6 @@ x = moisture
 t = terraform-progress  (1 as default).
 //  ...Organics.  That's the name for carbons.
 //*/
-
-
 
 public class WorldTerrain implements TileConstants, Session.Saveable {
   
@@ -247,7 +243,7 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
   
   public void setMinerals(Tile t, byte type, float amount) {
     amount = amount * MAX_MINERAL_COUNT * 1f / MAX_MINERAL_AMOUNT;
-    final int count = Visit.clamp((int) amount, MAX_MINERAL_COUNT);
+    final int count = Nums.clamp((int) amount, MAX_MINERAL_COUNT);
     minerals[t.x][t.y] = (byte) ((type * MAX_MINERAL_COUNT) + count);
   }
   
@@ -265,7 +261,7 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
   
   
   public float trueHeight(float x, float y) {
-    return Visit.sampleMap(mapSize, heightVals, x, y) / 4;
+    return Nums.sampleMap(mapSize, heightVals, x, y) / 4;
   }
   
   
@@ -402,15 +398,3 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
     meshSet.renderWithin(area, rendering);
   }
 }
-
-
-
-
-/*
-final int
-  minX = (int) FastMath.ceil(area.xpos()),
-  minY = (int) FastMath.ceil(area.ypos()),
-  dimX = (int) FastMath.ceil(area.xmax()) - minX,
-  dimY = (int) FastMath.ceil(area.ymax()) - minY;
-//*/
-

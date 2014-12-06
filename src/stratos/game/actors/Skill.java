@@ -41,15 +41,15 @@ public class Skill extends Trait {
   
   
   public static String skillDesc(int level) {
-    return DESC_LEVELS[Visit.clamp(level / 5, 6)];
+    return DESC_LEVELS[Nums.clamp(level / 5, 6)];
   }
 
   public static String attDesc(int level) {
-    return ATT_LEVELS[Visit.clamp(level / 5, 6)];
+    return ATT_LEVELS[Nums.clamp(level / 5, 6)];
   }
   
   public static Colour skillTone(int level) {
-    return DESC_TONES[Visit.clamp(level / 5, 6)];
+    return DESC_TONES[Nums.clamp(level / 5, 6)];
   }
   
   

@@ -78,7 +78,7 @@ public class FindWork extends Plan {
   /**  Behaviour implementation-
     */
   protected float getPriority() {
-    return Visit.clamp(URGENT * rating, 0, URGENT);
+    return Nums.clamp(URGENT * rating, 0, URGENT);
   }
   
   

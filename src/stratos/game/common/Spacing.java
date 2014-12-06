@@ -3,15 +3,10 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.game.common;
-//import stratos.start.Disposal;
 import stratos.game.economic.*;
 import stratos.start.Assets;
 import stratos.util.*;
-
-import org.apache.commons.math3.util.FastMath;
-
 
 
 
@@ -223,6 +218,7 @@ public final class Spacing implements TileConstants {
   
   /**  Proximity methods-
     */
+  /*
   public static Target nearest(
     Series <? extends Target> targets, final Target client
   ) {
@@ -231,6 +227,7 @@ public final class Spacing implements TileConstants {
     };
     return v.pickBest((Series) targets);
   }
+  //*/
   
 
   public static Tile nearestOpenTile(
@@ -338,8 +335,8 @@ public final class Spacing implements TileConstants {
     final float dist = Rand.num() * range, max = world.size - 1;
     final Vec3D o = t.position(pA);
     return world.tileAt(
-      Visit.clamp(o.x + (float) (Math.cos(angle) * dist), 0, max),
-      Visit.clamp(o.y + (float) (Math.sin(angle) * dist), 0, max)
+      Nums.clamp(o.x + (float) (Math.cos(angle) * dist), 0, max),
+      Nums.clamp(o.y + (float) (Math.sin(angle) * dist), 0, max)
     );
   }
   
@@ -377,25 +374,25 @@ public final class Spacing implements TileConstants {
     a.position(pA);
     b.position(pB);
     final float xd = pA.x - pB.x, yd = pA.y - pB.y;
-    return (float) FastMath.sqrt((xd * xd) + (yd * yd));
+    return Nums.sqrt((xd * xd) + (yd * yd));
   }
   
   
   final public static int outerDistance(final Target a, final Target b) {
     final float dist = innerDistance(a, b);
-    return (int) FastMath.ceil(dist + a.radius() + b.radius());
+    return (int) Nums.ceil(dist + a.radius() + b.radius());
   }
   
   
   final public static float distance(final Tile a, final Tile b) {
     final int xd = a.x - b.x, yd = a.y - b.y;
-    return (float) FastMath.sqrt((xd * xd) + (yd * yd));
+    return Nums.sqrt((xd * xd) + (yd * yd));
   }
   
   
   final public static int compassDirection(Tile origin, Tile point) {
     final int xd = point.x - origin.x, yd = point.y - origin.y;
-    if (FastMath.abs(xd) > FastMath.abs(yd)) {
+    if (Nums.abs(xd) > Nums.abs(yd)) {
       return xd > 0 ? N : S;
     }
     else {

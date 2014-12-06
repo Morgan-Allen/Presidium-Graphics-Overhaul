@@ -144,7 +144,7 @@ public class I {
       final byte byteData[] = new byte[w * h];
       for (Coord c : Visit.grid(0, 0, w, h, 1)) {
         final float pushed = (vals[c.x][c.y] - min) / (max - min);
-        final int grey = (int) Visit.clamp(pushed * 255, 0, 255);
+        final int grey = (int) Nums.clamp(pushed * 255, 0, 255);
         byteData[imgIndex(c.x, c.y, w, h)] = scale[grey];
       }
       presentImage(g, byteData, BufferedImage.TYPE_BYTE_GRAY, w, h);

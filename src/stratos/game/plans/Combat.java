@@ -3,24 +3,12 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.plans;
-import org.apache.commons.math3.util.FastMath;
-
 import stratos.game.actors.*;
-import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.tactical.*;
-import stratos.user.*;
 import stratos.util.*;
-
-
-
-//  ...I think that distance needs to be made a more significant factor here,
-//  and 'active dodge' needs to be implemented.  Point-blank attacks should
-//  never miss unless the enemy is visibly dancing around.
 
 
 
@@ -160,11 +148,11 @@ public class Combat extends Plan implements Qualities {
     //  TODO:  Switch between these two evaluation methods based on
     //  intelligence?  (Or maybe the battle-tactics skill?)
     
-    final float danger = FastMath.max(
+    final float danger = Nums.max(
       actor.senses.fearLevel(),
       Plan.dangerPenalty(subject, actor)
     );
-    return Visit.clamp(1 - danger, 0, 1);
+    return Nums.clamp(1 - danger, 0, 1);
     /*
     final boolean report = evalVerbose && I.talkAbout == actor;
     
@@ -364,7 +352,7 @@ public class Combat extends Plan implements Qualities {
     final boolean canStun = actor.gear.hasDeviceProperty(Economy.STUN);
     float penalty = 0, damage = 0;
     penalty = rangePenalty(actor, target);
-    final float bypass = Visit.clamp(0 - penalty, 0, 5);
+    final float bypass = Nums.clamp(0 - penalty, 0, 5);
     if (subdue && ! canStun) penalty += 5;
     
     final boolean success = target.health.conscious() ? actor.skills.test(
@@ -384,7 +372,7 @@ public class Combat extends Plan implements Qualities {
       );
       final float
         armourSoak  = (target.gear.armourRating() * Rand.num()) - bypass,
-        afterArmour = Visit.clamp(afterShields - armourSoak, 0, damage);
+        afterArmour = Nums.clamp(afterShields - armourSoak, 0, damage);
       
       if (report) {
         I.say("  Base damage:    "+damage      );

@@ -4,9 +4,6 @@ package stratos.graphics.sfx;
 import stratos.graphics.common.*;
 import stratos.util.*;
 
-import org.apache.commons.math3.util.FastMath;
-//import java.io.*;
-
 
 
 public class Healthbar extends SFX {
@@ -80,7 +77,7 @@ public class Healthbar extends SFX {
       flashTime %= (Math.PI * 2);
       Colour flash = new Colour(this.flash == null ? Colour.WHITE : this.flash);
       flash.a *= f * colour.a;
-      flash.a *= FastMath.abs(FastMath.sin(flashTime));
+      flash.a *= Nums.abs(Nums.sin(flashTime));
       flash.calcBitValue();
       
       pass.compileQuad(

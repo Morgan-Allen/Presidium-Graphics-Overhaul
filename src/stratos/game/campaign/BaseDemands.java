@@ -1,7 +1,6 @@
 
 
 package stratos.game.campaign;
-
 import stratos.game.base.*;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -10,8 +9,6 @@ import stratos.game.plans.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
-
-import org.apache.commons.math3.util.FastMath;
 
 
 
@@ -156,7 +153,7 @@ public class BaseDemands {
     final VenueProfile profiles[] = VenueProfile.facilityProfiles();
     
     for (VenueProfile facility : profiles) {
-      sumWork += FastMath.abs(workRemaining(facility));
+      sumWork += Nums.abs(workRemaining(facility));
     }
     float totalLabour = 0;
     for (Background b : Backgrounds.ARTIFICER_CIRCLES) {
@@ -175,8 +172,8 @@ public class BaseDemands {
       final float need = workRemaining(profile);
       float progress = need * totalLabour * timeInterval / sumWork;
       
-      if (need > 0) progress = FastMath.min(need, progress);
-      else progress = FastMath.max(need, progress);
+      if (need > 0) progress = Nums.min(need, progress);
+      else progress = Nums.max(need, progress);
       supply.add(progress, profile);
     }
   }
@@ -209,8 +206,8 @@ public class BaseDemands {
       float demand = shortage(b);
       float progress = demand * totalPool * timeInterval / sumDemand;
 
-      if (demand > 0) progress = FastMath.min(demand, progress);
-      else progress = FastMath.max(demand, progress);
+      if (demand > 0) progress = Nums.min(demand, progress);
+      else progress = Nums.max(demand, progress);
       supply.add(progress, b);
     }
   }

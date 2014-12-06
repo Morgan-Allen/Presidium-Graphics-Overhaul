@@ -85,8 +85,8 @@ public abstract class Fauna extends Actor {
       
       float fertility = (health.agingStage() - 0.5f) * health.caloryLevel();
       float breedInc = (1 - crowding) * 10 / Nest.DEFAULT_BREED_INTERVAL;
-      breedInc *= Visit.clamp(fertility, 0, ActorHealth.AGE_MAX);
-      breedMetre = Visit.clamp(breedMetre + breedInc, 0, 1);
+      breedInc *= Nums.clamp(fertility, 0, ActorHealth.AGE_MAX);
+      breedMetre = Nums.clamp(breedMetre + breedInc, 0, 1);
     }
   }
   

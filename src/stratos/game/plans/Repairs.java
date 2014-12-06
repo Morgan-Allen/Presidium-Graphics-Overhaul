@@ -121,7 +121,7 @@ public class Repairs extends Plan {
     
     final float priority = priorityForActorWith(
       actor, (Target) built,
-      ROUTINE * Visit.clamp(urgency, 0, 1), NO_MODIFIER,
+      ROUTINE * Nums.clamp(urgency, 0, 1), NO_MODIFIER,
       REAL_HELP, competition, MILD_FAIL_RISK,
       BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report
@@ -129,7 +129,7 @@ public class Repairs extends Plan {
     if (report) {
       I.say("  Repairing "+built+", base: "+built.base()+"?");
       I.say("  Intrinsic urgency: "+urgency);
-      I.say("  PRIORITY:          "+(ROUTINE * Visit.clamp(urgency, 0, 1)));
+      I.say("  PRIORITY:          "+(ROUTINE * Nums.clamp(urgency, 0, 1)));
       I.say("  Community spirit:  "+actor.base().relations.communitySpirit());
       I.say("  Competition:       "+competition);
       I.say("  Final priority:    "+priority);

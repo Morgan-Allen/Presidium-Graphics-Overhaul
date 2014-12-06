@@ -107,7 +107,7 @@ public class FRSD extends Venue {
   
   private void setTrading(Traded t, int type, int level) {
     final int index = Visit.indexOf(t, ALL_TRADE_TYPES);
-    tradeLevels[index] = (byte) Visit.clamp(level, MIN_TRADE, MAX_TRADE);
+    tradeLevels[index] = (byte) Nums.clamp(level, MIN_TRADE, MAX_TRADE);
     tradeTypes [index] = (byte) type ;
   }
   

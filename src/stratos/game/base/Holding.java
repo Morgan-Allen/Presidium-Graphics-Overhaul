@@ -190,7 +190,7 @@ public class Holding extends Venue {
         devolve = false;
       }
       numTests = devolveCounter = upgradeCounter = 0;
-      targetLevel = Visit.clamp(targetLevel, HoldingUpgrades.NUM_LEVELS);
+      targetLevel = Nums.clamp(targetLevel, HoldingUpgrades.NUM_LEVELS);
       
       if (verbose && I.talkAbout == this) {
         if (numTests == 0) I.say("HOUSING TEST INTERVAL COMPLETE");
@@ -230,7 +230,7 @@ public class Holding extends Venue {
     count = 0.5f + (count / maxPop);
     
     //  If upgrades are free, make sure it includes rations:
-    int maxFree = Visit.clamp(GameSettings.freeHousingLevel, upgradeLevel + 1);
+    int maxFree = Nums.clamp(GameSettings.freeHousingLevel, upgradeLevel + 1);
     for (Item i : HoldingUpgrades.rationNeeds(this, maxFree)) {
       stocks.setAmount(i.type, i.amount + 1);
     }
@@ -255,7 +255,7 @@ public class Holding extends Venue {
   
   
   private void updateDemands(int targetLevel) {
-    targetLevel = Visit.clamp(targetLevel, HoldingUpgrades.NUM_LEVELS);
+    targetLevel = Nums.clamp(targetLevel, HoldingUpgrades.NUM_LEVELS);
     stocks.clearDemands();
     
     for (Item i : HoldingUpgrades.materials(targetLevel).raw) {
@@ -275,7 +275,7 @@ public class Holding extends Venue {
     
     final Batch <Traded> needed = new Batch <Traded> ();
     int targetLevel = upgradeLevel + 1;
-    targetLevel = Visit.clamp(targetLevel, HoldingUpgrades.NUM_LEVELS);
+    targetLevel = Nums.clamp(targetLevel, HoldingUpgrades.NUM_LEVELS);
     
     //  Combine the listing of non-provisioned materials and demand for rations.
     //  (Note special goods, like pressfeed and datalinks, are delivered to the
@@ -437,7 +437,7 @@ public class Holding extends Venue {
   
   
   private String needMessage(int meetLevel) {
-    meetLevel = Visit.clamp(meetLevel, HoldingUpgrades.NUM_LEVELS);
+    meetLevel = Nums.clamp(meetLevel, HoldingUpgrades.NUM_LEVELS);
     final Object met = HoldingUpgrades.NEEDS_MET;
     final Object
       access    = HoldingUpgrades.checkAccess   (this, meetLevel, true),

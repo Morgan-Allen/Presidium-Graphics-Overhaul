@@ -1,8 +1,6 @@
 
 
 package stratos.start;
-import org.apache.commons.math3.util.FastMath;
-
 import stratos.game.actors.Human;
 import stratos.game.base.Suspensor;
 import stratos.game.economic.Economy;
@@ -135,8 +133,8 @@ public class DebugGraphics {
             if (Rand.index(Rendering.FRAMES_PER_SECOND) <= 2) {
               final Vec3D point = new Vec3D();
               final float angle = (float) (Math.PI * 2 * Rand.num());
-              point.x = 10 * (float) FastMath.sin(angle);
-              point.y = 10 * (float) FastMath.cos(angle);
+              point.x = 10 * Nums.sin(angle);
+              point.y = 10 * Nums.cos(angle);
               this.attachBurstFromPoint(point, Rand.yes());
             }
             super.readyFor(r);

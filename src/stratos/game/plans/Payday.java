@@ -65,7 +65,7 @@ public class Payday extends Plan {
       if (report) I.say("\nPay gap is: "+payGap+" days");
       return 0;
     }
-    float modifier = Visit.clamp(payGap, 0, 2) - 1.5f;
+    float modifier = Nums.clamp(payGap, 0, 2) - 1.5f;
     modifier = NO_MODIFIER + (modifier * ROUTINE);
     
     final float priority = priorityForActorWith(

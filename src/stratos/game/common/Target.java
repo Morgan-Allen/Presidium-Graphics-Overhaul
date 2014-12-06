@@ -14,6 +14,7 @@ public interface Target {
   boolean inWorld();
   boolean destroyed();
   Stage world();
+  Base base();
   
   Vec3D position(Vec3D v);
   float height();

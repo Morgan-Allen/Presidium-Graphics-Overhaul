@@ -173,7 +173,7 @@ public class Human extends Actor implements Qualities {
     if (ageStage > ActorHealth.AGE_JUVENILE) {
       int hairID = c.traits.geneValue("hair", 6);
       if (hairID < 0) hairID *= -1;
-      hairID = Visit.clamp(hairID + BLOOD_TONE_SHADES[bloodID], 6);
+      hairID = Nums.clamp(hairID + BLOOD_TONE_SHADES[bloodID], 6);
       
       if (ageStage >= ActorHealth.AGE_SENIOR) hairID = 5;
       else if (hairID == 5) hairID--;

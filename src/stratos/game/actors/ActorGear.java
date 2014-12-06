@@ -253,7 +253,7 @@ public class ActorGear extends Inventory {
   
   public void incAmmo(int inc) {
     ammoCount += inc;
-    ammoCount = Visit.clamp(ammoCount, MAX_AMMO_COUNT);
+    ammoCount = Nums.clamp(ammoCount, MAX_AMMO_COUNT);
   }
   
   
@@ -338,7 +338,7 @@ public class ActorGear extends Inventory {
   
   public void boostShields(float boost, boolean capped) {
     currentShields += boost;
-    if (capped) currentShields = Visit.clamp(currentShields, 0, maxShields());
+    if (capped) currentShields = Nums.clamp(currentShields, 0, maxShields());
   }
   
   
@@ -378,13 +378,13 @@ public class ActorGear extends Inventory {
     
     if (currentShields < max) {
       float regen = max / SHIELD_REGEN_TIME;
-      regen = Visit.clamp(regen, 0, max - currentShields);
-      currentShields = Visit.clamp(currentShields + regen, 0, max);
+      regen = Nums.clamp(regen, 0, max - currentShields);
+      currentShields = Nums.clamp(currentShields + regen, 0, max);
       powerCells -= FUEL_DEPLETE * regen / (max * SHIELD_REGEN_TIME);
     }
     if (currentShields > max) {
       final float sink = 5f / SHIELD_REGEN_TIME;
-      currentShields = Visit.clamp(currentShields - sink, max, (max + 5) * 2);
+      currentShields = Nums.clamp(currentShields - sink, max, (max + 5) * 2);
     }
   }
   
@@ -397,7 +397,7 @@ public class ActorGear extends Inventory {
   public void incPowerCells(float inc) {
     if (inc <= 0) return;
     powerCells += inc;
-    powerCells = Visit.clamp(powerCells, 0, MAX_POWER_CELLS);
+    powerCells = Nums.clamp(powerCells, 0, MAX_POWER_CELLS);
   }
 }
 

@@ -2,7 +2,6 @@
 
 
 package stratos.game.civilian;
-
 import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.campaign.Commerce;
@@ -16,8 +15,6 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
-
-import org.apache.commons.math3.util.FastMath;
 
 
 
@@ -491,8 +488,8 @@ public class Dropship extends Vehicle implements Inventory.Owner {
       final FRSD parent = strip.parentDepot();
       float rating = 0;
       for (Traded good : Economy.ALL_MATERIALS) {
-        rating += FastMath.max(0, parent.stocks.shortageOf(good));
-        rating += FastMath.max(0, parent.stocks.surplusOf (good));
+        rating += Nums.max(0, parent.stocks.shortageOf(good));
+        rating += Nums.max(0, parent.stocks.surplusOf (good));
       }
       rating /= 2 * ALL_MATERIALS.length;
       pick.compare(strip, rating);
@@ -588,7 +585,7 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     s.colour = Colour.transparency(fadeProgress);
     
     final float animProgress = height > 0.5f ? 0 : ((0.5f - height) * 2);
-    s.setAnimation("descend", Visit.clamp(animProgress, 0, 1), true);
+    s.setAnimation("descend", Nums.clamp(animProgress, 0, 1), true);
     
     super.renderFor(rendering, base);
   }

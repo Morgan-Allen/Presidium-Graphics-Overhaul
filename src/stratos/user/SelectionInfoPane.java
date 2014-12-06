@@ -167,7 +167,7 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
     final Class IC = infoClass(selected);
     if (IC != null && categories.length > 0) {
       final Integer catID = DEFAULT_CATS.get(IC);
-      if (catID != null) categoryID = Visit.clamp(catID, categories.length);
+      if (catID != null) categoryID = Nums.clamp(catID, categories.length);
     }
     else categoryID = 0;
     
@@ -213,7 +213,7 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
   
   public String category() {
     if (categories.length == 0) return null;
-    return categories[Visit.clamp(categoryID, categories.length)];
+    return categories[Nums.clamp(categoryID, categories.length)];
   }
   
   

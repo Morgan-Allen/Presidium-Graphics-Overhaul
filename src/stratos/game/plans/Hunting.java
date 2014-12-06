@@ -148,7 +148,7 @@ public class Hunting extends Combat {
     }
     else if (type == TYPE_HARVEST) {
       if (crowding < 1) return 0;
-      urgency = Visit.clamp(ROUTINE * crowding, CASUAL, URGENT);
+      urgency = Nums.clamp(ROUTINE * crowding, CASUAL, URGENT);
       harmLevel = REAL_HARM;
       baseTraits = HARVEST_TRAITS;
     }

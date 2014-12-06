@@ -70,7 +70,7 @@ public class MantleDrilling extends Plan {
     */
   protected float getPriority() {
     final float bonus = venue.stocks.amountOf(sample) / 5f;
-    return Visit.clamp(CASUAL + bonus + 1, 0, URGENT);
+    return Nums.clamp(CASUAL + bonus + 1, 0, URGENT);
   }
   
   

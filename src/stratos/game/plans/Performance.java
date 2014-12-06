@@ -177,7 +177,7 @@ public class Performance extends Recreation {
   
   
   public static String qualityDesc(float performValue) {
-    String desc = EFFECT_DESC[Visit.clamp((int) (performValue / 2), 5)];
+    String desc = EFFECT_DESC[Nums.clamp((int) (performValue / 2), 5)];
     return desc+" reception.";
   }
   
@@ -309,7 +309,7 @@ public class Performance extends Recreation {
       if (success) effect++;
       else if (Rand.yes()) effect--;
     }
-    performValue = Visit.clamp(performValue + effect, 0, 10);
+    performValue = Nums.clamp(performValue + effect, 0, 10);
     timeSpent++;
     //
     //  The actor may be entitled to some of the benefits of recreation in the

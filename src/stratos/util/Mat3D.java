@@ -6,13 +6,11 @@
 
 package stratos.util;
 import java.io.*;
-import org.apache.commons.math3.util.FastMath;
 
 
 /**  3x3 Matrix used commonly in vector rotations, optimised for certain
   *  purposes.
   */
-
 public class Mat3D {
   
 	
@@ -98,12 +96,12 @@ public class Mat3D {
     *  values (i.e roll, pitch, and yaw.)
     */
   public Mat3D setEuler(float er, float ep, float ey) {
-    cr = (float) (FastMath.cos(er));
-    sr = (float) (FastMath.sin(er));
-    cp = (float) (FastMath.cos(ep));
-    sp = (float) (FastMath.sin(ep));
-    cy = (float) (FastMath.cos(ey));
-    sy = (float) (FastMath.sin(ey));
+    cr = Nums.cos(er);
+    sr = Nums.sin(er);
+    cp = Nums.cos(ep);
+    sp = Nums.sin(ep);
+    cy = Nums.cos(ey);
+    sy = Nums.sin(ey);
     
     r0c0 = cp * cy;
     r1c0 = cp * sy;
@@ -120,8 +118,8 @@ public class Mat3D {
   /**  Rotates this matrix by the given value about the X axis.
     */
   public Mat3D rotateX(float radians) {
-    cr = (float) (FastMath.cos(radians));
-    sr = (float) (FastMath.sin(radians));
+    cr = Nums.cos(radians);
+    sr = Nums.sin(radians);
     tempM.setIdentity();
     tempM.r1c1 = cr;
     tempM.r1c2 = sr;
@@ -134,8 +132,8 @@ public class Mat3D {
   /**  Rotates this matrix by the given value about the Y axis.
     */
   public Mat3D rotateY(float radians) {
-    cr = (float) (FastMath.cos(radians));
-    sr = (float) (FastMath.sin(radians));
+    cr = Nums.cos(radians);
+    sr = Nums.sin(radians);
     tempM.setIdentity();
     tempM.r0c0 = cr;
     tempM.r0c2 = sr;
@@ -148,8 +146,8 @@ public class Mat3D {
   /**  Rotates this matrix by the given value about the Z axis.
     */
   public Mat3D rotateZ(float radians) {
-    cr = (float) (FastMath.cos(radians));
-    sr = (float) (FastMath.sin(radians));
+    cr = Nums.cos(radians);
+    sr = Nums.sin(radians);
     tempM.setIdentity();
     tempM.r0c0 = cr;
     tempM.r0c1 = sr;
@@ -282,7 +280,7 @@ public class Mat3D {
       return this;
     }
     float det = determinant();
-    if (FastMath.abs(det) < 0.0001f) det = 1.0f;
+    if (Nums.abs(det) < 0.0001f) det = 1.0f;
     else det = 1 / det;
     //
     //  Straightforward cookbook formula used:

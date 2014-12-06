@@ -78,8 +78,8 @@ public class ActorSkills {
     float bonusA = actor.traits.usedLevel(checked) + Math.max(0, bonus);
     float bonusB = 0 - Math.min(0, bonus);
     if (b != null && opposed != null) bonusB += b.traits.usedLevel(opposed);
-    final float chance = Visit.clamp(bonusA + 10 - bonusB, 0, 20) / 20;
-    return Visit.clamp(chance, MIN_FAIL_CHANCE, MAX_SUCCEED_CHANCE);
+    final float chance = Nums.clamp(bonusA + 10 - bonusB, 0, 20) / 20;
+    return Nums.clamp(chance, MIN_FAIL_CHANCE, MAX_SUCCEED_CHANCE);
   }
   
   

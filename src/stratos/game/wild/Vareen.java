@@ -84,7 +84,7 @@ public class Vareen extends Fauna {
     }
     
     final float MFI = 1f / (2 * Stage.UPDATES_PER_SECOND);
-    flyHeight = Visit.clamp(idealHeight, flyHeight - MFI, flyHeight + MFI);
+    flyHeight = Nums.clamp(idealHeight, flyHeight - MFI, flyHeight + MFI);
     super.updateAsMobile();
   }
   

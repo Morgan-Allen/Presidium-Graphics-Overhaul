@@ -86,7 +86,7 @@ public class BuildingSprite extends Sprite {
     final BuildingSprite BS = new BuildingSprite();
     BS.baseSprite = sprite;
 
-    final int SI = Visit.clamp(size, SCAFF_MODELS.length);
+    final int SI = Nums.clamp(size, SCAFF_MODELS.length);
     BS.scaffoldBase = (CutoutSprite) SCAFF_MODELS[SI].makeSprite();
     
     BS.scaffolding = BS.scaffoldFor(size, high, 0);
@@ -163,7 +163,7 @@ public class BuildingSprite extends Sprite {
       displayed.readyFor(rendering);
       
       final float progress = displayed.animProgress();
-      final float alpha = Visit.clamp(progress * 4 * (1 - progress), 0, 1);
+      final float alpha = Nums.clamp(progress * 4 * (1 - progress), 0, 1);
       displayed.colour = Colour.transparency(alpha);
       
       if (progress >= 1) {
@@ -275,7 +275,7 @@ public class BuildingSprite extends Sprite {
   
   
   private GroupSprite scaffoldFor(int size, int high, float condition) {
-    condition = Visit.clamp(condition, 0, 1);
+    condition = Nums.clamp(condition, 0, 1);
     final int stage = scaffoldStage(size, high, condition, maxStages());
     //
     //  Otherwise, put together a composite sprite where the number of mini-

@@ -204,7 +204,7 @@ public class Nest extends Venue {
     if (report) {
       I.say("    Actual/ideal population: "+actualPop+"/"+idealPop);
     }
-    return Visit.clamp(actualPop / (1 + idealPop), 0, MAX_CROWDING);
+    return Nums.clamp(actualPop / (1 + idealPop), 0, MAX_CROWDING);
   }
   
   

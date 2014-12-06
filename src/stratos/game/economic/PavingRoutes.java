@@ -390,7 +390,7 @@ public class PavingRoutes {
     for (int i = provided.length; i-- > 0;) {
       if (demand[i] == 0) continue;
       final Traded type = provided[i];
-      final float supplyRatio = Visit.clamp(supply[i] / demand[i], 0, 1);
+      final float supplyRatio = Nums.clamp(supply[i] / demand[i], 0, 1);
       for (Structural s : reached) if (s instanceof Venue) {
         final Venue venue = (Venue) s;
         final float d = venue.stocks.demandFor(type);

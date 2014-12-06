@@ -3,8 +3,7 @@
 package stratos.start;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
-import stratos.util.Rand;
-import stratos.util.Visit;
+import stratos.util.*;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;

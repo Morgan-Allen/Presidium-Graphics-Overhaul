@@ -398,10 +398,10 @@ public class Reactor extends Venue {
     if (panel.category() == CAT_STATUS) {
       final float risk = meltdownChance() + meltdown;
       final int nR = RISK_DESC.length;
-      final String descR = RISK_DESC[Visit.clamp((int) (risk * nR), nR)];
+      final String descR = RISK_DESC[Nums.clamp((int) (risk * nR), nR)];
       d.append("\n\n  Meltdown risk: "+descR);
       final int nC = CORE_DESC.length;
-      final String descC = CORE_DESC[Visit.clamp((int) (meltdown * nC), nC)];
+      final String descC = CORE_DESC[Nums.clamp((int) (meltdown * nC), nC)];
       d.append("\n  Core condition: "+descC);
     }
     

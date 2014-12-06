@@ -110,7 +110,7 @@ public class Treatment extends Plan implements Item.Passive {
   public static float dangerRating(Condition c, Actor patient) {
     final float
       level  = patient.traits.usedLevel(c),
-      speed  = Visit.clamp((1f / (1 + c.latency)) + level, 0, 1),
+      speed  = Nums.clamp((1f / (1 + c.latency)) + level, 0, 1),
       danger = (c.virulence + c.spread);
     return level <= 0 ? 0 : (speed * danger / Conditions.EXTREME_VIRULENCE);
   }

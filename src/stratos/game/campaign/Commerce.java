@@ -304,17 +304,17 @@ public class Commerce {
         }
         
         if (tier == Stocks.TIER_EXPORTER) {
-          localSurpluses.bumpItem(type, Visit.round(amount  , 5, false));
+          localSurpluses.bumpItem(type, Nums.round(amount  , 5, false));
         }
         else if (tier != Stocks.TIER_PRODUCER) {
-          localShortages.bumpItem(type, Visit.round(shortage, 5, true ));
+          localShortages.bumpItem(type, Nums.round(shortage, 5, true ));
         }
         
         if (tier == Stocks.TIER_IMPORTER) {
-          localShortages.bumpItem(type, Visit.round(shortage, 5, true ));
+          localShortages.bumpItem(type, Nums.round(shortage, 5, true ));
         }
         else if (tier != Stocks.TIER_CONSUMER) {
-          localSurpluses.bumpItem(type, Visit.round(surplus , 5, false));
+          localSurpluses.bumpItem(type, Nums.round(surplus , 5, false));
         }
       }
     }
@@ -457,7 +457,7 @@ public class Commerce {
       visitTime = base.world.currentTime() + (Rand.num() * SUPPLY_INTERVAL);
     }
     else {
-      final float repair = Visit.clamp(1.25f - (Rand.num() / 2), 0, 1);
+      final float repair = Nums.clamp(1.25f - (Rand.num() / 2), 0, 1);
       ship.structure.setState(Structure.STATE_INTACT, repair);
     }
     refreshCrew(ship,

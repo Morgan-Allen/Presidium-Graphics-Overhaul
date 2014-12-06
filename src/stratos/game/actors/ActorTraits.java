@@ -213,7 +213,7 @@ public class ActorTraits implements Qualities {
       if (o != null && levels.get(o) != null) return 0 - traitLevel(o);
       return 0;
     }
-    return Visit.clamp(level.value, type.minVal, type.maxVal);
+    return Nums.clamp(level.value, type.minVal, type.maxVal);
   }
   
   

@@ -274,7 +274,7 @@ public class Inventory {
   
   public void bumpItem(Traded type, float amount, int max) {
     final float oldAmount = amountOf(type);
-    bumpItem(type, Visit.clamp(amount, 0 - oldAmount, max - oldAmount));
+    bumpItem(type, Nums.clamp(amount, 0 - oldAmount, max - oldAmount));
   }
   
   

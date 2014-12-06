@@ -2,9 +2,7 @@
 
 
 package stratos.util;
-
 import java.io.*;
-import org.apache.commons.math3.util.FastMath;
 
 
 public class Bitmap {
@@ -17,7 +15,7 @@ public class Bitmap {
   public Bitmap(int wide, int high) {
     this.wide = wide;
     this.high = high;
-    this.data = new byte[(int) FastMath.ceil(wide * high / 8f)];
+    this.data = new byte[(int) Nums.ceil(wide * high / 8f)];
   }
   
   

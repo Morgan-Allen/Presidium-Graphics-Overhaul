@@ -139,7 +139,7 @@ public class TerrainPass {
           final float alpha = (chunk.fadeIncept + 1) - Rendering.activeTime();
           
           if (alpha > 0) {
-            final float outAlpha = Visit.clamp(alpha * 2, 0, 1);
+            final float outAlpha = Nums.clamp(alpha * 2, 0, 1);
             shader.setUniformf("u_opacity", opacity * outAlpha);
             chunk.fadeOut.mesh().render(shader, GL20.GL_TRIANGLES);
           }
@@ -149,7 +149,7 @@ public class TerrainPass {
             chunk.fadeOut = null;
           }
           
-          final float inAlpha = Visit.clamp((1 - alpha) * 2, 0, 1);
+          final float inAlpha = Nums.clamp((1 - alpha) * 2, 0, 1);
           shader.setUniformf("u_opacity", opacity * inAlpha * c.a);
           chunk.mesh().render(shader, GL20.GL_TRIANGLES);
         }

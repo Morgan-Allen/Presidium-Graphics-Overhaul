@@ -6,7 +6,6 @@
 
 package stratos.util;
 import java.io.*;
-import org.apache.commons.math3.util.FastMath;
 
 
 
@@ -229,7 +228,7 @@ public class Vec2D {
     *  in degrees.
     */
   public float toAngle() {
-    return (float) (FastMath.atan2(y, x) * 180 / Math.PI);
+    return Nums.atan2(y, x) * 180 / Nums.PI;
   }
   
 

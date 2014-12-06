@@ -81,7 +81,7 @@ public class Button extends Image {
     }
     else if (amHovered()) {
       float alpha = absAlpha * hoverLit;
-      alpha *= Visit.clamp(UI.timeHovered() / DEFAULT_FADE_TIME, 0, 1);
+      alpha *= Nums.clamp(UI.timeHovered() / DEFAULT_FADE_TIME, 0, 1);
       super.renderTex(highlit, alpha, pass);
     }
   }

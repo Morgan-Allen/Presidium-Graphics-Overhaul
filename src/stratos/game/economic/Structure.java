@@ -465,7 +465,7 @@ public class Structure {
     //  Update progress, and store the change for return later-
     final int US = upgradeStates[upgradeIndex];
     final float oldP = upgradeProgress;
-    upgradeProgress = Visit.clamp(upgradeProgress + progress, 0, 1);
+    upgradeProgress = Nums.clamp(upgradeProgress + progress, 0, 1);
     float amount = upgradeProgress - oldP;
     if (US == STATE_SALVAGE) amount *= -0.5f;
     //

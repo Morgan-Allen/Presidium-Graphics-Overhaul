@@ -5,11 +5,9 @@
   */
 
 package stratos.util;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-
-import org.apache.commons.math3.util.FastMath;
-
 import com.badlogic.gdx.math.*;
 
 
@@ -185,7 +183,7 @@ public class Box2D {
   
   
   public float area() {
-    return FastMath.abs(xdim * ydim);
+    return Nums.abs(xdim * ydim);
   }
   
   
@@ -199,10 +197,10 @@ public class Box2D {
   
   
   public void expandToUnit(int unit) {
-    xpos = unit * (float) FastMath.floor(xpos / unit);
-    ypos = unit * (float) FastMath.floor(ypos / unit);
-    xmax = unit * (float) FastMath.ceil (xmax / unit);
-    ymax = unit * (float) FastMath.ceil (ymax / unit);
+    xpos = unit * Nums.floor(xpos / unit);
+    ypos = unit * Nums.floor(ypos / unit);
+    xmax = unit * Nums.ceil (xmax / unit);
+    ymax = unit * Nums.ceil (ymax / unit);
     xdim = xmax - xpos;
     ydim = ymax - ypos;
   }

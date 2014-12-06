@@ -72,7 +72,7 @@ public class Ambience {
   /**  UI assistance-
     */
   private static String descFrom(String s[], float level) {
-    return s[Visit.clamp((int) (level * s.length), s.length)];
+    return s[Nums.clamp((int) (level * s.length), s.length)];
   }
   
   

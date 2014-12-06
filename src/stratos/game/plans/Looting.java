@@ -1,15 +1,13 @@
 
 
 package stratos.game.plans;
-import org.apache.commons.math3.util.FastMath;
-
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.economic.Inventory.Owner;
 import stratos.game.maps.Planet;
 import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.util.*;
+import stratos.game.economic.Inventory.Owner;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
 
@@ -81,7 +79,7 @@ public class Looting extends Plan {
       for (Item taken : mark.inventory().allItems()) {
         final float rating = ActorMotives.rateDesire(taken, null, actor);
         if (rating * (1 + Rand.num()) > bestRating) {
-          bestTaken  = Item.withAmount(taken, FastMath.min(1, taken.amount));
+          bestTaken  = Item.withAmount(taken, Nums.min(1, taken.amount));
           bestMark   = mark  ;
           bestRating = rating;
           if (report) I.say("  Rating for "+taken+" at "+mark+" is "+rating);
@@ -148,8 +146,8 @@ public class Looting extends Plan {
     if (actor.gear.hasItem(taken)) return null;
     
     //  If you've been spotted, try to shake the pursuit!
-    if (actor.world().activities.includesActivePlan(actor, null)) {
-      if (report) I.say("  You've been spotted!  Scram!");
+    if (shouldHide()) {
+      if (report) I.say("  You've been marked!  Scram!");
       
       final float range = actor.health.sightRange();
       final Target point = Retreat.pickHidePoint(actor, range, actor, false);
@@ -170,6 +168,24 @@ public class Looting extends Plan {
       Action.REACH_DOWN, "Looting "
     );
     return loot;
+  }
+  
+  
+  private boolean shouldHide() {
+    if (! hasBegun()) return false;
+
+    //  In essence, you flee if you're too close to a member of the base you're
+    //  stealing from (and isn't the mark), or someone else has already made
+    //  you a target:
+    if (actor.world().activities.includesActivePlan(actor, null)) return true;
+    
+    final Base attacked = CombatUtils.baseAttacked(actor);
+    final float minRange = actor.health.sightRange() / 2;
+    for (Target t : actor.senses.awareOf()) {
+      if (t == mark || ! (t.isMobile() && t.base() == attacked)) continue;
+      if (Spacing.distance(t, actor) <= minRange) return true;
+    }
+    return false;
   }
   
   

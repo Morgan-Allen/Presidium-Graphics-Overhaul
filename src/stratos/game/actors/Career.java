@@ -126,7 +126,7 @@ public class Career implements Qualities {
     //  We top up basic attributes to match.
     actor.traits.initDNA(0);
     actor.health.setupHealth(
-      Visit.clamp(Rand.avgNums(2), 0.26f, 0.94f),
+      Nums.clamp(Rand.avgNums(2), 0.26f, 0.94f),
       1, 0
     );
     
@@ -212,7 +212,7 @@ public class Career implements Qualities {
     //  TODO:  Some of these traits need to be rendered 'dormant' in younger
     //  citizens...
     applyVocation(gender, actor);
-    float ST = Visit.clamp(Rand.rangeAvg(-1, 3, 2), 0, 3);
+    float ST = Nums.clamp(Rand.rangeAvg(-1, 3, 2), 0, 3);
     if (Rand.index(20) == 0) ST = -1;
     if (gender == Backgrounds.FEMALE_BIRTH) {
       actor.traits.setLevel(GENDER, "Female");
@@ -354,11 +354,11 @@ public class Career implements Qualities {
     int BQ = v.standing;
     for (Traded gear : v.gear) {
       if (gear instanceof DeviceType) {
-        final int quality = Visit.clamp(BQ - 1 + Rand.index(3), 4);
+        final int quality = Nums.clamp(BQ - 1 + Rand.index(3), 4);
         actor.gear.equipDevice(Item.withQuality(gear, quality));
       }
       else if (gear instanceof OutfitType) {
-        final int quality = Visit.clamp(BQ - 1 + Rand.index(3), 4);
+        final int quality = Nums.clamp(BQ - 1 + Rand.index(3), 4);
         actor.gear.equipOutfit(Item.withQuality(gear, quality));
       }
       else actor.gear.addItem(Item.withAmount(gear, 1 + Rand.index(3)));

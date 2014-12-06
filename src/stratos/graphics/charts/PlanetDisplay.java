@@ -1,7 +1,6 @@
 
 
 package stratos.graphics.charts;
-//import stratos.start.Disposal;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.Label;
 import stratos.graphics.solids.*;
@@ -16,8 +15,6 @@ import com.badlogic.gdx.graphics.g3d.model.*;
 import com.badlogic.gdx.graphics.glutils.*;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-
-import org.apache.commons.math3.util.FastMath;
 
 
 
@@ -263,7 +260,7 @@ public class PlanetDisplay extends Assets.Loadable {
     final float len = screenPos.length();
     if (len > radius) return null;
     
-    final float offset = (float) FastMath.sqrt(
+    final float offset = Nums.sqrt(
       (radius * radius) - (len * len)
     );
     final Vec3D depth = new Vec3D(0, 0, -1);
@@ -393,14 +390,14 @@ public class PlanetDisplay extends Assets.Loadable {
     //  First of all, we configure viewing perspective, aperture size, rotation
     //  and offset:
     rotMatrix.setIdentity();
-    rotMatrix.rotateY((float) FastMath.toRadians(0 - rotation));
+    rotMatrix.rotateY(Nums.toRadians(0 - rotation));
     view.updateForWidget(bounds, (radius * 2) + 0, 90, elevation);
     
     final Matrix4 trans = new Matrix4().idt();
     trans.rotate(Vector3.Y, 0 - rotation);
 
     final float SW = Gdx.graphics.getWidth(), SH = Gdx.graphics.getHeight();
-    final float portalSize = FastMath.min(bounds.xdim(), bounds.ydim());
+    final float portalSize = Nums.min(bounds.xdim(), bounds.ydim());
     final Vec2D centre = bounds.centre();
     shading.begin();
     shading.setUniformf("u_globeRadius", radius);
@@ -415,8 +412,8 @@ public class PlanetDisplay extends Assets.Loadable {
     //
     //  Then, we configure parameters for selection/hover/highlight FX.
     final float alphaInc = 1f / Rendering.FRAMES_PER_SECOND;
-    hoverAlpha  = Visit.clamp(hoverAlpha  + alphaInc, 0, 1);
-    selectAlpha = Visit.clamp(selectAlpha + alphaInc, 0, 1);
+    hoverAlpha  = Nums.clamp(hoverAlpha  + alphaInc, 0, 1);
+    selectAlpha = Nums.clamp(selectAlpha + alphaInc, 0, 1);
     final Colour h, s;
     if (hoverKey != null && hoverKey.difference(selectKey) > 0) {
       h = hoverKey;
@@ -489,7 +486,7 @@ public class PlanetDisplay extends Assets.Loadable {
         a = (onScreen.x - origin.x) / (radius * view.screenScale()),
         x = Label.phraseWidth(s.label, font, 1.0f) / SW,
         y = (0 - font.letterFor(' ').height * 2  ) / SH;
-      a *= FastMath.abs(a);
+      a *= Nums.abs(a);
       x *= (1 - a) / -2;
       //
       //  NOTE:  Texture-v is flipped due to differences in pixel order in

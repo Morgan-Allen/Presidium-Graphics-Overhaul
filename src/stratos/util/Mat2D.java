@@ -6,7 +6,6 @@
 
 package stratos.util;
 import java.io.*;
-import org.apache.commons.math3.util.FastMath;
 
 
 public class Mat2D {
@@ -93,9 +92,7 @@ public class Mat2D {
   /**  Rotates this matrix anticlockwise by the given value.
     */
   public Mat2D rotate(float radians) {
-    float
-      cr = (float)(FastMath.cos(radians)),
-      sr = (float)(FastMath.sin(radians));
+    final float cr = Nums.cos(radians), sr = Nums.sin(radians);
     tempM.setIdentity();
     tempM.r0c0 = cr;
     tempM.r0c1 = sr;

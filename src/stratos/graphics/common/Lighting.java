@@ -42,9 +42,9 @@ public class Lighting {
     direction.set(1, -1, -1).normalise();
     
     final Colour d = diffuse, a = ambient;
-    lightSum[0] = Visit.clamp((d.r * d.a) + (a.r * a.a), 0, 1);
-    lightSum[1] = Visit.clamp((d.g * d.a) + (a.g * a.a), 0, 1);
-    lightSum[2] = Visit.clamp((d.b * d.a) + (a.b * a.a), 0, 1);
+    lightSum[0] = Nums.clamp((d.r * d.a) + (a.r * a.a), 0, 1);
+    lightSum[1] = Nums.clamp((d.g * d.a) + (a.g * a.a), 0, 1);
+    lightSum[2] = Nums.clamp((d.b * d.a) + (a.b * a.a), 0, 1);
     lightSum[3] = 1;
     
     if (verbose) {

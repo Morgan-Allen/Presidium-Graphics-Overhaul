@@ -3,12 +3,10 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.game.actors;
 import stratos.game.civilian.Accountable;
 import stratos.game.common.*;
 import stratos.util.*;
-import org.apache.commons.math3.util.FastMath;
 
 
 
@@ -16,7 +14,6 @@ import org.apache.commons.math3.util.FastMath;
 //  TODO:  Have relations start out with novelty of *more* than 100%, to allow
 //         for a period of 'first impressions' where relation adjustments are
 //         stronger.  (This also lets you define 'strangers' more strongly.)
-
 
 public class Relation {
   
@@ -138,7 +135,7 @@ public class Relation {
       I.talkAbout == object
     );
     final float value = value();
-    weight = Visit.clamp(weight, 0, 1);
+    weight = Nums.clamp(weight, 0, 1);
     
     if (report) {
       I.say("\nIncrementing relation between "+object+" and "+subject);
@@ -149,15 +146,15 @@ public class Relation {
     //  range, but we ensure that positive/negative target level always have
     //  *some* effect.
     final float
-      min     = MIN_ADJUST * FastMath.abs(target),
+      min     = MIN_ADJUST * Nums.abs(target),
       inRange = (1 + value) / 2f,
-      budge   = Visit.clamp(inRange * (1 - inRange) * 4, MIN_ADJUST, 1);
+      budge   = Nums.clamp(inRange * (1 - inRange) * 4, MIN_ADJUST, 1);
     float gap = target - value;
     if (target  < 0 && gap > -min) gap = -min;
     if (target >= 0 && gap <  min) gap =  min;
     
     attitude += gap * budge * weight * MAX_VALUE;
-    attitude = Visit.clamp(attitude, 0 - MAX_VALUE, MAX_VALUE);
+    attitude = Nums.clamp(attitude, 0 - MAX_VALUE, MAX_VALUE);
     
     if (report) {
       I.say("  Budge factor: "+budge+", gap factor: "+gap);
@@ -197,7 +194,7 @@ public class Relation {
     if (r == null) return "None";
     final float level = (MAX_VALUE - r.attitude) / (MAX_VALUE * 2);
     final int DL = DESCRIPTORS.length;
-    return DESCRIPTORS[Visit.clamp((int) (level * DL), DL)];
+    return DESCRIPTORS[Nums.clamp((int) (level * DL), DL)];
   }
   
   
