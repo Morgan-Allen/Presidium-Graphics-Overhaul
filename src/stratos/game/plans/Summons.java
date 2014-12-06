@@ -4,6 +4,7 @@ package stratos.game.plans;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.tactical.*;
+import stratos.game.civilian.*;
 import stratos.user.*;
 import stratos.util.*;
 import stratos.game.campaign.BaseFinance;
@@ -30,14 +31,14 @@ public class Summons extends Plan {
   
 
   final Actor invites;
-  final Venue stays;
+  final Liveable stays;
   final int type;
   private int timeStayed = 0;
   
   
   
-  public Summons(Actor actor, Actor invites, Venue stays, int type) {
-    super(actor, invites, true);
+  public Summons(Actor actor, Actor invites, Liveable stays, int type) {
+    super(actor, invites, true, NO_HARM);
     this.invites = invites;
     this.stays   = stays  ;
     this.type    = type   ;
@@ -46,8 +47,8 @@ public class Summons extends Plan {
   
   public Summons(Session s) throws Exception {
     super(s);
-    this.invites = (Actor) s.loadObject();
-    this.stays   = (Venue) s.loadObject();
+    this.invites = (Actor   ) s.loadObject();
+    this.stays   = (Liveable) s.loadObject();
     this.type    = s.loadInt();
     this.timeStayed = s.loadInt();
   }
@@ -76,28 +77,13 @@ public class Summons extends Plan {
     
     if (type == TYPE_CAPTIVE) return 100;
     
-    
-    //  TODO:  Allow priority to be assigned externally!  This is way too high
-    //  for casual scolding, say.
-    //  TODO:  What about the stay duration?  That needs to be fixed up too.
-    /*
-    final float
-      waited = timeStayed / MAX_STAY_DURATION,
-      relation = actor.relations.valueFor(invites);
-    
-    final float priority = URGENT + (relation * CASUAL) - (ROUTINE * waited);
-    if (report) {
-      I.say("  Relation and wait-time: "+relation+"/"+waited);
-      I.say("  Final priority: "+priority);
-    }
-    //*/
-    return priority;
-    //return 0 + motiveBonus();
+    final float waited = timeStayed / MAX_STAY_DURATION;
+    return motiveBonus() - (waited * ROUTINE);
   }
   
   
   protected Behaviour getNextStep() {
-    if (! stays.structure.intact()) return null;
+    if (! stays.structure().intact()) return null;
     if (type != TYPE_CAPTIVE && timeStayed >= MAX_STAY_DURATION) return null;
     
     final boolean report = verbose && I.talkAbout == actor;
@@ -134,8 +120,7 @@ public class Summons extends Plan {
     if (venue instanceof Venue && actor.health.hungerLevel() > 0) {
       Resting.dineFrom(actor, (Venue) venue);
     }
-    
-    if (BaseUI.isSelected(actor)) {
+    if (BaseUI.isSelected(actor) && stays == stays.base().HQ()) {
       final BaseUI UI = BaseUI.current();
       UI.selection.pushSelection(null, false);
       configDialogueFor(UI, actor, true);
@@ -183,9 +168,13 @@ public class Summons extends Plan {
     if (venue == null) venue = ruler.aboard();
     if (! (venue instanceof Venue)) return;
     
+    final float relation = subject.relations.valueFor(ruler);
+    final float priority = URGENT + (relation * CASUAL);
+    
     final Summons summons = new Summons(
       subject, ruler, (Venue) venue, TYPE_GUEST
     );
+    summons.setMotive(Plan.MOTIVE_DUTY, priority);
     subject.mind.assignToDo(summons);
   }
   

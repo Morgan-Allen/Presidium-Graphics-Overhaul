@@ -341,7 +341,7 @@ public class ExcavationSite extends Venue implements TileConstants {
   }
   
   
-  public String buildCategory() {
+  public String objectCategory() {
     return InstallTab.TYPE_ARTIFICER;
   }
 }

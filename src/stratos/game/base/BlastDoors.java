@@ -126,7 +126,7 @@ public class BlastDoors extends ShieldWall implements TileConstants {
   }
   
   
-  public String buildCategory() {
+  public String objectCategory() {
     return InstallTab.TYPE_MILITANT;
   }
 }

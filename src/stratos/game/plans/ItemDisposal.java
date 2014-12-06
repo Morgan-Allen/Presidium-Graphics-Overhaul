@@ -8,6 +8,8 @@ import stratos.game.economic.*;
 import stratos.util.*;
 
 
+//  TODO:  Merge this with Looting/scavenging/smuggling...?
+
 
 public class ItemDisposal extends Plan {
   
@@ -18,7 +20,7 @@ public class ItemDisposal extends Plan {
   
   
   public ItemDisposal(Actor actor) {
-    super(actor, actor, true);
+    super(actor, actor, true, NO_HARM);
   }
   
   

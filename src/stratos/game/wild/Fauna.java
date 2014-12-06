@@ -122,15 +122,21 @@ public abstract class Fauna extends Actor {
     return new ActorRelations(this) {
       //
       //  We install some default relationships with other animals-
-      public float valueFor(Actor other) {
-        if (other == actor) return 1.0f;
-        if (other.health.animal()) {
-          final Fauna f = (Fauna) other;
-          if (f.species == species) return 0.25f;
-          if (f.species.type == Species.Type.BROWSER) return 0;
-          if (f.species.predator()) return -0.5f;
+      public float valueFor(Object object) {
+        if (object == actor || object == actor.mind.home()) {
+          return 1.0f;
         }
-        return -0.25f;
+        else if (object instanceof Actor) {
+          final Actor other = (Actor) object;
+          if (other.health.animal()) {
+            final Fauna f = (Fauna) other;
+            if (f.species == species) return 0.25f;
+            if (f.species.type == Species.Type.BROWSER) return 0;
+            if (f.species.predator()) return -0.5f;
+          }
+          return -0.25f;
+        }
+        else return 0;
       }
     };
   }

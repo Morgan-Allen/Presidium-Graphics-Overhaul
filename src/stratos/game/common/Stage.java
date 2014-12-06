@@ -135,7 +135,8 @@ public class Stage {
   
   /**  Utility methods for visiting tiles at specific coordinates.
     */
-  private Vec3D tempV = new Vec3D();
+  private static Vec3D tempV = new Vec3D();
+  
   
   public Tile tileAt(float x, float y) {
     try { return tiles[(int) (x + 0.5f)][(int) (y + 0.5f)]; }

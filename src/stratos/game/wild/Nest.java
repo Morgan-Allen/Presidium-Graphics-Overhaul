@@ -261,10 +261,10 @@ public class Nest extends Venue {
     crowd = Nest.crowdingFor(o, species, world);
     if (crowd < leastCrowd) { pick = o; leastCrowd = crowd; }
     
-    for (int n : N_ADJACENT) {
+    for (int n : T_ADJACENT) {
       final Tile toTry = world.tileAt(
-        o.x + (N_X[n] * Stage.SECTOR_SIZE) + (Rand.num() * range),
-        o.y + (N_Y[n] * Stage.SECTOR_SIZE) + (Rand.num() * range)
+        o.x + (T_X[n] * Stage.SECTOR_SIZE) + (Rand.num() * range),
+        o.y + (T_Y[n] * Stage.SECTOR_SIZE) + (Rand.num() * range)
       );
       crowd = Nest.crowdingFor(toTry, species, world);
       if (crowd < leastCrowd) { pick = toTry; leastCrowd = crowd; }
@@ -436,7 +436,7 @@ public class Nest extends Venue {
   }
   
   
-  public String buildCategory() {
+  public String objectCategory() {
     return InstallTab.TYPE_HIDDEN;
   }
   

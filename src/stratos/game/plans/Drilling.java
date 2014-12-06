@@ -18,13 +18,16 @@ import static stratos.game.economic.Economy.*;
 
 
 
+//  TODO:  Merge with the Study class?
 
+/*
 public class Drilling extends Plan {
   
   
   
   /**  Data fields, static constants, constructors and save/load methods-
     */
+  /*
   final static float MAX_TIME = Stage.STANDARD_HOUR_LENGTH;
   
   private static boolean
@@ -39,7 +42,7 @@ public class Drilling extends Plan {
   public Drilling(
     Actor actor, DrillYard grounds
   ) {
-    super(actor, grounds, false);
+    super(actor, grounds, false, NO_HARM);
     this.yard = grounds;
   }
   
@@ -65,7 +68,6 @@ public class Drilling extends Plan {
   
   
   /**  Priority and target evaluation-
-    */
   final static Trait BASE_TRAITS[] = { DEFENSIVE, DUTIFUL, ENERGETIC };
   final static Skill ALL_DRILL_SKILLS[][] = {
     { HAND_TO_HAND, SHIELD_AND_ARMOUR },
@@ -102,7 +104,6 @@ public class Drilling extends Plan {
   
   
   /**  Behaviour implementation-
-    */
   protected Behaviour getNextStep() {
     final boolean report = eventVerbose && I.talkAbout == actor;
     final int time = (int) actor.world().currentTime();
@@ -182,14 +183,13 @@ public class Drilling extends Plan {
   
   
   /**  Rendering and interface-
-    */
   public void describeBehaviour(Description d) {
     if (super.needsSuffix(d, "Training at ")) {
       d.append(yard);
     }
   }
 }
-
+//*/
 
 
 

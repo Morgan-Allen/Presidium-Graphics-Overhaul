@@ -40,7 +40,7 @@ public class Audit extends Plan {
   
   
   public Audit(Actor actor, Venue toAudit) {
-    super(actor, toAudit, true);
+    super(actor, toAudit, true, NO_HARM);
     this.audited = toAudit;
   }
   

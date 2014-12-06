@@ -216,7 +216,7 @@ public class Ruins extends Venue {
   }
   
   
-  public String buildCategory() { return UIConstants.TYPE_HIDDEN; }
+  public String objectCategory() { return UIConstants.TYPE_HIDDEN; }
   
   
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {

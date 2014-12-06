@@ -2,6 +2,7 @@
 
 package stratos.game.economic;
 import stratos.game.common.*;
+import stratos.game.civilian.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
@@ -18,7 +19,9 @@ import stratos.util.*;
 //  than a dozen methods- and can be cached for reference by the base AI.
 
 
-public interface Installation extends Session.Saveable, Target, Selectable {
+public interface Installation extends
+  Session.Saveable, Target, Selectable, Accountable
+{
   
   Base base();
   int buildCost();
@@ -34,11 +37,6 @@ public interface Installation extends Session.Saveable, Target, Selectable {
   boolean canPlace();
   void previewPlacement(boolean canPlace, Rendering rendering);
   void doPlacement();
-
-  String fullName();
-  Composite portrait(BaseUI UI);
-  String helpInfo();
-  String buildCategory();
 }
 
 

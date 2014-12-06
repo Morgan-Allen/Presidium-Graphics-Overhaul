@@ -29,7 +29,7 @@ public class RoadsRepair extends Plan {
   
   
   public RoadsRepair(Actor actor, Tile t) {
-    super(actor, actor.world().sections.sectionAt(t.x, t.y), true);
+    super(actor, actor.world().sections.sectionAt(t.x, t.y), true, MILD_HELP);
     this.base = actor.base();
     this.map = base.paveRoutes.map;
     this.around = t;
@@ -70,7 +70,7 @@ public class RoadsRepair extends Plan {
     return priorityForActorWith(
       actor, around,
       CASUAL, NO_MODIFIER,
-      NO_HARM, FULL_COMPETITION, MILD_FAIL_RISK,
+      MILD_HELP, FULL_COMPETITION, MILD_FAIL_RISK,
       BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report
     );

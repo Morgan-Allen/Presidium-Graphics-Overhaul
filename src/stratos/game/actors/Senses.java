@@ -1,15 +1,11 @@
 
 
 package stratos.game.actors;
-
 import stratos.game.common.*;
 import stratos.game.plans.*;
-import stratos.game.tactical.*;
 import stratos.util.*;
-import stratos.game.common.Session.Saveable;
 import stratos.game.economic.*;
-
-import java.util.Map.Entry;
+import stratos.game.common.Session.Saveable;
 
 
 
@@ -24,6 +20,8 @@ public class Senses implements Qualities {
     sightVerbose  = false,
     dangerVerbose = false;
   
+  final static int NUM_DIRS = TileConstants.T_INDEX.length / 2;
+  
   final Actor actor;
   final Table <Target, Saveable> awares = new Table <Target, Saveable> ();
   final Batch <Target> awareOf = new Batch <Target> ();
@@ -31,6 +29,8 @@ public class Senses implements Qualities {
   private boolean emergency  = false;
   private float   powerLevel = 0    ;
   private float   fearLevel  = 0    ;
+  
+  private float fearByDirection[] = new float[4];
   private Target  safePoint  = null ;
   
   
@@ -80,7 +80,7 @@ public class Senses implements Qualities {
     final Batch <Target> lostSight = new Batch <Target> ();
     
     //  Get the set of all freshly-spotted targets-
-    for (Target e : toNotice) if (notices(e, range)) {
+    for (Target e : toNotice) if (notices(e, range, 0)) {
       final Session.Saveable after = reactionKey(e), before = awares.get(e);
       if (before != after) justSeen.add(e);
       e.flagWith(this);
@@ -91,7 +91,7 @@ public class Senses implements Qualities {
     //  of all targets we've lost sight of-
     for (Target e : awares.keySet()) {
       if (e.flaggedWith() == this) { e.flagWith(null); continue; }
-      if (! notices(e, range)) lostSight.add(e);
+      if (! notices(e, range, 0)) lostSight.add(e);
     }
     
     //  Remove the latter from the list, and having added the former, update
@@ -132,7 +132,7 @@ public class Senses implements Qualities {
     //  anything you target.
     noticed.include(actor.mind.home);
     noticed.include(actor.mind.work);
-    final Target focus = actor.focusFor(null);
+    final Target focus = actor.actionFocus();
     if (focus instanceof Element) {
       noticed.include(focus);
     }
@@ -154,14 +154,14 @@ public class Senses implements Qualities {
   }
   
   
-  private boolean notices(Target e, final float sightRange) {
+  private boolean notices(Target e, final float sightRange, float hideBonus) {
     if (e == null || e == actor) return false;
     final boolean report = noticeVerbose && I.talkAbout == actor;
     
     final float distance = Spacing.distance(e, actor);
     final Base  base     = actor.base();
     final float fog      = base.intelMap.fogAt(e);
-    if (fog <= 0) return false;
+    //if (fog <= 0) return false;
     
     float senseChance = sightRange * fog;
     if (awareOf(e)) senseChance *= 2;
@@ -170,6 +170,7 @@ public class Senses implements Qualities {
     
     float hideChance = distance * (1 + stealthFactor(e, actor));
     if (indoors(e)) hideChance += sightRange;
+    hideChance += hideBonus;
     
     if (report && senseChance > hideChance) {
       I.say("\n  Have noticed:     "+e);
@@ -215,7 +216,7 @@ public class Senses implements Qualities {
   private float focusBonus(Target e, Target with, float maxRange) {
     if (! (e instanceof Actor)) return 0;
     final Actor other = (Actor) e;
-    final Target focus = other.focusFor(null);
+    final Target focus = other.actionFocus();
     if (with != null && with != focus) return 0;
     if (focus == null || Spacing.distance(actor, focus) > maxRange) return 0;
     return Spacing.distance(other, focus);
@@ -265,15 +266,21 @@ public class Senses implements Qualities {
       I.say("  Vocation: "+actor.vocation());
     }
     
+    //  Firstly, we iterate over every visible target, determine their degree
+    //  of hostility, and sum for all allies and enemies nearby.  (We also
+    //  split the counts up by quadrant, to allow for directional decisions
+    //  about where to retreat.)
+    float sumAllies = 1, sumFoes = 0;
+    for (int n = NUM_DIRS; n-- > 0;) fearByDirection[n] = 0;
     emergency = false;
     powerLevel = CombatUtils.powerLevel(actor);
-    float sumAllies = 1, sumFoes = 0;
     
     for (Target t : awareOf) if ((t instanceof Actor) && (t != actor)) {
       final Actor near = (Actor) t;
       float hostility = CombatUtils.hostileRating(actor, near);
-      ///emergency |= actor.relations.valueFor(near.base()) <= 0;
       
+      //  We set the emergency flag only if the actor is actively doing
+      //  something dangerous, and provide some bonuses to threat rating.
       if (hostility > 0) {
         if (report) I.say("  Enemy nearby: "+near+", hostility: "+hostility);
         
@@ -283,9 +290,19 @@ public class Senses implements Qualities {
         if (CombatUtils.isActiveHostile(actor, near)) {
           emergency = true;
           hostility += 1;
-          if (near.focusFor(Combat.class) == actor) power *= 2;
+          if (near.planFocus(Combat.class) == actor) power *= 2;
         }
-        sumFoes += power * hostility;
+        final float foeRating = power * hostility;
+        sumFoes += foeRating;
+        
+        //  Lastly, we record the quadrant this threat lies in (with a partial
+        //  bonus to either side.)
+        int quadrant = Spacing.compassDirection(actor.origin(), near.origin());
+        int left  = ((quadrant /= 2) + 1      ) % NUM_DIRS;
+        int right = (quadrant + (NUM_DIRS - 1)) % NUM_DIRS;
+        fearByDirection[quadrant] += foeRating    ;
+        fearByDirection[left    ] += foeRating / 2;
+        fearByDirection[right   ] += foeRating / 2;
       }
       else {
         float power = near.senses.powerLevel();
@@ -330,6 +347,47 @@ public class Senses implements Qualities {
     return (Boarding) safePoint;
   }
   
+  
+  public float dangerFromDirection(Target point) {
+    final Tile at = actor.world().tileAt(point);
+    final int quadrant = Spacing.compassDirection(actor.origin(), at) / 2;
+    return fearByDirection[quadrant];
+  }
+  
+  
+  public float dangerFromDirection(int dirIndex) {
+    return fearByDirection[dirIndex / 2];
+  }
+  
+  
+  
+  /**  Utility method for breaking awareness/pursuit when a hide attempt is
+    *  successful.
+    */
+  public static boolean breaksPursuit(Actor actor) {
+    boolean allBroken = true;
+    
+    for (Plan p : actor.world().activities.activePlanMatches(actor, null)) {
+      final Actor follows = p.actor();
+      final float sightRange = follows.health.sightRange();
+      
+      final float hideBonus = (actor.skills.test(
+        STEALTH_AND_COVER, follows, SURVEILLANCE, 0, 1, 2
+      ) * ActorHealth.DEFAULT_SIGHT * 2) - (sightRange / 2);
+      
+      //  TODO:  Have a check penalty based on the priority of the chase-plan.
+      
+      if (! follows.senses.notices(actor, sightRange, hideBonus)) {
+        //  TODO:  You want a dedicated method for this.
+        follows.senses.awares.remove(actor);
+        follows.senses.awareOf.clear();
+        p.abortBehaviour();
+      }
+      else allBroken = false;
+    }
+    
+    return allBroken;
+  }
   
   
   
@@ -392,10 +450,10 @@ public class Senses implements Qualities {
       
       //  Then, we check to see if corners of this tile lie to both the left
       //  and right of the line segment-
-      for (int d : Tile.N_DIAGONAL) {
+      for (int d : Tile.T_DIAGONAL) {
         toCheck.set(
-          t.x - (Tile.N_X[d] / 2f),
-          t.y - (Tile.N_Y[d] / 2f)
+          t.x - (Tile.T_X[d] / 2f),
+          t.y - (Tile.T_Y[d] / 2f)
         ).sub(orig);
         final float side = line.side(toCheck);
         if (side < 0) onLeft = true;

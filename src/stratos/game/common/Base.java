@@ -165,6 +165,11 @@ public class Base implements
   }
   
   
+  public Liveable HQ() {
+    return ruler == null ? null : ruler.mind.home();
+  }
+  
+  
   public Base base() { return this; }
   
   

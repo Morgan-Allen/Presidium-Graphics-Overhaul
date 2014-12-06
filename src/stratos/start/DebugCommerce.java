@@ -70,7 +70,7 @@ public class DebugCommerce extends Scenario {
   
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.setDefaults();
-    GameSettings.hireFree  = true;
+    //GameSettings.hireFree  = true;
     GameSettings.buildFree = true;
     GameSettings.fogFree   = true;
     GameSettings.paveFree  = true;
@@ -110,12 +110,13 @@ public class DebugCommerce extends Scenario {
     );
     loots.setMotive(Plan.MOTIVE_EMERGENCY, Plan.ROUTINE);
     runner.mind.assignBehaviour(loots);
-    UI.selection.pushSelection(runner, true);
     
     final Arrest arrest = new Arrest(vendor, runner);
     arrest.setMotive(Plan.MOTIVE_EMERGENCY, Plan.ROUTINE);
     vendor.mind.assignBehaviour(arrest);
     
+    UI.selection.pushSelection(runner, true);
+    //UI.selection.pushSelection(vendor, true);
     //  TODO:  Set up initial relationships...
   }
 

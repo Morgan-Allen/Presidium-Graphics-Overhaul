@@ -101,7 +101,7 @@ public class ActorSkills {
     
     //  Invoke any known techniques here that are registered to be triggered
     //  by a skill of this type, and get their associated bonuses:
-    final Target subject = actor.focusFor(null);
+    final Target subject = actor.actionFocus();
     final Technique boost = pickSkillBonus(checked, subject);
     if (boost != null) bonus += boost.bonusFor(actor, checked, subject);
     //
@@ -173,7 +173,7 @@ public class ActorSkills {
       I.say("  Fatigue: "+actor.health.fatigueLevel());
       I.say("  Concentration: "+actor.health.concentration());
     }
-    final float harm = actor.harmDoneTo(subject);
+    final float harm = actor.harmIntended(subject);
     final Technique picked = pickBestKnown(subject, harm, s);
     
     if (report) I.say("  Technique picked: "+picked);

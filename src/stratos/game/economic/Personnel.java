@@ -39,7 +39,7 @@ public class Personnel {
   private static boolean verbose = false;
   
   
-  final Employer employs;
+  final Liveable employs;
   final List <FindWork>
     applications = new List <FindWork> ();
   final List <Actor>
@@ -50,7 +50,7 @@ public class Personnel {
   
   
   
-  Personnel(Employer venue) {
+  Personnel(Liveable venue) {
     this.employs = venue;
   }
   

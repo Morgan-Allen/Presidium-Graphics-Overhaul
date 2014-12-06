@@ -51,25 +51,26 @@ public class Background implements Session.Saveable {
   private static Table <String, Background> nameTable = new Table();
   
   
-  final public String name;
+  final public String name, info;
   final protected Class baseClass;
   final protected ImageAsset costume, portrait;
   
   final public int standing;
   final public int guild;
   final Table <Skill, Integer> baseSkills = new Table <Skill, Integer> ();
-  final Table <Trait, Float> traitChances = new Table <Trait, Float> ();
+  final Table <Trait, Float> traitChances = new Table <Trait, Float  > ();
   final List <Traded> gear = new List <Traded> ();
   
   
   
   protected Background(
     Class baseClass,
-    String name, String costumeTex, String portraitTex,
+    String name, String info, String costumeTex, String portraitTex,
     int standing, int guild, Object... args
   ) {
     this.baseClass = baseClass;
     this.name = name;
+    this.info = info;
     nameTable.put(name, this);
     ///I.say("Declaring background: "+name);
     

@@ -41,7 +41,7 @@ public class InstallTab extends SelectionInfoPane {
       //  Construct the building type with an appropriate instance.
       final Venue sample = VenueProfile.sampleVenue(baseClass);
       if (sample.privateProperty()) continue;
-      final String catName = sample.buildCategory();
+      final String catName = sample.objectCategory();
       final Category category = categories.get(catName);
       if (category != null) category.samples.add(sample);
     }

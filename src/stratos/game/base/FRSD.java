@@ -288,7 +288,7 @@ public class FRSD extends Venue {
   }
   
   
-  public String buildCategory() {
+  public String objectCategory() {
     return UIConstants.TYPE_MERCHANT;
   }
   

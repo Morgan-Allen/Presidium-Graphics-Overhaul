@@ -302,11 +302,11 @@ public class NativeHut extends Venue {
     for (Tile t : Spacing.perimeter(footprint(), world)) {
       if (t.blocked()) continue;
       boolean between = false;
-      for (int n : N_INDEX) {
+      for (int n : T_INDEX) {
         final int o = (n + 4) % 8;
         final Tile
-          a = world.tileAt(t.x + N_X[n], t.y + N_Y[n]),
-          b = world.tileAt(t.x + N_X[o], t.y + N_Y[o]);
+          a = world.tileAt(t.x + T_X[n], t.y + T_Y[n]),
+          b = world.tileAt(t.x + T_X[o], t.y + T_Y[o]);
         between =
           (a != null && a.onTop() instanceof NativeHut) &&
           (b != null && b.onTop() instanceof NativeHut);
@@ -339,7 +339,7 @@ public class NativeHut extends Venue {
   }
   
   
-  public String buildCategory() {
+  public String objectCategory() {
     return UIConstants.TYPE_HIDDEN;
   }
   

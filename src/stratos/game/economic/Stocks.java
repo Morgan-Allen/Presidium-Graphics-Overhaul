@@ -44,12 +44,12 @@ public class Stocks extends Inventory {
   }
   
   
-  final Employer basis;
+  final Liveable basis;
   final Table <Traded, Demand> demands = new Table <Traded, Demand> ();
   final List <Manufacture> specialOrders = new List <Manufacture> ();
   
   
-  Stocks(Employer v) {
+  Stocks(Liveable v) {
     super(v);
     this.basis = v;
   }

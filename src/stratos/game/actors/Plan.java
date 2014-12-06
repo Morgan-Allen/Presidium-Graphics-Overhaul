@@ -53,15 +53,17 @@ public abstract class Plan implements Saveable, Behaviour {
   
   private int motiveType = MOTIVE_INIT;
   private float motiveBonus = 0;
-  
   private float harmFactor, competeFactor;
   
   
   
-  protected Plan(Actor actor, Target subject, boolean persistent) {
+  protected Plan(
+    Actor actor, Target subject, boolean persistent, float harmFactor
+  ) {
     this.actor = actor;
     this.subject = subject;
     this.persistent = persistent;
+    this.harmFactor = harmFactor;
     if (subject == null) I.complain("NULL PLAN SUBJECT");
   }
   
@@ -144,13 +146,6 @@ public abstract class Plan implements Saveable, Behaviour {
   }
   
   
-  private boolean newEvaluationDue() {
-    if (priorityEval == NULL_PRIORITY) return true;
-    final float interval = actor.senses.isEmergency() ? 1 : 10;
-    return (actor.world().currentTime() - lastEvalTime) >= interval;
-  }
-  
-  
   public float priorityFor(Actor actor) {
     final boolean report = verbose && I.talkAbout == actor && hasBegun();
     
@@ -159,8 +154,7 @@ public abstract class Plan implements Saveable, Behaviour {
       priorityEval = NULL_PRIORITY;
       nextStep     = null;
     }
-    
-    if (! newEvaluationDue()) return priorityEval;
+    if (priorityEval != NULL_PRIORITY) return priorityEval;
     
     final float time = actor.world().currentTime();
     if (report) {
@@ -184,12 +178,12 @@ public abstract class Plan implements Saveable, Behaviour {
       this.actor = actor;
       priorityEval = NULL_PRIORITY;
       nextStep     = null;
-      if (report) I.say("NEXT STEP IS NULL: DIFFERENT ACTOR");
+      if (report) I.say("  NEXT STEP IS NULL: DIFFERENT ACTOR");
     }
     
     if (! valid()) {
       onceInvalid();
-      if (report) I.say("NEXT STEP IS NULL: NOT VALID");
+      if (report) I.say("  NEXT STEP IS NULL: NOT VALID");
       return nextStep = null;
     }
     
@@ -197,7 +191,7 @@ public abstract class Plan implements Saveable, Behaviour {
     //  that can screw up proper sequence of evaluation/execution.  Start from
     //  scratch instead.
     if (! actor.mind.doing(this)) {
-      if (report) I.say("NEXT STEP IS NULL: NOT ACTIVE");
+      if (report) I.say("  NEXT STEP IS NULL: NOT ACTIVE");
       nextStep = null;
       return getNextStep();
     }
@@ -208,7 +202,7 @@ public abstract class Plan implements Saveable, Behaviour {
     ) {
       nextStep = getNextStep();
       if (nextStep != null) lastStep = nextStep;
-      else if (report) I.say("NEXT STEP IS NULL: WAS ACTIVE");
+      if (report) I.say("  GOT NEW STEP: "+nextStep);
       priorityEval = NULL_PRIORITY;
     }
     return nextStep;
@@ -241,6 +235,24 @@ public abstract class Plan implements Saveable, Behaviour {
   
   public Actor actor() {
     return actor;
+  }
+  
+  
+  private boolean newEvaluationDue() {
+    if (priorityEval == NULL_PRIORITY) return true;
+    final float
+      timeGone = actor.world().currentTime() - lastEvalTime,
+      interval = evaluationInterval();
+    
+    if (I.talkAbout == actor) {
+      ///I.say("Time gone/interval: "+timeGone+"/"+interval);
+    }
+    return timeGone >= interval;
+  }
+  
+  
+  protected int evaluationInterval() {
+    return actor.senses.isEmergency() ? 1 : 10;
   }
   
   

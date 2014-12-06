@@ -11,10 +11,10 @@ import stratos.graphics.cutout.*;
 import stratos.graphics.sfx.*;
 import stratos.user.*;
 import stratos.util.*;
-import stratos.game.wild.Wreckage;  //  TODO:  Move to same package
+import stratos.game.wild.Wreckage;  //  TODO:  Move to same package?
 
 
-//  TODO:  Merge this back with Venue?
+//  TODO:  Merge this back with Venue?  Or merge this with Fixture?
 
 
 public abstract class Structural extends Fixture implements

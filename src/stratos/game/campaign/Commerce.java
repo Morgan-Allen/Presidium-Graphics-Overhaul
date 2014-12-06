@@ -23,7 +23,7 @@ public class Commerce {
   /**  Field definitions, constructor, save/load methods-
     */
   private static boolean
-    verbose        = false,
+    verbose        = true ,
     extraVerbose   = false,
     migrateVerbose = verbose && false,
     tradeVerbose   = verbose && false;
@@ -60,7 +60,7 @@ public class Commerce {
     exportPrices = new Table <Traded, Float> ();
   
   private Dropship ship;
-  private float nextVisitTime;
+  private float visitTime, departTime;
   
   
   
@@ -99,7 +99,8 @@ public class Commerce {
     s.loadObjects(candidates);
     s.loadObjects(migrantsIn);
     ship = (Dropship) s.loadObject();
-    nextVisitTime = s.loadFloat();
+    visitTime  = s.loadFloat();
+    departTime = s.loadFloat();
   }
   
   
@@ -132,7 +133,8 @@ public class Commerce {
     s.saveObjects(candidates);
     s.saveObjects(migrantsIn);
     s.saveObject(ship);
-    s.saveFloat(nextVisitTime);
+    s.saveFloat(visitTime );
+    s.saveFloat(departTime);
   }
   
   
@@ -452,7 +454,7 @@ public class Commerce {
     if (ship == null || ship.destroyed()) {
       ship = new Dropship();
       ship.assignBase(base);
-      nextVisitTime = base.world.currentTime() + (Rand.num() * SUPPLY_INTERVAL);
+      visitTime = base.world.currentTime() + (Rand.num() * SUPPLY_INTERVAL);
     }
     else {
       final float repair = Visit.clamp(1.25f - (Rand.num() / 2), 0, 1);
@@ -527,8 +529,75 @@ public class Commerce {
   
   public void scheduleDrop(float delay) {
     if (ship == null) refreshShip();
-    nextVisitTime = base.world.currentTime() + delay;
-    ship.resetAwayTime();
+    visitTime = base.world.currentTime() + delay;
+    //ship.resetAwayTime();
+  }
+  
+
+  
+  
+  private void updateShipping() {
+    if (base.primal) return;
+    final boolean report = verbose && BaseUI.current().played() == base;
+    
+    final float time = base.world.currentTime();
+    final int shipStage = ship.flightStage();
+    
+    if (ship.landed()) {
+      if (report) {
+        final float sinceDescent = time - visitTime;
+        I.say("\nTime since descent: "+sinceDescent+"/"+SUPPLY_DURATION);
+        I.say("  All aboard?   "+ship.allAboard());
+        I.say("  Flight stage? "+shipStage+" vs. "+Dropship.STAGE_BOARDING);
+      }
+      
+      if (time > departTime) {
+        if (shipStage == Dropship.STAGE_LANDED) ship.beginBoarding();
+        if (ship.allAboard() && shipStage == Dropship.STAGE_BOARDING) {
+          ship.beginAscent();
+          visitTime = base.world.currentTime();
+          visitTime += SUPPLY_INTERVAL * (0.5f + Rand.num());
+        }
+      }
+    }
+    if (! ship.inWorld()) {
+      final boolean
+        needMigrate = migrantsIn.size() > 0, //  TODO:  Include emmigration.
+        needTrade   = (! localShortages.empty()) || (! localSurpluses.empty()),
+        visitDue    = time > visitTime,
+        //travelDone  = ship.timeAway(base.world) > SUPPLY_DURATION,
+        shouldVisit = (needMigrate || needTrade) && visitDue,// && travelDone),
+        canLand     = ship.findLandingSite(base),
+        willLand    = shouldVisit && canLand;
+      
+      if (willLand) {
+        if (report) I.say("\nSENDING DROPSHIP TO "+ship.landArea());
+        
+        while (migrantsIn.size() > 0) {
+          final Actor migrant = migrantsIn.removeFirst();
+          ship.setInside(migrant, true);
+          if (ship.inside().size() >= Dropship.MAX_PASSENGERS) break;
+        }
+        loadCargo(ship, localShortages, true);
+        refreshCrew(ship);
+        
+        for (Actor c : ship.crew()) ship.setInside(c, true);
+        ship.beginDescent(base.world);
+        departTime = time + SUPPLY_INTERVAL;
+      }
+      else if (visitDue && report) {
+        //final float timeAway = ship.timeAway(base.world);
+        I.say("\nNo time for commerce?  Inconceivable!");
+        //I.say("  Travel done:   "+travelDone+"  (away for: "+timeAway+")");
+        I.say("  Need migrants: "+needMigrate);
+        I.say("  Need trade:    "+needTrade  );
+        I.say("  Can land:      "+canLand    );
+      }
+      else if (report) {
+        final float interval = visitTime - base.world.currentTime();
+        I.say("\nNext ship drop due in "+interval);
+      }
+    }
   }
   
   
@@ -546,109 +615,7 @@ public class Commerce {
       updateShipping();
     }
   }
-  
-  
-  protected void updateShipping() {
-    if (base.primal) return;
-    final boolean report = verbose && BaseUI.current().played() == base;
-    
-    final int shipStage = ship.flightStage();
-    
-    if (ship.landed()) {
-      final float sinceDescent = ship.timeLanded();
-      
-      if (report) {
-        I.say("\nTime since descent: "+sinceDescent+"/"+SUPPLY_DURATION);
-        I.say("  All aboard?   "+ship.allAboard());
-        I.say("  Flight stage? "+shipStage+" vs. "+Dropship.STAGE_BOARDING);
-      }
-      
-      if (sinceDescent > SUPPLY_DURATION) {
-        if (shipStage == Dropship.STAGE_LANDED) ship.beginBoarding();
-        if (ship.allAboard() && shipStage == Dropship.STAGE_BOARDING) {
-          ship.beginAscent();
-          nextVisitTime = base.world.currentTime();
-          nextVisitTime += SUPPLY_INTERVAL * (0.5f + Rand.num());
-        }
-      }
-    }
-    if (! ship.inWorld()) {
-      final boolean
-        needMigrate = migrantsIn.size() > 0, //  TODO:  Include emmigration.
-        needTrade   = (! localShortages.empty()) || (! localSurpluses.empty()),
-        visitDue    = base.world.currentTime()  > nextVisitTime,
-        travelDone  = ship.timeAway(base.world) > SUPPLY_DURATION,
-        shouldVisit = (needMigrate || needTrade) && (visitDue && travelDone),
-        canLand     = ship.findLandingSite(base),
-        willLand    = shouldVisit && canLand;
-      
-      if (willLand) {
-        if (report) I.say("\nSENDING DROPSHIP TO "+ship.landArea());
-        
-        while (migrantsIn.size() > 0) {
-          final Actor migrant = migrantsIn.removeFirst();
-          ship.setInside(migrant, true);
-          if (ship.inside().size() >= Dropship.MAX_PASSENGERS) break;
-        }
-        loadCargo(ship, localShortages, true);
-        refreshCrew(ship);
-        
-        for (Actor c : ship.crew()) ship.setInside(c, true);
-        ship.beginDescent(base.world);
-      }
-      else if (visitDue && report) {
-        I.say("\nNo time for commerce?  Inconceivable!");
-        I.say("  Travel done:   "+travelDone );
-        I.say("  Need migrants: "+needMigrate);
-        I.say("  Need trade:    "+needTrade  );
-        I.say("  Can land:      "+canLand    );
-      }
-      else if (report) {
-        final float interval = nextVisitTime - base.world.currentTime();
-        I.say("\nNext ship drop due in "+interval);
-      }
-    }
-  }
 }
 
 
 
-
-
-
-/*
-public boolean genCandidate(Background vocation, Venue venue, int numOpen) {
-  //
-  //  You might want to introduce limits on the probability of finding
-  //  candidates based on the relative sizes of the source and destination
-  //  settlements, and the number of existing applicants for a position.
-  final int numA = venue.personnel.numApplicants(vocation);
-  if (numA >= numOpen * MAX_APPLICANTS) return false;
-  final Human candidate = new Human(vocation, venue.base());
-  //
-  //  This requires more work on the subject of pricing.  Some will join for
-  //  free, but others need enticement, depending on distance and willingness
-  //  to relocate, and the friendliness of the home system.
-  final int signingCost = Backgrounds.HIRE_COSTS[vocation.standing];
-  venue.personnel.applyFor(vocation, candidate, signingCost);
-  //
-  //  Insert the candidate in local records, and return.
-  List <Actor> list = candidates.get(venue);
-  if (list == null) candidates.put(venue, list = new List <Actor> ());
-  list.add(candidate);
-  return true;
-}
-
-
-public void cullCandidates(Background vocation, Venue venue) {
-  final List <Actor> list = candidates.get(venue);
-  if (list == null) return;
-  final int numOpenings = venue.numOpenings(vocation);
-  if (numOpenings > 0) return;
-  for (Actor actor : list) if (actor.vocation() == vocation) {
-    list.remove(actor);
-    venue.personnel.removeApplicant(actor);
-  }
-  if (list.size() == 0) candidates.remove(venue);
-}
-//*/

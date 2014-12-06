@@ -6,6 +6,7 @@
 
 
 package stratos.game.common;
+import stratos.game.actors.Background;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.graphics.common.*;
@@ -153,18 +154,18 @@ public final class Tile implements
   
   
   public Tile[] edgeAdjacent(Tile batch[]) {
-    if (batch == null) batch = new Tile[N_ADJACENT.length];
-    int i = 0; for (int n : N_ADJACENT) {
-      batch[i++] = world.tileAt(x + N_X[n], y + N_Y[n]);
+    if (batch == null) batch = new Tile[T_ADJACENT.length];
+    int i = 0; for (int n : T_ADJACENT) {
+      batch[i++] = world.tileAt(x + T_X[n], y + T_Y[n]);
     }
     return batch;
   }
   
   
   public Tile[] allAdjacent(Tile batch[]) {
-    if (batch == null) batch = new Tile[N_INDEX.length];
-    for (int n : N_INDEX) {
-      batch[n] = world.tileAt(x + N_X[n], y + N_Y[n]);
+    if (batch == null) batch = new Tile[T_INDEX.length];
+    for (int n : T_INDEX) {
+      batch[n] = world.tileAt(x + T_X[n], y + T_Y[n]);
     }
     return batch;
   }
@@ -212,8 +213,8 @@ public final class Tile implements
     */
   public void refreshAdjacent() {
     boardingCache = null;
-    for (int n : N_INDEX) {
-      final Tile t = world.tileAt(x + N_X[n], y + N_Y[n]);
+    for (int n : T_INDEX) {
+      final Tile t = world.tileAt(x + T_X[n], y + T_Y[n]);
       if (t != null) t.boardingCache = null;
     }
   }
@@ -229,22 +230,22 @@ public final class Tile implements
     }
     
     //  Include any unblocked adjacent tiles-
-    for (int n : N_INDEX) {
+    for (int n : T_INDEX) {
       batch[n] = null;
-      final Tile t = world.tileAt(x + N_X[n], y + N_Y[n]);
+      final Tile t = world.tileAt(x + T_X[n], y + T_Y[n]);
       if (t == null || t.blocked()) continue;
       batch[n] = t;
     }
     
     //  Cull any diagonal tiles that are blocked by either adjacent neighbour-
-    for (int i : Tile.N_DIAGONAL) if (batch[i] != null) {
+    for (int i : Tile.T_DIAGONAL) if (batch[i] != null) {
       if (batch[(i + 7) % 8] == null) batch[i] = null;
       if (batch[(i + 1) % 8] == null) batch[i] = null;
     }
     
     //  Include anything that you're any entrance to-
-    for (int n : N_ADJACENT) {
-      final Tile t = world.tileAt(x + N_X[n], y + N_Y[n]);
+    for (int n : T_ADJACENT) {
+      final Tile t = world.tileAt(x + T_X[n], y + T_Y[n]);
       if (t == null || ! (t.onTop() instanceof Boarding)) continue;
       final Boarding v = (Boarding) t.onTop();
       if (v.isEntrance(this)) batch[n] = v;
@@ -330,6 +331,18 @@ public final class Tile implements
   
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
     return null;
+  }
+  
+  
+  public String helpInfo() {
+    final Habitat h = this.habitat();
+    if (h != null) return h.info;
+    return "NO HELP ON THIS ITEM";
+  }
+  
+  
+  public String objectCategory() {
+    return UIConstants.TYPE_TERRAIN;
   }
   
   

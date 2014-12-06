@@ -71,7 +71,9 @@ public class Habitat {
   final public static Habitat
     //
     //  Ocean habitats, which occur at or below current sea levels.
-    OCEAN = new Habitat("Ocean",
+    OCEAN = new Habitat(
+      "Ocean",
+      "",
       new String[] {
         TERRAIN_PATH+"ocean.gif",
         TERRAIN_PATH+"ocean.2.gif",
@@ -79,7 +81,9 @@ public class Habitat {
       }, PLANKTON_MODELS,
       2, false, IS_OCEAN
     ),
-    SHALLOWS = new Habitat("Shallows",
+    SHALLOWS = new Habitat(
+      "Shallows",
+      "",
       new String[] {
         TERRAIN_PATH+"shallows.gif",
         TERRAIN_PATH+"shallows.2.gif",
@@ -87,21 +91,29 @@ public class Habitat {
       }, PLANKTON_MODELS,
       1, false, IS_OCEAN
     ),
-    SHORELINE = new Habitat("Shore",
+    SHORELINE = new Habitat(
+      "Shore",
+      "",
       "shoreline.png", NO_FLORA,
       0, true, IS_OCEAN
     ),
     //
     //  Forest habitats, which occur in equatorial regions with adequate rain-
-    SWAMPLANDS = new Habitat("Swamplands",
+    SWAMPLANDS = new Habitat(
+      "Swamplands",
+      "",
       "swamplands_ground.gif", FOREST_FLORA_MODELS,
       2, true, MOISTURE, 9, INSOLATION, 6, MINERALS, 0
     ),
-    ESTUARY = new Habitat("Rain Forest",
+    ESTUARY = new Habitat(
+      "Rain Forest",
+      "",
       "estuary_ground.png", FOREST_FLORA_MODELS,
       1, true, MOISTURE, 7, INSOLATION, 7, MINERALS, 2
     ),
-    MEADOW = new Habitat("Meadow",
+    MEADOW = new Habitat(
+      "Meadow",
+      "",
       "meadows_ground.gif", FOREST_FLORA_MODELS,
       0, true, MOISTURE, 6, INSOLATION, 5, MINERALS, 3
     ),
@@ -110,15 +122,21 @@ public class Habitat {
     FOREST_HABITATS[] = { MEADOW, ESTUARY, SWAMPLANDS },
     //
     //  Desert habitats, which occur under hotter conditions-
-    SAVANNAH = new Habitat("Savannah",
+    SAVANNAH = new Habitat(
+      "Savannah",
+      "",
       "savannah_ground.gif", DESERT_FLORA_MODELS,
       2, true, MOISTURE, 5, INSOLATION, 7, MINERALS, 3
     ),
-    BARRENS = new Habitat("Barrens",
+    BARRENS = new Habitat(
+      "Barrens",
+      "",
       "barrens_ground.gif", DESERT_FLORA_MODELS,
       1, true, MOISTURE, 3, INSOLATION, 8, MINERALS, 6
     ),
-    DUNE = new Habitat("Desert",
+    DUNE = new Habitat(
+      "Desert",
+      "",
       "desert_ground.gif", NO_FLORA,
       0, true, MOISTURE, 1, INSOLATION, 9, MINERALS, 5
     ),
@@ -127,17 +145,23 @@ public class Habitat {
     //
     //  Waste habitats, which have special rules governing their introduction,
     //  related to extreme temperature, slope, pollution or volcanism-
-    MESA = new Habitat("Mesa",
+    MESA = new Habitat(
+      "Mesa",
+      "",
       "mesa_ground.gif", NO_FLORA,
       -1, true, MOISTURE, 1, INSOLATION, 5, MINERALS, 7,
       IS_WASTE
     ),
-    CURSED_EARTH = new Habitat("Cursed Earth",
+    CURSED_EARTH = new Habitat(
+      "Cursed Earth",
+      "",
       "black_wastes_ground_old.png", NO_FLORA,// WASTES_FLORA_MODELS,
       -1, true, MOISTURE, 3, INSOLATION, 3, MINERALS, 5,
       IS_WASTE
     ),
-    STRIP_MINING = new Habitat("Strip Mining",
+    STRIP_MINING = new Habitat(
+      "Strip Mining",
+      "",
       "strip_mining_ground.png", NO_FLORA,//WASTES_FLORA_MODELS,
       -1, true, MOISTURE, 5, INSOLATION, 7, MINERALS, 0,
       IS_WASTE
@@ -170,7 +194,7 @@ public class Habitat {
   
   
   
-  final public String name;
+  final public String name, info;
   final public ImageAsset animTex[], baseTex;
   final public CutoutModel floraModels[][];
   final public boolean pathClear;
@@ -181,21 +205,24 @@ public class Habitat {
   
   
   Habitat(
-    String name, String texName, CutoutModel fM[][],
+    String name, String info,
+    String texName, CutoutModel fM[][],
     int biosphere, boolean pathClear, Object... traits
   ) {
     this(
-      name, new String[] { TERRAIN_PATH+texName }, fM,
+      name, info, new String[] { TERRAIN_PATH+texName }, fM,
       biosphere, pathClear, traits
     );
   }
   
   Habitat(
-    String name, String groundTex[], CutoutModel fM[][],
+    String name, String info,
+    String groundTex[], CutoutModel fM[][],
     int biosphere, boolean pathClear, Object... traits
   ) {
     allHabs.add(this);
     this.name = name;
+    this.info = info;
     
     this.animTex = new ImageAsset[groundTex.length];
     for (int i = animTex.length; i-- > 0;) {

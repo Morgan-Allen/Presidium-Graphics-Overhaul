@@ -64,7 +64,7 @@ public class FindMission extends Plan {
   
 
   private FindMission(Actor actor, Mission mission) {
-    super(actor, mission.subject(), true);
+    super(actor, mission.subject(), true, NO_HARM);
     this.mission = mission;
     //this.admin = admin;
   }
@@ -99,11 +99,9 @@ public class FindMission extends Plan {
   
   
   private static Venue missionHQ(Actor actor, Mission mission) {
-    final Actor client = mission.base().ruler();
-    if (client == null) return null;
-    
-    final Object HQ = client.mind.home();
-    if (HQ instanceof Venue) return (Venue) HQ;
+    if (mission.base().HQ() instanceof Venue) {
+      return (Venue) mission.base().HQ();
+    }
     else return null;
   }
   

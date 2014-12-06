@@ -79,9 +79,9 @@ public class WorldSections implements TileConstants {
   
   public WorldSection[] neighbours(WorldSection section, WorldSection[] batch) {
     if (batch == null) batch = new WorldSection[8];
-    int i = 0; for (int n : N_INDEX) {
+    int i = 0; for (int n : T_INDEX) {
       try {
-        final int x = section.x + N_X[n], y = section.y + N_Y[n];
+        final int x = section.x + T_X[n], y = section.y + T_Y[n];
         final WorldSection s = hierarchy[section.depth][x][y];
         batch[i++] = s;
       }

@@ -121,8 +121,8 @@ public class Regions implements TileConstants {
         Part near = null;
         final int off = Rand.index(4);
         for (int i = 4; i-- > 0;) {
-          final int n = N_ADJACENT[(i + off) % 4];
-          try { near = partsGrid[part.x + N_X[n]][part.y + N_Y[n]]; }
+          final int n = T_ADJACENT[(i + off) % 4];
+          try { near = partsGrid[part.x + T_X[n]][part.y + T_Y[n]]; }
           catch (ArrayIndexOutOfBoundsException e) { continue; }
           if (near.region != null) {
             near.region.taken.add(part);

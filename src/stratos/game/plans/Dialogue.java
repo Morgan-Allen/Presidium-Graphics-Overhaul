@@ -38,6 +38,10 @@ public class Dialogue extends Plan implements Qualities {
     TYPE_CASUAL  = 1,
     TYPE_PLEA    = 2;
   
+  final public static float
+    RELATION_BOOST = 0.5f,
+    BORED_DURATION = Stage.STANDARD_HOUR_LENGTH * 1;
+  
   final static int
     STAGE_INIT   = -1,
     STAGE_PLEAD  =  0,
@@ -72,7 +76,7 @@ public class Dialogue extends Plan implements Qualities {
   
   
   private Dialogue(Actor actor, Actor other, Actor starts, int type) {
-    super(actor, other, false);
+    super(actor, other, false, MILD_HELP);
     if (actor == other) I.complain("CANNOT TALK TO SELF!");
     this.other = other;
     this.starts = starts;
@@ -187,7 +191,7 @@ public class Dialogue extends Plan implements Qualities {
     //  TODO:  Only count positive relations!
     final float
       trait = (1 + actor.traits.relativeLevel(OUTGOING)) / 2f,
-      baseF = Relation.BASE_NUM_FRIENDS * (trait + 0.5f),
+      baseF = ActorRelations.BASE_NUM_FRIENDS * (trait + 0.5f),
       numF  = actor.relations.relations().size();
     return (baseF - numF) / baseF;
   }
@@ -207,7 +211,7 @@ public class Dialogue extends Plan implements Qualities {
     
     if (other == starts && ! hasBegun()) return true;
     
-    final Target talksWith = other.focusFor(Dialogue.class);
+    final Target talksWith = other.planFocus(Dialogue.class);
     if (talksWith == actor) return true;
     if (talksWith != null) return false;
     
@@ -386,8 +390,8 @@ public class Dialogue extends Plan implements Qualities {
     }
 
     actor.gear.transfer(gift, receives);
-    receives.relations.incRelation(actor, 1, value / 2);
-    actor.relations.incRelation(receives, 1, value / 4);
+    receives.relations.incRelation(actor, 1, value / 2, 0);
+    actor.relations.incRelation(receives, 1, value / 4, 0);
     DialogueUtils.utters(receives, "Thank you for the "+gift.type+"!", value);
     
     if (report) {

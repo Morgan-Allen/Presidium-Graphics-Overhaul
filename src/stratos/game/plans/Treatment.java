@@ -34,7 +34,7 @@ public class Treatment extends Plan implements Item.Passive {
   protected Treatment(
     Actor treats, Actor patient, Condition treated, Boarding sickbay
   ) {
-    super(treats, patient, true);
+    super(treats, patient, true, REAL_HELP);
     this.patient = patient;
     this.sickness = treated;
     this.sickbay = sickbay;

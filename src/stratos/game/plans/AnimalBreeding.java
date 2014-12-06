@@ -45,7 +45,7 @@ public class AnimalBreeding extends Plan {
   private AnimalBreeding(
     Actor actor, KommandoLodge station, Fauna handled, Target releasePoint
   ) {
-    super(actor, station, true);
+    super(actor, station, true, NO_HARM);
     this.station = station;
     this.handled = handled;
     this.releasePoint = releasePoint;
@@ -135,7 +135,7 @@ public class AnimalBreeding extends Plan {
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
     
-    final Employer work = actor.mind.work();
+    final Liveable work = actor.mind.work();
     final boolean atWork = work != null && work.personnel().onShift(actor);
     
     final float priority = priorityForActorWith(

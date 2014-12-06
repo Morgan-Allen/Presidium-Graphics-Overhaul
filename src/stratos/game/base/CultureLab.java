@@ -243,7 +243,7 @@ public class CultureLab extends Venue {
       "tissues for medical purposes.";
   }
   
-  public String buildCategory() {
+  public String objectCategory() {
     return InstallTab.TYPE_PHYSICIAN;
   }
 }

@@ -233,7 +233,7 @@ public class StarsPanel extends UIGroup implements UIConstants {
           display.setSelection(focus == null ? null : focus.name);
           
           infoPanel.header.setText(focus.name);
-          infoPanel.detail.setText(focus.description);
+          infoPanel.detail.setText(focus.info);
         }
       }
     }

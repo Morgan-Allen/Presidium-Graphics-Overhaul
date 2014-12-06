@@ -355,7 +355,7 @@ public class Nursery extends Venue implements TileConstants {
   }
   
   
-  public String buildCategory() {
+  public String objectCategory() {
     return InstallTab.TYPE_ECOLOGIST;
   }
 }

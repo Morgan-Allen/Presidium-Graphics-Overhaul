@@ -39,7 +39,7 @@ public class Resting extends Plan {
   
   
   public Resting(Actor actor, Target point) {
-    super(actor, point, false);
+    super(actor, point, false, NO_HARM);
     this.restPoint = (point instanceof Owner) ? (Owner) point : actor;
   }
   
@@ -175,7 +175,7 @@ public class Resting extends Plan {
     //
     //  Transfer any incidental groceries-
     if (place == actor.mind.home()) for (Traded food : ALL_FOOD_TYPES) {
-      actor.gear.transfer(food, (Employer) place);
+      actor.gear.transfer(food, (Liveable) place);
     }
     //
     //  If you're resting at home, deposit any taxes due-

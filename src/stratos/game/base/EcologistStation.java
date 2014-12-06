@@ -256,7 +256,7 @@ public class EcologistStation extends Venue {
   }
   
   
-  public String buildCategory() {
+  public String objectCategory() {
     return InstallTab.TYPE_ECOLOGIST;
   }
 }

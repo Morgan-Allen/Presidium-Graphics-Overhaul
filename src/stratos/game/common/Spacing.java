@@ -393,6 +393,17 @@ public final class Spacing implements TileConstants {
   }
   
   
+  final public static int compassDirection(Tile origin, Tile point) {
+    final int xd = point.x - origin.x, yd = point.y - origin.y;
+    if (FastMath.abs(xd) > FastMath.abs(yd)) {
+      return xd > 0 ? N : S;
+    }
+    else {
+      return yd > 0 ? E : W;
+    }
+  }
+  
+  
   public static int maxAxisDist(Tile a, Tile b) {
     final int xd = Math.abs(a.x - b.x), yd = Math.abs(a.y - b.y);
     return Math.max(xd, yd);

@@ -48,7 +48,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   private Patrolling(
     Actor actor, Element guarded, List <Target> patrolled, int type
   ) {
-    super(actor, guarded, true);
+    super(actor, guarded, true, MILD_HELP);
     this.type = type;
     this.guarded = guarded;
     this.patrolled = patrolled;
@@ -277,10 +277,10 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     final Vec3D centre = guarded.position(null);
     if (report) I.say("  Range is: "+range+", centre: "+centre);
     
-    for (int n : N_ADJACENT) {
+    for (int n : T_ADJACENT) {
       Tile point = world.tileAt(
-        Visit.clamp(centre.x + (N_X[n] * range), 0, world.size - 1),
-        Visit.clamp(centre.y + (N_Y[n] * range), 0, world.size - 1)
+        Visit.clamp(centre.x + (T_X[n] * range), 0, world.size - 1),
+        Visit.clamp(centre.y + (T_Y[n] * range), 0, world.size - 1)
       );
       if (point != null) {
         if (report) I.say("  Patrol point: "+point);
@@ -322,8 +322,8 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     final float maxDist = Stage.SECTOR_SIZE * 1.5f;
     final Vec3D p = start.position(null);
     Tile ideal = actor.world().tileAt(
-      p.x + (N_X[initDir] * 2),
-      p.y + (N_Y[initDir] * 2)
+      p.x + (T_X[initDir] * 2),
+      p.y + (T_Y[initDir] * 2)
     );
     if (ideal == null) return null;
 

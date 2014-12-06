@@ -355,7 +355,7 @@ public class Cantina extends Venue {
   }
   
 
-  public String buildCategory() {
+  public String objectCategory() {
     return UIConstants.TYPE_MERCHANT;
   }
   

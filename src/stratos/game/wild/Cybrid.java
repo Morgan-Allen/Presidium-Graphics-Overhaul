@@ -62,11 +62,6 @@ public class Cybrid extends Artilect {
   public Composite portrait(BaseUI UI) {
     return null;
   }
-  
-  
-  protected String helpInfo() {
-    return null;
-  }
 }
 
 

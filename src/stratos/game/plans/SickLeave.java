@@ -28,7 +28,7 @@ public class SickLeave extends Plan {
   
   
   protected SickLeave(Actor actor, Venue sickbay, Condition sickness) {
-    super(actor, sickbay, true);
+    super(actor, sickbay, true, NO_HARM);
     this.sickbay  = sickbay ;
     this.sickness = sickness;
   }

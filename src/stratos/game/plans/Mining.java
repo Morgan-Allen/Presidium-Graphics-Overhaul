@@ -63,7 +63,7 @@ public class Mining extends Plan {
   
   
   public Mining(Actor actor, Tile face, ExcavationSite site) {
-    super(actor, site, true);
+    super(actor, site, true, NO_HARM);
     this.site = site;
     this.face = face;
   }

@@ -6,19 +6,19 @@
 
 
 package stratos.game.common;
-import org.apache.commons.math3.util.FastMath;
-
+import stratos.game.civilian.*;
 import stratos.game.economic.*;
 import stratos.game.actors.*;
 import stratos.graphics.common.*;
-import stratos.graphics.sfx.PlaneFX;
-//import stratos.user.*;
 import stratos.util.*;
+
+import stratos.graphics.sfx.PlaneFX;
+import org.apache.commons.math3.util.FastMath;
 
 
 
 public abstract class Mobile extends Element
-  implements Schedule.Updates
+  implements Schedule.Updates, Accountable
 {
   
   final public static PlaneFX.Model SHADOW_MODEL = new PlaneFX.Model(

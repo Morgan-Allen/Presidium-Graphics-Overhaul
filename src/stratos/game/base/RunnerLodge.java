@@ -113,7 +113,7 @@ public class RunnerLodge extends Venue {
   }
   
   
-  public String buildCategory() {
+  public String objectCategory() {
     return InstallTab.TYPE_MERCHANT;
   }
 }

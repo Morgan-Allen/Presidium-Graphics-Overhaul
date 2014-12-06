@@ -80,8 +80,8 @@ public abstract class LayerType implements TileConstants {
       if (layerID < 0 && varID == -1) return;
     }
     
-    for (int n : N_INDEX) {
-      final int x = tx + N_X[n], y = ty + N_Y[n];
+    for (int n : T_INDEX) {
+      final int x = tx + T_X[n], y = ty + T_Y[n];
       try { near[n] = maskedAt(x, y, terrain); }
       catch (ArrayIndexOutOfBoundsException e) { near[n] = false; }
     }

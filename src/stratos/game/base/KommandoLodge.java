@@ -235,7 +235,7 @@ public class KommandoLodge extends Venue {
   }
   
   
-  public String buildCategory() {
+  public String objectCategory() {
     return UIConstants.TYPE_HIDDEN;
     //return UIConstants.TYPE_ECOLOGIST;
   }

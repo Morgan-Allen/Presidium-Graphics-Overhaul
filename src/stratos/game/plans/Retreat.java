@@ -26,7 +26,7 @@ public class Retreat extends Plan implements Qualities {
   
   private static boolean
     evalVerbose  = false,
-    havenVerbose = false,
+    havenVerbose = true ,
     stepsVerbose = false;
   
   
@@ -40,7 +40,7 @@ public class Retreat extends Plan implements Qualities {
   
   
   public Retreat(Actor actor, Boarding safePoint) {
-    super(actor, actor, false);
+    super(actor, actor, false, NO_HARM);
     this.safePoint = safePoint;
   }
 
@@ -141,7 +141,7 @@ public class Retreat extends Plan implements Qualities {
     pick.compare(actor.mind.home(), 10);
     pick.compare(actor.mind.work(), 5 );
     
-    final Tile ground = emergency ? (Tile) pickWithdrawPoint(
+    final Tile ground = emergency ? (Tile) pickHidePoint(
       actor, runRange,
       actor, false
     ) : null;
@@ -170,41 +170,84 @@ public class Retreat extends Plan implements Qualities {
     *  to a full-blown long-distance retreat.)  Used to perform hit-and-run
     *  tactics, stealth while travelling, or an emergency hide.
     */
-  public static Target pickWithdrawPoint(
-    Actor actor, float range, Target from, boolean advance
+  public static Target pickHidePoint(
+    final Actor actor, float range, Target from, final boolean advance
   ) {
     final boolean report = havenVerbose && I.talkAbout == actor;
+    if (report) I.say("\nPICKING POINT OF WITHDRAWAL FROM "+actor.origin());
     
+    //  The idea here is to pick tiles at random at first, then as the actor
+    //  gets closer to a given area, allow systematic scanning of nearby tiles
+    //  to zero in on any strong cover available.
+    //  TODO:  Try allowing a blockage-map to speed the process?
     final Stage world = actor.world();
     final Tile at = actor.origin();
-    Target pick = Spacing.pickRandomTile(actor, range, world);
-    float bestRating = 0;
-    if (report) I.say("\nPICKING POINT OF WITHDRAWAL FROM "+at);
-    
-    for (int n : TileConstants.N_ADJACENT) {
-      final Tile t = world.tileAt(
-        at.x + (TileConstants.N_X[n] + Rand.num() - 0.5f) * range,
-        at.y + (TileConstants.N_Y[n] + Rand.num() - 0.5f) * range
-      );
-      if (t == null) continue;
-      
-      float rating = 0;
-      for (Target s : actor.senses.awareOf()) {
-        if (CombatUtils.hostileRating(actor, s) <= 0) continue;
-        final float distance = Spacing.distance(t, s);
-        final float threat = CombatUtils.powerLevelRelative(actor, (Actor) s);
-        rating += distance * threat;
-        if (report) {
-          I.say("  THREAT FROM "+s+" IS "+threat+", DISTANCE "+distance);
-        }
+    final Pick <Tile> pick = new Pick <Tile> () {
+      public void compare(Tile next, float rating) {
+        rating *= rateTileCover(actor, next, advance);
+        super.compare(next, rating);
       }
-      
-      rating /= range + Spacing.distance(t, actor);
-      rating *= advance ? -1 : 1;
-      if (report) I.say("  RATING FOR "+t+" IS "+rating);
-      if (rating > bestRating) { pick = t; bestRating = rating; }
+    };
+    
+    //
+    //  We provide a slight rating bonus for the actor's current location, then
+    //  compare random tiles in each direction, and then compare any tiles
+    //  within 2 units of the actor's origin.  Then return the most promising
+    //  result.
+    pick.compare(at, 1.1f);
+    
+    for (int n : TileConstants.T_ADJACENT) {
+      Tile t = world.tileAt(
+        Visit.clamp(at.x + (TileConstants.T_X[n] * range), 0, world.size),
+        Visit.clamp(at.y + (TileConstants.T_Y[n] * range), 0, world.size)
+      );
+      t = Spacing.pickRandomTile(t, range, world);
+      t = Spacing.nearestOpenTile(t, t);
+      pick.compare(t, 1);
     }
-    return pick;
+    
+    final Box2D around = actor.area(null).expandBy(2);
+    for (Tile t : world.tilesIn(around, true)) pick.compare(t, 1);
+    
+    return pick.result();
+  }
+  
+  
+  private static float rateTileCover(Actor actor, Tile t, boolean advance) {
+    
+    //  TODO:  Check to make sure the tile is reachable!
+    if (t == null || t.blocked()) return 0;
+    
+    //  We confer a bonus to the rating if the tile in question has cover in
+    //  the same direction as the actor's perceived sources of danger, while
+    //  allowing clear sight to one side or the other (for easy retaliation.)
+    float rating = 0.5f;
+    final Tile allNear[] = t.allAdjacent(null);
+    
+    for (int n : TileConstants.T_ADJACENT) {
+      final Tile
+        tile  = allNear[n],
+        left  = allNear[(n + 1) % 8],
+        right = allNear[(n + 7) % 8];
+      if (isCover(tile) && ! (isCover(left) && isCover(right))) {
+        rating += actor.senses.dangerFromDirection(n);
+      }
+    }
+    
+    //  We also favour locations that are either towards or away from danger,
+    //  depending on whether an advance is called for:
+    final int direction = Spacing.compassDirection(actor.origin(), t);
+    final float distance = Spacing.distance(actor.origin(), t);
+    final float maxMove = ActorHealth.DEFAULT_SIGHT * actor.health.baseSpeed();
+    
+    float dirBonus = actor.senses.dangerFromDirection(direction);
+    dirBonus *= distance * (advance ? 1 : -1) / maxMove;
+    return rating * Visit.clamp(1 + dirBonus, 0, 2);
+  }
+  
+  
+  private static boolean isCover(Tile t) {
+    return t != null && t.blocked();
   }
   
   
@@ -243,15 +286,12 @@ public class Retreat extends Plan implements Qualities {
     return flees;
   }
   
-  /*
-  private boolean urgent() {
-    return priorityFor(actor) >= ROUTINE;
-  }
-  //*/
-  
   
   public boolean actionFlee(Actor actor, Target safePoint) {
     final boolean emergency = actor.senses.isEmergency();
+    
+    //  TODO:  Try to break line of sight with your pursuer, and thereby shake
+    //  the tail.
     
     if (actor.indoors() && ! emergency) {
       final Resting rest = new Resting(actor, safePoint);
@@ -291,67 +331,6 @@ public class Retreat extends Plan implements Qualities {
 }
 
 
-
-
-
-
-
-/*
-final boolean report = havenVerbose && I.talkAbout == actor;
-
-final Presences presences = actor.world().presences;
-
-final Batch <Target> considered = new Batch <Target> ();
-
-considered.add(presences.nearestMatch(Venue.class, actor, -1));
-considered.add(presences.nearestMatch(Economy.SERVICE_REFUGE, actor, -1));
-considered.add(pickWithdrawPoint(
-  actor, actor.health.sightRange() + World.SECTOR_SIZE, actor, false
-));
-considered.add(actor.aboard());
-considered.add(actor.mind.home());
-for (Target e : actor.senses.awareOf()) considered.add(e);
-
-Object picked = null;
-float bestRating = 0;
-for (Target e : considered) {
-  final float rating = rateHaven(e, actor, prefClass);
-  if (report) I.say("  Rating for "+e+" is "+rating);
-  if (rating > bestRating) { bestRating = rating; picked = e; }
-}
-
-if (report) I.say("Haven picked is: "+picked);
-return (Boarding) picked;
-
-
-/*
-private static float rateHaven(Object t, Actor actor, Class prefClass) {
-final boolean report = havenVerbose && I.talkAbout == actor;
-
-if (! (t instanceof Boarding)) return -1;
-if (! (t instanceof Venue)) return 1;
-
-final Venue haven = (Venue) t;
-if (haven.mainEntrance() == null) return -1;
-if (! haven.structure.intact()) return -1;
-if (! haven.allowsEntry(actor)) return -1;
-
-float rating = 1;
-if (prefClass != null && haven.getClass() == prefClass) rating *= 2;
-if (haven.base() == actor.base()) rating *= 2;
-if (haven == actor.mind.home()) rating *= 2;
-if (haven == actor.aboard()) rating *= 2;
-
-rating *= haven.structure.maxIntegrity() / 50f;
-final int SS = World.SECTOR_SIZE;
-rating *= SS / (SS + Spacing.distance(actor, haven));
-
-final Tile o = actor.world().tileAt(haven);
-rating /= 1 + actor.base().dangerMap.sampleAt(o.x, o.y);
-
-return rating;
-}
-//*/
 
 
 

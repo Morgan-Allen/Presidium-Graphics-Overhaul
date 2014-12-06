@@ -318,10 +318,14 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     
     //  Offload cargo and passengers-
     offloadPassengers();
+    
+    stage = STAGE_LANDED;
+    stageInceptTime = world.currentTime();
   }
   
   
   public void beginAscent() {
+    //  TODO:  CHECK FOR OFFICIAL PASSENGERS HERE
     if (stage == STAGE_LANDED) offloadPassengers();
     
     ///I.say("BEGINNING ASCENT");
@@ -341,26 +345,27 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   }
   
   
-  public void resetAwayTime() {
-    if (stage != STAGE_AWAY) return;
-    stageInceptTime = 0 - Commerce.SUPPLY_INTERVAL;
-  }
-  
-  
   public boolean landed() {
     return stage == STAGE_LANDED || stage == STAGE_BOARDING;
   }
   
-  
+  /*
   public float timeLanded() {
     if (stage == STAGE_AWAY || stage == STAGE_DESCENT) return - 1;
     return world.currentTime() - stageInceptTime;
   }
   
   
+  public void resetAwayTime() {
+    if (stage != STAGE_AWAY) return;
+    stageInceptTime = 0 - Commerce.SUPPLY_INTERVAL;
+  }
+  
+  
   public float timeAway(Stage world) {
     return world.currentTime() - stageInceptTime;
   }
+  //*/
   
   
   public int flightStage() {
@@ -389,8 +394,6 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     }
     if (stage == STAGE_DESCENT && height <= 0) {
       performLanding(world, landArea());
-      stage = STAGE_LANDED;
-      stageInceptTime = world.currentTime();
     }
     //
     //  Otherwise, adjust motion-

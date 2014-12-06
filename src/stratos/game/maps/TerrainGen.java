@@ -253,9 +253,9 @@ public class TerrainGen implements TileConstants {
       final int h = typeIndex[c.x][c.y];
       if (h != edgeID) continue;
       boolean inside = true;
-      for (int i : N_INDEX) {
+      for (int i : T_INDEX) {
         try {
-          final int n = typeIndex[c.x + N_X[i]][c.y + N_Y[i]];
+          final int n = typeIndex[c.x + T_X[i]][c.y + T_Y[i]];
           if (n != edgeID && n != replaceID) { inside = false; break; }
         }
         catch (Exception e) { continue; }
@@ -269,9 +269,9 @@ public class TerrainGen implements TileConstants {
   
 
   private byte terrainVarsAt(int x, int y) {
-    final int dir = Rand.index(N_INDEX.length);
+    final int dir = Rand.index(T_INDEX.length);
     byte sampleVar;
-    try { sampleVar = varsIndex[x + N_X[dir]][y + N_Y[dir]]; }
+    try { sampleVar = varsIndex[x + T_X[dir]][y + T_Y[dir]]; }
     catch (ArrayIndexOutOfBoundsException e) { sampleVar = 0; }
     
     final int MV = WorldTerrain.TILE_VAR_LIMIT;

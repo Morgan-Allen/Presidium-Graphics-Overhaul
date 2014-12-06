@@ -122,18 +122,19 @@ public abstract class Artilect extends Actor {
   
   
   protected ActorRelations initRelations() {
-    final Artilect actor = this;
-    
     return new ActorRelations(this) {
-      public float valueFor(Installation venue) {
-        if (venue == actor.mind.home()) return 1;
-        return super.valueFor(venue);
-      }
       
-      public float valueFor(Actor other) {
-        if (actor.base() != null && other.base() == actor.base()) return 0.5f;
-        if (other.health.artilect()) return 1.0f;
-        return -1.0f;
+      public float valueFor(Object object) {
+        if (object == actor || object == actor.mind.home()) {
+          return 1.0f;
+        }
+        else if (object instanceof Actor) {
+          final Actor other = (Actor) object;
+          if (actor.base() != null && other.base() == actor.base()) return 0.5f;
+          if (other.health.artilect()) return 1.0f;
+          return -1.0f;
+        }
+        else return 0;
       }
     };
   }
@@ -171,7 +172,7 @@ public abstract class Artilect extends Actor {
     //  Retreat and return to base.
     //  (Drone specialties.)
     
-    final Employer home = mind.home();
+    final Liveable home = mind.home();
     Element guards = home == null ? this : (Element) home;
     final float distance = Spacing.distance(this, guards) / Stage.SECTOR_SIZE;
     //final float danger = CombatUtils.dangerAtSpot(this, this, null);
@@ -349,10 +350,6 @@ public abstract class Artilect extends Actor {
     d.append(helpInfo());
     return panel;
   }
-  
-  
-  //  TODO:  Get rid of this once species are sorted out.
-  protected abstract String helpInfo();
   
   
   protected static String nameWithBase(String base) {

@@ -4,7 +4,7 @@
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.base.*;
-import stratos.game.civilian.Employer;
+import stratos.game.civilian.Liveable;
 import stratos.game.civilian.Pledge;
 import stratos.game.common.*;
 import stratos.game.economic.*;
@@ -32,25 +32,25 @@ public class FindHome extends Plan {
     verbose = false;
   
   
-  final Employer newHome;
+  final Liveable newHome;
   
   
-  public static FindHome attemptFor(Actor actor, Employer at) {
-    Employer newHome = lookForHome(actor, actor.base());
+  public static FindHome attemptFor(Actor actor, Liveable at) {
+    Liveable newHome = lookForHome(actor, actor.base());
     if (newHome == null || newHome == actor.mind.home()) return null;
     return new FindHome(actor, newHome);
   }
   
 
-  private FindHome(Actor actor, Employer newHome) {
-    super(actor, newHome, true);
+  private FindHome(Actor actor, Liveable newHome) {
+    super(actor, newHome, true, NO_HARM);
     this.newHome = newHome;
   }
 
 
   public FindHome(Session s) throws Exception {
     super(s);
-    newHome = (Employer) s.loadObject();
+    newHome = (Liveable) s.loadObject();
   }
   
   
@@ -127,7 +127,7 @@ public class FindHome extends Plan {
   }
   
   
-  public boolean actionFindHome(Actor client, Employer best) {
+  public boolean actionFindHome(Actor client, Liveable best) {
     final boolean report = verbose && I.talkAbout == client;
     
     if (report) {
@@ -161,16 +161,16 @@ public class FindHome extends Plan {
   
   /**  Static helper methods for home placement/location-
     */
-  public static Employer lookForHome(Actor client, Base base) {
+  public static Liveable lookForHome(Actor client, Base base) {
     final boolean report = verbose && I.talkAbout == client;
     
     final Stage world = base.world;
-    final Employer oldHome = client.mind.home(), work = client.mind.work();
+    final Liveable oldHome = client.mind.home(), work = client.mind.work();
     
     if (work instanceof Vehicle) return work;
     if (work instanceof Bastion) return work;
     
-    Employer best = oldHome;
+    Liveable best = oldHome;
     float bestRating = oldHome == null ? 0 : rateHolding(client, best);
     
     for (Object o : world.presences.sampleFromMap(
@@ -270,10 +270,10 @@ public class FindHome extends Plan {
     Work in vehicle:  Cannot move out, must live there.
   //*/
   
-  private static float rateHolding(Actor actor, Employer newHome) {
+  private static float rateHolding(Actor actor, Liveable newHome) {
     if (newHome == null || newHome.base() != actor.base()) return -1;
     
-    final Employer oldHome = actor.mind.home();
+    final Liveable oldHome = actor.mind.home();
     float rating = 0;
     if (oldHome == null) rating += ROUTINE;
     if (newHome == oldHome) rating += DEFAULT_SWITCH_THRESHOLD;

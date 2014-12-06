@@ -94,35 +94,33 @@ public class CombatUtils {
   public static float hostileRating(Actor actor, Target near) {
     final boolean report = dangerVerbose && I.talkAbout == actor;
     
-    
-    
     //  Only consider conscious actors as capable of hostility.  Then, by
     //  default, base the rating off intrinsic dislike of the subject.
     if (! (near instanceof Actor)) return 0;
     final Actor other = (Actor) near;
     if (! other.health.alive()) return 0;
     
-    final ActorRelations mind = actor.relations;
-    float rating = 0 - mind.valueFor(other);
+    final ActorRelations relations = actor.relations;
+    float rating = 0 - relations.valueFor(other);
     if (report) I.say("\n  "+near+" dislike rating: "+rating);
     
     //  However, this is modified by the context of the subject's behaviour.
     //  If they are doing something harmful to another the actor cares about,
     //  (including self), then up the rating.
-    final Target victim = other.focusFor(null);
+    final Target victim = other.planFocus(null);
     final float
-      harmDone    = other.harmDoneTo(victim),
-      protectUrge = harmDone * mind.valueFor(victim);
+      harmDone    = other.harmIntended(victim),
+      protectUrge = harmDone * relations.valueFor(victim);
     rating += protectUrge;
     
     if (report) {
-      I.say("  Victim: "+victim+", value: "+mind.valueFor(victim));
+      I.say("  Victim: "+victim+", value: "+relations.valueFor(victim));
       I.say("  Protect urge: "+protectUrge);
     }
     
     //  Include a penalty if the subject is unarmed, based on ethics.
     if (! isArmed(other)) {
-      rating -= (1 + actor.traits.relativeLevel(ETHICAL)) / 2;
+      rating /= 1 + (actor.traits.relativeLevel(ETHICAL) * 2);
     }
     
     //  Limit to the range of +/-1, and return.
@@ -147,8 +145,8 @@ public class CombatUtils {
     }
     else if (near instanceof Actor) {
       final Actor other = (Actor) near;
-      final Target victim = other.focusFor(null);
-      final float harmDone = other.harmDoneTo(victim);
+      final Target victim = other.planFocus(null);
+      final float harmDone = other.harmIntended(victim);
       return victim != null && actor.relations.likes(victim) && harmDone > 0;
     }
     else return false;

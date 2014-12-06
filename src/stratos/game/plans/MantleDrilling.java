@@ -36,7 +36,7 @@ public class MantleDrilling extends Plan {
   
   
   MantleDrilling(Actor actor, Smelter smelter, Traded output) {
-    super(actor, smelter, true);
+    super(actor, smelter, true, NO_HARM);
     this.venue = smelter;
     this.output = output;
     sample = Item.withReference(SAMPLES, output);

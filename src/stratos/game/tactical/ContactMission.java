@@ -178,9 +178,13 @@ public class ContactMission extends Mission {
     
     //  TODO:  Reconsider?
     //  Failed efforts annoy the subject.
-    other.relations.incRelation(base, 0, 0);
+    
+    final float noveltyInc = -1f / Dialogue.BORED_DURATION;
+    other.relations.incRelation(base, 0, 0, noveltyInc);
     if (success < 1) {
-      other.relations.incRelation(actor, 0 - Relation.MAG_CHATTING, 0.1f);
+      other.relations.incRelation(
+        actor, 0 - Dialogue.RELATION_BOOST, 0.1f, noveltyInc
+      );
       return false;
     }
     else {
@@ -201,19 +205,20 @@ public class ContactMission extends Mission {
     }
     
     //  TODO:  Partial success might net you an informant.
+    final int object = objectIndex();
     for (Actor other : agreed) {
-      if (objectIndex() == OBJECT_FRIENDSHIP) {
+      if (object == OBJECT_FRIENDSHIP) {
         //  TODO:  Actually modify relations between the bases, depending on
         //  how successful you were.  (This has the added benefit of making
         //  spontaneous combat less likely.)
-        other.relations.incRelation(base, Relation.MAG_CHATTING, 0.5f);
+        other.relations.incRelation(base, Dialogue.RELATION_BOOST, 0.5f, 0);
       }
-      if (objectIndex() == OBJECT_AUDIENCE && ruler != null) {
+      if (object == OBJECT_AUDIENCE && ruler != null) {
         I.say("Issuing summons to: "+other);
         Summons.beginSummons(other);
       }
-      if (objectIndex() == OBJECT_SUBMISSION) {
-        other.relations.incRelation(base, Relation.MAG_HARMING, 0.5f);
+      if (object == OBJECT_SUBMISSION) {
+        other.relations.incRelation(base, -1, 0.5f, 0);
         other.assignBase(base);
       }
     }

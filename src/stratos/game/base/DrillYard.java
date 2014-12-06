@@ -4,7 +4,7 @@ package stratos.game.base;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
-import stratos.game.plans.Drilling;
+//import stratos.game.plans.Drilling;
 import stratos.game.actors.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -15,14 +15,14 @@ import stratos.util.*;
 
 
 
-//  TODO:  Convert this into the Arena.
+//  TODO:  Convert this into the Arena, or merge with the Trooper Lodge...
 
 
+/*
 public class DrillYard extends Venue {
   
   
   /**  Constructors, data fields, setup and save/load methods-
-    */
   final static String IMG_DIR = "media/Buildings/military/";
   final static ModelAsset
     YARD_MODEL = CutoutModel.fromSplatImage(
@@ -118,7 +118,6 @@ public class DrillYard extends Venue {
   
   
   /**  Behaviour implementation-
-    */
   public boolean enterWorldAt(int x, int y, Stage world) {
     if (! super.enterWorldAt(x, y, world)) return false;
     //setupDummies();
@@ -167,7 +166,6 @@ public class DrillYard extends Venue {
   
   
   /**  Helping to configure drill actions-
-    */
   public Upgrade bonusFor(int state) {
     switch (state) {
       case (DRILL_MELEE    ) : return TrooperLodge.MELEE_TRAINING    ;
@@ -186,8 +184,6 @@ public class DrillYard extends Venue {
   
   
   /**  Rendering and interface methods-
-    */
-  //*
   final static float
     MELEE_OFFS[] = {
       1, 0,  1, 1,  1, 2,  1, 3,
@@ -291,7 +287,7 @@ public class DrillYard extends Venue {
   }
   
   
-  public String buildCategory() {
+  public String objectCategory() {
     return InstallTab.TYPE_HIDDEN;
   }
   

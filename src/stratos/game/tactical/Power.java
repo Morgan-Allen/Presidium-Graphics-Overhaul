@@ -495,7 +495,7 @@ public class Power implements Qualities {
           priorityMod += caster.traits.usedLevel(SUGGESTION) / 5f;
           caster.health.takeConcentration(cost);
           caster.skills.practiceAgainst(10, cost, SYNESTHESIA);
-          affects.relations.incRelation(caster, affinity, 0.1f);
+          affects.relations.incRelation(caster, affinity, 0.1f, 0);
         }
         else priorityMod = Plan.PARAMOUNT;
         

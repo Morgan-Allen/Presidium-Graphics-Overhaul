@@ -250,8 +250,8 @@ public class ShieldWall extends Venue {
     int numNear = 0;
     final Tile o = origin();
     
-    for (int n : N_ADJACENT) {
-      final Tile t = world.tileAt(o.x + (N_X[n] * 2), o.y + (N_Y[n] * 2));
+    for (int n : T_ADJACENT) {
+      final Tile t = world.tileAt(o.x + (T_X[n] * 2), o.y + (T_Y[n] * 2));
       if (t == null) continue;
       if (t.onTop() instanceof ShieldWall) near[n] = true;
       if (newWall != null) for (ShieldWall s : newWall) {
@@ -468,7 +468,7 @@ public class ShieldWall extends Venue {
   }
   
   
-  public String buildCategory() {
+  public String objectCategory() {
     return InstallTab.TYPE_MILITANT;
   }
 }

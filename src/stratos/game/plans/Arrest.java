@@ -5,19 +5,10 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.civilian.*;
 import stratos.game.economic.*;
-import stratos.start.PlayLoop;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
 
-
-
-//  Ideally, Arrests need to be a reaction, rather than a job-assignment.  The
-//  whole escort-back-to-holding-cells thing is just a specialised response
-//  available to official enforcers.  The underlying purpose is to persuade
-//  a 'comrade' *not* to do something objectionable- at least for a while.
-
-//  TODO:  Extend Combat directly?
 
 
 public class Arrest extends Plan {
@@ -25,27 +16,28 @@ public class Arrest extends Plan {
   /**  Data fields, constructors and save/load methods-
     */
   private static boolean
-    evalVerbose  = true ,
-    stepsVerbose = false;
+    evalVerbose  = false,
+    stepsVerbose = true ;
   
+  final static int WARN_LIMIT = 2;
   
-  private boolean gaveQuarter = false;
+  private boolean doneWarning = false;
   
   
   public Arrest(Actor actor, Target subject) {
-    super(actor, subject, true);
+    super(actor, subject, true, MILD_HARM);
   }
   
   
   public Arrest(Session s) throws Exception {
     super(s);
-    gaveQuarter = s.loadBool();
+    doneWarning = s.loadBool();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveBool(gaveQuarter);
+    s.saveBool(doneWarning);
   }
   
   
@@ -63,13 +55,13 @@ public class Arrest extends Plan {
   //  the sovereign?
   
   protected float getPriority() {
-    final boolean report = evalVerbose && I.talkAbout == subject;
+    final boolean report = evalVerbose && I.talkAbout == actor;// && hasBegun();
     
     //  Don't arrest other arresters!  Other than that, priority is based on
     //  the harm-level and criminality of the act in question.
     final Actor other = (Actor) subject;
     if (other.isDoing(Arrest.class, null)) return 0;
-    final Target victim = other.focusFor(null);
+    final Target victim = other.planFocus(null);
     final boolean melee = actor.gear.meleeWeapon();
     if (victim == null) return 0;
     
@@ -78,7 +70,7 @@ public class Arrest extends Plan {
     //  TODO:  Use command/suasion as key skills when giving orders.
     
     float urge = 0, bonus = 0;
-    urge += other.harmDoneTo(victim) * actor.relations.valueFor(victim);
+    urge += other.harmIntended(victim) * actor.relations.valueFor(victim);
     bonus += urge;
     
     final float priority = priorityForActorWith(
@@ -95,7 +87,7 @@ public class Arrest extends Plan {
   
   private boolean hasAuthority() {
     if (! CombatUtils.isArmed(actor)) return false;
-    final Employer work = actor.mind.work();
+    final Liveable work = actor.mind.work();
     if (work == null) return false;
     if (Visit.arrayIncludes(work.services(), SERVICE_SECURITY)) {
       return true;
@@ -105,24 +97,22 @@ public class Arrest extends Plan {
   
   
   protected Behaviour getNextStep() {
-    final boolean report = stepsVerbose && hasBegun();
+    final boolean report = stepsVerbose && I.talkAbout == actor;
     final Actor other = (Actor) subject;
     final boolean authority = hasAuthority();
+    final boolean canWarn = other.relations.noveltyFor(actor) > 0;
+    //  TODO:  Base this off relations with a concept, rather than the person.
     
     if (report) {
       I.say("\nGetting next arrest step for "+actor);
       I.say("  Arresting:     "+other    );
       I.say("  Has authority? "+authority);
     }
-    PlayLoop.setPaused(true);
-    
-    //  TODO:  If you're *not* an official authority, just send them home
-    //  without an escort.
     
     //  Give them a warning to stop first (chance to surrender/stand down.)
     //  Otherwise, give chase.
-    if (! gaveQuarter) {
-      if (report) I.say("  ...Ordering surrender.");
+    if (canWarn && ! doneWarning) {
+      if (report) I.say("  Ordering surrender.");
       final Action order = new Action(
         actor, other,
         this, "actionOrderSurrender",
@@ -140,11 +130,11 @@ public class Arrest extends Plan {
       
       //  If they're actually *in* the cell, call it quits:
       if (other.aboard() == actor.mind.work()) {
-        if (report) I.say("  ...Arrest complete.");
+        if (report) I.say("  Arrest complete.");
         return null;
       }
       
-      if (report) I.say("  ...Escorting back to holding.");
+      if (report) I.say("  Escorting back to holding.");
       final Action escort = new Action(
         actor, other,
         this, "actionEscort",
@@ -156,13 +146,13 @@ public class Arrest extends Plan {
     
     //  If they've been beaten, carry them back to their cell:
     else if (CombatUtils.isDowned(other, Combat.OBJECT_SUBDUE)) {
-      if (report) I.say("  ...Returning unconscious captive.");
+      if (report) I.say("  Returning unconscious captive.");
       return new StretcherDelivery(actor, other, actor.mind.work());
     }
     
     //  And if all else fails- give chase.
     else {
-      if (report) I.say("  ...Giving chase!");
+      if (report) I.say("  Giving chase!");
       final Combat chase = new Combat(
         actor, other, Combat.STYLE_EITHER, Combat.OBJECT_SUBDUE, true
       );
@@ -173,18 +163,22 @@ public class Arrest extends Plan {
   
   
   public boolean actionOrderSurrender(Actor actor, Actor other) {
+    final boolean report = stepsVerbose && I.talkAbout == actor;
+    if (report) I.say("\nOrdering surrender of "+other);
     
     final boolean authority = hasAuthority();
-    final Venue holding = (Venue) (
-      authority ? actor.mind.work() : other.mind.home()
-    );
-    if (holding == null) {
-      gaveQuarter = true;
+    final Boarding holding = authority ?
+      actor.mind.work()   :
+      other.senses.haven();
+    
+    if (! (holding instanceof Liveable)) {
+      if (report) I.say("  No holding facility...");
+      doneWarning = true;
       return false;
     }
     
     final Summons surrender = new Summons(
-      other, actor, holding,
+      other, actor, (Liveable) holding,
       authority ? Summons.TYPE_CAPTIVE : Summons.TYPE_SULKING
     );
     final float commandBonus = DialogueUtils.talkResult(
@@ -192,13 +186,26 @@ public class Arrest extends Plan {
     ) * ROUTINE;
     surrender.setMotive(Plan.MOTIVE_EMERGENCY, commandBonus);
     
+    //  TODO:  Base this off relations with a concept, rather than the person.
+    other.relations.incRelation(actor, 0, 0, -2f * Rand.num() / WARN_LIMIT);
+    
+    if (report) {
+      final Behaviour current = other.mind.rootBehaviour();
+      I.say("  Command priority is:   "+surrender.priorityFor(other));
+      I.say("  Current plan priority: "+current  .priorityFor(other));
+      I.say("  Destination:           "+holding);
+      I.say("  Discussion novelty:    "+other.relations.noveltyFor(actor));
+    }
+    
     if (! other.mind.mustIgnore(surrender)) {
-      gaveQuarter = true;
+      if (report) I.say("  "+other+" has surrendered!");
       other.mind.assignBehaviour(surrender);
+      doneWarning = true;
       return true;
     }
     else {
-      gaveQuarter = true;
+      if (report) I.say("  "+other+" has refused surrender!");
+      if (authority) doneWarning = true;
       return false;
     }
   }

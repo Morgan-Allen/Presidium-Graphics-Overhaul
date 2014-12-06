@@ -11,7 +11,7 @@ import stratos.util.*;
 
 
 
-public interface Boarding extends Target {
+public interface Boarding extends Target, Session.Saveable {
   
   final int
     BOARDABLE_TILE    = 0,

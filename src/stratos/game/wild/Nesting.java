@@ -14,7 +14,7 @@ public class Nesting extends Plan {
   
   
   public Nesting(Fauna actor, Nest nest) {
-    super(actor, nest, true);
+    super(actor, nest, true, MILD_HELP);
   }
   
   

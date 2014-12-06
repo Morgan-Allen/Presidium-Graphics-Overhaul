@@ -5,6 +5,7 @@ import stratos.game.actors.*;
 import stratos.game.campaign.BaseFinance;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
+import stratos.game.maps.Species;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
@@ -615,6 +616,16 @@ public abstract class Mission implements
       flag.position.z += 1.5f;
     }
     flag.scale = 0.5f;
+  }
+  
+  
+  public String helpInfo() {
+    return description;
+  }
+  
+  
+  public String objectCategory() {
+    return UIConstants.TYPE_MISSION;
   }
   
   

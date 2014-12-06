@@ -35,7 +35,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     FAILURE_TIME_MULT  = 5;
   
   
-  final public Employer venue;
+  final public Liveable venue;
   final public Conversion conversion;
   
   public int checkBonus = 0;
@@ -47,9 +47,9 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   
   
   public Manufacture(
-    Actor actor, Employer venue, Conversion conversion, Item made
+    Actor actor, Liveable venue, Conversion conversion, Item made
   ) {
-    super(actor, venue, true);
+    super(actor, venue, true, NO_HARM);
     this.venue = venue;
     this.made = made == null ? conversion.out : made;
     this.conversion = conversion;

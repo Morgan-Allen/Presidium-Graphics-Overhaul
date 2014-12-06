@@ -48,7 +48,7 @@ public class StripMining extends Plan {
   
   
   public StripMining(Actor actor, Target face, ExcavationSite site) {
-    super(actor, site, true);
+    super(actor, site, true, NO_HARM);
     this.site = site;
     this.face = face;
   }
@@ -276,7 +276,7 @@ public class StripMining extends Plan {
       d.append("Dumping tailings");
     }
     if (stage == STAGE_RETURN) {
-      d.append("Returning ores to "+actor.focusFor(StripMining.class));
+      d.append("Returning ores to "+actor.planFocus(StripMining.class));
     }
   }
 }

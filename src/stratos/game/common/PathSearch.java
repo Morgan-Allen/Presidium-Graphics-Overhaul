@@ -7,6 +7,7 @@
 
 package stratos.game.common;
 import stratos.game.economic.*;
+import stratos.game.actors.*;
 import stratos.util.*;
 
 
@@ -148,6 +149,12 @@ public class PathSearch extends Search <Boarding> {
       //
       //  TODO:  Stay out of the unfogged areas of hostile bases, and fogged
       //  areas of your own.
+      
+      //  Avoid areas that you consider dangerous...
+      //  TODO:  Can you guarantee this will be an actor?...
+      final Senses s = ((Actor) client).senses;
+      final float directionDanger = s.dangerFromDirection(prior);
+      mods += directionDanger * 10;
       
       //  TODO:  This is removed for the moment, until collision is worked out.
       //  Restore later

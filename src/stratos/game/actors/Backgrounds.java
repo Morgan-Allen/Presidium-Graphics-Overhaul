@@ -67,41 +67,41 @@ public interface Backgrounds {
   final public static Background
     MALE_BIRTH = new Background(
       Backgrounds.class,
-      "Born Male", null, null, NOT_A_CLASS, NOT_A_GUILD,
+      "Born Male", "", null, null, NOT_A_CLASS, NOT_A_GUILD,
       3, MUSCULAR, 1, MOTOR, SOMETIMES, TALL, NEVER, FEMININE
     ),
     FEMALE_BIRTH = new Background(
       Backgrounds.class,
-      "Born Female", null, null, NOT_A_CLASS, NOT_A_GUILD,
+      "Born Female", "", null, null, NOT_A_CLASS, NOT_A_GUILD,
       2, IMMUNE, 2, PERCEPT, RARELY, STOUT, ALWAYS, FEMININE
     ),
     //
     //  Natives can only be recruited locally, not from offworld.
     NATIVE_BIRTH = new Background(
       Backgrounds.class,
-      "Born Native", "native_skin.gif", null, NOT_A_CLASS, NOT_A_GUILD,
+      "Born Native", "", "native_skin.gif", null, NOT_A_CLASS, NOT_A_GUILD,
       LEARNING, NATIVE_TABOO, NOVICE, HANDICRAFTS, MARKSMANSHIP, XENOZOOLOGY
     ),
     //
     //  The following are available to most actors as part of their careers-
     DREGS_BIRTH = new Background(
       Backgrounds.class,
-      "Born Dreg", "artificer_skin.gif", null, CLASS_SLAVE, NOT_A_GUILD,
+      "Born Dreg", "", "artificer_skin.gif", null, CLASS_SLAVE, NOT_A_GUILD,
       LEARNING, COMMON_CUSTOM, NOVICE, NATIVE_TABOO, HAND_TO_HAND, CHEMISTRY
     ),
     PYON_BIRTH = new Background(
       Backgrounds.class,
-      "Born Pyon", "pyon_skin.gif", null, CLASS_VASSAL, NOT_A_GUILD,
+      "Born Pyon", "", "pyon_skin.gif", null, CLASS_VASSAL, NOT_A_GUILD,
       LEARNING, COMMON_CUSTOM, NOVICE, HARD_LABOUR, DOMESTICS, ASSEMBLY
     ),
     FREE_BIRTH = new Background(
       Backgrounds.class,
-      "Born Free", "citizen_skin.gif", null, CLASS_FREEMEN, NOT_A_GUILD,
+      "Born Free", "", "citizen_skin.gif", null, CLASS_FREEMEN, NOT_A_GUILD,
       LEARNING, COMMON_CUSTOM, NOVICE, SUASION, MARKSMANSHIP, PILOTING
     ),
     GELDER_BIRTH = new Background(
       Backgrounds.class,
-      "Born Gelder", "vendor_skin.gif", null, CLASS_FREEMEN, NOT_A_GUILD,
+      "Born Gelder", "", "vendor_skin.gif", null, CLASS_FREEMEN, NOT_A_GUILD,
       LEARNING, COMMON_CUSTOM, NOVICE, NOBLE_ETIQUETTE, ACCOUNTING, COUNSEL
     ),
     //
@@ -109,12 +109,13 @@ public interface Backgrounds {
     //  visiting NPCs or members of your household.
     LANDER_BIRTH = new Background(
       Backgrounds.class,
-      "Born Lander", "highborn_male_skin.gif", null, CLASS_STRATOI,
-      LEARNING, NOBLE_ETIQUETTE, NOVICE, COMMON_CUSTOM, HAND_TO_HAND, ACCOUNTING
+      "Born Lander", "", "highborn_male_skin.gif", null, CLASS_STRATOI,
+      LEARNING, NOBLE_ETIQUETTE,
+      NOVICE, COMMON_CUSTOM, HAND_TO_HAND, ACCOUNTING
     ),
     HIGH_BIRTH = new Background(
       Backgrounds.class,
-      "Born High", "highborn_male_skin.gif", null, CLASS_STRATOI,
+      "Born High", "", "highborn_male_skin.gif", null, CLASS_STRATOI,
       LEARNING, NOBLE_ETIQUETTE, NOVICE, COMMAND, HAND_TO_HAND, ANCIENT_LORE
     ),
     
@@ -127,7 +128,8 @@ public interface Backgrounds {
     
     EXCAVATOR = new Background(
       Backgrounds.class,
-      "Excavator", "pyon_skin.gif", "pyon_portrait.png",
+      "Excavator", "",
+      "pyon_skin.gif", "pyon_portrait.png",
       CLASS_VASSAL, GUILD_ARTIFICER,
       EXPERT, HARD_LABOUR, LEARNING, GEOPHYSICS, ASSEMBLY, NOVICE, ANCIENT_LORE,
       OFTEN, STUBBORN, RARELY, NERVOUS, HANDSOME,
@@ -136,7 +138,8 @@ public interface Backgrounds {
     
     TECHNICIAN = new Background(
       Backgrounds.class,
-      "Technician", "artificer_skin.gif", "artificer_portrait.png",
+      "Technician", "",
+      "artificer_skin.gif", "artificer_portrait.png",
       CLASS_VASSAL, GUILD_ARTIFICER,
       PRACTICED, ASSEMBLY, HARD_LABOUR, LEARNING, FIELD_THEORY, CHEMISTRY,
       SOMETIMES, DUTIFUL, RARELY, RELAXED,
@@ -145,7 +148,7 @@ public interface Backgrounds {
     
     CORE_TECHNICIAN = new Background(
       Backgrounds.class,
-      "Core Technician", "citizen_skin.gif", "artificer_portrait.png",
+      "Core Technician", "", "citizen_skin.gif", "artificer_portrait.png",
       CLASS_FREEMEN, GUILD_ARTIFICER,
       EXPERT, FIELD_THEORY, PRACTICED, CHEMISTRY, ASSEMBLY,
       LEARNING, SHIELD_AND_ARMOUR,
@@ -155,7 +158,7 @@ public interface Backgrounds {
     
     ARTIFICER = new Background(
       Backgrounds.class,
-      "Artificer", "artificer_skin.gif", "artificer_portrait.png",
+      "Artificer", "", "artificer_skin.gif", "artificer_portrait.png",
       CLASS_FREEMEN, GUILD_ARTIFICER,
       EXPERT, ASSEMBLY, PRACTICED, FIELD_THEORY, SHIELD_AND_ARMOUR,
       LEARNING, ANCIENT_LORE, CHEMISTRY,
@@ -170,7 +173,7 @@ public interface Backgrounds {
     
     MINDER = new Background(
       Backgrounds.class,
-      "Minder", "citizen_skin.gif", "pyon_portrait.png",
+      "Minder", "", "citizen_skin.gif", "pyon_portrait.png",
       CLASS_VASSAL, GUILD_PHYSICIAN,
       PRACTICED, DOMESTICS, SUASION, LEARNING, ANATOMY, PHARMACY, COUNSEL,
       OFTEN, EMPATHIC, SOMETIMES, STUBBORN,
@@ -179,26 +182,16 @@ public interface Backgrounds {
     
     VATS_BREEDER = new Background(
       Backgrounds.class,
-      "Vats Breeder", "citizen_skin.gif", "pyon_portrait.png",
+      "Vats Breeder", "", "citizen_skin.gif", "pyon_portrait.png",
       CLASS_VASSAL, GUILD_PHYSICIAN,
       PRACTICED, GENE_CULTURE, PHARMACY, CHEMISTRY,
       RARELY, INDULGENT, RELAXED,
       OVERALLS
     ),
     
-    ENFORCER = new Background(
-      Backgrounds.class,
-      "Enforcer", "enforcer_skin.gif", "enforcer_portrait.png",
-      CLASS_FREEMEN, GUILD_PHYSICIAN,
-      PRACTICED, MARKSMANSHIP, SUASION, COUNSEL, STEALTH_AND_COVER, LEARNING,
-      HAND_TO_HAND, ANATOMY, PHARMACY, COMMAND, BATTLE_TACTICS,
-      OFTEN, FEARLESS, STUBBORN, SOMETIMES, DUTIFUL, CURIOUS, CRUEL,
-      BODY_ARMOUR, STUN_WAND
-    ),
-    
     SAVANT = new Background(
       Backgrounds.class,
-      "Savant", "citizen_skin.gif", null,
+      "Savant", "", "citizen_skin.gif", null,
       CLASS_FREEMEN, GUILD_PHYSICIAN,
       EXPERT, ACCOUNTING, INSCRIPTION, PRACTICED, ANCIENT_LORE, LEGISLATION,
       LEARNING, COUNSEL, ASSEMBLY,
@@ -208,7 +201,7 @@ public interface Backgrounds {
     
     PHYSICIAN = new Background(
       Backgrounds.class,
-      "Physician", "physician_skin.gif", "physician_portrait.png",
+      "Physician", "", "physician_skin.gif", "physician_portrait.png",
       CLASS_FREEMEN, GUILD_PHYSICIAN,
       EXPERT, ANATOMY, PHARMACY,
       PRACTICED, GENE_CULTURE, PSYCHOANALYSIS, COUNSEL, SUASION,
@@ -216,14 +209,14 @@ public interface Backgrounds {
       OVERALLS
     ),
     
-    PHYSICIAN_CIRCLES[] = { MINDER, VATS_BREEDER, ENFORCER, PHYSICIAN }
+    PHYSICIAN_CIRCLES[] = { MINDER, VATS_BREEDER, SAVANT, PHYSICIAN }
  ;
   
   final public static Background
     
     CULTIVATOR = new Background(
       Backgrounds.class,
-      "Cultivator", "pyon_skin.gif", "pyon_portrait.png",
+      "Cultivator", "", "pyon_skin.gif", "pyon_portrait.png",
       CLASS_VASSAL, GUILD_ECOLOGIST,
       PRACTICED, CULTIVATION, HARD_LABOUR, LEARNING, DOMESTICS, ASSEMBLY,
       OFTEN, OUTGOING, SOMETIMES, NATURALIST, RARELY, AMBITIOUS,
@@ -232,7 +225,7 @@ public interface Backgrounds {
     
     FORMER_ENGINEER = new Background(
       Backgrounds.class,
-      "Former Engineer", "ecologist_skin.gif", "ecologist_portrait.png",
+      "Former Engineer", "", "ecologist_skin.gif", "ecologist_portrait.png",
       CLASS_FREEMEN, GUILD_ECOLOGIST,
       PRACTICED, GEOPHYSICS, ASSEMBLY, HARD_LABOUR,
       LEARNING, GENE_CULTURE, SURVEILLANCE,
@@ -243,7 +236,7 @@ public interface Backgrounds {
     //  TODO:  Replace with Kommando, or merge into Ecologist.
     EXPLORER = new Background(
       Backgrounds.class,
-      "Explorer", "ecologist_skin.gif", "ecologist_portrait.png",
+      "Explorer", "", "ecologist_skin.gif", "ecologist_portrait.png",
       CLASS_FREEMEN, GUILD_ECOLOGIST,
       EXPERT, XENOZOOLOGY, SURVEILLANCE, STEALTH_AND_COVER,
       PRACTICED, MARKSMANSHIP, NATIVE_TABOO,
@@ -254,7 +247,7 @@ public interface Backgrounds {
     
     ECOLOGIST = new Background(
       Backgrounds.class,
-      "Ecologist", "ecologist_skin.gif", "ecologist_portrait.png",
+      "Ecologist", "", "ecologist_skin.gif", "ecologist_portrait.png",
       CLASS_FREEMEN, GUILD_ECOLOGIST,
       EXPERT, CULTIVATION, PRACTICED, GENE_CULTURE, XENOZOOLOGY,
       PRACTICED, GEOPHYSICS, CHEMISTRY,
@@ -271,7 +264,7 @@ public interface Backgrounds {
     
     FAB_WORKER = new Background(
       Backgrounds.class,
-      "Fab Worker", "pyon_skin.gif", "pyon_portrait.png",
+      "Fab Worker", "", "pyon_skin.gif", "pyon_portrait.png",
       CLASS_VASSAL, GUILD_MERCHANT,
       LEARNING, CHEMISTRY, PILOTING, ASSEMBLY, HARD_LABOUR,
       OFTEN, RELAXED, RARELY, AMBITIOUS,
@@ -280,7 +273,7 @@ public interface Backgrounds {
     
     SOMA_VENDOR = new Background(
       Backgrounds.class,
-      "Soma Vendor", "vendor_skin.gif", "vendor_portrait.png",
+      "Soma Vendor", "", "vendor_skin.gif", "vendor_portrait.png",
       CLASS_VASSAL, GUILD_MERCHANT,
       PRACTICED, COUNSEL, SUASION, LEARNING, DOMESTICS, CHEMISTRY,
       ACCOUNTING,
@@ -290,7 +283,7 @@ public interface Backgrounds {
     
     STOCK_VENDOR = new Background(
       Backgrounds.class,
-      "Stock Vendor", "vendor_skin.gif", "vendor_portrait.png",
+      "Stock Vendor", "", "vendor_skin.gif", "vendor_portrait.png",
       CLASS_VASSAL, GUILD_MERCHANT,
       PRACTICED, ACCOUNTING, DOMESTICS, LEARNING, SUASION, HARD_LABOUR,
       OVERALLS
@@ -298,7 +291,7 @@ public interface Backgrounds {
     
     AUDITOR = new Background(
       Backgrounds.class,
-      "Auditor", "vendor_skin.gif", "vendor_portrait.png",
+      "Auditor", "", "vendor_skin.gif", "vendor_portrait.png",
       CLASS_FREEMEN, GUILD_MERCHANT,
       EXPERT, COUNSEL, ACCOUNTING, PRACTICED, COMMAND, ANCIENT_LORE,
       ALWAYS, STUBBORN, OFTEN, DUTIFUL,
@@ -313,7 +306,7 @@ public interface Backgrounds {
     
     VOLUNTEER = new Background(
       Backgrounds.class,
-      "Volunteer", "militant_skin.gif", "militant_portrait.png",
+      "Volunteer", "", "militant_skin.gif", "militant_portrait.png",
       CLASS_VASSAL, GUILD_MILITANT,
       PRACTICED, HAND_TO_HAND, MARKSMANSHIP,
       LEARNING, SURVEILLANCE, ASSEMBLY, HARD_LABOUR, SHIELD_AND_ARMOUR,
@@ -321,10 +314,20 @@ public interface Backgrounds {
       BLASTER, BODY_ARMOUR
     ),
     
+    ENFORCER = new Background(
+      Backgrounds.class,
+      "Enforcer", "", "enforcer_skin.gif", "enforcer_portrait.png",
+      CLASS_FREEMEN, GUILD_PHYSICIAN,
+      PRACTICED, MARKSMANSHIP, SUASION, COUNSEL, STEALTH_AND_COVER, LEARNING,
+      HAND_TO_HAND, ANATOMY, PHARMACY, COMMAND, BATTLE_TACTICS,
+      OFTEN, FEARLESS, STUBBORN, SOMETIMES, DUTIFUL, CURIOUS, CRUEL,
+      BODY_ARMOUR, STUN_WAND
+    ),
+    
     //  TODO:  Restore traits here.
     AIR_CORPS = new Background(
       Backgrounds.class,
-      "Air Corps", "artificer_skin.gif", "militant_portrait.png",
+      "Air Corps", "", "artificer_skin.gif", "militant_portrait.png",
       CLASS_FREEMEN, GUILD_MILITANT,
       PRACTICED, MARKSMANSHIP, PILOTING, SURVEILLANCE, STEALTH_AND_COVER,
       LEARNING, HARD_LABOUR, ASSEMBLY,
@@ -334,7 +337,7 @@ public interface Backgrounds {
     //  TODO:  Draw up a different set of art assets for this guy.
     MECH_LEGION = new Background(
       Backgrounds.class,
-      "Mech Legion", "militant_skin.gif", "militant_portrait.png",
+      "Mech Legion", "", "militant_skin.gif", "militant_portrait.png",
       CLASS_FREEMEN, GUILD_MILITANT,
       EXPERT, HAND_TO_HAND, FORMATION_COMBAT, SHIELD_AND_ARMOUR,
       PRACTICED, COMMAND, LEARNING, BATTLE_TACTICS, MARKSMANSHIP,
@@ -343,7 +346,7 @@ public interface Backgrounds {
     
     VETERAN = new Background(
       Backgrounds.class,
-      "Veteran", "militant_skin.gif", "militant_portrait.png",
+      "Veteran", "", "militant_skin.gif", "militant_portrait.png",
       CLASS_FREEMEN, GUILD_MILITANT,
       EXPERT, HAND_TO_HAND, MARKSMANSHIP, PRACTICED, SURVEILLANCE,
       FORMATION_COMBAT, COMMAND, SHIELD_AND_ARMOUR, BATTLE_TACTICS,
@@ -351,14 +354,14 @@ public interface Backgrounds {
       BLASTER, BODY_ARMOUR
     ),
     
-    MILITARY_CIRCLES[] = { VOLUNTEER, AIR_CORPS, MECH_LEGION, VETERAN }
+    MILITARY_CIRCLES[] = { VOLUNTEER, ENFORCER, AIR_CORPS, MECH_LEGION, VETERAN }
  ;
   
   final public static Background
     
     PERFORMER = new Background(
       Backgrounds.class,
-      "Performer", "aesthete_female_skin.gif", "aesthete_portrait.png",
+      "Performer", "", "aesthete_female_skin.gif", "aesthete_portrait.png",
       CLASS_VASSAL, GUILD_AESTHETE,
       PRACTICED, MUSIC_AND_SONG, LEARNING, EROTICS, MASQUERADE,
       OFTEN, HANDSOME, RARELY, STOUT, SOMETIMES, EMPATHIC, INDULGENT,
@@ -372,7 +375,7 @@ public interface Backgrounds {
     
     FABRICATOR = new Background(
       Backgrounds.class,
-      "Fabricator", "citizen_skin.gif", "pyon_portrait.png",
+      "Fabricator", "", "citizen_skin.gif", "pyon_portrait.png",
       CLASS_VASSAL, GUILD_AESTHETE,
       PRACTICED, CHEMISTRY, HARD_LABOUR, LEARNING, GRAPHIC_DESIGN, HANDICRAFTS,
       SOMETIMES, STUBBORN, NERVOUS,
@@ -381,7 +384,7 @@ public interface Backgrounds {
     
     ADVERTISER = new Background(
       Backgrounds.class,
-      "Advertiser", "citizen_skin.gif", "pyon_portrait.png",
+      "Advertiser", "", "citizen_skin.gif", "pyon_portrait.png",
       CLASS_FREEMEN, GUILD_AESTHETE,
       EXPERT, GRAPHIC_DESIGN, SUASION,
       PRACTICED, COUNSEL, SOCIAL_HISTORY,
@@ -392,7 +395,7 @@ public interface Backgrounds {
     
     AESTHETE = new Background(
       Backgrounds.class,
-      "Aesthete", "aesthete_male_skin.gif", "aesthete_portrait.png",
+      "Aesthete", "", "aesthete_male_skin.gif", "aesthete_portrait.png",
       CLASS_FREEMEN, GUILD_AESTHETE,
       EXPERT, GRAPHIC_DESIGN, PRACTICED, HANDICRAFTS, LEARNING, ANATOMY,
       RARELY, STUBBORN, IMPASSIVE, OFTEN, INDULGENT,
@@ -409,14 +412,14 @@ public interface Backgrounds {
     //  leave your settlement, but can't.  Free Traders peddle small goods.
     SCAVENGER = new Background(
       Backgrounds.class,
-      "Scavenger", "native_skin.gif", null,
+      "Scavenger", "", "native_skin.gif", null,
       CLASS_VASSAL, NOT_A_GUILD,
       LEARNING, STEALTH_AND_COVER, NOVICE, HANDICRAFTS,
       OFTEN, NERVOUS, ACQUISITIVE, RARELY, RELAXED
     ),
     FREE_TRADER = new Background(
       Backgrounds.class,
-      "Free Trader", "pyon_skin.gif", "pyon_portrait.png",
+      "Free Trader", "", "pyon_skin.gif", "pyon_portrait.png",
       CLASS_VASSAL, NOT_A_GUILD,
       PRACTICED, SUASION, LEARNING, HANDICRAFTS, ACCOUNTING, DOMESTICS,
       NATIVE_TABOO, COMMON_CUSTOM,
@@ -426,14 +429,14 @@ public interface Backgrounds {
     //  Mechanics and captains keep your dropships in working order.
     SHIP_MECHANIC = new Background(
       Backgrounds.class,
-      "Ship Mechanic", "artificer_skin.gif", "artificer_portrait.png",
+      "Ship Mechanic", "", "artificer_skin.gif", "artificer_portrait.png",
       CLASS_VASSAL, NOT_A_GUILD,
       PRACTICED, ASSEMBLY, HARD_LABOUR,
       LEARNING, FIELD_THEORY, SHIELD_AND_ARMOUR
     ),
     SHIP_CAPTAIN = new Background(
       Backgrounds.class,
-      "Ship Captain", null, "pyon_portrait.png",
+      "Ship Captain", "", null, "pyon_portrait.png",
       CLASS_FREEMEN, NOT_A_GUILD,
       EXPERT, PILOTING, MARKSMANSHIP, PRACTICED, COMMAND, SUASION,
       LEARNING, ASTROGATION, BATTLE_TACTICS, COMMON_CUSTOM,
@@ -444,7 +447,7 @@ public interface Backgrounds {
     //  if the place needs their services.
     RUNNER = new Background(
       Backgrounds.class,
-      "Runner", "runner_skin.gif", "vendor_portrait.png",
+      "Runner", "", "runner_skin.gif", "vendor_portrait.png",
       CLASS_FREEMEN, NOT_A_GUILD,
       EXPERT, PILOTING, MARKSMANSHIP, STEALTH_AND_COVER,
       PRACTICED, SUASION, SURVEILLANCE, MASQUERADE,
@@ -453,7 +456,7 @@ public interface Backgrounds {
     ),
     COMPANION = new Background(
       Backgrounds.class,
-      "Companion", "aesthete_female_skin.gif", "aesthete_portrait.png",
+      "Companion", "", "aesthete_female_skin.gif", "aesthete_portrait.png",
       CLASS_FREEMEN, NOT_A_GUILD,
       EXPERT, EROTICS, COUNSEL, SUASION, MASQUERADE, NOBLE_ETIQUETTE,
       PRACTICED, DOMESTICS, MUSIC_AND_SONG, COMMAND, HAND_TO_HAND,
@@ -477,7 +480,7 @@ public interface Backgrounds {
     //  You'll always get a few of these in a given native village-
     GATHERER = new Background(
       Backgrounds.class,
-      "Gatherer", "native_skin.gif", null,
+      "Gatherer", "", "native_skin.gif", null,
       CLASS_NATIVE, NOT_A_GUILD,
       EXPERT, HANDICRAFTS, DOMESTICS,
       PRACTICED, CULTIVATION, HARD_LABOUR, NATIVE_TABOO,
@@ -486,7 +489,7 @@ public interface Backgrounds {
     ),
     HUNTER = new Background(
       Backgrounds.class,
-      "Hunter", "native_skin.gif", null,
+      "Hunter", "", "native_skin.gif", null,
       CLASS_NATIVE, NOT_A_GUILD,
       EXPERT, SURVEILLANCE, STEALTH_AND_COVER,
       PRACTICED, MARKSMANSHIP, XENOZOOLOGY, ATHLETICS,
@@ -496,7 +499,7 @@ public interface Backgrounds {
     ),
     SHAMAN = new Background(
       Backgrounds.class,
-      "Shaman", "native_skin.gif", null,
+      "Shaman", "", "native_skin.gif", null,
       CLASS_NATIVE, NOT_A_GUILD,
       EXPERT, NATIVE_TABOO, COUNSEL, PRACTICED, CULTIVATION,
       LEARNING, PHARMACY, ANATOMY, ANCIENT_LORE, MUSIC_AND_SONG,
@@ -504,7 +507,7 @@ public interface Backgrounds {
     ),
     CHIEFTAIN = new Background(
       Backgrounds.class,
-      "Chieftain", "native_skin.gif", null,
+      "Chieftain", "", "native_skin.gif", null,
       CLASS_NATIVE, NOT_A_GUILD,
       EXPERT, NATIVE_TABOO, COMMAND, SUASION, MARKSMANSHIP,
       PRACTICED, HAND_TO_HAND, BATTLE_TACTICS, SURVEILLANCE,
@@ -527,7 +530,7 @@ public interface Backgrounds {
     //  Aristocratic titles are for the benefit of the player-character:
     KNIGHTED = new Background(
       Backgrounds.class,
-      "Knighted", "highborn_male_skin.gif", "highborn_portrait.png",
+      "Knighted", "", "highborn_male_skin.gif", "highborn_portrait.png",
       CLASS_STRATOI, NOT_A_GUILD,
       PRACTICED, HAND_TO_HAND, BATTLE_TACTICS, SHIELD_AND_ARMOUR, COMMAND,
       NOBLE_ETIQUETTE, LEARNING, ACCOUNTING, ANCIENT_LORE, COMMON_CUSTOM,
@@ -544,7 +547,7 @@ public interface Backgrounds {
     },
     BARON = new Background(
       Backgrounds.class,
-      "Baron", "highborn_male_skin.gif", "highborn_portrait.png",
+      "Baron", "", "highborn_male_skin.gif", "highborn_portrait.png",
       CLASS_STRATOI, NOT_A_GUILD,
       EXPERT, HAND_TO_HAND, BATTLE_TACTICS, SHIELD_AND_ARMOUR, COMMAND,
       NOBLE_ETIQUETTE, PRACTICED, ACCOUNTING, ANCIENT_LORE, COMMON_CUSTOM,
@@ -561,7 +564,7 @@ public interface Backgrounds {
     },
     COUNT = new Background(
       Backgrounds.class,
-      "Count", "highborn_male_skin.gif", "highborn_portrait.png",
+      "Count", "", "highborn_male_skin.gif", "highborn_portrait.png",
       CLASS_STRATOI, NOT_A_GUILD,
       MASTER, HAND_TO_HAND, BATTLE_TACTICS, SHIELD_AND_ARMOUR, COMMAND,
       NOBLE_ETIQUETTE, EXPERT, ACCOUNTING, ANCIENT_LORE, COMMON_CUSTOM,
@@ -585,7 +588,7 @@ public interface Backgrounds {
     //  Your family, servants, bodyguards and captives-
     FIRST_CONSORT = new Background(
       Backgrounds.class,
-      "First Consort", "highborn_female_skin.gif", "aesthete_portrait.png",
+      "First Consort", "", "highborn_female_skin.gif", "aesthete_portrait.png",
       CLASS_STRATOI, NOT_A_GUILD,
       PRACTICED, COMMAND, SUASION, LEARNING, EROTICS, MASQUERADE, DOMESTICS,
       RARELY, IMPASSIVE, STUBBORN, OFTEN, AMBITIOUS, ACQUISITIVE,
@@ -609,12 +612,12 @@ public interface Backgrounds {
       }
     },
     MINISTER_FOR_ACCOUNTS = new Background(
-      Backgrounds.class, "Minister for Accounts", "vendor_skin.gif", null,
+      Backgrounds.class, "Minister for Accounts", "", "vendor_skin.gif", null,
       CLASS_STRATOI, NOT_A_GUILD,
       EXPERT, ACCOUNTING, PRACTICED, SOCIAL_HISTORY, COUNSEL, SUASION
     ),
     WAR_MASTER = new Background(
-      Backgrounds.class, "War Master", "highborn_male_skin.gif", null,
+      Backgrounds.class, "War Master", "", "highborn_male_skin.gif", null,
       CLASS_STRATOI, NOT_A_GUILD,
       EXPERT, HAND_TO_HAND, SHIELD_AND_ARMOUR, BATTLE_TACTICS, PRACTICED,
       SURVEILLANCE, MARKSMANSHIP
@@ -622,7 +625,7 @@ public interface Backgrounds {
     
     
     STEWARD = new Background(
-      Backgrounds.class, "Steward", "citizen_skin.gif", null,
+      Backgrounds.class, "Steward", "", "citizen_skin.gif", null,
       CLASS_FREEMEN, NOT_A_GUILD,
       EXPERT, DOMESTICS, PRACTICED, PHARMACY, ANATOMY, COUNSEL,
       GENE_CULTURE, LEARNING, NOBLE_ETIQUETTE,
@@ -638,7 +641,7 @@ public interface Backgrounds {
     //  Chamber, and politically have a similar degree of influence (Consuls,
     //  in principle, are on an equal footing with the Emperor/Empress.)
     PREFECT = new Background(
-      Backgrounds.class, "Prefect", "physician_skin.gif", null,
+      Backgrounds.class, "Prefect", "", "physician_skin.gif", null,
       CLASS_STRATOI, NOT_A_GUILD,
       PRACTICED, COUNSEL, SUASION, ACCOUNTING, COMMON_CUSTOM,
       LEARNING, NOBLE_ETIQUETTE, SOCIAL_HISTORY, BATTLE_TACTICS, COMMAND,

@@ -30,7 +30,7 @@ public class Farming extends Plan {
   
   
   public Farming(Actor actor, Nursery plantation) {
-    super(actor, plantation, true);
+    super(actor, plantation, true, NO_HARM);
     this.nursery = plantation;
   }
   

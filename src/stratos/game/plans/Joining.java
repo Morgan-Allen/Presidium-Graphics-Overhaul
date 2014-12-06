@@ -17,7 +17,7 @@ public class Joining extends Plan {
   
   
   public Joining(Actor actor, Plan basis, Actor joined) {
-    super(actor, basis.subject, basis.persistent());
+    super(actor, basis.subject, basis.persistent(), MILD_HELP);
     this.basis = (basis.actor() == actor) ? basis : basis.copyFor(actor);
     this.joined = joined;
   }

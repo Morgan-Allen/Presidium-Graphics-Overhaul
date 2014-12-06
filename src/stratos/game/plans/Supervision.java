@@ -30,7 +30,7 @@ public class Supervision extends Plan {
   
   
   public Supervision(Actor actor, Venue supervised) {
-    super(actor, supervised, false);
+    super(actor, supervised, false, NO_HARM);
     this.venue = supervised;
   }
   

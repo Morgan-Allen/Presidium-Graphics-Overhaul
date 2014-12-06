@@ -21,11 +21,12 @@ public class Steps extends Plan {
   
   
   public Steps(
-    Actor actor, Target key, float priority, boolean persistent,
+    Actor actor, Target key,
+    float priority, boolean persistent, float harmFactor,
     String title,
     Action... actions
   ) {
-    super(actor, key, persistent);
+    super(actor, key, persistent, harmFactor);
     this.priority = priority;
     for (Action a : actions) this.actions.add(a);
     

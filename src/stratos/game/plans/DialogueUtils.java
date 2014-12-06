@@ -3,18 +3,15 @@
 
 package stratos.game.plans;
 import stratos.game.actors.*;
-import stratos.game.civilian.Transcript;
+import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.graphics.sfx.TalkFX;
 import stratos.util.*;
-
 import org.apache.commons.math3.util.FastMath;
 
 
 
-
 public class DialogueUtils implements Qualities {
-  
   
   
   /**  Helper methods for elaborating on chat options-
@@ -53,7 +50,10 @@ public class DialogueUtils implements Qualities {
     
     //  TODO:  Decrease novelty through a separate call?  Or base on having
     //  fresh information?
-    other.relations.incRelation(actor, success * Relation.MAG_CHATTING, 0.1f);
+    final float noveltyInc = -1f / Dialogue.BORED_DURATION;
+    other.relations.incRelation(
+      actor, success * Dialogue.RELATION_BOOST, 0.1f, noveltyInc
+    );
     
     switch (Rand.index(3)) {
       case (0) : anecdote(actor, other); break;
@@ -98,9 +98,10 @@ public class DialogueUtils implements Qualities {
       similarity = (1 - Math.abs(levelA - levelO));
     final String desc = actor.traits.description(comp);
     
-    final float effect = similarity * Relation.MAG_CHATTING;
-    other.relations.incRelation(actor, effect, 0.1f);
-    actor.relations.incRelation(other, effect, 0.1f);
+    final float effect = similarity * Dialogue.RELATION_BOOST;
+    final float noveltyInc = -1f / Dialogue.BORED_DURATION;
+    other.relations.incRelation(actor, effect, 0.1f, noveltyInc);
+    actor.relations.incRelation(other, effect, 0.1f, noveltyInc);
     
     utters(actor, "It's important to be "+desc+".", 0);
     if (similarity > 0.5f) utters(other, "Absolutely.", effect);
@@ -132,12 +133,13 @@ public class DialogueUtils implements Qualities {
       attA = actor.relations.valueFor(about),
       attO = other.relations.valueFor(about);
     
-
     final boolean agrees = FastMath.abs(attA - attO) < 0.5f;
-    final float effect = 0.2f * (agrees ? 1 : -1) * Relation.MAG_CHATTING;
-    other.relations.incRelation(actor, effect / 2, 0.1f);
-    actor.relations.incRelation(other, effect / 2, 0.1f);
-    other.relations.incRelation(about, effect * pick.value(), 0.1f);
+    final float effect = 0.2f * (agrees ? 1 : -1) * Dialogue.RELATION_BOOST;
+    
+    final float noveltyInc = -1f / Dialogue.BORED_DURATION;
+    other.relations.incRelation(actor, effect / 2, 0.1f, noveltyInc);
+    actor.relations.incRelation(other, effect / 2, 0.1f, noveltyInc);
+    other.relations.incRelation(about, effect * pick.value(), 0.1f, 0);
     
     utters(other, "What do you think of "+about+"?", 0);
     if (attA > 0.33f) {
@@ -182,9 +184,11 @@ public class DialogueUtils implements Qualities {
     else effect -= 5;
     if (other.skills.test(tested, level * Rand.num(), 0.5f)) effect += 5;
     else effect -= 5;
-    effect *= Relation.MAG_CHATTING / 25f;
-    other.relations.incRelation(actor, effect, 0.1f);
-    actor.relations.incRelation(other, effect, 0.1f);
+    effect *= Dialogue.RELATION_BOOST / 25f;
+    
+    final float noveltyInc = -1f / Dialogue.BORED_DURATION;
+    other.relations.incRelation(actor, effect, 0.1f, noveltyInc);
+    actor.relations.incRelation(other, effect, 0.1f, noveltyInc);
     
     if (effect > 0) {
       utters(other, "You mean like this?", effect);
@@ -228,7 +232,7 @@ public class DialogueUtils implements Qualities {
     else if (effect > 0) sign = " (+)";
     else sign = " (-)";
     
-    final Target opposite = a.focusFor(null);
+    final Target opposite = a.planFocus(Dialogue.class);
     final int side = (opposite == null) ? TalkFX.FROM_RIGHT : (
       onRight(a, opposite) ? TalkFX.FROM_RIGHT : TalkFX.FROM_LEFT
     );

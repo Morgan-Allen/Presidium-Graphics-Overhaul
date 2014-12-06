@@ -22,14 +22,14 @@ public class Looting extends Plan {
     */
   private static boolean
     evalVerbose  = false,
-    stepsVerbose = false;
+    stepsVerbose = true ;
   
   final Owner mark;
   final Item taken;
   
   
   public Looting(Actor actor, Owner subject, Item taken) {
-    super(actor, subject, false);
+    super(actor, subject, false, MILD_HARM);
     this.mark  = subject;
     this.taken = taken;
   }
@@ -127,24 +127,57 @@ public class Looting extends Plan {
   
   
   public int motionType(Actor actor) {
+    //  TODO:  Only sneak if hostiles are visible?
     return Action.MOTION_SNEAK;
   }
   
   
+  protected int evaluationInterval() {
+    return 1;
+  }
+  
+  
   protected Behaviour getNextStep() {
+    final boolean report = stepsVerbose && I.talkAbout == actor && hasBegun();
+    if (report) I.say("\nGetting next step for looting.");
     //  In essence, you just need to sneak up on the target without being seen
     //  and nick their stuff.
     
-    //  TODO:  Return the goods to a drop, if specified
+    //  TODO:  Return the goods to a drop point, if specified.
     if (mark.inventory().amountOf(taken) <= 0) return null;
     if (actor.gear.hasItem(taken)) return null;
     
+    //  If you've been spotted, try to shake the pursuit!
+    if (actor.world().activities.includesActivePlan(actor, null)) {
+      if (report) I.say("  You've been spotted!  Scram!");
+      
+      final float range = actor.health.sightRange();
+      final Target point = Retreat.pickHidePoint(actor, range, actor, false);
+      final Action hide = new Action(
+        actor, actor,
+        this, "actionHide",
+        Action.MOVE_SNEAK, "Hiding from "
+      );
+      hide.setProperties(Action.QUICK | Action.NO_LOOP);
+      hide.setMoveTarget(point);
+      return hide;
+    }
+    
+    if (report) I.say("  Looting it is.");
     final Action loot = new Action(
       actor, mark,
       this, "actionLoot",
-      Action.REACH_DOWN, "Looting"
+      Action.REACH_DOWN, "Looting "
     );
     return loot;
+  }
+  
+  
+  public boolean actionHide(Actor actor, Actor self) {
+    final boolean report = stepsVerbose && I.talkAbout == actor;
+    if (report) I.say("\nHiding at "+self.origin());
+    
+    return Senses.breaksPursuit(actor);
   }
   
   
@@ -165,10 +198,9 @@ public class Looting extends Plan {
   /**  Rendering and interface methods-
     */
   public void describeBehaviour(Description d) {
-    d.append("Looting ");
-    d.append(taken);
-    d.append(" from ");
-    d.append(mark);
+    if (needsSuffix(d, "Looting ")) {
+      d.append(mark);
+    }
   }
 }
 

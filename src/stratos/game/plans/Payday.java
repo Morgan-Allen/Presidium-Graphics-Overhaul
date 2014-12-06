@@ -10,8 +10,7 @@ import stratos.game.actors.*;
 import stratos.game.campaign.BaseFinance;
 import stratos.game.civilian.*;
 import stratos.game.common.*;
-import stratos.game.economic.Economy;
-import stratos.game.economic.Venue;
+import stratos.game.economic.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
@@ -26,18 +25,18 @@ public class Payday extends Plan {
     */
   private static boolean verbose = false;
   
-  final Employer pays;
+  final Liveable pays;
   
   
-  public Payday(Actor actor, Employer pays) {
-    super(actor, pays, true);
+  public Payday(Actor actor, Liveable pays) {
+    super(actor, pays, true, NO_HARM);
     this.pays = pays;
   }
   
   
   public Payday(Session s) throws Exception {
     super(s);
-    this.pays = (Employer) s.loadObject();
+    this.pays = (Liveable) s.loadObject();
   }
   
   

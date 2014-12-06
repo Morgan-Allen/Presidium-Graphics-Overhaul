@@ -23,6 +23,8 @@ public class Relation {
   
   /**  Fields, constructors, save/load methods and identity functions-
     */
+  //  TODO:  Move most of these to the ActorRelations class.
+  
   final public static int
     TYPE_GENERIC = 0,
     TYPE_CHILD   = 1,
@@ -31,22 +33,10 @@ public class Relation {
     TYPE_SIBLING = 4,
     TYPE_LORD    = 5,
     TYPE_VASSAL  = 6;
-  
-  final public static float
-    MIN_ADJUST    =  0.1f,
-    MAG_KILLING   = -1.0f,
-    MAG_HARMING   = -0.5f,
-    MAG_CHATTING  = 0.33f,
-    MAG_HELPING   = 0.66f,
-    MAG_SAVE_LIFE = 1.00f;
-  
-  
-  final public static int
-    MAX_VALUE        = 100,
-    NOVELTY_INTERVAL = Stage.STANDARD_DAY_LENGTH  * 2,
-    BORED_DURATION   = Stage.STANDARD_HOUR_LENGTH * 2,
-    BASE_NUM_FRIENDS = 5 ,
-    MAX_RELATIONS    = 10;
+  final static float  
+    //  NOTE:  Not used externally...
+    MIN_ADJUST   = 0.1f,
+    MAX_VALUE    = 100 ;
   
   private static boolean verbose = false;
   
@@ -60,14 +50,13 @@ public class Relation {
   
   
   public Relation(
-    Accountable object, Accountable subject, float initLevel, float initNovelty
+    Accountable object, Accountable subject, float initValue, float initNovelty
   ) {
-    this.object = object;
+    this.object  = object;
     this.subject = subject;
-    
-    this.hash = Table.hashFor(object, subject);
-    this.attitude = initLevel * MAX_VALUE;
-    this.novelty = initNovelty * MAX_VALUE;
+    this.hash     = Table.hashFor(object, subject);
+    this.attitude = initValue   * MAX_VALUE;
+    this.novelty  = initNovelty * MAX_VALUE;
   }
   
   
@@ -110,13 +99,6 @@ public class Relation {
   
   /**  Accessing and modifying the content of the relationship-
     */
-  protected void update() {
-    //  
-    final float inRange = (1 + value()) / 2f;
-    novelty += MAX_VALUE * 1f * inRange / NOVELTY_INTERVAL;
-  }
-  
-  
   public float value() {
     return attitude / MAX_VALUE;
   }
@@ -134,6 +116,17 @@ public class Relation {
   
   protected void initRelation(float attitude, int type) {
     this.attitude = attitude;
+    this.type = type;
+  }
+  
+  
+  public void setValue(float value, float novelty) {
+    this.attitude = value   * MAX_VALUE;
+    this.novelty  = novelty * MAX_VALUE;
+  }
+  
+  
+  public void setType(int type) {
     this.type = type;
   }
   
@@ -170,20 +163,18 @@ public class Relation {
       I.say("  Budge factor: "+budge+", gap factor: "+gap);
       I.say("  Final value: "+value());
     }
+    
+    /*
     //  TODO:  Only decrease novelty as a result of conversation- other
     //  impact factors actually *increase* the novelty of the relationship.
     novelty -= MAX_VALUE * 1f / BORED_DURATION;
+    //*/
   }
   
   
-  public void setValue(float value, float novelty) {
-    this.attitude = value   * MAX_VALUE;
-    this.novelty  = novelty * MAX_VALUE;
-  }
-  
-  
-  public void setType(int type) {
-    this.type = type;
+  public void incNovelty(float inc) {
+    novelty += inc * MAX_VALUE;
+    if (novelty < 0) novelty = 0;
   }
 
   

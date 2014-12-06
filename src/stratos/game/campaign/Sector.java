@@ -47,8 +47,6 @@ public class Sector extends Background {
   
   
   final public String houseName;
-  final public String description;
-  
   final Traded goodsMade[], goodsNeeded[];
   final public Trait climate;
   final public int gravity;
@@ -56,15 +54,16 @@ public class Sector extends Background {
   //  TODO:  Include information about distances here, loaded from XML.
   
   
-  
   public Sector(
     Class baseClass,
     String name, String houseName, String description,
     Trait climate, int gravity, Object... args
   ) {
-    super(baseClass, name, null, null, -1, Backgrounds.NOT_A_GUILD, args);
+    super(
+      baseClass, name, description, null, null,
+      -1, Backgrounds.NOT_A_GUILD, args
+    );
     this.houseName = houseName;
-    this.description = description;
     
     this.climate = climate;
     this.gravity = gravity;

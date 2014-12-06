@@ -70,7 +70,7 @@ public class Combat extends Plan implements Qualities {
   public Combat(
     Actor actor, Element target, int style, int object, boolean pursue
   ) {
-    super(actor, target, pursue);
+    super(actor, target, pursue, REAL_HARM);
     this.style  = style ;
     this.object = object;
     this.pursue = pursue;
@@ -303,7 +303,7 @@ public class Combat extends Plan implements Qualities {
       //
       //  If not under fire, consider advancing for a clearer shot-
       if (Rand.num() < distance && ! underFire) {
-        final Target AP = Retreat.pickWithdrawPoint(
+        final Target AP = Retreat.pickHidePoint(
           actor, range, struck, true
         );
         if (AP != null) { dodged = true; strike.setMoveTarget(AP); }
@@ -311,7 +311,7 @@ public class Combat extends Plan implements Qualities {
       //
       //  Otherwise, consider falling back for cover-
       if (underFire && Rand.num() > distance) {
-        final Target WP = Retreat.pickWithdrawPoint(
+        final Target WP = Retreat.pickHidePoint(
           actor, range, struck, false
         );
         if (WP != null) { dodged = true; strike.setMoveTarget(WP); }

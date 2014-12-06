@@ -22,7 +22,6 @@ public interface Target {
   
   void flagWith(Object f);
   Object flaggedWith();
-  
 }
 
 

@@ -2,6 +2,7 @@
 
 
 package stratos.game.wild;
+import stratos.game.actors.Background;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
@@ -96,6 +97,11 @@ public class SpiceMidden extends Fixture implements Selectable {
       "Spice ingestion becomes concentrated in the upper echelons of the "+
       "food chain, and is often used as a territorial marker by top "+
       "predators.";
+  }
+  
+  
+  public String objectCategory() {
+    return UIConstants.TYPE_TERRAIN;
   }
 
 

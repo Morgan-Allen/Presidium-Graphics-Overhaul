@@ -15,16 +15,14 @@ import stratos.graphics.solids.*;
 import stratos.user.*;
 import stratos.util.*;
 
-import org.apache.commons.math3.util.FastMath;
-
 import static stratos.game.actors.Qualities.*;
-
+import org.apache.commons.math3.util.FastMath;
 
 
 //  TODO:  ...You need to arrange for actions to terminate if you wind up
 //  staying in one place too long (which likely means you're stuck.)
+
 public class Action implements Behaviour, AnimNames {
-  
   
   
   /**  Field definitions, constants and constructors-
@@ -45,6 +43,7 @@ public class Action implements Behaviour, AnimNames {
   
   private static boolean
     verbose     = false,
+    verboseMove = false,
     verboseAnim = false;
   
   
@@ -231,11 +230,11 @@ public class Action implements Behaviour, AnimNames {
     if (quick()  ) motionType = MOTION_FAST ;
     if (careful()) motionType = MOTION_SNEAK;
     
-    for (Behaviour b : actor.mind.agenda) if (b != this) {
+    if (motionType == MOTION_NORMAL) for (Behaviour b : actor.mind.agenda) {
+      if (b == this) continue;
       final int MT = b.motionType(actor);
       if (MT != MOTION_ANY) { motionType = MT; break; }
     }
-    
     return motionType;
   }
   
@@ -268,7 +267,7 @@ public class Action implements Behaviour, AnimNames {
   
   
   private float updateMotion(boolean active, int motionType) {
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = verboseMove && I.talkAbout == actor;
     
     //  Firstly, we establish current displacements between actor and target,
     //  motion target & action target, how far the actor can see, and whether
@@ -408,9 +407,13 @@ public class Action implements Behaviour, AnimNames {
   
   protected void updateAction(boolean active) {
     final boolean report = verbose && I.talkAbout == actor;
-    if (report) I.say("Updating action: "+progress+", target: "+actionTarget);
+    if (report) {
+      I.say("\nUpdating action for: "+actor+"  Target: "+actionTarget);
+      I.say("  Method is: "+methodName()+", basis "+basis.getClass());
+    }
+    
     if (finished()) {
-      if (report) I.say("Finished!");
+      if (report) I.say("  Finished!");
       oldProgress = progress = 1;
       return;
     }
@@ -420,16 +423,27 @@ public class Action implements Behaviour, AnimNames {
     final float moveRate = updateMotion(active, motionType);
     
     if (moveState == STATE_CLOSED) {
+      final float contact = contactTime();
       progress += 1f / (actionDuration() * Stage.UPDATES_PER_SECOND);
       progress = Visit.clamp(progress, 0, 1);
-      final float contact = contactTime();
-      if (oldProgress <= contact && progress > contact) applyEffect();
+      if (report) {
+        I.say("  Have closed on target, contact at "+contact);
+        I.say("  Old/new progress: "+oldProgress+"/"+progress);
+      }
+      if (oldProgress <= contact && progress > contact) {
+        if (report) I.say("  Applying effect...");
+        applyEffect();
+      }
     }
     
     else if (moveState != STATE_INIT) {
       float speedUp = moveRate / actor.health.baseSpeed();
       speedUp = (1 + speedUp) / (2 * Stage.UPDATES_PER_SECOND);
       progress += actor.moveAnimStride() * speedUp;
+      if (report) {
+        I.say("  Moving into position...");
+        I.say("  Old/new progress: "+oldProgress+"/"+progress);
+      }
     }
   }
   

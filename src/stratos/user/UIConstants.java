@@ -30,6 +30,7 @@ public interface UIConstants {
   //  optionally filter them along those lines.
   
   final public static String
+    
     TYPE_MILITANT  = "Militant" ,
     TYPE_MERCHANT  = "Merchant" ,
     TYPE_AESTHETE  = "Aesthete" ,
@@ -41,8 +42,13 @@ public interface UIConstants {
       TYPE_MILITANT, TYPE_MERCHANT, TYPE_AESTHETE,
       TYPE_ARTIFICER, TYPE_ECOLOGIST, TYPE_PHYSICIAN
     },
-    TYPE_SPECIAL   = "Special" ,
-    TYPE_HIDDEN    = "<hidden>";
+    
+    TYPE_SPECIAL   = "Special"  ,
+    TYPE_HIDDEN    = "<hidden>" ,
+    TYPE_ACTOR     = "<actor>"  ,
+    TYPE_VEHICLE   = "<vehicle>",
+    TYPE_TERRAIN   = "<terrain>",
+    TYPE_MISSION   = "<mission>";
   
   
   

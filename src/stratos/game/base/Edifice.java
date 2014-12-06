@@ -138,7 +138,7 @@ public class Edifice extends Venue {
   }
   
 
-  public String buildCategory() {
+  public String objectCategory() {
     return UIConstants.TYPE_AESTHETE;
   }
 }

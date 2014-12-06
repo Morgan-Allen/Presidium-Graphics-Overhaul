@@ -75,7 +75,7 @@ public class ForcePylon extends Venue implements Selectable {
   }
   
   
-  public String buildCategory() {
+  public String objectCategory() {
     //  TODO:  Come back to this later, once pseer guild is complete.
     return InstallTab.TYPE_HIDDEN;
   }

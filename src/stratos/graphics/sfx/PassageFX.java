@@ -84,13 +84,13 @@ public class PassageFX extends SFX implements TileConstants {
   
   
   private static Vec3D vertAtIndex(int n) {
-    return new Vec3D(N_X[n] / 2f, N_Y[n] / 2f, 0);
+    return new Vec3D(T_X[n] / 2f, T_Y[n] / 2f, 0);
   }
   
   
   private static Vec3D[] constructTileTemplate() {
     final Vec3D temp[] = new Vec3D[8 * 3];
-    int i = 0; for (int n : N_INDEX) {
+    int i = 0; for (int n : T_INDEX) {
       temp[i++] = vertAtIndex((n + 1) % 8);
       temp[i++] = vertAtIndex(n);
       temp[i++] = new Vec3D(0, 0, 0);

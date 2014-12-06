@@ -194,7 +194,7 @@ public class Arcology extends Structural {
   }
   
   
-  public String buildCategory() {
+  public String objectCategory() {
     return InstallTab.TYPE_AESTHETE;
   }
 }

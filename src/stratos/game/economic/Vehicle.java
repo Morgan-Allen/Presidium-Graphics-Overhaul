@@ -19,7 +19,7 @@ import stratos.util.*;
 
 
 public abstract class Vehicle extends Mobile implements
-  Boarding, Inventory.Owner, Employer,
+  Boarding, Inventory.Owner, Liveable,
   Selectable, Installation
 {
   
@@ -168,7 +168,7 @@ public abstract class Vehicle extends Mobile implements
     *  venues themselves, so these methods aren't much used.
     */
   public int buildCost() { return structure.buildCost(); }
-  public String buildCategory() { return UIConstants.TYPE_HIDDEN; }
+  public String objectCategory() { return UIConstants.TYPE_HIDDEN; }
   
   public void doPlacement() {}
   public void previewPlacement(boolean canPlace, Rendering rendering) {}

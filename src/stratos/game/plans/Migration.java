@@ -30,7 +30,7 @@ public class Migration extends Plan {
   
   
   public Migration(Actor actor) {
-    super(actor, actor, true);
+    super(actor, actor, true, NO_HARM);
   }
   
   

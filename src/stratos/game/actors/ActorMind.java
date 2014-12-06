@@ -36,7 +36,7 @@ public abstract class ActorMind implements Qualities {
   final List <Behaviour> todoList = new List <Behaviour> ();
   
   protected Mission mission;
-  protected Employer home, work;
+  protected Liveable home, work;
   protected Actor master;
   
   
@@ -51,8 +51,8 @@ public abstract class ActorMind implements Qualities {
     s.loadObjects(todoList);
     
     mission = (Mission) s.loadObject();
-    home = (Employer) s.loadObject();
-    work = (Employer) s.loadObject();
+    home = (Liveable) s.loadObject();
+    work = (Liveable) s.loadObject();
     //application = (Application) s.loadObject();
     master = (Actor) s.loadObject();
   }
@@ -255,7 +255,7 @@ public abstract class ActorMind implements Qualities {
   //*/
   
   
-  public void setWork(Employer e) {
+  public void setWork(Liveable e) {
     if (work == e) return;
     if (work != null) work.personnel().setWorker(actor, false);
     work = e;
@@ -263,13 +263,13 @@ public abstract class ActorMind implements Qualities {
   }
   
   
-  public Employer work() {
+  public Liveable work() {
     return work;
   }
   
   
-  public void setHome(Employer home) {
-    final Employer old = this.home;
+  public void setHome(Liveable home) {
+    final Liveable old = this.home;
     if (old == home) return;
     if (old != null) old.personnel().setResident(actor, false);
     this.home = home;
@@ -277,7 +277,7 @@ public abstract class ActorMind implements Qualities {
   }
   
   
-  public Employer home() {
+  public Liveable home() {
     return home;
   }
   
@@ -354,12 +354,13 @@ public abstract class ActorMind implements Qualities {
     
     final Behaviour replaced = rootBehaviour();
     cancelBehaviour(replaced);
-    pushBehaviour(behaviour);
     
     if (replaced != null && ! replaced.finished() && replaced.persistent()) {
       if (report) I.say(" SAVING PLAN AS TODO: "+replaced);
       todoList.include(replaced);
     }
+    
+    pushBehaviour(behaviour);
   }
   
   

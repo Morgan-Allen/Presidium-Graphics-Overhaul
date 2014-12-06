@@ -332,7 +332,6 @@ public abstract class Actor extends Mobile implements
   
   
   //  TODO:  Move these to the Mind class-
-  
   public boolean isDoingAction(String actionMethod, Target target) {
     if (actionTaken == null) return false;
     if (target != null && actionTaken.subject() != target) return false;
@@ -341,23 +340,32 @@ public abstract class Actor extends Mobile implements
   
   
   public boolean isDoing(Class <? extends Plan> planClass, Target target) {
-    final Target focus = focusFor(planClass);
+    final Target focus = planFocus(planClass);
     return (target == null) ? (focus != null) : (focus == target);
   }
   
   
-  public float harmDoneTo(Target subject) {
+  public float harmIntended(Target subject) {
     for (Behaviour b : mind.agenda()) if (b instanceof Plan) {
       final Plan root = (Plan) b;
       if (subject != null && root.subject() != subject) return 0;
       return root.harmFactor();
     }
+    
+    if (subject == actionFocus() && mind.topBehaviour() instanceof Plan) {
+      return ((Plan) mind.topBehaviour()).harmFactor();
+    }
     return 0;
   }
   
   
-  public Target focusFor(Class <? extends Plan> planClass) {
-    if (currentAction() == null || ! currentAction().hasBegun()) return null;
+  public Target actionFocus() {
+    if (actionTaken == null || ! actionTaken.hasBegun()) return null;
+    return actionTaken.subject();
+  }
+  
+  
+  public Target planFocus(Class planClass) {
     final Plan match = matchFor(planClass);
     return match == null ? null : match.subject();
   }
@@ -473,6 +481,20 @@ public abstract class Actor extends Mobile implements
   
   public void whenTextClicked() {
     BaseUI.current().selection.pushSelection(this, false);
+  }
+  
+  
+  public String helpInfo() {
+    final Background b = vocation();
+    if (b != null) return b.info;
+    final Species s = species();
+    if (s != null) return s.info;
+    return "NO HELP ON THIS ITEM";
+  }
+  
+  
+  public String objectCategory() {
+    return UIConstants.TYPE_ACTOR;
   }
   
   
