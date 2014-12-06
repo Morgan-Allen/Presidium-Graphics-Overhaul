@@ -8,7 +8,6 @@ package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.campaign.BaseFinance;
-import stratos.game.civilian.BaseProfiles;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.user.*;

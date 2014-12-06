@@ -4,7 +4,6 @@
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.actors.ActorMind.*;
-import stratos.game.civilian.Dropship;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.user.*;

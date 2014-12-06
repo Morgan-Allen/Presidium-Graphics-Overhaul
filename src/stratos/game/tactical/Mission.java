@@ -3,7 +3,6 @@
 package stratos.game.tactical;
 import stratos.game.actors.*;
 import stratos.game.campaign.BaseFinance;
-import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.maps.Species;
 import stratos.graphics.common.*;

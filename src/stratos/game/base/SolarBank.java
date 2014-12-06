@@ -117,7 +117,7 @@ public class SolarBank extends Venue {
   
   
   
-  /**  Installation and placement methods-
+  /**  Structure.Basis and placement methods-
     */
   final static int
     PLACE_COORDS[] = {

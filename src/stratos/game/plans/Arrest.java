@@ -3,7 +3,6 @@
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.civilian.*;
 import stratos.game.economic.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
@@ -87,7 +86,7 @@ public class Arrest extends Plan {
   
   private boolean hasAuthority() {
     if (! CombatUtils.isArmed(actor)) return false;
-    final Liveable work = actor.mind.work();
+    final Property work = actor.mind.work();
     if (work == null) return false;
     if (Visit.arrayIncludes(work.services(), SERVICE_SECURITY)) {
       return true;
@@ -171,14 +170,14 @@ public class Arrest extends Plan {
       actor.mind.work()   :
       other.senses.haven();
     
-    if (! (holding instanceof Liveable)) {
+    if (! (holding instanceof Property)) {
       if (report) I.say("  No holding facility...");
       doneWarning = true;
       return false;
     }
     
     final Summons surrender = new Summons(
-      other, actor, (Liveable) holding,
+      other, actor, (Property) holding,
       authority ? Summons.TYPE_CAPTIVE : Summons.TYPE_SULKING
     );
     final float commandBonus = DialogueUtils.talkResult(

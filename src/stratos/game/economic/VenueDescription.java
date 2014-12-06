@@ -2,7 +2,6 @@
 
 package stratos.game.economic;
 import stratos.game.actors.*;
-import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
 import stratos.game.plans.*;
@@ -52,7 +51,7 @@ public class VenueDescription {
   
   
   public static SelectionInfoPane configSimplePanel(
-    Installation venue, SelectionInfoPane panel, BaseUI UI, String statusMessage
+    Structure.Basis venue, SelectionInfoPane panel, BaseUI UI, String statusMessage
   ) {
     if (panel == null) panel = new SelectionInfoPane(UI, venue, venue.portrait(UI));
     final Description d = panel.detail();
@@ -89,7 +88,7 @@ public class VenueDescription {
   
   
   private void describeCondition(
-    Installation v,
+    Structure.Basis v,
     Description d, BaseUI UI, boolean detail
   ) {
     

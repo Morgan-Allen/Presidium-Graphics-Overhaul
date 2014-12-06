@@ -355,9 +355,9 @@ public class Reactor extends Venue {
     final float damage = maxDamage * (1 - dist);
 
     if (e instanceof Wreckage) return;
-    else if (e instanceof Installation) {
+    else if (e instanceof Structure.Basis) {
       I.say("Doing "+damage+" to "+e);
-      ((Installation) e).structure().takeDamage(damage);
+      ((Structure.Basis) e).structure().takeDamage(damage);
     }
     else if (e instanceof Actor) {
       final Actor a = (Actor) e;

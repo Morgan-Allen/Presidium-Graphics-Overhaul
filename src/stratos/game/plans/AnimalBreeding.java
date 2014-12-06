@@ -11,7 +11,6 @@ import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.maps.*;
 import stratos.game.wild.*;
-import stratos.game.civilian.*;
 import stratos.game.economic.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
@@ -135,7 +134,7 @@ public class AnimalBreeding extends Plan {
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
     
-    final Liveable work = actor.mind.work();
+    final Property work = actor.mind.work();
     final boolean atWork = work != null && work.personnel().onShift(actor);
     
     final float priority = priorityForActorWith(

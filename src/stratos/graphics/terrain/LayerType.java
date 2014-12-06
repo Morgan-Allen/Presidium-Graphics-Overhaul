@@ -81,7 +81,11 @@ public abstract class LayerType implements TileConstants {
     }
     
     for (int n : T_INDEX) {
-      final int x = tx + T_X[n], y = ty + T_Y[n];
+      //  NOTE:  Due to some dumb legacy requirements of mine, I've had to swap
+      //  the X and Y coordinates here to maintain the usefulness of some
+      //  layer-patterns from an older version of the engine.  Remove later...
+      //  if I ever get time.
+      final int x = tx + T_Y[n], y = ty + T_X[n];
       try { near[n] = maskedAt(x, y, terrain); }
       catch (ArrayIndexOutOfBoundsException e) { near[n] = false; }
     }

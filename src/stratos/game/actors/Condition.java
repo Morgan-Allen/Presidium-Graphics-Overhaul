@@ -6,7 +6,6 @@
 
 
 package stratos.game.actors;
-import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.tactical.*;
 import stratos.util.*;

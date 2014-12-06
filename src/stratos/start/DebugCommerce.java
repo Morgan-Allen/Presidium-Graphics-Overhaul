@@ -106,7 +106,7 @@ public class DebugCommerce extends Scenario {
     Placement.establishVenue(looted, 5, 10, true, world, vendor);
     
     final Looting loots = new Looting(
-      runner, looted, Item.withAmount(Economy.GREENS, 1)
+      runner, looted, Item.withAmount(Economy.GREENS, 1), runnerMarket
     );
     loots.setMotive(Plan.MOTIVE_EMERGENCY, Plan.ROUTINE);
     runner.mind.assignBehaviour(loots);

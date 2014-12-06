@@ -283,7 +283,7 @@ public class ShieldWall extends Venue {
   
   
   
-  /**  Placement and Installation-
+  /**  Placement and Structure.Basis-
     */
   final static int
     SIDE_COORDS[][] = {

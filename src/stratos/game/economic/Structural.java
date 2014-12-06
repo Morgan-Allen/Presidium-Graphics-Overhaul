@@ -18,7 +18,7 @@ import stratos.game.wild.Wreckage;  //  TODO:  Move to same package?
 
 
 public abstract class Structural extends Fixture implements
-  Installation, TileConstants, Selectable, Schedule.Updates
+  Structure.Basis, TileConstants, Selectable, Schedule.Updates
 {
   
   
@@ -60,7 +60,7 @@ public abstract class Structural extends Fixture implements
   
   
   
-  /**  Installation methods-
+  /**  Structure.Basis methods-
     */
   public int buildCost() { return structure.buildCost(); }
   public Base base() { return base; }

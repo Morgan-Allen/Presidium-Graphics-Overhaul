@@ -6,10 +6,8 @@ import stratos.game.economic.*;
 import stratos.game.tactical.*;
 import stratos.game.actors.*;
 import stratos.game.plans.*;
-//import stratos.game.civilian.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
-//import stratos.start.PlayLoop;
 import stratos.util.*;
 
 import com.badlogic.gdx.math.Vector2;

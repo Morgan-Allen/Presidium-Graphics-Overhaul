@@ -90,10 +90,10 @@ public class Placement implements TileConstants {
   //  NOTE:  This method assumes that the fixtures in question will occupy a
   //  contiguous 'strip' or bloc for placement purposes.
   public static boolean checkPlacement(
-    Installation fixtures[], Stage world
+    Structure.Basis fixtures[], Stage world
   ) {
     Box2D limits = null;
-    for (Installation f : fixtures) {
+    for (Structure.Basis f : fixtures) {
       if (limits == null) limits = new Box2D(f.footprint());
       else limits.include(f.footprint());
     }
@@ -104,7 +104,7 @@ public class Placement implements TileConstants {
       fixtures[0].owningType()
     )) return false;
     
-    for (Installation f : fixtures) if (! f.canPlace()) return false;
+    for (Structure.Basis f : fixtures) if (! f.canPlace()) return false;
     return true;
   }
   
@@ -137,7 +137,7 @@ public class Placement implements TileConstants {
   ) {
     if (! findClearanceFor(v, near, world)) return null;
     
-    for (Installation i : v.structure.asGroup()) {
+    for (Structure.Basis i : v.structure.asGroup()) {
       i.doPlacement();
       if (intact || GameSettings.buildFree) {
         i.structure().setState(Structure.STATE_INTACT, 1.0f);

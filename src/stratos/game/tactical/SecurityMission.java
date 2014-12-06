@@ -6,7 +6,6 @@
 package stratos.game.tactical;
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.civilian.*;
 import stratos.game.economic.*;
 import stratos.game.plans.Patrolling;
 import stratos.graphics.widgets.*;

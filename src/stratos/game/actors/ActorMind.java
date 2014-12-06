@@ -4,8 +4,8 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.actors;
-import stratos.game.civilian.*;
 import stratos.game.common.*;
+import stratos.game.economic.Property;
 import stratos.game.maps.*;
 import stratos.game.tactical.*;
 import stratos.util.*;
@@ -28,7 +28,7 @@ public abstract class ActorMind implements Qualities {
   final List <Behaviour> todoList = new List <Behaviour> ();
   
   protected Mission mission;
-  protected Liveable home, work;
+  protected Property home, work;
   protected Actor master;
   
   
@@ -43,8 +43,8 @@ public abstract class ActorMind implements Qualities {
     s.loadObjects(todoList);
     
     mission = (Mission) s.loadObject();
-    home = (Liveable) s.loadObject();
-    work = (Liveable) s.loadObject();
+    home = (Property) s.loadObject();
+    work = (Property) s.loadObject();
     //application = (Application) s.loadObject();
     master = (Actor) s.loadObject();
   }
@@ -247,7 +247,7 @@ public abstract class ActorMind implements Qualities {
   //*/
   
   
-  public void setWork(Liveable e) {
+  public void setWork(Property e) {
     if (work == e) return;
     if (work != null) work.personnel().setWorker(actor, false);
     work = e;
@@ -255,13 +255,13 @@ public abstract class ActorMind implements Qualities {
   }
   
   
-  public Liveable work() {
+  public Property work() {
     return work;
   }
   
   
-  public void setHome(Liveable home) {
-    final Liveable old = this.home;
+  public void setHome(Property home) {
+    final Property old = this.home;
     if (old == home) return;
     if (old != null) old.personnel().setResident(actor, false);
     this.home = home;
@@ -269,7 +269,7 @@ public abstract class ActorMind implements Qualities {
   }
   
   
-  public Liveable home() {
+  public Property home() {
     return home;
   }
   

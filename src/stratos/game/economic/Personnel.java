@@ -8,7 +8,6 @@
 package stratos.game.economic;
 import stratos.game.actors.*;
 import stratos.game.campaign.*;
-import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.plans.*;
 import stratos.game.maps.*;
@@ -39,7 +38,7 @@ public class Personnel {
   private static boolean verbose = false;
   
   
-  final Liveable employs;
+  final Property employs;
   final List <FindWork>
     applications = new List <FindWork> ();
   final List <Actor>
@@ -50,7 +49,7 @@ public class Personnel {
   
   
   
-  Personnel(Liveable venue) {
+  Personnel(Property venue) {
     this.employs = venue;
   }
   

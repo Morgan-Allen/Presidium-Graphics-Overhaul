@@ -1,6 +1,6 @@
 
 
-package stratos.game.civilian;
+package stratos.game.tactical;
 import stratos.game.common.*;
 import stratos.game.plans.Dialogue;
 import stratos.graphics.common.*;

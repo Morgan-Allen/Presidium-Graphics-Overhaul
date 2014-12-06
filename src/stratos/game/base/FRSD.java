@@ -193,7 +193,7 @@ public class FRSD extends Venue {
   
   
   public LaunchHangar childHangar() {
-    for (Installation i : structure.asGroup()) if (i instanceof LaunchHangar) {
+    for (Structure.Basis i : structure.asGroup()) if (i instanceof LaunchHangar) {
       return (LaunchHangar) i;
     }
     return null;

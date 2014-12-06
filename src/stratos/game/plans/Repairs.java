@@ -22,10 +22,10 @@ public class Repairs extends Plan {
     TIME_PER_25_HP     = Stage.STANDARD_HOUR_LENGTH / 2,
     MIN_SERVICE_DAMAGE = 0.25f;
   
-  final Installation built;
+  final Structure.Basis built;
   
   
-  public Repairs(Actor actor, Installation repaired) {
+  public Repairs(Actor actor, Structure.Basis repaired) {
     super(actor, (Target) repaired, true, REAL_HELP);
     this.built = repaired;
   }
@@ -33,7 +33,7 @@ public class Repairs extends Plan {
   
   public Repairs(Session s) throws Exception {
     super(s);
-    built = (Installation) s.loadObject();
+    built = (Structure.Basis) s.loadObject();
   }
   
   
@@ -51,7 +51,7 @@ public class Repairs extends Plan {
   
   /**  Assessing targets and priority-
     */
-  public static float needForRepair(Installation built) {
+  public static float needForRepair(Structure.Basis built) {
     final Structure structure = built.structure();
     if (! structure.takesWear()) return 0;
     float needRepair;
@@ -71,11 +71,11 @@ public class Repairs extends Plan {
     //
     //  First, sample any nearby venues that require repair, and add them to
     //  the list.
-    final Batch <Installation> toRepair = new Batch <Installation> ();
+    final Batch <Structure.Basis> toRepair = new Batch <Structure.Basis> ();
     world.presences.sampleFromMaps(
       client, world, 3, toRepair, Structure.DAMAGE_KEY
     );
-    for (Installation near : toRepair) {
+    for (Structure.Basis near : toRepair) {
       if (near.base() != client.base()) continue;
       if (needForRepair(near) <= 0) continue;
       final Repairs b = new Repairs(client, near);
@@ -198,7 +198,7 @@ public class Repairs extends Plan {
   }
   
   
-  public boolean actionBuild(Actor actor, Installation built) {
+  public boolean actionBuild(Actor actor, Structure.Basis built) {
     final boolean report = eventsVerbose && I.talkAbout == actor && hasBegun();
     
     //  TODO:  Double the rate of repair again if you have proper tools and
@@ -239,7 +239,7 @@ public class Repairs extends Plan {
   }
   
   
-  public boolean actionUpgrade(Actor actor, Installation built) {
+  public boolean actionUpgrade(Actor actor, Structure.Basis built) {
     final Structure structure = built.structure();
     final Upgrade upgrade = structure.upgradeInProgress();
     ///if (upgrade == null) I.say("NO UPGRADE!");

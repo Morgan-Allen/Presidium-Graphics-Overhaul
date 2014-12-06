@@ -4,11 +4,11 @@
 
 package stratos.game.plans;
 import stratos.game.actors.*;
-import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.economic.Inventory.Owner;
 import stratos.game.maps.*;
+import stratos.game.tactical.Pledge;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
@@ -175,7 +175,7 @@ public class Resting extends Plan {
     //
     //  Transfer any incidental groceries-
     if (place == actor.mind.home()) for (Traded food : ALL_FOOD_TYPES) {
-      actor.gear.transfer(food, (Liveable) place);
+      actor.gear.transfer(food, (Property) place);
     }
     //
     //  If you're resting at home, deposit any taxes due-

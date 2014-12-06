@@ -215,7 +215,7 @@ public class Selection implements UIConstants {
   public void renderTileOverlay(
     Rendering r, final Stage world,
     Colour c, ImageAsset tex,
-    boolean cache, final Installation key, final Object... group
+    boolean cache, final Structure.Basis key, final Object... group
   ) {
     TerrainChunk overlay = null;
     

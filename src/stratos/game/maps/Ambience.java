@@ -95,8 +95,8 @@ public class Ambience {
     int value = 0;
     final Element owner = tile.onTop();
     
-    if (owner instanceof Installation) {
-      value = ((Installation) owner).structure().ambienceVal();
+    if (owner instanceof Structure.Basis) {
+      value = ((Structure.Basis) owner).structure().ambienceVal();
     }
     if (owner instanceof Flora) {
       value = ((Flora) owner).growStage();

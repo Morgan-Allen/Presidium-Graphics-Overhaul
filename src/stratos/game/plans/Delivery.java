@@ -8,7 +8,6 @@
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.base.Suspensor;
-import stratos.game.civilian.Pledge;
 import stratos.game.common.*;
 import stratos.game.economic.Inventory;
 import stratos.game.economic.Item;
@@ -16,6 +15,7 @@ import stratos.game.economic.Traded;
 import stratos.game.economic.Vehicle;
 import stratos.game.economic.Venue;
 import stratos.game.economic.Inventory.Owner;
+import stratos.game.tactical.Pledge;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
 

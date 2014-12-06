@@ -3,7 +3,6 @@
 package stratos.game.plans;
 import stratos.game.common.*;
 import stratos.game.actors.*;
-import stratos.game.civilian.*;
 import stratos.util.*;
 import stratos.game.campaign.Commerce;
 import stratos.game.economic.*;

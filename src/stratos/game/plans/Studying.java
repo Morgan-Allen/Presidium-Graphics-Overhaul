@@ -3,9 +3,9 @@
 
 package stratos.game.plans;
 import stratos.game.actors.*;
-import stratos.game.civilian.Pledge;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.tactical.Pledge;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;

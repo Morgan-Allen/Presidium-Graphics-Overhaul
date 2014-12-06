@@ -1,7 +1,7 @@
 
 
 
-package stratos.game.civilian;
+package stratos.game.economic;
 import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.campaign.Commerce;

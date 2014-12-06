@@ -6,8 +6,6 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
 import stratos.game.plans.*;
-//import stratos.game.tactical.*;
-import stratos.game.civilian.*;
 import stratos.game.economic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
@@ -166,7 +164,7 @@ public abstract class Artilect extends Actor {
     //  Retreat and return to base.
     //  (Drone specialties.)
     
-    final Liveable home = mind.home();
+    final Property home = mind.home();
     Element guards = home == null ? this : (Element) home;
     final float distance = Spacing.distance(this, guards) / Stage.SECTOR_SIZE;
     //final float danger = CombatUtils.dangerAtSpot(this, this, null);

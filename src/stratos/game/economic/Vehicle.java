@@ -7,7 +7,6 @@
 
 package stratos.game.economic;
 import stratos.game.actors.*;
-import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
@@ -19,8 +18,8 @@ import stratos.util.*;
 
 
 public abstract class Vehicle extends Mobile implements
-  Boarding, Inventory.Owner, Liveable,
-  Selectable, Installation
+  Boarding, Inventory.Owner, Property,
+  Selectable, Structure.Basis
 {
   
   

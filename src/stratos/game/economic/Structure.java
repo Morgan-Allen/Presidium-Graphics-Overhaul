@@ -9,12 +9,45 @@ import java.lang.reflect.*;
 
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.plans.Repairs;
+import stratos.game.plans.*;
 import stratos.util.*;
+
+import stratos.user.*;
+import stratos.graphics.common.*;
+
 
 
 
 public class Structure {
+  
+  
+  //  TODO:  (Replace this with a 'FacilityProfile' class, so that the various
+  //  economic aspects of a structure can be passed with a single object rather
+  //  than a dozen methods- and can be cached for reference by the base AI?)
+  
+  /**  Defines an external interface so that, e.g, vehicles and buildings can
+    *  both possess a structure:
+    */
+  public static interface Basis extends
+    Session.Saveable, Target, Selectable, Accountable
+  {
+    Base base();
+    int buildCost();
+    Box2D footprint();
+    int owningType();
+
+    Index<Upgrade> allUpgrades();
+    void onCompletion();
+    void onDestruction();
+    Structure structure();
+    
+    boolean setPosition(float x, float y, Stage world);
+    boolean canPlace();
+    void previewPlacement(boolean canPlace, Rendering rendering);
+    void doPlacement();
+  }
+  
+  
   
   /**  Fields, definitions and save/load methods-
     */
@@ -69,8 +102,8 @@ public class Structure {
   private static boolean verbose = false;
   
   
-  final Installation basis;
-  private Installation group[];
+  final Basis basis;
+  private Basis group[];
 
   private int structureType = TYPE_VENUE       ;
   private int baseIntegrity = DEFAULT_INTEGRITY;
@@ -94,13 +127,13 @@ public class Structure {
   
   
   
-  Structure(Installation basis) {
+  Structure(Basis basis) {
     this.basis = basis;
   }
   
   
   public void loadState(Session s) throws Exception {
-    group = (Installation[]) s.loadObjectArray(Installation.class);
+    group = (Basis[]) s.loadObjectArray(Basis.class);
     
     baseIntegrity = s.loadInt();
     maxUpgrades   = s.loadInt();
@@ -180,7 +213,7 @@ public class Structure {
   }
   
   
-  public void assignGroup(Installation... group) {
+  public void assignGroup(Basis... group) {
     this.group = group;
   }
   
@@ -287,8 +320,8 @@ public class Structure {
   }
   
   
-  public Installation[] asGroup() {
-    if (group == null || group.length == 0) return new Installation[] {basis};
+  public Basis[] asGroup() {
+    if (group == null || group.length == 0) return new Basis[] {basis};
     return group;
   }
   
@@ -302,7 +335,7 @@ public class Structure {
       ((Element) basis).exitWorld();
     }
     else setState(Structure.STATE_SALVAGE, -1);
-    if (group != null) for (Installation i : group) {
+    if (group != null) for (Basis i : group) {
       i.structure().beginSalvage();
     }
   }
@@ -311,7 +344,7 @@ public class Structure {
   public void cancelSalvage() {
     if (state == STATE_INTACT) return;
     setState(Structure.STATE_INTACT, -1);
-    if (group != null) for (Installation i : group) {
+    if (group != null) for (Basis i : group) {
       i.structure().cancelSalvage();
     }
   }

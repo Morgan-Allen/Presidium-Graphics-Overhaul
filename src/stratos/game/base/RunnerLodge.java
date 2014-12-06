@@ -9,7 +9,7 @@ import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
-import stratos.util.I;
+import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.economic.Economy.*;
@@ -60,7 +60,10 @@ public class RunnerLodge extends Venue {
     final Choice choice = new Choice(actor);
     //  TODO:  Figure this out.  What would the Yakuza get up to on a regular
     //         day?
-    choice.add(Looting.nextLootingFor(actor));
+    
+    //  TODO:  Only loot from distant areas of the city, or from other
+    //  settlements- just collect protection money nearby.
+    choice.add(Looting.nextLootingFor(actor, this));
     
     //  smuggling, extortion, assassination
     //  cyber tech, hard stims, flesh trade

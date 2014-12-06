@@ -8,7 +8,6 @@
 package stratos.game.common;
 import stratos.game.actors.*;
 import stratos.game.campaign.*;
-import stratos.game.civilian.*;
 import stratos.game.economic.*;
 import stratos.game.tactical.*;
 import stratos.graphics.common.*;
@@ -165,7 +164,7 @@ public class Base implements
   }
   
   
-  public Liveable HQ() {
+  public Property HQ() {
     return ruler == null ? null : ruler.mind.home();
   }
   

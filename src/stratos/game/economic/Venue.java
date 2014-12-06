@@ -7,7 +7,6 @@
 
 package stratos.game.economic;
 import stratos.game.actors.*;
-import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
 import stratos.graphics.common.*;
@@ -22,7 +21,7 @@ import static stratos.game.economic.Economy.*;
 
 
 public abstract class Venue extends Structural implements
-  Boarding, Inventory.Owner, Liveable
+  Boarding, Inventory.Owner, Property
 {
   
   
@@ -161,7 +160,7 @@ public abstract class Venue extends Structural implements
   
   
   
-  /**  Installation and positioning-
+  /**  Structure.Basis and positioning-
     */
   public boolean canPlace() {
     if (origin() == null) return false;

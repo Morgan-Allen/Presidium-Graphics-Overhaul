@@ -3,7 +3,7 @@
 package stratos.game.plans;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.maps.Planet;
+import stratos.game.maps.*;
 import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.util.*;
@@ -20,35 +20,48 @@ public class Looting extends Plan {
     */
   private static boolean
     evalVerbose  = false,
-    stepsVerbose = true ;
+    stepsVerbose = false;
+  
+  final static int
+    STAGE_INIT     = -1,
+    STAGE_APPROACH =  0,
+    STAGE_DROP     =  1,
+    STAGE_DONE     =  2;
   
   final Owner mark;
   final Item taken;
+  final Property dropOff;
+  private int stage = STAGE_INIT;
   
   
-  public Looting(Actor actor, Owner subject, Item taken) {
+  public Looting(Actor actor, Owner subject, Item taken, Property dropOff) {
     super(actor, subject, false, MILD_HARM);
-    this.mark  = subject;
-    this.taken = taken;
+    this.mark    = subject;
+    this.taken   = taken  ;
+    this.dropOff = dropOff;
   }
   
   
   public Plan copyFor(Actor other) {
-    return new Looting(other, mark, taken);
+    return new Looting(other, mark, taken, dropOff);
   }
   
   
   public Looting(Session s) throws Exception {
     super(s);
-    mark  = (Owner) s.loadObject();
-    taken = Item.loadFrom(s);
+    mark    = (Owner) s.loadObject();
+    taken   = Item.loadFrom(s);
+    dropOff = (Property) s.loadObject();
+    stage   = s.loadInt();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(mark);
-    Item.saveTo(s, taken);
+    s.saveObject(mark    );
+    Item.saveTo (s, taken);
+    s.saveObject(dropOff );
+    s.saveInt   (stage   );
   }
   
   
@@ -59,7 +72,7 @@ public class Looting extends Plan {
   final static Trait BASE_TRAITS[] = { DISHONEST, ACQUISITIVE };
   
   
-  public static Looting nextLootingFor(Actor actor) {
+  public static Looting nextLootingFor(Actor actor, Venue dropOff) {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (report) I.say("\nGetting next loot for "+actor);
     
@@ -67,7 +80,6 @@ public class Looting extends Plan {
     Owner bestMark   = null;
     float bestRating = 0   ;
     
-    //  TODO:  Specify where to drop off the loot!
     //  TODO:  Include dropped items as well...
     
     for (Target t : actor.senses.awareOf()) if (t instanceof Owner) {
@@ -88,7 +100,7 @@ public class Looting extends Plan {
     }
     
     if (bestTaken == null) return null;
-    else return new Looting(actor, bestMark, bestTaken);
+    else return new Looting(actor, bestMark, bestTaken, dropOff);
   }
   
   
@@ -125,8 +137,8 @@ public class Looting extends Plan {
   
   
   public int motionType(Actor actor) {
-    //  TODO:  Only sneak if hostiles are visible?
-    return Action.MOTION_SNEAK;
+    if (stage == STAGE_APPROACH) return Action.MOTION_SNEAK;
+    return super.motionType(actor);
   }
   
   
@@ -138,12 +150,26 @@ public class Looting extends Plan {
   protected Behaviour getNextStep() {
     final boolean report = stepsVerbose && I.talkAbout == actor && hasBegun();
     if (report) I.say("\nGetting next step for looting.");
-    //  In essence, you just need to sneak up on the target without being seen
-    //  and nick their stuff.
     
-    //  TODO:  Return the goods to a drop point, if specified.
-    if (mark.inventory().amountOf(taken) <= 0) return null;
-    if (actor.gear.hasItem(taken)) return null;
+    if (stage == STAGE_DONE) {
+      if (report) I.say("  Looting complete!");
+      return null;
+    }
+    
+    if (stage == STAGE_DROP) {
+      if (dropOff == null) return null;
+      if (report) I.say("  Dropping off goods at "+dropOff);
+      
+      final Action drop = new Action(
+        actor, dropOff,
+        this, "actionDropGoods",
+        Action.REACH_DOWN, "Dropping off at "
+      );
+      return drop;
+    }
+    
+    //  TODO:  Don't bother sneaking/hiding if you're, say, looting a body and
+    //  no enemies are around.
     
     //  If you've been spotted, try to shake the pursuit!
     if (shouldHide()) {
@@ -167,23 +193,35 @@ public class Looting extends Plan {
       this, "actionLoot",
       Action.REACH_DOWN, "Looting "
     );
+    stage = STAGE_APPROACH;
     return loot;
   }
   
   
   private boolean shouldHide() {
     if (! hasBegun()) return false;
-
+    final boolean report = stepsVerbose && I.talkAbout == actor;
+    
+    //  TODO:  Ignore other guild members?
+    
     //  In essence, you flee if you're too close to a member of the base you're
     //  stealing from (and isn't the mark), or someone else has already made
     //  you a target:
-    if (actor.world().activities.includesActivePlan(actor, null)) return true;
+    for (Plan p : actor.world().activities.activePlanMatches(actor, null)){
+      if (report) I.say("  Somebody is targeting me: "+p.actor()+", "+p);
+      return true;
+    }
+    if (actor.indoors()) return false;
     
+    //  Technically, stealing counts as a form of 'attack'...
     final Base attacked = CombatUtils.baseAttacked(actor);
     final float minRange = actor.health.sightRange() / 2;
     for (Target t : actor.senses.awareOf()) {
-      if (t == mark || ! (t.isMobile() && t.base() == attacked)) continue;
-      if (Spacing.distance(t, actor) <= minRange) return true;
+      if (! ((t instanceof Actor) && t.base() == attacked)) continue;
+      if (t == mark || t == actor || ((Actor) t).indoors()) continue;
+      if (Spacing.distance(t, actor) > minRange) continue;
+      if (report) I.say("  Too close to "+t);
+      return true;
     }
     return false;
   }
@@ -192,13 +230,14 @@ public class Looting extends Plan {
   public boolean actionHide(Actor actor, Actor self) {
     final boolean report = stepsVerbose && I.talkAbout == actor;
     if (report) I.say("\nHiding at "+self.origin());
-    
     return Senses.breaksPursuit(actor);
   }
   
   
   public boolean actionLoot(Actor actor, Owner mark) {
     mark.inventory().transfer(taken, actor);
+    if (dropOff != null) stage = STAGE_DROP;
+    else stage = STAGE_DONE;
     return true;
   }
   
@@ -210,21 +249,25 @@ public class Looting extends Plan {
   }
   
   
+  public boolean actionDropGoods(Actor actor, Property drop) {
+    actor.gear.transfer(taken, drop);
+    stage = STAGE_DONE;
+    return true;
+  }
+  
+  
   
   /**  Rendering and interface methods-
     */
   public void describeBehaviour(Description d) {
-    if (needsSuffix(d, "Looting ")) {
+    if (actor.isDoingAction("actionHide", null)) {
+      d.append("Hiding!");
+    }
+    else if (needsSuffix(d, "Looting ")) {
       d.append(mark);
     }
   }
 }
-
-
-
-
-
-
 
 
 

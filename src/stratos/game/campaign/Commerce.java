@@ -4,7 +4,6 @@
 package stratos.game.campaign;
 import stratos.game.actors.*;
 import stratos.game.base.*;
-import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
@@ -23,7 +22,7 @@ public class Commerce {
   /**  Field definitions, constructor, save/load methods-
     */
   private static boolean
-    verbose        = true ,
+    verbose        = false,
     extraVerbose   = false,
     migrateVerbose = verbose && false,
     tradeVerbose   = verbose && false;

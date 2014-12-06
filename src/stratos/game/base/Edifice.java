@@ -6,7 +6,6 @@
 
 
 package stratos.game.base;
-import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.actors.*;

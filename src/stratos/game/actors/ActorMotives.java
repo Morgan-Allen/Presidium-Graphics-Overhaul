@@ -2,8 +2,8 @@
 
 package stratos.game.actors;
 import stratos.game.common.*;
-import stratos.game.civilian.*;
 import stratos.game.economic.*;
+import stratos.game.tactical.Pledge;
 import stratos.util.*;
 import stratos.game.common.Session.Saveable;
 

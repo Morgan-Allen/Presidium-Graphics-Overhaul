@@ -8,7 +8,6 @@
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.civilian.*;
 import stratos.game.economic.*;
 import stratos.user.*;
 import stratos.util.*;
@@ -35,7 +34,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     FAILURE_TIME_MULT  = 5;
   
   
-  final public Liveable venue;
+  final public Property venue;
   final public Conversion conversion;
   
   public int checkBonus = 0;
@@ -47,7 +46,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   
   
   public Manufacture(
-    Actor actor, Liveable venue, Conversion conversion, Item made
+    Actor actor, Property venue, Conversion conversion, Item made
   ) {
     super(actor, venue, true, NO_HARM);
     this.venue = venue;

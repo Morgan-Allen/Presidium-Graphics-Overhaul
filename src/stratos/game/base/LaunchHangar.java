@@ -2,7 +2,6 @@
 
 package stratos.game.base;
 import stratos.game.actors.*;
-import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
@@ -110,7 +109,7 @@ public class LaunchHangar extends Venue {
   
   
   public FRSD parentDepot() {
-    for (Installation i : structure.asGroup()) if (i instanceof FRSD) {
+    for (Structure.Basis i : structure.asGroup()) if (i instanceof FRSD) {
       return (FRSD) i;
     }
     return null;

@@ -4,7 +4,6 @@
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.civilian.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.util.*;
@@ -176,17 +175,16 @@ public class Retreat extends Plan implements Qualities {
     //  The idea here is to pick tiles at random at first, then as the actor
     //  gets closer to a given area, allow systematic scanning of nearby tiles
     //  to zero in on any strong cover available.
-    //  TODO:  Try allowing a blockage-map to speed the process?
     final Stage world = actor.world();
     final Tile at = actor.origin();
     final Pick <Tile> pick = new Pick <Tile> () {
       public void compare(Tile next, float rating) {
         rating *= rateTileCover(actor, next, advance);
+        if (report) I.say("  Rating for "+next+" was: "+rating);
         super.compare(next, rating);
       }
     };
     
-    //
     //  We provide a slight rating bonus for the actor's current location, then
     //  compare random tiles in each direction, and then compare any tiles
     //  within 2 units of the actor's origin.  Then return the most promising
@@ -206,14 +204,20 @@ public class Retreat extends Plan implements Qualities {
     final Box2D around = actor.area(null).expandBy(2);
     for (Tile t : world.tilesIn(around, true)) pick.compare(t, 1);
     
-    return pick.result();
+    final Tile hides = pick.result();
+    if (report) I.say("HIDING AT: "+hides);
+    return hides;
   }
   
   
+  //  TODO:  You need to log the output here, just to ensure that the right
+  //  ratings are being returned.
+  
   private static float rateTileCover(Actor actor, Tile t, boolean advance) {
-    
     //  TODO:  Check to make sure the tile is reachable!
     if (t == null || t.blocked()) return 0;
+
+    final boolean report = havenVerbose && I.talkAbout == actor;
     
     //  We confer a bonus to the rating if the tile in question has cover in
     //  the same direction as the actor's perceived sources of danger, while
@@ -221,13 +225,24 @@ public class Retreat extends Plan implements Qualities {
     float rating = 0.5f;
     final Tile allNear[] = t.allAdjacent(null);
     
+    if (report) {
+      for (int n : TileConstants.T_INDEX) if (isCover(allNear[n])) {
+        I.say("      Blocked: "+TileConstants.DIR_NAMES[n]);
+      }
+    }
+    
     for (int n : TileConstants.T_ADJACENT) {
       final Tile
         tile  = allNear[n],
         left  = allNear[(n + 1) % 8],
         right = allNear[(n + 7) % 8];
       if (isCover(tile) && ! (isCover(left) && isCover(right))) {
-        rating += actor.senses.dangerFromDirection(n);
+        final float danger = actor.senses.dangerFromDirection(n);
+        if (report && danger > 0) I.say(
+          "    Cover from "+TileConstants.DIR_NAMES[n]+
+          "    Danger: "+actor.senses.dangerFromDirection(n)
+        );
+        rating += danger;
       }
     }
     
@@ -239,6 +254,8 @@ public class Retreat extends Plan implements Qualities {
     
     float dirBonus = actor.senses.dangerFromDirection(direction);
     dirBonus *= distance * (advance ? 1 : -1) / maxMove;
+    if (report && dirBonus > 0) I.say("    Direction bonus: "+dirBonus);
+    
     return rating * Nums.clamp(1 + dirBonus, 0, 2);
   }
   

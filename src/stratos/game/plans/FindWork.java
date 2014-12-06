@@ -3,7 +3,6 @@
 
 package stratos.game.plans;
 import stratos.game.actors.*;
-import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.user.*;
@@ -24,12 +23,12 @@ public class FindWork extends Plan {
   private static boolean verbose = false;
   
   private Background position;
-  private Liveable employer;
+  private Property employer;
   private float rating  = 0;
   private int   hireFee = 0;
   
   
-  private FindWork(Actor actor, Background position, Liveable employer) {
+  private FindWork(Actor actor, Background position, Property employer) {
     super(actor, actor, true, NO_HARM);
     this.position = position;
     this.employer = employer;
@@ -39,7 +38,7 @@ public class FindWork extends Plan {
   public FindWork(Session s) throws Exception {
     super(s);
     position = (Background) s.loadObject();
-    employer = (Liveable  ) s.loadObject();
+    employer = (Property  ) s.loadObject();
     rating   = s.loadFloat();
     hireFee  = s.loadInt  ();
   }
@@ -64,7 +63,7 @@ public class FindWork extends Plan {
   }
   
   
-  public Liveable employer() {
+  public Property employer() {
     return employer;
   }
   
@@ -102,7 +101,7 @@ public class FindWork extends Plan {
   }
   
   
-  public boolean actionApplyTo(Actor client, Liveable best) {
+  public boolean actionApplyTo(Actor client, Property best) {
     if (! canApply()) return false;
     confirmApplication();
     return true;
@@ -156,7 +155,7 @@ public class FindWork extends Plan {
       Rand.index(world.size),
       Rand.index(world.size)
     );
-    Liveable pick = (Liveable) world.presences.randomMatchNear(b, around, -1);
+    Property pick = (Property) world.presences.randomMatchNear(b, around, -1);
     if (pick.base() != at) return null;
     return attemptFor(actor, pick);
   }
@@ -167,7 +166,7 @@ public class FindWork extends Plan {
   //  automatically, and never actually finishes.
   
   //*
-  public static FindWork attemptFor(Actor actor, Liveable at) {
+  public static FindWork attemptFor(Actor actor, Property at) {
     if (at.careers() == null) return null;
     
     FindWork main = (FindWork) actor.matchFor(FindWork.class);
@@ -181,7 +180,7 @@ public class FindWork extends Plan {
       pick.compare(main, main.rateOpening(main.position, main.employer) * 1.5f);
     }
     
-    final Liveable work = actor.mind.work();
+    final Property work = actor.mind.work();
     if (work != null) {
       final FindWork app = new FindWork(actor, actor.vocation(), work);
       pick.compare(app, app.rateOpening(app.position, app.employer) * 1.5f);
@@ -211,7 +210,7 @@ public class FindWork extends Plan {
   }
   
   
-  private float rateOpening(Background position, Liveable at) {
+  private float rateOpening(Background position, Property at) {
     float rating = Career.ratePromotion(position, actor);
     rating *= actor.relations.valueFor(at);
     //  TODO:  Also impact through wage-rate and area living conditions.

@@ -2,7 +2,6 @@
 
 
 package stratos.game.actors;
-import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.util.*;
 
@@ -231,7 +230,7 @@ public class ActorRelations {
   }
   
   
-  public float valueFor(Installation venue) {
+  public float valueFor(Structure.Basis venue) {
     if (venue == null) return 0;
     //  TODO:  Cache this and modify slowly over time.
     
@@ -257,8 +256,8 @@ public class ActorRelations {
   
   
   public float valueFor(Object other) {
-    if (other instanceof Installation) {
-      return valueFor((Installation) other);
+    if (other instanceof Structure.Basis) {
+      return valueFor((Structure.Basis) other);
     }
     if (other instanceof Actor) return valueFor((Actor) other);
     if (other instanceof Base ) return valueFor((Base ) other);

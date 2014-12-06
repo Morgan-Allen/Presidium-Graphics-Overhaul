@@ -23,7 +23,7 @@ public class BaseFinance {
     SOURCE_WAGES    = "Wages"       ,
     SOURCE_TAXES    = "Taxation"    ,
     
-    SOURCE_INSTALL  = "Installation",
+    SOURCE_INSTALL  = "Structure.Basis",
     SOURCE_REPAIRS  = "Repairs"     ,
     SOURCE_SALVAGE  = "Salvage"     ,
     

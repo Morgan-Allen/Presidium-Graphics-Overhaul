@@ -235,8 +235,8 @@ public class Senses implements Qualities {
       
       return Nums.clamp(stealth, 0, 2);
     }
-    if (e instanceof Installation) {
-      return ((Installation) e).structure().cloaking() / 10f;
+    if (e instanceof Structure.Basis) {
+      return ((Structure.Basis) e).structure().cloaking() / 10f;
     }
     return 0;
   }

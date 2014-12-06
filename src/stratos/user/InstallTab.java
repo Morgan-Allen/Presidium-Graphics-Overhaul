@@ -75,13 +75,13 @@ public class InstallTab extends SelectionInfoPane {
   }
   
   
-  final Batch <Installation> listInstalled(BaseUI UI, Class type) {
-    Batch <Installation> installed = new Batch <Installation> ();
+  final Batch <Structure.Basis> listInstalled(BaseUI UI, Class type) {
+    Batch <Structure.Basis> installed = new Batch <Structure.Basis> ();
     final Tile zero = UI.world().tileAt(0, 0);
     final Presences presences = UI.world().presences;
     for (Object o : presences.matchesNear(type, zero, -1)) {
-      if (! (o instanceof Installation)) continue;
-      installed.add((Installation) o);
+      if (! (o instanceof Structure.Basis)) continue;
+      installed.add((Structure.Basis) o);
     }
     return installed;
   }
@@ -132,12 +132,12 @@ public class InstallTab extends SelectionInfoPane {
         detailText.append("\n");
       }
       if (listShown == type) {
-        final Batch <Installation> installed = listInstalled(UI, type);
+        final Batch <Structure.Basis> installed = listInstalled(UI, type);
         int ID = 0;
         if (installed.size() == 0) {
           detailText.append("\n  (no current installations)");
         }
-        else for (Installation i : installed) {
+        else for (Structure.Basis i : installed) {
           detailText.append("\n    ");
           final String label = i.fullName()+" No. "+(++ID);
           detailText.append(label, (Text.Clickable) i);
@@ -170,7 +170,7 @@ public class InstallTab extends SelectionInfoPane {
     
     BaseUI UI;
     Class type;
-    Installation toInstall;
+    Structure.Basis toInstall;
     
     
     public void doTask() {
@@ -187,15 +187,15 @@ public class InstallTab extends SelectionInfoPane {
       
       //  We then determine whether all the components of that larger structure
       //  are in fact place-able:
-      final Installation group[] = toInstall.structure().asGroup();
-      for (Installation i : group) {
+      final Structure.Basis group[] = toInstall.structure().asGroup();
+      for (Structure.Basis i : group) {
         canPlace &= map.fogAt(i) > 0 && i.canPlace();
       }
       if (canPlace && UI.mouseClicked()) {
-        for (Installation i : group) i.doPlacement();
+        for (Structure.Basis i : group) i.doPlacement();
         UI.endCurrentTask();
       }
-      else for (Installation i : group) {
+      else for (Structure.Basis i : group) {
         i.previewPlacement(canPlace, UI.rendering);
       }
     }

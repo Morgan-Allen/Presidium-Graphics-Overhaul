@@ -6,7 +6,6 @@
 package stratos.game.economic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.civilian.*;
 import stratos.game.plans.*;
 import stratos.user.*;
 import stratos.util.*;
@@ -44,12 +43,12 @@ public class Stocks extends Inventory {
   }
   
   
-  final Liveable basis;
+  final Property basis;
   final Table <Traded, Demand> demands = new Table <Traded, Demand> ();
   final List <Manufacture> specialOrders = new List <Manufacture> ();
   
   
-  Stocks(Liveable v) {
+  Stocks(Property v) {
     super(v);
     this.basis = v;
   }

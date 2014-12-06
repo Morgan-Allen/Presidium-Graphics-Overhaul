@@ -4,7 +4,6 @@ package stratos.game.plans;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.tactical.*;
-import stratos.game.civilian.*;
 import stratos.user.*;
 import stratos.util.*;
 import stratos.game.campaign.BaseFinance;
@@ -31,13 +30,13 @@ public class Summons extends Plan {
   
 
   final Actor invites;
-  final Liveable stays;
+  final Property stays;
   final int type;
   private int timeStayed = 0;
   
   
   
-  public Summons(Actor actor, Actor invites, Liveable stays, int type) {
+  public Summons(Actor actor, Actor invites, Property stays, int type) {
     super(actor, invites, true, NO_HARM);
     this.invites = invites;
     this.stays   = stays  ;
@@ -48,7 +47,7 @@ public class Summons extends Plan {
   public Summons(Session s) throws Exception {
     super(s);
     this.invites = (Actor   ) s.loadObject();
-    this.stays   = (Liveable) s.loadObject();
+    this.stays   = (Property) s.loadObject();
     this.type    = s.loadInt();
     this.timeStayed = s.loadInt();
   }

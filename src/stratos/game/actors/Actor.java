@@ -6,7 +6,6 @@
 
 
 package stratos.game.actors;
-import stratos.game.civilian.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
@@ -210,7 +209,11 @@ public abstract class Actor extends Mobile implements
       actionTaken.updateAction(OK);
     }
     
-    if (OK && mind.needsUpdate()) mind.getNextAction();
+    if (OK && mind.needsUpdate()) {
+      assignAction(null);
+      world.schedule.scheduleNow(this);
+      //mind.getNextAction();
+    }
     
     if (aboard instanceof Mobile && (pathing.nextStep() == aboard || ! OK)) {
       aboard.position(nextPosition);
@@ -239,6 +242,11 @@ public abstract class Actor extends Mobile implements
     
     //  Update our actions, pathing, and AI-
     if (OK) {
+      if (report) I.say("  Updating senses, AI and relations:");
+      senses.updateSenses();
+      mind.updateAI(numUpdates);
+      relations.updateValues(numUpdates);
+      
       if (report) I.say("  Checking for actions update...");
       final Action nextAction = mind.getNextAction();
       if (
@@ -252,9 +260,6 @@ public abstract class Actor extends Mobile implements
       if (! pathing.checkPathingOkay()) {
         pathing.refreshFullPath();
       }
-      senses.updateSenses();
-      mind.updateAI(numUpdates);
-      relations.updateValues(numUpdates);
     }
     
     //  Check to see if you need to wake up-
@@ -271,6 +276,7 @@ public abstract class Actor extends Mobile implements
         tireBonus     = (health.fatigueLevel() + 0.5f) * Plan.ROUTINE;
       
       if (wakePriority > sleepPriority + tireBonus) {
+        if (report) I.say("  Waking actor up...");
         health.setState(ActorHealth.STATE_ACTIVE);
       }
     }
