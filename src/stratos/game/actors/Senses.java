@@ -9,6 +9,9 @@ import stratos.game.economic.*;
 import stratos.game.common.Session.Saveable;
 
 
+//  TODO:  I need to distinguish between objects the actor can *see* and
+//  objects they *remember*.
+
 
 public class Senses implements Qualities {
   
@@ -16,10 +19,10 @@ public class Senses implements Qualities {
   /**  Data fields, constants, constructors, and save/load methods-
     */
   private static boolean
-    reactVerbose  = false,
+    reactVerbose  = true ,
     noticeVerbose = false,
     sightVerbose  = false,
-    dangerVerbose = true ;
+    dangerVerbose = false;
   
   final static int NUM_DIRS = TileConstants.T_INDEX.length / 2;
   
@@ -76,7 +79,9 @@ public class Senses implements Qualities {
     if (report) I.say("\nUpdating senses, sight range: "+range);
     
     //  First, get the set of all targets that the actor might observe.
-    final Batch <Target> toNotice  = toNotice(range);
+    final float percept = actor.traits.usedLevel(PERCEPT);
+    final int reactLimit = (int) (2.5f + (percept / 5));
+    final Batch <Target> toNotice  = toNotice(range, reactLimit);
     final Batch <Target> justSeen  = new Batch <Target> ();
     final Batch <Target> lostSight = new Batch <Target> ();
     
@@ -102,6 +107,15 @@ public class Senses implements Qualities {
     for (Target e : awares.keySet()) awareOf.add(e);
     updateDangerEval(awareOf);
     
+    if (report) {
+      I.say("Currently aware of: (react limit "+reactLimit+")");
+      for (Target e : awareOf) {
+        final String dist = " (distance "+Spacing.distance(actor, e)+")";
+        I.say("  "+e+(justSeen.includes(e) ? " (NEW)" : "")+dist);
+      }
+      for (Target e : lostSight) I.say("  Lost sight of "+e);
+    }
+    
     //  And finally, add any reactions to freshly-spotted targets-
     //  TODO:  Delegate all this to the ActorMind class..?
     final Choice reactions = new Choice(actor);
@@ -125,7 +139,7 @@ public class Senses implements Qualities {
   }
   
   
-  protected Batch <Target> toNotice(float range) {
+  protected Batch <Target> toNotice(float range, int reactLimit) {
     final Batch <Target> noticed = new Batch <Target> ();
     final Stage world = actor.world();
     //
@@ -144,12 +158,11 @@ public class Senses implements Qualities {
     }
     //
     //  And add anything newly within range-
-    final float percept = actor.traits.usedLevel(PERCEPT);
-    final int reactLimit = (int) (2.5f + (percept / 5));
     world.presences.sampleFromMaps(
       actor, world, reactLimit, noticed,
       Mobile.class,
-      Venue.class
+      Venue.class,
+      Item.Dropped.class
     );
     return noticed;
   }
@@ -162,7 +175,6 @@ public class Senses implements Qualities {
     final float distance = Spacing.distance(e, actor);
     final Base  base     = actor.base();
     final float fog      = base.intelMap.fogAt(e);
-    //if (fog <= 0) return false;
     
     float senseChance = sightRange * fog;
     if (awareOf(e)) senseChance *= 2;

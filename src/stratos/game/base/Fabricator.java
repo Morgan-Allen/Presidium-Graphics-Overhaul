@@ -198,7 +198,7 @@ public class Fabricator extends Venue {
   
   
   public String objectCategory() {
-    return InstallTab.TYPE_AESTHETE;
+    return InstallTab.TYPE_ARTIFICER;
   }
 }
 

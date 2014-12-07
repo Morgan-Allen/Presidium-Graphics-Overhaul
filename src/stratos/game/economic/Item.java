@@ -98,6 +98,10 @@ public class Item {
   }
   
   
+  public static interface Dropped extends Inventory.Owner, Selectable {
+  }
+  
+  
   
   /**  Outside-accessible factory methods-
     */

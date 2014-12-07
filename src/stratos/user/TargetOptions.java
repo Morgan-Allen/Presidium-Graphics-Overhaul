@@ -111,7 +111,7 @@ public class TargetOptions extends UIGroup {
     if (
       subject instanceof Actor ||
       subject instanceof Venue ||
-      subject instanceof Item
+      subject instanceof Item.Dropped
     ) {
       options.add(new OptionButton(
         BUI, MissionsTab.SECURITY_ICON, "Secure or protect subject",

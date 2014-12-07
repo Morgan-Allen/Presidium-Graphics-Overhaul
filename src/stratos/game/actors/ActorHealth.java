@@ -25,11 +25,11 @@ public class ActorHealth implements Qualities {
     ARTILECT_METABOLISM = 2,
     FOOD_TO_CALORIES    = 10;
   final public static int
-    STATE_ACTIVE   = 0,
-    STATE_RESTING  = 1,
-    STATE_SUSPEND  = 2,
-    STATE_DYING    = 3,
-    STATE_DECOMP   = 4;
+    STATE_ACTIVE  = 0,
+    STATE_RESTING = 1,
+    STATE_SUSPEND = 2,
+    STATE_DYING   = 3,
+    STATE_DECOMP  = 4;
   final static String STATE_DESC[] = {
     "Active",
     "Asleep",
@@ -176,11 +176,11 @@ public class ActorHealth implements Qualities {
   /**  Supplementary setup/calibration methods-
     */
   public void initStats(
-    int lifespan,
+    int   lifespan,
     float baseBulk,
     float baseSight,
     float baseSpeed,
-    int metabolicType
+    int   metabolicType
   ) {
     this.lifespan = lifespan;
     this.baseBulk  = baseBulk  * DEFAULT_BULK ;

@@ -195,6 +195,8 @@ public abstract class Plan implements Saveable, Behaviour {
       if (nextStep != null) lastStep = nextStep;
       if (report) I.say("  GOT NEW STEP: "+nextStep);
       priorityEval = NULL_PRIORITY;
+      //actor.pathing.refreshFullPath();
+      //actor.pathing.updateTarget(null);
     }
     return nextStep;
   }

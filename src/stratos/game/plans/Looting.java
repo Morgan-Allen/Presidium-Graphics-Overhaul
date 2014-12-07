@@ -13,6 +13,13 @@ import static stratos.game.economic.Economy.*;
 
 
 
+//  You either sneak or use disguise to avoid attention.  If you've been seen,
+//  then you run for it.
+
+//  TODO:  Make this a general reaction/actor behaviour, and allow for multiple
+//  items to be nicked in one sitting (as long as you can carry them!)
+
+
 public class Looting extends Plan {
   
   
@@ -23,6 +30,10 @@ public class Looting extends Plan {
     stepsVerbose = false;
   
   final static int
+    TYPE_EXTORTION =  0,
+    TYPE_BREAK_IN  =  1,
+    TYPE_SCAVENGE  =  2,
+    
     STAGE_INIT     = -1,
     STAGE_APPROACH =  0,
     STAGE_DROP     =  1,
@@ -89,9 +100,11 @@ public class Looting extends Plan {
       
       final Owner mark = (Owner) t;
       for (Item taken : mark.inventory().allItems()) {
+        taken = Item.withAmount(taken, Nums.min(1, taken.amount));
         final float rating = ActorMotives.rateDesire(taken, null, actor);
+        
         if (rating * (1 + Rand.num()) > bestRating) {
-          bestTaken  = Item.withAmount(taken, Nums.min(1, taken.amount));
+          bestTaken  = taken ;
           bestMark   = mark  ;
           bestRating = rating;
           if (report) I.say("  Rating for "+taken+" at "+mark+" is "+rating);
@@ -109,8 +122,10 @@ public class Looting extends Plan {
     
     float urge = ActorMotives.rateDesire(taken, null, actor) / Plan.ROUTINE;
     
-    urge *= (1.5f - Planet.dayValue(actor.world()));  //  TODO:  USE SUCCESS-CHANCE INSTEAD
-    if (mark.privateProperty()) urge -= 0.5f;
+    if (mark.base() != null) {
+      urge *= (1.5f - Planet.dayValue(actor.world()));  //  TODO:  USE SUCCESS-CHANCE INSTEAD
+      if (mark.privateProperty()) urge -= 0.5f;
+    }
     
     final float priority = priorityForActorWith(
       actor, mark,
@@ -137,7 +152,12 @@ public class Looting extends Plan {
   
   
   public int motionType(Actor actor) {
-    if (stage == STAGE_APPROACH) return Action.MOTION_SNEAK;
+    if (CombatUtils.baseAttacked(actor) == null) {
+      return super.motionType(actor);
+    }
+    if (stage == STAGE_APPROACH || stage == STAGE_DROP) {
+      return Action.MOTION_SNEAK;
+    }
     return super.motionType(actor);
   }
   
@@ -154,18 +174,6 @@ public class Looting extends Plan {
     if (stage == STAGE_DONE) {
       if (report) I.say("  Looting complete!");
       return null;
-    }
-    
-    if (stage == STAGE_DROP) {
-      if (dropOff == null) return null;
-      if (report) I.say("  Dropping off goods at "+dropOff);
-      
-      final Action drop = new Action(
-        actor, dropOff,
-        this, "actionDropGoods",
-        Action.REACH_DOWN, "Dropping off at "
-      );
-      return drop;
     }
     
     //  TODO:  Don't bother sneaking/hiding if you're, say, looting a body and
@@ -187,12 +195,26 @@ public class Looting extends Plan {
       return hide;
     }
     
+    if (stage == STAGE_DROP) {
+      if (dropOff == null) return null;
+      if (report) I.say("  Dropping off goods at "+dropOff);
+      
+      final Action drop = new Action(
+        actor, dropOff,
+        this, "actionDropGoods",
+        Action.REACH_DOWN, "Dropping off at "
+      );
+      return drop;
+    }
+    
     if (report) I.say("  Looting it is.");
     final Action loot = new Action(
       actor, mark,
       this, "actionLoot",
-      Action.REACH_DOWN, "Looting "
+      Action.BUILD, "Looting "
     );
+    if (mark instanceof Boarding);
+    else loot.setMoveTarget(Spacing.nearestOpenTile(mark, actor));
     stage = STAGE_APPROACH;
     return loot;
   }
@@ -202,6 +224,9 @@ public class Looting extends Plan {
     if (! hasBegun()) return false;
     final boolean report = stepsVerbose && I.talkAbout == actor;
     
+    //  Technically, stealing counts as a form of 'attack'...
+    final Base attacked = CombatUtils.baseAttacked(actor);
+    if (attacked == null) return false;
     //  TODO:  Ignore other guild members?
     
     //  In essence, you flee if you're too close to a member of the base you're
@@ -209,12 +234,10 @@ public class Looting extends Plan {
     //  you a target:
     for (Plan p : actor.world().activities.activePlanMatches(actor, null)){
       if (report) I.say("  Somebody is targeting me: "+p.actor()+", "+p);
-      return true;
+      if (p.actor().base() == attacked) return true;
     }
     if (actor.indoors()) return false;
     
-    //  Technically, stealing counts as a form of 'attack'...
-    final Base attacked = CombatUtils.baseAttacked(actor);
     final float minRange = actor.health.sightRange() / 2;
     for (Target t : actor.senses.awareOf()) {
       if (! ((t instanceof Actor) && t.base() == attacked)) continue;
@@ -236,8 +259,13 @@ public class Looting extends Plan {
   
   public boolean actionLoot(Actor actor, Owner mark) {
     mark.inventory().transfer(taken, actor);
-    if (dropOff != null) stage = STAGE_DROP;
-    else stage = STAGE_DONE;
+    if (
+      actor.gear.amountOf(taken) >= 5 ||
+      mark.inventory().amountOf(taken) == 0
+    ) {
+      if (dropOff != null) stage = STAGE_DROP;
+      else stage = STAGE_DONE;
+    }
     return true;
   }
   
@@ -250,7 +278,7 @@ public class Looting extends Plan {
   
   
   public boolean actionDropGoods(Actor actor, Property drop) {
-    actor.gear.transfer(taken, drop);
+    actor.gear.transfer(taken.type, drop);
     stage = STAGE_DONE;
     return true;
   }
@@ -262,12 +290,27 @@ public class Looting extends Plan {
   public void describeBehaviour(Description d) {
     if (actor.isDoingAction("actionHide", null)) {
       d.append("Hiding!");
+      return;
     }
-    else if (needsSuffix(d, "Looting ")) {
+    if (stage == STAGE_DROP) {
+      d.append("Dropping off ");
+      d.append(taken.type);
+      d.append(" at ");
+      d.append(dropOff);
+    }
+    if (stage <= STAGE_APPROACH) {
+      d.append("Looting ");
+      d.append(taken.type);
+      d.append(" from ");
       d.append(mark);
     }
   }
 }
+
+
+
+
+
 
 
 

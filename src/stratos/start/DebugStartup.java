@@ -9,7 +9,6 @@ import stratos.user.*;
 
 
 
-
 public class DebugStartup {
   public static void main(String args[]) {
     PlayLoop.setupAndLoop(new Playable() {

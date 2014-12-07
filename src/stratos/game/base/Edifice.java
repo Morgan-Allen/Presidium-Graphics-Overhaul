@@ -133,7 +133,7 @@ public class Edifice extends Venue {
   public String helpInfo() {
     return
       "The Edifice commemorates significant events in the history of your "+
-      "settlement beneath a frictionless tensile facade.";
+      "settlement beneath a frictionless composite facade.";
   }
   
 

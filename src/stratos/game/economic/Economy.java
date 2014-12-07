@@ -113,7 +113,7 @@ public final class Economy {
       "Disposable propaganda used to raise morale"
     ),
     ARTWORKS = new Traded(
-      BC, "Artworks" , "decor.gif"    , FORM_MATERIAL, 100,
+      BC, "Artworks" , "decor.gif"    , FORM_MATERIAL, 250,
       "Interior decoration for the homes of the upper crust"
     ),
     DATALINKS = new Traded(
@@ -231,6 +231,7 @@ public final class Economy {
   
   
   //  TODO:  Move the various armour/device types to their own catalogues.
+  //  (Which you can do now, thanks to the revamped index system.)
   
   final public static DeviceType
     STUN_WAND = new DeviceType(

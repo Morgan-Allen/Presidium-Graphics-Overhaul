@@ -10,10 +10,14 @@ import stratos.util.*;
 
 
 
+
 //  Assign drills directly at the trooper lodge.  That'll keep 'em busy!
 
 //  Arrange for contact missions to come back with a desired price from the
 //  subject/s.
+
+//  TODO:  There's a crash bug associated with the LibGDX object pool for text-
+//  characters when the text-view is being scrolled.
 
 //  TODO:  Introduce hunting by the natives, and allow trading with them as a
 //  source of carbs/greens/protein.  (Also, add singer performance?)  ...Just

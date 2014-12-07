@@ -55,7 +55,7 @@ public class Traded extends Index.Entry implements Session.Saveable {
   }
   
   
-  protected Traded(
+  public Traded(
     Class typeClass,
     String name, String imgName,
     int form, int basePrice,

@@ -185,7 +185,7 @@ public class PavingRoutes {
       //  visited tiles to avoid duplicated work-
       for (Object o : t.world.presences.matchesNear(Venue.class, v, range)) {
         final Tile jT = ((Venue) o).mainEntrance();
-        if (jT.flaggedWith() != null) continue;
+        if (jT == null || jT.flaggedWith() != null) continue;
         jT.flagWith(routesTo);
         routesTo.add(jT);
       }

@@ -100,11 +100,26 @@ public class DebugCommerce extends Scenario {
     
     final Actor vendor = new Human(Backgrounds.STOCK_VENDOR, base);
     final Venue looted = new StockExchange(base);
-    for (Traded t : looted.services()) {
+    for (Traded t : Economy.ALL_FOOD_TYPES) {
       looted.stocks.bumpItem(t, 10);
     }
     Placement.establishVenue(looted, 5, 10, true, world, vendor);
     
+    final SupplyCache cache = new SupplyCache();
+    cache.enterWorldAt(15, 15, world);
+    cache.inventory().bumpItem(Economy.ARTWORKS, 10);
+    
+    runner.goAboard(world.tileAt(13, 13), world);
+    //runner.setPosition(13, 13, world);
+    
+    
+    /*
+    final Looting loots = new Looting(
+      runner, cache, Item.withAmount(Economy.ARTWORKS, 1), runnerMarket
+    );
+    runner.mind.assignBehaviour(loots);
+    
+    /*
     final Looting loots = new Looting(
       runner, looted, Item.withAmount(Economy.GREENS, 1), runnerMarket
     );
@@ -114,6 +129,7 @@ public class DebugCommerce extends Scenario {
     final Arrest arrest = new Arrest(vendor, runner);
     arrest.setMotive(Plan.MOTIVE_EMERGENCY, Plan.ROUTINE);
     vendor.mind.assignBehaviour(arrest);
+    //*/
     
     UI.selection.pushSelection(runner, true);
     //UI.selection.pushSelection(vendor, true);
