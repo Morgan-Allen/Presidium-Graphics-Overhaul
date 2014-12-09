@@ -245,55 +245,6 @@ public class Audit extends Plan {
     else {
       return venue.stocks.credits() - sumWages;
     }
-    
-    //  TODO:  Allow qualified auditors to perform automatic currency
-    //  adjustments as part of this behaviour!
-    
-    /*
-    final float balance = venue.stocks.credits();
-    venue.stocks.incCredits(0 - Count.max(balance, sumWages));
-    venue.stocks.taxDone();
-    I.sayAbout(venue, "Balance is now: "+venue.stocks.credits());
-    return balance;
-    //*/
-    //  TODO:  Restore this in some form later.
-    /*
-    float
-      balance = venue.stocks.credits(),
-      waste = (Rand.num() + base.crimeLevel()) / 2f;
-    
-    final float honesty =
-      (audits.traits.traitLevel(HONOURABLE) / 2f) -
-      (audits.traits.traitLevel(ACQUISITIVE) * waste);
-    
-    if (Rand.num() > (honesty + 1f) / 2) {
-      waste *= 1.5f;
-      final float bribe = BASE_BRIBE_SIZE * waste;
-      balance -= bribe;
-      audits.gear.incCredits(bribe);
-    }
-    else {
-      if (audits.skills.test(ACCOUNTING, 15, 5)) waste  = 0;
-      if (audits.skills.test(ACCOUNTING, 5 , 5)) waste /= 2;
-    }
-    final int
-      profit = (int) (balance / (1 + waste)),
-      losses = (int) (balance * (1 + waste));
-    
-    
-    if (profit > 0) {
-      venue.stocks.incCredits(0 - profit);
-      venue.stocks.taxDone();
-      return profit;
-    }
-    if (losses < 0) {
-      venue.stocks.incCredits(0 - losses);
-      venue.stocks.taxDone();
-      return losses;
-    }
-    venue.stocks.taxDone();
-    return 0;
-    //*/
   }
   
   
@@ -344,6 +295,55 @@ public class Audit extends Plan {
 
 
 
+    
+    //  TODO:  Allow qualified auditors to perform automatic currency
+    //  adjustments as part of this behaviour!
+    
+    /*
+    final float balance = venue.stocks.credits();
+    venue.stocks.incCredits(0 - Count.max(balance, sumWages));
+    venue.stocks.taxDone();
+    I.sayAbout(venue, "Balance is now: "+venue.stocks.credits());
+    return balance;
+    //*/
+    //  TODO:  Restore this in some form later.
+    /*
+    float
+      balance = venue.stocks.credits(),
+      waste = (Rand.num() + base.crimeLevel()) / 2f;
+    
+    final float honesty =
+      (audits.traits.traitLevel(HONOURABLE) / 2f) -
+      (audits.traits.traitLevel(ACQUISITIVE) * waste);
+    
+    if (Rand.num() > (honesty + 1f) / 2) {
+      waste *= 1.5f;
+      final float bribe = BASE_BRIBE_SIZE * waste;
+      balance -= bribe;
+      audits.gear.incCredits(bribe);
+    }
+    else {
+      if (audits.skills.test(ACCOUNTING, 15, 5)) waste  = 0;
+      if (audits.skills.test(ACCOUNTING, 5 , 5)) waste /= 2;
+    }
+    final int
+      profit = (int) (balance / (1 + waste)),
+      losses = (int) (balance * (1 + waste));
+    
+    
+    if (profit > 0) {
+      venue.stocks.incCredits(0 - profit);
+      venue.stocks.taxDone();
+      return profit;
+    }
+    if (losses < 0) {
+      venue.stocks.incCredits(0 - losses);
+      venue.stocks.taxDone();
+      return losses;
+    }
+    venue.stocks.taxDone();
+    return 0;
+    //*/
 
 
 

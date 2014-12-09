@@ -30,9 +30,11 @@ public class Looting extends Plan {
     stepsVerbose = false;
   
   final static int
+    /*
     TYPE_EXTORTION =  0,
     TYPE_BREAK_IN  =  1,
     TYPE_SCAVENGE  =  2,
+    //*/
     
     STAGE_INIT     = -1,
     STAGE_APPROACH =  0,

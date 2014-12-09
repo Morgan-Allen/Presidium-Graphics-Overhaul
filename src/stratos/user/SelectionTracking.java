@@ -88,24 +88,21 @@ public class SelectionTracking {
   
   
   protected void pushCamera(int x, int y) {
-    final Vec3D p = view.lookedAt;
-    p.x += x;
-    p.y += y;
+    
+    final Stage world = UI.world();
+    final Vec3D nextPos = new Vec3D(view.lookedAt);
+    nextPos.x += x;
+    nextPos.y += y;
+    final Tile under = world.tileAt(nextPos.x, nextPos.y);
+    if (under == null) return;
+    
     UI.selection.pushSelection(null, true);
-    
-    final Vec2D centre = UI.trueBounds().centre();
-    final Vec3D groundPos = UI.world().pickedGroundPoint(
-      UI, view, centre.x, centre.y
-    );
-    final Tile under = UI.world().tileAt(groundPos.x, groundPos.y);
-    
-    if (under != null) {
-      final SelectionInfoPane pane = under.configPanel(null, UI);
-      final TargetOptions options = under.configInfo(null, UI);
-      UI.setInfoPanels(pane, options);
-    }
-    
     lockTarget = null;
+    view.lookedAt.setTo(nextPos);
+    
+    final SelectionInfoPane pane = under.configPanel(null, UI);
+    final TargetOptions options = under.configInfo(null, UI);
+    UI.setInfoPanels(pane, options);
   }
   
   

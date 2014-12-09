@@ -5,10 +5,11 @@
   */
 
 package stratos.util;
+
 import java.awt.*;
 import java.awt.image.*;
-
 import javax.swing.*;
+import java.io.*;
 
 
 
@@ -17,14 +18,29 @@ import javax.swing.*;
   *  (The name is intended to be as terse as possible.)
   *  TODO:  You need to have a logging system that allows various classes to
   *         be toggled on and off for reports.
-  *  TODO:  Get rid of the BaseUI.isPicked() method and create a sayFor(X, Y)
-  *         method instead.
+  *  TODO:  Try scanning for static 'verbose' fields in all classes?
   */
 public class I {
   
-  
   public static boolean mute = false;
   public static Object talkAbout = null;
+  
+  final static boolean WRITE_TO_LOG = false;
+  final static String OUT_FILE = "saves/log_output.txt";
+  static {
+    if (WRITE_TO_LOG) try {
+      final PrintStream logOutput = new PrintStream(new File(OUT_FILE)) {
+        public void finalize() {
+          this.flush();
+        }
+      };
+      System.setOut(logOutput);
+      System.setErr(logOutput);
+    }
+    catch (IOException e) {
+      System.out.println("COULD NOT OPEN LOG FILE! "+e);
+    }
+  }
   
   
   public static final void add(String s) {
@@ -47,18 +63,21 @@ public class I {
   }
   
   
+  private static void reportStackTrace(Exception e) {
+    String trace = "";
+    for (Object o : e.getStackTrace()) trace+="\n  "+o;
+    say("  STACK TRACE: "+trace);
+  }
+  
+  
   public static void report(Exception e) {
-    if (! mute) {
-      System.out.println("\nERROR:  "+e.getMessage());
-      e.printStackTrace();
-    }
+    say("\nERROR:  "+e.getMessage());
+    reportStackTrace(e);
   }
   
   
   public static void reportStackTrace() {
-    String trace = "";
-    for (Object o : new Exception().getStackTrace()) trace+="\n  "+o;
-    I.say("  STACK TRACE: "+trace);
+    reportStackTrace(new Exception());
   }
   
   
