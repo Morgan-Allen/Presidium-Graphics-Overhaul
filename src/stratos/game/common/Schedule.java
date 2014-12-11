@@ -29,7 +29,7 @@ public class Schedule {
     updateVerbose = false,
     verboseDelays = verbose && true;
   
-  private long initTime = -1;
+  private long initTime = -1, maxInterval = -1;
   private boolean lastUpdateOkay = true;
 
 
@@ -138,11 +138,18 @@ public class Schedule {
   /**  Advances the schedule of events in accordance with the current time in
     *  the host world.
     */
-  void advanceSchedule(final float currentTime) {
+  public boolean timeUp() {
+    if (maxInterval == -1) return false;
+    final long taken = System.currentTimeMillis() - initTime;
+    return taken > maxInterval;
+  }
+  
+  
+  protected void advanceSchedule(final float currentTime) {
     this.currentTime = currentTime;
     
     final int NU = PlayLoop.UPDATES_PER_SECOND * 2;
-    final int maxInterval = (int) (1000 / (PlayLoop.gameSpeed() * NU)) - 1;
+    maxInterval = (int) (1000 / (PlayLoop.gameSpeed() * NU)) - 1;
     
     final long oldInit = initTime;
     initTime = System.currentTimeMillis();
@@ -159,14 +166,14 @@ public class Schedule {
     );
     
     while (true) {
-      final long taken = System.currentTimeMillis() - initTime;
-      if (taken > maxInterval) {
+      if (timeUp()) {
         finishedOK = false;
         break;
       }
       
       final Object leastRef = events.leastRef();
       if (leastRef == null) {
+        finishedOK = true;
         break;
       }
       

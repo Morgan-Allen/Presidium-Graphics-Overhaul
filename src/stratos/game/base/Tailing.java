@@ -6,6 +6,7 @@ import stratos.game.economic.*;
 import stratos.game.actors.*;
 import stratos.game.maps.*;
 import stratos.game.plans.Mining;
+import stratos.game.wild.Habitat;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.util.*;

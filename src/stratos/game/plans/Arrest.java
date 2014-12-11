@@ -18,7 +18,12 @@ public class Arrest extends Plan {
     evalVerbose  = false,
     stepsVerbose = true ;
   
-  final static int WARN_LIMIT = 2;
+  final static int
+    TYPE_SCOLDING = 0,
+    TYPE_ARREST   = 2,
+    TYPE_BEATING  = 1,
+    
+    WARN_LIMIT = 2;
   
   private boolean doneWarning = false;
   

@@ -7,6 +7,7 @@ import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.plans.*;
+import stratos.game.wild.Habitat;
 import stratos.game.wild.Wreckage;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -235,7 +236,7 @@ public class Reactor extends Venue {
     structure.assignOutputs(Item.withAmount(POWER, powerOutput));
     
     //  Update demand for raw materials-
-    stocks.forceDemand(TOPES, 5 + (powerOutput / 5f), Stocks.TIER_CONSUMER);
+    stocks.forceDemand(TOPES, 5 + (powerOutput / 5f), TIER_CONSUMER);
     if (structure.upgradeLevel(ISOTOPE_CONVERSION) > 0) {
       stocks.translateDemands(1, METALS_TO_FUEL, this);
     }

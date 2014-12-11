@@ -7,12 +7,11 @@
 package stratos.user;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.tactical.*;
+import stratos.game.politic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.terrain.*;
 import stratos.graphics.sfx.*;
 import stratos.graphics.widgets.*;
-import stratos.start.Assets;
 import stratos.util.*;
 
 import com.badlogic.gdx.Gdx;

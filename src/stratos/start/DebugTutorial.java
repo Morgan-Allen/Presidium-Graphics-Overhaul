@@ -1,7 +1,7 @@
 
 package stratos.start;
-import stratos.game.campaign.*;
 import stratos.game.common.*;
+import stratos.game.politic.*;
 import stratos.game.actors.*;
 import stratos.graphics.common.Rendering;
 import stratos.graphics.widgets.KeyInput;

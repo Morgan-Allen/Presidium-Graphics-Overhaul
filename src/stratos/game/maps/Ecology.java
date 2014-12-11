@@ -3,6 +3,9 @@
 package stratos.game.maps;
 import stratos.game.common.*;
 import stratos.game.wild.Fauna;
+import stratos.game.wild.Flora;
+import stratos.game.wild.Habitat;
+import stratos.game.wild.Species;
 import stratos.util.*;
 
 

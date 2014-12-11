@@ -7,9 +7,10 @@
 
 package stratos.game.economic;
 import stratos.game.actors.*;
-import stratos.game.campaign.*;
 import stratos.game.common.*;
 import stratos.game.plans.*;
+import stratos.game.politic.*;
+import stratos.game.wild.Species;
 import stratos.game.maps.*;
 import stratos.util.*;
 
@@ -97,6 +98,23 @@ public class Personnel {
   
   public int workforce() {
     return workers.size();
+  }
+  
+  
+  public boolean isResident(Mobile a) {
+    for (Actor r : residents) if (r == a) return true;
+    return false;
+  }
+  
+  
+  public boolean isWorker(Mobile a) {
+    for (Actor w : workers) if (w == a) return true;
+    return false;
+  }
+  
+  
+  public boolean doesBelong(Mobile a) {
+    return isResident(a) || isWorker(a);
   }
   
   
@@ -227,7 +245,10 @@ public class Personnel {
   
   
   public void confirmApplication(FindWork a) {
-    employs.base().finance.incCredits(
+    final Base base = employs.base();
+    final Stage world = base.world;
+    
+    base.finance.incCredits(
       0 - a.hiringFee(), BaseFinance.SOURCE_HIRING
     );
     final Actor works = a.actor();
@@ -248,8 +269,7 @@ public class Personnel {
     //
     //  If the actor needs transport, arrange it-
     if (! works.inWorld()) {
-      final Commerce commerce = employs.base().commerce;
-      commerce.addImmigrant(works);
+      world.offworld.addMigrant(works, world);
     }
   }
   

@@ -4,10 +4,10 @@ package stratos.game.plans;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.util.*;
-import stratos.game.campaign.Commerce;
 import stratos.game.economic.*;
 import stratos.game.economic.Inventory.Owner;
-import static stratos.game.economic.Inventory.*;
+import stratos.game.politic.Commerce;
+import static stratos.game.economic.Economy.*;
 
 
 

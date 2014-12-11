@@ -2,7 +2,6 @@
 
 package stratos.user;
 import stratos.game.common.*;
-import stratos.game.tactical.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;

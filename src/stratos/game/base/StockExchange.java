@@ -228,7 +228,7 @@ public class StockExchange extends Venue {
     );
     for (Traded type : ALL_MATERIALS) {
       final int demandBonus = 10;
-      stocks.incDemand(type, demandBonus, Stocks.TIER_TRADER, 1, this);
+      stocks.incDemand(type, demandBonus, TIER_TRADER, 1, this);
       stocks.diffuseDemand(type, depots, 1);
     }
   }

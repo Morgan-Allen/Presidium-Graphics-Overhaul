@@ -3,7 +3,7 @@
 package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.tactical.Pledge;
+import stratos.game.politic.Pledge;
 import stratos.util.*;
 import stratos.game.common.Session.Saveable;
 

@@ -186,7 +186,7 @@ public class KommandoLodge extends Venue {
   public void updateAsScheduled(int numUpdates) {
     super.updateAsScheduled(numUpdates);
     if (! structure.intact()) return;
-    stocks.forceDemand(CARBS, 5, Stocks.TIER_CONSUMER);
+    stocks.forceDemand(CARBS, 5, TIER_CONSUMER);
     
     /*
     if (still == null || still.destroyed()) {

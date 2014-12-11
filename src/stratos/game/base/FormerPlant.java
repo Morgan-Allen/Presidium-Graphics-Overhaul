@@ -226,7 +226,7 @@ public class FormerPlant extends Venue {
       SDL = World.STANDARD_DAY_LENGTH;
     
     int powerNeed = 4 + (structure.numUpgrades() * 2);
-    stocks.incDemand(POWER, powerNeed, Stocks.TIER_CONSUMER, 1, this);
+    stocks.incDemand(POWER, powerNeed, TIER_CONSUMER, 1, this);
     stocks.bumpItem(POWER, powerNeed * -0.1f);
     float yield = 2 - stocks.shortagePenalty(POWER);
     

@@ -5,6 +5,7 @@ package stratos.game.maps;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.wild.Flora;
 import stratos.util.*;
 
 

@@ -5,6 +5,7 @@
   */
 package stratos.game.maps;
 import stratos.game.common.*;
+import stratos.game.wild.Habitat;
 import stratos.graphics.common.*;
 import stratos.graphics.terrain.*;
 import stratos.util.*;
@@ -169,9 +170,9 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
     if (h == null) return;
     final Sample s = sampleAt(x, y);
     s.habitat[h.ID] += inc;
-    s.insolation += h.insolation * inc;
-    s.minerals += h.rockiness * inc;
-    s.fertility += h.moisture * inc;
+    s.insolation += h.insolation() * inc;
+    s.minerals   += h.minerals  () * inc;
+    s.fertility  += h.moisture  () * inc;
   }
   
   

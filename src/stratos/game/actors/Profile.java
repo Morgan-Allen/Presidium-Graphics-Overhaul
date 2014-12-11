@@ -1,11 +1,12 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.actors;
-import stratos.game.actors.*;
-import stratos.game.campaign.*;
 import stratos.game.common.*;
-import stratos.game.economic.BaseProfiles;
+import stratos.game.economic.*;
+import stratos.game.politic.*;
 import stratos.util.*;
 
 
@@ -13,19 +14,51 @@ import stratos.util.*;
 public class Profile {
   
   
-  
   /**  Data fields, constructors and save/load methods-
     */
+  //  TODO:  I'm only going to implement about half of these for now- the rest
+  //  are intended for expanded content.
+  final static int
+    OFFENCE_ASSAULT    = 0,
+    OFFENCE_THEFT      = 1,
+    OFFENCE_DESERTION  = 2,
+    OFFENCE_CORRUPTION = 3;
+  final static int
+    SENTENCE_CENSURE   = 0,
+    SENTENCE_BEATING   = 1,
+    SENTENCE_DEMOTION  = 2,
+    SENTENCE_CAPTIVITY = 3;
+  final static String OFFENCE_DESCRIPTIONS[] = {
+    "Assault"              ,
+    "Theft and Smuggling"  ,
+    "Desertion of Duty"    ,
+    "Corruption"           ,
+    //  TODO:  Include vice, false evidence, gene-crime and tek-crime.
+  };
+  final static String SENTENCE_DESCRIPTIONS[] = {
+    "Censure"        ,
+    "Beating"        ,
+    "Demotion"       ,
+    "Captivity"      ,
+    //  TODO:  Include rehab, arena combat, penal labour, and execution.
+  };
+  
+  
   final public Actor actor;
   float paymentDue    =  0;
   float lastWageEval  = -1;
-  float offenderScore =  0;
+  
   float lastPsychEval = -1;
+  float offenderScore =  0;
+  
+  //TODO:  USE SENTENCINGS TO DISCOURAGE CRIMINAL ACTS!
   
   
   
   public Profile(Actor actor, BaseProfiles bP) {
     this.actor = actor;
+    
+    //  TODO:  Don't set this here.
     if (bP != null) lastWageEval = bP.base.world.currentTime();
   }
   
@@ -70,6 +103,11 @@ public class Profile {
     offenderScore += scoreInc;
     if (offenderScore < 0) offenderScore = 0;
   }
+  
+  
+  
+  /**  Criminal record-
+    */
   
   
   

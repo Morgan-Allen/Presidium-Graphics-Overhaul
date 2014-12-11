@@ -99,10 +99,10 @@ public class Fabricator extends Venue {
     if (levelPC > 0) stocks.translateDemands(1, CARBS_TO_LCHC, this);
     structure.setAmbienceVal(levelPC - 3);
     
-    stocks.incDemand(LCHC, 5, Stocks.TIER_CONSUMER, 1, this);
+    stocks.incDemand(LCHC, 5, TIER_CONSUMER, 1, this);
     stocks.translateDemands(1, LCHC_TO_PLASTICS, this);
     final float powerNeed = 2 + (structure.numUpgrades() / 2f);
-    stocks.forceDemand(POWER, powerNeed, Stocks.TIER_CONSUMER);
+    stocks.forceDemand(POWER, powerNeed, TIER_CONSUMER);
   }
   
   

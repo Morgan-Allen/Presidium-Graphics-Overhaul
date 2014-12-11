@@ -4,7 +4,6 @@
 package stratos.game.plans;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.tactical.*;
 import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.util.*;

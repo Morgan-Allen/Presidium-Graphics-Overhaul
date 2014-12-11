@@ -1,7 +1,7 @@
 
 
 package stratos.user;
-import stratos.game.campaign.*;
+import stratos.game.politic.*;
 import stratos.graphics.widgets.*;
 
 

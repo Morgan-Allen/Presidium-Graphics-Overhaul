@@ -10,7 +10,7 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.base.*;
-import stratos.game.tactical.*;
+import stratos.game.maps.*;
 import stratos.util.*;
 
 

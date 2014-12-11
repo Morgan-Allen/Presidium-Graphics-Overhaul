@@ -6,10 +6,11 @@
 
 
 package stratos.game.actors;
-import stratos.game.campaign.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
+import stratos.game.politic.*;
+import stratos.start.Scenario;
 import stratos.util.*;
 
 

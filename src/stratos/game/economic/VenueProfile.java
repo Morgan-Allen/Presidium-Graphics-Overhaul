@@ -7,8 +7,8 @@
 package stratos.game.economic;
 
 import stratos.game.actors.*;
-import stratos.game.campaign.BaseSetup;
 import stratos.game.common.*;
+import stratos.game.politic.BaseSetup;
 import stratos.start.Assets;
 import stratos.util.*;
 

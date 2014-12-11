@@ -5,7 +5,7 @@ package stratos.game.base;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
-import stratos.game.tactical.Pledge;
+import stratos.game.politic.Pledge;
 import stratos.game.actors.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -61,8 +61,7 @@ public class Cantina extends Venue {
     POT_INTERVAL  = 20,
     
     SOMA_MARGIN    = 1.5f,
-    GAMBLE_MARGIN  = 0.2f,
-    SMUGGLE_MARGIN = 2.0f;
+    GAMBLE_MARGIN  = 0.2f;
   /*
   final static FacilityProfile PROFILE = new FacilityProfile(
     Cantina.class, Structure.TYPE_VENUE,
@@ -170,9 +169,9 @@ public class Cantina extends Venue {
   public void updateAsScheduled(int numUpdates) {
     super.updateAsScheduled(numUpdates);
     if (! structure.intact()) return;
-    stocks.forceDemand(SOMA   , 5, Stocks.TIER_CONSUMER);
-    stocks.forceDemand(CARBS  , 5, Stocks.TIER_CONSUMER);
-    stocks.forceDemand(PROTEIN, 5, Stocks.TIER_CONSUMER);
+    stocks.forceDemand(SOMA   , 5, TIER_CONSUMER);
+    stocks.forceDemand(CARBS  , 5, TIER_CONSUMER);
+    stocks.forceDemand(PROTEIN, 5, TIER_CONSUMER);
     updateGambling(numUpdates);
   }
   
@@ -192,7 +191,7 @@ public class Cantina extends Venue {
   
   public float priceFor(Traded good) {
     if (good == SOMA) return SOMA.basePrice() * SOMA_MARGIN;
-    return good.basePrice() * SMUGGLE_MARGIN;
+    return good.basePrice() * DEFAULT_SMUGGLE_MARGIN;
   }
   
   

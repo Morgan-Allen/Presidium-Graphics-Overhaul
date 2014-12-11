@@ -4,7 +4,7 @@ package stratos.start;
 import stratos.game.actors.Human;
 import stratos.game.base.Suspensor;
 import stratos.game.economic.Economy;
-import stratos.game.maps.Species;
+import stratos.game.wild.Species;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.sfx.*;

@@ -10,7 +10,6 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
-import stratos.game.tactical.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
@@ -231,18 +230,18 @@ public class Bastion extends Venue {
     //
     //  Demand provisions-
     final int foodNeed = personnel.residents().size() + 2;
-    stocks.forceDemand(CARBS   , foodNeed * 1.5f, Stocks.TIER_CONSUMER);
-    stocks.forceDemand(PROTEIN , foodNeed * 1.0f, Stocks.TIER_CONSUMER);
-    stocks.forceDemand(GREENS  , foodNeed * 1.0f, Stocks.TIER_CONSUMER);
-    stocks.forceDemand(MEDICINE, foodNeed * 0.5f, Stocks.TIER_CONSUMER);
+    stocks.forceDemand(CARBS   , foodNeed * 1.5f, TIER_CONSUMER);
+    stocks.forceDemand(PROTEIN , foodNeed * 1.0f, TIER_CONSUMER);
+    stocks.forceDemand(GREENS  , foodNeed * 1.0f, TIER_CONSUMER);
+    stocks.forceDemand(MEDICINE, foodNeed * 0.5f, TIER_CONSUMER);
     
     final int partNeed = structure.upgradeLevel(LOGISTIC_SUPPORT) + 2;
-    stocks.forceDemand(PARTS   , partNeed * 1.0f, Stocks.TIER_CONSUMER);
-    stocks.forceDemand(PLASTICS, partNeed * 0.5f, Stocks.TIER_CONSUMER);
+    stocks.forceDemand(PARTS   , partNeed * 1.0f, TIER_CONSUMER);
+    stocks.forceDemand(PLASTICS, partNeed * 0.5f, TIER_CONSUMER);
     
     for (Traded type : Economy.ALL_MATERIALS) {
-      if (stocks.demandTier(type) == Stocks.TIER_CONSUMER) continue;
-      stocks.forceDemand(type, 0, Stocks.TIER_TRADER);
+      if (stocks.demandTier(type) == TIER_CONSUMER) continue;
+      stocks.forceDemand(type, 0, TIER_TRADER);
     }
     //
     //  Modify maximum integrity based on upgrades-

@@ -8,7 +8,7 @@ import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.economic.Inventory.Owner;
 import stratos.game.maps.*;
-import stratos.game.tactical.Pledge;
+import stratos.game.politic.Pledge;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;

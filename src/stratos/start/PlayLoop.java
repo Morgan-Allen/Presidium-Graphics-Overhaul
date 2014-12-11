@@ -10,7 +10,7 @@ import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
 import stratos.game.actors.Backgrounds;
-import stratos.game.maps.Species;
+import stratos.game.wild.Species;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;

@@ -8,6 +8,7 @@ package stratos.game.base;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
+import stratos.game.wild.Species;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.util.*;

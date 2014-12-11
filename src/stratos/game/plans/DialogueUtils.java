@@ -4,7 +4,7 @@
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.tactical.Transcript;
+import stratos.game.politic.Transcript;
 import stratos.graphics.sfx.TalkFX;
 import stratos.util.*;
 

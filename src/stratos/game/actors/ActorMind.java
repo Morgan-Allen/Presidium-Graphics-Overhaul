@@ -5,10 +5,10 @@
   */
 package stratos.game.actors;
 import stratos.game.common.*;
-import stratos.game.economic.Property;
-import stratos.game.maps.*;
-import stratos.game.tactical.*;
+import stratos.game.politic.*;
 import stratos.util.*;
+import stratos.game.wild.Species;
+import stratos.game.economic.Property;
 
 
 

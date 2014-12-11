@@ -8,7 +8,8 @@
 package stratos.game.common;
 import stratos.game.actors.*;
 import stratos.game.maps.*;
-import stratos.game.campaign.*;
+import stratos.game.wild.*;
+import stratos.game.politic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.start.*;
@@ -51,8 +52,10 @@ public class Stage {
   private WorldTerrain terrain;
   private Ecology ecology;
   private List <Base> bases = new List <Base> ();
+  final public Offworld offworld = new Offworld();
   
-  final public Setting setting = new Setting();
+  //final public Setting setting = new Setting();
+  
   final public Activities activities;
   final public PathingCache pathingCache;
   final public Presences presences;
@@ -66,7 +69,7 @@ public class Stage {
       tiles[c.x][c.y] = new Tile(this, c.x, c.y);
     }
     sections = new WorldSections(this, PATCH_RESOLUTION);
-    claims     = new PlacementGrid(this);
+    claims   = new PlacementGrid(this);
     schedule = new Schedule(currentTime);
     
     ecology = new Ecology(this);
@@ -97,12 +100,12 @@ public class Stage {
     terrain = (WorldTerrain) s.loadObject();
     terrain.initTerrainMesh(Habitat.ALL_HABITATS);
     ecology.loadState(s);
-    
     s.loadObjects(bases);
     for (int n = s.loadInt(); n-- > 0;) {
       toggleActive((Mobile) s.loadObject(), true);
     }
-    setting.loadState(s);
+    offworld.loadState(s);
+    
     activities.loadState(s);
     presences.loadState(s);
     ephemera.loadState(s);
@@ -125,7 +128,8 @@ public class Stage {
     s.saveObjects(bases);
     s.saveInt(mobiles.size());
     for (Mobile m : mobiles) s.saveObject(m);
-    setting.saveState(s);
+    offworld.saveState(s);
+    
     activities.saveState(s);
     presences.saveState(s);
     ephemera.saveState(s);
@@ -225,6 +229,8 @@ public class Stage {
     
     schedule.advanceSchedule(currentTime);
     ecology.updateEcology();
+    offworld.updateOffworldFrom(this);
+    
     for (Mobile m : mobiles)  m.updateAsMobile();
   }
   

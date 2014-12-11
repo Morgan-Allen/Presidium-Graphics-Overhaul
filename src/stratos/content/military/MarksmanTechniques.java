@@ -4,10 +4,7 @@ package stratos.content.military;
 
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.economic.DeviceType;
-import stratos.game.economic.OutfitType;
 import stratos.game.plans.*;
-import stratos.game.tactical.*;
 import stratos.graphics.sfx.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;

@@ -1,14 +1,16 @@
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 
 
 package stratos.game.economic;
+import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.base.*;
-import stratos.game.campaign.Commerce;
-import stratos.game.common.*;
-import stratos.game.economic.*;
-import stratos.game.maps.*;
 import stratos.game.plans.*;
+import stratos.game.politic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
 import stratos.graphics.widgets.*;
@@ -21,18 +23,13 @@ import static stratos.game.economic.Economy.*;
 /**  Trade ships come to deposit and collect personnel and cargo.
   */
 //
-//NOTE:  This class has been prone to bugs where sprite position appears to
-//'jitter' when passing over blocked tiles below, due to the mobile class
-//attempting to 'correct' position after each update.  This class must treat
-//all tiles as passable to compensate.
-
-
-//  TODO:  Dropships should have their supply/demand levels calibrated in
-//  advance whenever cargo is loaded.
-
-
+//  NOTE:  This class has been prone to bugs where sprite position appears to
+//  'jitter' when passing over blocked tiles below, due to the mobile class
+//  attempting to 'correct' position after each update.  This class must treat
+//  all tiles as passable to compensate.
 
 public class Dropship extends Vehicle implements Inventory.Owner {
+  
   
   /**  Fields, constants, constructors and save/load methods-
     */
@@ -72,7 +69,7 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     XML_FILE = "VehicleModels.xml";
   final static ModelAsset
     FREIGHTER_MODEL = MS3DModel.loadFrom(
-      FILE_DIR, "dropship.ms3d", Species.class,
+      FILE_DIR, "dropship.ms3d", Dropship.class,
       XML_FILE, "Dropship"
     );
   
@@ -95,7 +92,8 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   
   private Vec3D aimPos = new Vec3D(0, 0, NO_LANDING);
   private float stageInceptTime = 0;
-  private int stage = STAGE_AWAY;
+  private int   stage = STAGE_AWAY;
+  
   private int nameID = -1;
   
   
@@ -135,46 +133,18 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   
   /**  Economic and behavioural functions-
     */
-  public float visitCrowding(Actor actor) {
-    float crowding = 0;
-    for (Mobile m : inside()) {
-      if (m instanceof Actor) {
-        if (((Actor) m).mind.work() == this) continue;
-      }
-      crowding++;
-    }
-    crowding /= MAX_PASSENGERS;
-    return crowding;
-  }
-  
-  
-  public float homeCrowding(Actor actor) {
-    return personnel().residents().size() * 1f / MAX_CREW;
-  }
-  
-  
-  public Traded[] services() { return ALL_MATERIALS; }
-  
-  
   public Behaviour jobFor(Actor actor) {
     final boolean report = verbose && (
       I.talkAbout == actor || I.talkAbout == this
     );
-    if (actor.isDoing(Delivery.class, null)) return null;
-    
     if (report) I.say("\nGetting next dropship job for "+actor);
     
+    if (actor.isDoing(Delivery.class, null)) return null;
+    
     if (stage >= STAGE_BOARDING) {
-      final Action boardAction = new Action(
-        actor, this,
-        this, "actionBoard",
-        Action.STAND, "boarding "+this
-      );
-      boardAction.setPriority(
-        stage == STAGE_BOARDING ? Action.PARAMOUNT : 100
-      );
-      if (report) I.say("Boarding priority: "+boardAction.priorityFor(actor));
-      return boardAction;
+      final Smuggling boarding = new Smuggling(actor, null, this, new Item[0]);
+      boarding.setMotive(Plan.MOTIVE_EMERGENCY, Plan.PARAMOUNT);
+      return boarding;
     }
     
     final Batch <Venue> depots = DeliveryUtils.nearbyDepots(
@@ -197,52 +167,25 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   }
   
   
-  public boolean actionBoard(Actor actor, Dropship ship) {
-    ship.setInside(actor, true);
-    return true;
-  }
-  
-  
-  public void beginBoarding() {
-    if (stage != STAGE_LANDED) I.complain("Cannot board until landed!");
-    stage = STAGE_BOARDING;
-  }
-  
-  
-  public boolean allAboard() {
-    for (Actor c : crew()) {
-      if (c.aboard() != this) return false;
-      if (! c.isDoingAction("actionBoard", this)) return false;
-    }
-    return true;
-  }
-  
-  
-  protected void offloadPassengers() {
-    final Vec3D p = dropPoint.position(null);
-    
+  public float visitCrowding(Actor actor) {
+    float crowding = 0;
     for (Mobile m : inside()) {
-      
       if (m instanceof Actor) {
-        final Actor a = (Actor) m;
-        final boolean belongs =
-          personnel().workers().includes(a) ||
-          personnel().residents().includes(a);
-        
-        if (! belongs) {
-          m.setPosition(p.x, p.y, world);
-          m.goAboard(dropPoint, world);
-        }
+        if (((Actor) m).mind.work() == this) continue;
       }
-      
-      if (! m.inWorld()) {
-        m.setPosition(p.x, p.y, world);
-        m.enterWorld();
-        m.goAboard(dropPoint, world);
-      }
+      crowding++;
     }
-    inside.clear();
+    crowding /= MAX_PASSENGERS;
+    return crowding;
   }
+  
+  
+  public float homeCrowding(Actor actor) {
+    return personnel().residents().size() * 1f / MAX_CREW;
+  }
+  
+  
+  public Traded[] services() { return ALL_MATERIALS; }
   
   
   public int spaceFor(Traded good) {
@@ -257,10 +200,26 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     return service.basePrice();
   }
   
-
-
+  
+  
   /**  Handling the business of ascent and landing-
     */
+  protected void assignLandPoint(Vec3D aimPos, Boarding dropPoint) {
+    if (aimPos == null) this.aimPos.set(0, 0, NO_LANDING);
+    else this.aimPos.setTo(aimPos);
+    this.dropPoint = dropPoint;
+  }
+  
+  
+  public Box2D landArea() {
+    if (aimPos.z == NO_LANDING) return null;
+    final int size = (int) Math.ceil(radius());
+    final Box2D area = new Box2D().set(aimPos.x, aimPos.y, 0, 0);
+    area.expandBy(size + 1);
+    return area;
+  }
+  
+  
   public void beginDescent(Stage world) {
     final Tile entry = Spacing.pickRandomTile(
       world.tileAt(aimPos.x, aimPos.y), INIT_DIST, world
@@ -275,55 +234,24 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   }
   
   
-  public void completeDescent() {
+  private void completeDescent() {
     nextPosition.setTo(position.setTo(aimPos));
     rotation = nextRotation = 0;
-    performLanding(world, landArea());
-    offloadPassengers();
+    dropPoint = ShipUtils.performLanding(this, world, landArea(), entranceFace);
+    ShipUtils.offloadPassengers(this, true);
     stageInceptTime = world.currentTime();
     stage = STAGE_LANDED;
   }
   
   
-  private void performLanding(Stage world, Box2D site) {
-    if (dropPoint instanceof Venue) {
-      //  Rely on the docking functions of the landing site...
-      ((LaunchHangar) dropPoint).setToDock(this);
-    }
-    else {
-      //  Claim any tiles underneath as owned, and evacuate any occupants-
-      site = new Box2D().setTo(site).expandBy(-1);
-      for (Tile t : world.tilesIn(site, false)) {
-        if (t.onTop() != null) t.onTop().setAsDestroyed();
-        t.setOnTop(this);
-      }
-      for (Tile t : world.tilesIn(site, false)) {
-        for (Mobile m : t.inside()) if (m != this) {
-          final Tile e = Spacing.nearestOpenTile(m.origin(), m);
-          m.setPosition(e.x, e.y, world);
-        }
-      }
-      final int size = 2 * (int) Math.ceil(radius());
-      final int EC[] = Spacing.entranceCoords(size, size, entranceFace);
-      final Tile o = world.tileAt(site.xpos() + 0.5f, site.ypos() + 0.5f);
-      final Tile exit = world.tileAt(o.x + EC[0], o.y + EC[1]);
-      
-      //  And just make sure the exit is clear-
-      if (exit.onTop() != null) exit.onTop().setAsDestroyed();
-      this.dropPoint = exit;
-    }
-    
-    //  Offload cargo and passengers-
-    offloadPassengers();
-    
-    stage = STAGE_LANDED;
-    stageInceptTime = world.currentTime();
+  public void beginBoarding() {
+    if (stage != STAGE_LANDED) I.complain("Cannot board until landed!");
+    stage = STAGE_BOARDING;
   }
   
   
   public void beginAscent() {
-    //  TODO:  CHECK FOR OFFICIAL PASSENGERS HERE
-    if (stage == STAGE_LANDED) offloadPassengers();
+    if (stage == STAGE_LANDED) ShipUtils.offloadPassengers(this, false);
     
     ///I.say("BEGINNING ASCENT");
     if (dropPoint instanceof LaunchHangar) {
@@ -342,27 +270,18 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   }
   
   
+  private void completeAscent() {
+    world.offworld.beginJourney(this, Offworld.TRAVEL_DURATION);
+    exitWorld();
+    stage = STAGE_AWAY;
+    stageInceptTime = world.currentTime();
+    aimPos.set(0, 0, NO_LANDING);
+  }
+  
+  
   public boolean landed() {
     return stage == STAGE_LANDED || stage == STAGE_BOARDING;
   }
-  
-  /*
-  public float timeLanded() {
-    if (stage == STAGE_AWAY || stage == STAGE_DESCENT) return - 1;
-    return world.currentTime() - stageInceptTime;
-  }
-  
-  
-  public void resetAwayTime() {
-    if (stage != STAGE_AWAY) return;
-    stageInceptTime = 0 - Commerce.SUPPLY_INTERVAL;
-  }
-  
-  
-  public float timeAway(Stage world) {
-    return world.currentTime() - stageInceptTime;
-  }
-  //*/
   
   
   public int flightStage() {
@@ -373,61 +292,25 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   protected void updateAsMobile() {
     super.updateAsMobile();
     //
-    //  If obstructions appear during the descent, restart the flight-path-
-    if (stage == STAGE_DESCENT) {
-      if (! checkLandingArea(world, landArea())) {
-        beginAscent();
-      }
-    }
-    //
     //  Check to see if ascent or descent are complete-
     final float height = position.z / INIT_HIGH;
     if (stage == STAGE_ASCENT && height >= 1) {
-      for (Mobile m : inside()) if (m.inWorld()) m.exitWorld();
-      exitWorld();
-      stage = STAGE_AWAY;
-      stageInceptTime = world.currentTime();
-      aimPos.set(0, 0, NO_LANDING);
+      completeAscent();
     }
-    if (stage == STAGE_DESCENT && height <= 0) {
-      performLanding(world, landArea());
+    if (stage == STAGE_DESCENT) {
+      //
+      //  If obstructions appear during the descent, restart the flight-path.
+      //  If you touchdown, register as such.
+      if (! ShipUtils.checkLandingArea(this, world, landArea())) {
+        beginAscent();
+      }
+      else if (height <= 0) {
+        completeDescent();
+      }
     }
     //
     //  Otherwise, adjust motion-
-    if (inWorld() && ! landed()) adjustFlight(height);
-  }
-  
-  
-  private void adjustFlight(float height) {
-    //
-    //  Firstly, determine what your current position is relative to the aim
-    //  point-
-    final Vec3D disp = aimPos.sub(position, null);
-    final Vec2D heading = new Vec2D().setTo(disp).scale(-1);
-    //
-    //  Calculate rate of lateral speed and descent-
-    final float UPS = 1f / Stage.UPDATES_PER_SECOND;
-    final float speed = TOP_SPEED * height * UPS;
-    float ascent = TOP_SPEED * UPS / 4;
-    ascent = Math.min(ascent, Math.abs(position.z - aimPos.z));
-    if (stage == STAGE_DESCENT) ascent *= -1;
-    //
-    //  Then head toward the aim point-
-    if (disp.length() > speed) disp.scale(speed / disp.length());
-    disp.z = 0;
-    nextPosition.setTo(position).add(disp);
-    nextPosition.z = position.z + ascent;
-    //
-    //  And adjust rotation-
-    float angle = (heading.toAngle() * height) + (90 * (1 - height));
-    final float
-      angleDif = Vec2D.degreeDif(angle, rotation),
-      absDif   = Math.abs(angleDif), maxRotate = 90 * UPS;
-    if (height < 0.5f && absDif > maxRotate) {
-      angle = rotation + (maxRotate * (angleDif > 0 ? 1 : -1));
-      angle = (angle + 360) % 360;
-    }
-    nextRotation = angle;
+    if (inWorld() && ! landed()) ShipUtils.adjustFlight(this, aimPos, height);
   }
   
 
@@ -437,141 +320,9 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   }
   
   
-  public void pathingAbort() {}
-  
   //  TODO:  Path-finding will need to be more generally addressed here...
+  public void pathingAbort() {}
   protected boolean collides() { return false; }
-  //public boolean blockedBy(Boardable t) { return false; }
-  
-  
-  /**  Code for finding a suitable landing site-
-    */
-  public Box2D landArea() {
-    final int size = (int) Math.ceil(radius());
-    final Box2D area = new Box2D().set(aimPos.x, aimPos.y, 0, 0);
-    area.expandBy(size + 1);
-    return area;
-  }
-  
-  
-  protected boolean checkLandingArea(Stage world, Box2D area) {
-    if (dropPoint instanceof Venue) {
-      return dropPoint.inWorld();
-    }
-    else for (Tile t : world.tilesIn(area, false)) {
-      if (t == null) return false;
-      if (t.onTop() == this) continue;
-      if (PavingMap.pavingReserved(t)) return false;
-      if (t.owningType() > Element.ELEMENT_OWNS) return false;
-    }
-    return true;
-  }
-  
-  
-  public boolean findLandingSite(final Base base) {
-    final boolean report = verbose && BaseUI.current().played() == base;
-    
-    this.assignBase(base);
-    final Stage world = base.world;
-    
-    //  TODO:  Use DeliveryUtils here instead- that will give you the single
-    //  best building to start off nearby.
-    
-    //  First of all, check to see if landing at a supply depot/launch hangar
-    //  is possible:
-    final Pick <LaunchHangar> pick = new Pick <LaunchHangar> ();
-    
-    for (Object o : world.presences.matchesNear(LaunchHangar.class, this, -1)) {
-      final LaunchHangar strip = (LaunchHangar) o;
-      if (strip.docking() != null || ! strip.structure.intact()) continue;
-      
-      final FRSD parent = strip.parentDepot();
-      float rating = 0;
-      for (Traded good : Economy.ALL_MATERIALS) {
-        rating += Nums.max(0, parent.stocks.shortageOf(good));
-        rating += Nums.max(0, parent.stocks.surplusOf (good));
-      }
-      rating /= 2 * ALL_MATERIALS.length;
-      pick.compare(strip, rating);
-    }
-
-    final LaunchHangar strip = pick.result();
-    if (strip != null) {
-      strip.position(aimPos);
-      dropPoint = strip;
-      strip.setToDock(this);
-      
-      I.say("Landing at depot: "+dropPoint);
-      return true;
-    }
-    
-    if (aimPos.z != NO_LANDING && checkLandingArea(world, landArea())) {
-      if (report) {
-        I.say("\nCurrent landing site valid for "+this+":");
-        I.say("  "+landArea());
-      }
-      return true;
-    }
-    
-    final Tile midTile = world.tileAt(world.size / 2, world.size / 2);
-    final Presences p = world.presences;
-    Target nearest = null;
-    
-    //  TODO:  There needs to be a more elegant solution here...
-    nearest = p.randomMatchNear(FRSD.class, midTile, -1);
-    if (findLandingSite(nearest, base)) return true;
-    nearest = p.randomMatchNear(base, midTile, -1);
-    if (findLandingSite(nearest, base)) return true;
-    nearest = p.nearestMatch(base, midTile, -1);
-    if (findLandingSite(nearest, base)) return true;
-    return false;
-  }
-
-  
-  private boolean findLandingSite(
-    Target from, final Base base
-  ) {
-    if (from == null) return false;
-    final Tile init = Spacing.nearestOpenTile(base.world.tileAt(from), from);
-    if (init == null) return false;
-    final boolean report = verbose && BaseUI.current().played() == base;
-    
-    //
-    //  Then, spread out to try and find a decent landing site-
-    final Box2D area = landArea();
-    final int maxDist = Stage.SECTOR_SIZE * 2;
-    final TileSpread spread = new TileSpread(init) {
-      protected boolean canAccess(Tile t) {
-        if (Spacing.distance(t, init) > maxDist) return false;
-        return ! t.blocked();
-      }
-      protected boolean canPlaceAt(Tile t) {
-        area.xpos(t.x - 0.5f);
-        area.ypos(t.y - 0.5f);
-        return checkLandingArea(base.world, area);
-      }
-    };
-    spread.doSearch();
-    
-    if (spread.success()) {
-      aimPos.set(
-        area.xpos() + (area.xdim() / 2f),
-        area.ypos() + (area.ydim() / 2f),
-        0
-      );
-      aimPos.z = base.world.terrain().trueHeight(aimPos.x, aimPos.y);
-      dropPoint = null;
-      
-      if (report) I.say("\n"+this+" found landing at point: "+aimPos);
-      return true;
-    }
-    else {
-      aimPos.set(0, 0, NO_LANDING);
-      
-      if (report) I.say("No landing site found for "+this+".");
-      return false;
-    }
-  }
   
   
   
@@ -589,19 +340,6 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     
     super.renderFor(rendering, base);
   }
-  
-  
-  /*
-  public void renderSelection(Rendering rendering, boolean hovered) {
-    if (indoors() || ! inWorld()) return;
-    float fadeout = sprite().colour.a;
-    Selection.renderPlane(
-      rendering, viewPosition(null), radius() + 0.5f,
-      Colour.transparency(fadeout * (hovered ? 0.5f : 1)),
-      Selection.SELECT_CIRCLE
-    );
-  }
-  //*/
   
   
   public String fullName() {

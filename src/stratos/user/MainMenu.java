@@ -2,10 +2,9 @@
 
 package stratos.user;
 import stratos.game.actors.*;
-import stratos.game.campaign.*;
-import static stratos.game.campaign.StartupScenario.*;
 import static stratos.game.actors.Backgrounds.*;
-import stratos.game.campaign.*;
+import static stratos.start.StartupScenario.*;
+import stratos.game.politic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.start.*;

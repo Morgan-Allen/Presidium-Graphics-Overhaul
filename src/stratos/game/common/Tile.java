@@ -9,6 +9,7 @@ package stratos.game.common;
 import stratos.game.actors.Background;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
+import stratos.game.wild.Habitat;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.Composite;
 import stratos.graphics.widgets.Text.Clickable;

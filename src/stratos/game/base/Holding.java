@@ -259,14 +259,14 @@ public class Holding extends Venue {
     stocks.clearDemands();
     
     for (Item i : HoldingUpgrades.materials(targetLevel).raw) {
-      stocks.forceDemand(i.type, i.amount + 0.5f, Stocks.TIER_CONSUMER);
+      stocks.forceDemand(i.type, i.amount + 0.5f, TIER_CONSUMER);
     }
     
     final float supportNeed = HoldingUpgrades.supportNeed(this, targetLevel);
-    stocks.forceDemand(LIFE_SUPPORT, supportNeed, Stocks.TIER_CONSUMER);
+    stocks.forceDemand(LIFE_SUPPORT, supportNeed, TIER_CONSUMER);
     
     for (Item i : HoldingUpgrades.rationNeeds(this, targetLevel)) {
-      stocks.forceDemand(i.type, i.amount, Stocks.TIER_CONSUMER);
+      stocks.forceDemand(i.type, i.amount, TIER_CONSUMER);
     }
   }
   

@@ -3,6 +3,8 @@
 
 package stratos.game.maps;
 import stratos.game.common.*;
+import stratos.game.wild.Habitat;
+import stratos.game.wild.Outcrop;
 import stratos.util.*;
 
 
@@ -212,7 +214,7 @@ public class TerrainGen implements TileConstants {
       
       Habitat under = habitats[Nums.clamp((int) sum, habitats.length)];
       
-      if (! under.isOcean) {
+      if (! under.isOcean()) {
         float detail = Nums.sampleMap(mapSize, detailGrid, c.x, c.y) / 10f;
         sum += detail * detail * 2;
         under = habitats[Nums.clamp((int) sum, habitats.length)];
@@ -416,7 +418,7 @@ public class TerrainGen implements TileConstants {
         float rockAmount = detailGrid[x][y] / 10f;
         rockAmount *= rockAmount * Rand.num() * 1.25f;
         
-        if ((rockAmount * 10) > (10 - habitat.rockiness)) {
+        if ((rockAmount * 10) > (10 - habitat.minerals())) {
           //
           //  If placement was successful, 'paint' the perimeter with suitable
           //  habitat types-

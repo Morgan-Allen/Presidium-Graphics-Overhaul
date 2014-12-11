@@ -3,7 +3,6 @@
 package stratos.game.wild;
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.maps.Species;
 import stratos.graphics.widgets.Composite;
 import stratos.user.BaseUI;
 

@@ -16,8 +16,12 @@ import static stratos.game.economic.Economy.*;
 
 
 
-//  They sell stolen (or manufactured) goods offworld, and import their own
-//  specialties.  That's easy to regulate, and makes good sense.
+//  So... what does a runner do during their normal days?
+//  *  Smuggle (to afar.)
+//  *  Provide services (poison, vr, gene mods, etc. nearby)
+//  *  Steal (from afar.)
+//  *  Perform enforcement/taxation (from nearby.)
+
 
 //  TODO:  IMPLEMENT UPGRADES:
 
@@ -146,27 +150,35 @@ public class RunnerLodge extends Venue {
   
   public Behaviour jobFor(Actor actor) {
     if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
-    
-    ///I.say("\nGetting next runner job for "+actor);
     final Choice choice = new Choice(actor);
+    //
     //  TODO:  Only loot from distant areas of the city, or from other
     //  settlements- just collect protection money nearby.
+    //
+    //  TODO:  Also, select which venues to loot from (so you can avoid any
+    //  nearby.)
     choice.add(Looting.nextLootingFor(actor, this));
-    
+    //
+    //  Next, consider smuggling goods out of the settlement-
+    for (Dropship ship : actor.base().commerce.allVessels()) {
+      if (! ship.landed()) continue;
+      final Item toMove[] = base.commerce.getBestCargo(stocks, 5, false);
+      final Smuggling s = new Smuggling(actor, this, ship, toMove);
+      if (personnel.assignedTo(s) == 0) choice.add(s);
+    }
     return choice.weightedPick();
   }
   
   
   public void addServices(Choice choice, Actor forActor) {
     //  For the IV Punks, add Slow Burn or Fast Toxin purchases.
-    //  For the Silver Geist, add Implants surgery or Simstim purchase/recording.
+    //  For the Silver Geist, add Implants surgery or Simstim recordings.
     //  For the Hudzin Baru, add Disguise or G-Mods purchases/surgery.
   }
   
   
   public void updateAsScheduled(int numUpdates) {
     super.updateAsScheduled(numUpdates);
-    
     //  Demand either parts or reagents, depending on what you're making.
     //  Register as a producer of whatever you're making.
   }

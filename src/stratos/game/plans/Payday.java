@@ -7,13 +7,39 @@
 
 package stratos.game.plans;
 import stratos.game.actors.*;
-import stratos.game.campaign.BaseFinance;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.politic.BaseFinance;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
+
+
+
+
+
+//  Visit the dwelling in question.  Audit it (extend the class,) and lay some
+//  smack down if the target doesn't behave.
+
+//  But... how do you define 'not behaving'?  I think you need to have a notion
+//  of 'tax evasion' before you can have a notion of correcting offences.
+
+//  Assault.  Theft.  Desertion.  Corruption.
+
+//  So, how do you evade tax?  ...By electing not to go and pay.  It is a sin
+//  of ommission.  So it is the citizen's responsibility to pay their tax (or
+//  obtain relief) at the nearest admin point (the bastion, enforcer bloc or
+//  runner lodge.)
+
+
+//  The auditor (analyst or runner) simply drops in to... remind the subject of
+//  their obligations.  The muscle (enforcer or runner) will bring them in for
+//  sentencing (or just dish out a beating.)
+
+//  So... I don't actually need to create this class.  I need to refactor the
+//  Payday and Auditing classes to more accurately reflect the duties of both
+//  citizens and government.
 
 
 
@@ -23,6 +49,7 @@ public class Payday extends Plan {
   /**  Data fields, setup and save/load functions-
     */
   private static boolean verbose = false;
+  
   
   final Property pays;
   

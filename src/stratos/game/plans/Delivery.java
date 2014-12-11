@@ -15,7 +15,7 @@ import stratos.game.economic.Traded;
 import stratos.game.economic.Vehicle;
 import stratos.game.economic.Venue;
 import stratos.game.economic.Inventory.Owner;
-import stratos.game.tactical.Pledge;
+import stratos.game.politic.Pledge;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
 

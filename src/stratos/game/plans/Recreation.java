@@ -6,7 +6,7 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.Planet;
-import stratos.game.tactical.Pledge;
+import stratos.game.politic.Pledge;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;

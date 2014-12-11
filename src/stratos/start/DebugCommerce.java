@@ -1,14 +1,17 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.start;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.base.*;
-import stratos.game.campaign.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.wild.*;
 import stratos.game.plans.*;
+import stratos.game.politic.*;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -112,6 +115,7 @@ public class DebugCommerce extends Scenario {
     runner.goAboard(world.tileAt(13, 13), world);
     //runner.setPosition(13, 13, world);
     
+    //  TODO:  Test smuggling next!
     
     /*
     final Looting loots = new Looting(

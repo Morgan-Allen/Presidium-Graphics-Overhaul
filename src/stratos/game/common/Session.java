@@ -8,8 +8,9 @@ package stratos.game.common;
 import java.io.*;
 import java.lang.reflect.*;
 
-import stratos.game.campaign.*;
+import stratos.game.politic.*;
 import stratos.start.Assets;
+import stratos.start.Scenario;
 import stratos.util.*;
 
 

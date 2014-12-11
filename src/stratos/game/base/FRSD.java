@@ -123,13 +123,13 @@ public class FRSD extends Venue {
       final int type = tradeTypes[i], level = tradeLevels[i];
       
       if      (type == TRADE_AUTO  ) {
-        stocks.incDemand(t, 0, Stocks.TIER_TRADER, interval, this);
+        stocks.incDemand(t, 0, TIER_TRADER, interval, this);
       }
       else if (type == TRADE_IMPORT) {
-        stocks.forceDemand(t, level, Stocks.TIER_IMPORTER);
+        stocks.forceDemand(t, level, TIER_IMPORTER);
       }
       else if (type == TRADE_EXPORT) {
-        stocks.forceDemand(t, level, Stocks.TIER_EXPORTER);
+        stocks.forceDemand(t, level, TIER_EXPORTER);
       }
     }
   }

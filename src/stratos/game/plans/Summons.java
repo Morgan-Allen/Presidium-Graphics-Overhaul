@@ -3,10 +3,9 @@
 package stratos.game.plans;
 import stratos.game.common.*;
 import stratos.game.actors.*;
-import stratos.game.tactical.*;
+import stratos.game.politic.*;
 import stratos.user.*;
 import stratos.util.*;
-import stratos.game.campaign.BaseFinance;
 import stratos.game.economic.*;
 import stratos.util.Description.Link;
 

@@ -3,7 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.game.economic;
 import stratos.game.actors.*;
 import stratos.game.base.*;
@@ -16,11 +15,7 @@ public final class Economy {
   
   
   private Economy() {}
-  
-  final public static float
-    ITEM_WEAR_DURATION = 100;
-  
-  final static Class BC = Economy.class;
+  final static Class <Economy> BC = Economy.class;
   
   final public static int
     FORM_RESOURCE  = 0,
@@ -31,7 +26,20 @@ public final class Economy {
     FORM_OUTFIT    = 5,
     FORM_USABLE    = 6,
     FORM_SPECIAL   = 7;
-  
+  final public static float
+    DEFAULT_SALES_MARGIN   = 0.2f,
+    DEFAULT_IMPORT_MARGIN  = 0.5f,
+    DEFAULT_EXPORT_MARGIN  = 0.5f,
+    DEFAULT_SMUGGLE_MARGIN = 1.0f;
+  final public static int
+    TIER_NONE     = -2,  //
+    TIER_IMPORTER = -1,
+    TIER_PRODUCER =  0,  //never deliver to a producer.
+    TIER_TRADER   =  1,  //deliver to/from based on relative shortage.
+    TIER_CONSUMER =  2,  //never deliver from a consumer.
+    TIER_EXPORTER =  3;
+  final public static float
+    ITEM_WEAR_DURATION = 100;
   
   final public static Traded
     MINERALS   = new Traded(BC, "Minerals"  , null, FORM_RESOURCE, 0),

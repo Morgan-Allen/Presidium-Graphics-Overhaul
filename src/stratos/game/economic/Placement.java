@@ -2,8 +2,8 @@
 
 package stratos.game.economic;
 import stratos.game.actors.*;
-import stratos.game.campaign.*;
 import stratos.game.common.*;
+import stratos.game.politic.*;
 import stratos.util.*;
 
 
