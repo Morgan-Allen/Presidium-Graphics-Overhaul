@@ -351,21 +351,25 @@ public abstract class Mobile extends Element
     s.scale = scale;
     s.position.setTo(position);
     s.rotation = rotation;
+    s.readyFor(rendering);
     //
     //  Render your shadow, either on the ground or on top of occupants-
-    final float R2 = Nums.sqrt(2);
-    final PlaneFX shadow = (PlaneFX) SHADOW_MODEL.makeSprite();
-    shadow.scale = radius() * scale * R2;
-    final Vec3D p = s.position;
-    shadow.position.setTo(p);
-    shadow.position.z = shadowHeight(p);
-    shadow.readyFor(rendering);
-    s.readyFor(rendering);
+    final PlaneFX shadow = createShadow(s);
+    if (shadow != null) shadow.readyFor(rendering);
   }
   
   
-  protected float shadowHeight(Vec3D p) {
-    return world.terrain().trueHeight(p.x, p.y);
+  protected PlaneFX createShadow(Sprite rendered) {
+    final PlaneFX shadow = (PlaneFX) SHADOW_MODEL.makeSprite();
+    
+    final float R2 = Nums.sqrt(2);
+    shadow.scale = radius() * rendered.scale * R2;
+    
+    final Vec3D p = shadow.position;
+    p.setTo(rendered.position);
+    p.z = world.terrain().trueHeight(p.x, p.y);
+    
+    return shadow;
   }
   
   

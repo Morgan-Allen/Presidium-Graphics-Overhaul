@@ -20,6 +20,7 @@ public class ShipUtils {
   
   private static boolean
     landVerbose = true ,
+    flyVerbose  = true ,
     siteVerbose = true ;
   
   
@@ -93,6 +94,8 @@ public class ShipUtils {
   /**  Dealing with motion during flight:
     */
   static void adjustFlight(Dropship ship, Vec3D aimPos, float height) {
+    final boolean report = flyVerbose && I.talkAbout == ship;
+    if (report) I.say("\nAdjusting flight heading for "+ship);
     //
     //  Firstly, determine what your current position is relative to the aim
     //  point-
@@ -105,6 +108,12 @@ public class ShipUtils {
       nextRotation = rotation;
     final Vec3D disp = aimPos.sub(position, null);
     final Vec2D heading = new Vec2D().setTo(disp).scale(-1);
+    if (report) {
+      I.say("  Current position: "+position    );
+      I.say("  Current rotation: "+rotation    );
+      I.say("  Target offset:    "+disp        );
+      I.say("  heading:          "+heading     );
+    }
     //
     //  Calculate rate of lateral speed and descent-
     final float UPS = 1f / Stage.UPDATES_PER_SECOND;
@@ -113,24 +122,34 @@ public class ShipUtils {
     ascent = Nums.min(ascent, Nums.abs(position.z - aimPos.z));
     if (ship.flightStage() == Dropship.STAGE_DESCENT) ascent *= -1;
     //
-    //  Then head toward the aim point-
-    if (disp.length() > speed) disp.scale(speed / disp.length());
-    disp.z = 0;
-    nextPosition.setTo(position).add(disp);
-    nextPosition.z = position.z + ascent;
-    //
-    //  And adjust rotation-
-    float angle = (heading.toAngle() * height) + (90 * (1 - height));
-    final float
-      angleDif = Vec2D.degreeDif(angle, rotation),
-      absDif   = Nums.abs(angleDif), maxRotate = 90 * UPS;
-    if (height < 0.5f && absDif > maxRotate) {
-      angle = rotation + (maxRotate * (angleDif > 0 ? 1 : -1));
-      angle = (angle + 360) % 360;
+    //  Then head toward the aim point (for non-zero displacement)-
+    if (disp.length() > 0) {
+      if (disp.length() > speed) disp.scale(speed / disp.length());
+      disp.z = 0;
+      nextPosition.setTo(position).add(disp);
+      nextPosition.z = position.z + ascent;
     }
-    nextRotation = angle;
+    //
+    //  And adjust rotation (for non-zero headings)-
+    if (heading.length() > 0) {
+      float angle = (heading.toAngle() * height) + (90 * (1 - height));
+      final float
+        angleDif = Vec2D.degreeDif(angle, rotation),
+        absDif   = Nums.abs(angleDif), maxRotate = 90 * UPS;
+      if (height < 0.5f && absDif > maxRotate) {
+        angle = rotation + (maxRotate * (angleDif > 0 ? 1 : -1));
+        angle = (angle + 360) % 360;
+      }
+      nextRotation = angle;
+    }
     //
     //  Then apply these changes to the vessel itself:
+    if (report) {
+      I.say("  Speed:            "+speed       );
+      I.say("  Ascent rate:      "+ascent      );
+      I.say("  Next position:    "+nextPosition);
+      I.say("  Next rotation:    "+nextRotation);
+    }
     ship.setHeading(nextPosition, nextRotation, false, world);
   }
   

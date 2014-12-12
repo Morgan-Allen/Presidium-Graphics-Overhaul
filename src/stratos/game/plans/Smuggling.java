@@ -82,13 +82,13 @@ public class Smuggling extends Plan implements Offworld.Activity {
   
   
   public boolean finished() {
-    if (! vessel.landed()) return false;
+    if (actor.aboard() != vessel && ! vessel.landed()) return false;
     return super.finished();
   }
   
   
   protected Behaviour getNextStep() {
-    if (! vessel.landed()) return null;
+    if (actor.aboard() != vessel && ! vessel.landed()) return null;
     final boolean report = stepsVerbose && I.talkAbout == actor;
     if (report) I.say("\nGetting next step in smuggling: "+actor);
     //

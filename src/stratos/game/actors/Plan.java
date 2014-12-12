@@ -163,8 +163,6 @@ public abstract class Plan implements Saveable, Behaviour {
   public Behaviour nextStepFor(Actor actor) {
     final boolean report = verbose && I.talkAbout == actor && hasBegun();
     if (motiveType == MOTIVE_CANCELLED) return null;
-    //if (report) I.say("\nFinding next step for "+this);
-    
     if (report) I.say("\nCurrent plan step is: "+I.tagHash(nextStep));
     
     if (this.actor != actor) {

@@ -12,6 +12,7 @@ import stratos.game.base.*;
 import stratos.game.plans.*;
 import stratos.game.politic.*;
 import stratos.graphics.common.*;
+import stratos.graphics.sfx.PlaneFX;
 import stratos.graphics.solids.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
@@ -336,15 +337,35 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     */
   public void renderFor(Rendering rendering, Base base) {
     final Sprite s = this.sprite();
-    final float height = this.viewPosition(null).z / INIT_HIGH;
-    
-    final float fadeProgress = height < 0.5f ? 1 : ((1 - height) * 2);
+    final float fadeProgress = fadeWithHeight();
     s.colour = Colour.transparency(fadeProgress);
     
-    final float animProgress = height > 0.5f ? 0 : ((0.5f - height) * 2);
+    final float animProgress = Nums.clamp(fadeProgress - 1, 0, 1);
     s.setAnimation("descend", Nums.clamp(animProgress, 0, 1), true);
-    
     super.renderFor(rendering, base);
+  }
+  
+  
+  protected float fadeWithHeight() {
+    final float height = viewPosition(null).z / INIT_HIGH;
+    return (1 - height) * 2;
+  }
+  
+
+  public void renderSelection(Rendering rendering, boolean hovered) {
+    if (indoors() || ! inWorld()) return;
+    float alpha = Nums.clamp(fadeWithHeight(), 0, 1);
+    alpha *= (hovered ? 0.5f : 1);
+    Selection.renderSimpleCircle(
+      this, viewPosition(null), rendering, Colour.transparency(alpha)
+    );
+  }
+  
+  
+  protected PlaneFX createShadow(Sprite rendered) {
+    final PlaneFX shadow = super.createShadow(rendered);
+    shadow.colour = Colour.transparency(fadeWithHeight());
+    return shadow;
   }
   
   

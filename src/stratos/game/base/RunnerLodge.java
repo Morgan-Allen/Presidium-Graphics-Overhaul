@@ -149,7 +149,10 @@ public class RunnerLodge extends Venue {
   
   
   public Behaviour jobFor(Actor actor) {
-    //if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
+    
+    //  TODO:  It seems a little odd that runners would be working strictly 'on
+    //  the clock'.  Fudge this a little?
+    if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
     final Choice choice = new Choice(actor);
     //
     //  TODO:  Only loot from distant areas of the city, or from other
