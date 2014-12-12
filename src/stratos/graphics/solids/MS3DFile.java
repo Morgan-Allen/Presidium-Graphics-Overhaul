@@ -215,7 +215,7 @@ public class MS3DFile {
 
     int nNumJoints = in.readUShort();
 
-    joints = new MS3DJoint[Math.max(nNumJoints, 1)];
+    joints = new MS3DJoint[Nums.max(nNumJoints, 1)];
 
     for (int i = 0; i < nNumJoints; i++) {
       MS3DJoint joint = (joints[i] = new MS3DJoint());
@@ -342,14 +342,14 @@ public class MS3DFile {
     float angle;
     float sr, sp, sy, cr, cp, cy;
     angle = (angles[2]) * 0.5f;
-    sy = (float) Math.sin(angle);
-    cy = (float) Math.cos(angle);
+    sy = (float) Nums.sin(angle);
+    cy = (float) Nums.cos(angle);
     angle = angles[1] * 0.5f;
-    sp = (float) Math.sin(angle);
-    cp = (float) Math.cos(angle);
+    sp = (float) Nums.sin(angle);
+    cp = (float) Nums.cos(angle);
     angle = angles[0] * 0.5f;
-    sr = (float) Math.sin(angle);
-    cr = (float) Math.cos(angle);
+    sr = (float) Nums.sin(angle);
+    cr = (float) Nums.cos(angle);
 
     float crcp = cr * cp;
     float srsp = sr * sp;
@@ -368,9 +368,9 @@ public class MS3DFile {
   // float z = q.z;
   // float w = q.w;
   //
-  // float roll = (float) Math.atan2(2*y*w - 2*x*z, 1 - 2*y*y - 2*z*z);
-  // float pitch = (float) Math.atan2(2*x*w - 2*y*z, 1 - 2*x*x - 2*z*z);
-  // float yaw = (float) Math.asin(2*x*y + 2*z*w);
+  // float roll = (float) Nums.atan2(2*y*w - 2*x*z, 1 - 2*y*y - 2*z*z);
+  // float pitch = (float) Nums.atan2(2*x*w - 2*y*z, 1 - 2*x*x - 2*z*z);
+  // float yaw = (float) Nums.asin(2*x*y + 2*z*w);
   //
   // return new Vector3(roll, pitch, yaw);
   // }

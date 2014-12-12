@@ -69,8 +69,8 @@ public class NativeHall extends NativeHut {
   }
   
   
-  public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates);
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     
     if (numUpdates % 10 == 0) updatePopEstimate(world);

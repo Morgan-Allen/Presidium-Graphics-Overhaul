@@ -127,7 +127,7 @@ public class Trait extends Index.Entry implements Qualities, Session.Saveable {
       if (value > 0) value /= trait.maxVal;
       if (value < 0) value /= 0 - trait.minVal;
       
-      final float diff = Math.abs(level - value);
+      final float diff = Nums.abs(level - value);
       if (diff < minDiff) { minDiff = diff; bestDesc = s; }
       i++;
     }

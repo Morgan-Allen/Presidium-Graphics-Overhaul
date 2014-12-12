@@ -226,7 +226,7 @@ public class ShipUtils {
     
     //
     //  Then, spread out to try and find a decent landing site-
-    final Box2D area = ship.landArea();
+    final Box2D area = ship.area(null);
     final int maxDist = Stage.SECTOR_SIZE * 2;
     final TileSpread spread = new TileSpread(init) {
       protected boolean canAccess(Tile t) {

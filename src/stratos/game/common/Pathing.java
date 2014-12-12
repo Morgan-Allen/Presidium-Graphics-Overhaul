@@ -269,13 +269,13 @@ public class Pathing {
     );
     final float
       angleDif = Vec2D.degreeDif(angle, mobile.rotation),
-      absDif   = Math.abs(angleDif);
+      absDif   = Nums.abs(angleDif);
     if (absDif > maxRotate) {
       angle = mobile.rotation + (maxRotate * (angleDif > 0 ? 1 : -1));
       angle = (angle + 360) % 360;
       moveRate *= (180 - absDif) / 180;
     }
-    disp.scale(Math.min(moveRate, dist));
+    disp.scale(Nums.min(moveRate, dist));
     
     //  Otherwise, apply the changes in heading-
     mobile.nextPosition.x = disp.x + mobile.position.x;

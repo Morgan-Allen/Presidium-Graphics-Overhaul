@@ -104,7 +104,7 @@ if (selectMode == MODE_BOUNDS) {
   return this;
 }
 if (selectMode == MODE_RADIUS) {
-  final float radius = Math.max(bounds.xdim(), bounds.ydim()) / 2;
+  final float radius = Nums.max(bounds.xdim(), bounds.ydim()) / 2;
   return (bounds.centre().dst(mousePos) < radius) ? this : null;
 }
 if (selectMode == MODE_ALPHA) {

@@ -165,13 +165,6 @@ public class Commerce {
   
   /**  Dealing with migrants and cargo-
     */
-  /*
-  public void addImmigrant(Actor actor) {
-    migrantsIn.add(actor);
-  }
-  //*/
-  
-  
   protected void updateCandidates(int numUpdates) {
     if ((numUpdates % UPDATE_INTERVAL) != 0) return;
 
@@ -181,7 +174,7 @@ public class Commerce {
     
     for (Background b : demanded) {
       float demand = jobDemand.valueFor(b);
-      demand = Math.max((demand * (1 - inc)) - (inc / 100), 0);
+      demand = Nums.max((demand * (1 - inc)) - (inc / 100), 0);
       jobDemand.set(b, demand);
     }
     
@@ -533,7 +526,7 @@ public class Commerce {
     final Batch <Item> picked = new Batch <Item> ();
     float totalAmount = 0;
     for (Item item : sorting) {
-      final float letAmount = Nums.max(item.amount, fillLimit - totalAmount);
+      final float letAmount = Nums.min(item.amount, fillLimit - totalAmount);
       if (letAmount <= 0) break;
       totalAmount += letAmount;
       picked.add(Item.withAmount(item, letAmount));
@@ -544,7 +537,7 @@ public class Commerce {
   
   public Batch <Dropship> allVessels() {
     final Batch <Dropship> vessels = new Batch <Dropship> ();
-    vessels.add(ship);
+    if (ship != null) vessels.add(ship);
     return vessels;
   }
   
@@ -552,7 +545,6 @@ public class Commerce {
   public void scheduleDrop(float delay) {
     if (ship == null) refreshShip();
     visitTime = base.world.currentTime() + delay;
-    //ship.resetAwayTime();
   }
   
   

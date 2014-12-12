@@ -59,7 +59,7 @@ public class SeedTailoring extends Plan {
   }
   
   
-  public boolean matchesPlan(Plan p) {
+  public boolean matchesPlan(Behaviour p) {
     if (! super.matchesPlan(p)) return false;
     final SeedTailoring t = (SeedTailoring) p;
     return t.species == this.species;

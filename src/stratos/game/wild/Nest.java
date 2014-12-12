@@ -313,8 +313,8 @@ public class Nest extends Venue {
   }
   
   
-  public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates);
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
     if (numUpdates % 10 != 0) return;
     
     final float idealPop = idealPopulation(this, species, world, false);

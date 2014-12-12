@@ -125,7 +125,7 @@ public class Delivery extends Plan {
   int stage() { return stage; }
   
   
-  public boolean matchesPlan(Plan plan) {
+  public boolean matchesPlan(Behaviour plan) {
     if (! super.matchesPlan(plan)) return false;
     final Delivery d = (Delivery) plan;
     if (d.origin != origin || d.destination != destination) return false;

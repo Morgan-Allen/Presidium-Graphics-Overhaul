@@ -336,7 +336,7 @@ public class Inventory {
   
   
   public float transfer(Item item, Owner to) {
-    final float amount = Math.min(item.amount, amountOf(item));
+    final float amount = Nums.min(item.amount, amountOf(item));
     if (amount <= 0) return 0;
     final Item transfers = Item.withAmount(item, amount);
     removeItem(transfers);

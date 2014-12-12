@@ -141,7 +141,7 @@ public class Hunting extends Combat {
     final float hunger = actor.health.hungerLevel();
     
     if (type == TYPE_FEEDS) {
-      urgency = hunger * PARAMOUNT * (0.5f + Math.min(crowding, hunger));
+      urgency = hunger * PARAMOUNT * (0.5f + Nums.min(crowding, hunger));
       harmLevel = REAL_HARM;
       baseTraits = Combat.BASE_TRAITS;
     }

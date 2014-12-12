@@ -75,8 +75,8 @@ public class ActorSkills {
     Actor b, Skill opposed,
     float bonus
   ) {
-    float bonusA = actor.traits.usedLevel(checked) + Math.max(0, bonus);
-    float bonusB = 0 - Math.min(0, bonus);
+    float bonusA = actor.traits.usedLevel(checked) + Nums.max(0, bonus);
+    float bonusB = 0 - Nums.min(0, bonus);
     if (b != null && opposed != null) bonusB += b.traits.usedLevel(opposed);
     final float chance = Nums.clamp(bonusA + 10 - bonusB, 0, 20) / 20;
     return Nums.clamp(chance, MIN_FAIL_CHANCE, MAX_SUCCEED_CHANCE);

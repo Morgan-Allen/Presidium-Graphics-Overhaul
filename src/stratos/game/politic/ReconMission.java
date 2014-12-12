@@ -20,9 +20,9 @@ public class ReconMission extends Mission {
   /**  Field definitions, constructors and save/load methods-
     */
   final static float SETTING_AREAS[] = {
-    Stage.SECTOR_SIZE * (float) Math.sqrt(0.25f),
-    Stage.SECTOR_SIZE * (float) Math.sqrt(0.50f),
-    Stage.SECTOR_SIZE * (float) Math.sqrt(0.75f),
+    Stage.SECTOR_SIZE * (float) Nums.sqrt(0.25f),
+    Stage.SECTOR_SIZE * (float) Nums.sqrt(0.50f),
+    Stage.SECTOR_SIZE * (float) Nums.sqrt(0.75f),
   };
   
   //  TODO:  Give three/four more interesting options.

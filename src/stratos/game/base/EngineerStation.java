@@ -142,8 +142,8 @@ public class EngineerStation extends Venue {
   }
   
   
-  public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates);
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     stocks.incDemand(PARTS, 5, TIER_PRODUCER, 1, this);
     stocks.translateDemands(1, METALS_TO_PARTS, this);

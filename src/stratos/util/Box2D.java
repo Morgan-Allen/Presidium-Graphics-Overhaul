@@ -252,7 +252,7 @@ public class Box2D {
     final float
       xd = (xp < xpos) ? (xpos - xp) : ((xp > xmax) ? (xp - xmax) : 0),
       yd = (yp < ypos) ? (ypos - yp) : ((yp > ymax) ? (yp - ymax) : 0);
-    return (float) Math.sqrt((xd * xd) + (yd * yd));
+    return (float) Nums.sqrt((xd * xd) + (yd * yd));
   }
   
   

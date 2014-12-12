@@ -62,7 +62,7 @@ public class Suspensor extends Mobile {
   
   /**  Performing regular updates-
     */
-  public void updateAsScheduled(int numUpdates) {
+  public void updateAsScheduled(int numUpdates, boolean instant) {
   }
   
   

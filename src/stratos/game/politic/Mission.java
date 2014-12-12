@@ -172,6 +172,15 @@ public abstract class Mission implements
   }
   
   
+  public boolean matchesPlan(Behaviour p) {
+    if (p.getClass() != this.getClass()) return false;
+    final Mission other = (Mission) p;
+    if (other.base    != this.base   ) return false;
+    if (other.subject != this.subject) return false;
+    return true;
+  }
+  
+  
   public int missionType() {
     return missionType;
   }

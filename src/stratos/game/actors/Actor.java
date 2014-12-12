@@ -25,7 +25,9 @@ public abstract class Actor extends Mobile implements
   
   /**  Field definitions, constructors and save/load functionality-
     */
-  private static boolean verbose = false;
+  private static boolean
+    verbose = false;
+  
   
   final public Healthbar healthbar = new Healthbar();
   final public Label label = new Label();
@@ -139,7 +141,10 @@ public abstract class Actor extends Mobile implements
     */
   public void assignAction(Action action) {
     if (verbose && I.talkAbout == this) {
-      I.say("  ASSIGNING ACTION: "+action);
+      I.say("\nASSIGNING ACTION: "+I.tagHash(action));
+      I.say("  Previous action: "+I.tagHash(actionTaken));
+      if (actionTaken != null) I.say("  Finished? "+actionTaken.finished());
+      I.reportStackTrace();
       if (action != null) I.add("  "+action.hashCode()+"\n");
     }
     //world.activities.toggleAction(actionTaken, false);
@@ -202,16 +207,13 @@ public abstract class Actor extends Mobile implements
     if (! OK) pathing.updateTarget(null);
     
     if (actionTaken != null) {
-      if (! pathing.checkPathingOkay()) {
-        world.schedule.scheduleNow(this);
-      }
       actionTaken.updateAction(OK);
+      if (! pathing.checkPathingOkay()) world.schedule.scheduleNow(this);
     }
     
     if (OK && mind.needsUpdate()) {
       assignAction(null);
       world.schedule.scheduleNow(this);
-      //mind.getNextAction();
     }
     
     if (aboard instanceof Mobile && (pathing.nextStep() == aboard || ! OK)) {
@@ -220,25 +222,17 @@ public abstract class Actor extends Mobile implements
   }
   
   
-  public void updateAsScheduled(int numUpdates) {
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
     final boolean report = verbose && I.talkAbout == this;
-    super.updateAsScheduled(numUpdates);
-    //
-    //  Update our basic statistics and physical properties-
-    health.updateHealth(numUpdates);
-    gear  .updateGear  (numUpdates);
-    traits.updateTraits(numUpdates);
-    skills.updateSkills(numUpdates);
-    if (health.isDead()) setAsDestroyed();
-    
     if (report) I.say("\nUpdating actor!");
-    
+    //
     //  Check to see what our current condition is-
     final boolean
       OK         = health.conscious() && ! doingPhysFX(),
       checkSleep = (health.asleep() && numUpdates % 10 == 0);
     if (! (OK || checkSleep)) return;
-    
+    //
     //  Update our actions, pathing, and AI-
     if (OK) {
       if (report) I.say("  Updating senses, AI and relations:");
@@ -248,19 +242,14 @@ public abstract class Actor extends Mobile implements
       
       if (report) I.say("  Checking for actions update...");
       final Action nextAction = mind.getNextAction();
-      if (
-        actionTaken == null || actionTaken.finished() ||
-        (nextAction != null && ! nextAction.matchesSignature(actionTaken))
-      ) {
-        assignAction(nextAction);
-      }
+      if (nextAction != actionTaken) assignAction(nextAction);
       
       if (report) I.say("  Checking pathing...");
       if (! pathing.checkPathingOkay()) {
         pathing.refreshFullPath();
       }
     }
-    
+    //
     //  Check to see if you need to wake up-
     if (checkSleep) {
       senses.updateSenses();
@@ -279,10 +268,10 @@ public abstract class Actor extends Mobile implements
         health.setState(ActorHealth.STATE_ACTIVE);
       }
     }
-    
+    //
     //  Update the intel/danger maps associated with the world's bases.
     final float power = senses.powerLevel() * 10;
-    for (Base b : world.bases()) {
+    if (! instant) for (Base b : world.bases()) {
       if (b == base()) {
         //
         //  Actually lift fog in an area slightly ahead of the actor-
@@ -297,6 +286,15 @@ public abstract class Actor extends Mobile implements
       final Tile o = origin();
       b.dangerMap.accumulate(0 - power * relation, 1.0f, o.x, o.y);
     }
+    //
+    //  Lastly, update our basic statistics and physical properties-
+    if (! instant) {
+      health.updateHealth(numUpdates);
+      gear  .updateGear  (numUpdates);
+      traits.updateTraits(numUpdates);
+      skills.updateSkills(numUpdates);
+    }
+    if (health.isDead()) setAsDestroyed();
   }
   
   
@@ -304,7 +302,7 @@ public abstract class Actor extends Mobile implements
   /**  Dealing with state changes-
     */
   //
-  //  TODO:  Consider moving these elsewhere?
+  //  TODO:  Consider moving these elsewhere?  Like an... ActorUtils class?
   
   protected boolean doingPhysFX() {
     return actionTaken != null && actionTaken.physFX();
@@ -334,6 +332,11 @@ public abstract class Actor extends Mobile implements
     return true;
   }
   
+  
+  public boolean actionInProgress() {
+    if (actionTaken == null) return false;
+    return actionTaken.hasBegun() && ! actionTaken.finished();
+  }
   
   
   //  TODO:  Move these to the Mind class-

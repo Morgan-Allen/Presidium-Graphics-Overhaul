@@ -114,7 +114,7 @@ public class Stocks extends Inventory {
     final int newC = (int) credits();
     if (! basis.inWorld() || oldC == newC) return;
     String phrase = inc >= 0 ? "+" : "-";
-    phrase+=" "+(int) Math.abs(inc)+" credits";
+    phrase+=" "+(int) Nums.abs(inc)+" credits";
     basis.chat().addPhrase(phrase);
   }
   

@@ -65,8 +65,8 @@ public class Qudu extends Fauna {
   
   /**  Behaviour implementations.
     */
-  public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates);
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
     if (! isDoingAction("actionHunker", null)) gear.setBaseArmour(15);
   }
   

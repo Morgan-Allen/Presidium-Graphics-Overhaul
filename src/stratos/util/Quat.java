@@ -5,6 +5,7 @@
   */
 
 package stratos.util;
+import org.apache.commons.math3.util.FastMath;
 
 
 /**  A Quaternion class, typically used to interpolate rotations smoothly.
@@ -58,12 +59,12 @@ public class Quat {
     er /= 2;
     ep /= 2;
     ey /= 2;
-    sr = (float) (Math.sin(er));
-    cr = (float) (Math.cos(er));
-    sp = (float) (Math.sin(ep));
-    cp = (float) (Math.cos(ep));
-    sy = (float) (Math.sin(ey));
-    cy = (float) (Math.cos(ey));
+    sr = (float) (FastMath.sin(er));
+    cr = (float) (FastMath.cos(er));
+    sp = (float) (FastMath.sin(ep));
+    cp = (float) (FastMath.cos(ep));
+    sy = (float) (FastMath.sin(ey));
+    cy = (float) (FastMath.cos(ey));
     w = (cr * cp * cy) + (sr * sp * sy);
     x = (sr * cp * cy) - (cr * sp * sy);
     y = (cr * sp * cy) + (sr * cp * sy);
@@ -79,7 +80,7 @@ public class Quat {
   public Quat setMatrix(Mat3D matrix) {
     //doesn't exactly correspond to real matrix trace, but similar.
     trace = (matrix.r0c0 + matrix.r1c1 + matrix.r2c2 + 1) / 4;
-    trace = (float) (Math.sqrt(trace));
+    trace = (float) (FastMath.sqrt(trace));
     
     if (trace >= EPS) {
       w = trace;
@@ -104,11 +105,11 @@ public class Quat {
     if (vector == null) vector = new Vec3D();
     
     rx = 2 * ((w * x) + (y * z)) / (1 - (2 * ((x * x) + (y * y))));
-    vector.x = (float) (Math.atan(rx));
+    vector.x = (float) (FastMath.atan(rx));
     py = 2 * ((w * y) - (x * z));
-    vector.y = (float) (Math.asin(py));
+    vector.y = (float) (FastMath.asin(py));
     yz = 2 * ((w * z) + (x * y)) / (1 - (2 * ((y * y) + (z * z))));
-    vector.z = (float) (Math.atan(yz));
+    vector.z = (float) (FastMath.atan(yz));
     return vector;
   }
   
@@ -136,7 +137,7 @@ public class Quat {
   /**  Sets the magnitude of this quaternion to 1.  Returns itself.
     */
   public Quat setUnit() {
-    float m = (float)(Math.sqrt((w * w) + (x * x) + (y * y) + (z * z)));
+    float m = (float)(FastMath.sqrt((w * w) + (x * x) + (y * y) + (z * z)));
     w /= m;
     x /= m;
     y /= m;
@@ -195,10 +196,10 @@ public class Quat {
     }
     else {
       double
-        rad = Math.acos(dot),
-        sin = Math.sin(rad);  //see?
-      aw  = (float) (Math.sin(alpha * rad) / sin);
-      tw *= (float) (Math.sin((1 - alpha) * rad) / sin);
+        rad = FastMath.acos(dot),
+        sin = FastMath.sin(rad);  //see?
+      aw  = (float) (FastMath.sin(alpha * rad) / sin);
+      tw *= (float) (FastMath.sin((1 - alpha) * rad) / sin);
     }
     
     result.w = (w * tw) + (qw * aw);

@@ -40,7 +40,7 @@ public class Condition extends Trait {
     String... names
   ) {
     super(keyID, Qualities.CONDITION, names);
-    this.latency   = Math.max(latency, 0.1f);
+    this.latency   = Nums.max(latency, 0.1f);
     this.virulence = virulence;
     this.spread    = spread   ;
     
@@ -218,7 +218,7 @@ public class Condition extends Trait {
     }
     else {
       final float inc = 1 * 1f / (latency * Stage.STANDARD_DAY_LENGTH);
-      a.traits.setLevel(this, Math.max(0, progress - inc));
+      a.traits.setLevel(this, Nums.max(0, progress - inc));
     }
   }
 }

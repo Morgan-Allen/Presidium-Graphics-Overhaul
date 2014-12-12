@@ -270,7 +270,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
       return new Patrolling(actor, guarded, patrolled, TYPE_SECURITY);
     }
     
-    final float range = Math.max(
+    final float range = Nums.max(
       guarded.radius() * 2,
       actor.health.sightRange() / 2
     );

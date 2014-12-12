@@ -211,7 +211,7 @@ public class SelectionTracking {
       //
       //  Otherwise, ascertain the rate at which one should 'drift' toward the
       //  target, and displace accordingly-
-      final float drift = Math.min(1,
+      final float drift = Nums.min(1,
         ((distance + 2) * 2) / (Rendering.FRAMES_PER_SECOND * distance)
       );
       viewPos.add(displace.scale(drift));

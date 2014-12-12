@@ -170,7 +170,7 @@ public class ActorGear extends Inventory {
     if (! actor.inWorld() || oldC == newC) return;
     
     String phrase = inc >= 0 ? "+" : "-";
-    phrase+=" "+(int) Math.abs(inc)+" credits";
+    phrase+=" "+(int) Nums.abs(inc)+" credits";
     actor.chat.addPhrase(phrase);
   }
   
@@ -327,7 +327,7 @@ public class ActorGear extends Inventory {
       I.say("  Quality rating: "+rating);
     }
     
-    return rating + baseArmour + Math.max(0, reflexBonus);
+    return rating + baseArmour + Nums.max(0, reflexBonus);
   }
   
   

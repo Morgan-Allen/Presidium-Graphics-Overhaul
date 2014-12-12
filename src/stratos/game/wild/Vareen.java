@@ -89,12 +89,12 @@ public class Vareen extends Fauna {
   }
   
 
-  public void updateAsScheduled(int numUpdates) {
+  public void updateAsScheduled(int numUpdates, boolean instant) {
     if (! indoors()) {
       final float value = Planet.dayValue(world) / Stage.STANDARD_DAY_LENGTH;
       health.takeCalories(value, 1);
     }
-    super.updateAsScheduled(numUpdates);
+    super.updateAsScheduled(numUpdates, instant);
   }
   
   

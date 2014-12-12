@@ -106,7 +106,7 @@ public abstract class Structural extends Fixture implements
   }
   
   
-  public void updateAsScheduled(int numUpdates) {
+  public void updateAsScheduled(int numUpdates, boolean instant) {
     structure.updateStructure((int) (numUpdates * scheduledInterval()));
     if (base != null) updatePaving(inWorld());
   }

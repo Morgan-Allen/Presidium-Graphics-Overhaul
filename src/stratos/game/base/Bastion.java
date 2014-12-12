@@ -208,8 +208,8 @@ public class Bastion extends Venue {
   }
   
   
-  public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates);
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     //
     //  Look after the ruler and any other housebound guests-

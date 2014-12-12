@@ -220,7 +220,7 @@ public class Box3D {
       xd = (xp < xpos) ? (xpos - xp) : ((xp > xmax) ? (xp - xmax) : 0),
       yd = (yp < ypos) ? (ypos - yp) : ((yp > ymax) ? (yp - ymax) : 0),
       zd = (zp < zpos) ? (zpos - zp) : ((zp > zmax) ? (zp - zmax) : 0);
-    return (float) Math.sqrt((xd * xd) + (yd * yd) + (zd * zd));
+    return (float) Nums.sqrt((xd * xd) + (yd * yd) + (zd * zd));
   }
   
   
@@ -234,7 +234,7 @@ public class Box3D {
   
   
   public float diagonal() {
-    return (float) Math.sqrt((xdim * xdim) + (ydim * ydim) + (zdim * zdim));
+    return (float) Nums.sqrt((xdim * xdim) + (ydim * ydim) + (zdim * zdim));
   }
   
 

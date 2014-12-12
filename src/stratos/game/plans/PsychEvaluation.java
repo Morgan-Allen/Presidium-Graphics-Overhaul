@@ -121,7 +121,7 @@ public class Treatment extends Plan implements Economy {
     
     for (Relation r : patient.memories.relations()) {
       float level = r.value();
-      level *= 1 - (memoryLoss * Rand.avgNums(2) * (1 - Math.abs(level)));
+      level *= 1 - (memoryLoss * Rand.avgNums(2) * (1 - Nums.abs(level)));
       patient.mind.initRelation(r.subject, level, Rand.num());
     }
     

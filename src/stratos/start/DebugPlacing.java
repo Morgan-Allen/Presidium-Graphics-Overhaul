@@ -111,11 +111,11 @@ public class DebugPlacing extends Scenario {
     
     final Venue depot = new FRSD(base);
     Placement.establishVenue(depot, 5 , 5 , true, world);
-    depot.updateAsScheduled(0);
+    depot.updateAsScheduled(0, false);
     
     final Venue works = new Fabricator(base);
     Placement.establishVenue(works, 5 , 10, true, world);
-    works.updateAsScheduled(0);
+    works.updateAsScheduled(0, false);
     
     base.commerce.updateCommerce(0);
     base.commerce.scheduleDrop(5);
@@ -128,8 +128,8 @@ public class DebugPlacing extends Scenario {
     final Venue pointB = new TrooperLodge(base);
     Placement.establishVenue(pointA, 5, 5 , false, world);
     Placement.establishVenue(pointB, 5, 15, false, world);
-    pointA.updateAsScheduled(0);
-    pointB.updateAsScheduled(0);
+    pointA.updateAsScheduled(0, false);
+    pointB.updateAsScheduled(0, false);
     
     for (int n = 2; n-- > 0;) {
       final Human tech = new Human(Backgrounds.TECHNICIAN, base);

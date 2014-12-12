@@ -75,7 +75,7 @@ public class StripMining extends Plan {
   }
   
   
-  public boolean matchesPlan(Plan p) {
+  public boolean matchesPlan(Behaviour p) {
     if (! super.matchesPlan(p)) return false;
     final StripMining m = (StripMining) p;
     return m.face == this.face && m.site == this.site;

@@ -19,7 +19,7 @@ public class Senses implements Qualities {
   /**  Data fields, constants, constructors, and save/load methods-
     */
   private static boolean
-    reactVerbose  = true ,
+    reactVerbose  = false,
     noticeVerbose = false,
     sightVerbose  = false,
     dangerVerbose = false;

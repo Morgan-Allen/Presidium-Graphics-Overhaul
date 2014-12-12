@@ -195,8 +195,8 @@ public class GroupSprite extends Sprite {
       for (Sprite s : overlaid) {
         rendering.view.translateToScreen(s.position);
         s.depth = s.position.z;
-        minDepth = Math.min(minDepth, s.depth);
-        maxDepth = Math.max(maxDepth, s.depth);
+        minDepth = Nums.min(minDepth, s.depth);
+        maxDepth = Nums.max(maxDepth, s.depth);
       }
       if (maxDepth == minDepth) maxDepth += 0.1f;
       if (verbose) I.say("  True depth range: "+(maxDepth - minDepth));

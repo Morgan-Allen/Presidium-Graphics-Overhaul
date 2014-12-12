@@ -111,6 +111,7 @@ public abstract class Mobile extends Element
   
   
   public void exitWorld() {
+    if (! inWorld()) I.complain("Already exited world: "+this);
     world.toggleActive(this, false);
     world().schedule.unschedule(this);
     //
@@ -304,7 +305,7 @@ public abstract class Mobile extends Element
   
   /**  Regular updates-
     */
-  public void updateAsScheduled(int numUpdates) {
+  public void updateAsScheduled(int numUpdates, boolean instant) {
   }
   
   

@@ -119,8 +119,8 @@ public class LaunchHangar extends Venue {
   
   /**  Behaviour implementation-
     */
-  public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates);
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     if (docking != null && ! docking.inWorld()) docking = null;
   }

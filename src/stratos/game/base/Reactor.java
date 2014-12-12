@@ -218,8 +218,8 @@ public class Reactor extends Venue {
   }
   
   
-  public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates);
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
     checkMeltdownAdvance();
     if (! structure.intact()) return;
     

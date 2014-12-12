@@ -71,7 +71,7 @@ public class ActorRelations {
     //  Sort relations in order of importance while doing so.
     final List <Relation> sorting = new List <Relation> () {
       protected float queuePriority(Relation r) {
-        return Math.abs(r.value()) - r.novelty();
+        return Nums.abs(r.value()) - r.novelty();
       }
     };
     for (Relation r : relations.values()) {

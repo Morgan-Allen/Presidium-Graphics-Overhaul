@@ -259,7 +259,7 @@ public class Power implements Qualities {
         if (caster != null && ! GameSettings.psyFree) {
           bonus += caster.traits.usedLevel(PROJECTION) / 5;
 
-          float dist = (float) Math.sqrt(Spacing.distance(tile, caster));
+          float dist = (float) Nums.sqrt(Spacing.distance(tile, caster));
           float cost = 10 * (1 + (dist / Stage.SECTOR_SIZE));
           caster.health.takeConcentration(cost);
           caster.skills.practiceAgainst(10, cost, PROJECTION);

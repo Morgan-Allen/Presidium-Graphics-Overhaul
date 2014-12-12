@@ -284,10 +284,10 @@ public class TerrainGen implements TileConstants {
   
   
   private void raiseHeight(int x, int y, float val) {
-    heightMap[x    ][y    ] = (byte) Math.max(heightMap[x    ][y    ], val);
-    heightMap[x + 1][y    ] = (byte) Math.max(heightMap[x + 1][y    ], val);
-    heightMap[x    ][y + 1] = (byte) Math.max(heightMap[x    ][y + 1], val);
-    heightMap[x + 1][y + 1] = (byte) Math.max(heightMap[x + 1][y + 1], val);
+    heightMap[x    ][y    ] = (byte) Nums.max(heightMap[x    ][y    ], val);
+    heightMap[x + 1][y    ] = (byte) Nums.max(heightMap[x + 1][y    ], val);
+    heightMap[x    ][y + 1] = (byte) Nums.max(heightMap[x    ][y + 1], val);
+    heightMap[x + 1][y + 1] = (byte) Nums.max(heightMap[x + 1][y + 1], val);
   }
   
   

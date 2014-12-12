@@ -63,7 +63,7 @@ public class Wreckage extends Fixture {
   /**  Physical properties, placement and behaviour-
     */
   public static void reduceToSlag(Box2D area, Stage world) {
-    final int maxSize = (int) Math.max(1, area.xdim() / 2);
+    final int maxSize = (int) Nums.max(1, area.xdim() / 2);
     
     for (Tile t : world.tilesIn(area, true)) {
       if (t.onTop() != null) continue;

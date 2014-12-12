@@ -3,7 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.game.plans;
 import stratos.game.common.*;
 import stratos.game.actors.*;
@@ -17,6 +16,8 @@ import static stratos.game.economic.Economy.*;
 public class Smuggling extends Plan implements Offworld.Activity {
   
   
+  /**  Data fields, construction, and save/load methods:
+    */
   private static boolean
     evalVerbose  = true ,
     stepsVerbose = true ;
@@ -68,6 +69,7 @@ public class Smuggling extends Plan implements Offworld.Activity {
   final static Skill BASE_SKILLS[] = {};
   final static Trait BASE_TRAITS[] = {};
   
+  
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (report) I.say("\nGetting smuggling priority: "+actor);
@@ -79,13 +81,21 @@ public class Smuggling extends Plan implements Offworld.Activity {
   }
   
   
+  public boolean finished() {
+    if (! vessel.landed()) return false;
+    return super.finished();
+  }
+  
+  
   protected Behaviour getNextStep() {
+    if (! vessel.landed()) return null;
     final boolean report = stepsVerbose && I.talkAbout == actor;
     if (report) I.say("\nGetting next step in smuggling: "+actor);
     //
     //  Before you board the vessel, make sure to collect the goods.  Then,
     //  once the ship in question has landed, hop aboard.
     if (! tripDone) {
+      
       if (warehouse != null) for (Item i : moved) if (! actor.gear.hasItem(i)) {
         if (report) I.say("  Collecting goods from "+warehouse);
         final Action collect = new Action(
@@ -121,17 +131,28 @@ public class Smuggling extends Plan implements Offworld.Activity {
   
   
   public boolean actionCollect(Actor actor, Venue warehouse) {
-    for (Item i : moved) warehouse.stocks.transfer(i, actor);
+    final boolean report = stepsVerbose && I.talkAbout == actor;
+    if (report) I.say("\nCollecting goods: "+actor.currentAction().hashCode());
+    for (Item i : moved) {
+      warehouse.stocks.transfer(i, actor);
+      if (report) I.say("  Transferred "+i);
+    }
     return true;
   }
   
   
   public boolean actionBoard(Actor actor, Vehicle vessel) {
+    final boolean report = stepsVerbose && I.talkAbout == actor;
+    if (report) I.say("\nNow boarding "+vessel);
     return true;
   }
   
   
   public boolean actionReturnProfits(Actor actor, Venue warehouse) {
+    final boolean report = stepsVerbose && I.talkAbout == actor;
+    if (report) I.say("\nReturning profits to "+warehouse);
+    
+    //  TODO:  Include a split for the runner?  (Maybe on the side)
     actor.gear.incCredits(0 - profits);
     warehouse.stocks.incCredits(profits);
     return true;
@@ -182,7 +203,11 @@ public class Smuggling extends Plan implements Offworld.Activity {
   public void describeBehaviour(Description d) {
     final boolean honest = moved == null || moved.length == 0;
     if (! tripDone) {
-      if (honest) {
+      if (actor.aboard() == vessel) {
+        d.append("Waiting aboard ");
+        d.append(vessel);
+      }
+      else if (honest) {
         d.append("Boarding ");
         d.append(vessel);
       }

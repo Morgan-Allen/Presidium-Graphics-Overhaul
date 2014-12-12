@@ -194,8 +194,8 @@ public class Nursery extends Venue implements TileConstants {
   
   /**  Establishing crop areas-
     */
-  public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates);
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     
     structure.setAmbienceVal(2);

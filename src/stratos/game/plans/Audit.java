@@ -99,7 +99,7 @@ public class Audit extends Plan {
     Venue picked = null;
     float bestRating = 0, rating;
     for (Venue v : batch) {
-      rating = Math.abs(v.inventory().credits()) / 100f;
+      rating = Nums.abs(v.inventory().credits()) / 100f;
       rating -= Plan.rangePenalty(v, actor);
       rating -= Plan.competition(Audit.class, v, actor);
       if (rating > bestRating) { bestRating = rating; picked = v; }
@@ -117,7 +117,7 @@ public class Audit extends Plan {
     if (report) I.say("Stage was: "+stage);
     
     if (stage == STAGE_EVAL) {
-      if (audited == null && Rand.num() > (Math.abs(balance) / 1000f)) {
+      if (audited == null && Rand.num() > (Nums.abs(balance) / 1000f)) {
         audited = nextToAuditFor(actor);
       }
       if (audited != null) stage = STAGE_AUDIT;
@@ -256,7 +256,7 @@ public class Audit extends Plan {
     
     float afterSaving = actor.gear.credits();
     if (afterSaving < 0) return 0;
-    afterSaving = Math.min(afterSaving, actor.gear.unTaxed());
+    afterSaving = Nums.min(afterSaving, actor.gear.unTaxed());
     return afterSaving * percent / 100f;
   }
   

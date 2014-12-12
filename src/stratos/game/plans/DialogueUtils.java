@@ -94,7 +94,7 @@ public class DialogueUtils implements Qualities {
     final float
       levelA = actor.traits.relativeLevel(comp),
       levelO = other.traits.relativeLevel(comp),
-      similarity = (1 - Math.abs(levelA - levelO));
+      similarity = (1 - Nums.abs(levelA - levelO));
     final String desc = actor.traits.description(comp);
     
     final float effect = similarity * Dialogue.RELATION_BOOST;

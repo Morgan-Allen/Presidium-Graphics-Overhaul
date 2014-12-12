@@ -76,7 +76,7 @@ public class CargoBarge extends Vehicle implements
   
   /*
   protected void offloadPassengers() {
-    final int size = 2 * (int) Math.ceil(radius());
+    final int size = 2 * (int) Nums.ceil(radius());
     final int EC[] = Spacing.entranceCoords(size, size, entranceFace);
     final Box2D site = this.area(null);
     final Tile o = world.tileAt(site.xpos() + 0.5f, site.ypos() + 0.5f);
@@ -91,8 +91,8 @@ public class CargoBarge extends Vehicle implements
   //*/
   
   
-  public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates);
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
   }
   
   

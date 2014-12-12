@@ -185,9 +185,9 @@ public class Career implements Qualities {
     for (Skill s : actor.traits.skillSet()) {
       final float level = actor.traits.traitLevel(s);
       actor.traits.raiseLevel(s.parent, level - Rand.index(5));
-      if (s.form == FORM_COGNITIVE) minCogn = Math.max(level, minCogn + 1);
-      if (s.form == FORM_SENSITIVE) minSens = Math.max(level, minSens + 1);
-      if (s.form == FORM_PHYSICAL ) minPhys = Math.max(level, minPhys + 1);
+      if (s.form == FORM_COGNITIVE) minCogn = Nums.max(level, minCogn + 1);
+      if (s.form == FORM_SENSITIVE) minSens = Nums.max(level, minSens + 1);
+      if (s.form == FORM_PHYSICAL ) minPhys = Nums.max(level, minPhys + 1);
     }
     actor.traits.raiseLevel(MUSCULAR , (minPhys + Rand.rollDice(3, 7)) / 2f);
     actor.traits.raiseLevel(IMMUNE   , (minPhys + Rand.rollDice(3, 7)) / 2f);

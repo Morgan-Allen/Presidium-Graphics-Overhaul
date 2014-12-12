@@ -85,7 +85,7 @@ public class Recreation extends Plan {
   }
   
   
-  public boolean matchesPlan(Plan p) {
+  public boolean matchesPlan(Behaviour p) {
     if (! super.matchesPlan(p)) return false;
     final int pT = ((Recreation) p).type;
     if (pT == TYPE_ANY || this.type == TYPE_ANY) return true;

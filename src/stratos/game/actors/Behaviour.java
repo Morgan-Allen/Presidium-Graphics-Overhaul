@@ -26,13 +26,13 @@ public interface Behaviour extends Session.Saveable {
     "Idle", "Casual", "Routine", "Urgent", "Paramount"
   };
   
-  //  TODO:  Just base these off urgency?  Anything above urgent triggers
-  //  running, say?
   final public static int
     MOTION_ANY    = -1,
     MOTION_NORMAL =  0,
     MOTION_FAST   =  1,
     MOTION_SNEAK  =  2;
+  
+  boolean matchesPlan(Behaviour b);
   
   Behaviour nextStepFor(Actor actor);
   int motionType(Actor actor);

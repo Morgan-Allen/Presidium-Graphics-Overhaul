@@ -161,7 +161,7 @@ public class IntelMap {
     //  Iterate over any tiles within a certain distance of the target point-
     for (Tile t : world.tilesIn(area, true)) {
       final float xd = t.x - x, yd = t.y - y;
-      final float distance = (float) Math.sqrt((xd * xd) + (yd * yd));
+      final float distance = (float) Nums.sqrt((xd * xd) + (yd * yd));
       if (distance > radius) continue;
       //
       //  Calculate the minimum fog value, based on target proximity-

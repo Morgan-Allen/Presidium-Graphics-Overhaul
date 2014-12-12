@@ -94,7 +94,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   }
   
   
-  public boolean matchesPlan(Plan p) {
+  public boolean matchesPlan(Behaviour p) {
     if (! super.matchesPlan(p)) return false;
     final Manufacture m = (Manufacture) p;
     if (m.conversion != conversion) return false;

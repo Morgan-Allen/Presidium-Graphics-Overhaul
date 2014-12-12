@@ -158,8 +158,8 @@ public class ShieldFX extends SFX {
     }
     
     rotMat.setIdentity();
-    rotMat.rotateZ((float) Math.toRadians(burst.angle));
-    rotMat.rotateX((float) Math.toRadians(90));
+    rotMat.rotateZ((float) Nums.toRadians(burst.angle));
+    rotMat.rotateX((float) Nums.toRadians(90));
     for (Vec3D v : verts) {
       rotMat.trans(v);
       v.scale(scale / 2f);

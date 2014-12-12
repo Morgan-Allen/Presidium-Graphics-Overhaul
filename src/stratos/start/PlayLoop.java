@@ -98,8 +98,8 @@ public final class PlayLoop {
     config.title = "Stratos";
     config.useGL20 = true;
     config.vSyncEnabled = true;
-    config.width = Math.min(DEFAULT_WIDTH, SS.width - 100);
-    config.height = Math.min(DEFAULT_HEIGHT, SS.height - 100);
+    config.width = Nums.min(DEFAULT_WIDTH, SS.width - 100);
+    config.height = Nums.min(DEFAULT_HEIGHT, SS.height - 100);
     config.foregroundFPS = DEFAULT_HERTZ;
     config.backgroundFPS = DEFAULT_HERTZ;
     config.resizable = true;
@@ -289,7 +289,7 @@ public final class PlayLoop {
     //  Now we essentially 'pretend' that updates were occurring once every
     //  UPDATE_INTERVAL milliseconds:
     if (played != null) {
-      final int numUpdates = Math.min(
+      final int numUpdates = Nums.min(
         (int) (updateGap / UPDATE_INTERVAL),
         (1 + (FRAME_INTERVAL / UPDATE_INTERVAL))
       );
@@ -340,7 +340,7 @@ public final class PlayLoop {
   
   
   public static void setGameSpeed(float mult) {
-    gameSpeed = Math.max(0, mult);
+    gameSpeed = Nums.max(0, mult);
   }
   
   

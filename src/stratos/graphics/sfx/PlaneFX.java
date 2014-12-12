@@ -93,13 +93,13 @@ public class PlaneFX extends SFX {
       float
         w = texture.getWidth(),
         h = texture.getHeight(),
-        m = Math.max(w, h);
+        m = Nums.max(w, h);
       bounds.set(0, 0, w / m, h / m);
       
       if (animUV.length > 1) {
         w = bounds.xdim() * animUV[0].xdim();
         h = bounds.xdim() * animUV[0].ydim();
-        m = Math.max(w, h);
+        m = Nums.max(w, h);
         bounds.set(0, 0, w / m, h / m);
       }
     }
@@ -176,7 +176,7 @@ public class PlaneFX extends SFX {
     //  Setup and translate vertex positions-
     final Viewport view = pass.rendering.view;
     trans.setIdentity();
-    trans.rotateZ((float) (newRot * Math.PI / 180));
+    trans.rotateZ((float) (newRot * Nums.PI / 180));
     final Vec3D screenPos = view.translateToScreen(new Vec3D().setTo(position));
     final float screenScale = view.screenScale();
     if (verbose) I.say("Vertices are: ");

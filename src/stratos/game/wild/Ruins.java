@@ -30,7 +30,7 @@ public class Ruins extends Venue {
     "ruins_b.png",
     "ruins_c.png"
   );
-  private static int NI = (int) (Math.random() * 3);
+  private static int NI = (int) (Rand.unseededNum() * 3);
   
   final static int
     MIN_RUINS_SPACING = (int) (Stage.SECTOR_SIZE * 1.5f);

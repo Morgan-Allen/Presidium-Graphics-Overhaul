@@ -22,6 +22,7 @@ import java.io.*;
   */
 public class I {
   
+  
   public static boolean mute = false;
   public static Object talkAbout = null;
   
@@ -88,14 +89,14 @@ public class I {
   /**  A few utility printing methods-
     */
   public static String shorten(float f, int decimals) {
-    if (Math.abs(f) < 0.1f) return "0";
+    if (Nums.abs(f) < 0.1f) return "0";
     final boolean neg = f < 0;
     if (neg) f *= -1;
     final int i = (int) f;
     final float r = f - i;
     if (r == 0) return ""+i;
     final String fraction = r+"";
-    final int trim = Math.min(decimals + 2, fraction.length());
+    final int trim = Nums.min(decimals + 2, fraction.length());
     return (neg ? "-" : "")+i+(fraction.substring(1, trim));
   }
   
@@ -104,6 +105,12 @@ public class I {
     String s = ""+(float) i;
     while (s.length() < decimals) s+="0";
     return s;
+  }
+  
+  
+  public static String tagHash(Object o) {
+    if (o == null) return "NULL";
+    return o+" "+o.hashCode();
   }
   
   

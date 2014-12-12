@@ -180,7 +180,7 @@ public class Base implements
   }
   
   
-  public void updateAsScheduled(int numUpdates) {
+  public void updateAsScheduled(int numUpdates, boolean instant) {
     ///I.say("UPDATING BASE, NUM UPDATES: "+numUpdates);
     
     setup.updatePlacements();

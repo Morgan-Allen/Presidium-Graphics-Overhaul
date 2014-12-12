@@ -76,7 +76,9 @@ public class Action implements Behaviour, AnimNames {
   }
   
   
-  protected boolean matchesSignature(Action oldAction) {
+  public boolean matchesPlan(Behaviour p) {
+    if (p.getClass() != this.getClass()) return false;
+    final Action oldAction = (Action) p;
     if (oldAction == null || oldAction.subject() != subject()) return false;
     if (basis != oldAction.basis || toCall != oldAction.toCall) return false;
     if (properties != oldAction.properties) return false;
@@ -314,7 +316,7 @@ public class Action implements Behaviour, AnimNames {
       //  TODO:  Build line-of-sight considerations into the actor's reaction
       //  algorithms instead?
       final boolean seen = Senses.hasLineOfSight(
-        actor, actionTarget, Math.max(maxDist, sightRange)
+        actor, actionTarget, Nums.max(maxDist, sightRange)
       );
       
       if (Nums.min(motionDist, actionDist) < maxDist && ! seen) {
@@ -548,6 +550,6 @@ public static float moveLuck(Actor actor) {
   var += (o.x * o.world.size) + o.y;
   var -= o.world.currentTime();
   var ^= actor.hashCode();
-  return (1 + (float) Math.sqrt(Math.abs(var % 10) / 4.5f)) / 2;
+  return (1 + (float) Nums.sqrt(Nums.abs(var % 10) / 4.5f)) / 2;
 }
 //*/

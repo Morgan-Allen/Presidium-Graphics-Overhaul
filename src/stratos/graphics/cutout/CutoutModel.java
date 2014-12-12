@@ -148,10 +148,10 @@ public class CutoutModel extends ModelAsset {
   
   private void setupDimensions(float size, float relHigh) {
     final float
-      angle = (float) Math.toRadians(Viewport.DEFAULT_ELEVATE),
-      incidence = (float) Math.sin(angle);
+      angle = (float) Nums.toRadians(Viewport.DEFAULT_ELEVATE),
+      incidence = (float) Nums.sin(angle);
     
-    final float wide = size * (float) Math.sqrt(2), high = wide * relHigh;
+    final float wide = size * (float) Nums.sqrt(2), high = wide * relHigh;
     dimension = new Vector2(wide, high);
     final float idealBase = wide * 0.5f * incidence;
     offset = new Vector2(0, (high / 2) - idealBase);

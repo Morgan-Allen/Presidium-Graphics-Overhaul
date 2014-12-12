@@ -139,7 +139,7 @@ public class Vec2D {
     */
   public Vec2D normalise(Vec2D result) {
     if (result == null) result = new Vec2D();
-    float l = (float)(Math.sqrt((x * x) + (y * y)));
+    float l = (float)(Nums.sqrt((x * x) + (y * y)));
     if (l > 0) scale(1 / l, result);
     return result;
   }
@@ -148,7 +148,7 @@ public class Vec2D {
   /**  Returns the length of this vector.
     */
   public float length() {
-    return (float) (Math.sqrt((x * x) + (y * y)));
+    return (float) (Nums.sqrt((x * x) + (y * y)));
   }
   
   
@@ -196,12 +196,12 @@ public class Vec2D {
     *  length.
     */
   public float lineDist(Vec2D vector) {
-    return Math.abs(side(vector) / length());
+    return Nums.abs(side(vector) / length());
   }
   
   
   public float lineDist(float x, float y) {
-    return Math.abs(side(x, y) / length());
+    return Nums.abs(side(x, y) / length());
   }
   
   
@@ -236,7 +236,7 @@ public class Vec2D {
     *  0 and 360 degrees).  (This is a1 *minus* a2.)
     */
   public static float degreeDif(final float a1, final float a2) {
-    final float d = a1 - a2, aD = Math.abs(d);
+    final float d = a1 - a2, aD = Nums.abs(d);
     return (aD < 180) ? d : ((360 - aD) * ((d > 0) ? -1 : 1));
   }
   
@@ -245,9 +245,9 @@ public class Vec2D {
     *  degrees == (0, 1), etc.)  The argument value must be in degrees.
     */
   public Vec2D setFromAngle(float angle) {
-    angle *= Math.PI / 180;
-    x = (float) Math.cos(angle);
-    y = (float) Math.sin(angle);
+    angle *= Nums.PI / 180;
+    x = (float) Nums.cos(angle);
+    y = (float) Nums.sin(angle);
     return this;
   }
   

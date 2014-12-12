@@ -120,9 +120,9 @@ public class MantleDrilling extends Plan {
     final float
       sampleAmount = smelter.stocks.amountOf(sample),
       outputAmount = smelter.stocks.amountOf(output),
-      smeltLimit = Math.min(sampleAmount, Smelter.SMELT_AMOUNT - outputAmount);
+      smeltLimit = Nums.min(sampleAmount, Smelter.SMELT_AMOUNT - outputAmount);
     if (smeltLimit > 0) {
-      final float bump = Math.min(smeltLimit, 0.1f * success);
+      final float bump = Nums.min(smeltLimit, 0.1f * success);
       smelter.stocks.removeItem(Item.withAmount(sample, bump));
       smelter.stocks.bumpItem(output, bump);
       smelter.stocks.addItem(Item.withAmount(tailing, bump));

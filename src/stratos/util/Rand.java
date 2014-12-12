@@ -12,8 +12,13 @@ import java.util.Random;
 public class Rand {
   
   final public static Random
-    GEN = new Random(),
+    GEN     = new Random(),
     PREVIEW = new Random();
+  
+  
+  final public static float unseededNum() {
+    return PREVIEW.nextFloat();
+  }
   
   final public static float num() { return GEN.nextFloat(); }
   final public static boolean yes() { return GEN.nextBoolean(); }

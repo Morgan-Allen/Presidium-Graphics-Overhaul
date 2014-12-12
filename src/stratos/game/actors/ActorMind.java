@@ -220,33 +220,15 @@ public abstract class ActorMind implements Qualities {
   protected boolean needsUpdate() {
     final Behaviour current = topBehaviour(), root = rootBehaviour();
     if (current instanceof Action && current == root) return false;
-    return root == null || root.finished();
+    if (root    == null || root   .finished()) return true;
+    if (current == null || current.finished()) return true;
+    return false;
   }
-  
   
   
   
   /**  Setting home and work venues & applications, plus missions-
     */
-  /*
-  public void switchApplication(Application a) {
-    if (this.application == a) return;
-    if (application != null) {
-      application.employer.personnel().setApplicant(application, false);
-    }
-    application = a;
-    if (application != null) {
-      application.employer.personnel().setApplicant(application, true);
-    }
-  }
-  
-  
-  public Application application() {
-    return application;
-  }
-  //*/
-  
-  
   public void setWork(Property e) {
     if (work == e) return;
     if (work != null) work.personnel().setWorker(actor, false);

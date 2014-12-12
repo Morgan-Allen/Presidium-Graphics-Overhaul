@@ -35,7 +35,7 @@ public class Schedule {
 
   public static interface Updates extends Session.Saveable {
     float scheduledInterval();
-    void updateAsScheduled(int numUpdates);
+    void updateAsScheduled(int numUpdates, boolean instant);
   }
   
   private static class Event {
@@ -97,10 +97,12 @@ public class Schedule {
     */
   public void scheduleForUpdates(Updates updates) {
     if (allUpdates.get(updates) != null) {
-      I.complain(updates+" ALREADY REGISTERED FOR UPDATES!");
+      I.say("\nWARNING: "+updates+" ALREADY REGISTERED FOR UPDATES!");
+      I.reportStackTrace();
+      return;
     }
     final Event event = new Event();
-    ///I.say("Scheduling "+updates+" for updates...");
+    if (verbose) I.say("Scheduling "+updates+" for updates...");
     
     //  We 'fudge' the incept and scheduling times a little here to help ensure
     //  that client updates are staggered evenly over the schedule, rather
@@ -113,25 +115,33 @@ public class Schedule {
   }
   
   
-  public void scheduleNow(Updates updates) {
-    final Object ref = allUpdates.get(updates);
-    if (ref == null) return;
-    final Event event = events.refValue(ref);
-    event.time = currentTime;
-    events.deleteRef(ref);
-    allUpdates.put(event.updates, events.insert(event));
-  }
-  
-  
   public void unschedule(Updates updates) {
     final Object node = allUpdates.get(updates);
-    ///I.say("...Unscheduling "+updates+" node okay? "+(node != null));
-    if (node == null) return;
+    if (node == null) {
+      I.say("\nWARNING: "+updates+" NEVER REGISTERED FOR UPDATES!");
+      I.reportStackTrace();
+      return;
+    }
+    if (verbose) I.say("...Unscheduling: "+updates);
     events.deleteRef(node);
     allUpdates.remove(updates);
   }
   
   
+  public void scheduleNow(Updates updates) {
+    final Object ref = allUpdates.get(updates);
+    if (ref == null) {
+      I.say("\nWARNING: "+updates+" NEVER REGISTERED FOR UPDATES!");
+      I.reportStackTrace();
+      return;
+    }
+    if (verbose) I.say("...Scheduling for instant update: "+updates);
+    final Event event = events.refValue(ref);
+    event.time = currentTime;
+    event.lastUpdateCount = -1; //  flag to pass 'instant' argument (below.)
+    events.deleteRef(ref);
+    allUpdates.put(event.updates, events.insert(event));
+  }
   
   
   
@@ -193,29 +203,32 @@ public class Schedule {
       else event.time += (interval * 2) - Rand.num();
       allUpdates.put(event.updates, events.insert(event));
       
+      //  TODO:  You need a better system here- particularly in the case of
+      //  instant scheduling.
       final int updateCount = (int) (currentTime - event.initTime);
-      if (updateCount > event.lastUpdateCount) {
+      final boolean instant = event.lastUpdateCount == -1;
+      
+      if (instant || updateCount > event.lastUpdateCount) {
         long startTime = System.nanoTime();
+        if (updateVerbose) I.say("  Updating: "+event.updates);
+        event.updates.updateAsScheduled(updateCount, instant);
+        event.lastUpdateCount = updateCount;
         
-        if (updateVerbose) I.say("Updating: "+event.updates);
-        event.updates.updateAsScheduled(updateCount);
         long updateTime = System.nanoTime() - startTime;
         if (updateTime > longestTime) {
           longestTime = updateTime;
           longestUpdate = event.updates;
         }
-        event.lastUpdateCount = updateCount;
         totalUpdated++;
       }
     }
     
     this.lastUpdateOkay = finishedOK;
     final long taken = System.currentTimeMillis() - initTime;
-    
-    if (verbose && taken >= maxInterval * 2) {
-      I.say("___PATHOLOGICALLY DELAYED___");
-    }
     if (verbose) {
+      if (taken >= maxInterval * 2) {
+        I.say("___PATHOLOGICALLY DELAYED___");
+      }
       if (finishedOK) {
         I.say("  SCHEDULE UPDATED OKAY, OBJECTS UPDATED: "+totalUpdated);
       }

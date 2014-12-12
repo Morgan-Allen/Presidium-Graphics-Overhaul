@@ -58,7 +58,7 @@ public class PathSearch extends Search <Boarding> {
   
   protected static int searchLimit(Boarding init, Boarding dest) {
     int limit = (int) Spacing.outerDistance(init, dest);
-    limit = Math.max(limit, Stage.PATCH_RESOLUTION * 2);
+    limit = Nums.max(limit, Stage.PATCH_RESOLUTION * 2);
     return limit;
   }
   

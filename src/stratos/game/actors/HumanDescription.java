@@ -122,7 +122,7 @@ public class HumanDescription implements Qualities {
       d.append("\n  "+skill.name+" "+level+" ");
       d.append(Skill.attDesc(level), Skill.skillTone(level));
       if (bonus != 0) {
-        d.append((bonus >= 0 ? " (+" : " (-")+Math.abs(bonus)+")");
+        d.append((bonus >= 0 ? " (+" : " (-")+Nums.abs(bonus)+")");
       }
     }
     d.append("\n\nSkills: ");
@@ -143,7 +143,7 @@ public class HumanDescription implements Qualities {
       final Colour tone = Skill.skillTone(level);
       d.append("\n  "+skill.name+" "+level+" ", tone);
       if (bonus != 0) {
-        d.append((bonus >= 0 ? "(+" : "(-")+Math.abs(bonus)+")");
+        d.append((bonus >= 0 ? "(+" : "(-")+Nums.abs(bonus)+")");
       }
     }
     

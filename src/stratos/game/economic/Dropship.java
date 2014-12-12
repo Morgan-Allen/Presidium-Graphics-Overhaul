@@ -213,10 +213,17 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   
   public Box2D landArea() {
     if (aimPos.z == NO_LANDING) return null;
-    final int size = (int) Math.ceil(radius());
+    final int size = (int) Nums.ceil(radius());
     final Box2D area = new Box2D().set(aimPos.x, aimPos.y, 0, 0);
     area.expandBy(size + 1);
     return area;
+  }
+  
+  
+  public Box2D area(Box2D put) {
+    if (put == null) put = new Box2D();
+    final int size = (int) Nums.ceil(radius());
+    return put.set(position.x, position.y, 0, 0).expandBy(size + 1);
   }
   
   
@@ -236,7 +243,6 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   
   private void completeDescent() {
     nextPosition.setTo(position.setTo(aimPos));
-    rotation = nextRotation = 0;
     dropPoint = ShipUtils.performLanding(this, world, landArea(), entranceFace);
     ShipUtils.offloadPassengers(this, true);
     stageInceptTime = world.currentTime();

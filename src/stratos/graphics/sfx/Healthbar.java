@@ -73,8 +73,8 @@ public class Healthbar extends SFX {
     //  When in alarm mode, you need to flash-
     if (alarm) {
       final float urgency = (1 - level) * 2;
-      flashTime += ((urgency / Rendering.FRAMES_PER_SECOND) * Math.PI / 2f);
-      flashTime %= (Math.PI * 2);
+      flashTime += ((urgency / Rendering.FRAMES_PER_SECOND) * Nums.PI / 2f);
+      flashTime %= (Nums.PI * 2);
       Colour flash = new Colour(this.flash == null ? Colour.WHITE : this.flash);
       flash.a *= f * colour.a;
       flash.a *= Nums.abs(Nums.sin(flashTime));

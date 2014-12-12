@@ -152,7 +152,7 @@ public class Offworld {
     for (Mobile migrant : ship.inside()) {
       final Activity a = activityFor(migrant);
       if (a != null) passengers.add(migrant);
-      migrant.exitWorld();
+      if (migrant.inWorld()) migrant.exitWorld();
     }
     
     final Journey journey = new Journey();

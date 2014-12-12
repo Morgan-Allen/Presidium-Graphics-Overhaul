@@ -182,7 +182,7 @@ public class Colour {
    * of RGB components.)
    */
   public float value() {
-    return Math.max(r, Math.max(g, b));
+    return Nums.max(r, Nums.max(g, b));
   }
   
   public boolean blank() {

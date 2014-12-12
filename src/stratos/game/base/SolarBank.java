@@ -72,8 +72,8 @@ public class SolarBank extends Venue {
   
   /**  Updates and life-cycle:
     */
-  public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates);
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) {
       structure.assignOutputs();
       return;

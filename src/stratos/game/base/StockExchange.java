@@ -219,8 +219,8 @@ public class StockExchange extends Venue {
   }
   
   
-  public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates);
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     
     final Batch <Venue> depots = DeliveryUtils.nearbyDepots(
@@ -319,7 +319,7 @@ public class StockExchange extends Venue {
   //  TODO:  You have to show items in the back as well, behind a sprite
   //  overlay for the facade of the structure.
   protected float goodDisplayAmount(Traded good) {
-    return Math.min(super.goodDisplayAmount(good), 25);
+    return Nums.min(super.goodDisplayAmount(good), 25);
   }
   
   

@@ -65,7 +65,7 @@ public class Image extends UINode {
   
   
   protected void renderTex(Texture tex, float alpha, WidgetsPass pass) {
-    final float scale = stretch ? 1 : Math.min(
+    final float scale = stretch ? 1 : Nums.min(
       bounds.xdim() / texture.getWidth(),
       bounds.ydim() / texture.getHeight()
     );

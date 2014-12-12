@@ -42,7 +42,7 @@ public class TerrainSet {
     this.numLayers = layers.length;
     this.size = size;
     this.chunkSize = chunkSize;
-    this.chunkGrid = (int) Math.ceil(size / chunkSize);
+    this.chunkGrid = (int) Nums.ceil(size / chunkSize);
     this.layers = layers;
     this.layerIndices = layerIndices;
     this.varsIndices = varsIndices;

@@ -140,7 +140,7 @@ public class Performance extends Recreation {
   }
   
   
-  public boolean matchesPlan(Plan p) {
+  public boolean matchesPlan(Behaviour p) {
     if (! super.matchesPlan(p)) return false;
     final Performance oP = (Performance) p;
     return oP.type == this.type && oP.client == this.client;

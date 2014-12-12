@@ -149,7 +149,7 @@ public class RunnerLodge extends Venue {
   
   
   public Behaviour jobFor(Actor actor) {
-    if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
+    //if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
     final Choice choice = new Choice(actor);
     //
     //  TODO:  Only loot from distant areas of the city, or from other
@@ -157,12 +157,14 @@ public class RunnerLodge extends Venue {
     //
     //  TODO:  Also, select which venues to loot from (so you can avoid any
     //  nearby.)
-    choice.add(Looting.nextLootingFor(actor, this));
+    ///choice.add(Looting.nextLootingFor(actor, this));
     //
     //  Next, consider smuggling goods out of the settlement-
     for (Dropship ship : actor.base().commerce.allVessels()) {
       if (! ship.landed()) continue;
       final Item toMove[] = base.commerce.getBestCargo(stocks, 5, false);
+      
+      I.say("Ship found: "+ship+", to move: "+toMove.length);
       final Smuggling s = new Smuggling(actor, this, ship, toMove);
       if (personnel.assignedTo(s) == 0) choice.add(s);
     }
@@ -177,8 +179,8 @@ public class RunnerLodge extends Venue {
   }
   
   
-  public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates);
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
     //  Demand either parts or reagents, depending on what you're making.
     //  Register as a producer of whatever you're making.
   }

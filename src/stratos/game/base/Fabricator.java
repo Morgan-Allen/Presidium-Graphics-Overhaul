@@ -92,8 +92,8 @@ public class Fabricator extends Venue {
   
   
   
-  public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates);
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
     
     final int levelPC = structure.upgradeLevel(POLYMER_CONVERSION);
     if (levelPC > 0) stocks.translateDemands(1, CARBS_TO_LCHC, this);

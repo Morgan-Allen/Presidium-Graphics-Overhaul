@@ -61,42 +61,42 @@ public abstract class Plan implements Saveable, Behaviour {
   
   public Plan(Session s) throws Exception {
     s.cacheInstance(this);
-    this.actor = (Actor) s.loadObject();
-    this.subject = s.loadTarget();
+    this.actor      = (Actor) s.loadObject();
+    this.subject    = s.loadTarget();
     this.persistent = s.loadBool();
     
     this.lastEvalTime = s.loadFloat();
     this.priorityEval = s.loadFloat();
-    this.nextStep = (Behaviour) s.loadObject();
-    this.lastStep = (Behaviour) s.loadObject();
-    this.motiveType = s.loadInt();
-    this.motiveBonus = s.loadFloat();
+    this.nextStep     = (Behaviour) s.loadObject();
+    this.lastStep     = (Behaviour) s.loadObject();
+    this.motiveType   = s.loadInt();
+    this.motiveBonus  = s.loadFloat();
     
-    this.harmFactor = s.loadFloat();
+    this.harmFactor    = s.loadFloat();
     this.competeFactor = s.loadFloat();
   }
   
   
   public void saveState(Session s) throws Exception {
-    s.saveObject(actor);
-    s.saveTarget(subject);
-    s.saveBool(persistent);
+    s.saveObject(actor     );
+    s.saveTarget(subject   );
+    s.saveBool  (persistent);
     
-    s.saveFloat(lastEvalTime);
-    s.saveFloat(priorityEval);
-    s.saveObject(nextStep);
-    s.saveObject(lastStep);
-    s.saveInt(motiveType);
-    s.saveFloat(motiveBonus);
+    s.saveFloat (lastEvalTime);
+    s.saveFloat (priorityEval);
+    s.saveObject(nextStep    );
+    s.saveObject(lastStep    );
+    s.saveInt   (motiveType  );
+    s.saveFloat (motiveBonus );
     
-    s.saveFloat(harmFactor);
+    s.saveFloat(harmFactor   );
     s.saveFloat(competeFactor);
   }
   
   
-  public boolean matchesPlan(Plan p) {
+  public boolean matchesPlan(Behaviour p) {
     if (p == null || p.getClass() != this.getClass()) return false;
-    return this.subject == p.subject;
+    return this.subject == ((Plan) p).subject;
   }
   
   
@@ -163,18 +163,20 @@ public abstract class Plan implements Saveable, Behaviour {
   public Behaviour nextStepFor(Actor actor) {
     final boolean report = verbose && I.talkAbout == actor && hasBegun();
     if (motiveType == MOTIVE_CANCELLED) return null;
-    if (report) I.say("\nFinding next step for "+this);
+    //if (report) I.say("\nFinding next step for "+this);
+    
+    if (report) I.say("\nCurrent plan step is: "+I.tagHash(nextStep));
     
     if (this.actor != actor) {
       this.actor = actor;
       priorityEval = NULL_PRIORITY;
       nextStep     = null;
-      if (report) I.say("  NEXT STEP IS NULL: DIFFERENT ACTOR");
+      if (report) I.say("\nNEXT STEP IS NULL: DIFFERENT ACTOR");
     }
     
     if (! valid()) {
       onceInvalid();
-      if (report) I.say("  NEXT STEP IS NULL: NOT VALID");
+      if (report) I.say("\nNEXT STEP IS NULL: NOT VALID");
       return nextStep = null;
     }
     
@@ -182,23 +184,52 @@ public abstract class Plan implements Saveable, Behaviour {
     //  that can screw up proper sequence of evaluation/execution.  Start from
     //  scratch instead.
     if (! actor.mind.doing(this)) {
-      if (report) I.say("  NEXT STEP IS NULL: NOT ACTIVE");
+      if (report) I.say("\nNEXT STEP GOT WHILE INACTIVE.");
       nextStep = null;
       return getNextStep();
     }
-    else if (
-      nextStep == null || nextStep.finished() ||
-      nextStep.nextStepFor(actor) == null ||
-      newEvaluationDue()
-    ) {
-      nextStep = getNextStep();
+    
+    //  TODO:  I may be able to dispense with the actor's agenda entirely here-
+    //         just query the chain of activities forward from the root, down
+    //         to the action.  It's all here.
+    final boolean oldDone =
+      nextStep == null ||
+      nextStep.finished() ||
+      nextStep.nextStepFor(actor) == null;
+    
+    if (oldDone || newEvaluationDue()) {
+      final Behaviour step = getNextStep();
+      
+      //  If the old and new steps are identical, don't bother switching- just
+      //  refresh your priority evaluation.
+      if ((! oldDone) && step != null && step.matchesPlan(nextStep)) {
+        if (report) I.say("\nNEXT STEP THE SAME AS OLD STEP.");
+        priorityEval = NULL_PRIORITY;
+        return nextStep;
+      }
+      
+      //  Otherwise, make the change:
+      nextStep = step;
       if (nextStep != null) lastStep = nextStep;
-      if (report) I.say("  GOT NEW STEP: "+nextStep);
+      if (report) I.say("\nGOT NEW STEP: "+nextStep);
       priorityEval = NULL_PRIORITY;
-      //actor.pathing.refreshFullPath();
-      //actor.pathing.updateTarget(null);
     }
     return nextStep;
+  }
+  
+  
+  private boolean newEvaluationDue() {
+    if (priorityEval == NULL_PRIORITY) return true;
+    if (actor.actionInProgress()) return false;
+    final float
+      timeGone = actor.world().currentTime() - lastEvalTime,
+      interval = evaluationInterval();
+    return timeGone >= interval;
+  }
+  
+  
+  protected int evaluationInterval() {
+    return actor.senses.isEmergency() ? 1 : 10;
   }
   
   
@@ -228,24 +259,6 @@ public abstract class Plan implements Saveable, Behaviour {
   
   public Actor actor() {
     return actor;
-  }
-  
-  
-  private boolean newEvaluationDue() {
-    if (priorityEval == NULL_PRIORITY) return true;
-    final float
-      timeGone = actor.world().currentTime() - lastEvalTime,
-      interval = evaluationInterval();
-    
-    if (I.talkAbout == actor) {
-      ///I.say("Time gone/interval: "+timeGone+"/"+interval);
-    }
-    return timeGone >= interval;
-  }
-  
-  
-  protected int evaluationInterval() {
-    return actor.senses.isEmergency() ? 1 : 10;
   }
   
   
@@ -476,9 +489,7 @@ public abstract class Plan implements Saveable, Behaviour {
   
   protected abstract Behaviour getNextStep();
   protected abstract float getPriority();
-  
   public abstract Plan copyFor(Actor other);
-  //public abstract Memory makeMemory();  //TODO:  IMPLEMENT
   
   
   
@@ -591,43 +602,6 @@ public abstract class Plan implements Saveable, Behaviour {
     final float index = (priority / PARAMOUNT) * (maxIndex - 1);
     return PRIORITY_DESCRIPTIONS[Nums.clamp((int) index, maxIndex)];
   }
-  
-  
-  
-  /**  Validation methods, intended to ensure that Plans can be stored
-    *  compactly as memories-
-    */
-  //  TODO:  Implement this?
-  /*
-  private static Table <Class, Boolean> validations = new Table(100);
-  
-  
-  private static boolean validatePlanClass(Class planClass) {
-    final Boolean valid = validations.get(planClass);
-    if (valid != null) return valid;
-    
-    final String name = planClass.getSimpleName();
-    boolean okay = true;
-    int dataSize = 0;
-    
-    for (Field field : planClass.getFields()) {
-      final Class type = field.getType();
-      if (type.isPrimitive()) dataSize += 4;
-      else if (Saveable.class.isAssignableFrom(type)) dataSize += 4;
-      else {
-        I.complain(name+" contains non-saveable data: "+field.getName());
-        okay = false;
-      }
-    }
-    if (dataSize > 40) {
-      I.complain(name+" has too many data fields.");
-      okay = false;
-    }
-    
-    validations.put(planClass, okay);
-    return okay;
-  }
-  //*/
 }
 
 

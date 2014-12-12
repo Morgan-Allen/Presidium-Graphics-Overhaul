@@ -58,7 +58,7 @@ public class Repairs extends Plan {
     if (! structure.intact()) needRepair = 1.0f;
     else needRepair = (1 - structure.repairLevel()) * 1.5f;
     if (structure.burning()) needRepair += 1.0f;
-    if (structure.needsUpgrade()) needRepair = Math.max(needRepair, 1);
+    if (structure.needsUpgrade()) needRepair = Nums.max(needRepair, 1);
     return needRepair;
   }
   

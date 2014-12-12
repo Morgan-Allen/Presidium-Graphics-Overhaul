@@ -34,7 +34,7 @@ public abstract class SitingPass {
       }
     };
     
-    final int scanSize = (int) Math.ceil(world.size * 1f / resolution);
+    final int scanSize = (int) Nums.ceil(world.size * 1f / resolution);
     final RandomScan scan = new RandomScan(scanSize) {
       protected void scanAt(int x, int y) {
         final Site site = new Site();

@@ -95,7 +95,8 @@ public class DebugCommerce extends Scenario {
   
   
   private void runnersScenario(Stage world, Base base, BaseUI UI) {
-    world.advanceCurrentTime(Stage.STANDARD_DAY_LENGTH / 2);
+    //world.advanceCurrentTime(Stage.STANDARD_DAY_LENGTH / 2);
+    base.commerce.scheduleDrop(5);
     
     final Actor runner = new Human(Backgrounds.RUNNER, base);
     final Venue runnerMarket = new RunnerLodge(base);
@@ -115,7 +116,16 @@ public class DebugCommerce extends Scenario {
     runner.goAboard(world.tileAt(13, 13), world);
     //runner.setPosition(13, 13, world);
     
-    //  TODO:  Test smuggling next!
+    
+    runnerMarket.stocks.bumpItem(Economy.ARTWORKS, 20);
+    runnerMarket.stocks.bumpItem(Economy.ANTIMASS, 20);
+    final Item moved[] = base.commerce.getBestCargo(
+      runnerMarket.stocks, 5, false
+    );
+    final Dropship ship = base.commerce.allVessels().atIndex(0);
+    final Smuggling smuggle = new Smuggling(runner, runnerMarket, ship, moved);
+    smuggle.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
+    runner.mind.assignBehaviour(smuggle);
     
     /*
     final Looting loots = new Looting(

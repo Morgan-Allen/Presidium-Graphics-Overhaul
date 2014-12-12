@@ -232,7 +232,7 @@ public class TalkFX extends SFX {
       
       texWide = 128 * 40f / texHigh,  //True width/height for the texture.
       minX = x - 10,
-      maxX = x + Math.max(bubble.width, 64) + 10,
+      maxX = x + Nums.max(bubble.width, 64) + 10,
       capXL = minX + (texWide * 0.25f),
       capXR = maxX - (texWide * 0.25f);
     //

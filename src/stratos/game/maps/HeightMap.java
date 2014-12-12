@@ -114,8 +114,8 @@ public class HeightMap {
     for (int x = size; x-- > 0;)
       for (int y = size; y-- > 0;) {
         high = mapHigh[x][y];
-        max = Math.max(max, high);
-        min = Math.min(min, high);
+        max = Nums.max(max, high);
+        min = Nums.min(min, high);
       }
     if (max == min) max = min + 1;  // Hugely unlikely, but anyway...
     for (int x = size; x-- > 0;)
@@ -220,8 +220,8 @@ public class HeightMap {
     final boolean subHalf = height < 0.5f;
     if (subHalf) height = 1 - height;
     
-    double N = Math.log(0.5 / (1 - height)) * Math.E / 2;
-    float areaOver = (float) (1 / (2 * (Math.pow(4, N))));
+    final float N = Nums.log(2, 0.5f / (1 - height));
+    float areaOver = (float) (1 / (2 * (Nums.pow(4, N))));
     return subHalf ? areaOver : (1 - areaOver);
   }
   
@@ -231,8 +231,8 @@ public class HeightMap {
     final boolean subHalf = areaUnder < 0.5f;
     if (subHalf) areaUnder = 1 - areaUnder;
     
-    double N = Math.log(0.5 / (1 - areaUnder)) * Math.E / 4;
-    float height = (float) (2 - (1 / (Math.pow(2, N)))) / 2;
+    final float N = Nums.log(2, 0.5f / (1 - areaUnder));
+    float height = (float) (2 - (1 / (Nums.pow(2, N)))) / 2;
     return subHalf ? (1 - height) : height;
   }
   

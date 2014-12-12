@@ -247,11 +247,11 @@ public class SFMain implements ApplicationListener {
     float seconds = (float) (totalTime / 1000f);
     //terrain.render(camera, terrainShader, seconds);
     //  TODO:  Just for testing purposes, remove later
-    if (Math.random() < 1f / 60) {
+    if (Nums.random() < 1f / 60) {
       terrain.fog.liftAround(
-        (int) (Math.random() * terrain.size),
-        (int) (Math.random() * terrain.size),
-        (int) (Math.sqrt(terrain.size) * (1 + Math.random()))
+        (int) (Nums.random() * terrain.size),
+        (int) (Nums.random() * terrain.size),
+        (int) (Nums.sqrt(terrain.size) * (1 + Nums.random()))
       );
     }
     glClear(GL_DEPTH_BUFFER_BIT);

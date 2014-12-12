@@ -3,14 +3,12 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.util;
-
 import org.apache.commons.math3.util.FastMath;
 
 
 
-/**  A selection of convenient/ommon math methods (that return floats for
+/**  A selection of convenient/common math methods (that return floats for
   *  simplicity.)
   */
 public final class Nums {
@@ -57,8 +55,18 @@ public final class Nums {
   }
   
   
+  public static int abs(int f) {
+    return FastMath.abs(f);
+  }
+  
+  
   public static float log(float base, float f) {
     return (float) FastMath.log(base, f);
+  }
+  
+  
+  public static float pow(float base, float f) {
+    return (float) FastMath.pow(base, f);
   }
   
   

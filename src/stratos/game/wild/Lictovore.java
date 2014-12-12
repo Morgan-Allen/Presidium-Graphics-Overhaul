@@ -171,7 +171,7 @@ public class Lictovore extends Fauna {
   public boolean actionHomeFeeding(Fauna actor, Venue nest) {
     float hunger = 1 - health.caloryLevel();
     hunger *= actor.health.maxHealth() / MEAT_CONVERSION;
-    final float amountTaken = Math.min(hunger, nest.stocks.amountOf(PROTEIN));
+    final float amountTaken = Nums.min(hunger, nest.stocks.amountOf(PROTEIN));
     if (amountTaken <= 0) return false;
     nest.stocks.removeItem(Item.withAmount(PROTEIN, amountTaken));
     actor.health.takeCalories(amountTaken * MEAT_CONVERSION, 1);
@@ -193,12 +193,12 @@ public class Lictovore extends Fauna {
   private Tile findTileToMark() {
     if (! (mind.home() instanceof Venue)) return null;
     final Venue lair = (Venue) mind.home();
-    float angle = Rand.num() * (float) Math.PI * 2;
+    float angle = Rand.num() * (float) Nums.PI * 2;
     final Vec3D p = lair.position(null);
     final int range = Nest.forageRange(species);
     final Tile tried = world.tileAt(
-      p.x + (float) (Math.cos(angle) * range),
-      p.y + (float) (Math.sin(angle) * range)
+      p.x + (float) (Nums.cos(angle) * range),
+      p.y + (float) (Nums.sin(angle) * range)
     );
     if (tried == null) return null;
     final Tile free = Spacing.nearestOpenTile(tried, tried);

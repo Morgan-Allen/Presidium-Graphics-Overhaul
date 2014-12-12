@@ -2,7 +2,7 @@
 
 package stratos.graphics.cutout;
 import stratos.graphics.common.*;
-import stratos.util.I;
+import stratos.util.*;
 
 
 
@@ -40,12 +40,12 @@ public class ItemStack extends GroupSprite {
     
     //  First, determine how many crates and packets of the good should be
     //  shown-
-    int numPacks = (int) Math.ceil(newAmount * 1f / ITEM_UNIT), numCrates = 0;
+    int numPacks = (int) Nums.ceil(newAmount * 1f / ITEM_UNIT), numCrates = 0;
     while (numPacks > 4) { numPacks -= 4; numCrates++; }
     final int
       total = numCrates + numPacks,
       numLevels = total / 4,
-      topOffset = (4 * (int) Math.ceil(total / 4f)) - total;
+      topOffset = (4 * (int) Nums.ceil(total / 4f)) - total;
     
     //  Then iterate through the list of possible positions, and fill 'em up.
     for (int i = 0; i < total; i++) {

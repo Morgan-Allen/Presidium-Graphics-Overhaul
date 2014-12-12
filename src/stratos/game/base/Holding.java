@@ -120,11 +120,11 @@ public class Holding extends Venue {
   
   /**  Moderating upgrades-
     */
-  public void updateAsScheduled(int numUpdates) {
+  public void updateAsScheduled(int numUpdates, boolean instant) {
     if (numUpdates % 10 == 0 && structure.intact()) {
       HoldingExtra.updateExtras(this, extras, numUpdates);
     }
-    super.updateAsScheduled(numUpdates);
+    super.updateAsScheduled(numUpdates, instant);
     
     if (! structure.intact()) return;
     consumeMaterials();

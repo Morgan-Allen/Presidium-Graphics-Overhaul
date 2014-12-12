@@ -75,8 +75,8 @@ public abstract class Fauna extends Actor {
   }
   
   
-  public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates);
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
     
     if (numUpdates % 10 == 0 && health.alive()) {
       world.ecology().impingeAbundance(this, 10);
@@ -361,7 +361,7 @@ public abstract class Fauna extends Actor {
   
   public boolean actionBreed(Fauna actor, Nest nests) {
     actor.breedMetre = 0;
-    final int maxKids = 1 + (int) Math.sqrt(10f / health.lifespan());
+    final int maxKids = 1 + (int) Nums.sqrt(10f / health.lifespan());
     for (int numKids = 1 + Rand.index(maxKids); numKids-- > 0;) {
       final Fauna young = (Fauna) species.newSpecimen(base());
       young.assignBase(this.base());
@@ -379,7 +379,7 @@ public abstract class Fauna extends Actor {
   /**  Rendering and interface methods-
     */
   protected float spriteScale() {
-    return (float) Math.sqrt(health.ageLevel() + 0.5f);
+    return (float) Nums.sqrt(health.ageLevel() + 0.5f);
   }
   
   

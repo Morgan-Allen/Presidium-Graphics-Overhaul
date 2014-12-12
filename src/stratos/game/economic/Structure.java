@@ -361,7 +361,7 @@ public class Structure {
     final int max = maxIntegrity();
     final float oldI = this.integrity;
     if (inc < 0 && integrity > max) {
-      inc = Math.min(inc, integrity - max);
+      inc = Nums.min(inc, integrity - max);
     }
     adjustRepair(inc);
     if (inc > Rand.num() * maxIntegrity()) burning = false;

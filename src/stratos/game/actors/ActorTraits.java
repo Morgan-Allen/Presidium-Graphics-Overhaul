@@ -342,7 +342,7 @@ public class ActorTraits implements Qualities {
     if (traits == null) traits = new Batch <Trait> ();
     for (Trait t : types) {
       final Level l = levels.get(t);
-      if (l == null || Math.abs(l.value) < 0.5f) continue;
+      if (l == null || Nums.abs(l.value) < 0.5f) continue;
       traits.add(t);
     }
     return traits;
@@ -404,7 +404,7 @@ public class ActorTraits implements Qualities {
   
   
   private void tryReport(Trait type, float diff) {
-    if ((! actor.inWorld()) || Math.abs(diff) < 1) return;
+    if ((! actor.inWorld()) || Nums.abs(diff) < 1) return;
     final String prefix = diff > 0 ? "+" : "";
     actor.chat.addPhrase(prefix+type, TalkFX.NOT_SPOKEN);
   }

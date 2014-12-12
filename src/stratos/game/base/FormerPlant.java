@@ -371,7 +371,7 @@ public class FormerPlant extends Venue {
   
   
   protected float goodDisplayAmount(TradeType good) {
-    return Math.min(5, stocks.amountOf(good));
+    return Nums.min(5, stocks.amountOf(good));
   }
   
   

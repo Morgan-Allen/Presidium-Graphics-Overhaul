@@ -66,8 +66,8 @@ public final class Spacing implements TileConstants {
   //  Method for getting all tiles around the perimeter of a venue/area.
   public static Tile[] perimeter(Box2D area, Stage world) {
     final int
-      minX = (int) Math.floor(area.xpos()),
-      minY = (int) Math.floor(area.ypos()),
+      minX = (int) Nums.floor(area.xpos()),
+      minY = (int) Nums.floor(area.ypos()),
       maxX = (int) (minX + area.xdim() + 1),
       maxY = (int) (minY + area.ydim() + 1),
       wide = 1 + maxX - minX,
@@ -331,12 +331,12 @@ public final class Spacing implements TileConstants {
   
   
   public static Tile pickRandomTile(Target t, float range, Stage world) {
-    final double angle = Rand.num() * Math.PI * 2;
+    final float angle = Rand.num() * Nums.PI * 2;
     final float dist = Rand.num() * range, max = world.size - 1;
     final Vec3D o = t.position(pA);
     return world.tileAt(
-      Nums.clamp(o.x + (float) (Math.cos(angle) * dist), 0, max),
-      Nums.clamp(o.y + (float) (Math.sin(angle) * dist), 0, max)
+      Nums.clamp(o.x + (float) (Nums.cos(angle) * dist), 0, max),
+      Nums.clamp(o.y + (float) (Nums.sin(angle) * dist), 0, max)
     );
   }
   
@@ -402,13 +402,13 @@ public final class Spacing implements TileConstants {
   
   
   public static int maxAxisDist(Tile a, Tile b) {
-    final int xd = Math.abs(a.x - b.x), yd = Math.abs(a.y - b.y);
-    return Math.max(xd, yd);
+    final int xd = Nums.abs(a.x - b.x), yd = Nums.abs(a.y - b.y);
+    return Nums.max(xd, yd);
   }
   
   
   public static int sumAxisDist(Tile a, Tile b) {
-    final int xd = Math.abs(a.x - b.x), yd = Math.abs(a.y - b.y);
+    final int xd = Nums.abs(a.x - b.x), yd = Nums.abs(a.y - b.y);
     return xd + yd;
   }
   

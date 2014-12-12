@@ -246,7 +246,7 @@ public abstract class Venue extends Structural implements
   }
   
   
-  public void updateAsScheduled(int numUpdates) {
+  public void updateAsScheduled(int numUpdates, boolean instant) {
     if (destroyed()) {
       I.say(this+" IS DESTROYED! SHOULD NOT BE ON SCHEDULE!");
       this.setAsDestroyed();

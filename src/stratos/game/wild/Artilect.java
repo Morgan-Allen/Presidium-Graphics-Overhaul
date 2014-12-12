@@ -297,8 +297,8 @@ public abstract class Artilect extends Actor {
   
   
   
-  public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates);
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
     final float fuelInc = 1f / FUEL_CELLS_REGEN;
     if (isDoing(Resting.class, null)) gear.incPowerCells(fuelInc);
   }

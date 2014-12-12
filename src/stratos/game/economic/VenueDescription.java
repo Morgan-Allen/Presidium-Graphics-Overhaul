@@ -211,7 +211,7 @@ public class VenueDescription {
     d.append("\n  ");
     item.describeTo(d);
     
-    final int price = (int) Math.ceil(v.priceFor(type));
+    final int price = (int) Nums.ceil(v.priceFor(type));
     d.append(" /"+nS+" (Price "+price+")");
     return true;
   }

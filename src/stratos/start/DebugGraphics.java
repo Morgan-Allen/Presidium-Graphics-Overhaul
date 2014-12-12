@@ -132,7 +132,7 @@ public class DebugGraphics {
           public void readyFor(Rendering r) {
             if (Rand.index(Rendering.FRAMES_PER_SECOND) <= 2) {
               final Vec3D point = new Vec3D();
-              final float angle = (float) (Math.PI * 2 * Rand.num());
+              final float angle = (float) (Nums.PI * 2 * Rand.num());
               point.x = 10 * Nums.sin(angle);
               point.y = 10 * Nums.cos(angle);
               this.attachBurstFromPoint(point, Rand.yes());

@@ -76,7 +76,7 @@ public class Commission extends Plan {
   }
   
   
-  public boolean matchesPlan(Plan p) {
+  public boolean matchesPlan(Behaviour p) {
     if (! super.matchesPlan(p)) return false;
     return ((Commission) p).item.type == this.item.type;
   }
