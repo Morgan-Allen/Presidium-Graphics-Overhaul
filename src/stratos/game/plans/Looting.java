@@ -30,12 +30,6 @@ public class Looting extends Plan {
     stepsVerbose = false;
   
   final static int
-    /*
-    TYPE_EXTORTION =  0,
-    TYPE_BREAK_IN  =  1,
-    TYPE_SCAVENGE  =  2,
-    //*/
-    
     STAGE_INIT     = -1,
     STAGE_APPROACH =  0,
     STAGE_DROP     =  1,
@@ -52,6 +46,14 @@ public class Looting extends Plan {
     this.mark    = subject;
     this.taken   = taken  ;
     this.dropOff = dropOff;
+  }
+  
+  
+  public Looting(Actor actor, Item.Dropped dropped) {
+    super(actor, dropped, false, NO_HARM);
+    this.mark    = dropped;
+    this.taken   = pickItemFrom(mark);
+    this.dropOff = null;
   }
   
   
@@ -85,6 +87,19 @@ public class Looting extends Plan {
   final static Trait BASE_TRAITS[] = { DISHONEST, ACQUISITIVE };
   
   
+  private Item pickItemFrom(Owner owner) {
+    final Pick <Item> pick = new Pick <Item> ();
+    
+    for (Item taken : owner.inventory().allItems()) {
+      taken = Item.withAmount(taken, Nums.min(1, taken.amount));
+      final float rating = ActorMotives.rateDesire(taken, null, actor);
+      pick.compare(taken, rating);
+    }
+    return pick.result();
+  }
+  
+  
+  /*
   public static Looting nextLootingFor(Actor actor, Venue dropOff) {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (report) I.say("\nGetting next loot for "+actor);
@@ -92,8 +107,6 @@ public class Looting extends Plan {
     Item  bestTaken  = null;
     Owner bestMark   = null;
     float bestRating = 0   ;
-    
-    //  TODO:  Include dropped items as well...
     
     for (Target t : actor.senses.awareOf()) if (t instanceof Owner) {
       if (t == actor.mind.home() || t == actor.mind.work()) continue;
@@ -117,14 +130,18 @@ public class Looting extends Plan {
     if (bestTaken == null) return null;
     else return new Looting(actor, bestMark, bestTaken, dropOff);
   }
+  //*/
   
   
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
     
+    if (taken == null) return 0;
     float urge = ActorMotives.rateDesire(taken, null, actor) / Plan.ROUTINE;
+    float harm = NO_HARM;
     
     if (mark.base() != null) {
+      harm = MILD_HARM;
       urge *= (1.5f - Planet.dayValue(actor.world()));  //  TODO:  USE SUCCESS-CHANCE INSTEAD
       if (mark.privateProperty()) urge -= 0.5f;
     }
@@ -132,7 +149,7 @@ public class Looting extends Plan {
     final float priority = priorityForActorWith(
       actor, mark,
       CASUAL * urge, CASUAL * (urge - 0.5f),
-      MILD_HARM, FULL_COMPETITION, REAL_FAIL_RISK,
+      harm, FULL_COMPETITION, REAL_FAIL_RISK,
       BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK, report
     );
     if (report) {

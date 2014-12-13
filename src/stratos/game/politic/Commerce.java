@@ -24,7 +24,7 @@ public class Commerce {
   /**  Field definitions, constructor, save/load methods-
     */
   private static boolean
-    verbose        = false,
+    verbose        = true ,
     extraVerbose   = false,
     migrateVerbose = verbose && false,
     tradeVerbose   = verbose && false;
@@ -612,7 +612,7 @@ public class Commerce {
     */
   public void updateCommerce(int numUpdates) {
     final boolean report = verbose && BaseUI.current().played() == base;
-    if (report) I.say("\nUpdating commerce for base: "+base);
+    if (report && extraVerbose) I.say("\nUpdating commerce for base: "+base);
     
     if (ship == null) refreshShip();
     updateCandidates(numUpdates);

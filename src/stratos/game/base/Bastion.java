@@ -182,8 +182,7 @@ public class Bastion extends Venue {
       return Repairs.getNextRepairFor(actor, true);
     }
     if (v == Backgrounds.AUDITOR || v == Backgrounds.MINISTER_FOR_ACCOUNTS) {
-      final Venue toAudit = Audit.nextToAuditFor(actor);
-      return toAudit == null ? null : new Audit(actor, toAudit);
+      return Audit.nextOfficialAudit(actor);
     }
     return new Supervision(actor, this);
   }

@@ -232,9 +232,8 @@ public class Gifting extends Plan implements Qualities {
         I.say("\n  Potential vendors for "+gift+" are:");
         for (Object o : origins) I.say("    "+o);
       }
-      
-      getting = DeliveryUtils.bestCollectionFor(
-        buys, gift.type, 1, buys, 5, false
+      getting = DeliveryUtils.bestBulkCollectionFor(
+        buys, new Traded[] {gift.type}, 1, 1, 5
       );
     }
 

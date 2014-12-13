@@ -31,4 +31,5 @@ public interface Property extends Structure.Basis, Inventory.Owner, Boarding {
   
   Traded[] services();  //  TODO:  Use Conversions instead.
   Personnel personnel();
+  boolean isManned();
 }

@@ -153,6 +153,9 @@ public class HumanMind extends ActorMind implements Qualities {
       choice.add(new Arrest  (actor, nearby));
       choice.add(new Dialogue(actor, nearby));
     }
+    if (seen instanceof Item.Dropped) {
+      choice.add(new Looting(actor, (Item.Dropped) seen));
+    }
   }
   
   
@@ -165,12 +168,12 @@ public class HumanMind extends ActorMind implements Qualities {
     final boolean report = verbose && I.talkAbout == actor;
     if (report) I.say("\nGetting constant responses.");
     
-    //  TODO:  You need to respond to more distant actors here.
+    //  TODO:  You need to respond to more distant actors/venues/items here?
     for (Target e : actor.senses.awareOf()) {
+      addReactions(e, choice);
       if (e instanceof Actor) {
         if (report) I.say("  Responding to actor: "+e);
         final Actor nearby = (Actor) e;
-        addReactions(nearby, choice);
         choice.add(Hunting.asHarvest(actor, nearby, home, true));
         choice.add(Gifting.nextGifting(null, actor, nearby));
       }
@@ -218,7 +221,7 @@ public class HumanMind extends ActorMind implements Qualities {
     }
     if (timeoff) {
       choice.add(Repairs.getNextRepairFor(actor, false));
-      choice.add(new ItemDisposal(actor));
+      choice.add(DeliveryUtils.nextDisposalFor(actor));
     }
   }
   

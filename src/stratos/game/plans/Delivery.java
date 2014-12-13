@@ -39,20 +39,20 @@ public class Delivery extends Plan {
     MIN_BULK = 5;
   
   private static boolean
-    verbose = false,
+    verbose      = false,
     stepsVerbose = false;
   
   
   final public Owner origin, destination;
-  final public Item items[];
-  public Owner shouldPay;
   
   private byte stage = STAGE_INIT;
-  private float pricePaid = 0;
+  private Item items[];
+  private Owner shouldPay;
+  private float goodsPrice, goodsBulk;
   
   private Suspensor suspensor; //  TODO:  Unify with vehicle...
   public Vehicle driven;
-  public boolean replace = false;
+  public boolean replace = false;  //  TODO:  Shouldn't be public!  Gah!
   
   
   public Delivery(Traded s, Owner origin, Owner destination) {
@@ -75,7 +75,6 @@ public class Delivery extends Plan {
     this.origin = origin;
     this.destination = destination;
     this.items = items;
-    this.shouldPay = destination;
   }
   
   
@@ -86,16 +85,17 @@ public class Delivery extends Plan {
     for (int n = 0; n < items.length; n++) {
       items[n] = Item.loadFrom(s);
     }
-    
-    origin = (Owner) s.loadObject();
+    origin      = (Owner) s.loadObject();
     destination = (Owner) s.loadObject();
-    shouldPay = (Owner) s.loadObject();
     
-    stage = (byte) s.loadInt();
-    pricePaid = s.loadFloat();
+    shouldPay  = (Owner) s.loadObject();
+    stage      = (byte) s.loadInt();
+    goodsPrice = s.loadFloat();
+    goodsBulk  = s.loadFloat();
+    
     suspensor = (Suspensor) s.loadObject();
-    driven = (Vehicle) s.loadObject();
-    replace = s.loadBool();
+    driven    = (Vehicle  ) s.loadObject();
+    replace   = s.loadBool();
   }
   
   
@@ -104,16 +104,17 @@ public class Delivery extends Plan {
     
     s.saveInt(items.length);
     for (Item i : items) Item.saveTo(s, i);
-    
     s.saveObject((Session.Saveable) origin);
     s.saveObject((Session.Saveable) destination);
-    s.saveObject(shouldPay);
     
-    s.saveInt(stage);
-    s.saveFloat(pricePaid);
+    s.saveObject(shouldPay );
+    s.saveInt   (stage     );
+    s.saveFloat (goodsPrice);
+    s.saveFloat (goodsBulk );
+    
     s.saveObject(suspensor);
-    s.saveObject(driven);
-    s.saveBool(replace);
+    s.saveObject(driven   );
+    s.saveBool  (replace  );
   }
   
   
@@ -138,74 +139,77 @@ public class Delivery extends Plan {
   
   
   
-  /**  Assessing targets and priorities-
+  /**  Initial culling methods to allow for budget and inventory limits-
     */
-  private Item[] available(Actor actor) {
-    if (actor == null) {
-      return items;
-    }
-    final boolean report = stepsVerbose && I.talkAbout == actor;
-
-    final Batch <Item> available = new Batch <Item> ();
-    final boolean shopping = shouldPay == actor;
-    final Owner carrier = driven == null ? actor : driven;
-    if (report) {
-      I.say("\nGetting items available for delivery...");
-      I.say("  Should pay: "+shouldPay);
+  //  TODO:  Consider moving this to the rateTrading method?
+  public Delivery withPayment(Owner pays, boolean priceLimit) {
+    
+    if (priceLimit && pays != null) {
+      final float maxPrice = pays.inventory().credits() / 2;
+      float price = -1;
+      final Batch <Item> canAfford = new Batch <Item> ();
+      
+      itemsLoop: for (Item i : items) {
+        while (true) {
+          price = i.priceAt(origin);
+          if (goodsPrice + price > maxPrice) {
+            if (i.amount <= 1) break itemsLoop;
+            i = Item.withAmount(i, i.amount - 1);
+          }
+          else break;
+        }
+        goodsPrice += price;
+        goodsBulk += i.amount;
+        canAfford.add(i);
+      }
+      if (canAfford.size() == 0) return null;
+      
+      this.shouldPay = pays;
+      items = canAfford.toArray(Item.class);
+      return this;
     }
     
-    if (stage <= STAGE_PICKUP) {
-      float sumPrice = 0;
-      for (Item i : items) if (i.amount > 0) {
-        final float amount = origin.inventory().amountOf(i);
-        if (amount <= 0) continue;
-        if (shopping) {
-          sumPrice += i.priceAt(origin);
-          if (sumPrice > actor.gear.credits() / 2f) break;
-        }
-        available.add(i);
-      }
-    }
     else {
-      for (Item i : items) if (i.amount > 0) {
-        if (! carrier.inventory().hasItem(i)) {
-          final float amount = carrier.inventory().amountOf(i);
-          if (amount > 0) available.add(Item.withAmount(i, amount));
-          continue;
-        }
-        else available.add(i);
+      for (Item i : items) {
+        goodsPrice += i.priceAt(origin);
+        goodsBulk  += i.amount;
       }
+      this.shouldPay = pays;
+      return this;
     }
-    
-    if (report) {
-      I.say("Total available: "+available.size());
-      for (Item i : available) I.say("  "+i);
-      I.say("\n");
-    }
-    return available.toArray(Item.class);
   }
   
-
+  
+  public float pricePaid() {
+    return goodsPrice;
+  }
+  
+  
+  public Item delivered(Traded type) {
+    for (Item i : items) if (i.type == type) return i;
+    return null;
+  }
+  
+  
+  
+  
+  /**  Assessing targets and priorities-
+    */
   protected float getPriority() {
-    final Item[] available = available(actor);
-    if (available.length == 0) return 0;
     final boolean report = verbose && I.talkAbout == actor;
     
     float modifier = NO_MODIFIER;
-    
-    //  TODO:  Move food-purchases to a dedicated subclass?  Or rank items in
-    //  general by perceived need/value?
     if (shouldPay == actor && stage <= STAGE_PICKUP) {
       int price = 0;
-      for (Item i : available) {
+      for (Item i : items) {
         price += i.priceAt(origin);
         modifier += ActorMotives.rateDesire(i, null, actor);
       }
       if (price > actor.gear.credits()) return 0;
       modifier -= Pledge.greedPriority(actor, price);
     }
-    else for (Item i : available) {
-      modifier += i.amount / 5f;
+    else for (Item i : items) {
+      modifier += i.amount / 10f;
     }
     
     final float rangeDiv = driven == null ? 2f : 10f;
@@ -230,11 +234,6 @@ public class Delivery extends Plan {
     if (driven != null) {
       if (driven.destroyed()) return false;
       if (! driven.canPilot(actor)) return false;
-    }
-    
-    if (stage < STAGE_RETURN && available(actor).length == 0) {
-      if (driven != null) { stage = STAGE_RETURN; return true; }
-      return false;
     }
     return true;
   }
@@ -275,13 +274,21 @@ public class Delivery extends Plan {
       //else dropoff.setProperties(Action.CARRIES);
       return dropoff;
     }
-    if (stage == STAGE_RETURN && driven != null && driven.hangar() != null) {
+    if (stage == STAGE_RETURN && driven != null) {
       final Action returns = new Action(
         actor, driven.hangar(),
-        this, "actionReturn",
+        this, "actionReturnVehicle",
         Action.REACH_DOWN, "Returning in vehicle"
       );
       returns.setMoveTarget(driven);
+      return returns;
+    }
+    if (stage == STAGE_RETURN && driven == null) {
+      final Action returns = new Action(
+        actor, origin,
+        this, "actionReturnProceeds",
+        Action.TALK_LONG, "Returning profits"
+      );
       return returns;
     }
     
@@ -295,25 +302,6 @@ public class Delivery extends Plan {
     if (! driven.setPilot(actor)) abortBehaviour();
     stage = STAGE_PICKUP;
     return true;
-  }
-  
-  
-  private float transferGoods(Owner a, Owner b) {
-    if (a == null || b == null) return 0;
-    float sumItems = 0;
-    float totalPrice = 0;
-    for (Item i : available(actor)) {
-      final float TA = a.inventory().transfer(i, b);
-      totalPrice += TA * i.priceAt(origin) / i.amount;
-      sumItems += TA;
-    }
-    
-    if (shouldPay != null) {
-      origin.inventory().incCredits(totalPrice);
-      if (shouldPay == actor) actor.gear.incCredits(0 - totalPrice);
-      else pricePaid = totalPrice;
-    }
-    return sumItems;
   }
   
 
@@ -334,8 +322,8 @@ public class Delivery extends Plan {
     //
     //  Perform the actual transfer of goods, make the payment required, and
     //  see if a suspensor is needed-
-    final float sum = transferGoods(origin, actor);
-    final boolean bulky = sum >= 5;// || passenger != null;
+    transferGoods(origin, actor);
+    final boolean bulky = goodsBulk >= 5;
     if (bulky) {
       final Suspensor suspensor = new Suspensor(actor, this);
       final Tile o = actor.origin();
@@ -347,50 +335,65 @@ public class Delivery extends Plan {
   }
   
   
+  private void transferGoods(Owner a, Owner b) {
+    if (a == null || b == null) return;
+    for (Item i : items) {
+      if (replace) {
+        final Item match = b.inventory().matchFor(i);
+        b.inventory().removeItem(match);
+      }
+      a.inventory().transfer(i, b);
+    }
+  }
+  
+  
   public boolean actionDropoff(Actor actor, Owner target) {
     if (stage != STAGE_DROPOFF) return false;
-    
-    if (shouldPay != null && pricePaid > 0) {
-      shouldPay.inventory().incCredits(0 - pricePaid);
-    }
-    
-    if (replace) for (Item i : items) {
-      final Item match = target.inventory().matchFor(i);
-      if (match == null || (i.amount < 1) && (match.amount < 1)) continue;
-      target.inventory().removeItem(match);
-    }
+    if (shouldPay != null) actor.gear.incCredits(goodsPrice);
     
     if (driven != null) {
       if (! driven.setPilot(actor)) abortBehaviour();
       driven.pathing.updateTarget(target);
       if (driven.aboard() == target) {
-        for (Traded t : ALL_MATERIALS) {
-          driven.cargo.transfer(t, target);
-        }
+        transferGoods(driven, target);
         stage = STAGE_RETURN;
         return true;
       }
       return false;
     }
-    
-    if (suspensor != null && suspensor.inWorld()) suspensor.exitWorld();
-    
-    for (Item i : items) actor.gear.transfer(i.type, target);
-    stage = STAGE_DONE;
-    return true;
+    else {
+      if (suspensor != null && suspensor.inWorld()) suspensor.exitWorld();
+      
+      transferGoods(actor, target);
+      if (actor != origin && shouldPay != null) stage = STAGE_RETURN;
+      else stage = STAGE_DONE;
+      return true;
+    }
   }
   
   
-  public boolean actionReturn(Actor actor, Venue target) {
-    if (! driven.setPilot(actor)) abortBehaviour();
-    driven.pathing.updateTarget(target);
-    if (driven.aboard() == target) {
+  public boolean actionReturnVehicle(Actor actor, Venue hangar) {
+    if (! driven.setPilot(actor)) {
+      driven = null;
+      return false;
+    }
+    else driven.pathing.updateTarget(hangar);
+    
+    if (driven.aboard() == hangar) {
       driven.setPilot(null);
-      actor.goAboard(target, actor.world());
-      stage = STAGE_DONE;
+      actor.goAboard(hangar, actor.world());
+      driven = null;
       return true;
     }
     return false;
+  }
+  
+  
+  public boolean actionReturnProceeds(Actor actor, Owner origin) {
+    actor.gear.incCredits(0 - goodsPrice);
+    origin.inventory().incCredits(goodsPrice);
+    stage = STAGE_DONE;
+    return true;
   }
   
   
@@ -406,10 +409,8 @@ public class Delivery extends Plan {
     }
     
     d.append("Delivering");
-    final Item available[] = available(actor);
-    
-    for (Item i : available) {
-      d.append(" "+i);
+    for (Item i : items) {
+      d.append(" "+i.type);
     }
     
     if (origin != actor) {

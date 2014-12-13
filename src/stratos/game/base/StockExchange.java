@@ -203,6 +203,7 @@ public class StockExchange extends Venue {
     }
     
     //  Otherwise, consider local deliveries and supervision of the venue-
+    /*
     for (Traded good : services) {
       final Delivery d = DeliveryUtils.bestDeliveryFrom(
         this, good, 10, null, 5, true
@@ -213,6 +214,7 @@ public class StockExchange extends Venue {
       );
       if (c != null && personnel.assignedTo(c) < 1) choice.add(c);
     }
+    //*/
     
     choice.add(new Supervision(actor, this));
     return choice.weightedPick();

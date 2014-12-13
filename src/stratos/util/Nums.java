@@ -46,7 +46,7 @@ public final class Nums {
   
   
   public static float ceil(float a) {
-    return (float) FastMath.floor(a);
+    return (float) FastMath.ceil(a);
   }
   
   

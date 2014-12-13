@@ -18,29 +18,31 @@ public class Profile {
     */
   //  TODO:  I'm only going to implement about half of these for now- the rest
   //  are intended for expanded content.
-  final static int
-    OFFENCE_ASSAULT    = 0,
-    OFFENCE_THEFT      = 1,
-    OFFENCE_DESERTION  = 2,
-    OFFENCE_CORRUPTION = 3;
-  final static int
-    SENTENCE_CENSURE   = 0,
-    SENTENCE_BEATING   = 1,
-    SENTENCE_DEMOTION  = 2,
-    SENTENCE_CAPTIVITY = 3;
-  final static String OFFENCE_DESCRIPTIONS[] = {
-    "Assault"              ,
-    "Theft and Smuggling"  ,
-    "Desertion of Duty"    ,
-    "Corruption"           ,
+  public static enum Crime {
+    CRIME_ASSAULT     ,
+    CRIME_THEFT       ,
+    CRIME_DESERTION   ,
+    CRIME_CORRUPTION  ,
     //  TODO:  Include vice, false evidence, gene-crime and tek-crime.
   };
-  final static String SENTENCE_DESCRIPTIONS[] = {
-    "Censure"        ,
-    "Beating"        ,
-    "Demotion"       ,
-    "Captivity"      ,
+  public static enum Sentence {
+    SENTENCE_CENSURE  ,
+    SENTENCE_BEATING  ,
+    SENTENCE_DEMOTION ,
+    SENTENCE_CAPTIVITY,
     //  TODO:  Include rehab, arena combat, penal labour, and execution.
+  }
+  final static String OFFENCE_DESCRIPTIONS[] = {
+    "Assault"            ,
+    "Theft and Smuggling",
+    "Desertion of Duty"  ,
+    "Corruption"         ,
+  };
+  final static String SENTENCE_DESCRIPTIONS[] = {
+    "Censure"            ,
+    "Beating"            ,
+    "Demotion"           ,
+    "Captivity"          ,
   };
   
   
@@ -50,6 +52,7 @@ public class Profile {
   
   float lastPsychEval = -1;
   float offenderScore =  0;
+  Sentence sentenced  = null;
   
   //TODO:  USE SENTENCINGS TO DISCOURAGE CRIMINAL ACTS!
   
@@ -69,16 +72,18 @@ public class Profile {
     p.lastWageEval  = s.loadFloat();
     p.offenderScore = s.loadFloat();
     p.lastPsychEval = s.loadFloat();
+    p.sentenced     = (Sentence) s.loadEnum(Sentence.values());
     return p;
   }
   
   
   public static void saveProfile(Profile p, Session s) throws Exception {
-    s.saveObject(p.actor);
-    s.saveFloat(p.paymentDue   );
-    s.saveFloat(p.lastWageEval );
-    s.saveFloat(p.offenderScore);
-    s.saveFloat(p.lastPsychEval);
+    s.saveObject(p.actor        );
+    s.saveFloat (p.paymentDue   );
+    s.saveFloat (p.lastWageEval );
+    s.saveFloat (p.offenderScore);
+    s.saveFloat (p.lastPsychEval);
+    s.saveEnum  (p.sentenced    );
   }
   
   
@@ -108,6 +113,9 @@ public class Profile {
   
   /**  Criminal record-
     */
+  public Sentence openSentence() {
+    return sentenced;
+  }
   
   
   

@@ -245,6 +245,17 @@ public class Box2D {
   }
   
   
+  public boolean contains(Vec2D v) {
+    return contains(v.x, v.y);
+  }
+  
+  
+  public boolean contains(Vec3D v) {
+    return contains(v.x, v.y);
+  }
+  
+  
+  
   /**  Returns the euclidean distance of the given point from the boundaries of
     *  this box.
     */

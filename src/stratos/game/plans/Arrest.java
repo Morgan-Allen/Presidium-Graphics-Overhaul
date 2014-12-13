@@ -5,12 +5,15 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.util.*;
+
+import static stratos.game.actors.Profile.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
 
 
 
 public class Arrest extends Plan {
+  
   
   /**  Data fields, constructors and save/load methods-
     */
@@ -19,13 +22,21 @@ public class Arrest extends Plan {
     stepsVerbose = true ;
   
   final static int
-    TYPE_SCOLDING = 0,
-    TYPE_ARREST   = 2,
-    TYPE_BEATING  = 1,
+    TYPE_CENSURE = 0,
+    TYPE_ARREST  = 2,
+    TYPE_BEATING = 1,
     
     WARN_LIMIT = 2;
   
+  
+  private Sentence sentence = null;
   private boolean doneWarning = false;
+  
+  
+  public Arrest(Actor actor, Target subject, Sentence sentence) {
+    this(actor, subject);
+    this.sentence = sentence;
+  }
   
   
   public Arrest(Actor actor, Target subject) {
@@ -35,12 +46,14 @@ public class Arrest extends Plan {
   
   public Arrest(Session s) throws Exception {
     super(s);
+    sentence = (Sentence) s.loadEnum(Sentence.values());
     doneWarning = s.loadBool();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
+    s.saveEnum(sentence);
     s.saveBool(doneWarning);
   }
   
@@ -54,9 +67,9 @@ public class Arrest extends Plan {
   /**  Behaviour implementation-
     */
   final static Trait BASE_TRAITS[] = { DUTIFUL, ETHICAL, FEARLESS };
-
   //  TODO:  Include modifiers based on penalties for the crime, specified by
   //  the sovereign?
+  
   
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;// && hasBegun();
@@ -221,13 +234,18 @@ public class Arrest extends Plan {
   
   
   
-  
   /**  Rendering and interface-
     */
   public void describeBehaviour(Description d) {
     if (! hasAuthority()) {
-      d.append("Scolding ");
+      d.append("Warning ");
       d.append(subject);
+      
+      //  TODO:  Stipulate the crime being warned against.
+      /*
+      d.append(" against ");
+      d.append(((Actor) subject).mind.rootBehaviour());
+      //*/
     }
     else {
       if (super.needsSuffix(d, "Arresting ")) {

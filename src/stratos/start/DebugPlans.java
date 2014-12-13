@@ -175,6 +175,8 @@ public class DebugPlans extends Scenario {
     
     UI.selection.pushSelection(citizen, true);
     
+    //  TODO:  RE-TEST THIS
+    /*
     world.presences.togglePresence(
       venue, venue.origin(), true, Economy.PARTS.supplyKey
     );
@@ -188,6 +190,7 @@ public class DebugPlans extends Scenario {
       citizen, other, gift, getting
     );
     citizen.mind.assignBehaviour(gifting);
+    //*/
   }
   
   

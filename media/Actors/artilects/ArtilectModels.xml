@@ -94,16 +94,10 @@
   height="2.5"
 >
   <animations rotate="90" fps="1">
-    <animation name="stand"       start="0"   end="0"   duration="1" />
-    <animation name="idle"        start="0"   end="48"  duration="1" />
-    <animation name="walk_begin"  start="55"  end="75"  duration="1" />
-    <animation name="walk_cycle"  start="77"  end="136" duration="1" />
-    <animation name="walk_stop"   start="138" end="155" duration="1" />
-    <animation name="bbb"         start="156" end="262" duration="1" />
-    <animation name="carry"       start="263" end="443" duration="1" />
-    <animation name="attack"      start="444" end="493" duration="1" />
-    <animation name="die"         start="493" end="532" duration="1" />
-    <animation name="build"       start="535" end="812" duration="1" />
+  
+    <animation name="build"       start="1"   end="278" duration="1" />
+    <animation name="carry"       start="287" end="506" duration="1" />
+    <animation name="walk"        start="516" end="575" duration="1" />
   </animations>
   
   <attachPoints>

@@ -204,6 +204,12 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
+  public boolean isManned() {
+    for (Actor a : crew()) if (a.aboard() == this) return true;
+    return false;
+  }
+  
+  
   public List <Actor> crew() {
     return personnel.workers();
   }

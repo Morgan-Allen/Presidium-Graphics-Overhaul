@@ -244,7 +244,7 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   
   private void completeDescent() {
     nextPosition.setTo(position.setTo(aimPos));
-    dropPoint = ShipUtils.performLanding(this, world, landArea(), entranceFace);
+    dropPoint = ShipUtils.performLanding(this, world, entranceFace);
     ShipUtils.offloadPassengers(this, true);
     stageInceptTime = world.currentTime();
     stage = STAGE_LANDED;
@@ -258,27 +258,18 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   
   
   public void beginAscent() {
-    if (stage == STAGE_LANDED) ShipUtils.offloadPassengers(this, false);
-    
-    ///I.say("BEGINNING ASCENT");
-    if (dropPoint instanceof LaunchHangar) {
-      ((LaunchHangar) dropPoint).setToDock(null);
+    if (stage == STAGE_LANDED) {
+      ShipUtils.offloadPassengers(this, false);
+      ///ShipUtils.registerAtDrop(this, world, false);
     }
-    else if (landed()) {
-      final Box2D site = new Box2D().setTo(landArea()).expandBy(-1);
-      for (Tile t : world.tilesIn(site, false)) t.setOnTop(null);
-    }
-    
-    final Tile exits = Spacing.pickRandomTile(origin(), INIT_DIST, world);
-    aimPos.set(exits.x, exits.y, INIT_HIGH);
-    this.dropPoint = null;
+    ShipUtils.performTakeoff(world, this);
     stage = STAGE_ASCENT;
     stageInceptTime = world.currentTime();
   }
   
   
   private void completeAscent() {
-    world.offworld.beginJourney(this, Offworld.TRAVEL_DURATION);
+    world.offworld.beginJourney(this, 5);//Offworld.TRAVEL_DURATION);
     exitWorld();
     stage = STAGE_AWAY;
     stageInceptTime = world.currentTime();

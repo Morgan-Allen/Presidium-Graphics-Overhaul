@@ -36,7 +36,13 @@ public class Vec2D {
     set(xv, yv);
   }
   
+  
   public Vec2D(Vec2D v) {
+    setTo(v);
+  }
+  
+  
+  public Vec2D(Vec3D v) {
     setTo(v);
   }
   

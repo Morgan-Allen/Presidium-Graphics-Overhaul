@@ -20,7 +20,7 @@ import static stratos.game.economic.Economy.*;
 //  *  Smuggle (to afar.)
 //  *  Provide services (poison, vr, gene mods, etc. nearby)
 //  *  Steal (from afar.)
-//  *  Perform enforcement/taxation (from nearby.)
+//  *  Perform enforcement/taxation (nearby.)
 
 
 //  TODO:  IMPLEMENT UPGRADES:
@@ -43,7 +43,7 @@ import static stratos.game.economic.Economy.*;
 
 //  Hudzin Baru upgrades:   (+ Gene samples)
 //    Cosmetic Clinic   (Disguise or beautify)
-//    G-Mod Clinic      (Trait bonus with mutation)
+//    G-Mod Clinic      (Trait bonus with mutation risk)
 //    Fugitive Trade    (Kidnapping and cheap labour)
 
 //  ...They can offer some of these specialties at the Cantina as well.
@@ -68,6 +68,17 @@ public class RunnerLodge extends Venue {
     RunnerLodge.class, IMG_DIR+"runner_market.png", 4, 3
   );
   
+  final static int
+    GANG_NONE       = -1,
+    GANG_SILVERFISH =  0,
+    GANG_IV_PUNKS   =  1,
+    GANG_HUDZENA    =  2,
+    
+    CLAIM_SIZE = 8;
+  
+  
+  private int gangID = GANG_NONE;
+  
   
   public RunnerLodge(Base base) {
     super(4, 2, ENTRANCE_EAST, base);
@@ -82,11 +93,13 @@ public class RunnerLodge extends Venue {
   
   public RunnerLodge(Session s) throws Exception {
     super(s);
+    gangID = s.loadInt();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
+    s.saveInt(gangID);
   }
   
   
@@ -155,23 +168,52 @@ public class RunnerLodge extends Venue {
     if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
     final Choice choice = new Choice(actor);
     //
-    //  TODO:  Only loot from distant areas of the city, or from other
-    //  settlements- just collect protection money nearby.
+    //  Either collect protection money from nearby businesses, or loot from
+    //  more distant properties:
+    final Box2D territory = areaClaimed();
+    final Batch <Venue> venues = new Batch <Venue> ();
+    world.presences.sampleFromMaps(this, world, 5, venues, Venue.class);
+    
+    for (Venue venue : venues) {
+      if (territory.contains(venue.position(null))) {
+        choice.add(new Audit(actor, venue, Audit.Type.TYPE_EXTORTION));
+      }
+      else {
+        choice.add(new Looting(actor, venue, null, this));
+      }
+    }
     //
-    //  TODO:  Also, select which venues to loot from (so you can avoid any
-    //  nearby.)
-    ///choice.add(Looting.nextLootingFor(actor, this));
+    //  You also need to perform enforcement duties in the neighbourhood:
+    final Batch <Mobile> suspects = new Batch <Mobile> ();
+    world.presences.sampleFromMaps(this, world, 5, suspects, Mobile.class);
+    
+    for (Mobile m : suspects) if (m instanceof Actor) {
+      final Actor suspect = (Actor) m;
+      final Profile.Sentence sentence = base.profiles.sentenceFor(suspect);
+      if (sentence != null) {
+        final Arrest a = new Arrest(actor, suspect, sentence);
+        //a.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
+        choice.add(a);
+      }
+    }
     //
     //  Next, consider smuggling goods out of the settlement-
     for (Dropship ship : actor.base().commerce.allVessels()) {
       if (! ship.landed()) continue;
       final Item toMove[] = base.commerce.getBestCargo(stocks, 5, false);
-      
-      I.say("Ship found: "+ship+", to move: "+toMove.length);
       final Smuggling s = new Smuggling(actor, this, ship, toMove);
+      //s.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
       if (personnel.assignedTo(s) == 0) choice.add(s);
     }
     return choice.weightedPick();
+    //
+    //  And lastly, consider manufacturing contraband from scratch:
+    //  TODO:  This has to be customised by gang.  Work on that.
+  }
+  
+  
+  public Box2D areaClaimed() {
+    return new Box2D(footprint()).expandBy(CLAIM_SIZE);
   }
   
   
@@ -184,14 +226,19 @@ public class RunnerLodge extends Venue {
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
+    for (Traded type : ALL_MATERIALS) {
+      stocks.incDemand(type, 0, TIER_TRADER, 1, this);
+    }
     //  Demand either parts or reagents, depending on what you're making.
     //  Register as a producer of whatever you're making.
   }
   
   
-  public Traded[] services() {
-    return null;
-  }
+  final static Traded[] SERVICES = (Traded[]) Visit.compose(
+    Traded.class, ALL_MATERIALS,
+    new Traded[] { SERVICE_SECURITY }
+  );
+  public Traded[] services() { return SERVICES; }
   
   
   

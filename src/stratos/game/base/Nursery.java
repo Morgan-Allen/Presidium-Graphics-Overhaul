@@ -206,7 +206,7 @@ public class Nursery extends Venue implements TileConstants {
       
       final float
         growth = 10 * 1f / MATURE_DURATION,
-        decay = growth / 10;
+        decay  = growth / 10;
       for (Item seed : stocks.matches(SAMPLES)) {
         stocks.removeItem(Item.withAmount(seed, decay));
       }
@@ -254,15 +254,6 @@ public class Nursery extends Venue implements TileConstants {
   
   
   public Behaviour jobFor(Actor actor) {
-    /*
-    if (true) {
-      final Forestry f = Forestry.nextCutting(actor, this);
-      f.setMotive(Plan.MOTIVE_DUTY, 100);
-      return f;
-    }
-    //*/
-    
-    
     final Choice choice = new Choice(actor);
     
     //  If you're really short on food, consider foraging in the surrounds or
@@ -314,7 +305,7 @@ public class Nursery extends Venue implements TileConstants {
       for (Species s : Crop.ALL_VARIETIES) {
         Item seed = Item.withReference(SAMPLES, s);
         seed = station.stocks.bestSample(seed, 1);
-        if (seed == null || stocks.hasItem(seed) || seed.amount < 1) continue;
+        if (seed == null || stocks.amountOf(seed) > 0) continue;
         seedTypes.add(seed);
         rating += seed.quality + 0.5f;
       }
@@ -344,11 +335,13 @@ public class Nursery extends Venue implements TileConstants {
   
   public String helpInfo() {
     //if (type == TYPE_NURSERY) return
+    /*
     return
       "Nurseries allow young plants to be cultivated in a secure environment "+
       "prior to outdoor planting, and provide a small but steady food yield "+
       "regardless of outside conditions.";
-    /*
+    //*/
+    //*
     return
       "Plantations of managed, mixed-culture cropland secure a high-quality "+
       "food source for your base, but require space and constant attention.";
@@ -360,36 +353,4 @@ public class Nursery extends Venue implements TileConstants {
     return InstallTab.TYPE_ECOLOGIST;
   }
 }
-
-
-
-
-/*
-public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
-  final StringBuffer d = new StringBuffer();
-
-  d.append("\n");
-  boolean any = false;
-  for (Item seed : stocks.matches(SAMPLES)) {
-    final Species s = (Species) seed.refers;
-    d.append("\n  Seed for "+s+" (");
-    d.append(Crop.HEALTH_NAMES[(int) seed.quality]+" quality)");
-    any = true;
-  }
-  if (! any) d.append("\nNo seed stock.");
-  
-  //  TODO:  Summarise the amount of crops planted and their overall health!
-  panel = VenueDescription.configSimplePanel(this, panel, UI, d.toString());
-  return panel;
-}
-
-
-public void renderSelection(Rendering rendering, boolean hovered) {
-  BaseUI.current().selection.renderTileOverlay(
-    rendering, world,
-    hovered ? Colour.transparency(0.5f) : Colour.WHITE,
-    Selection.SELECT_OVERLAY, true, this, this
-  );
-}
-//*/
 

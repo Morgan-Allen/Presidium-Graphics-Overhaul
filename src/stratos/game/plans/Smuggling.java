@@ -95,7 +95,6 @@ public class Smuggling extends Plan implements Offworld.Activity {
     //  Before you board the vessel, make sure to collect the goods.  Then,
     //  once the ship in question has landed, hop aboard.
     if (! tripDone) {
-      
       if (warehouse != null) for (Item i : moved) if (! actor.gear.hasItem(i)) {
         if (report) I.say("  Collecting goods from "+warehouse);
         final Action collect = new Action(
@@ -152,9 +151,10 @@ public class Smuggling extends Plan implements Offworld.Activity {
     final boolean report = stepsVerbose && I.talkAbout == actor;
     if (report) I.say("\nReturning profits to "+warehouse);
     
-    //  TODO:  Include a split for the runner?  (Maybe on the side)
+    //  TODO:  Include a split for the runner?  (Maybe on the side?)
     actor.gear.incCredits(0 - profits);
     warehouse.stocks.incCredits(profits);
+    profits = 0;
     return true;
   }
   
@@ -184,6 +184,7 @@ public class Smuggling extends Plan implements Offworld.Activity {
       final float price = i.defaultPrice() * (1f + DEFAULT_SMUGGLE_MARGIN);
       if (report) I.say("  "+price+" credits for "+i);
       profits += price;
+      actor.gear.removeItem(i);
     }
     if (report) I.say("  Total profit: "+profits);
     

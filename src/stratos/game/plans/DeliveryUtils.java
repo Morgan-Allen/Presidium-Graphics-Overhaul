@@ -18,7 +18,8 @@ public class DeliveryUtils {
   private static boolean
     sampleVerbose = false,
     rateVerbose   = false,
-    shipsVerbose  = false;
+    shipsVerbose  = false,
+    dispVerbose   = true ;
   
   private static Traded verboseGoodType = null;
   private static Class  verboseDestType = null;
@@ -132,6 +133,70 @@ public class DeliveryUtils {
     return bestShipDelivery(ship, depots, maxAmount, true );
   }
   
+  
+  
+  /**  Utility methods for dealing with domestic orders-
+    */
+  public static Delivery nextDisposalFor(Actor actor) {
+    final boolean report = dispVerbose && I.talkAbout == actor;
+    //
+    //  We allow the actor to dispose of any 'excess' items in their own
+    //  inventory, their home, or their workplace.
+    final Owner origins[] = {actor, actor.mind.home(), actor.mind.work()};
+    //
+    //  Excess items can, in principle, be disposed of anywhere that accepts
+    //  them- so we just fall back on whatever the actor can see.
+    final Batch <Property> depots = new Batch <Property> ();
+    for (Target t : actor.senses.awareOf()) if (t instanceof Property) {
+      depots.add((Property) t);
+    }
+    for (Owner origin : origins) if (origin != null) {
+      //
+      //  We include anything 'unnecesary' from the inventory in question- any
+      //  kind of bulk commodity which isn't in demand- as up for disposal.
+      final Pick <Delivery> pick = new Pick <Delivery> ();
+      final Batch <Item> excess = new Batch <Item> ();
+      for (Item i : origin.inventory().allItems()) {
+        if (i.type.form != Economy.FORM_MATERIAL) continue;
+        if (origin.inventory().demandFor(i.type) > 0) continue;
+        if (report) I.say("  Excess item: "+i);
+        excess.add(i);
+      }
+      if (excess.size() == 0) continue;
+      if (report) {
+        I.say("\nGetting next item disposal: "+actor);
+        I.say("Origin is: "+origin);
+      }
+      //
+      //  Then, we iterate over any candidate depots and see if they'll accept
+      //  the good in question.  (If the depot is one of the origin points,
+      //  only take goods in demand- otherwise, make sure the depot deals in
+      //  goods of that type.)
+      for (Property depot : depots) for (Item i : excess) {
+        final Traded t = i.type;
+        final boolean sells = ! Visit.arrayIncludes(origins, depot);
+        
+        if ((! sells) && depot.inventory().demandFor(t) <= 0) continue;
+        if (sells && ! Visit.arrayIncludes(depot.services(), t)) continue;
+        
+        final Item moved = Item.withAmount(t, Nums.min(5, i.amount));
+        final Delivery d = new Delivery(moved, origin, depot);
+        d.withPayment(sells ? depot : null, false);
+        
+        if (report) {
+          I.say("  Candidate depot: "+depot+" ("+i.type+")");
+          I.say("  Rating (sells):  "+d.pricePaid()+" ("+sells+")");
+        }
+        pick.compare(d, d.pricePaid());
+      }
+      //
+      //  Return whatever option seems most profitable (if any)-
+      final Delivery disposal = pick.result();
+      if (report) I.say("Final choice: "+disposal);
+      if (disposal != null) return disposal;
+    }
+    return null;
+  }
   
   
   /**  Returns the best bulk delivery from the given origin point.  (Note: the
@@ -255,12 +320,12 @@ public class DeliveryUtils {
     int sumAmounts = 0;
     
     while (true) {
-      int bestIndex = -1;
-      float bestRating = 0;
+      int   bestIndex  = -1;
+      float bestRating =  0;
       
       for (int i = goods.length; i-- > 0;) {
         final int nextAmount = goodAmounts[i] + baseUnit;
-        final float rating = DeliveryUtils.rateTrading(
+        final float rating = rateTrading(
           origin, destination, goods[i], nextAmount
         );
         if (rating > bestRating) { bestRating = rating; bestIndex = i; }
@@ -271,6 +336,7 @@ public class DeliveryUtils {
       sumAmounts += baseUnit;
       if (sumAmounts >= amountLimit) break;
     }
+    if (sumAmounts <= 0) return null;
     
     final Batch <Item> toTake = new Batch <Item> ();
     for (int i = goods.length; i-- > 0;) {
@@ -278,65 +344,8 @@ public class DeliveryUtils {
       if (amount > 0) toTake.add(Item.withAmount(goods[i], amount));
     }
     
-    return new Delivery(toTake, origin, destination);
-  }
-  
-  
-  
-  /**  Helper methods for dealing with relatively straightforward collections
-    *  and deliveries of single good-types.
-    */
-  public static Delivery bestCollectionFor(
-    Owner destination, Traded good, int amount, Actor pays,
-    int numSamples, boolean trySmallerAmount
-  ) {
-    final Stage world = destination.world();
-    final Batch <Owner> origins = new Batch <Owner> ();
-    
-    world.presences.sampleFromMap(
-      destination, world, numSamples, origins, good.supplyKey
-    );
-    
-    for (; amount > 0; amount /= 2) {
-      final Owner orig = bestOrigin(origins, destination, good, amount);
-      if (orig != null) {
-        final Item taken = Item.withAmount(good, amount);
-        final Delivery collects = new Delivery(taken, orig, destination);
-        if (pays == null) return collects;
-        
-        collects.shouldPay = pays;
-        if (collects.priorityFor(pays) > 0) return collects;
-      }
-      if (! trySmallerAmount) break;
-    }
-    return null;
-  }
-  
-  
-  public static Delivery bestDeliveryFrom(
-    Owner origin, Traded good, int amount, Actor pays,
-    int numSamples, boolean trySmallerAmount
-  ) {
-    final Stage world = origin.world();
-    final Batch <Owner> destinations = new Batch <Owner> ();
-    
-    world.presences.sampleFromMap(
-      origin, world, numSamples, null, good.demandKey
-    );
-
-    for (; amount > 0; amount /= 2) {
-      final Owner dest = bestDestination(origin, destinations, good, amount);
-      if (dest != null) {
-        final Item taken = Item.withAmount(good, amount);
-        final Delivery delivers = new Delivery(taken, origin, dest);
-        if (pays == null) return delivers;
-        
-        delivers.shouldPay = pays;
-        if (delivers.priorityFor(pays) > 0) return delivers;
-      }
-      if (! trySmallerAmount) break;
-    }
-    return null;
+    final Delivery order = new Delivery(toTake, origin, destination);
+    return order.withPayment(destination, false);
   }
   
   
@@ -400,9 +409,20 @@ public class DeliveryUtils {
   /**  Rates the attractiveness of trading a particular good types between
     *  the given origin and destination venues-
     */
+  /*
+  static float rateSimpleTrading(
+    Owner orig, Owner dest, Traded good, int amount
+  ) {
+    if (orig == dest) return -1;
+    return
+      Nums.max(dest.inventory().shortageOf(good), 1) /
+      Nums.max(orig.inventory().shortageOf(good), 1);
+  }
+  //*/
+  
   //  TODO:  In the case of personal purchases, you'll want to limit by
-  //  cash available...
-  //  TODO:  Also include capacity limits as a factor for consideration?
+  //  cash available.  TODO:  Also include bulk limits.
+  
   static float rateTrading(
     Owner orig, Owner dest, Traded good, int amount
   ) {
@@ -504,14 +524,13 @@ public class DeliveryUtils {
     
     //  TODO:  Cache this locally if possible.
     final Activities a = e.world().activities;
-    final Batch <Delivery> matches = (Batch) a.activePlanMatches(e, Delivery.class);
+    final Batch <Delivery> matches = (Batch) a.activePlanMatches(
+      e, Delivery.class
+    );
     float balance = 0;
     
     for (Delivery d : matches) {
-      Item itemMatch = null;
-      for (Item i : d.items) {
-        if (i.type == good) { itemMatch = i; break; }
-      }
+      final Item itemMatch = d.delivered(good);
       if (itemMatch == null) continue;
       
       if (d.origin == e && d.stage() == Delivery.STAGE_PICKUP) {

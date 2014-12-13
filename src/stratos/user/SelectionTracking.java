@@ -23,9 +23,10 @@ public class SelectionTracking {
   
   private static boolean verbose = false;
   final static int
-    FULL_LOCK = 1,
-    PART_LOCK = 0,
-    NO_LOCK   = -1;
+    FULL_LOCK =  1,
+    PART_LOCK =  0,
+    NO_LOCK   = -1,
+    MAX_DRIFT_DISTANCE = 32;
   
   
   final BaseUI UI;
@@ -196,28 +197,24 @@ public class SelectionTracking {
     //  Ascertain the difference between the current camera position and the
     //  the target's position.
     final Vec3D
-      lockPos = lockPosition(this.lockTarget),
-      viewPos = new Vec3D().setTo(view.lookedAt),
-      targPos = new Vec3D().setTo(lockPos).sub(lockOff),
+      lockPos  = lockPosition(lockTarget),
+      viewPos  = new Vec3D(view.lookedAt),
+      targPos  = new Vec3D(lockPos).sub(lockOff),
       displace = targPos.sub(viewPos, new Vec3D());
-    
-    final float distance = displace.length();
+    final float
+      distance = displace.length(),
+      drift = ((distance + 2) * 2) / (Rendering.FRAMES_PER_SECOND * distance);
     //
-    //  If distance is too large, just go straight to the point-
-    if (distance > 32) {
-      viewPos.add(displace);
-    }
-    else {
-      //
-      //  Otherwise, ascertain the rate at which one should 'drift' toward the
-      //  target, and displace accordingly-
-      final float drift = Nums.min(1,
-        ((distance + 2) * 2) / (Rendering.FRAMES_PER_SECOND * distance)
-      );
-      viewPos.add(displace.scale(drift));
-    }
+    //  If distance is too large, or drift would cause overshoot, just go
+    //  straight to the point.  Otherwise, displace gradually-
+    if (distance > MAX_DRIFT_DISTANCE || drift >= 1) viewPos.setTo(targPos);
+    else viewPos.add(displace.scale(drift));
     view.lookedAt.setTo(viewPos);
   }
 }
+
+
+
+
 
 

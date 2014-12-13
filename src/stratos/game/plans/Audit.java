@@ -3,13 +3,12 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.politic.BaseFinance;
+import stratos.game.politic.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
@@ -19,8 +18,14 @@ import static stratos.game.economic.Economy.*;
 
 public class Audit extends Plan {
   
+  
   /**  Data fields, constructors and save/load functions-
     */
+  public static enum Type {
+    TYPE_OFFICIAL,
+    TYPE_AMATEUR ,
+    TYPE_EXTORTION
+  }
   final static int
     STAGE_EVAL   = -1,
     STAGE_AUDIT  =  0,
@@ -30,81 +35,79 @@ public class Audit extends Plan {
   private static boolean verbose = false;
   
   
+  private Type type;
   private int stage = STAGE_EVAL;
+  
   private Venue audited;
   private float balance = 0;
   public int checkBonus = 0;
   
   
-  public Audit(Actor actor, Venue toAudit) {
+  public Audit(Actor actor, Venue toAudit, Type type) {
     super(actor, toAudit, true, NO_HARM);
+    this.type    = type;
     this.audited = toAudit;
   }
   
   
   public Audit(Session s) throws Exception {
     super(s);
-    stage = s.loadInt();
-    audited = (Venue) s.loadObject();
-    balance = s.loadFloat();
+    type       = (Type) s.loadEnum(Type.values());
+    stage      = s.loadInt();
+    audited    = (Venue) s.loadObject();
+    balance    = s.loadFloat();
     checkBonus = s.loadInt();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveInt(stage);
-    s.saveObject(audited);
-    s.saveFloat(balance);
-    s.saveInt(checkBonus);
+    s.saveEnum  (type      );
+    s.saveInt   (stage     );
+    s.saveObject(audited   );
+    s.saveFloat (balance   );
+    s.saveInt   (checkBonus);
   }
   
   
   public Plan copyFor(Actor other) {
-    return new Audit(other, audited);
+    return new Audit(other, audited, type);
   }
   
   
   
   /**  Evaluating targets and priority-
     */
-  protected float getPriority() {
-    return ROUTINE;
-  }
-  
-  
-  /*
-  public static Venue nearestAdminFor(Actor actor) {
-    final Stage world = actor.world();
-    int maxCheck = 5;  //  TODO:  Base off actor attributes?  Or sense range?
-    
-    for (Object o : world.presences.matchesNear(SERVICE_ADMIN, actor, -1)) {
-      final Venue near = (Venue) o;
-      if (near.base() != actor.base()) continue;
-      if (maxCheck-- <= 0) break;
-      return near;
-    }
-    return null;
-  }
-  //*/
-  
-  
-  public static Venue nextToAuditFor(Actor actor) {
+  public static Audit nextOfficialAudit(Actor actor) {
     
     final Stage world = actor.world();
     final Venue work = (Venue) actor.mind.work();
     final Batch <Venue> batch = new Batch <Venue> ();
     world.presences.sampleFromMap(work, world, 10, batch, work.base());
     
-    Venue picked = null;
-    float bestRating = 0, rating;
+    final Pick <Venue> pick = new Pick <Venue> ();
     for (Venue v : batch) {
-      rating = Nums.abs(v.inventory().credits()) / 100f;
+      float rating = Nums.abs(v.inventory().credits()) / 100f;
       rating -= Plan.rangePenalty(v, actor);
       rating -= Plan.competition(Audit.class, v, actor);
-      if (rating > bestRating) { bestRating = rating; picked = v; }
+      pick.compare(v, rating);
     }
-    return picked;
+    
+    if (pick.result() == null) return null;
+    return new Audit(actor, pick.result(), Type.TYPE_OFFICIAL);
+  }
+  
+  
+  protected float getPriority() {
+    final float credits = audited.inventory().credits();
+    float modifier = Nums.clamp(credits / 100, -ROUTINE, ROUTINE);
+    
+    if (type == Type.TYPE_EXTORTION) {
+      if (credits <= 0) return 0;
+      modifier *= 2;
+      modifier -= ROUTINE;
+    }
+    return (ROUTINE + modifier) / 2;
   }
   
   
@@ -118,10 +121,10 @@ public class Audit extends Plan {
     
     if (stage == STAGE_EVAL) {
       if (audited == null && Rand.num() > (Nums.abs(balance) / 1000f)) {
-        audited = nextToAuditFor(actor);
+        final Behaviour next = actor.mind.work().jobFor(actor);
+        if (next instanceof Audit) audited = ((Audit) next).audited;
       }
-      if (audited != null) stage = STAGE_AUDIT;
-      else stage = STAGE_REPORT;
+      stage = (audited == null) ? STAGE_REPORT : STAGE_AUDIT;
     }
     if (report) I.say("Stage is now: "+stage+", audited: "+audited);
     

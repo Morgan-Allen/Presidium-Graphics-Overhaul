@@ -20,8 +20,8 @@ public class ShipUtils {
   
   private static boolean
     landVerbose = true ,
-    flyVerbose  = true ,
-    siteVerbose = true ;
+    flyVerbose  = false,
+    siteVerbose = false;
   
   
   /**  Utility methods for handling takeoff and landing:
@@ -49,9 +49,19 @@ public class ShipUtils {
   
   
   static Boarding performLanding(
-    Dropship ship, Stage world, Box2D site, float entranceFace
+    Dropship ship, Stage world, float entranceFace
   ) {
+    final boolean report = landVerbose && I.talkAbout == ship;
     final Boarding dropPoint = ship.mainEntrance();
+    final Box2D site = new Box2D(ship.landArea());
+    
+    if (report) {
+      I.say("\n"+ship+" performing landing!");
+      I.say("  Landing site:  "+site        );
+      I.say("  Entrance face: "+entranceFace);
+      I.say("  Drop point:    "+dropPoint   );
+    }
+    
     if (dropPoint instanceof Venue) {
       //  Rely on the docking functions of the landing site...
       ((LaunchHangar) dropPoint).setToDock(ship);
@@ -59,7 +69,9 @@ public class ShipUtils {
     }
     else {
       //  Claim any tiles underneath as owned, and evacuate any occupants-
-      site = new Box2D().setTo(site).expandBy(-1);
+      final int size = (int) site.xdim();
+      
+      site.expandBy(-1);
       for (Tile t : world.tilesIn(site, false)) {
         if (t.onTop() != null) t.onTop().setAsDestroyed();
         t.setOnTop(ship);
@@ -70,16 +82,47 @@ public class ShipUtils {
           m.setPosition(e.x, e.y, world);
         }
       }
-      final int size = 2 * (int) Nums.ceil(ship.radius());
+      
       final int EC[] = Spacing.entranceCoords(size, size, entranceFace);
       final Tile o = world.tileAt(site.xpos() + 0.5f, site.ypos() + 0.5f);
       final Tile exit = world.tileAt(o.x + EC[0], o.y + EC[1]);
       
+      if (report) {
+        I.say("  Area size:     "+size);
+        I.say("  New exit:      "+exit);
+      }
       //  And just make sure the exit is clear-
       if (exit.onTop() != null) exit.onTop().setAsDestroyed();
+      exit.refreshAdjacent();
       return exit;
-      //this.dropPoint = exit;
     }
+  }
+  
+  
+  static void performTakeoff(Stage world, Dropship ship) {
+    final boolean report = landVerbose && I.talkAbout == ship;
+    final Boarding dropPoint = ship.mainEntrance();
+    final Box2D site = new Box2D(ship.landArea());
+    if (report) I.say("\n"+ship+" performing takeoff!");
+    
+    if (ship.landed()) {
+      if (dropPoint instanceof LaunchHangar) {
+        if (report) I.say("  Taking off from hangar...");
+        ((LaunchHangar) dropPoint).setToDock(null);
+      }
+      else {
+        if (report) I.say("  Taking off from ground...");
+        site.expandBy(-1);
+        for (Tile t : world.tilesIn(site, false)) t.setOnTop(null);
+      }
+    }
+    final Tile exits = Spacing.pickRandomTile(
+      ship.origin(), Dropship.INIT_DIST, world
+    );
+    final Vec3D exitPoint = new Vec3D(exits.x, exits.y, Dropship.INIT_HIGH);
+    
+    if (report) I.say("  Exit point: "+exitPoint);
+    ship.assignLandPoint(exitPoint, null);
   }
   
   

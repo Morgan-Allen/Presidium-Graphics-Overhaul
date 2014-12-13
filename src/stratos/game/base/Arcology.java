@@ -131,7 +131,7 @@ public class Arcology extends Structural {
     //  TODO:  You'll also need input of greens or saplings, in all likelihood.
     float needWater = 1 - (origin().habitat().moisture() / 10f);
     needWater *= needWater;
-    stocks.incDemand(WATER, needWater, VenueTIER_CONSUMER, 1);
+    stocks.incDemand(WATER, needWater, TIER_CONSUMER, 1);
     stocks.bumpItem(WATER, needWater / -10f, 1);
     final float shortWater = stocks.shortagePenalty(WATER);
     //

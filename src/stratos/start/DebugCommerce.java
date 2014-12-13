@@ -113,10 +113,6 @@ public class DebugCommerce extends Scenario {
     cache.enterWorldAt(15, 15, world);
     cache.inventory().bumpItem(Economy.ARTWORKS, 10);
     
-    runner.goAboard(world.tileAt(13, 13), world);
-    //runner.setPosition(13, 13, world);
-    
-    
     runnerMarket.stocks.bumpItem(Economy.ARTWORKS, 20);
     runnerMarket.stocks.bumpItem(Economy.ANTIMASS, 20);
     final Item moved[] = base.commerce.getBestCargo(
@@ -126,7 +122,9 @@ public class DebugCommerce extends Scenario {
     final Smuggling smuggle = new Smuggling(runner, runnerMarket, ship, moved);
     smuggle.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
     runner.mind.assignBehaviour(smuggle);
+    runner.goAboard(world.tileAt(13, 13), world);
     
+    //  TODO:  Include looting as a general-reaction to new items.
     /*
     final Looting loots = new Looting(
       runner, cache, Item.withAmount(Economy.ARTWORKS, 1), runnerMarket

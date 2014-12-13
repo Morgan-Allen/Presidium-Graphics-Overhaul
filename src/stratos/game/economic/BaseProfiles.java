@@ -60,6 +60,13 @@ public class BaseProfiles {
   }
   
   
+  public Profile.Sentence sentenceFor(Actor actor) {
+    final Profile match = allProfiles.get(actor);
+    if (match == null) return null;
+    return match.openSentence();
+  }
+  
+  
   
   public void assertSetting(String key, int value) {
     allSettings.put(key, value);

@@ -214,6 +214,18 @@ public class Session {
   }
   
   
+  public void saveEnum(Enum e) throws Exception {
+    if (e == null) saveInt(-1);
+    else saveInt(e.ordinal());
+  }
+  
+  
+  public Enum loadEnum(Enum from[]) throws Exception {
+    final int ID = loadInt();
+    return (ID == -1) ? null : from[ID];
+  }
+  
+  
   
   /**  Saving and loading of targets-
     */
@@ -443,22 +455,24 @@ public class Session {
   
   
   public void loadByteArray(byte array[]) throws Exception {
+    bytesIn += array.length;
     in.read(array);
   }
   
   
   public void saveByteArray(byte array[]) throws Exception {
     out.write(array);
+    bytesOut += array.length;
   }
   
   
   public void loadByteArray(byte array[][]) throws Exception {
-    for (byte a[] : array) in.read(a);
+    for (byte a[] : array) loadByteArray(a);
   }
   
   
   public void saveByteArray(byte array[][]) throws Exception {
-    for (byte a[] : array) out.write(a);
+    for (byte a[] : array) saveByteArray(a);
   }
   
   
@@ -516,3 +530,10 @@ public class Session {
     bytesOut += chars.length + 4;
   }
 }
+
+
+
+
+
+
+

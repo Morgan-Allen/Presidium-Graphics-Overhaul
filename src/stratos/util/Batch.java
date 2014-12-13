@@ -34,6 +34,12 @@ public class Batch <K> implements Series <K> {
     size = 0;
   }
   
+  
+  public Batch(K... startWith) {
+    this(startWith.length);
+    for (K k : startWith) if (k != null) add(k);
+  }
+  
   public int size() { return size; }
   
   

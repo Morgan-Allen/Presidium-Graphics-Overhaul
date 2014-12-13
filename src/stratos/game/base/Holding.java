@@ -299,8 +299,7 @@ public class Holding extends Venue {
   public Behaviour jobFor(Actor actor) {
     final Traded goods[] = goodsNeeded();
     
-    //  TODO:  Move these out of here- possibly to the HumanMind class.  This
-    //  should be where servant AI is placed.
+    //  TODO:  Include special orders for servants/minders?
     
     //  First of all, deliver any goods that you yourself are carrying-
     for (Traded s : goods) for (Item i : actor.gear.matches(s)) {
@@ -315,8 +314,8 @@ public class Holding extends Venue {
     final Delivery d = DeliveryUtils.bestBulkCollectionFor(
       this, goods, 1, 5, 5
     );
-    if (d != null) d.shouldPay = actor;
-    return d;
+    if (d != null) return d.withPayment(actor, true);
+    else return null;
   }
   
   
@@ -326,8 +325,8 @@ public class Holding extends Venue {
   }
   
   
-  public Background[] careers() { return new Background[0]; }
-  public Traded[] services() { return new Traded[0]; }
+  public Background[] careers () { return null; }
+  public Traded[]     services() { return null; }
   
   
   
