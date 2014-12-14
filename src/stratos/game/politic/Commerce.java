@@ -423,7 +423,7 @@ public class Commerce {
     //  This crew will need to be updated every now and then- in the sense of
     //  changing the roster due to losses or career changes.
     for (Background b : positions) {
-      if (ship.personnel().numHired(b) < 1) {
+      if (ship.personnel().numHired(b) < Visit.countInside(b, positions)) {
         final Human staff = new Human(new Career(b), base);
         staff.mind.setWork(ship);
         staff.mind.setHome(ship);
@@ -454,7 +454,8 @@ public class Commerce {
     }
     refreshCrew(ship,
       Backgrounds.SHIP_CAPTAIN,
-      Backgrounds.SHIP_MECHANIC
+      Backgrounds.FREE_TRADER,
+      Backgrounds.FREE_TRADER
     );
   }
   

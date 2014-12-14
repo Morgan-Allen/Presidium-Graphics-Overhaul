@@ -154,8 +154,7 @@ public class Fabricator extends Venue {
   
   public int numOpenings(Background v) {
     int nO = super.numOpenings(v);
-    if (v == Backgrounds.FABRICATOR) return nO + 3;
-    //if (v == Backgrounds.AESTHETE  ) return nO + 1;
+    if (v == Backgrounds.FABRICATOR) return nO + 2;
     return 0;
   }
   
@@ -168,7 +167,7 @@ public class Fabricator extends Venue {
   
   
   public Background[] careers() {
-    return new Background[] { Backgrounds.FABRICATOR, Backgrounds.AESTHETE };
+    return new Background[] { Backgrounds.FABRICATOR };
   }
   
   

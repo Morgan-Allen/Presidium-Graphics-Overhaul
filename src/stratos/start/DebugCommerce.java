@@ -98,7 +98,7 @@ public class DebugCommerce extends Scenario {
     //world.advanceCurrentTime(Stage.STANDARD_DAY_LENGTH / 2);
     base.commerce.scheduleDrop(5);
     
-    final Actor runner = new Human(Backgrounds.RUNNER, base);
+    final Actor runner = new Human(Backgrounds.RUNNER_SILVERFISH, base);
     final Venue runnerMarket = new RunnerLodge(base);
     Placement.establishVenue(runnerMarket, 10,  5, true, world, runner);
     
@@ -124,27 +124,7 @@ public class DebugCommerce extends Scenario {
     runner.mind.assignBehaviour(smuggle);
     runner.goAboard(world.tileAt(13, 13), world);
     
-    //  TODO:  Include looting as a general-reaction to new items.
-    /*
-    final Looting loots = new Looting(
-      runner, cache, Item.withAmount(Economy.ARTWORKS, 1), runnerMarket
-    );
-    runner.mind.assignBehaviour(loots);
-    
-    /*
-    final Looting loots = new Looting(
-      runner, looted, Item.withAmount(Economy.GREENS, 1), runnerMarket
-    );
-    loots.setMotive(Plan.MOTIVE_EMERGENCY, Plan.ROUTINE);
-    runner.mind.assignBehaviour(loots);
-    
-    final Arrest arrest = new Arrest(vendor, runner);
-    arrest.setMotive(Plan.MOTIVE_EMERGENCY, Plan.ROUTINE);
-    vendor.mind.assignBehaviour(arrest);
-    //*/
-    
     UI.selection.pushSelection(runner, true);
-    //UI.selection.pushSelection(vendor, true);
     //  TODO:  Set up initial relationships...
   }
 

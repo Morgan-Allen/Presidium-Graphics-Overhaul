@@ -199,7 +199,7 @@ public class DebugPlans extends Scenario {
     
     Actor citizen = null;
     for (int n = 2; n-- > 0;) {
-      citizen = new Human(Backgrounds.RUNNER, base);
+      citizen = new Human(Backgrounds.RUNNER_HUDZENA, base);
       citizen.enterWorldAt(world.tileAt(10 + n, 10 + n), world);
       citizen.gear.incCredits(1000);
     }
@@ -253,7 +253,7 @@ public class DebugPlans extends Scenario {
       lives = new Cranial(artilects)
     );
     
-    final Human subject = new Human(Backgrounds.AESTHETE, base);
+    final Human subject = new Human(Backgrounds.COMPANION, base);
     subject.enterWorldAt(ruins, world);
     subject.health.takeInjury(subject.health.maxHealth() + 1, true);
     subject.health.setState(ActorHealth.STATE_DYING);

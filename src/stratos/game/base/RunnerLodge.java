@@ -72,8 +72,17 @@ public class RunnerLodge extends Venue {
     GANG_NONE       = -1,
     GANG_SILVERFISH =  0,
     GANG_IV_PUNKS   =  1,
-    GANG_HUDZENA    =  2,
-    
+    GANG_HUDZENA    =  2;
+  final static Background
+    ALL_BACKGROUNDS[][] = {
+      { RUNNER_SILVERFISH, RUNNER_IV_PUNKS, RUNNER_HUDZENA },
+      { JACK_ARTIST      , STREET_COOK    , FACE_FIXER     },
+      { ASSASSIN         , BRUISER        , ANONYMOUS      },
+    },
+    RUNNER_BACKGROUNDS [] = ALL_BACKGROUNDS[0],
+    SERVICE_BACKGROUNDS[] = ALL_BACKGROUNDS[1],
+    SENIOR_BACKGROUNDS [] = ALL_BACKGROUNDS[2];
+  final static int
     CLAIM_SIZE = 8;
   
   
@@ -212,8 +221,15 @@ public class RunnerLodge extends Venue {
   }
   
   
-  public Box2D areaClaimed() {
+  protected Box2D areaClaimed() {
     return new Box2D(footprint()).expandBy(CLAIM_SIZE);
+  }
+  
+  
+  public boolean preventsClaimBy(Venue other) {
+    if (other instanceof Bastion     ) return true;
+    if (other instanceof EnforcerBloc) return true;
+    return false;
   }
   
   
@@ -241,17 +257,18 @@ public class RunnerLodge extends Venue {
   public Traded[] services() { return SERVICES; }
   
   
+  final static Background[] CAREERS = (Background[]) Visit.compose(
+    Background.class, RUNNER_BACKGROUNDS, SERVICE_BACKGROUNDS
+  );
+  public Background[] careers() { return CAREERS; }
+  
   
   public int numOpenings(Background b) {
-    int nO = super.numOpenings(b);
-    if (b == RUNNER) return nO + 3;
+    if (gangID == GANG_NONE) return 0;
+    final int nO = super.numOpenings(b);
+    if (b == RUNNER_BACKGROUNDS [gangID]) return nO + 2;
+    if (b == SERVICE_BACKGROUNDS[gangID]) return nO + 1;
     return 0;
-  }
-  
-  
-  public Background[] careers() {
-    //  TODO:  Introduce the different gangs.
-    return new Background[] { RUNNER };
   }
   
   

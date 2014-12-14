@@ -125,7 +125,7 @@ public class Cantina extends Venue {
     */
   public Behaviour jobFor(Actor actor) {
     if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
-    if (actor.vocation() == Backgrounds.SOMA_VENDOR) {
+    if (actor.vocation() == Backgrounds.SOMA_CHEF) {
       final Traded needed[] = { SOMA, CARBS, PROTEIN };
       final Delivery d = DeliveryUtils.bestBulkCollectionFor(
         this, needed, 1, 5, 5
@@ -157,7 +157,7 @@ public class Cantina extends Venue {
         forActor, this, Recreation.TYPE_SONG, null
       ));
     }
-    if (personnel.numPresent(Backgrounds.SOMA_VENDOR) > 0) {
+    if (personnel.numPresent(Backgrounds.SOMA_CHEF) > 0) {
       choice.add(nextSomaOrderFor(forActor));
       final Resting resting = new Resting(forActor, this);
       resting.cost = (int) LODGING_PRICE;
@@ -177,13 +177,13 @@ public class Cantina extends Venue {
   
   
   public Background[] careers() {
-    return new Background[] { Backgrounds.SOMA_VENDOR, Backgrounds.PERFORMER };
+    return new Background[] { Backgrounds.SOMA_CHEF, Backgrounds.PERFORMER };
   }
   
   
   public int numOpenings(Background v) {
     final int nO = super.numOpenings(v);
-    if (v == Backgrounds.SOMA_VENDOR) return nO + 1;
+    if (v == Backgrounds.SOMA_CHEF) return nO + 1;
     if (v == Backgrounds.PERFORMER  ) return nO + 2;
     return 0;
   }

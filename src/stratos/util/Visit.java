@@ -87,6 +87,13 @@ public abstract class Visit <T> implements Iterable <T>, Iterator <T> {
   }
   
   
+  public static int countInside(Object m, Object a[]) {
+    int count = 0;
+    for (Object o : a) if (o == m) count++;
+    return count;
+  }
+  
+  
   public static float[] fromFloats(Object[] a) {
     float f[] = new float[a.length];
     for (int i = f.length; i-- > 0;) f[i] = (Float) a[i];

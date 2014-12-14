@@ -116,7 +116,7 @@ public interface Sectors extends Backgrounds {
       Sector.NEEDS, GREENS, ORES, ANTIMASS,
       DREGS_BIRTH, GELDER_BIRTH,
       NOVICE, FIELD_THEORY, STEALTH_AND_COVER,
-      OFTEN, VENDOR_CIRCLES, OUTLAW_CIRCLES, SOMETIMES, ARTIFICER_CIRCLES
+      OFTEN, VENDOR_CIRCLES, RUNNER_CIRCLES, SOMETIMES, ARTIFICER_CIRCLES
     ),
     //
     //  TODO:  ...These need more detail.
@@ -127,7 +127,7 @@ public interface Sectors extends Backgrounds {
       "on mental and physical purity.",
       null, 2, 1, WASTES_BLOOD, NORMAL_GRAVITY,
       OFTEN, PHYSICIAN_CIRCLES, SOMETIMES, ECOLOGIST_CIRCLES, MILITARY_CIRCLES,
-      RARELY, VENDOR_CIRCLES, NEVER, OUTLAW_CIRCLES
+      RARELY, VENDOR_CIRCLES, NEVER, RUNNER_CIRCLES
     ),
     PLANET_NORUSEI = new Sector(
       Sectors.class, "Norusei", "House Rana",

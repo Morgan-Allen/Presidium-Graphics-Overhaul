@@ -10,6 +10,7 @@ import stratos.util.*;
 
 
 
+//  TODO:  Just figger out the enforcer bloc and animal-breeding now.
 
 //  Assign drills directly at the trooper lodge.  That'll keep 'em busy!
 

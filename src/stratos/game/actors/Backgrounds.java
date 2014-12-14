@@ -14,6 +14,7 @@ import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
 
 
+    //  TODO:  Allow backgrounds to 'extend' or 'develop' eachother.
 
 public interface Backgrounds {
   
@@ -271,9 +272,9 @@ public interface Backgrounds {
       OVERALLS
     ),
     
-    SOMA_VENDOR = new Background(
+    SOMA_CHEF = new Background(
       Backgrounds.class,
-      "Soma Vendor", "", "vendor_skin.gif", "vendor_portrait.png",
+      "Soma Chef", "", "vendor_skin.gif", "vendor_portrait.png",
       CLASS_VASSAL, GUILD_MERCHANT,
       PRACTICED, COUNSEL, SUASION, LEARNING, DOMESTICS, CHEMISTRY,
       ACCOUNTING,
@@ -299,7 +300,7 @@ public interface Backgrounds {
       OVERALLS
     ),
     
-    VENDOR_CIRCLES[] = { FAB_WORKER, SOMA_VENDOR, STOCK_VENDOR, AUDITOR }
+    VENDOR_CIRCLES[] = { FAB_WORKER, SOMA_CHEF, STOCK_VENDOR, AUDITOR }
  ;
   
   final public static Background
@@ -392,7 +393,7 @@ public interface Backgrounds {
       RARELY, URBANE, STUBBORN, SOMETIMES, AMBITIOUS,
       OVERALLS
     ),
-    
+    /*
     AESTHETE = new Background(
       Backgrounds.class,
       "Aesthete", "", "aesthete_male_skin.gif", "aesthete_portrait.png",
@@ -401,59 +402,7 @@ public interface Backgrounds {
       RARELY, STUBBORN, IMPASSIVE, OFTEN, INDULGENT,
       FINERY
     ),
-    
-    AESTHETE_CIRCLES[] = { PERFORMER, FABRICATOR, ADVERTISER, AESTHETE }
- ;
-  
-  
-  final public static Background
-    //
-    //  Scavengers represent the unemployed/homeless/penniless who want to
-    //  leave your settlement, but can't.  Free Traders peddle small goods.
-    SCAVENGER = new Background(
-      Backgrounds.class,
-      "Scavenger", "", "native_skin.gif", null,
-      CLASS_VASSAL, NOT_A_GUILD,
-      LEARNING, STEALTH_AND_COVER, NOVICE, HANDICRAFTS,
-      OFTEN, NERVOUS, ACQUISITIVE, RARELY, RELAXED
-    ),
-    FREE_TRADER = new Background(
-      Backgrounds.class,
-      "Free Trader", "", "pyon_skin.gif", "pyon_portrait.png",
-      CLASS_VASSAL, NOT_A_GUILD,
-      PRACTICED, SUASION, LEARNING, HANDICRAFTS, ACCOUNTING, DOMESTICS,
-      NATIVE_TABOO, COMMON_CUSTOM,
-      SOMETIMES, OUTGOING, POSITIVE, RARELY, NERVOUS, AMBITIOUS
-    ),
-    //
-    //  Mechanics and captains keep your dropships in working order.
-    SHIP_MECHANIC = new Background(
-      Backgrounds.class,
-      "Ship Mechanic", "", "artificer_skin.gif", "artificer_portrait.png",
-      CLASS_VASSAL, NOT_A_GUILD,
-      PRACTICED, ASSEMBLY, HARD_LABOUR,
-      LEARNING, FIELD_THEORY, SHIELD_AND_ARMOUR
-    ),
-    SHIP_CAPTAIN = new Background(
-      Backgrounds.class,
-      "Ship Captain", "", null, "pyon_portrait.png",
-      CLASS_FREEMEN, NOT_A_GUILD,
-      EXPERT, PILOTING, MARKSMANSHIP, PRACTICED, COMMAND, SUASION,
-      LEARNING, ASTROGATION, BATTLE_TACTICS, COMMON_CUSTOM,
-      BLASTER, BELT_AND_BRACER
-    ),
-    //
-    //  These classes won't generally stay put, but might visit your settlement
-    //  if the place needs their services.
-    RUNNER = new Background(
-      Backgrounds.class,
-      "Runner", "", "runner_skin.gif", "vendor_portrait.png",
-      CLASS_FREEMEN, NOT_A_GUILD,
-      EXPERT, PILOTING, MARKSMANSHIP, STEALTH_AND_COVER,
-      PRACTICED, SUASION, SURVEILLANCE, MASQUERADE,
-      OFTEN, ACQUISITIVE, SOMETIMES, NERVOUS, DISHONEST,
-      BLASTER, STEALTH_SUIT
-    ),
+    //*/
     COMPANION = new Background(
       Backgrounds.class,
       "Companion", "", "aesthete_female_skin.gif", "aesthete_portrait.png",
@@ -469,9 +418,107 @@ public interface Backgrounds {
       }
     },
     
-    OUTLAW_CIRCLES[] = {
-        SCAVENGER, FREE_TRADER, SHIP_MECHANIC,
-        SHIP_CAPTAIN, RUNNER, COMPANION
+    AESTHETE_CIRCLES[] = { PERFORMER, FABRICATOR, ADVERTISER, COMPANION }
+ ;
+  
+  
+  final public static Background
+    //
+    //  Scavengers represent the unemployed/homeless/penniless who want to
+    //  leave your settlement, but can't.  Free Traders peddle small goods.
+    VAGRANT = new Background(
+      Backgrounds.class,
+      "Vagrant", "", "native_skin.gif", null,
+      CLASS_VASSAL, NOT_A_GUILD,
+      LEARNING, STEALTH_AND_COVER, NOVICE, HANDICRAFTS,
+      OFTEN, NERVOUS, ACQUISITIVE, RARELY, RELAXED
+    ),
+    FREE_TRADER = new Background(
+      Backgrounds.class,
+      "Ship Trader", "", "artificer_skin.gif", "pyon_portrait.png",
+      CLASS_FREEMEN, NOT_A_GUILD,
+      PRACTICED, ASSEMBLY, HARD_LABOUR,
+      LEARNING, FIELD_THEORY, SHIELD_AND_ARMOUR, MARKSMANSHIP, COMMON_CUSTOM
+    ),
+    SHIP_CAPTAIN = new Background(
+      Backgrounds.class,
+      "Ship Captain", "", null, "pyon_portrait.png",
+      CLASS_FREEMEN, NOT_A_GUILD,
+      EXPERT, PILOTING, MARKSMANSHIP, PRACTICED, COMMAND, SUASION,
+      LEARNING, ASTROGATION, BATTLE_TACTICS, COMMON_CUSTOM,
+      BLASTER, BELT_AND_BRACER
+    ),
+    
+    RUNNER_SILVERFISH = new Background(
+      Backgrounds.class,
+      "Runner (Silverfish)", "", "runner_skin.gif", "vendor_portrait.png",
+      CLASS_FREEMEN, NOT_A_GUILD,
+      EXPERT, MARKSMANSHIP, STEALTH_AND_COVER,
+      PRACTICED, SUASION, SURVEILLANCE, MASQUERADE,
+      LEARNING, HAND_TO_HAND,
+      OFTEN, ACQUISITIVE, SOMETIMES, NERVOUS, URBANE,
+      BLASTER, STEALTH_SUIT
+    ),
+    JACK_ARTIST = new Background(
+      Backgrounds.class,
+      "Jack Artist", "", "artificer_skin.gif", "artificer_portrait.png",
+      CLASS_FREEMEN, NOT_A_GUILD,
+      EXPERT, INSCRIPTION, SIMULACRA,
+      PRACTICED, ASSEMBLY, ACCOUNTING,
+      LEARNING, SUASION, MASQUERADE,
+      OFTEN, ACQUISITIVE, SOMETIMES, NERVOUS, URBANE,
+      OVERALLS
+    ),
+    ASSASSIN = null,
+    //  TODO:  Assassin.
+    
+    RUNNER_IV_PUNKS = new Background(
+      Backgrounds.class,
+      "Runner (IV Punks)", "", "runner_skin.gif", "vendor_portrait.png",
+      CLASS_FREEMEN, NOT_A_GUILD,
+      EXPERT, MARKSMANSHIP, STEALTH_AND_COVER,
+      PRACTICED, HAND_TO_HAND, SURVEILLANCE, BATTLE_TACTICS,
+      LEARNING, COMMAND, MASQUERADE, ANATOMY,
+      OFTEN, ACQUISITIVE, SOMETIMES, DEFENSIVE, DISHONEST,
+      BLASTER, STEALTH_SUIT
+    ),
+    STREET_COOK = new Background(
+      Backgrounds.class,
+      "Street Cook", "", "citizen_skin.gif", null,
+      CLASS_FREEMEN, NOT_A_GUILD,
+      EXPERT, CHEMISTRY, PHARMACY, PRACTICED, FORENSICS,
+      LEARNING, ANATOMY, COUNSEL, TRUTH_SENSE,
+      OVERALLS
+    ),
+    BRUISER = null,
+    //  TODO:  Bruiser.
+    
+    RUNNER_HUDZENA = new Background(
+      Backgrounds.class,
+      "Runner (Hudzeena)", "", "runner_skin.gif", "vendor_portrait.png",
+      CLASS_FREEMEN, NOT_A_GUILD,
+      EXPERT, MASQUERADE, STEALTH_AND_COVER,
+      PRACTICED, MARKSMANSHIP, SURVEILLANCE, SUASION,
+      LEARNING, NATIVE_TABOO, XENOZOOLOGY,
+      OFTEN, ACQUISITIVE, DISHONEST, SOMETIMES, NERVOUS, NATURALIST,
+      BLASTER, STEALTH_SUIT
+    ),
+    FACE_FIXER = new Background(
+      Backgrounds.class,
+      "Face Fixer", "", "citizen_skin.gif", null,
+      CLASS_FREEMEN, NOT_A_GUILD,
+      EXPERT, GENE_CULTURE, ANATOMY, PRACTICED, SUASION,
+      LEARNING, GRAPHIC_DESIGN, HANDICRAFTS,
+      OVERALLS
+    ),
+    ANONYMOUS = null,
+    //  TODO:  Anonymous.
+    
+    RUNNER_CIRCLES[] = {
+      SHIP_CAPTAIN, FREE_TRADER,
+      RUNNER_SILVERFISH, JACK_ARTIST,
+      RUNNER_IV_PUNKS, STREET_COOK,
+      RUNNER_HUDZENA, FACE_FIXER
     };
   
   
