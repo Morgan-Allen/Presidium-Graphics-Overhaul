@@ -201,6 +201,29 @@ public class CombatUtils {
   }
   
   
+  public static float successChance(Actor actor, Target other) {
+    //  TODO:  Switch between these two evaluation methods based on
+    //  intelligence?  (Or maybe the battle-tactics skill?)
+    
+    final float danger = Nums.max(
+      actor.senses.fearLevel(),
+      Plan.dangerPenalty(other, actor)
+    );
+    return Nums.clamp(1 - danger, 0, 1);
+    /*
+    final boolean report = evalVerbose && I.talkAbout == actor;
+    
+    if (subject instanceof Actor) {
+      final Actor struck = (Actor) subject;
+      float chance = CombatUtils.powerLevelRelative(actor, struck) / 2f;
+      chance = (chance + 1 - actor.senses.fearLevel()) / 2f;
+      return Visit.clamp(chance, 0, 1);
+    }
+    else return 1;
+    //*/
+  }
+  
+  
 
   /**  Returns whatever nearby target seems to be most threatening to the given
     *  actor, partially weighted by distance from the 'primary' argument.  (If

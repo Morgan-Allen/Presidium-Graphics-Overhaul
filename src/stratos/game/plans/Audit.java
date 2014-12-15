@@ -98,6 +98,16 @@ public class Audit extends Plan {
   }
   
   
+  public static Venue nearestAdmin(Actor actor) {
+    final Presences p = actor.world().presences;
+    for (Object t : p.matchesNear(SERVICE_ADMIN, actor, -1)) {
+      final Venue v = (Venue) t;
+      if (v.base() == actor.base()) return v;
+    }
+    return null;
+  }
+  
+  
   protected float getPriority() {
     final float credits = audited.inventory().credits();
     float modifier = Nums.clamp(credits / 100, -ROUTINE, ROUTINE);

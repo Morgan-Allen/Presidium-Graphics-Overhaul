@@ -82,9 +82,11 @@ public class EnforcerBloc extends Venue {
     final Choice choice = new Choice(actor);
     
     if (actor.vocation() == Backgrounds.AUDITOR) {
+      //  TODO:  Include sentencing!
       choice.add(Audit.nextOfficialAudit(actor));
     }
     if (actor.vocation() == Backgrounds.ENFORCER) {
+      //  TODO:  Include arrests!
       choice.add(Patrolling.nextGuardPatrol(actor, this, Plan.ROUTINE));
     }
     return choice.weightedPick();

@@ -19,7 +19,7 @@ public class DeliveryUtils {
     sampleVerbose = false,
     rateVerbose   = false,
     shipsVerbose  = false,
-    dispVerbose   = true ;
+    dispVerbose   = false;
   
   private static Traded verboseGoodType = null;
   private static Class  verboseDestType = null;
@@ -151,6 +151,10 @@ public class DeliveryUtils {
       depots.add((Property) t);
     }
     for (Owner origin : origins) if (origin != null) {
+      if (report) {
+        I.say("\nGetting next item disposal: "+actor);
+        I.say("Origin is: "+origin);
+      }
       //
       //  We include anything 'unnecesary' from the inventory in question- any
       //  kind of bulk commodity which isn't in demand- as up for disposal.
@@ -163,10 +167,6 @@ public class DeliveryUtils {
         excess.add(i);
       }
       if (excess.size() == 0) continue;
-      if (report) {
-        I.say("\nGetting next item disposal: "+actor);
-        I.say("Origin is: "+origin);
-      }
       //
       //  Then, we iterate over any candidate depots and see if they'll accept
       //  the good in question.  (If the depot is one of the origin points,

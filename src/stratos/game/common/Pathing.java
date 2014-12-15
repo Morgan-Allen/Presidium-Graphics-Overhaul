@@ -21,8 +21,9 @@ public class Pathing {
     */
   final public static int MAX_PATH_SCAN = 8;
   private static boolean
-    pathVerbose = false,
-    verbose     = false;
+    pathVerbose  = false,
+    verbose      = false,
+    extraVerbose = false;
   
   final Mobile mobile;
   Target trueTarget;
@@ -96,18 +97,18 @@ public class Pathing {
   
   public void updateTarget(Target moveTarget) {
     final boolean report = verbose && I.talkAbout == mobile;
-    if (report) I.say("\nUpdating path target: "+moveTarget);
+    if (report && extraVerbose) I.say("\nUpdating path target: "+moveTarget);
     
     final Target oldTarget = trueTarget;
     this.trueTarget = moveTarget;
     if (trueTarget != oldTarget) {
-      if (report) I.say("...TARGET HAS CHANGED: "+trueTarget);
+      if (report) I.say("\nTARGET HAS CHANGED: "+trueTarget);
       path = null; stepIndex = -1; return;
     }
     else if (inLocus(nextStep())) {
       stepIndex = Nums.clamp(stepIndex + 1, path.length);
     }
-    else if (report) I.say("Not in locus of: "+nextStep());
+    else if (report) I.say("\nNot in locus of: "+nextStep());
   }
   
   
@@ -206,17 +207,18 @@ public class Pathing {
   
   
   protected Boarding[] pathBetween(Boarding initB, Boarding destB) {
+    final boolean report = verbose && extraVerbose && I.talkAbout == mobile;
+    
     if (GameSettings.pathFree) {
       final PathSearch search = new PathSearch(initB, destB, -1);
-      if (verbose && I.talkAbout == mobile) search.verbose = true;
+      search.verbose = report;
       search.client = mobile;
       search.doSearch();
       return search.fullPath(Boarding.class);
     }
     else {
       return mobile.world().pathingCache.getLocalPath(
-        initB, destB, MAX_PATH_SCAN * 2,
-        mobile, (verbose && I.talkAbout == mobile)
+        initB, destB, MAX_PATH_SCAN * 2, mobile, report
       );
     }
   }
@@ -241,7 +243,7 @@ public class Pathing {
   public void headTowards(
     Target target, float speed, boolean moves
   ) {
-    final boolean report = I.talkAbout == mobile && verbose;
+    final boolean report = I.talkAbout == mobile && verbose && extraVerbose;
     if (report) {
       I.say("\n"+mobile+" HEADING TOWARDS: "+target+" FROM: "+mobile.origin());
     }

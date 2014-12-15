@@ -17,20 +17,20 @@ import stratos.util.*;
 
 
 
-public class DebugCommerce extends Scenario {
+public class DebugSecurity extends Scenario {
   
   
   public static void main(String args[]) {
-    PlayLoop.setupAndLoop(new DebugCommerce());
+    PlayLoop.setupAndLoop(new DebugSecurity());
   }
   
   
-  private DebugCommerce() {
+  private DebugSecurity() {
     super();
   }
   
   
-  public DebugCommerce(Session s) throws Exception {
+  public DebugSecurity(Session s) throws Exception {
     super(s);
   }
   
@@ -41,12 +41,12 @@ public class DebugCommerce extends Scenario {
 
   
   public void beginGameSetup() {
-    super.initScenario("debug_commerce");
+    super.initScenario("debug_security");
   }
   
   
   protected String saveFilePrefix(Stage world, Base base) {
-    return "debug_commerce";
+    return "debug_security";
   }
   
   
@@ -73,31 +73,20 @@ public class DebugCommerce extends Scenario {
   
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.setDefaults();
-    //GameSettings.hireFree  = true;
+    GameSettings.hireFree  = false;
     GameSettings.buildFree = true;
     GameSettings.fogFree   = true;
     GameSettings.paveFree  = true;
     GameSettings.noChat    = true;
     
-    //  TODO:  Try giving the residents pots of money instead...
-    //GameSettings.freeHousingLevel = 0;
-    
-    if (false) archivesScenario(world, base, UI);
-    if (true ) runnersScenario (world, base, UI);
+    if (true) arrestScenario(world, base, UI);
   }
   
   
-  private void archivesScenario(Stage world, Base base, BaseUI UI) {
-    
-    final Venue archives = new Archives(base);
-    Placement.establishVenue(archives, 10, 5, true, world);
-  }
+  //  TODO:  You need to make sure this works with unconscious subjects!
+  //         (Also, the initial summons priority is too high.)
   
-  
-  private void runnersScenario(Stage world, Base base, BaseUI UI) {
-    //world.advanceCurrentTime(Stage.STANDARD_DAY_LENGTH / 2);
-    base.commerce.scheduleDrop(5);
-    
+  private void arrestScenario(Stage world, Base base, BaseUI UI) {
     final Actor runner = new Human(Backgrounds.RUNNER_SILVERFISH, base);
     final Venue runnerMarket = new RunnerLodge(base);
     Placement.establishVenue(runnerMarket, 10,  5, true, world, runner);
@@ -108,28 +97,21 @@ public class DebugCommerce extends Scenario {
       looted.stocks.bumpItem(t, 10);
     }
     Placement.establishVenue(looted, 5, 10, true, world, vendor);
-    
-    final SupplyCache cache = new SupplyCache();
-    cache.enterWorldAt(15, 15, world);
-    cache.inventory().bumpItem(Economy.ARTWORKS, 10);
-    
-    runnerMarket.stocks.bumpItem(Economy.ARTWORKS, 20);
-    runnerMarket.stocks.bumpItem(Economy.ANTIMASS, 20);
-    final Item moved[] = base.commerce.getBestCargo(
-      runnerMarket.stocks, 5, false
+
+    final Looting loots = new Looting(
+      runner, looted, Item.withAmount(Economy.GREENS, 1), runnerMarket
     );
-    final Dropship ship = base.commerce.allVessels().atIndex(0);
-    final Smuggling smuggle = new Smuggling(runner, runnerMarket, ship, moved);
-    smuggle.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
-    runner.mind.assignBehaviour(smuggle);
-    runner.goAboard(world.tileAt(13, 13), world);
+    loots.setMotive(Plan.MOTIVE_EMERGENCY, Plan.ROUTINE);
+    runner.mind.assignBehaviour(loots);
+    runner.goAboard(looted.mainEntrance(), world);
     
-    //  TODO:  Now, all you have to work out is the selection of services and
-    //  manufacture of contraband.
-    //  TODO:  Consider having a sub-class who provide those services?
+    final Actor enforcer = new Human(Backgrounds.ENFORCER, base);
+    final Venue enforcerBloc = new EnforcerBloc(base);
+    Placement.establishVenue(enforcerBloc, 5, 20, true, world, enforcer);
     
-    UI.selection.pushSelection(runner, true);
-    //  TODO:  Set up initial relationships...
+    final Arrest arrests = new Arrest(enforcer, runner);
+    enforcer.mind.assignBehaviour(arrests);
+    UI.selection.pushSelection(enforcer, true);
   }
 
   

@@ -24,7 +24,7 @@ public class Commerce {
   /**  Field definitions, constructor, save/load methods-
     */
   private static boolean
-    verbose        = true ,
+    verbose        = false,
     extraVerbose   = false,
     migrateVerbose = verbose && false,
     tradeVerbose   = verbose && false;

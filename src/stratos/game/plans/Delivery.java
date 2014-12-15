@@ -37,7 +37,7 @@ public class Delivery extends Plan {
     MIN_BULK = 5;
   
   private static boolean
-    verbose      = false,
+    verbose      = true ,
     stepsVerbose = false;
   
   
@@ -197,8 +197,11 @@ public class Delivery extends Plan {
   protected float getPriority() {
     final boolean report = verbose && I.talkAbout == actor;
     
-    float modifier = NO_MODIFIER;
-    if (shouldPay == actor && stage <= STAGE_PICKUP) {
+    final boolean shops = shouldPay == actor;
+    float base = ROUTINE, modifier = NO_MODIFIER;
+    if (shouldPay != destination) base = CASUAL;
+    
+    if (shops && stage <= STAGE_PICKUP) {
       int price = 0;
       for (Item i : items) {
         price += i.priceAt(origin);
@@ -207,7 +210,8 @@ public class Delivery extends Plan {
       if (price > actor.gear.credits()) return 0;
       modifier -= Pledge.greedPriority(actor, price);
     }
-    else for (Item i : items) {
+    
+    if (! shops) for (Item i : items) {
       modifier += i.amount / 10f;
     }
     
@@ -219,11 +223,15 @@ public class Delivery extends Plan {
     
     final float priority = priorityForActorWith(
       actor, destination,
-      ROUTINE, modifier - extraRangePenalty,
+      base, modifier - extraRangePenalty,
       NO_HARM, NO_COMPETITION, NO_FAIL_RISK,
       NO_SKILLS, NO_TRAITS, NORMAL_DISTANCE_CHECK / rangeDiv,
       report
     );
+    if (report) {
+      I.say("  Shopping? "+shops);
+      I.say("  Base/modifier: "+base+"/"+modifier);
+    }
     return priority;
   }
   

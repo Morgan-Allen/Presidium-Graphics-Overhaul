@@ -144,25 +144,10 @@ public class Combat extends Plan implements Qualities {
   
   
   protected float successChance() {
-    //  TODO:  Switch between these two evaluation methods based on
-    //  intelligence?  (Or maybe the battle-tactics skill?)
-    
-    final float danger = Nums.max(
-      actor.senses.fearLevel(),
-      Plan.dangerPenalty(subject, actor)
-    );
-    return Nums.clamp(1 - danger, 0, 1);
-    /*
-    final boolean report = evalVerbose && I.talkAbout == actor;
-    
-    if (subject instanceof Actor) {
-      final Actor struck = (Actor) subject;
-      float chance = CombatUtils.powerLevelRelative(actor, struck) / 2f;
-      chance = (chance + 1 - actor.senses.fearLevel()) / 2f;
-      return Visit.clamp(chance, 0, 1);
-    }
-    else return 1;
-    //*/
+    final Actor suspect = (Actor) subject;
+    float chance = CombatUtils.powerLevelRelative(actor, suspect) / 2f;
+    chance = (chance + 1 - actor.senses.fearLevel()) / 2f;
+    return Nums.clamp(chance, 0, 1);
   }
   
   

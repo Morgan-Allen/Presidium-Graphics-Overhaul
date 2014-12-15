@@ -92,7 +92,7 @@ public class Summons extends Plan {
       final Action follow = new Action(
         actor, invites,
         this, "actionFollow",
-        Action.MOVE_SNEAK, "Following "
+        Action.STAND, "Following "
       );
       return follow;
     }

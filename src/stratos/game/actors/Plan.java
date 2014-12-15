@@ -128,8 +128,8 @@ public abstract class Plan implements Saveable, Behaviour {
   public void abortBehaviour() {
     if (! hasBegun()) return;
     if (verbose && I.talkAbout == actor) {
-      I.say("\n"+actor+" Aborting plan! "+this+" "+this.hashCode());
-      new Exception().printStackTrace();
+      I.say("\n"+actor+" Aborting plan! "+I.tagHash(this));
+      I.reportStackTrace();
     }
     nextStep = lastStep = null;
     actor.mind.cancelBehaviour(this);
@@ -238,12 +238,12 @@ public abstract class Plan implements Saveable, Behaviour {
     
     if (this == actor.mind.rootBehaviour()) {
       if (priorityFor(actor) <= 0) {
-        if (report) I.say("NO PRIORITY: "+this+" "+hashCode());
+        if (report) I.say("\nNO PRIORITY: "+this+" "+hashCode());
         return true;
       }
     }
     if (nextStepFor(actor) == null) {
-      if (report) I.say("NO NEXT STEP: "+this+" "+hashCode());
+      if (report) I.say("\nNO NEXT STEP: "+this+" "+hashCode());
       return true;
     }
     return false;

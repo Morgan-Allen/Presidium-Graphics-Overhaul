@@ -119,6 +119,7 @@ public class Senses implements Qualities {
     //  And finally, add any reactions to freshly-spotted targets-
     //  TODO:  Delegate all this to the ActorMind class..?
     final Choice reactions = new Choice(actor);
+    reactions.isVerbose = report;
     if (isEmergency()) {
       actor.mind.putEmergencyResponse(reactions);
     }
@@ -127,6 +128,7 @@ public class Senses implements Qualities {
     }
     
     final Behaviour reaction = reactions.pickMostUrgent();
+    if (reaction == null) return;
     if (report) {
       I.say("\nTOP REACTION IS: "+reaction);
       I.say("  Current behaviour: "+actor.mind.rootBehaviour());
@@ -238,13 +240,12 @@ public class Senses implements Qualities {
   
   private float stealthFactor(Target e, Actor looks) {
     if (e instanceof Actor) {
-      final Actor a = (Actor) e;
-      if (a.base() == looks.base()) return 0;
+      final Actor other = (Actor) e;
+      final Action action = other.currentAction();
       
-      final float speed = a.health.baseSpeed();
-      float stealth = a.traits.usedLevel(STEALTH_AND_COVER) / 20f;
-      stealth += 0.5f - (Action.speedMultiple(a, true) / (speed * 1));
-      
+      float stealth = other.traits.usedLevel(STEALTH_AND_COVER) / 20f;
+      if (action != null && action.quick  ()) stealth /= 2;
+      if (action != null && action.careful()) stealth *= 2;
       return Nums.clamp(stealth, 0, 2);
     }
     if (e instanceof Structure.Basis) {
@@ -396,25 +397,42 @@ public class Senses implements Qualities {
     *  successful.
     */
   public static boolean breaksPursuit(Actor actor) {
+    
     boolean allBroken = true;
     
     for (Plan p : actor.world().activities.activePlanMatches(actor, null)) {
       final Actor follows = p.actor();
-      final float sightRange = follows.health.sightRange();
-      
+      final float
+        sightRange   = follows.health.sightRange(),
+        chaseUrgency = p.priorityFor(follows) / Plan.PARAMOUNT,
+        chasePenalty = -10 * Nums.clamp(chaseUrgency, 0, 1);
+
       final float hideBonus = (actor.skills.test(
-        STEALTH_AND_COVER, follows, SURVEILLANCE, 0, 1, 2
-      ) * ActorHealth.DEFAULT_SIGHT * 2) - (sightRange / 2);
+        STEALTH_AND_COVER, follows, SURVEILLANCE, chasePenalty, 1, 2
+      ) * ActorHealth.DEFAULT_SIGHT);
       
-      //  TODO:  Have a check penalty based on the priority of the chase-plan.
-      
+      final boolean report = reactVerbose && (
+        I.talkAbout == actor || I.talkAbout == follows
+      );
+      if (report) {
+        final float dist = Spacing.distance(actor, follows);
+        I.say("\nChecking for breakoff of pursuit.");
+        I.say("  Between "+follows+" and "+actor);
+        I.say("  Sight range:   "+sightRange+" (distance "+dist+")");
+        I.say("  Chase urgency: "+chaseUrgency+" (penalty "+chasePenalty+"");
+        I.say("  Hide bonus:    "+hideBonus);
+      }
       if (! follows.senses.notices(actor, sightRange, hideBonus)) {
-        //  TODO:  You want a dedicated method for this.
+        if (report) I.say("  Breakoff successful!");
+        //  TODO:  This might need a dedicated method.
         follows.senses.awares.remove(actor);
         follows.senses.awareOf.clear();
         p.abortBehaviour();
       }
-      else allBroken = false;
+      else {
+        if (report) I.say("  Breakoff failed.");
+        allBroken = false;
+      }
     }
     
     return allBroken;

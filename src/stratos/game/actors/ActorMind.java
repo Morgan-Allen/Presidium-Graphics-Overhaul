@@ -212,7 +212,7 @@ public abstract class ActorMind implements Qualities {
     if (next != null) {
       I.say("  Valid/finished  " + next.valid() + "/" + next.finished());
     }
-    new Exception().printStackTrace();
+    I.reportStackTrace();
     return null;
   }
   
