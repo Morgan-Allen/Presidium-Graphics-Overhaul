@@ -354,12 +354,12 @@ public abstract class Actor extends Mobile implements
   
   
   public float harmIntended(Target subject) {
+    if (subject == null) return 0;
     for (Behaviour b : mind.agenda()) if (b instanceof Plan) {
       final Plan root = (Plan) b;
       if (subject != null && root.subject() != subject) return 0;
       return root.harmFactor();
     }
-    
     if (subject == actionFocus() && mind.topBehaviour() instanceof Plan) {
       return ((Plan) mind.topBehaviour()).harmFactor();
     }

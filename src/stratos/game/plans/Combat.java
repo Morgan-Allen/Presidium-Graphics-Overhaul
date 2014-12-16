@@ -144,16 +144,14 @@ public class Combat extends Plan implements Qualities {
   
   
   protected float successChance() {
-    final Actor suspect = (Actor) subject;
-    float chance = CombatUtils.powerLevelRelative(actor, suspect) / 2f;
-    chance = (chance + 1 - actor.senses.fearLevel()) / 2f;
-    return Nums.clamp(chance, 0, 1);
+    return CombatUtils.successChance(actor, subject);
   }
   
   
   public boolean valid() {
-    if (subject instanceof Mobile && ((Mobile) subject).indoors()) {
-      return false;
+    if (subject instanceof Mobile) {
+      final Mobile other = (Mobile) subject;
+      if (! other.aboard().allowsEntry(actor)) return false;
     }
     return super.valid();
   }

@@ -33,43 +33,43 @@ import stratos.util.*;
   *  Note that I'm using 'technology' quite broadly here, to refer to political
   *  or cultural innovations or bans, as well as the material sciences.
   */
-public class Legislation {
+public class Laws {
   
   //
   //  Expand this a little once these are all implemented and running...
-  final public static Legislation
+  final public static Laws
     
-    ALMS_AND_BENISON       = new Legislation("Alms and Benison"),
-    FREEDOM_OF_LEAVE       = new Legislation("Freedom of Leave"),
-    ELECTED_COUNSEL        = new Legislation("Elected Counsel"),
+    ALMS_AND_BENISON       = new Laws("Alms and Benison"),
+    FREEDOM_OF_LEAVE       = new Laws("Freedom of Leave"),
+    ELECTED_COUNSEL        = new Laws("Elected Counsel"),
     
-    RECLAMATION_DISCIPLINE = new Legislation("Reclamation Discipline"),
-    NATIVE_PRESERVES       = new Legislation("Native Preserves"),
-    FORMER_INITIATIVE      = new Legislation("Former Initiative"),
+    RECLAMATION_DISCIPLINE = new Laws("Reclamation Discipline"),
+    NATIVE_PRESERVES       = new Laws("Native Preserves"),
+    FORMER_INITIATIVE      = new Laws("Former Initiative"),
     
-    ASSEMBLY_LINE          = new Legislation("Assembly Line"),
-    SOFTWARE_SCRIPTING     = new Legislation("Software Scripting"),
-    CYBERNETICS            = new Legislation("Cybernetics"),
+    ASSEMBLY_LINE          = new Laws("Assembly Line"),
+    SOFTWARE_SCRIPTING     = new Laws("Software Scripting"),
+    CYBERNETICS            = new Laws("Cybernetics"),
     
-    GENE_THERAPIES         = new Legislation("Gene Therapies"),
-    REHABILITATION_PROGRAM = new Legislation("Rehabilitation Program"),
-    CLONE_ENGINEERING      = new Legislation("Clone Engineering"),
+    GENE_THERAPIES         = new Laws("Gene Therapies"),
+    REHABILITATION_PROGRAM = new Laws("Rehabilitation Program"),
+    CLONE_ENGINEERING      = new Laws("Clone Engineering"),
     
-    TRIAL_BY_COMBAT        = new Legislation("Trial by Combat"),
-    CASTE_CODE             = new Legislation("Caste Code"),
-    PSYON_BREEDING_SCHEME  = new Legislation("Psyon Breeding Scheme"),
+    TRIAL_BY_COMBAT        = new Laws("Trial by Combat"),
+    CASTE_CODE             = new Laws("Caste Code"),
+    PSYON_BREEDING_SCHEME  = new Laws("Psyon Breeding Scheme"),
     
-    MILITIA_SERVICE        = new Legislation("Militia Service"),
-    NONLETHAL_METHODS      = new Legislation("Nonlethal Methods"),
-    PROPAGANDA_OFFICE      = new Legislation("Propaganda Office"),
+    MILITIA_SERVICE        = new Laws("Militia Service"),
+    NONLETHAL_METHODS      = new Laws("Nonlethal Methods"),
+    PROPAGANDA_OFFICE      = new Laws("Propaganda Office"),
 
-    FREE_MARKET            = new Legislation("Free Market"),
-    PRIVATE_PROPERTY       = new Legislation("Private Property"),
-    CAPTIVES_TRADE         = new Legislation("Captives Trade"),
+    FREE_MARKET            = new Laws("Free Market"),
+    PRIVATE_PROPERTY       = new Laws("Private Property"),
+    CAPTIVES_TRADE         = new Laws("Captives Trade"),
     
-    GAMES_AND_TOURNEYS     = new Legislation("Games and Tourneys"),
-    POLYAMORY              = new Legislation("Polyamory"),
-    SOMA_DISPENSATION      = new Legislation("Soma Dispensation")
+    GAMES_AND_TOURNEYS     = new Laws("Games and Tourneys"),
+    POLYAMORY              = new Laws("Polyamory"),
+    SOMA_DISPENSATION      = new Laws("Soma Dispensation")
  ;
   
   
@@ -79,16 +79,16 @@ public class Legislation {
     REQUIRES  = new Object(),
     CONFLICTS = new Object(),
     APPEALS   = new Object();
-  private static List <Legislation>
-    soFar = new List <Legislation> (),
-    all   = new List <Legislation> ();
+  private static List <Laws>
+    soFar = new List <Laws> (),
+    all   = new List <Laws> ();
   
   final public String name;
-  private Legislation requires[], conflicts[];
+  private Laws requires[], conflicts[];
   private String description;
   
   
-  private Legislation(String name) {
+  private Laws(String name) {
     this.name = name;
   }
   
@@ -103,18 +103,18 @@ public class Legislation {
       else toAdd.add(o);
     }
     //appeals   = (Trait   []) appB.toArray(Trait   .class);
-    requires  = (Legislation[]) reqB.toArray(Legislation.class);
-    conflicts = (Legislation[]) conB.toArray(Legislation.class);
+    requires  = (Laws[]) reqB.toArray(Laws.class);
+    conflicts = (Laws[]) conB.toArray(Laws.class);
     this.description = description;
     soFar.add(this);
     all.add(this);
   }
   
-  public boolean conflicts(Legislation p) {
+  public boolean conflicts(Laws p) {
     return Visit.arrayIncludes(conflicts, p);
   }
   
-  public boolean requires(Legislation p) {
+  public boolean requires(Laws p) {
     return Visit.arrayIncludes(requires, p);
   }
   

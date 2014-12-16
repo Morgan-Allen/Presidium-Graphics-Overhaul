@@ -4,10 +4,11 @@ package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.politic.*;
 import stratos.util.*;
-import static stratos.game.actors.Profile.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
+import static stratos.game.politic.LawUtils.*;
 
 
 
@@ -31,12 +32,13 @@ public class Arrest extends Plan {
     WARN_LIMIT = 2;
   
   
-  private Venue holding;
-  private int stage = STAGE_INIT;
-  private Sentence sentence = null;  //  TODO:  Might not be needed here...
+  private Venue   holding  = null;
+  private int     stage    = STAGE_INIT;
+  private Crime   observed = null;
+  private Summons sentence = null;
   
   
-  public Arrest(Actor actor, Target subject, Sentence sentence) {
+  public Arrest(Actor actor, Target subject, Summons sentence) {
     this(actor, subject);
     this.sentence = sentence;
   }
@@ -44,12 +46,6 @@ public class Arrest extends Plan {
   
   public Arrest(Actor actor, Target subject) {
     super(actor, subject, true, MILD_HARM);
-    if (hasAuthority()) holding = (Venue) actor.mind.work();
-    else {
-      final Target home = ((Actor) subject).mind.work();
-      holding = Audit.nearestAdmin(actor);
-      if (holding == null && home instanceof Venue) holding = (Venue) home;
-    }
   }
   
   
@@ -57,7 +53,8 @@ public class Arrest extends Plan {
     super(s);
     holding  = (Venue) s.loadObject();
     stage    = s.loadInt();
-    sentence = (Sentence) s.loadEnum(Sentence.values());
+    observed = (Crime) s.loadEnum(Crime.values());
+    sentence = (Summons) s.loadObject();
   }
   
   
@@ -65,7 +62,8 @@ public class Arrest extends Plan {
     super.saveState(s);
     s.saveObject(holding );
     s.saveInt   (stage   );
-    s.saveEnum  (sentence);
+    s.saveEnum  (observed);
+    s.saveObject(sentence);
   }
   
   
@@ -74,19 +72,52 @@ public class Arrest extends Plan {
   }
   
   
+  private boolean canPursue() {
+    if (stage == STAGE_DONE) return false;
+    if (stage != STAGE_INIT) return true;
+    
+    observed = LawUtils.crimeDoneBy((Actor) subject, actor.base());
+    if (observed == null) { stage = STAGE_DONE; return false; }
+    
+    if (hasAuthority()) {
+      holding = (Venue) actor.mind.work();
+    }
+    else {
+      holding = Audit.nearestAdmin(actor);
+      final Target home = ((Actor) subject).mind.work();
+      if (holding == null && home instanceof Venue) holding = (Venue) home;
+    }
+    if (holding == null) { stage = STAGE_DONE; return false; }
+    
+    stage = STAGE_WARN;
+    return true;
+  }
+  
+  
+  //  TODO:  Modify priority (and command-chance) based on difference in
+  //  social standing.
+  private boolean hasAuthority() {
+    if (! CombatUtils.isArmed(actor)) return false;
+    final Property work = actor.mind.work();
+    if (work == null) return false;
+    if (Visit.arrayIncludes(work.services(), SERVICE_SECURITY)) {
+      return true;
+    }
+    return false;
+  }
+  
+  
   
   /**  Behaviour implementation-
     */
   final static Trait BASE_TRAITS[] = { DUTIFUL, ETHICAL, FEARLESS };
-  
   //  TODO:  Include modifiers based on penalties for the crime, specified by
   //  the sovereign.
   
+  
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
-    if (stage == STAGE_DONE || holding == null || isExempt(subject)) {
-      return 0;
-    }
+    if (! canPursue()) return -1;
     
     final Actor other = (Actor) subject;
     final Target victim = other.planFocus(null);
@@ -100,6 +131,9 @@ public class Arrest extends Plan {
       urge *= other.harmIntended(victim);
     }
     
+    //  TODO:  Base this off the severity of the crime being observed.
+    
+    if (sentence != null) urge = Nums.max(0.5f, urge);
     if (stage <= STAGE_WARN) {
       if (urge <= 0) return 0;
       bonus = (ROUTINE * urge) + (official ? ROUTINE : 0);
@@ -122,7 +156,10 @@ public class Arrest extends Plan {
   
   
   protected float successChance() {
-    return CombatUtils.successChance(actor, subject);
+    final Actor suspect = (Actor) subject;
+    float chance = CombatUtils.powerLevelRelative(actor, suspect) / 2f;
+    chance = (chance + 1 - actor.senses.fearLevel()) / 2f;
+    return Nums.clamp(chance, 0, 1);
   }
   
   
@@ -131,31 +168,11 @@ public class Arrest extends Plan {
   }
   
   
-  private boolean isExempt(Target other) {
-    if (((Actor) other).isDoing(Arrest.class, null)) return true;
-    return false;
-  }
-  
-  //  TODO:  Modify priority (and command-chance) based on difference in
-  //  social standing.
-  private boolean hasAuthority() {
-    if (! CombatUtils.isArmed(actor)) return false;
-    final Property work = actor.mind.work();
-    if (work == null) return false;
-    if (Visit.arrayIncludes(work.services(), SERVICE_SECURITY)) {
-      return true;
-    }
-    return false;
-  }
-  
-  
   protected Behaviour getNextStep() {
     final boolean report = stepsVerbose && I.talkAbout == actor;
-    if (stage == STAGE_DONE || holding == null || isExempt(subject)) {
-      return null;
-    }
+    if (! canPursue()) return null;
     
-    final Actor   other = (Actor) subject;
+    final Actor other = (Actor) subject;
     final boolean
       official = hasAuthority(),
       canWarn  = other.relations.noveltyFor(actor) > 0,
@@ -192,6 +209,7 @@ public class Arrest extends Plan {
       final Combat chase = new Combat(
         actor, other, Combat.STYLE_EITHER, Combat.OBJECT_SUBDUE, true
       );
+      if (! chase.valid()) return null;
       return chase;
     }
     
@@ -234,14 +252,18 @@ public class Arrest extends Plan {
     if (report) I.say("\nOrdering surrender of "+other);
     
     final boolean official = hasAuthority();
-    final Summons surrender = new Summons(
+    
+    if (sentence == null) sentence = new Summons(
       other, actor, holding,
       official ? Summons.TYPE_CAPTIVE : Summons.TYPE_SULKING
     );
     final float commandBonus = DialogueUtils.talkResult(
       COMMAND, MODERATE_DC, actor, other
     ) * ROUTINE;
-    surrender.setMotive(Plan.MOTIVE_EMERGENCY, commandBonus);
+    sentence.setMotive(Plan.MOTIVE_EMERGENCY, commandBonus);
+    
+    //  TODO:  The priority for the command needs to be at least paramount-
+    //  nobody wants to be locked up, no matter how 'idle' they are...
     
     //
     //  Adjust the novelty of the other actor's relationship with you (to
@@ -250,15 +272,15 @@ public class Arrest extends Plan {
     other.relations.incRelation(actor, 0, 0, -2f * Rand.num() / WARN_LIMIT);
     if (report) {
       final Behaviour current = other.mind.rootBehaviour();
-      I.say("  Command priority is:   "+surrender.priorityFor(other));
-      I.say("  Current plan priority: "+current  .priorityFor(other));
+      I.say("  Sentence priority is:  "+sentence.priorityFor(other));
+      I.say("  Current plan priority: "+current .priorityFor(other));
       I.say("  Destination:           "+holding);
       I.say("  Discussion novelty:    "+other.relations.noveltyFor(actor));
     }
     
-    if (! other.mind.mustIgnore(surrender)) {
+    if (! other.mind.mustIgnore(sentence)) {
       if (report) I.say("  "+other+" has surrendered!");
-      other.mind.assignBehaviour(surrender);
+      other.mind.assignBehaviour(sentence);
       stage = official ? STAGE_ESCORT : STAGE_DONE;
       return true;
     }
@@ -277,7 +299,19 @@ public class Arrest extends Plan {
   
   
   public boolean actionFileReport(Actor actor, Venue office) {
+    
+    final Actor other = (Actor) subject;
+    if (other.aboard() == holding) {
+      final Summons capture = new Summons(
+        other, actor, holding, Summons.TYPE_CAPTIVE
+      );
+      other.mind.assignBehaviour(capture);
+    }
+    
+    final Profile profile = actor.base().profiles.profileFor(other);
+    profile.recordOffence(observed);
     stage = STAGE_DONE;
+    
     return true;
   }
   

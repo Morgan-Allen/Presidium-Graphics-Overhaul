@@ -10,6 +10,7 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.politic.BaseFinance;
+import stratos.game.politic.Profile;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
@@ -86,8 +87,8 @@ public class Payday extends Plan {
     final Venue venue = (Venue) pays;
     
     final Profile p = venue.base().profiles.profileFor(actor);
-    final float payGap = p.daysSincePayment(venue.world());
-    if (payGap < 1) {
+    final float payGap = p.daysSincePayAssess(venue.world());
+    if (payGap < 2) {
       if (report) I.say("\nPay gap is: "+payGap+" days");
       return 0;
     }
@@ -112,21 +113,21 @@ public class Payday extends Plan {
   /**  Behaviour implementation-
     */
   protected Behaviour getNextStep() {
-    //final boolean report = verbose && I.talkAbout == actor;
-    //final Profile p = actor.base().profiles.profileFor(actor);
-    //if (p.daysSincePayment(actor.world()) < 1) return null;
-    //if (p.paymentDue() <= 0) return null;
+    final boolean report = verbose && I.talkAbout == actor;
     
-    //  TODO:  Get rid of this.  The audit office is going to serve a different
-    //  function, anyway.
-    /*
-    if (pays instanceof AuditOffice) {
-      final AuditOffice office = (AuditOffice) pays;
-      if (office.assessRelief(actor, false) <= 0) return null;
+    //
+    //  If you haven't been paid for ages, take matters into your own hands...
+    //  TODO:  Consider making this an automatic crime?  Weight the priority,
+    //  anyway...
+    final Profile p = actor.base().profiles.profileFor(actor);
+    if (p.paymentDue() == 0) {
+      if (report) I.say("  Doing amateur audit.");
+      return new Audit(actor, pays, Audit.Type.TYPE_AMATEUR);
     }
-    else
-    //*/
     
+    //
+    //  Otherwise, proceed as standard.
+    if (report) I.say("  Collecting pay.");
     final Action getPaid = new Action(
       actor, pays,
       this, "actionGetPaid",
@@ -140,21 +141,6 @@ public class Payday extends Plan {
     final boolean report = verbose && I.talkAbout == actor;
     final Profile p = venue.base().profiles.profileFor(actor);
     if (report) I.say("Getting paid at "+venue);
-    //Audit.auditEmployer(actor, venue);
-    
-    if (p.paymentDue() == 0) {
-      /*
-      if (venue instanceof AuditOffice) {
-        I.sayAbout(actor, "Dispensing relief...");
-        ((AuditOffice) venue).assessRelief(actor, true);
-      }
-      else {
-      }
-      //*/
-      final float balance = Audit.auditForBalance(actor, venue, true);
-      if (report) I.say("Getting balance: "+balance);
-      venue.base().finance.incCredits(balance, BaseFinance.SOURCE_WAGES);
-    }
 
     final float wages = p.paymentDue();
     if (report) I.say("Wages due "+wages);

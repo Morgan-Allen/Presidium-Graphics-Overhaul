@@ -59,10 +59,11 @@ public interface Backgrounds {
     HIRE_COSTS[] = {
       150, 250, 500, 1000 //Represents (PAY_INTERVAL x 5) days' salary.
     },
-    DEFAULT_RELIEF          = 100 ,
-    DEFAULT_TAX_PERCENT     = 50  ,
-    DEFAULT_SURPLUS_PERCENT = 10  ,
-    DEFAULT_RULER_STIPEND   = 2000;
+    DEFAULT_RELIEF           = 100 ,
+    DEFAULT_TAX_PERCENT      = 50  ,
+    DEFAULT_EMBEZZLE_PERCENT = 30  ,
+    DEFAULT_SURPLUS_PERCENT  = 10  ,
+    DEFAULT_RULER_STIPEND    = 2000;
   
   
   final public static Background

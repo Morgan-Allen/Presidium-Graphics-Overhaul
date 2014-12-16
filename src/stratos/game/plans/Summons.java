@@ -23,15 +23,19 @@ public class Summons extends Plan {
   final static int
     TYPE_GUEST   = 0,
     TYPE_SULKING = 1,
-    TYPE_CAPTIVE = 2;
-  final static float
-    MAX_STAY_DURATION = Stage.STANDARD_DAY_LENGTH;
+    TYPE_CAPTIVE = 2,
+    
+    DEFAULT_STAY_DURATIONS[] = {
+      Stage.STANDARD_DAY_LENGTH,
+      Stage.STANDARD_HOUR_LENGTH,
+      Stage.STANDARD_DAY_LENGTH
+    };
   
 
   final Actor invites;
   final Property stays;
   final int type;
-  private int timeStayed = 0;
+  private int stayUntil;
   
   
   
@@ -40,29 +44,35 @@ public class Summons extends Plan {
     this.invites = invites;
     this.stays   = stays  ;
     this.type    = type   ;
+    setStayDuration(DEFAULT_STAY_DURATIONS[type]);
   }
   
   
   public Summons(Session s) throws Exception {
     super(s);
-    this.invites = (Actor   ) s.loadObject();
-    this.stays   = (Property) s.loadObject();
-    this.type    = s.loadInt();
-    this.timeStayed = s.loadInt();
+    this.invites   = (Actor   ) s.loadObject();
+    this.stays     = (Property) s.loadObject();
+    this.type      = s.loadInt();
+    this.stayUntil = s.loadInt();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(invites);
-    s.saveObject(stays  );
-    s.saveInt   (type   );
-    s.saveInt(timeStayed);
+    s.saveObject(invites  );
+    s.saveObject(stays    );
+    s.saveInt   (type     );
+    s.saveInt   (stayUntil);
   }
   
   
   public Plan copyFor(Actor other) {
     return null;
+  }
+  
+  
+  public void setStayDuration(int time) {
+    stayUntil = (int) (stays.world().currentTime() + time);
   }
   
   
@@ -73,22 +83,27 @@ public class Summons extends Plan {
     final boolean report = verbose && I.talkAbout == actor;
     if (report) I.say("\nGetting priority for summons from "+invites);
     
-    if (type == TYPE_CAPTIVE) return 100;
+    if (type == TYPE_CAPTIVE && actor.aboard() == stays) return 100;
+    //  TODO:  Have this expire once charges are cleared!
     
-    final float waited = timeStayed / MAX_STAY_DURATION;
-    return motiveBonus() - (waited * ROUTINE);
+    return motiveBonus();
   }
   
   
   protected Behaviour getNextStep() {
     if (! stays.structure().intact()) return null;
-    if (type != TYPE_CAPTIVE && timeStayed >= MAX_STAY_DURATION) return null;
+    
+    final float time = stays.world().currentTime();
+    if (time > stayUntil) return null;
     
     final boolean report = verbose && I.talkAbout == actor;
     if (report) I.say("\nGetting next summons step for "+actor);
     
+    //  TODO:  Allow the captor to specify your destination.
+    
     if (type == TYPE_CAPTIVE && actor.aboard() != stays) {
       if (report) I.say("  Following "+invites);
+      
       final Action follow = new Action(
         actor, invites,
         this, "actionFollow",
@@ -114,15 +129,17 @@ public class Summons extends Plan {
   
   
   public boolean actionStay(Actor actor, Boarding venue) {
-    timeStayed += 1;
     if (venue instanceof Venue && actor.health.hungerLevel() > 0) {
       Resting.dineFrom(actor, (Venue) venue);
     }
+    //  TODO:  Make this a property for anyone staying at the bastion.
+    /*
     if (BaseUI.isSelected(actor) && stays == stays.base().HQ()) {
       final BaseUI UI = BaseUI.current();
       UI.selection.pushSelection(null, false);
       configDialogueFor(UI, actor, true);
     }
+    //*/
     return true;
   }
   
@@ -180,7 +197,7 @@ public class Summons extends Plan {
   public static void cancelSummons(Actor subject) {
     final Summons summons = (Summons) subject.matchFor(Summons.class);
     if (summons == null) return;
-    summons.timeStayed = 1 + (int) MAX_STAY_DURATION;
+    //summons.timeStayed = 1 + (int) MAX_STAY_DURATION;
     summons.abortBehaviour();
     
     final BaseUI UI = BaseUI.current();

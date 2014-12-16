@@ -5,6 +5,7 @@ import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.actors.*;
 import stratos.game.plans.*;
+import stratos.game.politic.Profile;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
@@ -198,10 +199,9 @@ public class RunnerLodge extends Venue {
     
     for (Mobile m : suspects) if (m instanceof Actor) {
       final Actor suspect = (Actor) m;
-      final Profile.Sentence sentence = base.profiles.sentenceFor(suspect);
+      final Summons sentence = base.profiles.sentenceFor(suspect);
       if (sentence != null) {
         final Arrest a = new Arrest(actor, suspect, sentence);
-        //a.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
         choice.add(a);
       }
     }

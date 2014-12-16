@@ -22,9 +22,9 @@ public class Audit extends Plan {
   /**  Data fields, constructors and save/load functions-
     */
   public static enum Type {
-    TYPE_OFFICIAL,
-    TYPE_AMATEUR ,
-    TYPE_EXTORTION
+    TYPE_OFFICIAL ,
+    TYPE_AMATEUR  ,
+    TYPE_EXTORTION,
   }
   final static int
     STAGE_EVAL   = -1,
@@ -35,15 +35,22 @@ public class Audit extends Plan {
   private static boolean verbose = false;
   
   
-  private Type type;
-  private int stage = STAGE_EVAL;
+  private Type  type;
+  private int   stage = STAGE_EVAL;
+  private Property audited;
+  public  int   checkBonus = 0;
   
-  private Venue audited;
-  private float balance = 0;
-  public int checkBonus = 0;
+  //  TODO:  Include Expenses, Wages, Income, Embezzled, and Balance- and record as such.
+  private float
+    expenses ,
+    income   ,
+    taxesPaid,
+    wagesPaid,
+    embezzled,
+    totalSum ;
   
   
-  public Audit(Actor actor, Venue toAudit, Type type) {
+  public Audit(Actor actor, Property toAudit, Type type) {
     super(actor, toAudit, true, NO_HARM);
     this.type    = type;
     this.audited = toAudit;
@@ -55,8 +62,14 @@ public class Audit extends Plan {
     type       = (Type) s.loadEnum(Type.values());
     stage      = s.loadInt();
     audited    = (Venue) s.loadObject();
-    balance    = s.loadFloat();
     checkBonus = s.loadInt();
+    
+    expenses   = s.loadFloat();
+    income     = s.loadFloat();
+    taxesPaid  = s.loadFloat();
+    wagesPaid  = s.loadFloat();
+    embezzled  = s.loadFloat();
+    totalSum   = s.loadFloat();
   }
   
   
@@ -65,13 +78,24 @@ public class Audit extends Plan {
     s.saveEnum  (type      );
     s.saveInt   (stage     );
     s.saveObject(audited   );
-    s.saveFloat (balance   );
     s.saveInt   (checkBonus);
+    
+    s.saveFloat (expenses  );
+    s.saveFloat (income    );
+    s.saveFloat (taxesPaid );
+    s.saveFloat (wagesPaid );
+    s.saveFloat (embezzled );
+    s.saveFloat (totalSum  );
   }
   
   
   public Plan copyFor(Actor other) {
     return new Audit(other, audited, type);
+  }
+  
+  
+  public boolean honest() {
+    return embezzled == 0;
   }
   
   
@@ -126,31 +150,33 @@ public class Audit extends Plan {
     */
   protected Behaviour getNextStep() {
     final boolean report = verbose && I.talkAbout == actor;
-    if (report) I.say("Getting next audit step... "+this.hashCode());
-    if (report) I.say("Stage was: "+stage);
+    if (report) I.say("\nGetting next audit step: "+actor);
     
     if (stage == STAGE_EVAL) {
-      if (audited == null && Rand.num() > (Nums.abs(balance) / 1000f)) {
+      if (audited == null && Rand.num() > (Nums.abs(totalSum) / 1000f)) {
         final Behaviour next = actor.mind.work().jobFor(actor);
         if (next instanceof Audit) audited = ((Audit) next).audited;
       }
+      if (report) I.say("  Finding next venue to audit: "+audited);
       stage = (audited == null) ? STAGE_REPORT : STAGE_AUDIT;
     }
-    if (report) I.say("Stage is now: "+stage+", audited: "+audited);
     
     if (stage == STAGE_AUDIT) {
+      if (report) I.say("  Will perform audit.");
       final Action audit = new Action(
         actor, audited,
         this, "actionAudit",
         Action.TALK, "Auditing "+audited
       );
-      final Tile e = audited.mainEntrance();
-      if (e == null || e.blocked()) {
-        audit.setMoveTarget(Spacing.nearestOpenTile(audited.origin(), actor));
+      final Boarding canBoard[] = audited.canBoard();
+      if (canBoard == null || canBoard.length == 0) {
+        audit.setMoveTarget(Spacing.nearestOpenTile(audited, actor));
       }
       return audit;
     }
+    
     if (stage == STAGE_REPORT) {
+      if (report) I.say("  Reporting earnings at: "+actor.mind.work());
       final Action files = new Action(
         actor, actor.mind.work(),
         this, "actionFileReport",
@@ -163,108 +189,117 @@ public class Audit extends Plan {
   
   
   public boolean actionAudit(Actor actor, Venue audited) {
-    final float balance = auditForBalance(actor, audited, true);
-    this.balance += balance;
-    stage = STAGE_EVAL;
-    this.audited = null;
+    final float balance = this.performAudit();
+    
+    if (type == Type.TYPE_AMATEUR) {
+      actor.gear.incCredits(embezzled);
+      stage = STAGE_DONE;
+    }
+    else {
+      audited.inventory().incCredits(0 - balance);
+      this.audited = null;
+      stage = STAGE_EVAL;
+    }
     return true;
   }
   
   
   public boolean actionFileReport(Actor actor, Venue office) {
-    fileEarnings(actor, office, balance);
+    final Base base = office.base();
+    actor.gear.incCredits(embezzled);
+    base.finance.incCredits(    income   , BaseFinance.SOURCE_BIZ_IN );
+    base.finance.incCredits(0 - expenses , BaseFinance.SOURCE_BIZ_OUT);
+    base.finance.incCredits(    taxesPaid, BaseFinance.SOURCE_TAXES  );
+    base.finance.incCredits(0 - wagesPaid, BaseFinance.SOURCE_WAGES  );
+    this.totalSum = 0;
     stage = STAGE_DONE;
     return true;
   }
   
   
-  public static void fileEarnings(Actor actor, Venue office, float balance) {
-    final Base base = office.base();
-    
-    //  TODO:  The source-listing needs to be made a lot more specific!
-    if (balance > 0) {
-      base.finance.incCredits(balance, BaseFinance.SOURCE_TAXES);
-      office.chat.addPhrase((int) balance+" credits in profit");
-    }
-    if (balance < 0) {
-      base.finance.incCredits(balance, BaseFinance.SOURCE_WAGES);
-      office.chat.addPhrase((int) (0 - balance)+" credits in debt");
-    }
-  }
-  
-  
-  public static float auditForBalance(
-    Actor audits, Venue venue, boolean deductSums
-  ) {
-    final boolean report = verbose && I.talkAbout == audits;
-    if (venue.base() == null) return 0;
-    if (report) I.say("\n+"+audits+" auditing "+venue);
-    
-    float sumWages = 0, sumSalaries = 0;//, sumSplits = 0;
-    
-    final BaseProfiles BP = venue.base().profiles;
-    final int numW = venue.personnel.workers().size();
+  private float performAudit() {
+    final boolean report = verbose && (
+      I.talkAbout == actor || I.talkAbout == audited
+    );
+    final Base base = audited.base();
+    if (base == null) return 0;
+    if (report) I.say("\n+"+actor+" auditing "+audited);
+    //
+    //  Our first step is to get the total sum of wages to pay to each worker
+    //  associated with this venue.
+    final int numW = audited.personnel().workers().size();
     final Profile profiles[] = new Profile[numW];
-    final float salaries[] = new float[numW];
+    final int salaries[] = new int[numW];
+    int sumWages = 0, sumSalaries = 0, i = 0;
     
-    int i = 0; for (Actor works : venue.personnel.workers()) {
-      final Profile p = BP.profileFor(works);
+    for (Actor works : audited.personnel().workers()) {
+      final Profile p = base.profiles.profileFor(works);
       profiles[i] = p;
-      //final int KR = BP.querySetting(AuditOffice.KEY_RELIEF);
-      
-      final float
-        salary = p.salary(),
-        //relief = AuditOffice.RELIEF_AMOUNTS[KR],
-        payInterval = p.daysSincePayment(venue.world()),
-        wages = (salary / Backgrounds.NUM_DAYS_PAY) * payInterval;
+      final int
+        salary      = (int) p.salary(),
+        payInterval = (int) p.daysSincePayAssess(audited.world()),
+        wages       = (int) (salary * payInterval / Backgrounds.NUM_DAYS_PAY);
       
       if (report) {
         I.say("  "+works+" is due: "+wages+" over "+payInterval+" days");
         I.say("  Salary: "+salary);
         I.say("  Wages already due: "+p.paymentDue());
       }
-      
       salaries[i++] = salary;
       p.incPaymentDue(wages);
-      sumWages += wages;
+      sumWages    += wages ;
       sumSalaries += salary;
     }
-
-    final float surplus = venue.stocks.credits();
-    
-    if (verbose && I.talkAbout == audits) {
-      I.say(audits+" auditing "+venue+", surplus: "+surplus);
-      I.say("Sum of salaries is: "+sumSalaries);
+    //
+    //  Employees are also entitled to a share of any surplus generated by the
+    //  business.  However, this split is NOT recorded as wages for accounting
+    //  purposes- it simply reduces the balance of profit.
+    float balance = audited.inventory().credits();
+    if (report) {
+      I.say("  "+actor+" auditing "+audited+", initial balance: "+balance);
+      I.say("  Sum of salaries is: "+sumSalaries);
     }
-    
     i = 0;
-    if (surplus > 0 && sumSalaries > 0) for (Profile p : profiles) {
-      float split = salaries[i++] * surplus / sumSalaries;
+    if (balance > 0 && sumSalaries > 0) for (Profile p : profiles) {
+      float split = salaries[i++] * balance / sumSalaries;
       split *= Backgrounds.DEFAULT_SURPLUS_PERCENT / 100f;
       if (report) I.say("  "+p.actor+" getting profit bonus: "+split);
       p.incPaymentDue(split);
-      sumWages += split;
+      balance -= split;
     }
-
-    if (report) I.say("  Balance is now: "+venue.stocks.credits());
-    
-    if (deductSums) {
-      venue.stocks.incCredits(0 - sumWages);
-      final float balance = venue.stocks.credits();
-      venue.stocks.incCredits(0 - balance);
-      venue.stocks.taxDone();
-      return balance;
+    //
+    //  Any balance remaining is recorded as 'business income' (or taxation in
+    //  the case of housing), while any deficit is recorded as 'business
+    //  expense' (or extra wages in the case of housing- e.g, for servants.)
+    if (balance >= 0) {
+      //  TODO:  Insert the embezzle check earlier?
+      if (Rand.num() > (actor.traits.traitLevel(ETHICAL) + 1) / 2f) {
+        float taken = balance * Backgrounds.DEFAULT_EMBEZZLE_PERCENT / 100f;
+        this.embezzled += taken;
+        balance -= taken;
+      }
+      if (audited.privateProperty()) this.taxesPaid += balance;
+      else this.income += balance;
     }
     else {
-      return venue.stocks.credits() - sumWages;
+      if (audited.privateProperty()) this.wagesPaid += 0 - balance;
+      else this.expenses += 0 - balance;
     }
+    //
+    //  TODO:  Leave some cash in reserve for purchases, based on salary size?
+    //  Otherwise, we tally up the total and adjust cash reserves.
+    this.wagesPaid += sumWages;
+    balance -= sumWages;
+    this.totalSum += balance;
+    return balance;
+    //audited.inventory().incCredits(0 - balance);
   }
   
   
   public static float taxesDue(Actor actor) {
     if (actor.base().primal) return 0;
     //  TODO:  factor in social class in some way.
-    //final int bracket = actor.vocation().standing;
+    //  final int bracket = actor.vocation().standing;
     final int percent = Backgrounds.DEFAULT_TAX_PERCENT;
     
     float afterSaving = actor.gear.credits();
@@ -292,73 +327,16 @@ public class Audit extends Plan {
     if (stage == STAGE_AUDIT && audited != null) {
       d.append("Auditing: ");
       d.append(audited);
-      d.append(" (Balance "+(int) balance+")");
+      d.append(" (Balance "+(int) totalSum+")");
     }
     else if (stage == STAGE_REPORT) {
       d.append("Filing a financial report at ");
       d.append(actor.mind.work());
-      d.append(" (Balance "+(int) balance+")");
+      d.append(" (Balance "+(int) totalSum+")");
     }
     else d.append("Auditing "+audited);
   }
 }
-
-
-
-
-
-
-    
-    //  TODO:  Allow qualified auditors to perform automatic currency
-    //  adjustments as part of this behaviour!
-    
-    /*
-    final float balance = venue.stocks.credits();
-    venue.stocks.incCredits(0 - Count.max(balance, sumWages));
-    venue.stocks.taxDone();
-    I.sayAbout(venue, "Balance is now: "+venue.stocks.credits());
-    return balance;
-    //*/
-    //  TODO:  Restore this in some form later.
-    /*
-    float
-      balance = venue.stocks.credits(),
-      waste = (Rand.num() + base.crimeLevel()) / 2f;
-    
-    final float honesty =
-      (audits.traits.traitLevel(HONOURABLE) / 2f) -
-      (audits.traits.traitLevel(ACQUISITIVE) * waste);
-    
-    if (Rand.num() > (honesty + 1f) / 2) {
-      waste *= 1.5f;
-      final float bribe = BASE_BRIBE_SIZE * waste;
-      balance -= bribe;
-      audits.gear.incCredits(bribe);
-    }
-    else {
-      if (audits.skills.test(ACCOUNTING, 15, 5)) waste  = 0;
-      if (audits.skills.test(ACCOUNTING, 5 , 5)) waste /= 2;
-    }
-    final int
-      profit = (int) (balance / (1 + waste)),
-      losses = (int) (balance * (1 + waste));
-    
-    
-    if (profit > 0) {
-      venue.stocks.incCredits(0 - profit);
-      venue.stocks.taxDone();
-      return profit;
-    }
-    if (losses < 0) {
-      venue.stocks.incCredits(0 - losses);
-      venue.stocks.taxDone();
-      return losses;
-    }
-    venue.stocks.taxDone();
-    return 0;
-    //*/
-
-
 
 
 

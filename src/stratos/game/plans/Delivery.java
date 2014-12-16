@@ -20,6 +20,11 @@ import stratos.game.economic.Inventory.Owner;
 
 public class Delivery extends Plan {
   
+
+  
+  private static boolean
+    evalVerbose  = false,
+    stepsVerbose = false;
   
   //  TODO:  Use these.
   final public static int
@@ -35,10 +40,6 @@ public class Delivery extends Plan {
     STAGE_DONE    =  3;
   final static int
     MIN_BULK = 5;
-  
-  private static boolean
-    verbose      = true ,
-    stepsVerbose = false;
   
   
   final public Owner origin, destination;
@@ -121,7 +122,7 @@ public class Delivery extends Plan {
   }
   
   
-  int stage() { return stage; }
+  public int stage() { return stage; }
   
   
   public boolean matchesPlan(Behaviour plan) {
@@ -195,7 +196,7 @@ public class Delivery extends Plan {
   /**  Assessing targets and priorities-
     */
   protected float getPriority() {
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = evalVerbose && I.talkAbout == actor;
     
     final boolean shops = shouldPay == actor;
     float base = ROUTINE, modifier = NO_MODIFIER;

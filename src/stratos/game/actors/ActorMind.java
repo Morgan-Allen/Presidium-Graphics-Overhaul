@@ -401,20 +401,18 @@ public abstract class ActorMind implements Qualities {
   
   
   public boolean hasToDo(Class planClass) {
-    for (Behaviour b : agenda) if (b.getClass() == planClass) return true;
+    for (Behaviour b : agenda  ) if (b.getClass() == planClass) return true;
     for (Behaviour b : todoList) if (b.getClass() == planClass) return true;
     return false;
   }
   
   
-  public boolean doing(Behaviour b) {
-    //  I do a little bit of speed optimisation here, rather than using an
-    //  iterator...
-    for (ListEntry <Behaviour> bE = agenda; (bE = bE.nextEntry()) != agenda;) {
-      if (bE.refers == b) return true;
-    }
+  public boolean hasToDo(Behaviour b) {
+    if (agenda  .includes(b)) return true;
+    if (todoList.includes(b)) return true;
     return false;
   }
+  
   
   
   /**  Supplementary methods for relationships and attitudes-

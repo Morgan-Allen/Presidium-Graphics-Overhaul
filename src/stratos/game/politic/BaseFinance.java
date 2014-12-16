@@ -17,13 +17,16 @@ public class BaseFinance {
     
     SOURCE_IMPORTS  = "Imports"     ,
     SOURCE_EXPORTS  = "Exports"     ,
-    SOURCE_INJECT   = "Injection"   ,
     
     SOURCE_HIRING   = "Hiring"      ,
     SOURCE_WAGES    = "Wages"       ,
     SOURCE_TAXES    = "Taxation"    ,
     
-    SOURCE_INSTALL  = "Structure.Basis",
+    SOURCE_CORRUPT  = "Embezzlement"     ,
+    SOURCE_BIZ_OUT  = "Business Expenses",
+    SOURCE_BIZ_IN   = "Business Income"  ,
+    
+    SOURCE_INSTALL  = "Installation",
     SOURCE_REPAIRS  = "Repairs"     ,
     SOURCE_SALVAGE  = "Salvage"     ,
     

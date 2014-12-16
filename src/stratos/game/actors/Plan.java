@@ -181,7 +181,7 @@ public abstract class Plan implements Saveable, Behaviour {
     //  We do not cache steps for dormant or 'under consideration' plans, since
     //  that can screw up proper sequence of evaluation/execution.  Start from
     //  scratch instead.
-    if (! actor.mind.doing(this)) {
+    if (! actor.mind.agenda.includes(this)) {
       if (report) I.say("\nNEXT STEP GOT WHILE INACTIVE.");
       nextStep = null;
       return getNextStep();

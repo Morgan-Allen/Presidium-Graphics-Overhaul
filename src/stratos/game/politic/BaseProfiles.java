@@ -1,21 +1,23 @@
 
 
 
-package stratos.game.economic;
+package stratos.game.politic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
+import stratos.game.plans.*;
 import stratos.util.*;
+import static stratos.game.politic.LawUtils.*;
 
 
 
 public class BaseProfiles {
   
   
-  
+  /**  Data fields, construction and save/load methods:
+    */
   final public Base base;
   Table <Actor, Profile> allProfiles = new Table <Actor, Profile> (1000);
   Table <String, Integer> allSettings = new Table <String, Integer> (100);
-  
   
   
   public BaseProfiles(Base base) {
@@ -50,6 +52,8 @@ public class BaseProfiles {
   
   
   
+  /**  Citizen profiles, including crime and punishment:
+    */
   public Profile profileFor(Actor actor) {
     Profile match = allProfiles.get(actor);
     if (match == null) {
@@ -60,14 +64,24 @@ public class BaseProfiles {
   }
   
   
-  public Profile.Sentence sentenceFor(Actor actor) {
+  public Summons sentenceFor(Actor actor) {
     final Profile match = allProfiles.get(actor);
     if (match == null) return null;
     return match.openSentence();
   }
   
   
+  public List <Crime> crimesBy(Actor actor) {
+    final Profile match = allProfiles.get(actor);
+    if (match == null) return NO_CRIMES;
+    return match.offences;
+  }
   
+  
+  
+  /**  General base-wide settings, such as legislation, import quotas, or tax
+    *  rates:
+    */
   public void assertSetting(String key, int value) {
     allSettings.put(key, value);
   }

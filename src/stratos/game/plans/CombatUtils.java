@@ -136,7 +136,7 @@ public class CombatUtils {
     final Behaviour current = actor.mind.rootBehaviour();
     if (! (current instanceof Plan)) return null;
     final Plan plan = (Plan) current;
-    if (plan.harmFactor() <= 0) return null;
+    if ((plan instanceof Arrest) || plan.harmFactor() <= 0) return null;
     else return plan.subject().base();
   }
   
