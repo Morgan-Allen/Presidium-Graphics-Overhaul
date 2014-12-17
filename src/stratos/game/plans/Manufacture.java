@@ -265,7 +265,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     //  regardless of success.)
     final boolean hasNeeded = hasNeeded();
     if (GameSettings.hardCore && ! hasNeeded) {
-      abortBehaviour();
+      interrupt(INTERRUPT_NO_PREREQ);
       return false;
     }
     final Conversion c = conversion;

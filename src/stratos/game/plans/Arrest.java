@@ -18,8 +18,8 @@ public class Arrest extends Plan {
   /**  Data fields, constructors and save/load methods-
     */
   private static boolean
-    evalVerbose  = true ,
-    stepsVerbose = true ;
+    evalVerbose  = false,
+    stepsVerbose = false;
   
   final static int
     STAGE_INIT   = -1,
@@ -72,12 +72,18 @@ public class Arrest extends Plan {
   }
   
   
+  
+  /**  Various utility methods for decision-making:
+    */
   private boolean canPursue() {
     if (stage == STAGE_DONE) return false;
     if (stage != STAGE_INIT) return true;
+    if (actor.base() == null) I.complain(actor+" HAS NO BASE!");
     
     observed = LawUtils.crimeDoneBy((Actor) subject, actor.base());
-    if (observed == null) { stage = STAGE_DONE; return false; }
+    if (sentence == null && observed == null) {
+      stage = STAGE_DONE; return false;
+    }
     
     if (hasAuthority()) {
       holding = (Venue) actor.mind.work();
@@ -107,12 +113,26 @@ public class Arrest extends Plan {
   }
   
   
+  public void interrupt(String cause) {
+    if (cause == INTERRUPT_LOSE_SIGHT) {
+      this.stage = STAGE_REPORT;
+      super.clearEval(actor);
+    }
+    else super.interrupt(cause);
+  }
+  
+  
+  protected int evaluationInterval() {
+    if (stage <= STAGE_ESCORT) return 1;
+    else return super.evaluationInterval();
+  }
+  
+  
   
   /**  Behaviour implementation-
     */
+  final static Skill BASE_SKILLS[] = { ATHLETICS, FORENSICS, COMMAND };
   final static Trait BASE_TRAITS[] = { DUTIFUL, ETHICAL, FEARLESS };
-  //  TODO:  Include modifiers based on penalties for the crime, specified by
-  //  the sovereign.
   
   
   protected float getPriority() {
@@ -120,21 +140,14 @@ public class Arrest extends Plan {
     if (! canPursue()) return -1;
     
     final Actor other = (Actor) subject;
-    final Target victim = other.planFocus(null);
     final boolean melee = actor.gear.meleeWeapon();
     final boolean official = hasAuthority();
     
     float urge = 0, bonus = 0;
-    if (victim != null) {
-      urge += actor.relations.valueFor(victim);
-      urge += actor.relations.valueFor(victim.base());
-      urge *= other.harmIntended(victim);
-    }
-    
-    //  TODO:  Base this off the severity of the crime being observed.
-    
+    if (observed != null) urge = observed.severity() / 10f;
     if (sentence != null) urge = Nums.max(0.5f, urge);
-    if (stage <= STAGE_WARN) {
+    
+    if (stage == STAGE_WARN) {
       if (urge <= 0) return 0;
       bonus = (ROUTINE * urge) + (official ? ROUTINE : 0);
     }
@@ -160,11 +173,6 @@ public class Arrest extends Plan {
     float chance = CombatUtils.powerLevelRelative(actor, suspect) / 2f;
     chance = (chance + 1 - actor.senses.fearLevel()) / 2f;
     return Nums.clamp(chance, 0, 1);
-  }
-  
-  
-  protected int evaluationInterval() {
-    return 1;
   }
   
   
@@ -311,7 +319,6 @@ public class Arrest extends Plan {
     final Profile profile = actor.base().profiles.profileFor(other);
     profile.recordOffence(observed);
     stage = STAGE_DONE;
-    
     return true;
   }
   
@@ -320,20 +327,21 @@ public class Arrest extends Plan {
   /**  Rendering and interface-
     */
   public void describeBehaviour(Description d) {
-    if (! hasAuthority()) {
+    if (stage == STAGE_WARN) {
       d.append("Warning ");
       d.append(subject);
-      
-      //  TODO:  Stipulate the crime being warned against...
-      /*
       d.append(" against ");
-      d.append(((Actor) subject).mind.rootBehaviour());
-      //*/
+      d.append(observed.name());
     }
-    else {
-      if (super.needsSuffix(d, "Arresting ")) {
-        d.append(subject);
-      }
+    if (stage == STAGE_CHASE || stage == STAGE_ESCORT) {
+      d.append("Arresting ");
+      d.append(subject);
+    }
+    if (stage >= STAGE_REPORT) {
+      d.append("Filing a report of ");
+      d.append(observed.name());
+      d.append(" against ");
+      d.append(subject);
     }
   }
 }

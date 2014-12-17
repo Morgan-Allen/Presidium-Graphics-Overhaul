@@ -109,6 +109,11 @@ public abstract class Mobile extends Element
     return true;
   }
   
+
+  public void exitOffworld() {
+    exitWorld();
+  }
+  
   
   public void exitWorld() {
     if (! inWorld()) I.complain("Already exited world: "+this);

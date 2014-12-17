@@ -183,7 +183,7 @@ public class Repairs extends Plan {
       if (! Spacing.adjacent(actor.origin(), basis) || Rand.num() < 0.2f) {
         final Tile t = Spacing.pickFreeTileAround(built, actor);
         if (t == null) {
-          abortBehaviour();
+          interrupt(INTERRUPT_CANCEL);
           return null;
         }
         building.setMoveTarget(t);

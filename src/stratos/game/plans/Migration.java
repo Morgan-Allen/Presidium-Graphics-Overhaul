@@ -85,7 +85,7 @@ public class Migration extends Plan {
     */
   protected Behaviour getNextStep() {
     if (actor.mind.work() != null) {
-      abortBehaviour();
+      interrupt(INTERRUPT_NO_PREREQ);
       return null;
     }
     if (actor.gear.credits() < BOARD_PRICE) return null;

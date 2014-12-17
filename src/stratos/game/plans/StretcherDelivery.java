@@ -2,16 +2,12 @@
 
 package stratos.game.plans;
 import stratos.game.common.*;
-import stratos.game.common.Session.Saveable;
 import stratos.game.economic.*;
 import stratos.game.actors.*;
-import stratos.game.base.Suspensor;
 import stratos.util.*;
+import stratos.game.base.Suspensor;
 
 
-
-
-//  TODO:  Extend this more generally to capture and arrest.
 
 
 public class StretcherDelivery extends Plan implements Qualities {
@@ -75,6 +71,10 @@ public class StretcherDelivery extends Plan implements Qualities {
   }
   
   
+  //  TODO:  Pick up the suspensor from either the origin or destination points
+  //  (whichever is closer at the time?)
+  
+  
   protected Behaviour getNextStep() {
     final boolean report = verbose && I.talkAbout == actor;
     if ((! hasBegun()) && Plan.competition(this, patient, actor) > 0) {
@@ -112,7 +112,7 @@ public class StretcherDelivery extends Plan implements Qualities {
   public boolean actionPickup(Actor actor, Actor patient) {
     if (Suspensor.carrying(patient) != null) return false;
     this.suspensor = new Suspensor(actor, this);
-    suspensor.passenger = patient;
+    patient.bindToMount(suspensor);
     suspensor.enterWorldAt(patient, actor.world());
     return true;
   }
@@ -123,7 +123,6 @@ public class StretcherDelivery extends Plan implements Qualities {
       I.say("NOT CARRYING PATIENT!");
       return false;
     }
-    suspensor.passenger = null;
     suspensor.exitWorld();
     this.suspensor = null;
     patient.goAboard(destination, actor.world());

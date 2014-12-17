@@ -120,6 +120,19 @@ public class TrooperLodge extends Venue {
   public Behaviour jobFor(Actor actor) {
     if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
     
+    //  TODO:  INCLUDE DRILLING!
+    
+    //  TODO:  Try to optimise this?
+    final ShieldWall wall = (ShieldWall) world.presences.randomMatchNear(
+      ShieldWall.class, this, Stage.SECTOR_SIZE
+    );
+    if (wall != null && wall.base() == base) {
+      final int compass = TileConstants.T_ADJACENT[Rand.index(4)];
+      final Patrolling sentry = Patrolling.sentryDuty(actor, wall, compass);
+      return sentry;
+    }
+    //
+    //  Otherwise, fall back on regular patrols.  (Try to do this in groups?)
     return Patrolling.nextGuardPatrol(actor, this, Plan.ROUTINE);
   }
   

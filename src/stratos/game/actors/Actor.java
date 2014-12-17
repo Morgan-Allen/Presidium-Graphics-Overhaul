@@ -30,8 +30,8 @@ public abstract class Actor extends Mobile implements
   
   
   final public Healthbar healthbar = new Healthbar();
-  final public Label label = new Label();
-  final public TalkFX chat = new TalkFX();
+  final public Label     label     = new Label    ();
+  final public TalkFX    chat      = new TalkFX   ();
   
   final public ActorHealth health = new ActorHealth(this);
   final public ActorTraits traits = new ActorTraits(this);
@@ -43,6 +43,7 @@ public abstract class Actor extends Mobile implements
   final public ActorRelations relations = initRelations();
   
   private Action actionTaken;
+  private Mount mount;
   private Base base;
   
   
@@ -58,12 +59,13 @@ public abstract class Actor extends Mobile implements
     skills.loadState(s);
     gear  .loadState(s);
     
-    mind.loadState(s);
-    senses.loadState(s);
+    mind     .loadState(s);
+    senses   .loadState(s);
     relations.loadState(s);
     
     actionTaken = (Action) s.loadObject();
-    base = (Base) s.loadObject();
+    mount       = (Mount ) s.loadObject();
+    base        = (Base  ) s.loadObject();
   }
   
   
@@ -75,12 +77,13 @@ public abstract class Actor extends Mobile implements
     skills.saveState(s);
     gear  .saveState(s);
     
-    mind.saveState(s);
-    senses.saveState(s);
+    mind     .saveState(s);
+    senses   .saveState(s);
     relations.saveState(s);
     
     s.saveObject(actionTaken);
-    s.saveObject(base);
+    s.saveObject(mount      );
+    s.saveObject(base       );
   }
   
   
@@ -105,7 +108,7 @@ public abstract class Actor extends Mobile implements
   
   
   
-  /**  Dealing with items and inventory-
+  /**  Dealing with items, inventory and mounting-
     */
   public ActorGear inventory() {
     return gear;
@@ -136,6 +139,20 @@ public abstract class Actor extends Mobile implements
   }
   
   
+  public void bindToMount(Mount newMount) {
+    final Mount oldMount = this.mount;
+    if (oldMount == newMount) return;
+    this.mount = newMount;
+    if (oldMount != null) oldMount.setMounted(this, false);
+    if (newMount != null) newMount.setMounted(this, true );
+  }
+  
+  
+  public Mount currentMount() {
+    return mount;
+  }
+  
+  
   
   /**  Assigning behaviours and actions-
     */
@@ -147,19 +164,18 @@ public abstract class Actor extends Mobile implements
       I.reportStackTrace();
       if (action != null) I.add("  "+action.hashCode()+"\n");
     }
-    //world.activities.toggleAction(actionTaken, false);
+    
+    //world.activities.toggleBehaviour(actionTaken, false);
     this.actionTaken = action;
     if (actionTaken != null) actionTaken.updateAction(false);
-    //world.activities.toggleAction(actionTaken, true);
+    //world.activities.toggleBehaviour(actionTaken, true);
   }
   
   
   protected void pathingAbort() {
     if (actionTaken == null) return;
     final Behaviour root = mind.rootBehaviour();
-    //  TODO:  This needs some work.  Ideally, behaviours (particularly
-    //  missions) should have some method of handling this more gracefully.
-    mind.cancelBehaviour(root);
+    root.interrupt(Plan.INTERRUPT_LOSE_PATH);
   }
   
   
@@ -192,16 +208,33 @@ public abstract class Actor extends Mobile implements
   }
   
   
+  public void exitOffworld() {
+    exitWorld(false);
+  }
+  
+  
   public void exitWorld() {
-    if (verbose) I.say(this+" IS EXITING WORLD, LAST ACTION: "+actionTaken);
+    exitWorld(true);
+  }
+  
+  
+  private void exitWorld(boolean normal) {
+    if (verbose) {
+      I.say(this+" IS EXITING WORLD, LAST ACTION: "+actionTaken);
+      I.say("  Going offworld? "+(! normal));
+    }
     assignAction(null);
-    mind.cancelBehaviour(mind.topBehaviour());
-    mind.onWorldExit();
+    if (normal) {
+      mind.cancelBehaviour(mind.topBehaviour());
+      mind.onWorldExit();
+    }
     super.exitWorld();
   }
   
   
   protected void updateAsMobile() {
+    //  TODO:  Include the effects of mount-riding here!
+    
     super.updateAsMobile();
     final boolean OK = health.conscious() && ! doingPhysFX();
     if (! OK) pathing.updateTarget(null);
@@ -257,13 +290,11 @@ public abstract class Actor extends Mobile implements
       relations.updateValues(numUpdates);
       mind.getNextAction();
       
+      final float fatigue = Nums.clamp((health.fatigueLevel() + 1) / 2, 0, 1);
       final Behaviour root = mind.rootBehaviour();
-      final float
-        wakePriority  = root == null ? 0 : root.priorityFor(this),
-        sleepPriority = new Resting(this, aboard()).priorityFor(this),
-        tireBonus     = (health.fatigueLevel() + 0.5f) * Plan.ROUTINE;
+      final float wakePriority = root == null ? 0 : root.priorityFor(this);
       
-      if (wakePriority > sleepPriority + tireBonus) {
+      if ((wakePriority * (1 - fatigue)) > (fatigue * Plan.ROUTINE)) {
         if (report) I.say("  Waking actor up...");
         health.setState(ActorHealth.STATE_ACTIVE);
       }
@@ -422,6 +453,12 @@ public abstract class Actor extends Mobile implements
   
   
   public void renderFor(Rendering rendering, Base base) {
+    
+    if (mount != null) {
+      mount.configureSpriteFrom(this, actionTaken, sprite());
+      if (! mount.actorVisible(this)) return;
+    }
+    
     renderHealthbars(rendering, base);
     super.renderFor(rendering, base);
     //

@@ -116,7 +116,7 @@ public class FindMission extends Plan {
         I.say("  Finished/Begun: "+mission.finished()+"/"+mission.hasBegun());
         I.say("  Has approval:   "+mission.isApproved(actor));
       }
-      abortBehaviour();
+      interrupt(INTERRUPT_NO_PREREQ);
       return null;
     }
     

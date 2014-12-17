@@ -32,11 +32,18 @@ public interface Behaviour extends Session.Saveable {
     MOTION_FAST   =  1,
     MOTION_SNEAK  =  2;
   
+  final public static String
+    INTERRUPT_CANCEL     = "Cancelled",
+    INTERRUPT_NO_PREREQ  = "Lack Of Prerequisites",
+    INTERRUPT_NO_TARGET  = "Target Out Of World",
+    INTERRUPT_LOSE_SIGHT = "Target Is Hidden",
+    INTERRUPT_LOSE_PATH  = "No Valid Path";
+  
   boolean matchesPlan(Behaviour b);
   
   Behaviour nextStepFor(Actor actor);
   int motionType(Actor actor);
-  void abortBehaviour();
+  void interrupt(String cause);
   Target subject();
   
   float priorityFor(Actor actor);

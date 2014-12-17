@@ -427,7 +427,7 @@ public class Senses implements Qualities {
         //  TODO:  This might need a dedicated method.
         follows.senses.awares.remove(actor);
         follows.senses.awareOf.clear();
-        p.abortBehaviour();
+        p.interrupt(Plan.INTERRUPT_LOSE_SIGHT);
       }
       else {
         if (report) I.say("  Breakoff failed.");

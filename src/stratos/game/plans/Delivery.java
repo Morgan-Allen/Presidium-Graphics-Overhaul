@@ -324,14 +324,14 @@ public class Delivery extends Plan {
   
   public boolean actionBoardVehicle(Actor actor, Vehicle driven) {
     actor.goAboard(driven, actor.world());
-    if (! driven.setPilot(actor)) abortBehaviour();
+    if (! driven.setPilot(actor)) interrupt(INTERRUPT_CANCEL);
     return true;
   }
   
   
   private boolean drivingDone(Target toward) {
     if (actor.aboard() != driven) return false;
-    if (! driven.setPilot(actor)) abortBehaviour();
+    if (! driven.setPilot(actor)) interrupt(INTERRUPT_CANCEL);
     else driven.pathing.updateTarget(toward);
     if (driven.aboard() != toward) return false;
     return true;

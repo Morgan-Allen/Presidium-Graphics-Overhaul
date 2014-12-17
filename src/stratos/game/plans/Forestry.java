@@ -10,10 +10,7 @@ package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.wild.Flora;
-import stratos.game.wild.Species;
-import stratos.graphics.common.*;
-import stratos.user.*;
+import stratos.game.wild.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
@@ -98,7 +95,7 @@ public class Forestry extends Plan {
     
     if (stage == STAGE_GET_SEED || stage == STAGE_PLANTING) {
       toPlant = findPlantTile(actor, nursery);
-      if (toPlant == null) { abortBehaviour(); return false; }
+      if (toPlant == null) { interrupt(INTERRUPT_NO_PREREQ); return false; }
       if (nursery.stocks.amountOf(seedMatch()) > 0) {
         this.stage = STAGE_GET_SEED;
       }
@@ -107,7 +104,7 @@ public class Forestry extends Plan {
     
     if (stage == STAGE_SAMPLING || stage == STAGE_CUTTING) {
       toCut = findCutting(actor);
-      if (toCut == null) { abortBehaviour(); return false; }
+      if (toCut == null) { interrupt(INTERRUPT_NO_PREREQ); return false; }
       this.stage = stage;
     }
     

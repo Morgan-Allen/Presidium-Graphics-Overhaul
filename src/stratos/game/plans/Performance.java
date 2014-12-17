@@ -291,7 +291,7 @@ public class Performance extends Recreation {
   public boolean actionAttend(Actor actor, Venue venue) {
     final Recreation r = new Recreation(client, venue, type);
     if (client.mind.mustIgnore(r)) {
-      abortBehaviour();
+      interrupt(INTERRUPT_CANCEL);
       return false;
     }
     client.mind.assignBehaviour(r);

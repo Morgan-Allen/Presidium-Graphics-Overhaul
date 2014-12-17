@@ -7,6 +7,7 @@ import stratos.game.politic.*;
 import stratos.user.*;
 import stratos.util.*;
 import stratos.game.economic.*;
+import stratos.game.politic.LawUtils.*;
 import stratos.util.Description.Link;
 
 
@@ -35,7 +36,9 @@ public class Summons extends Plan {
   final Actor invites;
   final Property stays;
   final int type;
+  
   private int stayUntil;
+  private Sentence sentence;
   
   
   
@@ -44,7 +47,7 @@ public class Summons extends Plan {
     this.invites = invites;
     this.stays   = stays  ;
     this.type    = type   ;
-    setStayDuration(DEFAULT_STAY_DURATIONS[type]);
+    setSentence(DEFAULT_STAY_DURATIONS[type], null);
   }
   
   
@@ -54,6 +57,7 @@ public class Summons extends Plan {
     this.stays     = (Property) s.loadObject();
     this.type      = s.loadInt();
     this.stayUntil = s.loadInt();
+    this.sentence  = (Sentence) s.loadEnum(Sentence.values());
   }
   
   
@@ -63,6 +67,7 @@ public class Summons extends Plan {
     s.saveObject(stays    );
     s.saveInt   (type     );
     s.saveInt   (stayUntil);
+    s.saveEnum  (sentence );
   }
   
   
@@ -71,8 +76,9 @@ public class Summons extends Plan {
   }
   
   
-  public void setStayDuration(int time) {
-    stayUntil = (int) (stays.world().currentTime() + time);
+  public void setSentence(int time, Sentence sentence) {
+    this.stayUntil = (int) (stays.world().currentTime() + time);
+    this.sentence  = sentence;
   }
   
   
@@ -128,12 +134,15 @@ public class Summons extends Plan {
   }
   
   
-  public boolean actionStay(Actor actor, Boarding venue) {
-    if (venue instanceof Venue && actor.health.hungerLevel() > 0) {
-      Resting.dineFrom(actor, (Venue) venue);
+  public boolean actionStay(Actor actor, Property stays) {
+    if (actor.health.hungerLevel() > 0) {
+      Resting.dineFrom(actor, (Property) stays);
+    }
+    if (actor.health.fatigueLevel() > 0.5f) {
+      actor.health.setState(ActorHealth.STATE_RESTING);
     }
     //  TODO:  Make this a property for anyone staying at the bastion.
-    /*
+    //*
     if (BaseUI.isSelected(actor) && stays == stays.base().HQ()) {
       final BaseUI UI = BaseUI.current();
       UI.selection.pushSelection(null, false);
@@ -152,17 +161,22 @@ public class Summons extends Plan {
       d.append("Staying as guest at ");
       d.append(stays);
     }
-    if (type == TYPE_SULKING) {
-      d.append("Sulking at ");
+    else if (type == TYPE_SULKING) {
+      d.append("Brooding at ");
       d.append(stays);
     }
-    if (type == TYPE_CAPTIVE) {
-      if (actor.aboard() == stays) {
-        d.append("Being held captive at ");
+    else if (type == TYPE_CAPTIVE) {
+      if (actor.aboard() != stays) {
+        d.append("Being taken captive to ");
         d.append(stays);
       }
+      else if (sentence != null) {
+        d.append("Serving sentence ("+sentence.description()+") at ");
+        d.append(stays);
+        //  TODO:  Give information on release date/term spent!
+      }
       else {
-        d.append("Being taken captive to ");
+        d.append("In custody at ");
         d.append(stays);
       }
     }
@@ -172,6 +186,8 @@ public class Summons extends Plan {
   
   /**  Helper methods for the player's UI-
     */
+  //  TODO:  MOVE THESE OUT OF HERE
+  
   //  TODO:  Replace this with a variety of contact mission?
   
   public static void beginSummons(Actor subject) {
@@ -197,8 +213,7 @@ public class Summons extends Plan {
   public static void cancelSummons(Actor subject) {
     final Summons summons = (Summons) subject.matchFor(Summons.class);
     if (summons == null) return;
-    //summons.timeStayed = 1 + (int) MAX_STAY_DURATION;
-    summons.abortBehaviour();
+    summons.interrupt(INTERRUPT_CANCEL);
     
     final BaseUI UI = BaseUI.current();
     final Target aboard = subject.aboard();

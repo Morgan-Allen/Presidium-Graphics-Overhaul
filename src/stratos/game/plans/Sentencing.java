@@ -112,14 +112,21 @@ public class Sentencing extends Plan {
   
   
   public boolean actionPassSentence(Actor judge, Venue court) {
-    this.verdict = sentenceFor(accused);
-    this.complete = true;
-    
-    if (verdict == null) return false;
+
     final Profile profile = judge.base().profiles.profileFor(accused);
+    this.verdict = sentenceFor(accused);
     profile.clearRecord();
     profile.assignSentence(verdict);
-    return true;
+    this.complete = true;
+    
+    if (verdict == null) {
+      Summons.cancelSummons(accused);
+      return false;
+    }
+    else {
+      accused.mind.assignBehaviour(verdict);
+      return true;
+    }
   }
   
   
@@ -132,11 +139,11 @@ public class Sentencing extends Plan {
     float offendScore = 0;
     
     for (Crime crime : base.profiles.crimesBy(accused)) {
-      offendScore += LawUtils.severity(crime) * (0.5f + Rand.num());
+      offendScore += crime.severity() * (0.5f + Rand.num());
     }
     if (offendScore <= 0) return null;
-    final Summons s = new Summons(actor, null, court, Summons.TYPE_CAPTIVE);
-    s.setStayDuration((int) Nums.ceil(offendScore * 2));
+    final Summons s = new Summons(accused, actor, court, Summons.TYPE_CAPTIVE);
+    s.setSentence((int) Nums.ceil(offendScore), Sentence.SENTENCE_CAPTIVITY);
     return s;
   }
   
@@ -149,7 +156,10 @@ public class Sentencing extends Plan {
       final Base base = judge.base();
       d.append("Studying case files on ");
       d.append(accused);
-      d.appendList("(Charged with ", base.profiles.crimesBy(accused));
+      d.append(" (charged with ");
+      for (Crime crime : base.profiles.crimesBy(accused)) {
+        d.append(" "+crime.description());
+      }
       d.append("");
     }
     else {

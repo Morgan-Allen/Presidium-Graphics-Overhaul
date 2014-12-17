@@ -51,8 +51,8 @@ public abstract class Plan implements Saveable, Behaviour {
   protected Plan(
     Actor actor, Target subject, boolean persistent, float harmFactor
   ) {
-    this.actor = actor;
-    this.subject = subject;
+    this.actor      = actor     ;
+    this.subject    = subject   ;
     this.persistent = persistent;
     this.harmFactor = harmFactor;
     if (subject == null) I.complain("NULL PLAN SUBJECT");
@@ -125,10 +125,11 @@ public abstract class Plan implements Saveable, Behaviour {
   }
   
   
-  public void abortBehaviour() {
+  public void interrupt(String cause) {
     if (! hasBegun()) return;
     if (verbose && I.talkAbout == actor) {
       I.say("\n"+actor+" Aborting plan! "+I.tagHash(this));
+      I.say("  Cause: "+cause);
       I.reportStackTrace();
     }
     nextStep = lastStep = null;
@@ -140,11 +141,7 @@ public abstract class Plan implements Saveable, Behaviour {
   public float priorityFor(Actor actor) {
     final boolean report = verbose && I.talkAbout == actor && hasBegun();
     
-    if (this.actor != actor) {
-      this.actor = actor;
-      priorityEval = NULL_PRIORITY;
-      nextStep     = null;
-    }
+    if (this.actor != actor) clearEval(actor);
     if (priorityEval != NULL_PRIORITY) return priorityEval;
     
     final float time = actor.world().currentTime();
@@ -160,15 +157,20 @@ public abstract class Plan implements Saveable, Behaviour {
   }
   
   
+  protected void clearEval(Actor actor) {
+    this.actor   = actor;
+    priorityEval = NULL_PRIORITY;
+    nextStep     = null;
+  }
+  
+  
   public Behaviour nextStepFor(Actor actor) {
     final boolean report = verbose && I.talkAbout == actor && hasBegun();
     if (motiveType == MOTIVE_CANCELLED) return null;
     if (report) I.say("\nCurrent plan step is: "+I.tagHash(nextStep));
     
     if (this.actor != actor) {
-      this.actor = actor;
-      priorityEval = NULL_PRIORITY;
-      nextStep     = null;
+      clearEval(actor);
       if (report) I.say("\nNEXT STEP IS NULL: DIFFERENT ACTOR");
     }
     

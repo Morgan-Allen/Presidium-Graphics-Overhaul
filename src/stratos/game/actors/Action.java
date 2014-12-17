@@ -184,11 +184,16 @@ public class Action implements Behaviour, AnimNames {
   }
   
   
-  public void abortBehaviour() {
+  public void interrupt(String cause) {
+    final boolean report = verbose && I.talkAbout == actor;
     progress = -1;
     moveState = STATE_INIT;
-    actor.mind.cancelBehaviour(this);
+    //actor.mind.cancelBehaviour(this);
     actor.assignAction(null);
+    if (report) {
+      I.say("\nCancelling action: "+this);
+      I.say("  Cause: "+cause);
+    }
   }
   
   
@@ -365,7 +370,7 @@ public class Action implements Behaviour, AnimNames {
     else moveState = STATE_MOVE;
     
     if (moveState != oldState) {
-      if (oldState == STATE_CLOSED) { abortBehaviour(); return 0; }
+      if (oldState == STATE_CLOSED) { interrupt(INTERRUPT_CANCEL); return 0; }
       else progress = oldProgress = 0;
     }
     

@@ -77,7 +77,7 @@ public class FindHome extends Plan {
     if (actor.mind.home() == newHome) return null;
     
     if (! newHome.inWorld()) {
-      if (! canPlace()) { abortBehaviour(); return null; }
+      if (! canPlace()) { interrupt(INTERRUPT_NO_PREREQ); return null; }
       
       Tile goes = ((Venue) newHome).mainEntrance();
       goes = Spacing.nearestOpenTile(goes, actor);
@@ -117,7 +117,7 @@ public class FindHome extends Plan {
   
   
   public boolean actionSiteHome(Actor client, Target site) {
-    if (! canPlace()) { abortBehaviour(); return false; }
+    if (! canPlace()) { interrupt(INTERRUPT_CANCEL); return false; }
     final Venue v = (Venue) newHome;
     v.doPlacement();
     client.mind.setHome(v);
@@ -135,7 +135,7 @@ public class FindHome extends Plan {
     
     if (rateHolding(client, best) <= 0) {
       if (report) I.say("  Venue unsuitable!");
-      abortBehaviour();
+      interrupt(INTERRUPT_CANCEL);
       return false;
     }
     

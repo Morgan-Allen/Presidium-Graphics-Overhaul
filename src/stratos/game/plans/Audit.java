@@ -133,7 +133,9 @@ public class Audit extends Plan {
   
   
   protected float getPriority() {
-    final float credits = audited.inventory().credits();
+    
+    float credits = totalSum;
+    if (audited != null) credits += audited.inventory().credits();
     float modifier = Nums.clamp(credits / 100, -ROUTINE, ROUTINE);
     
     if (type == Type.TYPE_EXTORTION) {

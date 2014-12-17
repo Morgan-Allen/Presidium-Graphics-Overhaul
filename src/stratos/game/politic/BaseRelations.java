@@ -115,6 +115,7 @@ public class BaseRelations {
   
   
   public float relationWith(Base other) {
+    if (other == null) return 0;
     if (other == base) return 1;
     final Relation r = baseRelations.get(other);
     if (r == null) {

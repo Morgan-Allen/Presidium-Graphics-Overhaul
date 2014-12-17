@@ -360,9 +360,14 @@ public abstract class Mission implements
   }
   
   
-  public void abortBehaviour() {
+  public void interrupt(String cause) {
+    final boolean report = verbose && BaseUI.current().played() == base;
     //  TODO:  There needs to be a special-case handler for this.  You also
     //  need to identify the cancelling actor.
+    if (report) {
+      I.say("\nCancelling mission: "+this);
+      I.say("  Cause: "+cause);
+    }
   }
   
   

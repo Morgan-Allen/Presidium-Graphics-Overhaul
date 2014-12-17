@@ -84,14 +84,14 @@ public class Supervision extends Plan {
     final float elapsed = time - beginTime;
     
     if (elapsed > WAIT_TIME) {
-      abortBehaviour();
+      interrupt(INTERRUPT_CANCEL);
       return null;
     }
     
     if (elapsed > WAIT_TIME / 2) {
       final Behaviour nextJob = venue.jobFor(actor);
       if (! (nextJob instanceof Supervision)) {
-        abortBehaviour();
+        interrupt(INTERRUPT_CANCEL);
         return null;
       }
     }

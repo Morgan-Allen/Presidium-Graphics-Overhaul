@@ -177,13 +177,13 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
       final float range = actor.health.sightRange() / 2;
       Tile open = Spacing.pickRandomTile(onPoint, range, actor.world());
       open = Spacing.nearestOpenTile(open, actor);
-      if (open == null) { abortBehaviour(); return null; }
+      if (open == null) { interrupt(INTERRUPT_CANCEL); return null; }
       else stop = open;
     }
     else {
       Tile open = world.tileAt(onPoint);
       open = Spacing.nearestOpenTile(open, actor);
-      if (open == null) { abortBehaviour(); return null; }
+      if (open == null) { interrupt(INTERRUPT_CANCEL); return null; }
       else stop = open;
     }
     
@@ -326,7 +326,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
       p.y + (T_Y[initDir] * 2)
     );
     if (ideal == null) return null;
-
+    
     Boarding init = start, next = null;
     float minDist = Float.POSITIVE_INFINITY;
     for (Boarding b : init.canBoard()) {
@@ -338,12 +338,12 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
       }
     }
     if (next == null) return null;
-
+    
     init.flagWith(enRoute);
     next.flagWith(enRoute);
     enRoute.add(init);
     enRoute.add(next);
-
+    
     while (true) {
       Boarding near = null;
       for (Boarding b : next.canBoard()) {
@@ -360,9 +360,8 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
         break;
       next = near;
     }
-    for (Target t : enRoute)
-      t.flagWith(null);
-
+    for (Target t : enRoute) t.flagWith(null);
+    
     final List<Target> patrolled = new List<Target>();
     BlastDoors doors = null;
     for (Target b : enRoute) {
@@ -375,8 +374,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
           doors = (BlastDoors) s;
       }
     }
-    if (doors == null)
-      return null;
+    if (doors == null) return null;
     return new Patrolling(actor, doors, patrolled, TYPE_SENTRY_DUTY);
   }
   

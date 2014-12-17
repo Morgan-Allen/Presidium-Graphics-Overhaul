@@ -13,7 +13,7 @@ import stratos.util.*;
 
 
 
-public class Suspensor extends Mobile {
+public class Suspensor extends Mobile implements Mount {
   
 
   final static String
@@ -26,36 +26,79 @@ public class Suspensor extends Mobile {
   
   
   final Actor followed;
-  final Behaviour tracked;
+  final Plan tracked;
   
-  public Actor passenger = null;
-  public Item cargo = null;
+  private Actor passenger = null;
+  private Item  cargo     = null;
   
   
   
-  public Suspensor(Actor followed, Behaviour tracked) {
+  public Suspensor(Actor followed, Plan tracked) {
     super();
     this.followed = followed;
-    this.tracked = tracked;
+    this.tracked  = tracked ;
     attachSprite(SUSPENSOR_MODEL.makeSprite());
   }
   
   
   public Suspensor(Session s) throws Exception {
     super(s);
-    followed = (Actor) s.loadObject();
-    tracked = (Behaviour) s.loadObject();
+    followed  = (Actor) s.loadObject();
+    tracked   = (Plan ) s.loadObject();
     passenger = (Actor) s.loadObject();
-    cargo = Item.loadFrom(s);
+    cargo     = Item.loadFrom(s);
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(followed);
-    s.saveObject(tracked);
+    s.saveObject(followed );
+    s.saveObject(tracked  );
     s.saveObject(passenger);
     Item.saveTo(s, cargo);
+  }
+  
+  
+  
+  /**  Satisfying contract as Mount-
+    */
+  public Actor mounted() {
+    return passenger;
+  }
+  
+  
+  public boolean setMounted(Actor mounted, boolean is) {
+    if (is) {
+      if (this.passenger != null) return false;
+      else this.passenger = mounted;
+    }
+    else {
+      if (this.passenger != mounted) return false;
+      else this.passenger = null;
+    }
+    return true;
+  }
+  
+  
+  public Property storedAt() {
+    return null;
+  }
+  
+  
+  public boolean allowsActivity(Plan activity) {
+    return false;
+  }
+  
+  
+  public boolean actorVisible(Actor mounted) {
+    return true;
+  }
+  
+  
+  public void configureSpriteFrom(
+    Actor mounted, Action action, Sprite actorSprite
+  ) {
+    actorSprite.setAnimation(Action.FALL, 1, false);
   }
   
   
@@ -66,26 +109,38 @@ public class Suspensor extends Mobile {
   }
   
   
-  public static Actor carrying(Actor other) {
-    for (Mobile m : other.aboard().inside()) {
-      if (m instanceof Suspensor) {
-        final Suspensor s = (Suspensor) m;
-        if (s.passenger == other) return s.followed;
-      }
-    }
-    return null;
+  public void exitWorld() {
+    if (passenger != null) passenger.bindToMount(null);
+    super.exitWorld();
   }
   
   
+  public static Actor carrying(Actor other) {
+    if (! (other.currentMount() instanceof Suspensor)) return null;
+    final Suspensor s = (Suspensor) other.currentMount();
+    return s.followed;
+  }
+  
   
   protected void updateAsMobile() {
+    final boolean report = true && (
+      I.talkAbout == passenger || I.talkAbout == followed
+    );
     super.updateAsMobile();
     //
     //  Firstly, check whether you even need to exist any more-
-    if ((! followed.inWorld()) || (! followed.mind.hasToDo(tracked))) {
+    if ((! followed.inWorld()) || (followed.matchFor(tracked) == null)) {
+      if (report) {
+        I.say("\nSuspensor exiting world!");
+        I.say("  Actor followed:   "+followed);
+        I.say("  In world?         "+followed.inWorld());
+        I.say("  Activity tracked: "+tracked);
+        I.say("  Activity valid?   "+followed.mind.hasToDo(tracked));
+      }
       if (passenger != null) {
-        final Tile o = origin();
-        passenger.setPosition(o.x, o.y, world);
+        final Vec3D ground = this.position(null);
+        ground.z = world.terrain().trueHeight(ground.x, ground.y);
+        passenger.setHeading(ground, this.rotation, false, world);
       }
       exitWorld();
       return;

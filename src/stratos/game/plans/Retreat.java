@@ -279,7 +279,7 @@ public class Retreat extends Plan implements Qualities {
       safePoint = actor.senses.haven();
     }
     if (safePoint == null) {
-      abortBehaviour();
+      interrupt(INTERRUPT_NO_PREREQ);
       return null;
     }
     
@@ -311,7 +311,7 @@ public class Retreat extends Plan implements Qualities {
       final Resting rest = new Resting(actor, safePoint);
       rest.setMotive(Plan.MOTIVE_LEISURE, priorityFor(actor));
       maxDanger = 0;
-      abortBehaviour();
+      interrupt(INTERRUPT_CANCEL);
       return true;
     }
     

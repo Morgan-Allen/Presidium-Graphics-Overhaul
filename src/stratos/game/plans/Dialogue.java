@@ -320,7 +320,7 @@ public class Dialogue extends Plan implements Qualities {
         other.mind.assignBehaviour(d);
       }
       else if (shouldQuit()) {
-        abortBehaviour();
+        interrupt(INTERRUPT_CANCEL);
         return false;
       }
     }

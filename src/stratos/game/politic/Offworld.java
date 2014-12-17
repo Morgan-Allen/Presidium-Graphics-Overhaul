@@ -177,7 +177,7 @@ public class Offworld {
     final List <Mobile> passengers = new List <Mobile> ();
     for (Mobile migrant : ship.inside()) {
       final Activity a = activityFor(migrant);
-      if (migrant.inWorld()) migrant.exitWorld();
+      if (migrant.inWorld()) migrant.exitOffworld();
       //
       //  Migrants with no business offworld will simply be forgotten-
       //  otherwise, record their journey.
@@ -185,12 +185,6 @@ public class Offworld {
         if (report) I.say("  "+migrant+" is passenger");
         a.onWorldExit();
         passengers.add(migrant);
-        //
-        //  (NOTE:  This a small workaround for the problem that all behaviours
-        //  in an actor's agenda get wiped once that actor exits the world.)
-        if (migrant instanceof Actor) {
-          ((Actor) migrant).mind.assignBehaviour(a);
-        }
       }
     }
     journey.passengers = passengers.toArray(Mobile.class);
