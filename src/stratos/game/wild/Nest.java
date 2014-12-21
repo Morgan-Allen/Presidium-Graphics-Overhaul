@@ -46,6 +46,15 @@ public class Nest extends Venue {
   private float idealPopEstimate = -1;
   
   
+  //  NOTE:  This is here purely for setting up a venue-profile, and not
+  //         intended for actual construction purposes.
+  //  TODO:  FIND A WORKAROUND
+  public Nest(Base base) {
+    super(1, 1, ENTRANCE_NONE, null);
+    this.species = null;
+  }
+  
+  
   public Nest(
     int size, int high, int entranceFace,
     Species species, ModelAsset lairModel
@@ -409,30 +418,27 @@ public class Nest extends Venue {
   public Composite portrait(BaseUI UI) {
     return null;
   }
+
+
+  public String helpInfo() {
+    return species.info;
+  }
   
   
-  public void writeInformation(Description d, int categoryID, HUD UI) {
-    d.append("\nCondition: ");
-    d.append((int) (structure.repairLevel() * 100)+"%");
-    
+  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
+    panel = VenueDescription.configSimplePanel(this, panel, UI, null);
+    final Description d = panel.detail();
+
     int idealPop = 1 + (int) idealPopulation(this, species, world, true);
     int actualPop = personnel.residents().size();
-    d.append("\n  Population: "+actualPop+"/"+idealPop);
     
-    d.append("\nNesting: ");
+    d.append("\n\nNesting: ("+actualPop+"/"+idealPop+")");
     if (personnel.residents().size() == 0) d.append("Unoccupied");
     else for (Actor actor : personnel.residents()) {
       d.append("\n  ");
       d.append(actor);
     }
-    
-    d.append("\n\n");
-    d.append(species.info);
-  }
-  
-  
-  public String helpInfo() {
-    return null;
+    return panel;
   }
   
   

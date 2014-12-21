@@ -29,7 +29,8 @@ public abstract class Fauna extends Actor {
   final public static float
     PLANT_CONVERSION = 4.0f,
     MEAT_CONVERSION  = 4.0f;
-  private static boolean verbose = false;
+  private static boolean
+    verbose = true ;
   
   
   final public Species species;
@@ -282,7 +283,6 @@ public abstract class Fauna extends Actor {
       description = "Migrating";
       priority = Action.ROUTINE;
     }
-    
     else {
       final Target centre = mind.home() == null ? this : mind.home();
       wandersTo = Spacing.pickRandomTile(
@@ -299,9 +299,7 @@ public abstract class Fauna extends Actor {
       Action.LOOK, description
     );
     migrates.setPriority(priority);
-    if (! wandersTo.inWorld()) {
-      migrates.setMoveTarget(Spacing.pickFreeTileAround(wandersTo, this));
-    }
+    migrates.setMoveTarget(Spacing.pickFreeTileAround(wandersTo, this));
     return migrates;
   }
   
@@ -309,8 +307,6 @@ public abstract class Fauna extends Actor {
   public boolean actionMigrate(Fauna actor, Target point) {
     if (point instanceof Nest) {
       final Nest nest = (Nest) point;
-      
-      //if (Nest.crowdingFor(this) < 0.5f) return false;  //  TODO: ?
       if (Nest.crowdingFor(nest, species, world) > 0.5f) return false;
       
       if (! nest.inWorld()) {

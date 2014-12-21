@@ -51,11 +51,13 @@ public class VenueDescription {
   
   
   public static SelectionInfoPane configSimplePanel(
-    Structure.Basis venue, SelectionInfoPane panel, BaseUI UI, String statusMessage
+    Structure.Basis venue, SelectionInfoPane panel,
+    BaseUI UI, String statusMessage
   ) {
-    if (panel == null) panel = new SelectionInfoPane(UI, venue, venue.portrait(UI));
+    if (panel == null) panel = new SelectionInfoPane(
+      UI, venue, venue.portrait(UI)
+    );
     final Description d = panel.detail();
-
     final VenueDescription VD = new VenueDescription(null);
     VD.describeCondition(venue, d, UI, false);
     

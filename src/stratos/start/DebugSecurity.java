@@ -19,7 +19,7 @@ import stratos.util.*;
 
 //  TODO:  Make sure that Dialogue/chatting still works.
 //         Retreat should have the possibility to break pursuit as well.
-//         Indoor combats should lack SFX!  (And seem to take way too long.)
+//         Indoor combats take way too long.
 
 //  TODO:  However, the SFX being shown might be a clue to sprites-flickering
 //         in odd locations.  Consider studying it for that reason.
