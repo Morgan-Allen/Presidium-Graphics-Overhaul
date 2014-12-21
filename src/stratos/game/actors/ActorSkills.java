@@ -103,7 +103,7 @@ public class ActorSkills {
     //  intellect.
     
     //  Invoke any known techniques here that are registered to be triggered
-    //  by a skill of this type, and get their associated bonuses:
+    //  by a skill of this type, and get their associated bonus:
     final Target subject = actor.actionFocus();
     final Technique boost = pickSkillBonus(checked, subject);
     if (boost != null) bonus += boost.bonusFor(actor, checked, subject);
@@ -119,7 +119,9 @@ public class ActorSkills {
       if (Rand.num() < chance) success++;
     }
     practice(checked, (1 - chance) * duration / 10);
-    if (b != null) b.skills.practice(opposed, chance * duration / 10);
+    if (b != null && opposed != null) {
+      b.skills.practice(opposed, chance * duration / 10);
+    }
     //
     //  And return the result.
     if (boost != null) boost.applyEffect(actor, success > 0, subject);
@@ -132,6 +134,13 @@ public class ActorSkills {
     float bonus, float fullXP
   ) {
     return test(checked, b, opposed, bonus, fullXP, 1) > 0;
+  }
+  
+  
+  public float test(
+    Skill checked, float difficulty, float duration, int range
+  ) {
+    return test(checked, null, null, 0 - difficulty, duration, range);
   }
   
   

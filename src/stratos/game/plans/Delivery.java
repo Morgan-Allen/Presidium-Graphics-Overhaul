@@ -202,14 +202,15 @@ public class Delivery extends Plan {
   /**  Assessing targets and priorities-
     */
   protected float getPriority() {
-    final boolean report = evalVerbose && I.talkAbout == actor;
+    if (items == null || items.length == 0) return -1;
     
+    final boolean report = evalVerbose && I.talkAbout == actor;
     final boolean shops = shouldPay == actor;
     float base = ROUTINE, modifier = NO_MODIFIER;
     if (shouldPay != destination) base = CASUAL;
     
     if (shops && stage <= STAGE_PICKUP) {
-      if (! manned(origin)) return 0;
+      if (! manned(origin)) return -1;
       
       int price = 0;
       for (Item i : items) {
@@ -429,7 +430,7 @@ public class Delivery extends Plan {
   public void describeBehaviour(Description d) {
     
     if (stage == STAGE_RETURN) {
-      if (driven != null) d.append("Returning profits to ");
+      if (driven == null) d.append("Returning profits to ");
       else d.append("Returning to ");
       d.append(origin);
       return;

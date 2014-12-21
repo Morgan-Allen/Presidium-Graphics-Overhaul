@@ -18,17 +18,17 @@ import static stratos.game.economic.Economy.*;
 
 
 
-//  TODO:  Speed production if you have gene seed (or make mandatory?)
-
-//  TODO:  Predators, by contrast, are domesticated and used to assist in
-//  hunting and patrols.  (Possibly as cavalry?)
+//  TODO:  Make initial gene seed mandatory?
+//  TODO:  Allow 'taming' of these specimens- i.e, so they start with good
+//         relations toward their caretaker?
 
 
 public class AnimalBreeding extends Plan {
   
   
   final static int
-    BREED_TIME_PER_10_HP = Stage.STANDARD_DAY_LENGTH;
+    BREED_TIME_PER_10_HP = Stage.STANDARD_DAY_LENGTH,
+    MINIMUM_TAILOR_TIME  = Stage.STANDARD_DAY_LENGTH;
   
   private static boolean
     evalVerbose  = false,
@@ -38,7 +38,7 @@ public class AnimalBreeding extends Plan {
   final Venue station;
   final Fauna handled;
   final Target releasePoint;
-  final Item asStock;
+  final Item asSeed, asSample;
   
   
   
@@ -49,16 +49,18 @@ public class AnimalBreeding extends Plan {
     this.station = station;
     this.handled = handled;
     this.releasePoint = releasePoint;
-    this.asStock = Item.withReference(GENE_SEED, handled);
+    this.asSeed   = Item.withReference(GENE_SEED, handled.species());
+    this.asSample = Item.withReference(SAMPLES  , handled          );
   }
   
   
   public AnimalBreeding(Session s) throws Exception {
     super(s);
-    station = (Venue) s.loadObject();
-    handled = (Fauna) s.loadObject();
-    releasePoint = s.loadTarget();
-    this.asStock = Item.withReference(GENE_SEED, handled);
+    station       = (Venue) s.loadObject();
+    handled       = (Fauna) s.loadObject();
+    releasePoint  = s.loadTarget();
+    this.asSeed   = Item.loadFrom(s);
+    this.asSample = Item.loadFrom(s);
   }
   
   
@@ -67,6 +69,8 @@ public class AnimalBreeding extends Plan {
     s.saveObject(station);
     s.saveObject(handled);
     s.saveTarget(releasePoint);
+    Item.saveTo(s, asSeed  );
+    Item.saveTo(s, asSample);
   }
   
   
@@ -160,9 +164,9 @@ public class AnimalBreeding extends Plan {
     final boolean report = stepsVerbose && I.talkAbout == actor;
     if (report) I.say("\nGetting next breeding step for "+handled);
     
-    //  TODO:  Use samples instead of gene-seed?  Break into two steps?
-
-    if (actor.gear.hasItem(asStock)) {
+    if (handled.inWorld()) return null;
+    
+    if (actor.gear.hasItem(asSample)) {
       if (report) I.say("  Returning release!");
       final Tile point = Spacing.nearestOpenTile(releasePoint, actor);
       final Action release = new Action(
@@ -172,8 +176,9 @@ public class AnimalBreeding extends Plan {
       );
       return release;
     }
-    
-    if (station.stocks.hasItem(asStock)) {
+
+    final float progress = station.stocks.amountOf(asSample);
+    if (progress >= 1) {
       if (report) I.say("  Returning pickup!");
       final Action pickup = new Action(
         actor, station,
@@ -183,7 +188,17 @@ public class AnimalBreeding extends Plan {
       return pickup;
     }
     
-    if (! handled.inWorld()) {
+    if ((station.stocks.amountOf(asSeed) + progress) < 1) {
+      if (report) I.say("  Returning gene-tailor!");
+      final Action tailor = new Action(
+        actor, station,
+        this, "actionTailorSeed",
+        Action.BUILD, "Tailoring gene seed for "
+      );
+      return tailor;
+    }
+    
+    else {
       if (report) I.say("  Returning tend action!");
       final Action tends = new Action(
         actor, handled,
@@ -193,58 +208,72 @@ public class AnimalBreeding extends Plan {
       tends.setMoveTarget(station);
       return tends;
     }
+  }
+  
+  
+  public boolean actionTailorSeed(Actor actor, Venue station) {
+    float success = 0;
+    success += actor.skills.test(GENE_CULTURE, MODERATE_DC, 1, 2);
+    success *= actor.skills.test(XENOZOOLOGY , ROUTINE_DC , 1, 2);
     
-    return null;
+    if (success <= 0) return false;
+    success /= MINIMUM_TAILOR_TIME;
+    station.stocks.addItem(Item.withAmount(asSeed, success));
+    return true;
   }
   
   
   public boolean actionTendSpecimen(Actor actor, Fauna fauna) {
     final boolean report = stepsVerbose && I.talkAbout == actor;
     if (report) I.say("\nTending to "+fauna);
-    
+    //
+    //  First, determine your rate of progress based on intrinsic skill level,
+    //  seed quality, and tech upgrades.
+    //  TODO:  INCLUDE SEED QUALITY
     final float upgrade = station.structure.upgradeLevel(
       KommandoLodge.CAPTIVE_BREEDING
     );
     float success = 0;
-    if (actor.skills.test(XENOZOOLOGY, ROUTINE_DC, 1)) success++;
-    if (actor.skills.test(DOMESTICS  , ROUTINE_DC, 1)) success++;
+    if (actor.skills.test(XENOZOOLOGY, MODERATE_DC, 1)) success++;
+    if (actor.skills.test(DOMESTICS  , ROUTINE_DC , 1)) success++;
     if (success <= 0) return false;
     success *= 1 + (upgrade / 2f);
-    
+    //
+    //  Check whether the young scamp has enough to eat, and adjust stocks (or
+    //  growth rate) accordingly-
+    //  TODO:  INCLUDE PROTEIN CONSUMPTION
     final float bulk = fauna.health.maxHealth();
-    float inc = 10 / bulk;
-    inc *= success / BREED_TIME_PER_10_HP;
-    if (report) I.say("  Growth increment: "+inc);
-    
-    final Item eaten = Item.withAmount(CARBS, inc * 2);
+    success *= 10 / (bulk * BREED_TIME_PER_10_HP);
+    final Item eaten = Item.withAmount(CARBS, success * 2);
     if (station.stocks.hasItem(eaten)) {
       station.stocks.removeItem(eaten);
     }
-    else inc /= 5;
-    
-    Item basis = station.stocks.matchFor(asStock);
+    else success /= 5;
+    //
+    //  Finally, adjust the specimen's progress and store the result:
+    //  TODO:  USE A SUMMONS HERE INSTEAD
+    Item basis = station.stocks.matchFor(asSample);
     if (basis == null) {
-      basis = Item.with(GENE_SEED, fauna, inc, 0);
+      basis = Item.withAmount(asSample, success);
       fauna.health.setupHealth(0, 1, 0);
-      station.stocks.addItem(basis);
     }
     if (basis.amount < 1) {
-      station.stocks.addItem(Item.withAmount(basis, inc));
+      station.stocks.addItem(Item.withAmount(basis, success));
       final float age = fauna.health.ageLevel();
-      fauna.health.setMaturity(age + (inc / 4));
+      fauna.health.setMaturity(age + (success / 4));
     }
-    
     if (report) {
-      I.say("  Stocked: "+basis.amount);
-      I.say("  Maturity: "+fauna.health.ageLevel());
-      I.say("  Release point: "+releasePoint);
+      I.say("  Growth increment: "+success);
+      I.say("  Stocked:          "+basis.amount);
+      I.say("  Maturity:         "+fauna.health.ageLevel());
+      I.say("  Release point:    "+releasePoint);
     }
     return true;
   }
   
   
   public boolean actionPickup(Actor actor, Venue station) {
-    final Item basis = station.stocks.matchFor(asStock);
+    final Item basis = station.stocks.matchFor(asSample);
     if (basis == null) return false;
     station.stocks.transfer(basis, actor);
     return true;
@@ -253,7 +282,7 @@ public class AnimalBreeding extends Plan {
   
   public boolean actionRelease(Actor actor, Boarding point) {
     final Stage world = actor.world();
-    actor.gear.removeMatch(asStock);
+    actor.gear.removeMatch(asSample);
     handled.enterWorldAt(point, world);
     
     if (point instanceof Venue) {
@@ -279,9 +308,14 @@ public class AnimalBreeding extends Plan {
   /**  Rendering and interface methods-
     */
   public void describeBehaviour(Description d) {
+    //  TODO:  Use stages here?
+    
     if (super.needsSuffix(d, "Breeding ")) {
       d.append(handled.species+" at ");
-      d.append(station);
+      
+      Target at = actor.actionFocus();
+      if (! (at instanceof Boarding)) at = station;
+      d.append(at);
     }
   }
 }
