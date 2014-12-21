@@ -95,7 +95,7 @@ public class Archives extends Venue {
     
     choice.add(stocks.nextManufacture(actor, PARTS_TO_DATALINKS));
     
-    if (choice.empty()) choice.add(new Supervision(actor, this));
+    if (choice.empty()) choice.add(Supervision.oversight(this, actor));
     return choice.weightedPick();
   }
   

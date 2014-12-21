@@ -3,15 +3,11 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.plans.Delivery;
-import stratos.game.plans.DeliveryUtils;
-import stratos.game.plans.Supervision;
+import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
@@ -22,9 +18,8 @@ import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.economic.Economy.*;
 
 
-
-
-//  TODO:  Restore the functions of this structure!
+//
+//  TODO:  Implement Bulk Storage and Credits Reserve upgrades.
 
 
 public class StockExchange extends Venue {
@@ -49,7 +44,11 @@ public class StockExchange extends Venue {
   );
   //*/
   
+  //  Todo:  Specialise only in food stocks and finished goods!
+  final static Traded ALL_STOCKED[] = Economy.ALL_MATERIALS;
+  
   private CargoBarge cargoBarge;
+  private float catalogueSums[] = new float[ALL_STOCKED.length];
   
   
   
@@ -66,14 +65,21 @@ public class StockExchange extends Venue {
   
   public StockExchange(Session s) throws Exception {
     super(s);
-    personnel.setShiftType(SHIFTS_ALWAYS);
     cargoBarge = (CargoBarge) s.loadObject();
+    
+    for (int i = ALL_STOCKED.length; i-- > 0;) {
+      catalogueSums[i] = s.loadFloat();
+    }
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     s.saveObject(cargoBarge);
+    
+    for (int i = ALL_STOCKED.length; i-- > 0;) {
+      s.saveFloat(catalogueSums[i]);
+    }
   }
   
   
@@ -97,62 +103,119 @@ public class StockExchange extends Venue {
   }
   
   
+  private float upgradeLevelFor(Traded type) {
+    final int category = Economy.categoryFor(type);
+    Upgrade upgrade = null;
+    switch (category) {
+      case (CATEGORY_FOOD ) : upgrade = RATIONS_STALL   ; break;
+      case (CATEGORY_DRUG ) : upgrade = MEDICAL_EXCHANGE; break;
+      case (CATEGORY_WARES) : upgrade = HARDWARE_STORE  ; break;
+      case (CATEGORY_SPYCE) : upgrade = SPYCE_EMPORIUM  ; break;
+    }
+    return upgrade == null ? -1 : (structure.upgradeLevel(upgrade) / 3f);
+  }
+  
+  
+  public boolean adjustCatalogue(Traded good, float inc) {
+    final int index = Visit.indexOf(good, ALL_STOCKED);
+    if (index == -1) return false;
+    float level = catalogueSums[index];
+    level = Nums.clamp(level + inc, 0, stocks.amountOf(good));
+    catalogueSums[index] = level;
+    return true;
+  }
+  
+  
+  public float catalogueLevel(Traded good) {
+    final int index = Visit.indexOf(good, ALL_STOCKED);
+    if (index == -1) return 0;
+    return catalogueSums[index] / stocks.amountOf(good);
+  }
+  
+  
+  public void afterTransaction(Item item, float amount) {
+    super.afterTransaction(item, amount);
+    final float level = catalogueLevel(item.type);
+    if (level <= 0 || amount >= 0) return;
+    
+    adjustCatalogue(item.type, 0 - Nums.abs(amount));
+    final float basePrice    = super.priceFor(item.type);
+    final float upgradeLevel = upgradeLevelFor(item.type);
+    stocks.incCredits(basePrice * DEFAULT_SALES_MARGIN * upgradeLevel);
+  }
+  
+  
+  public float priceFor(Traded service) {
+    final float basePrice    = super.priceFor(service);
+    final float upgradeLevel = upgradeLevelFor(service);
+    return basePrice * (1f - (DEFAULT_SALES_MARGIN * upgradeLevel / 2f));
+  }
+  
+  
+  public int spaceFor(Traded good) {
+    //  TODO:  Include bonuses for structure-upgrade level, and bulk storage.
+    final float upgradeLevel = upgradeLevelFor(good);
+    if (upgradeLevel <= 0) return 0;
+    return 10 + (int) (upgradeLevel * 15);
+  }
+  
+  
   
   /**  Upgrades, behaviour and economic functions-
     */
-  /*
-  final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-    StockExchange.class, "stock_exchange_upgrades"
-  );
+  final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> ();
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
+  
   final public static Upgrade
     
-    //  These two categories get space at the front of the building...
-    RATIONS_STOCK = new Upgrade(
-      "Rations Stock",
-      "Increases space available to carbs, greens, protein and soma, and "+
-      "augments profits from their sale.",
-      150, null, 1, null, ALL_UPGRADES
+    RATIONS_STALL = new Upgrade(
+      "Rations Stall",
+      "Increases space available to carbs, greens and protein and augments "+
+      "profits from their sale.",
+      150, null, 1, null,
+      StockExchange.class, ALL_UPGRADES
     ),
     
     MEDICAL_EXCHANGE = new Upgrade(
       "Medical Exchange",
-      "Increases space available to stim kits, soma, medicine and gene seed, "+
-      "and augments profits from their sale.",
-      250, null, 1, RATIONS_STOCK, ALL_UPGRADES
+      "Increases space available to reagents, soma and medicine, and augments"+
+      "profits from their sale.",
+      250, null, 1, RATIONS_STALL,
+      StockExchange.class, ALL_UPGRADES
     ),
     
-    //  ...and these two get space in the back.
-    HARDWARE_STOCK = new Upgrade(
-      "Hardware Stock",
-      "Increases space available to parts, plastics, circuitry and decor, and "+
+    HARDWARE_STORE = new Upgrade(
+      "Hardware Store",
+      "Increases space available to parts, plastics and datalinks, and "+
       "augments profits from their sale.",
-      150, null, 1, null, ALL_UPGRADES
+      150, null, 1, null,
+      StockExchange.class, ALL_UPGRADES
     ),
     
-    PROSPECT_EXCHANGE = new Upgrade(
-      "Prospect Exchange",
-      "Increases space available to metal ore, petrocarbs, fuel cores and "+
-      "rarities, and augments profits from their sale.",
-      250, null, 1, HARDWARE_STOCK, ALL_UPGRADES
+    BULK_STORAGE = new Upgrade(
+      "Bulk Storage",
+      "Expands inventory space for all goods and provides a measure of "+
+      "security against theft.",
+      200, null, 1, null,
+      StockExchange.class, ALL_UPGRADES
     ),
     
-    //  While these two don't show up visually at all...
-    VENDOR_STATION = new Upgrade(
-      "Vendor Station",
-      "Vendors are responsible for transport and presentation of both "+
-      "essential commodities and luxury goods.",
-      100, Backgrounds.STOCK_VENDOR, 1, null, ALL_UPGRADES
+    SPYCE_EMPORIUM = new Upgrade(
+      "Spyce Emporium",
+      "Permits trading in Natrizoral, Tinerazine, and Halebdynum- trace "+
+      "compounds vital to complex chemistry.",
+      300, null, 1, MEDICAL_EXCHANGE,
+      StockExchange.class, ALL_UPGRADES
     ),
     
     CREDITS_RESERVE = new Upgrade(
-      "Credits Reserve",
+      "Credits Adjustmemt",
       "Allows your subjects to deposit their hard-earned savings and take out "+
       "temporary loans, while investing a portion of profits to augment "+
       "revenue.",
-      400, null, 1, VENDOR_STATION, ALL_UPGRADES
+      400, null, 1, BULK_STORAGE,
+      StockExchange.class, ALL_UPGRADES
     );
-  //*/
   
   
   public int numOpenings(Background p) {
@@ -165,58 +228,38 @@ public class StockExchange extends Venue {
   public Behaviour jobFor(Actor actor) {
     if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
     final Choice choice = new Choice(actor);
-    cargoBarge.setHangar(this);  //Might not be needed anymore...
+    final Traded services[] = services();
+    
+    //  TODO:  Consider investment activities!
+    
     //
     //  See if there's a bulk delivery to be made-
     final Batch <Venue> depots = DeliveryUtils.nearbyDepots(
       this, world, StockExchange.class, FRSD.class
     );
-    final Traded services[] = services();
-    
-    /*
-    final Delivery bD = Deliveries.nextDeliveryFor(
-      actor, this, ALL_MATERIALS, depots, 50, world
-    );
-    //*/
-    //  TODO:  Supply the list of Depots.
     final Delivery bD = DeliveryUtils.bestBulkDeliveryFrom(
       this, services, 5, 50, depots
     );
     if (bD != null && personnel.assignedTo(bD) < 1) {
-      bD.setMotive(Plan.MOTIVE_DUTY, Plan.URGENT);
+      bD.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL);
       bD.driven = cargoBarge;
       choice.add(bD);
     }
-    
-    /*
-    final Delivery bC = Deliveries.nextCollectionFor(
-      actor, this, ALL_MATERIALS, depots, 50, null, world
-    );
-    //*/
     final Delivery bC = DeliveryUtils.bestBulkCollectionFor(
       this, services, 5, 50, depots
     );
     if (bC != null && personnel.assignedTo(bC) < 1) {
-      bC.setMotive(Plan.MOTIVE_DUTY, Plan.URGENT);
+      bC.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL);
       bC.driven = cargoBarge;
       choice.add(bC);
     }
-    
-    //  Otherwise, consider local deliveries and supervision of the venue-
-    /*
-    for (Traded good : services) {
-      final Delivery d = DeliveryUtils.bestDeliveryFrom(
-        this, good, 10, null, 5, true
-      );
-      if (d != null && personnel.assignedTo(d) < 1) choice.add(d);
-      final Delivery c = DeliveryUtils.bestCollectionFor(
-        this, good, 10, null, 5, true
-      );
-      if (c != null && personnel.assignedTo(c) < 1) choice.add(c);
+    //
+    //  Otherwise, consider regular, local deliveries and supervision.
+    if (choice.empty()) {
+      choice.add(DeliveryUtils.bestBulkDeliveryFrom (this, services, 1, 5, 5));
+      choice.add(DeliveryUtils.bestBulkCollectionFor(this, services, 1, 5, 5));
+      choice.add(Supervision.inventory(this, actor));
     }
-    //*/
-    
-    choice.add(new Supervision(actor, this));
     return choice.weightedPick();
   }
   
@@ -225,64 +268,18 @@ public class StockExchange extends Venue {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     
+    //  TODO:  Arrange for barges to be recovered if left unattended!
+    cargoBarge.setHangar(this);
+    
     final Batch <Venue> depots = DeliveryUtils.nearbyDepots(
       this, world, StockExchange.class, FRSD.class
     );
     for (Traded type : ALL_MATERIALS) {
-      final int demandBonus = 10;
-      stocks.incDemand(type, demandBonus, TIER_TRADER, 1, this);
+      final int room = spaceFor(type);
+      stocks.incDemand(type, room / 2f, TIER_TRADER, 1, this);
       stocks.diffuseDemand(type, depots, 1);
     }
   }
-  
-  
-  private void updateInvestments() {
-    //
-    //  TODO:  This will have to be based on the overall economic performance
-    //  of the larger setting.
-    
-    //  TODO:  Base this on the overall proportion of internal trade within the
-    //  settlement, and/or at this stock exchange.
-  }
-  
-  
-  public void afterTransaction(Item item, float amount) {
-    super.afterTransaction(item, amount);
-    //
-    //  TODO:  Invest a portion in the stock market...
-  }
-  
-  
-  public int spaceFor(Traded good) {
-    //  TODO:  Restore some subtlety here.
-    return 25;
-    /*
-    switch (upgradeForGood(good)) {
-      case (-1) : return 0 ;
-      case ( 0) : return 20;
-      case ( 1) : return 35;
-      case ( 2) : return 45;
-      case ( 3) : return 50;
-    }
-    return 0;
-    //*/
-  }
-  
-  
-  /*
-  private int upgradeForGood(Service type) {
-    /*
-    final Integer key = (Integer) FRSD.SERVICE_KEY.get(type);
-    final Upgrade KU;
-    if (key == null) return -1;
-    else if (key == FRSD.KEY_RATIONS ) KU = RATIONS_STOCK     ;
-    else if (key == FRSD.KEY_MINERALS) KU = PROSPECT_EXCHANGE ;
-    else if (key == FRSD.KEY_MEDICAL ) KU = MEDICAL_EXCHANGE  ;
-    else if (key == FRSD.KEY_BUILDING) KU = HARDWARE_STOCK    ;
-    else return -1;
-    return structure.upgradeLevel(KU);
-    //*/
-  //}
   
   
   public Background[] careers() {
@@ -291,13 +288,21 @@ public class StockExchange extends Venue {
   
   
   public Traded[] services() {
-    return ALL_MATERIALS;
+    return ALL_STOCKED;
   }
   
   
   
   /**  Rendering and interface methods-
     */
+  //  TODO:  Try merging these lists into a single array?
+  final static Traded DISPLAYED_GOODS[] = {
+    CARBS   , PROTEIN , GREENS   ,
+    REAGENTS, SOMA    , MEDICINE ,
+    PARTS   , PLASTICS, DATALINKS,
+    SPYCE_T , SPYCE_H , SPYCE_N  ,
+  };
+  //  TODO:  Include the full range of items:  Foods, Drugs, Wares, Spyce.
   final static float GOOD_DISPLAY_OFFSETS[] = {
     0, 0.5f,
     0, 1.5f,
@@ -314,14 +319,15 @@ public class StockExchange extends Venue {
   
   
   protected Traded[] goodsToShow() {
-    return ALL_MATERIALS;
+    return DISPLAYED_GOODS;
   }
   
   //
   //  TODO:  You have to show items in the back as well, behind a sprite
   //  overlay for the facade of the structure.
   protected float goodDisplayAmount(Traded good) {
-    return Nums.min(super.goodDisplayAmount(good), 25);
+    final float CL = catalogueLevel(good);
+    return Nums.min(super.goodDisplayAmount(good), 25 * CL);
   }
   
   

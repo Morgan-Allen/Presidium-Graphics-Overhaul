@@ -17,7 +17,16 @@ import static stratos.game.economic.Economy.*;
 
 
 
-//  TODO:  Allow this to work as a Survey Lodge.
+//  TODO:  Allow this to work as a Survey Lodge?
+
+//  Favoured Enemy:  (A Base, Artilects, Vermin, Predators.)
+//  Slayer Blade.    Survival Training.
+//  Native Mission.  Maw Training.
+//
+//
+//  High-impact melee assault.  Chameleonic mounts for speed and mobility.
+//  Plus emissaries to native tribes, and auxiliaries with kinetic rifles.
+
 
 
 public class KommandoLodge extends Venue {

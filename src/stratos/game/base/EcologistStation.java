@@ -22,6 +22,11 @@ import static stratos.game.economic.Economy.*;
 
 
 //  TODO:  Demand reagents to perform gene tailoring?
+  //
+  //  Cereal Culture.  Flora Culture.    Canopy Culture.
+  //  Symbiote Lab.    Hydroponics.      Field Hand Station.
+  //  Zeno Pharma.     Animal Breeding.  Survival Training.
+
 
 public class EcologistStation extends Venue {
   
@@ -80,12 +85,6 @@ public class EcologistStation extends Venue {
     */
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
   );
-  
-  //  Tree Farming.  Durwheat.  Oni Rice.  Tuber Lily.  Hive Grubs.
-  
-  //  TODO:  Re-evaluate these.  Name actual species.  Make it exciting!  And
-  //  allow for direct venue upgrades.
-  
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
     CEREAL_LAB = new Upgrade(
@@ -149,27 +148,33 @@ public class EcologistStation extends Venue {
   public Behaviour jobFor(Actor actor) {
     if (! structure.intact()) return null;
     final Choice choice = new Choice(actor);
-    
-    //  Forestry may have to be performed, depending on need for gene samples-
+    //
+    //  Consider collecting gene samples-
     final boolean needsSeed = stocks.amountOf(GENE_SEED) < 5;
-    if (needsSeed) choice.add(Forestry.nextSampling(actor, this));
-    else choice.add(Forestry.nextPlanting(actor, this));
-    
-    //  Tailor seed varieties
+    if (needsSeed) {
+      choice.add(Forestry.nextSampling(actor, this));
+    }
+    for (Target e : actor.senses.awareOf()) if (e instanceof Fauna) {
+      final Fauna f = (Fauna) e;
+      final Item sample = Item.withReference(GENE_SEED, f.species());
+      if (stocks.hasItem(sample)) continue;
+      else choice.add(Hunting.asSample(actor, f, this));
+    }
+    //
+    //  Tailor seed varieties and consider breeding animals-
     for (Species s : Crop.ALL_VARIETIES) {
       final SeedTailoring t = new SeedTailoring(actor, this, s);
       if (personnel.assignedTo(t) > 0) continue;
       choice.add(t);
     }
-    
+    choice.add(AnimalBreeding.nextBreeding(actor, this));
+    //
+    //  Otherwise, consider exploring the surrounds-
     final Exploring x = Exploring.nextExploration(actor);
     if (x != null) choice.add(x.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE));
-    
-    for (Target e : actor.senses.awareOf()) if (e instanceof Fauna) {
-      choice.add(Hunting.asSample(actor, (Fauna) e, this));
-    }
-    
-    if (choice.empty()) choice.add(new Supervision(actor, this));
+    //
+    //  Or, finally, fall back on supervising the venue...
+    if (choice.empty()) choice.add(Supervision.oversight(this, actor));
     return choice.weightedPick();
   }
   
@@ -181,13 +186,19 @@ public class EcologistStation extends Venue {
     //  Increment demand for gene seed, and decay current stocks-
     stocks.incDemand(GENE_SEED, 5, TIER_CONSUMER, 1, this);
     final float decay = 0.1f / Stage.STANDARD_DAY_LENGTH;
-    
     for (Item seed : stocks.matches(GENE_SEED)) {
       stocks.removeItem(Item.withAmount(seed, decay));
     }
     for (Item seed : stocks.matches(SAMPLES)) {
       stocks.removeItem(Item.withAmount(seed, decay));
     }
+    //
+    //  Demand supplies, if breeding is going on-
+    final int numBred = AnimalBreeding.breedingAt(this).size();
+    stocks.forceDemand(CARBS  , numBred * 2, TIER_CONSUMER);
+    stocks.forceDemand(PROTEIN, numBred * 1, TIER_CONSUMER);
+    //
+    //  An update ambience-
     structure.setAmbienceVal(2);
   }
   

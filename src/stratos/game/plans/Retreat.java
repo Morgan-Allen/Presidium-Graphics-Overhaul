@@ -81,9 +81,9 @@ public class Retreat extends Plan implements Qualities {
     //  Retreat becomes less attractive as you get closer to home and more
     //  exhausted.
     final Target haven = safePoint;
-    final float homeBonus = CombatUtils.homeDefenceBonus(actor, actor);
+    //final float homeBonus = CombatUtils.homeDefenceBonus(actor, actor);
     if (emergency) {
-      bonus += PARAMOUNT - homeBonus;
+      bonus += PARAMOUNT;// - homeBonus;
       bonus -= actor.health.fatigueLevel() * PARAMOUNT;
       maxDanger = Nums.max(danger, maxDanger);
     }

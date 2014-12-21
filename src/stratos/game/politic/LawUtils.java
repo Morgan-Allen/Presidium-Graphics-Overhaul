@@ -51,18 +51,12 @@ public class LawUtils {
   final static float SENTENCE_SEVERITIES[] = {
     1, 2, 3, 4
   };
-  
-  
   final static List <Crime> NO_CRIMES = new List <Crime> ();
-  /*
-  public static float severity(Crime crime) {
-    return OFFENCE_SEVERITIES[crime.ordinal()];
-  }
-  //*/
   
   
-  public static Crime crimeDoneBy(Actor actor, Base base) {
+  public static Crime crimeDoneBy(Actor actor, Actor arrests) {
     
+    if (actor.mind.work() == arrests.mind.work()) return null;
     final Behaviour
       root = actor.mind.rootBehaviour(),
       top  = actor.mind.topBehaviour ();
@@ -71,7 +65,7 @@ public class LawUtils {
     float harmRating = 0;
     if (victim != null){
       harmRating += actor.harmIntended(victim);
-      harmRating *= base.relations.relationWith(victim.base());
+      harmRating *= arrests.base().relations.relationWith(victim.base());
     }
     //
     //  Theft and assault are relatively easy to spot-
@@ -92,11 +86,6 @@ public class LawUtils {
     return null;
   }
 }
-
-
-
-
-
 
 
 

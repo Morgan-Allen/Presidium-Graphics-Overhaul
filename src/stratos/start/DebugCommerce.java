@@ -111,9 +111,9 @@ public class DebugCommerce extends Scenario {
     
     final SupplyCache cache = new SupplyCache();
     cache.enterWorldAt(15, 15, world);
-    cache.inventory().bumpItem(Economy.ARTWORKS, 10);
+    cache.inventory().bumpItem(Economy.DECOR, 10);
     
-    runnerMarket.stocks.bumpItem(Economy.ARTWORKS, 20);
+    runnerMarket.stocks.bumpItem(Economy.DECOR, 20);
     runnerMarket.stocks.bumpItem(Economy.ANTIMASS, 20);
     final Item moved[] = base.commerce.getBestCargo(
       runnerMarket.stocks, 5, false

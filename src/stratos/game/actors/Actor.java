@@ -289,15 +289,7 @@ public abstract class Actor extends Mobile implements
       mind.updateAI(numUpdates);
       relations.updateValues(numUpdates);
       mind.getNextAction();
-      
-      final float fatigue = Nums.clamp((health.fatigueLevel() + 1) / 2, 0, 1);
-      final Behaviour root = mind.rootBehaviour();
-      final float wakePriority = root == null ? 0 : root.priorityFor(this);
-      
-      if ((wakePriority * (1 - fatigue)) > (fatigue * Plan.ROUTINE)) {
-        if (report) I.say("  Waking actor up...");
-        health.setState(ActorHealth.STATE_ACTIVE);
-      }
+      Resting.checkForWaking(this);
     }
     //
     //  Update the intel/danger maps associated with the world's bases.

@@ -46,7 +46,9 @@ public class FRSD extends Venue {
     SERVICE_TRADE
   );
   //*/
-
+  
+  //  TODO:  Specialise in all raw materials and only a few finished goods.
+  
   final static Traded ALL_TRADE_TYPES[] = {
     CARBS, PROTEIN, GREENS, LCHC,
     ORES, TOPES, PARTS, PLASTICS
@@ -151,7 +153,7 @@ public class FRSD extends Venue {
     );
     if (c != null && personnel.assignedTo(c) < 1) choice.add(c);
     
-    if (choice.empty()) choice.add(new Supervision(actor, this));
+    if (choice.empty()) choice.add(Supervision.oversight(this, actor));
     return choice.weightedPick();
   }
   

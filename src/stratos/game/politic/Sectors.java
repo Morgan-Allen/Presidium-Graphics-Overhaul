@@ -74,7 +74,7 @@ public interface Sectors extends Backgrounds {
       "expertise in ecology and botanical science, together with polyamorous "+
       "traditions and luxury exports.",
       null, 0, 1, DESERT_BLOOD, MILD_GRAVITY,
-      Sector.MAKES, SOMA, PLASTICS, ARTWORKS, TINER_SPYCE,
+      Sector.MAKES, SOMA, PLASTICS, DECOR, SPYCE_T,
       Sector.NEEDS, OPEN_WATER, SERVICE_ENTERTAIN, DATALINKS,
       FREE_BIRTH,
       NOVICE, CULTIVATION, CHEMISTRY,
@@ -87,7 +87,7 @@ public interface Sectors extends Backgrounds {
       "cults and revered arcane relics.",
       null, 1, 1, WASTES_BLOOD, NORMAL_GRAVITY,
       Sector.MAKES, PARTS, ANTIMASS, DATALINKS,
-      Sector.NEEDS, ARTWORKS, SERVICE_REPAIRS, REPLICANTS,
+      Sector.NEEDS, DECOR, SERVICE_REPAIRS, REPLICANTS,
       DREGS_BIRTH, PYON_BIRTH,
       NOVICE, ASSEMBLY, ANCIENT_LORE,
       OFTEN, ARTIFICER_CIRCLES, SOMETIMES, COURT_CIRCLES,

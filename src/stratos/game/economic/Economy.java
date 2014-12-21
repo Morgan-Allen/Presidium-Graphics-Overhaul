@@ -1,4 +1,4 @@
-/**  
+  /**  
   *  Written by Morgan Allen.
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
@@ -7,6 +7,7 @@ package stratos.game.economic;
 import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.graphics.common.*;
+import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 
 
@@ -33,13 +34,35 @@ public final class Economy {
     DEFAULT_SMUGGLE_MARGIN = 1.0f;
   final public static int
     TIER_NONE     = -2,  //
-    TIER_IMPORTER = -1,
-    TIER_PRODUCER =  0,  //never deliver to a producer.
-    TIER_TRADER   =  1,  //deliver to/from based on relative shortage.
-    TIER_CONSUMER =  2,  //never deliver from a consumer.
-    TIER_EXPORTER =  3;
+    TIER_IMPORTER = -1,  //
+    TIER_PRODUCER =  0,  //  never deliver to a producer.
+    TIER_TRADER   =  1,  //  deliver to/from based on relative shortage.
+    TIER_CONSUMER =  2,  //  never deliver from a consumer.
+    TIER_EXPORTER =  3;  //
   final public static float
     ITEM_WEAR_DURATION = 100;
+  
+
+  
+  final static Table <Traded, Integer> CATEGORY_TABLE, CT;
+  static { CATEGORY_TABLE = CT = new Table <Traded, Integer> (); }
+  final public static int
+    CATEGORY_OTHER    = -1,
+    CATEGORY_FOOD     =  0,
+    CATEGORY_SPYCE    =  1,
+    CATEGORY_DRUG     =  2,
+    CATEGORY_MINERAL  =  3,
+    CATEGORY_WARES    =  4,
+    CATEGORY_SECURED  =  5;  //  TODO:  Merge with the Forms above?
+  private static Traded[] label(int ID, Traded... members) {
+    for (Traded t : members) CT.put(t, ID);
+    return members;
+  }
+  public static int categoryFor(Traded service) {
+    final Integer i = CT.get(service);
+    return i == null ? CATEGORY_OTHER : i;
+  }
+  
   
   final public static Traded
     MINERALS   = new Traded(BC, "Minerals"  , null, FORM_RESOURCE, 0),
@@ -63,19 +86,21 @@ public final class Economy {
       BC, "Protein"  , "protein.gif"  , FORM_MATERIAL, 55,
       "Game meat and cultured yeast foodstuffs"
     ),
+    ALL_FOOD_TYPES[] = label(CATEGORY_FOOD, CARBS, GREENS, PROTEIN),
     
-    TINER_SPYCE = new Traded(
-      BC, "Tiner Spyce", "spyce.gif"  , FORM_MATERIAL, 200,
+    SPYCE_T = new Traded(
+      BC, "Spyce T", "spyce.gif"  , FORM_MATERIAL, 200,
       "Tinerazine, a spyce compound found in animal galls"
     ),
-    HALEB_SPYCE = new Traded(
-      BC, "Haleb Spyce", "spyce.gif"  , FORM_MATERIAL, 200,
+    SPYCE_H = new Traded(
+      BC, "Spyce H", "spyce.gif"  , FORM_MATERIAL, 200,
       "Halebdynum, a spyce compound found as a dessicated salt"
     ),
-    NATRI_SPYCE = new Traded(
-      BC, "Natri Spyce", "spyce.gif"  , FORM_MATERIAL, 200,
+    SPYCE_N = new Traded(
+      BC, "Spyce N", "spyce.gif"  , FORM_MATERIAL, 200,
       "Natrizoral, a spyce compound found in plant oils"
     ),
+    ALL_SPYCE_TYPES[] = label(CATEGORY_SPYCE, SPYCE_T, SPYCE_H, SPYCE_N),
     
     SOMA = new Traded(
       BC, "Soma"     , "soma.gif"     , FORM_MATERIAL, 40,
@@ -89,6 +114,7 @@ public final class Economy {
       BC, "Medicine" , "medicines.gif", FORM_MATERIAL, 120,
       "Drugs and supplements tailored to treat common diseases"
     ),
+    ALL_DRUG_TYPES[] = label(CATEGORY_DRUG, SOMA, REAGENTS, MEDICINE),
     
     LCHC = new Traded(
       BC, "LCHC"     , "carbons.gif"  , FORM_MATERIAL, 10,
@@ -102,7 +128,8 @@ public final class Economy {
       BC, "Topes"    , "isotopes.gif" , FORM_MATERIAL, 55,
       "Heavy isotopes, often toxic, used in nuclear synthesis"
     ),
-
+    ALL_MINERAL_TYPES[] = label(CATEGORY_MINERAL, LCHC, ORES, TOPES),
+    
     PLASTICS = new Traded(
       BC, "Plastics" , "plastics.gif" , FORM_MATERIAL, 25,
       "Flexible and light-weight, used for cloth and home fittings"
@@ -111,28 +138,31 @@ public final class Economy {
       BC, "Parts"    , "parts.gif"    , FORM_MATERIAL, 40,
       "Durable and heat-resistant, needed for heavy engineering"
     ),
+    DATALINKS = new Traded(
+      BC, "Datalinks", "datalinks.gif", FORM_MATERIAL, 125,
+      "Encrypted information relays suited to advanced study"
+    ),
+    ALL_WARES_TYPES[] = label(CATEGORY_WARES, PLASTICS, PARTS, DATALINKS),
+    
     ANTIMASS = new Traded(
-      BC, "Antimass", "fuel_rods.gif", FORM_MATERIAL, 85,
+      BC, "Antimass", "fuel_rods.gif" , FORM_MATERIAL, 85,
       "A potent energy source needed for atomics and space travel"
     ),
-    
     PRESSFEED = new Traded(
       BC, "Pressfeed", "pressfeed.gif", FORM_MATERIAL, 50,
       "Disposable propaganda used to raise morale"
     ),
-    ARTWORKS = new Traded(
-      BC, "Artworks" , "decor.gif"    , FORM_MATERIAL, 250,
+    DECOR = new Traded(
+      BC, "Decor"    , "decor.gif"    , FORM_MATERIAL, 250,
       "Interior decoration for the homes of the upper crust"
     ),
-    DATALINKS = new Traded(
-      BC, "Datalinks", "datalinks.gif", FORM_MATERIAL, 125,
-      "Encrypted information relays suited to advanced study"
-    );
+    ALL_SECURED_TYPES[] = label(CATEGORY_SECURED, ANTIMASS, PRESSFEED, DECOR);
+  
   
   final public static Traded
-    ALL_FOOD_TYPES[] = { CARBS, GREENS, PROTEIN },
     ALL_MATERIALS [] = Traded.INDEX.soFar(Traded.class);
   
+  //  TODO:  Move these up a bit?  The distinction isn't that clear anymore...
   final public static Traded
     SAMPLES = new Traded(
       BC, "Samples"    , null, FORM_SPECIAL, 0
@@ -388,7 +418,7 @@ public final class Economy {
     ),
     
     PLASTICS_TO_DECOR = new Conversion(
-      Fabricator.class, 2, PLASTICS, TO, 1, ARTWORKS,
+      Fabricator.class, 2, PLASTICS, TO, 1, DECOR,
       STRENUOUS_DC, GRAPHIC_DESIGN, MODERATE_DC, HANDICRAFTS
     ),
     
@@ -428,11 +458,11 @@ public final class Economy {
       ROUTINE_DC, PHARMACY, ROUTINE_DC, CHEMISTRY
     ),
     CARBS_TO_NATRI_SPYCE = new Conversion(
-      CultureLab.class, 2, CARBS, 5, REAGENTS, TO, 1, NATRI_SPYCE,
+      CultureLab.class, 2, CARBS, 5, REAGENTS, TO, 1, SPYCE_N,
       DIFFICULT_DC, PHARMACY, DIFFICULT_DC, CHEMISTRY
     ),
     PROTEIN_TO_TINER_SPYCE = new Conversion(
-      CultureLab.class, 2, PROTEIN, 5, REAGENTS, TO, 1, TINER_SPYCE,
+      CultureLab.class, 2, PROTEIN, 5, REAGENTS, TO, 1, SPYCE_T,
       DIFFICULT_DC, PHARMACY, DIFFICULT_DC, CHEMISTRY
     ),
     

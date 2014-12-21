@@ -597,7 +597,7 @@ public class Structure {
   
   
   public int upgradeLevel(Upgrade type) {
-    if (upgrades == null) return 0;
+    if (upgrades == null || type == null) return 0;
     int num = 0;
     for (int i = 0; i < upgrades.length; i++) {
       if (upgrades[i] == type && upgradeStates[i] == STATE_INTACT) num++;

@@ -321,14 +321,14 @@ public class Combat extends Plan implements Qualities {
     Actor actor, Actor target,
     Skill offence, Skill defence,
     int strikeType
-    //boolean subdue
   ) {
     final boolean report = damageVerbose && I.talkAbout == actor;
     if (report) I.say("\n"+actor+" performing strike against "+target);
     
     final boolean
       subdue = strikeType == OBJECT_SUBDUE ,
-      lethal = strikeType == OBJECT_DESTROY;
+      lethal = strikeType == OBJECT_DESTROY,
+      showFX = ! (actor.indoors() && target.aboard() == actor.aboard());
     
     //  TODO:  Move weapon/armour properties to dedicated subclasses.
     final boolean canStun = actor.gear.hasDeviceProperty(Economy.STUN);
@@ -362,7 +362,7 @@ public class Combat extends Plan implements Qualities {
         I.say("  Armour absorbs: "+armourSoak  );
         I.say("  Final total:    "+afterArmour );
       }
-      if (damage != afterArmour) {
+      if (damage != afterArmour && showFX) {
         final boolean hit = damage > 0;
         CombatFX.applyShieldFX(target.gear.outfitType(), target, actor, hit);
       }
@@ -385,6 +385,7 @@ public class Combat extends Plan implements Qualities {
       if (fatDamage > 0) target.health.takeFatigue(fatDamage        );
     }
     
+    if (! showFX) return;
     CombatFX.applyFX(actor.gear.deviceType(), actor, target, success);
   }
   

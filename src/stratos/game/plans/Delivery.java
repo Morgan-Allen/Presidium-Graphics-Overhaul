@@ -191,6 +191,12 @@ public class Delivery extends Plan {
   }
   
   
+  private boolean manned(Owner o) {
+    if (o instanceof Property) return ((Property) o).isManned();
+    return false;
+  }
+  
+  
   
   
   /**  Assessing targets and priorities-
@@ -203,6 +209,8 @@ public class Delivery extends Plan {
     if (shouldPay != destination) base = CASUAL;
     
     if (shops && stage <= STAGE_PICKUP) {
+      if (! manned(origin)) return 0;
+      
       int price = 0;
       for (Item i : items) {
         price += i.priceAt(origin);

@@ -35,12 +35,10 @@ public class Audit extends Plan {
   private static boolean verbose = false;
   
   
-  private Type  type;
-  private int   stage = STAGE_EVAL;
+  private Type type;
+  private int stage = STAGE_EVAL;
   private Property audited;
-  public  int   checkBonus = 0;
-  
-  //  TODO:  Include Expenses, Wages, Income, Embezzled, and Balance- and record as such.
+  public int checkBonus = 0;
   private float
     expenses ,
     income   ,

@@ -107,7 +107,7 @@ public class DebugMissions extends Scenario {
   
   
   private void contactScenario(Stage world, Base base, BaseUI UI) {
-    final Base natives = Base.baseWithName(world, Base.KEY_NATIVES, true);
+    final Base natives = Base.natives(world);
     natives.relations.setRelation(base, -0.25f, true);
     
     final NativeHut hut = NativeHut.newHall(1, natives);
@@ -138,7 +138,7 @@ public class DebugMissions extends Scenario {
   
   
   private void securityScenario(Stage world, Base base, BaseUI UI) {
-    final Base artilects = Base.baseWithName(world, Base.KEY_ARTILECTS, true);
+    final Base artilects = Base.artilects(world);
     
     final Actor robot = Species.SPECIES_TRIPOD.newSpecimen(artilects);
     robot.enterWorldAt(32, 32, world);
@@ -169,7 +169,7 @@ public class DebugMissions extends Scenario {
   
   
   private void strikeScenario(Stage world, Base base, BaseUI UI) {
-    final Base artilects = Base.baseWithName(world, Base.KEY_ARTILECTS, true);
+    final Base artilects = Base.artilects(world);
     base.relations.setRelation(artilects, -1, true);
     
     final Batch <Ruins> ruins = Ruins.placeRuins(world, 1);

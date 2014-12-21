@@ -305,7 +305,7 @@ public class Senses implements Qualities {
         if (CombatUtils.isActiveHostile(actor, near)) {
           emergency = true;
           hostility += 1;
-          if (near.planFocus(Combat.class) == actor) power *= 2;
+          power *= 2;
         }
         final float foeRating = power * hostility;
         sumFoes += foeRating;

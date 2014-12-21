@@ -86,11 +86,9 @@ public class EnforcerBloc extends Venue {
       choice.add(Sentencing.nextTrialFor(actor, this));
     }
     if (actor.vocation() == Backgrounds.ENFORCER) {
-      //  TODO:  Include arrests!
+      choice.add(Arrest.nextOfficialArrest(this, actor));
       choice.add(Patrolling.nextGuardPatrol(actor, this, Plan.ROUTINE));
     }
-    
-    //  TODO:  You also need to ensure rations deliveries for any prisoners.
     return choice.weightedPick();
   }
   
@@ -105,6 +103,10 @@ public class EnforcerBloc extends Venue {
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
+    
+    final int prisoners = Summons.numSummoned(this);
+    stocks.forceDemand(CARBS  , prisoners, TIER_CONSUMER);
+    stocks.forceDemand(PROTEIN, prisoners, TIER_CONSUMER);
   }
   
   

@@ -214,7 +214,7 @@ public abstract class Species implements Session.Saveable {
     BLUE_VALVES = new Species("Blue Valves", Type.FLORA, 1, PROTEIN) {},
     CLAN_BORE   = new Species("Clan Bore"  , Type.FLORA, 1, PROTEIN) {},
     
-    GORG_APHID  = new Species("Gorg Aphid" , Type.FLORA, 1, TINER_SPYCE  ) {},
+    GORG_APHID  = new Species("Gorg Aphid" , Type.FLORA, 1, SPYCE_T  ) {},
     
     PIONEERS    = new Species("Pioneers"   , Type.FLORA) {},
     TIMBER      = new Species("Timber"     , Type.FLORA) {},

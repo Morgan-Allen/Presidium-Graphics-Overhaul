@@ -27,7 +27,7 @@ public class Base implements
     KEY_ARTILECTS = "Artilects",
     KEY_WILDLIFE  = "Wildlife" ,
     KEY_NATIVES   = "Natives"  ,
-    KEY_FREEHOLD  = "Freehold";
+    KEY_FREEHOLD  = "Freehold" ;
   
   
   final public Stage   world ;
@@ -71,6 +71,21 @@ public class Base implements
     if (primal) base.colour.set(Colour.LIGHT_GREY);
     
     return base;
+  }
+  
+  
+  public static Base wildlife(Stage world) {
+    return baseWithName(world, KEY_WILDLIFE, true);
+  }
+  
+  
+  public static Base artilects(Stage world) {
+    return baseWithName(world, KEY_ARTILECTS, true);
+  }
+  
+  
+  public static Base natives(Stage world) {
+    return baseWithName(world, KEY_NATIVES, true);
   }
   
   

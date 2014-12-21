@@ -223,6 +223,15 @@ public class Summons extends Plan {
   }
   
   
+  public static int numSummoned(Property p) {
+    int count = 0;
+    for (Actor a : p.personnel().visitors()) {
+      if (a.isDoing(Summons.class, p)) count++;
+    }
+    return count;
+  }
+  
+  
   public static boolean canSummon(Target t, Base base) {
     final Actor ruler = base.ruler();
     

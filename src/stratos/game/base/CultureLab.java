@@ -206,7 +206,7 @@ public class CultureLab extends Venue {
 
   public Traded[] services() {
     return new Traded[] {
-      CARBS, PROTEIN, SOMA, REAGENTS, HALEB_SPYCE, NATRI_SPYCE
+      CARBS, PROTEIN, SOMA, REAGENTS, SPYCE_H, SPYCE_N
     };
   }
   

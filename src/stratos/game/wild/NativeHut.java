@@ -204,7 +204,7 @@ public class NativeHut extends Venue {
   public static Batch <NativeHut> establishSites(
     final int tribeID, final Stage world
   ) {
-    final Base natives = Base.baseWithName(world, Base.KEY_NATIVES, true);
+    final Base natives = Base.natives(world);
     final int res = Stage.SECTOR_SIZE / 2;
     final Batch <NativeHut> placed = new Batch <NativeHut> ();
     

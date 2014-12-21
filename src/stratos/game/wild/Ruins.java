@@ -81,7 +81,7 @@ public class Ruins extends Venue {
     
     final Presences presences = world.presences;
     final Batch <Ruins> placed = new Batch <Ruins> ();
-    final Base artilects = Base.baseWithName(world, Base.KEY_ARTILECTS, true);
+    final Base artilects = Base.artilects(world);
     
     final SitingPass siting = new SitingPass() {
       int numSited = 0;

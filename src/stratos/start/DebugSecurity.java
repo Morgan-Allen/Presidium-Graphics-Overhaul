@@ -17,6 +17,14 @@ import stratos.util.*;
 
 
 
+//  TODO:  Make sure that Dialogue/chatting still works.
+//         Retreat should have the possibility to break pursuit as well.
+//         Indoor combats should lack SFX!  (And seem to take way too long.)
+
+//  TODO:  However, the SFX being shown might be a clue to sprites-flickering
+//         in odd locations.  Consider studying it for that reason.
+
+
 public class DebugSecurity extends Scenario {
   
   
@@ -73,18 +81,34 @@ public class DebugSecurity extends Scenario {
   
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.setDefaults();
-    GameSettings.hireFree  = false;
+    GameSettings.hireFree  = true;
     GameSettings.buildFree = true;
     GameSettings.fogFree   = true;
     GameSettings.paveFree  = true;
     GameSettings.noChat    = true;
     
-    if (true) arrestScenario(world, base, UI);
+    if (true ) breedingScenario(world, base, UI);
+    if (false) arrestScenario  (world, base, UI);
   }
   
   
-  //  TODO:  You need to make sure this works with unconscious subjects!
-  //         (Also, the initial summons priority is too high.)
+  private void breedingScenario(Stage world, Base base, BaseUI UI) {
+    
+    final Actor ecologist = new Human(Backgrounds.ECOLOGIST, base);
+    final Venue station = new EcologistStation(base);
+    Placement.establishVenue(station, 10, 10, true, world, ecologist);
+    
+    station.stocks.bumpItem(Economy.CARBS  , 5);
+    station.stocks.bumpItem(Economy.PROTEIN, 5);
+    
+    final Plan breeding = AnimalBreeding.breedingFor(
+      ecologist, station, Species.HAREEN, world.tileAt(25, 25)
+    );
+    breeding.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL);
+    ecologist.mind.assignBehaviour(breeding);
+    UI.selection.pushSelection(ecologist, true);
+  }
+  
   
   private void arrestScenario(Stage world, Base base, BaseUI UI) {
     final Actor runner = new Human(Backgrounds.RUNNER_SILVERFISH, base);

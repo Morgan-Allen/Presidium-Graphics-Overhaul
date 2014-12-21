@@ -125,7 +125,7 @@ public class Fabricator extends Venue {
     
     for (Manufacture o : stocks.specialOrders()) {
       final Traded type = o.made().type;
-      if (type == ARTWORKS || type == FINERY) {
+      if (type == DECOR || type == FINERY) {
         o.setBonusFrom(this, true, FINERY_FLOOR);
       }
       else if (type == STEALTH_SUIT || type == SEALSUIT) {
@@ -137,7 +137,7 @@ public class Fabricator extends Venue {
       choice.add(o);
     }
     
-    if (choice.empty()) choice.add(new Supervision(actor, this));
+    if (choice.empty()) choice.add(Supervision.oversight(this, actor));
     return choice.weightedPick();
   }
   
@@ -161,7 +161,7 @@ public class Fabricator extends Venue {
   
   public Traded[] services() {
     return new Traded[] {
-      PLASTICS, OVERALLS, SEALSUIT, STEALTH_SUIT, ARTWORKS, FINERY
+      PLASTICS, OVERALLS, SEALSUIT, STEALTH_SUIT, DECOR, FINERY
     };
   }
   
@@ -175,7 +175,7 @@ public class Fabricator extends Venue {
   /**  Rendering and interface methods-
     */
   protected Traded[] goodsToShow() {
-    return new Traded[] { CARBS, LCHC, ARTWORKS, PLASTICS };
+    return new Traded[] { CARBS, LCHC, DECOR, PLASTICS };
   }
   
   

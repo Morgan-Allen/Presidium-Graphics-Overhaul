@@ -162,7 +162,7 @@ public class DeliveryUtils {
       final Batch <Item> excess = new Batch <Item> ();
       for (Item i : origin.inventory().allItems()) {
         if (i.type.form != Economy.FORM_MATERIAL) continue;
-        if (origin.inventory().demandFor(i.type) > 0) continue;
+        if (origin.inventory().demandTier(i.type) != TIER_NONE) continue;
         if (report) I.say("  Excess item: "+i);
         excess.add(i);
       }

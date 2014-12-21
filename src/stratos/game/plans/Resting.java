@@ -68,6 +68,23 @@ public class Resting extends Plan {
   
   
   
+  public static void checkForWaking(Actor actor) {
+    final boolean report = verbose && I.talkAbout == actor;
+    
+    final float fatigue = Nums.clamp(actor.health.fatigueLevel() + 0.25f, 0, 1);
+    final Behaviour root = actor.mind.rootBehaviour();
+    float wakePriority = root == null ? 0 : root.priorityFor(actor);
+    wakePriority += CASUAL * actor.traits.relativeLevel(ENERGETIC);
+    
+    if (wakePriority <= 0) return;
+    if ((wakePriority * (1 - fatigue)) > (fatigue * ROUTINE)) {
+      if (report) I.say("\nWaking actor up...");
+      actor.health.setState(ActorHealth.STATE_ACTIVE);
+    }
+  }
+  
+  
+  
   /**  Behaviour implementation-
     */
   final static Trait BASE_TRAITS[] = { RELAXED, INDULGENT };

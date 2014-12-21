@@ -176,7 +176,7 @@ public class PhysicianStation extends Venue {
     }
     
     //  Otherwise, just tend the desk.
-    if (choice.empty()) choice.add(new Supervision(actor, this));
+    if (choice.empty()) choice.add(Supervision.oversight(this, actor));
     return choice.pickMostUrgent();
   }
   

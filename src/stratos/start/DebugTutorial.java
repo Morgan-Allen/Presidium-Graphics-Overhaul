@@ -1,4 +1,5 @@
 
+
 package stratos.start;
 import stratos.game.common.*;
 import stratos.game.politic.*;
@@ -9,8 +10,7 @@ import stratos.user.*;
 import stratos.util.*;
 
 
-
-//  TODO:  Just figger out the enforcer bloc and animal-breeding now.
+//  TODO:  Just figger out animal-breeding now- plus the arcology and stockX.
 
 //  Assign drills directly at the trooper lodge.  That'll keep 'em busy!
 
@@ -22,7 +22,7 @@ import stratos.util.*;
 
 //  TODO:  Introduce hunting by the natives, and allow trading with them as a
 //  source of carbs/greens/protein.  (Also, add singer performance?)  ...Just
-//  make them less static/idle, I guess.  And try to restore animal breeding.
+//  make them less static/idle, I guess.
 
 //  Introduce a finance-report UI!  And try to get all the details.
 //  Try to arrange that actors will seek out new Holdings if anything existing

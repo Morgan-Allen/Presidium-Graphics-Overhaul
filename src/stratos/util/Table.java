@@ -69,6 +69,12 @@ public class Table <K, V> extends java.util.HashMap <K, V> {
   }
   
   
+  public static Object applyValue(Table t, Object value, Object... keys) {
+    for (Object key : keys) t.put(key, value);
+    return value;
+  }
+  
+  
   
   /**  Testing-
     */

@@ -136,7 +136,7 @@ public class Cantina extends Venue {
       );
       //*/
       if (d != null) return d;
-      return new Supervision(actor, this);
+      return Supervision.oversight(this, actor);
     }
     if (actor.vocation() == Backgrounds.PERFORMER) {
       final Performance p = new Performance(

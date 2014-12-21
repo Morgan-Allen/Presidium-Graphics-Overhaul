@@ -163,14 +163,14 @@ public class Bastion extends Venue {
     if (! structure.intact()) return null;
     
     if (actor == base().ruler()) {
-      final Supervision s = new Supervision(actor, this);
+      final Supervision s = Supervision.oversight(this, actor);
       return s;
     }
     
     //  TODO:  Apply to all advisors!
     final Background v = actor.vocation();
     if (v == Backgrounds.STEWARD || v == Backgrounds.FIRST_CONSORT) {
-      return new Supervision(actor, this);
+      return Supervision.oversight(this, actor);
     }
     
     if (! personnel.onShift(actor)) return null;
@@ -184,7 +184,7 @@ public class Bastion extends Venue {
     if (v == Backgrounds.AUDITOR || v == Backgrounds.MINISTER_FOR_ACCOUNTS) {
       return Audit.nextOfficialAudit(actor);
     }
-    return new Supervision(actor, this);
+    return Supervision.oversight(this, actor);
   }
   
   

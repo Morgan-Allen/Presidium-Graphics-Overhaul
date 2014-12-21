@@ -72,6 +72,26 @@ public class Arrest extends Plan {
   }
   
   
+  public static Arrest nextOfficialArrest(Venue venue, Actor actor) {
+    
+    final Stage world = venue.world();
+    final Pick <Arrest> pick = new Pick <Arrest> ();
+    final Batch <Mobile> suspects = new Batch <Mobile> ();
+    
+    world.presences.sampleFromMaps(venue, world, 5, suspects, Mobile.class);
+    
+    for (Mobile m : suspects) if (m instanceof Actor) {
+      final Actor suspect = (Actor) m;
+      final Summons sentence = venue.base().profiles.sentenceFor(suspect);
+      if (sentence != null) {
+        final Arrest a = new Arrest(actor, suspect, sentence);
+        pick.compare(a, a.priorityFor(actor));
+      }
+    }
+    return pick.result();
+  }
+  
+  
   
   /**  Various utility methods for decision-making:
     */
@@ -80,7 +100,7 @@ public class Arrest extends Plan {
     if (stage != STAGE_INIT) return true;
     if (actor.base() == null) I.complain(actor+" HAS NO BASE!");
     
-    observed = LawUtils.crimeDoneBy((Actor) subject, actor.base());
+    observed = LawUtils.crimeDoneBy((Actor) subject, actor);
     if (sentence == null && observed == null) {
       stage = STAGE_DONE; return false;
     }
@@ -243,6 +263,7 @@ public class Arrest extends Plan {
     }
     
     if (stage == STAGE_REPORT) {
+      if (observed == null) return null;
       final Action reports = new Action(
         actor, holding,
         this, "actionFileReport",
@@ -328,10 +349,17 @@ public class Arrest extends Plan {
     */
   public void describeBehaviour(Description d) {
     if (stage == STAGE_WARN) {
-      d.append("Warning ");
-      d.append(subject);
-      d.append(" against ");
-      d.append(observed.name());
+      if (observed == null) {
+        d.append("Ordering ");
+        d.append(subject);
+        d.append(" to surrender");
+      }
+      else {
+        d.append("Warning ");
+        d.append(subject);
+        d.append(" against ");
+        d.append(observed.description());
+      }
     }
     if (stage == STAGE_CHASE || stage == STAGE_ESCORT) {
       d.append("Arresting ");
@@ -339,7 +367,7 @@ public class Arrest extends Plan {
     }
     if (stage >= STAGE_REPORT) {
       d.append("Filing a report of ");
-      d.append(observed.name());
+      d.append(observed.description());
       d.append(" against ");
       d.append(subject);
     }

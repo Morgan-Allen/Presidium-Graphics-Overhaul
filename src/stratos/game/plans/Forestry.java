@@ -28,8 +28,8 @@ public class Forestry extends Plan {
     STAGE_RETURN   =  4,
     STAGE_DONE     =  5;
   private static boolean
-    evalVerbose   = false,
-    eventsVerbose = true ;
+    evalVerbose  = false,
+    stepsVerbose = false;
   
   
   final Venue nursery;
@@ -167,7 +167,7 @@ public class Forestry extends Plan {
   
   public Behaviour getNextStep() {
     if (! configured()) return null;
-    final boolean report = eventsVerbose && I.talkAbout == actor;
+    final boolean report = stepsVerbose && I.talkAbout == actor;
     if (report) I.say("\nGetting next forestry step...");
     
     if (stage == STAGE_GET_SEED) {
@@ -249,7 +249,7 @@ public class Forestry extends Plan {
   
   
   public boolean actionPlant(Actor actor, Tile beside) {
-    final boolean report = eventsVerbose && I.talkAbout == actor;
+    final boolean report = stepsVerbose && I.talkAbout == actor;
     if (report) I.say("\nPLANTING AT "+toPlant+", from: "+actor.origin());
     
     if (! Flora.canGrowAt(toPlant)) {
@@ -291,7 +291,7 @@ public class Forestry extends Plan {
     final int growStage = cut.growStage();
     actor.gear.bumpItem(LCHC, growStage);
     actor.gear.bumpItem(GREENS, growStage * Rand.num() / Flora.MAX_GROWTH);
-    if (Rand.num() < 0.1f * growStage) actor.gear.bumpItem(NATRI_SPYCE, 1);
+    if (Rand.num() < 0.1f * growStage) actor.gear.bumpItem(SPYCE_N, 1);
     
     stage = STAGE_RETURN;
     return true;
@@ -308,7 +308,7 @@ public class Forestry extends Plan {
   
   
   public boolean actionReturnHarvest(Actor actor, Venue depot) {
-    if (eventsVerbose) I.say("RETURNING SAMPLES TO "+depot);
+    if (stepsVerbose) I.say("RETURNING SAMPLES TO "+depot);
     
     for (Item seed : actor.gear.matches(seedMatch())) {
       actor.gear.transfer(seed, depot);
@@ -316,7 +316,7 @@ public class Forestry extends Plan {
     actor.gear.transfer(GENE_SEED  , depot);
     actor.gear.transfer(LCHC       , depot);
     actor.gear.transfer(GREENS     , depot);
-    actor.gear.transfer(NATRI_SPYCE, depot);
+    actor.gear.transfer(SPYCE_N, depot);
     
     stage = STAGE_DONE;
     return true;

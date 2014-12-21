@@ -194,17 +194,7 @@ public class RunnerLodge extends Venue {
     }
     //
     //  You also need to perform enforcement duties in the neighbourhood:
-    final Batch <Mobile> suspects = new Batch <Mobile> ();
-    world.presences.sampleFromMaps(this, world, 5, suspects, Mobile.class);
-    
-    for (Mobile m : suspects) if (m instanceof Actor) {
-      final Actor suspect = (Actor) m;
-      final Summons sentence = base.profiles.sentenceFor(suspect);
-      if (sentence != null) {
-        final Arrest a = new Arrest(actor, suspect, sentence);
-        choice.add(a);
-      }
-    }
+    choice.add(Arrest.nextOfficialArrest(this, actor));
     //
     //  Next, consider smuggling goods out of the settlement-
     for (Dropship ship : actor.base().commerce.allVessels()) {

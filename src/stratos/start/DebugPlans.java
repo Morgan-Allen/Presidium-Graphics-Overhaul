@@ -123,7 +123,7 @@ public class DebugPlans extends Scenario {
       hunts
     );
     
-    final Base wildlife = Base.baseWithName(world, Base.KEY_WILDLIFE, true);
+    final Base wildlife = Base.wildlife(world);
     final Actor prey = new Vareen(wildlife);
     prey.enterWorldAt(world.tileAt(9, 9), world);
     
@@ -149,7 +149,7 @@ public class DebugPlans extends Scenario {
     civilian.enterWorldAt(world.tileAt(5, 4), world);
     civilian.health.takeInjury(civilian.health.maxHealth() * 2, true);
     
-    final Base artilects = Base.baseWithName(world, Base.KEY_ARTILECTS, true);
+    final Base artilects = Base.artilects(world);
     final Actor threat = new Tripod(artilects);
     threat.enterWorldAt(world.tileAt(8, 6), world);
     
@@ -226,7 +226,7 @@ public class DebugPlans extends Scenario {
     BaseSetup.fillVacancies(bastion, true);
     
     //  And introduce ruins, with a complement of artilects.
-    final Base artilects = Base.baseWithName(world, Base.KEY_ARTILECTS, true);
+    final Base artilects = Base.artilects(world);
     final Ruins ruins = new Ruins(artilects);
     Placement.establishVenue(ruins, 44, 44, true, world);
     final float healthLevel = (1 + Rand.avgNums(2)) / 2;
@@ -240,7 +240,7 @@ public class DebugPlans extends Scenario {
   private void configArtilectScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.fogFree = true;
 
-    final Base artilects = Base.baseWithName(world, Base.KEY_ARTILECTS, true);
+    final Base artilects = Base.artilects(world);
     final Ruins ruins = new Ruins(artilects);
     Placement.establishVenue(ruins, 20, 20, true, world);
     final float healthLevel = (1 + Rand.avgNums(2)) / 2;
@@ -281,7 +281,7 @@ public class DebugPlans extends Scenario {
     final Bastion bastion = new Bastion(base);
     bastion.stocks.bumpItem(Economy.PROTEIN, 20);
     bastion.stocks.bumpItem(Economy.PLASTICS, 10);
-    bastion.stocks.bumpItem(Economy.TINER_SPYCE, 5);
+    bastion.stocks.bumpItem(Economy.SPYCE_T, 5);
     final Actor ruler = new Human(Backgrounds.KNIGHTED, base);
     Placement.establishVenue(
       bastion, 11, 11, true, world,
@@ -293,7 +293,7 @@ public class DebugPlans extends Scenario {
     Placement.establishVenue(garrison, world.tileAt(3, 15), true, world);
     
     //  And introduce a native camp.
-    final Base natives = Base.baseWithName(world, Base.KEY_NATIVES, true);
+    final Base natives = Base.natives(world);
     final NativeHut hut = NativeHut.newHall(NativeHut.TRIBE_FOREST, natives);
     Placement.establishVenue(hut, 21, 21, true, world);
     final Batch <Actor> lives = NativeHut.populateHut(hut, null);

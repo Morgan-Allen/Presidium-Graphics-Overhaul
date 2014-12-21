@@ -21,20 +21,21 @@ import static stratos.game.economic.Economy.*;
 //  TODO:  Speed production if you have gene seed (or make mandatory?)
 
 //  TODO:  Predators, by contrast, are domesticated and used to assist in
-//  hunting and patrols.  (Possibly as cavalry!)
+//  hunting and patrols.  (Possibly as cavalry?)
 
 
 public class AnimalBreeding extends Plan {
+  
   
   final static int
     BREED_TIME_PER_10_HP = Stage.STANDARD_DAY_LENGTH;
   
   private static boolean
     evalVerbose  = false,
-    stepsVerbose = false;
+    stepsVerbose = true ;
   
   
-  final KommandoLodge station;
+  final Venue station;
   final Fauna handled;
   final Target releasePoint;
   final Item asStock;
@@ -42,7 +43,7 @@ public class AnimalBreeding extends Plan {
   
   
   private AnimalBreeding(
-    Actor actor, KommandoLodge station, Fauna handled, Target releasePoint
+    Actor actor, Venue station, Fauna handled, Target releasePoint
   ) {
     super(actor, station, true, NO_HARM);
     this.station = station;
@@ -54,7 +55,7 @@ public class AnimalBreeding extends Plan {
   
   public AnimalBreeding(Session s) throws Exception {
     super(s);
-    station = (KommandoLodge) s.loadObject();
+    station = (Venue) s.loadObject();
     handled = (Fauna) s.loadObject();
     releasePoint = s.loadTarget();
     this.asStock = Item.withReference(GENE_SEED, handled);
@@ -74,53 +75,57 @@ public class AnimalBreeding extends Plan {
   }
   
   
+  
+  /**  External factory methods:
+    */
+  public static AnimalBreeding breedingFor(
+    Actor actor, Venue station, Species species, Boarding releasePoint
+  ) {
+    final Stage world = station.world();
+    final Fauna specimen = (Fauna) (
+      species == null ? null : species.newSpecimen(Base.wildlife(world))
+    );
+    if (specimen == null) return null;
+    specimen.pathing.updateTarget(releasePoint);
+    return new AnimalBreeding(actor, station, specimen, releasePoint);
+  }
+  
+  
+  public static Batch <Fauna> breedingAt(Venue station) {
+    final Batch <Fauna> matches = new Batch <Fauna> ();
+    for (Item match : station.stocks.matches(GENE_SEED)) {
+      if (match.refers instanceof Fauna) matches.add((Fauna) match.refers);
+    }
+    return matches;
+  }
+  
+  
   public static AnimalBreeding nextBreeding(
-    Actor actor, KommandoLodge station
+    Actor actor, Venue station
   ) {
     final boolean report = evalVerbose && I.talkAbout == station;
     if (report) I.say("\nGETTING NEXT FAUNA TO BREED");
     
-    for (Item match : station.stocks.matches(GENE_SEED)) {
-      if (match.refers instanceof Fauna) {
-        if (report) I.say("  Fauna being bred: "+match.refers);
-        final Fauna fauna = (Fauna) match.refers;
-        final Target releasePoint = fauna.mind.home();
-        return new AnimalBreeding(actor, station, fauna, releasePoint);
-      }
+    for (Fauna fauna : breedingAt(station)) {
+      if (fauna.inWorld()) continue;
+      final Target releasePoint = fauna.pathing.target();
+      return new AnimalBreeding(actor, station, fauna, releasePoint);
     }
     
     final Stage world = station.world();
-    final Tile releasePoint = Spacing.pickRandomTile(
-      station, Nest.MAX_SEPARATION, world
+    final Pick <Species> pick = new Pick <Species> ();
+    final Tile releasePoint = world.tileAt(
+      world.size * Rand.num(), world.size * Rand.num()
     );
-    Fauna picked = null;
-    float bestRating = 0;
-    I.say("  Release point is: "+releasePoint);
     
     for (Species species : Species.ANIMAL_SPECIES) {
-      float crowding = Nest.crowdingFor(releasePoint, species, world);
-      
+      final float crowding = Nest.crowdingFor(releasePoint, species, world);
       if (report) I.say("  Crowding of "+species+" is "+crowding);
       if (crowding >= 1) continue;
-      
-      final Fauna specimen = (Fauna) species.newSpecimen(station.base());
-      if (specimen == null) continue;
-      float rating = 10f / (1 + crowding);
-      
-      if (rating > bestRating) {
-        picked = specimen;
-        bestRating = rating;
-      }
+      pick.compare(species, 10f / (1 + crowding));
     }
-    if (picked == null) return null;
     
-    final Tile at = world.tileAt(releasePoint);
-    picked.setPosition(at.x, at.y, world);
-    final Venue nest = picked.species.createNest();
-    nest.setPosition(at.x, at.y, world);
-    picked.mind.setHome(nest);
-    
-    return new AnimalBreeding(actor, station, picked, releasePoint);
+    return breedingFor(actor, station, pick.result(), releasePoint);
   }
   
   
@@ -155,21 +160,20 @@ public class AnimalBreeding extends Plan {
     final boolean report = stepsVerbose && I.talkAbout == actor;
     if (report) I.say("\nGetting next breeding step for "+handled);
     
-    if (isMature(handled)) {
-      
-      if (actor.gear.hasItem(asStock)) {
-        if (report) I.say("  Returning release!");
-        final Tile point = Spacing.nearestOpenTile(releasePoint, actor);
-        final Action release = new Action(
-          actor, point,
-          this, "actionRelease",
-          Action.REACH_DOWN, "Releasing "
-        );
-        return release;
-      }
+    //  TODO:  Use samples instead of gene-seed?  Break into two steps?
 
-      if (! station.stocks.hasItem(asStock)) return null;
-      
+    if (actor.gear.hasItem(asStock)) {
+      if (report) I.say("  Returning release!");
+      final Tile point = Spacing.nearestOpenTile(releasePoint, actor);
+      final Action release = new Action(
+        actor, point,
+        this, "actionRelease",
+        Action.REACH_DOWN, "Releasing "
+      );
+      return release;
+    }
+    
+    if (station.stocks.hasItem(asStock)) {
       if (report) I.say("  Returning pickup!");
       final Action pickup = new Action(
         actor, station,
@@ -180,7 +184,7 @@ public class AnimalBreeding extends Plan {
     }
     
     if (! handled.inWorld()) {
-      if (report) I.say("  Returning tend action");
+      if (report) I.say("  Returning tend action!");
       final Action tends = new Action(
         actor, handled,
         this, "actionTendSpecimen",
@@ -189,12 +193,8 @@ public class AnimalBreeding extends Plan {
       tends.setMoveTarget(station);
       return tends;
     }
+    
     return null;
-  }
-  
-  
-  private boolean isMature(Fauna fauna) {
-    return fauna.health.agingStage() >= ActorHealth.AGE_YOUNG;
   }
   
   
@@ -228,11 +228,8 @@ public class AnimalBreeding extends Plan {
       fauna.health.setupHealth(0, 1, 0);
       station.stocks.addItem(basis);
     }
-    
-    if (! isMature(fauna)) {
-      if (basis.amount < 1) {
-        station.stocks.addItem(Item.withAmount(basis, inc));
-      }
+    if (basis.amount < 1) {
+      station.stocks.addItem(Item.withAmount(basis, inc));
       final float age = fauna.health.ageLevel();
       fauna.health.setMaturity(age + (inc / 4));
     }
@@ -250,11 +247,6 @@ public class AnimalBreeding extends Plan {
     final Item basis = station.stocks.matchFor(asStock);
     if (basis == null) return false;
     station.stocks.transfer(basis, actor);
-    
-    final Item sample = Item.withReference(GENE_SEED, handled.species);
-    if (! station.stocks.hasItem(sample)) {
-      station.stocks.addItem(sample);
-    }
     return true;
   }
   
@@ -272,7 +264,7 @@ public class AnimalBreeding extends Plan {
     }
     else {
       handled.mind.setHome(null);
-      handled.assignBase(Base.baseWithName(world, Base.KEY_WILDLIFE, true));
+      handled.assignBase(Base.wildlife(world));
     }
     
     if (stepsVerbose) {
@@ -287,7 +279,8 @@ public class AnimalBreeding extends Plan {
   /**  Rendering and interface methods-
     */
   public void describeBehaviour(Description d) {
-    if (super.needsSuffix(d, "Breeding "+handled.species+" at ")) {
+    if (super.needsSuffix(d, "Breeding ")) {
+      d.append(handled.species+" at ");
       d.append(station);
     }
   }
