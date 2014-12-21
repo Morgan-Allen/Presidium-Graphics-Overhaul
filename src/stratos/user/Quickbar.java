@@ -138,7 +138,7 @@ public class Quickbar extends UIGroup implements UIConstants {
     int i = 0; for (final String option : options) {
       final Text text = new Text(UI, UIConstants.INFO_FONT);
       text.append(new Description.Link(option) {
-        public void whenTextClicked() {
+        public void whenClicked() {
           final Actor caster = UI.played().ruler();
           final PowerTask task = new PowerTask(bar, power, option, caster);
           UI.beginTask(task);

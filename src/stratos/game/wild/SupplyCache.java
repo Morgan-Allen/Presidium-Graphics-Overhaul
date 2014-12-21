@@ -122,20 +122,22 @@ public class SupplyCache extends Fixture implements Item.Dropped {
   }
   
   
-  public void whenTextClicked() {
+  public void whenClicked() {
     BaseUI.current().selection.pushSelection(this, false);
   }
   
 
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
-    if (panel == null) panel = new SelectionInfoPane(UI, this, null);
-    final Description d = panel.detail();
+    if (panel == null) panel = new SelectionInfoPane(UI, this, null, true);
+    
+    final Description d = panel.detail(), l = panel.listing();
     d.append(helpInfo());
     
-    d.append("\n\nContains:");
+    l.append("Contains:");
     for (Item i : stored.allItems()) {
-      d.append("\n  "+i);
+      l.append("\n  "+i);
     }
+    
     return panel;
   }
   

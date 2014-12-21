@@ -12,7 +12,7 @@ import stratos.util.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.math.*;
-import com.badlogic.gdx.graphics.g2d.*;
+//import com.badlogic.gdx.graphics.g2d.*;
 
 
 
@@ -21,6 +21,8 @@ import com.badlogic.gdx.graphics.g2d.*;
 public class HUD extends UIGroup {
   
   
+  private static boolean
+    verbose = false;
   
   final private static float
     DRAG_DIST = 3.0f,
@@ -77,6 +79,8 @@ public class HUD extends UIGroup {
   //  This is used for two-dimensional GUI elements in the conventional drawing
   //  hierarchy.
   public void renderHUD(Rendering rendering) {
+    final boolean report = verbose;
+    
     relBound.set(0, 0, 1, 1);
     absBound.set(0, 0, 0, 0);
     final Box2D size = new Box2D();
@@ -88,12 +92,15 @@ public class HUD extends UIGroup {
     if ((selected == null) || (mouseState != DRAGGED)) {
       selected = selectionAt(mousePos);
     }
-    if (mouseState != HOVERED) {
-      //hoverStart = System.currentTimeMillis();
-    }
-    else if (selected != null && selected != oldSelect) {
+    
+    if (mouseState == HOVERED && ! selectionMatch(selected, oldSelect)) {
       hoverStart = System.currentTimeMillis();
+      if (report) {
+        I.say("Hover begun at "+hoverStart);
+        I.say("  Old/new selections: "+oldSelect+"/"+selected);
+      }
     }
+    
     if (selected != null) switch (mouseState) {
       case (HOVERED) : selected.whenHovered(); break;
       case (CLICKED) : selected.whenClicked(); break;
@@ -105,6 +112,13 @@ public class HUD extends UIGroup {
   }
   
   
+  private boolean selectionMatch(UINode a, UINode b) {
+    if (a == b) return true;
+    if (a == null && b != null) return false;
+    if (b == null && a != null) return false;
+    return a.equals(b);
+  }
+  
   
   public boolean amSelected(UINode node, byte state) {
     return (selected == node) && (mouseState == state);
@@ -112,7 +126,6 @@ public class HUD extends UIGroup {
   
   
   public float timeHovered() {
-    //if (mouseState != HOVERED) return -1;
     final long time = System.currentTimeMillis() - hoverStart;
     return time / 1000f;
   }

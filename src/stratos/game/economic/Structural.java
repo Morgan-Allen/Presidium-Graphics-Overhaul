@@ -237,7 +237,7 @@ public abstract class Structural extends Fixture implements
   }
   
   
-  public void whenTextClicked() {
+  public void whenClicked() {
     BaseUI.current().selection.pushSelection(this, false);
   }
   

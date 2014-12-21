@@ -253,7 +253,7 @@ public class Summons extends Plan {
     //  Ask to join a declared mission.
     if (UI.played().allMissions().size() > 0) {
       responses.add(new Link("I want you to join a mission.") {
-        public void whenTextClicked() {
+        public void whenClicked() {
           pushMissionDialogue(UI, with, "What would you ask of me?");
         }
       });
@@ -268,7 +268,7 @@ public class Summons extends Plan {
     //  Offer a gift.
     
     responses.add(new Link("I'd like to offer you a gift.") {
-      public void whenTextClicked() {
+      public void whenClicked() {
         pushGiftDialogue(UI, with, "What do you have in mind?");
       }
     });
@@ -281,7 +281,7 @@ public class Summons extends Plan {
     //  FUNCTIONS.  IMPLEMENT AS SUCH.
     
     responses.add(new Link("You are dismissed.") {
-      public void whenTextClicked() {
+      public void whenClicked() {
         cancelSummons(with);
       }
     });
@@ -303,7 +303,7 @@ public class Summons extends Plan {
     //  effects!
     
     responses.add(new Link("How about 50 credits?") {
-        public void whenTextClicked() {
+        public void whenClicked() {
           UI.played().finance.incCredits(-50, BaseFinance.SOURCE_REWARDS);
           with.gear.incCredits(50);
           pushGiftResponse(UI, with, "Thank you, your grace!");
@@ -325,7 +325,7 @@ public class Summons extends Plan {
       UI, with.portrait(UI), "Audience with "+with,
       lead,
       new Link("Very well, then...") {
-        public void whenTextClicked() {
+        public void whenClicked() {
           configDialogueFor(UI, with, true);
         }
       }
@@ -341,7 +341,7 @@ public class Summons extends Plan {
     
     for (final Mission m : UI.played().allMissions()) {
       responses.add(new Link(""+m.toString()) {
-        public void whenTextClicked() {
+        public void whenClicked() {
           final boolean wouldAccept = m.priorityFor(with) > Plan.ROUTINE;
           if (wouldAccept) pushMissionResponse(UI, with, m);
           else pushMissionDialogue(UI, with, "I... must decline, my lord.");
@@ -350,7 +350,7 @@ public class Summons extends Plan {
     }
     
     responses.add(new Link("Speaking of other business...") {
-      public void whenTextClicked() {
+      public void whenClicked() {
         configDialogueFor(UI, with, true);
       }
     });
@@ -371,7 +371,7 @@ public class Summons extends Plan {
       UI, with.portrait(UI), "Audience with "+with,
       "My pleasure, your grace.",
       new Link("Very well, then...") {
-        public void whenTextClicked() {
+        public void whenClicked() {
           UI.selection.pushSelection(taken, true);
           taken.setApprovalFor(with, true);
           with.mind.assignMission(taken);

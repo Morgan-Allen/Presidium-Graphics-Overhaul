@@ -11,11 +11,11 @@ import stratos.game.economic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
-//import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 
 
 //  TODO:  Adapt this to work in either vertical or horizontal format.
+
 
 public class SelectionInfoPane extends UIGroup implements UIConstants {
   
@@ -61,32 +61,31 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
     innerRegion,
     viewRegion ;
   final Text
-    headerText,
-    detailText,
-    spillText ;
+    headerText ,
+    detailText ,
+    listingText;
   final Scrollbar scrollbar;
-  
-  final String categories[];
-  private Selectable previous;
-  private int categoryID;
 
-  final Composite portrait;
-  final UINode portraitFrame;
+  final   UINode    portraitFrame;
+  private Composite portrait     ;
   
+  final   String categories[];
+  private int    categoryID  ;
   
 
   public SelectionInfoPane(
     final BaseUI UI, Selectable selected,
-    final Composite portrait,
+    final Composite portrait, boolean hasListing,
     String... categories
   ) {
-    this(UI, selected, portrait, true, categories);
+    this(UI, selected, portrait != null, hasListing, categories);
+    this.portrait = portrait;
   }
   
   
-  protected SelectionInfoPane(
+  public SelectionInfoPane(
     final BaseUI UI, Selectable selected,
-    final Composite portrait, boolean splitText,
+    boolean hasPortrait, boolean hasListing,
     String... categories
   ) {
     super(UI);
@@ -94,7 +93,7 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
     this.alignTop       (0   , INFO_PANEL_HIGH   );
     this.alignHorizontal(0.5f, INFO_PANEL_WIDE, 0);
     
-    final int across = portrait == null ? 0 : PORTRAIT_SIZE + 10;
+    final int across = hasPortrait ? (PORTRAIT_SIZE + 10) : 0;
     final int
       TM = 40, BM = 40,  //top and bottom margins
       LM = 40, RM = 40;  //left and right margins
@@ -133,24 +132,24 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
     detailText.scale = 0.75f;
     detailText.attachTo(innerRegion);
     
-    if (splitText) {
-      spillText = new Text(UI, BaseUI.INFO_FONT) {
+    if (hasListing) {
+      listingText = new Text(UI, BaseUI.INFO_FONT) {
         protected void whenLinkClicked(Clickable link) {
           super.whenLinkClicked(link);
           ((BaseUI) UI).beginPanelFade();
         }
       };
-      spillText.alignVertical(0   , HEADER_HEIGHT);
-      spillText.alignAcross  (0.5f, 1            );
-      spillText.scale = 0.75f;
-      spillText.attachTo(innerRegion);
+      listingText.alignVertical(0   , HEADER_HEIGHT);
+      listingText.alignAcross  (0.5f, 1            );
+      listingText.scale = 0.75f;
+      listingText.attachTo(innerRegion);
 
       detailText.alignVertical(0, HEADER_HEIGHT);
       detailText.alignAcross  (0, 0.5f         );
-      scrollbar = spillText.makeScrollBar(SCROLL_TEX);
+      scrollbar = listingText.makeScrollBar(SCROLL_TEX);
     }
     else {
-      spillText = null;
+      listingText = null;
       detailText.alignVertical(0, HEADER_HEIGHT);
       detailText.alignAcross  (0, 1.0f         );
       scrollbar = detailText.makeScrollBar(SCROLL_TEX);
@@ -171,10 +170,10 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
     }
     else categoryID = 0;
     
-    if (portrait != null) {
-      this.portrait = portrait;
+    if (hasPortrait) {
       portraitFrame = new UINode(UI) {
         protected void render(WidgetsPass batch2d) {
+          if (portrait == null) return;
           portrait.drawTo(batch2d, bounds, absAlpha);
         }
       };
@@ -189,13 +188,8 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
   }
   
   
-  protected void setPrevious(Selectable previous) {
-    this.previous = previous;
-  }
-  
-  
-  protected Selectable previous() {
-    return previous;
+  public void assignPortrait(Composite portrait) {
+    this.portrait = portrait;
   }
   
   
@@ -222,6 +216,11 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
   }
   
   
+  public Description listing() {
+    return listingText;
+  }
+  
+  
   
   /**  Display and updates-
     */
@@ -234,19 +233,14 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
   
   
   protected void updateState() {
-    if (selected != null && selected.selectionLocksOn().destroyed()) {
-      UI.selection.pushSelection(previous, false);
-      return;
-    }
-    updateText(UI, headerText, detailText);
+    updateText(UI, headerText, detailText, listingText);
     if (selected != null) selected.configPanel(this, UI);
-    if (spillText != null) detailText.continueWrap(spillText);
     super.updateState();
   }
   
   
   protected void updateText(
-    final BaseUI UI, Text headerText, Text detailText
+    final BaseUI UI, Text headerText, Text detailText, Text listingText
   ) {
     if (selected != null) {
       headerText.setText(selected.fullName());
@@ -258,18 +252,13 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
         final boolean CC = categoryID == i;
         headerText.append(new Text.Clickable() {
           public String fullName() { return ""+categories[index]+" "; }
-          public void whenTextClicked() { setCategory(index); }
+          public void whenClicked() { setCategory(index); }
         }, CC ? Colour.GREEN : Text.LINK_COLOUR);
       }
     }
-    if (selected != null && previous != null) {
-      headerText.append(new Description.Link("UP") {
-        public void whenTextClicked() {
-          UI.selection.pushSelection(previous, false);
-        }
-      });
-    }
-    detailText.setText("");
+    
+    detailText .setText("");
+    listingText.setText("");
   }
 }
 

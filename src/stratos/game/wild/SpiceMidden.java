@@ -111,13 +111,13 @@ public class SpiceMidden extends Fixture implements Selectable {
   }
   
   
-  public void whenTextClicked() {
+  public void whenClicked() {
     BaseUI.current().selection.pushSelection(this, false);
   }
   
 
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
-    if (panel == null) panel = new SelectionInfoPane(UI, this, null);
+    if (panel == null) panel = new SelectionInfoPane(UI, this, null, true);
     final Description d = panel.detail();
     d.append(helpInfo());
     d.append("\n\nContains: "+spice());

@@ -389,33 +389,15 @@ public abstract class Fauna extends Actor {
   }
   
   
+  public void describeStatus(Description d) {
+    super.describeStatus(d);
+    final int BP = (int) (breedMetre * 100);
+    d.append("\n  Breeding condition: "+BP+"%");
+  }
+  
+  
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
-    if (panel == null) panel = new SelectionInfoPane(
-      UI, this, portrait(UI)
-    );
-    final Description d = panel.detail();
-    
-    d.append("Is: ");
-    describeStatus(d);
-    
-    d.append("\nNests at: ");
-    if (mind.home() != null) {
-      d.append(mind.home());
-      final int BP = (int) (breedMetre * 100);
-      d.append("\n  Breeding condition: "+BP+"%");
-    }
-    else d.append("No nest");
-    
-    d.append("\nCondition: ");
-    final Batch <String> CD = health.conditionsDesc();
-    if (CD.size() == 0) d.append("Okay");
-    else d.appendList("", CD);
-    
-    //d.append("\n\nCombat strength: "+Combat.combatStrength(this, null));
-    
-    d.append("\n\n");
-    d.append(species.info, Colour.LIGHT_GREY);
-    return panel;
+    return HumanDescription.configSimplePanel(this, panel, UI);
   }
 }
 

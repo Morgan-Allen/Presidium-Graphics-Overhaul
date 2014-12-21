@@ -136,7 +136,7 @@ public class SkinsPreview extends VisualDebug {
         t.append("\n  ");
         final String name = entry.value("name");
         t.append(new Text.Clickable() {
-          public void whenTextClicked() { switchToEntry(entry); }
+          public void whenClicked() { switchToEntry(entry); }
           public String fullName() { return name; }
         });
       }
@@ -149,14 +149,14 @@ public class SkinsPreview extends VisualDebug {
       
       t.append("\n  ");
       t.append(new Text.Clickable() {
-        public void whenTextClicked() { currentAnim = null; }
+        public void whenClicked() { currentAnim = null; }
         public String fullName() { return "(NONE)"; }
       });
       
       for (final String animName : currentModel.animNames()) {
         t.append("\n  ");
         t.append(new Text.Clickable() {
-          public void whenTextClicked() { currentAnim = animName; }
+          public void whenClicked() { currentAnim = animName; }
           public String fullName() { return animName; }
         });
       }

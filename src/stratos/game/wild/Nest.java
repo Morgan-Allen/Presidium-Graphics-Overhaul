@@ -407,7 +407,7 @@ public class Nest extends Venue {
   }
   
   
-
+  
   /**  Rendering and interface methods-
     */
   public String fullName() {
@@ -427,16 +427,20 @@ public class Nest extends Venue {
   
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
     panel = VenueDescription.configSimplePanel(this, panel, UI, null);
-    final Description d = panel.detail();
+    final Description d = panel.detail(), l = panel.listing();
 
     int idealPop = 1 + (int) idealPopulation(this, species, world, true);
     int actualPop = personnel.residents().size();
     
-    d.append("\n\nNesting: ("+actualPop+"/"+idealPop+")");
-    if (personnel.residents().size() == 0) d.append("Unoccupied");
+    l.append("Nesting: ("+actualPop+"/"+idealPop+")");
+    if (personnel.residents().size() == 0) {
+      l.append("Unoccupied");
+    }
     else for (Actor actor : personnel.residents()) {
-      d.append("\n  ");
-      d.append(actor);
+      final Composite portrait = actor.portrait(UI);
+      ((Text) l).insert(portrait.texture(), 40, true);
+      l.append(" ");
+      l.append(actor);
     }
     return panel;
   }

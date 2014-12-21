@@ -61,47 +61,47 @@ public class MissionsTab extends SelectionInfoPane {
   
   
   public MissionsTab(BaseUI UI) {
-    super(UI, null, null);
+    super(UI, null, null, true);
   }
   
   
   protected void updateText(
-    final BaseUI UI, Text headerText, Text detailText
+    final BaseUI UI, Text headerText, Text detailText, Text listingText
   ) {
     //super.updateText(UI, headerText, detailText);
     headerText.setText("Missions");
     detailText.setText("");
     //
     //  List Strike, Recon, Contact and Security missions for now.
-    detailText.insert(STRIKE_ICON.asTexture(), 40);
+    detailText.insert(STRIKE_ICON.asTexture(), 40, true);
     detailText.append(" Strike Mission\n");
     detailText.append(new Text.Clickable() {
       public String fullName() { return "Target"; }
-      public void whenTextClicked() { initStrikeTask(UI); }
+      public void whenClicked() { initStrikeTask(UI); }
     });
     detailText.append("\n");
     
-    detailText.insert(RECON_ICON.asTexture(), 40);
+    detailText.insert(RECON_ICON.asTexture(), 40, true);
     detailText.append(" Recon Mission\n");
     detailText.append(new Text.Clickable() {
       public String fullName() { return "Target"; }
-      public void whenTextClicked() { initReconTask(UI); }
+      public void whenClicked() { initReconTask(UI); }
     });
     detailText.append("\n");
     
-    detailText.insert(SECURITY_ICON.asTexture(), 40);
+    detailText.insert(SECURITY_ICON.asTexture(), 40, true);
     detailText.append(" Security Mission\n");
     detailText.append(new Text.Clickable() {
       public String fullName() { return "Target"; }
-      public void whenTextClicked() { initSecurityTask(UI); }
+      public void whenClicked() { initSecurityTask(UI); }
     });
     detailText.append("\n");
     
-    detailText.insert(CONTACT_ICON.asTexture(), 40);
+    detailText.insert(CONTACT_ICON.asTexture(), 40, true);
     detailText.append(" Contact Mission\n");
     detailText.append(new Text.Clickable() {
       public String fullName() { return "Target"; }
-      public void whenTextClicked() { initContactTask(UI); }
+      public void whenClicked() { initContactTask(UI); }
     });
     detailText.append("\n");
   }

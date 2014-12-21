@@ -226,7 +226,7 @@ public class TutorialScenario extends StartupScenario {
   private Text.Clickable linkFor(String linkText, final String title) {
     final CommsPanel comms = UI().commsPanel();
     return new Description.Link(linkText) {
-      public void whenTextClicked() {
+      public void whenClicked() {
         DialoguePanel message = comms.messageWith(title);
         if (message == null) message = messageFor(title);
         UI().setInfoPanels(message, null);

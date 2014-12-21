@@ -309,38 +309,7 @@ public abstract class Artilect extends Actor {
   /**  Rendering and interface methods-
     */
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
-    if (panel == null) panel = new SelectionInfoPane(
-      UI, this, null//, "STATUS", "SKILLS", "PROFILE"
-    );
-    final Description d = panel.detail();
-
-    d.append("Is: ");
-    super.describeStatus(d);
-    
-    d.append("\n\nCondition: ");
-    final Batch <String> healthDesc = health.conditionsDesc();
-    for (String desc : healthDesc) {
-      d.append("\n  "+desc);
-    }
-    final Batch <Condition> conditions = traits.conditions();
-    for (Condition c : conditions) {
-      d.append("\n  ");
-      d.append(traits.description(c));
-    }
-    if (healthDesc.size() == 0 && conditions.size() == 0) {
-      d.append("\n  Okay");
-    }
-
-    d.append("\n\nSkills: ");
-    for (Skill skill : traits.skillSet()) {
-      final int level = (int) traits.traitLevel(skill);
-      d.append("\n  "+skill.name+" "+level+" ");
-      d.append(Skill.skillDesc(level), Skill.skillTone(level));
-    }
-    
-    d.append("\n\n");
-    d.append(helpInfo());
-    return panel;
+    return HumanDescription.configSimplePanel(this, panel, UI);
   }
   
   

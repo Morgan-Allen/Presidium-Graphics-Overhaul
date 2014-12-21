@@ -223,24 +223,24 @@ public class FRSD extends Venue {
         d.append("\n  ");
         
         if (type == TRADE_IMPORT) d.append(new Description.Link("IMPORT") {
-          public void whenTextClicked() {
+          public void whenClicked() {
             setTrading(t, TRADE_EXPORT, 0);
           }
         }, Colour.GREEN);
         if (type == TRADE_AUTO) d.append(new Description.Link("FREE TRADE") {
-          public void whenTextClicked() {
+          public void whenClicked() {
             setTrading(t, TRADE_IMPORT, 0);
           }
         }, Colour.BLUE);
         if (type == TRADE_EXPORT) d.append(new Description.Link("EXPORT") {
-          public void whenTextClicked() {
+          public void whenClicked() {
             setTrading(t, TRADE_AUTO  , 0);
           }
         }, Colour.MAGENTA);
         if (type != TRADE_AUTO) {
           d.append(" ");
           d.append(new Description.Link(I.lengthen(level, 4)) {
-            public void whenTextClicked() {
+            public void whenClicked() {
               setTrading(t, type, (level == MAX_TRADE) ? 0 : (level * 2));
             }
           });

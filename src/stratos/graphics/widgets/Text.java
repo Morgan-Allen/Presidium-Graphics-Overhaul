@@ -18,24 +18,72 @@ import com.badlogic.gdx.utils.*;
 /**  A text object that wraps will continue onto subsequent lines when a given
   *  line is filled.  Non-wrapping text will adjust width to match current
   *  entries.
+  *  NOTE:  Scaling does not apply to any inserted images.
   */
 public class Text extends UINode implements Description {
+  
+  
+  private static boolean verbose = false;
   
   final public static Colour LINK_COLOUR = new Colour().set(
     0.2f, 0.6f, 0.8f, 1
   );
   
   
+  
+  /**  Essential component classes and interfaces- clickables can be used to
+    *  navigate to other objects, with image and text entries provide
+    *  information or emphasis-
+    */
+  public static interface Clickable {
+    String fullName();
+    void whenClicked();
+  }
+  
+  
+  static class UIEntry extends Box2D {
+    UINode graphic;
+    boolean visible;
+    int wide, high;
+    boolean bullet;
+  }
+  
+  
+  static class TextEntry extends Box2D implements Pool.Poolable {
+    char key;
+    Letter letter;
+    boolean visible;
+    Colour colour = null;
+    Clickable link = null;
+    
+    public void reset() {
+      letter = null;
+      colour = null;
+      link = null;
+      visible = true;
+      key = ' ';
+      super.set(0, 0, 0, 0);
+    }
+  }
+  
+  
   public float scale = 1.0f;
   
   final protected Alphabet alphabet;
   private boolean needsFormat = false;
+  
   private Scrollbar scrollbar;
+  private Box2D scrolled = new Box2D();
   
   protected List <Box2D> allEntries = new List <Box2D> ();
+  protected List <UIEntry> allNodes = new List <UIEntry> ();
+  
   private Box2D fullSize = new Box2D();
   private float oldWide, oldHigh = 0;
   
+  
+  //  TODO:  Get rid of this, or create a custom alternative- it's leading to
+  //  crashes in cases where scrolling is needed...
   final Pool <TextEntry> letterPool = new Pool <TextEntry> (1000) {
     protected TextEntry newObject() {
       return new TextEntry();
@@ -58,90 +106,6 @@ public class Text extends UINode implements Description {
   
   public Scrollbar makeScrollBar(ImageAsset tex) {
     return this.scrollbar = new Scrollbar(UI, tex, fullSize);
-  }
-  
-  
-  public void continueWrap(Text continues) {
-    if (needsFormat) format(xdim());
-    final Box2D textArea = new Box2D().set(0, 0, xdim(), ydim());
-    
-    continues.setText("");
-    boolean spilt = false;
-    for (ListEntry LE = allEntries;;) {
-      if ((LE = LE.nextEntry()) == allEntries) break;
-      
-      if ((! spilt) && LE.refers instanceof TextEntry) {
-        final TextEntry TE = (TextEntry) LE.refers;
-        if (TE.containedBy(textArea) || ! TE.visible) continue;
-        if (Character.isWhitespace(TE.key)) continue;
-        spilt = true;
-      }
-      
-      if ((! spilt) && LE.refers instanceof ImageEntry) {
-        final ImageEntry IE = (ImageEntry) LE.refers;
-        if (IE.containedBy(textArea)) continue;
-        spilt = true;
-      }
-      
-      if (spilt) {
-        final Box2D b = (Box2D) LE.refers;
-        b.set(0, 0, 0, 0);
-        continues.allEntries.add(b); 
-        LE.delete();
-      }
-    }
-    
-    continues.needsFormat = true;
-  }
-  
-  
-  
-  /**  Essential component classes and interfaces- clickables can be used to
-    *  navigate to other objects, with image and text entries provide
-    *  information or emphasis-
-    */
-  public static interface Clickable {
-    String fullName();
-    void whenTextClicked();
-  }
-  
-  
-  static class ImageEntry extends Box2D {
-    UINode graphic;
-    boolean visible;
-    int wide, high;
-  }
-  
-  
-  static class TextEntry extends Box2D implements Pool.Poolable {
-    char key;
-    Letter letter;
-    boolean visible;
-    Colour colour = null;
-    Clickable link = null;
-    
-    public void reset() {
-      letter = null;
-      colour = null;
-      link = null;
-      visible = true;
-      key = ' ';
-      super.set(0, 0, 0, 0);
-    }
-  }
-  
-  
-  
-  /**  Various overrides of UINode functionality-
-    */
-  protected void updateAbsoluteBounds() {
-    super.updateAbsoluteBounds();
-    if ((oldWide != xdim()) || (oldHigh != ydim())) {
-      needsFormat = true;
-      oldWide = xdim();
-      oldHigh = ydim();
-    }
-    if (needsFormat && (allEntries.size() > 0)) format(xdim());
   }
   
   
@@ -175,11 +139,6 @@ public class Text extends UINode implements Description {
   }
   
   
-  public void append(String s, Clickable l) { append(s, l, LINK_COLOUR); }
-  public void append(String s, Colour c) { append(s, null, c); }
-  public void append(String s) { append(s, null, null); }
-  
-  
   public void appendList(String s, Object... l) {
     if (l.length == 0) return;
     append(s);
@@ -195,26 +154,46 @@ public class Text extends UINode implements Description {
   }
   
   
+  public void append(String s, Clickable l) { append(s, l, LINK_COLOUR); }
+  public void append(String s, Colour c) { append(s, null, c); }
+  public void append(String s) { append(s, null, null); }
   
-  /**  Adds a single image entry to this text object.  Images are used as
-    *  'bullets' to indent and separate text, and this needsFormat is retained until
-    *  the next carriage return or another image is inserted.
+  
+  
+  /**  Adds a single image entry to this text object.  Image entries can either
+    *  function as hyperlinks given the right reference object, or as bullets
+    *  to indent other elements, or both.
     */
-  public boolean insert(Texture texGraphic, int maxSize) {
-    return insert(new Image(UI, texGraphic), maxSize);
+  public boolean insert(
+    Texture texGraphic, int maxSize, final Clickable link, boolean asBullet
+  ) {
+    final Button linked = new Button(UI, texGraphic, link.fullName());
+    linked.setLinks(link);
+    return insert(linked, maxSize, asBullet);
   }
   
   
-  public boolean insert(UINode graphic, int maxSize) {
+  public boolean insert(Texture texGraphic, int maxSize, boolean asBullet) {
+    return insert(new Image(UI, texGraphic), maxSize, asBullet);
+  }
+  
+  
+  public boolean insert(UINode graphic, int maxSize, boolean asBullet) {
     if (graphic == null) return false;
+    if (asBullet && allEntries.size() > 0) append("\n");
+    
     graphic.absBound.set(0, 0, maxSize, maxSize);
     graphic.relBound.set(0, 0, 0, 0);
     graphic.updateRelativeParent();
     graphic.updateAbsoluteBounds();
-    final ImageEntry entry = new ImageEntry();
+    graphic.attachTo(this);
+    
+    final UIEntry entry = new UIEntry();
     entry.graphic = graphic;
     entry.wide = (int) graphic.xdim();
     entry.high = (int) graphic.ydim();
+    entry.bullet = asBullet;
+    
     allEntries.add(entry);
     needsFormat = true;
     return true;
@@ -243,9 +222,6 @@ public class Text extends UINode implements Description {
   }
   
   
-  
-  /**  Sets this text object to the given string.
-    */
   public void setText(String s) {
     for (Object e : allEntries) {
       if (e instanceof TextEntry) letterPool.free((TextEntry) e);
@@ -256,9 +232,6 @@ public class Text extends UINode implements Description {
   }
   
   
-  
-  /**  Gets the string this text object contains.
-    */
   public String getText() {
     int n = 0;
     char charS[] = new char[allEntries.size()];
@@ -273,22 +246,65 @@ public class Text extends UINode implements Description {
   
   
   
-  /**  Returns the selectable associated with the currently hovered unit of
-    *  text.
+  /**  Various overrides of UINode functionality-
     */
-  protected void render(WidgetsPass pass) {
-    if (allEntries.size() == 0) return;
-    final Box2D textArea = new Box2D().set(0, 0, xdim(), ydim());
+  protected void updateState() {
+    super.updateState();
     
-    //  We offset text-area position based on the scrollbar.
+    this.scrolled.set(0, 0, xdim(), ydim());
     if (scrollbar != null) {
       final float down = 1 - scrollbar.scrollPos();
-      //I.say("Scrolled down: "+down+", pane height: "+ydim());
-      //I.say("  Full height: "+fullSize.ydim());
-      textArea.ypos(0 - (fullSize.ydim() - ydim()) * down);
+      scrolled.ypos(0 - (fullSize.ydim() - ydim()) * down);
     }
-    final List <ImageEntry> bullets = new List <ImageEntry> ();
-    final Clickable link = getTextLink(UI.mousePos(), textArea);
+    
+    allNodes.clear();
+    for (Box2D entry : allEntries) if (entry instanceof UIEntry) {
+      final UIEntry node = (UIEntry) entry;
+      allNodes.add(node);
+      node.graphic.updateState();
+      node.graphic.relAlpha = this.absAlpha;
+    }
+  }
+  
+  
+  protected void updateRelativeParent() {
+    super.updateRelativeParent();
+    
+    if ((oldWide != xdim()) || (oldHigh != ydim())) {
+      needsFormat = true;
+      oldWide = xdim();
+      oldHigh = ydim();
+    }
+    if (needsFormat && (allEntries.size() > 0)) format(xdim());
+    
+    for (UIEntry node : allNodes) {
+      final Box2D b = node.graphic.absBound;
+      b.xpos(node.xpos() - scrolled.xpos());
+      b.ypos(node.ypos() - scrolled.ypos());
+      node.graphic.updateRelativeParent();
+    }
+  }
+  
+  
+  protected void updateAbsoluteBounds() {
+    super.updateAbsoluteBounds();
+    for (UIEntry node : allNodes) node.graphic.updateAbsoluteBounds();
+  }
+  
+  
+  protected UINode selectionAt(Vector2 mousePos) {
+    if (! trueBounds().contains(mousePos.x, mousePos.y)) return null;
+    for (UIEntry node : allNodes) {
+      final UINode match = node.graphic.selectionAt(mousePos);
+      if (match != null) return match;
+    }
+    return super.selectionAt(mousePos);
+  }
+  
+  
+  protected void render(WidgetsPass pass) {
+    if (allEntries.size() == 0) return;
+    final Object link = getTextSelection(UI.mousePos(), scrolled);
     
     //  Then we begin the rendering pass.  In order to accomodate scissor
     //  culling, we flush the pipeline of existing elements before and after,
@@ -296,68 +312,48 @@ public class Text extends UINode implements Description {
     pass.flush();
     Gdx.gl.glEnable(GL11.GL_SCISSOR_TEST);
     Gdx.gl.glScissor((int) xpos(), (int) ypos(), (int) xdim(), (int) ydim());
-    for (Box2D entry : allEntries) {
-      if (entry instanceof TextEntry) {
-        renderText(textArea, (TextEntry) entry, link, pass);
-      }
-      else bullets.add((ImageEntry) entry);
+    
+    for (Box2D entry : allEntries) if (entry instanceof TextEntry) {
+      renderText(scrolled, (TextEntry) entry, link, pass);
     }
-    for (ImageEntry entry : bullets) {
-      renderImage(textArea, entry, pass);
+    for (UIEntry entry : allNodes) if (entry.intersects(scrolled)) {
+      entry.graphic.render(pass);
     }
+    
     pass.flush();
     Gdx.gl.glDisable(GL11.GL_SCISSOR_TEST);
-    
-    if (UI.mouseClicked() && link != null) whenLinkClicked(link);
   }
   
   
-  protected Clickable getTextLink(Vector2 mousePos, Box2D textArea) {
-    if (UI.selected() != this) return null;
-    final float
-      mX = mousePos.x + textArea.xpos() - xpos(),
-      mY = mousePos.y + textArea.ypos() - ypos();
-    if (! textArea.contains(mX, mY)) return null;
-    Box2D box = new Box2D();
-    for (Box2D entry : allEntries) {
-      box.set(
-        entry.xpos() - 1, entry.ypos() - 1,
-        entry.xdim() + 2, entry.ydim() + 2
-      );
-      if (box.contains(mX, mY) && entry.containedBy(textArea)) {
-        if (entry instanceof TextEntry) return ((TextEntry) entry).link;
-        return null;
-      }
-    }
-    return null;
+  public String toString() {
+    return "Info Pane";
   }
   
   
   protected void whenLinkClicked(Clickable link) {
-    link.whenTextClicked();
+    link.whenClicked();
   }
   
   
-  protected void renderImage(
-    Box2D bounds, ImageEntry entry, WidgetsPass pass
-  ) {
-    if (! entry.intersects(bounds)) return;
-    final Box2D b = entry.graphic.absBound;
-    entry.graphic.relAlpha = this.absAlpha;
-    b.xpos(entry.xpos() + xpos() - bounds.xpos());
-    b.ypos(entry.ypos() + ypos() - bounds.ypos());
-    entry.graphic.updateState();
-    entry.graphic.updateRelativeParent();
-    entry.graphic.updateAbsoluteBounds();
+  protected Object getTextSelection(Vector2 mousePos, Box2D scrolled) {
+    final float
+      mX = mousePos.x + scrolled.xpos() - this.xpos(),
+      mY = mousePos.y + scrolled.ypos() - this.ypos();
+    if (! scrolled.contains(mX, mY)) return null;
     
-    entry.graphic.render(pass);
+    for (Box2D entry : allEntries) {
+      if (! entry.overlaps(scrolled)) continue;
+      if (! entry.contains(mX, mY  )) continue;
+      if (entry instanceof TextEntry) return ((TextEntry) entry).link;
+    }
+    return null;
   }
   
 
   protected boolean renderText(
-    Box2D area, TextEntry entry, Clickable link, WidgetsPass pass
+    Box2D scrolled, TextEntry entry, Object link, WidgetsPass pass
   ) {
-    if (entry.letter == null || ! entry.intersects(area)) return false;
+    if (entry.letter == null || ! entry.intersects(scrolled)) return false;
     //
     //  If this text links to something, we may need to colour the text (and
     //  possibly select it's link target if clicked.)
@@ -368,12 +364,12 @@ public class Text extends UINode implements Description {
       final Colour c = entry.colour != null ? entry.colour : Colour.WHITE;
       pass.setColor(c.r, c.g, c.b, c.a * absAlpha);
     }
-    final float xoff = xpos() - area.xpos(), yoff = ypos() - area.ypos();
     //
     //  Draw the text entry-
     pass.draw(
       alphabet.fontTex,
-      entry.xpos() + xoff, entry.ypos() + yoff,
+      entry.xpos() + xpos() - scrolled.xpos(),
+      entry.ypos() + ypos() - scrolled.ypos(),
       entry.xdim(), entry.ydim(),
       entry.letter.umin, entry.letter.vmax,
       entry.letter.umax, entry.letter.vmin
@@ -406,92 +402,114 @@ public class Text extends UINode implements Description {
     *  accordingly.
     */
   protected void format(float maxWidth) {
-    ListEntry <Box2D>
-      open = allEntries,
-      wordOpen = open,
-      lineOpen = open;
-    ImageEntry
-      lastBullet = null;
+    
+    final boolean report = verbose;
+    if (report) I.say("\nFormatting text, max. width: "+maxWidth+"\n");
+    
     boolean
       newWord,
       newLine;
     float
-      xpos = 0,
-      ypos = 0;
-    final float
-      lineHigh = alphabet.map[' '].height * scale,
-      charWide = alphabet.map[' '].width  * scale;
-    //
-    //  Here's the main loop for determining entry positions...
-    while ((open = open.nextEntry()) != allEntries) {
+      across     = 0,
+      down       = 0,
+      lineHigh   = 0,
+      marginWide = 0;
+    final Batch <Box2D>
+      lastLine = new Batch <Box2D> (),
+      lastWord = new Batch <Box2D> ();
+    
+    for (Box2D box : allEntries) {
       newLine = newWord = false;
-      //
-      //  In the case of an image entry...
-      if (open.refers instanceof ImageEntry) {
-        if (lastBullet != null) {
-          final float minY = lastBullet.ypos() - (lineHigh * 1.5f);
-          if (ypos > minY) ypos = minY;
-        }
-        final ImageEntry entry = (ImageEntry) open.refers;
-        entry.visible = true;
-        entry.set(
-          0, ypos + lineHigh - (entry.high),
-          entry.wide * scale, entry.high
-        );
-        xpos = entry.wide;
-        lastBullet = entry;
+      box.set(0, 0, 0, 0);
+      
+      if (box instanceof UIEntry) {
+        final UIEntry entry = (UIEntry) box;
+        entry.xdim(entry.wide);
+        entry.ydim(entry.high);
+        marginWide = entry.bullet ? entry.xdim() : 0;
       }
-      //
-      //  In the case of a text entry...
-      else {
-        final TextEntry entry = (TextEntry) open.refers;
-        entry.visible = true;
-        switch (entry.key) {
-          //
-          //  In the case of a return character, you definitely need a new line,
-          //  and you automatically escape from the last bullet.
-          //  Either that or a space means a new word.
-          case('\n'):
-            newLine = newWord = true;
-            entry.visible = false;
-          break;
-          case(' '):
-            newWord = true;
-          default:
-            entry.set(
-              xpos, ypos,
-              entry.letter.width  * scale,
-              entry.letter.height * scale
-            );
-            xpos += entry.xdim();
-            //
-            //  If the width of the current line exceeds the space allowed, you
-            //  need to go back to that start of the current word and jump to
-            //  the next line.
-            if ((maxWidth > 0) && (xpos > maxWidth) && (wordOpen != lineOpen)) {
-              newLine = true;
-            }
+      else if (box instanceof TextEntry) {
+        final TextEntry entry = (TextEntry) box;
+        final char key = entry.key;
+        if (report) I.say("  Text entry: "+key+", across: "+across);
+        
+        if (key == '\n') newLine = newWord = true;
+        if (key == ' ' ) newWord = true;
+        if (entry.letter != null) {
+          entry.xdim(entry.letter.width  * scale);
+          entry.ydim(entry.letter.height * scale);
         }
       }
-      //
-      //  Mark the first character of a new word so you can escape back to it.
-      //  If a new line is called for, flow around the current bullet.
-      if (newWord) wordOpen = open;
+      else continue;
+      
+      lastWord.add(box);
+      across += box.xdim();
+      if ((maxWidth > 0) && (across > maxWidth)) newLine = true;
+      
+      if (newWord) {
+        Visit.compose(lastLine, lastWord);
+        lastWord.clear();
+      }
+      
       if (newLine) {
-        xpos = (lastBullet == null) ? 0 : (lastBullet.wide + charWide);
-        ypos -= lineHigh;
-        open = lineOpen = wordOpen;
+        lineHigh = formatLine(lastLine, marginWide, down);
+        down -= lineHigh;
+        across = marginWide;
+        for (Box2D entry : lastWord) across += entry.xdim();
+        lastLine.clear();
       }
     }
+    //
+    //  Clean up any remainders-
+    if (lastWord.size() > 0) Visit.compose(lastLine, lastWord);
+    if (lastLine.size() > 0) formatLine(lastLine, marginWide, down);
     //
     //  We now reposition entries to fit the window, and update the full bounds.
-    fullSize.set(0, 0, 0, lineHigh);
-    final float heightAdjust = ydim() - lineHigh;
+    fullSize.set(0, 0, 0, 0);
+    final float heightAdjust = ydim();
     for (Box2D entry : allEntries) {
       fullSize.include(entry);
-      entry.ypos(entry.ypos() + heightAdjust);
+      entry.incY(heightAdjust);
     }
     needsFormat = false;
+  }
+  
+  
+  private float formatLine(Batch <Box2D> entries, float minX, float minY) {
+    
+    final boolean report = verbose;
+    final Box2D head = entries.first();
+    if (head == null) return 0;
+    
+    float across = 0, down = alphabet.letterFor(' ').height * scale;
+    boolean bulleted = false;
+    if (head instanceof UIEntry) bulleted = ((UIEntry) head).bullet;
+    
+    for (Box2D entry : entries) {
+      if (bulleted && entry == head) continue;
+      down = Nums.max(down, entry.ymax());
+    }
+    if (bulleted) { head.ypos(down - head.ydim()); across -= head.xdim(); }
+    
+    if (report) {
+      I.say("\nFormatting string, size: "+entries.size());
+      I.say("Starting from: "+minX+"/"+minY);
+      I.say("Line height:   "+down);
+      I.say("Bulleted?      "+bulleted);
+    }
+    
+    for (Box2D entry : entries) {
+      entry.incX(minX + across);
+      entry.incY(minY - down  );
+      across += entry.xdim();
+      
+      if (report && entry instanceof TextEntry) {
+        final char key = ((TextEntry) entry).key;
+        I.say("  Key: "+key+" across: "+across);
+      }
+    }
+    if (report) I.say("");
+    return down;
   }
 }
 
@@ -499,9 +517,3 @@ public class Text extends UINode implements Description {
 
 
 
-/*
-final public static Alphabet INFO_FONT = new Alphabet(
-  "UI/", "FontVerdana.png", "FontVerdana.png",
-  "FontVerdana.map", 8, 16
-);
-//*/

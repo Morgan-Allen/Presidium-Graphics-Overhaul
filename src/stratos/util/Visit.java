@@ -50,6 +50,20 @@ public abstract class Visit <T> implements Iterable <T>, Iterator <T> {
     return grid(minX, minY, dimX, dimY, 1);
   }
   
+  
+  /**  Couple of list-utility methods-
+    */
+  public static Object matchFor(Class matchClass, Series series) {
+    for (Object o : series) if (o.getClass() == matchClass) return o;
+    return null;
+  }
+  
+  
+  public static void compose(Series to, Series from) {
+    for (Object o : from) to.add(o);
+  }
+  
+  
 
   /**  More utility methods, this time for dealing with arrays-
     */

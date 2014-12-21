@@ -311,7 +311,7 @@ public final class Tile implements
   }
   
   
-  public void whenTextClicked() {
+  public void whenClicked() {
     //  TODO:  Open a simple display pane to give basic information on the
     //         habitat type.
     final BaseUI UI = BaseUI.current();

@@ -138,7 +138,7 @@ public class Alphabet {
       }
     }
     
-    map = new Letter[maxMap + 1];
+    map     = new Letter[maxMap + 1];
     letters = new Letter[scanned.size()];
     int ind = 0;
     for (Letter sLetter : scanned) {

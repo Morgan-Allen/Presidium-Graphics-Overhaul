@@ -392,14 +392,17 @@ public abstract class Vehicle extends Mobile implements
   /**  Rendering and interface methods-
     */
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
-    if (panel == null) panel = new SelectionInfoPane(UI, this, portrait(UI));
-    
-    final Description d = panel.detail();
+    if (panel == null) panel = new SelectionInfoPane(
+      UI, this, portrait(UI), true
+    );
+    final Description d = panel.detail(), l = panel.listing();
     describeStatus(d);
-    if (crew().size() > 0) d.appendList("\n\nCrew: ", crew());
-    if (inside.size() > 0) d.appendList("\n\nPassengers: ", inside);
-    if (! cargo.empty()) d.appendList("\n\nCargo: ", cargo.allItems());
-    d.append("\n\n"); d.append(helpInfo(), Colour.LIGHT_GREY);
+    d.append("\n\n");
+    d.append(helpInfo(), Colour.LIGHT_GREY);
+    
+    if (crew().size() > 0) l.appendList("\n\nCrew: "      , crew()          );
+    if (inside.size() > 0) l.appendList("\n\nPassengers: ", inside          );
+    if (! cargo.empty()  ) l.appendList("\n\nCargo: "     , cargo.allItems());
     return panel;
   }
   
@@ -446,7 +449,7 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
-  public void whenTextClicked() {
+  public void whenClicked() {
     BaseUI.current().selection.pushSelection(this, false);
   }
   

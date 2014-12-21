@@ -33,7 +33,7 @@ public class HumanDescription implements Qualities {
     Human human, SelectionInfoPane panel, BaseUI UI
   ) {
     if (panel == null) panel = new SelectionInfoPane(
-      UI, human, human.portrait(UI), "STATUS", "SKILLS", "PROFILE"
+      UI, human, human.portrait(UI), true, "STATUS", "SKILLS", "PROFILE"
     );
     final int categoryID = panel.categoryID();
     final Description d = panel.detail();
@@ -42,6 +42,45 @@ public class HumanDescription implements Qualities {
     if (categoryID == 0) HD.describeStatus(d, UI);
     if (categoryID == 1) HD.describeSkills(d, UI);
     if (categoryID == 2) HD.describeProfile(d, UI);
+    return panel;
+  }
+  
+  
+  public static SelectionInfoPane configSimplePanel(
+    Actor actor, SelectionInfoPane panel, BaseUI UI
+  ) {
+    if (panel == null) panel = new SelectionInfoPane(
+      UI, actor, actor.portrait(UI), true
+    );
+    final Description d = panel.detail(), l = panel.listing();
+    
+    d.append("Is: ");
+    actor.describeStatus(d);
+    
+    d.append("\nNests at: ");
+    if (actor.mind.home() != null) {
+      d.append(actor.mind.home());
+    }
+    else d.append("No nest");
+    
+    d.append("\n\n");
+    d.append(actor.species().info, Colour.LIGHT_GREY);
+    
+    
+    l.append("Condition: ");
+    final Batch <String> CD = actor.health.conditionsDesc();
+    if (CD.size() == 0) l.append("Okay");
+    else l.appendList("", CD);
+    
+    final Batch <Skill> skills = actor.traits.skillSet();
+    if (skills.size() > 0) {
+      l.append("\n\nSkills: ");
+      for (Skill skill : skills) {
+        final int level = (int) actor.traits.traitLevel(skill);
+        l.append("\n  "+skill.name+" "+level+" ");
+        l.append(Skill.skillDesc(level), Skill.skillTone(level));
+      }
+    }
     return panel;
   }
   

@@ -114,6 +114,12 @@ public class I {
   }
   
   
+  public static String shorten(String s, int maxLen) {
+    if (s == null || s.length() <= maxLen) return s;
+    return s.substring(0, maxLen)+"...";
+  }
+  
+  
   
   /**  Console input-
     */

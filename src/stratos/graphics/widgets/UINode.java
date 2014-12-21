@@ -45,7 +45,7 @@ public abstract class UINode {
   
   
   final protected HUD UI;
-  private UIGroup parent;
+  private UINode parent;
   private ListEntry <UINode> kidEntry;
   
   
@@ -76,18 +76,23 @@ public abstract class UINode {
   
   /**  Methods to control the order of rendering for UINodes.
     */
-  public void attachTo(UIGroup group) {
-    detach();
-    parent = group;
-    kidEntry = parent.kids.addLast(this);
+  public void attachTo(UINode parent) {
+    if (this.parent != null) {
+      I.complain("ALREADY ATTACHED TO A DIFFERENT PARENT: "+this.parent);
+    }
+    this.parent = parent;
+    if (parent instanceof UIGroup) {
+      kidEntry = ((UIGroup) parent).kids.addLast(this);
+    }
   }
   
   
   public void detach() {
-    if (parent == null) return;
-    parent.kids.removeEntry(kidEntry);
     kidEntry = null;
     parent = null;
+    if (parent instanceof UIGroup) {
+      ((UIGroup) parent).kids.removeEntry(kidEntry);
+    }
   }
   
   
@@ -186,15 +191,15 @@ public abstract class UINode {
   
   /**  Internal methods for calibrating position based off parent coordinates-
     */
-  protected void updateRelativeParent() {
-    if (parent == null) updateRelativeParent(new Box2D());
-    else updateRelativeParent(parent.bounds);
+  protected void updateState() {
+    absDepth = relDepth + (parent == null ? 0 : parent.absDepth);
+    absAlpha = relAlpha * (parent == null ? 1 : parent.absAlpha);
   }
   
   
-  protected void updateAbsoluteBounds() {
-    if (parent == null) updateAbsoluteBounds(new Box2D());
-    else updateAbsoluteBounds(parent.bounds);
+  protected void updateRelativeParent() {
+    if (parent == null) updateRelativeParent(new Box2D());
+    else updateRelativeParent(parent.bounds);
   }
   
   
@@ -211,20 +216,23 @@ public abstract class UINode {
       //  In this case we shrink either width or height to maintain a constant
       //  aspect ratio.
       final float
-        oldWide = wide, oldHigh = high,
-        aspW  = wide / absBound.xdim(),
-        aspH  = high / absBound.ydim(),
-        scale = Nums.max(aspW, aspH);
+        oldWide = wide,
+        oldHigh = high,
+        aspW    = wide / absBound.xdim(),
+        aspH    = high / absBound.ydim(),
+        scale   = Nums.max(aspW, aspH);
       wide = absBound.xdim() * scale;
       high = absBound.ydim() * scale;
       x += (oldWide - wide) / 2;
       y += (oldHigh - high) / 2;
     }
-    
-    bounds.xdim(wide);
-    bounds.ydim(high);
-    bounds.xpos(x);
-    bounds.ypos(y);
+    bounds.set(x, y, wide, high);
+  }
+  
+  
+  protected void updateAbsoluteBounds() {
+    if (parent == null) updateAbsoluteBounds(new Box2D());
+    else updateAbsoluteBounds(parent.bounds);
   }
   
   
@@ -234,12 +242,6 @@ public abstract class UINode {
       y = bounds.ypos() + base.ypos() + (relBound.ypos() * base.ydim());
     bounds.xpos(x);
     bounds.ypos(y);
-  }
-  
-  
-  protected void updateState() {
-    absDepth = relDepth + (parent == null ? 0 : parent.absDepth);
-    absAlpha = relAlpha * (parent == null ? 1 : parent.absAlpha);
   }
   
   

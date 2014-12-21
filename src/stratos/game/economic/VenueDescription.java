@@ -55,7 +55,7 @@ public class VenueDescription {
     BaseUI UI, String statusMessage
   ) {
     if (panel == null) panel = new SelectionInfoPane(
-      UI, venue, venue.portrait(UI)
+      UI, venue, venue.portrait(UI), true
     );
     final Description d = panel.detail();
     final VenueDescription VD = new VenueDescription(null);
@@ -71,7 +71,7 @@ public class VenueDescription {
   
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
     if (panel == null) panel = new SelectionInfoPane(
-      UI, v, v.portrait(UI), categories
+      UI, v, v.portrait(UI), true, categories
     );
     final String category = panel.category();
     final Description d = panel.detail();
@@ -243,7 +243,7 @@ public class VenueDescription {
       d.append("\n  ");
       if (d instanceof Text && m instanceof Human) {
         final Composite p = ((Human) m).portrait(UI);
-        ((Text) d).insert(p.texture(), 40);
+        ((Text) d).insert(p.texture(), 40, true);
       }
       d.append(m);
       if (m instanceof Actor) {
@@ -259,7 +259,7 @@ public class VenueDescription {
       final Actor p = a.actor();
       d.append("\n\n");
       
-      ((Text) d).insert(p.portrait(UI).texture(), 40);
+      ((Text) d).insert(p.portrait(UI).texture(), 40, true);
       d.append(p);
       d.append(p.inWorld() ? " (" : " (Offworld ");
       d.append(p.vocation().name+")");
@@ -282,7 +282,7 @@ public class VenueDescription {
       }
       
       d.append(new Description.Link("\n  Hire for "+a.hiringFee()+" credits") {
-        public void whenTextClicked() { v.personnel.confirmApplication(a); }
+        public void whenClicked() { v.personnel.confirmApplication(a); }
       });
     }
   }
@@ -307,14 +307,14 @@ public class VenueDescription {
       d.append("Orders: ");
       if (v.structure.needsSalvage()) {
         d.append(new Description.Link("\n  Cancel Salvage") {
-          public void whenTextClicked() {
+          public void whenClicked() {
             v.structure.cancelSalvage();
           }
         });
       }
       else {
         d.append(new Description.Link("\n  Begin Salvage") {
-          public void whenTextClicked() {
+          public void whenClicked() {
             v.structure.beginSalvage();
           }
         });
@@ -336,7 +336,7 @@ public class VenueDescription {
       if (UA.length > 0) for (final Upgrade upgrade : UA) {
         d.append("\n  ");
         d.append(new Description.Link(upgrade.name) {
-          public void whenTextClicked() { lastCU = upgrade; }
+          public void whenClicked() { lastCU = upgrade; }
         });
         d.append(" (x"+v.structure.upgradeLevel(upgrade)+")");
       }
@@ -351,7 +351,7 @@ public class VenueDescription {
         }
         if (v.structure.upgradePossible(lastCU)) {
           d.append(new Description.Link("\n\n  BEGIN UPGRADE") {
-            public void whenTextClicked() {
+            public void whenClicked() {
               v.structure.beginUpgrade(lastCU, false);
             }
           });

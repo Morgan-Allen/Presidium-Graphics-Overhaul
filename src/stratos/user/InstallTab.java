@@ -25,6 +25,7 @@ public class InstallTab extends SelectionInfoPane {
   }
   
   static Table <String, Category> categories = new Table <String, Category> ();
+  static List <Venue> allSampled = new List <Venue> ();
   static boolean setupDone = false;
   
   
@@ -40,9 +41,13 @@ public class InstallTab extends SelectionInfoPane {
       //  Construct the building type with an appropriate instance.
       final Venue sample = VenueProfile.sampleVenue(baseClass);
       if (sample.privateProperty()) continue;
+      
       final String catName = sample.objectCategory();
       final Category category = categories.get(catName);
-      if (category != null) category.samples.add(sample);
+      if (category != null) {
+        category.samples.add(sample);
+        allSampled.add(sample);
+      }
     }
     setupDone = true;
   }
@@ -68,7 +73,7 @@ public class InstallTab extends SelectionInfoPane {
   
   
   InstallTab(BaseUI UI, String catName) {
-    super(UI, null, null);
+    super(UI, null, true, true);
     if (! setupDone) setupTypes();
     this.category = categories.get(catName);
   }
@@ -86,66 +91,68 @@ public class InstallTab extends SelectionInfoPane {
   }
   
   
+  //  TODO:  This could use some elaboration...
+  
   protected void updateText(
-    final BaseUI UI, Text headerText, Text detailText
+    final BaseUI UI, Text headerText, Text detailText, Text listingText
   ) {
-    detailText.setText("");
-    headerText.setText("");
     final String name = category.name;
-    headerText.setText(name+" structures:");
+    detailText .setText("");
+    headerText .setText("");
+    listingText.setText("");
     
-    for (final Venue sample : category.samples) {
-      final Composite icon      = sample.portrait(UI);
-      final String    typeName  = sample.fullName()  ;
-      final String    typeDesc  = sample.helpInfo()  ;
-      final int       buildCost = sample.buildCost() ;
-      final Class     type      = sample.getClass();
+    if (helpShown == null) helpShown = category.samples.first().getClass();
+    final Venue sample = (Venue) Visit.matchFor(helpShown, allSampled);
+    
+    final Composite icon      = sample.portrait(UI);
+    final String    typeName  = sample.fullName()  ;
+    final String    typeDesc  = sample.helpInfo()  ;
+    final Class     type      = sample.getClass()  ;
+
+    headerText.setText(name+" structures");
+    assignPortrait(icon);
+    
+    detailText.append("\n"+typeName+"\n\n");
+    detailText.append(typeDesc, Colour.LIGHT_GREY);
+    detailText.append("\n\n");
+    detailText.append(new Description.Link("(BUILD)") {
+      public void whenClicked() { initInstallTask(UI, type); }
+    });
+    
+    listingText.append("All Types: \n");
+    for (final Venue other : allSampled) {
+      final Composite otherIcon = other.portrait(UI);
+      if (otherIcon == null) continue;
       
-      if (icon != null) detailText.insert(icon.texture(), 40);
-      detailText.append("  "+typeName);
-      detailText.append("\n Cost: "+buildCost+" Credits");
-      //  TODO:  List construction materials too?
-      
-      detailText.append(new Text.Clickable() {
-        public void whenTextClicked() { initInstallTask(UI, type); }
-        public String fullName() { return "\n  (BUILD)"; }
-      });
-      detailText.append(new Text.Clickable() {
-        public void whenTextClicked() {
-          listShown = (type == listShown) ? null : type;
-          helpShown = null;
-        }
-        public String fullName() { return "  (LIST)"; }
-      });
-      detailText.append(new Text.Clickable() {
-        public void whenTextClicked() {
-          helpShown = (type == helpShown) ? null : type;
-          listShown = null;
-        }
-        public String fullName() { return "  (INFO)"; }
-      });
-      
-      if (helpShown == type) {
-        detailText.append("\n");
-        detailText.append(typeDesc);
-        detailText.append("\n");
-      }
-      if (listShown == type) {
-        final Batch <Structure.Basis> installed = listInstalled(UI, type);
-        int ID = 0;
-        if (installed.size() == 0) {
-          detailText.append("\n  (no current installations)");
-        }
-        else for (Structure.Basis i : installed) {
-          detailText.append("\n    ");
-          final String label = i.fullName()+" No. "+(++ID);
-          detailText.append(label, (Text.Clickable) i);
-          //  You might also list location.
-        }
-        detailText.append("\n");
-      }
-      detailText.append("\n\n");
+      listingText.insert(
+        otherIcon.texture(), 40, new Description.Link(other.fullName()) {
+          public void whenClicked() {
+            helpShown = other.getClass();
+          }
+        }, false
+      );
+      listingText.append(" ");
     }
+    /*
+    for (final Venue other : category.samples) {
+      final String    otherName = other.fullName()  ;
+      final Composite otherIcon = other.portrait(UI);
+      final int       otherCost = other.buildCost() ;
+      
+      listingText.append("\n  ");
+      if (otherIcon != null) {
+        listingText.insert(otherIcon.texture(), 40);
+      }
+      listingText.append("  ");
+      listingText.append(new Description.Link(otherName) {
+        public void whenTextClicked() {
+          helpShown = other.getClass();
+        }
+      });
+      //  TODO:  List Claim area, structure type, etc.?
+      listingText.append("\n  Cost: "+otherCost+" credits");
+    }
+    //*/
   }
   
   
@@ -212,3 +219,36 @@ public class InstallTab extends SelectionInfoPane {
 }
 
 
+
+
+
+/*
+  detailText.append(new Text.Clickable() {
+    public void whenTextClicked() {
+      listShown = (type == listShown) ? null : type;
+      helpShown = null;
+    }
+    public String fullName() { return "  (LIST)"; }
+  });
+  detailText.append(new Text.Clickable() {
+    public void whenTextClicked() {
+      helpShown = (type == helpShown) ? null : type;
+      listShown = null;
+    }
+    public String fullName() { return "  (INFO)"; }
+  });
+  
+  if (listShown == type) {
+    final Batch <Structure.Basis> installed = listInstalled(UI, type);
+    int ID = 0;
+    if (installed.size() == 0) {
+      detailText.append("\n  (no current installations)");
+    }
+    else for (Structure.Basis i : installed) {
+      detailText.append("\n    ");
+      final String label = i.fullName()+" No. "+(++ID);
+      detailText.append(label, (Text.Clickable) i);
+      //  You might also list location.
+    }
+}
+//*/

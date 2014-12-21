@@ -61,7 +61,7 @@ public class CommsPanel extends SelectionInfoPane {
     final Clickable navOptions[] = {
       new Clickable() {
         public String fullName() { return "View all messages"; }
-        public void whenTextClicked() {
+        public void whenClicked() {
           UI.setInfoPanels(UI.commsPanel(), null);
         }
       }
@@ -79,16 +79,16 @@ public class CommsPanel extends SelectionInfoPane {
   
   
   protected void updateText(
-    final BaseUI UI, Text headerText, Text detailText
+    final BaseUI UI, Text headerText, Text detailText, Text listingText
   ) {
-    super.updateText(UI, headerText, detailText);
+    super.updateText(UI, headerText, detailText, listingText);
     headerText.setText("COMMUNICATIONS");
     
     for (final Message message : messages) {
       detailText.append("\n  ");
       detailText.append(new Clickable() {
         public String fullName() { return message.keyTitle; }
-        public void whenTextClicked() { UI.setInfoPanels(message.panel, null); }
+        public void whenClicked() { UI.setInfoPanels(message.panel, null); }
       });
     }
   }

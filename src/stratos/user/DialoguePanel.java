@@ -48,7 +48,7 @@ public class DialoguePanel extends SelectionInfoPane implements UIConstants {
   
   
   protected void updateText(
-    final BaseUI UI, Text headerText, Text detailText
+    final BaseUI UI, Text headerText, Text detailText, Text listingText
   ) {
     headerText.setText(title);
     detailText.setText(initText);

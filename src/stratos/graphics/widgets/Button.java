@@ -7,6 +7,7 @@
 package stratos.graphics.widgets;
 import stratos.graphics.common.*;
 import stratos.util.*;
+import stratos.graphics.widgets.Text.Clickable;
 
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.math.*;
@@ -32,6 +33,7 @@ public class Button extends Image {
     pressLit = DEFAULT_PRESS_ALPHA;
   protected Texture highlit;
   protected String info;
+  protected Clickable links;
   
   
   public Button(HUD myHUD, ImageAsset norm, String infoS) {
@@ -55,6 +57,12 @@ public class Button extends Image {
   }
   
   
+  public void setLinks(Clickable links) {
+    this.links = links;
+    this.info = links.fullName();
+  }
+  
+  
   public void setHighlight(Texture h) {
     highlit = h;
   }
@@ -65,12 +73,33 @@ public class Button extends Image {
   }
   
   
+
+  public boolean equals(Object other) {
+    if (! (other instanceof Button)) return false;
+    final Button b = (Button) other;
+    return this.toString().equals(b.toString());
+  }
+  
+  
+  public String toString() {
+    if      (links != null) return links.fullName()+" (button link)";
+    else if (info  != null) return "Button "+I.shorten(info, 8);
+    else                    return "Button "+hashCode();
+  }
+  
+  
   
   /**  UI method overrides/implementations-
     */
   protected UINode selectionAt(Vector2 mousePos) {
-    return (bounds.contains(mousePos.x, mousePos.y)) ? this : null;
+    return (trueBounds().contains(mousePos.x, mousePos.y)) ? this : null;
     //  TODO:  Consider restoring multiple selection modes.
+  }
+  
+  
+  protected void whenClicked() {
+    super.whenClicked();
+    if (links != null) links.whenClicked();
   }
   
 

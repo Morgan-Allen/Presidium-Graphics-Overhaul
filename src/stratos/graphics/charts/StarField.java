@@ -380,7 +380,7 @@ public class StarField extends Assets.Loadable {
     font.texture().bind(0);
     
     for (FieldObject o : allObjects) if (o.label != null) {
-
+      
       final Vec3D v = o.coordinates;
       pos.set(v.x, v.y, v.z);
       float
@@ -399,9 +399,9 @@ public class StarField extends Assets.Loadable {
         appendVertex(piece, pos, x + w, y    , Colour.WHITE, l.umax, l.vmax);
         appendVertex(piece, pos, x + w, y + h, Colour.WHITE, l.umax, l.vmin);
         x += w;
+        
+        if (compiled.meshFull()) compiled.renderWithShader(shading, true);
       }
-      
-      if (compiled.meshFull()) compiled.renderWithShader(shading, true);
     }
     compiled.renderWithShader(shading, true);
   }
