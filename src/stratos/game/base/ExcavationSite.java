@@ -67,7 +67,7 @@ public class ExcavationSite extends Venue implements TileConstants {
       200, 15, 350,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_FIXTURE
     );
-    personnel.setShiftType(SHIFTS_BY_DAY);
+    staff.setShiftType(SHIFTS_BY_DAY);
     attachModel(SHAFT_MODEL);
   }
 
@@ -213,7 +213,7 @@ public class ExcavationSite extends Venue implements TileConstants {
   
   
   public Behaviour jobFor(Actor actor) {
-    if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
+    if ((! structure.intact()) || (! staff.onShift(actor))) return null;
     final boolean report = verbose && I.talkAbout == actor;
     
     if (report) I.say("\nGETTING NEXT EXCAVATION TASK");

@@ -43,7 +43,7 @@ public class Stage {
   final public int size;
   final Tile tiles[][];
   final public WorldSections sections;
-  final public PlacementGrid claims;
+  final public ClaimsGrid claims;
   
   final public Schedule schedule;
   private float currentTime = DEFAULT_INIT_TIME;
@@ -53,8 +53,6 @@ public class Stage {
   private Ecology ecology;
   private List <Base> bases = new List <Base> ();
   final public Offworld offworld = new Offworld();
-  
-  //final public Setting setting = new Setting();
   
   final public Activities activities;
   final public PathingCache pathingCache;
@@ -69,7 +67,7 @@ public class Stage {
       tiles[c.x][c.y] = new Tile(this, c.x, c.y);
     }
     sections = new WorldSections(this, PATCH_RESOLUTION);
-    claims   = new PlacementGrid(this);
+    claims   = new ClaimsGrid(this);
     schedule = new Schedule(currentTime);
     
     ecology = new Ecology(this);

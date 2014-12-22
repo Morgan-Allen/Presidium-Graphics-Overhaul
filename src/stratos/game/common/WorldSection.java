@@ -7,6 +7,9 @@ import stratos.util.*;
 
 public class WorldSection implements Target, Session.Saveable {
   
+  
+  /**  Data fields, construction, and save/load methods-
+    */
   final public Stage world;
   final public Box3D bounds = new Box3D();
   final public Box2D area = new Box2D();
@@ -41,6 +44,8 @@ public class WorldSection implements Target, Session.Saveable {
   
   
   
+  /**  Satisfying the target contract-
+    */
   public Stage world() { return world; }
   public Base base() { return null; }
   
@@ -63,6 +68,14 @@ public class WorldSection implements Target, Session.Saveable {
   
   public void flagWith(Object f) { flagged = f; }
   public Object flaggedWith() { return flagged; }
+  
+  
+  
+  /**  Diagnosis and feedback methods-
+    */
+  public String toString() {
+    return "Section at "+absX+"|"+absY+" (size "+size+")";
+  }
 }
 
 

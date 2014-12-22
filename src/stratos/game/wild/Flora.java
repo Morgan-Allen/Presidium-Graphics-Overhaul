@@ -115,7 +115,7 @@ public class Flora extends Element implements TileConstants {
     if (t.onTop() instanceof Flora) {
       final Flora f = (Flora) t.onTop();
       if (Rand.num() < (growChance * 4 * GROWTH_PER_UPDATE)) {
-        f.incGrowth(1, t.world, false);
+        f.incGrowth(0.5f + Rand.num(), t.world, false);
         t.world.ecology().impingeBiomass(t, f.growth, Stage.GROWTH_INTERVAL);
       }
       return f;
@@ -133,21 +133,21 @@ public class Flora extends Element implements TileConstants {
     if (verbose) I.say("Seeding new tree at: "+t);
     final Flora f = new Flora(t.habitat());
     f.enterWorldAt(t.x, t.y, t.world);
-    f.incGrowth(1, t.world, false);
+    f.incGrowth(0.5f + Rand.num(), t.world, false);
     t.world.ecology().impingeBiomass(t, f.growth, Stage.GROWTH_INTERVAL);
     return f;
   }
   
   
   public void incGrowth(float inc, Stage world, boolean init) {
-    final int oldGrowth = Nums.clamp((int) growth, MAX_GROWTH);
+    final int oldStage = Nums.clamp((int) growth, MAX_GROWTH);
     growth += inc;
     if (growth <= 0) {
       setAsDestroyed();
       return;
     }
-    final int newGrowth = Nums.clamp((int) growth, MAX_GROWTH);
-    if (oldGrowth == newGrowth && ! init) return;
+    final int newStage = Nums.clamp((int) growth, MAX_GROWTH);
+    if (oldStage == newStage && ! init) return;
     
     if (inc > 0 && ! init) {
       final float moisture = origin().habitat().moisture() / 10f;
@@ -161,8 +161,8 @@ public class Flora extends Element implements TileConstants {
     }
     
     final Sprite oldSprite = this.sprite();
-    if (oldGrowth != newGrowth || oldSprite == null) {
-      final CutoutModel model = habitat.floraModels[varID][newGrowth];
+    if (oldStage != newStage || oldSprite == null) {
+      final CutoutModel model = habitat.floraModels[varID][newStage];
       attachSprite(model.makeSprite());
       setAsEstablished(false);
       if (oldSprite != null) world.ephemera.addGhost(this, 1, oldSprite, 2.0f);
@@ -196,23 +196,3 @@ public class Flora extends Element implements TileConstants {
 
 
 
-
-/*
-for (int i : N_INDEX) {
-  final Tile n = world.tileAt(t.x + N_X[i], t.y + N_Y[i]);
-  if (n == null || n.blocked())
-    numBlocked++;
-  if (n != null) {
-    if (n.owningType() > Element.ELEMENT_OWNS) {
-      numBlocked = 8;
-      break;
-    }
-    if (n.owner() instanceof Boardable) {
-      if (t.isEntrance((Boardable) n.owner())) {
-        numBlocked = 8;
-        break;
-      }
-    }
-  }
-}
-//*/

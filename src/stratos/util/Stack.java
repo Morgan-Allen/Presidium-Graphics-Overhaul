@@ -65,17 +65,20 @@ public class Stack <T> implements Series <T> {
     return t;
   }
   
+  
   /**  Returns the first object in this sequence, which is itself unaffected.
     */
-  final public T getFirst() {
+  final public T first() {
     return (first == null) ? null : first.refers;
   }
   
+  
   /**  Returns the last object in this sequence, which is itself unaffected.
     */
-  final public T getLast() {
+  final public T last() {
     return (last == null) ? null : last.refers;
   }
+  
   
   /**  Returns the object at the given index in this sequence, which is itself
     *  unaffected.

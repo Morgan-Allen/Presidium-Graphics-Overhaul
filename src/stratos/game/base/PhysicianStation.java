@@ -58,7 +58,7 @@ public class PhysicianStation extends Venue {
       200, 2, 350,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
     );
-    personnel.setShiftType(SHIFTS_BY_DAY);
+    staff.setShiftType(SHIFTS_BY_DAY);
     attachSprite(MODEL.makeSprite());
   }
   
@@ -151,7 +151,7 @@ public class PhysicianStation extends Venue {
     if (! structure.intact()) return null;
     
     //  If there are patients inside, make sure somebody's available.
-    if (numPatients() == 0 && ! personnel.onShift(actor)) return null;
+    if (numPatients() == 0 && ! staff.onShift(actor)) return null;
     final Choice choice = new Choice(actor);
     
     //  Manufacture basic medicines for later use.

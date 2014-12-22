@@ -80,8 +80,8 @@ public class ContactMission extends Mission {
     }
     else if (subject instanceof Venue) {
       final Venue v = (Venue) subject;
-      for (Actor a : v.personnel.residents()) batch.include(a);
-      for (Actor a : v.personnel.workers()  ) batch.include(a);
+      for (Actor a : v.staff.residents()) batch.include(a);
+      for (Actor a : v.staff.workers()  ) batch.include(a);
     }
     return talksTo = batch.toArray(Actor.class);
   }

@@ -217,9 +217,7 @@ public abstract class Fauna extends Actor {
   
   public boolean actionBrowse(Fauna actor, Flora eaten) {
     if (! eaten.inWorld()) return false;
-    
-    //if (verbose) I.sayAbout(this, "Am browsing at: "+eaten.origin());
-    float bite = 0.1f * eaten.growStage() * 2 * health.maxHealth() / 10;
+    float bite = 0.1f * health.maxHealth() / 10;
     eaten.incGrowth(0 - bite, actor.world(), false);
     actor.health.takeCalories(bite * PLANT_CONVERSION, 1);
     return true;

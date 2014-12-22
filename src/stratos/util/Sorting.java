@@ -169,6 +169,16 @@ public abstract class Sorting <K> implements Series <K> {
   }
   
   
+  public K first() {
+    return least();
+  }
+  
+  
+  public K last() {
+    return greatest();
+  }
+  
+  
   public K removeGreatest() {
     final Object ref = greatestRef();
     if (ref == null) return null;

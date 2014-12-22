@@ -10,15 +10,12 @@ import stratos.user.*;
 import stratos.util.*;
 
 
-//  TODO:  Just figger out animal-breeding now- plus the arcology and stockX.
+
 
 //  Assign drills directly at the trooper lodge.  That'll keep 'em busy!
 
 //  Arrange for contact missions to come back with a desired price from the
 //  subject/s.
-
-//  TODO:  There's a crash bug associated with the LibGDX object pool for text-
-//  characters when the text-view is being scrolled.
 
 //  TODO:  Introduce hunting by the natives, and allow trading with them as a
 //  source of carbs/greens/protein.  (Also, add singer performance?)  ...Just
@@ -32,6 +29,17 @@ import stratos.util.*;
 //  Rework art for roads, the shield wall, the physician station, the engineer
 //  station, the solar bank, and the archives.
 
+//  TODO:  Make sure that Dialogue/chatting still works.
+//         Retreat should have the possibility to break pursuit as well.
+//         Indoor combats take way too long.
+
+//  TODO:  However, the SFX being shown might be a clue to sprites-flickering
+//         in odd locations.  Consider studying it for that reason.
+
+//  TODO:  Also, animals should react more strongly to strangers (either fight
+//         or flee.)
+
+//  TODO:  Test the stock exchange, and re-introduce the arcology + edifice.
 
 
 public class DebugTutorial extends TutorialScenario {

@@ -184,7 +184,7 @@ public class HumanMind extends ActorMind implements Qualities {
     choice.add(new Foraging(actor, null));
     choice.add(new Retreat(actor));
     
-    final boolean timeoff = work == null || ! work.personnel().onShift(actor);
+    final boolean timeoff = work == null || ! work.staff().onShift(actor);
     if (work != null) {
       choice.add(work.jobFor(actor));
       if (timeoff && work != home) work.addServices(choice, actor);
@@ -211,7 +211,7 @@ public class HumanMind extends ActorMind implements Qualities {
       actor, world, (int) numSampled, around, Venue.class
     );
     
-    final boolean timeoff = work == null || ! work.personnel().onShift(actor);
+    final boolean timeoff = work == null || ! work.staff().onShift(actor);
     for (Venue venue : around) {
       if (timeoff && venue.structure().intact()) {
         venue.addServices(choice, actor);

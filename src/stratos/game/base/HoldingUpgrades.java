@@ -151,7 +151,7 @@ public class HoldingUpgrades {
   
   protected static float supportNeed(Holding holding, int targetLevel) {
     final float
-      population = holding.personnel.residents().size(),
+      population = holding.staff.residents().size(),
       popDemand  = population * targetLevel * 1f / NUM_LEVELS;
     final float
       biomass  = holding.world().ecology().globalBiomass(),
@@ -191,7 +191,7 @@ public class HoldingUpgrades {
     //  TODO:  Get pricing-levels for the base as a whole, and use that to
     //  adjust what's demanded?
     final int typesNeeded = LEVEL_TYPES_NEEDED[upgradeLevel];
-    final float foodNeed = holding.personnel.residents().size() * 1.5f;
+    final float foodNeed = holding.staff.residents().size() * 1.5f;
     
     final Batch <Item> needed = new Batch <Item> ();
     for (Traded type : FOOD_TYPES) {
@@ -213,7 +213,7 @@ public class HoldingUpgrades {
     //  1 unit of food per resident is the standard.  However, you need to have
     //  a reasonable 'balance' of food types, in terms of no less than half an
     //  equal share of the total.
-    float foodNeed = holding.personnel.residents().size();
+    float foodNeed = holding.staff.residents().size();
     int numFoods = 0; for (Traded f : FOOD_TYPES) {
       if (holding.stocks.amountOf(f) > 0) numFoods++;
     }

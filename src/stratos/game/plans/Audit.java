@@ -227,12 +227,12 @@ public class Audit extends Plan {
     //
     //  Our first step is to get the total sum of wages to pay to each worker
     //  associated with this venue.
-    final int numW = audited.personnel().workers().size();
+    final int numW = audited.staff().workers().size();
     final Profile profiles[] = new Profile[numW];
     final int salaries[] = new int[numW];
     int sumWages = 0, sumSalaries = 0, i = 0;
     
-    for (Actor works : audited.personnel().workers()) {
+    for (Actor works : audited.staff().workers()) {
       final Profile p = base.profiles.profileFor(works);
       profiles[i] = p;
       final int

@@ -194,7 +194,7 @@ public abstract class Artilect extends Actor {
     }
     if (
       (isTripod || isCranial) && home != null &&
-      home.personnel().numResident(Species.SPECIES_CRANIAL) > 0
+      home.staff().numResident(Species.SPECIES_CRANIAL) > 0
     ) {
       //  TODO:  Restore this later, once Cybrid creation is sorted out.
       /*
@@ -207,7 +207,7 @@ public abstract class Artilect extends Actor {
         choice.add(recovery);
       }
       //*/
-      for (Actor other : home.personnel().residents()) {
+      for (Actor other : home.staff().residents()) {
         if (other.health.conscious()) continue;
         if (report) I.say("  FALLEN ALLY: "+other);
         final Plan recovery = new StretcherDelivery(this, other, home);
@@ -220,7 +220,7 @@ public abstract class Artilect extends Actor {
     //  (Cranial specialties.)
     if (isCranial && home instanceof Venue) {
       final Venue venue = (Venue) mind.home();
-      for (Actor other : venue.personnel.residents()) {
+      for (Actor other : venue.staff.residents()) {
         choice.add(new SpawnArtilect(this, other, venue));
       }
       final Ruins ruins = (Ruins) world.presences.randomMatchNear(

@@ -40,7 +40,7 @@ public class Fabricator extends Venue {
       125, 2, 200,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
     );
-    personnel.setShiftType(SHIFTS_BY_DAY);
+    staff.setShiftType(SHIFTS_BY_DAY);
     attachSprite(MODEL.makeSprite());
   }
   
@@ -107,7 +107,7 @@ public class Fabricator extends Venue {
   
   
   public Behaviour jobFor(Actor actor) {
-    if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
+    if ((! structure.intact()) || (! staff.onShift(actor))) return null;
     
     final Choice choice = new Choice(actor);
     

@@ -182,7 +182,7 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   
   
   public float homeCrowding(Actor actor) {
-    return personnel().residents().size() * 1f / MAX_CREW;
+    return staff().residents().size() * 1f / MAX_CREW;
   }
   
   

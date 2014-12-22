@@ -84,14 +84,14 @@ public class Cantina extends Venue {
   public Cantina(Base base) {
     super(3, 2, Venue.ENTRANCE_SOUTH, base);
     structure.setupStats(150, 2, 200, 0, Structure.TYPE_VENUE);
-    personnel.setShiftType(SHIFTS_BY_DAY);
+    staff.setShiftType(SHIFTS_BY_DAY);
     attachSprite(MODEL.makeSprite());
   }
   
   
   public Cantina(Session s) throws Exception {
     super(s);
-    personnel.setShiftType(SHIFTS_BY_DAY);
+    staff.setShiftType(SHIFTS_BY_DAY);
     nameID = s.loadInt();
     gamblePot = s.loadFloat();
     for (int n = s.loadInt(); n-- > 0;) {
@@ -124,7 +124,7 @@ public class Cantina extends Venue {
   /**  Upgrades, services and economic functions-
     */
   public Behaviour jobFor(Actor actor) {
-    if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
+    if ((! structure.intact()) || (! staff.onShift(actor))) return null;
     if (actor.vocation() == Backgrounds.SOMA_CHEF) {
       final Traded needed[] = { SOMA, CARBS, PROTEIN };
       final Delivery d = DeliveryUtils.bestBulkCollectionFor(
@@ -150,14 +150,14 @@ public class Cantina extends Venue {
   
   
   public void addServices(Choice choice, Actor forActor) {
-    if (personnel.numPresent(Backgrounds.PERFORMER) > 0) {
+    if (staff.numPresent(Backgrounds.PERFORMER) > 0) {
       choice.add(new Recreation(forActor, this, Recreation.TYPE_SONG));
       choice.add(nextGambleFor(forActor));
       choice.add(new Performance(
         forActor, this, Recreation.TYPE_SONG, null
       ));
     }
-    if (personnel.numPresent(Backgrounds.SOMA_CHEF) > 0) {
+    if (staff.numPresent(Backgrounds.SOMA_CHEF) > 0) {
       choice.add(nextSomaOrderFor(forActor));
       final Resting resting = new Resting(forActor, this);
       resting.cost = (int) LODGING_PRICE;

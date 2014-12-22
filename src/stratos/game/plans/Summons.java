@@ -225,7 +225,7 @@ public class Summons extends Plan {
   
   public static int numSummoned(Property p) {
     int count = 0;
-    for (Actor a : p.personnel().visitors()) {
+    for (Actor a : p.staff().visitors()) {
       if (a.isDoing(Summons.class, p)) count++;
     }
     return count;

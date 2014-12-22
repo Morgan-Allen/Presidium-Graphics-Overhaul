@@ -28,17 +28,20 @@ public class Presences {
   final private PresenceMap nullMap;
   final private Stack nullStack;
   
+  //  TODO:  All elements need to register their presence with their base of
+  //  origin (or the world if that fails.)
+  
   
   
   Presences(Stage world) {
   	this.world = world;
   	allMaps = new Table <Object, PresenceMap> ();
-  	floraMap = new PresenceMap(world, Flora.class);
+  	floraMap   = new PresenceMap(world, Flora  .class);
   	outcropMap = new PresenceMap(world, Outcrop.class);
-  	mobilesMap = new PresenceMap(world, Mobile.class);
-  	allMaps.put(Flora.class , floraMap  );
+  	mobilesMap = new PresenceMap(world, Mobile .class);
+  	allMaps.put(Flora.class  , floraMap  );
   	allMaps.put(Outcrop.class, outcropMap);
-  	allMaps.put(Mobile.class, mobilesMap);
+  	allMaps.put(Mobile.class , mobilesMap);
   	
     nullMap = new PresenceMap(world, "nothing") {
       public void toggleMember(Target t, Tile at, boolean is) {

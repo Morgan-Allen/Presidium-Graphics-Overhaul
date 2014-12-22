@@ -7,9 +7,13 @@ package stratos.game.politic;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.actors.*;
+import stratos.user.BaseUI;
 import stratos.util.*;
 import stratos.game.plans.*;
 
+
+
+//  TODO:  Maybe unite this with the GrowthMap code?
 
 
 public class BaseSetup {
@@ -17,27 +21,27 @@ public class BaseSetup {
   
   /**  Placement of assorted structure types based on internal demand:
     */
+  private static boolean
+    verbose      = true ,
+    extraVerbose = false;
+  
   final static float
     FULL_EVAL_PERIOD = Stage.STANDARD_DAY_LENGTH,
     DEFAULT_PLACE_HP = 50;
   
-  private static boolean verbose = false;
-  
   final Base base;
   final Stage world;
-  
-  //
-  //  Data structures for handling supply-and-demand:
   //private BaseDemands demands = new BaseDemands(this);  //  Setup this.
   
   //
   //  Data structures for conducting time-sliced placement of private venues:
   static class Placing {
-    Venue   sampled  ;
+    Venue        sampled  ;
     WorldSection placed   ;
-    Tile    exactTile;
-    float   rating   ;
+    Tile         exactTile;
+    float        rating   ;
   }
+  
   
   final List <Placing> placings = new List <Placing> () {
     protected float queuePriority(Placing r) {
@@ -95,10 +99,18 @@ public class BaseSetup {
   /**  Time-sliced automation of building-placement methods-
     */
   public void updatePlacements() {
+    if (base.primal) {
+      //  TODO:  This is a bit of a hack...  Primal bases should have a more
+      //  restricted set of venues to work from instead.
+      return;
+    }
     
+    final boolean report = verbose && extraVerbose && (
+      BaseUI.currentPlayed() == base
+    );
     if (placings.size() == 0) {
-      if (verbose) I.say("Ranking sections...");
-      rankSectionPlacings();
+      if (report) I.say("\nRanking sections...");
+      rankSectionPlacings(report);
       calcPlaceLimit();
       return;
     }
@@ -112,7 +124,7 @@ public class BaseSetup {
     
     if (numIters <= 0) return;
     lastEval = time;
-    if (verbose) I.say("Placement iterations: "+numIters+"/"+iterLimit);
+    if (report) I.say("\nPlacement iterations: "+numIters+"/"+iterLimit);
     
     while (numIters-- > 0 && placings.size() > 0) {
       final Placing best = placings.removeLast();
@@ -122,14 +134,16 @@ public class BaseSetup {
       if (attemptExactPlacement(best)) {
         amountPlaced += best.sampled.structure.maxIntegrity();
         
-        if (verbose) descPlacing("New Placement: ", best);
-        if (verbose) I.say("  Placed: "+amountPlaced+" Limit: "+placeLimit);
+        if (report) descPlacing("  New Placement: ", best);
+        if (report) I.say("  Placed: "+amountPlaced+" Limit: "+placeLimit);
       }
     }
   }
   
   
   private boolean attemptExactPlacement(Placing placing) {
+    final boolean report = verbose && BaseUI.currentPlayed() == base;
+    
     final Venue sample = placing.sampled;
     float bestRating = 0;
     Tile  bestTile = null;
@@ -150,7 +164,11 @@ public class BaseSetup {
     }
     
     if (bestRating <= 0) return false;
-    sample.assignBase(base);
+    if (report) {
+      I.say("\nPlacing "+sample+" at "+bestTile);
+      I.say("  Rating: "+bestRating);
+      I.say("  Base:   "+sample.base()+" vs. "+this.base);
+    }
     sample.setPosition(bestTile.x, bestTile.y, world);
     sample.doPlacement();
     return true;
@@ -167,13 +185,14 @@ public class BaseSetup {
   }
   
   
-  private void rankSectionPlacings() {
+  private void rankSectionPlacings(boolean report) {
     placings.clear();
     amountPlaced = 0;
     final Venue samples[] = VenueProfile.sampleVenues(Venue.VENUE_OWNS, true);
     
     for (WorldSection section : world.sections.sectionsUnder(world.area())) {
       for (Venue sample : samples) {
+        sample.assignBase(base);
         final Placing p = new Placing();
         p.sampled   = sample ;
         p.placed    = section;
@@ -181,7 +200,7 @@ public class BaseSetup {
         p.rating    = sample.ratePlacing(section);
         if (p.rating > 0) {
           placings.add(p);
-          if (verbose) descPlacing("Ranking placement: ", p);
+          if (report) descPlacing("  Ranking placement: ", p);
         }
       }
     }

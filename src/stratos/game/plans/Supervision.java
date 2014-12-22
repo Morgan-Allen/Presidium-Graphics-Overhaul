@@ -22,7 +22,7 @@ public class Supervision extends Plan {
     */
   private static boolean
     evalVerbose  = false,
-    stepsVerbose = true ;
+    stepsVerbose = false;
   
   public static enum Type {
     TYPE_OVERSIGHT,
@@ -93,7 +93,7 @@ public class Supervision extends Plan {
   final static Trait BASE_TRAITS[] = { RELAXED, IGNORANT, DUTIFUL };
 
   protected float getPriority() {
-    if (! venue.personnel.onShift(actor)) return 0;
+    if (! venue.staff.onShift(actor)) return 0;
     
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (report) {

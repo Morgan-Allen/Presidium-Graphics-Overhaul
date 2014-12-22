@@ -91,7 +91,7 @@ public class NativeHut extends Venue {
     super(size, height, ENTRANCE_SOUTH, base);
     this.type = type;
     this.tribeID = tribeID;
-    personnel.setShiftType(SHIFTS_ALWAYS);
+    staff.setShiftType(SHIFTS_ALWAYS);
     
     if (type != TYPE_PLACES && tribeID >= 0) {
       final int varID = nextVar++ % 2;

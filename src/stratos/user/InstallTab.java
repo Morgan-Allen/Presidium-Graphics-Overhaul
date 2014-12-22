@@ -101,8 +101,9 @@ public class InstallTab extends SelectionInfoPane {
     headerText .setText("");
     listingText.setText("");
     
-    if (helpShown == null) helpShown = category.samples.first().getClass();
-    final Venue sample = (Venue) Visit.matchFor(helpShown, allSampled);
+    final Series <Venue> sampled = category.samples;
+    if (helpShown == null) helpShown = sampled.first().getClass();
+    final Venue sample = (Venue) Visit.matchFor(helpShown, sampled);
     
     final Composite icon      = sample.portrait(UI);
     final String    typeName  = sample.fullName()  ;
@@ -120,11 +121,10 @@ public class InstallTab extends SelectionInfoPane {
     });
     //  TODO:  Allow listing of current structures.
     //  TODO:  Allow a general summary of demand for structures of this type.
-    
     //  TODO:  Give multiple options for listing the various structure types!
     
     listingText.append("All Types: \n");
-    for (final Venue other : allSampled) {
+    for (final Venue other : sampled) {
       final Composite otherIcon = other.portrait(UI);
       if (otherIcon == null) continue;
       

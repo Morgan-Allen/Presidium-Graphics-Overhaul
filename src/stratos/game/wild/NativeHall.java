@@ -76,7 +76,7 @@ public class NativeHall extends NativeHut {
     if (numUpdates % 10 == 0) updatePopEstimate(world);
     
     for (NativeHut hut : children) {
-      if (hut.personnel.unoccupied()) {
+      if (hut.staff.unoccupied()) {
         hut.structure.setState(Structure.STATE_SALVAGE,  -1);
       }
       if (hut.destroyed()) children.remove(hut);

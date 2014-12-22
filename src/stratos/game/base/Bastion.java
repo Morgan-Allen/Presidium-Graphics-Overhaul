@@ -51,7 +51,7 @@ public class Bastion extends Venue {
       650, 15, 1000,
       Structure.BIG_MAX_UPGRADES, Structure.TYPE_FIXTURE
     );
-    personnel.setShiftType(SHIFTS_BY_HOURS);
+    staff.setShiftType(SHIFTS_BY_HOURS);
     attachSprite(MODEL.makeSprite());
   }
   
@@ -155,7 +155,7 @@ public class Bastion extends Venue {
   public float homeCrowding(Actor actor) {
     if (actor.mind.work() == this) return 0;
     final int maxPop = 6 + (structure.upgradeLevel(NOBLE_QUARTERS) * 2);
-    return personnel.residents().size() * 1f / maxPop;
+    return staff.residents().size() * 1f / maxPop;
   }
   
   
@@ -173,7 +173,7 @@ public class Bastion extends Venue {
       return Supervision.oversight(this, actor);
     }
     
-    if (! personnel.onShift(actor)) return null;
+    if (! staff.onShift(actor)) return null;
     
     if (v == Backgrounds.VETERAN || v == Backgrounds.WAR_MASTER) {
       return Patrolling.nextGuardPatrol(actor, this, Plan.ROUTINE);
@@ -228,7 +228,7 @@ public class Bastion extends Venue {
     }
     //
     //  Demand provisions-
-    final int foodNeed = personnel.residents().size() + 2;
+    final int foodNeed = staff.residents().size() + 2;
     stocks.forceDemand(CARBS   , foodNeed * 1.5f, TIER_CONSUMER);
     stocks.forceDemand(PROTEIN , foodNeed * 1.0f, TIER_CONSUMER);
     stocks.forceDemand(GREENS  , foodNeed * 1.0f, TIER_CONSUMER);

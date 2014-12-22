@@ -105,13 +105,13 @@ public class SolidSprite extends Sprite {
       //  animation state and blend them together, while culling any that have
       //  expired-
       final float time = Rendering.activeTime();
-      AnimState validFrom = animStates.getFirst();
+      AnimState validFrom = animStates.first();
       for (AnimState state : animStates) {
         float alpha = (time - state.incept) / ANIM_INTRO_TIME;
         if (alpha >= 1) { validFrom = state; alpha = 1; }
         model.animControl.apply(state.current, state.time, alpha);
       }
-      while (animStates.getFirst() != validFrom) animStates.removeFirst();
+      while (animStates.first() != validFrom) animStates.removeFirst();
     }
     model.animControl.end();
     
@@ -204,7 +204,7 @@ public class SolidSprite extends Sprite {
     Animation match = model.gdxModel.getAnimation(id);
     if (match == null) return;
     
-    AnimState topState = animStates.getLast();
+    AnimState topState = animStates.last();
     final boolean newState =
       (animStates.size() == 0) ||
       (topState.current != match);

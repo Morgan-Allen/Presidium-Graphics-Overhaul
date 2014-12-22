@@ -52,7 +52,7 @@ public class EcologistStation extends Venue {
       150, 3, 250,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
     );
-    personnel.setShiftType(SHIFTS_BY_DAY);
+    staff.setShiftType(SHIFTS_BY_DAY);
     attachSprite(STATION_MODEL.makeSprite());
   }
   
@@ -146,7 +146,7 @@ public class EcologistStation extends Venue {
   
   
   public Behaviour jobFor(Actor actor) {
-    if (! structure.intact()) return null;
+    if ((! structure.intact()) || ! (staff.onShift(actor))) return null;
     final Choice choice = new Choice(actor);
     //
     //  Consider collecting gene samples-
@@ -164,7 +164,7 @@ public class EcologistStation extends Venue {
     //  Tailor seed varieties and consider breeding animals-
     for (Species s : Crop.ALL_VARIETIES) {
       final SeedTailoring t = new SeedTailoring(actor, this, s);
-      if (personnel.assignedTo(t) > 0) continue;
+      if (staff.assignedTo(t) > 0) continue;
       choice.add(t);
     }
     choice.add(AnimalBreeding.nextBreeding(actor, this));
@@ -210,7 +210,7 @@ public class EcologistStation extends Venue {
   
   public int numOpenings(Background v) {
     int num = super.numOpenings(v);
-    if (v == ECOLOGIST) return num + 1;
+    if (v == ECOLOGIST) return num + 2;
     return 0;
   }
   

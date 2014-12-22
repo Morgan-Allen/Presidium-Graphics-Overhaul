@@ -17,15 +17,6 @@ import stratos.util.*;
 
 
 
-//  TODO:  Make sure that Dialogue/chatting still works.
-//         Retreat should have the possibility to break pursuit as well.
-//         Indoor combats take way too long.
-
-//  TODO:  However, the SFX being shown might be a clue to sprites-flickering
-//         in odd locations.  Consider studying it for that reason.
-
-//  TODO:  Lots of UI bits and pieces need updating now.  Fix install tab.
-
 
 public class DebugSecurity extends Scenario {
   
@@ -89,13 +80,19 @@ public class DebugSecurity extends Scenario {
     GameSettings.paveFree  = true;
     GameSettings.noChat    = true;
     
-    if (true ) breedingScenario(world, base, UI);
+    if (false) breedingScenario(world, base, UI);
     if (false) arrestScenario  (world, base, UI);
+    if (true ) animalScenario  (world, base, UI);
+  }
+  
+  
+  private void animalScenario(Stage world, Base base, BaseUI UI) {
+    //  TODO:  Introduce some animals near actors, and guage their respective
+    //  reactions.
   }
   
   
   private void breedingScenario(Stage world, Base base, BaseUI UI) {
-    
     final Actor ecologist = new Human(Backgrounds.ECOLOGIST, base);
     final Venue station = new EcologistStation(base);
     Placement.establishVenue(station, 10, 10, true, world, ecologist);
@@ -103,9 +100,11 @@ public class DebugSecurity extends Scenario {
     station.stocks.bumpItem(Economy.CARBS  , 5);
     station.stocks.bumpItem(Economy.PROTEIN, 5);
     
-    final Plan breeding = AnimalBreeding.breedingFor(
+    final AnimalBreeding breeding = AnimalBreeding.breedingFor(
       ecologist, station, Species.HAREEN, world.tileAt(25, 25)
     );
+    station.stocks.addItem(Item.withAmount(breeding.asSeed(), 0.95f));
+    
     breeding.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL);
     ecologist.mind.assignBehaviour(breeding);
     UI.selection.pushSelection(ecologist, true);

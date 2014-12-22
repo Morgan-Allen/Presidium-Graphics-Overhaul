@@ -53,7 +53,7 @@ public class KommandoLodge extends Venue {
       150, 4, 150,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
     );
-    personnel.setShiftType(SHIFTS_BY_HOURS);
+    staff.setShiftType(SHIFTS_BY_HOURS);
     attachSprite(MODEL.makeSprite());
     camouflaged = new GroupSprite();
   }
@@ -129,7 +129,7 @@ public class KommandoLodge extends Venue {
   
   
   public Behaviour jobFor(Actor actor) {
-    if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
+    if ((! structure.intact()) || (! staff.onShift(actor))) return null;
     final Choice choice = new Choice(actor);
     final boolean report = verbose && I.talkAbout == actor;
     

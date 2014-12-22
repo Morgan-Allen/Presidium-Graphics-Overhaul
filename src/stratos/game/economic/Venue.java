@@ -53,7 +53,7 @@ public abstract class Venue extends Structural implements
   
   
   final public VenueProfile profile;
-  final public Staff personnel = new Staff(this);
+  final public Staff staff = new Staff(this);
   final public Stocks stocks = new Stocks(this);
   
   protected int entranceFace;
@@ -91,7 +91,7 @@ public abstract class Venue extends Structural implements
     super(s);
     
     profile = (VenueProfile) s.loadObject();
-    personnel.loadState(s);
+    staff.loadState(s);
     stocks.loadState(s);
     
     entranceFace = s.loadInt();
@@ -106,7 +106,7 @@ public abstract class Venue extends Structural implements
     super.saveState(s);
     
     s.saveObject(profile);
-    personnel.saveState(s);
+    staff.saveState(s);
     stocks.saveState(s);
     
     s.saveInt(entranceFace);
@@ -117,7 +117,7 @@ public abstract class Venue extends Structural implements
   
   public Index <Upgrade> allUpgrades() { return null; }
   public Structure structure() { return structure; }
-  public Staff personnel() { return personnel; }
+  public Staff staff() { return staff; }
   
   public int owningType() { return VENUE_OWNS; }
   public Base base() { return base; }
@@ -221,20 +221,22 @@ public abstract class Venue extends Structural implements
     if (base == null) I.complain("VENUES MUST HAVE A BASED ASSIGNED! "+this);
     
     for (Venue c : world.claims.venuesConflicting(areaClaimed(), this)) {
-      c.exitWorld();
+      c.structure.beginSalvage();
+      //c.setAsDestroyed();
+      //c.exitWorld();
     }
     
     world.presences.togglePresence(this, true);
     world.claims.assertNewClaim(this, areaClaimed());
     stocks.onWorldEntry();
-    personnel.onCommission();
+    staff.onCommission();
     return true;
   }
   
   
   public void exitWorld() {
     stocks.onWorldExit();
-    personnel.onDecommission();
+    staff.onDecommission();
     world.presences.togglePresence(this, false);
     world.claims.removeClaim(this);
     super.exitWorld();
@@ -254,7 +256,7 @@ public abstract class Venue extends Structural implements
     structure.updateStructure(numUpdates);
     if (! structure.needsSalvage()) {
       if (base != null && numUpdates % 10 == 0) updatePaving(true);
-      personnel.updatePersonnel(numUpdates);
+      staff.updatePersonnel(numUpdates);
     }
     if (structure.intact()) {
       stocks.updateStocks(numUpdates, services());
@@ -345,12 +347,12 @@ public abstract class Venue extends Structural implements
   /**  Recruiting staff and assigning manufacturing tasks-
     */
   public int numOpenings(Background v) {
-    return structure.upgradeBonus(v) - personnel.numHired(v);
+    return structure.upgradeBonus(v) - staff.numHired(v);
   }
   
   
   public boolean isManned() {
-    for (Actor a : personnel.workers) {
+    for (Actor a : staff.workers) {
       if (a.health.conscious() && a.aboard() == this) return true;
     }
     return false;

@@ -152,7 +152,7 @@ public class Smelter extends Venue {
   
 
   private boolean isWorking() {
-    for (Actor a : personnel.visitors()) {
+    for (Actor a : staff.visitors()) {
       if (a.isDoingAction("actionSmelt", null)) return true;
     }
     return false;

@@ -132,7 +132,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (report) I.say("\nAssessing priority for manufacturing "+made);
     
-    final int shift = venue.personnel().shiftFor(actor);
+    final int shift = venue.staff().shiftFor(actor);
     if (shift == Venue.OFF_DUTY) return 0;
     if (commission != null && commission.finished()) {
       if (report) I.say("  Commission done!");

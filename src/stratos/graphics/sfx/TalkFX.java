@@ -122,7 +122,7 @@ public class TalkFX extends SFX {
     //
     //  If there are bubbles awaiting display, see if you can move the existing
     //  bubbles up to make room.
-    final Bubble first = showing.getFirst();
+    final Bubble first = showing.first();
     final boolean
       shouldMove = toShow.size() > 0,
       canMove = showing.size() == 0 || first.alpha <= 1,

@@ -40,7 +40,7 @@ public class Ruins extends Venue {
     super(4, 2, ENTRANCE_EAST, base);
     structure.setupStats(500, 25, 0, 0, Structure.TYPE_ANCIENT);
     structure.setState(Structure.STATE_INTACT, Rand.avgNums(2));
-    personnel.setShiftType(SHIFTS_ALWAYS);
+    staff.setShiftType(SHIFTS_ALWAYS);
     final int index = (NI++ + Rand.index(1)) % 3;
     attachSprite(MODEL_RUINS[index].makeSprite());
   }
@@ -183,7 +183,7 @@ public class Ruins extends Venue {
     spaceLevel *= 1f / WorldTerrain.TILE_VAR_LIMIT;
     
     int numLiving = 0;
-    for (Actor a : personnel.residents()) if (a.species() == s) numLiving++;
+    for (Actor a : staff.residents()) if (a.species() == s) numLiving++;
     
     int space = 0;
     if (s == Species.SPECIES_CRANIAL) space = spaceLevel > 0.5f ? 1 : 0;

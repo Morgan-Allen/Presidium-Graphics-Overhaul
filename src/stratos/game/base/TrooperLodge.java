@@ -35,7 +35,7 @@ public class TrooperLodge extends Venue {
       500, 20, 250,
       Structure.SMALL_MAX_UPGRADES, Structure.TYPE_FIXTURE
     );
-    personnel.setShiftType(Venue.SHIFTS_BY_24_HOUR);
+    staff.setShiftType(Venue.SHIFTS_BY_24_HOUR);
     attachSprite(MODEL.makeSprite());
   }
   
@@ -118,7 +118,7 @@ public class TrooperLodge extends Venue {
   
   
   public Behaviour jobFor(Actor actor) {
-    if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
+    if ((! structure.intact()) || (! staff.onShift(actor))) return null;
     
     //  TODO:  INCLUDE DRILLING!
     

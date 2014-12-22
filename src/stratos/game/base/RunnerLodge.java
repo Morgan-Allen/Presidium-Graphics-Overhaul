@@ -96,7 +96,7 @@ public class RunnerLodge extends Venue {
       150, 3, 250,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
     );
-    personnel.setShiftType(SHIFTS_BY_HOURS);
+    staff.setShiftType(SHIFTS_BY_HOURS);
     attachModel(MODEL);
   }
   
@@ -175,7 +175,7 @@ public class RunnerLodge extends Venue {
     
     //  TODO:  It seems a little odd that runners would be working strictly 'on
     //  the clock'.  Fudge this a little?
-    if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
+    if ((! structure.intact()) || (! staff.onShift(actor))) return null;
     final Choice choice = new Choice(actor);
     //
     //  Either collect protection money from nearby businesses, or loot from
@@ -202,7 +202,7 @@ public class RunnerLodge extends Venue {
       final Item toMove[] = base.commerce.getBestCargo(stocks, 5, false);
       final Smuggling s = new Smuggling(actor, this, ship, toMove);
       //s.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
-      if (personnel.assignedTo(s) == 0) choice.add(s);
+      if (staff.assignedTo(s) == 0) choice.add(s);
     }
     return choice.weightedPick();
     //

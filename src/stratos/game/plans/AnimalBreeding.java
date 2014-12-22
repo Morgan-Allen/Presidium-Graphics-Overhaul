@@ -31,8 +31,8 @@ public class AnimalBreeding extends Plan {
     MINIMUM_TAILOR_TIME  = Stage.STANDARD_DAY_LENGTH;
   
   private static boolean
-    evalVerbose  = false,
-    stepsVerbose = true ;
+    evalVerbose  = true ,
+    stepsVerbose = false;
   
   
   final Venue station;
@@ -79,6 +79,16 @@ public class AnimalBreeding extends Plan {
   }
   
   
+  public Item asSeed() {
+    return asSeed;
+  }
+  
+  
+  public Item asSample() {
+    return asSample;
+  }
+  
+  
   
   /**  External factory methods:
     */
@@ -107,7 +117,9 @@ public class AnimalBreeding extends Plan {
   public static AnimalBreeding nextBreeding(
     Actor actor, Venue station
   ) {
-    final boolean report = evalVerbose && I.talkAbout == station;
+    final boolean report = evalVerbose && (
+      I.talkAbout == station || I.talkAbout == actor
+    );
     if (report) I.say("\nGETTING NEXT FAUNA TO BREED");
     
     for (Fauna fauna : breedingAt(station)) {
@@ -129,7 +141,9 @@ public class AnimalBreeding extends Plan {
       pick.compare(species, 10f / (1 + crowding));
     }
     
-    return breedingFor(actor, station, pick.result(), releasePoint);
+    final Species toBreed = pick.result();
+    if (report) I.say("  Species picked: "+toBreed);
+    return breedingFor(actor, station, toBreed, releasePoint);
   }
   
   
@@ -143,11 +157,12 @@ public class AnimalBreeding extends Plan {
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
     
-    final Property work = actor.mind.work();
-    final boolean atWork = work != null && work.personnel().onShift(actor);
+    final boolean active =
+      actor.gear.hasItem(asSample) ||
+      station.staff().onShift(actor);
     
     final float priority = priorityForActorWith(
-      actor, station, atWork ? ROUTINE : IDLE,
+      actor, station, active ? ROUTINE : 0,
       NO_MODIFIER, NO_HARM,
       NO_COMPETITION, MILD_FAIL_RISK,
       BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,

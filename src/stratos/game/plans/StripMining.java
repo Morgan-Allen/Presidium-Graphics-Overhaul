@@ -132,7 +132,7 @@ public class StripMining extends Plan {
       shouldQuit   = stage == STAGE_DONE,
       shouldReturn = stage == STAGE_RETURN;
     final float carried = Mining.oresCarried(actor);
-    final boolean onShift = site.personnel.onShift(actor);
+    final boolean onShift = site.staff.onShift(actor);
     
     /*
     if (mineralsLeft(face) == null || ! onShift) {

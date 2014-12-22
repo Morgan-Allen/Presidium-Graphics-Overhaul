@@ -141,7 +141,7 @@ public class Lictovore extends Fauna {
     final Venue nest = (Venue) mind.home();
     
     int numYoung = 0;
-    for (Actor a : nest.personnel().residents()) {
+    for (Actor a : nest.staff().residents()) {
       if (a.health.juvenile()) numYoung++;
     }
     final float excessFood = health.caloryLevel() - 1;

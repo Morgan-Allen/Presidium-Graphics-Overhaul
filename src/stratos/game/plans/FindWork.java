@@ -126,13 +126,13 @@ public class FindWork extends Plan {
   public void confirmApplication() {
     if (! canApply()) return;
     if (actor.mind.work() == employer) return;
-    employer.personnel().setApplicant(this, true);
+    employer.staff().setApplicant(this, true);
   }
   
   
   public void cancelApplication() {
     if (! canApply()) return;
-    employer.personnel().setApplicant(this, false);
+    employer.staff().setApplicant(this, false);
   }
   
   
@@ -214,7 +214,7 @@ public class FindWork extends Plan {
     float rating = Career.ratePromotion(position, actor);
     rating *= actor.relations.valueFor(at);
     //  TODO:  Also impact through wage-rate and area living conditions.
-    rating /= 1f + at.personnel().applications().size();
+    rating /= 1f + at.staff().applications().size();
     return rating;
   }
   
@@ -235,7 +235,7 @@ public class FindWork extends Plan {
     }
     if (employer instanceof Venue) {
       final Venue venue = (Venue) employer;
-      if (venue.personnel.numHired(position) == 0) {
+      if (venue.staff.numHired(position) == 0) {
         guildFees /= 2;
         transport /= 2;
       }

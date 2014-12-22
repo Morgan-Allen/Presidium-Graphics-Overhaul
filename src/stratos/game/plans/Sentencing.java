@@ -66,7 +66,7 @@ public class Sentencing extends Plan {
     */
   public static Sentencing nextTrialFor(Actor judge, Venue court) {
     final Base base = judge.base();
-    for (Actor actor : court.personnel.visitors()) {
+    for (Actor actor : court.staff.visitors()) {
       if (base.profiles.crimesBy(actor).size() > 0) {
         return new Sentencing(judge, actor, court);
       }

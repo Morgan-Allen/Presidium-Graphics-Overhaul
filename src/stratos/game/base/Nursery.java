@@ -74,7 +74,7 @@ public class Nursery extends Venue implements TileConstants {
       0,  //max upgrades
       Structure.TYPE_FIXTURE
     );
-    personnel.setShiftType(SHIFTS_BY_DAY);
+    staff.setShiftType(SHIFTS_BY_DAY);
     this.attachModel(NURSERY_MODEL);
   }
   
@@ -113,8 +113,8 @@ public class Nursery extends Venue implements TileConstants {
     if (okay) areaClaimed.setTo(footprint()).expandBy((int) EXTRA_CLAIM_SIZE);
     return okay;
   }
-
-
+  
+  
   protected Box2D areaClaimed() {
     return areaClaimed;
   }
@@ -124,34 +124,36 @@ public class Nursery extends Venue implements TileConstants {
     return e.owningType() < this.owningType();
   }
   
-  /*
-  public boolean preventsClaimBy(Venue other) {
-    //if (other instanceof EcologistStation) return false;
-    return super.preventsClaimBy(other);
-  }
-  //*/
-  
   
   public float ratePlacing(Target point) {
-    //
-    //  TODO:  base on proximity to an ecologist station and demand for food.
-    //      ...also, fertility & insolation.
     
-    final Presences presences = point.world().presences;
-    float supply = presences.mapFor(Nursery.class).population();
-    float demand = presences.mapFor(EcologistStation.class).population();
-    demand *= 3;
+    //  TODO:  base on demand for food?
+    //  TODO:  THESE HAVE TO BE ECOLOGIST STATIONS BELONGING TO THE SAME BASE.
+    //  ...It might be worth getting supply-and-demand in order here first.
     
-    if (demand <= 0) return 0;
-    final Venue nearest = (Venue) presences.nearestMatch(
+    final Stage world = point.world();
+    final Presences presences = world.presences;
+    
+    final EcologistStation station = (EcologistStation) presences.nearestMatch(
       EcologistStation.class, point, -1
     );
+    if (station == null || station.base() != base) return -1;
     
-    float rating = (demand - supply) / demand;
-    if (inWorld()) rating += 1;
-    rating /= (1f + Spacing.sectorDistance(point, nearest));
+    final float distance = Spacing.distance(point, station);
+    if (distance > Stage.SECTOR_SIZE) return -1;
+    /*
+    final Nursery nearby = (Nursery) presences.nearestMatch(
+      Nursery.class, this, Stage.SECTOR_SIZE
+    );
+    if (nearby != null & nearby != this) return -1;
+    //*/
     
-    return rating;
+    final Tile under = world.tileAt(point);
+    float rating = 0;
+    rating += world.terrain().fertilitySample (under);
+    rating += world.terrain().insolationSample(under);
+    rating /= 1 + (distance / Stage.SECTOR_SIZE);
+    return (rating / 2) * 10;
   }
   
   
@@ -272,7 +274,7 @@ public class Nursery extends Venue implements TileConstants {
     }
     
     //if (choice.size() > 0) return choice.pickMostUrgent();
-    if (! personnel.onShift(actor)) return choice.pickMostUrgent();
+    if (! staff.onShift(actor)) return choice.pickMostUrgent();
     
     //  Otherwise, consider normal deliveries and routine tending-
     final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(

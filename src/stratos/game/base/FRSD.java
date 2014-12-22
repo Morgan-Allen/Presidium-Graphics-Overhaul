@@ -76,7 +76,7 @@ public class FRSD extends Venue {
       Structure.NORMAL_MAX_UPGRADES,
       Structure.TYPE_VENUE
     );
-    personnel.setShiftType(SHIFTS_BY_HOURS);
+    staff.setShiftType(SHIFTS_BY_HOURS);
     
     final GroupSprite sprite = new GroupSprite();
     sprite.attach(MODEL_UNDER, 0   ,  0   , -0.05f);
@@ -138,7 +138,7 @@ public class FRSD extends Venue {
   
   
   public Behaviour jobFor(Actor actor) {
-    if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
+    if ((! structure.intact()) || (! staff.onShift(actor))) return null;
     
     final Choice choice = new Choice(actor);
     choice.add(Repairs.getNextRepairFor(actor, true));
@@ -146,12 +146,12 @@ public class FRSD extends Venue {
     final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
       this, services(), 2, 10, 5
     );
-    if (d != null && personnel.assignedTo(d) < 1) choice.add(d);
+    if (d != null && staff.assignedTo(d) < 1) choice.add(d);
     
     final Delivery c = DeliveryUtils.bestBulkCollectionFor(
       this, services(), 2, 10, 5
     );
-    if (c != null && personnel.assignedTo(c) < 1) choice.add(c);
+    if (c != null && staff.assignedTo(c) < 1) choice.add(c);
     
     if (choice.empty()) choice.add(Supervision.oversight(this, actor));
     return choice.weightedPick();

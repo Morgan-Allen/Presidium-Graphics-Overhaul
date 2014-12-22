@@ -309,7 +309,7 @@ public class Mining extends Plan {
     for (Traded type : MINED_TYPES) {
       actor.gear.transfer(type, venue);
     }
-    if (mineralsAt(face) == null || ! site.personnel.onShift(actor)) {
+    if (mineralsAt(face) == null || ! site.staff.onShift(actor)) {
       stage = STAGE_DONE;
     }
     else stage = STAGE_MINE;
@@ -361,7 +361,7 @@ public class Mining extends Plan {
       face.world.terrain().setMinerals(face, (byte) 0, 0);
     }
     
-    final boolean offShift = ! site.personnel.onShift(actor);
+    final boolean offShift = ! site.staff.onShift(actor);
     final float
       oresLoad = oresCarried(actor),
       slagLoad = actor.gear.amountOf(SLAG);

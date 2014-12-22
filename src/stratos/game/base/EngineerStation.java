@@ -50,7 +50,7 @@ public class EngineerStation extends Venue {
       200, 5, 350,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
     );
-    personnel.setShiftType(SHIFTS_BY_DAY);
+    staff.setShiftType(SHIFTS_BY_DAY);
     this.attachSprite(MODEL.makeSprite());
   }
   
@@ -161,7 +161,7 @@ public class EngineerStation extends Venue {
   
   
   public Behaviour jobFor(Actor actor) {
-    if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
+    if ((! structure.intact()) || (! staff.onShift(actor))) return null;
     
     //  Consider contributing toward local repairs-
     final Choice choice = new Choice(actor);

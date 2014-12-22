@@ -127,7 +127,7 @@ public class Nest extends Venue {
     
     for (Object o : world.presences.matchesNear(Venue.class, site, range)) {
       final Venue v = (Venue) o;
-      final List <Actor> resident = v.personnel.residents();
+      final List <Actor> resident = v.staff.residents();
       if (v == site || resident.size() == 0) continue;
       
       final int spacing = minSpacing(site, v, species);
@@ -205,7 +205,7 @@ public class Nest extends Venue {
     float actualPop = 0;
     if (home instanceof Venue) {
       final Venue venue = (Venue) home;
-      for (Actor a : venue.personnel.residents()) {
+      for (Actor a : venue.staff.residents()) {
         if (a.health.alive() && a.species() == species) actualPop++;
       }
     }
@@ -430,13 +430,13 @@ public class Nest extends Venue {
     final Description d = panel.detail(), l = panel.listing();
 
     int idealPop = 1 + (int) idealPopulation(this, species, world, true);
-    int actualPop = personnel.residents().size();
+    int actualPop = staff.residents().size();
     
     l.append("Nesting: ("+actualPop+"/"+idealPop+")");
-    if (personnel.residents().size() == 0) {
+    if (staff.residents().size() == 0) {
       l.append("Unoccupied");
     }
-    else for (Actor actor : personnel.residents()) {
+    else for (Actor actor : staff.residents()) {
       final Composite portrait = actor.portrait(UI);
       ((Text) l).insert(portrait.texture(), 40, true);
       l.append(" ");

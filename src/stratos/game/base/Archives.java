@@ -54,7 +54,7 @@ public class Archives extends Venue {
       250, 3, 350,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
     );
-    personnel.setShiftType(SHIFTS_BY_DAY);
+    staff.setShiftType(SHIFTS_BY_DAY);
     
     attachSprite(MODEL.makeSprite());
   }
@@ -90,7 +90,7 @@ public class Archives extends Venue {
   
   
   public Behaviour jobFor(Actor actor) {
-    if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
+    if ((! structure.intact()) || (! staff.onShift(actor))) return null;
     final Choice choice = new Choice(actor);
     
     choice.add(stocks.nextManufacture(actor, PARTS_TO_DATALINKS));

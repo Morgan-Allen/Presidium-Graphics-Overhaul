@@ -65,7 +65,7 @@ public class Reactor extends Venue {
       300, 10, 300,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
     );
-    personnel.setShiftType(SHIFTS_BY_HOURS);
+    staff.setShiftType(SHIFTS_BY_HOURS);
     attachSprite(MODEL.makeSprite());
   }
   
@@ -166,7 +166,7 @@ public class Reactor extends Venue {
       check.setPriority(Action.ROUTINE * (meltdown + 1));
       choice.add(check);
     }
-    if (! personnel.onShift(actor)) return choice.pickMostUrgent();
+    if (! staff.onShift(actor)) return choice.pickMostUrgent();
     //
     //  Then check to see if anything needs manufacture-
     final Manufacture m = stocks.nextManufacture(actor, METALS_TO_FUEL);

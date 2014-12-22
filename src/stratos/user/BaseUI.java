@@ -98,8 +98,14 @@ public class BaseUI extends HUD implements UIConstants {
   public static BaseUI current() {
     final HUD UI = PlayLoop.currentUI();
     if (UI instanceof BaseUI) return (BaseUI) UI;
-    else I.complain("NO BASE UI IN PLACE!");
+    //else I.complain("NO BASE UI IN PLACE!");
     return null;
+  }
+  
+  
+  public static Base currentPlayed() {
+    final BaseUI UI = current();
+    return UI == null ? null : UI.played();
   }
   
   

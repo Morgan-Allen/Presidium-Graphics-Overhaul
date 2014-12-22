@@ -54,7 +54,7 @@ public class StockExchange extends Venue {
   
   public StockExchange(Base base) {
     super(4, 1, ENTRANCE_SOUTH, base);
-    personnel.setShiftType(SHIFTS_BY_DAY);
+    staff.setShiftType(SHIFTS_BY_DAY);
     structure.setupStats(
       150, 3, 250,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
@@ -226,7 +226,7 @@ public class StockExchange extends Venue {
   
   
   public Behaviour jobFor(Actor actor) {
-    if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
+    if ((! structure.intact()) || (! staff.onShift(actor))) return null;
     final Choice choice = new Choice(actor);
     final Traded services[] = services();
     
@@ -240,7 +240,7 @@ public class StockExchange extends Venue {
     final Delivery bD = DeliveryUtils.bestBulkDeliveryFrom(
       this, services, 5, 50, depots
     );
-    if (bD != null && personnel.assignedTo(bD) < 1) {
+    if (bD != null && staff.assignedTo(bD) < 1) {
       bD.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL);
       bD.driven = cargoBarge;
       choice.add(bD);
@@ -248,7 +248,7 @@ public class StockExchange extends Venue {
     final Delivery bC = DeliveryUtils.bestBulkCollectionFor(
       this, services, 5, 50, depots
     );
-    if (bC != null && personnel.assignedTo(bC) < 1) {
+    if (bC != null && staff.assignedTo(bC) < 1) {
       bC.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL);
       bC.driven = cargoBarge;
       choice.add(bC);

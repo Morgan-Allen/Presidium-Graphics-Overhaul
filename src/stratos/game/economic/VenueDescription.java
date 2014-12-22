@@ -210,7 +210,7 @@ public class VenueDescription {
     if (c != null && c.length > 0) {
       for (Background b : c) {
         final int
-          hired = v.personnel.numHired(b),
+          hired = v.staff.numHired(b),
           total = hired + v.numOpenings(b);
         d.append("\n  "+hired+"/"+total+" "+b.name);
       }
@@ -218,8 +218,8 @@ public class VenueDescription {
     }
     
     final Batch <Mobile> considered = new Batch <Mobile> ();
-    for (Actor m : v.personnel.residents()) considered.include(m);
-    for (Actor m : v.personnel.workers()) considered.include(m);
+    for (Actor m : v.staff.residents()) considered.include(m);
+    for (Actor m : v.staff.workers()) considered.include(m);
     for (Mobile m : v.inside()) considered.include(m);
     
     for (Mobile m : considered) {
@@ -237,7 +237,7 @@ public class VenueDescription {
       m.describeStatus(d);
     }
 
-    for (final FindWork a : v.personnel.applications) {
+    for (final FindWork a : v.staff.applications) {
       if (a.employer() != v) continue;
       final Actor p = a.actor();
       d.append("\n\n");
@@ -265,7 +265,7 @@ public class VenueDescription {
       }
       
       d.append(new Description.Link("\n  Hire for "+a.hiringFee()+" credits") {
-        public void whenClicked() { v.personnel.confirmApplication(a); }
+        public void whenClicked() { v.staff.confirmApplication(a); }
       });
     }
   }
@@ -275,7 +275,7 @@ public class VenueDescription {
     final Background b = a.vocation();
     final String VN = b == null ? a.species().toString() : b.nameFor(a);
     if (a.mind.work() == v) {
-      final String duty = v.personnel.onShift(a) ? "On-Duty" : "Off-Duty";
+      final String duty = v.staff.onShift(a) ? "On-Duty" : "Off-Duty";
       return "("+duty+" "+VN+")";
     }
     if (a.mind.home() == v) return "(Resident "+VN+")";

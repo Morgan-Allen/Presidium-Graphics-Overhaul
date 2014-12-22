@@ -30,6 +30,6 @@ public interface Property extends Structure.Basis, Inventory.Owner, Boarding {
   float visitCrowding(Actor actor);
   
   Traded[] services();  //  TODO:  Use Conversions instead.
-  Staff personnel();
+  Staff staff();
   boolean isManned();
 }

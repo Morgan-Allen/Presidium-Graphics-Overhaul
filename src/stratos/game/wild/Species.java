@@ -132,7 +132,10 @@ public abstract class Species implements Session.Saveable {
       public Actor newSpecimen(Base base) { return null; }
       public Nest createNest() { return null; }
     },
+    HUMANOID_SPECIES[] = speciesSoFar();
+  
     
+  final public static Species
     QUDU = new Species(
       "Qudu",
       "Qudu are placid, slow-moving, vegetarian browsers that rely on their "+
@@ -197,6 +200,8 @@ public abstract class Species implements Session.Saveable {
         3, 2, Venue.ENTRANCE_EAST, this, MODEL_NEST_MICOVORE
       ); }
     },
+    
+    //  TODO:  Include Yamagur, Maws et cetera!
     
     ANIMAL_SPECIES[] = Species.speciesSoFar(),
     
@@ -339,21 +344,18 @@ public abstract class Species implements Session.Saveable {
   public Nest createNest() { return null; };
   
   
-  public boolean browser() {
-    return type == Type.BROWSER;
-  }
-  
-  
-  public boolean predator() {
-    return type == Type.PREDATOR;
-  }
-  
-  
-  public String toString() { return name; }
-  
+  public boolean browser () { return type == Type.BROWSER; }
+  public boolean predator() { return type == Type.PREDATOR; }
+  public boolean animal  () { return browser() || predator(); }
   
   public Item[] nutrients() { return nutrients; }
   public float metabolism() { return baseBulk * baseSpeed; }
+  
+  
+  
+  /**  Feedback and diagnostics-
+    */
+  public String toString() { return name; }
 }
 
 

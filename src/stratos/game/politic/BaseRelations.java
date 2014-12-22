@@ -163,7 +163,7 @@ public class BaseRelations {
       propertyValues += Audit.propertyValue(v);
       creditCirculation += v.stocks.credits();
       
-      for (Actor resident : v.personnel.residents()) {
+      for (Actor resident : v.staff.residents()) {
         numResidents++;
         averageMood += resident.health.moraleLevel();
       }

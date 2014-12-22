@@ -149,7 +149,7 @@ public class Holding extends Venue {
   
   
   private boolean needsMet(int meetLevel) {
-    if (personnel.residents().size() == 0) return false;
+    if (staff.residents().size() == 0) return false;
     if (meetLevel <= HoldingUpgrades.LEVEL_TENT   ) return true;
     if (meetLevel >  HoldingUpgrades.LEVEL_GUILDER) return false;
     final Object met = HoldingUpgrades.NEEDS_MET;
@@ -168,7 +168,7 @@ public class Holding extends Venue {
     if (! needsMet(upgradeLevel)) devolve = true;
     else if (needsMet(upgradeLevel + 1)) upgrade = true;
     
-    final boolean empty = personnel.residents().size() == 0;
+    final boolean empty = staff.residents().size() == 0;
     if (empty) { devolve = true; upgrade = false; }
     
     numTests += CHECK_TIME;
@@ -226,7 +226,7 @@ public class Holding extends Venue {
     wear /= Stage.STANDARD_DAY_LENGTH * structure.maxIntegrity();
     final int maxPop = HoldingUpgrades.OCCUPANCIES[upgradeLevel];
     float count = 0;
-    for (Actor r : personnel.residents()) if (r.aboard() == this) count++;
+    for (Actor r : staff.residents()) if (r.aboard() == this) count++;
     count = 0.5f + (count / maxPop);
     
     //  If upgrades are free, make sure it includes rations:
@@ -321,7 +321,7 @@ public class Holding extends Venue {
   
   public float homeCrowding(Actor actor) {
     final int maxPop = HoldingUpgrades.OCCUPANCIES[upgradeLevel];
-    return personnel.residents().size() * 1f / maxPop;
+    return staff.residents().size() * 1f / maxPop;
   }
   
   

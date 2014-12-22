@@ -16,6 +16,7 @@ import java.util.Iterator;
 public class PresenceMap implements Session.Saveable {
   //TODO:  Do not make Saveable.
   
+  
   /**  Fields, constructors, and save/load methods-
     */
   private static boolean verbose = false;
@@ -76,7 +77,6 @@ public class PresenceMap implements Session.Saveable {
     if (keyType == 0) key = s.loadClass();
     else if (keyType == 1) {
       key = s.loadString();
-      ///I.say("Loading presence map with key: "+key);
     }
     else key = s.loadObject();
     //
@@ -263,9 +263,7 @@ public class PresenceMap implements Session.Saveable {
           //  We obtain the next entry in the agenda-
           final Object ref = agenda.greatestRef();
           final NodeMarker marker = agenda.refValue(ref);
-          //final Object nearest = entry.node;
           agenda.deleteRef(ref);
-          ///numI++;
           //
           //  If it's not a node, return this.  Otherwise, add the children of
           //  the node to the agenda.  Reject anything out of range.

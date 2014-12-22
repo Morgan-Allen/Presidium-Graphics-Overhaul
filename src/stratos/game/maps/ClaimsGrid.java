@@ -3,16 +3,23 @@
 package stratos.game.maps;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.user.BaseUI;
 import stratos.util.*;
 
 
 
-public class PlacementGrid {
+//  TODO:  Tiles should no longer store ownership-information, only pathing-
+//  information.
+
+
+public class ClaimsGrid {
   
   
   /**  Data fields, setup and save/load methods-
     */
-  private static boolean verbose = false;
+  private static boolean
+    verbose      = true ,
+    extraVerbose = false;
   
   final Stage world;
   final Table <Venue, Claim> venueClaims;
@@ -26,12 +33,11 @@ public class PlacementGrid {
   }
   
   
-  public PlacementGrid(Stage world) {
+  public ClaimsGrid(Stage world) {
     this.world = world;
     this.venueClaims = new Table <Venue, Claim> ();
     final int NS = world.size / world.sections.resolution;
     this.areaClaims = new List[NS][NS];
-    //this.freeLattice = new Bitmap(world.size, world.size);
   }
   
   
@@ -43,7 +49,6 @@ public class PlacementGrid {
         temp.loadFrom(s.input())
       );
     }
-    //freeLattice.loadFrom(s.input());
   }
   
   
@@ -54,7 +59,6 @@ public class PlacementGrid {
       s.saveObject(v);
       c.area.saveTo(s.output());
     }
-    //freeLattice.saveTo(s.output());
   }
   
   
@@ -71,8 +75,14 @@ public class PlacementGrid {
   
   
   private Batch <Claim> claimsConflicting(Box2D area, Venue owner) {
+    final boolean report = verbose && extraVerbose && (
+      BaseUI.currentPlayed() == owner.base()
+    );
     final Batch <Claim> conflict = new Batch <Claim> ();
-    if (verbose) I.say("NEW CLAIM IS: "+area);
+    if (report) {
+      I.say("\nChecking for conflicts with claim by "+owner);
+      I.say("  Area checked: "+area);
+    }
     
     for (WorldSection s : world.sections.sectionsUnder(area)) {
       final List <Claim> claims = areaClaims[s.x][s.y];
@@ -85,7 +95,7 @@ public class PlacementGrid {
             claim.owner.footprint().overlaps(area);
           if (! clash) continue;
           
-          if (verbose) I.say("CONFLICTS WITH: "+claim.owner);
+          if (report) I.say("  CONFLICTS WITH: "+claim.owner);
           conflict.add(claim);
           claim.flag = true;
         }
@@ -97,12 +107,20 @@ public class PlacementGrid {
   }
   
   
+  
+  /**  Claim-assertions and deletions-
+    */
   public Claim assertNewClaim(Venue owner) {
     return assertNewClaim(owner, owner.footprint());
   }
   
   
   public Claim assertNewClaim(Venue owner, Box2D area) {
+    final boolean report = verbose && BaseUI.currentPlayed() == owner.base();
+    if (report) {
+      I.say("\nAsserting new claim for "+owner);
+      I.say("  Area claimed: "+area);
+    }
     
     final Claim newClaim = new Claim();
     newClaim.area.setTo(area);
@@ -113,6 +131,7 @@ public class PlacementGrid {
       List <Claim> claims = areaClaims[s.x][s.y];
       if (claims == null) areaClaims[s.x][s.y] = claims = new List <Claim> ();
       claims.add(newClaim);
+      if (report) I.say("  Registering in section: "+s);
     }
     
     return newClaim;
@@ -121,17 +140,25 @@ public class PlacementGrid {
   
   //  TODO:  Have the venues themselves remember their own claims?
   public void removeClaim(Venue owner) {
+    final boolean report = verbose && BaseUI.currentPlayed() == owner.base();
     final Claim claim = venueClaims.get(owner);
-    if (claim == null) I.complain("NO CLAIM MADE BY "+owner);
-    else removeClaim(claim);
+    if (claim == null) { I.complain("NO CLAIM MADE BY "+owner); return; }
+    
+    if (report) {
+      I.say("\nRemoving claim made by: "+owner);
+      I.say("  Area claimed: "+claim.area);
+    }
+    removeClaim(claim, report);
+    venueClaims.remove(owner);
   }
   
   
-  private void removeClaim(Claim claim) {
+  private void removeClaim(Claim claim, boolean report) {
     for (WorldSection s : world.sections.sectionsUnder(claim.area)) {
       final List <Claim> claims = areaClaims[s.x][s.y];
       claims.remove(claim);
       if (claims.size() == 0) areaClaims[s.x][s.y] = null;
+      if (report) I.say("  Un-registering in section: "+s);
     }
   }
   

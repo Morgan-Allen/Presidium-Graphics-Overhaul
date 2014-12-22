@@ -284,7 +284,7 @@ public class FindHome extends Plan {
       rating += UL;
     }
     
-    final Series <Actor> residents = newHome.personnel().residents();
+    final Series <Actor> residents = newHome.staff().residents();
     if (residents.size() > 0) {
       float averageRelations = 0; for (Actor a : residents) {
         averageRelations += actor.relations.valueFor(a);

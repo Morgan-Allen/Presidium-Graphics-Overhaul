@@ -76,7 +76,7 @@ public abstract class Vehicle extends Mobile implements
   
   public void assignBase(Base base) { this.base = base; }
   public Base base() { return base; }
-  public Staff personnel() { return personnel; }
+  public Staff staff() { return personnel; }
   public Structure structure() { return structure; }
   
   
