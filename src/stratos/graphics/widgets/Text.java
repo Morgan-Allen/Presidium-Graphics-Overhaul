@@ -1,3 +1,4 @@
+
 /**  
   *  Written by Morgan Allen.
   *  I intend to slap on some kind of open-source license here in a while, but
@@ -67,28 +68,17 @@ public class Text extends UINode implements Description {
   }
   
   
-  public float scale = 1.0f;
   
   final protected Alphabet alphabet;
+  public float scale = 1.0f;
+  protected List <Box2D  > allEntries = new List <Box2D  > ();
+  protected List <UIEntry> allNodes   = new List <UIEntry> ();
   private boolean needsFormat = false;
   
   private Scrollbar scrollbar;
   private Box2D scrolled = new Box2D();
-  
-  protected List <Box2D> allEntries = new List <Box2D> ();
-  protected List <UIEntry> allNodes = new List <UIEntry> ();
-  
   private Box2D fullSize = new Box2D();
-  private float oldWide, oldHigh = 0;
-  
-  
-  //  TODO:  Get rid of this, or create a custom alternative- it's leading to
-  //  crashes in cases where scrolling is needed...
-  final Pool <TextEntry> letterPool = new Pool <TextEntry> (1000) {
-    protected TextEntry newObject() {
-      return new TextEntry();
-    }
-  };
+  private float oldWide = 0, oldHigh = 0;
   
   
   
@@ -105,7 +95,17 @@ public class Text extends UINode implements Description {
   
   
   public Scrollbar makeScrollBar(ImageAsset tex) {
-    return this.scrollbar = new Scrollbar(UI, tex, fullSize);
+    return this.scrollbar = new Scrollbar(UI, tex, this);
+  }
+  
+  
+  protected Box2D scrolledArea() {
+    return scrolled;
+  }
+  
+  
+  protected Box2D fullTextArea() {
+    return fullSize;
   }
   
   
@@ -211,7 +211,7 @@ public class Text extends UINode implements Description {
   boolean addEntry(char k, Clickable links, Colour c) {
     Letter l = null;
     if (((l = alphabet.map[k]) == null) && (k != '\n')) return false;
-    final TextEntry entry = letterPool.obtain();
+    final TextEntry entry = new TextEntry();
     entry.key = k;
     entry.letter = l;
     entry.colour = c;
@@ -223,9 +223,6 @@ public class Text extends UINode implements Description {
   
   
   public void setText(String s) {
-    for (Object e : allEntries) {
-      if (e instanceof TextEntry) letterPool.free((TextEntry) e);
-    }
     allEntries.clear();
     append(s, null, null);
     needsFormat = true;
@@ -426,19 +423,19 @@ public class Text extends UINode implements Description {
         final UIEntry entry = (UIEntry) box;
         entry.xdim(entry.wide);
         entry.ydim(entry.high);
-        marginWide = entry.bullet ? entry.xdim() : 0;
+        if (entry.bullet) marginWide = entry.xdim();
+        if (report) I.say("  UI entry: "+entry.graphic+", across: "+across);
       }
       else if (box instanceof TextEntry) {
         final TextEntry entry = (TextEntry) box;
         final char key = entry.key;
-        if (report) I.say("  Text entry: "+key+", across: "+across);
-        
         if (key == '\n') newLine = newWord = true;
         if (key == ' ' ) newWord = true;
         if (entry.letter != null) {
           entry.xdim(entry.letter.width  * scale);
           entry.ydim(entry.letter.height * scale);
         }
+        if (report) I.say("  Text entry: "+key+", across: "+across);
       }
       else continue;
       

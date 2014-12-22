@@ -78,7 +78,8 @@ public abstract class UINode {
     */
   public void attachTo(UINode parent) {
     if (this.parent != null) {
-      I.complain("ALREADY ATTACHED TO A DIFFERENT PARENT: "+this.parent);
+      I.say("WARNING: ALREADY ATTACHED TO A DIFFERENT PARENT: "+this);
+      detach();
     }
     this.parent = parent;
     if (parent instanceof UIGroup) {
@@ -88,11 +89,11 @@ public abstract class UINode {
   
   
   public void detach() {
-    kidEntry = null;
-    parent = null;
     if (parent instanceof UIGroup) {
       ((UIGroup) parent).kids.removeEntry(kidEntry);
     }
+    kidEntry = null;
+    parent   = null;
   }
   
   

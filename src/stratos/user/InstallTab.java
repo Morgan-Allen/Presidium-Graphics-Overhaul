@@ -118,6 +118,10 @@ public class InstallTab extends SelectionInfoPane {
     detailText.append(new Description.Link("(BUILD)") {
       public void whenClicked() { initInstallTask(UI, type); }
     });
+    //  TODO:  Allow listing of current structures.
+    //  TODO:  Allow a general summary of demand for structures of this type.
+    
+    //  TODO:  Give multiple options for listing the various structure types!
     
     listingText.append("All Types: \n");
     for (final Venue other : allSampled) {
@@ -133,26 +137,6 @@ public class InstallTab extends SelectionInfoPane {
       );
       listingText.append(" ");
     }
-    /*
-    for (final Venue other : category.samples) {
-      final String    otherName = other.fullName()  ;
-      final Composite otherIcon = other.portrait(UI);
-      final int       otherCost = other.buildCost() ;
-      
-      listingText.append("\n  ");
-      if (otherIcon != null) {
-        listingText.insert(otherIcon.texture(), 40);
-      }
-      listingText.append("  ");
-      listingText.append(new Description.Link(otherName) {
-        public void whenTextClicked() {
-          helpShown = other.getClass();
-        }
-      });
-      //  TODO:  List Claim area, structure type, etc.?
-      listingText.append("\n  Cost: "+otherCost+" credits");
-    }
-    //*/
   }
   
   
@@ -219,6 +203,26 @@ public class InstallTab extends SelectionInfoPane {
 }
 
 
+/*
+for (final Venue other : category.samples) {
+  final String    otherName = other.fullName()  ;
+  final Composite otherIcon = other.portrait(UI);
+  final int       otherCost = other.buildCost() ;
+  
+  listingText.append("\n  ");
+  if (otherIcon != null) {
+    listingText.insert(otherIcon.texture(), 40);
+  }
+  listingText.append("  ");
+  listingText.append(new Description.Link(otherName) {
+    public void whenTextClicked() {
+      helpShown = other.getClass();
+    }
+  });
+  //  TODO:  List Claim area, structure type, etc.?
+  listingText.append("\n  Cost: "+otherCost+" credits");
+}
+//*/
 
 
 

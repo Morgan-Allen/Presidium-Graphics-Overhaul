@@ -24,7 +24,7 @@ public class DebugUI extends VisualDebug {
     final Text text = new Text(UI, UIConstants.INFO_FONT);
     
     text.alignHorizontal(0, 200, 110);
-    text.alignDown      (0, 1       );
+    text.alignDown      (0, 1);
     text.attachTo(UI);
     text.setText("");
     
@@ -33,6 +33,21 @@ public class DebugUI extends VisualDebug {
       "QUICK BROWN FOX JUMPED OVER LAZY DOG"+
       "\n\nLorum Ipsum Dolor etc. etc. etc.  Make up whatever you like, really."
     );
+    for (int n = 40; n-- > 0;) text.append("\nTT");
+    text.append("\nFinished!");
+    
+    text.insert(ImageAsset.WHITE_TEX(), 40, true);
+    for (int n = 2; n-- > 0;) {
+      text.append(" ");
+      text.insert(ImageAsset.WHITE_TEX(), 25, false);
+    }
+    
+    final Scrollbar bar = text.makeScrollBar(SelectionInfoPane.SCROLL_TEX);
+    bar.alignHorizontal(0, 20, 210);
+    bar.alignDown(0, 1);
+    bar.attachTo(UI);
+    
+    
     /*
     StarsPanel starsPanel = new StarsPanel(UI);
     starsPanel.alignAcross(0, 0.5f);

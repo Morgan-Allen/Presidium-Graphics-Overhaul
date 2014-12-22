@@ -20,27 +20,28 @@ import com.badlogic.gdx.math.*;
   */
 public class Scrollbar extends UINode {
   
-
+  
   final public static float
-    DEFAULT_SCROLL_WIDTH = 10,  //default width for a scrollbar.
-    DEFAULT_TAB_HEIGHT = 25,  //default size of 'rounded edge' for grab-widget.
-    DEFAULT_TAB_UV = 0.25f,  //default UV portion for that rounded edge.
-    MAX_GRAB_PORTION = 0.5f,  //max area the grab-widget will occupy.
-    MIN_SCROLL_DIST = 5;
+    DEFAULT_SCROLL_WIDTH = 10   ,  //default width for a scrollbar.
+    DEFAULT_TAB_HEIGHT   = 25   ,  //default size of 'rounded edge' for grabber.
+    DEFAULT_TAB_UV       = 0.25f,  //default UV portion for that rounded edge.
+    MAX_GRAB_PORTION     = 0.5f ,  //max area the grab-widget will occupy.
+    MIN_SCROLL_DIST      = 5    ;
   
-  
-  final Box2D mapArea;
-  private float scrollPos = 1, initScrollPos = -1;
   
   final Texture scrollTex;
   final private Box2D grabArea = new Box2D();
+  
+  final Text tracked;
+  private float
+    scrollPos     =  1,
+    initScrollPos = -1;
   private boolean showScroll = false;
   
   
-  
-  protected Scrollbar(HUD myHUD, ImageAsset tex, Box2D mapArea) {
+  protected Scrollbar(HUD myHUD, ImageAsset tex, Text tracked) {
     super(myHUD);
-    this.mapArea = mapArea;
+    this.tracked = tracked;
     this.scrollTex = tex.asTexture();
   }
   
@@ -51,7 +52,7 @@ public class Scrollbar extends UINode {
   
   
   private float mapRatio() {
-    return ydim() / mapArea.ydim();
+    return tracked.ydim() / tracked.fullTextArea().ydim();
   }
   
   
@@ -78,9 +79,8 @@ public class Scrollbar extends UINode {
     }
     else {
       initScrollPos = -1;
-      final float inc = Nums.max(
-        MIN_SCROLL_DIST / (mapArea.ydim() - ydim()), 0.1f
-      );
+      final float scrollGap = tracked.fullTextArea().ydim() - tracked.ydim();
+      final float inc = Nums.max(MIN_SCROLL_DIST / scrollGap, 0.1f);
       if (mY > grabArea.ymax()) scrollPos += inc;
       if (mY < grabArea.ypos()) scrollPos -= inc;
       if (scrollPos < 0) scrollPos = 0;
@@ -109,7 +109,7 @@ public class Scrollbar extends UINode {
     if (! showScroll) return;
     final int
       side = (int) (grabArea.xdim() / 2),
-      cap = (int) DEFAULT_TAB_HEIGHT;
+      cap  = (int) DEFAULT_TAB_HEIGHT;
     
     Bordering.renderBorder(
       pass, grabArea,

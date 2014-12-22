@@ -263,6 +263,7 @@ public class BaseUI extends HUD implements UIConstants {
   public void renderHUD(Rendering rendering) {
     super.renderHUD(rendering);
     tracking.updateTracking();
+    ///I.say("Current panel: "+currentPanel);
     
     //  In order to transition smoothly between the old and new information
     //  panes, we essentially capture a local screenshot of the old panel, then
@@ -299,6 +300,8 @@ public class BaseUI extends HUD implements UIConstants {
     if (panel   != currentPanel) {
       beginPanelFade();
       newPanel = panel;
+      //I.say("\nASSIGNING NEW PANEL: "+panel);
+      //I.reportStackTrace();
     }
     if (options != currentInfo ) {
       if (currentInfo != null) currentInfo.active = false;

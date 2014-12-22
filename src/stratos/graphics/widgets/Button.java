@@ -73,7 +73,6 @@ public class Button extends Image {
   }
   
   
-
   public boolean equals(Object other) {
     if (! (other instanceof Button)) return false;
     final Button b = (Button) other;

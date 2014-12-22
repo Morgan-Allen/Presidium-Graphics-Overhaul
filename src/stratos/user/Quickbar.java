@@ -234,15 +234,23 @@ public class Quickbar extends UIGroup implements UIConstants {
       
       final InstallTab newTab = new InstallTab(UI, catName);
       final Button button = new Button(UI, GUILD_IMG_ASSETS.get(img), help) {
+        
         protected void whenClicked() {
+          ///I.say("\nWas clicked: "+catName);
+          
           final BaseUI UI = BaseUI.current();
-          ///I.say("Guild button clicked...");
           UI.beginPanelFade();
+          
           if (UI.currentPane() == newTab) {
+            ///I.say("  Same panel?");
             UI.setInfoPanels(null, null);
           }
-          else UI.setInfoPanels(newTab, null);
+          else {
+            ///I.say("  New panel...");
+            UI.setInfoPanels(newTab, null);
+          }
         }
+        
       };
       button.stretch = true;
       
@@ -260,49 +268,3 @@ public class Quickbar extends UIGroup implements UIConstants {
 
 
 
-
-
-/*
-protected void setupMissionButtons() {
-  final UIGroup missionGroup = new UIGroup(UI);
-  final List <Button> missionSlots = new List <Button> ();
-  final Quickbar bar = this;
-  
-  final Button strikeMB = new Button(
-    UI, MissionsTab.STRIKE_ICON,
-    "Strike Mission\n  Destroy, capture or neutralise a chosen target"
-  ) {
-    public void whenTextClicked() { MissionsTab.initStrikeTask(bar.UI); }
-  };
-  addToSlot(strikeMB, missionGroup, missionSlots);
-  
-  final Button reconMB = new Button(
-    UI, MissionsTab.RECON_ICON,
-    "Recon Mission\n  Explore a given area or follow a chosen subject"
-  ) {
-    public void whenTextClicked() { MissionsTab.initReconTask(bar.UI); }
-  };
-  addToSlot(reconMB, missionGroup, missionSlots);
-  
-  final Button securityMB = new Button(
-    UI, MissionsTab.SECURITY_ICON,
-    "Security Mission\n  Protect a given area, structure or subject"
-  ) {
-    public void whenTextClicked() { MissionsTab.initSecurityTask(bar.UI); }
-  };
-  addToSlot(securityMB, missionGroup, missionSlots);
-  
-  final Button contactMB = new Button(
-    UI, MissionsTab.CONTACT_ICON,
-    "Contact Mission\n  Establish better relations with the subject"
-  ) {
-    public void whenTextClicked() { MissionsTab.initContactTask(bar.UI); }
-  };
-  addToSlot(contactMB, missionGroup, missionSlots);
-  
-  final float length = this.lengthFor(missionSlots);
-  missionGroup.relBound.set(0.55f, 0, 0, 0);
-  missionGroup.absBound.set(-length / 2, 0, 0, 0);
-  missionGroup.attachTo(this);
-}
-//*/
