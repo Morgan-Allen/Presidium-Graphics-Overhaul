@@ -24,7 +24,7 @@ import stratos.util.*;
 //  TODO:  However, the SFX being shown might be a clue to sprites-flickering
 //         in odd locations.  Consider studying it for that reason.
 
-//  TODO:  Lots of UI bits and pieces need updating now.  Start with actors.
+//  TODO:  Lots of UI bits and pieces need updating now.  Fix install tab.
 
 
 public class DebugSecurity extends Scenario {

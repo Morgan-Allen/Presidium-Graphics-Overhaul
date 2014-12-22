@@ -158,6 +158,40 @@ public class Text extends UINode implements Description {
   public void append(String s, Colour c) { append(s, null, c); }
   public void append(String s) { append(s, null, null); }
   
+
+  boolean addEntry(char k, Clickable links, Colour c) {
+    Letter l = null;
+    if (((l = alphabet.map[k]) == null) && (k != '\n')) return false;
+    final TextEntry entry = new TextEntry();
+    entry.key = k;
+    entry.letter = l;
+    entry.colour = c;
+    entry.link = links;
+    allEntries.addLast(entry);
+    needsFormat = true;
+    return true;
+  }
+  
+  
+  public void setText(String s) {
+    allEntries.clear();
+    append(s, null, null);
+    needsFormat = true;
+  }
+  
+  
+  public String getText() {
+    int n = 0;
+    char charS[] = new char[allEntries.size()];
+    for (Box2D entry : allEntries) {
+      if (entry instanceof TextEntry)
+        charS[n++] = ((TextEntry) entry).key;
+      else
+        charS[n++] = '*';
+    }
+    return new String(charS);
+  }
+  
   
   
   /**  Adds a single image entry to this text object.  Image entries can either
@@ -202,43 +236,6 @@ public class Text extends UINode implements Description {
   
   public void cancelBullet() {
     //  TODO:  Get rid of the indent effect associated with the last image?
-  }
-  
-  
-  
-  /**  Adds a single letter entry to this text object.
-    */
-  boolean addEntry(char k, Clickable links, Colour c) {
-    Letter l = null;
-    if (((l = alphabet.map[k]) == null) && (k != '\n')) return false;
-    final TextEntry entry = new TextEntry();
-    entry.key = k;
-    entry.letter = l;
-    entry.colour = c;
-    entry.link = links;
-    allEntries.addLast(entry);
-    needsFormat = true;
-    return true;
-  }
-  
-  
-  public void setText(String s) {
-    allEntries.clear();
-    append(s, null, null);
-    needsFormat = true;
-  }
-  
-  
-  public String getText() {
-    int n = 0;
-    char charS[] = new char[allEntries.size()];
-    for (Box2D entry : allEntries) {
-      if (entry instanceof TextEntry)
-        charS[n++] = ((TextEntry) entry).key;
-      else
-        charS[n++] = '*';
-    }
-    return new String(charS);
   }
   
   
@@ -291,6 +288,10 @@ public class Text extends UINode implements Description {
   
   protected UINode selectionAt(Vector2 mousePos) {
     if (! trueBounds().contains(mousePos.x, mousePos.y)) return null;
+
+    final Clickable link = getTextSelection(UI.mousePos(), scrolled);
+    if (link != null && UI.mouseClicked()) whenLinkClicked(link);
+    
     for (UIEntry node : allNodes) {
       final UINode match = node.graphic.selectionAt(mousePos);
       if (match != null) return match;
@@ -332,7 +333,7 @@ public class Text extends UINode implements Description {
   }
   
   
-  protected Object getTextSelection(Vector2 mousePos, Box2D scrolled) {
+  protected Clickable getTextSelection(Vector2 mousePos, Box2D scrolled) {
     final float
       mX = mousePos.x + scrolled.xpos() - this.xpos(),
       mY = mousePos.y + scrolled.ypos() - this.ypos();

@@ -28,7 +28,7 @@ public abstract class Vehicle extends Mobile implements
   protected Base base;
   final public Stocks cargo = new Stocks(this);
   final public Structure structure = new Structure(this);
-  final Personnel personnel = new Personnel(this);
+  final Staff personnel = new Staff(this);
   
   final protected List <Mobile> inside = new List <Mobile> ();
   private Actor pilot;
@@ -76,7 +76,7 @@ public abstract class Vehicle extends Mobile implements
   
   public void assignBase(Base base) { this.base = base; }
   public Base base() { return base; }
-  public Personnel personnel() { return personnel; }
+  public Staff personnel() { return personnel; }
   public Structure structure() { return structure; }
   
   

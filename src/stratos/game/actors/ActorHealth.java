@@ -17,7 +17,8 @@ public class ActorHealth implements Qualities {
   
   /**  Fields, constructors, and save/load methods-
     */
-  private static boolean verbose = false;
+  private static boolean
+    verbose = false;
   
   final public static int
     HUMAN_METABOLISM    = 0,
@@ -384,8 +385,18 @@ public class ActorHealth implements Qualities {
   }
   
   
+  public float injury() {
+    return injury;
+  }
+  
+  
   public float fatigueLevel() {
     return fatigue / (maxHealth * MAX_FATIGUE);
+  }
+  
+  
+  public float fatigue() {
+    return fatigue;
   }
   
   
@@ -507,6 +518,8 @@ public class ActorHealth implements Qualities {
   
   
   protected void updateHealth(int numUpdates) {
+    final boolean report = verbose && I.talkAbout == actor;
+    if (report) I.say("\nUpdating health for "+actor);
     
     //  Define primary attributes-
     ageMultiple = calcAgeMultiple();
@@ -740,7 +753,7 @@ public class ActorHealth implements Qualities {
   
   private String descFor(Trait trait, float level, float max) {
     final String desc = Trait.descriptionFor(trait, level);
-    if (desc == null) return null;
+    if (desc == null) return null;// "No "+trait.name;
     if (max <= 0) return desc;
     return desc+" ("+(int) (level * max)+")";
   }

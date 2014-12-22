@@ -20,7 +20,7 @@ public class VenueDescription {
   
   
   final String categories[];
-  final Venue v;
+  final Venue v;  //  TODO:  Apply to Properties, like, e.g, vehicles?
   private static Upgrade lastCU;  //last clicked upgrade.
  
   
@@ -30,68 +30,55 @@ public class VenueDescription {
   }
   
   
-  public static SelectionInfoPane configPanelWith(
-    Venue venue, SelectionInfoPane panel, BaseUI UI, String... categories
-  ) {
-    final VenueDescription VD = new VenueDescription(
-      venue, categories
-    );
-    return VD.configPanel(panel, UI);
-  }
-  
-  
   public static SelectionInfoPane configStandardPanel(
-    Venue venue, SelectionInfoPane panel, BaseUI UI
+    Venue venue, SelectionInfoPane panel, BaseUI UI, String... extraCategories
   ) {
-    final VenueDescription VD = new VenueDescription(
-      venue, CAT_UPGRADES, CAT_STATUS, CAT_STAFF, CAT_STOCK
+    final String categories[] = (String[]) Visit.compose(
+      String.class, extraCategories,
+      new String[] { CAT_UPGRADES, CAT_STOCK, CAT_STAFF }
     );
-    return VD.configPanel(panel, UI);
+    final VenueDescription VD = new VenueDescription(venue, categories);
+    if (panel == null) panel = new SelectionInfoPane(
+      UI, venue, venue.portrait(UI), true, categories
+    );
+    final String category = panel.category();
+    final Description d = panel.detail(), l = panel.listing();
+    
+    VD.describeCondition(d, UI);
+    if (category == CAT_UPGRADES) VD.describeUpgrades (l, UI);
+    if (category == CAT_STOCK   ) VD.describeStocks   (l, UI);
+    if (category == CAT_STAFF   ) VD.describeStaff(l, UI);
+    return panel;
   }
   
   
   public static SelectionInfoPane configSimplePanel(
-    Structure.Basis venue, SelectionInfoPane panel,
+    Venue venue, SelectionInfoPane panel,
     BaseUI UI, String statusMessage
   ) {
     if (panel == null) panel = new SelectionInfoPane(
-      UI, venue, venue.portrait(UI), true
+      UI, venue, venue.portrait(UI), true, CAT_STOCK, CAT_STAFF
     );
-    final Description d = panel.detail();
-    final VenueDescription VD = new VenueDescription(null);
-    VD.describeCondition(venue, d, UI, false);
     
+    final String category = panel.category();
+    final Description d = panel.detail(), l = panel.listing();
+    final VenueDescription VD = new VenueDescription(venue);
+    
+    VD.describeCondition(d, UI);
     if (statusMessage != null) {
       d.append("\n");
       d.append(statusMessage);
     }
+
+    if (category == CAT_STOCK) VD.describeStocks   (l, UI);
+    if (category == CAT_STAFF) VD.describeStaff(l, UI);
     return panel;
-  }
-  
-  
-  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
-    if (panel == null) panel = new SelectionInfoPane(
-      UI, v, v.portrait(UI), true, categories
-    );
-    final String category = panel.category();
-    final Description d = panel.detail();
-    describeCategory(d, UI, category);
-    return panel;
-  }
-  
-  
-  protected void describeCategory(Description d, BaseUI UI, String catID) {
-    if (catID == CAT_UPGRADES) describeUpgrades(d, UI);
-    if (catID == CAT_STATUS  ) describeCondition(v, d, UI, true);
-    if (catID == CAT_STAFF   ) describePersonnel(d, UI);
-    if (catID == CAT_STOCK   ) describeStocks(d, UI);
   }
   
   
   
   private void describeCondition(
-    Structure.Basis v,
-    Description d, BaseUI UI, boolean detail
+    Description d, BaseUI UI
   ) {
     
     final Stage world = v.world();
@@ -99,15 +86,12 @@ public class VenueDescription {
     d.append("\n  Integrity: ");
     d.append(v.structure().repair()+" / "+v.structure().maxIntegrity());
     
-    if (detail) {
-      final String CUD = v.structure().currentUpgradeDesc();
-      if (CUD != null) d.append("\n  "+CUD);
-      d.append("\n  Materials Needed: "+"None");
-      
-      if (v instanceof Inventory.Owner) {
-        final Inventory i = ((Inventory.Owner) v).inventory();
-        d.append("\n  Untaxed Credits: "+(int) i.credits());
-      }
+    final String CUD = v.structure().currentUpgradeDesc();
+    if (CUD != null) d.append("\n  "+CUD);
+    
+    if (v instanceof Inventory.Owner) {
+      final Inventory i = ((Inventory.Owner) v).inventory();
+      d.append("\n  Untaxed Credits: "+(int) i.credits());
     }
     
     final float squalor = 0 - world.ecology().ambience.valueAt(v);
@@ -220,31 +204,30 @@ public class VenueDescription {
   
   
   
-  private void describePersonnel(Description d, BaseUI UI) {
+  private void describeStaff(Description d, BaseUI UI) {
+    d.append("Staff:");
     final Background c[] = v.careers();
     if (c != null && c.length > 0) {
-      d.append("\nCareers and Openings:");
       for (Background b : c) {
         final int
           hired = v.personnel.numHired(b),
           total = hired + v.numOpenings(b);
         d.append("\n  "+hired+"/"+total+" "+b.name);
       }
-      d.append("\n");
+      //d.append("\n");
     }
     
-    d.append("\nPersonnel:");
     final Batch <Mobile> considered = new Batch <Mobile> ();
     for (Actor m : v.personnel.residents()) considered.include(m);
     for (Actor m : v.personnel.workers()) considered.include(m);
     for (Mobile m : v.inside()) considered.include(m);
     
     for (Mobile m : considered) {
-      d.append("\n  ");
       if (d instanceof Text && m instanceof Human) {
         final Composite p = ((Human) m).portrait(UI);
         ((Text) d).insert(p.texture(), 40, true);
       }
+      else d.append("\n\n  ");
       d.append(m);
       if (m instanceof Actor) {
         d.append("\n  ");
@@ -302,9 +285,48 @@ public class VenueDescription {
   
   private void describeUpgrades(Description d, BaseUI UI) {
     final Base played = BaseUI.current().played();
+
+    final Upgrade UA[] = Upgrade.upgradesFor(v.getClass());
+    final int
+      numU = v.structure.numUpgrades(),
+      maxU = v.structure.maxUpgrades();
+    
+    final Batch <String> DU = v.structure.descOngoingUpgrades();
+    for (String s : DU) d.append("\n  "+s);
+    d.append("Upgrades available: ("+numU+"/"+maxU+" used)");
+    
+    if (UA.length > 0) for (final Upgrade upgrade : UA) {
+      d.append("\n  ");
+      final boolean possible = v.structure.upgradePossible(upgrade);
+      final int level = v.structure.upgradeLevel(upgrade);
+      
+      d.append(new Description.Link(upgrade.name) {
+        public void whenClicked() { lastCU = upgrade; }
+      }, possible ? Text.LINK_COLOUR : Colour.LIGHT_GREY);
+
+      final Colour linkC = possible ? Colour.WHITE : Colour.LIGHT_GREY;
+      d.append("  (Cost "+upgrade.buildCost+")", linkC);
+      if (level > 0) d.append(" (x"+level+")", linkC);
+    }
+    if (! Visit.arrayIncludes(UA, lastCU)) lastCU = UA[0];
+    
+    if (lastCU != null) {
+      d.append("\n\n");
+      d.append(lastCU.description, Colour.LIGHT_GREY);
+      if (lastCU.required != null) {
+        d.append("\n  Requires: "+lastCU.required.name);
+      }
+      if (v.structure.upgradePossible(lastCU)) {
+        d.append(new Description.Link("\n\n  BEGIN UPGRADE") {
+          public void whenClicked() {
+            v.structure.beginUpgrade(lastCU, false);
+          }
+        });
+      }
+    }
     
     if (played == v.base() && ! v.privateProperty()) {
-      d.append("Orders: ");
+      d.append("\n\nOther Orders: ");
       if (v.structure.needsSalvage()) {
         d.append(new Description.Link("\n  Cancel Salvage") {
           public void whenClicked() {
@@ -320,43 +342,6 @@ public class VenueDescription {
         });
       }
       d.append("\n\n");
-    }
-
-    final Upgrade UA[] = Upgrade.upgradesFor(v.getClass());
-    if (UA.length > 0) {
-      final int
-        numU = v.structure.numUpgrades(),
-        maxU = v.structure.maxUpgrades();
-      
-      final Batch <String> DU = v.structure.descOngoingUpgrades();
-      d.append("Upgrade slots ("+numU+"/"+maxU+")");
-      for (String s : DU) d.append("\n  "+s);
-      d.append("\n\nUpgrades available: ");
-      
-      if (UA.length > 0) for (final Upgrade upgrade : UA) {
-        d.append("\n  ");
-        d.append(new Description.Link(upgrade.name) {
-          public void whenClicked() { lastCU = upgrade; }
-        });
-        d.append(" (x"+v.structure.upgradeLevel(upgrade)+")");
-      }
-      if (! Visit.arrayIncludes(UA, lastCU)) lastCU = UA[0];
-      
-      if (lastCU != null) {
-        d.append("\n\n");
-        d.append(lastCU.description);
-        d.append("\n  Cost: "+lastCU.buildCost+"   ");
-        if (lastCU.required != null) {
-          d.append("\n  Requires: "+lastCU.required.name);
-        }
-        if (v.structure.upgradePossible(lastCU)) {
-          d.append(new Description.Link("\n\n  BEGIN UPGRADE") {
-            public void whenClicked() {
-              v.structure.beginUpgrade(lastCU, false);
-            }
-          });
-        }
-      }
     }
   }
 }

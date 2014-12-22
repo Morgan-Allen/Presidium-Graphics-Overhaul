@@ -53,7 +53,7 @@ public abstract class Venue extends Structural implements
   
   
   final public VenueProfile profile;
-  final public Personnel personnel = new Personnel(this);
+  final public Staff personnel = new Staff(this);
   final public Stocks stocks = new Stocks(this);
   
   protected int entranceFace;
@@ -117,7 +117,7 @@ public abstract class Venue extends Structural implements
   
   public Index <Upgrade> allUpgrades() { return null; }
   public Structure structure() { return structure; }
-  public Personnel personnel() { return personnel; }
+  public Staff personnel() { return personnel; }
   
   public int owningType() { return VENUE_OWNS; }
   public Base base() { return base; }

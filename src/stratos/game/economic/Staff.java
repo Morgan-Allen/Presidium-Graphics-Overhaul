@@ -27,8 +27,7 @@ import stratos.util.*;
 //  both skills and personality.  (And they'd have to be given gear.)
 
 
-public class Personnel {
-  
+public class Staff {
   
   /**  Fields, constructors, and save/load methods-
     */
@@ -50,7 +49,7 @@ public class Personnel {
   
   
   
-  Personnel(Property venue) {
+  Staff(Property venue) {
     this.employs = venue;
   }
   

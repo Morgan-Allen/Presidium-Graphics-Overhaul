@@ -247,11 +247,6 @@ public abstract class Structural extends Fixture implements
   }
   
   
-  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
-    return VenueDescription.configSimplePanel(this, panel, UI, "");
-  }
-  
-  
   public TargetOptions configInfo(TargetOptions info, BaseUI UI) {
     if (info == null) info = new TargetOptions(UI, this);
     return info;

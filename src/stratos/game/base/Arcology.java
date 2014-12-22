@@ -187,6 +187,12 @@ public class Arcology extends Structural {
   public String fullName() { return "Arcology"; }
   
   
+  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
+    return null;
+    //return VenueDescription.configSimplePanel(this, panel, UI, "");
+  }
+  
+  
   public String helpInfo() {
     return
       "Arcology provides beauty and life support to your settlement, helping "+

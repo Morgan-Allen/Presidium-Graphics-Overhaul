@@ -208,12 +208,11 @@ public class FRSD extends Venue {
   final static String CAT_ORDERS = "ORDERS";
   
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
-    panel = VenueDescription.configPanelWith(
-      this, panel, UI, CAT_ORDERS, CAT_STATUS, CAT_STOCK, CAT_STAFF
+    panel = VenueDescription.configStandardPanel(
+      this, panel, UI, CAT_ORDERS
     );
     if (panel.category() == CAT_ORDERS) {
-      final Description d = panel.detail();
-      
+      final Description d = panel.listing();
       d.append("Orders:");
       
       for (int i = 0 ; i < NUM_TYPES; i++) {

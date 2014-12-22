@@ -244,7 +244,7 @@ public class Nursery extends Venue implements TileConstants {
   
   
   public Traded[] services() { return new Traded[] {
-    CARBS, PROTEIN, GREENS
+    CARBS, PROTEIN, GREENS, LCHC
   }; }
   
   
@@ -323,29 +323,45 @@ public class Nursery extends Venue implements TileConstants {
   
   /**  Rendering and interface methods-
     */
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(EcologistStation.ICON, "plantation");
+  protected float[] goodDisplayOffsets() {
+    return new float[] {
+      0.0f, 0.0f,
+      0.5f, 0.0f,
+      1.0f, 0.0f
+    };
   }
   
   
+  protected Traded[] goodsToShow() {
+    return new Traded[] { CARBS, PROTEIN, GREENS };
+  }
+  
+  
+  public Composite portrait(BaseUI UI) {
+    return Composite.withImage(EcologistStation.ICON, "plantation");
+  }
+
+
   public String fullName() {
     return "Nursery";
   }
   
   
+  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
+    return VenueDescription.configSimplePanel(this, panel, UI, null);
+  }
+  
+  
   public String helpInfo() {
-    //if (type == TYPE_NURSERY) return
     /*
     return
       "Nurseries allow young plants to be cultivated in a secure environment "+
       "prior to outdoor planting, and provide a small but steady food yield "+
       "regardless of outside conditions.";
     //*/
-    //*
     return
       "Plantations of managed, mixed-culture cropland secure a high-quality "+
       "food source for your base, but require space and constant attention.";
-    //*/
   }
   
   

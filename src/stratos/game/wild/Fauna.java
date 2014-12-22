@@ -389,11 +389,14 @@ public abstract class Fauna extends Actor {
   }
   
   
+  //  TODO:  Include this elsewhere?
+  /*
   public void describeStatus(Description d) {
     super.describeStatus(d);
     final int BP = (int) (breedMetre * 100);
     d.append("\n  Breeding condition: "+BP+"%");
   }
+  //*/
   
   
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {

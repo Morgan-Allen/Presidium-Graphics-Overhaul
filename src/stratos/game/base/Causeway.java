@@ -12,7 +12,7 @@ import stratos.util.*;
 
 
 
-//  TODO:  This needs to be placed spontaneously.
+//  TODO:  Maybe this needs to be placed spontaneously?
 
 
 public class Causeway extends Structural {
@@ -142,6 +142,12 @@ public class Causeway extends Structural {
   
   public Composite portrait(BaseUI UI) {
     return Composite.withImage(ICON, "causeway");
+  }
+  
+  
+  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
+    return null;
+    //return VenueDescription.configSimplePanel(this, panel, UI, "");
   }
   
   

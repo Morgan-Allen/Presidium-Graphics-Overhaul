@@ -375,13 +375,6 @@ public class Holding extends Venue {
   }
   
   
-  public String helpInfo() {
-    return
-      "Holdings provide comfort and privacy for your subjects, and create "+
-      "an additional tax base for revenue.";
-  }
-  
-  
   public String objectCategory() {
     return InstallTab.TYPE_SPECIAL;
   }
@@ -414,24 +407,21 @@ public class Holding extends Venue {
   
   
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
-    panel = VenueDescription.configPanelWith(
-      this, panel, UI, CAT_STATUS, CAT_STAFF, CAT_STOCK
-    );
-    final Description d = panel.detail();
-    if (panel.category() == CAT_STATUS) {
+    return VenueDescription.configSimplePanel(this, panel, UI, null);
+  }
+  
+  
+  public String helpInfo() {
+    if (inWorld()) {
       final String
         uS = needMessage(upgradeLevel),
         tS = needMessage(upgradeLevel + 1);
-      if (uS != null) {
-        d.append("\n\n");
-        d.append(uS);
-      }
-      else if (tS != null) {
-        d.append("\n\n");
-        d.append(tS);
-      }
+      if (uS != null) return uS;
+      if (tS != null) return tS;
     }
-    return panel;
+    return
+      "Holdings provide comfort and privacy for your subjects, and create "+
+      "an additional tax base for revenue.";
   }
   
   

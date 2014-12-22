@@ -258,13 +258,12 @@ public abstract class Actor extends Mobile implements
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     final boolean report = verbose && I.talkAbout == this;
-    if (report) I.say("\nUpdating actor!");
+    if (report) I.say("\nUpdating actor!  Instant? "+instant);
     //
     //  Check to see what our current condition is-
     final boolean
       OK         = health.conscious() && ! doingPhysFX(),
       checkSleep = (health.asleep() && numUpdates % 10 == 0);
-    if (! (OK || checkSleep)) return;
     //
     //  Update our actions, pathing, and AI-
     if (OK) {
@@ -295,7 +294,7 @@ public abstract class Actor extends Mobile implements
     //  Update the intel/danger maps associated with the world's bases.
     final float power = senses.powerLevel() * 10;
     if (! instant) for (Base b : world.bases()) {
-      if (b == base()) {
+      if (OK && b == base()) {
         //
         //  Actually lift fog in an area slightly ahead of the actor-
         final Vec2D heads = new Vec2D().setFromAngle(rotation);
@@ -304,7 +303,7 @@ public abstract class Actor extends Mobile implements
         heads.y += position.y;
         b.intelMap.liftFogAround(heads.x, heads.y, health.sightRange());
       }
-      if (! visibleTo(b)) continue;
+      else if (! visibleTo(b)) continue;
       final float relation = relations.valueFor(b);
       final Tile o = origin();
       b.dangerMap.accumulate(0 - power * relation, 1.0f, o.x, o.y);

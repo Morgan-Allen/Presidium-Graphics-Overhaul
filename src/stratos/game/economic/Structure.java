@@ -332,7 +332,7 @@ public class Structure {
   public void beginSalvage() {
     if (state == STATE_SALVAGE || ! basis.inWorld()) return;
     if (GameSettings.buildFree && (basis instanceof Element)) {
-      ((Element) basis).exitWorld();
+      ((Element) basis).setAsDestroyed();
     }
     else setState(Structure.STATE_SALVAGE, -1);
     if (group != null) for (Basis i : group) {

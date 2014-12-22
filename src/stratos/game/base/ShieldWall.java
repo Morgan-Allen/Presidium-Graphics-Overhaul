@@ -457,6 +457,11 @@ public class ShieldWall extends Venue {
   }
   
   
+  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
+    return VenueDescription.configSimplePanel(this, panel, UI, null);
+  }
+  
+  
   public Composite portrait(BaseUI UI) {
     return Composite.withImage(ICON, "shield_wall");
   }

@@ -103,6 +103,7 @@ public class Crop extends Element {
   
   
   public int pathType() {
+    if (covered) return Tile.PATH_BLOCKS;
     return Tile.PATH_HINDERS;
   }
   
