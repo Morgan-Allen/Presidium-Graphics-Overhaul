@@ -109,7 +109,7 @@ public class DebugPlacing extends Scenario {
   
   private void configTradeTest(Stage world, Base base, BaseUI UI) {
     
-    final Venue depot = new FRSD(base);
+    final Venue depot = new SupplyDepot(base);
     Placement.establishVenue(depot, 5 , 5 , true, world);
     depot.updateAsScheduled(0, false);
     

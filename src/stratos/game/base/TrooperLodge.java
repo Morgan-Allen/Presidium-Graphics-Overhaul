@@ -75,39 +75,37 @@ public class TrooperLodge extends Venue {
       200, null, 3, null,
       TrooperLodge.class, ALL_UPGRADES
     ),
-    AID_TRAINING = new Upgrade(
+    PEACEKEEPER_TRAINING = new Upgrade(
       "Peacekeeper Training",
-      "Educates your soldiers about the use of minimal force, local "+
-      "contacts, and proper treatment of prisoners.",
+      "Prepares your soldiers to use minimal force, build local contacts,"+
+      "and ensure fair treatment of prisoners.",
       200, null, 3, null,
       TrooperLodge.class, ALL_UPGRADES
     ),
     VOLUNTEER_STATION = new Upgrade(
       "Volunteer Station",
-      "Dedicated in defence of their homes, a volunteer militia provides the "+
-      "mainstay of your domestic forces.",
-      100,
+      VOLUNTEER.info,
+      200,
       Backgrounds.VOLUNTEER, 2, null,
       TrooperLodge.class, ALL_UPGRADES
     ),
-    VETERAN_STATION = new Upgrade(
-      "Veteran Station",
-      "Seasoned professional soldiers, veterans provide the backbone of your "+
-      "officer corps and command structure.",
-      150,
-      Backgrounds.VETERAN, 1, VOLUNTEER_STATION,
+    TROOPER_STATION = new Upgrade(
+      "Trooper Station",
+      TROOPER.info,
+      450,
+      Backgrounds.TROOPER, 1, VOLUNTEER_STATION,
       TrooperLodge.class, ALL_UPGRADES
     );
   
   public Background[] careers() {
-    return new Background[] { Backgrounds.VOLUNTEER, Backgrounds.VETERAN };
+    return new Background[] { Backgrounds.VOLUNTEER, Backgrounds.TROOPER };
   }
   
   
   public int numOpenings(Background v) {
     int num = super.numOpenings(v);
     if (v == Backgrounds.VOLUNTEER) return num + 2;
-    if (v == Backgrounds.VETERAN  ) return num + 1;
+    if (v == Backgrounds.TROOPER  ) return num + 1;
     return 0;
   }
   

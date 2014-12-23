@@ -74,7 +74,6 @@ public class DebugCommerce extends Scenario {
   
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.setDefaults();
-    //GameSettings.hireFree  = true;
     GameSettings.buildFree = true;
     GameSettings.fogFree   = true;
     GameSettings.paveFree  = true;

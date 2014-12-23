@@ -19,19 +19,21 @@ import static stratos.game.economic.Economy.*;
 
 
 
-public class FRSD extends Venue {
+//  TODO:  You'll need to introduce explicit upgrades here again.
+
+public class SupplyDepot extends Venue {
   
   
   /**  Other data fields, constructors and save/load methods-
     */
   final public static ModelAsset MODEL_UNDER = CutoutModel.fromSplatImage(
-    FRSD.class, "media/Buildings/merchant/depot_under.gif", 4.0f
+    SupplyDepot.class, "media/Buildings/merchant/depot_under.gif", 4.0f
   );
   final public static ModelAsset MODEL_CORE = CutoutModel.fromImage(
-    FRSD.class, "media/Buildings/merchant/depot_core.png", 3, 2
+    SupplyDepot.class, "media/Buildings/merchant/depot_core.png", 3, 2
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
-    FRSD.class, "media/GUI/Buttons/supply_depot_button.gif"
+    SupplyDepot.class, "media/GUI/Buttons/supply_depot_button.gif"
   );
   /*
   final static FacilityProfile PROFILE = new FacilityProfile(
@@ -57,7 +59,7 @@ public class FRSD extends Venue {
     );
   
   
-  public FRSD(Base base) {
+  public SupplyDepot(Base base) {
     super(4, 2, ENTRANCE_WEST, base);
     structure.setupStats(
       100,  //integrity
@@ -76,7 +78,7 @@ public class FRSD extends Venue {
   }
   
   
-  public FRSD(Session s) throws Exception {
+  public SupplyDepot(Session s) throws Exception {
     super(s);
   }
   
@@ -121,13 +123,13 @@ public class FRSD extends Venue {
   
   
   public Background[] careers() {
-    return new Background[] { Backgrounds.FAB_WORKER };
+    return new Background[] { Backgrounds.SUPPLY_CORPS };
   }
   
   
   public int numOpenings(Background v) {
     final int nO = super.numOpenings(v);
-    if (v == Backgrounds.FAB_WORKER) return nO + 3;
+    if (v == Backgrounds.SUPPLY_CORPS) return nO + 3;
     return 0;
   }
   
@@ -159,7 +161,7 @@ public class FRSD extends Venue {
   
   
   public String fullName() {
-    return "F.R.S.D";
+    return "Supply Depot";
   }
   
   
@@ -170,9 +172,8 @@ public class FRSD extends Venue {
   
   public String helpInfo() {
     return
-      "The Fabrication, Recycling and Supply Depot (or FRSD) provides basic "+
-      "construction materials and rations storage suitable to the needs of "+
-      "miners, cultivators and other frontier colonists.";
+      "The Supply Depot provides basic construction materials and rations "+
+      "storage suitable to the needs of frontier colonists or heavy industry.";
   }
   
   

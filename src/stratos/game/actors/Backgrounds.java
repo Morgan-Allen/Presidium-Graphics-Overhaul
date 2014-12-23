@@ -14,7 +14,7 @@ import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
 
 
-    //  TODO:  Allow backgrounds to 'extend' or 'develop' eachother.
+//  TODO:  Allow backgrounds to 'extend' or 'develop' eachother...
 
 public interface Backgrounds {
   
@@ -264,9 +264,9 @@ public interface Backgrounds {
   
   final public static Background
     
-    FAB_WORKER = new Background(
+    SUPPLY_CORPS = new Background(
       Backgrounds.class,
-      "Fab Worker", "", "pyon_skin.gif", "pyon_portrait.png",
+      "Supply Corps", "", "pyon_skin.gif", "pyon_portrait.png",
       CLASS_VASSAL, GUILD_MERCHANT,
       LEARNING, CHEMISTRY, PILOTING, ASSEMBLY, HARD_LABOUR,
       OFTEN, RELAXED, RARELY, AMBITIOUS,
@@ -297,18 +297,21 @@ public interface Backgrounds {
       CLASS_FREEMEN, GUILD_MERCHANT,
       EXPERT, COUNSEL, ACCOUNTING, PRACTICED, COMMAND, ANCIENT_LORE,
       ALWAYS, STUBBORN, OFTEN, DUTIFUL,
-      SOMETIMES, AMBITIOUS, IMPASSIVE, RARELY, INDULGENT,
+      SOMETIMES, AMBITIOUS, IMPASSIVE, INDULGENT,
       OVERALLS
     ),
     
-    VENDOR_CIRCLES[] = { FAB_WORKER, SOMA_CHEF, STOCK_VENDOR, AUDITOR }
+    VENDOR_CIRCLES[] = { SUPPLY_CORPS, SOMA_CHEF, STOCK_VENDOR, AUDITOR }
  ;
   
   final public static Background
     
     VOLUNTEER = new Background(
       Backgrounds.class,
-      "Volunteer", "", "militant_skin.gif", "militant_portrait.png",
+      "Volunteer",
+      "Dedicated in defence of their homes, a volunteer militia provides the "+
+      "mainstay of your domestic forces.",
+      "militant_skin.gif", "militant_portrait.png",
       CLASS_VASSAL, GUILD_MILITANT,
       PRACTICED, HAND_TO_HAND, MARKSMANSHIP,
       LEARNING, SURVEILLANCE, ASSEMBLY, HARD_LABOUR, SHIELD_AND_ARMOUR,
@@ -316,39 +319,12 @@ public interface Backgrounds {
       BLASTER, BODY_ARMOUR
     ),
     
-    ENFORCER = new Background(
+    TROOPER = new Background(
       Backgrounds.class,
-      "Enforcer", "", "enforcer_skin.gif", "enforcer_portrait.png",
-      CLASS_FREEMEN, GUILD_PHYSICIAN,
-      PRACTICED, MARKSMANSHIP, SUASION, COUNSEL, STEALTH_AND_COVER, LEARNING,
-      HAND_TO_HAND, ANATOMY, PHARMACY, COMMAND, BATTLE_TACTICS,
-      OFTEN, FEARLESS, STUBBORN, SOMETIMES, DUTIFUL, CURIOUS, CRUEL,
-      BODY_ARMOUR, STUN_WAND
-    ),
-    
-    //  TODO:  Restore traits here.
-    AIR_CORPS = new Background(
-      Backgrounds.class,
-      "Air Corps", "", "artificer_skin.gif", "militant_portrait.png",
-      CLASS_FREEMEN, GUILD_MILITANT,
-      PRACTICED, MARKSMANSHIP, PILOTING, SURVEILLANCE, STEALTH_AND_COVER,
-      LEARNING, HARD_LABOUR, ASSEMBLY,
-      BLASTER, SEALSUIT
-    ),
-    
-    //  TODO:  Draw up a different set of art assets for this guy.
-    MECH_LEGION = new Background(
-      Backgrounds.class,
-      "Mech Legion", "", "militant_skin.gif", "militant_portrait.png",
-      CLASS_FREEMEN, GUILD_MILITANT,
-      EXPERT, HAND_TO_HAND, FORMATION_COMBAT, SHIELD_AND_ARMOUR,
-      PRACTICED, COMMAND, LEARNING, BATTLE_TACTICS, MARKSMANSHIP,
-      BLASTER, POWER_ARMOUR
-    ),
-    
-    VETERAN = new Background(
-      Backgrounds.class,
-      "Veteran", "", "militant_skin.gif", "militant_portrait.png",
+      "Trooper",
+      "Seasoned professional soldiers, veterans provide the backbone of your "+
+      "officer corps and command structure.",
+      "militant_skin.gif", "militant_portrait.png",
       CLASS_FREEMEN, GUILD_MILITANT,
       EXPERT, HAND_TO_HAND, MARKSMANSHIP, PRACTICED, SURVEILLANCE,
       FORMATION_COMBAT, COMMAND, SHIELD_AND_ARMOUR, BATTLE_TACTICS,
@@ -356,7 +332,76 @@ public interface Backgrounds {
       BLASTER, BODY_ARMOUR
     ),
     
-    MILITARY_CIRCLES[] = { VOLUNTEER, ENFORCER, AIR_CORPS, MECH_LEGION, VETERAN }
+    //  TODO:  Draw up a different set of art assets for this guy.
+    MECH_KNIGHT = new Background(
+      Backgrounds.class,
+      "Mech Knight",
+      "",
+      "militant_skin.gif", "militant_portrait.png",
+      CLASS_FREEMEN, GUILD_MILITANT,
+      EXPERT, HAND_TO_HAND, FORMATION_COMBAT, SHIELD_AND_ARMOUR,
+      PRACTICED, COMMAND, LEARNING, BATTLE_TACTICS, MARKSMANSHIP,
+      BLASTER, POWER_ARMOUR
+    ),
+    
+    ENFORCER = new Background(
+      Backgrounds.class,
+      "Enforcer",
+      "",
+      "enforcer_skin.gif", "enforcer_portrait.png",
+      CLASS_FREEMEN, GUILD_MILITANT,
+      PRACTICED, MARKSMANSHIP, SUASION, COMMAND, STEALTH_AND_COVER, LEARNING,
+      HAND_TO_HAND, ANATOMY, PHARMACY, COUNSEL, BATTLE_TACTICS,
+      OFTEN, DUTIFUL, STUBBORN, SOMETIMES, FEARLESS, CURIOUS, CRUEL,
+      BODY_ARMOUR, STUN_WAND
+    ),
+    
+    PSI_CORPS = new Background(
+      Backgrounds.class,
+      "Psi Corps",
+      "",
+      "enforcer_skin.gif", "enforcer_portrait.png",
+      CLASS_FREEMEN, GUILD_MILITANT
+      //  TODO:  Fill in skills and abilities...
+    ),
+    
+    ANALYST = new Background(
+      Backgrounds.class,
+      "Analyst",
+      "",
+      "enforcer_skin.gif", "enforcer_portrait.png",
+      CLASS_STRATOI, GUILD_MILITANT
+      //  TODO:  Fill in skills and abilities...
+    ),
+    
+    WINGMAN = new Background(
+      Backgrounds.class,
+      "Wingman",
+      "",
+      "air_corps_skin.gif", "air_corps_portrait.png",
+      CLASS_VASSAL, GUILD_MILITANT,
+      PRACTICED, HARD_LABOUR, ASSEMBLY,
+      LEARNING, PILOTING, FIREARMS, SIMULACRA
+      //  TODO:  Fill in personality...
+    ),
+    
+    AIR_CORPS = new Background(
+      Backgrounds.class,
+      "Air Corps",
+      "",
+      "air_corps_skin.gif", "air_corps_portrait.png",
+      CLASS_FREEMEN, GUILD_MILITANT,
+      PRACTICED, MARKSMANSHIP, PILOTING, SURVEILLANCE, STEALTH_AND_COVER,
+      LEARNING, HARD_LABOUR, ASSEMBLY,
+      BLASTER, SEALSUIT
+      //  TODO:  Fill in personality...
+    ),
+    
+    MILITARY_CIRCLES[] = {
+      VOLUNTEER, TROOPER, MECH_KNIGHT,
+      ENFORCER, PSI_CORPS, ANALYST,
+      WINGMAN, AIR_CORPS,
+    }
  ;
   
   final public static Background

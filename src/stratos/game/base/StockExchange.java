@@ -347,8 +347,9 @@ public class StockExchange extends Venue {
 
   public String helpInfo() {
     return
-      "The Stock Exchange facilitates small-scale purchases within the "+
-      "neighbourhood, and bulk transactions between local merchants.";
+      "The Stock Exchange facilitates small-scale purchases within "+
+      "residential neighbourhoods, and bulk transactions between local "+
+      "merchants.";
   }
 
 

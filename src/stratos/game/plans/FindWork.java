@@ -156,7 +156,9 @@ public class FindWork extends Plan {
       Rand.index(world.size)
     );
     Property pick = (Property) world.presences.randomMatchNear(b, around, -1);
-    if (pick.base() != at) return null;
+    if (pick == null || pick.base() != at) {
+      return null;
+    }
     return attemptFor(actor, pick);
   }
   

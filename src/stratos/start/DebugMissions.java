@@ -143,7 +143,7 @@ public class DebugMissions extends Scenario {
     final Actor robot = Species.SPECIES_TRIPOD.newSpecimen(artilects);
     robot.enterWorldAt(32, 32, world);
     
-    final Actor vet = new Human(Backgrounds.VETERAN, base);
+    final Actor vet = new Human(Backgrounds.TROOPER, base);
     vet.enterWorldAt(4, 4, world);
     
     final Combat combat = new Combat(robot, vet);

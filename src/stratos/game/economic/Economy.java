@@ -356,11 +356,11 @@ public final class Economy {
     
     OVERALLS       = new OutfitType(
       BC, "Overalls"      , 1, 0, 50,
-      FRSD.class, 1, PLASTICS, 5, ASSEMBLY
+      SupplyDepot.class, 1, PLASTICS, 5, ASSEMBLY
     ),
     FINERY         = new OutfitType(
       BC, "Finery"        , 1, 0 , 400,
-      FRSD.class, 2, PLASTICS, 15, GRAPHIC_DESIGN
+      SupplyDepot.class, 2, PLASTICS, 15, GRAPHIC_DESIGN
     ),
     SCRAP_GEAR = new OutfitType(
       BC, "Scrap Gear", 3, 0, 5,
@@ -373,11 +373,11 @@ public final class Economy {
     
     SEALSUIT       = new OutfitType(
       BC, "Sealsuit"      , 4, 1, 150,
-      FRSD.class, 1, PLASTICS, 1, PARTS, 10, HANDICRAFTS
+      SupplyDepot.class, 1, PLASTICS, 1, PARTS, 10, HANDICRAFTS
     ),
     STEALTH_SUIT   = new OutfitType(
       BC, "Stealth Suit"  , 8, 5, 250,
-      FRSD.class, 1, PLASTICS, 2, PARTS, 15, HANDICRAFTS
+      SupplyDepot.class, 1, PLASTICS, 2, PARTS, 15, HANDICRAFTS
     ),
     
     BELT_AND_BRACER = new OutfitType(

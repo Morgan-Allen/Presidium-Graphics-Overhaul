@@ -19,7 +19,7 @@ public class DebugBigSim {
       Backgrounds.CULTIVATOR, 8 ,
       Backgrounds.TECHNICIAN, 8 ,
       Backgrounds.MINDER    , 3 ,
-      Backgrounds.FAB_WORKER, 3 ,
+      Backgrounds.SUPPLY_CORPS, 3 ,
       Backgrounds.VOLUNTEER , 5 ,
       Backgrounds.KNIGHTED  , 1 
     );

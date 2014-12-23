@@ -134,7 +134,7 @@ public class Bastion extends Venue {
   
   public int numOpenings(Background b) {
     final int nO = super.numOpenings(b);
-    if (b == Backgrounds.VETERAN) {
+    if (b == Backgrounds.TROOPER) {
       return nO + 2 + structure.upgradeLevel(SECURITY_MEASURES);
     }
     if (b == Backgrounds.TECHNICIAN) {
@@ -174,7 +174,7 @@ public class Bastion extends Venue {
     //
     //  Otherwise, return occupations for more regular staff-
     if (! staff.onShift(actor)) return null;
-    if (v == Backgrounds.VETERAN || v == Backgrounds.WAR_MASTER) {
+    if (v == Backgrounds.TROOPER || v == Backgrounds.WAR_MASTER) {
       return Patrolling.nextGuardPatrol(actor, this, Plan.ROUTINE);
     }
     if (v == Backgrounds.TECHNICIAN) {
@@ -260,7 +260,7 @@ public class Bastion extends Venue {
     //  TODO:  Base this off the Court setting!
     
     return new Background[] {
-      Backgrounds.TECHNICIAN, Backgrounds.VETERAN,
+      Backgrounds.TECHNICIAN, Backgrounds.TROOPER,
       Backgrounds.AUDITOR, Backgrounds.STEWARD
       //Backgrounds.HONOUR_GUARD, Backgrounds.CONSORT
       //Backgrounds.HEIR, Backgrounds.ADVISOR

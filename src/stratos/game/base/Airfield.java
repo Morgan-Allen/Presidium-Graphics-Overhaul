@@ -11,12 +11,15 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
+import static stratos.game.actors.Backgrounds.*;
 
+
+
+//  TODO:  You need some staff and pilots here, to provide security escorts for
+//  shipping, along with fueling-options.
 
 
 public class Airfield extends Venue {
-  
-  
   
   /**  Constructors, data fields, setup and save/load methods-
     */
@@ -163,9 +166,23 @@ public class Airfield extends Venue {
     return ALL_SERVICES;
   }
   
-  public Background[] careers() { return null; }
   
-  public Behaviour jobFor(Actor actor) { return null; }
+  public Background[] careers() {
+    return new Background[] { AIR_CORPS, WINGMAN };
+  }
+  
+  
+  public int numOpenings(Background b) {
+    final int nO = super.numOpenings(b);
+    if (b == AIR_CORPS) return nO + 1;
+    if (b == WINGMAN  ) return nO + 1;
+    return 0;
+  }
+  
+  
+  public Behaviour jobFor(Actor actor) {
+    return null;
+  }
   
   
   

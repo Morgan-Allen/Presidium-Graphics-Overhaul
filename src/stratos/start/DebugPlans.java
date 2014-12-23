@@ -101,7 +101,7 @@ public class DebugPlans extends Scenario {
       new Human(Backgrounds.MINDER, base)
     );
     
-    final Actor patient = new Human(Backgrounds.VETERAN, base);
+    final Actor patient = new Human(Backgrounds.TROOPER, base);
     patient.enterWorldAt(world.tileAt(10, 10), world);
     patient.health.takeInjury(patient.health.maxHealth(), false);
     

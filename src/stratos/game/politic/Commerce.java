@@ -207,10 +207,13 @@ public class Commerce {
       while (Rand.num() < applyChance) {
         final Human applies = new Human(b, base);
         if (report) I.say("  New candidate: "+applies);
-        
         candidates.addFirst(applies);
         final FindWork a = FindWork.attemptFor(applies, b, base);
-        if (a.position() != null) {
+        
+        if (a == null || a.position() == null) {
+          if (report) I.say("  No application made!");
+        }
+        else {
           if (report) I.say("  Applying at: "+a.position());
           a.confirmApplication();
         }
@@ -227,7 +230,7 @@ public class Commerce {
       
       final Background a = FindWork.ambitionOf(c);
       float quitChance = timeGone;
-      if (report) I.say("  Updating "+c);
+      if (report) I.say("  Updating "+c+" ("+c.vocation()+")");
       
       if (a != null) {
         final float
@@ -241,7 +244,11 @@ public class Commerce {
       }
       
       final FindWork b = FindWork.attemptFor(c, a, base);
-      if (Rand.num() > quitChance) {
+      if (b == null) {
+        if (report) I.say("  No application made!");
+        continue;
+      }
+      else if (Rand.num() > quitChance) {
         if (b.position() != null) {
           if (report) I.say("  Applying at: "+b.employer());
           b.confirmApplication();
