@@ -14,6 +14,7 @@ import stratos.game.plans.*;
 import stratos.game.politic.*;
 import stratos.user.*;
 import stratos.util.*;
+import static stratos.game.economic.Economy.*;
 
 
 
@@ -83,7 +84,21 @@ public class DebugCommerce extends Scenario {
     //GameSettings.freeHousingLevel = 0;
     
     if (false) archivesScenario(world, base, UI);
-    if (true ) runnersScenario (world, base, UI);
+    if (false) runnersScenario (world, base, UI);
+    if (true ) shippingScenario(world, base, UI);
+  }
+  
+  
+  private void shippingScenario(Stage world, Base base, BaseUI UI) {
+    
+    final Airfield airfield = new Airfield(base);
+    Placement.establishVenue(airfield, 5, 5, true, world);
+    airfield.setTrading(CARBS  , Airfield.TRADE_IMPORT, 10);
+    airfield.setTrading(PROTEIN, Airfield.TRADE_IMPORT, 5 );
+    airfield.updateAsScheduled(0, false);
+    
+    base.commerce.updateCommerce(0);
+    base.commerce.scheduleDrop(5);
   }
   
   

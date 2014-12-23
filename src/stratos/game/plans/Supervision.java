@@ -25,6 +25,7 @@ public class Supervision extends Plan {
     stepsVerbose = false;
   
   public static enum Type {
+    TYPE_VIP_STAY ,
     TYPE_OVERSIGHT,
     TYPE_DOMESTIC ,
     TYPE_INVENTORY;
@@ -40,6 +41,10 @@ public class Supervision extends Plan {
   private Session.Saveable worksOn = null;
   private float beginTime = -1;
   
+  
+  public static Supervision stayForVIP(Bastion venue, Actor actor) {
+    return new Supervision(actor, venue, Type.TYPE_VIP_STAY);
+  }
   
   
   public static Supervision oversight(Venue venue, Actor actor) {
@@ -93,6 +98,9 @@ public class Supervision extends Plan {
   final static Trait BASE_TRAITS[] = { RELAXED, IGNORANT, DUTIFUL };
 
   protected float getPriority() {
+    if (type == Type.TYPE_VIP_STAY) {
+      return actor.health.asleep() ? CASUAL : URGENT;
+    }
     if (! venue.staff.onShift(actor)) return 0;
     
     final boolean report = evalVerbose && I.talkAbout == actor;
@@ -166,11 +174,28 @@ public class Supervision extends Plan {
   
   public boolean actionSupervise(Actor actor, Venue venue) {
     
+    //  TODO:  Include any administrative chores.
+    /*
     //  If you have any items demanded by the venue, put them away-
     for (Item i : actor.gear.allItems()) {
       if (i.refers != null || i.type.form != FORM_MATERIAL) continue;
       if (venue.stocks.demandFor(i.type) > 0) actor.gear.transfer(i, venue);
     }
+    //*/
+    
+    if (actor.health.fatigueLevel() > 0.5f) {
+      actor.health.setState(ActorHealth.STATE_RESTING);
+    }
+    return true;
+  }
+  
+  
+  public boolean actionAdministrate(Actor actor, Bastion venue) {
+    return true;
+  }
+  
+  
+  public boolean actionDomestics(Actor actor, Venue venue) {
     return true;
   }
   
@@ -193,6 +218,7 @@ public class Supervision extends Plan {
       d.append(venue);
       return;
     }
+    
     if (type == Type.TYPE_INVENTORY && worksOn != null) {
       final Traded good = (Traded) worksOn;
       final float CL = ((StockExchange) venue).catalogueLevel(good);

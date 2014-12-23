@@ -21,7 +21,7 @@ public class Summons extends Plan {
   
   private static boolean verbose = true;
   
-  final static int
+  final public static int
     TYPE_GUEST   = 0,
     TYPE_SULKING = 1,
     TYPE_CAPTIVE = 2,

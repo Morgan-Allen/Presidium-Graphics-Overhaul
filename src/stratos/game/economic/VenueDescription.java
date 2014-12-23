@@ -287,6 +287,11 @@ public class VenueDescription {
     final Base played = BaseUI.current().played();
 
     final Upgrade UA[] = Upgrade.upgradesFor(v.getClass());
+    if (UA == null || UA.length == 0) {
+      d.append("No upgrades available.");
+      return;
+    }
+    
     final int
       numU = v.structure.numUpgrades(),
       maxU = v.structure.maxUpgrades();

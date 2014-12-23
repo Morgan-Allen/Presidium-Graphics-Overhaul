@@ -64,7 +64,7 @@ public class ShipUtils {
     
     if (dropPoint instanceof Venue) {
       //  Rely on the docking functions of the landing site...
-      ((LaunchHangar) dropPoint).setToDock(ship);
+      ((Airfield) dropPoint).setToDock(ship);
       return dropPoint;
     }
     else {
@@ -106,9 +106,9 @@ public class ShipUtils {
     if (report) I.say("\n"+ship+" performing takeoff!");
     
     if (ship.landed()) {
-      if (dropPoint instanceof LaunchHangar) {
+      if (dropPoint instanceof Airfield) {
         if (report) I.say("  Taking off from hangar...");
-        ((LaunchHangar) dropPoint).setToDock(null);
+        ((Airfield) dropPoint).setToDock(null);
       }
       else {
         if (report) I.say("  Taking off from ground...");
@@ -136,7 +136,9 @@ public class ShipUtils {
   
   /**  Dealing with motion during flight:
     */
-  static void adjustFlight(Dropship ship, Vec3D aimPos, float height) {
+  static void adjustFlight(
+    Dropship ship, Vec3D aimPos, float aimRot, float height
+  ) {
     final boolean report = flyVerbose && I.talkAbout == ship;
     if (report) I.say("\nAdjusting flight heading for "+ship);
     //
@@ -175,10 +177,11 @@ public class ShipUtils {
     //
     //  And adjust rotation (for non-zero headings)-
     if (heading.length() > 0) {
-      float angle = (heading.toAngle() * height) + (90 * (1 - height));
+      float angle = (heading.toAngle() * height) + (aimRot * (1 - height));
       final float
-        angleDif = Vec2D.degreeDif(angle, rotation),
-        absDif   = Nums.abs(angleDif), maxRotate = 90 * UPS;
+        angleDif  = Vec2D.degreeDif(angle, rotation),
+        absDif    = Nums.abs(angleDif),
+        maxRotate = 90 * UPS;
       if (height < 0.5f && absDif > maxRotate) {
         angle = rotation + (maxRotate * (angleDif > 0 ? 1 : -1));
         angle = (angle + 360) % 360;
@@ -209,7 +212,11 @@ public class ShipUtils {
   static boolean checkLandingArea(Dropship ship, Stage world, Box2D area) {
     final Boarding dropPoint = ship.mainEntrance();
     if (dropPoint instanceof Venue) {
-      return dropPoint.inWorld();
+      if (! dropPoint.inWorld()) return false;
+      final Airfield strip = (Airfield) dropPoint;
+      final Vec3D aimPos = strip.dockLocation(ship);
+      ship.assignLandPoint(aimPos, strip);
+      return true;
     }
     else for (Tile t : world.tilesIn(area, false)) {
       if (t == null) return false;
@@ -239,24 +246,22 @@ public class ShipUtils {
     //
     //  If that fails, check to see if landing at a supply depot/launch hangar
     //  is possible:
-    final Pick <LaunchHangar> pick = new Pick <LaunchHangar> ();
+    final Pick <Airfield> pick = new Pick <Airfield> ();
     
-    for (Object o : world.presences.matchesNear(LaunchHangar.class, ship, -1)) {
-      final LaunchHangar strip = (LaunchHangar) o;
+    for (Object o : world.presences.matchesNear(Airfield.class, ship, -1)) {
+      final Airfield strip = (Airfield) o;
       if (strip.docking() != null || ! strip.structure.intact()) continue;
-      
-      final FRSD parent = strip.parentDepot();
       float rating = 0;
       for (Traded good : Economy.ALL_MATERIALS) {
-        rating += Nums.max(0, parent.stocks.shortageOf(good));
-        rating += Nums.max(0, parent.stocks.surplusOf (good));
+        rating += Nums.max(0, strip.stocks.shortageOf(good));
+        rating += Nums.max(0, strip.stocks.surplusOf (good));
       }
       rating /= 2 * ALL_MATERIALS.length;
       pick.compare(strip, rating);
     }
-    final LaunchHangar strip = pick.result();
+    final Airfield strip = pick.result();
     if (strip != null) {
-      final Vec3D aimPos = strip.position(null);
+      final Vec3D aimPos = strip.dockLocation(ship);
       ship.assignLandPoint(aimPos, strip);
       strip.setToDock(ship);
       I.say("Landing at depot: "+strip);
@@ -268,7 +273,7 @@ public class ShipUtils {
     final Tile midTile = world.tileAt(world.size / 2, world.size / 2);
     final Presences p = world.presences;
     Target nearest = null;
-    nearest = p.randomMatchNear(FRSD.class, midTile, -1);
+    nearest = p.randomMatchNear(SERVICE_COMMERCE, midTile, -1);
     if (findLandingSite(ship, nearest, base)) return true;
     nearest = p.randomMatchNear(base, midTile, -1);
     if (findLandingSite(ship, nearest, base)) return true;

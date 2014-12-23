@@ -44,7 +44,7 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     "The Dejah Thoris",
     "The Leia Organa",
     "The Princess Irulan",
-    "The Century Kestrel",
+    "The Aeon Falcon",
     "The Business End",
     "The Tranquillity",
     "The Arrow of Orion",
@@ -60,9 +60,9 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     "The Wing and Prayer",
     "The Prima Noctis",
     "The Nova Dodger",
-    "The Terminal Drift",
-    "The Halcyon",
-    "The Zen Reciprocal"
+    "The Apollo",
+    "The HMS Halcyon",
+    "The Zen Perigee"
   };
   
   final static String
@@ -94,8 +94,7 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   private Vec3D aimPos = new Vec3D(0, 0, NO_LANDING);
   private float stageInceptTime = 0;
   private int   stage = STAGE_AWAY;
-  
-  private int nameID = -1;
+  private int   nameID = -1;
   
   
   
@@ -149,7 +148,7 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     }
     
     final Batch <Venue> depots = DeliveryUtils.nearbyDepots(
-      this, world, FRSD.class, StockExchange.class
+      this, world, SERVICE_COMMERCE
     );
     final Commerce c = this.base.commerce;
     final Choice choice = new Choice(actor);
@@ -195,6 +194,9 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   
   
   public float priceFor(Traded service) {
+    //  TODO:  REDUCE PRICES CHARGED IF YOU'RE DOCKED AT AN AIRFIELD WITH
+    //  PROPER FUEL STOCKS.
+    
     final Commerce c = base.commerce;
     if (c.localSurplus(service) > 0) return c.exportPrice(service);
     if (c.localShortage(service) > 0) return c.importPrice(service);
@@ -236,7 +238,7 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     nextPosition.set(entry.x, entry.y, INIT_HIGH);
     nextRotation = 0;
     setHeading(nextPosition, nextRotation, true, world);
-    entranceFace = Venue.ENTRANCE_SOUTH;
+    entranceFace = Venue.ENTRANCE_EAST;
     stage = STAGE_DESCENT;
     stageInceptTime = world.currentTime();
   }
@@ -308,7 +310,9 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     }
     //
     //  Otherwise, adjust motion-
-    if (inWorld() && ! landed()) ShipUtils.adjustFlight(this, aimPos, height);
+    if (inWorld() && ! landed()) {
+      ShipUtils.adjustFlight(this, aimPos, 0, height);
+    }
   }
   
 

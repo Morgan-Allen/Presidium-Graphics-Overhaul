@@ -24,10 +24,10 @@ public class Commerce {
   /**  Field definitions, constructor, save/load methods-
     */
   private static boolean
-    verbose        = false,
+    verbose        = true ,
     extraVerbose   = false,
-    migrateVerbose = verbose && false,
-    tradeVerbose   = verbose && false;
+    migrateVerbose = verbose && true ,
+    tradeVerbose   = verbose && true ;
   
   final public static float
     SUPPLY_INTERVAL = Stage.STANDARD_DAY_LENGTH / 2f,
@@ -505,6 +505,12 @@ public class Commerce {
   public Item[] getBestCargo(
     Inventory available, int fillLimit, final boolean imports
   ) {
+    final boolean report = tradeVerbose && base == BaseUI.current().played();
+    if (report) {
+      I.say("\nGetting best cargo from "+available.owner);
+      I.say("  Is import? "+imports);
+    }
+    
     //  TODO:  Use the compressOrder() method from DeliveryUtils?
     //  We prioritise items based on the amount of demand and the price of the
     //  goods in question-
@@ -519,8 +525,11 @@ public class Commerce {
     };
     for (Item item : available.allItems()) {
       final int tier = available.demandTier(item.type);
-      if (imports     && tier <= TIER_PRODUCER) continue;
-      if ((! imports) && tier >= TIER_CONSUMER) continue;
+      if (report) I.say("  Available: "+item+", demand tier: "+tier);
+      if (tier != TIER_NONE) {
+        if (imports     && tier <= TIER_PRODUCER) continue;
+        if ((! imports) && tier >= TIER_CONSUMER) continue;
+      }
       sorting.add(item);
     }
     
@@ -530,7 +539,9 @@ public class Commerce {
       final float letAmount = Nums.min(item.amount, fillLimit - totalAmount);
       if (letAmount <= 0) break;
       totalAmount += letAmount;
-      picked.add(Item.withAmount(item, letAmount));
+      item = Item.withAmount(item, letAmount);
+      if (report) I.say("  Adding item: "+item);
+      picked.add(item);
     }
     return picked.toArray(Item.class);
   }

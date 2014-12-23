@@ -21,7 +21,6 @@ import static stratos.game.economic.Economy.*;
 //
 //  TODO:  Implement Bulk Storage and Credits Reserve upgrades.
 
-
 public class StockExchange extends Venue {
   
   
@@ -44,8 +43,13 @@ public class StockExchange extends Venue {
   );
   //*/
   
-  //  Todo:  Specialise only in food stocks and finished goods!
-  final static Traded ALL_STOCKED[] = Economy.ALL_MATERIALS;
+  final static Traded
+    ALL_STOCKED[] = (Traded[]) Visit.compose(Traded.class,
+      ALL_FOOD_TYPES, ALL_DRUG_TYPES, ALL_WARES_TYPES, ALL_SPYCE_TYPES
+    ),
+    ALL_SERVICES[] = (Traded[]) Visit.compose(Traded.class,
+      ALL_STOCKED, new Traded[] { SERVICE_COMMERCE }
+    );
   
   private CargoBarge cargoBarge;
   private float catalogueSums[] = new float[ALL_STOCKED.length];
@@ -153,7 +157,7 @@ public class StockExchange extends Venue {
   
   
   public int spaceFor(Traded good) {
-    //  TODO:  Include bonuses for structure-upgrade level, and bulk storage.
+    //  TODO:  Include bonuses for structure-level-upgrades, and bulk storage.
     final float upgradeLevel = upgradeLevelFor(good);
     if (upgradeLevel <= 0) return 0;
     return 10 + (int) (upgradeLevel * 15);
@@ -235,7 +239,7 @@ public class StockExchange extends Venue {
     //
     //  See if there's a bulk delivery to be made-
     final Batch <Venue> depots = DeliveryUtils.nearbyDepots(
-      this, world, StockExchange.class, FRSD.class
+      this, world, SERVICE_COMMERCE
     );
     final Delivery bD = DeliveryUtils.bestBulkDeliveryFrom(
       this, services, 5, 50, depots
@@ -272,7 +276,7 @@ public class StockExchange extends Venue {
     cargoBarge.setHangar(this);
     
     final Batch <Venue> depots = DeliveryUtils.nearbyDepots(
-      this, world, StockExchange.class, FRSD.class
+      this, world, SERVICE_COMMERCE
     );
     for (Traded type : ALL_MATERIALS) {
       final int room = spaceFor(type);
@@ -288,7 +292,7 @@ public class StockExchange extends Venue {
   
   
   public Traded[] services() {
-    return ALL_STOCKED;
+    return ALL_SERVICES;
   }
   
   
@@ -349,8 +353,7 @@ public class StockExchange extends Venue {
 
 
   public String objectCategory() {
-    return UIConstants.TYPE_HIDDEN;
-    //return UIConstants.TYPE_MERCHANT;
+    return UIConstants.TYPE_MERCHANT;
   }
 }
 

@@ -162,19 +162,18 @@ public class Bastion extends Venue {
   public Behaviour jobFor(Actor actor) {
     if (! structure.intact()) return null;
     
-    if (actor == base().ruler()) {
-      final Supervision s = Supervision.oversight(this, actor);
-      return s;
-    }
-    
     //  TODO:  Apply to all advisors!
+    if (actor == base().ruler()) {
+      return Supervision.stayForVIP(this, actor);
+    }
     final Background v = actor.vocation();
     if (v == Backgrounds.STEWARD || v == Backgrounds.FIRST_CONSORT) {
-      return Supervision.oversight(this, actor);
+      return Supervision.stayForVIP(this, actor);
     }
     
+    //
+    //  Otherwise, return occupations for more regular staff-
     if (! staff.onShift(actor)) return null;
-    
     if (v == Backgrounds.VETERAN || v == Backgrounds.WAR_MASTER) {
       return Patrolling.nextGuardPatrol(actor, this, Plan.ROUTINE);
     }

@@ -228,27 +228,8 @@ public class EcologistStation extends Venue {
   
   /**  Rendering and interface methods-
     */
-  final static float GOOD_DISPLAY_OFFSETS[] = {
-    0.0f, 1.0f,
-    0.0f, 0.0f,
-    0.5f, 0.0f,
-    1.0f, 0.0f,
-  };
-  
-  
-  protected float[] goodDisplayOffsets() {
-    return GOOD_DISPLAY_OFFSETS;
-  }
-  
-  
   protected Traded[] goodsToShow() {
-    return new Traded[] { GENE_SEED, CARBS, GREENS, PROTEIN };
-  }
-  
-  
-  protected float goodDisplayAmount(Traded good) {
-    if (good == GENE_SEED) return stocks.amountOf(good) > 0 ? 5 : 0;
-    return super.goodDisplayAmount(good);
+    return null;
   }
   
   
@@ -274,3 +255,23 @@ public class EcologistStation extends Venue {
 
 
 
+  /*
+  final static float GOOD_DISPLAY_OFFSETS[] = {
+    0.0f, 1.0f,
+    0.0f, 0.0f,
+    0.5f, 0.0f,
+    1.0f, 0.0f,
+  };
+  
+  protected float goodDisplayAmount(Traded good) {
+    if (good == GENE_SEED) return stocks.amountOf(good) > 0 ? 5 : 0;
+    return super.goodDisplayAmount(good);
+  }
+  
+  
+  protected float[] goodDisplayOffsets() {
+    return GOOD_DISPLAY_OFFSETS;
+  }
+  //*/
+  
+  

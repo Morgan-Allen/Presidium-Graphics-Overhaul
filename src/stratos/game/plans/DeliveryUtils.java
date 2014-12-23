@@ -29,11 +29,11 @@ public class DeliveryUtils {
   /**  Helper methods for getting suitable distribution targets-
     */
   public static Batch <Venue> nearbyDepots(
-    Target t, Stage world, Class... venueClasses
+    Target t, Stage world, Object... serviceKeys
   ) {
     final Batch <Venue> depots = new Batch <Venue> ();
     world.presences.sampleFromMaps(
-      t, world, 5, depots, (Object[]) venueClasses
+      t, world, 5, depots, (Object[]) serviceKeys
     );
     return depots;
   }
