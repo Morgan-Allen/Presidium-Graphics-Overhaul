@@ -91,9 +91,9 @@ public class Foraging extends Plan {
     final float modifier = NO_MODIFIER + (hunger * ROUTINE);
     
     final float priority = priorityForActorWith(
-      actor, source, hunger * PARAMOUNT,
-      modifier, NO_HARM,
-      FULL_COMPETITION, MILD_FAIL_RISK,
+      actor, source,
+      hunger * PARAMOUNT, modifier,
+      NO_HARM, FULL_COMPETITION, MILD_FAIL_RISK,
       BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report
     );
@@ -101,6 +101,7 @@ public class Foraging extends Plan {
       I.say("  Hunger level was: "+hunger);
       I.say("  Final priority: "+priority);
     }
+    if (priority < ROUTINE) return 0;
     return priority;
   }
   
@@ -187,7 +188,7 @@ public class Foraging extends Plan {
   /*
   public boolean actionFell(Actor actor, Flora cut) {
     //
-    //  TODO:  Allow for wood-cutting behaviours as well?
+    //  TODO:  Allow for wood-cutting behaviours as well?  ...Yeah.  Maybe.
     return true;
   }
   //*/

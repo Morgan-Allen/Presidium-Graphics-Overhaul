@@ -28,50 +28,55 @@ public class PathSearch extends Search <Boarding> {
   
   private Boarding closest;
   private float closestDist;
-  private Boarding batch[] = new Boarding[8];
-  ///private Tile tileB[] = new Tile[8];
+  //private Boarding batch[] = new Boarding[8];
   //
   //  TODO:  Incorporate the Places-search constraint code here.
   //  TODO:  Allow for airborne pathing.
   //  TODO:  Allow for larger actors.
   //  TODO:  In the case of tiles, perform diagonals-culling here.
-  //  private Place[] placesPath;
   
   
-  
-  public PathSearch(Boarding init, Boarding dest, int limit) {
-    super(init, (limit > 0) ? ((limit + 2) * 8) : -1);
-    if (dest == null) {
-      I.complain("NO DESTINATION!");
-    }
+  public PathSearch(Boarding init, Boarding dest, boolean limit) {
+    super(init, -1);
+    if (init == null) I.complain("NO ORIGIN!"     );
+    if (dest == null) I.complain("NO DESTINATION!");
     this.destination = dest;
-    this.closest = init;
+    this.closest     = init;
     this.closestDist = Spacing.distance(init, dest);
-    if (destination instanceof Venue) {
-      final Venue venue = (Venue) destination;
-      aimPoint = venue.mainEntrance();
-      if (aimPoint == null) aimPoint = venue;
+    this.aimPoint    = boardPoint(destination);
+    if (limit) this.maxSearched = searchLimit(init, dest, aimPoint);
+  }
+  
+  
+  protected Boarding boardPoint(Boarding aims) {
+    while (true) {
+      if (aims instanceof Tile) break;
+      Boarding entrance = null;
+      if (aims instanceof Property) {
+        entrance = ((Property) aims).mainEntrance();
+      }
+      if (entrance == null) break;
+      else aims = entrance;
     }
-    if (aimPoint == null) aimPoint = destination;
+    return aims;
   }
   
   
-  protected static int searchLimit(Boarding init, Boarding dest) {
-    int limit = (int) Spacing.outerDistance(init, dest);
-    limit = Nums.max(limit, Stage.PATCH_RESOLUTION * 2);
+  protected int searchLimit(Boarding init, Boarding dest, Boarding aims) {
+    int limit = (int) Nums.max(
+      Spacing.outerDistance(init, dest),
+      Spacing.outerDistance(init, aims)
+    );
+    limit = Nums.max(limit + 2, Stage.PATCH_RESOLUTION * 2);
+    limit *= TileConstants.T_INDEX.length;
     return limit;
-  }
-  
-  
-  public PathSearch(Boarding init, Boarding dest) {
-    this(init, dest, searchLimit(init, dest));
   }
   
   
   public PathSearch doSearch() {
     if (verbose) I.say(
       "Searching for path between "+init+" and "+destination+
-      ", search limit: "+searchLimit(init, destination)
+      ", search limit: "+maxSearched
     );
     super.doSearch();
     if (verbose) {

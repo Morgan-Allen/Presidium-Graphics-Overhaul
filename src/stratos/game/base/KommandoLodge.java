@@ -6,6 +6,7 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
+import stratos.game.wild.Habitat;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
@@ -28,6 +29,11 @@ import static stratos.game.economic.Economy.*;
 //  Plus emissaries to native tribes, and auxiliaries with kinetic rifles.
 
 
+//  From the outside, this should be camouflaged to resemble a large rock (or
+//  something equally inconspicuous.)  Use the Spire-Models from the habitat
+//  class.
+
+
 
 public class KommandoLodge extends Venue {
   
@@ -35,7 +41,7 @@ public class KommandoLodge extends Venue {
   /**  Data fields, constructors and save/load methods-
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    KommandoLodge.class, "media/Buildings/ecologist/surveyor.png", 4, 1
+    KommandoLodge.class, "media/Buildings/ecologist/surveyor.png", 3, 1
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
     KommandoLodge.class, "media/GUI/Buttons/redoubt_button.gif"
@@ -43,31 +49,37 @@ public class KommandoLodge extends Venue {
   private static boolean verbose = true;
   
   
+  private Venue fleshStill = null;
   private GroupSprite camouflaged;
-  //private FleshStill still;
   
   
   public KommandoLodge(Base base) {
-    super(4, 1, Venue.ENTRANCE_NORTH, base);
+    super(3, 1, Venue.ENTRANCE_NORTH, base);
     structure.setupStats(
       150, 4, 150,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
     );
     staff.setShiftType(SHIFTS_BY_HOURS);
     attachSprite(MODEL.makeSprite());
+    
     camouflaged = new GroupSprite();
+    camouflaged.attach(
+      Habitat.SPIRE_MODELS[Rand.index(3)][0], 0, 0, 0
+    );
   }
   
   
   public KommandoLodge(Session s) throws Exception {
     super(s);
-    //still = (FleshStill) s.loadObject();
+    this.fleshStill = (Venue) s.loadObject();
+    this.camouflaged = (GroupSprite) ModelAsset.loadSprite(s.input());
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    //s.saveObject(still);
+    s.saveObject(fleshStill);
+    ModelAsset.saveSprite(camouflaged, s.output());
   }
   
   
@@ -245,8 +257,7 @@ public class KommandoLodge extends Venue {
   
   
   public String objectCategory() {
-    return UIConstants.TYPE_HIDDEN;
-    //return UIConstants.TYPE_ECOLOGIST;
+    return UIConstants.TYPE_ECOLOGIST;
   }
 }
 

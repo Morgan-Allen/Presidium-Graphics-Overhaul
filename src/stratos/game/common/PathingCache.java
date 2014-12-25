@@ -137,7 +137,7 @@ public class PathingCache {
       if (reports) I.say(
         "Using simple agenda-bounded pathing between "+initB+" "+destB
       );
-      final PathSearch search = new PathSearch(initB, destB);
+      final PathSearch search = new PathSearch(initB, destB, true);
       search.client = client;
       search.verbose = reports;
       search.doSearch();
@@ -177,7 +177,7 @@ public class PathingCache {
       if (reports) I.say(
         "Resorting to agenda-bounded pathfinding between "+initB+" "+destB
       );
-      final PathSearch search = new PathSearch(initB, destB);
+      final PathSearch search = new PathSearch(initB, destB, true);
       search.client = client;
       search.verbose = reports;
       search.doSearch();
@@ -409,7 +409,7 @@ public class PathingCache {
     //  to the PathingSearch class itself?
     final Tile initT = tilePosition(initB, null);
     
-    final PathSearch search = new PathSearch(initB, destB, -1) {
+    final PathSearch search = new PathSearch(initB, destB, false) {
       
       final int PPL = placesPath.length;
       private Place lastPlace = placesPath[0];
@@ -485,7 +485,7 @@ public class PathingCache {
     final Box2D
       cordon = new Box2D().setTo(sA.area).include(sB.area),
       tB = new Box2D();
-    final PathSearch search = new PathSearch(a, b, -1) {
+    final PathSearch search = new PathSearch(a, b, false) {
       protected boolean canEnter(Boarding spot) {
         if (! super.canEnter(spot)) return false;
         if (spot instanceof Tile) {

@@ -21,9 +21,9 @@ public class Pathing {
     */
   final public static int MAX_PATH_SCAN = 8;
   private static boolean
-    pathVerbose  = false,
-    verbose      = false,
-    extraVerbose = false;
+    pathVerbose  = true ,
+    verbose      = true ,
+    extraVerbose = true ;
   
   final Mobile mobile;
   Target trueTarget;
@@ -210,7 +210,7 @@ public class Pathing {
     final boolean report = verbose && extraVerbose && I.talkAbout == mobile;
     
     if (GameSettings.pathFree) {
-      final PathSearch search = new PathSearch(initB, destB, -1);
+      final PathSearch search = new PathSearch(initB, destB, false);
       search.verbose = report;
       search.client = mobile;
       search.doSearch();

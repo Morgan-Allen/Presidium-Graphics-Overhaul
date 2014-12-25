@@ -308,7 +308,7 @@ public interface Backgrounds {
     
     VOLUNTEER = new Background(
       Backgrounds.class,
-      "Volunteer",
+      "Trooper (Volunteer)",
       "Dedicated in defence of their homes, a volunteer militia provides the "+
       "mainstay of your domestic forces.",
       "militant_skin.gif", "militant_portrait.png",
@@ -321,7 +321,7 @@ public interface Backgrounds {
     
     TROOPER = new Background(
       Backgrounds.class,
-      "Trooper",
+      "Trooper (Veteran)",
       "Seasoned professional soldiers, veterans provide the backbone of your "+
       "officer corps and command structure.",
       "militant_skin.gif", "militant_portrait.png",
@@ -335,7 +335,7 @@ public interface Backgrounds {
     //  TODO:  Draw up a different set of art assets for this guy.
     MECH_KNIGHT = new Background(
       Backgrounds.class,
-      "Mech Knight",
+      "Trooper (Mech Knight)",
       "",
       "militant_skin.gif", "militant_portrait.png",
       CLASS_FREEMEN, GUILD_MILITANT,
@@ -346,7 +346,7 @@ public interface Backgrounds {
     
     ENFORCER = new Background(
       Backgrounds.class,
-      "Enforcer",
+      "Enforcer (Street Division)",
       "",
       "enforcer_skin.gif", "enforcer_portrait.png",
       CLASS_FREEMEN, GUILD_MILITANT,
@@ -358,7 +358,7 @@ public interface Backgrounds {
     
     PSI_CORPS = new Background(
       Backgrounds.class,
-      "Psi Corps",
+      "Enforcer (Psi Division)",
       "",
       "enforcer_skin.gif", "enforcer_portrait.png",
       CLASS_FREEMEN, GUILD_MILITANT
@@ -367,27 +367,27 @@ public interface Backgrounds {
     
     ANALYST = new Background(
       Backgrounds.class,
-      "Analyst",
+      "Enforcer (Analyst)",
       "",
       "enforcer_skin.gif", "enforcer_portrait.png",
       CLASS_STRATOI, GUILD_MILITANT
       //  TODO:  Fill in skills and abilities...
     ),
     
-    WINGMAN = new Background(
+    AIR_CORPS = new Background(
       Backgrounds.class,
-      "Wingman",
+      "Air Corps (Deckhand)",
       "",
       "air_corps_skin.gif", "air_corps_portrait.png",
-      CLASS_VASSAL, GUILD_MILITANT,
+      CLASS_FREEMEN, GUILD_MILITANT,
       PRACTICED, HARD_LABOUR, ASSEMBLY,
       LEARNING, PILOTING, FIREARMS, SIMULACRA
       //  TODO:  Fill in personality...
     ),
     
-    AIR_CORPS = new Background(
+    WINGMAN = new Background(
       Backgrounds.class,
-      "Air Corps",
+      "Air Corps (Wingman)",
       "",
       "air_corps_skin.gif", "air_corps_portrait.png",
       CLASS_FREEMEN, GUILD_MILITANT,
@@ -397,10 +397,19 @@ public interface Backgrounds {
       //  TODO:  Fill in personality...
     ),
     
+    ACE = new Background(
+      Backgrounds.class,
+      "Air Corps (Ace)",
+      "",
+      "air_corps_skin.gif", "air_corps_portrait.png",
+      CLASS_STRATOI, GUILD_MILITANT
+      //  TODO:  Fill in extra skills.
+    ),
+    
     MILITARY_CIRCLES[] = {
-      VOLUNTEER, TROOPER, MECH_KNIGHT,
-      ENFORCER, PSI_CORPS, ANALYST,
-      WINGMAN, AIR_CORPS,
+      VOLUNTEER, TROOPER  , MECH_KNIGHT,
+      ENFORCER , PSI_CORPS, ANALYST    ,
+      AIR_CORPS, WINGMAN  , ACE        ,
     }
  ;
   

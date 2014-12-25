@@ -193,20 +193,20 @@ public class Schedule {
         finishedOK = true;
         break;
       }
-
+      
+      final int updateCount = (int) (currentTime - event.initTime);
+      final boolean instant = event.lastUpdateCount == -1;
       final float interval = event.updates.scheduledInterval();
       events.deleteRef(leastRef);
       
       //  TODO:  Stretch this out further based on the proportion of clients
       //  that updated successfully last cycle?
       if (lastUpdateOkay) event.time += interval + ((Rand.num() - 0.5f) / 5);
-      else event.time += (interval * 2) - Rand.num();
+      else                event.time += (interval * 2) - Rand.num();
       allUpdates.put(event.updates, events.insert(event));
       
       //  TODO:  You need a better system here- particularly in the case of
       //  instant scheduling.
-      final int updateCount = (int) (currentTime - event.initTime);
-      final boolean instant = event.lastUpdateCount == -1;
       
       if (instant || updateCount > event.lastUpdateCount) {
         long startTime = System.nanoTime();

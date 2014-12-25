@@ -300,7 +300,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
       initT = Spacing.nearestOpenTile((Element) init, dest, world),
       destT = Spacing.nearestOpenTile((Element) dest, init, world);
     
-    PathSearch search = new PathSearch(initT, destT);
+    final PathSearch search = new PathSearch(initT, destT, true);
     search.doSearch();
     if (! search.success()) return null;
     final Boarding path[] = search.fullPath(Boarding.class);

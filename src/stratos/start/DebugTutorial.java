@@ -11,6 +11,14 @@ import stratos.util.*;
 
 
 
+//  I need to start testing the core game 'flow'.  Money supply.  Picking and
+//  choosing between different upgrades (or policies.)  Arranging missions, and
+//  assessing recruits.
+
+//  TODO:  Test the stock exchange, and re-introduce the arcology & edifice.
+
+//  You should not be sending roads to un-paved structures (like the Kommando
+//  lodge!)
 
 //  Assign drills directly at the trooper lodge.  That'll keep 'em busy!
 
@@ -24,8 +32,6 @@ import stratos.util.*;
 //  Introduce a finance-report UI!  And try to get all the details.
 //  Try to arrange that actors will seek out new Holdings if anything existing
 //  is at or above half crowding.
-//  Divide venue description into two panes- one for general status, and the
-//  other for specific sub-headings.  Don't bother with spill-over.
 //  Rework art for roads, the shield wall, the physician station, the engineer
 //  station, the solar bank, and the archives.
 
@@ -39,7 +45,6 @@ import stratos.util.*;
 //  TODO:  Also, animals should react more strongly to strangers (either fight
 //         or flee.)
 
-//  TODO:  Test the stock exchange, and re-introduce the arcology + edifice.
 
 
 public class DebugTutorial extends TutorialScenario {
@@ -89,9 +94,6 @@ public class DebugTutorial extends TutorialScenario {
   public void renderVisuals(Rendering rendering) {
     super.renderVisuals(rendering);
   }
-  
-  
-  //protected boolean showMessages() { return false; }
 }
 
 

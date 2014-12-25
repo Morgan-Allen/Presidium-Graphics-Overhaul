@@ -11,7 +11,7 @@ import stratos.util.*;
 
 
 
-public class Outcrop extends Fixture {// implements Selectable {
+public class Outcrop extends Fixture {
   
   
   /**  These are utility methods intended to determine the type and appearance
@@ -68,8 +68,8 @@ public class Outcrop extends Fixture {// implements Selectable {
   
   static ModelAsset modelFor(Outcrop outcrop, Stage world) {
     
-    final int mineral = mineralTypeFor(outcrop, world);
-    final float rubble = rubbleFor(outcrop, world);
+    final int   mineral = mineralTypeFor(outcrop, world);
+    final float rubble  = rubbleFor(outcrop, world);
     outcrop.mineral = mineral;
     final int size = outcrop.size, type = outcrop.type;
     
@@ -81,13 +81,12 @@ public class Outcrop extends Fixture {// implements Selectable {
     }
     if (mineral == 0 || size != 3) {
       int highID = Rand.yes() ? 1 : (3 - size);
-      //int highID = (size == 3) ? 0 : 1;
       return Habitat.SPIRE_MODELS[Rand.index(3)][highID];
     }
     else {
       return Rand.num() < rubble ?
         Habitat.ROCK_LODE_MODELS[mineral - 1] :
-        Habitat.MINERAL_MODELS[mineral - 1];
+        Habitat.MINERAL_MODELS  [mineral - 1] ;
     }
   }
   
@@ -198,6 +197,9 @@ public class Outcrop extends Fixture {// implements Selectable {
   public String toString() {
     return fullName();
   }
+}
+
+
   
 
   /*
@@ -254,9 +256,6 @@ public class Outcrop extends Fixture {// implements Selectable {
     BaseUI.current().selection.pushSelection(this, false);
   }
   //*/
-}
-
-
 
 
 

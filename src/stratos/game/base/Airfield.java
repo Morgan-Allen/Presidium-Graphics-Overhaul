@@ -99,6 +99,7 @@ public class Airfield extends Venue {
   /**  Docking functions-
     */
   public Boarding[] canBoard() {
+    //  TODO:  Cache this.
     final Batch <Boarding> CB = new Batch <Boarding> ();
     if (mainEntrance() != null) CB.add(mainEntrance());
     
@@ -168,14 +169,14 @@ public class Airfield extends Venue {
   
   
   public Background[] careers() {
-    return new Background[] { AIR_CORPS, WINGMAN };
+    return new Background[] { WINGMAN, AIR_CORPS };
   }
   
   
   public int numOpenings(Background b) {
     final int nO = super.numOpenings(b);
-    if (b == AIR_CORPS) return nO + 1;
     if (b == WINGMAN  ) return nO + 1;
+    if (b == AIR_CORPS) return nO + 1;
     return 0;
   }
   
