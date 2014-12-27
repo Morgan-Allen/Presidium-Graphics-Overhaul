@@ -277,9 +277,7 @@ public abstract class Actor extends Mobile implements
       if (nextAction != actionTaken) assignAction(nextAction);
       
       if (report) I.say("  Checking pathing...");
-      if (! pathing.checkPathingOkay()) {
-        pathing.refreshFullPath();
-      }
+      if (! pathing.checkPathingOkay()) pathing.refreshFullPath();
     }
     //
     //  Check to see if you need to wake up-

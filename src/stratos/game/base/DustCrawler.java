@@ -18,14 +18,12 @@ import static stratos.game.economic.Economy.*;
 
 
 
-/*
-public class DustCrawler extends Vehicle implements
-  Inventory.Owner
-{
+//*
+public class DustCrawler extends Vehicle {
   
   /**  Fields, constants, constructors and save/load methods-
     */
-/*
+//*
   final static String
     FILE_DIR = "media/Vehicles/",
     XML_FILE = "VehicleModels.xml";
@@ -59,15 +57,16 @@ public class DustCrawler extends Vehicle implements
   
   public float homeCrowding(Actor actor) { return 1; }
   public float visitCrowding(Actor actor) { return 1; }
-  public TradeType[] services() { return null; }
+  public Traded[] services() { return null; }
   
   
   
   /**  Behavioural methods-
     */
-/*
-  public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates);
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
+    
+    if (! pathing.checkPathingOkay()) pathing.refreshFullPath();
     
     //  TODO:  Restore once building/salvage of vehicles is complete-
     ///if (! structure.intact()) return;
@@ -116,7 +115,7 @@ public class DustCrawler extends Vehicle implements
   
   /**  Rendering and interface methods-
     */
-/*
+//*
   private void toggleSoilDisplay() {
     final SolidSprite sprite = (SolidSprite) sprite();
     sprite.togglePart("soil bed", cargo.amountOf(SAMPLES) > 0);

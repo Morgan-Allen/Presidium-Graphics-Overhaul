@@ -256,7 +256,7 @@ public class BaseSetup {
         }
         else {
           final Stage world = venue.base().world;
-          world.offworld.addMigrant(worker, world);
+          world.offworld.addImmigrant(worker, world);
         }
       }
     }

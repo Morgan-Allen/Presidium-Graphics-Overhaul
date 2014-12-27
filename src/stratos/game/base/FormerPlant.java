@@ -6,7 +6,8 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
-//import stratos.game.plans.Repairs;
+import stratos.game.plans.*;
+import stratos.game.wild.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
@@ -26,18 +27,18 @@ import static stratos.game.economic.Economy.*;
 
 
 
-/*
+//*
 public class FormerPlant extends Venue {
   
 
   /**  Data fields, constructors and save/load methods-
     */
-/*
+//*
   final static ModelAsset MODEL = CutoutModel.fromImage(
     FormerPlant.class, "media/Buildings/ecologist/air_processor.png", 3, 2
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    "media/GUI/Buttons/air_processor_button.gif", FormerPlant.class
+    FormerPlant.class, "media/GUI/Buttons/air_processor_button.gif"
   );
   
   private static boolean verbose = false;
@@ -53,7 +54,7 @@ public class FormerPlant extends Venue {
       500, 15, 300,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_FIXTURE
     );
-    personnel.setShiftType(SHIFTS_BY_DAY);
+    staff.setShiftType(SHIFTS_BY_DAY);
     attachSprite(MODEL.makeSprite());
   }
   
@@ -79,11 +80,10 @@ public class FormerPlant extends Venue {
 
   /**  Upgrades, economic functions and behaviour implementations-
     */
-/*
-  final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-    FormerPlant.class, "former_plant_upgrades"
-  );
+//*
+  final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> ();
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
+  //*
   final public static Upgrade
     
     CARBONS_CYCLING = new Upgrade(
@@ -91,7 +91,8 @@ public class FormerPlant extends Venue {
       "Improves output of life support, speeds terraforming and reduces "+
       "pollution.",
       200,
-      null, 1, null, ALL_UPGRADES
+      null, 1, null, 
+      FormerPlant.class, ALL_UPGRADES
     ),
     
     EVAPORATION_CYCLING = new Upgrade(
@@ -99,7 +100,8 @@ public class FormerPlant extends Venue {
       "Increases efficiency around desert and oceans terrain, and increases "+
       "water output.",
       200,
-      null, 1, null, ALL_UPGRADES
+      null, 1, null,
+      FormerPlant.class, ALL_UPGRADES
     ),
     
     DUST_PANNING = new Upgrade(
@@ -107,7 +109,8 @@ public class FormerPlant extends Venue {
       "Permits modest output of metal ore and fuel cores, and installs "+
       "automated crawlers to gather soil samples.",
       150,
-      null, 1, CARBONS_CYCLING, ALL_UPGRADES
+      null, 1, CARBONS_CYCLING,
+      FormerPlant.class, ALL_UPGRADES
     ),
     
     SPICE_REDUCTION = new Upgrade(
@@ -115,13 +118,13 @@ public class FormerPlant extends Venue {
       "Employs microbial cultures to capture minute quantities of spice from "+
       "the surrounding environment.",
       300,
-      null, 1, EVAPORATION_CYCLING, ALL_UPGRADES
+      null, 1, EVAPORATION_CYCLING,
+      FormerPlant.class, ALL_UPGRADES
     );
   
   
-  
   public Behaviour jobFor(Actor actor) {
-    if ((! structure.intact()) || (! personnel.onShift(actor))) return null;
+    if ((! structure.intact()) || (! staff.onShift(actor))) return null;
     final Choice choice = new Choice(actor);
     //
     //  Consider upkeep, deliveries and supervision-
@@ -162,7 +165,7 @@ public class FormerPlant extends Venue {
   
   
   protected Tile pickSample() {
-    final int range = World.SECTOR_SIZE * 2;
+    final int range = Stage.SECTOR_SIZE * 2;
     Tile picked = null;
     float bestRating = 0;
     for (int n = 10; n-- > 0;) {
@@ -206,8 +209,8 @@ public class FormerPlant extends Venue {
   }
   
   
-  public void updateAsScheduled(int numUpdates) {
-    super.updateAsScheduled(numUpdates);
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     
     final boolean report = verbose && I.talkAbout == this;
@@ -219,11 +222,10 @@ public class FormerPlant extends Venue {
     //  levels-
     final float
       waterBonus  = 1 + structure.upgradeLevel(EVAPORATION_CYCLING),
-      carbonBonus = 1 + structure.upgradeLevel(CARBONS_CYCLING),
-      dustBonus   = 2 + structure.upgradeLevel(DUST_PANNING),
-      spiceBonus  = structure.upgradeLevel(SPICE_REDUCTION) / 5f;
-    final float
-      SDL = World.STANDARD_DAY_LENGTH;
+      carbonBonus = 1 + structure.upgradeLevel(CARBONS_CYCLING    ),
+      dustBonus   = 2 + structure.upgradeLevel(DUST_PANNING       ),
+      spiceBonus  = 0 + structure.upgradeLevel(SPICE_REDUCTION    ) / 5f,
+      SDL         = Stage.STANDARD_DAY_LENGTH;
     
     int powerNeed = 4 + (structure.numUpgrades() * 2);
     stocks.incDemand(POWER, powerNeed, TIER_CONSUMER, 1, this);
@@ -236,7 +238,7 @@ public class FormerPlant extends Venue {
     //  Sample the local terrain and see if you get an extraction bonus-
     final Vec3D p = this.position(null);
     final Box2D area = new Box2D().set(p.x, p.y, 0, 0);
-    area.expandBy(World.SECTOR_SIZE);
+    area.expandBy(Stage.SECTOR_SIZE);
     area.cropBy(new Box2D().set(0, 0, world.size - 1, world.size - 1));
     float sumWater = 0, sumDesert = 0;
     //
@@ -264,7 +266,7 @@ public class FormerPlant extends Venue {
     //  Also, see if any soil samples have been collected lately.  (This bonus
     //  is higher if the venue is presently well-supervised.)
     float soilBonus = soilSamples / 5f;
-    final Actor mans = (Actor) Rand.pickFrom(personnel.workers());
+    final Actor mans = (Actor) Rand.pickFrom(staff.workers());
     if (mans != null && mans.aboard() == this) {
       if (! mans.skills.test(GEOPHYSICS, SIMPLE_DC, 0.5f)) soilBonus /= 1.5f;
       if (mans.skills.test(GEOPHYSICS, DIFFICULT_DC, 0.5f)) soilBonus *= 1.5f;
@@ -276,19 +278,23 @@ public class FormerPlant extends Venue {
     //
     //  Here, we handle the lighter/more rarified biproducts-
     yield *= 1 + cycleBonus;
+    
+    //  TODO:  MODIFY OUTPUT OF WATER/LIFE-SUPPORT
+    /*
     if (report) I.say("  Yield/day with cycle bonus: "+yield);
     stocks.bumpItem(WATER, yield * (1 + waterBonus) * sumWater * 10 / SDL, 15);
     stocks.bumpItem(LIFE_SUPPORT, yield * carbonBonus * 100 / SDL, 15);
     //stocks.bumpItem(PETROCARBS, yield * carbonBonus / SDL, 15);
+    //*/
     
     //
     //  And here, the heavier elements-
-    soilSamples = Visit.clamp(soilSamples - (10f / SDL), 0, 10);
+    soilSamples = Nums.clamp(soilSamples - (10f / SDL), 0, 10);
     yield *= 1 + soilBonus;
     if (report) I.say("  Yield/day with soil bonus: "+yield);
-    stocks.bumpItem(SPYCE, yield * spiceBonus / SDL, 10);
-    stocks.bumpItem(METALS, yield * dustBonus / SDL, 10);
-    stocks.bumpItem(FUEL_RODS, yield * dustBonus / SDL, 10);
+    stocks.bumpItem(SPYCE_H, yield * spiceBonus / SDL, 10);
+    stocks.bumpItem(ORES   , yield * dustBonus  / SDL, 10);
+    stocks.bumpItem(TOPES  , yield * dustBonus  / SDL, 10);
     
     //
     //  In either cause, modify pollution and climate effects-
@@ -297,7 +303,7 @@ public class FormerPlant extends Venue {
     //  pollution, while reducing global pollution (because it's messy and
     //  noisy, but good for the atmosphere.)  Not In My Backyard, IOW.
     structure.setAmbienceVal(-1 * yield);
-    final int mag = World.SECTOR_SIZE;
+    final int mag = Stage.SECTOR_SIZE;
     world.ecology().pushClimate(Habitat.MEADOW, mag * mag * 5 * yield);
   }
   
@@ -343,15 +349,15 @@ public class FormerPlant extends Venue {
   }
   
   
-  public TradeType[] services() {
-    return new TradeType[] { METALS, FUEL_RODS, WATER, SPYCE };
+  public Traded[] services() {
+    return new Traded[] { ORES, TOPES, SPYCE_H };
   }
   
   
   
   /**  Rendering and interface-
     */
-/*
+//*
   final static float GOOD_DISPLAY_OFFSETS[] = {
      0.0f, 0,
      0.5f, 0,
@@ -364,13 +370,14 @@ public class FormerPlant extends Venue {
     return GOOD_DISPLAY_OFFSETS;
   }
   
-  
-  protected TradeType[] goodsToShow() {
-    return new TradeType[] { METALS, FUEL_RODS, SPYCE };
+  /*
+  protected Traded[] goodsToShow() {
+    return new Traded[] { ORES, TOPES, SPYCE_H };
   }
+  //*/
   
   
-  protected float goodDisplayAmount(TradeType good) {
+  protected float goodDisplayAmount(Traded good) {
     return Nums.min(5, stocks.amountOf(good));
   }
   
@@ -393,7 +400,7 @@ public class FormerPlant extends Venue {
   }
   
   
-  public String buildCategory() {
+  public String objectCategory() {
     return UIConstants.TYPE_ECOLOGIST;
   }
   
@@ -407,8 +414,6 @@ public class FormerPlant extends Venue {
     return panel;
   }
 }
-
-//*/
 
 
 

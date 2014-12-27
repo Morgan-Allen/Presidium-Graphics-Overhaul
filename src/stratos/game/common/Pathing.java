@@ -21,16 +21,17 @@ public class Pathing {
     */
   final public static int MAX_PATH_SCAN = 8;
   private static boolean
-    pathVerbose  = true ,
-    verbose      = true ,
-    extraVerbose = true ;
+    pathVerbose  = false,
+    verbose      = false,
+    extraVerbose = false;
   
   final Mobile mobile;
   Target trueTarget;
   Boarding pathTarget;
   
-  Boarding path[] = null;
-  int stepIndex = -1;
+  private Boarding path[]    = null;
+  private int      stepIndex = -1  ;
+  private float    evalDelay =  0  ;
   
   
   public Pathing(Mobile a) {
@@ -81,7 +82,9 @@ public class Pathing {
   
   
   protected Boarding location(Target t) {
-    if (t instanceof Boarding && t != mobile) return (Boarding) t;
+    if (t instanceof Boarding && t != mobile) {
+      return (Boarding) t;
+    }
     if (t instanceof Mobile) {
       final Mobile a = (Mobile) t;
       if (a.aboard() != null) return a.aboard();
@@ -103,7 +106,10 @@ public class Pathing {
     this.trueTarget = moveTarget;
     if (trueTarget != oldTarget) {
       if (report) I.say("\nTARGET HAS CHANGED: "+trueTarget);
-      path = null; stepIndex = -1; return;
+      path = null;
+      stepIndex = -1;
+      evalDelay = 0;
+      return;
     }
     else if (inLocus(nextStep())) {
       stepIndex = Nums.clamp(stepIndex + 1, path.length);
@@ -165,7 +171,11 @@ public class Pathing {
   
   public boolean refreshFullPath() {
     final boolean report = verbose && I.talkAbout == mobile;
-    if (report) I.say("REFRESHING PATH TO: "+trueTarget);
+    if (evalDelay > 0) return false;
+    if (report) {
+      I.say("REFRESHING PATH TO: "+trueTarget);
+      I.say("  Eval delay: "+evalDelay);
+    }
     
     final Boarding origin = location(mobile);
     if (trueTarget == null) path = null;
@@ -186,6 +196,7 @@ public class Pathing {
       }
       mobile.pathingAbort();
       stepIndex = -1;
+      evalDelay += 0.5f;
       return false;
     }
     
@@ -212,7 +223,7 @@ public class Pathing {
     if (GameSettings.pathFree) {
       final PathSearch search = new PathSearch(initB, destB, false);
       search.verbose = report;
-      search.client = mobile;
+      search.assignClient(mobile);
       search.doSearch();
       return search.fullPath(Boarding.class);
     }
@@ -247,6 +258,7 @@ public class Pathing {
     if (report) {
       I.say("\n"+mobile+" HEADING TOWARDS: "+target+" FROM: "+mobile.origin());
     }
+    if (evalDelay > 0) evalDelay -= 1f / Stage.UPDATES_PER_SECOND;
     
     //  Don't move if something ahead is blocking entrance-
     if (target instanceof Tile) {

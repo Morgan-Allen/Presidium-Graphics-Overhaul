@@ -114,12 +114,12 @@ public class DebugPlans extends Scenario {
     GameSettings.buildFree = true;
     //GameSettings.noBlood = true;
     
-    final Actor hunts = new Human(Backgrounds.EXPLORER, base);
+    final Actor hunts = new Human(Backgrounds.KOMMANDO, base);
     final Venue station = new KommandoLodge(base);
     Placement.establishVenue(
       station, 6, 6, true, world,
-      new Human(Backgrounds.EXPLORER, base),
-      new Human(Backgrounds.EXPLORER, base),
+      new Human(Backgrounds.KOMMANDO, base),
+      new Human(Backgrounds.KOMMANDO, base),
       hunts
     );
     

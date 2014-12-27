@@ -18,14 +18,16 @@ import stratos.util.*;
 //  TODO:  It's even possible this data should be written to a separate file
 //         from the world itself, and loaded distinctly.
 
+//  TODO:  You also need to specify which *base* the ship is returning to.
+
 public class Offworld {
   
   
   /**  Data fields, construction, and save/load methods-
     */
   private static boolean
-    transitVerbose = true ,
-    updatesVerbose = true ,
+    transitVerbose = false,
+    updatesVerbose = false,
     extraVerbose   = false;
   
   
@@ -54,8 +56,8 @@ public class Offworld {
   //  TODO:  Use a table instead, to handle larger numbers?
   //  TODO:  Have journeys in and journeys out?
   final List <Journey> journeys = new List <Journey> ();
-  final List <Mobile > staying  = new List <Mobile > ();
-  final List <Mobile > comeBack = new List <Mobile > ();
+  final List <Mobile > away  = new List <Mobile > ();
+  final List <Mobile > dueBack = new List <Mobile > ();
   private int updateCounter = 0;
   
   
@@ -67,8 +69,8 @@ public class Offworld {
       j.arriveTime = s.loadFloat();
       journeys.add(j);
     }
-    s.loadObjects(staying );
-    s.loadObjects(comeBack);
+    s.loadObjects(away );
+    s.loadObjects(dueBack);
     updateCounter = s.loadInt();
   }
   
@@ -80,8 +82,8 @@ public class Offworld {
       s.saveObjectArray(j.passengers);
       s.saveFloat      (j.arriveTime);
     }
-    s.saveObjects(staying );
-    s.saveObjects(comeBack);
+    s.saveObjects(away );
+    s.saveObjects(dueBack);
     s.saveInt(updateCounter);
   }
   
@@ -101,8 +103,9 @@ public class Offworld {
   }
   
   
+  //  TODO:  SPECIFY BY BASE
   public boolean hasMigrantsFor(Stage world) {
-    return comeBack.size() > 0;
+    return dueBack.size() > 0;
   }
   
   
@@ -113,7 +116,7 @@ public class Offworld {
     for (Journey j : journeys) if (j.arriveTime <= world.currentTime()) {
       if (report) I.say("\nJourney complete for "+j.vessel);
       journeys.remove(j);
-      for (Mobile m : j.passengers) staying.addLast(m);
+      for (Mobile m : j.passengers) away.addLast(m);
     }
     //
     //  The idea here is to iterate over 1/nth of the available migrants each
@@ -122,7 +125,7 @@ public class Offworld {
     final int
       SUI  = STAY_UPDATE_INTERVAL,
       t    = ((int) world.currentTime()) % SUI,
-      numS = staying.size();
+      numS = away.size();
     updateCounter += (((t + 1) * numS) / SUI) - ((t * numS) / SUI);
     if (report && (extraVerbose || updateCounter > 0)) {
       I.say("\nUpdating "+updateCounter+"/"+numS+" migrants...");
@@ -134,7 +137,7 @@ public class Offworld {
     for (; updateCounter > 0; updateCounter--) {
       if (world.schedule.timeUp()) break;
       
-      final Mobile m = staying.removeFirst();
+      final Mobile m = away.removeFirst();
       boolean willStay = false;
       
       final Activity a = activityFor(m);
@@ -143,8 +146,8 @@ public class Offworld {
         if (! a.doneOffworld()) willStay = true;
       }
       
-      if (willStay) staying.addLast(m);
-      else comeBack.add(m);
+      if (willStay) away.addLast(m);
+      else dueBack.add(m);
       if (report) {
         I.say("\nUpdating "+m);
         I.say("  Current business: "+a);
@@ -157,9 +160,15 @@ public class Offworld {
   
   /**  Exchange methods for interfacing with the world-
     */
-  public void addMigrant(Mobile migrant, Stage world) {
-    staying.addLast(migrant);
+  public void addEmmigrant(Mobile migrant, Stage world) {
+    away.addLast(migrant);
   }
+  
+  
+  public void addImmigrant(Mobile migrant, Stage world) {
+    dueBack.addLast(migrant);
+  }
+  
   
   
   //  TODO:  You need to specify an origin & destination here.
@@ -194,10 +203,10 @@ public class Offworld {
   
   //  TODO:  You need to specify an origin & destination here.
   public void addPassengersTo(Dropship ship) {
-    for (Mobile p : comeBack) {
+    for (Mobile p : dueBack) {
       final Activity a = activityFor(p);
       if (a != null) a.onWorldEntry();
-      comeBack.remove(p);
+      dueBack.remove(p);
       ship.setInside(p, true);
       if (ship.inside().size() >= Dropship.MAX_PASSENGERS) break;
     }

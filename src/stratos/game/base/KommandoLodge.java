@@ -1,7 +1,6 @@
 
 
 package stratos.game.base;
-
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
@@ -20,18 +19,13 @@ import static stratos.game.economic.Economy.*;
 
 //  TODO:  Allow this to work as a Survey Lodge?
 
-//  Favoured Enemy:  (A Base, Artilects, Vermin, Predators.)
+//  Favoured Enemy:  (A Base, Artilects or Vermin.)
 //  Slayer Blade.    Survival Training.
 //  Native Mission.  Maw Training.
 //
 //
 //  High-impact melee assault.  Chameleonic mounts for speed and mobility.
-//  Plus emissaries to native tribes, and auxiliaries with kinetic rifles.
-
-
-//  From the outside, this should be camouflaged to resemble a large rock (or
-//  something equally inconspicuous.)  Use the Spire-Models from the habitat
-//  class.
+//  Plus emissaries to native tribes, as auxiliaries with kinetic rifles.
 
 
 
@@ -40,21 +34,24 @@ public class KommandoLodge extends Venue {
   
   /**  Data fields, constructors and save/load methods-
     */
-  final public static ModelAsset MODEL = CutoutModel.fromImage(
-    KommandoLodge.class, "media/Buildings/ecologist/surveyor.png", 3, 1
-  );
-  final static ImageAsset ICON = ImageAsset.fromImage(
-    KommandoLodge.class, "media/GUI/Buttons/redoubt_button.gif"
-  );
   private static boolean verbose = true;
   
+  final public static ModelAsset MODEL = CutoutModel.fromImage(
+    KommandoLodge.class, "media/Buildings/ecologist/kommando_lodge.png", 4, 2
+  );
+  final static ImageAsset ICON = ImageAsset.fromImage(
+    KommandoLodge.class, "media/GUI/Buttons/kommando_lodge_button.gif"
+  );
+  
+  
+  final static int CLAIM_RADIUS = Stage.SECTOR_SIZE / 2;
   
   private Venue fleshStill = null;
   private GroupSprite camouflaged;
   
   
   public KommandoLodge(Base base) {
-    super(3, 1, Venue.ENTRANCE_NORTH, base);
+    super(4, 2, Venue.ENTRANCE_NORTH, base);
     structure.setupStats(
       150, 4, 150,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
@@ -80,6 +77,16 @@ public class KommandoLodge extends Venue {
     super.saveState(s);
     s.saveObject(fleshStill);
     ModelAsset.saveSprite(camouflaged, s.output());
+  }
+  
+  
+  
+  /**  Placement and area-claims:
+    */
+  protected Box2D areaClaimed() {
+    final Box2D area = new Box2D(footprint());
+    area.expandBy(CLAIM_RADIUS);
+    return area;
   }
   
   
@@ -130,12 +137,12 @@ public class KommandoLodge extends Venue {
       null, 1, THERMAL_CAMOUFLAGE,
       KommandoLodge.class, ALL_UPGRADES
     ),
-    EXPLORER_STATION = new Upgrade(
+    KOMMANDO_STATION = new Upgrade(
       "Explorer Station",
       "Explorers are rugged outdoorsman that combine scientific curiosity "+
       "with a respect for natural ecosystems and basic self-defence training.",
       100,
-      Backgrounds.EXPLORER, 1, null,
+      Backgrounds.KOMMANDO, 1, null,
       KommandoLodge.class, ALL_UPGRADES
     );
   
@@ -186,14 +193,20 @@ public class KommandoLodge extends Venue {
   
   
   public Background[] careers() {
-    return new Background[] { Backgrounds.EXPLORER };
+    return new Background[] { KOMMANDO, NATIVE_AUXILIARY, SLAYER };
   }
   
   
   public int numOpenings(Background v) {
     final int nO = super.numOpenings(v);
-    if (v == Backgrounds.EXPLORER) {
-      return nO + 3 + structure.upgradeLevel(EXPLORER_STATION);
+    if (v == Backgrounds.KOMMANDO) {
+      return nO + 3 + structure.upgradeLevel(KOMMANDO_STATION);
+    }
+    if (v == Backgrounds.SLAYER) {
+      return nO + (1 + structure.upgradeLevel(KOMMANDO_STATION)) / 2;
+    }
+    if (v == Backgrounds.NATIVE_AUXILIARY) {
+      return nO + structure.upgradeLevel(NATIVE_MISSION);
     }
     return 0;
   }

@@ -90,11 +90,15 @@ public class DebugCommerce extends Scenario {
   
   private void shippingScenario(Stage world, Base base, BaseUI UI) {
     
+    /*
     final Airfield airfield = new Airfield(base);
     Placement.establishVenue(airfield, 5, 5, true, world);
     airfield.setTrading(CARBS  , Airfield.TRADE_IMPORT, 10);
     airfield.setTrading(PROTEIN, Airfield.TRADE_IMPORT, 5 );
     airfield.updateAsScheduled(0, false);
+    //*/
+    final Actor brought = new Human(Backgrounds.KOMMANDO, base);
+    world.offworld.addImmigrant(brought, world);  //  TODO:  SPECIFY BASE
     
     base.commerce.updateCommerce(0);
     base.commerce.scheduleDrop(5);

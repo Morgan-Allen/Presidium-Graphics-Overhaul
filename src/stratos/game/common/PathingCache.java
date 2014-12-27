@@ -138,7 +138,7 @@ public class PathingCache {
         "Using simple agenda-bounded pathing between "+initB+" "+destB
       );
       final PathSearch search = new PathSearch(initB, destB, true);
-      search.client = client;
+      search.assignClient(client);
       search.verbose = reports;
       search.doSearch();
       path = search.fullPath(Boarding.class);
@@ -154,7 +154,7 @@ public class PathingCache {
         initB, destB, placesPath[0].caching.section,
         placesPath[placesPath.length - 1].caching.section
       );
-      search.client = client;
+      search.assignClient(client);
       search.verbose = reports;
       search.doSearch();
       path = search.fullPath(Boarding.class);
@@ -167,7 +167,7 @@ public class PathingCache {
       final PathSearch search = fullPathSearch(
         initB, destB, placesPath, maxLength
       );
-      search.client = client;
+      search.assignClient(client);
       search.verbose = reports;
       search.doSearch();
       path = search.fullPath(Boarding.class);
@@ -178,7 +178,7 @@ public class PathingCache {
         "Resorting to agenda-bounded pathfinding between "+initB+" "+destB
       );
       final PathSearch search = new PathSearch(initB, destB, true);
-      search.client = client;
+      search.assignClient(client);
       search.verbose = reports;
       search.doSearch();
       path = search.fullPath(Boarding.class);

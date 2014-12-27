@@ -297,7 +297,12 @@ public class VenueDescription {
       maxU = v.structure.maxUpgrades();
     
     final Batch <String> DU = v.structure.descOngoingUpgrades();
-    for (String s : DU) d.append("\n  "+s);
+    if (DU != null && DU.size() > 0) {
+      d.append("Upgrades in queue:");
+      for (String s : DU) d.append("\n  "+s);
+      d.append("\n\n");
+    }
+    
     d.append("Upgrades available: ("+numU+"/"+maxU+" used)");
     
     if (UA.length > 0) for (final Upgrade upgrade : UA) {

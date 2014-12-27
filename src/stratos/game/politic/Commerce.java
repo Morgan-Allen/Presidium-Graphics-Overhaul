@@ -24,7 +24,7 @@ public class Commerce {
   /**  Field definitions, constructor, save/load methods-
     */
   private static boolean
-    verbose        = true ,
+    verbose        = false,
     extraVerbose   = false,
     migrateVerbose = verbose && true ,
     tradeVerbose   = verbose && true ;
@@ -43,14 +43,12 @@ public class Commerce {
   final Base base;
   Sector homeworld;
   final List <Sector> partners = new List <Sector> ();
+  //  Job candidates (who don't yet have business on-world, but might do.)
+  final List <Actor> candidates = new List <Actor> ();
   
   final Tally <Background>
     jobSupply = new Tally <Background> (),
     jobDemand = new Tally <Background> ();
-  
-  //  Job candidates (who don't yet have business on-world, but might do.)
-  final List <Actor> candidates = new List <Actor> ();
-  
   final Inventory
     localShortages  = new Inventory(null),
     localSurpluses  = new Inventory(null),
@@ -88,18 +86,18 @@ public class Commerce {
       jobDemand.set((Background) s.loadObject(), s.loadFloat());
     }
     
-    localShortages.loadState(s);
-    localSurpluses.loadState(s);
+    localShortages .loadState(s);
+    localSurpluses .loadState(s);
     globalShortages.loadState(s);
     globalSurpluses.loadState(s);
     for (Traded type : ALL_MATERIALS) {
       importPrices.put(type, s.loadFloat());
       exportPrices.put(type, s.loadFloat());
     }
-    s.loadObjects(candidates );
+    s.loadObjects(candidates);
     
     ship = (Dropship) s.loadObject();
-    visitTime  = s.loadFloat();
+    visitTime = s.loadFloat();
   }
   
   
@@ -120,18 +118,18 @@ public class Commerce {
       s.saveFloat(jobDemand.valueFor(b));
     }
     
-    localShortages.saveState(s);
-    localSurpluses.saveState(s);
+    localShortages .saveState(s);
+    localSurpluses .saveState(s);
     globalShortages.saveState(s);
     globalSurpluses.saveState(s);
     for (Traded type : ALL_MATERIALS) {
       s.saveFloat(importPrices.get(type));
       s.saveFloat(exportPrices.get(type));
     }
-    s.saveObjects(candidates );
+    s.saveObjects(candidates);
     
     s.saveObject(ship);
-    s.saveFloat(visitTime );
+    s.saveFloat(visitTime);
   }
   
   
@@ -147,13 +145,8 @@ public class Commerce {
   
   
   public void togglePartner(Sector s, boolean is) {
-    if (is) {
-      partners.include(s);
-    }
-    else {
-      partners.remove(s);
-      if (s == homeworld) homeworld = null;
-    }
+    if (is) partners.include(s);
+    else    partners.remove (s);
   }
   
   
@@ -613,7 +606,6 @@ public class Commerce {
       }
       else if (visitDue && report) {
         I.say("\nNo time for commerce?  Inconceivable!");
-        //I.say("  Travel done:   "+travelDone+"  (away for: "+timeAway+")");
         I.say("  Need migrants: "+needMigrate);
         I.say("  Need trade:    "+needTrade  );
         I.say("  Can land:      "+canLand    );

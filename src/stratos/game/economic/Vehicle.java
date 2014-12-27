@@ -350,10 +350,12 @@ public abstract class Vehicle extends Mobile implements
   
   
   public boolean isEntrance(Boarding b) {
+    if (b == aboard()) return true;
     return dropPoint == b;
   }
   
   
+  //  TODO:  Broaden this somewhat?
   public boolean allowsEntry(Mobile m) {
     return m.base() == base();
   }

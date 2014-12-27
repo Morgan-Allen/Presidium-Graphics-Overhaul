@@ -245,7 +245,7 @@ public final class Tile implements
       if (batch[(i + 1) % 8] == null) batch[i] = null;
     }
     
-    //  Include anything that you're any entrance to-
+    //  Include anything that you're an entrance to-
     for (int n : T_ADJACENT) {
       final Tile t = world.tileAt(x + T_X[n], y + T_Y[n]);
       if (t == null || ! (t.onTop() instanceof Boarding)) continue;

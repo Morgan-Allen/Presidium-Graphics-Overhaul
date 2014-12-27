@@ -18,7 +18,8 @@ import stratos.util.*;
 //  TODO:  Test the stock exchange, and re-introduce the arcology & edifice.
 
 //  You should not be sending roads to un-paved structures (like the Kommando
-//  lodge!)
+//  lodge!)  TODO:  Also, such roads are not un-registering correctly after
+//  the target's deletion.
 
 //  Assign drills directly at the trooper lodge.  That'll keep 'em busy!
 

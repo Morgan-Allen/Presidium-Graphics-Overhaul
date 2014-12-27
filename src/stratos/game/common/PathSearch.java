@@ -23,12 +23,12 @@ public class PathSearch extends Search <Boarding> {
   
   
   final protected Boarding destination;
-  public Mobile client = null;
+  private Mobile   client   = null;
   private Boarding aimPoint = null;
+  private boolean useDanger = false;
   
   private Boarding closest;
   private float closestDist;
-  //private Boarding batch[] = new Boarding[8];
   //
   //  TODO:  Incorporate the Places-search constraint code here.
   //  TODO:  Allow for airborne pathing.
@@ -56,7 +56,14 @@ public class PathSearch extends Search <Boarding> {
         entrance = ((Property) aims).mainEntrance();
       }
       if (entrance == null) break;
-      else aims = entrance;
+      if (! Visit.arrayIncludes(entrance.canBoard(), aims)) {
+        I.complain(
+          "\nPROBLEM WITH PATHING SEARCH: "+
+          "\n  Between "+this.init+" and "+this.destination+
+          "\n  "+entrance+" DOES NOT LEAD BACK TO "+aims+"!"
+        );
+      }
+      aims = entrance;
     }
     return aims;
   }
@@ -70,6 +77,12 @@ public class PathSearch extends Search <Boarding> {
     limit = Nums.max(limit + 2, Stage.PATCH_RESOLUTION * 2);
     limit *= TileConstants.T_INDEX.length;
     return limit;
+  }
+  
+  
+  public void assignClient(Mobile client) {
+    this.client    = client;
+    this.useDanger = (client instanceof Actor);
   }
   
   
@@ -109,12 +122,19 @@ public class PathSearch extends Search <Boarding> {
     if (spot == aimPoint) {
       if (verbose) {
         I.say("\nMET AIM POINT: "+aimPoint);
+        final Boarding CB[] = aimPoint.canBoard();
         final boolean couldEnter =
-          (aimPoint == destination) || Visit.arrayIncludes(
-            aimPoint.canBoard(), destination
-          );
-        final float DC = cost(aimPoint, destination);
-        I.say("COULD ENTER DESTINATION? "+couldEnter+", COST: "+DC);
+          (aimPoint == destination) ||
+          Visit.arrayIncludes(CB, destination);
+        if (! couldEnter) {
+          I.say("  No entry!  Adjacent:");
+          if (CB == null) I.say("  Nothing!");
+          else for (Boarding b : CB) I.say("    "+b);
+        }
+        else {
+          final float DC = cost(aimPoint, destination);
+          I.say("  Could enter, cost: "+DC);
+        }
       }
       closest = spot;
       closestDist = spotDist;
@@ -150,7 +170,7 @@ public class PathSearch extends Search <Boarding> {
     if (spot == destination) return 0;
     float mods = 0;
     
-    if (client != null) {
+    if (useDanger) {
       //
       //  TODO:  Stay out of the unfogged areas of hostile bases, and fogged
       //  areas of your own.

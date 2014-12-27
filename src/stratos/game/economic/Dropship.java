@@ -214,6 +214,12 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   }
   
   
+  public Vec3D aiming() {
+    if (aimPos == null) return null;
+    return new Vec3D(aimPos);
+  }
+  
+  
   public Box2D landArea() {
     if (aimPos.z == NO_LANDING) return null;
     final int size = (int) Nums.ceil(radius());

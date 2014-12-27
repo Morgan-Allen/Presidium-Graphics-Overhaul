@@ -68,11 +68,11 @@ public class ShipUtils {
       return dropPoint;
     }
     else {
+      //
       //  Claim any tiles underneath as owned, and evacuate any occupants-
-      final int size = (int) site.xdim();
-      
       site.expandBy(-1);
       for (Tile t : world.tilesIn(site, false)) {
+        if (report) I.say("    Claiming tile: "+t);
         if (t.onTop() != null) t.onTop().setAsDestroyed();
         t.setOnTop(ship);
       }
@@ -82,18 +82,28 @@ public class ShipUtils {
           m.setPosition(e.x, e.y, world);
         }
       }
-      
+      //
+      //  Determine the position of the entrance tile-
+      final int size = (int) site.xdim();
       final int EC[] = Spacing.entranceCoords(size, size, entranceFace);
-      final Tile o = world.tileAt(site.xpos() + 0.5f, site.ypos() + 0.5f);
-      final Tile exit = world.tileAt(o.x + EC[0], o.y + EC[1]);
-      
+      final Tile exit = world.tileAt(site.xpos() + EC[0], site.ypos() + EC[1]);
+      if (exit == null) I.complain("NO EXIT FOUND FOR "+ship);
       if (report) {
         I.say("  Area size:     "+size);
-        I.say("  New exit:      "+exit);
+        I.say("  Entrance x/y:  "+EC[0]+"/"+EC[1]);
+        I.say("  New exit:      "+exit+", blocked? "+exit.blocked());
       }
+      //
       //  And just make sure the exit is clear-
       if (exit.onTop() != null) exit.onTop().setAsDestroyed();
+      ship.assignLandPoint(ship.aiming(), exit);
       exit.refreshAdjacent();
+      if (report) for (Boarding b : exit.canBoard()) {
+        I.say("    Leads to: "+b);
+      }
+      if (! Visit.arrayIncludes(exit.canBoard(), ship)) {
+        I.complain("SHIP'S DROP POINT DOES NOT LEAD BACK TO SHIP: "+ship);
+      }
       return exit;
     }
   }
@@ -101,9 +111,15 @@ public class ShipUtils {
   
   static void performTakeoff(Stage world, Dropship ship) {
     final boolean report = landVerbose && I.talkAbout == ship;
-    final Boarding dropPoint = ship.mainEntrance();
-    final Box2D site = new Box2D(ship.landArea());
     if (report) I.say("\n"+ship+" performing takeoff!");
+    
+    final Boarding dropPoint = ship.mainEntrance();
+    Box2D site = ship.landArea();
+    if (site == null) {
+      if (report) I.say("  Ship had no landing site- will assign at source.");
+      ship.assignLandPoint(ship.position(null), dropPoint);
+      site = ship.landArea();
+    }
     
     if (ship.landed()) {
       if (dropPoint instanceof Airfield) {
@@ -279,6 +295,8 @@ public class ShipUtils {
     if (findLandingSite(ship, nearest, base)) return true;
     nearest = p.nearestMatch(base, midTile, -1);
     if (findLandingSite(ship, nearest, base)) return true;
+    nearest = midTile;
+    if (findLandingSite(ship, nearest, base)) return true;
     return false;
   }
 
@@ -308,6 +326,8 @@ public class ShipUtils {
     };
     spread.doSearch();
     
+    //
+    //  
     if (spread.success()) {
       final Vec3D aimPos = new Vec3D(
         area.xpos() + (area.xdim() / 2f),
@@ -320,6 +340,7 @@ public class ShipUtils {
       if (report) I.say("\n"+ship+" found landing at point: "+aimPos);
       return true;
     }
+    
     else {
       ship.assignLandPoint(null, null);
       if (report) I.say("No landing site found for "+ship+".");
@@ -327,4 +348,5 @@ public class ShipUtils {
     }
   }
 }
+
 

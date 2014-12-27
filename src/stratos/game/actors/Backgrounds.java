@@ -235,18 +235,6 @@ public interface Backgrounds {
       OVERALLS
     ),
     
-    //  TODO:  Replace with Kommando, or merge into Ecologist.
-    EXPLORER = new Background(
-      Backgrounds.class,
-      "Explorer", "", "ecologist_skin.gif", "ecologist_portrait.png",
-      CLASS_FREEMEN, GUILD_ECOLOGIST,
-      EXPERT, XENOZOOLOGY, SURVEILLANCE, STEALTH_AND_COVER,
-      PRACTICED, MARKSMANSHIP, NATIVE_TABOO,
-      LEARNING, BATTLE_TACTICS, HAND_TO_HAND,
-      RARELY, NERVOUS, RELAXED, OFTEN, NATURALIST,
-      STUN_WAND, STEALTH_SUIT
-    ),
-    
     ECOLOGIST = new Background(
       Backgrounds.class,
       "Ecologist", "", "ecologist_skin.gif", "ecologist_portrait.png",
@@ -254,11 +242,48 @@ public interface Backgrounds {
       EXPERT, CULTIVATION, PRACTICED, GENE_CULTURE, XENOZOOLOGY,
       PRACTICED, GEOPHYSICS, CHEMISTRY,
       ALWAYS, NATURALIST, SOMETIMES, EMPATHIC, CURIOUS,
-      SEALSUIT
+      STUN_WAND, SEALSUIT
+    ),
+    
+    
+    NATIVE_AUXILIARY = new Background(
+      Backgrounds.class,
+      "Native Auxiliary",
+      "",
+      "native_skin.gif", null,
+      CLASS_VASSAL, GUILD_ECOLOGIST,
+      EXPERT, XENOZOOLOGY, SURVEILLANCE, STEALTH_AND_COVER,
+      PRACTICED, MARKSMANSHIP, NATIVE_TABOO,
+      LEARNING, BATTLE_TACTICS, HAND_TO_HAND,
+      //  TODO:  Fill in personality
+      HUNTING_LANCE
+    ),
+    
+    KOMMANDO = new Background(
+      Backgrounds.class,
+      "Kommando (Stormer)",
+      "",
+      "kommando_skin.gif", "kommando_portrait.png",
+      CLASS_FREEMEN, GUILD_ECOLOGIST,
+      EXPERT, HAND_TO_HAND, SURVEILLANCE, STEALTH_AND_COVER,
+      PRACTICED, NATIVE_TABOO, ATHLETICS,
+      LEARNING, BATTLE_TACTICS, XENOZOOLOGY,
+      RARELY, NERVOUS, RELAXED, ETHICAL, OFTEN, NATURALIST,
+      ZWEIHANDER, STEALTH_SUIT
+    ),
+    
+    SLAYER = new Background(
+      Backgrounds.class,
+      "Kommando (Slayer)",
+      "",
+      "kommando_skin.gif", "kommando_portrait.png",
+      CLASS_FREEMEN, GUILD_ECOLOGIST
+      //  TODO:  Fill in skills and abilities plus personality
     ),
     
     ECOLOGIST_CIRCLES[] = {
-      CULTIVATOR, FORMER_ENGINEER, EXPLORER, ECOLOGIST
+      CULTIVATOR, FORMER_ENGINEER, ECOLOGIST,
+      NATIVE_AUXILIARY, KOMMANDO, SLAYER
     }
  ;
   
