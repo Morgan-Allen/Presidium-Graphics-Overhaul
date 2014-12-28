@@ -5,7 +5,7 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
-import stratos.game.wild.Habitat;
+import stratos.game.wild.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
@@ -14,18 +14,6 @@ import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.economic.Economy.*;
-
-
-
-//  TODO:  Allow this to work as a Survey Lodge?
-
-//  Favoured Enemy:  (A Base, Artilects or Vermin.)
-//  Slayer Blade.    Survival Training.
-//  Native Mission.  Maw Training.
-//
-//
-//  High-impact melee assault.  Chameleonic mounts for speed and mobility.
-//  Plus emissaries to native tribes, as auxiliaries with kinetic rifles.
 
 
 
@@ -90,6 +78,12 @@ public class KommandoLodge extends Venue {
   }
   
   
+  public float homeCrowding(Actor actor) {
+    if (! staff.isWorker(actor)) return super.homeCrowding(actor);
+    return 0;
+  }
+  
+  
   
   /**  Upgrades, economic functions and behaviour implementations-
     */
@@ -97,6 +91,7 @@ public class KommandoLodge extends Venue {
   );
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
+    /*
     THERMAL_CAMOUFLAGE = new Upgrade(
       "Thermal Camouflage",
       "Reduces the Surveillance Post's thermal signature and light output, "+
@@ -110,39 +105,54 @@ public class KommandoLodge extends Venue {
       "Installs automatic sensors attuned to sound and motion, making it "+
       "difficult for intruders to approach unannounced.",
       100,
-      null, 1, null,
-      KommandoLodge.class, ALL_UPGRADES
-    ),
-    NATIVE_MISSION = new Upgrade(
-      "Native Mission",
-      "Improves outreach to local tribal communities, raising the odds of "+
-      "peaceful contact and recruitment from their ranks.",
-      300,
-      null, 1, null,
-      KommandoLodge.class, ALL_UPGRADES
-    ),
-    CAPTIVE_BREEDING = new Upgrade(
-      "Animal Breeding",
-      "Breeds new specimens of local wildlife for use as food stock or "+
-      "personal companions.",
-      300,
-      null, 1, SENSOR_PERIMETER,
-      KommandoLodge.class, ALL_UPGRADES
-    ),
-    GUERILLA_TRAINING = new Upgrade(
-      "Guerilla Training",
-      "Emphasises combat, stealth and survival exercises relevant in a "+
-      "military capacity.",
-      200,
       null, 1, THERMAL_CAMOUFLAGE,
       KommandoLodge.class, ALL_UPGRADES
     ),
+    //*/
+    NATIVE_MISSION = new Upgrade(
+      "Native Mission",
+      "Improves recruitment from local tribal communities and raises the odds "+
+      "of peaceful contact.",
+      300,
+      null, 1, null,
+      KommandoLodge.class, ALL_UPGRADES
+    ),
+    MAW_TRAINING = new Upgrade(
+      "Maw Training",
+      "Trains your Kommandos to tame and ride Desert Maws, relatives of the "+
+      "Lictovore selectively bred as war mounts.",
+      300,
+      null, 1, null,
+      KommandoLodge.class, ALL_UPGRADES
+    ),
     KOMMANDO_STATION = new Upgrade(
-      "Explorer Station",
-      "Explorers are rugged outdoorsman that combine scientific curiosity "+
-      "with a respect for natural ecosystems and basic self-defence training.",
+      "Kommando Station",
+      KOMMANDO.info,
       100,
       Backgrounds.KOMMANDO, 1, null,
+      KommandoLodge.class, ALL_UPGRADES
+    ),
+    FAVOURED_ENEMY_VERMIN = new Upgrade(
+      "Vendetta: Vermin",
+      "Trains your Kommandos to efficiently dispatch silicates, insectiles "+
+      "and other dangerous, inedible pests.",
+      100,
+      null, 1, KOMMANDO_STATION,
+      KommandoLodge.class, ALL_UPGRADES
+    ),
+    FAVOURED_ENEMY_HUMAN = new Upgrade(
+      "Vendetta: Humans",
+      "Trains your Kommandos to efficiently dispatch human (or human-like) "+
+      "adversaries.",
+      200,
+      null, 1, KOMMANDO_STATION,
+      KommandoLodge.class, ALL_UPGRADES
+    ),
+    FAVOURED_ENEMY_ARTILECT = new Upgrade(
+      "Vendetta: Artilects",
+      "Trains your Kommandos to efficiently dispatch machines and cybrids.",
+      150,
+      null, 1, KOMMANDO_STATION,
       KommandoLodge.class, ALL_UPGRADES
     );
   
@@ -158,33 +168,23 @@ public class KommandoLodge extends Venue {
       choice.add(e);
     }
     
-    /*
-    final boolean hasStill = still != null && ! still.destroyed();
+    //  TODO:  You'll also need to import carbs/greens and export protein/spyce,
+    //  so that the residents can eat.  (That, or find a better way to site
+    //  those tents.)
+    
+    //  TODO:  Add mounting behaviours, massed raiding against specified
+    //  enemies, and placing their skins as a warning.  (And possibly animal
+    //  breeding for mounts?)  Hunting, certainly.
+    
     for (Target t : actor.senses.awareOf()) {
-      if (hasStill && Hunting.validPrey(t, actor, true)) {
-        choice.add(Hunting.asHarvest(actor, (Actor) t, still, false));
-      }
-      if (t instanceof Fauna) {
-        final Hunting h = Hunting.asSample(actor, (Fauna) t, this);
-        if (! stocks.hasItem(h.sample())) choice.add(h);
+      //  TODO:  Weight the likelihood of this based on Favoured Enemies- and
+      //  try to get multiple participants!
+      
+      if (Hunting.validPrey(t, actor, true)) {
+        choice.add(Hunting.asHarvest(actor, (Actor) t, this, false));
       }
     }
     
-    if (hasStill) {
-      final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
-        still, still.services(), 2, 10, 5
-      );
-      choice.add(d);
-    }
-    //*/
-    /*
-    if (hasStill) choice.add(Deliveries.nextDeliveryFor(
-      actor, still, still.services(), 5, world
-    ));
-    //*/
-    
-    //  TODO:  Incorporate sensor-placement into recon missions.
-    choice.add(AnimalBreeding.nextBreeding(actor, this));
     
     final Behaviour pick = choice.weightedPick();
     if (report) I.say("\n  Next survey station job: "+pick);
@@ -277,6 +277,31 @@ public class KommandoLodge extends Venue {
 
 
 
+
+/*
+final boolean hasStill = still != null && ! still.destroyed();
+for (Target t : actor.senses.awareOf()) {
+  if (hasStill && Hunting.validPrey(t, actor, true)) {
+    choice.add(Hunting.asHarvest(actor, (Actor) t, still, false));
+  }
+  if (t instanceof Fauna) {
+    final Hunting h = Hunting.asSample(actor, (Fauna) t, this);
+    if (! stocks.hasItem(h.sample())) choice.add(h);
+  }
+}
+
+if (hasStill) {
+  final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
+    still, still.services(), 2, 10, 5
+  );
+  choice.add(d);
+}
+//*/
+/*
+if (hasStill) choice.add(Deliveries.nextDeliveryFor(
+  actor, still, still.services(), 5, world
+));
+//*/
 
 /*
 if (structure.upgradeLevel(CAPTIVE_BREEDING) > 0) {

@@ -223,6 +223,7 @@ public class BaseSetup {
   /**  Establishing relationships, gear, experience and health FX-
     */
   public static void establishRelations(Series <? extends Actor>... among) {
+    
     for (Series <? extends Actor> sF : among) for (Actor f : sF) {
       for (Series <? extends Actor> tF : among) for (Actor t : tF) {
         if (f == t || f.relations.hasRelation(t)) continue;

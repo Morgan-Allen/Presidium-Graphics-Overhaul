@@ -59,7 +59,7 @@ public abstract class Visit <T> implements Iterable <T>, Iterator <T> {
   }
   
   
-  public static void compose(Series to, Series from) {
+  public static void appendTo(Series to, Series from) {
     for (Object o : from) to.add(o);
   }
   

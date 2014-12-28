@@ -30,8 +30,8 @@ public class Dialogue extends Plan implements Qualities {
   /**  Constants, data fields, constructors and save/load methods-
     */
   private static boolean
-    evalVerbose   = false,
-    eventsVerbose = false;
+    evalVerbose  = false,
+    stepsVerbose = false;
   
   final public static int
     TYPE_CONTACT = 0,
@@ -137,45 +137,39 @@ public class Dialogue extends Plan implements Qualities {
   
   
   protected float getPriority() {
-    if (GameSettings.noChat) return -1;
-    
     final boolean report = evalVerbose && (
       I.talkAbout == actor || I.talkAbout == other
     );
-
-    if (stage == STAGE_BYE ) return CASUAL;
+    if (GameSettings.noChat) return -1;
+    
+    if (stage == STAGE_BYE) return CASUAL;
     if (stage == STAGE_DONE || shouldQuit()) {
       if (report) I.say("\nDialogue should quit!");
       return 0;
     }
     
-    float maxRange = actor.health.sightRange() * 2;
     final float
-      curiosity = (1 + actor.traits.relativeLevel(CURIOUS)) / 2f,
-      solitude  = solitude(actor),
-      novelty   = actor.relations.noveltyFor(other);
+      maxRange    = actor.health.sightRange() * 2,
+      solitude    = actor.motives.solitude(),
+      curiosity   = (1 + actor.traits.relativeLevel(CURIOUS)) / 2f,
+      novelty     = actor.relations.noveltyFor(other       ) / 2f,
+      baseNovelty = actor.relations.noveltyFor(other.base()) / 2f;
+    
     float bonus = 0;
-    if (type == TYPE_CASUAL) {
-      bonus = solitude + (curiosity * novelty);
-    }
-    if (type == TYPE_PLEA) {
-      bonus = novelty;
-      bonus += CombatUtils.isActiveHostile(actor, other) ? 0 : 1;
-    }
-    if (type == TYPE_CONTACT) {
-      bonus += 1;
-    }
-    else if (Spacing.distance(actor, other) > maxRange) {
-      return 0;
-    }
+    bonus = solitude + Nums.clamp(curiosity * novelty, 0, 1);
+    bonus += baseNovelty;
+    if (type == TYPE_CONTACT) bonus += 1;
+    else if (Spacing.distance(actor, other) > maxRange) return 0;
+    
     if (report) {
       I.say("\nChecking for dialogue between "+actor+" and "+other);
-      I.say("  Type is:           "+type);
-      I.say("  Solitude:          "+solitude);
-      I.say("  Curiosity/novelty: "+curiosity+"/"+novelty);
-      I.say("  Bonus:             "+bonus);
+      I.say("  Type is:      "+type       );
+      I.say("  Solitude:     "+solitude   );
+      I.say("  Curiosity:    "+curiosity  );
+      I.say("  Novelty:      "+novelty    );
+      I.say("  Base novelty: "+baseNovelty);
+      I.say("  Bonus:        "+bonus      );
     }
-    
     final float priority = priorityForActorWith(
       actor, other,
       CASUAL, bonus * ROUTINE,
@@ -184,16 +178,6 @@ public class Dialogue extends Plan implements Qualities {
       report
     );
     return priority;
-  }
-  
-  
-  private float solitude(Actor actor) {
-    //  TODO:  Only count positive relations!
-    final float
-      trait = (1 + actor.traits.relativeLevel(OUTGOING)) / 2f,
-      baseF = ActorRelations.BASE_NUM_FRIENDS * (trait + 0.5f),
-      numF  = actor.relations.relations().size();
-    return (baseF - numF) / baseF;
   }
   
   
@@ -230,7 +214,7 @@ public class Dialogue extends Plan implements Qualities {
   
   
   private void setLocationFor(Action talkAction) {
-    final boolean report = eventsVerbose && I.talkAbout == actor;
+    final boolean report = stepsVerbose && I.talkAbout == actor;
     talkAction.setMoveTarget(other);
     location = other.origin();
     /*
@@ -247,7 +231,7 @@ public class Dialogue extends Plan implements Qualities {
     */
   protected Behaviour getNextStep() {
     if (stage >= STAGE_DONE) return null;
-    final boolean report = eventsVerbose && I.talkAbout == actor;
+    final boolean report = stepsVerbose && I.talkAbout == actor;
     
     if (starts == actor && stage == STAGE_INIT) {
       final Action greeting = new Action(
@@ -361,7 +345,7 @@ public class Dialogue extends Plan implements Qualities {
   /**  Gift-giving behaviours-
     */
   public boolean actionOfferGift(Actor actor, Actor receives) {
-    final boolean report = eventsVerbose && I.talkAbout == actor;
+    final boolean report = stepsVerbose && I.talkAbout == actor;
 
     //  Regardless of the outcome, this won't be offered twice.
     final Item gift = this.gift;
@@ -402,7 +386,7 @@ public class Dialogue extends Plan implements Qualities {
   
   
   public boolean actionInvite(Actor actor, Actor asked) {
-    final boolean report = eventsVerbose && I.talkAbout == actor;
+    final boolean report = stepsVerbose && I.talkAbout == actor;
     this.stage = STAGE_BYE;
     
     if (! Joining.checkInvitation(actor, asked, this, invitation)) {

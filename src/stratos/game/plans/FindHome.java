@@ -164,12 +164,10 @@ public class FindHome extends Plan {
     
     final Stage world = base.world;
     final Property oldHome = client.mind.home(), work = client.mind.work();
+    if (work.homeCrowding(client) < 1) return work;
     
-    if (work instanceof Vehicle) return work;
-    if (work instanceof Bastion) return work;
-    
-    Property best = oldHome;
-    float bestRating = oldHome == null ? 0 : rateHolding(client, best);
+    final Pick <Property> pick = new Pick <Property> ();
+    if (oldHome != null) pick.compare(oldHome, rateHolding(client, oldHome));
     
     for (Object o : world.presences.sampleFromMap(
       client, world, 3, null, Holding.class
@@ -177,17 +175,17 @@ public class FindHome extends Plan {
       final Holding h = (Holding) o;
       final float rating = rateHolding(client, h);
       if (report) I.say("Rating for "+h+" is "+rating);
-      if (rating > bestRating) { bestRating = rating; best = h; }
+      pick.compare(h, rating);
     }
     
-    if (best == null || Rand.index(10) == 0) {
-      
+    if (pick.result() == null || Rand.index(10) == 0) {
       final Holding h = newHoldingFor(client);
       final float rating = rateHolding(client, h);
       if (report) I.say("Rating for new site "+h+" is "+rating);
-      if (rating > bestRating) { bestRating = rating; best = h; }
+      pick.compare(h, rating);
     }
     
+    final Property best = pick.result();
     if (report && best != null) {
       I.say("Looking for home, best site: "+best);
       I.say("Crowding is: "+best.homeCrowding(client));
@@ -197,7 +195,7 @@ public class FindHome extends Plan {
   
   
   private static Holding newHoldingFor(Actor client) {
-    //  TODO:  ESTABLISH HUTS INSTEAD
+    //  TODO:  ESTABLISH HUTS INSTEAD?
     if (client.base().primal) return null;
     
     final Stage world = client.world();
@@ -224,11 +222,6 @@ public class FindHome extends Plan {
     if (found.val == true) return holding;
     else return null;
   }
-  
-  
-  //private static NativeHut newHutFor(Actor client) {
-    //return null;
-  //}
   
   
   private static Tile searchPoint(Actor client) {

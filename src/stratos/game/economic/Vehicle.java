@@ -28,7 +28,7 @@ public abstract class Vehicle extends Mobile implements
   protected Base base;
   final public Stocks cargo = new Stocks(this);
   final public Structure structure = new Structure(this);
-  final Staff personnel = new Staff(this);
+  final public Staff staff = new Staff(this);
   
   final protected List <Mobile> inside = new List <Mobile> ();
   private Actor pilot;
@@ -48,35 +48,35 @@ public abstract class Vehicle extends Mobile implements
 
   public Vehicle(Session s) throws Exception {
     super(s);
-    cargo.loadState(s);
+    cargo    .loadState(s);
     structure.loadState(s);
-    personnel.loadState(s);
+    staff    .loadState(s);
     s.loadObjects(inside);
-    dropPoint = (Boarding) s.loadTarget();
+    dropPoint    = (Boarding) s.loadTarget();
     entranceFace = s.loadFloat();
-    base = (Base) s.loadObject();
-    pilot = (Actor) s.loadObject();
-    hangar = (Venue) s.loadObject();
+    base         = (Base ) s.loadObject();
+    pilot        = (Actor) s.loadObject();
+    hangar       = (Venue) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    cargo.saveState(s);
+    cargo    .saveState(s);
     structure.saveState(s);
-    personnel.saveState(s);
+    staff    .saveState(s);
     s.saveObjects(inside);
-    s.saveTarget(dropPoint);
-    s.saveFloat(entranceFace);
-    s.saveObject(base);
-    s.saveObject(pilot);
-    s.saveObject(hangar);
+    s.saveTarget(dropPoint   );
+    s.saveFloat (entranceFace);
+    s.saveObject(base        );
+    s.saveObject(pilot       );
+    s.saveObject(hangar      );
   }
   
   
   public void assignBase(Base base) { this.base = base; }
   public Base base() { return base; }
-  public Staff staff() { return personnel; }
+  public Staff staff() { return staff; }
   public Structure structure() { return structure; }
   
   
@@ -189,13 +189,13 @@ public abstract class Vehicle extends Mobile implements
   
   
   public void setWorker(Actor actor, boolean is) {
-    personnel.setWorker(actor, is);
+    staff.setWorker(actor, is);
   }
 
   
   public void setApplicant(FindWork app, boolean is) {
     //I.complain("NOT IMPLEMENTED YET!");
-    personnel.setApplicant(app, is);
+    staff.setApplicant(app, is);
   }
   
   
@@ -211,7 +211,7 @@ public abstract class Vehicle extends Mobile implements
   
   
   public List <Actor> crew() {
-    return personnel.workers();
+    return staff.workers();
   }
   
   

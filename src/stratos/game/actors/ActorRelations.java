@@ -7,7 +7,9 @@ import stratos.util.*;
 
 
 
-//  TODO:  Allow this to store relations with arbitrary saveables?
+//  TODO:  Allow this to store relations with arbitrary saveables?  And then
+//  average relations with their properties.
+
 
 public class ActorRelations {
   

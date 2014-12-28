@@ -143,7 +143,7 @@ public class ShipUtils {
   
   
   public static boolean allAboard(Dropship ship) {
-    for (Mobile m : ship.personnel.workers()) {
+    for (Mobile m : ship.staff.workers()) {
       if (! isBoarding(m, ship)) return false;
     }
     return true;

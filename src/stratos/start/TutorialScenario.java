@@ -12,6 +12,20 @@ import stratos.util.*;
 
 
 
+//Messages are not being shown!
+
+//The raiding dynamics here need to be worked out, so that the natives and
+//artilects can plausibly co-exist.
+//Divide the map into regions, and arrange for *not* wandering outside of it.
+//And have that show up on the minimap (regional claims.)
+
+//Start out with 8K.
+//End with +1 housing and at least 4K.
+//Destroy the Artilect lair.
+//Persuade the natives to open trade with your base.
+
+
+
 public class TutorialScenario extends StartupScenario {
   
   

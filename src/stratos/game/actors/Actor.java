@@ -40,6 +40,8 @@ public abstract class Actor extends Mobile implements
   
   final public ActorMind mind = initAI();
   final public Senses senses = initSenses();
+  
+  final public ActorMotives   motives   = initMotives  ();
   final public ActorRelations relations = initRelations();
   
   private Action actionTaken;
@@ -61,6 +63,7 @@ public abstract class Actor extends Mobile implements
     
     mind     .loadState(s);
     senses   .loadState(s);
+    motives  .loadState(s);
     relations.loadState(s);
     
     actionTaken = (Action) s.loadObject();
@@ -79,6 +82,7 @@ public abstract class Actor extends Mobile implements
     
     mind     .saveState(s);
     senses   .saveState(s);
+    motives  .saveState(s);
     relations.saveState(s);
     
     s.saveObject(actionTaken);
@@ -90,6 +94,7 @@ public abstract class Actor extends Mobile implements
   protected abstract ActorMind initAI();
   
   protected Senses initSenses() { return new Senses(this); }
+  protected ActorMotives   initMotives  () { return new ActorMotives  (this); }
   protected ActorRelations initRelations() { return new ActorRelations(this); }
   protected Pathing initPathing() { return new Pathing(this); }
   
@@ -266,27 +271,20 @@ public abstract class Actor extends Mobile implements
       checkSleep = (health.asleep() && numUpdates % 10 == 0);
     //
     //  Update our actions, pathing, and AI-
-    if (OK) {
-      if (report) I.say("  Updating senses, AI and relations:");
+    if (OK || checkSleep) {
       senses.updateSenses();
       mind.updateAI(numUpdates);
       relations.updateValues(numUpdates);
+      motives  .updateValues(numUpdates);
+      if (report) I.say("  Updated senses, AI, relations and motives.");
       
-      if (report) I.say("  Checking for actions update...");
       final Action nextAction = mind.getNextAction();
-      if (nextAction != actionTaken) assignAction(nextAction);
-      
-      if (report) I.say("  Checking pathing...");
-      if (! pathing.checkPathingOkay()) pathing.refreshFullPath();
-    }
-    //
-    //  Check to see if you need to wake up-
-    if (checkSleep) {
-      senses.updateSenses();
-      mind.updateAI(numUpdates);
-      relations.updateValues(numUpdates);
-      mind.getNextAction();
-      Resting.checkForWaking(this);
+      if (checkSleep) Resting.checkForWaking(this);
+      else if (OK) {
+        if (nextAction != actionTaken) assignAction(nextAction);
+        if (report) I.say("  Checking pathing...");
+        if (! pathing.checkPathingOkay()) pathing.refreshFullPath();
+      }
     }
     //
     //  Update the intel/danger maps associated with the world's bases.

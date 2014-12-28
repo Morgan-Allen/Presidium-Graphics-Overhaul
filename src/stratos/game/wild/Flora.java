@@ -19,13 +19,17 @@ public class Flora extends Element implements TileConstants {
   /**
    * Field definitions and constructors-
    */
-  final public static int MAX_GROWTH = 4;
-  final public static float GROWTH_PER_UPDATE = 0.25f;
-  private static boolean verbose = false;
+  private static boolean
+    verbose = false;
+  
+  final public static int
+    MAX_GROWTH = 4;
+  final public static float
+    GROWTH_PER_UPDATE = 0.25f;  //  TODO:  THIS IS NOT BEING USED!  FIX!
   
   final Habitat habitat;
-  final int varID;
-  float growth = 0;
+  final int varID;  //  TODO:  Use a Species here, maybe?
+  private float growth = 0;
   
   
   private Flora(Habitat h) {
@@ -133,7 +137,7 @@ public class Flora extends Element implements TileConstants {
     if (verbose) I.say("Seeding new tree at: "+t);
     final Flora f = new Flora(t.habitat());
     f.enterWorldAt(t.x, t.y, t.world);
-    f.incGrowth(0.5f + Rand.num(), t.world, false);
+    f.incGrowth((0.5f + Rand.num()) / 2, t.world, false);
     t.world.ecology().impingeBiomass(t, f.growth, Stage.GROWTH_INTERVAL);
     return f;
   }
@@ -142,26 +146,26 @@ public class Flora extends Element implements TileConstants {
   public void incGrowth(float inc, Stage world, boolean init) {
     final int oldStage = Nums.clamp((int) growth, MAX_GROWTH);
     growth += inc;
-    if (growth <= 0) {
-      setAsDestroyed();
-      return;
-    }
     final int newStage = Nums.clamp((int) growth, MAX_GROWTH);
-    if (oldStage == newStage && ! init) return;
     
-    if (inc > 0 && ! init) {
-      final float moisture = origin().habitat().moisture() / 10f;
-      final int minGrowth = (int) ((moisture * moisture * MAX_GROWTH) + 1f);
-      final float dieChance = 1 - moisture;
-      if ((growth < 0) || (growth >= MAX_GROWTH * 2)
-          || (growth > minGrowth && Rand.num() < dieChance)) {
+    if (! init) {
+      final float
+        moisture = origin().habitat().moisture() / 10f,
+        dieChance = (1 - moisture) * inc;
+      final int
+        minGrowth = (int) ((moisture * moisture * MAX_GROWTH) + 1),
+        maxGrowth = MAX_GROWTH + 1;
+      if (
+        (growth <= 0 || growth >= maxGrowth) ||
+        (growth > minGrowth && Rand.num() < dieChance)
+      ) {
         setAsDestroyed();
         return;
       }
     }
     
-    final Sprite oldSprite = this.sprite();
-    if (oldStage != newStage || oldSprite == null) {
+    if (oldStage != newStage || sprite() == null) {
+      final Sprite oldSprite = sprite();
       final CutoutModel model = habitat.floraModels[varID][newStage];
       attachSprite(model.makeSprite());
       setAsEstablished(false);

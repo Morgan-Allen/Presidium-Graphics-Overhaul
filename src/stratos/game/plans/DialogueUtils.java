@@ -21,10 +21,27 @@ public class DialogueUtils implements Qualities {
     if (other.health.human   ()) {
       final int standing = other.vocation().standing;
       if (standing == Backgrounds.CLASS_STRATOI) return NOBLE_ETIQUETTE;
-      if (standing == Backgrounds.CLASS_NATIVE ) return NATIVE_TABOO;
+      if (standing == Backgrounds.CLASS_NATIVE ) return NATIVE_TABOO   ;
       return COMMON_CUSTOM;
     }
     return null;
+  }
+  
+  
+  public static void reinforceRelations(
+    Actor actor  , Actor other,
+    float toLevel, float noveltyInc,
+    boolean symmetric
+  ) {
+    if (noveltyInc < 0) noveltyInc = -1f / Dialogue.BORED_DURATION;
+    final float w = 0.1f;  //  Weight- use a constant?
+    final float g = 4.0f;  //  Generalisation ratio.  (Should be constant?)
+    other.relations.incRelation(actor       , toLevel, w    , noveltyInc    );
+    other.relations.incRelation(actor.base(), toLevel, w / g, noveltyInc / g);
+    if (symmetric) {
+      actor.relations.incRelation(other       , toLevel, w    , noveltyInc    );
+      actor.relations.incRelation(other.base(), toLevel, w / g, noveltyInc / g);
+    }
   }
   
   
@@ -41,18 +58,11 @@ public class DialogueUtils implements Qualities {
   
   
   public static float tryChat(Actor actor, Actor other) {
-    //  Base on comparison of recent activities and associated traits, skills
-    //  or actors involved.
     
     final float DC = other.traits.usedLevel(SUASION) / 2;
     float success = talkResult(SUASION, DC, actor, other);
-    
-    //  TODO:  Decrease novelty through a separate call?  Or base on having
-    //  fresh information?
-    final float noveltyInc = -1f / Dialogue.BORED_DURATION;
-    other.relations.incRelation(
-      actor, success * Dialogue.RELATION_BOOST, 0.1f, noveltyInc
-    );
+    success *= Dialogue.RELATION_BOOST;
+    reinforceRelations(other, actor, success, -1, false);
     
     switch (Rand.index(3)) {
       case (0) : anecdote(actor, other); break;
@@ -98,9 +108,7 @@ public class DialogueUtils implements Qualities {
     final String desc = actor.traits.description(comp);
     
     final float effect = similarity * Dialogue.RELATION_BOOST;
-    final float noveltyInc = -1f / Dialogue.BORED_DURATION;
-    other.relations.incRelation(actor, effect, 0.1f, noveltyInc);
-    actor.relations.incRelation(other, effect, 0.1f, noveltyInc);
+    DialogueUtils.reinforceRelations(actor, other, effect, -1, true);
     
     utters(actor, "It's important to be "+desc+".", 0);
     if (similarity > 0.5f) utters(other, "Absolutely.", effect);
@@ -134,11 +142,8 @@ public class DialogueUtils implements Qualities {
     
     final boolean agrees = Nums.abs(attA - attO) < 0.5f;
     final float effect = 0.2f * (agrees ? 1 : -1) * Dialogue.RELATION_BOOST;
-    
-    final float noveltyInc = -1f / Dialogue.BORED_DURATION;
-    other.relations.incRelation(actor, effect / 2, 0.1f, noveltyInc);
-    actor.relations.incRelation(other, effect / 2, 0.1f, noveltyInc);
-    other.relations.incRelation(about, effect * pick.value(), 0.1f, 0);
+    reinforceRelations(actor, other, effect / 2, -1, true);
+    reinforceRelations(other, about, effect * pick.value(), 0, false);
     
     utters(other, "What do you think of "+about+"?", 0);
     if (attA > 0.33f) {
@@ -184,10 +189,7 @@ public class DialogueUtils implements Qualities {
     if (other.skills.test(tested, level * Rand.num(), 0.5f)) effect += 5;
     else effect -= 5;
     effect *= Dialogue.RELATION_BOOST / 25f;
-    
-    final float noveltyInc = -1f / Dialogue.BORED_DURATION;
-    other.relations.incRelation(actor, effect, 0.1f, noveltyInc);
-    actor.relations.incRelation(other, effect, 0.1f, noveltyInc);
+    reinforceRelations(actor, other, effect, -1, true);
     
     if (effect > 0) {
       utters(other, "You mean like this?", effect);

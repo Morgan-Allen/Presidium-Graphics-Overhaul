@@ -192,7 +192,7 @@ public abstract class ActorMind implements Qualities {
       }
       if (isDone || next == null) {
         if (doLater) todoList.add(current);
-        popBehaviour();
+        popBehaviour(current);
       }
       else if (next instanceof Action) {
         return (Action) next;
@@ -301,7 +301,10 @@ public abstract class ActorMind implements Qualities {
   }
   
   
-  private Behaviour popBehaviour() {
+  private Behaviour popBehaviour(Behaviour toPop) {
+    if (toPop != null && agenda.first() != toPop) {
+      return toPop;
+    }
     final Behaviour b = agenda.removeFirst();
     if (stepsVerbose && I.talkAbout == actor) {
       I.say("\nPOPPING BEHAVIOUR: "+b);
@@ -356,7 +359,7 @@ public abstract class ActorMind implements Qualities {
       I.say("\nCANCELLING "+b);
     }
     if (agenda.includes(b)) while (agenda.size() > 0) {
-      final Behaviour popped = popBehaviour();
+      final Behaviour popped = popBehaviour(null);
       if (popped == b) break;
     }
     if (agenda.includes(b)) I.complain("Duplicate behaviour!");

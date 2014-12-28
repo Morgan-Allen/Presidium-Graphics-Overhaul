@@ -61,6 +61,38 @@ public class Route {
   }
   
   
+  public Tile opposite(Tile t) {
+    if (t == start) return end  ;
+    if (t == end  ) return start;
+    I.complain("TILE GIVEN IS NEITHER START OR END POINT FOR: "+this);
+    return null;
+  }
+  
+  
+  public boolean routeEquals(Route other) {
+    if (
+      other == null ||
+      other.start != this.start ||
+      other.end   != this.end   ||
+      other.path.length != this.path.length
+    ) return false;
+    
+    boolean match = true;
+    for (Tile t : other.path) t.flagWith(other);
+    int numMatched = 0;
+    for (Tile t : path) {
+      if (t.flaggedWith() != other) {
+        match = false;
+        break;
+      }
+      else numMatched++;
+    }
+    for (Tile t : other.path) t.flagWith(null);
+    if (numMatched != other.path.length) match = false;
+    return match;
+  }
+  
+  
   public boolean equals(Object o) {
     if (! (o instanceof Route)) return false;
     final Route r = (Route) o;
@@ -71,6 +103,11 @@ public class Route {
   
   public int hashCode() {
     return hash;
+  }
+  
+  
+  public String toString() {
+    return "Route between "+start+" and "+end;
   }
 }
 

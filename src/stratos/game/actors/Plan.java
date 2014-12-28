@@ -11,6 +11,10 @@ import stratos.util.*;
 
 
 
+//  TODO:  I may be able to dispense with the actor's agenda entirely here-
+//         just query the chain of activities forward from the root, down
+//         to the action.  It's all there.
+
 public abstract class Plan implements Saveable, Behaviour {
   
   
@@ -133,27 +137,63 @@ public abstract class Plan implements Saveable, Behaviour {
       I.reportStackTrace();
     }
     nextStep = lastStep = null;
+    priorityEval = NULL_PRIORITY;
     actor.mind.cancelBehaviour(this);
     setMotive(MOTIVE_CANCELLED, 0);
   }
   
   
-  public float priorityFor(Actor actor) {
-    final boolean report = verbose && I.talkAbout == actor && hasBegun();
-    
-    if (this.actor != actor) clearEval(actor);
-    if (priorityEval != NULL_PRIORITY) return priorityEval;
-    
-    final float time = actor.world().currentTime();
+  private boolean checkRefreshDue(Actor actor) {
+    final boolean report = I.talkAbout == actor && false;
     if (report) {
-      I.say("\nGetting fresh priority... "+this);
-      I.say("  Current/last time: "+time+"/"+lastEvalTime);
+      I.say("GETTING NEW EVALUATION FOR WORK-SEEKING");
+      I.say("  Priority:  "+priorityEval);
+      I.say("  Next step: "+nextStep);
     }
     
-    lastEvalTime = time;
-    priorityEval = 0;  //  Note: This avoids certain types of infinite loop.
-    priorityEval = getPriority();
-    return priorityEval;
+    if (this.actor != actor) {
+      if (report) I.say("SWITCHING TO NEW ACTOR!");
+      clearEval(actor);
+      return true;
+    }
+    
+    if (! valid()) {
+      if (report) I.say("\nNEXT STEP IS NULL: NOT VALID");
+      onceInvalid();
+      this.interrupt(INTERRUPT_NOT_VALID);
+      return false;
+    }
+    
+    if (priorityEval == NULL_PRIORITY || nextStep == null) {
+      if (report) I.say("ALREADY FLAGGED FOR EVALUATION!");
+      return true;
+    }
+    
+    final boolean oldDone = lastStep != null && (
+      lastStep.finished() ||
+      lastStep.nextStepFor(actor) == null
+    );
+    if (oldDone) {
+      if (report) I.say("OLD STEP FINISHED: "+nextStep);
+      clearEval(actor);
+      lastStep = null;
+      return true;
+    }
+    
+    if (actor.actionInProgress()) {
+      if (report) I.say("ACTOR IS TOO BUSY!");
+      return false;
+    }
+    final float
+      timeGone = actor.world().currentTime() - lastEvalTime,
+      interval = evaluationInterval();
+    if (report) {
+      I.say("\nChecking for fresh evaluation: "+this);
+      I.say("  Time gone: "+timeGone+"/"+interval);
+    }
+    if (timeGone >= interval) { clearEval(actor); return true; }
+    
+    return false;
   }
   
   
@@ -164,72 +204,47 @@ public abstract class Plan implements Saveable, Behaviour {
   }
   
   
+  protected int evaluationInterval() {
+    return actor.senses.isEmergency() ? 1 : 10;
+  }
+  
+  
+  public float priorityFor(Actor actor) {
+    final boolean report = verbose && I.talkAbout == actor && hasBegun();
+    if (motiveType == MOTIVE_CANCELLED) return -1;
+    if (report) I.say("\nCurrent plan priority is: "+priorityEval);
+    
+    if (checkRefreshDue(actor)) {
+      final float time = actor.world().currentTime();
+      if (report) {
+        I.say("\nGetting fresh priority... "+this);
+        I.say("  Current/last time: "+time+"/"+lastEvalTime);
+      }
+      lastEvalTime = time;
+      priorityEval = 0;  //  Note: This avoids certain types of infinite loop.
+      priorityEval = getPriority();
+    }
+    return priorityEval;
+  }
+  
+  
   public Behaviour nextStepFor(Actor actor) {
     final boolean report = verbose && I.talkAbout == actor && hasBegun();
     if (motiveType == MOTIVE_CANCELLED) return null;
     if (report) I.say("\nCurrent plan step is: "+I.tagHash(nextStep));
     
-    if (this.actor != actor) {
-      clearEval(actor);
-      if (report) I.say("\nNEXT STEP IS NULL: DIFFERENT ACTOR");
-    }
-    
-    if (! valid()) {
-      onceInvalid();
-      if (report) I.say("\nNEXT STEP IS NULL: NOT VALID");
-      return nextStep = null;
-    }
-    
-    //  We do not cache steps for dormant or 'under consideration' plans, since
-    //  that can screw up proper sequence of evaluation/execution.  Start from
-    //  scratch instead.
-    if (! actor.mind.agenda.includes(this)) {
-      if (report) I.say("\nNEXT STEP GOT WHILE INACTIVE.");
-      nextStep = null;
-      return getNextStep();
-    }
-    
-    //  TODO:  I may be able to dispense with the actor's agenda entirely here-
-    //         just query the chain of activities forward from the root, down
-    //         to the action.  It's all here.
-    final boolean oldDone =
-      nextStep == null ||
-      nextStep.finished() ||
-      nextStep.nextStepFor(actor) == null;
-    
-    if (oldDone || newEvaluationDue()) {
-      final Behaviour step = getNextStep();
-      
-      //  If the old and new steps are identical, don't bother switching- just
-      //  refresh your priority evaluation.
-      if ((! oldDone) && step != null && step.matchesPlan(nextStep)) {
+    if (checkRefreshDue(actor)) {
+      nextStep = getNextStep();
+      if (lastStep != null && lastStep.matchesPlan(nextStep)) {
         if (report) I.say("\nNEXT STEP THE SAME AS OLD STEP.");
-        priorityEval = NULL_PRIORITY;
-        return nextStep;
+        nextStep = lastStep;
       }
-      
-      //  Otherwise, make the change:
-      nextStep = step;
-      if (nextStep != null) lastStep = nextStep;
-      if (report) I.say("\nGOT NEW STEP: "+nextStep);
-      priorityEval = NULL_PRIORITY;
+      else {
+        if (report) I.say("\nGOT NEW STEP: "+nextStep);
+        if (nextStep != null) lastStep = nextStep;
+      }
     }
     return nextStep;
-  }
-  
-  
-  private boolean newEvaluationDue() {
-    if (priorityEval == NULL_PRIORITY) return true;
-    if (actor.actionInProgress()) return false;
-    final float
-      timeGone = actor.world().currentTime() - lastEvalTime,
-      interval = evaluationInterval();
-    return timeGone >= interval;
-  }
-  
-  
-  protected int evaluationInterval() {
-    return actor.senses.isEmergency() ? 1 : 10;
   }
   
   
@@ -254,6 +269,11 @@ public abstract class Plan implements Saveable, Behaviour {
   
   public boolean hasBegun() {
     return actor != null && lastStep != null;
+  }
+  
+  
+  public boolean isActive() {
+    return actor != null && actor.mind.agenda.includes(this);
   }
   
   
@@ -607,6 +627,16 @@ public abstract class Plan implements Saveable, Behaviour {
 
 
 
+/*
+//  We do not cache steps for dormant or 'under consideration' plans, since
+//  that can screw up proper sequence of evaluation/execution.  Start from
+//  scratch instead.
+if (! isActive()) {
+  if (report) I.say("\nNEXT STEP GOT WHILE INACTIVE.");
+  clearEval(actor);
+  return getNextStep();
+}
+//*/
 
 
 

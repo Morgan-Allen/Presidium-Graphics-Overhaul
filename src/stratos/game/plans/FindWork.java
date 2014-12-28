@@ -20,7 +20,8 @@ import static stratos.game.economic.Economy.*;
 public class FindWork extends Plan {
   
   
-  private static boolean verbose = false;
+  private static boolean
+    verbose = false;
   
   private Background position;
   private Property employer;
@@ -77,13 +78,30 @@ public class FindWork extends Plan {
   /**  Behaviour implementation-
     */
   protected float getPriority() {
-    return Nums.clamp(URGENT * rating, 0, URGENT);
+    final boolean report = verbose && I.talkAbout == actor;
+    final float priority = Nums.clamp(URGENT * rating, 0, URGENT);
+    if (report) {
+      I.say("\nGetting priority for work application: "+actor);
+      I.say("  Venue:    "+employer);
+      I.say("  Position: "+position);
+      I.say("  Rating:   "+rating  );
+      I.say("  Hire for: "+hireFee );
+      I.say("  Priority: "+priority);
+    }
+    return priority;
   }
   
   
   protected Behaviour getNextStep() {
-    if (employer == actor.mind.work() || ! canApply()) return null;
+    final boolean report = verbose && I.talkAbout == actor;
+    if (report) I.say("\nGetting next find-work step for "+actor);
     
+    if (employer == actor.mind.work() || ! canApply()) {
+      if (report) I.say("  Cannot apply at: "+employer);
+      return null;
+    }
+    
+    if (report) I.say("  Applying at "+employer);
     final Action applies = new Action(
       actor, employer,
       this, "actionApplyTo",
@@ -97,7 +115,8 @@ public class FindWork extends Plan {
     return
       position != null && employer.inWorld() &&
       employer.structure().intact() &&
-      employer.numOpenings(position) > 0;
+      employer.numOpenings(position) > 0 &&
+      ! employer.staff().applications().includes(this);
   }
   
   
@@ -166,10 +185,12 @@ public class FindWork extends Plan {
   //  NOTE:  The idea here is those you really only ever instance a single
   //  FindWork plan for a given actor.  This is why it gets 'assigned to do'
   //  automatically, and never actually finishes.
-  
-  //*
   public static FindWork attemptFor(Actor actor, Property at) {
+    final boolean report = verbose && (
+      I.talkAbout == actor || I.talkAbout == at
+    );
     if (at.careers() == null) return null;
+    if (report) I.say("\n"+actor+" checking for career opportunities at "+at);
     
     FindWork main = (FindWork) actor.matchFor(FindWork.class);
     if (main == null) {
@@ -192,17 +213,21 @@ public class FindWork extends Plan {
       final FindWork app = new FindWork(actor, c, at);
       pick.compare(app, main.rateOpening(app.position, app.employer));
     }
-    
-    if (pick.result() != null) {
-      final FindWork app = pick.result();
+
+    final FindWork app = pick.result();
+    if (app != null && app.position != work) {
       main.position = app.position;
       main.employer = app.employer;
-      main.rating   = app.rating  ;
+      main.rating   = pick.bestRating();
       main.calcHiringFee();
+      if (report) {
+        I.say("  Most promising: "+main.position);
+        I.say("  Venue:          "+main.employer);
+        I.say("  Rating:         "+main.rating  );
+      }
     }
     return main;
   }
-  //*/
   
   
   public static Background ambitionOf(Actor actor) {

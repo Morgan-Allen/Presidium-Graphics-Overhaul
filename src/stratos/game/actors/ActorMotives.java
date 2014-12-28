@@ -6,11 +6,15 @@ import stratos.game.economic.*;
 import stratos.game.politic.Pledge;
 import stratos.util.*;
 import stratos.game.common.Session.Saveable;
+import static stratos.game.actors.Qualities.*;
 
 
 
 //  TODO:  This piggybacks off the Relations class, but determines primary
 //         'desires'.
+
+//  TODO:  Move greed, ambition, and contentment-evaluation over here.
+//  TODO:  Record memories?
 
 
 public class ActorMotives {
@@ -19,11 +23,13 @@ public class ActorMotives {
   private static boolean
     rateVerbose = false;
   
+  final static int
+    UPDATE_INTERVAL  = Stage.STANDARD_HOUR_LENGTH,
+    MOTIVE_EVAL_TIME = Stage.STANDARD_DAY_LENGTH * 5;
+  
   
   final Actor actor;
-  //  TODO:  Include overall contentment-assessment here.
-  //  TODO:  Move ambition-evaluation here?
-  //  TODO:  Record memories?
+  private float solitude = 0.0f;
   
   
   
@@ -32,9 +38,39 @@ public class ActorMotives {
   }
   
   
+  public void loadState(Session s) throws Exception {
+    solitude = s.loadFloat();
+  }
   
-  public void updateDesires() {
+  
+  public void saveState(Session s) throws Exception {
+    s.saveFloat(solitude);
+  }
+  
+  
+  
+  public void updateValues(int numUpdates) {
+    if ((numUpdates % UPDATE_INTERVAL) != 0) return;
+    final float inc = (1f * UPDATE_INTERVAL) / MOTIVE_EVAL_TIME;
     
+    float RS = rateSolitude();
+    solitude = (solitude * (1 - inc)) + (RS * inc);
+  }
+  
+  
+  private float rateSolitude() {
+    //  TODO:  Only count positive relations!
+    final float
+      trait = 1.25f + actor.traits.relativeLevel(OUTGOING),
+      baseF = ActorRelations.BASE_NUM_FRIENDS * trait,
+      numF  = actor.relations.relations().size();
+    return (baseF - numF) / baseF;
+  }
+  
+  
+  
+  public float solitude() {
+    return solitude;
   }
   
   

@@ -150,7 +150,7 @@ public class AnimalBreeding extends Plan {
   
   /**  Priority and target evaluation-
     */
-  final static Skill BASE_SKILLS[] = { XENOZOOLOGY, DOMESTICS };
+  final static Skill BASE_SKILLS[] = { GENE_CULTURE, XENOZOOLOGY };
   final static Trait BASE_TRAITS[] = { NATURALIST, EMPATHIC };
   
   
@@ -245,9 +245,13 @@ public class AnimalBreeding extends Plan {
     //  First, determine your rate of progress based on intrinsic skill level,
     //  seed quality, and tech upgrades.
     //  TODO:  INCLUDE SEED QUALITY
+    //  TODO:  INCLUDE EFFECTS OF UPGRADES (either that or a check bonus).
+    final float upgrade = 0;
+    /*
     final float upgrade = station.structure.upgradeLevel(
       KommandoLodge.CAPTIVE_BREEDING
     );
+    //*/
     float success = 0;
     if (actor.skills.test(XENOZOOLOGY, MODERATE_DC, 1)) success++;
     if (actor.skills.test(DOMESTICS  , ROUTINE_DC , 1)) success++;

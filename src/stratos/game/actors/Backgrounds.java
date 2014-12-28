@@ -262,13 +262,14 @@ public interface Backgrounds {
     KOMMANDO = new Background(
       Backgrounds.class,
       "Kommando (Stormer)",
-      "",
+      "Kommandos are rugged guerilla combatants that utilise stealth and "+
+      "savagery to hunt down their foes.",
       "kommando_skin.gif", "kommando_portrait.png",
       CLASS_FREEMEN, GUILD_ECOLOGIST,
       EXPERT, HAND_TO_HAND, SURVEILLANCE, STEALTH_AND_COVER,
       PRACTICED, NATIVE_TABOO, ATHLETICS,
       LEARNING, BATTLE_TACTICS, XENOZOOLOGY,
-      RARELY, NERVOUS, RELAXED, ETHICAL, OFTEN, NATURALIST,
+      RARELY, NERVOUS, RELAXED, EMPATHIC, OFTEN, NATURALIST,
       ZWEIHANDER, STEALTH_SUIT
     ),
     

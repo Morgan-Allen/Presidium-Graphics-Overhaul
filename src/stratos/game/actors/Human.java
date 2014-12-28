@@ -72,7 +72,7 @@ public class Human extends Actor implements Qualities {
   public Human(Career career, Base base) {
     this.career = career;
     assignBase(base);
-    career.applyCareer(this);
+    career.applyCareer(this, base);
     initSpriteFor(this);
   }
   

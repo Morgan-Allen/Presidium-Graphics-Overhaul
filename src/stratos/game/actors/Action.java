@@ -77,7 +77,7 @@ public class Action implements Behaviour, AnimNames {
   
   
   public boolean matchesPlan(Behaviour p) {
-    if (p.getClass() != this.getClass()) return false;
+    if (p == null || p.getClass() != this.getClass()) return false;
     final Action oldAction = (Action) p;
     if (oldAction == null || oldAction.subject() != subject()) return false;
     if (basis != oldAction.basis || toCall != oldAction.toCall) return false;

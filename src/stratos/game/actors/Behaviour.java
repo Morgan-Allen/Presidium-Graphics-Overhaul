@@ -34,6 +34,7 @@ public interface Behaviour extends Session.Saveable {
   
   final public static String
     INTERRUPT_CANCEL     = "Cancelled",
+    INTERRUPT_NOT_VALID  = "Plan Is Impossible",
     INTERRUPT_NO_PREREQ  = "Lack Of Prerequisites",
     INTERRUPT_NO_TARGET  = "Target Out Of World",
     INTERRUPT_LOSE_SIGHT = "Target Is Hidden",

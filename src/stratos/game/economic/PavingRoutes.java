@@ -12,6 +12,8 @@ import stratos.game.maps.*;
 import stratos.util.*;
 
 
+//  TODO:  Also check if these routes are fully-paved (for distribution
+//  purposes.)
 
 public class PavingRoutes {
   
@@ -122,6 +124,21 @@ public class PavingRoutes {
     I.add("\n");
   }
   
+  
+  public void updatePerimeter(Fixture v, boolean isMember) {
+    if (! isMember) {
+      updatePerimeter(v, null, false);
+      return;
+    }
+    
+    final Batch <Tile> around = new Batch <Tile> ();
+    for (Tile t : Spacing.perimeter(v.footprint(), world)) {
+      if (t == null || t.owningType() > Element.ELEMENT_OWNS) continue;
+      else around.add(t);
+    }
+    updatePerimeter(v, around, true);
+  }
+  
 
   public void updatePerimeter(
     Fixture v, Batch <Tile> around, boolean isMember
@@ -135,7 +152,7 @@ public class PavingRoutes {
     if (isMember) {
       key.path = around.toArray(Tile.class);
       key.cost = -1;
-      if (roadsEqual(key, match) && map.refreshPaving(key.path)) return;
+      if (key.routeEquals(match) && map.refreshPaving(key.path)) return;
       if (report) I.say("Installing perimeter for "+v);
       
       if (match != null) {
@@ -154,66 +171,71 @@ public class PavingRoutes {
   }
   
   
-  public void updatePerimeter(Fixture v, boolean isMember) {
-    if (isMember) {
-      final Batch <Tile> around = new Batch <Tile> ();
-      for (Tile t : Spacing.perimeter(v.footprint(), world)) if (t != null) {
-        if (t.owningType() <= Element.ELEMENT_OWNS) around.add(t);
-      }
-      updatePerimeter(v, around, true);
-    }
-    else updatePerimeter(v, null, false);
-  }
-  
-  
   public void updateJunction(Fixture v, Tile t, boolean isMember) {
     final boolean report = paveVerbose && I.talkAbout == v;
     if (t == null) {
       if (report) I.say("CANNOT SUPPLY NULL TILE AS JUNCTION");
       return;
     }
+    final List <Route> oldRoutes = tileRoutes.get(t);
+    final Batch <Route> toDelete = new Batch <Route> ();
     junctions.toggleMember(t, t, isMember);
-    
+    //
+    //  If the fixture is still a map-member, update associated routes:
     if (isMember) {
+      final Batch <Tile> routesTo = new Batch <Tile> ();
       final int HS = v.size / 2;
       final Tile c = v.origin(), centre = world.tileAt(c.x + HS, c.y + HS);
       final int range = PATH_RANGE + 1 + HS;
-      final Batch <Tile> routesTo = new Batch <Tile> ();
-      if (report) I.say("Updating road junction "+t+", range: "+range);
       
-      //  We visit all nearby junctions (and associated venues), and flag any
-      //  visited tiles to avoid duplicated work-
-      for (Object o : t.world.presences.matchesNear(Venue.class, v, range)) {
-        final Tile jT = ((Venue) o).mainEntrance();
-        if (jT == null || jT.flaggedWith() != null) continue;
-        jT.flagWith(routesTo);
-        routesTo.add(jT);
-      }
-      
+      if (report) I.say("\nUpdating road junction: "+t+", range: "+range);
+      //
+      //  First, we visit all registered junctions nearby, and include those
+      //  for subsequent routing to-
       for (Target o : junctions.visitNear(centre, range, null)) {
         final Tile jT = (Tile) o;
         if (jT.flaggedWith() != null) continue;
         jT.flagWith(routesTo);
         routesTo.add(jT);
       }
-      
-      //  Note:  We perform the un-flag op in a separate pass to avoid any
-      //  interference with pathing-searches-
+      //
+      //  We also include all nearby base venues with entrances registered as
+      //  junctions.  (Any results are flagged to avoid duplicated work.)
+      for (Object o : t.world.presences.matchesNear(Venue.class, v, range)) {
+        final Venue n = (Venue) o;
+        final Tile jT = n.mainEntrance();
+        if (n.base() != v.base()) continue;
+        if (jT == null || jT.flaggedWith() != null) continue;
+        if (! junctions.hasMember(jT, jT)) continue;
+        jT.flagWith(routesTo);
+        routesTo.add(jT);
+      }
+      //
+      //  Any old routes that haven't been updated are assumed to be obsolete,
+      //  and must be deleted-
+      if (oldRoutes != null) for (Route r : oldRoutes) {
+        if (r.opposite(t).flaggedWith() == null) toDelete.add(r);
+      }
+      //
+      //  (NOTE:  We perform the un-flag op in a separate pass to avoid any
+      //  interference with pathing-searches.)  Otherwise, establish routes to
+      //  all the nearby junctions compiled.
       for (Tile jT : routesTo) jT.flagWith(null);
       for (Tile jT : routesTo) {
-        if (report) I.say("Paving to: "+jT);
+        if (report) I.say("  Paving to: "+jT);
         routeBetween(t, jT, report);
       }
     }
-    else {
-      if (report) I.say("Discarding junctions for "+v);
-      
-      final List <Route> routes = tileRoutes.get(t);
-      if (routes != null) for (Route r : routes) {
-        if (r.cost < 0) continue;
-        deleteRoute(r);
-        r.cost = -1;
-      }
+    //
+    //  All routes are flagged as obsolete if the fixture is no longer a
+    //  map-member.  Either way, any obsolete routes are finally deleted.
+    else if (oldRoutes != null) {
+      if (report) I.say("\nDeleting road junction: "+t);
+      Visit.appendTo(toDelete, oldRoutes);
+    }
+    for (Route r : toDelete) {
+      if (report) I.say("  Discarding unused route: "+r);
+      deleteRoute(r);
     }
   }
   
@@ -222,8 +244,6 @@ public class PavingRoutes {
     if (a == b || a == null || b == null) return false;
     //
     //  Firstly, determine the correct current route.
-    //  TODO:  Allow the road search to go through arbitrary Boardables, and
-    //  screen out any non-tiles or blocked tiles?
     final Route route = new Route(a, b);
     final RoadSearch search = new RoadSearch(
       route.start, route.end, Element.FIXTURE_OWNS
@@ -231,25 +251,20 @@ public class PavingRoutes {
     search.doSearch();
     route.path = search.fullPath(Tile.class);
     route.cost = search.totalCost();
-
-    //  TODO:  Also check if these routes are fully-paved (for distribution
-    //  purposes.)
-    
     //
-    //  If the new route differs from the old, delete it.  Otherwise return.
+    //  If the new route differs from the old, delete it, and install the new
+    //  version.  Otherwise return.
     final Route oldRoute = allRoutes.get(route);
-    if (roadsEqual(route, oldRoute) && map.refreshPaving(route.path)) {
+    if (route.routeEquals(oldRoute) && map.refreshPaving(route.path)) {
       return false;
     }
-    
     if (report) {
       I.say("Route between "+a+" and "+b+" has changed!");
       this.reportPath("Old route", oldRoute);
       this.reportPath("New route", route   );
     }
-    
     //
-    //  If the route needs an update, clear the tiles and store the data.
+    //  If the route needs an update, clear the tiles and store the data:
     if (oldRoute != null) deleteRoute(oldRoute);
     if (search.success()) {
       allRoutes.put(route, route);
@@ -262,29 +277,12 @@ public class PavingRoutes {
   
   
   private void deleteRoute(Route route) {
+    if (route.cost < 0) return;
     map.flagForPaving(route.path, false);
     allRoutes.remove(route);
     toggleRoute(route, route.start, false);
     toggleRoute(route, route.end  , false);
-  }
-  
-  
-  private boolean roadsEqual(Route newRoute, Route oldRoute) {
-    if (newRoute.path == null || oldRoute == null) return false;
-    boolean match = true;
-    for (Tile t : newRoute.path) t.flagWith(newRoute);
-    int numMatched = 0;
-    for (Tile t : oldRoute.path) {
-      //if (t.blocked()) I.say("TILE BLOCKED AT: "+t);
-      if (t.flaggedWith() != newRoute) {
-        match = false;
-        break;
-      }
-      else numMatched++;
-    }
-    for (Tile t : newRoute.path) t.flagWith(null);
-    if (numMatched != newRoute.path.length) match = false;
-    return match;
+    route.cost = -1;
   }
   
   

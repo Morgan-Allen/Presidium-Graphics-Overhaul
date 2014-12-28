@@ -159,11 +159,7 @@ public class CombatUtils {
     else if (near instanceof Actor) {
       final Actor other = (Actor) near;
       final Target victim = other.planFocus(Combat.class);
-      return victim != null;
-      /*
-      final float harmDone = other.harmIntended(victim);
-      return victim != null && actor.relations.likes(victim) && harmDone > 0;
-      //*/
+      return victim != null && actor.relations.likes(victim);
     }
     else return false;
   }

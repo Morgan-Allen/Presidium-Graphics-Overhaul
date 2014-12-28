@@ -445,7 +445,7 @@ public class Text extends UINode implements Description {
       if ((maxWidth > 0) && (across > maxWidth)) newLine = true;
       
       if (newWord) {
-        Visit.compose(lastLine, lastWord);
+        Visit.appendTo(lastLine, lastWord);
         lastWord.clear();
       }
       
@@ -459,7 +459,7 @@ public class Text extends UINode implements Description {
     }
     //
     //  Clean up any remainders-
-    if (lastWord.size() > 0) Visit.compose(lastLine, lastWord);
+    if (lastWord.size() > 0) Visit.appendTo(lastLine, lastWord);
     if (lastLine.size() > 0) formatLine(lastLine, marginWide, down);
     //
     //  We now reposition entries to fit the window, and update the full bounds.

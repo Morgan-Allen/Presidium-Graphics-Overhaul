@@ -33,9 +33,9 @@ public class Career implements Qualities {
     Background vocation, Background birth,
     Background homeworld, Background gender
   ) {
-    this.gender = gender;
-    this.vocation = vocation;
-    this.birth = birth;
+    this.gender    = gender   ;
+    this.vocation  = vocation ;
+    this.birth     = birth    ;
     this.homeworld = homeworld;
   }
   
@@ -51,12 +51,12 @@ public class Career implements Qualities {
   
   
   public void loadState(Session s) throws Exception {
-    subject = (Actor) s.loadObject();
+    subject   = (Actor) s.loadObject();
     gender    = (Background) s.loadObject();
     birth     = (Background) s.loadObject();
     homeworld = (Background) s.loadObject();
     vocation  = (Background) s.loadObject();
-    fullName = s.loadString();
+    fullName  = s.loadString();
   }
   
   
@@ -113,7 +113,7 @@ public class Career implements Qualities {
   /**  Binds this career to a specific in-world actor and configures their
     *  physique, aptitudes and motivations:
     */
-  public void applyCareer(Human actor) {
+  public void applyCareer(Human actor, Base base) {
     if (verbose) I.say("\nGENERATING NEW CAREER");
     subject = actor;
     
@@ -122,6 +122,11 @@ public class Career implements Qualities {
     applySex(actor);
     setupAttributes(actor);
     fillPersonality(actor);
+    
+    //
+    //  TODO:  Specify a few starter relationships here!  (And vary the base
+    //  relation somewhat.)
+    actor.relations.setRelation(base, 0.5f, 0);
     
     //  We top up basic attributes to match.
     actor.traits.initDNA(0);
@@ -275,7 +280,7 @@ public class Career implements Qualities {
     for (Skill s : actor.traits.skillSet()) {
       rating += rateSimilarity(s, next, actor);
     }
-    rating /= 1 + next.baseSkills.size() + skills.size();
+    rating *= 2f / (1 + next.baseSkills.size() + skills.size());
     
     //  Check for similar traits.
     float sumChances = 1;
@@ -284,7 +289,7 @@ public class Career implements Qualities {
       chance *= Personality.traitChance(t, actor);
       sumChances += (1 + chance) / 2f;
     }
-    rating *= sumChances / (1 + next.traitChances.size());
+    rating *= sumChances * 2f / (1 + next.traitChances.size());
     if (rating < 0) return 0;
     
     //  And favour transition to more prestigious vocations.
