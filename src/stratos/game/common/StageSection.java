@@ -5,7 +5,7 @@ import stratos.util.*;
 
 
 
-public class WorldSection implements Target, Session.Saveable {
+public class StageSection implements Target, Session.Saveable {
   
   
   /**  Data fields, construction, and save/load methods-
@@ -15,13 +15,13 @@ public class WorldSection implements Target, Session.Saveable {
   final public Box2D area = new Box2D();
   final public int x, y, absX, absY, depth, size;
   
-  protected WorldSection kids[], parent;
+  protected StageSection kids[], parent;
   protected boolean updateBounds = true;
   
   private Object flagged = null;
   
   
-  WorldSection(WorldSections w, int x, int y, int d) {
+  StageSection(StageSections w, int x, int y, int d) {
     this.world = w.world;
     this.x = x;
     this.y = y;
@@ -38,7 +38,7 @@ public class WorldSection implements Target, Session.Saveable {
   }
   
   
-  public static WorldSection loadConstant(Session s) throws Exception {
+  public static StageSection loadConstant(Session s) throws Exception {
     return s.world().sections.sectionAt(s.loadInt(), s.loadInt());
   }
   

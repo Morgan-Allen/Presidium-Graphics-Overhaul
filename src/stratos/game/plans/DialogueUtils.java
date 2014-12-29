@@ -228,6 +228,8 @@ public class DialogueUtils implements Qualities {
   
   
   public static void utters(Actor a, String s, float effect) {
+    if (a.indoors()) return;
+    
     final String sign;
     if (effect == 0) sign = "";
     else if (effect > 0) sign = " (+)";
@@ -237,7 +239,9 @@ public class DialogueUtils implements Qualities {
     final int side = (opposite == null) ? TalkFX.FROM_RIGHT : (
       onRight(a, opposite) ? TalkFX.FROM_RIGHT : TalkFX.FROM_LEFT
     );
-    a.chat.addPhrase(s+sign, side);
+    
+    final TalkFX chat = DialogueFX.transcriptFor(a);
+    if (chat != null) chat.addPhrase(s+sign, side);
   }
   
   
@@ -250,36 +254,4 @@ public class DialogueUtils implements Qualities {
 
 
 
-//  Basic introductions.  (Name, origin, job, health, weather, events.)
-//  Recent activities.
-//  Other acquaintances.
-//  Shared skills.
-//  Ask for favour.
-//  Give a gift.
-
-//  List associations with each, and discuss those.
-//  Make statements, and agree or disagree.
-
-/*
-private Batch associationsFor(Object topic) {
-  final Batch assoc = new Batch();
-  if (topic instanceof Plan) {
-    assoc.addAll(topic.keyTraits());
-    assoc.addAll(topic.keySkills());
-  }
-  if (topic instanceof Actor) {
-    assoc.add(topic.vocation());
-    for (Plan p : actor.memories.recent()) {
-      if (p.subject() == topic) assoc.add(p);
-    }
-  }
-  if (topic instanceof Background) {
-    
-  }
-  if (topic instanceof Skill) {
-    
-  }
-  return assoc;
-}
-//*/
 

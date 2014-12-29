@@ -173,7 +173,7 @@ public class Airfield extends Venue {
   }
   
   
-  public int numOpenings(Background b) {
+  protected int numOpenings(Background b) {
     final int nO = super.numOpenings(b);
     if (b == WINGMAN  ) return nO + 1;
     if (b == AIR_CORPS) return nO + 1;
@@ -181,7 +181,7 @@ public class Airfield extends Venue {
   }
   
   
-  public Behaviour jobFor(Actor actor) {
+  protected Behaviour jobFor(Actor actor) {
     return null;
   }
   

@@ -14,7 +14,7 @@ import stratos.game.actors.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
-import static stratos.game.maps.WorldTerrain.*;
+import static stratos.game.maps.StageTerrain.*;
 
 
 //  TODO:  This is proceeding too quickly.  (And there needs to be a better
@@ -185,12 +185,12 @@ public class Mining extends Plan {
   
 
   public static Item mineralsAt(Tile face) {
-    final WorldTerrain terrain = face.world().terrain();
+    final StageTerrain terrain = face.world().terrain();
     if (terrain.mineralsAt(face) == 0) return null;
     
     final byte type = terrain.mineralType(face);
     final float amount = terrain.mineralsAt(face, type);
-    if (type == WorldTerrain.TYPE_RUBBLE) return null;
+    if (type == StageTerrain.TYPE_RUBBLE) return null;
     
     final Traded minType = (Traded) TYPE_MAP.get(type);
     if (minType == null || amount <= 0) return null;

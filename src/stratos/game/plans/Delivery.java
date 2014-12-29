@@ -366,7 +366,7 @@ public class Delivery extends Plan {
     
     //  TODO:  Return the suspensor to it's point of origin.  (Not a lot of
     //         extra effort now.)
-    if (goodsBulk > 5 && driven != null) {
+    if (goodsBulk > 5 && driven == null) {
       final Suspensor suspensor = new Suspensor(actor, this);
       final Tile o = actor.origin();
       suspensor.enterWorldAt(o.x, o.y, o.world);

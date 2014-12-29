@@ -8,17 +8,8 @@ import stratos.game.economic.*;
 import stratos.util.*;
 
 
-
-//  TODO:  Actors also need to use dialogue to 'object' when they see someone
-//  doing something they don't approve of *to* someone else.
-
-//  TODO:  You need to restore the use of a communal ChatFX for a given
-//  instance of dialogue.  (And have everything fade once complete.)
-
 //  TODO:  You need to use separate actions for invites/gifting.  Get rid of
 //  urgency-based quits for now, and just allow for 3 exchanges at a time, say.
-
-
 
 //  TODO:  Try and improve on the mechanics here in general.  Restore sensible
 //  location-setting, and allow for multiple participants.
@@ -38,6 +29,7 @@ public class Dialogue extends Plan implements Qualities {
     TYPE_CASUAL  = 1,
     TYPE_PLEA    = 2;
   
+  //  TODO:  SEE IF YOU CAN USE THESE?..
   final public static float
     RELATION_BOOST = 0.5f,
     BORED_DURATION = Stage.STANDARD_HOUR_LENGTH * 1;
@@ -54,8 +46,9 @@ public class Dialogue extends Plan implements Qualities {
     STAGE_DONE   =  7;
   
   
-  final Actor starts, other;
+  final Actor other;
   final int type;
+  private Dialogue starts;
   
   private int stage = STAGE_INIT;
   private Boarding location = null, stands = null;
@@ -66,34 +59,33 @@ public class Dialogue extends Plan implements Qualities {
   
   
   public Dialogue(Actor actor, Actor other) {
-    this(actor, other, actor, TYPE_CASUAL);
+    this(actor, other, null, TYPE_CASUAL);
   }
   
   
   public Dialogue(Actor actor, Actor other, int type) {
-    this(actor, other, actor, type);
+    this(actor, other, null, type);
   }
   
   
-  private Dialogue(Actor actor, Actor other, Actor starts, int type) {
+  private Dialogue(Actor actor, Actor other, Dialogue starts, int type) {
     super(actor, other, false, MILD_HELP);
-    if (actor == other) I.complain("CANNOT TALK TO SELF!");
-    this.other = other;
-    this.starts = starts;
-    this.type = type;
+    this.other  = other ;
+    this.starts = starts == null ? this : starts;
+    this.type   = type  ;
   }
   
   
   public Dialogue(Session s) throws Exception {
     super(s);
     other  = (Actor) s.loadObject();
-    starts = (Actor) s.loadObject();
-    type = s.loadInt();
-    stage = s.loadInt();
+    starts = (Dialogue) s.loadObject();
+    type   = s.loadInt();
+    stage  = s.loadInt();
     
-    location = (Boarding) s.loadTarget();
-    stands = (Boarding) s.loadTarget();
-    gift = Item.loadFrom(s);
+    location   = (Boarding) s.loadTarget();
+    stands     = (Boarding) s.loadTarget();
+    gift       = Item.loadFrom(s);
     invitation = (Plan) s.loadObject();
   }
   
@@ -102,18 +94,27 @@ public class Dialogue extends Plan implements Qualities {
     super.saveState(s);
     s.saveObject(other );
     s.saveObject(starts);
-    s.saveInt(type);
-    s.saveInt(stage);
+    s.saveInt   (type  );
+    s.saveInt   (stage );
     
     s.saveTarget(location);
-    s.saveTarget(stands);
+    s.saveTarget(stands  );
     Item.saveTo(s, gift);
     s.saveObject(invitation);
   }
   
   
   public Plan copyFor(Actor other) {
-    return new Dialogue(other, this.other, other, type);
+    return new Dialogue(other, this.other, null, type);
+  }
+  
+  
+  public Boarding location() {
+    if (location == null) {
+      if (starts == this) location = other.origin();
+      else location = starts.location();
+    }
+    return location;
   }
   
   
@@ -129,6 +130,30 @@ public class Dialogue extends Plan implements Qualities {
   }
   
   
+  /**  Utility methods for assessing possibility-
+    */
+  private static boolean canTalk(Actor actor, Actor with, Dialogue starts) {
+    if (starts == null) I.complain("No conversation starter!");
+    if (starts.stage > STAGE_GREET) {
+      return actor.planFocus(Dialogue.class) == with;
+    }
+    
+    if (actor == starts.actor()) return true;
+    final Dialogue sample = starts.childDialogue(actor);
+    if (! actor.mind.mustIgnore(sample)) return true;
+    return false;
+  }
+  
+  
+  private Dialogue childDialogue(Actor forActor) {
+    final Dialogue d = new Dialogue(forActor, actor, starts, type);
+    d.stage = STAGE_CHAT;
+    d.setMotiveFrom(this, 0 - motiveBonus() / 2f);
+    return d;
+  }
+  
+  
+  
   
   /**  Target selection and priority evaluation-
     */
@@ -137,39 +162,51 @@ public class Dialogue extends Plan implements Qualities {
   
   
   protected float getPriority() {
-    final boolean report = evalVerbose && (
-      I.talkAbout == actor || I.talkAbout == other
-    );
+    final boolean report = evalVerbose && I.talkAbout == actor && hasBegun();
     if (GameSettings.noChat) return -1;
+    if (! other.health.conscious()) return -1;
+    if (! other.health.human    ()) return -1;
+    if (stage == STAGE_DONE) return -1;
     
     if (stage == STAGE_BYE) return CASUAL;
-    if (stage == STAGE_DONE || shouldQuit()) {
-      if (report) I.say("\nDialogue should quit!");
-      return 0;
+    if (type == TYPE_CASUAL && ! canTalk(other, actor, starts)) {
+      if (report) I.say("\n"+other+" can't talk now- skipping!");
+      return -1;
     }
     
     final float
       maxRange    = actor.health.sightRange() * 2,
       solitude    = actor.motives.solitude(),
       curiosity   = (1 + actor.traits.relativeLevel(CURIOUS)) / 2f,
-      novelty     = actor.relations.noveltyFor(other       ) / 2f,
-      baseNovelty = actor.relations.noveltyFor(other.base()) / 2f;
-    
-    float bonus = 0;
-    bonus = solitude + Nums.clamp(curiosity * novelty, 0, 1);
-    bonus += baseNovelty;
-    if (type == TYPE_CONTACT) bonus += 1;
-    else if (Spacing.distance(actor, other) > maxRange) return 0;
+      novelty     = actor.relations.noveltyFor(other       )  / 2f,
+      baseNovelty = actor.relations.noveltyFor(other.base())  / 2f,
+      sumNovelty  = novelty + baseNovelty,
+      talkThresh  = hasBegun() ? 0 : (1 - solitude) / 2;
     
     if (report) {
       I.say("\nChecking for dialogue between "+actor+" and "+other);
       I.say("  Type is:      "+type       );
+      I.say("  Stage:        "+stage      );
       I.say("  Solitude:     "+solitude   );
       I.say("  Curiosity:    "+curiosity  );
       I.say("  Novelty:      "+novelty    );
       I.say("  Base novelty: "+baseNovelty);
-      I.say("  Bonus:        "+bonus      );
+      I.say("  Threshold:    "+talkThresh );
     }
+    if (sumNovelty <= talkThresh) {
+      if (report) I.say("\n  Nothing to talk about- skipping!");
+      return -1;
+    }
+    
+    float bonus = 0;
+    bonus = solitude + Nums.clamp(curiosity * novelty, 0, 1);
+    bonus += baseNovelty;
+    if (report) {
+      I.say("  Final bonus:  "+bonus      );
+    }
+    
+    if (type == TYPE_CONTACT) bonus += 0.5f;
+    else if (Spacing.distance(actor, other) > maxRange) return 0;
     final float priority = priorityForActorWith(
       actor, other,
       CASUAL, bonus * ROUTINE,
@@ -181,51 +218,6 @@ public class Dialogue extends Plan implements Qualities {
   }
   
   
-  private boolean shouldQuit() {
-    if (invitation != null) return false;
-    return
-      (actor.relations.noveltyFor(other) <= 0) ||
-      (type != TYPE_CONTACT && ! canTalk(other));
-  }
-  
-  
-  private boolean canTalk(Actor other) {
-    if (! other.health.conscious()) return false;
-    if (! other.health.human()) return false;
-    
-    if (other == starts && ! hasBegun()) return true;
-    
-    final Target talksWith = other.planFocus(Dialogue.class);
-    if (talksWith == actor) return true;
-    if (talksWith != null) return false;
-    
-    final Dialogue d = new Dialogue(other, actor, actor, type);
-    final boolean can = ! other.mind.mustIgnore(d);
-    
-    final boolean report = evalVerbose && (
-      I.talkAbout == actor || I.talkAbout == other
-    );
-    if (report) {
-      I.say("\n  "+actor+" checking if "+other+" can talk? "+can);
-      I.say("  Chat priority: "+d.priorityFor(other));
-    }
-    return can;
-  }
-  
-  
-  private void setLocationFor(Action talkAction) {
-    final boolean report = stepsVerbose && I.talkAbout == actor;
-    talkAction.setMoveTarget(other);
-    location = other.origin();
-    /*
-    if (location == null) {
-      location = starts.aboard();
-    }
-    talkAction.setMoveTarget(location);
-    //*/
-  }
-  
-  
   
   /**  Behaviour implementation-
     */
@@ -233,7 +225,7 @@ public class Dialogue extends Plan implements Qualities {
     if (stage >= STAGE_DONE) return null;
     final boolean report = stepsVerbose && I.talkAbout == actor;
     
-    if (starts == actor && stage == STAGE_INIT) {
+    if (starts == this && stage == STAGE_INIT) {
       final Action greeting = new Action(
         actor, other.aboard(),
         this, "actionGreet",
@@ -244,13 +236,12 @@ public class Dialogue extends Plan implements Qualities {
     }
     
     if (stage == STAGE_CHAT) {
-      final Action waits = new Action(
-        actor, other,
-        this, "actionWait",
-        Action.TALK_LONG, "Waiting for "
-      );
-      setLocationFor(waits);
-      if (location == null || Spacing.distance(other, location) > 1) {
+      if (Spacing.distance(other, actor) > 1) {
+        final Action waits = new Action(
+          actor, other,
+          this, "actionWait",
+          Action.TALK_LONG, "Waiting for "
+        );
         waits.setProperties(Action.NO_LOOP);
         return waits;
       }
@@ -278,7 +269,6 @@ public class Dialogue extends Plan implements Qualities {
         this, "actionChats",
         Action.TALK_LONG, "Chatting with "
       );
-      setLocationFor(chats);
       return chats;
     }
     
@@ -297,34 +287,14 @@ public class Dialogue extends Plan implements Qualities {
   
   
   public boolean actionGreet(Actor actor, Boarding aboard) {
-    if (! other.isDoing(Dialogue.class, null)) {
-      if (canTalk(other)) {
-        final Dialogue d = new Dialogue(other, actor, actor, type);
-        d.stage = STAGE_CHAT;
-        other.mind.assignBehaviour(d);
+    if (other.planFocus(Dialogue.class) != actor) {
+      if (canTalk(other, actor, starts)) {
+        other.mind.assignBehaviour(childDialogue(other));
       }
-      else if (shouldQuit()) {
-        interrupt(INTERRUPT_CANCEL);
-        return false;
-      }
+      else return false;
     }
+    
     this.stage = STAGE_CHAT;
-    return true;
-  }
-  
-  
-  public boolean actionChats(Actor actor, Actor other) {
-    DialogueUtils.tryChat(actor, other);
-    //final boolean canTalk = canTalk(other);
-    final float relation = actor.relations.valueFor(other);
-    
-    if (shouldQuit()) {
-      if (invitation == null && Rand.num() < relation) {
-        invitation = actor.mind.nextBehaviour();
-      }
-      else stage = STAGE_BYE;
-    }
-    
     return true;
   }
   
@@ -334,8 +304,14 @@ public class Dialogue extends Plan implements Qualities {
   }
   
   
+  public boolean actionChats(Actor actor, Actor other) {
+    DialogueUtils.tryChat(actor, other);
+    if (! canTalk(other, actor, starts)) stage = STAGE_BYE;
+    return true;
+  }
+  
+  
   public boolean actionFarewell(Actor actor, Actor other) {
-    //  Used to close a dialogue.
     stage = STAGE_DONE;
     return true;
   }

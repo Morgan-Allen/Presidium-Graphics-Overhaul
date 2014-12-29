@@ -4,7 +4,7 @@ package stratos.game.maps;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.util.*;
-import static stratos.game.maps.WorldTerrain.*;
+import static stratos.game.maps.StageTerrain.*;
 
 
 
@@ -160,7 +160,7 @@ public class PavingMap {
     final Tile o = world.tileAt(client);
     
     
-    for (WorldSection s : world.sections.sectionsUnder(world.area())) {
+    for (StageSection s : world.sections.sectionsUnder(world.area())) {
       final float distS = s.area.distance(o.x, o.y) + 1;
       if (distS >= minDist) continue;
       

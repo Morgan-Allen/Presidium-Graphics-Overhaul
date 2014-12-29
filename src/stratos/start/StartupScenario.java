@@ -15,6 +15,7 @@ import stratos.game.wild.Habitat;
 import stratos.game.wild.Nest;
 import stratos.game.wild.Ruins;
 import stratos.game.wild.Species;
+import stratos.graphics.common.Colour;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -96,11 +97,6 @@ public class StartupScenario extends Scenario {
     public Table <Background, Integer> numCrew = new Table();
     
     public int siteLevel, fundsLevel, titleLevel;
-    
-    public int numCrew(Background b) {
-      final Integer num = numCrew.get(b);
-      return num == null ? 0 : num;
-    }
   }
   
   final Config config;
@@ -184,7 +180,7 @@ public class StartupScenario extends Scenario {
   
   
   protected Base createBase(Stage world) {
-    final Base base = Base.baseWithName(world, "Player", false);
+    final Base base = Base.withName(world, "Player Base", Colour.BLUE);
     
     int funding = -1, interest = -1;
     switch (config.fundsLevel) {
@@ -292,9 +288,9 @@ public class StartupScenario extends Scenario {
     final List <Human> colonists = new List <Human> ();
     final Background house = config.house;
     
-    for (int i = COLONIST_BACKGROUNDS.length; i-- > 0;) {
-      final Background b = COLONIST_BACKGROUNDS[i];
-      for (int n = config.numCrew(b); n-- > 0;) {
+    for (Background b : config.numCrew.keySet()) {
+      final int num = config.numCrew.get(b);
+      for (int n = num; n-- > 0;) {
         final Human c = new Human(b, base);
         for (Skill s : house.skills()) if (c.traits.traitLevel(s) > 0) {
           c.traits.incLevel(s, 5);
@@ -302,7 +298,6 @@ public class StartupScenario extends Scenario {
         colonists.add(c);
       }
     }
-    
     return colonists;
   }
   
@@ -331,32 +326,34 @@ public class StartupScenario extends Scenario {
       }
     };
     siting.applyPassTo(world, 1);
-
+    
     if (! bastion.inWorld()) I.complain("NO LANDING SITE FOUND!");
     bastion.clearSurrounds();
     for (Actor a : advisors) {
       a.mind.setHome(bastion);
     }
+    
+    final Background careers[] = bastion.careers();
     for (Actor a : colonists) {
       a.assignBase(base);
       a.enterWorldAt(bastion, world);
       a.goAboard(bastion, world);
+      if (Visit.arrayIncludes(careers, a.vocation())) {
+        a.mind.setWork(bastion);
+        a.mind.setHome(bastion);
+      }
     }
-    
     
     //  TODO:  Vary this based on starting House-
     bastion.stocks.bumpItem(Economy.CARBS    , 10);
     bastion.stocks.bumpItem(Economy.PROTEIN  , 10);
     bastion.stocks.bumpItem(Economy.GREENS   , 10);
     bastion.stocks.bumpItem(Economy.SOMA     , 10);
-    
     bastion.stocks.bumpItem(Economy.PARTS    , 20);
     bastion.stocks.bumpItem(Economy.PLASTICS , 10);
-    
     //bastion.stocks.bumpItem(Economy.GENE_SEED, 15);
     //bastion.stocks.bumpItem(Economy.MEDICINE , 5 );
     //bastion.stocks.bumpItem(Economy.STIM_KITS, 10);
-    
     //Placement.establishRelations(advisors, colonists);
     return bastion;
   }

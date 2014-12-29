@@ -17,7 +17,7 @@ public class RoadSearch extends Search <Tile> {
   final static float
     MAX_DISTANCE_MULT = 4.0f;
   
-  final WorldTerrain terrain ;
+  final StageTerrain terrain ;
   final Tile destination;
   final int priority;
   final private Tile edges[] = new Tile[4];

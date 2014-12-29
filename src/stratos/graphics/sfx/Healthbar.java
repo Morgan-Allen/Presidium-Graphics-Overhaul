@@ -78,7 +78,7 @@ public class Healthbar extends SFX {
       Colour flash = new Colour(this.flash == null ? Colour.WHITE : this.flash);
       flash.a *= f * colour.a;
       flash.a *= Nums.abs(Nums.sin(flashTime));
-      flash.calcBitValue();
+      flash.calcFloatBits();
       
       pass.compileQuad(
         ImageAsset.WHITE_TEX(), flash,

@@ -261,7 +261,7 @@ public class Staff {
     //  If there are no remaining openings for this background, cull any
     //  existing applications.  Otherwise, refresh signing costs.
     for (FindWork oA : applications) if (oA.position() == a.position()) {
-      if (employs.numOpenings(oA.position()) == 0) {
+      if (employs.crowdRating(oA.actor(), a.position()) >= 1) {
         applications.remove(oA);
       }
     }
@@ -300,8 +300,8 @@ public class Staff {
       }
       
       for (Background v : employs.careers()) {
-        final int numOpenings = employs.numOpenings(v);
-        if (numOpenings > 0) {
+        final float crowding = employs.crowdRating(null, v);
+        if (crowding < 1) {
           if (GameSettings.hireFree) {
             final Human citizen = new Human(v, employs.base());
             citizen.mind.setWork(employs);
@@ -309,7 +309,7 @@ public class Staff {
             citizen.enterWorldAt(t, base.world);
           }
           else {
-            base.commerce.incDemand(v, numOpenings, REFRESH_INTERVAL);
+            base.commerce.incDemand(v, 2 * (1 - crowding), REFRESH_INTERVAL);
           }
         }
       }

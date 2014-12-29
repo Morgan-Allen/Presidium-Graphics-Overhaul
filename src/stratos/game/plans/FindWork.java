@@ -115,7 +115,7 @@ public class FindWork extends Plan {
     return
       position != null && employer.inWorld() &&
       employer.structure().intact() &&
-      employer.numOpenings(position) > 0 &&
+      employer.crowdRating(actor, position) < 1 &&
       ! employer.staff().applications().includes(this);
   }
   

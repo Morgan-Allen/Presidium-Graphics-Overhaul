@@ -8,10 +8,8 @@ import stratos.graphics.solids.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
-
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.Input.Keys;
-
 import java.io.*;
 
 

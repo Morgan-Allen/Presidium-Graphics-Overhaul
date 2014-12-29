@@ -37,7 +37,7 @@ public class BaseSetup {
   //  Data structures for conducting time-sliced placement of private venues:
   static class Placing {
     Venue        sampled  ;
-    WorldSection placed   ;
+    StageSection placed   ;
     Tile         exactTile;
     float        rating   ;
   }
@@ -67,7 +67,7 @@ public class BaseSetup {
     for (int n = numP ; n-- > 0;) {
       final Placing p = new Placing();
       p.sampled   = (Venue  ) s.loadObject();
-      p.placed    = (WorldSection) s.loadTarget();
+      p.placed    = (StageSection) s.loadTarget();
       p.exactTile = (Tile   ) s.loadTarget();
       p.rating    =           s.loadFloat ();
     }
@@ -190,7 +190,7 @@ public class BaseSetup {
     amountPlaced = 0;
     final Venue samples[] = VenueProfile.sampleVenues(Venue.VENUE_OWNS, true);
     
-    for (WorldSection section : world.sections.sectionsUnder(world.area())) {
+    for (StageSection section : world.sections.sectionsUnder(world.area())) {
       for (Venue sample : samples) {
         sample.assignBase(base);
         final Placing p = new Placing();
@@ -243,22 +243,19 @@ public class BaseSetup {
     //  We automatically fill any positions available when the venue is
     //  established.  This is done for free, but candidates cannot be screened.
     if (venue.careers() == null) return;
-    for (Background v : venue.careers()) {
-      final int numOpen = venue.numOpenings(v);
-      if (numOpen <= 0) continue;
+    for (Background v : venue.careers()) while (true) {
+      final Human worker = new Human(v, venue.base());
+      final float crowding = venue.crowdRating(worker, v);
       
-      for (int i = numOpen; i-- > 0;) {
-        final Human worker = new Human(v, venue.base());
-        worker.mind.setWork(venue);
-        
-        if (GameSettings.hireFree || enterWorld) {
-          worker.enterWorldAt(venue, venue.world());
-          worker.goAboard(venue, venue.world());
-        }
-        else {
-          final Stage world = venue.base().world;
-          world.offworld.addImmigrant(worker, world);
-        }
+      if (crowding >= 1) break;
+      worker.mind.setWork(venue);
+      if (GameSettings.hireFree || enterWorld) {
+        worker.enterWorldAt(venue, venue.world());
+        worker.goAboard(venue, venue.world());
+      }
+      else {
+        final Stage world = venue.base().world;
+        world.offworld.addImmigrant(worker, world);
       }
     }
   }

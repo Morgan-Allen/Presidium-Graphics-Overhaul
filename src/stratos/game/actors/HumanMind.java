@@ -184,15 +184,12 @@ public class HumanMind extends ActorMind implements Qualities {
     choice.add(new Foraging(actor, null));
     choice.add(new Retreat(actor));
     
-    final boolean timeoff = work == null || ! work.staff().onShift(actor);
     if (work != null) {
-      choice.add(work.jobFor(actor));
-      if (timeoff && work != home) work.addServices(choice, actor);
+      work.addTasks(choice, actor, actor.vocation());
       choice.add(new Payday(actor, work));
     }
     if (home != null) {
-      if (home != work) choice.add(home.jobFor(actor));
-      if (timeoff) home.addServices(choice, actor);
+      if (home != null) home.addTasks(choice, actor, Backgrounds.AS_RESIDENT);
       choice.add(new Resting(actor, home));
     }
     else {
@@ -214,7 +211,7 @@ public class HumanMind extends ActorMind implements Qualities {
     final boolean timeoff = work == null || ! work.staff().onShift(actor);
     for (Venue venue : around) {
       if (timeoff && venue.structure().intact()) {
-        venue.addServices(choice, actor);
+        venue.addTasks(choice, actor, Backgrounds.AS_VISITOR);
         choice.add(FindWork.attemptFor(actor, venue));
         choice.add(FindHome.attemptFor(actor, venue));
       }

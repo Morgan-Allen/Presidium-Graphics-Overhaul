@@ -29,9 +29,9 @@ public class PresenceMap implements Session.Saveable {
   final Node root;
   
   static class Node extends List {
-    final WorldSection section;
+    final StageSection section;
     int population = 0;
-    Node(WorldSection s) { this.section = s; }
+    Node(StageSection s) { this.section = s; }
   }
   
   private static final class NodeMarker {
@@ -196,8 +196,8 @@ public class PresenceMap implements Session.Saveable {
       
       if (nodeKid == null) {
         if (is) {
-          WorldSection worldKid = null;
-          for (WorldSection k : n.section.kids) if (k.area.contains(x, y)) {
+          StageSection worldKid = null;
+          for (StageSection k : n.section.kids) if (k.area.contains(x, y)) {
             worldKid = k;
             break;
           }
@@ -326,7 +326,7 @@ public class PresenceMap implements Session.Saveable {
       
       //  For a given node level, iterate across all children and calculate the
       //  probability of visiting those.
-      final WorldSection quadKids[] = node.section.kids;
+      final StageSection quadKids[] = node.section.kids;
       final boolean leaf = node.section.depth == 0;
       float weights[] = new float[node.size()], sumWeights = 0;
       

@@ -33,7 +33,7 @@ public class Ruins extends Venue {
   private static int NI = (int) (Rand.unseededNum() * 3);
   
   final static int
-    MIN_RUINS_SPACING = (int) (Stage.SECTOR_SIZE * 1.5f);
+    MIN_RUINS_SPACING = (int) (Stage.SECTOR_SIZE * 0.75f);
   
   
   public Ruins(Base base) {
@@ -61,8 +61,18 @@ public class Ruins extends Venue {
     */
   public Behaviour jobFor(Actor actor) {
     //  TODO:  Fill this in?
-    
     return null;
+  }
+  
+  
+  protected Box2D areaClaimed() {
+    return new Box2D(footprint()).expandBy(MIN_RUINS_SPACING);
+  }
+  
+  
+  public boolean preventsClaimBy(Venue other) {
+    if (other instanceof Ruins) return false;
+    return super.preventsClaimBy(other);
   }
   
   
@@ -180,7 +190,7 @@ public class Ruins extends Venue {
     //  referring to terrain variation.
     float spaceLevel = structure.repairLevel();
     spaceLevel *= 1 + world.terrain().varAt(origin());
-    spaceLevel *= 1f / WorldTerrain.TILE_VAR_LIMIT;
+    spaceLevel *= 1f / StageTerrain.TILE_VAR_LIMIT;
     
     int numLiving = 0;
     for (Actor a : staff.residents()) if (a.species() == s) numLiving++;

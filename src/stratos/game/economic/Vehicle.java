@@ -179,12 +179,21 @@ public abstract class Vehicle extends Mobile implements
 
   /**  Assigning jobs to crew members-
     */
+  public void addTasks(Choice choice, Actor forActor, Background background) {
+  }
+  /*
   public Behaviour jobFor(Actor actor) {
     return null;
   }
+  //*/
   
   
-  public void addServices(Choice actor, Actor forActor) {}
+  public float crowdRating(Actor forActor, Background b) {
+    return 1;
+  }
+  
+  
+  //public void addServices(Choice actor, Actor forActor) {}
   public Background[] careers() { return null; }
   
   
@@ -198,10 +207,11 @@ public abstract class Vehicle extends Mobile implements
     staff.setApplicant(app, is);
   }
   
-  
+  /*
   public int numOpenings(Background b) {
     return 0;
   }
+  //*/
   
   
   public boolean isManned() {

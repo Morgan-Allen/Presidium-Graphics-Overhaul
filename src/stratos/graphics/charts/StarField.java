@@ -421,7 +421,7 @@ public class StarField extends Assets.Loadable {
     piece[v++] = offY;
     piece[v++] = 0;
     //  Color and texture coordinates-
-    piece[v++] = c.bitValue;
+    piece[v++] = c.floatBits;
     piece[v++] = tu;
     piece[v++] = tv;
     compiled.appendVertex(piece);

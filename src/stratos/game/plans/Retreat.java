@@ -74,7 +74,8 @@ public class Retreat extends Plan implements Qualities {
     final boolean emergency = actor.senses.isEmergency();
     
     float danger = Nums.max(
-      actor.senses.fearLevel(), Plan.dangerPenalty(actor, actor)
+      actor.senses.fearLevel(),
+      Plan.dangerPenalty(actor, actor)
     ) + actor.health.injuryLevel();
     float bonus = 0;
     

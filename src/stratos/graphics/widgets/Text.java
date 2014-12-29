@@ -235,7 +235,7 @@ public class Text extends UINode implements Description {
   
   
   public void cancelBullet() {
-    //  TODO:  Get rid of the indent effect associated with the last image?
+    insert(ImageAsset.WHITE_TEX(), 0, true);
   }
   
   
@@ -407,11 +407,12 @@ public class Text extends UINode implements Description {
     boolean
       newWord,
       newLine;
+    Box2D
+      bullet = null;
     float
       across     = 0,
       down       = 0,
-      lineHigh   = 0,
-      marginWide = 0;
+      lineHigh   = 0;
     final Batch <Box2D>
       lastLine = new Batch <Box2D> (),
       lastWord = new Batch <Box2D> ();
@@ -424,9 +425,14 @@ public class Text extends UINode implements Description {
         final UIEntry entry = (UIEntry) box;
         entry.xdim(entry.wide);
         entry.ydim(entry.high);
-        if (entry.bullet) marginWide = entry.xdim();
+        
+        if (entry.bullet) {
+          if (bullet != null) down = Nums.min(down, bullet.ypos());
+          bullet = entry;
+        }
         if (report) I.say("  UI entry: "+entry.graphic+", across: "+across);
       }
+      
       else if (box instanceof TextEntry) {
         final TextEntry entry = (TextEntry) box;
         final char key = entry.key;
@@ -450,9 +456,9 @@ public class Text extends UINode implements Description {
       }
       
       if (newLine) {
-        lineHigh = formatLine(lastLine, marginWide, down);
+        lineHigh = formatLine(lastLine, 0, down, bullet);
         down -= lineHigh;
-        across = marginWide;
+        across = 0;
         for (Box2D entry : lastWord) across += entry.xdim();
         lastLine.clear();
       }
@@ -460,7 +466,7 @@ public class Text extends UINode implements Description {
     //
     //  Clean up any remainders-
     if (lastWord.size() > 0) Visit.appendTo(lastLine, lastWord);
-    if (lastLine.size() > 0) formatLine(lastLine, marginWide, down);
+    if (lastLine.size() > 0) formatLine(lastLine, 0, down, bullet);
     //
     //  We now reposition entries to fit the window, and update the full bounds.
     fullSize.set(0, 0, 0, 0);
@@ -473,21 +479,25 @@ public class Text extends UINode implements Description {
   }
   
   
-  private float formatLine(Batch <Box2D> entries, float minX, float minY) {
+  private float formatLine(
+    Batch <Box2D> entries, float minX, float minY, Box2D lastBullet
+  ) {
     
     final boolean report = verbose;
     final Box2D head = entries.first();
     if (head == null) return 0;
+    final boolean bulleted = head == lastBullet;
     
-    float across = 0, down = alphabet.letterFor(' ').height * scale;
-    boolean bulleted = false;
-    if (head instanceof UIEntry) bulleted = ((UIEntry) head).bullet;
-    
+    float across = lastBullet == null ? 0 : lastBullet.xdim();
+    float down   = alphabet.letterFor(' ').height * scale;
     for (Box2D entry : entries) {
       if (bulleted && entry == head) continue;
       down = Nums.max(down, entry.ymax());
     }
-    if (bulleted) { head.ypos(down - head.ydim()); across -= head.xdim(); }
+    if (bulleted) {
+      head.ypos(down - head.ydim());
+      across -= head.xdim();
+    }
     
     if (report) {
       I.say("\nFormatting string, size: "+entries.size());

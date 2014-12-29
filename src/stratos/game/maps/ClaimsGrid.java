@@ -24,6 +24,7 @@ public class ClaimsGrid {
   final Stage world;
   final Table <Venue, Claim> venueClaims;
   final List <Claim> areaClaims[][];
+  final Base         baseClaims[][];
   
   
   static class Claim {
@@ -35,9 +36,10 @@ public class ClaimsGrid {
   
   public ClaimsGrid(Stage world) {
     this.world = world;
-    this.venueClaims = new Table <Venue, Claim> ();
     final int NS = world.size / world.sections.resolution;
+    this.venueClaims = new Table <Venue, Claim> (NS * NS * 4);
     this.areaClaims = new List[NS][NS];
+    this.baseClaims = new Base[NS][NS];
   }
   
   
@@ -49,6 +51,10 @@ public class ClaimsGrid {
         temp.loadFrom(s.input())
       );
     }
+    final int NS = world.size / world.sections.resolution;
+    for (Coord c : Visit.grid(0, 0, NS, NS, 1)) {
+      baseClaims[c.x][c.y] = (Base) s.loadObject();
+    }
   }
   
   
@@ -59,6 +65,21 @@ public class ClaimsGrid {
       s.saveObject(v);
       c.area.saveTo(s.output());
     }
+    final int NS = world.size / world.sections.resolution;
+    for (Coord c : Visit.grid(0, 0, NS, NS, 1)) {
+      s.saveObject(baseClaims[c.x][c.y]);
+    }
+  }
+  
+  
+  
+  /**  Methods for querying base-ownership:
+    */
+  //  TODO:  Is there any way to make this more precise?  Based off the danger-
+  //  map, say?
+  public Base baseClaiming(Tile t) {
+    final StageSection s = world.sections.sectionAt(t.x, t.y);
+    return baseClaims[s.x][s.y];
   }
   
   
@@ -84,7 +105,7 @@ public class ClaimsGrid {
       I.say("  Area checked: "+area);
     }
     
-    for (WorldSection s : world.sections.sectionsUnder(area)) {
+    for (StageSection s : world.sections.sectionsUnder(area)) {
       final List <Claim> claims = areaClaims[s.x][s.y];
       
       if (claims != null) for (Claim claim : claims) {
@@ -122,15 +143,17 @@ public class ClaimsGrid {
       I.say("  Area claimed: "+area);
     }
     
+    final Base belongs = owner.base();
     final Claim newClaim = new Claim();
     newClaim.area.setTo(area);
     newClaim.owner = owner;
     if (owner != null) venueClaims.put(owner, newClaim);
     
-    for (WorldSection s : world.sections.sectionsUnder(area)) {
+    for (StageSection s : world.sections.sectionsUnder(area)) {
       List <Claim> claims = areaClaims[s.x][s.y];
       if (claims == null) areaClaims[s.x][s.y] = claims = new List <Claim> ();
       claims.add(newClaim);
+      baseClaims[s.x][s.y] = belongs;
       if (report) I.say("  Registering in section: "+s);
     }
     
@@ -154,7 +177,7 @@ public class ClaimsGrid {
   
   
   private void removeClaim(Claim claim, boolean report) {
-    for (WorldSection s : world.sections.sectionsUnder(claim.area)) {
+    for (StageSection s : world.sections.sectionsUnder(claim.area)) {
       final List <Claim> claims = areaClaims[s.x][s.y];
       claims.remove(claim);
       if (claims.size() == 0) areaClaims[s.x][s.y] = null;

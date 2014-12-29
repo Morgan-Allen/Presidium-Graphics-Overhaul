@@ -78,9 +78,12 @@ public class KommandoLodge extends Venue {
   }
   
   
-  public float homeCrowding(Actor actor) {
-    if (! staff.isWorker(actor)) return super.homeCrowding(actor);
-    return 0;
+  public float crowdRating(Actor actor, Background background) {
+    if (background == Backgrounds.AS_RESIDENT) {
+      if (! staff.isWorker(actor)) return 1;
+      return 0;
+    }
+    else return super.crowdRating(actor, background);
   }
   
   
@@ -168,10 +171,12 @@ public class KommandoLodge extends Venue {
       choice.add(e);
     }
     
-    //  TODO:  You'll also need to import carbs/greens and export protein/spyce,
-    //  so that the residents can eat.  (That, or find a better way to site
-    //  those tents.)
-    
+    final float food = stocks.amountOf(CARBS) + stocks.amountOf(GREENS);
+    if (food < 10) {
+      final Foraging f = new Foraging(actor, this);
+      f.setMotive(Plan.MOTIVE_DUTY, ((10 - food) / 10) * Plan.ROUTINE);
+      choice.add(f);
+    }
     //  TODO:  Add mounting behaviours, massed raiding against specified
     //  enemies, and placing their skins as a warning.  (And possibly animal
     //  breeding for mounts?)  Hunting, certainly.

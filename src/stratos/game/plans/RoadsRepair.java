@@ -91,7 +91,7 @@ public class RoadsRepair extends Plan {
     */
   protected Behaviour getNextStep() {
     final boolean report = eventsVerbose && I.talkAbout == actor;
-    final WorldTerrain t = actor.world().terrain();
+    final StageTerrain t = actor.world().terrain();
     
     if (report) {
       I.say("\nCurrent tile: "+around);
@@ -140,7 +140,7 @@ public class RoadsRepair extends Plan {
     if (! map.needsPaving(t)) return false;
     if (t.owningType() > Element.ELEMENT_OWNS) return false;
     //  TODO:  Deduct credits (or materials?)
-    PavingMap.setPaveLevel(t, WorldTerrain.ROAD_LIGHT, true );
+    PavingMap.setPaveLevel(t, StageTerrain.ROAD_LIGHT, true );
     return true;
   }
   
@@ -149,7 +149,7 @@ public class RoadsRepair extends Plan {
     if (! map.needsPaving(t)) return false;
     if (t.owningType() > Element.ELEMENT_OWNS) return false;
     //  TODO:  Reclaim credits (or materials?)
-    PavingMap.setPaveLevel(t, WorldTerrain.ROAD_NONE , false);
+    PavingMap.setPaveLevel(t, StageTerrain.ROAD_NONE , false);
     return true;
   }
   

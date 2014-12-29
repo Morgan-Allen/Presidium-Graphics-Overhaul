@@ -5,12 +5,14 @@
   */
 
 
-
+//*
 package stratos.game.maps;
 import stratos.game.common.*;
 import stratos.util.*;
 
 
+
+//  TODO:  I think the BaseSetup class has this covered now.  Delete shortly.
 
 public abstract class SitingPass {
   
@@ -61,6 +63,6 @@ public abstract class SitingPass {
   protected abstract boolean createSite(Tile centre);
 }
 
-
+//*/
 
 

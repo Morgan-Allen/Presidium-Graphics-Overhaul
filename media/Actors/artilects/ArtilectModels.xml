@@ -93,15 +93,19 @@
   stride="1.5"
   height="2.5"
 >
-  <animations rotate="90" fps="1">
-  
-    <animation name="build"       start="1"   end="278" duration="1" />
-    <animation name="carry"       start="287" end="506" duration="1" />
-    <animation name="walk"        start="516" end="575" duration="1" />
+  <animations rotate="90" fps="30">
+    <animation name="attack" start="0"   end="40"  duration="1" />
+    <animation name="build"  start="41"  end="235" duration="1" />
+    <animation name="carry"  start="302" end="555" duration="1" />
+    <animation name="fire"   start="587" end="637" duration="1" />
+    <animation name="idle"   start="638" end="668" duration="1" />
+    <animation name="look"   start="669" end="836" duration="1" />
+    <animation name="walk"   start="837" end="897" duration="1" />
+    <animation name="die"    start="898" end="973" duration="1" />
   </animations>
   
   <attachPoints>
-    <attachPoint function="fire" joint="head"/>
+    <attachPoint function="fire"   joint="head"/>
     <attachPoint function="target" joint="head"/>
   </attachPoints>
 </model>

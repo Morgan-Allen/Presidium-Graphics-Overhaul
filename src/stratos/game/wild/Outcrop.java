@@ -3,7 +3,7 @@
 
 package stratos.game.wild;
 import stratos.game.common.*;
-import stratos.game.maps.WorldTerrain;
+import stratos.game.maps.StageTerrain;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
@@ -182,7 +182,7 @@ public class Outcrop extends Fixture {
   
   
   public float mineralAmount() {
-    return condition * bulk() * WorldTerrain.MAX_MINERAL_AMOUNT / 2f;
+    return condition * bulk() * StageTerrain.MAX_MINERAL_AMOUNT / 2f;
   }
   
   

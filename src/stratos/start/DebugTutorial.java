@@ -10,7 +10,6 @@ import stratos.user.*;
 import stratos.util.*;
 
 
-
 //  TODO:  Test the stock exchange, and re-introduce the arcology & edifice.
 
 //  Assign drills directly at the trooper lodge.  That'll keep 'em busy!
@@ -20,23 +19,24 @@ import stratos.util.*;
 
 //  Ideally, hiring arrangements should have some kind of progress meter.
 
-//  TODO:  Introduce hunting by the natives, and allow trading with them as a
-//  source of carbs/greens/protein.  (Also, add singer performance?)  ...Just
-//  make them less static/idle, I guess.
-
 //  TODO:  Retreat should have the possibility to break pursuit as well.
 //         Indoor combats take way too long.  (However, the SFX being shown
 //         might be a clue to sprite-flickering in odd locations.  Consider
 //         studying it for that reason?)
 
-//  TODO:  Also, animals should react more strongly to strangers (either fight
-//         or flee.)
+//  TODO:  Also, animals should react more strongly to strangers (either fight,
+//         talk or flee.)  Maybe natives too?
+
+//  TODO:  Introduce hunting by the natives, and allow trading with them as a
+//  source of carbs/greens/protein.  (Also, add singer performance?)  ...Just
+//  make them less static/idle, I guess.
 
 //  Introduce a finance-report UI!  And try to get all the details.
 //  Try to arrange that actors will seek out new Holdings if anything existing
 //  is at or above half crowding.
 //  Rework art for roads, the shield wall, the physician station, the engineer
 //  station, the solar bank, and the archives.
+
 
 public class DebugTutorial extends TutorialScenario {
   

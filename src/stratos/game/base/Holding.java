@@ -296,32 +296,42 @@ public class Holding extends Venue {
   }
   
   
-  public Behaviour jobFor(Actor actor) {
-    final Traded goods[] = goodsNeeded();
-    
-    //  TODO:  Include special orders for servants/minders?
-    
-    //  First of all, deliver any goods that you yourself are carrying-
-    for (Traded s : goods) for (Item i : actor.gear.matches(s)) {
-      if (i.refers == null || i.refers == actor) {
-        final Delivery d = new Delivery(i, actor, this);
-        d.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL);
-        return d;
+  public void addTasks(Choice choice, Actor actor, Background background) {
+    if (background == Backgrounds.AS_RESIDENT) {
+      final Traded goods[] = goodsNeeded();
+      
+      //  First of all, deliver any goods that you yourself are carrying-
+      for (Traded s : goods) for (Item i : actor.gear.matches(s)) {
+        if (i.refers == null || i.refers == actor) {
+          final Delivery d = new Delivery(i, actor, this);
+          d.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL);
+          choice.add(d);
+          return;
+        }
       }
+      
+      //  Otherwise, see if it's possible to make any purchases nearby-
+      final Delivery d = DeliveryUtils.bestBulkCollectionFor(
+        this, goods, 1, 5, 5
+      );
+      if (d != null) choice.add(d.withPayment(actor, true));
     }
-    
-    //  Otherwise, see if it's possible to make any purchases nearby-
-    final Delivery d = DeliveryUtils.bestBulkCollectionFor(
-      this, goods, 1, 5, 5
-    );
-    if (d != null) return d.withPayment(actor, true);
-    else return null;
+    else super.addTasks(choice, actor, background);
   }
   
   
-  public float homeCrowding(Actor actor) {
-    final int maxPop = HoldingUpgrades.OCCUPANCIES[upgradeLevel];
-    return staff.residents().size() * 1f / maxPop;
+  protected Behaviour jobFor(Actor actor) {
+    //  TODO:  Include special orders for servants/minders?
+    return null;
+  }
+  
+  
+  public float crowdRating(Actor actor, Background background) {
+    if (background == Backgrounds.AS_RESIDENT) {
+      final int maxPop = HoldingUpgrades.OCCUPANCIES[upgradeLevel];
+      return staff.residents().size() * 1f / maxPop;
+    }
+    else return super.crowdRating(actor, background);
   }
   
   

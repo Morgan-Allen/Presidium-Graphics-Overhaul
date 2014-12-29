@@ -48,7 +48,8 @@ public class Colour {
     RGB_BITS   = 0x00ffffff;
   
   public float r = 1, g = 1, b = 1, a = 1;
-  public float bitValue;
+  public float floatBits;
+  public int   rgbaBits;
   
   
   public Colour() {
@@ -85,8 +86,8 @@ public class Colour {
   
   /**  Helper methods for format conversion-
     */
-  public void calcBitValue() {
-    bitValue = toFloatBits();
+  public void calcFloatBits() {
+    floatBits = toFloatBits();
   }
   
   private float toFloatBits() {
@@ -101,7 +102,7 @@ public class Colour {
   
   
   public int getRGBA() {
-    return
+    return rgbaBits =
       ((int) (255 * a) << 0 ) |
       ((int) (255 * b) << 8 ) |
       ((int) (255 * g) << 16) |
@@ -114,7 +115,7 @@ public class Colour {
     g = ((value >> 16) & 0xff) / 255f;
     b = ((value >> 8 ) & 0xff) / 255f;
     a = ((value >> 0 ) & 0xff) / 255f;
-    bitValue = toFloatBits();
+    floatBits = toFloatBits();
   }
   
   
@@ -131,7 +132,7 @@ public class Colour {
     g = colour.g;
     b = colour.b;
     a = colour.a;
-    bitValue = toFloatBits();
+    floatBits = toFloatBits();
     return this;
   }
   
@@ -157,7 +158,7 @@ public class Colour {
     g = gc;
     b = bc;
     a = ac;
-    bitValue = toFloatBits();
+    floatBits = toFloatBits();
     return this;
   }
 
@@ -173,7 +174,7 @@ public class Colour {
       b *= v / val;
     } else
       r = g = b = v;
-    bitValue = toFloatBits();
+    floatBits = toFloatBits();
     return this;
   }
 
@@ -240,7 +241,7 @@ public class Colour {
     g = (((bytes >> 8) & 0xff) / 255f);
     b = (((bytes >> 0) & 0xff) / 255f);
     a = 1;
-    bitValue = toFloatBits();
+    floatBits = toFloatBits();
     return this;
   }
   
@@ -276,8 +277,8 @@ public class Colour {
   
   public static float combineAlphaBits(Colour base, Colour alpha) {
     return Float.intBitsToFloat(
-      (Float.floatToRawIntBits(base .bitValue) & RGB_BITS  ) |
-      (Float.floatToRawIntBits(alpha.bitValue) & ALPHA_BITS)
+      (Float.floatToRawIntBits(base .floatBits) & RGB_BITS  ) |
+      (Float.floatToRawIntBits(alpha.floatBits) & ALPHA_BITS)
     );
   }
   

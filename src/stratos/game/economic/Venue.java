@@ -27,11 +27,6 @@ public abstract class Venue extends Structural implements
   
   /**  Field definitions, constants, constructors, and save/load methods.
     */
-  final protected static String
-    CAT_STATUS   = "STATUS",
-    CAT_STAFF    = "STAFF",
-    CAT_STOCK    = "STOCK",
-    CAT_UPGRADES = "UPGRADES";
   final public static int
     ENTRANCE_NONE  = -1,
     ENTRANCE_NORTH =  N / 2,
@@ -346,11 +341,6 @@ public abstract class Venue extends Structural implements
   
   /**  Recruiting staff and assigning manufacturing tasks-
     */
-  public int numOpenings(Background v) {
-    return structure.upgradeBonus(v) - staff.numHired(v);
-  }
-  
-  
   public boolean isManned() {
     for (Actor a : staff.workers) {
       if (a.health.conscious() && a.aboard() == this) return true;
@@ -359,27 +349,49 @@ public abstract class Venue extends Structural implements
   }
   
   
-  public float visitCrowding(Actor actor) {
-    float crowding = 0;
-    for (Mobile m : inside()) {
-      if (m instanceof Actor) {
-        if (((Actor) m).mind.work() == this) continue;
-      }
-      crowding++;
+  public float crowdRating(Actor forActor, Background background) {
+    if (background == Backgrounds.AS_RESIDENT) {
+      return 1;
     }
-    crowding /= ((size * 2) + 1);
-    return crowding;
+    else if (background == Backgrounds.AS_VISITOR) {
+      float crowding = 0;
+      for (Mobile m : inside()) {
+        if (m instanceof Actor) {
+          if (((Actor) m).mind.work() == this) continue;
+        }
+        crowding++;
+      }
+      crowding /= ((size * 2) + 1);
+      return crowding;
+    }
+    else {
+      int openings = numOpenings(background);
+      int hired = staff.numHired(background);
+      return hired * 1f / openings;
+    }
   }
   
   
-  public float homeCrowding(Actor actor) {
-    return 1;
+  protected int numOpenings(Background b) {
+    return structure.upgradeBonus(b);
   }
   
   
-  public abstract Background[] careers();
-  public abstract Traded[] services();
-  public void addServices(Choice choice, Actor forActor) {}
+  public void addTasks(Choice choice, Actor actor, Background background) {
+    if (background == Backgrounds.AS_RESIDENT) {
+      return;
+    }
+    else if (background == Backgrounds.AS_VISITOR) {
+      addServices(choice, actor);
+    }
+    else {
+      choice.add(jobFor(actor));
+    }
+  }
+  
+  
+  protected void addServices(Choice choice, Actor forActor) {}
+  protected Behaviour jobFor(Actor actor) { return null; }
   
   
   
@@ -507,4 +519,29 @@ public abstract class Venue extends Structural implements
 
 
 
+
+
+/*
+protected int numOpenings(Background v) {
+  return structure.upgradeBonus(v) - staff.numHired(v);
+}
+//*/
+/*
+public float visitCrowding(Actor actor) {
+  float crowding = 0;
+  for (Mobile m : inside()) {
+    if (m instanceof Actor) {
+      if (((Actor) m).mind.work() == this) continue;
+    }
+    crowding++;
+  }
+  crowding /= ((size * 2) + 1);
+  return crowding;
+}
+
+
+public float homeCrowding(Actor actor) {
+  return 1;
+}
+//*/
 

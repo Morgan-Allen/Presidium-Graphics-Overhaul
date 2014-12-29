@@ -65,23 +65,19 @@ public class TutorialScenario extends StartupScenario {
     config.house = Sectors.PLANET_HALIBAN;
     config.gender = null;
     
-    config.siteLevel  = SITE_WILDERNESS;
-    config.titleLevel = TITLE_KNIGHTED;
+    config.siteLevel  = SITE_WILDERNESS ;
+    config.titleLevel = TITLE_KNIGHTED  ;
     config.fundsLevel = FUNDING_GENEROUS;
     
-    //  TODO:  Don't need this if hiring is free...
-    /*
-    config.numCrew.put(Backgrounds.VETERAN   , 2);
-    config.numCrew.put(Backgrounds.TECHNICIAN, 2);
+    config.numCrew.put(Backgrounds.TROOPER   , 2);
+    config.numCrew.put(Backgrounds.TECHNICIAN, 3);
     config.numCrew.put(Backgrounds.AUDITOR   , 1);
-    config.numCrew.put(Backgrounds.CULTIVATOR, 3);
-    //*/
+    //config.numCrew.put(Backgrounds.CULTIVATOR, 3);
     return config;
   }
   
   
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
-    GameSettings.hireFree = true;
     super.configureScenario(world, base, UI);
   }
   

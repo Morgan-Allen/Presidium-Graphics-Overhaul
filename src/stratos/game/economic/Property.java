@@ -17,20 +17,26 @@ import stratos.game.economic.*;
 //  Venue and Vehicle are both Properties (citizens can live and work there,
 //  they can be constructed or repaired, and they have stock inventories.)
 
-
 public interface Property extends Structure.Basis, Inventory.Owner, Boarding {
   
-  Behaviour jobFor(Actor actor);  //  TODO:  At least use the same signature...
-  void addServices(Choice choice, Actor forActor);
-  
-  int numOpenings(Background b);
+  void addTasks(Choice choice, Actor forActor, Background background);
+  float crowdRating(Actor forActor, Background background);
   Background[] careers();
+  Traded[] services();  //  TODO:  Use Conversions instead...
   
-  float homeCrowding(Actor actor);
-  float visitCrowding(Actor actor);
-  
-  Traded[] services();  //  TODO:  Use Conversions instead.
   Staff staff();
   boolean isManned();
   Boarding mainEntrance();
 }
+
+
+
+
+
+
+
+
+
+
+
+

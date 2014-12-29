@@ -42,14 +42,14 @@ public class Stage {
   
   final public int size;
   final Tile tiles[][];
-  final public WorldSections sections;
+  final public StageSections sections;
   final public ClaimsGrid claims;
   
   final public Schedule schedule;
   private float currentTime = DEFAULT_INIT_TIME;
   private List <Mobile> mobiles = new List <Mobile> ();
   
-  private WorldTerrain terrain;
+  private StageTerrain terrain;
   private Ecology ecology;
   private List <Base> bases = new List <Base> ();
   final public Offworld offworld = new Offworld();
@@ -66,7 +66,7 @@ public class Stage {
     for (Coord c : Visit.grid(0, 0, size, size, 1)) {
       tiles[c.x][c.y] = new Tile(this, c.x, c.y);
     }
-    sections = new WorldSections(this, PATCH_RESOLUTION);
+    sections = new StageSections(this, PATCH_RESOLUTION);
     claims   = new ClaimsGrid(this);
     schedule = new Schedule(currentTime);
     
@@ -78,7 +78,7 @@ public class Stage {
   }
   
   
-  public Stage(WorldTerrain terrain) {
+  public Stage(StageTerrain terrain) {
     this(terrain.mapSize);
     this.terrain = terrain;
     terrain.initTerrainMesh(Habitat.ALL_HABITATS);
@@ -95,7 +95,7 @@ public class Stage {
     currentTime = s.loadFloat();
     schedule.loadFrom(s);
     
-    terrain = (WorldTerrain) s.loadObject();
+    terrain = (StageTerrain) s.loadObject();
     terrain.initTerrainMesh(Habitat.ALL_HABITATS);
     ecology.loadState(s);
     s.loadObjects(bases);
@@ -266,7 +266,7 @@ public class Stage {
   
   /**  Other query methods/accessors-
     */
-  public WorldTerrain terrain() {
+  public StageTerrain terrain() {
     return terrain;
   }
   
@@ -306,8 +306,8 @@ public class Stage {
   }
   
   
-  public Batch <WorldSection> visibleSections(Rendering rendering) {
-    final Batch <WorldSection> visibleSections = new Batch <WorldSection> ();
+  public Batch <StageSection> visibleSections(Rendering rendering) {
+    final Batch <StageSection> visibleSections = new Batch <StageSection> ();
     sections.compileVisible(rendering.view, null, visibleSections, null);
     return visibleSections;
   }
@@ -322,7 +322,7 @@ public class Stage {
     //
     //  First, we obtain lists of all current visible fixtures, actors, and
     //  terrain sections.
-    final Batch <WorldSection> visibleSections = new Batch <WorldSection> ();
+    final Batch <StageSection> visibleSections = new Batch <StageSection> ();
     final List <Visible> allVisible = new List <Visible> () {
       protected float queuePriority(Visible e) {
         return e.sprite().depth;
@@ -383,12 +383,12 @@ public class Stage {
   
   
   protected void renderTerrain(
-    Batch <WorldSection> sections, Rendering rendering, Base base
+    Batch <StageSection> sections, Rendering rendering, Base base
   ) {
     final float renderTime = timeMidRender();
     if (verbose) I.say("Render time: "+renderTime);
     terrain.readyAllMeshes();
-    for (WorldSection section : sections) {
+    for (StageSection section : sections) {
       terrain.renderFor(section.area, rendering, renderTime);
     }
     if (base != null && ! GameSettings.fogFree) {

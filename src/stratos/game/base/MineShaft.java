@@ -13,7 +13,7 @@ import stratos.game.maps.*;
 import stratos.game.plans.*;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
-import static stratos.game.maps.WorldTerrain.*;
+import static stratos.game.maps.StageTerrain.*;
 
 
 

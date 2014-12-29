@@ -18,7 +18,7 @@ public class Ephemera {
   final Stage world;
   
   private Colour fadeColour = null;
-  final Table <WorldSection, List <Ghost>> ghosts = new Table(100);
+  final Table <StageSection, List <Ghost>> ghosts = new Table(100);
   
   
   protected Ephemera(Stage world) {
@@ -59,14 +59,16 @@ public class Ephemera {
   static class Ghost implements Stage.Visible {
     
     int size;
-    Element tracked = null;
+    Target tracked = null;
     float inceptTime;
     Sprite sprite;
     float duration = 2.0f;
     
     
     public void renderFor(Rendering r, Base b) {
-      sprite.fog = tracked == null ? 1 : tracked.fogFor(b);
+      sprite.fog = (tracked instanceof Element) ?
+        ((Element) tracked).fogFor(b) :
+        (tracked == null ? 1 : b.intelMap.fogAt(tracked));
       sprite.readyFor(r);
     }
     
@@ -77,7 +79,7 @@ public class Ephemera {
   }
   
   
-  public Ghost addGhost(Element e, float size, Sprite s, float duration) {
+  public Ghost addGhost(Target e, float size, Sprite s, float duration) {
     if (s == null) return null;
     final Ghost ghost = new Ghost();
     ghost.size = (int) Nums.ceil(size);
@@ -87,8 +89,8 @@ public class Ephemera {
     ghost.tracked = e;
     
     final Vec3D p = s.position;
-    if (e != null) e.viewPosition(p);
-    final WorldSection section = world.sections.sectionAt((int) p.x, (int) p.y);
+    if (e != null) e.position(p);
+    final StageSection section = world.sections.sectionAt((int) p.x, (int) p.y);
     List <Ghost> SG = ghosts.get(section);
     if (SG == null) ghosts.put(section, SG = new List <Ghost> ());
     SG.add(ghost);
@@ -96,10 +98,17 @@ public class Ephemera {
   }
   
   
-  public Ghost matchGhost(Element e, ModelAsset m) {
-    final Vec3D p = e.sprite().position;
-    final WorldSection section = world.sections.sectionAt((int) p.x, (int) p.y);
+  public Sprite matchSprite(Target e, ModelAsset key) {
+    final Ghost match = matchGhost(e, key);
+    return match == null ? null : match.sprite();
+  }
+  
+  
+  public Ghost matchGhost(Target e, ModelAsset m) {
+    final Vec3D p = e.position(null);
+    final StageSection section = world.sections.sectionAt((int) p.x, (int) p.y);
     List <Ghost> SG = ghosts.get(section);
+    
     Ghost match = null;
     if (SG != null) for (Ghost g : SG) {
       if (g.tracked == e && g.sprite.model() == m) { match = g; break; }
@@ -108,7 +117,7 @@ public class Ephemera {
   }
   
   
-  public void updateGhost(Element e, float size, ModelAsset m, float duration) {
+  public void updateGhost(Target e, float size, ModelAsset m, float duration) {
     //
     //  Search to see if a ghost exists in this area attached to the same
     //  element and using the same sprite-model.  If so, turn back the incept
@@ -120,12 +129,22 @@ public class Ephemera {
   
   
   private void trackElement(
-    Ghost ghost, WorldSection oldSection, List <Ghost> SG
+    Ghost ghost, StageSection oldSection, List <Ghost> SG, Base base
   ) {
+    if (! (ghost.tracked instanceof Mobile)) return;
+    
     final Vec3D p = ghost.sprite.position;
-    ghost.tracked.viewPosition(p);
-    if (ghost.sprite instanceof SFX) p.z += ghost.tracked.height() / 2f;
-    final WorldSection section = world.sections.sectionAt((int) p.x, (int) p.y);
+    final Mobile m = (Mobile) ghost.tracked;
+    if (! m.visibleTo(base)) return;
+    
+    m.viewPosition(p);
+    
+    //  TODO:  Try to make this a bit more consistent
+    if (ghost.sprite instanceof SFX) {
+      p.z += ghost.tracked.height() / 2f;
+    }
+    
+    final StageSection section = world.sections.sectionAt((int) p.x, (int) p.y);
     if (section == oldSection) return;
     SG.remove(ghost);
     SG = ghosts.get(section);
@@ -138,7 +157,7 @@ public class Ephemera {
     final Batch <Ghost> results = new Batch <Ghost> ();
     final float timeNow = world.timeMidRender();
     
-    for (WorldSection section : world.visibleSections(rendering)) {
+    for (StageSection section : world.visibleSections(rendering)) {
       final List <Ghost> SG = ghosts.get(section);
       if (SG != null) for (Ghost ghost : SG) {
         final float
@@ -150,15 +169,10 @@ public class Ephemera {
           continue;
         }
         else {
+          trackElement(ghost, section, SG, base);
           final Sprite s = ghost.sprite;
           if (! rendering.view.intersects(s.position, ghost.size)) continue;
           s.colour = Colour.transparency((duration - timeGone) / duration);
-          
-          if (ghost.tracked != null) {
-            if (! ghost.tracked.visibleTo(base)) continue;
-            s.fog = ghost.tracked.fogFor(base);
-            trackElement(ghost, section, SG);
-          }
           results.add(ghost);
         }
       }

@@ -10,26 +10,27 @@ import stratos.game.plans.*;
 import stratos.game.politic.*;
 import stratos.game.base.*;
 import stratos.game.wild.*;
+import stratos.graphics.common.Colour;
 import stratos.user.*;
 import stratos.util.*;
 
 
 
 
-public class DebugPlans extends Scenario {
+public class DebugSocial extends Scenario {
   
   
   public static void main(String args[]) {
-    PlayLoop.setupAndLoop(new DebugPlans());
+    PlayLoop.setupAndLoop(new DebugSocial());
   }
   
   
-  private DebugPlans() {
+  private DebugSocial() {
     super();
   }
   
   
-  public DebugPlans(Session s) throws Exception {
+  public DebugSocial(Session s) throws Exception {
     super(s);
   }
   
@@ -66,7 +67,7 @@ public class DebugPlans extends Scenario {
   
   
   protected Base createBase(Stage world) {
-    return Base.baseWithName(world, "Player Base", false);
+    return Base.withName(world, "Player Base", Colour.BLUE);
   }
   
   
@@ -158,21 +159,26 @@ public class DebugPlans extends Scenario {
   
   
   private void configDialogueScenario(Stage world, Base base, BaseUI UI) {
-    //GameSettings.fogFree = true;
-    GameSettings.noBlood = true;
+    GameSettings.noBlood  = true;
     GameSettings.hireFree = true;
+    GameSettings.fogFree  = true;
     
+    /*
     final EngineerStation venue = new EngineerStation(base);
     Placement.establishVenue(venue, world.tileAt(4, 4), true, world);
     venue.stocks.bumpItem(Economy.PARTS, 10);
+    //*/
     
     Actor citizen = null, other = null;
     for (int n = 2; n-- > 0;) {
       citizen = new Human(Backgrounds.CULTIVATOR, base);
-      citizen.enterWorldAt(venue, world);
+      citizen.enterWorldAt(2 + n, 3 + n, world);
       if (other == null) other = citizen;
     }
     
+    final Dialogue d = new Dialogue(citizen, other);
+    d.setMotive(Plan.MOTIVE_LEISURE, Plan.CASUAL);
+    citizen.mind.assignBehaviour(d);
     UI.selection.pushSelection(citizen, true);
     
     //  TODO:  RE-TEST THIS

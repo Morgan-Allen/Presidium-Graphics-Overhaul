@@ -133,25 +133,27 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   
   /**  Economic and behavioural functions-
     */
-  public Behaviour jobFor(Actor actor) {
+  public void addTasks(Choice choice, Actor actor, Background b) {
+    if (b == Backgrounds.AS_RESIDENT || b == Backgrounds.AS_VISITOR) return;
+    
     final boolean report = verbose && (
       I.talkAbout == actor || I.talkAbout == this
     );
     if (report) I.say("\nGetting next dropship job for "+actor);
     
-    if (actor.isDoing(Delivery.class, null)) return null;
+    if (actor.isDoing(Delivery.class, null)) return;
     
     if (stage >= STAGE_BOARDING) {
       final Smuggling boarding = new Smuggling(actor, null, this, new Item[0]);
       boarding.setMotive(Plan.MOTIVE_EMERGENCY, Plan.PARAMOUNT);
-      return boarding;
+      choice.add(boarding);
+      return;
     }
     
     final Batch <Venue> depots = DeliveryUtils.nearbyDepots(
       this, world, SERVICE_COMMERCE
     );
     final Commerce c = this.base.commerce;
-    final Choice choice = new Choice(actor);
     
     choice.add(DeliveryUtils.bestExportDelivery(this, depots, 10));
     choice.add(DeliveryUtils.bestImportDelivery(this, depots, 10));
@@ -161,28 +163,26 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     
     final Traded goods[] = c.globalSurpluses();
     choice.add(DeliveryUtils.bestBulkDeliveryFrom (this, goods, 1, 10, 2));
-    
-    final Plan pick = (Plan) choice.pickMostUrgent();
-    return pick;
   }
   
   
-  public float visitCrowding(Actor actor) {
-    float crowding = 0;
-    for (Mobile m : inside()) {
-      if (m instanceof Actor) {
-        if (((Actor) m).mind.work() == this) continue;
+  public float crowdRating(Actor actor, Background background) {
+    if (background == Backgrounds.AS_VISITOR) {
+      float crowding = 0;
+      for (Mobile m : inside()) {
+        if (m instanceof Actor) {
+          if (((Actor) m).mind.work() == this) continue;
+        }
+        crowding++;
       }
-      crowding++;
+      crowding /= MAX_PASSENGERS;
+      return crowding;
     }
-    crowding /= MAX_PASSENGERS;
-    return crowding;
-  }
-  
-  
-  public float homeCrowding(Actor actor) {
-    if (! staff().isWorker(actor)) return 1;
-    return staff().residents().size() * 1f / MAX_CREW;
+    else if (background == Backgrounds.AS_RESIDENT) {
+      if (! staff().isWorker(actor)) return 1;
+      return staff().residents().size() * 1f / MAX_CREW;
+    }
+    else return 0;
   }
   
   

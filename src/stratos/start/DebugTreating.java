@@ -9,6 +9,7 @@ import stratos.game.maps.*;
 import stratos.game.wild.*;
 import stratos.game.plans.*;
 import stratos.game.politic.*;
+import stratos.graphics.common.Colour;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -64,7 +65,7 @@ public class DebugTreating extends Scenario {
   
   
   protected Base createBase(Stage world) {
-    return Base.baseWithName(world, "Player Base", false);
+    return Base.withName(world, "Player Base", Colour.BLUE);
   }
   
   

@@ -45,7 +45,7 @@ public class PathingCache {
   }
   
   private class Caching {
-    WorldSection section;
+    StageSection section;
     Place places[];
     float lastUpdateTime;
   }
@@ -57,7 +57,7 @@ public class PathingCache {
   
   final Stage world;
   final Place tilePlaces[][];
-  final Table <WorldSection, Caching> allCached = new Table <WorldSection, Caching> ();
+  final Table <StageSection, Caching> allCached = new Table <StageSection, Caching> ();
   //final MipMap pathMipMap;
   
   
@@ -241,16 +241,16 @@ public class PathingCache {
   /**  Methods for refreshing the Places and Routes associated with each
     *  Section of the map:
     */
-  private void refreshWithNeighbours(WorldSection section) {
-    final WorldSection near[] = new WorldSection[9];
+  private void refreshWithNeighbours(StageSection section) {
+    final StageSection near[] = new StageSection[9];
     world.sections.neighbours(section, near);
     near[8] = section;
     for (int i = 9; i-- > 0;) if (! refreshPlaces(near[i])) near[i] = null;
-    for (WorldSection n : near) refreshRoutes(n);
+    for (StageSection n : near) refreshRoutes(n);
   }
   
   
-  private boolean refreshPlaces(WorldSection section) {
+  private boolean refreshPlaces(StageSection section) {
     //
     //  First of all, check to ensure that an update is required.  If so,
     //  generate new places for underlying tiles:
@@ -275,7 +275,7 @@ public class PathingCache {
   }
   
   
-  private void refreshRoutes(WorldSection section) {
+  private void refreshRoutes(StageSection section) {
     //
     //  Grab all nearby Places first, including those in the same or adjacent
     //  sections-
@@ -286,7 +286,7 @@ public class PathingCache {
     final Caching caching = allCached.get(section);
     final Batch <Place> near = new Batch <Place> ();
     for (Place place : caching.places) near.add(place);
-    for (WorldSection nS : world.sections.neighbours(section, null)) {
+    for (StageSection nS : world.sections.neighbours(section, null)) {
       if (nS == null) continue;
       final Caching nC = allCached.get(nS);
       if (nC != null) for (Place place : nC.places) near.add(place);
@@ -320,7 +320,7 @@ public class PathingCache {
   
   /**  Methods for establishing Places in the first place-
     */
-  private Place[] grabPlacesFor(Caching caching, final WorldSection section) {
+  private Place[] grabPlacesFor(Caching caching, final StageSection section) {
     ///I.say("Grabbing new places at: "+section.area);
     //
     //  We scan through every tile in this section, and grab any contiguous
@@ -477,7 +477,7 @@ public class PathingCache {
   
   
   private PathSearch cordonedSearch(
-    Boarding a, Boarding b, WorldSection sA, WorldSection sB
+    Boarding a, Boarding b, StageSection sA, StageSection sB
   ) {
     //
     //  Creates a pathing search between two points restricted to the given

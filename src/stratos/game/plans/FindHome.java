@@ -159,12 +159,18 @@ public class FindHome extends Plan {
   
   /**  Static helper methods for home placement/location-
     */
+  public static float crowdingAt(Property v, Actor a) {
+    if (v == null || a == null) return 1;
+    return v.crowdRating(a, Backgrounds.AS_RESIDENT);
+  }
+  
+  
   public static Property lookForHome(Actor client, Base base) {
     final boolean report = verbose && I.talkAbout == client;
     
     final Stage world = base.world;
     final Property oldHome = client.mind.home(), work = client.mind.work();
-    if (work.homeCrowding(client) < 1) return work;
+    if (crowdingAt(work, client) < 1) return work;
     
     final Pick <Property> pick = new Pick <Property> ();
     if (oldHome != null) pick.compare(oldHome, rateHolding(client, oldHome));
@@ -188,7 +194,7 @@ public class FindHome extends Plan {
     final Property best = pick.result();
     if (report && best != null) {
       I.say("Looking for home, best site: "+best);
-      I.say("Crowding is: "+best.homeCrowding(client));
+      I.say("Crowding is: "+crowdingAt(best, client));
     }
     return best;
   }
@@ -268,7 +274,7 @@ public class FindHome extends Plan {
     float rating = 0;
     if (oldHome == null) rating += ROUTINE;
     if (newHome == oldHome) rating += DEFAULT_SWITCH_THRESHOLD;
-    else if (newHome.homeCrowding(actor) >= 1) return 0;
+    else if (crowdingAt(newHome, actor) >= 1) return 0;
     
     if (newHome instanceof Holding) {
       final int UL = ((Holding) newHome).upgradeLevel();

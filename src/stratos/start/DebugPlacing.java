@@ -14,6 +14,7 @@ import stratos.game.plans.*;
 import stratos.game.politic.*;
 import stratos.game.wild.Flora;
 import stratos.game.wild.Habitat;
+import stratos.graphics.common.Colour;
 import stratos.graphics.common.Rendering;
 import stratos.graphics.widgets.KeyInput;
 import stratos.user.*;
@@ -89,7 +90,7 @@ public class DebugPlacing extends Scenario {
   
   
   protected Base createBase(Stage world) {
-    return Base.baseWithName(world, "Player Base", false);
+    return Base.withName(world, "Player Base", Colour.BLUE);
   }
   
   

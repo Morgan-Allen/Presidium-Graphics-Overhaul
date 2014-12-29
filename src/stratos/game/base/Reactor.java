@@ -396,7 +396,7 @@ public class Reactor extends Venue {
     panel = super.configPanel(panel, UI);
     final Description d = panel.detail();
     
-    if (panel.category() == CAT_STATUS) {
+    if (true) {
       final float risk = meltdownChance() + meltdown;
       final int nR = RISK_DESC.length;
       final String descR = RISK_DESC[Nums.clamp((int) (risk * nR), nR)];

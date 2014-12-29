@@ -31,9 +31,10 @@ public abstract class Plan implements Saveable, Behaviour {
     NULL_PRIORITY = -100;
   
   private static boolean
-    verbose     = false,
-    evalVerbose = false,
-    doesVerbose = false;
+    verbose      = false,
+    extraVerbose = false,
+    evalVerbose  = false,
+    doesVerbose  = false;
   
   final public Target subject;
   final boolean persistent;
@@ -49,6 +50,7 @@ public abstract class Plan implements Saveable, Behaviour {
   private int motiveType = MOTIVE_INIT;
   private float motiveBonus = 0;
   private float harmFactor, competeFactor;
+  private boolean begun;
   
   
   
@@ -78,6 +80,7 @@ public abstract class Plan implements Saveable, Behaviour {
     
     this.harmFactor    = s.loadFloat();
     this.competeFactor = s.loadFloat();
+    this.begun         = s.loadBool();
   }
   
   
@@ -95,6 +98,7 @@ public abstract class Plan implements Saveable, Behaviour {
     
     s.saveFloat(harmFactor   );
     s.saveFloat(competeFactor);
+    s.saveBool (begun        );
   }
   
   
@@ -144,7 +148,7 @@ public abstract class Plan implements Saveable, Behaviour {
   
   
   private boolean checkRefreshDue(Actor actor) {
-    final boolean report = I.talkAbout == actor && false;
+    final boolean report = I.talkAbout == actor && extraVerbose;
     if (report) {
       I.say("GETTING NEW EVALUATION FOR WORK-SEEKING");
       I.say("  Priority:  "+priorityEval);
@@ -154,6 +158,7 @@ public abstract class Plan implements Saveable, Behaviour {
     if (this.actor != actor) {
       if (report) I.say("SWITCHING TO NEW ACTOR!");
       clearEval(actor);
+      begun = false;
       return true;
     }
     
@@ -174,7 +179,7 @@ public abstract class Plan implements Saveable, Behaviour {
       lastStep.nextStepFor(actor) == null
     );
     if (oldDone) {
-      if (report) I.say("OLD STEP FINISHED: "+nextStep);
+      if (report) I.say("OLD STEP FINISHED: "+lastStep);
       clearEval(actor);
       lastStep = null;
       return true;
@@ -212,17 +217,19 @@ public abstract class Plan implements Saveable, Behaviour {
   public float priorityFor(Actor actor) {
     final boolean report = verbose && I.talkAbout == actor && hasBegun();
     if (motiveType == MOTIVE_CANCELLED) return -1;
-    if (report) I.say("\nCurrent plan priority is: "+priorityEval);
+    if (report && extraVerbose) {
+      I.say("\nCurrent plan priority is: "+priorityEval);
+      I.say("   Plan step: "+I.tagHash(nextStep));
+    }
     
     if (checkRefreshDue(actor)) {
       final float time = actor.world().currentTime();
-      if (report) {
-        I.say("\nGetting fresh priority... "+this);
-        I.say("  Current/last time: "+time+"/"+lastEvalTime);
-      }
+      if (report) I.say("\nGetting fresh priority... "+I.tagHash(this));
       lastEvalTime = time;
       priorityEval = 0;  //  Note: This avoids certain types of infinite loop.
       priorityEval = getPriority();
+      if (report) I.say("\nNew priority: "+priorityEval);
+      if (nextStep != null) begun = true;
     }
     return priorityEval;
   }
@@ -231,7 +238,10 @@ public abstract class Plan implements Saveable, Behaviour {
   public Behaviour nextStepFor(Actor actor) {
     final boolean report = verbose && I.talkAbout == actor && hasBegun();
     if (motiveType == MOTIVE_CANCELLED) return null;
-    if (report) I.say("\nCurrent plan step is: "+I.tagHash(nextStep));
+    if (report && extraVerbose) {
+      I.say("\nCurrent plan step is: "+I.tagHash(nextStep));
+      I.say("   Priority: "+priorityEval);
+    }
     
     if (checkRefreshDue(actor)) {
       nextStep = getNextStep();
@@ -239,10 +249,11 @@ public abstract class Plan implements Saveable, Behaviour {
         if (report) I.say("\nNEXT STEP THE SAME AS OLD STEP.");
         nextStep = lastStep;
       }
-      else {
-        if (report) I.say("\nGOT NEW STEP: "+nextStep);
-        if (nextStep != null) lastStep = nextStep;
+      else if (nextStep != null) {
+        lastStep = nextStep;
       }
+      if (report) I.say("\nNew plan step: "+I.tagHash(nextStep));
+      if (priorityEval != NULL_PRIORITY) begun = true;
     }
     return nextStep;
   }
@@ -255,12 +266,12 @@ public abstract class Plan implements Saveable, Behaviour {
     
     if (this == actor.mind.rootBehaviour()) {
       if (priorityFor(actor) <= 0) {
-        if (report) I.say("\nNO PRIORITY: "+this+" "+hashCode());
+        if (report) I.say("\nNO PRIORITY: "+I.tagHash(this));
         return true;
       }
     }
     if (nextStepFor(actor) == null) {
-      if (report) I.say("\nNO NEXT STEP: "+this+" "+hashCode());
+      if (report) I.say("\nNO NEXT STEP: "+I.tagHash(this));
       return true;
     }
     return false;
@@ -268,7 +279,7 @@ public abstract class Plan implements Saveable, Behaviour {
   
   
   public boolean hasBegun() {
-    return actor != null && lastStep != null;
+    return actor != null && begun;
   }
   
   

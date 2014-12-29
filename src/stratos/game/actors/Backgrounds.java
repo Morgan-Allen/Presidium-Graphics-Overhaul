@@ -800,7 +800,23 @@ public interface Backgrounds {
     
     STRAIN_CIRCLES[] = { STRAIN_AGENT, MSSID_REPRESENTATIVE }
   ;
+  
+  
+  final public static Background
+    AS_RESIDENT = new Background(
+      Backgrounds.class, "Resident",
+      "Placeholder argument for passing to crowding/job-getting methods.",
+      null, null, NOT_A_CLASS, NOT_A_GUILD
+    ),
+    AS_VISITOR  = new Background(
+      Backgrounds.class, "Visitor",
+      "Placeholder argument for passing to crowding/job-getting methods.",
+      null, null, NOT_A_CLASS, NOT_A_GUILD
+    );
 }
+
+
+
 
 
 

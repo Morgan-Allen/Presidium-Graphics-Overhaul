@@ -59,7 +59,9 @@ public class NativeHut extends Venue {
     TYPE_HUT     =  0,
     TYPE_HALL    =  1,
     TYPE_SHRINE  =  2,
-    HUT_OCCUPANCY  = 2;
+    
+    HUT_OCCUPANCY  = 2,
+    RADIUS_CLAIMED = Stage.SECTOR_SIZE / 2;
   
   private int type, tribeID;
   
@@ -133,6 +135,16 @@ public class NativeHut extends Venue {
   
   /**  Placement and construction-
     */
+  protected Box2D areaClaimed() {
+    return new Box2D(footprint()).expandBy(RADIUS_CLAIMED);
+  }
+  
+  
+  public boolean preventsClaimBy(Venue other) {
+    if (other instanceof NativeHut) return false;
+    return super.preventsClaimBy(other);
+  }
+  
   
   //  Chieftain's Halls need to assess the total fertility of the surrounding
   //  area and constrain populations accordingly (or go to war.)

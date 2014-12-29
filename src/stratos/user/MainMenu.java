@@ -189,6 +189,12 @@ public class MainMenu extends UIGroup {
   }
   
   
+  private int numCrew(Background b) {
+    final Integer num = config.numCrew.get(b);
+    return num == null ? 0 : num;
+  }
+  
+  
   public void setPerkLevel(Object args[]) {
     final int index = (Integer) args[0], level = (Integer) args[1];
     if (index == 0) config.siteLevel  = level;
@@ -212,11 +218,11 @@ public class MainMenu extends UIGroup {
     text.append("\n  Colonists:");
     int totalColonists = 0;
     for (Background b : COLONIST_BACKGROUNDS) {
-      totalColonists += config.numCrew(b);
+      totalColonists += numCrew(b);
     }
     text.append(" ("+totalColonists+"/"+MAX_COLONISTS+")");
     for (Background b : COLONIST_BACKGROUNDS) {
-      text.append("\n    "+config.numCrew(b)+" ");
+      text.append("\n    "+numCrew(b)+" ");
       Call.add(" More", Colour.CYAN, this, "incColonists", text, b,  1);
       Call.add(" Less", Colour.CYAN, this, "incColonists", text, b, -1);
       text.append(" "+b.name);
@@ -261,11 +267,11 @@ public class MainMenu extends UIGroup {
   public void incColonists(Object args[]) {
     int totalColonists = 0;
     for (Background b : COLONIST_BACKGROUNDS) {
-      totalColonists += config.numCrew(b);
+      totalColonists += numCrew(b);
     }
     final Background b = (Background) args[0];
     final int inc = (Integer) args[1];
-    int amount = config.numCrew(b);
+    int amount = numCrew(b);
     if (inc < 0 && amount <= 0) return;
     if (inc > 0 && totalColonists >= MAX_COLONISTS) return;
     config.numCrew.put(b, amount + inc);

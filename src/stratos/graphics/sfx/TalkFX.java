@@ -6,7 +6,6 @@ import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.start.Assets;
 import stratos.util.*;
-
 import java.io.*;
 
 
@@ -185,10 +184,11 @@ public class TalkFX extends SFX {
       final boolean speaks = bubble.type != NOT_SPOKEN;
       final Colour c = new Colour();
       
-      final float alpha;
+      float alpha = 0;
       if (bubble.alpha < 1) alpha = bubble.alpha;
       else if (speaks) alpha = 1;
       else alpha = (1.5f - bubble.alpha) * 2;
+      if (this.colour != null) alpha *= this.colour.a;
       
       if (speaks) c.set(0.8f, 0.8f, 1, alpha);
       else c.set(1, 1, 1, alpha);
@@ -198,7 +198,7 @@ public class TalkFX extends SFX {
         flatPoint.x + bubble.xoff,
         flatPoint.y + bubble.yoff,
         flatPoint.z + 0.05f,
-        pass, true//speaks ? false : true
+        pass, true
       );
     }
   }
@@ -214,8 +214,6 @@ public class TalkFX extends SFX {
     final float
       x = flatPoint.x + bubble.xoff,
       y = flatPoint.y + bubble.yoff,
-      //TW = BUBBLE_TEX.xdim(),
-      //TH = BUBBLE_TEX.ydim(),
       //
       //  In the case of bubble from the right, we just flip U values-
       MIN_U = fromRight ? 1 : 0,

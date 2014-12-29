@@ -169,9 +169,9 @@ public class CutoutsPass {
 
     final Colour fog = Colour.greyscale(s.fog);
     final float colourBits;
-    if (s.colour == null) colourBits = fog.bitValue;
-    else if (s.colour.glows()) colourBits = s.colour.bitValue;
-    else if (! s.colour.blank()) colourBits = s.colour.bitValue;
+    if (s.colour == null) colourBits = fog.floatBits;
+    else if (s.colour.glows()) colourBits = s.colour.floatBits;
+    else if (! s.colour.blank()) colourBits = s.colour.floatBits;
     else colourBits = Colour.combineAlphaBits(fog, s.colour);
     
     for (int off = 0; off < SIZE; off += VERTEX_SIZE) {

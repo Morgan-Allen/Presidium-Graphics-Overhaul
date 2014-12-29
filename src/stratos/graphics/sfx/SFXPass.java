@@ -165,7 +165,7 @@ public class SFXPass {
       vertComp[Z0 + offset] = temp.z;
       
       vertComp[C0 + offset] = colour == null ?
-        Sprite.WHITE_BITS : colour.bitValue;
+        Sprite.WHITE_BITS : colour.floatBits;
       
       final float u = QUAD_UV[i * 2], v = QUAD_UV[(i * 2) + 1];
       vertComp[U0 + offset] = ((1 - u) * umin) + (u * umax);

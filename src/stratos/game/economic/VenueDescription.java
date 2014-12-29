@@ -19,6 +19,12 @@ import static stratos.game.economic.Venue.*;
 public class VenueDescription {
   
   
+  final public static String
+    CAT_UPGRADES = "UPGRADES",
+    CAT_STAFFING = "STAFFING",
+    CAT_STOCK    = "STOCK",
+    CAT_VISITORS = "VISITORS";
+  
   final String categories[];
   final Venue v;  //  TODO:  Apply to Properties, like, e.g, vehicles?
   private static Upgrade lastCU;  //last clicked upgrade.
@@ -35,7 +41,7 @@ public class VenueDescription {
   ) {
     final String categories[] = (String[]) Visit.compose(
       String.class, extraCategories,
-      new String[] { CAT_UPGRADES, CAT_STOCK, CAT_STAFF }
+      new String[] { CAT_UPGRADES, CAT_STAFFING, CAT_STOCK, CAT_VISITORS }
     );
     final VenueDescription VD = new VenueDescription(venue, categories);
     if (panel == null) panel = new SelectionInfoPane(
@@ -45,9 +51,10 @@ public class VenueDescription {
     final Description d = panel.detail(), l = panel.listing();
     
     VD.describeCondition(d, UI);
-    if (category == CAT_UPGRADES) VD.describeUpgrades (l, UI);
-    if (category == CAT_STOCK   ) VD.describeStocks   (l, UI);
-    if (category == CAT_STAFF   ) VD.describeStaff(l, UI);
+    if (category == CAT_UPGRADES) VD.describeUpgrades(l, UI);
+    if (category == CAT_STAFFING) VD.describeStaffing(l, UI);
+    if (category == CAT_STOCK   ) VD.describeStocks  (l, UI);
+    if (category == CAT_VISITORS) VD.describeVisitors(l, UI);
     return panel;
   }
   
@@ -57,7 +64,7 @@ public class VenueDescription {
     BaseUI UI, String statusMessage
   ) {
     if (panel == null) panel = new SelectionInfoPane(
-      UI, venue, venue.portrait(UI), true, CAT_STOCK, CAT_STAFF
+      UI, venue, venue.portrait(UI), true, CAT_STOCK, CAT_VISITORS
     );
     
     final String category = panel.category();
@@ -69,9 +76,8 @@ public class VenueDescription {
       d.append("\n");
       d.append(statusMessage);
     }
-
-    if (category == CAT_STOCK) VD.describeStocks   (l, UI);
-    if (category == CAT_STAFF) VD.describeStaff(l, UI);
+    if (category == CAT_STOCK   ) VD.describeStocks  (l, UI);
+    if (category == CAT_VISITORS) VD.describeVisitors(l, UI);
     return panel;
   }
   
@@ -204,82 +210,93 @@ public class VenueDescription {
   
   
   
-  private void describeStaff(Description d, BaseUI UI) {
-    d.append("Staff:");
+  private void describeStaffing(Description d, BaseUI UI) {
     final Background c[] = v.careers();
     if (c != null && c.length > 0) {
       for (Background b : c) {
         final int
           hired = v.staff.numHired(b),
-          total = hired + v.numOpenings(b);
-        d.append("\n  "+hired+"/"+total+" "+b.name);
+          total = v.numOpenings(b);
+        if (total == 0 && hired == 0) continue;
+        
+        ((Text) d).cancelBullet();
+        d.append(b.name+": ("+hired+"/"+total+")");
+        
+        for (final FindWork a : v.staff.applications) {
+          if (a.employer() != v || a.position() != b) continue;
+          final Actor p = a.actor();
+          ((Text) d).insert(p.portrait(UI).texture(), 40, true);
+          d.append(p);
+          d.append(p.inWorld() ? " (" : " (Offworld ");
+          d.append(p.vocation().name+")");
+          
+          final Series <Trait>
+            TD = HumanDescription.sortTraits(p.traits.personality(), p),
+            SD = HumanDescription.sortTraits(p.traits.skillSet()   , p);
+          
+          int numS = 0;
+          for (Trait s : SD) {
+            if (a.position().skillLevel((Skill) s) <= 0) continue;
+            if (++numS > 3) break;
+            d.append("\n  "+s+" ("+((int) p.traits.traitLevel(s))+") ");
+          }
+          d.append("\n  ");
+          int numT = 0;
+          for (Trait t : TD) {
+            if (++numT > 3) break;
+            d.append(t+" ");
+          }
+          
+          d.append("\n  ");
+          final String hireDesc = "Hire for "+a.hiringFee()+" credits";
+          d.append(new Description.Link(hireDesc) {
+            public void whenClicked() { v.staff.confirmApplication(a); }
+          });
+        }
+        
+        for (Actor a : v.staff.workers()) if (a.vocation() == b) {
+          descActor(a, d, UI);
+        }
+        d.append("\n");
       }
-      //d.append("\n");
     }
     
-    final Batch <Mobile> considered = new Batch <Mobile> ();
-    for (Actor m : v.staff.residents()) considered.include(m);
-    for (Actor m : v.staff.workers()) considered.include(m);
-    for (Mobile m : v.inside()) considered.include(m);
-    
-    for (Mobile m : considered) {
-      if (d instanceof Text && m instanceof Human) {
-        final Composite p = ((Human) m).portrait(UI);
-        ((Text) d).insert(p.texture(), 40, true);
-      }
-      else d.append("\n\n  ");
-      d.append(m);
-      if (m instanceof Actor) {
-        d.append("\n  ");
-        d.append(descDuty((Actor) m));
-      }
-      d.append("\n  ");
-      m.describeStatus(d);
+    //  TODO:  Make residency a kind of 'opening' for these purposes?
+    ((Text) d).cancelBullet();
+    d.append("Residents: ");
+    if (v.staff.residents().size() == 0) d.append("\n  No residents.");
+    for (Actor a : v.staff.residents()) descActor(a, d, UI);
+  }
+  
+  
+  private void describeVisitors(Description d, BaseUI UI) {
+    d.append("Visitors:");
+    for (Mobile m : v.inside()) descActor(m, d, UI);
+  }
+  
+  
+  private void descActor(Mobile m, Description d, BaseUI UI) {
+    if (d instanceof Text && m instanceof Human) {
+      final Composite p = ((Human) m).portrait(UI);
+      ((Text) d).insert(p.texture(), 40, true);
     }
-
-    for (final FindWork a : v.staff.applications) {
-      if (a.employer() != v) continue;
-      final Actor p = a.actor();
-      d.append("\n\n");
-      
-      ((Text) d).insert(p.portrait(UI).texture(), 40, true);
-      d.append(p);
-      d.append(p.inWorld() ? " (" : " (Offworld ");
-      d.append(p.vocation().name+")");
-      
-      final Series <Trait>
-        TD = HumanDescription.sortTraits(p.traits.personality(), p),
-        SD = HumanDescription.sortTraits(p.traits.skillSet()   , p);
-      
-      int numS = 0;
-      for (Trait s : SD) {
-        if (a.position().skillLevel((Skill) s) <= 0) continue;
-        if (++numS > 3) break;
-        d.append("\n  "+s+" ("+((int) p.traits.traitLevel(s))+") ");
-      }
+    else d.append("\n\n  ");
+    d.append(m);
+    d.append("\n  ");
+    m.describeStatus(d);
+    if (m instanceof Actor) {
       d.append("\n  ");
-      int numT = 0;
-      for (Trait t : TD) {
-        if (++numT > 3) break;
-        d.append(t+" ");
-      }
-      
-      d.append(new Description.Link("\n  Hire for "+a.hiringFee()+" credits") {
-        public void whenClicked() { v.staff.confirmApplication(a); }
-      });
+      d.append(descDuty((Actor) m));
     }
   }
   
   
   private String descDuty(Actor a) {
-    final Background b = a.vocation();
-    final String VN = b == null ? a.species().toString() : b.nameFor(a);
-    if (a.mind.work() == v) {
-      final String duty = v.staff.onShift(a) ? "On-Duty" : "Off-Duty";
-      return "("+duty+" "+VN+")";
-    }
-    if (a.mind.home() == v) return "(Resident "+VN+")";
-    return "(Visiting "+VN+")";
+    if (a.mind.work() == v) return v.staff.onShift(a) ?
+        "(On-Duty)" : "(Off-Duty)"
+    ;
+    if (a.mind.home() == v) return "(Resident)";
+    return "(Visiting)";
   }
   
   

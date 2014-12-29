@@ -101,7 +101,7 @@ public class Foraging extends Plan {
       I.say("  Hunger level was: "+hunger);
       I.say("  Final priority: "+priority);
     }
-    if (priority < ROUTINE) return 0;
+    if (priority < CASUAL) return 0;
     return priority;
   }
   

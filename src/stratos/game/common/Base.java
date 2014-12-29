@@ -49,12 +49,12 @@ public class Base implements
   final public BaseRelations relations;
   
   public String title  = "Player Base";
-  public Colour colour = new Colour().set(Colour.BLUE);  //TODO:  Make private.
+  public Colour colour = new Colour();//.set(Colour.BLUE);  //TODO:  Make private.
   
   
   
-  public static Base baseWithName(
-    Stage world, String title, boolean primal
+  private static Base baseWithName(
+    Stage world, String title, Colour colour, boolean primal
   ) {
     for (Base base : world.bases()) if (
       base.title != null &&
@@ -68,24 +68,30 @@ public class Base implements
     world.registerBase(base, true);
 
     base.title = title;
-    if (primal) base.colour.set(Colour.LIGHT_GREY);
+    base.colour.set(colour);
+    //if (primal) base.colour.set(Colour.LIGHT_GREY);
     
     return base;
   }
   
   
+  public static Base withName(Stage world, String title, Colour colour) {
+    return baseWithName(world, title, colour, false);
+  }
+  
+  
   public static Base wildlife(Stage world) {
-    return baseWithName(world, KEY_WILDLIFE, true);
+    return baseWithName(world, KEY_WILDLIFE, Colour.GREEN, true);
   }
   
   
   public static Base artilects(Stage world) {
-    return baseWithName(world, KEY_ARTILECTS, true);
+    return baseWithName(world, KEY_ARTILECTS, Colour.GREY, true);
   }
   
   
   public static Base natives(Stage world) {
-    return baseWithName(world, KEY_NATIVES, true);
+    return baseWithName(world, KEY_NATIVES, Colour.YELLOW, true);
   }
   
   

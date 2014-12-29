@@ -82,14 +82,14 @@ public class Archives extends Venue {
   }
   
   
-  public int numOpenings(Background b) {
+  protected int numOpenings(Background b) {
     final int nO = super.numOpenings(b);
     if (b == SAVANT) return nO + 2;
     return 0;
   }
   
   
-  public Behaviour jobFor(Actor actor) {
+  protected Behaviour jobFor(Actor actor) {
     if ((! structure.intact()) || (! staff.onShift(actor))) return null;
     final Choice choice = new Choice(actor);
     

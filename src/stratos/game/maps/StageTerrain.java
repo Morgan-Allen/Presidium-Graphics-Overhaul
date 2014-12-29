@@ -24,7 +24,7 @@ t = terraform-progress  (1 as default).
 //  ...Organics.  That's the name for carbons.
 //*/
 
-public class WorldTerrain implements TileConstants, Session.Saveable {
+public class StageTerrain implements TileConstants, Session.Saveable {
   
   
   final public static int
@@ -85,7 +85,7 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
   
   
   
-  WorldTerrain(
+  StageTerrain(
     Habitat[] gradient,
     byte typeIndex[][],
     byte varsIndex[][],
@@ -108,7 +108,7 @@ public class WorldTerrain implements TileConstants, Session.Saveable {
   }
   
   
-  public WorldTerrain(Session s) throws Exception {
+  public StageTerrain(Session s) throws Exception {
     s.cacheInstance(this);
     mapSize = s.loadInt();
     

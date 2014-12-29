@@ -68,10 +68,10 @@ public class TerrainGen implements TileConstants {
   }
   
   
-  public WorldTerrain generateTerrain() {
+  public StageTerrain generateTerrain() {
     setupSectors();
     setupTileHabitats();
-    final WorldTerrain t = new WorldTerrain(habitats, typeIndex, varsIndex, heightMap);
+    final StageTerrain t = new StageTerrain(habitats, typeIndex, varsIndex, heightMap);
     return t;
   }
   
@@ -276,7 +276,7 @@ public class TerrainGen implements TileConstants {
     try { sampleVar = varsIndex[x + T_X[dir]][y + T_Y[dir]]; }
     catch (ArrayIndexOutOfBoundsException e) { sampleVar = 0; }
     
-    final int MV = WorldTerrain.TILE_VAR_LIMIT;
+    final int MV = StageTerrain.TILE_VAR_LIMIT;
     if (sampleVar == 0) sampleVar = (byte) (Rand.index(MV + 1) % MV);
     varsIndex[x][y] = sampleVar;
     return sampleVar;
@@ -326,7 +326,7 @@ public class TerrainGen implements TileConstants {
     final Stage world,
     float chanceMetals, float chanceArtifacts, float chanceIsotopes
   ) {
-    final WorldTerrain terrain = world.terrain();
+    final StageTerrain terrain = world.terrain();
     if (terrain == null) I.complain("No terrain assigned to world!");
     final byte
       artifactsMap[][] = genSectorMap(10),
@@ -376,7 +376,7 @@ public class TerrainGen implements TileConstants {
       
       float minAmount = minChance * (1.5f - Rand.num());
       if (Rand.num() < minChance) minAmount += 0.5f;
-      minAmount *= WorldTerrain.MAX_MINERAL_AMOUNT / 2f;
+      minAmount *= StageTerrain.MAX_MINERAL_AMOUNT / 2f;
       if (minAmount <= 0) continue;
       //
       //  Store and summarise-
@@ -400,7 +400,7 @@ public class TerrainGen implements TileConstants {
   //  Put the various tiles for processing in different batches and treat 'em
   //  that way?
   public void setupOutcrops(final Stage world) {
-    final WorldTerrain worldTerrain = world.terrain();
+    final StageTerrain worldTerrain = world.terrain();
     final int seedSize = (mapSize / DETAIL_RESOLUTION) + 1;
     final HeightMap heightDetail = new HeightMap(
       mapSize + 1, new float[seedSize][seedSize], 1, 0.5f
@@ -469,7 +469,7 @@ public class TerrainGen implements TileConstants {
   
   /**  Utility methods for debugging-
     */
-  public void presentMineralMap(Stage world, WorldTerrain worldTerrain) {
+  public void presentMineralMap(Stage world, StageTerrain worldTerrain) {
     final int colourKey[][] = new int[mapSize][mapSize];
     final int typeColours[] = {
       0xff000000,
@@ -488,7 +488,7 @@ public class TerrainGen implements TileConstants {
       final Tile t = world.tileAt(c.x, c.y);
       final byte type = worldTerrain.mineralType(t);
       final float amount = worldTerrain.mineralsAt(t, type);
-      int degree = (int) (amount * 3.99f / WorldTerrain.MAX_MINERAL_AMOUNT);
+      int degree = (int) (amount * 3.99f / StageTerrain.MAX_MINERAL_AMOUNT);
       colourKey[c.x][c.y] = typeColours[type] & degreeMasks[degree];
     }
     I.present(colourKey, "minerals map", 256, 256);

@@ -130,7 +130,9 @@ public class Supervision extends Plan {
     final float elapsed = time - beginTime;
     
     if (elapsed > DEFAULT_EVAL_TIME) {
-      final Behaviour nextJob = venue.jobFor(actor);
+      final Choice choice = new Choice(actor);
+      venue.addTasks(choice, actor, actor.vocation());
+      final Behaviour nextJob = choice.pickMostUrgent();
       if (! (nextJob instanceof Supervision)) {
         I.say("  Supervision complete!");
         interrupt(INTERRUPT_CANCEL);

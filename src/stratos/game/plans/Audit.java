@@ -154,8 +154,10 @@ public class Audit extends Plan {
     
     if (stage == STAGE_EVAL) {
       if (audited == null && Rand.num() > (Nums.abs(totalSum) / 1000f)) {
-        final Behaviour next = actor.mind.work().jobFor(actor);
-        if (next instanceof Audit) audited = ((Audit) next).audited;
+        if (type == Type.TYPE_OFFICIAL) {
+          final Audit next = nextOfficialAudit(actor);
+          if (next != null) audited = next.audited;
+        }
       }
       if (report) I.say("  Finding next venue to audit: "+audited);
       stage = (audited == null) ? STAGE_REPORT : STAGE_AUDIT;

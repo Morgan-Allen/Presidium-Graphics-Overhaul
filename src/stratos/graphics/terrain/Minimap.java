@@ -26,8 +26,6 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 //
 //  TODO:  You need to be able to present the ambience map here.
 
-//  TODO:  THIS HAS TO BE DISPOSED OF AFTER THE WORLD IS QUIT FROM
-
 
 
 public class Minimap extends Assets.Loadable {
@@ -44,11 +42,12 @@ public class Minimap extends Assets.Loadable {
   
   
   public void updateTexture(int texSize, int RGBA[][]) {
-    final Pixmap drawnTo = new Pixmap(texSize, texSize, Pixmap.Format.RGBA8888);
+    final Pixmap drawnTo = new Pixmap(
+      texSize, texSize, Pixmap.Format.RGBA8888
+    );
     Pixmap.setBlending(Pixmap.Blending.None);
     for (Coord c : Visit.grid(0, 0, texSize, texSize, 1)) {
       drawnTo.drawPixel(c.x, c.y, RGBA[c.x][c.y]);
-      //drawnTo.drawPixel(c.x, c.y, 0xffffffff);
     }
     if (mapImage == null) {
       mapImage = new Texture(drawnTo);
@@ -90,16 +89,16 @@ public class Minimap extends Assets.Loadable {
     final float mapGeom[] = new float[] {
       //  left corner-
       x, y + (h / 2), 0,
-      Colour.WHITE.bitValue, 0, 0,
+      Colour.WHITE.floatBits, 0, 0,
       //  top corner-
       x + (w / 2), y + h, 0,
-      Colour.WHITE.bitValue, 1, 0,
+      Colour.WHITE.floatBits, 1, 0,
       //  right corner-
       x + w, y + (h / 2), 0,
-      Colour.WHITE.bitValue, 1, 1,
+      Colour.WHITE.floatBits, 1, 1,
       //  bottom corner-
       x + (w / 2), y, 0,
-      Colour.WHITE.bitValue, 0, 1
+      Colour.WHITE.floatBits, 0, 1
     };
     mapMesh.setVertices(mapGeom);
   }
