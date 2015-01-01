@@ -40,7 +40,7 @@ public class Ruins extends Venue {
   public Ruins(Base base) {
     super(4, 2, ENTRANCE_EAST, base);
     structure.setupStats(500, 25, 0, 0, Structure.TYPE_ANCIENT);
-    staff.setShiftType(SHIFTS_ALWAYS);
+    staff.setShiftType(SHIFTS_BY_24_HOUR);
     final int index = (NI++ + Rand.index(1)) % 3;
     attachSprite(MODEL_RUINS[index].makeSprite());
   }
@@ -133,9 +133,9 @@ public class Ruins extends Venue {
     spaceLevel *= 1 + world.terrain().varAt(origin());
     spaceLevel *= 1f / StageTerrain.TILE_VAR_LIMIT;
     int space = 0;
-    if (b == Species.CRANIAL) space = (int) (spaceLevel * 1);
-    if (b == Species.TRIPOD ) space = (int) (spaceLevel * 3);
-    if (b == Species.DRONE  ) space = (int) (spaceLevel * 5);
+    if (b == Species.CRANIAL) space = 0;// (int) (spaceLevel * 1);
+    if (b == Species.TRIPOD ) space = 1;// (int) (spaceLevel * 3);
+    if (b == Species.DRONE  ) space = 2;//(int) (spaceLevel * 5);
     if (report) I.say("  "+space+" openings for "+b+" at "+this);
     return space;
   }

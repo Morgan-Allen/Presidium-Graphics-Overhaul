@@ -73,7 +73,7 @@ public interface Sectors extends Backgrounds {
       "Asra Novi is a heavily-terraformed 'desert oasis' world noted for it's "+
       "expertise in ecology and botanical science, together with polyamorous "+
       "traditions and luxury exports.",
-      null, 0, 1, DESERT_BLOOD, MILD_GRAVITY,
+      DESERT_BLOOD, MILD_GRAVITY,
       Sector.MAKES, SOMA, PLASTICS, DECOR, SPYCE_T,
       Sector.NEEDS, OPEN_WATER, SERVICE_ENTERTAIN, DATALINKS,
       FREE_BIRTH,
@@ -85,7 +85,7 @@ public interface Sectors extends Backgrounds {
       "Parem V was one of the first-settled systems in the known quadrant, "+
       "and though dour and repressive, remains host to numerous machine-"+
       "cults and revered arcane relics.",
-      null, 1, 1, WASTES_BLOOD, NORMAL_GRAVITY,
+      WASTES_BLOOD, NORMAL_GRAVITY,
       Sector.MAKES, PARTS, ANTIMASS, DATALINKS,
       Sector.NEEDS, DECOR, SERVICE_REPAIRS, REPLICANTS,
       DREGS_BIRTH, PYON_BIRTH,
@@ -98,7 +98,7 @@ public interface Sectors extends Backgrounds {
       "Noted for it's spartan regimen and stern justice, Haliban's early "+
       "defection to the Calivor Republic have earned it several foes- and a "+
       "crucial role in quadrant defence strategy.",
-      null, 0, 0, FOREST_BLOOD, STRONG_GRAVITY,
+      FOREST_BLOOD, STRONG_GRAVITY,
       Sector.MAKES, CARBS, GREENS, MEDICINE,
       Sector.NEEDS, SERVICE_ARMAMENT, PARTS,
       GELDER_BIRTH, FREE_BIRTH,
@@ -111,7 +111,7 @@ public interface Sectors extends Backgrounds {
       "Aided by it's low gravity and thin atmosphere, Axis Novena became the "+
       "centre of a large shipping industry and trade network- along with "+
       "rampant smuggling and black market research.",
-      null, 1, 0, TUNDRA_BLOOD, NOMINAL_GRAVITY,
+      TUNDRA_BLOOD, NOMINAL_GRAVITY,
       Sector.MAKES, DATALINKS, MEDICINE, SERVICE_COMMERCE,
       Sector.NEEDS, GREENS, ORES, ANTIMASS,
       DREGS_BIRTH, GELDER_BIRTH,
@@ -125,7 +125,7 @@ public interface Sectors extends Backgrounds {
       "Notable for it's peculiar blend of pastoral tradition and caste "+
       "eugenics, Solipsus Vier is ruled by insular scientific elites fixated "+
       "on mental and physical purity.",
-      null, 2, 1, WASTES_BLOOD, NORMAL_GRAVITY,
+      WASTES_BLOOD, NORMAL_GRAVITY,
       OFTEN, PHYSICIAN_CIRCLES, SOMETIMES, ECOLOGIST_CIRCLES, MILITARY_CIRCLES,
       RARELY, VENDOR_CIRCLES, NEVER, RUNNER_CIRCLES
     ),
@@ -134,7 +134,7 @@ public interface Sectors extends Backgrounds {
       "Once an idyllic tropical planet-resort, Norusei has enjoyed something "+
       "of a renaissance following the devastation of the Machine Wars, "+
       "boasting a rich tourist trade and export of celebrity cult-idols.",
-      null, 2, 0, FOREST_BLOOD, NORMAL_GRAVITY,
+      FOREST_BLOOD, NORMAL_GRAVITY,
       OFTEN, AESTHETE_CIRCLES, SOMETIMES, ECOLOGIST_CIRCLES,
       RARELY, ARTIFICER_CIRCLES, MILITARY_CIRCLES
     ),
@@ -144,21 +144,21 @@ public interface Sectors extends Backgrounds {
       "Chief factory-world of the Empire in its prime, today inescapable "+
       "poverty, desperate squalor and seething unrest render Urym Hive's "+
       "unnumbered billions governable in name only.",
-      null, 0, 2, WASTES_BLOOD, INTENSE_GRAVITY
+      WASTES_BLOOD, INTENSE_GRAVITY
     ),
     PLANET_CALIVOR = new Sector(
       Sectors.class, "Calivor", "House Regulus (Minor)",
       "Capital of the Republic whose meteoric rise to prominence saw a dozen "+
       "noble houses unseated in disgrace, to many Calivor remains a gleaming "+
       "beacon of opportunity.",
-      null, 1, 2, TUNDRA_BLOOD, NORMAL_GRAVITY
+      TUNDRA_BLOOD, NORMAL_GRAVITY
     ),
     PLANET_THE_WEIRWORLD = new Sector(
       Sectors.class, "The Weirworld", "House Ophiuchus (Exiled)",
       "Shrouded by dense nebulae and dark rumour, the Weirworld is reputedly "+
       "a hollow organic Sphere, host to fleets of Strain vessels which raid "+
       "or colonise the quadrant periphery.",
-      null, 2, 2, MUTATION, MILD_GRAVITY
+      MUTATION, MILD_GRAVITY
     ),
     
     PLANET_DIAPSOR = new Sector(
@@ -166,7 +166,7 @@ public interface Sectors extends Backgrounds {
       "Rendered all but uninhabitable after the Machine Wars, Diapsor was "+
       "placed under Imperial Quarantine until recent population pressures, "+
       "political change and ecological recovery permitted re-settlement.",
-      null, -1, -1, MUTATION, NORMAL_GRAVITY
+      FOREST_BLOOD, NORMAL_GRAVITY
     ),
     
     PLANET_THE_HOMEWORLD = new Sector(
@@ -174,7 +174,7 @@ public interface Sectors extends Backgrounds {
       "Surrounded by an impenetrable Null Barrier erected by the xenos "+
       "Jovians, the Homeworld is rumoured to be the birthplace of humanity, "+
       "transplanted by Jump Drives of unfathomable size.",
-      null, -1, -1, DESERT_BLOOD, MILD_GRAVITY
+      DESERT_BLOOD, MILD_GRAVITY
     ),
     
     ALL_PLANETS[] = {

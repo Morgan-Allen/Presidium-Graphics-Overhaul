@@ -267,13 +267,16 @@ public class BaseSetup {
     
     for (Background v : venue.careers()) while (true) {
       
+      //  True-loops are a recipe for trouble:
       if (++numTries > MAX_TRIES) {
         I.say("\nWARNING: COULD NOT FILL VACANCIES FOR "+venue);
         return;
       }
       
+      //  First, check to make sure that space is still available (and that a
+      //  new worker can be made available.)
       final Actor worker = v.sampleFor(venue.base());
-      if (worker == null) continue;
+      if (worker == null) break;
       final float crowding = venue.crowdRating(worker, v);
       if (report) {
         I.say("  Num hired:   "+venue.staff.numHired(v));
@@ -281,11 +284,16 @@ public class BaseSetup {
       }
       if (crowding >= 1) break;
       
+      //  Then set the actor's employment status (and possibly residency as
+      //  well.  NOTE:  Work is set first to ensure residency is permitted at
+      //  various venues.)
       worker.mind.setWork(venue);
       if (venue.crowdRating(worker, Backgrounds.AS_RESIDENT) < 1) {
         worker.mind.setHome(venue);
       }
       
+      //  Finally, ensure the new worker is either in the world, or registered
+      //  for migration as soon as possible:
       if (GameSettings.hireFree || enterWorld) {
         worker.enterWorldAt(venue, venue.world());
         worker.goAboard(venue, venue.world());
@@ -336,6 +344,7 @@ public class BaseSetup {
       final Venue n = (Venue) t;
       for (Actor a : n.staff.workers  ()) if (Rand.yes()) among.add(a);
       for (Actor a : n.staff.residents()) if (Rand.yes()) among.add(a);
+      if (among.size() >= ActorRelations.MAX_RELATIONS) break;
     }
     establishRelations(among);
   }

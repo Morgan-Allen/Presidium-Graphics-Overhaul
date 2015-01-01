@@ -4,6 +4,7 @@ package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.politic.Pledge;
+import stratos.game.wild.Species;
 import stratos.util.*;
 import stratos.game.common.Session.Saveable;
 import static stratos.game.actors.Qualities.*;
@@ -57,6 +58,9 @@ public class ActorMotives {
   }
   
   
+  
+  /**  Social motives-
+    */
   private float rateSolitude() {
     
     final float
@@ -78,6 +82,54 @@ public class ActorMotives {
   }
   
   
+  public float attraction(Actor other) {
+    if (actor.species() != Species.HUMAN) return 0.5f;
+    if (other.species() != Species.HUMAN) return 0;
+    if (actor.health.juvenile() || other.health.juvenile()) return 0;
+    //
+    //  TODO:  Create other exceptions based on kinship modifiers.
+    //
+    //  First, we establish a few facts about each actor's sexual identity:
+    float actorG = 0, otherG = 0;
+    if (actor.traits.hasTrait(GENDER_MALE  )) actorG = -1;
+    if (actor.traits.hasTrait(GENDER_FEMALE)) actorG =  1;
+    if (other.traits.hasTrait(GENDER_MALE  )) otherG = -1;
+    if (other.traits.hasTrait(GENDER_FEMALE)) otherG =  1;
+    float attraction = other.traits.traitLevel(HANDSOME) * 3.33f;
+    attraction += otherG * other.traits.traitLevel(FEMININE) * 3.33f;
+    attraction *= (actor.traits.relativeLevel(INDULGENT) + 1f) / 2;
+    //
+    //  Then compute attraction based on orientation-
+    final String descO = actor.traits.description(ORIENTATION);
+    float matchO = 0;
+    if (descO.equals("Heterosexual")) {
+      matchO = (actorG * otherG < 0) ? 1 : 0.33f;
+    }
+    else if (descO.equals("Bisexual")) {
+      matchO = 0.66f;
+    }
+    else if (descO.equals("Homosexual")) {
+      matchO = (actorG * otherG > 0) ? 1 : 0.33f;
+    }
+    return attraction * matchO / 10f;
+  }
+  
+  
+  public Trait preferredGender() {
+    final boolean male = actor.traits.male();
+    if (actor.traits.hasTrait(ORIENTATION, "Heterosexual")) {
+      return male ? GENDER_FEMALE : GENDER_MALE;
+    }
+    if (actor.traits.hasTrait(ORIENTATION, "Homosexual")) {
+      return male ? GENDER_MALE : GENDER_FEMALE;
+    }
+    return Rand.yes() ? GENDER_MALE : GENDER_FEMALE;
+  }
+  
+  
+  
+  /**  Material motives-
+    */
   //  TODO:  Merge this with the supply-and-demand system for Holdings?
   
   public static float rateDesire(Item item, Actor buys, Actor receives) {

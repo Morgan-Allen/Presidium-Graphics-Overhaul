@@ -269,11 +269,9 @@ public interface Qualities {
       "Homosexual",
       null
     ),
-    GENDER = new Trait("Gender", CATEGORIC,
-      "Female",
-      null,
-      "Male"
-    ),
+    GENDER_MALE   = new Trait("Male"  , CATEGORIC, "Male"  ),
+    GENDER_FEMALE = new Trait("Female", CATEGORIC, "Female"),
+    
     DESERT_BLOOD = new Trait("Desert Blood", CATEGORIC,
       "Desert Blood", // "Desertborn", "Dark"
       null
@@ -299,8 +297,8 @@ public interface Qualities {
     PSYONIC = new Trait("Psyonic", CATEGORIC,
       "Psyon"
     ),
-    BLOOD_TRAITS[] = {
-      DESERT_BLOOD, TUNDRA_BLOOD, FOREST_BLOOD, WASTES_BLOOD
+    RACIAL_TRAITS[] = {
+      DESERT_BLOOD, FOREST_BLOOD, TUNDRA_BLOOD, WASTES_BLOOD
     },
     CATEGORIC_TRAITS[] = Trait.TRAIT_INDEX.soFar(Trait.class);
   //

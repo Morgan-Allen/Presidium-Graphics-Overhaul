@@ -150,11 +150,15 @@ public abstract class Artilect extends Actor {
   //  TODO:  Arrange for occasional scouting trips and active raids.
   //  (Intervals are slow, based on community size.)
   
+  //  TODO:  Split this method out to the various subclasses and/or the ruins
+  //  itself...
+  
   protected void addChoices(Choice choice) {
     //
     //  Patrol around your base and see off intruders.
     final boolean report = verbose && I.talkAbout == this;
-    ///choice.isVerbose = report;
+    if (report) I.say("\n  Getting next behaviour for "+this);
+    
     final boolean
       isDrone   = this instanceof Drone,
       isTripod  = this instanceof Tripod,
@@ -167,51 +171,49 @@ public abstract class Artilect extends Actor {
     final Property home = mind.home();
     Element guards = home == null ? this : (Element) home;
     final float distance = Spacing.distance(this, guards) / Stage.SECTOR_SIZE;
-    //final float danger = CombatUtils.dangerAtSpot(this, this, null);
     
-    final Plan patrol = Patrolling.aroundPerimeter(this, guards, world);
-    if (isDrone) {
-      final float urgency = Plan.ROUTINE + (distance * Plan.PARAMOUNT);
-      patrol.setMotive(Plan.MOTIVE_DUTY, urgency);
-      choice.add(patrol);
+    //
+    //  Security and defence related tasks-
+    if (! isCranial) {
+      final Plan patrol = Patrolling.aroundPerimeter(this, guards, world);
+      choice.add(patrol.setMotive(Plan.MOTIVE_DUTY, Plan.IDLE));
+      
+      final Plan assault = nextAssault();
+      if (assault != null) choice.add(
+        assault.setMotive(Plan.MOTIVE_DUTY, Plan.PARAMOUNT)
+      );
     }
-    else if (isTripod) {
-      patrol.setMotive(Plan.MOTIVE_DUTY, Plan.IDLE);
-      choice.add(patrol);
+    if (distance > 1) choice.add(new Retreat(this));
+    //
+    //  Defend home site or retreat to different site (all).
+    //  Respond to obelisk or tesseract presence (all).
+    for (Target e : senses.awareOf()) if (e instanceof Actor) {
+      choice.add(new Combat(this, (Actor) e));
     }
-    
-    if (isDrone && distance > 1) choice.add(new Retreat(this));
-    
+    if (home != null && ! home.staff().onShift(this)) {
+      final Resting rest = new Resting(this, mind.home());
+      if (isDrone) rest.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL);
+      else rest.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
+      choice.add(rest);
+    }
     //
     //  Launch an assault on a nearby settlement, if numbers are too large.
     //  Capture specimens and bring back to lair.
     //  (Tripod specialties.)
-    //  TODO:  Use the BaseAI to decide on declaring raids on other settlements.
-    final Plan assault = nextAssault();
-    if (assault != null) {
-      if (isTripod) assault.setMotive(Plan.MOTIVE_DUTY, Plan.PARAMOUNT);
-      choice.add(assault);
-    }
-    if (
-      (isTripod || isCranial) && home != null &&
-      home.staff().numResident(Species.CRANIAL) > 0
-    ) {
-      //  TODO:  Restore this later, once Cybrid creation is sorted out.
-      /*
-      for (Target t : senses.awareOf()) if (t instanceof Human) {
-        final Human other = (Human) t;
-        if (other.health.conscious()) continue;
-        if (report) I.say("  POTENTIAL SUBJECT: "+other);
-        final Plan recovery = new StretcherDelivery(this, other, home);
-        recovery.setMotive(Plan.MOTIVE_DUTY, Plan.URGENT);
-        choice.add(recovery);
-      }
-      //*/
-      for (Actor other : home.staff().residents()) {
-        if (other.health.conscious()) continue;
-        if (report) I.say("  FALLEN ALLY: "+other);
-        final Plan recovery = new StretcherDelivery(this, other, home);
-        choice.add(recovery);
+    if ((isTripod || isCranial) && home != null) {
+      for (Target t : senses.awareOf()) {
+        if (t instanceof Human) {
+          final Human other = (Human) t;
+          if (other.health.conscious()) continue;
+          final Plan recovery = new StretcherDelivery(this, other, home);
+          choice.add(recovery.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL));
+        }
+        if (t instanceof Artilect) {
+          final Artilect other = (Artilect) t;
+          if (other.health.conscious()) continue;
+          final Plan recovery = new StretcherDelivery(this, other, home);
+          choice.add(recovery.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL));
+        }
       }
     }
     //
@@ -227,20 +229,6 @@ public abstract class Artilect extends Actor {
         Ruins.class, this, Stage.SECTOR_SIZE
       );
       choice.add(nextSpawning(this, ruins));
-    }
-    
-    //
-    //  Defend home site or retreat to different site (all).
-    //  Respond to obelisk or tesseract presence (all).
-    
-    for (Target e : senses.awareOf()) if (e instanceof Actor) {
-      choice.add(new Combat(this, (Actor) e));
-    }
-    if (mind.home() != null) {
-      final Resting rest = new Resting(this, mind.home());
-      if (isDrone) rest.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL);
-      else rest.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
-      choice.add(rest);
     }
   }
   

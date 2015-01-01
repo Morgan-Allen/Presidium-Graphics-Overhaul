@@ -70,12 +70,14 @@ public interface Backgrounds {
     MALE_BIRTH = new Background(
       Backgrounds.class,
       "Born Male", "", null, null, NOT_A_CLASS, NOT_A_GUILD,
-      3, MUSCULAR, 1, MOTOR, SOMETIMES, TALL, NEVER, FEMININE
+      3, MUSCULAR, 1, MOTOR, SOMETIMES, TALL,
+      RARELY, FEMININE, ALWAYS, GENDER_MALE, NEVER, GENDER_FEMALE
     ),
     FEMALE_BIRTH = new Background(
       Backgrounds.class,
       "Born Female", "", null, null, NOT_A_CLASS, NOT_A_GUILD,
-      2, IMMUNE, 2, PERCEPT, RARELY, STOUT, ALWAYS, FEMININE
+      2, IMMUNE, 2, PERCEPT, RARELY, STOUT,
+      OFTEN, FEMININE, NEVER, GENDER_MALE, ALWAYS, GENDER_FEMALE
     ),
     //
     //  Natives can only be recruited locally, not from offworld.
@@ -449,9 +451,15 @@ public interface Backgrounds {
       OFTEN, HANDSOME, RARELY, STOUT, SOMETIMES, EMPATHIC, INDULGENT,
       FINERY
     ) {
-      final ImageAsset male_skin = costumeFor("aesthete_male_skin.gif");
+      //  TODO:  Develop some specialised sub-method for this...
+      final ImageAsset
+        male_skin     = costumeFor ("aesthete_male_skin.gif"    ),
+        male_portrait = portraitFor("aesthete_male_portrait.png");
       public ImageAsset costumeFor(Actor actor) {
         return actor.traits.female() ? costume : male_skin;
+      }
+      public ImageAsset portraitFor(Actor actor) {
+        return actor.traits.female() ? portrait : male_portrait;
       }
     },
     
@@ -490,12 +498,19 @@ public interface Backgrounds {
       CLASS_FREEMEN, NOT_A_GUILD,
       EXPERT, EROTICS, COUNSEL, SUASION, MASQUERADE, NOBLE_ETIQUETTE,
       PRACTICED, DOMESTICS, MUSIC_AND_SONG, COMMAND, HAND_TO_HAND,
-      ALWAYS, HANDSOME, OFTEN, FEMININE, EMPATHIC, TALL, RARELY, STOUT,
+      ALWAYS, HANDSOME, OFTEN, EMPATHIC, TALL, RARELY, STOUT,
+      OFTEN, GENDER_FEMALE, FEMININE,
       FINERY
     ) {
-      final ImageAsset male_skin = costumeFor("aesthete_male_skin.gif");
+      final ImageAsset
+        male_skin     = costumeFor ("aesthete_male_skin.gif"    ),
+        male_portrait = portraitFor("aesthete_male_portrait.png");
       public ImageAsset costumeFor(Actor actor) {
         return actor.traits.female() ? costume : male_skin;
+      }
+      public ImageAsset portraitFor(Actor actor) {
+        //I.say(actor+" female? "+actor.traits.female());
+        return actor.traits.female() ? portrait : male_portrait;
       }
     },
     
@@ -594,6 +609,8 @@ public interface Backgrounds {
     ),
     ANONYMOUS = null,
     //  TODO:  Anonymous.
+    
+    DEFAULT_SHIP_CREW[] = { SHIP_CAPTAIN, FREE_TRADER, FREE_TRADER },
     
     RUNNER_CIRCLES[] = {
       SHIP_CAPTAIN, FREE_TRADER,

@@ -269,9 +269,8 @@ public class StartupScenario extends Scenario {
         float rating = Career.ratePromotion(b, candidate);
         
         if (b == Backgrounds.FIRST_CONSORT) {
-          rating +=
-            ruler.mind.attraction(candidate) +
-            (candidate.mind.attraction(ruler) / 2);
+          rating += ruler.motives.attraction(candidate) * 1.0f;
+          rating += candidate.motives.attraction(ruler) * 0.5f;
         }
         if (rating > bestRating) { picked = candidate; bestRating = rating; }
       }

@@ -75,15 +75,20 @@ public class ActorRelations {
     sorting.queueSort();
     
     //  Then incrementally update each relation, and determine which are no
-    //  longer important enough to remember:
+    //  longer important enough to remember (only personal relations are
+    //  considered 'disposable' for this purpose:
     int count = 0; for (Relation r : sorting) {
-      final boolean okay = updateRelation(r, UPDATE_PERIOD);
+      final boolean
+        okay     = updateRelation(r, UPDATE_PERIOD),
+        excess   = ++count > MAX_RELATIONS,
+        personal = r.subject instanceof Actor;
+      
       if (report) {
         I.say("  Have updated relation with "+r.subject);
         I.say("  ("+count+"/"+MAX_RELATIONS+", okay: "+okay+")");
         I.say("  Value/novelty: "+r.value()+"/"+r.novelty());
       }
-      if ((! okay) || (++count > MAX_RELATIONS)) {
+      if (personal && (excess || ! okay)) {
         relations.remove(r.subject);
         if (report) I.say("  Has expired!");
       }

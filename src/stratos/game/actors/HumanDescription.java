@@ -184,7 +184,7 @@ public class HumanDescription implements Qualities {
       d.append("\n  "+career.birth()+" on "+career.homeworld());
       d.append("\n  Trained as "+career.vocation().nameFor(h));
       d.append("\n  "+h.traits.description(ORIENTATION));
-      d.append(" "+h.traits.description(GENDER));
+      d.append(" "+h.traits.genderDescription());
       d.append("\n  Age: "+h.health.exactAge()+" ("+h.health.agingDesc()+")");
     }
     

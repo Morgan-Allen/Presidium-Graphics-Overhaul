@@ -154,7 +154,7 @@ public class Personality {
   public static float traitChance(Trait t, Actor a) {
     final Trait cA[] = t.correlates();
     if (cA == null) return 0;
-
+    
     float plus = 0, minus = 0;
     final float wA[] = t.correlateWeights();
     
@@ -162,7 +162,7 @@ public class Personality {
       final Trait c = cA[n];
       final float w = wA[n];
       final float level = a.traits.traitLevel(c) * w;
-      if (level > 0) plus += (1 - plus) * level;
+      if (level > 0) plus  += (1 - plus ) * level;
       if (level < 0) minus -= (1 - minus) * level;
     }
     

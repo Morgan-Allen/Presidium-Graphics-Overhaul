@@ -129,11 +129,16 @@ public class Human extends Actor implements Qualities {
   final static int BLOOD_TONE_SHADES[] = { 3, 1, 2, 0 };
   
   
+  public static Trait raceFor(Human c) {
+    return RACIAL_TRAITS[bloodID(c)];
+  }
+  
+  
   private static int bloodID(Human c) {
     int ID = 0;
     float highest = 0;
     for (int i = 4; i-- > 0;) {
-      final float blood = c.traits.traitLevel(BLOOD_TRAITS[i]);
+      final float blood = c.traits.traitLevel(RACIAL_TRAITS[i]);
       if (blood > highest) { ID = i; highest = blood; }
     }
     return ID;

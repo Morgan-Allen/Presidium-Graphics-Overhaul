@@ -73,10 +73,11 @@ public class Tripod extends Artilect {
     return 2.5f * super.height();
   }
   
-  
+  /*
   protected float aboveGroundHeight() {
-    return 0.02f;
+    return 0;// -0.25f;// 0.02f;
   }
+  //*/
   
   
   

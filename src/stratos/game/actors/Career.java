@@ -17,11 +17,12 @@ import stratos.util.*;
 public class Career implements Qualities {
   
   
+  private static boolean
+    verbose = false;
+  
   final static int
     MIN_PERSONALITY           = 3,
     NUM_RANDOM_CAREER_SAMPLES = 3;
-  
-  private static boolean verbose = false;
   
   
   private Actor subject;
@@ -119,7 +120,6 @@ public class Career implements Qualities {
     subject = actor;
     
     applyBackgrounds(actor, base);
-    applySystem((Sector) homeworld, actor);
     applySex(actor);
     setupAttributes(actor);
     fillPersonality(actor);
@@ -170,8 +170,11 @@ public class Career implements Qualities {
     if (vocation == null) {
       pickBirthClass(actor, base);
       applyBackground(birth, actor);
+      
       pickHomeworld(actor, base);
       applyBackground(homeworld, actor);
+      applySystem((Sector) homeworld, actor);
+      
       pickVocation(actor, base);
       applyBackground(vocation, actor);
     }
@@ -180,8 +183,11 @@ public class Career implements Qualities {
     //  a probably system and social class of origin:
     else {
       applyBackground(vocation, actor);
+      
       pickHomeworld(actor, base);
       applyBackground(homeworld, actor);
+      applySystem((Sector) homeworld, actor);
+      
       pickBirthClass(actor, base);
       applyBackground(birth, actor);
     }
@@ -199,7 +205,7 @@ public class Career implements Qualities {
       //  TODO:  What about noble birth?  What triggers that?
       final Batch <Float> weights = new Batch <Float> ();
       for (Background v : Backgrounds.OPEN_CLASSES) {
-        weights.add(ratePromotion(v, actor));
+        weights.add(ratePromotion(v, actor, verbose));
       }
       birth = (Background) Rand.pickFrom(
         Backgrounds.OPEN_CLASSES, weights.toArray()
@@ -219,7 +225,7 @@ public class Career implements Qualities {
       //  TODO:  Include some weighting based off house relations!
       final Batch <Float> weights = new Batch <Float> ();
       for (Background v : Sectors.ALL_PLANETS) {
-        weights.add(ratePromotion(v, actor));
+        weights.add(ratePromotion(v, actor, verbose));
       }
       homeworld = (Background) Rand.pickFrom(
         Sectors.ALL_PLANETS, weights.toArray()
@@ -233,19 +239,19 @@ public class Career implements Qualities {
     
     if (base.isNative()) {
       for (Background b : Backgrounds.NATIVE_CIRCLES) {
-        pick.compare(b, ratePromotion(b, actor) * Rand.num());
+        pick.compare(b, ratePromotion(b, actor, verbose) * Rand.num());
       }
     }
     else for (Background circle[] : base.commerce.homeworld().circles()) {
       final float weight = base.commerce.homeworld().weightFor(circle);
       for (Background b : circle) {
-        pick.compare(b, ratePromotion(b, actor) * Rand.num() * weight);
+        pick.compare(b, ratePromotion(b, actor, verbose) * Rand.num() * weight);
       }
       for (int n = NUM_RANDOM_CAREER_SAMPLES; n-- > 0;) {
         final Background b = (Background) Rand.pickFrom(
           Backgrounds.ALL_STANDARD_CIRCLES
         );
-        pick.compare(b, ratePromotion(b, actor) * Rand.num() / 2);
+        pick.compare(b, ratePromotion(b, actor, verbose) * Rand.num() / 2);
       }
     }
     this.vocation = pick.result();
@@ -274,33 +280,68 @@ public class Career implements Qualities {
   
   
   public static float ratePromotion(Background next, Actor actor) {
+    final boolean report = verbose && I.talkAbout == actor;
+    return ratePromotion(next, actor, report);
+  }
+  
+  
+  private static float ratePromotion(
+    Background next, Actor actor, boolean report
+  ) {
+    if (report) I.say("\nRating promotion to "+next+" for "+I.tagHash(actor));
+    
+    //  TODO:  Try to use arrays instead of tables here?  For efficiency?
     float rating = 1;
     
     //  Check for similar skills.
-    for (Skill s : next.baseSkills.keySet()) {
-      rating += rateSimilarity(s, next, actor);
+    if (next.baseSkills.size() > 0) {
+      for (Skill s : next.baseSkills.keySet()) {
+        final float skillRating = rateSimilarity(s, next, actor);
+        if (skillRating == 0) continue;
+        rating += skillRating;
+        if (report) I.say("  Bonus due to "+s+" is "+skillRating);
+      }
+      final Batch <Skill> skills = actor.traits.skillSet();
+      for (Skill s : skills) {
+        final float skillRating = rateSimilarity(s, next, actor);
+        if (skillRating == 0) continue;
+        rating += skillRating;
+        if (report) I.say("  Bonus due to "+s+" is "+skillRating);
+      }
+      rating *= 2f / (1 + next.baseSkills.size() + skills.size());
     }
-    final Batch <Skill> skills = actor.traits.skillSet();
-    for (Skill s : actor.traits.skillSet()) {
-      rating += rateSimilarity(s, next, actor);
-    }
-    rating *= 2f / (1 + next.baseSkills.size() + skills.size());
     
-    //  Check for similar traits.
-    float sumChances = 1;
-    for (Trait t : next.traitChances.keySet()) {
-      float chance = next.traitChances.get(t);
-      chance *= Personality.traitChance(t, actor);
-      sumChances += (1 + chance) / 2f;
+    //  Check for similar traits. (Personality traits are handled a little
+    //  differently, as they can have 'opposites', while others are measured
+    //  directly.)
+    if (next.traitChances.size() > 0) {
+      float sumChances = 0;
+      for (Trait t : next.traitChances.keySet()) {
+        float chance = next.traitChances.get(t);
+        if (t.type == Trait.PERSONALITY) {
+          chance *= Personality.traitChance(t, actor);
+        }
+        else {
+          chance *= actor.traits.traitLevel(t);
+        }
+        if (report) I.say("  Chance due to "+t+" is "+chance);
+        sumChances += (chance + 1) / 2;
+      }
+      if (report) I.say("  Total trait chance: "+sumChances);
+      rating *= sumChances * 2 / (1 + next.traitChances.size());
     }
-    rating *= sumChances * 2f / (1 + next.traitChances.size());
-    if (rating < 0) return 0;
     
-    //  And favour transition to more prestigious vocations.
-    if (actor instanceof Human) {
+    //  Finally, we also favour transition to more prestigious vocations:
+    if (rating < 0) {
+      if (report) I.say("  No chance of promotion- quitting.");
+      return 0;
+    }
+    else if (actor instanceof Human) {
       final Background prior = ((Human) actor).career().topBackground();
       if (next.standing < prior.standing) return rating / 10f;
     }
+    
+    if (report) I.say("  Final rating: "+rating);
     return rating;
   }
   
@@ -342,6 +383,14 @@ public class Career implements Qualities {
   /**  Methods for customising fundamental attributes, rather than life
     *  experience-
     */
+  final static float
+    STRAIGHT_CHANCE = 0.85f,
+    BISEXUAL_CHANCE = 0.55f,
+    
+    RACE_CLIMATE_CHANCE  = 0.65f,
+    HALF_CLIMATE_CHANCE  = 0.35f;
+  
+  
   private void setupAttributes(Actor actor) {
     float minPhys = 0, minSens = 0, minCogn = 0;
     for (Skill s : actor.traits.skillSet()) {
@@ -361,33 +410,35 @@ public class Career implements Qualities {
   
   
   private void applySex(Human actor) {
+    
     if (gender == null) {
       final float
-        rateM = ratePromotion(Backgrounds.MALE_BIRTH  , actor),
-        rateF = ratePromotion(Backgrounds.FEMALE_BIRTH, actor);
+        rateM = ratePromotion(Backgrounds.MALE_BIRTH  , actor, verbose),
+        rateF = ratePromotion(Backgrounds.FEMALE_BIRTH, actor, verbose);
       if (rateM * Rand.avgNums(2) > rateF * Rand.avgNums(2)) {
         gender = Backgrounds.MALE_BIRTH;
       }
       else gender = Backgrounds.FEMALE_BIRTH;
     }
-    //
-    //  TODO:  Some of these traits need to be rendered 'dormant' in younger
-    //  citizens...
     applyBackground(gender, actor);
+    
+    //  TODO:  Do some of these traits need to be rendered 'dormant' in younger
+    //  citizens?
+    
     float ST = Nums.clamp(Rand.rangeAvg(-1, 3, 2), 0, 3);
     if (Rand.index(20) == 0) ST = -1;
     if (gender == Backgrounds.FEMALE_BIRTH) {
-      actor.traits.setLevel(GENDER, "Female");
+      actor.traits.setLevel(GENDER_FEMALE, 1);
       actor.traits.setLevel(FEMININE, ST);
     }
     else {
-      actor.traits.setLevel(GENDER, "Male");
+      actor.traits.setLevel(GENDER_MALE, 1);
       actor.traits.setLevel(FEMININE, 0 - ST);
     }
     actor.traits.setLevel(
       ORIENTATION,
-      Rand.index(10) != 0 ? "Heterosexual" :
-      (Rand.yes() ? "Homosexual" : "Bisexual")
+       Rand.num() < STRAIGHT_CHANCE ? "Heterosexual" :
+      (Rand.num() < BISEXUAL_CHANCE ? "Bisexual" : "Homosexual")
     );
   }
   
@@ -396,32 +447,35 @@ public class Career implements Qualities {
   //  TODO:  Try incorporating these trait-FX into the rankings first.
   private void applySystem(Sector world, Actor actor) {
     //
-    //  Assign skin texture based on prevailing climate-
-    //  TODO:  Blend these a bit more, once you have the graphics in order.
-    final Trait bloods[] = {
-      DESERT_BLOOD,
-      FOREST_BLOOD,
-      TUNDRA_BLOOD,
-      WASTES_BLOOD
-    };
-    Trait pickBlood = null;
-    ///I.say("Applying system: "+world.name+", climate: "+world.climate);
-    for (int n = 4; n-- > 0;) {
-      if (bloods[n] == world.climate) {
-        final float roll = Rand.num();
-        final int index;
-        if (roll < 0.65f) index = 0;
-        else if (roll < 0.80f) index = 1;
-        else if (roll < 0.95f) index = 3;
-        else index = 2;
-        pickBlood = bloods[(n + index) % 4];
-      }
+    //  Assign skin texture (race) based on prevailing climate.  (Climate
+    //  matching the parent homeworld is most likely, followed by races with
+    //  similar skin tone- i.e, adjacent in the spectrum.)
+    final boolean report = verbose;
+    final Pick <Trait> racePick = new Pick <Trait> ();
+    final int raceID = Visit.indexOf(world.climate, RACIAL_TRAITS);
+    float sumChances = 0;
+    if (report) {
+      I.say("\nApplying effects of "+world);
+      I.say("  Default climate:    "+world.climate+", ID: "+raceID);
     }
-    if (pickBlood != null) actor.traits.setLevel(pickBlood, 1);
+    
+    for (int n = RACIAL_TRAITS.length; n-- > 0;) {
+      float chance = 1;
+      if (n                    == raceID) chance /= 1 - RACE_CLIMATE_CHANCE;
+      if (Nums.abs(raceID - n) == 1     ) chance /= 1 - HALF_CLIMATE_CHANCE;
+      sumChances += chance;
+      racePick.compare(RACIAL_TRAITS[n], chance * Rand.avgNums(2));
+    }
+    final Trait race = racePick.result();
+    final float raceChance = racePick.bestRating() / sumChances;
+    actor.traits.setLevel(race, (raceChance + 1) / 2);
+    if (report) I.say("  RACE PICKED: "+race+", CHANCE: "+raceChance);
+    //  TODO:  Blend these a bit more, once you have the graphics in order?
+    
     //
     //  Vary height/build based on gravity-
     //  TODO:  Have the citizen models actually reflect this.
-    actor.traits.incLevel(TALL, Rand.num() * -1 * world.gravity);
+    actor.traits.incLevel(TALL , Rand.num() * -1 * world.gravity);
     actor.traits.incLevel(STOUT, Rand.num() * 1 * world.gravity);
   }
   

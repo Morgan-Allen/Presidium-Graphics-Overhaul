@@ -9,6 +9,9 @@ import stratos.game.base.Suspensor;
 
 
 
+//  TODO:  Allow the actor to carry the subject directly, if no other options
+//  is available (e.g, for kidnappings.)
+
 
 public class StretcherDelivery extends Plan implements Qualities {
   

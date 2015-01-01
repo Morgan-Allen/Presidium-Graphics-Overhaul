@@ -452,11 +452,6 @@ public class Commerce {
       final float repair = Nums.clamp(1.25f - (Rand.num() / 2), 0, 1);
       ship.structure.setState(Structure.STATE_INTACT, repair);
     }
-    refreshCrew(ship,
-      Backgrounds.SHIP_CAPTAIN,
-      Backgrounds.FREE_TRADER,
-      Backgrounds.FREE_TRADER
-    );
   }
   
   
@@ -599,7 +594,7 @@ public class Commerce {
         
         base.world.offworld.addPassengersTo(ship);
         loadCargo(ship, localShortages, true);
-        refreshCrew(ship);
+        refreshCrew(ship, Backgrounds.DEFAULT_SHIP_CREW);
         
         for (Actor c : ship.crew()) ship.setInside(c, true);
         ship.beginDescent(base.world);

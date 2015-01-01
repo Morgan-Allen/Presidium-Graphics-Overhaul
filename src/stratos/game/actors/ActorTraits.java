@@ -134,12 +134,12 @@ public class ActorTraits implements Qualities {
   
   
   public boolean male() {
-    return hasTrait(Trait.GENDER, "Male");
+    return traitLevel(Trait.GENDER_MALE) > 0;
   }
   
   
   public boolean female() {
-    return hasTrait(Trait.GENDER, "Female");
+    return traitLevel(Trait.GENDER_FEMALE) > 0;
   }
   
   
@@ -269,6 +269,11 @@ public class ActorTraits implements Qualities {
   }
   
   
+  public boolean hasTrait(Trait type) {
+    return traitLevel(type) > 0;
+  }
+  
+  
   public boolean hasTrait(Trait type, String desc) {
     int i = 0; for (String s : type.descriptors) {
       if (desc.equals(s)) {
@@ -357,7 +362,7 @@ public class ActorTraits implements Qualities {
   public Batch <Trait> physique() {
     final Batch <Trait> matches = new Batch <Trait> ();
     getMatches(matches, Qualities.PHYSICAL_TRAITS);
-    getMatches(matches, Qualities.BLOOD_TRAITS);
+    getMatches(matches, Qualities.RACIAL_TRAITS);
     return matches;
   }
   
@@ -400,6 +405,13 @@ public class ActorTraits implements Qualities {
     */
   public String description(Trait type) {
     return Trait.descriptionFor(type, relativeLevel(type));
+  }
+  
+  
+  public String genderDescription() {
+    if (male  ()) return "Male"  ;
+    if (female()) return "Female";
+    return "Neuter";
   }
   
   

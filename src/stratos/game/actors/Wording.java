@@ -80,7 +80,7 @@ public class Wording implements Qualities {
   public static String[] namesFor(Human actor) {
     final Batch <String> names = new Batch <String> ();
     final Background birth = actor.career().birth();
-    final boolean female = actor.traits.hasTrait(GENDER, "Female");
+    final boolean female = actor.traits.female();
     
     if (birth == Backgrounds.NATIVE_BIRTH) {
       final String pick[] = female ? NATIVE_FN : NATIVE_MN;

@@ -10,9 +10,10 @@ import stratos.game.plans.*;
 import stratos.game.politic.*;
 import stratos.game.base.*;
 import stratos.game.wild.*;
-import stratos.graphics.common.Colour;
 import stratos.user.*;
 import stratos.util.*;
+import static stratos.game.actors.Qualities.*;
+import stratos.graphics.common.Colour;
 
 
 
@@ -78,15 +79,11 @@ public class DebugSocial extends Scenario {
       Sectors.PLANET_DIAPSOR
     );
     
-    //configMedicalScenario(world, base, UI);
-    //configHuntingScenario(world, base, UI);
-    //configCombatScenario(world, base, UI);
-    //configDialogueScenario(world, base, UI);
-    //configPurchaseScenario(world, base, UI);
-    //configRaidScenario(world, base, UI);
-    configArtilectScenario(world, base, UI);
-    //configContactScenario(world, base, UI);
-    //configWildScenario(world, base, UI);
+    if (true ) testCareers(base);
+    if (false) configDialogueScenario(world, base, UI);
+    if (false) configArtilectScenario(world, base, UI);
+    if (false) configContactScenario (world, base, UI);
+    if (false) configWildScenario    (world, base, UI);
   }
   
   
@@ -107,6 +104,7 @@ public class DebugSocial extends Scenario {
     venue.stocks.bumpItem(Economy.PARTS, 10);
     //*/
     
+    //*
     Actor citizen = null, other = null;
     for (int n = 2; n-- > 0;) {
       citizen = new Human(Backgrounds.CULTIVATOR, base);
@@ -118,6 +116,7 @@ public class DebugSocial extends Scenario {
     d.setMotive(Plan.MOTIVE_LEISURE, Plan.CASUAL);
     citizen.mind.assignBehaviour(d);
     UI.selection.pushSelection(citizen, true);
+    //*/
     
     //  TODO:  RE-TEST THIS
     /*
@@ -149,11 +148,10 @@ public class DebugSocial extends Scenario {
     ruins.structure.setState(Structure.STATE_INTACT, healthLevel);
     
     UI.assignBaseSetup(artilects, ruins.position(null));
-    UI.selection.pushSelection(ruins, true);
     
     //  TODO:  Modify this to work correctly!
     artilects.setup.fillVacancies(ruins, true);
-    Artilect lives = (Artilect) ruins.staff.workers().first();
+    //Artilect lives = (Artilect) ruins.staff.workers().first();
     /*
     Ruins.populateArtilects(
       world, ruins, true,
@@ -163,9 +161,10 @@ public class DebugSocial extends Scenario {
     //*/
     
     final Human subject = new Human(Backgrounds.COMPANION, base);
-    subject.enterWorldAt(ruins, world);
+    subject.enterWorldAt(22, 29, world);
     subject.health.takeInjury(subject.health.maxHealth() + 1, true);
     subject.health.setState(ActorHealth.STATE_DYING);
+    UI.selection.pushSelection(subject, true);
   }
   
   
@@ -243,6 +242,31 @@ public class DebugSocial extends Scenario {
     
     //  This is the last scenario to test.  Just introduce some animals, and
     //  see how they react to (A) eachother and (B) the nearby base.
+  }
+  
+  
+  private void testCareers(Base base) {
+    //
+    //  Just checking on the probability distribution in the careers system-
+    I.say("\nGenerating random companions:");
+    final int runs = 125;
+    int numM = 0, numF = 0;
+    final Tally <Trait> frequencies = new Tally <Trait> ();
+    
+    for (int n = runs; n-- > 0;) {
+      I.say("\nGENERATING NEW ACTOR...");
+      final Human comp = new Human(Backgrounds.COMPANION, base);
+      I.say("  Gender for "+comp+" is "+comp.traits.genderDescription());
+      if (comp.traits.female()) numF++;
+      if (comp.traits.male  ()) numM++;
+      frequencies.add(1, Human.raceFor(comp));
+    }
+    I.say("\nFinal results: ("+runs+" total)");
+    I.say("  "+numF+" female");
+    I.say("  "+numM+" male"  );
+    for (Trait t : frequencies.keysToArray(Trait.class)) {
+      I.say("  "+frequencies.valueFor(t)+" "+t);
+    }
   }
   
   
