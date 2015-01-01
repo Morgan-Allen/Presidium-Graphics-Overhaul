@@ -43,7 +43,7 @@ public class DangerMap extends FadingMap {
     super.update();
     
     if (verbose) {
-      I.say("\nDanger map updated for "+base.title+" ("+base.hashCode()+")");
+      I.say("\nDanger map updated for "+base.title()+" ("+base.hashCode()+")");
       
       final int o = resolution / 2;
       for (Coord c : Visit.grid(o, o, world.size, world.size, resolution)) {

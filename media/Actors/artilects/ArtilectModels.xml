@@ -93,10 +93,10 @@
   stride="1.5"
   height="2.5"
 >
-  <animations rotate="90" fps="30">
+  <animations rotate="90" fps="1">
     <animation name="attack" start="0"   end="40"  duration="1" />
-    <animation name="build"  start="41"  end="235" duration="1" />
-    <animation name="carry"  start="302" end="555" duration="1" />
+    <animation name="build"  start="41"  end="301" duration="1" />
+    <animation name="carry"  start="302" end="586" duration="1" />
     <animation name="fire"   start="587" end="637" duration="1" />
     <animation name="idle"   start="638" end="668" duration="1" />
     <animation name="look"   start="669" end="836" duration="1" />

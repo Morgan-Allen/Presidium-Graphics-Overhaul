@@ -23,7 +23,7 @@ public class Tripod extends Artilect {
   
   
   public Tripod(Base base) {
-    super(base, Species.SPECIES_TRIPOD);
+    super(base, Species.TRIPOD);
     
     traits.initAtts(30, 10, 5);
     health.initStats(

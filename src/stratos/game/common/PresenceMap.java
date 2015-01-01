@@ -308,6 +308,14 @@ public class PresenceMap implements Session.Saveable {
   }
   
   
+  public int samplePopulation(Target origin, float range) {
+    final Tile o = world.tileAt(origin);
+    int p = 0;
+    for (Target t : this.visitNear(o, range, null)) p++;
+    return p;
+  }
+  
+  
   public Target pickNearest(Target origin, float range) {
     final Tile o = world.tileAt(origin);
     for (Target t : visitNear(o, range, null)) return t;

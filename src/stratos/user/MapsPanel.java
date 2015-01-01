@@ -2,7 +2,9 @@
 
 package stratos.user;
 import stratos.game.common.*;
-import stratos.game.economic.Boarding;
+import stratos.game.economic.*;
+import stratos.game.wild.*;
+import stratos.game.maps.*;
 import stratos.graphics.common.*;
 import stratos.graphics.terrain.*;
 import stratos.graphics.widgets.*;
@@ -93,16 +95,38 @@ public class MapsPanel extends UIGroup {
     if (avg == null) { avg = new Colour(); near = new Tile[8]; }
     
     final Tile t = world.tileAt(c.x, c.y);
-    avg.set(t.minimapTone());
+    avg.set(tileTone(t));
+    
+    //  TODO:  Save this for various display modes...
+    /*
+    float f = world.terrain().fertilitySample(t);
+    avg.blend(Colour.greyscale(f), 0.85f);
+    //*/
     
     final Base border = baseWithBorder(t);
     if (border != null) {
-      final Colour badge = border.colour;
-      avg.r = (1 + badge.r) / 2;
-      avg.g = (1 + badge.g) / 2;
-      avg.b = (1 + badge.b) / 2;
+      final Colour badge = border.colour();
+      avg.set(badge).blend(Colour.WHITE, 0.5f);
     }
+    
     return avg.getRGBA();
+  }
+  
+  
+  private Colour tileTone(Tile t) {
+    
+    if (t.onTop() instanceof Venue) {
+      final Base b = ((Venue) t.onTop()).base();
+      return b == null ? Colour.LITE_GREY : b.colour();
+    }
+    
+    for (Mobile m : t.inside()) {
+      final Base b = m.base();
+      return b == null ? Colour.LITE_GREY : b.colour();
+    }
+    
+    if (world.terrain().isRoad(t)) return Habitat.ROAD_TEXTURE.average();
+    return t.habitat().baseTex.average();
   }
   
   

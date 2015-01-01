@@ -64,7 +64,7 @@ public class VenueDescription {
     BaseUI UI, String statusMessage
   ) {
     if (panel == null) panel = new SelectionInfoPane(
-      UI, venue, venue.portrait(UI), true, CAT_STOCK, CAT_VISITORS
+      UI, venue, venue.portrait(UI), true, CAT_STOCK, CAT_STAFFING
     );
     
     final String category = panel.category();
@@ -77,7 +77,8 @@ public class VenueDescription {
       d.append(statusMessage);
     }
     if (category == CAT_STOCK   ) VD.describeStocks  (l, UI);
-    if (category == CAT_VISITORS) VD.describeVisitors(l, UI);
+    if (category == CAT_STAFFING) VD.describeStaffing(l, UI);
+    //if (category == CAT_VISITORS) VD.describeVisitors(l, UI);
     return panel;
   }
   
@@ -123,7 +124,7 @@ public class VenueDescription {
     
     d.append("\n\n");
     
-    d.append(v.helpInfo(), Colour.LIGHT_GREY);
+    d.append(v.helpInfo(), Colour.LITE_GREY);
   }
   
   
@@ -329,9 +330,9 @@ public class VenueDescription {
       
       d.append(new Description.Link(upgrade.name) {
         public void whenClicked() { lastCU = upgrade; }
-      }, possible ? Text.LINK_COLOUR : Colour.LIGHT_GREY);
+      }, possible ? Text.LINK_COLOUR : Colour.LITE_GREY);
 
-      final Colour linkC = possible ? Colour.WHITE : Colour.LIGHT_GREY;
+      final Colour linkC = possible ? Colour.WHITE : Colour.LITE_GREY;
       d.append("  (Cost "+upgrade.buildCost+")", linkC);
       if (level > 0) d.append(" (x"+level+")", linkC);
     }
@@ -339,7 +340,7 @@ public class VenueDescription {
     
     if (lastCU != null) {
       d.append("\n\n");
-      d.append(lastCU.description, Colour.LIGHT_GREY);
+      d.append(lastCU.description, Colour.LITE_GREY);
       if (lastCU.required != null) {
         d.append("\n  Requires: "+lastCU.required.name);
       }

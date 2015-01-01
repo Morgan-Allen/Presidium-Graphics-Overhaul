@@ -21,7 +21,7 @@ public class Ruins extends Venue {
   /**  Construction and save/load methods-
     */
   private static boolean
-    placeVerbose  = true ,
+    placeVerbose  = false,
     updateVerbose = false;
   
   final static ModelAsset MODEL_RUINS[] = CutoutModel.fromImages(
@@ -30,16 +30,16 @@ public class Ruins extends Venue {
     "ruins_b.png",
     "ruins_c.png"
   );
-  private static int NI = (int) (Rand.unseededNum() * 3);
   
   final static int
     MIN_RUINS_SPACING = (int) (Stage.SECTOR_SIZE * 0.75f);
+  
+  private static int NI = (int) (Rand.unseededNum() * 3);
   
   
   public Ruins(Base base) {
     super(4, 2, ENTRANCE_EAST, base);
     structure.setupStats(500, 25, 0, 0, Structure.TYPE_ANCIENT);
-    structure.setState(Structure.STATE_INTACT, Rand.avgNums(2));
     staff.setShiftType(SHIFTS_ALWAYS);
     final int index = (NI++ + Rand.index(1)) % 3;
     attachSprite(MODEL_RUINS[index].makeSprite());
@@ -57,11 +57,18 @@ public class Ruins extends Venue {
   
   
   
-  /**  Behavioural routines-
+  /**  Situation and claims-management-
     */
-  public Behaviour jobFor(Actor actor) {
-    //  TODO:  Fill this in?
-    return null;
+  final public static VenueProfile VENUE_PROFILES[];
+  static {
+    VENUE_PROFILES = new VenueProfile[1];
+    VENUE_PROFILES[0] = new VenueProfile(Ruins.class, Ruins.class) {
+      public Venue sampleVenue(Base base) {
+        final Venue sample = new Ruins(base);
+        sample.structure.setState(Structure.STATE_INTACT, Rand.avgNums(2));
+        return sample;
+      }
+    };
   }
   
   
@@ -76,133 +83,67 @@ public class Ruins extends Venue {
   }
   
   
+  public float ratePlacing(Target point, boolean exact) {
+    final boolean report = placeVerbose && (point instanceof StageSection);
+    if (report) {
+      I.say("\nRating are for "+this);
+      I.say("  SECTION IS: "+point);
+    }
+    
+    final Stage world = point.world();
+    final Tile under = world.tileAt(point);
+    float rating = 2;
+    rating -= world.terrain().fertilitySample(under);
+    rating += world.terrain().habitatSample(under, Habitat.CURSED_EARTH);
+    
+    if (report) {
+      I.say("  Rating is: "+rating);
+    }
+    return rating;
+  }
+  
+  
   protected void updatePaving(boolean inWorld) {}
-  public Background[] careers() { return null; }
-  public Traded[] services() { return null; }
   
   
   
-  /**  Siting and placement-
+  /**  Behavioural routines-
     */
-  public static Batch <Ruins> placeRuins(
-    final Stage world, final int maxPlaced
-  ) {
-    final boolean report = placeVerbose;
-    
-    final Presences presences = world.presences;
-    final Batch <Ruins> placed = new Batch <Ruins> ();
-    final Base artilects = Base.artilects(world);
-    
-    final SitingPass siting = new SitingPass() {
-      int numSited = 0;
-      
-      protected float rateSite(Tile centre) {
-        if (report) I.say("Rating site at: "+centre);
-        final Venue nearest = (Venue) presences.nearestMatch(
-          Venue.class, centre, -1
-        );
-        if (nearest != null) {
-          final float distance = Spacing.distance(nearest, centre);
-          if (report) I.say("Neighbour is: "+nearest+", distance: "+distance);
-          if (distance < MIN_RUINS_SPACING) return -1;
-        }
-        float rating = 2;
-        rating -= world.terrain().fertilitySample(centre);
-        rating += world.terrain().habitatSample(centre, Habitat.CURSED_EARTH);
-        return rating;
-      }
-      
-      
-      protected boolean createSite(Tile centre) {
-        final float rating = rateSite(centre);
-        if (report) {
-          I.say("Trying to place ruins at "+centre+", rating "+rating);
-        }
-        
-        final boolean minor = numSited >= maxPlaced / 2;
-        int maxRuins = (minor ? 3 : 1) + Rand.index(3);
-        final Batch <Ruins> ruins = new Batch <Ruins> ();
-        
-        while (maxRuins-- > 0 && numSited < maxPlaced) {
-          final Ruins r = new Ruins(artilects);
-          Placement.establishVenue(r, centre.x, centre.y, true, world);
-          if (r.inWorld()) {
-            if (report) I.say("  Ruin established at: "+r.origin());
-            ruins.add(r);
-            placed.add(r);
-          }
-          numSited++;
-        }
-        
-        //  TODO:  Slag/wreckage must be done in a distinct pass...
-        for (Ruins r : ruins) {
-          for (Tile t : world.tilesIn(r.footprint(), true)) {
-            Habitat h = Rand.yes() ? Habitat.CURSED_EARTH : Habitat.DUNE;
-            world.terrain().setHabitat(t, h);
-          }
-          populateArtilects(world, r, true);
-        }
-        return ruins.size() > 0;
-      }
-    };
-    siting.applyPassTo(world, maxPlaced);
-    return placed;
+  public Behaviour jobFor(Actor actor) {
+    //  TODO:  Fill this in.
+    return null;
   }
   
   
-  public static Batch <Artilect> populateArtilects(
-    Stage world, Ruins ruins, boolean fillSpaces, Artilect... living
-  ) {
-    final boolean report = placeVerbose;
-    final Batch <Artilect> populace = new Batch <Artilect> ();
-    
-    //  Add any artilects passed as arguments, or that there's room for
-    //  afterwards.
-    for (Artilect a : living) {
-      a.mind.setHome(ruins);
-      populace.add(a);
+  public float crowdRating(Actor actor, Background b) {
+    if (b == Backgrounds.AS_RESIDENT) {
+      if (staff.isWorker(actor)) return 0;
+      else return 1;
     }
-    
-    if (living == null || living.length == 0 || fillSpaces) {
-      for (Species s : Species.ARTILECT_SPECIES) {
-        final int space = ruins.spaceFor(s);
-        if (report) I.say("  SPACE FOR "+s+" is "+space);
-        for (int n = space; n-- > 0;) {
-          populace.add((Artilect) s.newSpecimen(ruins.base()));
-        }
-      }
-    }
-    
-    //  Then have each enter the world at the given location-
-    for (Artilect a : populace) {
-      a.mind.setHome(ruins);
-      a.enterWorldAt(ruins, world);
-      a.goAboard(ruins, world);
-    }
-    return populace;
+    return super.crowdRating(actor, b);
   }
   
   
-  protected int spaceFor(Species s) {
-    final boolean report = updateVerbose;
-    
+  protected int numOpenings(Background b) {
+    final boolean report = updateVerbose && I.talkAbout == this;
+    //
     //  We 'salt' this estimate in a semi-random but deterministic way by
     //  referring to terrain variation.
     float spaceLevel = structure.repairLevel();
     spaceLevel *= 1 + world.terrain().varAt(origin());
     spaceLevel *= 1f / StageTerrain.TILE_VAR_LIMIT;
-    
-    int numLiving = 0;
-    for (Actor a : staff.residents()) if (a.species() == s) numLiving++;
-    
     int space = 0;
-    if (s == Species.SPECIES_CRANIAL) space = spaceLevel > 0.5f ? 1 : 0;
-    if (s == Species.SPECIES_TRIPOD ) space = 1 + (int) (spaceLevel * 1);
-    if (s == Species.SPECIES_DRONE  ) space = 2 + (int) (spaceLevel * 2);
-    
-    if (report) I.say("\n  BASE-SPACE/NUM-LIVING: "+space+"/"+numLiving);
-    return space - numLiving;
+    if (b == Species.CRANIAL) space = (int) (spaceLevel * 1);
+    if (b == Species.TRIPOD ) space = (int) (spaceLevel * 3);
+    if (b == Species.DRONE  ) space = (int) (spaceLevel * 5);
+    if (report) I.say("  "+space+" openings for "+b+" at "+this);
+    return space;
   }
+  
+  
+  //  TODO:  Allow for mutants, etc.?
+  public Background[] careers() { return Species.ARTILECT_SPECIES; }
+  public Traded[] services() { return null; }
   
   
   
@@ -247,10 +188,6 @@ public class Ruins extends Venue {
     );
   }
 }
-
-
-
-
 
 
 

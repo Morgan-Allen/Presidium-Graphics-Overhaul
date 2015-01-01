@@ -12,8 +12,6 @@ import stratos.util.*;
 
 
 
-
-
 public class Habitat {
   
   
@@ -56,7 +54,7 @@ public class Habitat {
     );
   
   final private static String
-    MOISTURE   = "moisture",
+    FERTILITY   = "moisture",
     INSOLATION = "insolation",
     MINERALS   = "minerals",
     IS_OCEAN   = "is ocean",
@@ -79,7 +77,7 @@ public class Habitat {
         TERRAIN_PATH+"ocean.2.gif",
         TERRAIN_PATH+"ocean.3.gif"
       }, PLANKTON_MODELS,
-      2, false, IS_OCEAN
+      2, false, IS_OCEAN, FERTILITY, 5, INSOLATION, 3, MINERALS, 1
     ),
     SHALLOWS = new Habitat(
       "Shallows",
@@ -89,13 +87,13 @@ public class Habitat {
         TERRAIN_PATH+"shallows.2.gif",
         TERRAIN_PATH+"shallows.3.gif"
       }, PLANKTON_MODELS,
-      1, false, IS_OCEAN
+      1, false, IS_OCEAN, FERTILITY, 5, INSOLATION, 4, MINERALS, 0
     ),
     SHORELINE = new Habitat(
       "Shore",
       "",
       "shoreline.png", NO_FLORA,
-      0, true, IS_OCEAN
+      0, true, IS_OCEAN, FERTILITY, 5, INSOLATION, 5, MINERALS, 2
     ),
     //
     //  Forest habitats, which occur in equatorial regions with adequate rain-
@@ -103,19 +101,19 @@ public class Habitat {
       "Swamplands",
       "",
       "swamplands_ground.gif", FOREST_FLORA_MODELS,
-      2, true, MOISTURE, 9, INSOLATION, 6, MINERALS, 0
+      2, true, FERTILITY, 9, INSOLATION, 6, MINERALS, 0
     ),
     ESTUARY = new Habitat(
       "Rain Forest",
       "",
       "estuary_ground.png", FOREST_FLORA_MODELS,
-      1, true, MOISTURE, 7, INSOLATION, 7, MINERALS, 2
+      1, true, FERTILITY, 7, INSOLATION, 7, MINERALS, 2
     ),
     MEADOW = new Habitat(
       "Meadow",
       "",
       "meadows_ground.gif", FOREST_FLORA_MODELS,
-      0, true, MOISTURE, 6, INSOLATION, 5, MINERALS, 3
+      0, true, FERTILITY, 6, INSOLATION, 5, MINERALS, 3
     ),
     
     OCEAN_HABITATS[] = { SHORELINE, SHALLOWS, OCEAN },
@@ -126,19 +124,19 @@ public class Habitat {
       "Savannah",
       "",
       "savannah_ground.gif", DESERT_FLORA_MODELS,
-      2, true, MOISTURE, 5, INSOLATION, 7, MINERALS, 3
+      2, true, FERTILITY, 5, INSOLATION, 7, MINERALS, 3
     ),
     BARRENS = new Habitat(
       "Barrens",
       "",
       "barrens_ground.gif", DESERT_FLORA_MODELS,
-      1, true, MOISTURE, 3, INSOLATION, 8, MINERALS, 6
+      1, true, FERTILITY, 3, INSOLATION, 8, MINERALS, 6
     ),
     DUNE = new Habitat(
       "Desert",
       "",
       "desert_ground.gif", NO_FLORA,
-      0, true, MOISTURE, 1, INSOLATION, 9, MINERALS, 5
+      0, true, FERTILITY, 1, INSOLATION, 9, MINERALS, 5
     ),
     DESERT_HABITATS[] = { DUNE, BARRENS, SAVANNAH },
     
@@ -149,21 +147,21 @@ public class Habitat {
       "Mesa",
       "",
       "mesa_ground.gif", NO_FLORA,
-      -1, true, MOISTURE, 1, INSOLATION, 5, MINERALS, 7,
+      -1, true, FERTILITY, 1, INSOLATION, 5, MINERALS, 7,
       IS_WASTE
     ),
     CURSED_EARTH = new Habitat(
       "Cursed Earth",
       "",
       "black_wastes_ground_old.png", NO_FLORA,// WASTES_FLORA_MODELS,
-      -1, true, MOISTURE, 3, INSOLATION, 3, MINERALS, 5,
+      -1, true, FERTILITY, 3, INSOLATION, 3, MINERALS, 5,
       IS_WASTE
     ),
     STRIP_MINING = new Habitat(
       "Strip Mining",
       "",
       "strip_mining_ground.png", NO_FLORA,//WASTES_FLORA_MODELS,
-      -1, true, MOISTURE, 5, INSOLATION, 7, MINERALS, 0,
+      -1, true, FERTILITY, 5, INSOLATION, 7, MINERALS, 0,
       IS_WASTE
     ),
     //
@@ -234,7 +232,7 @@ public class Habitat {
     this.biosphere = biosphere;
     this.pathClear = pathClear;
     for (int i = 0; i < traits.length; i++) {
-      if (traits[i] == MOISTURE  ) moisture   = (Integer) traits[i + 1];
+      if (traits[i] == FERTILITY  ) moisture   = (Integer) traits[i + 1];
       if (traits[i] == MINERALS  ) rockiness  = (Integer) traits[i + 1];
       if (traits[i] == INSOLATION) insolation = (Integer) traits[i + 1];
       if (traits[i] == IS_OCEAN) isOcean = true;

@@ -55,7 +55,11 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     TIME_INIT = -1,
     TIME_DONE = -2,
     SAMPLE_RESOLUTION = Stage.SECTOR_SIZE,
-    SAMPLE_AREA = SAMPLE_RESOLUTION * SAMPLE_RESOLUTION;
+    INDEX_FERTILITY  = 0,
+    INDEX_INSOLATION = 1,
+    INDEX_MINERALS   = 2,
+    INDEX_HABITATS   = 3,
+    NUM_SAMPLE_MAPS  = INDEX_HABITATS + Habitat.ALL_HABITATS.length;
   
   final public int
     mapSize;
@@ -69,19 +73,19 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   private byte
     minerals[][],
     paveVals[][],
-    //roadCounter[][],
     dirtVals[][];
   
   private TerrainSet meshSet;
   private LayerType dirtLayer, roadLayer;
   
   private static class Sample {
-    int fertility, insolation, minerals;
-    final int habitat[] = new int[Habitat.ALL_HABITATS.length];
+    //int fertility, insolation, minerals, area;
+    //final int habitat[] = new int[Habitat.ALL_HABITATS.length];
+    final int measures[] = new int[NUM_SAMPLE_MAPS];
+    int area = 0;
   }
   
   private Sample sampleGrid[][];
-  
   
   
   
@@ -149,6 +153,8 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   
   /**  Averages and sampling-
     */
+  //  TODO:  Consider using Mip-Maps here?
+  
   private Sample sampleAt(int x, int y) {
     return sampleGrid[x / SAMPLE_RESOLUTION][y / SAMPLE_RESOLUTION];
   }
@@ -169,30 +175,60 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   private void incSampleAt(int x, int y, Habitat h, int inc) {
     if (h == null) return;
     final Sample s = sampleAt(x, y);
-    s.habitat[h.ID] += inc;
-    s.insolation += h.insolation() * inc;
-    s.minerals   += h.minerals  () * inc;
-    s.fertility  += h.moisture  () * inc;
+    s.measures[INDEX_HABITATS + h.ID] += inc;
+    s.measures[INDEX_INSOLATION     ] += h.insolation() * inc;
+    s.measures[INDEX_MINERALS       ] += h.minerals  () * inc;
+    s.measures[INDEX_FERTILITY      ] += h.moisture  () * inc;
+    s.area += inc;
+  }
+  
+  
+  private float sampleAt(Tile t, int index) {
+    final int SR = SAMPLE_RESOLUTION;
+    float
+      cap = (mapSize / SR) - 1.01f,
+      wX = Nums.clamp((t.x * 1f / SR) - 0.5f, 0, cap),
+      wY = Nums.clamp((t.y * 1f / SR) - 0.5f, 0, cap);
+    final int
+      mX = (int) wX,
+      mY = (int) wY,
+      pX = mX + 1,
+      pY = mY + 1;
+    final float
+      iX = 1 - (wX %= 1),
+      iY = 1 - (wY %= 1);
+    final Sample
+      s1 = sampleGrid[mX][mY],
+      s2 = sampleGrid[mX][pY],
+      s3 = sampleGrid[pX][mY],
+      s4 = sampleGrid[pX][pY];
+    
+    float sum = 0;
+    sum += (s1.measures[index] * iX * iY) / s1.area;
+    sum += (s2.measures[index] * iX * wY) / s2.area;
+    sum += (s3.measures[index] * wX * iY) / s3.area;
+    sum += (s4.measures[index] * wX * wY) / s4.area;
+    return sum;
   }
   
   
   public float fertilitySample(Tile t) {
-    return sampleAt(t.x, t.y).fertility / SAMPLE_AREA;
+    return sampleAt(t, INDEX_FERTILITY) / 10;
   }
   
   
   public float insolationSample(Tile t) {
-    return sampleAt(t.x, t.y).insolation / SAMPLE_AREA;
+    return sampleAt(t, INDEX_INSOLATION) / 10;
   }
   
   
   public float mineralsSample(Tile t) {
-    return sampleAt(t.x, t.y).minerals / SAMPLE_AREA;
+    return sampleAt(t, INDEX_MINERALS) / 10;
   }
   
   
   public float habitatSample(Tile t, Habitat h) {
-    return sampleAt(t.x, t.y).habitat[h.ID] / SAMPLE_AREA;
+    return sampleAt(t, INDEX_HABITATS + h.ID);
   }
   
   

@@ -130,21 +130,30 @@ public class Exploring extends Plan implements Qualities {
     
     //  Make this less attractive as you get further from home/safety.
     final Target haven = actor.senses.haven();
-    float distFactor = (haven == null) ? 0 :
-      Plan.rangePenalty(haven, actor);
+    float distFactor = (haven == null) ? 0 : Plan.rangePenalty(haven, actor);
     
+    //  TODO:  REMOVE THIS FACTOR FROM EXPLORING AND ADD TO DANGER ASSESSMENT
+    //  FOR PLANS IN GENERAL
+    float riskFactor = 0.5f;
+    final Base owns = actor.world().claims.baseClaiming(lookedAt);
+    if      (owns == base) riskFactor = 0;
+    else if (owns != null) riskFactor -= owns.relations.relationWith(base);
+    riskFactor *= (1 + Plan.dangerPenalty(lookedAt, actor)) / 2;
+    
+    if (report) {
+      I.say("\nExtra parameters for "+this);
+      I.say("  Base priority:         "+basePriority);
+      I.say("  Haven distance factor: "+distFactor  );
+      I.say("  Claims-based risk:     "+riskFactor  );
+    }
     final float priority = priorityForActorWith(
       actor, lookedAt,
-      basePriority, 0 - distFactor * CASUAL,
+      basePriority, 0 - (distFactor + riskFactor) * CASUAL,
       NO_HARM, MILD_COMPETITION,
       MILD_FAIL_RISK, BASE_SKILLS,
       BASE_TRAITS, PARTIAL_DISTANCE_CHECK,
       report
     );
-    if (report) {
-      I.say("  Got explore priority, base: "+basePriority);
-      I.say("  Haven distance factor: "+distFactor);
-    }
     return priority;
   }
   

@@ -357,7 +357,7 @@ public abstract class Fauna extends Actor {
     actor.breedMetre = 0;
     final int maxKids = 1 + (int) Nums.sqrt(10f / health.lifespan());
     for (int numKids = 1 + Rand.index(maxKids); numKids-- > 0;) {
-      final Fauna young = (Fauna) species.newSpecimen(base());
+      final Fauna young = (Fauna) species.sampleFor(base());
       young.assignBase(this.base());
       young.health.setupHealth(0, 1, 0);
       young.mind.setHome(nests);

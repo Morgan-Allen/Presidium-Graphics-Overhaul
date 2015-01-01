@@ -95,6 +95,25 @@ public class DebugTreating extends Scenario {
   }
   
   
+  private void configMedicalScenario(Stage world, Base base, BaseUI UI) {
+    GameSettings.fogFree = true;
+    
+    final Actor treats = new Human(Backgrounds.PHYSICIAN, base);
+    Placement.establishVenue(
+      new PhysicianStation(base), 6, 6, true, world,
+      treats,
+      new Human(Backgrounds.MINDER, base),
+      new Human(Backgrounds.MINDER, base)
+    );
+    
+    final Actor patient = new Human(Backgrounds.TROOPER, base);
+    patient.enterWorldAt(world.tileAt(10, 10), world);
+    patient.health.takeInjury(patient.health.maxHealth(), false);
+    
+    UI.selection.pushSelection(patient, true);
+  }
+  
+  
   protected void afterCreation() {
   }
 }

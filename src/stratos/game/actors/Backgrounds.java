@@ -801,6 +801,13 @@ public interface Backgrounds {
     STRAIN_CIRCLES[] = { STRAIN_AGENT, MSSID_REPRESENTATIVE }
   ;
   
+  final public static Background[]
+    ALL_STANDARD_CIRCLES = (Background[]) Visit.compose(
+      Background.class,
+      ARTIFICER_CIRCLES, PHYSICIAN_CIRCLES, ECOLOGIST_CIRCLES,
+      MILITARY_CIRCLES, AESTHETE_CIRCLES, VENDOR_CIRCLES
+    );
+  
   
   final public static Background
     AS_RESIDENT = new Background(

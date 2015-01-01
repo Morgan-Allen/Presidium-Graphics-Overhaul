@@ -21,7 +21,7 @@ public class Dialogue extends Plan implements Qualities {
   /**  Constants, data fields, constructors and save/load methods-
     */
   private static boolean
-    evalVerbose  = false,
+    evalVerbose  = true ,
     stepsVerbose = false;
   
   final public static int
@@ -162,7 +162,7 @@ public class Dialogue extends Plan implements Qualities {
   
   
   protected float getPriority() {
-    final boolean report = evalVerbose && I.talkAbout == actor && hasBegun();
+    final boolean report = evalVerbose && I.talkAbout == actor;// && hasBegun();
     if (GameSettings.noChat) return -1;
     if (! other.health.conscious()) return -1;
     if (! other.health.human    ()) return -1;
@@ -178,10 +178,10 @@ public class Dialogue extends Plan implements Qualities {
       maxRange    = actor.health.sightRange() * 2,
       solitude    = actor.motives.solitude(),
       curiosity   = (1 + actor.traits.relativeLevel(CURIOUS)) / 2f,
-      novelty     = actor.relations.noveltyFor(other       )  / 2f,
-      baseNovelty = actor.relations.noveltyFor(other.base())  / 2f,
-      sumNovelty  = novelty + baseNovelty,
+      novelty     = actor.relations.noveltyFor(other),
       talkThresh  = hasBegun() ? 0 : (1 - solitude) / 2;
+    final boolean
+      freshFace   = ! actor.relations.hasRelation(other);
     
     if (report) {
       I.say("\nChecking for dialogue between "+actor+" and "+other);
@@ -190,23 +190,27 @@ public class Dialogue extends Plan implements Qualities {
       I.say("  Solitude:     "+solitude   );
       I.say("  Curiosity:    "+curiosity  );
       I.say("  Novelty:      "+novelty    );
-      I.say("  Base novelty: "+baseNovelty);
+      I.say("  Base novelty: "+actor.relations.noveltyFor(other.base()));
       I.say("  Threshold:    "+talkThresh );
     }
-    if (sumNovelty <= talkThresh) {
-      if (report) I.say("\n  Nothing to talk about- skipping!");
-      return -1;
-    }
     
-    float bonus = 0;
-    bonus = solitude + Nums.clamp(curiosity * novelty, 0, 1);
-    bonus += baseNovelty;
+    //  Strangers from entirely different bases might have novelty greater than
+    //  1, which makes them worth investigating.  Otherwise, solitude is the
+    //  dominant variable:
+    float bonus = solitude + Nums.clamp(curiosity * novelty, 0, 1);
+    if (freshFace) bonus *= solitude;
+    if (novelty >= 1) bonus += (novelty - 1) * curiosity * 2;
+    
+    if (type == TYPE_CONTACT) bonus += 0.5f;
+    else if (Spacing.distance(actor, other) > maxRange) return -1;
+    
     if (report) {
       I.say("  Final bonus:  "+bonus      );
     }
-    
-    if (type == TYPE_CONTACT) bonus += 0.5f;
-    else if (Spacing.distance(actor, other) > maxRange) return 0;
+    if (bonus <= talkThresh || novelty <= talkThresh) {
+      if (report) I.say("\n  Nothing to talk about- skipping!");
+      return -1;
+    }
     final float priority = priorityForActorWith(
       actor, other,
       CASUAL, bonus * ROUTINE,

@@ -18,7 +18,8 @@ public class Career implements Qualities {
   
   
   final static int
-    MIN_PERSONALITY = 3;
+    MIN_PERSONALITY           = 3,
+    NUM_RANDOM_CAREER_SAMPLES = 3;
   
   private static boolean verbose = false;
   
@@ -117,7 +118,7 @@ public class Career implements Qualities {
     if (verbose) I.say("\nGENERATING NEW CAREER");
     subject = actor;
     
-    applyBackgrounds(actor);
+    applyBackgrounds(actor, base);
     applySystem((Sector) homeworld, actor);
     applySex(actor);
     setupAttributes(actor);
@@ -159,32 +160,188 @@ public class Career implements Qualities {
   }
   
   
-  private void applyBackgrounds(Human actor) {
-    Background root = vocation;
-    if (birth == null) {
+  
+  /**  Methods for generating an actor's background life-story:
+    */
+  private void applyBackgrounds(Human actor, Base base) {
+    //
+    //  If the target vocation is undetermined, we work forward at random from
+    //  birth towards a final career stage:
+    if (vocation == null) {
+      pickBirthClass(actor, base);
+      applyBackground(birth, actor);
+      pickHomeworld(actor, base);
+      applyBackground(homeworld, actor);
+      pickVocation(actor, base);
+      applyBackground(vocation, actor);
+    }
+    //
+    //  Alternatively, we work backwards from the target vocation to determine
+    //  a probably system and social class of origin:
+    else {
+      applyBackground(vocation, actor);
+      pickHomeworld(actor, base);
+      applyBackground(homeworld, actor);
+      pickBirthClass(actor, base);
+      applyBackground(birth, actor);
+    }
+  }
+  
+  
+  private void pickBirthClass(Human actor, Base base) {
+    if (birth != null) {
+      return;
+    }
+    else if (base.isNative()) {
+      birth = Backgrounds.NATIVE_BIRTH;
+    }
+    else {
+      //  TODO:  What about noble birth?  What triggers that?
       final Batch <Float> weights = new Batch <Float> ();
       for (Background v : Backgrounds.OPEN_CLASSES) {
-        weights.add(ratePromotion(root, actor));
+        weights.add(ratePromotion(v, actor));
       }
       birth = (Background) Rand.pickFrom(
         Backgrounds.OPEN_CLASSES, weights.toArray()
       );
     }
-    if (homeworld == null) {
+  }
+  
+  
+  private void pickHomeworld(Human actor, Base base) {
+    if (homeworld != null) {
+      return;
+    }
+    else if (base.isNative()) {
+      homeworld = base.world.offworld.worldSector();
+    }
+    else {
+      //  TODO:  Include some weighting based off house relations!
       final Batch <Float> weights = new Batch <Float> ();
       for (Background v : Sectors.ALL_PLANETS) {
-        weights.add(ratePromotion(root, actor));
+        weights.add(ratePromotion(v, actor));
       }
       homeworld = (Background) Rand.pickFrom(
         Sectors.ALL_PLANETS, weights.toArray()
       );
     }
-    applyVocation(homeworld, actor);
-    applyVocation(birth    , actor);
-    applyVocation(vocation , actor);
   }
   
   
+  private void pickVocation(Human actor, Base base) {
+    final Pick <Background> pick = new Pick <Background> ();
+    
+    if (base.isNative()) {
+      for (Background b : Backgrounds.NATIVE_CIRCLES) {
+        pick.compare(b, ratePromotion(b, actor) * Rand.num());
+      }
+    }
+    else for (Background circle[] : base.commerce.homeworld().circles()) {
+      final float weight = base.commerce.homeworld().weightFor(circle);
+      for (Background b : circle) {
+        pick.compare(b, ratePromotion(b, actor) * Rand.num() * weight);
+      }
+      for (int n = NUM_RANDOM_CAREER_SAMPLES; n-- > 0;) {
+        final Background b = (Background) Rand.pickFrom(
+          Backgrounds.ALL_STANDARD_CIRCLES
+        );
+        pick.compare(b, ratePromotion(b, actor) * Rand.num() / 2);
+      }
+    }
+    this.vocation = pick.result();
+  }
+  
+  
+  private void applyBackground(Background v, Actor actor) {
+    if (verbose) I.say("Applying vocation: "+v);
+    
+    for (Skill s : v.baseSkills.keySet()) {
+      final int level = v.baseSkills.get(s);
+      actor.traits.raiseLevel(s, level + (Rand.num() * 10) - 5);
+    }
+    
+    for (Trait t : v.traitChances.keySet()) {
+      float chance = v.traitChances.get(t);
+      chance += Personality.traitChance(t, actor) / 2;
+      actor.traits.incLevel(t, chance * Rand.avgNums(2) * 2);
+      if (verbose) {
+        I.say("  Chance for "+t+" is "+chance);
+        final float level = actor.traits.traitLevel(t);
+        I.say("  Level is now: "+level);
+      }
+    }
+  }
+  
+  
+  public static float ratePromotion(Background next, Actor actor) {
+    float rating = 1;
+    
+    //  Check for similar skills.
+    for (Skill s : next.baseSkills.keySet()) {
+      rating += rateSimilarity(s, next, actor);
+    }
+    final Batch <Skill> skills = actor.traits.skillSet();
+    for (Skill s : actor.traits.skillSet()) {
+      rating += rateSimilarity(s, next, actor);
+    }
+    rating *= 2f / (1 + next.baseSkills.size() + skills.size());
+    
+    //  Check for similar traits.
+    float sumChances = 1;
+    for (Trait t : next.traitChances.keySet()) {
+      float chance = next.traitChances.get(t);
+      chance *= Personality.traitChance(t, actor);
+      sumChances += (1 + chance) / 2f;
+    }
+    rating *= sumChances * 2f / (1 + next.traitChances.size());
+    if (rating < 0) return 0;
+    
+    //  And favour transition to more prestigious vocations.
+    if (actor instanceof Human) {
+      final Background prior = ((Human) actor).career().topBackground();
+      if (next.standing < prior.standing) return rating / 10f;
+    }
+    return rating;
+  }
+  
+  
+  static float rateSimilarity(Skill s, Background a, Actor actor) {
+    Integer aL = a.baseSkills.get(s), bL = (int) actor.traits.traitLevel(s);
+    if (aL == null || bL == null) return 0;
+    return (aL > bL) ? ((bL + 5f) / (aL + 5f)) : ((aL + 5f) / (bL + 5f));
+  }
+  
+  
+  public static boolean qualifies(Actor a, Background b) {
+    for (Skill s : b.baseSkills.keySet()) {
+      final int level = b.baseSkills.get(s);
+      if (a.traits.traitLevel(s) < level - 5) return false;
+    }
+    return true;
+  }
+  
+  
+  private void fillPersonality(Actor actor) {
+    while (true) {
+      final int numP = actor.traits.personality().size();
+      if (numP >= MIN_PERSONALITY) break;
+      final Trait t = (Trait) Rand.pickFrom(PERSONALITY_TRAITS);
+      float chance = (Personality.traitChance(t, actor) / 2) + Rand.num();
+      if (chance < 0 && chance > -0.5f) chance = -0.5f;
+      if (chance > 0 && chance <  0.5f) chance =  0.5f;
+      actor.traits.incLevel(t, chance);
+    }
+    
+    actor.traits.incLevel(HANDSOME, Rand.rangeAvg(-2, 2, 2));
+    actor.traits.incLevel(TALL    , Rand.rangeAvg(-2, 2, 2));
+    actor.traits.incLevel(STOUT   , Rand.rangeAvg(-2, 2, 2));
+  }
+  
+  
+  
+  /**  Methods for customising fundamental attributes, rather than life
+    *  experience-
+    */
   private void setupAttributes(Actor actor) {
     float minPhys = 0, minSens = 0, minCogn = 0;
     for (Skill s : actor.traits.skillSet()) {
@@ -216,7 +373,7 @@ public class Career implements Qualities {
     //
     //  TODO:  Some of these traits need to be rendered 'dormant' in younger
     //  citizens...
-    applyVocation(gender, actor);
+    applyBackground(gender, actor);
     float ST = Nums.clamp(Rand.rangeAvg(-1, 3, 2), 0, 3);
     if (Rand.index(20) == 0) ST = -1;
     if (gender == Backgrounds.FEMALE_BIRTH) {
@@ -269,94 +426,12 @@ public class Career implements Qualities {
   }
   
   
-  public static float ratePromotion(Background next, Actor actor) {
-    float rating = 1;
-    
-    //  Check for similar skills.
-    for (Skill s : next.baseSkills.keySet()) {
-      rating += rateSimilarity(s, next, actor);
-    }
-    final Batch <Skill> skills = actor.traits.skillSet();
-    for (Skill s : actor.traits.skillSet()) {
-      rating += rateSimilarity(s, next, actor);
-    }
-    rating *= 2f / (1 + next.baseSkills.size() + skills.size());
-    
-    //  Check for similar traits.
-    float sumChances = 1;
-    for (Trait t : next.traitChances.keySet()) {
-      float chance = next.traitChances.get(t);
-      chance *= Personality.traitChance(t, actor);
-      sumChances += (1 + chance) / 2f;
-    }
-    rating *= sumChances * 2f / (1 + next.traitChances.size());
-    if (rating < 0) return 0;
-    
-    //  And favour transition to more prestigious vocations.
-    if (actor instanceof Human) {
-      final Background prior = ((Human) actor).career().topBackground();
-      if (next.standing < prior.standing) return rating / 10f;
-    }
-    return rating;
-  }
   
-  
-  static float rateSimilarity(Skill s, Background a, Actor actor) {
-    Integer aL = a.baseSkills.get(s), bL = (int) actor.traits.traitLevel(s);
-    if (aL == null || bL == null) return 0;
-    return (aL > bL) ? ((bL + 5f) / (aL + 5f)) : ((aL + 5f) / (bL + 5f));
-  }
-  
-  
-  private void applyVocation(Background v, Actor actor) {
-    if (verbose) I.say("Applying vocation: "+v);
-    
-    for (Skill s : v.baseSkills.keySet()) {
-      final int level = v.baseSkills.get(s);
-      actor.traits.raiseLevel(s, level + (Rand.num() * 10) - 5);
-    }
-    
-    for (Trait t : v.traitChances.keySet()) {
-      float chance = v.traitChances.get(t);
-      chance += Personality.traitChance(t, actor) / 2;
-      actor.traits.incLevel(t, chance * Rand.avgNums(2) * 2);
-      if (verbose) {
-        I.say("  Chance for "+t+" is "+chance);
-        final float level = actor.traits.traitLevel(t);
-        I.say("  Level is now: "+level);
-      }
-    }
-  }
-  
-  
-  public static boolean qualifies(Actor a, Background b) {
-    for (Skill s : b.baseSkills.keySet()) {
-      final int level = b.baseSkills.get(s);
-      if (a.traits.traitLevel(s) < level - 5) return false;
-    }
-    return true;
-  }
-  
-  
-  private void fillPersonality(Actor actor) {
-    while (true) {
-      final int numP = actor.traits.personality().size();
-      if (numP >= MIN_PERSONALITY) break;
-      final Trait t = (Trait) Rand.pickFrom(PERSONALITY_TRAITS);
-      float chance = (Personality.traitChance(t, actor) / 2) + Rand.num();
-      if (chance < 0 && chance > -0.5f) chance = -0.5f;
-      if (chance > 0 && chance <  0.5f) chance =  0.5f;
-      actor.traits.incLevel(t, chance);
-    }
-    
-    actor.traits.incLevel(HANDSOME, Rand.rangeAvg(-2, 2, 2));
-    actor.traits.incLevel(TALL    , Rand.rangeAvg(-2, 2, 2));
-    actor.traits.incLevel(STOUT   , Rand.rangeAvg(-2, 2, 2));
-  }
-  
-  
+  /**  And finally, some finishing touches for material and social assets-
+    */
   public static void applyGear(Background v, Actor actor) {
-    int BQ = v.standing;
+    final int BQ = v.standing;
+    
     for (Traded gear : v.gear) {
       if (gear instanceof DeviceType) {
         final int quality = Nums.clamp(BQ - 1 + Rand.index(3), 4);
@@ -368,9 +443,11 @@ public class Career implements Qualities {
       }
       else actor.gear.addItem(Item.withAmount(gear, 1 + Rand.index(3)));
     }
-    if (actor.gear.credits() == 0) {
-      actor.gear.incCredits((50 + Rand.index(100)) * BQ / 2f);
-    }
+    
+    final float cash = (50 + Rand.index(100)) * BQ / 2f;
+    if (cash > 0) actor.gear.incCredits(cash);
+    else actor.gear.incCredits(Rand.index(5));
+    
     actor.gear.boostShields(actor.gear.maxShields() / 2f, true);
   }
 }

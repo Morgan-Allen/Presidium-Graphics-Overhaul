@@ -57,7 +57,7 @@ public class Healthbar extends SFX {
     
     //  Then, establish correct colours for the fill, back, and warning-
     Colour colour = this.colour;
-    if (colour == null) colour = Colour.LIGHT_GREY;
+    if (colour == null) colour = Colour.LITE_GREY;
     Colour back = new Colour(this.back == null ? Colour.WHITE : this.back);
     back.a = colour.a * fog;
     warn.a = colour.a * fog;

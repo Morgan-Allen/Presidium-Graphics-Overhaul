@@ -50,6 +50,7 @@ public class Hunting extends Combat {
   
   
   
+  //  TODO:  Get rid of this type- just specialise 'harvesting'.
   public static Hunting asFeeding(Actor actor, Actor prey) {
     return new Hunting(actor, prey, TYPE_FEEDS, null);
   }

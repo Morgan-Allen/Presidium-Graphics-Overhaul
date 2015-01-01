@@ -21,6 +21,11 @@ public class Nest extends Venue {
   
   /**  Fields, constructors, and save/load methods-
     */
+  private static boolean
+    crowdingVerbose = false,
+    idealVerbose    = false,
+    updateVerbose   = false;
+  
   final public static int
     BROWSER_SEPARATION = Stage.SECTOR_SIZE / 2,
     SPECIES_SEPARATION = Stage.SECTOR_SIZE / 2,
@@ -36,11 +41,6 @@ public class Nest extends Venue {
     NEW_SITE_SAMPLE = 2 ,
     DEFAULT_BREED_INTERVAL = Stage.STANDARD_DAY_LENGTH;
   
-  private static boolean
-    crowdingVerbose = false,
-    idealVerbose    = false,
-    updateVerbose   = false;
-  
   
   final Species species;
   private float idealPopEstimate = -1;
@@ -48,13 +48,31 @@ public class Nest extends Venue {
   
   //  NOTE:  This is here purely for setting up a venue-profile, and not
   //         intended for actual construction purposes.
-  //  TODO:  FIND A WORKAROUND
   public Nest(Base base) {
     super(1, 1, ENTRANCE_NONE, null);
     this.species = null;
   }
   
+  final public static VenueProfile VENUE_PROFILES[];
+  static {
+    final Species nesting[] = Species.ANIMAL_SPECIES;
+    VENUE_PROFILES = new VenueProfile[nesting.length];
+    
+    for (int n = nesting.length ; n-- > 0;) {
+      final Species s = nesting[n];
+      VENUE_PROFILES[n] = new VenueProfile(Nest.class, s) {
+        public Venue sampleVenue(Base base) {
+          final Nest nest = s.createNest();
+          nest.assignBase(base);
+          return nest;
+        }
+      };
+    }
+  }
   
+  
+  /**  More typical construction and save/load methods-
+    */
   public Nest(
     int size, int high, int entranceFace,
     Species species, ModelAsset lairModel
@@ -156,8 +174,8 @@ public class Nest extends Venue {
     final Tile at = world.tileAt(site);
     float moisture = world.terrain().fertilitySample(at);
     float biomass = world.ecology().biomassRating(at) * 2;
-    fertility += biomass * moisture / 10f;
-    moisture = (moisture - 2) / 10f;
+    fertility += biomass * moisture;
+    moisture = moisture - 0.2f;
     fertility += moisture / 4f;
     fertility *= browseRange * browseRange;
     
@@ -348,6 +366,7 @@ public class Nest extends Venue {
   
   /**  Placing the site-
     */
+  //  TODO:  YOU'LL HAVE TO GET RID OF THIS SOON!
   public static void placeNests(
     final Stage world, final Species... species
   ) {
@@ -388,7 +407,7 @@ public class Nest extends Venue {
         float bestPop = bestRating / adultMass;
         
         while (bestPop-- > 0) {
-          final Fauna f = (Fauna) toPlace.species.newSpecimen(wildlife);
+          final Fauna f = (Fauna) toPlace.species.sampleFor(wildlife);
           f.health.setupHealth(Rand.num(), 0.9f, 0.1f);
           f.mind.setHome(toPlace);
           if (Rand.num() < 0.1f) {

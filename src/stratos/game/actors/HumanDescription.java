@@ -264,7 +264,7 @@ public class HumanDescription implements Qualities {
     else d.append("No nest");
     
     d.append("\n\n");
-    d.append(actor.species().info, Colour.LIGHT_GREY);
+    d.append(actor.species().info, Colour.LITE_GREY);
     
     
     l.append("Condition: ");

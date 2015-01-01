@@ -6,13 +6,13 @@ import java.lang.reflect.Array;
 import java.util.Iterator;
 
 
-//  TODO:  Sort additions by class of origin, instead of by key?
+//  TODO:  Sort additions by class of origin, instead of just by key?
 
 public class Index <T extends Index.Entry> implements Iterable <T> {
   
   
-  final private Sorting <Entry> allEntries = new Sorting <Entry> () {
-    public int compare(Entry a, Entry b) {
+  final private Sorting <T> allEntries = new Sorting <T> () {
+    public int compare(T a, T b) {
       return a.key.compareTo(b.key);
     }
   };
@@ -37,7 +37,8 @@ public class Index <T extends Index.Entry> implements Iterable <T> {
   
   private Object asArray[] = null;
   private Batch <T> addedSoFar = new Batch <T> ();
-  private Batch <T> allAdded = new Batch <T> ();
+  private Batch <T> allAdded   = new Batch <T> ();
+  private Table <String, T> keyTable = new Table <String, T> (1000);
   
   
   
@@ -50,10 +51,18 @@ public class Index <T extends Index.Entry> implements Iterable <T> {
       );
       return;
     }
-    
+    final Entry old = keyTable.get(key);
+    if (old != null) {
+      I.complain(
+        "ENTRY KEYS MUST BE UNIQUE: "+key+" is used by both:"+
+        "\n  "+entry+" ("+entry.getClass()+") and "+old+" ("+old.getClass()+")"
+      );
+      return;
+    }
     allEntries.insert(entry);
     addedSoFar.add   (entry);
     allAdded  .add   (entry);
+    keyTable.put(key, entry);
   }
   
   

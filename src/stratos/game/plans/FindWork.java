@@ -251,6 +251,7 @@ public class FindWork extends Plan {
     
     //  TODO:  Allow the player to set wages in a similar manner to setting
     //  goods' import/export levels.
+    if (position.standing < 0) return 0;
     guildFees += Backgrounds.HIRE_COSTS[position.standing];
     
     if (actor.inWorld()) {

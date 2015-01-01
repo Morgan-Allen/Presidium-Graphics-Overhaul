@@ -201,9 +201,11 @@ public final class Economy {
     POWER = new Traded(
       BC, "Power"       , "power.png" , FORM_PROVISION, 10
     ),
+    /*
     ADMIN = new Traded(
       BC, "Admin"       , "admin.png" , FORM_PROVISION, 15
     ),
+    //*/
     OPEN_WATER = new Traded(
       BC, "Open Water"  , "water.png" , FORM_PROVISION, 20
     );

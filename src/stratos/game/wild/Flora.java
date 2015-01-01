@@ -20,7 +20,8 @@ public class Flora extends Element implements TileConstants {
    * Field definitions and constructors-
    */
   private static boolean
-    verbose = false;
+    initVerbose    = false,
+    updatesVerbose = false;
   
   final public static int
     MAX_GROWTH = 4;
@@ -57,28 +58,30 @@ public class Flora extends Element implements TileConstants {
    * Attempts to seed or grow new flora at the given coordinates.
    */
   public static void populateFlora(Stage world) {
+    final boolean report = initVerbose;
+    
     for (Coord c : Visit.grid(0, 0, world.size, world.size, 1)) {
       final Tile t = world.tileAt(c.x, c.y);
       if (t.blocked()) continue;
       final float growChance = growChance(t);
-      if (growChance == -1 || Rand.num() > growChance) return;
+      if (report) I.say("\nGrow chance at "+t+" is "+growChance);
       
+      if (growChance == -1 || Rand.num() > growChance) continue;
       final int crowding = crowdingAt(t);
-      if (crowding >= 2) return;
+      if (crowding >= 2) continue;
       
       final Flora f = new Flora(t.habitat());
       f.enterWorldAt(t.x, t.y, world);
       float stage = 0.5f;
       for (int n = MAX_GROWTH; n-- > 0;) {
-        if (Rand.num() < growChance * 4)
-          stage++;
+        if (Rand.num() < growChance * 4) stage++;
       }
+      
       stage = Nums.clamp(stage, 0, MAX_GROWTH - 0.5f);
       f.incGrowth(stage, world, true);
       f.setAsEstablished(true);
-      
-      if (verbose) I.say("Initial flora at: " + t);
       world.ecology().impingeBiomass(t, f.growth, Stage.STANDARD_DAY_LENGTH);
+      if (report) I.say("  Initialising flora, stage: "+stage);
     }
   }
   
@@ -114,7 +117,7 @@ public class Flora extends Element implements TileConstants {
   public static Flora tryGrowthAt(Tile t) {
     final float growChance = growChance(t);
     if (growChance == -1) return null;
-    if (verbose) I.say("Grow chance: "+growChance);
+    if (updatesVerbose) I.say("Grow chance: "+growChance);
     
     if (t.onTop() instanceof Flora) {
       final Flora f = (Flora) t.onTop();
@@ -134,7 +137,7 @@ public class Flora extends Element implements TileConstants {
   
   
   public static Flora newGrowthAt(Tile t) {
-    if (verbose) I.say("Seeding new tree at: "+t);
+    if (updatesVerbose) I.say("Seeding new tree at: "+t);
     final Flora f = new Flora(t.habitat());
     f.enterWorldAt(t.x, t.y, t.world);
     f.incGrowth((0.5f + Rand.num()) / 2, t.world, false);

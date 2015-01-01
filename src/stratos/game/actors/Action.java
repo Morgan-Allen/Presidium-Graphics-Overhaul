@@ -205,7 +205,7 @@ public class Action implements Behaviour, AnimNames {
   
   
   public boolean hasBegun() {
-    return actor.currentAction() == this;
+    return this == actor.currentAction();
   }
   
   
@@ -221,6 +221,11 @@ public class Action implements Behaviour, AnimNames {
   
   public boolean isMoving() {
     return moveState != STATE_INIT && moveState != STATE_CLOSED;
+  }
+  
+  
+  public boolean isClosed() {
+    return moveState == STATE_CLOSED;
   }
   
   

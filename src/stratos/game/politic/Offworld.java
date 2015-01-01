@@ -35,7 +35,15 @@ public class Offworld {
     STAY_UPDATE_INTERVAL = Stage.STANDARD_HOUR_LENGTH * 2,
     TRAVEL_DURATION      = Stage.STANDARD_HOUR_LENGTH * 2;
   //  TODO:  Replace with destination-specific travel times...
+  /*
+  final static Sector
+    DEFAULT_LOCAL = Sectors.SECTOR_TERRA  ,
+    DEFAULT_WORLD = Sectors.PLANET_DIAPSOR;
+  //*/
   
+  private Sector
+    localSector = null,
+    worldSector = null;
   
   public static interface Activity extends Behaviour {
     //  TODO:  Pass along the sector/world/stage in question as arguments.
@@ -62,6 +70,10 @@ public class Offworld {
   
   
   public void loadState(Session s) throws Exception {
+    
+    localSector = (Sector) s.loadObject();
+    worldSector = (Sector) s.loadObject();
+    
     for (int n = s.loadInt(); n-- > 0;) {
       final Journey j = new Journey();
       j.vessel     = (Vehicle) s.loadObject();
@@ -76,6 +88,10 @@ public class Offworld {
   
   
   public void saveState(Session s) throws Exception {
+    
+    s.saveObject(localSector);
+    s.saveObject(worldSector);
+    
     s.saveInt(journeys.size());
     for (Journey j : journeys) {
       s.saveObject     (j.vessel    );
@@ -85,6 +101,22 @@ public class Offworld {
     s.saveObjects(away );
     s.saveObjects(dueBack);
     s.saveInt(updateCounter);
+  }
+  
+  
+  public void assignLocalSector(Sector local, Sector world) {
+    this.localSector = local;
+    this.worldSector = world;
+  }
+  
+  
+  public Sector localSector() {
+    return localSector;
+  }
+  
+  
+  public Sector worldSector() {
+    return worldSector;
   }
   
   
@@ -103,14 +135,14 @@ public class Offworld {
   }
   
   
-  //  TODO:  SPECIFY BY BASE
-  public boolean hasMigrantsFor(Stage world) {
-    return dueBack.size() > 0;
-  }
-  
-  
   public void updateOffworldFrom(Stage world) {
     final boolean report = updatesVerbose;
+    if (localSector == null || worldSector == null) {
+      if (report) I.say(
+        "\nMUST HAVE LOCAL AND WORLD SECTORS SPECIFIED FOR OFFWORLD FUNCTIONS!"
+      );
+      return;
+    }
     //
     //  TODO:  Have journeys in and journeys out?
     for (Journey j : journeys) if (j.arriveTime <= world.currentTime()) {
@@ -154,6 +186,12 @@ public class Offworld {
         I.say("  Done offworld?    "+(! willStay));
       }
     }
+  }
+  
+  
+  //  TODO:  SPECIFY BY BASE
+  public boolean hasMigrantsFor(Stage world) {
+    return dueBack.size() > 0;
   }
   
   

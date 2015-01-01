@@ -33,6 +33,9 @@ public class Bastion extends Venue {
   final public static ImageAsset ICON = ImageAsset.fromImage(
     Bastion.class, "media/GUI/Buttons/bastion_button.gif"
   );
+  
+  final static int
+    CLAIM_RADIUS = Stage.SECTOR_SIZE / 2;
   /*
   final static FacilityProfile PROFILE = new FacilityProfile(
     Bastion.class, Structure.TYPE_VENUE,
@@ -66,13 +69,33 @@ public class Bastion extends Venue {
   }
   
   
-  //  TODO:  Restore this later.  You shouldn't have more than one Bastion at
-  //  your disposal.
-  /*
-  public boolean privateProperty() {
-    return true;
+  
+  /**  Placement and claims-assertion methods:
+    */
+  protected Box2D areaClaimed() {
+    return new Box2D(footprint()).expandBy(CLAIM_RADIUS);
   }
-  //*/
+  
+  
+  public boolean preventsClaimBy(Venue other) {
+    if (other.base() == base() && ! other.privateProperty()) return false;
+    return super.preventsClaimBy(other);
+  }
+  
+  
+  public float ratePlacing(Target point, boolean exact) {
+    
+    //  TODO:  This could probably be sophisticated a bit...
+    
+    final Stage world = point.world();
+    float rating = 1;
+    
+    final int SS = Stage.SECTOR_SIZE;
+    final Target nearest = world.presences.nearestMatch(Venue.class, point, -1);
+    if (nearest == null) return 1;
+    return rating * (SS + Spacing.distance(point, nearest)) / SS;
+  }
+  
   
   
   /**  Upgrades, economic functions and behaviour implementation-

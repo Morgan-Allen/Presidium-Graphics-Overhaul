@@ -48,7 +48,6 @@ public class ActorMotives {
   }
   
   
-  
   public void updateValues(int numUpdates) {
     if ((numUpdates % UPDATE_INTERVAL) != 0) return;
     final float inc = (1f * UPDATE_INTERVAL) / MOTIVE_EVAL_TIME;
@@ -59,11 +58,16 @@ public class ActorMotives {
   
   
   private float rateSolitude() {
-    //  TODO:  Only count positive relations!
+    
     final float
-      trait = 1.25f + actor.traits.relativeLevel(OUTGOING),
-      baseF = ActorRelations.BASE_NUM_FRIENDS * trait,
-      numF  = actor.relations.relations().size();
+      trait = 1f + actor.traits.relativeLevel(OUTGOING),
+      baseF = (int) (ActorRelations.BASE_NUM_FRIENDS * trait);
+    if (baseF == 0) return 0;
+    
+    float numF = 0;
+    for (Relation r : actor.relations.relations()) {
+      numF += 2 * Nums.clamp(r.value() - r.novelty(), 0, 1);
+    }
     return (baseF - numF) / baseF;
   }
   

@@ -27,7 +27,7 @@ public class Cranial extends Artilect {
   
   
   public Cranial(Base base) {
-    super(base, Species.SPECIES_CRANIAL);
+    super(base, Species.CRANIAL);
     
     traits.initAtts(10, 20, 30);
     health.initStats(

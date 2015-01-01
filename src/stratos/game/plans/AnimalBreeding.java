@@ -97,7 +97,7 @@ public class AnimalBreeding extends Plan {
   ) {
     final Stage world = station.world();
     final Fauna specimen = (Fauna) (
-      species == null ? null : species.newSpecimen(Base.wildlife(world))
+      species == null ? null : species.sampleFor(Base.wildlife(world))
     );
     if (specimen == null) return null;
     specimen.pathing.updateTarget(releasePoint);

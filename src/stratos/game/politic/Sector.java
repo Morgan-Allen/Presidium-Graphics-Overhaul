@@ -50,6 +50,8 @@ public class Sector extends Background {
   final public Trait climate;
   final public int gravity;
   
+  final Table <Background[], Float> circles = new Table();
+  
   //  TODO:  Include information about distances here, loaded from XML.
   
   
@@ -69,11 +71,17 @@ public class Sector extends Background {
     
     final Batch <Traded> madeB = new Batch(), needB = new Batch();
     Object tag = null;
+    float rating = -1;
     for (Object arg : args) {
       if (arg == MAKES || arg == NEEDS) tag = arg;
       if (arg instanceof Traded) {
         if (tag == MAKES) madeB.add((Traded) arg);
         if (tag == NEEDS) needB.add((Traded) arg);
+      }
+      if (arg instanceof Float) rating = (Float) arg;
+      if (arg instanceof Background[]) {
+        final Background circle[] = (Background[]) arg;
+        circles.put(circle, rating);
       }
     }
     
@@ -81,6 +89,16 @@ public class Sector extends Background {
     goodsNeeded = needB.toArray(Traded.class);
   }
   
+  
+  public Background[][] circles() {
+    final Background[][] result = new Background[circles.size()][];
+    return circles.values().toArray(result);
+  }
+  
+  
+  public float weightFor(Background[] circle) {
+    return circles.get(circle);
+  }
   
   
   public static Sector sectorNamed(String name) {

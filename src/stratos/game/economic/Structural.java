@@ -124,8 +124,10 @@ public abstract class Structural extends Fixture implements
     clearSurrounds();
     enterWorld();
     
-    if (GameSettings.buildFree) structure.setState(Structure.STATE_INTACT, 1);
-    else structure.setState(Structure.STATE_INSTALL, 0);
+    if (structure.currentState() == Structure.STATE_INSTALL) {
+      if (GameSettings.buildFree) structure.setState(Structure.STATE_INTACT, 1);
+      else structure.setState(Structure.STATE_INSTALL, 0);
+    }
     
     if (sprite() != null) {
       sprite().colour = null;
@@ -200,8 +202,8 @@ public abstract class Structural extends Fixture implements
     healthbar.position.z += height() + 0.1f;
     healthbar.readyFor(rendering);
     
-    if (base() == null) healthbar.colour = Colour.LIGHT_GREY;
-    else healthbar.colour = base().colour;
+    if (base() == null) healthbar.colour = Colour.LITE_GREY;
+    else healthbar.colour = base().colour();
     healthbar.alarm = alarm;
     
     final Label label = new Label();

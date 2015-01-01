@@ -167,7 +167,9 @@ public class EcologistStation extends Venue {
       if (staff.assignedTo(t) > 0) continue;
       choice.add(t);
     }
-    choice.add(AnimalBreeding.nextBreeding(actor, this));
+    if (stocks.amountOf(CARBS) > 1 && stocks.amountOf(PROTEIN) > 0.5f) {
+      choice.add(AnimalBreeding.nextBreeding(actor, this));
+    }
     //
     //  Otherwise, consider exploring the surrounds-
     final Exploring x = Exploring.nextExploration(actor);
@@ -194,7 +196,7 @@ public class EcologistStation extends Venue {
     }
     //
     //  Demand supplies, if breeding is going on-
-    final int numBred = AnimalBreeding.breedingAt(this).size();
+    final int numBred = AnimalBreeding.breedingAt(this).size() + 1;
     stocks.forceDemand(CARBS  , numBred * 2, TIER_CONSUMER);
     stocks.forceDemand(PROTEIN, numBred * 1, TIER_CONSUMER);
     //

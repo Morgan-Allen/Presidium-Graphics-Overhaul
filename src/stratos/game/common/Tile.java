@@ -364,14 +364,16 @@ public final class Tile implements
   }
   
   
+  /*
   public Colour minimapTone() {
     if (this.onTop instanceof Venue) {
       final Base b = ((Venue) onTop).base();
-      return b == null ? Colour.LIGHT_GREY : b.colour;
+      return b == null ? Colour.LIGHT_GREY : b.colour();
     }
     if (world.terrain().isRoad(this)) return Habitat.ROAD_TEXTURE.average();
     return habitat().baseTex.average();
   }
+  //*/
 }
 
 

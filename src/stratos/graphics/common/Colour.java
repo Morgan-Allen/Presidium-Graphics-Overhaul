@@ -19,30 +19,36 @@ public class Colour {
   
   
   final public static Colour
-    HIDE  = new Colour().set(1, 1, 1,  0),
-    //GLOW = new Colour().set(1, 1, 1, -1),
-    WHITE = new Colour().set(1, 1, 1, 1),
-    NONE  = new Colour().set(0, 0, 0, 0),
+    HIDE         = new Colour().set(1, 1, 1, 0   ),
+    NONE         = new Colour().set(0, 0, 0, 0   ),
+    TRANSLUCENT  = new Colour().set(1, 1, 1, 0.5f),
     
-    RED     = new Colour().set(1, 0, 0, 1),
-    GREEN   = new Colour().set(0, 1, 0, 1),
-    BLUE    = new Colour().set(0, 0, 1, 1),
-    YELLOW  = new Colour().set(1, 1, 0, 1),
-    CYAN    = new Colour().set(0, 1, 1, 1),
-    MAGENTA = new Colour().set(1, 0, 1, 1),
+    RED          = new Colour().set(1, 0, 0, 1),
+    GREEN        = new Colour().set(0, 1, 0, 1),
+    BLUE         = new Colour().set(0, 0, 1, 1),
+    YELLOW       = new Colour().set(1, 1, 0, 1),
+    CYAN         = new Colour().set(0, 1, 1, 1),
+    MAGENTA      = new Colour().set(1, 0, 1, 1),
     
-    SOFT_RED     = new Colour().set(1, 0, 0, 0.5f),
-    SOFT_GREEN   = new Colour().set(0, 1, 0, 0.5f),
-    SOFT_BLUE    = new Colour().set(0, 0, 1, 0.5f),
-    SOFT_YELLOW  = new Colour().set(1, 1, 0, 0.5f),
-    SOFT_CYAN    = new Colour().set(0, 1, 1, 0.5f),
-    SOFT_MAGENTA = new Colour().set(1, 0, 1, 0.5f),
+    BLACK        = new Colour().set(0   , 0   , 0   , 1),
+    DARK_GREY    = new Colour().set(0.2f, 0.2f, 0.2f, 1),
+    GREY         = new Colour().set(0.5f, 0.5f, 0.5f, 1),
+    LITE_GREY    = new Colour().set(0.8f, 0.8f, 0.8f, 1),
+    WHITE        = new Colour().set(1   , 1   , 1   , 1),
     
-    DARK_GREY   = new Colour().set(0.2f, 0.2f, 0.2f, 1),
-    GREY        = new Colour().set(0.5f, 0.5f, 0.5f, 1),
-    LIGHT_GREY  = new Colour().set(0.8f, 0.8f, 0.8f, 1),
-    BLACK       = new Colour().set(0, 0, 0, 1),
-    TRANSLUCENT = new Colour().set(1, 1, 1, 0.5f);
+    SOFT_RED     = new Colour(RED    ).withOpacity(0.5f),
+    SOFT_GREEN   = new Colour(GREEN  ).withOpacity(0.5f),
+    SOFT_BLUE    = new Colour(BLUE   ).withOpacity(0.5f),
+    SOFT_YELLOW  = new Colour(YELLOW ).withOpacity(0.5f),
+    SOFT_CYAN    = new Colour(CYAN   ).withOpacity(0.5f),
+    SOFT_MAGENTA = new Colour(MAGENTA).withOpacity(0.5f),
+    
+    LITE_RED     = new Colour(RED    ).blend(WHITE, 0.5f),
+    LITE_GREEN   = new Colour(GREEN  ).blend(WHITE, 0.5f),
+    LITE_BLUE    = new Colour(BLUE   ).blend(WHITE, 0.5f),
+    LITE_YELLOW  = new Colour(YELLOW ).blend(WHITE, 0.5f),
+    LITE_CYAN    = new Colour(CYAN   ).blend(WHITE, 0.5f),
+    LITE_MAGENTA = new Colour(MAGENTA).blend(WHITE, 0.5f);
   final public static int
     ALPHA_BITS = 0xff000000,
     RGB_BITS   = 0x00ffffff;
@@ -150,9 +156,27 @@ public class Colour {
   }
   
   
-  /**
-   * Sets this colour to match given RGBA component values.
-   */
+  /**  Performs a weighted blend of this colour with the target.
+    */
+  public Colour blend(Colour target, float weight) {
+    r = (r * (1 - weight)) + (target.r * weight);
+    g = (g * (1 - weight)) + (target.g * weight);
+    b = (b * (1 - weight)) + (target.b * weight);
+    a = (a * (1 - weight)) + (target.a * weight);
+    return this;
+  }
+  
+  
+  /**  Returns this colour with alpha modified:
+    */
+  public Colour withOpacity(float a) {
+    this.a = a;
+    return this;
+  }
+  
+  
+  /**  Sets this colour to match given RGBA component values.
+    */
   public Colour set(float rc, float gc, float bc, float ac) {
     r = rc;
     g = gc;

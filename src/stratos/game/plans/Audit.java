@@ -112,7 +112,7 @@ public class Audit extends Plan {
       float rating = Nums.abs(v.inventory().credits()) / 100f;
       rating -= Plan.rangePenalty(v, actor);
       rating -= Plan.competition(Audit.class, v, actor);
-      pick.compare(v, rating);
+      if (rating > 0) pick.compare(v, rating);
     }
     
     if (pick.result() == null) return null;

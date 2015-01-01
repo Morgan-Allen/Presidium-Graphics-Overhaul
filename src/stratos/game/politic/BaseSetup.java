@@ -22,18 +22,21 @@ public class BaseSetup {
   /**  Placement of assorted structure types based on internal demand:
     */
   private static boolean
-    verbose      = true ,
+    verbose      = false,
     extraVerbose = false;
   
   final static float
-    FULL_EVAL_PERIOD = Stage.STANDARD_DAY_LENGTH,
-    DEFAULT_PLACE_HP = 50;
+    FULL_EVAL_PERIOD      = Stage.STANDARD_DAY_LENGTH,  //  Eval-cycle length.
+    DEFAULT_PLACE_HP      = 50;
+  final static int
+    DEFAULT_VENUE_SAMPLES = 5,
+    DEFAULT_CHAT_SAMPLES  = 5;
   
   final Base base;
   final Stage world;
   //private BaseDemands demands = new BaseDemands(this);  //  Setup this.
   
-  //
+  protected VenueProfile canPlace[];
   //  Data structures for conducting time-sliced placement of private venues:
   static class Placing {
     Venue        sampled  ;
@@ -42,26 +45,29 @@ public class BaseSetup {
     float        rating   ;
   }
   
-  
   final List <Placing> placings = new List <Placing> () {
     protected float queuePriority(Placing r) {
       return r.rating;
     }
   };
+  //
+  //  State variables for time-sliced placement-evaluation:
+  private int   initPlaceCount = -1;  //  Total placements at start of cycle
+  private float lastEval       = -1;  //  Last evaluation time within cycle
+  private float totalBuildHP =  0;  //  Total HP placed during this cycle
+  private Batch <Venue> allPlaced = new Batch <Venue> ();
   
-  private int   iterLimit = 0;  //  Matches placings.length after evaluation.
-  private float lastEval = -1;  //  Last evaluation time.
-  private float placeLimit = 0, amountPlaced = 0;
   
-  
-  public BaseSetup(Base base, Stage world) {
-    this.base  = base ;
-    this.world = world;
+  public BaseSetup(Base base, Stage world, VenueProfile... canPlace) {
+    this.base     = base    ;
+    this.world    = world   ;
+    this.canPlace = canPlace;
   }
   
   
   public void loadState(Session s) throws Exception {
     //demands.loadState(s);
+    canPlace = (VenueProfile[]) s.loadObjectArray(VenueProfile.class);
     
     final int numP = s.loadInt();
     for (int n = numP ; n-- > 0;) {
@@ -71,15 +77,17 @@ public class BaseSetup {
       p.exactTile = (Tile   ) s.loadTarget();
       p.rating    =           s.loadFloat ();
     }
-    iterLimit    = s.loadInt  ();
-    lastEval     = s.loadFloat();
-    placeLimit   = s.loadFloat();
-    amountPlaced = s.loadFloat();
+    
+    initPlaceCount = s.loadInt  ();
+    lastEval       = s.loadFloat();
+    totalBuildHP = s.loadFloat();
+    s.loadObjects(allPlaced);
   }
   
   
   public void saveState(Session s) throws Exception {
     //demands.saveState(s);
+    s.saveObjectArray(canPlace);
     
     s.saveInt(placings.size());
     for (Placing p : placings) {
@@ -88,107 +96,95 @@ public class BaseSetup {
       s.saveTarget(p.exactTile);
       s.saveFloat (p.rating   );
     }
-    s.saveInt  (iterLimit   );
-    s.saveFloat(lastEval    );
-    s.saveFloat(placeLimit  );
-    s.saveFloat(amountPlaced);
+    s.saveInt  (initPlaceCount);
+    s.saveFloat(lastEval      );
+    s.saveFloat(totalBuildHP);
+    s.saveObjects(allPlaced);
+  }
+  
+  
+  public void setAvailableVenues(VenueProfile... canPlace) {
+    this.canPlace = canPlace;
   }
   
   
   
   /**  Time-sliced automation of building-placement methods-
     */
-  public void updatePlacements() {
-    if (base.primal) {
-      //  TODO:  This is a bit of a hack...  Primal bases should have a more
-      //  restricted set of venues to work from instead.
-      return;
+  //  TODO:  Permit hints as to preferred placement-location, and an argument
+  //  for instant-placement.
+  
+  public Batch <Venue> doPlacementsFor(VenueProfile type, int count) {
+    final Venue toPlace[] = new Venue[count];
+    for (int n = count; n-- > 0;) toPlace[n] = type.sampleVenue(base);
+    return doPlacementsFor(toPlace);
+  }
+  
+  
+  public Batch <Venue> doPlacementsFor(Venue... toPlace) {
+    final boolean report = verbose && BaseUI.currentPlayed() == base;
+    
+    for (Venue placing : toPlace) {
+      rankSectionPlacings(new Venue[] {placing}, report);
+      attemptPlacements(placings.size(), -1, report);
     }
     
+    final Batch <Venue> placed = new Batch <Venue> ();
+    Visit.appendTo(placed, allPlaced);
+    allPlaced.clear();
+    placings.clear();
+    for (Venue v : placed) {
+      v.structure().setState(Structure.STATE_INTACT, 1);
+    }
+    return placed;
+  }
+  
+  
+  public void updatePlacements() {
     final boolean report = verbose && extraVerbose && (
       BaseUI.currentPlayed() == base
     );
+    //
+    //  If the set of placings has been exhausted, then it's time for a new
+    //  cycle of evaluations.  Rank potential sites and reset the build-total.
     if (placings.size() == 0) {
       if (report) I.say("\nRanking sections...");
-      rankSectionPlacings(report);
-      calcPlaceLimit();
+      final Venue samples[] = VenueProfile.sampleVenues(
+        Venue.VENUE_OWNS, true, canPlace
+      );
+      rankSectionPlacings(samples, report);
+      initPlaceCount = placings.size();
+      totalBuildHP = 0;
+      allPlaced.clear();
       return;
     }
-    
+    //
+    //  Calculate the total limit of building-placement for the cycle (this
+    //  shouldn't change much, but anyway...)
+    //  TODO:  Also base off finances, labour force, and the amount of
+    //  structures currently in need of repairs, et cetera.
+    float buildLimit = 0;
+    buildLimit = Nums.log(10, 1 + base.relations.population());
+    buildLimit *= DEFAULT_PLACE_HP;
+    //
+    //  Then calculate how many sites we can evaluate during this fraction of
+    //  the full cycle.
     final float time = world.currentTime();
     if (lastEval == -1) lastEval = time;
-    
     int numIters = 0;
-    numIters += iterLimit * time     / FULL_EVAL_PERIOD;
-    numIters -= iterLimit * lastEval / FULL_EVAL_PERIOD;
-    
+    numIters += initPlaceCount * time     / FULL_EVAL_PERIOD;
+    numIters -= initPlaceCount * lastEval / FULL_EVAL_PERIOD;
     if (numIters <= 0) return;
-    lastEval = time;
-    if (report) I.say("\nPlacement iterations: "+numIters+"/"+iterLimit);
-    
-    while (numIters-- > 0 && placings.size() > 0) {
-      final Placing best = placings.removeLast();
-      if (amountPlaced < placeLimit) continue;
-      if (best.sampled.inWorld() || best.rating <= 0) continue;
-      
-      if (attemptExactPlacement(best)) {
-        amountPlaced += best.sampled.structure.maxIntegrity();
-        
-        if (report) descPlacing("  New Placement: ", best);
-        if (report) I.say("  Placed: "+amountPlaced+" Limit: "+placeLimit);
-      }
-    }
+    else lastEval = time;
+    //
+    //  And perform the actual placement attempts-
+    if (report) I.say("\nPlacement iterations: "+numIters+"/"+initPlaceCount);
+    attemptPlacements(numIters, buildLimit, report);
   }
   
   
-  private boolean attemptExactPlacement(Placing placing) {
-    final boolean report = verbose && BaseUI.currentPlayed() == base;
-    
-    final Venue sample = placing.sampled;
-    float bestRating = 0;
-    Tile  bestTile = null;
-    
-    //  TODO:  try and improve efficiency here.  (It would help if it were just
-    //         a question of fixed areas.)
-    
-    //  TODO:  Time-slice this as well?  Well, as space becomes exhausted, the
-    //  number of viable placements relative to tiles drops.  On the other
-    //  hand, more tiles can be immediately discounted.  So in principle, that
-    //  evens out.
-    
-    for (Tile t : world.tilesIn(placing.placed.area, false)) {
-      sample.setPosition(t.x, t.y, world);
-      if (! sample.canPlace()) continue;
-      final float rating = sample.ratePlacing(t);
-      if (rating > bestRating) { bestRating = rating; bestTile = t; }
-    }
-    
-    if (bestRating <= 0) return false;
-    if (report) {
-      I.say("\nPlacing "+sample+" at "+bestTile);
-      I.say("  Rating: "+bestRating);
-      I.say("  Base:   "+sample.base()+" vs. "+this.base);
-    }
-    sample.setPosition(bestTile.x, bestTile.y, world);
-    sample.doPlacement();
-    return true;
-  }
-  
-  
-  private void calcPlaceLimit() {
-    placeLimit = Nums.log(10, 1 + base.relations.population());
-    placeLimit *= DEFAULT_PLACE_HP;
-    
-    //  TODO:  Also base off finances, labour force, and the amount of
-    //  structures currently in need of repairs.
-    
-  }
-  
-  
-  private void rankSectionPlacings(boolean report) {
+  private void rankSectionPlacings(Venue samples[], boolean report) {
     placings.clear();
-    amountPlaced = 0;
-    final Venue samples[] = VenueProfile.sampleVenues(Venue.VENUE_OWNS, true);
     
     for (StageSection section : world.sections.sectionsUnder(world.area())) {
       for (Venue sample : samples) {
@@ -197,7 +193,7 @@ public class BaseSetup {
         p.sampled   = sample ;
         p.placed    = section;
         p.exactTile = null   ;
-        p.rating    = sample.ratePlacing(section);
+        p.rating    = sample.ratePlacing(section, false);
         if (p.rating > 0) {
           placings.add(p);
           if (report) descPlacing("  Ranking placement: ", p);
@@ -206,49 +202,90 @@ public class BaseSetup {
     }
     
     placings.queueSort();
-    iterLimit = placings.size();
   }
   
   
-  private void descPlacing(String desc, Placing best) {
-    I.say(
-      "  "+desc+""+best.sampled+
-      " "+best.placed.absX+"/"+best.placed.absY+
-      ", rating: "+best.rating
-    );
-  }
-  
-  
-  
-  /**  Establishing relationships, gear, experience and health FX-
-    */
-  public static void establishRelations(Series <? extends Actor>... among) {
-    
-    for (Series <? extends Actor> sF : among) for (Actor f : sF) {
-      for (Series <? extends Actor> tF : among) for (Actor t : tF) {
-        if (f == t || f.relations.hasRelation(t)) continue;
-        
-        float initRelation = 0;
-        for (int n = 10; n-- > 0;) {
-          initRelation += DialogueUtils.tryChat(f, t);
-        }
-        f.relations.setRelation(t, initRelation, Rand.num());
+  private void attemptPlacements(
+    int maxChecked, float buildLimit, boolean report
+  ) {
+    while (maxChecked-- > 0 && placings.size() > 0) {
+      if (buildLimit > 0 && totalBuildHP > buildLimit) continue;
+      final Placing best = placings.removeLast();
+      if (best.sampled.inWorld() || best.rating <= 0) continue;
+      
+      if (report) {
+        I.say("\nAttempting placement at best site for "+best.sampled);
+        I.say("  Rough location: "+best.placed);
+        I.say("  Rating:         "+best.rating);
       }
+      
+      if (attemptExactPlacement(best, report)) {
+        totalBuildHP += best.sampled.structure.maxIntegrity();
+      }
+      else if (report) I.say("  No suitable site found.");
     }
   }
   
   
-  public static void fillVacancies(Venue venue, boolean enterWorld) {
+  private boolean attemptExactPlacement(Placing placing, boolean report) {
+    final Venue sample = placing.sampled;
+    final Pick <Tile> sitePick = new Pick <Tile> ();
+    
+    for (Tile t : world.tilesIn(placing.placed.area, false)) {
+      sample.setPosition(t.x, t.y, world);
+      if (! sample.canPlace()) continue;
+      final float rating = sample.ratePlacing(t, true);
+      sitePick.compare(t, rating);
+    }
+    
+    if (sitePick.bestRating() <= 0) return false;
+    final Tile bestSite = sitePick.result();
+    if (report) {
+      I.say("\nPlacing "+sample+" at "+bestSite);
+      I.say("  Rating: "+sitePick.bestRating());
+      I.say("  Total HP placed: "+totalBuildHP);
+    }
+    sample.setPosition(bestSite.x, bestSite.y, world);
+    sample.doPlacement();
+    allPlaced.add(sample);
+    return true;
+  }
+  
+  
+  /**  Establishing base personnel:
+    */
+  public void fillVacancies(Venue venue, boolean enterWorld) {
     //
     //  We automatically fill any positions available when the venue is
     //  established.  This is done for free, but candidates cannot be screened.
     if (venue.careers() == null) return;
+    
+    final boolean report = verbose && base == BaseUI.currentPlayed();
+    final int MAX_TRIES = 100;  //Safety measure...
+    int numTries = 0;
+    if (report) I.say("\nAttempting to fill vacancies at "+venue);
+    
     for (Background v : venue.careers()) while (true) {
-      final Human worker = new Human(v, venue.base());
-      final float crowding = venue.crowdRating(worker, v);
       
+      if (++numTries > MAX_TRIES) {
+        I.say("\nWARNING: COULD NOT FILL VACANCIES FOR "+venue);
+        return;
+      }
+      
+      final Actor worker = v.sampleFor(venue.base());
+      if (worker == null) continue;
+      final float crowding = venue.crowdRating(worker, v);
+      if (report) {
+        I.say("  Num hired:   "+venue.staff.numHired(v));
+        I.say("  Crowding for "+worker+" is "+crowding);
+      }
       if (crowding >= 1) break;
+      
       worker.mind.setWork(venue);
+      if (venue.crowdRating(worker, Backgrounds.AS_RESIDENT) < 1) {
+        worker.mind.setHome(venue);
+      }
+      
       if (GameSettings.hireFree || enterWorld) {
         worker.enterWorldAt(venue, venue.world());
         worker.goAboard(venue, venue.world());
@@ -259,43 +296,64 @@ public class BaseSetup {
       }
     }
   }
-
-}
-
-
-
-
-
-
-
-
-/*
-//  TODO:  Humans in general might want a method like this, during the setup
-//  process.
-public static void establishRelations(Venue venue) {
   
-  final World world = venue.world();
-  final Batch <Actor>
-    from = new Batch <Actor> (),
-    to = new Batch <Actor> ();
-  for (Actor a : venue.personnel.residents()) from.add(a);
-  for (Actor a : venue.personnel.workers()) from.add(a);
   
-  final Batch <Venue> nearby = new Batch <Venue> ();
-  world.presences.sampleFromKey(venue, world, 5, nearby, Venue.class);
-  for (Venue v : nearby) {
-    for (Actor a : v.personnel.residents()) to.add(a);
-    for (Actor a : v.personnel.workers()) to.add(a);
+  public void fillVacancies(
+    Series <? extends Venue> venues, boolean enterWorld
+  ) {
+    for (Venue v : venues) fillVacancies(v, enterWorld);
   }
   
-  for (Actor f : from) for (Actor t : to) {
-    float initRelation = 0;
-    for (int n = 10; n-- > 0;) {
-      initRelation += Dialogue.tryChat(f, t) * 10;
+  
+  
+  /**  Establishing relationships, gear, experience and health FX-
+    */
+  public void establishRelations(Series <? extends Actor> among) {
+    for (Actor f : among) for (Actor t : among) {
+      if (f == t || f.relations.hasRelation(t)) continue;
+      
+      float initRelation = 0.25f;
+      for (int n = DEFAULT_CHAT_SAMPLES; n-- > 0;) {
+        initRelation += DialogueUtils.tryChat(f, t);
+      }
+      float initNovelty = 1.0f;
+      initNovelty -= (Rand.num() - 0.5f) / 2;
+      f.relations.setRelation(t, initRelation, initNovelty);
     }
-    f.memories.initRelation(t, initRelation, Rand.num());
+  }
+  
+  
+  public void establishRelationsAt(Venue v) {
+    final Batch <Actor> among = new Batch <Actor> ();
+    Visit.appendTo(among, v.staff.workers  ());
+    Visit.appendTo(among, v.staff.residents());
+    
+    final Stage world = base.world;
+    final Series <Target> nearby = world.presences.sampleFromMap(
+      v, world, DEFAULT_VENUE_SAMPLES, null, base
+    );
+    for (Target t : nearby) if (t instanceof Venue) {
+      final Venue n = (Venue) t;
+      for (Actor a : n.staff.workers  ()) if (Rand.yes()) among.add(a);
+      for (Actor a : n.staff.residents()) if (Rand.yes()) among.add(a);
+    }
+    establishRelations(among);
+  }
+  
+  
+  
+  /** Feedback and debug methods-
+    */
+  private void descPlacing(String desc, Placing best) {
+    I.say(
+      "  "+desc+""+best.sampled+
+      " "+best.placed.absX+"/"+best.placed.absY+
+      ", rating: "+best.rating
+    );
   }
 }
-//*/
+
+
+
 
 

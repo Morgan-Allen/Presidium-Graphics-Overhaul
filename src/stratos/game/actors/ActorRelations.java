@@ -16,8 +16,12 @@ public class ActorRelations {
   
   /**  Data fields, constructors and save/load methods-
     */
+  private static boolean
+    verbose = false;
+  
   final public static float
-    INIT_NOVELTY     = 2.0f,
+    INIT_NOVELTY     = 1.0f,
+    MAX_NOVELTY      = 2.0f,
     NOVELTY_INTERVAL = Stage.STANDARD_DAY_LENGTH  * 2,
     FORGET_INTERVAL  = Stage.STANDARD_DAY_LENGTH  * 5,
     BASE_NUM_FRIENDS = 5 ,
@@ -25,9 +29,8 @@ public class ActorRelations {
   
   final static int
     DEFAULT_MAX_MEMORY = 10,
-    DEFAULT_MAX_ASSOC  = 100;
-  
-  private static boolean verbose = false;
+    DEFAULT_MAX_ASSOC  = 100,
+    UPDATE_PERIOD      = Stage.STANDARD_HOUR_LENGTH;
   
   
   final protected Actor actor;
@@ -57,77 +60,63 @@ public class ActorRelations {
   /**  Update and decay methods-
     */
   public void updateValues(int numUpdates) {
+    if (numUpdates % UPDATE_PERIOD != 0) return;
     final boolean report = verbose && I.talkAbout == actor;
-    if (numUpdates % 10 != 0) return;
-    if (report) I.say("Updating relations, num. updates: "+numUpdates);
-
-    for (Relation r : relations.values()) updateRelation(r, 10);
+    if (report) I.say("\nUpdating relations for "+actor);
     
-    //  Get a running total of relations with all actors belonging to a given
-    //  base, so you can average that for the base itself.
-    final List <Base> bases = actor.world().bases();
-    final float
-      baseSum[]   = new float[bases.size()],
-      baseCount[] = new float[bases.size()];
-    
-    //  Sort relations in order of importance while doing so.
+    //  Firstly, sort relations in order of importance (based on the strength
+    //  of the relationship, good or bad, and freshness in memory)-
     final List <Relation> sorting = new List <Relation> () {
       protected float queuePriority(Relation r) {
         return Nums.abs(r.value()) - r.novelty();
       }
     };
-    for (Relation r : relations.values()) {
-      if (! (r.subject instanceof Actor)) continue;
-      sorting.add(r);
-      final int BID = bases.indexOf(r.subject.base());
-      if (BID != -1) {
-        if (report) I.say("  Relation is: "+r+" ("+r.value()+")");
-        baseSum[BID] += r.value();
-        baseCount[BID] += 1;
-      }
-    }
+    for (Relation r : relations.values()) sorting.add(r);
     sorting.queueSort();
     
-    //  Cull the least important relationships, and set up relations with the
-    //  bases.
-    while (sorting.size() > MAX_RELATIONS) {
-      final Relation r = sorting.removeLast();
-      relations.remove(r.subject);
-    }
-    int BID = 0; for (Base base : bases) {
-      final float
-        sum = baseSum[BID], count = baseCount[BID],
-        relation = count == 0 ? 0 : (sum / count);
+    //  Then incrementally update each relation, and determine which are no
+    //  longer important enough to remember:
+    int count = 0; for (Relation r : sorting) {
+      final boolean okay = updateRelation(r, UPDATE_PERIOD);
       if (report) {
-        I.say("Relation with "+base+" is "+relation);
-        I.say("Base sum/base count: "+sum+"/"+count);
+        I.say("  Have updated relation with "+r.subject);
+        I.say("  ("+count+"/"+MAX_RELATIONS+", okay: "+okay+")");
+        I.say("  Value/novelty: "+r.value()+"/"+r.novelty());
       }
-      incRelation(base, relation, 10f / Stage.STANDARD_DAY_LENGTH, 0);
-      BID++;
+      if ((! okay) || (++count > MAX_RELATIONS)) {
+        relations.remove(r.subject);
+        if (report) I.say("  Has expired!");
+      }
     }
   }
   
   
-  protected void updateRelation(Relation r, int period) {
-    
+  protected boolean updateRelation(
+    Relation r, int period
+  ) {
     float value = r.value(), novelty = r.novelty();
-    final float magnitude = 1 - Nums.abs(value);
+    final float magnitude = Nums.clamp(Nums.abs(value), 0, 1);
     
+    //  If the memory is relatively fresh, just decay novelty by a fixed rate
+    //  over time, and leave the value itself alone.
     float noveltyInc = period * 1f;
-    if (novelty <= 1) {
+    if (novelty <= INIT_NOVELTY) {
       noveltyInc /= NOVELTY_INTERVAL;
       r.incNovelty(noveltyInc);
     }
+    
+    //  More distant memories decay more slowly, based on the strength of the
+    //  relation itself, but allow the relation value to decay in the process.
     else {
-      noveltyInc *= (magnitude * magnitude);
-      noveltyInc /= FORGET_INTERVAL;
+      noveltyInc *= (1 - magnitude) * (1 - magnitude);
+      noveltyInc *= 1f / FORGET_INTERVAL;
       r.incValue(0, noveltyInc);
       r.incNovelty(noveltyInc);
     }
     
-    if (r.novelty() - magnitude >= INIT_NOVELTY) {
-      relations.remove(r.subject);
-    }
+    //  If the memory has expired entirely, flag it for removal:
+    if (r.novelty() - magnitude >= MAX_NOVELTY) return false;
+    return true;
   }
   
   
@@ -148,6 +137,8 @@ public class ActorRelations {
     //  should be.  We base this off a weighted average depending on home/work
     //  identity, community spirit, and relations with the parent base:
     final float baseVal = actor.base().relations.relationWith(other.base());
+    if (other == other.base()) return baseVal;
+    
     float relVal = 0;
     if (other == actor.mind.home) relVal += 1.0f;
     if (other == actor.mind.work) relVal += 0.5f;
@@ -158,9 +149,16 @@ public class ActorRelations {
   }
   
   
-  public float noveltyFor(Object other) {
+  public float noveltyFor(Object object) {
+    if (! (object instanceof Accountable)) return 0;
+    final Accountable other = (Accountable) object;
+
     final Relation r = relations.get(other);
-    if (r == null) return INIT_NOVELTY;
+    if (r == null) {
+      final Base belongs = other.base();
+      final float baseNov = belongs == other ? 0 : noveltyFor(belongs);
+      return baseNov + INIT_NOVELTY;
+    }
     return r.novelty();
   }
   
@@ -170,8 +168,9 @@ public class ActorRelations {
   ) {
     Relation r = relations.get(other);
     if (r == null) {
-      final float baseVal = valueFor(other);
-      r = setRelation(other, baseVal, INIT_NOVELTY);
+      final float baseVal = valueFor  (other);
+      final float baseNov = noveltyFor(other);
+      r = setRelation(other, baseVal, baseNov);
     }
     r.incValue(toLevel, weight);
     r.incNovelty(novelty);
@@ -217,54 +216,5 @@ public class ActorRelations {
   }
 }
 
-
-
-
-  /*
-  public float valueFor(Base base) {
-    final Base AB = actor.base();
-    if (AB != null) {
-      if (base == AB) return 1;
-      if (base == null) return 0;
-      return AB.relations.relationWith(base);
-    }
-    else return 0;
-  }
-  
-  
-  public float valueFor(Structure.Basis venue) {
-    if (venue == null) return 0;
-    //  TODO:  Cache this and modify slowly over time.
-    
-    final float baseVal = valueFor(venue.base());
-    float relVal = 0;
-    if (venue.base() == actor.base()) {
-      relVal += actor.base().relations.communitySpirit() / 2;
-    }
-    if (venue == actor.mind.home) relVal += 1.0f;
-    if (venue == actor.mind.work) relVal += 0.5f;
-    
-    return (baseVal + Visit.clamp(relVal, 0, 1)) / 2f;
-  }
-  
-  
-  public float valueFor(Actor other) {
-    if (other == actor) return 1;
-    final Relation r = relations.get(other);
-    if (r == null) return valueFor(other.base()) / 2;
-    if (r.subject == actor) return Visit.clamp(r.value() + 1, 0, 1);
-    return r.value() + (valueFor(other.base()) / 4);
-  }
-  
-  
-  public float valueFor(Object other) {
-    if (other instanceof Structure.Basis) {
-      return valueFor((Structure.Basis) other);
-    }
-    if (other instanceof Actor) return valueFor((Actor) other);
-    if (other instanceof Base ) return valueFor((Base ) other);
-    return 0;
-  }
-  //*/
 
 

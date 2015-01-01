@@ -35,6 +35,8 @@ public class SkinsPreview extends VisualDebug {
   private XML currentXML;
   private SolidModel currentModel;
   private String currentAnim;
+  private boolean shouldLoop;
+  
   private Table <String, String> assetStamps = new Table <String, String> ();
   private boolean willReload = false, reloadNow = false;
   
@@ -47,6 +49,8 @@ public class SkinsPreview extends VisualDebug {
     modelPathEntry.alignTop(0, 500);
     modelPathEntry.alignHorizontal(0, 0);
     modelPathEntry.attachTo(UI);
+    
+    shouldLoop = true;
   }
   
   
@@ -56,18 +60,16 @@ public class SkinsPreview extends VisualDebug {
   
   
   public void renderVisuals(Rendering rendering) {
-    
     updatePath();
     updateModel();
     checkAssetsChange();
     setupText();
-    
     super.renderVisuals(rendering);
   }
   
   
   protected void onRendering(Sprite sprite) {
-    sprite.setAnimation(currentAnim, Rendering.activeTime() % 1, true);
+    sprite.setAnimation(currentAnim, Rendering.activeTime() % 1, shouldLoop);
   }
   
   
@@ -159,6 +161,14 @@ public class SkinsPreview extends VisualDebug {
         });
       }
     }
+    
+    //
+    //  
+    t.append("\n\nShould loop: ");
+    t.append(new Text.Clickable() {
+      public void whenClicked() { shouldLoop = ! shouldLoop; }
+      public String fullName() { return shouldLoop ? "TRUE" : "FALSE"; }
+    });
   }
   
   

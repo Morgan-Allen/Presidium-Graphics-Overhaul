@@ -107,8 +107,9 @@ public abstract class Actor extends Mobile implements
     return actionTaken.isMoving();
   }
   
-  public Background vocation() { return null; }
+  //  TODO:  Get rid of the setVocation method.  Belongs in the mind, I think.
   public void setVocation(Background b) {}
+  public Background vocation() { return species(); }
   public Species species() { return null; }
   
   
@@ -353,7 +354,7 @@ public abstract class Actor extends Mobile implements
   
   public boolean actionInProgress() {
     if (actionTaken == null) return false;
-    return actionTaken.hasBegun() && ! actionTaken.finished();
+    return actionTaken.isClosed() && ! actionTaken.finished();
   }
   
   
@@ -460,10 +461,6 @@ public abstract class Actor extends Mobile implements
   
   protected void renderHealthbars(Rendering rendering, Base base) {
     
-    if (base != this.base()) {
-      if (! BaseUI.isSelectedOrHovered(this)) return;
-    }
-    
     label.matchTo(sprite());
     label.position.z -= radius() + 0.25f;
     label.phrase = fullName();
@@ -473,7 +470,7 @@ public abstract class Actor extends Mobile implements
     
     healthbar.matchTo(sprite());
     healthbar.level = (1 - health.injuryLevel());
-    healthbar.colour = this.base().colour;
+    healthbar.colour = base().colour();
     healthbar.size = 35;
     healthbar.position.z -= radius();
     healthbar.readyFor(rendering);

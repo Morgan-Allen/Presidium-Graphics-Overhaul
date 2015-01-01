@@ -108,7 +108,7 @@ public class DebugMissions extends Scenario {
   
   
   private void contactScenario(Stage world, Base base, BaseUI UI) {
-    final Base natives = Base.natives(world);
+    final Base natives = Base.natives(world, NativeHut.TRIBE_FOREST);
     natives.relations.setRelation(base, -0.25f, true);
     
     final NativeHut hut = NativeHut.newHall(1, natives);
@@ -141,7 +141,7 @@ public class DebugMissions extends Scenario {
   private void securityScenario(Stage world, Base base, BaseUI UI) {
     final Base artilects = Base.artilects(world);
     
-    final Actor robot = Species.SPECIES_TRIPOD.newSpecimen(artilects);
+    final Actor robot = Species.TRIPOD.sampleFor(artilects);
     robot.enterWorldAt(32, 32, world);
     
     final Actor vet = new Human(Backgrounds.TROOPER, base);
@@ -173,9 +173,8 @@ public class DebugMissions extends Scenario {
     final Base artilects = Base.artilects(world);
     base.relations.setRelation(artilects, -1, true);
     
-    final Batch <Ruins> ruins = Ruins.placeRuins(world, 1);
-    final Ruins ruin = ruins.first();
-    //  TODO:  That's way too many ruins!  I only want one!
+    final Ruins ruin = new Ruins(artilects);
+    artilects.setup.doPlacementsFor(ruin);
     
     final Mission strike = new StrikeMission(base, ruin);
     strike.setMissionType(Mission.TYPE_SCREENED  );

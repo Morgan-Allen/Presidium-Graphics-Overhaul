@@ -14,8 +14,8 @@ import stratos.util.*;
 
 //  Assign drills directly at the trooper lodge.  That'll keep 'em busy!
 
-//  Arrange for contact missions to come back with a desired price from the
-//  subject/s.
+//  TODO:  Merge the summons-dialogue system with the Contact mission.  It's
+//  much more natural that way.
 
 //  Ideally, hiring arrangements should have some kind of progress meter.
 
@@ -70,8 +70,9 @@ public class DebugTutorial extends TutorialScenario {
     return "debug_tutorial";
   }
   
-
+  
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
+    GameSettings.fogFree = true;
     super.configureScenario(world, base, UI);
     UI.selection.pushSelection(base.ruler(), true);
   }

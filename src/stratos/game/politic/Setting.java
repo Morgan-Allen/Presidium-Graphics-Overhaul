@@ -102,12 +102,17 @@ public class Setting {
 
   
   private static Object keyFor(Base base) {
-    if (base.primal) return base.title;
+    if (base.isNative()) return Base.KEY_NATIVES;
+    if (base.primal) return base.title();
     final Object home = base.commerce.homeworld();
     if (home != null) return home;
     return Base.KEY_FREEHOLD;
   }
 }
+
+
+
+
 
 
 

@@ -10,6 +10,7 @@ import stratos.game.actors.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.politic.*;
+import stratos.game.wild.*;
 import stratos.graphics.common.*;
 import stratos.user.*;
 import stratos.util.*;
@@ -39,7 +40,6 @@ public class Base implements
   
   final public BaseFinance  finance  ;
   final public BaseProfiles profiles ;
-  
   final public DangerMap    dangerMap;
   final public IntelMap     intelMap ;
   
@@ -48,13 +48,14 @@ public class Base implements
   final List <Mission> missions = new List <Mission> ();
   final public BaseRelations relations;
   
-  public String title  = "Player Base";
-  public Colour colour = new Colour();//.set(Colour.BLUE);  //TODO:  Make private.
+  private String title  = "Player Base";
+  private Colour colour = new Colour();
   
   
   
   private static Base baseWithName(
-    Stage world, String title, Colour colour, boolean primal
+    String title, Colour colour,
+    Stage world, boolean primal, VenueProfile... canPlace
   ) {
     for (Base base : world.bases()) if (
       base.title != null &&
@@ -66,32 +67,47 @@ public class Base implements
     
     final Base base = new Base(world, primal);
     world.registerBase(base, true);
-
     base.title = title;
     base.colour.set(colour);
-    //if (primal) base.colour.set(Colour.LIGHT_GREY);
-    
+    base.setup.setAvailableVenues(canPlace);
     return base;
   }
   
   
   public static Base withName(Stage world, String title, Colour colour) {
-    return baseWithName(world, title, colour, false);
+    return baseWithName(title, colour, world, false);
   }
   
   
   public static Base wildlife(Stage world) {
-    return baseWithName(world, KEY_WILDLIFE, Colour.GREEN, true);
+    return baseWithName(
+      KEY_WILDLIFE, Colour.LITE_GREEN, world, true, Nest.VENUE_PROFILES
+    );
   }
   
   
   public static Base artilects(Stage world) {
-    return baseWithName(world, KEY_ARTILECTS, Colour.GREY, true);
+    return baseWithName(
+      KEY_ARTILECTS, Colour.LITE_RED, world, true, Ruins.VENUE_PROFILES
+    );
   }
   
   
-  public static Base natives(Stage world) {
-    return baseWithName(world, KEY_NATIVES, Colour.YELLOW, true);
+  public static Base natives(Stage world, int tribeID) {
+    return baseWithName(
+      KEY_NATIVES+" ("+NativeHut.TRIBE_NAMES[tribeID]+")", Colour.LITE_YELLOW,
+      world, true, NativeHut.VENUE_PROFILES[tribeID]
+    );
+  }
+  
+  
+  public boolean isNative() {
+    return title.startsWith(KEY_NATIVES);
+  }
+  
+  
+  public boolean isPrimal() {
+    return primal;
   }
   
   
@@ -100,17 +116,17 @@ public class Base implements
     this.primal = primal;
     
     setup      = new BaseSetup(this, world);
-    commerce   = new Commerce(this)        ;
-    paveRoutes = new PavingRoutes(world)   ;
+    commerce   = new Commerce(this);
+    paveRoutes = new PavingRoutes(world);
     
-    finance   = new BaseFinance(this);
-    profiles  = new BaseProfiles(this)    ;
+    finance    = new BaseFinance(this);
+    profiles   = new BaseProfiles(this);
     
-    dangerMap = new DangerMap(world, this);
-    intelMap  = new IntelMap(this)        ;
+    dangerMap  = new DangerMap(world, this);
+    intelMap   = new IntelMap(this);
     intelMap.initFog(world);
     
-    relations = new BaseRelations(this)   ;
+    relations  = new BaseRelations(this);
   }
   
   
@@ -154,6 +170,16 @@ public class Base implements
     
     s.saveString(title);
     colour.saveTo(s.output());
+  }
+  
+  
+  public Colour colour() {
+    return colour;
+  }
+  
+  
+  public String title() {
+    return title;
   }
   
   

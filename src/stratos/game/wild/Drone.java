@@ -24,7 +24,7 @@ public class Drone extends Artilect {
   
   
   public Drone(Base base) {
-    super(base, Species.SPECIES_DRONE);
+    super(base, Species.DRONE);
     
     traits.initAtts(15, 10, 5);
     health.initStats(

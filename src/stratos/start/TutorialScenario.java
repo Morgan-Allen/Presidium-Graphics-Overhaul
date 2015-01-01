@@ -4,7 +4,8 @@ import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.maps.*;
-import stratos.game.politic.Sectors;
+import stratos.game.economic.*;
+import stratos.game.politic.*;
 import stratos.game.wild.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
@@ -23,6 +24,10 @@ import stratos.util.*;
 //End with +1 housing and at least 4K.
 //Destroy the Artilect lair.
 //Persuade the natives to open trade with your base.
+
+
+//  ...This map is too small to allow for multiple factions, really.  More
+//  useful as a theoretical exercise.
 
 
 
@@ -84,7 +89,7 @@ public class TutorialScenario extends StartupScenario {
   
   protected Bastion establishBastion(
     Stage world, Base base, Human ruler,
-    List<Human> advisors, List<Human> colonists
+    List <Human> advisors, List <Human> colonists
   ) {
     bastion = super.establishBastion(world, base, ruler, advisors, colonists);
     return bastion;
@@ -92,8 +97,20 @@ public class TutorialScenario extends StartupScenario {
   
   
   protected void establishLocals(Stage world) {
-    ruins = Ruins.placeRuins(world, 1);
-    huts  = NativeHut.establishSites(NativeHut.TRIBE_FOREST, world);
+    
+    final BaseSetup AS = Base.artilects(world).setup;
+    ruins = new Batch <Ruins> ();
+    Visit.appendTo(ruins, AS.doPlacementsFor(Ruins.VENUE_PROFILES[0], 1));
+    AS.fillVacancies(ruins, true);
+    
+    final int tribeID = NativeHut.TRIBE_FOREST;
+    final BaseSetup NS = Base.natives(world, tribeID).setup;
+    huts = new Batch <NativeHut> ();
+    final VenueProfile NP[] = NativeHut.VENUE_PROFILES[tribeID];
+    Visit.appendTo(huts, NS.doPlacementsFor(NP[0], 2));
+    Visit.appendTo(huts, NS.doPlacementsFor(NP[1], 3));
+    NS.fillVacancies(huts, true);
+    for (NativeHut hut : huts) NS.establishRelationsAt(hut);
   }
   
   
@@ -102,13 +119,6 @@ public class TutorialScenario extends StartupScenario {
     */
   public void updateGameState() {
     super.updateGameState();
-    
-    /*
-    final Base natives = Base.baseWithName(world(), Base.KEY_NATIVES, true);
-    I.say("\nGetting base relations-");
-    I.say("  Player -> natives: "+base().relations.relationWith(natives));
-    I.say("  Natives -> player: "+natives.relations.relationWith(base()));
-    //*/
     
     if (showMessages()) {
       pushMessage(TITLE_WELCOME);

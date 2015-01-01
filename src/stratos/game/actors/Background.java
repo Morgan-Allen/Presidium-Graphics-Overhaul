@@ -8,13 +8,9 @@
 package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.politic.Sector;
 import stratos.graphics.common.*;
 import stratos.util.*;
 
-
-//
-//  TODO:  Backgrounds need to include their own descriptions.
 
 
 //TODO:  I'm going to limit this to a few basic headings now.
@@ -42,14 +38,10 @@ Engineer       Dreg
 
 
 
-public class Background implements Session.Saveable {
+public class Background extends Index.Entry implements Session.Saveable {
   
   
-  private static int nextID = 0;
-  final public int ID = nextID++;
-  private static Batch <Background> all = new Batch();
-  private static Table <String, Background> nameTable = new Table();
-  
+  final public static Index <Background> INDEX = new Index <Background> ();
   
   final public String name, info;
   final protected Class baseClass;
@@ -68,11 +60,10 @@ public class Background implements Session.Saveable {
     String name, String info, String costumeTex, String portraitTex,
     int standing, int guild, Object... args
   ) {
+    super(INDEX, name);
     this.baseClass = baseClass;
     this.name = name;
     this.info = info;
-    nameTable.put(name, this);
-    ///I.say("Declaring background: "+name);
     
     if (costumeTex == null) this.costume = null;
     else this.costume = costumeFor(costumeTex);
@@ -100,24 +91,16 @@ public class Background implements Session.Saveable {
         gear.add((Traded) o);
       }
     }
-    all.add(this);
-  }
-  
-  
-  public static Background[] allBackgrounds() {
-    return all.toArray(Background.class);
   }
   
   
   public static Background loadConstant(Session s) throws Exception {
-    s.loadClass();
-    return nameTable.get(s.loadString());
+    return INDEX.loadFromEntry(s.input());
   }
   
   
   public void saveState(Session s) throws Exception {
-    s.saveClass(baseClass);
-    s.saveString(name);
+    INDEX.saveEntry(this, s.output());
   }
   
   
@@ -156,6 +139,13 @@ public class Background implements Session.Saveable {
   
   public List <Traded> properGear() {
     return gear;
+  }
+  
+  
+  /**  Factory methods-
+    */
+  public Actor sampleFor(Base base) {
+    return new Human(this, base);
   }
   
   

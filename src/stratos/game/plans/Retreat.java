@@ -94,16 +94,10 @@ public class Retreat extends Plan implements Qualities {
       bonus += (haven == null) ? 0 : Plan.rangePenalty(haven, actor) * CASUAL;
     }
     
-    final float priority = priorityForActorWith(
-      actor, safePoint,
-      maxDanger * PARAMOUNT, bonus,
-      NO_HARM, NO_COMPETITION, NO_FAIL_RISK,
-      BASE_SKILLS, BASE_TRAITS, NO_DISTANCE_CHECK,
-      report
-    );
-    
     if (report) {
-      I.say("\n  PLAN ID IS: "+hashCode());
+      I.say("\nEvaluating extra retreat parameters: "+this);
+      I.say("  Bases are:      "+actor.base()+" vs. "+safePoint.base());
+      I.say("  Base relations: "+actor.base().relations.relationWith(safePoint.base()));
       I.say("  Max Danger:     "+maxDanger);
       I.say("  Fear Level:     "+actor.senses.fearLevel());
       I.say("  Injury:         "+actor.health.injuryLevel());
@@ -111,6 +105,14 @@ public class Retreat extends Plan implements Qualities {
       I.say("  Bonus priority: "+bonus);
       I.say("  Endangered?     "+actor.senses.isEmergency());
     }
+    
+    final float priority = priorityForActorWith(
+      actor, safePoint,
+      maxDanger * PARAMOUNT, bonus,
+      NO_HARM, NO_COMPETITION, NO_FAIL_RISK,
+      BASE_SKILLS, BASE_TRAITS, NO_DISTANCE_CHECK,
+      report
+    );
     return priority;
   }
   
@@ -127,6 +129,7 @@ public class Retreat extends Plan implements Qualities {
       
       public void compare(Boarding next, float rating) {
         if (next == null || ! next.allowsEntry(actor)) return;
+        if (actor.base().intelMap.fogAt(next) <= 0) return;
         //  TODO:  Add some random salt here?
         if (PathSearch.blockedBy(next, actor)) return;
         final float dist = Spacing.distance(actor, next) / runRange;
@@ -305,14 +308,14 @@ public class Retreat extends Plan implements Qualities {
   public boolean actionFlee(Actor actor, Target safePoint) {
     final boolean emergency = actor.senses.isEmergency();
     
-    //  TODO:  Try to break line of sight with your pursuer, and thereby shake
-    //  the tail.
+    //  TODO:  USE THE SIGHT-BREAKING CODE
     
     if (actor.indoors() && ! emergency) {
       final Resting rest = new Resting(actor, safePoint);
       rest.setMotive(Plan.MOTIVE_LEISURE, priorityFor(actor));
       maxDanger = 0;
       interrupt(INTERRUPT_CANCEL);
+      actor.mind.assignBehaviour(rest);
       return true;
     }
     
@@ -336,7 +339,8 @@ public class Retreat extends Plan implements Qualities {
     */
   public void describeBehaviour(Description d) {
     if (! actor.senses.isEmergency()) {
-      d.append("Retiring to safety");
+      d.append("Retiring to ");
+      d.append(safePoint);
       return;
     }
     if (actor.aboard() == safePoint) d.append("Seeking refuge at ");

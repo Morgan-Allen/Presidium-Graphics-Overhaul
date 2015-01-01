@@ -282,6 +282,7 @@ public class Structure {
     */
   public int maxIntegrity() { return baseIntegrity + upgradeHP(); }
   public int maxUpgrades() { return upgrades == null ? 0 : maxUpgrades; }
+  public int currentState() { return state; }
   
   public int cloaking()  { return cloaking ; }
   public int armouring() { return armouring; }

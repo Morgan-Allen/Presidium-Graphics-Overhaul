@@ -31,11 +31,12 @@ public class Staff {
   
   /**  Fields, constructors, and save/load methods-
     */
+  private static boolean
+    verbose = false;
+  
   final static int
     REFRESH_INTERVAL = 10,
     AUDIT_INTERVAL   = Stage.STANDARD_DAY_LENGTH / 10;
-  
-  private static boolean verbose = false;
   
   
   final Property employs;
@@ -101,13 +102,13 @@ public class Staff {
   
   
   public boolean isResident(Mobile a) {
-    for (Actor r : residents) if (r == a) return true;
+    if (a instanceof Actor && ((Actor) a).mind.home() == employs) return true;
     return false;
   }
   
   
   public boolean isWorker(Mobile a) {
-    for (Actor w : workers) if (w == a) return true;
+    if (a instanceof Actor && ((Actor) a).mind.work() == employs) return true;
     return false;
   }
   
@@ -121,6 +122,10 @@ public class Staff {
   /**  Handling shifts and being off-duty:
     */
   public int shiftFor(Actor worker) {
+    final boolean report = verbose && (
+      I.talkAbout == worker || I.talkAbout == employs
+    );
+    
     if (shiftType == -1) return Venue.OFF_DUTY;
     if (shiftType == Venue.SHIFTS_ALWAYS) {
       return Venue.PRIMARY_SHIFT;
@@ -152,6 +157,13 @@ public class Staff {
     if (shiftType == Venue.SHIFTS_BY_DAY) {
       final int day = (int) (world.currentTime() / Stage.STANDARD_DAY_LENGTH);
       final int index = workers.indexOf(worker);
+      
+      if (report) {
+        I.say("\nGetting day-based shift for "+worker);
+        I.say("  Day count: "+day);
+        I.say("  Worker ID: "+index);
+        I.say("  At night?  "+Planet.isNight(world));
+      }
       
       if (Planet.isNight(world)) return Venue.OFF_DUTY;
       else if ((index % 3) == (day % 3) || Planet.dayValue(world) < 0.5f) {

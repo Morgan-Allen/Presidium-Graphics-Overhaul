@@ -56,6 +56,9 @@ Also apply to off-world missions-
 //*/
 
 
+//  TODO:  Exclude any 'unfit' applicants- those with an average of less than
+//  10 in relevant skills.
+
 
 public abstract class Mission implements
   Behaviour, Session.Saveable, Selectable
@@ -417,10 +420,15 @@ public abstract class Mission implements
     if (hasBegun()) return;
     begun = true;
     ///I.say("Beginning mission: "+this);
+    
     for (Role role : roles) {
       if (! role.approved) {
         final Actor rejected = role.applicant;
         rejected.mind.assignMission(null);
+      }
+      else {
+        final Actor active = role.applicant;
+        active.mind.assignBehaviour(nextStepFor(active));
       }
     }
   }

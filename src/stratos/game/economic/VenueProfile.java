@@ -16,12 +16,18 @@ import java.lang.reflect.*;
 
 
 
+//  TODO:  Later, you'll want to try and migrate as many relevant attributes
+//  over to this class as possible.
+
+
 public class VenueProfile implements Session.Saveable {
   
   
   final public Class <? extends Venue> baseClass;
-  final public int facilityType;
+  private static Table <Object, VenueProfile> allProfiles = new Table();
   
+  /*
+  final public int facilityType;
   //  TODO:  Also, name, icon, possibly model and any construction
   //  dependancies- you need to be able to filter this, for both the player and
   //  base AI.
@@ -32,16 +38,21 @@ public class VenueProfile implements Session.Saveable {
   final public Traded  materials[];
   final public Background careers  [];
   final public Conversion services [];
-  
+  //*/
+  //  TODO:  Have more of these, and specify within constructor.  Obviously...
+  final public int maxIntegrity = Structure.DEFAULT_INTEGRITY;
   
   public VenueProfile(
-    Class <? extends Venue> baseClass, int facilityType,
+    Class <? extends Venue> baseClass, Object key
+    /*, int facilityType,
     int size, int maxIntegrity, int armouring, int ambience,
     Traded materials[],
     Background careers[],
     Conversion... services
+    //*/
   ) {
     this.baseClass    = baseClass   ;
+    /*
     this.facilityType = facilityType;
     
     this.size         = size        ;
@@ -53,16 +64,17 @@ public class VenueProfile implements Session.Saveable {
     this.careers   = careers  ;
     this.services  = services ;
     //Conversion.parse(baseClass, conversionArgs);  //  TODO:  use this
+    //*/
     
-    allProfiles.put(baseClass, this);
+    allProfiles.put(key, this);
   }
   
   
-  public static Venue sampleVenue(Class baseClass) {
+  public static Venue sampleVenue(Class baseClass, Base base) {
     try {
       if (! Venue.class.isAssignableFrom(baseClass)) return null;
       final Constructor c = baseClass.getConstructor(Base.class);
-      return (Venue) c.newInstance((Base) null);
+      return (Venue) c.newInstance(base);
     }
     catch (NoSuchMethodException e) {
       I.say(
@@ -80,10 +92,14 @@ public class VenueProfile implements Session.Saveable {
   }
   
   
+  public Venue sampleVenue(Base base) {
+    return sampleVenue(baseClass, base);
+  }
+  
+  
   
   /**  Save and load functions for external reference.
     */
-  private static Table <Class, VenueProfile> allProfiles = new Table();
   
   public static VenueProfile loadConstant(Session s) throws Exception {
     venueTypes();
@@ -124,7 +140,7 @@ public class VenueProfile implements Session.Saveable {
     final Batch <VenueProfile> allProfiles = new Batch();
     
     for (Class baseClass : Assets.loadPackage("stratos.game")) {
-      final Venue sample = VenueProfile.sampleVenue(baseClass);
+      final Venue sample = VenueProfile.sampleVenue(baseClass, null);
       if (sample != null) {
         allTypes.add(baseClass);
         allProfiles.add(sample.profile);
@@ -143,12 +159,15 @@ public class VenueProfile implements Session.Saveable {
   }
   
   
-  public static Venue[] sampleVenues(int owningType, boolean privateProperty) {
+  public static Venue[] sampleVenues(
+    int owningType, boolean privateProperty, VenueProfile... canPlace
+  ) {
+    if (canPlace == null || canPlace.length == 0) canPlace = allFP;
     final Batch <Venue> typeBatch = new Batch <Venue> ();
     
-    for (VenueProfile p : facilityProfiles()) {
-      final Venue sample = VenueProfile.sampleVenue(p.baseClass);
-      if (sample.owningType() > owningType) continue;
+    for (VenueProfile profile : canPlace) {
+      final Venue sample = profile.sampleVenue(null);
+      if (sample == null || sample.owningType() > owningType) continue;
       if (sample.privateProperty() != privateProperty) continue;
       typeBatch.add(sample);
     }

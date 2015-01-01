@@ -73,7 +73,7 @@ public class MainMenu extends UIGroup {
     text.append("\n      ");
     final Background g = config.gender;
     for (Skill s : g.skills()) {
-      text.append(s.name+" +"+g.skillLevel(s)+" ", Colour.LIGHT_GREY);
+      text.append(s.name+" +"+g.skillLevel(s)+" ", Colour.LITE_GREY);
     }
     
     //
@@ -89,7 +89,7 @@ public class MainMenu extends UIGroup {
       Call.add("\n    "+s.houseName, c, this, "setHouse", text, s);
     }
     for (Skill s : config.house.skills()) {
-      text.append("\n      ("+s.name+" +5)", Colour.LIGHT_GREY);
+      text.append("\n      ("+s.name+" +5)", Colour.LITE_GREY);
     }
     
     text.append("\n  Favoured skills: ");
@@ -115,12 +115,12 @@ public class MainMenu extends UIGroup {
     if (config.chosenSkills.size() < MAX_SKILLS) canProceed = false;
     if (config.chosenTraits.size() < MAX_TRAITS) canProceed = false;
     if (canProceed) {
-      text.append("\n\n  (Sections complete)", Colour.LIGHT_GREY);
+      text.append("\n\n  (Sections complete)", Colour.LITE_GREY);
       Call.add("\n    Expedition Settings", this, "configForLanding", text);
     }
     else {
-      text.append("\n\n  (Please fill all sections)", Colour.LIGHT_GREY);
-      text.append("\n    Expedition Settings", Colour.LIGHT_GREY);
+      text.append("\n\n  (Please fill all sections)", Colour.LITE_GREY);
+      text.append("\n    Expedition Settings", Colour.LITE_GREY);
     }
     Call.add("\n  Go Back", this, "configMainText", text);
   }
@@ -241,12 +241,12 @@ public class MainMenu extends UIGroup {
     if (config.advisors.size() < MAX_ADVISORS) canBegin = false;
     
     if (canBegin) {
-      text.append("\n\n  (Sections complete)", Colour.LIGHT_GREY);
+      text.append("\n\n  (Sections complete)", Colour.LITE_GREY);
       Call.add("\n    Begin Game", this, "beginNewGame", text);
     }
     else {
-      text.append("\n\n  (Please fill all sections)", Colour.LIGHT_GREY);
-      text.append("\n    Begin Game", Colour.LIGHT_GREY);
+      text.append("\n\n  (Please fill all sections)", Colour.LITE_GREY);
+      text.append("\n    Begin Game", Colour.LITE_GREY);
     }
     Call.add("\n  Go Back", this, "configForNew", text);
   }

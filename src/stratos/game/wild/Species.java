@@ -44,7 +44,7 @@ import static stratos.game.economic.Economy.*;
 //  TODO:  This class probably needs to be moved to the wild package.  It
 //  should not be referring to objects outside the planet package.
 
-public abstract class Species implements Session.Saveable {
+public abstract class Species extends Background {
   
   
   /**  Type, instance and media definitions-
@@ -52,8 +52,7 @@ public abstract class Species implements Session.Saveable {
   //  TODO:  Allow Species to be defined within their own Actor sub-classes, in
   //  a fashion similar to Sprites and ModelAssets.
   
-  //  TODO:  Define basic attributes using a Table, keyed with either the stats
-  //  below, or using Skills/Traits.
+  //  TODO:  Include these as arguments as one would for normal Backgrounds!
   protected static enum Stat {
     BULK, SIGHT, SPEED,
     HEALTH, SENSES, COGNITION,
@@ -112,6 +111,7 @@ public abstract class Species implements Session.Saveable {
   final public static Species
     
     HUMAN = new Species(
+      Species.class,
       "Human",
       "Humans are the most common intelligent space-faring species in the "+
       "known systems of the local cluster.  According to homeworld records, "+
@@ -129,7 +129,7 @@ public abstract class Species implements Session.Saveable {
       null,
       Type.HUMANOID, 1, 1, 1
     ) {
-      public Actor newSpecimen(Base base) { return null; }
+      public Actor sampleFor(Base base) { return null; }
       public Nest createNest() { return null; }
     },
     HUMANOID_SPECIES[] = speciesSoFar();
@@ -137,6 +137,7 @@ public abstract class Species implements Session.Saveable {
     
   final public static Species
     QUDU = new Species(
+      Species.class,
       "Qudu",
       "Qudu are placid, slow-moving, vegetarian browsers that rely on their "+
       "dense, leathery hides and intractable grip on the ground to protect "+
@@ -151,13 +152,14 @@ public abstract class Species implements Session.Saveable {
       0.15f, //speed
       0.65f  //sight
     ) {
-      public Actor newSpecimen(Base base) { return new Qudu(base); }
+      public Actor sampleFor(Base base) { return new Qudu(base); }
       public Nest createNest() { return new Nest(
         2, 2, Venue.ENTRANCE_EAST, this, MODEL_NEST_QUUD
       ); }
     },
     
     HAREEN = new Species(
+      Species.class,
       "Hareen",
       "Hareen are sharp-eyed aerial omnivores active by day, with a twinned "+
       "pair of wings that makes them highly maneuverable flyers.  Their "+
@@ -173,13 +175,14 @@ public abstract class Species implements Session.Saveable {
       1.60f, //speed
       1.00f  //sight
     ) {
-      public Actor newSpecimen(Base base) { return new Vareen(base); }
+      public Actor sampleFor(Base base) { return new Vareen(base); }
       public Nest createNest() { return new Nest(
         2, 2, Venue.ENTRANCE_EAST, this, MODEL_NEST_VAREEN
       ); }
     },
     
     LICTOVORE = new Species(
+      Species.class,
       "Lictovore",
       "The Lictovore is an imposing bipedal obligate carnivore capable of "+
       "substantial bursts of speed and tackling even the most stubborn prey. "+
@@ -195,7 +198,7 @@ public abstract class Species implements Session.Saveable {
       1.30f, //speed
       1.50f  //sight
     ) {
-      public Actor newSpecimen(Base base) { return new Lictovore(base); }
+      public Actor sampleFor(Base base) { return new Lictovore(base); }
       public Nest createNest() { return new Nest(
         3, 2, Venue.ENTRANCE_EAST, this, MODEL_NEST_MICOVORE
       ); }
@@ -228,37 +231,40 @@ public abstract class Species implements Session.Saveable {
     
     
     //  TODO:  Include descriptive text and other details.
-    SPECIES_DRONE = new Species(
+    DRONE = new Species(
+      Species.class,
       "Drone",
       "<THIS SPACE RESERVED>",
       null,
       null,
       Type.ARTILECT, 1, 1, 1
     ) {
-      public Actor newSpecimen(Base base) { return new Drone(base); }
+      public Actor sampleFor(Base base) { return new Drone(base); }
     },
     
-    SPECIES_TRIPOD = new Species(
+    TRIPOD = new Species(
+      Species.class,
       "Tripod",
       "<THIS SPACE RESERVED>",
       null,
       null,
       Type.ARTILECT, 1, 1, 1
     ) {
-      public Actor newSpecimen(Base base) { return new Tripod(base); }
+      public Actor sampleFor(Base base) { return new Tripod(base); }
     },
     
-    SPECIES_CRANIAL = new Species(
+    CRANIAL = new Species(
+      Species.class,
       "Cranial",
       "<THIS SPACE RESERVED>",
       null,
       null,
       Type.ARTILECT, 1, 1, 1
     ) {
-      public Actor newSpecimen(Base base) { return new Cranial(base); }
+      public Actor sampleFor(Base base) { return new Cranial(base); }
     },
     
-    ARTILECT_SPECIES[] = { SPECIES_DRONE, SPECIES_TRIPOD, SPECIES_CRANIAL },
+    ARTILECT_SPECIES[] = { DRONE, TRIPOD, CRANIAL },
     
     ALL_SPECIES[] = Species.allSpecies()
  ;
@@ -282,11 +288,18 @@ public abstract class Species implements Session.Saveable {
     baseBulk, baseSpeed, baseSight;
   
   
-  Species(
+  public Species(
+    Class baseClass,
     String name, String info, String portraitTex, ModelAsset model,
     Type type,
     float bulk, float speed, float sight
   ) {
+    super(
+      baseClass,
+      name, info, null, null,
+      NOT_A_CLASS, NOT_A_GUILD
+    );
+    
     this.name = name;
     this.info = info;
     if (portraitTex == null) this.portrait = null;
@@ -306,7 +319,13 @@ public abstract class Species implements Session.Saveable {
   }
   
   
-  Species(String name, Type type, Object... args) {
+  private Species(String name, Type type, Object... args) {
+    super(
+      Species.class,
+      name, null, null, null,
+      NOT_A_CLASS, NOT_A_GUILD
+    );
+    
     this.name = name;
     this.info = name;
     this.portrait = null;
@@ -330,6 +349,7 @@ public abstract class Species implements Session.Saveable {
   }
   
   
+  /*
   public static Session.Saveable loadConstant(Session s) throws Exception {
     return ALL_SPECIES[s.loadInt()];
   }
@@ -338,9 +358,10 @@ public abstract class Species implements Session.Saveable {
   public void saveState(Session s) throws Exception {
     s.saveInt(ID);
   }
+  //*/
   
   
-  public Actor newSpecimen(Base base) { return null; };
+  public Actor sampleFor(Base base) { return null; };
   public Nest createNest() { return null; };
   
   

@@ -150,6 +150,28 @@ public class DebugCommerce extends Scenario {
     UI.selection.pushSelection(runner, true);
     //  TODO:  Set up initial relationships...
   }
+  
+  
+  private void configPurchaseScenario(Stage world, Base base, BaseUI UI) {
+    GameSettings.needsFree = true;
+    
+    Actor citizen = null;
+    for (int n = 2; n-- > 0;) {
+      citizen = new Human(Backgrounds.RUNNER_HUDZENA, base);
+      citizen.enterWorldAt(world.tileAt(10 + n, 10 + n), world);
+      citizen.gear.incCredits(1000);
+    }
+    UI.selection.pushSelection(citizen, true);
+    final Venue foundry = new EngineerStation(base);
+    Placement.establishVenue(
+      foundry, 6, 6, true, world,
+      new Human(Backgrounds.TECHNICIAN, base),
+      new Human(Backgrounds.TECHNICIAN, base),
+      new Human(Backgrounds.ARTIFICER, base)
+    );
+    foundry.stocks.bumpItem(Economy.ORES , 40);
+    foundry.stocks.bumpItem(Economy.PARTS, 20);
+  }
 
   
   public void updateGameState() {

@@ -1,32 +1,25 @@
 
 
 package stratos.start;
-import java.io.*;
-
 import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
-import stratos.game.politic.BaseFinance;
-import stratos.game.politic.Sector;
-import stratos.game.wild.Flora;
-import stratos.game.wild.Habitat;
-import stratos.game.wild.Nest;
-import stratos.game.wild.Ruins;
-import stratos.game.wild.Species;
-import stratos.graphics.common.Colour;
+import stratos.game.politic.*;
+import stratos.game.wild.*;
 import stratos.user.*;
 import stratos.util.*;
+import stratos.graphics.common.Colour;
+
+import java.io.*;
 
 
 
-//Planitia Sector (robots + ruins, artifact.)
-//Pavonis Sector (mild settlement, pacified.)
-//Aeolis Sector (desert plus wildlife.)
-//Marineris Sector (neutral + water/islands.  Some wildlife.)
-
-
+//  Planitia Sector (robots + ruins, artifact.)
+//  Pavonis Sector (mild settlement, pacified.)
+//  Aeolis Sector (desert plus wildlife.)
+//  Marineris Sector (neutral + water/islands.  Some wildlife.)
 
 public class StartupScenario extends Scenario {
   
@@ -89,6 +82,7 @@ public class StartupScenario extends Scenario {
   public static class Config {
     //  TODO:  Just pick House, Province, Options.  And a few perks.
     
+    //public Background demesneTaken;  //TODO:  Configure this!
     public Background house;
     public Background gender;
     public List <Trait> chosenTraits = new List <Trait> ();
@@ -174,13 +168,19 @@ public class StartupScenario extends Scenario {
     TG.setupMinerals(world, 0, 0, 0);
     TG.setupOutcrops(world);
     world.terrain().readyAllMeshes();
+    
     Flora.populateFlora(world);
+    
+    //  TODO:  THIS NEEDS TO BE CONFIGURED EXTERNALLY!
+    world.offworld.assignLocalSector(
+      Sectors.SECTOR_ELYSIUM, Sectors.PLANET_DIAPSOR
+    );
     return world;
   }
   
   
   protected Base createBase(Stage world) {
-    final Base base = Base.withName(world, "Player Base", Colour.BLUE);
+    final Base base = Base.withName(world, "Player Base", Colour.LITE_BLUE);
     
     int funding = -1, interest = -1;
     switch (config.fundsLevel) {
@@ -199,23 +199,21 @@ public class StartupScenario extends Scenario {
     //
     //  Determine relevant attributes for the ruler-
     final Human ruler = ruler(base);
-    
     //
     //  Try to pick out some complementary advisors-
     final List <Human> advisors = advisors(base, ruler);
-    
     //
     //  Pick out some random colonists-
     final List <Human> colonists = colonists(base);
-    
-    //  Establish the position of the base site-
+    //
+    //  Establish starting positions for the locals-
+    establishLocals(world);
+    //
+    //  And finally, establish the position of the base site-
     final Bastion bastion = establishBastion(
       world, base, ruler, advisors, colonists
     );
     UI.assignBaseSetup(base, bastion.position(null));
-    
-    //  And establish the locals too-
-    establishLocals(world);
   }
   
   
@@ -309,28 +307,18 @@ public class StartupScenario extends Scenario {
     final Bastion bastion = new Bastion(base);
     advisors.add(ruler);
     base.assignRuler(ruler);
-    final Human AA[] = advisors.toArray(Human.class);
     
-    final Tile target = world.tileAt(world.size / 2, world.size / 2);
-    final SitingPass siting = new SitingPass() {
-      protected float rateSite(Tile centre) {
-        float rating = world.terrain().fertilitySample(centre);
-        rating -= Spacing.distance(centre, target) / Stage.SECTOR_SIZE;
-        return rating;
-      }
-      protected boolean createSite(Tile centre) {
-        Placement.establishVenue(
-          bastion, centre.x, centre.y, true, world, AA
-        );
-        return bastion.inWorld();
-      }
-    };
-    siting.applyPassTo(world, 1);
+    base.setup.doPlacementsFor(bastion);
+    //  TODO:  You may need to pass in some kind of rating for the bastion's
+    //  location.
     
     if (! bastion.inWorld()) I.complain("NO LANDING SITE FOUND!");
     bastion.clearSurrounds();
     for (Actor a : advisors) {
       a.mind.setHome(bastion);
+      a.mind.setWork(bastion);
+      a.enterWorldAt(bastion, world);
+      a.goAboard(bastion, world);
     }
     
     final Background careers[] = bastion.careers();
@@ -343,6 +331,7 @@ public class StartupScenario extends Scenario {
         a.mind.setHome(bastion);
       }
     }
+    base.setup.establishRelations(bastion.staff.residents());
     
     //  TODO:  Vary this based on starting House-
     bastion.stocks.bumpItem(Economy.CARBS    , 10);
@@ -360,20 +349,34 @@ public class StartupScenario extends Scenario {
   
   
   protected void establishLocals(Stage world) {
-    if (config.siteLevel == SITE_WASTELAND) {
-      final int maxRuins = world.size / (Stage.SECTOR_SIZE * 2);
-      Ruins.placeRuins(world, maxRuins);
-    }
+    
+    //  TODO:  Allow for natives as well?
+    int maxRuins = 0;
+    Species wildSpecies[] = null;
+    
     if (config.siteLevel == SITE_SETTLED) {
-      Nest.placeNests(world, Species.QUDU, Species.HAREEN);
+      wildSpecies = new Species[] { Species.QUDU, Species.HAREEN };
     }
     if (config.siteLevel == SITE_WILDERNESS) {
-      final int maxRuins = world.size / (Stage.SECTOR_SIZE * 4);
-      Ruins.placeRuins(world, maxRuins);
-      Nest.placeNests(world, Species.QUDU, Species.HAREEN, Species.LICTOVORE);
+      maxRuins = world.size / (Stage.SECTOR_SIZE * 4);
+      wildSpecies = Species.ANIMAL_SPECIES;
     }
+    if (config.siteLevel == SITE_WASTELAND) {
+      maxRuins = world.size / (Stage.SECTOR_SIZE * 2);
+    }
+    
+    final Batch <Venue> ruins = Base.artilects(world).setup.doPlacementsFor(
+      Ruins.VENUE_PROFILES[0], maxRuins
+    );
+    Base.artilects(world).setup.fillVacancies(ruins, true);
+    
+    if (wildSpecies != null) Nest.placeNests(world, wildSpecies);
   }
 }
+
+
+
+
 
 
 

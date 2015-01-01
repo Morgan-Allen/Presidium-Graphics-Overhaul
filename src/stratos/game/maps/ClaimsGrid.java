@@ -18,7 +18,7 @@ public class ClaimsGrid {
   /**  Data fields, setup and save/load methods-
     */
   private static boolean
-    verbose      = true ,
+    verbose      = false,
     extraVerbose = false;
   
   final Stage world;
@@ -111,12 +111,33 @@ public class ClaimsGrid {
       if (claims != null) for (Claim claim : claims) {
         if ((! claim.flag) && claim.area.overlaps(area)) {
           
-          final boolean clash = owner == null  ||
-            claim.owner.preventsClaimBy(owner) ||
-            claim.owner.footprint().overlaps(area);
+          final Venue other = claim.owner;
+          final boolean
+            ownerClash = owner.preventsClaimBy(other),
+            otherClash = other.preventsClaimBy(owner);
+          final Box2D
+            ownerFP = owner.footprint(),
+            otherFP = other.footprint();
+
+          boolean clash = false;
+          if      (ownerClash && otherClash) clash = true;
+          else if (ownerClash && otherFP.overlaps(area      )) clash = true;
+          else if (otherClash && ownerFP.overlaps(claim.area)) clash = true;
           if (! clash) continue;
           
-          if (report) I.say("  CONFLICTS WITH: "+claim.owner);
+          /*
+          final boolean clash =
+            owner == null ||
+            other.preventsClaimBy(owner) ||
+            other.footprint().overlaps(area);
+          if (! clash) continue;
+          //*/
+          
+          if (report && owner != null) {
+            I.say("  CONFLICTS WITH: "+other);
+            I.say("    Prevents claim? "+other.preventsClaimBy(owner));
+            I.say("    Footprint:      "+other.footprint());
+          }
           conflict.add(claim);
           claim.flag = true;
         }

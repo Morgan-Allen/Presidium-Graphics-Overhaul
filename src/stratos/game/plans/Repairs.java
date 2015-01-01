@@ -12,6 +12,8 @@ import static stratos.game.actors.Qualities.*;
 
 
 
+//  TODO:  USE A CONVERSION SPECIFIC TO THE BUILDING TYPE
+
 public class Repairs extends Plan {
   
   private static boolean
@@ -23,28 +25,37 @@ public class Repairs extends Plan {
     MIN_SERVICE_DAMAGE = 0.25f;
   
   final Structure.Basis built;
+  final Skill skillUsed;
   
   
   public Repairs(Actor actor, Structure.Basis repaired) {
+    this(actor, repaired, ASSEMBLY);
+  }
+  
+  
+  public Repairs(Actor actor, Structure.Basis repaired, Skill skillUsed) {
     super(actor, (Target) repaired, true, REAL_HELP);
     this.built = repaired;
+    this.skillUsed = skillUsed;
   }
   
   
   public Repairs(Session s) throws Exception {
     super(s);
     built = (Structure.Basis) s.loadObject();
+    skillUsed = (Skill) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     s.saveObject(built);
+    s.saveObject(skillUsed);
   }
   
   
   public Plan copyFor(Actor other) {
-    return new Repairs(other, built);
+    return new Repairs(other, built, skillUsed);
   }
   
   
@@ -107,7 +118,7 @@ public class Repairs extends Plan {
   /**  Target evaluation and prioritisation-
     */
   final static Trait BASE_TRAITS[] = { URBANE, ENERGETIC };
-  final static Skill BASE_SKILLS[] = { ASSEMBLY, HARD_LABOUR };
+  //final static Skill BASE_SKILLS[] = { skillUsed, HARD_LABOUR };
   
   
   protected float getPriority() {
@@ -123,7 +134,7 @@ public class Repairs extends Plan {
       actor, (Target) built,
       ROUTINE * Nums.clamp(urgency, 0, 1), NO_MODIFIER,
       REAL_HELP, competition, MILD_FAIL_RISK,
-      BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
+      NO_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report
     );
     if (report) {
@@ -142,7 +153,7 @@ public class Repairs extends Plan {
     float chance = 1;
     //  TODO:  Base this on the conversion associated with the structure type.
     chance *= actor.skills.chance(HARD_LABOUR, 0);
-    chance *= actor.skills.chance(ASSEMBLY   , 5);
+    chance *= actor.skills.chance(skillUsed   , 5);
     return (chance + 1) / 2;
   }
   
@@ -214,7 +225,7 @@ public class Repairs extends Plan {
     //  TODO:  Base assembly DC (or other skills) on a Conversion for the
     //  structure.  Require construction materials for full efficiency.
     if (salvage) {
-      success *= actor.skills.test(ASSEMBLY, 5, 1) ? 1 : 0.5f;
+      success *= actor.skills.test(skillUsed, 5, 1) ? 1 : 0.5f;
       final float amount = structure.repairBy(0 - success);
       if (! free) {
         final float cost = amount * structure.buildCost();
@@ -225,8 +236,8 @@ public class Repairs extends Plan {
     }
     
     else {
-      success *= actor.skills.test(ASSEMBLY, 10, 0.5f) ? 1 : 0.5f;
-      success *= actor.skills.test(ASSEMBLY, 20, 0.5f) ? 2 : 1;
+      success *= actor.skills.test(skillUsed, 10, 0.5f) ? 1 : 0.5f;
+      success *= actor.skills.test(skillUsed, 20, 0.5f) ? 2 : 1;
       final boolean intact = structure.intact();
       final float amount = structure.repairBy(success);
       if (! free) {
@@ -246,8 +257,8 @@ public class Repairs extends Plan {
     if (upgrade == null) return false;
     ///I.say("Advancing upgrade: "+upgrade.name);
     int success = 1;
-    success *= actor.skills.test(ASSEMBLY, 10, 0.5f) ? 2 : 1;
-    success *= actor.skills.test(ASSEMBLY, 20, 0.5f) ? 2 : 1;
+    success *= actor.skills.test(skillUsed, 10, 0.5f) ? 2 : 1;
+    success *= actor.skills.test(skillUsed, 20, 0.5f) ? 2 : 1;
     final float amount = structure.advanceUpgrade(success * 1f / 100);
     final float cost = amount * upgrade.buildCost;
     built.base().finance.incCredits((0 - cost), BaseFinance.SOURCE_REPAIRS);

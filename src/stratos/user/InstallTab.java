@@ -36,10 +36,9 @@ public class InstallTab extends SelectionInfoPane {
     initCategory(TYPE_ARTIFICER);
     initCategory(TYPE_ECOLOGIST);
     initCategory(TYPE_PHYSICIAN);
-    for (Class baseClass : VenueProfile.venueTypes()) {
-      //
-      //  Construct the building type with an appropriate instance.
-      final Venue sample = VenueProfile.sampleVenue(baseClass);
+    
+    for (VenueProfile profile : VenueProfile.facilityProfiles()) {
+      final Venue sample = profile.sampleVenue(null);
       if (sample.privateProperty()) continue;
       
       final String catName = sample.objectCategory();
@@ -114,7 +113,7 @@ public class InstallTab extends SelectionInfoPane {
     assignPortrait(icon);
     
     detailText.append("\n"+typeName+"\n\n");
-    detailText.append(typeDesc, Colour.LIGHT_GREY);
+    detailText.append(typeDesc, Colour.LITE_GREY);
     detailText.append("\n\n");
     detailText.append(new Description.Link("(BUILD)") {
       public void whenClicked() { initInstallTask(UI, type); }
@@ -144,7 +143,7 @@ public class InstallTab extends SelectionInfoPane {
   /**  Actual placement of buildings-
     */
   private void initInstallTask(BaseUI UI, Class type) {
-    final Venue venue = VenueProfile.sampleVenue(type);
+    final Venue venue = VenueProfile.sampleVenue(type, null);
     if (venue == null) return;
     else venue.assignBase(UI.played());
     

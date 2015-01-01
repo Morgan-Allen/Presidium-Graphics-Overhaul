@@ -390,6 +390,7 @@ public abstract class Plan implements Saveable, Behaviour {
     
     this.harmFactor    = subjectHarm ;
     this.competeFactor = peersCompete;
+    final boolean mission = motiveType == MOTIVE_MISSION;
     float priority = PARAMOUNT, relation = 0;
     
     //  Firstly, we calculate the effect of internal and external motivations,
@@ -446,6 +447,12 @@ public abstract class Plan implements Saveable, Behaviour {
       maxSkill = Nums.clamp((maxSkill + avgSkill) / 2, 0, 2);
       priority *= Nums.sqrt(maxSkill);
       
+      //  In addition, pursuing missions will require *at least* this level of
+      //  competence.  TODO:  Put this in a separate sub-method?
+      if (mission && maxSkill < 1) {
+        if (report) I.say("  Insufficient skill to pursue mission!");
+        return PRIORITY_NEVER;
+      }
       if (report) {
         I.say("  After skill adjustments:     "+priority);
       }

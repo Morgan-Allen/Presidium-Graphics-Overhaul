@@ -232,11 +232,15 @@ public class Human extends Actor implements Qualities {
     
     //  If you're in combat, show the right gear equipped-
     //  TODO:  This is a bit of a hack.  Rework or generalise?
+    //  TODO:  Move out to the CombatUtils class...
     final DeviceType DT = gear.deviceType();
-    final Combat c = (Combat) matchFor(Combat.class);
+    final Property work = mind.work();
     if (DT != null) {
-      ((SolidSprite) sprite()).togglePart(DT.groupName, c != null);
+      boolean shouldArm = senses.isEmergency();
+      if (work != null && work.staff().onShift(this)) shouldArm = true;
+      ((SolidSprite) sprite()).togglePart(DT.groupName, shouldArm);
     }
+    
     
     //  TODO:  Also a bit of a hack.  Remove later.
     if (gear.shieldCharge() > gear.maxShields()) {

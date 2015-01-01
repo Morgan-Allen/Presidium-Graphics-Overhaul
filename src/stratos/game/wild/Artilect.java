@@ -194,7 +194,7 @@ public abstract class Artilect extends Actor {
     }
     if (
       (isTripod || isCranial) && home != null &&
-      home.staff().numResident(Species.SPECIES_CRANIAL) > 0
+      home.staff().numResident(Species.CRANIAL) > 0
     ) {
       //  TODO:  Restore this later, once Cybrid creation is sorted out.
       /*
@@ -282,16 +282,16 @@ public abstract class Artilect extends Actor {
   
   protected Plan nextSpawning(Actor actor, Ruins lair) {
     if (lair == null) return null;
+    final Pick <Species> pick = new Pick <Species> ();
     
-    int mostSpace = 0;
-    Species pick = null;
     for (Species s : Species.ARTILECT_SPECIES) {
-      final int space = lair.spaceFor(s);
-      if (space > mostSpace) { mostSpace = space; pick = s; }
+      final float rating = 1f - lair.crowdRating(null, s);
+      if (rating <= 0) continue;
+      pick.compare(s, rating);
     }
-    if (pick == null) return null;
+    if (pick.result() == null) return null;
     
-    final Artilect spawned = (Artilect) pick.newSpecimen(lair.base());
+    final Artilect spawned = (Artilect) pick.result().sampleFor(base());
     return new SpawnArtilect(actor, spawned, lair);
   }
   

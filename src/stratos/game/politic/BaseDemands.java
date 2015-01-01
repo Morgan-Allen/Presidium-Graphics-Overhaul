@@ -83,7 +83,7 @@ public class BaseDemands {
   private void updateDemands() {
     demand.clear();
     
-    for (Background b : Background.allBackgrounds()) {
+    for (Background b : Background.INDEX) {
       final int incomeBracket = b.standing;
       final int upgradeLevel = (incomeBracket - 1) * 2;
       
@@ -193,7 +193,7 @@ public class BaseDemands {
   private void updateRecruitment(float timeInterval) {
     
     float sumDemand = 0;
-    for (Background b : Background.allBackgrounds()) {
+    for (Background b : Background.INDEX) {
       sumDemand += shortage(b);
     }
     float totalPool = 1; //TODO:  FIX!
@@ -202,7 +202,7 @@ public class BaseDemands {
     
     //
     //  
-    for (Background b : Background.allBackgrounds()) {
+    for (Background b : Background.INDEX) {
       float demand = shortage(b);
       float progress = demand * totalPool * timeInterval / sumDemand;
 

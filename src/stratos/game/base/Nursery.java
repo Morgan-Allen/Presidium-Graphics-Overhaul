@@ -125,11 +125,14 @@ public class Nursery extends Venue implements TileConstants {
   }
   
   
-  public float ratePlacing(Target point) {
+  public float ratePlacing(Target point, boolean exact) {
     
     //  TODO:  base on demand for food?
     //  TODO:  THESE HAVE TO BE ECOLOGIST STATIONS BELONGING TO THE SAME BASE.
     //  ...It might be worth getting supply-and-demand in order here first.
+    
+    //  TODO:  Base the demand for this on the tech-level of the parent station
+    //  -by default, you only get one nursery.
     
     final Stage world = point.world();
     final Presences presences = world.presences;
@@ -141,12 +144,11 @@ public class Nursery extends Venue implements TileConstants {
     
     final float distance = Spacing.distance(point, station);
     if (distance > Stage.SECTOR_SIZE) return -1;
-    /*
+    
     final Nursery nearby = (Nursery) presences.nearestMatch(
-      Nursery.class, this, Stage.SECTOR_SIZE
+      Nursery.class, point, Stage.SECTOR_SIZE
     );
     if (nearby != null & nearby != this) return -1;
-    //*/
     
     final Tile under = world.tileAt(point);
     float rating = 0;

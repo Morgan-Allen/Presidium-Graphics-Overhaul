@@ -410,7 +410,7 @@ public abstract class Vehicle extends Mobile implements
     final Description d = panel.detail(), l = panel.listing();
     describeStatus(d);
     d.append("\n\n");
-    d.append(helpInfo(), Colour.LIGHT_GREY);
+    d.append(helpInfo(), Colour.LITE_GREY);
     
     if (crew().size() > 0) l.appendList("\n\nCrew: "      , crew()          );
     if (inside.size() > 0) l.appendList("\n\nPassengers: ", inside          );

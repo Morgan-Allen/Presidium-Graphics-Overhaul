@@ -69,15 +69,10 @@ public abstract class Venue extends Structural implements
     //  TODO:  Create and cache the profile here, using pre-existing data.
     //         ...Also, consider creating a dedicated constructor for this
     //         purpose?
-    VenueProfile profile = VenueProfile.profileFor(this.getClass());
-    if (profile == null) {
-      final int UNKNOWN = 0;
-      profile = new VenueProfile(
-        this.getClass(), Structure.TYPE_VENUE,
-        size, UNKNOWN, UNKNOWN, UNKNOWN,
-        null, null
-      );
-    }
+    //  TODO:  Add more properties once you get the chance...
+    final Class PK = this.getClass();
+    VenueProfile profile = VenueProfile.profileFor(PK);
+    if (profile == null) profile = new VenueProfile(PK, PK);
     this.profile = profile;
   }
   
@@ -186,7 +181,7 @@ public abstract class Venue extends Structural implements
     //
     //  Don't abut on anything of higher priority-
     for (Tile n : Spacing.perimeter(footprint(), world)) {
-      if (n == null) return false;
+      if (n == null || ! n.habitat().pathClear) return false;
       final Element top = n.onTop();
       if (top != null && ! canTouch(top)) return false;
     }
@@ -329,7 +324,7 @@ public abstract class Venue extends Structural implements
   
   public boolean allowsEntry(Mobile m) {
     if (m.base() == this.base) return true;
-    return base.relations.relationWith(m.base()) >= 0;
+    return base.relations.relationWith(m.base()) > 0;
   }
   
   
@@ -355,18 +350,14 @@ public abstract class Venue extends Structural implements
     }
     else if (background == Backgrounds.AS_VISITOR) {
       float crowding = 0;
-      for (Mobile m : inside()) {
-        if (m instanceof Actor) {
-          if (((Actor) m).mind.work() == this) continue;
-        }
-        crowding++;
-      }
+      for (Mobile m : inside()) if (! staff.doesBelong(m)) crowding++;
       crowding /= ((size * 2) + 1);
       return crowding;
     }
     else {
-      int openings = numOpenings(background);
-      int hired = staff.numHired(background);
+      final int openings = numOpenings(background);
+      if (openings <= 0) return 1;
+      final int hired = staff.numHired(background);
       return hired * 1f / openings;
     }
   }
@@ -396,7 +387,7 @@ public abstract class Venue extends Structural implements
   
   
   //  TODO:  Make these abstract?
-  public float ratePlacing(Target point) {
+  public float ratePlacing(Target point, boolean exact) {
     return 0;
   }
   

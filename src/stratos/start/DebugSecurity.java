@@ -139,7 +139,76 @@ public class DebugSecurity extends Scenario {
     enforcer.mind.assignBehaviour(arrests);
     UI.selection.pushSelection(enforcer, true);
   }
-
+  
+  
+  private void configHuntingScenario(Stage world, Base base, BaseUI UI) {
+    //GameSettings.fogFree = true;
+    GameSettings.buildFree = true;
+    //GameSettings.noBlood = true;
+    
+    final Actor hunts = new Human(Backgrounds.KOMMANDO, base);
+    final Venue station = new KommandoLodge(base);
+    Placement.establishVenue(
+      station, 6, 6, true, world,
+      new Human(Backgrounds.KOMMANDO, base),
+      new Human(Backgrounds.KOMMANDO, base),
+      hunts
+    );
+    
+    final Base wildlife = Base.wildlife(world);
+    final Actor prey = new Vareen(wildlife);
+    prey.enterWorldAt(world.tileAt(9, 9), world);
+    
+    //prey.health.takeFatigue(prey.health.maxHealth());
+    //hunts.mind.assignBehaviour(Hunting.asHarvest(hunts, prey, station));
+    UI.selection.pushSelection(hunts, true);
+    
+    Nest.placeNests(world, Species.HAREEN, Species.QUDU);
+  }
+  
+  
+  private void configCombatScenario(Stage world, Base base, BaseUI UI) {
+    GameSettings.fogFree = true;
+    //GameSettings.noBlood = true;
+    
+    Actor soldier = null;
+    for (int n = 1; n-- > 0;) {
+      soldier = new Human(Backgrounds.KNIGHTED, base);
+      soldier.enterWorldAt(world.tileAt(4, 4), world);
+    }
+    
+    final Actor civilian = new Human(Backgrounds.STOCK_VENDOR, base);
+    civilian.enterWorldAt(world.tileAt(5, 4), world);
+    civilian.health.takeInjury(civilian.health.maxHealth() * 2, true);
+    
+    final Base artilects = Base.artilects(world);
+    final Actor threat = new Tripod(artilects);
+    threat.enterWorldAt(world.tileAt(8, 6), world);
+    
+    UI.selection.pushSelection(threat, true);
+  }
+  
+  
+  private void configRaidScenario(Stage world, Base base, BaseUI UI) {
+    GameSettings.fogFree = false;
+    //GameSettings.hireFree = true;
+    
+    //  Introduce a bastion, with standard personnel.
+    final Bastion bastion = new Bastion(base);
+    Placement.establishVenue(bastion, 11, 11, true, world);
+    base.setup.fillVacancies(bastion, true);
+    
+    //  And introduce ruins, with a complement of artilects.
+    final Base artilects = Base.artilects(world);
+    final Ruins ruins = new Ruins(artilects);
+    Placement.establishVenue(ruins, 44, 44, true, world);
+    final float healthLevel = (1 + Rand.avgNums(2)) / 2;
+    ruins.structure.setState(Structure.STATE_INTACT, healthLevel);
+    
+    Base.artilects(world).setup.doPlacementsFor(ruins);
+    UI.selection.pushSelection(bastion, true);
+  }
+  
   
   public void updateGameState() {
     super.updateGameState();

@@ -5,6 +5,7 @@ package stratos.util;
 
 public class Pick <T> {
   
+  
   T picked;
   float bestRating;
   

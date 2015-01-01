@@ -41,12 +41,12 @@ public class DebugSocial extends Scenario {
   
   
   public void beginGameSetup() {
-    super.initScenario("debug_plans");
+    super.initScenario("debug_social");
   }
   
   
   protected String saveFilePrefix(Stage world, Base base) {
-    return "debug_plans";
+    return "debug_social";
   }
   
   
@@ -61,7 +61,7 @@ public class DebugSocial extends Scenario {
     final Stage world = new Stage(TG.generateTerrain());
     TG.setupMinerals(world, 0.6f, 0, 0.2f);
     world.terrain().readyAllMeshes();
-    //Flora.populateFlora(world);
+    Flora.populateFlora(world);
     return world;
   }
   
@@ -73,13 +73,18 @@ public class DebugSocial extends Scenario {
   
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.setDefaults();
+    world.offworld.assignLocalSector(
+      Sectors.SECTOR_PAVONIS,
+      Sectors.PLANET_DIAPSOR
+    );
+    
     //configMedicalScenario(world, base, UI);
     //configHuntingScenario(world, base, UI);
     //configCombatScenario(world, base, UI);
-    configDialogueScenario(world, base, UI);
+    //configDialogueScenario(world, base, UI);
     //configPurchaseScenario(world, base, UI);
     //configRaidScenario(world, base, UI);
-    //configArtilectScenario(world, base, UI);
+    configArtilectScenario(world, base, UI);
     //configContactScenario(world, base, UI);
     //configWildScenario(world, base, UI);
   }
@@ -88,73 +93,6 @@ public class DebugSocial extends Scenario {
   public void updateGameState() {
     super.updateGameState();
     if (base().finance.credits() < 0) base().finance.incCredits(100, "CHARITY");
-  }
-  
-  
-  private void configMedicalScenario(Stage world, Base base, BaseUI UI) {
-    GameSettings.fogFree = true;
-    
-    final Actor treats = new Human(Backgrounds.PHYSICIAN, base);
-    Placement.establishVenue(
-      new PhysicianStation(base), 6, 6, true, world,
-      treats,
-      new Human(Backgrounds.MINDER, base),
-      new Human(Backgrounds.MINDER, base)
-    );
-    
-    final Actor patient = new Human(Backgrounds.TROOPER, base);
-    patient.enterWorldAt(world.tileAt(10, 10), world);
-    patient.health.takeInjury(patient.health.maxHealth(), false);
-    
-    UI.selection.pushSelection(patient, true);
-  }
-  
-  
-  private void configHuntingScenario(Stage world, Base base, BaseUI UI) {
-    //GameSettings.fogFree = true;
-    GameSettings.buildFree = true;
-    //GameSettings.noBlood = true;
-    
-    final Actor hunts = new Human(Backgrounds.KOMMANDO, base);
-    final Venue station = new KommandoLodge(base);
-    Placement.establishVenue(
-      station, 6, 6, true, world,
-      new Human(Backgrounds.KOMMANDO, base),
-      new Human(Backgrounds.KOMMANDO, base),
-      hunts
-    );
-    
-    final Base wildlife = Base.wildlife(world);
-    final Actor prey = new Vareen(wildlife);
-    prey.enterWorldAt(world.tileAt(9, 9), world);
-    
-    //prey.health.takeFatigue(prey.health.maxHealth());
-    //hunts.mind.assignBehaviour(Hunting.asHarvest(hunts, prey, station));
-    UI.selection.pushSelection(hunts, true);
-    
-    Nest.placeNests(world, Species.HAREEN, Species.QUDU);
-  }
-  
-  
-  private void configCombatScenario(Stage world, Base base, BaseUI UI) {
-    GameSettings.fogFree = true;
-    //GameSettings.noBlood = true;
-    
-    Actor soldier = null;
-    for (int n = 1; n-- > 0;) {
-      soldier = new Human(Backgrounds.KNIGHTED, base);
-      soldier.enterWorldAt(world.tileAt(4, 4), world);
-    }
-    
-    final Actor civilian = new Human(Backgrounds.STOCK_VENDOR, base);
-    civilian.enterWorldAt(world.tileAt(5, 4), world);
-    civilian.health.takeInjury(civilian.health.maxHealth() * 2, true);
-    
-    final Base artilects = Base.artilects(world);
-    final Actor threat = new Tripod(artilects);
-    threat.enterWorldAt(world.tileAt(8, 6), world);
-    
-    UI.selection.pushSelection(threat, true);
   }
   
   
@@ -200,71 +138,34 @@ public class DebugSocial extends Scenario {
   }
   
   
-  private void configPurchaseScenario(Stage world, Base base, BaseUI UI) {
-    GameSettings.needsFree = true;
-    
-    Actor citizen = null;
-    for (int n = 2; n-- > 0;) {
-      citizen = new Human(Backgrounds.RUNNER_HUDZENA, base);
-      citizen.enterWorldAt(world.tileAt(10 + n, 10 + n), world);
-      citizen.gear.incCredits(1000);
-    }
-    UI.selection.pushSelection(citizen, true);
-    final Venue foundry = new EngineerStation(base);
-    Placement.establishVenue(
-      foundry, 6, 6, true, world,
-      new Human(Backgrounds.TECHNICIAN, base),
-      new Human(Backgrounds.TECHNICIAN, base),
-      new Human(Backgrounds.ARTIFICER, base)
-    );
-    foundry.stocks.bumpItem(Economy.ORES , 40);
-    foundry.stocks.bumpItem(Economy.PARTS, 20);
-  }
-  
-  
-  private void configRaidScenario(Stage world, Base base, BaseUI UI) {
-    GameSettings.fogFree = false;
-    //GameSettings.hireFree = true;
-    
-    //  Introduce a bastion, with standard personnel.
-    final Bastion bastion = new Bastion(base);
-    Placement.establishVenue(bastion, 11, 11, true, world);
-    BaseSetup.fillVacancies(bastion, true);
-    
-    //  And introduce ruins, with a complement of artilects.
-    final Base artilects = Base.artilects(world);
-    final Ruins ruins = new Ruins(artilects);
-    Placement.establishVenue(ruins, 44, 44, true, world);
-    final float healthLevel = (1 + Rand.avgNums(2)) / 2;
-    ruins.structure.setState(Structure.STATE_INTACT, healthLevel);
-    Ruins.populateArtilects(world, ruins, true);
-    
-    UI.selection.pushSelection(bastion, true);
-  }
-  
-  
   private void configArtilectScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.fogFree = true;
 
     final Base artilects = Base.artilects(world);
+    
     final Ruins ruins = new Ruins(artilects);
     Placement.establishVenue(ruins, 20, 20, true, world);
     final float healthLevel = (1 + Rand.avgNums(2)) / 2;
     ruins.structure.setState(Structure.STATE_INTACT, healthLevel);
-    Artilect lives = null;
     
+    UI.assignBaseSetup(artilects, ruins.position(null));
+    UI.selection.pushSelection(ruins, true);
+    
+    //  TODO:  Modify this to work correctly!
+    artilects.setup.fillVacancies(ruins, true);
+    Artilect lives = (Artilect) ruins.staff.workers().first();
+    /*
     Ruins.populateArtilects(
       world, ruins, true,
       new Tripod(artilects),
       lives = new Cranial(artilects)
     );
+    //*/
     
     final Human subject = new Human(Backgrounds.COMPANION, base);
     subject.enterWorldAt(ruins, world);
     subject.health.takeInjury(subject.health.maxHealth() + 1, true);
     subject.health.setState(ActorHealth.STATE_DYING);
-    
-    UI.selection.pushSelection(lives, true);
   }
   
   
@@ -272,17 +173,8 @@ public class DebugSocial extends Scenario {
     GameSettings.fogFree = true;
     GameSettings.hireFree = true;
     GameSettings.noBlood = true;
-    
-    //  TODO:  Problem- at the moment, default hostilities between the bases
-    //  are enough to trigger immediate combat behaviours (at least among the
-    //  more aggressively inclined.)
-    
-    //  You need to take the same 'default empathy' method from the First Aid
-    //  behaviour and apply it here in reverse.  Most sympathy for same base
-    //  and species.
-    
-    //  That might not be enough, though.
-    
+    world.advanceCurrentTime(Stage.STANDARD_DAY_LENGTH / 2);
+    /*
     //  Introduce a bastion, with standard personnel.
     final Bastion bastion = new Bastion(base);
     bastion.stocks.bumpItem(Economy.PROTEIN, 20);
@@ -297,14 +189,45 @@ public class DebugSocial extends Scenario {
     
     final TrooperLodge garrison = new TrooperLodge(base);
     Placement.establishVenue(garrison, world.tileAt(3, 15), true, world);
+    //*/
+
+    final Base natives = Base.natives(world, NativeHut.TRIBE_FOREST);
+    final BaseSetup NS = natives.setup;
     
-    //  And introduce a native camp.
-    final Base natives = Base.natives(world);
-    final NativeHut hut = NativeHut.newHall(NativeHut.TRIBE_FOREST, natives);
-    Placement.establishVenue(hut, 21, 21, true, world);
-    final Batch <Actor> lives = NativeHut.populateHut(hut, null);
-    //UI.selection.pushSelection(lives.first(), true);
+    /*
+    Batch <Actor> allTalk = new Batch <Actor> ();
+    Actor talks = null;
+    for (int n = 3; n-- > 0;) {
+      talks = Backgrounds.HUNTER.sampleFor(natives);
+      talks.enterWorldAt(11 + n, 11 - n, world);
+      allTalk.add(talks);
+    }
+    //NS.establishRelations(allTalk);
+    //*/
     
+    //*
+    final Batch <Venue> halls = NS.doPlacementsFor(
+      NativeHut.TRIBE_FOREST_PROFILES[0], 2//2 + Rand.index(2)
+    );
+    final Batch <Venue> huts  = NS.doPlacementsFor(
+      NativeHut.TRIBE_FOREST_PROFILES[1], 3//3 + Rand.index(4)
+    );
+    
+    NS.fillVacancies(huts , true);
+    NS.fillVacancies(halls, true);
+    for (Venue v : huts ) NS.establishRelationsAt(v);
+    for (Venue v : halls) NS.establishRelationsAt(v);
+    
+    final Actor talks = huts.first().staff.workers().first();
+    //*/
+    
+    final Relation withBase = talks.relations.relationWith(natives);
+    I.say("BASE RELATION IS: "+withBase.value  ());
+    I.say("BASE NOVELTY IS:  "+withBase.novelty());
+    
+    UI.selection.pushSelection(talks, true);
+    
+    /*
     final Mission peaceMission = new ContactMission(base, hut);
     peaceMission.assignPriority(Mission.PRIORITY_ROUTINE);
     peaceMission.setObjective(ContactMission.OBJECT_AUDIENCE);
@@ -312,6 +235,7 @@ public class DebugSocial extends Scenario {
     peaceMission.beginMission();
     
     UI.selection.pushSelection(peaceMission, true);
+    //*/
   }
   
   
