@@ -218,7 +218,7 @@ public class Delivery extends Plan {
         modifier += ActorMotives.rateDesire(i, null, actor);
       }
       if (price > actor.gear.credits()) return 0;
-      modifier -= Pledge.greedPriority(actor, price);
+      modifier -= ActorMotives.greedPriority(actor, price);
     }
     
     if (! shops) for (Item i : items) {

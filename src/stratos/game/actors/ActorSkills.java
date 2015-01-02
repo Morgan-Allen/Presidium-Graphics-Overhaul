@@ -7,8 +7,6 @@ import stratos.util.*;
 
 /**  Retains a record of skills and techniques learned by the actor.
   */
-
-
 public class ActorSkills {
   
   
@@ -118,9 +116,9 @@ public class ActorSkills {
     else for (int tried = range; tried-- > 0;) {
       if (Rand.num() < chance) success++;
     }
-    practice(checked, (1 - chance) * duration / 10);
+    practice(checked, chance, duration);
     if (b != null && opposed != null) {
-      b.skills.practice(opposed, chance * duration / 10);
+      b.skills.practice(opposed, chance, duration);
     }
     //
     //  And return the result.
@@ -149,16 +147,21 @@ public class ActorSkills {
   }
   
   
-  public void practice(Skill skillType, float practice) {
-    final float level = actor.traits.traitLevel(skillType);
-    actor.traits.incLevel(skillType, practice / (level + 1));
-    if (skillType.parent != null) practice(skillType.parent, practice / 4);
+  public void practiceAgainst(int DC, float duration, Skill skillType) {
+    final float chance = chance(skillType, null, null, 0 - DC);
+    practice(skillType, chance, duration);
   }
   
   
-  public void practiceAgainst(int DC, float duration, Skill skillType) {
-    final float chance = chance(skillType, null, null, 0 - DC);
-    practice(skillType, chance * duration / 10);
+  private void practice(Skill skillType, float chance, float duration) {
+    final float level = actor.traits.traitLevel(skillType);
+    float practice = chance * (1 - chance) * 4;
+    practice *= duration / (10f * (level + 1));
+    actor.traits.incLevel(skillType, practice);
+    
+    if (skillType.parent != null) {
+      practice(skillType.parent, chance, duration / 4);
+    }
   }
   
   

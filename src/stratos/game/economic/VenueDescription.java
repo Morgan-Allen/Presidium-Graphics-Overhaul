@@ -98,7 +98,8 @@ public class VenueDescription {
     
     if (v instanceof Inventory.Owner) {
       final Inventory i = ((Inventory.Owner) v).inventory();
-      d.append("\n  Untaxed Credits: "+(int) i.credits());
+      d.append("\n  Credits: "+(int) i.credits());
+      d.append(" ("+(int) i.unTaxed()+" Untaxed)");
     }
     
     final float squalor = 0 - world.ecology().ambience.valueAt(v);
@@ -129,27 +130,35 @@ public class VenueDescription {
   
   
   protected void describeStocks(Description d, BaseUI UI) {
-    d.append("Stocks:");
+    d.append("Stocks and Provisions:");
     boolean empty = true;
-    
+    //
+    //  Describe supply and demand for power, life support, etc:
+    for (Traded t : Economy.ALL_PROVISIONS) {
+      final float output = v.structure.outputOf(t);
+      if (output > 0) {
+        d.append("\n  "+t+" Output: "+(int) output);
+        empty = false;
+        continue;
+      }
+      final float demand = v.stocks.demandFor(t);
+      if (demand <= 0) continue;
+      final float supply = v.stocks.amountOf(t);
+      d.append("\n  "+(int) supply+"/"+(int) demand+" "+t);
+      empty = false;
+    }
+    //
+    //  Then describe conventional items:
     final Sorting <Item> sortedItems = new Sorting <Item> () {
       public int compare(Item a, Item b) {
         if (a.equals(b)) return 0;
         if (a.type.basePrice() > b.type.basePrice()) return  1;
         if (a.type.basePrice() < b.type.basePrice()) return -1;
-        /*
-        if (a.refers != null && b.refers != null) {
-          if (a.refers == b.refers) return 0;
-          if (a.refers.hashCode() > b.refers.hashCode()) return  1;
-          if (a.refers.hashCode() < b.refers.hashCode()) return -1;
-        }
-        //*/
         if (a.quality > b.quality) return  1;
         if (a.quality < b.quality) return -1;
         return 0;
       }
     };
-    
     for (Item item : v.stocks.allItems()) {
       sortedItems.add(item);
     }
@@ -158,8 +167,8 @@ public class VenueDescription {
     }
     if (sortedItems.size() > 0) empty = false;
     for (Item item : sortedItems) describeStocks(item, d);
-    
-
+    //
+    //  And finally, list any special orders:
     final Sorting <Item> sortedOrders = new Sorting <Item> () {
       public int compare(Item a, Item b) {
         if (a.equals(b)) return 0;
@@ -175,16 +184,16 @@ public class VenueDescription {
       if (sortedOrders.includes(i)) continue;
       sortedOrders.add(i);
     }
-    
     if (sortedOrders.size() > 0) {
       empty = false;
       d.append("\n\nSpecial Orders:");
-
       for (Item i : sortedOrders) {
         d.append("\n  ");
         i.describeTo(d);
-        //float progress = v.stocks.amountOf(i) / 1f;
-        //d.append(" ("+((int) (progress * 100))+"%)");
+        if (v.stocks.hasOrderFor(i)) {
+          final float progress = v.stocks.amountOf(i) / 1f;
+          d.append(" ("+((int) (progress * 100))+"%)");
+        }
       }
     }
     

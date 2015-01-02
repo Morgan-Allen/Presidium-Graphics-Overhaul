@@ -1,6 +1,7 @@
 
 
 package stratos.user;
+import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.graphics.widgets.Text.Clickable;
@@ -31,6 +32,19 @@ public class CommsPanel extends SelectionInfoPane {
   public CommsPanel(BaseUI UI) {
     super(UI, null, null, true, ALL_CATEGORIES);
   }
+  
+  
+  //  ...How do I save/load these values?
+  
+  public void loadState(Session s) throws Exception {
+    
+  }
+  
+  
+  public void saveState(Session s) throws Exception {
+    
+  }
+  
   
   
   public boolean hasMessage(String keyTitle) {

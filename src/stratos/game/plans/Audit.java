@@ -21,6 +21,10 @@ public class Audit extends Plan {
   
   /**  Data fields, constructors and save/load functions-
     */
+  private static boolean
+    evalVerbose  = true ,
+    stepsVerbose = true ;
+  
   public static enum Type {
     TYPE_OFFICIAL ,
     TYPE_AMATEUR  ,
@@ -31,8 +35,6 @@ public class Audit extends Plan {
     STAGE_AUDIT  =  0,
     STAGE_REPORT =  1,
     STAGE_DONE   =  2;
-  
-  private static boolean verbose = false;
   
   
   private Type type;
@@ -92,8 +94,53 @@ public class Audit extends Plan {
   }
   
   
-  public boolean honest() {
-    return embezzled == 0;
+  
+  /**  Detecting corruption-
+    */
+  //  TODO:  Your minister for finance (or analyst) could do this as well, once
+  //  reports arrive back at the bastion.  Of course, they can also be bribed...
+  
+  public static boolean checkForEmbezzlement(
+    Behaviour doing, Actor audits, boolean casual
+  ) {
+    if (! (doing instanceof Audit)) return false;
+    final Audit suspect = (Audit) doing;
+    if (suspect.embezzled <= 0) return false;
+    
+    final boolean seen =
+      suspect.actor().actionInProgress() &&
+      audits.senses.awareOf(suspect.actor());
+    if (casual && ! seen) return false;
+    
+    float DC = casual ? 20 : (seen ? 5 : 10);
+    DC -= suspect.embezzled / 10f;
+    if (audits.skills.test(ACCOUNTING, DC, 1.0f)) return true;
+    
+    return false;
+  }
+  
+  
+  public static float taxesDue(Actor actor) {
+    if (actor.base().primal) return 0;
+    //  TODO:  factor in social class in some way.
+    //  final int bracket = actor.vocation().standing;
+    final int percent = Backgrounds.DEFAULT_TAX_PERCENT;
+    
+    float afterSaving = actor.gear.credits();
+    if (afterSaving < 0) return 0;
+    afterSaving = Nums.min(afterSaving, actor.gear.unTaxed());
+    return afterSaving * percent / 100f;
+  }
+  
+  
+  public static float propertyValue(Venue venue) {
+    float value = 0;
+    if (venue instanceof Holding) {
+      final Holding home = (Holding) venue;
+      value += home.upgradeLevel() * 25;
+      value += home.structure.buildCost();
+    }
+    return value;
   }
   
   
@@ -101,18 +148,26 @@ public class Audit extends Plan {
   /**  Evaluating targets and priority-
     */
   public static Audit nextOfficialAudit(Actor actor) {
+    final boolean report = evalVerbose && I.talkAbout == actor;
+    if (report) I.say("\nFinding next venue to audit for "+actor);
     
     final Stage world = actor.world();
     final Venue work = (Venue) actor.mind.work();
     final Batch <Venue> batch = new Batch <Venue> ();
     world.presences.sampleFromMap(work, world, 10, batch, work.base());
+    batch.add(work);
     
     final Pick <Venue> pick = new Pick <Venue> ();
     for (Venue v : batch) {
-      float rating = Nums.abs(v.inventory().credits()) / 100f;
+      float rating = Nums.abs(v.inventory().unTaxed()) / 100f;
       rating -= Plan.rangePenalty(v, actor);
       rating -= Plan.competition(Audit.class, v, actor);
       if (rating > 0) pick.compare(v, rating);
+      if (report) {
+        I.say("  Rating for "+v+" is "+rating);
+        I.say("    Current balance: "+v.inventory().credits());
+        I.say("    Untaxed:         "+v.inventory().unTaxed());
+      }
     }
     
     if (pick.result() == null) return null;
@@ -131,9 +186,13 @@ public class Audit extends Plan {
   
   
   protected float getPriority() {
+    final boolean report = evalVerbose && I.talkAbout == actor;
+    if (report) {
+      I.say("\nGetting priority for audit of "+audited+" by "+actor);
+    }
     
     float credits = totalSum;
-    if (audited != null) credits += audited.inventory().credits();
+    if (audited != null) credits += audited.inventory().unTaxed();
     float modifier = Nums.clamp(credits / 100, -ROUTINE, ROUTINE);
     
     if (type == Type.TYPE_EXTORTION) {
@@ -141,7 +200,10 @@ public class Audit extends Plan {
       modifier *= 2;
       modifier -= ROUTINE;
     }
-    return (ROUTINE + modifier) / 2;
+    
+    final float priority = (ROUTINE + modifier) / 2;
+    if (report) I.say("  Final priority: "+priority);
+    return priority;
   }
   
   
@@ -149,15 +211,16 @@ public class Audit extends Plan {
   /**  Behaviour implementation-
     */
   protected Behaviour getNextStep() {
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = stepsVerbose && I.talkAbout == actor;
     if (report) I.say("\nGetting next audit step: "+actor);
     
     if (stage == STAGE_EVAL) {
-      if (audited == null && Rand.num() > (Nums.abs(totalSum) / 1000f)) {
-        if (type == Type.TYPE_OFFICIAL) {
-          final Audit next = nextOfficialAudit(actor);
-          if (next != null) audited = next.audited;
-        }
+      if (
+        audited == null && type == Type.TYPE_OFFICIAL &&
+        Rand.num() > (Nums.abs(totalSum) / 1000f)
+      ) {
+        final Audit next = nextOfficialAudit(actor);
+        audited = next == null ? null : next.audited;
       }
       if (report) I.say("  Finding next venue to audit: "+audited);
       stage = (audited == null) ? STAGE_REPORT : STAGE_AUDIT;
@@ -190,7 +253,7 @@ public class Audit extends Plan {
   }
   
   
-  public boolean actionAudit(Actor actor, Venue audited) {
+  public boolean actionAudit(Actor actor, Property audited) {
     final float balance = this.performAudit();
     
     if (type == Type.TYPE_AMATEUR) {
@@ -199,6 +262,7 @@ public class Audit extends Plan {
     }
     else {
       audited.inventory().incCredits(0 - balance);
+      audited.inventory().taxDone();
       this.audited = null;
       stage = STAGE_EVAL;
     }
@@ -220,12 +284,12 @@ public class Audit extends Plan {
   
   
   private float performAudit() {
-    final boolean report = verbose && (
+    final boolean report = stepsVerbose && (
       I.talkAbout == actor || I.talkAbout == audited
     );
     final Base base = audited.base();
     if (base == null) return 0;
-    if (report) I.say("\n+"+actor+" auditing "+audited);
+    if (report) I.say("\n"+actor+" auditing "+audited);
     //
     //  Our first step is to get the total sum of wages to pay to each worker
     //  associated with this venue.
@@ -295,30 +359,6 @@ public class Audit extends Plan {
     this.totalSum += balance;
     return balance;
     //audited.inventory().incCredits(0 - balance);
-  }
-  
-  
-  public static float taxesDue(Actor actor) {
-    if (actor.base().primal) return 0;
-    //  TODO:  factor in social class in some way.
-    //  final int bracket = actor.vocation().standing;
-    final int percent = Backgrounds.DEFAULT_TAX_PERCENT;
-    
-    float afterSaving = actor.gear.credits();
-    if (afterSaving < 0) return 0;
-    afterSaving = Nums.min(afterSaving, actor.gear.unTaxed());
-    return afterSaving * percent / 100f;
-  }
-  
-  
-  public static float propertyValue(Venue venue) {
-    float value = 0;
-    if (venue instanceof Holding) {
-      final Holding home = (Holding) venue;
-      value += home.upgradeLevel() * 25;
-      value += home.structure.buildCost();
-    }
-    return value;
   }
   
   

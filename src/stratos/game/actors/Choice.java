@@ -14,8 +14,9 @@ public class Choice implements Qualities {
   /**  Data fields, constructors and setup-
     */
   public static boolean
-    verbose       = true ,
-    verboseReject = false;
+    verbose       = false,
+    verboseReject = false,
+    verboseSwitch = false;
   
   final Actor actor;
   final Batch <Behaviour> plans = new Batch <Behaviour> ();
@@ -176,6 +177,7 @@ public class Choice implements Qualities {
     Actor actor, Behaviour last, Behaviour next, boolean stubborn,
     boolean report
   ) {
+    report &= verboseSwitch;
     if (report) I.say("\nConsidering switch from "+last+" to "+next);
     if (next == null) return false;
     if (last == null) return true ;

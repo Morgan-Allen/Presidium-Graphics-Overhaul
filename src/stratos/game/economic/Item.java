@@ -225,10 +225,6 @@ public class Item {
       d.append(refers);
       d.append(")");
     }
-    if (refers != null && amount < 1) {
-      final int percent = (int) (100 * Nums.clamp(amount, 0, 1));
-      d.append(" ("+percent+"%)");
-    }
   }
   
   

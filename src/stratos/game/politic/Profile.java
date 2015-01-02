@@ -120,7 +120,7 @@ public class Profile {
       else return 0;
     }
     //*/
-    return Backgrounds.HIRE_COSTS[standing] / 5f;
+    return Backgrounds.HIRE_COSTS[standing];
   }
   
   

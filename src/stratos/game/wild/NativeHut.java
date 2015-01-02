@@ -248,11 +248,14 @@ public class NativeHut extends Venue {
     }
     
     if (actor.vocation() == GATHERER) {
-      final boolean needCarbs  = stocks.amountOf(CARBS ) < 5;
-      final boolean needGreens = stocks.amountOf(GREENS) < 5;
-      if (needCarbs && needGreens) {
+      final float needFood = 5 - Nums.max(
+        stocks.amountOf(CARBS ),
+        stocks.amountOf(GREENS)
+      );
+      if (needFood > 0) {
         final Foraging forage = new Foraging(actor, this);
-        choice.add(forage.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL));
+        final float urge = Plan.ROUTINE * (needFood / 5);
+        choice.add(forage.setMotive(Plan.MOTIVE_DUTY, urge));
       }
       choice.add(new Repairs(actor, this, Qualities.HANDICRAFTS));
     }

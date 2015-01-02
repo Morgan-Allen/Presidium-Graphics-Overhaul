@@ -339,7 +339,7 @@ public abstract class Mission implements
     }
     else rewardEval /= partySize;
     
-    float value = Pledge.greedPriority(actor, (int) rewardEval);
+    float value = ActorMotives.greedPriority(actor, (int) rewardEval);
     final int standing = actor.vocation().standing;
     value *= standing * 1.5f / Backgrounds.CLASS_STRATOI;
     

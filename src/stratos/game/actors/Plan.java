@@ -150,7 +150,7 @@ public abstract class Plan implements Saveable, Behaviour {
   private boolean checkRefreshDue(Actor actor) {
     final boolean report = I.talkAbout == actor && extraVerbose;
     if (report) {
-      I.say("GETTING NEW EVALUATION FOR WORK-SEEKING");
+      I.say("\nChecking if refreshment due for "+this);
       I.say("  Priority:  "+priorityEval);
       I.say("  Next step: "+nextStep);
     }
@@ -169,11 +169,6 @@ public abstract class Plan implements Saveable, Behaviour {
       return false;
     }
     
-    if (priorityEval == NULL_PRIORITY || nextStep == null) {
-      if (report) I.say("ALREADY FLAGGED FOR EVALUATION!");
-      return true;
-    }
-    
     final boolean oldDone = lastStep != null && (
       lastStep.finished() ||
       lastStep.nextStepFor(actor) == null
@@ -182,6 +177,11 @@ public abstract class Plan implements Saveable, Behaviour {
       if (report) I.say("OLD STEP FINISHED: "+lastStep);
       clearEval(actor);
       lastStep = null;
+      return true;
+    }
+    
+    if (priorityEval == NULL_PRIORITY || nextStep == null) {
+      if (report) I.say("ALREADY FLAGGED FOR EVALUATION!");
       return true;
     }
     
@@ -218,8 +218,8 @@ public abstract class Plan implements Saveable, Behaviour {
     final boolean report = verbose && I.talkAbout == actor && hasBegun();
     if (motiveType == MOTIVE_CANCELLED) return -1;
     if (report && extraVerbose) {
-      I.say("\nCurrent plan priority is: "+priorityEval);
-      I.say("   Plan step: "+I.tagHash(nextStep));
+      I.say("\nCurrent priority for "+this+" is: "+priorityEval);
+      //I.say("   Plan step: "+I.tagHash(nextStep));
     }
     
     if (checkRefreshDue(actor)) {
@@ -239,8 +239,8 @@ public abstract class Plan implements Saveable, Behaviour {
     final boolean report = verbose && I.talkAbout == actor && hasBegun();
     if (motiveType == MOTIVE_CANCELLED) return null;
     if (report && extraVerbose) {
-      I.say("\nCurrent plan step is: "+I.tagHash(nextStep));
-      I.say("   Priority: "+priorityEval);
+      I.say("\nCurrent plan step for "+this+" is: "+I.tagHash(nextStep));
+      //I.say("   Priority: "+priorityEval);
     }
     
     if (checkRefreshDue(actor)) {

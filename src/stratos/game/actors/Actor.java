@@ -171,10 +171,8 @@ public abstract class Actor extends Mobile implements
       if (action != null) I.add("  "+action.hashCode()+"\n");
     }
     
-    //world.activities.toggleBehaviour(actionTaken, false);
     this.actionTaken = action;
     if (actionTaken != null) actionTaken.updateAction(false);
-    //world.activities.toggleBehaviour(actionTaken, true);
   }
   
   
@@ -282,8 +280,8 @@ public abstract class Actor extends Mobile implements
       final Action nextAction = mind.getNextAction();
       if (checkSleep) Resting.checkForWaking(this);
       else if (OK) {
+        if (report) I.say("  Next action is: "+nextAction+" vs. "+actionTaken);
         if (nextAction != actionTaken) assignAction(nextAction);
-        if (report) I.say("  Checking pathing...");
         if (! pathing.checkPathingOkay()) pathing.refreshFullPath();
       }
     }

@@ -4,9 +4,8 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.common;
-import stratos.start.PlayLoop;
+import stratos.start.*;
 import stratos.util.*;
-
 import java.lang.reflect.*;
 
 
@@ -23,6 +22,9 @@ public class GameSettings {
   final public static float
     SMALL_SPRITE_SCALE = 0.55f,
     BIG_SPRITE_SCALE   = 0.85f;
+  
+  final public static int
+    SPEND_DIVISOR = 5;
   
   public static boolean
     

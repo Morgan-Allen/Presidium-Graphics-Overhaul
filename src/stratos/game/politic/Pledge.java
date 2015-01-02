@@ -92,44 +92,6 @@ public class Pledge implements Session.Saveable {
   
   
   
-  /**  Utility methods for calculating the appeal of different motivations.
-    */
-  public static float greedPriority(Actor actor, float creditsPerDay) {
-    //
-    //  The evaluation here is based on credits value relative to daily income-
-    //  e.g, if I got this every day, how much is it worth to me?  (And even
-    //  then, we're fudging things a little- see below.)
-    if (creditsPerDay <= 0) return 0;
-    final boolean report = evalVerbose && I.talkAbout == actor;
-    
-    final float greed = 1 + actor.traits.relativeLevel(Qualities.ACQUISITIVE);
-    final Profile p = actor.base().profiles.profileFor(actor);
-    
-    float baseUnit = actor.gear.credits();
-    baseUnit += (100 + p.salary()) / 2;
-    baseUnit /= Backgrounds.NUM_DAYS_PAY;
-    
-    float mag = 1f + (creditsPerDay / baseUnit);
-    mag = Nums.log(2, mag) * greed;
-    
-    //  Value is taken as directly proportional when below average, and
-    //  logarithmic/additive beyond that:
-    final float level;
-    if (mag <= 1) level = mag * Plan.ROUTINE;
-    else          level = mag + Plan.ROUTINE - 1;
-    
-    if (report) {
-      I.say("\nEvaluating greed value of "+creditsPerDay+" credits.");
-      I.say("  Salary: "+p.salary()+", credits: "+actor.gear.credits());
-      I.say("  Pay interval: "+Backgrounds.NUM_DAYS_PAY+", greed: "+greed);
-      I.say("  Base unit: "+baseUnit+", magnitude: "+mag);
-      I.say("  Final level: "+level);
-    }
-    return level;
-  }
-  
-  
-  
   /**  UI and interface methods-
     */
 }

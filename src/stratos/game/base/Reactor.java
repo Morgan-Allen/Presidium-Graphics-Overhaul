@@ -231,7 +231,6 @@ public class Reactor extends Venue {
     final Item fuel = Item.withAmount(TOPES, fuelConsumed);
     if (stocks.hasItem(fuel)) stocks.removeItem(fuel);
     else powerOutput /= 5;
-    
     ///I.say("POWER OUTPUT: "+powerOutput);
     structure.assignOutputs(Item.withAmount(POWER, powerOutput));
     

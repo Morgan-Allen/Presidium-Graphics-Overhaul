@@ -217,7 +217,7 @@ public class Cantina extends Venue {
     float priority = Action.ROUTINE;
     priority += actor.traits.traitLevel(INDULGENT) / 2f;
     priority += actor.traits.traitLevel(OUTGOING)  / 2f;
-    priority -= Pledge.greedPriority(actor, price);
+    priority -= ActorMotives.greedPriority(actor, price);
     drops.setPriority(priority);
     return drops;
   }
@@ -250,7 +250,7 @@ public class Cantina extends Venue {
     priority += actor.traits.traitLevel(POSITIVE) * Rand.num();
     priority -= actor.traits.traitLevel(NERVOUS)    * Rand.num();
     priority -= actor.traits.traitLevel(STUBBORN)   * Rand.num();
-    priority -= Pledge.greedPriority(actor, price) * Action.ROUTINE;
+    priority -= ActorMotives.greedPriority(actor, price) * Action.ROUTINE;
     gamble.setPriority(priority);
     return gamble;
   }

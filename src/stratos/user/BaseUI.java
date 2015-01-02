@@ -78,6 +78,7 @@ public class BaseUI extends HUD implements UIConstants {
     assignBaseSetup(played, null);
     tracking.loadState(s);
     selection.loadState(s);
+    commsPanel.loadState(s);
   }
   
   
@@ -85,6 +86,7 @@ public class BaseUI extends HUD implements UIConstants {
     s.saveObject(played);
     tracking.saveState(s);
     selection.saveState(s);
+    commsPanel.saveState(s);
   }
   
   

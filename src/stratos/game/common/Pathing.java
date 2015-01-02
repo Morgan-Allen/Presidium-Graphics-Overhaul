@@ -21,8 +21,8 @@ public class Pathing {
     */
   final public static int MAX_PATH_SCAN = 8;
   private static boolean
-    pathVerbose  = false,
     verbose      = false,
+    pathVerbose  = false,
     extraVerbose = false;
   
   final Mobile mobile;

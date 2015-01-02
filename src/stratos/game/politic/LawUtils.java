@@ -57,11 +57,12 @@ public class LawUtils {
   public static Crime crimeDoneBy(Actor actor, Actor arrests) {
     
     if (actor.mind.work() == arrests.mind.work()) return null;
+    
     final Behaviour
       root = actor.mind.rootBehaviour(),
       top  = actor.mind.topBehaviour ();
-    
     final Target victim = actor.planFocus(null);
+    
     float harmRating = 0;
     if (victim != null){
       harmRating += actor.harmIntended(victim);
@@ -75,14 +76,18 @@ public class LawUtils {
       if (top  instanceof Looting) return Crime.CRIME_THEFT  ;
     }
     //  Corruption means embezzlement, tax evasion or bribery.
-    if (root instanceof Audit && ! ((Audit) top).honest()) {
+    if (Audit.checkForEmbezzlement(root, arrests, true)) {
       return Crime.CRIME_CORRUPTION;
     }
     //  Desertion means retreating from a mission or defecting to another base.
+    
+    //  TODO:  Reserve this only for 
+    /*
     final Mission mission = actor.mind.mission();
     if (root instanceof Retreat && mission != null) {
       return Crime.CRIME_DESERTION ;
     }
+    //*/
     return null;
   }
 }

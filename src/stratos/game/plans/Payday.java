@@ -83,11 +83,11 @@ public class Payday extends Plan {
     */
   protected float getPriority() {
     final boolean report = verbose && I.talkAbout == actor;
-    if (! (pays instanceof Venue)) return 0;
-    final Venue venue = (Venue) pays;
     
-    final Profile p = venue.base().profiles.profileFor(actor);
-    final float payGap = p.daysSincePayAssess(venue.world());
+    final Profile p = pays.base().profiles.profileFor(actor);
+    if (p.salary() == 0) return -1;
+    
+    final float payGap = p.daysSincePayAssess(pays.world());
     if (payGap < 2) {
       if (report) I.say("\nPay gap is: "+payGap+" days");
       return 0;
@@ -96,7 +96,7 @@ public class Payday extends Plan {
     modifier = NO_MODIFIER + (modifier * ROUTINE);
     
     final float priority = priorityForActorWith(
-      actor, venue, ROUTINE,
+      actor, pays, ROUTINE,
       modifier, NO_HARM,
       NO_COMPETITION, NO_FAIL_RISK,
       NO_SKILLS, NO_TRAITS, PARTIAL_DISTANCE_CHECK, report
@@ -137,7 +137,7 @@ public class Payday extends Plan {
   }
   
   
-  public boolean actionGetPaid(Actor actor, Venue venue) {
+  public boolean actionGetPaid(Actor actor, Property venue) {
     final boolean report = verbose && I.talkAbout == actor;
     final Profile p = venue.base().profiles.profileFor(actor);
     if (report) I.say("Getting paid at "+venue);

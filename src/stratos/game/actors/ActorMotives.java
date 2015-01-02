@@ -3,10 +3,9 @@
 package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.politic.Pledge;
-import stratos.game.wild.Species;
+import stratos.game.politic.*;
 import stratos.util.*;
-import stratos.game.common.Session.Saveable;
+import stratos.game.wild.Species;
 import static stratos.game.actors.Qualities.*;
 
 
@@ -130,7 +129,8 @@ public class ActorMotives {
   
   /**  Material motives-
     */
-  //  TODO:  Merge this with the supply-and-demand system for Holdings?
+  //  TODO:  Have holdings refer to this?  Or refer to supply/demand for
+  //         holdings?
   
   public static float rateDesire(Item item, Actor buys, Actor receives) {
     final boolean report = rateVerbose && I.talkAbout == buys;
@@ -162,13 +162,48 @@ public class ActorMotives {
     }
     
     final float pricedAt = item.defaultPrice();
-    rating += Pledge.greedPriority(receives, pricedAt);
+    rating += greedPriority(receives, pricedAt);
     if (report) I.say("  Rating for "+item+" is: "+rating);
     
     if (buys != null) {
-      rating /= 1 + (Pledge.greedPriority(buys, pricedAt));
+      rating /= 1 + (greedPriority(buys, pricedAt));
       if (report) I.say("    After pricing? "+rating);
     }
     return rating;
+  }
+  
+
+  public static float greedPriority(Actor actor, float creditsPerDay) {
+    //
+    //  The evaluation here is based on credits value relative to daily income-
+    //  e.g, if I got this every day, how much is it worth to me?  (And even
+    //  then, we're fudging things a little- see below.)
+    if (creditsPerDay <= 0) return 0;
+    final boolean report = rateVerbose && I.talkAbout == actor;
+    
+    final float greed = 1 + actor.traits.relativeLevel(Qualities.ACQUISITIVE);
+    final Profile p = actor.base().profiles.profileFor(actor);
+    
+    float baseUnit = actor.gear.credits();
+    baseUnit += (100 + p.salary()) / 2;
+    baseUnit /= Backgrounds.NUM_DAYS_PAY;
+    
+    float mag = 1f + (creditsPerDay / baseUnit);
+    mag = Nums.log(2, mag) * greed;
+    
+    //  Value is taken as directly proportional when below average, and
+    //  logarithmic/additive beyond that:
+    final float level;
+    if (mag <= 1) level = mag * Plan.ROUTINE;
+    else          level = mag + Plan.ROUTINE - 1;
+    
+    if (report) {
+      I.say("\nEvaluating greed value of "+creditsPerDay+" credits.");
+      I.say("  Salary: "+p.salary()+", credits: "+actor.gear.credits());
+      I.say("  Pay interval: "+Backgrounds.NUM_DAYS_PAY+", greed: "+greed);
+      I.say("  Base unit: "+baseUnit+", magnitude: "+mag);
+      I.say("  Final level: "+level);
+    }
+    return level;
   }
 }

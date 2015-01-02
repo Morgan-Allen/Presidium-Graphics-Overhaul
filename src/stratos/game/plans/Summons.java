@@ -28,7 +28,7 @@ public class Summons extends Plan {
     
     DEFAULT_STAY_DURATIONS[] = {
       Stage.STANDARD_DAY_LENGTH,
-      Stage.STANDARD_HOUR_LENGTH,
+      Stage.STANDARD_DAY_LENGTH,
       Stage.STANDARD_DAY_LENGTH
     };
   
@@ -37,7 +37,8 @@ public class Summons extends Plan {
   final Property stays;
   final int type;
   
-  private int stayUntil;
+  private int timeStayed;
+  private int stayUntil = -1;
   private Sentence sentence;
   
   
@@ -53,21 +54,23 @@ public class Summons extends Plan {
   
   public Summons(Session s) throws Exception {
     super(s);
-    this.invites   = (Actor   ) s.loadObject();
-    this.stays     = (Property) s.loadObject();
-    this.type      = s.loadInt();
-    this.stayUntil = s.loadInt();
-    this.sentence  = (Sentence) s.loadEnum(Sentence.values());
+    this.invites    = (Actor   ) s.loadObject();
+    this.stays      = (Property) s.loadObject();
+    this.type       = s.loadInt();
+    this.timeStayed = s.loadInt();
+    this.stayUntil  = s.loadInt();
+    this.sentence   = (Sentence) s.loadEnum(Sentence.values());
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(invites  );
-    s.saveObject(stays    );
-    s.saveInt   (type     );
-    s.saveInt   (stayUntil);
-    s.saveEnum  (sentence );
+    s.saveObject(invites   );
+    s.saveObject(stays     );
+    s.saveInt   (type      );
+    s.saveInt   (timeStayed);
+    s.saveInt   (stayUntil );
+    s.saveEnum  (sentence  );
   }
   
   
@@ -77,8 +80,9 @@ public class Summons extends Plan {
   
   
   public void setSentence(int time, Sentence sentence) {
-    this.stayUntil = (int) (stays.world().currentTime() + time);
-    this.sentence  = sentence;
+    this.timeStayed = time;
+    this.stayUntil  = -1;
+    this.sentence   = sentence;
   }
   
   
@@ -100,7 +104,7 @@ public class Summons extends Plan {
     if (! stays.structure().intact()) return null;
     
     final float time = stays.world().currentTime();
-    if (time > stayUntil) return null;
+    if (stayUntil != -1 && time > stayUntil) return null;
     
     final boolean report = verbose && I.talkAbout == actor;
     if (report) I.say("\nGetting next summons step for "+actor);
@@ -135,13 +139,19 @@ public class Summons extends Plan {
   
   
   public boolean actionStay(Actor actor, Property stays) {
+    
+    if (stayUntil == -1) {
+      stayUntil = (int) (stays.world().currentTime() + timeStayed);
+    }
+    
     if (actor.health.hungerLevel() > 0) {
       Resting.dineFrom(actor, (Property) stays);
     }
     if (actor.health.fatigueLevel() > 0.5f) {
       actor.health.setState(ActorHealth.STATE_RESTING);
     }
-    //  TODO:  Make this a property for anyone staying at the bastion.
+    
+    //  TODO:  Make this a property for anyone staying at the bastion...
     //*
     if (BaseUI.isSelected(actor) && stays == stays.base().HQ()) {
       final BaseUI UI = BaseUI.current();
@@ -162,8 +172,8 @@ public class Summons extends Plan {
       d.append(stays);
     }
     else if (type == TYPE_SULKING) {
-      d.append("Brooding at ");
-      d.append(stays);
+      d.append("Brooding on misdeeds");
+      ///d.append(stays);
     }
     else if (type == TYPE_CAPTIVE) {
       if (actor.aboard() != stays) {

@@ -2,9 +2,7 @@
 
 
 package stratos.game.economic;
-import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.util.*;
 
@@ -13,8 +11,6 @@ import stratos.util.*;
 /**  Used to represent the types of goods and services that venues can provide
   *  or produce.
   */
-//  TODO:  Use an index for this.
-
 public class Traded extends Index.Entry implements Session.Saveable {
   
   
@@ -67,7 +63,7 @@ public class Traded extends Index.Entry implements Session.Saveable {
     this.name = name;
     this.description = description;
     
-    this.basePrice = basePrice / 5f;
+    this.basePrice = basePrice / GameSettings.SPEND_DIVISOR;
     final String imagePath = ITEM_PATH+imgName;
     final float IS = BuildingSprite.ITEM_SIZE;
     if (new java.io.File(imagePath).exists()) {

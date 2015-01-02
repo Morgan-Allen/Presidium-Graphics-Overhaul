@@ -3,11 +3,10 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.game.actors;
 import stratos.game.common.*;
-import stratos.game.economic.*;
-import stratos.game.politic.Sector;
+//import stratos.game.economic.*;
+//import stratos.game.politic.Sector;
 import stratos.graphics.common.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
@@ -33,12 +32,12 @@ public interface Backgrounds {
     MASTER    = 20;
   
   final public static int
-    CLASS_NATIVE   = -1,
-    CLASS_SLAVE    =  0,
-    CLASS_VASSAL   =  1,
-    CLASS_FREEMEN  =  2,
-    CLASS_STRATOI  =  3,
-    NOT_A_CLASS    = -2;
+    CLASS_NATIVE    = -1,
+    CLASS_SLAVE     =  0,
+    CLASS_VASSAL    =  1,
+    CLASS_FREEMEN   =  2,
+    CLASS_STRATOI   =  3,
+    NOT_A_CLASS     = -2;
   final public static int
     GUILD_MILITANT  =  0,
     GUILD_MERCHANT  =  1,
@@ -52,12 +51,12 @@ public interface Backgrounds {
     NOT_A_GUILD     = -1;
   
   final public static float
-    NUM_DAYS_PAY      = 20,
+    NUM_DAYS_PAY      = 20 * GameSettings.SPEND_DIVISOR,
     PAY_INTERVAL      = Stage.STANDARD_DAY_LENGTH * NUM_DAYS_PAY,
-    MIN_DAILY_EXPENSE = 100 / (PAY_INTERVAL * 5);
+    MIN_DAILY_EXPENSE = 100 / PAY_INTERVAL;
   final public static int
     HIRE_COSTS[] = {
-      150, 250, 500, 1000 //Represents (PAY_INTERVAL x 5) days' salary.
+      150, 250, 500, 1000 //Represents (PAY_INTERVAL) days' salary.
     },
     DEFAULT_RELIEF           = 100 ,
     DEFAULT_TAX_PERCENT      = 50  ,

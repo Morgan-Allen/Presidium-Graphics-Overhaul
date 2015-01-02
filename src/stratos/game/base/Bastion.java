@@ -240,17 +240,15 @@ public class Bastion extends Venue {
     updateRulerStatus();
     //
     //  Provide power and life support-
-    final float condition = (structure.repairLevel() + 1f) / 2;
+    final float condition = Nums.clamp(structure.repairLevel() + 0.5f, 0, 1);
     final int SB = structure.upgradeLevel(SECURITY_MEASURES);
     int powerLimit = 20 + (SB * 10), lifeSLimit = 10 + (SB * 5);
     powerLimit *= condition;
     lifeSLimit *= condition;
-    if (stocks.amountOf(POWER) < powerLimit) {
-      stocks.addItem(Item.withAmount(POWER, 1));
-    }
-    if (stocks.amountOf(LIFE_SUPPORT) < lifeSLimit) {
-      stocks.addItem(Item.withAmount(LIFE_SUPPORT, 1));
-    }
+    structure.assignOutputs(
+      Item.withAmount(POWER       , powerLimit),
+      Item.withAmount(LIFE_SUPPORT, lifeSLimit)
+    );
     //
     //  Demand provisions-
     final int foodNeed = staff.residents().size() + 2;

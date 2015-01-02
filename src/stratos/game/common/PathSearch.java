@@ -200,7 +200,7 @@ public class PathSearch extends Search <Boarding> {
   
   
   public static boolean blockedBy(Target t, Mobile m) {
-    if (t == null) return true;
+    if (t == null || ! t.inWorld()) return true;
     if (! (t instanceof Boarding)) return false;
     return blockedBy((Boarding) t, m);
   }

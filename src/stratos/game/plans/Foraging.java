@@ -90,6 +90,8 @@ public class Foraging extends Plan {
     }
     final float modifier = NO_MODIFIER + (hunger * ROUTINE);
     
+    //  TODO:  Base off store-shortage?
+    
     final float priority = priorityForActorWith(
       actor, source,
       hunger * PARAMOUNT, modifier,
@@ -101,7 +103,7 @@ public class Foraging extends Plan {
       I.say("  Hunger level was: "+hunger);
       I.say("  Final priority: "+priority);
     }
-    if (priority < CASUAL) return 0;
+    if (priority < ROUTINE) return 0;
     return priority;
   }
   

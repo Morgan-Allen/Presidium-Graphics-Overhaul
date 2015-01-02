@@ -3,8 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -152,7 +150,10 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
       choice.add(new Repairs(actor, (Venue) guarded).setMotiveFrom(this, 0));
     }
     final Behaviour picked = choice.pickMostUrgent();
-    if (picked != null) return picked;
+    if (picked != null) {
+      if (report) I.say("  Performing sub-task: "+picked);
+      return picked;
+    }
     
     //  If you're on sentry duty, check to see if you've spent long enough at
     //  your post.
@@ -189,7 +190,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     
     //  Either way, return a patrolling action-
     if (report) {
-      I.say("  Next stop: "+stop+" "+stop.hashCode());
+      I.say("  Next stop: "+I.tagHash(stop));
     }
     final Action patrol = new Action(
       actor, stop,

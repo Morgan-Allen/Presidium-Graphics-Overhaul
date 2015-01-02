@@ -184,20 +184,24 @@ public abstract class ActorMind implements Qualities {
         doLater = current == root && current.persistent() && ! isDone;
       
       if (report) {
-        I.say("\n  Current step:   "+current);
+        I.say("");
+        I.say("  Current step:   "+current);
         I.say("  Class type:     "+current.getClass().getSimpleName());
         I.say("  Next step:      "+next);
         I.say("  Done:           "+isDone);
         I.say("  Will do later:  "+doLater);
       }
       if (isDone || next == null) {
+        if (report) I.say("  Popping current step...");
         if (doLater) todoList.add(current);
         popBehaviour(current);
       }
       else if (next instanceof Action) {
+        if (report) I.say("  Returning action!");
         return (Action) next;
       }
       else {
+        if (report) I.say("  Pushing next step...");
         pushBehaviour(next);
       }
     }
