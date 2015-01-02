@@ -401,7 +401,7 @@ public interface Backgrounds {
       //  TODO:  Fill in skills and abilities...
     ),
     
-    AIR_CORPS = new Background(
+    DECK_HAND = new Background(
       Backgrounds.class,
       "Air Corps (Deckhand)",
       "",
@@ -436,7 +436,7 @@ public interface Backgrounds {
     MILITARY_CIRCLES[] = {
       VOLUNTEER, TROOPER  , MECH_KNIGHT,
       ENFORCER , PSI_CORPS, ANALYST    ,
-      AIR_CORPS, WINGMAN  , ACE        ,
+      DECK_HAND, WINGMAN  , ACE        ,
     }
  ;
   

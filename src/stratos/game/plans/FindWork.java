@@ -21,7 +21,8 @@ public class FindWork extends Plan {
   
   
   private static boolean
-    verbose = false;
+    verbose        = false,
+    screenOffworld = false;
   
   private Background position;
   private Property employer;
@@ -186,11 +187,7 @@ public class FindWork extends Plan {
   //  FindWork plan for a given actor.  This is why it gets 'assigned to do'
   //  automatically, and never actually finishes.
   public static FindWork attemptFor(Actor actor, Property at) {
-    final boolean report = verbose && (
-      I.talkAbout == actor || I.talkAbout == at
-    );
     if (at.careers() == null) return null;
-    if (report) I.say("\n"+actor+" checking for career opportunities at "+at);
     
     FindWork main = (FindWork) actor.matchFor(FindWork.class);
     if (main == null) {
@@ -198,7 +195,13 @@ public class FindWork extends Plan {
       actor.mind.assignToDo(main);
     }
     
-    final Pick <FindWork> pick = new Pick <FindWork> ();
+    final Pick <FindWork> pick = new Pick <FindWork> (null, 0);
+    for (Background c : at.careers()) {
+      final FindWork app = new FindWork(actor, c, at);
+      pick.compare(app, main.rateOpening(app.position, app.employer));
+    }
+    if (pick.empty()) return main;
+    
     if (main.position != null) {
       pick.compare(main, main.rateOpening(main.position, main.employer) * 1.5f);
     }
@@ -209,24 +212,39 @@ public class FindWork extends Plan {
       pick.compare(app, app.rateOpening(app.position, app.employer) * 1.5f);
     }
     
-    for (Background c : at.careers()) {
-      final FindWork app = new FindWork(actor, c, at);
-      pick.compare(app, main.rateOpening(app.position, app.employer));
-    }
-
     final FindWork app = pick.result();
     if (app != null && app.position != work) {
       main.position = app.position;
       main.employer = app.employer;
       main.rating   = pick.bestRating();
       main.calcHiringFee();
-      if (report) {
-        I.say("  Most promising: "+main.position);
-        I.say("  Venue:          "+main.employer);
-        I.say("  Rating:         "+main.rating  );
-      }
+    }
+    
+    final boolean different =
+      main.position   != actor.vocation() ||
+      main.employer() != actor.mind.work();
+    final boolean report = verbose && different && (
+      I.talkAbout == actor || I.talkAbout == at
+    ) && ! (actor.inWorld() && screenOffworld);
+    if (report) {
+      I.say("\n"+actor+" checking for career opportunities at "+at);
+      I.say("  Current job:    "+actor.vocation());
+      I.say("  Is offworld:    "+(! actor.inWorld()));
+      I.say("  Most promising: "+main.position);
+      I.say("  Venue:          "+main.employer);
+      I.say("  Rating:         "+main.rating  );
     }
     return main;
+  }
+  
+  
+  private float rateOpening(Background position, Property at) {
+    if (at.crowdRating(actor, position) >= 1) return -1;
+    float rating = Career.ratePromotion(position, actor);
+    rating *= actor.relations.valueFor(at);
+    //  TODO:  Also impact through wage-rate and area living conditions.
+    rating /= 1f + at.staff().applications().size();
+    return rating;
   }
   
   
@@ -234,15 +252,6 @@ public class FindWork extends Plan {
     final FindWork finding = (FindWork) actor.matchFor(FindWork.class);
     if (finding == null || finding.position == null) return null;
     return finding.position;
-  }
-  
-  
-  private float rateOpening(Background position, Property at) {
-    float rating = Career.ratePromotion(position, actor);
-    rating *= actor.relations.valueFor(at);
-    //  TODO:  Also impact through wage-rate and area living conditions.
-    rating /= 1f + at.staff().applications().size();
-    return rating;
   }
   
   

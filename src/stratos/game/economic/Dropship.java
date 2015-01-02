@@ -154,15 +154,25 @@ public class Dropship extends Vehicle implements Inventory.Owner {
       this, world, SERVICE_COMMERCE
     );
     final Commerce c = this.base.commerce;
+    final Choice jobs = new Choice(actor);
     
-    choice.add(DeliveryUtils.bestExportDelivery(this, depots, 10));
-    choice.add(DeliveryUtils.bestImportDelivery(this, depots, 10));
+    jobs.add(DeliveryUtils.bestExportDelivery(this, depots, 10));
+    jobs.add(DeliveryUtils.bestImportDelivery(this, depots, 10));
+    if (! jobs.empty()) { choice.add(jobs.pickMostUrgent()); return; }
     
-    final Traded lacks[] = c.globalShortages();
-    choice.add(DeliveryUtils.bestBulkCollectionFor(this, lacks, 1, 10, 2));
-    
-    final Traded goods[] = c.globalSurpluses();
-    choice.add(DeliveryUtils.bestBulkDeliveryFrom (this, goods, 1, 10, 2));
+    if (dropPoint instanceof Venue) {
+      final Venue hangar = (Venue) dropPoint;
+      final Traded goods[] = hangar.services();
+      jobs.add(DeliveryUtils.bestBulkDeliveryFrom (hangar, goods, 1, 10, 2));
+      jobs.add(DeliveryUtils.bestBulkCollectionFor(hangar, goods, 1, 10, 2));
+    }
+    else {
+      final Traded lacks[] = c.globalShortages();
+      jobs.add(DeliveryUtils.bestBulkDeliveryFrom (this, lacks, 1, 10, 2));
+      final Traded goods[] = c.globalSurpluses();
+      jobs.add(DeliveryUtils.bestBulkCollectionFor(this, goods, 1, 10, 2));
+    }
+    choice.add(jobs.pickMostUrgent());
   }
   
   

@@ -172,8 +172,8 @@ public class Summons extends Plan {
       d.append(stays);
     }
     else if (type == TYPE_SULKING) {
-      d.append("Brooding on misdeeds");
-      ///d.append(stays);
+      d.append("Brooding on misdeeds at ");
+      d.append(stays);
     }
     else if (type == TYPE_CAPTIVE) {
       if (actor.aboard() != stays) {

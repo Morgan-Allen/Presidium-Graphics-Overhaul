@@ -4,7 +4,8 @@ package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.maps.*;
+//import stratos.game.maps.*;
+import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
@@ -137,8 +138,12 @@ public class Airfield extends Venue {
     if (! structure.intact()) return;
     if (docking != null && ! docking.inWorld()) docking = null;
     
-    final int interval = (int) scheduledInterval();
+    //
+    //  TODO:  As long as you have power and LCHC, you can manufacture fuel for
+    //  dropships...
+    stocks.forceDemand(POWER, 5, TIER_CONSUMER);
     
+    final int interval = (int) scheduledInterval();
     for (int i = 0 ; i < NUM_TYPES; i++) {
       final Traded t = ALL_TRADE_TYPES[i];
       final int type = tradeTypes[i], level = tradeLevels[i];
@@ -169,20 +174,35 @@ public class Airfield extends Venue {
   
   
   public Background[] careers() {
-    return new Background[] { WINGMAN, AIR_CORPS };
+    return new Background[] { WINGMAN, DECK_HAND };
   }
   
   
   protected int numOpenings(Background b) {
     final int nO = super.numOpenings(b);
     if (b == WINGMAN  ) return nO + 1;
-    if (b == AIR_CORPS) return nO + 1;
+    if (b == DECK_HAND) return nO + 1;
     return 0;
   }
   
   
   protected Behaviour jobFor(Actor actor) {
-    return null;
+    if ((! structure.intact()) || (! staff.onShift(actor))) return null;
+    final Choice choice = new Choice(actor);
+    
+    if (actor.vocation() == DECK_HAND) {
+      final Traded goods[] = services();
+      final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
+        this, goods, 1, 5, 5
+      );
+      choice.add(d);
+      final Delivery c = DeliveryUtils.bestBulkCollectionFor(
+        this, goods, 1, 5, 5
+      );
+      choice.add(c);
+    }
+    
+    return choice.weightedPick();
   }
   
   

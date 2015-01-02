@@ -23,6 +23,7 @@ public class Scrollbar extends UINode {
   
   final public static float
     DEFAULT_SCROLL_WIDTH = 10   ,  //default width for a scrollbar.
+    MINIMUM_GRAB_HEIGHT  = 50   ,  //minimum height of grab area.
     DEFAULT_TAB_HEIGHT   = 25   ,  //default size of 'rounded edge' for grabber.
     DEFAULT_TAB_UV       = 0.25f,  //default UV portion for that rounded edge.
     MAX_GRAB_PORTION     = 0.5f ,  //max area the grab-widget will occupy.
@@ -61,8 +62,9 @@ public class Scrollbar extends UINode {
     grabArea.setTo(bounds);
     final float mapRatio = mapRatio();
     if (mapRatio < 1) {
-      final float grabSize = Nums.min(MAX_GRAB_PORTION, mapRatio);
       showScroll = true;
+      float grabSize = Nums.min(MAX_GRAB_PORTION, mapRatio);
+      grabSize = Nums.max(grabSize, MINIMUM_GRAB_HEIGHT / ydim());
       final float offset = scrollPos * (1 - grabSize);
       grabArea.ydim(ydim() * grabSize);
       grabArea.ypos(ypos() + (ydim() * offset));
@@ -97,8 +99,7 @@ public class Scrollbar extends UINode {
   protected void whenDragged() {
     if (initScrollPos == -1 || ! showScroll) return;
     final Vector2 mP = UI.mousePos(), dP = UI.dragOrigin();
-    final float mapRatio = Nums.min(mapRatio(), MAX_GRAB_PORTION);
-    final float stretch = (mP.y - dP.y) / (ydim() * (1 - mapRatio));
+    final float stretch = (mP.y - dP.y) / (ydim() - grabArea.ydim());
     scrollPos = initScrollPos + stretch;
     if (scrollPos < 0) scrollPos = 0;
     if (scrollPos > 1) scrollPos = 1;

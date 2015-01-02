@@ -299,7 +299,7 @@ public class Holding extends Venue {
   public void addTasks(Choice choice, Actor actor, Background background) {
     if (background == Backgrounds.AS_RESIDENT) {
       final Traded goods[] = goodsNeeded();
-      
+      /*
       //  First of all, deliver any goods that you yourself are carrying-
       for (Traded s : goods) for (Item i : actor.gear.matches(s)) {
         if (i.refers == null || i.refers == actor) {
@@ -309,12 +309,12 @@ public class Holding extends Venue {
           return;
         }
       }
-      
+      //*/
       //  Otherwise, see if it's possible to make any purchases nearby-
       final Delivery d = DeliveryUtils.bestBulkCollectionFor(
         this, goods, 1, 5, 5
       );
-      if (d != null) choice.add(d.withPayment(actor, true));
+      if (d != null) choice.add(d.setWithPayment(actor, true));
     }
     else super.addTasks(choice, actor, background);
   }

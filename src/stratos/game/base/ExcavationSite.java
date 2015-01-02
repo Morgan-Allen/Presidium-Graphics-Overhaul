@@ -56,8 +56,8 @@ public class ExcavationSite extends Venue implements TileConstants {
   private static boolean verbose = false;
   
   //private MineShaft worked;
-  private MineShaft active;
-  private List <MineShaft> allShafts = new List <MineShaft> ();
+  //private MineShaft active;
+  //private List <MineShaft> allShafts = new List <MineShaft> ();
   private Tile corridor[];
   
   
@@ -70,8 +70,8 @@ public class ExcavationSite extends Venue implements TileConstants {
     staff.setShiftType(SHIFTS_BY_DAY);
     attachModel(SHAFT_MODEL);
   }
-
-
+  
+  
   public ExcavationSite(Session s) throws Exception {
     super(s);
     corridor = (Tile[]) s.loadTargetArray(Tile.class);

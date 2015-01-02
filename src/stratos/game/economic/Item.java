@@ -207,16 +207,22 @@ public class Item {
   /**  Rendering/interface functions-
     */
   public void describeTo(Description d) {
-    
+    //
+    //  First describe yourself:
     String s = ""+type;
-    if (quality != ANY && type.form != FORM_MATERIAL) {
+    if (
+      type.form == FORM_DEVICE ||
+      type.form == FORM_OUTFIT ||
+      type.form == FORM_USABLE
+    ) {
       s = QUAL_NAMES[(int) (quality + 0.5f)]+" "+s;
     }
-    if (refers == null && amount != ANY) {
+    else if (refers == null && amount != ANY) {
       s = (I.shorten(amount, 1))+" "+s;
     }
     d.append(s);
-    
+    //
+    //  Then describe anything your refer to-
     if (refers instanceof Passive) {
       d.append(((Passive) refers).describePassiveItem(this));
     }
@@ -234,15 +240,5 @@ public class Item {
     return SD.toString();
   }
 }
-
-
-
-
-
-
-
-
-
-
 
 

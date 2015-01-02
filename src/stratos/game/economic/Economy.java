@@ -42,6 +42,13 @@ public final class Economy {
   final public static float
     ITEM_WEAR_DURATION = 100;
   
+  final static String TIER_NAMES[] = {
+    "NONE", "IMPORTER", "PRODUCER", "TRADER", "CONSUMER", "EXPORTER"
+  };
+  public static String nameForTier(int tier) {
+    return TIER_NAMES[tier + 2];
+  }
+  
 
   
   final static Table <Traded, Integer> CATEGORY_TABLE, CT;

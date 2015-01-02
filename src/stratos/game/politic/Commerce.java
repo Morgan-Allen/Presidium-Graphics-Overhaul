@@ -475,7 +475,6 @@ public class Commerce {
     //  landing:
     final Tally <Traded> surpluses = new Tally <Traded> ();
     float sumS = 0;
-    
     for (Traded good : ALL_MATERIALS) {
       final float surplus = localSurplus(good);
       if (surplus > 0) {
@@ -489,7 +488,6 @@ public class Commerce {
         ship.cargo.forceDemand(good, 0, TIER_TRADER);
       }
     }
-    
     for (Traded good : surpluses.keys()) {
       float wanted = Dropship.MAX_CAPACITY * surpluses.valueFor(good) / sumS;
       ship.cargo.forceDemand(good, wanted, TIER_CONSUMER);

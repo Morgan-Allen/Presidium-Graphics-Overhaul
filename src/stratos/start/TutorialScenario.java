@@ -233,8 +233,10 @@ public class TutorialScenario extends StartupScenario {
   
   
   private void pushMessage(String title) {
+    //if (true) return;
+    
     final CommsPanel comms = UI().commsPanel();
-    //if (UI().selection.selected() instanceof Element) return;
+    if (UI().selection.selected() instanceof Element) return;
     
     if (! comms.hasMessage(title)) {
       if (verbose) I.say("PUSHING NEW MESSAGE: "+title);

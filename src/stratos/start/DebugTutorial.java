@@ -10,6 +10,11 @@ import stratos.user.*;
 import stratos.util.*;
 
 
+
+//  TODO:  You need to give some preference to raw material deliveries locally,
+//  rather than offworld.  I think.
+
+
 //  TODO:  Test the stock exchange, and re-introduce the arcology & edifice.
 
 //  Assign drills directly at the trooper lodge.  That'll keep 'em busy!

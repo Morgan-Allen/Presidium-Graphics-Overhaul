@@ -11,12 +11,15 @@ import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.util.*;
 import stratos.game.base.Suspensor;
-import stratos.game.politic.Pledge;
 import stratos.game.economic.Inventory.Owner;
 
 
 
 //  TODO:  Unify this with Smuggling?  Same basic ideas involved.
+
+//  TODO:  You may need to trim down the list of items based on what's actually
+//  available once an actor reaches their destination.
+
 
 public class Delivery extends Plan {
   
@@ -142,7 +145,9 @@ public class Delivery extends Plan {
     */
   //  TODO:  Consider moving this to the DeliveryUtils' rateTrading method?
   
-  public Delivery withPayment(Owner pays, boolean priceLimit) {
+  //  TODO:  Or see if it can be merged with the hasItemsFrom method below?...
+  
+  public Delivery setWithPayment(Owner pays, boolean priceLimit) {
     
     if (priceLimit && pays != null) {
       final float maxPrice = pays.inventory().credits() / 2;
@@ -159,21 +164,18 @@ public class Delivery extends Plan {
           else break;
         }
         goodsPrice += price;
-        goodsBulk += i.amount;
         canAfford.add(i);
       }
       if (canAfford.size() == 0) return null;
       
       this.shouldPay = pays;
       items = canAfford.toArray(Item.class);
+      hasItemsFrom(origin);
       return this;
     }
     
     else {
-      for (Item i : items) {
-        goodsPrice += i.priceAt(origin);
-        goodsBulk  += i.amount;
-      }
+      hasItemsFrom(origin);
       this.shouldPay = pays;
       return this;
     }
@@ -196,6 +198,20 @@ public class Delivery extends Plan {
     return false;
   }
   
+  
+  private boolean hasItemsFrom(Owner carries) {
+    final Batch <Item> has = new Batch <Item> ();
+    goodsPrice = goodsBulk = 0;
+    for (Item i : items) {
+      final float amount = Nums.min(i.amount, carries.inventory().amountOf(i));
+      has.add(i = Item.withAmount(i, amount));
+      goodsPrice += i.priceAt(origin);
+      goodsBulk  += i.amount;
+    }
+    if (has.size() == 0) return false;
+    this.items = has.toArray(Item.class);
+    return true;
+  }
   
   
   
@@ -280,6 +296,7 @@ public class Delivery extends Plan {
     
     if (stage == STAGE_PICKUP || stage == STAGE_INIT) {
       if (report) I.say("  Performing pickup from "+origin);
+      if (! hasItemsFrom(origin)) return null;
       
       stage = STAGE_PICKUP;
       final Action pickup = new Action(
@@ -293,6 +310,9 @@ public class Delivery extends Plan {
     
     if (stage == STAGE_DROPOFF) {
       if (report) I.say("  Performing dropoff at "+destination);
+      
+      final Owner carries = driven == null ? actor : driven;
+      if (! hasItemsFrom(carries)) return null;
       
       final Action dropoff = new Action(
         actor, destination,
@@ -436,9 +456,11 @@ public class Delivery extends Plan {
       return;
     }
     
-    d.append("Delivering");
+    d.append("Delivering ");
     for (Item i : items) {
-      d.append(" "+i.type);
+      //d.append((int) i.amount+" "+i.type);
+      i.describeTo(d);
+      if (i != Visit.last(items)) d.append(", ");
     }
     
     if (origin != actor) {
