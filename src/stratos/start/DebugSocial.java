@@ -79,8 +79,8 @@ public class DebugSocial extends Scenario {
       Sectors.PLANET_DIAPSOR
     );
     
-    if (true ) testCareers(base);
-    if (false) configDialogueScenario(world, base, UI);
+    if (false) testCareers(base);
+    if (true ) configDialogueScenario(world, base, UI);
     if (false) configArtilectScenario(world, base, UI);
     if (false) configContactScenario (world, base, UI);
     if (false) configWildScenario    (world, base, UI);
@@ -148,19 +148,19 @@ public class DebugSocial extends Scenario {
     ruins.structure.setState(Structure.STATE_INTACT, healthLevel);
     
     UI.assignBaseSetup(artilects, ruins.position(null));
-    
-    //  TODO:  Modify this to work correctly!
     artilects.setup.fillVacancies(ruins, true);
-    //Artilect lives = (Artilect) ruins.staff.workers().first();
-    /*
-    Ruins.populateArtilects(
-      world, ruins, true,
-      new Tripod(artilects),
-      lives = new Cranial(artilects)
-    );
-    //*/
     
-    final Human subject = new Human(Backgrounds.COMPANION, base);
+    final Career career = new Career(
+      Backgrounds.COMPANION,
+      Backgrounds.BORN_GELDER,
+      Sectors.PLANET_AXIS_NOVENA,
+      null
+    );
+    final Human subject = new Human(career, base);
+    
+    I.say("Subject race is: "+Human.raceFor(subject));
+    I.say("Subject gender is: "+subject.traits.genderDescription());
+    
     subject.enterWorldAt(22, 29, world);
     subject.health.takeInjury(subject.health.maxHealth() + 1, true);
     subject.health.setState(ActorHealth.STATE_DYING);

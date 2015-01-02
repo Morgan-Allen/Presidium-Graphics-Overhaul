@@ -55,8 +55,10 @@ public class DeviceType extends Traded {
     
     this.baseDamage = baseDamage;
     this.properties = properties;
-    this.materials = new Conversion(facility, Visit.compose(
-      Object.class, conversionArgs, new Object[] { TO, 1, this })
+    this.materials = new Conversion(
+      facility, name+"_manufacture", Visit.compose(
+        Object.class, conversionArgs, new Object[] { TO, 1, this }
+      )
     );
     setPrice(basePrice, materials);
     

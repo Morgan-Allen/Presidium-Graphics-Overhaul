@@ -23,17 +23,26 @@ public class Index <T extends Index.Entry> implements Iterable <T> {
     final Index index;
     private int uniqueID = -1;
     
+    
     protected Entry(Index index, String key) {
+      if (key == null) I.complain("KEY MUST NOT BE NULL!");
       this.index = index;
       this.key = key;
       index.addEntry(this, key);
     }
     
+    
     public int uniqueID() {
       index.assignIDs();
       return uniqueID;
     }
+    
+    
+    public String entryKey() {
+      return key;
+    }
   }
+  
   
   private Object asArray[] = null;
   private Batch <T> addedSoFar = new Batch <T> ();

@@ -82,7 +82,7 @@ public class Wording implements Qualities {
     final Background birth = actor.career().birth();
     final boolean female = actor.traits.female();
     
-    if (birth == Backgrounds.NATIVE_BIRTH) {
+    if (birth == Backgrounds.BORN_NATIVE) {
       final String pick[] = female ? NATIVE_FN : NATIVE_MN;
       names.add((String) Rand.pickFrom(pick));
       if (Rand.yes()) {
@@ -98,20 +98,20 @@ public class Wording implements Qualities {
       }
     }
     
-    if (birth == Backgrounds.PYON_BIRTH || birth == Backgrounds.DREGS_BIRTH) {
+    if (birth == Backgrounds.BORN_PYON || birth == Backgrounds.BORN_DREGS) {
       final String pick[] = female ? PYON_FN : PYON_MN;
       names.add((String) Rand.pickFrom(pick));
       final String LN[] = PYON_LN;
       names.add((String) Rand.pickFrom(LN));
     }
     
-    if (birth == Backgrounds.FREE_BIRTH || birth == Backgrounds.GELDER_BIRTH) {
+    if (birth == Backgrounds.BORN_FREE || birth == Backgrounds.BORN_GELDER) {
       final String pick[] = female ? CITIZEN_FN : CITIZEN_MN;
       names.add((String) Rand.pickFrom(pick));
       names.add((String) Rand.pickFrom(CITIZEN_LN));
     }
     
-    if (birth == Backgrounds.HIGH_BIRTH) {
+    if (birth == Backgrounds.BORN_HIGH) {
       final String pick[] = female ? HIGHBORN_FN : HIGHBORN_MN;
       names.add((String) Rand.pickFrom(pick));
       names.add((String) Rand.pickFrom(HIGHBORN_HN));

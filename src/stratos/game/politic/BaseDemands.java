@@ -105,7 +105,7 @@ public class BaseDemands {
     //  Now, for each good being demanded, find conversions which produce it,
     //  and increment demand for (A) their raw materials, (B) their production
     //  facilities, and (C) their associated skills.
-    for (Conversion c : Conversion.allConversions()) {
+    for (Conversion c : Conversion.INDEX) {
       if (c.out == null || c.facility == null) continue;
       float needed = demand.valueFor(c.out.type);
       needed /= c.out.amount;

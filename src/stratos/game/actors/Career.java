@@ -3,9 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
-
 package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.game.economic.*;
@@ -199,7 +196,7 @@ public class Career implements Qualities {
       return;
     }
     else if (base.isNative()) {
-      birth = Backgrounds.NATIVE_BIRTH;
+      birth = Backgrounds.BORN_NATIVE;
     }
     else {
       //  TODO:  What about noble birth?  What triggers that?
@@ -386,6 +383,7 @@ public class Career implements Qualities {
   final static float
     STRAIGHT_CHANCE = 0.85f,
     BISEXUAL_CHANCE = 0.55f,
+    TRANS_CHANCE    = 0.05f,
     
     RACE_CLIMATE_CHANCE  = 0.65f,
     HALF_CLIMATE_CHANCE  = 0.35f;
@@ -413,12 +411,12 @@ public class Career implements Qualities {
     
     if (gender == null) {
       final float
-        rateM = ratePromotion(Backgrounds.MALE_BIRTH  , actor, verbose),
-        rateF = ratePromotion(Backgrounds.FEMALE_BIRTH, actor, verbose);
+        rateM = ratePromotion(Backgrounds.BORN_MALE  , actor, verbose),
+        rateF = ratePromotion(Backgrounds.BORN_FEMALE, actor, verbose);
       if (rateM * Rand.avgNums(2) > rateF * Rand.avgNums(2)) {
-        gender = Backgrounds.MALE_BIRTH;
+        gender = Backgrounds.BORN_MALE;
       }
-      else gender = Backgrounds.FEMALE_BIRTH;
+      else gender = Backgrounds.BORN_FEMALE;
     }
     applyBackground(gender, actor);
     
@@ -426,15 +424,11 @@ public class Career implements Qualities {
     //  citizens?
     
     float ST = Nums.clamp(Rand.rangeAvg(-1, 3, 2), 0, 3);
-    if (Rand.index(20) == 0) ST = -1;
-    if (gender == Backgrounds.FEMALE_BIRTH) {
-      actor.traits.setLevel(GENDER_FEMALE, 1);
-      actor.traits.setLevel(FEMININE, ST);
-    }
-    else {
-      actor.traits.setLevel(GENDER_MALE, 1);
-      actor.traits.setLevel(FEMININE, 0 - ST);
-    }
+    if (Rand.num() < TRANS_CHANCE) ST = -1;
+    final int GT = gender == Backgrounds.BORN_FEMALE ? 1 : -1;
+    actor.traits.setLevel(GENDER_FEMALE,      GT);
+    actor.traits.setLevel(GENDER_MALE  ,     -GT);
+    actor.traits.setLevel(FEMININE     , ST * GT);
     actor.traits.setLevel(
       ORIENTATION,
        Rand.num() < STRAIGHT_CHANCE ? "Heterosexual" :
@@ -463,13 +457,22 @@ public class Career implements Qualities {
       float chance = 1;
       if (n                    == raceID) chance /= 1 - RACE_CLIMATE_CHANCE;
       if (Nums.abs(raceID - n) == 1     ) chance /= 1 - HALF_CLIMATE_CHANCE;
+      if (report) {
+        I.say("  Base chance for "+RACIAL_TRAITS[n]+" is: "+chance);
+      }
+      chance *= Rand.avgNums(2);
       sumChances += chance;
-      racePick.compare(RACIAL_TRAITS[n], chance * Rand.avgNums(2));
+      racePick.compare(RACIAL_TRAITS[n], chance);
     }
     final Trait race = racePick.result();
     final float raceChance = racePick.bestRating() / sumChances;
     actor.traits.setLevel(race, (raceChance + 1) / 2);
-    if (report) I.say("  RACE PICKED: "+race+", CHANCE: "+raceChance);
+    if (report) {
+      I.say("  RACE PICKED: "+race+", CHANCE: "+raceChance);
+      for (Trait t : RACIAL_TRAITS) {
+        I.say("  Level of "+t+" is "+actor.traits.traitLevel(t));
+      }
+    }
     //  TODO:  Blend these a bit more, once you have the graphics in order?
     
     //

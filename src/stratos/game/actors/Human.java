@@ -8,19 +8,16 @@
 package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.maps.*;
-import stratos.game.plans.Combat;
-import stratos.game.plans.CombatFX;
-import stratos.game.wild.Species;
+import stratos.game.plans.*;
 import stratos.graphics.common.*;
-import stratos.graphics.sfx.*;
 import stratos.graphics.solids.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
+import stratos.game.wild.Species;
 
 
-//  TODO:  Replace with 'Person' or 'Citizen'.
+//  TODO:  Replace with 'Person' or 'Citizen'?
 
 
 public class Human extends Actor implements Qualities {
@@ -28,34 +25,8 @@ public class Human extends Actor implements Qualities {
   
   /**  Methods and constants related to preparing media and sprites-
     */
-  final static String
-    FILE_DIR = "media/Actors/human/",
-    XML_FILE = "HumanModels.xml";
-  final public static ModelAsset
-    MODEL_MALE = MS3DModel.loadFrom(
-      FILE_DIR, "male_final.ms3d",
-      Human.class, XML_FILE, "MalePrime"
-    ),
-    MODEL_FEMALE = MS3DModel.loadFrom(
-      FILE_DIR, "female_final.ms3d",
-      Human.class, XML_FILE, "FemalePrime"
-    );
-  
-  final static ImageAsset
-    PORTRAIT_BASE = ImageAsset.fromImage(
-      Human.class, FILE_DIR+"portrait_base.png"
-    ),
-    BASE_FACES = ImageAsset.fromImage(
-      Human.class, FILE_DIR+"face_portraits.png"
-    );
-  
-  final static ImageAsset BLOOD_SKINS[] = ImageAsset.fromImages(
-    Human.class, FILE_DIR,
-    "desert_blood.gif",
-    "tundra_blood.gif",
-    "forest_blood.gif",
-    "wastes_blood.gif"
-  );
+  private static boolean
+    mediaVerbose = true;
   
   
   
@@ -111,6 +82,43 @@ public class Human extends Actor implements Qualities {
   //
   //  All this stuff is intimately dependant on the layout of the collected
   //  portraits image specified- do not modify without close inspection.
+  
+  //  TODO:  Use an image-atlas here- or better yet, just individual images.
+  //  You're using composites for efficiency anyway!
+  final static String
+    FILE_DIR = "media/Actors/human/",
+    XML_FILE = "HumanModels.xml";
+  final public static ModelAsset
+    MODEL_MALE = MS3DModel.loadFrom(
+      FILE_DIR, "male_final.ms3d",
+      Human.class, XML_FILE, "MalePrime"
+    ),
+    MODEL_FEMALE = MS3DModel.loadFrom(
+      FILE_DIR, "female_final.ms3d",
+      Human.class, XML_FILE, "FemalePrime"
+    );
+  
+  final static ImageAsset
+    PORTRAIT_BASE = ImageAsset.fromImage(
+      Human.class, FILE_DIR+"portrait_base.png"
+    ),
+    BASE_FACES = ImageAsset.fromImage(
+      Human.class, FILE_DIR+"face_portraits.png"
+    );
+  
+  final static ImageAsset BLOOD_SKINS[] = ImageAsset.fromImages(
+    Human.class, FILE_DIR,
+    "desert_blood.gif",
+    "wastes_blood.gif",
+    "tundra_blood.gif",
+    "forest_blood.gif"
+  );
+  
+  
+  final static Trait RACE_TRAITS_LISTING[] = {
+    DESERT_BLOOD, WASTES_BLOOD, TUNDRA_BLOOD, FOREST_BLOOD
+  };
+  
   final static int
     CHILD_FACE_OFF[] = {2, 0},
     ELDER_FACE_OFF[] = {2, 1},
@@ -124,13 +132,13 @@ public class Human extends Actor implements Qualities {
     F_HAIR_OFF[][] = {{2, 5}, {1, 5}, {0, 5}, {0, 4}, {1, 4}, {2, 4}};
   
   final static int BLOOD_FACE_OFFSETS[][] = {
-    {3, 4}, {0, 4}, {3, 2}, {0, 2}
+    {3, 4}, {0, 2}, {0, 4}, {3, 2}
   };
-  final static int BLOOD_TONE_SHADES[] = { 3, 1, 2, 0 };
+  final static int BLOOD_TONE_SHADES[] = { 3, 0, 1, 2 };
   
   
   public static Trait raceFor(Human c) {
-    return RACIAL_TRAITS[bloodID(c)];
+    return RACE_TRAITS_LISTING[bloodID(c)];
   }
   
   
@@ -138,7 +146,7 @@ public class Human extends Actor implements Qualities {
     int ID = 0;
     float highest = 0;
     for (int i = 4; i-- > 0;) {
-      final float blood = c.traits.traitLevel(RACIAL_TRAITS[i]);
+      final float blood = c.traits.traitLevel(RACE_TRAITS_LISTING[i]);
       if (blood > highest) { ID = i; highest = blood; }
     }
     return ID;
@@ -146,10 +154,15 @@ public class Human extends Actor implements Qualities {
   
   
   private static Composite faceComposite(Human c) {
+    //  TODO:  Also refresh if equipment or vocation changes!
     final String key = ""+c.hashCode();
-    
     final Composite cached = Composite.fromCache(key);
     if (cached != null) return cached;
+    
+    final boolean report = mediaVerbose && I.talkAbout == c;
+    if (report) {
+      I.say("\nGetting new face composite for "+c);
+    }
     
     final int PS = SelectionInfoPane.PORTRAIT_SIZE;
     final Composite composite = Composite.withSize(PS, PS, key);
@@ -158,10 +171,15 @@ public class Human extends Actor implements Qualities {
     final int bloodID = bloodID(c);
     final boolean male = c.traits.male();
     final int ageStage = c.health.agingStage();
-    ///I.say("Blood/male/age-stage: "+bloodID+" "+male+" "+ageStage);
+    
+    if (report) {
+      I.say("  Blood/male/age-stage: "+bloodID+" "+male+" "+ageStage);
+    }
     
     int faceOff[], bloodOff[] = BLOOD_FACE_OFFSETS[bloodID];
-    if (ageStage == 0) faceOff = CHILD_FACE_OFF;
+    if (ageStage == 0) {
+      faceOff = CHILD_FACE_OFF;
+    }
     else {
       int looks = (int) c.traits.traitLevel(Trait.HANDSOME) + 2 - ageStage;
       if (looks > 0) faceOff = male ? M_HOT_FACE_OFF : F_HOT_FACE_OFF;

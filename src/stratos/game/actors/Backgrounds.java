@@ -67,13 +67,13 @@ public interface Backgrounds {
   
   
   final public static Background
-    MALE_BIRTH = new Background(
+    BORN_MALE = new Background(
       Backgrounds.class,
       "Born Male", "", null, null, NOT_A_CLASS, NOT_A_GUILD,
       3, MUSCULAR, 1, MOTOR, SOMETIMES, TALL,
       RARELY, FEMININE, ALWAYS, GENDER_MALE, NEVER, GENDER_FEMALE
     ),
-    FEMALE_BIRTH = new Background(
+    BORN_FEMALE = new Background(
       Backgrounds.class,
       "Born Female", "", null, null, NOT_A_CLASS, NOT_A_GUILD,
       2, IMMUNE, 2, PERCEPT, RARELY, STOUT,
@@ -81,29 +81,29 @@ public interface Backgrounds {
     ),
     //
     //  Natives can only be recruited locally, not from offworld.
-    NATIVE_BIRTH = new Background(
+    BORN_NATIVE = new Background(
       Backgrounds.class,
       "Born Native", "", "native_skin.gif", null, NOT_A_CLASS, NOT_A_GUILD,
       LEARNING, NATIVE_TABOO, NOVICE, HANDICRAFTS, MARKSMANSHIP, XENOZOOLOGY
     ),
     //
     //  The following are available to most actors as part of their careers-
-    DREGS_BIRTH = new Background(
+    BORN_DREGS = new Background(
       Backgrounds.class,
       "Born Dreg", "", "artificer_skin.gif", null, CLASS_SLAVE, NOT_A_GUILD,
       LEARNING, COMMON_CUSTOM, NOVICE, NATIVE_TABOO, HAND_TO_HAND, CHEMISTRY
     ),
-    PYON_BIRTH = new Background(
+    BORN_PYON = new Background(
       Backgrounds.class,
       "Born Pyon", "", "pyon_skin.gif", null, CLASS_VASSAL, NOT_A_GUILD,
       LEARNING, COMMON_CUSTOM, NOVICE, HARD_LABOUR, DOMESTICS, ASSEMBLY
     ),
-    FREE_BIRTH = new Background(
+    BORN_FREE = new Background(
       Backgrounds.class,
       "Born Free", "", "citizen_skin.gif", null, CLASS_FREEMEN, NOT_A_GUILD,
       LEARNING, COMMON_CUSTOM, NOVICE, SUASION, MARKSMANSHIP, PILOTING
     ),
-    GELDER_BIRTH = new Background(
+    BORN_GELDER = new Background(
       Backgrounds.class,
       "Born Gelder", "", "vendor_skin.gif", null, CLASS_FREEMEN, NOT_A_GUILD,
       LEARNING, COMMON_CUSTOM, NOVICE, NOBLE_ETIQUETTE, ACCOUNTING, COUNSEL
@@ -111,19 +111,19 @@ public interface Backgrounds {
     //
     //  Highborn are not available as normally-generated citizens, only as
     //  visiting NPCs or members of your household.
-    LANDER_BIRTH = new Background(
+    BORN_LANDER = new Background(
       Backgrounds.class,
       "Born Lander", "", "highborn_male_skin.gif", null, CLASS_STRATOI,
       LEARNING, NOBLE_ETIQUETTE,
       NOVICE, COMMON_CUSTOM, HAND_TO_HAND, ACCOUNTING
     ),
-    HIGH_BIRTH = new Background(
+    BORN_HIGH = new Background(
       Backgrounds.class,
       "Born High", "", "highborn_male_skin.gif", null, CLASS_STRATOI,
       LEARNING, NOBLE_ETIQUETTE, NOVICE, COMMAND, HAND_TO_HAND, ANCIENT_LORE
     ),
     
-    OPEN_CLASSES[] = { DREGS_BIRTH, PYON_BIRTH, FREE_BIRTH, GELDER_BIRTH };
+    OPEN_CLASSES[] = { BORN_DREGS, BORN_PYON, BORN_FREE, BORN_GELDER };
   
   
   

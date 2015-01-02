@@ -21,7 +21,7 @@ public class Dialogue extends Plan implements Qualities {
   /**  Constants, data fields, constructors and save/load methods-
     */
   private static boolean
-    evalVerbose  = true ,
+    evalVerbose  = false,
     stepsVerbose = false;
   
   final public static int

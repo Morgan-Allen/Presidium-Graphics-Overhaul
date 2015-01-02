@@ -243,10 +243,10 @@ public class StartupScenario extends Scenario {
     final Background vocation = Backgrounds.RULING_POSITIONS[station];
     final Background birth;
     if (Rand.num() < promoteChance) {
-      if (Rand.num() < promoteChance) birth = Backgrounds.FREE_BIRTH;
-      else birth = Backgrounds.GELDER_BIRTH;
+      if (Rand.num() < promoteChance) birth = Backgrounds.BORN_FREE;
+      else birth = Backgrounds.BORN_GELDER;
     }
-    else birth = Backgrounds.HIGH_BIRTH;
+    else birth = Backgrounds.BORN_HIGH;
     
     final Background house = config.house;
     final Career rulerCareer = new Career(vocation, birth, house, config.gender);

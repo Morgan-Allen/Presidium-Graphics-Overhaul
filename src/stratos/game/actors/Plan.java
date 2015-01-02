@@ -543,6 +543,15 @@ public abstract class Plan implements Saveable, Behaviour {
   }
   
   
+  /*
+  //  TODO:  INTRODUCE THIS TO DANGER ASSESSMENT FOR PLANS IN GENERAL
+  float riskFactor = 0.5f;
+  final Base owns = actor.world().claims.baseClaiming(lookedAt);
+  if      (owns == base) riskFactor = 0;
+  else if (owns != null) riskFactor -= owns.relations.relationWith(base);
+  riskFactor *= (1 + Plan.dangerPenalty(lookedAt, actor)) / 2;
+  //*/
+  
   public static float dangerPenalty(Target t, Actor actor) {
     final boolean report = evalVerbose && I.talkAbout == actor;
     //

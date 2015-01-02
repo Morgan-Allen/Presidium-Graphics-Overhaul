@@ -31,8 +31,10 @@ public class OutfitType extends Traded {
     
     this.defence = defence;
     this.shieldBonus = shieldBonus;
-    this.materials = new Conversion(facility, Visit.compose(
-      Object.class, conversionArgs, new Object[] { TO, 1, this })
+    this.materials = new Conversion(
+      facility, name+"_manufacture", Visit.compose(
+        Object.class, conversionArgs, new Object[] { TO, 1, this }
+      )
     );
     setPrice(basePrice, materials);
     

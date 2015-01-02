@@ -460,8 +460,11 @@ public class Action implements Behaviour, AnimNames {
   public void applyEffect() {
     try { toCall.invoke(basis, actor, actionTarget); }
     catch (Exception e) {
-      I.say("PROBLEM WITH ACTION: "+toCall.getName());
-      I.report(e);
+      I.say(
+        "\nPROBLEM WITH ACTION: "+toCall.getName()+
+        "("+actor+", "+actionTarget+")"
+      );
+      e.printStackTrace();
     }
   }
   

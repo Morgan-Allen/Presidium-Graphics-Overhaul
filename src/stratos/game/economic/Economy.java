@@ -405,72 +405,86 @@ public final class Economy {
   final public static Conversion
     
     METALS_TO_PARTS = new Conversion(
-      EngineerStation.class, 1, ORES, TO, 2, PARTS,
+      EngineerStation.class, "metals_to_parts",
+      1, ORES, TO, 2, PARTS,
       MODERATE_DC, ASSEMBLY, SIMPLE_DC, CHEMISTRY
     ),
     
     CARBS_TO_LCHC = new Conversion(
-      Fabricator.class, 1, CARBS, TO, 1, LCHC,
+      Fabricator.class, "carbs_to_lchc",
+      1, CARBS, TO, 1, LCHC,
       SIMPLE_DC, CHEMISTRY
     ),
     
     LCHC_TO_PLASTICS = new Conversion(
-      Fabricator.class, 1, LCHC, TO, 1, PLASTICS,
+      Fabricator.class, "lchc_to_plastics",
+      1, LCHC, TO, 1, PLASTICS,
       ROUTINE_DC, CHEMISTRY, SIMPLE_DC, HANDICRAFTS
     ),
     
     PLASTICS_TO_DECOR = new Conversion(
-      Fabricator.class, 2, PLASTICS, TO, 1, DECOR,
+      Fabricator.class, "plastics_to_decor",
+      2, PLASTICS, TO, 1, DECOR,
       STRENUOUS_DC, GRAPHIC_DESIGN, MODERATE_DC, HANDICRAFTS
     ),
     
     PLASTICS_TO_PRESSFEED = new Conversion(
-      EnforcerBloc.class, 1, PLASTICS, TO, 10, PRESSFEED,
+      EnforcerBloc.class, "plastics_to_pressfeed",
+      1, PLASTICS, TO, 10, PRESSFEED,
       SIMPLE_DC, ACCOUNTING, DIFFICULT_DC, GRAPHIC_DESIGN
     ),
     
     PARTS_TO_DATALINKS = new Conversion(
-      Archives.class, 1, PARTS, TO, 5, DATALINKS,
+      Archives.class, "parts_to_datalinks",
+      1, PARTS, TO, 5, DATALINKS,
       MODERATE_DC, INSCRIPTION, SIMPLE_DC, ASSEMBLY, ACCOUNTING
     ),
     
     METALS_TO_FUEL = new Conversion(
-      Reactor.class, 10, ORES, TO, 1, ANTIMASS,
+      Reactor.class, "metals_to_fuel",
+      10, ORES, TO, 1, ANTIMASS,
       MODERATE_DC, CHEMISTRY, MODERATE_DC, FIELD_THEORY
     ),
     
     WASTE_TO_CARBS = new Conversion(
-      CultureLab.class, TO, 1, CARBS,
+      CultureLab.class, "waste_to_carbs",
+      TO, 1, CARBS,
       SIMPLE_DC, CHEMISTRY
     ),
     CARBS_TO_PROTEIN = new Conversion(
-      CultureLab.class, 2, CARBS, TO, 1, PROTEIN,
+      CultureLab.class, "carbs_to_protein",
+      2, CARBS, TO, 1, PROTEIN,
       ROUTINE_DC, CHEMISTRY, ROUTINE_DC, GENE_CULTURE
     ),
     PROTEIN_TO_REPLICANTS = new Conversion(
-      CultureLab.class, 5, PROTEIN, TO, 1, REPLICANTS,
+      CultureLab.class, "protein_to_replicants",
+      5, PROTEIN, TO, 1, REPLICANTS,
       MODERATE_DC, GENE_CULTURE, ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
     ),
     WASTE_TO_SOMA = new Conversion(
-      CultureLab.class, TO, 1, SOMA,
+      CultureLab.class, "waste_to_soma",
+      TO, 1, SOMA,
       ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
     ),
     WASTE_TO_REAGENTS = new Conversion(
-      CultureLab.class, TO, 1, REAGENTS,
+      CultureLab.class, "waste_to_reagents",
+      TO, 1, REAGENTS,
       ROUTINE_DC, PHARMACY, ROUTINE_DC, CHEMISTRY
     ),
     CARBS_TO_NATRI_SPYCE = new Conversion(
-      CultureLab.class, 2, CARBS, 5, REAGENTS, TO, 1, SPYCE_N,
+      CultureLab.class, "carbs_to_spyce_n",
+      2, CARBS, 5, REAGENTS, TO, 1, SPYCE_N,
       DIFFICULT_DC, PHARMACY, DIFFICULT_DC, CHEMISTRY
     ),
     PROTEIN_TO_TINER_SPYCE = new Conversion(
-      CultureLab.class, 2, PROTEIN, 5, REAGENTS, TO, 1, SPYCE_T,
+      CultureLab.class, "carbs_to_spyce_t",
+      2, PROTEIN, 5, REAGENTS, TO, 1, SPYCE_T,
       DIFFICULT_DC, PHARMACY, DIFFICULT_DC, CHEMISTRY
     ),
     
-    
     REAGENTS_TO_MEDICINE = new Conversion(
-      PhysicianStation.class, 1, REAGENTS, TO, 1, MEDICINE,
+      PhysicianStation.class, "reagents_to_medicine",
+      1, REAGENTS, TO, 1, MEDICINE,
       MODERATE_DC, CHEMISTRY, ROUTINE_DC, PHARMACY
     );
   

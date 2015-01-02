@@ -63,11 +63,11 @@ public class MainMenu extends UIGroup {
     
     text.append("\n  Gender:");
     Call.add(
-      "\n    Male", (config.gender == MALE_BIRTH) ? Colour.CYAN : null,
+      "\n    Male", (config.gender == BORN_MALE) ? Colour.CYAN : null,
       this, "setGender", text, true
     );
     Call.add(
-      "\n    Female", (config.gender == FEMALE_BIRTH) ? Colour.CYAN : null,
+      "\n    Female", (config.gender == BORN_FEMALE) ? Colour.CYAN : null,
       this, "setGender", text, false
     );
     text.append("\n      ");
@@ -127,7 +127,7 @@ public class MainMenu extends UIGroup {
   
   
   public void setGender(Object args[]) {
-    config.gender = ((Boolean) args[0]) ? MALE_BIRTH : FEMALE_BIRTH;
+    config.gender = ((Boolean) args[0]) ? BORN_MALE : BORN_FEMALE;
     configForNew(null);
   }
   
@@ -212,7 +212,7 @@ public class MainMenu extends UIGroup {
     describePerk(1, config.fundsLevel, "Funding Level", FUNDING_DESC);
     describePerk(
       2, config.titleLevel, "Granted Title",
-      (config.gender == MALE_BIRTH) ? TITLE_MALE : TITLE_FEMALE
+      (config.gender == BORN_MALE) ? TITLE_MALE : TITLE_FEMALE
     );
     
     text.append("\n  Colonists:");

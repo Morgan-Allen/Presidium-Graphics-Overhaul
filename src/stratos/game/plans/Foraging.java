@@ -158,8 +158,10 @@ public class Foraging extends Plan {
   
   
   public boolean actionForage(Actor actor, Flora source) {
+    //if (true) return false;
+    
     if (source == null || source.destroyed()) {
-      source = null;
+      this.source = null;
       return false;
     }
     
@@ -173,14 +175,14 @@ public class Foraging extends Plan {
     Resting.dineFrom(actor, actor);
     
     if (labour > 0 && skill > 0) {
-      actor.gear.bumpItem(CARBS, labour * 0.1f);
+      actor.gear.bumpItem(CARBS , labour         * 0.1f);
       actor.gear.bumpItem(GREENS, skill * labour * 0.1f);
       source.incGrowth(-0.1f * (skill + labour), actor.world(), false);
-      source = null;
       return true;
     }
-    else source.incGrowth(-0.1f / 2f, actor.world(), false);
-    source = null;
+    else {
+      source.incGrowth(-0.1f / 2f, actor.world(), false);
+    }
     return false;
   }
   

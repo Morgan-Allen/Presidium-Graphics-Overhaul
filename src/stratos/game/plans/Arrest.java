@@ -366,8 +366,11 @@ public class Arrest extends Plan {
       d.append(subject);
     }
     if (stage >= STAGE_REPORT) {
-      d.append("Filing a report of ");
-      d.append(observed.description());
+      d.append("Filing a report");
+      if (observed != null) {
+        d.append(" of ");
+        d.append(observed.description());
+      }
       d.append(" against ");
       d.append(subject);
     }

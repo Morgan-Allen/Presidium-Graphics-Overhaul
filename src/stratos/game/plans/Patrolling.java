@@ -34,7 +34,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   
   private static boolean
     evalVerbose  = false,
-    stepsVerbose = false;
+    stepsVerbose = true ;
   
   final int type;
   final Element guarded;

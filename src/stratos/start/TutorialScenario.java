@@ -210,31 +210,31 @@ public class TutorialScenario extends StartupScenario {
   /**  Monitoring and updates-
     */
   final String
-    TITLE_WELCOME    = "Welcome",
-    TITLE_OBJECTIVES = "Order of Business",
-    TITLE_SECURITY   = "Objective 1: Security",
-    TITLE_CONTACT    = "Objective 2: Contact",
+    TITLE_WELCOME    = "Welcome"                    ,
+    TITLE_OBJECTIVES = "Order of Business"          ,
+    TITLE_SECURITY   = "Objective 1: Security"      ,
+    TITLE_CONTACT    = "Objective 2: Contact"       ,
     TITLE_ECONOMY    = "Objective 3: Economy Basics",
-    TITLE_NAVIGATION = "Navigation Basics",
+    TITLE_NAVIGATION = "Navigation Basics"          ,
     
-    TITLE_EXPLAIN_EXPAND    = "Expanding your Base",
-    TITLE_EXPLAIN_DEFEND    = "Defending your Base",
-    TITLE_EXPLAIN_CONTACT   = "Diplomacy Missions",
+    TITLE_EXPLAIN_EXPAND    = "Expanding your Base"  ,
+    TITLE_EXPLAIN_DEFEND    = "Defending your Base"  ,
+    TITLE_EXPLAIN_CONTACT   = "Diplomacy Missions"   ,
     TITLE_EXPLAIN_INTERVIEW = "Interviewing Citizens",
-    TITLE_EXPLAIN_SUPPLY    = "Getting Supplies",
-    TITLE_EXPLAIN_INDUSTRY  = "Housing and Industry",
+    TITLE_EXPLAIN_SUPPLY    = "Getting Supplies"     ,
+    TITLE_EXPLAIN_INDUSTRY  = "Housing and Industry" ,
     
     TITLE_SECURITY_DONE   = "Security Objective Complete",
-    TITLE_CONTACT_DONE    = "Contact Objective Complete",
-    TITLE_ECONOMY_DONE    = "Economy Objective Complete",
-    TITLE_CONGRATULATIONS = "Tutorial Complete!";
+    TITLE_CONTACT_DONE    = "Contact Objective Complete" ,
+    TITLE_ECONOMY_DONE    = "Economy Objective Complete" ,
+    TITLE_CONGRATULATIONS = "Tutorial Complete!"         ;
   
   protected boolean showMessages() { return true; }
   
   
   private void pushMessage(String title) {
     final CommsPanel comms = UI().commsPanel();
-    if (UI().selection.selected() instanceof Element) return;
+    //if (UI().selection.selected() instanceof Element) return;
     
     if (! comms.hasMessage(title)) {
       if (verbose) I.say("PUSHING NEW MESSAGE: "+title);
