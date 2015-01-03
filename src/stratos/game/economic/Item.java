@@ -215,7 +215,7 @@ public class Item {
       type.form == FORM_OUTFIT ||
       type.form == FORM_USABLE
     ) {
-      s = QUAL_NAMES[(int) (quality + 0.5f)]+" "+s;
+      s = descQuality()+" "+s;
     }
     else if (refers == null && amount != ANY) {
       s = (I.shorten(amount, 1))+" "+s;
@@ -231,6 +231,11 @@ public class Item {
       d.append(refers);
       d.append(")");
     }
+  }
+  
+  
+  public String descQuality() {
+    return QUAL_NAMES[(int) (quality + 0.5f)];
   }
   
   

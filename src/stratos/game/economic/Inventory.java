@@ -94,6 +94,12 @@ public class Inventory {
   }
   
   
+  public void transferCredits(float inc, Owner other) {
+    incCredits(0 - inc);
+    other.inventory().incCredits(inc);
+  }
+  
+  
   public float credits() {
     return credits + taxed;
   }

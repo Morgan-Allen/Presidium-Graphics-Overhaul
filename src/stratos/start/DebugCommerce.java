@@ -83,9 +83,10 @@ public class DebugCommerce extends Scenario {
     //  TODO:  Try giving the residents pots of money instead...
     //GameSettings.freeHousingLevel = 0;
     
-    if (false) archivesScenario(world, base, UI);
+    if (false) shoppingScenario(world, base, UI);
     if (false) runnersScenario (world, base, UI);
-    if (true ) shippingScenario(world, base, UI);
+    if (false) shippingScenario(world, base, UI);
+    if (true ) deliveryScenario(world, base, UI);
   }
   
   
@@ -103,13 +104,6 @@ public class DebugCommerce extends Scenario {
     
     base.commerce.updateCommerce(0);
     base.commerce.scheduleDrop(5);
-  }
-  
-  
-  private void archivesScenario(Stage world, Base base, BaseUI UI) {
-    
-    final Venue archives = new Archives(base);
-    Placement.establishVenue(archives, 10, 5, true, world);
   }
   
   
@@ -152,7 +146,7 @@ public class DebugCommerce extends Scenario {
   }
   
   
-  private void configPurchaseScenario(Stage world, Base base, BaseUI UI) {
+  private void purchaseScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.needsFree = true;
     
     Actor citizen = null;
@@ -162,6 +156,7 @@ public class DebugCommerce extends Scenario {
       citizen.gear.incCredits(1000);
     }
     UI.selection.pushSelection(citizen, true);
+    
     final Venue foundry = new EngineerStation(base);
     Placement.establishVenue(
       foundry, 6, 6, true, world,
@@ -171,6 +166,31 @@ public class DebugCommerce extends Scenario {
     );
     foundry.stocks.bumpItem(Economy.ORES , 40);
     foundry.stocks.bumpItem(Economy.PARTS, 20);
+    
+  }
+  
+  
+  private void deliveryScenario(Stage world, Base base, BaseUI UI) {
+    final Venue depot = new SupplyDepot(base);
+    final Venue foundry = new EngineerStation(base);
+    final Actor citizen = new Human(Backgrounds.TECHNICIAN, base);
+    Placement.establishVenue(depot, 11, 1, true, world);
+    Placement.establishVenue(foundry, 6, 6, true, world, citizen);
+    depot.stocks.bumpItem(ORES, 10);
+    
+    final Delivery d = new Delivery(ORES, depot, foundry);
+    d.setWithPayment(foundry, false);
+    citizen.mind.assignBehaviour(d);
+    citizen.setPosition(2, 2, world);
+    
+    UI.selection.pushSelection(citizen, true);
+  }
+  
+  
+  private void shoppingScenario(Stage world, Base base, BaseUI UI) {
+    
+    final Venue archives = new Archives(base);
+    Placement.establishVenue(archives, 10, 5, true, world);
   }
 
   
