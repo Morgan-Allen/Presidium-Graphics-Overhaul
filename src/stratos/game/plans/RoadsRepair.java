@@ -10,10 +10,6 @@ import static stratos.game.actors.Qualities.*;
 
 
 
-//  TODO:  Division of responsibility here isn't nearly efficient enough.  Work
-//  on that.
-
-
 public class RoadsRepair extends Plan {
   
   
@@ -25,29 +21,33 @@ public class RoadsRepair extends Plan {
   
   final Base base;
   final PavingMap map;
+  private StageSection section;
   private Tile around;
   
   
   public RoadsRepair(Actor actor, Tile t) {
-    super(actor, actor.world().sections.sectionAt(t.x, t.y), true, MILD_HELP);
-    this.base = actor.base();
-    this.map = base.paveRoutes.map;
-    this.around = t;
+    super(actor, t.worldSection(), true, MILD_HELP);
+    this.base    = actor.base();
+    this.map     = base.paveRoutes.map;
+    this.section = t.worldSection();
+    this.around  = t;
   }
   
   
   public RoadsRepair(Session s) throws Exception {
     super(s);
-    this.base = (Base) s.loadObject();
-    this.map = base.paveRoutes.map;
-    this.around = (Tile) s.loadObject();
+    this.base    = (Base) s.loadObject();
+    this.map     = base.paveRoutes.map;
+    this.around  = (Tile) s.loadObject();
+    this.section = (StageSection) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(base);
+    s.saveObject(base  );
     s.saveObject(around);
+    s.saveObject(section);
   }
   
   
@@ -64,13 +64,17 @@ public class RoadsRepair extends Plan {
   
   
   protected float getPriority() {
-    if (GameSettings.paveFree) return 0;
-    
+    if (GameSettings.paveFree) return -1;
     final boolean report = evalVerbose && I.talkAbout == actor;
+    
+    if (Plan.competition(this, section, actor) > 0) {
+      if (report) I.say("\nToo much competition for paving!  Will quit.");
+      return -1;
+    }
     return priorityForActorWith(
       actor, around,
       CASUAL, NO_MODIFIER,
-      MILD_HELP, FULL_COMPETITION, MILD_FAIL_RISK,
+      MILD_HELP, NO_COMPETITION, MILD_FAIL_RISK,
       BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report
     );
@@ -100,8 +104,8 @@ public class RoadsRepair extends Plan {
     
     if (around == null || ! map.needsPaving(around)) {
       Tile next = null;
-      if (next == null) next = nextLocalTile();
-      if (next == null) next = map.nextTileToPave(actor, RoadsRepair.class);
+      if (next == null && hasBegun()) next = nextLocalTile();
+      if (next == null) next = map.nextTileToPave(actor, section);
       if (report) I.say("  Next tile to pave: "+next);
       if (next == null) return null;
       else around = next;
@@ -113,7 +117,7 @@ public class RoadsRepair extends Plan {
         this, "actionStrip",
         Action.BUILD, "Stripping "
       );
-      strip.setMoveTarget(Spacing.nearestOpenTile(around, actor));
+      strip.setMoveTarget(Spacing.nearestOpenTile(around, around));
       return strip;
     }
     else {
@@ -122,34 +126,55 @@ public class RoadsRepair extends Plan {
         this, "actionPave",
         Action.BUILD, "Paving "
       );
-      pave.setMoveTarget(Spacing.nearestOpenTile(around, actor));
+      pave.setMoveTarget(Spacing.nearestOpenTile(around, around));
       return pave;
     }
   }
   
   
   private Tile nextLocalTile() {
-    for (Tile t : actor.origin().vicinity(Spacing.tempT9)) {
-      if (t != null && map.needsPaving(t)) return t;
+    final Tile o = actor.origin();
+    final Box2D area = o.area(null).expandBy(2);
+    final Pick <Tile> pick = new Pick <Tile> ();
+    
+    for (Tile t : o.world.tilesIn(area, true)) {
+      if (t.worldSection() != this.section) continue;
+      if (! map.needsPaving(t)) continue;
+      float rating = 0;
+      for (Tile n : t.vicinity(null)) if (n != null) {
+        if (map.needsPaving(n)) rating++;
+      }
+      pick.compare(t, rating);
     }
-    return null;
+    return pick.result();
+  }
+  
+  
+  private int setPavingAround(Tile t, boolean is) {
+    int counter = 0;
+    for (Tile n : t.vicinity(null)) if (n != null) {
+      if (! map.needsPaving(n)) continue;
+      if (n.owningType() > Element.ELEMENT_OWNS) continue;
+      if (is) PavingMap.setPaveLevel(n, StageTerrain.ROAD_LIGHT, true);
+      else PavingMap.setPaveLevel(t, StageTerrain.ROAD_NONE , false);
+      counter++;
+    }
+    return counter;
   }
   
   
   public boolean actionPave(Actor actor, Tile t) {
-    if (! map.needsPaving(t)) return false;
-    if (t.owningType() > Element.ELEMENT_OWNS) return false;
+    final int paved = setPavingAround(t, true);
+    if (paved == 0) return false;
     //  TODO:  Deduct credits (or materials?)
-    PavingMap.setPaveLevel(t, StageTerrain.ROAD_LIGHT, true );
     return true;
   }
   
   
   public boolean actionStrip(Actor actor, Tile t) {
-    if (! map.needsPaving(t)) return false;
-    if (t.owningType() > Element.ELEMENT_OWNS) return false;
+    final int paved = setPavingAround(t, false);
+    if (paved == 0) return false;
     //  TODO:  Reclaim credits (or materials?)
-    PavingMap.setPaveLevel(t, StageTerrain.ROAD_NONE , false);
     return true;
   }
   

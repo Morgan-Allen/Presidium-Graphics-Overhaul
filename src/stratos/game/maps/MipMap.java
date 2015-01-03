@@ -178,19 +178,21 @@ public class MipMap implements TileConstants {
   
   
   
-  
-  
-  /**  Returns a list of all actors within range of the given point.
+  /**  Returns a list of all flagged points within range of the given point.
     */
   public Batch <Coord> allNear(
-    final Stage world, final Target t, final float radius
+    float nX, float nY,
+    final float radius, final Box2D limit, final int maxResults
   ) {
     final Batch <Coord> near = new Batch <Coord> ();
-    final Vec3D tP = t.position(null);
     class Bound extends Box2D { float proximity; }
     final Bound first = new Bound();
+    
+    //  NOTE:  The -0.5f offset is to match up with the layout of tiles within
+    //         the world.
+    //  TODO:  Is that really a good idea?  Consider changing that system.
     first.set(-0.5f, -0.5f, size, size);
-    first.proximity = first.distance(tP.x, tP.y);
+    first.proximity = first.distance(nX, nY);
     
     final Sorting <Bound> sorting = new Sorting <Bound> () {
       public int compare(Bound a, Bound b) {
@@ -198,43 +200,63 @@ public class MipMap implements TileConstants {
         return a.proximity > b.proximity ? 1 : -1;
       }
     };
-    sorting.add(first); while (sorting.size() > 0) {
+    sorting.add(first);
+    
+    while (sorting.size() > 0) {
       final Object closestRef = sorting.leastRef();
       final Bound closest = sorting.refValue(closestRef);
       sorting.deleteRef(closestRef);
       
-      if (closest.proximity > radius) continue;
-      if (closest.xdim() < 2) {
-        near.add(new Coord(
-          (int) (closest.xpos() + 1),
-          (int) (closest.ypos() + 1)
-        ));
-        continue;
+      final int
+        size  = (int) (closest.xdim() + 0.5f),
+        xpos  = (int) (closest.xpos() + 1   ),
+        ypos  = (int) (closest.ypos() + 1   ),
+        depth = sizeToDepth(size);
+      
+      //
+      //  Make sure this section of the map is (A) populated, and (B) within
+      //  range and area constraints, if specified.
+      if (getTotalAt(xpos / size, ypos / size, depth) <= 0) continue;
+      if (radius > 0 && closest.proximity > radius) continue;
+      if (limit != null && ! limit.overlaps(closest)) continue;
+      
+      if (size < 2) {
+        near.add(new Coord(xpos, ypos));
+        if (maxResults > 0 && near.size() >= maxResults) break;
+        else continue;
       }
       
       final float
-        xp = closest.xpos(),
-        yp = closest.ypos(),
-        hw = closest.xdim() / 2f,
-        hh = closest.ydim() / 2f;
+        xp = xpos - 0.5f,
+        yp = ypos - 0.5f,
+        hs = size / 2;
       final Bound
         kidA = new Bound(), kidB = new Bound(),
         kidC = new Bound(), kidD = new Bound();
       
-      kidA.set(xp, yp, hw, hh);
-      kidB.set(xp + hw, yp, hw, hh);
-      kidC.set(xp, yp + hh, hw, hh);
-      kidD.set(xp + hw, yp + hh, hw, hh);
-      kidA.proximity = kidA.distance(tP.x, tP.y);
-      kidB.proximity = kidB.distance(tP.x, tP.y);
-      kidC.proximity = kidC.distance(tP.x, tP.y);
-      kidD.proximity = kidD.distance(tP.x, tP.y);
+      kidA.set(xp     , yp     , hs, hs);
+      kidB.set(xp + hs, yp     , hs, hs);
+      kidC.set(xp     , yp + hs, hs, hs);
+      kidD.set(xp + hs, yp + hs, hs, hs);
+      kidA.proximity = kidA.distance(nX, nY);
+      kidB.proximity = kidB.distance(nX, nY);
+      kidC.proximity = kidC.distance(nX, nY);
+      kidD.proximity = kidD.distance(nX, nY);
       sorting.add(kidA);
       sorting.add(kidB);
       sorting.add(kidC);
       sorting.add(kidD);
     }
     return near;
+  }
+  
+  
+  //  TODO:  These functions could probably replace what you're using to get
+  //  points for exploration in the IntelMap class.  They might even be a
+  //  viable replacement for the PresenceMap (albeit rough or data-intensive.)
+  
+  public Coord nearest(float nX, float nY, float radius, Box2D limit) {
+    return allNear(nX, nY, radius, limit, 1).first();
   }
   
   

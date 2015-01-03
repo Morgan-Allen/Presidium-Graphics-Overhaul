@@ -113,10 +113,10 @@ public abstract class Search <T> {
     //  Create the new entry-
     final Entry newEntry = new Entry();
     newEntry.priorCost = priorCost;
-    newEntry.ETA = estimate(spot);
-    newEntry.total = newEntry.priorCost + newEntry.ETA;
-    newEntry.refers = spot;
-    newEntry.prior = priorEntry;
+    newEntry.ETA       = estimate(spot);
+    newEntry.total     = newEntry.priorCost + newEntry.ETA;
+    newEntry.refers    = spot;
+    newEntry.prior     = priorEntry;
     //
     //  Finally, flagSprite the tile as assessed-
     setEntry(spot, newEntry);
@@ -149,6 +149,12 @@ public abstract class Search <T> {
       length++;
     }
     return length;
+  }
+  
+  
+  protected T priorTo(T spot) {
+    final Entry e = spot == null ? null : entryFor(spot);
+    return (e == null || e.prior == null) ? null : e.prior.refers;
   }
   
   

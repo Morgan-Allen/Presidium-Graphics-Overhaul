@@ -12,7 +12,7 @@ public class StageSection implements Target, Session.Saveable {
     */
   final public Stage world;
   final public Box3D bounds = new Box3D();
-  final public Box2D area = new Box2D();
+  final public Box2D area   = new Box2D();
   final public int x, y, absX, absY, depth, size;
   
   protected StageSection kids[], parent;

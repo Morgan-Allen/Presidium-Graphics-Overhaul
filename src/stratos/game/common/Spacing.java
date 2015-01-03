@@ -216,51 +216,44 @@ public final class Spacing implements TileConstants {
   
   
   
-  /**  Proximity methods-
+  /**  Finding vacant tiles (useful to avoid certain pathing-errors)-
     */
-  /*
-  public static Target nearest(
-    Series <? extends Target> targets, final Target client
-  ) {
-    final Visit <Target> v = new Visit <Target> () {
-      public float rate(Target t) { return 0 - distance(t, client); }
-    };
-    return v.pickBest((Series) targets);
+  private static boolean isOpenTile(Tile t) {
+    if (t == null || t.blocked()) return false;
+    if (t.inside().size() > 0) return false;
+    return true;
   }
-  //*/
   
-
+  
   public static Tile nearestOpenTile(
     Box2D area, Target client, Stage world
   ) {
-    final Vec3D p = client.position(pA);
-    final Tile o = world.tileAt(p.x, p.y);
-    float minDist = Float.POSITIVE_INFINITY;
-    Tile nearest = null;
+    final Vec3D CP = client.position(pA);
+    final Tile o = world.tileAt(CP.x, CP.y);
+    if (isOpenTile(o)) return o;
+    
+    final Pick <Tile> pick = new Pick <Tile> ();
     int numTries = 0;
-    while (nearest == null && numTries++ < (CLUSTER_SIZE / 2)) {
+    
+    while (pick.empty() && ++numTries <= (CLUSTER_SIZE / 2)) {
       for (Tile t : perimeter(area, world)) {
-        if (t == null || t.blocked()) continue;
-        if (t != o && t.inside().size() > 0) continue;
-        final float dist = distance(o, t);
-        if (dist < minDist) { minDist = dist; nearest = t; }
+        if (isOpenTile(t)) pick.compare(t, 0 - distance(o, t));
       }
       area.expandBy(1);
     }
-    return nearest;
+    return pick.result();
+  }
+  
+  
+  public static Tile nearestOpenTile(Tile tile, Target client) {
+    if (tile == null) return null;
+    return nearestOpenTile(tile.area(tB), client, tile.world);
   }
   
   
   public static Tile nearestOpenTile(Target t, Target client) {
     final Tile under = client.world().tileAt(t);
     return nearestOpenTile(under, client);
-  }
-  
-  
-  public static Tile nearestOpenTile(Tile tile, Target client) {
-    if (tile == null) return null;
-    ///if (! tile.blocked()) return tile;
-    return nearestOpenTile(tile.area(tB), client, tile.world);
   }
   
   

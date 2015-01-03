@@ -272,6 +272,9 @@ public class PavingRoutes {
       toggleRoute(route, route.end  , true);
       map.flagForPaving(route.path, true);
     }
+    else if (report) {
+      I.say("Could not find route between "+a+" and "+b+"!");
+    }
     return true;
   }
   

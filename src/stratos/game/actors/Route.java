@@ -71,7 +71,9 @@ public class Route {
   
   public boolean routeEquals(Route other) {
     if (
-      other == null ||
+      other       == null ||
+      other.path  == null ||
+      this.path   == null ||
       other.start != this.start ||
       other.end   != this.end   ||
       other.path.length != this.path.length

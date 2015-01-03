@@ -11,7 +11,7 @@ import stratos.util.*;
 
 /**  A specialised search algorithm used especially for road connections.
   */
-public class RoadSearch extends Search <Tile> {
+public class RoadSearch extends Search <Tile> implements TileConstants {
   
   
   final static float
@@ -21,13 +21,22 @@ public class RoadSearch extends Search <Tile> {
   final Tile destination;
   final int priority;
   final private Tile edges[] = new Tile[4];
+  private int bestDir = -1;
   
   
   public RoadSearch(Tile start, Tile end, int priority) {
     super(start, (Spacing.sumAxisDist(start, end) * 20) + 20);
     this.destination = end;
-    this.terrain = end.world.terrain();
-    this.priority = priority;
+    this.terrain     = end.world.terrain();
+    this.priority    = priority;
+  }
+  
+  
+  private int directionBetween(Tile prior, Tile spot) {
+    final int dir;
+    if (prior.x == spot.x) dir = prior.y > spot.y ? E : W;
+    else                   dir = prior.x > spot.x ? N : S;
+    return dir;
   }
   
   
@@ -40,10 +49,22 @@ public class RoadSearch extends Search <Tile> {
     return Spacing.sumAxisDist(spot, destination) / 2;
   }
   
+
+  protected boolean stepSearch() {
+    if (! super.stepSearch()) return false;
+    final Tile best = bestFound(), prior = priorTo(best);
+    if (prior != null) bestDir = directionBetween(prior, best);
+    return true;
+  }
+  
   
   protected float cost(Tile prior, Tile spot) {
-    if (terrain.isRoad(spot)) return 0.5f;
-    return 1;
+    final float cost = terrain.isRoad(spot) ? 0.5f : 1;
+    if (bestDir != -1) {
+      final int dir = directionBetween(prior, spot);
+      if (dir != bestDir) return cost * 2.5f;
+    }
+    return cost;
   }
   
   

@@ -84,16 +84,14 @@ public final class Tile implements
   }
   
   
+  public StageSection worldSection() {
+    return world.sections.sectionAt(x, y);
+  }
+  
+  
   
   /**  Satisfying the target contract and other similar interfaces.
     */
-  public float elevation() {
-    if (elevation == Float.NEGATIVE_INFINITY) {
-      elevation = world.terrain().trueHeight(x, y);
-    }
-    return elevation;
-  }
-  
   public boolean inWorld() { return true; }
   public boolean destroyed() { return false; }
   public Stage world() { return world; }
@@ -110,7 +108,7 @@ public final class Tile implements
   
   
   
-  /**  Setting path type and occupation-
+  /**  Geographical methods-
     */
   public Habitat habitat() {
     if (habitat != null) return habitat;
@@ -124,6 +122,17 @@ public final class Tile implements
   }
   
   
+  public float elevation() {
+    if (elevation == Float.NEGATIVE_INFINITY) {
+      elevation = world.terrain().trueHeight(x, y);
+    }
+    return elevation;
+  }
+  
+  
+  
+  /**  Setting path type and occupation-
+    */
   public boolean blocked() {
     return pathType() >= PATH_BLOCKS;
   }

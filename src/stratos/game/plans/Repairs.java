@@ -102,7 +102,7 @@ public class Repairs extends Plan {
     //
     //  Then, see if there are tiles which require paving nearby-
     final PavingMap p = client.base().paveRoutes.map;
-    final Tile toPave = p.nextTileToPave(client, RoadsRepair.class);
+    final Tile toPave = p.nextTileToPave(client, null);
     if (toPave != null) {
       final RoadsRepair r = new RoadsRepair(client, toPave);
       if (asDuty) r.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL);

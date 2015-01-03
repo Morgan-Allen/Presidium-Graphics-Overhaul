@@ -142,49 +142,25 @@ public class PavingMap {
   }
   
 
-  /**  Search method for getting the next tile that needs paving.
-    * 
+  /**  Search method for getting the next tile that needs paving...
     */
-  //  TODO:  Try to improve efficiency here.  In the worst-case scenario
-  //  you're looking at checking half the tiles in the world...
-  //  TODO:  Limit to the maximum distance that auto-paving can extend, then
-  //  just check around buildings?
-  public Tile nextTileToPave(final Target client, final Class paveClass) {
-    this.refreshFlags();
-    
+  //  TODO:  To boost efficiency further, you might consider caching results
+  //  for this periodically?
+  
+  public Tile nextTileToPave(final Target client, final StageSection limit) {
+    this.refreshFlags();  //  Used strictly for debugging.
     final boolean report = searchVerbose && I.talkAbout == client;
     
-    final Vars.Ref <Tile> result = new Vars.Ref <Tile> ();
-    float minDist = Float.POSITIVE_INFINITY;
-    final int depth = MipMap.sizeToDepth(world.sections.resolution);
-    final Tile o = world.tileAt(client);
+    final Box2D limitBox = limit == null ? null : limit.area;
+    final Tile  o = world.tileAt(client);
+    final Coord c = flagMap.nearest(o.x, o.y, -1, limitBox);
+    final Tile  t = c == null ? null : world.tileAt(c.x, c.y);
     
-    
-    for (StageSection s : world.sections.sectionsUnder(world.area())) {
-      final float distS = s.area.distance(o.x, o.y) + 1;
-      if (distS >= minDist) continue;
-      
-      final float pop = flagMap.getAvgAt(s.x, s.y, depth);
-      if (pop <= 0) continue;
-      if (report) {
-        I.say("Trying section at: "+s.x+"|"+s.y);
-        I.say("  Population: "+pop);
-      }
-      
-      for (Tile t : world.tilesIn(s.area, false)) {
-        if (! needsPaving(t)) continue;
-        final float distT = Spacing.distance(t, client) - 1;
-        if (distT > minDist) continue;
-        
-        if (report) I.say("    Trying: "+t.x+"|"+t.y);
-        result.value = t;
-        minDist = distT;
-      }
-    }
-    
-    if (report) I.say("Next tile to pave: "+result.value);
-    
-    return result.value;
+    if (t != null && ! needsPaving(t)) I.complain(
+      "GOT TILE WHICH DOES NOT NEED PAVING: "+t
+    );
+    if (report) I.say("Next tile to pave: "+t);
+    return t;
   }
 }
 
