@@ -123,8 +123,8 @@ public class Cantina extends Venue {
 
   /**  Upgrades, services and economic functions-
     */
-  public Behaviour jobFor(Actor actor) {
-    if ((! structure.intact()) || (! staff.onShift(actor))) return null;
+  public Behaviour jobFor(Actor actor, boolean onShift) {
+    if (! onShift) return null;
     if (actor.vocation() == Backgrounds.SOMA_CHEF) {
       final Traded needed[] = { SOMA, CARBS, PROTEIN };
       final Delivery d = DeliveryUtils.bestBulkCollectionFor(

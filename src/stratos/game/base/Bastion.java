@@ -185,7 +185,7 @@ public class Bastion extends Venue {
   }
   
   
-  public Behaviour jobFor(Actor actor) {
+  public Behaviour jobFor(Actor actor, boolean onShift) {
     if (! structure.intact()) return null;
     
     //  TODO:  Apply to all advisors!

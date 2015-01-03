@@ -150,7 +150,7 @@ public class Reactor extends Venue {
   
   
   
-  public Behaviour jobFor(Actor actor) {
+  public Behaviour jobFor(Actor actor, boolean onShift) {
     if (! structure.intact()) return null;
     //
     //  First and foremost, check to see whether a meltdown is in progress, and

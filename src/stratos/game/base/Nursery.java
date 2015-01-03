@@ -257,7 +257,7 @@ public class Nursery extends Venue implements TileConstants {
   }; }
   
   
-  public Behaviour jobFor(Actor actor) {
+  public Behaviour jobFor(Actor actor, boolean onShift) {
     final Choice choice = new Choice(actor);
     
     //  If you're really short on food, consider foraging in the surrounds or

@@ -344,17 +344,28 @@ public class Action implements Behaviour, AnimNames {
     actor.pathing.updateTarget(pathsTo);
     
     if (report) {
+      I.say("");
       I.say("  Action target is: "+actionTarget);
-      I.say("  Move target is: "+moveTarget);
-      I.say("  Closing on: "+closeOn+", must board: "+mustBoard);
+      I.say("  Distance        : "+actionDist  );
+      I.say("  Move target is  : "+moveTarget  );
+      I.say("  Distance        : "+motionDist  );
+      I.say("  Closing on      : "+closeOn     );
+      I.say("  Is ranged?      : "+ranged()    );
+      I.say("  Must board?     : "+mustBoard   );
       
       final boolean blocked = PathSearch.blockedBy(actor.aboard(), actor);
-      I.say("  Currently aboard: "+actor.aboard()+", blocked? "+blocked);
-      I.say("  Closed/facing: "+closed+"/"+facing+", doing update? "+active);
-      I.say("  Is ranged? "+ranged()+", approaching? "+approaching);
+      I.say("");
+      I.say("  Currently aboard: "+actor.aboard());
+      I.say("  Blocked there?  : "+blocked       );
+      I.say("  Closed?         : "+closed        );
+      I.say("  Facing?         : "+facing        );
+      I.say("  Approaching?    : "+approaching   );
+      I.say("  Doing update?   : "+active        );
       
       final Target PT = actor.pathing.target();
-      I.say("  Path target is: "+PT+", step: "+step);
+      I.say("");
+      I.say("  Path target is  : "+PT  );
+      I.say("  Next step       : "+step);
       if (PT != null) {
         final float distance = Spacing.distance(actor, PT);
         I.say("  Distance: "+distance+", maximum: "+maxDist+"\n");

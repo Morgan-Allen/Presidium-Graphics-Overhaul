@@ -77,8 +77,8 @@ public class EnforcerBloc extends Venue {
   //  Mentat & Psy Corps
   
   
-  public Behaviour jobFor(Actor actor) {
-    if ((! structure.intact()) || (! staff.onShift(actor))) return null;
+  public Behaviour jobFor(Actor actor, boolean onShift) {
+    if (! onShift) return null;
     final Choice choice = new Choice(actor);
     
     if (actor.vocation() == Backgrounds.AUDITOR) {

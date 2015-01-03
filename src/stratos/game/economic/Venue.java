@@ -369,20 +369,22 @@ public abstract class Venue extends Structural implements
   
   
   public void addTasks(Choice choice, Actor actor, Background background) {
-    if (background == Backgrounds.AS_RESIDENT) {
+    if (! structure.intact()) return;
+    else if (background == Backgrounds.AS_RESIDENT) {
       return;
     }
     else if (background == Backgrounds.AS_VISITOR) {
       addServices(choice, actor);
     }
     else {
-      choice.add(jobFor(actor));
+      final boolean onShift = staff.onShift(actor);
+      choice.add(jobFor(actor, onShift));
     }
   }
   
   
   protected void addServices(Choice choice, Actor forActor) {}
-  protected Behaviour jobFor(Actor actor) { return null; }
+  protected Behaviour jobFor(Actor actor, boolean onShift) { return null; }
   
   
   

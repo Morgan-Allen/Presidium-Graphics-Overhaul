@@ -63,9 +63,9 @@ public class NativeHall extends NativeHut {
   }
   
   
-  public Behaviour jobFor(Actor actor) {
+  public Behaviour jobFor(Actor actor, boolean onShift) {
     //  Well, firstly determine if any more huts should be placed or repaired.
-    return super.jobFor(actor);
+    return super.jobFor(actor, onShift);
   }
   
   

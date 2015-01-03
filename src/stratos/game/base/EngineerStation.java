@@ -160,9 +160,8 @@ public class EngineerStation extends Venue {
   }
   
   
-  public Behaviour jobFor(Actor actor) {
-    if ((! structure.intact()) || (! staff.onShift(actor))) return null;
-    
+  public Behaviour jobFor(Actor actor, boolean onShift) {
+    if (! onShift) return null;
     //  Consider contributing toward local repairs-
     final Choice choice = new Choice(actor);
     
@@ -174,7 +173,7 @@ public class EngineerStation extends Venue {
         final DeviceType DT = (DeviceType) made;
         Upgrade forType = MOLDING_PRESS;
         if (DT.hasProperty(KINETIC)) forType = COMPOSITE_MATERIALS;
-        if (DT.hasProperty(ENERGY )) forType = FLUX_CONTAINMENT;
+        if (DT.hasProperty(ENERGY )) forType = FLUX_CONTAINMENT   ;
         o.setBonusFrom(this, true, MOLDING_PRESS, forType);
       }
       else if (made instanceof OutfitType) {

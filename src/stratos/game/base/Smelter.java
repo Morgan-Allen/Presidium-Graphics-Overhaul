@@ -146,7 +146,7 @@ public class Smelter extends Venue {
   }
   
 
-  public Behaviour jobFor(Actor actor) {
+  public Behaviour jobFor(Actor actor, boolean onShift) {
     return null;
   }
   

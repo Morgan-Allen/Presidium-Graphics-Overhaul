@@ -144,15 +144,19 @@ public class Delivery extends Plan {
   
   /**  Initial culling methods to allow for budget and inventory limits-
     */
-  //  TODO:  Consider moving this to the DeliveryUtils' rateTrading method?
+  private boolean checkValidPayment(Owner pays) {
+    if (pays != null && pays != actor && pays != destination) {
+      I.complain("PAYING AGENT MUST BE EITHER ACTOR OR DESTINATION!");
+      return false;
+    }
+    return true;
+  }
   
-  //  TODO:  Or see if it can be merged with the hasItemsFrom method below?...
   
   public Delivery setWithPayment(Owner pays, boolean priceLimit) {
     
-    if (pays != null && pays != actor && pays != destination) {
-      I.complain("PAYING AGENT MUST BE EITHER ACTOR OR DESTINATION!");
-    }
+    if (pays instanceof Actor) this.actor = (Actor) pays;
+    if (! checkValidPayment(pays)) return null;
     
     if (priceLimit && pays != null) {
       final float maxPrice = pays.inventory().credits() / 2;
@@ -224,12 +228,13 @@ public class Delivery extends Plan {
     */
   protected float getPriority() {
     if (items == null || items.length == 0) return -1;
-    
     final boolean report = evalVerbose && I.talkAbout == actor;
+    //
+    //  Determine basic priorities and delivery type:
     final boolean shops = shouldPay == actor;
     float base = ROUTINE, modifier = NO_MODIFIER;
     if (shouldPay != destination) base = CASUAL;
-    
+    if (! checkValidPayment(shouldPay)) return -1;
     //
     //  Personal purchases get a few special modifiers-
     if (shops && stage <= STAGE_PICKUP) {
@@ -248,13 +253,14 @@ public class Delivery extends Plan {
     if (! shops) for (Item i : items) {
       modifier += i.amount / 10f;
     }
-    
+    //
+    //  Finally, since this plan involves a good deal of travel, we modify the
+    //  usual distance evaluation.  Otherwise, proceed as normal.
     final float rangeDiv = driven == null ? 2f : 10f;
     final float extraRangePenalty = (
       Plan.rangePenalty(actor, origin) +
       Plan.rangePenalty(origin, destination)
     ) / rangeDiv;
-    
     final float priority = priorityForActorWith(
       actor, destination,
       base, modifier - extraRangePenalty,

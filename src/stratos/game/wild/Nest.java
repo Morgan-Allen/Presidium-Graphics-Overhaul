@@ -100,7 +100,7 @@ public class Nest extends Venue {
   
   /**  Behavioural assignments (all null in this case.)
     */
-  public Behaviour jobFor(Actor actor) { return null; }
+  public Behaviour jobFor(Actor actor, boolean onShift) { return null; }
   public Background[] careers() { return null; }
   public Traded[] services() { return null; }
   public int owningType() { return Element.ELEMENT_OWNS; }

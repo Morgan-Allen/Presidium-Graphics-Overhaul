@@ -115,8 +115,8 @@ public class TrooperLodge extends Venue {
   }
   
   
-  public Behaviour jobFor(Actor actor) {
-    if ((! structure.intact()) || (! staff.onShift(actor))) return null;
+  public Behaviour jobFor(Actor actor, boolean onShift) {
+    if (! onShift) return null;
     
     //  TODO:  INCLUDE DRILLING!
     

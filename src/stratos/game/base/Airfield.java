@@ -186,8 +186,8 @@ public class Airfield extends Venue {
   }
   
   
-  protected Behaviour jobFor(Actor actor) {
-    if ((! structure.intact()) || (! staff.onShift(actor))) return null;
+  protected Behaviour jobFor(Actor actor, boolean onShift) {
+    if (! onShift) return null;
     final Choice choice = new Choice(actor);
     
     if (actor.vocation() == DECK_HAND) {

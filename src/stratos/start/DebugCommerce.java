@@ -77,7 +77,7 @@ public class DebugCommerce extends Scenario {
     GameSettings.setDefaults();
     GameSettings.buildFree = true;
     GameSettings.fogFree   = true;
-    GameSettings.paveFree  = true;
+    //GameSettings.paveFree  = true;
     //GameSettings.noChat    = true;
     
     //  TODO:  Try giving the residents pots of money instead...
@@ -171,7 +171,7 @@ public class DebugCommerce extends Scenario {
   
   
   private void deliveryScenario(Stage world, Base base, BaseUI UI) {
-    final Venue depot = new SupplyDepot(base);
+    final Venue depot   = new SupplyDepot(base);
     final Venue foundry = new EngineerStation(base);
     final Actor citizen = new Human(Backgrounds.TECHNICIAN, base);
     Placement.establishVenue(depot, 11, 1, true, world);

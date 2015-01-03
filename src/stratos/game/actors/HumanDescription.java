@@ -99,16 +99,16 @@ public class HumanDescription implements Qualities {
     
     final Item device = h.gear.deviceEquipped();
     if (device != null) {
-      d.append("\n  "+device.type);
-      d.append(" ("+((int) h.gear.attackDamage())+")");
+      d.append("\n  "+device.type+" ("+device.descQuality());
+      d.append(") ("+((int) h.gear.attackDamage())+")");
     }
     else d.append("\n  No device");
     if (FC > 0) d.append(" (Power "+FC+")");
     
     final Item outfit = h.gear.outfitEquipped();
     if (outfit != null) {
-      d.append("\n  "+outfit.type);
-      d.append(" ("+((int) h.gear.armourRating())+")");
+      d.append("\n  "+outfit.type+" ("+outfit.descQuality());
+      d.append(") ("+((int) h.gear.armourRating())+")");
     }
     else d.append("\n  No outfit");
     if (MS > 0 || SC > 0) d.append(" (Shields "+SC+"/"+MS+")");
@@ -129,12 +129,16 @@ public class HumanDescription implements Qualities {
   
   private void describeGear(Description d, HUD UI) {
     //
-    //  Then any relatively minor items:
+    //  First, describe your finances:
     d.append("Inventory: ");
     final int credits = (int) h.gear.credits();
-    if (credits > 0) d.append("\n  "+credits+" Credits");
+    if (credits > 0) {
+      d.append("\n  "+credits+" Credits");
+      d.append(" ("+(int) h.gear.unTaxed()+" Untaxed)");
+    }
     if (credits < 0) d.append("\n  "+(0 - credits)+" Credits in debt");
-    
+    //
+    //  Then any other items carried:
     for (Item item : h.gear.allItems()) d.append("\n  "+item);
   }
   

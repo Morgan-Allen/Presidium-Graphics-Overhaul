@@ -150,12 +150,10 @@ public class Dropship extends Vehicle implements Inventory.Owner {
       return;
     }
     
+    final Choice jobs = new Choice(actor);
     final Batch <Venue> depots = DeliveryUtils.nearbyDepots(
       this, world, SERVICE_COMMERCE
     );
-    final Commerce c = this.base.commerce;
-    final Choice jobs = new Choice(actor);
-    
     jobs.add(DeliveryUtils.bestExportDelivery(this, depots, 10));
     jobs.add(DeliveryUtils.bestImportDelivery(this, depots, 10));
     if (! jobs.empty()) { choice.add(jobs.pickMostUrgent()); return; }
@@ -167,6 +165,7 @@ public class Dropship extends Vehicle implements Inventory.Owner {
       jobs.add(DeliveryUtils.bestBulkCollectionFor(hangar, goods, 1, 10, 2));
     }
     else {
+      final Commerce c = this.base.commerce;
       final Traded lacks[] = c.globalShortages();
       jobs.add(DeliveryUtils.bestBulkDeliveryFrom (this, lacks, 1, 10, 2));
       final Traded goods[] = c.globalSurpluses();

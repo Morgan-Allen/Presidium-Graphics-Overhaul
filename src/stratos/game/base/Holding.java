@@ -297,7 +297,7 @@ public class Holding extends Venue {
   
   
   public void addTasks(Choice choice, Actor actor, Background background) {
-    if (background == Backgrounds.AS_RESIDENT) {
+    if (background == Backgrounds.AS_RESIDENT && structure.intact()) {
       final Traded goods[] = goodsNeeded();
       /*
       //  First of all, deliver any goods that you yourself are carrying-
@@ -320,7 +320,7 @@ public class Holding extends Venue {
   }
   
   
-  protected Behaviour jobFor(Actor actor) {
+  protected Behaviour jobFor(Actor actor, boolean onShift) {
     //  TODO:  Include special orders for servants/minders?
     return null;
   }

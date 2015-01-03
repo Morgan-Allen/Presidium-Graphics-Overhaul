@@ -52,7 +52,7 @@ public class ForcePylon extends Venue implements Selectable {
   
   /**  Registration, life cycle and economic functions-
     */
-  public Behaviour jobFor(Actor actor) {
+  public Behaviour jobFor(Actor actor, boolean onShift) {
     return null;
   }
   

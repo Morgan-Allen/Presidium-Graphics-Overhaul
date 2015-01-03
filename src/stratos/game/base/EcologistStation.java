@@ -145,7 +145,7 @@ public class EcologistStation extends Venue {
     );
   
   
-  public Behaviour jobFor(Actor actor) {
+  public Behaviour jobFor(Actor actor, boolean onShift) {
     if ((! structure.intact()) || ! (staff.onShift(actor))) return null;
     final Choice choice = new Choice(actor);
     //

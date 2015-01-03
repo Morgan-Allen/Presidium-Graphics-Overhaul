@@ -147,7 +147,7 @@ public class PhysicianStation extends Venue {
     );
   
   
-  public Behaviour jobFor(Actor actor) {
+  public Behaviour jobFor(Actor actor, boolean onShift) {
     if (! structure.intact()) return null;
     
     //  If there are patients inside, make sure somebody's available.
