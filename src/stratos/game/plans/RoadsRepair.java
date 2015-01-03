@@ -10,6 +10,8 @@ import static stratos.game.actors.Qualities.*;
 
 
 
+//  TODO:  Consider being able to shift focus from one section to another?
+
 public class RoadsRepair extends Plan {
   
   
@@ -21,8 +23,8 @@ public class RoadsRepair extends Plan {
   
   final Base base;
   final PavingMap map;
-  private StageSection section;
   private Tile around;
+  private StageSection section;
   
   
   public RoadsRepair(Actor actor, Tile t) {

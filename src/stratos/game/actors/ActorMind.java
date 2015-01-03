@@ -301,7 +301,7 @@ public abstract class ActorMind implements Qualities {
     if (stepsVerbose && I.talkAbout == actor) {
       I.say("\nPUSHING BEHAVIOUR: "+b);
     }
-    actor.world().activities.toggleBehaviour(b, true);
+    actor.world().activities.registerFocus(b, true);
   }
   
   
@@ -315,7 +315,7 @@ public abstract class ActorMind implements Qualities {
       I.say("  Finished/valid: "+b.finished()+"/"+b.valid());
       I.say("  Priority "+b.priorityFor(actor));
     }
-    actor.world().activities.toggleBehaviour(b, false);
+    actor.world().activities.registerFocus(b, false);
     return b;
   }
   
