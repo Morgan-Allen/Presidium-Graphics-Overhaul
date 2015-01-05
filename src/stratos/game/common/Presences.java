@@ -160,7 +160,7 @@ public class Presences {
   public Target randomMatchNear(Object service, Target client, float range) {
     final PresenceMap map = allMaps.get(service);
     if (map == null) return null;
-    return map.pickRandomAround(client, range);
+    return map.pickRandomAround(client, range, null);
   }
   
   

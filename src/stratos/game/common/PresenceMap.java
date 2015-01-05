@@ -21,9 +21,6 @@ public class PresenceMap implements Session.Saveable {
     */
   private static boolean verbose = false;
   
-  final static int
-    MAX_VISITED = 100;
-  
   final Object key;  //  TODO:  Move this stuff to the Presences class(?)
   final Stage world;
   final Node root;
@@ -33,17 +30,6 @@ public class PresenceMap implements Session.Saveable {
     int population = 0;
     Node(StageSection s) { this.section = s; }
   }
-  
-  private static final class NodeMarker {
-    Object node;
-    float distance;
-    boolean leaf;
-  }
-  
-  private NodeMarker markers[] = initMarkers();
-  private int markUseIndex = -1;
-  
-  private Vec3D temp = new Vec3D();
   
   
   
@@ -59,13 +45,6 @@ public class PresenceMap implements Session.Saveable {
     if (key instanceof Traded) keyOkay = true;
     if (! keyOkay) I.complain("INVALID FLAGGING KEY: "+key);
     this.key = key;
-  }
-  
-  
-  private NodeMarker[] initMarkers() {
-    markers = new NodeMarker[MAX_VISITED];
-    for (int n = MAX_VISITED; n-- > 0;) markers[n] = new NodeMarker();
-    return markers;
   }
   
   
@@ -124,7 +103,7 @@ public class PresenceMap implements Session.Saveable {
         //  TODO:  Later, if the section resolution goes down to the tile,
         //         you will need to refine this.
         final Box2D b = n.section.area;
-        temp.set(b.xpos() + 1, b.ypos() + 1, 0);
+        //temp.set(b.xpos() + 1, b.ypos() + 1, 0);
         s.saveInt((int) b.xpos() + 1);
         s.saveInt((int) b.ypos() + 1);
         s.saveTarget((Target) k);
@@ -224,32 +203,92 @@ public class PresenceMap implements Session.Saveable {
   
   
   
-  /**  Iterating through members-
+  /**  Private utility methods for iterating efficiently through members:
     */
+  final static int MARKER_CACHE_SIZE = 100;
+  
+  //
+  //  I'm extending Sorting.Node directly here and caching some objects
+  //  persistently in order to save on allocation time.
+  //  TODO:  Try something similar for pathing?
+  private static final class NodeMarker extends Sorting.Node {
+    Object node;
+    float distance;
+    boolean leaf;
+    
+    protected void clear() { super.clear(); node = null; }
+  }
+  
+  private NodeMarker markers[] = initMarkers();
+  private int markUseIndex = 0;
+  private static Vec3D temp = new Vec3D();
+  
+  
+  private NodeMarker[] initMarkers() {
+    markers = new NodeMarker[MARKER_CACHE_SIZE];
+    for (int n = MARKER_CACHE_SIZE; n-- > 0;) markers[n] = new NodeMarker();
+    return markers;
+  }
+  
+  
   final private NodeMarker nextMarker(
     final Object n, final boolean leaf, final Tile origin
   ) {
-    final NodeMarker m = markers[markUseIndex++];
+    final NodeMarker m = (markUseIndex >= MARKER_CACHE_SIZE) ?
+      new NodeMarker()       :
+      markers[markUseIndex++];
     m.node = n;
     m.leaf = leaf;
-    m.distance = leaf ?
-      Spacing.distance(origin, (Target) n) :
-      ((Node) n).section.area.distance(origin.x, origin.y);
+    m.distance = heuristic(n, leaf, origin);
     return m;
   }
   
   
+  final private void clearMarkers() {
+    while (markUseIndex > 0) markers[--markUseIndex].clear();
+  }
+  
+  
+  final private static float heuristic(
+    final Object n, final boolean leaf, final Tile origin
+  ) {
+    return origin == null ? Stage.PATCH_RESOLUTION : (leaf ?
+      Spacing.distance(origin, (Target) n) :
+      ((Node) n).section.area.distance(origin.x, origin.y)
+    );
+  }
+  
+  
+  final private static boolean checkArea(
+    final Object n, final boolean leaf, final Box2D area
+  ) {
+    if (area == null) return true;
+    if (leaf) return area.contains(((Target) n).position(temp));
+    else      return area.intersects(((Node) n).section.area);
+  }
+  
+  
+  
+  /**  Visits all map-targets within a the given range and area (if those 
+    *  are specified.)  Arguments may also be null, or -1 for range.
+    *  
+    *  NOTE:  This method is *NOT* thread-friendly, and in fact should only
+    *  be used in strict sequence- finish one iteration before you even attempt
+    *  to perform another.
+    */
   public Iterable <Target> visitNear(
     final Tile origin, final float range, final Box2D area
   ) {
-    markUseIndex = 0;
+    final boolean checkRange = origin != null && range > 0;
+    clearMarkers();
+    
     final Sorting <NodeMarker> agenda = new Sorting <NodeMarker> () {
       public int compare(NodeMarker a, NodeMarker b) {
         if (a.node == b.node) return 0;
         return a.distance < b.distance ? 1 : -1;
       }
     };
-    agenda.add(nextMarker(root, false, origin));
+    agenda.addAsEntry(nextMarker(root, false, origin));
     //
     //  Then, define a method of iterating over these entries, and return it-
     final class nearIter implements Iterator, Iterable {
@@ -257,42 +296,31 @@ public class PresenceMap implements Session.Saveable {
       private Object next = nextTarget();
       
       private Object nextTarget() {
-        ///int numI = 0;
-        while (agenda.size() > 0) {
+        while (true) {
+          if (agenda.size() == 0) return null;
           //
           //  We obtain the next entry in the agenda-
-          final Object ref = agenda.greatestRef();
-          final NodeMarker marker = agenda.refValue(ref);
-          agenda.deleteRef(ref);
+          final NodeMarker marker = (NodeMarker) agenda.greatestRef();
+          agenda.deleteRef(marker);
+          final boolean leaf = marker.leaf;
           //
           //  If it's not a node, return this.  Otherwise, add the children of
           //  the node to the agenda.  Reject anything out of range.
-          if (range > 0 && marker.distance > range) continue;
-          if (marker.leaf) {
-            if (area != null) {
-              ((Target) marker.node).position(temp);
-              if (! area.contains(temp.x, temp.y)) continue;
-            }
-            return marker.node;
-          }
-          else {
-            final Node node = (Node) marker.node;
-            if (area != null) {
-              final Box2D b = node.section.area;
-              if (! area.intersects(b)) continue;
-            }
-            final boolean leaf = node.section.depth == 0;
-            for (Object o : node) if (o != null) {
-              if (markUseIndex >= MAX_VISITED) return null;
-              agenda.add(nextMarker(o, leaf, origin));
-            }
+          if (checkRange && marker.distance > range) continue;
+          if (! checkArea(marker.node, leaf, area) ) continue;
+          if (leaf) return marker.node;
+          
+          final Node node = (Node) marker.node;
+          final boolean kidLeaf = node.section.depth == 0;
+          for (Object o : node) {
+            if (o != null) agenda.addAsEntry(nextMarker(o, kidLeaf, origin));
           }
         }
-        return null;
       }
       
       public boolean hasNext() {
-        return next != null;
+        if (next == null) { clearMarkers(); return false; }
+        return true;
       }
       
       public Object next() {
@@ -323,45 +351,38 @@ public class PresenceMap implements Session.Saveable {
   }
   
   
-  public Target pickRandomAround(final Target origin, final float range) {
+  
+  /**  Returns a random map-target within the given range and area (if those 
+    *  are specified.)  Arguments may also be null, or -1 for range.
+    */
+  public Target pickRandomAround(
+    final Target origin, final float range, final Box2D area
+  ) {
     final boolean report = verbose && I.talkAbout == origin;
     if (report) I.say("\nPicking random target around "+origin);
     
-    final Vec3D temp = origin.position(null);
-    final int oX = (int) temp.x, oY = (int) temp.y;
+    final boolean checkRange = origin != null && range > 0;
+    final Tile oT = origin == null ? null : world.tileAt(origin);
     Node node = root;
+    
     while (true) {
-      
-      //  For a given node level, iterate across all children and calculate the
-      //  probability of visiting those.
-      final StageSection quadKids[] = node.section.kids;
       final boolean leaf = node.section.depth == 0;
       float weights[] = new float[node.size()], sumWeights = 0;
-      
       if (report) I.say("  "+node.size()+" kids from "+node.hashCode());
-      
+      //
+      //  For a given node level, iterate across all children and calculate the
+      //  probability of visiting those.
       int i = 0; for (Object k : node) {
-        final float dist, pop;
-        if (leaf) {
-          dist = Spacing.distance((Target) k, origin);
-          pop = 1;
-        }
-        else {
-          dist = ((Node) k).section.area.distance(oX, oY);
-          pop = ((Node) k).population;
-        }
-        if (range > 0 && dist > range) {
-          sumWeights += weights[i++] = 0;
-          if (report) I.say("  "+k.hashCode()+" is too distant!");
-        }
-        else {
-          float rating = pop * Stage.PATCH_RESOLUTION;
-          rating /= (Stage.PATCH_RESOLUTION + dist);
-          sumWeights += weights[i++] = rating;
-          if (report) I.say("  Rating for "+k.hashCode()+" is "+rating);
-        }
+        final float dist = heuristic(k, leaf, oT) / Stage.PATCH_RESOLUTION;
+        final int   pop  = leaf ? 1 : ((Node) k).population;
+        final float rating;
+        if      (checkRange && dist > range) rating = 0;
+        else if (! checkArea(k, leaf, area)) rating = 0;
+        else rating = pop / (1 + dist);
+        sumWeights += weights[i++] = rating;
+        if (report) I.say("  Rating for "+I.tagHash(k)+" is "+rating);
       }
-      
+      //
       //  If no child is a valid selection, quit.  Otherwise, choose one child
       //  at random.
       if (sumWeights == 0) return null;
@@ -370,20 +391,12 @@ public class PresenceMap implements Session.Saveable {
       do { sumWeights += weights[++kidIndex]; } while (sumWeights < roll);
       //
       //  If it's a leaf, return it.  Otherwise, move down the next level.
-      if (leaf) return (Target) node.getEntryAt(kidIndex).refers;
-      node = (Node) node.getEntryAt(kidIndex).refers;
+      final Object next = node.getEntryAt(kidIndex).refers;
+      if (leaf) return (Target) next;
+      node = (Node) next;
     }
   }
 }
-
-
-
-
-
-
-
-
-
 
 
 

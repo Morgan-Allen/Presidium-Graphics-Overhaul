@@ -27,13 +27,23 @@ public abstract class Sorting <K> implements Series <K> {
   static boolean verbose = false;
   static enum Side { L, R, BOTH, NEITHER };
   
-  private static class Node {
+  public static class Node {
     Sorting belongs = null;
     Object value;
     
     Node parent, kidL, kidR;
     Side side;
     int height = 0;
+    
+    protected Node() {}
+    
+    protected void clear() {
+      belongs = null;
+      value = null;
+      side = null;
+      height = 0;
+      parent = kidL = kidR = null;
+    }
   }
   
   
@@ -224,13 +234,30 @@ public abstract class Sorting <K> implements Series <K> {
   }
   
   
+  public void add(K k) {
+    insert(k);
+  }
+  
+  
+  public Object addAsEntry(Node i) {
+    i.value = i;
+    i.belongs = this;
+    return insertEntry(i);
+  }
+  
+  
   public Object insert(K value) {
-    //
-    //  We initialise the node first, based on the assumption we can always add
-    //  more.  In the special case of an empty tree, assign this as the root.
     final Node i = new Node();
     i.value = value;
     i.belongs = this;
+    return insertEntry(i);
+  }
+  
+  
+  private Object insertEntry(Node i) {
+    //
+    //  We initialise the node first, based on the assumption we can always add
+    //  more.  In the special case of an empty tree, assign this as the root.
     if (root == null) {
       i.side = Side.R;
       root = i;
@@ -240,7 +267,7 @@ public abstract class Sorting <K> implements Series <K> {
       //  Otherwise, search for the first unoccupied leaf node intermediate in
       //  value between existing entries-
       Node n = root; while (true) {
-        final int comp = compare(value, (K) n.value);
+        final int comp = compare((K) i.value, (K) n.value);
         final Side s = (comp > 0) ? Side.R : Side.L;
         final Node k = kidFor(n, s);
         if (k == null) { setParent(n, i, s); break; }
@@ -265,7 +292,7 @@ public abstract class Sorting <K> implements Series <K> {
   public void deleteRef(Object ref) {
     //
     //  First, some basic sanity checks, chiefly for the sake of debugging.
-    if (ref == null || ref.getClass() != Node.class) {
+    if (! (ref instanceof Node)) {
       I.complain("Invalid reference.");
     }
     final Node n = (Node) ref;
@@ -395,11 +422,6 @@ public abstract class Sorting <K> implements Series <K> {
   
   public Object[] toArray() {
     return toArray(Object.class);
-  }
-  
-  
-  public void add(K k) {
-    insert(k);
   }
   
 
