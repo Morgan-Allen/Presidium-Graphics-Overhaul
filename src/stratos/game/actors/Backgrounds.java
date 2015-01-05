@@ -5,8 +5,6 @@
   */
 package stratos.game.actors;
 import stratos.game.common.*;
-//import stratos.game.economic.*;
-//import stratos.game.politic.Sector;
 import stratos.graphics.common.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
@@ -530,14 +528,14 @@ public interface Backgrounds {
     ),
     FREE_TRADER = new Background(
       Backgrounds.class,
-      "Ship Trader", "", "artificer_skin.gif", "pyon_portrait.png",
+      "Ship Trader", "", "pyon_skin.gif", "pyon_portrait.png",
       CLASS_FREEMEN, NOT_A_GUILD,
       PRACTICED, ASSEMBLY, HARD_LABOUR,
       LEARNING, FIELD_THEORY, SHIELD_AND_ARMOUR, MARKSMANSHIP, COMMON_CUSTOM
     ),
     SHIP_CAPTAIN = new Background(
       Backgrounds.class,
-      "Ship Captain", "", null, "pyon_portrait.png",
+      "Ship Captain", "", "pyon_skin.gif", "pyon_portrait.png",
       CLASS_FREEMEN, NOT_A_GUILD,
       EXPERT, PILOTING, MARKSMANSHIP, PRACTICED, COMMAND, SUASION,
       LEARNING, ASTROGATION, BATTLE_TACTICS, COMMON_CUSTOM,
@@ -546,7 +544,7 @@ public interface Backgrounds {
     
     RUNNER_SILVERFISH = new Background(
       Backgrounds.class,
-      "Runner (Silverfish)", "", "runner_skin.gif", "vendor_portrait.png",
+      "Runner (Silverfish)", "", "runner_skin.gif", "runner_portrait.png",
       CLASS_FREEMEN, NOT_A_GUILD,
       EXPERT, MARKSMANSHIP, STEALTH_AND_COVER,
       PRACTICED, SUASION, SURVEILLANCE, MASQUERADE,
@@ -569,7 +567,7 @@ public interface Backgrounds {
     
     RUNNER_IV_PUNKS = new Background(
       Backgrounds.class,
-      "Runner (IV Punks)", "", "runner_skin.gif", "vendor_portrait.png",
+      "Runner (IV Punks)", "", "runner_skin.gif", "runner_portrait.png",
       CLASS_FREEMEN, NOT_A_GUILD,
       EXPERT, MARKSMANSHIP, STEALTH_AND_COVER,
       PRACTICED, HAND_TO_HAND, SURVEILLANCE, BATTLE_TACTICS,
@@ -579,7 +577,7 @@ public interface Backgrounds {
     ),
     STREET_COOK = new Background(
       Backgrounds.class,
-      "Street Cook", "", "citizen_skin.gif", null,
+      "Street Cook", "", "physician_skin.gif", "physician_portrait.png",
       CLASS_FREEMEN, NOT_A_GUILD,
       EXPERT, CHEMISTRY, PHARMACY, PRACTICED, FORENSICS,
       LEARNING, ANATOMY, COUNSEL, TRUTH_SENSE,
@@ -590,7 +588,7 @@ public interface Backgrounds {
     
     RUNNER_HUDZENA = new Background(
       Backgrounds.class,
-      "Runner (Hudzeena)", "", "runner_skin.gif", "vendor_portrait.png",
+      "Runner (Hudzeena)", "", "runner_skin.gif", "runner_portrait.png",
       CLASS_FREEMEN, NOT_A_GUILD,
       EXPERT, MASQUERADE, STEALTH_AND_COVER,
       PRACTICED, MARKSMANSHIP, SURVEILLANCE, SUASION,
@@ -600,7 +598,7 @@ public interface Backgrounds {
     ),
     FACE_FIXER = new Background(
       Backgrounds.class,
-      "Face Fixer", "", "citizen_skin.gif", null,
+      "Face Fixer", "", "physician_skin.gif", "physician_portrait.png",
       CLASS_FREEMEN, NOT_A_GUILD,
       EXPERT, GENE_CULTURE, ANATOMY, PRACTICED, SUASION,
       LEARNING, GRAPHIC_DESIGN, HANDICRAFTS,
