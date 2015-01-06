@@ -16,10 +16,34 @@ import com.badlogic.gdx.math.*;
 
 public class MapsPanel extends UIGroup {
   
-
+  
+  final static int
+    MODE_NORMAL        = 0,
+    MODE_AMBIENCE_MAP  = 1,
+    MODE_FERTILITY_MAP = 2,
+    MODE_MINERALS_MAP  = 3,
+    NUM_MODES          = 4;
+  final static ImageAsset MODE_ICONS[] = ImageAsset.fromImages(
+    MapsPanel.class, "media/GUI/Panels/",
+    "minimap_normal.png"   ,
+    "minimap_ambience.png" ,
+    "minimap_fertility.png",
+    "minimap_minerals.png"
+  );
+  final static String MODE_DESC[] = new String[] {
+    "Normal map mode"   ,
+    "Ambience map mode" ,
+    "Fertility map mode",
+    "Minerals map mode" ,
+  };
+  final static int MODE_BUTTON_SIZE = 20;
+  
   final BaseUI UI;
   final Stage world;
   private Base base;
+  
+  private int mapMode = MODE_NORMAL;
+  final Button modeButtons[];
   
   private float lastTime = -1;
   final Minimap minimap;
@@ -31,8 +55,32 @@ public class MapsPanel extends UIGroup {
     this.UI = UI;
     this.world = world;
     this.base = base;
+    
+    modeButtons = new Button[NUM_MODES];
+    final int MBS = MODE_BUTTON_SIZE, HS = (int) (MBS * 1.5f);
+    
+    for (int n = NUM_MODES; n-- > 0;) {
+      final int modeID = n;
+      final Button b = new Button(
+        UI, MODE_ICONS[n], Button.CIRCLE_LIT, MODE_DESC[n]
+      ) {
+        public void whenClicked() { setMapMode(modeID); }
+      };
+      b.alignVertical  (0   , MBS, 0 - MBS       );
+      b.alignHorizontal(0.5f, MBS, (n * MBS) - HS);
+      b.attachTo(this);
+      modeButtons[n] = b;
+    }
+    
     minimap = new Minimap();
     RGBA = new int[world.size][world.size];
+  }
+  
+  
+  public void setMapMode(int modeID) {
+    if (modeID == mapMode) return;
+    this.mapMode = modeID;
+    this.lastTime = -1;
   }
   
 
@@ -70,7 +118,6 @@ public class MapsPanel extends UIGroup {
         RGBA[c.x][c.y] = colourFor(c);
       }
       minimap.updateTexture(WS, RGBA);
-      cleanupTemps();
     }
     lastTime = time;
     
@@ -81,66 +128,105 @@ public class MapsPanel extends UIGroup {
   }
   
   
-  private Colour avg;
-  private Tile near[];
   
-  
-  private void cleanupTemps() {
-    avg = null;
-    near = null;
-  }
+  /**  Utility methods for getting appropriate tile-colours for various display
+    *  modes...
+    */
+  private Colour
+    avg      = new Colour(),
+    modeTone = new Colour(),
+    baseTone = new Colour();
   
   
   private int colourFor(Coord c) {
-    if (avg == null) { avg = new Colour(); near = new Tile[8]; }
-    
     final Tile t = world.tileAt(c.x, c.y);
-    avg.set(tileTone(t));
     
-    //  TODO:  Save this for various display modes...
-    /*
-    float f = world.terrain().fertilitySample(t);
-    avg.blend(Colour.greyscale(f), 0.85f);
-    //*/
+    final Colour baseTone = baseToneFor(t);
+    if (baseTone != null) return baseTone.withOpacity(1).getRGBA();
     
-    final Base border = baseWithBorder(t);
-    if (border != null) {
-      final Colour badge = border.colour();
-      avg.set(badge).blend(Colour.WHITE, 0.5f);
-    }
-    
-    return avg.getRGBA();
+    avg.set(terrainTone(t));
+    if      (mapMode == MODE_NORMAL       ) modeTone.set(avg);
+    else if (mapMode == MODE_AMBIENCE_MAP ) modeTone.set(ambientTone  (t));
+    else if (mapMode == MODE_FERTILITY_MAP) modeTone.set(fertilityTone(t));
+    else if (mapMode == MODE_MINERALS_MAP ) modeTone.set(mineralsTone (t));
+    avg.blend(modeTone, modeTone.a);
+    return avg.withOpacity(1).getRGBA();
   }
   
   
-  private Colour tileTone(Tile t) {
+  private Colour baseToneFor(Tile t) {
     
     if (t.onTop() instanceof Venue) {
       final Base b = ((Venue) t.onTop()).base();
       return b == null ? Colour.LITE_GREY : b.colour();
     }
-    
     for (Mobile m : t.inside()) {
       final Base b = m.base();
       return b == null ? Colour.LITE_GREY : b.colour();
     }
     
+    if (t.blocked()) return null;
+    final Base owns = world.claims.baseClaiming(t);
+    if (owns == null) return null;
+    
+    Colour borderTone = null;
+    for (Boarding b : t.canBoard()) {
+      if (b == null || b.boardableType() != Boarding.BOARDABLE_TILE) continue;
+      final Base borders = world.claims.baseClaiming((Tile) b);
+      if (borders != owns) { borderTone = owns.colour(); break; }
+    }
+    if (borderTone == null) return null;
+    return baseTone.set(borderTone).blend(Colour.SOFT_WHITE, 0.5f);
+  }
+  
+  
+  private Colour terrainTone(Tile t) {
     if (world.terrain().isRoad(t)) return Habitat.ROAD_TEXTURE.average();
     return t.habitat().baseTex.average();
   }
   
   
-  private Base baseWithBorder(Tile t) {
-    if (t.blocked()) return null;
-    final Base owns = world.claims.baseClaiming(t);
-    if (owns == null) return null;
-    for (Boarding b : t.canBoard()) {
-      if (b == null || b.boardableType() != Boarding.BOARDABLE_TILE) continue;
-      final Base borders = world.claims.baseClaiming((Tile) b);
-      if (borders != owns) return owns;
-    }
-    return null;
+  private float safeRange(float scale) {
+    return Nums.clamp(scale, 0, 1);
   }
+  
+  
+  private Colour ambientTone(Tile t) {
+    //  We paint ambience in blue and danger in red:
+    final float
+      a = safeRange(world.ecology().ambience.valueAt(t) / 5),
+      d = safeRange(base.dangerMap.sampleAt(t.x, t.y));
+    return modeTone.set(d, 0, a, Nums.max(a, d));
+  }
+  
+  
+  private Colour fertilityTone(Tile t) {
+    //  TODO:  Include radiation, et cetera.
+    final float
+      f = world.terrain().fertilitySample(t),
+      s = safeRange(0 - world.ecology().ambience.valueAt(t) / 5);
+    return modeTone.set(s, f, s, Nums.max(f, s));
+  }
+  
+  
+  private Colour mineralsTone(Tile t) {
+    int type = world.terrain().mineralType(t);
+    float amount = world.terrain().mineralsAt(t);
+    amount /= StageTerrain.MAX_MINERAL_AMOUNT;
+    
+    Colour hue = Colour.SOFT_GREY;
+    if (type == StageTerrain.TYPE_METALS  ) hue = Colour.LITE_RED  ;
+    if (type == StageTerrain.TYPE_ISOTOPES) hue = Colour.LITE_GREEN;
+    if (type == StageTerrain.TYPE_RUBBLE  ) hue = Colour.LITE_BLUE ;
+    return modeTone.set(hue).blend(Colour.SOFT_GREY, 1 - amount);
+  }
+  
+  
+  
+  /**  Getting associated tooltips:
+    */
+  //  TODO:  Implement these for each display mode!
+  
 }
 
 
