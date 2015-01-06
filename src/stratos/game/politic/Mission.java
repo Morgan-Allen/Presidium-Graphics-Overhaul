@@ -56,10 +56,6 @@ Also apply to off-world missions-
 //*/
 
 
-//  TODO:  Exclude any 'unfit' applicants- those with an average of less than
-//  10 in relevant skills.
-
-
 public abstract class Mission implements
   Behaviour, Session.Saveable, Selectable
 {
@@ -262,6 +258,13 @@ public abstract class Mission implements
   }
   
   
+  public List <Actor> applicants() {
+    final List <Actor> all = new List <Actor> ();
+    for (Role r : roles) all.add(r.applicant);
+    return all;
+  }
+  
+  
   public boolean isApproved(Actor a) {
     final Role role = roleFor(a);
     if (missionType == TYPE_PUBLIC) return true;
@@ -275,6 +278,11 @@ public abstract class Mission implements
   public void assignPriority(int degree) {
     priority = Nums.clamp(degree, LIMIT_PRIORITY);
     if (inceptTime == -1) inceptTime = base.world.currentTime();
+  }
+  
+  
+  public int assignedPriority() {
+    return priority;
   }
   
   
@@ -559,98 +567,22 @@ public abstract class Mission implements
     if (panel == null) panel = new SelectionInfoPane(
       UI, this, portrait(UI), true
     );
-    final Description d = panel.detail(), l = panel.listing();
-    final boolean
-      mustConfirm = missionType != TYPE_PUBLIC && ! begun,
-      emptyList   = roles.size() == 0;
-    //
-    //  First, we fill up the left-hand pane with broad mission parameters and
-    //  commands:
-    d.append("Mission Type:  ");
-    if (hasBegun()) d.append(TYPE_DESC[missionType], Colour.GREY);
-    else d.append(new Description.Link(TYPE_DESC[missionType]) {
-      public void whenClicked() {
-        setMissionType((missionType + 1) % LIMIT_TYPE);
-      }
-    });
-    d.append("\nObjective:  ");
-    describeObjective(d);
-    d.append("\nPayment:  ");
-    final String payDesc = priority == 0 ?
-      "None" :
-      REWARD_AMOUNTS[priority]+" credits";
-    d.append(new Description.Link(payDesc) {
-      public void whenClicked() {
-        if (priority == PRIORITY_PARAMOUNT) return;
-        assignPriority(priority + 1);
-      }
-    });
-    d.append(new Description.Link(" (ABORT)") {
-      public void whenClicked() {
-        endMission();
-      }
-    });
-    if (rolesApproved() > 0 && mustConfirm) {
-      d.append(" ");
-      d.append(new Description.Link(" (CONFIRM)") {
-        public void whenClicked() {
-          beginMission();
-        }
-      });
+    if (UI.played() == base) return MissionDescription.configOwningPanel(
+      this, panel, UI
+    );
+    else if (allVisible || missionType == TYPE_PUBLIC) {
+      return MissionDescription.configPublicPanel(this, panel, UI);
     }
-    //
-    //  Then we fill up the right-hand pane with the list of applications:
-    l.append("Applications:");
-    if (emptyList) {
-      if (missionType == TYPE_PUBLIC  ) l.append(
-        "\n\nThis is a public contract, open to all comers."
-      );
-      if (missionType == TYPE_SCREENED) l.append(
-        "\n\nThis is a screened mission.  Applicants will be subject to your "+
-        "approval before they can embark."
-      );
-      if (missionType == TYPE_COVERT  ) l.append(
-        "\n\nThis is a covert mission.  No agents or citizens will apply "+
-        "unless recruited by interview."
-      );
+    else if (missionType == TYPE_SCREENED) {
+      return MissionDescription.configScreenedPanel(this, panel, UI);
     }
-    else for (final Role role : roles) {
-      l.append("\n  ");
-      final Actor a = role.applicant;
-      ((Text) l).insert(a.portrait(UI).texture(), 40, true);
-      l.append(a);
-      if (a instanceof Human) {
-        l.append(" ("+((Human) a).career().vocation()+")");
-      }
-      
-      if (mustConfirm) {
-        l.append("\n");
-        final String option = role.approved ? "(DISMISS)" : "(APPROVE)";
-        l.append(new Description.Link(option) {
-          public void whenClicked() {
-            setApprovalFor(role.applicant, ! role.approved);
-          }
-        });
-      }
-    }
-
-    return panel;
+    else return panel;
   }
   
   
-  protected void describeObjective(Description d) {
-    final String
-      descriptions[] = objectiveDescriptions(),
-      desc = descriptions[objectIndex];
-    if (hasBegun()) d.append(desc, Colour.GREY);
-    else d.append(new Description.Link(desc) {
-      public void whenClicked() {
-        setObjective((objectIndex + 1) % descriptions.length);
-      }
-    });
-    d.append(subject);
+  protected String describeObjective(int objectIndex) {
+    return objectiveDescriptions()[objectIndex];
   }
-  
   
   protected abstract String[] objectiveDescriptions();
   

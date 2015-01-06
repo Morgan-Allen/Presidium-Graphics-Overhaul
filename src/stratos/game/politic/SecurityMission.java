@@ -106,16 +106,18 @@ public class SecurityMission extends Mission implements Qualities {
   
   /**  Rendering and interface methods-
     */
-  protected void describeObjective(Description d) {
-    super.describeObjective(d);
+  protected String describeObjective(int objectIndex) {
+    String desc = super.describeObjective(objectIndex);
     if (inceptTime != -1) {
       final int hours = (int) (
         (base.world.currentTime() - inceptTime) *
         24f / Stage.STANDARD_DAY_LENGTH
       );
-      d.append(" ("+hours+" hours elapsed)");
+      desc+=" ("+hours+" hours elapsed)";
     }
+    return desc;
   }
+  
   
   protected String[] objectiveDescriptions() {
     return DURATION_NAMES;
