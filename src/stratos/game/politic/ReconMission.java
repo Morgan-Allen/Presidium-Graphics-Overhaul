@@ -72,6 +72,15 @@ public class ReconMission extends Mission {
   
   
   
+  /**  Importance assessment-
+    */
+  public float rateImportance(Base base) {
+    //  TODO:  FILL THIS IN LATER
+    return -1;
+  }
+  
+  
+  
   /**  Behaviour implementation-
     */
   public Behaviour nextStepFor(Actor actor) {

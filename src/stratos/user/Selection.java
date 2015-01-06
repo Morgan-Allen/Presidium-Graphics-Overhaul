@@ -109,7 +109,7 @@ public class Selection implements UIConstants {
     pickTile    = world.pickedTile   (UI, port, base);
     pickFixture = world.pickedFixture(UI, port, base);
     pickMobile  = world.pickedMobile (UI, port, base);
-    pickMission = UI.played().pickedMission(UI, port);
+    pickMission = Base.pickedMission(world, UI, port, base);
     
     if (
       verbose && pickTile != null &&

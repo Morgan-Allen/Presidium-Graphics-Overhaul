@@ -47,6 +47,7 @@ public class Base implements
   Venue commandPost;
   final List <Mission> missions = new List <Mission> ();
   final public BaseRelations relations;
+  final public BaseTactics   tactics  ;
   
   private String title  = "Player Base";
   private Colour colour = new Colour();
@@ -127,6 +128,7 @@ public class Base implements
     intelMap.initFog(world);
     
     relations  = new BaseRelations(this);
+    tactics    = new BaseTactics(this);
   }
   
   
@@ -146,6 +148,7 @@ public class Base implements
     commandPost = (Venue) s.loadObject();
     s.loadObjects(missions);
     relations.loadState(s);
+    tactics  .loadState(s);
     
     title = s.loadString();
     colour.loadFrom(s.input());
@@ -167,6 +170,7 @@ public class Base implements
     s.saveObject(commandPost);
     s.saveObjects(missions);
     relations.saveState(s);
+    tactics  .saveState(s);
     
     s.saveString(title);
     colour.saveTo(s.output());
@@ -238,11 +242,13 @@ public class Base implements
     
     dangerMap.update();
     
-    for (Mission mission : missions) mission.updateMission();
-    
+    for (Mission mission : missions) {
+      mission.updateMission();
+    }
     final int interval = Stage.STANDARD_DAY_LENGTH / 3;
     if (numUpdates % interval == 0) {
       relations.updateRelations();
+      tactics.updateMissionAssessment();
       finance.updateFinances(interval);
     }
   }
@@ -251,24 +257,35 @@ public class Base implements
   
   /**  Rendering and interface methods-
     */
-  public void renderFor(Rendering rendering) {
+  //  TODO:  These should probably be moved.
+  
+  public void renderFor(Rendering rendering, Base player) {
     for (Mission mission : missions) {
       if (! rendering.view.intersects(mission.flagSelectionPos(), 2)) continue;
+      if (! mission.visibleTo(player)) continue;
+      //
+      //  TODO:  The position of the flag here will need to be adjusted if
+      //  there are multiple flags on the target!
       mission.flagSprite().readyFor(rendering);
     }
   }
   
   
-  public Mission pickedMission(BaseUI UI, Viewport view) {
-    Mission closest = null;
-    float minDist = Float.POSITIVE_INFINITY;
-    for (Mission mission : missions) {
+  public static Mission pickedMission(
+    Stage world, BaseUI UI, Viewport view, Base player
+  ) {
+    final Pick <Mission> pick = new Pick <Mission> ();
+    
+    for (Base base : world.bases()) for (Mission mission : base.allMissions()) {
+      if (! mission.visibleTo(player)) continue;
+      
       final Vec3D selPos = mission.flagSelectionPos();
       if (! view.mouseIntersects(selPos, 0.5f, UI)) continue;
+      
       final float dist = view.translateToScreen(selPos).z;
-      if (dist < minDist) { minDist = dist; closest = mission; }
+      pick.compare(mission, 0 - dist);
     }
-    return closest;
+    return pick.result();
   }
   
   

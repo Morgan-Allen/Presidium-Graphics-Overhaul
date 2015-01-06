@@ -413,12 +413,15 @@ public abstract class Scenario implements Session.Saveable, Playable {
   
   public void renderVisuals(Rendering rendering) {
     if (world == null) return;
+    
     if ((! isDebug) && PlayLoop.gameSpeed() != 1) {
       final Colour blur = new Colour().set(0.5f, 0.5f, 0.1f, 0.4f);
       world.ephemera.applyFadeColour(blur);
     }
-    world.renderFor(rendering, base);
-    base.renderFor(rendering);
+    
+    final Base player = UI.played();
+    world.renderFor(rendering, player);
+    for (Base faction : world.bases()) faction.renderFor(rendering, player);
     UI.renderWorldFX();
   }
   

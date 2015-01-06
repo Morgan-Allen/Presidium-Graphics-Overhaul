@@ -3,8 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.common;
 import stratos.game.economic.*;
 import stratos.util.*;
@@ -252,7 +250,7 @@ public class PresenceMap implements Session.Saveable {
   final private static float heuristic(
     final Object n, final boolean leaf, final Tile origin
   ) {
-    return origin == null ? Stage.PATCH_RESOLUTION : (leaf ?
+    return origin == null ? (Stage.PATCH_RESOLUTION + Rand.num()) : (leaf ?
       Spacing.distance(origin, (Target) n) :
       ((Node) n).section.area.distance(origin.x, origin.y)
     );

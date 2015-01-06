@@ -186,6 +186,8 @@ public class Stage {
     return from;
   }
   
+  
+  //  TODO:  Are these still needed?  Consider cutting out.
 
   public float surfaceAt(float x, float y, boolean floor) {
     //
@@ -259,6 +261,11 @@ public class Stage {
   
   public void advanceCurrentTime(float interval) {
     this.currentTime += interval;
+  }
+  
+  
+  public List <Mobile> allMobiles() {
+    return mobiles;
   }
   
   

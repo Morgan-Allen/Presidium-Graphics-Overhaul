@@ -17,9 +17,12 @@ import stratos.util.*;
 
 public class StrikeMission extends Mission {
   
+  
   /**  Field definitions, constants and save/load methods-
     */
-  private static boolean verbose = false;
+  private static boolean
+    rateVerbose = BaseTactics.updatesVerbose,
+    verbose     = false;
   
   
   public StrikeMission(Base base, Target subject) {
@@ -37,6 +40,44 @@ public class StrikeMission extends Mission {
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
+  }
+  
+  
+  
+  /**  Importance assessment-
+    */
+  public float rateImportance(Base base) {
+    final boolean report = rateVerbose;
+    if (report) I.say("\nRating importance of "+this+" for "+base);
+    
+    final Base enemy = subject.base();
+    final float dislike = 0 - base.relations.relationWith(enemy);
+    if (report) I.say("  Enemy dislike:  "+dislike);
+    if (dislike <= 0) return -1;
+    
+    float targetValue = 0;
+    if (subject instanceof Venue) {
+      targetValue = ((Venue) subject).ratePlacing(subject, false);
+      targetValue = Nums.clamp(targetValue / BaseSetup.MAX_PLACE_RATING, 0, 1);
+    }
+    if (subject instanceof Actor) {
+      //  TODO:  GET A VALUE FOR THIS
+    }
+    if (report) I.say("  Target value:   "+targetValue);
+    if (targetValue <= 0) return -1;
+    
+    final float
+      baseForce  = 1 + base .tactics.forceStrength(),
+      enemyForce = 1 + enemy.tactics.forceStrength(),
+      risk       = enemyForce / (baseForce + enemyForce),
+      rating     = (dislike * targetValue * 2) - risk;
+    if (report) {
+      I.say("  Base strength:  "+baseForce );
+      I.say("  Enemy strength: "+enemyForce);
+      I.say("  Overall risk:   "+risk      );
+      I.say("  Final rating:   "+rating    );
+    }
+    return rating;
   }
   
   

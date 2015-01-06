@@ -27,7 +27,9 @@ public class BaseSetup {
   
   final static float
     FULL_EVAL_PERIOD      = Stage.STANDARD_DAY_LENGTH,  //  Eval-cycle length.
-    DEFAULT_PLACE_HP      = 50;
+    DEFAULT_PLACE_HP      = 50,
+    
+    MAX_PLACE_RATING      = 10;
   final static int
     DEFAULT_VENUE_SAMPLES = 5,
     DEFAULT_CHAT_SAMPLES  = 5;

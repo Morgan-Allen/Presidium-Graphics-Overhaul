@@ -64,12 +64,17 @@ public abstract class Mission implements
   Behaviour, Session.Saveable, Selectable
 {
   
+  private static boolean
+    verbose     = false,
+    evalVerbose = true ,
+    allVisible  = true ;
+  
   final public static int
-    TYPE_PUBLIC   = 0,
-    TYPE_SCREENED = 1,
-    TYPE_COVERT   = 2,
-    TYPE_PARTY    = 3,
-    LIMIT_TYPE    = 3,
+    TYPE_BASE_AI  = -1,
+    TYPE_PUBLIC   =  0,
+    TYPE_SCREENED =  1,
+    TYPE_COVERT   =  2,
+    LIMIT_TYPE    =  3,
     
     PRIORITY_NONE      = 0,
     PRIORITY_NOMINAL   = 1,
@@ -93,12 +98,10 @@ public abstract class Mission implements
     0, 100, 250, 500, 1000, 2500
   };
   final static Integer PARTY_LIMITS[] = {
-    0, 3, 3, 4, 4, 5
+    1, 3, 3, 4, 4, 5
   };
-  
-  private static boolean
-    verbose     = false,
-    evalVerbose = true ;
+  final public static int
+    MAX_PARTY_LIMIT = 5;
   
   
   final Base base;
@@ -109,6 +112,8 @@ public abstract class Mission implements
     priority,
     missionType,
     objectIndex;
+  private float
+    inceptTime = -1;
   private boolean
     begun = false,
     done  = false;
@@ -132,13 +137,14 @@ public abstract class Mission implements
   
   public Mission(Session s) throws Exception {
     s.cacheInstance(this);
-    base = (Base) s.loadObject();
-    subject = s.loadTarget();
-    priority = s.loadInt();
+    base        = (Base) s.loadObject();
+    subject     = s.loadTarget();
+    priority    = s.loadInt();
     missionType = s.loadInt();
     objectIndex = s.loadInt();
-    begun = s.loadBool();
-    done = s.loadBool();
+    inceptTime  = s.loadFloat();
+    begun       = s.loadBool();
+    done        = s.loadBool();
     
     for (int i = s.loadInt(); i-- > 0;) {
       final Role role = new Role();
@@ -149,19 +155,19 @@ public abstract class Mission implements
     }
     
     flagSprite = (CutoutSprite) ModelAsset.loadSprite(s.input());
-    //flagTex = ((CutoutModel) flagSprite.model()).texture();
     description = s.loadString();
   }
   
   
   public void saveState(Session s) throws Exception {
-    s.saveObject(base);
-    s.saveTarget(subject);
-    s.saveInt(priority);
-    s.saveInt(missionType);
-    s.saveInt(objectIndex);
-    s.saveBool(begun);
-    s.saveBool(done);
+    s.saveObject(base       );
+    s.saveTarget(subject    );
+    s.saveInt   (priority   );
+    s.saveInt   (missionType);
+    s.saveInt   (objectIndex);
+    s.saveFloat (inceptTime );
+    s.saveBool  (begun      );
+    s.saveBool  (done       );
     
     s.saveInt(roles.size());
     for (Role role : roles) {
@@ -208,6 +214,12 @@ public abstract class Mission implements
     for (Role role : roles) role.applicant.mind.assignMission(null);
     begun = false;
   }
+  
+  
+  
+  /**  Assessing priority for the base as a whole:
+    */
+  public abstract float rateImportance(Base base);
   
   
   
@@ -261,14 +273,15 @@ public abstract class Mission implements
   /**  Public access methods for setup purposes
     */
   public void assignPriority(int degree) {
-    priority = degree;
+    priority = Nums.clamp(degree, LIMIT_PRIORITY);
+    if (inceptTime == -1) inceptTime = base.world.currentTime();
   }
   
   
   public boolean openToPublic() {
-    //if (roles.size() >= PARTY_LIMITS[missionType]) return false;
-    if (missionType == TYPE_PUBLIC) return true ;
-    if (missionType == TYPE_COVERT) return false;
+    if (missionType == TYPE_BASE_AI) return base.primal;
+    if (missionType == TYPE_PUBLIC ) return true ;
+    if (missionType == TYPE_COVERT ) return false;
     return ! begun;
   }
   
@@ -280,6 +293,12 @@ public abstract class Mission implements
   
   public boolean isActive() {
     return begun && ! finished();
+  }
+  
+  
+  public float timeOpen() {
+    if (inceptTime == -1) return 0;
+    return base.world.currentTime() - inceptTime;
   }
   
   
@@ -328,23 +347,50 @@ public abstract class Mission implements
   
   protected float basePriority(Actor actor) {
     final boolean report = evalVerbose && I.talkAbout == actor;
-    
-    float rewardEval = REWARD_AMOUNTS[priority];
-    rewardEval *= REWARD_TYPE_MULTS[missionType];
-    
-    final int partySize = rolesApproved(), limit = PARTY_LIMITS[priority];
-    if (! isApproved(actor)) {
-      if (partySize >= limit) return -1;
-      rewardEval /= limit;
+    if (report) {
+      I.say("\nEvaluating priority for "+this);
+      I.say("  Mission type:  "+missionType);
+      I.say("  True priority: "+priority   );
     }
-    else rewardEval /= partySize;
+    //
+    //  Missions created as TYPE_BASE_AI exist to allow evaluation by base-
+    //  command prior to actual execution.
+    final boolean baseAI = missionType == TYPE_BASE_AI;
+    final int partySize = rolesApproved(), limit = PARTY_LIMITS[priority];
+    float rewardEval;
+    if (baseAI) {
+      rewardEval = Plan.ROUTINE + priority;
+      if (report) I.say("  Value for Base AI: "+rewardEval);
+      return rewardEval;
+    }
+    //
+    //  By default, the basic priority depends on the size of the reward on
+    //  offer for completing the task, together with a multiplier based on
+    //  mission type- the more control you have, the more you must pay your
+    //  candidates.
+    else {
+      rewardEval =  REWARD_AMOUNTS[priority];
+      rewardEval *= REWARD_TYPE_MULTS[missionType];
+    }
+    //
+    //  We assume a worst-case scenario for division of the reward, just to
+    //  ensure that applications remain stable.  Then weight by appeal to the
+    //  actor's basic motives, and return:
+    if (! isApproved(actor)) {
+      if (partySize >= limit) {
+        if (report) I.say("  No room for application! "+partySize+"/"+limit);
+        return -1;
+      }
+      rewardEval /= Nums.max(limit    , 1);
+    }
+    else {
+      rewardEval /= Nums.max(partySize, 1);
+    }
     
     float value = ActorMotives.greedPriority(actor, (int) rewardEval);
     final int standing = actor.vocation().standing;
     value *= standing * 1.5f / Backgrounds.CLASS_STRATOI;
-    
     if (report) {
-      I.say("\nEvaluating reward for "+this);
       I.say("  True reward total: "+REWARD_AMOUNTS[priority]);
       I.say("  Type multiplier:   "+REWARD_TYPE_MULTS[missionType]);
       I.say("  Party capacity:    "+partySize+"/"+limit);
@@ -435,25 +481,28 @@ public abstract class Mission implements
   
   
   public void endMission() {
-    if (verbose) I.say("\nMISSION COMPLETE: "+this);
-    
+    final boolean report = verbose && BaseUI.currentPlayed() == base;
+    if (report) I.say("\nMISSION COMPLETE: "+this);
+    //
+    //  Unregister yourself from the base's list of ongoing operations-
     base.removeMission(this);
     done = true;
-    
-    final float reward = REWARD_AMOUNTS[priority] * 1f / roles.size();
+    //
+    //  Determine the reward, and dispense among any agents engaged-
+    final float reward = this.missionType == TYPE_BASE_AI ? 0 :
+      REWARD_AMOUNTS[priority] * 1f / roles.size()
+    ;
     for (Role role : roles) {
-      role.applicant.mind.assignMission(null);
-      
-      if (begun) {
-        if (verbose) I.say("Dispensing "+reward+" to "+role.applicant);
+      if (begun && reward > 0) {
+        if (report) I.say("  Dispensing "+reward+" credits to "+role.applicant);
         role.applicant.gear.incCredits(reward);
         base.finance.incCredits(0 - reward, BaseFinance.SOURCE_REWARDS);
       }
+      role.applicant.mind.assignMission(null);
     }
-    
-    if (BaseUI.isSelected(this)) {
-      BaseUI.current().selection.pushSelection(null, false);
-    }
+    //
+    //  And perform some cleanup of graphical odds and ends-
+    returnSelectionAfterward();
   }
   
   
@@ -669,6 +718,24 @@ public abstract class Mission implements
       Selection.SELECT_CIRCLE,
       true, this
     );
+  }
+  
+  
+  public boolean visibleTo(Base player) {
+    if (player == base) return true;
+    if (! allVisible) {
+      if (missionType == TYPE_COVERT ) return false;
+      if (missionType == TYPE_BASE_AI) return false;
+    }
+    if (player.intelMap.fogAt(subject) <= 0) return false;
+    return true;
+  }
+  
+  
+  private void returnSelectionAfterward() {
+    if (BaseUI.isSelected(this) && (subject instanceof Selectable)) {
+      BaseUI.current().selection.pushSelection((Selectable) subject, false);
+    }
   }
 }
 

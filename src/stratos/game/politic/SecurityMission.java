@@ -62,6 +62,15 @@ public class SecurityMission extends Mission implements Qualities {
   
   
   
+  /**  Importance assessment-
+    */
+  public float rateImportance(Base base) {
+    //  TODO:  FILL THIS IN LATER
+    return -1;
+  }
+  
+  
+  
   /**  Behaviour implementation-
     */
   protected boolean shouldEnd() {
