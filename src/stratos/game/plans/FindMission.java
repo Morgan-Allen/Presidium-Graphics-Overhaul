@@ -41,14 +41,13 @@ public class FindMission extends Plan {
         return true;
       }
     };
+    //  TODO:  Allow application for missions by other bases!
     for (Mission mission : actor.base().allMissions()) {
       final Venue HQ = missionHQ(actor, mission);
-      final boolean open = mission.openToPublic();
-      if (! open) continue;
-      
+      if (! mission.canApply(actor)) continue;
       if (report) {
         I.say("\n  mission is: "+mission);
-        I.say("  headquarters: "+HQ+", open to public? "+open);
+        I.say("  headquarters: "+HQ);
         I.say("  priority:     "+mission.priorityFor(actor));
         I.say("  next step:    "+mission.nextStepFor(actor));
       }
@@ -110,7 +109,7 @@ public class FindMission extends Plan {
     final boolean report = stepsVerbose && I.talkAbout == actor;
     if (report) I.say("\nGetting next step for joining "+mission);
     
-    if (! canStillApply()) {
+    if (! mission.canApply(actor)) {
       if (report) {
         I.say("  Cannot apply!");
         I.say("  Finished/Begun: "+mission.finished()+"/"+mission.hasBegun());
@@ -158,34 +157,27 @@ public class FindMission extends Plan {
   }
   
   
-  private boolean canStillApply() {
-    if (mission.finished()) return false;
-    if (mission.hasBegun() && ! mission.isApproved(actor)) return false;
-    return true;
-  }
-  
-  
   public boolean actionJoins(Actor client, Actor self) {
     
     I.say(actor+" joining mission: "+mission);
     
-    if (! canStillApply()) return false;
+    if (! mission.canApply(client)) return false;
     final boolean report = stepsVerbose && I.talkAbout == client;
     
     if (report) {
-      I.say("\nJoining mission: "+mission);
+      I.say("");
+      I.say("Joining mission:  "+mission);
       I.say("  Has begun?      "+mission.hasBegun());
-      I.say("  Open to public? "+mission.openToPublic());
       I.say("  Applicants:     "+mission.totalApplied());
     }
-    client.mind.assignMission(mission);
+    client.mind.assignMission  (mission);
     client.mind.assignBehaviour(mission);
     return true;
   }
   
   
   public boolean actionApplies(Actor client, Venue admin) {
-    if (! canStillApply()) return false;
+    if (! mission.canApply(client)) return false;
     client.mind.assignMission(mission);
     return true;
   }

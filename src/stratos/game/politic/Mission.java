@@ -206,47 +206,110 @@ public abstract class Mission implements
   }
   
   
-  public void resetMission() {
-    for (Role role : roles) role.applicant.mind.assignMission(null);
-    begun = false;
-  }
   
-  
-  
-  /**  Assessing priority for the base as a whole:
+  /**  General life-cycle, justification and setup methods-
     */
   public abstract float rateImportance(Base base);
   
-  
+  /*
   protected boolean vetCandidate(Actor applies) {
+    if (applies.vocation() instanceof Species) {
+      return true;
+    }
+    
+    final Plan next = this.nextStepFor(applies);
+    if (next.successChanceFor(applies) < 0.5f) return 0;
     //  TODO:  ENSURE MINIMAL COMPETENCE.
     return true;
   }
+  //*/
   
   
-  protected float successChanceFor(Actor actor) {
+  
+  protected float successChance() {
     float sumChances = 0;
     for (Role r : roles) if (r.cached instanceof Plan) {
       sumChances += ((Plan) r.cached).successChanceFor(r.applicant);
     }
     return sumChances;
   }
-  //  TODO:  You need to allow the BaseTactics class (?) to vet applicants for
-  //  consideration.  (Don't allow more than 5, for example.)  And rate them
-  //  by success-chance.
+
+  
+  public void updateMission() {
+    if (missionType == TYPE_PUBLIC && priority > 0 && ! hasBegun()) {
+      beginMission();
+    }
+    else if (shouldEnd()) endMission();
+    else {
+      
+    }
+  }
   
   
-  //  Okay.  Well... real human players can do what they please.  But by
-  //  default, bases won't expend all their resources on what they consider a
-  //  mediocre danger.
-  
-  //  So... don't assign actors to a task if it takes them beyond the danger-
-  //  level for the area.  (i.e, if the sum of their success-chances takes them
-  //  beyond 1.  Or 1-ish.)
+  public void resetMission() {
+    for (Role role : roles) role.applicant.mind.assignMission(null);
+    begun = false;
+  }
   
   
+  public void assignPriority(int degree) {
+    priority = Nums.clamp(degree, LIMIT_PRIORITY);
+    if (inceptTime == -1) inceptTime = base.world.currentTime();
+  }
   
-  /**  Adding and screening applicants-
+  
+  public void setMissionType(int type) {
+    this.missionType = type;
+    resetMission();
+  }
+  
+  
+  public void setObjective(int objectIndex) {
+    this.objectIndex = objectIndex;
+  }
+  
+  
+  public int assignedPriority() {
+    return priority;
+  }
+  
+  
+  protected int objectIndex() {
+    return objectIndex;
+  }
+  
+  
+  public boolean hasBegun() {
+    return begun;
+  }
+  
+ 
+  public boolean finished() {
+    return done;
+  }
+  
+  
+  public boolean persistent() {
+    return true;
+  }
+  
+  
+  public boolean isActive() {
+    return begun && ! finished();
+  }
+  
+  
+  public float timeOpen() {
+    if (inceptTime == -1) return 0;
+    return base.world.currentTime() - inceptTime;
+  }
+  
+  
+  protected abstract boolean shouldEnd();
+  
+  
+  
+  /**  Adding and screening applicants, plus confirmation and cancellation-
     */
   class Role {
     Actor applicant;
@@ -265,11 +328,6 @@ public abstract class Mission implements
     int count = 0;
     for (Role role : roles) if (role.approved) count++;
     return count;
-  }
-  
-  
-  protected int objectIndex() {
-    return objectIndex;
   }
   
   
@@ -299,41 +357,92 @@ public abstract class Mission implements
   }
   
   
-  
-  /**  Public access methods for setup purposes
-    */
-  public void assignPriority(int degree) {
-    priority = Nums.clamp(degree, LIMIT_PRIORITY);
-    if (inceptTime == -1) inceptTime = base.world.currentTime();
+  public boolean canApply(Actor actor) {
+    if (done) return false;
+    if (roleFor(actor) != null) return true;
+    if (missionType == TYPE_BASE_AI ) return true;
+    
+    final Behaviour step = cachedStepFor(actor, true);
+    step.priorityFor(actor);
+    if (step instanceof Plan && ((Plan) step).competence() < 1) return false;
+    
+    if (missionType == TYPE_PUBLIC  ) return true;
+    if (missionType == TYPE_SCREENED) return ! begun;
+    if (missionType == TYPE_COVERT  ) return false;
+    return false;
   }
   
   
-  public int assignedPriority() {
-    return priority;
+  //  NOTE:  This method should be called within the ActorMind.assignMission
+  //  method, and not independantly.
+  public void setApplicant(Actor actor, boolean is) {
+    final Role oldRole = roleFor(actor);
+    if (is) {
+      if (actor.mind.mission() != this) I.complain("MUST CALL setMission()!");
+      if (oldRole != null) return;
+      Role role = new Role();
+      role.applicant = actor;
+      role.approved = missionType == TYPE_PUBLIC ? true : false;
+      roles.add(role);
+      //I.say("Role added for "+actor+"!");
+      //I.reportStackTrace();
+    }
+    else {
+      if (actor.mind.mission() == this) I.complain("MUST CALL setMission()!");
+      if (oldRole == null) return;
+      roles.remove(oldRole);
+    }
   }
   
   
-  public boolean openToPublic() {
-    if (missionType == TYPE_BASE_AI) return base.primal;
-    if (missionType == TYPE_PUBLIC ) return true ;
-    if (missionType == TYPE_COVERT ) return false;
-    return ! begun;
+  public void setApprovalFor(Actor actor, boolean is) {
+    final Role role = roleFor(actor);
+    if (role == null) I.complain(actor+" never applied for "+this);
+    role.approved = is;
   }
   
   
-  public boolean hasBegun() {
-    return begun;
+  public void beginMission() {
+    if (hasBegun()) return;
+    begun = true;
+    ///I.say("Beginning mission: "+this);
+    
+    for (Role role : roles) {
+      if (! role.approved) {
+        final Actor rejected = role.applicant;
+        rejected.mind.assignMission(null);
+      }
+      else {
+        final Actor active = role.applicant;
+        active.mind.assignBehaviour(nextStepFor(active));
+      }
+    }
   }
   
   
-  public boolean isActive() {
-    return begun && ! finished();
-  }
-  
-  
-  public float timeOpen() {
-    if (inceptTime == -1) return 0;
-    return base.world.currentTime() - inceptTime;
+  public void endMission() {
+    final boolean report = verbose && BaseUI.currentPlayed() == base;
+    if (report) I.say("\nMISSION COMPLETE: "+this);
+    //
+    //  Unregister yourself from the base's list of ongoing operations-
+    base.removeMission(this);
+    done = true;
+    //
+    //  Determine the reward, and dispense among any agents engaged-
+    final float reward = this.missionType == TYPE_BASE_AI ? 0 :
+      REWARD_AMOUNTS[priority] * 1f / roles.size()
+    ;
+    for (Role role : roles) {
+      if (begun && reward > 0) {
+        if (report) I.say("  Dispensing "+reward+" credits to "+role.applicant);
+        role.applicant.gear.incCredits(reward);
+        base.finance.incCredits(0 - reward, BaseFinance.SOURCE_REWARDS);
+      }
+      role.applicant.mind.assignMission(null);
+    }
+    //
+    //  And perform some cleanup of graphical odds and ends-
+    returnSelectionAfterward();
   }
   
   
@@ -457,104 +566,6 @@ public abstract class Mission implements
   
   
   
-  /**  NOTE:  This method should be called within the ActorMind.assignMission
-    *  method, and not independantly.
-    */
-  public void setApplicant(Actor actor, boolean is) {
-    final Role oldRole = roleFor(actor);
-    if (is) {
-      if (actor.mind.mission() != this) I.complain("MUST CALL setMission()!");
-      if (oldRole != null) return;
-      Role role = new Role();
-      role.applicant = actor;
-      role.approved = missionType == TYPE_PUBLIC ? true : false;
-      roles.add(role);
-      //I.say("Role added for "+actor+"!");
-      //I.reportStackTrace();
-    }
-    else {
-      if (actor.mind.mission() == this) I.complain("MUST CALL setMission()!");
-      if (oldRole == null) return;
-      roles.remove(oldRole);
-    }
-  }
-  
-  
-  public void setApprovalFor(Actor actor, boolean is) {
-    final Role role = roleFor(actor);
-    if (role == null) I.complain(actor+" never applied for "+this);
-    role.approved = is;
-  }
-  
-  
-  public void setMissionType(int type) {
-    this.missionType = type;
-    resetMission();
-  }
-  
-  
-  public void setObjective(int objectIndex) {
-    this.objectIndex = objectIndex;
-  }
-  
-  
-  public void beginMission() {
-    if (hasBegun()) return;
-    begun = true;
-    ///I.say("Beginning mission: "+this);
-    
-    for (Role role : roles) {
-      if (! role.approved) {
-        final Actor rejected = role.applicant;
-        rejected.mind.assignMission(null);
-      }
-      else {
-        final Actor active = role.applicant;
-        active.mind.assignBehaviour(nextStepFor(active));
-      }
-    }
-  }
-  
-  
-  public void endMission() {
-    final boolean report = verbose && BaseUI.currentPlayed() == base;
-    if (report) I.say("\nMISSION COMPLETE: "+this);
-    //
-    //  Unregister yourself from the base's list of ongoing operations-
-    base.removeMission(this);
-    done = true;
-    //
-    //  Determine the reward, and dispense among any agents engaged-
-    final float reward = this.missionType == TYPE_BASE_AI ? 0 :
-      REWARD_AMOUNTS[priority] * 1f / roles.size()
-    ;
-    for (Role role : roles) {
-      if (begun && reward > 0) {
-        if (report) I.say("  Dispensing "+reward+" credits to "+role.applicant);
-        role.applicant.gear.incCredits(reward);
-        base.finance.incCredits(0 - reward, BaseFinance.SOURCE_REWARDS);
-      }
-      role.applicant.mind.assignMission(null);
-    }
-    //
-    //  And perform some cleanup of graphical odds and ends-
-    returnSelectionAfterward();
-  }
-  
-  
-  public void updateMission() {
-    if (missionType == TYPE_PUBLIC && priority > 0) beginMission();
-    if (shouldEnd()) endMission();
-  }
-  
-  
-  protected abstract boolean shouldEnd();
-  
-  public boolean finished() { return done; }
-  public boolean persistent() { return true; }
-  
-  
-  
   /**  Rendering and interface methods-
     */
   public String fullName() { return description; }
@@ -606,13 +617,6 @@ public abstract class Mission implements
     }
     else return panel;
   }
-  
-  
-  protected String describeObjective(int objectIndex) {
-    return objectiveDescriptions()[objectIndex];
-  }
-  
-  protected abstract String[] objectiveDescriptions();
   
   
   public void whenClicked() {
@@ -697,6 +701,14 @@ public abstract class Mission implements
       BaseUI.current().selection.pushSelection((Selectable) subject, false);
     }
   }
+  
+  
+  protected String describeObjective(int objectIndex) {
+    return objectiveDescriptions()[objectIndex];
+  }
+  
+  
+  protected abstract String[] objectiveDescriptions();
 }
 
 

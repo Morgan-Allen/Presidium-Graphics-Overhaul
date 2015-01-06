@@ -37,9 +37,9 @@ public abstract class Plan implements Saveable, Behaviour {
     doesVerbose  = false;
   
   final public Target subject;
-  final boolean persistent;
   protected Actor actor;
   
+  final boolean persistent;
   protected float
     lastEvalTime = -1,
     priorityEval = NULL_PRIORITY;
@@ -49,7 +49,7 @@ public abstract class Plan implements Saveable, Behaviour {
   
   private int motiveType = MOTIVE_INIT;
   private float motiveBonus = 0;
-  private float harmFactor, competeFactor;
+  private float harmFactor, competence;
   private boolean begun;
   
   
@@ -78,9 +78,9 @@ public abstract class Plan implements Saveable, Behaviour {
     this.motiveType   = s.loadInt();
     this.motiveBonus  = s.loadFloat();
     
-    this.harmFactor    = s.loadFloat();
-    this.competeFactor = s.loadFloat();
-    this.begun         = s.loadBool();
+    this.harmFactor = s.loadFloat();
+    this.competence = s.loadFloat();
+    this.begun      = s.loadBool();
   }
   
   
@@ -96,9 +96,9 @@ public abstract class Plan implements Saveable, Behaviour {
     s.saveInt   (motiveType  );
     s.saveFloat (motiveBonus );
     
-    s.saveFloat(harmFactor   );
-    s.saveFloat(competeFactor);
-    s.saveBool (begun        );
+    s.saveFloat(harmFactor);
+    s.saveFloat(competence);
+    s.saveBool (begun     );
   }
   
   
@@ -389,7 +389,7 @@ public abstract class Plan implements Saveable, Behaviour {
     if (doesVerbose && hasBegun() && I.talkAbout == actor) report = true;
     
     this.harmFactor    = subjectHarm ;
-    this.competeFactor = peersCompete;
+    //this.competeFactor = peersCompete;
     final boolean mission = motiveType == MOTIVE_MISSION;
     float priority = PARAMOUNT, relation = 0;
     
@@ -445,6 +445,7 @@ public abstract class Plan implements Saveable, Behaviour {
       
       avgSkill /= baseSkills.length;
       maxSkill = Nums.clamp((maxSkill + avgSkill) / 2, 0, 2);
+      this.competence = maxSkill;
       priority *= Nums.sqrt(maxSkill);
       if (report) {
         I.say("  After skill adjustments:     "+priority);
@@ -503,7 +504,7 @@ public abstract class Plan implements Saveable, Behaviour {
     if (report) {
       I.say("  Distance is:                 "+Spacing.distance(actor, subject));
       I.say("  Chance penalty is:           "+chancePenalty);
-      I.say("  Compete factor is:           "+competeFactor);
+      I.say("  Compete factor is:           "+peersCompete);
       I.say("  Range/Danger penalty is:     "+rangePenalty+"/"+dangerPenalty);
       I.say("  Flat modifier:               "+flatBonus);
       I.say("  Final priority:              "+priority);
@@ -537,8 +538,8 @@ public abstract class Plan implements Saveable, Behaviour {
   }
   
   
-  public float harmFactor()    { return harmFactor   ; }
-  public float competeFactor() { return competeFactor; }
+  public float harmFactor() { return harmFactor; }
+  public float competence() { return competence; }
   
   
   protected void onceInvalid() {}

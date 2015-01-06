@@ -60,8 +60,14 @@ public class Joining extends Plan {
   }
   
   
-  public float harmFactor()    { return basis.harmFactor()  ; }
-  public float competeFactor() { return basis.competeFactor(); }
+  public float harmFactor() {
+    return basis.harmFactor();
+  }
+  
+  
+  public float competence() {
+    return basis.competence();
+  }
   
   
   protected Behaviour getNextStep() {
