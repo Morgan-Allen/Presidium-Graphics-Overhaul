@@ -42,6 +42,9 @@ public class Colour {
     SOFT_YELLOW  = new Colour(YELLOW ).withOpacity(0.5f),
     SOFT_CYAN    = new Colour(CYAN   ).withOpacity(0.5f),
     SOFT_MAGENTA = new Colour(MAGENTA).withOpacity(0.5f),
+    SOFT_GREY    = new Colour(GREY   ).withOpacity(0.5f),
+    SOFT_WHITE   = new Colour(WHITE  ).withOpacity(0.5f),
+    SOFT_BLACK   = new Colour(BLACK  ).withOpacity(0.5f),
     
     LITE_RED     = new Colour(RED    ).blend(WHITE, 0.5f),
     LITE_GREEN   = new Colour(GREEN  ).blend(WHITE, 0.5f),

@@ -27,31 +27,36 @@ public class Button extends Image {
     CIRCLE_LIT = ImageAsset.fromImage(
       Button.class, "media/GUI/icon_lit_circle.png"
     );
-  
+
+  protected Texture   highlit;
+  protected String    info   ;
+  protected Clickable links  ;
   public float
     hoverLit = DEFAULT_HOVER_ALPHA,
     pressLit = DEFAULT_PRESS_ALPHA;
-  protected Texture highlit;
-  protected String info;
-  protected Clickable links;
   
   
-  public Button(HUD myHUD, ImageAsset norm, String infoS) {
+  public Button(HUD UI, ImageAsset norm, String infoS) {
     this(
-      myHUD, norm.asTexture(),
+      UI, norm.asTexture(),
       DEFAULT_LIT.asTexture(),
       infoS
     );
   }
   
 
-  public Button(HUD myHUD, Texture norm, String infoS) {
-    this(myHUD, norm, DEFAULT_LIT.asTexture(), infoS);
+  public Button(HUD UI, ImageAsset norm, ImageAsset lit, String infoS) {
+    this(UI, norm.asTexture(), lit.asTexture(), infoS);
+  }
+  
+
+  public Button(HUD UI, Texture norm, String infoS) {
+    this(UI, norm, DEFAULT_LIT.asTexture(), infoS);
   }
   
   
-  public Button(HUD myHUD, Texture norm, Texture lit, String infoS) {
-    super(myHUD, norm);
+  public Button(HUD UI, Texture norm, Texture lit, String infoS) {
+    super(UI, norm);
     info = infoS;
     highlit = lit;
   }
