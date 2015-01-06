@@ -48,6 +48,8 @@ public interface Behaviour extends Session.Saveable {
   Target subject();
   
   float priorityFor(Actor actor);
+  //  TODO:  ALSO REQUIRE A RETURN OF SUCCESS-CHANCE.
+  
   boolean finished();
   boolean valid();
   boolean hasBegun();

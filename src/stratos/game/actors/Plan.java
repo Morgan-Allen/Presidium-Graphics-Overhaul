@@ -446,13 +446,6 @@ public abstract class Plan implements Saveable, Behaviour {
       avgSkill /= baseSkills.length;
       maxSkill = Nums.clamp((maxSkill + avgSkill) / 2, 0, 2);
       priority *= Nums.sqrt(maxSkill);
-      
-      //  In addition, pursuing missions will require *at least* this level of
-      //  competence.  TODO:  Put this in a separate sub-method?
-      if (mission && maxSkill < 1) {
-        if (report) I.say("  Insufficient skill to pursue mission!");
-        return PRIORITY_NEVER;
-      }
       if (report) {
         I.say("  After skill adjustments:     "+priority);
       }
@@ -490,7 +483,7 @@ public abstract class Plan implements Saveable, Behaviour {
       dangerPenalty = 0;
     
     if (failRisk > 0) {
-      final float chance = successChance();
+      final float chance = successChanceFor(actor);
       chancePenalty = (1 - chance) * failRisk * PARAMOUNT;
     }
     
@@ -518,11 +511,36 @@ public abstract class Plan implements Saveable, Behaviour {
     return priority;
   }
   
+  //  TODO:  This should be used to replace the skills handed over.
+  //  TODO:  Consider making this abstract?
+  public float successChanceFor(Actor actor) { return 1; }
+  
+  //  TODO:  Pass in a conversion instead (or allow for that.)
+  
+  protected float successForActorWith(
+    Actor actor, Skill baseSkills[], float DC, boolean realTest
+  ) {
+    if (realTest) {
+      float success = 0;
+      for (Skill s : baseSkills) {
+        success += actor.skills.test(s, DC, 1) ? 1 : 0;
+      }
+      return success / baseSkills.length;
+    }
+    else {
+      float chance = 0;
+      for (Skill s : baseSkills) {
+        chance += actor.skills.chance(s, DC);
+      }
+      return chance / baseSkills.length;
+    }
+  }
+  
   
   public float harmFactor()    { return harmFactor   ; }
   public float competeFactor() { return competeFactor; }
   
-  protected float successChance() { return 1; }
+  
   protected void onceInvalid() {}
   
   protected abstract Behaviour getNextStep();
@@ -582,7 +600,7 @@ public abstract class Plan implements Saveable, Behaviour {
         final Plan plan = (Plan) b;
         if (plan.getClass() != planClass) continue;
         if (plan.actor() == null || plan.actor() == actor) continue;
-        competition += plan.successChance();
+        competition += plan.successChanceFor(plan.actor());
       }
     }
     return competition;
@@ -597,7 +615,7 @@ public abstract class Plan implements Saveable, Behaviour {
         final Plan plan = (Plan) b;
         if (plan.actor() == actor) continue;
         if (! plan.matchesPlan(match)) continue;
-        competition += plan.successChance();
+        competition += plan.successChanceFor(plan.actor());
       }
     }
     return competition;

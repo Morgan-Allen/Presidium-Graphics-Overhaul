@@ -17,7 +17,7 @@ public class Combat extends Plan implements Qualities {
   /**  Data fields, constructors and save/load methods-
     */
   protected static boolean
-    evalVerbose   = false,
+    evalVerbose   = true ,
     stepsVerbose  = false,
     damageVerbose = false;
   
@@ -31,7 +31,7 @@ public class Combat extends Plan implements Qualities {
     OBJECT_EITHER  = 0,
     OBJECT_SUBDUE  = 1,
     OBJECT_DESTROY = 2,
-    ALL_OBJECTS[] = { 0, 1, 2 };
+    ALL_OBJECTS[]  = { 0, 1, 2 };
 
   final public static String STYLE_NAMES[] = {
     "Ranged",
@@ -143,7 +143,7 @@ public class Combat extends Plan implements Qualities {
   }
   
   
-  protected float successChance() {
+  public float successChanceFor(Actor actor) {
     return CombatUtils.successChance(actor, subject);
   }
   

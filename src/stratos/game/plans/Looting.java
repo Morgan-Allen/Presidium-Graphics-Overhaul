@@ -162,11 +162,11 @@ public class Looting extends Plan {
   }
   
   
-  protected float successChance() {
+  public float successChanceFor(Actor actor) {
     //  TODO:  Modify this to reflect ambient dangers (such as visibility,
     //  skill-set, day/night values, etc.)
     
-    return super.successChance();
+    return super.successChanceFor(actor);
   }
   
   

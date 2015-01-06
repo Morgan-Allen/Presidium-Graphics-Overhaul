@@ -149,7 +149,7 @@ public class Repairs extends Plan {
   }
   
   
-  protected float successChance() {
+  public float successChanceFor(Actor actor) {
     float chance = 1;
     //  TODO:  Base this on the conversion associated with the structure type.
     chance *= actor.skills.chance(HARD_LABOUR, 0);

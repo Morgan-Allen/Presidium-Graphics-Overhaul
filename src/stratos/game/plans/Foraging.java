@@ -108,7 +108,7 @@ public class Foraging extends Plan {
   }
   
   
-  protected float successChance() {
+  public float successChanceFor(Actor actor) {
     float chance = 1;
     chance *= actor.skills.chance(HARD_LABOUR, ROUTINE_DC);
     chance *= actor.skills.chance(CULTIVATION, MODERATE_DC);

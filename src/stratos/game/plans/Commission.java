@@ -105,24 +105,6 @@ public class Commission extends Plan {
     }
   }
   
-  /*
-  public static Commission forItem(
-    Actor actor, Item baseItem, Conversion used, Venue at, boolean upgrade
-  ) {
-    if (baseItem == null || actor == null) return null;
-    final boolean hasCommission = actor.mind.hasToDo(Commission.class);
-    if (hasCommission) return null;
-    
-    if (! upgrade) return new Commission(actor, baseItem, at);
-    
-    if (at == null) at = (Venue) actor.world().presences.nearestMatch(
-      baseItem.type, actor, Stage.SECTOR_SIZE
-    );
-    if (at == null) return null;
-    return nextCommission(actor, at, baseItem);
-  }
-  //*/
-  
   
   private static Commission nextCommission(
     Actor actor, Venue makes, Item baseItem

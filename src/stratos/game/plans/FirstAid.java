@@ -102,8 +102,10 @@ public class FirstAid extends Treatment {
     return priority;
   }
   
-
-  protected float successChance() { return 0.5f; }
+  
+  public float successChanceFor(Actor actor) {
+    return successForActorWith(actor, BASE_SKILLS, ROUTINE_DC, false);
+  }
   
   
   protected Behaviour getNextStep() {

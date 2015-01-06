@@ -95,7 +95,7 @@ public class Studying extends Plan {
   }
   
   
-  protected float successChance() {
+  public float successChanceFor(Actor actor) {
     float chance = 1;
     chance += actor.skills.chance(INSCRIPTION, INSCRIBE_DC);
     chance += actor.skills.chance(ACCOUNTING , ACCOUNTS_DC);

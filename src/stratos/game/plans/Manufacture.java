@@ -177,7 +177,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
         I.say("    "+c.skills[i]+" "+c.skillDCs[i]+" (has "+knownLevel+")");
       }
       
-      I.say("  Success chance: "+successChance());
+      I.say("  Success chance: "+successChanceFor(actor));
       I.say("  Final priority: "+priority);
     }
     return priority;
@@ -195,7 +195,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   }
   
   
-  protected float successChance() {
+  public float successChanceFor(Actor actor) {
     final Conversion c = conversion;
     float chance = 1.0f;
     for (int i = c.skills.length; i-- > 0;) {

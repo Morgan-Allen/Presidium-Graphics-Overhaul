@@ -255,7 +255,7 @@ public class Treatment extends Plan implements Item.Passive {
   }
   
   
-  protected float successChance() {
+  public float successChanceFor(Actor actor) {
     final float
       severity = severity(),
       bonus    = getVenueBonus(false, PhysicianStation.APOTHECARY);

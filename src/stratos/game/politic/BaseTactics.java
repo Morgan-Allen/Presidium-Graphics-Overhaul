@@ -160,7 +160,13 @@ public class BaseTactics {
   protected void checkForMissionStart(Mission mission, float rating) {
     //  TODO:  You could also use different criteria here (e.g, the party is
     //  full.)
-    if (mission.timeOpen() > APPLY_WAIT_DURATION) {
+    if (mission.timeOpen() > APPLY_WAIT_DURATION && ! mission.hasBegun()) {
+      //  TODO:  You might want to hold back a bit here, depending on the
+      //  priority of the mission- expend fewer resources on lower-priority
+      //  tasks.
+      for (Actor applies : mission.applicants()) {
+        mission.setApprovalFor(applies, true);
+      }
       mission.beginMission();
     }
     else {

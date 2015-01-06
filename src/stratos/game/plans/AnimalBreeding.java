@@ -172,6 +172,11 @@ public class AnimalBreeding extends Plan {
   }
   
   
+  public float successChanceFor(Actor actor) {
+    return successForActorWith(actor, BASE_SKILLS, ROUTINE_DC, false);
+  }
+  
+  
   
   /**  Behaviour implementation-
     */

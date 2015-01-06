@@ -12,15 +12,15 @@ import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
 
 
+
 //  TODO:  You can most likely remove the admin requirement, at least for
 //  public bounties.
-
 
 public class FindMission extends Plan {
   
   
   private static boolean
-    evalVerbose  = false,
+    evalVerbose  = true ,
     stepsVerbose = true ;
   final Mission mission;
   
@@ -49,8 +49,8 @@ public class FindMission extends Plan {
       if (report) {
         I.say("\n  mission is: "+mission);
         I.say("  headquarters: "+HQ+", open to public? "+open);
-        I.say("  priority: "+mission.priorityFor(actor));
-        I.say("  next step: "+mission.nextStepFor(actor));
+        I.say("  priority:     "+mission.priorityFor(actor));
+        I.say("  next step:    "+mission.nextStepFor(actor));
       }
       choice.add(mission);
     }

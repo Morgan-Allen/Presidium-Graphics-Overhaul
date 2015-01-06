@@ -84,7 +84,7 @@ public class RoadsRepair extends Plan {
   
   
   //  TODO:  Merge this with the Repair class for simplicity?
-  protected float successChance() {
+  public float successChanceFor(Actor actor) {
     float chance = 1;
     chance *= actor.skills.chance(HARD_LABOUR, 0);
     chance *= actor.skills.chance(ASSEMBLY   , 5);

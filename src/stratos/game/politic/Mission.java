@@ -62,7 +62,7 @@ public abstract class Mission implements
   
   private static boolean
     verbose     = false,
-    evalVerbose = true ,
+    evalVerbose = false,
     allVisible  = true ;
   
   final public static int
@@ -218,6 +218,33 @@ public abstract class Mission implements
   public abstract float rateImportance(Base base);
   
   
+  protected boolean vetCandidate(Actor applies) {
+    //  TODO:  ENSURE MINIMAL COMPETENCE.
+    return true;
+  }
+  
+  
+  protected float successChanceFor(Actor actor) {
+    float sumChances = 0;
+    for (Role r : roles) if (r.cached instanceof Plan) {
+      sumChances += ((Plan) r.cached).successChanceFor(r.applicant);
+    }
+    return sumChances;
+  }
+  //  TODO:  You need to allow the BaseTactics class (?) to vet applicants for
+  //  consideration.  (Don't allow more than 5, for example.)  And rate them
+  //  by success-chance.
+  
+  
+  //  Okay.  Well... real human players can do what they please.  But by
+  //  default, bases won't expend all their resources on what they consider a
+  //  mediocre danger.
+  
+  //  So... don't assign actors to a task if it takes them beyond the danger-
+  //  level for the area.  (i.e, if the sum of their success-chances takes them
+  //  beyond 1.  Or 1-ish.)
+  
+  
   
   /**  Adding and screening applicants-
     */
@@ -310,17 +337,9 @@ public abstract class Mission implements
   }
   
   
-  public int motionType(Actor actor) {
-    return MOTION_ANY;
-  }
   
-  
-  public boolean valid() {
-    if (finished()) return false;
-    return ! subject.destroyed();
-  }
-  
-  
+  /**  Behaviour implementation for the benefit of any applicants/agents:
+    */
   protected Behaviour cachedStepFor(Actor actor, boolean create) {
     if (begun) updateMission();
     if (done) return null;
@@ -335,9 +354,20 @@ public abstract class Mission implements
   }
   
   
+  protected Behaviour cacheStepFor(Actor actor, Behaviour step) {
+    final Role role = roleFor(actor);
+    if (role == null) return step;
+    return role.cached = step;
+  }
+  
+  
+  public boolean valid() {
+    if (finished()) return false;
+    return ! subject.destroyed();
+  }
+  
+  
   public float priorityFor(Actor actor) {
-    //  TODO:  Vary this based on loyalty to the governor that declared the
-    //  mission in question.
     
     final Behaviour step = cachedStepFor(actor, true);
     if (step == null) return -1;
@@ -410,10 +440,8 @@ public abstract class Mission implements
   }
   
   
-  protected Behaviour cacheStepFor(Actor actor, Behaviour step) {
-    final Role role = roleFor(actor);
-    if (role == null) return step;
-    return role.cached = step;
+  public int motionType(Actor actor) {
+    return MOTION_ANY;
   }
   
   

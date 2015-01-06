@@ -113,7 +113,7 @@ public class SpawnArtilect extends Plan implements Qualities {
   }
   
   
-  protected float successChance() {
+  public float successChanceFor(Actor actor) {
     final float DC = repairDC();
     float chance = 0;
     chance += actor.skills.chance(ASSEMBLY, DC) / 2;
