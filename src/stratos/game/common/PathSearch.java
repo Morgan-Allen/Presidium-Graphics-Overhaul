@@ -177,7 +177,7 @@ public class PathSearch extends Search <Boarding> {
       
       //  Avoid areas that you consider dangerous...
       //  TODO:  Can you guarantee this will be an actor?...
-      final Senses s = ((Actor) client).senses;
+      final ActorSenses s = ((Actor) client).senses;
       final float directionDanger = s.dangerFromDirection(prior);
       mods += directionDanger * 10;
       

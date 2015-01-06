@@ -28,25 +28,23 @@ public abstract class Actor extends Mobile implements
   private static boolean
     verbose = false;
   
-  
-  final public Healthbar healthbar = new Healthbar();
-  final public Label     label     = new Label    ();
-  final public TalkFX    chat      = new TalkFX   ();
-  
   final public ActorHealth health = new ActorHealth(this);
   final public ActorTraits traits = new ActorTraits(this);
   final public ActorSkills skills = new ActorSkills(this);
   final public ActorGear   gear   = new ActorGear  (this);
   
-  final public ActorMind mind = initAI();
-  final public Senses senses = initSenses();
-  
+  final public ActorMind      mind      = initMind     ();
+  final public ActorSenses    senses    = initSenses   ();
   final public ActorMotives   motives   = initMotives  ();
   final public ActorRelations relations = initRelations();
   
   private Action actionTaken;
-  private Mount mount;
-  private Base base;
+  private Mount  mount;
+  private Base   base;
+  
+  final public Healthbar healthbar = new Healthbar();
+  final public Label     label     = new Label    ();
+  final public TalkFX    chat      = new TalkFX   ();
   
   
   public Actor() {
@@ -91,21 +89,23 @@ public abstract class Actor extends Mobile implements
   }
   
   
-  protected abstract ActorMind initAI();
-  
-  protected Senses initSenses() { return new Senses(this); }
+  protected abstract ActorMind initMind();
+  protected ActorSenses    initSenses   () { return new ActorSenses   (this); }
   protected ActorMotives   initMotives  () { return new ActorMotives  (this); }
   protected ActorRelations initRelations() { return new ActorRelations(this); }
-  protected Pathing initPathing() { return new Pathing(this); }
+  protected Pathing        initPathing  () { return new Pathing       (this); }
+  
   
   public float height() {
     return 1.0f * GameSettings.actorScale;
   }
   
+  
   public boolean isMoving() {
     if (actionTaken == null) return false;
     return actionTaken.isMoving();
   }
+  
   
   //  TODO:  Get rid of the setVocation method.  Belongs in the mind, I think.
   public void setVocation(Background b) {}
@@ -293,7 +293,7 @@ public abstract class Actor extends Mobile implements
         //
         //  Actually lift fog in an area slightly ahead of the actor-
         final Vec2D heads = new Vec2D().setFromAngle(rotation);
-        heads.scale(health.sightRange() / 3f);
+        heads.scale(health.sightRange() / 2f);
         heads.x += position.x;
         heads.y += position.y;
         b.intelMap.liftFogAround(heads.x, heads.y, health.sightRange());

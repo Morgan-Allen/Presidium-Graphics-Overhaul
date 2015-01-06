@@ -325,7 +325,7 @@ public class Action implements Behaviour, AnimNames {
       if (report) I.say("  Must have facing and line of sight.");
       //  TODO:  Build line-of-sight considerations into the actor's reaction
       //  algorithms instead?
-      final boolean seen = Senses.hasLineOfSight(
+      final boolean seen = ActorSenses.hasLineOfSight(
         actor, actionTarget, Nums.max(maxDist, sightRange)
       );
       

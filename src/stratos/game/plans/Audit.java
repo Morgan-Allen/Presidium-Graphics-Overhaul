@@ -22,8 +22,8 @@ public class Audit extends Plan {
   /**  Data fields, constructors and save/load functions-
     */
   private static boolean
-    evalVerbose  = true ,
-    stepsVerbose = true ;
+    evalVerbose  = false,
+    stepsVerbose = false;
   
   public static enum Type {
     TYPE_OFFICIAL ,
@@ -37,7 +37,9 @@ public class Audit extends Plan {
     STAGE_DONE   =  2;
   
   
-  private Type type;
+  final Type type;
+  final Venue reportAt;
+  
   private int stage = STAGE_EVAL;
   private Property audited;
   public int checkBonus = 0;
@@ -52,14 +54,17 @@ public class Audit extends Plan {
   
   public Audit(Actor actor, Property toAudit, Type type) {
     super(actor, toAudit, true, NO_HARM);
-    this.type    = type;
-    this.audited = toAudit;
+    this.type     = type;
+    this.audited  = toAudit;
+    this.reportAt = (Venue) actor.mind.work();
   }
   
   
   public Audit(Session s) throws Exception {
     super(s);
-    type       = (Type) s.loadEnum(Type.values());
+    type       = (Type ) s.loadEnum(Type.values());
+    reportAt   = (Venue) s.loadObject();
+    
     stage      = s.loadInt();
     audited    = (Venue) s.loadObject();
     checkBonus = s.loadInt();
@@ -76,6 +81,8 @@ public class Audit extends Plan {
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     s.saveEnum  (type      );
+    s.saveObject(reportAt  );
+    
     s.saveInt   (stage     );
     s.saveObject(audited   );
     s.saveInt   (checkBonus);
@@ -241,9 +248,9 @@ public class Audit extends Plan {
     }
     
     if (stage == STAGE_REPORT) {
-      if (report) I.say("  Reporting earnings at: "+actor.mind.work());
+      if (report) I.say("  Reporting earnings at: "+reportAt);
       final Action files = new Action(
-        actor, actor.mind.work(),
+        actor, reportAt,
         this, "actionFileReport",
         Action.TALK, "Filing Report"
       );
@@ -263,8 +270,8 @@ public class Audit extends Plan {
     else {
       audited.inventory().incCredits(0 - balance);
       audited.inventory().taxDone();
+      stage = (audited == reportAt) ? STAGE_REPORT : STAGE_EVAL;
       this.audited = null;
-      stage = STAGE_EVAL;
     }
     return true;
   }
@@ -358,7 +365,6 @@ public class Audit extends Plan {
     balance -= sumWages;
     this.totalSum += balance;
     return balance;
-    //audited.inventory().incCredits(0 - balance);
   }
   
   
@@ -373,7 +379,7 @@ public class Audit extends Plan {
     }
     else if (stage == STAGE_REPORT) {
       d.append("Filing a financial report at ");
-      d.append(actor.mind.work());
+      d.append(reportAt);
       d.append(" (Balance "+(int) totalSum+")");
     }
     else d.append("Auditing "+audited);

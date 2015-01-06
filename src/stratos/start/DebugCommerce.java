@@ -77,7 +77,7 @@ public class DebugCommerce extends Scenario {
     GameSettings.setDefaults();
     GameSettings.buildFree = true;
     GameSettings.fogFree   = true;
-    //GameSettings.paveFree  = true;
+    GameSettings.paveFree  = true;
     //GameSettings.noChat    = true;
     
     //  TODO:  Try giving the residents pots of money instead...

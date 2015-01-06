@@ -83,7 +83,8 @@ public class DebugSecurity extends Scenario {
     
     if (false) breedingScenario(world, base, UI);
     if (false) arrestScenario  (world, base, UI);
-    if (true ) animalScenario  (world, base, UI);
+    if (false) animalScenario  (world, base, UI);
+    if (true ) raidingScenario (world, base, UI);
   }
   
   
@@ -189,9 +190,10 @@ public class DebugSecurity extends Scenario {
   }
   
   
-  private void configRaidScenario(Stage world, Base base, BaseUI UI) {
-    GameSettings.fogFree = false;
-    //GameSettings.hireFree = true;
+  private void raidingScenario(Stage world, Base base, BaseUI UI) {
+    GameSettings.fogFree  = true;
+    GameSettings.hireFree = true;
+    world.advanceCurrentTime(Stage.STANDARD_DAY_LENGTH * 0.3f);
     
     //  Introduce a bastion, with standard personnel.
     final Bastion bastion = new Bastion(base);
@@ -200,13 +202,16 @@ public class DebugSecurity extends Scenario {
     
     //  And introduce ruins, with a complement of artilects.
     final Base artilects = Base.artilects(world);
+    artilects.relations.setRelation(base, -0.5f, true);
+    
     final Ruins ruins = new Ruins(artilects);
     Placement.establishVenue(ruins, 44, 44, true, world);
     final float healthLevel = (1 + Rand.avgNums(2)) / 2;
     ruins.structure.setState(Structure.STATE_INTACT, healthLevel);
+    artilects.setup.doPlacementsFor(ruins);
+    artilects.setup.fillVacancies(ruins, true);
     
-    Base.artilects(world).setup.doPlacementsFor(ruins);
-    UI.selection.pushSelection(bastion, true);
+    UI.selection.pushSelection(ruins.staff.workers().first(), true);
   }
   
   

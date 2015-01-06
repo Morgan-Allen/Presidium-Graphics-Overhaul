@@ -33,7 +33,7 @@ public class Cybrid extends Artilect {
   }
   
   
-  protected ActorMind initAI() {
+  protected ActorMind initMind() {
     return new HumanMind(this) {
       protected Choice createNewBehaviours(Choice choice) {
         return super.createNewBehaviours(choice);

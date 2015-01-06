@@ -13,7 +13,7 @@ import stratos.game.common.Session.Saveable;
 //  objects they *remember*.
 
 
-public class Senses implements Qualities {
+public class ActorSenses implements Qualities {
   
   
   /**  Data fields, constants, constructors, and save/load methods-
@@ -38,7 +38,7 @@ public class Senses implements Qualities {
   private Target  safePoint  = null ;
   
   
-  protected Senses(Actor actor) {
+  protected ActorSenses(Actor actor) {
     this.actor = actor;
   }
   

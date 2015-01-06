@@ -9,6 +9,10 @@ import static stratos.game.economic.Economy.*;
 
 
 
+//  TODO:  See if this can be adapted for use during Missions?  Certainly
+//  useful for pack-hunters, like the Lictovore.
+
+
 public class Joining extends Plan {
   
   
@@ -49,6 +53,34 @@ public class Joining extends Plan {
   }
   
   
+  protected float getPriority() {
+    if (! joined.isDoing(basis.getClass(), basis.subject())) return -1;
+    setMotiveFrom(basis, 0);
+    return basis.priorityFor(actor);
+  }
+  
+  
+  public float harmFactor()    { return basis.harmFactor()  ; }
+  public float competeFactor() { return basis.competeFactor(); }
+  
+  
+  protected Behaviour getNextStep() {
+    if (basis.finished()) return null;
+    return basis;
+  }
+  
+  
+  public void describeBehaviour(Description d) {
+    basis.describeBehaviour(d);
+    d.append(" with ");
+    d.append(joined);
+  }
+  
+  
+  
+  
+  
+  
   
   public static boolean checkInvitation(
     Actor actor, Actor asked, Dialogue origin, Behaviour invitation
@@ -73,30 +105,6 @@ public class Joining extends Plan {
     final Behaviour intended = asked.mind.nextBehaviour();
     if (Choice.wouldSwitch(asked, copy, intended, true, report)) return false;
     return true;
-  }
-  
-  
-  protected float getPriority() {
-    if (! joined.isDoing(basis.getClass(), basis.subject())) return -1;
-    setMotiveFrom(basis, 0);
-    return basis.priorityFor(actor);
-  }
-  
-  
-  public float harmFactor()    { return basis.harmFactor()  ; }
-  public float competeFactor() { return basis.competeFactor(); }
-  
-  
-  protected Behaviour getNextStep() {
-    if (basis.finished()) return null;
-    return basis;
-  }
-  
-  
-  public void describeBehaviour(Description d) {
-    basis.describeBehaviour(d);
-    d.append(" with ");
-    d.append(joined);
   }
 }
 

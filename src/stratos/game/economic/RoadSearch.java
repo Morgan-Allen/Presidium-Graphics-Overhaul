@@ -59,7 +59,7 @@ public class RoadSearch extends Search <Tile> implements TileConstants {
   
   
   protected float cost(Tile prior, Tile spot) {
-    final float cost = terrain.isRoad(spot) ? 0.5f : 1;
+    final float cost = PavingMap.pavingReserved(spot) ? 0.5f : 1;
     if (bestDir != -1) {
       final int dir = directionBetween(prior, spot);
       if (dir != bestDir) return cost * 2.5f;

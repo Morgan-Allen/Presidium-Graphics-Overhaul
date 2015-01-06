@@ -11,8 +11,9 @@ import stratos.util.*;
 
 
 
-//  TODO:  You need to give some preference to raw material deliveries locally,
-//  rather than offworld.  I think.
+//  TODO:  Promotions from one job to another in-world need some testing.  Also,
+//  you seem to have way too many candidates showing up.  Try reviewing just
+//  one at a time?  Okay.
 
 
 //  TODO:  Test the stock exchange, and re-introduce the arcology & edifice.

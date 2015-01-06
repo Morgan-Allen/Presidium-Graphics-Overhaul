@@ -95,7 +95,7 @@ public abstract class Fauna extends Actor {
 
   /**  Shared behavioural methods-
     */
-  protected ActorMind initAI() {
+  protected ActorMind initMind() {
     final Fauna fauna = this;
     return new ActorMind(fauna) {
       

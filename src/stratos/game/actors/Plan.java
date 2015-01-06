@@ -567,8 +567,8 @@ public abstract class Plan implements Saveable, Behaviour {
     if (report) {
       I.say("\nGetting danger penalty for "+actor);
       I.say("  Combat strength: "+strength);
-      I.say("  Danger sample:   "+danger);
-      I.say("  Final penalty:   "+penalty);
+      I.say("  Danger sample:   "+danger  );
+      I.say("  Final penalty:   "+penalty );
     }
     return penalty;
   }

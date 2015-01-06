@@ -18,8 +18,8 @@ public class RoadsRepair extends Plan {
   /**  Data fields, setup and save/load methods-
     */
   private static boolean
-    eventsVerbose = false,
-    evalVerbose   = false;
+    stepsVerbose = false,
+    evalVerbose  = false;
   
   final Base base;
   final PavingMap map;
@@ -28,7 +28,7 @@ public class RoadsRepair extends Plan {
   
   
   public RoadsRepair(Actor actor, Tile t) {
-    super(actor, t.worldSection(), true, MILD_HELP);
+    super(actor, t.worldSection(), true, NO_HARM);
     this.base    = actor.base();
     this.map     = base.paveRoutes.map;
     this.section = t.worldSection();
@@ -76,7 +76,7 @@ public class RoadsRepair extends Plan {
     return priorityForActorWith(
       actor, around,
       CASUAL, NO_MODIFIER,
-      MILD_HELP, NO_COMPETITION, MILD_FAIL_RISK,
+      NO_HARM, NO_COMPETITION, MILD_FAIL_RISK,
       BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report
     );
@@ -96,7 +96,7 @@ public class RoadsRepair extends Plan {
   /**  Behaviour implementation-
     */
   protected Behaviour getNextStep() {
-    final boolean report = eventsVerbose && I.talkAbout == actor;
+    final boolean report = stepsVerbose && I.talkAbout == actor;
     final StageTerrain t = actor.world().terrain();
     
     if (report) {
@@ -154,11 +154,15 @@ public class RoadsRepair extends Plan {
   
   private int setPavingAround(Tile t, boolean is) {
     int counter = 0;
-    for (Tile n : t.vicinity(null)) if (n != null) {
+    final Batch <Tile> toPave = new Batch <Tile> ();
+    toPave.add(t);
+    for (Tile n : t.edgeAdjacent(null)) if (n != null) toPave.add(n);
+    
+    for (Tile n : toPave) {
       if (! map.needsPaving(n)) continue;
       if (n.owningType() > Element.ELEMENT_OWNS) continue;
-      if (is) PavingMap.setPaveLevel(n, StageTerrain.ROAD_LIGHT, true);
-      else PavingMap.setPaveLevel(t, StageTerrain.ROAD_NONE , false);
+      if (is) PavingMap.setPaveLevel(n, StageTerrain.ROAD_LIGHT, true );
+      else    PavingMap.setPaveLevel(t, StageTerrain.ROAD_NONE , false);
       counter++;
     }
     return counter;

@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.wild;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -88,7 +90,7 @@ public abstract class Artilect extends Actor {
   }
   
 
-  protected ActorMind initAI() {
+  protected ActorMind initMind() {
     final Artilect artilect = this;
     return new ActorMind(artilect) {
       
@@ -154,34 +156,23 @@ public abstract class Artilect extends Actor {
   //  itself...
   
   protected void addChoices(Choice choice) {
-    //
-    //  Patrol around your base and see off intruders.
     final boolean report = verbose && I.talkAbout == this;
     if (report) I.say("\n  Getting next behaviour for "+this);
-    
+    //
+    //  Ascertain a few basic facts first-
     final boolean
-      isDrone   = this instanceof Drone,
-      isTripod  = this instanceof Tripod,
+      isDrone   = this instanceof Drone  ,
+      isTripod  = this instanceof Tripod ,
       isCranial = this instanceof Cranial;
-    
-    //  Perform reconaissance or patrolling.
-    //  Retreat and return to base.
-    //  (Drone specialties.)
-    
     final Property home = mind.home();
     Element guards = home == null ? this : (Element) home;
     final float distance = Spacing.distance(this, guards) / Stage.SECTOR_SIZE;
-    
     //
     //  Security and defence related tasks-
     if (! isCranial) {
       final Plan patrol = Patrolling.aroundPerimeter(this, guards, world);
       choice.add(patrol.setMotive(Plan.MOTIVE_DUTY, Plan.IDLE));
-      
-      final Plan assault = nextAssault();
-      if (assault != null) choice.add(
-        assault.setMotive(Plan.MOTIVE_DUTY, Plan.PARAMOUNT)
-      );
+      choice.add(FindMission.attemptFor(this));
     }
     if (distance > 1) choice.add(new Retreat(this));
     //
@@ -230,41 +221,6 @@ public abstract class Artilect extends Actor {
       );
       choice.add(nextSpawning(this, ruins));
     }
-  }
-  
-  
-  protected Plan nextAssault() {
-    if (! (mind.home() instanceof Venue)) return null;
-    final Venue lair = (Venue) mind.home();
-    final Batch <Venue> sampled = new Batch <Venue> ();
-    world.presences.sampleFromMap(this, world, 10, sampled, Venue.class);
-    
-    final int SS = Stage.SECTOR_SIZE;
-    Venue toAssault = null;
-    float bestRating = 0;
-    
-    //
-    //  TODO:  Base priority on proximity to your lair, along with total
-    //  settlement size.
-    
-    //  TODO:  Merge this with the BaseAI code!
-    
-    for (Venue venue : sampled) {
-      if (venue.base() == this.base()) continue;
-      final float crowding = 1 - venue.base().relations.communitySpirit();
-      
-      final float dist = Spacing.distance(venue, lair);
-      if (dist > Ruins.MIN_RUINS_SPACING) continue;
-      
-      float rating = SS / (SS + dist);
-      rating += 1 - relations.valueFor(venue);
-      if (rating > bestRating) { bestRating = rating; toAssault = venue; }
-    }
-    
-    if (toAssault == null) return null;
-    final Combat siege = new Combat(this, toAssault);
-    
-    return siege;
   }
   
   

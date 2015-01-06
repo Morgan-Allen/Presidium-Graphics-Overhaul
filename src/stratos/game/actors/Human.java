@@ -62,7 +62,7 @@ public class Human extends Actor implements Qualities {
   }
   
   
-  protected ActorMind initAI() { return new HumanMind(this); }
+  protected ActorMind initMind() { return new HumanMind(this); }
   
   public Background vocation() { return career.vocation(); }
   
