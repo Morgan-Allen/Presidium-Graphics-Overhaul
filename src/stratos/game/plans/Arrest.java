@@ -98,7 +98,7 @@ public class Arrest extends Plan {
   private boolean canPursue() {
     if (stage == STAGE_DONE) return false;
     if (stage != STAGE_INIT) return true;
-    if (actor.base() == null) I.complain(actor+" HAS NO BASE!");
+    if (actor.base() != subject.base()) return false;
     
     observed = LawUtils.crimeDoneBy((Actor) subject, actor);
     if (sentence == null && observed == null) {
@@ -235,7 +235,7 @@ public class Arrest extends Plan {
       if (report) I.say("  Giving chase!");
       stage = STAGE_CHASE;
       final Combat chase = new Combat(
-        actor, other, Combat.STYLE_EITHER, Combat.OBJECT_SUBDUE, true
+        actor, other, Combat.STYLE_EITHER, Combat.OBJECT_SUBDUE
       );
       if (! chase.valid()) return null;
       return chase;

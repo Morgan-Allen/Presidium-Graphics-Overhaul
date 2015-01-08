@@ -17,8 +17,9 @@ public class Combat extends Plan implements Qualities {
   /**  Data fields, constructors and save/load methods-
     */
   protected static boolean
-    evalVerbose   = true ,
-    stepsVerbose  = false,
+    evalVerbose   = false,
+    begunVerbose  = false,
+    stepsVerbose  = true ,
     damageVerbose = false;
   
   
@@ -50,17 +51,17 @@ public class Combat extends Plan implements Qualities {
   
   
   public Combat(Actor actor, Element target) {
-    this(actor, target, STYLE_EITHER, OBJECT_EITHER, false);
+    this(actor, target, STYLE_EITHER, OBJECT_EITHER);
   }
   
   
   public Combat(
-    Actor actor, Element target, int style, int object, boolean pursue
+    Actor actor, Element target, int style, int object
   ) {
-    super(actor, target, pursue, REAL_HARM);
+    super(actor, target, false, REAL_HARM);
     this.style  = style ;
     this.object = object;
-    this.pursue = pursue;
+    this.pursue = false;
   }
   
   
@@ -81,7 +82,7 @@ public class Combat extends Plan implements Qualities {
   
   
   public Plan copyFor(Actor other) {
-    return new Combat(other, (Element) subject, style, object, pursue);
+    return new Combat(other, (Element) subject, style, object);
   }
   
   
@@ -95,10 +96,10 @@ public class Combat extends Plan implements Qualities {
     RANGED_SKILLS[] = { MARKSMANSHIP, STEALTH_AND_COVER };
   
   
-  //  TODO:  Consider creating a separate 'SiegeCombat' behaviour...
-  
   protected float getPriority() {
-    final boolean report = evalVerbose && I.talkAbout == actor;
+    final boolean report = evalVerbose && I.talkAbout == actor && (
+      hasBegun() || ! begunVerbose
+    );
     
     if (CombatUtils.isDowned(subject, object)) return 0;
     float harmLevel = REAL_HARM;
@@ -116,7 +117,6 @@ public class Combat extends Plan implements Qualities {
     if (siege || CombatUtils.isActiveHostile(actor, subject)) {
       bonus += PARAMOUNT;
       bonus += CombatUtils.homeDefenceBonus(actor, subject);
-      bonus *= (hostility + 1f) / (siege ? 2 : 4);
     }
     
     final float priority = priorityForActorWith(
@@ -131,13 +131,17 @@ public class Combat extends Plan implements Qualities {
     //  NOTE:  This may seem like a bit of kluge, but on balance it seems to
     //  result in much more sensible behaviour (unless you're a psychopath,
     //  you don't 'casually' decide to kill something.)
-    float threshold = (1 + actor.traits.relativeLevel(EMPATHIC)) / 2;
+    float threshold = 0;
+    threshold += (1 + actor.traits.relativeLevel(EMPATHIC)) / 2;
     threshold *= siege ? ROUTINE : PARAMOUNT;
+    threshold *= 1 - hostility;
     if (report) {
       I.say("\n  Priority bonus:        "+bonus);
+      I.say("  Hostility of subject:  "+hostility);
       I.say("  Emergency?             "+actor.senses.isEmergency());
       I.say("  Basic combat priority: "+priority);
       I.say("  Empathy threshold:     "+threshold);
+      I.say("  Success chance:        "+successChanceFor(actor));
     }
     return priority >= threshold ? priority : 0;
   }
@@ -167,24 +171,19 @@ public class Combat extends Plan implements Qualities {
   /**  Actual behaviour implementation-
     */
   protected Behaviour getNextStep() {
-    final boolean report = stepsVerbose && I.talkAbout == actor && hasBegun();
+    final boolean report = stepsVerbose && I.talkAbout == actor && (
+      hasBegun() || ! begunVerbose
+    );
     if (report) {
-      I.say("\nNEXT COMBAT STEP "+this.hashCode());
+      I.say("\nGetting next combat step for: "+I.tagHash(this));
     }
     
     //  This might need to be tweaked in cases of self-defence, where you just
-    //  want to see off an attacker.  TODO:  THAT
-    //  If we're not in pursuit, call off the activity when or if the enemy is
-    //  in retreat.  TODO:  THAT
+    //  want to see off an attacker.  TODO:  That?
     if (CombatUtils.isDowned(subject, object)) {
-      if (report) I.say("  COMBAT COMPLETE");
+      if (report) I.say("  COMBAT COMPLETE!");
       return null;
     }
-    /*
-    if ((! pursue) && CombatUtils.isFleeing(subject) && Rand.yes()) {
-      return null;
-    }
-    //*/
     
     final Target struck = (! hasBegun()) ? subject :
       CombatUtils.bestTarget(actor, subject, true);
@@ -203,11 +202,11 @@ public class Combat extends Plan implements Qualities {
     final DeviceType DT  = actor.gear.deviceType();
     final boolean melee  = actor.gear.meleeWeapon();
     final boolean razes  = struck instanceof Venue;
-    final float   danger = actor.senses.fearLevel();
+    final float   danger = 1f - successChanceFor(actor);
     
     final String strikeAnim = DT == null ? Action.STRIKE : DT.animName;
     if (razes) {
-      if (report) I.say("  Laying siege: "+struck);
+      if (report) I.say("  Laying siege to: "+struck);
       strike = new Action(
         actor, struck,
         this, "actionSiege",
@@ -225,14 +224,14 @@ public class Combat extends Plan implements Qualities {
     
     //  Depending on the type of target, and how dangerous the area is, a bit
     //  of dancing around may be in order.
-    if (melee) configMeleeAction (strike, razes, danger);
-    else       configRangedAction(strike, razes, danger);
+    if (melee) configMeleeAction (strike, razes, danger, report);
+    else       configRangedAction(strike, razes, danger, report);
     return strike;
   }
   
   
   private void configMeleeAction(
-    Action strike, boolean razes, float danger
+    Action strike, boolean razes, float danger, boolean report
   ) {
     ///if (eventsVerbose) I.sayAbout(actor, "Configuring melee attack.\n");
     
@@ -255,37 +254,59 @@ public class Combat extends Plan implements Qualities {
   
   
   private void configRangedAction(
-    Action strike, boolean razes, float danger
+    Action strike, boolean razes, float danger, boolean report
   ) {
     final Activities activities = actor.world().activities;
     
     final Element struck = (Element) strike.subject();
     final float range = actor.health.sightRange();
+    final Tile origin = actor.origin();
+    final float distance = Spacing.distance(actor, struck) / range;
     
     boolean underFire = activities.includesActivePlan(actor, Combat.class);
-    boolean shouldDodge = actor.senses.hasSeen(struck);
-    if (razes && Rand.num() > danger) shouldDodge = false;
-    else if (Rand.yes() || Rand.num() > danger) shouldDodge = false;
+    float dodgeChance = danger * 2 / (1 + distance);
+    dodgeChance = Nums.clamp(dodgeChance, 0.25f, 0.75f);
     
-    boolean dodged = false;
+    boolean dodged = false, shouldDodge = Rand.num() < dodgeChance;
+    if (razes && Rand.yes()) shouldDodge = false;
+    if (! hasBegun()) shouldDodge = false;
+    
     if (shouldDodge) {
-      final float distance = Spacing.distance(actor, struck) / range;
       //
-      //  If not under fire, consider advancing for a clearer shot-
-      if (Rand.num() < distance && ! underFire) {
-        final Target AP = Retreat.pickHidePoint(
-          actor, range, struck, true
-        );
-        if (AP != null) { dodged = true; strike.setMoveTarget(AP); }
+      //  We try to find a good spot to hide if possible, and just pick a tile
+      //  at random otherwise.  (Anything further away than max. firing range
+      //  is probably pointless.)
+      Target WP = Retreat.pickHidePoint(
+        actor, range, struck, ! underFire
+      );
+      if (WP == null || WP == origin) {
+        WP = Spacing.pickRandomTile(actor, range, actor.world());
       }
-      //
-      //  Otherwise, consider falling back for cover-
-      if (underFire && Rand.num() > distance) {
-        final Target WP = Retreat.pickHidePoint(
-          actor, range, struck, false
-        );
-        if (WP != null) { dodged = true; strike.setMoveTarget(WP); }
+      final float hideDist = Spacing.distance(WP, struck);
+      if (hideDist < range * 2) {
+        //
+        //  If not under fire, consider advancing for a clearer shot-
+        //  Otherwise, consider falling back for cover.
+        if (Rand.num() > dodgeChance || ! underFire) {
+          if (hideDist > distance) WP = null;
+        }
+        if (WP != null && WP != origin) {
+          dodged = true;
+          strike.setMoveTarget(WP);
+        }
       }
+    }
+    
+    if (report) {
+      I.say("\nConfiguring ranged action, struck: "+struck);
+      I.say("  Danger:       "+danger     );
+      I.say("  Distance:     "+distance   );
+      I.say("  Under fire?   "+underFire  );
+      I.say("  Dodge chance: "+dodgeChance);
+      I.say("  Should dodge? "+shouldDodge);
+      I.say("  Did dodge?    "+dodged     );
+      I.say("  Currently at: "+actor.origin());
+      I.say("  Move target:  "+strike.movesTo());
     }
     
     if (dodged) strike.setProperties(Action.QUICK | Action.TRACKS);

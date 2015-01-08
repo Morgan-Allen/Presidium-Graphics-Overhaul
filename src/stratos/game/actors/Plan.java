@@ -5,7 +5,7 @@
   */
 package stratos.game.actors;
 import stratos.game.common.*;
-import stratos.game.common.Session.Saveable;
+import stratos.game.plans.*;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -15,7 +15,7 @@ import stratos.util.*;
 //         just query the chain of activities forward from the root, down
 //         to the action.  It's all there.
 
-public abstract class Plan implements Saveable, Behaviour {
+public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   /**  Fields, constructors, and save/load methods-
@@ -35,6 +35,8 @@ public abstract class Plan implements Saveable, Behaviour {
     extraVerbose = false,
     evalVerbose  = false,
     doesVerbose  = false;
+  private static Class
+    verboseClass = null;
   
   final public Target subject;
   protected Actor actor;
@@ -147,8 +149,7 @@ public abstract class Plan implements Saveable, Behaviour {
   }
   
   
-  private boolean checkRefreshDue(Actor actor) {
-    final boolean report = I.talkAbout == actor && extraVerbose;
+  private boolean checkRefreshDue(Actor actor, boolean report) {
     if (report) {
       I.say("\nChecking if refreshment due for "+this);
       I.say("  Priority:  "+priorityEval);
@@ -215,45 +216,64 @@ public abstract class Plan implements Saveable, Behaviour {
   
   
   public float priorityFor(Actor actor) {
-    final boolean report = verbose && I.talkAbout == actor && hasBegun();
+    final boolean report = verbose && I.talkAbout == actor && hasBegun() && (
+      verboseClass == null || verboseClass == this.getClass()
+    );
     if (motiveType == MOTIVE_CANCELLED) return -1;
     if (report && extraVerbose) {
       I.say("\nCurrent priority for "+this+" is: "+priorityEval);
-      //I.say("   Plan step: "+I.tagHash(nextStep));
     }
     
-    if (checkRefreshDue(actor)) {
+    if (checkRefreshDue(actor, report && extraVerbose)) {
       final float time = actor.world().currentTime();
       if (report) I.say("\nGetting fresh priority... "+I.tagHash(this));
-      lastEvalTime = time;
       priorityEval = 0;  //  Note: This avoids certain types of infinite loop.
       priorityEval = getPriority();
       if (report) I.say("\nNew priority: "+priorityEval);
-      if (nextStep != null) begun = true;
+      if (nextStep != null) {
+        begun        = true;
+        lastEvalTime = time;
+      }
     }
     return priorityEval;
   }
   
   
   public Behaviour nextStepFor(Actor actor) {
-    final boolean report = verbose && I.talkAbout == actor && hasBegun();
+    final boolean report = verbose && I.talkAbout == actor && hasBegun() && (
+      verboseClass == null || verboseClass == this.getClass()
+    );
     if (motiveType == MOTIVE_CANCELLED) return null;
+    
     if (report && extraVerbose) {
       I.say("\nCurrent plan step for "+this+" is: "+I.tagHash(nextStep));
-      //I.say("   Priority: "+priorityEval);
     }
     
-    if (checkRefreshDue(actor)) {
+    if (checkRefreshDue(actor, report && extraVerbose)) {
+      if (report) I.say("\nPlan step for "+this+" was: "+I.tagHash(lastStep));
+      final float time = actor.world().currentTime();
+      final boolean subStep = this != actor.mind.rootBehaviour();
+      
       nextStep = getNextStep();
       if (lastStep != null && lastStep.matchesPlan(nextStep)) {
-        if (report) I.say("\nNEXT STEP THE SAME AS OLD STEP.");
+        if (report) I.say("  NEXT STEP THE SAME AS OLD STEP: "+nextStep);
         nextStep = lastStep;
       }
       else if (nextStep != null) {
+        if (report) I.say("  New plan step: "+I.tagHash(nextStep));
         lastStep = nextStep;
       }
-      if (report) I.say("\nNew plan step: "+I.tagHash(nextStep));
-      if (priorityEval != NULL_PRIORITY) begun = true;
+      //
+      //  We may have to set priority manually here, because sub-steps never
+      //  have their priority queried outside- but this is needed to prevent
+      //  being flagged as 'due for refresh'.
+      if (subStep && priorityEval == NULL_PRIORITY) {
+        priorityEval = IDLE;
+      }
+      if (priorityEval != NULL_PRIORITY) {
+        begun        = true;
+        lastEvalTime = time;
+      }
     }
     return nextStep;
   }
@@ -262,6 +282,24 @@ public abstract class Plan implements Saveable, Behaviour {
   public boolean finished() {
     final boolean report = verbose && hasBegun() && I.talkAbout == actor;
     if (motiveType == MOTIVE_CANCELLED) return true;
+    
+    //  TODO:  Some of the reasoning here is a little opaque.  Rewrite this to
+    //  have a single 'update' method, then read off everything else passively.
+    /*
+    if (! hasBegun()) return false;
+    if (this == actor.mind.rootBehaviour()) {
+      if (priorityEval != NULL_PRIORITY && priorityEval <= 0) {
+        if (report) I.say("\nNO PRIORITY: "+I.tagHash(this));
+        return true;
+      }
+    }
+    if (lastStep != null && nextStep == null) {
+      if (report) I.say("\nNO NEXT STEP: "+I.tagHash(this));
+      return true;
+    }
+    return false;
+    //*/
+    //*
     if (actor == null) return false;
     
     if (this == actor.mind.rootBehaviour()) {
@@ -275,6 +313,7 @@ public abstract class Plan implements Saveable, Behaviour {
       return true;
     }
     return false;
+    //*/
   }
   
   
@@ -290,6 +329,29 @@ public abstract class Plan implements Saveable, Behaviour {
   
   public Actor actor() {
     return actor;
+  }
+  
+  
+  public static boolean canFollow(Actor a, Behaviour b) {
+    if (b == null || ! b.valid()) return false;
+    if (b.finished() || b.nextStepFor(a) == null) return false;
+    return true;
+  }
+  
+  
+  public static boolean canPersist(Behaviour b) {
+    if (b == null || ! b.valid()) return false;
+    if (b.finished() || ! b.persistent()) return false;
+    return true;
+  }
+  
+  
+  public static void reportPlanDetails(Behaviour b, Actor a) {
+    if (b == null) { I.say("  IS NULL"); return; }
+    I.say("  Valid:     "+b.valid());
+    I.say("  Finished:  "+b.finished());
+    I.say("  Next step: "+b.nextStepFor(a));
+    I.say("  Persists?  "+b.persistent());
   }
   
   

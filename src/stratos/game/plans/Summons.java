@@ -221,7 +221,7 @@ public class Summons extends Plan {
   
   
   public static void cancelSummons(Actor subject) {
-    final Summons summons = (Summons) subject.matchFor(Summons.class);
+    final Summons summons = (Summons) subject.matchFor(Summons.class, false);
     if (summons == null) return;
     summons.interrupt(INTERRUPT_CANCEL);
     

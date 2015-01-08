@@ -107,7 +107,7 @@ public class CombatUtils {
     //  However, this is modified by the context of the subject's behaviour.
     //  If they are doing something harmful to another the actor cares about,
     //  (including self), then up the rating.
-    final Target victim = other.planFocus(null);
+    final Target victim = other.planFocus(null, true);
     final float
       harmDone    = other.harmIntended(victim),
       protectUrge = harmDone * relations.valueFor(victim);
@@ -158,7 +158,7 @@ public class CombatUtils {
     }
     else if (near instanceof Actor) {
       final Actor other = (Actor) near;
-      final Target victim = other.planFocus(Combat.class);
+      final Target victim = other.planFocus(Combat.class, true);
       return victim != null && actor.relations.likes(victim);
     }
     else return false;
@@ -208,7 +208,9 @@ public class CombatUtils {
       actor.senses.fearLevel(),
       Plan.dangerPenalty(other, actor)
     );
-    return Nums.clamp(1 - danger, 0, 1);
+    float chance = Nums.clamp(1 - danger, 0, 1);
+    chance *= 1 + actor.traits.relativeLevel(Qualities.FEARLESS);
+    return Nums.clamp(chance, 0, 1);
     /*
     final boolean report = evalVerbose && I.talkAbout == actor;
     

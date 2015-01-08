@@ -11,6 +11,11 @@ import stratos.util.*;
 
 
 
+//  TODO:  Get rid of most of this, or restrict to Actions and Plans.  Just
+//  have a single 'update' method and read priority, step, success chance etc.
+//  passively afterward.
+
+
 public interface Behaviour extends Session.Saveable {
   
   final public static float
@@ -48,8 +53,6 @@ public interface Behaviour extends Session.Saveable {
   Target subject();
   
   float priorityFor(Actor actor);
-  //  TODO:  ALSO REQUIRE A RETURN OF SUCCESS-CHANCE.
-  
   boolean finished();
   boolean valid();
   boolean hasBegun();

@@ -130,18 +130,22 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
       I.say("  Going to: "+onPoint+", post time: "+postTime);
     }
     
-    final Stage world = actor.world();
-    final Activities actives = actor.world().activities;
+    final Stage      world   = actor.world();
+    final Activities actives = world.activities;
     Target stop = onPoint;
     
     //  First, check to see if there are any supplemental behaviours you could
     //  or should be performing (first aid, repairs, or defence.)
+    
+    final Plan old = (lastStep instanceof Plan) ? (Plan) lastStep : null;
     final Choice choice = new Choice(actor);
+    final float range = actor.health.sightRange() + 1;
     choice.isVerbose = report;
-    for (Plan attack : actives.activePlanMatches(guarded, Combat.class)) {
-      final Actor threat = attack.actor();
-      if (! actor.senses.awareOf(threat)) continue;
-      choice.add(new Combat(actor, threat).setMotiveFrom(this, 0));
+    for (Target t : actor.senses.awareOf()) {
+      if (! CombatUtils.isActiveHostile(actor, t)) continue;
+      final float dist = Spacing.distance(t, guarded) / range;
+      final float bonus = Plan.ROUTINE * (1 - dist);
+      choice.add(new Combat(actor, (Element) t).setMotiveFrom(this, bonus));
     }
     if (guarded instanceof Actor) {
       choice.add(new FirstAid(actor, (Actor) guarded).setMotiveFrom(this, 0));
@@ -150,7 +154,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
       choice.add(new Repairs(actor, (Venue) guarded).setMotiveFrom(this, 0));
     }
     final Behaviour picked = choice.pickMostUrgent();
-    if (picked != null) {
+    if (Choice.wouldSwitch(actor, old, picked, true, report)) {
       if (report) I.say("  Performing sub-task: "+picked);
       return picked;
     }
@@ -175,8 +179,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     //  Otherwise, find the nearest free point to stand around the next point
     //  to guard, and proceed there.
     else if (onPoint.isMobile()) {
-      final float range = actor.health.sightRange() / 2;
-      Tile open = Spacing.pickRandomTile(onPoint, range, actor.world());
+      Tile open = Spacing.pickRandomTile(onPoint, range / 2, actor.world());
       open = Spacing.nearestOpenTile(open, actor);
       if (open == null) { interrupt(INTERRUPT_CANCEL); return null; }
       else stop = open;

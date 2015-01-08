@@ -261,8 +261,12 @@ public abstract class Actor extends Mobile implements
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
-    final boolean report = verbose && I.talkAbout == this;
-    if (report) I.say("\nUpdating actor!  Instant? "+instant);
+    final boolean report = I.talkAbout == this && verbose;
+    if (report) {
+      I.say("\nUpdating actor!  Instant? "+instant);
+      I.say("    Num updates:  "+numUpdates);
+      I.say("    Current time: "+world.currentTime());
+    }
     //
     //  Check to see what our current condition is-
     final boolean
@@ -365,7 +369,7 @@ public abstract class Actor extends Mobile implements
   
   
   public boolean isDoing(Class <? extends Plan> planClass, Target target) {
-    final Target focus = planFocus(planClass);
+    final Target focus = planFocus(planClass, true);
     return (target == null) ? (focus != null) : (focus == target);
   }
   
@@ -390,13 +394,13 @@ public abstract class Actor extends Mobile implements
   }
   
   
-  public Target planFocus(Class planClass) {
-    final Plan match = matchFor(planClass);
+  public Target planFocus(Class planClass, boolean active) {
+    final Plan match = matchFor(planClass, active);
     return match == null ? null : match.subject();
   }
   
   
-  public Plan matchFor(Class <? extends Plan> planClass) {
+  public Plan matchFor(Class <? extends Plan> planClass, boolean active) {
     if (planClass != null && ! Plan.class.isAssignableFrom(planClass)) {
       I.complain("NOT A PLAN CLASS!");
     }
@@ -407,7 +411,7 @@ public abstract class Actor extends Mobile implements
         return (Plan) b;
       }
     }
-    for (Behaviour b : mind.todoList) {
+    if (! active) for (Behaviour b : mind.todoList) {
       if (planClass.isAssignableFrom(b.getClass())) {
         return (Plan) b;
       }
@@ -417,10 +421,8 @@ public abstract class Actor extends Mobile implements
   
   
   public Plan matchFor(Plan matchPlan) {
-    for (Behaviour b : mind.agenda()) if (b instanceof Plan) {
-      if (matchPlan.matchesPlan((Plan) b)) {
-        return (Plan) b;
-      }
+    for (Behaviour b : mind.agenda()) if (matchPlan.matchesPlan(b)) {
+      return (Plan) b;
     }
     return null;
   }

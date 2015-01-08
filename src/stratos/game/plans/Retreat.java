@@ -15,10 +15,14 @@ import static stratos.game.economic.Economy.*;
 public class Retreat extends Plan implements Qualities {
   
   
+  //  TODO:  Hiding evaluation needs to be much more reliable!
+  
+  
   /**  Constants, field definitions, constructors and save/load methods-
     */
   final static float
-    DANGER_MEMORY_FADE = 0.9f;  //TODO:  use a time-limit instead?
+    DANGER_MEMORY_FADE = 0.9f,  //TODO:  use a time-limit instead?
+    MIN_RETREAT_DIST = Stage.SECTOR_SIZE / 2;
   
   private static boolean
     evalVerbose  = false,
@@ -69,10 +73,17 @@ public class Retreat extends Plan implements Qualities {
   
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
-    if (safePoint == null) return 0;
+    if (safePoint == null) return -1;
+    
+    if (actor.aboard() == safePoint) {
+      if (CombatUtils.isArmed(actor)) return IDLE;
+    }
+    final float distance = Spacing.distance(actor, safePoint);
+    if ((! hasBegun()) && distance < MIN_RETREAT_DIST) {
+      if (CombatUtils.isArmed(actor)) return IDLE;
+    }
     
     final boolean emergency = actor.senses.isEmergency();
-    
     float danger = Nums.max(
       actor.senses.fearLevel(),
       Plan.dangerPenalty(actor, actor)
@@ -89,7 +100,6 @@ public class Retreat extends Plan implements Qualities {
       maxDanger = Nums.max(danger, maxDanger);
     }
     else {
-      if (actor.aboard() == safePoint) return 0;
       maxDanger = danger;
       bonus += (haven == null) ? 0 : Plan.rangePenalty(haven, actor) * CASUAL;
     }
@@ -180,7 +190,7 @@ public class Retreat extends Plan implements Qualities {
     //  gets closer to a given area, allow systematic scanning of nearby tiles
     //  to zero in on any strong cover available.
     final Stage world = actor.world();
-    final Tile at = actor.origin();
+    final Tile  at    = actor.origin();
     final Pick <Tile> pick = new Pick <Tile> () {
       public void compare(Tile next, float rating) {
         rating *= rateTileCover(actor, next, advance);
@@ -197,8 +207,8 @@ public class Retreat extends Plan implements Qualities {
     
     for (int n : TileConstants.T_ADJACENT) {
       Tile t = world.tileAt(
-        Nums.clamp(at.x + (TileConstants.T_X[n] * range), 0, world.size),
-        Nums.clamp(at.y + (TileConstants.T_Y[n] * range), 0, world.size)
+        Nums.clamp(at.x + (TileConstants.T_X[n] * range), 0, world.size - 1),
+        Nums.clamp(at.y + (TileConstants.T_Y[n] * range), 0, world.size - 1)
       );
       t = Spacing.pickRandomTile(t, range, world);
       t = Spacing.nearestOpenTile(t, t);
@@ -293,7 +303,7 @@ public class Retreat extends Plan implements Qualities {
     final Action flees = new Action(
       actor, goHome ? home : safePoint,
       this, "actionFlee",
-      Action.MOVE_SNEAK, "Fleeing to "
+      urgent ? Action.MOVE_SNEAK : Action.FALL, "Fleeing to "
     );
     if (urgent) flees.setProperties(Action.QUICK | Action.NO_LOOP);
     else flees.setProperties(Action.NO_LOOP);
@@ -310,7 +320,7 @@ public class Retreat extends Plan implements Qualities {
     
     //  TODO:  USE THE SIGHT-BREAKING CODE
     
-    if (actor.indoors() && ! emergency) {
+    if (! emergency) {
       final Resting rest = new Resting(actor, safePoint);
       rest.setMotive(Plan.MOTIVE_LEISURE, priorityFor(actor));
       maxDanger = 0;

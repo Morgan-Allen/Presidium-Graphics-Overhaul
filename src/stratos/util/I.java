@@ -82,6 +82,11 @@ public class I {
   }
   
   
+  public static boolean matchOrNull(Object o, Object with) {
+    return with == null || with.equals(o);
+  }
+  
+  
   public static void amMute(boolean m) { mute = m; }
   
   

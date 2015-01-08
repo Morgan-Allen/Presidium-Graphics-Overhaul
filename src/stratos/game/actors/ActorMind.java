@@ -18,8 +18,8 @@ public abstract class ActorMind implements Qualities {
   /**  Field definitions, constructor, save/load methods-
     */
   private static boolean
-    decisionVerbose = Choice.verbose,
-    stepsVerbose    = Choice.verbose;
+    decisionVerbose = Choice.mindVerbose,
+    stepsVerbose    = Choice.mindVerbose;
   
   
   final protected Actor actor;
@@ -45,7 +45,6 @@ public abstract class ActorMind implements Qualities {
     mission = (Mission) s.loadObject();
     home = (Property) s.loadObject();
     work = (Property) s.loadObject();
-    //application = (Application) s.loadObject();
     master = (Actor) s.loadObject();
   }
   
@@ -57,7 +56,6 @@ public abstract class ActorMind implements Qualities {
     s.saveObject(mission);
     s.saveObject(home);
     s.saveObject(work);
-    //s.saveObject(application);
     s.saveObject(master);
   }
   
@@ -120,7 +118,7 @@ public abstract class ActorMind implements Qualities {
     if (report && fromNew.empty()) I.say("  No new behaviour.");
     
     final Behaviour taken =
-      Choice.wouldSwitch(actor, notDone, newChoice, false, false) ?
+      Choice.wouldSwitch(actor, notDone, newChoice, true, report) ?
       newChoice : notDone;
     
     if (report) {
@@ -154,67 +152,52 @@ public abstract class ActorMind implements Qualities {
   
   protected Action getNextAction() {
     final boolean report = I.talkAbout == actor && stepsVerbose;
-    final int MAX_LOOP = 20;  // Safety feature (see below.)
-    
-    for (int loop = MAX_LOOP; loop-- > 0;) {
+    //
+    //  Firstly, check to ensure that our root behaviour is still valid- if
+    //  not, you'll need to pick out a new one:
+    Behaviour root = rootBehaviour();
+    if (report) {
+      I.say("\nGETTING NEXT ACTION FOR "+actor);
+      I.say("  Current root behaviour: "+I.tagHash(root));
+    }
+    if (! Plan.canFollow(actor, root)) {
+      if (Plan.canPersist(root)) todoList.add(root);
+      root = nextBehaviour();
       if (report) {
-        I.say("\n"+actor+" in action-decision loop:");
-        for (Behaviour b : agenda) I.say("  "+b);
-      }
-      //
-      //  If all current behaviours are complete, generate a new one.
-      if (agenda.size() == 0) {
-        final Behaviour taken = nextBehaviour();
-        if (report) {
-          I.say("\nCurrent agenda was empty!");
-          I.say("  Next behaviour: "+taken);
-        }
-        if (taken == null) return null;
-        assignBehaviour(taken);
-      }
-      //
-      //  Root behaviours which return null, but aren't complete, should be
-      //  stored for later.  Otherwise, unfinished behaviours should return
-      //  their next step.
-      final Behaviour current = topBehaviour(), root = rootBehaviour();
-      if (current == null) continue;
-      final Behaviour next = current.nextStepFor(actor);
-      final boolean
-        isDone  = current.finished(),
-        doLater = current == root && current.persistent() && ! isDone;
-      
-      if (report) {
-        I.say("");
-        I.say("  Current step:   "+current);
-        I.say("  Class type:     "+current.getClass().getSimpleName());
-        I.say("  Next step:      "+next);
-        I.say("  Done:           "+isDone);
-        I.say("  Will do later:  "+doLater);
-      }
-      if (isDone || next == null) {
-        if (report) I.say("  Popping current step...");
-        if (doLater) todoList.add(current);
-        popBehaviour(current);
-      }
-      else if (next instanceof Action) {
-        if (report) I.say("  Returning action!");
-        return (Action) next;
-      }
-      else {
-        if (report) I.say("  Pushing next step...");
-        pushBehaviour(next);
+        I.say("  Current agenda was empty!");
+        I.say("  New root behaviour: "+I.tagHash(root));
       }
     }
+    //
+    //  Then, delete all existing entries from the agenda.
+    for (Behaviour b : agenda) popBehaviour(b);
+    if (! Plan.canFollow(actor, root)) {
+      I.say("  CANNOT FOLLOW PLAN: "+root);
+      return null;
+    }
+    //
+    //  Then, keep pushing new behaviours until you squeeze an action out,
+    //  which you can then return-
+    final int MAX_LOOP = 20;
+    Behaviour next = root;
+    for (int loop = MAX_LOOP; loop-- > 0;) {
+      pushBehaviour(next);
+      next = next.nextStepFor(actor);
+      final boolean valid = Plan.canFollow(actor, next);
+      if (report) I.say("  Next step: "+next+", valid? "+valid);
+      if (! Plan.canFollow(actor, next)) break;
+      else if (next instanceof Action) return (Action) next;
+    }
+    
+    cancelBehaviour(root);
     //
     //  If you exhaust the maximum number of iterations (which I assume *would*
     //  be enough for any reasonable use-case,) report the problem.
     I.say("\n"+actor+" COULD NOT DECIDE ON NEXT STEP.");
-    final Behaviour root = rootBehaviour();
-    final Behaviour next = root == null ? null : root.nextStepFor(actor);
-    I.say("  Root behaviour: " + root);
-    I.say("  Next step:      " + next);
+    I.say("  Root behaviour: "+root);
+    I.say("  Next step:      "+next   );
     if (next != null) {
-      I.say("  Valid/finished  " + next.valid() + "/" + next.finished());
+      I.say("  Valid/finished  "+next.valid()+"/"+ next.finished());
     }
     I.reportStackTrace();
     return null;
@@ -222,10 +205,16 @@ public abstract class ActorMind implements Qualities {
   
   
   protected boolean needsUpdate() {
-    final Behaviour current = topBehaviour(), root = rootBehaviour();
-    if (current instanceof Action && current == root) return false;
-    if (root    == null || root   .finished()) return true;
-    if (current == null || current.finished()) return true;
+    final boolean report = I.talkAbout == actor && stepsVerbose;
+    final Behaviour current = actor.currentAction(), root = rootBehaviour();
+    if (root    == null || root   .finished()) {
+      if (report) I.say("ROOT PLAN FINISHED: "+root);
+      return true;
+    }
+    if (current == null || current.finished()) {
+      if (report) I.say("TOP ACTION FINISHED: "+current);
+      return true;
+    }
     return false;
   }
   
@@ -328,19 +317,18 @@ public abstract class ActorMind implements Qualities {
   
   public void assignBehaviour(Behaviour behaviour) {
     if (behaviour == null) I.complain("CANNOT ASSIGN NULL BEHAVIOUR.");
-    final boolean report = decisionVerbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && decisionVerbose;
     
-    if (report) I.say("Assigning behaviour "+behaviour);
+    if (report) I.say("\nASSIGNING BEHAVIOUR "+behaviour);
     actor.assignAction(null);
     
     final Behaviour replaced = rootBehaviour();
     cancelBehaviour(replaced);
     
-    if (replaced != null && ! replaced.finished() && replaced.persistent()) {
-      if (report) I.say(" SAVING PLAN AS TODO: "+replaced);
+    if (Plan.canPersist(replaced)) {
+      if (report) I.say("  SAVING PLAN AS TODO: "+replaced);
       todoList.include(replaced);
     }
-    
     pushBehaviour(behaviour);
   }
   
@@ -358,15 +346,13 @@ public abstract class ActorMind implements Qualities {
   
   
   public void cancelBehaviour(Behaviour b) {
-    if (b == null) return;
-    if (decisionVerbose && I.talkAbout == actor) {
-      I.say("\nCANCELLING "+b);
-    }
-    if (agenda.includes(b)) while (agenda.size() > 0) {
+    final boolean report = I.talkAbout == actor && decisionVerbose;
+    if (! agenda.includes(b)) return;
+    if (report) I.say("\nCANCELLING "+b);
+    while (agenda.size() > 0) {
       final Behaviour popped = popBehaviour(null);
       if (popped == b) break;
     }
-    if (agenda.includes(b)) I.complain("Duplicate behaviour!");
     todoList.remove(b);
     actor.assignAction(null);
   }

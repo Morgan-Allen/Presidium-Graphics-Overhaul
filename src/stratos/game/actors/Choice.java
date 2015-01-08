@@ -15,6 +15,7 @@ public class Choice implements Qualities {
     */
   public static boolean
     verbose       = false,
+    mindVerbose   = false,
     verboseReject = false,
     verboseSwitch = false;
   
@@ -45,6 +46,11 @@ public class Choice implements Qualities {
   protected boolean checkPlanValid(Behaviour plan) {
     final boolean report = isVerbose || (verboseReject && I.talkAbout == actor);
     
+    final boolean valid = plan.valid();
+    if (! valid) {
+      if (report) I.say("\n  "+plan+" rejected- no longer valid.");
+      return false;
+    }
     final float priority = plan.priorityFor(actor);
     if (priority <= 0) {
       if (report) I.say("\n  "+plan+" rejected- priority "+priority);
@@ -177,7 +183,6 @@ public class Choice implements Qualities {
     Actor actor, Behaviour last, Behaviour next, boolean stubborn,
     boolean report
   ) {
-    report &= verboseSwitch;
     if (report) I.say("\nConsidering switch from "+last+" to "+next);
     if (next == null) return false;
     if (last == null) return true ;

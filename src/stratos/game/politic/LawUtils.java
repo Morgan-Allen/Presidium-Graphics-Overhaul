@@ -61,7 +61,7 @@ public class LawUtils {
     final Behaviour
       root = actor.mind.rootBehaviour(),
       top  = actor.mind.topBehaviour ();
-    final Target victim = actor.planFocus(null);
+    final Target victim = actor.planFocus(null, true);
     
     float harmRating = 0;
     if (victim != null){

@@ -135,7 +135,7 @@ public class Suspensor extends Mobile implements Mount {
         I.say("  Actor followed:   "+followed);
         I.say("  In world?         "+followed.inWorld());
         I.say("  Activity tracked: "+tracked);
-        I.say("  Activity valid?   "+followed.mind.hasToDo(tracked));
+        I.say("  Activity valid?   "+(followed.matchFor(tracked) != null));
       }
       if (passenger != null) {
         final Vec3D ground = this.position(null);

@@ -547,7 +547,9 @@ public class Action implements Behaviour, AnimNames {
   
   
   public String toString() {
-    return description;
+    String desc = description+" ("+actionTarget+")";
+    if (moveTarget != actionTarget) desc+=" (moves to "+moveTarget+")";
+    return desc;
   }
   
   

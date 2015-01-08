@@ -22,6 +22,7 @@ public class Pathing {
   final public static int MAX_PATH_SCAN = 8;
   private static boolean
     verbose      = false,
+    moveVerbose  = false,
     pathVerbose  = false,
     extraVerbose = false;
   
@@ -105,7 +106,10 @@ public class Pathing {
     final Target oldTarget = trueTarget;
     this.trueTarget = moveTarget;
     if (trueTarget != oldTarget) {
-      if (report) I.say("\nTARGET HAS CHANGED: "+trueTarget);
+      if (report) {
+        I.say("\nTARGET HAS CHANGED TO: "+trueTarget);
+        I.say("  FROM: "+oldTarget);
+      }
       path = null;
       stepIndex = -1;
       evalDelay = 0;
@@ -114,7 +118,7 @@ public class Pathing {
     else if (inLocus(nextStep())) {
       stepIndex = Nums.clamp(stepIndex + 1, path.length);
     }
-    else if (report) I.say("\nNot in locus of: "+nextStep());
+    else if (report && extraVerbose) I.say("\nNot in locus of: "+nextStep());
   }
   
   
@@ -183,7 +187,7 @@ public class Pathing {
       //  Firstly, we perform some basic sanity checks on the start and end
       //  points of the prospective route.
       pathTarget = location(trueTarget);
-      if (report) I.say("BETWEEN: "+origin+" AND "+pathTarget);
+      if (report) I.say("  BETWEEN: "+origin+" AND "+pathTarget);
       if (
         PathSearch.blockedBy(origin, mobile) ||
         PathSearch.blockedBy(pathTarget, mobile)
@@ -192,7 +196,7 @@ public class Pathing {
     }
     if (path == null) {
       if (report || (I.talkAbout == mobile && Choice.verbose)) {
-        I.say("COULDN'T PATH TO: "+pathTarget);
+        I.say("  COULDN'T PATH TO: "+pathTarget);
       }
       mobile.pathingAbort();
       stepIndex = -1;
@@ -203,7 +207,7 @@ public class Pathing {
     //  If those pass inspection, we then select the next step in the currently
     //  approved path-
     else {
-      if (report) {
+      if (report && extraVerbose) {
         I.say("PATH IS: ");
         for (Boarding b : path) {
           I.add(b+" "+PathSearch.blockedBy(b, mobile)+" ");
@@ -318,7 +322,7 @@ public class Pathing {
   
   
   public void applyCollision(float moveRate, Target focus) {
-    final boolean report = I.talkAbout == mobile && verbose;
+    final boolean report = I.talkAbout == mobile && moveVerbose;
     //  TODO:  I am probably going to have to implement some kind of proper
     //  polygonal pathfinding here.  For the moment, it's just kind of
     //  distracting.
@@ -416,7 +420,7 @@ public class Pathing {
   //
   //  TODO:  Consider removing this to the Action or Motion classes
   public boolean facingTarget(Target target) {
-    final boolean report = I.talkAbout == mobile && verbose;
+    final boolean report = I.talkAbout == mobile && moveVerbose;
     if (target == null) return false;
     
     final Vec2D disp = displacement(target);
