@@ -11,31 +11,25 @@ import stratos.util.*;
 
 
 
+
 //  TODO:  Promotions from one job to another in-world need some testing.  Also,
 //  you seem to have way too many candidates showing up.  Try reviewing just
-//  one at a time?  Okay.
+//  one at a time.
 
+//  Ideally, hiring arrangements should have some kind of progress meter.
 
 //  TODO:  Test the stock exchange, and re-introduce the arcology & edifice.
-
 //  Assign drills directly at the trooper lodge.  That'll keep 'em busy!
 
 //  TODO:  Merge the summons-dialogue system with the Contact mission.  It's
 //  much more natural that way.
 
-//  Ideally, hiring arrangements should have some kind of progress meter.
-
 //  TODO:  Retreat should have the possibility to break pursuit as well.
-//         Indoor combats take way too long.  (However, the SFX being shown
-//         might be a clue to sprite-flickering in odd locations.  Consider
-//         studying it for that reason?)
-
 //  TODO:  Also, animals should react more strongly to strangers (either fight,
 //         talk or flee.)  Maybe natives too?
 
 //  TODO:  Introduce hunting by the natives, and allow trading with them as a
-//  source of carbs/greens/protein.  (Also, add singer performance?)  ...Just
-//  make them less static/idle, I guess.
+//  source of carbs/greens/protein.  (Also, add singer performance.)
 
 //  Introduce a finance-report UI!  And try to get all the details.
 //  Try to arrange that actors will seek out new Holdings if anything existing

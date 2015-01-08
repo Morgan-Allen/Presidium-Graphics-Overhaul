@@ -142,8 +142,8 @@ public class Relation {
     }
     
     //  Relations are most easily adjustable when not at either extreme of the
-    //  range, but we ensure that positive/negative target level always have
-    //  *some* effect.
+    //  range, but we ensure that positive/negative target levels always have
+    //  *some* (positive/negative) effect.
     final float
       min     = MIN_ADJUST * Nums.abs(target),
       inRange = (1 + value) / 2f,

@@ -48,6 +48,12 @@ public class ActorMotives {
   }
   
   
+  
+  public void setSolitude(float s) {
+    this.solitude = s;
+  }
+  
+  
   public void updateValues(int numUpdates) {
     if ((numUpdates % UPDATE_INTERVAL) != 0) return;
     final float inc = (1f * UPDATE_INTERVAL) / MOTIVE_EVAL_TIME;

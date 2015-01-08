@@ -13,6 +13,7 @@ import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
 import stratos.user.*;
 import stratos.util.*;
+import stratos.game.politic.Mission;
 
 
 
@@ -137,7 +138,7 @@ public abstract class Artilect extends Actor {
   protected void addReactions(Target seen, Choice choice) {
     if (seen instanceof Actor) {
       final Combat combat = new Combat(
-        this, (Actor) seen, Combat.STYLE_EITHER, Combat.OBJECT_DESTROY, true
+        this, (Actor) seen, Combat.STYLE_EITHER, Combat.OBJECT_DESTROY
       );
       choice.add(combat);
     }
@@ -166,15 +167,20 @@ public abstract class Artilect extends Actor {
       isCranial = this instanceof Cranial;
     final Property home = mind.home();
     Element guards = home == null ? this : (Element) home;
-    final float distance = Spacing.distance(this, guards) / Stage.SECTOR_SIZE;
+    //final float distance = Spacing.distance(this, guards) / Stage.SECTOR_SIZE;
     //
     //  Security and defence related tasks-
+    final Mission mission = mind.mission();
+    if (mission != null && mission.hasBegun() && mission.isApproved(this)) {
+      choice.add(mission);
+    }
     if (! isCranial) {
       final Plan patrol = Patrolling.aroundPerimeter(this, guards, world);
       choice.add(patrol.setMotive(Plan.MOTIVE_DUTY, Plan.IDLE));
       choice.add(FindMission.attemptFor(this));
     }
-    if (distance > 1) choice.add(new Retreat(this));
+    //if (distance > 1)
+    choice.add(new Retreat(this));
     //
     //  Defend home site or retreat to different site (all).
     //  Respond to obelisk or tesseract presence (all).

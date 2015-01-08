@@ -235,7 +235,7 @@ public class DialogueUtils implements Qualities {
     else if (effect > 0) sign = " (+)";
     else sign = " (-)";
     
-    final Target opposite = a.planFocus(Dialogue.class);
+    final Target opposite = a.planFocus(Dialogue.class, true);
     final int side = (opposite == null) ? TalkFX.FROM_RIGHT : (
       onRight(a, opposite) ? TalkFX.FROM_RIGHT : TalkFX.FROM_LEFT
     );

@@ -17,8 +17,8 @@ import static stratos.game.actors.Qualities.*;
 public class Repairs extends Plan {
   
   private static boolean
-    evalVerbose   = false,
-    eventsVerbose = false;
+    evalVerbose   = true ,
+    eventsVerbose = true ;
   
   final public static float
     TIME_PER_25_HP     = Stage.STANDARD_HOUR_LENGTH / 2,
@@ -126,9 +126,9 @@ public class Repairs extends Plan {
     
     float urgency = needForRepair(built);
     if (urgency <= 0) return 0;
-    //float bonus = (1 + actor.base().relations.communitySpirit()) / 2f;
-    float competition = FULL_COMPETITION;
-    competition /= 1 + (built.structure().maxIntegrity() / 100f);
+    float competition = MILD_COOPERATION;
+    //float competition = FULL_COMPETITION;
+    //competition /= 1 + (built.structure().maxIntegrity() / 100f);
     
     final float priority = priorityForActorWith(
       actor, (Target) built,

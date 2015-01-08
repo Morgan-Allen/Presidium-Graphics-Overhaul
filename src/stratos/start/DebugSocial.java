@@ -104,16 +104,19 @@ public class DebugSocial extends Scenario {
     venue.stocks.bumpItem(Economy.PARTS, 10);
     //*/
     
-    //*
     Actor citizen = null, other = null;
     for (int n = 2; n-- > 0;) {
       citizen = new Human(Backgrounds.CULTIVATOR, base);
+      citizen.health.takeCalories(100, 1);
       citizen.enterWorldAt(2 + n, 3 + n, world);
       if (other == null) other = citizen;
     }
     
+    citizen.motives.setSolitude(1);
+    other  .motives.setSolitude(1);
+    
     final Dialogue d = new Dialogue(citizen, other);
-    d.setMotive(Plan.MOTIVE_LEISURE, Plan.CASUAL);
+    d.setMotive(Plan.MOTIVE_LEISURE, Plan.PARAMOUNT);
     citizen.mind.assignBehaviour(d);
     UI.selection.pushSelection(citizen, true);
     //*/

@@ -84,7 +84,8 @@ public class DebugSecurity extends Scenario {
     if (false) breedingScenario(world, base, UI);
     if (false) arrestScenario  (world, base, UI);
     if (false) animalScenario  (world, base, UI);
-    if (true ) raidingScenario (world, base, UI);
+    if (false) raidingScenario (world, base, UI);
+    if (true ) combatScenario  (world, base, UI);
   }
   
   
@@ -168,25 +169,28 @@ public class DebugSecurity extends Scenario {
   }
   
   
-  private void configCombatScenario(Stage world, Base base, BaseUI UI) {
+  private void combatScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.fogFree = true;
     //GameSettings.noBlood = true;
     
     Actor soldier = null;
-    for (int n = 1; n-- > 0;) {
-      soldier = new Human(Backgrounds.KNIGHTED, base);
+    for (int n = 4; n-- > 0;) {
+      soldier = new Human(Backgrounds.TROOPER, base);
       soldier.enterWorldAt(world.tileAt(4, 4), world);
     }
     
+    /*
     final Actor civilian = new Human(Backgrounds.STOCK_VENDOR, base);
     civilian.enterWorldAt(world.tileAt(5, 4), world);
     civilian.health.takeInjury(civilian.health.maxHealth() * 2, true);
+    //*/
     
     final Base artilects = Base.artilects(world);
     final Actor threat = new Tripod(artilects);
     threat.enterWorldAt(world.tileAt(8, 6), world);
+    //UI.selection.pushSelection(threat, true);
     
-    UI.selection.pushSelection(threat, true);
+    UI.selection.pushSelection(soldier, true);
   }
   
   

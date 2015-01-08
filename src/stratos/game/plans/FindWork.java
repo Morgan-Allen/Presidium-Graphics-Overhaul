@@ -189,7 +189,7 @@ public class FindWork extends Plan {
   public static FindWork attemptFor(Actor actor, Property at) {
     if (at.careers() == null) return null;
     
-    FindWork main = (FindWork) actor.matchFor(FindWork.class);
+    FindWork main = (FindWork) actor.matchFor(FindWork.class, false);
     if (main == null) {
       main = new FindWork(actor, null, null);
       actor.mind.assignToDo(main);
@@ -249,7 +249,7 @@ public class FindWork extends Plan {
   
   
   public static Background ambitionOf(Actor actor) {
-    final FindWork finding = (FindWork) actor.matchFor(FindWork.class);
+    final FindWork finding = (FindWork) actor.matchFor(FindWork.class, false);
     if (finding == null || finding.position == null) return null;
     return finding.position;
   }

@@ -3,6 +3,7 @@
 
 package stratos.game.actors;
 import stratos.game.common.*;
+import stratos.game.plans.*;
 import stratos.util.*;
 
 
@@ -30,7 +31,8 @@ public class ActorRelations {
   final static int
     DEFAULT_MAX_MEMORY = 10,
     DEFAULT_MAX_ASSOC  = 100,
-    UPDATE_PERIOD      = Stage.STANDARD_HOUR_LENGTH;
+    UPDATE_PERIOD      = Stage.STANDARD_HOUR_LENGTH,
+    OBSERVE_PERIOD     = Stage.STANDARD_HOUR_LENGTH;
   
   
   final protected Actor actor;
@@ -59,10 +61,51 @@ public class ActorRelations {
   
   /**  Update and decay methods-
     */
+  protected void updateFromObservations() {
+    final boolean report = verbose && I.talkAbout == actor;
+    if (report) I.say("\n"+actor+" updating relations based on observation.");
+    
+    for (Target t : actor.senses.awareOf()) if (t instanceof Actor) {
+      final Actor  other   = (Actor) t;
+      final Target affects = other.planFocus(null, true);
+      if (affects == null || other.isDoing(Dialogue.class, affects)) continue;
+      final float
+        harm   = other.harmIntended(affects),
+        cares  = valueFor(affects),
+        impact = Nums.abs(harm * cares);
+      if (report) {
+        I.say("  Observed "+other+" doing "+other.currentAction());
+        I.say("    Affected:   "+affects);
+        I.say("    Harm done:  "+harm   );
+        I.say("    Cares?      "+cares  );
+        I.say("    Impact:     "+impact );
+      }
+      if (impact == 0 || (impact <= 0.5f && ! hasRelation(other))) {
+        if (report) I.say("  Meh.  Big deal.");
+        continue;
+      }
+      final float
+        weight    = 1f / OBSERVE_PERIOD,
+        increment = 0 - harm * cares,
+        beforeVal = valueFor(other);
+      incRelation(other, increment, weight, weight);
+      if (report) {
+        I.say("  Actions speak louder...");
+        I.say("    Weight assigned: "+weight   );
+        I.say("    Increment:       "+increment);
+        I.say("    Relation before: "+beforeVal);
+        I.say("    Relation after:  "+valueFor(other));
+      }
+    }
+  }
+  
+  
   public void updateValues(int numUpdates) {
+    updateFromObservations();
+    
     if (numUpdates % UPDATE_PERIOD != 0) return;
     final boolean report = verbose && I.talkAbout == actor;
-    if (report) I.say("\nUpdating relations for "+actor);
+    if (report) I.say("\nDecaying and culling relations for "+actor);
     
     //  Firstly, sort relations in order of importance (based on the strength
     //  of the relationship, good or bad, and freshness in memory)-

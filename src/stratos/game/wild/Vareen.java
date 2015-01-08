@@ -73,7 +73,7 @@ public class Vareen extends Fauna {
   /**  Behaviour modifications/implementation-
     */
   protected void updateAsMobile() {
-    final Target target = this.planFocus(null);
+    final Target target = this.planFocus(null, true);
     float idealHeight = DEFAULT_FLY_HEIGHT;
     
     if (! health.conscious()) idealHeight = 0;

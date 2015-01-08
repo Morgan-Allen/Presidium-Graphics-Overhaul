@@ -15,7 +15,7 @@ public class DialogueFX {
   
   
   protected static TalkFX transcriptFor(Actor talks) {
-    final Dialogue chat = (Dialogue) talks.matchFor(Dialogue.class);
+    final Dialogue chat = (Dialogue) talks.matchFor(Dialogue.class, true);
     if (chat == null) return null;
     
     final Actor other = (talks == chat.other) ? chat.actor() : chat.other;

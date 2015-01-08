@@ -22,7 +22,7 @@ public class Audit extends Plan {
   /**  Data fields, constructors and save/load functions-
     */
   private static boolean
-    evalVerbose  = false,
+    evalVerbose  = true ,
     stepsVerbose = false;
   
   public static enum Type {
@@ -193,13 +193,13 @@ public class Audit extends Plan {
   
   
   protected float getPriority() {
-    final boolean report = evalVerbose && I.talkAbout == actor;
+    final boolean report = evalVerbose && I.talkAbout == actor && hasBegun();
     if (report) {
       I.say("\nGetting priority for audit of "+audited+" by "+actor);
     }
     
-    float credits = totalSum;
-    if (audited != null) credits += audited.inventory().unTaxed();
+    float credits = Nums.abs(totalSum);
+    if (audited != null) credits += Nums.abs(audited.inventory().unTaxed());
     float modifier = Nums.clamp(credits / 100, -ROUTINE, ROUTINE);
     
     if (type == Type.TYPE_EXTORTION) {

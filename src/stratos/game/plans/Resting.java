@@ -96,7 +96,7 @@ public class Resting extends Plan {
     
     if (restPoint instanceof Venue) {
       final Venue venue = (Venue) restPoint;
-      if (! venue.structure.intact()) return 0;
+      if (! venue.allowsEntry(actor)) return -1;
     }
     
     //  Include effects of fatigue-
@@ -130,7 +130,7 @@ public class Resting extends Plan {
     
     //  Include day/night effects-
     urgency += (1 - Planet.dayValue(actor.world())) * 2;
-
+    
     //  Include location effects-
     if (restPoint == actor && ! actor.indoors()) {
       urgency -= CASUAL;
