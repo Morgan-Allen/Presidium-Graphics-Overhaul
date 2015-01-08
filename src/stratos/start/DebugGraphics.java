@@ -73,7 +73,6 @@ public class DebugGraphics {
         SS.scale = 1.5f;
         
         
-        
         final SolidSprite spriteA = (SolidSprite) HUMAN_MODEL.makeSprite();
         spriteA.showOnly(AnimNames.MAIN_BODY);
         spriteA.setOverlaySkins(
@@ -96,6 +95,12 @@ public class DebugGraphics {
           //sprites.add(CS);
         }
         
+        final CutoutSprite BS = (CutoutSprite) VM.makeSprite();
+        BS.colour = new Colour(Colour.BLUE).withGlow(1);
+        BS.position.set(4, 4, 0);
+        sprites.add(BS);
+        
+        /*
         final BuildingSprite BS = BuildingSprite.fromBase(VM, 4, 2);
         BS.position.set(-4, -4, 0);
         BS.updateItemDisplay(
@@ -115,6 +120,7 @@ public class DebugGraphics {
         BS.toggleFX(BuildingSprite.WATER_MODEL, true);
         BS.toggleFX(BuildingSprite.BLAST_MODEL, true);
         sprites.add(BS);
+        //*/
         
         final TalkFX FX1 = new TalkFX() {
           int count = 0;

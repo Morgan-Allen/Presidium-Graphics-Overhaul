@@ -8,6 +8,8 @@ import stratos.graphics.widgets.*;
 
 
 
+//  TODO:  The Psy display should be moved down to below the Power buttons.
+
 public class Readout extends UIGroup {
   
   

@@ -19,14 +19,16 @@ public class ImageAsset extends Assets.Loadable {
     //  NOTE:  This method should not be called until the main LibGDX thread
     //  has called create() on the application listener.
     if (WHITE_TEX != null) return WHITE_TEX;
-    WHITE_TEX = new Texture(
-      4, 4, Pixmap.Format.RGBA8888
-    );
-    final Pixmap draw = new Pixmap(4, 4, Pixmap.Format.RGBA8888);
-    draw.setColor(Color.WHITE);
-    draw.fillRectangle(0, 0, 4, 4);
-    WHITE_TEX.draw(draw, 0, 0);
-    return WHITE_TEX;
+    return WHITE_TEX = withColor(4, Color.WHITE);
+  }
+  
+  public static Texture withColor(int size, Color c) {
+    final Texture tex = new Texture(size, size, Pixmap.Format.RGBA8888);
+    final Pixmap draw = new Pixmap (size, size, Pixmap.Format.RGBA8888);
+    draw.setColor(c);
+    draw.fillRectangle(0, 0, size, size);
+    tex.draw(draw, 0, 0);
+    return tex;
   }
   
   

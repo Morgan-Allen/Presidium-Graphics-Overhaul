@@ -58,8 +58,7 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
   
   final Bordering border;
   final UIGroup
-    innerRegion,
-    viewRegion ;
+    innerRegion;
   final Text
     headerText ,
     detailText ,
@@ -111,12 +110,6 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
     innerRegion.alignHorizontal(-15 + across, -15);
     innerRegion.alignVertical  (-15         , -15);
     innerRegion.attachTo(border.inside);
-    
-    //  TODO:  this won't work any more.
-    this.viewRegion = new UIGroup(UI);
-    viewRegion.alignHorizontal(0, INFO_PANEL_WIDE);
-    viewRegion.alignVertical  (0, 0              );
-    //viewRegion.attachTo(this);
     
     headerText = new Text(UI, BaseUI.INFO_FONT);
     headerText.alignTop   (0, HEADER_HEIGHT);

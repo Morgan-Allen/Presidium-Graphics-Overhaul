@@ -57,7 +57,7 @@ public interface UIConstants {
     CHARTS_WIDE     = 500,
     CHART_INFO_WIDE = 240,
     
-    READOUT_HIGH    =  40,
+    READOUT_HIGH    =  20,
     QUICKBAR_HIGH   =  65,
     PANEL_TAB_SIZE  =  40,
     

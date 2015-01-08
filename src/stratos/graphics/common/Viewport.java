@@ -193,6 +193,24 @@ public class Viewport {
   }
   
   
+  public Vec3D translateVectorFromScreen(Vec3D v) {
+    Vec3D a = new Vec3D(0, 0, 0), b = new Vec3D(v);
+    translateFromScreen(a);
+    translateFromScreen(b);
+    return b.sub(a);
+  }
+  
+  
+  public Vec3D screenHorizontal() {
+    return translateVectorFromScreen(new Vec3D(1, 0, 0));
+  }
+  
+  
+  public Vec3D screenVertical() {
+    return translateVectorFromScreen(new Vec3D(0, 1, 0));
+  }
+  
+  
   public static Vector3 worldToGL(Vec3D from, Vector3 to) {
     to.x = from.x;
     to.y = from.z;

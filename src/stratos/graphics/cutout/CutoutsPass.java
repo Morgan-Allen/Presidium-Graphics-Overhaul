@@ -111,12 +111,18 @@ public class CutoutsPass {
   
   
   private void performPass(Batch <CutoutSprite> inPass) {
+    if (inPass.size() == 0) return;
+    final boolean report = false;
+    if (report) {
+      I.say("\nPerforming cutouts pass, total sprites: "+inPass.size());
+    }
+    
     final Table <ModelAsset, Batch <CutoutSprite>> subPasses = new Table();
     final Batch <CutoutSprite> ghosts = new Batch <CutoutSprite> ();
     final Stack <ModelAsset> sequence = new Stack <ModelAsset> ();
     
     for (CutoutSprite s : inPass) {
-      if (s.colour != null && s.colour.a < 1) {
+      if (s.colour != null && s.colour.transparent()) {
         ghosts.add(s);
         continue;
       }
@@ -130,8 +136,12 @@ public class CutoutsPass {
     
     for (ModelAsset modelKey : sequence) {
       final Batch <CutoutSprite> subPass = subPasses.get(modelKey);
+      if (report) {
+        I.say("  Rendering pass for "+modelKey);
+        I.say("  Total sprites in pass: "+subPass.size());
+      }
       //  TODO:  Try using multi-texturing here instead.  Ought to be more
-      //  efficient, and probably less bug-prone.
+      //         efficient, and probably less bug-prone.
       for (CutoutSprite s : subPass) {
         final boolean glow = s.colour != null && s.colour.glows();
         compileSprite(s, rendering.camera(), glow, s.model.texture);
@@ -169,8 +179,8 @@ public class CutoutsPass {
 
     final Colour fog = Colour.greyscale(s.fog);
     final float colourBits;
-    if (s.colour == null) colourBits = fog.floatBits;
-    else if (s.colour.glows()) colourBits = s.colour.floatBits;
+    if      (  s.colour == null) colourBits = fog     .floatBits;
+    else if (  s.colour.glows()) colourBits = s.colour.floatBits;
     else if (! s.colour.blank()) colourBits = s.colour.floatBits;
     else colourBits = Colour.combineAlphaBits(fog, s.colour);
     
@@ -208,10 +218,12 @@ public class CutoutsPass {
     
     if (wasLit) {
       shading.setUniform4fv("u_lighting", GLOW_LIGHTS, 0, 4);
+      shading.setUniformi("u_glowFlag", GL_TRUE);
     }
     else {
       final float lightSum[] = rendering.lighting.lightSum;
       shading.setUniform4fv("u_lighting", lightSum, 0, 4);
+      shading.setUniformi("u_glowFlag", GL_FALSE);
     }
     
     lastTex.bind(0);

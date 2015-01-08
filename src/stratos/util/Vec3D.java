@@ -113,7 +113,7 @@ public class Vec3D {
   }
   
   
-  /**  Adds the first vector times the give scale factor to this vector and
+  /**  Adds the first vector times the given scale factor to this vector and
     *  stores the new values in result.  (If the result vector is null, a new
     *  Vec3D is initialised and returned.)
     */

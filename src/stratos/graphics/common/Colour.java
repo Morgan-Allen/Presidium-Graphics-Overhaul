@@ -178,6 +178,14 @@ public class Colour {
   }
   
   
+  /**  Returns this colour as a glow-
+    */
+  public Colour withGlow(float f) {
+    this.a = -f;
+    return this;
+  }
+  
+  
   /**  Sets this colour to match given RGBA component values.
     */
   public Colour set(float rc, float gc, float bc, float ac) {
@@ -218,7 +226,7 @@ public class Colour {
   }
   
   public boolean transparent() {
-    return a < 1;
+    return a < 1 && ! glows();
   }
   
   public boolean glows() {

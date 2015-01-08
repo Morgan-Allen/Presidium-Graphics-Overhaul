@@ -3,15 +3,12 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.graphics.widgets;
 import stratos.graphics.common.*;
 import stratos.util.*;
 import stratos.graphics.widgets.Text.Clickable;
-
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.math.*;
-
 
 
 
@@ -24,16 +21,22 @@ public class Button extends Image {
     DEFAULT_LIT = ImageAsset.fromImage(
       Button.class, "media/GUI/iconLit.gif"
     ),
-    CIRCLE_LIT = ImageAsset.fromImage(
+    CIRCLE_LIT  = ImageAsset.fromImage(
       Button.class, "media/GUI/icon_lit_circle.png"
     );
-
+  final static Texture DEFAULT_GREYED = ImageAsset.withColor(
+    16, new Color(0.5f, 0.5f, 0.5f, 0.5f)
+  );
+  
   protected Texture   highlit;
+  protected Texture   greyed ;
   protected String    info   ;
   protected Clickable links  ;
   public float
     hoverLit = DEFAULT_HOVER_ALPHA,
     pressLit = DEFAULT_PRESS_ALPHA;
+  public boolean
+    enabled = true;
   
   
   public Button(HUD UI, ImageAsset norm, String infoS) {
@@ -57,24 +60,36 @@ public class Button extends Image {
   
   public Button(HUD UI, Texture norm, Texture lit, String infoS) {
     super(UI, norm);
-    info = infoS;
+    info    = infoS;
     highlit = lit;
+    greyed  = DEFAULT_GREYED;
   }
   
   
   public void setLinks(Clickable links) {
     this.links = links;
-    this.info = links.fullName();
+    this.info  = links.fullName();
   }
   
   
   public void setHighlight(Texture h) {
-    highlit = h;
+    this.highlit = h;
+  }
+  
+  
+  public void setGreyedTex(Texture g) {
+    this.greyed = g;
   }
   
   
   protected String info() {
+    if (! enabled) return info+"\n"+disableInfo();
     return info;
+  }
+  
+  
+  protected String disableInfo() {
+    return "(Unavailable)";
   }
   
   
@@ -103,13 +118,16 @@ public class Button extends Image {
   
   protected void whenClicked() {
     super.whenClicked();
-    if (links != null) links.whenClicked();
+    if (enabled && links != null) links.whenClicked();
   }
   
-
+  
   protected void render(WidgetsPass pass) {
     super.renderTex(texture, absAlpha, pass);
-    if (amPressed() || amDragged() || amClicked()) {
+    if (! enabled) {
+      super.renderTex(greyed, 1, pass);
+    }
+    else if (amPressed() || amDragged() || amClicked()) {
       super.renderTex(highlit, pressLit * absAlpha, pass);
     }
     else if (amHovered()) {

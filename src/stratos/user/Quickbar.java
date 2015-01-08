@@ -165,6 +165,7 @@ public class Quickbar extends UIGroup implements UIConstants {
         power.name.toUpperCase()+"\n  "+power.helpInfo
       ) {
         protected void whenClicked() {
+          if (! enabled) return;
           ///I.say(power.name+" CLICKED");
           final Actor caster = BaseUI.current().played().ruler();
           if (optionList != null) optionList.detach();
@@ -186,6 +187,16 @@ public class Quickbar extends UIGroup implements UIConstants {
             final PowerTask task = new PowerTask(bar, power, null, caster);
             BaseUI.current().beginTask(task);
           }
+        }
+        
+        protected void updateState() {
+          this.enabled = BaseUI.currentPlayed().ruler() != null;
+          super.updateState();
+        }
+        
+
+        protected String disableInfo() {
+          return "  (Unavailable: No governor)";
         }
       };
       addToSlot(button, index++);

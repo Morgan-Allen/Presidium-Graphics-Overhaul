@@ -151,7 +151,9 @@ public class Minimap extends Assets.Loadable {
       fogApplied.applyToMinimap(shading);
       shading.setUniformi("u_fogFlag", GL_TRUE);
     }
-    else shading.setUniformi("u_fogFlag", GL_FALSE);
+    else {
+      shading.setUniformi("u_fogFlag", GL_FALSE);
+    }
     
     mapImage.bind(0);
     mapMesh.render(shading, GL20.GL_TRIANGLES);

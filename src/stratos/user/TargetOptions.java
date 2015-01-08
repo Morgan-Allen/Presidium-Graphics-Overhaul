@@ -45,22 +45,21 @@ public class TargetOptions extends UIGroup {
     
     OptionButton(BaseUI UI, ImageAsset img, String info, Mission m) {
       super(
-        UI, img.asTexture(), MissionsTab.MISSION_ICON_LIT.asTexture(), info
+        UI, img.asTexture(), Mission.MISSION_ICON_LIT.asTexture(), info
       );
       this.mission = m;
     }
     
     protected void whenClicked() {
       final Base base = BUI.played();
-      
+      //
       //  If an existing mission matches this one, just select that instead.
-      for (Mission match : base.allMissions()) {
-        if (match.getClass() != mission.getClass()) continue;
-        if (match.subject() != mission.subject()) continue;
+      final Mission match = base.matchingMission(mission);
+      if (match != null) {
         BUI.selection.pushSelection(match, true);
         return;
       }
-      
+      //
       //  Otherwise, create a new mission for the target.
       base.addMission(mission);
       BUI.selection.pushSelection(mission, true);
@@ -74,8 +73,8 @@ public class TargetOptions extends UIGroup {
     
     SummonsButton(BaseUI UI, Actor subject) {
       super(
-        UI, MissionsTab.SUMMONS_ICON.asTexture(),
-        MissionsTab.MISSION_ICON_LIT.asTexture(),
+        UI, Mission.SUMMONS_ICON.asTexture(),
+        Mission.MISSION_ICON_LIT.asTexture(),
         "Summon this subject to the bastion"
       );
       this.subject = subject;
@@ -104,7 +103,7 @@ public class TargetOptions extends UIGroup {
       subject instanceof Venue
     ) {
       options.add(new OptionButton(
-        BUI, MissionsTab.STRIKE_ICON, "Destroy or capture subject",
+        BUI, Mission.STRIKE_ICON, "Destroy or capture subject",
         new StrikeMission(base, subject)
       ));
     }
@@ -114,7 +113,7 @@ public class TargetOptions extends UIGroup {
       subject instanceof Item.Dropped
     ) {
       options.add(new OptionButton(
-        BUI, MissionsTab.SECURITY_ICON, "Secure or protect subject",
+        BUI, Mission.SECURITY_ICON, "Secure or protect subject",
         new SecurityMission(base, subject)
       ));
     }
@@ -123,7 +122,7 @@ public class TargetOptions extends UIGroup {
       ((Actor) subject).base() != BUI.played()
     ) {
       options.add(new OptionButton(
-        BUI, MissionsTab.CONTACT_ICON, "Contact or negotiate with subject",
+        BUI, Mission.CONTACT_ICON, "Contact or negotiate with subject",
         new ContactMission(base, subject)
       ));
     }
@@ -131,7 +130,7 @@ public class TargetOptions extends UIGroup {
       subject instanceof Tile
     ) {
       options.add(new OptionButton(
-        BUI, MissionsTab.RECON_ICON, "Surveil or follow subject",
+        BUI, Mission.RECON_ICON, "Surveil or follow subject",
         new ReconMission(base, (Tile) subject)
       ));
     }
