@@ -201,18 +201,20 @@ public class Schedule {
       
       //  TODO:  Stretch this out further based on the proportion of clients
       //  that updated successfully last cycle?
-      if (lastUpdateOkay) event.time += interval + ((Rand.num() - 0.5f) / 5);
-      else                event.time += (interval * 2) - Rand.num();
+      if (! instant) {
+        if (lastUpdateOkay) event.time += interval + ((Rand.num() - 0.5f) / 5);
+        else                event.time += (interval * 2) - Rand.num();
+      }
       allUpdates.put(event.updates, events.insert(event));
-      
-      //  TODO:  You need a better system here- particularly in the case of
-      //  instant scheduling.
       
       if (instant || updateCount > event.lastUpdateCount) {
         long startTime = System.nanoTime();
         if (updateVerbose) I.say("  Updating: "+event.updates);
         event.updates.updateAsScheduled(updateCount, instant);
-        event.lastUpdateCount = updateCount;
+        //
+        //  Instant events still get a shot at regular updates:
+        if (instant) event.lastUpdateCount = updateCount - 1;
+        else         event.lastUpdateCount = updateCount + 0;
         
         long updateTime = System.nanoTime() - startTime;
         if (updateTime > longestTime) {

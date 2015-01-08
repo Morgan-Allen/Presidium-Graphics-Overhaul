@@ -266,12 +266,14 @@ public class StartupScenario extends Scenario {
       
       for (int i = numTries; i-- > 0;) {
         final Human candidate = new Human(b, base);
-        float rating = Career.ratePromotion(b, candidate);
+        float rating = 0;//
         
         if (b == Backgrounds.FIRST_CONSORT) {
           rating += ruler.motives.attraction(candidate) * 1.0f;
           rating += candidate.motives.attraction(ruler) * 0.5f;
         }
+        else rating += Career.ratePromotion(b, candidate);
+        
         if (rating > bestRating) { picked = candidate; bestRating = rating; }
       }
       if (picked != null) advisors.add(picked);

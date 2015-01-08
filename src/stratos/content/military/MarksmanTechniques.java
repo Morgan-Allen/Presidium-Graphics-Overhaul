@@ -92,7 +92,7 @@ public class MarksmanTechniques {
     
     public void applyEffect(Actor using, boolean success, Target subject) {
       super.applyEffect(using, success, subject);
-      I.say("Applying suppression: "+using+" to "+subject);
+      ///I.say("Applying suppression: "+using+" to "+subject);
 
       final Tile o = using.world().tileAt(subject);
       for (Tile t : o.allAdjacent(null)) {

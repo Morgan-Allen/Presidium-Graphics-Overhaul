@@ -504,8 +504,9 @@ public class Career implements Qualities {
     final float cash = (50 + Rand.index(100)) * BQ / 2f;
     if (cash > 0) actor.gear.incCredits(cash);
     else actor.gear.incCredits(Rand.index(5));
+    actor.gear.taxDone();
     
-    actor.gear.boostShields(actor.gear.maxShields() / 2f, true);
+    actor.gear.boostShields(actor.gear.maxShields(), true);
   }
 }
 

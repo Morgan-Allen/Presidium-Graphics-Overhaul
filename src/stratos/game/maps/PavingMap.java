@@ -10,7 +10,9 @@ import static stratos.game.maps.StageTerrain.*;
 
 public class PavingMap {
   
-  private static boolean verbose = false, searchVerbose = false;
+  private static boolean
+    warnVerbose   = false,
+    searchVerbose = false;
   
   final Stage world;
   final PavingRoutes paving;
@@ -39,24 +41,6 @@ public class PavingMap {
   public void saveState(Session s) throws Exception {
     s.saveByteArray(roadCounter);
     flagMap.saveTo(s.output());
-  }
-  
-  
-  
-  private boolean refreshed = false;
-  
-  public void refreshFlags() {
-    if (refreshed) return;
-    refreshed = true;
-    /*
-    MipMap.printVals(flagMap);
-    flagMap.clear();
-    for (Coord c : Visit.grid(0, 0, size, size, 1)) {
-      final boolean flag = needsPaving(world.tileAt(c.x, c.y));
-      flagMap.set((byte) (flag ? 1 : 0), c.x, c.y);
-    }
-    MipMap.printVals(flagMap);
-    //*/
   }
   
   
@@ -144,9 +128,26 @@ public class PavingMap {
 
   /**  Search method for getting the next tile that needs paving...
     */
+  
+  private boolean refreshed = false;
+  
+  public void refreshFlags() {
+    if (refreshed) return;
+    refreshed = true;
+    /*
+    MipMap.printVals(flagMap);
+    flagMap.clear();
+    for (Coord c : Visit.grid(0, 0, size, size, 1)) {
+      final boolean flag = needsPaving(world.tileAt(c.x, c.y));
+      flagMap.set((byte) (flag ? 1 : 0), c.x, c.y);
+    }
+    MipMap.printVals(flagMap);
+    //*/
+  }
+  
+  
   //  TODO:  To boost efficiency further, you might consider caching results
   //  for this periodically?
-  
   public Tile nextTileToPave(final Target client, final StageSection limit) {
     this.refreshFlags();  //  Used strictly for debugging.
     final boolean report = searchVerbose && I.talkAbout == client;
@@ -156,9 +157,17 @@ public class PavingMap {
     final Coord c = flagMap.nearest(o.x, o.y, -1, limitBox);
     final Tile  t = c == null ? null : world.tileAt(c.x, c.y);
     
-    if (t != null && ! needsPaving(t)) I.complain(
-      "GOT TILE WHICH DOES NOT NEED PAVING: "+t
-    );
+    //  TODO:  There's an occasional problem here, but it's with the flagging
+    //  system rather than the mipmap-search algorithm itself.  Lock that down.
+    final boolean warn = report && warnVerbose;
+    if (t != null && ! needsPaving(t)) {
+      if (warn) {
+        I.say("\nWARNING: GOT TILE WHICH DOES NOT NEED PAVING: "+t);
+        I.say("  Flagged value? "+flagMap.getTotalAt(t.x, t.y, 0));
+      }
+      updateFlags(t);
+      return null;
+    }
     if (report) I.say("Next tile to pave: "+t);
     return t;
   }

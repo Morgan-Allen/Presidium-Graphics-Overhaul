@@ -221,6 +221,26 @@ public class ShieldWall extends Venue {
   }
   
   
+  private void refreshAdjacentCache() {
+    for (Boarding b : canBoard()) {
+      if (b instanceof ShieldWall) ((ShieldWall) b).entrances = null;
+    }
+  }
+  
+  
+  public boolean enterWorldAt(int x, int y, Stage world) {
+    if (! super.enterWorldAt(x, y, world)) return false;
+    refreshAdjacentCache();
+    return true;
+  }
+  
+  
+  public void exitWorld() {
+    refreshAdjacentCache();
+    super.exitWorld();
+  }
+  
+  
   
   /**  Configuring and querying segment types-
     */
@@ -261,7 +281,7 @@ public class ShieldWall extends Venue {
     }
     
     if (this instanceof BlastDoors) {
-      if (facing == W || facing == E) return TYPE_DOOR_LEFT ;
+      if (facing == W || facing == E) return TYPE_DOOR_LEFT;
       if (facing == N || facing == S) return TYPE_DOOR_RIGHT;
       return TYPE_SINGLE;
     }
@@ -270,12 +290,12 @@ public class ShieldWall extends Venue {
     if (numNear == 1) return TYPE_END_CAP;
     if (numNear == 2) {
       if (near[N] && near[S]) {
-        if (o.y % 8 == 0) return TYPE_TOWER_LEFT;
-        else return TYPE_SECTION_LEFT;
-      }
-      if (near[W] && near[E]) {
         if (o.x % 8 == 0) return TYPE_TOWER_RIGHT;
         else return TYPE_SECTION_RIGHT;
+      }
+      if (near[W] && near[E]) {
+        if (o.y % 8 == 0) return TYPE_TOWER_LEFT;
+        else return TYPE_SECTION_LEFT;
       }
     }
     return TYPE_JUNCTION;
@@ -428,7 +448,7 @@ public class ShieldWall extends Venue {
       if (cannotUse(t)) return false;
       underFree |= t.habitat().pathClear;
     }
-    for (Tile t : Spacing.perimeter(footprint(), world)) {
+    for (Tile t : Spacing.perimeter(footprint(), world)) if (t != null) {
       if (cannotUse(t)) return false;
       perimFree |= t.habitat().pathClear;
     }

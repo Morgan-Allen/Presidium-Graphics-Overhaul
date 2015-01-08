@@ -19,7 +19,6 @@ import stratos.game.wild.Species;
 
 //  TODO:  Replace with 'Person' or 'Citizen'?
 
-
 public class Human extends Actor implements Qualities {
   
   
@@ -120,6 +119,9 @@ public class Human extends Actor implements Qualities {
   };
   
   final static int
+    DESERT_ID = 0, WASTES_ID = 1, TUNDRA_ID = 2, FOREST_ID = 3,
+    RACE_TONE_SHADES[] = { 3, 0, 1, 2 },
+    
     CHILD_FACE_OFF[] = {2, 0},
     ELDER_FACE_OFF[] = {2, 1},
     F_AVG_FACE_OFF[] = {1, 1},
@@ -129,20 +131,21 @@ public class Human extends Actor implements Qualities {
   
   final static int
     M_HAIR_OFF[][] = {{5, 5}, {4, 5}, {3, 5}, {3, 4}, {4, 4}, {5, 4}},
-    F_HAIR_OFF[][] = {{2, 5}, {1, 5}, {0, 5}, {0, 4}, {1, 4}, {2, 4}};
+    F_HAIR_OFF[][] = {{2, 5}, {1, 5}, {0, 5}, {0, 4}, {1, 4}, {2, 4}},
+    BLACK_HAIR_INDEX = 3,
+    WHITE_HAIR_INDEX = 5;
   
-  final static int BLOOD_FACE_OFFSETS[][] = {
+  final static int RACE_FACE_OFFSETS[][] = {
     {3, 4}, {0, 2}, {0, 4}, {3, 2}
   };
-  final static int BLOOD_TONE_SHADES[] = { 3, 0, 1, 2 };
   
   
   public static Trait raceFor(Human c) {
-    return RACE_TRAITS_LISTING[bloodID(c)];
+    return RACE_TRAITS_LISTING[raceID(c)];
   }
   
   
-  private static int bloodID(Human c) {
+  private static int raceID(Human c) {
     int ID = 0;
     float highest = 0;
     for (int i = 4; i-- > 0;) {
@@ -168,7 +171,7 @@ public class Human extends Actor implements Qualities {
     final Composite composite = Composite.withSize(PS, PS, key);
     composite.layer(PORTRAIT_BASE);
     
-    final int bloodID = bloodID(c);
+    final int bloodID = raceID(c);
     final boolean male = c.traits.male();
     final int ageStage = c.health.agingStage();
     
@@ -176,7 +179,7 @@ public class Human extends Actor implements Qualities {
       I.say("  Blood/male/age-stage: "+bloodID+" "+male+" "+ageStage);
     }
     
-    int faceOff[], bloodOff[] = BLOOD_FACE_OFFSETS[bloodID];
+    int faceOff[], bloodOff[] = RACE_FACE_OFFSETS[bloodID];
     if (ageStage == 0) {
       faceOff = CHILD_FACE_OFF;
     }
@@ -194,12 +197,15 @@ public class Human extends Actor implements Qualities {
     composite.layerFromGrid(BASE_FACES, UV[0], UV[1], 6, 6);
     
     if (ageStage > ActorHealth.AGE_JUVENILE) {
-      int hairID = c.traits.geneValue("hair", 6);
-      if (hairID < 0) hairID *= -1;
-      hairID = Nums.clamp(hairID + BLOOD_TONE_SHADES[bloodID], 6);
+      final int hairGene = c.traits.geneValue("hair", 4);
       
-      if (ageStage >= ActorHealth.AGE_SENIOR) hairID = 5;
-      else if (hairID == 5) hairID--;
+      int hairID = BLACK_HAIR_INDEX;
+      if (hairGene > RACE_TONE_SHADES[bloodID]) {
+        hairID = BLACK_HAIR_INDEX - hairGene;
+      }
+      if (ageStage >= ActorHealth.AGE_SENIOR && hairGene > 1) {
+        hairID = WHITE_HAIR_INDEX;
+      }
       int fringeOff[] = (male ? M_HAIR_OFF : F_HAIR_OFF)[hairID];
       composite.layerFromGrid(BASE_FACES, fringeOff[0], fringeOff[1], 6, 6);
       
@@ -221,7 +227,7 @@ public class Human extends Actor implements Qualities {
     }
     else s = (SolidSprite) c.sprite();
     
-    ImageAsset skin = BLOOD_SKINS[bloodID(c)];
+    ImageAsset skin = BLOOD_SKINS[raceID(c)];
     
     //s.applyOverlay(skin.asTexture(), AnimNames.MAIN_BODY, true);
     ImageAsset costume = c.career.vocation().costumeFor(c);

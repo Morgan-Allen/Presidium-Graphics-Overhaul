@@ -672,7 +672,9 @@ public interface Backgrounds {
     //  Aristocratic titles are for the benefit of the player-character:
     KNIGHTED = new Background(
       Backgrounds.class,
-      "Knighted", "", "highborn_male_skin.gif", "highborn_portrait.png",
+      "Knighted",
+      "",
+      "highborn_male_skin.gif", "highborn_portrait.png",
       CLASS_STRATOI, NOT_A_GUILD,
       PRACTICED, HAND_TO_HAND, BATTLE_TACTICS, SHIELD_AND_ARMOUR, COMMAND,
       NOBLE_ETIQUETTE, LEARNING, ACCOUNTING, ANCIENT_LORE, COMMON_CUSTOM,
@@ -689,7 +691,9 @@ public interface Backgrounds {
     },
     BARON = new Background(
       Backgrounds.class,
-      "Baron", "", "highborn_male_skin.gif", "highborn_portrait.png",
+      "Baron",
+      "",
+      "highborn_male_skin.gif", "highborn_portrait.png",
       CLASS_STRATOI, NOT_A_GUILD,
       EXPERT, HAND_TO_HAND, BATTLE_TACTICS, SHIELD_AND_ARMOUR, COMMAND,
       NOBLE_ETIQUETTE, PRACTICED, ACCOUNTING, ANCIENT_LORE, COMMON_CUSTOM,
@@ -706,7 +710,9 @@ public interface Backgrounds {
     },
     COUNT = new Background(
       Backgrounds.class,
-      "Count", "", "highborn_male_skin.gif", "highborn_portrait.png",
+      "Count",
+      "",
+      "highborn_male_skin.gif", "highborn_portrait.png",
       CLASS_STRATOI, NOT_A_GUILD,
       MASTER, HAND_TO_HAND, BATTLE_TACTICS, SHIELD_AND_ARMOUR, COMMAND,
       NOBLE_ETIQUETTE, EXPERT, ACCOUNTING, ANCIENT_LORE, COMMON_CUSTOM,
@@ -730,13 +736,17 @@ public interface Backgrounds {
     //  Your family, servants, bodyguards and captives-
     FIRST_CONSORT = new Background(
       Backgrounds.class,
-      "First Consort", "", "highborn_female_skin.gif", "aesthete_portrait.png",
+      "First Consort",
+      "",
+      "highborn_female_skin.gif", "highborn_consort_portrait.png",
       CLASS_STRATOI, NOT_A_GUILD,
       PRACTICED, COMMAND, SUASION, LEARNING, EROTICS, MASQUERADE, DOMESTICS,
       RARELY, IMPASSIVE, STUBBORN, OFTEN, AMBITIOUS, ACQUISITIVE,
-      SOMETIMES, POSITIVE
+      SOMETIMES, POSITIVE, ALWAYS, HANDSOME
     ) {
-      final ImageAsset male_skin = costumeFor("highborn_female_skin.gif");
+      final ImageAsset
+        male_skin     = costumeFor ("highborn_male_skin.gif"),
+        male_portrait = portraitFor("highborn_portrait.png" );
       public String nameFor(Actor actor) {
         final boolean male = actor.traits.male();
         final Background rank = actor.base().ruler().vocation();
@@ -750,7 +760,7 @@ public interface Backgrounds {
         return actor.traits.female() ? costume : male_skin;
       }
       public ImageAsset portraitFor(Actor actor) {
-        return actor.traits.female() ? portrait : null;
+        return actor.traits.female() ? portrait : male_portrait;
       }
     },
     MINISTER_FOR_ACCOUNTS = new Background(

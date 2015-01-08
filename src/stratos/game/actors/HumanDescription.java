@@ -99,16 +99,14 @@ public class HumanDescription implements Qualities {
     
     final Item device = h.gear.deviceEquipped();
     if (device != null) {
-      d.append("\n  "+device.type+" ("+device.descQuality());
-      d.append(") ("+((int) h.gear.attackDamage())+")");
+      d.append("\n  "+device.type+" ("+((int) h.gear.attackDamage())+")");
     }
     else d.append("\n  No device");
     if (FC > 0) d.append(" (Power "+FC+")");
     
     final Item outfit = h.gear.outfitEquipped();
     if (outfit != null) {
-      d.append("\n  "+outfit.type+" ("+outfit.descQuality());
-      d.append(") ("+((int) h.gear.armourRating())+")");
+      d.append("\n  "+outfit.type+" ("+((int) h.gear.armourRating())+")");
     }
     else d.append("\n  No outfit");
     if (MS > 0 || SC > 0) d.append(" (Shields "+SC+"/"+MS+")");
@@ -258,23 +256,8 @@ public class HumanDescription implements Qualities {
     );
     final Description d = panel.detail(), l = panel.listing();
     
-    d.append("Is: ");
-    actor.describeStatus(d);
-    
-    d.append("\nNests at: ");
-    if (actor.mind.home() != null) {
-      d.append(actor.mind.home());
-    }
-    else d.append("No nest");
-    
-    d.append("\n\n");
-    d.append(actor.species().info, Colour.LITE_GREY);
-    
-    
-    l.append("Condition: ");
-    final Batch <String> CD = actor.health.conditionsDesc();
-    if (CD.size() == 0) l.append("Okay");
-    else l.appendList("", CD);
+    final HumanDescription HD = new HumanDescription(actor);
+    HD.describeStatus(d, UI);
     
     final Batch <Skill> skills = actor.traits.skillSet();
     if (skills.size() > 0) {
@@ -285,6 +268,26 @@ public class HumanDescription implements Qualities {
         l.append(Skill.skillDesc(level), Skill.skillTone(level));
       }
     }
+    l.append("\n\n");
+    l.append(actor.species().info, Colour.LITE_GREY);
+    
+    /*
+    d.append("Is: ");
+    actor.describeStatus(d);
+    
+    d.append("\nNests at: ");
+    if (actor.mind.home() != null) {
+      d.append(actor.mind.home());
+    }
+    else d.append("No nest");
+    
+    
+    
+    l.append("Condition: ");
+    final Batch <String> CD = actor.health.conditionsDesc();
+    if (CD.size() == 0) l.append("Okay");
+    else l.appendList("", CD);
+    //*/
     return panel;
   }
 }

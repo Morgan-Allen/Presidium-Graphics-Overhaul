@@ -303,6 +303,7 @@ public class ActorSenses implements Qualities {
         hostility = Nums.clamp(hostility + 0.5f, 0, 1);
         
         if (CombatUtils.isActiveHostile(actor, near)) {
+          if (report) I.say("  Is active hostile!");
           emergency = true;
           hostility += 1;
           power *= 2;

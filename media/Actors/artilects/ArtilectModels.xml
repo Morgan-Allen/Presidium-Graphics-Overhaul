@@ -101,7 +101,8 @@
     <animation name="idle"        start="638" end="668" duration="1" />
     <animation name="look"        start="669" end="836" duration="1" />
     <animation name="move"        start="837" end="897" duration="1" />
-    <animation name="die"         start="898" end="973" duration="1" />
+    <animation name="move_fast"   start="837" end="897" duration="1" />
+    <animation name="fall"        start="898" end="973" duration="1" />
   </animations>
   
   <attachPoints>

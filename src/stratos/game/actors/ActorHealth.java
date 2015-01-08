@@ -309,8 +309,8 @@ public class ActorHealth implements Qualities {
     }
     
     final float limit;
-    if (terminal) limit = maxHealth * MAX_INJURY;
-    else if (conscious()) limit = maxHealth;
+    if (injury < maxHealth) limit = maxHealth;
+    else if (terminal || conscious()) limit = maxHealth * MAX_INJURY;
     else limit = injury;
     
     if (organic()) {
@@ -673,6 +673,10 @@ public class ActorHealth implements Qualities {
     final float maxCon = maxConcentration();
     concentration += maxCon * (1 - stress) * PM / CONCENTRATE_REGEN_TIME;
     concentration = Nums.clamp(concentration, 0, maxCon);
+    if (report) {
+      I.say("  Max. concentration: "+maxCon       );
+      I.say("  Current level:      "+concentration);
+    }
   }
   
   

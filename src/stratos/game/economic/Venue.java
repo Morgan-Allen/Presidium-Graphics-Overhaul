@@ -323,6 +323,7 @@ public abstract class Venue extends Structural implements
   
   
   public boolean allowsEntry(Mobile m) {
+    if (! structure.intact()) return false;
     if (m.base() == this.base) return true;
     return base.relations.relationWith(m.base()) > 0;
   }
