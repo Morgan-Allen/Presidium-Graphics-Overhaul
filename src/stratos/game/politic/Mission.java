@@ -3,6 +3,7 @@
 package stratos.game.politic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
+import stratos.game.economic.Venue;
 import stratos.game.wild.Species;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -10,6 +11,7 @@ import stratos.graphics.widgets.*;
 import stratos.start.PlayLoop;
 import stratos.user.*;
 import stratos.util.*;
+
 
 
 //  TODO:  Different mission types need to have different options.
@@ -211,20 +213,6 @@ public abstract class Mission implements
     */
   public abstract float rateImportance(Base base);
   
-  /*
-  protected boolean vetCandidate(Actor applies) {
-    if (applies.vocation() instanceof Species) {
-      return true;
-    }
-    
-    final Plan next = this.nextStepFor(applies);
-    if (next.successChanceFor(applies) < 0.5f) return 0;
-    //  TODO:  ENSURE MINIMAL COMPETENCE.
-    return true;
-  }
-  //*/
-  
-  
   
   protected float successChance() {
     float sumChances = 0;
@@ -239,9 +227,17 @@ public abstract class Mission implements
     if (missionType == TYPE_PUBLIC && priority > 0 && ! hasBegun()) {
       beginMission();
     }
-    else if (shouldEnd()) endMission();
-    else {
-      
+    else if (shouldEnd()) endMission(true);
+    //
+    //  By default, we also terminate any missions that have been completely
+    //  abandoned-
+    if (hasBegun() && missionType != TYPE_PUBLIC) {
+      boolean anyActive = false;
+      for (Role r : roles) if (r.cached instanceof Plan) {
+        if (r.applicant.matchFor((Plan) r.cached) != null) anyActive = true;
+      }
+      else anyActive = true;
+      if (! anyActive) endMission(false);
     }
   }
   
@@ -259,6 +255,7 @@ public abstract class Mission implements
   
   
   public void setMissionType(int type) {
+    if (this.missionType == type) return;
     this.missionType = type;
     resetMission();
   }
@@ -373,6 +370,13 @@ public abstract class Mission implements
   }
   
   
+  public Target applyPointFor(Actor actor) {
+    if (missionType == TYPE_BASE_AI) return actor;
+    if (missionType == TYPE_PUBLIC ) return actor;
+    return base.HQ();
+  }
+  
+  
   //  NOTE:  This method should be called within the ActorMind.assignMission
   //  method, and not independantly.
   public void setApplicant(Actor actor, boolean is) {
@@ -420,7 +424,7 @@ public abstract class Mission implements
   }
   
   
-  public void endMission() {
+  public void endMission(boolean withReward) {
     final boolean report = verbose && BaseUI.currentPlayed() == base;
     if (report) I.say("\nMISSION COMPLETE: "+this);
     //
@@ -429,9 +433,10 @@ public abstract class Mission implements
     done = true;
     //
     //  Determine the reward, and dispense among any agents engaged-
-    final float reward = this.missionType == TYPE_BASE_AI ? 0 :
-      REWARD_AMOUNTS[priority] * 1f / roles.size()
-    ;
+    final float reward;
+    if ((! withReward) || this.missionType == TYPE_BASE_AI) reward = 0;
+    else reward = REWARD_AMOUNTS[priority] * 1f / roles.size();
+    
     for (Role role : roles) {
       if (begun && reward > 0) {
         if (report) I.say("  Dispensing "+reward+" credits to "+role.applicant);
@@ -456,7 +461,10 @@ public abstract class Mission implements
     final Role role = roleFor(actor);
     if (role == null) return create ? nextStepFor(actor) : null;
     final Behaviour cached = role.cached;
-    if (cached == null || cached.finished()) {
+    if (
+      cached == null || cached.finished() ||
+      cached.nextStepFor(actor) == null
+    ) {
       return role.cached = create ? nextStepFor(actor) : null;
     }
     return cached;
@@ -568,6 +576,39 @@ public abstract class Mission implements
   
   /**  Rendering and interface methods-
     */
+  final static String
+    IMG_DIR = "media/GUI/Missions/";
+  final public static ImageAsset
+    ALL_ICONS[] = ImageAsset.fromImages(
+      Mission.class, IMG_DIR,
+      "button_strike.png",
+      "button_recon.png",
+      "button_contact.png",
+      "button_security.png",
+      "button_summons.png",
+      "mission_button_lit.png"
+    ),
+    STRIKE_ICON   = ALL_ICONS[0],
+    RECON_ICON    = ALL_ICONS[1],
+    CONTACT_ICON  = ALL_ICONS[2],
+    SECURITY_ICON = ALL_ICONS[3],
+    SUMMONS_ICON  = ALL_ICONS[2],
+    MISSION_ICON_LIT = ALL_ICONS[5];
+  //
+  //  These icons need to be worked on a little more...
+  final public static CutoutModel
+    ALL_MODELS[] = CutoutModel.fromImages(
+      Mission.class, IMG_DIR, 1, 2, false,
+      "flag_strike.gif",
+      "flag_recon.gif",
+      "flag_contact.gif",
+      "flag_security.gif"
+    ),
+    STRIKE_MODEL   = ALL_MODELS[0],
+    RECON_MODEL    = ALL_MODELS[1],
+    CONTACT_MODEL  = ALL_MODELS[2],
+    SECURITY_MODEL = ALL_MODELS[3];
+  
   public String fullName() { return description; }
   public String toString() { return description; }
   
@@ -578,8 +619,8 @@ public abstract class Mission implements
     if (cached != null) return cached;
     
     final CutoutModel flagModel = (CutoutModel) flagSprite.model();
-    int flagIndex = Visit.indexOf(flagModel, MissionsTab.ALL_MODELS);
-    final ImageAsset icon = MissionsTab.ALL_ICONS[flagIndex];
+    int flagIndex = Visit.indexOf(flagModel, ALL_MODELS);
+    final ImageAsset icon = ALL_ICONS[flagIndex];
     
     final int size = SelectionInfoPane.PORTRAIT_SIZE;
     final Composite c = Composite.withSize(size, size, key);
@@ -625,34 +666,14 @@ public abstract class Mission implements
   
   
   public Sprite flagSprite() {
-    placeFlag(flagSprite, subject);
+    flagSprite.scale = 0.5f;
+
     float alpha;
     if (BaseUI.isSelectedOrHovered(this)) alpha = 1.0f;
     else alpha = 0.75f;
-    flagSprite.colour = Colour.glow(alpha);
+    flagSprite.colour = new Colour(base.colour()).withGlow(alpha);
+    
     return flagSprite;
-  }
-  
-  
-  public Vec3D flagSelectionPos() {
-    placeFlag(flagSprite, subject);
-    final Vec3D selPos = new Vec3D(flagSprite.position);
-    selPos.z += 0.5f;
-    return selPos;
-  }
-  
-  
-  public static void placeFlag(Sprite flag, Target subject) {
-    if (subject instanceof Element) {
-      final Element e = (Element) subject;
-      flag.position.setTo(e.viewPosition(null));
-      flag.position.z += e.height() + 1;
-    }
-    else {
-      flag.position.setTo(subject.position(null));
-      flag.position.z += 1.5f;
-    }
-    flag.scale = 0.5f;
   }
   
   

@@ -47,8 +47,7 @@ public class ContactMission extends Mission {
   
   public ContactMission(Base base, Target subject) {
     super(
-      base, subject,
-      MissionsTab.CONTACT_MODEL,
+      base, subject, CONTACT_MODEL,
       "Making Contact with "+subject
     );
   }

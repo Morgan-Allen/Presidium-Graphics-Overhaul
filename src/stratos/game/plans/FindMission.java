@@ -20,8 +20,8 @@ public class FindMission extends Plan {
   
   
   private static boolean
-    evalVerbose  = true ,
-    stepsVerbose = true ;
+    evalVerbose  = false,
+    stepsVerbose = false;
   final Mission mission;
   
   
@@ -43,11 +43,10 @@ public class FindMission extends Plan {
     };
     //  TODO:  Allow application for missions by other bases!
     for (Mission mission : actor.base().allMissions()) {
-      final Venue HQ = missionHQ(actor, mission);
       if (! mission.canApply(actor)) continue;
       if (report) {
         I.say("\n  mission is: "+mission);
-        I.say("  headquarters: "+HQ);
+        I.say("  apply point:  "+mission.applyPointFor(actor));
         I.say("  priority:     "+mission.priorityFor(actor));
         I.say("  next step:    "+mission.nextStepFor(actor));
       }
@@ -97,12 +96,15 @@ public class FindMission extends Plan {
   }
   
   
-  private static Venue missionHQ(Actor actor, Mission mission) {
+  //  TODO:  Use this instead of the mission-specific method?
+  /*
+  private static Venue applyPointFor(Actor actor, Mission mission) {
     if (mission.base().HQ() instanceof Venue) {
       return (Venue) mission.base().HQ();
     }
     else return null;
   }
+  //*/
   
   
   protected Behaviour getNextStep() {
@@ -128,27 +130,26 @@ public class FindMission extends Plan {
       );
       return joins;
     }
-
-    //  TODO:  This needs to be a generalised rally point.
-    final Venue HQ = missionHQ(actor, mission);
-    if (HQ == null && mission.missionType() != Mission.TYPE_PUBLIC) {
-      if (report) I.say("  Nowhere to apply at!");
+    
+    final Target applyPoint = mission.applyPointFor(actor);
+    if (applyPoint == null) {
+      I.complain("NO APPLY POINT FOR "+mission);
       return null;
     }
     
     if (actor.mind.mission() != mission) {
-      if (report) I.say("  Applying at "+HQ);
+      if (report) I.say("  Applying at "+applyPoint);
       final Action applies = new Action(
-        actor, HQ,
+        actor, applyPoint,
         this, "actionApplies",
         Action.LOOK, "Applying for mission"
       );
       return applies;
     }
     else {
-      if (report) I.say("  Waiting for OK at "+HQ);
+      if (report) I.say("  Waiting for OK at "+applyPoint);
       final Action waitForOK = new Action(
-        actor, HQ,
+        actor, applyPoint,
         this, "actionWait",
         Action.STAND, "Waiting for party"
       );
@@ -176,14 +177,14 @@ public class FindMission extends Plan {
   }
   
   
-  public boolean actionApplies(Actor client, Venue admin) {
+  public boolean actionApplies(Actor client, Target applyPoint) {
     if (! mission.canApply(client)) return false;
     client.mind.assignMission(mission);
     return true;
   }
   
   
-  public boolean actionWait(Actor client, Venue admin) {
+  public boolean actionWait(Actor client, Target applyPoint) {
     return true;
   }
   

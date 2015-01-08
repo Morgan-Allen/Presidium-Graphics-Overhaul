@@ -45,8 +45,7 @@ public class ReconMission extends Mission {
   
   public ReconMission(Base base, Tile subject) {
     super(
-      base, subject,
-      MissionsTab.RECON_MODEL,
+      base, subject, RECON_MODEL,
       "Exploring "+subject.habitat().name+" at "+subject.x+" "+subject.y
     );
   }
@@ -92,7 +91,7 @@ public class ReconMission extends Mission {
     final Exploring explore = Exploring.nextSurvey(base, actor, subject, range);
     
     if (explore == null) {
-      endMission();
+      endMission(true);
       doneRecon = true;
     }
     else explore.setMotive(Plan.MOTIVE_MISSION, basePriority(actor));

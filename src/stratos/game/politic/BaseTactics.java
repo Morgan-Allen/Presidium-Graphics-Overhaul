@@ -7,11 +7,7 @@ package stratos.game.politic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.maps.*;
-import stratos.user.BaseUI;
 import stratos.util.*;
-
-import java.util.Map;
 
 
 //  This should actually be practicable now.
@@ -38,14 +34,21 @@ import java.util.Map;
 
 public class BaseTactics {
   
-  public static boolean
-    updatesVerbose = true ;
+  protected static boolean
+    updatesVerbose = true ,
+    shortWaiting   = true ,
+    extraVerbose   = false;
+  protected static String
+    verboseBase = Base.KEY_ARTILECTS;
   
   final static int
     MIN_MISSIONS   = 1,
     MAX_MISSIONS   = 5,
     
-    APPLY_WAIT_DURATION = Stage.STANDARD_DAY_LENGTH * 2;
+    APPLY_WAIT_DURATION   = Stage.STANDARD_DAY_LENGTH  * 2,
+    DEFAULT_EVAL_INTERVAL = Stage.STANDARD_DAY_LENGTH  / 3,
+    SHORT_EVAL_INTERVAL   = Stage.STANDARD_HOUR_LENGTH * 2,
+    SHORT_WAIT_DURATION   = SHORT_EVAL_INTERVAL + 2;
   
   final Stage world;
   final Base  base ;
@@ -77,12 +80,25 @@ public class BaseTactics {
   
   /**  Performing regular assessment updates-
     */
-  public void updateMissionAssessment() {
-    final boolean report = updatesVerbose;// && BaseUI.currentPlayed() == base;
+  public void updateMissionAssessment(int numUpdates) {
+    final boolean report = updatesVerbose && I.matchOrNull(
+      base.title(), verboseBase
+    );
+    //  TODO:  Bases should have an 'isRealPlayer' property...
+    if (! base.primal) return;
     
-    //  TODO:  Bases should have an 'isHuman' property.
-    if (base == BaseUI.currentPlayed()) return;
-    if (report) {
+    final int
+      interval = shortWaiting ? SHORT_EVAL_INTERVAL : DEFAULT_EVAL_INTERVAL,
+      period   = numUpdates % interval;
+    
+    if (period != 0) {
+      if (report) {
+        I.say("\nNot yet time for base-tactics update! "+base);
+        I.say("  Period: "+period+"/"+interval);
+      }
+      return;
+    }
+    else if (report) {
       I.say("\nUPDATING MISSION ASSESSMENTS FOR "+base);
     }
     
@@ -100,7 +116,6 @@ public class BaseTactics {
     //  Then get a bunch of sampled actors and venues, etc., and see if they
     //  are worth pursuing.
     final Batch <Venue > venues  = this.getSampleVenues();
-    final Batch <Mobile> mobiles = this.getSampleActors();
     for (Venue v : venues) {
       toAssess.add(new StrikeMission  (base, v));
       toAssess.add(new SecurityMission(base, v));
@@ -120,62 +135,90 @@ public class BaseTactics {
       final Rating r = new Rating();
       r.rating  = mission.rateImportance(base);
       r.mission = mission;
-      if (base.allMissions().includes(mission)) r.rating *= BEGUN_MULT;
-      if (mission.hasBegun()) r.rating *= BEGUN_MULT;
+      final boolean
+        official = base.allMissions().includes(mission),
+        begun    = mission.hasBegun();
+      if (official) r.rating *= BEGUN_MULT;
+      if (begun   ) r.rating *= BEGUN_MULT;
       //
       //  If this is a new mission, then assign it a root priority based on its
       //  perceived importance, and see if it's time to begin (see below.)
-      else checkForMissionStart(mission, r.rating);
+      if (official & ! begun) updateOfficialMission(mission, r.rating, report);
       sorting.add(r);
     }
     //
     //  Then, take the N best missions (where N is determined by overall
     //  manpower available,) and either begin them or allow them to continue.
     //  Then you simply terminate (or discard) the remainder.
-    int numActive = 0;
+    final Batch <Mission> active = new Batch <Mission> ();
+    
     for (Rating r : sorting) {
-      final boolean begun = r.mission.hasBegun();
-      if (report) {
+      final Mission m = r.mission;
+      final boolean begun = base.allMissions().includes(m);
+      if (report && extraVerbose) {
         I.say("  Evaluated mission: "+r.mission);
         I.say("    Importance:      "+r.rating );
         I.say("    Already begun?   "+begun    );
       }
-      if (numActive < maxMissions && r.rating > 0) {
+      //
+      //  If a distinct mission of this type hasn't been registered yet, then
+      //  do so now:
+      if (active.size() < maxMissions && r.rating > 0) {
         if (! begun) {
-          if (report) I.say("  BEGINNING NEW MISSION: "+r.mission);
-          base.addMission(r.mission);
+          if (base.matchingMission(m) != null) continue;
+          if (report) I.say("  BEGINNING NEW MISSION: "+m);
+          base.addMission(m);
+          updateOfficialMission(m, r.rating, report);
         }
-        numActive++;
+        active.add(m);
       }
       else {
         if (begun) {
-          if (report) I.say("  TERMINATING OLD MISSION: "+r.mission);
-          r.mission.endMission();
+          if (report) I.say("  TERMINATING OLD MISSION: "+m);
+          m.endMission(true);
         }
       }
     }
   }
   
   
-  protected void checkForMissionStart(Mission mission, float rating) {
+  protected void updateOfficialMission(
+    Mission mission, float rating, boolean report
+  ) {
+    
+    //  TODO:  LIMIT BASED ON FINANCES FOR NON-PRIMAL BASES (these also need
+    //  to convert over to a non-Base-AI type once begun!)
+    int priority =  Mission.PRIORITY_NOMINAL;
+    priority     += Mission.PRIORITY_PARAMOUNT * rating;
+    mission.assignPriority(priority);
+    mission.setMissionType(Mission.TYPE_BASE_AI);
+    
+    if (report) {
+      I.say("\nUpdating official mission: "+mission);
+      I.say("  Assigned priority: "+mission.assignedPriority());
+      I.say("  Assigned type:     "+mission.missionType     ());
+    }
+    
     //  TODO:  You could also use different criteria here (e.g, the party is
     //  full.)
-    if (mission.timeOpen() > APPLY_WAIT_DURATION && ! mission.hasBegun()) {
-      //  TODO:  You might want to hold back a bit here, depending on the
-      //  priority of the mission- expend fewer resources on lower-priority
-      //  tasks.
+    boolean shouldBegin = false;
+    int waitTime = shortWaiting ? SHORT_WAIT_DURATION : APPLY_WAIT_DURATION;
+    if (mission.timeOpen() > waitTime) shouldBegin = true;
+    if (mission.applicants().size() == 0) shouldBegin = false;
+    if (report) {
+      I.say("  Total applicants: "+mission.applicants());
+      I.say("  Time open:        "+mission.timeOpen()+"/"+waitTime);
+    }
+    
+    //  TODO:  You might want to hold back a bit here, depending on the
+    //  priority of the mission- expend fewer resources on lower-priority
+    //  tasks.
+    if (shouldBegin) {
+      if (report) I.say("  STARTING MISSION NOW!");
       for (Actor applies : mission.applicants()) {
         mission.setApprovalFor(applies, true);
       }
       mission.beginMission();
-    }
-    else {
-      //  TODO:  LIMIT BASED ON FINANCES FOR NON-PRIMAL BASES- these also need
-      //  to convert over to a non-Base-AI type once begun.
-      int priority =  Mission.PRIORITY_NOMINAL;
-      priority     += Mission.PRIORITY_PARAMOUNT * rating;
-      mission.assignPriority(priority);
-      mission.setMissionType(Mission.TYPE_BASE_AI);
     }
   }
   
@@ -183,7 +226,6 @@ public class BaseTactics {
   protected float estimateForceStrength() {
     //  TODO:  Try to ensure this stays as efficient as possible- in fact, you
     //  might as well update for all bases at once!
-    
     //*
     float est = 0;
     for (Mobile m : world.allMobiles()) {

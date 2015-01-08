@@ -12,6 +12,7 @@ import stratos.game.maps.*;
 import stratos.game.politic.*;
 import stratos.game.wild.*;
 import stratos.graphics.common.*;
+import stratos.graphics.widgets.KeyInput;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -235,37 +236,48 @@ public class Base implements
     ///I.say("UPDATING BASE, NUM UPDATES: "+numUpdates);
     
     setup.updatePlacements();
-    
     commerce.updateCommerce(numUpdates);
-    
     paveRoutes.distribute(Economy.ALL_PROVISIONS, this);
-    
     dangerMap.update();
     
     for (Mission mission : missions) {
       mission.updateMission();
     }
+    tactics.updateMissionAssessment(numUpdates);
+    
     final int interval = Stage.STANDARD_DAY_LENGTH / 3;
     if (numUpdates % interval == 0) {
       relations.updateRelations();
-      tactics.updateMissionAssessment();
       finance.updateFinances(interval);
     }
   }
   
   
   
+  /**  Gets missions already assigned to a given target:
+    */
+  public Mission matchingMission(Target t, Class typeClass) {
+    for (Mission match : allMissions()) {
+      if (typeClass != null && match.getClass() != typeClass) continue;
+      if (match.subject() != t) continue;
+      return match;
+    }
+    return null;
+  }
+  
+  
+  public Mission matchingMission(Mission m) {
+    return matchingMission(m.subject(), m.getClass());
+  }
+  
+  
+  
   /**  Rendering and interface methods-
     */
-  //  TODO:  These should probably be moved.
-  
-  public void renderFor(Rendering rendering, Base player) {
-    for (Mission mission : missions) {
-      if (! rendering.view.intersects(mission.flagSelectionPos(), 2)) continue;
-      if (! mission.visibleTo(player)) continue;
-      //
-      //  TODO:  The position of the flag here will need to be adjusted if
-      //  there are multiple flags on the target!
+  public static void renderMissions(
+    Stage world, Rendering rendering, Base player
+  ) {
+    for (Mission mission : layoutMissions(world, rendering.view, player)) {
       mission.flagSprite().readyFor(rendering);
     }
   }
@@ -275,42 +287,66 @@ public class Base implements
     Stage world, BaseUI UI, Viewport view, Base player
   ) {
     final Pick <Mission> pick = new Pick <Mission> ();
+    final Vec3D centre = new Vec3D();
     
-    for (Base base : world.bases()) for (Mission mission : base.allMissions()) {
-      if (! mission.visibleTo(player)) continue;
-      
-      final Vec3D selPos = mission.flagSelectionPos();
-      if (! view.mouseIntersects(selPos, 0.5f, UI)) continue;
-      
-      final float dist = view.translateToScreen(selPos).z;
+    for (Mission mission : layoutMissions(world, view, player)) {
+      centre.setTo(mission.flagSprite().position);
+      centre.z += 0.5f;
+      if (! view.mouseIntersects(centre, 0.5f, UI)) continue;
+      final float dist = view.translateToScreen(centre).z;
       pick.compare(mission, 0 - dist);
     }
     return pick.result();
   }
   
   
+  private static Batch <Mission> layoutMissions(
+    Stage world, Viewport view, Base player
+  ) {
+    final Table <Target, List <Mission>> seenTable = new Table();
+    
+    for (Base base : world.bases()) for (Mission m : base.allMissions()) {
+      if (! m.visibleTo(player)) continue;
+      final Target t = m.subject();
+      if (! view.intersects(t.position(null), t.radius())) continue;
+      
+      List <Mission> onT = seenTable.get(t);
+      if (onT == null) seenTable.put(t, onT = new List());
+      onT.add(m);
+    }
+    
+    final Batch <Mission> visible = new Batch();
+    for (Target t : seenTable.keySet()) {
+      final List <Mission> onT = seenTable.get(t);
+      layoutMissions(onT, t, view);
+      Visit.appendTo(visible, onT);
+    }
+    return visible;
+  }
+  
+  
+  private static void layoutMissions(
+    Series <Mission> missions, Target above, Viewport view
+  ) {
+    final Vec3D horiz = view.screenHorizontal(), adds = new Vec3D();
+    
+    float offset = (missions.size() - 1) / 2f, index = 0;
+    for (Mission m : missions) {
+      Sprite s = m.flagSprite();
+      s.position.setTo(above.position(null));
+      s.position.z += above.height() + 0.5f;
+      adds.setTo(horiz).normalise().scale(index - offset);
+      s.position.add(adds);
+      index++;
+    }
+  }
+  
+  
+  
   public String toString() {
     return title;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

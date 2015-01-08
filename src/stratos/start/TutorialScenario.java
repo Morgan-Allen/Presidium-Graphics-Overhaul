@@ -77,7 +77,8 @@ public class TutorialScenario extends StartupScenario {
     config.numCrew.put(Backgrounds.TROOPER   , 2);
     config.numCrew.put(Backgrounds.TECHNICIAN, 3);
     config.numCrew.put(Backgrounds.AUDITOR   , 1);
-    //config.numCrew.put(Backgrounds.CULTIVATOR, 3);
+    
+    config.advisors.add(Backgrounds.FIRST_CONSORT);
     return config;
   }
   

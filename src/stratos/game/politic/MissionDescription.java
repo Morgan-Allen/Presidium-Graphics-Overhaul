@@ -6,8 +6,8 @@ import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.user.*;
 import stratos.util.*;
-import stratos.graphics.common.Colour;
-import stratos.graphics.widgets.Text;
+import stratos.graphics.widgets.*;
+import stratos.graphics.common.*;
 import static stratos.game.politic.Mission.*;
 
 
@@ -22,20 +22,16 @@ public class MissionDescription {
     //  Obtain some basic facts about the mission and shorthand variables
     //  first-
     final Description d = panel.detail(), l = panel.listing();
-    final int     missionType = mission.missionType();
-    /*
-    final boolean begun       = mission.hasBegun();
-    final int     priority    = mission.assignedPriority();
-    //*/
+    final int type = mission.missionType();
     final List <Actor> applied = mission.applicants();
-    final boolean
-      mustConfirm = missionType != TYPE_PUBLIC && ! mission.hasBegun(),
-      emptyList   = applied.size() == 0;
+    final boolean emptyList = applied.size() == 0;
+    final boolean canChange = ! mission.hasBegun();
     //
     //  Then, we fill up the left-hand pane with broad mission parameters and
     //  commands:
-    describeStatus(mission, mustConfirm, UI, d);
-    if (mission.rolesApproved() > 0 && mustConfirm) {
+    describeStatus(mission, canChange, UI, d);
+    //  TODO:  CONSIDER REQUIRING CONFIRMATION EVEN FOR PUBLIC MISSIONS.
+    if (mission.rolesApproved() > 0 && canChange && type != TYPE_PUBLIC) {
       d.append(" ");
       d.append(new Description.Link(" (CONFIRM)") {
         public void whenClicked() {
@@ -45,7 +41,7 @@ public class MissionDescription {
     }
     d.append(new Description.Link(" (ABORT)") {
       public void whenClicked() {
-        mission.endMission();
+        mission.endMission(true);
       }
     });
     //
@@ -53,19 +49,19 @@ public class MissionDescription {
     //  applications, and options to confirm or deny them:
     if (emptyList) {
       l.append("Applications: None");
-      if (missionType == TYPE_PUBLIC  ) l.append(
+      if (type == TYPE_PUBLIC  ) l.append(
         "\n\nThis is a public contract, open to all comers."
       );
-      if (missionType == TYPE_SCREENED) l.append(
+      if (type == TYPE_SCREENED) l.append(
         "\n\nThis is a screened mission.  Applicants will be subject to your "+
         "approval before they can embark."
       );
-      if (missionType == TYPE_COVERT  ) l.append(
+      if (type == TYPE_COVERT  ) l.append(
         "\n\nThis is a covert mission.  No agents or citizens will apply "+
         "unless recruited by interview."
       );
     }
-    else listApplicants(mission, applied, mustConfirm, UI, l);
+    else listApplicants(mission, applied, canChange, UI, l);
     return panel;
   }
   
@@ -133,7 +129,7 @@ public class MissionDescription {
     //
     //  And finally, describe the mission's priority and/or payment:
     final int priority = mission.assignedPriority();
-    final String payDesc = priority == 0 ?  "None" :
+    final String payDesc = (priority == 0 || type == TYPE_BASE_AI) ?  "None" :
       REWARD_AMOUNTS[priority]+" credits"
     ;
     
@@ -155,7 +151,8 @@ public class MissionDescription {
     d.append("Applications:");
     for (final Actor a : applied) {
       d.append("\n  ");
-      ((Text) d).insert(a.portrait(UI).texture(), 40, true);
+      final Composite portrait = a.portrait(UI);
+      if (portrait != null) ((Text) d).insert(portrait.texture(), 40, true);
       d.append(a);
       d.append(" ("+a.vocation()+")");
       

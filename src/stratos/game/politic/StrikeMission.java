@@ -27,8 +27,8 @@ public class StrikeMission extends Mission {
   
   public StrikeMission(Base base, Target subject) {
     super(
-      base, subject,
-      MissionsTab.STRIKE_MODEL, "Striking at "+subject
+      base, subject, STRIKE_MODEL,
+      "Striking at "+subject
     );
   }
   
@@ -47,7 +47,9 @@ public class StrikeMission extends Mission {
   /**  Importance assessment-
     */
   public float rateImportance(Base base) {
-    final boolean report = rateVerbose;
+    final boolean report = verbose && rateVerbose && I.matchOrNull(
+      base.title(), BaseTactics.verboseBase
+    );
     if (report) I.say("\nRating importance of "+this+" for "+base);
     
     final Base enemy = subject.base();
@@ -90,8 +92,7 @@ public class StrikeMission extends Mission {
     if (cached != null) return cached;
     
     final Combat combat = new Combat(
-      actor, (Element) subject,
-      Combat.STYLE_EITHER, objectIndex(), true
+      actor, (Element) subject, Combat.STYLE_EITHER, objectIndex()
     );
     combat.setMotive(Plan.MOTIVE_MISSION, basePriority(actor));
     

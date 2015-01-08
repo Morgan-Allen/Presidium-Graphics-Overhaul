@@ -37,8 +37,7 @@ public class SecurityMission extends Mission implements Qualities {
   
   public SecurityMission(Base base, Target subject) {
     super(
-      base, subject,
-      MissionsTab.SECURITY_MODEL,
+      base, subject, SECURITY_MODEL,
       "Securing "+subject
     );
   }
