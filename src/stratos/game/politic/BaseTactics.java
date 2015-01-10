@@ -10,7 +10,6 @@ import stratos.game.economic.*;
 import stratos.util.*;
 
 
-//  This should actually be practicable now.
 
 //  Strike mission:  Structures the enemy values.  Vulnerability/lack of risk.
 //                   Dislike of base.
@@ -21,15 +20,34 @@ import stratos.util.*;
 //                    success, but high motivation.
 //  Recon mission:  Fog rating.  Demand for resources you haven't found.
 
-//  Give the mission two days to attract applicants (or be assigned some,) then
-//  launch.  (Base the max. number of missions on your cash reserves, available
-//  manpower, and desperation.)
-
 //  TODO:  You'll have to give some thought to chaining missions together,
 //  though (e.g, using a contact mission to gain applicants for a strike team.)
+//  Also, ruler-personality.
 
-//  TODO:  For the moment, just focus on strike and security missions.  Later,
-//         you'll also want to factor in ruler-personality.
+
+
+//  So, if you have a base with strength 5, on a map with other bases of
+//  strength 3 and 6, and it's contemplating an assault on a single target of
+//  threat 2, then maximum proportion of manpower invested would be:
+//    ~= 2 / 9 = 0.22, or strength 1.
+//    (Since 2-3 strength is needed, this stretches out the wait duration to
+//     5 or 6 days- probabilistically.  If assaulting *any* target is simply
+//     beyond your capacity, then you should sue for peace or evacuate.)
+//
+//  So basically, there would be a 0.33 chance of declaring that mission at
+//  all, and the total strength allocated would be no more than 3 (and no less
+//  than 1.33, allowing 50% either way.)
+
+
+//  NOTE:  The strength of other bases (and even your own), is proportionate to
+//  relation *from -1 to 1, scaled in-between*- i.e, a neutral base counts as
+//  half a threat, and half an ally.
+//  Security is evaluated similarly, but for points you value and feel are
+//  threatened.
+
+//  But... how does this work for the Base-AI?  You'll need to limit some
+//  applicants and actively recruit others- just as a leader would do.
+
 
 
 public class BaseTactics {
@@ -49,10 +67,14 @@ public class BaseTactics {
     DEFAULT_EVAL_INTERVAL = Stage.STANDARD_DAY_LENGTH  / 3,
     SHORT_EVAL_INTERVAL   = Stage.STANDARD_HOUR_LENGTH * 2,
     SHORT_WAIT_DURATION   = SHORT_EVAL_INTERVAL + 2;
+  final static float
+    MIN_PARTY_STRENGTH = 1 / 1.5f,
+    MAX_PARTY_STRENGTH = 1 * 1.5f;
   
   final Stage world;
   final Base  base ;
   private float forceStrength = -1;
+  //private float valueStrength = -1;  //  Sum of all bases!
   //  TODO:  MOVE THE MISSIONS OVER HERE
   
   
@@ -201,28 +223,109 @@ public class BaseTactics {
     
     //  TODO:  You could also use different criteria here (e.g, the party is
     //  full.)
-    boolean shouldBegin = false;
-    int waitTime = shortWaiting ? SHORT_WAIT_DURATION : APPLY_WAIT_DURATION;
-    if (mission.timeOpen() > waitTime) shouldBegin = true;
-    if (mission.applicants().size() == 0) shouldBegin = false;
+    final float
+      strength = successChance(mission) * 2,
+      timeOpen = mission.timeOpen(),
+      waitTime = shortWaiting ? SHORT_WAIT_DURATION : APPLY_WAIT_DURATION,
+      applied  = mission.applicants().size();
+    boolean
+      timeUp      = timeOpen >= waitTime,
+      shouldBegin = false;
+    if (timeOpen > waitTime) shouldBegin = true;
+    if (applied == 0) shouldBegin = false;
     if (report) {
-      I.say("  Total applicants: "+mission.applicants());
-      I.say("  Time open:        "+mission.timeOpen()+"/"+waitTime);
+      I.say("  Total applicants: "+applied);
+      I.say("  Time open:        "+timeOpen+"/"+waitTime);
+      I.say("  Party strength:   "+strength);
+      I.say("  Applied are:");
+      for (Actor a : mission.applicants()) {
+        final float actorChance = chanceFrom(mission, a);
+        I.say("    "+a+" chance: "+actorChance);
+      }
     }
     
     //  TODO:  You might want to hold back a bit here, depending on the
     //  priority of the mission- expend fewer resources on lower-priority
     //  tasks.
     if (shouldBegin) {
-      if (report) I.say("  STARTING MISSION NOW!");
-      for (Actor applies : mission.applicants()) {
-        mission.setApprovalFor(applies, true);
+      if (strength > MIN_PARTY_STRENGTH && Rand.num() < strength) {
+        if (report) I.say("  STARTING MISSION NOW!");
+        for (Actor applies : mission.applicants()) {
+          mission.setApprovalFor(applies, true);
+        }
+        mission.beginMission();
       }
-      mission.beginMission();
+      else {
+        if (report) I.say("  INSUFFICIENT PARTY STRENGTH- CANCELLING");
+        mission.endMission(false);
+      }
     }
   }
   
   
+  private float chanceFrom(Mission m, Actor a) {
+    final Behaviour step = m.cachedStepFor(a, true);
+    return (step instanceof Plan) ? ((Plan) step).successChanceFor(a) : 1;
+  }
+  
+  
+  protected float successChance(Mission mission) {
+    float sumChances = 0;
+    for (Actor a : mission.applicants()) sumChances += chanceFrom(mission, a);
+    return sumChances;
+  }
+  
+  
+  //  TODO:  Merge with method in Mission class.  Or save this for when the
+  //  mission is due evaluation?
+  
+  protected boolean shouldApprove(Actor actor, Mission mission) {
+    final boolean report = updatesVerbose && (
+      I.talkAbout == actor || I.talkAbout == mission
+    );
+    if (! isCompetent(actor, mission)) {
+      if (report) I.say("\n"+actor+" not competent to pursue "+mission);
+      return false;
+    }
+    
+    //  A 50% chance of victory implies equal strength.
+    final float
+      actorChance = chanceFrom(mission, actor),
+      partyChance = successChance(mission),
+      strength    = (actorChance + partyChance) * 2;
+    final boolean
+      approves    = strength <= MAX_PARTY_STRENGTH;
+    
+    if (report) {
+      I.say("\nShould approve "+actor+" for "+mission+"?");
+      I.say("  Actor success chance: "+actorChance);
+      I.say("  Party success chance: "+partyChance);
+      I.say("  Total party strength: "+strength);
+      for (Actor a : mission.applicants()) {
+        final float otherChance = chanceFrom(mission, a);
+        I.say("    "+a+" chance: "+otherChance);
+      }
+      I.say("  Maximum strength:     "+MAX_PARTY_STRENGTH);
+      I.say("  Will approve?         "+approves);
+    }
+    return approves;
+  }
+  
+  
+  protected boolean isCompetent(Actor actor, Mission mission) {
+    if (! (actor instanceof Human)) return true;
+    
+    final Behaviour step = mission.cachedStepFor(actor, true);
+    step.priorityFor(actor);
+    if (step instanceof Plan && ((Plan) step).competence() < 1) return false;
+    return true;
+  }
+  
+  
+  
+  /**  Utility methods for estimating overall strength/base-power and for
+    *  getting target-batches to sample.
+    */
   protected float estimateForceStrength() {
     //  TODO:  Try to ensure this stays as efficient as possible- in fact, you
     //  might as well update for all bases at once!
@@ -241,9 +344,6 @@ public class BaseTactics {
   }
   
   
-  
-  /**  Utility sampling methods:  TODO:  MOVE TO PRESENCES CLASS?
-    */
   protected Batch <Venue> getSampleVenues() {
     final Batch <Venue> sampled = new Batch <Venue> ();
     final PresenceMap venues = world.presences.mapFor(Venue.class);

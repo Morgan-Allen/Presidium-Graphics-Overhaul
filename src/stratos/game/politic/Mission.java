@@ -212,15 +212,6 @@ public abstract class Mission implements
   /**  General life-cycle, justification and setup methods-
     */
   public abstract float rateImportance(Base base);
-  
-  
-  protected float successChance() {
-    float sumChances = 0;
-    for (Role r : roles) if (r.cached instanceof Plan) {
-      sumChances += ((Plan) r.cached).successChanceFor(r.applicant);
-    }
-    return sumChances;
-  }
 
   
   public void updateMission() {
@@ -357,16 +348,10 @@ public abstract class Mission implements
   public boolean canApply(Actor actor) {
     if (done) return false;
     if (roleFor(actor) != null) return true;
-    if (missionType == TYPE_BASE_AI ) return true;
-    
-    final Behaviour step = cachedStepFor(actor, true);
-    step.priorityFor(actor);
-    if (step instanceof Plan && ((Plan) step).competence() < 1) return false;
-    
-    if (missionType == TYPE_PUBLIC  ) return true;
-    if (missionType == TYPE_SCREENED) return ! begun;
-    if (missionType == TYPE_COVERT  ) return false;
-    return false;
+    if (missionType == TYPE_COVERT) return false;
+    if (missionType == TYPE_SCREENED && begun) return false;
+    if (! base.tactics.shouldApprove(actor, this)) return false;
+    return true;
   }
   
   

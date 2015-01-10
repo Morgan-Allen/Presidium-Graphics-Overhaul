@@ -201,16 +201,23 @@ public class CombatUtils {
   
   
   public static float successChance(Actor actor, Target other) {
-    //  TODO:  Switch between these two evaluation methods based on
-    //  intelligence?  (Or maybe the battle-tactics skill?)
     
     final float danger = Nums.max(
       actor.senses.fearLevel(),
       Plan.dangerPenalty(other, actor)
     );
-    float chance = Nums.clamp(1 - danger, 0, 1);
+    float health = 1f - actor.health.injuryLevel();
+    /*
+    health *= (2 - actor.health.injuryLevel  ()) / 2f;
+    health *= (2 - actor.health.stressPenalty()) / 2f;
+    //*/
+    
+    float chance = Nums.clamp(health * (1 - danger), 0, 1);
     chance *= 1 + actor.traits.relativeLevel(Qualities.FEARLESS);
     return Nums.clamp(chance, 0, 1);
+    
+    //  TODO:  Switch between these two evaluation methods based on
+    //  intelligence?  (Or maybe the battle-tactics skill?)
     /*
     final boolean report = evalVerbose && I.talkAbout == actor;
     
