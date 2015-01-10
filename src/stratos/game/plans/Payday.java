@@ -122,7 +122,7 @@ public class Payday extends Plan {
     final Profile p = actor.base().profiles.profileFor(actor);
     if (p.paymentDue() == 0) {
       if (report) I.say("  Doing amateur audit.");
-      return new Audit(actor, pays, Audit.Type.TYPE_AMATEUR);
+      return Audit.nextAmateurAudit(actor);
     }
     
     //

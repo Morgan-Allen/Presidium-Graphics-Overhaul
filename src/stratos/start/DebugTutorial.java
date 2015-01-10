@@ -11,7 +11,6 @@ import stratos.util.*;
 
 
 
-
 //  TODO:  Promotions from one job to another in-world need some testing.  Also,
 //  you seem to have way too many candidates showing up.  Try reviewing just
 //  one at a time.
@@ -75,6 +74,14 @@ public class DebugTutorial extends TutorialScenario {
     GameSettings.fogFree = true;
     super.configureScenario(world, base, UI);
     UI.selection.pushSelection(base.ruler(), true);
+    
+    I.say("\nLISTING BASE RELATIONS:");
+    for (Base b : world().bases()) {
+      I.say("  Relations for "+b+" with...");
+      for (Base o : world().bases()) if (o != b) {
+        I.say("    "+o+": "+b.relations.relationWith(o));
+      }
+    }
   }
   
   

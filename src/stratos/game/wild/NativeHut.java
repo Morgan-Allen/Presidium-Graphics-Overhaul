@@ -38,10 +38,10 @@ public class NativeHut extends Venue {
     );
   
   final public static String TRIBE_NAMES[] = {
-    //"Homaxquin (Cloud Eaters)",
-    "Hqon (Children of Rust)",
-    "Ai Baru (Sand Runners)",
-    "Ybetsi (The Painted)"
+    //"Homaxquin " , //-"Cloud Eaters"
+    "H'Kon Tribe"  , //-"Children of Rust"
+    "Ai Amru Tribe", //-"Sand Runners"
+    "Ybetse Tribe" , //-"The Painted"
   };
   
   final static CutoutModel[][][] HABITAT_KEYS = {

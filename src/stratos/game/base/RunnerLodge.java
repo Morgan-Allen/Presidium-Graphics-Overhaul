@@ -186,7 +186,7 @@ public class RunnerLodge extends Venue {
     
     for (Venue venue : venues) {
       if (territory.contains(venue.position(null))) {
-        choice.add(new Audit(actor, venue, Audit.Type.TYPE_EXTORTION));
+        choice.add(Audit.nextExtortionAudit(actor, venue));
       }
       else {
         choice.add(new Looting(actor, venue, null, this));

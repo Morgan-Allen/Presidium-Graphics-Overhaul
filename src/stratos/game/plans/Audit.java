@@ -52,11 +52,11 @@ public class Audit extends Plan {
     totalSum ;
   
   
-  public Audit(Actor actor, Property toAudit, Type type) {
+  private Audit(Actor actor, Property toAudit, Venue reportAt, Type type) {
     super(actor, toAudit, true, NO_HARM);
     this.type     = type;
     this.audited  = toAudit;
-    this.reportAt = (Venue) actor.mind.work();
+    this.reportAt = reportAt;
   }
   
   
@@ -97,7 +97,7 @@ public class Audit extends Plan {
   
   
   public Plan copyFor(Actor other) {
-    return new Audit(other, audited, type);
+    return new Audit(other, audited, reportAt, type);
   }
   
   
@@ -154,6 +154,13 @@ public class Audit extends Plan {
   
   /**  Evaluating targets and priority-
     */
+  public static Audit nextAmateurAudit(Actor actor) {
+    final Property work = actor.mind.work();
+    if (! (work instanceof Venue)) return null;
+    return new Audit(actor, work, (Venue) work, Type.TYPE_AMATEUR);
+  }
+  
+  
   public static Audit nextOfficialAudit(Actor actor) {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (report) I.say("\nFinding next venue to audit for "+actor);
@@ -178,7 +185,13 @@ public class Audit extends Plan {
     }
     
     if (pick.result() == null) return null;
-    return new Audit(actor, pick.result(), Type.TYPE_OFFICIAL);
+    return new Audit(actor, pick.result(), work, Type.TYPE_OFFICIAL);
+  }
+  
+  
+  public static Audit nextExtortionAudit(Actor actor, Venue venue) {
+    final Venue work = (Venue) actor.mind.work();
+    return new Audit(actor, work, venue, Type.TYPE_EXTORTION);
   }
   
   

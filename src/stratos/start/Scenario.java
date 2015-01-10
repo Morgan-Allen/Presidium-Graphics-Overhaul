@@ -97,32 +97,32 @@ public abstract class Scenario implements Session.Saveable, Playable {
     I.say("\nSave path is: "+savePath);
     
     if (fromSave != null && Scenario.saveExists(savePath)) {
-      I.say("Loading scenario from save file...");
+      I.say("\n\nLoading scenario from save file...");
       Scenario.loadGame(savePath, false);
       return;
     }
     
-    I.say("Beginning scenario setup from scratch...");
+    I.say("\n\nBeginning scenario setup from scratch...");
     loadProgress = 0;
     final Thread loadingThread = new Thread() {
       public void run() {
         world = createWorld();
         loadProgress = 0.2f;
-        I.say("World created...");
+        I.say("\n  World created...");
         
         try { Thread.sleep(100); }
         catch (Exception e) {}
         
         base = createBase(world);
         loadProgress = 0.4f;
-        I.say("Base created...");
+        I.say("\n  Base created...");
         
         try { Thread.sleep(100); }
         catch (Exception e) {}
         
         UI = createUI(base, PlayLoop.rendering());
         loadProgress = 0.6f;
-        I.say("UI setup done...");
+        I.say("\n  UI setup done...");
         
         try { Thread.sleep(100); }
         catch (Exception e) {}
@@ -130,14 +130,14 @@ public abstract class Scenario implements Session.Saveable, Playable {
         configureScenario(world, base, UI);
         savesPrefix = saveFilePrefix(world, base);
         loadProgress = 0.8f;
-        I.say("Configuring scenario...");
+        I.say("\n  Configured scenario...");
         
         try { Thread.sleep(100); }
         catch (Exception e) {}
         
         afterCreation();
         loadProgress = 1.0f;
-        I.say("Setup complete...");
+        I.say("\n  Setup complete...");
         
         try { Thread.sleep(100); }
         catch (Exception e) {}
