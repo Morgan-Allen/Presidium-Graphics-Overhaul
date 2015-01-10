@@ -38,26 +38,26 @@ public class Cantina extends Venue {
     "Feynmann's Fortune",
     "The Heavenly Body",
     "The Plug And Play",
-    "The Zeroth Point",
+    "The Zeroth Hour",
     "Lensmans' Folly",
     "The Purple Haze",
     "The Moving Earth",
     "Eisley's Franchise",
     "The Silver Pill",
     "The Happy Morlock",
-    "Misery And Company",
+    "Misery and Co.",
     "The Welcome Fnord",
     "Norusei's Landing",
     "Teller's Afterglow",
-    "The Old Touchdown",
-    "The Missing Hour",
+    "The Big Touchdown",
     "Bailey's Casket",
-    "The Duke's Bastard",
+    "Duke's Descent",
   };
   
   final static float
-    LODGING_PRICE = 20,
-    GAMBLE_PRICE  = 50,
+    LODGING_PRICE = 2,
+    GAMBLE_PRICE  = 5,
+    SONG_TIP      = 1,
     POT_INTERVAL  = 20,
     
     SOMA_MARGIN    = 1.5f,
@@ -130,19 +130,22 @@ public class Cantina extends Venue {
       final Delivery d = DeliveryUtils.bestBulkCollectionFor(
         this, needed, 1, 5, 5
       );
-      /*
-      final Delivery d = Deliveries.nextCollectionFor(
-        actor, this, needed, 5, null, world
-      );
-      //*/
       if (d != null) return d;
       return Supervision.oversight(this, actor);
     }
     if (actor.vocation() == Backgrounds.PERFORMER) {
+      for (Actor a : Performance.audienceFor(this, Recreation.TYPE_EROTICS)) {
+        final Performance p = new Performance(
+          actor, this, Recreation.TYPE_EROTICS, a, LODGING_PRICE
+        );
+        if (staff.assignedTo(p) > 0) continue;
+        p.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
+        return p;
+      }
       final Performance p = new Performance(
-        actor, this, Recreation.TYPE_SONG, null
+        actor, this, Recreation.TYPE_SONG, null, SONG_TIP
       );
-      p.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
+      p.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL);
       return p;
     }
     return null;
@@ -151,14 +154,16 @@ public class Cantina extends Venue {
   
   public void addServices(Choice choice, Actor forActor) {
     if (staff.numPresent(Backgrounds.PERFORMER) > 0) {
-      choice.add(new Recreation(forActor, this, Recreation.TYPE_SONG));
-      choice.add(nextGambleFor(forActor));
-      choice.add(new Performance(
-        forActor, this, Recreation.TYPE_SONG, null
+      choice.add(new Recreation(
+        forActor, this, Recreation.TYPE_SONG, SONG_TIP
+      ));
+      choice.add(new Recreation(
+        forActor, this, Recreation.TYPE_EROTICS, LODGING_PRICE
       ));
     }
     if (staff.numPresent(Backgrounds.SOMA_CHEF) > 0) {
       choice.add(nextSomaOrderFor(forActor));
+      choice.add(nextGambleFor(forActor));
       final Resting resting = new Resting(forActor, this);
       resting.cost = (int) LODGING_PRICE;
       choice.add(resting);

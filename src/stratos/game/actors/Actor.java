@@ -241,21 +241,27 @@ public abstract class Actor extends Mobile implements
     
     super.updateAsMobile();
     final boolean OK = health.conscious() && ! doingPhysFX();
-    if (! OK) pathing.updateTarget(null);
+    final Action action = actionTaken;
+    boolean needsUpdate = false;
     
-    if (actionTaken != null) {
-      actionTaken.updateAction(OK);
-      if (! pathing.checkPathingOkay()) world.schedule.scheduleNow(this);
+    if (action != null) action.updateAction(OK);
+
+    if (! OK) pathing.updateTarget(null);
+    else if (action != null && ! pathing.checkPathingOkay()) {
+      needsUpdate = true;
     }
     
-    if (OK && mind.needsUpdate()) {
+    if (OK && ! Plan.canFollow(this, action)) {
       assignAction(null);
-      world.schedule.scheduleNow(this);
+      needsUpdate = true;
     }
     
     if (aboard instanceof Mobile && (pathing.nextStep() == aboard || ! OK)) {
       aboard.position(nextPosition);
+      needsUpdate = true;
     }
+    
+    if (needsUpdate) world.schedule.scheduleNow(this);
   }
   
   

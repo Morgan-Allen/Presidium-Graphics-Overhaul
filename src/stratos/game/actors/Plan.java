@@ -36,7 +36,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     evalVerbose  = false,
     doesVerbose  = false;
   private static Class
-    verboseClass = null;
+    verboseClass = FindWork.class;
   
   final public Target subject;
   protected Actor actor;

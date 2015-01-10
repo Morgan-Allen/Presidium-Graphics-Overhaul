@@ -266,6 +266,12 @@ public class PresenceMap implements Session.Saveable {
   }
   
   
+  private Tile tileAt(Target origin) {
+    if (origin instanceof Tile) return (Tile) origin;
+    return origin == null ? null : world.tileAt(origin);
+  }
+  
+  
   
   /**  Visits all map-targets within a the given range and area (if those 
     *  are specified.)  Arguments may also be null, or -1 for range.
@@ -275,8 +281,9 @@ public class PresenceMap implements Session.Saveable {
     *  to perform another.
     */
   public Iterable <Target> visitNear(
-    final Tile origin, final float range, final Box2D area
+    final Target origin, final float range, final Box2D area
   ) {
+    final Tile oT = tileAt(origin);
     final boolean checkRange = origin != null && range > 0;
     clearMarkers();
     
@@ -286,7 +293,7 @@ public class PresenceMap implements Session.Saveable {
         return a.distance < b.distance ? 1 : -1;
       }
     };
-    agenda.addAsEntry(nextMarker(root, false, origin));
+    agenda.addAsEntry(nextMarker(root, false, oT));
     //
     //  Then, define a method of iterating over these entries, and return it-
     final class nearIter implements Iterator, Iterable {
@@ -311,7 +318,7 @@ public class PresenceMap implements Session.Saveable {
           final Node node = (Node) marker.node;
           final boolean kidLeaf = node.section.depth == 0;
           for (Object o : node) {
-            if (o != null) agenda.addAsEntry(nextMarker(o, kidLeaf, origin));
+            if (o != null) agenda.addAsEntry(nextMarker(o, kidLeaf, oT));
           }
         }
       }
@@ -335,7 +342,7 @@ public class PresenceMap implements Session.Saveable {
   
   
   public int samplePopulation(Target origin, float range) {
-    final Tile o = world.tileAt(origin);
+    final Tile o = tileAt(origin);
     int p = 0;
     for (Target t : this.visitNear(o, range, null)) p++;
     return p;
@@ -343,7 +350,7 @@ public class PresenceMap implements Session.Saveable {
   
   
   public Target pickNearest(Target origin, float range) {
-    final Tile o = world.tileAt(origin);
+    final Tile o = tileAt(origin);
     for (Target t : visitNear(o, range, null)) return t;
     return null;
   }
@@ -360,7 +367,7 @@ public class PresenceMap implements Session.Saveable {
     if (report) I.say("\nPicking random target around "+origin);
     
     final boolean checkRange = origin != null && range > 0;
-    final Tile oT = origin == null ? null : world.tileAt(origin);
+    final Tile oT = tileAt(origin);
     Node node = root;
     
     while (true) {

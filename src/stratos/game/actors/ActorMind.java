@@ -204,21 +204,6 @@ public abstract class ActorMind implements Qualities {
   }
   
   
-  protected boolean needsUpdate() {
-    final boolean report = I.talkAbout == actor && stepsVerbose;
-    final Behaviour current = actor.currentAction(), root = rootBehaviour();
-    if (root    == null || root   .finished()) {
-      if (report) I.say("ROOT PLAN FINISHED: "+root);
-      return true;
-    }
-    if (current == null || current.finished()) {
-      if (report) I.say("TOP ACTION FINISHED: "+current);
-      return true;
-    }
-    return false;
-  }
-  
-  
   
   /**  Setting home and work venues & applications, plus missions-
     */

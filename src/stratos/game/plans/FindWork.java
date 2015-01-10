@@ -5,6 +5,7 @@ package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.politic.Commerce;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
@@ -21,8 +22,11 @@ public class FindWork extends Plan {
   
   
   private static boolean
-    verbose        = false,
-    screenOffworld = false;
+    verbose      = true ,
+    offworldOnly = false;
+  
+  final static float
+    SWITCH_THRESHOLD = 1.5f;
   
   private Background position;
   private Property employer;
@@ -80,7 +84,10 @@ public class FindWork extends Plan {
     */
   protected float getPriority() {
     final boolean report = verbose && I.talkAbout == actor;
-    final float priority = Nums.clamp(URGENT * rating, 0, URGENT);
+    if (actor.vocation() == position && actor.mind.work() == employer) {
+      return -1;
+    }
+    final float priority = Nums.clamp(ROUTINE * rating, 0, URGENT);
     if (report) {
       I.say("\nGetting priority for work application: "+actor);
       I.say("  Venue:    "+employer);
@@ -188,6 +195,13 @@ public class FindWork extends Plan {
   //  automatically, and never actually finishes.
   public static FindWork attemptFor(Actor actor, Property at) {
     if (at.careers() == null) return null;
+
+    final boolean report = verbose && (
+      I.talkAbout == actor || I.talkAbout == at
+    ) && ! (actor.inWorld() && offworldOnly);
+    if (report) {
+      I.say("\n"+actor+" checking for career opportunities at "+at);
+    }
     
     FindWork main = (FindWork) actor.matchFor(FindWork.class, false);
     if (main == null) {
@@ -195,39 +209,39 @@ public class FindWork extends Plan {
       actor.mind.assignToDo(main);
     }
     
-    final Pick <FindWork> pick = new Pick <FindWork> (null, 0);
+    final Pick <FindWork> pick = new Pick <FindWork> (null, 0) {
+      public void compare(FindWork f, float rating) {
+        super.compare(f, rating);
+        if (report) I.say(
+          "  Rating: "+rating+" for "+f.position+" at "+I.tagHash(f.employer)
+        );
+      }
+    };
+    
     for (Background c : at.careers()) {
       final FindWork app = new FindWork(actor, c, at);
-      pick.compare(app, main.rateOpening(app.position, app.employer));
+      float rating = main.rateOpening(app.position, app.employer);
+      pick.compare(app, rating);
     }
     if (pick.empty()) return main;
     
-    if (main.position != null) {
-      pick.compare(main, main.rateOpening(main.position, main.employer) * 1.5f);
+    if (main.position != null && main.employer != null) {
+      float rating = main.rateOpening(main.position, main.employer);
+      pick.compare(main, rating * SWITCH_THRESHOLD);
     }
     
     final Property work = actor.mind.work();
     if (work != null) {
       final FindWork app = new FindWork(actor, actor.vocation(), work);
-      pick.compare(app, app.rateOpening(app.position, app.employer) * 1.5f);
+      float rating = main.rateOpening(app.position, app.employer);
+      pick.compare(app, rating * SWITCH_THRESHOLD);
     }
     
     final FindWork app = pick.result();
-    if (app != null && app.position != work) {
-      main.position = app.position;
-      main.employer = app.employer;
-      main.rating   = pick.bestRating();
-      main.calcHiringFee();
+    if (app != null) {
+      assignAmbition(actor, app.position, app.employer, pick.bestRating());
     }
-    
-    final boolean different =
-      main.position   != actor.vocation() ||
-      main.employer() != actor.mind.work();
-    final boolean report = verbose && different && (
-      I.talkAbout == actor || I.talkAbout == at
-    ) && ! (actor.inWorld() && screenOffworld);
     if (report) {
-      I.say("\n"+actor+" checking for career opportunities at "+at);
       I.say("  Current job:    "+actor.vocation());
       I.say("  Is offworld:    "+(! actor.inWorld()));
       I.say("  Most promising: "+main.position);
@@ -238,13 +252,36 @@ public class FindWork extends Plan {
   }
   
   
+  //  TODO:  Do the switch-comparison here...
+  
+  
   private float rateOpening(Background position, Property at) {
-    if (at.crowdRating(actor, position) >= 1) return -1;
+    final boolean isNew = ! at.staff().isWorker(actor);
+    if (isNew && at.crowdRating(actor, position) >= 1) return -1;
+    if (position != actor.vocation() && ! actor.inWorld()) return -1;
     float rating = Career.ratePromotion(position, actor);
-    rating *= actor.relations.valueFor(at);
-    //  TODO:  Also impact through wage-rate and area living conditions.
-    rating /= 1f + at.staff().applications().size();
+    rating *= actor.relations.valueFor(at.base());
+    
+    //  TODO:  Also impact through wage-rate and area living conditions...
+    final int
+      numApps = at.staff().applications().size(),
+      MA      = (int) Commerce.MAX_APPLICANTS;
+    rating *= 1 - (Nums.clamp(numApps - 1, 0, MA) / MA);
     return rating;
+  }
+  
+  
+  public static void assignAmbition(
+    Actor actor, Background position, Property at, float rating
+  ) {
+    FindWork finding = (FindWork) actor.matchFor(FindWork.class, false);
+    if (finding == null) actor.mind.assignToDo(
+      finding = new FindWork(actor, null, null)
+    );
+    finding.position = position;
+    finding.employer = at;
+    finding.rating = rating;
+    finding.calcHiringFee();
   }
   
   

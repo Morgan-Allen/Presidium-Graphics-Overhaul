@@ -80,10 +80,11 @@ public class DebugSocial extends Scenario {
     );
     
     if (false) testCareers(base);
-    if (true ) configDialogueScenario(world, base, UI);
+    if (false) configDialogueScenario(world, base, UI);
     if (false) configArtilectScenario(world, base, UI);
     if (false) configContactScenario (world, base, UI);
     if (false) configWildScenario    (world, base, UI);
+    if (true ) applyJobScenario      (world, base, UI);
   }
   
   
@@ -222,22 +223,45 @@ public class DebugSocial extends Scenario {
     
     final Actor talks = huts.first().staff.workers().first();
     //*/
-    
     final Relation withBase = talks.relations.relationWith(natives);
     I.say("BASE RELATION IS: "+withBase.value  ());
     I.say("BASE NOVELTY IS:  "+withBase.novelty());
     
     UI.selection.pushSelection(talks, true);
-    
     /*
     final Mission peaceMission = new ContactMission(base, hut);
     peaceMission.assignPriority(Mission.PRIORITY_ROUTINE);
     peaceMission.setObjective(ContactMission.OBJECT_AUDIENCE);
     base.addMission(peaceMission);
     peaceMission.beginMission();
-    
     UI.selection.pushSelection(peaceMission, true);
     //*/
+  }
+  
+  
+  private void applyJobScenario(Stage world, Base base, BaseUI UI) {
+    GameSettings.fogFree = true;
+    GameSettings.buildFree = true;
+    GameSettings.paveFree = true;
+    
+    final Venue applyAt = new EngineerStation(base);
+    Placement.establishVenue(applyAt, 4, 4, true, world);
+    
+    final Venue secondary = new Cantina(base);
+    Placement.establishVenue(secondary, 4, 9, true, world);
+    base.setup.fillVacancies(secondary, true);
+    
+    final Venue applyFrom = new EngineerStation(base);
+    Placement.establishVenue(applyFrom, 9, 9, true, world,
+      new Human(Backgrounds.TECHNICIAN, base)
+    );
+    
+    final Venue powers = new SolarBank(base);
+    Placement.establishVenue(powers, 9, 4, true, world);
+    
+    final Actor applies = applyFrom.staff.workers().first();
+    FindWork.assignAmbition(applies, Backgrounds.ARTIFICER, applyAt, 2);
+    UI.selection.pushSelection(applies, true);
   }
   
   

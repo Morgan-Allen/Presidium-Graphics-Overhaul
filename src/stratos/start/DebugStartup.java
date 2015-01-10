@@ -13,7 +13,6 @@ public class DebugStartup {
   public static void main(String args[]) {
     PlayLoop.setupAndLoop(new Playable() {
       
-      
       private HUD UI;
       private boolean loading = false, loaded = false;
       

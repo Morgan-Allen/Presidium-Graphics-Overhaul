@@ -11,11 +11,7 @@ import stratos.util.*;
 
 
 
-//  TODO:  Promotions from one job to another in-world need some testing.  Also,
-//  you seem to have way too many candidates showing up.  Try reviewing just
-//  one at a time.
-
-//  Ideally, hiring arrangements should have some kind of progress meter.
+//  Ideally, hiring arrangements should have some kind of progress meter?
 
 //  TODO:  Test the stock exchange, and re-introduce the arcology & edifice.
 //  Assign drills directly at the trooper lodge.  That'll keep 'em busy!

@@ -19,12 +19,14 @@ public class Recreation extends Plan {
   
   /**  Data fields, construction and save/load methods-
     */
-  private static boolean verbose = false;
+  private static boolean
+    evalVerbose  = false,
+    stepsVerbose = false;
   
   
   final static int
     PERFORM_TIME = Stage.STANDARD_HOUR_LENGTH,
-    STAY_TIME    = Stage.STANDARD_HOUR_LENGTH;
+    ENJOY_TIME   = Stage.STANDARD_DAY_LENGTH / 3;
   final public static int
     TYPE_ANY      = -1,
     TYPE_SONG     =  0,
@@ -50,38 +52,39 @@ public class Recreation extends Plan {
     "Meditating"
   };
   
-  final Boarding venue;
+  final Venue venue;
   final int type;
-  public float cost = 0, enjoyBonus = 1;
+  protected float cost = 0, enjoyBonus = 1;
   
   
-  public Recreation(Actor actor, Boarding venue, int performType) {
+  public Recreation(Actor actor, Venue venue, int performType, float cost) {
     super(actor, (Element) venue, true, NO_HARM);
     this.venue = venue;
     this.type = performType;
+    this.cost = cost;
   }
 
 
   public Recreation(Session s) throws Exception {
     super(s);
-    venue = (Venue) s.loadTarget();
-    type = s.loadInt();
-    cost = s.loadFloat();
+    venue      = (Venue) s.loadTarget();
+    type       = s.loadInt();
+    cost       = s.loadFloat();
     enjoyBonus = s.loadFloat();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveTarget(venue);
-    s.saveInt(type);
-    s.saveFloat(cost);
-    s.saveFloat(enjoyBonus);
+    s.saveTarget(venue     );
+    s.saveInt   (type      );
+    s.saveFloat (cost      );
+    s.saveFloat (enjoyBonus);
   }
   
   
   public Plan copyFor(Actor other) {
-    return new Recreation(other, venue, type);
+    return new Recreation(other, venue, type, cost);
   }
   
   
@@ -97,19 +100,20 @@ public class Recreation extends Plan {
   /**  Finding and evaluating targets-
     */
   protected float getPriority() {
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = evalVerbose && I.talkAbout == actor && hasBegun();
     
     if (cost > actor.gear.credits() / 2f) return 0;
-    float modifier = NO_MODIFIER;
-    modifier += Performance.performValueFor(venue, this);
-    modifier += IDLE * rateComfort(venue, actor, this) / 10;
-    modifier -= ActorMotives.greedPriority(actor, (int) cost);
+    
     final float need = 1f - actor.health.moraleLevel();
+    float modifier = NO_MODIFIER;
+    modifier += CASUAL * rateComfort(venue, actor, this) / 10;
+    modifier *= need;
+    modifier -= ActorMotives.greedPriority(actor, (int) cost);
     
     final float priority = priorityForActorWith(
-      actor, venue, CASUAL * need,
-      modifier, NO_HARM,
-      NO_COMPETITION, NO_FAIL_RISK,
+      actor, venue,
+      CASUAL * (1 + need) / 2, modifier,
+      NO_HARM, NO_COMPETITION, NO_FAIL_RISK,
       NO_SKILLS, ENJOYMENT_TRAITS[type], NORMAL_DISTANCE_CHECK,
       report
     );
@@ -121,7 +125,7 @@ public class Recreation extends Plan {
   }
   
   
-  public static float rateComfort(Boarding at, Actor actor, Recreation r) {
+  public static float rateComfort(Venue at, Actor actor, Recreation r) {
     float performValue = Performance.performValueFor(at, r) / 10f;
     if (performValue < 0) return -1;
     //  TODO:  Average with ambienceVal for a Venue's structure?
@@ -145,6 +149,9 @@ public class Recreation extends Plan {
   
   
   public boolean actionRelax(Actor actor, Venue venue) {
+    final boolean report = stepsVerbose && (
+      I.talkAbout == actor || I.talkAbout == venue
+    );
     //
     //  Make any neccesary initial payment-
     float comfort = rateComfort(venue, actor, this);
@@ -154,11 +161,17 @@ public class Recreation extends Plan {
       cost = 0;
     }
     
-    final float interval = 1f / Stage.STANDARD_DAY_LENGTH;
+    final float interval = 1f / ENJOY_TIME;
     if (actor.traits.traitLevel(Conditions.SOMA_HAZE) > 0) {
       comfort++;
     }
-    comfort += enjoyBonus;
+    comfort *= enjoyBonus;
+    
+    if (report) {
+      I.say("\n"+actor+" relaxing at "+venue);
+      I.say("  Comfort level: "+comfort);
+      I.say("  Morale level:  "+actor.health.moraleLevel());
+    }
     //
     //  TODO:  Have morale converge to a particular level based on surroundings,
     //  rather than gaining a continual increase!

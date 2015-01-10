@@ -12,12 +12,17 @@ import static stratos.game.economic.Economy.*;
 
 
 
+//  TODO:  Assign the various song-IDs to the venue, not the behaviour!
 
 public class Performance extends Recreation {
   
   
   /**  Data fields, setup and save/load functions-
     */
+  private static boolean
+    evalVerbose  = false,
+    stepsVerbose = false;
+  
   final static String SONG_NAMES[] = {
     "Red Planet Blues, by Khal Segin & Tolev Zaller",
     "It's Full Of Stars, by D. B. Unterhaussen",
@@ -94,8 +99,6 @@ public class Performance extends Recreation {
     "Rapturous",
   };
   
-  private static boolean verbose = false;
-  
   
   
   final Actor client;
@@ -107,36 +110,38 @@ public class Performance extends Recreation {
   private Performance lead = null;
   
   
-  public Performance(Actor actor, Boarding venue, int type, Actor client) {
-    super(actor, venue, type);
+  public Performance(
+    Actor actor, Venue venue, int type, Actor client, float cost
+  ) {
+    super(actor, venue, type, cost);
     this.client = client;
   }
   
   
   public Performance(Session s) throws Exception {
     super(s);
-    client = (Actor) s.loadObject();
-    checkBonus = s.loadInt();
+    client       = (Actor) s.loadObject();
+    checkBonus   = s.loadInt();
     performValue = s.loadFloat();
-    timeSpent = s.loadFloat();
-    actID = s.loadInt();
-    lead = (Performance) s.loadObject();
+    timeSpent    = s.loadFloat();
+    actID        = s.loadInt();
+    lead         = (Performance) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(client);
-    s.saveInt(checkBonus);
-    s.saveFloat(performValue);
-    s.saveFloat(timeSpent);
-    s.saveInt(actID);
-    s.saveObject(lead);
+    s.saveObject(client      );
+    s.saveInt   (checkBonus  );
+    s.saveFloat (performValue);
+    s.saveFloat (timeSpent   );
+    s.saveInt   (actID       );
+    s.saveObject(lead        );
   }
   
   
   public Plan copyFor(Actor other) {
-    return new Performance(other, venue, type, client);
+    return new Performance(other, venue, type, client, cost);
   }
   
   
@@ -151,6 +156,7 @@ public class Performance extends Recreation {
   /**  Helper methods-
     */
   private void findLead() {
+    if (lead != null) return;
     for (Mobile m : venue.inside()) if (m instanceof Actor) {
       final Performance match = (Performance) ((Actor) m).matchFor(this);
       if (match == null) continue;
@@ -171,7 +177,7 @@ public class Performance extends Recreation {
   
   
   public String performDesc() {
-    if (lead == null) findLead();
+    findLead();
     return ALL_PERFORM_NAMES[type][actID];
   }
   
@@ -185,15 +191,17 @@ public class Performance extends Recreation {
   
   /**  Static helper methods-
     */
+  /*
   private boolean matches(Recreation r) {
     final int tA = r.type, tB = this.type;
     if (tA == Recreation.TYPE_ANY || tB == Recreation.TYPE_ANY) return true;
     if (client != null && client != r.actor()) return false;
     return tA == tB;
   }
+  //*/
   
   
-  public static float performValueFor(Boarding venue, Recreation r) {
+  public static float performValueFor(Venue venue, Recreation r) {
     float value = 0, count = 0;
     for (Performance p : performancesMatching(venue, r)) {
       value += p.performValue;
@@ -207,22 +215,28 @@ public class Performance extends Recreation {
   
   
   public static Batch <Performance> performancesMatching(
-    Boarding venue, Recreation r
+    Venue venue, Recreation r
   ) {
     final Batch <Performance> at = new Batch <Performance> ();
-    final Stage world = ((Element) venue).world();
-    //
-    //  TODO:  This will have to match up with visitors instead.
-    final Performance match = new Performance(null, venue, r.type, null);
-    for (Mobile m : venue.inside()) if (m instanceof Actor) {
-      final Actor a = (Actor) m;
-      final Performance p = (Performance) a.matchFor(match);
-      if (p != null) at.add(p);
+    for (Actor a : venue.staff.visitors()) {
+      final Performance p = (Performance) a.matchFor(Performance.class, true);
+      if (p == null || p.type != r.type) continue;
+      if (p.client != null && p.client != r.actor()) continue;
+      at.add(p);
     }
     return at;
   }
   
   
+  public static Batch <Actor> audienceFor(Venue venue, int performType) {
+    final Batch <Actor> audience = new Batch <Actor> ();
+    for (Actor a : venue.staff.visitors()) {
+      final Recreation r = (Recreation) a.matchFor(Recreation.class, true);
+      if (r != null && r.type == performType) audience.add(a);
+    }
+    return audience;
+  }
+  /*
   public static Batch <Recreation> audienceFor(Boarding venue, Performance p) {
     final Batch <Recreation> audience = new Batch <Recreation> ();
     for (Mobile m : venue.inside()) if (m instanceof Actor) {
@@ -234,6 +248,7 @@ public class Performance extends Recreation {
     }
     return audience;
   }
+  //*/
   
   
   
@@ -242,13 +257,23 @@ public class Performance extends Recreation {
   final static Trait BASE_TRAITS[] = { OUTGOING, CREATIVE };
   
   public float priorityFor(Actor actor) {
-    if (expired()) return 0;
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = evalVerbose && I.talkAbout == actor && hasBegun();
+    if (expired()) {
+      if (report) {
+        I.say("\nPerformance expired, ID: "+hashCode());
+        if (lead != this) {
+          I.say("  Lead ID: "+lead.hashCode());
+          I.say("  Lead finished? "+lead.finished());
+        }
+        I.say("  Time spent: "+timeSpent);
+      }
+      return 0;
+    }
     
     final float priority = priorityForActorWith(
-      actor, venue, CASUAL,
-      NO_MODIFIER, MILD_HELP,
-      MILD_COOPERATION, NO_FAIL_RISK,
+      actor, venue,
+      CASUAL, NO_MODIFIER,
+      MILD_HELP, MILD_COOPERATION, NO_FAIL_RISK,
       PERFORM_SKILLS[type], BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report
     );
@@ -257,20 +282,26 @@ public class Performance extends Recreation {
   
   
   private boolean expired() {
+    findLead();
     if (lead != this && lead.finished()) return true;
-    return timeSpent > (PERFORM_TIME + Rand.index(PERFORM_TIME)) / 2;
+    return timeSpent > PERFORM_TIME;
   }
   
   
   protected Behaviour getNextStep() {
-    if (lead == null) findLead();
+    final boolean report = stepsVerbose && I.talkAbout == actor && hasBegun();
+    if (report) I.say("\nGetting next performance step for "+actor);
+    
     if (expired()) {
-      //I.say(actor+" performance has expired...");
+      if (report) I.say("  Performance has expired!");
       return null;
     }
+    
     if (client != null) {
-      final Recreation r = new Recreation(client, venue, type);
+      final Recreation r = new Recreation(client, venue, type, cost);
       if (client.matchFor(r) == null) {
+        if (report) I.say("  Attending to client: "+client);
+        
         final Action attend = new Action(
           actor, venue,
           this, "actionAttend",
@@ -279,6 +310,8 @@ public class Performance extends Recreation {
         return attend;
       }
     }
+    
+    if (report) I.say("  Playing new chord...");
     final Action perform = new Action(
       actor, venue,
       this, "actionPerform",
@@ -289,7 +322,7 @@ public class Performance extends Recreation {
   
   
   public boolean actionAttend(Actor actor, Venue venue) {
-    final Recreation r = new Recreation(client, venue, type);
+    final Recreation r = new Recreation(client, venue, type, cost);
     if (client.mind.mustIgnore(r)) {
       interrupt(INTERRUPT_CANCEL);
       return false;
@@ -310,20 +343,25 @@ public class Performance extends Recreation {
       else if (Rand.yes()) effect--;
     }
     performValue = Nums.clamp(performValue + effect, 0, 10);
-    timeSpent++;
+    timeSpent += (1 + Rand.index(2)) / 1.5f;
     //
     //  The actor may be entitled to some of the benefits of recreation in the
     //  process, assuming they have a decent relationship with the audience-
-    final Recreation r = new Recreation(actor, venue, type);
-    final Batch <Recreation> audience = audienceFor(venue, this);
-    
-    if (audience.size() > 0) {
-      final Actor notice = ((Plan) Rand.pickFrom(audience)).actor();
-      if (Rand.num() < actor.relations.valueFor(notice)) {
-        super.actionRelax(actor, venue);
-      }
+    final Actor notice;
+    if (client != null) notice = client;
+    else {
+      final Batch <Actor> audience = audienceFor(venue, type);
+      notice = (Actor) Rand.pickFrom(audience);
     }
-    
+    if (notice != null && Rand.num() < actor.relations.valueFor(notice)) {
+      Recreation r = (Recreation) notice.matchFor(Recreation.class, true);
+      if (r == null) return true;
+      final float interval = 1f / ENJOY_TIME;
+      float comfort = Recreation.rateComfort(venue, notice, r);
+      comfort += notice.health.moraleLevel();
+      comfort *= interval;
+      actor.health.adjustMorale(comfort);
+    }
     return true;
   }
   
@@ -341,7 +379,7 @@ public class Performance extends Recreation {
   public static void describe(
     Description d, String label, int type, Venue venue
   ) {
-    final Recreation r = new Recreation(null, venue, type);
+    final Recreation r = new Recreation(null, venue, type, -1);
     final Performance p = performancesMatching(venue, r).first();
     
     d.append("\n"+label+"\n  ");
@@ -349,7 +387,7 @@ public class Performance extends Recreation {
     else {
       d.append(p.performDesc());
       d.append("\n  ");
-      final Batch <Recreation> audience = audienceFor(venue, p);
+      final Batch <Actor> audience = audienceFor(venue, p.type);
       if (audience.size() > 0) {
         final float reception = performValueFor(venue, r);
         d.append(Performance.qualityDesc(reception));

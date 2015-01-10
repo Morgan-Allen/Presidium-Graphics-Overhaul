@@ -400,7 +400,7 @@ public class PavingRoutes {
     }
   }
   
-
+  
   public void distribute(Traded provided[], Base base) {
     final boolean report = distroVerbose;
     if (report) I.say("\n\nDistributing provisions for base: "+base);
@@ -408,8 +408,7 @@ public class PavingRoutes {
     //
     //  First, divide the set of all venues into discrete partitions based on
     //  mutual paving connections-
-    final Tile at = world.tileAt(0, 0);
-    for (Object o : world.presences.matchesNear(base, at, -1)) {
+    for (Object o : world.presences.matchesNear(base, null, -1)) {
       final Batch <Structural> reached = venuesReached((Venue) o, base);
       if (reached != null) allReached.add(reached);
     }

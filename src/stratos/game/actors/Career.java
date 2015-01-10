@@ -335,7 +335,9 @@ public class Career implements Qualities {
     }
     else if (actor instanceof Human) {
       final Background prior = ((Human) actor).career().topBackground();
-      if (next.standing < prior.standing) return rating / 10f;
+      int nextStanding = next.standing;
+      while (nextStanding < prior.standing) { rating /= 5; nextStanding++; }
+      while (nextStanding > prior.standing) { rating *= 2; nextStanding--; }
     }
     
     if (report) I.say("  Final rating: "+rating);
