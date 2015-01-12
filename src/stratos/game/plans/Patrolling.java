@@ -94,7 +94,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     
     float urgency, relDanger = 0;
     if (actor.base() != null) for (Target t : patrolled) {
-      relDanger += actor.base().dangerMap.sampleAt(t);
+      relDanger += actor.base().dangerMap.sampleAround(t, Stage.SECTOR_SIZE);
     }
     relDanger /= patrolled.size();
     urgency = Nums.clamp(relDanger * ROUTINE, IDLE, ROUTINE);

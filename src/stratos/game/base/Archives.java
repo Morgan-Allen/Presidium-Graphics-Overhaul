@@ -112,7 +112,7 @@ public class Archives extends Venue {
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
-    stocks.translateDemands(1, PARTS_TO_DATALINKS, this);
+    stocks.translateDemands(PARTS_TO_DATALINKS, 1);
     
     structure.setAmbienceVal(5);
     structure.assignOutputs(Item.withAmount(POWER, 3));

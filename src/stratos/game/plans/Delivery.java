@@ -23,8 +23,8 @@ public class Delivery extends Plan {
 
   
   private static boolean
-    evalVerbose  = false,
-    stepsVerbose = false;
+    evalVerbose  = true ,
+    stepsVerbose = true ;
   
   //  TODO:  Use these.
   final public static int
@@ -72,7 +72,7 @@ public class Delivery extends Plan {
   
   
   public Delivery(Item items[], Owner origin, Owner destination) {
-    super(null, origin, true, NO_HARM);
+    super(null, destination, true, NO_HARM);
     this.origin = origin;
     this.destination = destination;
     this.items = items;
@@ -134,8 +134,8 @@ public class Delivery extends Plan {
     final Delivery d = (Delivery) plan;
     if (d.origin != origin || d.destination != destination) return false;
     boolean overlap = false;
-    for (Item i : items) {
-      for (Item dI : d.items) if (i.type == dI.type) overlap = true;
+    for (Item i : items) for (Item dI : d.items) {
+      if (i.type == dI.type) overlap = true;
     }
     return overlap;
   }
@@ -192,15 +192,25 @@ public class Delivery extends Plan {
   
   
   private boolean hasItemsFrom(Owner carries) {
+    final boolean report = evalVerbose && I.talkAbout == actor;
+    if (report) I.say("\nChecking for items at "+carries);
+    
     final Batch <Item> has = new Batch <Item> ();
     goodsPrice = goodsBulk = 0;
     for (Item i : items) {
       final float amount = Nums.min(i.amount, carries.inventory().amountOf(i));
+      if (amount <= 0) continue;
       has.add(i = Item.withAmount(i, amount));
       goodsPrice += i.priceAt(origin);
       goodsBulk  += i.amount;
+      if (report) I.say("  Price after "+i+" is "+goodsPrice);
     }
-    if (has.size() == 0) return false;
+    if (has.size() == 0) {
+      if (report) I.say("  None present!");
+      return false;
+    }
+    
+    if (report) I.say("  Total price: "+goodsPrice);
     this.items = has.toArray(Item.class);
     return true;
   }
@@ -227,13 +237,12 @@ public class Delivery extends Plan {
   /**  Assessing targets and priorities-
     */
   protected float getPriority() {
-    if (items == null || items.length == 0) return -1;
+    if ((items == null || items.length == 0) && balance == 0) return -1;
     final boolean report = evalVerbose && I.talkAbout == actor;
     //
     //  Determine basic priorities and delivery type:
     final boolean shops = shouldPay == actor;
     float base = ROUTINE, modifier = NO_MODIFIER;
-    if (shouldPay != destination) base = CASUAL;
     if (! checkValidPayment(shouldPay)) return -1;
     //
     //  Personal purchases get a few special modifiers-
@@ -250,8 +259,9 @@ public class Delivery extends Plan {
     }
     //
     //  Otherwise, add a bonus for quantity-
-    if (! shops) for (Item i : items) {
-      modifier += i.amount / 10f;
+    if (! shops) {
+      for (Item i : items) modifier += IDLE * i.amount / 10f;
+      if (balance != 0) modifier = Nums.max(modifier, CASUAL);
     }
     //
     //  Finally, since this plan involves a good deal of travel, we modify the
@@ -264,7 +274,7 @@ public class Delivery extends Plan {
     final float priority = priorityForActorWith(
       actor, destination,
       base, modifier - extraRangePenalty,
-      NO_HARM, NO_COMPETITION, NO_FAIL_RISK,
+      NO_HARM, FULL_COMPETITION, NO_FAIL_RISK,
       NO_SKILLS, NO_TRAITS, NORMAL_DISTANCE_CHECK / rangeDiv,
       report
     );
@@ -292,7 +302,20 @@ public class Delivery extends Plan {
   public Behaviour getNextStep() {
     final boolean report = stepsVerbose && I.talkAbout == actor;
     if (report) I.say("\nGetting next delivery step: "+actor);
+    //
+    //  First of all, make sure that you still have the items you need to
+    //  perform the delivery- otherwise, either quit or return a refund.
+    Owner carries = null;
+    if (stage <= STAGE_PICKUP ) carries = origin;
+    if (stage == STAGE_DROPOFF) carries = driven == null ? actor : driven;
     
+    if (carries != null && ! hasItemsFrom(carries)) {
+      if (balance != 0) stage = STAGE_DROPOFF;
+      else return null;
+    }
+    //
+    //  Initially, we may need to pick up a delivery vehicle or neccesary funds
+    //  for payment.  (Vehicles also need to be returned afterward.)
     if (stage == STAGE_INIT) {
       if (shouldPay == null || shouldPay == actor) stage = STAGE_PICKUP;
       else stage = STAGE_FUNDED;
@@ -320,9 +343,21 @@ public class Delivery extends Plan {
       return boarding;
     }
     
+    if (stage == STAGE_RETURN && driven != null) {
+      if (report) I.say("  Returning vehicle to "+driven.hangar());
+      
+      final Action returns = new Action(
+        actor, driven.hangar(),
+        this, "actionReturnVehicle",
+        Action.REACH_DOWN, "Returning in vehicle"
+      );
+      returns.setMoveTarget(driven);
+      return returns;
+    }
+    //
+    //  Otherwise, simply pickup at the origin and dropoff at the destination-
     if (stage == STAGE_PICKUP) {
       if (report) I.say("  Performing pickup from "+origin);
-      if (! hasItemsFrom(origin)) return null;
       
       stage = STAGE_PICKUP;
       final Action pickup = new Action(
@@ -337,9 +372,6 @@ public class Delivery extends Plan {
     if (stage == STAGE_DROPOFF) {
       if (report) I.say("  Performing dropoff at "+destination);
       
-      final Owner carries = driven == null ? actor : driven;
-      if (! hasItemsFrom(carries)) return null;
-      
       final Action dropoff = new Action(
         actor, destination,
         this, "actionDropoff",
@@ -347,18 +379,6 @@ public class Delivery extends Plan {
       );
       if (driven != null) dropoff.setMoveTarget(driven);
       return dropoff;
-    }
-    
-    if (stage == STAGE_RETURN) {
-      if (report) I.say("  Returning vehicle to "+driven.hangar());
-      
-      final Action returns = new Action(
-        actor, driven.hangar(),
-        this, "actionReturnVehicle",
-        Action.REACH_DOWN, "Returning in vehicle"
-      );
-      returns.setMoveTarget(driven);
-      return returns;
     }
     
     if (report) I.say("  No next step, will quit.");
@@ -458,16 +478,20 @@ public class Delivery extends Plan {
     */
   public void describeBehaviour(Description d) {
     
-    if (stage == STAGE_RETURN) {
-      if (driven == null) d.append("Returning profits to ");
-      else d.append("Returning to ");
+    if (stage == STAGE_RETURN && driven != null) {
+      d.append("Returning to ");
       d.append(origin);
+      return;
+    }
+    
+    if (stage == STAGE_DROPOFF && balance != 0) {
+      d.append("Returning "+((int) balance)+" credits in change to ");
+      d.append(destination);
       return;
     }
     
     d.append("Delivering ");
     for (Item i : items) {
-      //d.append((int) i.amount+" "+i.type);
       i.describeTo(d);
       if (i != Visit.last(items)) d.append(", ");
     }

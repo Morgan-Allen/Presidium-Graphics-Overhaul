@@ -278,10 +278,13 @@ public class StockExchange extends Venue {
     final Batch <Venue> depots = DeliveryUtils.nearbyDepots(
       this, world, SERVICE_COMMERCE
     );
+    //  TODO:  How do I ensure efficient long-range transmission in this way?
+    //         ...Base it off GLOBAL supply and demand!
+    
     for (Traded type : ALL_MATERIALS) {
       final int room = spaceFor(type);
-      stocks.incDemand(type, room / 2f, TIER_TRADER, 1, this);
-      stocks.diffuseDemand(type, depots, 1);
+      stocks.incDemand(type, room / 2f, TIER_TRADER, 1);
+      //stocks.diffuseDemand(type, depots, 1);
     }
   }
   

@@ -1,36 +1,24 @@
 
 
 package stratos.game.politic;
-import stratos.game.base.*;
-import stratos.game.actors.*;
-import stratos.game.common.*;
-import stratos.game.economic.*;
-import stratos.game.plans.*;
-import stratos.util.*;
-import static stratos.game.actors.Qualities.*;
-import static stratos.game.economic.Economy.*;
 
 
 
-//  TODO:  These should mediate trade & defence dynamics.
-//  Vassal.  Liege.  Alliance.
-//  Vendetta.  Rebel.  Uprising.
-//  Closed.  Neutral.  Trading.
+public class OffworldBase {
+  
+}
 
-//  Assign personnel to strike, recon, security or contact duties.
 
-//  Population x housing level determines fundamental demand for various
-//  goods.
-//  Danger & squalor create demands for security classes & life support or
-//  ambience structures.
-//  Presence of personnel and structures creates base-line demand for parts,
-//  devices, outfits, et cetera.
 
+
+
+/*
 public class BaseDemands {
   
   
   /**  Data fields, constants, constructors and save/load methods-
     */
+  /*
   private static boolean verbose = true;
   
   final Location location;
@@ -52,6 +40,7 @@ public class BaseDemands {
   
   /**  Setup and query methods-
     */
+/*
   public void initWithSupply(Object... args) {
     if (args.length % 2 != 0) I.say("WARNING:  Irregular argument size...");
     
@@ -72,6 +61,7 @@ public class BaseDemands {
   
   /**  Regular update methods-
     */
+  /*
   public void update(float timeInterval) {
     if (verbose) I.say("Updating base demands...");
     updateDemands();
@@ -123,13 +113,11 @@ public class BaseDemands {
     //
     //  Finally, increment demand for particular vocations, based on the skills
     //  they afford.
-    /*
-    for (Background b : Background.allBackgrounds()) {
+    for (Background b : Background.INDEX) {
       float sumNeed = 0;
       for (Skill s : b.skills()) sumNeed += demand.valueFor(s);
       demand.add(sumNeed, b);
     }
-    //*/
     
     //
     //  TODO:  Weight toward certain facilities and policies based on
@@ -145,6 +133,7 @@ public class BaseDemands {
   
   /**  Dealing with construction and salvage-
     */
+  /*
   private void updateConstruction(float timeInterval) {
     //
     //  First, estimate the total available labour pool and how much work needs
@@ -190,6 +179,7 @@ public class BaseDemands {
   
   /**  Dealing with personnel recruitment.
     */
+  /*
   private void updateRecruitment(float timeInterval) {
     
     float sumDemand = 0;
@@ -216,6 +206,7 @@ public class BaseDemands {
   
   /**  Debugging and interface methods-
     */
+  /*
   public void reportState() {
     
     I.say("\nTOTAL DEMAND: ");
@@ -230,15 +221,7 @@ public class BaseDemands {
   }
   
 }
-
-
-
-
-
-
-
-
-
+//*/
 
 
 

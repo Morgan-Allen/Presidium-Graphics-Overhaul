@@ -112,8 +112,7 @@ public class VenueDescription {
       d.append("\n  "+Ambience.squalorDesc(squalor)+" Ambience"+AN);
     }
     
-    final Tile t = world.tileAt(v);
-    final float danger = v.base().dangerMap.sampleAt(t.x, t.y);
+    final float danger = v.base().dangerMap.sampleAround(v, Stage.SECTOR_SIZE);
     if (danger > 0) {
       final String DN = " ("+I.shorten(danger, 1)+")";
       d.append("\n  "+Ambience.dangerDesc(danger)+" Hazards"+DN);

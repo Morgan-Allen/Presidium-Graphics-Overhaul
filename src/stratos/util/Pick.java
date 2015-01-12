@@ -15,6 +15,16 @@ public class Pick <T> {
   }
   
   
+  public Pick(float initRating) {
+    this(null, initRating);
+  }
+  
+  
+  public Pick (T firstPick) {
+    this(firstPick, Float.NEGATIVE_INFINITY);
+  }
+  
+  
   public Pick(T firstPick, float initRating) {
     this.picked     = firstPick ;
     this.bestRating = initRating;

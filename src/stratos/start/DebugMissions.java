@@ -133,7 +133,7 @@ public class DebugMissions extends Scenario {
       UI.selection.pushSelection(actor, true);
     }
     
-    base.addMission(contact);
+    base.tactics.addMission(contact);
     contact.beginMission();
   }
   
@@ -164,7 +164,7 @@ public class DebugMissions extends Scenario {
       UI.selection.pushSelection(actor, true);
     }
     
-    base.addMission(security);
+    base.tactics.addMission(security);
     security.beginMission();
   }
   
@@ -189,7 +189,7 @@ public class DebugMissions extends Scenario {
       UI.selection.pushSelection(actor, true);
     }
     
-    base.addMission(strike);
+    base.tactics.addMission(strike);
     strike.beginMission();
   }
   
@@ -210,7 +210,7 @@ public class DebugMissions extends Scenario {
       UI.selection.pushSelection(actor, true);
     }
     
-    base.addMission(recon);
+    base.tactics.addMission(recon);
     recon.beginMission();
     
     //  TODO:  Let's introduce a nest of Yamagur.  See how they get along.

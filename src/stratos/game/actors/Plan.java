@@ -638,10 +638,12 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     //
     //  TODO:  Incorporate estimate of dangers along entire route using
     //  path-caching.
-    final Tile at = actor.world().tileAt(t);
-    float danger = actor.base().dangerMap.sampleAt(at.x, at.y);
+    final Tile at = actor.origin();
+    float danger = actor.base().dangerMap.sampleAround(
+      at.x, at.y, Stage.SECTOR_SIZE
+    );
     if (danger < 0) return 0;
-    danger *= 1 + actor.traits.relativeLevel(Qualities.NERVOUS);
+    //danger *= 1 + actor.traits.relativeLevel(Qualities.NERVOUS);
     final float strength = actor.senses.powerLevel();
     
     float penalty = danger / (1 + strength);

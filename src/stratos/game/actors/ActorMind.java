@@ -33,12 +33,12 @@ public abstract class ActorMind implements Qualities {
   
   
   
-  protected ActorMind(Actor actor) {
+  public ActorMind(Actor actor) {
     this.actor = actor;
   }
   
   
-  protected void loadState(Session s) throws Exception {
+  public void loadState(Session s) throws Exception {
     s.loadObjects(agenda);
     s.loadObjects(todoList);
     
@@ -49,7 +49,7 @@ public abstract class ActorMind implements Qualities {
   }
   
   
-  protected void saveState(Session s) throws Exception {
+  public void saveState(Session s) throws Exception {
     s.saveObjects(agenda);
     s.saveObjects(todoList);
     
@@ -60,14 +60,14 @@ public abstract class ActorMind implements Qualities {
   }
   
   
-  protected void onWorldExit() {
+  public void onWorldExit() {
   }
   
   
   
   /**  Calling regular, periodic updates and triggering AI refreshments-
     */
-  protected void updateAI(int numUpdates) {
+  public void updateAI(int numUpdates) {
     if (numUpdates % 10 != 0) return;
     final boolean report = decisionVerbose && I.talkAbout == actor;
     //
@@ -96,10 +96,11 @@ public abstract class ActorMind implements Qualities {
       I.say("  LAST PLAN: "+last+" "+lastP);
       I.say("  NEXT PLAN: "+next+" "+nextP);
     }
-    if (Choice.wouldSwitch(actor, last, next, true, false)) {
+    if (Choice.wouldSwitch(actor, last, next, true, report)) {
       assignBehaviour(next);
       if (report) I.say("  Switching to next plan!");
     }
+    else if (report) I.say("  Next plan has insufficient priority!");
   }
   
   
@@ -135,22 +136,7 @@ public abstract class ActorMind implements Qualities {
   }
   
   
-  public Series <Plan> getBehaviourRange() {
-    final Choice fromNew = createNewBehaviours(new Choice(actor));
-    final Batch <Plan> range = new Batch <Plan> ();
-    for (Behaviour b : fromNew.plans) if (b instanceof Plan) {
-      range.add((Plan) b);
-    }
-    return range;
-  }
-  
-  
-  protected abstract Choice createNewBehaviours(Choice choice);
-  protected abstract void addReactions(Target m, Choice choice);
-  protected abstract void putEmergencyResponse(Choice choice);
-  
-  
-  protected Action getNextAction() {
+  public Action getNextAction() {
     final boolean report = I.talkAbout == actor && stepsVerbose;
     //
     //  Firstly, check to ensure that our root behaviour is still valid- if
@@ -202,6 +188,21 @@ public abstract class ActorMind implements Qualities {
     I.reportStackTrace();
     return null;
   }
+  
+  
+  public Series <Plan> getBehaviourRange() {
+    final Choice fromNew = createNewBehaviours(new Choice(actor));
+    final Batch <Plan> range = new Batch <Plan> ();
+    for (Behaviour b : fromNew.plans) if (b instanceof Plan) {
+      range.add((Plan) b);
+    }
+    return range;
+  }
+  
+  
+  protected abstract Choice createNewBehaviours(Choice choice);
+  protected abstract void addReactions(Target m, Choice choice);
+  protected abstract void putEmergencyResponse(Choice choice);
   
   
   
@@ -365,6 +366,11 @@ public abstract class ActorMind implements Qualities {
   
   public Series <Behaviour> agenda() {
     return agenda;
+  }
+  
+  
+  public Series <Behaviour> todoList() {
+    return todoList;
   }
   
   

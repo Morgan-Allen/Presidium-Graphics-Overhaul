@@ -23,17 +23,17 @@ public class ActorSkills {
   final List <Technique> known = new List <Technique> ();
   
   
-  ActorSkills(Actor actor) {
+  public ActorSkills(Actor actor) {
     this.actor = actor;
   }
   
   
-  void loadState(Session s) throws Exception {
+  public void loadState(Session s) throws Exception {
     s.loadObjects(known);
   }
   
   
-  void saveState(Session s) throws Exception {
+  public void saveState(Session s) throws Exception {
     s.saveObjects(known);
   }
   
@@ -41,7 +41,7 @@ public class ActorSkills {
   
   /**  Called every 20 seconds or so.
     */
-  protected void updateSkills(int numUpdates) {
+  public void updateSkills(int numUpdates) {
     //
     //  See if we've learned any new techniques based on practice in source
     //  skills or item proficiency.

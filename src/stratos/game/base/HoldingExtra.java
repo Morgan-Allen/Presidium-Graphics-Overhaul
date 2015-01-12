@@ -59,7 +59,7 @@ public class HoldingExtra extends Fixture implements TileConstants {
   
   public void exitWorld() {
     super.exitWorld();
-    parent.base().paveRoutes.updatePerimeter(this, false);
+    parent.base().transport.updatePerimeter(this, false);
   }
   
   
@@ -130,7 +130,7 @@ public class HoldingExtra extends Fixture implements TileConstants {
     for (HoldingExtra extra : extras) {
       if (extra.destroyed()) extras.remove(extra);
       else {
-        holding.base().paveRoutes.updatePerimeter(extra, true);
+        holding.base().transport.updatePerimeter(extra, true);
         extra.updateLevel(level);
       }
     }

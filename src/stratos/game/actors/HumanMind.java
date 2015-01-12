@@ -100,12 +100,12 @@ public class HumanMind extends ActorMind implements Qualities {
   }
   
   
-  protected void loadState(Session s) throws Exception {
+  public void loadState(Session s) throws Exception {
     super.loadState(s);
   }
   
   
-  protected void saveState(Session s) throws Exception {
+  public void saveState(Session s) throws Exception {
     super.saveState(s);
   }
   

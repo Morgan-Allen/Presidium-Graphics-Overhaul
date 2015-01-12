@@ -13,11 +13,9 @@ import stratos.game.plans.*;
 
 
 
-//  TODO:  Maybe unite this with the GrowthMap code?
 
 
 public class BaseSetup {
-  
   
   /**  Placement of assorted structure types based on internal demand:
     */
@@ -36,10 +34,9 @@ public class BaseSetup {
   
   final Base base;
   final Stage world;
-  //private BaseDemands demands = new BaseDemands(this);  //  Setup this.
   
-  protected VenueProfile canPlace[];
   //  Data structures for conducting time-sliced placement of private venues:
+  protected VenueProfile canPlace[];
   static class Placing {
     Venue        sampled  ;
     StageSection placed   ;
@@ -68,7 +65,6 @@ public class BaseSetup {
   
   
   public void loadState(Session s) throws Exception {
-    //demands.loadState(s);
     canPlace = (VenueProfile[]) s.loadObjectArray(VenueProfile.class);
     
     final int numP = s.loadInt();
@@ -88,7 +84,6 @@ public class BaseSetup {
   
   
   public void saveState(Session s) throws Exception {
-    //demands.saveState(s);
     s.saveObjectArray(canPlace);
     
     s.saveInt(placings.size());
@@ -143,19 +138,19 @@ public class BaseSetup {
   
   
   public void updatePlacements() {
-    final boolean report = verbose && extraVerbose && (
-      BaseUI.currentPlayed() == base
-    );
+    final boolean report = verbose && (BaseUI.currentPlayed() == base);
     //
     //  If the set of placings has been exhausted, then it's time for a new
     //  cycle of evaluations.  Rank potential sites and reset the build-total.
     if (placings.size() == 0) {
-      if (report) I.say("\nRanking sections...");
       final Venue samples[] = VenueProfile.sampleVenues(
         Venue.VENUE_OWNS, true, canPlace
       );
       rankSectionPlacings(samples, report);
       initPlaceCount = placings.size();
+      if (report && initPlaceCount > 0) {
+        I.say("\nFinished ranking sections!");
+      }
       totalBuildHP = 0;
       allPlaced.clear();
       return;
@@ -177,10 +172,12 @@ public class BaseSetup {
     numIters += initPlaceCount * time     / FULL_EVAL_PERIOD;
     numIters -= initPlaceCount * lastEval / FULL_EVAL_PERIOD;
     if (numIters <= 0) return;
-    else lastEval = time;
     //
     //  And perform the actual placement attempts-
-    if (report) I.say("\nPlacement iterations: "+numIters+"/"+initPlaceCount);
+    else lastEval = time;
+    if (report) {
+      I.say("\nPlacement iterations: "+numIters+"/"+initPlaceCount);
+    }
     attemptPlacements(numIters, buildLimit, report);
   }
   
@@ -196,10 +193,11 @@ public class BaseSetup {
         p.placed    = section;
         p.exactTile = null   ;
         p.rating    = sample.ratePlacing(section, false);
-        if (p.rating > 0) {
-          placings.add(p);
-          if (report) descPlacing("  Ranking placement: ", p);
-        }
+        //
+        //  We add placements regardless of rating, but cull them during the
+        //  attempt-phases (see below.)
+        placings.add(p);
+        if (report) descPlacing("  Ranking placement: ", p);
       }
     }
     
@@ -213,14 +211,16 @@ public class BaseSetup {
     while (maxChecked-- > 0 && placings.size() > 0) {
       if (buildLimit > 0 && totalBuildHP > buildLimit) continue;
       final Placing best = placings.removeLast();
-      if (best.sampled.inWorld() || best.rating <= 0) continue;
+      if (best.sampled.inWorld() || best.rating <= 0) {
+        if (report) I.say("  Placement culled...");
+        continue;
+      }
       
       if (report) {
         I.say("\nAttempting placement at best site for "+best.sampled);
         I.say("  Rough location: "+best.placed);
-        I.say("  Rating:         "+best.rating);
+        I.say("  Rating was:     "+best.rating);
       }
-      
       if (attemptExactPlacement(best, report)) {
         totalBuildHP += best.sampled.structure.maxIntegrity();
       }
@@ -240,7 +240,14 @@ public class BaseSetup {
       sitePick.compare(t, rating);
     }
     
-    if (sitePick.bestRating() <= 0) return false;
+    if (sitePick.empty()) {
+      if (report) I.say("  No room for placement!");
+      return false;
+    }
+    if (sitePick.bestRating() <= 0) {
+      if (report) I.say("  Best rating negative: "+sitePick.bestRating());
+      return false;
+    }
     final Tile bestSite = sitePick.result();
     if (report) {
       I.say("\nPlacing "+sample+" at "+bestSite);

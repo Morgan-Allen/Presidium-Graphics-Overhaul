@@ -15,14 +15,14 @@ public class PavingMap {
     searchVerbose = false;
   
   final Stage world;
-  final PavingRoutes paving;
+  final BaseTransport paving;
   final int size;
   
   final byte roadCounter[][];
   final MipMap flagMap;
   
   
-  public PavingMap(Stage world, PavingRoutes paving) {
+  public PavingMap(Stage world, BaseTransport paving) {
     this.world  = world ;
     this.paving = paving;
     
@@ -110,7 +110,7 @@ public class PavingMap {
     final Stage world = t.world;
     if (isRoad(t)) return true;
     for (Base b : world.bases()) {
-      if (b.paveRoutes.map.roadCounter(t) > 0) return true;
+      if (b.transport.map.roadCounter(t) > 0) return true;
     }
     return false;
   }

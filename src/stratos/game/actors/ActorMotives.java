@@ -33,7 +33,7 @@ public class ActorMotives {
   
   
   
-  protected ActorMotives(Actor actor) {
+  public ActorMotives(Actor actor) {
     this.actor = actor;
   }
   

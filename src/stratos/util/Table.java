@@ -11,7 +11,7 @@ public class Table <K, V> extends java.util.HashMap <K, V> {
   
   
   final static long serialVersionUID = 0;
-
+  
   public Table() { super(); }
   public Table(int size, float load) { super(size, load); }
   public Table(int size) { super(size); }

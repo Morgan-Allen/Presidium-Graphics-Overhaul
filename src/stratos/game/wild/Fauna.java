@@ -105,16 +105,16 @@ public abstract class Fauna extends Actor {
         return choice;
       }
       
+      public void updateAI(int numUpdates) {
+        super.updateAI(numUpdates);
+      }
+      
       protected void addReactions(Target seen, Choice choice) {
         fauna.addReactions(seen, choice);
       }
       
       protected void putEmergencyResponse(Choice choice) {
         fauna.putEmergencyResponse(choice);
-      }
-      
-      protected void updateAI(int numUpdates) {
-        super.updateAI(numUpdates);
       }
     };
   }

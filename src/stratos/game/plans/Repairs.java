@@ -17,8 +17,8 @@ import static stratos.game.actors.Qualities.*;
 public class Repairs extends Plan {
   
   private static boolean
-    evalVerbose   = true ,
-    eventsVerbose = true ;
+    evalVerbose   = false,
+    eventsVerbose = false;
   
   final public static float
     TIME_PER_25_HP     = Stage.STANDARD_HOUR_LENGTH / 2,
@@ -101,7 +101,7 @@ public class Repairs extends Plan {
     }
     //
     //  Then, see if there are tiles which require paving nearby-
-    final PavingMap p = client.base().paveRoutes.map;
+    final PavingMap p = client.base().transport.map;
     final Tile toPave = p.nextTileToPave(client, null);
     if (toPave != null) {
       final RoadsRepair r = new RoadsRepair(client, toPave);

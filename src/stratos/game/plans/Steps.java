@@ -2,8 +2,6 @@
 
 
 package stratos.game.plans;
-import stratos.game.actors.Action;
-import stratos.game.actors.Actor;
 import stratos.game.actors.Behaviour;
 import stratos.game.actors.Plan;
 import stratos.game.common.*;

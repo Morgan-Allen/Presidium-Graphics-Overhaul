@@ -42,7 +42,7 @@ public class FindMission extends Plan {
       }
     };
     //  TODO:  Allow application for missions by other bases!
-    for (Mission mission : actor.base().allMissions()) {
+    for (Mission mission : actor.base().tactics.allMissions()) {
       if (! mission.canApply(actor)) continue;
       if (report) {
         I.say("\n  mission is: "+mission);

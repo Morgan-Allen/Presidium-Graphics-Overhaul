@@ -61,7 +61,7 @@ public class TargetOptions extends UIGroup {
       }
       //
       //  Otherwise, create a new mission for the target.
-      base.addMission(mission);
+      base.tactics.addMission(mission);
       BUI.selection.pushSelection(mission, true);
     }
   }

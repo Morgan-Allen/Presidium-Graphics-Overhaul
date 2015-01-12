@@ -3,8 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -18,10 +16,6 @@ import stratos.util.*;
 import static stratos.game.economic.Economy.*;
 
 
-//
-//  One person, plus family, per unit of housing.  Whoever has the cash makes
-//  the purchases.  (In the case of slum housing the 'family' is really big,
-//  and possibly quite fractious.  But they're assumed to share everything.)
 
 //  Requirements come under three headings-
 //  Building materials (parts, plastics, inscriptions, decor.)
@@ -34,11 +28,15 @@ import static stratos.game.economic.Economy.*;
 //  TODO:  Massive mega-block tower apartments need to operate under different
 //  rules, I think.  Save that for expansions with hyperstructures built in.
 
+
 public class Holding extends Venue {
   
   
   /**  Fields, constructors, and save/load methods-
     */
+  private static boolean
+    verbose = false;
+  
   final public static int
     MAX_SIZE   = 2,
     MAX_HEIGHT = 4,
@@ -48,9 +46,6 @@ public class Holding extends Venue {
     TEST_INTERVAL  = Stage.STANDARD_DAY_LENGTH,
     UPGRADE_THRESH = 0.66f,
     DEVOLVE_THRESH = 0.66f;
-  
-  private static boolean
-    verbose = false;
   
   
   private int upgradeLevel, targetLevel, varID;
@@ -114,6 +109,42 @@ public class Holding extends Venue {
   /**  Upgrade listings-
     */
   public Index <Upgrade> allUpgrades() { return HoldingUpgrades.ALL_UPGRADES; }
+  
+  //  TODO:  Now you need to ensure that Holdings can 'migrate' to better
+  //  locations if local conditions change...
+  
+  public float ratePlacing(Target point, boolean exact) {
+    final boolean report = verbose && BaseUI.currentPlayed() == base;
+    
+    final BaseDemands d = base.demands;
+    final float baseDemand = d.localShortage(point, SERVICE_HOUSING);
+    if (baseDemand <= 0) return -1;
+    if (report) {
+      I.say("\nGetting place-rating for Holding at "+point);
+      I.say("  Current base: "+base);
+      I.say("  Demand for housing: "+baseDemand);
+    }
+    float rating = 1;
+    
+    if (exact) {
+      final Tile at = (Tile) point;
+      rating *= 1 + point.world().ecology().ambience.valueAt(at);
+      rating *= 1 - base.dangerMap.sampleAround(at.x, at.y, Stage.SECTOR_SIZE);
+      
+      rating *= baseDemand * Plan.PARAMOUNT / 4;
+    }
+    
+    else {
+      for (int level = 0 ; level < HoldingUpgrades.NUM_LEVELS; level++) {
+        if (needsMet(level)) rating = level;
+        else break;
+      }
+      rating *= baseDemand * Plan.PARAMOUNT / HoldingUpgrades.NUM_LEVELS;
+    }
+    
+    if (report) I.say("  Final rating: "+rating);
+    return rating;
+  }
 
   
   
@@ -125,6 +156,9 @@ public class Holding extends Venue {
       HoldingExtra.updateExtras(this, extras, numUpdates);
     }
     super.updateAsScheduled(numUpdates, instant);
+    
+    final int maxHoused = HoldingUpgrades.OCCUPANCIES[upgradeLevel];
+    base.demands.impingeSupply(SERVICE_HOUSING, maxHoused, 1, this);
     
     if (! structure.intact()) return;
     consumeMaterials();

@@ -18,7 +18,7 @@ import static stratos.game.economic.Economy.*;
 //  TODO:  This will have to be merged with (or rendered obsolete by) the more
 //  generalised, and powerful, supply-and-demand algorithms I need to work on.
 
-public class Commerce {
+public class BaseCommerce {
   
   
   /**  Field definitions, constructor, save/load methods-
@@ -63,7 +63,7 @@ public class Commerce {
   
   
   
-  public Commerce(Base base) {
+  public BaseCommerce(Base base) {
     this.base = base;
     for (Traded type : ALL_MATERIALS) {
       importPrices.put(type, (float) type.basePrice());
@@ -390,12 +390,12 @@ public class Commerce {
   }
   
   
-  public Traded[] globalShortages() {
+  public Traded[] offworldShortages() {
     return globalShortages.allItemTypes();
   }
   
   
-  public Traded[] globalSurpluses() {
+  public Traded[] offworldSurpluses() {
     return globalSurpluses.allItemTypes();
   }
   

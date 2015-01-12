@@ -164,7 +164,7 @@ public class MineShaft extends Fixture implements Boarding {
     if (! super.enterWorldAt(x, y, world)) return false;
     world.presences.togglePresence(this, origin(), true, MineShaft.class);
     
-    parent.base().paveRoutes.updatePerimeter(this, true);
+    parent.base().transport.updatePerimeter(this, true);
     return true;
   }
   

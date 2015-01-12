@@ -195,7 +195,7 @@ public class MapsPanel extends UIGroup {
     //  We paint ambience in blue and danger in red:
     final float
       a = safeRange(world.ecology().ambience.valueAt(t) / 5),
-      d = safeRange(base.dangerMap.sampleAt(t.x, t.y));
+      d = safeRange(base.dangerMap.sampleAround(t.x, t.y, -1));
     return modeTone.set(d, 0, a, Nums.max(a, d));
   }
   

@@ -237,7 +237,7 @@ public class Reactor extends Venue {
     //  Update demand for raw materials-
     stocks.forceDemand(TOPES, 5 + (powerOutput / 5f), TIER_CONSUMER);
     if (structure.upgradeLevel(ISOTOPE_CONVERSION) > 0) {
-      stocks.translateDemands(1, METALS_TO_FUEL, this);
+      stocks.translateDemands(METALS_TO_FUEL, 1);
     }
     //
     //  If possible, assist in recovery of psi points-

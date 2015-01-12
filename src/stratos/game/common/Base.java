@@ -35,9 +35,10 @@ public class Base implements
   final public Stage   world ;
   final public boolean primal;
   
-  final public BaseSetup    setup     ;
-  final public Commerce     commerce  ;
-  final public PavingRoutes paveRoutes;
+  final public BaseSetup     setup    ;
+  final public BaseDemands   demands  ;
+  final public BaseCommerce  commerce ;
+  final public BaseTransport transport;
   
   final public BaseFinance  finance  ;
   final public BaseProfiles profiles ;
@@ -46,7 +47,6 @@ public class Base implements
   
   Actor ruler;
   Venue commandPost;
-  final List <Mission> missions = new List <Mission> ();
   final public BaseRelations relations;
   final public BaseTactics   tactics  ;
   
@@ -117,9 +117,10 @@ public class Base implements
     this.world = world;
     this.primal = primal;
     
-    setup      = new BaseSetup(this, world);
-    commerce   = new Commerce(this);
-    paveRoutes = new PavingRoutes(world);
+    setup     = new BaseSetup(this, world);
+    demands   = new BaseDemands(this, world);
+    commerce  = new BaseCommerce(this);
+    transport = new BaseTransport(world);
     
     finance    = new BaseFinance(this);
     profiles   = new BaseProfiles(this);
@@ -137,9 +138,10 @@ public class Base implements
     this(s.world(), s.loadBool());
     s.cacheInstance(this);
     
-    commerce  .loadState(s);
-    paveRoutes.loadState(s);
-    
+    setup    .loadState(s);
+    demands  .loadState(s);
+    commerce .loadState(s);
+    transport.loadState(s);
     finance  .loadState(s);
     profiles .loadState(s);
     dangerMap.loadState(s);
@@ -147,7 +149,6 @@ public class Base implements
 
     ruler       = (Actor) s.loadObject();
     commandPost = (Venue) s.loadObject();
-    s.loadObjects(missions);
     relations.loadState(s);
     tactics  .loadState(s);
     
@@ -159,9 +160,10 @@ public class Base implements
   public void saveState(Session s) throws Exception {
     s.saveBool(primal);
     
-    commerce.saveState(s);
-    paveRoutes  .saveState(s);
-    
+    setup    .saveState(s);
+    demands  .saveState(s);
+    commerce .saveState(s);
+    transport.saveState(s);
     finance  .saveState(s);
     profiles .saveState(s);
     dangerMap.saveState(s);
@@ -169,7 +171,6 @@ public class Base implements
     
     s.saveObject(ruler      );
     s.saveObject(commandPost);
-    s.saveObjects(missions);
     relations.saveState(s);
     tactics  .saveState(s);
     
@@ -191,21 +192,6 @@ public class Base implements
   
   /**  Dealing with missions amd personnel-
     */
-  public List <Mission> allMissions() {
-    return missions;
-  }
-  
-  
-  public void addMission(Mission t) {
-    missions.include(t);
-  }
-  
-  
-  public void removeMission(Mission t) {
-    missions.remove(t);
-  }
-  
-  
   public Actor ruler() {
     return ruler;
   }
@@ -236,14 +222,11 @@ public class Base implements
     ///I.say("UPDATING BASE, NUM UPDATES: "+numUpdates);
     
     setup.updatePlacements();
+    demands.updateAllMaps(1);
     commerce.updateCommerce(numUpdates);
-    paveRoutes.distribute(Economy.ALL_PROVISIONS, this);
+    transport.distribute(Economy.ALL_PROVISIONS, this);
     dangerMap.update();
-    
-    for (Mission mission : missions) {
-      mission.updateMission();
-    }
-    tactics.updateMissionAssessment(numUpdates);
+    tactics.updateTactics(numUpdates);
     
     final int interval = Stage.STANDARD_DAY_LENGTH / 3;
     if (numUpdates % interval == 0) {
@@ -256,8 +239,10 @@ public class Base implements
   
   /**  Gets missions already assigned to a given target:
     */
+  //  TODO:  Move to the tactics class?
+  
   public Mission matchingMission(Target t, Class typeClass) {
-    for (Mission match : allMissions()) {
+    for (Mission match : tactics.allMissions()) {
       if (typeClass != null && match.getClass() != typeClass) continue;
       if (match.subject() != t) continue;
       return match;
@@ -305,14 +290,16 @@ public class Base implements
   ) {
     final Table <Target, List <Mission>> seenTable = new Table();
     
-    for (Base base : world.bases()) for (Mission m : base.allMissions()) {
-      if (! m.visibleTo(player)) continue;
-      final Target t = m.subject();
-      if (! view.intersects(t.position(null), t.radius())) continue;
-      
-      List <Mission> onT = seenTable.get(t);
-      if (onT == null) seenTable.put(t, onT = new List());
-      onT.add(m);
+    for (Base base : world.bases()) {
+      for (Mission m : base.tactics.allMissions()) {
+        if (! m.visibleTo(player)) continue;
+        final Target t = m.subject();
+        if (! view.intersects(t.position(null), t.radius())) continue;
+        
+        List <Mission> onT = seenTable.get(t);
+        if (onT == null) seenTable.put(t, onT = new List());
+        onT.add(m);
+      }
     }
     
     final Batch <Mission> visible = new Batch();

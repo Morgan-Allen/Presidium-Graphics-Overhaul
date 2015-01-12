@@ -5,7 +5,9 @@
   */
 
 
-package stratos.game.actors;
+package stratos.game.common;
+import stratos.game.actors.ActorSenses;
+import stratos.game.actors.Behaviour;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.graphics.common.*;
@@ -13,6 +15,7 @@ import stratos.graphics.solids.*;
 import stratos.util.*;
 
 import java.lang.reflect.*;
+
 import static stratos.game.actors.Qualities.*;
 
 
@@ -236,10 +239,10 @@ public class Action implements Behaviour, AnimNames {
   
   public int motionType(Actor actor) {
     int motionType = MOTION_NORMAL;
-    if (quick()  ) motionType = MOTION_FAST ;
+    if (quick  ()) motionType = MOTION_FAST ;
     if (careful()) motionType = MOTION_SNEAK;
     
-    if (motionType == MOTION_NORMAL) for (Behaviour b : actor.mind.agenda) {
+    if (motionType == MOTION_NORMAL) for (Behaviour b : actor.mind.agenda()) {
       if (b == this) continue;
       final int MT = b.motionType(actor);
       if (MT != MOTION_ANY) { motionType = MT; break; }

@@ -120,12 +120,12 @@ public class ActorHealth implements Qualities {
   
   
   
-  ActorHealth(Actor actor) {
+  public ActorHealth(Actor actor) {
     this.actor = actor;
   }
   
   
-  void loadState(Session s) throws Exception {
+  public void loadState(Session s) throws Exception {
     baseBulk  = s.loadFloat();
     baseSpeed = s.loadFloat();
     baseSight = s.loadFloat();
@@ -149,7 +149,7 @@ public class ActorHealth implements Qualities {
   }
   
   
-  void saveState(Session s) throws Exception {
+  public void saveState(Session s) throws Exception {
     s.saveFloat(baseBulk );
     s.saveFloat(baseSpeed);
     s.saveFloat(baseSight);
@@ -517,7 +517,7 @@ public class ActorHealth implements Qualities {
   }
   
   
-  protected void updateHealth(int numUpdates) {
+  public void updateHealth(int numUpdates) {
     final boolean report = verbose && I.talkAbout == actor;
     if (report) I.say("\nUpdating health for "+actor);
     

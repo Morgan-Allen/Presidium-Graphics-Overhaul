@@ -217,6 +217,13 @@ public class Staff {
   }
   
   
+  public int numHomeless() {
+    int num = 0;
+    for (Actor actor : workers()) if (actor.mind.home() == null) num++;
+    return num;
+  }
+  
+  
   public Batch <Actor> visitors() {
     final Batch <Actor> visitors = new Batch <Actor> ();
     for (Mobile m : employs.inside()) if (m instanceof Actor) {

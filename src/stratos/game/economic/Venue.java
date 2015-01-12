@@ -244,19 +244,26 @@ public abstract class Venue extends Structural implements
       this.setAsDestroyed();
     }
     structure.updateStructure(numUpdates);
+    
+    if (instant) return;
+    final boolean rare = numUpdates % 10 == 0;
+    
     if (! structure.needsSalvage()) {
-      if (base != null && numUpdates % 10 == 0) updatePaving(true);
+      if (rare) updatePaving(true);
       staff.updatePersonnel(numUpdates);
     }
     if (structure.intact()) {
-      stocks.updateStocks(numUpdates, services());
+      final int homeless = staff.numHomeless();
+      base.demands.impingeDemand(SERVICE_HOUSING, homeless, 1, this);
+      stocks.updateOrders();
+      if (rare) stocks.updateDemands(10);
     }
   }
   
   
   protected void updatePaving(boolean inWorld) {
     super.updatePaving(inWorld);
-    base.paveRoutes.updateJunction(this, mainEntrance(), inWorld);
+    base.transport.updateJunction(this, mainEntrance(), inWorld);
   }
   
   

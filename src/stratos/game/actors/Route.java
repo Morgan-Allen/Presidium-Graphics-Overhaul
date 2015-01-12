@@ -7,7 +7,7 @@ import stratos.util.*;
 
 //
 //  TODO:  Generalise this to arbitrary destinations, including offworld or
-//  between sectors.
+//  between sectors?
 
 
 public class Route {
@@ -18,6 +18,7 @@ public class Route {
   
   public Tile path[];
   public float cost;
+  //public int useCounter = 0;
   
   
   public static void saveRoute(Route r, Session s) throws Exception {

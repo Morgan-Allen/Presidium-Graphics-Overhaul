@@ -103,7 +103,7 @@ public class MipMap implements TileConstants {
     */
   public void set(final int val, final int x, final int y) {
     final int current = baseLevels[x][y];
-    accum(val - current, x, y);
+    if (val != current) accum(val - current, x, y);
   }
   
   
@@ -113,6 +113,16 @@ public class MipMap implements TileConstants {
   public int getTotalAt(final int mX, final int mY, final int h) {
     if (h == 0) return baseLevels[mX][mY];
     return quadLevels[h - 1][mX][mY];
+  }
+  
+  
+  public int getBaseValue(int x, int y) {
+    return baseLevels[x][y];
+  }
+  
+  
+  public int getRootValue() {
+    return quadLevels[high - 1][0][0];
   }
   
   

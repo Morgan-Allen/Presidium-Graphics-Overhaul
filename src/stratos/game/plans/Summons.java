@@ -261,7 +261,7 @@ public class Summons extends Plan {
     final Stack <Link> responses = new Stack();
     
     //  Ask to join a declared mission.
-    if (UI.played().allMissions().size() > 0) {
+    if (UI.played().tactics.allMissions().size() > 0) {
       responses.add(new Link("I want you to join a mission.") {
         public void whenClicked() {
           pushMissionDialogue(UI, with, "What would you ask of me?");
@@ -349,7 +349,7 @@ public class Summons extends Plan {
   ) {
     final Stack <Link> responses = new Stack <Link> ();
     
-    for (final Mission m : UI.played().allMissions()) {
+    for (final Mission m : UI.played().tactics.allMissions()) {
       responses.add(new Link(""+m.toString()) {
         public void whenClicked() {
           final boolean wouldAccept = m.priorityFor(with) > Plan.ROUTINE;

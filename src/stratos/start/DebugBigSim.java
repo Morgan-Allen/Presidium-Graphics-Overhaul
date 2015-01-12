@@ -9,10 +9,14 @@ import stratos.util.*;
 
 
 
+//  TODO:  REVISIT THIS...
+
 public class DebugBigSim {
   
   
   public static void main(String args[]) {
+    
+    /*
     
     final BaseDemands d1 = new BaseDemands(null);
     d1.initWithSupply(
@@ -47,6 +51,7 @@ public class DebugBigSim {
     }
     
     I.say("Debugging complete.  Total iterations: "+iters+".");
+    //*/
   }
 }
 

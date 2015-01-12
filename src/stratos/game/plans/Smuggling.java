@@ -110,6 +110,7 @@ public class Smuggling extends Plan implements Offworld.Activity {
         this, "actionBoard",
         Action.STAND, "Boarding vessel"
       );
+      if (priorityEval >= URGENT) board.setProperties(Action.QUICK);
       return board;
     }
     //

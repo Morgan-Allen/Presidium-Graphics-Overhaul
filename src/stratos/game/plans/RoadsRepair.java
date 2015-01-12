@@ -30,7 +30,7 @@ public class RoadsRepair extends Plan {
   public RoadsRepair(Actor actor, Tile t) {
     super(actor, t.worldSection(), true, NO_HARM);
     this.base    = actor.base();
-    this.map     = base.paveRoutes.map;
+    this.map     = base.transport.map;
     this.section = t.worldSection();
     this.around  = t;
   }
@@ -39,7 +39,7 @@ public class RoadsRepair extends Plan {
   public RoadsRepair(Session s) throws Exception {
     super(s);
     this.base    = (Base) s.loadObject();
-    this.map     = base.paveRoutes.map;
+    this.map     = base.transport.map;
     this.around  = (Tile) s.loadObject();
     this.section = (StageSection) s.loadObject();
   }

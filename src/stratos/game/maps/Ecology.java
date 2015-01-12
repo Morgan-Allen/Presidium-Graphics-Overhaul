@@ -1,42 +1,34 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.maps;
 import stratos.game.common.*;
-import stratos.game.wild.Fauna;
-import stratos.game.wild.Flora;
-import stratos.game.wild.Habitat;
-import stratos.game.wild.Species;
+import stratos.game.wild.*;
 import stratos.util.*;
 
 
 
-//  TODO:  This can probably, in some fashion, be merged with the generalised
-//  supply-and-demand mechanics from the BaseSetup class- just use the
-//  ratePlacing() methods for individual nests.
-
+//  TODO:  Use the ratePlacing() methods for individual nests, instead of those
+//  extraneous placement methods.
 
 public class Ecology {
   
   
   /**  Data fields, construction and save/load methods-
     */
-  final static float
-    UPDATE_INC = 0.01f;
-  
-  private static boolean verbose = false;
-  
   final Stage world;
   final int SR, SS;
   final RandomScan growthMap;
+  
   final public Ambience ambience;
-  
-  //  TODO:  Consider getting rid of this class entirely.
-  final public FadingMap
+  final private BaseDemands abundances;
+  final private BlurMap
     biomass,
-    preyMap, hunterMap,
-    abundances[];
-  final Batch <FadingMap> allMaps = new Batch <FadingMap> ();
-  
+    preyMap,
+    hunterMap,
+    speciesMaps[];
   
   
   public Ecology(final Stage world) {
@@ -46,32 +38,30 @@ public class Ecology {
     growthMap = new RandomScan(world.size) {
       protected void scanAt(int x, int y) { growthAt(world.tileAt(x, y)); }
     };
-    ambience = new Ambience(world);
+    ambience   = new Ambience(world);
+    abundances = Base.wildlife(world).demands;
     
-    allMaps.add(biomass    = new FadingMap(world, SS, -1));
-    allMaps.add(preyMap    = new FadingMap(world, SS, -1));
-    allMaps.add(hunterMap  = new FadingMap(world, SS, -1));
+    biomass   = abundances.mapForSupply("Biomass");
+    preyMap   = abundances.mapForSupply("Prey"   );
+    hunterMap = abundances.mapForSupply("Hunters");
     
-    abundances = new FadingMap[Species.ANIMAL_SPECIES.length];
-    for (int i = 0; i < Species.ANIMAL_SPECIES.length; i++) {
-      abundances[i] = new FadingMap(world, SS, -1);
-      allMaps.add(abundances[i]);
+    final int numS = Species.ANIMAL_SPECIES.length;
+    speciesMaps = new BlurMap[numS];
+    for (int i = 0; i < numS; i++) {
+      speciesMaps[i] = abundances.mapForSupply(Species.ANIMAL_SPECIES[i]);
     }
   }
   
   
   public void loadState(Session s) throws Exception {
-    //I.say("Loading ecology state...");
     growthMap.loadState(s);
     ambience.loadState(s);
-    for (FadingMap map : allMaps) map.loadState(s);
   }
   
   
   public void saveState(Session s) throws Exception {
     growthMap.saveState(s);
     ambience.saveState(s);
-    for (FadingMap map : allMaps) map.saveState(s);
   }
   
   
@@ -85,10 +75,7 @@ public class Ecology {
     float growIndex = (time % Stage.GROWTH_INTERVAL);
     growIndex *= size * size * 1f / Stage.GROWTH_INTERVAL;
     growthMap.scanThroughTo((int) growIndex);
-    for (FadingMap map : allMaps) map.update();
-    //
-    //  TODO:  Let the player view this on the minimap!
-    //squalorMap.presentVals("Squalor", -1, true);
+    abundances.updateAllMaps(1);
   }
   
   
@@ -97,12 +84,11 @@ public class Ecology {
     final Element owner = t.onTop();
     if (owner != null) owner.onGrowth(t);
     ambience.updateAt(t);
-    //world.terrain().setSqualor(t, (byte) squalorAmount(t));
   }
   
   
   public void impingeBiomass(Tile t, float amount, float duration) {
-    biomass.accumulate(amount, duration, t.x, t.y);
+    abundances.impingeSupply(biomass, amount, duration, t);
   }
   
   
@@ -112,12 +98,25 @@ public class Ecology {
     final float inc = f.health.maxHealth();
     
     if (s.type == Species.Type.BROWSER ) {
-      preyMap.accumulate(inc, duration, t.x, t.y);
+      abundances.impingeSupply(preyMap, inc, duration, t);
     }
     if (s.type == Species.Type.PREDATOR) {
-      hunterMap.accumulate(inc, duration, t.x, t.y);
+      abundances.impingeSupply(hunterMap, inc, duration, t);
     }
-    abundances[s.ID].accumulate(inc, duration, t.x, t.y);
+    abundances.impingeSupply(speciesMaps[s.ID], inc, duration, t);
+  }
+  
+  
+  
+  /**  Querying sample values-
+    */
+  public float biomassRating(Tile t) {
+    return abundances.supplyAround(t, biomass, Stage.SECTOR_SIZE) * 4;
+  }
+  
+  
+  public float globalBiomass() {
+    return abundances.globalSupply(biomass) * 4;
   }
   
   
@@ -126,27 +125,6 @@ public class Ecology {
     */
   public void pushClimate(Habitat desired, float strength) {
     //  TODO:  This is the next thing to implement.
-  }
-  
-  
-  
-  /**  Querying sample values-
-    */
-  /*
-  public float biomassAmount(Tile t) {
-    return biomass.longTermVal(t);
-  }
-  //*/
-  //  TODO:  This needs to be more up-to-date?
-  
-  
-  public float biomassRating(Tile t) {
-    return biomass.sampleAt(t.x, t.y) * 4;
-  }
-  
-  
-  public float globalBiomass() {
-    return biomass.overallValue() * 4;
   }
 }
 

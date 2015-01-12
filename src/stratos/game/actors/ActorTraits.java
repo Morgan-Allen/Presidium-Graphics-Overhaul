@@ -39,7 +39,7 @@ public class ActorTraits implements Qualities {
   
   
   
-  protected ActorTraits(Actor actor) {
+  public ActorTraits(Actor actor) {
     this.actor = actor;
   }
   
@@ -174,7 +174,7 @@ public class ActorTraits implements Qualities {
   
   /**  Methods for assigning temporary bonuses-
     */
-  protected void updateTraits(int numUpdates) {
+  public void updateTraits(int numUpdates) {
     final Batch <Trait> allTraits = new Batch <Trait> (levels.size());
     for (Trait t : levels.keySet()) allTraits.add(t);
     

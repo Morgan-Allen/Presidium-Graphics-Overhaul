@@ -5,7 +5,6 @@ import stratos.game.common.*;
 import stratos.game.plans.*;
 import stratos.util.*;
 import stratos.game.economic.*;
-
 import stratos.game.common.Session.Saveable;
 
 
@@ -38,7 +37,7 @@ public class ActorSenses implements Qualities {
   private Target  safePoint  = null ;
   
   
-  protected ActorSenses(Actor actor) {
+  public ActorSenses(Actor actor) {
     this.actor = actor;
   }
   
@@ -73,7 +72,7 @@ public class ActorSenses implements Qualities {
   
   /**  Dealing with seen objects and reactions to them-
     */
-  protected void updateSenses() {
+  public void updateSenses() {
     final boolean report = reactVerbose && I.talkAbout == actor;
     final float range = actor.health.sightRange();
     if (report) I.say("\nUpdating senses, sight range: "+range);
@@ -339,7 +338,9 @@ public class ActorSenses implements Qualities {
     
     //  Finally, we adjust our sense of danger/safety based on ambient danger
     //  levels for the region as a whole:
-    final float ambientDanger = actor.base().dangerMap.sampleAt(actor);
+    final float ambientDanger = actor.base().dangerMap.sampleAround(
+      actor, Stage.SECTOR_SIZE
+    );
     if (ambientDanger > 0) sumFoes += ambientDanger / powerLevel;
     else sumAllies += 0 - ambientDanger / powerLevel;
     

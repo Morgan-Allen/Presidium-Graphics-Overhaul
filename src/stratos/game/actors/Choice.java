@@ -4,6 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.actors;
+import stratos.game.common.Actor;
 import stratos.util.*;
 
 
@@ -101,19 +102,18 @@ public class Choice implements Qualities {
   private static float competeThreshold(
     Actor actor, float topPriority, boolean fromCurrent
   ) {
-    final float stubborn = actor.traits.relativeLevel(STUBBORN) / 2f;
-    
-    float thresh = topPriority;
-    if (fromCurrent) thresh -= 1 + stubborn;
-    else thresh -= stubborn;
+    float thresh = Plan.DEFAULT_SWITCH_THRESHOLD;
     
     if (topPriority > Plan.PARAMOUNT) {
       final float extra = (topPriority - Plan.PARAMOUNT) / Plan.PARAMOUNT;
-      thresh -= Plan.DEFAULT_SWITCH_THRESHOLD * extra;
+      thresh *= 1 + extra;
     }
-    thresh -= Plan.DEFAULT_SWITCH_THRESHOLD;
     
-    return thresh < 0 ? 0 : thresh;
+    final float stubborn = actor.traits.relativeLevel(STUBBORN) / 2f;
+    thresh *= 1 + stubborn;
+    if (fromCurrent) thresh += 1;
+    
+    return Nums.clamp(topPriority - thresh, 0, 100);
   }
   
   
@@ -183,7 +183,6 @@ public class Choice implements Qualities {
     Actor actor, Behaviour last, Behaviour next, boolean stubborn,
     boolean report
   ) {
-    report &= verboseSwitch;
     if (report) I.say("\nConsidering switch from "+last+" to "+next);
     if (next == null) return false;
     if (last == null) return true ;
@@ -205,6 +204,8 @@ public class Choice implements Qualities {
     
     if (report) {
       I.say("  Min. priority for last is: "+minPriority);
+      I.say("  Threshold: "+(nextPriority - minPriority));
+      I.say("  Stubbornness: "+actor.traits.relativeLevel(STUBBORN));
       I.say("  Would switch from last to next? "+(lastPriority < minPriority));
     }
     return lastPriority < minPriority;

@@ -9,6 +9,11 @@ import stratos.util.*;
 
 
 
+//  TODO:  These should mediate trade & defence dynamics.
+//  Vassal.  Liege.  Alliance.
+//  Vendetta.  Rebel.  Uprising.
+//  Closed.  Neutral.  Trading.
+
 //  TODO:  Can this be applied to abstract bases as well?  Yeah, it would have
 //         to.
 //  TODO:  Merge this with the Reputation class!

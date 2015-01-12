@@ -214,6 +214,9 @@ public class Session {
   }
   
   
+  
+  /**  Utility methods for handling enums and common table keys-
+    */
   public void saveEnum(Enum e) throws Exception {
     if (e == null) saveInt(-1);
     else saveInt(e.ordinal());
@@ -223,6 +226,48 @@ public class Session {
   public Enum loadEnum(Enum from[]) throws Exception {
     final int ID = loadInt();
     return (ID == -1) ? null : from[ID];
+  }
+  
+  
+  public void saveKey(Object key) throws Exception {
+    if (key instanceof Class) {
+      saveInt(0);
+      saveClass((Class) key);
+    }
+    else if (key instanceof String) {
+      saveInt(1);
+      saveString((String) key);
+    }
+    else if (key instanceof Saveable) {
+      saveInt(2);
+      saveObject((Session.Saveable) key);
+    }
+    else I.complain("KEYS MUST BE CLASSES, STRINGS, OR SAVEABLE!");
+  }
+  
+  
+  public Object loadkey() throws Exception {
+    final Object key;
+    final int keyType = loadInt();
+    
+    if (keyType == 0) {
+      key = loadClass();
+    }
+    else if (keyType == 1) {
+      key = loadString();
+    }
+    else {
+      key = loadObject();
+    }
+    return key;
+  }
+  
+  
+  public static boolean isValidKey(Object o) {
+    if (o instanceof Class) return true;
+    if (o instanceof String) return true;
+    if (o instanceof Saveable) return true;
+    return false;
   }
   
   

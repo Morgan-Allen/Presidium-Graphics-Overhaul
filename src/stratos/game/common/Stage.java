@@ -221,7 +221,7 @@ public class Stage {
     currentTime += 1f / PlayLoop.UPDATES_PER_SECOND;
     
     for (Base base : bases) {
-      base.paveRoutes.checkConsistency();
+      base.transport.checkConsistency();
       if (((int) (oldTime / 2)) != ((int) (currentTime / 2))) {
         base.intelMap.updateFogValues();
       }

@@ -44,7 +44,7 @@ public class ActorRelations {
   }
   
   
-  protected void loadState(Session s) throws Exception {
+  public void loadState(Session s) throws Exception {
     for (int n = s.loadInt(); n-- > 0;) {
       final Relation r = Relation.loadFrom(s);
       relations.put((Accountable) r.subject, r);
@@ -52,7 +52,7 @@ public class ActorRelations {
   }
   
   
-  protected void saveState(Session s) throws Exception {
+  public void saveState(Session s) throws Exception {
     s.saveInt(relations.size());
     for (Relation r : relations.values()) Relation.saveTo(s, r);
   }

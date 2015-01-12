@@ -123,17 +123,16 @@ public class CultureLab extends Venue {
     if (! structure.intact()) return;
     
     for (Traded t : this.services()) {
-      stocks.incDemand(t, 0, TIER_PRODUCER, 1, this);
+      stocks.incDemand(t, 0, TIER_PRODUCER, 1);
     }
-    stocks.translateDemands(1, WASTE_TO_CARBS   , this);
-    stocks.translateDemands(1, CARBS_TO_PROTEIN , this);
-    stocks.translateDemands(1, WASTE_TO_SOMA    , this);
-    stocks.translateDemands(1, WASTE_TO_REAGENTS, this);
+    stocks.translateDemands(WASTE_TO_CARBS, 1);
+    stocks.translateDemands(CARBS_TO_PROTEIN, 1);
+    stocks.translateDemands(WASTE_TO_SOMA, 1);
+    stocks.translateDemands(WASTE_TO_REAGENTS, 1);
     
     float needPower = 5;
     if (! isManned()) needPower /= 2;
-    stocks.incDemand(POWER, needPower, TIER_CONSUMER, 1, this);
-    stocks.bumpItem(POWER, needPower * -0.1f);
+    stocks.forceDemand(POWER, needPower, TIER_CONSUMER);
     
     final int cycleBonus = structure.upgradeLevel(YEAST_DISPOSAL);
     float pollution = 5 - cycleBonus;

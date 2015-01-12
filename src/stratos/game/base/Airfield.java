@@ -149,7 +149,7 @@ public class Airfield extends Venue {
       final int type = tradeTypes[i], level = tradeLevels[i];
       
       if      (type == TRADE_AUTO  ) {
-        stocks.incDemand(t, 0, TIER_TRADER, interval, this);
+        stocks.incDemand(t, 0, TIER_TRADER, interval);
       }
       else if (type == TRADE_IMPORT) {
         stocks.forceDemand(t, level, TIER_IMPORTER);

@@ -2,6 +2,7 @@
 
 
 package stratos.game.politic;
+import stratos.game.common.BaseDemands;
 import stratos.game.economic.*;
 
 

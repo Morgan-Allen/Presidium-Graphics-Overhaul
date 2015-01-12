@@ -240,9 +240,9 @@ public class DebugSocial extends Scenario {
   
   
   private void applyJobScenario(Stage world, Base base, BaseUI UI) {
-    GameSettings.fogFree = true;
+    GameSettings.fogFree   = true;
     GameSettings.buildFree = true;
-    GameSettings.paveFree = true;
+    GameSettings.paveFree  = true;
     
     final Venue applyAt = new EngineerStation(base);
     Placement.establishVenue(applyAt, 4, 4, true, world);

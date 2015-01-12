@@ -3,10 +3,10 @@
 package stratos.game.plans;
 import stratos.game.common.*;
 import stratos.game.actors.*;
-import stratos.util.*;
 import stratos.game.economic.*;
+import stratos.util.*;
 import stratos.game.economic.Inventory.Owner;
-import stratos.game.politic.Commerce;
+import stratos.game.politic.BaseCommerce;
 import static stratos.game.economic.Economy.*;
 
 
@@ -102,7 +102,7 @@ public class DeliveryUtils {
       }
       if (sumAmount <= 0) continue;
       
-      final Commerce c = ship.base().commerce;
+      final BaseCommerce c = ship.base().commerce;
       Batch <Item> order = compressOrder(amounts, s, sumAmount, maxAmount);
       float sumValue = 0;
       for (Item item : order) sumValue += item.amount * (export ?
@@ -211,8 +211,10 @@ public class DeliveryUtils {
     Owner origin, Traded goods[], int baseUnit, int amountLimit,
     Batch <? extends Owner> destinations, int numSamples
   ) {
+    final boolean report = sampleVerbose && I.talkAbout == origin;
     final Stage world = origin.world();
     Tally <Owner> ratings = new Tally <Owner> ();
+    if (report) I.say("\nGetting bulk delivery for "+origin);
     
     for (Traded good : goods) {
       final Batch <? extends Owner> sampled;
@@ -223,6 +225,8 @@ public class DeliveryUtils {
           origin, world, numSamples, sampled, good.demandKey
         );
       }
+      if (report) I.say("  Sample size for "+good+" is "+sampled.size());
+      
       final Owner bestDest = bestDestination(origin, sampled, good, baseUnit);
       if (bestDest == null) continue;
       final float rating = rateTrading(origin, bestDest, good, baseUnit);
@@ -267,7 +271,7 @@ public class DeliveryUtils {
     final boolean report = sampleVerbose && I.talkAbout == destination;
     final Stage world = destination.world();
     Tally <Owner> ratings = new Tally <Owner> ();
-    if (report) I.say("\nGetting bulk delivery for "+destination);
+    if (report) I.say("\nGetting bulk collection for "+destination);
     
     for (Traded good : goods) {
       final Batch <? extends Owner> sampled;

@@ -49,13 +49,7 @@ public class PresenceMap implements Session.Saveable {
   public PresenceMap(Session s) throws Exception {
     s.cacheInstance(this);
     world = s.world();
-    
-    final int keyType = s.loadInt();
-    if (keyType == 0) key = s.loadClass();
-    else if (keyType == 1) {
-      key = s.loadString();
-    }
-    else key = s.loadObject();
+    key = s.loadkey();
     //
     //  Load the root node from disk-
     root = new Node(world.sections.root);
@@ -65,21 +59,7 @@ public class PresenceMap implements Session.Saveable {
   
   
   public void saveState(Session s) throws Exception {
-    if (key instanceof Class) {
-      s.saveInt(0);
-      s.saveClass((Class) key);
-    }
-    if (key instanceof String) {
-      s.saveInt(1);
-      s.saveString((String) key);
-      ///I.say("Saving presence map with key: "+key);
-    }
-    if (key instanceof Session.Saveable) {
-      s.saveInt(2);
-      s.saveObject((Session.Saveable) key);
-    }
-    //
-    //  Save the root node to disk-
+    s.saveKey(key);
     s.saveInt(root.population);
     saveNode(root, s);
   }

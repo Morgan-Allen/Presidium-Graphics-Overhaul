@@ -4,7 +4,6 @@
 package stratos.game.base;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.actors.Actor;
 import stratos.game.actors.Background;
 import stratos.game.actors.Behaviour;
 //import stratos.game.maps.*;
@@ -88,7 +87,7 @@ public class SolarBank extends Venue {
   
   
   protected void updatePaving(boolean inWorld) {
-    final PavingRoutes paving = base().paveRoutes;
+    final BaseTransport paving = base().transport;
     
     if (type == TYPE_HUB) {
       final Tile perim[] = Spacing.perimeter(footprint(), world);

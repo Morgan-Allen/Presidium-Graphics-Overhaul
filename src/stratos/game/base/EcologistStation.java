@@ -186,7 +186,7 @@ public class EcologistStation extends Venue {
     if (! structure.intact()) return;
     //
     //  Increment demand for gene seed, and decay current stocks-
-    stocks.incDemand(GENE_SEED, 5, TIER_CONSUMER, 1, this);
+    stocks.incDemand(GENE_SEED, 5, TIER_CONSUMER, 1);
     final float decay = 0.1f / Stage.STANDARD_DAY_LENGTH;
     for (Item seed : stocks.matches(GENE_SEED)) {
       stocks.removeItem(Item.withAmount(seed, decay));

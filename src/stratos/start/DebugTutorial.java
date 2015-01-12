@@ -10,6 +10,7 @@ import stratos.user.*;
 import stratos.util.*;
 
 
+//  TODO:  Initial native relations should be neutral (on their part.)
 
 //  Ideally, hiring arrangements should have some kind of progress meter?
 

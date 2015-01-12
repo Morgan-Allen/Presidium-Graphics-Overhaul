@@ -414,7 +414,7 @@ public abstract class Mission implements
     if (report) I.say("\nMISSION COMPLETE: "+this);
     //
     //  Unregister yourself from the base's list of ongoing operations-
-    base.removeMission(this);
+    base.tactics.removeMission(this);
     done = true;
     //
     //  Determine the reward, and dispense among any agents engaged-

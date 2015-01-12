@@ -101,7 +101,7 @@ public abstract class Artilect extends Actor {
         return choice;
       }
       
-      protected void updateAI(int numUpdates) {
+      public void updateAI(int numUpdates) {
         super.updateAI(numUpdates);
       }
       

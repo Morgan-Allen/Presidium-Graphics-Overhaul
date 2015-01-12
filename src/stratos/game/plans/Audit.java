@@ -129,6 +129,9 @@ public class Audit extends Plan {
   
   public static float taxesDue(Actor actor) {
     if (actor.base().primal) return 0;
+    
+    //  TODO:  ALSO, YOU HAVE TO PAY MORE FOR A HOLDING!
+    
     //  TODO:  factor in social class in some way.
     //  final int bracket = actor.vocation().standing;
     final int percent = Backgrounds.DEFAULT_TAX_PERCENT;

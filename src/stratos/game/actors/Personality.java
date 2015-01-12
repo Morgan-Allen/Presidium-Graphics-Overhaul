@@ -2,7 +2,9 @@
 
 package stratos.game.actors;
 import static stratos.game.actors.Qualities.*;
+import stratos.game.common.Actor;
 import stratos.util.*;
+
 import java.util.Map.Entry;
 
 

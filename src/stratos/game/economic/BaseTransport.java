@@ -15,7 +15,7 @@ import stratos.util.*;
 //  TODO:  Also check if these routes are fully-paved (for distribution
 //  purposes.)
 
-public class PavingRoutes {
+public class BaseTransport {
   
   
   /**  Field definitions, constructor and save/load methods-
@@ -36,7 +36,7 @@ public class PavingRoutes {
   
   
   
-  public PavingRoutes(Stage world) {
+  public BaseTransport(Stage world) {
     this.world = world;
     this.map = new PavingMap(world, this);
     junctions = new PresenceMap(world, "junctions");
@@ -211,10 +211,11 @@ public class PavingRoutes {
         routesTo.add(jT);
       }
       //
-      //  Any old routes that haven't been updated are assumed to be obsolete,
-      //  and must be deleted-
+      //  Any old routes that lack termini are assumed to be obsolete, and must
+      //  be deleted-
       if (oldRoutes != null) for (Route r : oldRoutes) {
-        if (r.opposite(t).flaggedWith() == null) toDelete.add(r);
+        final Tile end = r.opposite(t);
+        if (! junctions.hasMember(end, end)) toDelete.add(r);
       }
       //
       //  (NOTE:  We perform the un-flag op in a separate pass to avoid any

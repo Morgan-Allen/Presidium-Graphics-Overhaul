@@ -134,6 +134,10 @@ public class Foraging extends Plan {
     final float shortage = storeShortage();
     if (shortage > 0 && (source == null || source.destroyed())) {
       source = Forestry.findCutting(actor);
+      if (! source.inWorld()) {
+        I.complain("SOURCE FOR FORAGE NOT IN WORLD: "+source.origin());
+        return null;
+      }
       if (source == null) return null;
     }
     final float harvest = sumHarvest();

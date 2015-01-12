@@ -113,21 +113,21 @@ public class Causeway extends Structural {
     //  For some reason, switching the order in which these are called causes
     //  some roads to disappear.  TODO:  INVESTIGATE
     if (type != TYPE_SECTION) {
-      base().paveRoutes.updateJunction(this, origin(), inWorld);
+      base().transport.updateJunction(this, origin(), inWorld);
     }
-    base().paveRoutes.updatePerimeter(this, inWorld);
+    base().transport.updatePerimeter(this, inWorld);
   }
   
   
   public boolean enterWorldAt(int x, int y, Stage world) {
     if (! super.enterWorldAt(x, y, world)) return false;
-    base.paveRoutes.map.flagForPaving(Spacing.under(footprint(), world), true);
+    base.transport.map.flagForPaving(Spacing.under(footprint(), world), true);
     return true;
   }
   
   
   public void exitWorld() {
-    base.paveRoutes.map.flagForPaving(Spacing.under(footprint(), world), false);
+    base.transport.map.flagForPaving(Spacing.under(footprint(), world), false);
     super.exitWorld();
   }
   

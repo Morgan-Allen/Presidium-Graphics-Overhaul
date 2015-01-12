@@ -3,18 +3,15 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
-package stratos.game.actors;
-import stratos.game.common.*;
+package stratos.game.common;
+import stratos.game.actors.*;
 import stratos.game.economic.*;
-import stratos.game.maps.*;
 import stratos.game.plans.*;
-import stratos.game.wild.Species;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
 import stratos.user.*;
 import stratos.util.*;
+import stratos.game.wild.Species;
 
 
 
@@ -163,12 +160,12 @@ public abstract class Actor extends Mobile implements
   /**  Assigning behaviours and actions-
     */
   public void assignAction(Action action) {
-    if (verbose && I.talkAbout == this) {
+    final boolean report = verbose && I.talkAbout == this;
+    
+    if (report) {
       I.say("\nASSIGNING ACTION: "+I.tagHash(action));
       I.say("  Previous action: "+I.tagHash(actionTaken));
       if (actionTaken != null) I.say("  Finished? "+actionTaken.finished());
-      I.reportStackTrace();
-      if (action != null) I.add("  "+action.hashCode()+"\n");
     }
     
     this.actionTaken = action;
@@ -237,31 +234,40 @@ public abstract class Actor extends Mobile implements
   
   
   protected void updateAsMobile() {
-    //  TODO:  Include the effects of mount-riding here!
-    
     super.updateAsMobile();
+    final boolean report = I.talkAbout == this && verbose;
+    //
+    //  NOTE:  We try to avoid calling anything computationally-intensive here,
+    //  because mobile-updates occur at a fixed rate, leaving limited time for
+    //  results to get back (particularly if several mobiles needed complex
+    //  updates simultaneously.)  Instead, any updates to pathing or behaviour-
+    //  evaluation get deferred to the time-sliced external scheduling system.
+    
     final boolean OK = health.conscious() && ! doingPhysFX();
     final Action action = actionTaken;
-    boolean needsUpdate = false;
+    boolean needsBigUpdate = false;
     
     if (action != null) action.updateAction(OK);
-
-    if (! OK) pathing.updateTarget(null);
-    else if (action != null && ! pathing.checkPathingOkay()) {
-      needsUpdate = true;
+    
+    if (action == null || ! OK) pathing.updateTarget(null);
+    else if (! pathing.checkPathingOkay()) {
+      if (report) I.say("\n"+this+" needs fresh pathing.");
+      needsBigUpdate = true;
     }
     
-    if (OK && ! Plan.canFollow(this, action)) {
+    if (OK && action != null && ! Plan.canFollow(this, action)) {
+      if (report) I.say("\n"+this+" has completed action: "+action);
       assignAction(null);
-      needsUpdate = true;
+      needsBigUpdate = true;
     }
     
+    //  TODO:  Include the effects of mount-riding here:
     if (aboard instanceof Mobile && (pathing.nextStep() == aboard || ! OK)) {
       aboard.position(nextPosition);
-      needsUpdate = true;
     }
-    
-    if (needsUpdate) world.schedule.scheduleNow(this);
+    if (needsBigUpdate) {
+      world.schedule.scheduleNow(this);
+    }
   }
   
   
@@ -297,7 +303,7 @@ public abstract class Actor extends Mobile implements
     }
     //
     //  Update the intel/danger maps associated with the world's bases.
-    final float power = senses.powerLevel() * 10;
+    final float power = senses.powerLevel();
     if (! instant) for (Base b : world.bases()) {
       if (OK && b == base()) {
         //
@@ -417,7 +423,7 @@ public abstract class Actor extends Mobile implements
         return (Plan) b;
       }
     }
-    if (! active) for (Behaviour b : mind.todoList) {
+    if (! active) for (Behaviour b : mind.todoList()) {
       if (planClass.isAssignableFrom(b.getClass())) {
         return (Plan) b;
       }

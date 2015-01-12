@@ -73,6 +73,7 @@ public class BaseTactics {
   
   final Stage world;
   final Base  base ;
+  final List <Mission> missions = new List <Mission> ();
   private float forceStrength = -1;
   //private float valueStrength = -1;  //  Sum of all bases!
   //  TODO:  MOVE THE MISSIONS OVER HERE
@@ -85,27 +86,56 @@ public class BaseTactics {
   
   
   public void loadState(Session s) throws Exception {
+    s.loadObjects(missions);
     forceStrength = s.loadFloat();
   }
   
   
   public void saveState(Session s) throws Exception {
+    s.saveObjects(missions);
     s.saveFloat(forceStrength);
   }
   
   
+  
+  /**  Public queries-
+    */
   public float forceStrength() {
     return forceStrength;
+  }
+  
+  
+  public List <Mission> allMissions() {
+    return missions;
+  }
+  
+  
+  public void addMission(Mission t) {
+    missions.include(t);
+  }
+  
+  
+  public void removeMission(Mission t) {
+    missions.remove(t);
   }
   
   
   
   /**  Performing regular assessment updates-
     */
-  public void updateMissionAssessment(int numUpdates) {
+  public void updateTactics(int numUpdates) {
     final boolean report = updatesVerbose && I.matchOrNull(
       base.title(), verboseBase
     );
+    for (Mission mission : missions) {
+      mission.updateMission();
+    }
+    
+    updateMissionAssessment(numUpdates, report);
+  }
+  
+  
+  private void updateMissionAssessment(int numUpdates, boolean report) {
     //  TODO:  Bases should have an 'isRealPlayer' property...
     if (! base.primal) return;
     
@@ -133,7 +163,7 @@ public class BaseTactics {
     if (report) I.say("  Maximum missions allowed: "+maxMissions);
     
     Batch <Mission> toAssess = new Batch <Mission> ();
-    Visit.appendTo(toAssess, base.allMissions());
+    Visit.appendTo(toAssess, missions);
     //
     //  Then get a bunch of sampled actors and venues, etc., and see if they
     //  are worth pursuing.
@@ -158,7 +188,7 @@ public class BaseTactics {
       r.rating  = mission.rateImportance(base);
       r.mission = mission;
       final boolean
-        official = base.allMissions().includes(mission),
+        official = missions.includes(mission),
         begun    = mission.hasBegun();
       if (official) r.rating *= BEGUN_MULT;
       if (begun   ) r.rating *= BEGUN_MULT;
@@ -176,7 +206,7 @@ public class BaseTactics {
     
     for (Rating r : sorting) {
       final Mission m = r.mission;
-      final boolean begun = base.allMissions().includes(m);
+      final boolean begun = missions.includes(m);
       if (report && extraVerbose) {
         I.say("  Evaluated mission: "+r.mission);
         I.say("    Importance:      "+r.rating );
@@ -189,7 +219,7 @@ public class BaseTactics {
         if (! begun) {
           if (base.matchingMission(m) != null) continue;
           if (report) I.say("  BEGINNING NEW MISSION: "+m);
-          base.addMission(m);
+          addMission(m);
           updateOfficialMission(m, r.rating, report);
         }
         active.add(m);
@@ -339,7 +369,7 @@ public class BaseTactics {
     //  TODO:  Get ratings for various skill-types relevant to each mission- or
     //  perform some kind of monte-carlo sampling to determine success-odds.
     
-    est += 0 - base.dangerMap.overallValue();
+    est += 0 - base.dangerMap.globalValue();
     return est / 2;
   }
   

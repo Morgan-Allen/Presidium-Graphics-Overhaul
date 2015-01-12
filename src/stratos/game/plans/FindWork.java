@@ -5,7 +5,7 @@ package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.politic.Commerce;
+import stratos.game.politic.BaseCommerce;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
@@ -22,7 +22,7 @@ public class FindWork extends Plan {
   
   
   private static boolean
-    verbose      = true ,
+    verbose      = false,
     offworldOnly = false;
   
   final static float
@@ -265,7 +265,7 @@ public class FindWork extends Plan {
     //  TODO:  Also impact through wage-rate and area living conditions...
     final int
       numApps = at.staff().applications().size(),
-      MA      = (int) Commerce.MAX_APPLICANTS;
+      MA      = (int) BaseCommerce.MAX_APPLICANTS;
     rating *= 1 - (Nums.clamp(numApps - 1, 0, MA) / MA);
     return rating;
   }

@@ -329,7 +329,9 @@ public class HoldingUpgrades {
     if (targetLevel <= GameSettings.freeHousingLevel) return NEEDS_MET;
     
     final Tile t = holding.world().tileAt(holding);
-    float safety = 0 - holding.base().dangerMap.sampleAt(t.x, t.y);
+    float safety = 0 - holding.base().dangerMap.sampleAround(
+      t.x, t.y, Stage.SECTOR_SIZE
+    );
     if (holding.stocks.amountOf(PRESSFEED) > 0.5f) safety += 1.5f;
     if (safety < SAFETY_NEEDS[targetLevel]) return NV ? NOT_MET :
       "This area feels too unsettled for your subjects' comfort, hindering "+

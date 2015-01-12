@@ -113,7 +113,7 @@ public abstract class Structural extends Fixture implements
   
   
   protected void updatePaving(boolean inWorld) {
-    base.paveRoutes.updatePerimeter(this, inWorld);
+    base.transport.updatePerimeter(this, inWorld);
   }
   
   

@@ -139,9 +139,15 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     final boolean report = verbose && (
       I.talkAbout == actor || I.talkAbout == this
     );
-    if (report) I.say("\nGetting next dropship job for "+actor);
+    if (report) {
+      I.say("\nGetting next dropship job for "+actor);
+      ///I.reportStackTrace();
+    }
     
-    if (actor.isDoing(Delivery.class, null)) return;
+    if (actor.isDoing(Delivery.class, null)) {
+      if (report) I.say("  Is doing delivery!  Won't interrupt...");
+      return;
+    }
     
     if (stage >= STAGE_BOARDING) {
       final Smuggling boarding = new Smuggling(actor, null, this, new Item[0]);
@@ -151,6 +157,7 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     }
     
     final Choice jobs = new Choice(actor);
+    jobs.isVerbose = report;
     final Batch <Venue> depots = DeliveryUtils.nearbyDepots(
       this, world, SERVICE_COMMERCE
     );
@@ -165,11 +172,16 @@ public class Dropship extends Vehicle implements Inventory.Owner {
       jobs.add(DeliveryUtils.bestBulkCollectionFor(hangar, goods, 1, 10, 2));
     }
     else {
-      final Commerce c = this.base.commerce;
-      final Traded lacks[] = c.globalShortages();
-      jobs.add(DeliveryUtils.bestBulkDeliveryFrom (this, lacks, 1, 10, 2));
-      final Traded goods[] = c.globalSurpluses();
-      jobs.add(DeliveryUtils.bestBulkCollectionFor(this, goods, 1, 10, 2));
+      final Traded lacks[] = cargo.shortageTypes();
+      final Traded goods[] = cargo.surplusTypes ();
+      if (report) {
+        I.say("  Goods lacked:  "+lacks.length);
+        for (Traded t : lacks) I.say("    "+t);
+        I.say("  Goods surplus: "+goods.length);
+        for (Traded t : goods) I.say("    "+t);
+      }
+      jobs.add(DeliveryUtils.bestBulkDeliveryFrom (this, goods, 1, 10, 2));
+      jobs.add(DeliveryUtils.bestBulkCollectionFor(this, lacks, 1, 10, 2));
     }
     choice.add(jobs.pickMostUrgent());
   }
@@ -207,7 +219,7 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     //  TODO:  REDUCE PRICES CHARGED IF YOU'RE DOCKED AT AN AIRFIELD WITH
     //  PROPER FUEL STOCKS.
     
-    final Commerce c = base.commerce;
+    final BaseCommerce c = base.commerce;
     if (c.localSurplus(service) > 0) return c.exportPrice(service);
     if (c.localShortage(service) > 0) return c.importPrice(service);
     return service.basePrice();
