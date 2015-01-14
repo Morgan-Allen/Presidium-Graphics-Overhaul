@@ -28,9 +28,10 @@ public interface TileConstants {
     T_DIAGONAL[] = {     NE,     SE,     SW,     NW  },
     //
     //  Used to indicate the direction of facing for linear installations-
-    X_AXIS = 0,
-    Y_AXIS = 1,
-    CORNER = 2;
+    X_AXIS =  0,
+    Y_AXIS =  1,
+    CORNER =  2,
+    UNUSED = -1;
   
   final public static String DIR_NAMES[] = {
     "North", "Northeast", "East", "Southeast",

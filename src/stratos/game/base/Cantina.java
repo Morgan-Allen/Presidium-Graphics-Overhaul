@@ -18,9 +18,7 @@ import static stratos.game.economic.Economy.*;
 
 
 
-public class Cantina extends Venue {
-  
-  
+public class Cantina extends Venue implements Performance.Theatre {
   
   /**  Constants, field definitions, constructors and save/load methods-
     */
@@ -52,6 +50,27 @@ public class Cantina extends Venue {
     "The Big Touchdown",
     "Bailey's Casket",
     "Duke's Descent",
+  };
+  
+  final static String SONG_NAMES[] = {
+    "Red Planet Blues, by Khal Segin & Tolev Zaller",
+    "It's Full Of Stars, by D. B. Unterhaussen",
+    "Take The Sky From Me, by Wedon the Elder",
+    "Men Are From Asra Novi, by The Ryod Sisters",
+    "Ode To A Hrexxen Gorn, by Ultimex 1450",
+    "Geodesic Dome Science Rap, by Sarles Matson",
+    "Stuck In The Lagrange Point With You, by Eniud Yi",
+    "Untranslatable Feelings, by Strain Variant Beta-7J",
+    "A Credit For Your Engram, by Tobul Masri Mk IV",
+    "Where Everyone Knows Your Scent Signature, by The Imperatrix",
+    "1011-0938-11AA1?, by Luci Odana",
+    "Pi Is The Loneliest Number, by Marec Bel",
+    "Zakharov And MG A Go Go, by Natalya Morgan-Skye",
+    "Procyon Nerve-Wipe Hymn, Traditional",
+    "The Very Best of Mandolin Hero 2047 Karaoke, by Various",
+  };
+  final static String EROTICS_NAMES[] = {
+    "Private Dance"
   };
   
   final static float
@@ -152,22 +171,29 @@ public class Cantina extends Venue {
   }
   
   
-  public void addServices(Choice choice, Actor forActor) {
+  public void addServices(Choice choice, Actor actor) {
     if (staff.numPresent(Backgrounds.PERFORMER) > 0) {
       choice.add(new Recreation(
-        forActor, this, Recreation.TYPE_SONG, SONG_TIP
+        actor, this, Recreation.TYPE_SONG, SONG_TIP
       ));
       choice.add(new Recreation(
-        forActor, this, Recreation.TYPE_EROTICS, LODGING_PRICE
+        actor, this, Recreation.TYPE_EROTICS, LODGING_PRICE
       ));
     }
     if (staff.numPresent(Backgrounds.SOMA_CHEF) > 0) {
-      choice.add(nextSomaOrderFor(forActor));
-      choice.add(nextGambleFor(forActor));
-      final Resting resting = new Resting(forActor, this);
+      choice.add(nextSomaOrderFor(actor));
+      choice.add(nextGambleFor(actor));
+      final Resting resting = new Resting(actor, this);
       resting.cost = (int) LODGING_PRICE;
       choice.add(resting);
     }
+  }
+  
+  
+  public String[] namesForPerformance(int type) {
+    if (type == Performance.TYPE_SONG   ) return SONG_NAMES   ;
+    if (type == Performance.TYPE_EROTICS) return EROTICS_NAMES;
+    return null;
   }
   
   

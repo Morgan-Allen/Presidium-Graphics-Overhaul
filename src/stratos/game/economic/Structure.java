@@ -31,12 +31,12 @@ public class Structure {
   public static interface Basis extends
     Session.Saveable, Target, Selectable, Accountable
   {
-    Base base();
-    int buildCost();
+    Base  base();
+    int   buildCost();
     Box2D footprint();
-    int owningType();
+    int   owningType();
 
-    Index<Upgrade> allUpgrades();
+    Index <Upgrade> allUpgrades();
     void onCompletion();
     void onDestruction();
     Structure structure();
@@ -311,6 +311,11 @@ public class Structure {
   
   public boolean regenerates() {
     return structureType == TYPE_ORGANIC;
+  }
+  
+  
+  public boolean isFixture() {
+    return structureType == TYPE_FIXTURE;
   }
   
   

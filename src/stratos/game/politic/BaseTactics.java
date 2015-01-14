@@ -53,8 +53,8 @@ import stratos.util.*;
 public class BaseTactics {
   
   protected static boolean
-    updatesVerbose = true ,
-    shortWaiting   = true ,
+    updatesVerbose = false,
+    shortWaiting   = false,
     extraVerbose   = false;
   protected static String
     verboseBase = Base.KEY_ARTILECTS;

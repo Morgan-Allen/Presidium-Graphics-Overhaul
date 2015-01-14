@@ -268,7 +268,8 @@ public interface Backgrounds {
       EXPERT, HAND_TO_HAND, SURVEILLANCE, STEALTH_AND_COVER,
       PRACTICED, NATIVE_TABOO, ATHLETICS,
       LEARNING, BATTLE_TACTICS, XENOZOOLOGY,
-      RARELY, NERVOUS, RELAXED, EMPATHIC, OFTEN, NATURALIST,
+      RARELY, NERVOUS, RELAXED, EMPATHIC, SOMETIMES, NATURALIST,
+      OFTEN, GENDER_MALE,
       ZWEIHANDER, STEALTH_SUIT
     ),
     
@@ -358,9 +359,9 @@ public interface Backgrounds {
     ),
     
     //  TODO:  Draw up a different set of art assets for this guy.
-    MECH_KNIGHT = new Background(
+    MECH_LEGION = new Background(
       Backgrounds.class,
-      "Trooper (Mech Knight)",
+      "Trooper (Mech Legion)",
       "",
       "militant_skin.gif", "militant_portrait.png",
       CLASS_FREEMEN, GUILD_MILITANT,
@@ -432,13 +433,32 @@ public interface Backgrounds {
     ),
     
     MILITARY_CIRCLES[] = {
-      VOLUNTEER, TROOPER  , MECH_KNIGHT,
+      VOLUNTEER, TROOPER  , MECH_LEGION,
       ENFORCER , PSI_CORPS, ANALYST    ,
       DECK_HAND, WINGMAN  , ACE        ,
     }
  ;
   
   final public static Background
+    
+    FABRICATOR = new Background(
+      Backgrounds.class,
+      "Fabricator", "", "citizen_skin.gif", "pyon_portrait.png",
+      CLASS_VASSAL, GUILD_AESTHETE,
+      PRACTICED, CHEMISTRY, HARD_LABOUR, LEARNING, GRAPHIC_DESIGN, HANDICRAFTS,
+      SOMETIMES, STUBBORN, NERVOUS,
+      OVERALLS
+    ),
+    
+    ARCOLOGIST = new Background(
+      Backgrounds.class,
+      "Arcologist", "", "citizen_skin.gif", "pyon_portrait.png",
+      CLASS_FREEMEN, GUILD_AESTHETE,
+      PRACTICED, GRAPHIC_DESIGN, CULTIVATION,
+      LEARNING, HARD_LABOUR, ASSEMBLY, CHEMISTRY,
+      RARELY, URBANE, SOMETIMES, AMBITIOUS, NATURALIST,
+      OVERALLS
+    ),
     
     PERFORMER = new Background(
       Backgrounds.class,
@@ -460,43 +480,14 @@ public interface Backgrounds {
       }
     },
     
-    FABRICATOR = new Background(
-      Backgrounds.class,
-      "Fabricator", "", "citizen_skin.gif", "pyon_portrait.png",
-      CLASS_VASSAL, GUILD_AESTHETE,
-      PRACTICED, CHEMISTRY, HARD_LABOUR, LEARNING, GRAPHIC_DESIGN, HANDICRAFTS,
-      SOMETIMES, STUBBORN, NERVOUS,
-      OVERALLS
-    ),
-    
-    ADVERTISER = new Background(
-      Backgrounds.class,
-      "Advertiser", "", "citizen_skin.gif", "pyon_portrait.png",
-      CLASS_FREEMEN, GUILD_AESTHETE,
-      EXPERT, GRAPHIC_DESIGN, SUASION,
-      PRACTICED, COUNSEL, SOCIAL_HISTORY,
-      LEARNING, ACCOUNTING, MUSIC_AND_SONG,
-      RARELY, URBANE, STUBBORN, SOMETIMES, AMBITIOUS,
-      OVERALLS
-    ),
-    /*
-    AESTHETE = new Background(
-      Backgrounds.class,
-      "Aesthete", "", "aesthete_male_skin.gif", "aesthete_portrait.png",
-      CLASS_FREEMEN, GUILD_AESTHETE,
-      EXPERT, GRAPHIC_DESIGN, PRACTICED, HANDICRAFTS, LEARNING, ANATOMY,
-      RARELY, STUBBORN, IMPASSIVE, OFTEN, INDULGENT,
-      FINERY
-    ),
-    //*/
     COMPANION = new Background(
       Backgrounds.class,
       "Companion", "", "aesthete_female_skin.gif", "aesthete_portrait.png",
-      CLASS_FREEMEN, NOT_A_GUILD,
+      CLASS_FREEMEN, GUILD_AESTHETE,
       EXPERT, EROTICS, COUNSEL, SUASION, MASQUERADE, NOBLE_ETIQUETTE,
       PRACTICED, DOMESTICS, MUSIC_AND_SONG, COMMAND, HAND_TO_HAND,
       ALWAYS, HANDSOME, OFTEN, EMPATHIC, TALL, RARELY, STOUT,
-      OFTEN, GENDER_FEMALE, FEMININE,
+      OFTEN, GENDER_FEMALE,
       FINERY
     ) {
       final ImageAsset
@@ -511,7 +502,7 @@ public interface Backgrounds {
       }
     },
     
-    AESTHETE_CIRCLES[] = { PERFORMER, FABRICATOR, ADVERTISER, COMPANION }
+    AESTHETE_CIRCLES[] = { FABRICATOR, ARCOLOGIST, PERFORMER, COMPANION }
  ;
   
   

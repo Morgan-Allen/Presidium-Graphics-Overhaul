@@ -74,8 +74,8 @@ public class EngineerStation extends Venue {
   final public static Upgrade
     ASSEMBLY_LINE = new Upgrade(
       "Assembly Line",
-      "Allows standardised parts and miniaturised circuitry to manufactured "+
-      "quickly and in greater abundance.",
+      "Allows standardised parts and miniaturised circuitry to be "+
+      "manufactured quickly and in greater abundance.",
       200,
       PARTS, 2, null,
       EngineerStation.class, ALL_UPGRADES
@@ -83,7 +83,7 @@ public class EngineerStation extends Venue {
     MOLDING_PRESS = new Upgrade(
       "Molding Press",
       "Allows materials to be recycled and sculpted to fit new purposes, "+
-      "reducing waste and pollution, and speeding production of custom parts.",
+      "thereby reducing waste and speeding production of custom parts.",
       150,
       PLASTICS, 1, null,
       EngineerStation.class, ALL_UPGRADES

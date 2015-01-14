@@ -12,7 +12,7 @@ import stratos.game.base.*;
 import stratos.game.wild.*;
 import stratos.user.*;
 import stratos.util.*;
-import static stratos.game.actors.Qualities.*;
+//import static stratos.game.actors.Qualities.*;
 import stratos.graphics.common.Colour;
 
 
@@ -117,7 +117,7 @@ public class DebugSocial extends Scenario {
     other  .motives.setSolitude(1);
     
     final Dialogue d = new Dialogue(citizen, other);
-    d.setMotive(Plan.MOTIVE_LEISURE, Plan.PARAMOUNT);
+    //d.setMotive(Plan.MOTIVE_LEISURE, 0);
     citizen.mind.assignBehaviour(d);
     UI.selection.pushSelection(citizen, true);
     //*/

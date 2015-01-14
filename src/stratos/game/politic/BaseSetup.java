@@ -13,8 +13,6 @@ import stratos.game.plans.*;
 
 
 
-
-
 public class BaseSetup {
   
   /**  Placement of assorted structure types based on internal demand:
@@ -184,6 +182,10 @@ public class BaseSetup {
   
   private void rankSectionPlacings(Venue samples[], boolean report) {
     placings.clear();
+    if (report) {
+      I.say("\nAttempting to gather section rankings...");
+      I.say("  Time: "+base.world.currentTime());
+    }
     
     for (StageSection section : world.sections.sectionsUnder(world.area())) {
       for (Venue sample : samples) {

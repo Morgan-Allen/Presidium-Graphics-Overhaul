@@ -5,6 +5,7 @@ import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.economic.Venue;
 import stratos.game.plans.Audit;
+import stratos.user.BaseUI;
 import stratos.util.*;
 
 
@@ -25,8 +26,11 @@ import stratos.util.*;
 public class BaseRelations {
   
   
-  final Base base;
   
+  private static boolean
+    verbose = true;
+  
+  final Base base;
   final Table <Accountable, Relation>
     baseRelations = new Table();
   private int
@@ -123,6 +127,7 @@ public class BaseRelations {
     if (other == null) return 0;
     if (other == base) return 1;
     final Relation r = baseRelations.get(other);
+    
     if (r == null) {
       final float initR = Setting.defaultRelations(base, other);
       setRelation(other, initR, false);

@@ -1,5 +1,8 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.start;
 import stratos.game.common.*;
 import stratos.game.politic.*;
@@ -10,15 +13,17 @@ import stratos.user.*;
 import stratos.util.*;
 
 
-//  TODO:  Initial native relations should be neutral (on their part.)
 
-//  Ideally, hiring arrangements should have some kind of progress meter?
-
-//  TODO:  Test the stock exchange, and re-introduce the arcology & edifice.
-//  Assign drills directly at the trooper lodge.  That'll keep 'em busy!
+//  TODO:  Test the stock exchange plus upgrades for the supply depot.
+//         Also, figure out how to get carbons and use spyces.
 
 //  TODO:  Merge the summons-dialogue system with the Contact mission.  It's
 //  much more natural that way.
+
+//  TODO:  Assign drills directly at the trooper lodge, plus call to arms.
+//         Also, something for the Air Corps to do- like bomb runs.
+
+//  Ideally, hiring arrangements should have some kind of progress meter?
 
 //  TODO:  Retreat should have the possibility to break pursuit as well.
 //  TODO:  Also, animals should react more strongly to strangers (either fight,
@@ -26,6 +31,9 @@ import stratos.util.*;
 
 //  TODO:  Introduce hunting by the natives, and allow trading with them as a
 //  source of carbs/greens/protein.  (Also, add singer performance.)
+
+//  Have arcologies actually grow over time, if you have enough water.
+//  TODO:  HAVE DISPLAYS FOR TOTAL SUPPLY/DEMAND OF WATER/POWER/ETC.
 
 //  Introduce a finance-report UI!  And try to get all the details.
 //  Try to arrange that actors will seek out new Holdings if anything existing

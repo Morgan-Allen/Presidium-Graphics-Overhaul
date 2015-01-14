@@ -265,6 +265,7 @@ public class Selection implements UIConstants {
     Colour c, ImageAsset texture,
     boolean cache, Object key
   ) {
+    final boolean report = false;
     TerrainChunk overlay = null;
     
     if (cache && recentOverlays.includes(key)) {
@@ -277,8 +278,10 @@ public class Selection implements UIConstants {
         radius * 2,
         radius * 2
       );
-      I.say("\nOverlay area is: "+area);
-      I.say("  Position: "+pos+", radius: "+radius);
+      if (report) {
+        I.say("\nOverlay area is: "+area);
+        I.say("  Position: "+pos+", radius: "+radius);
+      }
       
       final float
         xp = area.xpos(), yp = area.ypos(),

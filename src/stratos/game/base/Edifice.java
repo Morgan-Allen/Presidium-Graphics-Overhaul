@@ -27,9 +27,9 @@ import static stratos.game.economic.Economy.*;
 
 public class Edifice extends Venue {
   
-
+  
   final static ModelAsset MODEL = CutoutModel.fromImage(
-    EngineerStation.class, "media/Buildings/aesthete/edifice.png", 4, 2
+    EngineerStation.class, "media/Buildings/aesthete/edifice.png", 3, 2
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
     Edifice.class, "media/GUI/Buttons/edifice_button.gif"
@@ -69,7 +69,7 @@ public class Edifice extends Venue {
   
   
   public Edifice(Base base) {
-    super(4, 2, ENTRANCE_NONE, base);
+    super(3, 2, ENTRANCE_NONE, base);
     structure.setupStats(
       500, 50, 800, 0, Structure.TYPE_FIXTURE
     );

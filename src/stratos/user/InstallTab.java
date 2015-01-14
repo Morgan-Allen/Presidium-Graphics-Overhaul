@@ -148,7 +148,8 @@ public class InstallTab extends SelectionInfoPane {
     else venue.assignBase(UI.played());
     
     final InstallTask task = new InstallTask();
-    task.UI = UI;
+    task.tab  = this;
+    task.UI   = UI;
     task.type = type;
     task.toInstall = venue;
     UI.beginTask(task);
@@ -157,6 +158,7 @@ public class InstallTab extends SelectionInfoPane {
   
   static class InstallTask implements UITask {
     
+    InstallTab tab;
     BaseUI UI;
     Class type;
     Structure.Basis toInstall;
@@ -183,6 +185,7 @@ public class InstallTab extends SelectionInfoPane {
       if (canPlace && UI.mouseClicked()) {
         for (Structure.Basis i : group) i.doPlacement();
         UI.endCurrentTask();
+        if (group[0].structure().isFixture()) tab.initInstallTask(UI, type);
       }
       else for (Structure.Basis i : group) {
         i.previewPlacement(canPlace, UI.rendering);
@@ -200,6 +203,8 @@ public class InstallTab extends SelectionInfoPane {
     }
   }
 }
+
+
 
 
 /*

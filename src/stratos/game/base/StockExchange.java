@@ -19,10 +19,9 @@ import static stratos.game.economic.Economy.*;
 
 
 //
-//  TODO:  Implement Bulk Storage and Credits Reserve upgrades.
+//  TODO:  Implement Vault Security and Virtual Currency upgrades.
 
 public class StockExchange extends Venue {
-  
   
   /**  Data fields, constructors and save/load functionality-
     */
@@ -32,7 +31,6 @@ public class StockExchange extends Venue {
   final public static ImageAsset ICON = ImageAsset.fromImage(
     StockExchange.class, "media/GUI/Buttons/stock_exchange_button.gif"
   );
-  
   /*
   final static FacilityProfile PROFILE = new FacilityProfile(
     StockExchange.class, Structure.TYPE_VENUE,
@@ -196,8 +194,8 @@ public class StockExchange extends Venue {
       StockExchange.class, ALL_UPGRADES
     ),
     
-    BULK_STORAGE = new Upgrade(
-      "Bulk Storage",
+    VAULT_SECURITY = new Upgrade(
+      "Vault Security",
       "Expands inventory space for all goods and provides a measure of "+
       "security against theft.",
       200, null, 1, null,
@@ -213,11 +211,11 @@ public class StockExchange extends Venue {
     ),
     
     CREDITS_RESERVE = new Upgrade(
-      "Credits Adjustmemt",
+      "Credits Reserve",
       "Allows your subjects to deposit their hard-earned savings and take out "+
       "temporary loans, while investing a portion of profits to augment "+
       "revenue.",
-      400, null, 1, BULK_STORAGE,
+      400, null, 1, VAULT_SECURITY,
       StockExchange.class, ALL_UPGRADES
     );
   
@@ -272,9 +270,17 @@ public class StockExchange extends Venue {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     
-    //  TODO:  Arrange for barges to be recovered if left unattended!
+    //  TODO:  Arrange for barges to be recovered if left unattended.
     cargoBarge.setHangar(this);
     
+    //  So... how do I determine how Trade-depots behave?  Well, in principle
+    //  those long-range deliveries should do the job okay- they'll pick up on
+    //  the differences in shortage/surplus at A and B, and bring in goods to
+    //  redress the balance.
+    
+    //  ...You just have to implement that at the venue itself.  Yes.
+    
+    /*
     final Batch <Venue> depots = DeliveryUtils.nearbyDepots(
       this, world, SERVICE_COMMERCE
     );
@@ -286,6 +292,7 @@ public class StockExchange extends Venue {
       stocks.incDemand(type, room / 2f, TIER_TRADER, 1);
       //stocks.diffuseDemand(type, depots, 1);
     }
+    //*/
   }
   
   
