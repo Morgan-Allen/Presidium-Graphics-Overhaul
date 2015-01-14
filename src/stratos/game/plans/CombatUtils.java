@@ -93,7 +93,7 @@ public class CombatUtils {
   
   public static float hostileRating(Actor actor, Target near) {
     final boolean report = dangerVerbose && I.talkAbout == actor;
-    
+    //
     //  Only consider conscious actors as capable of hostility.  Then, by
     //  default, base the rating off intrinsic dislike of the subject.
     if (! (near instanceof Actor)) return 0;
@@ -103,7 +103,7 @@ public class CombatUtils {
     final ActorRelations relations = actor.relations;
     float rating = 0 - relations.valueFor(other);
     if (report) I.say("\n  "+near+" dislike rating: "+rating);
-    
+    //
     //  However, this is modified by the context of the subject's behaviour.
     //  If they are doing something harmful to another the actor cares about,
     //  (including self), then up the rating.
@@ -112,19 +112,16 @@ public class CombatUtils {
       harmDone    = other.harmIntended(victim),
       protectUrge = harmDone * relations.valueFor(victim);
     rating += protectUrge;
+    if (victim == actor && harmDone > 0) rating += 0.5f;
     
     if (report) {
       I.say("  Victim: "+victim+", value: "+relations.valueFor(victim));
       I.say("  Protect urge: "+protectUrge);
     }
-    
-    //  Include a penalty if the subject is unarmed, based on ethics.
-    //  TODO:  This might belong in the priority-method for Combat, rather than
-    //  here?
-    if (! isArmed(other)) {
-      rating /= 1 + (actor.traits.relativeLevel(ETHICAL) * 2);
-    }
-    
+    //
+    //  Include a penalty if the subject is unarmed.
+    if (rating < 1 && ! isArmed(other)) rating -= 1 - rating;
+    //
     //  Limit to the range of +/-1, and return.
     return Nums.clamp(rating, -1, 1);
   }
@@ -249,6 +246,7 @@ public class CombatUtils {
     final boolean melee = actor.gear.meleeWeapon();
     Target best = asThreat ? primary : null;
     float bestValue = asThreat ? (hostileRating(actor, primary) * 1.5f) : 0;
+    if (best != null) bestValue = Nums.max(bestValue, 0.5f);
     
     for (Target t : actor.senses.awareOf()) {
       final float distance = Spacing.distance(t, actor);

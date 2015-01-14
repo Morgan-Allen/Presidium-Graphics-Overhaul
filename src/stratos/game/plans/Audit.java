@@ -22,7 +22,7 @@ public class Audit extends Plan {
   /**  Data fields, constructors and save/load functions-
     */
   private static boolean
-    evalVerbose  = true ,
+    evalVerbose  = false,
     stepsVerbose = false;
   
   public static enum Type {

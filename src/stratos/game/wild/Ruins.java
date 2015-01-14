@@ -171,7 +171,6 @@ public class Ruins extends Venue {
   
   
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
-    //return VenueDescription.configStandardPanel(this, panel, UI);
     return VenueDescription.configSimplePanel(this, panel, UI, null);
   }
   

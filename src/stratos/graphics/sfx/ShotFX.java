@@ -31,19 +31,18 @@ public class ShotFX extends SFX {
     public Model(
       String modelName, Class modelClass,
       String texName,
-      float period, float arc,
-      float width, float length,
+      float period   , float arc    ,
+      float width    , float length ,
       boolean repeats, boolean vivid
     ) {
       super(modelName, modelClass);
       this.texName = texName;
-      //this.tex = Texture.loadTexture(texName);
-      this.period = period;
-      this.arc = arc;
-      this.width = width;
-      this.length = length;
+      this.period  = period ;
+      this.arc     = arc    ;
+      this.width   = width  ;
+      this.length  = length ;
       this.repeats = repeats;
-      this.vivid = vivid;
+      this.vivid   = vivid  ;
     }
     
     public boolean isLoaded() {
@@ -135,6 +134,7 @@ public class ShotFX extends SFX {
   
   
   protected void renderInPass(SFXPass pass) {
+    final boolean report = false;
     
     //  First, we need to determine what the 'perp' angle should be (as in,
     //  perpendicular to the line of the beam, as perceived by the viewer.)
@@ -168,6 +168,13 @@ public class ShotFX extends SFX {
       numParts = (Rendering.activeTime() - inceptTime) / model.period;
       partLen = model.length;
       c = Colour.transparency(1f / (1 + numParts));
+    }
+    
+    if (report) {
+      I.say("\nRendering shot FX...");
+      I.say("  Model ID:  "+model.texName);
+      I.say("  Num parts: "+numParts);
+      I.say("  Period:    "+model.period);
     }
 
     // Now render the beam itself-

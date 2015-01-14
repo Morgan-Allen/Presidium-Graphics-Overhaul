@@ -161,14 +161,15 @@ public abstract class Actor extends Mobile implements
     */
   public void assignAction(Action action) {
     final boolean report = verbose && I.talkAbout == this;
-    
     if (report) {
       I.say("\nASSIGNING ACTION: "+I.tagHash(action));
       I.say("  Previous action: "+I.tagHash(actionTaken));
       if (actionTaken != null) I.say("  Finished? "+actionTaken.finished());
     }
     
+    world.activities.registerFocus(actionTaken, false);
     this.actionTaken = action;
+    world.activities.registerFocus(actionTaken, true );
     if (actionTaken != null) actionTaken.updateAction(false);
   }
   

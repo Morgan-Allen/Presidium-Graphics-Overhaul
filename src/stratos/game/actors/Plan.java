@@ -348,10 +348,12 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   public static void reportPlanDetails(Behaviour b, Actor a) {
     if (b == null) { I.say("  IS NULL"); return; }
-    I.say("  Valid:     "+b.valid());
-    I.say("  Finished:  "+b.finished());
-    I.say("  Next step: "+b.nextStepFor(a));
-    I.say("  Persists?  "+b.persistent());
+    I.say("    Valid:         "+b.valid());
+    I.say("    Finished:      "+b.finished());
+    I.say("    Next step:     "+b.nextStepFor(a));
+    I.say("    Persists?      "+b.persistent());
+    I.say("    Target is:     "+b.subject());
+    I.say("    Target extant? "+b.subject().inWorld());
   }
   
   

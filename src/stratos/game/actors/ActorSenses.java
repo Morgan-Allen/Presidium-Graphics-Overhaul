@@ -152,10 +152,8 @@ public class ActorSenses implements Qualities {
     if (focus instanceof Element) {
       noticed.include(focus);
     }
-    for (Behaviour b : world.activities.activePlanMatches(actor, null)) {
-      if (b instanceof Action) {
-        noticed.include(((Action) b).actor);
-      }
+    for (Action a : world.activities.actionMatches(actor)) {
+      noticed.include(a.actor());
     }
     //
     //  And add anything newly within range-
@@ -172,6 +170,18 @@ public class ActorSenses implements Qualities {
   private boolean notices(Target e, final float sightRange, float hideBonus) {
     if (e == null || e == actor) return false;
     final boolean report = noticeVerbose && I.talkAbout == actor;
+    if (report) I.say("\nChecking to notice: "+e);
+    
+    //*
+    //  TODO:  TEMPORARY KLUGE, WORK OUT LATER
+    if (e instanceof Actor) {
+      final Actor a = (Actor) e;
+      if (a.actionFocus() == actor) {
+        if (report) I.say("\nHave noticed "+e+" (is targeting self)");
+        return true;
+      }
+    }
+    //*/
     
     final float distance = Spacing.distance(e, actor);
     final Base  base     = actor.base();

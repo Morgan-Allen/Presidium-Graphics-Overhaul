@@ -24,8 +24,8 @@ public class Activities {
     verbose     = false;
   
   final Stage world;
-  final Table <Target, List <Plan>> activeTable = new Table(1000);
-  final Table <Plan  , Target     > activeFoci  = new Table(1000);
+  final Table <Target   , List <Behaviour>> activeTable = new Table(1000);
+  final Table <Behaviour, Target          > activeFoci  = new Table(1000);
   
   
   public Activities(Stage world) {
@@ -34,26 +34,16 @@ public class Activities {
   
   
   public void loadState(Session s) throws Exception {
-    final boolean report = saveVerbose;
+    //final boolean report = saveVerbose;
     
     for (int n = s.loadInt(); n-- > 0;) {
       final Target t = s.loadTarget();
-      final List <Plan> l = new List <Plan> ();
+      final List <Behaviour> l = new List <Behaviour> ();
       s.loadObjects(l);
       activeTable.put(t, l);
-      //
-      //  Safety checks for can't-happen events-
-      if (report) {
-        if (! t.inWorld()) for (Plan a : l) {
-          if (! a.actor().inWorld()) {
-            I.say("  "+a+" BELONGS TO DEAD ACTOR!");
-            l.remove(a);
-          }
-        }
-      }
     }
     for (int n = s.loadInt(); n-- > 0;) {
-      final Plan b = (Plan) s.loadObject();
+      final Behaviour b = (Behaviour) s.loadObject();
       final Target f = s.loadTarget();
       activeFoci.put(b, f);
     }
@@ -73,9 +63,9 @@ public class Activities {
     }
     s.saveInt(activeFoci.size());
     
-    for (Entry <Plan, Target> entry : activeFoci.entrySet()) {
+    for (Entry <Behaviour, Target> entry : activeFoci.entrySet()) {
       if (report) {
-        I.say("  Plan:  "+entry.getKey  ());
+        I.say("  Behaviour:  "+entry.getKey  ());
         I.say("  Focus: "+entry.getValue());
       }
       s.saveObject(entry.getKey  ());
@@ -88,17 +78,17 @@ public class Activities {
   /**  Asserting and asking after action registrations-
     */
   public void registerFocus(Behaviour b, boolean is) {
-    if (! (b instanceof Plan)) return;
-    registerFocus((Plan) b, b.subject(), is);
+    if (b == null) return; 
+    registerFocus(b, b.subject(), is);
   }
   
   
-  public void registerFocus(Plan b, Target focus, boolean is) {
+  public void registerFocus(Behaviour b, Target focus, boolean is) {
     if (b == null) return;
     final Target oldFocus = activeFoci.get(b);
     
     final boolean report = verbose && (
-      I.talkAbout == b.actor() ||
+      //I.talkAbout == b.actor() ||
       I.talkAbout == focus ||
       I.talkAbout == oldFocus
     );
@@ -106,10 +96,10 @@ public class Activities {
     if (oldFocus != null) {
       if (report) {
         I.say("\nRemoving old focus for "+b);
-        I.say("  Focus was: "+oldFocus+" for "+b.actor());
+        I.say("  Focus was: "+oldFocus);
       }
       activeFoci.remove(b);
-      final List <Plan> active = activeTable.get(oldFocus);
+      final List <Behaviour> active = activeTable.get(oldFocus);
       active.remove(b);
       if (active.size() == 0) activeTable.remove(oldFocus);
     }
@@ -117,11 +107,14 @@ public class Activities {
     if (is) {
       if (report) {
         I.say("\nRegistering new focus for "+b);
-        I.say("  Focus is: "+focus+" for "+b.actor());
+        I.say("  Focus is: "+focus);
       }
       activeFoci.put(b, focus);
-      List <Plan> active = activeTable.get(focus);
-      if (active == null) activeTable.put(focus, active = new List <Plan> ());
+      List <Behaviour> active = activeTable.get(focus);
+      if (active == null) {
+        active  = new List <Behaviour> ();
+        activeTable.put(focus, active);
+      }
       active.include(b);
     }
   }
@@ -132,11 +125,11 @@ public class Activities {
   }
   
   
-  public Batch <Plan> allTargeting(Target t) {
-    final Batch <Plan> batch = new Batch <Plan> ();
-    final List <Plan> onTarget = activeTable.get(t);
+  public Batch <Behaviour> allTargeting(Target t) {
+    final Batch <Behaviour> batch = new Batch <Behaviour> ();
+    final List <Behaviour> onTarget = activeTable.get(t);
     if (onTarget == null) return batch;
-    for (Plan b : onTarget) batch.add(b);
+    for (Behaviour b : onTarget) batch.add(b);
     return batch;
   }
   
@@ -148,11 +141,25 @@ public class Activities {
   
   public Batch <Plan> activePlanMatches(Target t, Class planClass) {
     final Batch <Plan> batch = new Batch <Plan> ();
-    final List <Plan> onTarget = activeTable.get(t);
+    final List <Behaviour> onTarget = activeTable.get(t);
     if (onTarget == null) return batch;
-    for (Plan b : onTarget) {
-      if (planClass != null && b.getClass() != planClass) continue;
-      if (b.actor.actionFocus() == t) batch.add(b);
+    for (Behaviour b : onTarget) if (b instanceof Plan) {
+      final Plan p = (Plan) b;
+      if (planClass != null && p.getClass() != planClass) continue;
+      if (p.actor.actionFocus() == t) batch.add(p);
+    }
+    return batch;
+  }
+  
+  
+  public Batch <Action> actionMatches(Target t) {
+    final Batch <Action> batch = new Batch <Action> ();
+    final List <Behaviour> onTarget = activeTable.get(t);
+    if (onTarget == null) return batch;
+    for (Behaviour b : onTarget) if (b instanceof Action) {
+      final Action a = (Action) b;
+      if (! a.hasBegun()) continue;
+      batch.add(a);
     }
     return batch;
   }

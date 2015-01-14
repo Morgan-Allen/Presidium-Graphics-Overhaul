@@ -3,16 +3,12 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
-
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
-import stratos.game.wild.Flora;
-import stratos.game.wild.Species;
+import stratos.game.wild.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
@@ -84,14 +80,13 @@ public class Foraging extends Plan {
     if (store == null && hunger <= 0) done = true;
     if (done) return 0;
     
-    if (source == null || source.destroyed()) {
+    if (! sourceValid()) {
       source = Forestry.findCutting(actor);
-      if (source == null) return 0;
+      if (! sourceValid()) return 0;
     }
+    
     final float modifier = NO_MODIFIER + (hunger * ROUTINE);
-    
     //  TODO:  Base off store-shortage?
-    
     final float priority = priorityForActorWith(
       actor, source,
       hunger * PARAMOUNT, modifier,
@@ -116,6 +111,10 @@ public class Foraging extends Plan {
   }
   
   
+  private boolean sourceValid() {
+    return source != null && source.inWorld() && ! source.destroyed();
+  }
+  
   
   private float storeShortage() {
     if (store == null) return 1;
@@ -131,26 +130,13 @@ public class Foraging extends Plan {
   
   public Behaviour getNextStep() {
     if (done) return null;
-    final float shortage = storeShortage();
-    if (shortage > 0 && (source == null || source.destroyed())) {
-      source = Forestry.findCutting(actor);
-      if (! source.inWorld()) {
-        I.complain("SOURCE FOR FORAGE NOT IN WORLD: "+source.origin());
-        return null;
-      }
-      if (source == null) return null;
-    }
+
     final float harvest = sumHarvest();
-    if (shortage > 0 && harvest < 1 && source != null) {
-      final Action forage = new Action(
-        actor, source,
-        this, "actionForage",
-        Action.BUILD, "Foraging"
-      );
-      forage.setMoveTarget(Spacing.nearestOpenTile(source, actor));
-      return forage;
-    }
-    else if (store != null && harvest > 0) {
+    final boolean gone = ! sourceValid();
+    
+    if (gone || harvest >= 1) {
+      if (store == null) return null;
+      
       final Action returns = new Action(
         actor, store,
         this, "actionReturnHarvest",
@@ -158,7 +144,22 @@ public class Foraging extends Plan {
       );
       return returns;
     }
-    return null;
+    
+    final float shortage = storeShortage();
+    if (shortage <= 0) return null;
+    
+    if (gone) {
+      source = Forestry.findCutting(actor);
+      if (! sourceValid()) return null;
+    }
+
+    final Action forage = new Action(
+      actor, source,
+      this, "actionForage",
+      Action.BUILD, "Foraging"
+    );
+    forage.setMoveTarget(Spacing.nearestOpenTile(source, actor));
+    return forage;
   }
   
   

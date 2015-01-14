@@ -18,7 +18,8 @@ public class ActorRelations {
   /**  Data fields, constructors and save/load methods-
     */
   private static boolean
-    verbose = false;
+    verbose      = false,
+    extraVerbose = false;
   
   final public static float
     INIT_NOVELTY     = 1.0f,
@@ -69,9 +70,12 @@ public class ActorRelations {
       final Actor  other   = (Actor) t;
       final Target affects = other.planFocus(null, true);
       if (affects == null || other.isDoing(Dialogue.class, affects)) continue;
+      
+      //  TODO:  Have 'spite' factor into this- e.g, so that helping an enemy
+      //  counts as harm?
       final float
         harm   = other.harmIntended(affects),
-        cares  = valueFor(affects),
+        cares  = Nums.clamp(valueFor(affects), 0, 1),
         impact = Nums.abs(harm * cares);
       if (report) {
         I.say("  Observed "+other+" doing "+other.currentAction());

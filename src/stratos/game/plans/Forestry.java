@@ -372,12 +372,20 @@ public class Forestry extends Plan {
   
   
   public static Flora findCutting(Actor actor) {
-    if (Rand.yes()) return (Flora) actor.world().presences.randomMatchNear(
+    
+    Flora cuts = null;
+    if (Rand.yes()) cuts = (Flora) actor.world().presences.randomMatchNear(
       Flora.class, actor, Stage.SECTOR_SIZE
     );
-    return (Flora) actor.world().presences.nearestMatch(
+    if (cuts == null) cuts = (Flora) actor.world().presences.nearestMatch(
       Flora.class, actor, Stage.SECTOR_SIZE
     );
+    if (cuts == null) return null;
+    if (! cuts.inWorld()) {
+      I.say("\nWARNING: FLORA TO CUT NOT IN WORLD: "+cuts);
+      return null;
+    }
+    return cuts;
     /*
     Series <Target> sample = actor.world().presences.sampleFromKey(
       actor, actor.world(), 10, null, Flora.class

@@ -130,8 +130,8 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
       I.say("  Going to: "+onPoint+", post time: "+postTime);
     }
     
-    final Stage      world   = actor.world();
-    final Activities actives = world.activities;
+    final Stage world = actor.world();
+    //final Activities actives = world.activities;
     Target stop = onPoint;
     
     //  First, check to see if there are any supplemental behaviours you could
@@ -141,12 +141,16 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     final Choice choice = new Choice(actor);
     final float range = actor.health.sightRange() + 1;
     choice.isVerbose = report;
-    for (Target t : actor.senses.awareOf()) {
+    
+    //for (Target t : actor.senses.awareOf()) {
+    for (Action a : world.activities.actionMatches(guarded)) {
+      final Actor t = a.actor();
       if (! CombatUtils.isActiveHostile(actor, t)) continue;
       final float dist = Spacing.distance(t, guarded) / range;
       final float bonus = Plan.ROUTINE * (1 - dist);
       choice.add(new Combat(actor, (Element) t).setMotiveFrom(this, bonus));
     }
+    
     if (guarded instanceof Actor) {
       choice.add(new FirstAid(actor, (Actor) guarded).setMotiveFrom(this, 0));
     }

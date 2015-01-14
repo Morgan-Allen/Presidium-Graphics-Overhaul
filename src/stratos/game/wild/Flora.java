@@ -183,8 +183,7 @@ public class Flora extends Element implements TileConstants {
   
   
   public boolean enterWorldAt(int x, int y, Stage world) {
-    if (!super.enterWorldAt(x, y, world))
-      return false;
+    if (! super.enterWorldAt(x, y, world)) return false;
     world.presences.togglePresence(this, true);
     return true;
   }

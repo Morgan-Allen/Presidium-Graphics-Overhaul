@@ -22,50 +22,53 @@ public class Setting {
   private Setting() {
     //  TODO:  Finish these up, and create some dedicated classes for the
     //  purpose.
+    setRelations(Base.KEY_ARTILECTS, -1.0f, (Object[]) ALL_PLANETS);
+    setRelations(Base.KEY_NATIVES  ,  0.0f, (Object[]) ALL_PLANETS);
+    setRelations(Base.KEY_WILDLIFE ,  0.0f, (Object[]) ALL_PLANETS);
     
     //  House Altair-
     //    Enemies:  Rigel-Procyon and Taygeta, Hive Urym
     //    Allies:  Fomalhaut and Calivor
     //    Bonus to Commoner relations, penalty to Noble and Native relations
-    setRelations(PLANET_HALIBAN, true,
-      Base.KEY_NATIVES, -0.25f,
-      Base.KEY_ARTILECTS, -0.5f,
-      Base.KEY_WILDLIFE, 0.0f,
+    setRelations(PLANET_HALIBAN, false,
+      Base.KEY_NATIVES  , -0.25f,
+      Base.KEY_ARTILECTS, -0.5f ,
+      Base.KEY_WILDLIFE ,  0.0f ,
       
-      PLANET_AXIS_NOVENA, -0.25f,
-      PLANET_PAREM_V, -0.5f,
-      PLANET_URYM_HIVE, -0.25f,
-      PLANET_SOLIPSUS_VIER, 0.25f,
-      PLANET_CALIVOR, 0.5f
+      PLANET_AXIS_NOVENA  , -0.25f,
+      PLANET_PAREM_V      , -0.5f ,
+      PLANET_URYM_HIVE    , -0.25f,
+      PLANET_SOLIPSUS_VIER,  0.25f,
+      PLANET_CALIVOR      ,  0.5f
     );
     
     //  House Suhail-
     //    Enemies:  Rigel-Procyon and Fomalhaut, Hive Urym
     //    Allies:  Ophiuchus-Rana
     //    Bonus to Native relations
-    setRelations(PLANET_ASRA_NOVI, true,
-      Base.KEY_NATIVES, 0.4f,
+    setRelations(PLANET_ASRA_NOVI, false,
+      Base.KEY_NATIVES  ,  0.4f ,
       Base.KEY_ARTILECTS, -0.75f,
-      Base.KEY_WILDLIFE, 0.2f,
+      Base.KEY_WILDLIFE ,  0.2f ,
       
       PLANET_SOLIPSUS_VIER, -0.25f,
-      PLANET_PAREM_V, -0.5f,
-      PLANET_URYM_HIVE, -0.25f,
-      PLANET_NORUSEI, 0.5f
+      PLANET_PAREM_V      , -0.5f ,
+      PLANET_URYM_HIVE    , -0.25f,
+      PLANET_NORUSEI      ,  0.5f
     );
     
     //  House Rigel-Procyon-
     //    Enemies:  Altair and Fomalhaut, Calivor
     //    Allies:  Hive Urym
     //    Bonus to Artilect relations, penalty to Commoner relations
-    setRelations(PLANET_PAREM_V, true,
-      Base.KEY_NATIVES, 0.0f,
-      Base.KEY_ARTILECTS, 0.25f,
-      Base.KEY_WILDLIFE, -0.2f,
+    setRelations(PLANET_PAREM_V, false,
+      Base.KEY_NATIVES  ,  0.0f ,
+      Base.KEY_ARTILECTS,  0.25f,
+      Base.KEY_WILDLIFE , -0.2f ,
       
-      PLANET_HALIBAN, -0.5f,
+      PLANET_HALIBAN      , -0.5f ,
       PLANET_SOLIPSUS_VIER, -0.25f,
-      PLANET_URYM_HIVE, 0.65f
+      PLANET_URYM_HIVE    ,  0.65f
     );
   }
   
@@ -86,6 +89,12 @@ public class Setting {
         setRelation(a, k, (Float) v, symmetric);
       }
       else I.complain("ILLEGAL RELATION TYPE: "+v+" FOR "+k);
+    }
+  }
+  
+  void setRelations(Object a, float value, Object... others) {
+    for (Object k : others) {
+      setRelation(a, k, value, false);
     }
   }
   

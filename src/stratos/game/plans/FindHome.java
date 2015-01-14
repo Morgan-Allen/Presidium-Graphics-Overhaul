@@ -22,7 +22,7 @@ public class FindHome extends Plan {
   /**  Data fields, constructors, and save/load methods-
     */
   private static boolean
-    verbose = true ;
+    verbose = false;
   
   final Property newHome;
   
@@ -112,27 +112,31 @@ public class FindHome extends Plan {
     
     Work in vehicle:  Cannot move out, must live there.
   //*/
+  
+  //  TODO:  Use some modification of this for the getPriority() method?
+  
   private static float rateHolding(Actor actor, Property newHome) {
     if (newHome == null || newHome.base() != actor.base()) return -1;
-    if (crowdingAt(newHome, actor) >= 1) return -1;
     
+    //  NOTE:  We allow maximum crowding at the current home venue, or capacity
+    //  will never be filled
     final Property oldHome = actor.mind.home();
+    if (oldHome != newHome && crowdingAt(newHome, actor) >= 1) return -1;
+    
     float rating = 0;
     if (oldHome == null   ) rating += ROUTINE;
     if (newHome == oldHome) rating += DEFAULT_SWITCH_THRESHOLD;
     if (newHome == actor.mind.work()) return rating + PARAMOUNT;
     
     if (newHome instanceof Holding) {
-      //  TODO:  Figure out what the exact taxation scheme at home ought to be,
-      //         and work it in here.
       final float UL = ((Holding) newHome).upgradeLevel();
-      /*
-      final float
-        UL     = ((Holding) newHome).upgradeLevel(),
-        TL     = HoldingUpgrades.TAX_LEVELS[(int) UL] / 100f;
-      rating -= ActorMotives.greedPriority(actor, TL);
-      //*/
       rating += ROUTINE * UL / HoldingUpgrades.NUM_LEVELS;
+      //
+      //  TODO:  Figure out what the exact taxation scheme at home ought to be-
+      //         possibly outsource to the Audit class?
+      float credsPerDay = actor.base().profiles.profileFor(actor).salary();
+      credsPerDay *= 0.5f / Backgrounds.NUM_DAYS_PAY;
+      rating -= ActorMotives.greedPriority(actor, credsPerDay);
     }
     
     final Series <Actor> residents = newHome.staff().residents();

@@ -6,6 +6,8 @@
 package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.game.politic.*;
+import stratos.start.PlayLoop;
+import stratos.user.BaseUI;
 import stratos.util.*;
 import stratos.game.wild.Species;
 import stratos.game.economic.Property;
@@ -19,7 +21,8 @@ public abstract class ActorMind implements Qualities {
     */
   private static boolean
     decisionVerbose = Choice.mindVerbose,
-    stepsVerbose    = Choice.mindVerbose;
+    stepsVerbose    = Choice.mindVerbose,
+    warnVerbose     = true;
   
   
   final protected Actor actor;
@@ -138,54 +141,61 @@ public abstract class ActorMind implements Qualities {
   
   public Action getNextAction() {
     final boolean report = I.talkAbout == actor && stepsVerbose;
-    //
-    //  Firstly, check to ensure that our root behaviour is still valid- if
-    //  not, you'll need to pick out a new one:
-    Behaviour root = rootBehaviour();
-    if (report) {
-      I.say("\nGETTING NEXT ACTION FOR "+actor);
-      I.say("  Current root behaviour: "+I.tagHash(root));
-    }
-    if (! Plan.canFollow(actor, root)) {
-      if (Plan.canPersist(root)) todoList.add(root);
-      root = nextBehaviour();
-      if (report) {
-        I.say("  Current agenda was empty!");
-        I.say("  New root behaviour: "+I.tagHash(root));
-      }
-    }
-    //
-    //  Then, delete all existing entries from the agenda.
-    for (Behaviour b : agenda) popBehaviour(b);
-    if (! Plan.canFollow(actor, root)) {
-      I.say("  CANNOT FOLLOW PLAN: "+root);
-      return null;
-    }
-    //
-    //  Then, keep pushing new behaviours until you squeeze an action out,
-    //  which you can then return-
+    Behaviour root = null, next = null;
     final int MAX_LOOP = 20;
-    Behaviour next = root;
     for (int loop = MAX_LOOP; loop-- > 0;) {
-      pushBehaviour(next);
-      next = next.nextStepFor(actor);
-      final boolean valid = Plan.canFollow(actor, next);
-      if (report) I.say("  Next step: "+next+", valid? "+valid);
-      if (! Plan.canFollow(actor, next)) break;
-      else if (next instanceof Action) return (Action) next;
+      //
+      //  Firstly, check to ensure that our root behaviour is still valid- if
+      //  not, you'll need to pick out a new one:
+      root = rootBehaviour();
+      next = null;
+      if (report) {
+        I.say("\nGETTING NEXT ACTION FOR "+actor);
+        I.say("  Current root behaviour: "+I.tagHash(root));
+      }
+      if (! Plan.canFollow(actor, root)) {
+        if (Plan.canPersist(root)) todoList.add(root);
+        root = nextBehaviour();
+        if (report) {
+          I.say("  Current agenda was empty!");
+          I.say("  New root behaviour: "+I.tagHash(root));
+        }
+      }
+      //
+      //  Then, delete all existing entries from the agenda.
+      for (Behaviour b : agenda) popBehaviour(b);
+      if (! Plan.canFollow(actor, root)) {
+        I.say("  CANNOT FOLLOW PLAN: "+root);
+        return null;
+      }
+      //
+      //  Then descend from the root node, adding each sub-step to the agenda,
+      //  and return once you hit a valid action-step.  If that never happens,
+      //  cancel from the root and start over.
+      next = root;
+      while (loop-- > 0) {
+        pushBehaviour(next);
+        next = next.nextStepFor(actor);
+        final boolean valid = Plan.canFollow(actor, next);
+        if (report) {
+          I.say("  Next step: "+next+", valid? "+valid);
+          if (! valid) Plan.reportPlanDetails(next, actor);
+        }
+        if (! valid) break;
+        else if (next instanceof Action) return (Action) next;
+      }
+      cancelBehaviour(root);
     }
-    
-    cancelBehaviour(root);
-    //
-    //  If you exhaust the maximum number of iterations (which I assume *would*
-    //  be enough for any reasonable use-case,) report the problem.
-    I.say("\n"+actor+" COULD NOT DECIDE ON NEXT STEP.");
-    I.say("  Root behaviour: "+root);
-    I.say("  Next step:      "+next   );
-    if (next != null) {
-      I.say("  Valid/finished  "+next.valid()+"/"+ next.finished());
+    if (warnVerbose) {
+      //
+      //  If you exhaust the maximum number of iterations (which I assume
+      //  *would* be enough for any reasonable use-case,) report the problem.
+      I.say("\n"+actor+" COULD NOT DECIDE ON NEXT STEP.");
+      I.say("  Root behaviour: "+root);
+      I.say("  Next step:      "+next);
+      Plan.reportPlanDetails(next, actor);
+      I.reportStackTrace();
     }
-    I.reportStackTrace();
     return null;
   }
   

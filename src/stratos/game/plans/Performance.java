@@ -23,72 +23,9 @@ public class Performance extends Recreation {
     evalVerbose  = false,
     stepsVerbose = false;
   
-  final static String SONG_NAMES[] = {
-    "Red Planet Blues, by Khal Segin & Tolev Zaller",
-    "It's Full Of Stars, by D. B. Unterhaussen",
-    "Take The Sky From Me, by Wedon the Elder",
-    "Men Are From Asra Novi, by The Ryod Sisters",
-    "Ode To A Hrexxen Gorn, by Ultimex 1450",
-    "Geodesic Dome Science Rap, by Sarles Matson",
-    "Stuck In The Lagrange Point With You, by Eniud Yi",
-    "Untranslatable Feelings, by Strain Variant Beta-7J",
-    "A Credit For Your Engram, by Tobul Masri Mark IV",
-    "Where Everyone Knows Your Scent Signature, by The Imperatrix",
-    "101111-00879938-11AA9191-101, by Lucinda O",
-    "Pi Is The Loneliest Number, by Marec 'Irrational' Bel",
-    "Zakharov And MG Go Go Go, by Natalya Morgan-Skye",
-    "Procyon Nerve-Wipe Hymn, Traditional",
-    "ALL HAIL THE MESMERFROG, by ALL HAIL THE MESMERFROG",
-    "The Very Best of Mandolin Hero 2047 Karaoke"
-  };
-  final static String EROTICS_NAMES[] = {
-    "Private Dance"
-  };
-  
-  final static String MEDIA_NAMES[] = {
-    "Centripetal Velocity: Mean Streets",
-    "Citizen Taygeta, Part I & II",
-    "Citizen Taygeta, Part III & IV",
-    "The Krech and the Consort",
-    "Kohan Nees Katzi, a Tragedy in 3 Acts",
-    "The Sidereal Rites of Inobe"
-  };
-  final static String LARP_NAMES[] = {
-    "Planets & Wormholes: 18th Edition",
-    "Mandolin Hero: Sex, Sun & Soma",
-    "My Life With The Overmind",
-    "Psychic Raptor: Adventures in the 21st Century",
-    "The Sleepy Village Xenomorph",
-    "Burning Empires Historical Re-enactment"
-  };
-  final static String SPORT_NAMES[] = {
-    "Dony Hoc's Ultra VR Surfing",
-    "Zero G Kinetic Dance Workout",
-    "Relativistic Track & Field",
-    "Neutronium Endurance Lifting",
-    "Battle Royale Magneto-Chess",
-    "Team Terminator Tag Tournament"
-  };
-  final static String MEDITATE_NAMES[] = {
-    "Meditation"
-  };
-  
-  final static String[][] ALL_PERFORM_NAMES = {
-    SONG_NAMES,
-    EROTICS_NAMES,
-    MEDIA_NAMES,
-    LARP_NAMES,
-    SPORT_NAMES,
-    MEDITATE_NAMES
-  };
-  final static Skill PERFORM_SKILLS[][] = {
-    { MUSIC_AND_SONG, EROTICS    },
-    { EROTICS       , ATHLETICS  },
-    { MASQUERADE, GRAPHIC_DESIGN },
-    { MASQUERADE, HANDICRAFTS    },
-    { ATHLETICS      , MUSCULAR  , IMMUNE   , MOTOR },
-    { BODY_MEDITATION, PERCEPT, COGNITION, NERVE   }
-  };
+  public static interface Theatre {
+    String[] namesForPerformance(int type);
+  }
   
   final static String EFFECT_DESC[] = {
     "Terrible",
@@ -98,7 +35,17 @@ public class Performance extends Recreation {
     "Excellent",
     "Rapturous",
   };
-  
+  final static String DEFAULT_NAMES[] = {
+    "Song", "Erotics", "Media Display", "LARP", "Sport", "Meditation"
+  };
+  final static Skill PERFORM_SKILLS[][] = {
+    { MUSIC_AND_SONG, EROTICS    },
+    { EROTICS       , ATHLETICS  },
+    { MASQUERADE, GRAPHIC_DESIGN },
+    { MASQUERADE, HANDICRAFTS    },
+    { ATHLETICS      , MUSCULAR, IMMUNE   , MOTOR },
+    { BODY_MEDITATION, PERCEPT , COGNITION, NERVE }
+  };
   
   
   final Actor client;
@@ -157,6 +104,7 @@ public class Performance extends Recreation {
     */
   private void findLead() {
     if (lead != null) return;
+    
     for (Mobile m : venue.inside()) if (m instanceof Actor) {
       final Performance match = (Performance) ((Actor) m).matchFor(this);
       if (match == null) continue;
@@ -166,7 +114,12 @@ public class Performance extends Recreation {
       return;
     }
     lead = this;
-    actID = Rand.index(ALL_PERFORM_NAMES[type].length);
+    
+    if (venue instanceof Theatre) {
+      final String names[] = ((Theatre) venue).namesForPerformance(type);
+      actID = names == null ? -1 : Rand.index(names.length);
+    }
+    
     performValue = 5 + Rand.range(-2, 2);
   }
   
@@ -178,7 +131,13 @@ public class Performance extends Recreation {
   
   public String performDesc() {
     findLead();
-    return ALL_PERFORM_NAMES[type][actID];
+    if (actID == -1) {
+      return DEFAULT_NAMES[type];
+    }
+    else {
+      final String names[] = ((Theatre) venue).namesForPerformance(type);
+      return names[actID];
+    }
   }
   
   
@@ -191,24 +150,12 @@ public class Performance extends Recreation {
   
   /**  Static helper methods-
     */
-  /*
-  private boolean matches(Recreation r) {
-    final int tA = r.type, tB = this.type;
-    if (tA == Recreation.TYPE_ANY || tB == Recreation.TYPE_ANY) return true;
-    if (client != null && client != r.actor()) return false;
-    return tA == tB;
-  }
-  //*/
-  
-  
   public static float performValueFor(Venue venue, Recreation r) {
     float value = 0, count = 0;
     for (Performance p : performancesMatching(venue, r)) {
       value += p.performValue;
       count++;
     }
-    ///I.say("Value/count: "+value+"/"+count+" "+r.type);
-    
     if (count == 0) return -1;
     return (value + 1) / (1 + count);
   }
@@ -220,7 +167,7 @@ public class Performance extends Recreation {
     final Batch <Performance> at = new Batch <Performance> ();
     for (Actor a : venue.staff.visitors()) {
       final Performance p = (Performance) a.matchFor(Performance.class, true);
-      if (p == null || p.type != r.type) continue;
+      if (p == null || (r.type != TYPE_ANY && p.type != r.type)) continue;
       if (p.client != null && p.client != r.actor()) continue;
       at.add(p);
     }
@@ -236,19 +183,6 @@ public class Performance extends Recreation {
     }
     return audience;
   }
-  /*
-  public static Batch <Recreation> audienceFor(Boarding venue, Performance p) {
-    final Batch <Recreation> audience = new Batch <Recreation> ();
-    for (Mobile m : venue.inside()) if (m instanceof Actor) {
-      final Actor a = (Actor) m;
-      for (Behaviour b : a.mind.agenda()) if (b instanceof Recreation) {
-        final Recreation r = (Recreation) b;
-        if (p.matches(r)) { audience.add(r); break; }
-      }
-    }
-    return audience;
-  }
-  //*/
   
   
   

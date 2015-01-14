@@ -5,6 +5,7 @@ package stratos.game.plans;
 
 import stratos.game.common.*;
 import stratos.game.economic.DeviceType;
+import stratos.game.economic.Economy;
 import stratos.game.economic.OutfitType;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
@@ -30,7 +31,10 @@ public class CombatFX {
     ),
     SPEAR_FX_MODEL = new ShotFX.Model(
       "spear_fx", CombatFX.class,
-      "media/SFX/spear_throw.gif", 0.1f, 0.0f, 0.12f, 1.2f, false, false
+      "media/SFX/spear_throw.gif",
+      0.1f, 0.2f,
+      0.12f, 1.2f,
+      false, false
     );
   final static PlaneFX.Model
     SLASH_FX_MODEL = new PlaneFX.Model(
@@ -82,6 +86,12 @@ public class CombatFX {
       final Sprite slashFX = SLASH_FX_MODEL.makeSprite();
       slashFX.scale = r * 2;
       world.ephemera.addGhost(uses, r, slashFX, 0.33f);
+    }
+    
+    else if (type == Economy.HUNTING_LANCE) {
+      final ShotFX shot = applyShotFX(
+        SPEAR_FX_MODEL, uses, applied, hits, 1 + (distance * 0.1f), world
+      );
     }
     
     else if (type.hasProperty(RANGED | KINETIC)) {

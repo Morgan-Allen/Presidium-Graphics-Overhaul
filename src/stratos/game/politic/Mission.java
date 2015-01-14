@@ -428,7 +428,10 @@ public abstract class Mission implements
         role.applicant.gear.incCredits(reward);
         base.finance.incCredits(0 - reward, BaseFinance.SOURCE_REWARDS);
       }
+      //
+      //  Be sure to de-register this mission from the actor's agenda:
       role.applicant.mind.assignMission(null);
+      if (role.cached != null) role.cached.interrupt(INTERRUPT_CANCEL);
     }
     //
     //  And perform some cleanup of graphical odds and ends-

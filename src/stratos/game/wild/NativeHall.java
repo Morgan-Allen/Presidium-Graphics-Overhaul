@@ -2,14 +2,15 @@
 
 package stratos.game.wild;
 import stratos.game.actors.*;
-import static stratos.game.actors.Backgrounds.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
+import stratos.game.plans.*;
 import stratos.game.base.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
+import static stratos.game.actors.Backgrounds.*;
 
 
 
@@ -23,7 +24,7 @@ import stratos.util.*;
 //  native-huts placement- everything.
 
 
-public class NativeHall extends NativeHut {
+public class NativeHall extends NativeHut implements Performance.Theatre {
   
   
   final List <NativeHut> children = new List <NativeHut> ();
@@ -57,15 +58,39 @@ public class NativeHall extends NativeHut {
   
   /**  Updates and behavioural functions-
     */
+  final static String CHANT_NAMES[] = {
+    "Tribal Chant"
+  };
+  
+  
   public Background[] careers() {
     return super.careers();
     //  Cargo Cultist, Marked One, Medicine Man, Chieftain.
   }
   
   
+  public String[] namesForPerformance(int type) {
+    if (type != Performance.TYPE_SONG) return null;
+    return CHANT_NAMES;
+  }
+  
+  
   public Behaviour jobFor(Actor actor, boolean onShift) {
-    //  Well, firstly determine if any more huts should be placed or repaired.
-    return super.jobFor(actor, onShift);
+    final Behaviour job = super.jobFor(actor, onShift);
+    if (job != null) return job;
+    
+    if (staff.shiftFor(actor) == SECONDARY_SHIFT) {
+      final Performance chant = new Performance(
+        actor, this, Performance.TYPE_SONG, null, 0
+      );
+      return chant;
+    }
+    return null;
+  }
+  
+  
+  public void addServices(Choice choice, Actor actor) {
+    choice.add(new Recreation(actor, this, Performance.TYPE_SONG, 0));
   }
   
   
@@ -73,8 +98,9 @@ public class NativeHall extends NativeHut {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     
-    if (numUpdates % 10 == 0) updatePopEstimate(world);
-    
+    if (numUpdates % 10 == 0) {
+      updatePopEstimate(world);
+    }
     for (NativeHut hut : children) {
       if (hut.staff.unoccupied()) {
         hut.structure.setState(Structure.STATE_SALVAGE,  -1);
@@ -84,15 +110,10 @@ public class NativeHall extends NativeHut {
   }
   
   
-  public void addServices(Choice choice, Actor forActor) {
-  }
-  
-  
   protected void updatePopEstimate(Stage world) {
     //
     //  TODO:  Have the population-estimate routines for Nests take an argument
     //  to specify search range/minimum separation?
-    
     float estimate = Nest.idealPopulation(this, Species.HUMAN, world, false);
     if (idealPopEstimate == -1) idealPopEstimate = estimate;
     else {

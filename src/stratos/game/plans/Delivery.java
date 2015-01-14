@@ -23,8 +23,8 @@ public class Delivery extends Plan {
 
   
   private static boolean
-    evalVerbose  = true ,
-    stepsVerbose = true ;
+    evalVerbose  = false,
+    stepsVerbose = false;
   
   //  TODO:  Use these.
   final public static int

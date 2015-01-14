@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -23,6 +25,14 @@ public class Dialogue extends Plan implements Qualities {
   private static boolean
     evalVerbose  = false,
     stepsVerbose = false;
+  
+  private boolean shouldReportEval() {
+    return evalVerbose  && I.talkAbout == actor && hasBegun();
+  }
+  
+  private boolean shouldReportSteps() {
+    return stepsVerbose && I.talkAbout == actor && hasBegun();
+  }
   
   final public static int
     TYPE_CONTACT = 0,
@@ -137,9 +147,7 @@ public class Dialogue extends Plan implements Qualities {
   /**  Utility methods for assessing possibility-
     */
   private boolean canTalk(Actor other) {
-    final boolean report = evalVerbose && (
-      I.talkAbout == actor || I.talkAbout == other
-    );
+    final boolean report = shouldReportEval();
     if (depth > 3) {
       I.say("\nWARNING: DIALOGUE COULD ENTER INFINITE LOOP:"+this);
       I.reportStackTrace();
@@ -149,36 +157,48 @@ public class Dialogue extends Plan implements Qualities {
       I.complain("No conversation starter!");
       return false;
     }
-    
+
     final Target chatsWith = other.planFocus(Dialogue.class, true);
-    if (chatsWith != null && chatsWith != actor) return false;
-    if (stage > STAGE_GREET) return chatsWith == actor;
-    
     if (report) {
       I.say("\nChecking if "+other+" will talk to "+actor);
-      I.say("  Starts:  "+I.tagHash(starts));
-      I.say("  This is: "+I.tagHash(this  ));
+      I.say("  Starts:     "+I.tagHash(starts));
+      I.say("  Finished?   "+starts.finished());
+      I.say("  This is:    "+I.tagHash(this  ));
+      I.say("  Stage is:   "+stage            );
+      I.say("  Chats with: "+chatsWith        );
     }
     
-    if (this != starts && other == starts.actor()) return true;
+    if (chatsWith != null && chatsWith != actor) {
+      if (report) I.say("  Other actor busy talking.");
+      return false;
+    }
+    if (! starts.isActive()) {
+      if (report) I.say("  Conversation starter done.");
+      return false;
+    }
+    if (this != starts && other == starts.actor()) {
+      if (report) I.say("  Other actor started conversation.");
+      return true;
+    }
     final Dialogue sample = starts.childDialogue(actor);
-    if (! other.mind.mustIgnore(sample)) return true;
-    return false;
+    if (other.mind.mustIgnore(sample)) {
+      if (report) I.say("  Other actor is too busy!");
+      return false;
+    }
+    
+    if (report) I.say("  Talking okay!");
+    return true;
   }
   
   
   private Dialogue childDialogue(Actor other) {
-    final boolean report = evalVerbose && (
-      I.talkAbout == actor || I.talkAbout == other
-    );
+    final boolean report = shouldReportEval();
     final Dialogue d = new Dialogue(other, actor, starts, type);
     
     if (report) {
       I.say("\nHAVE CREATED CHILD DIALOGUE: "+d);
       I.say("  Starts: "+d.starts);
     }
-    
-    d.stage = STAGE_CHAT;
     d.setMotiveFrom(this, 0 - motiveBonus() / 2f);
     return d;
   }
@@ -193,7 +213,7 @@ public class Dialogue extends Plan implements Qualities {
   
   
   protected float getPriority() {
-    final boolean report = evalVerbose && I.talkAbout == actor;// && hasBegun();
+    final boolean report = shouldReportEval();
     if (GameSettings.noChat) return -1;
     if (! other.health.conscious()) return -1;
     if (! other.health.human    ()) return -1;
@@ -258,14 +278,19 @@ public class Dialogue extends Plan implements Qualities {
   /**  Behaviour implementation-
     */
   protected Behaviour getNextStep() {
-    if (stage >= STAGE_DONE) return null;
-    final boolean report = stepsVerbose && I.talkAbout == actor;
+    final boolean report = shouldReportSteps();
     if (report) {
       I.say("\nGetting next dialogue step for "+actor);
-      I.say("  Plan is: "+I.tagHash(this));
+      I.say("  Plan is:  "+I.tagHash(this));
+      I.say("  Stage is: "+stage);
     }
     
-    if (starts == this && stage == STAGE_INIT) {
+    if (stage >= STAGE_DONE) {
+      if (report) I.say("  DIALOGUE COMPLETE");
+      return null;
+    }
+    
+    if (stage == STAGE_INIT || stage == STAGE_GREET) {
       if (report) I.say("  Greeting "+other);
       
       final Action greeting = new Action(
@@ -327,12 +352,13 @@ public class Dialogue extends Plan implements Qualities {
       return farewell;
     }
     
+    if (report) I.say("  NO NEXT STEP FOUND");
     return null;
   }
   
   
   public boolean actionGreet(Actor actor, Boarding aboard) {
-    final boolean report = stepsVerbose && I.talkAbout == actor;
+    final boolean report = shouldReportSteps();
     final Target otherChats = other.planFocus(Dialogue.class, true);
     if (report) I.say("\nOther is chatting with: "+otherChats);
     
@@ -372,7 +398,7 @@ public class Dialogue extends Plan implements Qualities {
   /**  Gift-giving behaviours-
     */
   public boolean actionOfferGift(Actor actor, Actor receives) {
-    final boolean report = stepsVerbose && I.talkAbout == actor;
+    final boolean report = shouldReportSteps();
 
     //  Regardless of the outcome, this won't be offered twice.
     final Item gift = this.gift;
@@ -413,7 +439,7 @@ public class Dialogue extends Plan implements Qualities {
   
   
   public boolean actionInvite(Actor actor, Actor asked) {
-    final boolean report = stepsVerbose && I.talkAbout == actor;
+    final boolean report = shouldReportSteps();
     this.stage = STAGE_BYE;
     
     if (! Joining.checkInvitation(actor, asked, this, invitation)) {

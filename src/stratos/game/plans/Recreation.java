@@ -110,6 +110,7 @@ public class Recreation extends Plan {
     modifier += CASUAL * rateComfort(venue, actor, this) / 10;
     modifier *= need;
     modifier -= ActorMotives.greedPriority(actor, (int) cost);
+    if (modifier <= 0) return -1;
     
     final float priority = priorityForActorWith(
       actor, venue,
