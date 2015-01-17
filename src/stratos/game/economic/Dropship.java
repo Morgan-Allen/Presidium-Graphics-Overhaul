@@ -151,7 +151,9 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     
     if (stage >= STAGE_BOARDING) {
       final Smuggling boarding = new Smuggling(actor, null, this, new Item[0]);
-      boarding.setMotive(Plan.MOTIVE_EMERGENCY, Plan.PARAMOUNT);
+      if (staff.assignedTo(Delivery.class) == 0) {
+        boarding.setMotive(Plan.MOTIVE_EMERGENCY, Plan.PARAMOUNT);
+      }
       choice.add(boarding);
       return;
     }

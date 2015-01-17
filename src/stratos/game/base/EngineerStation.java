@@ -80,9 +80,9 @@ public class EngineerStation extends Venue {
       PARTS, 2, null,
       EngineerStation.class, ALL_UPGRADES
     ),
-    MOLDING_PRESS = new Upgrade(
-      "Molding Press",
-      "Allows materials to be recycled and sculpted to fit new purposes, "+
+    MATTER_PRESS = new Upgrade(
+      "Matter Press",
+      "Allows raw materials to be recycled and sculpted to fit new purposes, "+
       "thereby reducing waste and speeding production of custom parts.",
       150,
       PLASTICS, 1, null,
@@ -100,16 +100,16 @@ public class EngineerStation extends Venue {
     COMPOSITE_MATERIALS = new Upgrade(
       "Composite Materials",
       "Enhances the production of lightweight and flexible armours, as well "+
-      "as close-range melee weaponry.",
+      "as most melee weaponry.",
       200,
-      null, 2, MOLDING_PRESS,
+      null, 2, MATTER_PRESS,
       EngineerStation.class, ALL_UPGRADES
     ),
-    FLUX_CONTAINMENT = new Upgrade(
-      "Flux Containment",
-      "Allows high-energy plasmas to be generated and controlled, permitting "+
-      "refinements to shield technology and ranged energy weapons.",
-      250,
+    ENERGY_CONTAINMENT = new Upgrade(
+      "Energy Containment",
+      "Allows high-flux plasmas to be generated and controlled, permitting "+
+      "refinements to heavy armours and most ranged weaponry.",
+      300,
       null, 2, TECHNICIAN_STATION,
       EngineerStation.class, ALL_UPGRADES
     ),
@@ -121,7 +121,15 @@ public class EngineerStation extends Venue {
       150,
       Backgrounds.ARTIFICER, 1, TECHNICIAN_STATION,
       EngineerStation.class, ALL_UPGRADES
-    );
+    )
+  ;
+  final public static Conversion
+    METALS_TO_PARTS = new Conversion(
+      EngineerStation.class, "metals_to_parts",
+      1, ORES, TO, 2, PARTS,
+      MODERATE_DC, ASSEMBLY, SIMPLE_DC, CHEMISTRY
+    )
+  ;
   
   
   public Traded[] services() {
@@ -154,7 +162,7 @@ public class EngineerStation extends Venue {
       powerNeed /= 2;
     }
     powerNeed *= (3 + structure.numUpgrades()) / 3;
-    pollution *= 2f / (2 + structure.upgradeLevel(MOLDING_PRESS));
+    pollution *= 2f / (2 + structure.upgradeLevel(MATTER_PRESS));
     stocks.forceDemand(POWER, powerNeed, TIER_CONSUMER);
     structure.setAmbienceVal(0 - pollution);
   }
@@ -171,17 +179,17 @@ public class EngineerStation extends Venue {
       
       if (made instanceof DeviceType) {
         final DeviceType DT = (DeviceType) made;
-        Upgrade forType = MOLDING_PRESS;
+        Upgrade forType = MATTER_PRESS;
         if (DT.hasProperty(KINETIC)) forType = COMPOSITE_MATERIALS;
-        if (DT.hasProperty(ENERGY )) forType = FLUX_CONTAINMENT   ;
-        o.setBonusFrom(this, true, MOLDING_PRESS, forType);
+        if (DT.hasProperty(ENERGY )) forType = ENERGY_CONTAINMENT   ;
+        o.setBonusFrom(this, true, MATTER_PRESS, forType);
       }
       else if (made instanceof OutfitType) {
         o.setBonusFrom(this, true,
-          MOLDING_PRESS, COMPOSITE_MATERIALS, FLUX_CONTAINMENT
+          MATTER_PRESS, COMPOSITE_MATERIALS, ENERGY_CONTAINMENT
         );
       }
-      else o.setBonusFrom(this, true, MOLDING_PRESS);
+      else o.setBonusFrom(this, true, MATTER_PRESS);
       
       choice.add(o);
     }

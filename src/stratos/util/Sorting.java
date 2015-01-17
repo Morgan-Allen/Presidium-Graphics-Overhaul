@@ -220,6 +220,11 @@ public abstract class Sorting <K> implements Series <K> {
   }
   
   
+  public boolean empty() {
+    return size == 0;
+  }
+  
+  
   public boolean containsRef(Object ref) {
     return ((Node) ref).belongs == this;
   }

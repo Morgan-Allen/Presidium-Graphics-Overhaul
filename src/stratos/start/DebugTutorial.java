@@ -14,8 +14,12 @@ import stratos.util.*;
 
 
 
-//  TODO:  Test the stock exchange plus upgrades for the supply depot.
-//         Also, figure out how to get carbons and use spyces.
+
+//  TODO:  Give an error message when placement isn't possible!
+//         And try every tile within a certain radius until you can place!
+
+//  TODO:  Get the roads system in place- just 2x2, straight down the middle of
+//         each sector.  Simple.
 
 //  TODO:  Merge the summons-dialogue system with the Contact mission.  It's
 //  much more natural that way.
@@ -29,17 +33,18 @@ import stratos.util.*;
 //  TODO:  Also, animals should react more strongly to strangers (either fight,
 //         talk or flee.)  Maybe natives too?
 
+//  TODO:  Complete upgrades for all structures, including the supply depot,
+//         stock exchange, runner market, kommando lodge, trooper barracks,
+//         culture vats, et cetera.
+
 //  TODO:  Introduce hunting by the natives, and allow trading with them as a
 //  source of carbs/greens/protein.  (Also, add singer performance.)
-
-//  Have arcologies actually grow over time, if you have enough water.
-//  TODO:  HAVE DISPLAYS FOR TOTAL SUPPLY/DEMAND OF WATER/POWER/ETC.
 
 //  Introduce a finance-report UI!  And try to get all the details.
 //  Try to arrange that actors will seek out new Holdings if anything existing
 //  is at or above half crowding.
 //  Rework art for roads, the shield wall, the physician station, the engineer
-//  station, the solar bank, and the archives.
+//  station, the solar bank, and the archives... nearly anything, really.
 
 
 public class DebugTutorial extends TutorialScenario {

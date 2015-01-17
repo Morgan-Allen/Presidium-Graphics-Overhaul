@@ -76,6 +76,14 @@ public class EnforcerBloc extends Venue {
   //  Forensics Lab
   //  Mentat & Psy Corps
   
+  final public static Conversion
+    PLASTICS_TO_PRESSFEED = new Conversion(
+      EnforcerBloc.class, "plastics_to_pressfeed",
+      1, PLASTICS, TO, 10, PRESSFEED,
+      SIMPLE_DC, ACCOUNTING, DIFFICULT_DC, GRAPHIC_DESIGN
+    )
+  ;
+  
   
   public Behaviour jobFor(Actor actor, boolean onShift) {
     if (! onShift) return null;
@@ -84,10 +92,12 @@ public class EnforcerBloc extends Venue {
     if (actor.vocation() == Backgrounds.AUDITOR) {
       choice.add(Audit.nextOfficialAudit(actor));
       choice.add(Sentencing.nextTrialFor(actor, this));
+      choice.add(stocks.nextManufacture(actor, PLASTICS_TO_PRESSFEED));
     }
     if (actor.vocation() == Backgrounds.ENFORCER) {
       choice.add(Arrest.nextOfficialArrest(this, actor));
       choice.add(Patrolling.nextGuardPatrol(actor, this, Plan.ROUTINE));
+      //  TODO:  DISTRIBUTE PRESSFEED!
     }
     return choice.weightedPick();
   }

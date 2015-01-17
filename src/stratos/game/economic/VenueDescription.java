@@ -72,10 +72,33 @@ public class VenueDescription {
     final VenueDescription VD = new VenueDescription(venue);
     
     VD.describeCondition(d, UI);
+    
+    /*
+    if (played == v.base() && ! v.privateProperty()) {
+      d.append("\n\nOther Orders: ");
+      if (v.structure.needsSalvage()) {
+        d.append(new Description.Link("\n  Cancel Salvage") {
+          public void whenClicked() {
+            v.structure.cancelSalvage();
+          }
+        });
+      }
+      else {
+        d.append(new Description.Link("\n  Begin Salvage") {
+          public void whenClicked() {
+            v.structure.beginSalvage();
+          }
+        });
+      }
+      d.append("\n\n");
+    }
+    //*/
+    
     if (statusMessage != null) {
-      d.append("\n");
+      d.append("\n\n");
       d.append(statusMessage);
     }
+    
     if (category == CAT_STOCK   ) VD.describeStocks  (l, UI);
     if (category == CAT_STAFFING) VD.describeStaffing(l, UI);
     //if (category == CAT_VISITORS) VD.describeVisitors(l, UI);
@@ -136,14 +159,14 @@ public class VenueDescription {
     for (Traded t : Economy.ALL_PROVISIONS) {
       final float output = v.structure.outputOf(t);
       if (output > 0) {
-        d.append("\n  "+t+" Output: "+(int) output);
+        d.append("\n  "+t+" Output: "+I.shorten(output, 1));
         empty = false;
         continue;
       }
       final float demand = v.stocks.demandFor(t);
       if (demand <= 0) continue;
       final float supply = v.stocks.amountOf(t);
-      d.append("\n  "+(int) supply+"/"+(int) demand+" "+t);
+      d.append("\n  "+I.shorten(supply, 1)+"/"+I.shorten(demand, 1)+" "+t);
       empty = false;
     }
     //

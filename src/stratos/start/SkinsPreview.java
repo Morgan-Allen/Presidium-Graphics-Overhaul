@@ -69,7 +69,11 @@ public class SkinsPreview extends VisualDebug {
   
   
   protected void onRendering(Sprite sprite) {
-    sprite.setAnimation(currentAnim, Rendering.activeTime() % 1, shouldLoop);
+    final float duration = currentAnim == null || currentModel == null ? 0 :
+      currentModel.defaultAnimDuration(currentAnim)
+    ;
+    final float time = Rendering.activeTime() / duration;
+    sprite.setAnimation(currentAnim, time % 1, shouldLoop);
   }
   
   

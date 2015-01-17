@@ -193,10 +193,17 @@ public class MapsPanel extends UIGroup {
   
   private Colour ambientTone(Tile t) {
     //  We paint ambience in blue and danger in red:
-    final float
-      a = safeRange(world.ecology().ambience.valueAt(t) / 5),
-      d = safeRange(base.dangerMap.sampleAround(t.x, t.y, -1));
-    return modeTone.set(d, 0, a, Nums.max(a, d));
+    
+    float a = world.ecology().ambience.valueAt(t), d = 0 - a;
+    if (a <= 0) a = 0;
+    else if (a <= 1) a /= 2;
+    else a = 0.5f + Nums.log(2, a);
+    
+    if (d <= 0) d = 0;
+    else if (d <= 1) d /= 2;
+    else d = 0.5f + Nums.log(2, d);
+    
+    return modeTone.set(d, 0, a, 1);
   }
   
   

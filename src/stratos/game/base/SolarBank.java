@@ -78,10 +78,10 @@ public class SolarBank extends Venue {
       return;
     }
     
-    //  TODO:  Base this off climate values.
+    final float sun = world.terrain().insolationSample(origin());
     structure.assignOutputs(
-      Item.withAmount(POWER, 2),
-      Item.withAmount(OPEN_WATER, 0.5f)
+      Item.withAmount(POWER, sun * 4),
+      Item.withAmount(WATER, (0.5f + 1 - sun) / 2)
     );
   }
   
@@ -118,37 +118,41 @@ public class SolarBank extends Venue {
   
   /**  Structure.Basis and placement methods-
     */
+  //  TODO:  Unify this with the equivalent methods in the Arcology class (and
+  //  maybe ShieldWall?)
+  
   final static int
-    PLACE_COORDS[] = {
-      0, -3,  0, -1,  0, 1,  0, 3
-    },
+    FACING_X_COORDS[] = { 0, 0,  2, 0,  4, 0,  6, 0 }, OFFS_X[] = {3, 0},
+    FACING_Y_COORDS[] = { 0, 0,  0, 2,  0, 4,  0, 6 }, OFFS_Y[] = {0, 3},
     SIDE_LENGTH = 8;
   
-  private SolarBank[] getBankPlacement(Tile point, Base base) {
-    //
-    //  Firstly, determine which sector this point lies within, and the corner
-    //  tile of that sector.
+  private SolarBank[] getBankPlacement(Tile point, Base base, int facing) {
     if (point == null) return null;
     final Stage world = point.world;
-    final Tile corner = world.tileAt(
-      Nums.round(point.x, 1, false),
-      Nums.round(point.y, 1, false)
-    );
-    //
-    //
     final List <SolarBank> newBank = new List <SolarBank> ();
-    for (int n = 0; n < PLACE_COORDS.length;) {
+    final int coords[] = facing == X_AXIS ? FACING_X_COORDS : FACING_Y_COORDS;
+    final int offs[]   = facing == X_AXIS ? OFFS_X : OFFS_Y;
+    
+    for (int n = 0; n < coords.length;) {
       final Tile under = world.tileAt(
-        corner.x + PLACE_COORDS[n++],
-        corner.y + PLACE_COORDS[n++]
+        point.x + coords[n++] - offs[0],
+        point.y + coords[n++] - offs[1]
       );
-      if (under == null || under.onTop() instanceof SolarBank) continue;
+      if (under == null) return null;
       final SolarBank s = new SolarBank(base);
       s.type = TYPE_INIT;
       s.setPosition(under.x, under.y, world);
+      //if (! s.canPlace()) return null;
       newBank.add(s);
     }
     return newBank.toArray(SolarBank.class);
+  }
+  
+  
+  private boolean bankOkay(Venue bank[]) {
+    if (bank == null) return false;
+    for (Venue b : bank) if (! b.canPlace()) return false;
+    return true;
   }
   
   
@@ -156,7 +160,9 @@ public class SolarBank extends Venue {
     if (! super.setPosition(x, y, world)) return false;
     if (type != TYPE_PLACING) return true;
     
-    final SolarBank group[] = getBankPlacement(origin(), base);
+    SolarBank group[] = null;
+    if (! bankOkay(group)) group = getBankPlacement(origin(), base, X_AXIS);
+    if (! bankOkay(group)) group = getBankPlacement(origin(), base, Y_AXIS);
     if (group == null) return false;
     structure.assignGroup(group);
     
@@ -171,8 +177,10 @@ public class SolarBank extends Venue {
   
   
   protected boolean checkPerimeter(Stage world) {
-    //  TODO:  This might require some modification later.  Ideally, you want
-    //  to give solar banks at least one tile of space.
+    for (Tile t : Spacing.perimeter(footprint(), world)) {
+      if (t == null) continue;
+      if (t.owningType() >= this.owningType()) return false;
+    }
     return true;
   }
   
@@ -187,6 +195,12 @@ public class SolarBank extends Venue {
 
   public Composite portrait(BaseUI UI) {
     return Composite.withImage(ICON, "solar_bank");
+  }
+  
+  
+  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
+    final String status = null;
+    return VenueDescription.configSimplePanel(this, panel, UI, status);
   }
   
   

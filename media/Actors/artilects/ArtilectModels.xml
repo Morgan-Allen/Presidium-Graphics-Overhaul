@@ -94,15 +94,15 @@
   height="2.5"
 >
   <animations rotate="90" fps="1">
-    <animation name="strike"      start="0"   end="40"  duration="1" />
-    <animation name="build"       start="41"  end="301" duration="1" />
-    <animation name="reach_down"  start="302" end="586" duration="1" />
-    <animation name="fire"        start="587" end="637" duration="1" />
-    <animation name="idle"        start="638" end="668" duration="1" />
-    <animation name="look"        start="669" end="836" duration="1" />
-    <animation name="move"        start="837" end="897" duration="1" />
-    <animation name="move_fast"   start="837" end="897" duration="1" />
-    <animation name="fall"        start="898" end="973" duration="1" />
+    <animation name="strike"     start="0"   end="40"  duration="1" />
+    <animation name="build"      start="141" end="200" duration="3" />
+    <animation name="reach_down" start="303" end="593" duration="3" />
+    <animation name="fire"       start="594" end="644" duration="1" />
+    <animation name="idle"       start="645" end="675" duration="1" />
+    <animation name="look"       start="676" end="843" duration="1" />
+    <animation name="move"       start="844" end="904" duration="1" />
+    <animation name="move_fast"  start="844" end="904" duration="1" />
+    <animation name="fall"       start="905" end="980" duration="1" />
   </animations>
   
   <attachPoints>

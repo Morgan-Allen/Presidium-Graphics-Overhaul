@@ -41,6 +41,12 @@ public class Stack <T> implements Series <T> {
     return size;
   }
   
+  /**  Returns whether this stack has no entries-
+    */
+  public boolean empty() {
+    return size == 0;
+  }
+  
   /**  Adds the given argument to the head of the sequence.
     */
   final public void addFirst(final T t) {

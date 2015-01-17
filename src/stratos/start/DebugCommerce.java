@@ -19,6 +19,31 @@ import static stratos.game.economic.Economy.*;
 
 
 
+
+
+//  Each major ecologist building- the botanical station, the FRSD Plant,
+//  and the kommando lodge- can produce 1 type of spyce each.
+
+//  Spyce gets converted to special serums for use by your agents, pseers and
+//  nobility.  Each will demand a particular serum type, based on profession,
+//  but you can upgrade this through research at different venues.
+
+
+//  Carbons are produced at either the excavation site, OR the supply depot-
+//  which can render it down from carbs, ores, and the like.
+
+//  Carbons get converted into plastics at the fabricator, along with fuel-
+//  propellant at the airfield for both dropships and raptors.
+
+
+//  The Supply Depot does not sell to housing- it handles bulk transactions
+//  and maintenance work only.  Specialises mostly in raw materials.
+
+//  The Stock Exchange specialises mostly in finished goods, including some
+//  that get 'cooked' or patent-controlled by the stock vendors.
+
+
+
 public class DebugCommerce extends Scenario {
   
   
@@ -191,6 +216,8 @@ public class DebugCommerce extends Scenario {
     
     final Venue archives = new Archives(base);
     Placement.establishVenue(archives, 10, 5, true, world);
+    
+    //  TODO:  INCLUDE ALL THE AMENITIES, AND SEE IF HOUSING CAN EVOLVE FULLY
   }
 
   

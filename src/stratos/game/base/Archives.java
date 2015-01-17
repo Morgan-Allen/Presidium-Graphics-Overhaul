@@ -76,6 +76,15 @@ public class Archives extends Venue {
   //  TODO:  Decide on an appropriate set of upgrades here.
   
   
+  final public static Conversion
+    PARTS_TO_DATALINKS = new Conversion(
+      Archives.class, "parts_to_datalinks",
+      1, PARTS, TO, 5, DATALINKS,
+      MODERATE_DC, INSCRIPTION, SIMPLE_DC, ASSEMBLY, ACCOUNTING
+    )
+  ;
+  
+  
   
   public Background[] careers() {
     return new Background[] { SAVANT };

@@ -20,7 +20,7 @@ public class Recreation extends Plan {
   /**  Data fields, construction and save/load methods-
     */
   private static boolean
-    evalVerbose  = false,
+    evalVerbose  = true ,
     stepsVerbose = false;
   
   
@@ -120,7 +120,8 @@ public class Recreation extends Plan {
       report
     );
     if (report) {
-      I.say("  Need for fun: "+need);
+      I.say("  Comfort level:  "+rateComfort(venue, actor, this));
+      I.say("  Need for fun:   "+need);
       I.say("  Final priority: "+priority);
     }
     return priority;

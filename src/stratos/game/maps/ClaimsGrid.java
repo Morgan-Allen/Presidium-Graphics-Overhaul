@@ -86,6 +86,20 @@ public class ClaimsGrid {
   
   /**  Public methods for querying and asserting area-specific claims.
     */
+  public Venue[] venuesClaiming(Box2D area) {
+    final Batch <Venue> venues = new Batch <Venue> ();
+    
+    for (StageSection s : world.sections.sectionsUnder(area)) {
+      final List <Claim> claims = areaClaims[s.x][s.y];
+      if (claims != null) for (Claim claim : claims) {
+        if (! claim.area.overlaps(area)) continue;
+        venues.add(claim.owner);
+      }
+    }
+    return venues.toArray(Venue.class);
+  }
+  
+  
   public Venue[] venuesConflicting(Box2D newClaim, Venue owner) {
     final Batch <Claim> against = claimsConflicting(newClaim, owner);
     final Venue conflict[] = new Venue[against.size()];
@@ -124,14 +138,6 @@ public class ClaimsGrid {
           else if (ownerClash && otherFP.overlaps(area      )) clash = true;
           else if (otherClash && ownerFP.overlaps(claim.area)) clash = true;
           if (! clash) continue;
-          
-          /*
-          final boolean clash =
-            owner == null ||
-            other.preventsClaimBy(owner) ||
-            other.footprint().overlaps(area);
-          if (! clash) continue;
-          //*/
           
           if (report && owner != null) {
             I.say("  CONFLICTS WITH: "+other);

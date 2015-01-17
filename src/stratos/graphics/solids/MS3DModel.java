@@ -98,56 +98,54 @@ public class MS3DModel extends SolidModel {
 
 
   private void processMaterials() {
-    if (!FORCE_DEFAULT_MATERIAL)
-      for (MS3DMaterial mat : ms3d.materials) {
-        ModelMaterial m = new ModelMaterial();
-        m.id = mat.name;
-        m.ambient = color(mat.ambient);
-        m.diffuse = color(mat.diffuse);
-        m.emissive = color(mat.emissive);
-        m.specular = color(mat.specular);
-        m.shininess = mat.shininess;
-        m.opacity = mat.transparency;
-        m.type = MaterialType.Phong;
-        
-        if (m.opacity == 0) {
-          m.opacity = 1;
-        }
-
-        if (!mat.texture.isEmpty()) {
-          ModelTexture tex = new ModelTexture();
-          if (mat.texture.startsWith(".\\") || mat.texture.startsWith("//")) {
-            mat.texture = mat.texture.substring(2);
-          }
-          if (verbose) I.say(""+mat.texture);
-          tex.fileName = baseDir.child(mat.texture).path();
-          this.associateFile(tex.fileName);
-          // + "/" +
-          // mat.texture;
-          tex.id = mat.texture;
-          tex.usage = ModelTexture.USAGE_DIFFUSE;
-          m.textures = new Array <ModelTexture> ();
-          m.textures.add(tex);
-        }
-        data.materials.add(m);
+    if (! FORCE_DEFAULT_MATERIAL) for (MS3DMaterial mat : ms3d.materials) {
+      ModelMaterial m = new ModelMaterial();
+      m.id = mat.name;
+      m.ambient   = color(mat.ambient);
+      m.diffuse   = color(mat.diffuse);
+      m.emissive  = color(mat.emissive);
+      m.specular  = color(mat.specular);
+      m.shininess = mat.shininess;
+      m.opacity   = mat.transparency;
+      m.type      = MaterialType.Phong;
+      
+      if (m.opacity == 0) {
+        m.opacity = 1;
       }
-
-    if (data.materials.size == 0) {
-      ModelMaterial mat = new ModelMaterial();
-      mat.ambient = new Color(0.8f, 0.8f, 0.8f, 1f);
-      mat.diffuse = new Color(0.8f, 0.8f, 0.8f, 1f);
-      mat.id = "default";
-      data.materials.add(mat);
+      if (!mat.texture.isEmpty()) {
+        ModelTexture tex = new ModelTexture();
+        if (mat.texture.startsWith(".\\") || mat.texture.startsWith("//")) {
+          mat.texture = mat.texture.substring(2);
+        }
+        if (verbose) I.say(""+mat.texture);
+        tex.fileName = baseDir.child(mat.texture).path();
+        this.associateFile(tex.fileName);
+        // + "/" +
+        // mat.texture;
+        tex.id = mat.texture;
+        tex.usage = ModelTexture.USAGE_DIFFUSE;
+        m.textures = new Array <ModelTexture> ();
+        m.textures.add(tex);
+      }
+      data.materials.add(m);
     }
+
+    ModelMaterial mat = new ModelMaterial();
+    mat.ambient = new Color(0.8f, 0.8f, 0.8f, 1f);
+    mat.diffuse = new Color(0.8f, 0.8f, 0.8f, 1f);
+    mat.id = "default";
+    data.materials.add(mat);
+    /*
+    if (data.materials.size == 0) {
+    }
+    //*/
   }
   
   
   private static Color color(float[] col) {
-    if (col[0] == 0 && col[1] == 0 && col[2] == 0)
-      return null;
+    if (col[0] == 0 && col[1] == 0 && col[2] == 0) return null;
     return new Color(col[0], col[1], col[2], col[3]);
   }
-  
   
   
   private void processMesh() {
@@ -226,7 +224,7 @@ public class MS3DModel extends SolidModel {
       final ModelNodePart npart = new ModelNodePart();
       final int matID = group.materialIndex;
       npart.meshPartId = group.name;
-      npart.materialId = (matID == -1) ? null : ms3d.materials[matID].name;
+      npart.materialId = (matID == -1) ? "default" : ms3d.materials[matID].name;
       npart.bones = new ArrayMap();
       
       parts[k] = part;

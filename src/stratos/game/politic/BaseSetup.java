@@ -24,34 +24,31 @@ public class BaseSetup {
   final static float
     FULL_EVAL_PERIOD      = Stage.STANDARD_DAY_LENGTH,  //  Eval-cycle length.
     DEFAULT_PLACE_HP      = 50,
-    
     MAX_PLACE_RATING      = 10;
   final static int
     DEFAULT_VENUE_SAMPLES = 5,
     DEFAULT_CHAT_SAMPLES  = 5;
   
-  final Base base;
-  final Stage world;
   
+  final Stage world;
+  final Base  base ;
+  //
   //  Data structures for conducting time-sliced placement of private venues:
   protected VenueProfile canPlace[];
   static class Placing {
-    Venue        sampled  ;
+    VenueProfile profile  ;
     StageSection placed   ;
     Tile         exactTile;
     float        rating   ;
   }
-  
   final List <Placing> placings = new List <Placing> () {
-    protected float queuePriority(Placing r) {
-      return r.rating;
-    }
+    protected float queuePriority(Placing r) { return r.rating; }
   };
   //
   //  State variables for time-sliced placement-evaluation:
   private int   initPlaceCount = -1;  //  Total placements at start of cycle
   private float lastEval       = -1;  //  Last evaluation time within cycle
-  private float totalBuildHP =  0;  //  Total HP placed during this cycle
+  private float totalBuildHP   =  0;  //  Total HP placed during this cycle
   private Batch <Venue> allPlaced = new Batch <Venue> ();
   
   
@@ -68,10 +65,10 @@ public class BaseSetup {
     final int numP = s.loadInt();
     for (int n = numP ; n-- > 0;) {
       final Placing p = new Placing();
-      p.sampled   = (Venue  ) s.loadObject();
+      p.profile   = (VenueProfile) s.loadObject();
       p.placed    = (StageSection) s.loadTarget();
-      p.exactTile = (Tile   ) s.loadTarget();
-      p.rating    =           s.loadFloat ();
+      p.exactTile = (Tile        ) s.loadTarget();
+      p.rating    =                s.loadFloat ();
     }
     
     initPlaceCount = s.loadInt  ();
@@ -86,7 +83,7 @@ public class BaseSetup {
     
     s.saveInt(placings.size());
     for (Placing p : placings) {
-      s.saveObject(p.sampled  );
+      s.saveObject(p.profile  );
       s.saveTarget(p.placed   );
       s.saveTarget(p.exactTile);
       s.saveFloat (p.rating   );
@@ -191,7 +188,7 @@ public class BaseSetup {
       for (Venue sample : samples) {
         sample.assignBase(base);
         final Placing p = new Placing();
-        p.sampled   = sample ;
+        p.profile   = sample.profile;
         p.placed    = section;
         p.exactTile = null   ;
         p.rating    = sample.ratePlacing(section, false);
@@ -213,28 +210,29 @@ public class BaseSetup {
     while (maxChecked-- > 0 && placings.size() > 0) {
       if (buildLimit > 0 && totalBuildHP > buildLimit) continue;
       final Placing best = placings.removeLast();
-      if (best.sampled.inWorld() || best.rating <= 0) {
+      if (best.rating <= 0) {
         if (report) I.say("  Placement culled...");
         continue;
       }
-      
+
+      final Venue sample = best.profile.sampleVenue(base);
       if (report) {
-        I.say("\nAttempting placement at best site for "+best.sampled);
+        I.say("\nAttempting placement at best site for "+sample);
         I.say("  Rough location: "+best.placed);
         I.say("  Rating was:     "+best.rating);
       }
-      if (attemptExactPlacement(best, report)) {
-        totalBuildHP += best.sampled.structure.maxIntegrity();
+      if (attemptExactPlacement(best, sample, report)) {
+        totalBuildHP += sample.structure.maxIntegrity();
       }
       else if (report) I.say("  No suitable site found.");
     }
   }
   
   
-  private boolean attemptExactPlacement(Placing placing, boolean report) {
-    final Venue sample = placing.sampled;
+  private boolean attemptExactPlacement(
+    Placing placing, Venue sample, boolean report
+  ) {
     final Pick <Tile> sitePick = new Pick <Tile> ();
-    
     for (Tile t : world.tilesIn(placing.placed.area, false)) {
       sample.setPosition(t.x, t.y, world);
       if (! sample.canPlace()) continue;
@@ -366,7 +364,7 @@ public class BaseSetup {
     */
   private void descPlacing(String desc, Placing best) {
     I.say(
-      "  "+desc+""+best.sampled+
+      "  "+desc+""+best.profile.baseClass.getSimpleName()+
       " "+best.placed.absX+"/"+best.placed.absY+
       ", rating: "+best.rating
     );

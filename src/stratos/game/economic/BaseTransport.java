@@ -35,7 +35,6 @@ public class BaseTransport {
   
   
   
-  
   public BaseTransport(Stage world) {
     this.world = world;
     this.map = new PavingMap(world, this);
@@ -54,6 +53,9 @@ public class BaseTransport {
       toggleRoute(r, r.start, true);
       toggleRoute(r, r.end  , true);
     }
+    
+    provSupply = s.loadFloatArray(null);
+    provDemand = s.loadFloatArray(null);
   }
   
   
@@ -65,6 +67,9 @@ public class BaseTransport {
     for (Route r : allRoutes.keySet()) {
       Route.saveRoute(r, s);
     }
+    
+    s.saveFloatArray(provSupply);
+    s.saveFloatArray(provDemand);
   }
   
   
@@ -305,6 +310,21 @@ public class BaseTransport {
     */
   final private Batch <Target> tried = new Batch <Target> (40);
   final private Stack <Target> agenda = new Stack <Target> ();
+  private float provSupply[], provDemand[];
+  
+  
+  public float provSupply(Traded t) {
+    int index = Visit.indexOf(t, Economy.ALL_PROVISIONS);
+    if (index == -1 || provSupply == null) return -1;
+    return provSupply[index];
+  }
+  
+  
+  public float provDemand(Traded t) {
+    int index = Visit.indexOf(t, Economy.ALL_PROVISIONS);
+    if (index == -1 || provDemand == null) return -1;
+    return provDemand[index];
+  }
   
   
   private void insertAgenda(Target t) {
@@ -315,43 +335,46 @@ public class BaseTransport {
   }
   
   
-  private Batch <Structural> venuesReached(Structural init, Base base) {
+  private Batch <Venue> venuesReached(Structural init, Base base) {
     if (init.flaggedWith() != null) return null;
     final boolean report = distroVerbose;
     if (report) I.say("\nDetermining provision access from "+init);
     
-    final Batch <Structural> reached = new Batch <Structural> ();
-    agenda.add(init);
-    final Tile tempN[] = new Tile[8];
+    final Batch <Venue> reached = new Batch <Venue> ();
+    insertAgenda(init);
+    final Box2D tempB = new Box2D();
     
     //  The agenda could include either tiles or structures, depending on how
     //  they are encountered.
     while (agenda.size() > 0) {
       final Target next = agenda.removeFirst();
       final List <Route> routes = tileRoutes.get(next);
-
+      
       //  In the case of a structure, check every tile along the perimeter
       //  and add any adjacent structures or road junctions.
       if (routes == null) {
-        final Structural v = (Structural) next;
+        final Venue v = (Venue) next;
         if (v.base() != base) continue;
         reached.add(v);
         if (report) I.say("  Have reached: "+v);
         
-        for (Tile t : Spacing.perimeter(v.footprint(), world)) if (t != null) {
-          if (t.onTop() instanceof Structural) insertAgenda(t.onTop());
-          else if (tileRoutes.get(t) != null) insertAgenda(t);
+        tempB.setTo(v.footprint()).expandBy(2);
+        for (Venue c : world.claims.venuesClaiming(tempB)) {
+          if (c.footprint().overlaps(tempB)) insertAgenda(c);
+        }
+        for (Boarding t : v.canBoard()) {
+          if (tileRoutes.get(t) != null) insertAgenda(t);
         }
       }
       
       //  In the case of a road junction, add whatever structures lie at the
       //  other end of the route.
       else for (Route r : routes) {
-        final Tile o = r.end == next ? r.start : r.end;
+        final Tile o = r.opposite((Tile) next);
         if (o == null) continue;
         insertAgenda(o);
-        for (Tile a : o.allAdjacent(tempN)) if (a != null) {
-          if (a.onTop() instanceof Structural) insertAgenda(a.onTop());
+        for (Boarding b : o.canBoard()) {
+          if (b instanceof Venue) insertAgenda((Venue) b);
         }
       }
     }
@@ -365,36 +388,51 @@ public class BaseTransport {
   }
   
   
-  private void distributeTo(Batch <Structural> reached, Traded provided[]) {
+  private void distributeTo(Batch <Venue> reached, Traded provided[]) {
     //
     //  First, tabulate total supply and demand within the area-
     final boolean report = distroVerbose;
     if (report) I.say("\nDistributing provisions through paving network-");
     
-    float
-      supply[] = new float[provided.length],
-      demand[] = new float[provided.length];
-    for (Structural s : reached) {
+    provSupply = new float[provided.length];
+    provDemand = new float[provided.length];
+    
+    for (Venue s : reached) {
       if (report) I.say("  Have reached: "+s);
       
       for (int i = provided.length; i-- > 0;) {
         final Traded type = provided[i];
-        supply[i] += s.structure.outputOf(type);
         
-        if (! (s instanceof Venue)) continue;
-        final float d = ((Venue) s).stocks.demandFor(type);
-        if (d > 0) demand[i] += d;
+        final float in = s.structure.outputOf(type);
+        if (in > 0) {
+          provSupply[i] += in;
+          if (report) I.say("    "+type+" supply: "+in);
+        }
+        
+        final float out = s.stocks.demandFor(type);
+        if (out > 0) {
+          if (report) I.say("    "+type+" demand: "+out);
+          provDemand[i] += out;
+        }
+      }
+    }
+    if (report) {
+      I.say("\nSupply/demand tally complete.");
+      for (int i = provided.length; i-- > 0;) {
+        final Traded type = provided[i];
+        final float supply = provSupply[i], demand = provDemand[i];
+        if (supply + demand == 0) continue;
+        I.say("  Supply|Demand of "+type+": "+supply+"|"+demand);
       }
     }
     //
     //  Then top up demand in whole or in part, depending on how much supply
     //  is available-
     for (int i = provided.length; i-- > 0;) {
-      if (demand[i] == 0) continue;
+      if (provDemand[i] == 0) continue;
       final Traded type = provided[i];
-      final float supplyRatio = Nums.clamp(supply[i] / demand[i], 0, 1);
-      for (Structural s : reached) if (s instanceof Venue) {
-        final Venue venue = (Venue) s;
+      float supplyRatio = Nums.clamp(provSupply[i] / provDemand[i], 0, 1);
+      for (Venue venue : reached) {
         final float d = venue.stocks.demandFor(type);
         venue.stocks.setAmount(type, d * supplyRatio);
       }
@@ -402,20 +440,21 @@ public class BaseTransport {
   }
   
   
-  public void distribute(Traded provided[], Base base) {
+  public void distributeProvisions(Base base) {
     final boolean report = distroVerbose;
     if (report) I.say("\n\nDistributing provisions for base: "+base);
-    final Batch <Batch <Structural>> allReached = new Batch();
+    final Batch <Batch <Venue>> allReached = new Batch();
+    final Traded provided[] = Economy.ALL_PROVISIONS;
     //
     //  First, divide the set of all venues into discrete partitions based on
     //  mutual paving connections-
     for (Object o : world.presences.matchesNear(base, null, -1)) {
-      final Batch <Structural> reached = venuesReached((Venue) o, base);
+      final Batch <Venue> reached = venuesReached((Venue) o, base);
       if (reached != null) allReached.add(reached);
     }
     //
     //  Then, distribute water/power/et cetera within that area-
-    for (Batch <Structural> reached : allReached) {
+    for (Batch <Venue> reached : allReached) {
       distributeTo(reached, provided);
       for (Structural v : reached) v.flagWith(null);
     }

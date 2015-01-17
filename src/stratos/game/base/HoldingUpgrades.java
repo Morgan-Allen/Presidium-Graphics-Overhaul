@@ -103,7 +103,7 @@ public class HoldingUpgrades {
     ),
     new Conversion(
       Holding.class, "Level 5",
-      2, PLASTICS, 3, PARTS, 2, POWER, 1, MEDICINE, 1, OPEN_WATER, 1, DATALINKS,
+      2, PLASTICS, 3, PARTS, 2, POWER, 1, MEDICINE, 1, WATER, 1, DATALINKS,
       DIFFICULT_DC, ASSEMBLY
     ),
   };
@@ -164,9 +164,9 @@ public class HoldingUpgrades {
     Holding holding, int targetLevel, boolean verbose
   ) {
     final float need = supportNeed(holding, targetLevel);
-    if (holding.stocks.amountOf(LIFE_SUPPORT) < need - 0.5f) {
+    if (holding.stocks.amountOf(ATMO) < need - 0.5f) {
       if (verbose) return
-        "This holding needs more "+LIFE_SUPPORT+" to sustain it's population "+
+        "This holding needs more "+ATMO+" to sustain it's population "+
         "comfortably.";
       return NOT_MET;
     }

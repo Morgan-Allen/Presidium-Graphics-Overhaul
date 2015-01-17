@@ -245,7 +245,7 @@ public class Bastion extends Venue {
     lifeSLimit *= condition;
     structure.assignOutputs(
       Item.withAmount(POWER       , powerLimit),
-      Item.withAmount(LIFE_SUPPORT, lifeSLimit)
+      Item.withAmount(ATMO, lifeSLimit)
     );
     //
     //  Demand provisions-
@@ -293,7 +293,7 @@ public class Bastion extends Venue {
   public Traded[] services() {
     return new Traded[] {
       SERVICE_ADMIN, SERVICE_REFUGE, SERVICE_SECURITY,
-      POWER, LIFE_SUPPORT
+      POWER, ATMO
     };
   }
   

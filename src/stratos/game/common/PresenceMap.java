@@ -230,7 +230,7 @@ public class PresenceMap implements Session.Saveable {
   final private static float heuristic(
     final Object n, final boolean leaf, final Tile origin
   ) {
-    return origin == null ? (Stage.PATCH_RESOLUTION + Rand.num()) : (leaf ?
+    return origin == null ? (Stage.PATCH_RESOLUTION + 0) : (leaf ?
       Spacing.distance(origin, (Target) n) :
       ((Node) n).section.area.distance(origin.x, origin.y)
     );

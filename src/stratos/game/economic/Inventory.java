@@ -365,11 +365,23 @@ public class Inventory {
     *  match criteria.
     */
   public boolean hasItem(Item item) {
-    final float amount = amountOf(item);
-    if (item.amount == Item.ANY) return amount > 0;
-    else return item.amount > 0 && amount >= item.amount;
+    final Item match = matchFor(item);
+    return match != null && match.amount >= item.amount;
+  }
+  
+  
+  public boolean hasItems(Item... items) {
+    for (Item item : items) if (! hasItem(item)) return false;
+    return true;
   }
 }
+
+
+
+
+
+
+
 
 
 

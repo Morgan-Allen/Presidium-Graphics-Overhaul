@@ -100,8 +100,8 @@ public class CultureLab extends Venue {
     ),
     SPYCE_CHEMISTRY = new Upgrade(
       "Spyce Chemistry",
-      "Allows minute quantities of spyce to be synthesised from simpler "+
-      "compounds, based on carb or protein production.",
+      "Allows minute quantities of Tinerazine to be synthesised from simpler "+
+      "compounds, based on protein production.",
       500, null, 1, DRUG_SYNTHESIS,
       CultureLab.class, ALL_UPGRADES
     ),
@@ -115,7 +115,39 @@ public class CultureLab extends Venue {
       100, Backgrounds.VATS_BREEDER, 1, DRUG_SYNTHESIS,
       CultureLab.class, ALL_UPGRADES
     )
- ;
+  ;
+  
+  final public static Conversion
+    WASTE_TO_CARBS = new Conversion(
+      CultureLab.class, "waste_to_carbs",
+      TO, 1, CARBS,
+      SIMPLE_DC, CHEMISTRY
+    ),
+    WASTE_TO_REAGENTS = new Conversion(
+      CultureLab.class, "carbs_to_reagents",
+      TO, 1, REAGENTS,
+      ROUTINE_DC, PHARMACY, ROUTINE_DC, CHEMISTRY
+    ),
+    CARBS_TO_SOMA = new Conversion(
+      CultureLab.class, "waste_to_soma",
+      2, CARBS, TO, 1, SOMA,
+      ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
+    ),
+    CARBS_TO_PROTEIN = new Conversion(
+      CultureLab.class, "carbs_to_protein",
+      2, CARBS, TO, 1, PROTEIN,
+      ROUTINE_DC, CHEMISTRY, ROUTINE_DC, GENE_CULTURE
+    ),
+    PROTEIN_TO_REPLICANTS = new Conversion(
+      CultureLab.class, "protein_to_replicants",
+      5, PROTEIN, TO, 1, REPLICANTS,
+      MODERATE_DC, GENE_CULTURE, ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
+    ),
+    PROTEIN_TO_SPYCE_T = new Conversion(
+      CultureLab.class, "carbs_to_spyce_t",
+      20, PROTEIN, 5, REAGENTS, TO, 1, SPYCE_T,
+      DIFFICULT_DC, PHARMACY, DIFFICULT_DC, CHEMISTRY
+    );
   
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
@@ -127,7 +159,7 @@ public class CultureLab extends Venue {
     }
     stocks.translateDemands(WASTE_TO_CARBS, 1);
     stocks.translateDemands(CARBS_TO_PROTEIN, 1);
-    stocks.translateDemands(WASTE_TO_SOMA, 1);
+    stocks.translateDemands(CARBS_TO_SOMA, 1);
     stocks.translateDemands(WASTE_TO_REAGENTS, 1);
     
     float needPower = 5;
@@ -159,7 +191,7 @@ public class CultureLab extends Venue {
     }
     //
     //  And pharmaceuticals-
-    final Manufacture mA = stocks.nextManufacture(actor, WASTE_TO_SOMA);
+    final Manufacture mA = stocks.nextManufacture(actor, CARBS_TO_SOMA);
     if (mA != null) {
       choice.add(mA.setBonusFrom(this, false, DRUG_SYNTHESIS));
     }
@@ -169,11 +201,13 @@ public class CultureLab extends Venue {
     }
     //
     //  And spyce production-
-    final Manufacture mT = stocks.nextManufacture(actor, CARBS_TO_NATRI_SPYCE);
+    /*
+    final Manufacture mT = stocks.nextManufacture(actor, CARBS_TO_SPYCE_N);
     if (mT != null) {
       choice.add(mT.setBonusFrom(this, true, SPYCE_CHEMISTRY));
     }
-    final Manufacture mN = stocks.nextManufacture(actor, PROTEIN_TO_TINER_SPYCE);
+    //*/
+    final Manufacture mN = stocks.nextManufacture(actor, PROTEIN_TO_SPYCE_T);
     if (mN != null) {
       choice.add(mN.setBonusFrom(this, true, SPYCE_CHEMISTRY));
     }

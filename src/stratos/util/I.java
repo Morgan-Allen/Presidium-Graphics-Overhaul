@@ -53,7 +53,8 @@ public class I {
   
   public static final void say(String s) {
     if (! mute) {
-      System.out.println(s);
+      System.out.print("\n");
+      System.out.print(s);
     }
   }
   

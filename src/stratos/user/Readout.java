@@ -3,6 +3,7 @@
 package stratos.user;
 import stratos.game.actors.*;
 import stratos.game.common.*;
+import stratos.game.economic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 
@@ -23,6 +24,7 @@ public class Readout extends UIGroup {
     
     this.read = new Text(UI, SelectionInfoPane.INFO_FONT);
     read.alignToFill();
+    read.scale = 0.75f;
     read.attachTo(this);
   }
   
@@ -52,6 +54,21 @@ public class Readout extends UIGroup {
     while (hS.length() < 4) hS = "0"+hS;
     String dS = "Day "+days+" "+hS+" Hours";
     read.append(dS);
+    
+    //
+    //  Finally, include the set of provisions and their supply/demand:
+    final BaseTransport p = played.transport;
+    final Traded provs[] = { Economy.POWER, Economy.WATER };
+    
+    for (Traded type : provs) {
+      read.append("  ("+type.name+": ");
+      int supply = (int) p.provSupply(type);
+      int demand = (int) p.provDemand(type);
+      read.append(supply+"/"+demand+")");
+    }
+    
+    
+    /*
     //
     //  And finally current psy points-
     final boolean ruled = played.ruler() != null;
@@ -77,6 +94,7 @@ public class Readout extends UIGroup {
         read.append("|", tone);
       }
     }
+    //*/
   }
   
 }

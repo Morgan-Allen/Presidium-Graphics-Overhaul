@@ -7,8 +7,7 @@ import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.plans.*;
-import stratos.game.wild.Habitat;
-import stratos.game.wild.Wreckage;
+import stratos.game.wild.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.sfx.*;
@@ -19,6 +18,24 @@ import static stratos.game.actors.Conditions.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.economic.Economy.*;
+
+
+
+    
+    //  TODO:  Move this to the Pseer School!
+    /*
+    //
+    //  TODO:  Consider replacing this a boost to Shields generation?  Make
+    //  Fusion confinement dependant on that?
+    QUALIA_WAVEFORM_INTERFACE = new Upgrade(
+      "Qualia Waveform Interface",
+      "Allows reactor output to contribute slightly towards regeneration of "+
+      "psi points and range of psyon abilities.",
+      250,
+      null, 1, FEEDBACK_MONITORS,
+      Reactor.class, ALL_UPGRADES
+    ),
+    //*/
 
 
 
@@ -91,22 +108,12 @@ public class Reactor extends Venue {
   final public static Upgrade
     WASTE_PROCESSING = new Upgrade(
       "Waste Processing",
-      "Reduces the rate at which fuel rods are consumed and ameliorates "+
-      "pollution.",
+      "Reduces the rate at which fuel rods are consumed, ameliorates "+
+      "pollution, and allows conversion of metal ores to fuel rods.",
       150,
       null, 1, null,
       Reactor.class, ALL_UPGRADES
     ),
-    
-    ISOTOPE_CONVERSION = new Upgrade(
-      "Isotope Conversion",
-      "Allows metal ores to be synthesised into fuel rods and facilitates "+
-      "production of atomics.",
-      350,
-      null, 1, WASTE_PROCESSING,
-      Reactor.class, ALL_UPGRADES
-    ),
-    
     FEEDBACK_MONITORS = new Upgrade(
       "Feedback Monitors",
       "Reduces the likelihood of meltdown occuring when the reactor is "+
@@ -114,18 +121,6 @@ public class Reactor extends Venue {
       "infiltration.",
       200,
       null, 1, null,
-      Reactor.class, ALL_UPGRADES
-    ),
-    
-    //
-    //  TODO:  Consider replacing this a boost to Shields generation?  Make
-    //  Fusion confinement dependant on that?
-    QUALIA_WAVEFORM_INTERFACE = new Upgrade(
-      "Qualia Waveform Interface",
-      "Allows reactor output to contribute slightly towards regeneration of "+
-      "psi points and range of psyon abilities.",
-      250,
-      null, 1, FEEDBACK_MONITORS,
       Reactor.class, ALL_UPGRADES
     ),
     
@@ -138,16 +133,27 @@ public class Reactor extends Venue {
       Reactor.class, ALL_UPGRADES
     ),
     
-    CORE_TECHNICIAN_STATION = new Upgrade(
-      "Core Technician Station",
-      "Core Technicians provide the expertise and vigilance neccesary to "+
-      "monitor core output and manufacture atomics or antimass.",
-      100,
-      Backgrounds.CORE_TECHNICIAN, 1, null,
+    CYCLOTRON_CIRCUIT = new Upgrade(
+      "Cyclotron Circuit",
+      "Facilitates conversion of fuel rods to antimass, a highly volatile "+
+      "energy source essential to space travel and atomics production.",
+      450, null, 1, WASTE_PROCESSING,
       Reactor.class, ALL_UPGRADES
     )
- ;
+  ;
   
+  final public static Conversion
+    METALS_TO_FUEL = new Conversion(
+      Reactor.class, "metals_to_fuel",
+      5, ORES, TO, 1, TOPES,
+      MODERATE_DC, CHEMISTRY, MODERATE_DC, FIELD_THEORY
+    ),
+    TOPES_TO_ANTIMASS = new Conversion(
+      Reactor.class, "fuel_to_antimass",
+      20, TOPES, TO, 1, ANTIMASS,
+      MODERATE_DC, CHEMISTRY, STRENUOUS_DC, FIELD_THEORY
+    )
+  ;
   
   
   public Behaviour jobFor(Actor actor, boolean onShift) {
@@ -163,20 +169,22 @@ public class Reactor extends Venue {
         Action.LOOK,
         meltdown < 0.5f ? "Correcting core condition" : "Containing Meltdown!"
       );
-      check.setPriority(Action.ROUTINE * (meltdown + 1));
+      check.setPriority(Plan.ROUTINE + (meltdown * Plan.PARAMOUNT));
       choice.add(check);
     }
     if (! staff.onShift(actor)) return choice.pickMostUrgent();
     //
     //  Then check to see if anything needs manufacture-
-    final Manufacture m = stocks.nextManufacture(actor, METALS_TO_FUEL);
-    if (m != null && stocks.amountOf(ORES) >= 1) {
-      m.checkBonus = 5 * structure.upgradeLevel(ISOTOPE_CONVERSION);
-      choice.add(m);
-    }
+    Manufacture m = null;
+    
+    m = stocks.nextManufacture(actor, METALS_TO_FUEL);
+    if (m != null) choice.add(m.setBonusFrom(this, true, WASTE_PROCESSING));
+    
+    m = stocks.nextManufacture(actor, TOPES_TO_ANTIMASS);
+    if (m != null) choice.add(m.setBonusFrom(this, true, CYCLOTRON_CIRCUIT));
     
     for (Manufacture o : stocks.specialOrders()) {
-      o.checkBonus = 5 * structure.upgradeLevel(ISOTOPE_CONVERSION);
+      o.setBonusFrom(this, true, WASTE_PROCESSING);
       choice.add(o);
     }
     //
@@ -236,9 +244,11 @@ public class Reactor extends Venue {
     
     //  Update demand for raw materials-
     stocks.forceDemand(TOPES, 5 + (powerOutput / 5f), TIER_CONSUMER);
-    if (structure.upgradeLevel(ISOTOPE_CONVERSION) > 0) {
+    if (structure.upgradeLevel(WASTE_PROCESSING) > 0) {
       stocks.translateDemands(METALS_TO_FUEL, 1);
     }
+    //  TODO:  RESERVE THIS FOR THE PSEER SCHOOL
+    /*
     //
     //  If possible, assist in recovery of psi points-
     final int PB = structure.upgradeLevel(QUALIA_WAVEFORM_INTERFACE);
@@ -246,6 +256,7 @@ public class Reactor extends Venue {
     if (PB > 0 && ruler != null && ruler.aboard() instanceof Bastion) {
       ruler.health.gainConcentration(PB / 100f);
     }
+    //*/
     //
     //  Output pollution-
     int pollution = 10;

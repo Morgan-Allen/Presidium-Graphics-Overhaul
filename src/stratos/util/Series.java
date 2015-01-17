@@ -12,6 +12,8 @@ public interface Series <T> extends Iterable <T> {
   void add(T t);
   boolean includes(T t);
   T first();
+  T last();
+  boolean empty();
   
   Object[] toArray();
   T[] toArray(Class typeClass);

@@ -429,9 +429,9 @@ public abstract class Venue extends Structural implements
   protected void toggleStatusDisplay() {
     final boolean showBurn = structure.burning();
     buildSprite.toggleFX(BuildingSprite.BLAST_MODEL, showBurn);
-    toggleStatusFor(LIFE_SUPPORT, BuildingSprite.LIFE_SUPPORT_MODEL);
+    toggleStatusFor(ATMO, BuildingSprite.LIFE_SUPPORT_MODEL);
     toggleStatusFor(POWER       , BuildingSprite.POWER_MODEL);
-    toggleStatusFor(OPEN_WATER  , BuildingSprite.WATER_MODEL);
+    toggleStatusFor(WATER  , BuildingSprite.WATER_MODEL);
   }
   
   

@@ -166,6 +166,12 @@ public abstract class SolidModel extends ModelAsset {
     for (Animation anim : gdxModel.animations) names[i++] = anim.id;
     return names;
   }
+  
+  
+  public float defaultAnimDuration(String name) {
+    Animation a = gdxModel.getAnimation(name);
+    return a.duration;
+  }
 }
 
 

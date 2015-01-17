@@ -219,12 +219,11 @@ public class Base implements
   
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
-    ///I.say("UPDATING BASE, NUM UPDATES: "+numUpdates);
     
     setup.updatePlacements();
     demands.updateAllMaps(1);
     commerce.updateCommerce(numUpdates);
-    transport.distribute(Economy.ALL_PROVISIONS, this);
+    transport.distributeProvisions(this);
     dangerMap.update();
     tactics.updateTactics(numUpdates);
     

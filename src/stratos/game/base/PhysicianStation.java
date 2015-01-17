@@ -146,6 +146,13 @@ public class PhysicianStation extends Venue {
       PhysicianStation.class, ALL_UPGRADES
     );
   
+  final public static Conversion
+    REAGENTS_TO_MEDICINE = new Conversion(
+      PhysicianStation.class, "reagents_to_medicine",
+      1, REAGENTS, 1, GREENS, TO, 1, MEDICINE,
+      MODERATE_DC, CHEMISTRY, ROUTINE_DC, PHARMACY
+    );
+  
   
   public Behaviour jobFor(Actor actor, boolean onShift) {
     if (! structure.intact()) return null;

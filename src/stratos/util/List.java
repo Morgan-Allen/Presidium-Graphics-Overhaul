@@ -82,6 +82,12 @@ public class List <T> extends ListEntry <T> implements Series <T> {
     return size;
   }
   
+  /**  Returns whether this list has no entries-
+    */
+  public boolean empty() {
+    return size == 0;
+  }
+  
   /**  Adds all the given list's elements to this list's own, starting from the
     *  front.  Order is preserved.  The argument list is cleared.
     */

@@ -623,6 +623,11 @@ public class Structure {
   }
   
   
+  public boolean hasUpgrade(Upgrade type) {
+    return upgradeLevel(type) > 0;
+  }
+  
+  
   public float upgradeProgress() {
     return upgradeProgress;
   }

@@ -252,8 +252,7 @@ public class Selection implements UIConstants {
     }
     
     //  Use a glow-colour, and ready for rendering-
-    c = new Colour(c);
-    c.a = -1;
+    c = new Colour(c).withGlow(c.a);
     overlay.colour = c;
     overlay.readyFor(r);
   }

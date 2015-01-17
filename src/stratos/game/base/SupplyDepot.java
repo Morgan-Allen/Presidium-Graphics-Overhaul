@@ -3,8 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -15,11 +13,20 @@ import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
+import static stratos.game.actors.Qualities.CHEMISTRY;
+import static stratos.game.actors.Qualities.SIMPLE_DC;
 import static stratos.game.economic.Economy.*;
 
 
-
 //  TODO:  You'll need to introduce explicit upgrades here again.
+
+//  Trades in raw materials and a few finished goods.
+//  (Carbs.  Protein.  Plastics.  Parts.)
+//  Ores.  Topes.  Carbons.  Spyce N.  Spyce T.  Spyce H.
+
+
+
+
 
 public class SupplyDepot extends Venue {
   
@@ -92,7 +99,43 @@ public class SupplyDepot extends Venue {
   /**  Upgrades, economic functions and behaviour implementation-
     */
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> ();
+
+  final public static Upgrade
+    LCHC_RENDERING  = new Upgrade(
+      "LCHC Rendering",
+      "Converts organic waste to "+LCHC.name+" along with a slight amount of "+
+      "power.",
+      200, null, 1, null,
+      SupplyDepot.class, ALL_UPGRADES
+    ),
+    HARDWARE_STORE  = new Upgrade(
+      "Hardware Store",
+      "Allows civilian purchases of parts and plastics, and increases storage "+
+      "space.",
+      150, null, 1, null,
+      SupplyDepot.class, ALL_UPGRADES
+    ),
+    RATIONS_VENDING = new Upgrade(
+      "Rations Vending",
+      "Allows civilian purchases of carbs and protein, and increases storage "+
+      "space.",
+      100, null, 1, null,
+      SupplyDepot.class, ALL_UPGRADES
+    ),
+    EXPORT_TRADE = new Upgrade(
+      "Export Trade",
+      "Prepares and fuels cargo convoys to visit distant settlements.",
+      250, null, 1, LCHC_RENDERING,
+      SupplyDepot.class, ALL_UPGRADES
+    );
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
+  
+  final public static Conversion
+    WASTE_TO_LCHC = new Conversion(
+      SupplyDepot.class, "waste_to_lchc",
+      TO, 1, LCHC,
+      SIMPLE_DC, CHEMISTRY
+    );
   
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
@@ -101,11 +144,15 @@ public class SupplyDepot extends Venue {
   }
   
   
-  public Behaviour jobFor(Actor actor, boolean onShift) {
+  protected Behaviour jobFor(Actor actor, boolean onShift) {
     if (! onShift) return null;
     
     final Choice choice = new Choice(actor);
     choice.add(Repairs.getNextRepairFor(actor, true));
+    
+    choice.add(stocks.nextManufacture(actor, WASTE_TO_LCHC));
+    
+    //  TODO:  Include carbons rendering.
     
     final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
       this, services(), 2, 10, 5
@@ -119,6 +166,27 @@ public class SupplyDepot extends Venue {
     
     if (choice.empty()) choice.add(Supervision.oversight(this, actor));
     return choice.weightedPick();
+  }
+  
+  
+  protected void addServices(Choice choice, Actor actor) {
+    if (! (actor.mind.home() instanceof Holding)) return;
+    
+    final Batch <Traded> toBuy = new Batch <Traded> ();
+    if (structure.hasUpgrade(RATIONS_VENDING)) {
+      toBuy.add(CARBS  );
+      toBuy.add(PROTEIN);
+    }
+    if (structure.hasUpgrade(HARDWARE_STORE)) {
+      toBuy.add(PARTS   );
+      toBuy.add(PLASTICS);
+    }
+    if (toBuy.empty()) return;
+    
+    final Delivery d = DeliveryUtils.fillBulkOrder(
+      this, actor.mind.home(), toBuy.toArray(Traded.class), 1, 5
+    );
+    if (d != null) choice.add(d.setWithPayment(actor, true));
   }
   
   

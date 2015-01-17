@@ -62,32 +62,47 @@ public class Fabricator extends Venue {
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
     
+  /*
     ADVANCED_PLASTICS  = new Upgrade(
       "Advanced Plastics",
       "Speeds the production of standard plastics and functional clothing.",
       200, PLASTICS, 2, null,
       Fabricator.class, ALL_UPGRADES
     ),
-    POLYMER_CONVERSION = new Upgrade(
+    //*/
+    POLYMER_LOOM = new Upgrade(
       "Polymer Conversion",
-      "Allows for conversion of Carbs to LCHC, and reduces overall squalor.",
+      "Speeds the production of standard plastics and functional clothing.",
       250, CARBS, 1, null,
       Fabricator.class, ALL_UPGRADES
     ),
     FINERY_FLOOR       = new Upgrade(
       "Finery Production",
       "Allows production of fine garments and decor for the upper classes.",
-      100, null, 1, ADVANCED_PLASTICS,
+      500, null, 1, POLYMER_LOOM,
       Fabricator.class, ALL_UPGRADES
     ),
     CAMOUFLAGE_FLOOR   = new Upgrade(
       "Camouflage Production",
       "Allows production of stealth-based protection for guerilla agents.",
-      150, null, 2, ADVANCED_PLASTICS,
+      350, null, 2, POLYMER_LOOM,
       Fabricator.class, ALL_UPGRADES
     )
     
     //  TODO:  Level 2 Upgrade.
+  ;
+  
+  final public static Conversion
+    LCHC_TO_PLASTICS = new Conversion(
+      Fabricator.class, "lchc_to_plastics",
+      1, LCHC, TO, 1, PLASTICS,
+      ROUTINE_DC, CHEMISTRY, SIMPLE_DC, HANDICRAFTS
+    ),
+    PLASTICS_TO_DECOR = new Conversion(
+      Fabricator.class, "plastics_to_decor",
+      2, PLASTICS, TO, 1, DECOR,
+      STRENUOUS_DC, GRAPHIC_DESIGN, MODERATE_DC, HANDICRAFTS
+    )
   ;
   
   
@@ -95,8 +110,8 @@ public class Fabricator extends Venue {
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     
-    final int levelPC = structure.upgradeLevel(POLYMER_CONVERSION);
-    if (levelPC > 0) stocks.translateDemands(CARBS_TO_LCHC, 1);
+    final int levelPC = structure.upgradeLevel(POLYMER_LOOM);
+    //if (levelPC > 0) stocks.translateDemands(CARBS_TO_LCHC, 1);
     structure.setAmbienceVal(levelPC - 3);
     
     stocks.incDemand(LCHC, 5, TIER_CONSUMER, 1);
@@ -110,16 +125,17 @@ public class Fabricator extends Venue {
     if (! onShift) return null;
     
     final Choice choice = new Choice(actor);
-    
+    /*
     final Manufacture c = stocks.nextManufacture(actor, CARBS_TO_LCHC);
     if (c != null) {
-      c.setBonusFrom(this, true, POLYMER_CONVERSION);
+      c.setBonusFrom(this, true, POLYMER_LOOM);
       choice.add(c);
     }
+    //*/
     
     final Manufacture m = stocks.nextManufacture(actor, LCHC_TO_PLASTICS);
     if (m != null) {
-      m.setBonusFrom(this, false, ADVANCED_PLASTICS);
+      m.setBonusFrom(this, false, POLYMER_LOOM);
       choice.add(m);
     }
     
@@ -132,7 +148,7 @@ public class Fabricator extends Venue {
         o.setBonusFrom(this, true, CAMOUFLAGE_FLOOR);
       }
       else {
-        o.setBonusFrom(this, false, ADVANCED_PLASTICS);
+        o.setBonusFrom(this, false, POLYMER_LOOM);
       }
       choice.add(o);
     }

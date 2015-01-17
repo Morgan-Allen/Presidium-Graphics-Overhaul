@@ -21,6 +21,17 @@ import static stratos.game.economic.Economy.*;
 //
 //  TODO:  Implement Vault Security and Virtual Currency upgrades.
 
+//  TODO:  Arrange deliveries between areas of high and low scarcity/price for
+//  a given base.
+
+
+//  Rations.  Repairs.  Medkits.
+//    Life-Extension.  (spyce, from.)
+//    Truth Serum.     (medicine, from physician.)
+//    Ansible Relay.   (hardware, from engineer.)
+
+
+
 public class StockExchange extends Venue {
   
   /**  Data fields, constructors and save/load functionality-
@@ -109,7 +120,7 @@ public class StockExchange extends Venue {
     final int category = Economy.categoryFor(type);
     Upgrade upgrade = null;
     switch (category) {
-      case (CATEGORY_FOOD ) : upgrade = RATIONS_STALL   ; break;
+      case (CATEGORY_FOOD ) : upgrade = RATIONS_VENDING   ; break;
       case (CATEGORY_DRUG ) : upgrade = MEDICAL_EXCHANGE; break;
       case (CATEGORY_WARES) : upgrade = HARDWARE_STORE  ; break;
       case (CATEGORY_SPYCE) : upgrade = SPYCE_EMPORIUM  ; break;
@@ -170,27 +181,30 @@ public class StockExchange extends Venue {
   
   final public static Upgrade
     
-    RATIONS_STALL = new Upgrade(
-      "Rations Stall",
+    //  TODO:  COOK UP RATIONS AS A 4TH FOOD TYPE
+    RATIONS_VENDING = new Upgrade(
+      "Rations Vending",
       "Increases space available to carbs, greens and protein and augments "+
       "profits from their sale.",
       150, null, 1, null,
       StockExchange.class, ALL_UPGRADES
     ),
     
-    MEDICAL_EXCHANGE = new Upgrade(
-      "Medical Exchange",
-      "Increases space available to reagents, soma and medicine, and augments"+
-      "profits from their sale.",
-      250, null, 1, RATIONS_STALL,
-      StockExchange.class, ALL_UPGRADES
-    ),
-    
+    //  TODO:  PERMIT BASIC REPAIRS/RECHARGE OF ARMOUR/DEVICES
     HARDWARE_STORE = new Upgrade(
       "Hardware Store",
       "Increases space available to parts, plastics and datalinks, and "+
       "augments profits from their sale.",
       150, null, 1, null,
+      StockExchange.class, ALL_UPGRADES
+    ),
+    
+    //  TODO:  PROVIDE STANDARD MEDKITS FOR USE
+    MEDICAL_EXCHANGE = new Upgrade(
+      "Medical Exchange",
+      "Increases space available to reagents, soma and medicine, and augments"+
+      "profits from their sale.",
+      250, null, 1, null,
       StockExchange.class, ALL_UPGRADES
     ),
     
@@ -206,16 +220,36 @@ public class StockExchange extends Venue {
       "Spyce Emporium",
       "Permits trading in Natrizoral, Tinerazine, and Halebdynum- trace "+
       "compounds vital to complex chemistry.",
-      300, null, 1, MEDICAL_EXCHANGE,
+      300, null, 1, RATIONS_VENDING,
       StockExchange.class, ALL_UPGRADES
     ),
     
-    CREDITS_RESERVE = new Upgrade(
-      "Credits Reserve",
-      "Allows your subjects to deposit their hard-earned savings and take out "+
-      "temporary loans, while investing a portion of profits to augment "+
-      "revenue.",
+    VIRTUAL_CURRENCY = new Upgrade(
+      "Virtual Currency",
+      "Makes small periodic adjustments to revenue and outlays in response "+
+      "to large-scale investment patterns, magnifying both profits and losses.",
       400, null, 1, VAULT_SECURITY,
+      StockExchange.class, ALL_UPGRADES
+    ),
+    
+    PATENT_RESURGIN = new Upgrade(
+      "Patent: Resurgin",
+      "",
+      350, null, 1, MEDICAL_EXCHANGE,
+      StockExchange.class, ALL_UPGRADES
+    ),
+    
+    PATENT_QI_ANSIBLE = new Upgrade(
+      "Patent: QI Ansible",
+      "",
+      550, null, 1, VAULT_SECURITY,
+      StockExchange.class, ALL_UPGRADES
+    ),
+    
+    PATENT_EGO_SERUM = new Upgrade(
+      "Patent: Ego Serum",
+      "",
+      750, null, 1, SPYCE_EMPORIUM,
       StockExchange.class, ALL_UPGRADES
     );
   
@@ -263,6 +297,16 @@ public class StockExchange extends Venue {
       choice.add(Supervision.inventory(this, actor));
     }
     return choice.weightedPick();
+  }
+  
+  
+  protected void addServices(Choice choice, Actor actor) {
+    
+    if (! (actor.mind.home() instanceof Holding)) return;
+    final Delivery d = DeliveryUtils.fillBulkOrder(
+      this, actor.mind.home(), services(), 1, 5
+    );
+    if (d != null) choice.add(d.setWithPayment(actor, true));
   }
   
   

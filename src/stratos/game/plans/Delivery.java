@@ -17,6 +17,9 @@ import stratos.game.economic.Inventory.Owner;
 
 //  TODO:  Unify this with Smuggling?  Same basic ideas involved.
 
+//  This is actually quite complex.  Sufficiently complex that I will have to
+//  think hard about action-sequencing.
+
 
 public class Delivery extends Plan {
   

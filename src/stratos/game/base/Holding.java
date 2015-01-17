@@ -14,6 +14,7 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
+import static stratos.game.base.HoldingUpgrades.*;
 
 
 
@@ -59,7 +60,7 @@ public class Holding extends Venue {
     this.upgradeLevel = 0;
     this.varID = Rand.index(NUM_VARS);
     structure.setupStats(
-      HoldingUpgrades.INTEGRITIES[0], 5, HoldingUpgrades.BUILD_COSTS[0],
+      INTEGRITIES[0], 5, BUILD_COSTS[0],
       Structure.BIG_MAX_UPGRADES, Structure.TYPE_VENUE
     );
     attachSprite(modelFor(this).makeSprite());
@@ -108,7 +109,7 @@ public class Holding extends Venue {
   
   /**  Upgrade listings-
     */
-  public Index <Upgrade> allUpgrades() { return HoldingUpgrades.ALL_UPGRADES; }
+  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   
   //  TODO:  Now you need to ensure that Holdings can 'migrate' to better
   //  locations if local conditions change...
@@ -135,11 +136,15 @@ public class Holding extends Venue {
     }
     
     else {
-      for (int level = 0 ; level < HoldingUpgrades.NUM_LEVELS; level++) {
-        if (needsMet(level)) rating = level;
+      //  TODO:  THIS WON'T WORK- IT'LL MEASURE THIS AGAINST CURRENT STOCKS,
+      //  NOT AVAILABILITY
+      
+      for (int level = 0 ; level < NUM_LEVELS; level++) {
+        final Object access = checkAccess(this, level, false);
+        if (access == NEEDS_MET) rating = level;
         else break;
       }
-      rating *= baseDemand * Plan.PARAMOUNT / HoldingUpgrades.NUM_LEVELS;
+      rating *= baseDemand * Plan.PARAMOUNT / NUM_LEVELS;
     }
     
     if (report) I.say("  Final rating: "+rating);
@@ -157,7 +162,7 @@ public class Holding extends Venue {
     }
     super.updateAsScheduled(numUpdates, instant);
     
-    final int maxHoused = HoldingUpgrades.OCCUPANCIES[upgradeLevel];
+    final int maxHoused = OCCUPANCIES[upgradeLevel];
     base.demands.impingeSupply(SERVICE_HOUSING, maxHoused, 1, this);
     
     if (! structure.intact()) return;
@@ -174,7 +179,7 @@ public class Holding extends Venue {
       structure.goodCondition()
     ) {
       upgradeLevel = targetLevel;
-      structure.updateStats(HoldingUpgrades.INTEGRITIES[targetLevel], 5, 0);
+      structure.updateStats(INTEGRITIES[targetLevel], 5, 0);
       world.ephemera.addGhost(this, MAX_SIZE, sprite(), 2.0f);
       attachModel(modelFor(this));
       setAsEstablished(false);
@@ -184,15 +189,15 @@ public class Holding extends Venue {
   
   private boolean needsMet(int meetLevel) {
     if (staff.residents().size() == 0) return false;
-    if (meetLevel <= HoldingUpgrades.LEVEL_TENT   ) return true;
-    if (meetLevel >  HoldingUpgrades.LEVEL_GUILDER) return false;
-    final Object met = HoldingUpgrades.NEEDS_MET;
+    if (meetLevel <= LEVEL_TENT   ) return true;
+    if (meetLevel >  LEVEL_GUILDER) return false;
+    final Object met = NEEDS_MET;
     return
-      HoldingUpgrades.checkAccess   (this, meetLevel, false) == met &&
-      HoldingUpgrades.checkMaterials(this, meetLevel, false) == met &&
-      HoldingUpgrades.checkSupport  (this, meetLevel, false) == met &&
-      HoldingUpgrades.checkRations  (this, meetLevel, false) == met &&
-      HoldingUpgrades.checkSurrounds(this, meetLevel, false) == met;
+      checkAccess   (this, meetLevel, false) == met &&
+      checkMaterials(this, meetLevel, false) == met &&
+      checkSupport  (this, meetLevel, false) == met &&
+      checkRations  (this, meetLevel, false) == met &&
+      checkSurrounds(this, meetLevel, false) == met;
   }
   
   
@@ -224,7 +229,7 @@ public class Holding extends Venue {
         devolve = false;
       }
       numTests = devolveCounter = upgradeCounter = 0;
-      targetLevel = Nums.clamp(targetLevel, HoldingUpgrades.NUM_LEVELS);
+      targetLevel = Nums.clamp(targetLevel, NUM_LEVELS);
       
       if (verbose && I.talkAbout == this) {
         if (numTests == 0) I.say("HOUSING TEST INTERVAL COMPLETE");
@@ -239,7 +244,7 @@ public class Holding extends Venue {
       }
       
       if (targetLevel == upgradeLevel) return;
-      final Object HU[] = HoldingUpgrades.UPGRADE_ARRAY;
+      final Object HU[] = UPGRADE_ARRAY;
       
       if (targetLevel > upgradeLevel) {
         final Upgrade target = (Upgrade) HU[ targetLevel];
@@ -258,23 +263,23 @@ public class Holding extends Venue {
     //  Decrement stocks and update demands-
     float wear = Structure.WEAR_PER_DAY;
     wear /= Stage.STANDARD_DAY_LENGTH * structure.maxIntegrity();
-    final int maxPop = HoldingUpgrades.OCCUPANCIES[upgradeLevel];
+    final int maxPop = OCCUPANCIES[upgradeLevel];
     float count = 0;
     for (Actor r : staff.residents()) if (r.aboard() == this) count++;
     count = 0.5f + (count / maxPop);
     
     //  If upgrades are free, make sure it includes rations:
     int maxFree = Nums.clamp(GameSettings.freeHousingLevel, upgradeLevel + 1);
-    for (Item i : HoldingUpgrades.rationNeeds(this, maxFree)) {
+    for (Item i : rationNeeds(this, maxFree)) {
       stocks.setAmount(i.type, i.amount + 1);
     }
-    for (Item i : HoldingUpgrades.materials(maxFree).raw) {
+    for (Item i : materials(maxFree).raw) {
       stocks.setAmount(i.type, i.amount + 1);
     }
     
     //  Power, water and life support are consumed at a fixed rate, but other
     //  materials wear out depending on use (and more slowly.)
-    for (Item i : HoldingUpgrades.materials(upgradeLevel).raw) {
+    for (Item i : materials(upgradeLevel).raw) {
       if (i.type.form == FORM_PROVISION) continue;
       stocks.bumpItem(i.type, i.amount * count * -wear);
     }
@@ -289,17 +294,17 @@ public class Holding extends Venue {
   
   
   private void updateDemands(int targetLevel) {
-    targetLevel = Nums.clamp(targetLevel, HoldingUpgrades.NUM_LEVELS);
+    targetLevel = Nums.clamp(targetLevel, NUM_LEVELS);
     stocks.clearDemands();
     
-    for (Item i : HoldingUpgrades.materials(targetLevel).raw) {
+    for (Item i : materials(targetLevel).raw) {
       stocks.forceDemand(i.type, i.amount + 0.5f, TIER_CONSUMER);
     }
     
-    final float supportNeed = HoldingUpgrades.supportNeed(this, targetLevel);
-    stocks.forceDemand(LIFE_SUPPORT, supportNeed, TIER_CONSUMER);
+    final float supportNeed = supportNeed(this, targetLevel);
+    stocks.forceDemand(ATMO, supportNeed, TIER_CONSUMER);
     
-    for (Item i : HoldingUpgrades.rationNeeds(this, targetLevel)) {
+    for (Item i : rationNeeds(this, targetLevel)) {
       stocks.forceDemand(i.type, i.amount, TIER_CONSUMER);
     }
   }
@@ -309,16 +314,16 @@ public class Holding extends Venue {
     
     final Batch <Traded> needed = new Batch <Traded> ();
     int targetLevel = upgradeLevel + 1;
-    targetLevel = Nums.clamp(targetLevel, HoldingUpgrades.NUM_LEVELS);
+    targetLevel = Nums.clamp(targetLevel, NUM_LEVELS);
     
     //  Combine the listing of non-provisioned materials and demand for rations.
     //  (Note special goods, like pressfeed and datalinks, are delivered to the
     //  holding externally, and so are not included here.)
-    for (Item i : HoldingUpgrades.materials(targetLevel).raw) {
+    for (Item i : materials(targetLevel).raw) {
       if (i.type.form == FORM_PROVISION) continue;
       needed.add(i.type);
     }
-    for (Item i : HoldingUpgrades.rationNeeds(this, targetLevel)) {
+    for (Item i : rationNeeds(this, targetLevel)) {
       needed.add(i.type);
     }
     return needed.toArray(Traded.class);
@@ -333,22 +338,34 @@ public class Holding extends Venue {
   public void addTasks(Choice choice, Actor actor, Background background) {
     if (background == Backgrounds.AS_RESIDENT && structure.intact()) {
       final Traded goods[] = goodsNeeded();
-      /*
-      //  First of all, deliver any goods that you yourself are carrying-
-      for (Traded s : goods) for (Item i : actor.gear.matches(s)) {
-        if (i.refers == null || i.refers == actor) {
-          final Delivery d = new Delivery(i, actor, this);
-          d.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL);
-          choice.add(d);
-          return;
-        }
-      }
-      //*/
+      //
       //  Otherwise, see if it's possible to make any purchases nearby-
+      
+      //  TODO:  You still need to ensure that the venue in question allows
+      //  private purchases of a particular type for the actor in question.  In
+      //  fact, it might be best to get a list of *all* services and screen out
+      //  any non-deliveries.
+      
+      final Batch <Venue> salePoints = new Batch <Venue> ();
+      world.presences.sampleFromMap(
+        this, world, 5, salePoints, Economy.SERVICE_COMMERCE
+      );
+      final Choice buying = new Choice(actor) {
+        public boolean add(Behaviour b) {
+          if (b instanceof Delivery) return super.add(b);
+          else return false;
+        }
+      };
+      for (Venue v : salePoints) {
+        v.addTasks(buying, actor, Backgrounds.AS_VISITOR);
+      }
+      choice.add(buying.weightedPick());
+      /*
       final Delivery d = DeliveryUtils.bestBulkCollectionFor(
-        this, goods, 1, 5, 5
+        this, goods, 1, 5, salePoints, -1
       );
       if (d != null) choice.add(d.setWithPayment(actor, true));
+      //*/
     }
     else super.addTasks(choice, actor, background);
   }
@@ -362,7 +379,7 @@ public class Holding extends Venue {
   
   public float crowdRating(Actor actor, Background background) {
     if (background == Backgrounds.AS_RESIDENT) {
-      final int maxPop = HoldingUpgrades.OCCUPANCIES[upgradeLevel];
+      final int maxPop = OCCUPANCIES[upgradeLevel];
       return staff.residents().size() * 1f / maxPop;
     }
     else return super.crowdRating(actor, background);
@@ -425,7 +442,7 @@ public class Holding extends Venue {
   
   
   public String fullName() {
-    return HoldingUpgrades.LEVEL_NAMES[upgradeLevel + 2];
+    return LEVEL_NAMES[upgradeLevel + 2];
   }
   
   
@@ -469,15 +486,17 @@ public class Holding extends Venue {
   }
   
   
+  //  TODO:  Merge this with the needsMet method above!
+  
   private String needMessage(int meetLevel) {
-    meetLevel = Nums.clamp(meetLevel, HoldingUpgrades.NUM_LEVELS);
-    final Object met = HoldingUpgrades.NEEDS_MET;
+    meetLevel = Nums.clamp(meetLevel, NUM_LEVELS);
+    final Object met = NEEDS_MET;
     final Object
-      access    = HoldingUpgrades.checkAccess   (this, meetLevel, true),
-      materials = HoldingUpgrades.checkMaterials(this, meetLevel, true),
-      support   = HoldingUpgrades.checkSupport  (this, meetLevel, true),
-      rations   = HoldingUpgrades.checkRations  (this, meetLevel, true),
-      surrounds = HoldingUpgrades.checkSurrounds(this, meetLevel, true);
+      access    = checkAccess   (this, meetLevel, true),
+      materials = checkMaterials(this, meetLevel, true),
+      support   = checkSupport  (this, meetLevel, true),
+      rations   = checkRations  (this, meetLevel, true),
+      surrounds = checkSurrounds(this, meetLevel, true);
     if (access    != met) return (String) access   ;
     if (materials != met) return (String) materials;
     if (support   != met) return (String) support  ;

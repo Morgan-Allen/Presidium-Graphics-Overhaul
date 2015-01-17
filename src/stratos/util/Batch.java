@@ -21,13 +21,14 @@ public class Batch <K> implements Series <K> {
   final public static int DEFAULT_SECTOR_SIZE = 16;
   
   final int sectorSize;
-  Sector first, last;
+  Object[] first, last;
   int index, size;
   
   
   public Batch() {
     this(DEFAULT_SECTOR_SIZE);
   }
+  
   
   public Batch(int sectorSize) {
     this.sectorSize = index = sectorSize;
@@ -40,7 +41,9 @@ public class Batch <K> implements Series <K> {
     for (K k : startWith) if (k != null) add(k);
   }
   
+  
   public int size() { return size; }
+  public boolean empty() { return size == 0; }
   
   
   
@@ -52,51 +55,50 @@ public class Batch <K> implements Series <K> {
     return (K[]) array;
   }
   
-  final public Object[] toArray() { return toArray(Object.class); }
+  
+  final public Object[] toArray() {
+    return toArray(Object.class);
+  }
   
   
   public K atIndex(int i) {
     if (i < 0 || i >= size) return null;
-    Sector sector = first;
+    Object[] sector = first;
     while (true) {
-      if (i < sectorSize) return (K) sector.array[i];
+      if (i < sectorSize) return (K) sector[i];
       i -= sectorSize;
-      sector = sector.next;
+      sector = (Object[]) sector[i];
     }
   }
   
+  
   public K last() {
     if (size < 1) return null;
-    return (K) last.array[index - 1];
+    return (K) last[index - 1];
   }
+  
   
   public K first() {
     if (size < 1) return null;
-    return (K) first.array[0];
+    return (K) first[0];
   }
   
-  
-  /**  A sector basically encapsulates a single fixed array, which are chained
-    *  together to create a singly- linked list and quickly allocate space for
-    *  element entries.  Each sector contains (up to) sectorSize elements.
-    */
-  class Sector {
-    final Object array[] = new Object[sectorSize];
-    Sector next = null;
-  }
   
   
   /**  Adds an element to the end of this list.
     */
   public void add(K k) {
     if (index == sectorSize) {
-      if (first == null)
-        first = last = new Sector();
-      else
-        last = last.next = new Sector();
+      if (first == null) {
+        first = last = new Object[sectorSize + 1];
+      }
+      else {
+        last[sectorSize] = new Object[sectorSize + 1];
+        last = (Object[]) last[sectorSize];
+      }
       index = 0;
     }
-    last.array[index++] = k;
+    last[index++] = k;
     size++;
   }
   
@@ -107,6 +109,7 @@ public class Batch <K> implements Series <K> {
   }
   
   
+  
   /**  Clears this list entirely.
     */
   public void clear() {
@@ -114,6 +117,7 @@ public class Batch <K> implements Series <K> {
     index = sectorSize;
     size = 0;
   }
+  
   
   /**  Checks whether this batch contains the given entry.
     */
@@ -127,9 +131,9 @@ public class Batch <K> implements Series <K> {
     *  added.
     */
   final public Iterator <K> iterator() {
-    final K k = (first != null) ? (K) first.array[0] : null;
+    final K k = (first != null) ? (K) first[0] : null;
     final class iterates implements Iterator <K> {
-      Sector current = first;
+      Object[] current = first;
       int index = 0, total = 0;
       K next = k;
       
@@ -141,11 +145,11 @@ public class Batch <K> implements Series <K> {
         total++;
         final K k = next;
         if (++index == sectorSize) {
-          current = current.next;
+          current = (Object[]) current[sectorSize];
           index = 0;
           if (current == null) return k;
         }
-        next =  (K) current.array[index];
+        next = (K) current[index];
         return k;
       }
       
@@ -171,7 +175,7 @@ public class Batch <K> implements Series <K> {
   /**  Basic testing method.
     */
   public static void main(String s[]) {
-    Batch <Integer> t = new Batch <Integer> ();
+    Batch <Integer> t = new Batch <Integer> (3);
     for (int n = 8; n-- > 0;) t.add((int) (Math.random() * n) + 1);
     I.say("Contents: ");
     for (int n : t) I.add(" "+n);
@@ -179,3 +183,4 @@ public class Batch <K> implements Series <K> {
     for (int n : (Integer[]) t.toArray(Integer.class)) I.add(" "+n);
   }
 }
+

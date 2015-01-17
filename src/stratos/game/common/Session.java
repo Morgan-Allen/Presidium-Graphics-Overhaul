@@ -521,6 +521,22 @@ public class Session {
   }
   
   
+  public float[] loadFloatArray(float array[]) throws Exception {
+    final int s = loadInt();
+    if (s == -1) return null;
+    if (array == null || array.length != s) array = new float[s];
+    for (int n = 0; n < s; n++) array[n] = loadFloat();
+    return array;
+  }
+  
+  
+  public void saveFloatArray(float array[]) throws Exception {
+    if (array == null) { saveInt(-1); return; }
+    saveInt(array.length);
+    for (float f : array) saveFloat(f);
+  }
+  
+  
   public float loadFloat() throws Exception {
     bytesIn += 4;
     return in.readFloat();
