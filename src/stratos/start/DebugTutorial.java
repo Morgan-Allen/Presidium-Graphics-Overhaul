@@ -14,6 +14,11 @@ import stratos.util.*;
 
 
 
+//  Test the long-range supply/demand systems for the stock exchange and supply
+//  depot.
+//  No.  Import/export levels should be for the settlement as a whole.  That
+//  doesn't really change.  Supply depots allow for long-distance transport,
+//  but should be picking up on those allocation-problems themselves.
 
 //  TODO:  Give an error message when placement isn't possible!
 //         And try every tile within a certain radius until you can place!

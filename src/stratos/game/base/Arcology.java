@@ -172,7 +172,7 @@ public class Arcology extends Venue {
     super.updateAsScheduled(numUpdates, instant);
     
     float waterNeed = 1f - world.terrain().fertilitySample(origin()) / 2;
-    stocks.forceDemand(WATER, waterNeed, TIER_CONSUMER);
+    stocks.forceDemand(WATER, waterNeed, Tier.CONSUMER);
     
     final float growth = 1f + stocks.amountOf(WATER) - waterNeed;
     plantsHealth += growth / FULL_GROWTH_INTERVAL;
@@ -218,7 +218,7 @@ public class Arcology extends Venue {
   
   
   public String objectCategory() {
-    return InstallTab.TYPE_AESTHETE;
+    return UIConstants.TYPE_AESTHETE;
   }
 }
 

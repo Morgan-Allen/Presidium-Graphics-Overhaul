@@ -142,6 +142,12 @@ public class Background extends Index.Entry implements Session.Saveable {
   }
   
   
+  public boolean isAgent() {
+    return standing >= Backgrounds.CLASS_AGENT;
+  }
+  
+  
+  
   /**  Factory methods-
     */
   public Actor sampleFor(Base base) {

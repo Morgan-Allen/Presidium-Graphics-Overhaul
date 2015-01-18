@@ -34,6 +34,7 @@ import static stratos.game.economic.Economy.*;
 
 public class StockExchange extends Venue {
   
+  
   /**  Data fields, constructors and save/load functionality-
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
@@ -333,7 +334,7 @@ public class StockExchange extends Venue {
     
     for (Traded type : ALL_MATERIALS) {
       final int room = spaceFor(type);
-      stocks.incDemand(type, room / 2f, TIER_TRADER, 1);
+      stocks.incDemand(type, room / 2f, Tier.TRADER, 1);
       //stocks.diffuseDemand(type, depots, 1);
     }
     //*/

@@ -29,7 +29,7 @@ public class ActorMotives {
   
   
   final Actor actor;
-  private float solitude = 0.0f;
+  private float solitude = 0.5f;
   
   
   

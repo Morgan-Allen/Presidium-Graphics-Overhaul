@@ -263,13 +263,13 @@ public class Staff {
   
   
   public void confirmApplication(FindWork a) {
-    final Base base = employs.base();
+    final Base  base  = employs.base();
     final Stage world = base.world;
-    
-    base.finance.incCredits(
-      0 - a.hiringFee(), BaseFinance.SOURCE_HIRING
-    );
     final Actor works = a.actor();
+    base.finance.incCredits(
+      0 - a.hiringFee(),
+      BaseFinance.SOURCE_HIRING
+    );
     //
     //  TODO:  Once you have incentives worked out, restore this-
     //works.gear.incCredits(app.salary / 2);
@@ -295,7 +295,7 @@ public class Staff {
   
   /**  Life cycle, recruitment and updates-
     */
-  protected void updatePersonnel(int numUpdates) {
+  protected void updateStaff(int numUpdates) {
     if (numUpdates % REFRESH_INTERVAL == 0) {
       final Base base = employs.base();
       
@@ -313,8 +313,11 @@ public class Staff {
       //  If there's an unfilled opening, look for someone to fill it.
       //  TODO:  This should really be handled more from the Commerce class?
       if (employs.careers() == null) return;
-      
-      if (employs.privateProperty()) for (FindWork a : applications) {
+      //
+      //  We automatically hire anyone who applies for non-freemen jobs, and
+      //  only vetting of candidates for public jobs:
+      final boolean PP = employs.privateProperty();
+      for (FindWork a : applications) if (PP || ! a.position().isAgent()) {
         confirmApplication(a);
       }
       

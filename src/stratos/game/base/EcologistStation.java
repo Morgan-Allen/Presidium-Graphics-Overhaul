@@ -186,7 +186,7 @@ public class EcologistStation extends Venue {
     if (! structure.intact()) return;
     //
     //  Increment demand for gene seed, and decay current stocks-
-    stocks.incDemand(GENE_SEED, 5, TIER_CONSUMER, 1);
+    stocks.incDemand(GENE_SEED, 5, Tier.CONSUMER, 1);
     final float decay = 0.1f / Stage.STANDARD_DAY_LENGTH;
     for (Item seed : stocks.matches(GENE_SEED)) {
       stocks.removeItem(Item.withAmount(seed, decay));
@@ -197,8 +197,8 @@ public class EcologistStation extends Venue {
     //
     //  Demand supplies, if breeding is going on-
     final int numBred = AnimalBreeding.breedingAt(this).size() + 1;
-    stocks.forceDemand(CARBS  , numBred * 2, TIER_CONSUMER);
-    stocks.forceDemand(PROTEIN, numBred * 1, TIER_CONSUMER);
+    stocks.forceDemand(CARBS  , numBred * 2, Tier.CONSUMER);
+    stocks.forceDemand(PROTEIN, numBred * 1, Tier.CONSUMER);
     //
     //  An update ambience-
     structure.setAmbienceVal(2);

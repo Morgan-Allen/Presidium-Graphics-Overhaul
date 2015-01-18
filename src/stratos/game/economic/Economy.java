@@ -32,21 +32,17 @@ public final class Economy {
     DEFAULT_IMPORT_MARGIN  = 0.5f,
     DEFAULT_EXPORT_MARGIN  = 0.5f,
     DEFAULT_SMUGGLE_MARGIN = 1.0f;
-  final public static int
-    TIER_NONE     = -2,  //
-    TIER_IMPORTER = -1,  //
-    TIER_PRODUCER =  0,  //  never deliver to a producer.
-    TIER_TRADER   =  1,  //  deliver to/from based on relative shortage.
-    TIER_CONSUMER =  2,  //  never deliver from a consumer.
-    TIER_EXPORTER =  3;  //
+  public static enum Tier {
+    NONE, ANY, IMPORTER, PRODUCER, TRADER, CONSUMER, EXPORTER,
+  };
   final public static float
     ITEM_WEAR_DURATION = 100;
   
   final static String TIER_NAMES[] = {
-    "NONE", "IMPORTER", "PRODUCER", "TRADER", "CONSUMER", "EXPORTER"
+    "NONE", "ANY", "IMPORTER", "PRODUCER", "TRADER", "CONSUMER", "EXPORTER"
   };
-  public static String nameForTier(int tier) {
-    return TIER_NAMES[tier + 2];
+  public static String nameForTier(Tier tier) {
+    return TIER_NAMES[tier.ordinal()];
   }
   
 

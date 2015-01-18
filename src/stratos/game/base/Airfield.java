@@ -141,7 +141,7 @@ public class Airfield extends Venue {
     //
     //  TODO:  As long as you have power and LCHC, you can manufacture fuel for
     //  dropships...
-    stocks.forceDemand(POWER, 5, TIER_CONSUMER);
+    stocks.forceDemand(POWER, 5, Tier.CONSUMER);
     
     final int interval = (int) scheduledInterval();
     for (int i = 0 ; i < NUM_TYPES; i++) {
@@ -149,13 +149,13 @@ public class Airfield extends Venue {
       final int type = tradeTypes[i], level = tradeLevels[i];
       
       if      (type == TRADE_AUTO  ) {
-        stocks.incDemand(t, 0, TIER_TRADER, interval);
+        stocks.incDemand(t, 0, Tier.TRADER, interval);
       }
       else if (type == TRADE_IMPORT) {
-        stocks.forceDemand(t, level, TIER_IMPORTER);
+        stocks.forceDemand(t, level, Tier.IMPORTER);
       }
       else if (type == TRADE_EXPORT) {
-        stocks.forceDemand(t, level, TIER_EXPORTER);
+        stocks.forceDemand(t, level, Tier.EXPORTER);
       }
     }
   }

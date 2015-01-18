@@ -109,7 +109,7 @@ public class Commission extends Plan {
   private static Commission nextCommission(
     Actor actor, Venue makes, Item baseItem
   ) {
-    if (baseItem == null) return null;
+    if (baseItem == null || ! makes.isManned()) return null;
 
     final boolean report = verbose && I.talkAbout == actor;
     final int baseQuality = (int) baseItem.quality;
@@ -164,8 +164,9 @@ public class Commission extends Plan {
         if (report) I.say("  Can't afford item.");
         return 0;
       }
-      float greed = ActorMotives.greedPriority(actor, price / ITEM_WEAR_DURATION);
-      modifier -= greed;
+      modifier -= ActorMotives.greedPriority(
+        actor, price / ITEM_WEAR_DURATION
+      );
     }
     
     final float priority = priorityForActorWith(
@@ -214,9 +215,13 @@ public class Commission extends Plan {
     */
   protected Behaviour getNextStep() {
     if (finished() || item.type.materials() == null) return null;
+    if (shop.isManned()) return null;
+    
     final boolean report = actionVerbose && I.talkAbout == actor;
+    if (report) I.say("\nGetting next commission step for "+actor);
     
     if (order == null && shop.structure().intact()) {
+      if (report) I.say("  Placing order for "+item);
       final Action placeOrder = new Action(
         actor, shop,
         this, "actionPlaceOrder",
@@ -225,7 +230,8 @@ public class Commission extends Plan {
       return placeOrder;
     }
     
-    if (shop.isManned() && expired()) {
+    if (expired()) {
+      if (report) I.say("  Getting refund: "+(int) calcPrice()+" credits");
       final Action refund = new Action(
         actor, shop,
         this, "actionCollectRefund",
@@ -234,7 +240,8 @@ public class Commission extends Plan {
       return refund;
     }
     
-    if (shop.isManned() && shop.stocks.hasItem(item)) {
+    if (shop.stocks.hasItem(item)) {
+      if (report) I.say("  Picking up "+item);
       final Action pickup = new Action(
         actor, shop,
         this, "actionPickupItem",

@@ -135,7 +135,7 @@ public class BaseDemands {
   ) {
     final BlurMap map = mapForSupply(key);
     at.position(temp);
-    amount *= period / updatePeriod;
+    if (period > 0) amount *= period / updatePeriod;
     map.impingeValue(amount, (int) temp.x, (int) temp.y);
   }
   
@@ -145,7 +145,7 @@ public class BaseDemands {
   ) {
     final BlurMap map = mapForDemand(key);
     at.position(temp);
-    amount *= period / updatePeriod;
+    if (period > 0) amount *= period / updatePeriod;
     map.impingeValue(amount, (int) temp.x, (int) temp.y);
   }
   

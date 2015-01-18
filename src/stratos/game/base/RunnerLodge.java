@@ -233,7 +233,7 @@ public class RunnerLodge extends Venue {
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     for (Traded type : ALL_MATERIALS) {
-      stocks.incDemand(type, 5, TIER_PRODUCER, 1);
+      stocks.incDemand(type, 5, Tier.PRODUCER, 1);
     }
     //  Demand either parts or reagents, depending on what you're making.
     //  Register as a producer of whatever you're making.

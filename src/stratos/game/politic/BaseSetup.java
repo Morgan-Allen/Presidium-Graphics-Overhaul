@@ -18,7 +18,7 @@ public class BaseSetup {
   /**  Placement of assorted structure types based on internal demand:
     */
   private static boolean
-    verbose      = false,
+    verbose      = true ,
     extraVerbose = false;
   
   final static float
@@ -35,15 +35,24 @@ public class BaseSetup {
   //
   //  Data structures for conducting time-sliced placement of private venues:
   protected VenueProfile canPlace[];
-  static class Placing {
+  static class Siting {
     VenueProfile profile  ;
     StageSection placed   ;
     Tile         exactTile;
     float        rating   ;
   }
+  final Sorting <Siting> sitings = new Sorting <Siting> () {
+    public int compare(Siting a, Siting b) {
+      if (a.rating > b.rating) return  1;
+      if (b.rating > a.rating) return -1;
+      return 0;
+    }
+  };
+  /*
   final List <Placing> placings = new List <Placing> () {
     protected float queuePriority(Placing r) { return r.rating; }
   };
+  //*/
   //
   //  State variables for time-sliced placement-evaluation:
   private int   initPlaceCount = -1;  //  Total placements at start of cycle
@@ -64,7 +73,7 @@ public class BaseSetup {
     
     final int numP = s.loadInt();
     for (int n = numP ; n-- > 0;) {
-      final Placing p = new Placing();
+      final Siting p = new Siting();
       p.profile   = (VenueProfile) s.loadObject();
       p.placed    = (StageSection) s.loadTarget();
       p.exactTile = (Tile        ) s.loadTarget();
@@ -81,8 +90,8 @@ public class BaseSetup {
   public void saveState(Session s) throws Exception {
     s.saveObjectArray(canPlace);
     
-    s.saveInt(placings.size());
-    for (Placing p : placings) {
+    s.saveInt(sitings.size());
+    for (Siting p : sitings) {
       s.saveObject(p.profile  );
       s.saveTarget(p.placed   );
       s.saveTarget(p.exactTile);
@@ -118,13 +127,13 @@ public class BaseSetup {
     
     for (Venue placing : toPlace) {
       rankSectionPlacings(new Venue[] {placing}, report);
-      attemptPlacements(placings.size(), -1, report);
+      attemptPlacements(sitings.size(), -1, report);
     }
     
     final Batch <Venue> placed = new Batch <Venue> ();
     Visit.appendTo(placed, allPlaced);
     allPlaced.clear();
-    placings.clear();
+    sitings.clear();
     for (Venue v : placed) {
       v.structure().setState(Structure.STATE_INTACT, 1);
     }
@@ -137,12 +146,12 @@ public class BaseSetup {
     //
     //  If the set of placings has been exhausted, then it's time for a new
     //  cycle of evaluations.  Rank potential sites and reset the build-total.
-    if (placings.size() == 0) {
+    if (sitings.size() == 0) {
       final Venue samples[] = VenueProfile.sampleVenues(
         Venue.VENUE_OWNS, true, canPlace
       );
       rankSectionPlacings(samples, report);
-      initPlaceCount = placings.size();
+      initPlaceCount = sitings.size();
       if (report && initPlaceCount > 0) {
         I.say("\nFinished ranking sections!");
       }
@@ -178,7 +187,7 @@ public class BaseSetup {
   
   
   private void rankSectionPlacings(Venue samples[], boolean report) {
-    placings.clear();
+    sitings.clear();
     if (report) {
       I.say("\nAttempting to gather section rankings...");
       I.say("  Time: "+base.world.currentTime());
@@ -187,7 +196,7 @@ public class BaseSetup {
     for (StageSection section : world.sections.sectionsUnder(world.area())) {
       for (Venue sample : samples) {
         sample.assignBase(base);
-        final Placing p = new Placing();
+        final Siting p = new Siting();
         p.profile   = sample.profile;
         p.placed    = section;
         p.exactTile = null   ;
@@ -195,34 +204,56 @@ public class BaseSetup {
         //
         //  We add placements regardless of rating, but cull them during the
         //  attempt-phases (see below.)
-        placings.add(p);
-        if (report) descPlacing("  Ranking placement: ", p);
+        sitings.add(p);
       }
     }
     
-    placings.queueSort();
+    if (report) for (Siting p : sitings) if (p.rating > 0) {
+      descPlacing("  Ranking placement: ", p);
+    }
   }
+  
+  
+  //  The problem here is that demand may have had a full day to represent
+  //  itself, whereas there may only be a few seconds between attempts at
+  //  introducing supply, so it won't have had time to register fully.
+  
+  //  You need some way for venues to specify their absolute supply of various
+  //  demands, so that you can measure when you have enough.  (This will also
+  //  let you know when to de-commission unprofitable structures.)
   
   
   private void attemptPlacements(
     int maxChecked, float buildLimit, boolean report
   ) {
-    while (maxChecked-- > 0 && placings.size() > 0) {
-      if (buildLimit > 0 && totalBuildHP > buildLimit) continue;
-      final Placing best = placings.removeLast();
+    while (maxChecked-- > 0 && sitings.size() > 0) {
+      if (buildLimit > 0 && totalBuildHP > buildLimit) return;
+      
+      final Siting best  = sitings.removeGreatest();
+      final Venue sample = best.profile.sampleVenue(base);
+      best.rating = sample.ratePlacing(best.placed, false);
+      
       if (best.rating <= 0) {
         if (report) I.say("  Placement culled...");
         continue;
       }
-
-      final Venue sample = best.profile.sampleVenue(base);
+      
       if (report) {
         I.say("\nAttempting placement at best site for "+sample);
         I.say("  Rough location: "+best.placed);
         I.say("  Rating was:     "+best.rating);
       }
+      
+      //  TODO:  If the placing was successful, I think you'll need to delete
+      //  ALL attempts at placement of this structure-type.
+      
+      //  ...Try and slice the algorithm more consistently.
+      
+      //
+      //  If the placing was successful, add the site back to the queue for
+      //  evaluation (it might be worth trying again.)
       if (attemptExactPlacement(best, sample, report)) {
-        totalBuildHP += sample.structure.maxIntegrity();
+        sitings.add(best);
       }
       else if (report) I.say("  No suitable site found.");
     }
@@ -230,7 +261,7 @@ public class BaseSetup {
   
   
   private boolean attemptExactPlacement(
-    Placing placing, Venue sample, boolean report
+    Siting placing, Venue sample, boolean report
   ) {
     final Pick <Tile> sitePick = new Pick <Tile> ();
     for (Tile t : world.tilesIn(placing.placed.area, false)) {
@@ -249,14 +280,17 @@ public class BaseSetup {
       return false;
     }
     final Tile bestSite = sitePick.result();
-    if (report) {
-      I.say("\nPlacing "+sample+" at "+bestSite);
-      I.say("  Rating: "+sitePick.bestRating());
-      I.say("  Total HP placed: "+totalBuildHP);
-    }
     sample.setPosition(bestSite.x, bestSite.y, world);
     sample.doPlacement();
     allPlaced.add(sample);
+    totalBuildHP += sample.structure.maxIntegrity();
+    
+    if (report) {
+      I.say("\nPlacing "+sample+" at "+bestSite);
+      I.say("  Rating:       "+sitePick.bestRating());
+      I.say("  Integrity:    "+sample.structure.maxIntegrity());
+      I.say("  Total so far: "+totalBuildHP);
+    }
     return true;
   }
   
@@ -362,7 +396,7 @@ public class BaseSetup {
   
   /** Feedback and debug methods-
     */
-  private void descPlacing(String desc, Placing best) {
+  private void descPlacing(String desc, Siting best) {
     I.say(
       "  "+desc+""+best.profile.baseClass.getSimpleName()+
       " "+best.placed.absX+"/"+best.placed.absY+

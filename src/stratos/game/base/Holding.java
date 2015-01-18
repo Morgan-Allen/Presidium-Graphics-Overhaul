@@ -36,7 +36,8 @@ public class Holding extends Venue {
   /**  Fields, constructors, and save/load methods-
     */
   private static boolean
-    verbose = false;
+    verbose     = false,
+    rateVerbose = true ;
   
   final public static int
     MAX_SIZE   = 2,
@@ -115,7 +116,7 @@ public class Holding extends Venue {
   //  locations if local conditions change...
   
   public float ratePlacing(Target point, boolean exact) {
-    final boolean report = verbose && BaseUI.currentPlayed() == base;
+    final boolean report = rateVerbose && BaseUI.currentPlayed() == base;
     
     final BaseDemands d = base.demands;
     final float baseDemand = d.localShortage(point, SERVICE_HOUSING);
@@ -131,24 +132,34 @@ public class Holding extends Venue {
       final Tile at = (Tile) point;
       rating *= 1 + point.world().ecology().ambience.valueAt(at);
       rating *= 1 - base.dangerMap.sampleAround(at.x, at.y, Stage.SECTOR_SIZE);
-      
-      rating *= baseDemand * Plan.PARAMOUNT / 4;
+      if (report) I.say("  Rating from ambience: "+rating);
+      rating = baseDemand * Plan.PARAMOUNT * rating / 4;
     }
-    
     else {
-      //  TODO:  THIS WON'T WORK- IT'LL MEASURE THIS AGAINST CURRENT STOCKS,
-      //  NOT AVAILABILITY
-      
       for (int level = 0 ; level < NUM_LEVELS; level++) {
-        final Object access = checkAccess(this, level, false);
-        if (access == NEEDS_MET) rating = level;
-        else break;
+        final float access = rateAccessFrom(point, level, base);
+        if (access <= 0) break;
+        rating *= 1 + access;
       }
-      rating *= baseDemand * Plan.PARAMOUNT / NUM_LEVELS;
+      final float maxRating = 1 << NUM_LEVELS;
+      if (report) I.say("  Rating from level: "+rating+"/"+maxRating);
+      rating = baseDemand * Plan.PARAMOUNT * rating / maxRating;
     }
     
     if (report) I.say("  Final rating: "+rating);
     return rating;
+  }
+  
+  
+  //  What you actually need here is a supplyFor(Object service) method- that
+  //  way you can measure precisely how much of that service you allow for.
+  
+  
+  protected void impingeSupply(boolean onEntry) {
+    super.impingeSupply(onEntry);
+    final int maxHoused = OCCUPANCIES[upgradeLevel];
+    final int period = onEntry ? -1 : 1;
+    base.demands.impingeSupply(SERVICE_HOUSING, maxHoused, period, this);
   }
 
   
@@ -161,9 +172,6 @@ public class Holding extends Venue {
       HoldingExtra.updateExtras(this, extras, numUpdates);
     }
     super.updateAsScheduled(numUpdates, instant);
-    
-    final int maxHoused = OCCUPANCIES[upgradeLevel];
-    base.demands.impingeSupply(SERVICE_HOUSING, maxHoused, 1, this);
     
     if (! structure.intact()) return;
     consumeMaterials();
@@ -190,7 +198,7 @@ public class Holding extends Venue {
   private boolean needsMet(int meetLevel) {
     if (staff.residents().size() == 0) return false;
     if (meetLevel <= LEVEL_TENT   ) return true;
-    if (meetLevel >  LEVEL_GUILDER) return false;
+    if (meetLevel >  LEVEL_GELDER) return false;
     final Object met = NEEDS_MET;
     return
       checkAccess   (this, meetLevel, false) == met &&
@@ -247,7 +255,7 @@ public class Holding extends Venue {
       final Object HU[] = UPGRADE_ARRAY;
       
       if (targetLevel > upgradeLevel) {
-        final Upgrade target = (Upgrade) HU[ targetLevel];
+        final Upgrade target = (Upgrade) HU[targetLevel ];
         structure.beginUpgrade(target, true);
       }
       else {
@@ -298,14 +306,14 @@ public class Holding extends Venue {
     stocks.clearDemands();
     
     for (Item i : materials(targetLevel).raw) {
-      stocks.forceDemand(i.type, i.amount + 0.5f, TIER_CONSUMER);
+      stocks.forceDemand(i.type, i.amount + 0.5f, Tier.CONSUMER);
     }
     
     final float supportNeed = supportNeed(this, targetLevel);
-    stocks.forceDemand(ATMO, supportNeed, TIER_CONSUMER);
+    stocks.forceDemand(ATMO, supportNeed, Tier.CONSUMER);
     
     for (Item i : rationNeeds(this, targetLevel)) {
-      stocks.forceDemand(i.type, i.amount, TIER_CONSUMER);
+      stocks.forceDemand(i.type, i.amount, Tier.CONSUMER);
     }
   }
   

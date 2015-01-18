@@ -153,7 +153,7 @@ public class EngineerStation extends Venue {
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
-    stocks.incDemand(PARTS, 1, TIER_PRODUCER, 1);
+    stocks.incDemand(PARTS, 1, Tier.PRODUCER, 1);
     stocks.translateDemands(METALS_TO_PARTS, 1);
     
     float pollution = 5, powerNeed = 5;
@@ -163,7 +163,7 @@ public class EngineerStation extends Venue {
     }
     powerNeed *= (3 + structure.numUpgrades()) / 3;
     pollution *= 2f / (2 + structure.upgradeLevel(MATTER_PRESS));
-    stocks.forceDemand(POWER, powerNeed, TIER_CONSUMER);
+    stocks.forceDemand(POWER, powerNeed, Tier.CONSUMER);
     structure.setAmbienceVal(0 - pollution);
   }
   

@@ -15,7 +15,7 @@ import stratos.util.*;
 
 
 
-//  TODO:  Convert this into the Arena, or merge with the Trooper Lodge...
+//  TODO:  Merge this with the Trooper Lodge.
 
 
 /*

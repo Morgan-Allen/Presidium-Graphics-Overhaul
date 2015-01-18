@@ -21,7 +21,7 @@ import static stratos.game.economic.Economy.*;
 //  TODO:  You'll need to introduce explicit upgrades here again.
 
 //  Trades in raw materials and a few finished goods.
-//  (Carbs.  Protein.  Plastics.  Parts.)
+//  (Carbs.  Protein.  Plastics.  Parts.)  Reagents.  
 //  Ores.  Topes.  Carbons.  Spyce N.  Spyce T.  Spyce H.
 
 
@@ -54,16 +54,21 @@ public class SupplyDepot extends Venue {
   );
   //*/
   
-  
   //  TODO:  Specialise in all raw materials and only a few finished goods.
   final static Traded
+    /*
     ALL_TRADE_TYPES[] = {
       CARBS, PROTEIN, GREENS, LCHC,
       ORES, TOPES, PARTS, PLASTICS
     },
+    //*/
+    ALL_TRADE_TYPES[] = Economy.ALL_MATERIALS,
     ALL_SERVICES[] = (Traded[]) Visit.compose(Traded.class,
       ALL_TRADE_TYPES, new Traded[] { SERVICE_COMMERCE }
     );
+  
+  //private CargoBarge cargoBarge;
+  private List <CargoBarge> barges = new List <CargoBarge> ();
   
   
   public SupplyDepot(Base base) {
@@ -124,7 +129,8 @@ public class SupplyDepot extends Venue {
     ),
     EXPORT_TRADE = new Upgrade(
       "Export Trade",
-      "Prepares and fuels cargo convoys to visit distant settlements.",
+      "Prepares and fuels cargo convoys to visit distant settlements. "+
+      "<NOT IMPLEMENTED YET>",
       250, null, 1, LCHC_RENDERING,
       SupplyDepot.class, ALL_UPGRADES
     );
@@ -141,6 +147,23 @@ public class SupplyDepot extends Venue {
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
+    
+    float bonusC = structure.upgradeLevel(LCHC_RENDERING) * 5;
+    stocks.incDemand(LCHC, bonusC, Tier.ANY, 1);
+    
+    float bonusRV = structure.upgradeLevel(RATIONS_VENDING) * 5;
+    stocks.incDemand(CARBS   , bonusRV, Tier.ANY, 1);
+    stocks.incDemand(PROTEIN , bonusRV, Tier.ANY, 1);
+    
+    float bonusHS = structure.upgradeLevel(HARDWARE_STORE) * 5;
+    stocks.incDemand(PARTS   , bonusHS, Tier.ANY, 1);
+    stocks.incDemand(PLASTICS, bonusHS, Tier.ANY, 1);
+    
+    int maxBarges = structure.upgradeLevel(EXPORT_TRADE) * 5;
+    //  TODO:  You need to send those barges off to different settlements!
+    //  TODO:  Consider taking this over entirely from the Stock Exchange.
+    
+    for (Traded t : ALL_TRADE_TYPES) stocks.incDemand(t, 0, Tier.TRADER, 1);
   }
   
   
@@ -150,9 +173,8 @@ public class SupplyDepot extends Venue {
     final Choice choice = new Choice(actor);
     choice.add(Repairs.getNextRepairFor(actor, true));
     
-    choice.add(stocks.nextManufacture(actor, WASTE_TO_LCHC));
-    
-    //  TODO:  Include carbons rendering.
+    final Manufacture CM = stocks.nextManufacture(actor, WASTE_TO_LCHC);
+    if (CM != null) choice.add(CM.setBonusFrom(this, true, LCHC_RENDERING));
     
     final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
       this, services(), 2, 10, 5
@@ -204,6 +226,25 @@ public class SupplyDepot extends Venue {
   
   public Traded[] services() {
     return ALL_SERVICES;
+  }
+  
+  
+  public void updatePaving(boolean inWorld) {
+    super.updatePaving(inWorld);
+    
+    final Tile at = mainEntrance();
+    if (inWorld) {
+      final Batch <Tile> e = new Batch <Tile> ();
+      final float range = Stage.SECTOR_SIZE * 2;
+      final Presences p = world.presences;
+      
+      for (Object o : p.matchesNear(SERVICE_COMMERCE, this, range)) {
+        final Venue v = (Venue) o;
+        e.add(v.mainEntrance());
+      }
+      base.transport.updateJunction(this, at, e, true);
+    }
+    else base.transport.updateJunction(this, at, null, false);
   }
   
   

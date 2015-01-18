@@ -103,7 +103,6 @@ public class DebugCommerce extends Scenario {
     GameSettings.buildFree = true;
     GameSettings.fogFree   = true;
     GameSettings.paveFree  = true;
-    //GameSettings.noChat    = true;
     
     //  TODO:  Try giving the residents pots of money instead...
     //GameSettings.freeHousingLevel = 0;
@@ -111,12 +110,12 @@ public class DebugCommerce extends Scenario {
     if (false) shoppingScenario(world, base, UI);
     if (false) runnersScenario (world, base, UI);
     if (false) shippingScenario(world, base, UI);
-    if (true ) deliveryScenario(world, base, UI);
+    if (false) deliveryScenario(world, base, UI);
+    if (true ) shoppingScenario(world, base, UI);
   }
   
   
   private void shippingScenario(Stage world, Base base, BaseUI UI) {
-    
     /*
     final Airfield airfield = new Airfield(base);
     Placement.establishVenue(airfield, 5, 5, true, world);
@@ -214,8 +213,48 @@ public class DebugCommerce extends Scenario {
   
   private void shoppingScenario(Stage world, Base base, BaseUI UI) {
     
+    GameSettings.hireFree = true;
+    PlayLoop.setGameSpeed(25);
+    
+    //  Create one settlement over here, with a supply depot, engineer station
+    //  and fabricator.
+    final Venue depot = new SupplyDepot(base);
+    Placement.establishVenue(depot, 5, 5, true, world);
+    final Venue engineer = new EngineerStation(base);
+    Placement.establishVenue(engineer, 5, 5, true, world);
+    final Venue fabricator = new Fabricator(base);
+    Placement.establishVenue(fabricator, 5, 5, true, world);
+    final Venue reactor = new Reactor(base);
+    Placement.establishVenue(reactor, 5, 5, true, world);
+    //  ...These will need power as well.
+    
+    
+    //  Create another settlement over here, with a stock exchange, archives
+    //  and physician station.
     final Venue archives = new Archives(base);
-    Placement.establishVenue(archives, 10, 5, true, world);
+    Placement.establishVenue(archives, 25, 25, true, world);
+    final Venue exchange = new StockExchange(base);
+    Placement.establishVenue(exchange, 25, 25, true, world);
+    final Venue physician = new PhysicianStation(base);
+    Placement.establishVenue(physician, 25, 25, true, world);
+    final Venue condensor = new Condensor(base);
+    Placement.establishVenue(condensor, 25, 25, true, world);
+    
+    
+    for (Mobile m : world.allMobiles()) if (m instanceof Actor) {
+      final Actor a = (Actor) m;
+      if (a.base() == base) {
+        a.gear.incCredits(2000);
+        a.gear.taxDone();
+      }
+    }
+    
+    for (Object o : world.presences.matchesNear(base, null, -1)) {
+      final Venue v = (Venue) o;
+      for (Traded t : v.stocks.demanded()) {
+        v.stocks.bumpItem(t, 10);
+      }
+    }
     
     //  TODO:  INCLUDE ALL THE AMENITIES, AND SEE IF HOUSING CAN EVOLVE FULLY
   }

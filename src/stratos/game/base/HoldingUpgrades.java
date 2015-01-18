@@ -53,7 +53,7 @@ public class HoldingUpgrades {
     LEVEL_PYON     = 1,
     LEVEL_FREEBORN = 2,
     LEVEL_CITIZEN  = 3,
-    LEVEL_GUILDER  = 4,
+    LEVEL_GELDER  = 4,
     NUM_LEVELS     = 5;
   final public static int
     OCCUPANCIES[] = { 4, 4, 4, 4, 4 },
@@ -107,6 +107,7 @@ public class HoldingUpgrades {
       DIFFICULT_DC, ASSEMBLY
     ),
   };
+  
   
   private static boolean checks(int targetLevel, int upgradeLevel) {
     if (GameSettings.freeHousingLevel >= upgradeLevel) return false;
@@ -196,7 +197,7 @@ public class HoldingUpgrades {
     final Batch <Item> needed = new Batch <Item> ();
     for (Traded type : FOOD_TYPES) {
       if (needed.size() >= typesNeeded) break;
-      if (lacksAccess(holding, type.supplyKey)) continue;
+      if (rateAccessTo(type.supplyKey, holding, holding.base()) <= 0) continue;
       needed.add(Item.withAmount(type, foodNeed / typesNeeded));
     }
     
@@ -241,7 +242,7 @@ public class HoldingUpgrades {
         "modern lifestyle.";
       else return NEEDS_MET;
     }
-    if (checks(targetLevel, LEVEL_GUILDER)) {
+    if (checks(targetLevel, LEVEL_GELDER)) {
       if (numFoods < LEVEL_TYPES_NEEDED[4]) return NV ? NOT_MET :
         "Your guilders need at least three food types to satisfy the demands "+
         "of an upper-class lifestyle.";
@@ -251,55 +252,96 @@ public class HoldingUpgrades {
     return null;
   }
   
+
+  protected static Object checkAccess(
+    Holding holding, int targetLevel, boolean verbose
+  ) {
+    return checkAccess(holding, holding, targetLevel, verbose);
+  }
+  
   
   
   /**  Venues access-
     */
-  protected static Object checkAccess(
-    Holding holding, int targetLevel, boolean verbose
+  final static float ACCESS_RANGE = Stage.SECTOR_SIZE * 1.414f;
+  
+  
+  protected static float rateAccessFrom(
+    Target point, int targetLevel, Base base
   ) {
-    if (targetLevel == LEVEL_TENT) return NEEDS_MET;
-    final boolean NV = ! verbose;
-    //  TODO:  RESTORE THE LIST OF REQUIREMENTS HERE!  IF NEEDED.
-    
-    if (checks(targetLevel, LEVEL_PYON)) {
-      if (
-        lacksAccess(holding, Bastion.class         ) &&
-        lacksAccess(holding, PhysicianStation.class)
-      ) return NV ? NOT_MET :
-        "Your pyons will need access to a Bastion or Sickbay to provide "+
-        "life support or health services before they will feel safe enough "+
-        "to settle down.";
-    }
-    if (checks(targetLevel, LEVEL_CITIZEN)) {
-      if (
-        lacksAccess(holding, StockExchange.class) &&
-        lacksAccess(holding, Cantina.class      )
-      ) return NV ? NOT_MET :
-        "Your citizens want access to a Cantina or Stock Exchange to allow "+
-        "access to luxury goods or services.";
-    }
-    if (checks(targetLevel, LEVEL_GUILDER)) {
-      if (
-        lacksAccess(holding, Archives.class) &&
-        true //lacksAccess(holding, CounselChamber.class)
-      ) return NV ? NOT_MET :
-        "Your upwardly-mobile gelders require access to an Archives or "+
-        "Counsel Chamber for the sake of education or political access.";
-    }
-    return NEEDS_MET;
+    final Object report = reportAccessFrom(point, targetLevel, base, false);
+    if (report instanceof Float) return (Float) report;
+    else return 0;
   }
   
   
-  protected static boolean lacksAccess(Holding holding, Object service) {
-    for (Object o : holding.world().presences.matchesNear(
-      service, holding, Stage.SECTOR_SIZE * 1.414f
+  protected static Object checkAccess(
+    Holding holding, Target point, int targetLevel, boolean verbose
+  ) {
+    if (targetLevel == LEVEL_TENT) return NEEDS_MET;
+    final Object report = reportAccessFrom(
+      point, targetLevel, holding.base(), verbose
+    );
+    if (report instanceof Float) return NEEDS_MET;
+    else return report;
+  }
+  
+  
+  private static Object reportAccessFrom(
+    Target point, int targetLevel, Base base, boolean verbose
+  ) {
+    final boolean NV = ! verbose;
+    float rating = 1, r;
+    
+    if (targetLevel >= LEVEL_PYON) {
+      r = Nums.max(
+        rateAccessTo(Bastion.class         , point, base),
+        rateAccessTo(PhysicianStation.class, point, base)
+      );
+      if (r <= 0) return NV ? NOT_MET :
+        "Your pyons will need access to a Bastion or Sickbay to provide "+
+        "life support or health services before they will feel safe enough "+
+        "to settle down.";
+      rating *= r;
+    }
+    
+    if (targetLevel >= LEVEL_CITIZEN) {
+      r = Nums.max(
+        rateAccessTo(Cantina.class         , point, base),
+        rateAccessTo(StockExchange.class   , point, base)
+      );
+      if (r <= 0) return NV ? NOT_MET :
+        "Your citizens want access to a Cantina or Stock Exchange to allow "+
+        "access to luxury goods or services.";
+      rating *= r;
+    }
+    
+    if (targetLevel >= LEVEL_GELDER) {
+      r = Nums.max(
+        rateAccessTo(Archives.class         , point, base),
+        0//rateAccessTo(CounselChamber.class, point, base)
+      );
+      if (r <= 0) return NV ? NOT_MET :
+        "Your upwardly-mobile gelders require access to an Archives or "+
+        "Counsel Chamber for the sake of education or political access.";
+      rating *= r;
+    }
+    
+    if (rating <= 0) return NOT_MET;
+    return (Float) rating;
+  }
+  
+  
+  protected static float rateAccessTo(Object service, Target point, Base base) {
+    for (Object o : point.world().presences.matchesNear(
+      service, point, ACCESS_RANGE
     )) {
       final Venue v = (Venue) o;
-      if (v.base() != holding.base() || ! v.structure.intact()) continue;
-      return false;
+      if (v.base() != base || ! v.structure.intact()) continue;
+      final float dist = Spacing.distance(point, v.mainEntrance());
+      return Nums.clamp(1 - (dist / ACCESS_RANGE), 0, 1);
     }
-    return true;
+    return 0;
   }
   
   

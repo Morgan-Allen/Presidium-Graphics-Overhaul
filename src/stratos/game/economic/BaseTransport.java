@@ -56,6 +56,8 @@ public class BaseTransport {
     
     provSupply = s.loadFloatArray(null);
     provDemand = s.loadFloatArray(null);
+    allSupply  = s.loadFloatArray(null);
+    allDemand  = s.loadFloatArray(null);
   }
   
   
@@ -70,6 +72,8 @@ public class BaseTransport {
     
     s.saveFloatArray(provSupply);
     s.saveFloatArray(provDemand);
+    s.saveFloatArray(allSupply );
+    s.saveFloatArray(allDemand );
   }
   
   
@@ -131,6 +135,9 @@ public class BaseTransport {
   
   
   public void updatePerimeter(Fixture v, boolean isMember) {
+    final boolean report = paveVerbose && I.talkAbout == v;
+    if (report) I.say("\nUpdating perimeter for "+v);
+    
     if (! isMember) {
       updatePerimeter(v, null, false);
       return;
@@ -182,11 +189,7 @@ public class BaseTransport {
       if (report) I.say("CANNOT SUPPLY NULL TILE AS JUNCTION");
       return;
     }
-    final List <Route> oldRoutes = tileRoutes.get(t);
-    final Batch <Route> toDelete = new Batch <Route> ();
-    junctions.toggleMember(t, t, isMember);
-    //
-    //  If the fixture is still a map-member, update associated routes:
+    
     if (isMember) {
       final Batch <Tile> routesTo = new Batch <Tile> ();
       final int HS = v.size / 2;
@@ -215,6 +218,22 @@ public class BaseTransport {
         jT.flagWith(routesTo);
         routesTo.add(jT);
       }
+      
+      updateJunction(v, t, routesTo, true);
+    }
+    else updateJunction(v, t, null, false);
+  }
+  
+  
+  public void updateJunction(
+    Fixture v, Tile t, Batch <Tile> routesTo, boolean isMember
+  ) {
+    final boolean report = paveVerbose && I.talkAbout == v;
+    final List <Route> oldRoutes = tileRoutes.get(t);
+    final Batch <Route> toDelete = new Batch <Route> ();
+    junctions.toggleMember(t, t, isMember);
+    
+    if (isMember) {
       //
       //  Any old routes that lack termini are assumed to be obsolete, and must
       //  be deleted-
@@ -310,20 +329,22 @@ public class BaseTransport {
     */
   final private Batch <Target> tried = new Batch <Target> (40);
   final private Stack <Target> agenda = new Stack <Target> ();
-  private float provSupply[], provDemand[];
+  private float
+    provSupply[], provDemand[],
+    allSupply [], allDemand [];
   
   
-  public float provSupply(Traded t) {
+  public float allSupply(Traded t) {
     int index = Visit.indexOf(t, Economy.ALL_PROVISIONS);
-    if (index == -1 || provSupply == null) return -1;
-    return provSupply[index];
+    if (index == -1 || allSupply == null) return -1;
+    return allSupply[index];
   }
   
   
-  public float provDemand(Traded t) {
+  public float allDemand(Traded t) {
     int index = Visit.indexOf(t, Economy.ALL_PROVISIONS);
-    if (index == -1 || provDemand == null) return -1;
-    return provDemand[index];
+    if (index == -1 || allDemand == null) return -1;
+    return allDemand[index];
   }
   
   
@@ -432,6 +453,10 @@ public class BaseTransport {
       if (provDemand[i] == 0) continue;
       final Traded type = provided[i];
       float supplyRatio = Nums.clamp(provSupply[i] / provDemand[i], 0, 1);
+      
+      allDemand[i] += provDemand[i];
+      allSupply[i] += Nums.min(provSupply[i], provDemand[i]);
+      
       for (Venue venue : reached) {
         final float d = venue.stocks.demandFor(type);
         venue.stocks.setAmount(type, d * supplyRatio);
@@ -445,6 +470,10 @@ public class BaseTransport {
     if (report) I.say("\n\nDistributing provisions for base: "+base);
     final Batch <Batch <Venue>> allReached = new Batch();
     final Traded provided[] = Economy.ALL_PROVISIONS;
+
+    allSupply = new float[provided.length];
+    allDemand = new float[provided.length];
+    
     //
     //  First, divide the set of all venues into discrete partitions based on
     //  mutual paving connections-

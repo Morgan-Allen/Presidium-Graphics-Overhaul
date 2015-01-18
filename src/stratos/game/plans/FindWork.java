@@ -293,6 +293,8 @@ public class FindWork extends Plan {
   
   
   private int calcHiringFee() {
+    if (! position.isAgent()) return 0;
+    
     int transport = 0, incentive = 0, guildFees = 0;
     
     //  TODO:  Allow the player to set wages in a similar manner to setting

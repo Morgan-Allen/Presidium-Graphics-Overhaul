@@ -16,6 +16,7 @@ import stratos.graphics.terrain.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
+import static stratos.game.base.HoldingUpgrades.OCCUPANCIES;
 import static stratos.game.economic.Economy.*;
 
 
@@ -212,14 +213,13 @@ public abstract class Venue extends Structural implements
     
     for (Venue c : world.claims.venuesConflicting(areaClaimed(), this)) {
       c.structure.beginSalvage();
-      //c.setAsDestroyed();
-      //c.exitWorld();
     }
     
     world.presences.togglePresence(this, true);
     world.claims.assertNewClaim(this, areaClaimed());
     stocks.onWorldEntry();
     staff.onCommission();
+    impingeSupply(true);
     return true;
   }
   
@@ -250,7 +250,8 @@ public abstract class Venue extends Structural implements
     
     if (! structure.needsSalvage()) {
       if (rare) updatePaving(true);
-      staff.updatePersonnel(numUpdates);
+      staff.updateStaff(numUpdates);
+      impingeSupply(false);
     }
     if (structure.intact()) {
       final int homeless = staff.numHomeless();
@@ -399,6 +400,12 @@ public abstract class Venue extends Structural implements
   //  TODO:  Make these abstract?
   public float ratePlacing(Target point, boolean exact) {
     return 0;
+  }
+  
+  
+  protected void impingeSupply(boolean onEntry) {
+    final int period = onEntry ? -1 : 1;
+    base.demands.impingeSupply(getClass(), 1, period, this);
   }
   
   

@@ -215,9 +215,9 @@ public class PhysicianStation extends Venue {
     //
     //  Sickbays consumes medicine and power based on current upgrade level,
     //  and have a mild positive effect on ambience-
-    stocks.incDemand(MEDICINE, medNeed, TIER_PRODUCER, 1);
-    stocks.incDemand(REAGENTS, medNeed, TIER_CONSUMER, 1);
-    stocks.forceDemand(POWER, powerNeed, TIER_CONSUMER);
+    stocks.incDemand(MEDICINE, medNeed, Tier.PRODUCER, 1);
+    stocks.incDemand(REAGENTS, medNeed, Tier.CONSUMER, 1);
+    stocks.forceDemand(POWER, powerNeed, Tier.CONSUMER);
     structure.setAmbienceVal(numU * 2);
   }
   

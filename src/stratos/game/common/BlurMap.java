@@ -57,9 +57,7 @@ public class BlurMap {
     */
   protected void updateAllValues(float decay) {
     for (Coord c : Visit.grid(0, 0, gridSize, gridSize, 1)) {
-      final float value = patchValues[c.x][c.y] * (1 - decay);
-      patchValues[c.x][c.y] = value;
-      mipValues.set((int) Nums.clamp(Nums.ceil(value), 0, 100), c.x, c.y);
+      impingeValue(0 - patchValues[c.x][c.y] * decay, c.x, c.y);
     }
     for (Coord c : Visit.grid(0, 0, gridSize, gridSize, 1)) {
       float blur = patchValues[c.x][c.y];
@@ -73,6 +71,7 @@ public class BlurMap {
     x /= gridSize;
     y /= gridSize;
     value = patchValues[x][y] += value;
+    mipValues.set((int) Nums.clamp(Nums.ceil(value), 0, 100), x, y);
   }
   
   

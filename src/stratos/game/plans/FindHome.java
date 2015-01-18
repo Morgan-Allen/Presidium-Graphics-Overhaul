@@ -55,6 +55,11 @@ public class FindHome extends Plan {
     */
   protected float getPriority() {
     if (! shouldSwitchTo(actor, newHome)) return -1;
+    final int numO = (int) (
+      (1 - newHome.crowdRating(actor, Backgrounds.AS_RESIDENT)) *
+      HoldingUpgrades.OCCUPANCIES[0]
+    );
+    if (Plan.competition(this, newHome, actor) >= numO) return -1;
     return ROUTINE;
   }
   

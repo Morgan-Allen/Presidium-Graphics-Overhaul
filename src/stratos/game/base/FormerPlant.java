@@ -228,7 +228,7 @@ public class FormerPlant extends Venue {
       SDL         = Stage.STANDARD_DAY_LENGTH;
     
     int powerNeed = 4 + (structure.numUpgrades() * 2);
-    stocks.forceDemand(POWER, powerNeed, TIER_CONSUMER);
+    stocks.forceDemand(POWER, powerNeed, Tier.CONSUMER);
     float yield = 2 - stocks.shortagePenalty(POWER);
     
     if (report) I.say("  Basic yield is: "+yield);

@@ -73,7 +73,7 @@ public class Edifice extends Venue {
     structure.setupStats(
       500, 50, 800, 0, Structure.TYPE_FIXTURE
     );
-    this.attachSprite(MODEL.makeSprite());
+    attachModel(MODEL);
   }
   
   

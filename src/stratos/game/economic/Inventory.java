@@ -8,6 +8,7 @@ import stratos.game.common.*;
 import stratos.user.*;
 import stratos.util.*;
 import stratos.graphics.sfx.*;
+import static stratos.game.economic.Economy.*;
 
 
 
@@ -355,9 +356,9 @@ public class Inventory {
   /**  Default supply-and-demand functions intended for override by certain
     *  subclasses.
     */
-  public float demandFor(Traded type) { return 0; }
-  public float shortageOf(Traded type) { return 0; }
-  public int demandTier(Traded type) { return Economy.TIER_NONE; }
+  public float demandFor (Traded type) { return 0        ; }
+  public float shortageOf(Traded type) { return 0        ; }
+  public Tier  demandTier(Traded type) { return Tier.NONE; }
   
   
   

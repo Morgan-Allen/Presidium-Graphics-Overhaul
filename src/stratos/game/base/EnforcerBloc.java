@@ -115,8 +115,8 @@ public class EnforcerBloc extends Venue {
     super.updateAsScheduled(numUpdates, instant);
     
     final int prisoners = Summons.numSummoned(this);
-    stocks.forceDemand(CARBS  , prisoners, TIER_CONSUMER);
-    stocks.forceDemand(PROTEIN, prisoners, TIER_CONSUMER);
+    stocks.forceDemand(CARBS  , prisoners, Tier.CONSUMER);
+    stocks.forceDemand(PROTEIN, prisoners, Tier.CONSUMER);
   }
   
   

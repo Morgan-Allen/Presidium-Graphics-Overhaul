@@ -25,7 +25,7 @@ public class Stocks extends Inventory {
   
   static class Demand {
     Traded type;
-    int tierType = TIER_PRODUCER;
+    Tier tierType = Tier.PRODUCER;
     private float demandAmount;
     private float demandBonus;
     private float pricePaid;
@@ -52,7 +52,7 @@ public class Stocks extends Inventory {
       d.type         = (Traded) s.loadObject();
       d.demandAmount = s.loadFloat();
       d.demandBonus  = s.loadFloat();
-      d.tierType     = (int) s.loadFloat();
+      d.tierType     = (Tier) s.loadEnum(Tier.values());
       d.pricePaid    = s.loadFloat();
       demands.put(d.type, d);
     }
@@ -67,7 +67,7 @@ public class Stocks extends Inventory {
       s.saveObject(d.type        );
       s.saveFloat (d.demandAmount);
       s.saveFloat (d.demandBonus );
-      s.saveFloat (d.tierType    );
+      s.saveEnum  (d.tierType    );
       s.saveFloat (d.pricePaid   );
     }
   }
@@ -188,9 +188,9 @@ public class Stocks extends Inventory {
   }
   
   
-  public int demandTier(Traded type) {
+  public Tier demandTier(Traded type) {
     final Demand d = demands.get(type);
-    if (d == null) return TIER_PRODUCER;
+    if (d == null) return Tier.PRODUCER;
     return d.tierType;
   }
   
@@ -212,7 +212,7 @@ public class Stocks extends Inventory {
     );
   }
   
-  
+  /*
   public float shortageUrgency(Traded type) {
     final Demand d = demands.get(type);
     if (d == null) return 0;
@@ -221,6 +221,7 @@ public class Stocks extends Inventory {
     final float urgency = shortage / ((amount + shortage) * (1 + d.tierType));
     return urgency;
   }
+  //*/
   
   
   public float shortageOf(Traded type) {
@@ -264,19 +265,19 @@ public class Stocks extends Inventory {
   }
   
   
-  public void forceDemand(Traded type, float amount, int tier) {
+  public void forceDemand(Traded type, float amount, Tier tier) {
     if (amount < 0) amount = 0;
     final Demand d = demandRecord(type);
     d.demandAmount = amount;
-    d.tierType = tier;
+    if (tier != Tier.ANY) d.tierType = tier;
   }
   
   
   public void incDemand(
-    Traded type, float amount, int tier, int period
+    Traded type, float amount, Tier tier, int period
   ) {
     final Demand d = demandRecord(type);
-    d.tierType = tier;
+    if (tier != Tier.ANY) d.tierType = tier;
     d.demandBonus += amount * period;
   }
   
@@ -293,7 +294,7 @@ public class Stocks extends Inventory {
     for (Item raw : cons.raw) {
       final float needed = raw.amount * demand / cons.out.amount;
       if (report) I.say("  Need "+needed+" "+raw.type+" as raw materials");
-      incDemand(raw.type, needed, TIER_CONSUMER, period);
+      incDemand(raw.type, needed, Tier.CONSUMER, period);
     }
   }
   
@@ -312,11 +313,11 @@ public class Stocks extends Inventory {
     //  whether you have a local excess or a local shortage!
     
     for (Demand d : demands.values()) {
-      final int tier = d.tierType;
+      final Tier tier = d.tierType;
       final Traded type = d.type;
       final boolean
-        gives = tier == TIER_PRODUCER || tier == TIER_IMPORTER,
-        takes = tier == TIER_CONSUMER || tier == TIER_EXPORTER;
+        gives = tier == Tier.PRODUCER || tier == Tier.IMPORTER,
+        takes = tier == Tier.CONSUMER || tier == Tier.EXPORTER;
       
       d.demandAmount = d.demandBonus / period;
       d.demandBonus = 0;
@@ -360,7 +361,7 @@ public class Stocks extends Inventory {
     
     for (Demand d : demands.values()) {
       d.demandAmount = 0;
-      d.tierType = TIER_PRODUCER;
+      d.tierType = Tier.PRODUCER;
       presences.togglePresence(basis, at, false, d.type.demandKey);
     }
   }

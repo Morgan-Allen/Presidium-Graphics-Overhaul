@@ -281,7 +281,7 @@ public class BaseCommerce {
       
       for (Traded type : venue.stocks.demanded()) {
         if (type.form != FORM_MATERIAL) continue;
-        final int tier = venue.stocks.demandTier(type);
+        final Tier tier = venue.stocks.demandTier(type);
         final float
           amount   = venue.stocks.amountOf  (type),
           demand   = venue.stocks.demandFor (type),
@@ -295,17 +295,17 @@ public class BaseCommerce {
           I.say("    Shortage: "+shortage);
         }
         
-        if (tier == TIER_EXPORTER) {
+        if (tier == Tier.EXPORTER) {
           localSurpluses.bumpItem(type, Nums.round(amount  , 5, false));
         }
-        else if (tier != TIER_PRODUCER) {
+        else if (tier != Tier.PRODUCER) {
           localShortages.bumpItem(type, Nums.round(shortage, 5, true ));
         }
         
-        if (tier == TIER_IMPORTER) {
+        if (tier == Tier.IMPORTER) {
           localShortages.bumpItem(type, Nums.round(shortage, 5, true ));
         }
-        else if (tier != TIER_CONSUMER) {
+        else if (tier != Tier.CONSUMER) {
           localSurpluses.bumpItem(type, Nums.round(surplus , 5, false));
         }
       }
@@ -482,15 +482,15 @@ public class BaseCommerce {
         surpluses.add(surplus, good);
       }
       else if (localShortage(good) > 0) {
-        ship.cargo.forceDemand(good, 0, TIER_PRODUCER);
+        ship.cargo.forceDemand(good, 0, Tier.PRODUCER);
       }
       else {
-        ship.cargo.forceDemand(good, 0, TIER_TRADER);
+        ship.cargo.forceDemand(good, 0, Tier.TRADER);
       }
     }
     for (Traded good : surpluses.keys()) {
       float wanted = Dropship.MAX_CAPACITY * surpluses.valueFor(good) / sumS;
-      ship.cargo.forceDemand(good, wanted, TIER_CONSUMER);
+      ship.cargo.forceDemand(good, wanted, Tier.CONSUMER);
     }
   }
   
@@ -517,11 +517,13 @@ public class BaseCommerce {
       }
     };
     for (Item item : available.allItems()) {
-      final int tier = available.demandTier(item.type);
+      final Tier tier = available.demandTier(item.type);
       if (report) I.say("  Available: "+item+", demand tier: "+tier);
-      if (tier != TIER_NONE) {
-        if (imports     && tier <= TIER_PRODUCER) continue;
-        if ((! imports) && tier >= TIER_CONSUMER) continue;
+      if (imports) {
+        if (tier == Tier.PRODUCER || tier == Tier.IMPORTER) continue;
+      }
+      else {
+        if (tier == Tier.CONSUMER || tier == Tier.EXPORTER) continue;
       }
       sorting.add(item);
     }

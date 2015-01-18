@@ -85,7 +85,6 @@ public class Archives extends Venue {
   ;
   
   
-  
   public Background[] careers() {
     return new Background[] { SAVANT };
   }
@@ -124,7 +123,7 @@ public class Archives extends Venue {
     stocks.translateDemands(PARTS_TO_DATALINKS, 1);
     
     structure.setAmbienceVal(5);
-    structure.assignOutputs(Item.withAmount(POWER, 3));
+    stocks.forceDemand(POWER, 3, Tier.CONSUMER);
   }
   
   

@@ -91,11 +91,11 @@ public class DeliveryUtils {
       for (int i = s.length; i-- > 0;) {
         final Traded t = s[i];
         if (export) {
-          if (depot.stocks.demandTier(t) != TIER_EXPORTER) continue;
+          if (depot.stocks.demandTier(t) != Tier.EXPORTER) continue;
           sumAmount += amounts[i] = depot.stocks.amountOf(t);
         }
         else {
-          if (depot.stocks.demandTier(t) != TIER_IMPORTER) continue;
+          if (depot.stocks.demandTier(t) != Tier.IMPORTER) continue;
           sumAmount += amounts[i] = ship.inventory().amountOf(t);
         }
         if (report) I.say("    "+amounts[i]+" of "+t+" available");
@@ -166,7 +166,7 @@ public class DeliveryUtils {
       final Batch <Item> excess = new Batch <Item> ();
       for (Item i : origin.inventory().allItems()) {
         if (i.type.form != Economy.FORM_MATERIAL) continue;
-        if (origin.inventory().demandTier(i.type) != TIER_NONE) continue;
+        if (origin.inventory().demandTier(i.type) != Tier.NONE) continue;
         if (report) I.say("  Excess item: "+i);
         excess.add(i);
       }
@@ -456,11 +456,12 @@ public class DeliveryUtils {
       DA = DS.amountOf(good);
     if (OA < amount) return -1;
     
-    final int
+    final Tier
       OT = OS.demandTier(good),
       DT = DS.demandTier(good);
-    if (OT == TIER_NONE     || DT == TIER_NONE    ) return -1;
-    if (OT >= TIER_CONSUMER || DT <= TIER_PRODUCER) return -1;
+    if (OT == Tier.NONE     || DT == Tier.NONE    ) return -1;
+    if (OT == Tier.CONSUMER || OT == Tier.EXPORTER) return -1;
+    if (DT == Tier.PRODUCER || DT == Tier.IMPORTER) return -1;
     final float
       OD = OS.demandFor(good),
       DD = DS.demandFor(good);
@@ -470,7 +471,7 @@ public class DeliveryUtils {
     if ((DD + 5 - DA) < (amount / 2f)) return -1;
     //
     //  Secondly, obtain an estimate of stocks before and after the exchange (
-    //  origin and destination tiers will only match for TIER_TRADER.)
+    //  origin and destination tiers will only match for Tier.TRADER.)
     final boolean isTrade = OT == DT;
     float origAfter = 0, destAfter = 0;
     origAfter = OA - futureBalance(orig, good, false);
@@ -489,7 +490,7 @@ public class DeliveryUtils {
     }
     //
     //  Otherwise, favour deliveries to local consumers.
-    else if (DT == TIER_CONSUMER) {
+    else if (DT == Tier.CONSUMER) {
       rating = 1 + destShort;
     }
     //

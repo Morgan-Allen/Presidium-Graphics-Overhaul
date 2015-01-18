@@ -62,8 +62,8 @@ public class Readout extends UIGroup {
     
     for (Traded type : provs) {
       read.append("  ("+type.name+": ");
-      int supply = (int) p.provSupply(type);
-      int demand = (int) p.provDemand(type);
+      int supply = (int) p.allSupply(type);
+      int demand = (int) p.allDemand(type);
       read.append(supply+"/"+demand+")");
     }
     
