@@ -450,12 +450,12 @@ public class BaseTransport {
     //  Then top up demand in whole or in part, depending on how much supply
     //  is available-
     for (int i = provided.length; i-- > 0;) {
+      allDemand[i] += provDemand[i];
+      allSupply[i] += provSupply[i];
+      
       if (provDemand[i] == 0) continue;
       final Traded type = provided[i];
       float supplyRatio = Nums.clamp(provSupply[i] / provDemand[i], 0, 1);
-      
-      allDemand[i] += provDemand[i];
-      allSupply[i] += Nums.min(provSupply[i], provDemand[i]);
       
       for (Venue venue : reached) {
         final float d = venue.stocks.demandFor(type);

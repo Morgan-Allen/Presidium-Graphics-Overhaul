@@ -53,7 +53,7 @@ public class DebugCommerce extends Scenario {
   
   
   private DebugCommerce() {
-    super();
+    super("debug_commerce", true);
   }
   
   
@@ -214,27 +214,31 @@ public class DebugCommerce extends Scenario {
   private void shoppingScenario(Stage world, Base base, BaseUI UI) {
     
     GameSettings.hireFree = true;
-    PlayLoop.setGameSpeed(25);
+    //PlayLoop.setGameSpeed(25);
     
     //  Create one settlement over here, with a supply depot, engineer station
     //  and fabricator.
     final Venue depot = new SupplyDepot(base);
     Placement.establishVenue(depot, 5, 5, true, world);
+    depot.structure.beginUpgrade(SupplyDepot.HARDWARE_STORE, false);
+    depot.structure.advanceUpgrade(1);
+    depot.structure.beginUpgrade(SupplyDepot.RATIONS_VENDING, false);
+    depot.structure.advanceUpgrade(1);
+    
     final Venue engineer = new EngineerStation(base);
     Placement.establishVenue(engineer, 5, 5, true, world);
     final Venue fabricator = new Fabricator(base);
     Placement.establishVenue(fabricator, 5, 5, true, world);
     final Venue reactor = new Reactor(base);
     Placement.establishVenue(reactor, 5, 5, true, world);
-    //  ...These will need power as well.
-    
     
     //  Create another settlement over here, with a stock exchange, archives
     //  and physician station.
-    final Venue archives = new Archives(base);
-    Placement.establishVenue(archives, 25, 25, true, world);
     final Venue exchange = new StockExchange(base);
     Placement.establishVenue(exchange, 25, 25, true, world);
+    
+    final Venue archives = new Archives(base);
+    Placement.establishVenue(archives, 25, 25, true, world);
     final Venue physician = new PhysicianStation(base);
     Placement.establishVenue(physician, 25, 25, true, world);
     final Venue condensor = new Condensor(base);
@@ -249,19 +253,26 @@ public class DebugCommerce extends Scenario {
       }
     }
     
-    for (Object o : world.presences.matchesNear(base, null, -1)) {
-      final Venue v = (Venue) o;
-      for (Traded t : v.stocks.demanded()) {
-        v.stocks.bumpItem(t, 10);
-      }
-    }
-    
     //  TODO:  INCLUDE ALL THE AMENITIES, AND SEE IF HOUSING CAN EVOLVE FULLY
   }
 
   
   public void updateGameState() {
     super.updateGameState();
+    PlayLoop.setGameSpeed(1);
+    
+    final Stage world = world();
+    if (((int) world.currentTime()) % 10 == 0) {
+      
+      for (Object o : world.presences.matchesNear(base(), null, -1)) {
+        final Venue v = (Venue) o;
+        if (v instanceof Holding) continue;
+        
+        for (Traded t : v.stocks.demanded()) {
+          v.stocks.bumpItem(t, 10, 10);
+        }
+      }
+    }
   }
   
   

@@ -59,6 +59,11 @@ public abstract class UINode {
   }
   
   
+  protected UINode parent() {
+    return parent;
+  }
+  
+  
   public float xpos() { return bounds.xpos(); }
   public float ypos() { return bounds.ypos(); }
   public float xdim() { return bounds.xdim(); }

@@ -37,7 +37,7 @@ public class Holding extends Venue {
     */
   private static boolean
     verbose     = false,
-    rateVerbose = true ;
+    rateVerbose = false;
   
   final public static int
     MAX_SIZE   = 2,
@@ -125,6 +125,13 @@ public class Holding extends Venue {
       I.say("\nGetting place-rating for Holding at "+point);
       I.say("  Current base: "+base);
       I.say("  Demand for housing: "+baseDemand);
+      /*
+      float supply = base.demands.globalSupply(SERVICE_HOUSING);
+      float demand = base.demands.globalDemand(SERVICE_HOUSING);
+      float shortage = base.demands.relativeGlobalShortage(SERVICE_HOUSING);
+      I.say("\nGlobal housing shortage: "+shortage);
+      I.say("  Supply/demand: "+supply+"/"+demand);
+      //*/
     }
     float rating = 1;
     
@@ -295,8 +302,8 @@ public class Holding extends Venue {
   
   
   private void impingeSqualor() {
-    int ambience = 1 + ((upgradeLevel - 2) * 2);
-    ambience += (extras.size() * upgradeLevel) / 2;
+    float ambience = AMBIENCES[upgradeLevel];
+    ambience += extras.size() / 2f;
     structure.setAmbienceVal(ambience);
   }
   
@@ -308,13 +315,11 @@ public class Holding extends Venue {
     for (Item i : materials(targetLevel).raw) {
       stocks.forceDemand(i.type, i.amount + 0.5f, Tier.CONSUMER);
     }
-    
-    final float supportNeed = supportNeed(this, targetLevel);
-    stocks.forceDemand(ATMO, supportNeed, Tier.CONSUMER);
-    
     for (Item i : rationNeeds(this, targetLevel)) {
       stocks.forceDemand(i.type, i.amount, Tier.CONSUMER);
     }
+    final float supportNeed = supportNeed(this, targetLevel);
+    stocks.forceDemand(ATMO, supportNeed, Tier.CONSUMER);
   }
   
   
@@ -345,15 +350,9 @@ public class Holding extends Venue {
   
   public void addTasks(Choice choice, Actor actor, Background background) {
     if (background == Backgrounds.AS_RESIDENT && structure.intact()) {
-      final Traded goods[] = goodsNeeded();
+      //final Traded goods[] = goodsNeeded();
       //
       //  Otherwise, see if it's possible to make any purchases nearby-
-      
-      //  TODO:  You still need to ensure that the venue in question allows
-      //  private purchases of a particular type for the actor in question.  In
-      //  fact, it might be best to get a list of *all* services and screen out
-      //  any non-deliveries.
-      
       final Batch <Venue> salePoints = new Batch <Venue> ();
       world.presences.sampleFromMap(
         this, world, 5, salePoints, Economy.SERVICE_COMMERCE
@@ -368,12 +367,6 @@ public class Holding extends Venue {
         v.addTasks(buying, actor, Backgrounds.AS_VISITOR);
       }
       choice.add(buying.weightedPick());
-      /*
-      final Delivery d = DeliveryUtils.bestBulkCollectionFor(
-        this, goods, 1, 5, salePoints, -1
-      );
-      if (d != null) choice.add(d.setWithPayment(actor, true));
-      //*/
     }
     else super.addTasks(choice, actor, background);
   }

@@ -62,8 +62,11 @@ public class ActorRelations {
   
   /**  Update and decay methods-
     */
+  //  TODO:  With the 'surprise' factor implemented here, you might not need
+  //  the range-damping mechanisms within the Relation class itself.
+  
   protected void updateFromObservations() {
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = extraVerbose && I.talkAbout == actor;
     if (report) I.say("\n"+actor+" updating relations based on observation.");
     
     for (Target t : actor.senses.awareOf()) if (t instanceof Actor) {
@@ -78,7 +81,7 @@ public class ActorRelations {
         cares  = Nums.clamp(valueFor(affects), 0, 1),
         impact = Nums.abs(harm * cares);
       if (report) {
-        I.say("  Observed "+other+" doing "+other.currentAction());
+        I.say("\n  Observed "+other+" doing "+other.currentAction());
         I.say("    Affected:   "+affects);
         I.say("    Harm done:  "+harm   );
         I.say("    Cares?      "+cares  );
@@ -91,13 +94,16 @@ public class ActorRelations {
       final float
         weight    = 1f / OBSERVE_PERIOD,
         increment = 0 - harm * cares,
-        beforeVal = valueFor(other);
-      incRelation(other, increment, weight, weight);
+        beforeVal = valueFor(other),
+        surprise  = Nums.clamp(Nums.abs(increment - beforeVal), 0, 1);
+      
+      incRelation(other, increment, weight, surprise * weight);
       if (report) {
-        I.say("  Actions speak louder...");
-        I.say("    Weight assigned: "+weight   );
-        I.say("    Increment:       "+increment);
+        I.say("\n  Actions speak louder...");
         I.say("    Relation before: "+beforeVal);
+        I.say("    Weight assigned: "+weight   );
+        I.say("    Surprise level:  "+surprise );
+        I.say("    Increment:       "+increment);
         I.say("    Relation after:  "+valueFor(other));
       }
     }
@@ -218,6 +224,14 @@ public class ActorRelations {
   public void incRelation(
     Accountable other, float toLevel, float weight, float novelty
   ) {
+    final boolean report = extraVerbose && I.talkAbout == actor;
+    if (report) {
+      I.say("\nIncrementing relation with "+other);
+      I.say("  To level: "+toLevel);
+      I.say("  Weight:   "+weight );
+      I.say("  Novelty:  "+novelty);
+    }
+    
     Relation r = relations.get(other);
     if (r == null) {
       final float baseVal = valueFor  (other);

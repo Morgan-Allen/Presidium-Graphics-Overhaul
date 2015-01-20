@@ -92,21 +92,6 @@ public final class Economy {
     //  Rations
     ALL_FOOD_TYPES[] = label(CATEGORY_FOOD, CARBS, GREENS, PROTEIN),
     
-    SPYCE_T = new Traded(
-      BC, "Spyce T", "spyce.gif"  , FORM_MATERIAL, 200,
-      "Tinerazine, a spyce compound found in animal galls"
-    ),
-    SPYCE_H = new Traded(
-      BC, "Spyce H", "spyce.gif"  , FORM_MATERIAL, 200,
-      "Halebdynum, a spyce compound found as a dessicated salt"
-    ),
-    SPYCE_N = new Traded(
-      BC, "Spyce N", "spyce.gif"  , FORM_MATERIAL, 200,
-      "Natrizoral, a spyce compound found in marine plant oils"
-    ),
-    //  Decor Items
-    ALL_SPYCE_TYPES[] = label(CATEGORY_SPYCE, SPYCE_T, SPYCE_H, SPYCE_N),
-    
     SOMA = new Traded(
       BC, "Soma"     , "soma.gif"     , FORM_MATERIAL, 40,
       "A mild recreational narcotic with minimal side-effects"
@@ -148,7 +133,33 @@ public final class Economy {
       BC, "Datalinks", "datalinks.gif", FORM_MATERIAL, 125,
       "Encrypted information relays suited to advanced study"
     ),
-    ALL_WARES_TYPES[] = label(CATEGORY_WARES, PLASTICS, PARTS, DATALINKS),
+    ALL_WARES_TYPES[] = label(CATEGORY_WARES, PLASTICS, PARTS, DATALINKS);
+  
+  final public static Traded
+    ALL_MATERIALS [] = Traded.INDEX.soFar(Traded.class);
+  
+  //  TODO:  Move these up a bit?  The distinction isn't that clear anymore...
+  final public static Traded
+    SAMPLES = new Traded(
+      BC, "Samples"    , null, FORM_SPECIAL, 0
+    ),
+    SLAG = new Traded(
+      BC, "Slag"       , null, FORM_SPECIAL, 0
+    ),
+    
+    SPYCE_T = new Traded(
+      BC, "Spyce T", "spyce.gif"  , FORM_MATERIAL, 200,
+      "Tinerazine, a spyce compound found in animal galls"
+    ),
+    SPYCE_H = new Traded(
+      BC, "Spyce H", "spyce.gif"  , FORM_MATERIAL, 200,
+      "Halebdynum, a spyce compound found as a dessicated salt"
+    ),
+    SPYCE_N = new Traded(
+      BC, "Spyce N", "spyce.gif"  , FORM_MATERIAL, 200,
+      "Natrizoral, a spyce compound found in marine plant oils"
+    ),
+    ALL_SPYCE_TYPES[] = label(CATEGORY_SPYCE, SPYCE_T, SPYCE_H, SPYCE_N),
     
     ANTIMASS = new Traded(
       BC, "Antimass", "fuel_rods.gif" , FORM_MATERIAL, 85,
@@ -162,20 +173,7 @@ public final class Economy {
       BC, "Decor"    , "decor.gif"    , FORM_MATERIAL, 250,
       "Interior decoration for the homes of the upper crust"
     ),
-    ALL_SECURED_TYPES[] = label(CATEGORY_SECURED, ANTIMASS, PRESSFEED, DECOR);
-  
-  
-  final public static Traded
-    ALL_MATERIALS [] = Traded.INDEX.soFar(Traded.class);
-  
-  //  TODO:  Move these up a bit?  The distinction isn't that clear anymore...
-  final public static Traded
-    SAMPLES = new Traded(
-      BC, "Samples"    , null, FORM_SPECIAL, 0
-    ),
-    SLAG = new Traded(
-      BC, "Slag"       , null, FORM_SPECIAL, 0
-    ),
+    ALL_SECURED_TYPES[] = label(CATEGORY_SECURED, ANTIMASS, PRESSFEED, DECOR),
     
     ARTIFACTS = new Traded(
       BC, "Artifacts"  , null, FORM_SPECIAL, 0

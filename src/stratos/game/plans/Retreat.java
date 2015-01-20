@@ -15,7 +15,9 @@ import static stratos.game.economic.Economy.*;
 public class Retreat extends Plan implements Qualities {
   
   
-  //  TODO:  Hiding evaluation needs to be much more reliable!
+  //  TODO:  Hiding evaluation needs to be much more reliable!  You'll have to
+  //  check all visible tiles, I think.  Or maybe reserve strictly for agents?
+  //  Yeah.  They get some special treatment.
   
   
   /**  Constants, field definitions, constructors and save/load methods-

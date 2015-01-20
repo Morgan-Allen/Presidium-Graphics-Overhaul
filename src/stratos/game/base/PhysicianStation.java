@@ -208,7 +208,6 @@ public class PhysicianStation extends Venue {
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
-    //updateCloneOrders(numUpdates);
     
     final int numU = (1 + structure.numUpgrades()) / 2;
     int medNeed = 2 + numU, powerNeed = 2 + numU;
@@ -218,7 +217,7 @@ public class PhysicianStation extends Venue {
     stocks.incDemand(MEDICINE, medNeed, Tier.PRODUCER, 1);
     stocks.incDemand(REAGENTS, medNeed, Tier.CONSUMER, 1);
     stocks.forceDemand(POWER, powerNeed, Tier.CONSUMER);
-    structure.setAmbienceVal(numU * 2);
+    structure.setAmbienceVal(4 + numU);
   }
   
   

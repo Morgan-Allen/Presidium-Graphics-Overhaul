@@ -157,10 +157,6 @@ public class EngineerStation extends Venue {
     stocks.translateDemands(METALS_TO_PARTS, 1);
     
     float pollution = 5, powerNeed = 5;
-    if (! isManned()) {
-      pollution /= 2;
-      powerNeed /= 2;
-    }
     powerNeed *= (3 + structure.numUpgrades()) / 3;
     pollution *= 2f / (2 + structure.upgradeLevel(MATTER_PRESS));
     stocks.forceDemand(POWER, powerNeed, Tier.CONSUMER);

@@ -4,6 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.common;
+import stratos.game.economic.Economy;
 import stratos.game.maps.*;
 import stratos.util.*;
 
@@ -56,9 +57,15 @@ public class BlurMap {
   /**  Updates and modifications-
     */
   protected void updateAllValues(float decay) {
+    final boolean report = false;
+    if (report) I.say("\nReporting value for "+key);
+    
     for (Coord c : Visit.grid(0, 0, gridSize, gridSize, 1)) {
-      impingeValue(0 - patchValues[c.x][c.y] * decay, c.x, c.y);
+      final float value = patchValues[c.x][c.y], DV = 0 - value * decay;
+      if (report && value > 0) I.say("  "+value+" at "+c+", decay "+DV);
+      impingeValue(DV, c.x * gridSize, c.y * gridSize);
     }
+    
     for (Coord c : Visit.grid(0, 0, gridSize, gridSize, 1)) {
       float blur = patchValues[c.x][c.y];
       blur += mipValues.blendValAt(c.x, c.y, 0.5f) / 2;
@@ -89,7 +96,7 @@ public class BlurMap {
   
   
   protected float patchValue(float x, float y) {
-    return blurValues[(int) (x / patchSize)][(int) (y / patchSize)];
+    return patchValues[(int) (x / patchSize)][(int) (y / patchSize)];
   }
 }
 

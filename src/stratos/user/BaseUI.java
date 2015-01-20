@@ -38,16 +38,16 @@ public class BaseUI extends HUD implements UIConstants {
   private Readout readout;
   
   //  TODO:  Also a policies panel?  ...Yeah.  Why not.
-  private CommsPanel  commsPanel;
+  private CommsPanel  commsPanel ;
   private PlanetPanel planetPanel;
   //private StarsPanel  starsPanel;  //Just use the homeworld.
   private Button
     commsButton ,
     planetButton;
-    //starsButton;
   
   
   private UIGroup panelArea, infoArea;
+  private MessagePopup popup;
   private Quickbar quickbar;
   
   private UIGroup currentPanel, newPanel;
@@ -128,6 +128,12 @@ public class BaseUI extends HUD implements UIConstants {
   }
   
   
+  public static void setPopupMessage(String message) {
+    final BaseUI UI = current();
+    if (UI != null) UI.popup.setMessage(message);
+  }
+  
+  
   
   /**  Construction of the default interface layout-
     */
@@ -152,6 +158,11 @@ public class BaseUI extends HUD implements UIConstants {
     infoArea.alignVertical  (0, 0);
     infoArea.alignHorizontal(0, 0);
     infoArea.attachTo(this);
+    
+    this.popup = new MessagePopup(this);
+    popup.alignHorizontal(0.5f, 0, 0);
+    popup.alignBottom(QUICKBAR_HIGH, 0);
+    popup.attachTo(this);
     
     currentPanel = newPanel = null;
     currentInfo = newInfo = null;

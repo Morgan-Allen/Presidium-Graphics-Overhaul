@@ -4,6 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.common;
+import stratos.game.economic.Economy;
 import stratos.user.BaseUI;
 import stratos.util.*;
 
@@ -13,12 +14,12 @@ import java.util.Map.Entry;
 
 public class BaseDemands {
   
-  
-  
   /**  Data fields, construction, setup and save/load methods-
     */
   private static boolean
     verbose = false;
+  private static Object
+    reportKey = Economy.SERVICE_HOUSING;
   
   final Stage world;
   final Base base;
@@ -133,20 +134,42 @@ public class BaseDemands {
   public void impingeSupply(
     Object key, float amount, float period, Target at
   ) {
+    final boolean report = verbose && key == reportKey;
+    if (report) {
+      I.say("\nImpinging supply for "+amount+" "+key);
+      I.say("  At "+at+" over "+period+" seconds ");
+    }
+    
     final BlurMap map = mapForSupply(key);
     at.position(temp);
     if (period > 0) amount *= period / updatePeriod;
     map.impingeValue(amount, (int) temp.x, (int) temp.y);
+    
+    if (report) {
+      I.say("  Patch value:   "+map.patchValue(temp.x, temp.y));
+      I.say("  Global supply: "+map.globalValue());
+    }
   }
   
   
   public void impingeDemand(
     Object key, float amount, float period, Target at
   ) {
+    final boolean report = verbose && key == reportKey;
+    if (report) {
+      I.say("\nImpinging demand for "+amount+" "+key);
+      I.say("  At "+at+" over "+period+" seconds ");
+    }
+
     final BlurMap map = mapForDemand(key);
     at.position(temp);
     if (period > 0) amount *= period / updatePeriod;
     map.impingeValue(amount, (int) temp.x, (int) temp.y);
+    
+    if (report) {
+      I.say("  Patch value:   "+map.patchValue(temp.x, temp.y));
+      I.say("  Global supply: "+map.globalValue());
+    }
   }
   
   

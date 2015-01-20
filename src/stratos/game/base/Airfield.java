@@ -43,17 +43,6 @@ public class Airfield extends Venue {
     ALL_SERVICES[] = (Traded[]) Visit.compose(Traded.class,
       ALL_TRADE_TYPES, new Traded[] { SERVICE_COMMERCE }
     );
-  final public static int
-    TRADE_IMPORT = -1,
-    TRADE_EXPORT =  1,
-    TRADE_AUTO   =  0,
-    MIN_TRADE    = 5 ,
-    MAX_TRADE    = 40,
-    NUM_TYPES    = ALL_TRADE_TYPES.length;
-  
-  final byte
-    tradeLevels[] = new byte[NUM_TYPES],
-    tradeTypes [] = new byte[NUM_TYPES];
   
   private float fuelLevels;
   private Dropship docking;
@@ -80,8 +69,8 @@ public class Airfield extends Venue {
 
   public Airfield(Session s) throws Exception {
     super(s);
-    s.loadByteArray(tradeLevels);
-    s.loadByteArray(tradeTypes );
+    //s.loadByteArray(tradeLevels);
+    //s.loadByteArray(tradeTypes );
     fuelLevels = s.loadFloat();
     docking    = (Dropship) s.loadObject();
   }
@@ -89,8 +78,8 @@ public class Airfield extends Venue {
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveByteArray(tradeLevels);
-    s.saveByteArray(tradeTypes );
+    //s.saveByteArray(tradeLevels);
+    //s.saveByteArray(tradeTypes );
     s.saveFloat (fuelLevels);
     s.saveObject(docking   );
   }
@@ -142,29 +131,11 @@ public class Airfield extends Venue {
     //  TODO:  As long as you have power and LCHC, you can manufacture fuel for
     //  dropships...
     stocks.forceDemand(POWER, 5, Tier.CONSUMER);
-    
-    final int interval = (int) scheduledInterval();
-    for (int i = 0 ; i < NUM_TYPES; i++) {
-      final Traded t = ALL_TRADE_TYPES[i];
-      final int type = tradeTypes[i], level = tradeLevels[i];
-      
-      if      (type == TRADE_AUTO  ) {
-        stocks.incDemand(t, 0, Tier.TRADER, interval);
-      }
-      else if (type == TRADE_IMPORT) {
-        stocks.forceDemand(t, level, Tier.IMPORTER);
-      }
-      else if (type == TRADE_EXPORT) {
-        stocks.forceDemand(t, level, Tier.EXPORTER);
-      }
-    }
   }
   
-  
-  public void setTrading(Traded t, int type, int level) {
-    final int index = Visit.indexOf(t, ALL_TRADE_TYPES);
-    tradeLevels[index] = (byte) Nums.clamp(level, MIN_TRADE, MAX_TRADE);
-    tradeTypes [index] = (byte) type ;
+
+  public int spaceFor(Traded t) {
+    return 40;
   }
   
   
@@ -236,48 +207,7 @@ public class Airfield extends Venue {
   
   
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
-    panel = VenueDescription.configStandardPanel(
-      this, panel, UI, CAT_ORDERS
-    );
-    if (panel.category() == CAT_ORDERS) {
-      final Description d = panel.listing();
-      d.append("Orders:");
-      
-      for (int i = 0 ; i < NUM_TYPES; i++) {
-        final Traded t = ALL_TRADE_TYPES[i];
-        final int type = tradeTypes[i], level = tradeLevels[i];
-        
-        d.append("\n  ");
-        
-        if (type == TRADE_IMPORT) d.append(new Description.Link("IMPORT") {
-          public void whenClicked() {
-            setTrading(t, TRADE_EXPORT, 0);
-          }
-        }, Colour.GREEN);
-        if (type == TRADE_AUTO) d.append(new Description.Link("FREE TRADE") {
-          public void whenClicked() {
-            setTrading(t, TRADE_IMPORT, 0);
-          }
-        }, Colour.BLUE);
-        if (type == TRADE_EXPORT) d.append(new Description.Link("EXPORT") {
-          public void whenClicked() {
-            setTrading(t, TRADE_AUTO  , 0);
-          }
-        }, Colour.MAGENTA);
-        if (type != TRADE_AUTO) {
-          d.append(" ");
-          d.append(new Description.Link(I.lengthen(level, 4)) {
-            public void whenClicked() {
-              setTrading(t, type, (level == MAX_TRADE) ? 0 : (level * 2));
-            }
-          });
-          d.append(" ");
-        }
-        else d.append("  ");
-        d.append(t);
-      }
-    }
-    return panel;
+    return VenueDescription.configStandardPanel(this, panel, UI, true);
   }
 }
 

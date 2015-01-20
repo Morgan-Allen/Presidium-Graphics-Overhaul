@@ -127,7 +127,6 @@ public class Nursery extends Venue implements TileConstants {
   
   public float ratePlacing(Target point, boolean exact) {
     
-    //  TODO:  base on demand for food?
     //  TODO:  THESE HAVE TO BE ECOLOGIST STATIONS BELONGING TO THE SAME BASE.
     //  ...It might be worth getting supply-and-demand in order here first.
     

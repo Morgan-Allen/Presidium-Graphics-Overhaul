@@ -186,9 +186,16 @@ public class InstallTab extends SelectionInfoPane {
         for (Structure.Basis i : group) i.doPlacement();
         UI.endCurrentTask();
         if (group[0].structure().isFixture()) tab.initInstallTask(UI, type);
+        else UI.selection.pushSelection(group[0], true);
       }
       else for (Structure.Basis i : group) {
         i.previewPlacement(canPlace, UI.rendering);
+      }
+      
+      if (! canPlace) {
+        //  TODO:  Get the appropriate message from the canPlace() method.
+        String message = "Too close to another structure!";
+        BaseUI.setPopupMessage(message);
       }
     }
     

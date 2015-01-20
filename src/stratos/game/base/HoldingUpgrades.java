@@ -57,8 +57,9 @@ public class HoldingUpgrades {
     NUM_LEVELS     = 5;
   final public static int
     OCCUPANCIES[] = { 4, 4, 4, 4, 4 },
-    TAX_LEVELS[]  = { 0, 5, 10, 20, 35 },
+    TAX_LEVELS [] = { 0, 5, 10, 20, 35 },
     INTEGRITIES[] = { 15, 35, 80, 125, 200 },
+    AMBIENCES  [] = { -2, -1, 0, 2, 4 },
     BUILD_COSTS[] = { 25, 60, 135, 225, 350 };
   final static float
     BIOMASS_SUPPORT = 5;
@@ -93,17 +94,17 @@ public class HoldingUpgrades {
     ),
     new Conversion(
       Holding.class, "Level 3",
-      2, PLASTICS, 1, PARTS,
+      2, PLASTICS, 1, PARTS, 1, POWER,
       ROUTINE_DC, ASSEMBLY
     ),
     new Conversion(
       Holding.class, "Level 4",
-      2, PLASTICS, 2, PARTS, 1, POWER, 1, MEDICINE,
+      2, PLASTICS, 2, PARTS, 1, POWER, 1, WATER,
       MODERATE_DC, ASSEMBLY
     ),
     new Conversion(
       Holding.class, "Level 5",
-      2, PLASTICS, 3, PARTS, 2, POWER, 1, MEDICINE, 1, WATER, 1, DATALINKS,
+      2, PLASTICS, 3, PARTS, 2, POWER, 1, WATER, 1, DATALINKS,
       DIFFICULT_DC, ASSEMBLY
     ),
   };
@@ -197,7 +198,8 @@ public class HoldingUpgrades {
     final Batch <Item> needed = new Batch <Item> ();
     for (Traded type : FOOD_TYPES) {
       if (needed.size() >= typesNeeded) break;
-      if (rateAccessTo(type.supplyKey, holding, holding.base()) <= 0) continue;
+      float access = rateAccessTo(type.supplyKey, holding, holding.base());
+      if (access <= 0) continue;
       needed.add(Item.withAmount(type, foodNeed / typesNeeded));
     }
     

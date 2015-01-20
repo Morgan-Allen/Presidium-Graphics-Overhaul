@@ -219,9 +219,7 @@ public class Reactor extends Venue {
   
   public int numOpenings(Background v) {
     final int nO = super.numOpenings(v);
-    if (v == Backgrounds.CORE_TECHNICIAN) {
-      return nO + 1;
-    }
+    if (v == Backgrounds.CORE_TECHNICIAN) return nO + 3;
     return 0;
   }
   

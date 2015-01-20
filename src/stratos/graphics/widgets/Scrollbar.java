@@ -116,7 +116,7 @@ public class Scrollbar extends UINode {
       pass, grabArea,
       side, side, cap, cap,
       0.5f, 0.5f, 0.25f, 0.25f,
-      scrollTex
+      scrollTex, Colour.transparency(relAlpha)
     );
   }
 }

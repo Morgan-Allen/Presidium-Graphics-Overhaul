@@ -10,6 +10,7 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.economic.Venue.*;
+import static stratos.game.economic.Economy.*;
 
 
 
@@ -21,8 +22,8 @@ public class VenueDescription {
   
   final public static String
     CAT_UPGRADES = "UPGRADES",
+    CAT_STOCK    = "STOCK"   ,
     CAT_STAFFING = "STAFFING",
-    CAT_STOCK    = "STOCK",
     CAT_VISITORS = "VISITORS";
   
   final String categories[];
@@ -37,12 +38,11 @@ public class VenueDescription {
   
   
   public static SelectionInfoPane configStandardPanel(
-    Venue venue, SelectionInfoPane panel, BaseUI UI, String... extraCategories
+    Venue venue, SelectionInfoPane panel, BaseUI UI, boolean stocksOrders
   ) {
-    final String categories[] = (String[]) Visit.compose(
-      String.class, extraCategories,
-      new String[] { CAT_UPGRADES, CAT_STAFFING, CAT_STOCK, CAT_VISITORS }
-    );
+    final String categories[] = {
+      CAT_UPGRADES, CAT_STOCK, CAT_STAFFING, CAT_VISITORS
+    };
     final VenueDescription VD = new VenueDescription(venue, categories);
     if (panel == null) panel = new SelectionInfoPane(
       UI, venue, venue.portrait(UI), true, categories
@@ -52,8 +52,11 @@ public class VenueDescription {
     
     VD.describeCondition(d, UI);
     if (category == CAT_UPGRADES) VD.describeUpgrades(l, UI);
+    if (category == CAT_STOCK   ) {
+      if (stocksOrders) VD.describeStockOrders(l, UI);
+      else              VD.describeStocks     (l, UI);
+    }
     if (category == CAT_STAFFING) VD.describeStaffing(l, UI);
-    if (category == CAT_STOCK   ) VD.describeStocks  (l, UI);
     if (category == CAT_VISITORS) VD.describeVisitors(l, UI);
     return panel;
   }
@@ -103,6 +106,54 @@ public class VenueDescription {
     if (category == CAT_STAFFING) VD.describeStaffing(l, UI);
     //if (category == CAT_VISITORS) VD.describeVisitors(l, UI);
     return panel;
+  }
+
+  
+  
+  //  TODO:  At this point, you might as well write some custom widgets.
+  //final static int MIN_TRADE = 5, MAX_TRADE = 20;
+  
+  
+  private void describeStockOrders(Description d, BaseUI UI) {
+    final Traded types[] = v.services();
+    d.append("Orders:");
+    
+    for (int i = 0 ; i < types.length; i++) {
+      final Traded t = types[i];
+      if (t.form != FORM_MATERIAL) continue;
+      
+      final Tier tier = v.stocks.demandTier(t);
+      final int level = (int) Nums.ceil(v.stocks.demandFor(t));
+      d.append("\n  ");
+      
+      if (tier == Tier.IMPORTER) d.append(new Description.Link("IMPORT") {
+        public void whenClicked() {
+          v.stocks.forceDemand(t, 0, Tier.EXPORTER);
+        }
+      }, Colour.GREEN);
+      if (tier == Tier.TRADER) d.append(new Description.Link("TRADE") {
+        public void whenClicked() {
+          v.stocks.forceDemand(t, 0, Tier.IMPORTER);
+        }
+      }, Colour.BLUE);
+      if (tier == Tier.EXPORTER) d.append(new Description.Link("EXPORT") {
+        public void whenClicked() {
+          v.stocks.forceDemand(t, 0, Tier.TRADER);
+        }
+      }, Colour.MAGENTA);
+      
+      final float amount = v.stocks.amountOf(t);
+      d.append(" "+I.shorten(amount, 1)+"/");
+      
+      final float maxTrade = v.spaceFor(t);
+      d.append(new Description.Link(I.lengthen(level, 4)) {
+        public void whenClicked() {
+          v.stocks.forceDemand(t, (level >= maxTrade) ? 0 : (level + 5), tier);
+        }
+      });
+      d.append(" ");
+      d.append(t);
+    }
   }
   
   

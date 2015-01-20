@@ -302,8 +302,8 @@ public class StockExchange extends Venue {
   
   
   protected void addServices(Choice choice, Actor actor) {
-    
     if (! (actor.mind.home() instanceof Holding)) return;
+    
     final Delivery d = DeliveryUtils.fillBulkOrder(
       this, actor.mind.home(), services(), 1, 5
     );
@@ -314,6 +314,8 @@ public class StockExchange extends Venue {
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
+    
+    structure.setAmbienceVal(2.0f);
     
     //  TODO:  Arrange for barges to be recovered if left unattended.
     cargoBarge.setHangar(this);
@@ -329,15 +331,14 @@ public class StockExchange extends Venue {
     final Batch <Venue> depots = DeliveryUtils.nearbyDepots(
       this, world, SERVICE_COMMERCE
     );
+    //*/
     //  TODO:  How do I ensure efficient long-range transmission in this way?
     //         ...Base it off GLOBAL supply and demand!
     
     for (Traded type : ALL_MATERIALS) {
       final int room = spaceFor(type);
       stocks.incDemand(type, room / 2f, Tier.TRADER, 1);
-      //stocks.diffuseDemand(type, depots, 1);
     }
-    //*/
   }
   
   

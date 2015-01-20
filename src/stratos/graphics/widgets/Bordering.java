@@ -17,8 +17,8 @@ public class Bordering extends UIGroup {
   final Texture borderTex;
   final public UIGroup inside;
   public int
-    left = 10, right = 10,
-    bottom = 10, top = 10;
+    left   = 10, right = 10,
+    bottom = 10, top   = 10;
   public float
     leftU   = 0.33f, rightU = 0.33f,
     bottomV = 0.33f, topV   = 0.33f;
@@ -48,6 +48,21 @@ public class Bordering extends UIGroup {
   }
   
   
+  public void surround(UINode other) {
+    if (other.parent() != this.parent()) {
+      I.complain("MUST HAVE COMMON REFERENCE FRAME!");
+      return;
+    }
+    this.absBound.setTo(other.absBound);
+    this.relBound.setTo(other.relBound);
+    
+    absBound.incX(0 - left);
+    absBound.incWide(left + right);
+    absBound.incY(0 - bottom);
+    absBound.incHigh(bottom + top);
+  }
+  
+  
   protected void updateState() {
     inside.relBound.set(0, 0, 1, 1);
     inside.absBound.set(left, bottom, 0 - (left + right), 0 - (top + bottom));
@@ -60,7 +75,7 @@ public class Bordering extends UIGroup {
       pass, bounds,
       left, right, top, bottom,
       leftU, rightU, bottomV, topV,
-      borderTex
+      borderTex, Colour.transparency(relAlpha)
     );
     super.render(pass);
   }
@@ -80,7 +95,7 @@ public class Bordering extends UIGroup {
     WidgetsPass pass, Box2D area,
     int left, int right, int bottom, int top,
     float LU, float RU, float BV, float TV,
-    Texture borderTex
+    Texture borderTex, Colour c
   ) {
     coordX[0] = 0;
     coordX[1] = left;
@@ -107,7 +122,7 @@ public class Bordering extends UIGroup {
       coordY[i] = area.ymax() - coordY[i];
     }
     
-    pass.setColor(1, 1, 1, 1);
+    pass.setColor(c.r, c.g, c.b, c.a);
     for (int x = 3; x-- > 0;) for (int y = 3; y-- > 0;) {
       pass.draw(
         borderTex,

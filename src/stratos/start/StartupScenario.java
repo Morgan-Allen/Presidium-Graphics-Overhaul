@@ -310,8 +310,6 @@ public class StartupScenario extends Scenario {
     base.assignRuler(ruler);
     
     base.setup.doPlacementsFor(bastion);
-    //  TODO:  You may need to pass in some kind of rating for the bastion's
-    //  location.
     
     if (! bastion.inWorld()) I.complain("NO LANDING SITE FOUND!");
     bastion.clearSurrounds();

@@ -254,8 +254,8 @@ public abstract class Venue extends Structural implements
       impingeSupply(false);
     }
     if (structure.intact()) {
-      final int homeless = staff.numHomeless();
-      base.demands.impingeDemand(SERVICE_HOUSING, homeless, 1, this);
+      final int needHome = staff.workforce();
+      base.demands.impingeDemand(SERVICE_HOUSING, needHome, 1, this);
       stocks.updateOrders();
       if (rare) stocks.updateDemands(10);
     }
@@ -399,7 +399,7 @@ public abstract class Venue extends Structural implements
   
   //  TODO:  Make these abstract?
   public float ratePlacing(Target point, boolean exact) {
-    return 0;
+    return 1;
   }
   
   
@@ -418,7 +418,7 @@ public abstract class Venue extends Structural implements
   /**  Interface methods-
     */
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
-    return VenueDescription.configStandardPanel(this, panel, UI);
+    return VenueDescription.configStandardPanel(this, panel, UI, false);
   }
   
   

@@ -159,18 +159,11 @@ public class Relation {
       I.say("  Budge factor: "+budge+", gap factor: "+gap);
       I.say("  Final value: "+value());
     }
-    
-    /*
-    //  TODO:  Only decrease novelty as a result of conversation- other
-    //  impact factors actually *increase* the novelty of the relationship.
-    novelty -= MAX_VALUE * 1f / BORED_DURATION;
-    //*/
   }
   
   
   public void incNovelty(float inc) {
-    novelty += inc * MAX_VALUE;
-    if (novelty < 0) novelty = 0;
+    novelty = Nums.clamp(novelty + (inc * MAX_VALUE), 0, 1);
   }
 
   

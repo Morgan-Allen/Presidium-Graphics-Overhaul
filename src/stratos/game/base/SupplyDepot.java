@@ -54,20 +54,19 @@ public class SupplyDepot extends Venue {
   );
   //*/
   
-  //  TODO:  Specialise in all raw materials and only a few finished goods.
+  
   final static Traded
-    /*
     ALL_TRADE_TYPES[] = {
-      CARBS, PROTEIN, GREENS, LCHC,
+      CARBS, PROTEIN, REAGENTS, LCHC,
       ORES, TOPES, PARTS, PLASTICS
     },
-    //*/
-    ALL_TRADE_TYPES[] = Economy.ALL_MATERIALS,
+    ALL_EXPORT_TYPES[] = {
+      GREENS, SPYCE_N, SPYCE_T, SPYCE_H
+    },
     ALL_SERVICES[] = (Traded[]) Visit.compose(Traded.class,
       ALL_TRADE_TYPES, new Traded[] { SERVICE_COMMERCE }
     );
   
-  //private CargoBarge cargoBarge;
   private List <CargoBarge> barges = new List <CargoBarge> ();
   
   
@@ -92,11 +91,13 @@ public class SupplyDepot extends Venue {
   
   public SupplyDepot(Session s) throws Exception {
     super(s);
+    s.loadObjects(barges);
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
+    s.saveObjects(barges);
   }
   
   
@@ -148,22 +149,25 @@ public class SupplyDepot extends Venue {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     
-    float bonusC = structure.upgradeLevel(LCHC_RENDERING) * 5;
-    stocks.incDemand(LCHC, bonusC, Tier.ANY, 1);
-    
-    float bonusRV = structure.upgradeLevel(RATIONS_VENDING) * 5;
-    stocks.incDemand(CARBS   , bonusRV, Tier.ANY, 1);
-    stocks.incDemand(PROTEIN , bonusRV, Tier.ANY, 1);
-    
-    float bonusHS = structure.upgradeLevel(HARDWARE_STORE) * 5;
-    stocks.incDemand(PARTS   , bonusHS, Tier.ANY, 1);
-    stocks.incDemand(PLASTICS, bonusHS, Tier.ANY, 1);
-    
     int maxBarges = structure.upgradeLevel(EXPORT_TRADE) * 5;
     //  TODO:  You need to send those barges off to different settlements!
-    //  TODO:  Consider taking this over entirely from the Stock Exchange.
+    //  TODO:  Take this over entirely from the Stock Exchange.
     
-    for (Traded t : ALL_TRADE_TYPES) stocks.incDemand(t, 0, Tier.TRADER, 1);
+    for (Traded t : ALL_EXPORT_TYPES) stocks.incDemand(t, 5, Tier.EXPORTER, 1);
+  }
+  
+  
+  public int spaceFor(Traded t) {
+    if (t == CARBS || t == PROTEIN) {
+      return 5 + (structure.upgradeLevel(RATIONS_VENDING) * 5);
+    }
+    if (t == PARTS || t == PLASTICS) {
+      return 5 + (structure.upgradeLevel(HARDWARE_STORE ) * 5);
+    }
+    if (t == LCHC) {
+      return 5 + (structure.upgradeLevel(LCHC_RENDERING ) * 5);
+    }
+    return 5 + (structure.upgradeLevel(EXPORT_TRADE) * 5);
   }
   
   
@@ -266,6 +270,11 @@ public class SupplyDepot extends Venue {
     float amount = 0;
     for (Item i : stocks.allItems()) amount += i.amount;
     return amount;
+  }
+  
+
+  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
+    return VenueDescription.configStandardPanel(this, panel, UI, true);
   }
   
   

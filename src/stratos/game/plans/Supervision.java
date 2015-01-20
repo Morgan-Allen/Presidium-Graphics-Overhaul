@@ -134,7 +134,7 @@ public class Supervision extends Plan {
       venue.addTasks(choice, actor, actor.vocation());
       final Behaviour nextJob = choice.pickMostUrgent();
       if (! (nextJob instanceof Supervision)) {
-        I.say("  Supervision complete!");
+        if (report) I.say("  Supervision complete!");
         interrupt(INTERRUPT_CANCEL);
         return null;
       }

@@ -24,14 +24,15 @@ public class Dialogue extends Plan implements Qualities {
     */
   private static boolean
     evalVerbose  = false,
-    stepsVerbose = false;
+    stepsVerbose = false,
+    onlyBegun    = false;
   
   private boolean shouldReportEval() {
-    return evalVerbose  && I.talkAbout == actor && hasBegun();
+    return evalVerbose  && I.talkAbout == actor && (hasBegun() || ! onlyBegun);
   }
   
   private boolean shouldReportSteps() {
-    return stepsVerbose && I.talkAbout == actor && hasBegun();
+    return stepsVerbose && I.talkAbout == actor && (hasBegun() || ! onlyBegun);
   }
   
   final public static int
@@ -162,7 +163,6 @@ public class Dialogue extends Plan implements Qualities {
     if (report) {
       I.say("\nChecking if "+other+" will talk to "+actor);
       I.say("  Starts:     "+I.tagHash(starts));
-      I.say("  Finished?   "+starts.finished());
       I.say("  This is:    "+I.tagHash(this  ));
       I.say("  Stage is:   "+stage            );
       I.say("  Chats with: "+chatsWith        );
@@ -172,7 +172,11 @@ public class Dialogue extends Plan implements Qualities {
       if (report) I.say("  Other actor busy talking.");
       return false;
     }
-    if (! starts.isActive()) {
+    if (chatsWith == actor) {
+      if (report) I.say("  Conversation ongoing- okay.");
+      return true;
+    }
+    if (starts.stage > STAGE_GREET && ! starts.isActive()) {
       if (report) I.say("  Conversation starter done.");
       return false;
     }
@@ -185,7 +189,6 @@ public class Dialogue extends Plan implements Qualities {
       if (report) I.say("  Other actor is too busy!");
       return false;
     }
-    
     if (report) I.say("  Talking okay!");
     return true;
   }
@@ -214,6 +217,7 @@ public class Dialogue extends Plan implements Qualities {
   
   protected float getPriority() {
     final boolean report = shouldReportEval();
+    
     if (GameSettings.noChat) return -1;
     if (! other.health.conscious()) return -1;
     if (! other.health.human    ()) return -1;

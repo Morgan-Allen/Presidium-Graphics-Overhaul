@@ -29,6 +29,7 @@ public class Stocks extends Inventory {
     private float demandAmount;
     private float demandBonus;
     private float pricePaid;
+    private boolean fixed;
   }
   
   
@@ -54,6 +55,7 @@ public class Stocks extends Inventory {
       d.demandBonus  = s.loadFloat();
       d.tierType     = (Tier) s.loadEnum(Tier.values());
       d.pricePaid    = s.loadFloat();
+      d.fixed        = s.loadBool ();
       demands.put(d.type, d);
     }
   }
@@ -69,6 +71,7 @@ public class Stocks extends Inventory {
       s.saveFloat (d.demandBonus );
       s.saveEnum  (d.tierType    );
       s.saveFloat (d.pricePaid   );
+      s.saveBool  (d.fixed       );
     }
   }
   
@@ -212,17 +215,6 @@ public class Stocks extends Inventory {
     );
   }
   
-  /*
-  public float shortageUrgency(Traded type) {
-    final Demand d = demands.get(type);
-    if (d == null) return 0;
-    final float amount = amountOf(type), shortage = d.demandAmount - amount;
-    if (shortage <= 0) return 0;
-    final float urgency = shortage / ((amount + shortage) * (1 + d.tierType));
-    return urgency;
-  }
-  //*/
-  
   
   public float shortageOf(Traded type) {
     return demandFor(type) - amountOf(type);
@@ -269,6 +261,7 @@ public class Stocks extends Inventory {
     if (amount < 0) amount = 0;
     final Demand d = demandRecord(type);
     d.demandAmount = amount;
+    d.fixed        = true  ;
     if (tier != Tier.ANY) d.tierType = tier;
   }
   
@@ -279,6 +272,7 @@ public class Stocks extends Inventory {
     final Demand d = demandRecord(type);
     if (tier != Tier.ANY) d.tierType = tier;
     d.demandBonus += amount * period;
+    d.fixed       =  false;
   }
   
   
@@ -309,26 +303,31 @@ public class Stocks extends Inventory {
       translateDemands(m.conversion, period);
     }
     
-    //  TODO:  Have traders switch between giving and taking, depending on
-    //  whether you have a local excess or a local shortage!
-    
     for (Demand d : demands.values()) {
       final Tier tier = d.tierType;
       final Traded type = d.type;
-      final boolean
-        gives = tier == Tier.PRODUCER || tier == Tier.IMPORTER,
-        takes = tier == Tier.CONSUMER || tier == Tier.EXPORTER;
+      final boolean trades = tier == Tier.TRADER, fixed = d.fixed;
+      final float amount = amountOf(type);
       
-      d.demandAmount = d.demandBonus / period;
+      final boolean gives = amount > 0 && (
+        tier == Tier.PRODUCER || tier == Tier.IMPORTER || trades
+      );
+      final boolean takes = d.demandAmount > 0 && (
+        tier == Tier.CONSUMER || tier == Tier.EXPORTER || trades
+      );
+      
+      if (! fixed) d.demandAmount = d.demandBonus / period;
       d.demandBonus = 0;
       
       if (gives) {
         final float
-          amount    = amountOf(type),
-          demandEst = BD.demandAround(basis, type, -1),
-          shortage  = BD.localShortage(basis, type);
+          demandEst = BD.demandAround (basis, type, -1),
+          shortage  = BD.localShortage(basis, type    );
         
-        d.demandAmount += Nums.min(Nums.ceil(demandEst + shortage), maxSupply);
+        if (! fixed) {
+          float minSupply = Nums.ceil(demandEst + shortage);
+          d.demandAmount += Nums.min (minSupply, maxSupply);
+        }
         final float supplyEst = (d.demandAmount + amount) / 2;
         BD.impingeSupply(type, supplyEst, period, basis);
       }
