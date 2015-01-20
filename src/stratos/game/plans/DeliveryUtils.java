@@ -17,7 +17,7 @@ public class DeliveryUtils {
   //  NOTE:  See the rateTrading method below for how these are used...
   private static boolean
     sampleVerbose = false,
-    rateVerbose   = false,
+    rateVerbose   = true ,
     shipsVerbose  = false,
     dispVerbose   = false;
   
@@ -473,10 +473,19 @@ public class DeliveryUtils {
     //  Secondly, obtain an estimate of stocks before and after the exchange (
     //  origin and destination tiers will only match for Tier.TRADER.)
     final boolean isTrade = OT == DT;
+    final float
+      OFB = futureBalance(orig, good, report),
+      DFB = futureBalance(dest, good, report);
+    if (report) {
+      I.say("  Trade unit is "+amount);
+      I.say("  Origin      reserved: "+OFB);
+      I.say("  Destination reserved: "+DFB);
+    }
     float origAfter = 0, destAfter = 0;
-    origAfter = OA - futureBalance(orig, good, false);
-    destAfter = DA + futureBalance(dest, good, true );
+    origAfter = OA - (OFB + amount);
+    destAfter = DA + (DFB + amount);
     if (origAfter <= 0) return -1;
+    if (destAfter > DD) return -1;
     //
     //  Then, assign ratings for relative shortages at the start/end points-
     float origShort = 0, destShort = 0, rating = 0;
@@ -499,7 +508,6 @@ public class DeliveryUtils {
       rating = destShort / 2;
     }
     if (report) {
-      I.say("  Trade unit is "+amount);
       I.say("  Origin      demand  : "+OD+" ("+nameForTier(OT)+")");
       I.say("  Destination demand  : "+DD+" ("+nameForTier(DT)+")");
       I.say("  Origin      after   : "+origAfter);
@@ -524,30 +532,35 @@ public class DeliveryUtils {
   }
   
   
-  static float futureBalance(Owner e, Traded good, boolean positive) {
+  static float futureBalance(
+    Owner e, Traded good, boolean report
+  ) {
+    final Series <Delivery> reserved = e.inventory().reservations();
+    if (reserved == null || reserved.size() == 0) return 0;
+    if (report) I.say("  "+reserved.size()+" reservations at "+e);
     
-    //  TODO:  Cache this locally if possible.
-    final Activities a = e.world().activities;
-    final Batch <Delivery> matches = (Batch) a.activePlanMatches(
-      e, Delivery.class
-    );
     float balance = 0;
-    
-    for (Delivery d : matches) {
+    for (Delivery d : reserved) {
+      if (! d.isActive()) continue;
       final Item itemMatch = d.delivered(good);
       if (itemMatch == null) continue;
-      
-      if (d.origin == e && d.stage() == Delivery.STAGE_PICKUP) {
-        balance -= itemMatch.amount;
+      if (report) {
+        I.say("    Delivery is: "+d);
+        I.say("    Actor is:    "+d.actor());
+        I.say("    Match is:    "+itemMatch);
+        I.say("    Stage is:    "+d.stage());
       }
       
-      if (d.destination == e && d.stage() == Delivery.STAGE_DROPOFF) {
+      if (d.origin == e && d.stage() <= Delivery.STAGE_PICKUP) {
+        balance += itemMatch.amount;
+      }
+      
+      if (d.destination == e && d.stage() < Delivery.STAGE_RETURN) {
         balance += itemMatch.amount;
       }
     }
     
-    if (positive) return (balance > 0) ? balance : 0;
-    return (balance < 0) ? balance : 0;
+    return balance;
   }
 }
 

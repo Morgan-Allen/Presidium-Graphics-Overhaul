@@ -162,26 +162,29 @@ public class InstallTab extends SelectionInfoPane {
     BaseUI UI;
     Class type;
     Structure.Basis toInstall;
+    private boolean onStage, canPlace;
     
+    
+    //  TODO:  Only allow placement if you have sufficient funds!
     
     public void doTask() {
-      final IntelMap map = UI.played().intelMap;
       final Tile picked = UI.selection.pickedTile();
+      if (picked == null) return;
       
-      //  First of all, we place the main structure at the selected tile (which
-      //  gives it the chance to update the location of any kids it has.)
-      boolean canPlace =
-        picked != null &&
-        toInstall.setPosition(picked.x, picked.y, picked.world);
-      
-      //  TODO:  Hook directly into the utility methods in Placement.class?
-      
-      //  We then determine whether all the components of that larger structure
-      //  are in fact place-able:
+      onStage = canPlace = false;
+      findPlacePointFrom(picked);
+      if (! onStage) return;
       final Structure.Basis group[] = toInstall.structure().asGroup();
-      for (Structure.Basis i : group) {
-        canPlace &= map.fogAt(i) > 0 && i.canPlace();
+      
+      if (! canPlace) {
+        onStage &= toInstall.setPosition(picked.x, picked.y, picked.world);
+        if (! onStage) return;
+        
+        //  TODO:  Get the appropriate message from the canPlace() method.
+        String message = "Too close to another structure!";
+        BaseUI.setPopupMessage(message);
       }
+      
       if (canPlace && UI.mouseClicked()) {
         for (Structure.Basis i : group) i.doPlacement();
         UI.endCurrentTask();
@@ -191,12 +194,39 @@ public class InstallTab extends SelectionInfoPane {
       else for (Structure.Basis i : group) {
         i.previewPlacement(canPlace, UI.rendering);
       }
+    }
+    
+    
+    private boolean findPlacePointFrom(final Tile picked) {
+      //  TODO:  Hook directly into the utility methods in Placement.class...
       
-      if (! canPlace) {
-        //  TODO:  Get the appropriate message from the canPlace() method.
-        String message = "Too close to another structure!";
-        BaseUI.setPopupMessage(message);
+      final IntelMap map = UI.played().intelMap;
+      final Stage world = picked.world;
+      final Box2D area = picked.area(null).expandBy(Stage.PATCH_RESOLUTION / 2);
+      
+      final List <Tile> sorting = new List <Tile> () {
+        protected float queuePriority(Tile r) {
+          return Spacing.distance(r, picked);
+        }
+      };
+      for (Tile t : world.tilesIn(area, true)) sorting.add(t);
+      sorting.queueSort();
+      
+      for (Tile t : sorting) {
+        canPlace = true;
+        canPlace &= toInstall.setPosition(t.x, t.y, world);
+        if (! canPlace) continue;
+        onStage = true;
+        
+        //  We then determine whether all the components of that larger
+        //  structure are in fact place-able:
+        final Structure.Basis group[] = toInstall.structure().asGroup();
+        for (Structure.Basis i : group) {
+          canPlace &= map.fogAt(i) > 0 && i.canPlace();
+        }
+        if (canPlace) return true;
       }
+      return false;
     }
     
     

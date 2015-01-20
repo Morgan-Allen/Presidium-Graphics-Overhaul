@@ -14,12 +14,12 @@ import stratos.util.*;
 
 
 
-//  TODO:  Give an error message when placement isn't possible!
-//         And try every tile within a certain radius until you can place!
-
-
 //  Test the long-range supply/demand systems for the stock exchange and supply
 //  depot, including bulk delivery.  That's the last major gap.
+
+//  TODO:  Cut out the spyce economy entirely for the moment.  You don't really
+//  have a precise idea of how to use it yet.
+
 
 //  Also, just use a BlurMap for ambience.  It's a lot simpler and less freaky.
 
@@ -50,6 +50,7 @@ import stratos.util.*;
 //  is at or above half crowding.
 //  Rework art for roads, the shield wall, the physician station, the engineer
 //  station, the solar bank, and the archives... nearly anything, really.
+
 
 
 public class DebugTutorial extends TutorialScenario {

@@ -130,6 +130,7 @@ public class Airfield extends Venue {
     //
     //  TODO:  As long as you have power and LCHC, you can manufacture fuel for
     //  dropships...
+    stocks.setDefaultTier(ALL_TRADE_TYPES, Tier.TRADER);
     stocks.forceDemand(POWER, 5, Tier.CONSUMER);
   }
   

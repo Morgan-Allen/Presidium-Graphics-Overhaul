@@ -49,6 +49,7 @@ public interface Behaviour extends Session.Saveable {
   
   Behaviour nextStepFor(Actor actor);
   int motionType(Actor actor);
+  void toggleActive(boolean is);  //TODO:  REPLACE WITH BEGIN/END CALLS
   void interrupt(String cause);
   Target subject();
   

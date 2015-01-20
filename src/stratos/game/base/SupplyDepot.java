@@ -7,6 +7,7 @@ package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.economic.Economy.Tier;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -153,6 +154,7 @@ public class SupplyDepot extends Venue {
     //  TODO:  You need to send those barges off to different settlements!
     //  TODO:  Take this over entirely from the Stock Exchange.
     
+    stocks.setDefaultTier(ALL_TRADE_TYPES, Tier.TRADER);
     for (Traded t : ALL_EXPORT_TYPES) stocks.incDemand(t, 5, Tier.EXPORTER, 1);
   }
   

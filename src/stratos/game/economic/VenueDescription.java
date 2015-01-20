@@ -118,6 +118,11 @@ public class VenueDescription {
     final Traded types[] = v.services();
     d.append("Orders:");
     
+    if (! v.structure.intact()) {
+      d.append("  Venue under construction!  Cannot set orders until done.");
+      return;
+    }
+    
     for (int i = 0 ; i < types.length; i++) {
       final Traded t = types[i];
       if (t.form != FORM_MATERIAL) continue;

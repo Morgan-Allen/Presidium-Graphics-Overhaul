@@ -167,10 +167,12 @@ public abstract class Actor extends Mobile implements
       if (actionTaken != null) I.say("  Finished? "+actionTaken.finished());
     }
     
-    world.activities.registerFocus(actionTaken, false);
+    if (actionTaken != null) actionTaken.toggleActive(false);
     this.actionTaken = action;
-    world.activities.registerFocus(actionTaken, true );
-    if (actionTaken != null) actionTaken.updateAction(false);
+    if (actionTaken != null) {
+      actionTaken.toggleActive(true);
+      actionTaken.updateAction(false);
+    }
   }
   
   

@@ -37,7 +37,8 @@ public abstract class UINode {
   final protected Box2D
     bounds = new Box2D();
   public float
-    relAlpha = 1,
+    relAlpha = 1;
+  protected float
     absAlpha = 1;
   public boolean
     hidden  = false,

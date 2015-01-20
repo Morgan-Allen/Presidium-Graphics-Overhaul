@@ -286,7 +286,7 @@ public abstract class ActorMind implements Qualities {
     if (stepsVerbose && I.talkAbout == actor) {
       I.say("\nPUSHING BEHAVIOUR: "+b);
     }
-    actor.world().activities.registerFocus(b, true);
+    b.toggleActive(true);
   }
   
   
@@ -300,7 +300,7 @@ public abstract class ActorMind implements Qualities {
       I.say("  Finished/valid: "+b.finished()+"/"+b.valid());
       I.say("  Priority "+b.priorityFor(actor));
     }
-    actor.world().activities.registerFocus(b, false);
+    b.toggleActive(false);
     return b;
   }
   
@@ -325,6 +325,9 @@ public abstract class ActorMind implements Qualities {
       if (report) I.say("  SAVING PLAN AS TODO: "+replaced);
       todoList.include(replaced);
     }
+    
+    behaviour.priorityFor(actor);
+    behaviour.nextStepFor(actor);
     pushBehaviour(behaviour);
   }
   

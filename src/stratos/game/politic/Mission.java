@@ -212,6 +212,11 @@ public abstract class Mission implements
   /**  General life-cycle, justification and setup methods-
     */
   public abstract float rateImportance(Base base);
+  
+  
+  //  TODO:  Make use of this
+  public void toggleActive(boolean is) {
+  }
 
   
   public void updateMission() {

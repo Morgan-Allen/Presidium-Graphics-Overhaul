@@ -39,7 +39,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     verboseClass = FindWork.class;
   
   final public Target subject;
-  protected Actor actor;
+  protected Actor actor;  //  TODO:  MAKE THIS FINAL
   
   final boolean persistent;
   protected float
@@ -132,6 +132,12 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   public boolean persistent() {
     return persistent;
+  }
+  
+  
+  public void toggleActive(boolean is) {
+    if (actor == null) return;
+    actor.world().activities.registerFocus(this, is);
   }
   
   

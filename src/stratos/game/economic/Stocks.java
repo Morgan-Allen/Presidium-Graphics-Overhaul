@@ -36,6 +36,7 @@ public class Stocks extends Inventory {
   final Property basis;
   final Table <Traded, Demand> demands = new Table <Traded, Demand> ();
   final List <Manufacture> specialOrders = new List <Manufacture> ();
+  final List <Delivery> reservations = new List <Delivery> ();
   
   
   public Stocks(Property v) {
@@ -47,8 +48,10 @@ public class Stocks extends Inventory {
   public void loadState(Session s) throws Exception {
     super.loadState(s);
     s.loadObjects(specialOrders);
-    int numC = s.loadInt();
-    while (numC-- > 0) {
+    s.loadObjects(reservations );
+    
+    int numD = s.loadInt();
+    while (numD-- > 0) {
       final Demand d = new Demand();
       d.type         = (Traded) s.loadObject();
       d.demandAmount = s.loadFloat();
@@ -64,6 +67,8 @@ public class Stocks extends Inventory {
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     s.saveObjects(specialOrders);
+    s.saveObjects(reservations );
+    
     s.saveInt(demands.size());
     for (Demand d : demands.values()) {
       s.saveObject(d.type        );
@@ -180,6 +185,17 @@ public class Stocks extends Inventory {
     return specialOrders;
   }
   
+
+  public void setReservation(Delivery d, boolean is) {
+    if (is) reservations.include(d);
+    else    reservations.remove (d);
+  }
+  
+  
+  public Series <Delivery> reservations() {
+    return reservations;
+  }
+  
   
   
   /**  Public accessor methods-
@@ -276,6 +292,18 @@ public class Stocks extends Inventory {
   }
   
   
+  public void setDefaultTier(Traded types[], Tier tier) {
+    for (Traded type : types) {
+      final Demand d = demandRecord(type);
+      final boolean fixed =
+        d.tierType == Tier.TRADER   ||
+        d.tierType == Tier.IMPORTER ||
+        d.tierType == Tier.EXPORTER;
+      if (! fixed) d.tierType = tier;
+    }
+  }
+  
+  
   public void translateDemands(Conversion cons, int period) {
     final boolean report = extraVerbose && I.talkAbout == basis;
     final float demand = cons.out == null ? 1 : shortageOf(cons.out.type);
@@ -301,6 +329,10 @@ public class Stocks extends Inventory {
     
     for (Manufacture m : specialOrders) {
       translateDemands(m.conversion, period);
+    }
+    
+    for (Delivery d : reservations) {
+      if (! d.isActive()) setReservation(d, false);
     }
     
     for (Demand d : demands.values()) {

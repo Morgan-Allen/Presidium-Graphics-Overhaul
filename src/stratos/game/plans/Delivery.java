@@ -17,8 +17,7 @@ import stratos.game.economic.Inventory.Owner;
 
 //  TODO:  Unify this with Smuggling?  Same basic ideas involved.
 
-//  This is actually quite complex.  Sufficiently complex that I will have to
-//  think hard about action-sequencing.
+//  TODO:  Just use the simple payment-sequence for now.  Work on it later.
 
 
 public class Delivery extends Plan {
@@ -233,6 +232,15 @@ public class Delivery extends Plan {
   private boolean manned(Owner o) {
     if (o instanceof Property) return ((Property) o).isManned();
     return false;
+  }
+  
+  
+  /**  Register and unregistering reservations-
+    */
+  public void toggleActive(boolean is) {
+    super.toggleActive(is);
+    origin     .inventory().setReservation(this, is);
+    destination.inventory().setReservation(this, is);
   }
   
   

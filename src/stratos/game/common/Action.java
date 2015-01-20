@@ -175,6 +175,11 @@ public class Action implements Behaviour, AnimNames {
   }
   
   
+  public void toggleActive(boolean is) {
+    actor.world().activities.registerFocus(this, is);
+  }
+  
+  
   public boolean finished() {
     if (progress == -1) return true;
     return (moveState == STATE_CLOSED) && (progress >= 1);

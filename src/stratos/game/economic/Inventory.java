@@ -8,6 +8,7 @@ import stratos.game.common.*;
 import stratos.user.*;
 import stratos.util.*;
 import stratos.graphics.sfx.*;
+import stratos.game.plans.Delivery;
 import static stratos.game.economic.Economy.*;
 
 
@@ -360,6 +361,9 @@ public class Inventory {
   public float shortageOf(Traded type) { return 0        ; }
   public Tier  demandTier(Traded type) { return Tier.NONE; }
   
+  
+  public void setReservation(Delivery d, boolean is) {}
+  public Series <Delivery> reservations() { return null; };
   
   
   /**  Returns whether this inventory has enough of the given item to satisfy

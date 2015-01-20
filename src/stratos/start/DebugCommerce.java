@@ -110,8 +110,8 @@ public class DebugCommerce extends Scenario {
     if (false) shoppingScenario(world, base, UI);
     if (false) runnersScenario (world, base, UI);
     if (false) shippingScenario(world, base, UI);
-    if (false) deliveryScenario(world, base, UI);
-    if (true ) shoppingScenario(world, base, UI);
+    if (true ) deliveryScenario(world, base, UI);
+    if (false) shoppingScenario(world, base, UI);
   }
   
   
@@ -186,35 +186,44 @@ public class DebugCommerce extends Scenario {
       foundry, 6, 6, true, world,
       new Human(Backgrounds.TECHNICIAN, base),
       new Human(Backgrounds.TECHNICIAN, base),
-      new Human(Backgrounds.ARTIFICER, base)
+      new Human(Backgrounds.ARTIFICER , base)
     );
     foundry.stocks.bumpItem(Economy.ORES , 40);
     foundry.stocks.bumpItem(Economy.PARTS, 20);
-    
   }
   
   
   private void deliveryScenario(Stage world, Base base, BaseUI UI) {
     final Venue depot   = new SupplyDepot(base);
     final Venue foundry = new EngineerStation(base);
-    final Actor citizen = new Human(Backgrounds.TECHNICIAN, base);
+    final Actor
+      guyA = new Human(Backgrounds.TECHNICIAN, base),
+      guyB = new Human(Backgrounds.TECHNICIAN, base);
+    
     Placement.establishVenue(depot, 11, 1, true, world);
-    Placement.establishVenue(foundry, 6, 6, true, world, citizen);
+    Placement.establishVenue(foundry, 6, 6, true, world, guyA, guyB);
+    
     depot.stocks.bumpItem(ORES, 10);
+    foundry.stocks.forceDemand(ORES, 3, Tier.CONSUMER);
     
-    final Delivery d = new Delivery(ORES, depot, foundry);
-    d.setWithPayment(foundry, false);
-    citizen.mind.assignBehaviour(d);
-    citizen.setPosition(2, 2, world);
+    UI.selection.pushSelection(foundry, true);
     
-    UI.selection.pushSelection(citizen, true);
+    for (Actor guy : foundry.staff.workers()) {
+      final Delivery d = DeliveryUtils.fillBulkOrder(
+        depot, foundry, new Traded[] {ORES}, 1, 10
+      );
+      if (d == null) continue;
+      d.setWithPayment(foundry, false);
+      guy.mind.assignBehaviour(d);
+      guy.setPosition(2, 2, world);
+    }
+    
+    base.commerce.scheduleDrop(20);
   }
   
   
   private void shoppingScenario(Stage world, Base base, BaseUI UI) {
-    
     GameSettings.hireFree = true;
-    //PlayLoop.setGameSpeed(25);
     
     //  Create one settlement over here, with a supply depot, engineer station
     //  and fabricator.
@@ -252,27 +261,21 @@ public class DebugCommerce extends Scenario {
         a.gear.taxDone();
       }
     }
-    
-    //  TODO:  INCLUDE ALL THE AMENITIES, AND SEE IF HOUSING CAN EVOLVE FULLY
-  }
+    for (Object o : world.presences.matchesNear(base(), null, -1)) {
+      final Venue v = (Venue) o;
+      if (v instanceof Holding) continue;
+      
+      for (Traded t : v.stocks.demanded()) {
+        v.stocks.bumpItem(t, 100, 100);
+      }
+    }
 
+    PlayLoop.setGameSpeed(1);
+  }
+  
   
   public void updateGameState() {
     super.updateGameState();
-    PlayLoop.setGameSpeed(1);
-    
-    final Stage world = world();
-    if (((int) world.currentTime()) % 10 == 0) {
-      
-      for (Object o : world.presences.matchesNear(base(), null, -1)) {
-        final Venue v = (Venue) o;
-        if (v instanceof Holding) continue;
-        
-        for (Traded t : v.stocks.demanded()) {
-          v.stocks.bumpItem(t, 10, 10);
-        }
-      }
-    }
   }
   
   
