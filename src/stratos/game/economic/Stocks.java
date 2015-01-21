@@ -286,9 +286,9 @@ public class Stocks extends Inventory {
     Traded type, float amount, Tier tier, int period
   ) {
     final Demand d = demandRecord(type);
+    if (d.fixed) return;
     if (tier != Tier.ANY) d.tierType = tier;
     d.demandBonus += amount * period;
-    d.fixed       =  false;
   }
   
   

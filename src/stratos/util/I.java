@@ -26,7 +26,7 @@ public class I {
   public static boolean mute = false;
   public static Object talkAbout = null;
   
-  final static boolean WRITE_TO_LOG = false;
+  final static boolean WRITE_TO_LOG = true;
   final static String OUT_FILE = "saves/log_output.txt";
   static {
     if (WRITE_TO_LOG) try {

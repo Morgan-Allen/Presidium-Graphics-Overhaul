@@ -26,7 +26,7 @@ import static stratos.game.economic.Economy.*;
 
 
 //  Rations.  Repairs.  Medkits.
-//    Life-Extension.  (spyce, from.)
+//    Life-Extension.  (spyce, from various sources...)
 //    Truth Serum.     (medicine, from physician.)
 //    Ansible Relay.   (hardware, from engineer.)
 
@@ -61,7 +61,6 @@ public class StockExchange extends Venue {
       ALL_STOCKED, new Traded[] { SERVICE_COMMERCE }
     );
   
-  private CargoBarge cargoBarge;
   private float catalogueSums[] = new float[ALL_STOCKED.length];
   
   
@@ -79,7 +78,7 @@ public class StockExchange extends Venue {
   
   public StockExchange(Session s) throws Exception {
     super(s);
-    cargoBarge = (CargoBarge) s.loadObject();
+    //cargoBarge = (CargoBarge) s.loadObject();
     
     for (int i = ALL_STOCKED.length; i-- > 0;) {
       catalogueSums[i] = s.loadFloat();
@@ -89,7 +88,7 @@ public class StockExchange extends Venue {
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(cargoBarge);
+    //s.saveObject(cargoBarge);
     
     for (int i = ALL_STOCKED.length; i-- > 0;) {
       s.saveFloat(catalogueSums[i]);
@@ -100,23 +99,6 @@ public class StockExchange extends Venue {
   
   /**  Supplementary setup methods-
     */
-  public boolean enterWorldAt(int x, int y, Stage world) {
-    if (! super.enterWorldAt(x, y, world)) return false;
-    cargoBarge = new CargoBarge();
-    cargoBarge.assignBase(base());
-    cargoBarge.setHangar(this);
-    final Tile o = origin();
-    cargoBarge.enterWorldAt(o.x, o.y, world);
-    cargoBarge.goAboard(this, world);
-    return true;
-  }
-  
-  
-  public CargoBarge cargoBarge() {
-    return cargoBarge;
-  }
-  
-  
   private float upgradeLevelFor(Traded type) {
     final int category = Economy.categoryFor(type);
     Upgrade upgrade = null;
@@ -267,29 +249,8 @@ public class StockExchange extends Venue {
     final Choice choice = new Choice(actor);
     final Traded services[] = services();
     
-    //  TODO:  Consider investment activities!
+    //  TODO:  Consider patent-manufacture activities!
     
-    //
-    //  See if there's a bulk delivery to be made-
-    final Batch <Venue> depots = DeliveryUtils.nearbyDepots(
-      this, world, SERVICE_COMMERCE
-    );
-    final Delivery bD = DeliveryUtils.bestBulkDeliveryFrom(
-      this, services, 5, 50, depots
-    );
-    if (bD != null && staff.assignedTo(bD) < 1) {
-      bD.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL);
-      bD.driven = cargoBarge;
-      choice.add(bD);
-    }
-    final Delivery bC = DeliveryUtils.bestBulkCollectionFor(
-      this, services, 5, 50, depots
-    );
-    if (bC != null && staff.assignedTo(bC) < 1) {
-      bC.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL);
-      bC.driven = cargoBarge;
-      choice.add(bC);
-    }
     //
     //  Otherwise, consider regular, local deliveries and supervision.
     if (choice.empty()) {
@@ -316,24 +277,6 @@ public class StockExchange extends Venue {
     if (! structure.intact()) return;
     
     structure.setAmbienceVal(2.0f);
-    
-    //  TODO:  Arrange for barges to be recovered if left unattended.
-    cargoBarge.setHangar(this);
-    
-    //  So... how do I determine how Trade-depots behave?  Well, in principle
-    //  those long-range deliveries should do the job okay- they'll pick up on
-    //  the differences in shortage/surplus at A and B, and bring in goods to
-    //  redress the balance.
-    
-    //  ...You just have to implement that at the venue itself.  Yes.
-    
-    /*
-    final Batch <Venue> depots = DeliveryUtils.nearbyDepots(
-      this, world, SERVICE_COMMERCE
-    );
-    //*/
-    //  TODO:  How do I ensure efficient long-range transmission in this way?
-    //         ...Base it off GLOBAL supply and demand!
     
     for (Traded type : ALL_MATERIALS) {
       final int room = spaceFor(type);

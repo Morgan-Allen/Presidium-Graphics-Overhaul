@@ -127,8 +127,6 @@ public class Repairs extends Plan {
     float urgency = needForRepair(built);
     if (urgency <= 0) return 0;
     float competition = MILD_COOPERATION;
-    //float competition = FULL_COMPETITION;
-    //competition /= 1 + (built.structure().maxIntegrity() / 100f);
     
     final float priority = priorityForActorWith(
       actor, (Target) built,
@@ -175,11 +173,28 @@ public class Repairs extends Plan {
     final Structure structure = built.structure();
     final Element basis = (Element) built;
     
+    /*
+    if (structure.buildState() == Structure.STATE_NONE && ! basis.inWorld()) {
+      final Action establish = new Action(
+        actor, basis,
+        this, "actionEstablish",
+        Action.BUILD, "Establishing "
+      );
+      final Tile t = Spacing.pickFreeTileAround(built, actor);
+      if (t == null) {
+        interrupt(INTERRUPT_CANCEL);
+        return null;
+      }
+      establish.setMoveTarget(t);
+      return establish;
+    }
+    //*/
+    
     if (structure.needsUpgrade() && structure.goodCondition()) {
       final Action upgrades = new Action(
         actor, built,
         this, "actionUpgrade",
-        Action.BUILD, "Upgrading "+built
+        Action.BUILD, "Upgrading "
       );
       if (report) I.say("  Returning next upgrade action.");
       return upgrades;
@@ -189,23 +204,43 @@ public class Repairs extends Plan {
       final Action building = new Action(
         actor, built,
         this, "actionBuild",
-        Action.BUILD, "Assembling "+built
+        Action.BUILD, "Assembling "
       );
-      if (! Spacing.adjacent(actor.origin(), basis) || Rand.num() < 0.2f) {
-        final Tile t = Spacing.pickFreeTileAround(built, actor);
-        if (t == null) {
-          interrupt(INTERRUPT_CANCEL);
-          return null;
+      boolean moveSet = false;
+      final boolean near = Spacing.adjacent(actor.origin(), basis);
+      
+      if (built instanceof Vehicle) {
+        final Vehicle m = (Vehicle) built;
+        if (m.indoors()) {
+          building.setMoveTarget(m.aboard());
+          moveSet = true;
         }
-        building.setMoveTarget(t);
+        else if (m.pilot() != null) return null;
       }
-      else building.setMoveTarget(actor.origin());
+      
+      if ((! moveSet) && (Rand.num() < 0.2f || ! near)) {
+        final Tile t = Spacing.pickFreeTileAround(built, actor);
+        if (t == null) return null;
+        building.setMoveTarget(t);
+        moveSet = true;
+      }
+      if (! moveSet) {
+        building.setMoveTarget(actor.origin());
+      }
+      
       if (report) I.say("  Returning next build action.");
       return building;
     }
     
     if (report) I.say("NOTHING TO BUILD");
     return null;
+  }
+  
+  
+  public boolean actionEstablish(Actor actor, Structure.Basis built) {
+    final Element e = (Element) built;
+    e.enterWorld();
+    return true;
   }
   
   

@@ -47,8 +47,28 @@ public class CargoBarge extends Vehicle implements
   }
   
   
-  public float height() { return 1.0f; }
-  public float radius() { return 1.0f; }
+  //  TODO:  Get rid of the actorScale references here.
+  
+  public float height() { return 1.0f; }// * GameSettings.actorScale; }
+  public float radius() { return 1.0f; }// * GameSettings.actorScale; }
+  
+  
+  protected float aboveGroundHeight() {
+    return -0.2f;
+  }
+  
+  
+  protected float spriteScale() {
+    return 1.0f;// * GameSettings.actorScale;
+  }
+  
+  
+  protected float baseMoveRate() {
+    float rate = 1.0f - 0.2f;
+    final int var = world.terrain().varAt(origin());
+    rate += (var % 4) / 10f;
+    return rate;
+  }
   
   
   

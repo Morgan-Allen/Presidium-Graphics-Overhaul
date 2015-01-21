@@ -13,6 +13,7 @@ import stratos.graphics.common.*;
 import stratos.graphics.sfx.TalkFX;
 import stratos.user.*;
 import stratos.util.*;
+import static stratos.game.actors.Qualities.*;
 
 
 
@@ -117,6 +118,11 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
+  public boolean abandoned() {
+    return pilot == null && aboard() != hangar;
+  }
+  
+  
   
   /**  Dealing with items, inventory and structural requirements-
     */
@@ -181,11 +187,6 @@ public abstract class Vehicle extends Mobile implements
     */
   public void addTasks(Choice choice, Actor forActor, Background background) {
   }
-  /*
-  public Behaviour jobFor(Actor actor) {
-    return null;
-  }
-  //*/
   
   
   public float crowdRating(Actor forActor, Background b) {
@@ -193,25 +194,7 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
-  //public void addServices(Choice actor, Actor forActor) {}
   public Background[] careers() { return null; }
-  
-  
-  public void setWorker(Actor actor, boolean is) {
-    staff.setWorker(actor, is);
-  }
-
-  
-  public void setApplicant(FindWork app, boolean is) {
-    //I.complain("NOT IMPLEMENTED YET!");
-    staff.setApplicant(app, is);
-  }
-  
-  /*
-  public int numOpenings(Background b) {
-    return 0;
-  }
-  //*/
   
   
   public boolean isManned() {
@@ -240,19 +223,38 @@ public abstract class Vehicle extends Mobile implements
   
   protected void updateAsMobile() {
     super.updateAsMobile();
+    final boolean report =
+      I.talkAbout == this || (pilot != null && I.talkAbout == pilot);
+    
     if (pilot != null) updatePiloting();
     else pathing.updateTarget(pathing.target());
     final Boarding step = pathing.nextStep();
+    if (report) {
+      I.say("\nUpdating vehicle (pilot "+pilot+")");
+      I.say("  Path target:  "+pathing.target());
+      I.say("  Next step is: "+step);
+    }
     
-    if (pathing.checkPathingOkay() && step != null) {
-      float moveRate = baseMoveRate();
+    if (step != null) {
+      final float baseSpeed = baseMoveRate();
+      float moveRate = baseSpeed;
       if (origin().pathType() == Tile.PATH_ROAD) moveRate *= 1.5f;
       //  TODO:  RESTORE THIS
       //if (origin().owner() instanceof Causeway) moveRate *= 1.5f;
       moveRate *= (pilotBonus + 1) / 2;
-      pathing.headTowards(step, moveRate, true);
+      pathing.headTowards(step, moveRate, 25 * baseSpeed, true);
     }
     else world.schedule.scheduleNow(this);
+  }
+  
+  
+  protected void updatePiloting() {
+    if (pilot.aboard() != this) {
+      pathing.updateTarget(null);
+      return;
+    }
+    final Target focus = pilot.actionFocus();
+    if (focus != null) pathing.updateTarget(focus);
   }
   
   
@@ -266,25 +268,14 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
-  protected void updatePiloting() {
-    if (pilot.aboard() != this) {
-      pathing.updateTarget(null);
-      return;
-    }
-    if (pilot.currentAction() == null) return;
-    pathing.updateTarget(pilot.currentAction().subject());
-  }
-  
-  
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     structure.updateStructure(numUpdates);
+    if (! structure.intact()) return;
     cargo.updateOrders();
-    //
-    //  TODO:  Restore this once building/salvage of vehicles is complete.
-    ///if (! structure.intact()) return;
-    //  TODO:  Create a specialised 'Travel' plan to handle piloting in general!
-    /*
+    if (! pathing.checkPathingOkay()) pathing.refreshFullPath();
+    
+    //  TODO:  Allow vehicles to act as Mounts.
     
     if (pilot != null && pilot.aboard() == this) {
       pilotBonus = 1;
@@ -295,13 +286,8 @@ public abstract class Vehicle extends Mobile implements
       pilotBonus = 0.5f;
       pilot = null;
     }
-    if (! pathing.checkPathingOkay()) pathing.refreshFullPath();
-    if (hangar != null && hangar.destroyed()) {
-      //  TODO:  REGISTER FOR SALVAGE
-      setAsDestroyed();
-    }
-    /*/
   }
+  
   
   /*
   public boolean blocksMotion(Boardable b) {
@@ -410,6 +396,13 @@ public abstract class Vehicle extends Mobile implements
     final Description d = panel.detail(), l = panel.listing();
     describeStatus(d);
     d.append("\n\n");
+    
+    final float repair = structure.repairLevel();
+    int maxInt = structure.maxIntegrity();
+    int condition = (int) (repair * maxInt);
+    d.append("  Condition: "+condition+"/"+maxInt);
+    
+    d.append("\n\n");
     d.append(helpInfo(), Colour.LITE_GREY);
     
     if (crew().size() > 0) l.appendList("\n\nCrew: "      , crew()          );
@@ -444,8 +437,11 @@ public abstract class Vehicle extends Mobile implements
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (indoors() || ! inWorld()) return;
     
+    final Vec3D viewPos = viewPosition(null);
+    viewPos.z = Nums.max(viewPos.z, 0);
+    
     Selection.renderSimpleCircle(
-      this, viewPosition(null), rendering,
+      this, viewPos, rendering,
       hovered ? Colour.transparency(0.5f) : Colour.WHITE
     );
   }

@@ -66,6 +66,9 @@ public class SupplyDepot extends Venue {
     },
     ALL_SERVICES[] = (Traded[]) Visit.compose(Traded.class,
       ALL_TRADE_TYPES, new Traded[] { SERVICE_COMMERCE }
+    ),
+    ALL_GOOD_TYPES[] = (Traded[]) Visit.compose(Traded.class,
+      ALL_TRADE_TYPES, ALL_EXPORT_TYPES
     );
   
   private List <CargoBarge> barges = new List <CargoBarge> ();
@@ -154,6 +157,17 @@ public class SupplyDepot extends Venue {
     //  TODO:  You need to send those barges off to different settlements!
     //  TODO:  Take this over entirely from the Stock Exchange.
     
+    for (CargoBarge b : barges) if (b.destroyed()) barges.remove(b);
+    if (barges.size() == 0) {
+      final CargoBarge b = new CargoBarge();
+      b.enterWorldAt(this, world);
+      b.goAboard(this, world);
+      b.setHangar(this);
+      b.assignBase(base);
+      b.structure.setState(Structure.STATE_INSTALL, 0);
+      barges.add(b);
+    }
+    
     stocks.setDefaultTier(ALL_TRADE_TYPES, Tier.TRADER);
     for (Traded t : ALL_EXPORT_TYPES) stocks.incDemand(t, 5, Tier.EXPORTER, 1);
   }
@@ -173,15 +187,54 @@ public class SupplyDepot extends Venue {
   }
   
   
+  private boolean bargeReady(CargoBarge b) {
+    return b != null && b.inWorld() && b.structure.goodCondition();
+  }
+  
+  
   protected Behaviour jobFor(Actor actor, boolean onShift) {
     if (! onShift) return null;
-    
     final Choice choice = new Choice(actor);
+    //
+    //  See if there's a bulk delivery to be made-
+    final Traded services[] = ALL_GOOD_TYPES;
+    final CargoBarge cargoBarge = barges.first();
+    if (bargeReady(cargoBarge)) {
+      final Batch <Venue> depots = DeliveryUtils.nearbyDepots(
+        this, world, SERVICE_COMMERCE
+      );
+      final Delivery bD = DeliveryUtils.bestBulkDeliveryFrom(
+        this, services, 5, 50, depots
+      );
+      if (bD != null && staff.assignedTo(bD) < 1) {
+        bD.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL);
+        bD.driven = cargoBarge;
+        choice.add(bD);
+      }
+      final Delivery bC = DeliveryUtils.bestBulkCollectionFor(
+        this, services, 5, 50, depots
+      );
+      if (bC != null && staff.assignedTo(bC) < 1) {
+        bC.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL);
+        bC.driven = cargoBarge;
+        choice.add(bC);
+      }
+      if (! choice.empty()) return choice.pickMostUrgent();
+    }
+    
+    //
+    //  Repairs and manufacture-
+    for (CargoBarge b : barges) {
+      if (Repairs.needForRepair(b) > 0) choice.add(new Repairs(actor, b));
+      else if (b.abandoned()) choice.add(new Delivery(b, this));
+    }
     choice.add(Repairs.getNextRepairFor(actor, true));
     
     final Manufacture CM = stocks.nextManufacture(actor, WASTE_TO_LCHC);
     if (CM != null) choice.add(CM.setBonusFrom(this, true, LCHC_RENDERING));
     
+    //
+    //  Localised deliveries-
     final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
       this, services(), 2, 10, 5
     );
@@ -192,6 +245,8 @@ public class SupplyDepot extends Venue {
     );
     if (c != null && staff.assignedTo(c) < 1) choice.add(c);
     
+    //
+    //  Supervision by default-
     if (choice.empty()) choice.add(Supervision.oversight(this, actor));
     return choice.weightedPick();
   }

@@ -14,12 +14,6 @@ import stratos.util.*;
 
 
 
-//  Test the long-range supply/demand systems for the stock exchange and supply
-//  depot, including bulk delivery.  That's the last major gap.
-
-//  TODO:  Cut out the spyce economy entirely for the moment.  You don't really
-//  have a precise idea of how to use it yet.
-
 
 //  Also, just use a BlurMap for ambience.  It's a lot simpler and less freaky.
 

@@ -172,7 +172,7 @@ public class InstallTab extends SelectionInfoPane {
       if (picked == null) return;
       
       onStage = canPlace = false;
-      findPlacePointFrom(picked);
+      findPlacePointFrom(picked, 2);
       if (! onStage) return;
       final Structure.Basis group[] = toInstall.structure().asGroup();
       
@@ -197,12 +197,12 @@ public class InstallTab extends SelectionInfoPane {
     }
     
     
-    private boolean findPlacePointFrom(final Tile picked) {
+    private boolean findPlacePointFrom(final Tile picked, int radius) {
       //  TODO:  Hook directly into the utility methods in Placement.class...
       
       final IntelMap map = UI.played().intelMap;
       final Stage world = picked.world;
-      final Box2D area = picked.area(null).expandBy(Stage.PATCH_RESOLUTION / 2);
+      final Box2D area = picked.area(null).expandBy(radius);
       
       final List <Tile> sorting = new List <Tile> () {
         protected float queuePriority(Tile r) {

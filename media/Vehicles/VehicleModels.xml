@@ -26,7 +26,7 @@
   type="JOINT"
   path="media/Vehicles/"
   file="loader_2.ms3d"
-  scale="0.03"
+  scale="0.025"
   bound="1.5"
   stride="1.0"
   height="1.5"

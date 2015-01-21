@@ -148,29 +148,29 @@ public final class Economy {
     ),
     
     SPYCE_T = new Traded(
-      BC, "Spyce T", "spyce.gif"  , FORM_MATERIAL, 200,
+      BC, "Spyce T", "spyce.gif"  , FORM_SPECIAL, 200,
       "Tinerazine, a spyce compound found in animal galls"
     ),
     SPYCE_H = new Traded(
-      BC, "Spyce H", "spyce.gif"  , FORM_MATERIAL, 200,
+      BC, "Spyce H", "spyce.gif"  , FORM_SPECIAL, 200,
       "Halebdynum, a spyce compound found as a dessicated salt"
     ),
     SPYCE_N = new Traded(
-      BC, "Spyce N", "spyce.gif"  , FORM_MATERIAL, 200,
+      BC, "Spyce N", "spyce.gif"  , FORM_SPECIAL, 200,
       "Natrizoral, a spyce compound found in marine plant oils"
     ),
     ALL_SPYCE_TYPES[] = label(CATEGORY_SPYCE, SPYCE_T, SPYCE_H, SPYCE_N),
     
     ANTIMASS = new Traded(
-      BC, "Antimass", "fuel_rods.gif" , FORM_MATERIAL, 85,
+      BC, "Antimass", "fuel_rods.gif" , FORM_SPECIAL, 85,
       "A potent energy source needed for atomics and space travel"
     ),
     PRESSFEED = new Traded(
-      BC, "Pressfeed", "pressfeed.gif", FORM_MATERIAL, 50,
+      BC, "Pressfeed", "pressfeed.gif", FORM_SPECIAL, 50,
       "Disposable propaganda used to raise morale"
     ),
     DECOR = new Traded(
-      BC, "Decor"    , "decor.gif"    , FORM_MATERIAL, 250,
+      BC, "Decor"    , "decor.gif"    , FORM_SPECIAL, 250,
       "Interior decoration for the homes of the upper crust"
     ),
     ALL_SECURED_TYPES[] = label(CATEGORY_SECURED, ANTIMASS, PRESSFEED, DECOR),

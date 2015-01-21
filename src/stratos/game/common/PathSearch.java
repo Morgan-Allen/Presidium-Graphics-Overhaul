@@ -19,7 +19,8 @@ public class PathSearch extends Search <Boarding> {
   
   /**  Field definitions and constructors-
     */
-  private static boolean blocksVerbose = false;
+  private static boolean
+    blocksVerbose = false;
   
   
   final protected Boarding destination;
@@ -240,15 +241,16 @@ public class PathSearch extends Search <Boarding> {
         exists = b.inWorld(),
         allows = (b == mobile.aboard()) || b.allowsEntry(mobile),
         blocks = b.pathType() == Tile.PATH_BLOCKS;
-      if (exists && allows && ! blocks) return true;
-      if (mobile != null && mobile.position.z > b.height()) return false;
       
       if (blocksVerbose && I.talkAbout == mobile) {
-        I.say("Problem with end point: "+b);
+        I.say("Assessing blockage at: "+b);
         I.say("  Still in world? "+exists );
         I.say("  Forbids entry? "+! allows);
         I.say("  Blocks passage? "+blocks );
       }
+      if (exists && (allows || ! blocks)) return false;
+      if (mobile != null && mobile.position.z > b.height()) return false;
+      return true;
     }
     return false;
   }

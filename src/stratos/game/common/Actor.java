@@ -506,8 +506,12 @@ public abstract class Actor extends Mobile implements
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (indoors() || ! inWorld()) return;
     final boolean t = aboard() instanceof Tile;
+    
+    final Vec3D viewPos = viewPosition(null);
+    viewPos.z = Nums.max(viewPos.z, 0);
+    
     Selection.renderSimpleCircle(
-      this, viewPosition(null), rendering,
+      this, viewPos, rendering,
       Colour.transparency((hovered ? 0.5f : 1.0f) * (t ? 1 : 0.5f))
     );
   }

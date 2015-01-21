@@ -402,7 +402,7 @@ public class Action implements Behaviour, AnimNames {
     float moveRate = speedMultiple(actor, false) * actor.health.baseSpeed();
     if (active) {
       if (report) I.say("Move rate: "+moveRate);
-      actor.pathing.headTowards(closeOn, moveRate, ! closed);
+      actor.pathing.headTowards(closeOn, moveRate, 1, ! closed);
       if (! closed) actor.pathing.applyCollision(moveRate, actionTarget);
       return moveRate;
     }

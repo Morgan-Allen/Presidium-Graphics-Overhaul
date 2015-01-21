@@ -20,6 +20,9 @@ import static stratos.game.economic.Economy.*;
 
 
 
+//  TODO:  I'm going to cut out the spyce economy entirely for the moment, as I
+//  don't have a clear idea of how to use it yet.  Maybe later.
+
 
 //  Each major ecologist building- the botanical station, the FRSD Plant,
 //  and the kommando lodge- can produce 1 type of spyce each.
@@ -110,7 +113,8 @@ public class DebugCommerce extends Scenario {
     if (false) shoppingScenario(world, base, UI);
     if (false) runnersScenario (world, base, UI);
     if (false) shippingScenario(world, base, UI);
-    if (true ) deliveryScenario(world, base, UI);
+    if (false) deliveryScenario(world, base, UI);
+    if (true ) farDeliveryScenario(world, base, UI);
     if (false) shoppingScenario(world, base, UI);
   }
   
@@ -190,6 +194,27 @@ public class DebugCommerce extends Scenario {
     );
     foundry.stocks.bumpItem(Economy.ORES , 40);
     foundry.stocks.bumpItem(Economy.PARTS, 20);
+  }
+  
+  
+  private void farDeliveryScenario(Stage world, Base base, BaseUI UI) {
+    GameSettings.hireFree = true;
+    
+    final Venue depot    = new SupplyDepot  (base);
+    Placement.establishVenue(depot   , 50, 50, true, world);
+    base.setup.fillVacancies(depot, true);
+    depot.stocks.bumpItem(PARTS   , 80);
+    depot.stocks.bumpItem(PLASTICS, 35);
+    depot.stocks.bumpItem(CARBS   , 45);
+    
+    final Venue exchange = new StockExchange(base);
+    Placement.establishVenue(exchange, 5 , 5 , true, world);
+    base.setup.fillVacancies(exchange, true);
+    exchange.stocks.forceDemand(PARTS   , 40, Tier.TRADER);
+    exchange.stocks.forceDemand(PLASTICS, 25, Tier.TRADER);
+    exchange.stocks.forceDemand(CARBS   , 35, Tier.TRADER);
+    
+    UI.selection.pushSelection(depot, true);
   }
   
   

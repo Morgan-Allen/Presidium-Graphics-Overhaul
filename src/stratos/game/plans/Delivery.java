@@ -17,7 +17,7 @@ import stratos.game.economic.Inventory.Owner;
 
 //  TODO:  Unify this with Smuggling?  Same basic ideas involved.
 
-//  TODO:  Just use the simple payment-sequence for now.  Work on it later.
+//  TODO:  Work out a more complete payment scheme later.
 
 
 public class Delivery extends Plan {
@@ -36,7 +36,6 @@ public class Delivery extends Plan {
   
   final static int
     STAGE_INIT    = -1,
-    STAGE_FUNDED  =  0,
     STAGE_PICKUP  =  1,
     STAGE_DROPOFF =  2,
     STAGE_RETURN  =  3,
@@ -51,7 +50,6 @@ public class Delivery extends Plan {
   private Item items[];
   private Owner shouldPay;
   private float goodsPrice, goodsBulk;
-  private float balance = 0;
   
   private Suspensor suspensor; //  TODO:  Unify with vehicle.
   public Vehicle driven;
@@ -81,6 +79,13 @@ public class Delivery extends Plan {
   }
   
   
+  public Delivery(Vehicle vehicle, Owner destination) {
+    this(new Item[0], vehicle, destination);
+    this.driven = vehicle;
+    this.stage = STAGE_RETURN;
+  }
+  
+  
   public Delivery(Session s) throws Exception {
     super(s);
     
@@ -95,7 +100,7 @@ public class Delivery extends Plan {
     stage      = (byte) s.loadInt();
     goodsPrice = s.loadFloat();
     goodsBulk  = s.loadFloat();
-    balance    = s.loadFloat();
+    //balance    = s.loadFloat();
     
     suspensor = (Suspensor) s.loadObject();
     driven    = (Vehicle  ) s.loadObject();
@@ -115,7 +120,7 @@ public class Delivery extends Plan {
     s.saveInt   (stage     );
     s.saveFloat (goodsPrice);
     s.saveFloat (goodsBulk );
-    s.saveFloat (balance   );
+    //s.saveFloat (balance   );
     
     s.saveObject(suspensor);
     s.saveObject(driven   );
@@ -197,6 +202,11 @@ public class Delivery extends Plan {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (report) I.say("\nChecking for items at "+carries);
     
+    if (items == null || items.length == 0) {
+      I.say("  No items needed!");
+      return true;
+    }
+    
     final Batch <Item> has = new Batch <Item> ();
     goodsPrice = goodsBulk = 0;
     for (Item i : items) {
@@ -248,7 +258,6 @@ public class Delivery extends Plan {
   /**  Assessing targets and priorities-
     */
   protected float getPriority() {
-    if ((items == null || items.length == 0) && balance == 0) return -1;
     final boolean report = evalVerbose && I.talkAbout == actor;
     //
     //  Determine basic priorities and delivery type:
@@ -272,7 +281,7 @@ public class Delivery extends Plan {
     //  Otherwise, add a bonus for quantity-
     if (! shops) {
       for (Item i : items) modifier += IDLE * i.amount / 10f;
-      if (balance != 0) modifier = Nums.max(modifier, CASUAL);
+      //if (balance != 0) modifier = Nums.max(modifier, CASUAL);
     }
     //
     //  Finally, since this plan involves a good deal of travel, we modify the
@@ -312,7 +321,10 @@ public class Delivery extends Plan {
     */
   public Behaviour getNextStep() {
     final boolean report = stepsVerbose && I.talkAbout == actor;
-    if (report) I.say("\nGetting next delivery step: "+actor);
+    if (report) {
+      I.say("\nGetting next delivery step: "+actor);
+      I.say("  Plan ID: "+hashCode());
+    }
     //
     //  First of all, make sure that you still have the items you need to
     //  perform the delivery- otherwise, either quit or return a refund.
@@ -321,36 +333,23 @@ public class Delivery extends Plan {
     if (stage == STAGE_DROPOFF) carries = driven == null ? actor : driven;
     
     if (carries != null && ! hasItemsFrom(carries)) {
-      if (balance != 0) stage = STAGE_DROPOFF;
-      else return null;
+      //if (balance != 0) stage = STAGE_DROPOFF;
+      return null;
     }
     //
     //  Initially, we may need to pick up a delivery vehicle or neccesary funds
     //  for payment.  (Vehicles also need to be returned afterward.)
-    if (stage == STAGE_INIT) {
-      if (shouldPay == null || shouldPay == actor) stage = STAGE_PICKUP;
-      else stage = STAGE_FUNDED;
-    }
-    
-    if (stage == STAGE_FUNDED) {
-      if (report) I.say("  Getting funds for payment from "+shouldPay);
-      
-      final Action getFunds = new Action(
-        actor, shouldPay,
-        this, "actionGetFunds",
-        Action.LOOK, "Getting funds"
-      );
-      return getFunds;
-    }
+    if (stage == STAGE_INIT) stage = STAGE_PICKUP;
     
     if (driven != null && actor.aboard() != driven) {
-      if (report) I.say("  Boarding vehicle: "+driven);
+      if (report) I.say("\nWill board "+driven);
       
       final Action boarding = new Action(
         actor, driven,
         this, "actionBoardVehicle",
         Action.STAND, "Boarding vehicle"
       );
+      boarding.setMoveTarget(driven);
       return boarding;
     }
     
@@ -419,16 +418,16 @@ public class Delivery extends Plan {
   
   
   public boolean actionBoardVehicle(Actor actor, Vehicle driven) {
+    final boolean report = stepsVerbose && I.talkAbout == actor;
+    if (report) {
+      final Boarding reaches[] = actor.aboard().canBoard();
+      I.say("\nGoing aboard "+driven);
+      I.say("  Currently aboard: "+actor.aboard());
+      I.say("  Can reach?        "+Visit.arrayIncludes(reaches, driven));
+    }
+    
     actor.goAboard(driven, actor.world());
     if (! driven.setPilot(actor)) interrupt(INTERRUPT_CANCEL);
-    return true;
-  }
-  
-  
-  public boolean actionGetFunds(Actor actor, Owner pays) {
-    pays.inventory().transferCredits(goodsPrice, actor);
-    this.balance = goodsPrice;
-    stage = STAGE_PICKUP;
     return true;
   }
   
@@ -445,11 +444,6 @@ public class Delivery extends Plan {
       suspensor.enterWorldAt(o.x, o.y, o.world);
       this.suspensor = suspensor;
     }
-    
-    if (shouldPay != null) {
-      actor.gear.transferCredits(goodsPrice, origin);
-      if (balance > 0) this.balance -= goodsPrice;
-    }
     //
     //  Perform the actual transfer of goods and, if making a personal trade,
     //  make the payment required:
@@ -465,7 +459,10 @@ public class Delivery extends Plan {
     
     if (suspensor != null && suspensor.inWorld()) suspensor.exitWorld();
     transferGoods(driven == null ? actor : driven, destination);
-    if (balance != 0) actor.inventory().transferCredits(balance, shouldPay);
+    
+    if (shouldPay != null) {
+      shouldPay.inventory().transferCredits(goodsPrice, origin);
+    }
     
     if (driven != null) stage = STAGE_RETURN;
     else stage = STAGE_DONE;
@@ -492,12 +489,6 @@ public class Delivery extends Plan {
     if (stage == STAGE_RETURN && driven != null) {
       d.append("Returning to ");
       d.append(origin);
-      return;
-    }
-    
-    if (stage == STAGE_DROPOFF && balance != 0) {
-      d.append("Returning "+((int) balance)+" credits in change to ");
-      d.append(destination);
       return;
     }
     

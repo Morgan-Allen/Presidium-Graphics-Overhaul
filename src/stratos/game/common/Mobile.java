@@ -18,6 +18,9 @@ public abstract class Mobile extends Element
   implements Schedule.Updates, Accountable
 {
   
+  private static boolean
+    verbose = false;
+  
   final public static PlaneFX.Model SHADOW_MODEL = new PlaneFX.Model(
     "ground_shadow_model", Mobile.class,
     "media/SFX/ground_shadow.png", 1, 0, 0, false, false
@@ -30,8 +33,6 @@ public abstract class Mobile extends Element
     MOTION_WATER = 3;
   final static int
     MAX_PATH_SCAN = Stage.SECTOR_SIZE;
-  
-  private static boolean verbose = false;
   
   protected float
     rotation,
@@ -103,7 +104,8 @@ public abstract class Mobile extends Element
    */
   public boolean enterWorldAt(int x, int y, Stage world) {
     if (! super.enterWorldAt(x, y, world)) return false;
-    (aboard = origin()).setInside(this, true);
+    goAboard(origin(), world);
+    //(aboard = origin()).setInside(this, true);
     world().schedule.scheduleForUpdates(this);
     world().toggleActive(this, true);
     return true;
@@ -147,6 +149,14 @@ public abstract class Mobile extends Element
   
   
   public void goAboard(Boarding toBoard, Stage world) {
+    if (toBoard == aboard) return;
+    
+    final boolean report = verbose && I.talkAbout == this;
+    if (report) {
+      I.say("\nGoing aboard "+toBoard);
+      I.reportStackTrace();
+    }
+    
     if (aboard != null) aboard.setInside(this, false);
     aboard = toBoard;
     if (aboard != null) aboard.setInside(this, true);
@@ -173,12 +183,13 @@ public abstract class Mobile extends Element
       oldTile = origin(),
       newTile = world.tileAt(pos.x, pos.y);
     if (! super.setPosition(pos.x, pos.y, world)) return false;
-    if (pos != null) nextPosition.setTo(pos);
-    if (rotation != -1) nextRotation = rotation;
+    if (pos      != null) nextPosition.setTo(pos);
+    if (rotation != -1  ) nextRotation = rotation;
     
-    if (aboard == null || ! aboard.area(null).contains(newTile.x, newTile.y)) {
-      if (aboard != null) aboard.setInside(this, false);
-      (aboard = newTile).setInside(this, true);
+    if (aboard == null || ! aboard.area(null).contains(pos.x, pos.y)) {
+      goAboard(newTile, world);
+      //if (aboard != null) aboard.setInside(this, false);
+      //(aboard = newTile).setInside(this, true);
     }
     if (instant) {
       this.position.setTo(pos);
@@ -204,10 +215,12 @@ public abstract class Mobile extends Element
   }
   
   
+  //  TODO:  There's a problem here, I think.
+  
   protected void updateAsMobile() {
     final boolean report = verbose && I.talkAbout == this;
     //  
-    final Boarding next = pathing == null ? null : pathing.nextStep();
+    final Boarding step = pathing == null ? null : pathing.nextStep();
     final Tile oldTile = origin();
     final Vec3D p = nextPosition;
     final boolean outOfBounds =
@@ -219,11 +232,10 @@ public abstract class Mobile extends Element
     if (aboard instanceof Mobile && outOfBounds) {
       aboard.position(nextPosition);
     }
-    else if (next != null && next.getClass() != aboard.getClass()) {
-      if (report) I.say("Jumping to: "+next);
-      aboard.setInside(this, false);
-      (aboard = next).setInside(this, true);
-      next.position(nextPosition);
+    else if (step != null && step.boardableType() != aboard.boardableType()) {
+      if (report) I.say("Jumping to: "+step);
+      goAboard(step, world);
+      step.position(nextPosition);
     }
     //
     //  If you're not in either your current 'aboard' object, or the area
@@ -232,24 +244,22 @@ public abstract class Mobile extends Element
     final Tile newTile = world().tileAt(nextPosition.x, nextPosition.y);
     if (oldTile != newTile || outOfBounds) {
       if (oldTile != newTile) onTileChange(oldTile, newTile);
-      final boolean awry = next != null && Spacing.distance(next, this) > 1;
       
-      if (next != null && next.area(null).contains(p.x, p.y)) {
-        aboard.setInside(this, false);
-        (aboard = next).setInside(this, true);
+      final boolean awry = step != null && Spacing.distance(step, this) > 1;
+      if (step != null && step.area(null).contains(p.x, p.y)) {
+        goAboard(step, world);
       }
       else if (outOfBounds) {
         if (awry) onMotionBlock(newTile);
         if (report) I.say("Entering tile: "+newTile);
-        aboard.setInside(this, false);
-        (aboard = newTile).setInside(this, true);
+        goAboard(newTile, world);
       }
     }
     
     //  Escape any currently blocked tile-
     if (
-      collides() && (aboard instanceof Tile) &&
-      aboard.pathType() == Tile.PATH_BLOCKS
+      aboard.boardableType() == Boarding.BOARDABLE_TILE &&
+      collides() && aboard.pathType() == Tile.PATH_BLOCKS
     ) {
       final Tile free = Spacing.nearestOpenTile(aboard, this);
       if (free == null) I.complain("MOBILE IS TRAPPED! "+this);
@@ -273,7 +283,7 @@ public abstract class Mobile extends Element
     if (report) {
       I.say("Aboard: "+aboard);
       I.say("Position "+nextPosition);
-      I.say("Next step: "+next);
+      I.say("Next step: "+step);
     }
   }
 

@@ -188,10 +188,13 @@ public class Pathing {
       //  points of the prospective route.
       pathTarget = location(trueTarget);
       if (report) I.say("  BETWEEN: "+origin+" AND "+pathTarget);
-      if (
-        PathSearch.blockedBy(origin, mobile) ||
-        PathSearch.blockedBy(pathTarget, mobile)
-      ) path = null;
+      final boolean
+        origB = PathSearch.blockedBy(origin    , mobile),
+        destB = PathSearch.blockedBy(pathTarget, mobile);
+      if (destB || origB) {
+        if (report) I.say("  Start/end points blocked: "+origB+"/"+destB);
+        path = null;
+      }
       else path = pathBetween(origin, pathTarget);
     }
     if (path == null) {
@@ -255,8 +258,9 @@ public class Pathing {
   }
   
   
+  //  TODO:  Specify rotation-rate separately?
   public void headTowards(
-    Target target, float speed, boolean moves
+    Target target, float speed, float inertia, boolean moves
   ) {
     final boolean report = I.talkAbout == mobile && verbose && extraVerbose;
     if (report) {
@@ -283,7 +287,7 @@ public class Pathing {
     //  Determine how far one can move this update, including limits on
     //  maximum rotation-
     final float maxRotate = speed * 180 / (
-      Stage.UPDATES_PER_SECOND * GameSettings.actorScale
+      Stage.UPDATES_PER_SECOND * GameSettings.actorScale * inertia
     );
     final float
       angleDif = Vec2D.degreeDif(angle, mobile.rotation),

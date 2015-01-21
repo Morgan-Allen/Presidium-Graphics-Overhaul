@@ -17,7 +17,7 @@ public class DeliveryUtils {
   //  NOTE:  See the rateTrading method below for how these are used...
   private static boolean
     sampleVerbose = false,
-    rateVerbose   = true ,
+    rateVerbose   = false,
     shipsVerbose  = false,
     dispVerbose   = false;
   
@@ -442,6 +442,11 @@ public class DeliveryUtils {
     if (report) {
       I.say("\nGetting trade rating for "+good+" between "+orig+" and "+dest);
     }
+    final float baseFactor = orig.base().relations.relationWith(dest.base());
+    if (baseFactor <= 0) {
+      if (report) I.say("  Base relations negative.");
+      return -1;
+    }
     //
     //  First of all secure some preliminary variables.
     //  OS/DS == origin/destination stocks
@@ -454,7 +459,10 @@ public class DeliveryUtils {
     final float
       OA = OS.amountOf(good),
       DA = DS.amountOf(good);
-    if (OA < amount) return -1;
+    if (OA < amount) {
+      if (report) I.say("  Origin lacks supply.");
+      return -1;
+    }
     
     final Tier
       OT = OS.demandTier(good),
@@ -465,10 +473,16 @@ public class DeliveryUtils {
     final float
       OD = OS.demandFor(good),
       DD = DS.demandFor(good);
-    if (DA >= DD) return -1;
+    if (DA >= DD) {
+      if (report) I.say("  No shortage at destination.");
+      return -1;
+    }
     //
     //  (We try to make sure the demands are reasonably in-proportion)-
-    if ((DD + 5 - DA) < (amount / 2f)) return -1;
+    if ((DD + 5 - DA) < (amount / 2f)) {
+      if (report) I.say("  Demands out of proportion.");
+      return -1;
+    }
     //
     //  Secondly, obtain an estimate of stocks before and after the exchange (
     //  origin and destination tiers will only match for Tier.TRADER.)
@@ -495,7 +509,7 @@ public class DeliveryUtils {
     //
     //  In the case of an equal trade, rate based on those relative shortages:
     if (isTrade) {
-      rating = origShort - destShort;
+      rating = destShort - origShort;
     }
     //
     //  Otherwise, favour deliveries to local consumers.
@@ -514,13 +528,12 @@ public class DeliveryUtils {
       I.say("  Destination after   : "+destAfter);
       I.say("  Origin      shortage: "+origShort);
       I.say("  Destination shortage: "+destShort);
+      I.say("  Rating so far       : "+rating   );
     }
     if (rating <= 0) return -1;
     //
     //  Then return an estimate of how much an exchange would equalise things,
     //  along with penalties for distance and base relations:
-    final float baseFactor = orig.base().relations.relationWith(dest.base());
-    if (baseFactor <= 0) return -1;
     final int SS = Stage.SECTOR_SIZE;
     final float distFactor = SS / (SS + Spacing.distance(orig, dest));
     
