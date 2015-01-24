@@ -3,17 +3,13 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
-package stratos.game.economic;
+package stratos.game.maps;
 import stratos.game.common.*;
 import stratos.util.*;
 
 
 
-//
-//  TODO:  Unify with the Placement class?
-
+//  TODO:  Try and piggyback off the section-rating code?
 
 public abstract class TileSpread extends Search <Tile> {
   
@@ -69,16 +65,17 @@ public abstract class TileSpread extends Search <Tile> {
     final Tile initTile, final Box2D limit,
     final Fixture parent, final Fixture toPlace
   ) {
-    final int owningType = toPlace.owningType();
     final TileSpread spread = new TileSpread(initTile) {
       protected boolean canAccess(Tile t) {
         if (limit != null && ! limit.contains(t.x, t.y)) return false;
         if (parent != null && t.onTop() == parent) return true;
-        return t.owningType() < owningType && t.habitat().pathClear;
+        return t.buildable();
       }
       protected boolean canPlaceAt(Tile t) {
         toPlace.setPosition(t.x, t.y, t.world);
-        if (limit != null && ! toPlace.footprint().containedBy(limit)) return false;
+        if (limit != null && ! toPlace.footprint().containedBy(limit)) {
+          return false;
+        }
         return toPlace.canPlace();
       }
     };
@@ -100,13 +97,12 @@ public abstract class TileSpread extends Search <Tile> {
       c.x = t.x - root.x;
       c.y = t.y - root.y;
     }
-    final int owningType = toPlace[0].owningType();
     
     final TileSpread spread = new TileSpread(initTile) {
       protected boolean canAccess(Tile t) {
         if (limit != null && ! limit.contains(t.x, t.y)) return false;
         if (parent != null && t.onTop() == parent) return true;
-        return t.owningType() < owningType && t.habitat().pathClear;
+        return t.buildable();
       }
       protected boolean canPlaceAt(Tile t) {
         for (int i = toPlace.length; i-- > 0;) {
@@ -126,7 +122,6 @@ public abstract class TileSpread extends Search <Tile> {
     return null;
   }
 }
-
 
 
 

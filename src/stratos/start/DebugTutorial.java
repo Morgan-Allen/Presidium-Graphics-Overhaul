@@ -15,33 +15,47 @@ import stratos.util.*;
 
 
 
+//  Roads and walls, I think, are your main structural tool.  They have to
+//  be placed explicitly.  (Also, they need delete functions.)
+
+//  ...It's more about giving the player a sense of channels of direct or
+//  indirect interaction.  Ways to game the system.
+
+
+
+
 //  Also, just use a BlurMap for ambience.  It's a lot simpler and less freaky.
 
 //  TODO:  Get the roads system in place- just 2x2, straight down the middle of
 //         each sector.  Simple.
 
+
 //  TODO:  Merge the summons-dialogue system with the Contact mission.  It's
 //  much more natural that way.
 
+
 //  TODO:  Assign drills directly at the trooper lodge, plus call to arms.
 //         Also, something for the Air Corps to do- like bomb runs.
-
-//  Ideally, hiring arrangements should have some kind of progress meter?
-
-//  TODO:  Retreat should have the possibility to break pursuit as well.
-//  TODO:  Also, animals should react more strongly to strangers (either fight,
-//         talk or flee.)  Maybe natives too?
 
 //  TODO:  Complete upgrades for all structures, including the supply depot,
 //         stock exchange, runner market, kommando lodge, trooper barracks,
 //         culture vats, et cetera.
 
+//  Ideally, hiring arrangements should have some kind of progress meter?
+
+
+//  TODO:  Retreat should have the possibility to break pursuit as well.
+//  TODO:  Also, animals should react more strongly to strangers (either fight,
+//         talk or flee.)  Maybe natives too?
+
 //  TODO:  Introduce hunting by the natives, and allow trading with them as a
 //  source of carbs/greens/protein.  (Also, add singer performance.)
 
-//  Introduce a finance-report UI!  And try to get all the details.
+
 //  Try to arrange that actors will seek out new Holdings if anything existing
 //  is at or above half crowding.
+
+//  Introduce a finance-report UI!  And try to get all the details.
 //  Rework art for roads, the shield wall, the physician station, the engineer
 //  station, the solar bank, and the archives... nearly anything, really.
 

@@ -35,6 +35,7 @@ public abstract class Venue extends Structural implements
     ENTRANCE_SOUTH =  S / 2,
     ENTRANCE_WEST  =  W / 2,
     NUM_SIDES      =  4;
+  
   final public static int
     
     PRIMARY_SHIFT      = 1,
@@ -109,10 +110,7 @@ public abstract class Venue extends Structural implements
   public Index <Upgrade> allUpgrades() { return null; }
   public Structure structure() { return structure; }
   public Staff staff() { return staff; }
-  
-  public int owningType() { return VENUE_OWNS; }
   public Base base() { return base; }
-  //protected BuildingSprite buildSprite() { return buildSprite; }
   
   
   public void assignBase(Base base) {
@@ -159,33 +157,33 @@ public abstract class Venue extends Structural implements
     //
     //  Make sure we don't displace any more important object, or occupy their
     //  entrances.  In addition, the entrance must be clear.
-    final int OT = owningType();
     for (Tile t : world.tilesIn(footprint(), false)) {
-      if (t == null || t.owningType() >= OT) return false;
-      for (Element e : Spacing.entranceFor(t)) {
-        if (e.owningType() >= OT) return false;
-      }
+      if (t == null || t.reserved()) return false;
     }
-    
     for (Venue c : world.claims.venuesConflicting(areaClaimed(), this)) {
-      return false;
+      if (c.owningTier() >= this.owningTier()) return false;
     }
-    
     if (! checkPerimeter(world)) return false;
     final Tile e = mainEntrance();
-    if (e != null && e.owningType() >= OT) return false;
+    if (e != null && e.reserved()) return false;
     return true;
   }
   
   
+  //  TODO:  You'll need to allow a 2x2 tile clearance for structures in a
+  //  different patch (to allow for wider roads.)  Move these out to utility
+  //  methods in the placement class.
+  
   protected boolean checkPerimeter(Stage world) {
     //
     //  Don't abut on anything of higher priority-
+    /*
     for (Tile n : Spacing.perimeter(footprint(), world)) {
       if (n == null || ! n.habitat().pathClear) return false;
       final Element top = n.onTop();
-      if (top != null && ! canTouch(top)) return false;
+      //if (top != null && ! canTouch(top)) return false;
     }
+    //*/
     //
     //  And make sure we don't create isolated areas of unreachable tiles-
     if (! Spacing.perimeterFits(this)) return false;
@@ -206,6 +204,8 @@ public abstract class Venue extends Structural implements
     return true;
   }
   
+  
+  //  TODO:  Reserve the salvage-orders strictly for the doPlacement method?
   
   public boolean enterWorldAt(int x, int y, Stage world) {
     if (! super.enterWorldAt(x, y, world)) return false;
@@ -274,7 +274,8 @@ public abstract class Venue extends Structural implements
   
   
   public boolean preventsClaimBy(Venue other) {
-    return other.owningType() <= this.owningType();
+    
+    return other.owningTier() <= this.owningTier();
   }
   
   
@@ -409,8 +410,8 @@ public abstract class Venue extends Structural implements
   }
   
   
-  public boolean privateProperty() {
-    return false;
+  public int owningTier() {
+    return TIER_PUBLIC;
   }
   
   

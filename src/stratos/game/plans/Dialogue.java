@@ -10,6 +10,7 @@ import stratos.game.economic.*;
 import stratos.util.*;
 
 
+
 //  TODO:  You need to use separate actions for invites/gifting.  Get rid of
 //  urgency-based quits for now, and just allow for 3 exchanges at a time, say.
 
@@ -25,7 +26,7 @@ public class Dialogue extends Plan implements Qualities {
   private static boolean
     evalVerbose  = false,
     stepsVerbose = false,
-    onlyBegun    = false;
+    onlyBegun    = true ;
   
   private boolean shouldReportEval() {
     return evalVerbose  && I.talkAbout == actor && (hasBegun() || ! onlyBegun);
@@ -166,6 +167,13 @@ public class Dialogue extends Plan implements Qualities {
       I.say("  This is:    "+I.tagHash(this  ));
       I.say("  Stage is:   "+stage            );
       I.say("  Chats with: "+chatsWith        );
+      
+      if (chatsWith == null) {
+        I.say("  Agenda is:");
+        for (Behaviour b : other.mind.agenda()) {
+          I.say("    "+b);
+        }
+      }
     }
     
     if (chatsWith != null && chatsWith != actor) {
@@ -184,6 +192,7 @@ public class Dialogue extends Plan implements Qualities {
       if (report) I.say("  Other actor started conversation.");
       return true;
     }
+    
     final Dialogue sample = starts.childDialogue(actor);
     if (other.mind.mustIgnore(sample)) {
       if (report) I.say("  Other actor is too busy!");

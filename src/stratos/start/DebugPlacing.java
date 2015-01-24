@@ -68,7 +68,7 @@ public class DebugPlacing extends Scenario {
     if (KeyInput.wasTyped('p')) {
       I.say("TILE IS: "+over);
       I.say("  SHOULD PAVE? "+base().transport.map.needsPaving(over));
-      I.say("  Owning type: "+over.owningType());
+      I.say("  Owned:       "+over.reserved());
     }
   }
 

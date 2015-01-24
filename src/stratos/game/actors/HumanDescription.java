@@ -65,7 +65,8 @@ public class HumanDescription implements Qualities {
     d.append("Status:\n  "); h.describeStatus(d);
     if (showPriorities) {
       final Behaviour b = h.mind.rootBehaviour();
-      final float priority = b == null ? -1 : b.priorityFor(h);
+      float priority = Plan.ROUTINE;
+      if (b instanceof Plan) priority = ((Plan) b).priorityEval;
       d.append("  (Priority "+I.shorten(priority, 1)+" ");
       d.append(": "+Plan.priorityDescription(priority)+")");
     }

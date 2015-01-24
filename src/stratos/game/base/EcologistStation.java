@@ -6,6 +6,7 @@
 package stratos.game.base;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.economic.Inventory.Owner;
 import stratos.game.maps.*;
 import stratos.game.plans.*;
 import stratos.game.actors.*;
@@ -75,7 +76,7 @@ public class EcologistStation extends Venue {
   
   
   public boolean preventsClaimBy(Venue other) {
-    if (other.privateProperty()) return false;
+    if (other.owningTier() == Owner.TIER_PRIVATE) return false;
     return super.preventsClaimBy(other);
   }
   

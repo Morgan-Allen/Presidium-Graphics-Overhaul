@@ -124,12 +124,6 @@ public class ExcavationSite extends Venue implements TileConstants {
   }
   
   
-  protected boolean canTouch(Element e) {
-    return e.owningType() < this.owningType();
-  }
-  
-  
-  
   
   /**  Economic functions-
     */

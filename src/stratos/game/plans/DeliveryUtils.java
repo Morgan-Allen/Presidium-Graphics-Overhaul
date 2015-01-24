@@ -48,96 +48,6 @@ public class DeliveryUtils {
   }
   
   
-  private static Batch <Item> compressOrder(
-    float amounts[], Traded s[], float sumAmount, int maxAmount
-  ) {
-    final Batch <Item> order = new Batch <Item> ();
-    int sumOrder = 0;
-    
-    for (int i = s.length; i-- > 0;) {
-      int amount = (int) Nums.ceil(amounts[i] * maxAmount / sumAmount);
-      if (amount <= 0) continue;
-      
-      sumOrder += amount;
-      if (sumOrder > maxAmount) amount -= sumOrder - maxAmount;
-      
-      final Item item = Item.withAmount(s[i], amount);
-      order.add(item);
-      if (sumOrder >= maxAmount) break;
-    }
-    return order;
-  }
-  
-  
-  private static Delivery bestShipDelivery(
-    Vehicle ship, Batch <Venue> depots, int maxAmount, boolean export
-  ) {
-    final boolean report = shipsVerbose && I.talkAbout == ship;
-    
-    final Pick <Delivery> pick = new Pick <Delivery> ();
-    if (report) {
-      I.say("\nGetting best ship delivery for "+ship);
-      I.say("  Depots found: "+depots.size());
-    }
-    
-    for (Venue depot : depots) {
-      if (report) I.say("  Assessing "+depot);
-      
-      final Traded s[] = depot.services();
-      if (s == null) continue;
-      final float amounts[] = new float[s.length];
-      float sumAmount = 0;
-      
-      for (int i = s.length; i-- > 0;) {
-        final Traded t = s[i];
-        if (export) {
-          if (depot.stocks.demandTier(t) != Tier.EXPORTER) continue;
-          sumAmount += amounts[i] = depot.stocks.amountOf(t);
-        }
-        else {
-          if (depot.stocks.demandTier(t) != Tier.IMPORTER) continue;
-          sumAmount += amounts[i] = ship.inventory().amountOf(t);
-        }
-        if (report) I.say("    "+amounts[i]+" of "+t+" available");
-      }
-      if (sumAmount <= 0) continue;
-      
-      final BaseCommerce c = ship.base().commerce;
-      Batch <Item> order = compressOrder(amounts, s, sumAmount, maxAmount);
-      float sumValue = 0;
-      for (Item item : order) sumValue += item.amount * (export ?
-        c.exportPrice(item.type) :
-        c.importPrice(item.type)
-      );
-      if (report) I.say("   Total value: "+sumValue);
-      
-      final Delivery d = export ?
-        new Delivery(order, depot, ship ) :
-        new Delivery(order, ship , depot) ;
-      pick.compare(d, sumValue);
-    }
-    
-    final Delivery result = pick.result();
-    if (report) I.say("  Final pick: "+result);
-    if (result == null) return null;
-    else return result.setWithPayment(result.destination, false);
-  }
-  
-  
-  public static Delivery bestImportDelivery(
-    Vehicle ship, Batch <Venue> depots, int maxAmount
-  ) {
-    return bestShipDelivery(ship, depots, maxAmount, false);
-  }
-  
-  
-  public static Delivery bestExportDelivery(
-    Vehicle ship, Batch <Venue> depots, int maxAmount
-  ) {
-    return bestShipDelivery(ship, depots, maxAmount, true );
-  }
-  
-  
   
   /**  Utility methods for dealing with domestic orders-
     */
@@ -375,7 +285,7 @@ public class DeliveryUtils {
     Owner pick = null;
     float bestRating = 0;
     for (Owner origin : origins) {
-      if (origin.privateProperty()) continue;
+      if (origin.owningTier() == Owner.TIER_PRIVATE) continue;
       
       final float rating = rateTrading(origin, destination, good, amount);
       if (rating > bestRating) { bestRating = rating; pick = origin; }
@@ -403,7 +313,7 @@ public class DeliveryUtils {
     Owner pick = null;
     float bestRating = 0;
     for (Owner destination : destinations) {
-      if (destination.privateProperty()) continue;
+      if (origin.owningTier() == Owner.TIER_PRIVATE) continue;
       
       final float rating = rateTrading(origin, destination, good, amount);
       if (rating > bestRating) { bestRating = rating; pick = destination; }
@@ -467,9 +377,29 @@ public class DeliveryUtils {
     final Tier
       OT = OS.demandTier(good),
       DT = DS.demandTier(good);
-    if (OT == Tier.NONE     || DT == Tier.NONE    ) return -1;
-    if (OT == Tier.CONSUMER || OT == Tier.EXPORTER) return -1;
-    if (DT == Tier.PRODUCER || DT == Tier.IMPORTER) return -1;
+    if (report) {
+      I.say("  Checking tiers...");
+      I.say("  Origin: "+OT+" Destination: "+DT);
+    }
+    switch (OT) {
+      case SHIPS_OUT : case CONSUMER : case ANY : case NONE : {
+        return -1;
+      }
+      case EXPORTER : if (DT != Tier.SHIPS_OUT) {
+        return -1;
+      }
+      default : break;
+    }
+    switch (DT) {
+      case SHIPS_IN : case PRODUCER : case ANY : case NONE : {
+        return -1;
+      }
+      case IMPORTER : if (OT != Tier.SHIPS_IN) {
+        return -1;
+      }
+      default : break;
+    }
+    
     final float
       OD = OS.demandFor(good),
       DD = DS.demandFor(good);

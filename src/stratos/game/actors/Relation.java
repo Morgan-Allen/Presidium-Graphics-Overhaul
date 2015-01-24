@@ -163,7 +163,7 @@ public class Relation {
   
   
   public void incNovelty(float inc) {
-    novelty = Nums.clamp(novelty + (inc * MAX_VALUE), 0, 1);
+    novelty = Nums.clamp(novelty + (inc * MAX_VALUE), 0, MAX_VALUE);
   }
 
   

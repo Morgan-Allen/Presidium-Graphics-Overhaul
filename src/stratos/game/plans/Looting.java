@@ -137,13 +137,14 @@ public class Looting extends Plan {
     final boolean report = evalVerbose && I.talkAbout == actor;
     
     if (taken == null) return 0;
+    final boolean isPrivate = mark.owningTier() == Owner.TIER_PRIVATE;
     float urge = ActorMotives.rateDesire(taken, null, actor) / Plan.ROUTINE;
     float harm = NO_HARM;
     
     if (mark.base() != null) {
       harm = MILD_HARM;
       urge *= (1.5f - Planet.dayValue(actor.world()));  //  TODO:  USE SUCCESS-CHANCE INSTEAD
-      if (mark.privateProperty()) urge -= 0.5f;
+      if (isPrivate) urge -= 0.5f;
     }
     
     final float priority = priorityForActorWith(
@@ -155,7 +156,7 @@ public class Looting extends Plan {
     if (report) {
       I.say("\n  Got theft priority for "+actor);
       I.say("  Source/taken:      "+mark+"/"+taken);
-      I.say("  Private property?  "+mark.privateProperty());
+      I.say("  Private property?  "+isPrivate);
       I.say("  Basic urge level:  "+urge);
     }
     return priority;

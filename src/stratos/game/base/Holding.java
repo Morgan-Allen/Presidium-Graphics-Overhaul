@@ -91,14 +91,9 @@ public class Holding extends Venue {
     s.saveInt(devolveCounter);
   }
   
-  
-  public int owningType() {
-    return Element.FIXTURE_OWNS;
-  }
-  
-  
-  public boolean privateProperty() {
-    return true;
+
+  public int owningTier() {
+    return TIER_PRIVATE;
   }
   
   

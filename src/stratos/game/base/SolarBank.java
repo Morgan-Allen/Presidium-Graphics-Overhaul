@@ -179,7 +179,7 @@ public class SolarBank extends Venue {
   protected boolean checkPerimeter(Stage world) {
     for (Tile t : Spacing.perimeter(footprint(), world)) {
       if (t == null) continue;
-      if (t.owningType() >= this.owningType()) return false;
+      if (t.reserved()) return false;
     }
     return true;
   }

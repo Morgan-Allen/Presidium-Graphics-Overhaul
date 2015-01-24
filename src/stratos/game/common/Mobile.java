@@ -95,7 +95,6 @@ public abstract class Mobile extends Element
   
   public float radius() { return 0.25f; }
   public int pathType() { return Tile.PATH_CLEAR; }
-  public int owningType() { return NOTHING_OWNS; }
   public boolean isMobile() { return true; }
   
   

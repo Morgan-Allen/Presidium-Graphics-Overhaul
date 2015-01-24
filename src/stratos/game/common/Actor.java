@@ -118,8 +118,8 @@ public abstract class Actor extends Mobile implements
   }
   
   
-  public boolean privateProperty() {
-    return true;
+  public int owningTier() {
+    return TIER_CARRIES;
   }
   
   

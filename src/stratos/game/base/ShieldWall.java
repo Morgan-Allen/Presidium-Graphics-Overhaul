@@ -460,7 +460,7 @@ public class ShieldWall extends Venue {
     if (t == null) return true;
     final Element top = t.onTop();
     if (top instanceof ShieldWall) return false;
-    return top != null && top.owningType() >= owningType();
+    return t.reserved();
   }
   
   

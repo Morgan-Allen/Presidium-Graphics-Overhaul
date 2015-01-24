@@ -34,7 +34,6 @@ public class Structure {
     Base  base();
     int   buildCost();
     Box2D footprint();
-    int   owningType();
 
     Index <Upgrade> allUpgrades();
     void onCompletion();

@@ -159,8 +159,7 @@ public class RoadsRepair extends Plan {
     for (Tile n : t.edgeAdjacent(null)) if (n != null) toPave.add(n);
     
     for (Tile n : toPave) {
-      if (! map.needsPaving(n)) continue;
-      if (n.owningType() > Element.ELEMENT_OWNS) continue;
+      if (n.reserved() || ! map.needsPaving(n)) continue;
       if (is) PavingMap.setPaveLevel(n, StageTerrain.ROAD_LIGHT, true );
       else    PavingMap.setPaveLevel(t, StageTerrain.ROAD_NONE , false);
       counter++;

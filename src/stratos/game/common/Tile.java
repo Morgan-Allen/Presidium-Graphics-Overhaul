@@ -3,25 +3,20 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.common;
-import stratos.game.actors.Background;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
-import stratos.game.wild.Habitat;
 import stratos.graphics.common.*;
-import stratos.graphics.widgets.Composite;
-import stratos.graphics.widgets.Text.Clickable;
+import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
+import stratos.game.wild.Habitat;
 
 
 
 public final class Tile implements
   Target, TileConstants, Boarding, Session.Saveable, Selectable
 {
-  
   
   final public static int
     PATH_ROAD    = 0,
@@ -36,8 +31,10 @@ public final class Tile implements
   
   final public Stage world;
   final public int x, y;
+  
   private Object flagged;
   private Boarding boardingCache[] = null;
+  private boolean isEntrance = false;
   
   private float elevation = Float.NEGATIVE_INFINITY;
   private Habitat habitat = null;
@@ -138,19 +135,27 @@ public final class Tile implements
   }
   
   
+  public boolean isEntrance() {
+    canBoard();
+    return isEntrance;
+  }
+  
+  
+  public boolean reserved() {
+    if (isEntrance()) return true;
+    return onTop != null && onTop.base() != null;
+  }
+  
+  
+  public boolean buildable() {
+    return habitat.pathClear && ! reserved();
+  }
+  
+  
   public int pathType() {
     if (onTop != null) return onTop.pathType();
     if (world.terrain().isRoad(this)) return PATH_ROAD;
     return habitat().pathClear ? PATH_CLEAR : PATH_BLOCKS;
-  }
-  
-  
-  public int owningType() {
-    if (onTop == null) {
-      if (habitat().pathClear) return Element.NOTHING_OWNS;
-      else return Element.TERRAIN_OWNS;
-    }
-    return onTop.owningType();
   }
   
   
@@ -219,6 +224,12 @@ public final class Tile implements
   }
   
   
+  public void clearUnlessOwned() {
+    if (onTop == null || reserved()) return;
+    onTop.setAsDestroyed();
+  }
+  
+  
   
   /**  Implementing the Boardable interface-
     */
@@ -234,6 +245,7 @@ public final class Tile implements
   public Boarding[] canBoard() {
     if (boardingCache != null) return boardingCache;
     final Boarding batch[] = new Boarding[8];
+    isEntrance = false;
     
     //  If you're actually occupied, allow boarding of the owner-
     if (blocked() && onTop() instanceof Boarding) {
@@ -259,7 +271,10 @@ public final class Tile implements
       final Tile t = world.tileAt(x + T_X[n], y + T_Y[n]);
       if (t == null || ! (t.onTop() instanceof Boarding)) continue;
       final Boarding v = (Boarding) t.onTop();
-      if (v.isEntrance(this)) batch[n] = v;
+      if (v.isEntrance(this)) {
+        batch[n] = v;
+        isEntrance = true;
+      }
     }
     
     //  Cache and return-
@@ -322,7 +337,7 @@ public final class Tile implements
   
   public void whenClicked() {
     //  TODO:  Open a simple display pane to give basic information on the
-    //         habitat type.
+    //         habitat type?
     final BaseUI UI = BaseUI.current();
     UI.selection.pushSelection(null, false);
     UI.tracking.lockOn(this);
@@ -371,18 +386,6 @@ public final class Tile implements
   public void renderSelection(Rendering rendering, boolean hovered) {
     //  TODO:  Consider a gentle 'fuzz' over the area concerned?
   }
-  
-  
-  /*
-  public Colour minimapTone() {
-    if (this.onTop instanceof Venue) {
-      final Base b = ((Venue) onTop).base();
-      return b == null ? Colour.LIGHT_GREY : b.colour();
-    }
-    if (world.terrain().isRoad(this)) return Habitat.ROAD_TEXTURE.average();
-    return habitat().baseTex.average();
-  }
-  //*/
 }
 
 

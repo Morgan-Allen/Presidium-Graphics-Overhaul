@@ -96,7 +96,7 @@ public class Flora extends Element implements TileConstants {
     int numBlocked = 0;
     for (Tile n : t.allAdjacent(Spacing.tempT8)) if (n != null) {
       if (n.blocked()) numBlocked++;
-      if (n.owningType() > Element.NOTHING_OWNS) return 8;
+      if (n.reserved()) return 8;
     }
     return numBlocked;
   }

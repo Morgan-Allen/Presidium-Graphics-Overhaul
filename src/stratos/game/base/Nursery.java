@@ -94,14 +94,9 @@ public class Nursery extends Venue implements TileConstants {
     s.saveObjectArray(toPlant);
   }
   
-  
-  public int owningType() {
-    return VENUE_OWNS;
-  }
-  
-  
-  public boolean privateProperty() {
-    return true;
+
+  public int owningTier() {
+    return TIER_PRIVATE;
   }
   
   
@@ -117,11 +112,6 @@ public class Nursery extends Venue implements TileConstants {
   
   protected Box2D areaClaimed() {
     return areaClaimed;
-  }
-  
-  
-  protected boolean canTouch(Element e) {
-    return e.owningType() < this.owningType();
   }
   
   
@@ -166,9 +156,7 @@ public class Nursery extends Venue implements TileConstants {
     if (report) I.say("\nCROP AREA: "+cropArea);
     
     for (Tile t : world.tilesIn(cropArea, true)) {
-      if (world.terrain().isRoad(t)) continue;
-      if (PavingMap.pavingReserved(t)) continue;
-      if (t.owningType() > Element.ELEMENT_OWNS ) continue;
+      if (PavingMap.pavingReserved(t) || t.reserved()) continue;
       grabbed.add(t);
       if (report && plantedAt(t) == null) I.say("  ADDING TILE: "+t);
     }

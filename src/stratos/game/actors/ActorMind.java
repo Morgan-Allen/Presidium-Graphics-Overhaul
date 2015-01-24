@@ -223,6 +223,12 @@ public abstract class ActorMind implements Qualities {
     if (work != null) work.staff().setWorker(actor, false);
     work = e;
     if (work != null) work.staff().setWorker(actor, true);
+    
+    final boolean report = false;
+    if (report) {
+      I.say("\n"+actor+" setting work to "+e);
+      I.reportStackTrace();
+    }
   }
   
   

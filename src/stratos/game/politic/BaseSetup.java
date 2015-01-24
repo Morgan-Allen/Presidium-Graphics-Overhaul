@@ -6,6 +6,7 @@
 package stratos.game.politic;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.economic.Inventory.Owner;
 import stratos.game.actors.*;
 import stratos.user.BaseUI;
 import stratos.util.*;
@@ -144,7 +145,7 @@ public class BaseSetup {
     //  cycle of evaluations.  Rank potential sites and reset the build-total.
     if (sitings.size() == 0) {
       final Venue samples[] = VenueProfile.sampleVenues(
-        Venue.VENUE_OWNS, true, canPlace
+        Owner.TIER_PRIVATE, canPlace
       );
       rankSectionPlacings(samples, report);
       initPlaceCount = sitings.size();

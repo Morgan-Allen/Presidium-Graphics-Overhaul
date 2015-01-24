@@ -43,9 +43,14 @@ public class Inventory {
   //  Inventory itself.
   public static interface Owner extends Target, Session.Saveable {
     
+    final static int
+      TIER_CARRIES = -1,
+      TIER_PRIVATE =  0,
+      TIER_PUBLIC  =  1;
+    
     Base base();
     Inventory inventory();
-    boolean privateProperty();
+    int owningTier();
     
     float priceFor(Traded service);
     int spaceFor(Traded good);

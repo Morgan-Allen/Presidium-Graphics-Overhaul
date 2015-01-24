@@ -54,31 +54,20 @@ public class Fixture extends Element {
     if (origin() == null) return false;
     final Stage world = origin().world;
     for (Tile t : world.tilesIn(area, false)) {
-      if (t == null || ! t.habitat().pathClear) return false;
-      if (t.owningType() >= this.owningType()) return false;
-    }
-    if (area.xdim() < 1) I.say("AREA:"+area+", size: "+size);
-    final Tile perim[] = Spacing.perimeter(area, world);
-    for (Tile t : perim) if (t != null && t.onTop() != null) {
-      if (! canTouch(t.onTop())) return false;
+      if (t.blocked() || t.reserved()) return false;
     }
     return true;
   }
   
   
-  protected boolean canTouch(Element e) {
-    return e.owningType() <= this.owningType();
-  }
-  
-  
+  //  TODO:  This may belong in the venue class.
   public void clearSurrounds() {
     final Box2D around = new Box2D().setTo(footprint()).expandBy(1);
     final Stage world = origin().world;
-    for (Tile t : world.tilesIn(around, false)) if (t != null) {
-      if (t.onTop() != null && t.owningType() < this.owningType()) {
-        t.onTop().setAsDestroyed();
-      }
+    for (Tile t : world.tilesIn(around, false)) {
+      if (t != null) t.clearUnlessOwned();
     }
+    //*/
     //
     //  As a final step, we take anything mobile within our footprint area and
     //  kick it outside:
@@ -160,11 +149,6 @@ public class Fixture extends Element {
       o.elevation()
     );
     return v;
-  }
-  
-  
-  public int owningType() {
-    return FIXTURE_OWNS;
   }
   
   

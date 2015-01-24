@@ -103,7 +103,7 @@ public class Tailing extends Element {
         }
         else continue;
       }
-      if (t.owningType() > Element.ELEMENT_OWNS) continue;
+      if (t.reserved()) continue;
       pick.compare(t, 0 - Spacing.distance(t, start));
     }
     
@@ -125,16 +125,9 @@ public class Tailing extends Element {
     world.terrain().setHabitat(origin(), Habitat.STRIP_MINING);
     
     for (Tile t : origin().allAdjacent(null)) {
-      if (t.onTop() != null && t.owningType() <= ELEMENT_OWNS) {
-        t.onTop().setAsDestroyed();
-      }
+      if (t != null) t.clearUnlessOwned();
     }
     return true;
-  }
-  
-  
-  public int owningType() {
-    return TERRAIN_OWNS;
   }
   
   

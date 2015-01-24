@@ -145,7 +145,7 @@ public class BaseTransport {
     
     final Batch <Tile> around = new Batch <Tile> ();
     for (Tile t : Spacing.perimeter(v.footprint(), world)) {
-      if (t == null || t.owningType() > Element.ELEMENT_OWNS) continue;
+      if (t == null || t.reserved()) continue;
       else around.add(t);
     }
     updatePerimeter(v, around, true);
@@ -202,7 +202,7 @@ public class BaseTransport {
       //  for subsequent routing to-
       for (Target o : junctions.visitNear(centre, range, null)) {
         final Tile jT = (Tile) o;
-        if (jT.flaggedWith() != null) continue;
+        if (o == t || jT.flaggedWith() != null) continue;
         jT.flagWith(routesTo);
         routesTo.add(jT);
       }
@@ -211,9 +211,9 @@ public class BaseTransport {
       //  junctions.  (Any results are flagged to avoid duplicated work.)
       for (Object o : t.world.presences.matchesNear(Venue.class, v, range)) {
         final Venue n = (Venue) o;
+        if (n == v || n.base() != v.base()) continue;
         final Tile jT = n.mainEntrance();
-        if (n.base() != v.base()) continue;
-        if (jT == null || jT.flaggedWith() != null) continue;
+        if (jT == null || jT == t || jT.flaggedWith() != null) continue;
         if (! junctions.hasMember(jT, jT)) continue;
         jT.flagWith(routesTo);
         routesTo.add(jT);
@@ -270,9 +270,9 @@ public class BaseTransport {
     //
     //  Firstly, determine the correct current route.
     final Route route = new Route(a, b);
-    final RoadSearch search = new RoadSearch(
-      route.start, route.end, Element.FIXTURE_OWNS
-    );
+    final RoadSearch search = new RoadSearch(route.start, route.end);
+      //route.start, route.end//, Element.FIXTURE_OWNS
+    //);
     search.doSearch();
     route.path = search.fullPath(Tile.class);
     route.cost = search.totalCost();
@@ -364,6 +364,7 @@ public class BaseTransport {
     final Batch <Venue> reached = new Batch <Venue> ();
     insertAgenda(init);
     final Box2D tempB = new Box2D();
+    final Tile edgeB[] = new Tile[4];
     
     //  The agenda could include either tiles or structures, depending on how
     //  they are encountered.
@@ -394,8 +395,8 @@ public class BaseTransport {
         final Tile o = r.opposite((Tile) next);
         if (o == null) continue;
         insertAgenda(o);
-        for (Boarding b : o.canBoard()) {
-          if (b instanceof Venue) insertAgenda((Venue) b);
+        for (Tile b : o.edgeAdjacent(edgeB)) if (b != null) {
+          if (b.onTop() instanceof Venue) insertAgenda((Venue) b.onTop());
         }
       }
     }

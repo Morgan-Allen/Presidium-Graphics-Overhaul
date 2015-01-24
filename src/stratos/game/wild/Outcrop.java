@@ -153,13 +153,6 @@ public class Outcrop extends Fixture {
   }
   
   
-  public int owningType() {
-    return type == TYPE_DUNE ?
-      Element.ELEMENT_OWNS :
-      Element.FIXTURE_OWNS;
-  }
-  
-  
   public byte mineralType() {
     return (byte) mineral;
   }

@@ -8,6 +8,7 @@
 package stratos.game.economic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
+import stratos.game.economic.Inventory.Owner;
 import stratos.game.plans.*;
 import stratos.game.politic.*;
 import stratos.game.wild.Species;
@@ -316,8 +317,8 @@ public class Staff {
       //
       //  We automatically hire anyone who applies for non-freemen jobs, and
       //  only vetting of candidates for public jobs:
-      final boolean PP = employs.privateProperty();
-      for (FindWork a : applications) if (PP || ! a.position().isAgent()) {
+      final boolean pP = employs.owningTier() == Owner.TIER_PRIVATE;
+      for (FindWork a : applications) if (pP || ! a.position().isAgent()) {
         confirmApplication(a);
       }
       

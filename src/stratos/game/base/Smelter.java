@@ -8,8 +8,7 @@
 package stratos.game.base;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.maps.*;
-import stratos.game.plans.Mining;
+import stratos.game.plans.*;
 import stratos.game.actors.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -102,14 +101,9 @@ public class Smelter extends Venue {
     return parent;
   }
   
-  
-  public int owningType() {
-    return FIXTURE_OWNS;
-  }
-  
-  
-  public boolean privateProperty() {
-    return false;
+
+  public int owningTier() {
+    return TIER_PRIVATE;
   }
   
   
@@ -164,38 +158,16 @@ public class Smelter extends Venue {
     */
   public boolean canPlace() {
     if (! super.canPlace()) return false;
-    for (Tile t : Spacing.perimeter(footprint(), origin().world)) if (t != null) {
-      if (t.owningType() >= this.owningType()) return false;
+    for (Tile t : Spacing.perimeter(footprint(), origin().world)) {
+      if (t != null && t.reserved()) return false;
     }
     return true;
   }
   
   
-  static Smelter siteSmelter(
-    final ExcavationSite site, final Traded mined
-  ) {
-    final Stage world = site.world();
-    final Tile init = Spacing.pickRandomTile(site.origin(), 4, world);
-    final Smelter smelter = new Smelter(site.base()).assignTo(site, mined);
-    
-    final TileSpread spread = new TileSpread(init) {
-      protected boolean canAccess(Tile t) {
-        if (t.onTop() == site) return true;
-        if (t.owningType() >= Element.FIXTURE_OWNS) return false;
-        return true;
-      }
-      
-      protected boolean canPlaceAt(Tile t) {
-        smelter.setPosition(t.x, t.y, world);
-        return smelter.canPlace();
-      }
-    };
-    spread.doSearch();
-    if (spread.success()) {
-      smelter.doPlacement();
-      return smelter;
-    }
-    return null;
+  public float ratePlacing(Target point, boolean exact) {
+    //  TODO:  Not being used for the moment...
+    return -1;
   }
   
   

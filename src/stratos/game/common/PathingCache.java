@@ -57,7 +57,7 @@ public class PathingCache {
   
   final Stage world;
   final Place tilePlaces[][];
-  final Table <StageSection, Caching> allCached = new Table <StageSection, Caching> ();
+  final Table <StageSection, Caching> allCached = new Table();
   //final MipMap pathMipMap;
   
   
@@ -516,7 +516,6 @@ public class PathingCache {
     route.from = a;
     route.to = b;
     route.cost = search.totalCost();
-    ///if (route.cost < 0) I.say("NEGATIVE COST BETWEEN "+a.core+" and "+b.core);
     final Batch <Tile> tiles = new Batch <Tile> ();
     for (Boarding onPath : search.fullPath(Boarding.class)) {
       if (onPath instanceof Tile) tiles.add((Tile) onPath);

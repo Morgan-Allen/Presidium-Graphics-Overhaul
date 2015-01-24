@@ -1,9 +1,8 @@
 
 
 package stratos.game.economic;
-import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.politic.*;
+import stratos.game.maps.*;
 import stratos.util.*;
 
 
@@ -75,12 +74,12 @@ public class Placement implements TileConstants {
   
   
   public static boolean checkAreaClear(
-    Tile origin, int sizeX, int sizeY, int owningPriority
+    Tile origin, int sizeX, int sizeY//, int owningPriority
   ) {
     if (origin == null || sizeX <= 0 || sizeY <= 0) return false;
     for (Coord c : footprintFor(sizeX, sizeY)) {
       final Tile t = origin.world.tileAt(origin.x + c.x, origin.y + c.y);
-      if (t == null || t.owningType() >= owningPriority) return false;
+      if (t == null || t.reserved()) return false;
     }
     return true;
   }
@@ -100,8 +99,7 @@ public class Placement implements TileConstants {
     if (! checkAreaClear(
       world.tileAt(limits.xpos() + 0.5f, limits.ypos() + 0.5f),
       (int) limits.xdim(),
-      (int) limits.ydim(),
-      fixtures[0].owningType()
+      (int) limits.ydim()
     )) return false;
     
     for (Structure.Basis f : fixtures) if (! f.canPlace()) return false;
@@ -172,102 +170,3 @@ public class Placement implements TileConstants {
 }
 
 
-
-
-  
-  
-  /*
-  public static Venue[] establishVenueStrip(
-    final Venue strip[], final Target near, boolean intact, final Stage world
-  ) {
-    if (findClearanceFor(strip, near, world)) {
-      for (Venue s : strip) {
-        s.doPlacement();
-        if (intact || GameSettings.buildFree) {
-          s.structure.setState(Structure.STATE_INTACT, 1.0f);
-        }
-        else s.structure.setState(Structure.STATE_INSTALL, 0.0f);
-        s.setAsEstablished(true);
-      }
-      return strip;
-    }
-    return null;
-  }
-  
-  
-  public static int directionOf(Venue strip[]) {
-    if (strip == null || strip.length < 2) return -1;
-    final Venue v = strip[0];
-    final Tile o = v.origin();
-    for (int dir : N_ADJACENT) {
-      final Tile t = strip[1].origin();
-      if ((t.x - o.x) / v.size != N_X[dir]) continue;
-      if ((t.y - o.y) / v.size != N_Y[dir]) continue;
-      return dir;
-    }
-    return -1;
-  }
-  
-  
-  public static boolean findClearanceFor(
-    final Venue strip[], final Target near, final Stage world
-  ) {
-    final Venue v = strip[0];
-    final int deep = v.size;
-    final Tile init = world.tileAt(near);
-    final int maxDist = Stage.SECTOR_SIZE / 2;
-    
-    final TileSpread search = new TileSpread(init) {
-      int minX, minY;
-      
-      protected boolean canAccess(Tile t) {
-        if (Spacing.distance(t, near) > maxDist) return false;
-        if (t.onTop() == near) return true;
-        return ! t.blocked();
-      }
-      
-      protected boolean canPlaceAt(Tile t) {
-        if (verbose) I.say("  Trying "+t);
-        
-        dirLoop: for (int dir : N_ADJACENT) {
-          int xdim = N_X[dir] * deep, ydim = N_Y[dir] * deep;
-          if (xdim == 0) xdim = ydim * strip.length;
-          if (ydim == 0) ydim = xdim * strip.length;
-          if (xdim >= 0) minX = t.x;
-          else { xdim *= -1; minX = t.x - xdim; }
-          if (ydim >= 0) minY = t.y;
-          else { ydim *= -1; minY = t.y - ydim; }
-          
-          final Tile c = world.tileAt(minX, minY);
-          if (! checkAreaClear(c, xdim, ydim, v.owningType())) continue;
-          
-          if (verbose) I.say("Area clear: "+c.x+" "+c.y+" "+xdim+" "+ydim);
-          int i = 0; for (Venue s : strip) {
-            s.setPosition(
-              minX + (i * deep * Count.abs(N_Y[dir])),
-              minY + (i * deep * Count.abs(N_X[dir])),
-              world
-            );
-            if (verbose) I.say("Checking at: "+s.origin());
-            if (! s.canPlace()) {
-              if (verbose) I.say("Blocked!");
-              continue dirLoop;
-            }
-            else i++;
-          }
-          return true;
-        }
-        return false;
-      }
-    };
-    search.verbose = verbose;
-    search.doSearch();
-    
-    if (search.success()) {
-      return true;
-    }
-    if (verbose) I.say("Failed to establish strip-site for: "+v);
-    
-    return false;
-  }
-  //*/

@@ -3,6 +3,7 @@
 package stratos.game.economic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
+import stratos.game.economic.Inventory.Owner;
 import stratos.game.maps.*;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
@@ -440,7 +441,7 @@ public class VenueDescription {
       }
     }
     
-    if (played == v.base() && ! v.privateProperty()) {
+    if (played == v.base() && v.owningTier() == Owner.TIER_PUBLIC) {
       d.append("\n\nOther Orders: ");
       if (v.structure.needsSalvage()) {
         d.append(new Description.Link("\n  Cancel Salvage") {

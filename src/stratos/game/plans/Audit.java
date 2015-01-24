@@ -8,6 +8,7 @@ import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.economic.Inventory.Owner;
 import stratos.game.politic.*;
 import stratos.user.*;
 import stratos.util.*;
@@ -349,6 +350,7 @@ public class Audit extends Plan {
     //  business.  However, this split is NOT recorded as wages for accounting
     //  purposes- it simply reduces the balance of profit.
     float balance = audited.inventory().credits();
+    final boolean isPrivate = audited.owningTier() == Owner.TIER_PRIVATE;
     if (report) {
       I.say("  "+actor+" auditing "+audited+", initial balance: "+balance);
       I.say("  Sum of salaries is: "+sumSalaries);
@@ -372,11 +374,11 @@ public class Audit extends Plan {
         this.embezzled += taken;
         balance -= taken;
       }
-      if (audited.privateProperty()) this.taxesPaid += balance;
+      if (isPrivate) this.taxesPaid += balance;
       else this.income += balance;
     }
     else {
-      if (audited.privateProperty()) this.wagesPaid += 0 - balance;
+      if (isPrivate) this.wagesPaid += 0 - balance;
       else this.expenses += 0 - balance;
     }
     //

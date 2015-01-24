@@ -76,7 +76,7 @@ public class Bastion extends Venue {
   
   
   public boolean preventsClaimBy(Venue other) {
-    if (other.base() == base() && ! other.privateProperty()) return false;
+    if (other.base() == base()) return false;
     return super.preventsClaimBy(other);
   }
   

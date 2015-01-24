@@ -47,11 +47,6 @@ public class HoldingExtra extends Fixture implements TileConstants {
   }
   
   
-  public int owningType() {
-    return FIXTURE_OWNS;
-  }
-  
-  
   public int pathType() {
     return Tile.PATH_BLOCKS;
   }
@@ -74,9 +69,7 @@ public class HoldingExtra extends Fixture implements TileConstants {
   
   public boolean canPlace() {
     if (! super.canPlace()) return false;
-    //if (! Spacing.perimeterFits(this)) return false;
     final Tile o = origin();
-    if (Spacing.isEntrance(o)) return false;
     for (Tile n : o.allAdjacent(null)) {
       if (n == null) return false;
       final Element e = n.onTop();

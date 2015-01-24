@@ -63,11 +63,6 @@ public class SpiceMidden extends Fixture implements Selectable {
   }
   
   
-  public int owningType() {
-    return Element.ELEMENT_OWNS;
-  }
-  
-  
   public int pathType() {
     return Tile.PATH_HINDERS;
   }

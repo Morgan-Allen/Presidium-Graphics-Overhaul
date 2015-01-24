@@ -160,15 +160,14 @@ public class VenueProfile implements Session.Saveable {
   
   
   public static Venue[] sampleVenues(
-    int owningType, boolean privateProperty, VenueProfile... canPlace
+    int owningTier, VenueProfile... canPlace
   ) {
     if (canPlace == null || canPlace.length == 0) canPlace = allFP;
     final Batch <Venue> typeBatch = new Batch <Venue> ();
     
     for (VenueProfile profile : canPlace) {
       final Venue sample = profile.sampleVenue(null);
-      if (sample == null || sample.owningType() > owningType) continue;
-      if (sample.privateProperty() != privateProperty) continue;
+      if (sample == null || sample.owningTier() > owningTier) continue;
       typeBatch.add(sample);
     }
     return typeBatch.toArray(Venue.class);

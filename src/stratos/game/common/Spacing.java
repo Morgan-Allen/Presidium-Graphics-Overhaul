@@ -125,6 +125,8 @@ public final class Spacing implements TileConstants {
   
   /**  Methods for assisting placement-viability checks:
     */
+  //  TODO:  Move this to the Placement class.
+  
   //
   //  This method checks whether the placement of the given element in this
   //  location would create secondary 'gaps' along it's perimeter that might
@@ -140,7 +142,7 @@ public final class Spacing implements TileConstants {
     int index = perim.length - 1;
     while (index >= 0) {
       final Tile t = perim[index];
-      if (t == null || t.owningType() >= element.owningType()) {
+      if (t == null || t.reserved()) {
         if (inClearSpace) break;
       }
       else { inClearSpace = true; }
@@ -156,7 +158,7 @@ public final class Spacing implements TileConstants {
     int numSpaces = 0;
     for (index = firstClear; index != firstTaken;) {
       final Tile t = perim[index];
-      if (t == null || t.owningType() >= element.owningType()) {
+      if (t == null || t.reserved()) {
         inClearSpace = false;
       }
       else if (! inClearSpace) { inClearSpace = true; numSpaces++; }
@@ -189,29 +191,6 @@ public final class Spacing implements TileConstants {
     
     for (int i = numNeighbours; i-- > 0;) near[i].flagWith(null);
     return numNeighbours;
-  }
-  
-  
-  public static boolean isEntrance(Tile t) {
-    for (Tile n : t.edgeAdjacent(tempT4)) {
-      if (n == null || ! (n.onTop() instanceof Boarding)) continue;
-      for (Boarding b : ((Boarding) n.onTop()).canBoard()) {
-        if (b == t) return true;
-      }
-    }
-    return false;
-  }
-  
-  
-  public static Batch <Element> entranceFor(Tile t) {
-    final Batch <Element> batch = new Batch <Element> ();
-    for (Tile n : t.edgeAdjacent(tempT4)) {
-      if (n == null || ! (n.onTop() instanceof Boarding)) continue;
-      for (Boarding b : ((Boarding) n.onTop()).canBoard()) {
-        if (b == t) batch.add((Element) n.onTop());
-      }
-    }
-    return batch;
   }
   
   
@@ -450,6 +429,7 @@ public final class Spacing implements TileConstants {
 
 
 
+//  TODO:  Move these to the Placement class.
 
 
 /*

@@ -33,13 +33,19 @@ public final class Economy {
     DEFAULT_EXPORT_MARGIN  = 0.5f,
     DEFAULT_SMUGGLE_MARGIN = 1.0f;
   public static enum Tier {
-    NONE, ANY, IMPORTER, PRODUCER, TRADER, CONSUMER, EXPORTER,
+    NONE, ANY,
+    SHIPS_IN, IMPORTER, PRODUCER,
+    TRADER,
+    CONSUMER, EXPORTER, SHIPS_OUT
   };
   final public static float
     ITEM_WEAR_DURATION = 100;
   
   final static String TIER_NAMES[] = {
-    "NONE", "ANY", "IMPORTER", "PRODUCER", "TRADER", "CONSUMER", "EXPORTER"
+    "NONE", "ANY",
+    "SHIPS IN", "IMPORTER", "PRODUCER",
+    "TRADER",
+    "CONSUMER", "EXPORTER", "SHIPS_OUT"
   };
   public static String nameForTier(Tier tier) {
     return TIER_NAMES[tier.ordinal()];

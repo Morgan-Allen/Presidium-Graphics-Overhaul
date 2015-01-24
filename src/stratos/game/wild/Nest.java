@@ -103,7 +103,6 @@ public class Nest extends Venue {
   public Behaviour jobFor(Actor actor, boolean onShift) { return null; }
   public Background[] careers() { return null; }
   public Traded[] services() { return null; }
-  public int owningType() { return Element.ELEMENT_OWNS; }
   
   
   public boolean allowsEntry(Mobile m) {

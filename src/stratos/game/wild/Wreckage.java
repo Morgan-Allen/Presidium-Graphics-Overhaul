@@ -49,11 +49,6 @@ public class Wreckage extends Fixture {
   }
   
   
-  public int owningType() {
-    return Element.ELEMENT_OWNS;
-  }
-  
-  
   public int pathType() {
     return Tile.PATH_HINDERS;
   }

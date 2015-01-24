@@ -11,6 +11,7 @@ import stratos.game.maps.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
+import stratos.game.economic.Inventory.Owner;
 
 
 
@@ -39,7 +40,7 @@ public class InstallTab extends SelectionInfoPane {
     
     for (VenueProfile profile : VenueProfile.facilityProfiles()) {
       final Venue sample = profile.sampleVenue(null);
-      if (sample.privateProperty()) continue;
+      if (sample.owningTier() != Owner.TIER_PUBLIC) continue;
       
       final String catName = sample.objectCategory();
       final Category category = categories.get(catName);

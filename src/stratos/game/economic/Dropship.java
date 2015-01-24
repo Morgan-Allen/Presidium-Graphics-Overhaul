@@ -124,7 +124,7 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   }
   
   
-  public int owningType() { return Element.VENUE_OWNS; }
+  //public int owningType() { return Element.VENUE_OWNS; }
   public int pathType() { return Tile.PATH_BLOCKS; }
   public float height() { return 1.5f; }
   public float radius() { return 1.5f; }
@@ -159,23 +159,25 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     }
     
     final Choice jobs = new Choice(actor);
+    final Traded lacks[] = cargo.shortageTypes();
+    final Traded goods[] = cargo.surplusTypes ();
     jobs.isVerbose = report;
+    
     final Batch <Venue> depots = DeliveryUtils.nearbyDepots(
       this, world, SERVICE_COMMERCE
     );
-    jobs.add(DeliveryUtils.bestExportDelivery(this, depots, 10));
-    jobs.add(DeliveryUtils.bestImportDelivery(this, depots, 10));
+    jobs.add(DeliveryUtils.bestBulkDeliveryFrom (this, goods, 2, 10, depots));
+    jobs.add(DeliveryUtils.bestBulkCollectionFor(this, lacks, 2, 10, depots));
     if (! jobs.empty()) { choice.add(jobs.pickMostUrgent()); return; }
+    
     
     if (dropPoint instanceof Venue) {
       final Venue hangar = (Venue) dropPoint;
-      final Traded goods[] = hangar.services();
-      jobs.add(DeliveryUtils.bestBulkDeliveryFrom (hangar, goods, 1, 10, 2));
-      jobs.add(DeliveryUtils.bestBulkCollectionFor(hangar, goods, 1, 10, 2));
+      final Traded t[] = hangar.services();
+      jobs.add(DeliveryUtils.bestBulkDeliveryFrom (hangar, t, 1, 10, 2));
+      jobs.add(DeliveryUtils.bestBulkCollectionFor(hangar, t, 1, 10, 2));
     }
     else {
-      final Traded lacks[] = cargo.shortageTypes();
-      final Traded goods[] = cargo.surplusTypes ();
       if (report) {
         I.say("  Goods lacked:  "+lacks.length);
         for (Traded t : lacks) I.say("    "+t);

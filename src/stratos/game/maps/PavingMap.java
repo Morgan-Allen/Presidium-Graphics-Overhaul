@@ -68,7 +68,7 @@ public class PavingMap {
   
   
   public boolean refreshPaving(Tile tiles[]) {
-    for (Tile t : tiles) if (t.owningType() <= Element.ELEMENT_OWNS) {
+    for (Tile t : tiles) if (! t.reserved()) {
       final byte c = roadCounter[t.x][t.y];
       
       final boolean flag = needsPaving(t);

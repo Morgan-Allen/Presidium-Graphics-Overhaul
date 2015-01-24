@@ -1,7 +1,6 @@
 #version 120
 
 
-
 uniform sampler2D u_texture;
 uniform vec4 u_lighting;
 uniform bool u_glowFlag;

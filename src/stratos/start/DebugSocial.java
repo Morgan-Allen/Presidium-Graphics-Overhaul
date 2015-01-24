@@ -12,7 +12,6 @@ import stratos.game.base.*;
 import stratos.game.wild.*;
 import stratos.user.*;
 import stratos.util.*;
-//import static stratos.game.actors.Qualities.*;
 import stratos.graphics.common.Colour;
 
 

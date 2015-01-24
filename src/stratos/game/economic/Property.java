@@ -1,4 +1,8 @@
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.economic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -17,6 +21,7 @@ import stratos.game.economic.*;
 //  Venue and Vehicle are both Properties (citizens can live and work there,
 //  they can be constructed or repaired, and they have stock inventories.)
 
+
 public interface Property extends Structure.Basis, Inventory.Owner, Boarding {
   
   void addTasks(Choice choice, Actor forActor, Background background);
@@ -28,15 +33,5 @@ public interface Property extends Structure.Basis, Inventory.Owner, Boarding {
   boolean isManned();
   Boarding mainEntrance();
 }
-
-
-
-
-
-
-
-
-
-
 
 

@@ -102,8 +102,7 @@ public class Farming extends Plan {
     float minDist = Float.POSITIVE_INFINITY, dist;
     Tile toPlant = null;
     
-    if (canPlant) for (Tile t : nursery.toPlant()) {
-      if (t.owningType() >= nursery.owningType()) continue;
+    if (canPlant) for (Tile t : nursery.toPlant()) if (! t.reserved()) {
       
       final Crop c = nursery.plantedAt(t);
       if (c == null || c.needsTending()) {
@@ -233,8 +232,7 @@ public class Farming extends Plan {
   /**  Action Implementations-
     */
   public boolean actionPlant(Actor actor, Crop crop) {
-    if (crop.origin().owningType() >= nursery.owningType()) return false;
-    
+    if (crop.origin().reserved()) return false;
     if (! crop.inWorld()) crop.enterWorld();
     
     //  Initial seed quality has a substantial impact on crop health.

@@ -108,11 +108,6 @@ public class Crop extends Element {
   }
   
   
-  public int owningType() {
-    return Element.ELEMENT_OWNS;
-  }
-  
-  
   
   /**  Growth calculations-
     */

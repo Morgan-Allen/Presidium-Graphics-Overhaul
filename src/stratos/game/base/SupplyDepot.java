@@ -7,30 +7,18 @@ package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.economic.Economy.Tier;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
-import static stratos.game.actors.Qualities.CHEMISTRY;
-import static stratos.game.actors.Qualities.SIMPLE_DC;
+import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
-
-
-//  TODO:  You'll need to introduce explicit upgrades here again.
-
-//  Trades in raw materials and a few finished goods.
-//  (Carbs.  Protein.  Plastics.  Parts.)  Reagents.  
-//  Ores.  Topes.  Carbons.  Spyce N.  Spyce T.  Spyce H.
-
-
 
 
 
 public class SupplyDepot extends Venue {
-  
   
   /**  Other data fields, constructors and save/load methods-
     */

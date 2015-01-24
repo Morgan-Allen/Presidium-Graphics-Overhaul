@@ -9,6 +9,7 @@ package stratos.game.politic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.economic.Inventory.Owner;
 import stratos.game.plans.*;
 import stratos.user.*;
 import stratos.util.*;
@@ -277,7 +278,7 @@ public class BaseCommerce {
     
     for (Object o : world.presences.matchesNear(base, t, -1)) {
       final Venue venue = (Venue) o;
-      if (venue.privateProperty()) continue;
+      if (venue.owningTier() == Owner.TIER_PRIVATE) continue;
       
       for (Traded type : venue.stocks.demanded()) {
         if (type.form != FORM_MATERIAL) continue;
@@ -448,10 +449,8 @@ public class BaseCommerce {
       ship.assignBase(base);
       visitTime = base.world.currentTime() + (Rand.num() * SUPPLY_INTERVAL);
     }
-    else {
-      final float repair = Nums.clamp(1.25f - (Rand.num() / 2), 0, 1);
-      ship.structure.setState(Structure.STATE_INTACT, repair);
-    }
+    final float repair = Nums.clamp(1.25f - (Rand.num() / 2), 0, 1);
+    ship.structure.setState(Structure.STATE_INTACT, repair);
   }
   
   
@@ -482,7 +481,7 @@ public class BaseCommerce {
         surpluses.add(surplus, good);
       }
       else if (localShortage(good) > 0) {
-        ship.cargo.forceDemand(good, 0, Tier.PRODUCER);
+        ship.cargo.forceDemand(good, 0, Tier.SHIPS_IN);
       }
       else {
         ship.cargo.forceDemand(good, 0, Tier.TRADER);
@@ -490,7 +489,7 @@ public class BaseCommerce {
     }
     for (Traded good : surpluses.keys()) {
       float wanted = Dropship.MAX_CAPACITY * surpluses.valueFor(good) / sumS;
-      ship.cargo.forceDemand(good, wanted, Tier.CONSUMER);
+      ship.cargo.forceDemand(good, wanted, Tier.SHIPS_OUT);
     }
   }
   

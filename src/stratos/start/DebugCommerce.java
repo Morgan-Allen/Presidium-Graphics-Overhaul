@@ -112,26 +112,28 @@ public class DebugCommerce extends Scenario {
     
     if (false) shoppingScenario(world, base, UI);
     if (false) runnersScenario (world, base, UI);
-    if (false) shippingScenario(world, base, UI);
+    if (true ) shippingScenario(world, base, UI);
     if (false) deliveryScenario(world, base, UI);
-    if (true ) farDeliveryScenario(world, base, UI);
+    if (false) farDeliveryScenario(world, base, UI);
     if (false) shoppingScenario(world, base, UI);
   }
   
   
   private void shippingScenario(Stage world, Base base, BaseUI UI) {
-    /*
-    final Airfield airfield = new Airfield(base);
-    Placement.establishVenue(airfield, 5, 5, true, world);
-    airfield.setTrading(CARBS  , Airfield.TRADE_IMPORT, 10);
-    airfield.setTrading(PROTEIN, Airfield.TRADE_IMPORT, 5 );
-    airfield.updateAsScheduled(0, false);
-    //*/
+    
+    final Venue depot = new SupplyDepot(base);
+    Placement.establishVenue(depot, 5, 5, true, world);
+    depot.stocks.forceDemand(CARBS, 5, Tier.EXPORTER);
+    depot.stocks.forceDemand(ORES , 5, Tier.IMPORTER);
+    depot.updateAsScheduled(0, false);
+    
     final Actor brought = new Human(Backgrounds.KOMMANDO, base);
     world.offworld.addImmigrant(brought, world);  //  TODO:  SPECIFY BASE
     
     base.commerce.updateCommerce(0);
     base.commerce.scheduleDrop(5);
+    
+    UI.selection.pushSelection(base.commerce.allVessels().first(), true);
   }
   
   

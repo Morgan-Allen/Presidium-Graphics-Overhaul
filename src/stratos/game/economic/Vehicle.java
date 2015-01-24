@@ -23,9 +23,11 @@ public abstract class Vehicle extends Mobile implements
   Selectable, Structure.Basis
 {
   
-  
   /**  Fields, constants, constructors and save/load methods-
     */
+  private static boolean
+    verbose = false;
+  
   protected Base base;
   final public Stocks cargo = new Stocks(this);
   final public Structure structure = new Structure(this);
@@ -130,9 +132,9 @@ public abstract class Vehicle extends Mobile implements
     return cargo;
   }
   
-  
-  public boolean privateProperty() {
-    return true;
+
+  public int owningTier() {
+    return TIER_CARRIES;
   }
   
   
@@ -223,8 +225,9 @@ public abstract class Vehicle extends Mobile implements
   
   protected void updateAsMobile() {
     super.updateAsMobile();
-    final boolean report =
-      I.talkAbout == this || (pilot != null && I.talkAbout == pilot);
+    final boolean report = verbose && (
+      I.talkAbout == this || (pilot != null && I.talkAbout == pilot)
+    );
     
     if (pilot != null) updatePiloting();
     else pathing.updateTarget(pathing.target());

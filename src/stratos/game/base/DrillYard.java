@@ -159,11 +159,6 @@ public class DrillYard extends Venue {
   }
   
   
-  protected boolean canTouch(Element e) {
-    return (e.owningType() < this.owningType()) || e == belongs;
-  }
-  
-  
   
   /**  Helping to configure drill actions-
   public Upgrade bonusFor(int state) {

@@ -3,8 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.common;
 import stratos.graphics.common.*;
 import stratos.util.*;
@@ -18,13 +16,6 @@ public class Element implements
   
   /**  Common fields, basic constructors, and save/load methods
     */
-  final public static int
-    NOTHING_OWNS     = 0,
-    ELEMENT_OWNS = 1,
-    FIXTURE_OWNS     = 2,
-    VENUE_OWNS       = 3,
-    TERRAIN_OWNS     = 4;
-  
   final protected static int
     PROP_IN_WORLD  = 1 << 0,
     PROP_DESTROYED = 1 << 2;
@@ -74,11 +65,7 @@ public class Element implements
   /**  Life-cycle methods-
     */
   public boolean canPlace() {
-    if (location == null) return false;
-    if (location.blocked() && location.owningType() > owningType()) {
-      return false;
-    }
-    if (Spacing.isEntrance(location)) return false;
+    if (location == null || ! location.buildable()) return false;
     return true;
   }
   
@@ -89,7 +76,7 @@ public class Element implements
     this.toggleProperty(PROP_IN_WORLD, true);
     this.world = world;
     this.inceptTime = world.currentTime();
-    if (owningType() != NOTHING_OWNS && ! isMobile()) {
+    if (! isMobile()) {
       if (location.onTop() != null) location.onTop().setAsDestroyed();
       location.setOnTop(this);
     }
@@ -113,7 +100,7 @@ public class Element implements
       I.say(this+" never entered world...");
       return;
     }
-    if (owningType() != NOTHING_OWNS && ! isMobile()) {
+    if (! isMobile()) {
       location.setOnTop(null);
     }
     this.toggleProperty(PROP_IN_WORLD, false);
@@ -173,11 +160,6 @@ public class Element implements
   
   /**  Properties, both hard-wired and custom.
     */
-  public int owningType() {
-    return ELEMENT_OWNS;
-  }
-  
-  
   public int pathType() {
     return Tile.PATH_BLOCKS;
   }
