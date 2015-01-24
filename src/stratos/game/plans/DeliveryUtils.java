@@ -21,7 +21,7 @@ public class DeliveryUtils {
     shipsVerbose  = false,
     dispVerbose   = false;
   
-  private static Traded verboseGoodType = null;
+  private static Traded verboseGoodType = CARBS;
   private static Class  verboseDestType = null;
   private static Class  verboseOrigType = null;
   
@@ -388,6 +388,9 @@ public class DeliveryUtils {
       case EXPORTER : if (DT != Tier.SHIPS_OUT) {
         return -1;
       }
+      case SHIPS_IN : if (DT == Tier.EXPORTER) {
+        return -1;
+      }
       default : break;
     }
     switch (DT) {
@@ -395,6 +398,9 @@ public class DeliveryUtils {
         return -1;
       }
       case IMPORTER : if (OT != Tier.SHIPS_IN) {
+        return -1;
+      }
+      case SHIPS_OUT : if (OT == Tier.IMPORTER) {
         return -1;
       }
       default : break;

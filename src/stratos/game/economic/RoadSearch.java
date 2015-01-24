@@ -77,7 +77,7 @@ public class RoadSearch extends Search <Tile> implements TileConstants {
   
   protected boolean canEnter(Tile t) {
     if (t == init || t == destination) return true;
-    return ! t.reserved();// t.owningType() < priority;
+    return t.canPave();
   }
   
   

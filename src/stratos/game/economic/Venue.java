@@ -3,20 +3,15 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.economic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.maps.*;
+import stratos.game.maps.Placement;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.sfx.*;
-import stratos.graphics.terrain.*;
-import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
-import static stratos.game.base.HoldingUpgrades.OCCUPANCIES;
 import static stratos.game.economic.Economy.*;
 
 
@@ -186,7 +181,7 @@ public abstract class Venue extends Structural implements
     //*/
     //
     //  And make sure we don't create isolated areas of unreachable tiles-
-    if (! Spacing.perimeterFits(this)) return false;
+    if (! Placement.perimeterFits(this)) return false;
     return true;
   }
   

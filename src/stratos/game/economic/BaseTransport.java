@@ -145,7 +145,7 @@ public class BaseTransport {
     
     final Batch <Tile> around = new Batch <Tile> ();
     for (Tile t : Spacing.perimeter(v.footprint(), world)) {
-      if (t == null || t.reserved()) continue;
+      if (t == null || ! t.canPave()) continue;
       else around.add(t);
     }
     updatePerimeter(v, around, true);

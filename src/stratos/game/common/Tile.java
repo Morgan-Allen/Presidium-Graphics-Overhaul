@@ -135,9 +135,21 @@ public final class Tile implements
   }
   
   
+  public int pathType() {
+    if (onTop != null) return onTop.pathType();
+    if (world.terrain().isRoad(this)) return PATH_ROAD;
+    return habitat().pathClear ? PATH_CLEAR : PATH_BLOCKS;
+  }
+  
+  
   public boolean isEntrance() {
     canBoard();
     return isEntrance;
+  }
+  
+  
+  public boolean canPave() {
+    return onTop == null || onTop.base() == null;
   }
   
   
@@ -149,13 +161,6 @@ public final class Tile implements
   
   public boolean buildable() {
     return habitat.pathClear && ! reserved();
-  }
-  
-  
-  public int pathType() {
-    if (onTop != null) return onTop.pathType();
-    if (world.terrain().isRoad(this)) return PATH_ROAD;
-    return habitat().pathClear ? PATH_CLEAR : PATH_BLOCKS;
   }
   
   

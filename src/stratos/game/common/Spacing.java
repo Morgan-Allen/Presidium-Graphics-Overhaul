@@ -54,9 +54,8 @@ public final class Spacing implements TileConstants {
       Visit.wipe(tempT9);
       Visit.wipe(tempB4);
       Visit.wipe(tempB8);
-      for (Tile t[] : PERIM_ARRAYS) Visit.wipe(t);
-      for (Element e[] : NEAR_ARRAYS) Visit.wipe(e);
-      
+      for (Tile    t[] : PERIM_ARRAYS) Visit.wipe(t);
+      for (Element e[] : NEAR_ARRAYS ) Visit.wipe(e);
       Assets.registerForLoading(this);
     }
   };
@@ -125,51 +124,6 @@ public final class Spacing implements TileConstants {
   
   /**  Methods for assisting placement-viability checks:
     */
-  //  TODO:  Move this to the Placement class.
-  
-  //
-  //  This method checks whether the placement of the given element in this
-  //  location would create secondary 'gaps' along it's perimeter that might
-  //  lead to the existence of inaccessible 'pockets' of terrain- that would
-  //  cause pathing problems.
-  public static boolean perimeterFits(Element element) {
-    final Box2D area = element.area(tA);
-    final Tile perim[] = perimeter(area, element.origin().world);
-    //
-    //  Here, we check the first perimeter.  First, determine where the first
-    //  taken (reserved) tile after a contiguous gap is-
-    boolean inClearSpace = false;
-    int index = perim.length - 1;
-    while (index >= 0) {
-      final Tile t = perim[index];
-      if (t == null || t.reserved()) {
-        if (inClearSpace) break;
-      }
-      else { inClearSpace = true; }
-      index--;
-    }
-    //
-    //  Then, starting from that point, and scanning in the other direction,
-    //  ensure there's no more than a single contiguous clear space-
-    final int
-      firstTaken = (index + perim.length) % perim.length,
-      firstClear = (firstTaken + 1) % perim.length;
-    inClearSpace = false;
-    int numSpaces = 0;
-    for (index = firstClear; index != firstTaken;) {
-      final Tile t = perim[index];
-      if (t == null || t.reserved()) {
-        inClearSpace = false;
-      }
-      else if (! inClearSpace) { inClearSpace = true; numSpaces++; }
-      index = (index + 1) % perim.length;
-    }
-    if (numSpaces > 1) return false;
-    return true;
-  }
-  
-  
-  
   public static int numNeighbours(Element element, Stage world) {
     if (element.xdim() > 4 || element.xdim() != element.ydim()) {
       I.complain("This method is intended only for small, regular elements.");

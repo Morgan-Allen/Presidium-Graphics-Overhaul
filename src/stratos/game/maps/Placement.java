@@ -1,8 +1,11 @@
-
-
-package stratos.game.economic;
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
+package stratos.game.maps;
 import stratos.game.common.*;
-import stratos.game.maps.*;
+import stratos.game.economic.*;
 import stratos.util.*;
 
 
@@ -164,9 +167,110 @@ public class Placement implements TileConstants {
       }
       a.mind.setWork(v);
     }
-    if (GameSettings.hireFree) v.base.setup.fillVacancies(v, intact);
+    if (GameSettings.hireFree) v.base().setup.fillVacancies(v, intact);
     return v;
   }
+  
+  
+  
+  /**  Other utility methods intended to help ensure free and easy pathing-
+    */
+  private static Box2D tA = new Box2D();
+  
+  //  TODO:  Return a set of venues/fixtures/elements that conflict with the
+  //  one being placed instead!
+  
+  //
+  //  This method checks whether the placement of the given element in this
+  //  location would create secondary 'gaps' along it's perimeter that might
+  //  lead to the existence of inaccessible 'pockets' of terrain- that would
+  //  cause pathing problems.
+  public static boolean perimeterFits(Element element) {
+    final Stage world = element.origin().world;
+    final Box2D area = element.area(tA);
+    final Tile perim[] = Spacing.perimeter(area, world);
+    //
+    //  Here, we check the first perimeter.  First, determine where the first
+    //  taken (reserved) tile after a contiguous gap is-
+    boolean inClearSpace = false;
+    int index = perim.length - 1;
+    while (index >= 0) {
+      final Tile t = perim[index];
+      if (t == null || t.reserved()) {
+        if (inClearSpace) break;
+      }
+      else { inClearSpace = true; }
+      index--;
+    }
+    //
+    //  Then, starting from that point, and scanning in the other direction,
+    //  ensure there's no more than a single contiguous clear space-
+    final int
+      firstTaken = (index + perim.length) % perim.length,
+      firstClear = (firstTaken + 1) % perim.length;
+    inClearSpace = false;
+    int numSpaces = 0;
+    for (index = firstClear; index != firstTaken;) {
+      final Tile t = perim[index];
+      if (t == null || t.reserved()) {
+        inClearSpace = false;
+      }
+      else if (! inClearSpace) { inClearSpace = true; numSpaces++; }
+      index = (index + 1) % perim.length;
+    }
+    if (numSpaces > 1) return false;
+    //
+    //  Finally, try to prevent clustering among structures that belong to
+    //  different portions of the map:
+    area.expandBy(1);
+    final Tile outerPerim[] = Spacing.perimeter(area, world);
+    if (! checkClustering(world, element, outerPerim)) return false;
+    //
+    //  If you run the gauntlet, return true-
+    return true;
+  }
+  
+  
+  //  TODO:  Reserve this strictly for venues?  (Better yet, just use the
+  //  claims-system if possible.)
+  
+  public static boolean checkClustering(
+    Stage world, Element f, Tile outerPerim[]
+  ) {
+    final boolean report = f instanceof stratos.game.base.Bastion;
+    
+    final Tile at = f.origin();
+    final StageSection belongs = world.sections.sectionAt(at.x, at.y);
+    if (report) {
+      I.say("\nChecking for clustering by "+f+" at "+at);
+      I.say("  Belongs to section: "+belongs);
+    }
+    
+    for (Tile t : outerPerim) {
+      if (t == null || t.onTop() == null || ! t.reserved()) continue;
+      
+      //  TODO:  You can ignore any structures whose claim you could normally
+      //  override!
+      
+      final Tile o = t.onTop().origin();
+      final StageSection s = world.sections.sectionAt(o.x, o.y);
+      if (report) I.say("  "+t.onTop()+" belongs to "+s);
+      if (s != belongs) return false;
+    }
+    return true;
+  }
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 

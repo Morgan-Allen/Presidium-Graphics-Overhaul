@@ -3,7 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.game.wild;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -11,9 +10,7 @@ import stratos.util.*;
 
 
 
-
 public class Habitat {
-  
   
   private static Batch <Habitat> allHabs = new Batch <Habitat> ();
   private static int nextID = 0;
@@ -232,7 +229,7 @@ public class Habitat {
     this.biosphere = biosphere;
     this.pathClear = pathClear;
     for (int i = 0; i < traits.length; i++) {
-      if (traits[i] == FERTILITY  ) moisture   = (Integer) traits[i + 1];
+      if (traits[i] == FERTILITY ) moisture   = (Integer) traits[i + 1];
       if (traits[i] == MINERALS  ) rockiness  = (Integer) traits[i + 1];
       if (traits[i] == INSOLATION) insolation = (Integer) traits[i + 1];
       if (traits[i] == IS_OCEAN) isOcean = true;

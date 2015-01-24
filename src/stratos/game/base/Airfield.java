@@ -69,8 +69,6 @@ public class Airfield extends Venue {
 
   public Airfield(Session s) throws Exception {
     super(s);
-    //s.loadByteArray(tradeLevels);
-    //s.loadByteArray(tradeTypes );
     fuelLevels = s.loadFloat();
     docking    = (Dropship) s.loadObject();
   }
@@ -78,8 +76,6 @@ public class Airfield extends Venue {
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    //s.saveByteArray(tradeLevels);
-    //s.saveByteArray(tradeTypes );
     s.saveFloat (fuelLevels);
     s.saveObject(docking   );
   }
@@ -195,7 +191,7 @@ public class Airfield extends Venue {
   public String helpInfo() {
     return
       "The Airfield provides smaller dropships with a convenient site to "+
-      "land and refuel, so facilitating offworld trade and migration as "+
+      "land and refuel, facilitating offworld trade and migration as "+
       "well as local air defence.";
   }
   

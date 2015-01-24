@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.maps;
 import stratos.game.common.*;
 import stratos.game.wild.Habitat;
@@ -457,7 +459,7 @@ public class TerrainGen implements TileConstants {
     for (int size = maxSize; size >= minSize; size--) {
       final Outcrop o = new Outcrop(size, 1, type);
       o.setPosition(t.x, t.y, t.world);
-      if (Spacing.perimeterFits(o) && o.canPlace()) {
+      if (Placement.perimeterFits(o) && o.canPlace()) {
         o.enterWorld();
         return o;
       }
