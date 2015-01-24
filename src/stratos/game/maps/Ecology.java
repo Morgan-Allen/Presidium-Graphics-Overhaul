@@ -120,6 +120,14 @@ public class Ecology {
   }
   
   
+  public float forestRating(Tile t) {
+    float fertility = world.terrain().fertilitySample(t);
+    float foresting = abundances.supplyAround(t, biomass, Stage.SECTOR_SIZE);
+    if (fertility <= 0) return 1;
+    return Nums.clamp(foresting / fertility, 0, 2);
+  }
+  
+  
   
   /**  Terraforming methods-
     */

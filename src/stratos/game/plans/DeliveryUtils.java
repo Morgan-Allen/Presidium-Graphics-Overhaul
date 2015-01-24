@@ -19,7 +19,7 @@ public class DeliveryUtils {
     shipsVerbose  = false,
     dispVerbose   = false;
   
-  private static Traded verboseGoodType = CARBS;
+  private static Traded verboseGoodType = null;
   private static Class  verboseDestType = null;
   private static Class  verboseOrigType = null;
   
@@ -380,7 +380,7 @@ public class DeliveryUtils {
       I.say("  Origin: "+OT+" Destination: "+DT);
     }
     switch (OT) {
-      case SHIPS_OUT : case CONSUMER : case ANY : case NONE : {
+      case SHIPS_OUT : case CONSUMER : case ANY : {
         return -1;
       }
       case EXPORTER : if (DT != Tier.SHIPS_OUT) {
@@ -392,7 +392,7 @@ public class DeliveryUtils {
       default : break;
     }
     switch (DT) {
-      case SHIPS_IN : case PRODUCER : case ANY : case NONE : {
+      case SHIPS_IN : case PRODUCER : case ANY : {
         return -1;
       }
       case IMPORTER : if (OT != Tier.SHIPS_IN) {

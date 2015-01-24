@@ -49,9 +49,17 @@ public class Holding extends Venue {
     UPGRADE_THRESH = 0.66f,
     DEVOLVE_THRESH = 0.66f;
   
+  final static Conversion
+    PROVIDE_HOUSING = new Conversion(
+      Holding.class, "provide_housing",
+      TO, 4, SERVICE_HOUSING
+    )
+  ;
+  
   final static VenueProfile PROFILE = new VenueProfile(
     Holding.class, "holding",
-    2, 2, ENTRANCE_SOUTH
+    2, 2, ENTRANCE_SOUTH,
+    PROVIDE_HOUSING
   );
   
   
@@ -96,10 +104,11 @@ public class Holding extends Venue {
     s.saveInt(devolveCounter);
   }
   
-
+  /*
   public int owningTier() {
     return TIER_PRIVATE;
   }
+  //*/
   
   
   public int upgradeLevel() {
@@ -111,6 +120,10 @@ public class Holding extends Venue {
   /**  Upgrade listings-
     */
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
+  
+  //  TODO:  I'm going to save ALL spontaneous placement for expansions.  For
+  //  the moment, only explicit placement is allowed.
+  
   
   //  TODO:  Now you need to ensure that Holdings can 'migrate' to better
   //  locations if local conditions change...
@@ -125,22 +138,29 @@ public class Holding extends Venue {
       I.say("\nGetting place-rating for Holding at "+point);
       I.say("  Current base: "+base);
       I.say("  Demand for housing: "+baseDemand);
-      /*
-      float supply = base.demands.globalSupply(SERVICE_HOUSING);
-      float demand = base.demands.globalDemand(SERVICE_HOUSING);
-      float shortage = base.demands.relativeGlobalShortage(SERVICE_HOUSING);
-      I.say("\nGlobal housing shortage: "+shortage);
-      I.say("  Supply/demand: "+supply+"/"+demand);
-      //*/
     }
     float rating = 1;
     
+    //  TODO:  Don't rate by ambience.  Just rate by proximity to other
+    //  structures and holdings.
+    
     if (exact) {
       final Tile at = (Tile) point;
+      final float range = Stage.SECTOR_SIZE;
+      Target near = null;
+      
+      near = at.world.presences.nearestMatch(base, at, range);
+      if (near != null) rating *= 1f / (1 + Spacing.distance(near, at));
+      
+      near = at.world.presences.nearestMatch(Holding.class, at, range);
+      if (near != null) rating *= 1f / (1 + Spacing.distance(near, at));
+      
+      /*
       rating *= 1 + point.world().ecology().ambience.valueAt(at);
       rating *= 1 - base.dangerMap.sampleAround(at.x, at.y, Stage.SECTOR_SIZE);
       if (report) I.say("  Rating from ambience: "+rating);
       rating = baseDemand * Plan.PARAMOUNT * rating / 4;
+      //*/
     }
     else {
       for (int level = 0 ; level < NUM_LEVELS; level++) {
@@ -438,7 +458,7 @@ public class Holding extends Venue {
   
   
   public String objectCategory() {
-    return InstallTab.TYPE_SPECIAL;
+    return InstallTab.TYPE_AESTHETE;
   }
   
   

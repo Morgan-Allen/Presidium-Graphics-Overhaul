@@ -200,11 +200,12 @@ public class Delivery extends Plan {
   
   private boolean hasItemsFrom(Owner carries) {
     final boolean report = evalVerbose && I.talkAbout == actor;
-    if (report) I.say("\nChecking for items at "+carries);
+    if (stage >= STAGE_RETURN) return true;
     
+    if (report) I.say("\nChecking for items at "+carries);
     if (items == null || items.length == 0) {
-      I.say("  No items needed!");
-      return true;
+      I.say("  No items present!");
+      return false;
     }
     
     final Batch <Item> has = new Batch <Item> ();

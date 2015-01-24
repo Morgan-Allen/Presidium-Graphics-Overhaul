@@ -20,7 +20,6 @@ public abstract class Venue extends Structural implements
   Boarding, Inventory.Owner, Property
 {
   
-  
   /**  Field definitions, constants, constructors, and save/load methods.
     */
   final public static int
@@ -153,6 +152,9 @@ public abstract class Venue extends Structural implements
   //  TODO:  Get the set of structures that conflict with this instead, and
   //  pass that to both the canPlace() and enterWorld() methods!
   protected boolean checkPerimeter(Stage world) {
+    for (Tile t : Spacing.perimeter(footprint(), world)) {
+      if (t == null || ! t.habitat().pathClear) return false;
+    }
     return Placement.perimeterFits(this);
   }
   
@@ -241,7 +243,6 @@ public abstract class Venue extends Structural implements
   
   
   public boolean preventsClaimBy(Venue other) {
-    
     return other.owningTier() <= this.owningTier();
   }
   
@@ -493,31 +494,4 @@ public abstract class Venue extends Structural implements
   }
 }
 
-
-
-
-
-/*
-protected int numOpenings(Background v) {
-  return structure.upgradeBonus(v) - staff.numHired(v);
-}
-//*/
-/*
-public float visitCrowding(Actor actor) {
-  float crowding = 0;
-  for (Mobile m : inside()) {
-    if (m instanceof Actor) {
-      if (((Actor) m).mind.work() == this) continue;
-    }
-    crowding++;
-  }
-  crowding /= ((size * 2) + 1);
-  return crowding;
-}
-
-
-public float homeCrowding(Actor actor) {
-  return 1;
-}
-//*/
 

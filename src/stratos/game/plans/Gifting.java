@@ -220,13 +220,11 @@ public class Gifting extends Plan implements Qualities {
     }
     //*/
     
-    if (gift != null && getting == null) {
+    if (gift != null && getting == null && ! receives.gear.hasItem(gift)) {
       final Stage world = buys.world();
-      final Batch <Inventory.Owner> origins = new Batch <Inventory.Owner> ();
-      world.presences.sampleFromMaps(buys, world, 5, origins, gift.type);
-      origins.include(buys);
-      //origins.include(buys.mind.home());
-      //  TODO:  Don't offer things the actor already has!
+      final Batch <Venue> origins = DeliveryUtils.nearbyVendors(
+        gift.type, buys, world
+      );
       
       if (report) {
         I.say("\n  Potential vendors for "+gift+" are:");

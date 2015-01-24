@@ -81,7 +81,7 @@ public class Foraging extends Plan {
     if (done) return 0;
     
     if (! sourceValid()) {
-      source = Forestry.findCutting(actor);
+      source = Forestry.findCutting(actor, store);
       if (! sourceValid()) return 0;
     }
     
@@ -149,7 +149,7 @@ public class Foraging extends Plan {
     if (shortage <= 0) return null;
     
     if (gone) {
-      source = Forestry.findCutting(actor);
+      source = Forestry.findCutting(actor, store);
       if (! sourceValid()) return null;
     }
 

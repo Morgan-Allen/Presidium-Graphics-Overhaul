@@ -78,7 +78,8 @@ public class EcologistStation extends Venue {
   
   
   public boolean preventsClaimBy(Venue other) {
-    if (other.owningTier() == Owner.TIER_PRIVATE) return false;
+    if (other instanceof Holding) return false;
+    if (other.objectCategory() == this.objectCategory()) return false;
     return super.preventsClaimBy(other);
   }
   

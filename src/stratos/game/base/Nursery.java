@@ -102,11 +102,6 @@ public class Nursery extends Venue implements TileConstants {
     s.saveObjectArray(toPlant);
   }
   
-
-  public int owningTier() {
-    return TIER_PRIVATE;
-  }
-  
   
   
   /**  Placement and supply-demand functions-
@@ -170,7 +165,6 @@ public class Nursery extends Venue implements TileConstants {
     }
     
     //  TODO:  Grab contiguous areas and put 'covered' crops along one edge.
-    
     toPlant = grabbed.toArray(Tile.class);
   }
   
@@ -243,7 +237,7 @@ public class Nursery extends Venue implements TileConstants {
   
   
   public Traded[] services() { return new Traded[] {
-    CARBS, PROTEIN, GREENS, LCHC
+    CARBS, PROTEIN, GREENS
   }; }
   
   
@@ -270,7 +264,6 @@ public class Nursery extends Venue implements TileConstants {
       choice.add(foraging);
     }
     
-    //if (choice.size() > 0) return choice.pickMostUrgent();
     if (! staff.onShift(actor)) return choice.pickMostUrgent();
     
     //  Otherwise, consider normal deliveries and routine tending-
@@ -281,10 +274,11 @@ public class Nursery extends Venue implements TileConstants {
     choice.add(bestSeedCollection(actor));
     choice.add(new Farming(actor, this));
     
-    //  In addition to forestry operations-
-    choice.add(Forestry.nextPlanting(actor, this));
-    choice.add(Forestry.nextCutting (actor, this));
-    
+    if (choice.empty()) {
+      //  In addition to forestry operations-
+      choice.add(Forestry.nextPlanting(actor, this));
+      choice.add(Forestry.nextCutting (actor, this));
+    }
     return choice.pickMostUrgent();
   }
   
@@ -352,12 +346,6 @@ public class Nursery extends Venue implements TileConstants {
   
   
   public String helpInfo() {
-    /*
-    return
-      "Nurseries allow young plants to be cultivated in a secure environment "+
-      "prior to outdoor planting, and provide a small but steady food yield "+
-      "regardless of outside conditions.";
-    //*/
     return
       "Plantations of managed, mixed-culture cropland secure a high-quality "+
       "food source for your base, but require space and constant attention.";

@@ -103,7 +103,7 @@ public class Forestry extends Plan {
     }
     
     if (stage == STAGE_SAMPLING || stage == STAGE_CUTTING) {
-      toCut = findCutting(actor);
+      toCut = findCutting(actor, nursery);
       if (toCut == null) { interrupt(INTERRUPT_NO_PREREQ); return false; }
       this.stage = stage;
     }
@@ -132,11 +132,12 @@ public class Forestry extends Plan {
     if (! configured()) return 0;
     
     final Target subject = toPlant == null ? toCut : toPlant;
+    final Tile at = toPlant == null ? toCut.origin() : toPlant;
     if (subject == null) return 0;
     
     //  As the abundance of flora increases, harvest becomes more attractive,
     //  and vice-versa for planting as abundance decreases.
-    final float abundance = actor.world().ecology().globalBiomass();
+    final float abundance = actor.world().ecology().forestRating(at);
     float bonus = 0;
     if (stage == STAGE_GET_SEED || stage == STAGE_PLANTING) {
       bonus += 0.5f - abundance;
@@ -151,9 +152,9 @@ public class Forestry extends Plan {
     //  Otherwise, it's generally a routine activity.
     final float priority = priorityForActorWith(
       actor, subject,
-      CASUAL * (1 + bonus), CASUAL * bonus,
+      CASUAL * (1 + bonus), IDLE * bonus,
       NO_HARM, FULL_COMPETITION, NO_FAIL_RISK,
-      BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
+      BASE_SKILLS, BASE_TRAITS, HEAVY_DISTANCE_CHECK,
       report
     );
     if (report) {
@@ -289,7 +290,6 @@ public class Forestry extends Plan {
     cut.setAsDestroyed();
     
     final int growStage = cut.growStage();
-    actor.gear.bumpItem(LCHC, growStage);
     actor.gear.bumpItem(GREENS, growStage * Rand.num() / Flora.MAX_GROWTH);
     if (Rand.num() < 0.1f * growStage) actor.gear.bumpItem(SPYCE_N, 1);
     
@@ -314,7 +314,6 @@ public class Forestry extends Plan {
       actor.gear.transfer(seed, depot);
     }
     actor.gear.transfer(GENE_SEED  , depot);
-    actor.gear.transfer(LCHC       , depot);
     actor.gear.transfer(GREENS     , depot);
     actor.gear.transfer(SPYCE_N, depot);
     
@@ -371,14 +370,10 @@ public class Forestry extends Plan {
   }
   
   
-  public static Flora findCutting(Actor actor) {
-    
-    Flora cuts = null;
-    if (Rand.yes()) cuts = (Flora) actor.world().presences.randomMatchNear(
-      Flora.class, actor, Stage.SECTOR_SIZE
-    );
-    if (cuts == null) cuts = (Flora) actor.world().presences.nearestMatch(
-      Flora.class, actor, Stage.SECTOR_SIZE
+  public static Flora findCutting(Actor actor, Target from) {
+    final Target near = from == null ? actor : from;
+    Flora cuts = (Flora) actor.world().presences.nearestMatch(
+      Flora.class, near, Stage.SECTOR_SIZE
     );
     if (cuts == null) return null;
     if (! cuts.inWorld()) {
@@ -386,24 +381,6 @@ public class Forestry extends Plan {
       return null;
     }
     return cuts;
-    /*
-    Series <Target> sample = actor.world().presences.sampleFromKey(
-      actor, actor.world(), 10, null, Flora.class
-    );
-    float bestRating = Float.NEGATIVE_INFINITY;
-    Flora picked = null;
-    for (Target t : sample) {
-      final Flora f = (Flora) t;
-      if (f.growStage() < 2) continue;
-      
-      float rating = 0 - Spacing.distance(t, actor);
-      final Tile o = f.origin();
-      rating -= actor.base().dangerMap.sampleAt(o.x, o.y);
-      rating += (f.growStage() - 2) * 10;
-      if (rating > bestRating) { picked = f; bestRating = rating; }
-    }
-    return picked;
-    //*/
   }
 }
 

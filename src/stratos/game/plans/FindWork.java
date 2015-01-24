@@ -252,8 +252,8 @@ public class FindWork extends Plan {
   }
   
   
-  //  TODO:  Do the switch-comparison here...
-  
+  //  TODO:  Assign negative ratings to positions that are either beneath or
+  //  beyond you, unless you're really, really desperate (i.e, poor.)
   
   private float rateOpening(Background position, Property at) {
     final boolean isNew = ! at.staff().isWorker(actor);

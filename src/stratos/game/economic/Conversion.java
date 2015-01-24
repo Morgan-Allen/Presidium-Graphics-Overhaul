@@ -13,7 +13,6 @@ import static stratos.game.economic.Economy.*;
 
 public class Conversion extends Index.Entry implements Session.Saveable {
   
-  
   /**  Fields, constructors, and save/load methods-
     */
   final public static Index <Conversion> INDEX = new Index <Conversion> ();

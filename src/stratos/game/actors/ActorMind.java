@@ -6,10 +6,7 @@
 package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.game.politic.*;
-import stratos.start.PlayLoop;
-import stratos.user.BaseUI;
 import stratos.util.*;
-import stratos.game.wild.Species;
 import stratos.game.economic.Property;
 
 
