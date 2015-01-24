@@ -24,6 +24,9 @@ public class PhysicianStation extends Venue {
   
   /**  Static constants, field definitions, constructors and save/load methods-
     */
+  private static boolean
+    verbose = false;
+  
   final public static ModelAsset MODEL = CutoutModel.fromImage(
     PhysicianStation.class,
     "media/Buildings/physician/physician_clinic.png", 3, 2
@@ -32,20 +35,20 @@ public class PhysicianStation extends Venue {
     PhysicianStation.class, "media/GUI/Buttons/hospice_button.gif"
   );
   
-  /*
-  final static FacilityProfile PROFILE = new FacilityProfile(
-    PhysicianStation.class, Structure.TYPE_VENUE,
-    3, 350, 2, 5,
-    new TradeType[] {},
-    new Background[] { PHYSICIAN, MINDER },
-    SOMA_TO_MEDICINE,
-    NIL_TO_STIMKITS,
-    SERVICE_HEALTHCARE,
-    SERVICE_PSYCH_EVAL
-  );
-  //*/
   
-  private static boolean verbose = false;
+  final public static Conversion
+    REAGENTS_TO_MEDICINE = new Conversion(
+      PhysicianStation.class, "reagents_to_medicine",
+      1, REAGENTS, 1, GREENS, TO, 1, MEDICINE,
+      MODERATE_DC, CHEMISTRY, ROUTINE_DC, PHARMACY
+    )
+  ;
+  
+  final static VenueProfile PROFILE = new VenueProfile(
+    PhysicianStation.class, "physician_station",
+    2, 2, ENTRANCE_EAST,
+    REAGENTS_TO_MEDICINE
+  );
   
   
   final List <Plan> neuralScans = new List <Plan> ();  //TODO:  Use this?
@@ -53,7 +56,7 @@ public class PhysicianStation extends Venue {
   
   
   public PhysicianStation(Base base) {
-    super(3, 2, Venue.ENTRANCE_EAST, base);
+    super(PROFILE, base);
     structure.setupStats(
       200, 2, 350,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
@@ -144,13 +147,6 @@ public class PhysicianStation extends Venue {
       150,
       Backgrounds.PHYSICIAN, 1, EMERGENCY_AID,
       PhysicianStation.class, ALL_UPGRADES
-    );
-  
-  final public static Conversion
-    REAGENTS_TO_MEDICINE = new Conversion(
-      PhysicianStation.class, "reagents_to_medicine",
-      1, REAGENTS, 1, GREENS, TO, 1, MEDICINE,
-      MODERATE_DC, CHEMISTRY, ROUTINE_DC, PHARMACY
     );
   
   

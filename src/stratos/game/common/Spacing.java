@@ -89,36 +89,6 @@ public final class Spacing implements TileConstants {
     for (Tile t : world.tilesIn(area, true)) under.add(t);
     return (Tile[]) under.toArray(Tile.class);
   }
-  
-
-  public static int[] entranceCoords(int xdim, int ydim, float face) {
-    if (face == Venue.ENTRANCE_NONE) return new int[] { 0, 0 };
-    face = (face + 0.5f) % Venue.NUM_SIDES;
-    float edgeVal = face % 1;
-    
-    int enterX = 1, enterY = -1;
-    if (face < Venue.ENTRANCE_EAST) {
-      //  This is the north edge.
-      enterX = xdim;
-      enterY = (int) (ydim * edgeVal);
-    }
-    else if (face < Venue.ENTRANCE_SOUTH) {
-      //  This is the east edge.
-      enterX = (int) (ydim * (1 - edgeVal));
-      enterY = xdim;
-    }
-    else if (face < Venue.ENTRANCE_WEST) {
-      //  This is the south edge.
-      enterX = -1;
-      enterY = (int) (ydim * (1 - edgeVal));
-    }
-    else {
-      //  This is the west edge.
-      enterX = (int) (ydim * edgeVal);
-      enterY = -1;
-    }
-    return new int[] { enterX, enterY };
-  }
 
   
   

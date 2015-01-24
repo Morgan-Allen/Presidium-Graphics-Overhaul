@@ -28,9 +28,14 @@ public class TrooperLodge extends Venue {
     TrooperLodge.class, "media/GUI/Buttons/garrison_button.gif"
   );
   
+  final static VenueProfile PROFILE = new VenueProfile(
+    TrooperLodge.class, "trooper_lodge",
+    4, 3, ENTRANCE_SOUTH
+  );
+  
   
   public TrooperLodge(Base base) {
-    super(4, 3, ENTRANCE_SOUTH, base);
+    super(PROFILE, base);
     structure.setupStats(
       500, 20, 250,
       Structure.SMALL_MAX_UPGRADES, Structure.TYPE_FIXTURE

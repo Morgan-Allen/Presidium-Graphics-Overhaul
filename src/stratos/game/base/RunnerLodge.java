@@ -86,12 +86,16 @@ public class RunnerLodge extends Venue {
   final static int
     CLAIM_SIZE = 8;
   
+  final static VenueProfile PROFILE = new VenueProfile(
+    RunnerLodge.class, "runner_lodge",
+    4, 2, ENTRANCE_SOUTH
+  );
   
   private int gangID = GANG_NONE;
   
   
   public RunnerLodge(Base base) {
-    super(4, 2, ENTRANCE_EAST, base);
+    super(PROFILE, base);
     structure.setupStats(
       150, 3, 250,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE

@@ -38,7 +38,7 @@ public class Ruins extends Venue {
   
   
   public Ruins(Base base) {
-    super(4, 2, ENTRANCE_EAST, base);
+    super(VENUE_PROFILES[0], base);
     structure.setupStats(500, 25, 0, 0, Structure.TYPE_ANCIENT);
     staff.setShiftType(SHIFTS_BY_24_HOUR);
     final int index = (NI++ + Rand.index(1)) % 3;
@@ -62,7 +62,10 @@ public class Ruins extends Venue {
   final public static VenueProfile VENUE_PROFILES[];
   static {
     VENUE_PROFILES = new VenueProfile[1];
-    VENUE_PROFILES[0] = new VenueProfile(Ruins.class, Ruins.class) {
+    VENUE_PROFILES[0] = new VenueProfile(
+      Ruins.class, "ruins",
+      4, 2, ENTRANCE_EAST
+    ) {
       public Venue sampleVenue(Base base) {
         final Venue sample = new Ruins(base);
         sample.structure.setState(Structure.STATE_INTACT, Rand.avgNums(2));

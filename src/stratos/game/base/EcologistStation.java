@@ -45,10 +45,14 @@ public class EcologistStation extends Venue {
   
   final static int EXTRA_CLAIM_SIZE = 4;
   
+  final static VenueProfile PROFILE = new VenueProfile(
+    EcologistStation.class, "ecologist_station",
+    4, 3, ENTRANCE_EAST
+  );
   
   
   public EcologistStation(Base belongs) {
-    super(4, 3, Venue.ENTRANCE_SOUTH, belongs);
+    super(PROFILE, belongs);
     structure.setupStats(
       150, 3, 250,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
@@ -60,13 +64,11 @@ public class EcologistStation extends Venue {
   
   public EcologistStation(Session s) throws Exception {
     super(s);
-    //s.loadObjects(allotments);
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    //s.saveObjects(allotments);
   }
   
   

@@ -22,18 +22,18 @@ import static stratos.game.economic.Economy.*;
 //  TODO:  Get rid of the water and life support output, since I have that
 //         covered by the Solar Array and Condensor?
 
-//  TODO:  Make this a spontaneous placement of some kind?  Specific to deserts,
-//         maybe.
+//  TODO:  Have this manufacture more copies of itself!
 
 
 
-//*
 public class FormerPlant extends Venue {
   
 
   /**  Data fields, constructors and save/load methods-
     */
-//*
+  private static boolean
+    verbose = false;
+  
   final static ModelAsset MODEL = CutoutModel.fromImage(
     FormerPlant.class, "media/Buildings/ecologist/air_processor.png", 3, 2
   );
@@ -41,15 +41,18 @@ public class FormerPlant extends Venue {
     FormerPlant.class, "media/GUI/Buttons/air_processor_button.gif"
   );
   
-  private static boolean verbose = false;
+  final static VenueProfile PROFILE = new VenueProfile(
+    FormerPlant.class, "former_plant",
+    3, 2, ENTRANCE_EAST
+  );
   
   
   protected List <DustCrawler> crawlers = new List <DustCrawler> ();
   protected float soilSamples = 0, monitorVal = 0;
   
-
+  
   public FormerPlant(Base base) {
-    super(3, 2, Venue.ENTRANCE_EAST, base);
+    super(PROFILE, base);
     structure.setupStats(
       500, 15, 300,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_FIXTURE
@@ -63,9 +66,7 @@ public class FormerPlant extends Venue {
     super(s);
     s.loadObjects(crawlers);
     soilSamples = s.loadFloat();
-    monitorVal = s.loadFloat();
-    //I.say("Loaded...");
-    //new Exception().printStackTrace();
+    monitorVal  = s.loadFloat();
   }
   
   
@@ -73,7 +74,7 @@ public class FormerPlant extends Venue {
     super.saveState(s);
     s.saveObjects(crawlers);
     s.saveFloat(soilSamples);
-    s.saveFloat(monitorVal);
+    s.saveFloat(monitorVal );
   }
   
   

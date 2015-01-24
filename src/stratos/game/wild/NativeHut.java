@@ -77,9 +77,9 @@ public class NativeHut extends Venue {
   /**  Standard constructors and save/load functions-
     */
   protected NativeHut(
-    int size, int height, int type, int tribeID, Base base
+    VenueProfile profile, int type, int tribeID, Base base
   ) {
-    super(size, height, ENTRANCE_SOUTH, base);
+    super(profile, base);
     staff.setShiftType(SHIFTS_BY_DAY);
     this.type = type;
     this.tribeID = tribeID;
@@ -124,10 +124,6 @@ public class NativeHut extends Venue {
   
   /**  Specialised constructors for use during base setup-
     */
-  public NativeHut(Base base) {
-    this(2, 2, TYPE_HUT, TYPE_PLACES, base);
-  }
-  
   final public static VenueProfile VENUE_PROFILES[][];
   static {
     final Batch <VenueProfile> allProfiles = new Batch <VenueProfile> ();
@@ -135,12 +131,18 @@ public class NativeHut extends Venue {
     
     for (int n = NUM_TRIBES; n-- > 0;) {
       final int tribeID = n;
-      allProfiles.add(new VenueProfile(NativeHut.class, "hall_"+tribeID) {
+      allProfiles.add(new VenueProfile(
+        NativeHut.class, "hall_"+tribeID,
+        2, 2, ENTRANCE_SOUTH
+      ) {
         public Venue sampleVenue(Base base) {
           return newHall(tribeID, base);
         }
       });
-      allProfiles.add(new VenueProfile(NativeHut.class, "hut_"+tribeID) {
+      allProfiles.add(new VenueProfile(
+        NativeHut.class, "hut_"+tribeID,
+        3, 2, ENTRANCE_SOUTH
+      ) {
         public Venue sampleVenue(Base base) {
           return newHut(tribeID, base);
         }
@@ -156,8 +158,9 @@ public class NativeHut extends Venue {
   
   
   public static NativeHut newHut(int tribeID, Base base) {
-    final NativeHut hut = new NativeHut(2, 1, TYPE_HUT, tribeID, base);
-    return hut;
+    return new NativeHut(
+      VENUE_PROFILES[tribeID][0], TYPE_HUT, tribeID, base
+    );
   }
   
   

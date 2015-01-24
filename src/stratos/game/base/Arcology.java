@@ -49,12 +49,18 @@ public class Arcology extends Venue {
   final static int
     FULL_GROWTH_INTERVAL = Stage.STANDARD_DAY_LENGTH * 5;
   
+  final static VenueProfile PROFILE = new VenueProfile(
+    Arcology.class, "arcology",
+    2, 2, ENTRANCE_NONE
+  );
+  
+  
   private int facing = UNUSED;
   private float plantsHealth = 0.5f;
   
   
   public Arcology(Base base) {
-    super(2, 2, ENTRANCE_NONE, base);
+    super(PROFILE, base);
     structure.setupStats(15, 1, 100, 0, Structure.TYPE_FIXTURE);
     
     //  TODO:  Okay.  Now you just need to make sure that the facing-type

@@ -49,7 +49,7 @@ public class ShipUtils {
   
   
   static Boarding performLanding(
-    Dropship ship, Stage world, float entranceFace
+    Dropship ship, Stage world, float entryFace
   ) {
     final boolean report = landVerbose && I.talkAbout == ship;
     final Boarding dropPoint = ship.mainEntrance();
@@ -57,9 +57,9 @@ public class ShipUtils {
     
     if (report) {
       I.say("\n"+ship+" performing landing!");
-      I.say("  Landing site:  "+site        );
-      I.say("  Entrance face: "+entranceFace);
-      I.say("  Drop point:    "+dropPoint   );
+      I.say("  Landing site:  "+site     );
+      I.say("  Entrance face: "+entryFace);
+      I.say("  Drop point:    "+dropPoint);
     }
     
     if (dropPoint instanceof Venue) {
@@ -85,7 +85,7 @@ public class ShipUtils {
       //
       //  Determine the position of the entrance tile-
       final int size = (int) site.xdim();
-      final int EC[] = Spacing.entranceCoords(size, size, entranceFace);
+      final int EC[] = Placement.entranceCoords(size, size, entryFace);
       final Tile exit = world.tileAt(site.xpos() + EC[0], site.ypos() + EC[1]);
       if (exit == null) I.complain("NO EXIT FOUND FOR "+ship);
       if (report) {

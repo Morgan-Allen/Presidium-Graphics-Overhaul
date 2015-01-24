@@ -34,22 +34,51 @@ public class CultureLab extends Venue {
     CultureLab.class, "media/GUI/Buttons/culture_vats_button.gif"
   );
   
-  /*
-  final static FacilityProfile PROFILE = new FacilityProfile(
-    CultureLab.class, Structure.TYPE_VENUE,
-    2, 400, 3, -3,
-    new TradeType[] {},
-    new Background[] { VATS_BREEDER },
-    WASTE_TO_CARBS,
-    CARBS_TO_SOMA,
-    CARBS_TO_PROTEIN,
-    PROTEIN_TO_REPLICANTS
+  
+  final public static Conversion
+    WASTE_TO_CARBS = new Conversion(
+      CultureLab.class, "waste_to_carbs",
+      TO, 1, CARBS,
+      SIMPLE_DC, CHEMISTRY
+    ),
+    WASTE_TO_REAGENTS = new Conversion(
+      CultureLab.class, "carbs_to_reagents",
+      TO, 1, REAGENTS,
+      ROUTINE_DC, PHARMACY, ROUTINE_DC, CHEMISTRY
+    ),
+    CARBS_TO_SOMA = new Conversion(
+      CultureLab.class, "waste_to_soma",
+      2, CARBS, TO, 1, SOMA,
+      ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
+    ),
+    CARBS_TO_PROTEIN = new Conversion(
+      CultureLab.class, "carbs_to_protein",
+      2, CARBS, TO, 1, PROTEIN,
+      ROUTINE_DC, CHEMISTRY, ROUTINE_DC, GENE_CULTURE
+    ),
+    PROTEIN_TO_REPLICANTS = new Conversion(
+      CultureLab.class, "protein_to_replicants",
+      5, PROTEIN, TO, 1, REPLICANTS,
+      MODERATE_DC, GENE_CULTURE, ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
+    ),
+    PROTEIN_TO_SPYCE_T = new Conversion(
+      CultureLab.class, "carbs_to_spyce_t",
+      20, PROTEIN, 5, REAGENTS, TO, 1, SPYCE_T,
+      DIFFICULT_DC, PHARMACY, DIFFICULT_DC, CHEMISTRY
+    );
+  
+  final static VenueProfile PROFILE = new VenueProfile(
+    CultureLab.class, "culture_lab",
+    3, 2, ENTRANCE_NORTH,
+    
+    WASTE_TO_CARBS, WASTE_TO_REAGENTS,
+    CARBS_TO_SOMA, CARBS_TO_PROTEIN,
+    PROTEIN_TO_REPLICANTS, PROTEIN_TO_SPYCE_T
   );
-  //*/
   
   
   public CultureLab(Base base) {
-    super(3, 2, ENTRANCE_NORTH, base);
+    super(PROFILE, base);
     structure.setupStats(
       400, 3, 450,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
@@ -61,8 +90,6 @@ public class CultureLab extends Venue {
   
   public CultureLab(Session s) throws Exception {
     super(s);
-    //stocks.bumpItem(CARBS, 100);
-    //stocks.bumpItem(PROTEIN, 100);
   }
   
   
@@ -116,38 +143,6 @@ public class CultureLab extends Venue {
       CultureLab.class, ALL_UPGRADES
     )
   ;
-  
-  final public static Conversion
-    WASTE_TO_CARBS = new Conversion(
-      CultureLab.class, "waste_to_carbs",
-      TO, 1, CARBS,
-      SIMPLE_DC, CHEMISTRY
-    ),
-    WASTE_TO_REAGENTS = new Conversion(
-      CultureLab.class, "carbs_to_reagents",
-      TO, 1, REAGENTS,
-      ROUTINE_DC, PHARMACY, ROUTINE_DC, CHEMISTRY
-    ),
-    CARBS_TO_SOMA = new Conversion(
-      CultureLab.class, "waste_to_soma",
-      2, CARBS, TO, 1, SOMA,
-      ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
-    ),
-    CARBS_TO_PROTEIN = new Conversion(
-      CultureLab.class, "carbs_to_protein",
-      2, CARBS, TO, 1, PROTEIN,
-      ROUTINE_DC, CHEMISTRY, ROUTINE_DC, GENE_CULTURE
-    ),
-    PROTEIN_TO_REPLICANTS = new Conversion(
-      CultureLab.class, "protein_to_replicants",
-      5, PROTEIN, TO, 1, REPLICANTS,
-      MODERATE_DC, GENE_CULTURE, ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
-    ),
-    PROTEIN_TO_SPYCE_T = new Conversion(
-      CultureLab.class, "carbs_to_spyce_t",
-      20, PROTEIN, 5, REAGENTS, TO, 1, SPYCE_T,
-      DIFFICULT_DC, PHARMACY, DIFFICULT_DC, CHEMISTRY
-    );
   
   
   public void updateAsScheduled(int numUpdates, boolean instant) {

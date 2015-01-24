@@ -31,18 +31,6 @@ public class SupplyDepot extends Venue {
   final public static ImageAsset ICON = ImageAsset.fromImage(
     SupplyDepot.class, "media/GUI/Buttons/supply_depot_button.gif"
   );
-  /*
-  final static FacilityProfile PROFILE = new FacilityProfile(
-    EcologistStation.class, Structure.TYPE_VENUE,
-    3, 200, 2, 0,
-    new TradeType[] {},
-    new Background[] { FAB_WORKER },
-    WASTE_TO_PLASTICS,
-    SERVICE_REPAIRS,
-    SERVICE_TRADE
-  );
-  //*/
-  
   
   final static Traded
     ALL_TRADE_TYPES[] = {
@@ -59,11 +47,16 @@ public class SupplyDepot extends Venue {
       ALL_TRADE_TYPES, ALL_EXPORT_TYPES
     );
   
+  final static VenueProfile PROFILE = new VenueProfile(
+    SupplyDepot.class, "supply_depot",
+    4, 2, ENTRANCE_NORTH
+  );
+  
   private List <CargoBarge> barges = new List <CargoBarge> ();
   
   
   public SupplyDepot(Base base) {
-    super(4, 2, ENTRANCE_WEST, base);
+    super(PROFILE, base);
     structure.setupStats(
       100,  //integrity
       2  ,  //armour

@@ -40,29 +40,19 @@ public class ExcavationSite extends Venue implements TileConstants {
     EXTRA_CLAIM_RANGE = 4,
     DIG_FACE_REFRESH  = Stage.STANDARD_DAY_LENGTH / 10,
     SMELTER_REFRESH   = 10;
-  /*
-  final static FacilityProfile PROFILE = new FacilityProfile(
-    ExcavationSite.class, Structure.TYPE_VENUE,
-    4, 200, 15, -5,
-    new TradeType[] {},
-    new Background[] { EXCAVATOR },
-    Conversion.parse(EcologistStation.class, new Object[][] {
-      { MINERALS, TO, METALS    },
-      { MINERALS, TO, FUEL_RODS }
-    })
+  
+  final static VenueProfile PROFILE = new VenueProfile(
+    ExcavationSite.class, "excavation_site",
+    4, 1, ENTRANCE_WEST
   );
-  //*/
+  
   
   private static boolean verbose = false;
-  
-  //private MineShaft worked;
-  //private MineShaft active;
-  //private List <MineShaft> allShafts = new List <MineShaft> ();
   private Tile corridor[];
   
   
   public ExcavationSite(Base base) {
-    super(4, 1, Venue.ENTRANCE_WEST, base);
+    super(PROFILE, base);
     structure.setupStats(
       200, 15, 350,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_FIXTURE

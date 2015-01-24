@@ -45,6 +45,8 @@ public class Index <T extends Index.Entry> implements Iterable <T> {
   
   
   private Object asArray[] = null;
+  private T asTypedArray[] = null;
+  
   private Batch <T> addedSoFar = new Batch <T> ();
   private Batch <T> allAdded   = new Batch <T> ();
   private Table <String, T> keyTable = new Table <String, T> (1000);
@@ -108,6 +110,17 @@ public class Index <T extends Index.Entry> implements Iterable <T> {
     final T array[] = addedSoFar.toArray(typeClass);
     addedSoFar.clear();
     return array;
+  }
+  
+  
+  public T[] allEntries(Class typeClass) {
+    if (asTypedArray != null) return asTypedArray;
+    assignIDs();
+    asTypedArray = (T[]) Array.newInstance(typeClass, asArray.length);
+    for (int i = 0; i < asArray.length; i++) {
+      asTypedArray[i] = (T) asArray[i];
+    }
+    return asTypedArray;
   }
   
 

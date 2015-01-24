@@ -31,15 +31,19 @@ public class KommandoLodge extends Venue {
     KommandoLodge.class, "media/GUI/Buttons/kommando_lodge_button.gif"
   );
   
-  
   final static int CLAIM_RADIUS = Stage.SECTOR_SIZE / 2;
+  
+  final static VenueProfile PROFILE = new VenueProfile(
+    KommandoLodge.class, "kommando_lodge",
+    4, 2, ENTRANCE_EAST
+  );
   
   private Venue fleshStill = null;
   private GroupSprite camouflaged;
   
   
   public KommandoLodge(Base base) {
-    super(4, 2, Venue.ENTRANCE_NORTH, base);
+    super(PROFILE, base);
     structure.setupStats(
       150, 4, 150,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE

@@ -46,38 +46,23 @@ public class Nest extends Venue {
   private float idealPopEstimate = -1;
   
   
-  //  NOTE:  This is here purely for setting up a venue-profile, and not
-  //         intended for actual construction purposes.
-  public Nest(Base base) {
-    super(1, 1, ENTRANCE_NONE, null);
-    this.species = null;
-  }
-  
   final public static VenueProfile VENUE_PROFILES[];
   static {
     final Species nesting[] = Species.ANIMAL_SPECIES;
     VENUE_PROFILES = new VenueProfile[nesting.length];
-    
     for (int n = nesting.length ; n-- > 0;) {
-      final Species s = nesting[n];
-      VENUE_PROFILES[n] = new VenueProfile(Nest.class, s) {
-        public Venue sampleVenue(Base base) {
-          final Nest nest = s.createNest();
-          nest.assignBase(base);
-          return nest;
-        }
-      };
+      VENUE_PROFILES[n] = nesting[n].nestProfile();
     }
   }
   
   
   /**  More typical construction and save/load methods-
     */
-  public Nest(
-    int size, int high, int entranceFace,
+  protected Nest(
+    VenueProfile profile, Base base,
     Species species, ModelAsset lairModel
   ) {
-    super(size, high, entranceFace, null);
+    super(profile, base);
     this.species = species;
     attachSprite(lairModel.makeSprite());
   }
@@ -113,6 +98,54 @@ public class Nest extends Venue {
   
   /**  Methods for determining crowding and site placement-
     */
+  //  TODO:  Restore the full range of functions here.
+  
+  public static float crowdingFor(Boarding home, Object species, Stage world) {
+    return 1;
+    /*
+    if (home == null || world == null) return 0;
+    if (! (species instanceof Species)) return 0;
+    final boolean report = crowdingVerbose && I.talkAbout == home;
+    
+    final float idealPop = idealPopulation(
+      home, (Species) species, world, true
+    );
+    if (idealPop <= 0) return MAX_CROWDING;
+    
+    float actualPop = 0;
+    if (home instanceof Venue) {
+      final Venue venue = (Venue) home;
+      for (Actor a : venue.staff.residents()) {
+        if (a.health.alive() && a.species() == species) actualPop++;
+      }
+    }
+    
+    if (report) {
+      I.say("    Actual/ideal population: "+actualPop+"/"+idealPop);
+    }
+    return Nums.clamp(actualPop / (1 + idealPop), 0, MAX_CROWDING);
+    //*/
+  }
+  
+  
+  public static float crowdingFor(Actor actor) {
+    return crowdingFor(actor.mind.home(), actor.species(), actor.world());
+  }
+  
+  
+  public static int forageRange(Species s) {
+    return (s.type == Species.Type.PREDATOR) ?
+      PREDATOR_SEPARATION :
+      BROWSER_SEPARATION ;
+  }
+  
+
+  protected static Nest findNestFor(Fauna fauna) {
+    return null;
+  }
+  
+  
+  /*
   private static int minSpacing(Target nest, Venue other, Species species) {
     final Species OS = (other instanceof Nest) ?
       ((Nest) other).species : null;
@@ -337,10 +370,12 @@ public class Nest extends Venue {
     }
     return null;
   }
+  //*/
   
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
+    /*
     if (numUpdates % 10 != 0) return;
     
     final float idealPop = idealPopulation(this, species, world, false);
@@ -356,15 +391,16 @@ public class Nest extends Venue {
       I.say("Estimate increment is: "+inc+", value: "+idealPop);
       I.say("Ideal population estimate: "+idealPopEstimate);
     }
+    //*/
   }
   
   
   protected void updatePaving(boolean inWorld) {}
   
   
-  
   /**  Placing the site-
     */
+  /*
   //  TODO:  YOU'LL HAVE TO GET RID OF THIS SOON!
   public static void placeNests(
     final Stage world, final Species... species
@@ -423,7 +459,7 @@ public class Nest extends Venue {
       }
     }
   }
-  
+  //*/
   
   
   /**  Rendering and interface methods-
@@ -445,6 +481,8 @@ public class Nest extends Venue {
   
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
     panel = VenueDescription.configSimplePanel(this, panel, UI, null);
+    
+    /*
     final Description d = panel.detail(), l = panel.listing();
 
     int idealPop = 1 + (int) idealPopulation(this, species, world, true);
@@ -460,6 +498,7 @@ public class Nest extends Venue {
       l.append(" ");
       l.append(actor);
     }
+    //*/
     return panel;
   }
   

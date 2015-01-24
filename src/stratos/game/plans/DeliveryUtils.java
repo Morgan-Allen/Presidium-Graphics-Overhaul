@@ -2,11 +2,9 @@
 
 package stratos.game.plans;
 import stratos.game.common.*;
-import stratos.game.actors.*;
 import stratos.game.economic.*;
 import stratos.util.*;
 import stratos.game.economic.Inventory.Owner;
-import stratos.game.politic.BaseCommerce;
 import static stratos.game.economic.Economy.*;
 
 

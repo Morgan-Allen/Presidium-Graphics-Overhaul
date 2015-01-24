@@ -49,6 +49,11 @@ public class Holding extends Venue {
     UPGRADE_THRESH = 0.66f,
     DEVOLVE_THRESH = 0.66f;
   
+  final static VenueProfile PROFILE = new VenueProfile(
+    Holding.class, "holding",
+    2, 2, ENTRANCE_SOUTH
+  );
+  
   
   private int upgradeLevel, targetLevel, varID;
   private List <HoldingExtra> extras = new List <HoldingExtra> ();
@@ -57,7 +62,7 @@ public class Holding extends Venue {
   
   
   public Holding(Base belongs) {
-    super(2, 2, ENTRANCE_EAST, belongs);
+    super(PROFILE, belongs);
     this.upgradeLevel = 0;
     this.varID = Rand.index(NUM_VARS);
     structure.setupStats(

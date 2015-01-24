@@ -33,9 +33,28 @@ public class Fabricator extends Venue {
     Fabricator.class, "media/GUI/Buttons/fabricator_button.gif"
   );
   
+  final public static Conversion
+    LCHC_TO_PLASTICS = new Conversion(
+      Fabricator.class, "lchc_to_plastics",
+      1, LCHC, TO, 1, PLASTICS,
+      ROUTINE_DC, CHEMISTRY, SIMPLE_DC, HANDICRAFTS
+    ),
+    PLASTICS_TO_DECOR = new Conversion(
+      Fabricator.class, "plastics_to_decor",
+      2, PLASTICS, TO, 1, DECOR,
+      STRENUOUS_DC, GRAPHIC_DESIGN, MODERATE_DC, HANDICRAFTS
+    )
+  ;
+  
+  final static VenueProfile PROFILE = new VenueProfile(
+    Fabricator.class, "fabricator",
+    3, 2, ENTRANCE_WEST,
+    LCHC_TO_PLASTICS, PLASTICS_TO_DECOR
+  );
+  
   
   public Fabricator(Base base) {
-    super(3, 2, ENTRANCE_NORTH, base);
+    super(PROFILE, base);
     structure.setupStats(
       125, 2, 200,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
@@ -90,19 +109,6 @@ public class Fabricator extends Venue {
     )
     
     //  TODO:  Level 2 Upgrade.
-  ;
-  
-  final public static Conversion
-    LCHC_TO_PLASTICS = new Conversion(
-      Fabricator.class, "lchc_to_plastics",
-      1, LCHC, TO, 1, PLASTICS,
-      ROUTINE_DC, CHEMISTRY, SIMPLE_DC, HANDICRAFTS
-    ),
-    PLASTICS_TO_DECOR = new Conversion(
-      Fabricator.class, "plastics_to_decor",
-      2, PLASTICS, TO, 1, DECOR,
-      STRENUOUS_DC, GRAPHIC_DESIGN, MODERATE_DC, HANDICRAFTS
-    )
   ;
   
   

@@ -79,6 +79,10 @@ public class ShieldWall extends Venue {
     DOORS_MODEL_RIGHT   ,
   };
   
+  final static VenueProfile PROFILE = new VenueProfile(
+    ShieldWall.class, "shield_wall",
+    2, 2, ENTRANCE_NONE
+  );
   
   private Boarding entrances[] = null;
   
@@ -87,12 +91,12 @@ public class ShieldWall extends Venue {
     //  NOTE:  This constructor is intended solely for use during UI-placement-
     //         it does not actually create a shield wall object to enter the
     //         world, but a placeholder for a row of them (see below.)
-    this(TYPE_PLACING, 2, 2, base);
+    this(TYPE_PLACING, PROFILE, base);
   }
   
   
-  protected ShieldWall(int type, int size, int high, Base base) {
-    super(size, high, ENTRANCE_NONE, base);
+  protected ShieldWall(int type, VenueProfile profile, Base base) {
+    super(profile, base);
     this.type = type;
     if (isGate()) {
       structure.setupStats(

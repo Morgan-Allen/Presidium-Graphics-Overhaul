@@ -36,6 +36,23 @@ public class Archives extends Venue {
   
   final static float
     STUDY_FEE = Backgrounds.MIN_DAILY_EXPENSE;
+
+  //  TODO:  Decide on an appropriate set of upgrades here.
+  
+  
+  final public static Conversion
+    PARTS_TO_DATALINKS = new Conversion(
+      Archives.class, "parts_to_datalinks",
+      1, PARTS, TO, 5, DATALINKS,
+      MODERATE_DC, INSCRIPTION, SIMPLE_DC, ASSEMBLY, ACCOUNTING
+    )
+  ;
+  
+  final static VenueProfile PROFILE = new VenueProfile(
+    Archives.class, "archives",
+    3, 2, ENTRANCE_SOUTH,
+    PARTS_TO_DATALINKS
+  );
   
   /*
   final public static FacilityProfile PROFILE = new FacilityProfile(
@@ -49,7 +66,7 @@ public class Archives extends Venue {
   
   
   public Archives(Base base) {
-    super(3, 2, ENTRANCE_SOUTH, base);
+    super(PROFILE, base);
     structure.setupStats(
       250, 3, 350,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
@@ -73,16 +90,6 @@ public class Archives extends Venue {
   
   /**  Upgrade and economy methods-
     */
-  //  TODO:  Decide on an appropriate set of upgrades here.
-  
-  
-  final public static Conversion
-    PARTS_TO_DATALINKS = new Conversion(
-      Archives.class, "parts_to_datalinks",
-      1, PARTS, TO, 5, DATALINKS,
-      MODERATE_DC, INSCRIPTION, SIMPLE_DC, ASSEMBLY, ACCOUNTING
-    )
-  ;
   
   
   public Background[] careers() {

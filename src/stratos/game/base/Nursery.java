@@ -59,6 +59,14 @@ public class Nursery extends Venue implements TileConstants {
     NURSERY_GREENS  = 0.5f,
     NURSERY_PROTEIN = 0.5f;
   
+  //  TODO:  You need to include some conversions here to allow for supply/
+  //         demand evaluation.
+  
+  final static VenueProfile PROFILE = new VenueProfile(
+    Nursery.class, "nursery",
+    2, 2, ENTRANCE_SOUTH
+  );
+  
   
   private Box2D areaClaimed = new Box2D();
   private Tile toPlant[] = new Tile[0];
@@ -66,7 +74,7 @@ public class Nursery extends Venue implements TileConstants {
   
   
   public Nursery(Base base) {
-    super(2, 2, ENTRANCE_SOUTH, base);
+    super(PROFILE, base);
     structure.setupStats(
       25,  //integrity
       5,  //armour

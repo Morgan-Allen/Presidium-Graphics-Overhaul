@@ -351,14 +351,17 @@ public class StartupScenario extends Scenario {
     
     //  TODO:  Allow for natives as well?
     int maxRuins = 0;
-    Species wildSpecies[] = null;
+    VenueProfile nestTypes[] = null;
     
     if (config.siteLevel == SITE_SETTLED) {
-      wildSpecies = new Species[] { Species.QUDU, Species.HAREEN };
+      nestTypes = new VenueProfile[] {
+        Species.QUDU  .nestProfile(),
+        Species.HAREEN.nestProfile()
+      };
     }
     if (config.siteLevel == SITE_WILDERNESS) {
       maxRuins = world.size / (Stage.SECTOR_SIZE * 4);
-      wildSpecies = Species.ANIMAL_SPECIES;
+      nestTypes = Nest.VENUE_PROFILES;
     }
     if (config.siteLevel == SITE_WASTELAND) {
       maxRuins = world.size / (Stage.SECTOR_SIZE * 2);
@@ -369,7 +372,10 @@ public class StartupScenario extends Scenario {
     );
     Base.artilects(world).setup.fillVacancies(ruins, true);
     
-    if (wildSpecies != null) Nest.placeNests(world, wildSpecies);
+    if (nestTypes != null) {
+      Base.wildlife(world).setup.setAvailableVenues(nestTypes);
+      Base.wildlife(world).setup.doFullPlacements();
+    }
   }
 }
 

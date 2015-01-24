@@ -34,20 +34,15 @@ public class Bastion extends Venue {
   
   final static int
     CLAIM_RADIUS = Stage.SECTOR_SIZE / 2;
-  /*
-  final static FacilityProfile PROFILE = new FacilityProfile(
-    Bastion.class, Structure.TYPE_VENUE,
-    7, 650, 15, 0,
-    new TradeType[] {},
-    new Background[] {ENFORCER, TECHNICIAN, AUDITOR},
-    METALS_TO_PARTS,
-    PARTS_TO_CIRCUITRY
+  
+  final static VenueProfile PROFILE = new VenueProfile(
+    Bastion.class, "bastion",
+    7, 4, ENTRANCE_EAST
   );
-  //*/
   
   
   public Bastion(Base base) {
-    super(7, 4, ENTRANCE_EAST, base);
+    super(PROFILE, base);
     structure.setupStats(
       650, 15, 1000,
       Structure.BIG_MAX_UPGRADES, Structure.TYPE_FIXTURE

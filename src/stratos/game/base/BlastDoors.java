@@ -28,13 +28,19 @@ public class BlastDoors extends ShieldWall implements TileConstants {
   
   /**  Fields, constants, constructors and save/load methods-
     */
+  final static VenueProfile PROFILE = new VenueProfile(
+    BlastDoors.class, "blast_doors",
+    4, 2, ENTRANCE_NONE
+  );
+  
+  
   public BlastDoors(Base base) {
-    super(TYPE_PLACING, 4, 2, base);
+    super(TYPE_PLACING, PROFILE, base);
   }
   
   
   public BlastDoors(Base base, int type, int facing) {
-    super(type, 4, 2, base);
+    super(type, PROFILE, base);
     this.facing = facing;
   }
   

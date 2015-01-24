@@ -64,12 +64,16 @@ public class Edifice extends Venue {
     STYLE_GEOMETRIC      = 1,
     STYLE_SURREALISTIC   = 2;
   
+  final static VenueProfile PROFILE = new VenueProfile(
+    Edifice.class, "edifice",
+    3, 2, ENTRANCE_NONE
+  );
   
   int eventCode = -1, styleCode = -1;
   
   
   public Edifice(Base base) {
-    super(3, 2, ENTRANCE_NONE, base);
+    super(PROFILE, base);
     structure.setupStats(
       500, 50, 800, 0, Structure.TYPE_FIXTURE
     );

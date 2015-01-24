@@ -23,10 +23,15 @@ public class Condensor extends Venue {
     Condensor.class, "media/GUI/Buttons/arcology_button.gif"
   );
   
+  final static VenueProfile PROFILE = new VenueProfile(
+    Condensor.class, "condensor",
+    3, 2, ENTRANCE_NONE
+  );
+  
   
   
   public Condensor(Base base) {
-    super(3, 2, ENTRANCE_NONE, base);
+    super(PROFILE, base);
     structure.setupStats(
       85 ,  // integrity
       1  ,  // armour

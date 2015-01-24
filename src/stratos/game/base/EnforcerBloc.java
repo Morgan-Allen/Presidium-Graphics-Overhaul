@@ -40,10 +40,14 @@ public class EnforcerBloc extends Venue {
     SERVICE_SECURITY
   );
   //*/
+  final static VenueProfile PROFILE = new VenueProfile(
+    EnforcerBloc.class, "enforcer_bloc",
+    3, 3, ENTRANCE_EAST
+  );
   
   
   public EnforcerBloc(Base base) {
-    super(3, 3, ENTRANCE_EAST, base);
+    super(PROFILE, base);
     structure.setupStats(
       450, 2, 450,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE

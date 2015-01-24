@@ -44,12 +44,17 @@ public class Airfield extends Venue {
       ALL_TRADE_TYPES, new Traded[] { SERVICE_COMMERCE }
     );
   
+  final static VenueProfile PROFILE = new VenueProfile(
+    Airfield.class, "airfield",
+    6, 3, ENTRANCE_WEST
+  );
+  
   private float fuelLevels;
   private Dropship docking;
   
   
   public Airfield(Base base) {
-    super(6, 3, ENTRANCE_WEST, base);
+    super(PROFILE, base);
     structure.setupStats(
       250,  //integrity
       5,    //armour

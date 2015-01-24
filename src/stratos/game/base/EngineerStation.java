@@ -32,20 +32,23 @@ public class EngineerStation extends Venue {
     EngineerStation.class, "media/Buildings/artificer/artificer.png", 3, 2
   );
   
-  /*
-  final static FacilityProfile PROFILE = new FacilityProfile(
-    EngineerStation.class, Structure.TYPE_VENUE,
-    3, 280, 5, -2,
-    new TradeType[] {},
-    new Background[] { ARTIFICER, TECHNICIAN },
-    METALS_TO_PARTS,
-    PARTS_TO_CIRCUITRY
+  final public static Conversion
+    METALS_TO_PARTS = new Conversion(
+      EngineerStation.class, "metals_to_parts",
+      1, ORES, TO, 2, PARTS,
+      MODERATE_DC, ASSEMBLY, SIMPLE_DC, CHEMISTRY
+    )
+  ;
+  
+  final static VenueProfile PROFILE = new VenueProfile(
+    EngineerStation.class, "engineer_station",
+    3, 2, ENTRANCE_WEST,
+    METALS_TO_PARTS
   );
-  //*/
   
   
   public EngineerStation(Base base) {
-    super(3, 2, ENTRANCE_WEST, base);
+    super(PROFILE, base);
     structure.setupStats(
       200, 5, 350,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
@@ -121,13 +124,6 @@ public class EngineerStation extends Venue {
       150,
       Backgrounds.ARTIFICER, 1, TECHNICIAN_STATION,
       EngineerStation.class, ALL_UPGRADES
-    )
-  ;
-  final public static Conversion
-    METALS_TO_PARTS = new Conversion(
-      EngineerStation.class, "metals_to_parts",
-      1, ORES, TO, 2, PARTS,
-      MODERATE_DC, ASSEMBLY, SIMPLE_DC, CHEMISTRY
     )
   ;
   

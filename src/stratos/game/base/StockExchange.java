@@ -43,15 +43,6 @@ public class StockExchange extends Venue {
   final public static ImageAsset ICON = ImageAsset.fromImage(
     StockExchange.class, "media/GUI/Buttons/stock_exchange_button.gif"
   );
-  /*
-  final static FacilityProfile PROFILE = new FacilityProfile(
-    StockExchange.class, Structure.TYPE_VENUE,
-    4, 300, 2, 0,
-    new TradeType[] {},
-    new Background[] { STOCK_VENDOR },
-    SERVICE_COMMERCE
-  );
-  //*/
   
   final static Traded
     ALL_STOCKED[] = (Traded[]) Visit.compose(Traded.class,
@@ -61,12 +52,16 @@ public class StockExchange extends Venue {
       ALL_STOCKED, new Traded[] { SERVICE_COMMERCE }
     );
   
+  final static VenueProfile PROFILE = new VenueProfile(
+    StockExchange.class, "stock_exchange",
+    4, 1, ENTRANCE_SOUTH
+  );
+  
   private float catalogueSums[] = new float[ALL_STOCKED.length];
   
   
-  
   public StockExchange(Base base) {
-    super(4, 1, ENTRANCE_SOUTH, base);
+    super(PROFILE, base);
     staff.setShiftType(SHIFTS_BY_DAY);
     structure.setupStats(
       150, 3, 250,
@@ -78,8 +73,6 @@ public class StockExchange extends Venue {
   
   public StockExchange(Session s) throws Exception {
     super(s);
-    //cargoBarge = (CargoBarge) s.loadObject();
-    
     for (int i = ALL_STOCKED.length; i-- > 0;) {
       catalogueSums[i] = s.loadFloat();
     }
@@ -88,8 +81,6 @@ public class StockExchange extends Venue {
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    //s.saveObject(cargoBarge);
-    
     for (int i = ALL_STOCKED.length; i-- > 0;) {
       s.saveFloat(catalogueSums[i]);
     }

@@ -28,17 +28,10 @@ public class NativeHall extends NativeHut implements Performance.Theatre {
   
   
   final List <NativeHut> children = new List <NativeHut> ();
-  private float idealPopEstimate = -1;
-  
-  
-  public NativeHall(Base base) {
-    //  NOTE:  Not intended for actual construction purposes.
-    this(TYPE_PLACES, base);
-  }
   
   
   protected NativeHall(int tribeID, Base base) {
-    super(3, 2, TYPE_HALL, tribeID, base);
+    super(VENUE_PROFILES[tribeID][1], TYPE_HALL, tribeID, base);
   }
 
 
@@ -98,9 +91,11 @@ public class NativeHall extends NativeHut implements Performance.Theatre {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     
+    /*
     if (numUpdates % 10 == 0) {
       updatePopEstimate(world);
     }
+    //*/
     for (NativeHut hut : children) {
       if (hut.staff.unoccupied()) {
         hut.structure.setState(Structure.STATE_SALVAGE,  -1);
@@ -109,7 +104,7 @@ public class NativeHall extends NativeHut implements Performance.Theatre {
     }
   }
   
-  
+  /*
   protected void updatePopEstimate(Stage world) {
     //
     //  TODO:  Have the population-estimate routines for Nests take an argument
@@ -127,6 +122,7 @@ public class NativeHall extends NativeHut implements Performance.Theatre {
   protected int idealNumHuts() {
     return (int) (idealPopEstimate / HUT_OCCUPANCY);
   }
+  //*/
   
   
   

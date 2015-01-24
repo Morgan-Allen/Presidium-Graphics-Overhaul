@@ -41,8 +41,10 @@ import static stratos.game.economic.Economy.*;
 //*/
 
 
-//  TODO:  This class probably needs to be moved to the wild package.  It
-//  should not be referring to objects outside the planet package.
+
+//  TODO:  Move the various instances of this class out to the various
+//         sub-classes that actually implement behaviour.
+
 
 public abstract class Species extends Background {
   
@@ -108,6 +110,19 @@ public abstract class Species extends Background {
   }
   
   
+  static VenueProfile nestProfile(
+    int size, int high, int entryFace, final Species s, final ModelAsset model
+  ) {
+    return new VenueProfile(
+      Nest.class, s.name+"_nest", size, high, entryFace
+    ) {
+      public Venue sampleVenue(Base base) {
+        return new Nest(this, base, s, model);
+      }
+    };
+  }
+  
+  
   final public static Species
     
     HUMAN = new Species(
@@ -134,7 +149,7 @@ public abstract class Species extends Background {
     },
     HUMANOID_SPECIES[] = speciesSoFar();
   
-    
+  
   final public static Species
     QUDU = new Species(
       Species.class,
@@ -152,10 +167,11 @@ public abstract class Species extends Background {
       0.15f, //speed
       0.65f  //sight
     ) {
-      public Actor sampleFor(Base base) { return new Qudu(base); }
-      public Nest createNest() { return new Nest(
+      final VenueProfile PROFILE = nestProfile(
         2, 2, Venue.ENTRANCE_EAST, this, MODEL_NEST_QUUD
-      ); }
+      );
+      public Actor sampleFor(Base base) { return new Qudu(base); }
+      public VenueProfile nestProfile() { return PROFILE; }
     },
     
     HAREEN = new Species(
@@ -175,10 +191,11 @@ public abstract class Species extends Background {
       1.60f, //speed
       1.00f  //sight
     ) {
-      public Actor sampleFor(Base base) { return new Vareen(base); }
-      public Nest createNest() { return new Nest(
+      final VenueProfile PROFILE = nestProfile(
         2, 2, Venue.ENTRANCE_EAST, this, MODEL_NEST_VAREEN
-      ); }
+      );
+      public Actor sampleFor(Base base) { return new Vareen(base); }
+      public VenueProfile nestProfile() { return PROFILE; }
     },
     
     LICTOVORE = new Species(
@@ -187,7 +204,7 @@ public abstract class Species extends Background {
       "The Lictovore is an imposing bipedal obligate carnivore capable of "+
       "substantial bursts of speed and tackling even the most stubborn prey. "+
       "They defend established nest sites where they tend their young, using "+
-      "scented middens, rich in spice, to mark the limits of their territory.",
+      "scented middens, rich in spyce, to mark the limits of their territory.",
       "MicovorePortrait.png",
       MS3DModel.loadFrom(
         FILE_DIR, "Micovore.ms3d", Species.class,
@@ -198,16 +215,15 @@ public abstract class Species extends Background {
       1.30f, //speed
       1.50f  //sight
     ) {
-      public Actor sampleFor(Base base) { return new Lictovore(base); }
-      public Nest createNest() { return new Nest(
+      final VenueProfile PROFILE = nestProfile(
         3, 2, Venue.ENTRANCE_EAST, this, MODEL_NEST_MICOVORE
-      ); }
+      );
+      public Actor sampleFor(Base base) { return new Lictovore(base); }
+      public VenueProfile nestProfile() { return PROFILE; }
     },
     
     //  TODO:  Include Yamagur, Maws et cetera!
-    
     ANIMAL_SPECIES[] = Species.speciesSoFar(),
-    
     
     //  TODO:  These probably need a dedicated class of their own.
     ONI_RICE    = new Species("Oni Rice"   , Type.FLORA, 2, CARBS  ) {},
@@ -349,20 +365,8 @@ public abstract class Species extends Background {
   }
   
   
-  /*
-  public static Session.Saveable loadConstant(Session s) throws Exception {
-    return ALL_SPECIES[s.loadInt()];
-  }
-  
-  
-  public void saveState(Session s) throws Exception {
-    s.saveInt(ID);
-  }
-  //*/
-  
-  
-  public Actor sampleFor(Base base) { return null; };
-  public Nest createNest() { return null; };
+  public Actor sampleFor(Base base) { return null; }
+  public VenueProfile nestProfile() { return null; }
   
   
   public boolean browser () { return type == Type.BROWSER; }

@@ -32,7 +32,6 @@ public abstract class Venue extends Structural implements
     NUM_SIDES      =  4;
   
   final public static int
-    
     PRIMARY_SHIFT      = 1,
     SECONDARY_SHIFT    = 2,
     OFF_DUTY           = 3,
@@ -48,28 +47,16 @@ public abstract class Venue extends Structural implements
   final public Staff staff = new Staff(this);
   final public Stocks stocks = new Stocks(this);
   
-  protected int entranceFace;
   protected Tile entrance;
   private List <Mobile> inside = new List <Mobile> ();
-  
   
   final public TalkFX chat = new TalkFX();
   
   
   
-  public Venue(int size, int high, int entranceFace, Base base) {
-    super(size, high, base);
-    //this.profile = profile;
-    this.base = base;
-    this.entranceFace = entranceFace;
-    
-    //  TODO:  Create and cache the profile here, using pre-existing data.
-    //         ...Also, consider creating a dedicated constructor for this
-    //         purpose?
-    //  TODO:  Add more properties once you get the chance...
-    final Class PK = this.getClass();
-    VenueProfile profile = VenueProfile.profileFor(PK);
-    if (profile == null) profile = new VenueProfile(PK, PK);
+  protected Venue(VenueProfile profile, Base base) {
+    super(profile.size, profile.high, base);
+    this.base    = base   ;
     this.profile = profile;
   }
   
@@ -81,7 +68,6 @@ public abstract class Venue extends Structural implements
     staff.loadState(s);
     stocks.loadState(s);
     
-    entranceFace = s.loadInt();
     entrance = (Tile) s.loadTarget();
     s.loadObjects(inside);
     
@@ -96,7 +82,6 @@ public abstract class Venue extends Structural implements
     staff.saveState(s);
     stocks.saveState(s);
     
-    s.saveInt(entranceFace);
     s.saveTarget(entrance);
     s.saveObjects(inside);
   }
@@ -165,35 +150,22 @@ public abstract class Venue extends Structural implements
   }
   
   
-  //  TODO:  You'll need to allow a 2x2 tile clearance for structures in a
-  //  different patch (to allow for wider roads.)  Move these out to utility
-  //  methods in the placement class.
-  
+  //  TODO:  Get the set of structures that conflict with this instead, and
+  //  pass that to both the canPlace() and enterWorld() methods!
   protected boolean checkPerimeter(Stage world) {
-    //
-    //  Don't abut on anything of higher priority-
-    /*
-    for (Tile n : Spacing.perimeter(footprint(), world)) {
-      if (n == null || ! n.habitat().pathClear) return false;
-      final Element top = n.onTop();
-      //if (top != null && ! canTouch(top)) return false;
-    }
-    //*/
-    //
-    //  And make sure we don't create isolated areas of unreachable tiles-
-    if (! Placement.perimeterFits(this)) return false;
-    return true;
+    return Placement.perimeterFits(this);
   }
   
   
   public boolean setPosition(float x, float y, Stage world) {
     if (! super.setPosition(x, y, world)) return false;
+    final int entryFace = profile.entryFace;
     final Tile o = origin();
-    if (entranceFace == ENTRANCE_NONE) {
+    if (entryFace == ENTRANCE_NONE) {
       entrance = null;
     }
     else {
-      final int off[] = Spacing.entranceCoords(size, size, entranceFace);
+      final int off[] = Placement.entranceCoords(size, size, entryFace);
       entrance = world.tileAt(o.x + off[0], o.y + off[1]);
     }
     return true;

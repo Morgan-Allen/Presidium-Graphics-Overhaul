@@ -38,7 +38,7 @@ public class InstallTab extends SelectionInfoPane {
     initCategory(TYPE_ECOLOGIST);
     initCategory(TYPE_PHYSICIAN);
     
-    for (VenueProfile profile : VenueProfile.facilityProfiles()) {
+    for (VenueProfile profile : VenueProfile.allProfiles()) {
       final Venue sample = profile.sampleVenue(null);
       if (sample.owningTier() != Owner.TIER_PUBLIC) continue;
       
@@ -108,7 +108,8 @@ public class InstallTab extends SelectionInfoPane {
     final Composite icon      = sample.portrait(UI);
     final String    typeName  = sample.fullName()  ;
     final String    typeDesc  = sample.helpInfo()  ;
-    final Class     type      = sample.getClass()  ;
+    final VenueProfile type = sample.profile;
+    //final Class     type      = sample.getClass()  ;
 
     headerText.setText(name+" structures");
     assignPortrait(icon);
@@ -143,8 +144,8 @@ public class InstallTab extends SelectionInfoPane {
   
   /**  Actual placement of buildings-
     */
-  private void initInstallTask(BaseUI UI, Class type) {
-    final Venue venue = VenueProfile.sampleVenue(type, null);
+  private void initInstallTask(BaseUI UI, VenueProfile type) {
+    final Venue venue = type.sampleVenue(UI.played());
     if (venue == null) return;
     else venue.assignBase(UI.played());
     
@@ -161,7 +162,7 @@ public class InstallTab extends SelectionInfoPane {
     
     InstallTab tab;
     BaseUI UI;
-    Class type;
+    VenueProfile type;
     Structure.Basis toInstall;
     private boolean onStage, canPlace;
     

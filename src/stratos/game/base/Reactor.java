@@ -45,6 +45,9 @@ public class Reactor extends Venue {
 
   /**  Data fields, constructors and save/load methods-
     */
+  private static boolean
+    verbose = false;
+  
   final static ModelAsset MODEL = CutoutModel.fromImage(
     Reactor.class, "media/Buildings/artificer/reactor.png", 4.0f, 2
   );
@@ -70,14 +73,32 @@ public class Reactor extends Venue {
     "MELTDOWN"
   };
   
-  private static boolean verbose = false;
+  
+  final public static Conversion
+    METALS_TO_FUEL = new Conversion(
+      Reactor.class, "metals_to_fuel",
+      5, ORES, TO, 1, TOPES,
+      MODERATE_DC, CHEMISTRY, MODERATE_DC, FIELD_THEORY
+    ),
+    TOPES_TO_ANTIMASS = new Conversion(
+      Reactor.class, "fuel_to_antimass",
+      20, TOPES, TO, 1, ANTIMASS,
+      MODERATE_DC, CHEMISTRY, STRENUOUS_DC, FIELD_THEORY
+    )
+  ;
+  
+  final static VenueProfile PROFILE = new VenueProfile(
+    Reactor.class, "reactor",
+    4, 2, ENTRANCE_NORTH,
+    METALS_TO_FUEL, TOPES_TO_ANTIMASS
+  );
   
   
   private float meltdown = 0.0f;
   
 
   public Reactor(Base base) {
-    super(4, 2, Venue.ENTRANCE_EAST, base);
+    super(PROFILE, base);
     structure.setupStats(
       300, 10, 300,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
@@ -139,19 +160,6 @@ public class Reactor extends Venue {
       "energy source essential to space travel and atomics production.",
       450, null, 1, WASTE_PROCESSING,
       Reactor.class, ALL_UPGRADES
-    )
-  ;
-  
-  final public static Conversion
-    METALS_TO_FUEL = new Conversion(
-      Reactor.class, "metals_to_fuel",
-      5, ORES, TO, 1, TOPES,
-      MODERATE_DC, CHEMISTRY, MODERATE_DC, FIELD_THEORY
-    ),
-    TOPES_TO_ANTIMASS = new Conversion(
-      Reactor.class, "fuel_to_antimass",
-      20, TOPES, TO, 1, ANTIMASS,
-      MODERATE_DC, CHEMISTRY, STRENUOUS_DC, FIELD_THEORY
     )
   ;
   

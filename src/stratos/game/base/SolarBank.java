@@ -50,9 +50,14 @@ public class SolarBank extends Venue {
     MODEL_CENTRE
   };
   
+  final static VenueProfile PROFILE = new VenueProfile(
+    SolarBank.class, "solar_bank",
+    2, 2, ENTRANCE_NONE
+  );
+  
   
   public SolarBank(Base base) {
-    super(2, 2, ENTRANCE_NONE, base);
+    super(PROFILE, base);
     this.type = TYPE_PLACING;
     structure.setupStats(10, 5, 40, 0, Structure.TYPE_FIXTURE);
   }

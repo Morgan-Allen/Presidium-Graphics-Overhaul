@@ -81,18 +81,11 @@ public class Cantina extends Venue implements Performance.Theatre {
     
     SOMA_MARGIN    = 1.5f,
     GAMBLE_MARGIN  = 0.2f;
-  /*
-  final static FacilityProfile PROFILE = new FacilityProfile(
-    Cantina.class, Structure.TYPE_VENUE,
-    4, 150, 2, 0,
-    new TradeType[] {},
-    new Background[] { SOMA_VENDOR, PERFORMER },
-    Conversion.parse(EcologistStation.class,
-      SERVICE_ENTERTAINMENT
-    )
-  );
-  //*/
   
+  final static VenueProfile PROFILE = new VenueProfile(
+    Cantina.class, "cantina",
+    3, 2, ENTRANCE_EAST
+  );
   
   
   private int nameID = -1;
@@ -101,7 +94,7 @@ public class Cantina extends Venue implements Performance.Theatre {
   
   
   public Cantina(Base base) {
-    super(3, 2, Venue.ENTRANCE_SOUTH, base);
+    super(PROFILE, base);
     structure.setupStats(150, 2, 200, 0, Structure.TYPE_VENUE);
     staff.setShiftType(SHIFTS_BY_DAY);
     attachSprite(MODEL.makeSprite());

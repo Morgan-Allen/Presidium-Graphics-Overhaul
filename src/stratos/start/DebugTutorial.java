@@ -16,22 +16,26 @@ import stratos.util.*;
 
 
 //  Roads and walls, I think, are your main structural tool.  They have to
-//  be placed explicitly.  (Also, they need delete functions.)
+//  be placed explicitly.  And it would help if mines/farms would preview their
+//  AoE.
 
 //  ...It's more about giving the player a sense of channels of direct or
 //  indirect interaction.  Ways to game the system.
 
+//  TODO:  Placement of spontaneous structures needs to be a little more
+//  prompt... base off immediate demand fulfillment, rather than time period.
+
+//  Also, service hatches need to be placed!
+//  TODO:  Get the set of all objects that conflict with a venue's placement,
+//         and pass that to both the canPlace() & enterWorld() methods.
 
 
 
 //  Also, just use a BlurMap for ambience.  It's a lot simpler and less freaky.
 
-//  TODO:  Get the roads system in place- just 2x2, straight down the middle of
-//         each sector.  Simple.
-
-
 //  TODO:  Merge the summons-dialogue system with the Contact mission.  It's
-//  much more natural that way.
+//  much more natural that way.  And have citizens talk about their complaints-
+//  link that to the bad/good thoughts and mood system!
 
 
 //  TODO:  Assign drills directly at the trooper lodge, plus call to arms.
@@ -42,6 +46,8 @@ import stratos.util.*;
 //         culture vats, et cetera.
 
 //  Ideally, hiring arrangements should have some kind of progress meter?
+//  (Also, actors still seem a little too eager to apply for jobs they have no
+//   real qualification for.)
 
 
 //  TODO:  Retreat should have the possibility to break pursuit as well.

@@ -6,11 +6,11 @@
 package stratos.game.politic;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.economic.Inventory.Owner;
 import stratos.game.actors.*;
-import stratos.user.BaseUI;
-import stratos.util.*;
 import stratos.game.plans.*;
+import stratos.user.*;
+import stratos.util.*;
+import stratos.game.economic.Inventory.Owner;
 
 
 
@@ -55,6 +55,7 @@ public class BaseSetup {
   private float lastEval       = -1;  //  Last evaluation time within cycle
   private float totalBuildHP   =  0;  //  Total HP placed during this cycle
   private Batch <Venue> allPlaced = new Batch <Venue> ();
+  
   
   
   public BaseSetup(Base base, Stage world, VenueProfile... canPlace) {
@@ -109,9 +110,13 @@ public class BaseSetup {
   
   /**  Time-sliced automation of building-placement methods-
     */
+  public void doFullPlacements() {
+    //  TODO:  IMPLEMENT THIS
+  }
+  
+  
   //  TODO:  Permit hints as to preferred placement-location, and an argument
   //  for instant-placement.
-  
   public Batch <Venue> doPlacementsFor(VenueProfile type, int count) {
     final Venue toPlace[] = new Venue[count];
     for (int n = count; n-- > 0;) toPlace[n] = type.sampleVenue(base);
@@ -195,8 +200,7 @@ public class BaseSetup {
       for (Venue sample : samples) {
         sample.assignBase(base);
         final Siting p = new Siting();
-        p.sample    = sample;
-        //p.profile   = sample.profile;
+        p.sample    = sample ;
         p.placed    = section;
         p.exactTile = null   ;
         p.rating    = sample.ratePlacing(section, false);

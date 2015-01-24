@@ -56,8 +56,11 @@ public class Smelter extends Venue {
   
   final public static int SMELT_AMOUNT = 10;
   
+  final static VenueProfile PROFILE = new VenueProfile(
+    Smelter.class, "smelter",
+    4, 2, ENTRANCE_WEST
+  );
   
-  //final public ExcavationSite parent;
   protected ExcavationSite parent;
   protected Traded output;
   private int oldProgress = 0;
@@ -65,11 +68,9 @@ public class Smelter extends Venue {
   
   
   public Smelter(Base base) {
-    super(4, 2, ENTRANCE_WEST, base);
+    super(PROFILE, base);
     structure.setupStats(75, 6, 150, 0, Structure.TYPE_FIXTURE);
-    
     this.assignTo(null, ORES);
-    //this.parent = parent;
   }
   
   
