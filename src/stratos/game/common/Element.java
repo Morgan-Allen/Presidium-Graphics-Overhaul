@@ -142,6 +142,11 @@ public class Element implements
   }
   
   
+  public boolean indoors() {
+    return false;
+  }
+  
+  
   public boolean isMobile() {
     return false;
   }

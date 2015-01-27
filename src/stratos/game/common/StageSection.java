@@ -51,6 +51,7 @@ public class StageSection implements Target, Session.Saveable {
   
   public boolean inWorld() { return true; }
   public boolean destroyed() { return false; }
+  public boolean indoors() { return false; }
   public boolean isMobile() { return false; }
   
   public Vec3D position(Vec3D v) {

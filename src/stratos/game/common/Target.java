@@ -13,6 +13,7 @@ public interface Target {
   
   boolean inWorld();
   boolean destroyed();
+  boolean indoors();
   Stage world();
   Base base();
   

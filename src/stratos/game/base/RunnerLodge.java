@@ -5,7 +5,6 @@ import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.actors.*;
 import stratos.game.plans.*;
-import stratos.game.politic.Profile;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;

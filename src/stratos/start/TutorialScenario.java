@@ -1,4 +1,8 @@
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.start;
 import stratos.game.common.*;
 import stratos.game.actors.*;
@@ -12,15 +16,18 @@ import static stratos.start.TutorialScript.*;
 
 
 
-//The raiding dynamics here need to be worked out, so that the natives and
-//artilects can plausibly co-exist.
-//Divide the map into regions, and arrange for *not* wandering outside of it.
-//And have that show up on the minimap (regional claims.)
+//  The raiding dynamics here need to be worked out, so that the natives and
+//  artilects can plausibly co-exist.
+//  Divide the map into regions, and arrange for *not* wandering outside of it.
+//  And have that show up on the minimap (regional claims.)
 
-//Start out with 8K.
-//End with +1 housing and at least 4K.
-//Destroy the Artilect lair.
-//Persuade the natives to open trade with your base.
+//  Start out with 8K.
+//  End with +1 housing and at least 4K.
+//  Destroy the Artilect lair.
+//  Persuade the natives to open trade with your base.
+
+//  TODO:  Consider providing 3 mandatory objectives, but being flexible about
+//  the order of completion- or have one feed into another.
 
 //  ...This map is too small to allow for multiple factions, really.  More
 //  useful as a theoretical exercise.

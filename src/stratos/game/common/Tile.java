@@ -91,6 +91,7 @@ public final class Tile implements
     */
   public boolean inWorld() { return true; }
   public boolean destroyed() { return false; }
+  public boolean indoors() { return false; }
   public Stage world() { return world; }
   public Base base() { return null; }
   

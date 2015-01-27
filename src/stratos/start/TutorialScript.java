@@ -1,9 +1,14 @@
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.start;
 import stratos.game.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
+
 
 
 
@@ -20,12 +25,12 @@ public class TutorialScript {
     TOPIC_ECONOMY         = topic("Objective 3: Economy Basics"),
     TOPIC_NAVIGATION      = topic("Navigation Basics"          ),
     
-    TOPIC_EXPLAIN_EXPAND  = topic("Expanding your Base"  ),
-    TOPIC_EXPLAIN_DEFEND  = topic("Defending your Base"  ),
-    TOPIC_EXPLAIN_CONTACT = topic("Diplomacy Missions"   ),
-    TOPIC_EXPLAIN_DIPLO   = topic("Interviewing Citizens"),
-    TOPIC_EXPLAIN_SUPPLY  = topic("Getting Supplies"     ),
-    TOPIC_EXPLAIN_INDUST  = topic("Housing and Industry" ),
+    TOPIC_EXPLAIN_EXPAND  = topic("Expanding your Base"        ),
+    TOPIC_EXPLAIN_DEFEND  = topic("Defending your Base"        ),
+    TOPIC_EXPLAIN_CONTACT = topic("Diplomacy Missions"         ),
+    TOPIC_EXPLAIN_DIPLO   = topic("Interviewing Citizens"      ),
+    TOPIC_EXPLAIN_SUPPLY  = topic("Getting Supplies"           ),
+    TOPIC_EXPLAIN_INDUST  = topic("Housing and Industry"       ),
     
     EVENT_WELCOME         = event("Welcome"                    ),
     EVENT_SECURITY_DONE   = event("Security Objective Complete"),
@@ -123,8 +128,8 @@ public class TutorialScript {
         "a Reconnaissance mission.  Leave it public for now, and increase the "+
         "payment to attract applicants.\n"+
         "Once you find a threat, select it, and then click on the red icon to "+
-        "begin a Strike mission.  (You may wish to build a Garrison or two "+
-        "first, just to get numbers on your side.)  With luck, your soldiers "+
+        "begin a Strike mission.  (You may wish to build a Trooper Lodge or "+
+        "two, just to get numbers on your side.)  With luck, your soldiers "+
         "will polish off the interlopers in short order.",
         linkFor("How do I protect my subjects?"     , TOPIC_EXPLAIN_DEFEND),
         linkFor("Go back to the security objective.", TOPIC_SECURITY      )
@@ -195,8 +200,6 @@ public class TutorialScript {
         linkFor("Go back to the contact objective.", TOPIC_CONTACT        )
       );
     }
-    //  Mention that negotiations are delicate- use screened/covert.
-    //  If negotiations are successful, they'll visit you.
     
     if (title.equals(TOPIC_ECONOMY)) {
       return comms.addMessage(
@@ -216,14 +219,12 @@ public class TutorialScript {
       return comms.addMessage(
         tutorial, TOPIC_EXPLAIN_SUPPLY, null,
         "To secure a solid early cash flow, a fair strategy is to build a "+
-        "Supply Depot, followed by either a Botanical Station (on fertile "+
-        "terrain) or an Excavation Site (on rocky areas.)  The Supply Depot "+
-        "will allow spacecraft to dock conveniently at your base, and allows "+
-        "you to set broad import/export levels for various types of goods.\n"+
+        "Supply Depot, followed by either a Nursery (on fertile terrain) or "+
+        "an Excavation Site (on rocky areas.)  The Supply Depot will allow "+
+        "you to reserve goods for export offworld, and perhaps import a few "+
+        "necessities.\n"+
         "The other structures, meanwhile, take advantage of local resources "+
-        "to produce food and minerals for export or local consumption.  (Both "+
-        "the Botanical Station and Excavation Site need a good deal of room, "+
-        "so don't place them too close to your main base.)",
+        "to produce food and minerals for sale or local consumption.",
         linkFor("How do I improve my housing?"      , TOPIC_EXPLAIN_INDUST),
         linkFor("Go back to the economic objective.", TOPIC_ECONOMY       )
       );
@@ -233,10 +234,10 @@ public class TutorialScript {
       return comms.addMessage(
         tutorial, TOPIC_EXPLAIN_INDUST, null,
         "In order to improve your housing- and export finished goods- you may "+
-        "wish to place an Artificer or Fabricator to take metal ore or carbs "+
-        "and process them into parts and plastics, along with weapons or "+
-        "outfits for your citizens.  A skilled worker with enough raw "+
-        "materials can make perhaps 5 units per day, but you may wish to "+
+        "wish to place an Engineer Station or Fabricator to take metal ore "+
+        "or carbons and process them into parts and plastics, along with "+
+        "weapons or outfits for your citizens.  A skilled worker with enough "+
+        "raw materials can make perhaps 5 units per day, but you may wish to "+
         "install upgrades (like Assembly Line or Polymer Loom) to speed the "+
         "process.\n"+
         "Holdings should display the goods and services they require to "+

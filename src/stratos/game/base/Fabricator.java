@@ -3,8 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.base;
 import stratos.game.common.*;
 import stratos.game.actors.*;
@@ -80,35 +78,25 @@ public class Fabricator extends Venue {
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> ();
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
-    
-  /*
-    ADVANCED_PLASTICS  = new Upgrade(
-      "Advanced Plastics",
-      "Speeds the production of standard plastics and functional clothing.",
-      200, PLASTICS, 2, null,
-      Fabricator.class, ALL_UPGRADES
-    ),
-    //*/
     POLYMER_LOOM = new Upgrade(
-      "Polymer Conversion",
+      "Polymer Loom",
       "Speeds the production of standard plastics and functional clothing.",
       250, Upgrade.THREE_LEVELS, CARBS, 1,
       null, Fabricator.class, ALL_UPGRADES
     ),
-    FINERY_FLOOR       = new Upgrade(
+    FINERY_FLOOR = new Upgrade(
       "Finery Production",
       "Allows production of fine garments and decor for the upper classes.",
       500, Upgrade.THREE_LEVELS, null, 1,
       POLYMER_LOOM, Fabricator.class, ALL_UPGRADES
     ),
-    CAMOUFLAGE_FLOOR   = new Upgrade(
+    CAMOUFLAGE_FLOOR = new Upgrade(
       "Camouflage Production",
       "Allows production of stealth-based protection for guerilla agents.",
       350, Upgrade.THREE_LEVELS, null, 2,
       POLYMER_LOOM, Fabricator.class, ALL_UPGRADES
     )
-    
-    //  TODO:  Level 2 Upgrade.
+    //  TODO:  Level 2 Upgrade.  And pressfeed?
   ;
   
   

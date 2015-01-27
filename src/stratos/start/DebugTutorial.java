@@ -14,7 +14,6 @@ import stratos.util.*;
 //  BIG BUGFIX TODO LIST:
 
 
-
 /*  BIG TODO LIST:
 
 *  Need to ensure that combat/retreat/negotiation/stealth always trump other
@@ -22,14 +21,14 @@ import stratos.util.*;
 
 *  Need to ensure that unemployed job-seekers are more sensible.
 
+*  Need to ensure that artilect raiding increases gradually over time.
+     Base this off a 'waking up' mechanism as threats are found.
+
 *  Need to restore animal nests and surface behaviours.
      Need to ensure auto-distribution of predator and prey nests.
 
 *  Need service hatches to allow access to vermin.
      Need to write vermin behaviour.
-
-*  Need to ensure that artilect raiding increases gradually over time.
-     Base this off a 'waking up' mechanism as threats are found.
 
 *  Upgrades need to filled in and tested for:
      Stock Exchange

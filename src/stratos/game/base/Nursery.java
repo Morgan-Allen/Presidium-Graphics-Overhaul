@@ -140,7 +140,7 @@ public class Nursery extends Venue implements TileConstants {
     if (station == null || station.base() != base) return -1;
     
     final float distance = Spacing.distance(point, station);
-    if (distance > Stage.SECTOR_SIZE) return -1;
+    if (distance > Stage.SECTOR_SIZE / 2) return -1;
     
     final Nursery nearby = (Nursery) presences.nearestMatch(
       Nursery.class, point, Stage.SECTOR_SIZE

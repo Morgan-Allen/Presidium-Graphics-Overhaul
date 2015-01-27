@@ -18,7 +18,7 @@ public class PlaneFX extends SFX {
   
   
   private static boolean
-    verbose = true ;
+    verbose = false;
   
   
   /**  Model definitions, fields, constructors, and save/load methods-
