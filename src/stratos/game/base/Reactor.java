@@ -445,7 +445,7 @@ public class Reactor extends Venue {
   
   
   public String objectCategory() {
-    return UIConstants.TYPE_ARTIFICER;
+    return UIConstants.TYPE_ENGINEER;
   }
 }
 

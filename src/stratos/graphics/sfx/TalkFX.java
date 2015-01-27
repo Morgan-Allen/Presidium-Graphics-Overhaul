@@ -182,7 +182,7 @@ public class TalkFX extends SFX {
     
     for (Bubble bubble : showing) {
       final boolean speaks = bubble.type != NOT_SPOKEN;
-      final Colour c = new Colour();
+      final Colour c = new Colour(Colour.WHITE);
       
       float alpha = 0;
       if (bubble.alpha < 1) alpha = bubble.alpha;
@@ -190,8 +190,9 @@ public class TalkFX extends SFX {
       else alpha = (1.5f - bubble.alpha) * 2;
       if (this.colour != null) alpha *= this.colour.a;
       
-      if (speaks) c.set(0.8f, 0.8f, 1, alpha);
-      else c.set(1, 1, 1, alpha);
+      if (speaks) c.blend(Colour.BLUE, 0.33f);
+      c.blend(Colour.BLACK, fog);
+      c.a = alpha;
       
       Label.renderPhrase(
         bubble.phrase, FONT, fontScale, c,

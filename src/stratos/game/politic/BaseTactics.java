@@ -313,10 +313,13 @@ public class BaseTactics {
     final boolean report = (updatesVerbose || Mission.evalVerbose) && (
       I.talkAbout == actor || I.talkAbout == mission
     );
+    /*
     if (! isCompetent(actor, mission)) {
       if (report) I.say("\n"+actor+" not competent to pursue "+mission);
       return false;
     }
+    //*/
+    //  TODO:  Again, this needs some more nuance.  Primal or player-controlled?
     if (! base.primal) return true;
     
     //  A 50% chance of victory implies equal strength.
@@ -340,16 +343,6 @@ public class BaseTactics {
       I.say("  Will approve?         "+approves);
     }
     return approves;
-  }
-  
-  
-  protected boolean isCompetent(Actor actor, Mission mission) {
-    if (! (actor instanceof Human)) return true;
-    
-    final Behaviour step = mission.cachedStepFor(actor, true);
-    step.priorityFor(actor);
-    if (step instanceof Plan && ((Plan) step).competence() < 1) return false;
-    return true;
   }
   
   

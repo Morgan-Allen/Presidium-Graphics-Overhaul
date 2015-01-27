@@ -334,7 +334,7 @@ public class SupplyDepot extends Venue {
   
   
   public String objectCategory() {
-    return UIConstants.TYPE_MERCHANT;
+    return UIConstants.TYPE_COMMERCE;
   }
 }
 

@@ -64,7 +64,7 @@ public abstract class Mission implements
   
   protected static boolean
     verbose     = false,
-    evalVerbose = true ,
+    evalVerbose = false,
     allVisible  = true ;
   
   final public static int
@@ -447,7 +447,7 @@ public abstract class Mission implements
   
   /**  Behaviour implementation for the benefit of any applicants/agents:
     */
-  protected Behaviour cachedStepFor(Actor actor, boolean create) {
+  public Behaviour cachedStepFor(Actor actor, boolean create) {
     if (begun) updateMission();
     if (done) return null;
     

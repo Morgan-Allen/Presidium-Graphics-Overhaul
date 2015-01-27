@@ -157,7 +157,7 @@ public class EnforcerBloc extends Venue {
   
   
   public String objectCategory() {
-    return UIConstants.TYPE_MILITANT;
+    return UIConstants.TYPE_SECURITY;
   }
 }
 

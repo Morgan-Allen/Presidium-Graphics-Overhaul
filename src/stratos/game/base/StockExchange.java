@@ -351,7 +351,7 @@ public class StockExchange extends Venue {
 
 
   public String objectCategory() {
-    return UIConstants.TYPE_MERCHANT;
+    return UIConstants.TYPE_COMMERCE;
   }
 }
 

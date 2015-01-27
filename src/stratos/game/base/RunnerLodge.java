@@ -281,14 +281,14 @@ public class RunnerLodge extends Venue {
   
   public String helpInfo() {
     return
-      "Runner Markets afford the benefits of black market technology and "+
-      "other clandestine services to settlements willing to overlook their "+
+      "Runner Markets can offer black market technology and other "+
+      "clandestine services to settlements willing to overlook their "+
       "criminal connections.";
   }
   
   
   public String objectCategory() {
-    return InstallTab.TYPE_MERCHANT;
+    return InstallTab.TYPE_COMMERCE;
   }
 }
 

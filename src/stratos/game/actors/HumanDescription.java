@@ -101,14 +101,14 @@ public class HumanDescription implements Qualities {
     
     final Item device = h.gear.deviceEquipped();
     if (device != null) {
-      d.append("\n  "+device.type+" ("+((int) h.gear.attackDamage())+")");
+      d.append("\n  "+device+" ("+((int) h.gear.attackDamage())+")");
     }
     else d.append("\n  No device");
     if (FC > 0) d.append(" (Power "+FC+")");
     
     final Item outfit = h.gear.outfitEquipped();
     if (outfit != null) {
-      d.append("\n  "+outfit.type+" ("+((int) h.gear.armourRating())+")");
+      d.append("\n  "+outfit+" ("+((int) h.gear.armourRating())+")");
     }
     else d.append("\n  No outfit");
     if (MS > 0 || SC > 0) d.append(" (Shields "+SC+"/"+MS+")");

@@ -49,7 +49,7 @@ public class Cantina extends Venue implements Performance.Theatre {
     "Teller's Afterglow",
     "The Big Touchdown",
     "Bailey's Casket",
-    "Duke's Descent",
+    "The Duke's Descent",
   };
   
   final static String SONG_NAMES[] = {
@@ -372,14 +372,13 @@ public class Cantina extends Venue implements Performance.Theatre {
   
   public String helpInfo() {
     return
-      "Citizens can seek lodgings or simply rest and relax at the Cantina. "+
-      "Though a lively hub for social activities, something about the "+
-      "atmosphere also tends to attract the criminal element.";
+      "A lively hub for social activities, your citizens can rest and relax "+
+      "at the Cantina.  Unsavoury characters are known to drop by, however.";
   }
   
 
   public String objectCategory() {
-    return UIConstants.TYPE_MERCHANT;
+    return UIConstants.TYPE_COMMERCE;
   }
   
   

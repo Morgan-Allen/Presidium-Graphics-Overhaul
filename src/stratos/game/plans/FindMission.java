@@ -47,8 +47,23 @@ public class FindMission extends Plan {
         if (report) I.say("\n  Cannot apply for "+mission);
         continue;
       }
+      
+      //  TODO:  Build this into the priorityFor method of the missions
+      //         themselves.
+      final float
+        competence = competence(actor, mission),
+        urgency    = mission.assignedPriority();
+      if (competence + (urgency / Mission.PRIORITY_PARAMOUNT) < 1) {
+        if (report) {
+          I.say("\n  Cannot apply for "+mission);
+          I.say("  Mission urgency:    "+urgency);
+          I.say("  Competence too low: "+competence);
+        }
+        continue;
+      }
+      
       if (report) {
-        I.say("\n  mission is: "+mission);
+        I.say("\n  Mission is: "+mission);
         I.say("  apply point:  "+mission.applyPointFor(actor));
         I.say("  priority:     "+mission.priorityFor(actor));
         I.say("  next step:    "+mission.nextStepFor(actor));
@@ -62,6 +77,19 @@ public class FindMission extends Plan {
     if (report) I.say("Mission picked: "+picked);
     return new FindMission(actor, picked);
   }
+  
+  
+  protected static float competence(Actor actor, Mission mission) {
+    if (! (actor instanceof Human)) return 1;
+    
+    final Behaviour step = mission.cachedStepFor(actor, true);
+    if (step == null) return 1;
+    
+    step.priorityFor(actor);
+    if (step instanceof Plan) return ((Plan) step).competence();
+    else return 1;
+  }
+  
   
 
   private FindMission(Actor actor, Mission mission) {

@@ -127,16 +127,19 @@ public class MissionDescription {
     d.append(mission.subject());
     
     //
-    //  And finally, describe the mission's priority and/or payment:
+    //  And finally, describe the mission's priority and/or payment.  (We allow
+    //  payment increases for public missions at any time.)
     final int priority = mission.assignedPriority();
     final String payDesc = (priority == 0 || type == TYPE_BASE_AI) ?  "None" :
       REWARD_AMOUNTS[priority]+" credits"
     ;
-    
+    final boolean canAdjust = canChange || (
+      type == TYPE_PUBLIC && priority < PRIORITY_PARAMOUNT
+    );
     d.append("\nPayment:  ");
-    if (canChange) d.append(new Description.Link(payDesc) {
+    if (canAdjust) d.append(new Description.Link(payDesc) {
       public void whenClicked() {
-        if (priority == PRIORITY_PARAMOUNT) return;
+        if (priority == PRIORITY_PARAMOUNT) mission.assignPriority(0);
         mission.assignPriority(priority + 1);
       }
     });

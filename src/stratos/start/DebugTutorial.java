@@ -5,25 +5,13 @@
   */
 package stratos.start;
 import stratos.game.common.*;
-import stratos.game.politic.*;
-import stratos.game.actors.*;
 import stratos.graphics.common.Rendering;
-import stratos.graphics.widgets.KeyInput;
 import stratos.user.*;
 import stratos.util.*;
 
 
 
-//  BIG BUGFIX LIST TODO:
-
-//  For some reason, actors attacking ruins can wind up 'running in place' at
-//  times.  Find out why.
-
-//  Ensure that you can set larger rewards for public bounties!  At the moment
-//  the first reward will prevent further increases!
-
-//  Find a good category for housing and allow placing a series of them at
-//  once.  Don't allow placement of multiple bastions!
+//  BIG BUGFIX TODO LIST:
 
 
 

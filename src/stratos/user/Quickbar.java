@@ -210,14 +210,17 @@ public class Quickbar extends UIGroup implements UIConstants {
   /**  Meanwhile, on the other side of the bar, we have the installation
     *  buttons:
     */
-  final static String GUILD_IMG_NAMES[] = {
-    "militant_category_button",
-    "merchant_category_button",
-    "aesthete_category_button",
-    "artificer_category_button",
-    "ecologist_category_button",
-    "physician_category_button",
-  };
+  final static ImageAsset GUILD_IMAGE_ASSETS[] = ImageAsset.fromImages(
+    Quickbar.class, BUTTONS_PATH,
+    "militant_category_button.png",
+    "merchant_category_button.png",
+    "aesthete_category_button.png",
+    "artificer_category_button.png",
+    "ecologist_category_button.png",
+    "physician_category_button.png"
+  );
+  //  TODO:  GIVE MORE EXTENSIVE HELP-INFO HERE!
+  /*
   final static String GUILD_INFO[] = {
     "Militant Structures",
     "Merchant Structures",
@@ -226,27 +229,17 @@ public class Quickbar extends UIGroup implements UIConstants {
     "Ecologist Structures",
     "Physician Structures",
   };
-  final static Table <String, ImageAsset> GUILD_IMG_ASSETS;
-  static {
-    GUILD_IMG_ASSETS = new Table <String, ImageAsset> ();
-    for (String name : GUILD_IMG_NAMES) {
-      final ImageAsset asset = ImageAsset.fromImage(
-        Quickbar.class, BUTTONS_PATH+name+".png"
-      );
-      GUILD_IMG_ASSETS.put(name, asset);
-    }
-  }
+  //*/
   
   
   protected void setupInstallButtons() {
     for (int i = 0; i < NUM_GUILDS; i++) {
       final String
-        img     = GUILD_IMG_NAMES[i],
-        help    = GUILD_INFO[i],
+        help    = INSTALL_CATEGORIES[i]+" Structures",
         catName = INSTALL_CATEGORIES[i];
       
       final InstallTab newTab = new InstallTab(UI, catName);
-      final Button button = new Button(UI, GUILD_IMG_ASSETS.get(img), help) {
+      final Button button = new Button(UI, GUILD_IMAGE_ASSETS[i], help) {
         
         protected void whenClicked() {
           ///I.say("\nWas clicked: "+catName);

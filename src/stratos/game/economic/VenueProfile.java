@@ -34,9 +34,9 @@ public class VenueProfile extends Index.Entry implements Session.Saveable {
   
   final public static Index <VenueProfile> INDEX = new Index <VenueProfile> ();
   
-  final Class <? extends Venue> baseClass;
-  final int size, high, entryFace;
-  final Conversion processed[];
+  final public Class <? extends Venue> baseClass;
+  final public int size, high, entryFace;
+  final public Conversion processed[];
   
   
   //  TODO:  Have more of these, and specify within constructor.  Obviously...

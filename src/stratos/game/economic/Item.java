@@ -28,6 +28,9 @@ public class Item {
   final static float PRICE_MULTS[] = {
     0.75f, 1.0f, 1.35f, 1.85f, 2.5f
   };
+  final static float OUTPUT_MULTS[] = {
+    0.75f, 0.9f, 1.0f, 1.1f, 1.25f
+  };
   
   
   
@@ -155,6 +158,11 @@ public class Item {
   
   public float defaultPrice() {
     return type.basePrice() * amount * PRICE_MULTS[(int) quality];
+  }
+  
+  
+  public float outputFromQuality() {
+    return OUTPUT_MULTS[(int) quality];
   }
   
   

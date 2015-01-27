@@ -208,7 +208,7 @@ public class ActorGear extends Inventory {
     if (weapon == null) return (brawnBonus / 2) + baseDamage;
     
     final DeviceType type = (DeviceType) weapon.type;
-    final float damage = type.baseDamage * (weapon.quality + 2f) / 4;
+    final float damage = type.baseDamage * weapon.outputFromQuality();
     
     if (type.hasProperty(MELEE)) return damage + brawnBonus + baseDamage;
     else return damage + baseDamage;

@@ -31,16 +31,16 @@ public interface UIConstants {
   
   final public static String
     
-    TYPE_MILITANT  = "Militant" ,
-    TYPE_MERCHANT  = "Merchant" ,
-    TYPE_AESTHETE  = "Aesthete" ,
-    TYPE_ARTIFICER = "Artificer",
+    TYPE_SECURITY  = "Security" ,
+    TYPE_COMMERCE  = "Commerce" ,
+    TYPE_AESTHETIC = "Aesthetic",
+    TYPE_ENGINEER  = "Engineer" ,
     TYPE_ECOLOGIST = "Ecologist",
     TYPE_PHYSICIAN = "Physician",
     
     INSTALL_CATEGORIES[] = {
-      TYPE_MILITANT, TYPE_MERCHANT, TYPE_AESTHETE,
-      TYPE_ARTIFICER, TYPE_ECOLOGIST, TYPE_PHYSICIAN
+      TYPE_SECURITY, TYPE_COMMERCE, TYPE_AESTHETIC,
+      TYPE_ENGINEER, TYPE_ECOLOGIST, TYPE_PHYSICIAN
     },
     
     TYPE_SPECIAL   = "Special"  ,

@@ -452,7 +452,7 @@ public class Holding extends Venue {
   
   
   public String objectCategory() {
-    return InstallTab.TYPE_AESTHETE;
+    return InstallTab.TYPE_PHYSICIAN;
   }
   
   
@@ -496,13 +496,12 @@ public class Holding extends Venue {
       if (tS != null) return tS;
     }
     return
-      "Holdings provide comfort and privacy for your subjects, and create "+
-      "an additional tax base for revenue.";
+      "Holdings provide comfort, sanitation and other domestic benefits to "+
+      "your subjects.";
   }
   
   
   //  TODO:  Merge this with the needsMet method above!
-  
   private String needMessage(int meetLevel) {
     meetLevel = Nums.clamp(meetLevel, NUM_LEVELS);
     final Object met = NEEDS_MET;

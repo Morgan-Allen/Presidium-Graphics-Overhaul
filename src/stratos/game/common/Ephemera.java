@@ -66,9 +66,9 @@ public class Ephemera {
     
     
     public void renderFor(Rendering r, Base b) {
-      sprite.fog = (tracked instanceof Element) ?
-        ((Element) tracked).fogFor(b) :
-        (tracked == null ? 1 : b.intelMap.fogAt(tracked));
+      final Vec3D p = sprite.position;
+      sprite.fog = b.intelMap.fogAt((int) p.x, (int) p.y);
+      if (sprite.fog == 0) return;
       sprite.readyFor(r);
     }
     

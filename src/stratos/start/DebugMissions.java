@@ -100,8 +100,8 @@ public class DebugMissions extends Scenario {
     GameSettings.paveFree  = true;
     GameSettings.fogFree   = true;
     
-    if (false) strikeScenario  (world, base, UI);
-    if (true ) securityScenario(world, base, UI);
+    if (true ) strikeScenario  (world, base, UI);
+    if (false) securityScenario(world, base, UI);
     if (false) contactScenario (world, base, UI);
     if (false) reconScenario   (world, base, UI);
   }
@@ -174,7 +174,7 @@ public class DebugMissions extends Scenario {
     base.relations.setRelation(artilects, -1, true);
     
     final Ruins ruin = new Ruins(artilects);
-    artilects.setup.doPlacementsFor(ruin);
+    Placement.establishVenue(ruin, 12, 12, true, world);
     
     final Mission strike = new StrikeMission(base, ruin);
     strike.setMissionType(Mission.TYPE_SCREENED  );

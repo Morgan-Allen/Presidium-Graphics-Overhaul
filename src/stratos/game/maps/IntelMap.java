@@ -135,6 +135,12 @@ public class IntelMap {
   }
   
   
+  public float fogAt(int x, int y) {
+    if (GameSettings.fogFree || base.primal) return 1;
+    return fogVals[Nums.clamp(x, world.size)][Nums.clamp(y, world.size)];
+  }
+  
+  
   public float fogAt(Target t) {
     if (GameSettings.fogFree || base.primal) return 1;
     return fogAt(world.tileAt(t));

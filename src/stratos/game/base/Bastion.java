@@ -7,6 +7,7 @@ package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.economic.Inventory.Owner;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -65,6 +66,11 @@ public class Bastion extends Venue {
   
   /**  Placement and claims-assertion methods:
     */
+  public int owningTier() {
+    return TIER_UNIQUE;
+  }
+  
+  
   protected Box2D areaClaimed() {
     return new Box2D(footprint()).expandBy(CLAIM_RADIUS);
   }
@@ -313,7 +319,7 @@ public class Bastion extends Venue {
   
   
   public String objectCategory() {
-    return InstallTab.TYPE_MILITANT;
+    return InstallTab.TYPE_SECURITY;
   }
 }
 

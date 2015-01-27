@@ -224,7 +224,7 @@ public class Arcology extends Venue {
   
   
   public String objectCategory() {
-    return UIConstants.TYPE_AESTHETE;
+    return UIConstants.TYPE_AESTHETIC;
   }
 }
 

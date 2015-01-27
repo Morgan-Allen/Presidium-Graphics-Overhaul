@@ -118,6 +118,11 @@ public class Nursery extends Venue implements TileConstants {
   }
   
   
+  public int owningTier() {
+    return TIER_PRIVATE;
+  }
+  
+  
   public float ratePlacing(Target point, boolean exact) {
     
     //  TODO:  THESE HAVE TO BE ECOLOGIST STATIONS BELONGING TO THE SAME BASE.

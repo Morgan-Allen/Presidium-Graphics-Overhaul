@@ -19,7 +19,7 @@ public class Combat extends Plan implements Qualities {
   protected static boolean
     evalVerbose   = false,
     begunVerbose  = false,
-    stepsVerbose  = false,
+    stepsVerbose  = true ,
     damageVerbose = false;
   
   
@@ -258,10 +258,10 @@ public class Combat extends Plan implements Qualities {
   ) {
     final Activities activities = actor.world().activities;
     
-    final Element struck = (Element) strike.subject();
-    final float range = actor.health.sightRange();
-    final Tile origin = actor.origin();
-    final float distance = Spacing.distance(actor, struck) / range;
+    final Element struck   = (Element) strike.subject();
+    final float   range    = actor.health.sightRange();
+    final Tile    origin   = actor.origin();
+    final float   distance = Spacing.distance(actor, struck) / range;
     
     boolean underFire = activities.includesActivePlan(actor, Combat.class);
     float dodgeChance = danger * 2 / (1 + distance);
@@ -281,9 +281,11 @@ public class Combat extends Plan implements Qualities {
       );
       if (WP == null || WP == origin) {
         WP = Spacing.pickRandomTile(actor, range, actor.world());
+        WP = Spacing.nearestOpenTile(WP, actor);
       }
-      final float hideDist = Spacing.distance(WP, struck);
-      if (hideDist < range * 2) {
+      
+      final float hideDist = Spacing.distance(WP, struck) / range;
+      if (hideDist < 2) {
         //
         //  If not under fire, consider advancing for a clearer shot-
         //  Otherwise, consider falling back for cover.
@@ -298,7 +300,9 @@ public class Combat extends Plan implements Qualities {
     }
     
     if (report) {
-      I.say("\nConfiguring ranged action, struck: "+struck);
+      I.say("\nConfiguring ranged action.");
+      I.say("  Struck:       "+struck     );
+      I.say("  Razing:       "+razes      );
       I.say("  Danger:       "+danger     );
       I.say("  Distance:     "+distance   );
       I.say("  Under fire?   "+underFire  );
@@ -424,24 +428,38 @@ public class Combat extends Plan implements Qualities {
       final float penalty = rangePenalty(actor, besieged);
       accurate = actor.skills.test(MARKSMANSHIP, penalty, 1);
     }
+
+    if (report) {
+      I.say("\nPerforming siege attack vs. "+besieged);
+      I.say("  Accurate?    "+accurate);
+      I.say("  Base damage: "+actor.gear.attackDamage());
+    }
     
-    float damage = actor.gear.attackDamage() * Rand.avgNums(2) * 1.5f;
+    float damage = actor.gear.attackDamage() * Rand.avgNums(2) * 2;
+    final float armour = besieged.structure.armouring();
     if (accurate) damage *= 1.5f;
     else damage *= 0.5f;
     
-    final float armour = besieged.structure.armouring();
-    damage -= armour * Rand.avgNums(2);
-    damage *= 10f / (5 + armour);
+    float afterArmour = damage;
+    afterArmour -= armour * Rand.avgNums(2);
+    if (Rand.num() < besieged.structure.repairLevel()) {
+      afterArmour *= 5f / (5 + armour);
+    }
     
-    if (report) I.say("Armour/Damage: "+armour+"/"+damage);
+    if (report) {
+      I.say("  Base armour:  "+armour);
+      I.say("  Damage roll:  "+damage);
+      I.say("  After armour: "+afterArmour);
+    }
     
-    if (damage > 0) besieged.structure.takeDamage(damage);
+    if (afterArmour > 0) besieged.structure.takeDamage(afterArmour);
     CombatFX.applyFX(actor.gear.deviceType(), actor, besieged, true);
   }
   
   
   static float rangePenalty(Actor a, Target t) {
     final boolean report = damageVerbose && I.talkAbout == a;
+    if (report) I.say("\nObtaining range penalty to hit "+t);
     
     final float range = Spacing.distance(a, t);
     if (report) {

@@ -7,6 +7,7 @@
 package stratos.user;
 import com.badlogic.gdx.Input.Keys;
 
+import stratos.game.base.Bastion;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
@@ -33,10 +34,10 @@ public class InstallTab extends SelectionInfoPane {
   
   
   protected static void setupTypes() {
-    initCategory(TYPE_MILITANT );
-    initCategory(TYPE_MERCHANT );
-    initCategory(TYPE_AESTHETE );
-    initCategory(TYPE_ARTIFICER);
+    initCategory(TYPE_SECURITY );
+    initCategory(TYPE_COMMERCE );
+    initCategory(TYPE_AESTHETIC );
+    initCategory(TYPE_ENGINEER);
     initCategory(TYPE_ECOLOGIST);
     initCategory(TYPE_PHYSICIAN);
     
@@ -142,6 +143,45 @@ public class InstallTab extends SelectionInfoPane {
   }
   
   
+  /**  Getting a listing of current structures-
+    */
+  private Batch <Venue> listInstalled(VenueProfile type) {
+    final Batch <Venue> installed = new Batch <Venue> ();
+    final Stage world = UI.played().world;
+    
+    for (Object o : world.presences.matchesNear(type.baseClass, null, -1)) {
+      final Venue v = (Venue) o;
+      if (v.base() == UI.played()) installed.add(v);
+    }
+    return installed;
+  }
+  
+  
+  private String checkPrerequisites(Venue sample, VenueProfile type) {
+    if (sample.owningTier() == Owner.TIER_UNIQUE) {
+      if (listInstalled(type).size() > 0) {
+        return "You cannot have more than one "+sample;
+      }
+    }
+    return null;
+  }
+  
+  
+  private List <Tile> tilesAround(final Tile picked, int radius) {
+    final Stage world = picked.world;
+    final Box2D area = picked.area(null).expandBy(radius);
+    
+    final List <Tile> sorting = new List <Tile> () {
+      protected float queuePriority(Tile r) {
+        return Spacing.distance(r, picked);
+      }
+    };
+    for (Tile t : world.tilesIn(area, true)) sorting.add(t);
+    sorting.queueSort();
+    return sorting;
+  }
+  
+  
   
   /**  Actual placement of buildings-
     */
@@ -159,16 +199,15 @@ public class InstallTab extends SelectionInfoPane {
   }
   
   
-  static class InstallTask implements UITask {
+  class InstallTask implements UITask {
     
     InstallTab tab;
     BaseUI UI;
     VenueProfile type;
-    Structure.Basis toInstall;
+    Venue toInstall;
     private boolean onStage, canPlace;
+    private String message;
     
-    
-    //  TODO:  Only allow placement if you have sufficient funds!
     
     public void doTask() {
       final Tile picked = UI.selection.pickedTile();
@@ -177,48 +216,52 @@ public class InstallTab extends SelectionInfoPane {
       onStage = canPlace = false;
       findPlacePointFrom(picked, 2);
       if (! onStage) return;
-      final Structure.Basis group[] = toInstall.structure().asGroup();
       
+      if ((message = checkPrerequisites(toInstall, type)) != null) {
+        canPlace = false;
+      }
+      if (UI.played().finance.credits() < toInstall.structure().buildCost()) {
+        canPlace = false;
+        if (message == null) message = "Insufficient funds!";
+      }
       if (! canPlace) {
         onStage &= toInstall.setPosition(picked.x, picked.y, picked.world);
         if (! onStage) return;
         
-        //  TODO:  Get the appropriate message from the canPlace() method.
-        String message = "Too close to another structure!";
-        BaseUI.setPopupMessage(message);
+        //  TODO:  Get an appropriate message from the canPlace() method?  It
+        //  might be un-buildable terrain, or overlapping a road-buffer-zone,
+        //  for example.
+        if (message == null) message = "Too close to another structure!";
       }
       
+      final Structure.Basis group[] = toInstall.structure().asGroup();
+      final int tier = toInstall.owningTier();
       boolean confirmed = UI.mouseClicked() || KeyInput.wasTyped(Keys.ENTER);
+      boolean multiples = (group.length > 0 || tier <= Owner.TIER_PRIVATE);
       
       if (canPlace && confirmed) {
         for (Structure.Basis i : group) i.doPlacement();
         UI.endCurrentTask();
-        if (group[0].structure().isFixture()) tab.initInstallTask(UI, type);
+        if (multiples) tab.initInstallTask(UI, type);
         else UI.selection.pushSelection(group[0], true);
       }
+      
       else for (Structure.Basis i : group) {
         i.previewPlacement(canPlace, UI.rendering);
-        if (canPlace) BaseUI.setPopupMessage("(Enter or press Esc to cancel)");
+        if (canPlace) message = "(Enter or press Esc to cancel)";
       }
+      
+      BaseUI.setPopupMessage(message);
     }
     
     
     private boolean findPlacePointFrom(final Tile picked, int radius) {
-      //  TODO:  Hook directly into the utility methods in Placement.class...
+      //  TODO:  Hook directly into the utility methods in Placement.class.
       
       final IntelMap map = UI.played().intelMap;
       final Stage world = picked.world;
-      final Box2D area = picked.area(null).expandBy(radius);
       
-      final List <Tile> sorting = new List <Tile> () {
-        protected float queuePriority(Tile r) {
-          return Spacing.distance(r, picked);
-        }
-      };
-      for (Tile t : world.tilesIn(area, true)) sorting.add(t);
-      sorting.queueSort();
-      
-      for (Tile t : sorting) {
+      for (Tile t : tilesAround(picked, radius)) {
         canPlace = true;
         canPlace &= toInstall.setPosition(t.x, t.y, world);
         if (! canPlace) continue;

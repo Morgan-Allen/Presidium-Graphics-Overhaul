@@ -230,7 +230,7 @@ public class EngineerStation extends Venue {
   
   
   public String objectCategory() {
-    return InstallTab.TYPE_ARTIFICER;
+    return InstallTab.TYPE_ENGINEER;
   }
 }
 

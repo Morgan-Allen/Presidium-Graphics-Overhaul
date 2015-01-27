@@ -498,9 +498,12 @@ public class ShieldWall extends Venue {
   
   
   public String objectCategory() {
-    return InstallTab.TYPE_MILITANT;
+    return InstallTab.TYPE_SECURITY;
   }
 }
+
+
+
 
 
 
