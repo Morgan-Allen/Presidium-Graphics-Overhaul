@@ -144,6 +144,7 @@ public class Selection implements UIConstants {
   
 
   public void pushSelection(Selectable s, boolean asRoot) {
+    
     if (s == null) {
       navStack.clear();
       selected = null;

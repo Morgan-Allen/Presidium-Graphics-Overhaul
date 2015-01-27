@@ -627,7 +627,7 @@ public class ActorHealth implements Qualities {
       MM =  1;
       PM =  0;
     }
-    else if (taken != null) {
+    else if (taken != null && taken.isMoving()) {
       final int moveType = taken.motionType(actor);
       if (moveType == Plan.MOTION_FAST) FM = RUN_FATIGUE_MULT;
     }

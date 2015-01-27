@@ -429,8 +429,8 @@ public class VenueDescription {
     if (lastCU != null) {
       d.append("\n\n");
       d.append(lastCU.description, Colour.LITE_GREY);
-      if (lastCU.required != null) {
-        d.append("\n  Requires: "+lastCU.required.name);
+      for (Upgrade u : lastCU.required) {
+        d.append("\n  Requires: "+u.name);
       }
       if (v.structure.upgradePossible(lastCU)) {
         d.append(new Description.Link("\n\n  BEGIN UPGRADE") {

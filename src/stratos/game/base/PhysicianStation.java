@@ -100,8 +100,8 @@ public class PhysicianStation extends Venue {
       "A selection of therapeutic drugs and immune modulators help to curb "+
       "the spread of contagious disease and assist in birth control.",
       250,
-      null, 1, null,
-      PhysicianStation.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, null, 1,
+      null, PhysicianStation.class, ALL_UPGRADES
     ),
     EMERGENCY_AID = new Upgrade(
       "Emergency Aid",
@@ -109,8 +109,8 @@ public class PhysicianStation extends Venue {
       "(but non-fatal) injuries can be dealt with quickly, and speeds the "+
       "local production of Stim Kits.",
       300,
-      null, 1, null,
-      PhysicianStation.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, null, 1,
+      null, PhysicianStation.class, ALL_UPGRADES
     ),
     MINDER_STATION = new Upgrade(
       "Minder Station",
@@ -118,8 +118,8 @@ public class PhysicianStation extends Venue {
       "to diet and sanitary needs, but are only familiar with more common "+
       "medications and standard emergency protocol.",
       50,
-      Backgrounds.MINDER, 1, APOTHECARY,
-      PhysicianStation.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, Backgrounds.MINDER, 1,
+      APOTHECARY, PhysicianStation.class, ALL_UPGRADES
     ),
     NEURAL_SCANNING = new Upgrade(
       "Neural Scanning",
@@ -127,8 +127,8 @@ public class PhysicianStation extends Venue {
       "of mental disturbance or subversion, and permitting engram backups in "+
       "case of death.  Mandatory for key personnel.",
       350,
-      null, 1, EMERGENCY_AID,
-      PhysicianStation.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, null, 1,
+      EMERGENCY_AID, PhysicianStation.class, ALL_UPGRADES
     ),
     INTENSIVE_CARE = new Upgrade(
       "Intensive Care",
@@ -136,8 +136,8 @@ public class PhysicianStation extends Venue {
       "gradual comeback, covering everything from life support and tissue "+
       "grafting to cybernetic prosthesis and engram fusion.",
       400,
-      null, 1, MINDER_STATION,
-      PhysicianStation.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, null, 1,
+      MINDER_STATION, PhysicianStation.class, ALL_UPGRADES
     ),
     PHYSICIAN_STATION = new Upgrade(
       "Physician Station",
@@ -145,8 +145,8 @@ public class PhysicianStation extends Venue {
       "metabolism and anatomy, are adept as surgeons, and can tailor their "+
       "treatments to the idiosyncracies of a given patient.",
       150,
-      Backgrounds.PHYSICIAN, 1, EMERGENCY_AID,
-      PhysicianStation.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, Backgrounds.PHYSICIAN, 1,
+      EMERGENCY_AID, PhysicianStation.class, ALL_UPGRADES
     );
   
   

@@ -84,7 +84,7 @@ public class HUD extends UIGroup {
     relBound.set(0, 0, 1, 1);
     absBound.set(0, 0, 0, 0);
     final Box2D size = new Box2D();
-    size.xdim(Gdx.graphics.getWidth());
+    size.xdim(Gdx.graphics.getWidth ());
     size.ydim(Gdx.graphics.getHeight());
     updateAsBase(size);
     
@@ -110,6 +110,11 @@ public class HUD extends UIGroup {
     
     super.render(rendering.widgetsPass);
   }
+  
+  
+  //  NOTE:  This a placeholder method intended for override by subclasses, and
+  //  called by the main PlayLoop.
+  public void renderWorldFX() {}
   
   
   private boolean selectionMatch(UINode a, UINode b) {

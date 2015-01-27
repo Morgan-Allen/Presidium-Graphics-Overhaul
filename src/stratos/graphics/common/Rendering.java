@@ -30,9 +30,9 @@ public class Rendering {
   
   //  first terrain, then cutouts, then solids, then sfx, then the UI.
   final public TerrainPass terrainPass;
-  final public SolidsPass solidsPass;
+  final public SolidsPass  solidsPass ;
   final public CutoutsPass cutoutsPass;
-  final public SFXPass     sfxPass   ;
+  final public SFXPass     sfxPass    ;
   
   final public WidgetsPass widgetsPass;
   final public Fading fading;
@@ -98,7 +98,7 @@ public class Rendering {
   }
   
   
-  public void renderDisplay(HUD UI) {
+  public void renderDisplay() {
     ///I.say("World and frame time are:"+worldTime+"/"+frameTime);
     
     glEnable(GL10.GL_DEPTH_TEST);
@@ -132,15 +132,18 @@ public class Rendering {
     glDepthMask(true);
     glClear(GL_DEPTH_BUFFER_BIT);
     cutoutsPass.performPreviewPass();
-    
+  }
+  
+  
+  public void renderUI(HUD UI) {
     //glDepthMask(false);
     widgetsPass.begin();
-    if (UI != null) {
-      UI.updateInput();
-      UI.renderHUD(this);
-    }
+    if (UI != null) UI.renderHUD(this);
     fading.applyTo(widgetsPass);
     widgetsPass.end();
   }
 }
+
+
+
 

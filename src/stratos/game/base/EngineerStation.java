@@ -80,16 +80,16 @@ public class EngineerStation extends Venue {
       "Allows standardised parts and miniaturised circuitry to be "+
       "manufactured quickly and in greater abundance.",
       200,
-      PARTS, 2, null,
-      EngineerStation.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, PARTS, 2,
+      null, EngineerStation.class, ALL_UPGRADES
     ),
     MATTER_PRESS = new Upgrade(
       "Matter Press",
       "Allows raw materials to be recycled and sculpted to fit new purposes, "+
       "thereby reducing waste and speeding production of custom parts.",
       150,
-      PLASTICS, 1, null,
-      EngineerStation.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, PLASTICS, 1,
+      null, EngineerStation.class, ALL_UPGRADES
     ),
     TECHNICIAN_STATION = new Upgrade(
       "Technician Station",
@@ -97,24 +97,24 @@ public class EngineerStation extends Venue {
       "common machinery, but lack the theoretical grounding needed for "+
       "fundamental design or customisation.",
       50,
-      Backgrounds.TECHNICIAN, 1, null,
-      EngineerStation.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, Backgrounds.TECHNICIAN, 1,
+      null, EngineerStation.class, ALL_UPGRADES
     ),
     COMPOSITE_MATERIALS = new Upgrade(
       "Composite Materials",
       "Enhances the production of lightweight and flexible armours, as well "+
       "as most melee weaponry.",
       200,
-      null, 2, MATTER_PRESS,
-      EngineerStation.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, null, 2,
+      MATTER_PRESS, EngineerStation.class, ALL_UPGRADES
     ),
     ENERGY_CONTAINMENT = new Upgrade(
       "Energy Containment",
       "Allows high-flux plasmas to be generated and controlled, permitting "+
       "refinements to heavy armours and most ranged weaponry.",
       300,
-      null, 2, TECHNICIAN_STATION,
-      EngineerStation.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, null, 2,
+      TECHNICIAN_STATION, EngineerStation.class, ALL_UPGRADES
     ),
     ARTIFICER_STATION = new Upgrade(
       "Artificer Station",
@@ -122,8 +122,8 @@ public class EngineerStation extends Venue {
       "tackle the most taxing commissions reliant on dangerous or arcane "+
       "technologies.",
       150,
-      Backgrounds.ARTIFICER, 1, TECHNICIAN_STATION,
-      EngineerStation.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, Backgrounds.ARTIFICER, 1,
+      TECHNICIAN_STATION, EngineerStation.class, ALL_UPGRADES
     )
   ;
   

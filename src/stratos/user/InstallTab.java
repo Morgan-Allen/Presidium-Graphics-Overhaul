@@ -5,6 +5,8 @@
   */
 
 package stratos.user;
+import com.badlogic.gdx.Input.Keys;
+
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
@@ -40,7 +42,6 @@ public class InstallTab extends SelectionInfoPane {
     
     for (VenueProfile profile : VenueProfile.allProfiles()) {
       final Venue sample = profile.sampleVenue(null);
-      if (sample.owningTier() != Owner.TIER_PUBLIC) continue;
       
       final String catName = sample.objectCategory();
       final Category category = categories.get(catName);
@@ -187,7 +188,9 @@ public class InstallTab extends SelectionInfoPane {
         BaseUI.setPopupMessage(message);
       }
       
-      if (canPlace && UI.mouseClicked()) {
+      boolean confirmed = UI.mouseClicked() || KeyInput.wasTyped(Keys.ENTER);
+      
+      if (canPlace && confirmed) {
         for (Structure.Basis i : group) i.doPlacement();
         UI.endCurrentTask();
         if (group[0].structure().isFixture()) tab.initInstallTask(UI, type);
@@ -195,6 +198,7 @@ public class InstallTab extends SelectionInfoPane {
       }
       else for (Structure.Basis i : group) {
         i.previewPlacement(canPlace, UI.rendering);
+        if (canPlace) BaseUI.setPopupMessage("(Enter or press Esc to cancel)");
       }
     }
     

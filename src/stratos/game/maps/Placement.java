@@ -268,7 +268,7 @@ public class Placement implements TileConstants {
   public static boolean checkClustering(
     Stage world, Element f, Tile outerPerim[]
   ) {
-    final boolean report = f instanceof stratos.game.base.Bastion;
+    final boolean report = false;
     
     final Tile at = f.origin();
     final StageSection belongs = world.sections.sectionAt(at.x, at.y);

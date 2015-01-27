@@ -204,7 +204,7 @@ public class Delivery extends Plan {
     
     if (report) I.say("\nChecking for items at "+carries);
     if (items == null || items.length == 0) {
-      I.say("  No items present!");
+      if (report) I.say("  No items present!");
       return false;
     }
     

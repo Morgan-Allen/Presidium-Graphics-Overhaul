@@ -165,7 +165,7 @@ public class BaseUI extends HUD implements UIConstants {
     popup.attachTo(this);
     
     currentPanel = newPanel = null;
-    currentInfo = newInfo = null;
+    currentInfo  = newInfo  = null;
     
     this.quickbar = new Quickbar(this);
     quickbar.alignAcross(0, 1);
@@ -229,12 +229,12 @@ public class BaseUI extends HUD implements UIConstants {
   
   
   protected UIGroup currentPane() {
-    return currentPanel;
+    return newPanel;
   }
   
   
   protected TargetOptions currentInfo() {
-    return currentInfo;
+    return newInfo;
   }
   
   
@@ -269,6 +269,7 @@ public class BaseUI extends HUD implements UIConstants {
     super.updateInput();
     selection.updateSelection(world, rendering.view, panelArea);
   }
+  
   
   public void renderWorldFX() {
     selection.renderWorldFX(rendering);
@@ -315,18 +316,26 @@ public class BaseUI extends HUD implements UIConstants {
   
   /**  Updating the central information panel and target options-
     */
-  public void setInfoPanels(UIGroup panel, TargetOptions options) {
+  public void setInfoPanels(
+    UIGroup panel, TargetOptions options
+  ) {
     if (panel   != currentPanel) {
       beginPanelFade();
       newPanel = panel;
-      //I.say("\nASSIGNING NEW PANEL: "+panel);
-      //I.reportStackTrace();
     }
     if (options != currentInfo ) {
       if (currentInfo != null) currentInfo.active = false;
       newInfo = options;
     }
   }
+  
+  
+  protected void setPanelsInstant(UIGroup panel, TargetOptions options) {
+    currentPanel = null; newPanel = panel  ;
+    currentInfo  = null; newInfo  = options;
+    capturePanel = false;
+  }
+  
   
   protected void beginPanelFade() {
     capturePanel = true;

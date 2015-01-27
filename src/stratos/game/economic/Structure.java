@@ -89,8 +89,8 @@ public class Structure {
     NO_UPGRADES         = 0,
     SMALL_MAX_UPGRADES  = 3,
     NORMAL_MAX_UPGRADES = 6,
-    BIG_MAX_UPGRADES    = 12,
-    MAX_OF_TYPE         = 3;
+    BIG_MAX_UPGRADES    = 12;
+    //MAX_OF_TYPE         = 3;
   final static float UPGRADE_HP_BONUSES[] = {
     0,
     0.15f, 0.25f, 0.35f,
@@ -245,6 +245,17 @@ public class Structure {
   /**  Regular updates-
     */
   protected void updateStructure(int numUpdates) {
+    final boolean report = I.talkAbout == basis && verbose;
+    if (report) {
+      I.say("\nUpdating structure for "+basis);
+      I.say("  State:     "+state);
+      I.say("  Integrity: "+integrity+"/"+maxIntegrity());
+    }
+    
+    if (integrity <= 0 && state != STATE_INSTALL) {
+      adjustRepair(-1);
+      return;
+    }
     if (numUpdates % 5 == 0) checkMaintenance();
     //
     //  Firstly, check to see if you're still burning-
@@ -574,17 +585,21 @@ public class Structure {
     //  Consider returning a String explaining the problem, if there is one?
     //  ...Or an error code of some kind?
     if (upgrades == null) return false;
-    boolean isSlot = false, hasReq = upgrade.required == null;
+    boolean hasSlot = false, hasReq = true;
     int numType = 0;
     for (Upgrade u : upgrades) {
-      if (u == null) { isSlot = true; break; }
-      if (u == upgrade.required) hasReq = true;
-      if (u == upgrade) numType++;
+      if (u == null) hasSlot = true;
+      else if (u == upgrade) numType++;
     }
-    return isSlot && hasReq && numType < MAX_OF_TYPE;
+    for (Upgrade r : upgrade.required) {
+      if (! Visit.arrayIncludes(upgrades, r)) hasReq = false;
+    }
+    return hasSlot && hasReq && numType < upgrade.maxLevel;
   }
   
   
+  //  TODO:  Probably need to get rid of this.
+  //*
   public int upgradeBonus(Object refers) {
     if (upgrades == null) return 0;
     final boolean report = verbose && I.talkAbout == basis;
@@ -599,6 +614,7 @@ public class Structure {
     if (report) I.say("Bonus for "+refers+" is "+bonus);
     return bonus;
   }
+  //*/
   
   
   public int upgradeLevel(Upgrade type) {

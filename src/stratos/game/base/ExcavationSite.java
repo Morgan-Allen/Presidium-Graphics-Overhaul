@@ -126,8 +126,8 @@ public class ExcavationSite extends Venue implements TileConstants {
       "Increases effective dig range while limiting pollution and reducing "+
       "the likelihood of artilect release.",
       100,
-      null, 1, null,
-      ExcavationSite.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, null, 1,
+      null, ExcavationSite.class, ALL_UPGRADES
     ),
     
     METAL_ORES_MINING = new Upgrade(
@@ -135,8 +135,8 @@ public class ExcavationSite extends Venue implements TileConstants {
       "Allows veins of heavy metals to be detected and excavated more "+
       "reliably.",
       150,
-      ORES, 2, null,
-      ExcavationSite.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, ORES, 2,
+      null, ExcavationSite.class, ALL_UPGRADES
     ),
     
     FUEL_CORES_MINING = new Upgrade(
@@ -144,8 +144,8 @@ public class ExcavationSite extends Venue implements TileConstants {
       "Allows deposits of radiactive isotopes to be sought out and extracted "+
       "more reliably.",
       200,
-      ANTIMASS, 2, null,
-      ExcavationSite.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, ANTIMASS, 2,
+      null, ExcavationSite.class, ALL_UPGRADES
     ),
     
     EXCAVATOR_STATION = new Upgrade(
@@ -153,8 +153,8 @@ public class ExcavationSite extends Venue implements TileConstants {
       "Excavators are responsible for seeking out subterranean mineral "+
       "deposits and bringing them to the surface.",
       50,
-      Backgrounds.EXCAVATOR, 1, null,
-      ExcavationSite.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, Backgrounds.EXCAVATOR, 1,
+      null, ExcavationSite.class, ALL_UPGRADES
     ),
     
     ARTIFACT_ASSEMBLY = new Upgrade(
@@ -162,8 +162,8 @@ public class ExcavationSite extends Venue implements TileConstants {
       "Allows fragmentary artifacts to be reconstructed with greater skill "+
       "and confidence.",
       150,
-      null, 1, EXCAVATOR_STATION,
-      ExcavationSite.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, null, 1,
+      EXCAVATOR_STATION, ExcavationSite.class, ALL_UPGRADES
     ),
     
     MANTLE_DRILLING = new Upgrade(
@@ -172,8 +172,8 @@ public class ExcavationSite extends Venue implements TileConstants {
       "metals and isotopes from the planet's molten core, at the cost of "+
       "heavy pollution.",
       350,
-      null, 1, METAL_ORES_MINING,
-      ExcavationSite.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, null, 1,
+      METAL_ORES_MINING, ExcavationSite.class, ALL_UPGRADES
     )
  ;
   

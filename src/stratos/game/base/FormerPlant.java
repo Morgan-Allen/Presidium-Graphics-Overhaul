@@ -92,8 +92,8 @@ public class FormerPlant extends Venue {
       "Improves output of life support, speeds terraforming and reduces "+
       "pollution.",
       200,
-      null, 1, null, 
-      FormerPlant.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, null, 1, 
+      null, FormerPlant.class, ALL_UPGRADES
     ),
     
     EVAPORATION_CYCLING = new Upgrade(
@@ -101,8 +101,8 @@ public class FormerPlant extends Venue {
       "Increases efficiency around desert and oceans terrain, and increases "+
       "water output.",
       200,
-      null, 1, null,
-      FormerPlant.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, null, 1,
+      null, FormerPlant.class, ALL_UPGRADES
     ),
     
     DUST_PANNING = new Upgrade(
@@ -110,8 +110,8 @@ public class FormerPlant extends Venue {
       "Permits modest output of metal ore and fuel cores, and installs "+
       "automated crawlers to gather soil samples.",
       150,
-      null, 1, CARBONS_CYCLING,
-      FormerPlant.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, null, 1,
+      CARBONS_CYCLING, FormerPlant.class, ALL_UPGRADES
     ),
     
     SPICE_REDUCTION = new Upgrade(
@@ -119,8 +119,8 @@ public class FormerPlant extends Venue {
       "Employs microbial cultures to capture minute quantities of spice from "+
       "the surrounding environment.",
       300,
-      null, 1, EVAPORATION_CYCLING,
-      FormerPlant.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, null, 1,
+      EVAPORATION_CYCLING, FormerPlant.class, ALL_UPGRADES
     );
   
   

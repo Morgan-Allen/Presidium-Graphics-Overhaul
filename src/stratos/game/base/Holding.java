@@ -104,11 +104,10 @@ public class Holding extends Venue {
     s.saveInt(devolveCounter);
   }
   
-  /*
+  
   public int owningTier() {
     return TIER_PRIVATE;
   }
-  //*/
   
   
   public int upgradeLevel() {
@@ -271,11 +270,6 @@ public class Holding extends Venue {
         I.say("Upgrade/Target levels: "+upgradeLevel+"/"+targetLevel);
         I.say("Could upgrade? "+upgrade+", devolve? "+devolve);
         I.say("Is Empty? "+empty);
-      }
-      
-      if (devolve && empty) {
-        //if (verbose) I.sayAbout(this, "HOUSING IS CONDEMNED");
-        structure.setState(Structure.STATE_SALVAGE, -1);
       }
       
       if (targetLevel == upgradeLevel) return;

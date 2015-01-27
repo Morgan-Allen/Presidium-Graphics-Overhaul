@@ -112,6 +112,7 @@ public class Quickbar extends UIGroup implements UIConstants {
       if (power.finishedWith(caster, option, picked, clicked)) {
         cancelTask();
       }
+      else if (clicked) cancelTask();
     }
     
     
@@ -129,7 +130,7 @@ public class Quickbar extends UIGroup implements UIConstants {
   //  Ideally, you'll want a nicer way to present these- give them a little
   //  background, similar to text bubbles, and stretch to accommodate the
   //  longest string.
-  //  TODO:  Also, the escape key needs to quit options-display.
+  //  TODO:  Better yet, just have single powers for each.
   
   private UIGroup constructOptionList(final Power power, String options[]) {
     final UIGroup list = new UIGroup(UI);
@@ -164,9 +165,9 @@ public class Quickbar extends UIGroup implements UIConstants {
         UI, power.buttonImage,
         power.name.toUpperCase()+"\n  "+power.helpInfo
       ) {
+        
         protected void whenClicked() {
           if (! enabled) return;
-          ///I.say(power.name+" CLICKED");
           final Actor caster = BaseUI.current().played().ruler();
           if (optionList != null) optionList.detach();
           //
@@ -179,21 +180,22 @@ public class Quickbar extends UIGroup implements UIConstants {
             optionList.attachTo(bar);
             return;
           }
-          else if (
-            power.finishedWith(caster, null, null, true)
-          ) return;
+          else if (power.finishedWith(caster, null, null, true)) {
+            return;
+          }
           else {
-            ///I.say("Power needs a task...");
             final PowerTask task = new PowerTask(bar, power, null, caster);
             BaseUI.current().beginTask(task);
           }
         }
         
         protected void updateState() {
-          this.enabled = BaseUI.currentPlayed().ruler() != null;
+          this.enabled = true;
+          //  TODO:  Restore this dependancy (except for remembrance and
+          //  foresight?)
+          ///this.enabled = BaseUI.currentPlayed().ruler() != null;
           super.updateState();
         }
-        
 
         protected String disableInfo() {
           return "  (Unavailable: No governor)";

@@ -9,8 +9,6 @@ package stratos.graphics.sfx;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.*;
 
-import java.io.*;
-
 import stratos.graphics.common.*;
 import stratos.util.*;
 
@@ -19,7 +17,8 @@ import stratos.util.*;
 public class PlaneFX extends SFX {
   
   
-  private static boolean verbose = false;
+  private static boolean
+    verbose = true ;
   
   
   /**  Model definitions, fields, constructors, and save/load methods-
@@ -143,10 +142,12 @@ public class PlaneFX extends SFX {
   }
   
   
-  public float animProgress() {
-    final float gap = Rendering.activeTime() - inceptTime;
-    if (model.duration <= 0) return Nums.clamp(gap / timeScale, 0, 1);
-    else return Nums.clamp(gap / (model.duration * timeScale), 0, 1);
+  public float animProgress(boolean clamp) {
+    float progress = Rendering.activeTime() - inceptTime;
+    if (model.duration > 0) progress /= model.duration;
+    if (timeScale      > 0) progress /= timeScale;
+    if (clamp) return Nums.clamp(progress, 0, 1);
+    else return progress;
   }
   
   
@@ -156,19 +157,27 @@ public class PlaneFX extends SFX {
   
   
   protected void renderInPass(SFXPass pass) {
+    final boolean report = verbose && (model.spin > 0 || model.growth > 0);
     
     //  Determine basic measurements-
-    float progress = animProgress();
+    float progress = animProgress(false);
     if (model.duration > 0 && progress >= 1) return;
     final float radius = model.initSize + (model.growth * progress);
     final float r = radius * scale;
     final float newRot = (rotation + (model.spin * progress)) % 360;
+
+    if (report) {
+      I.say("\nRendering plane FX:");
+      I.say("  Progress: "+progress);
+      I.say("  Rotation: "+newRot  );
+      I.say("  Radius:   "+radius  );
+    }
     
     //  Determine the correct animation frame-
     final Box2D f;
     if (model.duration > 0) {
       f = model.animUV[(int) (progress * model.animUV.length)];
-      if (verbose) I.say("  Animation frame: "+progress);
+      if (report) I.say("  Animation frame: "+progress);
     }
     else f = model.animUV[0];
     if (f == null) return;
@@ -179,7 +188,8 @@ public class PlaneFX extends SFX {
     trans.rotateZ((float) (newRot * Nums.PI / 180));
     final Vec3D screenPos = view.translateToScreen(new Vec3D().setTo(position));
     final float screenScale = view.screenScale();
-    if (verbose) I.say("Vertices are: ");
+    
+    if (report) I.say("Vertices are: ");
     
     final float QV[] = SFXPass.QUAD_VERTS;
     int i = 0; for (Vec3D v : verts) {
@@ -196,7 +206,7 @@ public class PlaneFX extends SFX {
         view.translateFromScreen(v);
       }
       else v.add(position);
-      if (verbose) I.say("  "+v);
+      if (report) I.say("  "+v);
     }
     
     //  Compile geometry-

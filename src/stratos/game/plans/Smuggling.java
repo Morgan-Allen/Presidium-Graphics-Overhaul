@@ -19,8 +19,8 @@ public class Smuggling extends Plan implements Offworld.Activity {
   /**  Data fields, construction, and save/load methods:
     */
   private static boolean
-    evalVerbose  = true ,
-    stepsVerbose = true ;
+    evalVerbose  = false,
+    stepsVerbose = false;
   
   private Venue warehouse;
   private Vehicle vessel;

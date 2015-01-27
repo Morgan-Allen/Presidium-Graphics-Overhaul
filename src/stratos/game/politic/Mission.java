@@ -62,9 +62,9 @@ public abstract class Mission implements
   Behaviour, Session.Saveable, Selectable
 {
   
-  private static boolean
+  protected static boolean
     verbose     = false,
-    evalVerbose = false,
+    evalVerbose = true ,
     allVisible  = true ;
   
   final public static int
@@ -574,11 +574,11 @@ public abstract class Mission implements
   final public static ImageAsset
     ALL_ICONS[] = ImageAsset.fromImages(
       Mission.class, IMG_DIR,
-      "button_strike.png",
-      "button_recon.png",
-      "button_contact.png",
-      "button_security.png",
-      "button_summons.png",
+      "button_strike.png"     ,
+      "button_recon.png"      ,
+      "button_contact.png"    ,
+      "button_security.png"   ,
+      "button_summons.png"    ,
       "mission_button_lit.png"
     ),
     STRIKE_ICON   = ALL_ICONS[0],
@@ -592,9 +592,9 @@ public abstract class Mission implements
   final public static CutoutModel
     ALL_MODELS[] = CutoutModel.fromImages(
       Mission.class, IMG_DIR, 1, 2, false,
-      "flag_strike.gif",
-      "flag_recon.gif",
-      "flag_contact.gif",
+      "flag_strike.gif"  ,
+      "flag_recon.gif"   ,
+      "flag_contact.gif" ,
       "flag_security.gif"
     ),
     STRIKE_MODEL   = ALL_MODELS[0],
@@ -662,10 +662,12 @@ public abstract class Mission implements
     flagSprite.scale = 0.5f;
 
     float alpha;
-    if (BaseUI.isSelectedOrHovered(this)) alpha = 1.0f;
-    else alpha = 0.75f;
-    flagSprite.colour = new Colour(base.colour()).withGlow(alpha);
+    if (BaseUI.isSelectedOrHovered(this)) alpha = 0.5f;
+    else alpha = 0.5f;
     
+    flagSprite.colour = new Colour(base.colour());
+    flagSprite.colour.blend(Colour.WHITE, alpha);
+    flagSprite.colour.calcFloatBits();
     return flagSprite;
   }
   

@@ -65,41 +65,41 @@ public class TrooperLodge extends Venue {
     MELEE_TRAINING = new Upgrade(
       "Melee Training",
       "Prepares your soldiers for the rigours of close combat.",
-      150, null, 3, null,
-      TrooperLodge.class, ALL_UPGRADES
+      150, Upgrade.THREE_LEVELS, null, 3,
+      null, TrooperLodge.class, ALL_UPGRADES
     ),
     MARKSMAN_TRAINING = new Upgrade(
       "Marksman Training",
       "Prepares your soldiers for ranged marksmanship.",
-      150, null, 3, null,
-      TrooperLodge.class, ALL_UPGRADES
+      150, Upgrade.THREE_LEVELS, null, 3,
+      null, TrooperLodge.class, ALL_UPGRADES
     ),
     ENDURANCE_TRAINING = new Upgrade(
       "Endurance Training",
       "Prepares your soldiers for guerilla warfare and wilderness survival.",
-      200, null, 3, null,
-      TrooperLodge.class, ALL_UPGRADES
+      200, Upgrade.THREE_LEVELS, null, 3,
+      null, TrooperLodge.class, ALL_UPGRADES
     ),
     PEACEKEEPER_TRAINING = new Upgrade(
       "Peacekeeper Training",
       "Prepares your soldiers to use minimal force, build local contacts,"+
       "and ensure fair treatment of prisoners.",
-      200, null, 3, null,
-      TrooperLodge.class, ALL_UPGRADES
+      200, Upgrade.THREE_LEVELS, null, 3,
+      null, TrooperLodge.class, ALL_UPGRADES
     ),
     VOLUNTEER_STATION = new Upgrade(
       "Volunteer Station",
       VOLUNTEER.info,
       200,
-      Backgrounds.VOLUNTEER, 2, null,
-      TrooperLodge.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, Backgrounds.VOLUNTEER, 2,
+      null, TrooperLodge.class, ALL_UPGRADES
     ),
     TROOPER_STATION = new Upgrade(
       "Trooper Station",
       TROOPER.info,
       450,
-      Backgrounds.TROOPER, 1, VOLUNTEER_STATION,
-      TrooperLodge.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, Backgrounds.TROOPER, 1,
+      VOLUNTEER_STATION, TrooperLodge.class, ALL_UPGRADES
     );
   
   public Background[] careers() {

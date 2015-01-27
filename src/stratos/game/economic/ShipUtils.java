@@ -237,7 +237,7 @@ public class ShipUtils {
     else for (Tile t : world.tilesIn(area, false)) {
       if (t == null) return false;
       if (t.onTop() == ship) continue;
-      if (PavingMap.pavingReserved(t) || t.reserved()) return false;
+      if (PavingMap.pavingReserved(t) || ! t.buildable()) return false;
     }
     return true;
   }

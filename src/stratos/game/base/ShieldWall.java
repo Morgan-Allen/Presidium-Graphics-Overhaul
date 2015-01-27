@@ -133,18 +133,18 @@ public class ShieldWall extends Venue {
   final public static Upgrade
     FACING_CHANGE = new Upgrade(
       "Facing Change", "",
-      0, null, 1, null,
-      ShieldWall.class, ALL_UPGRADES
+      0, Upgrade.THREE_LEVELS, null, 1,
+      null, ShieldWall.class, ALL_UPGRADES
     ),
     BLAST_SHIELDS = new Upgrade(
       "Blast Shields", "",
-      0, null, 1, null,
-      ShieldWall.class, ALL_UPGRADES
+      0, Upgrade.THREE_LEVELS, null, 1,
+      null, ShieldWall.class, ALL_UPGRADES
     ),
     NULL_BARRIER  = new Upgrade(
       "Null Barrier", "",
-      0, null, 1, null,
-      ShieldWall.class, ALL_UPGRADES
+      0, Upgrade.THREE_LEVELS, null, 1,
+      null, ShieldWall.class, ALL_UPGRADES
     );
   
   

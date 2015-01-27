@@ -198,10 +198,10 @@ public class MapsPanel extends UIGroup {
       s = 0 - d,
       x = Nums.max(Nums.abs(a), Nums.abs(d));
     
-    a = Nums.clamp((a + 10) / 20, 0, 1); //ambience in blue
-    d = Nums.clamp(d / 10, 0, 1);  //danger in red
-    s = Nums.clamp(s / 10, 0, 1);  //safety in green
-    x = Nums.clamp(x / 5, 0, 1);   //alpha
+    a = Nums.clamp((a + 10) / 20 , 0, 1); //ambience in blue
+    d = Nums.clamp( d / 10       , 0, 1);  //danger in red
+    s = Nums.clamp( s / 10       , 0, 1);  //safety in green
+    x = Nums.clamp((x + 0.5f) / 2, 0, 1);   //alpha
     
     return modeTone.set(d, s, a, x);
   }

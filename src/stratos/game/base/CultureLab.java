@@ -108,29 +108,29 @@ public class CultureLab extends Venue {
       "Yeast Disposal",
       "Employs gene-tailored microbes to recycle waste emissions and produce "+
       "basic carbs.",
-      200, null, 1, null,
-      CultureLab.class, ALL_UPGRADES
+      200, Upgrade.THREE_LEVELS, null, 1,
+      null, CultureLab.class, ALL_UPGRADES
     ),
     DRUG_SYNTHESIS = new Upgrade(
       "Drug Synthesis",
       "Employs gene-tailored microbes to synthesise complex molecules, "+
       "permitting manufacture of soma and reagents.",
-      250, null, 1, null,
-      CultureLab.class, ALL_UPGRADES
+      250, Upgrade.THREE_LEVELS, null, 1,
+      null, CultureLab.class, ALL_UPGRADES
     ),
     TISSUE_CULTURE = new Upgrade(
       "Tissue Culture",
       "Allows production of protein for consumption and replicant organs for "+
       "use in medical emergencies.",
-      400, null, 1, YEAST_DISPOSAL,
-      CultureLab.class, ALL_UPGRADES
+      400, Upgrade.THREE_LEVELS, null, 1,
+      YEAST_DISPOSAL, CultureLab.class, ALL_UPGRADES
     ),
     SPYCE_CHEMISTRY = new Upgrade(
       "Spyce Chemistry",
       "Allows minute quantities of Tinerazine to be synthesised from simpler "+
       "compounds, based on protein production.",
-      500, null, 1, DRUG_SYNTHESIS,
-      CultureLab.class, ALL_UPGRADES
+      500, Upgrade.THREE_LEVELS, null, 1,
+      DRUG_SYNTHESIS, CultureLab.class, ALL_UPGRADES
     ),
     
     //  TODO:  Just have a general structure-upgrade here-
@@ -139,8 +139,8 @@ public class CultureLab extends Venue {
       "Vat Breeders supervise the cultivation and harvesting of the chemical "+
       "and biological processes needed to produce pharmaceuticals and tissue "+
       "samples.",
-      100, Backgrounds.VATS_BREEDER, 1, DRUG_SYNTHESIS,
-      CultureLab.class, ALL_UPGRADES
+      100, Upgrade.THREE_LEVELS, Backgrounds.VATS_BREEDER, 1,
+      DRUG_SYNTHESIS, CultureLab.class, ALL_UPGRADES
     )
   ;
   

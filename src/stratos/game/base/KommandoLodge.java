@@ -46,7 +46,7 @@ public class KommandoLodge extends Venue {
     super(PROFILE, base);
     structure.setupStats(
       150, 4, 150,
-      Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
+      Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_FIXTURE
     );
     staff.setShiftType(SHIFTS_BY_HOURS);
     attachSprite(MODEL.makeSprite());
@@ -121,46 +121,46 @@ public class KommandoLodge extends Venue {
       "Improves recruitment from local tribal communities and raises the odds "+
       "of peaceful contact.",
       300,
-      null, 1, null,
-      KommandoLodge.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, null, 1,
+      null, KommandoLodge.class, ALL_UPGRADES
     ),
     MAW_TRAINING = new Upgrade(
       "Maw Training",
       "Trains your Kommandos to tame and ride Desert Maws, relatives of the "+
       "Lictovore selectively bred as war mounts.",
       300,
-      null, 1, null,
-      KommandoLodge.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, null, 1,
+      null, KommandoLodge.class, ALL_UPGRADES
     ),
     KOMMANDO_STATION = new Upgrade(
       "Kommando Station",
       KOMMANDO.info,
       100,
-      Backgrounds.KOMMANDO, 1, null,
-      KommandoLodge.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, Backgrounds.KOMMANDO, 1,
+      null, KommandoLodge.class, ALL_UPGRADES
     ),
     FAVOURED_ENEMY_VERMIN = new Upgrade(
       "Vendetta: Vermin",
       "Trains your Kommandos to efficiently dispatch silicates, insectiles "+
       "and other dangerous, inedible pests.",
       100,
-      null, 1, KOMMANDO_STATION,
-      KommandoLodge.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, null, 1,
+      KOMMANDO_STATION, KommandoLodge.class, ALL_UPGRADES
     ),
     FAVOURED_ENEMY_HUMAN = new Upgrade(
       "Vendetta: Humans",
       "Trains your Kommandos to efficiently dispatch human (or human-like) "+
       "adversaries.",
       200,
-      null, 1, KOMMANDO_STATION,
-      KommandoLodge.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, null, 1,
+      KOMMANDO_STATION, KommandoLodge.class, ALL_UPGRADES
     ),
     FAVOURED_ENEMY_ARTILECT = new Upgrade(
       "Vendetta: Artilects",
       "Trains your Kommandos to efficiently dispatch machines and cybrids.",
       150,
-      null, 1, KOMMANDO_STATION,
-      KommandoLodge.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, null, 1,
+      KOMMANDO_STATION, KommandoLodge.class, ALL_UPGRADES
     );
   
   

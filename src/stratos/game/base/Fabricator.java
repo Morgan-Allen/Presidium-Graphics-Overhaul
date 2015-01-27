@@ -92,20 +92,20 @@ public class Fabricator extends Venue {
     POLYMER_LOOM = new Upgrade(
       "Polymer Conversion",
       "Speeds the production of standard plastics and functional clothing.",
-      250, CARBS, 1, null,
-      Fabricator.class, ALL_UPGRADES
+      250, Upgrade.THREE_LEVELS, CARBS, 1,
+      null, Fabricator.class, ALL_UPGRADES
     ),
     FINERY_FLOOR       = new Upgrade(
       "Finery Production",
       "Allows production of fine garments and decor for the upper classes.",
-      500, null, 1, POLYMER_LOOM,
-      Fabricator.class, ALL_UPGRADES
+      500, Upgrade.THREE_LEVELS, null, 1,
+      POLYMER_LOOM, Fabricator.class, ALL_UPGRADES
     ),
     CAMOUFLAGE_FLOOR   = new Upgrade(
       "Camouflage Production",
       "Allows production of stealth-based protection for guerilla agents.",
-      350, null, 2, POLYMER_LOOM,
-      Fabricator.class, ALL_UPGRADES
+      350, Upgrade.THREE_LEVELS, null, 2,
+      POLYMER_LOOM, Fabricator.class, ALL_UPGRADES
     )
     
     //  TODO:  Level 2 Upgrade.

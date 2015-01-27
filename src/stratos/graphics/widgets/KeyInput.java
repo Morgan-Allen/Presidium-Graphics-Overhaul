@@ -46,6 +46,11 @@ public class KeyInput {
   }
   
   
+  public static boolean isPressed(int keyCode) {
+    return Gdx.input.isKeyPressed(keyCode);
+  }
+  
+  
   public static boolean wasTyped(char k) {
     for (Character c : lastTyped) {
       if (c == k) return true;

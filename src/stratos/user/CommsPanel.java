@@ -21,10 +21,17 @@ public class CommsPanel extends SelectionInfoPane {
   final static String ALL_CATEGORIES[] = {};
   
   
+  public static interface CommSource extends Session.Saveable {
+    DialoguePanel messageFor(String title, CommsPanel comms, boolean useCache);
+  }
+  
   private class Message {
+    CommSource source;
     String keyTitle;
     DialoguePanel panel;
+    //  TODO:  Optional time-stamps?
   }
+  
   final List <Message> messages = new List <Message> ();
   
   
@@ -34,15 +41,41 @@ public class CommsPanel extends SelectionInfoPane {
   }
   
   
-  //  ...How do I save/load these values?
-  
   public void loadState(Session s) throws Exception {
+    for (int n = s.loadInt(); n-- > 0;) {
+      final CommSource    source = (CommSource) s.loadObject();
+      final String        key    = s.loadString();
+      final DialoguePanel panel  = source.messageFor(key, this, false);
+      
+      if (messageWith(key) == null && panel != null) {
+        final Message m = new Message();
+        m.source   = source;
+        m.keyTitle = key   ;
+        m.panel    = panel ;
+        messages.add(m);
+      }
+    }
     
+    final int index = s.loadInt();
+    if (index != -1) {
+      final Message m = messages.atIndex(index);
+      UI.setPanelsInstant(m.panel, null);
+    }
   }
   
   
   public void saveState(Session s) throws Exception {
+    s.saveInt(messages.size());
+    for (Message m : messages) {
+      s.saveObject(m.source  );
+      s.saveString(m.keyTitle);
+    }
     
+    final Object pane = UI.currentPane();
+    int index = 0;
+    for (Message m : messages) if (m.panel == pane) break; else index++;
+    if (index == messages.size()) index = -1;
+    s.saveInt(index);
   }
   
   
@@ -68,10 +101,25 @@ public class CommsPanel extends SelectionInfoPane {
   
   
   public DialoguePanel addMessage(
-    String title, Composite portrait, String mainText, Clickable... options
+    CommSource source, String title, DialoguePanel panel
   ) {
-    final Message message = new Message();
+    final DialoguePanel old = messageWith(title);
+    if (old != null) return old;
+    if (panel == null) I.complain("CANNOT PUSH NULL PANEL! "+title);
     
+    final Message message = new Message();
+    message.source   = source;
+    message.keyTitle = title ;
+    message.panel    = panel ;
+    messages.include(message);
+    return message.panel;
+  }
+  
+  
+  public DialoguePanel addMessage(
+    CommSource source, String title, Composite portrait,
+    String mainText, Clickable... options
+  ) {
     final Clickable navOptions[] = {
       new Clickable() {
         public String fullName() { return "View all messages"; }
@@ -80,15 +128,11 @@ public class CommsPanel extends SelectionInfoPane {
         }
       }
     };
-    
-    message.keyTitle = title;
-    message.panel = new DialoguePanel(
+    final DialoguePanel panel = new DialoguePanel(
       UI, portrait, title, mainText,
       (Clickable[]) Visit.compose(Clickable.class, options, navOptions)
     );
-    messages.add(message);
-    
-    return message.panel;
+    return addMessage(source, title, panel);
   }
   
   
@@ -101,8 +145,12 @@ public class CommsPanel extends SelectionInfoPane {
     for (final Message message : messages) {
       detailText.append("\n  ");
       detailText.append(new Clickable() {
+        
         public String fullName() { return message.keyTitle; }
-        public void whenClicked() { UI.setInfoPanels(message.panel, null); }
+        
+        public void whenClicked() {
+          UI.setInfoPanels(message.panel, null);
+        }
       });
     }
   }

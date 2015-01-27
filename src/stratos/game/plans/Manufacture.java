@@ -109,7 +109,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     float upgradeBonus = 0;
     for (Upgrade upgrade : upgrades) {
       final float bonus = works.structure.upgradeLevel(upgrade);
-      upgradeBonus += bonus / (Structure.MAX_OF_TYPE * upgrades.length);
+      upgradeBonus += bonus / (upgrade.maxLevel * upgrades.length);
     }
     if (required && upgradeBonus <= 0) return null;
     

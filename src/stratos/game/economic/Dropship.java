@@ -276,6 +276,13 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   }
   
   
+  public boolean enterWorldAt(int x, int y, Stage world) {
+    if (! super.enterWorldAt(x, y, world)) return false;
+    if (landed()) completeDescent();
+    return true;
+  }
+  
+  
   private void completeDescent() {
     nextPosition.setTo(position.setTo(aimPos));
     dropPoint = ShipUtils.performLanding(this, world, entranceFace);
@@ -291,10 +298,15 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   }
   
   
+  public void exitWorld() {
+    if (landed()) beginAscent();
+    super.exitWorld();
+  }
+  
+  
   public void beginAscent() {
     if (stage == STAGE_LANDED) {
       ShipUtils.offloadPassengers(this, false);
-      ///ShipUtils.registerAtDrop(this, world, false);
     }
     ShipUtils.performTakeoff(world, this);
     stage = STAGE_ASCENT;

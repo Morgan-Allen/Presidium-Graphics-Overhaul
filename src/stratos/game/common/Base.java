@@ -318,8 +318,13 @@ public class Base implements
     
     float offset = (missions.size() - 1) / 2f, index = 0;
     for (Mission m : missions) {
-      Sprite s = m.flagSprite();
-      s.position.setTo(above.position(null));
+      final Sprite s = m.flagSprite();
+      if (above instanceof Element) {
+        ((Element) above).viewPosition(s.position);
+      }
+      else {
+        above.position(s.position);
+      }
       s.position.z += above.height() + 0.5f;
       adds.setTo(horiz).normalise().scale(index - offset);
       s.position.add(adds);

@@ -91,6 +91,47 @@ public class Power implements Qualities {
     );
   
   
+  final public static Trait
+    KINESTHESIA_EFFECT = new Condition(
+      "Kinesthesia Effect", Table.make(
+        MOTOR, 10, HAND_TO_HAND, 10, MARKSMANSHIP, 10, ATHLETICS, 10
+      ),
+      "Kinesthesia", "Kinesthesia", "Kinesthesia", null
+    ) {
+      public void affect(Actor a) {
+        super.affect(a);
+        a.world().ephemera.updateGhost(a, 1, Power.KINESTHESIA_FX_MODEL, 1);
+      }
+    },
+    SUSPENSION_EFFECT = new Condition(
+      "Suspension Effect", Table.make(),
+      "Suspension", "Suspension", "Suspension", null
+    ) {
+      public void affect(Actor a) {
+        super.affect(a);
+        if (a.traits.usedLevel(this) <= 0) {
+          a.health.setState(ActorHealth.STATE_RESTING);
+        }
+        else {
+          a.health.liftInjury(0.1f);
+          a.world().ephemera.updateGhost(a, 1, Power.SUSPENSION_FX_MODEL, 1);
+        }
+      }
+    },
+    SPICE_VISION_EFFECT = new Condition(
+      "Spice Vision Effect", Table.make(
+        IMMUNE, 10, COGNITION, 5, PERCEPT, 5, NERVE, 5
+      ),
+      "Spice Vision", "Spice Vision", "Spice Vision", null
+    ) {
+      public void affect(Actor a) {
+        super.affect(a);
+        if (a.traits.traitLevel(Conditions.SPICE_ADDICTION) <= 0) {
+          a.traits.incLevel(Conditions.SPICE_ADDICTION, Rand.num() / 10f);
+        }
+      }
+    };
+  
   
   //  TODO:  Move this into the actual technique.
   

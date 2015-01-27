@@ -443,14 +443,22 @@ public class BaseCommerce {
   }
   
   
-  private void refreshShip() {
+  private void refreshShip(boolean forLanding) {
+    final boolean report = verbose && base == BaseUI.current().played();
+    if (report) {
+      I.say("\nREFRESHING SHIP: "+ship);
+    }
+    
     if (ship == null || ship.destroyed()) {
+      if (report) I.say("  New ship required!");
       ship = new Dropship();
       ship.assignBase(base);
       visitTime = base.world.currentTime() + (Rand.num() * SUPPLY_INTERVAL);
     }
-    final float repair = Nums.clamp(1.25f - (Rand.num() / 2), 0, 1);
-    ship.structure.setState(Structure.STATE_INTACT, repair);
+    if (forLanding) {
+      final float repair = Nums.clamp(1.25f - (Rand.num() / 2), 0, 1);
+      ship.structure.setState(Structure.STATE_INTACT, repair);
+    }
   }
   
   
@@ -549,7 +557,7 @@ public class BaseCommerce {
   
   
   public void scheduleDrop(float delay) {
-    if (ship == null) refreshShip();
+    if (ship == null) refreshShip(true);
     visitTime = base.world.currentTime() + delay;
   }
   
@@ -594,6 +602,7 @@ public class BaseCommerce {
         base.world.offworld.addPassengersTo(ship);
         loadCargo(ship, localShortages, true);
         refreshCrew(ship, Backgrounds.DEFAULT_SHIP_CREW);
+        refreshShip(true);
         
         for (Actor c : ship.crew()) ship.setInside(c, true);
         ship.beginDescent(base.world);
@@ -619,8 +628,9 @@ public class BaseCommerce {
     final boolean report = verbose && BaseUI.current().played() == base;
     if (report && extraVerbose) I.say("\nUpdating commerce for base: "+base);
     
-    if (ship == null) refreshShip();
+    refreshShip(false);
     updateCandidates(numUpdates);
+    
     if (numUpdates % 10 == 0) {
       summariseDemand(base);
       calculatePrices();

@@ -35,7 +35,8 @@ import stratos.util.*;
   */
 public class Session {
   
-  private static boolean verbose = false;
+  private static boolean
+    verbose = false;
   
   final static int
     CLASS_CAPACITY  = 200,

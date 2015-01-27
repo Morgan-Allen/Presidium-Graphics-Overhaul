@@ -132,8 +132,8 @@ public class Reactor extends Venue {
       "Reduces the rate at which fuel rods are consumed, ameliorates "+
       "pollution, and allows conversion of metal ores to fuel rods.",
       150,
-      null, 1, null,
-      Reactor.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, null, 1,
+      null, Reactor.class, ALL_UPGRADES
     ),
     FEEDBACK_MONITORS = new Upgrade(
       "Feedback Monitors",
@@ -141,8 +141,8 @@ public class Reactor extends Venue {
       "damaged or under-supervised, and reduces the likelihood of sabotage or "+
       "infiltration.",
       200,
-      null, 1, null,
-      Reactor.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, null, 1,
+      null, Reactor.class, ALL_UPGRADES
     ),
     
     FUSION_CONFINEMENT = new Upgrade(
@@ -150,16 +150,16 @@ public class Reactor extends Venue {
       "Increases power output while limiting pollution and decreasing the "+
       "severity of any meltdowns.",
       500,
-      null, 1, FEEDBACK_MONITORS,
-      Reactor.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, null, 1,
+      FEEDBACK_MONITORS, Reactor.class, ALL_UPGRADES
     ),
     
     CYCLOTRON_CIRCUIT = new Upgrade(
       "Cyclotron Circuit",
       "Facilitates conversion of fuel rods to antimass, a highly volatile "+
       "energy source essential to space travel and atomics production.",
-      450, null, 1, WASTE_PROCESSING,
-      Reactor.class, ALL_UPGRADES
+      450, Upgrade.THREE_LEVELS, null, 1,
+      WASTE_PROCESSING, Reactor.class, ALL_UPGRADES
     )
   ;
   

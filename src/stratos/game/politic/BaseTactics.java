@@ -57,7 +57,7 @@ public class BaseTactics {
     shortWaiting   = false,
     extraVerbose   = false;
   protected static String
-    verboseBase = Base.KEY_ARTILECTS;
+    verboseBase    = null;//Base.KEY_ARTILECTS;
   
   final static int
     MIN_MISSIONS   = 1,
@@ -310,13 +310,14 @@ public class BaseTactics {
   //  mission is due evaluation?
   
   protected boolean shouldApprove(Actor actor, Mission mission) {
-    final boolean report = updatesVerbose && (
+    final boolean report = (updatesVerbose || Mission.evalVerbose) && (
       I.talkAbout == actor || I.talkAbout == mission
     );
     if (! isCompetent(actor, mission)) {
       if (report) I.say("\n"+actor+" not competent to pursue "+mission);
       return false;
     }
+    if (! base.primal) return true;
     
     //  A 50% chance of victory implies equal strength.
     final float

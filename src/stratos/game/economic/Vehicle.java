@@ -225,6 +225,8 @@ public abstract class Vehicle extends Mobile implements
   
   protected void updateAsMobile() {
     super.updateAsMobile();
+    if (! structure.intact()) return;
+    
     final boolean report = verbose && (
       I.talkAbout == this || (pilot != null && I.talkAbout == pilot)
     );
@@ -354,9 +356,10 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
-  //  TODO:  Broaden this somewhat?
   public boolean allowsEntry(Mobile m) {
-    return m.base() == base();
+    if (! structure.intact()) return false;
+    if (m.base() == this.base) return true;
+    return base.relations.relationWith(m.base()) > 0;
   }
   
   

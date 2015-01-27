@@ -96,29 +96,29 @@ public class SupplyDepot extends Venue {
       "LCHC Rendering",
       "Converts organic waste to "+LCHC.name+" along with a slight amount of "+
       "power.",
-      200, null, 1, null,
-      SupplyDepot.class, ALL_UPGRADES
+      200, Upgrade.THREE_LEVELS, null, 1,
+      null, SupplyDepot.class, ALL_UPGRADES
     ),
     HARDWARE_STORE  = new Upgrade(
       "Hardware Store",
       "Allows civilian purchases of parts and plastics, and increases storage "+
       "space.",
-      150, null, 1, null,
-      SupplyDepot.class, ALL_UPGRADES
+      150, Upgrade.THREE_LEVELS, null, 1,
+      null, SupplyDepot.class, ALL_UPGRADES
     ),
     RATIONS_VENDING = new Upgrade(
       "Rations Vending",
       "Allows civilian purchases of carbs and protein, and increases storage "+
       "space.",
-      100, null, 1, null,
-      SupplyDepot.class, ALL_UPGRADES
+      100, Upgrade.THREE_LEVELS, null, 1,
+      null, SupplyDepot.class, ALL_UPGRADES
     ),
     EXPORT_TRADE = new Upgrade(
       "Export Trade",
       "Prepares and fuels cargo convoys to visit distant settlements. "+
       "<NOT IMPLEMENTED YET>",
-      250, null, 1, LCHC_RENDERING,
-      SupplyDepot.class, ALL_UPGRADES
+      250, Upgrade.THREE_LEVELS, null, 1,
+      LCHC_RENDERING, SupplyDepot.class, ALL_UPGRADES
     );
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   

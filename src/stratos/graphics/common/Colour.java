@@ -323,7 +323,7 @@ public class Colour {
    * String description of this colour-
    */
   public String toString() {
-    return "(Colour RGBA: " + r + " " + g + " " + b + " " + a + ")";
+    return "(Colour RGBA: "+r+" "+g+" "+b+" "+a+")";
   }
 }
 

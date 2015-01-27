@@ -14,43 +14,61 @@ import stratos.util.*;
 
 
 
+//  BIG BUGFIX LIST TODO:
+
+//  For some reason, actors attacking ruins can wind up 'running in place' at
+//  times.  Find out why.
+
+//  Ensure that you can set larger rewards for public bounties!  At the moment
+//  the first reward will prevent further increases!
+
+//  Find a good category for housing and allow placing a series of them at
+//  once.  Don't allow placement of multiple bastions!
 
 
-//  TODO:  Merge the summons-dialogue system with the Contact mission.  It's
-//  much more natural that way.  And have citizens talk about their complaints-
-//  link that to the bad/good thoughts and mood system!
 
+/*  BIG TODO LIST:
 
-//  TODO:  Assign drills directly at the trooper lodge, plus call to arms.
-//         Also, something for the Air Corps to do- like bomb runs.
+*  Need to ensure that combat/retreat/negotiation/stealth always trump other
+   activities.
 
-//  TODO:  Complete upgrades for all structures, including the supply depot,
-//         stock exchange, runner market, kommando lodge, trooper barracks,
-//         culture vats, et cetera.
+*  Need to ensure that unemployed job-seekers are more sensible.
 
-//  Ideally, hiring arrangements should have some kind of progress meter?
+*  Need to restore animal nests and surface behaviours.
+     Need to ensure auto-distribution of predator and prey nests.
 
-//  Also, just use a BlurMap for ambience.  It's a lot simpler and less freaky.
+*  Need service hatches to allow access to vermin.
+     Need to write vermin behaviour.
 
-//  TODO:  Get the set of all objects that conflict with a venue's placement,
-//         and pass that to both the canPlace() & enterWorld() methods.
+*  Need to ensure that artilect raiding increases gradually over time.
+     Base this off a 'waking up' mechanism as threats are found.
 
+*  Upgrades need to filled in and tested for:
+     Stock Exchange
+     Archives
+     Runner Market
+     Kommando Lodge
+     Airfield
+     Trooper Lodge (drilling)
 
-//  TODO:  Retreat should have the possibility to break pursuit as well.
-//  TODO:  Also, animals should react more strongly to strangers (either fight,
-//         talk or flee.)  Maybe natives too?
+*  Need to unify summons-dialogue with contact mechanics.
 
-//  TODO:  Introduce hunting by the natives, and allow trading with them as a
-//  source of carbs/greens/protein.  (Also, add singer performance.)
+*  Psy powers need some checkup- cooldown system, replace TK, UI idiom.
 
+*  The paving system needs to be cleaner.
 
-//  Try to arrange that actors will seek out new Holdings if anything existing
-//  is at or above half crowding.
+*  Hide-and-seek needs to be more effective (both retreat and combat.)
 
-//  Introduce a finance-report UI!  And try to get all the details.
-//  Rework art for roads, the shield wall, the physician station, the engineer
-//  station, the solar bank, and the archives... nearly anything, really.
+*  Explicit or improved placement for shield walls and arcologies.
+     Fresh art for shield walls.
 
+*  Buildings need to have multiple levels.
+
+*  General internal clean-up of plan routines.
+
+*  Fresh art and level-depictions for all structures.
+
+//*/
 
 
 public class DebugTutorial extends TutorialScenario {
@@ -87,7 +105,7 @@ public class DebugTutorial extends TutorialScenario {
   
   
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
-    GameSettings.fogFree = true;
+    GameSettings.fogFree = false;
     super.configureScenario(world, base, UI);
     UI.selection.pushSelection(base.ruler(), true);
     

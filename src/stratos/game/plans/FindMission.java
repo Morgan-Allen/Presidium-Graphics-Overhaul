@@ -43,7 +43,10 @@ public class FindMission extends Plan {
     };
     //  TODO:  Allow application for missions by other bases!
     for (Mission mission : actor.base().tactics.allMissions()) {
-      if (! mission.canApply(actor)) continue;
+      if (! mission.canApply(actor)) {
+        if (report) I.say("\n  Cannot apply for "+mission);
+        continue;
+      }
       if (report) {
         I.say("\n  mission is: "+mission);
         I.say("  apply point:  "+mission.applyPointFor(actor));

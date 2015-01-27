@@ -160,8 +160,8 @@ public class StockExchange extends Venue {
       "Rations Vending",
       "Increases space available to carbs, greens and protein and augments "+
       "profits from their sale.",
-      150, null, 1, null,
-      StockExchange.class, ALL_UPGRADES
+      150, Upgrade.THREE_LEVELS, null, 1,
+      null, StockExchange.class, ALL_UPGRADES
     ),
     
     //  TODO:  PERMIT BASIC REPAIRS/RECHARGE OF ARMOUR/DEVICES
@@ -169,8 +169,8 @@ public class StockExchange extends Venue {
       "Hardware Store",
       "Increases space available to parts, plastics and datalinks, and "+
       "augments profits from their sale.",
-      150, null, 1, null,
-      StockExchange.class, ALL_UPGRADES
+      150, Upgrade.THREE_LEVELS, null, 1,
+      null, StockExchange.class, ALL_UPGRADES
     ),
     
     //  TODO:  PROVIDE STANDARD MEDKITS FOR USE
@@ -178,53 +178,60 @@ public class StockExchange extends Venue {
       "Medical Exchange",
       "Increases space available to reagents, soma and medicine, and augments"+
       "profits from their sale.",
-      250, null, 1, null,
-      StockExchange.class, ALL_UPGRADES
+      250, Upgrade.THREE_LEVELS, null, 1,
+      null, StockExchange.class, ALL_UPGRADES
     ),
     
     VAULT_SECURITY = new Upgrade(
       "Vault Security",
       "Expands inventory space for all goods and provides a measure of "+
       "security against theft.",
-      200, null, 1, null,
-      StockExchange.class, ALL_UPGRADES
+      200, Upgrade.THREE_LEVELS, null, 1,
+      null, StockExchange.class, ALL_UPGRADES
     ),
     
+    /*
+    INFORMATION_TRADE = new Upgrade(
+    ),
+    //*/
+    //  TODO:  Dispose of this for now.
+    //*
     SPYCE_EMPORIUM = new Upgrade(
       "Spyce Emporium",
       "Permits trading in Natrizoral, Tinerazine, and Halebdynum- trace "+
       "compounds vital to complex chemistry.",
-      300, null, 1, RATIONS_VENDING,
-      StockExchange.class, ALL_UPGRADES
+      300, Upgrade.THREE_LEVELS, null, 1,
+      RATIONS_VENDING, StockExchange.class, ALL_UPGRADES
     ),
+    //*/
     
     VIRTUAL_CURRENCY = new Upgrade(
       "Virtual Currency",
       "Makes small periodic adjustments to revenue and outlays in response "+
       "to large-scale investment patterns, magnifying both profits and losses.",
-      400, null, 1, VAULT_SECURITY,
-      StockExchange.class, ALL_UPGRADES
+      400, Upgrade.THREE_LEVELS, null, 1,
+      VAULT_SECURITY, StockExchange.class, ALL_UPGRADES
     ),
     
     PATENT_RESURGIN = new Upgrade(
       "Patent: Resurgin",
       "",
-      350, null, 1, MEDICAL_EXCHANGE,
-      StockExchange.class, ALL_UPGRADES
+      350, Upgrade.THREE_LEVELS, null, 1,
+      MEDICAL_EXCHANGE, StockExchange.class, ALL_UPGRADES
     ),
     
     PATENT_QI_ANSIBLE = new Upgrade(
       "Patent: QI Ansible",
       "",
-      550, null, 1, VAULT_SECURITY,
-      StockExchange.class, ALL_UPGRADES
+      550, Upgrade.THREE_LEVELS, null, 1,
+      VAULT_SECURITY, StockExchange.class, ALL_UPGRADES
     ),
     
     PATENT_EGO_SERUM = new Upgrade(
       "Patent: Ego Serum",
       "",
-      750, null, 1, SPYCE_EMPORIUM,
-      StockExchange.class, ALL_UPGRADES
+      750, Upgrade.THREE_LEVELS, null, 1,
+      SPYCE_EMPORIUM, StockExchange.class, ALL_UPGRADES
     );
   
   

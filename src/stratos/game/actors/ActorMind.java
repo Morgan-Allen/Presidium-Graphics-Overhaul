@@ -19,7 +19,7 @@ public abstract class ActorMind implements Qualities {
   private static boolean
     decisionVerbose = Choice.mindVerbose,
     stepsVerbose    = Choice.mindVerbose,
-    warnVerbose     = true;
+    warnVerbose     = false;
   
   
   final protected Actor actor;
@@ -69,7 +69,14 @@ public abstract class ActorMind implements Qualities {
     */
   public void updateAI(int numUpdates) {
     if (numUpdates % 10 != 0) return;
-    final boolean report = decisionVerbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && decisionVerbose;
+    
+    if (report) {
+      I.say("\nHome is: "+home);
+      if (home != null) I.say("  Intact? "+(! home.destroyed()));
+      I.say("\nWork is: "+work);
+      if (home != null) I.say("  Intact? "+(! work.destroyed()));
+    }
     //
     //  Remove any expired behaviour-sources:
     if (home != null && home.destroyed()) {

@@ -253,7 +253,9 @@ public final class PlayLoop {
       
       LoadingScreen.update("Loading Assets", Assets.loadProgress());
       Assets.advanceAssetLoading(FRAME_INTERVAL - (SLEEP_MARGIN * 2));
-      rendering.renderDisplay(LoadingScreen.HUD(rendering));
+      
+      rendering.renderDisplay();
+      rendering.renderUI(LoadingScreen.HUD(rendering));
       return true;
     }
     
@@ -274,7 +276,8 @@ public final class PlayLoop {
       }
       LoadingScreen.update("Loading Simulation", played.loadProgress());
       
-      rendering.renderDisplay(LoadingScreen.HUD(rendering));
+      rendering.renderDisplay();
+      rendering.renderUI(LoadingScreen.HUD(rendering));
       lastUpdate = lastFrame = time;
       return true;
     }
@@ -289,8 +292,16 @@ public final class PlayLoop {
     if (frameGap >= FRAME_INTERVAL || true) {
       if (verbose) I.say("  Rendering graphics.");
       
-      if (played != null) played.renderVisuals(rendering);
-      rendering.renderDisplay(played == null ? null : played.UI());
+      if (played != null) {
+        played.renderVisuals(rendering);
+      }
+      final HUD UI = played.UI();
+      if (UI != null) {
+        UI.updateInput();
+        UI.renderWorldFX();
+      }
+      rendering.renderDisplay();
+      rendering.renderUI(UI);
       KeyInput.updateInputs();
       lastFrame = time;
     }

@@ -162,14 +162,9 @@ public class BuildingSprite extends Sprite {
       displayed.position.z += high + 0.5f;
       displayed.readyFor(rendering);
       
-      final float progress = displayed.animProgress();
+      final float progress = displayed.animProgress(false) % 1;
       final float alpha = Nums.clamp(progress * 4 * (1 - progress), 0, 1);
       displayed.colour = Colour.transparency(alpha);
-      
-      if (progress >= 1) {
-        statusDisplayIndex = (statusDisplayIndex + 1) % statusFX.size();
-        statusFX.atIndex(statusDisplayIndex).reset();
-      }
     }
     else statusDisplayIndex = statusFX.size() - 1;
   }

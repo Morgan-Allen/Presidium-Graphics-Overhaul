@@ -97,36 +97,36 @@ public class EcologistStation extends Venue {
       "species, but lack the full range of nutrients required in a healthy "+
       "diet.",
       100,
-      CARBS, 1,
-      null,
-      EcologistStation.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, CARBS,
+      1,
+      null, EcologistStation.class, ALL_UPGRADES
     ),
     BROADLEAF_LAB = new Upgrade(
       "Broadleaf Lab",
       "Improves broadleaf yields.  Broadleaves provide a wider range of "+
       "nutrients, and are valued as luxury exports, but their yield is small.",
       150,
-      GREENS, 1,
-      null,
-      EcologistStation.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, GREENS,
+      1,
+      null, EcologistStation.class, ALL_UPGRADES
     ),
     FIELD_HAND_STATION = new Upgrade(
       "Field Hand Station",
       "Hire additional field hands to plant and reap the harvest more "+
       "quickly, maintain equipment, and bring land under cultivation.",
       50,
-      Backgrounds.CULTIVATOR, 1,
-      null,
-      EcologistStation.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, Backgrounds.CULTIVATOR,
+      1,
+      null, EcologistStation.class, ALL_UPGRADES
     ),
     TREE_FARMING = new Upgrade(
       "Tree Farming",
       "Forestry programs assist in terraforming efforts and climate "+
       "moderation, as well as providing carbons for plastic production.",
       100,
-      null, 1,
-      BROADLEAF_LAB,
-      EcologistStation.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, null,
+      1,
+      BROADLEAF_LAB, EcologistStation.class, ALL_UPGRADES
     ),
     INSECTRY_LAB = new Upgrade(
       "Insectry Lab",
@@ -134,18 +134,18 @@ public class EcologistStation extends Venue {
       "invertebrates, both as a source of protein and pollination, pest "+
       "control, or recycling services.",
       150,
-      PROTEIN, 1,
-      BROADLEAF_LAB,
-      EcologistStation.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, PROTEIN,
+      1,
+      BROADLEAF_LAB, EcologistStation.class, ALL_UPGRADES
     ),
     ECOLOGIST_STATION = new Upgrade(
       "Ecologist Station",
       "Ecologists are highly-skilled students of plants, animals and gene "+
       "modification, capable of adapting species to local climate conditions.",
       150,
-      Backgrounds.ECOLOGIST, 1,
-      TREE_FARMING,
-      EcologistStation.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, Backgrounds.ECOLOGIST,
+      1,
+      TREE_FARMING, EcologistStation.class, ALL_UPGRADES
     );
   
   

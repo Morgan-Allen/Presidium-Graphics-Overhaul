@@ -99,8 +99,9 @@ public class TargetOptions extends UIGroup {
     final List <Button> options = new List <Button> ();
     
     if (
-      subject instanceof Actor ||
-      subject instanceof Venue
+      (subject instanceof Actor ||
+       subject instanceof Venue)
+      && subject.base() != base
     ) {
       options.add(new OptionButton(
         BUI, Mission.STRIKE_ICON, "Destroy or capture subject",
@@ -119,7 +120,7 @@ public class TargetOptions extends UIGroup {
     }
     if (
       subject instanceof Actor &&
-      ((Actor) subject).base() != BUI.played()
+      subject.base() != BUI.played()
     ) {
       options.add(new OptionButton(
         BUI, Mission.CONTACT_ICON, "Contact or negotiate with subject",

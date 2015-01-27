@@ -46,7 +46,8 @@ public class Inventory {
     final static int
       TIER_CARRIES = -1,
       TIER_PRIVATE =  0,
-      TIER_PUBLIC  =  1;
+      TIER_PUBLIC  =  1,
+      TIER_UNIQUE  =  2;
     
     Base base();
     Inventory inventory();
