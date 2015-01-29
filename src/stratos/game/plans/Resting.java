@@ -39,7 +39,7 @@ public class Resting extends Plan {
   
   
   public Resting(Actor actor, Target point) {
-    super(actor, point, false, NO_HARM);
+    super(actor, point, MOTIVE_LEISURE, NO_HARM);
     this.restPoint = (point instanceof Owner) ? (Owner) point : actor;
   }
   
@@ -92,7 +92,9 @@ public class Resting extends Plan {
   
   protected float getPriority() {
     final boolean report = verbose && I.talkAbout == actor;
-    float urgency = CASUAL;
+    if (report) I.say("\nGetting resting priority for "+actor);
+    
+    float urgency = CASUAL, modifier = NONE;
     
     if (restPoint instanceof Venue) {
       final Venue venue = (Venue) restPoint;
@@ -104,14 +106,17 @@ public class Resting extends Plan {
       actor.health.fatigueLevel () +
       actor.health.stressPenalty() +
       actor.health.injuryLevel  (),
-      0, 2
-    ) / 2f;
+      0, 1
+    );
+    if (report) I.say("  Stress level: "+stress);
+    
     if (stress < 0.5f) {
       urgency *= stress * 2;
     }
     else {
       final float f = (stress - 0.5f) * 2;
       urgency = (urgency * f) + (PARAMOUNT * (1 - f));
+      modifier = f * PARAMOUNT;
     }
     
     //  Include effects of hunger-
@@ -129,7 +134,7 @@ public class Resting extends Plan {
     }
     
     //  Include day/night effects-
-    urgency += (1 - Planet.dayValue(actor.world())) * 2;
+    urgency += (1 - Planet.dayValue(actor.world())) * 2 * IDLE;
     
     //  Include location effects-
     if (restPoint == actor && ! actor.indoors()) {
@@ -138,7 +143,7 @@ public class Resting extends Plan {
     
     final float priority = priorityForActorWith(
       actor, restPoint,
-      Nums.clamp(urgency, 0, URGENT), NO_MODIFIER,
+      urgency, modifier,
       NO_HARM, NO_COMPETITION, NO_FAIL_RISK,
       NO_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report

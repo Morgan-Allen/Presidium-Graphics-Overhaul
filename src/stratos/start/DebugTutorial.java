@@ -13,18 +13,23 @@ import stratos.util.*;
 
 //  BIG BUGFIX TODO LIST:
 
-//  *  Rock outcrops/dunes are not being properly spaced, thanks to the change
-//     in the placement system (they don't count as 'owned' anymore.)
-
 //  *  The fight/flee/talk orders are not being correctly sequenced.
 
-//  *  Holdings are being auto-placed in stupid locations.
+//  *  Make clear that upgrades aren't available for unfinished structures-
+//     and there's a time-delay, et cetera.
+
+//  *  Restore the fear associated with wandering outside your base-zone.
+
+
+//  Minor items:
+
+//  *  Ideally, using Contact on your own citizens should still leave a marker.
+
+//  *  It would be nice to have patrols around mobile objects keep ahead of
+//     their client.
 
 
 /*  BIG TODO LIST:
-
-*  Need to ensure that combat/hiding/negotiation/aiding always trump other
-   activities.
 
 *  Need to ensure that unemployed job-seekers are more sensible.
 
@@ -48,8 +53,6 @@ import stratos.util.*;
 *  Need to unify summons-dialogue with contact mechanics.
 
 *  Psy powers need some checkup- cooldown system, replace TK, UI idiom.
-
-*  The paving system needs to be cleaner.
 
 *  Hide-and-seek needs to be more effective (both retreat and combat.)
 

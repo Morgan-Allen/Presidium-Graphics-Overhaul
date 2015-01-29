@@ -28,7 +28,7 @@ public class FindHome extends Plan {
   
 
   private FindHome(Actor actor, Property newHome) {
-    super(actor, newHome, true, NO_HARM);
+    super(actor, newHome, MOTIVE_AMBITION, NO_HARM);
     this.newHome = newHome;
   }
 

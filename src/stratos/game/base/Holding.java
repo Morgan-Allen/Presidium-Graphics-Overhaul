@@ -131,7 +131,9 @@ public class Holding extends Venue {
     final boolean report = rateVerbose && BaseUI.currentPlayed() == base;
     
     final BaseDemands d = base.demands;
-    final float baseDemand = d.localShortage(point, SERVICE_HOUSING);
+    float baseDemand = d.demandAround(point, Holding.class, -1);
+    baseDemand *= d.globalShortage(Holding.class);
+    
     if (baseDemand <= 0) return -1;
     if (report) {
       I.say("\nGetting place-rating for Holding at "+point);
@@ -375,7 +377,10 @@ public class Holding extends Venue {
       
       final Choice buying = new Choice(actor) {
         public boolean add(Behaviour b) {
-          if (b instanceof Delivery) return super.add(b);
+          if (b instanceof Delivery) {
+            if (report) I.say("  Delivery is: "+b);
+            return super.add(b);
+          }
           else return false;
         }
       };

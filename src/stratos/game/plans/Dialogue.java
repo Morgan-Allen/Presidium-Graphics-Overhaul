@@ -82,7 +82,7 @@ public class Dialogue extends Plan implements Qualities {
   
   
   private Dialogue(Actor actor, Actor other, Dialogue starts, int type) {
-    super(actor, other, false, MILD_HELP);
+    super(actor, other, MOTIVE_LEISURE, MILD_HELP);
     this.other  = other;
     this.starts = starts == null ? this : starts;
     this.depth  = starts == null ? 0 : (1 + starts.depth);
@@ -278,7 +278,7 @@ public class Dialogue extends Plan implements Qualities {
     }
     final float priority = priorityForActorWith(
       actor, other,
-      CASUAL, bonus * ROUTINE,
+      IDLE, bonus * CASUAL,
       MILD_HELP, NO_COMPETITION, NO_FAIL_RISK,
       BASE_SKILLS, BASE_TRAITS, HEAVY_DISTANCE_CHECK,
       report

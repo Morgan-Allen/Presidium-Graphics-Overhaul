@@ -45,7 +45,7 @@ public class Arrest extends Plan {
   
   
   public Arrest(Actor actor, Target subject) {
-    super(actor, subject, true, MILD_HARM);
+    super(actor, subject, MOTIVE_EMERGENCY, MILD_HARM);
   }
   
   

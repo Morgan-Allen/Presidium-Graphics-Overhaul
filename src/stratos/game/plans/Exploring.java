@@ -38,7 +38,7 @@ public class Exploring extends Plan implements Qualities {
   private Exploring(
     Actor actor, Base base, int type, Tile lookedAt, float maxTravel
   ) {
-    super(actor, lookedAt, false, NO_HARM);
+    super(actor, lookedAt, MOTIVE_LEISURE, NO_HARM);
     this.base      = base     ;
     this.type      = type     ;
     this.lookedAt  = lookedAt ;

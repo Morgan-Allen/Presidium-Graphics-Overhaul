@@ -21,24 +21,14 @@ public class RoadSearch extends Search <Tile> implements TileConstants {
   
   final StageTerrain terrain ;
   final Tile destination;
-  //final int priority;
-  final private Tile edges[] = new Tile[4];
-  private int bestDir = -1;
+  
+  final private Tile edges[] = new Tile[4];  //Cached for efficiency.
   
   
-  public RoadSearch(Tile start, Tile end) {//, int priority) {
+  public RoadSearch(Tile start, Tile end) {
     super(start, (Spacing.sumAxisDist(start, end) * 20) + 20);
     this.destination = end;
     this.terrain     = end.world.terrain();
-    //this.priority    = priority;
-  }
-  
-  
-  private int directionBetween(Tile prior, Tile spot) {
-    final int dir;
-    if (prior.x == spot.x) dir = prior.y > spot.y ? E : W;
-    else                   dir = prior.x > spot.x ? N : S;
-    return dir;
   }
   
   
@@ -48,25 +38,16 @@ public class RoadSearch extends Search <Tile> implements TileConstants {
   
   
   protected float estimate(Tile spot) {
-    return Spacing.sumAxisDist(spot, destination) / 2;
-  }
-  
-
-  protected boolean stepSearch() {
-    if (! super.stepSearch()) return false;
-    final Tile best = bestFound(), prior = priorTo(best);
-    if (prior != null) bestDir = directionBetween(prior, best);
-    return true;
+    final int div = (
+      spot.x == init.x || spot.x == destination.x ||
+      spot.y == init.y || spot.y == destination.y
+    ) ? 5 : 2;
+    return Spacing.sumAxisDist(spot, destination) / div;
   }
   
   
   protected float cost(Tile prior, Tile spot) {
-    final float cost = PavingMap.pavingReserved(spot) ? 0.5f : 1;
-    if (bestDir != -1) {
-      final int dir = directionBetween(prior, spot);
-      if (dir != bestDir) return cost * 2.5f;
-    }
-    return cost;
+    return 1;
   }
   
   
@@ -94,5 +75,32 @@ public class RoadSearch extends Search <Tile> implements TileConstants {
 
 
 
+
+
+
+/*
+private int directionBetween(Tile prior, Tile spot) {
+  final int dir;
+  if (prior.x == spot.x) dir = prior.y > spot.y ? E : W;
+  else                   dir = prior.x > spot.x ? N : S;
+  return dir;
+}
+//*/
+/*
+protected boolean stepSearch() {
+  if (! super.stepSearch()) return false;
+  final Tile best = bestFound(), prior = priorTo(best);
+  if (prior != null) bestDir = directionBetween(prior, best);
+  return true;
+}
+//*/
+/*
+final float cost = 1;// PavingMap.pavingReserved(spot) ? 0.5f : 1;
+if (bestDir != -1) {
+  final int dir = directionBetween(prior, spot);
+  if (dir != bestDir) return cost * 2.5f;
+}
+return cost;
+//*/
 
 

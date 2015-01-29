@@ -21,7 +21,7 @@ public class Joining extends Plan {
   
   
   public Joining(Actor actor, Plan basis, Actor joined) {
-    super(actor, basis.subject, basis.persistent(), MILD_HELP);
+    super(actor, basis.subject, basis.motiveType(), MILD_HELP);
     this.basis = (basis.actor() == actor) ? basis : basis.copyFor(actor);
     this.joined = joined;
   }
@@ -97,7 +97,7 @@ public class Joining extends Plan {
     final boolean report = false;
     
     final Plan basis = (Plan) invitation;
-    if (basis.hasMotiveType(Plan.MOTIVE_DUTY)) return false;
+    if (basis.hasMotiveType(Plan.MOTIVE_JOB)) return false;
     
     final Plan copy = basis.copyFor(asked);
     if (copy == null) return false;

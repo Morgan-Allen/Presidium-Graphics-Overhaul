@@ -60,7 +60,7 @@ public class Forestry extends Plan {
   
   
   private Forestry(Actor actor, Venue nursery) {
-    super(actor, nursery, true, NO_HARM);
+    super(actor, nursery, MOTIVE_JOB, NO_HARM);
     this.nursery = nursery;
   }
   

@@ -57,6 +57,7 @@ public class PathSearch extends Search <Boarding> {
         entrance = ((Property) aims).mainEntrance();
       }
       if (entrance == null) break;
+      
       if (! Visit.arrayIncludes(entrance.canBoard(), aims)) {
         I.complain(
           "\nPROBLEM WITH PATHING SEARCH: "+

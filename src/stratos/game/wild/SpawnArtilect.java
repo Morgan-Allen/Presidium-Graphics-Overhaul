@@ -33,23 +33,23 @@ public class SpawnArtilect extends Plan implements Qualities {
   
   
   public SpawnArtilect(Actor actor, Actor repairs, Venue works) {
-    super(actor, repairs, true, MILD_HELP);
+    super(actor, repairs, MOTIVE_AMBITION, MILD_HELP);
     this.repairs = repairs;
-    this.works = works;
+    this.works   = works  ;
   }
   
   
   public SpawnArtilect(Session s) throws Exception {
     super(s);
     repairs = (Actor) s.loadObject();
-    works = (Venue) s.loadObject();
+    works   = (Venue) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     s.saveObject(repairs);
-    s.saveObject(works);
+    s.saveObject(works  );
   }
   
   

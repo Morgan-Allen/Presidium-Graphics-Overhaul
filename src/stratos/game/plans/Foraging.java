@@ -33,7 +33,7 @@ public class Foraging extends Plan {
   
   
   public Foraging(Actor actor, Venue store) {
-    super(actor, actor, true, NO_HARM);
+    super(actor, actor, MOTIVE_JOB, NO_HARM);
     if (store == null && actor.mind.home() instanceof Venue) {
       this.store = (Venue) actor.mind.home();
     }
@@ -71,13 +71,14 @@ public class Foraging extends Plan {
   
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
+    final boolean useHunger = store == null || store == actor.mind.home();
     
     if (storeShortage() <= 0) {
       if (sumHarvest() > 0) return Plan.ROUTINE;
       else done = true;
     }
     final float hunger = actor.health.hungerLevel();
-    if (store == null && hunger <= 0) done = true;
+    if (useHunger && hunger <= 0) done = true;
     if (done) return 0;
     
     if (! sourceValid()) {
@@ -85,8 +86,11 @@ public class Foraging extends Plan {
       if (! sourceValid()) return 0;
     }
     
-    final float modifier = NO_MODIFIER + (hunger * ROUTINE);
-    //  TODO:  Base off store-shortage?
+    float modifier = NONE;
+    if (hunger > 0.5f && useHunger) {
+      modifier += PARAMOUNT * (hunger - 0.5f) * 2;
+    }
+    
     final float priority = priorityForActorWith(
       actor, source,
       hunger * PARAMOUNT, modifier,
@@ -129,6 +133,8 @@ public class Foraging extends Plan {
   
   
   public Behaviour getNextStep() {
+    final boolean report = I.talkAbout == actor && stepsVerbose;
+    if (report) I.say("\nGetting next foraging step for "+actor);
     if (done) return null;
 
     final float harvest = sumHarvest();

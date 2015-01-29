@@ -42,7 +42,7 @@ public class Looting extends Plan {
   
   
   public Looting(Actor actor, Owner subject, Item taken, Property dropOff) {
-    super(actor, subject, false, MILD_HARM);
+    super(actor, subject, MOTIVE_JOB, MILD_HARM);
     this.mark    = subject;
     this.taken   = taken  ;
     this.dropOff = dropOff;
@@ -50,7 +50,7 @@ public class Looting extends Plan {
   
   
   public Looting(Actor actor, Item.Dropped dropped) {
-    super(actor, dropped, false, NO_HARM);
+    super(actor, dropped, MOTIVE_EMERGENCY, NO_HARM);
     this.mark    = dropped;
     this.taken   = pickItemFrom(mark);
     this.dropOff = null;

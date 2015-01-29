@@ -237,7 +237,7 @@ public class InstallTab extends SelectionInfoPane {
       final Structure.Basis group[] = toInstall.structure().asGroup();
       final int tier = toInstall.owningTier();
       boolean confirmed = UI.mouseClicked() || KeyInput.wasTyped(Keys.ENTER);
-      boolean multiples = (group.length > 0 || tier <= Owner.TIER_PRIVATE);
+      boolean multiples = (group.length > 1 || tier <= Owner.TIER_PRIVATE);
       
       if (canPlace && confirmed) {
         for (Structure.Basis i : group) i.doPlacement();
@@ -260,10 +260,11 @@ public class InstallTab extends SelectionInfoPane {
       
       final IntelMap map = UI.played().intelMap;
       final Stage world = picked.world;
+      final int HS = toInstall.size / 2;
       
       for (Tile t : tilesAround(picked, radius)) {
         canPlace = true;
-        canPlace &= toInstall.setPosition(t.x, t.y, world);
+        canPlace &= toInstall.setPosition(t.x - HS, t.y - HS, world);
         if (! canPlace) continue;
         onStage = true;
         

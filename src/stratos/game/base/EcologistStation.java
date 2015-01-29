@@ -177,7 +177,7 @@ public class EcologistStation extends Venue {
     //
     //  Otherwise, consider exploring the surrounds-
     final Exploring x = Exploring.nextExploration(actor);
-    if (x != null) choice.add(x.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE));
+    if (x != null) choice.add(x.setMotive(Plan.MOTIVE_JOB, Plan.ROUTINE));
     //
     //  Or, finally, fall back on supervising the venue...
     if (choice.empty()) choice.add(Supervision.oversight(this, actor));

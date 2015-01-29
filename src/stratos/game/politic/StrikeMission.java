@@ -86,9 +86,9 @@ public class StrikeMission extends Mission {
   
   /**  Behaviour implementation-
     */
-  public Behaviour nextStepFor(Actor actor) {
+  public Behaviour createStepFor(Actor actor) {
     if (finished()) return null;
-    final Behaviour cached = cachedStepFor(actor, false);
+    final Behaviour cached = nextStepFor(actor, false);
     if (cached != null) return cached;
     
     final Combat combat = new Combat(
@@ -114,7 +114,7 @@ public class StrikeMission extends Mission {
   }
   
   
-  public void describeBehaviour(Description d) {
+  public void describeMission(Description d) {
     d.append("On ");
     d.append("Strike Mission", this);
     d.append(" against ");

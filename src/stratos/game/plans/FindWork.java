@@ -35,7 +35,7 @@ public class FindWork extends Plan {
   
   
   private FindWork(Actor actor, Background position, Property employer) {
-    super(actor, actor, true, NO_HARM);
+    super(actor, actor, MOTIVE_AMBITION, NO_HARM);
     this.position = position;
     this.employer = employer;
   }

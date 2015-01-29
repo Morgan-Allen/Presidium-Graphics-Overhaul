@@ -30,7 +30,7 @@ public class SeedTailoring extends Plan {
   
   
   public SeedTailoring(Actor actor, Venue lab, Species s) {
-    super(actor, lab, true, NO_HARM);
+    super(actor, lab, MOTIVE_JOB, NO_HARM);
     this.lab = lab;
     this.species = s;
     this.cropType = Item.asMatch(SAMPLES  , s);

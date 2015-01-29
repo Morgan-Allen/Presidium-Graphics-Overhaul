@@ -323,7 +323,7 @@ public class DeliveryUtils {
     Owner pick = null;
     float bestRating = 0;
     for (Owner destination : destinations) {
-      if (origin.owningTier() == Owner.TIER_PRIVATE) continue;
+      if (destination.owningTier() == Owner.TIER_PRIVATE) continue;
       
       final float rating = rateTrading(origin, destination, good, amount);
       if (rating > bestRating) { bestRating = rating; pick = destination; }
@@ -442,7 +442,7 @@ public class DeliveryUtils {
       I.say("  Destination reserved: "+DFB);
     }
     float origAfter = 0, destAfter = 0;
-    origAfter = OA - (OFB + amount);
+    origAfter = OA + (OFB - amount);
     destAfter = DA + (DFB + amount);
     if (origAfter <= 0) return -1;
     if (destAfter > DD) return -1;

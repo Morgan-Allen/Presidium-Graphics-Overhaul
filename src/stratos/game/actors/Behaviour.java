@@ -58,6 +58,7 @@ public interface Behaviour extends Session.Saveable {
   boolean valid();
   boolean hasBegun();
   boolean persistent();
+  boolean isEmergency();
   
   void describeBehaviour(Description d);
 }

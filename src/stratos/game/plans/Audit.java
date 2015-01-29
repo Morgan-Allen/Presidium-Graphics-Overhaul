@@ -54,7 +54,7 @@ public class Audit extends Plan {
   
   
   private Audit(Actor actor, Property toAudit, Venue reportAt, Type type) {
-    super(actor, toAudit, true, NO_HARM);
+    super(actor, toAudit, MOTIVE_JOB, NO_HARM);
     this.type     = type;
     this.audited  = toAudit;
     this.reportAt = reportAt;

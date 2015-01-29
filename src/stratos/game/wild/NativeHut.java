@@ -244,7 +244,7 @@ public class NativeHut extends Venue {
       if (needMeat) for (Target t : actor.senses.awareOf()) {
         if (Hunting.validPrey(t, actor, true)) {
           final Hunting hunt = Hunting.asHarvest(actor, (Actor) t, this, false);
-          choice.add(hunt.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL));
+          choice.add(hunt.setMotive(Plan.MOTIVE_JOB, Plan.CASUAL));
         }
       }
       choice.add(Patrolling.nextGuardPatrol(actor, this, Plan.CASUAL));
@@ -258,7 +258,7 @@ public class NativeHut extends Venue {
       if (needFood > 0) {
         final Foraging forage = new Foraging(actor, this);
         final float urge = Plan.ROUTINE * (needFood / 5);
-        choice.add(forage.setMotive(Plan.MOTIVE_DUTY, urge));
+        choice.add(forage.setMotive(Plan.MOTIVE_JOB, urge));
       }
       choice.add(new Repairs(actor, this, Qualities.HANDICRAFTS));
     }

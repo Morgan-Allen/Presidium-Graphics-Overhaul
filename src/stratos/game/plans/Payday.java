@@ -56,7 +56,7 @@ public class Payday extends Plan {
   
   
   public Payday(Actor actor, Property pays) {
-    super(actor, pays, true, NO_HARM);
+    super(actor, pays, MOTIVE_JOB, NO_HARM);
     this.pays = pays;
   }
   

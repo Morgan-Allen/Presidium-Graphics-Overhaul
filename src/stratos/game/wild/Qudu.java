@@ -103,7 +103,7 @@ public class Qudu extends Fauna {
     final Steps steps = new Steps(
       this, this,
       Action.PARAMOUNT + (senses.fearLevel() * Plan.ROUTINE),
-      false, Plan.NO_HARM,
+      Plan.MOTIVE_EMERGENCY, Plan.NO_HARM,
       "Hunkering",
       hunkering.toArray(Action.class)
     );

@@ -18,15 +18,14 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     */
   //*
   final public static int
-    MOTIVE_INIT      = -1,
     MOTIVE_LEISURE   =  0,
-    MOTIVE_DUTY      =  1,
-    MOTIVE_EMERGENCY =  2,
-    MOTIVE_MISSION   =  3,
+    MOTIVE_JOB      =  1,
+    MOTIVE_AMBITION  =  2,
+    MOTIVE_EMERGENCY =  3,
+    MOTIVE_MISSION   =  4,
     MOTIVE_CANCELLED =  5;
   //*/
-  
-  //  Init, Emergency, Leisure, Job, Cancelled.
+  //  Emergency, Job, Leisure, Mission, Cancelled, Special.
   
   final static float
     NULL_PRIORITY = -100;
@@ -42,7 +41,6 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   final public Target subject;
   protected Actor actor;  //  TODO:  MAKE THIS FINAL
   
-  final boolean persistent;
   protected float
     lastEvalTime = -1,
     priorityEval = NULL_PRIORITY;
@@ -50,19 +48,19 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     nextStep = null,
     lastStep = null;
   
-  private int   motiveType  = MOTIVE_INIT;
-  private float motiveBonus = 0;
+  private int   motiveType  = -1;
+  private float motiveBonus =  0;
   private float harmFactor, competence;
-  private boolean begun;
+  private boolean begun;  //  TODO:  Have a general 'stage' counter.
   
   
   
   protected Plan(
-    Actor actor, Target subject, boolean persistent, float harmFactor
+    Actor actor, Target subject, int motiveType, float harmFactor
   ) {
     this.actor      = actor     ;
     this.subject    = subject   ;
-    this.persistent = persistent;
+    this.motiveType = motiveType;
     this.harmFactor = harmFactor;
     if (subject == null) I.complain("NULL PLAN SUBJECT");
   }
@@ -70,9 +68,8 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   public Plan(Session s) throws Exception {
     s.cacheInstance(this);
-    this.actor      = (Actor) s.loadObject();
-    this.subject    = s.loadTarget();
-    this.persistent = s.loadBool();
+    this.actor   = (Actor) s.loadObject();
+    this.subject = s.loadTarget();
     
     this.lastEvalTime = s.loadFloat();
     this.priorityEval = s.loadFloat();
@@ -88,9 +85,8 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   public void saveState(Session s) throws Exception {
-    s.saveObject(actor     );
-    s.saveTarget(subject   );
-    s.saveBool  (persistent);
+    s.saveObject(actor  );
+    s.saveTarget(subject);
     
     s.saveFloat (lastEvalTime);
     s.saveFloat (priorityEval);
@@ -132,7 +128,12 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   public boolean persistent() {
-    return persistent;
+    return motiveType == MOTIVE_JOB || motiveType == MOTIVE_AMBITION;
+  }
+  
+  
+  public boolean isEmergency() {
+    return motiveType == MOTIVE_EMERGENCY;
   }
   
   
@@ -389,6 +390,11 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   public float motiveBonus() {
     return this.motiveBonus;
+  }
+  
+  
+  public int motiveType() {
+    return motiveType;
   }
   
   

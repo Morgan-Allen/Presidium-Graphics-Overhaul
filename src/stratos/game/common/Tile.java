@@ -149,6 +149,15 @@ public final class Tile implements
   }
   
   
+  public Batch <Boarding> entranceFor() {
+    final Batch <Boarding> batch = new Batch <Boarding> ();
+    for (Boarding b : canBoard()) {
+      if (b instanceof Element) batch.add(b);
+    }
+    return batch;
+  }
+  
+  
   public boolean canPave() {
     return onTop == null || onTop.base() == null;
   }

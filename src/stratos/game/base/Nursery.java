@@ -273,7 +273,7 @@ public class Nursery extends Venue implements TileConstants {
     
     //  Otherwise, consider normal deliveries and routine tending-
     final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
-      this, services(), 2, 10, 5
+      this, services(), 1, 5, 5
     );
     choice.add(d);
     choice.add(bestSeedCollection(actor));

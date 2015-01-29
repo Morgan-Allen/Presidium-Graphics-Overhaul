@@ -21,8 +21,8 @@ public class Batch <K> implements Series <K> {
   final public static int DEFAULT_SECTOR_SIZE = 16;
   
   final int sectorSize;
-  Object[] first, last;
-  int index, size;
+  private Object[] first, last;
+  private int index, size;
   
   
   public Batch() {
@@ -69,6 +69,13 @@ public class Batch <K> implements Series <K> {
       i -= sectorSize;
       sector = (Object[]) sector[i];
     }
+  }
+  
+  
+  public int indexOf(K k) {
+    int count = 0;
+    for (K i : this) if (i == k) return count; else count++;
+    return -1;
   }
   
   

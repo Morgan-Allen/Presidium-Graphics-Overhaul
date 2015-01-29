@@ -34,7 +34,7 @@ public class Repairs extends Plan {
   
   
   public Repairs(Actor actor, Structure.Basis repaired, Skill skillUsed) {
-    super(actor, (Target) repaired, true, REAL_HELP);
+    super(actor, (Target) repaired, MOTIVE_JOB, REAL_HELP);
     this.built = repaired;
     this.skillUsed = skillUsed;
   }
@@ -90,7 +90,7 @@ public class Repairs extends Plan {
       if (near.base() != client.base()) continue;
       if (needForRepair(near) <= 0) continue;
       final Repairs b = new Repairs(client, near);
-      if (asDuty) b.setMotive(Plan.MOTIVE_DUTY, Plan.ROUTINE);
+      if (asDuty) b.setMotive(Plan.MOTIVE_JOB, Plan.ROUTINE);
       choice.add(b);
       
       if (report) {
@@ -105,7 +105,7 @@ public class Repairs extends Plan {
     final Tile toPave = p.nextTileToPave(client, null);
     if (toPave != null) {
       final RoadsRepair r = new RoadsRepair(client, toPave);
-      if (asDuty) r.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL);
+      if (asDuty) r.setMotive(Plan.MOTIVE_JOB, Plan.CASUAL);
       choice.add(r);
     }
     //

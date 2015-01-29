@@ -123,9 +123,9 @@ public class ContactMission extends Mission {
   }
   
   
-  public Behaviour nextStepFor(Actor actor) {
+  public Behaviour createStepFor(Actor actor) {
     if (finished()) return null;
-    final Behaviour cached = cachedStepFor(actor, false);
+    final Behaviour cached = nextStepFor(actor, false);
     if (cached != null) return cached;
     
     final Choice choice = new Choice(actor);
@@ -153,7 +153,7 @@ public class ContactMission extends Mission {
         this, "actionCloseTalks",
         Action.TALK_LONG, "Closing talks"
       );
-      closeTalks.setPriority(ROUTINE * (2 + relation) / 2f);
+      closeTalks.setPriority(Plan.ROUTINE * (2 + relation) / 2f);
       choice.add(closeTalks);
     }
     
@@ -246,7 +246,7 @@ public class ContactMission extends Mission {
   }
   
   
-  public void describeBehaviour(Description d) {
+  public void describeMission(Description d) {
     d.append("On mission: ", this);
     d.append(SETTING_DESC[objectIndex()]);
     d.append(subject);

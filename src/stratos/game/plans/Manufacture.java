@@ -48,7 +48,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   public Manufacture(
     Actor actor, Property venue, Conversion conversion, Item made
   ) {
-    super(actor, venue, true, NO_HARM);
+    super(actor, venue, MOTIVE_JOB, NO_HARM);
     this.venue = venue;
     this.made = made == null ? conversion.out : made;
     this.conversion = conversion;

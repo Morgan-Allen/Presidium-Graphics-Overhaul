@@ -223,6 +223,11 @@ public class Action implements Behaviour, AnimNames {
   }
   
   
+  public boolean isEmergency() {
+    return quick() || physFX();
+  }
+  
+  
   public Actor actor() {
     return actor;
   }

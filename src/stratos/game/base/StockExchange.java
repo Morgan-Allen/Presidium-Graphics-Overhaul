@@ -18,17 +18,13 @@ import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.economic.Economy.*;
 
 
+
+//  TODO:  Consider getting rid of local deliveries here- it may be more of a
+//  nuisance than it's worth.
+
 //
 //  TODO:  Implement Vault Security and Virtual Currency upgrades.
-
-//  TODO:  Arrange deliveries between areas of high and low scarcity/price for
-//  a given base.
-
-
 //  Rations.  Repairs.  Medkits.
-//    Life-Extension.  (spyce, from various sources...)
-//    Truth Serum.     (medicine, from physician.)
-//    Ansible Relay.   (hardware, from engineer.)
 
 
 
@@ -256,6 +252,8 @@ public class StockExchange extends Venue {
       choice.add(DeliveryUtils.bestBulkCollectionFor(this, services, 1, 5, 5));
       choice.add(Supervision.inventory(this, actor));
     }
+    
+    choice.add(Supervision.oversight(this, actor));
     return choice.weightedPick();
   }
   

@@ -124,10 +124,13 @@ public class TutorialScenario extends StartupScenario implements
   
   /**  Checking objectives and message display-
     */
+  ///private int plus = 0;
+  
   public void updateGameState() {
     super.updateGameState();
 
     if (showMessages()) {
+      ///plus++;
       pushMessage(EVENT_WELCOME);
 
       int numObjectives = 0;
@@ -146,6 +149,7 @@ public class TutorialScenario extends StartupScenario implements
       if (numObjectives >= 2) {
         pushMessage(EVENT_CONGRATULATIONS);
       }
+      //I.say("\nTotal objectives: "+numObjectives+"/"+3);
     }
   }
   

@@ -365,6 +365,12 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   }
   
   
+  public Boarding mainEntrance() {
+    if (landed()) return super.mainEntrance();
+    else return null;
+  }
+  
+  
   //  TODO:  Path-finding will need to be more generally addressed here...
   public void pathingAbort() {}
   protected boolean collides() { return false; }

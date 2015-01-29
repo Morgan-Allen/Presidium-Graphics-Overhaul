@@ -63,7 +63,7 @@ public class Supervision extends Plan {
   
   
   private Supervision(Actor actor, Venue supervised, Type type) {
-    super(actor, supervised, false, NO_HARM);
+    super(actor, supervised, MOTIVE_JOB, NO_HARM);
     this.venue = supervised;
     this.type  = type      ;
   }

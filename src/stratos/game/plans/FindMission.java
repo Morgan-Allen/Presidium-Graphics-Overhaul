@@ -42,6 +42,9 @@ public class FindMission extends Plan {
       }
     };
     //  TODO:  Allow application for missions by other bases!
+    final Batch <Behaviour> steps    = new Batch <Behaviour> ();
+    final Batch <Mission  > missions = new Batch <Mission  > ();
+    
     for (Mission mission : actor.base().tactics.allMissions()) {
       if (! mission.canApply(actor)) {
         if (report) I.say("\n  Cannot apply for "+mission);
@@ -66,11 +69,18 @@ public class FindMission extends Plan {
         I.say("\n  Mission is: "+mission);
         I.say("  apply point:  "+mission.applyPointFor(actor));
         I.say("  priority:     "+mission.priorityFor(actor));
-        I.say("  next step:    "+mission.nextStepFor(actor));
+        I.say("  next step:    "+mission.nextStepFor(actor, true));
       }
-      choice.add(mission);
+      
+      final Behaviour step = mission.nextStepFor(actor, true);
+      choice.add(step);
+      steps.add(step);
+      missions.add(mission);
     }
-    final Mission picked = (Mission) choice.weightedPick();
+    final Behaviour pickStep = choice.weightedPick();
+    final int index = steps.indexOf(pickStep);
+    final Mission picked = missions.atIndex(index);
+    //final Mission picked = (Mission) choice.weightedPick();
     
     //  And try to apply for it-
     if (picked == null) return null;
@@ -82,7 +92,7 @@ public class FindMission extends Plan {
   protected static float competence(Actor actor, Mission mission) {
     if (! (actor instanceof Human)) return 1;
     
-    final Behaviour step = mission.cachedStepFor(actor, true);
+    final Behaviour step = mission.nextStepFor(actor, true);
     if (step == null) return 1;
     
     step.priorityFor(actor);
@@ -93,7 +103,7 @@ public class FindMission extends Plan {
   
 
   private FindMission(Actor actor, Mission mission) {
-    super(actor, mission.subject(), true, NO_HARM);
+    super(actor, mission.subject(), MOTIVE_AMBITION, NO_HARM);
     this.mission = mission;
     //this.admin = admin;
   }
@@ -203,7 +213,7 @@ public class FindMission extends Plan {
       I.say("  Applicants:     "+mission.totalApplied());
     }
     client.mind.assignMission  (mission);
-    client.mind.assignBehaviour(mission);
+    client.mind.assignBehaviour(mission.nextStepFor(actor, true));
     return true;
   }
   
@@ -222,7 +232,7 @@ public class FindMission extends Plan {
   
   public void describeBehaviour(Description d) {
     d.append("Joining mission: ");
-    mission.describeBehaviour(d);
+    mission.describeMission(d);
     //d.append(mission);
   }
 }

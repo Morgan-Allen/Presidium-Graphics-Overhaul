@@ -44,7 +44,7 @@ public class Summons extends Plan {
   
   
   public Summons(Actor actor, Actor invites, Property stays, int type) {
-    super(actor, invites, true, NO_HARM);
+    super(actor, invites, MOTIVE_EMERGENCY, NO_HARM);
     this.invites = invites;
     this.stays   = stays  ;
     this.type    = type   ;
@@ -215,7 +215,7 @@ public class Summons extends Plan {
     final Summons summons = new Summons(
       subject, ruler, (Venue) venue, TYPE_GUEST
     );
-    summons.setMotive(Plan.MOTIVE_DUTY, priority);
+    summons.setMotive(Plan.MOTIVE_JOB, priority);
     subject.mind.assignToDo(summons);
   }
   

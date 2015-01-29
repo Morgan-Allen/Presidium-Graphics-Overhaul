@@ -52,6 +52,11 @@ public class HoldingExtra extends Fixture implements TileConstants {
   }
   
   
+  public Base base() {
+    return parent.base();
+  }
+  
+  
   public void exitWorld() {
     super.exitWorld();
     parent.base().transport.updatePerimeter(this, false);
@@ -71,7 +76,7 @@ public class HoldingExtra extends Fixture implements TileConstants {
     if (! super.canPlace()) return false;
     final Tile o = origin();
     for (Tile n : o.allAdjacent(null)) {
-      if (n == null) return false;
+      if (n == null) continue;
       final Element e = n.onTop();
       if (e == null) continue;
       if (e instanceof Holding) continue;

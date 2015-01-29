@@ -108,7 +108,7 @@ public class DebugSecurity extends Scenario {
     );
     station.stocks.addItem(Item.withAmount(breeding.asSeed(), 0.95f));
     
-    breeding.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL);
+    breeding.setMotive(Plan.MOTIVE_JOB, Plan.CASUAL);
     ecologist.mind.assignBehaviour(breeding);
     UI.selection.pushSelection(ecologist, true);
   }

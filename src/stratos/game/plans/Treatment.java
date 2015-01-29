@@ -31,33 +31,34 @@ public class Treatment extends Plan implements Item.Passive {
   
   
   protected Treatment(
-    Actor treats, Actor patient, Condition treated, Boarding sickbay
+    Actor treats, Actor patient,
+    Condition treated, int motiveType, Boarding sickbay
   ) {
-    super(treats, patient, true, REAL_HELP);
-    this.patient = patient;
+    super(treats, patient, motiveType, REAL_HELP);
+    this.patient  = patient;
     this.sickness = treated;
-    this.sickbay = sickbay;
+    this.sickbay  = sickbay;
   }
   
   
   public Treatment(Session s) throws Exception {
     super(s);
-    patient = (Actor    ) s.loadObject();
+    patient  = (Actor    ) s.loadObject();
     sickness = (Condition) s.loadObject();
-    sickbay = (Boarding ) s.loadTarget();
+    sickbay  = (Boarding ) s.loadTarget();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(patient);
+    s.saveObject(patient );
     s.saveObject(sickness);
-    s.saveTarget(sickbay);
+    s.saveTarget(sickbay );
   }
   
   
   public Plan copyFor(Actor other) {
-    return new Treatment(other, patient, sickness, sickbay);
+    return new Treatment(other, patient, sickness, motiveType(), sickbay);
   }
   
   
@@ -86,8 +87,9 @@ public class Treatment extends Plan implements Item.Passive {
       I.say("  Most pressing condition: "+pick.result());
       I.say("  Danger level: "+pick.bestRating());
     }
-    
-    return new Treatment(treats, patient, pick.result(), sickbay);
+    final boolean urgent = pick.bestRating() > 0.5f;
+    final int motive = urgent ? MOTIVE_EMERGENCY : MOTIVE_JOB;
+    return new Treatment(treats, patient, pick.result(), motive, sickbay);
   }
   
   

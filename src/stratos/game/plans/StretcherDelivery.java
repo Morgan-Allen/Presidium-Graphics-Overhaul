@@ -24,10 +24,9 @@ public class StretcherDelivery extends Plan implements Qualities {
   
   
   public StretcherDelivery(
-    Actor actor, Actor patient,
-    Boarding destination
+    Actor actor, Actor patient, Boarding destination
   ) {
-    super(actor, patient, true, NO_HARM);
+    super(actor, patient, MOTIVE_EMERGENCY, NO_HARM);
     this.patient = patient;
     this.origin = patient.aboard();
     this.destination = destination;

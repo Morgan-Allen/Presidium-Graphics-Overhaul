@@ -46,7 +46,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   private Patrolling(
     Actor actor, Element guarded, List <Target> patrolled, int type
   ) {
-    super(actor, guarded, true, MILD_HELP);
+    super(actor, guarded, MOTIVE_JOB, MILD_HELP);
     this.type = type;
     this.guarded = guarded;
     this.patrolled = patrolled;
@@ -215,6 +215,11 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   
   
   public int motionType(Actor actor) {
+    if (guarded.isMobile() && 
+        Spacing.distance(actor, guarded) >= actor.health.sightRange()) {
+      return MOTION_FAST;
+    }
+    //  TODO:  Replace this with a general 'harm intended' clause?
     if (
       actor.world().activities.includesActivePlan(guarded, Combat.class) &&
       Spacing.distance(actor, guarded) >= actor.health.sightRange()
@@ -408,7 +413,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     if (report) I.say("  Venue picked: "+pick);
     if (pick != null) {
       final Patrolling p = Patrolling.aroundPerimeter(actor, pick, world);
-      p.setMotive(Plan.MOTIVE_DUTY, priority);
+      p.setMotive(Plan.MOTIVE_JOB, priority);
       return p;
     }
     

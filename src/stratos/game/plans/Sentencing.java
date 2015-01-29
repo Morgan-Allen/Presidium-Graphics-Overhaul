@@ -25,7 +25,7 @@ public class Sentencing extends Plan {
   
   
   public Sentencing(Actor judge, Actor accused, Venue court) {
-    super(judge, accused, true, NO_HARM);
+    super(judge, accused, MOTIVE_JOB, NO_HARM);
     this.judge   = judge  ;
     this.accused = accused;
     this.court   = court  ;

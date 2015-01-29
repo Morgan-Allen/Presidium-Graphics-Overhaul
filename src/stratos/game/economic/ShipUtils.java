@@ -42,7 +42,7 @@ public class ShipUtils {
         m.goAboard(ship, world);
       }
       if ((! landing) && ! isBoarding(m, ship)) {
-        m.goAboard(ship.mainEntrance(), world);
+        m.goAboard(ship.dropPoint(), world);
       }
     }
   }
@@ -52,7 +52,7 @@ public class ShipUtils {
     Dropship ship, Stage world, float entryFace
   ) {
     final boolean report = landVerbose && I.talkAbout == ship;
-    final Boarding dropPoint = ship.mainEntrance();
+    final Boarding dropPoint = ship.dropPoint();
     final Box2D site = new Box2D(ship.landArea());
     
     if (report) {
@@ -113,7 +113,7 @@ public class ShipUtils {
     final boolean report = landVerbose && I.talkAbout == ship;
     if (report) I.say("\n"+ship+" performing takeoff!");
     
-    final Boarding dropPoint = ship.mainEntrance();
+    final Boarding dropPoint = ship.dropPoint();
     Box2D site = ship.landArea();
     if (site == null) {
       if (report) I.say("  Ship had no landing site- will assign at source.");
@@ -226,7 +226,7 @@ public class ShipUtils {
   //  TODO:  Alternatively, use DeliveryUtils to try rating placement sites?
   //
   static boolean checkLandingArea(Dropship ship, Stage world, Box2D area) {
-    final Boarding dropPoint = ship.mainEntrance();
+    final Boarding dropPoint = ship.dropPoint();
     if (dropPoint instanceof Venue) {
       if (! dropPoint.inWorld()) return false;
       final Airfield strip = (Airfield) dropPoint;

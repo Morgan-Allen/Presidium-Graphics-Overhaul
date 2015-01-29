@@ -10,6 +10,7 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
 import stratos.util.*;
+//import stratos.util.Search.Entry;
 
 
 //  TODO:  Also check if these routes are fully-paved (for distribution
@@ -23,7 +24,8 @@ public class BaseTransport {
   private static boolean
     paveVerbose      = false,
     distroVerbose    = false,
-    checkConsistency = false;
+    checkConsistency = false,
+    extraVerbose     = false;
   
   final Stage world;
   final public PavingMap map;
@@ -119,14 +121,14 @@ public class BaseTransport {
   
   /**  Methods related to installation, updates and deletion of junctions-
     */
-  private void reportPath(String title, Route path) {
+  private void reportPath(String title, Route route) {
     I.add(""+title+": ");
-    if (path == null) I.add("No path.");
+    if (route == null || route.path == null) I.add("No path.");
     else {
-      I.add("Route length: "+path.path.length+"\n  ");
-      int i = 0; for (Tile t : path.path) {
+      I.add("Route length: "+route.path.length+"\n  ");
+      int i = 0; for (Tile t : route.path) {
         I.add(t.x+"|"+t.y+" ");
-        if (((++i % 10) == 0) && (i < path.path.length)) I.add("\n  ");
+        if (((++i % 10) == 0) && (i < route.path.length)) I.add("\n  ");
       }
     }
     I.add("\n");
@@ -217,11 +219,95 @@ public class BaseTransport {
         jT.flagWith(routesTo);
         routesTo.add(jT);
       }
-      
+      //
+      //  (NOTE:  We perform the un-flag op in a separate pass to avoid any
+      //  interference with pathing-searches.)  
+      for (Tile jT : routesTo) jT.flagWith(null);
       updateJunction(v, t, routesTo, true);
     }
     else updateJunction(v, t, null, false);
   }
+  
+  
+  private boolean checkRouteEfficiency(final Route r, Fixture f) {
+    final boolean report = I.talkAbout == f && paveVerbose && extraVerbose;
+    
+    final Tile tempB[] = new Tile[10];
+    final Search <Tile> routeSearch = new Search <Tile> (r.start, 25) {
+      
+      protected Tile[] adjacent(Tile spot) {
+        final List <Route> routes = tileRoutes.get(spot);
+        Tile temp[] = routes.size() <= 10 ? tempB : new Tile[routes.size()];
+        int i = 0;
+        if (routes != null) for (Route r : routes) {
+          temp[i++] = r.opposite(spot);
+        }
+        while (i < temp.length) temp[i++] = null;
+        return tempB;
+      }
+      
+      
+      protected boolean endSearch(Tile best) {
+        return best == r.end;
+      }
+      
+      
+      protected float cost(Tile prior, Tile spot) {
+        //  In essence the purpose of this is to favour a series of short hops
+        //  between buildings over roads that leap long distances.
+        float dist = Spacing.distance(prior, spot);
+        dist = dist * dist / 10;
+        if (report) {
+          I.say(
+            "  Getting cost between:"+prior.entranceFor()+
+            " and "+spot.entranceFor()
+          );
+          I.say("    Cost: "+dist);
+        }
+        return dist;
+      }
+      
+      
+      protected float estimate(Tile spot) {
+        //  We also use an 'optimistic' estimate of pathing costs to the end-
+        //  point, so that cost-so-far is weighed more heavily than cost-to-
+        //  come (and which more accurately reflects actual road-transport
+        //  efficiency.)
+        return Spacing.distance(spot, r.end) / 2;
+      }
+      
+      
+      protected void setEntry(Tile spot, Entry flag) {
+        if (report && flag != null) {
+          I.say("  Setting entry for "+spot.entranceFor());
+        }
+        spot.flagWith(flag);
+      }
+      
+      
+      protected Entry entryFor(Tile spot) {
+        return (Entry) spot.flaggedWith();
+      }
+    };
+    
+    if (report) {
+      I.say("\nPerforming junction search between...");
+      I.say("  From: "+r.start.entranceFor());
+      I.say("  To:   "+r.end  .entranceFor());
+    }
+    routeSearch.doSearch();
+    final Tile junctions[] = routeSearch.bestPath(Tile.class);
+    if (report) {
+      I.say("  Final path:");
+      for (Tile t : junctions) I.say("    "+t.entranceFor());
+    }
+    
+    if (junctions != null && junctions.length > 1) {
+      if (r.end != junctions[1]) return false;
+    }
+    return true;
+  }
+  
   
   
   public void updateJunction(
@@ -237,15 +323,12 @@ public class BaseTransport {
       //  Any old routes that lack termini are assumed to be obsolete, and must
       //  be deleted-
       if (oldRoutes != null) for (Route r : oldRoutes) {
-        final Tile end = r.opposite(t);
-        if (! junctions.hasMember(end, end)) toDelete.add(r);
+        if (! checkRouteEfficiency(r, v)) toDelete.add(r);
       }
       //
-      //  (NOTE:  We perform the un-flag op in a separate pass to avoid any
-      //  interference with pathing-searches.)  Otherwise, establish routes to
-      //  all the nearby junctions compiled.
-      for (Tile jT : routesTo) jT.flagWith(null);
+      //  Otherwise, establish routes to all the nearby junctions compiled.
       for (Tile jT : routesTo) {
+        if (! checkRouteEfficiency(new Route(t, jT), v)) continue;
         if (report) I.say("  Paving to: "+jT);
         routeBetween(t, jT, report);
       }

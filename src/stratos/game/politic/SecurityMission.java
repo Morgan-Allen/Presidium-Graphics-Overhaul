@@ -87,9 +87,9 @@ public class SecurityMission extends Mission implements Qualities {
   
   
   
-  public Behaviour nextStepFor(Actor actor) {
+  public Behaviour createStepFor(Actor actor) {
     if (finished()) return null;
-    final Behaviour cached = cachedStepFor(actor, false);
+    final Behaviour cached = nextStepFor(actor, false);
     if (cached != null) return cached;
     //  TODO:  Implement item salvage?
     
@@ -123,7 +123,7 @@ public class SecurityMission extends Mission implements Qualities {
   }
   
   
-  public void describeBehaviour(Description d) {
+  public void describeMission(Description d) {
     d.append("On ");
     d.append("Security Mission", this);
     d.append(" around ");

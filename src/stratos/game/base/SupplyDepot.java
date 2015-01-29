@@ -188,7 +188,7 @@ public class SupplyDepot extends Venue {
         this, services, 5, 50, depots
       );
       if (bD != null && staff.assignedTo(bD) < 1) {
-        bD.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL);
+        bD.setMotive(Plan.MOTIVE_JOB, Plan.CASUAL);
         bD.driven = cargoBarge;
         choice.add(bD);
       }
@@ -196,7 +196,7 @@ public class SupplyDepot extends Venue {
         this, services, 5, 50, depots
       );
       if (bC != null && staff.assignedTo(bC) < 1) {
-        bC.setMotive(Plan.MOTIVE_DUTY, Plan.CASUAL);
+        bC.setMotive(Plan.MOTIVE_JOB, Plan.CASUAL);
         bC.driven = cargoBarge;
         choice.add(bC);
       }

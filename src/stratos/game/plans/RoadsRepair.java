@@ -28,7 +28,7 @@ public class RoadsRepair extends Plan {
   
   
   public RoadsRepair(Actor actor, Tile t) {
-    super(actor, t.worldSection(), true, NO_HARM);
+    super(actor, t.worldSection(), MOTIVE_JOB, NO_HARM);
     this.base    = actor.base();
     this.map     = base.transport.map;
     this.section = t.worldSection();

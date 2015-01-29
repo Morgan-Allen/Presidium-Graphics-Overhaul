@@ -26,7 +26,7 @@ public class BaseSetup {
   //  which there is no profile-centric demand- or only checking the first N
   //  types which have the most demand.
   final static float
-    FULL_EVAL_PERIOD  = Stage.STANDARD_HOUR_LENGTH * 2,//  Eval-cycle length.
+    FULL_EVAL_PERIOD  = Stage.STANDARD_DAY_LENGTH / 2,//  Eval-cycle length.
     DEFAULT_PLACE_HP  = 50,
     MAX_PLACE_RATING  = 10;
   final static int

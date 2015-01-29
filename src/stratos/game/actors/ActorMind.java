@@ -265,7 +265,8 @@ public abstract class ActorMind implements Qualities {
     this.mission = mission;
     
     if (oldMission != null) {
-      cancelBehaviour(oldMission, "Assigned new mission");
+      final Behaviour oldStep = oldMission.nextStepFor(actor, false);
+      cancelBehaviour(oldStep, "Assigned new mission");
       oldMission.setApplicant(actor, false);
     }
     if (mission != null) {

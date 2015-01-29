@@ -136,7 +136,7 @@ public class DebugPlacing extends Scenario {
       final Human tech = new Human(Backgrounds.TECHNICIAN, base);
       tech.enterWorldAt(5, 10, world);
       final Plan roadBuild = new RoadsRepair(tech, tech.origin());
-      roadBuild.setMotive(Plan.MOTIVE_DUTY, 100);
+      roadBuild.setMotive(Plan.MOTIVE_JOB, 100);
       tech.mind.assignBehaviour(roadBuild);
       UI.selection.pushSelection(tech, true);
     }

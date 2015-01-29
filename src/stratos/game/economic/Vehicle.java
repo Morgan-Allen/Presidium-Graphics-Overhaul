@@ -392,6 +392,11 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
+  public Boarding dropPoint() {
+    return dropPoint;
+  }
+  
+  
   
   /**  Rendering and interface methods-
     */

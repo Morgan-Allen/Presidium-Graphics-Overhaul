@@ -18,8 +18,8 @@ public class FirstAid extends Treatment {
   
   
   private static boolean
-    evalVerbose  = true ,
-    stepsVerbose = true ;
+    evalVerbose  = false,
+    stepsVerbose = false;
   
   
   public FirstAid(Actor actor, Actor patient) {
@@ -28,7 +28,7 @@ public class FirstAid extends Treatment {
   
   
   public FirstAid(Actor actor, Actor patient, Boarding refuge) {
-    super(actor, patient, INJURY, refuge);
+    super(actor, patient, INJURY, MOTIVE_JOB, refuge);
   }
   
   
@@ -76,9 +76,16 @@ public class FirstAid extends Treatment {
     
     final Actor carries = Suspensor.carrying(patient);
     if (carries != null && carries != actor) return -1;
+    if (
+      Plan.competition(this, patient, actor) > 0 &&
+      ! patient.health.bleeding()
+    ) {
+      return -1;
+    }
     
     final float severity = severity();
     if (severity <= 0) return 0;
+    if (severity > 0.5f) setMotive(MOTIVE_EMERGENCY, motiveBonus());
     
     //  Try to avoid giving first aid in the middle of a firefight...
     float modifier = 0;//actor.senses.isEmergency() ? -1 : 0;
@@ -99,7 +106,7 @@ public class FirstAid extends Treatment {
       I.say("Considering first aid of "+patient);
       I.say("  Is ally?:           "+ally);
       I.say("  Severity of injury: "+severity());
-      I.say("  Priority is: "+priority);
+      I.say("  Priority is:        "+priority);
     }
     return priority;
   }

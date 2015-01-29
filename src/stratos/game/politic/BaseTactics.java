@@ -294,7 +294,7 @@ public class BaseTactics {
   
   
   private float chanceFrom(Mission m, Actor a) {
-    final Behaviour step = m.cachedStepFor(a, true);
+    final Behaviour step = m.nextStepFor(a, true);
     return (step instanceof Plan) ? ((Plan) step).successChanceFor(a) : 1;
   }
   

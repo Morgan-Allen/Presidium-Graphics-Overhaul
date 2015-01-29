@@ -129,23 +129,36 @@ public class Choice implements Qualities {
       if (actor.vocation() != null) label = actor.vocation().name;
       else if (actor.species() != null) label = actor.species().toString();
       I.say("\n"+actor+" ("+label+") is making a choice.");
-      I.say("Range of choice is "+plans.size()+", free? "+free);
+      I.say("  Range of choice is "+plans.size()+", free? "+free);
     }
     //
     //  Firstly, acquire the priorities for each plan.  If the permitted range
     //  of priorities is zero, simply return the most promising.
+    
+    boolean isEmergency = false;
+    for (Behaviour plan : plans) if (plan.isEmergency()) isEmergency = true;
+    
     float bestPriority = 0;
     Behaviour picked = null;
     final float weights[] = new float[plans.size()];
     int i = 0;
+    
     for (Behaviour plan : plans) {
+      if (isEmergency && ! plan.isEmergency()) {
+        if (report) I.say("  "+plan+" is not an emergency plan!");
+        weights[i++] = 0; continue;
+      }
+      
       final float priority = plan.priorityFor(actor);
       if (priority > bestPriority) { bestPriority = priority; picked = plan; }
       weights[i++] = priority;
       if (report) I.say("  "+plan+" has priority: "+priority);
     }
     if (! free) {
-      if (report) I.say("Picked: "+picked);
+      if (report) {
+        I.say("  Emergency? "+isEmergency);
+        I.say("  Top Pick:  "+picked     );
+      }
       return picked;
     }
     //
@@ -153,11 +166,12 @@ public class Choice implements Qualities {
     //  of comparable attractiveness to the most important are considered-
     final float minPriority = competeThreshold(actor, bestPriority, false);
     if (report) {
+      I.say("  Emergency?     "+isEmergency );
       I.say("  Best priority: "+bestPriority);
-      I.say("  Min. priority: "+minPriority);
+      I.say("  Min. priority: "+minPriority );
     }
-    float sumWeights = 0;
-    for (i = weights.length; i-- > 0;) {
+    float sumWeights = i = 0;
+    for (; i < plans.size(); i++) {
       weights[i] = Nums.max(0, weights[i] - minPriority);
       sumWeights += weights[i];
     }
@@ -186,6 +200,12 @@ public class Choice implements Qualities {
     if (report) I.say("\nConsidering switch from "+last+" to "+next);
     if (next == null) return false;
     if (last == null) return true ;
+    
+    final boolean
+      lastUrgent = last.isEmergency(),
+      nextUrgent = next.isEmergency();
+    if (lastUrgent && ! nextUrgent) return false;
+    if (nextUrgent && ! lastUrgent) return true ;
     
     final float
       lastPriority = last.priorityFor(actor),

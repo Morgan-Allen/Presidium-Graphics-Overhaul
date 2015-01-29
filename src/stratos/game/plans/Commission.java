@@ -41,7 +41,7 @@ public class Commission extends Plan {
   //  TODO:  Pass in the Conversion used for manufacture as well!
   
   private Commission(Actor actor, Item baseItem, Venue shop) {
-    super(actor, shop, true, NO_HARM);
+    super(actor, shop, MOTIVE_AMBITION, NO_HARM);
     this.item = Item.withReference(baseItem, actor);
     this.shop = shop;
     

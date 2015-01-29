@@ -82,9 +82,9 @@ public class ReconMission extends Mission {
   
   /**  Behaviour implementation-
     */
-  public Behaviour nextStepFor(Actor actor) {
+  public Behaviour createStepFor(Actor actor) {
     if (finished()) return null;
-    final Behaviour cached = cachedStepFor(actor, false);
+    final Behaviour cached = nextStepFor(actor, false);
     if (cached != null) return cached;
     
     final float range = exploreRadius();
@@ -112,7 +112,7 @@ public class ReconMission extends Mission {
   }
   
   
-  public void describeBehaviour(Description d) {
+  public void describeMission(Description d) {
     d.append("On ");
     d.append("Recon Mission", this);
     final Tile tile = (Tile) subject;

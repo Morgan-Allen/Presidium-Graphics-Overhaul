@@ -58,9 +58,7 @@ Also apply to off-world missions-
 //*/
 
 
-public abstract class Mission implements
-  Behaviour, Session.Saveable, Selectable
-{
+public abstract class Mission implements Session.Saveable, Selectable {
   
   protected static boolean
     verbose     = false,
@@ -281,10 +279,16 @@ public abstract class Mission implements
     return done;
   }
   
-  
+  /*
   public boolean persistent() {
     return true;
   }
+  
+  
+  public boolean isEmergency() {
+    return false;
+  }
+  //*/
   
   
   public boolean isActive() {
@@ -299,6 +303,7 @@ public abstract class Mission implements
   
   
   protected abstract boolean shouldEnd();
+  protected abstract Behaviour createStepFor(Actor actor);
   
   
   
@@ -408,7 +413,7 @@ public abstract class Mission implements
       }
       else {
         final Actor active = role.applicant;
-        active.mind.assignBehaviour(nextStepFor(active));
+        active.mind.assignBehaviour(createStepFor(active));
       }
     }
   }
@@ -436,7 +441,7 @@ public abstract class Mission implements
       //
       //  Be sure to de-register this mission from the actor's agenda:
       role.applicant.mind.assignMission(null);
-      if (role.cached != null) role.cached.interrupt(INTERRUPT_CANCEL);
+      if (role.cached != null) role.cached.interrupt(Plan.INTERRUPT_CANCEL);
     }
     //
     //  And perform some cleanup of graphical odds and ends-
@@ -447,18 +452,18 @@ public abstract class Mission implements
   
   /**  Behaviour implementation for the benefit of any applicants/agents:
     */
-  public Behaviour cachedStepFor(Actor actor, boolean create) {
+  public Behaviour nextStepFor(Actor actor, boolean create) {
     if (begun) updateMission();
     if (done) return null;
     
     final Role role = roleFor(actor);
-    if (role == null) return create ? nextStepFor(actor) : null;
+    if (role == null) return create ? createStepFor(actor) : null;
     final Behaviour cached = role.cached;
     if (
       cached == null || cached.finished() ||
       cached.nextStepFor(actor) == null
     ) {
-      return role.cached = create ? nextStepFor(actor) : null;
+      return role.cached = create ? createStepFor(actor) : null;
     }
     return cached;
   }
@@ -479,16 +484,16 @@ public abstract class Mission implements
   
   public float priorityFor(Actor actor) {
     
-    final Behaviour step = cachedStepFor(actor, true);
+    final Behaviour step = nextStepFor(actor, true);
     if (step == null) return -1;
     float priority = step.priorityFor(actor);
     
     final Actor ruler = base.ruler();
     if (ruler != null) {
-      priority += ROUTINE * actor.relations.valueFor(ruler);
+      priority += Plan.ROUTINE * actor.relations.valueFor(ruler);
     }
     
-    if (priority < ROUTINE && actor.mind.mission() != this) return 0;
+    if (priority < Plan.ROUTINE && actor.mind.mission() != this) return 0;
     return priority;
   }
   
@@ -549,10 +554,11 @@ public abstract class Mission implements
     return value;
   }
   
-  
+  /*
   public int motionType(Actor actor) {
     return MOTION_ANY;
   }
+  //*/
   
   
   public void interrupt(String cause) {
@@ -720,6 +726,9 @@ public abstract class Mission implements
       BaseUI.current().selection.pushSelection((Selectable) subject, false);
     }
   }
+
+  
+  public abstract void describeMission(Description d);
   
   
   protected String describeObjective(int objectIndex) {

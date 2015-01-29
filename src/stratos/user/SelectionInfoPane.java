@@ -145,7 +145,7 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
       listingText = null;
       detailText.alignVertical(0, HEADER_HEIGHT);
       detailText.alignAcross  (0, 1.0f         );
-      scrollbar = detailText.makeScrollBar(SCROLL_TEX);
+      scrollbar = detailText .makeScrollBar(SCROLL_TEX);
     }
     
     scrollbar.alignRight(0, SCROLLBAR_WIDE);
@@ -251,7 +251,7 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
     }
     
     detailText .setText("");
-    listingText.setText("");
+    if (listingText != null) listingText.setText("");
   }
 }
 

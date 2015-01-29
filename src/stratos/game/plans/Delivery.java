@@ -72,7 +72,7 @@ public class Delivery extends Plan {
   
   
   public Delivery(Item items[], Owner origin, Owner destination) {
-    super(null, destination, true, NO_HARM);
+    super(null, destination, MOTIVE_JOB, NO_HARM);
     this.origin = origin;
     this.destination = destination;
     this.items = items;

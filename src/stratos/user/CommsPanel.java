@@ -37,7 +37,7 @@ public class CommsPanel extends SelectionInfoPane {
   
   
   public CommsPanel(BaseUI UI) {
-    super(UI, null, null, true, ALL_CATEGORIES);
+    super(UI, null, null, false, ALL_CATEGORIES);
   }
   
   

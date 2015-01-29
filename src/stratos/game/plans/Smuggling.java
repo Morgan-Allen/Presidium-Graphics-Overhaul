@@ -31,7 +31,7 @@ public class Smuggling extends Plan implements Offworld.Activity {
   
   
   public Smuggling(Actor actor, Venue warehouse, Vehicle vessel, Item moved[]) {
-    super(actor, vessel, true, NO_HARM);
+    super(actor, vessel, MOTIVE_JOB, NO_HARM);
     this.warehouse = warehouse;
     this.vessel    = vessel;
     this.moved     = moved;

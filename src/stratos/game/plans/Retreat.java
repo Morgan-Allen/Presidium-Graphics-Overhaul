@@ -42,7 +42,7 @@ public class Retreat extends Plan implements Qualities {
   
   
   public Retreat(Actor actor, Boarding safePoint) {
-    super(actor, actor, false, NO_HARM);
+    super(actor, actor, MOTIVE_LEISURE, NO_HARM);
     this.safePoint = safePoint;
   }
 
@@ -86,6 +86,8 @@ public class Retreat extends Plan implements Qualities {
     }
     
     final boolean emergency = actor.senses.isEmergency();
+    setMotive(emergency ? MOTIVE_EMERGENCY : MOTIVE_LEISURE, motiveBonus());
+    
     float danger = Nums.max(
       actor.senses.fearLevel(),
       Plan.dangerPenalty(actor, actor)

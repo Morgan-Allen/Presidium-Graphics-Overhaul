@@ -58,7 +58,7 @@ public class Recreation extends Plan {
   
   
   public Recreation(Actor actor, Venue venue, int performType, float cost) {
-    super(actor, (Element) venue, true, NO_HARM);
+    super(actor, (Element) venue, MOTIVE_LEISURE, NO_HARM);
     this.venue = venue;
     this.type = performType;
     this.cost = cost;

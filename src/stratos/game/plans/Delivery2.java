@@ -33,7 +33,7 @@ public class Delivery2 extends Plan {
   
   
   public Delivery2(Item items[], Owner seller, Owner buyer) {
-    super(null, seller, true, NO_HARM);
+    super(null, seller, MOTIVE_JOB, NO_HARM);
     this.items  = items ;
     this.seller = seller;
     this.buyer  = buyer ;
