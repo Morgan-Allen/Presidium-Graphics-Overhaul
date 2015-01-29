@@ -170,7 +170,6 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     jobs.add(DeliveryUtils.bestBulkCollectionFor(this, lacks, 2, 10, depots));
     if (! jobs.empty()) { choice.add(jobs.pickMostUrgent()); return; }
     
-    
     if (dropPoint instanceof Venue) {
       final Venue hangar = (Venue) dropPoint;
       final Traded t[] = hangar.services();

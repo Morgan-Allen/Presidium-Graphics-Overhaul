@@ -3,6 +3,7 @@
 
 package stratos.game.wild;
 import stratos.game.common.*;
+import stratos.game.economic.Inventory;
 import stratos.game.maps.StageTerrain;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
@@ -121,6 +122,7 @@ public class Outcrop extends Fixture {
     s.saveFloat(condition);
   }
   
+  
 
   public boolean canPlace() {
     //  This only gets called just before entering the world, so I think I can
@@ -144,6 +146,11 @@ public class Outcrop extends Fixture {
     setAsEstablished(true);
     world.presences.togglePresence(this, origin(), true , Outcrop.class);
     return true;
+  }
+  
+  
+  public int owningTier() {
+    return Inventory.Owner.TIER_CARRIES;
   }
   
   

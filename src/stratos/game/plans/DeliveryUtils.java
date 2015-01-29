@@ -16,8 +16,8 @@ public class DeliveryUtils {
   private static boolean
     sampleVerbose = false,
     rateVerbose   = false,
-    shipsVerbose  = false,
-    dispVerbose   = false;
+    dispVerbose   = false,
+    rejectVerbose = false;
   
   private static Traded verboseGoodType = null;
   private static Class  verboseDestType = null;
@@ -233,35 +233,47 @@ public class DeliveryUtils {
     Owner origin, Owner destination, Traded goods[],
     int baseUnit, int amountLimit
   ) {
+    final boolean report = rateVerbose && (
+      I.talkAbout == destination || I.talkAbout == origin
+    );
     int goodAmounts[] = new int[goods.length];
     int sumAmounts = 0;
-    
+    //
+    //  In essence, we take the single most demanded good at each step, and
+    //  increment the size of the order for that by the base unit, until we
+    //  run out of either (A) space or (B) demand for any goods.
     while (true) {
       int   bestIndex  = -1;
       float bestRating =  0;
-      
+      //
+      //  We can skip over any provisioned goods, as these are distributed over
+      //  the road network.
       for (int i = goods.length; i-- > 0;) {
+        if (goods[i].form == FORM_PROVISION) continue;
+        
         final int nextAmount = goodAmounts[i] + baseUnit;
         final float rating = rateTrading(
           origin, destination, goods[i], nextAmount
         );
         if (rating > bestRating) { bestRating = rating; bestIndex = i; }
       }
-      
       if (bestIndex == -1) break;
       goodAmounts[bestIndex] += baseUnit;
-      sumAmounts += baseUnit;
+      sumAmounts             += baseUnit;
       if (sumAmounts >= amountLimit) break;
     }
-    if (sumAmounts <= 0) return null;
-    
-    //  TODO:  Try unifying with the 'compressOrder' method?...
+    if (sumAmounts == 0) return null;
+    //
+    //  Then just convert to an set of items and set the correct payment
+    //  options-
     final Batch <Item> toTake = new Batch <Item> ();
     for (int i = goods.length; i-- > 0;) {
       final int amount = goodAmounts[i];
       if (amount > 0) toTake.add(Item.withAmount(goods[i], amount));
     }
-    
+    if (report) {
+      I.say("\nFinal order batch is: "+toTake);
+    }
     final Delivery order = new Delivery(toTake, origin, destination);
     return order.setWithPayment(destination, false);
   }

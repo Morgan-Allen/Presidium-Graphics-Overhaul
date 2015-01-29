@@ -262,9 +262,10 @@ public class StockExchange extends Venue {
   
   protected void addServices(Choice choice, Actor actor) {
     if (! (actor.mind.home() instanceof Holding)) return;
+    final Holding holding = (Holding) actor.mind.home();
     
     final Delivery d = DeliveryUtils.fillBulkOrder(
-      this, actor.mind.home(), services(), 1, 5
+      this, holding, holding.stocks.demanded(), 1, 5
     );
     if (d != null) choice.add(d.setWithPayment(actor, true));
   }
@@ -343,7 +344,12 @@ public class StockExchange extends Venue {
 
 
   public String helpInfo() {
-    return
+    if (inWorld() && ! isManned()) {
+      return
+        "The Stock Exchange cannot provide goods to local homeowners unless "+
+        "someone is there to man the stalls!";
+    }
+    else return
       "The Stock Exchange facilitates small-scale purchases within "+
       "residential neighbourhoods, and bulk transactions between local "+
       "merchants.";

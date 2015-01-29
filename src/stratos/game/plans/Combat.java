@@ -162,8 +162,21 @@ public class Combat extends Plan implements Qualities {
   
   
   public int motionType(Actor actor) {
-    final int type = super.motionType(actor);
-    return type;
+    if (CombatUtils.isDowned(subject, object)) return MOTION_ANY;
+    final boolean
+      canSee = actor.senses.awareOf(subject),
+      urgent = actor.senses.isEmergency();
+    
+    if (urgent) {
+      return MOTION_FAST;
+    }
+    else if (subject instanceof Venue && canSee) {
+      return MOTION_FAST;
+    }
+    else if (subject instanceof Actor && canSee) {
+      return MOTION_SNEAK;
+    }
+    else return super.motionType(actor);
   }
   
   

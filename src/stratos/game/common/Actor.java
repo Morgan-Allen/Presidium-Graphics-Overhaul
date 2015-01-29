@@ -229,7 +229,7 @@ public abstract class Actor extends Mobile implements
     }
     assignAction(null);
     if (normal) {
-      mind.cancelBehaviour(mind.topBehaviour());
+      mind.cancelBehaviour(mind.topBehaviour(), "Exiting world!");
       mind.onWorldExit();
     }
     super.exitWorld();
@@ -354,7 +354,7 @@ public abstract class Actor extends Mobile implements
     );
     falling.setProperties(Action.NO_LOOP | Action.PHYS_FX);
     pathing.updateTarget(null);
-    mind.cancelBehaviour(mind.rootBehaviour());
+    mind.cancelBehaviour(mind.rootBehaviour(), "Actor knocked out!");
     this.assignAction(falling);
   }
   

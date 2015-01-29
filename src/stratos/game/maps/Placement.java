@@ -220,6 +220,7 @@ public class Placement implements TileConstants {
     final Stage world = element.origin().world;
     final Box2D area = element.area(tA);
     final Tile perim[] = Spacing.perimeter(area, world);
+    final int tier = element.owningTier();
     //
     //  Here, we check the first perimeter.  First, determine where the first
     //  taken (reserved) tile after a contiguous gap is-
@@ -227,7 +228,7 @@ public class Placement implements TileConstants {
     int index = perim.length - 1;
     while (index >= 0) {
       final Tile t = perim[index];
-      if (t == null || t.reserved()) {
+      if (t == null || t.owningTier() >= tier) {
         if (inClearSpace) break;
       }
       else { inClearSpace = true; }
@@ -243,7 +244,7 @@ public class Placement implements TileConstants {
     int numSpaces = 0;
     for (index = firstClear; index != firstTaken;) {
       final Tile t = perim[index];
-      if (t == null || t.reserved()) {
+      if (t == null || t.owningTier() >= tier) {
         inClearSpace = false;
       }
       else if (! inClearSpace) { inClearSpace = true; numSpaces++; }
@@ -269,6 +270,7 @@ public class Placement implements TileConstants {
     Stage world, Element f, Tile outerPerim[]
   ) {
     final boolean report = false;
+    final int tier = f.owningTier();
     
     final Tile at = f.origin();
     final StageSection belongs = world.sections.sectionAt(at.x, at.y);
@@ -278,7 +280,7 @@ public class Placement implements TileConstants {
     }
     
     for (Tile t : outerPerim) {
-      if (t == null || t.onTop() == null || ! t.reserved()) continue;
+      if (t == null || t.owningTier() < tier) continue;
       
       //  TODO:  You can ignore any structures whose claim you could normally
       //  override!

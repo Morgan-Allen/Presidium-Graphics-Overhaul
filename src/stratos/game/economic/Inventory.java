@@ -44,6 +44,7 @@ public class Inventory {
   public static interface Owner extends Target, Session.Saveable {
     
     final static int
+      TIER_NATURAL = -2,
       TIER_CARRIES = -1,
       TIER_PRIVATE =  0,
       TIER_PUBLIC  =  1,

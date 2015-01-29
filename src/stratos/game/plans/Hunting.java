@@ -259,15 +259,6 @@ public class Hunting extends Combat {
   }
   
   
-  public int motionType(Actor actor) {
-    if (type == TYPE_SAMPLE && actor.gear.hasItem(sample())) return MOTION_ANY;
-    if (CombatUtils.isDowned(prey, object)) return MOTION_ANY;
-    else if (prey.senses.awareOf(actor)) return MOTION_FAST;
-    else if (actor.senses.awareOf(prey)) return MOTION_SNEAK;
-    else return super.motionType(actor);
-  }
-  
-  
   public boolean actionFeed(Actor actor, Actor prey) {
     //  Determine just how large a chunk you can take out of the prey-
     final float

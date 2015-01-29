@@ -13,10 +13,17 @@ import stratos.util.*;
 
 //  BIG BUGFIX TODO LIST:
 
+//  *  Rock outcrops/dunes are not being properly spaced, thanks to the change
+//     in the placement system (they don't count as 'owned' anymore.)
+
+//  *  The fight/flee/talk orders are not being correctly sequenced.
+
+//  *  Holdings are being auto-placed in stupid locations.
+
 
 /*  BIG TODO LIST:
 
-*  Need to ensure that combat/retreat/negotiation/stealth always trump other
+*  Need to ensure that combat/hiding/negotiation/aiding always trump other
    activities.
 
 *  Need to ensure that unemployed job-seekers are more sensible.

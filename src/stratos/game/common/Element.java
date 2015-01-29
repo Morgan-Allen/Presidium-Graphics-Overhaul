@@ -4,6 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.common;
+import stratos.game.economic.Inventory;
 import stratos.graphics.common.*;
 import stratos.util.*;
 
@@ -167,6 +168,11 @@ public class Element implements
     */
   public int pathType() {
     return Tile.PATH_BLOCKS;
+  }
+  
+  
+  public int owningTier() {
+    return Inventory.Owner.TIER_NATURAL;
   }
   
   

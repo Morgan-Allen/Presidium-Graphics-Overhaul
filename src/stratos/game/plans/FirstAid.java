@@ -18,8 +18,8 @@ public class FirstAid extends Treatment {
   
   
   private static boolean
-    verbose     = false,
-    evalVerbose = false;
+    evalVerbose  = true ,
+    stepsVerbose = true ;
   
   
   public FirstAid(Actor actor, Actor patient) {
@@ -74,6 +74,9 @@ public class FirstAid extends Treatment {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (patient.health.conscious() || ! patient.health.organic()) return 0;
     
+    final Actor carries = Suspensor.carrying(patient);
+    if (carries != null && carries != actor) return -1;
+    
     final float severity = severity();
     if (severity <= 0) return 0;
     
@@ -81,14 +84,13 @@ public class FirstAid extends Treatment {
     float modifier = 0;//actor.senses.isEmergency() ? -1 : 0;
     final boolean ally = CombatUtils.isAllyOf(actor, patient);
     if (ally) modifier += severity;
-    
-    if (! CombatUtils.isArmed(patient)) {
+    if (ally || ! CombatUtils.isArmed(patient)) {
       modifier += severity * (1f + actor.traits.relativeLevel(ETHICAL)) / 2;
     }
     
     final float priority = priorityForActorWith(
       actor, patient,
-      severity * ROUTINE, modifier * ROUTINE,
+      ROUTINE, modifier * PARAMOUNT,
       REAL_HELP, FULL_COMPETITION, NO_FAIL_RISK,
       BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report
@@ -109,7 +111,9 @@ public class FirstAid extends Treatment {
   
   
   protected Behaviour getNextStep() {
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = stepsVerbose && I.talkAbout == actor;
+    if (report) I.say("\nGetting next first aid step for "+actor);
+    
     final boolean underFire = actor.senses.isEmergency();
     
     if (patient.health.bleeding() && ! underFire) {
@@ -121,7 +125,9 @@ public class FirstAid extends Treatment {
       return aids;
     }
     
-    if (sickbay == null) sickbay = findRefuge(actor);
+    if (sickbay == null) {
+      sickbay = findRefuge(actor);
+    }
     if (sickbay != null && ! patient.indoors()) {
       final StretcherDelivery d = new StretcherDelivery(
         actor, patient, sickbay
@@ -132,8 +138,9 @@ public class FirstAid extends Treatment {
       }
     }
     
-    if (underFire) return null;
-    if (Treatment.hasTreatment(INJURY, patient, hasBegun())) return null;
+    if (Treatment.hasTreatment(INJURY, patient, hasBegun())) {
+      return null;
+    }
     final Action aids = new Action(
       actor, patient,
       this, "actionFirstAid",

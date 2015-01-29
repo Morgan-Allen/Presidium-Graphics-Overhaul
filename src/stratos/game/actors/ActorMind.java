@@ -147,6 +147,8 @@ public abstract class ActorMind implements Qualities {
     final boolean report = I.talkAbout == actor && stepsVerbose;
     Behaviour root = null, next = null;
     final int MAX_LOOP = 20;
+    final String cause = "Getting next action";
+    
     for (int loop = MAX_LOOP; loop-- > 0;) {
       //
       //  Firstly, check to ensure that our root behaviour is still valid- if
@@ -167,7 +169,7 @@ public abstract class ActorMind implements Qualities {
       }
       //
       //  Then, delete all existing entries from the agenda.
-      for (Behaviour b : agenda) popBehaviour(b);
+      for (Behaviour b : agenda) popBehaviour(b, cause);
       if (! Plan.canFollow(actor, root)) {
         I.say("  CANNOT FOLLOW PLAN: "+root);
         return null;
@@ -178,7 +180,7 @@ public abstract class ActorMind implements Qualities {
       //  cancel from the root and start over.
       next = root;
       while (loop-- > 0) {
-        pushBehaviour(next);
+        pushBehaviour(next, cause);
         next = next.nextStepFor(actor);
         final boolean valid = Plan.canFollow(actor, next);
         if (report) {
@@ -188,7 +190,7 @@ public abstract class ActorMind implements Qualities {
         if (! valid) break;
         else if (next instanceof Action) return (Action) next;
       }
-      cancelBehaviour(root);
+      cancelBehaviour(root, cause);
     }
     if (warnVerbose) {
       //
@@ -263,7 +265,7 @@ public abstract class ActorMind implements Qualities {
     this.mission = mission;
     
     if (oldMission != null) {
-      cancelBehaviour(oldMission);
+      cancelBehaviour(oldMission, "Assigned new mission");
       oldMission.setApplicant(actor, false);
     }
     if (mission != null) {
@@ -290,25 +292,27 @@ public abstract class ActorMind implements Qualities {
   
   /**  Methods related to maintaining the agenda stack-
     */
-  private void pushBehaviour(Behaviour b) {
+  private void pushBehaviour(Behaviour b, String cause) {
     if (todoList.includes(b)) todoList.remove(b);
     agenda.addFirst(b);
     if (stepsVerbose && I.talkAbout == actor) {
       I.say("\nPUSHING BEHAVIOUR: "+b);
+      I.say("  Cause:          "+cause);
     }
     b.toggleActive(true);
   }
   
   
-  private Behaviour popBehaviour(Behaviour toPop) {
+  private Behaviour popBehaviour(Behaviour toPop, String cause) {
     if (toPop != null && agenda.first() != toPop) {
       return toPop;
     }
     final Behaviour b = agenda.removeFirst();
     if (stepsVerbose && I.talkAbout == actor) {
       I.say("\nPOPPING BEHAVIOUR: "+b);
+      I.say("  Cause:          "+cause);
       I.say("  Finished/valid: "+b.finished()+"/"+b.valid());
-      I.say("  Priority "+b.priorityFor(actor));
+      I.say("  Priority        "+b.priorityFor(actor));
     }
     b.toggleActive(false);
     return b;
@@ -329,7 +333,7 @@ public abstract class ActorMind implements Qualities {
     actor.assignAction(null);
     
     final Behaviour replaced = rootBehaviour();
-    cancelBehaviour(replaced);
+    cancelBehaviour(replaced, "Assigned new behaviour");
     
     if (Plan.canPersist(replaced)) {
       if (report) I.say("  SAVING PLAN AS TODO: "+replaced);
@@ -338,7 +342,7 @@ public abstract class ActorMind implements Qualities {
     
     behaviour.priorityFor(actor);
     behaviour.nextStepFor(actor);
-    pushBehaviour(behaviour);
+    pushBehaviour(behaviour, "Assigned new behaviour");
   }
   
   
@@ -347,19 +351,21 @@ public abstract class ActorMind implements Qualities {
       //I.complain("Behaviour not active.");
       return;
     }
-    cancelBehaviour(parent);
-    pushBehaviour(parent);
-    pushBehaviour(b);
+    
+    final String cause = "Pushing behaviour from parent";
+    cancelBehaviour(parent, cause);
+    pushBehaviour(parent, cause);
+    pushBehaviour(b, cause);
     actor.assignAction(null);
   }
   
   
-  public void cancelBehaviour(Behaviour b) {
+  public void cancelBehaviour(Behaviour b, String cause) {
     final boolean report = I.talkAbout == actor && decisionVerbose;
     if (! agenda.includes(b)) return;
     if (report) I.say("\nCANCELLING "+b);
     while (agenda.size() > 0) {
-      final Behaviour popped = popBehaviour(null);
+      final Behaviour popped = popBehaviour(null, cause);
       if (popped == b) break;
     }
     todoList.remove(b);
@@ -382,7 +388,9 @@ public abstract class ActorMind implements Qualities {
   
   
   public void clearAgenda() {
-    if (rootBehaviour() != null) cancelBehaviour(rootBehaviour());
+    if (rootBehaviour() != null) {
+      cancelBehaviour(rootBehaviour(), "Clearing agenda");
+    }
     todoList.clear();
   }
   
@@ -404,6 +412,13 @@ public abstract class ActorMind implements Qualities {
   
   public Behaviour rootBehaviour() {
     return agenda.last();
+  }
+  
+  
+  public float urgency() {
+    Behaviour b = rootBehaviour();
+    if (b == null) return 0;
+    return b.priorityFor(actor) / Plan.PARAMOUNT;
   }
   
   

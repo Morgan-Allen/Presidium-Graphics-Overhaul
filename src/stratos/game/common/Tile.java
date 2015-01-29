@@ -38,7 +38,7 @@ public final class Tile implements
   
   private float elevation = Float.NEGATIVE_INFINITY;
   private Habitat habitat = null;
-  private Element onTop, below;
+  private Element onTop   = null;
   private Stack <Mobile> inside = NONE_INSIDE;
   
   
@@ -157,6 +157,14 @@ public final class Tile implements
   public boolean reserved() {
     if (isEntrance()) return true;
     return onTop != null && onTop.base() != null;
+  }
+  
+  
+  //  TODO:  Get rid of this.  Or at least, see if the claims-system can't
+  //         serve the same function.
+  public int owningTier() {
+    if (onTop == null) return Inventory.Owner.TIER_NATURAL;
+    else return onTop.owningTier();
   }
   
   

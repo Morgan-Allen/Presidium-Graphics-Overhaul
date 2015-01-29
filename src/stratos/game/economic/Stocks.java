@@ -322,10 +322,21 @@ public class Stocks extends Inventory {
   
   
   public void updateDemands(int period) {
+    final boolean report = I.talkAbout == basis && verbose;
+    if (report) {
+      I.say("\nUpdating stock demands for "+basis);
+      I.say("  Base period: "+period);
+    }
+    
     final Presences   BP = basis.world().presences;
-    final BaseDemands BD = basis.base().demands;
+    final BaseDemands BD = basis.base ().demands;
     final Tile        at = basis.world().tileAt(basis);
-    final int maxSupply = basis.staff().workforce() * SUPPLY_PER_WORKER;
+    final int maxSupply  = basis.staff().workforce() * SUPPLY_PER_WORKER;
+    
+    final Traded services[] = basis.services();
+    if (services != null) for (Traded t : services) {
+      if (demands.get(t) == null) incDemand(t, 0, Tier.PRODUCER, period);
+    }
     
     for (Manufacture m : specialOrders) {
       translateDemands(m.conversion, period);
@@ -341,17 +352,20 @@ public class Stocks extends Inventory {
       final boolean trades = tier == Tier.TRADER, fixed = d.fixed;
       final float amount = amountOf(type);
       
-      final boolean gives = amount > 0 && (
+      final boolean shouldGive = (
         tier == Tier.PRODUCER || tier == Tier.IMPORTER || trades
       );
-      final boolean takes = d.demandAmount > 0 && (
+      final boolean shouldTake = (
         tier == Tier.CONSUMER || tier == Tier.EXPORTER || trades
       );
-      
       if (! fixed) d.demandAmount = d.demandBonus / period;
       d.demandBonus = 0;
+      if (report) {
+        I.say("  Updating channel for "+d.type);
+        I.say("    Gives/takes:   "+shouldGive+"/"+shouldTake);
+      }
       
-      if (gives) {
+      if (shouldGive) {
         final float
           demandEst = BD.demandAround (basis, type, -1),
           shortage  = BD.localShortage(basis, type    );
@@ -361,13 +375,21 @@ public class Stocks extends Inventory {
           d.demandAmount += Nums.min (minSupply, maxSupply);
         }
         final float supplyEst = (d.demandAmount + amount) / 2;
+        if (report) {
+          I.say("    Local demand:     "+demandEst);
+          I.say("    Local shortage:   "+shortage );
+          I.say("    Impinging supply: "+supplyEst);
+        }
         BD.impingeSupply(type, supplyEst, period, basis);
       }
       
+      final boolean
+        gives = shouldGive && amount         > 0,
+        takes = shouldTake && d.demandAmount > 0;
       if (takes) {
+        if (report) I.say("    Impinging demand: "+d.demandAmount);
         BD.impingeDemand(type, d.demandAmount, period, basis);
       }
-      
       BP.togglePresence(basis, at, gives, type.supplyKey);
       BP.togglePresence(basis, at, takes, type.demandKey);
     }

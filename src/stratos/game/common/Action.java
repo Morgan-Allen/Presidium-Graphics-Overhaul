@@ -8,6 +8,7 @@
 package stratos.game.common;
 import stratos.game.actors.ActorSenses;
 import stratos.game.actors.Behaviour;
+import stratos.game.actors.Plan;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.graphics.common.*;
@@ -251,6 +252,11 @@ public class Action implements Behaviour, AnimNames {
       if (b == this) continue;
       final int MT = b.motionType(actor);
       if (MT != MOTION_ANY) { motionType = MT; break; }
+    }
+    
+    if (motionType == MOTION_FAST) {
+      float urgency = (Nums.clamp(actor.mind.urgency(), 0, 1) + 0.5f) / 2;
+      if (actor.health.fatigueLevel() > urgency) return MOTION_NORMAL;
     }
     return motionType;
   }

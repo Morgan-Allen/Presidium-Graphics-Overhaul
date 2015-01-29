@@ -11,15 +11,12 @@ import stratos.util.*;
 
 
 
-//  TODO:  I may be able to dispense with the actor's agenda entirely here-
-//         just query the chain of activities forward from the root, down
-//         to the action.  It's all there.
-
 public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   /**  Fields, constructors, and save/load methods-
     */
+  //*
   final public static int
     MOTIVE_INIT      = -1,
     MOTIVE_LEISURE   =  0,
@@ -27,6 +24,10 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     MOTIVE_EMERGENCY =  2,
     MOTIVE_MISSION   =  3,
     MOTIVE_CANCELLED =  5;
+  //*/
+  
+  //  Init, Emergency, Leisure, Job, Cancelled.
+  
   final static float
     NULL_PRIORITY = -100;
   
@@ -36,7 +37,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     evalVerbose  = false,
     doesVerbose  = false;
   private static Class
-    verboseClass = FindWork.class;
+    verboseClass = null;
   
   final public Target subject;
   protected Actor actor;  //  TODO:  MAKE THIS FINAL
@@ -49,7 +50,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     nextStep = null,
     lastStep = null;
   
-  private int motiveType = MOTIVE_INIT;
+  private int   motiveType  = MOTIVE_INIT;
   private float motiveBonus = 0;
   private float harmFactor, competence;
   private boolean begun;
@@ -150,7 +151,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     }
     nextStep = lastStep = null;
     priorityEval = NULL_PRIORITY;
-    actor.mind.cancelBehaviour(this);
+    actor.mind.cancelBehaviour(this, cause);
     setMotive(MOTIVE_CANCELLED, 0);
   }
   

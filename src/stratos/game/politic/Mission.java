@@ -558,11 +558,14 @@ public abstract class Mission implements
   public void interrupt(String cause) {
     final boolean report = verbose && BaseUI.current().played() == base;
     //  TODO:  There needs to be a special-case handler for this.  You also
-    //  need to identify the cancelling actor.
+    //  need to identify the cancelling actor, and *only* remove them.
     if (report) {
       I.say("\nCancelling mission: "+this);
       I.say("  Cause: "+cause);
     }
+    
+    I.say("\nMISSION INTERRUPTED: "+cause+" ("+this+")");
+    endMission(true);
   }
   
   

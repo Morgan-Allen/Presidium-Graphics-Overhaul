@@ -246,6 +246,7 @@ public class Delivery extends Plan {
   }
   
   
+  
   /**  Register and unregistering reservations-
     */
   public void toggleActive(boolean is) {
@@ -260,29 +261,38 @@ public class Delivery extends Plan {
     */
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
+    if (report) I.say("\nEvaluating special factors for delivery priority:");
     //
     //  Determine basic priorities and delivery type:
     final boolean shops = shouldPay == actor;
     float base = ROUTINE, modifier = NO_MODIFIER;
-    if (! checkValidPayment(shouldPay)) return -1;
+    if (! checkValidPayment(shouldPay)) {
+      if (report) I.say("  Cannot find valid payment!");
+      return -1;
+    }
     //
     //  Personal purchases get a few special modifiers-
     if (shops && stage <= STAGE_PICKUP) {
-      if (! manned(origin)) return -1;
+      if (! manned(origin)) {
+        if (report) I.say("  Origin is not manned!");
+        return -1;
+      }
       
       int price = 0;
       for (Item i : items) {
         price += i.priceAt(origin);
         modifier += ActorMotives.rateDesire(i, null, actor);
       }
-      if (price > actor.gear.credits()) return 0;
+      if (price > actor.gear.credits()) {
+        if (report) I.say("  Insufficient funds!");
+        return -1;
+      }
       modifier -= ActorMotives.greedPriority(actor, price);
     }
     //
     //  Otherwise, add a bonus for quantity-
     if (! shops) {
       for (Item i : items) modifier += IDLE * i.amount / 10f;
-      //if (balance != 0) modifier = Nums.max(modifier, CASUAL);
     }
     //
     //  Finally, since this plan involves a good deal of travel, we modify the

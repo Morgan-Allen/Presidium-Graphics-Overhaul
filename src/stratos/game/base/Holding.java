@@ -363,23 +363,33 @@ public class Holding extends Venue {
   
   
   public void addTasks(Choice choice, Actor actor, Background background) {
+    final boolean report = I.talkAbout == this && verbose;
+    
     if (background == Backgrounds.AS_RESIDENT && structure.intact()) {
-      //final Traded goods[] = goodsNeeded();
       //
       //  Otherwise, see if it's possible to make any purchases nearby-
       final Batch <Venue> salePoints = new Batch <Venue> ();
       world.presences.sampleFromMap(
         this, world, 5, salePoints, Economy.SERVICE_COMMERCE
       );
+      
       final Choice buying = new Choice(actor) {
         public boolean add(Behaviour b) {
           if (b instanceof Delivery) return super.add(b);
           else return false;
         }
       };
+      buying.isVerbose = report;
+      
+      if (report) {
+        I.say("\nGetting next upkeep task for "+actor);
+        I.say("  Sale points are: ");
+        for (Venue v : salePoints) I.say("    "+v);
+      }
       for (Venue v : salePoints) {
         v.addTasks(buying, actor, Backgrounds.AS_VISITOR);
       }
+      
       choice.add(buying.weightedPick());
     }
     else super.addTasks(choice, actor, background);
