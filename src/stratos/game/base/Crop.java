@@ -191,22 +191,11 @@ public class Crop extends Element {
     
     //  Then, we determine bonus based on crop type-
     if (isHive(s)) {
-      bonus += t.world.ecology().biomassRating(t);
-      //PU = EcologistStation.INSECTRY_LAB;
+      bonus += t.world.ecology().biomassRating(t) / Nursery.HIVE_DIVISOR;
     }
     else if (isCereal(s)) {
       bonus *= Nursery.CEREAL_BONUS;
-      //PU = EcologistStation.CEREAL_LAB;
     }
-    //else PU = EcologistStation.BROADLEAF_LAB;
-    
-    /*
-    //  And, if allowed, the modifier for structure upgrades-
-    if (parent != null) {
-      final int UB = parent.structure.upgradeBonus(PU);
-      bonus *= 1 + (UB * Plantation.UPGRADE_GROW_BONUS);
-    }
-    //*/
     return Nums.clamp(bonus, 0, Nursery.MAX_HEALTH_BONUS);
   }
   

@@ -114,14 +114,14 @@ public class ActorRelations {
     updateFromObservations();
     
     if (numUpdates % UPDATE_PERIOD != 0) return;
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && verbose;
     if (report) I.say("\nDecaying and culling relations for "+actor);
     
     //  Firstly, sort relations in order of importance (based on the strength
     //  of the relationship, good or bad, and freshness in memory)-
     final List <Relation> sorting = new List <Relation> () {
       protected float queuePriority(Relation r) {
-        return Nums.abs(r.value()) - r.novelty();
+        return r.novelty() - Nums.abs(r.value());
       }
     };
     for (Relation r : relations.values()) sorting.add(r);
@@ -138,12 +138,12 @@ public class ActorRelations {
       
       if (report) {
         I.say("  Have updated relation with "+r.subject);
-        I.say("  ("+count+"/"+MAX_RELATIONS+", okay: "+okay+")");
-        I.say("  Value/novelty: "+r.value()+"/"+r.novelty());
+        I.say("    ("+count+"/"+MAX_RELATIONS+", okay: "+okay+")");
+        I.say("    Value/novelty: "+r.value()+"/"+r.novelty());
       }
       if (personal && (excess || ! okay)) {
         relations.remove(r.subject);
-        if (report) I.say("  Has expired!");
+        if (report) I.say("    EXPIRED");
       }
     }
   }

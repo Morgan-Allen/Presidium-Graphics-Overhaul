@@ -31,7 +31,7 @@ public class AnimalBreeding extends Plan {
     MINIMUM_TAILOR_TIME  = Stage.STANDARD_DAY_LENGTH;
   
   private static boolean
-    evalVerbose  = true ,
+    evalVerbose  = false,
     stepsVerbose = false;
   
   

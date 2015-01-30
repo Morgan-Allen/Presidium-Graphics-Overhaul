@@ -210,7 +210,7 @@ public class HumanMind extends ActorMind implements Qualities {
     
     final boolean timeoff = work == null || ! work.staff().onShift(actor);
     for (Venue venue : around) {
-      if (timeoff && venue.structure().intact()) {
+      if (venue.structure().intact()) {
         venue.addTasks(choice, actor, Backgrounds.AS_VISITOR);
         choice.add(FindWork.attemptFor(actor, venue));
         choice.add(FindHome.attemptFor(actor, venue));

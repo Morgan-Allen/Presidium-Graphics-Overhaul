@@ -13,8 +13,6 @@ import stratos.util.*;
 
 //  BIG BUGFIX TODO LIST:
 
-//  *  The fight/flee/talk orders are not being correctly sequenced.
-
 //  *  Make clear that upgrades aren't available for unfinished structures-
 //     and there's a time-delay, et cetera.
 
@@ -27,6 +25,8 @@ import stratos.util.*;
 
 //  *  It would be nice to have patrols around mobile objects keep ahead of
 //     their client.
+
+//  *  Charge for voluntary medical treatment!
 
 
 /*  BIG TODO LIST:

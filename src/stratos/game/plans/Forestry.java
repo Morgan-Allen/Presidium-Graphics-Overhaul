@@ -139,6 +139,10 @@ public class Forestry extends Plan {
     //  and vice-versa for planting as abundance decreases.
     final float abundance = actor.world().ecology().forestRating(at);
     float bonus = 0;
+    
+    if (stage == STAGE_SAMPLING) {
+      bonus = 1;
+    }
     if (stage == STAGE_GET_SEED || stage == STAGE_PLANTING) {
       bonus += 0.5f - abundance;
     }
@@ -152,7 +156,7 @@ public class Forestry extends Plan {
     //  Otherwise, it's generally a routine activity.
     final float priority = priorityForActorWith(
       actor, subject,
-      CASUAL * (1 + bonus), IDLE * bonus,
+      CASUAL * (1 + bonus), CASUAL * bonus,
       NO_HARM, FULL_COMPETITION, NO_FAIL_RISK,
       BASE_SKILLS, BASE_TRAITS, HEAVY_DISTANCE_CHECK,
       report
@@ -372,10 +376,17 @@ public class Forestry extends Plan {
   
   public static Flora findCutting(Actor actor, Target from) {
     final Target near = from == null ? actor : from;
-    Flora cuts = (Flora) actor.world().presences.nearestMatch(
+    final Presences p = actor.world().presences;
+    
+    Flora cuts = null;
+    cuts = (Flora) p.randomMatchNear(
+      Flora.class, near, Stage.SECTOR_SIZE / 2
+    );
+    if (cuts == null) cuts = (Flora) p.nearestMatch(
       Flora.class, near, Stage.SECTOR_SIZE
     );
     if (cuts == null) return null;
+    
     if (! cuts.inWorld()) {
       I.say("\nWARNING: FLORA TO CUT NOT IN WORLD: "+cuts);
       return null;

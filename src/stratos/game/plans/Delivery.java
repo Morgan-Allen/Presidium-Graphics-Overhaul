@@ -421,7 +421,7 @@ public class Delivery extends Plan {
     for (Item i : items) {
       if (replace) {
         final Item match = b.inventory().matchFor(i);
-        b.inventory().removeItem(match);
+        if (match != null) b.inventory().removeItem(match);
       }
       a.inventory().transfer(i, b);
     }

@@ -139,7 +139,7 @@ public class Farming extends Plan {
       if (picked.blighted()) {
         actionName = "actionDisinfest";
         anim = Action.BUILD;
-        desc = "Disinfesting "+picked;
+        desc = "Weeding "+picked;
       }
       else if (picked.growStage() >= Crop.MIN_HARVEST) {
         actionName = "actionHarvest";

@@ -471,8 +471,8 @@ public class Power implements Qualities {
     
     VOICE_OF_COMMAND = new Power(
       "Voice of Command", PLAYER_ONLY, "power_voice_of_command.gif",
-      "Employs mnemonic triggering to incite specific behavioural response."+
-      "\n(Compels subject to fight, flee, help or speak.)"
+      "Employs psychic suggestion to incite specific behavioural responses."+
+      "\n(Urges subject to fight, flee, help or speak.)"
     ) {
       
       final String options[] = new String[] {
@@ -491,13 +491,21 @@ public class Power implements Qualities {
         Actor caster, String option,
         Target selected, boolean clicked
       ) {
-        if (affects == null) {
-          if (clicked && selected instanceof Actor) {
-            affects = (Actor) selected;
-          }
+        if (affects == null) BaseUI.setPopupMessage(
+          "Select a creature or person to influence."
+        );
+        else BaseUI.setPopupMessage(
+          "Select a focus for interaction."
+        );
+        if (clicked && affects != null) {
+          return applyEffect(caster, option, selected);
         }
-        else {
-          if (clicked) return applyEffect(caster, option, selected);
+        if (clicked && affects == null) {
+          if (selected instanceof Actor) {
+            affects = (Actor) selected;
+            applyFX(affects, 0.5f);
+          }
+          else return true;
         }
         return false;
       }
@@ -506,8 +514,11 @@ public class Power implements Qualities {
       private boolean applyEffect(
         Actor caster, String option, Target selected
       ) {
+        final boolean report = true;
+        
         Plan command = null;
-        if (option == options[0] && selected instanceof Tile) {
+        if (option == options[0] && selected instanceof Tile ) {
+          //  TODO:  Allow retreat to venues as well.
           command = new Retreat(affects, (Tile) selected);
         }
         if (option == options[1] && selected instanceof Actor) {
@@ -521,48 +532,65 @@ public class Power implements Qualities {
             affects, (Actor) selected, Dialogue.TYPE_CONTACT
           );
         }
-        if (command == null) return false;
+        if (command == null) return true;
         
+        final boolean cast = caster != null && ! GameSettings.psyFree;
         final float truePriority = command.priorityFor(affects);
         final Behaviour root = affects.mind.rootBehaviour();
         final float
           oldPriority = root == null ? 0 : root.priorityFor(affects),
           affinity = (truePriority - oldPriority) / Plan.PARAMOUNT;
         
-        float priorityMod = Plan.ROUTINE;
-        if (caster != null && ! GameSettings.psyFree) {
-          final float cost = 5f;
-          priorityMod += caster.traits.usedLevel(SUGGESTION) / 5f;
+        float priorityMod = 0;
+        if (cast) {
+          final float cost = 5f, magnitude = Nums.abs(affinity);
+          priorityMod += caster.traits.usedLevel(SUGGESTION) / 2f;
           caster.health.takeConcentration(cost);
           caster.skills.practiceAgainst(10, cost, SYNESTHESIA);
-          affects.relations.incRelation(caster, affinity, 0.1f, 0);
+          affects.relations.incRelation(caster, affinity, magnitude, 0);
         }
-        else priorityMod = Plan.PARAMOUNT;
-        
+        else priorityMod = Plan.ROUTINE;
+        priorityMod *= (0.5f + Rand.avgNums(2));
         command.setMotive(Plan.MOTIVE_EMERGENCY, priorityMod);
+        final float activePriority = command.priorityFor(affects);
         
-        if (! affects.mind.mustIgnore(command)) {
-          DialogueUtils.utters(affects, "Yeah, maybe I'd better...", affinity);
+        if (report) {
+          I.say("\nApplying suggestion to "+affects);
+          I.say("  Current task:    "+root          );
+          I.say("  Task priority:   "+oldPriority   );
+          I.say("  Command is:      "+command       );
+          I.say("  True priority:   "+truePriority  );
+          I.say("  Priority bonus:  "+priorityMod   );
+          I.say("  Active priority: "+activePriority);
+          I.say("  Affinity rating: "+affinity      );
+        }
+        
+        if (activePriority > 0 && ! affects.mind.mustIgnore(command)) {
+          affects.chat.addPhrase("Yeah, maybe I'd better...", TalkFX.FROM_LEFT);
           affects.mind.assignBehaviour(command);
+          if (report) I.say("Compulsion accepted!");
         }
         else {
-          DialogueUtils.utters(affects, "Get out of my head!!!", affinity);
-          I.say("Compulsion refused! "+command);
-          I.say("Priority was: "+command.priorityFor(affects));
+          affects.chat.addPhrase("Get out of my head!!!", TalkFX.FROM_LEFT);
+          if (cast) affects.relations.incRelation(caster, -1, 0.1f, 0);
+          if (report) I.say("Compulsion resisted!");
         }
         
-        affects.world().ephemera.addGhost(
-          affects, 1, VOICE_OF_COMMAND_FX_MODEL.makeSprite(), 0.5f
-        );
-        final Sprite selectFX = VOICE_OF_COMMAND_FX_MODEL.makeSprite();
-        selectFX.scale = selected.radius();
-        selected.position(selectFX.position);
-        affects.world().ephemera.addGhost(
-          null, 1, selectFX, 0.5f
-        );
+        applyFX(affects , 1.0f);
+        applyFX(selected, 0.5f);
 
         affects = null;
         return true;
+      }
+      
+      
+      private void applyFX(Target selected, float scale) {
+        final Sprite selectFX = VOICE_OF_COMMAND_FX_MODEL.makeSprite();
+        selectFX.scale = scale;// selected.radius();
+        selected.position(selectFX.position);
+        affects.world().ephemera.addGhost(
+          selected, 1, selectFX, 0.5f
+        );
       }
     },
     

@@ -71,14 +71,16 @@ public class SickLeave extends Plan {
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
     
-    if (sickbay == null || sickness == null           ) return 0;
-    if (Treatment.hasTreatment(sickness, actor, hasBegun())) return 0;
+    if (sickbay == null || sickness == null) return -1;
+    if (Treatment.hasTreatment(sickness, actor, hasBegun())) return -1;
+    
+    if (sickbay.crowdRating(actor, Backgrounds.AS_VISITOR) > 1) return -1;
     
     final float urgency = Treatment.dangerRating(sickness, actor);
     final float priority = priorityForActorWith(
       actor, sickbay,
       urgency * PARAMOUNT, NO_MODIFIER,
-      NO_HARM, FULL_COMPETITION,
+      NO_HARM, NO_COMPETITION,
       NO_FAIL_RISK, NO_SKILLS,
       BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report

@@ -194,6 +194,15 @@ public abstract class UINode {
     absBound.setTo(other.absBound);
   }
   
+  public void alignToMatch(UINode other, int padX, int padY) {
+    relBound.setTo(other.relBound);
+    absBound.setTo(other.absBound);
+    absBound.incX   (0 - padX);
+    absBound.incWide(padX * 2);
+    absBound.incY   (0 - padY);
+    absBound.incHigh(padY * 2);
+  }
+  
   
   
   /**  Internal methods for calibrating position based off parent coordinates-

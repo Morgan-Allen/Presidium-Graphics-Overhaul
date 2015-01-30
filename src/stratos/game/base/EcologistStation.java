@@ -152,6 +152,10 @@ public class EcologistStation extends Venue {
   public Behaviour jobFor(Actor actor, boolean onShift) {
     if ((! structure.intact()) || ! (staff.onShift(actor))) return null;
     final Choice choice = new Choice(actor);
+    
+    ///I.say("\nGETTING NEXT JOB FOR "+actor);
+    ///choice.isVerbose = true;
+    
     //
     //  Consider collecting gene samples-
     final boolean needsSeed = stocks.amountOf(GENE_SEED) < 5;
@@ -181,6 +185,9 @@ public class EcologistStation extends Venue {
     //
     //  Or, finally, fall back on supervising the venue...
     if (choice.empty()) choice.add(Supervision.oversight(this, actor));
+    
+    
+    
     return choice.weightedPick();
   }
   

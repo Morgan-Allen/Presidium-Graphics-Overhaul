@@ -221,7 +221,7 @@ public class BaseTransport {
       }
       //
       //  (NOTE:  We perform the un-flag op in a separate pass to avoid any
-      //  interference with pathing-searches.)  
+      //  interference with pathing-searches.)
       for (Tile jT : routesTo) jT.flagWith(null);
       updateJunction(v, t, routesTo, true);
     }
@@ -237,10 +237,11 @@ public class BaseTransport {
       
       protected Tile[] adjacent(Tile spot) {
         final List <Route> routes = tileRoutes.get(spot);
-        Tile temp[] = routes.size() <= 10 ? tempB : new Tile[routes.size()];
         int i = 0;
-        if (routes != null) for (Route r : routes) {
-          temp[i++] = r.opposite(spot);
+        Tile temp[] = tempB;
+        if (routes != null) {
+          if (routes.size() > 10) temp = new Tile[routes.size()];
+          for (Route r : routes) temp[i++] = r.opposite(spot);
         }
         while (i < temp.length) temp[i++] = null;
         return tempB;

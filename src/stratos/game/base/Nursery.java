@@ -52,6 +52,7 @@ public class Nursery extends Venue implements TileConstants {
     UPGRADE_GROW_BONUS   = 0.25f,
     
     CEREAL_BONUS = 2.00f,
+    HIVE_DIVISOR = 4.00f,
     DRYLAND_MULT = 0.75f,
     WETLAND_MULT = 1.25f,
     

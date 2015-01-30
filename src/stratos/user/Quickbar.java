@@ -31,7 +31,7 @@ public class Quickbar extends UIGroup implements UIConstants {
   final BaseUI UI;
   final Button inSlots[] = new Button[MAX_SLOTS];
   final UIGroup slotsGroup, guildsGroup;
-  private UIGroup optionList;
+  private OptionList optionList;
   
   
   
@@ -65,9 +65,14 @@ public class Quickbar extends UIGroup implements UIConstants {
   
   protected void updateState() {
     super.updateState();
-    if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
-      if (optionList != null) optionList.detach();
-    }
+    if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) dismissOptions();
+  }
+  
+  
+  private void dismissOptions() {
+    if (optionList == null) return;
+    optionList.detach();
+    optionList = null;
   }
   
   
@@ -112,7 +117,6 @@ public class Quickbar extends UIGroup implements UIConstants {
       if (power.finishedWith(caster, option, picked, clicked)) {
         cancelTask();
       }
-      else if (clicked) cancelTask();
     }
     
     
@@ -126,38 +130,54 @@ public class Quickbar extends UIGroup implements UIConstants {
   }
   
   
-  //
-  //  Ideally, you'll want a nicer way to present these- give them a little
-  //  background, similar to text bubbles, and stretch to accommodate the
-  //  longest string.
-  //  TODO:  Better yet, just have single powers for each.
-  
-  private UIGroup constructOptionList(final Power power, String options[]) {
-    final UIGroup list = new UIGroup(UI);
-    final Quickbar bar = this;
+  /**
+    * 
+    */
+  private class OptionList extends UIGroup {
     
-    int i = 0; for (final String option : options) {
-      final Text text = new Text(UI, UIConstants.INFO_FONT);
-      text.append(new Description.Link(option) {
-        public void whenClicked() {
-          final Actor caster = UI.played().ruler();
-          final PowerTask task = new PowerTask(bar, power, option, caster);
-          UI.beginTask(task);
-          optionList.detach();
-        }
-      }, Colour.GREY);
-      text.alignBottom(i++ * 20, 16 );
-      text.alignLeft  (0       , 300);
-      text.attachTo(list);
+    final Power power;
+    
+    OptionList(final Quickbar bar, final Power power, String options[]) {
+      super(bar.UI);
+      this.power = power;
+      
+      final BaseUI UI = bar.UI;
+      float maxWide = 0;
+      
+      final Batch <Text> links = new Batch <Text> ();
+      for (final String option : options) {
+        final Text text = new Text(UI, UIConstants.INFO_FONT);
+        text.append(new Description.Link(option) {
+          public void whenClicked() {
+            final Actor caster = UI.played().ruler();
+            final PowerTask task = new PowerTask(bar, power, option, caster);
+            UI.beginTask(task);
+            dismissOptions();
+          }
+        }, Colour.GREY);
+
+        text.setToPreferredSize(1000);
+        maxWide = Nums.max(maxWide, text.preferredSize().xdim());
+        links.add(text);
+      }
+      
+      int i = 0; for (Text text : links) {
+        final Bordering bordering = new Bordering(UI, MessagePopup.BLACK_BAR);
+        bordering.setInsets(20, 20, 10, 10);
+        bordering.setUV(0.33f, 0.33f, 0.5f, 0.5f);
+        bordering.attachTo(this);
+        
+        text.alignBottom(i++ * 20, 16           );
+        text.alignLeft  (10      , (int) maxWide);
+        text.attachTo(this);
+        bordering.alignToMatch(text, 10, 2);
+      }
     }
-    optionList = list;
-    return list;
   }
   
   
   protected void setupPowersButtons() {
-    final Quickbar bar = this;
-    int index = 0;
+    final Quickbar bar = this; int index = 0;
     
     for (final Power power : Power.BASIC_POWERS) {
       
@@ -168,15 +188,27 @@ public class Quickbar extends UIGroup implements UIConstants {
         
         protected void whenClicked() {
           if (! enabled) return;
-          final Actor caster = BaseUI.current().played().ruler();
-          if (optionList != null) optionList.detach();
+          final BaseUI UI = BaseUI.current();
+          //
+          //  If another such task was ongoing, dismiss it.
+          if (optionList != null) {
+            final Power belongs = optionList.power;
+            dismissOptions();
+            if (belongs == power) return;
+          }
+          if (UI.currentTask() instanceof PowerTask) {
+            final PowerTask task = (PowerTask) UI.currentTask();
+            task.cancelTask();
+            if (task.power == power) return;
+          }
           //
           //  If there are options, display them instead.
+          final Actor caster = UI.played().ruler();
           final String options[] = power.options();
           if (options != null) {
-            constructOptionList(power, options);
+            optionList = new OptionList(bar, power, options);
             optionList.alignToMatch(this);
-            optionList.alignBottom(BUTTON_SIZE + 2, 0);
+            optionList.alignBottom(BUTTON_SIZE + 10, 0);
             optionList.attachTo(bar);
             return;
           }
@@ -185,9 +217,10 @@ public class Quickbar extends UIGroup implements UIConstants {
           }
           else {
             final PowerTask task = new PowerTask(bar, power, null, caster);
-            BaseUI.current().beginTask(task);
+            UI.beginTask(task);
           }
         }
+        
         
         protected void updateState() {
           this.enabled = true;
@@ -196,7 +229,8 @@ public class Quickbar extends UIGroup implements UIConstants {
           ///this.enabled = BaseUI.currentPlayed().ruler() != null;
           super.updateState();
         }
-
+        
+        
         protected String disableInfo() {
           return "  (Unavailable: No governor)";
         }

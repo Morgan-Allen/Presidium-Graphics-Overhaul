@@ -24,6 +24,10 @@ public class SeedTailoring extends Plan {
   
   /**  Data, fields, constructors, setup and save/load functions-
     */
+  private static boolean
+    evalVerbose  = false,
+    stepsVerbose = false;
+  
   final Venue lab;
   final Species species;
   final Item cropType, seedType;
@@ -82,12 +86,20 @@ public class SeedTailoring extends Plan {
   /**  Step implementation/sequence-
     */
   protected Behaviour getNextStep() {
+    final boolean report = stepsVerbose && (
+      I.talkAbout == actor || I.talkAbout == lab
+    );
+    if (report) I.say("\nGetting next seed-tailoring step for "+actor);
     //
     //  If the laboratory has adequate stocks, just return.
-    if (lab.stocks.amountOf(cropType) > 1) return null;
+    if (lab.stocks.amountOf(cropType) > 1) {
+      if (report) I.say("  Lab has enough!");
+      return null;
+    }
     //
     //  If the nursery has enough of the seed type, culture it-
     if (lab.stocks.amountOf(seedType) > 1) {
+      if (report) I.say("  Will begin culture.");
       final Action culture = new Action(
         actor, lab,
         this, "actionCultureSeed",
@@ -98,6 +110,7 @@ public class SeedTailoring extends Plan {
     //
     //  Otherwise, prepare the basic gene seed-
     if (lab.stocks.amountOf(GENE_SEED) > 1) {
+      if (report) I.say("  Will begin gene-tailoring");
       final Action prepare = new Action(
         actor, lab,
         this, "actionTailorGenes",

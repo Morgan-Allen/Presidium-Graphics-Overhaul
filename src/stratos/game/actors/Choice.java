@@ -201,12 +201,6 @@ public class Choice implements Qualities {
     if (next == null) return false;
     if (last == null) return true ;
     
-    final boolean
-      lastUrgent = last.isEmergency(),
-      nextUrgent = next.isEmergency();
-    if (lastUrgent && ! nextUrgent) return false;
-    if (nextUrgent && ! lastUrgent) return true ;
-    
     final float
       lastPriority = last.priorityFor(actor),
       nextPriority = next.priorityFor(actor);
@@ -217,6 +211,12 @@ public class Choice implements Qualities {
     
     if (nextPriority <= 0) return false;
     if (lastPriority <= 0) return true ;
+    
+    final boolean
+      lastUrgent = last.isEmergency(),
+      nextUrgent = next.isEmergency();
+    if (lastUrgent && ! nextUrgent) return false;
+    if (nextUrgent && ! lastUrgent) return true ;
     
     final float minPriority = stubborn ?
       competeThreshold(actor, nextPriority, true) :
