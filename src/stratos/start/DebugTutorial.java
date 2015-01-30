@@ -19,16 +19,6 @@ import stratos.util.*;
 //  *  Restore the fear associated with wandering outside your base-zone.
 
 
-//  Minor items:
-
-//  *  Ideally, using Contact on your own citizens should still leave a marker.
-
-//  *  It would be nice to have patrols around mobile objects keep ahead of
-//     their client.
-
-//  *  Charge for voluntary medical treatment!
-
-
 /*  BIG TODO LIST:
 
 *  Need to ensure that unemployed job-seekers are more sensible.
@@ -64,6 +54,11 @@ import stratos.util.*;
 *  General internal clean-up of plan routines.
 
 *  Fresh art and level-depictions for all structures.
+
+
+//  Minor items:
+//  *  Ideally, using Contact on your own citizens should still leave a marker.
+//  *  Charge for voluntary medical treatment!
 
 //*/
 

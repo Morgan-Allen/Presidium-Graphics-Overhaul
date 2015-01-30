@@ -16,6 +16,9 @@ import stratos.util.*;
 //  TODO:  The list of patrol points needs to be more randomised, and needs
 //  to keep up with moving targets more elegantly.
 
+//  TODO:  This has to count as an emergency activity, as long as there *is* an
+//  emergency (and as long as you give emergency responses.)
+
 
 public class Patrolling extends Plan implements TileConstants, Qualities {
   
