@@ -364,7 +364,7 @@ public class Forestry extends Plan {
       if (Spacing.distance(tried, nursery) > Stage.SECTOR_SIZE) continue;
       
       float rating = tried.habitat().moisture() / 10f;
-      rating -= Plan.rangePenalty(tried, actor);
+      rating -= Plan.rangePenalty(actor.base(), actor, tried);
       rating -= Plan.dangerPenalty(tried, actor);
       rating -= actor.world().ecology().biomassRating(tried);
       if (rating > bestRating) { bestRating = rating; picked = tried; }

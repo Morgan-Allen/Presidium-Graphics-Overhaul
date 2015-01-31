@@ -105,7 +105,9 @@ public class Retreat extends Plan implements Qualities {
     }
     else {
       maxDanger = danger;
-      bonus += (haven == null) ? 0 : Plan.rangePenalty(haven, actor) * CASUAL;
+      bonus += (haven == null) ? 0 : Plan.rangePenalty(
+        actor.base(), haven, actor
+      ) * CASUAL;
     }
     
     if (report) {

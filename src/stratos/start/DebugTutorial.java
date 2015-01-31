@@ -11,17 +11,14 @@ import stratos.util.*;
 
 
 
-//  BIG BUGFIX TODO LIST:
-
-//  *  Make clear that upgrades aren't available for unfinished structures-
-//     and there's a time-delay, et cetera.
-
-//  *  Restore the fear associated with wandering outside your base-zone.
-
 
 /*  BIG TODO LIST:
 
 *  Need to ensure that unemployed job-seekers are more sensible.
+
+*  Need to unify summons-dialogue with contact mechanics.
+
+*  Psy powers need some checkup- cooldown system, replace TK, UI idiom.
 
 *  Need to ensure that artilect raiding increases gradually over time.
      Base this off a 'waking up' mechanism as threats are found.
@@ -39,10 +36,6 @@ import stratos.util.*;
      Kommando Lodge
      Airfield
      Trooper Lodge (drilling)
-
-*  Need to unify summons-dialogue with contact mechanics.
-
-*  Psy powers need some checkup- cooldown system, replace TK, UI idiom.
 
 *  Hide-and-seek needs to be more effective (both retreat and combat.)
 

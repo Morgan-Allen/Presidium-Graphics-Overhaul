@@ -299,8 +299,8 @@ public class Delivery extends Plan {
     //  usual distance evaluation.  Otherwise, proceed as normal.
     final float rangeDiv = driven == null ? 2f : 10f;
     final float extraRangePenalty = (
-      Plan.rangePenalty(actor, origin) +
-      Plan.rangePenalty(origin, destination)
+      Plan.rangePenalty(actor.base(), actor , origin     ) +
+      Plan.rangePenalty(actor.base(), origin, destination)
     ) / rangeDiv;
     final float priority = priorityForActorWith(
       actor, destination,

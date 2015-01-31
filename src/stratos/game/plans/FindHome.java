@@ -153,7 +153,7 @@ public class FindHome extends Plan {
       rating += averageRelations * 2;
     }
     
-    rating -= Plan.rangePenalty(actor.mind.work(), newHome);
+    rating -= Plan.rangePenalty(actor.base(), actor.mind.work(), newHome);
     rating -= Plan.dangerPenalty(newHome, actor);
     return rating;
   }

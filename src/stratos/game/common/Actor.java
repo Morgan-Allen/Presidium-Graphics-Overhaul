@@ -258,7 +258,7 @@ public abstract class Actor extends Mobile implements
       needsBigUpdate = true;
     }
     
-    if (OK && action != null && ! Plan.canFollow(this, action)) {
+    if (action != null && ! Plan.canFollow(this, action)) {
       if (report) I.say("\n"+this+" has completed action: "+action);
       assignAction(null);
       needsBigUpdate = true;
@@ -277,16 +277,17 @@ public abstract class Actor extends Mobile implements
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     final boolean report = I.talkAbout == this && verbose;
-    if (report) {
-      I.say("\nUpdating actor!  Instant? "+instant);
-      I.say("    Num updates:  "+numUpdates);
-      I.say("    Current time: "+world.currentTime());
-    }
     //
     //  Check to see what our current condition is-
     final boolean
       OK         = health.conscious() && ! doingPhysFX(),
       checkSleep = (health.asleep() && numUpdates % 10 == 0);
+    if (report) {
+      I.say("\nUpdating actor!  Instant? "+instant);
+      I.say("    Num updates:      "+numUpdates);
+      I.say("    Current time:     "+world.currentTime());
+      I.say("    Okay/Check-sleep: "+OK+"/"+checkSleep);
+    }
     //
     //  Update our actions, pathing, and AI-
     if (OK || checkSleep) {

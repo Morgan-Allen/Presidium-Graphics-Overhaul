@@ -77,27 +77,6 @@ public class VenueDescription {
     
     VD.describeCondition(d, UI);
     
-    /*
-    if (played == v.base() && ! v.privateProperty()) {
-      d.append("\n\nOther Orders: ");
-      if (v.structure.needsSalvage()) {
-        d.append(new Description.Link("\n  Cancel Salvage") {
-          public void whenClicked() {
-            v.structure.cancelSalvage();
-          }
-        });
-      }
-      else {
-        d.append(new Description.Link("\n  Begin Salvage") {
-          public void whenClicked() {
-            v.structure.beginSalvage();
-          }
-        });
-      }
-      d.append("\n\n");
-    }
-    //*/
-    
     if (statusMessage != null) {
       d.append("\n\n");
       d.append(statusMessage);
@@ -173,8 +152,8 @@ public class VenueDescription {
     d.append("\n  Integrity: ");
     d.append(v.structure().repair()+" / "+v.structure().maxIntegrity());
     
-    final String CUD = v.structure().currentUpgradeDesc();
-    if (CUD != null) d.append("\n  "+CUD);
+    //final String CUD = v.structure().currentUpgradeDesc();
+    //if (CUD != null) d.append("\n  "+CUD);
     
     if (v instanceof Inventory.Owner) {
       final Inventory i = ((Inventory.Owner) v).inventory();
@@ -202,8 +181,9 @@ public class VenueDescription {
       d.append("\n  "+Ambience.dangerDesc(danger)+" Safety"+SN);
     }
     
-    d.append("\n\n");
+    describeOrders(d);
     
+    d.append("\n\n");
     d.append(v.helpInfo(), Colour.LITE_GREY);
   }
   
@@ -382,7 +362,7 @@ public class VenueDescription {
   
   private String descDuty(Actor a) {
     if (a.mind.work() == v) return v.staff.onShift(a) ?
-        "(On-Duty)" : "(Off-Duty)"
+      "(On-Duty)" : "(Off-Duty)"
     ;
     if (a.mind.home() == v) return "(Resident)";
     return "(Visiting)";
@@ -390,74 +370,98 @@ public class VenueDescription {
   
   
   private void describeUpgrades(Description d, BaseUI UI) {
-    final Base played = BaseUI.current().played();
-
+    //final Base played = BaseUI.current().played();
+    
+    if (! v.structure().intact()) {
+      d.append("Upgrades unavailable while under construction.");
+      return;
+    }
+    
+    //  TODO:  Try to revise this, and include some explanatory text for why
+    //  they haven't started just yet.
+    //  TODO:  Also- don't allow upgrades until the structure is finished
+    //  building!  (Conversely, DO allow hiring before then.)
     final Upgrade UA[] = Upgrade.upgradesFor(v.getClass());
     if (UA == null || UA.length == 0) {
       d.append("No upgrades available.");
       return;
     }
     
-    final int
-      numU = v.structure.numUpgrades(),
-      maxU = v.structure.maxUpgrades();
-    
-    final Batch <String> DU = v.structure.descOngoingUpgrades();
-    if (DU != null && DU.size() > 0) {
-      d.append("Upgrades in queue:");
-      for (String s : DU) d.append("\n  "+s);
-      d.append("\n\n");
-    }
-    
-    d.append("Upgrades available: ("+numU+"/"+maxU+" used)");
-    
-    if (UA.length > 0) for (final Upgrade upgrade : UA) {
-      d.append("\n  ");
-      final boolean possible = v.structure.upgradePossible(upgrade);
-      final int level = v.structure.upgradeLevel(upgrade);
-      
-      d.append(new Description.Link(upgrade.name) {
-        public void whenClicked() { lastCU = upgrade; }
-      }, possible ? Text.LINK_COLOUR : Colour.LITE_GREY);
-
-      final Colour linkC = possible ? Colour.WHITE : Colour.LITE_GREY;
-      d.append("  (Cost "+upgrade.buildCost+")", linkC);
-      if (level > 0) d.append(" (x"+level+")", linkC);
-    }
-    if (! Visit.arrayIncludes(UA, lastCU)) lastCU = UA[0];
+    final Colour grey = Colour.LITE_GREY;
     
     if (lastCU != null) {
-      d.append("\n\n");
+      if (! Visit.arrayIncludes(UA, lastCU)) lastCU = UA[0];
+      d.append("\n");
       d.append(lastCU.description, Colour.LITE_GREY);
       for (Upgrade u : lastCU.required) {
         d.append("\n  Requires: "+u.name);
       }
-      if (v.structure.upgradePossible(lastCU)) {
-        d.append(new Description.Link("\n\n  BEGIN UPGRADE") {
-          public void whenClicked() {
-            v.structure.beginUpgrade(lastCU, false);
-          }
-        });
+      if (! v.structure.upgradePossible(lastCU)) {
+        d.append("\n\n");
+        d.append(v.structure.upgradeError(lastCU));
       }
+      d.append("\n\n");
+      d.append(new Description.Link("BACK") {
+        public void whenClicked() { lastCU = null; }
+      });
     }
     
-    if (played == v.base() && v.owningTier() == Owner.TIER_PUBLIC) {
-      d.append("\n\nOther Orders: ");
+    else for (final Upgrade upgrade : UA) {
+      final int cost = upgrade.buildCost;
+      final boolean possible =
+        v.structure.upgradePossible(upgrade) &&
+        cost <= v.base().finance.credits()
+      ;
+      final int
+        level  = v.structure.upgradeLevel(upgrade, Structure.STATE_INTACT ),
+        queued = v.structure.upgradeLevel(upgrade, Structure.STATE_INSTALL);
+      if (level + queued == 0 && ! possible) continue;
+      
+      d.append("\n"+upgrade.name+" x"+level+"  ("+cost+" Credits)");
+      
+      d.append("\n  ");
+      final String desc = "INSTALL";
+      if (possible) d.append(new Description.Link(desc) {
+        public void whenClicked() {
+          v.structure.beginUpgrade(upgrade, false);
+        }
+      });
+      else d.append(desc, grey);
+      
+      d.append("  ");
+      d.append(new Description.Link("INFO") {
+        public void whenClicked() { lastCU = upgrade; }
+      });
+    }
+    
+    final Batch <String> OA = v.structure.descOngoingUpgrades();
+    if (OA.size() > 0) {
+      d.append("\n\nUpgrades in progress: ");
+      for (String u : OA) d.append("\n  "+u);
+      d.append("\n");
+    }
+  }
+  
+  
+  private void describeOrders(Description d) {
+    final Base played = BaseUI.currentPlayed();
+    d.append("\n");
+    d.append("\nOrders: ");
+    if (played == v.base()) {
       if (v.structure.needsSalvage()) {
-        d.append(new Description.Link("\n  Cancel Salvage") {
+        d.append(new Description.Link("Cancel Salvage") {
           public void whenClicked() {
             v.structure.cancelSalvage();
           }
         });
       }
       else {
-        d.append(new Description.Link("\n  Begin Salvage") {
+        d.append(new Description.Link("Salvage") {
           public void whenClicked() {
             v.structure.beginSalvage();
           }
         });
       }
-      d.append("\n\n");
     }
   }
 }

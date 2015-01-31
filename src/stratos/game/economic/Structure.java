@@ -76,6 +76,14 @@ public class Structure {
     "Salvaging",
     "N/A"
   };
+
+  final static String UPGRADE_STATE_DESC[] = {
+    "N/A",
+    "Queued",
+    "Installed",
+    "Will Resign",
+    "N/A"
+  };
   
   final public static int
     TYPE_VENUE   = 0,
@@ -581,18 +589,33 @@ public class Structure {
   }
   
   
+  public boolean hasRequired(Upgrade upgrade) {
+    for (Upgrade r : upgrade.required) {
+      if (! Visit.arrayIncludes(upgrades, r)) return false;
+    }
+    return true;
+  }
+  
+  
+  public int slotsFree() {
+    int num = 0;
+    for (Upgrade u : upgrades) {
+      if (u == null) num++;
+    }
+    return num;
+  }
+  
+  
   public boolean upgradePossible(Upgrade upgrade) {
     //  Consider returning a String explaining the problem, if there is one?
     //  ...Or an error code of some kind?
     if (upgrades == null) return false;
-    boolean hasSlot = false, hasReq = true;
+    
+    boolean hasSlot = false, hasReq = hasRequired(upgrade);
     int numType = 0;
     for (Upgrade u : upgrades) {
       if (u == null) hasSlot = true;
       else if (u == upgrade) numType++;
-    }
-    for (Upgrade r : upgrade.required) {
-      if (! Visit.arrayIncludes(upgrades, r)) hasReq = false;
     }
     return hasSlot && hasReq && numType < upgrade.maxLevel;
   }
@@ -615,15 +638,25 @@ public class Structure {
     return bonus;
   }
   //*/
+
   
-  
-  public int upgradeLevel(Upgrade type) {
+  public int upgradeLevel(Upgrade type, int state) {
     if (upgrades == null || type == null) return 0;
     int num = 0;
     for (int i = 0; i < upgrades.length; i++) {
-      if (upgrades[i] == type && upgradeStates[i] == STATE_INTACT) num++;
+      if (state == STATE_NONE) {
+        if (upgrades[i] == type) num++;
+      }
+      else {
+        if (upgrades[i] == type && upgradeStates[i] == state) num++;
+      }
     }
     return num;
+  }
+  
+  
+  public int upgradeLevel(Upgrade type) {
+    return upgradeLevel(type, STATE_INTACT);
   }
   
   
@@ -648,22 +681,42 @@ public class Structure {
   }
   
   
+  public Batch <Upgrade> queued(int state) {
+    final Batch <Upgrade> queued = new Batch <Upgrade> ();
+    for (int i = 0; i < upgrades.length; i++) {
+      if (upgradeStates[i] == state) queued.add(upgrades[i]);
+    }
+    return queued;
+  }
+  
+  
+  
   
   /**  Rendering and interface-
     */
-  final static String UPGRADE_ERRORS[] = {
-    "This facility lacks a prerequisite upgrade",
-    "There are no remaining upgrade slots.",
-    "No more than 3 upgrades of a single type."
-  };
+  protected String upgradeError(Upgrade upgrade) {
+    if (! hasRequired(upgrade)) {
+      return "Lacks prerequisites";
+    }
+    int totalLevel = upgradeLevel(upgrade, STATE_INTACT);
+    totalLevel += upgradeLevel(upgrade, STATE_INSTALL);
+    if (totalLevel >= upgrade.maxLevel) {
+      return "Maximum level reached ("+totalLevel+"/"+upgrade.maxLevel+")";
+    }
+    if (slotsFree() == 0) {
+      return "No upgrade slots remaining";
+    }
+    return "Insufficient funds!";
+  }
   
   
   protected Batch <String> descOngoingUpgrades() {
     final Batch <String> desc = new Batch <String> ();
     if (upgrades == null) return desc;
     for (int i = 0; i < upgrades.length; i++) {
+      if (i == upgradeIndex) { desc.add(currentUpgradeDesc()); continue; }
       if (upgrades[i] == null || upgradeStates[i] == STATE_INTACT) continue;
-      desc.add(upgrades[i].name+" ("+STATE_DESC[upgradeStates[i]]+")");
+      desc.add(upgrades[i].name+" ("+UPGRADE_STATE_DESC[upgradeStates[i]]+")");
     }
     return desc;
   }

@@ -178,7 +178,7 @@ public class Audit extends Plan {
     final Pick <Venue> pick = new Pick <Venue> ();
     for (Venue v : batch) {
       float rating = Nums.abs(v.inventory().unTaxed()) / 100f;
-      rating -= Plan.rangePenalty(v, actor);
+      rating -= Plan.rangePenalty(actor.base(), v, actor);
       rating -= Plan.competition(Audit.class, v, actor);
       if (rating > 0) pick.compare(v, rating);
       if (report) {

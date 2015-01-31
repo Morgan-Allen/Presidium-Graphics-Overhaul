@@ -303,6 +303,10 @@ public class DebugCommerce extends Scenario {
   
   public void updateGameState() {
     super.updateGameState();
+    
+    if (base().finance.credits() < 1000) {
+      base().finance.incCredits(500, BaseFinance.SOURCE_CHARITY);
+    }
   }
   
   

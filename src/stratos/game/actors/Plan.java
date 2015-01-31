@@ -568,7 +568,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     }
     
     if (distanceCheck != 0) {
-      final float range = rangePenalty(actor, subject);
+      final float range = rangePenalty(actor.base(), actor, subject);
       rangePenalty = range * distanceCheck;
       final float danger = dangerPenalty(subject, actor) * (1f + failRisk);
       dangerPenalty = danger * (1 + range) / 2f;
@@ -632,29 +632,29 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   /**  Various utility methods for modifying plan priority (primarily invoked
     *  above.)
     */
-  public static float rangePenalty(Target a, Target b) {
-    if (a == null || b == null) return 0;
-    final float SS = Stage.SECTOR_SIZE;  //  TODO:  Modify by move speed!
-    final float dist = Spacing.distance(a, b) / SS;
-    if (dist <= 1) return dist / 2;
-    return Nums.log(2, dist) + 0.5f;
+  //
+  //  TODO:  Incorporate estimate of dangers along entire route using
+  //  path-caching.
+  public static float rangePenalty(Base base, Target from, Target to) {
+    if (from == null || to == null) return 0;
+    final float SS   = Stage.SECTOR_SIZE;  //  TODO:  Modify by move speed!
+    final float dist = Spacing.distance(from, to) / SS;
+    
+    float baseMult = 2;
+    if (base != null) {
+      final Tile at = base.world.tileAt(to);
+      final Base owns = base.world.claims.baseClaiming(at);
+      if (owns != null) baseMult -= owns.relations.relationWith(base);
+    }
+    
+    if (dist <= 1) return (dist / 2) * baseMult;
+    return (Nums.log(2, dist) + 0.5f) * baseMult;
   }
   
   
-  /*
-  //  TODO:  INTRODUCE THIS TO DANGER ASSESSMENT FOR PLANS IN GENERAL
-  float riskFactor = 0.5f;
-  final Base owns = actor.world().claims.baseClaiming(lookedAt);
-  if      (owns == base) riskFactor = 0;
-  else if (owns != null) riskFactor -= owns.relations.relationWith(base);
-  riskFactor *= (1 + Plan.dangerPenalty(lookedAt, actor)) / 2;
-  //*/
-  
   public static float dangerPenalty(Target t, Actor actor) {
     final boolean report = evalVerbose && I.talkAbout == actor;
-    //
-    //  TODO:  Incorporate estimate of dangers along entire route using
-    //  path-caching.
+    
     final Tile at = actor.origin();
     float danger = actor.base().dangerMap.sampleAround(
       at.x, at.y, Stage.SECTOR_SIZE

@@ -461,7 +461,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     */
   public void describeBehaviour(Description d) {
     if (type == TYPE_SECURITY) {
-      d.append("Securing perimeter for ");
+      d.append("Patrolling around ");
       d.append(guarded);
     }
     if (type == TYPE_STREET_PATROL || type == TYPE_SENTRY_DUTY) {

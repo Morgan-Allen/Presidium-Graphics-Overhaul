@@ -130,7 +130,9 @@ public class Exploring extends Plan implements Qualities {
     
     //  Make this less attractive as you get further from home/safety.
     final Target haven = actor.senses.haven();
-    float distFactor = (haven == null) ? 0 : Plan.rangePenalty(haven, actor);
+    float distFactor = (haven == null) ? 0 : Plan.rangePenalty(
+      actor.base(), haven, actor
+    );
     
     if (report) {
       I.say("\nExtra parameters for "+this);

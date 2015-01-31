@@ -18,6 +18,7 @@ import java.io.*;
   *  TODO:  You need to have a logging system that allows various classes to
   *         be toggled on and off for reports.
   *  TODO:  Try scanning for static 'verbose' fields in all classes?
+  *  TODO:  Detect whether or not to write to file using build settings.
   */
 public class I {
   
@@ -25,7 +26,7 @@ public class I {
   public static boolean mute = false;
   public static Object talkAbout = null;
   
-  final static boolean WRITE_TO_LOG = true;
+  final static boolean WRITE_TO_LOG = false;
   final static String OUT_FILE = "saves/log_output.txt";
   static {
     if (WRITE_TO_LOG) try {
