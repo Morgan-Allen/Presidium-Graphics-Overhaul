@@ -103,23 +103,12 @@ public class Profile {
   public float salary() {
     //
     //  TODO:  This needs to be negotiated, or at least modified, based on
-    //  reluctance to settle or personal dislike.
-    if (actor.vocation() == null) return 0;
+    //  reluctance to settle or personal dislike.  TODO:  Unify this with the
+    //  FindWork / Career methods on the subject.
+    
+    if (actor.vocation() == null || actor.mind.work() == null) return 0;
     final int standing = actor.vocation().standing;
     if (standing == Backgrounds.CLASS_NATIVE) return 0;
-    
-    //  TODO:  Reconsider this.
-    /*
-    //
-    //  Rulers draw directly on the finances of the state if they have any
-    //  particular shortage of funds.
-    if (standing == Backgrounds.CLASS_STRATOI) {
-      if (actor.gear.credits() < Audit.RULER_STIPEND) {
-        return Audit.RULER_STIPEND - actor.gear.credits();
-      }
-      else return 0;
-    }
-    //*/
     return Backgrounds.HIRE_COSTS[standing];
   }
   

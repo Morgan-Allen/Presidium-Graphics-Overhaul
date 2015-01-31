@@ -256,17 +256,19 @@ public class Career implements Qualities {
   
   
   private void applyBackground(Background v, Actor actor) {
-    if (verbose) I.say("Applying vocation: "+v);
+    if (verbose) I.say("\nApplying vocation: "+v);
     
     for (Skill s : v.baseSkills.keySet()) {
       final int level = v.baseSkills.get(s);
       actor.traits.raiseLevel(s, level + (Rand.num() * 10) - 5);
+      if (s.parent != null) actor.traits.raiseLevel(s.parent, level / 2);
     }
     
     for (Trait t : v.traitChances.keySet()) {
       float chance = v.traitChances.get(t);
       chance += Personality.traitChance(t, actor) / 2;
       actor.traits.incLevel(t, chance * Rand.avgNums(2) * 2);
+      
       if (verbose) {
         I.say("  Chance for "+t+" is "+chance);
         final float level = actor.traits.traitLevel(t);
@@ -275,6 +277,15 @@ public class Career implements Qualities {
     }
   }
   
+  
+  
+  //  Fitness for the position.  (Goes down with higher status and skills-
+  //  requirements.)
+  //  Desire for the position.  (Goes up with higher status, personality-
+  //  matching, and poverty.)
+  
+  //  Success-chance is based on fitness.  Impetus is based on status.
+  //  Priority = success-chance x impetus.  Simple!
   
   public static float ratePromotion(Background next, Actor actor) {
     final boolean report = verbose && I.talkAbout == actor;
@@ -285,36 +296,46 @@ public class Career implements Qualities {
   private static float ratePromotion(
     Background next, Actor actor, boolean report
   ) {
-    if (report) I.say("\nRating promotion to "+next+" for "+I.tagHash(actor));
+    float fitness = rateDefaultFitness(actor, next, report);
+    float desire  = rateDefaultDesire (actor, next, report);
+    return fitness * desire;
+  }
+  
+  
+  static float rateDefaultFitness(
+    Actor actor, Background position, boolean report
+  ) {
+    float skillsRating = 0, sumSkills = 0;
+    if (report) I.say("\nRating fitness of "+I.tagHash(actor)+" as "+position);
     
-    //  TODO:  Try to use arrays instead of tables here?  For efficiency?
-    float rating = 1;
-    
-    //  Check for similar skills.
-    if (next.baseSkills.size() > 0) {
-      for (Skill s : next.baseSkills.keySet()) {
-        final float skillRating = rateSimilarity(s, next, actor);
-        if (skillRating == 0) continue;
-        rating += skillRating;
-        if (report) I.say("  Bonus due to "+s+" is "+skillRating);
-      }
-      final Batch <Skill> skills = actor.traits.skillSet();
-      for (Skill s : skills) {
-        final float skillRating = rateSimilarity(s, next, actor);
-        if (skillRating == 0) continue;
-        rating += skillRating;
-        if (report) I.say("  Bonus due to "+s+" is "+skillRating);
-      }
-      rating *= 2f / (1 + next.baseSkills.size() + skills.size());
+    for (Skill skill : position.baseSkills.keySet()) {
+      final float
+        jobLevel  = position.baseSkills.get(skill),
+        haveLevel = actor.traits.traitLevel(skill),
+        rating    = Nums.clamp((haveLevel + 10 - jobLevel) / 20, 0, 1);
+      sumSkills    += jobLevel;
+      skillsRating += jobLevel * rating;
+      if (report) I.say("  "+skill+": "+rating);
     }
+    if (sumSkills > 0) skillsRating = skillsRating /= sumSkills;
+    else skillsRating = 1;
     
-    //  Check for similar traits. (Personality traits are handled a little
-    //  differently, as they can have 'opposites', while others are measured
-    //  directly.)
-    if (next.traitChances.size() > 0) {
+    if (report) I.say("  Overall rating: "+skillsRating);
+    return skillsRating;
+  }
+  
+  
+  static float rateDefaultDesire(
+    Actor actor, Background position, boolean report
+  ) {
+    float rating = 1.0f;
+    if (report) I.say("\nRating desire by "+I.tagHash(actor)+" for "+position);
+    //
+    //  
+    if (position.traitChances.size() > 0) {
       float sumChances = 0;
-      for (Trait t : next.traitChances.keySet()) {
-        float chance = next.traitChances.get(t);
+      for (Trait t : position.traitChances.keySet()) {
+        float chance = position.traitChances.get(t);
         if (t.type == Trait.PERSONALITY) {
           chance *= Personality.traitChance(t, actor);
         }
@@ -325,39 +346,26 @@ public class Career implements Qualities {
         sumChances += (chance + 1) / 2;
       }
       if (report) I.say("  Total trait chance: "+sumChances);
-      rating *= sumChances * 2 / (1 + next.traitChances.size());
+      rating *= sumChances * 2 / (1 + position.traitChances.size());
     }
-    
+    //
     //  Finally, we also favour transition to more prestigious vocations:
     if (rating < 0) {
       if (report) I.say("  No chance of promotion- quitting.");
       return 0;
     }
-    else if (actor instanceof Human) {
+    else if (
+      actor instanceof Human &&
+      position.standing != Backgrounds.NOT_A_CLASS
+    ) {
       final Background prior = ((Human) actor).career().topBackground();
-      int nextStanding = next.standing;
+      int nextStanding = position.standing;
       while (nextStanding < prior.standing) { rating /= 5; nextStanding++; }
       while (nextStanding > prior.standing) { rating *= 2; nextStanding--; }
     }
     
-    if (report) I.say("  Final rating: "+rating);
+    if (report) I.say("  Overall rating: "+rating);
     return rating;
-  }
-  
-  
-  static float rateSimilarity(Skill s, Background a, Actor actor) {
-    Integer aL = a.baseSkills.get(s), bL = (int) actor.traits.traitLevel(s);
-    if (aL == null || bL == null) return 0;
-    return (aL > bL) ? ((bL + 5f) / (aL + 5f)) : ((aL + 5f) / (bL + 5f));
-  }
-  
-  
-  public static boolean qualifies(Actor a, Background b) {
-    for (Skill s : b.baseSkills.keySet()) {
-      final int level = b.baseSkills.get(s);
-      if (a.traits.traitLevel(s) < level - 5) return false;
-    }
-    return true;
   }
   
   
@@ -509,6 +517,12 @@ public class Career implements Qualities {
     actor.gear.taxDone();
     
     actor.gear.boostShields(actor.gear.maxShields(), true);
+  }
+  
+  
+  public static float defaultSalary(Background position) {
+    if (position.standing < 0) return 0;
+    return Backgrounds.HIRE_COSTS[position.standing];
   }
 }
 

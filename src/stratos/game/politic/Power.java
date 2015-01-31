@@ -547,7 +547,7 @@ public class Power implements Qualities {
           priorityMod += caster.traits.usedLevel(SUGGESTION) / 2f;
           caster.health.takeConcentration(cost);
           caster.skills.practiceAgainst(10, cost, SYNESTHESIA);
-          affects.relations.incRelation(caster, affinity, magnitude, 0);
+          affects.relations.incRelation(caster, affinity, magnitude, -0.1f);
         }
         else priorityMod = Plan.ROUTINE;
         priorityMod *= (0.5f + Rand.avgNums(2));
@@ -572,7 +572,7 @@ public class Power implements Qualities {
         }
         else {
           affects.chat.addPhrase("Get out of my head!!!", TalkFX.FROM_LEFT);
-          if (cast) affects.relations.incRelation(caster, -1, 0.1f, 0);
+          if (cast) affects.relations.incRelation(caster, -0.5f, 0.1f, -0.9f);
           if (report) I.say("Compulsion resisted!");
         }
         

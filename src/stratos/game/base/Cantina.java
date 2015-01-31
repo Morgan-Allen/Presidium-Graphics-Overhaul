@@ -74,11 +74,10 @@ public class Cantina extends Venue implements Performance.Theatre {
   };
   
   final static float
-    LODGING_PRICE = 2,
-    GAMBLE_PRICE  = 5,
-    SONG_TIP      = 1,
-    POT_INTERVAL  = 20,
-    
+    LODGING_PRICE  = 2 ,
+    GAMBLE_PRICE   = 5 ,
+    SONG_TIP       = 1 ,
+    POT_INTERVAL   = 20,
     SOMA_MARGIN    = 1.5f,
     GAMBLE_MARGIN  = 0.2f;
   

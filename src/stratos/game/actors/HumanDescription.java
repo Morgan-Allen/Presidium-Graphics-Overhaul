@@ -13,8 +13,6 @@ import stratos.util.*;
 
 //  NOTE:  I'm moving these methods here essentially for the sake of reducing
 //  clutter/space demands within the main Human or Actor classes.
-//   TODO:  Adapt this to actors in general instead?
-
 public class HumanDescription implements Qualities {
   
   
@@ -148,33 +146,45 @@ public class HumanDescription implements Qualities {
     //  Describe attributes, skills and psyonic techniques.
     //  TODO:  INCLUDE ICONS HERE?
     
-    d.append("Skills: ");
+    d.append("Job Skills: ");
     final List <Skill> sorting = new List <Skill> () {
       protected float queuePriority(Skill skill) {
         return 0 - h.traits.traitLevel(skill);
       }
     };
-    for (Skill skill : h.traits.skillSet()) sorting.add(skill);
+    final Background job = h.vocation();
+    for (Skill skill : job.skills()) sorting.add(skill);
     sorting.queueSort();
-    
-    for (Skill skill : sorting) {
-      final int level = (int) h.traits.traitLevel(skill);
-      final int bonus = (int) (
-        h.traits.rootBonus  (skill) +
-        h.traits.effectBonus(skill)
-      );
-      d.append("\n  "+skill.name+" "+level+" ");
-      if (bonus != 0) {
-        d.append((bonus >= 0 ? "(+" : "(-")+Nums.abs(bonus)+")");
-      }
-    }
+    for (Skill skill : sorting) descSkill(skill, d);
     
     d.append("\n\nTechniques: ");
     for (Technique p : h.skills.known) {
       d.append("\n  "+p.name);
     }
     if (h.skills.known.size() == 0) d.append("\n  None known");
+    
+    d.append("\n\nOther: ");
+    sorting.clear();
+    for (Skill skill : h.traits.skillSet()) {
+      if (! job.skills().includes(skill)) sorting.add(skill);
+    }
+    sorting.queueSort();
+    for (Skill skill : sorting) descSkill(skill, d);
   }
+  
+  
+  private void descSkill(Skill skill, Description d) {
+    final int level = (int) h.traits.traitLevel(skill);
+    final int bonus = (int) (
+      h.traits.bonusFrom  (skill.parent) +
+      h.traits.effectBonus(skill       )
+    );
+    d.append("\n  "+skill.name+" "+level+" ");
+    
+    final Colour c = bonus >= 0 ? Colour.GREEN : Colour.RED;
+    d.append(" ("+(level + bonus)+")", c);
+  }
+  
   
   
   private void describeProfile(Description d, HUD UI) {
@@ -199,12 +209,9 @@ public class HumanDescription implements Qualities {
     d.append("\n\nAttributes: ");
     for (Skill skill : h.traits.attributes()) {
       final int level = (int) h.traits.traitLevel(skill);
-      final int bonus = (int) h.traits.effectBonus(skill);
+      final int bonus = (int) h.traits.bonusFrom(skill);
       d.append("\n  "+skill.name+" "+level+" ");
-      //d.append(Skill.attDesc(level), Skill.skillTone(level));
-      if (bonus != 0) {
-        d.append((bonus >= 0 ? " (+" : " (-")+Nums.abs(bonus)+")");
-      }
+      d.append((bonus >= 0 ? " (+" : " (-")+Nums.abs(bonus)+")");
     }
   }
   

@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -22,7 +24,7 @@ public class FindWork extends Plan {
   
   
   private static boolean
-    verbose      = false,
+    verbose      = true ,
     offworldOnly = false;
   
   final static float
@@ -87,6 +89,7 @@ public class FindWork extends Plan {
     if (actor.vocation() == position && actor.mind.work() == employer) {
       return -1;
     }
+    rating = rateOpening(position, employer, report);
     final float priority = Nums.clamp(ROUTINE * rating, 0, URGENT);
     if (report) {
       I.say("\nGetting priority for work application: "+actor);
@@ -220,20 +223,20 @@ public class FindWork extends Plan {
     
     for (Background c : at.careers()) {
       final FindWork app = new FindWork(actor, c, at);
-      float rating = main.rateOpening(app.position, app.employer);
+      float rating = main.rateOpening(app.position, app.employer, report);
       pick.compare(app, rating);
     }
     if (pick.empty()) return main;
     
     if (main.position != null && main.employer != null) {
-      float rating = main.rateOpening(main.position, main.employer);
+      float rating = main.rateOpening(main.position, main.employer, report);
       pick.compare(main, rating * SWITCH_THRESHOLD);
     }
     
     final Property work = actor.mind.work();
     if (work != null) {
       final FindWork app = new FindWork(actor, actor.vocation(), work);
-      float rating = main.rateOpening(app.position, app.employer);
+      float rating = main.rateOpening(app.position, app.employer, report);
       pick.compare(app, rating * SWITCH_THRESHOLD);
     }
     
@@ -252,17 +255,36 @@ public class FindWork extends Plan {
   }
   
   
-  //  TODO:  Assign negative ratings to positions that are either beneath or
-  //  beyond you, unless you're really, really desperate (i.e, poor.)
-  
-  private float rateOpening(Background position, Property at) {
+  private float rateOpening(Background position, Property at, boolean report) {
     final boolean isNew = ! at.staff().isWorker(actor);
     if (isNew && at.crowdRating(actor, position) >= 1) return -1;
     if (position != actor.vocation() && ! actor.inWorld()) return -1;
+    
+    if (report) I.say("\nRating opening for "+position);
+    //
+    //  
     float rating = Career.ratePromotion(position, actor);
     rating *= actor.relations.valueFor(at.base());
+    if (report) {
+      I.say("  Base rating: "+rating);
+    }
+    //
+    //  The basic idea here is to partially 'mix in' the appeal of money (or
+    //  financial desperation) when considering whether to take a job you
+    //  otherwise dislike.
+    final float salary = Career.defaultSalary(position);
+    final float greed  = ActorMotives.greedPriority(
+      actor, salary / Backgrounds.NUM_DAYS_PAY
+    ) / Plan.ROUTINE;
+    rating += (((rating + 1) / 2) * greed) - 1;
+    if (report) {
+      I.say("  New salary: "+salary);
+      I.say("  Old salary: "+Career.defaultSalary(actor.vocation()));
+      I.say("  Greed is:   "+greed);
+    }
     
-    //  TODO:  Also impact through wage-rate and area living conditions...
+    //  TODO:  Also impact through area living conditions (or factor that into
+    //         hiring costs?)
     final int
       numApps = at.staff().applications().size(),
       MA      = (int) BaseCommerce.MAX_APPLICANTS;
@@ -271,6 +293,7 @@ public class FindWork extends Plan {
   }
   
   
+  //  TODO:  Store this in the ActorMotives class instead.
   public static void assignAmbition(
     Actor actor, Background position, Property at, float rating
   ) {
@@ -299,8 +322,8 @@ public class FindWork extends Plan {
     
     //  TODO:  Allow the player to set wages in a similar manner to setting
     //  goods' import/export levels.
-    if (position.standing < 0) return 0;
-    guildFees += Backgrounds.HIRE_COSTS[position.standing];
+    guildFees += Career.defaultSalary(position);
+    if (guildFees == 0) return 0;
     
     if (actor.inWorld()) {
       guildFees = 0;

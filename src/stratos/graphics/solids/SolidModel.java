@@ -169,8 +169,8 @@ public abstract class SolidModel extends ModelAsset {
   
   
   public float defaultAnimDuration(String name) {
-    Animation a = gdxModel.getAnimation(name);
-    return a.duration;
+    final Animation a = gdxModel.getAnimation(name);
+    return a != null ? a.duration : 0;
   }
 }
 

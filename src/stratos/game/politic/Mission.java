@@ -421,6 +421,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   public void endMission(boolean withReward) {
     final boolean report = verbose && BaseUI.currentPlayed() == base;
+    if (done) return;
     if (report) I.say("\nMISSION COMPLETE: "+this);
     //
     //  Unregister yourself from the base's list of ongoing operations-
@@ -560,12 +561,6 @@ public abstract class Mission implements Session.Saveable, Selectable {
     }
     return value;
   }
-  
-  /*
-  public int motionType(Actor actor) {
-    return MOTION_ANY;
-  }
-  //*/
   
   
   public void interrupt(String cause) {

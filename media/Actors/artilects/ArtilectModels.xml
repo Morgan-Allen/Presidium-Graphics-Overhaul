@@ -94,15 +94,15 @@
   height="2.5"
 >
   <animations rotate="90" fps="1">
-    <animation name="strike"     start="0"   end="40"  duration="1" />
-    <animation name="build"      start="141" end="200" duration="3" />
-    <animation name="reach_down" start="303" end="593" duration="3" />
-    <animation name="fire"       start="594" end="644" duration="1" />
-    <animation name="idle"       start="645" end="675" duration="1" />
-    <animation name="look"       start="676" end="843" duration="1" />
-    <animation name="move"       start="844" end="904" duration="1" />
-    <animation name="move_fast"  start="844" end="904" duration="1" />
-    <animation name="fall"       start="905" end="980" duration="1" />
+    <animation name="strike"     start="0"   end="40"  duration="1.5" />
+    <animation name="build"      start="41" end="261" duration="4" />
+    <animation name="reach_down" start="303" end="600" duration="4" />
+    <animation name="fire"       start="600" end="650" duration="1" />
+    <animation name="idle"       start="651" end="681" duration="1" />
+    <animation name="look"       start="682" end="849" duration="4" />
+    <animation name="move"       start="850" end="910" duration="1" />
+    <animation name="move_fast"  start="850" end="910" duration="0.7" />
+    <animation name="fall"       start="911" end="986" duration="2" />
   </animations>
   
   <attachPoints>
@@ -119,24 +119,16 @@
   type="JOINT"
   path="media/Actors/artilects/"
   file="Cranial.ms3d"
-  scale="0.0095"
+  scale="0.5"
   bound="2.5"
   stride="1.5"
   height="2.5"
 >
   <animations rotate="90">
     <animation name="stand"       start="1"  end="1"  duration="1"   />
-    <animation name="move"        start="1"  end="3"  duration="1.5" />
-    <animation name="move_fast"   start="1"  end="3"  duration="1.5" />
-    <animation name="fire"        start="1"  end="3"  duration="1.5" />
-    <animation name="strike"      start="6"  end="10" duration="0.5" />
-    <animation name="fall"        start="11" end="26" duration="2"   />
+    <animation name="move"        start="1"  end="10"  duration="1.5" />
   </animations>
   
-  <attachPoints>
-    <attachPoint function="fire" joint="core"/>
-    <attachPoint function="target" joint="core"/>
-  </attachPoints>
 </model>
 
 

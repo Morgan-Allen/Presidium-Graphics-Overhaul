@@ -10,18 +10,42 @@ import stratos.user.*;
 import stratos.util.*;
 
 
+/*  TUTORIAL TODO LIST:
+
+*  Use a linear sequence with much more detail on specific, simple steps.  You
+   want to cover-
+     Building
+     Recruitment
+     Mission Types
+     Basic Research
+     Housing + Manufacture + Sales and Imports (keep brief)
+
+*  Limit the structure types available during the tutorial, and limit based on
+   structure-prereqs.  (Also, you might try merging into a single category.)
+
+*  Limit the powers available too- have them rely on the ruler learning them,
+   one at a time.
+
+*  Focus on the objectives that have an intuitive, emotional component- such as
+   survival (strike/defend) and comfort (the economy.)  Making those mandatory
+   isn't too bad.
+
+//*/
+
 
 
 /*  BIG TODO LIST:
 
-*  Need to ensure that unemployed job-seekers are more sensible.
-
 *  Need to unify summons-dialogue with contact mechanics.
+//  *  Ideally, using Contact on your own citizens should still leave a marker.
 
 *  Psy powers need some checkup- cooldown system, replace TK, UI idiom.
 
 *  Need to ensure that artilect raiding increases gradually over time.
      Base this off a 'waking up' mechanism as threats are found.
+
+*  Extra concept art for new creatures/vermin:
+     Avrodil, Sea Bean, Rem Leech, Mistaken, Desert Maw, Hirex Body.
 
 *  Need to restore animal nests and surface behaviours.
      Need to ensure auto-distribution of predator and prey nests.
@@ -47,11 +71,6 @@ import stratos.util.*;
 *  General internal clean-up of plan routines.
 
 *  Fresh art and level-depictions for all structures.
-
-
-//  Minor items:
-//  *  Ideally, using Contact on your own citizens should still leave a marker.
-//  *  Charge for voluntary medical treatment!
 
 //*/
 

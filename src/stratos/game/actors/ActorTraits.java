@@ -232,10 +232,17 @@ public class ActorTraits implements Qualities {
   }
   
   
+  public int bonusFrom(Skill parent) {
+    if (parent == null) return 0;
+    final float ageMult = actor.health.ageMultiple();
+    return (int) (0.5f + (traitLevel(parent) * ageMult / 5f));
+  }
+  /*
   public int rootBonus(Skill skill) {
     final float ageMult = actor.health.ageMultiple();
     return (int) (0.5f + (traitLevel(skill.parent) * ageMult / 5f));
   }
+  //*/
   
   
   public float usedLevel(Trait type) {
@@ -258,10 +265,10 @@ public class ActorTraits implements Qualities {
       }
       else {
         if (! actor.health.conscious()) level /= 2;
-        level += rootBonus(skill);
+        level += bonusFrom(skill.parent);
       }
       if (report) I.say(" level of "+type+" is "+level);
-      if (report) I.say(" root bonus: "+rootBonus(skill));
+      if (report) I.say(" root bonus: "+bonusFrom(skill.parent));
       level *= 1 - actor.health.stressPenalty();
     }
     

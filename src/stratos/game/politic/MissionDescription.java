@@ -116,7 +116,7 @@ public class MissionDescription {
     final String
       allDesc[]  = mission.objectiveDescriptions(),
       objectDesc = mission.describeObjective(object);
-
+    
     d.append("\nObjective:  ");
     if (canChange) d.append(new Description.Link(objectDesc) {
       public void whenClicked() {

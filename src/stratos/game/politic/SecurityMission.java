@@ -108,11 +108,10 @@ public class SecurityMission extends Mission implements Qualities {
   protected String describeObjective(int objectIndex) {
     String desc = super.describeObjective(objectIndex);
     if (inceptTime != -1) {
-      final int hours = (int) (
-        (base.world.currentTime() - inceptTime) *
-        24f / Stage.STANDARD_DAY_LENGTH
-      );
-      desc+=" ("+hours+" hours elapsed)";
+      final int hours = (DURATION_LENGTHS[objectIndex] - (int) (
+        base.world.currentTime() - inceptTime
+      )) / Stage.STANDARD_HOUR_LENGTH;
+      desc = hours+" more hours security for ";
     }
     return desc;
   }
@@ -126,9 +125,12 @@ public class SecurityMission extends Mission implements Qualities {
   public void describeMission(Description d) {
     d.append("On ");
     d.append("Security Mission", this);
-    d.append(" around ");
+    d.append(" for ");
     d.append(subject);
   }
 }
+
+
+
 
 

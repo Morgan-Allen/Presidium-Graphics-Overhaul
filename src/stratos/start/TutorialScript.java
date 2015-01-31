@@ -10,6 +10,13 @@ import stratos.user.*;
 import stratos.util.*;
 
 
+//
+//  Alright.  How do I introduce these more gradually?
+
+//  *  Recruitment.
+//  *  Buildings.
+//  *  Research.
+//  *  Mission Types.
 
 
 public class TutorialScript {
@@ -149,8 +156,6 @@ public class TutorialScript {
         linkFor("Go back to the security objective.", TOPIC_SECURITY      )
       );
     }
-    //  Explain use of recon to explore, and strike to destroy.
-    //  Explain use of defence flags, also for first aid and repairs.
     
     if (title.equals(TOPIC_CONTACT)) {
       return comms.addMessage(

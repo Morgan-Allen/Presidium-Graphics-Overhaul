@@ -3,7 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -35,6 +34,8 @@ public class PhysicianStation extends Venue {
     PhysicianStation.class, "media/GUI/Buttons/hospice_button.gif"
   );
   
+  final static float
+    VISIT_COST = Backgrounds.MIN_DAILY_EXPENSE / 2;
   
   final public static Conversion
     REAGENTS_TO_MEDICINE = new Conversion(
@@ -185,7 +186,7 @@ public class PhysicianStation extends Venue {
   
   
   public void addServices(Choice choice, Actor forActor) {
-    choice.add(SickLeave.nextLeaveFor(forActor, this));
+    choice.add(SickLeave.nextLeaveFor(forActor, this, VISIT_COST));
   }
   
   

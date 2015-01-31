@@ -17,6 +17,10 @@ import static stratos.game.actors.Qualities.*;
 //  TODO:  Record memories?
 
 
+//  TODO:  This is primarily useful for humans.  So you need to be able to
+//         override this for specific actor-types.
+
+
 public class ActorMotives {
   
   
@@ -30,6 +34,8 @@ public class ActorMotives {
   
   final Actor actor;
   private float solitude = 0.5f;
+  private Background ambition;
+  
   
   
   
@@ -133,6 +139,12 @@ public class ActorMotives {
   
   
   
+  /**  Ambition motives-
+    */
+  
+  
+  
+  
   /**  Material motives-
     */
   //  TODO:  Have holdings refer to this?  Or refer to supply/demand for
@@ -193,6 +205,7 @@ public class ActorMotives {
     float baseUnit = actor.gear.credits();
     baseUnit += (100 + p.salary()) / 2;
     baseUnit /= Backgrounds.NUM_DAYS_PAY;
+    if (baseUnit <= 0) return Plan.PARAMOUNT;
     
     float mag = 1f + (creditsPerDay / baseUnit);
     mag = Nums.log(2, mag) * greed;
