@@ -228,7 +228,7 @@ public final class Spacing implements TileConstants {
   
   public static Tile pickRandomTile(Target t, float range, Stage world) {
     final float angle = Rand.num() * Nums.PI * 2;
-    final float dist = Rand.num() * range, max = world.size - 1;
+    final float dist = (Rand.num() * range) + t.radius(), max = world.size - 1;
     final Vec3D o = t.position(pA);
     return world.tileAt(
       Nums.clamp(o.x + (float) (Nums.cos(angle) * dist), 0, max),

@@ -137,6 +137,7 @@ public class Choice implements Qualities {
     
     boolean isEmergency = false;
     for (Behaviour plan : plans) if (plan.isEmergency()) isEmergency = true;
+    isEmergency &= actor.senses.isEmergency();
     
     float bestPriority = 0;
     Behaviour picked = null;

@@ -13,13 +13,6 @@ import stratos.util.*;
 
 
 
-//  TODO:  The list of patrol points needs to be more randomised, and needs
-//  to keep up with moving targets more elegantly.
-
-//  TODO:  This has to count as an emergency activity, as long as there *is* an
-//  emergency (and as long as you give emergency responses.)
-
-
 public class Patrolling extends Plan implements TileConstants, Qualities {
   
   
@@ -103,7 +96,11 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     urgency = Nums.clamp(relDanger * ROUTINE, IDLE, ROUTINE);
     
     float modifier = 0 - actor.senses.fearLevel();
-    if (actor.senses.isEmergency()) modifier = PARAMOUNT;
+    if (actor.senses.isEmergency()) {
+      modifier = PARAMOUNT;
+      setMotive(MOTIVE_EMERGENCY, motiveBonus());
+    }
+    else setMotive(MOTIVE_JOB, motiveBonus());
     
     final float priority = priorityForActorWith(
       actor, guarded,
@@ -134,7 +131,6 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     }
     
     final Stage world = actor.world();
-    //final Activities actives = world.activities;
     Target stop = onPoint;
     
     //  First, check to see if there are any supplemental behaviours you could
@@ -186,7 +182,10 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     //  Otherwise, find the nearest free point to stand around the next point
     //  to guard, and proceed there.
     else if (onPoint.isMobile()) {
-      Tile open = Spacing.pickRandomTile(onPoint, range / 2, actor.world());
+      final Pathing p = ((Mobile) onPoint).pathing;
+      final Target ahead = p == null ? onPoint : p.stepsAhead(2, true);
+      
+      Tile open = Spacing.pickRandomTile(ahead, range / 2, actor.world());
       open = Spacing.nearestOpenTile(open, actor);
       if (open == null) { interrupt(INTERRUPT_CANCEL); return null; }
       else stop = open;
@@ -218,17 +217,17 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   
   
   public int motionType(Actor actor) {
-    if (guarded.isMobile() && 
-        Spacing.distance(actor, guarded) >= actor.health.sightRange()) {
-      return MOTION_FAST;
+    
+    if (guarded.isMobile()) {
+      final Mobile m = (Mobile) guarded;
+      final float dist = Spacing.distance(actor, m.aboard());
+      if (dist >= actor.health.sightRange() / 2) return MOTION_FAST;
     }
+    
     //  TODO:  Replace this with a general 'harm intended' clause?
-    if (
-      actor.world().activities.includesActivePlan(guarded, Combat.class) &&
-      Spacing.distance(actor, guarded) >= actor.health.sightRange()
-    ) {
-      return MOTION_FAST;
-    }
+    final Activities a = actor.world().activities;
+    if (a.includesActivePlan(guarded, Combat.class)) return MOTION_FAST;
+    
     return super.motionType(actor);
   }
 

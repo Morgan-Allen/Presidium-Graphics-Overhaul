@@ -7,6 +7,7 @@ package stratos.game.common;
 import stratos.game.actors.*;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
+import stratos.game.politic.Mission;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
 import stratos.user.*;
@@ -550,8 +551,13 @@ public abstract class Actor extends Mobile implements
   public void describeStatus(Description d) {
     if (! health.conscious()) { d.append(health.stateDesc()); return; }
     if (! inWorld()) { d.append("Offworld"); return; }
+    
     final Behaviour rootB = mind.rootBehaviour();
-    if (rootB != null) rootB.describeBehaviour(d);
+    final Mission mission = mind.mission();
+    if (mission != null && rootB == mission.cachedStepFor(this)) {
+      mission.describeMission(d);
+    }
+    else if (rootB != null) rootB.describeBehaviour(d);
     else d.append("Thinking");
   }
 }

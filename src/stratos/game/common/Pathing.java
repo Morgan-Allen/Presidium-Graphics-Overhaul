@@ -82,6 +82,19 @@ public class Pathing {
   }
   
   
+  public Boarding stepsAhead(int ahead, boolean clamp) {
+    if (stepIndex == -1 || path == null) {
+      return clamp ? mobile.origin() : null;
+    }
+    ahead += stepIndex;
+    if (ahead >= path.length) {
+      if (clamp) return (Boarding) Visit.last(path);
+      else return null;
+    }
+    else return path[ahead];
+  }
+  
+  
   protected Boarding location(Target t) {
     if (t instanceof Boarding && t != mobile) {
       return (Boarding) t;
