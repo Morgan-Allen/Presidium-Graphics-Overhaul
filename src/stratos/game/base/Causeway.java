@@ -106,8 +106,8 @@ public class Causeway extends Structural {
   public int pathType() {
     return Tile.PATH_ROAD;
   }
-
-
+  
+  /*
   protected void updatePaving(boolean inWorld) {
     //
     //  For some reason, switching the order in which these are called causes
@@ -117,6 +117,7 @@ public class Causeway extends Structural {
     }
     base().transport.updatePerimeter(this, inWorld);
   }
+  //*/
   
   
   public boolean enterWorldAt(int x, int y, Stage world) {

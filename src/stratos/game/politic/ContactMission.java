@@ -170,9 +170,9 @@ public class ContactMission extends Mission {
     final boolean report = eventVerbose && I.talkAbout == actor;
     
     float DC = other.relations.valueFor(actor) * -10;
-    if (objectIndex() == OBJECT_FRIENDSHIP) DC += 0 ;
-    if (objectIndex() == OBJECT_AUDIENCE  ) DC += 10;
-    if (objectIndex() == OBJECT_SUBMISSION) DC += 20;
+    if (objective() == OBJECT_FRIENDSHIP) DC += 0 ;
+    if (objective() == OBJECT_AUDIENCE  ) DC += 10;
+    if (objective() == OBJECT_SUBMISSION) DC += 20;
     
     final float danger = other.senses.fearLevel();
     DC -= danger * 5;
@@ -212,7 +212,7 @@ public class ContactMission extends Mission {
     }
     
     //  TODO:  Partial success might net you an informant.
-    final int object = objectIndex();
+    final int object = objective();
     for (Actor other : agreed) {
       if (object == OBJECT_FRIENDSHIP) {
         //  TODO:  Actually modify relations between the bases, depending on
@@ -231,7 +231,7 @@ public class ContactMission extends Mission {
     }
     
     if (subject instanceof Venue && majority) {
-      if (objectIndex() == OBJECT_SUBMISSION) {
+      if (objective() == OBJECT_SUBMISSION) {
         ((Venue) subject).assignBase(base);
       }
     }
@@ -241,17 +241,43 @@ public class ContactMission extends Mission {
   
   /**  Rendering and interface methods-
     */
-  protected String[] objectiveDescriptions() {
+  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
+    if (panel == null) panel = new NegotiationPane(UI, this);
+    
+    final int type = missionType();
+    final NegotiationPane NP = (NegotiationPane) panel;
+    
+    if (UI.played() == base) {
+      return NP.configOwningPanel();
+    }
+    else if (allVisible || type == TYPE_PUBLIC) {
+      return NP.configPublicPanel();
+    }
+    else if (type == TYPE_SCREENED) {
+      return NP.configScreenedPanel();
+    }
+    else return panel;
+  }
+  
+  public String[] objectiveDescriptions() {
     return SETTING_DESC;
   }
   
   
   public void describeMission(Description d) {
-    d.append("On mission: ", this);
-    d.append(SETTING_DESC[objectIndex()]);
+    d.append("On ");
+    d.append("Contact Mission ", this);
+    d.append(" with ");
+    //d.append(SETTING_DESC[objectIndex()]);
     d.append(subject);
   }
 }
+
+
+
+
+
+
 
 
 

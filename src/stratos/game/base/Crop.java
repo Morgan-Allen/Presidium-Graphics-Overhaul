@@ -179,7 +179,6 @@ public class Crop extends Element {
   
   
   public static float habitatBonus(Tile t, Species s) {
-    //final Upgrade PU;
     float bonus = 0.0f;
     
     //  First, apply appropriate modifier for microclimate-
@@ -191,7 +190,7 @@ public class Crop extends Element {
     
     //  Then, we determine bonus based on crop type-
     if (isHive(s)) {
-      bonus += t.world.ecology().biomassRating(t) / Nursery.HIVE_DIVISOR;
+      bonus += 0.5f / Nursery.HIVE_DIVISOR;
     }
     else if (isCereal(s)) {
       bonus *= Nursery.CEREAL_BONUS;

@@ -174,15 +174,18 @@ public class HumanDescription implements Qualities {
   
   
   private void descSkill(Skill skill, Description d) {
-    final int level = (int) h.traits.traitLevel(skill);
-    final int bonus = (int) (
-      h.traits.bonusFrom  (skill.parent) +
-      h.traits.effectBonus(skill       )
+    final int level = (int) (
+      h.traits.traitLevel(skill) +
+      h.traits.bonusFrom (skill.parent)
     );
-    d.append("\n  "+skill.name+" "+level+" ");
+    final int bonus = (int) h.traits.effectBonus(skill);
+    d.append("\n  "+skill.name);
     
-    final Colour c = bonus >= 0 ? Colour.GREEN : Colour.RED;
-    d.append(" ("+(level + bonus)+")", c);
+    Colour c = Colour.WHITE;
+    if (bonus > 0) c = Colour.GREEN;
+    if (bonus < 0) c = Colour.RED  ;
+    d.append(" "+(level + bonus), c);
+    if (bonus != 0) d.append(" ("+bonus+")", c);
   }
   
   

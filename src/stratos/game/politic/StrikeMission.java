@@ -92,7 +92,7 @@ public class StrikeMission extends Mission {
     if (cached != null) return cached;
     
     final Combat combat = new Combat(
-      actor, (Element) subject, Combat.STYLE_EITHER, objectIndex()
+      actor, (Element) subject, Combat.STYLE_EITHER, objective()
     );
     combat.setMotive(Plan.MOTIVE_MISSION, basePriority(actor));
     
@@ -101,7 +101,7 @@ public class StrikeMission extends Mission {
   
   
   protected boolean shouldEnd() {
-    if (CombatUtils.isDowned((Element) subject, objectIndex())) return true;
+    if (CombatUtils.isDowned((Element) subject, objective())) return true;
     return false;
   }
   
@@ -109,7 +109,7 @@ public class StrikeMission extends Mission {
   
   /**  Rendering and interface-
     */
-  protected String[] objectiveDescriptions() {
+  public String[] objectiveDescriptions() {
     return Combat.OBJECT_NAMES;
   }
   

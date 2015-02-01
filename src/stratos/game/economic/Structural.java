@@ -137,21 +137,13 @@ public abstract class Structural extends Fixture implements
   
   
   public void previewPlacement(boolean canPlace, Rendering rendering) {
-    //final Tile at = origin();
-    /*
-    if (canPlace) BaseUI.current().selection.renderTileOverlay(
-      rendering, at.world, canPlace ? Colour.GREEN : Colour.RED,
-      Selection.SELECT_OVERLAY, false, this, this
-    );
-    //*/
-    //if (canPlace) renderSelection(rendering, true);
-    
     final Sprite sprite = this.buildSprite;
     if (sprite == null) return;
     this.viewPosition(sprite.position);
     sprite.colour = canPlace ? Colour.GREEN : Colour.RED;
     sprite.passType = Sprite.PASS_PREVIEW;
     sprite.readyFor(rendering);
+    renderSelection(rendering, true);
   }
   
   
@@ -256,12 +248,13 @@ public abstract class Structural extends Fixture implements
   
   
   public void renderSelection(Rendering rendering, boolean hovered) {
-    if (destroyed() || ! inWorld()) return;
+    if (destroyed() || origin() == null) return;
     
     BaseUI.current().selection.renderTileOverlay(
-      rendering, world,
+      rendering, origin().world,
       hovered ? Colour.transparency(0.5f) : Colour.WHITE,
-      Selection.SELECT_OVERLAY, true, this, (Object[]) structure.asGroup()
+      Selection.SELECT_OVERLAY, origin()+"_print_"+this, true,
+      (Object[]) structure.asGroup()
     );
   }
 }

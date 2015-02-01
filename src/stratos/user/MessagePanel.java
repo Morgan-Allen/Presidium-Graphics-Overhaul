@@ -12,7 +12,7 @@ import stratos.util.*;
 
 
 
-public class DialoguePanel extends SelectionInfoPane implements UIConstants {
+public class MessagePanel extends SelectionInfoPane implements UIConstants {
   
   
   final String title;
@@ -20,7 +20,7 @@ public class DialoguePanel extends SelectionInfoPane implements UIConstants {
   private Clickable options[];
   
   
-  public DialoguePanel(
+  public MessagePanel(
     BaseUI UI, Composite portrait,
     String title, String initText,
     Series <? extends Clickable> options
@@ -29,7 +29,7 @@ public class DialoguePanel extends SelectionInfoPane implements UIConstants {
   }
   
   
-  public DialoguePanel(
+  public MessagePanel(
     BaseUI UI, Composite portrait,
     String title, String initText,
     Clickable... options

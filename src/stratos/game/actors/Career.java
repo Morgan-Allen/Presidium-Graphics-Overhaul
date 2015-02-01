@@ -278,27 +278,14 @@ public class Career implements Qualities {
   }
   
   
-  
-  //  Fitness for the position.  (Goes down with higher status and skills-
-  //  requirements.)
-  //  Desire for the position.  (Goes up with higher status, personality-
-  //  matching, and poverty.)
-  
-  //  Success-chance is based on fitness.  Impetus is based on status.
-  //  Priority = success-chance x impetus.  Simple!
-  
-  public static float ratePromotion(Background next, Actor actor) {
-    final boolean report = verbose && I.talkAbout == actor;
-    return ratePromotion(next, actor, report);
-  }
-  
-  
-  private static float ratePromotion(
+  /**  Promotion-evaluation methods:
+    */
+  public static float ratePromotion(
     Background next, Actor actor, boolean report
   ) {
     float fitness = rateDefaultFitness(actor, next, report);
     float desire  = rateDefaultDesire (actor, next, report);
-    return fitness * desire;
+    return Nums.min(fitness, desire);
   }
   
   
@@ -307,15 +294,19 @@ public class Career implements Qualities {
   ) {
     float skillsRating = 0, sumSkills = 0;
     if (report) I.say("\nRating fitness of "+I.tagHash(actor)+" as "+position);
-    
+    //
+    //  NOTE:  The numbers chosen here are quite sensitive, so please don't
+    //  fiddle with them without some testing.
     for (Skill skill : position.baseSkills.keySet()) {
       final float
         jobLevel  = position.baseSkills.get(skill),
         haveLevel = actor.traits.traitLevel(skill),
-        rating    = Nums.clamp((haveLevel + 10 - jobLevel) / 20, 0, 1);
+        rating    = Nums.clamp((haveLevel + 10 - jobLevel) / 10, 0, 1.5f);
       sumSkills    += jobLevel;
       skillsRating += jobLevel * rating;
-      if (report) I.say("  "+skill+": "+rating);
+      if (report) {
+        I.say("  "+skill+": "+rating+" (have "+haveLevel+"/"+jobLevel+")");
+      }
     }
     if (sumSkills > 0) skillsRating = skillsRating /= sumSkills;
     else skillsRating = 1;
@@ -331,39 +322,49 @@ public class Career implements Qualities {
     float rating = 1.0f;
     if (report) I.say("\nRating desire by "+I.tagHash(actor)+" for "+position);
     //
-    //  
+    //  Citizens gravitate to jobs that suit their temperament, so we get a
+    //  weighted average of those traits associated with the position, relative
+    //  to how much the actor possesses them-
     if (position.traitChances.size() > 0) {
-      float sumChances = 0;
+      float sumChances = 0, sumWeights = 0;
       for (Trait t : position.traitChances.keySet()) {
-        float chance = position.traitChances.get(t);
-        if (t.type == Trait.PERSONALITY) {
-          chance *= Personality.traitChance(t, actor);
-        }
-        else {
-          chance *= actor.traits.traitLevel(t);
-        }
-        if (report) I.say("  Chance due to "+t+" is "+chance);
-        sumChances += (chance + 1) / 2;
+        final float posChance = position.traitChances.get(t);
+        if (posChance == 0) continue;
+        //
+        //  NOTE: Personality traits are handled a little differently, since
+        //  those can have opposites:
+        final float ownChance = (t.type == Trait.PERSONALITY) ?
+          Personality.traitChance(t, actor) :
+          actor.traits.traitLevel(t)        ;
+        
+        if (report) I.say("  Chance due to "+t+" is "+ownChance+"/"+posChance);
+        sumWeights += Nums.abs(posChance);
+        sumChances += ownChance * (posChance > 0 ? 1 : -1);
       }
-      if (report) I.say("  Total trait chance: "+sumChances);
-      rating *= sumChances * 2 / (1 + position.traitChances.size());
+      
+      if (sumWeights > 0) rating *= (1 + (sumChances / sumWeights)) / 2;
+      if (report) {
+        I.say("  Total trait chance: "+sumChances+"/"+sumWeights);
+        I.say("  Subsequent rating:  "+rating);
+      }
     }
     //
-    //  Finally, we also favour transition to more prestigious vocations:
-    if (rating < 0) {
-      if (report) I.say("  No chance of promotion- quitting.");
-      return 0;
-    }
-    else if (
-      actor instanceof Human &&
+    //  Finally, we also favour transition to more prestigious vocations.  (In
+    //  the case of actors already in the world, we skip this step, since we
+    //  can use the finance-evaluation methods in FindWork.)
+    if (
+      actor instanceof Human && (! actor.inWorld()) &&
       position.standing != Backgrounds.NOT_A_CLASS
     ) {
       final Background prior = ((Human) actor).career().topBackground();
       int nextStanding = position.standing;
+      if (report) {
+        I.say("  Prior standing: "+prior.standing);
+        I.say("  Next standing:  "+nextStanding  );
+      }
       while (nextStanding < prior.standing) { rating /= 5; nextStanding++; }
       while (nextStanding > prior.standing) { rating *= 2; nextStanding--; }
     }
-    
     if (report) I.say("  Overall rating: "+rating);
     return rating;
   }

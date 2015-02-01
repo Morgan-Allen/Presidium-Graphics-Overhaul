@@ -59,7 +59,7 @@ public class TutorialScript {
     final CommsPanel comms = tutorial.UI().commsPanel();
     return new Description.Link(linkText) {
       public void whenClicked() {
-        DialoguePanel message = comms.messageWith(title);
+        MessagePanel message = comms.messageWith(title);
         if (message == null) message = messageFor(title, comms, true);
         tutorial.UI().setInfoPanels(message, null);
       }
@@ -67,7 +67,7 @@ public class TutorialScript {
   }
   
   
-  protected DialoguePanel messageFor(
+  protected MessagePanel messageFor(
     String title, CommsPanel comms, boolean useCache
   ) {
     if (useCache && comms.hasMessage(title)) return comms.messageWith(title);

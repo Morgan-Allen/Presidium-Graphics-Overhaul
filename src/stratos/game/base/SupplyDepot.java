@@ -156,15 +156,15 @@ public class SupplyDepot extends Venue {
   
   public int spaceFor(Traded t) {
     if (t == CARBS || t == PROTEIN) {
-      return 5 + (structure.upgradeLevel(RATIONS_VENDING) * 5);
+      return 10 + (structure.upgradeLevel(RATIONS_VENDING) * 5);
     }
     if (t == PARTS || t == PLASTICS) {
-      return 5 + (structure.upgradeLevel(HARDWARE_STORE ) * 5);
+      return 10 + (structure.upgradeLevel(HARDWARE_STORE ) * 5);
     }
     if (t == LCHC) {
-      return 5 + (structure.upgradeLevel(LCHC_RENDERING ) * 5);
+      return 10 + (structure.upgradeLevel(LCHC_RENDERING ) * 5);
     }
-    return 5 + (structure.upgradeLevel(EXPORT_TRADE) * 5);
+    return 10 + (structure.upgradeLevel(EXPORT_TRADE) * 5);
   }
   
   

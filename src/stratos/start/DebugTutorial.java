@@ -53,6 +53,13 @@ import stratos.util.*;
 *  Need service hatches to allow access to vermin.
      Need to write vermin behaviour.
 
+*  Explicit or improved placement for shield walls and arcologies.
+     Fresh art for shield walls.
+
+*  Hide-and-seek needs to be more effective (both retreat and combat.)
+
+*  Buildings need to have multiple levels.
+
 *  Upgrades need to filled in and tested for:
      Stock Exchange
      Archives
@@ -60,13 +67,7 @@ import stratos.util.*;
      Kommando Lodge
      Airfield
      Trooper Lodge (drilling)
-
-*  Hide-and-seek needs to be more effective (both retreat and combat.)
-
-*  Explicit or improved placement for shield walls and arcologies.
-     Fresh art for shield walls.
-
-*  Buildings need to have multiple levels.
+     Cut out recruitment-extras for others.
 
 *  General internal clean-up of plan routines.
 

@@ -1,8 +1,9 @@
 
 
 
-package stratos.game.politic;
+package stratos.user;
 import stratos.game.common.*;
+import stratos.game.politic.Mission;
 import stratos.game.actors.*;
 import stratos.user.*;
 import stratos.util.*;
@@ -12,16 +13,25 @@ import static stratos.game.politic.Mission.*;
 
 
 
-public class MissionDescription {
+public class MissionPane extends SelectionInfoPane {
   
   
-  protected static SelectionInfoPane configOwningPanel(
-    final Mission mission, SelectionInfoPane panel, BaseUI UI
-  ) {
+  final BaseUI UI;
+  final protected Mission mission;
+  
+  
+  public MissionPane(BaseUI UI, Mission selected) {
+    super(UI, selected, selected.portrait(UI), true);
+    this.UI = UI;
+    this.mission = selected;
+  }
+
+
+  public SelectionInfoPane configOwningPanel() {
     //
     //  Obtain some basic facts about the mission and shorthand variables
     //  first-
-    final Description d = panel.detail(), l = panel.listing();
+    final Description d = detail(), l = listing();
     final int type = mission.missionType();
     final List <Actor> applied = mission.applicants();
     final boolean emptyList = applied.size() == 0;
@@ -62,36 +72,31 @@ public class MissionDescription {
       );
     }
     else listApplicants(mission, applied, canChange, UI, l);
-    return panel;
+    return this;
   }
   
   
-  protected static SelectionInfoPane configPublicPanel(
-    final Mission mission, SelectionInfoPane panel, BaseUI UI
-  ) {
-    final Description d = panel.detail(), l = panel.listing();
+  public SelectionInfoPane configPublicPanel() {
+    final Description d = detail(), l = listing();
     
     describeStatus(mission, false, UI, d);
     listApplicants(mission, mission.applicants(), false, UI, l);
-    return panel;
+    return this;
   }
   
   
-  protected static SelectionInfoPane configScreenedPanel(
-    final Mission mission, SelectionInfoPane panel, BaseUI UI
-  ) {
-    final Description d = panel.detail(), l = panel.listing();
-    
-    return panel;
+  public SelectionInfoPane configScreenedPanel() {
+    final Description d = detail(), l = listing();
+    return this;
   }
   
   
-  private static void describeStatus(
+  private void describeStatus(
     final Mission mission, boolean canChange,
     BaseUI UI, Description d
   ) {
     final Colour FIXED = Colour.LITE_GREY;
-    final Base declares = mission.base;
+    final Base declares = mission.base();
     d.append("Declared by ");
     if (declares.ruler() == null) d.append(declares);
     else d.append(declares.ruler());
@@ -112,7 +117,7 @@ public class MissionDescription {
     
     //
     //  Then, describe the mission objective-
-    final int object = mission.objectIndex();
+    final int object = mission.objective();
     final String
       allDesc[]  = mission.objectiveDescriptions(),
       objectDesc = mission.describeObjective(object);
@@ -147,7 +152,7 @@ public class MissionDescription {
   }
   
   
-  private static void listApplicants(
+  private void listApplicants(
     final Mission mission, List <Actor> applied, boolean canConfirm,
     BaseUI UI, Description d
   ) {

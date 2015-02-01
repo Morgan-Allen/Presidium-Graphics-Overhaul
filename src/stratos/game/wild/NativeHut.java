@@ -329,7 +329,7 @@ public class NativeHut extends Venue {
       (xdim() / 2f) + 1,
       hovered ? Colour.transparency(0.5f) : Colour.WHITE,
       Selection.SELECT_CIRCLE,
-      true, this
+      true, this+""
     );
   }
 }

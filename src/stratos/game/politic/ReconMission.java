@@ -66,7 +66,7 @@ public class ReconMission extends Mission {
   
   
   public float exploreRadius() {
-    return SETTING_AREAS[objectIndex()];
+    return SETTING_AREAS[objective()];
   }
   
   
@@ -107,7 +107,7 @@ public class ReconMission extends Mission {
   
   /**  Rendering and interface methods-
     */
-  protected String[] objectiveDescriptions() {
+  public String[] objectiveDescriptions() {
     return SETTING_DESC;
   }
   
@@ -128,7 +128,7 @@ public class ReconMission extends Mission {
       subject.position(null), exploreRadius(),
       hovered ? Colour.transparency(0.25f) : Colour.transparency(0.5f),
       Selection.SELECT_CIRCLE,
-      true, this
+      true, this+""
     );
   }
 }

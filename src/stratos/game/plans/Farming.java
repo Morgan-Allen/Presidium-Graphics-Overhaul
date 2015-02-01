@@ -20,8 +20,8 @@ public class Farming extends Plan {
   
   
   private static boolean
-    evalVerbose = false,
-    stepVerbose = false;
+    evalVerbose  = false,
+    stepsVerbose = false;
   
   final Nursery nursery;
   
@@ -85,7 +85,7 @@ public class Farming extends Plan {
   
   
   public Behaviour getNextStep() {
-    final boolean report = stepVerbose && I.talkAbout == actor;
+    final boolean report = stepsVerbose && I.talkAbout == actor;
     
     if (report) {
       I.say("\nGETTING NEXT FARMING STEP");
@@ -131,7 +131,7 @@ public class Farming extends Plan {
     if (toPlant != null) {
       Crop picked = nursery.plantedAt(toPlant);
       if (picked == null) {
-        picked = new Crop(nursery, pickSpecies(toPlant));
+        picked = new Crop(nursery, pickSpecies(toPlant, report));
         picked.setPosition(toPlant.x, toPlant.y, toPlant.world);
       }
       
@@ -232,6 +232,8 @@ public class Farming extends Plan {
   /**  Action Implementations-
     */
   public boolean actionPlant(Actor actor, Crop crop) {
+    final boolean report = I.talkAbout == actor && stepsVerbose;
+    
     if (crop.origin().reserved()) return false;
     if (! crop.inWorld()) crop.enterWorld();
     
@@ -256,24 +258,28 @@ public class Farming extends Plan {
     health += actor.skills.test(CULTIVATION, plantDC, 1) ? 1 : 0;
     health += actor.skills.test(HARD_LABOUR, ROUTINE_DC, 1) ? 1 : 0;
     health *= Nursery.MAX_HEALTH_BONUS / 5;
-    final Species s = pickSpecies(crop.origin());
+    final Species s = pickSpecies(crop.origin(), report);
     crop.seedWith(s, health);
     return true;
   }
   
   
-  private Species pickSpecies(Tile t) {
-    final Float chances[] = new Float[5];
-    int i = 0;
+  private Species pickSpecies(Tile t, boolean report) {
+    final Pick <Species> pick = new Pick <Species> ();
+    if (report) I.say("\nPicking crop species...");
+    
     for (Species s : Crop.ALL_VARIETIES) {
       final Item seed = actor.gear.matchFor(Item.asMatch(SAMPLES, s));
       final float stocked = 50 + nursery.stocks.amountOf(Crop.yieldType(s));
       
-      chances[i  ] = Crop.habitatBonus(t, s) / stocked;
-      chances[i  ] *= 1 + (seed == null ? 0 : seed.quality);
-      chances[i++] /= Item.MAX_QUALITY;
+      float chance = 1;
+      chance *= Crop.habitatBonus(t, s) / stocked;
+      chance *= 1 + (seed == null ? 0 : seed.quality);
+      
+      if (report) I.say("  Chance for "+s+" is "+chance);
+      pick.compare(s, chance * Rand.avgNums(2));
     }
-    return (Species) Rand.pickFrom(Crop.ALL_VARIETIES, chances);
+    return pick.result();
   }
   
   

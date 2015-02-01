@@ -224,7 +224,7 @@ public class TutorialScenario extends StartupScenario implements
   private void registerAllTopics() {
     final CommsPanel comms = UI().commsPanel();
     for (String topicKey : ALL_TOPIC_TITLES) {
-      final DialoguePanel panel = comms.messageWith(topicKey);
+      final MessagePanel panel = comms.messageWith(topicKey);
       if (panel != null) continue;
       comms.addMessage(this, topicKey, messageFor(topicKey, comms, false));
     }
@@ -241,7 +241,7 @@ public class TutorialScenario extends StartupScenario implements
   }
   
   
-  public DialoguePanel messageFor(
+  public MessagePanel messageFor(
     String title, CommsPanel comms, boolean useCache
   ) {
     return new TutorialScript(this).messageFor(title, comms, useCache);

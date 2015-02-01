@@ -272,7 +272,7 @@ public class StartupScenario extends Scenario {
           rating += ruler.motives.attraction(candidate) * 1.0f;
           rating += candidate.motives.attraction(ruler) * 0.5f;
         }
-        else rating += Career.ratePromotion(b, candidate);
+        else rating += Career.ratePromotion(b, candidate, false);
         
         if (rating > bestRating) { picked = candidate; bestRating = rating; }
       }

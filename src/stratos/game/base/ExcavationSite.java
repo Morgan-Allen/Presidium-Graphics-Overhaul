@@ -236,67 +236,11 @@ public class ExcavationSite extends Venue implements TileConstants {
     return -1;
   }
   
-  /*
-  protected Venue smeltingSite(Service mineral) {
-    if (mineral == ARTIFACTS ) return this;
-    for (Smelter s : smelters) {
-      if (s.output == mineral) return s;
-    }
-    return null;
-  }
-  
-  
-  public Tailing nextTailing() {
-    for (Tailing t : tailings) {
-      if ((! t.inWorld()) && ! t.canPlace()) {
-        tailings.remove(t);
-        continue;
-      }
-      if (t.fillLevel() < 1) return t;
-    }
-    
-    Tailing strip[] = new Tailing[4];
-    for (int i = 4; i-- > 0;) strip[i] = new Tailing(base(), strip);
-    strip = (Tailing[]) Placement.establishVenueStrip(
-      strip, this, false, world
-    );
-    if (strip == null) return null;
-    for (int i = 4; i-- > 0;) tailings.add(strip[i]);
-    return nextTailing();
-  }
-  //*/
-  
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     structure.setAmbienceVal(structure.upgradeLevel(SAFETY_PROTOCOL) - 3);
-    
-    //  TODO:  Remove later?
-    //nextTailing();
-    
-    /*
-    for (Smelter kid : smelters) if (kid.destroyed()) {
-      smelters.remove(kid);
-    }
-    //
-    //  TODO:  Come up with limits for each of the smelter types, based on
-    //  staff size and underlying/surrounding terrain.
-    //final int numDrills = structure.upgradeLevel(MANTLE_DRILLING);
-    if (numUpdates % SMELTER_REFRESH == 0) {
-      if (smeltingSite(METALS) == null) {
-        final Smelter strip = Smelter.siteSmelter(this, METALS);
-        if (strip != null) smelters.add(strip);
-      }
-      if (
-        smeltingSite(FUEL_RODS) == null &&
-        true //structure.upgradeLevel(FUEL_PROCESSING) > 0
-      ) {
-        final Smelter strip = Smelter.siteSmelter(this, FUEL_RODS);
-        if (strip != null) smelters.add(strip);
-      }
-    }
-    //*/
     
     if (corridor == null || numUpdates % DIG_FACE_REFRESH == 0) {
       corridor = Mining.getTilesUnder(this);

@@ -197,7 +197,7 @@ public class ActorMotives {
     //  e.g, if I got this every day, how much is it worth to me?  (And even
     //  then, we're fudging things a little- see below.)
     if (creditsPerDay <= 0) return 0;
-    final boolean report = rateVerbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && rateVerbose;
     
     final float greed = 1 + actor.traits.relativeLevel(Qualities.ACQUISITIVE);
     final Profile p = actor.base().profiles.profileFor(actor);
@@ -213,7 +213,7 @@ public class ActorMotives {
     //  Value is taken as directly proportional when below average, and
     //  logarithmic/additive beyond that:
     final float level;
-    if (mag <= 1) level = mag * Plan.ROUTINE;
+    if (mag <= 1) level = mag * Plan.ROUTINE * 1;
     else          level = mag + Plan.ROUTINE - 1;
     
     if (report) {

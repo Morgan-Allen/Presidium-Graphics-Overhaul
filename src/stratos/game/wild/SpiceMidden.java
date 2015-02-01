@@ -139,7 +139,7 @@ public class SpiceMidden extends Fixture implements Selectable {
       position(null), (xdim() / 2f) + 0.5f,
       Colour.transparency(hovered ?  0.25f : 0.5f),
       Selection.SELECT_CIRCLE,
-      true, this
+      true, this+""
     );
   }
 }

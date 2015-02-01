@@ -56,7 +56,7 @@ public class SecurityMission extends Mission implements Qualities {
   
   
   public float duration() {
-    return DURATION_LENGTHS[objectIndex()];
+    return DURATION_LENGTHS[objective()];
   }
   
   
@@ -105,7 +105,7 @@ public class SecurityMission extends Mission implements Qualities {
   
   /**  Rendering and interface methods-
     */
-  protected String describeObjective(int objectIndex) {
+  public String describeObjective(int objectIndex) {
     String desc = super.describeObjective(objectIndex);
     if (inceptTime != -1) {
       final int hours = (DURATION_LENGTHS[objectIndex] - (int) (
@@ -117,7 +117,7 @@ public class SecurityMission extends Mission implements Qualities {
   }
   
   
-  protected String[] objectiveDescriptions() {
+  public String[] objectiveDescriptions() {
     return DURATION_NAMES;
   }
   

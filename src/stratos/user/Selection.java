@@ -169,8 +169,8 @@ public class Selection implements UIConstants {
   /**  Rendering FX-
     */
   final static int MAX_CACHE = 5;
-  private Table <Object, TerrainChunk> overlayCache = new Table();
-  private List <Object> recentOverlays = new List();
+  private Table <String, TerrainChunk> overlayCache = new Table();
+  private List <String> recentOverlays = new List();
   
   
   protected void renderWorldFX(Rendering rendering) {
@@ -198,7 +198,7 @@ public class Selection implements UIConstants {
   }
   
   
-  private void addToCache(TerrainChunk overlay, Object key) {
+  private void addToCache(TerrainChunk overlay, String key) {
     recentOverlays.addFirst(key);
     overlayCache.put(key, overlay);
 
@@ -211,22 +211,33 @@ public class Selection implements UIConstants {
   }
   
   
+  private boolean haveCached(String key) {
+    for (String s : recentOverlays) if (s.equals(key)) return true;
+    return false;
+  }
+  
+  
   public void renderTileOverlay(
     Rendering r, final Stage world,
     Colour c, ImageAsset tex,
-    boolean cache, final Structure.Basis key, final Object... group
+    final String key, boolean cache, final Object... group
   ) {
     TerrainChunk overlay = null;
     
-    if (cache && recentOverlays.includes(key)) {
+    if (cache && haveCached(key)) {
       overlay = overlayCache.get(key);
     }
     else {
       //  Otherwise, put together a fresh overlay-
-      final Box2D limit = new Box2D().setTo(key.footprint());
+      Box2D limit = null;
       final Batch <Tile> under = new Batch <Tile> ();
-      for (Object o : group) if (o instanceof Fixture) {
-        for (Tile t : world.tilesIn(((Fixture) o).footprint(), true)) {
+      
+      for (Object o : group) {
+        Box2D area = null;
+        if (o instanceof Fixture) area = ((Fixture) o).footprint();
+        if (o instanceof Box2D  ) area = (Box2D) o;
+        if (area != null) for (Tile t : world.tilesIn(area, true)) {
+          if (limit == null) limit = new Box2D(t.x, t.y, 0, 0);
           limit.include(t.x, t.y, 0.5f);
           under.add(t);
           t.flagWith(under);
@@ -263,12 +274,12 @@ public class Selection implements UIConstants {
     Rendering r, Stage world,
     Vec3D pos, float radius,
     Colour c, ImageAsset texture,
-    boolean cache, Object key
+    boolean cache, String key
   ) {
     final boolean report = false;
     TerrainChunk overlay = null;
     
-    if (cache && recentOverlays.includes(key)) {
+    if (cache && haveCached(key)) {
       overlay = overlayCache.get(key);
     }
     else {

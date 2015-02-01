@@ -243,7 +243,7 @@ public abstract class Venue extends Structural implements
   
   
   public boolean preventsClaimBy(Venue other) {
-    return other.owningTier() <= this.owningTier();
+    return true;
   }
   
   
@@ -492,6 +492,28 @@ public abstract class Venue extends Structural implements
     updateItemSprites();
     renderChat(rendering, base);
   }
+  
+  
+  public void renderSelection(Rendering rendering, boolean hovered) {
+    if (destroyed() || origin() == null) return;
+    super.renderSelection(rendering, hovered);
+    
+    if (footprint() == areaClaimed()) return;
+    ///I.say("Rendering area claimed: "+areaClaimed());
+    
+    BaseUI.current().selection.renderTileOverlay(
+      rendering, origin().world,
+      Colour.transparency(hovered ? 0.25f : 0.5f),
+      Selection.SELECT_OVERLAY, origin()+"_area_"+this, true, areaClaimed()
+    );
+  }
 }
+
+
+
+
+
+
+
 
 

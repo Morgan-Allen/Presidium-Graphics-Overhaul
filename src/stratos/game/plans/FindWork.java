@@ -24,7 +24,7 @@ public class FindWork extends Plan {
   
   
   private static boolean
-    verbose      = true ,
+    verbose      = false,
     offworldOnly = false;
   
   final static float
@@ -89,6 +89,7 @@ public class FindWork extends Plan {
     if (actor.vocation() == position && actor.mind.work() == employer) {
       return -1;
     }
+    if (position == null || employer == null) return -1;
     rating = rateOpening(position, employer, report);
     final float priority = Nums.clamp(ROUTINE * rating, 0, URGENT);
     if (report) {
@@ -263,32 +264,37 @@ public class FindWork extends Plan {
     if (report) I.say("\nRating opening for "+position);
     //
     //  
-    float rating = Career.ratePromotion(position, actor);
-    rating *= actor.relations.valueFor(at.base());
-    if (report) {
-      I.say("  Base rating: "+rating);
+    float rating = Career.ratePromotion(position, actor, report);
+    if (report) I.say("\nBase promotion rating: "+rating);
+    if (at.base() != actor.base()) {
+      rating *= actor.relations.valueFor(at.base());
+      if (report) I.say("  After base relations: "+rating);
     }
     //
     //  The basic idea here is to partially 'mix in' the appeal of money (or
     //  financial desperation) when considering whether to take a job you
     //  otherwise dislike.
-    final float salary = Career.defaultSalary(position);
-    final float greed  = ActorMotives.greedPriority(
+    final float salary    = Career.defaultSalary(position);
+    final float baseGreed = ActorMotives.greedPriority(
       actor, salary / Backgrounds.NUM_DAYS_PAY
     ) / Plan.ROUTINE;
-    rating += (((rating + 1) / 2) * greed) - 1;
+    final float greedFactor = ((rating + 1) / 2) * baseGreed;
+    rating += greedFactor - 1;
     if (report) {
       I.say("  New salary: "+salary);
       I.say("  Old salary: "+Career.defaultSalary(actor.vocation()));
-      I.say("  Greed is:   "+greed);
+      I.say("  Greed is:   "+greedFactor+" (Base "+baseGreed+")");
     }
-    
     //  TODO:  Also impact through area living conditions (or factor that into
     //         hiring costs?)
     final int
       numApps = at.staff().applications().size(),
       MA      = (int) BaseCommerce.MAX_APPLICANTS;
-    rating *= 1 - (Nums.clamp(numApps - 1, 0, MA) / MA);
+    rating *= 1f / (1 + (numApps / MA));
+    if (report) {
+      I.say("  Total/max applicants: "+numApps+"/"+MA);
+      I.say("  Final rating:         "+rating);
+    }
     return rating;
   }
   

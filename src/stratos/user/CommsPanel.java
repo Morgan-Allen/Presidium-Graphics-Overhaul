@@ -22,13 +22,13 @@ public class CommsPanel extends SelectionInfoPane {
   
   
   public static interface CommSource extends Session.Saveable {
-    DialoguePanel messageFor(String title, CommsPanel comms, boolean useCache);
+    MessagePanel messageFor(String title, CommsPanel comms, boolean useCache);
   }
   
   private class Message {
     CommSource source;
     String keyTitle;
-    DialoguePanel panel;
+    MessagePanel panel;
     //  TODO:  Optional time-stamps?
   }
   
@@ -45,7 +45,7 @@ public class CommsPanel extends SelectionInfoPane {
     for (int n = s.loadInt(); n-- > 0;) {
       final CommSource    source = (CommSource) s.loadObject();
       final String        key    = s.loadString();
-      final DialoguePanel panel  = source.messageFor(key, this, false);
+      final MessagePanel panel  = source.messageFor(key, this, false);
       
       if (messageWith(key) == null && panel != null) {
         final Message m = new Message();
@@ -92,7 +92,7 @@ public class CommsPanel extends SelectionInfoPane {
   }
   
   
-  public DialoguePanel messageWith(String keyTitle) {
+  public MessagePanel messageWith(String keyTitle) {
     for (Message m : messages) if (m.keyTitle.equals(keyTitle)) {
       return m.panel;
     }
@@ -100,10 +100,10 @@ public class CommsPanel extends SelectionInfoPane {
   }
   
   
-  public DialoguePanel addMessage(
-    CommSource source, String title, DialoguePanel panel
+  public MessagePanel addMessage(
+    CommSource source, String title, MessagePanel panel
   ) {
-    final DialoguePanel old = messageWith(title);
+    final MessagePanel old = messageWith(title);
     if (old != null) return old;
     if (panel == null) I.complain("CANNOT PUSH NULL PANEL! "+title);
     
@@ -116,7 +116,7 @@ public class CommsPanel extends SelectionInfoPane {
   }
   
   
-  public DialoguePanel addMessage(
+  public MessagePanel addMessage(
     CommSource source, String title, Composite portrait,
     String mainText, Clickable... options
   ) {
@@ -128,7 +128,7 @@ public class CommsPanel extends SelectionInfoPane {
         }
       }
     };
-    final DialoguePanel panel = new DialoguePanel(
+    final MessagePanel panel = new MessagePanel(
       UI, portrait, title, mainText,
       (Clickable[]) Visit.compose(Clickable.class, options, navOptions)
     );

@@ -159,7 +159,7 @@ public class SupplyCache extends Fixture implements Item.Dropped {
       rendering, world, position(null), 1,
       Colour.transparency(hovered ?  0.25f : 0.5f),
       Selection.SELECT_CIRCLE,
-      true, this
+      true, this+""
     );
   }
 }

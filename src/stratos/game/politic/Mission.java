@@ -80,20 +80,20 @@ public abstract class Mission implements Session.Saveable, Selectable {
     PRIORITY_PARAMOUNT = 5,
     LIMIT_PRIORITY     = 6;
   
-  final static float REWARD_TYPE_MULTS[] = {
+  final public static float REWARD_TYPE_MULTS[] = {
     0.75f, 0.5f, 0.25f
   };
-  final static String
+  final public static String
     TYPE_DESC[] = {
       "Public Contract", "Screened", "Covert"
     },
     PRIORITY_DESC[] = {
       "None", "Nominal", "Routine", "Urgent", "Critical", "Paramount"
     };
-  final static Integer REWARD_AMOUNTS[] = {
+  final public static Integer REWARD_AMOUNTS[] = {
     0, 100, 250, 500, 1000, 2500
   };
-  final static Integer PARTY_LIMITS[] = {
+  final public static Integer PARTY_LIMITS[] = {
     1, 3, 3, 4, 4, 5
   };
   final public static int
@@ -265,7 +265,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   }
   
   
-  protected int objectIndex() {
+  public int objective() {
     return objectIndex;
   }
   
@@ -322,7 +322,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   }
   
   
-  protected int rolesApproved() {
+  public int rolesApproved() {
     int count = 0;
     for (Role role : roles) if (role.approved) count++;
     return count;
@@ -645,20 +645,17 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
-    //
-    //  Set up the panel itself if needed, and acquire a few bits of data for
-    //  reference...
-    if (panel == null) panel = new SelectionInfoPane(
-      UI, this, portrait(UI), true
-    );
-    if (UI.played() == base) return MissionDescription.configOwningPanel(
-      this, panel, UI
-    );
+    if (panel == null) panel = new MissionPane(UI, this);
+    final MissionPane MP = (MissionPane) panel;
+    
+    if (UI.played() == base) {
+      return MP.configOwningPanel();
+    }
     else if (allVisible || missionType == TYPE_PUBLIC) {
-      return MissionDescription.configPublicPanel(this, panel, UI);
+      return MP.configPublicPanel();
     }
     else if (missionType == TYPE_SCREENED) {
-      return MissionDescription.configScreenedPanel(this, panel, UI);
+      return MP.configScreenedPanel();
     }
     else return panel;
   }
@@ -707,7 +704,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
       pos, subject.radius() + 0.5f,
       hovered ? Colour.transparency(0.5f) : Colour.WHITE,
       Selection.SELECT_CIRCLE,
-      true, this
+      true, this+""
     );
   }
   
@@ -733,13 +730,23 @@ public abstract class Mission implements Session.Saveable, Selectable {
   public abstract void describeMission(Description d);
   
   
-  protected String describeObjective(int objectIndex) {
+  public String describeObjective(int objectIndex) {
     return objectiveDescriptions()[objectIndex];
   }
   
   
-  protected abstract String[] objectiveDescriptions();
+  public abstract String[] objectiveDescriptions();
 }
+
+
+
+
+
+
+
+
+
+
 
 
 

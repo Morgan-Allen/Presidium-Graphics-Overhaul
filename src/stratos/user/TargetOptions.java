@@ -67,6 +67,7 @@ public class TargetOptions extends UIGroup {
   }
   
   
+  /*
   //  TODO:  Just make this a function of the Contact mission.
   private class SummonsButton extends Button {
     final Actor subject;
@@ -88,9 +89,14 @@ public class TargetOptions extends UIGroup {
         I.say("CANNOT SUMMON AT THE MOMENT");
         return;
       }
+      
+      //  TODO:  This needs to have some form of visual reminder.  Create a
+      //  contact mission and assign the actor as the only applicant, then seal
+      //  it.
       Summons.beginSummons(subject);
     }
   }
+  //*/
   
   
   private void setup() {
@@ -119,8 +125,8 @@ public class TargetOptions extends UIGroup {
       ));
     }
     if (
-      subject instanceof Actor &&
-      subject.base() != BUI.played()
+      Summons.canSummon(subject, base) &&
+      subject instanceof Actor
     ) {
       options.add(new OptionButton(
         BUI, Mission.CONTACT_ICON, "Contact or negotiate with subject",
@@ -136,9 +142,11 @@ public class TargetOptions extends UIGroup {
       ));
     }
     
+    /*
     if (Summons.canSummon(subject, BUI.played())) {
       options.add(new SummonsButton(BUI, (Actor) subject));
     }
+    //*/
     
     int sumWide = options.size() * (OB_SIZE + OB_MARGIN), across = 0;
     for (Button option : options) {

@@ -15,11 +15,11 @@ import stratos.util.Description.Link;
 //  TODO:  You need some kind of visual indication of being summoned to the
 //  sovereign's presence.  (Or being under arrest.)
 
-
 public class Summons extends Plan {
-
   
-  private static boolean verbose = true;
+  
+  private static boolean
+    verbose = true;
   
   final public static int
     TYPE_GUEST   = 0,
@@ -255,7 +255,7 @@ public class Summons extends Plan {
   }
   
   
-  public static DialoguePanel configDialogueFor(
+  public static MessagePanel configDialogueFor(
     final BaseUI UI, final Actor with, boolean pushNow
   ) {
     final Stack <Link> responses = new Stack();
@@ -296,7 +296,7 @@ public class Summons extends Plan {
       }
     });
     
-    final DialoguePanel panel = new DialoguePanel(
+    final MessagePanel panel = new MessagePanel(
       UI, with.portrait(UI), "Audience with "+with,
       "Yes, my liege?",
       responses
@@ -320,7 +320,7 @@ public class Summons extends Plan {
         }
     });
     
-    final DialoguePanel panel = new DialoguePanel(
+    final MessagePanel panel = new MessagePanel(
       UI, with.portrait(UI), "Audience with "+with,
       lead, responses
     );
@@ -331,7 +331,7 @@ public class Summons extends Plan {
   static void pushGiftResponse(
     final BaseUI UI, final Actor with, String lead
   ) {
-    final DialoguePanel panel = new DialoguePanel(
+    final MessagePanel panel = new MessagePanel(
       UI, with.portrait(UI), "Audience with "+with,
       lead,
       new Link("Very well, then...") {
@@ -365,7 +365,7 @@ public class Summons extends Plan {
       }
     });
     
-    final DialoguePanel panel = new DialoguePanel(
+    final MessagePanel panel = new MessagePanel(
       UI, with.portrait(UI), "Audience with "+with,
       lead, responses
     );
@@ -377,7 +377,7 @@ public class Summons extends Plan {
     final BaseUI UI, final Actor with, final Mission taken
   ) {
     //final Actor ruler = UI.played().ruler();
-    final DialoguePanel panel = new DialoguePanel(
+    final MessagePanel panel = new MessagePanel(
       UI, with.portrait(UI), "Audience with "+with,
       "My pleasure, your grace.",
       new Link("Very well, then...") {

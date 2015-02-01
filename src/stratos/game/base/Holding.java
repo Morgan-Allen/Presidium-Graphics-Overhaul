@@ -481,6 +481,7 @@ public class Holding extends Venue {
   }
   
   
+  /*
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (destroyed() || ! inWorld()) return;
     //  TODO:  Add holding-extras to the structural group!
@@ -492,9 +493,10 @@ public class Holding extends Venue {
     BaseUI.current().selection.renderTileOverlay(
       rendering, world,
       hovered ? Colour.transparency(0.5f) : Colour.WHITE,
-      Selection.SELECT_OVERLAY, true, this, group.toArray()
+      Selection.SELECT_OVERLAY, this.h, true, group.toArray()
     );
   }
+  //*/
   
   
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {

@@ -184,7 +184,7 @@ public class BaseTransport {
   }
   
   
-  public void updateJunction(Fixture v, Tile t, boolean isMember) {
+  public void updateJunction(Venue v, Tile t, boolean isMember) {
     final boolean report = paveVerbose && I.talkAbout == v;
     if (t == null) {
       if (report) I.say("CANNOT SUPPLY NULL TILE AS JUNCTION");
@@ -193,15 +193,13 @@ public class BaseTransport {
     
     if (isMember) {
       final Batch <Tile> routesTo = new Batch <Tile> ();
-      final int HS = v.size / 2;
-      final Tile c = v.origin(), centre = world.tileAt(c.x + HS, c.y + HS);
-      final int range = PATH_RANGE + 1 + HS;
+      final Box2D area = new Box2D(v.areaClaimed()).expandBy(PATH_RANGE + 1);
       
-      if (report) I.say("\nUpdating road junction: "+t+", range: "+range);
+      if (report) I.say("\nUpdating road junction: "+t+", Area: "+area);
       //
       //  First, we visit all registered junctions nearby, and include those
       //  for subsequent routing to-
-      for (Target o : junctions.visitNear(centre, range, null)) {
+      for (Target o : junctions.visitNear(null, -1, area)) {
         final Tile jT = (Tile) o;
         if (o == t || jT.flaggedWith() != null) continue;
         jT.flagWith(routesTo);
@@ -210,7 +208,7 @@ public class BaseTransport {
       //
       //  We also include all nearby base venues with entrances registered as
       //  junctions.  (Any results are flagged to avoid duplicated work.)
-      for (Object o : t.world.presences.matchesNear(Venue.class, v, range)) {
+      for (Object o : t.world.presences.matchesNear(Venue.class, v, area)) {
         final Venue n = (Venue) o;
         if (n == v || n.base() != v.base()) continue;
         final Tile jT = n.mainEntrance();
@@ -308,7 +306,6 @@ public class BaseTransport {
     }
     return true;
   }
-  
   
   
   public void updateJunction(
