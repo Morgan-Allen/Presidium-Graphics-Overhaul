@@ -194,6 +194,16 @@ public class Choice implements Qualities {
   }
   
   
+  
+  public static Behaviour switchFor(
+    Actor actor, Behaviour last, Behaviour next, boolean stubborn,
+    boolean report
+  ) {
+    if (wouldSwitch(actor, last, next, stubborn, report)) return next;
+    else return last;
+  }
+  
+  
   public static boolean wouldSwitch(
     Actor actor, Behaviour last, Behaviour next, boolean stubborn,
     boolean report

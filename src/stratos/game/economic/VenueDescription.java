@@ -29,7 +29,7 @@ public class VenueDescription {
   
   final String categories[];
   final Venue v;  //  TODO:  Apply to Properties, like, e.g, vehicles?
-  private static Upgrade lastCU;  //last clicked upgrade.
+  private Upgrade lastCU = null;  //last clicked upgrade.
  
   
   protected VenueDescription(Venue v, String... categories) {
@@ -143,17 +143,11 @@ public class VenueDescription {
   
   
   
-  private void describeCondition(
-    Description d, BaseUI UI
-  ) {
-    
+  private void describeCondition(Description d, BaseUI UI) {
     final Stage world = v.world();
     d.append("Condition and Repair:");
     d.append("\n  Integrity: ");
     d.append(v.structure().repair()+" / "+v.structure().maxIntegrity());
-    
-    //final String CUD = v.structure().currentUpgradeDesc();
-    //if (CUD != null) d.append("\n  "+CUD);
     
     if (v instanceof Inventory.Owner) {
       final Inventory i = ((Inventory.Owner) v).inventory();
@@ -444,19 +438,31 @@ public class VenueDescription {
   
   
   private void describeOrders(Description d) {
-    final Base played = BaseUI.currentPlayed();
     d.append("\n");
-    d.append("\nOrders: ");
+    d.append("\nOrders:");
+    
+    final Batch <Description.Link> orders = new Batch();
+    addOrdersTo(orders);
+    for (Description.Link link : orders) {
+      d.append(" ");
+      d.append(link);
+    }
+  }
+  
+  
+  protected void addOrdersTo(Series <Description.Link> orderList) {
+    final Base played = BaseUI.currentPlayed();
+
     if (played == v.base()) {
       if (v.structure.needsSalvage()) {
-        d.append(new Description.Link("Cancel Salvage") {
+        orderList.add(new Description.Link("Cancel Salvage") {
           public void whenClicked() {
             v.structure.cancelSalvage();
           }
         });
       }
       else {
-        d.append(new Description.Link("Salvage") {
+        orderList.add(new Description.Link("Salvage") {
           public void whenClicked() {
             v.structure.beginSalvage();
           }
@@ -464,6 +470,15 @@ public class VenueDescription {
       }
     }
   }
+  
+  
 }
+
+
+
+
+
+
+
 
 

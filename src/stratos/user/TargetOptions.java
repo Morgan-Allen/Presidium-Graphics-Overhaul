@@ -67,38 +67,6 @@ public class TargetOptions extends UIGroup {
   }
   
   
-  /*
-  //  TODO:  Just make this a function of the Contact mission.
-  private class SummonsButton extends Button {
-    final Actor subject;
-    
-    SummonsButton(BaseUI UI, Actor subject) {
-      super(
-        UI, Mission.SUMMONS_ICON.asTexture(),
-        Mission.MISSION_ICON_LIT.asTexture(),
-        "Summon this subject to the bastion"
-      );
-      this.subject = subject;
-    }
-    
-    
-    protected void whenClicked() {
-      final Base base = ((BaseUI) UI).played();
-      if (! Summons.canSummon(subject, base)) {
-        //  TODO:  Print this message on-screen in some form.
-        I.say("CANNOT SUMMON AT THE MOMENT");
-        return;
-      }
-      
-      //  TODO:  This needs to have some form of visual reminder.  Create a
-      //  contact mission and assign the actor as the only applicant, then seal
-      //  it.
-      Summons.beginSummons(subject);
-    }
-  }
-  //*/
-  
-  
   private void setup() {
     final BaseUI BUI = (BaseUI) UI;
     final Base base = BUI.played();
@@ -128,10 +96,16 @@ public class TargetOptions extends UIGroup {
       Summons.canSummon(subject, base) &&
       subject instanceof Actor
     ) {
+      final ContactMission contactMission = new ContactMission(base, subject);
       options.add(new OptionButton(
         BUI, Mission.CONTACT_ICON, "Contact or negotiate with subject",
-        new ContactMission(base, subject)
-      ));
+        contactMission
+      ) {
+        protected void whenClicked() {
+          if (subject.base() == base) contactMission.setupAsSummons();
+          super.whenClicked();
+        }
+      });
     }
     if (
       subject instanceof Tile
@@ -141,12 +115,6 @@ public class TargetOptions extends UIGroup {
         new ReconMission(base, (Tile) subject)
       ));
     }
-    
-    /*
-    if (Summons.canSummon(subject, BUI.played())) {
-      options.add(new SummonsButton(BUI, (Actor) subject));
-    }
-    //*/
     
     int sumWide = options.size() * (OB_SIZE + OB_MARGIN), across = 0;
     for (Button option : options) {

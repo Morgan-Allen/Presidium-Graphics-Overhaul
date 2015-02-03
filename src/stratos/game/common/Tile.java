@@ -248,8 +248,8 @@ public final class Tile implements
   
   
   public void clearUnlessOwned() {
-    if (onTop == null || reserved()) return;
-    onTop.setAsDestroyed();
+    if (owningTier() > Inventory.Owner.TIER_NATURAL) return;
+    if (onTop != null) onTop.setAsDestroyed();
   }
   
   

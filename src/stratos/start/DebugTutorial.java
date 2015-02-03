@@ -29,15 +29,16 @@ import stratos.util.*;
 *  Focus on the objectives that have an intuitive, emotional component- such as
    survival (strike/defend) and comfort (the economy.)  Making those mandatory
    isn't too bad.
-
 //*/
 
 
 
 /*  BIG TODO LIST:
 
+*  Introduce Call-to-Arms at the Trooper Lodge (with respect to a particular
+   mission at a time.)
+
 *  Need to unify summons-dialogue with contact mechanics.
-//  *  Ideally, using Contact on your own citizens should still leave a marker.
 
 *  Psy powers need some checkup- cooldown system, replace TK, UI idiom.
 

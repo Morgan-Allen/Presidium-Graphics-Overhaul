@@ -78,8 +78,8 @@ public class DebugSocial extends Scenario {
       Sectors.PLANET_DIAPSOR
     );
     
-    if (true ) testCareers(base);
-    if (false) configDialogueScenario(world, base, UI);
+    if (false) testCareers(base);
+    if (true ) configDialogueScenario(world, base, UI);
     if (false) configArtilectScenario(world, base, UI);
     if (false) configContactScenario (world, base, UI);
     if (false) configWildScenario    (world, base, UI);

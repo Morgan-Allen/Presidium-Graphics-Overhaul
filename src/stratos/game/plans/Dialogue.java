@@ -66,6 +66,7 @@ public class Dialogue extends Plan implements Qualities {
   private int stage = STAGE_INIT;
   private Boarding location = null, stands = null;
   
+  private String utters;
   private Item gift;
   private Behaviour invitation;
   
@@ -134,6 +135,8 @@ public class Dialogue extends Plan implements Qualities {
   }
   
   
+  //  TODO:  Create a subclass for these, and use generic pledges instead.
+  
   public void attachGift(Item gift) {
     if (! actor.gear.hasItem(gift)) I.complain("Actor does not have "+gift);
     this.gift = gift;
@@ -143,6 +146,11 @@ public class Dialogue extends Plan implements Qualities {
   public void attachInvitation(Plan invite) {
     if (invite.actor() != actor) I.complain("Favour must apply to actor!");
     this.invitation = invite;
+  }
+  
+  
+  public void setUttered(String s) {
+    this.utters = s;
   }
   
   
@@ -485,11 +493,23 @@ public class Dialogue extends Plan implements Qualities {
       d.append(invitation);
       return;
     }
+    if (utters != null) {
+      d.append("Saying \"");
+      d.append(utters);
+      d.append("\" to ");
+      d.append(other);
+      return;
+    }
     if (super.needsSuffix(d, "Talking to ")) {
       d.append(other);
     }
   }
 }
+
+
+
+
+
 
 
 

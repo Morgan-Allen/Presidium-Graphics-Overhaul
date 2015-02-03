@@ -42,6 +42,8 @@ public class ContactMission extends Mission {
   
   private Actor[] talksTo = null;  //Refreshed on request, at most once/second
   private List <Actor> agreed = new List <Actor> ();
+  
+  private boolean isSummons   = false;
   private boolean doneContact = false;
   
   
@@ -56,6 +58,7 @@ public class ContactMission extends Mission {
   public ContactMission(Session s) throws Exception {
     super(s);
     s.loadObjects(agreed);
+    isSummons   = s.loadBool();
     doneContact = s.loadBool();
   }
   
@@ -63,8 +66,30 @@ public class ContactMission extends Mission {
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     s.saveObjects(agreed);
+    s.saveBool(isSummons  );
     s.saveBool(doneContact);
   }
+  
+  
+  public void setupAsSummons() {
+    this.isSummons = true;
+    setMissionType(TYPE_SCREENED);
+    setObjective(OBJECT_AUDIENCE);
+    
+    final Actor summon = (Actor) subject;
+    summon.mind.assignMission(this);
+    setApprovalFor(summon, true);
+    
+    final Behaviour step = nextStepFor(summon, true);
+    if (! summon.mind.mustIgnore(step)) summon.mind.assignBehaviour(step);
+    beginMission();
+  }
+  
+  /*
+  public void endMission(boolean withReward) {
+    super.endMission(withReward);
+  }
+  //*/
   
   
   
@@ -127,10 +152,17 @@ public class ContactMission extends Mission {
     if (finished()) return null;
     final Behaviour cached = nextStepFor(actor, false);
     if (cached != null) return cached;
-    
+    //
+    //  In the case of direct summonings of base-citizens, we can skip directly
+    //  to the Summons.
+    if (isSummons) {
+      return cacheStepFor(actor, Summons.officialSummons(actor));
+    }
+    //
+    //  Otherwise, things get a little more complex...
     final Choice choice = new Choice(actor);
     final float basePriority = basePriority(actor);
-    
+    //
     //  First of all, try to complete normal dialogue efforts with everyone
     //  involved.
     for (Actor a : talksTo()) {
@@ -222,7 +254,7 @@ public class ContactMission extends Mission {
       }
       if (object == OBJECT_AUDIENCE && ruler != null) {
         I.say("Issuing summons to: "+other);
-        Summons.beginSummons(other);
+        other.mind.assignToDo(Summons.officialSummons(other));
       }
       if (object == OBJECT_SUBMISSION) {
         other.relations.incRelation(base, -1, 0.5f, 0);

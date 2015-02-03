@@ -131,6 +131,11 @@ public class Tailing extends Element {
   }
   
   
+  public int owningTier() {
+    return Inventory.Owner.TIER_CARRIES;
+  }
+  
+  
   public int pathType() {
     return Tile.PATH_BLOCKS;
   }

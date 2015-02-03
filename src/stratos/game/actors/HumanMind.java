@@ -137,7 +137,6 @@ public class HumanMind extends ActorMind implements Qualities {
     if (choice == null) choice = new Choice(actor);
     addConstantResponses(choice);
     addVenueResponses(choice);
-    addBaseResponses(choice);
     return choice;
   }
   
@@ -196,6 +195,9 @@ public class HumanMind extends ActorMind implements Qualities {
       final Target restsAt = actor.senses.haven();
       if (restsAt != null) choice.add(new Resting(actor, restsAt));
     }
+
+    choice.add(Scenario.current().taskFor(actor));
+    choice.add(FindMission.attemptFor(actor));
   }
   
   
@@ -220,17 +222,6 @@ public class HumanMind extends ActorMind implements Qualities {
       choice.add(Repairs.getNextRepairFor(actor, false));
       choice.add(DeliveryUtils.nextDisposalFor(actor));
     }
-  }
-  
-  
-  private void addBaseResponses(Choice choice) {
-    //
-    //  Derive tasks from missions or the scenario.
-    if (mission != null && mission.hasBegun() && mission.isApproved(actor)) {
-      choice.add(mission.nextStepFor(actor, true));
-    }
-    choice.add(Scenario.current().taskFor(actor));
-    choice.add(FindMission.attemptFor(actor));
   }
   
   

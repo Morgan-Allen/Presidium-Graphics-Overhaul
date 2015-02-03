@@ -4,7 +4,6 @@
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.politic.Transcript;
 import stratos.graphics.sfx.TalkFX;
 import stratos.util.*;
 
@@ -208,45 +207,30 @@ public class DialogueUtils implements Qualities {
   
   
   //
-  //  TODO:  It might be an idea to try restricting this purely to anecdotes
-  //  (stuff you've done) and proposals/objections (stuff you'd like to do.)
-  //  Polish that up and make as engaging as possible.
+  //  TODO:  It might be an idea to try restricting this purely to:
+  //  (A) Introductions (for first-time meetings)
+  //  (B) Anecdotes (complaints/praise about recent good/bad events)
+  //  (C) Proposals (pledging/gifts/invitations, used for Contact missions)
+  //  (D) Objections (used for arrests/scoldings)
   
-  //  Put advice/study/instruction under a separate plan type?  Or have lines
-  //  to speak for every skill, so they sound less generic?
+  //  Put advice/study/instruction under a separate plan type, or just use a
+  //  more generic descriptor- it doesn't have to be precise dialogue.  (e.g,
+  //  "Discussing music" works fine as a topic header.)
   
   
+  private Batch <Object> associations(Object o) {
+    return null;
+  }
   
   
   /**  Rendering and interface utility methods-
     */
-  final static Vec3D forwardVec = new Vec3D(1, 1, 0);
-  private static boolean onRight(Actor a, Target b) {
-    final Vec3D disp = a.position(null).sub(b.position(null));
-    return disp.dot(forwardVec) > 0;
-  }
-  
+  //  TODO:  These seem to be updating too frequently on one side?  Also,
+  //  shouldn't the other side not be updating at all?
   
   public static void utters(Actor a, String s, float effect) {
-    if (a.indoors()) return;
-    
-    final String sign;
-    if (effect == 0) sign = "";
-    else if (effect > 0) sign = " (+)";
-    else sign = " (-)";
-    
-    final Target opposite = a.planFocus(Dialogue.class, true);
-    final int side = (opposite == null) ? TalkFX.FROM_RIGHT : (
-      onRight(a, opposite) ? TalkFX.FROM_RIGHT : TalkFX.FROM_LEFT
-    );
-    
-    final TalkFX chat = DialogueFX.transcriptFor(a);
-    if (chat != null) chat.addPhrase(s+sign, side);
-  }
-  
-  
-  public Transcript transcript() {
-    return null;
+    final Dialogue d = (Dialogue) a.matchFor(Dialogue.class, true);
+    if (d != null && d.starts == d) d.setUttered(s);
   }
 }
 

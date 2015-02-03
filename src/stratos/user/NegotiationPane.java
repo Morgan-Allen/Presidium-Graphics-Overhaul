@@ -16,10 +16,10 @@ public class NegotiationPane extends MissionPane {
   
   
   public SelectionInfoPane configOwningPanel() {
-    //return super.configOwningPanel();
-    final Description d = detail(), l = listing();
+    return super.configOwningPanel();
+    //final Description d = detail(), l = listing();
     
-    return this;
+    //return this;
   }
   
   

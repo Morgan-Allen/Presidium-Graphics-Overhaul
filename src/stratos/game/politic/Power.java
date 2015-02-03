@@ -355,7 +355,7 @@ public class Power implements Qualities {
       
       
       private boolean pushGrabbed(Actor caster, Target toward) {
-        if (grabbed == null) return false;
+        if (grabbed == null || toward == null) return false;
         
         if (grabbed instanceof Actor) {
           ((Actor) grabbed).enterStateKO(Action.FALL);

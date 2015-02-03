@@ -11,6 +11,8 @@ import stratos.start.*;
 import stratos.util.*;
 
 
+//  TODO:  You'll want a way to ensure constant spacing here.
+
 
 public class MainMenu extends UIGroup {
   
@@ -62,6 +64,10 @@ public class MainMenu extends UIGroup {
     text.append("\nRuler Settings:\n");
     
     text.append("\n  Gender:");
+    I.say("  GENDER IS: "+config.gender);
+    if (config.gender == null) {
+      config.gender = Rand.yes() ? BORN_MALE : BORN_FEMALE;
+    }
     Call.add(
       "\n    Male", (config.gender == BORN_MALE) ? Colour.CYAN : null,
       this, "setGender", text, true
@@ -79,11 +85,20 @@ public class MainMenu extends UIGroup {
     //
     //  TODO:  Give an accompanying description of the House in question, using
     //  a preview image and side-text.
-    
     text.append("\n  House:");
     I.say("  HOUSE IS: "+config.house);
-    if (config.house == null) config.house = Sectors.ALL_PLANETS[0];
-    for (Background b : Sectors.ALL_PLANETS) {
+    
+    final Sector START_HOUSES[] = {
+      Sectors.PLANET_ASRA_NOVI,
+      Sectors.PLANET_AXIS_NOVENA,
+      Sectors.PLANET_HALIBAN,
+      Sectors.PLANET_PAREM_V
+    };
+    if (config.house == null) {
+      config.house = (Sector) Rand.pickFrom(START_HOUSES);
+    }
+    
+    for (Background b : START_HOUSES) {
       final Sector s = (Sector) b;
       final Colour c = config.house == s ? Colour.CYAN : null;
       Call.add("\n    "+s.houseName, c, this, "setHouse", text, s);
@@ -103,8 +118,8 @@ public class MainMenu extends UIGroup {
     text.append("\n  Favoured traits: ");
     text.append("("+config.chosenTraits.size()+"/"+MAX_TRAITS+")");
     for (Trait t : Backgrounds.KNIGHTED.traits()) {
-      //final float l = Backgrounds.KNIGHTED.traitChance(t) > 0 ? 2 : -2;
-      final String name = t.toString();// Trait.descriptionFor(t, l);
+      final float l = Backgrounds.KNIGHTED.traitChance(t);
+      final String name = Trait.descriptionFor(t, l);
       final Colour c = config.chosenTraits.includes(t) ? Colour.CYAN : null;
       Call.add("\n    "+name, c, this, "toggleTrait", text, t);
     }

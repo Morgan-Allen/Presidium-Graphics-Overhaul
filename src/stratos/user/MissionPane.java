@@ -18,6 +18,7 @@ public class MissionPane extends SelectionInfoPane {
   
   final BaseUI UI;
   final protected Mission mission;
+  private boolean confirmAbort = false;
   
   
   public MissionPane(BaseUI UI, Mission selected) {
@@ -40,36 +41,65 @@ public class MissionPane extends SelectionInfoPane {
     //  Then, we fill up the left-hand pane with broad mission parameters and
     //  commands:
     describeStatus(mission, canChange, UI, d);
-    //  TODO:  CONSIDER REQUIRING CONFIRMATION EVEN FOR PUBLIC MISSIONS.
-    if (mission.rolesApproved() > 0 && canChange && type != TYPE_PUBLIC) {
-      d.append(" ");
-      d.append(new Description.Link(" (CONFIRM)") {
+    
+    if (confirmAbort) {
+      d.append(
+        "\n\nNOTE:  If you abort this mission, any reward specified will "+
+        "still be paid out to applicants.  Do you still want to abort?",
+        Colour.LITE_GREY
+      );
+      d.append(new Description.Link(" (YES)") {
+        public void whenClicked() {
+          mission.endMission(true);
+        }
+      });
+      d.append(new Description.Link(" (NO)") {
+        public void whenClicked() {
+          confirmAbort = false;
+        }
+      });
+      
+    }
+    else {
+      d.append("\nOrders:");
+      //  TODO:  CONSIDER REQUIRING CONFIRMATION EVEN FOR PUBLIC MISSIONS?
+      final boolean begun = mission.hasBegun(), canBegin =
+        mission.rolesApproved() > 0 && canChange && type != TYPE_PUBLIC
+      ;
+      if (canBegin) d.append(new Description.Link(" (BEGIN)") {
         public void whenClicked() {
           mission.beginMission();
         }
       });
+      else d.append(" (BEGIN)", Colour.LITE_GREY);
+      d.append(new Description.Link(begun ? " (ABORT)" : " (DISMISS)") {
+        public void whenClicked() {
+          if (begun) confirmAbort = true;
+          else mission.endMission(false);
+        }
+      });
+      
+      if (type == TYPE_PUBLIC  ) d.append(
+        "\n\nThis is a public contract, open to all comers.",
+        Colour.LITE_GREY
+      );
+      if (type == TYPE_SCREENED) d.append(
+        "\n\nThis is a screened mission.  Applicants will be subject to your "+
+        "approval before they can embark.",
+        Colour.LITE_GREY
+      );
+      if (type == TYPE_COVERT  ) d.append(
+        "\n\nThis is a covert mission.  No agents or citizens will apply "+
+        "unless recruited by interview.",
+        Colour.LITE_GREY
+      );
     }
-    d.append(new Description.Link(" (ABORT)") {
-      public void whenClicked() {
-        mission.endMission(true);
-      }
-    });
+    
     //
     //  And lastly, we fill up the right-hand pane with the list of
     //  applications, and options to confirm or deny them:
     if (emptyList) {
       l.append("Applications: None");
-      if (type == TYPE_PUBLIC  ) l.append(
-        "\n\nThis is a public contract, open to all comers."
-      );
-      if (type == TYPE_SCREENED) l.append(
-        "\n\nThis is a screened mission.  Applicants will be subject to your "+
-        "approval before they can embark."
-      );
-      if (type == TYPE_COVERT  ) l.append(
-        "\n\nThis is a covert mission.  No agents or citizens will apply "+
-        "unless recruited by interview."
-      );
     }
     else listApplicants(mission, applied, canChange, UI, l);
     return this;
@@ -97,16 +127,21 @@ public class MissionPane extends SelectionInfoPane {
   ) {
     final Colour FIXED = Colour.LITE_GREY;
     final Base declares = mission.base();
+    //
+    //  Firstly, declare the mission's patron and current status:
     d.append("Declared by ");
     if (declares.ruler() == null) d.append(declares);
     else d.append(declares.ruler());
+    
+    d.append("\nStatus:  ");
+    if (mission.hasBegun()) d.append("In Progress");
+    else d.append("Recruiting");
     //
     //  Secondly, describe the mission type:
     final int type = mission.missionType();
     final String typeDesc = type == TYPE_BASE_AI ? "BASE AI" :
       TYPE_DESC[type]
     ;
-    
     d.append("\nMission Type:  ");
     if (canChange) d.append(new Description.Link(typeDesc) {
       public void whenClicked() {
@@ -114,9 +149,28 @@ public class MissionPane extends SelectionInfoPane {
       }
     });
     else d.append(typeDesc, FIXED);
-    
     //
-    //  Then, describe the mission objective-
+    //  Then describe the mission's priority and/or payment.  (We allow payment
+    //  increases for public missions at any time, but otherwise only before
+    //  being confirmed.)
+    d.append("\nReward offered:  ");
+    final int priority = mission.assignedPriority();
+    String payDesc = (priority == 0 || type == TYPE_BASE_AI) ?  "None" :
+      REWARD_AMOUNTS[priority]+" credits"
+    ;
+    
+    final boolean canAdjust = canChange || (
+      type == TYPE_PUBLIC && priority < PRIORITY_PARAMOUNT
+    );
+    if (canAdjust) d.append(new Description.Link(payDesc) {
+      public void whenClicked() {
+        if (priority == PRIORITY_PARAMOUNT) mission.assignPriority(0);
+        mission.assignPriority(priority + 1);
+      }
+    });
+    else d.append(payDesc, FIXED);
+    //
+    //  And finally, describe the mission objective-
     final int object = mission.objective();
     final String
       allDesc[]  = mission.objectiveDescriptions(),
@@ -130,25 +184,6 @@ public class MissionPane extends SelectionInfoPane {
     });
     else d.append(objectDesc, FIXED);
     d.append(mission.subject());
-    
-    //
-    //  And finally, describe the mission's priority and/or payment.  (We allow
-    //  payment increases for public missions at any time.)
-    final int priority = mission.assignedPriority();
-    final String payDesc = (priority == 0 || type == TYPE_BASE_AI) ?  "None" :
-      REWARD_AMOUNTS[priority]+" credits"
-    ;
-    final boolean canAdjust = canChange || (
-      type == TYPE_PUBLIC && priority < PRIORITY_PARAMOUNT
-    );
-    d.append("\nPayment:  ");
-    if (canAdjust) d.append(new Description.Link(payDesc) {
-      public void whenClicked() {
-        if (priority == PRIORITY_PARAMOUNT) mission.assignPriority(0);
-        mission.assignPriority(priority + 1);
-      }
-    });
-    else d.append(payDesc, FIXED);
   }
   
   

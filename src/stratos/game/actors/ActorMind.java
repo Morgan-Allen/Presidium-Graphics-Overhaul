@@ -114,29 +114,37 @@ public abstract class ActorMind implements Qualities {
   public Behaviour nextBehaviour() {
     final boolean report = decisionVerbose && I.talkAbout == actor;
     if (report) I.say("\n\nACTOR IS GETTING NEXT BEHAVIOUR...");
+    Behaviour taken = null, onMission = null;
     
     if (report) I.say("\nGetting next from to-do list:");
     final Choice fromTodo = new Choice(actor, todoList);
     final Behaviour notDone = fromTodo.pickMostUrgent();
+    taken = Choice.switchFor(actor, taken, notDone, true, report);
     if (report && fromTodo.empty()) I.say("  Nothing on todo list.");
     
     if (report) I.say("\nGetting newly created behaviour:");
     final Choice fromNew = createNewBehaviours(new Choice(actor));
     final Behaviour newChoice = fromNew.weightedPick();
+    taken = Choice.switchFor(actor, notDone, taken, true, report);
     if (report && fromNew.empty()) I.say("  No new behaviour.");
     
-    final Behaviour taken =
-      Choice.wouldSwitch(actor, notDone, newChoice, true, report) ?
-      newChoice : notDone;
+    if (report) I.say("\nGetting next mission-step:");
+    if (mission != null && mission.hasBegun() && mission.isApproved(actor)) {
+      onMission = mission.nextStepFor(actor, true);
+    }
+    taken = Choice.switchFor(actor, onMission, taken, true, report);
+    if (report && onMission == null) I.say("  No mission behaviour.");
     
     if (report) {
       I.say("\nNext plans acquired...");
       I.say("  Last plan: "+rootBehaviour());
       final float
-        notP = notDone == null ? -1 : notDone.priorityFor(actor),
-        newP = newChoice == null ? -1 : newChoice.priorityFor(actor);
+        notP = notDone   == null ? -1 : notDone  .priorityFor(actor),
+        newP = newChoice == null ? -1 : newChoice.priorityFor(actor),
+        onMP = onMission == null ? -1 : onMission.priorityFor(actor);
       I.say("  From Todo:  "+notDone+  "  (priority "+notP+")");
       I.say("  New choice: "+newChoice+"  (priority "+newP+")");
+      I.say("  On Mission: "+onMission+"  (priority "+onMP+")");
       I.say("TAKEN: "+taken);
     }
     return taken;
@@ -368,6 +376,9 @@ public abstract class ActorMind implements Qualities {
     while (agenda.size() > 0) {
       final Behaviour popped = popBehaviour(null, cause);
       if (popped == b) break;
+    }
+    if (mission != null && mission.cachedStepFor(actor) == b) {
+      assignMission(null);
     }
     todoList.remove(b);
     actor.assignAction(null);

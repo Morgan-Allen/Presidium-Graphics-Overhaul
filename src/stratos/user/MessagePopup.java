@@ -5,6 +5,8 @@ import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
 
+import com.badlogic.gdx.math.*;
+
 
 
 public class MessagePopup extends UIGroup implements UIConstants {
@@ -40,6 +42,11 @@ public class MessagePopup extends UIGroup implements UIConstants {
   public void setMessage(String message) {
     label.setText(message);
     fade = 1;
+  }
+  
+  
+  protected UINode selectionAt(Vector2 mousePos) {
+    return null;
   }
   
   

@@ -225,13 +225,8 @@ public abstract class Mission implements Session.Saveable, Selectable {
     //
     //  By default, we also terminate any missions that have been completely
     //  abandoned-
-    if (hasBegun() && missionType != TYPE_PUBLIC) {
-      boolean anyActive = false;
-      for (Role r : roles) if (r.cached instanceof Plan) {
-        if (r.applicant.matchFor((Plan) r.cached) != null) anyActive = true;
-      }
-      else anyActive = true;
-      if (! anyActive) endMission(false);
+    if (missionType != TYPE_PUBLIC && hasBegun() && rolesApproved() == 0) {
+      endMission(false);
     }
   }
   
@@ -278,17 +273,6 @@ public abstract class Mission implements Session.Saveable, Selectable {
   public boolean finished() {
     return done;
   }
-  
-  /*
-  public boolean persistent() {
-    return true;
-  }
-  
-  
-  public boolean isEmergency() {
-    return false;
-  }
-  //*/
   
   
   public boolean isActive() {
@@ -368,6 +352,10 @@ public abstract class Mission implements Session.Saveable, Selectable {
   public Target applyPointFor(Actor actor) {
     if (missionType == TYPE_BASE_AI) return actor;
     if (missionType == TYPE_PUBLIC ) return actor;
+    
+    //  TODO:  BE STRICTER ABOUT THIS
+    if (base.HQ() == null) return actor;
+    
     return base.HQ();
   }
   
@@ -383,8 +371,6 @@ public abstract class Mission implements Session.Saveable, Selectable {
       role.applicant = actor;
       role.approved = missionType == TYPE_PUBLIC ? true : false;
       roles.add(role);
-      //I.say("Role added for "+actor+"!");
-      //I.reportStackTrace();
     }
     else {
       if (actor.mind.mission() == this) I.complain("MUST CALL setMission()!");

@@ -168,7 +168,24 @@ public class TrooperLodge extends Venue {
   public String objectCategory() {
     return UIConstants.TYPE_SECURITY;
   }
+  
+  
+  //  TODO:  Add this to the various missions instead?  So that you can include
+  //  yourself, or agents of your household?
+  
+  /*
+  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
+    //  TODO:  Add the Call-of-duty order here.
+    //return VenueDescription.configStandardPanel(this, panel, UI, false);
+  }
+  //*/
 }
+
+
+
+
+
+
 
 
 

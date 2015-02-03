@@ -44,7 +44,10 @@ public class Summons extends Plan {
   
   
   public Summons(Actor actor, Actor invites, Property stays, int type) {
-    super(actor, invites, MOTIVE_EMERGENCY, NO_HARM);
+    super(
+      actor, invites,
+      (type == TYPE_GUEST ? MOTIVE_JOB : MOTIVE_EMERGENCY), NO_HARM
+    );
     this.invites = invites;
     this.stays   = stays  ;
     this.type    = type   ;
@@ -151,14 +154,7 @@ public class Summons extends Plan {
       actor.health.setState(ActorHealth.STATE_RESTING);
     }
     
-    //  TODO:  Make this a property for anyone staying at the bastion...
-    //*
-    if (BaseUI.isSelected(actor) && stays == stays.base().HQ()) {
-      final BaseUI UI = BaseUI.current();
-      UI.selection.pushSelection(null, false);
-      configDialogueFor(UI, actor, true);
-    }
-    //*/
+    checkForDialogueEntry(actor, stays);
     return true;
   }
   
@@ -200,14 +196,14 @@ public class Summons extends Plan {
   
   //  TODO:  Replace this with a variety of contact mission?
   
-  public static void beginSummons(Actor subject) {
+  public static Summons officialSummons(Actor subject) {
     final Actor ruler = subject.base().ruler();
     if (ruler == null) I.complain("NO RULER TO VISIT");
     
     Boarding venue = ruler.mind.home();
     if (venue == null) venue = ruler.mind.work();
     if (venue == null) venue = ruler.aboard();
-    if (! (venue instanceof Venue)) return;
+    if (! (venue instanceof Venue)) return null;
     
     final float relation = subject.relations.valueFor(ruler);
     final float priority = URGENT + (relation * CASUAL);
@@ -216,13 +212,32 @@ public class Summons extends Plan {
       subject, ruler, (Venue) venue, TYPE_GUEST
     );
     summons.setMotive(Plan.MOTIVE_JOB, priority);
-    subject.mind.assignToDo(summons);
+    return summons;
+    //subject.mind.assignToDo(summons);
+  }
+  
+  
+  private static boolean checkForDialogueEntry(Actor actor, Boarding stays) {
+    final Base base = stays.base();
+    final Mission match = base.matchingMission(actor, ContactMission.class);
+    
+    if (
+      (BaseUI.isSelected(actor) || BaseUI.isSelected(match)) &&
+      stays == base.HQ()
+    ) {
+      final BaseUI UI = BaseUI.current();
+      UI.selection.pushSelection(null, false);
+      configDialogueFor(UI, actor, true);
+      return true;
+    }
+    return false;
   }
   
   
   public static void cancelSummons(Actor subject) {
     final Summons summons = (Summons) subject.matchFor(Summons.class, false);
     if (summons == null) return;
+    I.say("CANCELLING SUMMONS!");
     summons.interrupt(INTERRUPT_CANCEL);
     
     final BaseUI UI = BaseUI.current();
