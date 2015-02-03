@@ -19,7 +19,7 @@ public abstract class ActorMind implements Qualities {
   private static boolean
     decisionVerbose = Choice.mindVerbose,
     stepsVerbose    = Choice.mindVerbose,
-    warnVerbose     = false;
+    warnVerbose     = true ;
   
   
   final protected Actor actor;
@@ -116,17 +116,17 @@ public abstract class ActorMind implements Qualities {
     if (report) I.say("\n\nACTOR IS GETTING NEXT BEHAVIOUR...");
     Behaviour taken = null, onMission = null;
     
-    if (report) I.say("\nGetting next from to-do list:");
-    final Choice fromTodo = new Choice(actor, todoList);
-    final Behaviour notDone = fromTodo.pickMostUrgent();
-    taken = Choice.switchFor(actor, taken, notDone, true, report);
-    if (report && fromTodo.empty()) I.say("  Nothing on todo list.");
-    
     if (report) I.say("\nGetting newly created behaviour:");
     final Choice fromNew = createNewBehaviours(new Choice(actor));
     final Behaviour newChoice = fromNew.weightedPick();
-    taken = Choice.switchFor(actor, notDone, taken, true, report);
+    taken = Choice.switchFor(actor, newChoice, taken, true, report);
     if (report && fromNew.empty()) I.say("  No new behaviour.");
+    
+    if (report) I.say("\nGetting next from to-do list:");
+    final Choice fromTodo = new Choice(actor, todoList);
+    final Behaviour notDone = fromTodo.pickMostUrgent();
+    taken = Choice.switchFor(actor, notDone, taken, true, report);
+    if (report && fromTodo.empty()) I.say("  Nothing on todo list.");
     
     if (report) I.say("\nGetting next mission-step:");
     if (mission != null && mission.hasBegun() && mission.isApproved(actor)) {
@@ -179,7 +179,7 @@ public abstract class ActorMind implements Qualities {
       //  Then, delete all existing entries from the agenda.
       for (Behaviour b : agenda) popBehaviour(b, cause);
       if (! Plan.canFollow(actor, root)) {
-        I.say("  CANNOT FOLLOW PLAN: "+root);
+        if (warnVerbose) I.say(actor+"  CANNOT FOLLOW PLAN: "+root);
         return null;
       }
       //

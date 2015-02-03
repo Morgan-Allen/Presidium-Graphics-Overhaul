@@ -148,7 +148,7 @@ public class ContactMission extends Mission {
   }
   
   
-  public Behaviour createStepFor(Actor actor) {
+  protected Behaviour createStepFor(Actor actor) {
     if (finished()) return null;
     final Behaviour cached = nextStepFor(actor, false);
     if (cached != null) return cached;
