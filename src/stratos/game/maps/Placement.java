@@ -4,6 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.maps;
+import stratos.game.actors.Backgrounds;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.util.*;
@@ -166,6 +167,9 @@ public class Placement implements TileConstants {
         a.goAboard(v, world);
       }
       a.mind.setWork(v);
+      if (v.crowdRating(a, Backgrounds.AS_RESIDENT) < 1) {
+        a.mind.setHome(v);
+      }
     }
     if (GameSettings.hireFree) v.base().setup.fillVacancies(v, intact);
     return v;

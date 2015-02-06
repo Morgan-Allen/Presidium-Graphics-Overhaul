@@ -501,10 +501,11 @@ public abstract class Venue extends Structural implements
     if (footprint() == areaClaimed()) return;
     ///I.say("Rendering area claimed: "+areaClaimed());
     
+    final String key = origin()+"_area_"+this;
     BaseUI.current().selection.renderTileOverlay(
       rendering, origin().world,
       Colour.transparency(hovered ? 0.25f : 0.5f),
-      Selection.SELECT_OVERLAY, origin()+"_area_"+this, true, areaClaimed()
+      Selection.SELECT_OVERLAY, key, true, areaClaimed()
     );
   }
 }

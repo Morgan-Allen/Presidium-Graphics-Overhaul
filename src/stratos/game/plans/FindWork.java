@@ -275,8 +275,8 @@ public class FindWork extends Plan {
     //  financial desperation) when considering whether to take a job you
     //  otherwise dislike.
     final float salary    = Career.defaultSalary(position);
-    final float baseGreed = ActorMotives.greedPriority(
-      actor, salary / Backgrounds.NUM_DAYS_PAY
+    final float baseGreed = actor.motives.greedPriority(
+      salary / Backgrounds.NUM_DAYS_PAY
     ) / Plan.ROUTINE;
     final float greedFactor = ((rating + 1) / 2) * baseGreed;
     rating += greedFactor - 1;

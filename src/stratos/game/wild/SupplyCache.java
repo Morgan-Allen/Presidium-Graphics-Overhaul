@@ -153,14 +153,16 @@ public class SupplyCache extends Fixture implements Item.Dropped {
   
   
   public void renderSelection(Rendering rendering, boolean hovered) {
-    if (destroyed() || ! inWorld()) return;
-    
+    if (destroyed() || origin() == null) return;
+    BaseUI.current().selection.renderCircleOnGround(rendering, this, hovered);
+    /*
     BaseUI.current().selection.renderPlane(
       rendering, world, position(null), 1,
       Colour.transparency(hovered ?  0.25f : 0.5f),
       Selection.SELECT_CIRCLE,
       true, this+""
     );
+    //*/
   }
 }
 

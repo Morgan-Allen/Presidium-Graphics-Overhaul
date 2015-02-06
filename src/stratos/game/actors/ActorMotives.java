@@ -180,18 +180,18 @@ public class ActorMotives {
     }
     
     final float pricedAt = item.defaultPrice();
-    rating += greedPriority(receives, pricedAt);
+    rating += receives.motives.greedPriority(pricedAt);
     if (report) I.say("  Rating for "+item+" is: "+rating);
     
     if (buys != null) {
-      rating /= 1 + (greedPriority(buys, pricedAt));
+      rating /= 1 + receives.motives.greedPriority(pricedAt);
       if (report) I.say("    After pricing? "+rating);
     }
     return rating;
   }
   
 
-  public static float greedPriority(Actor actor, float creditsPerDay) {
+  public float greedPriority(float creditsPerDay) {
     //
     //  The evaluation here is based on credits value relative to daily income-
     //  e.g, if I got this every day, how much is it worth to me?  (And even

@@ -130,7 +130,7 @@ public class Resting extends Plan {
     //  Include pricing effects-
     if (cost > 0) {
       if (cost > actor.gear.credits() / 2) urgency -= ROUTINE;
-      urgency -= ActorMotives.greedPriority(actor, cost);
+      urgency -= actor.motives.greedPriority(cost);
     }
     
     //  Include day/night effects-

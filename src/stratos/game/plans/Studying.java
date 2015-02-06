@@ -82,7 +82,7 @@ public class Studying extends Plan {
     
     if (studied == null) studied = toStudy();
     if (studied == null) return 0;
-    float modifier = 0 - ActorMotives.greedPriority(actor, chargeCost);
+    float modifier = 0 - actor.motives.greedPriority(chargeCost);
     
     return priorityForActorWith(
       actor, venue,

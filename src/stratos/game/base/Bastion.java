@@ -176,7 +176,9 @@ public class Bastion extends Venue {
   
   public float crowdRating(Actor actor, Background background) {
     if (background == Backgrounds.AS_RESIDENT) {
-      if (! staff.isWorker(actor)) return 1;
+      if (! staff.doesBelong(actor)) return 1;
+      if (staff.isWorker(actor)) return 0;
+      
       final int maxPop = 6 + (structure.upgradeLevel(NOBLE_QUARTERS) * 2);
       return staff.residents().size() * 1f / maxPop;
     }

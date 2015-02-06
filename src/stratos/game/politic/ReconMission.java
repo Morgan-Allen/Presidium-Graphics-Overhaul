@@ -122,15 +122,15 @@ public class ReconMission extends Mission {
   
   
   public void renderSelection(Rendering rendering, boolean hovered) {
-
     BaseUI.current().selection.renderPlane(
       rendering, base.world,
       subject.position(null), exploreRadius(),
       hovered ? Colour.transparency(0.25f) : Colour.transparency(0.5f),
       Selection.SELECT_CIRCLE,
-      true, this+""
+      true, I.tagHash(this)+"_explore_area_radius"
     );
   }
 }
+
 
 

@@ -240,6 +240,11 @@ public class Delivery extends Plan {
   }
   
   
+  public Item[] allDelivered() {
+    return items;
+  }
+  
+  
   private boolean manned(Owner o) {
     if (o instanceof Property) return ((Property) o).isManned();
     return false;
@@ -287,7 +292,7 @@ public class Delivery extends Plan {
         if (report) I.say("  Insufficient funds!");
         return -1;
       }
-      modifier -= ActorMotives.greedPriority(actor, price);
+      modifier -= actor.motives.greedPriority(price);
     }
     //
     //  Otherwise, add a bonus for quantity-

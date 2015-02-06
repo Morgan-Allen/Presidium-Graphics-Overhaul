@@ -44,6 +44,11 @@ public class I {
   }
   
   
+  public static final boolean amDebug() {
+    return WRITE_TO_LOG;
+  }
+  
+  
   public static final void add(String s) {
     if (! mute) {
       System.out.print(s);

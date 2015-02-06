@@ -164,9 +164,7 @@ public class Commission extends Plan {
         if (report) I.say("  Can't afford item.");
         return 0;
       }
-      modifier -= ActorMotives.greedPriority(
-        actor, price / ITEM_WEAR_DURATION
-      );
+      modifier -= actor.motives.greedPriority(price / ITEM_WEAR_DURATION);
     }
     
     final float priority = priorityForActorWith(

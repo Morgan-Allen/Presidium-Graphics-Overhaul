@@ -538,7 +538,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
       rewardEval /= Nums.max(partySize, 1);
     }
     
-    float value = ActorMotives.greedPriority(actor, (int) rewardEval);
+    float value = actor.motives.greedPriority((int) rewardEval);
     final int standing = actor.vocation().standing;
     value *= standing * 1.5f / Backgrounds.CLASS_STRATOI;
     if (report) {
@@ -685,17 +685,12 @@ public abstract class Mission implements Session.Saveable, Selectable {
       ((Selectable) subject).renderSelection(rendering, hovered);
       return;
     }
-    final Vec3D pos = (subject instanceof Mobile) ?
-      ((Mobile) subject).viewPosition(null) :
-      subject.position(null);
-    
-    BaseUI.current().selection.renderPlane(
-      rendering, base.world,
-      pos, subject.radius() + 0.5f,
-      hovered ? Colour.transparency(0.5f) : Colour.WHITE,
-      Selection.SELECT_CIRCLE,
-      true, this+""
-    );
+    else if (subject instanceof Element) {
+      BaseUI.current().selection.renderCircleOnGround(
+        rendering, (Element) subject, hovered
+      );
+    }
+    else return;
   }
   
   

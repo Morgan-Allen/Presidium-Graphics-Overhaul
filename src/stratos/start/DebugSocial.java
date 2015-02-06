@@ -79,9 +79,9 @@ public class DebugSocial extends Scenario {
     );
     
     if (false) testCareers(base);
-    if (true ) configDialogueScenario(world, base, UI);
+    if (false) configDialogueScenario(world, base, UI);
     if (false) configArtilectScenario(world, base, UI);
-    if (false) configContactScenario (world, base, UI);
+    if (true ) configContactScenario (world, base, UI);
     if (false) configWildScenario    (world, base, UI);
     if (false) applyJobScenario      (world, base, UI);
   }
@@ -172,29 +172,23 @@ public class DebugSocial extends Scenario {
   
   
   private void configContactScenario(Stage world, Base base, BaseUI UI) {
-    GameSettings.fogFree = true;
+    GameSettings.fogFree  = true;
     GameSettings.hireFree = true;
-    GameSettings.noBlood = true;
-    world.advanceCurrentTime(Stage.STANDARD_DAY_LENGTH / 2);
-    /*
+    GameSettings.noBlood  = true;
+    //
     //  Introduce a bastion, with standard personnel.
     final Bastion bastion = new Bastion(base);
-    bastion.stocks.bumpItem(Economy.PROTEIN, 20);
-    bastion.stocks.bumpItem(Economy.PLASTICS, 10);
-    bastion.stocks.bumpItem(Economy.SPYCE_T, 5);
     final Actor ruler = new Human(Backgrounds.KNIGHTED, base);
     Placement.establishVenue(
       bastion, 11, 11, true, world,
       ruler, new Human(Backgrounds.FIRST_CONSORT, base)
     );
     base.assignRuler(ruler);
+    for (Item i : bastion.stocks.shortages()) bastion.stocks.addItem(i);
     
     final TrooperLodge garrison = new TrooperLodge(base);
     Placement.establishVenue(garrison, world.tileAt(3, 15), true, world);
-    //*/
-
-    final Base natives = Base.natives(world, NativeHut.TRIBE_FOREST);
-    final BaseSetup NS = natives.setup;
+    
     
     /*
     Batch <Actor> allTalk = new Batch <Actor> ();
@@ -207,12 +201,16 @@ public class DebugSocial extends Scenario {
     //NS.establishRelations(allTalk);
     //*/
     
-    //*
+    //
+    //  Introduce some natives to contact, some distance away-
+    final Base natives = Base.natives(world, NativeHut.TRIBE_FOREST);
+    final BaseSetup NS = natives.setup;
+    
     final Batch <Venue> halls = NS.doPlacementsFor(
-      NativeHut.TRIBE_FOREST_PROFILES[0], 2//2 + Rand.index(2)
+      NativeHut.TRIBE_FOREST_PROFILES[0], 2
     );
     final Batch <Venue> huts  = NS.doPlacementsFor(
-      NativeHut.TRIBE_FOREST_PROFILES[1], 3//3 + Rand.index(4)
+      NativeHut.TRIBE_FOREST_PROFILES[1], 3
     );
     
     NS.fillVacancies(huts , true);
@@ -221,20 +219,16 @@ public class DebugSocial extends Scenario {
     for (Venue v : halls) NS.establishRelationsAt(v);
     
     final Actor talks = huts.first().staff.workers().first();
-    //*/
     final Relation withBase = talks.relations.relationWith(natives);
     I.say("BASE RELATION IS: "+withBase.value  ());
     I.say("BASE NOVELTY IS:  "+withBase.novelty());
     
-    UI.selection.pushSelection(talks, true);
-    /*
-    final Mission peaceMission = new ContactMission(base, hut);
+    final Mission peaceMission = new ContactMission(base, talks);
     peaceMission.assignPriority(Mission.PRIORITY_ROUTINE);
+    peaceMission.setMissionType(Mission.TYPE_SCREENED);
     peaceMission.setObjective(ContactMission.OBJECT_AUDIENCE);
-    base.addMission(peaceMission);
-    peaceMission.beginMission();
+    base.tactics.addMission(peaceMission);
     UI.selection.pushSelection(peaceMission, true);
-    //*/
   }
   
   

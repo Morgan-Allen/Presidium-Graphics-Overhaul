@@ -85,11 +85,10 @@ public class ContactMission extends Mission {
     beginMission();
   }
   
-  /*
-  public void endMission(boolean withReward) {
-    super.endMission(withReward);
+  
+  public boolean isSummons() {
+    return isSummons;
   }
-  //*/
   
   
   

@@ -10,6 +10,13 @@ import stratos.user.*;
 import stratos.util.*;
 
 
+
+//  TODO:  LOG OUTPUT SHOULD BE TAGGED BY TIME/DATE, SO THAT IT ISN'T
+//         OVERWRITTEN.  Also, old save files should probably be kept.
+
+//  Either get rid of the extra save options or add back the psy meter.
+
+
 /*  TUTORIAL TODO LIST:
 
 *  Use a linear sequence with much more detail on specific, simple steps.  You
@@ -35,10 +42,14 @@ import stratos.util.*;
 
 /*  BIG TODO LIST:
 
+*  Need to unify summons-dialogue with contact mechanics.
+     Create a dialogue subclass for delivering proposals.
+     Rig up the pledges system- targets, value, delivery.
+     Rig up an improved UI- terms asked, terms given, envoys.
+     Unify with reward-system used for other missions.
+
 *  Introduce Call-to-Arms at the Trooper Lodge (with respect to a particular
    mission at a time.)
-
-*  Need to unify summons-dialogue with contact mechanics.
 
 *  Psy powers need some checkup- cooldown system, replace TK, UI idiom.
 

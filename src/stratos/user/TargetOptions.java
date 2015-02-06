@@ -93,8 +93,8 @@ public class TargetOptions extends UIGroup {
       ));
     }
     if (
-      Summons.canSummon(subject, base) &&
-      subject instanceof Actor
+      //subject instanceof Actor &&
+      Summons.canSummon(subject, base)
     ) {
       final ContactMission contactMission = new ContactMission(base, subject);
       options.add(new OptionButton(

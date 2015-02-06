@@ -141,7 +141,7 @@ public class FindHome extends Plan {
       //         possibly outsource to the Audit class?
       float credsPerDay = actor.base().profiles.profileFor(actor).salary();
       credsPerDay *= 0.5f / Backgrounds.NUM_DAYS_PAY;
-      rating -= ActorMotives.greedPriority(actor, credsPerDay);
+      rating -= actor.motives.greedPriority(credsPerDay);
     }
     
     final Series <Actor> residents = newHome.staff().residents();

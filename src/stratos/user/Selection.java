@@ -270,6 +270,26 @@ public class Selection implements UIConstants {
   }
   
   
+  public void renderCircleOnGround(
+    Rendering rendering, Element e, boolean hovered
+  ) {
+    if (e.origin() == null) I.complain(
+      "MUST SET LOCATION BEFORE RENDERING SELECTION..."
+    );
+    
+    final String key = e.origin()+"_plane_"+I.tagHash(e);
+    final Vec3D pos = (e instanceof Mobile) ?
+      ((Mobile) e).viewPosition(null) :
+      e.position(null);
+    
+    renderPlane(
+      rendering, e.origin().world, pos, (e.xdim() / 2f) + 1,
+      hovered ? Colour.transparency(0.5f) : Colour.WHITE,
+      Selection.SELECT_CIRCLE, true, key
+    );
+  }
+  
+  
   public void renderPlane(
     Rendering r, Stage world,
     Vec3D pos, float radius,

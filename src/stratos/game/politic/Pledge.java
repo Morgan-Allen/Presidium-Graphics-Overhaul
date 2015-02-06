@@ -4,6 +4,8 @@
 package stratos.game.politic;
 import stratos.game.common.*;
 import stratos.game.actors.*;
+import stratos.game.plans.*;
+import stratos.game.economic.*;
 import stratos.util.*;
 
 
@@ -28,66 +30,87 @@ public class Pledge implements Session.Saveable {
   private static boolean
     evalVerbose = false;
   
-  public static enum Type {
+  
+  final public static Index <Type> TYPE_INDEX = new Index <Type> ();
+  
+  public abstract static class Type extends Index.Entry {
     
-    PAYMENT,
-    PROMOTION,
-    GIFT_ITEM,
-    SENSE_OF_DUTY,
+    final public String name;
+    public Type(String name) { super(TYPE_INDEX, name); this.name = name; }
+    public abstract Pledge[] variantsFor(Actor makes, Actor makesTo);
     
-    GOOD_WILL,
-    JOIN_MISSION,
-    SWEAR_FEALTY,
-    RELEASE_CAPTIVE
+    abstract void describe(Pledge p, Description d);
+    abstract float valueOf(Pledge p, Actor a);
+    abstract Behaviour fulfillment(Pledge p);
   }
   
   
   final Type type;
   final float amount;
   final Session.Saveable refers;
-  final Accountable madeTo;
-
+  final Actor makes;
+  
   
 
-  public Pledge(Type type, Accountable madeTo) {
-    this(type, -1, null, madeTo);
+  public Pledge(Type type, Actor makes) {
+    this(type, -1, null, makes);
   }
   
   
-  public Pledge(Type type, float amount, Accountable madeTo) {
-    this(type, amount, null, madeTo);
+  public Pledge(Type type, float amount, Actor makes) {
+    this(type, amount, null, makes);
   }
   
 
-  public Pledge(Type type, Session.Saveable refers, Accountable madeTo) {
-    this(type, -1, refers, madeTo);
+  public Pledge(Type type, Session.Saveable refers, Actor makes) {
+    this(type, -1, refers, makes);
   }
   
   
   protected Pledge(
-    Type type, float amount, Session.Saveable refers, Accountable madeTo
+    Type type, float amount, Session.Saveable refers, Actor makes
   ) {
-    this.type = type;
+    this.type   = type  ;
     this.amount = amount;
     this.refers = refers;
-    this.madeTo = madeTo;
+    this.makes  = makes ;
   }
   
   
   public Pledge(Session s) throws Exception {
     s.cacheInstance(this);
-    this.type = (Type) s.loadEnum(Type.values());
+    this.type = TYPE_INDEX.loadFromEntry(s.input());
     this.amount = s.loadFloat ();
     this.refers = s.loadObject();
-    this.madeTo = (Accountable) s.loadObject();
+    this.makes  = (Actor) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
-    s.saveEnum  (type  );
+    TYPE_INDEX.saveEntry(type, s.output());
     s.saveFloat (amount);
     s.saveObject(refers);
-    s.saveObject((Session.Saveable) madeTo);
+    s.saveObject(makes );
+  }
+  
+  
+  public float valueFor(Actor actor) {
+    return type.valueOf(this, actor);
+  }
+  
+  
+  public Behaviour fulfillment() {
+    return type.fulfillment(this);
+  }
+  
+  
+  public Actor makesPledge() {
+    return makes;
+  }
+  
+  
+  public void describeTo(Description d) {
+    type.describe(this, d);
   }
   
   
@@ -124,9 +147,159 @@ public class Pledge implements Session.Saveable {
   
   //  You'll need a new UI for this.
   
-  //  How does this work with your own subjects?
-  //  Pick the top 3 things that the subject might value most, and are in
-  //  reasonable proportion to the magnitude of service.  Then pick one?
+  /*
+  public static enum Type {
+    
+    PAYMENT,
+    PROMOTION,
+    GIFT_ITEM,
+    SENSE_OF_DUTY,
+    
+    GOOD_WILL,
+    JOIN_MISSION,
+    SWEAR_FEALTY,
+    RELEASE_CAPTIVE
+  }
+  //*/
+  
+  
+  final public static Type TYPE_PAYMENT = new Type("Payment") {
+    
+    public Pledge[] variantsFor(Actor makes, Actor makesTo) {
+      return new Pledge[] {
+          new Pledge(this, 50  , makesTo, makes),
+          new Pledge(this, 100 , makesTo, makes),
+          new Pledge(this, 250 , makesTo, makes),
+          new Pledge(this, 500 , makesTo, makes),
+          new Pledge(this, 1000, makesTo, makes),
+      };
+    }
+    
+    
+    void describe(Pledge p, Description d) {
+      d.append(((int) p.amount)+" Credits Payment");
+    }
+    
+    
+    float valueOf(Pledge p, Actor a) {
+      if (a != p.refers) return 0;
+      return a.motives.greedPriority(p.amount);
+    }
+    
+    
+    Behaviour fulfillment(Pledge p) {
+      //  TODO:  Should it be the actor making the pledge, or an actor you
+      //  refer to?  Who is paying, exactly?
+      
+      if (p.makes == p.makes.base().ruler()) {
+        final String source = BaseFinance.SOURCE_REWARDS;
+        p.makes.base().finance.incCredits(0 - p.amount, source);
+      }
+      else {
+        p.makes.gear.incCredits(0 - p.amount);
+      }
+      
+      final Actor paid = (Actor) p.refers;
+      paid.gear.incCredits(p.amount);
+      return null;
+    }
+  };
+  
+  
+  final public static Type TYPE_GIFT_ITEM = new Type("Gift Item") {
+    
+    public Pledge[] variantsFor(Actor makes, Actor makesTo) {
+      final Property from = makes.mind.home();
+      if (from == null) return new Pledge[0];
+      
+      final Batch <Pledge> pledges = new Batch <Pledge> ();
+      for (Item i : from.inventory().allItems()) {
+        float amount = Nums.min(i.amount, 10);
+        //  TODO:  The Gifting behaviour probably has this covered already.
+        //         Try to use that.
+        Delivery d = new Delivery(Item.withAmount(i, amount), from, makesTo);
+        pledges.add(new Pledge(this, d, makes));
+      }
+      return pledges.toArray(Pledge.class);
+    }
+    
+    
+    void describe(Pledge p, Description d) {
+      final Item gift = ((Delivery) p.refers).allDelivered()[0];
+      gift.describeTo(d);
+    }
+    
+    
+    float valueOf(Pledge p, Actor a) {
+      final Item gift = ((Delivery) p.refers).allDelivered()[0];
+      return a.motives.rateDesire(gift, null, a);
+    }
+    
+    
+    Behaviour fulfillment(Pledge p) {
+      return (Delivery) p.refers;
+    }
+  };
+  
+  
+  
+  final public static Type TYPE_GOOD_WILL = new Type("Good Will") {
+    
+    public Pledge[] variantsFor(Actor makes, Actor makesTo) {
+      return new Pledge[] { new Pledge(this, makesTo, makes) };
+    }
+    
+    
+    void describe(Pledge p, Description d) {
+      d.append("Your Good Will");
+    }
+    
+    
+    float valueOf(Pledge p, Actor a) {
+      return 0;
+    }
+    
+    
+    Behaviour fulfillment(Pledge p) {
+      return null;
+    }
+  };
+  
+  
+  final public static Type TYPE_JOIN_MISSION = new Type("Join Mission") {
+    
+    public Pledge[] variantsFor(Actor makes, Actor makesTo) {
+      final Series <Mission> all = makesTo.base().tactics.allMissions();
+      final Pledge p[] = new Pledge[all.size()];
+      int i = 0;
+      for (Mission m : all) p[i++] = new Pledge(this, m, makes);
+      return p;
+    }
+    
+    
+    void describe(Pledge p, Description d) {
+      final Mission m = (Mission) p.refers;
+      m.describeMission(d);
+    }
+    
+    
+    float valueOf(Pledge p, Actor a) {
+      final Mission m = (Mission) p.refers;
+      final Behaviour step = m.nextStepFor(a, true);
+      return step == null ? 0 : step.priorityFor(a);
+    }
+    
+    
+    Behaviour fulfillment(Pledge p) {
+      final Mission m = (Mission) p.refers;
+      p.makes.mind.assignMission(m);
+      m.setApprovalFor(p.makes, true);
+      return null;
+    }
+  };
+  
+  
+  
   
   
   
@@ -135,9 +308,6 @@ public class Pledge implements Session.Saveable {
   /**  UI and interface methods-
     */
 }
-
-
-
 
 
 

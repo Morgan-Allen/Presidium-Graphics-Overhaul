@@ -125,6 +125,7 @@ public class Index <T extends Index.Entry> implements Iterable <T> {
   
 
   final public Iterator <T> iterator() {
+    assignIDs();
     return new Iterator <T> () {
       int index = asArray == null ? -1 : 0;
       

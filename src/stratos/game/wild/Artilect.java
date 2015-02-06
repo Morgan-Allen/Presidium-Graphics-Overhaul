@@ -170,10 +170,6 @@ public abstract class Artilect extends Actor {
     //final float distance = Spacing.distance(this, guards) / Stage.SECTOR_SIZE;
     //
     //  Security and defence related tasks-
-    final Mission mission = mind.mission();
-    if (mission != null && mission.hasBegun() && mission.isApproved(this)) {
-      choice.add(mission.nextStepFor(this, true));
-    }
     if (! isCranial) {
       final Plan patrol = Patrolling.aroundPerimeter(this, guards, world);
       choice.add(patrol.setMotive(Plan.MOTIVE_JOB, Plan.IDLE));

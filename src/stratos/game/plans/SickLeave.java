@@ -91,7 +91,7 @@ public class SickLeave extends Plan {
     
     if (visitCost > 0) {
       if (visitCost > actor.gear.credits()) return -1;
-      modifier -= ActorMotives.greedPriority(actor, visitCost);
+      modifier -= actor.motives.greedPriority(visitCost);
     }
     
     final float priority = priorityForActorWith(
