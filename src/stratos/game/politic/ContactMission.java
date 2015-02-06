@@ -1,5 +1,8 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.politic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -14,7 +17,11 @@ import static stratos.game.actors.Qualities.*;
 
 
 
-//  TODO:  Allow spontaneous turn-coat behaviours for both actors and venues...
+//  TODO:  Allow spontaneous turn-coat/spying behaviours for actors, if their
+//         affection/fear of you grows high enough.
+//  TODO:  Allow defection of structures if enough of their inhabitants feel
+//         inclined to join you (base off influence-levels on the map.)
+
 
 
 public class ContactMission extends Mission {
@@ -25,6 +32,10 @@ public class ContactMission extends Mission {
   final static float
     MAX_DURATION = Stage.STANDARD_DAY_LENGTH * 2;
   
+  
+  //  TODO:  Get rid of these now- I'm making use of some more intricate terms-
+  //  setting mechanisms.
+  //*
   final public static int
     OBJECT_FRIENDSHIP = 0,
     OBJECT_AUDIENCE   = 1,
@@ -34,14 +45,18 @@ public class ContactMission extends Mission {
     "Secure audience with ",
     "Demand submission from "
   };
+  //*/
   
   private static boolean 
-    evalVerbose  = false,
-    eventVerbose = true ;
+    //evalVerbose  = false,
+    stepsVerbose = true ;
   
   
   private Actor[] talksTo = null;  //Refreshed on request, at most once/second
   private List <Actor> agreed = new List <Actor> ();
+  
+  Pledge offers;
+  Pledge sought;
   
   private boolean isSummons   = false;
   private boolean doneContact = false;
@@ -58,6 +73,8 @@ public class ContactMission extends Mission {
   public ContactMission(Session s) throws Exception {
     super(s);
     s.loadObjects(agreed);
+    offers      = (Pledge) s.loadObject();
+    sought      = (Pledge) s.loadObject();
     isSummons   = s.loadBool();
     doneContact = s.loadBool();
   }
@@ -66,8 +83,26 @@ public class ContactMission extends Mission {
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     s.saveObjects(agreed);
-    s.saveBool(isSummons  );
-    s.saveBool(doneContact);
+    s.saveObject(offers     );
+    s.saveObject(sought     );
+    s.saveBool  (isSummons  );
+    s.saveBool  (doneContact);
+  }
+  
+  
+  public void setTerms(Pledge offers, Pledge sought) {
+    this.offers = offers;
+    this.sought = sought;
+  }
+  
+  
+  public Pledge pledgeOffers() {
+    return offers;
+  }
+  
+  
+  public Pledge pledgeSought() {
+    return sought;
   }
   
   
@@ -129,7 +164,7 @@ public class ContactMission extends Mission {
     super.updateMission();
     talksTo = null;
     
-    final boolean report = eventVerbose && (
+    final boolean report = stepsVerbose && (
       ((List) approved()).includes(I.talkAbout) ||
       Visit.arrayIncludes(talksTo(), I.talkAbout) ||
       I.talkAbout == this
@@ -198,7 +233,7 @@ public class ContactMission extends Mission {
   
   
   public boolean actionCloseTalks(Actor actor, Actor other) {
-    final boolean report = eventVerbose && I.talkAbout == actor;
+    final boolean report = stepsVerbose && I.talkAbout == actor;
     
     float DC = other.relations.valueFor(actor) * -10;
     if (objective() == OBJECT_FRIENDSHIP) DC += 0 ;
@@ -289,6 +324,7 @@ public class ContactMission extends Mission {
     }
     else return panel;
   }
+  
   
   public String[] objectiveDescriptions() {
     return SETTING_DESC;

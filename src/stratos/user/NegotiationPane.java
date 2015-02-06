@@ -1,5 +1,8 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.user;
 import stratos.game.common.*;
 import stratos.game.politic.*;
@@ -11,73 +14,113 @@ import stratos.util.*;
 public class NegotiationPane extends MissionPane {
   
   
+  final ContactMission contact;
+  final PledgeMenu offers, sought;
+  
+  
   public NegotiationPane(BaseUI UI, ContactMission selected) {
     super(UI, selected);
+    this.contact = selected;
+    
+    this.offers = new PledgeMenu() { void setMade(Pledge p) {
+      made = p;
+      contact.setTerms(made, contact.pledgeSought());
+    }};
+    this.sought = new PledgeMenu() { void setMade(Pledge p) {
+      made = p;
+      contact.setTerms(contact.pledgeOffers(), made);
+    }};
   }
   
   
   public SelectionInfoPane configOwningPanel() {
-    //return super.configOwningPanel();
     final Description d = detail(), l = listing();
-    final ContactMission contact = (ContactMission) mission;
     
     if (contact.isSummons()) {
       contact.describeMission(d);
       return this;
     }
     
+    final Actor ruler = mission.base().ruler();
+    final Actor subject = (Actor) mission.subject();
+    offers.made = contact.pledgeOffers();
+    sought.made = contact.pledgeSought();
     
-    listTerms(l);
+    offers.listTermsFor(ruler  , subject, "Terms Offered: "   , l);
+    sought.listTermsFor(subject, ruler  , "\n\nTerms Sought: ", l);
     return this;
   }
   
   
-  //  Okay.  A pane for terms asked, a pane for terms given, and a pane for
-  //  applicants to deliver the message.
-  
-  
-  //  Just... do the listing bits first.  And see how they look.
-  
-  private void listTerms(Description d) {
+  private abstract class PledgeMenu {
     
-    final Actor ruler = mission.base().ruler();
-    final Actor subject = (Actor) mission.subject();
+    Pledge made = null;
+    Pledge.Type madeType = null;
+    boolean showMenu = false;
     
-    d.append("\nTerms Given:");
-    
-    for (Pledge.Type type : Pledge.TYPE_INDEX) {
-      final Pledge pledges[] = type.variantsFor(ruler, subject);
-      if (pledges == null || pledges.length == 0) continue;
-      
-      //  TODO:  If there's only a single option, use that as the title-key...
-      
-      d.append("\n"+type.name);
-      for (Pledge pledge : pledges) {
-        d.append("\n  ");
-        //  TODO:  Just get a string and use that as the link.
-        pledge.describeTo(d);
+    private void listTermsFor(
+      Actor ruler, Actor subject, String header, Description d
+    ) {
+      d.append(header);
+      final String desc = made == null ? "None" : made.description();
+      //
+      //  Clicking on the main terms-descriptor opens a menu to allow you to
+      //  select other terms (and closes any other menu open.)
+      d.append(new Description.Link(desc) {
+        public void whenClicked() {
+          final boolean willShow = ! showMenu;
+          offers.showMenu = sought.showMenu = false;
+          showMenu = willShow;
+          madeType = made == null ? null : made.type;
+        }
+      });
+      if (showMenu) for (final Pledge.Type type : Pledge.TYPE_INDEX) {
+        final Pledge pledges[] = type.variantsFor(ruler, subject);
+        if (pledges == null || pledges.length == 0) continue;
+        //
+        //  having skipped over any non-applicable pledge types, we allow
+        //  selection from any variants on the current pledge-type...
+        if (madeType == type) {
+          if (pledges.length == 1) continue;
+          d.append("\n  "+type.name);
+          for (final Pledge pledge : pledges) {
+            d.append("\n    ");
+            d.append(new Description.Link(pledge.description()) {
+              public void whenClicked() {
+                setMade(pledge);
+                showMenu = false;
+              }
+            });
+          }
+        }
+        //
+        //  ...in addition to different types of pledge.  (In the case where
+        //  only a single variant of that pledge if available, we select this
+        //  directly.)
+        else {
+          d.append("\n  ");
+          final String typeDesc = pledges.length == 1 ?
+            pledges[0].description() : type.name
+          ;
+          d.append(new Description.Link(typeDesc) {
+            public void whenClicked() {
+              if (pledges.length == 1) {
+                setMade(pledges[0]);
+                showMenu = false;
+              }
+              else {
+                madeType = type;
+              }
+            }
+          });
+        }
       }
     }
     
-    d.append("\nTerms asked:");
-    
-    for (Pledge.Type type : Pledge.TYPE_INDEX) {
-      final Pledge pledges[] = type.variantsFor(subject, ruler);
-      if (pledges == null || pledges.length == 0) continue;
-      
-      //  TODO:  If there's only a single option, use that as the title-key...
-      
-      d.append("\n"+type.name);
-      for (Pledge pledge : pledges) {
-        d.append("\n  ");
-        //  TODO:  Just get a string and use that as the link.
-        pledge.describeTo(d);
-      }
-    }
+    abstract void setMade(Pledge made);
   }
+  
+  
 }
-
-
-
 
 

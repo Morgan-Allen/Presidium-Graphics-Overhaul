@@ -85,7 +85,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   };
   final public static String
     TYPE_DESC[] = {
-      "Public Contract", "Screened", "Covert"
+      "Public Bounty", "Screened", "Covert"
     },
     PRIORITY_DESC[] = {
       "None", "Nominal", "Routine", "Urgent", "Critical", "Paramount"

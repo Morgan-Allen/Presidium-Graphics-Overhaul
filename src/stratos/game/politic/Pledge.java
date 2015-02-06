@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.politic;
 import stratos.game.common.*;
 import stratos.game.actors.*;
@@ -39,13 +41,14 @@ public class Pledge implements Session.Saveable {
     public Type(String name) { super(TYPE_INDEX, name); this.name = name; }
     public abstract Pledge[] variantsFor(Actor makes, Actor makesTo);
     
-    abstract void describe(Pledge p, Description d);
+    //abstract void describe(Pledge p, Description d);
+    abstract String description(Pledge p);
     abstract float valueOf(Pledge p, Actor a);
     abstract Behaviour fulfillment(Pledge p);
   }
   
   
-  final Type type;
+  final public Type type;
   final float amount;
   final Session.Saveable refers;
   final Actor makes;
@@ -109,8 +112,8 @@ public class Pledge implements Session.Saveable {
   }
   
   
-  public void describeTo(Description d) {
-    type.describe(this, d);
+  public String description() {
+    return type.description(this);
   }
   
   
@@ -176,8 +179,8 @@ public class Pledge implements Session.Saveable {
     }
     
     
-    void describe(Pledge p, Description d) {
-      d.append(((int) p.amount)+" Credits Payment");
+    String description(Pledge p) {
+      return ((int) p.amount)+" Credits Payment";
     }
     
     
@@ -224,9 +227,9 @@ public class Pledge implements Session.Saveable {
     }
     
     
-    void describe(Pledge p, Description d) {
+    String description(Pledge p) {
       final Item gift = ((Delivery) p.refers).allDelivered()[0];
-      gift.describeTo(d);
+      return "Gift of "+gift;
     }
     
     
@@ -250,8 +253,8 @@ public class Pledge implements Session.Saveable {
     }
     
     
-    void describe(Pledge p, Description d) {
-      d.append("Your Good Will");
+    public String description(Pledge p) {
+      return "Good Will";
     }
     
     
@@ -277,9 +280,9 @@ public class Pledge implements Session.Saveable {
     }
     
     
-    void describe(Pledge p, Description d) {
+    public String description(Pledge p) {
       final Mission m = (Mission) p.refers;
-      m.describeMission(d);
+      return m.toString();
     }
     
     
