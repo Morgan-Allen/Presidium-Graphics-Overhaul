@@ -11,6 +11,9 @@ import stratos.util.*;
 
 
 
+//  TODO:  MERGE THIS WITH THE ACTOR'S MEMORY-SET?
+
+
 public class Career implements Qualities {
   
   

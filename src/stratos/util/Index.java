@@ -1,11 +1,19 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.util;
 import java.io.*;
 import java.lang.reflect.Array;
 import java.util.Iterator;
 
 
+
+/**  This class allows for enumerated constants spread across multiple files to
+  *  be catalogued, loaded and saved in a consistent, compact, and reliable
+  *  way.
+  */
 //  TODO:  Sort additions by class of origin, instead of just by key?
 
 public class Index <T extends Index.Entry> implements Iterable <T> {
@@ -106,6 +114,10 @@ public class Index <T extends Index.Entry> implements Iterable <T> {
   
   /**  Other commonly-used utility methods:
     */
+  
+  //  TODO:  Get rid of this method.  It relies on entries being added in a
+  //  predictable order, which in turn depends on the order in which classes
+  //  are loaded, which you don't want to have to handle manually.
   public T[] soFar(Class typeClass) {
     final T array[] = addedSoFar.toArray(typeClass);
     addedSoFar.clear();

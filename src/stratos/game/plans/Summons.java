@@ -398,8 +398,8 @@ public class Summons extends Plan {
       new Link("Very well, then...") {
         public void whenClicked() {
           UI.selection.pushSelection(taken, true);
-          taken.setApprovalFor(with, true);
           with.mind.assignMission(taken);
+          taken.setApprovalFor(with, true);
         }
       }
     );

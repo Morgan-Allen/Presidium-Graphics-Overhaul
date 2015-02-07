@@ -126,7 +126,8 @@
 >
   <animations rotate="90">
     <animation name="stand"       start="1"  end="1"  duration="1"   />
-    <animation name="move"        start="1"  end="10"  duration="1.5" />
+	<animation name="test"        start="2"  end="40"  duration="1.5" />
+    <animation name="TESTmove"        start="80"  end="120"  duration="1.5" />
   </animations>
   
 </model>

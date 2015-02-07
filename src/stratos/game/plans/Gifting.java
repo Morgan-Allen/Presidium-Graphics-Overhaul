@@ -26,13 +26,13 @@ public class Gifting extends Plan implements Qualities {
   private static boolean
     evalVerbose   = false,
     rateVerbose   = false,
-    eventsVerbose = true;
+    eventsVerbose = true ;
   
   
   final Item gift;
   final Actor receives;
   final Plan getting;
-  final Dialogue giving;
+  final Proposal giving;
   private int stage = STAGE_INIT;
   
   
@@ -42,17 +42,18 @@ public class Gifting extends Plan implements Qualities {
     this.gift = gift;
     this.receives = receives;
     this.getting = getting;
-    this.giving = new Dialogue(actor, receives, Dialogue.TYPE_CONTACT);
+    this.giving = new Proposal(actor, receives);
+    giving.setTerms(Pledge.giftPledge(gift, actor, receives), null);
   }
   
   
   public Gifting(Session s) throws Exception {
     super(s);
-    gift = Item.loadFrom(s);
+    gift     = Item.loadFrom(s);
     receives = (Actor) s.loadObject();
-    getting = (Plan) s.loadObject();
-    stage = s.loadInt();
-    giving = (Dialogue) s.loadObject();
+    getting  = (Plan) s.loadObject();
+    stage    = s.loadInt();
+    giving   = (Proposal) s.loadObject();
   }
   
   
@@ -60,9 +61,9 @@ public class Gifting extends Plan implements Qualities {
     super.saveState(s);
     Item.saveTo(s, gift);
     s.saveObject(receives);
-    s.saveObject(getting);
-    s.saveInt(stage);
-    s.saveObject(giving);
+    s.saveObject(getting );
+    s.saveInt   (stage   );
+    s.saveObject(giving  );
   }
   
   
@@ -135,7 +136,7 @@ public class Gifting extends Plan implements Qualities {
       if (giving.finished()) return null;
       this.stage = STAGE_GIVES;
       giving.setMotiveFrom(this, 0);
-      giving.attachGift(gift);
+      if (giving.priorityFor(actor) <= 0) return null;
       if (report) {
         I.say("  Entering dialogue mode for gift-giving.");
         I.say("  Priority: "+giving.priorityFor(actor));

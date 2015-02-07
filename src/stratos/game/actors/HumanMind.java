@@ -174,7 +174,9 @@ public class HumanMind extends ActorMind implements Qualities {
         if (report) I.say("  Responding to actor: "+e);
         final Actor nearby = (Actor) e;
         choice.add(Hunting.asHarvest(actor, nearby, home, true));
-        choice.add(Gifting.nextGifting(null, actor, nearby));
+        
+        //  TODO:  Reserve this for people you know.
+        //choice.add(Gifting.nextGifting(null, actor, nearby));
       }
     }
     

@@ -16,16 +16,13 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   /**  Fields, constructors, and save/load methods-
     */
-  //*
   final public static int
-    MOTIVE_LEISURE   =  0,
-    MOTIVE_JOB      =  1,
-    MOTIVE_AMBITION  =  2,
-    MOTIVE_EMERGENCY =  3,
-    MOTIVE_MISSION   =  4,
-    MOTIVE_CANCELLED =  5;
-  //*/
-  //  Emergency, Job, Leisure, Mission, Cancelled, Special.
+    MOTIVE_LEISURE   = 0,
+    MOTIVE_JOB       = 1,
+    MOTIVE_AMBITION  = 2,
+    MOTIVE_EMERGENCY = 3,
+    MOTIVE_MISSION   = 4,
+    MOTIVE_CANCELLED = 5;
   
   final static float
     NULL_PRIORITY = -100;
@@ -371,7 +368,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   /**  Assorted utility evaluation methods-
     */
   public Plan setMotive(int type, float bonus) {
-    this.motiveType = type;
+    this.motiveType  = type ;
     this.motiveBonus = bonus;
     this.lastEvalTime = -1;
     return this;

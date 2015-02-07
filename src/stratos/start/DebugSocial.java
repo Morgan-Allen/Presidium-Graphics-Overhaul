@@ -80,9 +80,9 @@ public class DebugSocial extends Scenario {
     );
     
     if (false) testCareers(base);
-    if (false) configDialogueScenario(world, base, UI);
+    if (true ) configDialogueScenario(world, base, UI);
     if (false) configArtilectScenario(world, base, UI);
-    if (true ) configContactScenario (world, base, UI);
+    if (false) configContactScenario (world, base, UI);
     if (false) configWildScenario    (world, base, UI);
     if (false) applyJobScenario      (world, base, UI);
   }
@@ -99,45 +99,38 @@ public class DebugSocial extends Scenario {
     GameSettings.hireFree = true;
     GameSettings.fogFree  = true;
     
-    /*
-    final EngineerStation venue = new EngineerStation(base);
-    Placement.establishVenue(venue, world.tileAt(4, 4), true, world);
-    venue.stocks.bumpItem(Economy.PARTS, 10);
-    //*/
-    
-    Actor citizen = null, other = null;
+    Actor a1 = null, a2 = null;
     for (int n = 2; n-- > 0;) {
-      citizen = new Human(Backgrounds.CULTIVATOR, base);
-      citizen.health.takeCalories(100, 1);
-      citizen.enterWorldAt(2 + n, 3 + n, world);
-      if (other == null) other = citizen;
+      a1 = new Human(Backgrounds.CULTIVATOR, base);
+      a1.enterWorldAt(2 + n, 3 + n, world);
+      if (a2 == null) a2 = a1;
     }
     
-    citizen.motives.setSolitude(1);
-    other  .motives.setSolitude(1);
+    a1.motives.setSolitude(1);
+    a2.motives.setSolitude(1);
     
-    final Dialogue d = new Dialogue(citizen, other);
-    //d.setMotive(Plan.MOTIVE_LEISURE, 0);
-    citizen.mind.assignBehaviour(d);
-    UI.selection.pushSelection(citizen, true);
-    //*/
+    final Dialogue d = new Dialogue(a1, a2);
+    a1.mind.assignBehaviour(d);
+    UI.selection.pushSelection(a1, true);
     
-    //  TODO:  RE-TEST THIS
-    /*
-    world.presences.togglePresence(
-      venue, venue.origin(), true, Economy.PARTS.supplyKey
-    );
-    final Delivery getting = DeliveryUtils.bestCollectionFor(
-      citizen, Economy.PARTS, 1, null, 5, false
-    );
-    getting.shouldPay = null;
     
-    final Item gift = Item.withAmount(Economy.PARTS, 1);
-    final Gifting gifting = new Gifting(
-      citizen, other, gift, getting
-    );
-    citizen.mind.assignBehaviour(gifting);
-    //*/
+    Actor a3 = new Human(Backgrounds.TECHNICIAN, base);
+    Actor a4 = new Human(Backgrounds.TECHNICIAN, base);
+    a3.enterWorldAt(7 , 7, world);
+    a4.enterWorldAt(10, 5, world);
+    
+    final Item gift = Item.withAmount(Economy.GREENS, 4);
+    a3.gear.addItem(gift);
+    
+    final Proposal d2 = new Proposal(a3, a4);
+    d2.setMotive(Plan.MOTIVE_LEISURE, Plan.ROUTINE);
+    d2.setTerms(Pledge.giftPledge(gift, a3, a4), null);
+    a3.mind.assignBehaviour(d2);
+    
+    UI.selection.pushSelection(a3, true);
+    
+    //  TODO:  RE-TEST THE ENTIRE GIFT-GETTING ROUTINE, INCLUDING PURCHASES AND
+    //  COMMISSIONS.
   }
   
   

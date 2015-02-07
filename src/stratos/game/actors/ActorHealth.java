@@ -271,9 +271,9 @@ public class ActorHealth implements Qualities {
   public float caloryLevel() { return calories / maxHealth; }
   
   public boolean organic()  { return metabolism != ARTILECT_METABOLISM; }
-  public boolean animal()   { return metabolism == ANIMAL_METABOLISM ; }
+  public boolean animal()   { return metabolism == ANIMAL_METABOLISM  ; }
   public boolean artilect() { return metabolism == ARTILECT_METABOLISM; }
-  public boolean human()    { return metabolism == HUMAN_METABOLISM  ; }
+  public boolean human()    { return metabolism == HUMAN_METABOLISM   ; }
   
   
   

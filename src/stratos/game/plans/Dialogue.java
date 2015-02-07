@@ -18,6 +18,7 @@ import stratos.util.*;
 //  location-setting, and allow for multiple participants.
 
 
+
 public class Dialogue extends Plan implements Qualities {
   
   
@@ -41,9 +42,8 @@ public class Dialogue extends Plan implements Qualities {
     TYPE_CASUAL  = 1,
     TYPE_PLEA    = 2;
   
-  //  TODO:  SEE IF YOU CAN USE THESE?..
+  //  TODO:  SEE IF YOU CAN USE THESE
   final public static float
-    RELATION_BOOST = 0.5f,
     BORED_DURATION = Stage.STANDARD_HOUR_LENGTH * 1;
   
   final static int
@@ -61,14 +61,10 @@ public class Dialogue extends Plan implements Qualities {
   final Actor other;
   final int type;
   final Dialogue starts;
-  final int depth;  //  Purely a safety measure against infinite-recursion.
   
+  final private int depth;  //  (Safety measure against infinite-recursion.)
   private int stage = STAGE_INIT;
-  private Boarding location = null, stands = null;
-  
-  private String utters;
-  private Item gift;
-  private Behaviour invitation;
+  protected Session.Saveable topic;
   
   
   
@@ -88,6 +84,7 @@ public class Dialogue extends Plan implements Qualities {
     this.starts = starts == null ? this : starts;
     this.depth  = starts == null ? 0 : (1 + starts.depth);
     this.type   = type;
+    if (type == TYPE_PLEA) setMotive(MOTIVE_EMERGENCY, 0);
   }
   
   
@@ -98,11 +95,7 @@ public class Dialogue extends Plan implements Qualities {
     depth  = s.loadInt();
     type   = s.loadInt();
     stage  = s.loadInt();
-    
-    location   = (Boarding) s.loadTarget();
-    stands     = (Boarding) s.loadTarget();
-    gift       = Item.loadFrom(s);
-    invitation = (Plan) s.loadObject();
+    topic  = s.loadObject();
   }
   
   
@@ -113,11 +106,7 @@ public class Dialogue extends Plan implements Qualities {
     s.saveInt   (depth );
     s.saveInt   (type  );
     s.saveInt   (stage );
-    
-    s.saveTarget(location);
-    s.saveTarget(stands  );
-    Item.saveTo(s, gift);
-    s.saveObject(invitation);
+    s.saveObject(topic );
   }
   
   
@@ -125,33 +114,6 @@ public class Dialogue extends Plan implements Qualities {
     return new Dialogue(other, this.other, null, type);
   }
   
-  
-  public Boarding location() {
-    if (location == null) {
-      if (starts == this) location = other.origin();
-      else location = starts.location();
-    }
-    return location;
-  }
-  
-  
-  //  TODO:  Create a subclass for these, and use generic pledges instead.
-  
-  public void attachGift(Item gift) {
-    if (! actor.gear.hasItem(gift)) I.complain("Actor does not have "+gift);
-    this.gift = gift;
-  }
-  
-  
-  public void attachInvitation(Plan invite) {
-    if (invite.actor() != actor) I.complain("Favour must apply to actor!");
-    this.invitation = invite;
-  }
-  
-  
-  public void setUttered(String s) {
-    this.utters = s;
-  }
   
   
   /**  Utility methods for assessing possibility-
@@ -247,7 +209,7 @@ public class Dialogue extends Plan implements Qualities {
     }
     
     final float
-      maxRange    = actor.health.sightRange() * 2,
+      //maxRange    = actor.health.sightRange() * 2,
       solitude    = actor.motives.solitude(),
       curiosity   = (1 + actor.traits.relativeLevel(CURIOUS)) / 2f,
       novelty     = actor.relations.noveltyFor(other),
@@ -273,9 +235,8 @@ public class Dialogue extends Plan implements Qualities {
     float bonus = solitude + Nums.clamp(curiosity * novelty, 0, 1);
     if (freshFace) bonus *= solitude;
     if (novelty >= 1) bonus += (novelty - 1) * curiosity * 2;
-    
     if (type == TYPE_CONTACT) bonus += 0.5f;
-    else if (Spacing.distance(actor, other) > maxRange) return -1;
+    //else if (Spacing.distance(actor, other) > maxRange) return -1;
     
     if (report) {
       I.say("  Final bonus:  "+bonus      );
@@ -334,24 +295,6 @@ public class Dialogue extends Plan implements Qualities {
         waits.setProperties(Action.NO_LOOP);
         return waits;
       }
-      
-      if (gift != null) {
-        final Action offer = new Action(
-          actor, other,
-          this, "actionOfferGift",
-          Action.TALK_LONG, "Offering "+gift.type+" to "
-        );
-        return offer;
-      }
-      
-      if (invitation != null) {
-        final Action invite = new Action(
-          actor, other,
-          this, "actionInvite",
-          Action.TALK_LONG, "Inviting"
-        );
-        return invite;
-      }
 
       if (report) I.say("  Chatting with "+other);
       final Action chats = new Action(
@@ -403,7 +346,8 @@ public class Dialogue extends Plan implements Qualities {
   
   
   public boolean actionChats(Actor actor, Actor other) {
-    DialogueUtils.tryChat(actor, other);
+    topic = (this == starts) ? selectTopic() : starts.topic;
+    discussTopic(topic);
     if (! canTalk(other)) stage = STAGE_BYE;
     return true;
   }
@@ -414,71 +358,34 @@ public class Dialogue extends Plan implements Qualities {
     return true;
   }
   
+
   
-  
-  /**  Gift-giving behaviours-
-    */
-  public boolean actionOfferGift(Actor actor, Actor receives) {
-    final boolean report = shouldReportSteps();
-
-    //  Regardless of the outcome, this won't be offered twice.
-    final Item gift = this.gift;
-    this.gift = null;
+  protected Session.Saveable selectTopic() {
+    //  TODO:  If this is a fresh acquaintance, consider general introductions.
     
-    //  TODO:  Modify DC by the greed and honour of the subject.
-    DialogueUtils.utters(actor, "I have a gift for you...", 0);
-    final float value = ActorMotives.rateDesire(gift, null, receives) / 10f;
-    float acceptDC = (0 - value) * ROUTINE_DC;
-    float success = DialogueUtils.talkResult(
-      SUASION, acceptDC, actor, receives
-    );
-
-    if (report) {
-      I.say("\nOffering "+gift+" to "+receives+", DC: "+acceptDC);
-      I.say("  Value: "+value+", success: "+success);
-    }
-    if (success == 0) {
-      if (report) I.say("  Offer rejected!");
-      stage = STAGE_BYE;
-      return false;
-    }
-    if (report) {
-      I.say("  Offer accepted!");
-      I.say("  Relation before: "+receives.relations.valueFor(actor));
-    }
-
-    actor.gear.transfer(gift, receives);
-    receives.relations.incRelation(actor, 1, value / 2, 0);
-    actor.relations.incRelation(receives, 1, value / 4, 0);
-    DialogueUtils.utters(receives, "Thank you for the "+gift.type+"!", value);
-    
-    if (report) {
-      I.say("  Relation after: "+receives.relations.valueFor(actor));
-    }
-    return true;
+    return DialogueUtils.pickChatTopic(this, other);
   }
   
   
-  public boolean actionInvite(Actor actor, Actor asked) {
-    final boolean report = shouldReportSteps();
-    this.stage = STAGE_BYE;
+  protected void discussTopic(Session.Saveable topic) {
+    DialogueUtils.tryChat(other, other);
     
-    if (! Joining.checkInvitation(actor, asked, this, invitation)) {
-      if (report) I.say("Invitation rejected!- "+invitation);
-      return false;
+    if (topic instanceof Actor ) {
+      DialogueUtils.discussPerson(actor, other, (Actor ) topic);
+      return;
     }
-    
-    final Plan basis = (Plan) invitation;
-    final Plan copy = basis.copyFor(asked);
-    actor.mind.assignBehaviour(new Joining(actor, basis, asked));
-    asked.mind.assignBehaviour(new Joining(asked, copy, actor));
-    
-    if (report) {
-      I.say("  Assigning behaviour: "+basis+" to "+actor);
-      I.say("  Assigning behaviour: "+copy+" to "+asked);
+    if (topic instanceof Skill ) {
+      DialogueUtils.discussSkills(actor, other, (Skill ) topic);
+      return;
     }
-    this.stage = STAGE_DONE;
-    return true;
+    if (topic instanceof Plan  ) {
+      DialogueUtils.discussPlan  (actor, other, (Plan  ) topic);
+      return;
+    }
+    if (topic instanceof Memory) {
+      DialogueUtils.discussEvent (actor, other, (Memory) topic);
+      return;
+    }
   }
   
   
@@ -486,29 +393,17 @@ public class Dialogue extends Plan implements Qualities {
   /**  Rendering and interface methods-
     */
   public void describeBehaviour(Description d) {
-    if (super.lastStepIs("actionInvite")) {
-      d.append("Inviting ");
+    if (starts.topic != null) {
+      d.append("Discussing ");
+      d.append(starts.topic);
+      d.append(" with ");
       d.append(other);
-      d.append(" to go ");
-      d.append(invitation);
-      return;
     }
-    if (utters != null) {
-      d.append("Saying \"");
-      d.append(utters);
-      d.append("\" to ");
-      d.append(other);
-      return;
-    }
-    if (super.needsSuffix(d, "Talking to ")) {
+    else if (super.needsSuffix(d, "Talking to ")) {
       d.append(other);
     }
   }
 }
-
-
-
-
 
 
 

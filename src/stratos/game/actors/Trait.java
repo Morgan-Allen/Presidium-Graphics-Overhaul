@@ -3,8 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.util.*;
@@ -32,8 +30,6 @@ public class Trait extends Index.Entry implements Qualities, Session.Saveable {
   
   protected Trait(String name, int type, String... descriptors) {
     super(TRAIT_INDEX, name);
-    //this.keyID = keyID;
-    //this.indexEntry = TRAIT_INDEX.addEntry(this, keyID);
     
     this.name = name;
     this.type = type;

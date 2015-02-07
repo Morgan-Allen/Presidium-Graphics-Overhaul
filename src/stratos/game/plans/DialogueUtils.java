@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -51,188 +53,150 @@ public class DialogueUtils implements Qualities {
     final float attBonus = other.relations.valueFor(actor) * ROUTINE_DC;
     int result = 0;
     result += actor.skills.test(language, ROUTINE_DC - attBonus, 1) ? 1 : 0;
-    result += actor.skills.test(plea, opposeDC - attBonus, 1) ? 1 : 0;
+    result += actor.skills.test(plea    , opposeDC   - attBonus, 1) ? 1 : 0;
     return result / 2f;
   }
   
   
+  
+  
+  final static float
+    CHAT_RELATION_BOOST = 0.5f;
+  
+  //  TODO:  Okay.  I want to make sure that relationships can actually go
+  //  pretty far north or south, depending on how well traits and interests
+  //  match up.
   public static float tryChat(Actor actor, Actor other) {
-    
-    final float DC = other.traits.usedLevel(SUASION) / 2;
-    float success = talkResult(SUASION, DC, actor, other);
-    success *= Dialogue.RELATION_BOOST;
-    reinforceRelations(other, actor, success, -1, false);
-    
-    switch (Rand.index(3)) {
-      case (0) : anecdote(actor, other); break;
-      case (1) : gossip  (actor, other); break;
-      case (2) : advise  (actor, other); break;
-    }
-    return success;
+    float boost = talkResult(SUASION, TRIVIAL_DC, actor, other) / 10f;
+    boost *= CHAT_RELATION_BOOST;
+    reinforceRelations(other, actor, boost, -1, false);
+    return boost;
   }
   
   
-  private static void smalltalk(Actor actor, Actor other) {
-    utters(actor, "Nice weather, huh?", 0);
-    utters(other, "Uh-huh.", 0);
-  }
-  
-  
-  private static void anecdote(Actor actor, Actor other) {
-    //
-    //  Pick a random recent activity and see if the other also indulged in it.
-    //  If the activity is similar, or was undertaken for similar reasons,
-    //  improve relations.
-    //  TODO:  At the moment, we just compare traits.  Fix later.
-    
-    utters(other, "What is best in life?", 0);
-    
-    Trait comp = null;
-    float bestRating = 0;
-    for (Trait t : actor.traits.personality()) {
-      final float
-        levelA = actor.traits.relativeLevel(t),
-        levelO = actor.traits.relativeLevel(t),
-        rating = (2f - Nums.abs(levelA - levelO)) * Rand.num();
-      if (rating > bestRating) { bestRating = rating; comp = t; }
-    }
-    if (comp == null) {
-      utters(actor, "Uh... I don't know.", 0);
-      return;
-    }
-    final float
-      levelA = actor.traits.relativeLevel(comp),
-      levelO = other.traits.relativeLevel(comp),
-      similarity = (1 - Nums.abs(levelA - levelO));
-    final String desc = actor.traits.description(comp);
-    
-    final float effect = similarity * Dialogue.RELATION_BOOST;
-    DialogueUtils.reinforceRelations(actor, other, effect, -1, true);
-    
-    utters(actor, "It's important to be "+desc+".", 0);
-    if (similarity > 0.5f) utters(other, "Absolutely.", effect);
-    else if (similarity < -0.5f) utters(other, "No way!", effect);
-    else utters(other, "Yeah, I guess...", effect);
-  }
-  
-  
-  private static void gossip(Actor actor, Actor other) {
-    //
-    //  Pick an acquaintance, see if it's mutual, and if so compare attitudes
-    //  on the subject.  TODO:  Include memories of recent activities?
-    Relation pick = null;
-    float bestRating = 0;
-    for (Relation r : actor.relations.relations()) {
-      if (r.subject == other || ! (r.subject instanceof Actor)) continue;
-      final float
-        otherR = other.relations.valueFor(r.subject),
-        rating = (Nums.abs(otherR * r.value()) + 0.5f) * Rand.num();
-      if (rating > bestRating) { pick = r; bestRating = rating; }
-    }
-    
-    if (pick == null) {
-      smalltalk(actor, other);
-      return;
-    }
-    final Actor about = (Actor) pick.subject;
+  protected static void discussPerson(Actor actor, Actor other, Actor about) {
     final float
       attA = actor.relations.valueFor(about),
       attO = other.relations.valueFor(about);
     
     final boolean agrees = Nums.abs(attA - attO) < 0.5f;
-    final float effect = 0.2f * (agrees ? 1 : -1) * Dialogue.RELATION_BOOST;
-    reinforceRelations(actor, other, effect / 2, -1, true);
-    reinforceRelations(other, about, effect * pick.value(), 0, false);
+    final float effect = 0.2f * (agrees ? 1 : -1) * CHAT_RELATION_BOOST;
     
-    utters(other, "What do you think of "+about+"?", 0);
-    if (attA > 0.33f) {
-      utters(actor, "We get along pretty well!", effect);
-    }
-    else if (attA < 0.33f) {
-      utters(actor, "We don't get along.", effect);
-    }
-    else {
-      utters(actor, "We get along okay...", effect);
-    }
-    if (agrees) utters(other, "Same here.", effect);
-    else utters(other, "Really?", effect);
+    reinforceRelations(actor, other, effect / 2   , -1, true);
+    reinforceRelations(other, about, effect * attO,  0, false);
   }
   
   
-  private static void advise(Actor actor, Actor other) {
-    utters(other, "So, what do you do?", 0);
+  protected static void discussSkills(Actor actor, Actor other, Skill about) {
+    final float level = actor.traits.usedLevel(about);
+    //  TODO:  Use the Counsel skill here.
     
-    Skill tested = null;
-    float bestRating = 0;
+    float effect = 0;
+    if (other.skills.test(about, level / 2, 0.5f)) effect += 5;
+    else effect -= 5;
+    if (other.skills.test(about, level * Rand.num(), 0.5f)) effect += 5;
+    else effect -= 5;
+    
+    effect *= CHAT_RELATION_BOOST / 25f;
+    reinforceRelations(actor, other, effect, -1, true);
+  }
+  
+  
+  protected static void discussPlan(Actor actor, Actor other, Plan about) {
+    final Plan copy = about.copyFor(other);
+    if (copy == null || other.mind.mustIgnore(copy)) return;
+    
+    final float urge = DialogueUtils.talkResult(
+      SUASION, ROUTINE_DC, actor, other
+    ) * Plan.CASUAL;
+    copy.setMotive(Plan.MOTIVE_LEISURE, urge + copy.motiveBonus());
+    
+    actor.mind.assignBehaviour(new Joining(actor, about, other));
+    other.mind.assignBehaviour(new Joining(other, copy , actor));
+  }
+  
+  
+  protected static void discussEvent(Actor actor, Actor other, Memory about) {
+    
+  }
+  
+  
+  
+  protected static Session.Saveable pickChatTopic(
+    Dialogue starts, Actor other
+  ) {
+    final Actor actor = starts.actor();
+    final Pick <Session.Saveable> pick = new Pick <Session.Saveable> ();
+    
+    if (actor instanceof Human) {
+      //  TODO:  Make these especially compelling during introductions?
+      final Career c = ((Human) actor).career();
+      pick.compare(c.birth()    , Rand.num());
+      pick.compare(c.homeworld(), Rand.num());
+      pick.compare(c.vocation() , Rand.num());
+    }
+    
+    for (Relation r : actor.relations.relations()) {
+      if (r.subject == other || r.subject == actor) continue;
+      if (! (r.subject instanceof Actor)) continue;
+      final float
+        otherR = other.relations.valueFor(r.subject),
+        rating = (Nums.abs(otherR * r.value()) + 0.5f) * Rand.num();
+      pick.compare((Actor) r.subject, rating);
+    }
+    
     for (Skill s : other.traits.skillSet()) {
       final float
         levelA = actor.traits.usedLevel(s),
         levelO = other.traits.usedLevel(s),
-        rating = levelA * levelO * Rand.num();
+        rating = Nums.min(levelA, levelO) * Rand.num() / 10f;
       if (levelA < 0 || levelO < 0) continue;
-      if (rating > bestRating) { tested = s; bestRating = rating; }
+      pick.compare(s, rating);
     }
     
-    if (tested == null) {
-      utters(actor, "Oh, nothing you'd find interesting.", 0);
-      return;
+    for (Behaviour b : actor.mind.todoList()) if (b instanceof Plan) {
+      final Plan about = (Plan) b;
+      final float rating = about.priorityFor(actor) * Rand.num() / 5;
+      pick.compare(about, rating);
     }
-    final float level = actor.traits.usedLevel(tested);
-    utters(actor, "Well, I'm interested in "+tested+".", 0);
-    utters(actor, "Let me show you a few tricks...", 0);
+    //  ...There has to be other stuff that an actor could suggest, such as at
+    //  the close of conversation?  Try for that.
     
-    //  TODO:  Use the Counsel skill here.
-    float effect = 0;
-    if (other.skills.test(tested, level / 2, 0.5f)) effect += 5;
-    else effect -= 5;
-    if (other.skills.test(tested, level * Rand.num(), 0.5f)) effect += 5;
-    else effect -= 5;
-    effect *= Dialogue.RELATION_BOOST / 25f;
-    reinforceRelations(actor, other, effect, -1, true);
     
-    if (effect > 0) {
-      utters(other, "You mean like this?", effect);
-      utters(actor, "Yes, exactly!", effect);
-    }
-    if (effect == 0) {
-      utters(other, "You mean like this?", effect);
-      utters(actor, "Close. Try again.", effect);
-    }
-    if (effect < 0) {
-      utters(other, "You mean like this?", effect);
-      utters(actor, "No, that's not it.", effect);
-    }
+    return pick.result();
   }
   
   
-  
-  //
-  //  TODO:  It might be an idea to try restricting this purely to:
-  //  (A) Introductions (for first-time meetings)
-  //  (B) Anecdotes (complaints/praise about recent good/bad events)
-  //  (C) Proposals (pledging/gifts/invitations, used for Contact missions)
-  //  (D) Objections (used for arrests/scoldings)
-  
-  //  Put advice/study/instruction under a separate plan type, or just use a
-  //  more generic descriptor- it doesn't have to be precise dialogue.  (e.g,
-  //  "Discussing music" works fine as a topic header.)
+  //  TODO:  Present these options as an array for dialogue by the sovereign-
+  //         then they can pick and choose which to use.
   
   
-  private Batch <Object> associations(Object o) {
-    return null;
-  }
+  //  Memory- "<X> happened.  it was great/terrible!"
+  
+  //  TODO:  I'll need to have the memory system in place first, in order to
+  //  present a more logical system.  (And you might consider reserving this
+  //  *just* for conversations with the sovereign.)
   
   
-  /**  Rendering and interface utility methods-
-    */
-  //  TODO:  These seem to be updating too frequently on one side?  Also,
-  //  shouldn't the other side not be updating at all?
   
-  public static void utters(Actor a, String s, float effect) {
-    final Dialogue d = (Dialogue) a.matchFor(Dialogue.class, true);
-    if (d != null && d.starts == d) d.setUttered(s);
-  }
+  //  Skill- "are you interested in <X>?"
+  
+  //  Base this off the activity (if it was good.)
+  
+  
+  
+  //  Person- "do you know <X>?  what are they like?"
+  
+  //  Base this off the person responsible for the memory.
+  
+  
+  
+  //  Plan- "would you like to do <X>?"
+  
+  //  ...Reserve this for the end of the conversation, and only if relations
+  //  are pretty good and novelty is high.
 }
+
 
 
 

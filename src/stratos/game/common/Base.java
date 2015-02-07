@@ -262,7 +262,7 @@ public class Base implements
     Stage world, Rendering rendering, Base player
   ) {
     for (Mission mission : layoutMissions(world, rendering.view, player)) {
-      mission.flagSprite().readyFor(rendering);
+      mission.renderFlag(rendering);
     }
   }
   
@@ -272,11 +272,12 @@ public class Base implements
   ) {
     final Pick <Mission> pick = new Pick <Mission> ();
     final Vec3D centre = new Vec3D();
+    final float scale = Mission.FLAG_SCALE;
     
     for (Mission mission : layoutMissions(world, view, player)) {
       centre.setTo(mission.flagSprite().position);
-      centre.z += 0.5f;
-      if (! view.mouseIntersects(centre, 0.5f, UI)) continue;
+      centre.z += 1 * scale;
+      if (! view.mouseIntersects(centre, scale, UI)) continue;
       final float dist = view.translateToScreen(centre).z;
       pick.compare(mission, 0 - dist);
     }
@@ -315,6 +316,7 @@ public class Base implements
     Series <Mission> missions, Target above, Viewport view
   ) {
     final Vec3D horiz = view.screenHorizontal(), adds = new Vec3D();
+    final float scale = Mission.FLAG_SCALE * 1.5f;
     
     float offset = (missions.size() - 1) / 2f, index = 0;
     for (Mission m : missions) {
@@ -325,8 +327,8 @@ public class Base implements
       else {
         above.position(s.position);
       }
-      s.position.z += above.height() + 0.5f;
-      adds.setTo(horiz).normalise().scale(index - offset);
+      s.position.z += above.height() + (Mission.FLAG_SCALE / 3);
+      adds.setTo(horiz).normalise().scale((index - offset) * scale);
       s.position.add(adds);
       index++;
     }

@@ -598,10 +598,38 @@ public abstract class Mission implements Session.Saveable, Selectable {
       "flag_contact.gif" ,
       "flag_security.gif"
     ),
+    ALL_NEGATIVES[] = CutoutModel.fromImages(
+      Mission.class, IMG_DIR, 1, 2, false,
+      "flag_strike_negative.gif"  ,
+      "flag_recon_negative.gif"   ,
+      "flag_contact_negative.gif" ,
+      "flag_security_negative.gif"
+    ),
     STRIKE_MODEL   = ALL_MODELS[0],
     RECON_MODEL    = ALL_MODELS[1],
     CONTACT_MODEL  = ALL_MODELS[2],
-    SECURITY_MODEL = ALL_MODELS[3];
+    SECURITY_MODEL = ALL_MODELS[3],
+    
+    FLAG_HIGHLIGHT = CutoutModel.fromImage(
+      Mission.class, IMG_DIR+"flag_highlight.png", 1, 2
+    );
+  final public static float
+    FLAG_SCALE = 0.25f;
+  
+  
+  private CutoutModel positiveModel() {
+    final int index = Visit.indexOf(flagSprite.model(), ALL_NEGATIVES);
+    if (index == -1) return (CutoutModel) flagSprite.model();
+    else return ALL_MODELS[index];
+  }
+  
+  
+  private CutoutModel negativeModel() {
+    final int index = Visit.indexOf(flagSprite.model(), ALL_MODELS);
+    if (index == -1) return (CutoutModel) flagSprite.model();
+    else return ALL_NEGATIVES[index];
+  }
+  
   
   public String fullName() { return description; }
   public String toString() { return description; }
@@ -612,7 +640,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
     final Composite cached = Composite.fromCache(key);
     if (cached != null) return cached;
     
-    final CutoutModel flagModel = (CutoutModel) flagSprite.model();
+    final CutoutModel flagModel = positiveModel();
     int flagIndex = Visit.indexOf(flagModel, ALL_MODELS);
     final ImageAsset icon = ALL_ICONS[flagIndex];
     
@@ -624,7 +652,6 @@ public abstract class Mission implements Session.Saveable, Selectable {
       final Selectable s = (Selectable) subject;
       c.layerInBounds(s.portrait(UI), 0.1f, 0.1f, 0.4f, 0.4f);
     }
-    
     return c;
   }
   
@@ -656,17 +683,36 @@ public abstract class Mission implements Session.Saveable, Selectable {
   }
   
   
+  //  TODO:  Pass a renderFlagAt() method instead...
+  
   public Sprite flagSprite() {
-    flagSprite.scale = 0.5f;
-
-    float alpha;
-    if (BaseUI.isSelectedOrHovered(this)) alpha = 0.5f;
-    else alpha = 0.5f;
-    
-    flagSprite.colour = new Colour(base.colour());
-    flagSprite.colour.blend(Colour.WHITE, alpha);
-    flagSprite.colour.calcFloatBits();
     return flagSprite;
+  }
+  
+  
+  public void renderFlag(Rendering rendering) {
+    flagSprite.scale = FLAG_SCALE;
+    float glow = BaseUI.isHovered(this) ? 0.5f : 0;
+    
+    if (BaseUI.currentPlayed() != base) {
+      flagSprite.setModel(negativeModel());
+      flagSprite.colour = new Colour(base.colour());
+      flagSprite.colour.blend(Colour.WHITE, 0.5f);
+      flagSprite.colour.calcFloatBits();
+    }
+    else {
+      flagSprite.setModel(positiveModel());
+      flagSprite.colour = new Colour(Colour.WHITE);
+    }
+    
+    flagSprite.readyFor(rendering);
+    
+    if (glow > 0) {
+      CutoutSprite glowSprite = (CutoutSprite) FLAG_HIGHLIGHT.makeSprite();
+      glowSprite.matchTo(flagSprite);
+      glowSprite.colour = Colour.transparency(glow);
+      glowSprite.readyFor(rendering);
+    }
   }
   
   

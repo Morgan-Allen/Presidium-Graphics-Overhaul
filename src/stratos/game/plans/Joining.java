@@ -81,38 +81,10 @@ public class Joining extends Plan {
     d.append(" with ");
     d.append(joined);
   }
-  
-  
-  
-  
-  
-  
-  
-  public static boolean checkInvitation(
-    Actor actor, Actor asked, Dialogue origin, Behaviour invitation
-  ) {
-    if (! (invitation instanceof Plan)) return false;
-    if (actor.mind.hasToDo(Joining.class)) return false;
-    
-    final boolean report = false;
-    
-    final Plan basis = (Plan) invitation;
-    if (basis.hasMotiveType(Plan.MOTIVE_JOB)) return false;
-    
-    final Plan copy = basis.copyFor(asked);
-    if (copy == null) return false;
-    
-    final float motiveBonus = DialogueUtils.talkResult(
-      SUASION, ROUTINE_DC, actor, asked
-    ) * CASUAL;
-    basis.setMotiveFrom(origin, 0);
-    copy.setMotive(Plan.MOTIVE_LEISURE, motiveBonus);
-    
-    final Behaviour intended = asked.mind.nextBehaviour();
-    if (Choice.wouldSwitch(asked, copy, intended, true, report)) return false;
-    return true;
-  }
 }
+
+
+
 
 
 

@@ -48,7 +48,6 @@ public class ContactMission extends Mission {
   //*/
   
   private static boolean 
-    //evalVerbose  = false,
     stepsVerbose = true ;
   
   
@@ -176,7 +175,7 @@ public class ContactMission extends Mission {
     }
     
     if (allDone) {
-      applyContactEffects(report);
+      //applyContactEffects(report);
       doneContact = true;
     }
   }
@@ -192,6 +191,8 @@ public class ContactMission extends Mission {
     if (isSummons) {
       return cacheStepFor(actor, Summons.officialSummons(actor));
     }
+    
+    /*
     //
     //  Otherwise, things get a little more complex...
     final Choice choice = new Choice(actor);
@@ -222,8 +223,9 @@ public class ContactMission extends Mission {
       closeTalks.setPriority(Plan.ROUTINE * (2 + relation) / 2f);
       choice.add(closeTalks);
     }
+    //*/
     
-    return cacheStepFor(actor, choice.pickMostUrgent());
+    return null;// cacheStepFor(actor, choice.pickMostUrgent());
   }
   
   
@@ -232,6 +234,7 @@ public class ContactMission extends Mission {
   }
   
   
+  /*
   public boolean actionCloseTalks(Actor actor, Actor other) {
     final boolean report = stepsVerbose && I.talkAbout == actor;
     
@@ -302,6 +305,7 @@ public class ContactMission extends Mission {
       }
     }
   }
+  //*/
   
   
   

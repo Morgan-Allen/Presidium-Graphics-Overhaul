@@ -149,7 +149,6 @@ public class Pledge implements Session.Saveable {
   //    Release captive- anyone imprisoned they care for.
   
   //  You'll need a new UI for this.
-  
   /*
   public static enum Type {
     
@@ -161,7 +160,12 @@ public class Pledge implements Session.Saveable {
     GOOD_WILL,
     JOIN_MISSION,
     SWEAR_FEALTY,
-    RELEASE_CAPTIVE
+    RELEASE_CAPTIVE,
+    
+    GRANT_AUDIENCE,
+    SUPPORT_RESEARCH
+    HAND_IN_MARRIAGE
+    BECOME_SPY
   }
   //*/
   
@@ -243,6 +247,12 @@ public class Pledge implements Session.Saveable {
       return (Delivery) p.refers;
     }
   };
+  
+  
+  public static Pledge giftPledge(Item item, Actor from, Actor to) {
+    final Delivery d = new Delivery(item, from, to);
+    return new Pledge(TYPE_GIFT_ITEM, d, from);
+  }
   
   
   
