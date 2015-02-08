@@ -64,7 +64,7 @@ public abstract class Venue extends Structural implements
     super(s);
     
     profile = (VenueProfile) s.loadObject();
-    staff.loadState(s);
+    staff .loadState(s);
     stocks.loadState(s);
     
     entrance = (Tile) s.loadTarget();
@@ -78,7 +78,7 @@ public abstract class Venue extends Structural implements
     super.saveState(s);
     
     s.saveObject(profile);
-    staff.saveState(s);
+    staff .saveState(s);
     stocks.saveState(s);
     
     s.saveTarget(entrance);
@@ -387,7 +387,7 @@ public abstract class Venue extends Structural implements
   /**  Interface methods-
     */
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
-    return VenueDescription.configStandardPanel(this, panel, UI, false);
+    return VenuePane.configStandardPanel(this, panel, UI, false);
   }
   
   

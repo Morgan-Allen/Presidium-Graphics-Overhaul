@@ -117,6 +117,11 @@ public class Pledge implements Session.Saveable {
   }
   
   
+  public String toString() {
+    return description();
+  }
+  
+  
   
   //  The value of a given pledge to a given actor.
   //    Cash- base on greed.
@@ -195,9 +200,6 @@ public class Pledge implements Session.Saveable {
     
     
     Behaviour fulfillment(Pledge p) {
-      //  TODO:  Should it be the actor making the pledge, or an actor you
-      //  refer to?  Who is paying, exactly?
-      
       if (p.makes == p.makes.base().ruler()) {
         final String source = BaseFinance.SOURCE_REWARDS;
         p.makes.base().finance.incCredits(0 - p.amount, source);
@@ -211,6 +213,11 @@ public class Pledge implements Session.Saveable {
       return null;
     }
   };
+  
+  public static Pledge paymentPledge(float amount, Actor from, Actor to) {
+    return new Pledge(TYPE_PAYMENT, amount, to, from);
+  }
+  
   
   
   final public static Type TYPE_GIFT_ITEM = new Type("Gift Item") {
@@ -248,7 +255,6 @@ public class Pledge implements Session.Saveable {
     }
   };
   
-  
   public static Pledge giftPledge(Item item, Actor from, Actor to) {
     final Delivery d = new Delivery(item, from, to);
     return new Pledge(TYPE_GIFT_ITEM, d, from);
@@ -277,6 +283,11 @@ public class Pledge implements Session.Saveable {
       return null;
     }
   };
+  
+  public static Pledge goodWillPledge(Actor from, Actor to) {
+    return new Pledge(TYPE_GOOD_WILL, from, to);
+  }
+  
   
   
   final public static Type TYPE_JOIN_MISSION = new Type("Join Mission") {
@@ -311,6 +322,13 @@ public class Pledge implements Session.Saveable {
     }
   };
   
+  public static Pledge missionPledge(Mission m, Actor from) {
+    return new Pledge(TYPE_JOIN_MISSION, m, from);
+  }
+  
+  
+  
+  //  TODO:  Summons Pledge!  And Promotion Pledge!
   
   
   

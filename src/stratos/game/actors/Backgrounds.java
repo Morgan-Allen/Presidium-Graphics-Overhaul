@@ -80,29 +80,29 @@ public interface Backgrounds {
     //  Natives can only be recruited locally, not from offworld.
     BORN_NATIVE = new Background(
       Backgrounds.class,
-      "Born Native", "", "native_skin.gif", null, NOT_A_CLASS, NOT_A_GUILD,
+      "Native Birth", "", "native_skin.gif", null, NOT_A_CLASS, NOT_A_GUILD,
       LEARNING, NATIVE_TABOO, NOVICE, HANDICRAFTS, MARKSMANSHIP, XENOZOOLOGY
     ),
     //
     //  The following are available to most actors as part of their careers-
     BORN_DREGS = new Background(
       Backgrounds.class,
-      "Born Dreg", "", "artificer_skin.gif", null, CLASS_SLAVE, NOT_A_GUILD,
+      "Dreg Birth", "", "artificer_skin.gif", null, CLASS_SLAVE, NOT_A_GUILD,
       LEARNING, COMMON_CUSTOM, NOVICE, NATIVE_TABOO, HAND_TO_HAND, CHEMISTRY
     ),
     BORN_PYON = new Background(
       Backgrounds.class,
-      "Born Pyon", "", "pyon_skin.gif", null, CLASS_VASSAL, NOT_A_GUILD,
+      "Pyon Birth", "", "pyon_skin.gif", null, CLASS_VASSAL, NOT_A_GUILD,
       LEARNING, COMMON_CUSTOM, NOVICE, HARD_LABOUR, DOMESTICS, ASSEMBLY
     ),
     BORN_FREE = new Background(
       Backgrounds.class,
-      "Born Free", "", "citizen_skin.gif", null, CLASS_AGENT, NOT_A_GUILD,
+      "Free Birth", "", "citizen_skin.gif", null, CLASS_AGENT, NOT_A_GUILD,
       LEARNING, COMMON_CUSTOM, NOVICE, SUASION, MARKSMANSHIP, PILOTING
     ),
     BORN_GELDER = new Background(
       Backgrounds.class,
-      "Born Gelder", "", "vendor_skin.gif", null, CLASS_AGENT, NOT_A_GUILD,
+      "Gelder Birth", "", "vendor_skin.gif", null, CLASS_AGENT, NOT_A_GUILD,
       LEARNING, COMMON_CUSTOM, NOVICE, NOBLE_ETIQUETTE, ACCOUNTING, COUNSEL
     ),
     //
@@ -110,13 +110,13 @@ public interface Backgrounds {
     //  visiting NPCs or members of your household.
     BORN_LANDER = new Background(
       Backgrounds.class,
-      "Born Lander", "", "highborn_male_skin.gif", null, CLASS_STRATOI,
+      "Lander Birth", "", "highborn_male_skin.gif", null, CLASS_STRATOI,
       LEARNING, NOBLE_ETIQUETTE,
       NOVICE, COMMON_CUSTOM, HAND_TO_HAND, ACCOUNTING
     ),
     BORN_HIGH = new Background(
       Backgrounds.class,
-      "Born High", "", "highborn_male_skin.gif", null, CLASS_STRATOI,
+      "High Birth", "", "highborn_male_skin.gif", null, CLASS_STRATOI,
       LEARNING, NOBLE_ETIQUETTE, NOVICE, COMMAND, HAND_TO_HAND, ANCIENT_LORE
     ),
     

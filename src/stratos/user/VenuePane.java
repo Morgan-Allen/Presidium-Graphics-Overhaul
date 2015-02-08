@@ -1,16 +1,15 @@
 
 
-package stratos.game.economic;
+package stratos.user;
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.economic.Inventory.Owner;
+import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
-import stratos.user.*;
 import stratos.util.*;
-import static stratos.game.economic.Venue.*;
+import stratos.game.economic.Inventory.Owner;
 import static stratos.game.economic.Economy.*;
 
 
@@ -18,7 +17,9 @@ import static stratos.game.economic.Economy.*;
 //  NOTE:  I'm moving these methods here essentially for the sake of reducing
 //  clutter/space demands within the main Venue class.
 
-public class VenueDescription {
+//  TODO:  At this point, you might as well write some custom widgets.
+
+public class VenuePane extends SelectionInfoPane {
   
   
   final public static String
@@ -27,13 +28,12 @@ public class VenueDescription {
     CAT_STAFFING = "STAFFING",
     CAT_VISITORS = "VISITORS";
   
-  final String categories[];
   final Venue v;  //  TODO:  Apply to Properties, like, e.g, vehicles?
-  private Upgrade lastCU = null;  //last clicked upgrade.
+  private Upgrade lastCU = null;
  
   
-  protected VenueDescription(Venue v, String... categories) {
-    this.categories = categories;
+  protected VenuePane(BaseUI UI, Venue v, String... categories) {
+    super(UI, v, v.portrait(UI), true, categories);
     this.v = v;
   }
   
@@ -44,10 +44,9 @@ public class VenueDescription {
     final String categories[] = {
       CAT_UPGRADES, CAT_STOCK, CAT_STAFFING, CAT_VISITORS
     };
-    final VenueDescription VD = new VenueDescription(venue, categories);
-    if (panel == null) panel = new SelectionInfoPane(
-      UI, venue, venue.portrait(UI), true, categories
-    );
+    if (panel == null) panel = new VenuePane(UI, venue, categories);
+    final VenuePane VD = (VenuePane) panel;
+    
     final String category = panel.category();
     final Description d = panel.detail(), l = panel.listing();
     
@@ -67,13 +66,13 @@ public class VenueDescription {
     Venue venue, SelectionInfoPane panel,
     BaseUI UI, String statusMessage
   ) {
-    if (panel == null) panel = new SelectionInfoPane(
-      UI, venue, venue.portrait(UI), true, CAT_STOCK, CAT_STAFFING
+    if (panel == null) panel = new VenuePane(
+      UI, venue, CAT_STOCK, CAT_STAFFING
     );
+    final VenuePane VD = (VenuePane) panel;
     
     final String category = panel.category();
     final Description d = panel.detail(), l = panel.listing();
-    final VenueDescription VD = new VenueDescription(venue);
     
     VD.describeCondition(d, UI);
     
@@ -84,14 +83,9 @@ public class VenueDescription {
     
     if (category == CAT_STOCK   ) VD.describeStocks  (l, UI);
     if (category == CAT_STAFFING) VD.describeStaffing(l, UI);
-    //if (category == CAT_VISITORS) VD.describeVisitors(l, UI);
     return panel;
   }
 
-  
-  
-  //  TODO:  At this point, you might as well write some custom widgets.
-  //final static int MIN_TRADE = 5, MAX_TRADE = 20;
   
   
   private void describeStockOrders(Description d, BaseUI UI) {
@@ -278,14 +272,14 @@ public class VenueDescription {
     if (c != null && c.length > 0) {
       for (Background b : c) {
         final int
-          hired = v.staff.numHired(b),
-          total = v.numOpenings(b);
+          hired = v.staff.numHired   (b),
+          total = v.staff.numOpenings(b);
         if (total == 0 && hired == 0) continue;
         
         ((Text) d).cancelBullet();
         d.append(b.name+": ("+hired+"/"+total+")");
         
-        for (final FindWork a : v.staff.applications) {
+        for (final FindWork a : v.staff.applications()) {
           if (a.employer() != v || a.position() != b) continue;
           final Actor p = a.actor();
           ((Text) d).insert(p.portrait(UI).texture(), 40, true);
@@ -364,8 +358,6 @@ public class VenueDescription {
   
   
   private void describeUpgrades(Description d, BaseUI UI) {
-    //final Base played = BaseUI.current().played();
-    
     if (! v.structure().intact()) {
       d.append("Upgrades unavailable while under construction.");
       return;
@@ -384,7 +376,6 @@ public class VenueDescription {
     final Colour grey = Colour.LITE_GREY;
     
     if (lastCU != null) {
-      if (! Visit.arrayIncludes(UA, lastCU)) lastCU = UA[0];
       d.append("\n");
       d.append(lastCU.description, Colour.LITE_GREY);
       for (Upgrade u : lastCU.required) {

@@ -694,7 +694,7 @@ public class Structure {
   
   /**  Rendering and interface-
     */
-  protected String upgradeError(Upgrade upgrade) {
+  public String upgradeError(Upgrade upgrade) {
     if (! hasRequired(upgrade)) {
       return "Lacks prerequisites";
     }
@@ -710,7 +710,7 @@ public class Structure {
   }
   
   
-  protected Batch <String> descOngoingUpgrades() {
+  public Batch <String> descOngoingUpgrades() {
     final Batch <String> desc = new Batch <String> ();
     if (upgrades == null) return desc;
     for (int i = 0; i < upgrades.length; i++) {
@@ -722,7 +722,7 @@ public class Structure {
   }
   
   
-  protected String currentUpgradeDesc() {
+  public String currentUpgradeDesc() {
     if (upgradeIndex == -1) return null;
     final Upgrade u = upgrades[upgradeIndex];
     return "Installing "+u.name+" ("+(int) (upgradeProgress * 100)+"%)";

@@ -212,7 +212,7 @@ public class Arcology extends Venue {
   
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
     final String status = "Plant health: "+I.shorten(plantsHealth, 1);
-    return VenueDescription.configSimplePanel(this, panel, UI, status);
+    return VenuePane.configSimplePanel(this, panel, UI, status);
   }
   
   

@@ -347,7 +347,7 @@ public class Nursery extends Venue implements TileConstants {
   
   
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
-    return VenueDescription.configSimplePanel(this, panel, UI, null);
+    return VenuePane.configSimplePanel(this, panel, UI, null);
   }
   
   

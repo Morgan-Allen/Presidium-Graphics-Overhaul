@@ -38,7 +38,7 @@ public class Dialogue extends Plan implements Qualities {
   }
   
   final public static int
-    TYPE_CONTACT = 0,
+    TYPE_CONTACT = 0,  //  TODO:  Use TYPE_INTRO
     TYPE_CASUAL  = 1,
     TYPE_PLEA    = 2;
   
@@ -48,23 +48,19 @@ public class Dialogue extends Plan implements Qualities {
   
   final static int
     STAGE_INIT   = -1,
-    STAGE_PLEAD  =  0,
-    STAGE_INTRO  =  1,
-    STAGE_GREET  =  2,
-    STAGE_OFFER  =  3,
-    STAGE_CHAT   =  4,
-    STAGE_INVITE =  5,
-    STAGE_BYE    =  6,
-    STAGE_DONE   =  7;
+    STAGE_GREET  =  0,
+    STAGE_CHAT   =  1,
+    STAGE_BYE    =  2,
+    STAGE_DONE   =  3;
   
   
   final Actor other;
   final int type;
   final Dialogue starts;
   
-  final private int depth;  //  (Safety measure against infinite-recursion.)
   private int stage = STAGE_INIT;
-  protected Session.Saveable topic;
+  private Session.Saveable topic;
+  private float talkCounter;
   
   
   
@@ -82,7 +78,6 @@ public class Dialogue extends Plan implements Qualities {
     super(actor, other, MOTIVE_LEISURE, MILD_HELP);
     this.other  = other;
     this.starts = starts == null ? this : starts;
-    this.depth  = starts == null ? 0 : (1 + starts.depth);
     this.type   = type;
     if (type == TYPE_PLEA) setMotive(MOTIVE_EMERGENCY, 0);
   }
@@ -90,23 +85,23 @@ public class Dialogue extends Plan implements Qualities {
   
   public Dialogue(Session s) throws Exception {
     super(s);
-    other  = (Actor) s.loadObject();
-    starts = (Dialogue) s.loadObject();
-    depth  = s.loadInt();
-    type   = s.loadInt();
-    stage  = s.loadInt();
-    topic  = s.loadObject();
+    other       = (Actor) s.loadObject();
+    starts      = (Dialogue) s.loadObject();
+    type        = s.loadInt();
+    stage       = s.loadInt();
+    topic       = s.loadObject();
+    talkCounter = s.loadFloat();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(other );
-    s.saveObject(starts);
-    s.saveInt   (depth );
-    s.saveInt   (type  );
-    s.saveInt   (stage );
-    s.saveObject(topic );
+    s.saveObject(other      );
+    s.saveObject(starts     );
+    s.saveInt   (type       );
+    s.saveInt   (stage      );
+    s.saveObject(topic      );
+    s.saveFloat (talkCounter);
   }
   
   
@@ -115,16 +110,17 @@ public class Dialogue extends Plan implements Qualities {
   }
   
   
+  public Session.Saveable topic() {
+    return topic;
+  }
+  
+  
   
   /**  Utility methods for assessing possibility-
     */
   private boolean canTalk(Actor other) {
     final boolean report = shouldReportEval();
-    if (depth > 3) {
-      I.say("\nWARNING: DIALOGUE COULD ENTER INFINITE LOOP:"+this);
-      I.reportStackTrace();
-      return false;
-    }
+    
     if (starts == null || starts.actor() == null) {
       I.complain("No conversation starter!");
       return false;
@@ -209,11 +205,9 @@ public class Dialogue extends Plan implements Qualities {
     }
     
     final float
-      //maxRange    = actor.health.sightRange() * 2,
       solitude    = actor.motives.solitude(),
       curiosity   = (1 + actor.traits.relativeLevel(CURIOUS)) / 2f,
-      novelty     = actor.relations.noveltyFor(other),
-      talkThresh  = hasBegun() ? 0 : (1 - solitude) / 2;
+      novelty     = actor.relations.noveltyFor(other);
     final boolean
       freshFace   = ! actor.relations.hasRelation(other);
     
@@ -225,29 +219,18 @@ public class Dialogue extends Plan implements Qualities {
       I.say("  Curiosity:    "+curiosity  );
       I.say("  Novelty:      "+novelty    );
       I.say("  Base novelty: "+actor.relations.noveltyFor(other.base()));
-      I.say("  Threshold:    "+talkThresh );
       I.say("  Stage/begun:  "+stage+"/"+hasBegun());
     }
     
-    //  Strangers from entirely different bases might have novelty greater than
-    //  1, which makes them worth investigating.  Otherwise, solitude is the
-    //  dominant variable:
-    float bonus = solitude + Nums.clamp(curiosity * novelty, 0, 1);
-    if (freshFace) bonus *= solitude;
-    if (novelty >= 1) bonus += (novelty - 1) * curiosity * 2;
-    if (type == TYPE_CONTACT) bonus += 0.5f;
-    //else if (Spacing.distance(actor, other) > maxRange) return -1;
+    //
+    //  I'm simplifying this for now, prior to a more general cleanup of plan-
+    //  priorities.  TODO:  Revisit...
+    float bonus = Nums.clamp(curiosity * novelty, 0, 1);
+    if (freshFace) bonus += solitude;
     
-    if (report) {
-      I.say("  Final bonus:  "+bonus      );
-    }
-    if (bonus <= talkThresh || novelty <= talkThresh) {
-      if (report) I.say("\n  Nothing to talk about- skipping!");
-      return -1;
-    }
     final float priority = priorityForActorWith(
       actor, other,
-      IDLE, bonus * CASUAL,
+      (bonus + 1) * IDLE / 2, bonus * IDLE,
       MILD_HELP, NO_COMPETITION, NO_FAIL_RISK,
       BASE_SKILLS, BASE_TRAITS, HEAVY_DISTANCE_CHECK,
       report
@@ -271,8 +254,12 @@ public class Dialogue extends Plan implements Qualities {
       if (report) I.say("  DIALOGUE COMPLETE");
       return null;
     }
+    if (stage == STAGE_INIT) {
+      talkCounter = BORED_DURATION * (Rand.num() - 0.5f);
+      stage = STAGE_GREET;
+    }
     
-    if (stage == STAGE_INIT || stage == STAGE_GREET) {
+    if (stage == STAGE_GREET) {
       if (report) I.say("  Greeting "+other);
       
       final Action greeting = new Action(
@@ -346,9 +333,14 @@ public class Dialogue extends Plan implements Qualities {
   
   
   public boolean actionChats(Actor actor, Actor other) {
-    topic = (this == starts) ? selectTopic() : starts.topic;
-    discussTopic(topic);
-    if (! canTalk(other)) stage = STAGE_BYE;
+    if (this == starts) talkCounter++;
+    else talkCounter = starts.talkCounter;
+    final boolean close = talkCounter >= BORED_DURATION;
+    
+    topic = (this == starts) ? selectTopic(close) : starts.topic;
+    discussTopic(topic, close);
+    
+    if (close || ! canTalk(other)) stage = STAGE_BYE;
     return true;
   }
   
@@ -358,16 +350,14 @@ public class Dialogue extends Plan implements Qualities {
     return true;
   }
   
-
   
-  protected Session.Saveable selectTopic() {
+  protected Session.Saveable selectTopic(boolean close) {
     //  TODO:  If this is a fresh acquaintance, consider general introductions.
-    
     return DialogueUtils.pickChatTopic(this, other);
   }
   
   
-  protected void discussTopic(Session.Saveable topic) {
+  protected void discussTopic(Session.Saveable topic, boolean close) {
     DialogueUtils.tryChat(other, other);
     
     if (topic instanceof Actor ) {

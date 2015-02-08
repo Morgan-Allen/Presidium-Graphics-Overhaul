@@ -312,7 +312,7 @@ public class SupplyDepot extends Venue {
   
 
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
-    return VenueDescription.configStandardPanel(this, panel, UI, true);
+    return VenuePane.configStandardPanel(this, panel, UI, true);
   }
   
   

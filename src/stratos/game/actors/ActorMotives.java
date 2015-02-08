@@ -16,7 +16,6 @@ import static stratos.game.actors.Qualities.*;
 //  TODO:  Move greed, ambition, and contentment-evaluation over here.
 //  TODO:  Record memories?
 
-
 //  TODO:  This is primarily useful for humans.  So you need to be able to
 //         override this for specific actor-types.
 

@@ -119,6 +119,12 @@ public class Staff {
   }
   
   
+  public int numOpenings(Background b) {
+    if (employs instanceof Venue) return ((Venue) employs).numOpenings(b);
+    return 0;
+  }
+  
+  
   
   /**  Handling shifts and being off-duty:
     */

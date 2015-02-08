@@ -205,7 +205,7 @@ public class SolarBank extends Venue {
   
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
     final String status = null;
-    return VenueDescription.configSimplePanel(this, panel, UI, status);
+    return VenuePane.configSimplePanel(this, panel, UI, status);
   }
   
   
