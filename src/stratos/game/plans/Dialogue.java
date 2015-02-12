@@ -27,7 +27,7 @@ public class Dialogue extends Plan implements Qualities {
   private static boolean
     evalVerbose  = false,
     stepsVerbose = false,
-    onlyBegun    = true ;
+    onlyBegun    = false;
   
   private boolean shouldReportEval() {
     return evalVerbose  && I.talkAbout == actor && (hasBegun() || ! onlyBegun);
@@ -142,6 +142,11 @@ public class Dialogue extends Plan implements Qualities {
       }
     }
     
+    if (! other.health.conscious()) {
+      if (report) I.say("  Other actor is unconscious.");
+      return false;
+    }
+    
     if (chatsWith != null && chatsWith != actor) {
       if (report) I.say("  Other actor busy talking.");
       return false;
@@ -192,10 +197,21 @@ public class Dialogue extends Plan implements Qualities {
   
   protected float getPriority() {
     final boolean report = shouldReportEval();
+    //final boolean report = I.talkAbout == actor && this instanceof Proposal;
+    /*
+    if (I.talkAbout == actor && this instanceof Proposal) {
+      I.say("PROPOSAL BEING EVALUATED");
+      I.reportStackTrace();
+    }
+    //*/
+    
+    if (report) {
+      I.say("\nChecking for dialogue between "+actor+" and "+other);
+      I.say("  Range penalty: "+Plan.rangePenalty(actor.base(), actor, other));
+    }
     
     if (GameSettings.noChat) return -1;
-    if (! other.health.conscious()) return -1;
-    if (! other.health.human    ()) return -1;
+    if (! other.health.human()) return -1;
     if (stage == STAGE_DONE) return -1;
     
     if (stage == STAGE_BYE) return CASUAL;
@@ -212,12 +228,11 @@ public class Dialogue extends Plan implements Qualities {
       freshFace   = ! actor.relations.hasRelation(other);
     
     if (report) {
-      I.say("\nChecking for dialogue between "+actor+" and "+other);
-      I.say("  Type is:      "+type       );
-      I.say("  Stage:        "+stage      );
-      I.say("  Solitude:     "+solitude   );
-      I.say("  Curiosity:    "+curiosity  );
-      I.say("  Novelty:      "+novelty    );
+      I.say("  Type is:      "+type     );
+      I.say("  Stage:        "+stage    );
+      I.say("  Solitude:     "+solitude );
+      I.say("  Curiosity:    "+curiosity);
+      I.say("  Novelty:      "+novelty  );
       I.say("  Base novelty: "+actor.relations.noveltyFor(other.base()));
       I.say("  Stage/begun:  "+stage+"/"+hasBegun());
     }
@@ -228,11 +243,14 @@ public class Dialogue extends Plan implements Qualities {
     float bonus = Nums.clamp(curiosity * novelty, 0, 1);
     if (freshFace) bonus += solitude;
     
+    final float distCheck = type == TYPE_CASUAL ?
+      HEAVY_DISTANCE_CHECK : NORMAL_DISTANCE_CHECK
+    ;
     final float priority = priorityForActorWith(
       actor, other,
       (bonus + 1) * IDLE / 2, bonus * IDLE,
       MILD_HELP, NO_COMPETITION, NO_FAIL_RISK,
-      BASE_SKILLS, BASE_TRAITS, HEAVY_DISTANCE_CHECK,
+      BASE_SKILLS, BASE_TRAITS, distCheck,
       report
     );
     return Nums.clamp(priority, 0, URGENT);

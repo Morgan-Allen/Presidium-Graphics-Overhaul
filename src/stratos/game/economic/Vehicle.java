@@ -469,7 +469,7 @@ public abstract class Vehicle extends Mobile implements
   
   
   public void whenClicked() {
-    BaseUI.current().selection.pushSelection(this, false);
+    BaseUI.current().selection.pushSelection(this);
   }
   
   

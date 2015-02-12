@@ -12,20 +12,65 @@ import stratos.util.*;
 
 
 
+
+
+//  The value of a given pledge to a given actor.
+//    Cash- base on greed.
+//    Gift item- base on value to actor.
+//    Promotion- base on career rating/ambition.
+//    Sense of duty- loyalty/military post.
+//    Good will- ask nothing.
+//    Mission- rating of mission.
+//    Swear fealty- degree of defection (Priority 5, 10, or 15.)
+//    Release captive- affection for subject (0-20.)
+
+//  Following through on your end (sealing the deal.)
+//    Cash- deliver.
+//    Gift item- deliver.
+//    Promotion- deliver.
+//    Sense of duty- nothing.
+//    Good will- nothing.
+//    Mission- deliver.
+//    Swear fealty- deliver.
+//    Release captive- deliver.
+
+//  Find the set of things you can pledge.
+//    Cash- vary amount.
+//    Gift item- anything stored in Bastion.
+//    Promotion- top 3 spots open and fit for.
+//    Sense of duty- nothing.
+//    Good will- nothing.
+//    Mission- anything declared.
+//    Swear fealty- alliance, spying, or capitulation.
+//    Release captive- anyone imprisoned they care for.
+
+//  You'll need a new UI for this.
 /*
- *  Reward types should include (in practice this should be used in foreign
- *  negotiations as well)-
- *  
- *  Cash Payment or Goods
- *  Personnel or Captives
- *  Support for Legislation
- *  Joining a Mission (Strike/Recover/Secure, Recon/Intel, Diplomacy)
- *  
- *  Permission to Marry
- *  Promotion and Demotion
- *  Pardon or Arrest
- *  Truce, Allegiance or Fealty
- */
+public static enum Type {
+  
+  PAYMENT,
+  PROMOTION,
+  GIFT_ITEM,
+  SENSE_OF_DUTY,
+  
+  GOOD_WILL,
+  JOIN_MISSION,
+  SWEAR_FEALTY,
+  RELEASE_CAPTIVE,
+  
+  GRANT_AUDIENCE,
+  SUPPORT_RESEARCH
+  HAND_IN_MARRIAGE
+  BECOME_SPY
+}
+//*/
+
+
+
+//  TODO:  Make this into a persistent plan, so that if the pledge cannot be
+//  fulfilled immediately, the actor will attempt it later when possible.
+
+
 public class Pledge implements Session.Saveable {
   
   
@@ -41,7 +86,6 @@ public class Pledge implements Session.Saveable {
     public Type(String name) { super(TYPE_INDEX, name); this.name = name; }
     public abstract Pledge[] variantsFor(Actor makes, Actor makesTo);
     
-    //abstract void describe(Pledge p, Description d);
     abstract String description(Pledge p);
     abstract float valueOf(Pledge p, Actor a);
     abstract Behaviour fulfillment(Pledge p);
@@ -52,6 +96,7 @@ public class Pledge implements Session.Saveable {
   final float amount;
   final Session.Saveable refers;
   final Actor makes;
+  private boolean deceive = false, accepted = false;
   
   
 
@@ -82,18 +127,32 @@ public class Pledge implements Session.Saveable {
   
   public Pledge(Session s) throws Exception {
     s.cacheInstance(this);
-    this.type = TYPE_INDEX.loadFromEntry(s.input());
-    this.amount = s.loadFloat ();
-    this.refers = s.loadObject();
-    this.makes  = (Actor) s.loadObject();
+    this.type     = TYPE_INDEX.loadFromEntry(s.input());
+    this.amount   = s.loadFloat ();
+    this.refers   = s.loadObject();
+    this.makes    = (Actor) s.loadObject();
+    this.deceive  = s.loadBool();
+    this.accepted = s.loadBool();
   }
   
   
   public void saveState(Session s) throws Exception {
     TYPE_INDEX.saveEntry(type, s.output());
-    s.saveFloat (amount);
-    s.saveObject(refers);
-    s.saveObject(makes );
+    s.saveFloat (amount  );
+    s.saveObject(refers  );
+    s.saveObject(makes   );
+    s.saveBool  (deceive );
+    s.saveBool  (accepted);
+  }
+  
+  
+  public float amount() {
+    return amount;
+  }
+  
+  
+  public Session.Saveable refers() {
+    return refers;
   }
   
   
@@ -112,6 +171,11 @@ public class Pledge implements Session.Saveable {
   }
   
   
+  public boolean accepted() {
+    return accepted;
+  }
+  
+  
   public String description() {
     return type.description(this);
   }
@@ -122,57 +186,16 @@ public class Pledge implements Session.Saveable {
   }
   
   
-  
-  //  The value of a given pledge to a given actor.
-  //    Cash- base on greed.
-  //    Gift item- base on value to actor.
-  //    Promotion- base on career rating/ambition.
-  //    Sense of duty- loyalty/military post.
-  //    Good will- ask nothing.
-  //    Mission- rating of mission.
-  //    Swear fealty- degree of defection (Priority 5, 10, or 15.)
-  //    Release captive- affection for subject (0-20.)
-  
-  //  Following through on your end (sealing the deal.)
-  //    Cash- deliver.
-  //    Gift item- deliver.
-  //    Promotion- deliver.
-  //    Sense of duty- nothing.
-  //    Good will- nothing.
-  //    Mission- deliver.
-  //    Swear fealty- deliver.
-  //    Release captive- deliver.
-  
-  //  Find the set of things you can pledge.
-  //    Cash- vary amount.
-  //    Gift item- anything stored in Bastion.
-  //    Promotion- top 3 spots open and fit for.
-  //    Sense of duty- nothing.
-  //    Good will- nothing.
-  //    Mission- anything declared.
-  //    Swear fealty- alliance, spying, or capitulation.
-  //    Release captive- anyone imprisoned they care for.
-  
-  //  You'll need a new UI for this.
-  /*
-  public static enum Type {
-    
-    PAYMENT,
-    PROMOTION,
-    GIFT_ITEM,
-    SENSE_OF_DUTY,
-    
-    GOOD_WILL,
-    JOIN_MISSION,
-    SWEAR_FEALTY,
-    RELEASE_CAPTIVE,
-    
-    GRANT_AUDIENCE,
-    SUPPORT_RESEARCH
-    HAND_IN_MARRIAGE
-    BECOME_SPY
+  public void setAcceptance(boolean accepted, boolean sincere) {
+    this.accepted = accepted;
+    this.deceive  = ! sincere;
   }
-  //*/
+  
+  
+  
+  
+  /**  Definitions for the various specific pledge types follow.
+    */
   
   
   final public static Type TYPE_PAYMENT = new Type("Payment") {
@@ -255,8 +278,10 @@ public class Pledge implements Session.Saveable {
     }
   };
   
-  public static Pledge giftPledge(Item item, Actor from, Actor to) {
-    final Delivery d = new Delivery(item, from, to);
+  public static Pledge giftPledge(
+    Item item, Inventory.Owner depot, Actor from, Actor to
+  ) {
+    final Delivery d = new Delivery(item, depot, to);
     return new Pledge(TYPE_GIFT_ITEM, d, from);
   }
   
@@ -294,10 +319,12 @@ public class Pledge implements Session.Saveable {
     
     public Pledge[] variantsFor(Actor makes, Actor makesTo) {
       final Series <Mission> all = makesTo.base().tactics.allMissions();
-      final Pledge p[] = new Pledge[all.size()];
-      int i = 0;
-      for (Mission m : all) p[i++] = new Pledge(this, m, makes);
-      return p;
+      final Batch <Pledge> p = new Batch <Pledge> ();
+      for (Mission m : all) {
+        if (m.subject == makes || m.isApproved(makes)) continue;
+        p.add(new Pledge(this, m, makes));
+      }
+      return p.toArray(Pledge.class);
     }
     
     
@@ -328,16 +355,81 @@ public class Pledge implements Session.Saveable {
   
   
   
-  //  TODO:  Summons Pledge!  And Promotion Pledge!
+  final public static Type TYPE_AUDIENCE = new Type("Audience") {
+    
+    public Pledge[] variantsFor(Actor makes, Actor makesTo) {
+      return new Pledge[] { new Pledge(this, makesTo, makes) };
+    }
+    
+    
+    String description(Pledge p) {
+      return "Audience with "+p.refers;
+    }
+    
+    
+    float valueOf(Pledge p, Actor a) {
+      final Actor host = (Actor) p.refers;
+      return a.relations.valueFor(host) * Plan.ROUTINE;
+    }
+    
+    
+    Behaviour fulfillment(Pledge p) {
+      return Summons.officialSummons(p.makes, (Actor) p.refers);
+    }
+  };
+  
+  public static Pledge audiencePledge(Actor from, Actor to) {
+    return new Pledge(TYPE_AUDIENCE, to, from);
+  }
   
   
   
+  final public static Type TYPE_PROMOTION = new Type("Promotion") {
+    
+    public Pledge[] variantsFor(Actor makes, Actor makesTo) {
+      final Batch <Pledge> p = new Batch <Pledge> ();
+      final BaseCommerce BC = makes.base().commerce;
+      
+      for (Background b : BC.jobDemand.keys()) {
+        
+        float shortage = BC.jobDemand.valueFor(b) - BC.jobSupply.valueFor(b);
+        if (shortage <= 0) continue;
+        
+        //  TODO:  See if there's a more efficient way to handle this.
+        final FindWork applies = FindWork.attemptFor(makesTo, b, makes.base());
+        if (applies == null) continue;
+        
+        p.add(new Pledge(this, applies, makes));
+      }
+      return p.toArray(Pledge.class);
+    }
+    
+    
+    String description(Pledge p) {
+      final FindWork work = (FindWork) p.refers;
+      return "Work as "+work.position();
+    }
+    
+    
+    float valueOf(Pledge p, Actor a) {
+      final FindWork work = (FindWork) p.refers;
+      return work.priorityFor(a);
+    }
+    
+    
+    Behaviour fulfillment(Pledge p) {
+      final FindWork work = (FindWork) p.refers;
+      work.employer().staff().confirmApplication(work);
+      return null;
+    }
+  };
+  
+  public static Pledge promotionPledge(FindWork work, Actor from) {
+    return new Pledge(TYPE_PROMOTION, work, from);
+  }
   
   
   
-  
-  /**  UI and interface methods-
-    */
 }
 
 

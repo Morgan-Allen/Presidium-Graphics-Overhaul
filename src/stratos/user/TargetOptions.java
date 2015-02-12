@@ -56,13 +56,13 @@ public class TargetOptions extends UIGroup {
       //  If an existing mission matches this one, just select that instead.
       final Mission match = base.matchingMission(mission);
       if (match != null) {
-        BUI.selection.pushSelection(match, true);
+        BUI.selection.pushSelection(match);
         return;
       }
       //
       //  Otherwise, create a new mission for the target.
       base.tactics.addMission(mission);
-      BUI.selection.pushSelection(mission, true);
+      BUI.selection.pushSelection(mission);
     }
   }
   

@@ -19,7 +19,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   final public static int
     MOTIVE_LEISURE   = 0,
     MOTIVE_JOB       = 1,
-    MOTIVE_AMBITION  = 2,
+    MOTIVE_PERSONAL  = 2,
     MOTIVE_EMERGENCY = 3,
     MOTIVE_MISSION   = 4,
     MOTIVE_CANCELLED = 5;
@@ -28,12 +28,13 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     NULL_PRIORITY = -100;
   
   private static boolean
-    verbose      = false,
-    extraVerbose = false,
-    evalVerbose  = false,
-    doesVerbose  = false;
+    stepsVerbose    = false,
+    priorityVerbose = false,
+    extraVerbose    = false,
+    evalVerbose     = false,
+    doesVerbose     = false;
   private static Class
-    verboseClass = null;
+    verboseClass = Summons.class;
   
   final public Target subject;
   protected Actor actor;  //  TODO:  MAKE THIS FINAL
@@ -47,7 +48,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   private int   motiveType  = -1;
   private float motiveBonus =  0;
-  private float harmFactor, competence;
+  private float harmFactor = 0, competence = 1;
   private boolean begun;  //  TODO:  Have a general 'stage' counter.
   
   
@@ -125,7 +126,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   public boolean persistent() {
-    return motiveType == MOTIVE_JOB || motiveType == MOTIVE_AMBITION;
+    return motiveType == MOTIVE_JOB || motiveType == MOTIVE_PERSONAL;
   }
   
   
@@ -142,7 +143,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   public void interrupt(String cause) {
     if (! hasBegun()) return;
-    if (verbose && I.talkAbout == actor) {
+    if ((stepsVerbose || priorityVerbose) && I.talkAbout == actor) {
       I.say("\n"+actor+" Aborting plan! "+I.tagHash(this));
       I.say("  Cause: "+cause);
       I.reportStackTrace();
@@ -192,19 +193,27 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     }
     
     if (actor.actionInProgress()) {
-      if (report) I.say("ACTOR IS TOO BUSY!");
+      if (report) I.say("ACTOR IN MID-ACTION!");
       return false;
     }
+    
     final float
       timeGone = actor.world().currentTime() - lastEvalTime,
       interval = evaluationInterval();
+    
     if (report) {
       I.say("\nChecking for fresh evaluation: "+this);
       I.say("  Time gone: "+timeGone+"/"+interval);
     }
-    if (timeGone >= interval) { clearEval(actor); return true; }
-    
-    return false;
+    if (timeGone >= interval) {
+      if (report) I.say("WILL REFRESH!");
+      clearEval(actor);
+      return true;
+    }
+    else {
+      if (report) I.say("Refresh not yet due.");
+      return false;
+    }
   }
   
   
@@ -221,7 +230,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   public float priorityFor(Actor actor) {
-    final boolean report = verbose && I.talkAbout == actor && hasBegun() && (
+    final boolean report = priorityVerbose && I.talkAbout == actor && hasBegun() && (
       verboseClass == null || verboseClass == this.getClass()
     );
     if (motiveType == MOTIVE_CANCELLED) return -1;
@@ -245,7 +254,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   public Behaviour nextStepFor(Actor actor) {
-    final boolean report = verbose && I.talkAbout == actor && hasBegun() && (
+    final boolean report = stepsVerbose && I.talkAbout == actor && hasBegun() && (
       verboseClass == null || verboseClass == this.getClass()
     );
     if (motiveType == MOTIVE_CANCELLED) return null;
@@ -257,7 +266,9 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     if (checkRefreshDue(actor, report && extraVerbose)) {
       if (report) I.say("\nPlan step for "+this+" was: "+I.tagHash(lastStep));
       final float time = actor.world().currentTime();
-      final boolean subStep = this != actor.mind.rootBehaviour();
+      
+      final Behaviour root = actor.mind.rootBehaviour();
+      final boolean subStep = root != this && actor.mind.agenda.includes(this);
       
       nextStep = getNextStep();
       if (lastStep != null && lastStep.matchesPlan(nextStep)) {
@@ -272,9 +283,12 @@ public abstract class Plan implements Session.Saveable, Behaviour {
       //  We may have to set priority manually here, because sub-steps never
       //  have their priority queried outside- but this is needed to prevent
       //  being flagged as 'due for refresh'.
+      //*
       if (subStep && priorityEval == NULL_PRIORITY) {
+        if (report) I.say("SETTING SUB-STEP AS IDLE! "+this);
         priorityEval = IDLE;
       }
+      //*/
       if (priorityEval != NULL_PRIORITY) {
         begun        = true;
         lastEvalTime = time;
@@ -285,26 +299,12 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   public boolean finished() {
-    final boolean report = verbose && hasBegun() && I.talkAbout == actor;
+    final boolean report = (stepsVerbose || priorityVerbose) && hasBegun() && I.talkAbout == actor;
     if (motiveType == MOTIVE_CANCELLED) return true;
     
     //  TODO:  Some of the reasoning here is a little opaque.  Rewrite this to
     //  have a single 'update' method, then read off everything else passively.
-    /*
-    if (! hasBegun()) return false;
-    if (this == actor.mind.rootBehaviour()) {
-      if (priorityEval != NULL_PRIORITY && priorityEval <= 0) {
-        if (report) I.say("\nNO PRIORITY: "+I.tagHash(this));
-        return true;
-      }
-    }
-    if (lastStep != null && nextStep == null) {
-      if (report) I.say("\nNO NEXT STEP: "+I.tagHash(this));
-      return true;
-    }
-    return false;
-    //*/
-    //*
+    
     if (actor == null) return false;
     
     if (this == actor.mind.rootBehaviour()) {
@@ -318,7 +318,6 @@ public abstract class Plan implements Session.Saveable, Behaviour {
       return true;
     }
     return false;
-    //*/
   }
   
   
@@ -524,7 +523,8 @@ public abstract class Plan implements Session.Saveable, Behaviour {
       this.competence = maxSkill;
       priority *= Nums.sqrt(maxSkill);
       if (report) {
-        I.say("  After skill adjustments:     "+priority);
+        I.say("  After skill adjustments:     "+priority  );
+        I.say("  Estimated competence is:     "+competence);
       }
     }
     

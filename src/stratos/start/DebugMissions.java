@@ -130,7 +130,7 @@ public class DebugMissions extends Scenario {
       actor.enterWorldAt(2, 2, world);
       actor.mind.assignMission(contact);
       contact.setApprovalFor(actor, true);
-      UI.selection.pushSelection(actor, true);
+      UI.selection.pushSelection(actor);
     }
     
     base.tactics.addMission(contact);
@@ -161,7 +161,7 @@ public class DebugMissions extends Scenario {
       actor.enterWorldAt(entry.x, entry.y, world);
       actor.mind.assignMission(security);
       security.setApprovalFor(actor, true);
-      UI.selection.pushSelection(actor, true);
+      UI.selection.pushSelection(actor);
     }
     
     base.tactics.addMission(security);
@@ -186,7 +186,7 @@ public class DebugMissions extends Scenario {
       actor.enterWorldAt(entry.x, entry.y, world);
       actor.mind.assignMission(strike);
       strike.setApprovalFor(actor, true);
-      UI.selection.pushSelection(actor, true);
+      UI.selection.pushSelection(actor);
     }
     
     base.tactics.addMission(strike);
@@ -207,7 +207,7 @@ public class DebugMissions extends Scenario {
       actor.enterWorldAt(entry.x, entry.y, world);
       actor.mind.assignMission(recon);
       recon.setApprovalFor(actor, true);
-      UI.selection.pushSelection(actor, true);
+      UI.selection.pushSelection(actor);
     }
     
     base.tactics.addMission(recon);

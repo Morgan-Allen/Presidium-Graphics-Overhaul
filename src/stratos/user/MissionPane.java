@@ -33,7 +33,6 @@ public class MissionPane extends SelectionInfoPane {
     //  Obtain some basic facts about the mission and shorthand variables
     //  first-
     final Description d = detail(), l = listing();
-    final int type = mission.missionType();
     final List <Actor> applied = mission.applicants();
     final boolean emptyList = applied.size() == 0;
     final boolean canChange = ! mission.hasBegun();
@@ -41,6 +40,20 @@ public class MissionPane extends SelectionInfoPane {
     //  Then, we fill up the left-hand pane with broad mission parameters and
     //  commands:
     describeStatus(mission, canChange, UI, d);
+    describeOrders(canChange, d);
+    //
+    //  And lastly, we fill up the right-hand pane with the list of
+    //  applications, and options to confirm or deny them:
+    if (emptyList) {
+      l.append("Applications: None");
+    }
+    else listApplicants(mission, applied, canChange, UI, l);
+    return this;
+  }
+  
+  
+  protected void describeOrders(boolean canChange, Description d) {
+    final int type = mission.missionType();
     
     if (confirmAbort) {
       d.append(
@@ -94,15 +107,6 @@ public class MissionPane extends SelectionInfoPane {
         Colour.LITE_GREY
       );
     }
-    
-    //
-    //  And lastly, we fill up the right-hand pane with the list of
-    //  applications, and options to confirm or deny them:
-    if (emptyList) {
-      l.append("Applications: None");
-    }
-    else listApplicants(mission, applied, canChange, UI, l);
-    return this;
   }
   
   
@@ -121,7 +125,7 @@ public class MissionPane extends SelectionInfoPane {
   }
   
   
-  private void describeStatus(
+  protected void describeStatus(
     final Mission mission, boolean canChange,
     BaseUI UI, Description d
   ) {
@@ -171,10 +175,18 @@ public class MissionPane extends SelectionInfoPane {
     else d.append(payDesc, FIXED);
     //
     //  And finally, describe the mission objective-
+    describeObjective(d, canChange);
+  }
+  
+  
+  protected void describeObjective(Description d, boolean canChange) {
+    final String allDesc[] = mission.objectiveDescriptions();
+    if (allDesc == null || allDesc.length == 0) return;
+    canChange &= allDesc.length > 1;
+    
     final int object = mission.objective();
-    final String
-      allDesc[]  = mission.objectiveDescriptions(),
-      objectDesc = mission.describeObjective(object);
+    final Colour FIXED = Colour.LITE_GREY;
+    final String objectDesc = mission.describeObjective(object);
     
     d.append("\nObjective:  ");
     if (canChange) d.append(new Description.Link(objectDesc) {
@@ -187,7 +199,7 @@ public class MissionPane extends SelectionInfoPane {
   }
   
   
-  private void listApplicants(
+  protected void listApplicants(
     final Mission mission, List <Actor> applied, boolean canConfirm,
     BaseUI UI, Description d
   ) {

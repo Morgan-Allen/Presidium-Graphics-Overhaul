@@ -110,7 +110,7 @@ public class DebugSecurity extends Scenario {
     
     breeding.setMotive(Plan.MOTIVE_JOB, Plan.CASUAL);
     ecologist.mind.assignBehaviour(breeding);
-    UI.selection.pushSelection(ecologist, true);
+    UI.selection.pushSelection(ecologist);
   }
   
   
@@ -139,7 +139,7 @@ public class DebugSecurity extends Scenario {
     
     final Arrest arrests = new Arrest(enforcer, runner);
     enforcer.mind.assignBehaviour(arrests);
-    UI.selection.pushSelection(enforcer, true);
+    UI.selection.pushSelection(enforcer);
   }
   
   
@@ -163,7 +163,7 @@ public class DebugSecurity extends Scenario {
     
     //prey.health.takeFatigue(prey.health.maxHealth());
     //hunts.mind.assignBehaviour(Hunting.asHarvest(hunts, prey, station));
-    UI.selection.pushSelection(hunts, true);
+    UI.selection.pushSelection(hunts);
     
     wildlife.setup.setAvailableVenues(Nest.VENUE_PROFILES);
     wildlife.setup.doFullPlacements();
@@ -191,7 +191,7 @@ public class DebugSecurity extends Scenario {
     threat.enterWorldAt(world.tileAt(8, 6), world);
     //UI.selection.pushSelection(threat, true);
     
-    UI.selection.pushSelection(soldier, true);
+    UI.selection.pushSelection(soldier);
   }
   
   
@@ -216,7 +216,7 @@ public class DebugSecurity extends Scenario {
     artilects.setup.doPlacementsFor(ruins);
     artilects.setup.fillVacancies(ruins, true);
     
-    UI.selection.pushSelection(ruins.staff.workers().first(), true);
+    UI.selection.pushSelection(ruins.staff.workers().first());
   }
   
   

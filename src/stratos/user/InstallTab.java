@@ -243,7 +243,7 @@ public class InstallTab extends SelectionInfoPane {
         for (Structure.Basis i : group) i.doPlacement();
         UI.endCurrentTask();
         if (multiples) tab.initInstallTask(UI, type);
-        else UI.selection.pushSelection(group[0], true);
+        else UI.selection.pushSelection(group[0]);
       }
       
       else for (Structure.Basis i : group) {

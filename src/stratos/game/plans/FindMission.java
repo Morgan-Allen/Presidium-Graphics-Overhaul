@@ -35,7 +35,10 @@ public class FindMission extends Plan {
     //  Find a mission that seems appealing at the moment (we disable culling
     //  of invalid plans, since missions might not have steps available until
     //  approved-)
-    if (report) I.say("\nEvaluating missions...");
+    if (report) {
+      I.say("\nEvaluating missions...");
+      I.say("  TIME IS: "+actor.world().currentTime());
+    }
     final Choice choice = new Choice(actor) {
       protected boolean checkPlanValid(Behaviour b) {
         return true;
@@ -56,6 +59,7 @@ public class FindMission extends Plan {
       final float
         competence = competence(actor, mission),
         urgency    = mission.assignedPriority();
+      
       if (competence + (urgency / Mission.PRIORITY_PARAMOUNT) < 1) {
         if (report) {
           I.say("\n  Cannot apply for "+mission);
@@ -65,17 +69,17 @@ public class FindMission extends Plan {
         continue;
       }
       
-      if (report) {
-        I.say("\n  Mission is: "+mission);
-        I.say("  apply point:  "+mission.applyPointFor(actor));
-        I.say("  priority:     "+mission.priorityFor(actor));
-        I.say("  next step:    "+mission.nextStepFor(actor, true));
-      }
-      
       final Behaviour step = mission.nextStepFor(actor, true);
       choice.add(step);
       steps.add(step);
       missions.add(mission);
+
+      if (report) {
+        I.say("\n  Mission is: "+mission);
+        I.say("  apply point:  "+mission.applyPointFor(actor));
+        I.say("  priority:     "+step.priorityFor(actor));
+        I.say("  next step:    "+mission.nextStepFor(actor, true));
+      }
     }
     final Behaviour pickStep = choice.weightedPick();
     final int index = steps.indexOf(pickStep);
@@ -91,7 +95,6 @@ public class FindMission extends Plan {
   
   protected static float competence(Actor actor, Mission mission) {
     if (! (actor instanceof Human)) return 1;
-    
     final Behaviour step = mission.nextStepFor(actor, true);
     if (step == null) return 1;
     
@@ -103,7 +106,7 @@ public class FindMission extends Plan {
   
 
   private FindMission(Actor actor, Mission mission) {
-    super(actor, mission.subject(), MOTIVE_AMBITION, NO_HARM);
+    super(actor, mission.subject(), MOTIVE_PERSONAL, NO_HARM);
     this.mission = mission;
     //this.admin = admin;
   }

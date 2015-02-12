@@ -23,7 +23,7 @@ public class HumanDescription implements Qualities {
   final static String
     CAT_GEAR      = "GEAR"     ,
     CAT_SKILLS    = "SKILLS"   ,
-    CAT_PROFILE   = "PROFILE"  ,
+    CAT_PROFILE   = "AGENDA"   ,
     CAT_RELATIONS = "RELATIONS";
   
   final Actor h;
@@ -51,7 +51,7 @@ public class HumanDescription implements Qualities {
     
     if (categoryID == 0) HD.describeGear     (l, UI);
     if (categoryID == 1) HD.describeSkills   (l, UI);
-    if (categoryID == 2) HD.describeProfile  (l, UI);
+    if (categoryID == 2) HD.describeAgenda  (l, UI);
     if (categoryID == 3) HD.describeRelations(l, UI);
     return panel;
   }
@@ -190,7 +190,7 @@ public class HumanDescription implements Qualities {
   
   
   
-  private void describeProfile(Description d, HUD UI) {
+  private void describeAgenda(Description d, HUD UI) {
     //
     //  Describe background, personality, relationships and memories.
     //  TODO:  Allow for a chain of arbitrary vocations in a career.  Later!
@@ -205,10 +205,14 @@ public class HumanDescription implements Qualities {
       d.append("\n  Age: "+h.health.exactAge()+" ("+h.health.agingDesc()+")");
     }
     
-    ///d.appendList("\n\nAppearance: " , descTraits(h.traits.physique   ()));
     d.appendList("\n\nPersonality: ", descTraits(h.traits.personality(), h));
-    //d.appendList("\n\nMutations: "  , descTraits(traits.mutations  ()));
-
+    
+    d.append("\nTo Do:");
+    for (Behaviour b : h.mind.todoList()) {
+      d.append("\n  ");
+      b.describeBehaviour(d);
+    }
+    /*
     d.append("\n\nAttributes: ");
     for (Skill skill : h.traits.attributes()) {
       final int level = (int) h.traits.traitLevel(skill);
@@ -216,6 +220,7 @@ public class HumanDescription implements Qualities {
       d.append("\n  "+skill.name+" "+level+" ");
       d.append((bonus >= 0 ? " (+" : " (-")+Nums.abs(bonus)+")");
     }
+    //*/
   }
   
   

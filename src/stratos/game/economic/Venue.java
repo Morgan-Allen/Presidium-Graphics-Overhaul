@@ -302,7 +302,17 @@ public abstract class Venue extends Structural implements
   public boolean allowsEntry(Mobile m) {
     if (! structure.intact()) return false;
     if (m.base() == this.base) return true;
-    return base.relations.relationWith(m.base()) > 0;
+    
+    //  TODO:  This is actually a somewhat complicated question.  In principle,
+    //  anyone invited to stay (or taken as a captive) should be allowed to
+    //  enter.  In addition, anyone being helpful should also be permitted
+    //  entry, even if their reputation is poor.
+    //  ...It's kind of a question of trust.
+    
+    //  TODO:  Look up the Summons.summonedTo() method and see if you can merge
+    //  it with this.
+    
+    return base.relations.relationWith(m.base()) >= 0;
   }
   
   

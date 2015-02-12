@@ -80,9 +80,9 @@ public class DebugSocial extends Scenario {
     );
     
     if (false) testCareers(base);
-    if (true ) configDialogueScenario(world, base, UI);
+    if (false) configDialogueScenario(world, base, UI);
     if (false) configArtilectScenario(world, base, UI);
-    if (false) configContactScenario (world, base, UI);
+    if (true ) configContactScenario (world, base, UI);
     if (false) configWildScenario    (world, base, UI);
     if (false) applyJobScenario      (world, base, UI);
   }
@@ -111,7 +111,7 @@ public class DebugSocial extends Scenario {
     
     final Dialogue d = new Dialogue(a1, a2);
     a1.mind.assignBehaviour(d);
-    UI.selection.pushSelection(a1, true);
+    UI.selection.pushSelection(a1);
     
     
     Actor a3 = new Human(Backgrounds.TECHNICIAN, base);
@@ -124,10 +124,10 @@ public class DebugSocial extends Scenario {
     
     final Proposal d2 = new Proposal(a3, a4);
     d2.setMotive(Plan.MOTIVE_LEISURE, Plan.ROUTINE);
-    d2.setTerms(Pledge.giftPledge(gift, a3, a4), null);
+    d2.setTerms(Pledge.giftPledge(gift, a3, a3, a4), null);
     a3.mind.assignBehaviour(d2);
     
-    UI.selection.pushSelection(a3, true);
+    UI.selection.pushSelection(a3);
     
     //  TODO:  RE-TEST THE ENTIRE GIFT-GETTING ROUTINE, INCLUDING PURCHASES AND
     //  COMMISSIONS.
@@ -161,7 +161,7 @@ public class DebugSocial extends Scenario {
     subject.enterWorldAt(22, 29, world);
     subject.health.takeInjury(subject.health.maxHealth() + 1, true);
     subject.health.setState(ActorHealth.STATE_DYING);
-    UI.selection.pushSelection(subject, true);
+    UI.selection.pushSelection(subject);
   }
   
   
@@ -172,57 +172,43 @@ public class DebugSocial extends Scenario {
     //
     //  Introduce a bastion, with standard personnel.
     final Bastion bastion = new Bastion(base);
-    final Actor ruler = new Human(Backgrounds.KNIGHTED, base);
+    final Actor
+      ruler   = new Human(Backgrounds.KNIGHTED     , base),
+      consort = new Human(Backgrounds.FIRST_CONSORT, base);
     Placement.establishVenue(
       bastion, 11, 11, true, world,
-      ruler, new Human(Backgrounds.FIRST_CONSORT, base)
+      ruler, consort
     );
     base.assignRuler(ruler);
+    bastion.updateAsScheduled(0, false);
     for (Item i : bastion.stocks.shortages()) bastion.stocks.addItem(i);
     
     final TrooperLodge garrison = new TrooperLodge(base);
     Placement.establishVenue(garrison, world.tileAt(3, 15), true, world);
     
-    
-    /*
-    Batch <Actor> allTalk = new Batch <Actor> ();
-    Actor talks = null;
-    for (int n = 3; n-- > 0;) {
-      talks = Backgrounds.HUNTER.sampleFor(natives);
-      talks.enterWorldAt(11 + n, 11 - n, world);
-      allTalk.add(talks);
-    }
-    //NS.establishRelations(allTalk);
-    //*/
-    
     //
     //  Introduce some natives to contact, some distance away-
     final Base natives = Base.natives(world, NativeHut.TRIBE_FOREST);
-    final BaseSetup NS = natives.setup;
+    final Actor talks = new Human(Backgrounds.GATHERER, natives);
+    talks.enterWorldAt(18, 18, world);
     
-    final Batch <Venue> halls = NS.doPlacementsFor(
-      NativeHut.TRIBE_FOREST_PROFILES[0], 2
-    );
-    final Batch <Venue> huts  = NS.doPlacementsFor(
-      NativeHut.TRIBE_FOREST_PROFILES[1], 3
-    );
-    
-    NS.fillVacancies(huts , true);
-    NS.fillVacancies(halls, true);
-    for (Venue v : huts ) NS.establishRelationsAt(v);
-    for (Venue v : halls) NS.establishRelationsAt(v);
-    
-    final Actor talks = huts.first().staff.workers().first();
-    final Relation withBase = talks.relations.relationWith(natives);
-    I.say("BASE RELATION IS: "+withBase.value  ());
-    I.say("BASE NOVELTY IS:  "+withBase.novelty());
-    
-    final Mission peaceMission = new ContactMission(base, talks);
+    //
+    //  Then configure a contact mission asking to secure audience with the
+    //  natives.
+    final ContactMission peaceMission = new ContactMission(base, talks);
     peaceMission.assignPriority(Mission.PRIORITY_ROUTINE);
     peaceMission.setMissionType(Mission.TYPE_SCREENED);
-    peaceMission.setObjective(ContactMission.OBJECT_AUDIENCE);
+    final Item gift = Item.withAmount(Economy.PROTEIN, 5);
+    peaceMission.setTerms(
+      Pledge.giftPledge(gift, bastion, ruler, talks),
+      Pledge.audiencePledge(talks, ruler)
+    );
     base.tactics.addMission(peaceMission);
-    UI.selection.pushSelection(peaceMission, true);
+    consort.mind.assignMission(peaceMission);
+    peaceMission.setApprovalFor(consort, true);
+    peaceMission.beginMission();
+    
+    UI.selection.pushSelection(peaceMission);
   }
   
   
@@ -248,7 +234,7 @@ public class DebugSocial extends Scenario {
     
     final Actor applies = applyFrom.staff.workers().first();
     FindWork.assignAmbition(applies, Backgrounds.ARTIFICER, applyAt, 2);
-    UI.selection.pushSelection(applies, true);
+    UI.selection.pushSelection(applies);
   }
   
   

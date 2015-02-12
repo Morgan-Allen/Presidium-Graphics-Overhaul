@@ -12,14 +12,11 @@ import stratos.util.Description.Link;
 
 
 
-//  TODO:  You need some kind of visual indication of being summoned to the
-//  sovereign's presence.  (Or being under arrest.)
-
 public class Summons extends Plan {
   
   
   private static boolean
-    verbose = true;
+    verbose = false;
   
   final public static int
     TYPE_GUEST   = 0,
@@ -33,9 +30,9 @@ public class Summons extends Plan {
     };
   
 
-  final Actor invites;
-  final Property stays;
-  final int type;
+  final public Actor invites;
+  final public Property stays;
+  final public int type;
   
   private int timeStayed;
   private int stayUntil = -1;
@@ -96,10 +93,12 @@ public class Summons extends Plan {
     final boolean report = verbose && I.talkAbout == actor;
     if (report) I.say("\nGetting priority for summons from "+invites);
     
-    if (type == TYPE_CAPTIVE && actor.aboard() == stays) return 100;
     //  TODO:  Have this expire once charges are cleared!
+    if (type == TYPE_CAPTIVE && actor.aboard() == stays) return 100;
     
-    return motiveBonus();
+    final float priority = motiveBonus();
+    if (report) I.say("  Priority: "+priority);
+    return priority;
   }
   
   
@@ -196,37 +195,33 @@ public class Summons extends Plan {
   
   //  TODO:  Replace this with a variety of contact mission?
   
-  public static Summons officialSummons(Actor subject) {
-    final Actor ruler = subject.base().ruler();
-    if (ruler == null) I.complain("NO RULER TO VISIT");
+  public static Summons officialSummons(Actor subject, Actor host) {
+    if (host == null) I.complain("NO RULER TO VISIT");
     
-    Boarding venue = ruler.mind.home();
-    if (venue == null) venue = ruler.mind.work();
-    if (venue == null) venue = ruler.aboard();
+    Boarding venue = host.mind.home();
+    if (venue == null) venue = host.mind.work();
+    if (venue == null) venue = host.aboard();
     if (! (venue instanceof Venue)) return null;
     
-    final float relation = subject.relations.valueFor(ruler);
+    final float relation = subject.relations.valueFor(host);
     final float priority = URGENT + (relation * CASUAL);
     
     final Summons summons = new Summons(
-      subject, ruler, (Venue) venue, TYPE_GUEST
+      subject, host, (Venue) venue, TYPE_GUEST
     );
     summons.setMotive(Plan.MOTIVE_JOB, priority);
     return summons;
-    //subject.mind.assignToDo(summons);
   }
   
   
   private static boolean checkForDialogueEntry(Actor actor, Boarding stays) {
     final Base base = stays.base();
     final Mission match = base.matchingMission(actor, ContactMission.class);
-    
     if (
       (BaseUI.isSelected(actor) || BaseUI.isSelected(match)) &&
-      stays == base.HQ()
+      stays == base.HQ() && ! MessagePanel.hasFocus(actor)
     ) {
       final BaseUI UI = BaseUI.current();
-      UI.selection.pushSelection(null, false);
       configDialogueFor(UI, actor, true);
       return true;
     }
@@ -243,7 +238,7 @@ public class Summons extends Plan {
     final BaseUI UI = BaseUI.current();
     final Target aboard = subject.aboard();
     if (UI != null && aboard instanceof Selectable) {
-      UI.selection.pushSelection((Selectable) subject.aboard(), false);
+      UI.selection.pushSelection((Selectable) subject.aboard());
     }
   }
   
@@ -268,6 +263,15 @@ public class Summons extends Plan {
     if (a.base() != base || a.mind.hasToDo(Summons.class)) return false;
     return true;
   }
+  
+  
+  public static Property summonedTo(Mobile m) {
+    if (! (m instanceof Actor)) return null;
+    final Summons s = (Summons) ((Actor) m).matchFor(Summons.class, false);
+    return s == null ? null : s.stays;
+  }
+  
+  
   
   
   public static MessagePanel configDialogueFor(
@@ -313,12 +317,13 @@ public class Summons extends Plan {
     
     final MessagePanel panel = new MessagePanel(
       UI, with.portrait(UI), "Audience with "+with,
-      "Yes, my liege?",
+      "Yes, my liege?", with,
       responses
     );
     if (pushNow) UI.setInfoPanels(panel, null);
     return panel;
   }
+  
   
   static void pushGiftDialogue(
     final BaseUI UI, final Actor with, String lead
@@ -337,7 +342,7 @@ public class Summons extends Plan {
     
     final MessagePanel panel = new MessagePanel(
       UI, with.portrait(UI), "Audience with "+with,
-      lead, responses
+      lead, with, responses
     );
     UI.setInfoPanels(panel, null);
   }
@@ -348,7 +353,7 @@ public class Summons extends Plan {
   ) {
     final MessagePanel panel = new MessagePanel(
       UI, with.portrait(UI), "Audience with "+with,
-      lead,
+      lead, with,
       new Link("Very well, then...") {
         public void whenClicked() {
           configDialogueFor(UI, with, true);
@@ -364,12 +369,29 @@ public class Summons extends Plan {
   ) {
     final Stack <Link> responses = new Stack <Link> ();
     
-    for (final Mission m : UI.played().tactics.allMissions()) {
+    //  TODO:  If the offer is rejected, elaborate on why, and possibly suggest
+    //  a counter-offer.  Also, consider an option to 'insist' on joining?
+    //
+    
+    final Actor ruler = UI.played().ruler();
+    for (Pledge p : Pledge.TYPE_JOIN_MISSION.variantsFor(with, ruler)) {
+      final Mission m = (Mission) p.refers();
+      
       responses.add(new Link(""+m.toString()) {
         public void whenClicked() {
-          final boolean wouldAccept = m.priorityFor(with) > Plan.ROUTINE;
-          if (wouldAccept) pushMissionResponse(UI, with, m);
-          else pushMissionDialogue(UI, with, "I... must decline, my lord.");
+          final boolean wouldAccept = m.priorityFor(with) > 0;
+          
+          if (wouldAccept) {
+            pushMissionResponse(UI, with, m);
+          }
+          else if (FindMission.competence(with, m) < 1) {
+            pushMissionDialogue(UI, with,
+              "I fear I lack the skills required, my lord."
+            );
+          }
+          else {
+            pushMissionDialogue(UI, with, "I... must decline, my lord.");
+          }
         }
       });
     }
@@ -382,7 +404,7 @@ public class Summons extends Plan {
     
     final MessagePanel panel = new MessagePanel(
       UI, with.portrait(UI), "Audience with "+with,
-      lead, responses
+      lead, with, responses
     );
     UI.setInfoPanels(panel, null);
   }
@@ -394,10 +416,10 @@ public class Summons extends Plan {
     //final Actor ruler = UI.played().ruler();
     final MessagePanel panel = new MessagePanel(
       UI, with.portrait(UI), "Audience with "+with,
-      "My pleasure, your grace.",
+      "My pleasure, your grace.", with,
       new Link("Very well, then...") {
         public void whenClicked() {
-          UI.selection.pushSelection(taken, true);
+          UI.selection.pushSelection(taken);
           with.mind.assignMission(taken);
           taken.setApprovalFor(with, true);
         }

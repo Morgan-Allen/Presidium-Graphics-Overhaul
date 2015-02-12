@@ -25,8 +25,8 @@ public class Delivery extends Plan {
 
   
   private static boolean
-    evalVerbose  = false,
-    stepsVerbose = false;
+    evalVerbose  = true ,
+    stepsVerbose = true ;
   
   //  TODO:  Use these.
   final public static int
@@ -100,7 +100,6 @@ public class Delivery extends Plan {
     stage      = (byte) s.loadInt();
     goodsPrice = s.loadFloat();
     goodsBulk  = s.loadFloat();
-    //balance    = s.loadFloat();
     
     suspensor = (Suspensor) s.loadObject();
     driven    = (Vehicle  ) s.loadObject();
@@ -120,7 +119,6 @@ public class Delivery extends Plan {
     s.saveInt   (stage     );
     s.saveFloat (goodsPrice);
     s.saveFloat (goodsBulk );
-    //s.saveFloat (balance   );
     
     s.saveObject(suspensor);
     s.saveObject(driven   );
@@ -339,7 +337,9 @@ public class Delivery extends Plan {
     final boolean report = stepsVerbose && I.talkAbout == actor;
     if (report) {
       I.say("\nGetting next delivery step: "+actor);
-      I.say("  Plan ID: "+hashCode());
+      I.say("  Origin:      "+origin     );
+      I.say("  Destination: "+destination);
+      I.say("  Plan ID:     "+hashCode() );
     }
     //
     //  First of all, make sure that you still have the items you need to
@@ -349,7 +349,7 @@ public class Delivery extends Plan {
     if (stage == STAGE_DROPOFF) carries = driven == null ? actor : driven;
     
     if (carries != null && ! hasItemsFrom(carries)) {
-      //if (balance != 0) stage = STAGE_DROPOFF;
+      if (report) I.say("  Items not available!");
       return null;
     }
     //

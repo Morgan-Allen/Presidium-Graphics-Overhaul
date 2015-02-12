@@ -38,12 +38,12 @@ public class Gifting extends Plan implements Qualities {
   
   
   public Gifting(Actor actor, Actor receives, Item gift, Plan getting) {
-    super(actor, receives, MOTIVE_AMBITION, NO_HARM);
+    super(actor, receives, MOTIVE_PERSONAL, NO_HARM);
     this.gift = gift;
     this.receives = receives;
     this.getting = getting;
     this.giving = new Proposal(actor, receives);
-    giving.setTerms(Pledge.giftPledge(gift, actor, receives), null);
+    giving.setTerms(Pledge.giftPledge(gift, actor, actor, receives), null);
   }
   
   

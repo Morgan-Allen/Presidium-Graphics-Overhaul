@@ -23,42 +23,19 @@ import static stratos.game.actors.Qualities.*;
 //         inclined to join you (base off influence-levels on the map.)
 
 
-
 public class ContactMission extends Mission {
   
   
   /**  Field definitions, constructors and save/load methods-
     */
-  final static float
-    MAX_DURATION = Stage.STANDARD_DAY_LENGTH * 2;
-  
-  
-  //  TODO:  Get rid of these now- I'm making use of some more intricate terms-
-  //  setting mechanisms.
-  //*
-  final public static int
-    OBJECT_FRIENDSHIP = 0,
-    OBJECT_AUDIENCE   = 1,
-    OBJECT_SUBMISSION = 2;
-  final static String SETTING_DESC[] = {
-    "Offer friendship to ",
-    "Secure audience with ",
-    "Demand submission from "
-  };
-  //*/
-  
   private static boolean 
-    stepsVerbose = true ;
+    stepsVerbose = true;
   
+  private Pledge offers;
+  private Pledge sought;
   
-  private Actor[] talksTo = null;  //Refreshed on request, at most once/second
-  private List <Actor> agreed = new List <Actor> ();
-  
-  Pledge offers;
-  Pledge sought;
-  
-  private boolean isSummons   = false;
-  private boolean doneContact = false;
+  private Summons asSummons;
+  private Batch <Actor> allTried = new Batch <Actor> ();
   
   
   public ContactMission(Base base, Target subject) {
@@ -66,26 +43,26 @@ public class ContactMission extends Mission {
       base, subject, CONTACT_MODEL,
       "Making Contact with "+subject
     );
+    offers = Pledge.goodWillPledge(base.ruler(), (Actor) subject);
+    sought = Pledge.goodWillPledge((Actor) subject, base.ruler());
   }
   
   
   public ContactMission(Session s) throws Exception {
     super(s);
-    s.loadObjects(agreed);
-    offers      = (Pledge) s.loadObject();
-    sought      = (Pledge) s.loadObject();
-    isSummons   = s.loadBool();
-    doneContact = s.loadBool();
+    offers    = (Pledge ) s.loadObject();
+    sought    = (Pledge ) s.loadObject();
+    asSummons = (Summons) s.loadObject();
+    s.loadObjects(allTried);
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObjects(agreed);
     s.saveObject(offers     );
     s.saveObject(sought     );
-    s.saveBool  (isSummons  );
-    s.saveBool  (doneContact);
+    s.saveObject(asSummons  );
+    s.saveObjects(allTried);
   }
   
   
@@ -106,22 +83,21 @@ public class ContactMission extends Mission {
   
   
   public void setupAsSummons() {
-    this.isSummons = true;
+    
+    final Actor actor = (Actor) subject;
     setMissionType(TYPE_SCREENED);
-    setObjective(OBJECT_AUDIENCE);
-    
-    final Actor summon = (Actor) subject;
-    summon.mind.assignMission(this);
-    setApprovalFor(summon, true);
-    
-    final Behaviour step = nextStepFor(summon, true);
-    if (! summon.mind.mustIgnore(step)) summon.mind.assignBehaviour(step);
+    asSummons = Summons.officialSummons(actor, base.ruler());
+    actor.mind.assignMission(this);
+    setApprovalFor(actor, true);
     beginMission();
+    
+    final Behaviour step = nextStepFor(actor, true);
+    if (! actor.mind.mustIgnore(step)) actor.mind.assignBehaviour(step);
   }
   
   
   public boolean isSummons() {
-    return isSummons;
+    return asSummons != null;
   }
   
   
@@ -137,175 +113,46 @@ public class ContactMission extends Mission {
   
   /**  Behaviour implementation-
     */
-  private Actor[] talksTo() {
-    if (talksTo != null) return talksTo;
-    final Batch <Actor> batch = new Batch <Actor> ();
-    if (subject instanceof Actor) {
-      final Actor a = (Actor) subject;
-      batch.add(a);
-    }
-    else if (subject instanceof Venue) {
-      final Venue v = (Venue) subject;
-      for (Actor a : v.staff.residents()) batch.include(a);
-      for (Actor a : v.staff.workers()  ) batch.include(a);
-    }
-    return talksTo = batch.toArray(Actor.class);
-  }
-  
-  
-  private boolean doneTalking(Actor a) {
-    if (agreed.includes(a)) return true;
-    return a.relations.noveltyFor(base) < 0;
-  }
-  
-  
-  public void updateMission() {
-    super.updateMission();
-    talksTo = null;
-    
-    final boolean report = stepsVerbose && (
-      ((List) approved()).includes(I.talkAbout) ||
-      Visit.arrayIncludes(talksTo(), I.talkAbout) ||
-      I.talkAbout == this
-    );
-    
-    boolean allDone = roles.size() > 0;
-    for (Actor a : talksTo()) {
-      if (! doneTalking(a)) allDone = false;
-    }
-    
-    if (allDone) {
-      //applyContactEffects(report);
-      doneContact = true;
-    }
-  }
-  
-  
   protected Behaviour createStepFor(Actor actor) {
+    final boolean report = I.talkAbout == actor;
+    
     if (finished()) return null;
     final Behaviour cached = nextStepFor(actor, false);
     if (cached != null) return cached;
     //
-    //  In the case of direct summonings of base-citizens, we can skip directly
-    //  to the Summons.
-    if (isSummons) {
-      return cacheStepFor(actor, Summons.officialSummons(actor));
-    }
-    
-    /*
+    //  In the case of direct contact with base-citizens, we can skip directly
+    //  to the summons-
+    if (asSummons != null) return cacheStepFor(actor, asSummons);
     //
-    //  Otherwise, things get a little more complex...
-    final Choice choice = new Choice(actor);
-    final float basePriority = basePriority(actor);
-    //
-    //  First of all, try to complete normal dialogue efforts with everyone
-    //  involved.
-    for (Actor a : talksTo()) {
-      final float novelty = a.relations.noveltyFor(actor);
-      if (novelty <= 0) continue;
-      final Dialogue talk = new Dialogue(actor, a, Dialogue.TYPE_CONTACT);
-      talk.setMotive(Plan.MOTIVE_MISSION, basePriority);
-      final Gifting gifts = Gifting.nextGifting(talk, actor, a);
-      
-      if (gifts != null) choice.add(gifts);
-      else choice.add(talk);
+    //  Otherwise, we begin talks with the subject:
+    final Actor with = (Actor) subject;
+    final Proposal talks = new Proposal(actor, with);
+    final float novelty = with.relations.noveltyFor(actor);
+    talks.setTerms(offers, sought);
+    talks.setMotive(Plan.MOTIVE_MISSION, basePriority(actor));
+    
+    if (report) {
+      I.say("Motive bonus is:    "+talks.motiveBonus());
+      I.say("Discussion novelty: "+novelty);
     }
     
-    //  If that is complete, try closing the talks.
-    if (choice.size() == 0) for (Actor a : talksTo) {
-      if (doneTalking(a)) continue;
-      final float relation = a.relations.valueFor(actor);
-      final Action closeTalks = new Action(
-        actor, a,
-        this, "actionCloseTalks",
-        Action.TALK_LONG, "Closing talks"
-      );
-      closeTalks.setPriority(Plan.ROUTINE * (2 + relation) / 2f);
-      choice.add(closeTalks);
-    }
-    //*/
-    
-    return null;// cacheStepFor(actor, choice.pickMostUrgent());
+    //  TODO:  Check that this correlates correctly with quitting!
+    if (novelty <= 0) allTried.include(actor);
+    return cacheStepFor(actor, talks);
   }
   
   
   protected boolean shouldEnd() {
-    return doneContact;
-  }
-  
-  
-  /*
-  public boolean actionCloseTalks(Actor actor, Actor other) {
-    final boolean report = stepsVerbose && I.talkAbout == actor;
+    if (! hasBegun()) return false;
     
-    float DC = other.relations.valueFor(actor) * -10;
-    if (objective() == OBJECT_FRIENDSHIP) DC += 0 ;
-    if (objective() == OBJECT_AUDIENCE  ) DC += 10;
-    if (objective() == OBJECT_SUBMISSION) DC += 20;
-    
-    final float danger = other.senses.fearLevel();
-    DC -= danger * 5;
-    
-    final float novelty = other.relations.noveltyFor(actor.base());
-    if (novelty < 0) DC += novelty * 10;
-    float success = DialogueUtils.talkResult(SUASION, DC, actor, other);
-    
-    if (report) I.say("Success rating was: "+success+" with "+other);
-    
-    //  TODO:  Reconsider?
-    //  Failed efforts annoy the subject.
-    
-    final float noveltyInc = -1f / Dialogue.BORED_DURATION;
-    other.relations.incRelation(base, 0, 0, noveltyInc);
-    if (success < 1) {
-      other.relations.incRelation(
-        actor, 0 - Dialogue.RELATION_BOOST, 0.1f, noveltyInc
-      );
-      return false;
+    if (asSummons != null) {
+      return asSummons.finished();
     }
     else {
-      agreed.add(other);
-      return true;
+      if (sought.accepted()) return true;
+      return allTried.size() == rolesApproved();
     }
   }
-  
-  
-  private void applyContactEffects(boolean report) {
-    final Actor ruler = base.ruler();
-    final boolean majority = agreed.size() > (talksTo().length / 2);
-    
-    if (report) {
-      I.say("\nCONTACT MISSION COMPLETE "+this);
-      I.say("  Following have agreed to terms: ");
-      for (Actor a : agreed) I.say("    "+a);
-    }
-    
-    //  TODO:  Partial success might net you an informant.
-    final int object = objective();
-    for (Actor other : agreed) {
-      if (object == OBJECT_FRIENDSHIP) {
-        //  TODO:  Actually modify relations between the bases, depending on
-        //  how successful you were.  (This has the added benefit of making
-        //  spontaneous combat less likely.)
-        other.relations.incRelation(base, Dialogue.RELATION_BOOST, 0.5f, 0);
-      }
-      if (object == OBJECT_AUDIENCE && ruler != null) {
-        I.say("Issuing summons to: "+other);
-        other.mind.assignToDo(Summons.officialSummons(other));
-      }
-      if (object == OBJECT_SUBMISSION) {
-        other.relations.incRelation(base, -1, 0.5f, 0);
-        other.assignBase(base);
-      }
-    }
-    
-    if (subject instanceof Venue && majority) {
-      if (objective() == OBJECT_SUBMISSION) {
-        ((Venue) subject).assignBase(base);
-      }
-    }
-  }
-  //*/
   
   
   
@@ -331,7 +178,7 @@ public class ContactMission extends Mission {
   
   
   public String[] objectiveDescriptions() {
-    return SETTING_DESC;
+    return null;
   }
   
   
@@ -339,16 +186,8 @@ public class ContactMission extends Mission {
     d.append("On ");
     d.append("Contact Mission ", this);
     d.append(" with ");
-    //d.append(SETTING_DESC[objectIndex()]);
     d.append(subject);
   }
 }
-
-
-
-
-
-
-
 
 

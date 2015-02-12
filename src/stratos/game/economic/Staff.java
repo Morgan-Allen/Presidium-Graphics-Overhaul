@@ -290,6 +290,7 @@ public class Staff {
       if (employs.crowdRating(oA.actor(), a.position()) >= 1) {
         applications.remove(oA);
       }
+      if (oA == a) applications.remove(a);
     }
     //
     //  If the actor needs transport, arrange it-

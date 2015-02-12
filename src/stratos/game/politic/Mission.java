@@ -14,50 +14,6 @@ import stratos.util.*;
 
 
 
-//  TODO:  Different mission types need to have different options.
-/*
-MISSION OPTIONS
-  Public Contract  Screened  Covert
-  Idle Casual Routine Urgent Critical
-  Base Payment:  100/250/500/1000/2500
-
-  Credits.  Goods.  Rare Artifacts.
-  Obedience.  Loyalty.  Blackmail.
-  Promotion.  Marriage.  Legislation.
-  
-  
-//  TODO:  You must create a location interface.
-//  Cash.  Promotion.  Artifact.
-//  Policy.  Pardon.  Marriage.
-//  Declare Mission.
-//  Under Orders.
-
-
-RECON FACTORS
-  Area to explore.  Populated/wild area.  Bugs & sampling.
-
-STRIKE FACTORS
-  Degree of force.  Retreat policy.  Target vulnerability.
-
-SECURITY FACTORS
-  Patrol duration.  Client emergencies.  Defend vs. scout.
-
-CONTACT FACTORS
-  Service asked vs. tribute offered.  Fear.  Interview.
-
-
-Also apply to off-world missions-
-
-  Request/demand support (money/goods/troops)
-  Supply request/demands (money/goods/troops)
-  Marriage alliance / Trade envoy / Secure Peace
-  Launch raid / Capture/rescue / Exploring/Spies
-
-
-//  TODO:  Add option to visit your household when recruiting members.
-//*/
-
-
 public abstract class Mission implements Session.Saveable, Selectable {
   
   protected static boolean
@@ -226,6 +182,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
     //  By default, we also terminate any missions that have been completely
     //  abandoned-
     if (missionType != TYPE_PUBLIC && hasBegun() && rolesApproved() == 0) {
+      I.say("\nNOBODY INVOLVED IN MISSION: "+this);
       endMission(false);
     }
   }
@@ -233,6 +190,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   public void resetMission() {
     for (Role role : roles) role.applicant.mind.assignMission(null);
+    roles.clear();
     begun = false;
   }
   
@@ -363,6 +321,8 @@ public abstract class Mission implements Session.Saveable, Selectable {
   //  NOTE:  This method should be called within the ActorMind.assignMission
   //  method, and not independantly.
   public void setApplicant(Actor actor, boolean is) {
+    I.say("SETTING AS APPLICANT: "+actor+" "+is);
+    
     final Role oldRole = roleFor(actor);
     if (is) {
       if (actor.mind.mission() != this) I.complain("MUST CALL setMission()!");
@@ -381,6 +341,8 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   public void setApprovalFor(Actor actor, boolean is) {
+    I.say("SETTING APPROVAL: "+actor+" "+is);
+    
     final Role role = roleFor(actor);
     if (role == null) I.complain(actor+" never applied for "+this);
     role.approved = is;
@@ -486,11 +448,6 @@ public abstract class Mission implements Session.Saveable, Selectable {
     if (step == null) return -1;
     float priority = step.priorityFor(actor);
     
-    final Actor ruler = base.ruler();
-    if (ruler != null) {
-      priority += Plan.ROUTINE * actor.relations.valueFor(ruler);
-    }
-    
     if (priority < Plan.ROUTINE && actor.mind.mission() != this) return 0;
     return priority;
   }
@@ -540,7 +497,13 @@ public abstract class Mission implements Session.Saveable, Selectable {
     
     float value = actor.motives.greedPriority((int) rewardEval);
     final int standing = actor.vocation().standing;
-    value *= standing * 1.5f / Backgrounds.CLASS_STRATOI;
+    value *= standing * 1f / Backgrounds.CLASS_STRATOI;
+    
+    final Actor ruler = base.ruler();
+    if (ruler != null) {
+      value += Plan.ROUTINE * actor.relations.valueFor(ruler);
+    }
+    
     if (report) {
       I.say("  True reward total: "+REWARD_AMOUNTS[priority]);
       I.say("  Type multiplier:   "+REWARD_TYPE_MULTS[missionType]);
@@ -679,7 +642,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   public void whenClicked() {
-    BaseUI.current().selection.pushSelection(this, true);
+    BaseUI.current().selection.pushSelection(this);
   }
   
   
@@ -753,7 +716,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   private void returnSelectionAfterward() {
     if (BaseUI.isSelected(this) && (subject instanceof Selectable)) {
-      BaseUI.current().selection.pushSelection((Selectable) subject, false);
+      BaseUI.current().selection.pushSelection((Selectable) subject);
     }
   }
 

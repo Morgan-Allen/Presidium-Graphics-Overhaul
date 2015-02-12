@@ -138,7 +138,7 @@ public class DebugPlacing extends Scenario {
       final Plan roadBuild = new RoadsRepair(tech, tech.origin());
       roadBuild.setMotive(Plan.MOTIVE_JOB, 100);
       tech.mind.assignBehaviour(roadBuild);
-      UI.selection.pushSelection(tech, true);
+      UI.selection.pushSelection(tech);
     }
   }
   
@@ -154,7 +154,7 @@ public class DebugPlacing extends Scenario {
     worksA.goAboard(station.mainEntrance(), world);
     worksB.goAboard(station.mainEntrance(), world);
     
-    UI.selection.pushSelection(worksB, true);
+    UI.selection.pushSelection(worksB);
   }
   
   

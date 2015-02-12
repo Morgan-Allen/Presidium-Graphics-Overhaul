@@ -12,6 +12,7 @@ import stratos.graphics.common.*;
 import stratos.graphics.terrain.*;
 import stratos.graphics.sfx.*;
 import stratos.graphics.widgets.*;
+import stratos.start.PlayLoop;
 import stratos.util.*;
 
 import com.badlogic.gdx.Gdx;
@@ -54,7 +55,6 @@ public class Selection implements UIConstants {
   private Mission pickMission;
   
   private Selectable hovered, selected;
-  private Stack <Selectable> navStack = new Stack <Selectable> ();
   
   
   Selection(BaseUI UI) {
@@ -90,7 +90,7 @@ public class Selection implements UIConstants {
       UI.currentPane() == null &&
       UI.currentInfo() == null
     ) {
-      pushSelection(selected, true);
+      pushSelection(selected);
     }
     //
     //  If a UI element is selected, don't pick anything else-
@@ -136,32 +136,31 @@ public class Selection implements UIConstants {
     }
     
     if (UI.mouseClicked() && UI.currentTask() == null) {
-      pushSelection(hovered, true);
+      pushSelection(hovered);
     }
     I.talkAbout = selected;
     return true;
   }
   
 
-  public void pushSelection(Selectable s, boolean asRoot) {
+  public void pushSelection(Selectable s) {
     
     if (s == null) {
-      navStack.clear();
       selected = null;
       UI.tracking.lockOn(null);
       UI.setInfoPanels(null, null);
       return;
     }
-    else if (asRoot) navStack.clear();
     
     selected = s;
+    I.talkAbout = selected;
+    if (! PlayLoop.onRenderThread()) return;
+    
     final Target locks = s.selectionLocksOn();
     if (locks.inWorld()) UI.tracking.lockOn(locks);
     final SelectionInfoPane panel = s.configPanel(null, UI);
     final TargetOptions info = s.configInfo(null, UI);
     UI.setInfoPanels(panel, info);
-    
-    I.talkAbout = selected;
   }
   
   

@@ -129,7 +129,7 @@ public class CommsPanel extends SelectionInfoPane {
       }
     };
     final MessagePanel panel = new MessagePanel(
-      UI, portrait, title, mainText,
+      UI, portrait, title, mainText, null,
       (Clickable[]) Visit.compose(Clickable.class, options, navOptions)
     );
     return addMessage(source, title, panel);

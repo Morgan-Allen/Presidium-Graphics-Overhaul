@@ -11,6 +11,9 @@ import stratos.game.economic.Property;
 
 
 
+//  TODO:  Break down the report functions with some finer granularity.  You
+//         may only want to inspect certain facets of the decision-process.
+
 public abstract class ActorMind implements Qualities {
   
   
@@ -94,25 +97,12 @@ public abstract class ActorMind implements Qualities {
     for (Behaviour b : todoList) if (b.finished()) todoList.remove(b);
     final Behaviour last = rootBehaviour();
     final Behaviour next = nextBehaviour();
-    
-    if (report) {
-      I.say("\nPerformed periodic AI update.");
-      final float
-        lastP = last == null ? -1 : last.priorityFor(actor),
-        nextP = next == null ? -1 : next.priorityFor(actor);
-      I.say("  LAST PLAN: "+last+" "+lastP);
-      I.say("  NEXT PLAN: "+next+" "+nextP);
-    }
-    if (Choice.wouldSwitch(actor, last, next, true, report)) {
-      assignBehaviour(next);
-      if (report) I.say("  Switching to next plan!");
-    }
-    else if (report) I.say("  Next plan has insufficient priority!");
+    if (next != last) assignBehaviour(next);
   }
   
   
   public Behaviour nextBehaviour() {
-    final boolean report = decisionVerbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && decisionVerbose;
     if (report) I.say("\n\nACTOR IS GETTING NEXT BEHAVIOUR...");
     Behaviour taken = null, onMission = null;
     
@@ -128,6 +118,11 @@ public abstract class ActorMind implements Qualities {
     taken = Choice.switchFor(actor, notDone, taken, true, report);
     if (report && fromTodo.empty()) I.say("  Nothing on todo list.");
     
+    if (report) I.say("\nGetting current behaviour:");
+    final Behaviour current = rootBehaviour();
+    taken = Choice.switchFor(actor, current, taken, true, report);
+    if (report && current == null) I.say("  No current behaviour.");
+    
     if (report) I.say("\nGetting next mission-step:");
     if (mission != null && mission.hasBegun() && mission.isApproved(actor)) {
       onMission = mission.nextStepFor(actor, true);
@@ -141,11 +136,13 @@ public abstract class ActorMind implements Qualities {
       final float
         notP = notDone   == null ? -1 : notDone  .priorityFor(actor),
         newP = newChoice == null ? -1 : newChoice.priorityFor(actor),
+        curP = current   == null ? -1 : current  .priorityFor(actor),
         onMP = onMission == null ? -1 : onMission.priorityFor(actor);
-      I.say("  From Todo:  "+notDone+  "  (priority "+notP+")");
       I.say("  New choice: "+newChoice+"  (priority "+newP+")");
+      I.say("  From Todo:  "+notDone  +"  (priority "+notP+")");
+      I.say("  Current:    "+current  +"  (priority "+curP+")");
       I.say("  On Mission: "+onMission+"  (priority "+onMP+")");
-      I.say("TAKEN: "+taken);
+      I.say("  TAKEN: "+taken+"\n");
     }
     return taken;
   }
@@ -302,9 +299,11 @@ public abstract class ActorMind implements Qualities {
   /**  Methods related to maintaining the agenda stack-
     */
   private void pushBehaviour(Behaviour b, String cause) {
+    final boolean report = I.talkAbout == actor && stepsVerbose;
+    
     if (todoList.includes(b)) todoList.remove(b);
     agenda.addFirst(b);
-    if (stepsVerbose && I.talkAbout == actor) {
+    if (report) {
       I.say("\nPUSHING BEHAVIOUR: "+b);
       I.say("  Cause:          "+cause);
     }
@@ -313,11 +312,13 @@ public abstract class ActorMind implements Qualities {
   
   
   private Behaviour popBehaviour(Behaviour toPop, String cause) {
+    final boolean report = I.talkAbout == actor && stepsVerbose;
+    
     if (toPop != null && agenda.first() != toPop) {
       return toPop;
     }
     final Behaviour b = agenda.removeFirst();
-    if (stepsVerbose && I.talkAbout == actor) {
+    if (report) {
       I.say("\nPOPPING BEHAVIOUR: "+b);
       I.say("  Cause:          "+cause);
       I.say("  Finished/valid: "+b.finished()+"/"+b.valid());
@@ -348,6 +349,10 @@ public abstract class ActorMind implements Qualities {
       if (report) I.say("  SAVING PLAN AS TODO: "+replaced);
       todoList.include(replaced);
     }
+    else if (report) {
+      I.say("  Old plan discarded: "+replaced);
+      Plan.reportPlanDetails(replaced, actor);
+    }
     
     behaviour.priorityFor(actor);
     behaviour.nextStepFor(actor);
@@ -376,9 +381,6 @@ public abstract class ActorMind implements Qualities {
     while (agenda.size() > 0) {
       final Behaviour popped = popBehaviour(null, cause);
       if (popped == b) break;
-    }
-    if (mission != null && mission.cachedStepFor(actor) == b) {
-      assignMission(null);
     }
     todoList.remove(b);
     actor.assignAction(null);

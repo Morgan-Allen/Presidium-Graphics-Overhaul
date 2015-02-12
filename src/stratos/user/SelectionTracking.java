@@ -97,7 +97,7 @@ public class SelectionTracking {
     final Tile under = world.tileAt(nextPos.x, nextPos.y);
     if (under == null) return;
     
-    UI.selection.pushSelection(null, true);
+    UI.selection.pushSelection(null);
     lockTarget = null;
     view.lookedAt.setTo(nextPos);
     
@@ -114,7 +114,7 @@ public class SelectionTracking {
     
     if (KeyInput.wasTyped(' ')) {
       final Selectable ruler = UI.played().ruler();
-      if (ruler != null) UI.selection.pushSelection(ruler, true);
+      if (ruler != null) UI.selection.pushSelection(ruler);
     }
     
     if (UI.currentPane() instanceof SelectionInfoPane) {

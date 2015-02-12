@@ -362,7 +362,7 @@ public final class Tile implements
     //  TODO:  Open a simple display pane to give basic information on the
     //         habitat type?
     final BaseUI UI = BaseUI.current();
-    UI.selection.pushSelection(null, false);
+    UI.selection.pushSelection(null);
     UI.tracking.lockOn(this);
   }
   

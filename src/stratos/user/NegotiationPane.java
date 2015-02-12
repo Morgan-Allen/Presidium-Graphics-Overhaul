@@ -41,6 +41,11 @@ public class NegotiationPane extends MissionPane {
       return this;
     }
     
+    final boolean canChange = ! mission.hasBegun();
+    super.describeStatus(contact, canChange, UI, d);
+    super.describeOrders(canChange, d);
+    
+    
     final Actor ruler = mission.base().ruler();
     final Actor subject = (Actor) mission.subject();
     offers.made = contact.pledgeOffers();
@@ -48,6 +53,9 @@ public class NegotiationPane extends MissionPane {
     
     offers.listTermsFor(ruler  , subject, "Terms Offered: "   , l);
     sought.listTermsFor(subject, ruler  , "\n\nTerms Sought: ", l);
+    
+    l.append("\n\n");
+    super.listApplicants(contact, contact.applicants(), canChange, UI, l);
     return this;
   }
   

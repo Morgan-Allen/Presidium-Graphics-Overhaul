@@ -87,12 +87,20 @@ public class Bastion extends Venue {
     //  TODO:  This could probably be sophisticated a bit...
     
     final Stage world = point.world();
-    float rating = 1;
+    float rating = 2;
+    if (inWorld()) return rating;
     
     final int SS = Stage.SECTOR_SIZE;
     final Target nearest = world.presences.nearestMatch(Venue.class, point, -1);
-    if (nearest == null) return 1;
+    if (nearest == null) return rating;
     return rating * (SS + Spacing.distance(point, nearest)) / SS;
+  }
+  
+  
+  public boolean allowsEntry(Mobile m) {
+    if (super.allowsEntry(m)) return true;
+    if (Summons.summonedTo(m) == this) return true;
+    return false;
   }
   
   

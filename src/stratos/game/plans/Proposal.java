@@ -7,6 +7,7 @@ package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.politic.*;
+import stratos.user.BaseUI;
 import stratos.util.*;
 
 
@@ -55,16 +56,27 @@ public class Proposal extends Dialogue {
   
   
   protected Session.Saveable selectTopic(boolean close) {
+    
+    final boolean report = (
+      I.talkAbout == actor || I.talkAbout == other
+    ) && stepsVerbose;
+    if (report) {
+      I.say("\nGetting new topic for proposal from "+actor+" to "+other);
+      I.say("  Closing talks? "+close);
+    }
+    
     if (close) return this;
     else return super.selectTopic(false);
   }
   
+  
   //  TODO:  Also, make sure the other actor stands still long enough to
-  //         receive the effects of the pledge...
+  //         receive the effects of the pledge!
   
   protected void discussTopic(Session.Saveable topic, boolean close) {
     if (topic != this) { super.discussTopic(topic, close); return; }
     if (offers == null || sought == null) I.complain("MUST SET TERMS FIRST!");
+    if (offers.accepted()) return;
     //
     //  The likelihood of an offer being accepted depends on the degree of
     //  net benefit that the recipient expects to gain from the exchange, plus
@@ -97,11 +109,25 @@ public class Proposal extends Dialogue {
       I.say("  Talk result:   "+talkResult+" (DC "+opposeDC+")");
     }
     
+    //
+    //  TODO:  If the pledged action isn't possible at the moment, store the
+    //  Pledge and follow through later.
     if (talkResult >= 0.5f) {
-      final Actor     GA = offers.makesPledge(), AA = sought.makesPledge();
-      final Behaviour GB = offers.fulfillment(), AB = sought.fulfillment();
-      if (GB != null) GA.mind.assignBehaviour(GB);
-      if (AB != null) AA.mind.assignBehaviour(AB);
+      
+      sought.setAcceptance(true, true);
+      offers.setAcceptance(true, true);
+      final Actor     OA = offers.makesPledge(), SA = sought.makesPledge();
+      final Behaviour OB = offers.fulfillment(), SB = sought.fulfillment();
+      
+      if (OB != null) OA.mind.assignBehaviour(OB);
+      if (SB != null) SA.mind.assignBehaviour(SB);
+      if (report) {
+        I.say("  OFFER ACCEPTED");
+        I.say("    Offered action:   "+OB);
+        I.say("    Fulfills offered: "+OA+" (Doing "+OA.mind.agenda()+")");
+        I.say("    Sought action:    "+SB);
+        I.say("    Fulfills sought:  "+SA+" (Doing "+SA.mind.agenda()+")");
+      }
       //
       //  If the offer is accepted, the recipient modifies their relation based
       //  on how much they benefit from the offer.  (A portion of this is
@@ -113,6 +139,7 @@ public class Proposal extends Dialogue {
       actor.relations.incRelation(other, impact * likes / 2, 0.25f, 0);
     }
     else {
+      if (report) I.say("  OFFER REFUSED");
       //
       //  If the offer is refused, then relations for both parties are lowered,
       //  but more for the giver than the receiver.

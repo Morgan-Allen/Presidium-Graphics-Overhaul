@@ -32,7 +32,6 @@ public class Pathing {
   
   private Boarding path[]    = null;
   private int      stepIndex = -1  ;
-  private float    evalDelay =  0  ;
   
   
   public Pathing(Mobile a) {
@@ -125,7 +124,6 @@ public class Pathing {
       }
       path = null;
       stepIndex = -1;
-      evalDelay = 0;
       return;
     }
     else if (inLocus(nextStep())) {
@@ -188,10 +186,8 @@ public class Pathing {
   
   public boolean refreshFullPath() {
     final boolean report = verbose && I.talkAbout == mobile;
-    if (evalDelay > 0) return false;
     if (report) {
       I.say("REFRESHING PATH TO: "+trueTarget);
-      I.say("  Eval delay: "+evalDelay);
     }
     
     final Boarding origin = location(mobile);
@@ -216,7 +212,6 @@ public class Pathing {
       }
       mobile.pathingAbort();
       stepIndex = -1;
-      evalDelay += 0.5f;
       return false;
     }
     
@@ -279,7 +274,6 @@ public class Pathing {
     if (report) {
       I.say("\n"+mobile+" HEADING TOWARDS: "+target+" FROM: "+mobile.origin());
     }
-    if (evalDelay > 0) evalDelay -= 1f / Stage.UPDATES_PER_SECOND;
     
     //  Don't move if something ahead is blocking entrance-
     if (target instanceof Tile) {

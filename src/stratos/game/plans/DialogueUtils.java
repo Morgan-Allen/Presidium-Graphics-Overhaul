@@ -104,12 +104,16 @@ public class DialogueUtils implements Qualities {
   
   protected static void discussPlan(Actor actor, Actor other, Plan about) {
     final Plan copy = about.copyFor(other);
-    if (copy == null || other.mind.mustIgnore(copy)) return;
+    if (copy == null) return;
     
     final float urge = DialogueUtils.talkResult(
       SUASION, ROUTINE_DC, actor, other
     ) * Plan.CASUAL;
     copy.setMotive(Plan.MOTIVE_LEISURE, urge + copy.motiveBonus());
+    
+    //  TODO:  Compare with whatever the actor has on their todo-list, or from
+    //  a mission.
+    if (! other.mind.wouldSwitchTo(copy)) return;
     
     actor.mind.assignBehaviour(new Joining(actor, about, other));
     other.mind.assignBehaviour(new Joining(other, copy , actor));

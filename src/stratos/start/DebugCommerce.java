@@ -133,7 +133,7 @@ public class DebugCommerce extends Scenario {
     base.commerce.updateCommerce(0);
     base.commerce.scheduleDrop(5);
     
-    UI.selection.pushSelection(base.commerce.allVessels().first(), true);
+    UI.selection.pushSelection(base.commerce.allVessels().first());
   }
   
   
@@ -171,7 +171,7 @@ public class DebugCommerce extends Scenario {
     //  manufacture of contraband.
     //  TODO:  Consider having a sub-class who provide those services?
     
-    UI.selection.pushSelection(runner, true);
+    UI.selection.pushSelection(runner);
     //  TODO:  Set up initial relationships...
   }
   
@@ -185,7 +185,7 @@ public class DebugCommerce extends Scenario {
       citizen.enterWorldAt(world.tileAt(10 + n, 10 + n), world);
       citizen.gear.incCredits(1000);
     }
-    UI.selection.pushSelection(citizen, true);
+    UI.selection.pushSelection(citizen);
     
     final Venue foundry = new EngineerStation(base);
     Placement.establishVenue(
@@ -216,7 +216,7 @@ public class DebugCommerce extends Scenario {
     exchange.stocks.forceDemand(PLASTICS, 25, Tier.TRADER);
     exchange.stocks.forceDemand(CARBS   , 35, Tier.TRADER);
     
-    UI.selection.pushSelection(depot, true);
+    UI.selection.pushSelection(depot);
   }
   
   
@@ -233,7 +233,7 @@ public class DebugCommerce extends Scenario {
     depot.stocks.bumpItem(ORES, 10);
     foundry.stocks.forceDemand(ORES, 3, Tier.CONSUMER);
     
-    UI.selection.pushSelection(foundry, true);
+    UI.selection.pushSelection(foundry);
     
     for (Actor guy : foundry.staff.workers()) {
       final Delivery d = DeliveryUtils.fillBulkOrder(

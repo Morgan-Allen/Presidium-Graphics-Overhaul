@@ -41,7 +41,7 @@ public class Studying extends Plan {
   
   
   public Studying(Actor actor, Venue studyAt, float chargeCost) {
-    super(actor, studyAt, MOTIVE_AMBITION, NO_HARM);
+    super(actor, studyAt, MOTIVE_PERSONAL, NO_HARM);
     this.venue = studyAt;
     this.chargeCost = chargeCost;
   }

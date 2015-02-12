@@ -232,7 +232,7 @@ public abstract class Structural extends Fixture implements
   
   
   public void whenClicked() {
-    BaseUI.current().selection.pushSelection(this, false);
+    BaseUI.current().selection.pushSelection(this);
   }
   
   

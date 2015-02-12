@@ -38,14 +38,16 @@ public class Choice implements Qualities {
   
   public boolean add(Behaviour plan) {
     if (plan == null) return false;
-    if (! checkPlanValid(plan)) return false;
+    final boolean report = isVerbose || (verboseReject && I.talkAbout == actor);
+    if (! checkPlanValid(plan, actor, report)) return false;
     plans.add(plan);
     return true;
   }
   
   
-  protected boolean checkPlanValid(Behaviour plan) {
-    final boolean report = isVerbose || (verboseReject && I.talkAbout == actor);
+  protected static boolean checkPlanValid(
+    Behaviour plan, Actor actor, boolean report
+  ) {
     
     final boolean valid = plan.valid();
     if (! valid) {
@@ -209,8 +211,8 @@ public class Choice implements Qualities {
     boolean report
   ) {
     if (report) I.say("\nConsidering switch from "+last+" to "+next);
-    if (next == null) return false;
-    if (last == null) return true ;
+    if (next == null || ! checkPlanValid(next, actor, report)) return false;
+    if (last == null || ! checkPlanValid(last, actor, report)) return true ;
     
     final float
       lastPriority = last.priorityFor(actor),

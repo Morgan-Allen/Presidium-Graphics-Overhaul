@@ -37,6 +37,7 @@ public abstract class Actor extends Mobile implements
   final public ActorRelations relations = initRelations();
   
   private Action actionTaken;
+  private float  lastUpdate;
   private Mount  mount;
   private Base   base;
   
@@ -280,9 +281,11 @@ public abstract class Actor extends Mobile implements
     final boolean report = I.talkAbout == this && verbose;
     //
     //  Check to see what our current condition is-
+    final float time = world.currentTime() - lastUpdate;
     final boolean
       OK         = health.conscious() && ! doingPhysFX(),
-      checkSleep = (health.asleep() && numUpdates % 10 == 0);
+      checkSleep = (health.asleep() && numUpdates % 10 == 0),
+      tooSoon    = time < 2 && (! instant);
     if (report) {
       I.say("\nUpdating actor!  Instant? "+instant);
       I.say("    Num updates:      "+numUpdates);
@@ -291,7 +294,7 @@ public abstract class Actor extends Mobile implements
     }
     //
     //  Update our actions, pathing, and AI-
-    if (OK || checkSleep) {
+    if ((OK || checkSleep) && (! tooSoon)) {
       senses.updateSenses();
       mind.updateAI(numUpdates);
       relations.updateValues(numUpdates);
@@ -305,6 +308,7 @@ public abstract class Actor extends Mobile implements
         if (nextAction != actionTaken) assignAction(nextAction);
         if (! pathing.checkPathingOkay()) pathing.refreshFullPath();
       }
+      lastUpdate = world.currentTime();
     }
     //
     //  Update the intel/danger maps associated with the world's bases.
@@ -530,7 +534,7 @@ public abstract class Actor extends Mobile implements
   
   
   public void whenClicked() {
-    BaseUI.current().selection.pushSelection(this, false);
+    BaseUI.current().selection.pushSelection(this);
   }
   
   

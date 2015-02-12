@@ -91,7 +91,7 @@ public class DebugTreating extends Scenario {
     //treated.traits.incLevel(Conditions.HIREX_PARASITE, 0.99f);
     treated.health.takeInjury(treated.health.maxHealth() + 1, true);
     
-    UI.selection.pushSelection(treats, true);
+    UI.selection.pushSelection(treats);
   }
   
   
@@ -110,7 +110,7 @@ public class DebugTreating extends Scenario {
     patient.enterWorldAt(world.tileAt(10, 10), world);
     patient.health.takeInjury(patient.health.maxHealth(), false);
     
-    UI.selection.pushSelection(patient, true);
+    UI.selection.pushSelection(patient);
   }
   
   

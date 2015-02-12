@@ -19,13 +19,16 @@ import stratos.game.wild.Species;
 
 //  TODO:  Replace with 'Person' or 'Citizen'?
 
+//  TODO:  You also need to ensure that the media gets updated when an actor
+//         changes job.
+
 public class Human extends Actor implements Qualities {
   
   
   /**  Methods and constants related to preparing media and sprites-
     */
   private static boolean
-    mediaVerbose = true;
+    mediaVerbose = false;
   
   
   

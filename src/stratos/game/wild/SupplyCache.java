@@ -122,7 +122,7 @@ public class SupplyCache extends Fixture implements Item.Dropped {
   
   
   public void whenClicked() {
-    BaseUI.current().selection.pushSelection(this, false);
+    BaseUI.current().selection.pushSelection(this);
   }
   
 
