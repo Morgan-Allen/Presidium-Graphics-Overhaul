@@ -13,7 +13,9 @@ import stratos.util.*;
 
 
 //  TODO:  Allow proposals by proxy on behalf of someone else (e.g, a base's
-//         ruler.)
+//         ruler?)
+//         Also, allow for a 'pay now/pay later/break promise' approach.
+
 
 public class Proposal extends Dialogue {
   
@@ -52,26 +54,16 @@ public class Proposal extends Dialogue {
   }
   
   
-  
-  
-  
-  protected Session.Saveable selectTopic(boolean close) {
-    
-    final boolean report = (
-      I.talkAbout == actor || I.talkAbout == other
-    ) && stepsVerbose;
-    if (report) {
-      I.say("\nGetting new topic for proposal from "+actor+" to "+other);
-      I.say("  Closing talks? "+close);
-    }
-    
-    if (close) return this;
-    else return super.selectTopic(false);
+  protected boolean shouldClose() {
+    return (sought.accepted() || sought.refused());
   }
   
   
-  //  TODO:  Also, make sure the other actor stands still long enough to
-  //         receive the effects of the pledge!
+  protected Session.Saveable selectTopic(boolean close) {
+    if (super.shouldClose()) return this;
+    else return super.selectTopic(false);
+  }
+  
   
   protected void discussTopic(Session.Saveable topic, boolean close) {
     if (topic != this) { super.discussTopic(topic, close); return; }
@@ -83,7 +75,7 @@ public class Proposal extends Dialogue {
     //  the current value of their relationship with the proposer.
     final boolean report = (
       I.talkAbout == actor || I.talkAbout == other
-    ) && stepsVerbose;
+    );// && stepsVerbose;
     final float
       offersVal = offers.valueFor(other),
       soughtVal = sought.valueFor(other),
@@ -113,12 +105,14 @@ public class Proposal extends Dialogue {
     //  TODO:  If the pledged action isn't possible at the moment, store the
     //  Pledge and follow through later.
     if (talkResult >= 0.5f) {
-      
       sought.setAcceptance(true, true);
       offers.setAcceptance(true, true);
-      final Actor     OA = offers.makesPledge(), SA = sought.makesPledge();
-      final Behaviour OB = offers.fulfillment(), SB = sought.fulfillment();
-      
+      final Actor
+        OA = offers.makesPledge(),
+        SA = sought.makesPledge();
+      final Behaviour
+        OB = offers.fulfillment(sought),
+        SB = sought.fulfillment(offers);
       if (OB != null) OA.mind.assignBehaviour(OB);
       if (SB != null) SA.mind.assignBehaviour(SB);
       if (report) {
@@ -140,6 +134,8 @@ public class Proposal extends Dialogue {
     }
     else {
       if (report) I.say("  OFFER REFUSED");
+      sought.setAcceptance(false, true);
+      offers.setAcceptance(false, true);
       //
       //  If the offer is refused, then relations for both parties are lowered,
       //  but more for the giver than the receiver.

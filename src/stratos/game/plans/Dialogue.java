@@ -56,8 +56,9 @@ public class Dialogue extends Plan implements Qualities {
   
   final Actor other;
   final int type;
-  final Dialogue starts;
+  //final Dialogue starts;
   
+  private Dialogue starts = this;
   private int stage = STAGE_INIT;
   private Session.Saveable topic;
   private float talkCounter;
@@ -65,16 +66,11 @@ public class Dialogue extends Plan implements Qualities {
   
   
   public Dialogue(Actor actor, Actor other) {
-    this(actor, other, null, TYPE_CASUAL);
+    this(actor, other, TYPE_CASUAL);
   }
   
   
   public Dialogue(Actor actor, Actor other, int type) {
-    this(actor, other, null, type);
-  }
-  
-  
-  private Dialogue(Actor actor, Actor other, Dialogue starts, int type) {
     super(actor, other, MOTIVE_LEISURE, MILD_HELP);
     this.other  = other;
     this.starts = starts == null ? this : starts;
@@ -106,7 +102,7 @@ public class Dialogue extends Plan implements Qualities {
   
   
   public Plan copyFor(Actor other) {
-    return new Dialogue(other, this.other, null, type);
+    return new Dialogue(other, this.other, type);//null, type);
   }
   
   
@@ -146,25 +142,25 @@ public class Dialogue extends Plan implements Qualities {
       if (report) I.say("  Other actor is unconscious.");
       return false;
     }
-    
+    /*
     if (chatsWith != null && chatsWith != actor) {
       if (report) I.say("  Other actor busy talking.");
       return false;
     }
+    //*/
     if (chatsWith == actor) {
       if (report) I.say("  Conversation ongoing- okay.");
       return true;
     }
-    if (starts.stage > STAGE_GREET && ! starts.isActive()) {
-      if (report) I.say("  Conversation starter done.");
-      return false;
-    }
-    if (this != starts && other == starts.actor()) {
+    
+    if (stage == STAGE_INIT && other == starts.actor()) {
       if (report) I.say("  Other actor started conversation.");
       return true;
+      //return starts.stage == STAGE_INIT;
+      //return starts.stage == STAGE_INIT || starts.isActive();
     }
     
-    final Dialogue sample = starts.childDialogue(actor);
+    final Dialogue sample = dialogueFor(actor);
     if (other.mind.mustIgnore(sample)) {
       if (report) I.say("  Other actor is too busy!");
       return false;
@@ -174,14 +170,12 @@ public class Dialogue extends Plan implements Qualities {
   }
   
   
-  private Dialogue childDialogue(Actor other) {
-    final boolean report = shouldReportEval();
-    final Dialogue d = new Dialogue(other, actor, starts, type);
+  protected Dialogue dialogueFor(Actor other) {
+    Dialogue current = (Dialogue) other.matchFor(Dialogue.class, true);
+    if (current != null && current.subject == actor) return current;
     
-    if (report) {
-      I.say("\nHAVE CREATED CHILD DIALOGUE: "+d);
-      I.say("  Starts: "+d.starts);
-    }
+    final Dialogue d = new Dialogue(other, actor, type);
+    d.starts = this;
     d.setMotiveFrom(this, 0 - motiveBonus() / 2f);
     return d;
   }
@@ -334,7 +328,12 @@ public class Dialogue extends Plan implements Qualities {
     if (otherChats != actor) {
       if (canTalk(other)) {
         if (report) I.say("  Assigning fresh dialogue to "+other);
-        other.mind.assignBehaviour(childDialogue(other));
+        
+        final Dialogue child = dialogueFor(other);
+        
+        I.say("\nASSIGNING CHILD DIALOGUE: "+actor);
+        I.say("  Starts is: "+child.starts.actor);
+        other.mind.assignBehaviour(child);
       }
       else return false;
     }
@@ -351,12 +350,20 @@ public class Dialogue extends Plan implements Qualities {
   
   
   public boolean actionChats(Actor actor, Actor other) {
-    if (this == starts) talkCounter++;
-    else talkCounter = starts.talkCounter;
-    final boolean close = talkCounter >= BORED_DURATION;
     
+    final boolean close = shouldClose() && dialogueFor(other).shouldClose();
     topic = (this == starts) ? selectTopic(close) : starts.topic;
     discussTopic(topic, close);
+    
+    final boolean report = I.talkAbout == actor && hasBegun();
+    if (report) {
+      I.say("\nChatting with "+other);
+      I.say("  Should close? "+close);
+      //I.say("  Starts is:    "+starts.getClass().getSimpleName());
+      //I.say("  Starts ID:    "+starts.hashCode());
+      I.say("  This is:      "+this.getClass().getSimpleName());
+      I.say("  This ID:      "+this.hashCode());
+    }
     
     if (close || ! canTalk(other)) stage = STAGE_BYE;
     return true;
@@ -369,6 +376,13 @@ public class Dialogue extends Plan implements Qualities {
   }
   
   
+  protected boolean shouldClose() {
+    talkCounter++;
+    if (talkCounter >= BORED_DURATION) return true;
+    return false;
+  }
+  
+  
   protected Session.Saveable selectTopic(boolean close) {
     //  TODO:  If this is a fresh acquaintance, consider general introductions.
     return DialogueUtils.pickChatTopic(this, other);
@@ -376,7 +390,7 @@ public class Dialogue extends Plan implements Qualities {
   
   
   protected void discussTopic(Session.Saveable topic, boolean close) {
-    DialogueUtils.tryChat(other, other);
+    DialogueUtils.tryChat(actor, other);
     
     if (topic instanceof Actor ) {
       DialogueUtils.discussPerson(actor, other, (Actor ) topic);

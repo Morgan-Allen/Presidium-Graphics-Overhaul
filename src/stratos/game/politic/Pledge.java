@@ -77,26 +77,21 @@ public class Pledge implements Session.Saveable {
   private static boolean
     evalVerbose = false;
   
+  final static int
+    ACCEPT_INIT  = -1,
+    ACCEPT_FALSE =  0,
+    ACCEPT_TRUE  =  1,
+    ACCEPT_LIES  =  2;
+  
   
   final public static Index <Type> TYPE_INDEX = new Index <Type> ();
-  
-  public abstract static class Type extends Index.Entry {
-    
-    final public String name;
-    public Type(String name) { super(TYPE_INDEX, name); this.name = name; }
-    public abstract Pledge[] variantsFor(Actor makes, Actor makesTo);
-    
-    abstract String description(Pledge p);
-    abstract float valueOf(Pledge p, Actor a);
-    abstract Behaviour fulfillment(Pledge p);
-  }
-  
   
   final public Type type;
   final float amount;
   final Session.Saveable refers;
   final Actor makes;
-  private boolean deceive = false, accepted = false;
+  //private boolean deceive = false;//, accepted = false;
+  private int acceptState = ACCEPT_INIT;
   
   
 
@@ -127,22 +122,20 @@ public class Pledge implements Session.Saveable {
   
   public Pledge(Session s) throws Exception {
     s.cacheInstance(this);
-    this.type     = TYPE_INDEX.loadFromEntry(s.input());
-    this.amount   = s.loadFloat ();
-    this.refers   = s.loadObject();
-    this.makes    = (Actor) s.loadObject();
-    this.deceive  = s.loadBool();
-    this.accepted = s.loadBool();
+    this.type        = TYPE_INDEX.loadFromEntry(s.input());
+    this.amount      = s.loadFloat ();
+    this.refers      = s.loadObject();
+    this.makes       = (Actor) s.loadObject();
+    this.acceptState = s.loadInt();
   }
   
   
   public void saveState(Session s) throws Exception {
     TYPE_INDEX.saveEntry(type, s.output());
-    s.saveFloat (amount  );
-    s.saveObject(refers  );
-    s.saveObject(makes   );
-    s.saveBool  (deceive );
-    s.saveBool  (accepted);
+    s.saveFloat (amount     );
+    s.saveObject(refers     );
+    s.saveObject(makes      );
+    s.saveInt   (acceptState);
   }
   
   
@@ -161,8 +154,8 @@ public class Pledge implements Session.Saveable {
   }
   
   
-  public Behaviour fulfillment() {
-    return type.fulfillment(this);
+  public Behaviour fulfillment(Pledge reward) {
+    return type.fulfillment(this, reward);
   }
   
   
@@ -172,7 +165,12 @@ public class Pledge implements Session.Saveable {
   
   
   public boolean accepted() {
-    return accepted;
+    return acceptState == ACCEPT_TRUE;
+  }
+  
+  
+  public boolean refused() {
+    return acceptState == ACCEPT_FALSE;
   }
   
   
@@ -187,8 +185,8 @@ public class Pledge implements Session.Saveable {
   
   
   public void setAcceptance(boolean accepted, boolean sincere) {
-    this.accepted = accepted;
-    this.deceive  = ! sincere;
+    if (! accepted) this.acceptState = ACCEPT_FALSE;
+    else this.acceptState = sincere ? ACCEPT_TRUE : ACCEPT_LIES;
   }
   
   
@@ -196,6 +194,22 @@ public class Pledge implements Session.Saveable {
   
   /**  Definitions for the various specific pledge types follow.
     */
+  //  TODO:  Consider giving types an optional 'preparation' behaviour as well-
+  //  e.g, buying/collecting a gift prior to handing off.  Or a 'stage'
+  //  variable?
+  
+  
+  public abstract static class Type extends Index.Entry {
+    
+    final public String name;
+    public Type(String name) { super(TYPE_INDEX, name); this.name = name; }
+    public abstract Pledge[] variantsFor(Actor makes, Actor makesTo);
+    
+    abstract String description(Pledge p);
+    abstract float valueOf(Pledge p, Actor a);
+    abstract Behaviour fulfillment(Pledge p, Pledge reward);
+  }
+  
   
   
   final public static Type TYPE_PAYMENT = new Type("Payment") {
@@ -222,7 +236,7 @@ public class Pledge implements Session.Saveable {
     }
     
     
-    Behaviour fulfillment(Pledge p) {
+    Behaviour fulfillment(Pledge p, Pledge reward) {
       if (p.makes == p.makes.base().ruler()) {
         final String source = BaseFinance.SOURCE_REWARDS;
         p.makes.base().finance.incCredits(0 - p.amount, source);
@@ -273,7 +287,10 @@ public class Pledge implements Session.Saveable {
     }
     
     
-    Behaviour fulfillment(Pledge p) {
+    Behaviour fulfillment(Pledge p, Pledge reward) {
+      //  TODO:  If the subjects are adjacent, just hand over the gift!
+      
+      
       return (Delivery) p.refers;
     }
   };
@@ -304,7 +321,7 @@ public class Pledge implements Session.Saveable {
     }
     
     
-    Behaviour fulfillment(Pledge p) {
+    Behaviour fulfillment(Pledge p, Pledge reward) {
       return null;
     }
   };
@@ -341,10 +358,11 @@ public class Pledge implements Session.Saveable {
     }
     
     
-    Behaviour fulfillment(Pledge p) {
+    Behaviour fulfillment(Pledge p, Pledge reward) {
       final Mission m = (Mission) p.refers;
       p.makes.mind.assignMission(m);
       m.setApprovalFor(p.makes, true);
+      m.setSpecialRewardFor(p.makes, reward);
       return null;
     }
   };
@@ -373,7 +391,7 @@ public class Pledge implements Session.Saveable {
     }
     
     
-    Behaviour fulfillment(Pledge p) {
+    Behaviour fulfillment(Pledge p, Pledge reward) {
       return Summons.officialSummons(p.makes, (Actor) p.refers);
     }
   };
@@ -417,7 +435,7 @@ public class Pledge implements Session.Saveable {
     }
     
     
-    Behaviour fulfillment(Pledge p) {
+    Behaviour fulfillment(Pledge p, Pledge reward) {
       final FindWork work = (FindWork) p.refers;
       work.employer().staff().confirmApplication(work);
       return null;

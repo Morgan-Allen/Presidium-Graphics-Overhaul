@@ -100,9 +100,10 @@ public abstract class Mission implements Session.Saveable, Selectable {
     
     for (int i = s.loadInt(); i-- > 0;) {
       final Role role = new Role();
-      role.applicant = (Actor) s.loadObject();
-      role.approved  = s.loadBool();
-      role.cached   = (Behaviour) s.loadObject();
+      role.approved      = s.loadBool();
+      role.applicant     = (Actor    ) s.loadObject();
+      role.cached        = (Behaviour) s.loadObject();
+      role.specialReward = (Pledge   ) s.loadObject();
       roles.add(role);
     }
     
@@ -123,9 +124,10 @@ public abstract class Mission implements Session.Saveable, Selectable {
     
     s.saveInt(roles.size());
     for (Role role : roles) {
-      s.saveObject(role.applicant);
-      s.saveBool  (role.approved );
-      s.saveObject(role.cached  );
+      s.saveBool  (role.approved);
+      s.saveObject(role.applicant    );
+      s.saveObject(role.cached       );
+      s.saveObject(role.specialReward);
     }
     
     ModelAsset.saveSprite(flagSprite, s.output());
@@ -255,6 +257,16 @@ public abstract class Mission implements Session.Saveable, Selectable {
     Actor applicant;
     boolean approved;
     Behaviour cached;
+    
+    //  TODO:  USE THIS!
+    Pledge specialReward;
+  }
+  
+  
+  public boolean setSpecialRewardFor(Actor actor, Pledge reward) {
+    final Role r = roleFor(actor);
+    r.specialReward = reward;
+    return true;
   }
   
   
@@ -465,6 +477,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
     //  command prior to actual execution.
     final boolean baseAI = missionType == TYPE_BASE_AI;
     final int partySize = rolesApproved(), limit = PARTY_LIMITS[priority];
+    final Role role = roleFor(actor);
     float rewardEval;
     if (baseAI) {
       rewardEval = Plan.ROUTINE + priority;
@@ -476,15 +489,13 @@ public abstract class Mission implements Session.Saveable, Selectable {
     //  offer for completing the task, together with a multiplier based on
     //  mission type- the more control you have, the more you must pay your
     //  candidates.
-    else {
-      rewardEval =  REWARD_AMOUNTS[priority];
-      rewardEval *= REWARD_TYPE_MULTS[missionType];
-    }
+    rewardEval =  REWARD_AMOUNTS[priority];
+    rewardEval *= REWARD_TYPE_MULTS[missionType];
     //
     //  We assume a worst-case scenario for division of the reward, just to
     //  ensure that applications remain stable.  Then weight by appeal to the
     //  actor's basic motives, and return:
-    if (! isApproved(actor)) {
+    if (role == null || ! role.approved) {
       if (partySize >= limit) {
         if (report) I.say("  No room for application! "+partySize+"/"+limit);
         return -1;
@@ -503,7 +514,14 @@ public abstract class Mission implements Session.Saveable, Selectable {
     if (ruler != null) {
       value += Plan.ROUTINE * actor.relations.valueFor(ruler);
     }
-    
+    //
+    //  If the actor has been pledged a special reward, add the value of that
+    //  pledge.
+    if (role != null && role.specialReward != null) {
+      final float specialVal = role.specialReward.valueFor(actor);
+      if (report) I.say("  Value for pledged reward: "+specialVal);
+      value += specialVal;
+    }
     if (report) {
       I.say("  True reward total: "+REWARD_AMOUNTS[priority]);
       I.say("  Type multiplier:   "+REWARD_TYPE_MULTS[missionType]);

@@ -135,9 +135,9 @@ public class DialogueUtils implements Qualities {
     if (actor instanceof Human) {
       //  TODO:  Make these especially compelling during introductions?
       final Career c = ((Human) actor).career();
-      pick.compare(c.birth()    , Rand.num());
+      //pick.compare(c.birth()    , Rand.num());
       pick.compare(c.homeworld(), Rand.num());
-      pick.compare(c.vocation() , Rand.num());
+      //pick.compare(c.vocation() , Rand.num());
     }
     
     for (Relation r : actor.relations.relations()) {

@@ -224,7 +224,7 @@ public class ActorRelations {
   public void incRelation(
     Accountable other, float toLevel, float weight, float novelty
   ) {
-    final boolean report = extraVerbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && verbose;
     if (report) {
       I.say("\nIncrementing relation with "+other);
       I.say("  To level: "+toLevel);

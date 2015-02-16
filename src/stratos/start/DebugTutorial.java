@@ -42,31 +42,28 @@ import stratos.util.*;
 
 /*  BIG TODO LIST:
 
-*  Need to unify summons-dialogue with contact mechanics.
-     Create a dialogue subclass for delivering proposals.
-     Rig up the pledges system- targets, value, delivery.
-     Rig up an improved UI- terms asked, terms given, envoys.
-     Unify with reward-system used for other missions.
-
-*  Introduce Call-to-Arms at the Trooper Lodge (with respect to a particular
-   mission at a time.)
-
-*  Psy powers need some checkup- cooldown system, replace TK, UI idiom.
-
 *  Need to ensure that artilect raiding increases gradually over time.
      Base this off a 'waking up' mechanism as threats are found.
 
 *  Extra concept art for new creatures/vermin:
      Avrodil, Sea Bean, Rem Leech, Mistaken, Desert Maw, Hirex Body.
 
-*  Need to restore animal nests and surface behaviours.
-     Need to ensure auto-distribution of predator and prey nests.
-
 *  Need service hatches to allow access to vermin.
      Need to write vermin behaviour.
 
+*  Need to restore animal nests and surface behaviours.
+     Need to ensure auto-distribution of predator and prey nests.
+
+*  Psy powers need some checkup.  Make them feel... more indirect.  And give
+   them some custom UI rigging (hotkeys 1-9).
+
 *  Explicit or improved placement for shield walls and arcologies.
      Fresh art for shield walls.
+
+*  Make Pledges more persistent and nuanced (see Proposal class.)
+
+*  Introduce Call-to-Arms at the Trooper Lodge (with respect to a particular
+   mission at a time.)
 
 *  Hide-and-seek needs to be more effective (both retreat and combat.)
 

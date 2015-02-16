@@ -62,7 +62,7 @@ public class DebugSocial extends Scenario {
     final Stage world = new Stage(TG.generateTerrain());
     TG.setupMinerals(world, 0.6f, 0, 0.2f);
     world.terrain().readyAllMeshes();
-    Flora.populateFlora(world);
+    //Flora.populateFlora(world);
     return world;
   }
   
@@ -80,9 +80,9 @@ public class DebugSocial extends Scenario {
     );
     
     if (false) testCareers(base);
-    if (false) configDialogueScenario(world, base, UI);
+    if (true ) configDialogueScenario(world, base, UI);
     if (false) configArtilectScenario(world, base, UI);
-    if (true ) configContactScenario (world, base, UI);
+    if (false) configContactScenario (world, base, UI);
     if (false) configWildScenario    (world, base, UI);
     if (false) applyJobScenario      (world, base, UI);
   }
@@ -207,7 +207,6 @@ public class DebugSocial extends Scenario {
     consort.mind.assignMission(peaceMission);
     peaceMission.setApprovalFor(consort, true);
     peaceMission.beginMission();
-    
     UI.selection.pushSelection(peaceMission);
   }
   

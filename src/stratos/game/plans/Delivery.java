@@ -398,6 +398,14 @@ public class Delivery extends Plan {
     if (stage == STAGE_DROPOFF) {
       if (report) I.say("  Performing dropoff at "+destination);
       
+      final Action meets = new Action(
+        actor, destination,
+        this, "actionMeets",
+        Action.TALK, "Meeting with "
+      );
+      if (! isMeeting()) meets.setProperties(Action.RANGED);
+      if (destination instanceof Actor) return meets;
+      
       final Action dropoff = new Action(
         actor, destination,
         this, "actionDropoff",
@@ -465,6 +473,41 @@ public class Delivery extends Plan {
     //  make the payment required:
     transferGoods(origin, driven == null ? actor : driven);
     stage = STAGE_DROPOFF;
+    return true;
+  }
+  
+  
+  private boolean isMeeting() {
+    if (! (destination instanceof Actor)) return false;
+    return ((Actor) destination).isDoingAction("actionMeets", actor);
+  }
+  
+  
+  public boolean actionMeets(Actor actor, Actor other) {
+    //
+    //  This method can be called by either the deliverer or the recipient, so
+    //  we have to put a fork in the evaluation...
+    if (actor == destination) {
+      actionDropoff(this.actor, destination);
+      return true;
+    }
+    //
+    //  If a meeting is already in progress, we can just wait for the recipient
+    //  to arrive.  Otherwise, assign them that behaviour (or quit if they're
+    //  too busy.)
+    if (isMeeting()) return true;
+    final Action meets = new Action(
+      other, actor,
+      this, "actionMeets",
+      Action.TALK, "Meeting "+actor
+    );
+    meets.setPriority(Action.ROUTINE);
+    if (other.mind.mustIgnore(meets)) {
+      interrupt(INTERRUPT_CANCEL);
+      return false;
+    }
+    other.mind.assignBehaviour(meets);
+    other.assignAction(meets);
     return true;
   }
   
