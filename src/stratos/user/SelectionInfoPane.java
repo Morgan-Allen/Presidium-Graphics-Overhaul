@@ -74,8 +74,8 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
 
   public SelectionInfoPane(
     final BaseUI UI, Selectable selected,
-    final Composite portrait, boolean hasListing,
-    String... categories
+    final Composite portrait,
+    boolean hasListing, String... categories
   ) {
     this(UI, selected, portrait != null, hasListing, categories);
     this.portrait = portrait;

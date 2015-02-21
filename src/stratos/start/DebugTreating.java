@@ -24,7 +24,7 @@ public class DebugTreating extends Scenario {
   
   
   private DebugTreating() {
-    super();
+    super("debug_treating", true);
   }
   
   
@@ -40,11 +40,6 @@ public class DebugTreating extends Scenario {
   
   public void beginGameSetup() {
     super.initScenario("debug_treating");
-  }
-  
-  
-  protected String saveFilePrefix(Stage world, Base base) {
-    return "debug_treating";
   }
   
   

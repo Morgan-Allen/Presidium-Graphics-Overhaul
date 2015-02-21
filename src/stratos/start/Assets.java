@@ -184,6 +184,8 @@ public class Assets {
   
   
   public static void disposeSessionAssets() {
+    //
+    //  Gets rid of assets associated with a single game save/load session-
     for (ListEntry <Loadable> e : assetsLoaded.entries()) {
       if (e.refers.disposeWithSession) {
         e.refers.disposeAsset();
@@ -194,7 +196,9 @@ public class Assets {
   }
   
   
-  public static void dispose() {
+  public static void disposeGameAssets() {
+    //
+    //  Gets rid of all game assets upon quit.
     for (Loadable asset : assetsLoaded) {
       asset.disposeAsset();
     }

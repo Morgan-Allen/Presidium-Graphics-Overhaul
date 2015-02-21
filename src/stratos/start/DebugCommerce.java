@@ -75,11 +75,6 @@ public class DebugCommerce extends Scenario {
   }
   
   
-  protected String saveFilePrefix(Stage world, Base base) {
-    return "debug_commerce";
-  }
-  
-  
   protected Stage createWorld() {
     final TerrainGen TG = new TerrainGen(
       64, 0.2f,

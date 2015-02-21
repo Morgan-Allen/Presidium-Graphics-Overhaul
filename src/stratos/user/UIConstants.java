@@ -50,7 +50,14 @@ public interface UIConstants {
     TYPE_TERRAIN   = "<terrain>",
     TYPE_MISSION   = "<mission>";
   
+
+  final public static int
+    BAR_BUTTON_SIZE = 40,
+    BAR_SPACING     = 2 ,
+    BAR_MAX_SLOTS   = 9 ;
   
+  final public static int
+    NUM_GUILDS = 6;
   
   final public static int
     MINIMAP_WIDE    = 200,

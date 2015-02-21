@@ -97,8 +97,8 @@ public class StartupScenario extends Scenario {
   
   
   
-  public StartupScenario(Config config) {
-    super();
+  public StartupScenario(Config config, String prefix) {
+    super(prefix, false);
     this.config = config;
   }
   
@@ -214,17 +214,6 @@ public class StartupScenario extends Scenario {
       world, base, ruler, advisors, colonists
     );
     UI.assignBaseSetup(base, bastion.position(null));
-  }
-  
-  
-  protected String saveFilePrefix(Stage world, Base base) {
-    String title = base.ruler().fullName();
-    while (true) {
-      File match = new File(Scenario.fullSavePath(title, null));
-      if (! match.exists()) break;
-      title = title+"I";
-    }
-    return title;
   }
   
   

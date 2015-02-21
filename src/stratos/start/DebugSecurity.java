@@ -28,7 +28,7 @@ public class DebugSecurity extends Scenario {
   
   
   private DebugSecurity() {
-    super();
+    super("debug_security", true);
   }
   
   
@@ -44,11 +44,6 @@ public class DebugSecurity extends Scenario {
   
   public void beginGameSetup() {
     super.initScenario("debug_security");
-  }
-  
-  
-  protected String saveFilePrefix(Stage world, Base base) {
-    return "debug_security";
   }
   
   

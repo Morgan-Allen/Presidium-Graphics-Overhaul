@@ -2,24 +2,30 @@
 
 
 package stratos.start;
-import java.io.*;
-
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.politic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
-import stratos.start.*;
 import stratos.user.*;
 import stratos.util.*;
-
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Keys;
+import java.io.*;
 
 
 
 public abstract class Scenario implements Session.Saveable, Playable {
   
+  
+  final static int
+    DO_PLAY      = -1,
+    DO_SAVE      =  0,
+    DO_SAVE_EXIT =  1,
+    DO_LOAD      =  2,
+    DO_RESTART   =  3;
+  final static String
+    CURRENT_SUFFIX = "-current";
+  
+  
+  private int nextOp = DO_PLAY;
   
   private Stage world;
   private Base base;
@@ -27,31 +33,26 @@ public abstract class Scenario implements Session.Saveable, Playable {
   private float loadProgress = -1;
   
   private BaseUI UI;
-  private List <String> timeStamps = new List <String> ();
+  //private List <String> timeStamps = new List <String> ();
   private String savesPrefix;
   private float lastSaveTime = -1;
   
   
   
-  public Scenario() {
-    this(null, false);
-  }
-  
-  
   protected Scenario(String saveFile, boolean isDebug) {
     this.savesPrefix = saveFile;
-    this.isDebug = isDebug;
+    this.isDebug     = isDebug ;
   }
   
   
   public Scenario(Session s) throws Exception {
     s.cacheInstance(this);
     world = s.world();
-    base = (Base) s.loadObject();
-    savesPrefix = s.loadString();
+    base  = (Base) s.loadObject();
+    savesPrefix  = s.loadString();
     lastSaveTime = s.loadFloat();
-    isDebug = s.loadBool();
-    for (int i = s.loadInt(); i-- > 0;) timeStamps.add(s.loadString());
+    isDebug      = s.loadBool();
+    //for (int i = s.loadInt(); i-- > 0;) timeStamps.add(s.loadString());
     
     loadProgress = 1;
     UI = createUI(base, PlayLoop.rendering());
@@ -60,20 +61,20 @@ public abstract class Scenario implements Session.Saveable, Playable {
   
   
   public void saveState(Session s) throws Exception {
-    s.saveObject(base);
-    s.saveString(savesPrefix);
-    s.saveFloat(lastSaveTime);
-    s.saveBool(isDebug);
-    s.saveInt(timeStamps.size());
-    for (String stamp : timeStamps) s.saveString(stamp);
+    s.saveObject(base             );
+    s.saveString(savesPrefix      );
+    s.saveFloat (lastSaveTime     );
+    s.saveBool  (isDebug          );
+    //s.saveInt   (timeStamps.size());
+    //for (String stamp : timeStamps) s.saveString(stamp);
     
     UI.saveState(s);
   }
   
   
-  public Stage world() { return world; }
-  public Base base() { return base; }
-  public BaseUI UI() { return UI; }
+  public Stage  world() { return world; }
+  public Base   base () { return base ; }
+  public BaseUI UI   () { return UI   ; }
   
   
   public static Scenario current() {
@@ -81,6 +82,11 @@ public abstract class Scenario implements Session.Saveable, Playable {
     if (p instanceof Scenario) return (Scenario) p;
     else I.complain("NO CURRENT SCENARIO BEING PLAYED.");
     return null;
+  }
+  
+  
+  public String savesPrefix() {
+    return savesPrefix;
   }
   
   
@@ -128,7 +134,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
         catch (Exception e) {}
         
         configureScenario(world, base, UI);
-        savesPrefix = saveFilePrefix(world, base);
+        //savesPrefix = saveFilePrefix(world, base);
         loadProgress = 0.8f;
         I.say("\n  Configured scenario...");
         
@@ -147,17 +153,6 @@ public abstract class Scenario implements Session.Saveable, Playable {
   }
   
   
-  protected void resetScenario() {
-    loadProgress = -1;
-    this.world = null;
-    this.base  = null;
-    this.UI    = null;
-    PlayLoop.sessionStateWipe();
-    initScenario(null);
-    PlayLoop.setupAndLoop(this);
-  }
-  
-  
   public boolean isLoading() {
     return loadProgress < 1 && loadProgress != -1;
   }
@@ -169,7 +164,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
   
   
   protected BaseUI createUI(Base base, Rendering rendering) {
-    BaseUI UI = new BaseUI(base.world, rendering);
+    BaseUI UI = new BaseUI(base.world, this, rendering);
     UI.assignBaseSetup(base, new Vec3D(8, 8, 0));
     return UI;
   }
@@ -178,7 +173,6 @@ public abstract class Scenario implements Session.Saveable, Playable {
   protected abstract Stage createWorld();
   protected abstract Base createBase(Stage world);
   protected abstract void configureScenario(Stage world, Base base, BaseUI UI);
-  protected abstract String saveFilePrefix(Stage world, Base base);
   protected abstract void afterCreation();
   
   
@@ -198,6 +192,262 @@ public abstract class Scenario implements Session.Saveable, Playable {
   //  When and if you go back in the timeline, subsequent saves are deleted.
   //  So there's always a strictly ascending chronological order.
   
+  
+  public void scheduleSave() {
+    this.nextOp = DO_SAVE;
+  }
+  
+  
+  public void scheduleSaveAndExit() {
+    this.nextOp = DO_SAVE_EXIT;
+  }
+  
+  
+  public void scheduleReset() {
+    this.nextOp = DO_RESTART;
+  }
+  
+  
+  public void scheduleReload() {
+    this.nextOp = DO_LOAD;
+  }
+  
+  
+  private void saveGame(final String saveFile) {
+    try {
+      loadProgress = 0;
+      lastSaveTime = world.currentTime();
+      Session.saveSession(world, this, saveFile);
+      afterSaving();
+      loadProgress = 1;
+      
+      try { Thread.sleep(250); }
+      catch (Exception e) {}
+    }
+    catch (Exception e) { I.report(e); }
+  }
+  
+  
+  private void resetScenario() {
+    loadProgress = -1;
+    this.world = null;
+    this.base  = null;
+    this.UI    = null;
+    PlayLoop.sessionStateWipe();
+    initScenario(null);
+    PlayLoop.setupAndLoop(this);
+  }
+  
+  
+  //  TODO:  CONSIDER MOVING THESE TO A SCENARIO-UTILS CLASS
+  
+  public static void loadGame(
+    final String saveFile, final boolean fromMenu
+  ) {
+    PlayLoop.sessionStateWipe();
+    I.say("Should be loading game from: "+saveFile);
+    final Playable loading = new Playable() {
+      
+      private boolean begun = false, done = false;
+      private Scenario loaded = null;
+
+      public HUD UI() { return null; }
+      public void updateGameState() {}
+      public void renderVisuals(Rendering rendering) {}
+      
+      public void beginGameSetup() {
+        final Thread loadThread = new Thread() {
+          public void run() {
+            I.say("Beginning loading...");
+            try {
+              final Session s = Session.loadSession(saveFile);
+              try { Thread.sleep(250); }
+              catch (Exception e) {}
+              loaded = s.scenario();
+              I.say("  Loaded scenario is: "+loaded);
+              done = true;
+            }
+            catch (Exception e) { I.report(e); }
+          }
+        };
+        loadThread.start();
+        begun = true;
+      }
+      
+      
+      public boolean shouldExitLoop() {
+        if (loaded == null) return false;
+        I.say("Loading complete...");
+        PlayLoop.setupAndLoop(loaded);
+        return false;
+      }
+      
+      
+      public boolean isLoading() {
+        return begun;
+      }
+      
+      public float loadProgress() {
+        //  TODO:  Implement some kind of progress readout here.
+        return done ? 1.0f : 0;//Session.loadProgress();
+      }
+    };
+    PlayLoop.setupAndLoop(loading);
+  }
+  //*/
+  
+  
+  
+  public static String fullSavePath(String prefix, String suffix) {
+    if (suffix == null) suffix = CURRENT_SUFFIX;
+    return "saves/"+prefix+suffix+".rep";
+  }
+  
+  
+  public static boolean saveExists(String saveFile) {
+    final File file = new File(saveFile);
+    if (! file.exists()) return false;
+    else return true;
+  }
+
+  
+  public static List <String> savedFiles(String prefix) {
+    final List <String> allSaved = new List <String> ();
+    final File savesDir = new File("saves/");
+    
+    for (File saved : savesDir.listFiles()) {
+      final String name = saved.getName();
+      if (! name.endsWith(".rep")) continue;
+      if (prefix == null) {
+        if (! name.endsWith(CURRENT_SUFFIX+".rep")) continue;
+      }
+      else if (! name.startsWith(prefix)) continue;
+      allSaved.add(name);
+    }
+    
+    return allSaved;
+  }
+  
+  
+  private String timeStamp() {
+    final float time = world.currentTime() / Stage.STANDARD_DAY_LENGTH;
+    String
+      day = "Day "+(int) time,
+      hour = ""+(int) (24 * (time % 1)),
+      minute = ""+(int) (((24 * (time % 1)) % 1) * 60);
+    while (hour.length() < 2) hour = "0"+hour;
+    while (minute.length() < 2) minute = "0"+minute;
+    
+    final String newStamp = day+", "+hour+minute+" Hours";
+    return newStamp;
+  }
+  
+  
+  
+  /**  Methods for override by subclasses-
+    */
+  public boolean shouldExitLoop() {
+    //
+    //  NOTE:  These operations *have* to be called from this point in the loop
+    //         in order to ensure that the old scenario has the chance to exit
+    //         the loop (if applicable.)  You can get nasty bugs otherwise.
+    if (nextOp == DO_SAVE_EXIT) {
+      saveGame(fullSavePath(savesPrefix, CURRENT_SUFFIX));
+      //PlayLoop.exitLoop();
+      return true;
+    }
+    if (nextOp == DO_SAVE) {
+      saveGame(fullSavePath(savesPrefix, timeStamp()));
+    }
+    if (nextOp == DO_RESTART) {
+      resetScenario();
+    }
+    if (nextOp == DO_LOAD) {
+      loadGame(fullSavePath(savesPrefix, CURRENT_SUFFIX), true);
+    }
+    nextOp = DO_PLAY;
+    return false;
+  }
+  
+  
+  public void renderVisuals(Rendering rendering) {
+    if (world == null) return;
+    
+    if ((! isDebug) && PlayLoop.gameSpeed() != 1) {
+      final Colour blur = new Colour().set(0.5f, 0.5f, 0.1f, 0.4f);
+      world.ephemera.applyFadeColour(blur);
+    }
+    
+    final Base player = UI.played();
+    world.renderFor(rendering, player);
+    Base.renderMissions(world, rendering, player);
+  }
+  
+  
+  public void updateGameState() {
+    if (world == null) return;
+    
+    /*
+    if ((! isDebug) && PlayLoop.gameSpeed() < 1) {
+      Power.applyTimeDilation(PlayLoop.gameSpeed(), this);
+    }
+    if ((! isDebug) && PlayLoop.gameSpeed() > 1) {
+      Power.applyResting(PlayLoop.gameSpeed(), this);
+    }
+    //*/
+    world.updateWorld();
+  }
+  
+  
+  public void afterSaving() {
+    //world.ephemera.applyFadeColour(Colour.GREY);
+    //if (! isDebug) Power.applyWalkPath(this);
+  }
+  
+  
+  public void afterLoading(boolean fromMenu) {
+    //world.ephemera.applyFadeColour(Colour.BLACK);
+    //if ((! isDebug) && (! fromMenu)) Power.applyDenyVision(this);
+  }
+  
+  
+
+  
+  /**  Helper/Utility methods-
+    */
+  public Behaviour taskFor(Actor actor) {
+    return null;
+  }
+}
+
+
+    /*
+    if (isDebug || true) {
+      if (KeyInput.wasTyped('r')) {
+        I.say("RESET MISSION?");
+        resetScenario();
+        return false;
+      }
+      if (KeyInput.wasTyped('f')) {
+        I.say("Paused? "+PlayLoop.paused());
+        PlayLoop.setPaused(! PlayLoop.paused());
+      }
+      if (KeyInput.wasTyped('s')) {
+        I.say("SAVING GAME...");
+        saveGame(fullSavePath(savesPrefix, CURRENT_SAVE));
+        return false;
+      }
+      if (KeyInput.wasTyped('l')) {
+        I.say("LOADING GAME...");
+        loadGame(fullSavePath(savesPrefix, CURRENT_SAVE), true);
+        return false;
+      }
+    }
+    //*/
+
+
+
+  /*
   final public static String
     CURRENT_SAVE = "-current";
   final public static int
@@ -378,90 +628,6 @@ public abstract class Scenario implements Session.Saveable, Playable {
     //  And finally, load the earlier game-
     Scenario.loadGame(Scenario.fullSavePath(savesPrefix, option), false);
   }
+  //*/
   
-  
-  
-  
-  /**  Methods for override by subclasses-
-    */
-  public boolean shouldExitLoop() {
-    //  TODO:  These should only be available in debug situations.
-    if (isDebug || true) {
-      if (KeyInput.wasTyped('r')) {
-        I.say("RESET MISSION?");
-        resetScenario();
-        return false;
-      }
-      if (KeyInput.wasTyped('f')) {
-        I.say("Paused? "+PlayLoop.paused());
-        PlayLoop.setPaused(! PlayLoop.paused());
-      }
-      if (KeyInput.wasTyped('s')) {
-        I.say("SAVING GAME...");
-        saveGame(fullSavePath(savesPrefix, CURRENT_SAVE));
-        return false;
-      }
-      if (KeyInput.wasTyped('l')) {
-        I.say("LOADING GAME...");
-        loadGame(fullSavePath(savesPrefix, CURRENT_SAVE), true);
-        return false;
-      }
-    }
-    return false;
-  }
-  
-  
-  public void renderVisuals(Rendering rendering) {
-    if (world == null) return;
-    
-    if ((! isDebug) && PlayLoop.gameSpeed() != 1) {
-      final Colour blur = new Colour().set(0.5f, 0.5f, 0.1f, 0.4f);
-      world.ephemera.applyFadeColour(blur);
-    }
-    
-    final Base player = UI.played();
-    world.renderFor(rendering, player);
-    Base.renderMissions(world, rendering, player);
-  }
-  
-  
-  public void updateGameState() {
-    if (world == null) return;
-    if ((! isDebug) && PlayLoop.gameSpeed() < 1) {
-      Power.applyTimeDilation(PlayLoop.gameSpeed(), this);
-    }
-    if ((! isDebug) && PlayLoop.gameSpeed() > 1) {
-      Power.applyResting(PlayLoop.gameSpeed(), this);
-    }
-    world.updateWorld();
-  }
-  
-  
-  public void afterSaving() {
-    world.ephemera.applyFadeColour(Colour.GREY);
-    if (! isDebug) Power.applyWalkPath(this);
-  }
-  
-  
-  public void afterLoading(boolean fromMenu) {
-    world.ephemera.applyFadeColour(Colour.BLACK);
-    if ((! isDebug) && ! fromMenu) Power.applyDenyVision(this);
-  }
-  
-  
-
-  
-  /**  Helper/Utility methods-
-    */
-  public Behaviour taskFor(Actor actor) {
-    return null;
-  }
-}
-
-
-
-
-
-
-
 

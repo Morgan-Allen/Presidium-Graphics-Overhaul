@@ -34,6 +34,7 @@ public class Minimap extends Assets.Loadable {
   private Texture mapImage;
   private Mesh mapMesh;
   private ShaderProgram shading;
+  private boolean disposed = false;
   
   
   public Minimap() {
@@ -42,6 +43,11 @@ public class Minimap extends Assets.Loadable {
   
   
   public void updateTexture(int texSize, int RGBA[][]) {
+    if (disposed) {
+      I.say("TEXTURE UPDATE WHEN DISPOSED");
+      return;
+    }
+    
     final Pixmap drawnTo = new Pixmap(
       texSize, texSize, Pixmap.Format.RGBA8888
     );
@@ -61,6 +67,10 @@ public class Minimap extends Assets.Loadable {
   
   
   public void updateGeometry(Box2D bound) {
+    if (disposed) {
+      I.say("GEOMETRY UPDATE WHEN DISPOSED");
+      return;
+    }
     
     //  Initialise the mesh if required-
     if (mapMesh == null) {
@@ -115,7 +125,10 @@ public class Minimap extends Assets.Loadable {
   
   
   protected void disposeAsset() {
-    if (! isLoaded()) return;
+    if (disposed || ! isLoaded()) return;
+    I.say("DISPOSING OF MINIMAP: "+this.hashCode());
+    
+    disposed = true;
     if (mapImage != null) mapImage.dispose();
     mapMesh.dispose();
     shading.dispose();
@@ -137,6 +150,10 @@ public class Minimap extends Assets.Loadable {
   
   
   public void renderWith(FogOverlay fogApplied) {
+    if (disposed) {
+      I.say("RENDERING CALL WHEN DISPOSED");
+      return;
+    }
     
     final Matrix4 screenMat = new Matrix4();
     screenMat.setToOrtho2D(

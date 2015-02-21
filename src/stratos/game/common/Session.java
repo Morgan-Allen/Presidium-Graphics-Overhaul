@@ -3,15 +3,13 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.game.common;
-import java.io.*;
-import java.lang.reflect.*;
-
 import stratos.game.politic.*;
 import stratos.start.Assets;
 import stratos.start.Scenario;
 import stratos.util.*;
+import java.io.*;
+import java.lang.reflect.*;
 
 
 //

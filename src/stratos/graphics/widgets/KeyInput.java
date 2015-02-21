@@ -13,6 +13,11 @@ import com.badlogic.gdx.input.*;
 
 
 
+//  TODO:  Arrange for dedicated bindings of these keys, to ensure there are no
+//         conflicts and that all bindings can be listed from a single point (
+//         for, e.g, UI purposes.)
+
+
 public class KeyInput {
   
   

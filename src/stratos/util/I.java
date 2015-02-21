@@ -27,10 +27,13 @@ public class I {
   public static Object talkAbout = null;
   
   final static boolean WRITE_TO_LOG = false;
-  final static String OUT_FILE = "saves/log_output.txt";
   static {
     if (WRITE_TO_LOG) try {
-      final PrintStream logOutput = new PrintStream(new File(OUT_FILE)) {
+      final String
+        date    = new java.util.Date().toString(),
+        outFile = "saves/log_output"+date+".txt";
+      
+      final PrintStream logOutput = new PrintStream(new File(outFile)) {
         public void finalize() {
           this.flush();
         }

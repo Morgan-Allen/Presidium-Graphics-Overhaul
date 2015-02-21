@@ -212,7 +212,7 @@ public final class PlayLoop {
   
   private static void disposeLoop() {
     rendering.dispose();
-    Assets.dispose();
+    Assets.disposeGameAssets();
   }
   
   

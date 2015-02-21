@@ -328,11 +328,7 @@ public class Dialogue extends Plan implements Qualities {
     if (otherChats != actor) {
       if (canTalk(other)) {
         if (report) I.say("  Assigning fresh dialogue to "+other);
-        
         final Dialogue child = dialogueFor(other);
-        
-        I.say("\nASSIGNING CHILD DIALOGUE: "+actor);
-        I.say("  Starts is: "+child.starts.actor);
         other.mind.assignBehaviour(child);
       }
       else return false;
@@ -355,12 +351,12 @@ public class Dialogue extends Plan implements Qualities {
     topic = (this == starts) ? selectTopic(close) : starts.topic;
     discussTopic(topic, close);
     
-    final boolean report = I.talkAbout == actor && hasBegun();
+    final boolean report = shouldReportSteps();
     if (report) {
       I.say("\nChatting with "+other);
       I.say("  Should close? "+close);
-      //I.say("  Starts is:    "+starts.getClass().getSimpleName());
-      //I.say("  Starts ID:    "+starts.hashCode());
+      I.say("  Starts is:    "+starts.getClass().getSimpleName());
+      I.say("  Starts ID:    "+starts.hashCode());
       I.say("  This is:      "+this.getClass().getSimpleName());
       I.say("  This ID:      "+this.hashCode());
     }

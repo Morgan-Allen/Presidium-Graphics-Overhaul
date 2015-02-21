@@ -125,18 +125,11 @@ public class SelectionTracking {
       lockX = trackPos.x - centre.x;
       lockY = trackPos.y - centre.y;
     }
-
-    if (pressed(Keys.UP   )) pushCamera( 1, -1);
-    if (pressed(Keys.DOWN )) pushCamera(-1,  1);
-    if (pressed(Keys.RIGHT)) pushCamera( 1,  1);
-    if (pressed(Keys.LEFT )) pushCamera(-1, -1);
-    //  TODO:  Find a different mapping for the save/load keys?
-    /*
+    
     if (pressed(Keys.UP   ) || pressed(Keys.W)) pushCamera( 1, -1);
     if (pressed(Keys.DOWN ) || pressed(Keys.S)) pushCamera(-1,  1);
-    if (pressed(Keys.RIGHT) || pressed(Keys.A)) pushCamera( 1,  1);
-    if (pressed(Keys.LEFT ) || pressed(Keys.D)) pushCamera(-1, -1);
-    //*/
+    if (pressed(Keys.RIGHT) || pressed(Keys.D)) pushCamera( 1,  1);
+    if (pressed(Keys.LEFT ) || pressed(Keys.A)) pushCamera(-1, -1);
     if (lockTarget != null) followLock();
   }
   

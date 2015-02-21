@@ -9,9 +9,8 @@ import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.start.*;
 import stratos.util.*;
+import java.io.*;
 
-
-//  TODO:  You'll want a way to ensure constant spacing here.
 
 
 public class MainMenu extends UIGroup {
@@ -301,7 +300,14 @@ public class MainMenu extends UIGroup {
   //  TODO:  Give the player a broad summary of the choices made (including the
   //  name of the ruler/subjects,) before committing to the landing choice.
   public void beginNewGame(Object args[]) {
-    PlayLoop.setupAndLoop(new StartupScenario(config));
+    final Sector sector = (Sector) config.house;
+    String title = sector.houseName;
+    while (true) {
+      final String fullPath = Scenario.fullSavePath(title, null);
+      if (Scenario.saveExists(fullPath)) title = title+"I";
+      else break;
+    }
+    PlayLoop.setupAndLoop(new StartupScenario(config, title));
   }
   
   
@@ -309,7 +315,7 @@ public class MainMenu extends UIGroup {
   /**  Beginning a quick-start game-
     */
   public void configQuickstart(Object args[]) {
-    final TutorialScenario tutorial = new TutorialScenario();
+    final TutorialScenario tutorial = new TutorialScenario("tutorial_quick");
     PlayLoop.setupAndLoop(tutorial);
   }
   
@@ -323,9 +329,9 @@ public class MainMenu extends UIGroup {
     text.append("\n  Saved Games:");
     for (String fileName : Scenario.savedFiles(null)) {
       text.append("\n    ");
-      int cutoff = (Scenario.CURRENT_SAVE+".rep").length();
-      String playName = fileName.substring(0, fileName.length() - cutoff);
-      Call.add(playName, this, "loadSavedGame", text, fileName);
+      //int suffixLong = (Scenario.CURRENT_SUFFIX+".rep").length();
+      //String playName = fileName.substring(0, fileName.length() - suffixLong);
+      Call.add(fileName, this, "loadSavedGame", text, fileName);
     }
     
     Call.add("\n\n  Back", this, "configMainText", text);

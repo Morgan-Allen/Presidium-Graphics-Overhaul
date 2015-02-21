@@ -38,7 +38,7 @@ public class DebugMissions extends Scenario {
   
   
   private DebugMissions() {
-    super();
+    super("debug_missions", true);
   }
   
   
@@ -55,11 +55,6 @@ public class DebugMissions extends Scenario {
   public void beginGameSetup() {
     //super.beginGameSetup();
     super.initScenario("debug_missions");
-  }
-  
-  
-  protected String saveFilePrefix(Stage world, Base base) {
-    return "debug_missions";
   }
   
   

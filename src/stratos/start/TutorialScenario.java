@@ -47,8 +47,8 @@ public class TutorialScenario extends StartupScenario implements
   Batch <NativeHut> huts;
   
   
-  public TutorialScenario() {
-    super(config());
+  public TutorialScenario(String prefix) {
+    super(config(), prefix);
   }
   
   

@@ -28,6 +28,7 @@ public class Composite {
     public boolean isLoaded() { return true; }
     
     protected void disposeAsset() {
+      I.say("DISPOSING OF COMPOSITES");
       for (Composite c : recent) c.dispose();
       recent.clear();
       recentTable.clear();

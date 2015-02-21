@@ -36,6 +36,8 @@ import stratos.util.*;
 *  Focus on the objectives that have an intuitive, emotional component- such as
    survival (strike/defend) and comfort (the economy.)  Making those mandatory
    isn't too bad.
+   
+*  Either that, or focus on the prime values:  Survival, Prosperity, Honour.
 //*/
 
 
@@ -94,7 +96,7 @@ public class DebugTutorial extends TutorialScenario {
   
   
   private DebugTutorial() {
-    super();
+    super("debug_tutorial");
   }
   
   
@@ -110,11 +112,6 @@ public class DebugTutorial extends TutorialScenario {
   
   public void beginGameSetup() {
     super.initScenario("debug_tutorial");
-  }
-  
-  
-  protected String saveFilePrefix(Stage world, Base base) {
-    return "debug_tutorial";
   }
   
   

@@ -116,6 +116,11 @@ public class Button extends Image {
   }
   
   
+  public void performAction() {
+    this.whenClicked();
+  }
+  
+  
   protected void whenClicked() {
     super.whenClicked();
     if (enabled && links != null) links.whenClicked();

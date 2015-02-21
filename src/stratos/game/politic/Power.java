@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.politic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -132,9 +134,14 @@ public class Power implements Qualities {
       }
     };
   
+    
+  //  TODO:  Just have 1 to bring up menu options.  Or remove the Quickbar?
+  //         Or merge it entirely with target-options?
+  //  1 and 2 to save and load.
+  
   
   //  TODO:  Move this into the actual technique.
-  
+  /*
   public static void applyTimeDilation(float gameSpeed, Scenario scenario) {
     final Actor caster = scenario.base().ruler();
     if (caster == null || GameSettings.psyFree) return;
@@ -187,6 +194,8 @@ public class Power implements Qualities {
     caster.health.takeConcentration(cost);
     caster.skills.practiceAgainst(10, cost, PREMONITION);
   }
+  //*/
+  
   
   
   final public static Power
@@ -196,6 +205,7 @@ public class Power implements Qualities {
       "Accept your vision of events and allow them to be fulfilled.\n(Saves "+
       "current game.)"
     ) {
+    /*
       final String
         OPTION_QUIT = "Save and Exit",
         OPTION_REST = "Save and Rest",
@@ -206,11 +216,15 @@ public class Power implements Qualities {
           OPTION_QUIT, OPTION_REST, OPTION_MARK
         };
       }
+      //*/
       
       public boolean finishedWith(
         Actor caster, String option,
         Target selected, boolean clicked
       ) {
+        //  TODO:  ADD MORE SPECIAL FX HERE
+        Scenario.current().scheduleSave();
+        /*
         if (option.equals(OPTION_QUIT)) {
           Scenario.current().saveProgress(true, true);
         }
@@ -221,6 +235,7 @@ public class Power implements Qualities {
         if (option.equals(OPTION_MARK)) {
           Scenario.current().saveProgress(false, false);
         }
+        //*/
         return true;
       }
     },
@@ -230,9 +245,11 @@ public class Power implements Qualities {
       "Aborts your precognitive vision and lets you choose a different path."+
       "\n(Loads a previous game.)"
     ) {
+      /*
       public String[] options() {
         return Scenario.current().loadOptions();
       }
+      //*/
       
       public boolean finishedWith(
         Actor caster, String option,
@@ -242,7 +259,7 @@ public class Power implements Qualities {
         //  timeline-
         caster = null;
         selected = null;
-        Scenario.current().revertTo(option);
+        Scenario.current().scheduleReload();
         return true;
       }
     },

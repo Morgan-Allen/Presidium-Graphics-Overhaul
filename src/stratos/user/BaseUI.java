@@ -3,8 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.user;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -27,6 +25,7 @@ public class BaseUI extends HUD implements UIConstants {
   /**  Core field definitions, constructors, and save/load methods-
     */
   private Stage world;
+  private Scenario scenario;
   private Base played;
   private UITask currentTask;
   
@@ -38,12 +37,12 @@ public class BaseUI extends HUD implements UIConstants {
   private Readout readout;
   
   //  TODO:  Also a policies panel?  ...Yeah.  Why not.
-  private CommsPanel  commsPanel ;
-  private PlanetPanel planetPanel;
-  //private StarsPanel  starsPanel;  //Just use the homeworld.
-  private Button
-    commsButton ,
-    planetButton;
+  private CommsPanel commsPanel;
+  //private PlanetPanel planetPanel;
+  //private StarsPanel  starsPanel ;  //Just use the homeworld.
+  private Button commsButton;
+  private Button optionsButton;
+  //  planetButton;
   
   
   private UIGroup panelArea, infoArea;
@@ -56,9 +55,10 @@ public class BaseUI extends HUD implements UIConstants {
   
   
   
-  public BaseUI(Stage world, Rendering rendering) {
+  public BaseUI(Stage world, Scenario scenario, Rendering rendering) {
     super(rendering);
     this.world = world;
+    this.scenario = scenario;
     this.tracking = new SelectionTracking(this, rendering.view);
     configLayout();
     configPanels();
@@ -171,7 +171,10 @@ public class BaseUI extends HUD implements UIConstants {
     quickbar.alignAcross(0, 1);
     quickbar.alignBottom(0, 0);
     quickbar.attachTo(this);
-    quickbar.setupPowersButtons();
+    
+    //  TODO:  You'll need to find some way to re-do this.  Set up blank tabs
+    //         at least, and remember the contents!
+    //quickbar.setupPowersButtons();
     quickbar.setupInstallButtons();
   }
   
@@ -196,6 +199,12 @@ public class BaseUI extends HUD implements UIConstants {
     commsButton.alignLeft(MINIMAP_WIDE + HS - (PTS * 2), PTS);
     commsButton.attachTo(this);
     
+    this.optionsButton = EscapePane.createButton(this, scenario);
+    optionsButton.stretch = false;
+    optionsButton.alignTop(0, PTS);
+    optionsButton.alignLeft(MINIMAP_WIDE + HS - (PTS * 1), PTS);
+    optionsButton.attachTo(this);
+    /*
     this.planetPanel = new PlanetPanel(this);
     this.planetButton = new Button(
       this,
@@ -211,6 +220,7 @@ public class BaseUI extends HUD implements UIConstants {
     planetButton.alignTop(0, PTS);
     planetButton.alignLeft(MINIMAP_WIDE + HS - (PTS * 1), PTS);
     planetButton.attachTo(this);
+    //*/
   }
   
   

@@ -27,7 +27,7 @@ public class DebugSocial extends Scenario {
   
   
   private DebugSocial() {
-    super();
+    super("debug_social", true);
   }
   
   
@@ -43,11 +43,6 @@ public class DebugSocial extends Scenario {
   
   public void beginGameSetup() {
     super.initScenario("debug_social");
-  }
-  
-  
-  protected String saveFilePrefix(Stage world, Base base) {
-    return "debug_social";
   }
   
   

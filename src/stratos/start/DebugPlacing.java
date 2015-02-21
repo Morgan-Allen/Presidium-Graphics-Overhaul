@@ -31,7 +31,7 @@ public class DebugPlacing extends Scenario {
   
   
   private DebugPlacing() {
-    super();
+    super("debug_placing", true);
   }
   
   
@@ -45,19 +45,8 @@ public class DebugPlacing extends Scenario {
   }
   
   
-  public void beginGameSetup() {
-    super.initScenario("debug_placing");
-  }
-  
-  
-  protected String saveFilePrefix(Stage world, Base base) {
-    return "debug_placing";
-  }
-  
-  
   public void updateGameState() {
     super.updateGameState();
-    //PlayLoop.setGameSpeed(20.0f);
   }
   
   
