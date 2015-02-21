@@ -21,8 +21,8 @@ public class EscapePane extends UIGroup implements UIConstants {
       EscapePane.class, "media/GUI/Panels/game_options_tab.png"
     ),
     ESCAPE_ICON_LIT = Button.CIRCLE_LIT,
-    BORDER_TEX = SelectionInfoPane.BORDER_TEX;
-    /*
+    //BORDER_TEX = SelectionInfoPane.BORDER_TEX;
+    //*
     BORDER_TEX = ImageAsset.fromImage(
       EscapePane.class, "media/GUI/Panel.png"
     );
@@ -81,6 +81,7 @@ public class EscapePane extends UIGroup implements UIConstants {
     text.append(new Link("Save and Resume") { public void whenClicked() {
       I.say("SAVING GAME...");
       played.scheduleSave();
+      ((BaseUI) UI).setInfoPanels(null, null);
     }});
     
     text.append("\n  ");
@@ -94,20 +95,21 @@ public class EscapePane extends UIGroup implements UIConstants {
     //         Main Menu- allow with any associated Psi costs.
     
     //  TODO:  Make the file-path system more transparent and consistent!
-    
     text.append("\n\nLoad Earlier Save:");
-    for (final String path : Scenario.savedFiles(played.savesPrefix())) {
+    
+    final String prefix = played.savesPrefix();
+    for (final String path : Scenario.savedFiles(prefix)) {
+      if (path.endsWith("current.rep")) continue;
+      
+      final String titlePath = path.substring(
+        prefix.length(), path.length() - ".rep".length()
+      );
       text.append("\n  ");
-      
-      
-      
-      
-      text.append(new Link(path) { public void whenClicked() {
+      text.append(new Link(titlePath) { public void whenClicked() {
         Scenario.loadGame("saves/"+path, true);
       }});
     }
   }
-  
   
 }
 

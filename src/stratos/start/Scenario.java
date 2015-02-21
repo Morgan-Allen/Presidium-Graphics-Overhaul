@@ -241,6 +241,8 @@ public abstract class Scenario implements Session.Saveable, Playable {
   
   //  TODO:  CONSIDER MOVING THESE TO A SCENARIO-UTILS CLASS
   
+  //  TODO:  This method should *definitely* only be called from a specific
+  //  point in the overall play-loop sequence.  Fix that.
   public static void loadGame(
     final String saveFile, final boolean fromMenu
   ) {
@@ -294,8 +296,6 @@ public abstract class Scenario implements Session.Saveable, Playable {
     };
     PlayLoop.setupAndLoop(loading);
   }
-  //*/
-  
   
   
   public static String fullSavePath(String prefix, String suffix) {
@@ -411,7 +411,6 @@ public abstract class Scenario implements Session.Saveable, Playable {
   }
   
   
-
   
   /**  Helper/Utility methods-
     */

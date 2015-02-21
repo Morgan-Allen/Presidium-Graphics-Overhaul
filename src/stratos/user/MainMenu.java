@@ -326,6 +326,9 @@ public class MainMenu extends UIGroup {
   public void configToContinue(Object args[]) {
     text.setText("");
     
+    
+    //  TODO:  OUTSOURCE THIS TO THE GAME-OPTIONS PANE!?
+    
     text.append("\n  Saved Games:");
     for (String fileName : Scenario.savedFiles(null)) {
       text.append("\n    ");
