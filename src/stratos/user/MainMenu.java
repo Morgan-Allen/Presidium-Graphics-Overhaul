@@ -325,26 +325,9 @@ public class MainMenu extends UIGroup {
     */
   public void configToContinue(Object args[]) {
     text.setText("");
-    
-    
-    //  TODO:  OUTSOURCE THIS TO THE GAME-OPTIONS PANE!?
-    
-    text.append("\n  Saved Games:");
-    for (String fileName : Scenario.savedFiles(null)) {
-      text.append("\n    ");
-      //int suffixLong = (Scenario.CURRENT_SUFFIX+".rep").length();
-      //String playName = fileName.substring(0, fileName.length() - suffixLong);
-      Call.add(fileName, this, "loadSavedGame", text, fileName);
-    }
-    
-    Call.add("\n\n  Back", this, "configMainText", text);
-  }
-  
-  
-  public void loadSavedGame(Object args[]) {
-    final String fullPath = "saves/"+(String) args[0];
-    I.say("Loading game: "+fullPath);
-    Scenario.loadGame(fullPath, true);
+    text.append("\nSaved Games:");
+    GameOptionsPane.appendLoadOptions(text, null);
+    Call.add("\n\nBack", this, "configMainText", text);
   }
   
   

@@ -47,59 +47,64 @@ public class Base implements
   
   Actor ruler;
   Venue commandPost;
-  final public BaseRelations relations;
-  final public BaseTactics   tactics  ;
+  final public BaseRelations relations = initRelations();
+  final public BaseTactics   tactics   = initTactics  ();
   
   private String title  = "Player Base";
   private Colour colour = new Colour();
   
   
-  
-  private static Base baseWithName(
-    String title, Colour colour,
-    Stage world, boolean primal, VenueProfile... canPlace
-  ) {
-    for (Base base : world.bases()) if (
-      base.title != null &&
-      base.title.equals(title) &&
-      base.primal == primal
-    ) {
-      return base;
+  private static Base namedBase(Stage world, String title) {
+    for (Base base : world.bases()) {
+      if (base.title != null && base.title.equals(title)) return base;
     }
-    
-    final Base base = new Base(world, primal);
-    world.registerBase(base, true);
+    return null;
+  }
+  
+  
+  private static Base registerBase(
+    Base base, Stage world, String title, Colour colour,
+    VenueProfile... canBuild
+  ) {
     base.title = title;
     base.colour.set(colour);
-    base.setup.setAvailableVenues(canPlace);
+    base.setup.setAvailableVenues(canBuild);
+    world.registerBase(base, true);
     return base;
   }
   
   
   public static Base withName(Stage world, String title, Colour colour) {
-    return baseWithName(title, colour, world, false);
+    final Base base = namedBase(world, title);
+    if (base != null) return base;
+    return registerBase(new Base(world, false), world, title, colour);
   }
   
   
   public static Base wildlife(Stage world) {
-    return baseWithName(
-      KEY_WILDLIFE, Colour.LITE_GREEN, world, true, Nest.VENUE_PROFILES
-    );
+    Base base = namedBase(world, KEY_WILDLIFE);
+    if (base != null) return base;
+    else base = new Base(world, true);
+    return registerBase(base, world, KEY_WILDLIFE, Colour.LITE_GREEN);
   }
   
   
   public static Base artilects(Stage world) {
-    return baseWithName(
-      KEY_ARTILECTS, Colour.LITE_RED, world, true, Ruins.VENUE_PROFILES
-    );
+    Base base = namedBase(world, KEY_ARTILECTS);
+    if (base != null) return base;
+    else base = new ArtilectBase(world);
+    return registerBase(base, world, KEY_ARTILECTS, Colour.LITE_RED);
   }
   
   
   public static Base natives(Stage world, int tribeID) {
-    return baseWithName(
-      KEY_NATIVES+" ("+NativeHut.TRIBE_NAMES[tribeID]+")", Colour.LITE_YELLOW,
-      world, true, NativeHut.VENUE_PROFILES[tribeID]
-    );
+    final String title = NativeHut.TRIBE_NAMES[tribeID];
+    final VenueProfile canBuild[] = NativeHut.VENUE_PROFILES[tribeID];
+    
+    Base base = namedBase(world, title);
+    if (base != null) return base;
+    else base = new Base(world, true);
+    return registerBase(base, world, title, Colour.LITE_YELLOW, canBuild);
   }
   
   
@@ -113,7 +118,7 @@ public class Base implements
   }
   
   
-  private Base(Stage world, boolean primal) {
+  protected Base(Stage world, boolean primal) {
     this.world = world;
     this.primal = primal;
     
@@ -128,9 +133,6 @@ public class Base implements
     dangerMap  = new DangerMap(world, this);
     intelMap   = new IntelMap(this);
     intelMap.initFog(world);
-    
-    relations  = new BaseRelations(this);
-    tactics    = new BaseTactics(this);
   }
   
   
@@ -187,6 +189,10 @@ public class Base implements
   public String title() {
     return title;
   }
+  
+  
+  protected BaseTactics   initTactics  () { return new BaseTactics  (this); }
+  protected BaseRelations initRelations() { return new BaseRelations(this); }
   
   
   

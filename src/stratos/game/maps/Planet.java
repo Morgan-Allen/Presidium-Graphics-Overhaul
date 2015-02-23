@@ -3,12 +3,18 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.game.maps;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
 
 
+
+
+//  TODO:
+//  Hot and Wet seasons on a yearly scale (60 days), plus Terraforming effects
+//  over several years.  A single dark/light cycle lasts for 5/10 days or so.
+//  (The game should include the ability to 'skip forward' over one or more
+//   years, so you see the effects accelerated.)
 
 public class Planet {
   
@@ -77,9 +83,6 @@ public class Planet {
       (a.b * w) + (b.b * (1 - w)),
       1
     );
-    //blend.r = (blend.r + 1) / 2;
-    //blend.g = (blend.g + 1) / 2;
-    //blend.b = (blend.b + 1) / 2;
     return blend;
   }
   

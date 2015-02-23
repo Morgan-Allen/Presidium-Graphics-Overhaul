@@ -35,7 +35,8 @@ public class Stage {
     STANDARD_DAY_LENGTH  = 480,
     STANDARD_YEAR_LENGTH = STANDARD_DAY_LENGTH * DAYS_PER_YEAR,
     GROWTH_INTERVAL      = STANDARD_DAY_LENGTH / 2,
-    DEFAULT_INIT_TIME    = STANDARD_DAY_LENGTH / 3;
+    
+    DEFAULT_INIT_TIME = STANDARD_DAY_LENGTH / 3;
   
   private static boolean verbose = false;
   

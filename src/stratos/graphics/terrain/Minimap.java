@@ -3,9 +3,7 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.graphics.terrain;
-//import stratos.start.Disposal;
 import stratos.graphics.common.*;
 import stratos.start.Assets;
 import stratos.util.*;
@@ -23,10 +21,6 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 //  TODO:  Have the minimap refresh itself every second or so, and simply fade
 //  in the new version on top of the old?  Something like that.  If you wanted,
 //  you could do some kind of fancy burn-in or flicker transition-effect.
-//
-//  TODO:  You need to be able to present the ambience map here.
-
-
 
 public class Minimap extends Assets.Loadable {
   

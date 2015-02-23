@@ -199,7 +199,7 @@ public class BaseUI extends HUD implements UIConstants {
     commsButton.alignLeft(MINIMAP_WIDE + HS - (PTS * 2), PTS);
     commsButton.attachTo(this);
     
-    this.optionsButton = EscapePane.createButton(this, scenario);
+    this.optionsButton = GameOptionsPane.createButton(this, scenario);
     optionsButton.stretch = false;
     optionsButton.alignTop(0, PTS);
     optionsButton.alignLeft(MINIMAP_WIDE + HS - (PTS * 1), PTS);

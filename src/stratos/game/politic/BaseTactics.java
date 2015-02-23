@@ -26,28 +26,6 @@ import stratos.util.*;
 
 
 
-//  So, if you have a base with strength 5, on a map with other bases of
-//  strength 3 and 6, and it's contemplating an assault on a single target of
-//  threat 2, then maximum proportion of manpower invested would be:
-//    ~= 2 / 9 = 0.22, or strength 1.
-//    (Since 2-3 strength is needed, this stretches out the wait duration to
-//     5 or 6 days- probabilistically.  If assaulting *any* target is simply
-//     beyond your capacity, then you should sue for peace or evacuate.)
-//
-//  So basically, there would be a 0.33 chance of declaring that mission at
-//  all, and the total strength allocated would be no more than 3 (and no less
-//  than 1.33, allowing 50% either way.)
-
-
-//  NOTE:  The strength of other bases (and even your own), is proportionate to
-//  relation *from -1 to 1, scaled in-between*- i.e, a neutral base counts as
-//  half a threat, and half an ally.
-//  Security is evaluated similarly, but for points you value and feel are
-//  threatened.
-
-//  But... how does this work for the Base-AI?  You'll need to limit some
-//  applicants and actively recruit others- just as a leader would do.
-
 
 
 public class BaseTactics {
@@ -75,8 +53,6 @@ public class BaseTactics {
   final Base  base ;
   final List <Mission> missions = new List <Mission> ();
   private float forceStrength = -1;
-  //private float valueStrength = -1;  //  Sum of all bases!
-  //  TODO:  MOVE THE MISSIONS OVER HERE
   
   
   public BaseTactics(Base base) {

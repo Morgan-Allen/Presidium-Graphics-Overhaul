@@ -1,6 +1,8 @@
 
 
 package stratos.user;
+import com.badlogic.gdx.Input.Keys;
+
 import stratos.start.*;
 import stratos.graphics.common.ImageAsset;
 import stratos.graphics.widgets.*;
@@ -13,20 +15,18 @@ import stratos.util.Description.Link;
 //  enter debug mode, or skip ahead in time.
 
 
-public class EscapePane extends UIGroup implements UIConstants {
+public class GameOptionsPane extends UIGroup implements UIConstants {
   
   
   final static ImageAsset
-    ESCAPE_BUTTON_TEX = ImageAsset.fromImage(
-      EscapePane.class, "media/GUI/Panels/game_options_tab.png"
+    OPTIONS_ICON_TEX = ImageAsset.fromImage(
+      GameOptionsPane.class, "media/GUI/Panels/game_options_tab.png"
     ),
-    ESCAPE_ICON_LIT = Button.CIRCLE_LIT,
-    //BORDER_TEX = SelectionInfoPane.BORDER_TEX;
-    //*
+    OPTIONS_ICON_LIT = Button.CIRCLE_LIT,
+    
     BORDER_TEX = ImageAsset.fromImage(
-      EscapePane.class, "media/GUI/Panel.png"
+      GameOptionsPane.class, "media/GUI/Panel.png"
     );
-  //*/
   
 
   final Scenario played;
@@ -34,7 +34,7 @@ public class EscapePane extends UIGroup implements UIConstants {
   final Bordering bordering;
   
   
-  private EscapePane(BaseUI UI, Scenario played) {
+  private GameOptionsPane(BaseUI UI, Scenario played) {
     super(UI);
     this.played = played;
     this.text = new Text(UI, INFO_FONT);
@@ -50,15 +50,31 @@ public class EscapePane extends UIGroup implements UIConstants {
     bordering.surround(text);
   }
   
-
   
-  static Button createButton(final BaseUI UI, Scenario played) {
-    final EscapePane pane = new EscapePane(UI, played);
+  
+  static Button createButton(final BaseUI baseUI, Scenario played) {
+    final GameOptionsPane pane = new GameOptionsPane(baseUI, played);
+    
     final Button button = new Button(
-      UI, ESCAPE_BUTTON_TEX, ESCAPE_ICON_LIT, "Game Options"
+      baseUI, OPTIONS_ICON_TEX, OPTIONS_ICON_LIT, "Game Options"
     ) {
+      
       protected void whenClicked() {
-        ((BaseUI) UI).setInfoPanels(pane, null);
+        if (baseUI.currentPane() == pane) {
+          baseUI.setInfoPanels(null, null);
+        }
+        else {
+          baseUI.setInfoPanels(pane, null);
+        }
+      }
+      
+      protected void updateState() {
+        super.updateState();
+        if (KeyInput.wasTyped(Keys.ESCAPE) && baseUI.currentTask() == null) {
+          whenClicked();
+        }
+        final boolean paneOpen = baseUI.currentPane() == pane;
+        PlayLoop.setPaused(paneOpen);
       }
     };
     return button;
@@ -91,18 +107,27 @@ public class EscapePane extends UIGroup implements UIConstants {
     }});
     
     
-    //  TODO:  Allow the same interface here to be accessed directly from the
-    //         Main Menu- allow with any associated Psi costs.
     
     //  TODO:  Make the file-path system more transparent and consistent!
     text.append("\n\nLoad Earlier Save:");
+    appendLoadOptions(text, played.savesPrefix());
+  }
+  
+  
+  public static void appendLoadOptions(Text text, String prefix) {
     
-    final String prefix = played.savesPrefix();
+    final int
+      prefLength =  prefix == null ? 0 : prefix.length(),
+      extLength  = (prefix == null ? "-current.rep" : ".rep").length();
+    
+    //  TODO:  List any associated Psi costs here (for non-current saves.)
     for (final String path : Scenario.savedFiles(prefix)) {
-      if (path.endsWith("current.rep")) continue;
+      final boolean current = path.endsWith("-current.rep");
+      if (prefix != null &&   current) continue;
+      if (prefix == null && ! current) continue;
       
       final String titlePath = path.substring(
-        prefix.length(), path.length() - ".rep".length()
+        prefLength, path.length() - extLength
       );
       text.append("\n  ");
       text.append(new Link(titlePath) { public void whenClicked() {
@@ -110,18 +135,12 @@ public class EscapePane extends UIGroup implements UIConstants {
       }});
     }
   }
-  
 }
 
 
 
 //  What about pausing/unpausing?  There should be a button for that...  ...No,
 //  there shouldn't be, excepting in debug mode.
-
-
-
-
-
 
 
 
