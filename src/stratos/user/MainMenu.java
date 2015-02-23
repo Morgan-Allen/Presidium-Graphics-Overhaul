@@ -9,6 +9,7 @@ import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.start.*;
 import stratos.util.*;
+
 import java.io.*;
 
 
@@ -301,12 +302,7 @@ public class MainMenu extends UIGroup {
   //  name of the ruler/subjects,) before committing to the landing choice.
   public void beginNewGame(Object args[]) {
     final Sector sector = (Sector) config.house;
-    String title = sector.houseName;
-    while (true) {
-      final String fullPath = Scenario.fullSavePath(title, null);
-      if (Scenario.saveExists(fullPath)) title = title+"I";
-      else break;
-    }
+    final String title = Scenario.uniqueVariant(sector.houseName);
     PlayLoop.setupAndLoop(new StartupScenario(config, title));
   }
   

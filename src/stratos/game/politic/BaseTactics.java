@@ -21,9 +21,8 @@ import stratos.util.*;
 //  Recon mission:  Fog rating.  Demand for resources you haven't found.
 
 //  TODO:  You'll have to give some thought to chaining missions together,
-//  though (e.g, using a contact mission to gain applicants for a strike team.)
+//  through (e.g, using a contact mission to gain applicants for a strike team.)
 //  Also, ruler-personality.
-
 
 
 

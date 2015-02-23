@@ -10,6 +10,7 @@ import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
+
 import java.io.*;
 
 
@@ -310,6 +311,16 @@ public abstract class Scenario implements Session.Saveable, Playable {
     final File file = new File(saveFile);
     if (! file.exists()) return false;
     else return true;
+  }
+  
+  
+  public static String uniqueVariant(String prefix) {
+    while (true) {
+      final String fullPath = fullSavePath(prefix, null);
+      if (saveExists(fullPath)) prefix = prefix+"I";
+      else break;
+    }
+    return prefix;
   }
 
   

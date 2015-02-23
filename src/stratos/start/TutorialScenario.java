@@ -48,7 +48,7 @@ public class TutorialScenario extends StartupScenario implements
   
   
   public TutorialScenario(String prefix) {
-    super(config(), prefix);
+    super(config(), Scenario.uniqueVariant(prefix));
   }
   
   
