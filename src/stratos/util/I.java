@@ -18,7 +18,6 @@ import java.io.*;
   *  TODO:  You need to have a logging system that allows various classes to
   *         be toggled on and off for reports.
   *  TODO:  Try scanning for static 'verbose' fields in all classes?
-  *  TODO:  Detect whether or not to write to file using build settings.
   */
 public class I {
   
@@ -26,8 +25,23 @@ public class I {
   public static boolean mute = false;
   public static Object talkAbout = null;
   
-  final static boolean WRITE_TO_LOG = false;
+  final static boolean WRITE_TO_LOG;
   static {
+    //  TODO:  Use this trick in the AssetsLoader class too- it's much faster
+    //  than a brute-force search for files.
+    
+    final java.net.URL toThis = I.class.getResource("I.class");
+    final boolean isJar = toThis.toString().startsWith("jar:");
+    WRITE_TO_LOG = isJar;
+    
+    //  Alternatively, you might use this (to detect eclipse specifically)-
+    //  http://stackoverflow.com/questions/482560/can-you-tell-on-runtime-if-youre-running-java-from-within-a-jar
+    /*
+    if (System.getProperty("java.class.path").contains("org.eclipse.equinox.launcher")) {
+      System.out.println("You're running inside Eclipse");
+    }
+    //*/
+    
     if (WRITE_TO_LOG) try {
       final String
         date    = new java.util.Date().toString(),
