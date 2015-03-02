@@ -23,7 +23,6 @@ public class PlaneFX extends SFX {
   
   /**  Model definitions, fields, constructors, and save/load methods-
     */
-  //  TODO:  Move to a separate file?
   public static class Model extends stratos.graphics.common.ModelAsset {
     
     final String imageName;

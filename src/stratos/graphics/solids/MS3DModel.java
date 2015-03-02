@@ -2,13 +2,11 @@
 
 
 package stratos.graphics.solids;
-
 import stratos.graphics.common.*;
 import stratos.graphics.solids.MS3DFile.*;
 import stratos.util.*;
 
 import java.util.Arrays;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g3d.*;
@@ -17,6 +15,8 @@ import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g3d.model.data.ModelMaterial.MaterialType;
+
+
 
 
 public class MS3DModel extends SolidModel {
@@ -45,7 +45,7 @@ public class MS3DModel extends SolidModel {
     xmlPath = path+xmlFile;
     this.xmlName = xmlName;
     this.associateFile(filePath);
-    this.associateFile(xmlPath);
+    this.associateFile(xmlPath );
   }
   
   
@@ -58,6 +58,7 @@ public class MS3DModel extends SolidModel {
   
 
   protected void loadAsset() {
+    
     try {
       final FileHandle fileHandle = Gdx.files.internal(filePath);
       final DataInput0 input = new DataInput0(fileHandle.read(), true);
@@ -69,6 +70,7 @@ public class MS3DModel extends SolidModel {
         config = xml.matchChildValue("name", xmlName);
       }
       else config = null;
+      input.close();
     }
     catch (Exception e) {
       I.report(e);

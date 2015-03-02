@@ -14,7 +14,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Pixmap.Blending;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
-
 import java.io.*;
 
 
@@ -51,13 +50,12 @@ public class Alphabet {
     path = Assets.safePath(path);
     XML info = (XML.load(path + mmlFile)).child(0);
     String
-      texFile = info.value("texture"),
-      alphaFile = info.value("alpha"),
-      mapFile = info.value("mapping");
+      texFile   = info.value("texture"),
+      alphaFile = info.value("alpha"  ),
+      mapFile   = info.value("mapping");
     final int
       numLines = Integer.parseInt(info.value("lines")),
-      lineHigh = Integer.parseInt(info.value("lhigh")) 
-     ;
+      lineHigh = Integer.parseInt(info.value("lhigh"));
     return new Alphabet(path, texFile, alphaFile, mapFile, numLines, lineHigh);
   }
   

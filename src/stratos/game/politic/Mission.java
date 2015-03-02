@@ -310,11 +310,21 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   public boolean canApply(Actor actor) {
-    if (done) return false;
-    if (roleFor(actor) != null) return true;
-    if (missionType == TYPE_COVERT) return false;
-    if (missionType == TYPE_SCREENED && begun) return false;
-    if (! base.tactics.shouldApprove(actor, this)) return false;
+    if (done) {
+      return false;
+    }
+    if (roleFor(actor) != null) {
+      return true;
+    }
+    if (missionType == TYPE_COVERT) {
+      return false;
+    }
+    if (missionType == TYPE_SCREENED && begun) {
+      return false;
+    }
+    if (missionType == TYPE_BASE_AI) {
+      return base.tactics.shouldAllow(actor, this);
+    }
     return true;
   }
   
@@ -333,7 +343,10 @@ public abstract class Mission implements Session.Saveable, Selectable {
   //  NOTE:  This method should be called within the ActorMind.assignMission
   //  method, and not independantly.
   public void setApplicant(Actor actor, boolean is) {
-    I.say("SETTING AS APPLICANT: "+actor+" "+is);
+    final boolean report = verbose && (
+      I.talkAbout == actor || I.talkAbout == this
+    );
+    if (report) I.say("\n"+actor+" apply for "+this+"? "+is);
     
     final Role oldRole = roleFor(actor);
     if (is) {

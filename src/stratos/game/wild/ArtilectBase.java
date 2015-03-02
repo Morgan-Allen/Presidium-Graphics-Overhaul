@@ -5,27 +5,24 @@
   */
 package stratos.game.wild;
 import stratos.game.common.*;
+import stratos.game.plans.*;
 import stratos.game.politic.*;
 import stratos.util.*;
 
 
 
-//  So... what triggers them?  An EM-signature, meaning that a technologically
-//  advanced, non-artilect enemy is present on the map.  That causes them to
-//  bring various sub-systems online.  (Something like 40K necrons.)
-
-//  TODO:  You need a 'Faction' class to handle this function on a setting-
-//  wide level.
-
-//  Well, for the present, from a gameplay perspective, the main function is to
-//  apply gradual but consistent pressure on the player to explore, set up
-//  useful defences, gather allies and eradicate a foe.
-
 
 public class ArtilectBase extends Base {
   
   
-  private float onLineLevel;
+  private static boolean verbose = true ;
+  
+  final static float
+    MAX_MISSION_POWER = CombatUtils.MAX_POWER * Mission.MAX_PARTY_LIMIT,
+    ONLINE_WAKE_TIME  = Stage.STANDARD_YEAR_LENGTH / 2,
+    CHECK_INTERVAL    = Stage.STANDARD_HOUR_LENGTH * 2;
+  
+  private float onlineLevel = 0;
   
   
   
@@ -36,26 +33,64 @@ public class ArtilectBase extends Base {
   
   public ArtilectBase(Session s) throws Exception {
     super(s);
-    this.onLineLevel = s.loadFloat();
+    this.onlineLevel = s.loadFloat();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveFloat(onLineLevel);
+    s.saveFloat(onlineLevel);
+  }
+  
+  
+  public void setOnlineLevel(float toLevel) {
+    this.onlineLevel = toLevel;
+  }
+  
+  
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
+    //
+    //  As long as there's a technologically-advanced non-artilect base on the
+    //  map, increment the 'wakeup' level.
+    if (numUpdates % CHECK_INTERVAL == 0) {
+      boolean hasFoe = false;
+      for (Base base : world.bases()) if (! base.primal) {
+        if (world.presences.nearestMatch(base, null, -1) != null) {
+          hasFoe = true;
+        }
+      }
+      final float inc = CHECK_INTERVAL * 1f / ONLINE_WAKE_TIME;
+      onlineLevel += inc * (hasFoe ? 1 : -1);
+      onlineLevel = Nums.clamp(onlineLevel, 0, 1);
+    }
   }
   
   
   protected BaseTactics initTactics() {
     return new BaseTactics(this) {
       
+      protected boolean shouldAllow(
+        Actor actor, Mission mission,
+        float actorChance, float actorPower,
+        float partyChance, float partyPower
+      ) {
+        final boolean report = verbose;
+        float powerLimit = MAX_MISSION_POWER * onlineLevel;
+        if (report) {
+          I.say("\nChecking to allow mission-application...");
+          I.say("  Mission is:   "+mission    +" ("+mission.base()+")");
+          I.say("  Applicant:    "+actor      +" ("+actor.base()+")");
+          I.say("  Actor chance: "+actorChance+" (power "+actorPower+")");
+          I.say("  Party chance: "+partyChance+" (power "+partyPower+")");
+          I.say("  On-line level: "+onlineLevel);
+          I.say("  Power limit:   "+powerLimit );
+        }
+        return actorPower + partyPower <= powerLimit;
+      }
     };
   }
-  
-  
-  
 }
-
 
 
 

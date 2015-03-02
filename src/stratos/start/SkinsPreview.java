@@ -4,12 +4,15 @@
 package stratos.start;
 
 import stratos.graphics.common.*;
+import stratos.graphics.sfx.PlaneFX;
 import stratos.graphics.solids.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
+
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.Input.Keys;
+
 import java.io.*;
 
 
@@ -21,7 +24,13 @@ public class SkinsPreview extends VisualDebug {
     PlayLoop.setupAndLoop(new SkinsPreview(), "stratos.graphics");
   }
   
-
+  
+  final static Colour BACK_COLOUR = Colour.DARK_BLUE;
+  final static PlaneFX.Model CENTRE_MARK_MODEL = new PlaneFX.Model(
+    "centre_mark_model", SkinsPreview.class,
+    "media/GUI/selectCircle.png", 0.5f, 0, 0, false, true
+  );
+  
   final static int MAX_PATH_LEN = 100;
   final static char[] VALID_KEYS =
     "abcdefghijklmnopqrstuvwxyz._/01234567890"
@@ -37,6 +46,9 @@ public class SkinsPreview extends VisualDebug {
   private String currentAnim;
   private boolean shouldLoop;
   
+  private boolean showOrigin = true;
+  private PlaneFX centerMark = null;
+  
   private Table <String, String> assetStamps = new Table <String, String> ();
   private boolean willReload = false, reloadNow = false;
   
@@ -50,6 +62,7 @@ public class SkinsPreview extends VisualDebug {
     modelPathEntry.alignHorizontal(0, 0);
     modelPathEntry.attachTo(UI);
     
+    centerMark = (PlaneFX) CENTRE_MARK_MODEL.makeSprite();
     shouldLoop = true;
   }
   
@@ -60,10 +73,14 @@ public class SkinsPreview extends VisualDebug {
   
   
   public void renderVisuals(Rendering rendering) {
+    rendering.backColour = BACK_COLOUR;
     updatePath();
     updateModel();
     checkAssetsChange();
     setupText();
+    
+    centerMark.position.setTo(rendering.view.lookedAt);
+    if (showOrigin) centerMark.readyFor(rendering);
     super.renderVisuals(rendering);
   }
   
@@ -82,6 +99,7 @@ public class SkinsPreview extends VisualDebug {
   /**  Helper method implementations-
     */
   private void updatePath() {
+    if (inMoveMode()) return;
     //
     //  Firstly, filter the set of pressed keys for valid path-characters, and
     //  tack them on at the end of the path.
@@ -130,6 +148,10 @@ public class SkinsPreview extends VisualDebug {
     final Text t = modelPathEntry;
     t.setText("Enter File Path: "+currentPath);
     t.append("\n  Last Valid Path: "+lastValidPath);
+    t.append(new Text.Clickable() {
+      public void whenClicked() { currentPath = ""; }
+      public String fullName() { return "\n  (clear path)"; }
+    });
     
     //
     //  If the current path refers to an xml entry, list the available files-
@@ -173,6 +195,24 @@ public class SkinsPreview extends VisualDebug {
       public void whenClicked() { shouldLoop = ! shouldLoop; }
       public String fullName() { return shouldLoop ? "TRUE" : "FALSE"; }
     });
+    
+    t.append("\n\nMove mode: ");
+    t.append(new Text.Clickable() {
+      public void whenClicked() { toggleMoveMode(); }
+      public String fullName() { return inMoveMode() ? "TRUE" : "FALSE"; }
+    });
+    t.append(new Text.Clickable() {
+      public void whenClicked() { showOrigin = ! showOrigin; }
+      public String fullName() {
+        return showOrigin ? " (hide origin)" : " (show origin)";
+      }
+    });
+    
+    t.append(
+      "\n\nPress enter then use WASD to move model."+
+      "\nUse arrow keys to zoom and change lighting.",
+      Colour.LITE_GREY
+    );
   }
   
   
@@ -194,7 +234,6 @@ public class SkinsPreview extends VisualDebug {
     if (path == null || file == null) return false;
     final File match = new File(path+file);
     if (! match.exists()) return false;
-    
     //
     //  Firstly, see if it's possible to load a new model from the given path
     //  and file strings.
@@ -211,7 +250,6 @@ public class SkinsPreview extends VisualDebug {
       I.report(e);
       currentPath = "";
     }
-
     //
     //  If the file loads successfully, then dispose of the old model and
     //  create a sprite based on the new.  Otherwise, return false.
@@ -236,7 +274,12 @@ public class SkinsPreview extends VisualDebug {
       if (! asset.exists()) continue;
       final String stamp = ""+asset.lastModified();
       final String oldVal = assetStamps.get(s);
-      if (oldVal != null && ! oldVal.equals(stamp)) shouldReload = true;
+      
+      if (oldVal != null && ! oldVal.equals(stamp)) {
+        I.say("\nAsset was changed! "+s);
+        Assets.clearCachedResource(s);
+        shouldReload = true;
+      }
       assetStamps.put(s, stamp);
     }
     

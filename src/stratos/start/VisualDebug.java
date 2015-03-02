@@ -4,7 +4,6 @@ package stratos.start;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.*;
 
@@ -16,7 +15,8 @@ public abstract class VisualDebug implements Playable {
   private boolean loaded = false;
   List <Sprite> sprites = new List <Sprite> ();
   
-  private boolean moused = false;
+  private boolean moused   = false;
+  private boolean moveMode = false;
   private float origX, origY, origR, origE;
 
   
@@ -51,6 +51,16 @@ public abstract class VisualDebug implements Playable {
   }
   
   
+  protected boolean inMoveMode() {
+    return moveMode;
+  }
+  
+  
+  protected void toggleMoveMode() {
+    moveMode = ! moveMode;
+  }
+  
+  
   public void renderVisuals(Rendering rendering) {
     
     final Viewport port = rendering.view;
@@ -58,26 +68,40 @@ public abstract class VisualDebug implements Playable {
     final Mat3D r = new Mat3D();
     final Vec3D l = rendering.lighting.direction;
     
+    if (KeyInput.wasTyped(Keys.ENTER)) {
+      toggleMoveMode();
+    }
+    
+    if (inMoveMode()) {
+      if (Gdx.input.isKeyPressed(Keys.S)) {
+        port.lookedAt.z += i;
+      }
+      if (Gdx.input.isKeyPressed(Keys.W)) {
+        port.lookedAt.z -= i;
+      }
+      
+      Vec3D across = rendering.view.screenHorizontal().normalise();
+      
+      if (Gdx.input.isKeyPressed(Keys.A)) {
+        port.lookedAt.add(across.scale( i));
+      }
+      if (Gdx.input.isKeyPressed(Keys.D)) {
+        port.lookedAt.add(across.scale(-i));
+      }
+    }
+    
     if (Gdx.input.isKeyPressed(Keys.UP   )) {
-      //port.lookedAt.x -= i;
-      //port.lookedAt.y += i;
       port.zoomLevel *= 1 + i;
     }
     if (Gdx.input.isKeyPressed(Keys.DOWN )) {
-      //port.lookedAt.x += i;
-      //port.lookedAt.y -= i;
       port.zoomLevel /= 1 + i;
     }
     if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
-      //port.lookedAt.x -= i;
-      //port.lookedAt.y -= i;
       r.setIdentity().rotateY(i *  1);
       r.trans(l);
       l.normalise();
     }
     if (Gdx.input.isKeyPressed(Keys.LEFT )) {
-      //port.lookedAt.x += i;
-      //port.lookedAt.y += i;
       r.setIdentity().rotateY(i * -1);
       r.trans(l);
       l.normalise();

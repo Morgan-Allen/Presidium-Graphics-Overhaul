@@ -22,6 +22,9 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 //  in the new version on top of the old?  Something like that.  If you wanted,
 //  you could do some kind of fancy burn-in or flicker transition-effect.
 
+//  TODO:  The disposal-checks are needed here due to possibility of render-
+//         loop interruption when a new game is loaded- fix that.
+
 public class Minimap extends Assets.Loadable {
   
   
@@ -37,10 +40,7 @@ public class Minimap extends Assets.Loadable {
   
   
   public void updateTexture(int texSize, int RGBA[][]) {
-    if (disposed) {
-      I.say("TEXTURE UPDATE WHEN DISPOSED");
-      return;
-    }
+    if (disposed) return;
     
     final Pixmap drawnTo = new Pixmap(
       texSize, texSize, Pixmap.Format.RGBA8888
@@ -61,10 +61,7 @@ public class Minimap extends Assets.Loadable {
   
   
   public void updateGeometry(Box2D bound) {
-    if (disposed) {
-      I.say("GEOMETRY UPDATE WHEN DISPOSED");
-      return;
-    }
+    if (disposed) return;
     
     //  Initialise the mesh if required-
     if (mapMesh == null) {
@@ -120,7 +117,7 @@ public class Minimap extends Assets.Loadable {
   
   protected void disposeAsset() {
     if (disposed || ! isLoaded()) return;
-    I.say("DISPOSING OF MINIMAP: "+this.hashCode());
+    ///I.say("DISPOSING OF MINIMAP: "+this.hashCode());
     
     disposed = true;
     if (mapImage != null) mapImage.dispose();

@@ -3,8 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.common;
 import stratos.game.actors.*;
 import stratos.game.economic.*;
@@ -12,7 +10,6 @@ import stratos.game.maps.*;
 import stratos.game.politic.*;
 import stratos.game.wild.*;
 import stratos.graphics.common.*;
-import stratos.graphics.widgets.KeyInput;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -89,11 +86,12 @@ public class Base implements
   }
   
   
-  public static Base artilects(Stage world) {
-    Base base = namedBase(world, KEY_ARTILECTS);
+  public static ArtilectBase artilects(Stage world) {
+    ArtilectBase base = (ArtilectBase) namedBase(world, KEY_ARTILECTS);
     if (base != null) return base;
     else base = new ArtilectBase(world);
-    return registerBase(base, world, KEY_ARTILECTS, Colour.LITE_RED);
+    registerBase(base, world, KEY_ARTILECTS, Colour.LITE_RED);
+    return base;
   }
   
   
@@ -115,6 +113,16 @@ public class Base implements
   
   public boolean isPrimal() {
     return primal;
+  }
+  
+  
+  public boolean isRealPlayer() {
+    return BaseUI.currentPlayed() == this;
+  }
+  
+  
+  public boolean isBaseAI() {
+    return ! isRealPlayer();
   }
   
   

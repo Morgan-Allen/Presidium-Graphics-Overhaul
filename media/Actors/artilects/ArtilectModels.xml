@@ -128,6 +128,12 @@
     <animation name="stand"       start="1"  end="1"  duration="1"   />
 	<animation name="test"        start="2"  end="40"  duration="1.5" />
     <animation name="TESTmove"        start="80"  end="120"  duration="1.5" />
+	<animation name="move"        start="165"  end="204"  duration="1.5" />
+	<animation name="move2"        start="209"  end="248"  duration="1.5" />
+	<animation name="carry"        start="252"  end="312"  duration="3" />
+	<animation name="look"        start="319"  end="379"  duration="4" />
+	<animation name="build"        start="394"  end="494"  duration="3" />
+	
   </animations>
   
 </model>

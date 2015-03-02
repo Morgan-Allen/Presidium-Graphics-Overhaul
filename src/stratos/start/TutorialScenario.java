@@ -21,16 +21,13 @@ import static stratos.start.TutorialScript.*;
 //  Divide the map into regions, and arrange for *not* wandering outside of it.
 //  And have that show up on the minimap (regional claims.)
 
-//  Start out with 8K.
-//  End with +1 housing and at least 4K.
-//  Destroy the Artilect lair.
-//  Persuade the natives to open trade with your base.
-
 //  TODO:  Consider providing 3 mandatory objectives, but being flexible about
 //  the order of completion- or have one feed into another.
 
-//  ...This map is too small to allow for multiple factions, really.  More
-//  useful as a theoretical exercise.
+//  ...This map is too small to allow for multiple factions, really.  Consider
+//  creating 3 separate mini-tutorials for each of the game aspects- survival,
+//  prosperity and honour/prestige/legacy.
+
 
 
 
@@ -107,7 +104,8 @@ public class TutorialScenario extends StartupScenario implements
     
     final BaseSetup AS = Base.artilects(world).setup;
     ruins = new Batch <Ruins> ();
-    Visit.appendTo(ruins, AS.doPlacementsFor(Ruins.VENUE_PROFILES[0], 1));
+    final VenueProfile RP[] = Ruins.VENUE_PROFILES;
+    Visit.appendTo(ruins, AS.doPlacementsFor(RP[0], 3));
     AS.fillVacancies(ruins, true);
     
     final int tribeID = NativeHut.TRIBE_FOREST;

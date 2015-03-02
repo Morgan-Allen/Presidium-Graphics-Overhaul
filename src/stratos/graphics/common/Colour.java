@@ -51,7 +51,14 @@ public class Colour {
     LITE_BLUE    = new Colour(BLUE   ).blend(WHITE, 0.5f),
     LITE_YELLOW  = new Colour(YELLOW ).blend(WHITE, 0.5f),
     LITE_CYAN    = new Colour(CYAN   ).blend(WHITE, 0.5f),
-    LITE_MAGENTA = new Colour(MAGENTA).blend(WHITE, 0.5f);
+    LITE_MAGENTA = new Colour(MAGENTA).blend(WHITE, 0.5f),
+    
+    DARK_RED     = new Colour(RED    ).blend(BLACK, 0.5f),
+    DARK_GREEN   = new Colour(GREEN  ).blend(BLACK, 0.5f),
+    DARK_BLUE    = new Colour(BLUE   ).blend(BLACK, 0.5f),
+    DARK_YELLOW  = new Colour(YELLOW ).blend(BLACK, 0.5f),
+    DARK_CYAN    = new Colour(CYAN   ).blend(BLACK, 0.5f),
+    DARK_MAGENTA = new Colour(MAGENTA).blend(BLACK, 0.5f);
   final public static int
     ALPHA_BITS = 0xff000000,
     RGB_BITS   = 0x00ffffff;

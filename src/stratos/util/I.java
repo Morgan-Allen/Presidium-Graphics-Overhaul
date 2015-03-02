@@ -34,6 +34,9 @@ public class I {
     final boolean isJar = toThis.toString().startsWith("jar:");
     WRITE_TO_LOG = isJar;
     
+    System.out.println("\nPATH TO SELF IS: "+toThis);
+    System.out.println("  IS JAR FILE?     "+isJar );
+    
     //  Alternatively, you might use this (to detect eclipse specifically)-
     //  http://stackoverflow.com/questions/482560/can-you-tell-on-runtime-if-youre-running-java-from-within-a-jar
     /*
@@ -43,11 +46,17 @@ public class I {
     //*/
     
     if (WRITE_TO_LOG) try {
-      final String
+      String
         date    = new java.util.Date().toString(),
-        outFile = "saves/log_output"+date+".txt";
+        outPath = "saves/log_output_"+date+".txt";
+      outPath = outPath.replace(" ", "_");
+      outPath = outPath.replace(":", "_");
+      System.out.println("  LOG OUTPUT PATH: "+outPath);
       
-      final PrintStream logOutput = new PrintStream(new File(outFile)) {
+      final File outFile = new File(outPath);
+      if (! outFile.exists()) outFile.createNewFile();
+      
+      final PrintStream logOutput = new PrintStream(outFile) {
         public void finalize() {
           this.flush();
         }

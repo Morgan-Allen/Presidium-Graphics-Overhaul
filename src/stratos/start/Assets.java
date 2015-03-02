@@ -281,6 +281,11 @@ public class Assets {
   }
   
   
+  public static void clearCachedResource(String key) {
+    resCache.remove(key);
+  }
+  
+  
   public static Object getResource(String key) {
     return resCache.get(key);
   }

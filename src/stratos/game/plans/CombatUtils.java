@@ -17,7 +17,7 @@ import static stratos.game.actors.Qualities.*;
 public class CombatUtils {
   
   
-  final static float
+  final public static float
     MAX_POWER   = 20;
   private static boolean
     threatsVerbose  = false,

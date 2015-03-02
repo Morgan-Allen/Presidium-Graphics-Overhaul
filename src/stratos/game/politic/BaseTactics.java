@@ -31,32 +31,43 @@ public class BaseTactics {
   
   protected static boolean
     updatesVerbose = false,
-    shortWaiting   = false,
+    shortWaiting   = true ,
     extraVerbose   = false;
   protected static String
     verboseBase    = null;//Base.KEY_ARTILECTS;
   
+  protected boolean shouldReport() {
+    return updatesVerbose && I.matchOrNull(
+      base.title(), verboseBase
+    );
+  }
+  
+  
   final static int
-    MIN_MISSIONS   = 1,
-    MAX_MISSIONS   = 5,
+    MIN_MISSIONS = 1,
+    MAX_MISSIONS = 5,
     
+    //  TODO:  Make these variable?  Like raid-frequency/force-strength?
     APPLY_WAIT_DURATION   = Stage.STANDARD_DAY_LENGTH  * 2,
     DEFAULT_EVAL_INTERVAL = Stage.STANDARD_DAY_LENGTH  / 3,
     SHORT_EVAL_INTERVAL   = Stage.STANDARD_HOUR_LENGTH * 2,
     SHORT_WAIT_DURATION   = SHORT_EVAL_INTERVAL + 2;
-  final static float
-    MIN_PARTY_STRENGTH = 1 / 1.5f,
-    MAX_PARTY_STRENGTH = 1 * 1.5f;
   
-  final Stage world;
-  final Base  base ;
+  final static float
+    DEFAULT_MIN_PARTY_STRENGTH = 1 / 1.5f,
+    DEFAULT_MAX_PARTY_STRENGTH = 1 * 1.5f,
+    MISSION_BEGUN_RATING_MULT  = 1.5f;
+  
+  static enum Launch { BEGIN, WAIT, CANCEL };
+  
+  
+  final Base base;
   final List <Mission> missions = new List <Mission> ();
   private float forceStrength = -1;
   
   
   public BaseTactics(Base base) {
-    this.world = base.world;
-    this.base  = base;
+    this.base = base;
   }
   
   
@@ -99,54 +110,38 @@ public class BaseTactics {
   /**  Performing regular assessment updates-
     */
   public void updateTactics(int numUpdates) {
-    final boolean report = updatesVerbose && I.matchOrNull(
-      base.title(), verboseBase
-    );
+    final boolean report = shouldReport();
+    
     for (Mission mission : missions) {
       mission.updateMission();
     }
-    
-    updateMissionAssessment(numUpdates, report);
-  }
-  
-  
-  private void updateMissionAssessment(int numUpdates, boolean report) {
-    //  TODO:  Bases should have an 'isRealPlayer' property...
-    if (! base.primal) return;
     
     final int
       interval = shortWaiting ? SHORT_EVAL_INTERVAL : DEFAULT_EVAL_INTERVAL,
       period   = numUpdates % interval;
     
     if (period != 0) {
-      if (report) {
-        I.say("\nNot yet time for base-tactics update! "+base);
-        I.say("  Period: "+period+"/"+interval);
-      }
+      if (report) I.say(
+        "\n"+ (interval - period)+"/"+interval+" seconds until "+
+        "tactics update for "+base
+      );
       return;
     }
-    else if (report) {
-      I.say("\nUPDATING MISSION ASSESSMENTS FOR "+base);
-    }
     
-    final float BEGUN_MULT = 1.5f;
-    //  TODO:  You might want to vary this a bit, based on the admin qualities
-    //  of your base.
-    forceStrength = this.estimateForceStrength();
-    int maxMissions = (int) Nums.ceil(forceStrength / Mission.MAX_PARTY_LIMIT);
-    maxMissions     = (int) Nums.clamp(maxMissions, MIN_MISSIONS, MAX_MISSIONS);
-    if (report) I.say("  Maximum missions allowed: "+maxMissions);
+    //  TODO:  Consider doing direct assignments of actors to various missions
+    //  here?
+    this.forceStrength = estimateForceStrength();
+    if (base.isBaseAI()) updateMissionAssessments();
+  }
+  
+  
+  protected void updateMissionAssessments() {
+    final boolean report = shouldReport();
+    if (report) I.say("\nUPDATING MISSION ASSESSMENTS FOR "+base);
     
     Batch <Mission> toAssess = new Batch <Mission> ();
     Visit.appendTo(toAssess, missions);
-    //
-    //  Then get a bunch of sampled actors and venues, etc., and see if they
-    //  are worth pursuing.
-    final Batch <Venue > venues  = this.getSampleVenues();
-    for (Venue v : venues) {
-      toAssess.add(new StrikeMission  (base, v));
-      toAssess.add(new SecurityMission(base, v));
-    }
+    addNewMissions(toAssess);
     //
     //  Then go to each mission, obtain a rating of it's importance (with a
     //  bonus if already underway/confirmed.)
@@ -160,17 +155,19 @@ public class BaseTactics {
     };
     for (Mission mission : toAssess) {
       final Rating r = new Rating();
-      r.rating  = mission.rateImportance(base);
+      r.rating  = rateMission(mission);
       r.mission = mission;
+      if (report) I.say("  Rating "+r.rating+" for "+mission);
+      
       final boolean
         official = missions.includes(mission),
         begun    = mission.hasBegun();
-      if (official) r.rating *= BEGUN_MULT;
-      if (begun   ) r.rating *= BEGUN_MULT;
+      if (official) r.rating *= MISSION_BEGUN_RATING_MULT;
+      if (begun   ) r.rating *= MISSION_BEGUN_RATING_MULT;
       //
       //  If this is a new mission, then assign it a root priority based on its
       //  perceived importance, and see if it's time to begin (see below.)
-      if (official & ! begun) updateOfficialMission(mission, r.rating, report);
+      //if (official & ! begun) checkToLaunchMission(mission, r.rating, report);
       sorting.add(r);
     }
     //
@@ -178,27 +175,24 @@ public class BaseTactics {
     //  manpower available,) and either begin them or allow them to continue.
     //  Then you simply terminate (or discard) the remainder.
     final Batch <Mission> active = new Batch <Mission> ();
-    
     for (Rating r : sorting) {
-      final Mission m = r.mission;
-      final boolean begun = missions.includes(m);
-      if (report && extraVerbose) {
-        I.say("  Evaluated mission: "+r.mission);
-        I.say("    Importance:      "+r.rating );
-        I.say("    Already begun?   "+begun    );
-      }
       //
       //  If a distinct mission of this type hasn't been registered yet, then
       //  do so now:
-      if (active.size() < maxMissions && r.rating > 0) {
+      final Mission m = r.mission;
+      final boolean begun = missions.includes(m);
+      if (active.size() < MAX_MISSIONS && r.rating > 0) {
         if (! begun) {
           if (base.matchingMission(m) != null) continue;
           if (report) I.say("  BEGINNING NEW MISSION: "+m);
           addMission(m);
-          updateOfficialMission(m, r.rating, report);
+          checkToLaunchMission(m, r.rating, report);
         }
         active.add(m);
       }
+      //
+      //  But if the mission-rating is negative, or if we already have as many
+      //  missions as we can handle, discard it.
       else {
         if (begun) {
           if (report) I.say("  TERMINATING OLD MISSION: "+m);
@@ -209,116 +203,155 @@ public class BaseTactics {
   }
   
   
-  protected void updateOfficialMission(
+  protected void addNewMissions(Batch <Mission> toAssess) {
+    final Batch <Venue> venues = this.getSampleVenues();
+    for (Venue v : venues) {
+      toAssess.add(new StrikeMission  (base, v));
+      toAssess.add(new SecurityMission(base, v));
+    }
+  }
+  
+  
+  //  TODO:  Have a strength-limit (min/max) for each mission.  Each base can
+  //  then override that.
+  protected boolean shouldAllow(Actor actor, Mission mission) {
+    final boolean report = shouldReport();
+    final float
+      actorChance = successChance(actor, mission),
+      actorPower  = actorPower   (actor, mission),
+      partyChance = successChance(mission),
+      partyPower  = partyPower   (mission);
+    final boolean approves = shouldAllow(
+      actor, mission, actorChance, actorPower, partyChance, partyPower
+    );
+    if (report) {
+      I.say("\nChecking to allow mission-application...");
+      I.say("  Mission is:   "+mission    +" ("+mission.base+")");
+      I.say("  Applicant:    "+actor      +" ("+actor.base()+")");
+      I.say("  Actor chance: "+actorChance+" (power "+actorPower+")");
+      I.say("  Party chance: "+partyChance+" (power "+partyPower+")");
+      I.say("  Will approve? "+approves   );
+    }
+    return approves;
+  }
+  
+  
+  protected Launch launchDecision(Mission mission) {
+    final float
+      partyChance = successChance(mission),
+      partyPower  = partyPower   (mission),
+      timeOpen    = mission.timeOpen(),
+      waitTime    = shortWaiting ? SHORT_WAIT_DURATION : APPLY_WAIT_DURATION,
+      applied     = mission.applicants().size();
+    boolean
+      timeUp      = timeOpen >= waitTime,
+      shouldBegin = false;
+    if (timeOpen >  waitTime) shouldBegin = true ;
+    if (applied  == 0       ) shouldBegin = false;
+    shouldBegin &= this.shouldLaunch(mission, partyChance, partyPower);
+    
+    if (! timeUp) return Launch.WAIT;
+    return shouldBegin ? Launch.BEGIN : Launch.CANCEL;
+  }
+  
+  
+  private void checkToLaunchMission(
     Mission mission, float rating, boolean report
   ) {
-    
     //  TODO:  LIMIT BASED ON FINANCES FOR NON-PRIMAL BASES (these also need
     //  to convert over to a non-Base-AI type once begun!)
-    int priority =  Mission.PRIORITY_NOMINAL;
+    
+    int priority  = Mission.PRIORITY_NOMINAL;
     priority     += Mission.PRIORITY_PARAMOUNT * rating;
     mission.assignPriority(priority);
     mission.setMissionType(Mission.TYPE_BASE_AI);
+    final Launch launch = launchDecision(mission);
     
     if (report) {
       I.say("\nUpdating official mission: "+mission);
       I.say("  Assigned priority: "+mission.assignedPriority());
       I.say("  Assigned type:     "+mission.missionType     ());
-    }
-    
-    //  TODO:  You could also use different criteria here (e.g, the party is
-    //  full.)
-    final float
-      strength = successChance(mission) * 2,
-      timeOpen = mission.timeOpen(),
-      waitTime = shortWaiting ? SHORT_WAIT_DURATION : APPLY_WAIT_DURATION,
-      applied  = mission.applicants().size();
-    boolean
-      timeUp      = timeOpen >= waitTime,
-      shouldBegin = false;
-    if (timeOpen > waitTime) shouldBegin = true;
-    if (applied == 0) shouldBegin = false;
-    if (report) {
-      I.say("  Total applicants: "+applied);
-      I.say("  Time open:        "+timeOpen+"/"+waitTime);
-      I.say("  Party strength:   "+strength);
-      I.say("  Applied are:");
-      for (Actor a : mission.applicants()) {
-        final float actorChance = chanceFrom(mission, a);
-        I.say("    "+a+" chance: "+actorChance);
-      }
+      I.say("  Launch state:      "+launch);
     }
     
     //  TODO:  You might want to hold back a bit here, depending on the
     //  priority of the mission- expend fewer resources on lower-priority
     //  tasks.
-    if (shouldBegin) {
-      if (strength > MIN_PARTY_STRENGTH && Rand.num() < strength) {
-        if (report) I.say("  STARTING MISSION NOW!");
-        for (Actor applies : mission.applicants()) {
-          mission.setApprovalFor(applies, true);
-        }
-        mission.beginMission();
+    if (launch == Launch.BEGIN) {
+      for (Actor applies : mission.applicants()) {
+        mission.setApprovalFor(applies, true);
       }
-      else {
-        if (report) I.say("  INSUFFICIENT PARTY STRENGTH- CANCELLING");
-        mission.endMission(false);
-      }
+      mission.beginMission();
+    }
+    
+    if (launch == Launch.CANCEL) {
+      mission.endMission(false);
     }
   }
   
   
-  private float chanceFrom(Mission m, Actor a) {
+  
+  /**  Utility methods for rating the importance and strength of missions,
+    *  parties and candidates-
+    */
+  protected boolean shouldAllow(
+    Actor actor, Mission mission,
+    float actorChance, float actorPower,
+    float partyChance, float partyPower
+  ) {
+    float strength = (actorChance + partyChance) * 2;
+    //  TODO:  BASE OFF COURAGE, etc.
+    return strength <= DEFAULT_MAX_PARTY_STRENGTH;
+  }
+  
+  
+  protected boolean shouldLaunch(
+    Mission mission, float partyChance, float partyPower
+  ) {
+    float strength = partyChance * 2;
+    //  TODO:  BASE OFF COURAGE, etc.
+    return strength > DEFAULT_MIN_PARTY_STRENGTH;
+  }
+  
+  
+  protected float rateMission(Mission mission) {
+    return mission.rateImportance(base);
+  }
+  
+  
+  protected float rateApplicant(Actor actor, Mission mission) {
+    return successChance(actor, mission);
+  }
+  
+  
+  private float successChance(Actor a, Mission m) {
     final Behaviour step = m.nextStepFor(a, true);
     return (step instanceof Plan) ? ((Plan) step).successChanceFor(a) : 1;
   }
   
   
-  protected float successChance(Mission mission) {
+  private float successChance(Mission mission) {
     float sumChances = 0;
-    for (Actor a : mission.applicants()) sumChances += chanceFrom(mission, a);
+    for (Actor a : mission.applicants()) {
+      sumChances += successChance(a, mission);
+    }
     return sumChances;
   }
   
   
-  //  TODO:  Merge with method in Mission class.  Or save this for when the
-  //  mission is due evaluation?
-  
-  protected boolean shouldApprove(Actor actor, Mission mission) {
-    final boolean report = (updatesVerbose || Mission.evalVerbose) && (
-      I.talkAbout == actor || I.talkAbout == mission
-    );
-    /*
-    if (! isCompetent(actor, mission)) {
-      if (report) I.say("\n"+actor+" not competent to pursue "+mission);
-      return false;
-    }
-    //*/
-    //  TODO:  Again, this needs some more nuance.  Primal or player-controlled?
-    if (! base.primal) return true;
-    
-    //  A 50% chance of victory implies equal strength.
-    final float
-      actorChance = chanceFrom(mission, actor),
-      partyChance = successChance(mission),
-      strength    = (actorChance + partyChance) * 2;
-    final boolean
-      approves    = strength <= MAX_PARTY_STRENGTH;
-    
-    if (report) {
-      I.say("\nShould approve "+actor+" for "+mission+"?");
-      I.say("  Actor success chance: "+actorChance);
-      I.say("  Party success chance: "+partyChance);
-      I.say("  Total party strength: "+strength);
-      for (Actor a : mission.applicants()) {
-        final float otherChance = chanceFrom(mission, a);
-        I.say("    "+a+" chance: "+otherChance);
-      }
-      I.say("  Maximum strength:     "+MAX_PARTY_STRENGTH);
-      I.say("  Will approve?         "+approves);
-    }
-    return approves;
+  private float actorPower(Actor actor, Mission mission) {
+    return actor.senses.powerLevel();
   }
+  
+  
+  private float partyPower(Mission mission) {
+    float power = 0;
+    for (Actor a : mission.applicants()) {
+      power += actorPower(a, mission);
+    }
+    return power;
+  }
+  
   
   
   
@@ -328,9 +361,9 @@ public class BaseTactics {
   protected float estimateForceStrength() {
     //  TODO:  Try to ensure this stays as efficient as possible- in fact, you
     //  might as well update for all bases at once!
-    //*
+    
     float est = 0;
-    for (Mobile m : world.allMobiles()) {
+    for (Mobile m : base.world.allMobiles()) {
       if (m.base() != base || ! (m instanceof Actor)) continue;
       final Actor a = (Actor) m;
       est += a.senses.powerLevel();
@@ -345,7 +378,7 @@ public class BaseTactics {
   
   protected Batch <Venue> getSampleVenues() {
     final Batch <Venue> sampled = new Batch <Venue> ();
-    final PresenceMap venues = world.presences.mapFor(Venue.class);
+    final PresenceMap venues = base.world.presences.mapFor(Venue.class);
     final int limit = Nums.max(10, venues.population() / 100);
     for (Target t : venues.visitNear(null, -1, null)) {
       sampled.add((Venue) t);
@@ -357,7 +390,7 @@ public class BaseTactics {
   
   protected Batch <Mobile> getSampleActors() {
     final Batch <Mobile> sampled = new Batch <Mobile> ();
-    final PresenceMap mobiles = world.presences.mapFor(Mobile.class);
+    final PresenceMap mobiles = base.world.presences.mapFor(Mobile.class);
     final int limit = Nums.max(10, mobiles.population() / 100);
     for (Target t : mobiles.visitNear(null, -1, null)) {
       sampled.add((Mobile) t);
@@ -372,4 +405,6 @@ public class BaseTactics {
     return sampled;
   }
 }
+
+
 
