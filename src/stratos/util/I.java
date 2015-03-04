@@ -157,6 +157,16 @@ public class I {
   }
   
   
+  public static void reportVars(
+    String header, String lineFeed, Object... vars
+  ) {
+    I.say(header);
+    for (int n = 0; n + 1 < vars.length;) {
+      I.say(lineFeed+vars[n++]+": "+vars[n++]);
+    }
+  }
+  
+  
   
   /**  Console input-
     */

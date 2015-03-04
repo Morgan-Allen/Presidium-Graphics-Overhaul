@@ -123,10 +123,9 @@ public abstract class Artilect extends Actor {
         if (object == actor || object == actor.mind.home()) {
           return 1.0f;
         }
-        else if (object instanceof Actor) {
-          final Actor other = (Actor) object;
-          if (actor.base() != null && other.base() == actor.base()) return 0.5f;
-          if (other.health.artilect()) return 1.0f;
+        else if (object instanceof Accountable) {
+          final Base belongs = ((Accountable) object).base();
+          if (belongs == actor.base()) return 1.0f;
           return -1.0f;
         }
         else return 0;

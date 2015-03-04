@@ -2,8 +2,9 @@
 
 
 package stratos.game.actors;
-import stratos.game.common.Actor;
+import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
@@ -51,7 +52,7 @@ public class HumanDescription implements Qualities {
     
     if (categoryID == 0) HD.describeGear     (l, UI);
     if (categoryID == 1) HD.describeSkills   (l, UI);
-    if (categoryID == 2) HD.describeAgenda  (l, UI);
+    if (categoryID == 2) HD.describeAgenda   (l, UI);
     if (categoryID == 3) HD.describeRelations(l, UI);
     return panel;
   }
@@ -64,7 +65,8 @@ public class HumanDescription implements Qualities {
     if (showPriorities) {
       final Behaviour b = h.mind.rootBehaviour();
       float priority = Plan.ROUTINE;
-      if (b instanceof Plan) priority = ((Plan) b).priorityEval;
+      if (h.health.asleep()) priority = Resting.sleepPriority(h);
+      else if (b instanceof Plan) priority = ((Plan) b).priorityEval;
       d.append("  (Priority "+I.shorten(priority, 1)+" ");
       d.append(": "+Plan.priorityDescription(priority)+")");
     }

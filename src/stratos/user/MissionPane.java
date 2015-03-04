@@ -210,10 +210,10 @@ public class MissionPane extends SelectionInfoPane {
       if (portrait != null) ((Text) d).insert(portrait.texture(), 40, true);
       d.append(a);
       d.append(" ("+a.vocation()+")");
-      
+
+      final boolean approved = mission.isApproved(a);
       if (canConfirm) {
         d.append("\n");
-        final boolean approved = mission.isApproved(a);
         final String option = approved ? "(DISMISS)" : "(APPROVE)";
         d.append(new Description.Link(option) {
           public void whenClicked() {
@@ -221,9 +221,12 @@ public class MissionPane extends SelectionInfoPane {
           }
         });
       }
+      else d.append(approved ? "  (approved)" : "");
     }
   }
 }
+
+
 
 
 

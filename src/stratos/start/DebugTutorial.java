@@ -11,10 +11,15 @@ import stratos.util.*;
 
 
 
-//  TODO:  LOG OUTPUT SHOULD BE TAGGED BY TIME/DATE, SO THAT IT ISN'T
-//         OVERWRITTEN.  Also, old save files should probably be kept.
+//  TODO:  Try to implement some global debugging-levels, and make sure that
+//  all 'significant' events- such as mission-declarations, building-placement
+//  and objective-completion is recorded to the log.
 
-//  Either get rid of the extra save options or add back the psy meter.
+
+//  TODO:  The retreat-bonus due to range-from home is far too strong at the
+//  moment- it's overwhelming the desire to fight in the first place.
+
+
 
 
 /*  TUTORIAL TODO LIST:
@@ -43,9 +48,6 @@ import stratos.util.*;
 
 
 /*  BIG TODO LIST:
-
-*  Need to ensure that artilect raiding increases gradually over time.
-     Base this off a 'waking up' mechanism as threats are found.
 
 *  Extra concept art for new creatures/vermin:
      Avrodil, Sea Bean, Rem Leech, Mistaken, Desert Maw, Hirex Body.
@@ -83,8 +85,8 @@ import stratos.util.*;
 *  General internal clean-up of plan routines.
 
 *  Fresh art and level-depictions for all structures.
-
 //*/
+
 
 
 public class DebugTutorial extends TutorialScenario {

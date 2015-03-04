@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -32,7 +34,7 @@ public class Retreat extends Plan implements Qualities {
     stepsVerbose = false;
   
   
-  private float maxDanger = 0;
+  private float maxPriority = 0;
   private Boarding safePoint = null;
   
   
@@ -49,14 +51,14 @@ public class Retreat extends Plan implements Qualities {
 
   public Retreat(Session s) throws Exception {
     super(s);
-    this.maxDanger = s.loadFloat();
+    this.maxPriority = s.loadFloat();
     this.safePoint = (Boarding) s.loadTarget();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveFloat(maxDanger);
+    s.saveFloat(maxPriority);
     s.saveTarget(safePoint);
   }
   
@@ -67,77 +69,12 @@ public class Retreat extends Plan implements Qualities {
   
   
   
-  /**  Evaluation of priority and targets--
+  /**  Evaluation of havens and hide points-
     */
-  final Skill BASE_SKILLS[] = { ATHLETICS, STEALTH_AND_COVER };
-  final Trait BASE_TRAITS[] = { NERVOUS, HUMBLE };
-  
-  
-  protected float getPriority() {
-    final boolean report = evalVerbose && I.talkAbout == actor;
-    if (safePoint == null) return -1;
-    
-    if (actor.aboard() == safePoint) {
-      if (CombatUtils.isArmed(actor)) return IDLE;
-    }
-    final float distance = Spacing.distance(actor, safePoint);
-    if ((! hasBegun()) && distance < MIN_RETREAT_DIST) {
-      if (CombatUtils.isArmed(actor)) return IDLE;
-    }
-    
-    final boolean emergency = actor.senses.isEmergency();
-    setMotive(emergency ? MOTIVE_EMERGENCY : MOTIVE_LEISURE, motiveBonus());
-    
-    float danger = Nums.max(
-      actor.senses.fearLevel(),
-      Plan.dangerPenalty(actor, actor)
-    ) + actor.health.injuryLevel();
-    float bonus = 0;
-    
-    //  Retreat becomes less attractive as you get closer to home and more
-    //  exhausted.
-    final Target haven = safePoint;
-    //final float homeBonus = CombatUtils.homeDefenceBonus(actor, actor);
-    if (emergency) {
-      bonus += PARAMOUNT;// - homeBonus;
-      bonus -= actor.health.fatigueLevel() * PARAMOUNT;
-      maxDanger = Nums.max(danger, maxDanger);
-    }
-    else {
-      maxDanger = danger;
-      bonus += (haven == null) ? 0 : Plan.rangePenalty(
-        actor.base(), haven, actor
-      ) * CASUAL;
-    }
-    
-    if (report) {
-      I.say("\nEvaluating extra retreat parameters: "+this);
-      I.say("  Bases are:      "+actor.base()+" vs. "+safePoint.base());
-      I.say("  Base relations: "+actor.base().relations.relationWith(safePoint.base()));
-      I.say("  Max Danger:     "+maxDanger);
-      I.say("  Fear Level:     "+actor.senses.fearLevel());
-      I.say("  Injury:         "+actor.health.injuryLevel());
-      I.say("  Fatigue:        "+actor.health.fatigueLevel());
-      I.say("  Bonus priority: "+bonus);
-      I.say("  Endangered?     "+actor.senses.isEmergency());
-    }
-    
-    final float priority = priorityForActorWith(
-      actor, safePoint,
-      maxDanger * PARAMOUNT, bonus,
-      NO_HARM, NO_COMPETITION, NO_FAIL_RISK,
-      BASE_SKILLS, BASE_TRAITS, NO_DISTANCE_CHECK,
-      report
-    );
-    return priority;
-  }
-  
-  
-  //  TODO:  Get rid of this if you can.  It's a little flaky.
-  
   public static Boarding nearestHaven(
     final Actor actor, Class prefClass, final boolean emergency
   ) {
+    
     //  TODO:  Use baseSpeed here instead?
     final float runRange = actor.health.sightRange() + Stage.SECTOR_SIZE;
     
@@ -148,12 +85,11 @@ public class Retreat extends Plan implements Qualities {
         if (actor.base().intelMap.fogAt(next) <= 0) return;
         //  TODO:  Add some random salt here?
         if (PathSearch.blockedBy(next, actor)) return;
-        final float dist = Spacing.distance(actor, next) / runRange;
-        super.compare(next, rating - (dist * (emergency ? 5 : 2)));
+        final float dist = 1 + (Spacing.distance(actor, next) / runRange);
+        super.compare(next, rating / (dist * (emergency ? 0.5f : 0.2f)));
       }
     };
     
-    pick.compare(actor.senses.haven(), 5);
     pick.compare(actor.mind.home(), 10);
     pick.compare(actor.mind.work(), 5 );
     
@@ -178,6 +114,7 @@ public class Retreat extends Plan implements Qualities {
     pick.compare((Boarding) cover , emergency ? 1 : 2 );
     
     return pick.result();
+    //*/
   }
   
   
@@ -229,9 +166,6 @@ public class Retreat extends Plan implements Qualities {
     return hides;
   }
   
-  
-  //  TODO:  You need to log the output here, just to ensure that the right
-  //  ratings are being returned.
   
   private static float rateTileCover(Actor actor, Tile t, boolean advance) {
     //  TODO:  Check to make sure the tile is reachable!
@@ -288,6 +222,14 @@ public class Retreat extends Plan implements Qualities {
   
   /**  Behaviour implementation-
     */
+  protected float getPriority() {
+    float priority = PlanUtils.retreatPriority(actor);
+    if (! actor.senses.isEmergency()) return priority;
+    maxPriority = Nums.max(maxPriority, priority);
+    return maxPriority;
+  }
+  
+  
   protected Behaviour getNextStep() {
     final boolean report = stepsVerbose && I.talkAbout == actor;
     final boolean urgent = actor.senses.isEmergency();
@@ -323,28 +265,24 @@ public class Retreat extends Plan implements Qualities {
   
   public boolean actionFlee(Actor actor, Target safePoint) {
     final boolean emergency = actor.senses.isEmergency();
-    
-    //  TODO:  USE THE SIGHT-BREAKING CODE
+    //  TODO:  USE THE SIGHT-BREAKING CODE.
     
     if (! emergency) {
       final Resting rest = new Resting(actor, safePoint);
       rest.setMotive(Plan.MOTIVE_LEISURE, priorityFor(actor));
-      maxDanger = 0;
+      maxPriority = 0;
       interrupt(INTERRUPT_CANCEL);
       actor.mind.assignBehaviour(rest);
       return true;
     }
+    else {
+      maxPriority *= DANGER_MEMORY_FADE;
+      if (maxPriority < 0.5f) maxPriority = 0;
+    }
     
     if (stepsVerbose && I.talkAbout == actor) {
-      I.say("Max. danger: "+maxDanger);
+      I.say("Max. danger: "+maxPriority);
       I.say("Still in danger? "+emergency);
-    }
-    
-    if (maxDanger < 0.5f || ! emergency) {
-      maxDanger = 0;
-    }
-    else {
-      maxDanger *= DANGER_MEMORY_FADE;
     }
     return true;
   }
@@ -368,4 +306,62 @@ public class Retreat extends Plan implements Qualities {
 
 
 
+    //final boolean report = evalVerbose && I.talkAbout == actor;
+    //if (safePoint == null) return -1;
+    /*
+    if (actor.aboard() == safePoint) {
+      if (CombatUtils.isArmed(actor)) return IDLE;
+    }
+    final float distance = Spacing.distance(actor, safePoint);
+    if ((! hasBegun()) && distance < MIN_RETREAT_DIST) {
+      if (CombatUtils.isArmed(actor)) return IDLE;
+    }
+    //*/
+    
+    /*
+    final boolean emergency = actor.senses.isEmergency();
+    setMotive(emergency ? MOTIVE_EMERGENCY : MOTIVE_LEISURE, motiveBonus());
+    
+    //float danger = actor.senses.fearLevel() + actor.health.injuryLevel();
+    float danger = 1f - CombatUtils.successChance(actor, actor.origin());
+    float bonus = 0;
+    
+    //  Retreat becomes less attractive as you get closer to home and more
+    //  exhausted.
+    final Target haven = actor.senses.haven();
+    //final float homeBonus = CombatUtils.homeDefenceBonus(actor, actor);
+    if (emergency) {
+      bonus += PARAMOUNT;// - homeBonus;
+      bonus -= actor.health.fatigueLevel() * PARAMOUNT;
+      maxDanger = Nums.max(danger, maxDanger);
+    }
+    else {
+      maxDanger = danger;
+      bonus += (haven == null) ? 0 : Plan.rangePenalty(
+        actor.base(), haven, actor
+      ) * CASUAL;
+    }
+    
+    if (report) {
+      I.say("\nEvaluating extra retreat parameters: "+this);
+      float br = actor.base().relations.relationWith(safePoint.base());
+      I.say("  Bases are:      "+actor.base()+" vs. "+safePoint.base());
+      I.say("  Base relations: "+br);
+      I.say("  Max Danger:     "+maxDanger+" (current "+danger+")");
+      I.say("  Fear Level:     "+actor.senses.fearLevel());
+      I.say("  Injury:         "+actor.health.injuryLevel());
+      I.say("  Fatigue:        "+actor.health.fatigueLevel());
+      I.say("  Bonus priority: "+bonus);
+      I.say("  Endangered?     "+actor.senses.isEmergency());
+    }
+    
+    final float priority = priorityForActorWith(
+      actor, safePoint,
+      maxDanger * PARAMOUNT, bonus,
+      NO_HARM, NO_COMPETITION, NO_FAIL_RISK,
+      BASE_SKILLS, BASE_TRAITS, NO_DISTANCE_CHECK,
+      report
+    );
+    return priority;
+    //*/
 

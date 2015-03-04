@@ -105,7 +105,7 @@ public class TutorialScenario extends StartupScenario implements
     final BaseSetup AS = Base.artilects(world).setup;
     ruins = new Batch <Ruins> ();
     final VenueProfile RP[] = Ruins.VENUE_PROFILES;
-    Visit.appendTo(ruins, AS.doPlacementsFor(RP[0], 3));
+    Visit.appendTo(ruins, AS.doPlacementsFor(RP[0], 1));
     AS.fillVacancies(ruins, true);
     
     final int tribeID = NativeHut.TRIBE_FOREST;

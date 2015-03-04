@@ -157,6 +157,13 @@ public class ActorSenses implements Qualities {
     }
     //
     //  And add anything newly within range-
+    
+    //  TODO:  Just use the stuff picked up during fog-lifting!
+    for (Object o : world.presences.matchesNear(Mobile.class, actor, range)) {
+      if (o == actor) continue;
+      noticed.include((Target) o);
+      if (noticed.size() > (reactLimit * 2)) break;
+    }
     world.presences.sampleFromMaps(
       actor, world, reactLimit, noticed,
       Mobile.class,
@@ -172,7 +179,7 @@ public class ActorSenses implements Qualities {
     final boolean report = noticeVerbose && I.talkAbout == actor;
     if (report) I.say("\nChecking to notice: "+e);
     
-    //*
+    /*
     //  TODO:  TEMPORARY KLUGE, WORK OUT LATER
     if (e instanceof Actor) {
       final Actor a = (Actor) e;
@@ -195,9 +202,10 @@ public class ActorSenses implements Qualities {
     float hideChance = distance * (1 + stealthFactor(e, actor));
     if (indoors(e)) hideChance += sightRange;
     hideChance += hideBonus;
+    final boolean noticed = senseChance > hideChance;
     
-    if (report && senseChance > hideChance) {
-      I.say("\n  Have noticed:     "+e);
+    if (report && ! noticed) {
+      I.say("\n  Have noticed      "+e+"? "+noticed);
       I.say("    Stealth value:  "+stealthFactor(e, actor));
       if (e instanceof Actor) {
         final Actor o = (Actor) e;
@@ -208,7 +216,7 @@ public class ActorSenses implements Qualities {
       I.say("    Distance/fog:   "+distance+"/"+fog);
       I.say("    Sense vs. hide: "+senseChance+" vs. "+hideChance);
     }
-    return senseChance > hideChance;
+    return noticed;
   }
   
   
@@ -226,7 +234,7 @@ public class ActorSenses implements Qualities {
   }
   
   
-  private boolean indoors(Target e) {
+  public boolean indoors(Target e) {
     if (! (e instanceof Mobile)) return false;
     final Mobile m = (Mobile) e;
     if ((! m.indoors()) || m.aboard() == actor.aboard()) return false;
@@ -286,7 +294,8 @@ public class ActorSenses implements Qualities {
     final boolean report = dangerVerbose && I.talkAbout == actor;
     if (report) {
       I.say("\nUpdating danger assessment for "+actor);
-      I.say("  Vocation: "+actor.vocation());
+      I.say("  Total aware of: "+awareOf.size());
+      for (Target t : awareOf) I.say("    "+t);
     }
     
     //  Firstly, we iterate over every visible target, determine their degree
@@ -298,25 +307,33 @@ public class ActorSenses implements Qualities {
     emergency = false;
     powerLevel = CombatUtils.powerLevel(actor);
     final Base attacked = CombatUtils.baseAttacked(actor);
+    final float worryThresh = (actor.traits.relativeLevel(NERVOUS) + 1) / 2;
+    
     
     for (Target t : awareOf) if ((t instanceof Actor) && (t != actor)) {
       final Actor near = (Actor) t;
       float hostility = CombatUtils.hostileRating(actor, near), avoidance = 0;
       
+      //
+      //  Anything armed and dangerous triggers panic-fx:
+      if (hostility > worryThresh && PlanUtils.isArmed(near)) {
+        emergency = true;
+      //}
+      
       //  We set the emergency flag only if the other actor is actively doing
       //  something dangerous, and provide some bonuses to threat rating.
-      if (hostility > 0) {
+      //if (hostility > 0) {
         if (report) I.say("  Enemy nearby: "+near+", hostility: "+hostility);
-        
         float power = CombatUtils.powerLevelRelative(near, actor);
         hostility = Nums.clamp(hostility + 0.5f, 0, 1);
-        
+        /*
         if (CombatUtils.isActiveHostile(actor, near)) {
           if (report) I.say("  Is active hostile!");
           emergency = true;
           hostility += 1;
           power *= 2;
         }
+        //*/
         final float foeRating = power * hostility;
         sumFoes += foeRating;
         avoidance = foeRating;
@@ -347,23 +364,28 @@ public class ActorSenses implements Qualities {
     }
     
     //  Finally, we adjust our sense of danger/safety based on ambient danger
-    //  levels for the region as a whole:
+    //  levels for the region as a whole.
     final float ambientDanger = actor.base().dangerMap.sampleAround(
       actor, Stage.SECTOR_SIZE
     );
-    if (ambientDanger > 0) sumFoes += ambientDanger / powerLevel;
-    else sumAllies += 0 - ambientDanger / powerLevel;
-    
+    if (sumFoes > 0 && ambientDanger > 0) {
+      sumFoes += ambientDanger / powerLevel;
+    }
+    if (sumAllies > 0 && ambientDanger < 0) {
+      sumAllies += 0 - ambientDanger / powerLevel;
+    }
     fearLevel = sumFoes / (sumFoes + sumAllies);
     safePoint = Retreat.nearestHaven(actor, null, emergency);
     
     if (report) {
-      I.say("Sum allies:  "+sumAllies);
-      I.say("Sum foes:    "+sumFoes  );
-      I.say("Fear level:  "+fearLevel);
-      I.say("Safe point:  "+safePoint);
-      I.say("Emergency:   "+emergency);
-      
+      I.say("  Sum allies:     "+sumAllies    );
+      I.say("  Sum foes:       "+sumFoes      );
+      I.say("  Personal power: "+powerLevel   );
+      I.say("  Ambient danger: "+ambientDanger);
+      I.say("  Worry thresh:   "+worryThresh  );
+      I.say("  Fear level:     "+fearLevel    );
+      I.say("  Safe point:     "+safePoint    );
+      I.say("  Emergency:      "+emergency    );
       I.say("Danger by direction:");
       for (int n : TileConstants.T_ADJACENT) {
         I.say("  "+TileConstants.DIR_NAMES[n]+": "+dangerFromDirection(n));

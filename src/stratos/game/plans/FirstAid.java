@@ -91,7 +91,7 @@ public class FirstAid extends Treatment {
     float modifier = 0;//actor.senses.isEmergency() ? -1 : 0;
     final boolean ally = CombatUtils.isAllyOf(actor, patient);
     if (ally) modifier += severity;
-    if (ally || ! CombatUtils.isArmed(patient)) {
+    if (ally || ! PlanUtils.isArmed(patient)) {
       modifier += severity * (1f + actor.traits.relativeLevel(ETHICAL)) / 2;
     }
     

@@ -34,7 +34,7 @@ public class BaseTactics {
     shortWaiting   = true ,
     extraVerbose   = false;
   protected static String
-    verboseBase    = null;//Base.KEY_ARTILECTS;
+    verboseBase    = Base.KEY_ARTILECTS;
   
   protected boolean shouldReport() {
     return updatesVerbose && I.matchOrNull(
@@ -61,7 +61,7 @@ public class BaseTactics {
   static enum Launch { BEGIN, WAIT, CANCEL };
   
   
-  final Base base;
+  final protected Base base;
   final List <Mission> missions = new List <Mission> ();
   private float forceStrength = -1;
   
@@ -167,7 +167,7 @@ public class BaseTactics {
       //
       //  If this is a new mission, then assign it a root priority based on its
       //  perceived importance, and see if it's time to begin (see below.)
-      //if (official & ! begun) checkToLaunchMission(mission, r.rating, report);
+      if (official & ! begun) checkToLaunchMission(mission, r.rating, report);
       sorting.add(r);
     }
     //
@@ -176,28 +176,25 @@ public class BaseTactics {
     //  Then you simply terminate (or discard) the remainder.
     final Batch <Mission> active = new Batch <Mission> ();
     for (Rating r : sorting) {
-      //
-      //  If a distinct mission of this type hasn't been registered yet, then
-      //  do so now:
       final Mission m = r.mission;
       final boolean begun = missions.includes(m);
       if (active.size() < MAX_MISSIONS && r.rating > 0) {
+        //
+        //  If a distinct mission of this type hasn't been registered yet, then
+        //  do so now:
         if (! begun) {
           if (base.matchingMission(m) != null) continue;
-          if (report) I.say("  BEGINNING NEW MISSION: "+m);
+          if (report) I.say("  RECORDING NEW MISSION: "+m);
           addMission(m);
-          checkToLaunchMission(m, r.rating, report);
         }
+        //
+        //  All active missions have their launch-status checked-
         active.add(m);
+        checkToLaunchMission(m, r.rating, report);
       }
-      //
-      //  But if the mission-rating is negative, or if we already have as many
-      //  missions as we can handle, discard it.
-      else {
-        if (begun) {
-          if (report) I.say("  TERMINATING OLD MISSION: "+m);
-          m.endMission(true);
-        }
+      else if (begun) {
+        if (report) I.say("  TERMINATING OLD MISSION: "+m);
+        m.endMission(true);
       }
     }
   }
@@ -248,7 +245,7 @@ public class BaseTactics {
       shouldBegin = false;
     if (timeOpen >  waitTime) shouldBegin = true ;
     if (applied  == 0       ) shouldBegin = false;
-    shouldBegin &= this.shouldLaunch(mission, partyChance, partyPower);
+    shouldBegin &= this.shouldLaunch(mission, partyChance, partyPower, timeUp);
     
     if (! timeUp) return Launch.WAIT;
     return shouldBegin ? Launch.BEGIN : Launch.CANCEL;
@@ -281,7 +278,7 @@ public class BaseTactics {
       for (Actor applies : mission.applicants()) {
         mission.setApprovalFor(applies, true);
       }
-      mission.beginMission();
+      if (! mission.hasBegun()) mission.beginMission();
     }
     
     if (launch == Launch.CANCEL) {
@@ -306,7 +303,7 @@ public class BaseTactics {
   
   
   protected boolean shouldLaunch(
-    Mission mission, float partyChance, float partyPower
+    Mission mission, float partyChance, float partyPower, boolean timeUp
   ) {
     float strength = partyChance * 2;
     //  TODO:  BASE OFF COURAGE, etc.

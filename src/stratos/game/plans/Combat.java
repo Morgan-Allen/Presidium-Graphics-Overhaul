@@ -17,7 +17,7 @@ public class Combat extends Plan implements Qualities {
   /**  Data fields, constructors and save/load methods-
     */
   protected static boolean
-    evalVerbose   = false,
+    evalVerbose   = true ,
     begunVerbose  = false,
     stepsVerbose  = false,
     damageVerbose = false;
@@ -97,58 +97,12 @@ public class Combat extends Plan implements Qualities {
   
   
   protected float getPriority() {
-    final boolean report = evalVerbose && I.talkAbout == actor && (
-      hasBegun() || ! begunVerbose
-    );
-    
-    if (CombatUtils.isDowned(subject, object)) return 0;
-    float harmLevel = REAL_HARM;
-    if (object == OBJECT_SUBDUE ) harmLevel = MILD_HARM   ;
-    if (object == OBJECT_DESTROY) harmLevel = EXTREME_HARM;
-    
-    final float hostility = CombatUtils.hostileRating(actor, subject);
-    final boolean melee = actor.gear.meleeWeapon();
-    final boolean siege = (subject instanceof Venue);
-    
-    if (hostility <= 0 && motiveBonus() <= 0) return 0;
-    if (hostility < 0.5f && ! CombatUtils.isArmed(actor)) return 0;
-    
-    float bonus = 0;
-    if (siege || CombatUtils.isActiveHostile(actor, subject)) {
-      bonus += PARAMOUNT;
-      bonus += CombatUtils.homeDefenceBonus(actor, subject);
-    }
-    
-    final float priority = priorityForActorWith(
-      actor, subject,
-      ROUTINE, bonus,
-      harmLevel, FULL_COOPERATION,
-      REAL_FAIL_RISK, melee ? MELEE_SKILLS : RANGED_SKILLS,
-      BASE_TRAITS, NORMAL_DISTANCE_CHECK,
-      report
-    );
-    
-    //  NOTE:  This may seem like a bit of kluge, but on balance it seems to
-    //  result in much more sensible behaviour (unless you're a psychopath,
-    //  you don't 'casually' decide to kill something.)
-    float threshold = 0;
-    threshold += (1 + actor.traits.relativeLevel(EMPATHIC)) / 2;
-    threshold *= siege ? ROUTINE : PARAMOUNT;
-    threshold *= 1 - hostility;
-    if (report) {
-      I.say("\n  Priority bonus:        "+bonus);
-      I.say("  Hostility of subject:  "+hostility);
-      I.say("  Emergency?             "+actor.senses.isEmergency());
-      I.say("  Basic combat priority: "+priority);
-      I.say("  Empathy threshold:     "+threshold);
-      I.say("  Success chance:        "+successChanceFor(actor));
-    }
-    return priority >= threshold ? priority : 0;
+    return PlanUtils.combatPriority(actor, subject, motiveBonus());
   }
   
   
   public float successChanceFor(Actor actor) {
-    return CombatUtils.successChance(actor, subject);
+    return PlanUtils.combatWinChance(actor, subject);
   }
   
   
@@ -190,16 +144,26 @@ public class Combat extends Plan implements Qualities {
     if (report) {
       I.say("\nGetting next combat step for: "+I.tagHash(this));
     }
-    
-    //  This might need to be tweaked in cases of self-defence, where you just
-    //  want to see off an attacker.  TODO:  That?
+
+    //
+    //  Check to see if the main target is downed, and if not, see what your
+    //  best current target would be:
     if (CombatUtils.isDowned(subject, object)) {
       if (report) I.say("  COMBAT COMPLETE!");
       return null;
     }
+    Target struck = subject;
+    if (hasBegun()) struck = CombatUtils.bestTarget(actor, subject, true);
     
-    final Target struck = (! hasBegun()) ? subject :
-      CombatUtils.bestTarget(actor, subject, true);
+    //  TODO:  Look into potential 'siege' options for targets that you can't
+    //  path to directly- i.e, when indoors, or going through walls.
+    /*
+    if (struck == subject && subject instanceof Actor) {
+      final Actor foe = (Actor) struck;
+      if (foe.indoors()) struck = foe.aboard();
+    }
+    //*/
+    
     if (report) {
       I.say("  Main target: "+this.subject);
       I.say("  Best target: "+struck);
@@ -491,5 +455,53 @@ public class Combat extends Plan implements Qualities {
 }
 
 
+    /*
+    final boolean report = evalVerbose && I.talkAbout == actor && (
+      hasBegun() || ! begunVerbose
+    );
+    if (CombatUtils.isDowned(subject, object)) return 0;
+    float harmLevel = REAL_HARM;
+    if (object == OBJECT_SUBDUE ) harmLevel = MILD_HARM   ;
+    if (object == OBJECT_DESTROY) harmLevel = EXTREME_HARM;
+    
+    final float hostility = CombatUtils.hostileRating(actor, subject);
+    final boolean melee = actor.gear.meleeWeapon();
+    final boolean siege = (subject instanceof Venue);
+    
+    if (hostility <= 0 && motiveBonus() <= 0) return 0;
+    
+    float bonus = 0;
+    if (siege || CombatUtils.isActiveHostile(actor, subject)) {
+      bonus += PARAMOUNT;
+      bonus += CombatUtils.homeDefenceBonus(actor, subject);
+    }
+    if (! CombatUtils.isArmed(actor)) bonus -= PARAMOUNT;
+    
+    final float priority = priorityForActorWith(
+      actor, subject,
+      ROUTINE, bonus,
+      harmLevel, FULL_COOPERATION,
+      REAL_FAIL_RISK, melee ? MELEE_SKILLS : RANGED_SKILLS,
+      BASE_TRAITS, NORMAL_DISTANCE_CHECK,
+      report
+    );
+    
+    //  NOTE:  This may seem like a bit of kluge, but on balance it seems to
+    //  result in much more sensible behaviour (unless you're a psychopath,
+    //  you don't 'casually' decide to kill something.)
+    float threshold = 0;
+    threshold += (1 + actor.traits.relativeLevel(EMPATHIC)) / 2;
+    threshold *= siege ? ROUTINE : PARAMOUNT;
+    threshold *= 1 - hostility;
+    if (report) {
+      I.say("\n  Priority bonus:        "+bonus);
+      I.say("  Hostility of subject:  "+hostility);
+      I.say("  Emergency?             "+actor.senses.isEmergency());
+      I.say("  Basic combat priority: "+priority);
+      I.say("  Empathy threshold:     "+threshold);
+      I.say("  Success chance:        "+successChanceFor(actor));
+    }
+    return priority >= threshold ? priority : 0;
+    //*/
 
 

@@ -123,7 +123,7 @@ public class Arrest extends Plan {
   //  TODO:  Modify priority (and command-chance) based on difference in
   //  social standing.
   private boolean hasAuthority() {
-    if (! CombatUtils.isArmed(actor)) return false;
+    if (! PlanUtils.isArmed(actor)) return false;
     final Property work = actor.mind.work();
     if (work == null) return false;
     if (Visit.arrayIncludes(work.services(), SERVICE_SECURITY)) {

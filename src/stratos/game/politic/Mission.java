@@ -21,6 +21,12 @@ public abstract class Mission implements Session.Saveable, Selectable {
     evalVerbose = false,
     allVisible  = true ;
   
+  protected boolean shouldReport(Object about) {
+    return verbose && (
+      I.talkAbout == about || I.talkAbout == this
+    );
+  }
+  
   final public static int
     TYPE_BASE_AI  = -1,
     TYPE_PUBLIC   =  0,
@@ -343,9 +349,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   //  NOTE:  This method should be called within the ActorMind.assignMission
   //  method, and not independantly.
   public void setApplicant(Actor actor, boolean is) {
-    final boolean report = verbose && (
-      I.talkAbout == actor || I.talkAbout == this
-    );
+    final boolean report = shouldReport(actor);
     if (report) I.say("\n"+actor+" apply for "+this+"? "+is);
     
     final Role oldRole = roleFor(actor);
@@ -366,7 +370,8 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   public void setApprovalFor(Actor actor, boolean is) {
-    I.say("SETTING APPROVAL: "+actor+" "+is);
+    final boolean report = shouldReport(actor);
+    if (report) I.say("\n"+actor+" approved for "+this+"? "+is);
     
     final Role role = roleFor(actor);
     if (role == null) I.complain(actor+" never applied for "+this);

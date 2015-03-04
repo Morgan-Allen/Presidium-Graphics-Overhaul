@@ -17,7 +17,7 @@ import static stratos.game.economic.Economy.*;
 
 
 public abstract class Venue extends Structural implements
-  Boarding, Inventory.Owner, Property
+  Boarding, Inventory.Owner, Property, Accountable
 {
   
   /**  Field definitions, constants, constructors, and save/load methods.

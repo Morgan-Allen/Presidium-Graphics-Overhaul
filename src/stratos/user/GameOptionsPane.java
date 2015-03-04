@@ -1,8 +1,10 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.user;
 import com.badlogic.gdx.Input.Keys;
-
 import stratos.start.*;
 import stratos.graphics.common.ImageAsset;
 import stratos.graphics.widgets.*;
@@ -13,7 +15,6 @@ import stratos.util.Description.Link;
 
 //  This affords options to exit, restart, load from save, change difficulty,
 //  enter debug mode, or skip ahead in time.
-
 
 public class GameOptionsPane extends UIGroup implements UIConstants {
   
@@ -123,12 +124,16 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
     //  TODO:  List any associated Psi costs here (for non-current saves.)
     for (final String path : Scenario.savedFiles(prefix)) {
       final boolean current = path.endsWith("-current.rep");
-      if (prefix != null &&   current) continue;
+      //if (prefix != null &&   current) continue;
       if (prefix == null && ! current) continue;
       
-      final String titlePath = path.substring(
+      String titlePath = path.substring(
         prefLength, path.length() - extLength
       );
+      if (prefix != null && current) {
+        titlePath = "Last Save";
+      }
+      
       text.append("\n  ");
       text.append(new Link(titlePath) { public void whenClicked() {
         Scenario.loadGame("saves/"+path, true);
@@ -137,10 +142,6 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
   }
 }
 
-
-
-//  What about pausing/unpausing?  There should be a button for that...  ...No,
-//  there shouldn't be, excepting in debug mode.
 
 
 

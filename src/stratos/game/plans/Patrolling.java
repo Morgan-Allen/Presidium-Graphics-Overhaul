@@ -141,10 +141,9 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     final float range = actor.health.sightRange() + 1;
     choice.isVerbose = report;
     
-    //for (Target t : actor.senses.awareOf()) {
     for (Action a : world.activities.actionMatches(guarded)) {
       final Actor t = a.actor();
-      if (! CombatUtils.isActiveHostile(actor, t)) continue;
+      if (PlanUtils.harmIntendedBy(t, actor, true) <= 0) continue;
       final float dist = Spacing.distance(t, guarded) / range;
       final float bonus = Plan.ROUTINE * (1 - dist);
       choice.add(new Combat(actor, (Element) t).setMotiveFrom(this, bonus));

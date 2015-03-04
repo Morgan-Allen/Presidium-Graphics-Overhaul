@@ -67,6 +67,11 @@ public class Resting extends Plan {
   }
   
   
+  public static float sleepPriority(Actor actor) {
+    final float fatigue = Nums.clamp(actor.health.fatigueLevel() + 0.25f, 0, 1);
+    return fatigue * ROUTINE * 2;
+  }
+  
   
   public static void checkForWaking(Actor actor) {
     final boolean report = verbose && I.talkAbout == actor;

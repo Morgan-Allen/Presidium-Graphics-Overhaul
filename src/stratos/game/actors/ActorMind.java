@@ -97,7 +97,10 @@ public abstract class ActorMind implements Qualities {
     for (Behaviour b : todoList) if (b.finished()) todoList.remove(b);
     final Behaviour last = rootBehaviour();
     final Behaviour next = nextBehaviour();
-    if (next != last) assignBehaviour(next);
+    if (next != last) {
+      if (next != null) assignBehaviour(next);
+      else cancelBehaviour(last, "NO NEXT BEHAVIOUR FOUND");
+    }
   }
   
   
@@ -123,7 +126,9 @@ public abstract class ActorMind implements Qualities {
     taken = Choice.switchFor(actor, current, taken, true, report);
     if (report && current == null) I.say("  No current behaviour.");
     
-    if (report) I.say("\nGetting next mission-step:");
+    if (report) {
+      I.say("\nGetting next step for mission: "+mission);
+    }
     if (mission != null && mission.hasBegun() && mission.isApproved(actor)) {
       onMission = mission.nextStepFor(actor, true);
     }

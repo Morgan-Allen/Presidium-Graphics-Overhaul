@@ -34,7 +34,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     evalVerbose     = false,
     doesVerbose     = false;
   private static Class
-    verboseClass = Summons.class;
+    verboseClass = Retreat.class;
   
   final public Target subject;
   protected Actor actor;  //  TODO:  MAKE THIS FINAL
@@ -565,10 +565,12 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     }
     
     if (distanceCheck != 0) {
+      //*
       final float range = rangePenalty(actor.base(), actor, subject);
       rangePenalty = range * distanceCheck;
       final float danger = dangerPenalty(subject, actor) * (1f + failRisk);
       dangerPenalty = danger * (1 + range) / 2f;
+      //*/
     }
     
     priority += extraPriority / 2;
@@ -630,8 +632,8 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     *  above.)
     */
   //
-  //  TODO:  Incorporate estimate of dangers along entire route using
-  //  path-caching.
+  //  TODO:  ALL THESE METHODS NEED TO GO!  MOVE TO PLAN-UTILS OR DELETE!
+  //*
   public static float rangePenalty(Base base, Target from, Target to) {
     if (from == null || to == null) return 0;
     final float SS   = Stage.SECTOR_SIZE;  //  TODO:  Modify by move speed!
@@ -669,6 +671,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     }
     return penalty;
   }
+  //*/
   
   
   public static float competition(Class planClass, Target t, Actor actor) {

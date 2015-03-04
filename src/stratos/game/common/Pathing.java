@@ -207,9 +207,7 @@ public class Pathing {
       else path = pathBetween(origin, pathTarget);
     }
     if (path == null) {
-      if (report || (I.talkAbout == mobile && Choice.verbose)) {
-        I.say("  COULDN'T PATH TO: "+pathTarget);
-      }
+      if (report) I.say("  COULDN'T PATH TO: "+pathTarget);
       mobile.pathingAbort();
       stepIndex = -1;
       return false;

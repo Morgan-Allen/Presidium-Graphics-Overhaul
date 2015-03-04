@@ -4,6 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.wild;
+import stratos.game.actors.Plan;
 import stratos.game.common.*;
 import stratos.game.plans.*;
 import stratos.game.politic.*;
@@ -15,7 +16,7 @@ import stratos.util.*;
 public class ArtilectBase extends Base {
   
   
-  private static boolean verbose = true ;
+  private static boolean verbose = false;
   
   final static float
     MAX_MISSION_POWER = CombatUtils.MAX_POWER * Mission.MAX_PARTY_LIMIT,
@@ -70,23 +71,29 @@ public class ArtilectBase extends Base {
   protected BaseTactics initTactics() {
     return new BaseTactics(this) {
       
+      
+      protected float rateMission(Mission mission) {
+        final float importance = mission.rateImportance(base);
+        if (importance <= 0) return -1;
+        return importance + onlineLevel;
+      }
+      
+      
       protected boolean shouldAllow(
         Actor actor, Mission mission,
         float actorChance, float actorPower,
         float partyChance, float partyPower
       ) {
-        final boolean report = verbose;
         float powerLimit = MAX_MISSION_POWER * onlineLevel;
-        if (report) {
-          I.say("\nChecking to allow mission-application...");
-          I.say("  Mission is:   "+mission    +" ("+mission.base()+")");
-          I.say("  Applicant:    "+actor      +" ("+actor.base()+")");
-          I.say("  Actor chance: "+actorChance+" (power "+actorPower+")");
-          I.say("  Party chance: "+partyChance+" (power "+partyPower+")");
-          I.say("  On-line level: "+onlineLevel);
-          I.say("  Power limit:   "+powerLimit );
-        }
         return actorPower + partyPower <= powerLimit;
+      }
+      
+      
+      protected boolean shouldLaunch(
+        Mission mission, float partyChance, float partyPower, boolean timeUp
+      ) {
+        float powerLimit = MAX_MISSION_POWER * onlineLevel;
+        return (partyPower > (powerLimit / 2)) || timeUp;
       }
     };
   }

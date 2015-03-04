@@ -120,7 +120,7 @@ public class CombatUtils {
     }
     //
     //  Include a penalty if the subject is unarmed.
-    if (rating < 1 && ! isArmed(other)) rating -= 1 - rating;
+    if (rating < 1 && ! PlanUtils.isArmed(other)) rating -= 1 - rating;
     //
     //  Limit to the range of +/-1, and return.
     return Nums.clamp(rating, -1, 1);
@@ -138,42 +138,11 @@ public class CombatUtils {
   }
   
   
-  public static float homeDefenceBonus(Actor actor, Target from) {
-    final Target haven = actor.mind.home();
-    if (haven == null) return 0;// Plan.PARAMOUNT;
-    else {
-      float homeDist = Spacing.distance(from, haven);
-      homeDist = Nums.clamp(homeDist / Stage.SECTOR_SIZE, 0, 1);
-      return Plan.PARAMOUNT * (1 - homeDist);
-    }
-  }
-  
-  
-  public static boolean isActiveHostile(Actor actor, Target near) {
-    if (near instanceof Venue) {
-      return false;
-    }
-    else if (near instanceof Actor) {
-      final Actor other = (Actor) near;
-      final Target victim = other.planFocus(Combat.class, true);
-      return victim != null && actor.relations.likes(victim);
-    }
-    else return false;
-  }
-  
-  
   public static boolean isAllyOf(Actor actor, Target target) {
     if (! (target instanceof Actor)) return false;
     final Actor other = (Actor) target;
     if (other.relations.valueFor(actor) > 0) return true;
     return other.base() == actor.base();
-  }
-  
-  
-  public static boolean isArmed(Actor actor) {
-    final DeviceType type = actor.gear.deviceType();
-    final float baseDamage = actor.gear.baseDamage();
-    return baseDamage > 0 || ((type != null) && type.baseDamage > 0);
   }
   
   
@@ -196,7 +165,7 @@ public class CombatUtils {
     return ((Actor) subject).isDoing(Retreat.class, null);
   }
   
-  
+  /*
   public static float successChance(Actor actor, Target other) {
     
     final float danger = Nums.max(
@@ -208,26 +177,14 @@ public class CombatUtils {
     health *= (2 - actor.health.injuryLevel  ()) / 2f;
     health *= (2 - actor.health.stressPenalty()) / 2f;
     //*/
+  /*
     
     float chance = Nums.clamp(health * (1 - danger), 0, 1);
     chance *= 1 + actor.traits.relativeLevel(Qualities.FEARLESS);
     return Nums.clamp(chance, 0, 1);
     
-    //  TODO:  Switch between these two evaluation methods based on
-    //  intelligence?  (Or maybe the battle-tactics skill?)
-    /*
-    final boolean report = evalVerbose && I.talkAbout == actor;
-    
-    if (subject instanceof Actor) {
-      final Actor struck = (Actor) subject;
-      float chance = CombatUtils.powerLevelRelative(actor, struck) / 2f;
-      chance = (chance + 1 - actor.senses.fearLevel()) / 2f;
-      return Visit.clamp(chance, 0, 1);
-    }
-    else return 1;
-    //*/
   }
-  
+  //*/
   
 
   /**  Returns whatever nearby target seems to be most threatening to the given
@@ -251,6 +208,7 @@ public class CombatUtils {
     for (Target t : actor.senses.awareOf()) {
       final float distance = Spacing.distance(t, actor);
       if (distance > Stage.SECTOR_SIZE) continue;
+      if (actor.senses.indoors(t)) continue;
       
       float value = hostileRating(actor, t);
       if (value <= 0) continue;
@@ -272,4 +230,30 @@ public class CombatUtils {
 
 
 
+  
+  
+  /*
+  public static float homeDefenceBonus(Actor actor, Target from) {
+    final Target haven = actor.mind.home();
+    if (haven == null) return 0;// Plan.PARAMOUNT;
+    else {
+      float homeDist = Spacing.distance(from, haven);
+      homeDist = Nums.clamp(homeDist / Stage.SECTOR_SIZE, 0, 1);
+      return Plan.PARAMOUNT * (1 - homeDist);
+    }
+  }
+  
+  
+  public static boolean isActiveHostile(Actor actor, Target near) {
+    if (near instanceof Venue) {
+      return false;
+    }
+    else if (near instanceof Actor) {
+      final Actor other = (Actor) near;
+      final Target victim = other.planFocus(Combat.class, true);
+      return victim != null && actor.relations.likes(victim);
+    }
+    else return false;
+  }
+  //*/
 
