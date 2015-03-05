@@ -49,6 +49,8 @@ public class Background extends Index.Entry implements Session.Saveable {
   
   final public int standing;
   final public int guild;
+  final public int defaultSalary;
+  
   final Table <Skill, Integer> baseSkills = new Table <Skill, Integer> ();
   final Table <Trait, Float> traitChances = new Table <Trait, Float  > ();
   final List <Traded> gear = new List <Traded> ();
@@ -71,8 +73,9 @@ public class Background extends Index.Entry implements Session.Saveable {
     if (portraitTex == null) this.portrait = null;
     else this.portrait = portraitFor(portraitTex);
     
-    this.standing = standing;
-    this.guild = guild;
+    this.standing      = standing;
+    this.guild         = guild;
+    this.defaultSalary = (standing < 0) ? 0 : Backgrounds.HIRE_COSTS[standing];
     
     int level = 10;
     float chance = 0.5f;

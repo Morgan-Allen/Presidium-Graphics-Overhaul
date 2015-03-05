@@ -11,7 +11,7 @@ import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
 
 
-//  TODO:  Allow backgrounds to 'extend' or 'develop' eachother...
+//  TODO:  Allow backgrounds to 'extend' or 'develop' eachother.
 
 public interface Backgrounds {
   

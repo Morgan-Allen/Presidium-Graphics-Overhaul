@@ -157,13 +157,46 @@ public class I {
   }
   
   
+  
+  /**  This one could use a little explanation.  Basically, the header gets
+    *  printed first, the lineFeed gets stuck on the front of every subsequent
+    *  line, and the printArgs should consist of alternating string-labels
+    *  and referenced variables (which can be anything.)  Like so:
+    *  
+    *  "Label1", variableOne,
+    *  "Label2", variableTwo,
+    *  "Label3", variableThree,
+    *  etc...
+    *  
+    *  Labels can be of different lengths, but automatic pretty-printing will
+    *  be applied (so that variables line up in the same column.)
+    */
   public static void reportVars(
-    String header, String lineFeed, Object... vars
+    String header, String lineFeed, Object... printArgs
   ) {
-    I.say(header);
-    for (int n = 0; n + 1 < vars.length;) {
-      I.say(lineFeed+vars[n++]+": "+vars[n++]);
+    
+    final int numRows = printArgs.length / 2;
+    final String labels[] = new String[numRows];
+    final Object refers[] = new Object[numRows];
+    int maxLen = 0;
+    
+    for (int i = 0, n = 0; i < numRows; i++) {
+      labels[i] = (String) printArgs[n++];
+      refers[i] = n >= printArgs.length ? null : printArgs[n++];
+      maxLen = Nums.max(maxLen, labels[i].length());
     }
+
+    I.say(header);
+    for (int i = 0; i < numRows; i++) {
+      I.say(lineFeed+""+padToLength(labels[i], maxLen)+": "+refers[i]);
+    }
+  }
+  
+  
+  public static String padToLength(String s, int toLength) {
+    final StringBuffer b = new StringBuffer(s);
+    for(int n = toLength; n-- > s.length();) b.append(' ');
+    return b.toString();
   }
   
   

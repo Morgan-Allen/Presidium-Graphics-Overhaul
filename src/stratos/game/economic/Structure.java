@@ -3,27 +3,21 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.game.economic;
-import java.lang.reflect.*;
-
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.plans.*;
 import stratos.util.*;
-
 import stratos.user.*;
 import stratos.graphics.common.*;
 
 
 
+//  TODO:  Many of the sub-components here could probably be moved out to the
+//  VenueProfile class.
+
 
 public class Structure {
-  
-  
-  //  TODO:  (Replace this with a 'FacilityProfile' class, so that the various
-  //  economic aspects of a structure can be passed with a single object rather
-  //  than a dozen methods- and can be cached for reference by the base AI?)
   
   /**  Defines an external interface so that, e.g, vehicles and buildings can
     *  both possess a structure:
@@ -638,7 +632,16 @@ public class Structure {
     return bonus;
   }
   //*/
-
+  
+  
+  public int mainUpgradeLevel() {
+    int level = 0;
+    for (Upgrade u : upgrades) {
+      if (u != null && u.type == Upgrade.Type.VENUE_LEVEL) level++;
+    }
+    return level;
+  }
+  
   
   public int upgradeLevel(Upgrade type, int state) {
     if (upgrades == null || type == null) return 0;

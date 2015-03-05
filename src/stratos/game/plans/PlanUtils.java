@@ -9,6 +9,7 @@ import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.util.I;
 import stratos.util.Nums;
+import stratos.util.Visit;
 
 
 
@@ -78,7 +79,6 @@ public class PlanUtils {
     }
     
     escapeChance = 1f - actor.health.fatigueLevel();
-    //  TODO:  If under fire, reduce effective speed
     
     priority = incentive * homeDistance * Nums.clamp(escapeChance, 0, 1);
     
@@ -92,6 +92,157 @@ public class PlanUtils {
     );
     return priority;
   }
+  
+  
+  
+  /**  Dialogue priority.  Should range from 0 to 30.
+    */
+  public static float dialoguePriority(
+    Actor actor, Actor subject, float rewardBonus
+  ) {
+    float liking = 0, novelty = 0, solitude = 0, commChance = 0;
+    float harmIntended = 0, baseNovelty = 0;
+    float chatIncentive = 0, pleaIncentive = 0, priority = 0;
+    
+    final Relation r = actor.relations.relationWith(subject);
+    liking  = r == null ? 0 : r.value  ();
+    novelty = r == null ? 1 : r.novelty();
+    solitude = actor.motives.solitude();
+    harmIntended = Nums.clamp(harmIntendedBy(subject, actor, true), 0, 1);
+    baseNovelty  = actor.relations.noveltyFor(subject.base());
+    
+    chatIncentive += (liking * 1) + ((novelty * 4) * (1 + liking) / 2);
+    if (r == null) chatIncentive *= solitude;
+    
+    pleaIncentive = (harmIntended * 10) + (baseNovelty * 10);
+    if (pleaIncentive > 0) pleaIncentive += 5;
+    
+    priority = (chatIncentive + pleaIncentive + rewardBonus) * commChance;
+
+    if (reportOn(actor) && priority > 0) I.reportVars(
+      "\nRetreat priority for "+actor, "  ",
+      "subject"      , subject,
+      "reward"       , rewardBonus,
+      "liking"       , liking,
+      "novelty"      , novelty,
+      "solitude"     , solitude,
+      "commChance"   , commChance,
+      "harmIntended" , harmIntended,
+      "baseNovelty"  , baseNovelty,
+      "chatIncentive", chatIncentive,
+      "pleaIncentive", pleaIncentive,
+      "priority"     , priority
+    );
+    return priority;
+  }
+  
+  
+  
+  /**  Assistance priority.  Should range from 0 to 30.
+    */
+  public static float supportPriority(
+    Actor actor, Element subject, float rewardBonus,
+    float supportChance, float subjectDanger
+  ) {
+    float incentive = 0, liking = 0, priority = 0;
+    
+    liking = actor.relations.valueFor(subject);
+    incentive = (liking * 10) * subjectDanger * 2;
+    incentive += rewardBonus;
+    priority = incentive * supportChance;
+    
+    if (reportOn(actor) && priority > 0) I.reportVars(
+      "\nSupport priority for "+actor, "  ",
+      "subject"      , subject,
+      "reward"       , rewardBonus,
+      "supportChance", supportChance,
+      "subjectDanger", subjectDanger,
+      "liking"       , liking,
+      "incentive"    , incentive,
+      "priority"     , priority
+    );
+    return priority;
+  }
+  
+  
+  
+  /**  Exploring priority- should range from 0 to 20.
+    */
+  public static float explorePriority(
+    Actor actor, Target surveyed, float rewardBonus
+  ) {
+    float incentive = 0, novelty = 0, priority = 0, exploreChance = 0;
+    
+    novelty = Nums.clamp(Nums.max(
+      (1 - actor.base().intelMap.fogAt(surveyed)),
+      (actor.relations.noveltyFor(surveyed) - 1)
+    ), 0, 1);
+    
+    exploreChance = actor.health.baseSpeed();
+    exploreChance *= 2 / (1 + homeDistanceFactor(actor, surveyed));
+    
+    incentive = (novelty * 5) + rewardBonus;
+    incentive *= 1 + actor.traits.relativeLevel(Qualities.CURIOUS);
+    
+    priority = incentive * exploreChance;
+    return priority;
+  }
+  
+  
+  
+  /**  Ambition priority- should range from 0 to 10.
+    */
+  public static float ambitionPriority(
+    Actor actor, Background position, Venue at, float quality
+  ) {
+    final boolean report = reportOn(actor);
+    float teamBonus = 0, crowding = 0, priority = 0;
+    float locale = 0, ambience = 0, safety = 0, loyalty = 0;
+    
+    ambience = Nums.clamp(at.world().ecology().ambience.valueAt(at) / 10, 0, 1);
+    safety   = Nums.clamp(at.base().dangerMap.sampleAround(at, -1) / -10, 0, 1);
+    loyalty  = actor.relations.valueFor(at.base());
+    locale   = ((1 + ambience) * (1 + safety) * (1 + loyalty)) / 4;
+    
+    crowding = at.crowdRating(actor, position);
+    
+    teamBonus = occupantRelations(actor, at) * (1 + crowding);
+    
+    priority = 5 * (quality + teamBonus + locale) / 3;
+    if (! at.staff.doesBelong(actor)) priority *= (1 - crowding);
+    
+    if (report && priority > 0) I.reportVars(
+      "\nSupport priority for "+actor, "  ",
+      "position" , position,
+      "at"       , at,
+      "quality"  , quality,
+      "ambience" , ambience,
+      "safety"   , safety,
+      "loyalty"  , loyalty,
+      "locale"   , locale,
+      "teamBonus", teamBonus,
+      "crowding" , crowding,
+      "priority" , priority
+    );
+    return priority;
+  }
+  
+  
+  public static float occupantRelations(Actor actor, Venue at) {
+    float sumR = 0, sumW = 0;
+    for (Actor a : at.staff.workers()) {
+      sumR += actor.relations.valueFor(a);
+      sumW++;
+    }
+    for (Actor a : at.staff.residents()) {
+      sumR += actor.relations.valueFor(a);
+      sumW++;
+    }
+    if (sumW == 0) return 0;
+    return sumR / sumW;
+  }
+  
+  
   
   
   
@@ -167,11 +318,31 @@ public class PlanUtils {
   
   //  TODO:  Have a general 'isAgent' decision-check?
   
+  //  TODO:  Move ambience to the Stage and salary to the Staff class.
+  
+  //  TODO:  Move home/work-ambitions to the Motives class.
+  
+  //  TODO:  Modify various checks based on intelligence!
+  
   //  TODO:  Use a 'raise-alarm' system to ensure combat-specific agents can
   //         arrive on the scene faster/more reliably- or have Retreat morph
   //         into a 'run for help' behaviour.
   
+  //  TODO:  If under fire, modify effective escape-chance based on speed.
+  
   //  TODO:  Allow for hostile venues.
+  
+  //  TODO:  Use this for ambitions-evaluation?
+  /*
+  if (Visit.arrayIncludes(at.careers(), position)) {
+    //quality = at.base().profiles.profileFor(actor).salary() / position.defaultSalary;
+    quality += Career.ratePromotion(position, actor, report) * 2;
+  }
+  else if (position == Backgrounds.AS_RESIDENT) {
+    quality = at.structure.mainUpgradeLevel() * 2 / 5f;
+  }
+  else I.complain(at+" DOES NOT ALLOW FOR POSITION: "+position);
+  //*/
 
   //  TODO:  Switch between these two evaluation methods based on
   //  intelligence?  (Or maybe the battle-tactics skill?)
