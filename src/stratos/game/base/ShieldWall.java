@@ -180,6 +180,7 @@ public class ShieldWall extends Venue {
         else {
           structure.resignUpgrade(FACING_CHANGE, true);
           this.type = newType;
+          world.ephemera.addGhost(this, size, sprite(), 0.5f);
           attachModel(MODEL_TYPES[newType]);
         }
       }

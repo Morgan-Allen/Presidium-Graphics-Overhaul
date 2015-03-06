@@ -244,6 +244,8 @@ public class InstallTab extends SelectionInfoPane {
         UI.endCurrentTask();
         if (multiples) tab.initInstallTask(UI, type);
         else UI.selection.pushSelection(group[0]);
+        
+        if (I.logEvents()) I.say("\nPLACED "+toInstall+" AT "+picked);
       }
       
       else for (Structure.Basis i : group) {
@@ -287,6 +289,11 @@ public class InstallTab extends SelectionInfoPane {
     
     public ImageAsset cursorImage() {
       return null;
+    }
+    
+    
+    public String toString() {
+      return "Installing "+toInstall;
     }
   }
 }

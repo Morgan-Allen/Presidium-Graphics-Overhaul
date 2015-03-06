@@ -250,7 +250,8 @@ public abstract class Species extends Background {
     DRONE = new Species(
       Species.class,
       "Drone",
-      "<THIS SPACE RESERVED>",
+      "Defence Drones are simple, disposable automatons capable of limited "+
+      "field operations without supervision.",
       null,
       null,
       Type.ARTILECT, 1, 1, 1
@@ -261,7 +262,9 @@ public abstract class Species extends Background {
     TRIPOD = new Species(
       Species.class,
       "Tripod",
-      "<THIS SPACE RESERVED>",
+      "Tripods are among the more feared of the artilect guardians wandering "+
+      "the landscape.  Even in a decrepit state, they are well-armed and "+
+      "will attack organics with scant provocation.",
       null,
       null,
       Type.ARTILECT, 1, 1, 1
@@ -272,7 +275,9 @@ public abstract class Species extends Background {
     CRANIAL = new Species(
       Species.class,
       "Cranial",
-      "<THIS SPACE RESERVED>",
+      "Cranials are cunning, quasi-organic machine intelligences that direct "+
+      "the efforts of their lesser brethren.  They appear to have a marked "+
+      "propensity for tortuous experiments on living creatures.",
       null,
       null,
       Type.ARTILECT, 1, 1, 1

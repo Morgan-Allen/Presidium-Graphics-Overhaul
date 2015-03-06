@@ -250,6 +250,7 @@ public class BaseUI extends HUD implements UIConstants {
   
   protected void beginTask(UITask task) {
     currentTask = task;
+    if (I.logEvents()) I.say("\nBEGAN UI TASK: "+task);
   }
   
   

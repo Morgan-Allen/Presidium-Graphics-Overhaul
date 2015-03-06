@@ -44,7 +44,7 @@ public class Looting extends Plan {
   public Looting(Actor actor, Owner subject, Item taken, Property dropOff) {
     super(actor, subject, MOTIVE_JOB, MILD_HARM);
     this.mark    = subject;
-    this.taken   = taken  ;
+    this.taken   = taken == null ? pickItemFrom(subject, actor) : taken;
     this.dropOff = dropOff;
   }
   
@@ -52,7 +52,7 @@ public class Looting extends Plan {
   public Looting(Actor actor, Item.Dropped dropped) {
     super(actor, dropped, MOTIVE_EMERGENCY, NO_HARM);
     this.mark    = dropped;
-    this.taken   = pickItemFrom(mark);
+    this.taken   = pickItemFrom(mark, actor);
     this.dropOff = null;
   }
   
@@ -87,50 +87,21 @@ public class Looting extends Plan {
   final static Trait BASE_TRAITS[] = { DISHONEST, ACQUISITIVE };
   
   
-  private Item pickItemFrom(Owner owner) {
-    final Pick <Item> pick = new Pick <Item> ();
+  public static Item pickItemFrom(Owner owner, Actor steals, Traded... types) {
     
-    for (Item taken : owner.inventory().allItems()) {
-      taken = Item.withAmount(taken, Nums.min(1, taken.amount));
-      final float rating = ActorMotives.rateDesire(taken, null, actor);
+    if (types == null || types.length == 0) {
+      types = owner.inventory().allItemTypes();
+    }
+    
+    final Pick <Item> pick = new Pick <Item> ();
+    for (Traded type : types) {
+      final float amount = owner.inventory().amountOf(type);
+      Item taken = Item.withAmount(type, Nums.min(1, amount));
+      final float rating = ActorMotives.rateDesire(taken, null, steals);
       pick.compare(taken, rating);
     }
     return pick.result();
   }
-  
-  
-  /*
-  public static Looting nextLootingFor(Actor actor, Venue dropOff) {
-    final boolean report = evalVerbose && I.talkAbout == actor;
-    if (report) I.say("\nGetting next loot for "+actor);
-    
-    Item  bestTaken  = null;
-    Owner bestMark   = null;
-    float bestRating = 0   ;
-    
-    for (Target t : actor.senses.awareOf()) if (t instanceof Owner) {
-      if (t == actor.mind.home() || t == actor.mind.work()) continue;
-      
-      //  TODO:  Just rate Lootings directly.
-      
-      final Owner mark = (Owner) t;
-      for (Item taken : mark.inventory().allItems()) {
-        taken = Item.withAmount(taken, Nums.min(1, taken.amount));
-        final float rating = ActorMotives.rateDesire(taken, null, actor);
-        
-        if (rating * (1 + Rand.num()) > bestRating) {
-          bestTaken  = taken ;
-          bestMark   = mark  ;
-          bestRating = rating;
-          if (report) I.say("  Rating for "+taken+" at "+mark+" is "+rating);
-        }
-      }
-    }
-    
-    if (bestTaken == null) return null;
-    else return new Looting(actor, bestMark, bestTaken, dropOff);
-  }
-  //*/
   
   
   protected float getPriority() {
@@ -141,7 +112,7 @@ public class Looting extends Plan {
     float urge = ActorMotives.rateDesire(taken, null, actor) / Plan.ROUTINE;
     float harm = NO_HARM;
     
-    if (mark.base() != null) {
+    if (mark.base() == actor.base()) {
       harm = MILD_HARM;
       urge *= (1.5f - Planet.dayValue(actor.world()));  //  TODO:  USE SUCCESS-CHANCE INSTEAD
       if (isPrivate) urge -= 0.5f;

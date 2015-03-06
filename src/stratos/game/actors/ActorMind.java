@@ -20,7 +20,7 @@ public abstract class ActorMind implements Qualities {
   /**  Field definitions, constructor, save/load methods-
     */
   private static boolean
-    decisionVerbose = Choice.mindVerbose,
+    decisionVerbose = true,//Choice.mindVerbose,
     stepsVerbose    = Choice.mindVerbose,
     warnVerbose     = true ;
   
@@ -382,7 +382,7 @@ public abstract class ActorMind implements Qualities {
   public void cancelBehaviour(Behaviour b, String cause) {
     final boolean report = I.talkAbout == actor && decisionVerbose;
     if (! agenda.includes(b)) return;
-    if (report) I.say("\nCANCELLING "+b);
+    if (report) I.say("\nCANCELLING "+b+", CAUSE: "+cause);
     while (agenda.size() > 0) {
       final Behaviour popped = popBehaviour(null, cause);
       if (popped == b) break;

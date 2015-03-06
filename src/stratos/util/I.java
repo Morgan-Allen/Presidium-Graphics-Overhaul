@@ -25,7 +25,7 @@ public class I {
   public static boolean mute = false;
   public static Object talkAbout = null;
   
-  final static boolean WRITE_TO_LOG;
+  final static boolean WRITE_TO_LOG, LOG_BIG_EVENTS = true;
   static {
     //  TODO:  Use this trick in the AssetsLoader class too- it's much faster
     //  than a brute-force search for files.
@@ -72,6 +72,11 @@ public class I {
   
   public static final boolean amDebug() {
     return WRITE_TO_LOG;
+  }
+  
+  
+  public static final boolean logEvents() {
+    return LOG_BIG_EVENTS;
   }
   
   

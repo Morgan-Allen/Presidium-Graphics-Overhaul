@@ -1,14 +1,14 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.politic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.economic.Venue;
-import stratos.game.wild.Species;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
-import stratos.start.PlayLoop;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -206,6 +206,9 @@ public abstract class Mission implements Session.Saveable, Selectable {
   public void assignPriority(int degree) {
     priority = Nums.clamp(degree, LIMIT_PRIORITY);
     if (inceptTime == -1) inceptTime = base.world.currentTime();
+    if (I.logEvents()) {
+      I.say("\nMISSION ASSIGNED PRIORITY "+priority+" ("+this+")");
+    }
   }
   
   
@@ -213,11 +216,17 @@ public abstract class Mission implements Session.Saveable, Selectable {
     if (this.missionType == type) return;
     this.missionType = type;
     resetMission();
+    if (I.logEvents()) {
+      I.say("\nMISSION ASSIGNED TYPE "+missionType+" ("+this+")");
+    }
   }
   
   
   public void setObjective(int objectIndex) {
     this.objectIndex = objectIndex;
+    if (I.logEvents()) {
+      I.say("\nMISSION ASSIGNED OBJECTIVE "+objectIndex+" ("+this+")");
+    }
   }
   
   
@@ -349,8 +358,8 @@ public abstract class Mission implements Session.Saveable, Selectable {
   //  NOTE:  This method should be called within the ActorMind.assignMission
   //  method, and not independantly.
   public void setApplicant(Actor actor, boolean is) {
-    final boolean report = shouldReport(actor);
-    if (report) I.say("\n"+actor+" apply for "+this+"? "+is);
+    final boolean report = shouldReport(actor) || I.logEvents();
+    if (report) I.say("\n"+actor+" APPLIED FOR "+this+"? "+is);
     
     final Role oldRole = roleFor(actor);
     if (is) {
@@ -370,8 +379,8 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   public void setApprovalFor(Actor actor, boolean is) {
-    final boolean report = shouldReport(actor);
-    if (report) I.say("\n"+actor+" approved for "+this+"? "+is);
+    final boolean report = shouldReport(actor) || I.logEvents();
+    if (report) I.say("\n"+actor+" APPROVED FOR "+this+"? "+is);
     
     final Role role = roleFor(actor);
     if (role == null) I.complain(actor+" never applied for "+this);
@@ -382,24 +391,33 @@ public abstract class Mission implements Session.Saveable, Selectable {
   public void beginMission() {
     if (hasBegun()) return;
     begun = true;
-    ///I.say("Beginning mission: "+this);
+
+    final boolean report = (
+      verbose && BaseUI.currentPlayed() == base
+    ) || I.logEvents();
+    if (report) I.say("\nMISSION BEGUN: "+this);
     
     for (Role role : roles) {
       if (! role.approved) {
         final Actor rejected = role.applicant;
         rejected.mind.assignMission(null);
+        if (report) I.say("  Rejected "+rejected);
       }
       else {
         final Actor active = role.applicant;
         active.mind.assignBehaviour(createStepFor(active));
+        if (report) I.say("  Active "+active);
       }
     }
   }
   
   
   public void endMission(boolean withReward) {
-    final boolean report = verbose && BaseUI.currentPlayed() == base;
     if (done) return;
+    
+    final boolean report = (
+      verbose && BaseUI.currentPlayed() == base
+    ) || I.logEvents();
     if (report) I.say("\nMISSION COMPLETE: "+this);
     //
     //  Unregister yourself from the base's list of ongoing operations-
@@ -553,15 +571,11 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   public void interrupt(String cause) {
-    final boolean report = verbose && BaseUI.current().played() == base;
+    //final boolean report = verbose && BaseUI.current().played() == base;
     //  TODO:  There needs to be a special-case handler for this.  You also
     //  need to identify the cancelling actor, and *only* remove them.
-    if (report) {
-      I.say("\nCancelling mission: "+this);
-      I.say("  Cause: "+cause);
-    }
     
-    I.say("\nMISSION INTERRUPTED: "+cause+" ("+this+")");
+    if (I.logEvents()) I.say("\nMISSION INTERRUPTED: "+cause+" ("+this+")");
     endMission(true);
   }
   

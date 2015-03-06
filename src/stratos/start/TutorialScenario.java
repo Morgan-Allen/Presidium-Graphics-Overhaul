@@ -136,10 +136,14 @@ public class TutorialScenario extends StartupScenario implements
         pushMessage(EVENT_SECURITY_DONE);
         numObjectives++;
       }
+      
+      //  TODO:  RESTORE THIS
+      /*
       if (checkContactObjective()) {
         pushMessage(EVENT_CONTACT_DONE);
         numObjectives++;
       }
+      //*/
       if (checkEconomicObjective()) {
         pushMessage(EVENT_ECONOMY_DONE);
         numObjectives++;
@@ -233,7 +237,7 @@ public class TutorialScenario extends StartupScenario implements
     final CommsPanel comms = UI().commsPanel();
     
     if (! comms.hasMessage(eventKey)) {
-      if (verbose || true) I.say("PUSHING NEW MESSAGE: "+eventKey);
+      if (verbose || I.logEvents()) I.say("\nPUSHING NEW MESSAGE: "+eventKey);
       UI().setInfoPanels(messageFor(eventKey, comms, false), null);
     }
   }

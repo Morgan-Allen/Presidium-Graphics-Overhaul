@@ -88,14 +88,6 @@ public class Tripod extends Artilect {
   }
   
   
-  public String helpInfo() {
-    return
-      "Tripods are among the more feared of the artilect guardians wandering "+
-      "the landscape.  Even in a decrepit state, they are well-armed and "+
-      "will attack organics with scant provocation.";
-  }
-  
-  
   public Composite portrait(BaseUI UI) {
     return null;
   }

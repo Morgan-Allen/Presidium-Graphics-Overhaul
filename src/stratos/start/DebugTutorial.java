@@ -11,15 +11,8 @@ import stratos.util.*;
 
 
 
-//  TODO:  Try to implement some global debugging-levels, and make sure that
-//  all 'significant' events- such as mission-declarations, building-placement
-//  and objective-completion is recorded to the log.
-
-
-//  TODO:  The retreat-bonus due to range-from home is far too strong at the
-//  moment- it's overwhelming the desire to fight in the first place.
-
-
+//  TODO:  Get rid of obsolete sections of the tutorial!  (And consider reading
+//  in from XML?)
 
 
 /*  TUTORIAL TODO LIST:
@@ -58,18 +51,22 @@ import stratos.util.*;
 *  Need to restore animal nests and surface behaviours.
      Need to ensure auto-distribution of predator and prey nests.
 
-*  Psy powers need some checkup.  Make them feel... more indirect.  And give
-   them some custom UI rigging (hotkeys 1-9).
+*  Psy powers need some checkup- try including them in the target-options as
+   ongoing effects.
 
 *  Explicit or improved placement for shield walls and arcologies.
      Fresh art for shield walls.
 
 *  Make Pledges more persistent and nuanced (see Proposal class.)
 
+*  Try to implement some global debugging-levels.
+
 *  Introduce Call-to-Arms at the Trooper Lodge (with respect to a particular
    mission at a time.)
 
 *  Hide-and-seek needs to be more effective (both retreat and combat.)
+
+*  Figure out entry-permissions for structures and guests, and/or sieges.
 
 *  Buildings need to have multiple levels.
 
@@ -82,7 +79,7 @@ import stratos.util.*;
      Trooper Lodge (drilling)
      Cut out recruitment-extras for others.
 
-*  General internal clean-up of plan routines.
+*  General internal clean-up of plan routines.  (Look in PlanUtils.)
 
 *  Fresh art and level-depictions for all structures.
 //*/

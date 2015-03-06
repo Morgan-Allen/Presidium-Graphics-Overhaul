@@ -19,6 +19,9 @@ import stratos.util.*;
 //  *  Mission Types.
 
 
+//  TODO:  REVISE ALL OF THIS.  MAKE IT INTERACTIVE.  AND READ IN FROM XML.
+
+
 public class TutorialScript {
   
   private static Batch <String> TOPICS = new Batch <String> ();
@@ -28,20 +31,20 @@ public class TutorialScript {
   final static String
     TOPIC_OBJECTIVES      = topic("Order of Business"          ),
     TOPIC_SECURITY        = topic("Objective 1: Security"      ),
-    TOPIC_CONTACT         = topic("Objective 2: Contact"       ),
+    //TOPIC_CONTACT         = topic("Objective 2: Contact"       ),
     TOPIC_ECONOMY         = topic("Objective 3: Economy Basics"),
     TOPIC_NAVIGATION      = topic("Navigation Basics"          ),
     
     TOPIC_EXPLAIN_EXPAND  = topic("Expanding your Base"        ),
     TOPIC_EXPLAIN_DEFEND  = topic("Defending your Base"        ),
-    TOPIC_EXPLAIN_CONTACT = topic("Diplomacy Missions"         ),
-    TOPIC_EXPLAIN_DIPLO   = topic("Interviewing Citizens"      ),
+    //TOPIC_EXPLAIN_CONTACT = topic("Diplomacy Missions"         ),
+    //TOPIC_EXPLAIN_DIPLO   = topic("Interviewing Citizens"      ),
     TOPIC_EXPLAIN_SUPPLY  = topic("Getting Supplies"           ),
     TOPIC_EXPLAIN_INDUST  = topic("Housing and Industry"       ),
     
     EVENT_WELCOME         = event("Welcome"                    ),
     EVENT_SECURITY_DONE   = event("Security Objective Complete"),
-    EVENT_CONTACT_DONE    = event("Contact Objective Complete" ),
+    //EVENT_CONTACT_DONE    = event("Contact Objective Complete" ),
     EVENT_ECONOMY_DONE    = event("Economy Objective Complete" ),
     EVENT_CONGRATULATIONS = event("Tutorial Complete!"         ),
     
@@ -86,11 +89,14 @@ public class TutorialScript {
     if (title.equals(TOPIC_OBJECTIVES)) {
       return comms.addMessage(
         tutorial, TOPIC_OBJECTIVES, null,
-        "For the moment, we'll specify three basic objectives for you to "+
-        "tackle.  Complete two of the three, and we will proceed to the next "+
-        "stage of this tutorial.  What you tackle first is up to you.",
+        "Stratos is a game where you have three basic objectives: firstly, "+
+        "survival, secondly, prosperity, and thirdly, a legacy.  To survive, "+
+        "you must deal with local threats (a security concern).  To prosper, "+
+        "you must establish housing, trade and industry (an economic "+
+        "concern.)  Legacy will come later, once you complete these two "+
+        "objectives.",
         linkFor("Tell me about the security objective.", TOPIC_SECURITY  ),
-        linkFor("Tell me about the contact objective." , TOPIC_CONTACT   ),
+        //linkFor("Tell me about the contact objective." , TOPIC_CONTACT   ),
         linkFor("Tell me about the economic objective.", TOPIC_ECONOMY   ),
         linkFor("Wait a second.  How do I navigate?"   , TOPIC_NAVIGATION)
       );
@@ -122,7 +128,7 @@ public class TutorialScript {
         "map to find the site, and then declaring a strike mission.",
         linkFor("How do I deal with enemies?"          , TOPIC_EXPLAIN_EXPAND),
         linkFor("How do I protect my subjects?"        , TOPIC_EXPLAIN_DEFEND),
-        linkFor("Tell me about the contact objective." , TOPIC_CONTACT       ),
+        //linkFor("Tell me about the contact objective." , TOPIC_CONTACT       ),
         linkFor("Tell me about the economic objective.", TOPIC_ECONOMY       )
       );
     }
@@ -157,6 +163,7 @@ public class TutorialScript {
       );
     }
     
+    /*
     if (title.equals(TOPIC_CONTACT)) {
       return comms.addMessage(
         tutorial, TOPIC_CONTACT, null,
@@ -205,6 +212,7 @@ public class TutorialScript {
         linkFor("Go back to the contact objective.", TOPIC_CONTACT        )
       );
     }
+    //*/
     
     if (title.equals(TOPIC_ECONOMY)) {
       return comms.addMessage(
@@ -215,8 +223,8 @@ public class TutorialScript {
         "up to pyon grade or better.",
         linkFor("How do I get money and supplies?"     , TOPIC_EXPLAIN_SUPPLY),
         linkFor("How do I improve my housing?"         , TOPIC_EXPLAIN_INDUST),
-        linkFor("Tell me about the security objective.", TOPIC_SECURITY      ),
-        linkFor("Tell me about the contact objective." , TOPIC_CONTACT       )
+        linkFor("Tell me about the security objective.", TOPIC_SECURITY      )
+        //linkFor("Tell me about the contact objective." , TOPIC_CONTACT       )
       );
     }
     
@@ -263,6 +271,7 @@ public class TutorialScript {
       );
     }
     
+    /*
     if (title.equals(EVENT_CONTACT_DONE)) {
       return comms.addMessage(
         tutorial, EVENT_CONTACT_DONE, null,
@@ -270,6 +279,7 @@ public class TutorialScript {
         "base."
       );
     }
+    //*/
     
     if (title.equals(EVENT_ECONOMY_DONE)) {
       return comms.addMessage(

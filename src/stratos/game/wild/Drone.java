@@ -84,13 +84,6 @@ public class Drone extends Artilect {
   }
   
   
-  public String helpInfo() {
-    return
-      "Defence Drones are simple, disposable automatons capable of limited "+
-      "field operations without supervision.";
-  }
-  
-  
   public Composite portrait(BaseUI UI) {
     return null;
   }

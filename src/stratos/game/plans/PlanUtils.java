@@ -7,9 +7,7 @@ package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.util.I;
-import stratos.util.Nums;
-import stratos.util.Visit;
+import stratos.util.*;
 
 
 
@@ -46,7 +44,7 @@ public class PlanUtils {
     else if (actor.senses.isEmergency()) incentive += 10;
     
     winChance = combatWinChance(actor, subject);
-    priority = incentive * winChance;
+    priority  = incentive * winChance;
     
     if (reportOn(actor) && priority > 0) I.reportVars(
       "\nCombat priority for "+actor, "  ",
@@ -311,8 +309,6 @@ public class PlanUtils {
     }
     return 0;
   }
-  
-  
   
   
   

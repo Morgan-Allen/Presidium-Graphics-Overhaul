@@ -138,11 +138,10 @@ public class Exploring extends Plan implements Qualities {
       I.say("\nExtra parameters for "+this);
       I.say("  Base priority:         "+basePriority);
       I.say("  Haven distance factor: "+distFactor  );
-      ///I.say("  Claims-based risk:     "+riskFactor  );
     }
     final float priority = priorityForActorWith(
       actor, lookedAt,
-      basePriority, 0 - (distFactor + 0) * CASUAL,
+      basePriority, 0 - (distFactor + 0),
       NO_HARM, MILD_COMPETITION,
       MILD_FAIL_RISK, BASE_SKILLS,
       BASE_TRAITS, PARTIAL_DISTANCE_CHECK,

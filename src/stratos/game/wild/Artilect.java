@@ -153,7 +153,7 @@ public abstract class Artilect extends Actor {
   //  (Intervals are slow, based on community size.)
   
   //  TODO:  Split this method out to the various subclasses and/or the ruins
-  //  itself...
+  //  itself?
   
   protected void addChoices(Choice choice) {
     final boolean report = verbose && I.talkAbout == this;
@@ -241,13 +241,11 @@ public abstract class Artilect extends Actor {
   }
   
   
-  
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     final float fuelInc = 1f / FUEL_CELLS_REGEN;
     if (isDoing(Resting.class, null)) gear.incPowerCells(fuelInc);
   }
-  
   
   
   

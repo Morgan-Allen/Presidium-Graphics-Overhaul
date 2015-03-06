@@ -210,6 +210,10 @@ public abstract class Actor extends Mobile implements
   public boolean enterWorldAt(int x, int y, Stage world) {
     if (base == null) I.complain("ACTOR MUST HAVE BASE ASSIGNED: "+this);
     if (! super.enterWorldAt(x, y, world)) return false;
+    
+    if (verbose || I.logEvents()) {
+      I.say("\n"+this+" ("+vocation()+") IS ENTERING WORLD AT "+x+"/"+y);
+    }
     return true;
   }
   
@@ -225,8 +229,9 @@ public abstract class Actor extends Mobile implements
   
   
   private void exitWorld(boolean normal) {
-    if (verbose) {
-      I.say(this+" IS EXITING WORLD, LAST ACTION: "+actionTaken);
+    if (verbose || I.logEvents()) {
+      I.say("\n"+this+" ("+vocation()+") IS EXITING WORLD FROM "+origin());
+      I.say("  Last action:    "+actionTaken);
       I.say("  Going offworld? "+(! normal));
     }
     assignAction(null);
@@ -351,7 +356,6 @@ public abstract class Actor extends Mobile implements
   
   
   public void enterStateKO(String animName) {
-    ///I.say(this+" HAS BEEN KO'D");
     if (isDoingAction("actionFall", null)) return;
     final Action falling = new Action(
       this, this, this, "actionFall",

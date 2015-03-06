@@ -108,16 +108,21 @@ public class VenuePane extends SelectionInfoPane {
       if (tier == Tier.IMPORTER) d.append(new Description.Link("IMPORT") {
         public void whenClicked() {
           v.stocks.forceDemand(t, 0, Tier.EXPORTER);
+          if (I.logEvents()) I.say("\n"+t+" TIER AT "+v+" IS "+Tier.EXPORTER);
         }
       }, Colour.GREEN);
+      
       if (tier == Tier.TRADER) d.append(new Description.Link("TRADE") {
         public void whenClicked() {
           v.stocks.forceDemand(t, 0, Tier.IMPORTER);
+          if (I.logEvents()) I.say("\n"+t+" TIER AT "+v+" IS "+Tier.IMPORTER);
         }
       }, Colour.BLUE);
+      
       if (tier == Tier.EXPORTER) d.append(new Description.Link("EXPORT") {
         public void whenClicked() {
           v.stocks.forceDemand(t, 0, Tier.TRADER);
+          if (I.logEvents()) I.say("\n"+t+" TIER AT "+v+" IS "+Tier.TRADER);
         }
       }, Colour.MAGENTA);
       
@@ -127,7 +132,9 @@ public class VenuePane extends SelectionInfoPane {
       final float maxTrade = v.spaceFor(t);
       d.append(new Description.Link(I.lengthen(level, 4)) {
         public void whenClicked() {
-          v.stocks.forceDemand(t, (level >= maxTrade) ? 0 : (level + 5), tier);
+          final int newLevel = (level >= maxTrade) ? 0 : (level + 5);
+          v.stocks.forceDemand(t, newLevel, tier);
+          if (I.logEvents()) I.say("\n"+t+" LEVEL AT "+v+" IS "+newLevel);
         }
       });
       d.append(" ");
@@ -307,7 +314,10 @@ public class VenuePane extends SelectionInfoPane {
           d.append("\n  ");
           final String hireDesc = "Hire for "+a.hiringFee()+" credits";
           d.append(new Description.Link(hireDesc) {
-            public void whenClicked() { v.staff.confirmApplication(a); }
+            public void whenClicked() {
+              v.staff.confirmApplication(a);
+              if (I.logEvents()) I.say("\nHIRED: "+p+" ("+a.position()+")");
+            }
           });
         }
         
@@ -409,6 +419,7 @@ public class VenuePane extends SelectionInfoPane {
       if (possible) d.append(new Description.Link(desc) {
         public void whenClicked() {
           v.structure.beginUpgrade(upgrade, false);
+          if (I.logEvents()) I.say("\nBEGAN UPGRADE: "+upgrade+" AT "+v);
         }
       });
       else d.append(desc, grey);
@@ -449,6 +460,7 @@ public class VenuePane extends SelectionInfoPane {
         orderList.add(new Description.Link("Cancel Salvage") {
           public void whenClicked() {
             v.structure.cancelSalvage();
+            if (I.logEvents()) I.say("\nCANCELLED SALVAGE: "+v);
           }
         });
       }
@@ -456,6 +468,7 @@ public class VenuePane extends SelectionInfoPane {
         orderList.add(new Description.Link("Salvage") {
           public void whenClicked() {
             v.structure.beginSalvage();
+            if (I.logEvents()) I.say("\nBEGAN SALVAGE: "+v);
           }
         });
       }

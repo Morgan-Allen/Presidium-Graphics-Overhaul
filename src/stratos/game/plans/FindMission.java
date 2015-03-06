@@ -203,8 +203,7 @@ public class FindMission extends Plan {
   
   
   public boolean actionJoins(Actor client, Actor self) {
-    
-    I.say(actor+" joining mission: "+mission);
+    ///if (I.logEvents()) I.say("\n"+actor+" joining mission: "+mission);
     
     if (! mission.canApply(client)) return false;
     final boolean report = stepsVerbose && I.talkAbout == client;

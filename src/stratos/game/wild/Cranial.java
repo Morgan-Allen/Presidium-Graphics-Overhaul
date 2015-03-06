@@ -95,14 +95,6 @@ public class Cranial extends Artilect {
   }
   
   
-  public String helpInfo() {
-    return
-      "Cranials are cunning, quasi-organic machine intelligences that direct "+
-      "the efforts of their lesser brethren.  They appear to have a marked "+
-      "propensity for tortuous experiments on living creatures.";
-  }
-  
-  
   public Composite portrait(BaseUI UI) {
     return null;
   }

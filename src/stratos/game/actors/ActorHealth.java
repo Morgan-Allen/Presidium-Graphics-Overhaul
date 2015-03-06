@@ -596,7 +596,9 @@ public class ActorHealth implements Qualities {
     
     if (oldState != state && state != STATE_ACTIVE) {
       if (state < STATE_DYING && ! organic()) state = STATE_DYING;
-      I.say("  "+actor+" has entered a non-active state: "+stateDesc());
+      if ((verbose || I.logEvents()) && state != STATE_RESTING) {
+        I.say("\n"+actor+" ENTERED ABNORMAL HEALTH-STATE: "+stateDesc());
+      }
       actor.enterStateKO(Action.FALL);
     }
   }
@@ -709,7 +711,7 @@ public class ActorHealth implements Qualities {
         lifeExtend++;
       }
       else {
-        I.say(actor+" has died of old age.");
+        if (report) I.say(actor+" has died of old age.");
         state = STATE_DYING;
       }
     }

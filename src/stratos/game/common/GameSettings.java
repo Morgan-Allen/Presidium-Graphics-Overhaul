@@ -26,6 +26,7 @@ public class GameSettings {
   final public static int
     SPEND_DIVISOR = 5;
   
+  //  Gameplay effects-
   public static boolean
     
     buildFree = false,
@@ -39,12 +40,13 @@ public class GameSettings {
     noChat    = false,
     
     hardCore  = false;
-  
   public static int
     freeHousingLevel = 0;
   
+  //  Graphical effects-
   public static float
     actorScale = SMALL_SPRITE_SCALE;
+  
   
   
   /**  I've decided to switch to reflection methods for saving/loading rather

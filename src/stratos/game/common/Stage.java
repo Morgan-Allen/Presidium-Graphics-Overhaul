@@ -219,9 +219,12 @@ public class Stage {
     final float oldTime = currentTime;
     currentTime += 1f / PlayLoop.UPDATES_PER_SECOND;
     
+    boolean secChange = ((int) (oldTime / 2)) != ((int) (currentTime / 2));
+    if (secChange && I.logEvents()) I.say("\nTime is "+currentTime);
+    
     for (Base base : bases) {
       base.transport.checkConsistency();
-      if (((int) (oldTime / 2)) != ((int) (currentTime / 2))) {
+      if (secChange) {
         base.intelMap.updateFogValues();
       }
     }
@@ -230,7 +233,7 @@ public class Stage {
     ecology.updateEcology();
     offworld.updateOffworldFrom(this);
     
-    for (Mobile m : mobiles)  m.updateAsMobile();
+    for (Mobile m : mobiles) m.updateAsMobile();
   }
   
   

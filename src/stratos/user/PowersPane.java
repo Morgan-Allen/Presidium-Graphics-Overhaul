@@ -205,7 +205,7 @@ public class PowersPane extends SelectionInfoPane {
         (int) (UI.mouseY() - HPS),
         (int) PS, (int) PS
       );
-
+      
       if (! (hovered instanceof Target)) hovered = null;
       final Target picked = (Target) hovered;
       if (power.finishedWith(caster, option, picked, clicked)) {
@@ -219,9 +219,20 @@ public class PowersPane extends SelectionInfoPane {
       preview.detach();
     }
     
-    //  TODO:  RESTORE THIS
-    public ImageAsset cursorImage() { return null; }// power.buttonImage; }
+    
+    public ImageAsset cursorImage() {
+      return null;
+      // power.buttonImage;
+    }
+    
+    
+    public String toString() {
+      return "Casting "+power.name;
+    }
   }
-  
-  
 }
+
+
+
+
+
