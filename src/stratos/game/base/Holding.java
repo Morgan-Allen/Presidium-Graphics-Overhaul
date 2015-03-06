@@ -37,7 +37,7 @@ public class Holding extends Venue {
     */
   private static boolean
     verbose     = false,
-    rateVerbose = false;
+    rateVerbose = true ;
   
   final public static int
     MAX_SIZE   = 2,
@@ -131,15 +131,15 @@ public class Holding extends Venue {
     final boolean report = rateVerbose && BaseUI.currentPlayed() == base;
     
     final BaseDemands d = base.demands;
-    float baseDemand = d.demandAround(point, Holding.class, -1);
-    baseDemand *= d.globalShortage(Holding.class);
+    float baseDemand = d.demandAround(point, SERVICE_HOUSING, -1);
+    baseDemand *= d.globalShortage(SERVICE_HOUSING);
     
-    if (baseDemand <= 0) return -1;
     if (report) {
       I.say("\nGetting place-rating for Holding at "+point);
       I.say("  Current base: "+base);
       I.say("  Demand for housing: "+baseDemand);
     }
+    if (baseDemand <= 0) return -1;
     float rating = 1;
     
     //  TODO:  Don't rate by ambience.  Just rate by proximity to other
@@ -153,7 +153,7 @@ public class Holding extends Venue {
       near = at.world.presences.nearestMatch(base, at, range);
       if (near != null) rating *= 1f / (1 + Spacing.distance(near, at));
       
-      near = at.world.presences.nearestMatch(Holding.class, at, range);
+      near = at.world.presences.nearestMatch(SERVICE_HOUSING, at, range);
       if (near != null) rating *= 1f / (1 + Spacing.distance(near, at));
       
       /*

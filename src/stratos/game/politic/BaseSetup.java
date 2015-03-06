@@ -20,6 +20,7 @@ public class BaseSetup {
     */
   private static boolean
     verbose      = false,
+    shortCycle   = false,
     extraVerbose = false;
   
   //  TODO:  You can cull various building-types early by skipping anything for
@@ -27,6 +28,7 @@ public class BaseSetup {
   //  types which have the most demand.
   final static float
     FULL_EVAL_PERIOD  = Stage.STANDARD_DAY_LENGTH / 2,//  Eval-cycle length.
+    SHORT_EVAL_PERIOD = Stage.STANDARD_HOUR_LENGTH * 2,
     DEFAULT_PLACE_HP  = 50,
     MAX_PLACE_RATING  = 10;
   final static int
@@ -172,14 +174,15 @@ public class BaseSetup {
     float buildLimit = 0;
     buildLimit = Nums.log(10, 1 + base.relations.population());
     buildLimit *= DEFAULT_PLACE_HP;
+    final float evalPeriod = shortCycle ? SHORT_EVAL_PERIOD : FULL_EVAL_PERIOD;
     //
     //  Then calculate how many sites we can evaluate during this fraction of
     //  the full cycle.
     final float time = world.currentTime();
     if (lastEval == -1) lastEval = time;
     int numIters = 0;
-    numIters += initPlaceCount * time     / FULL_EVAL_PERIOD;
-    numIters -= initPlaceCount * lastEval / FULL_EVAL_PERIOD;
+    numIters += initPlaceCount * time     / evalPeriod;
+    numIters -= initPlaceCount * lastEval / evalPeriod;
     if (numIters <= 0) return;
     //
     //  And perform the actual placement attempts-

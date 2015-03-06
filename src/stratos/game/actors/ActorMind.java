@@ -20,7 +20,7 @@ public abstract class ActorMind implements Qualities {
   /**  Field definitions, constructor, save/load methods-
     */
   private static boolean
-    decisionVerbose = true,//Choice.mindVerbose,
+    decisionVerbose = Choice.mindVerbose,
     stepsVerbose    = Choice.mindVerbose,
     warnVerbose     = true ;
   

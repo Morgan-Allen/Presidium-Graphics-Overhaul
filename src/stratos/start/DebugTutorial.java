@@ -11,8 +11,8 @@ import stratos.util.*;
 
 
 
-//  TODO:  Get rid of obsolete sections of the tutorial!  (And consider reading
-//  in from XML?)
+//  TODO:  Settle on a different division-system for structure-spacing.  The
+//         current version is confusing and a tad opaque.
 
 
 /*  TUTORIAL TODO LIST:
@@ -54,6 +54,10 @@ import stratos.util.*;
 *  Psy powers need some checkup- try including them in the target-options as
    ongoing effects.
 
+*  Rework the migration system to that it's more gradual- colonists arrive from
+   the homeworld on a scale of 1-2 months (10-20 days.)  Landing parties 'come
+   ashore' every day or two, but those can't respond to job-demand as such.
+
 *  Explicit or improved placement for shield walls and arcologies.
      Fresh art for shield walls.
 
@@ -82,6 +86,9 @@ import stratos.util.*;
 *  General internal clean-up of plan routines.  (Look in PlanUtils.)
 
 *  Fresh art and level-depictions for all structures.
+
+*  Read definitions, tutorial messages, etc. from .xml and allow for later
+   translations.
 //*/
 
 

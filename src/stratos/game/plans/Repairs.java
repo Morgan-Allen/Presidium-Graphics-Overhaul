@@ -19,7 +19,7 @@ public class Repairs extends Plan {
   
   private static boolean
     evalVerbose  = false,
-    stepsVerbose = true ;
+    stepsVerbose = false;
   
   final static int
     REPAIR_REPAIR  = 0,
