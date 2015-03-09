@@ -21,8 +21,8 @@ public class Supervision extends Plan {
   /**  Data fields, setup and save/load functions-
     */
   private static boolean
-    evalVerbose  = false,
-    stepsVerbose = false;
+    evalVerbose  = true ,
+    stepsVerbose = true ;
   
   public static enum Type {
     TYPE_VIP_STAY ,
@@ -126,15 +126,19 @@ public class Supervision extends Plan {
     if (report) I.say("\nGetting next supervision step: "+actor);
     
     final float time = actor.world().currentTime();
-    if (beginTime == -1) beginTime = time;
+    if (beginTime == -1 && actor.aboard() == venue) beginTime = time;
     final float elapsed = time - beginTime;
     
-    if (elapsed > DEFAULT_EVAL_TIME) {
+    if (beginTime != -1 && elapsed > DEFAULT_EVAL_TIME) {
       final Choice choice = new Choice(actor);
       venue.addTasks(choice, actor, actor.vocation());
       final Behaviour nextJob = choice.pickMostUrgent();
+      
       if (! (nextJob instanceof Supervision)) {
-        if (report) I.say("  Supervision complete!");
+        if (report) {
+          I.say("  Supervision complete!  Next task: "+nextJob);
+          Plan.reportPlanDetails(nextJob, actor);
+        }
         interrupt(INTERRUPT_CANCEL);
         return null;
       }

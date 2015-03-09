@@ -522,12 +522,6 @@ public class Career implements Qualities {
     
     actor.gear.boostShields(actor.gear.maxShields(), true);
   }
-  
-  
-  public static float defaultSalary(Background position) {
-    if (position.standing < 0) return 0;
-    return Backgrounds.HIRE_COSTS[position.standing];
-  }
 }
 
 

@@ -277,19 +277,26 @@ public class VenuePane extends SelectionInfoPane {
   private void describeStaffing(Description d, BaseUI UI) {
     final Background c[] = v.careers();
     if (c != null && c.length > 0) {
+      
       for (Background b : c) {
         final int
           hired = v.staff.numHired   (b),
-          total = v.staff.numOpenings(b);
+          total = v.staff.numOpenings(b),
+          apps  = v.staff.numApplied (b);
         if (total == 0 && hired == 0) continue;
         
         ((Text) d).cancelBullet();
         d.append(b.name+": ("+hired+"/"+total+")");
+        if (apps > 0) d.append("\n  Total applied: "+apps);
         
         for (final FindWork a : v.staff.applications()) {
           if (a.employer() != v || a.position() != b) continue;
+          
           final Actor p = a.actor();
-          ((Text) d).insert(p.portrait(UI).texture(), 40, true);
+          final Composite comp = p.portrait(UI);
+          if (comp != null) ((Text) d).insert(comp.texture(), 40, true);
+          else d.append("\n");
+          
           d.append(p);
           d.append(p.inWorld() ? " (" : " (Offworld ");
           d.append(p.vocation().name+")");
@@ -343,9 +350,11 @@ public class VenuePane extends SelectionInfoPane {
   
   
   private void descActor(Mobile m, Description d, BaseUI UI) {
-    if (d instanceof Text && m instanceof Human) {
-      final Composite p = ((Human) m).portrait(UI);
-      ((Text) d).insert(p.texture(), 40, true);
+    
+    if (d instanceof Text && m instanceof Actor) {
+      final Composite p = ((Actor) m).portrait(UI);
+      if (p != null) ((Text) d).insert(p.texture(), 40, true);
+      else d.append("\n");
     }
     else d.append("\n\n  ");
     d.append(m);

@@ -81,6 +81,11 @@ public class ClaimsGrid {
   }
   
   
+  public Base baseClaiming(Target t) {
+    return baseClaiming(t.world().tileAt(t));
+  }
+  
+  
   
   /**  Public methods for querying and asserting area-specific claims.
     */

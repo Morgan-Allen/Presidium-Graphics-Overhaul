@@ -37,7 +37,7 @@ public class Holding extends Venue {
     */
   private static boolean
     verbose     = false,
-    rateVerbose = true ;
+    rateVerbose = false;
   
   final public static int
     MAX_SIZE   = 2,
@@ -120,26 +120,17 @@ public class Holding extends Venue {
     */
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   
-  //  TODO:  I'm going to save ALL spontaneous placement for expansions.  For
-  //  the moment, only explicit placement is allowed.
-  
-  
-  //  TODO:  Now you need to ensure that Holdings can 'migrate' to better
-  //  locations if local conditions change...
-  
   public float ratePlacing(Target point, boolean exact) {
     final boolean report = rateVerbose && BaseUI.currentPlayed() == base;
-    
-    final BaseDemands d = base.demands;
-    float baseDemand = d.demandAround(point, SERVICE_HOUSING, -1);
-    baseDemand *= d.globalShortage(SERVICE_HOUSING);
+    float baseDemand = base.demands.globalShortage(SERVICE_HOUSING);
+    final Base claims = point.world().claims.baseClaiming(point);
     
     if (report) {
       I.say("\nGetting place-rating for Holding at "+point);
-      I.say("  Current base: "+base);
+      I.say("  Current base: "+base+", base claiming area: "+claims);
       I.say("  Demand for housing: "+baseDemand);
     }
-    if (baseDemand <= 0) return -1;
+    if (baseDemand <= 0 || claims != base) return -1;
     float rating = 1;
     
     //  TODO:  Don't rate by ambience.  Just rate by proximity to other

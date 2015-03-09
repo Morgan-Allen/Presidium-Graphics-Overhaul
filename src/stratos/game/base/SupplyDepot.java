@@ -134,7 +134,7 @@ public class SupplyDepot extends Venue {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     
-    int maxBarges = structure.upgradeLevel(EXPORT_TRADE) * 5;
+    int maxBarges = structure.upgradeLevel(EXPORT_TRADE);
     //  TODO:  You need to send those barges off to different settlements!
     //  TODO:  Take this over entirely from the Stock Exchange.
     
@@ -174,7 +174,15 @@ public class SupplyDepot extends Venue {
   
   
   protected Behaviour jobFor(Actor actor, boolean onShift) {
-    if (! onShift) return null;
+    //
+    //  During your primary shift, either perform manufacture or supervise the
+    //  venue-
+    if (onShift) {
+      final Manufacture CM = stocks.nextManufacture(actor, WASTE_TO_LCHC);
+      if (CM != null) return CM.setBonusFrom(this, true, LCHC_RENDERING);
+      
+      return Supervision.oversight(this, actor);
+    }
     final Choice choice = new Choice(actor);
     //
     //  See if there's a bulk delivery to be made-
@@ -202,34 +210,30 @@ public class SupplyDepot extends Venue {
       }
       if (! choice.empty()) return choice.pickMostUrgent();
     }
-    
     //
-    //  Repairs and manufacture-
-    for (CargoBarge b : barges) {
-      if (Repairs.needForRepair(b) > 0) choice.add(new Repairs(actor, b));
-      else if (b.abandoned()) choice.add(new Delivery(b, this));
+    //  During the secondary shift, you can also perform repairs or localised
+    //  deliveries-
+    if (staff.shiftFor(actor) == SECONDARY_SHIFT) {
+      
+      for (CargoBarge b : barges) {
+        if (Repairs.needForRepair(b) > 0) choice.add(new Repairs(actor, b));
+        else if (b.abandoned()) choice.add(new Delivery(b, this));
+      }
+      choice.add(Repairs.getNextRepairFor(actor, true));
+      
+      final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
+        this, services(), 2, 10, 5
+      );
+      if (d != null && staff.assignedTo(d) < 1) choice.add(d);
+      
+      final Delivery c = DeliveryUtils.bestBulkCollectionFor(
+        this, services(), 2, 10, 5
+      );
+      if (c != null && staff.assignedTo(c) < 1) choice.add(c);
+      
+      return choice.weightedPick();
     }
-    choice.add(Repairs.getNextRepairFor(actor, true));
-    
-    final Manufacture CM = stocks.nextManufacture(actor, WASTE_TO_LCHC);
-    if (CM != null) choice.add(CM.setBonusFrom(this, true, LCHC_RENDERING));
-    
-    //
-    //  Localised deliveries-
-    final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
-      this, services(), 2, 10, 5
-    );
-    if (d != null && staff.assignedTo(d) < 1) choice.add(d);
-    
-    final Delivery c = DeliveryUtils.bestBulkCollectionFor(
-      this, services(), 2, 10, 5
-    );
-    if (c != null && staff.assignedTo(c) < 1) choice.add(c);
-    
-    //
-    //  Supervision by default-
-    if (choice.empty()) choice.add(Supervision.oversight(this, actor));
-    return choice.weightedPick();
+    return null;
   }
   
   

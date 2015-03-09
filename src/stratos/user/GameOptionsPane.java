@@ -107,8 +107,6 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
       played.scheduleReset();
     }});
     
-    
-    
     //  TODO:  Make the file-path system more transparent and consistent!
     text.append("\n\nLoad Earlier Save:");
     appendLoadOptions(text, played.savesPrefix());

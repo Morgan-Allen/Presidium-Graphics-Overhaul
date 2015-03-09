@@ -11,11 +11,13 @@ import stratos.util.*;
 
 
 
-//  TODO:  Settle on a different division-system for structure-spacing.  The
-//         current version is confusing and a tad opaque.
-
-
 /*  TUTORIAL TODO LIST:
+
+*  Limit the structure types available during the tutorial, and limit based on
+   structure-prereqs.  (Also, you might try merging into a single category.)
+
+*  Limit the powers available too- have them rely on the ruler learning them,
+   one at a time.
 
 *  Use a linear sequence with much more detail on specific, simple steps.  You
    want to cover-
@@ -24,12 +26,6 @@ import stratos.util.*;
      Mission Types
      Basic Research
      Housing + Manufacture + Sales and Imports (keep brief)
-
-*  Limit the structure types available during the tutorial, and limit based on
-   structure-prereqs.  (Also, you might try merging into a single category.)
-
-*  Limit the powers available too- have them rely on the ruler learning them,
-   one at a time.
 
 *  Focus on the objectives that have an intuitive, emotional component- such as
    survival (strike/defend) and comfort (the economy.)  Making those mandatory
@@ -42,37 +38,43 @@ import stratos.util.*;
 
 /*  BIG TODO LIST:
 
+INTERFACE AND DEBUGGING
+
+*  The UI needs to use a few unified panes rather than separate build-buttons-
+   for Personnel, Sectors and Installations.
+
+*  Read definitions, tutorial messages, etc. from .xml and allow for later
+   translations.
+
+*  Try to implement some global debugging-levels.
+
+
+ENEMIES AND ENVIRONMENT-
+
 *  Extra concept art for new creatures/vermin:
      Avrodil, Sea Bean, Rem Leech, Mistaken, Desert Maw, Hirex Body.
 
 *  Need service hatches to allow access to vermin.
-     Need to write vermin behaviour.
+     Need to write vermin behaviour (see Vermin class.)
 
 *  Need to restore animal nests and surface behaviours.
      Need to ensure auto-distribution of predator and prey nests.
 
-*  Psy powers need some checkup- try including them in the target-options as
-   ongoing effects.
 
-*  Rework the migration system to that it's more gradual- colonists arrive from
-   the homeworld on a scale of 1-2 months (10-20 days.)  Landing parties 'come
-   ashore' every day or two, but those can't respond to job-demand as such.
+BUILDING AND UPGRADES-
+
+*  Settle on a different division-system for structure-spacing.  The current
+   version is confusing and a tad opaque.
 
 *  Explicit or improved placement for shield walls and arcologies.
      Fresh art for shield walls.
 
-*  Make Pledges more persistent and nuanced (see Proposal class.)
-
-*  Try to implement some global debugging-levels.
-
-*  Introduce Call-to-Arms at the Trooper Lodge (with respect to a particular
-   mission at a time.)
-
-*  Hide-and-seek needs to be more effective (both retreat and combat.)
-
-*  Figure out entry-permissions for structures and guests, and/or sieges.
+*  Use service hatches to initiate heavier paving and utility-transmission.
 
 *  Buildings need to have multiple levels.
+
+*  Ensure that spontaneous-buildings can 'migrate' to new sites if conditions
+   change.  (Allow that for buildings in general?)
 
 *  Upgrades need to filled in and tested for:
      Stock Exchange
@@ -83,12 +85,33 @@ import stratos.util.*;
      Trooper Lodge (drilling)
      Cut out recruitment-extras for others.
 
-*  General internal clean-up of plan routines.  (Look in PlanUtils.)
-
 *  Fresh art and level-depictions for all structures.
 
-*  Read definitions, tutorial messages, etc. from .xml and allow for later
-   translations.
+
+CONTROL AND DIRECTION-
+
+*  Psy powers need some checkup- try including them in the target-options as
+   ongoing effects.
+
+*  Introduce Call-to-Arms at the Trooper Lodge (with respect to a particular
+   mission at a time.)
+
+*  Make Pledges more persistent and nuanced (see Proposal class.)
+
+
+CITIZEN BEHAVIOUR-
+
+*  Rework the migration system to that it's more gradual- colonists arrive from
+   the homeworld on a scale of 1-2 months (10-20 days.)  Landing parties 'come
+   ashore' every day or two, but those can't respond to job-demand as such.
+
+*  Hide-and-seek needs to be more effective (both retreat and combat.)
+
+*  Figure out entry-permissions for structures and guests, and/or sieges.
+
+*  General internal clean-up of plan routines.  (Look in PlanUtils.)
+
+*  Proper evaluation of mood and memory-events.
 //*/
 
 
@@ -102,7 +125,7 @@ public class DebugTutorial extends TutorialScenario {
   
   
   private DebugTutorial() {
-    super("debug_tutorial");
+    super("tutorial_quick");
   }
   
   
@@ -117,7 +140,7 @@ public class DebugTutorial extends TutorialScenario {
   
   
   public void beginGameSetup() {
-    super.initScenario("debug_tutorial");
+    super.initScenario("tutorial_quick");
   }
   
   

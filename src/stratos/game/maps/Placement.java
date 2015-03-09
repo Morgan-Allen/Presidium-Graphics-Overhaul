@@ -270,36 +270,40 @@ public class Placement implements TileConstants {
   //  TODO:  Reserve this strictly for venues?  (Better yet, just use the
   //  claims-system if possible.)
   
+  //*
   public static boolean checkClustering(
     Stage world, Element f, Tile outerPerim[]
   ) {
     final boolean report = false;
     final int tier = f.owningTier();
     
-    final Tile at = f.origin();
-    final StageSection belongs = world.sections.sectionAt(at.x, at.y);
-    if (report) {
-      I.say("\nChecking for clustering by "+f+" at "+at);
-      I.say("  Belongs to section: "+belongs);
-    }
+    final Tile belongs = clusterTile(f);
+    if (report) I.say("\nChecking for clustering by "+f+" (at "+belongs+")");
     
     for (Tile t : outerPerim) {
       if (t == null || t.owningTier() < tier) continue;
       
       //  TODO:  You can ignore any structures whose claim you could normally
       //  override!
-      
-      final Tile o = t.onTop().origin();
-      final StageSection s = world.sections.sectionAt(o.x, o.y);
-      if (report) I.say("  "+t.onTop()+" belongs to "+s);
-      if (s != belongs) return false;
+      final Tile cluster = clusterTile(t.onTop());
+      if (report) I.say("  "+t.onTop()+" belongs to "+cluster);
+      if (cluster != belongs) return false;
     }
     return true;
   }
+  //*/
+  
+  final static int CLUSTER_SIZE = 16;
+  
+  private static Tile clusterTile(Element e) {
+    final Tile at = e.origin();
+    final int
+      res = CLUSTER_SIZE,
+      cX = (at.x / res) * res,
+      cY = (at.y / res) * res;
+    return at.world.tileAt(cX, cY);
+  }
 }
-
-
-
 
 
 

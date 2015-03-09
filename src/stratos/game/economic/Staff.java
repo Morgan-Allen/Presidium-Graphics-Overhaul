@@ -125,6 +125,13 @@ public class Staff {
   }
   
   
+  public int numApplied(Background b) {
+    int count = 0;
+    for (FindWork a : applications) if (a.position() == b) count++;
+    return count;
+  }
+  
+  
   
   /**  Handling shifts and being off-duty:
     */
@@ -314,9 +321,10 @@ public class Staff {
       for (Actor a : residents) if (a.destroyed() || a.base() != base) {
         setResident(a, false);
       }
-      for (FindWork a : applications) if (a.employer() != employs) {
-        setApplicant(a, false);
-      }
+      for (FindWork a : applications)
+        if (a.employer() != employs || a.actor().destroyed()) {
+          setApplicant(a, false);
+        }
       
       //  If there's an unfilled opening, look for someone to fill it.
       //  TODO:  This should really be handled more from the Commerce class?

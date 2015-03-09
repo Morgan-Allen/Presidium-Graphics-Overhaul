@@ -8,13 +8,20 @@ import stratos.util.*;
 
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Pixmap.*;
-
 import static com.badlogic.gdx.graphics.Texture.TextureFilter.*;
 
 
 
+//  TODO:  There's a potential fail-condition here in situations where more
+//  than the MAX_CACHED number of composites are supposed to be displayed on-
+//  screen at once.  Not likely, but possible.  Find a more graceful way to
+//  handle it.
+
 public class Composite {
   
+  
+  private static boolean
+    verbose = true ;
   
   final static int MAX_CACHED = 40;
   static Table <String, Composite> recentTable = new Table();
@@ -41,6 +48,7 @@ public class Composite {
   private String tableKey;
   private Pixmap drawn;
   private Texture composed;
+  private boolean disposed = false;
   
   
   public static Composite fromCache(String key) {
@@ -78,14 +86,18 @@ public class Composite {
   
   
   private void dispose() {
+    if (disposed) return;
+    if (verbose) I.say("\nDISPOSING OF COMPOSITE: "+tableKey);
+    
     drawn.dispose();
     if (composed != null) composed.dispose();
+    disposed = true;
   }
   
   
   
   public void layer(ImageAsset image) {
-    if (image == null) return;
+    if (image == null || disposed) return;
     if (composed != null) {
       I.complain("Cannot add layers once texture is compiled!");
     }
@@ -98,7 +110,7 @@ public class Composite {
   public void layerInBounds(
     Composite image, float x, float y, float w, float h
   ) {
-    if (image == null) return;
+    if (image == null || disposed) return;
     if (composed != null) {
       I.complain("Cannot add layers once texture is compiled!");
     }
@@ -116,7 +128,7 @@ public class Composite {
   public void layerFromGrid(
     ImageAsset image, int offX, int offY, int gridW, int gridH
   ) {
-    if (image == null) return;
+    if (image == null || disposed) return;
     if (composed != null) {
       I.complain("Cannot add layers once texture is compiled!");
     }
@@ -136,6 +148,7 @@ public class Composite {
   
   
   public Texture texture() {
+    if (disposed) return null;
     if (composed == null) {
       composed = new Texture(drawn);
       composed.setFilter(Linear, Linear);
@@ -145,6 +158,7 @@ public class Composite {
   
   
   public void drawTo(WidgetsPass pass, Box2D bounds, float alpha) {
+    if (disposed) return;
     texture();
     pass.setColor(1, 1, 1, alpha);
     pass.draw(
@@ -155,6 +169,9 @@ public class Composite {
     );
   }
 }
+
+
+
 
 
 

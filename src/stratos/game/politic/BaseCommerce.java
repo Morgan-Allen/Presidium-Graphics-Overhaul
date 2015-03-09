@@ -25,7 +25,7 @@ public class BaseCommerce {
   /**  Field definitions, constructor, save/load methods-
     */
   private static boolean
-    verbose        = false,
+    verbose        = true ,
     extraVerbose   = false,
     migrateVerbose = verbose && true ,
     tradeVerbose   = verbose && true ;
@@ -36,7 +36,7 @@ public class BaseCommerce {
     
     APPLY_INTERVAL  = Stage.STANDARD_DAY_LENGTH / 2f,
     UPDATE_INTERVAL = 10,
-    DEMAND_INC      = 0.15f,
+    TIME_SLICE      = UPDATE_INTERVAL / APPLY_INTERVAL,
     MAX_APPLICANTS  = 3;
   
   
@@ -161,37 +161,30 @@ public class BaseCommerce {
     */
   protected void updateCandidates(int numUpdates) {
     if ((numUpdates % UPDATE_INTERVAL) != 0) return;
-
-    final boolean report = migrateVerbose;
-    final float inc = DEMAND_INC, timeGone = UPDATE_INTERVAL / APPLY_INTERVAL;
+    
+    final boolean report = migrateVerbose && base == BaseUI.currentPlayed();
     final Background demanded[] = jobDemand.keysToArray(Background.class);
     
     for (Background b : demanded) {
       float demand = jobDemand.valueFor(b);
-      demand = Nums.max((demand * (1 - inc)) - (inc / 100), 0);
+      demand *= 1f - TIME_SLICE;
+      demand = Nums.max(demand - TIME_SLICE, 0);
       jobDemand.set(b, demand);
     }
     
     jobSupply.clear();
-    for (Actor c : candidates) {
-      final Background a = FindWork.ambitionOf(c);
-      if (a == null) continue;
-      jobSupply.add(1, a);
-    }
+    for (Actor c : candidates) jobSupply.add(1, c.vocation());
     
-    if (report) I.say("\nChecking for new candidates...");
+    if (report) I.say("\nChecking for new recruits (slice: "+TIME_SLICE+")");
     
     for (Background b : demanded) {
       final float
         demand = jobDemand.valueFor(b),
         supply = jobSupply.valueFor(b);
-      if (demand == 0) {
-        jobDemand.set(b, 0);
-        continue;
-      }
+      if (demand <= 0) { jobDemand.set(b, 0); continue; }
       
-      float applyChance = demand * demand / (supply + demand);
-      applyChance *= timeGone;
+      float applyChance = (demand - supply) / demand;
+      applyChance *= TIME_SLICE;
       
       if (report) {
         I.say("  Hire chance for "+b+" is "+applyChance);
@@ -222,43 +215,38 @@ public class BaseCommerce {
     for (ListEntry e = candidates; (e = e.nextEntry()) != candidates;) {
       final Human c = (Human) e.refers;
       
-      final Background a = FindWork.ambitionOf(c);
-      float quitChance = timeGone;
+      final Background a = c.vocation();
+      float quitChance = TIME_SLICE;
       if (report) I.say("  Updating "+c+" ("+c.vocation()+")");
       
       if (a != null) {
         final float
           supply = jobSupply.valueFor(a),
-          demand = jobDemand.valueFor(a);
-        quitChance *= supply / (supply + demand);
-        
+          demand = jobDemand.valueFor(a),
+          total  = supply + demand;
+        if (total > 0) quitChance *= supply / total;
         if (report) {
-          I.say("  Quit chance for "+a+" "+c+" is: "+quitChance);
+          I.say("    Quit chance: "+quitChance);
+          I.say("    Supply/demand "+supply+" / "+demand);
         }
       }
       
       final FindWork b = FindWork.attemptFor(c, a, base);
-      if (b == null) {
-        if (report) I.say("  No application made!");
-        continue;
-      }
-      else if (Rand.num() > quitChance) {
-        if (b.position() != null) {
-          if (report) I.say("  Applying at: "+b.employer());
-          b.confirmApplication();
-        }
-      }
-      else {
-        if (report) I.say(c+"("+c.vocation()+") is quitting...");
+      if (a == null || b == null || Rand.num() < quitChance) {
+        if (report) I.say("    Quitting...");
         candidates.removeEntry(e);
         b.cancelApplication();
+      }
+      else if (b != null && b.position() != null) {
+        if (report) I.say("    Applying at: "+b.employer());
+        b.confirmApplication();
       }
     }
   }
   
   
   public void incDemand(Background b, float amount, int period) {
-    final float inc = amount *(period / UPDATE_INTERVAL);
+    final float inc = amount * period / APPLY_INTERVAL;
     jobDemand.add(inc, b);
   }
   

@@ -10,7 +10,9 @@ import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.start.*;
 import stratos.util.*;
+
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.Input.Keys;
 
 
 
@@ -284,10 +286,6 @@ public class BaseUI extends HUD implements UIConstants {
   
   public void renderWorldFX() {
     selection.renderWorldFX(rendering);
-    if (currentTask != null) {
-      if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) currentTask.cancelTask();
-      else currentTask.doTask();
-    }
   }
   
   
@@ -320,6 +318,11 @@ public class BaseUI extends HUD implements UIConstants {
     ) {
       if (newInfo != null) newInfo.attachTo(infoArea);
       currentInfo = newInfo;
+    }
+
+    if (currentTask != null) {
+      if (KeyInput.wasTyped(Keys.ESCAPE)) currentTask.cancelTask();
+      else currentTask.doTask();
     }
   }
   

@@ -162,7 +162,7 @@ public class FindWork extends Plan {
   
   
   public void cancelApplication() {
-    if (! canApply()) return;
+    if (employer == null || position == null) return;
     employer.staff().setApplicant(this, false);
   }
   
@@ -274,27 +274,27 @@ public class FindWork extends Plan {
     //  The basic idea here is to partially 'mix in' the appeal of money (or
     //  financial desperation) when considering whether to take a job you
     //  otherwise dislike.
-    final float salary    = Career.defaultSalary(position);
     final float baseGreed = actor.motives.greedPriority(
-      salary / Backgrounds.NUM_DAYS_PAY
+      position.defaultSalary / Backgrounds.NUM_DAYS_PAY
     ) / Plan.ROUTINE;
     final float greedFactor = ((rating + 1) / 2) * baseGreed;
     rating += greedFactor - 1;
     if (report) {
-      I.say("  New salary: "+salary);
-      I.say("  Old salary: "+Career.defaultSalary(actor.vocation()));
+      I.say("  New salary: "+position.defaultSalary);
+      I.say("  Old salary: "+actor.vocation().defaultSalary);
       I.say("  Greed is:   "+greedFactor+" (Base "+baseGreed+")");
     }
     //  TODO:  Also impact through area living conditions (or factor that into
     //         hiring costs?)
-    final int
-      numApps = at.staff().applications().size(),
-      MA      = (int) BaseCommerce.MAX_APPLICANTS;
-    rating *= 1f / (1 + (numApps / MA));
-    if (report) {
-      I.say("  Total/max applicants: "+numApps+"/"+MA);
-      I.say("  Final rating:         "+rating);
+    final List <FindWork> allApps = at.staff().applications();
+    if (! allApps.includes(this)) {
+      final int
+        numApps = at.staff().applications().size(),
+        MA      = (int) BaseCommerce.MAX_APPLICANTS;
+      rating -= numApps / MA;
+      if (report) I.say("  Total/max applicants: "+numApps+"/"+MA);
     }
+    if (report) I.say("  Final rating:         "+rating);
     return rating;
   }
   
@@ -328,7 +328,7 @@ public class FindWork extends Plan {
     
     //  TODO:  Allow the player to set wages in a similar manner to setting
     //  goods' import/export levels.
-    guildFees += Career.defaultSalary(position);
+    guildFees += position.defaultSalary;
     if (guildFees == 0) return 0;
     
     if (actor.inWorld()) {
