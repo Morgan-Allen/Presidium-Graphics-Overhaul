@@ -15,7 +15,7 @@ import static com.badlogic.gdx.graphics.Texture.TextureFilter.*;
 //  TODO:  There's a potential fail-condition here in situations where more
 //  than the MAX_CACHED number of composites are supposed to be displayed on-
 //  screen at once.  Not likely, but possible.  Find a more graceful way to
-//  handle it.
+//  handle this.
 
 public class Composite {
   

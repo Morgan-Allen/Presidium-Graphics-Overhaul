@@ -27,8 +27,8 @@ public class ServiceHatch extends Venue {
   );
   
   final static VenueProfile PROFILE = new VenueProfile(
-    ServiceHatch.class, "service_hatch",
-    2, 1, ENTRANCE_NONE
+    ServiceHatch.class, "service_hatch", "Service Hatch",
+    2, 1, ENTRANCE_NONE, Bastion.PROFILE
   );
   
   
@@ -68,11 +68,6 @@ public class ServiceHatch extends Venue {
     return
       "Service Hatches provide additional life support and help to combat "+
       "squalor, but can also allow entry to dangerous vermin.";
-  }
-  
-  
-  public String fullName() {
-    return "Service Hatch";
   }
   
   

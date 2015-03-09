@@ -45,8 +45,8 @@ public class Fabricator extends Venue {
   ;
   
   final static VenueProfile PROFILE = new VenueProfile(
-    Fabricator.class, "fabricator",
-    3, 2, ENTRANCE_WEST,
+    Fabricator.class, "fabricator", "Fabricator",
+    3, 2, ENTRANCE_WEST, StockExchange.PROFILE,
     LCHC_TO_PLASTICS, PLASTICS_TO_DECOR
   );
   
@@ -191,11 +191,6 @@ public class Fabricator extends Venue {
   
   public Composite portrait(BaseUI UI) {
     return Composite.withImage(ICON, "fabricator");
-  }
-  
-  
-  public String fullName() {
-    return "Fabricator";
   }
   
   

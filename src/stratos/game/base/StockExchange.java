@@ -49,8 +49,8 @@ public class StockExchange extends Venue {
     );
   
   final static VenueProfile PROFILE = new VenueProfile(
-    StockExchange.class, "stock_exchange",
-    4, 1, ENTRANCE_SOUTH
+    StockExchange.class, "stock_exchange", "Stock Exchange",
+    4, 1, ENTRANCE_SOUTH, null
   );
   
   private float catalogueSums[] = new float[ALL_STOCKED.length];
@@ -328,11 +328,6 @@ public class StockExchange extends Venue {
   protected float goodDisplayAmount(Traded good) {
     final float CL = catalogueLevel(good);
     return Nums.min(super.goodDisplayAmount(good), 25 * CL);
-  }
-  
-  
-  public String fullName() {
-    return "Stock Exchange";
   }
   
   

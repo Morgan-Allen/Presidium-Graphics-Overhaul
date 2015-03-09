@@ -65,8 +65,8 @@ public class Edifice extends Venue {
     STYLE_SURREALISTIC   = 2;
   
   final static VenueProfile PROFILE = new VenueProfile(
-    Edifice.class, "edifice",
-    3, 2, ENTRANCE_NONE
+    Edifice.class, "edifice", "Edifice",
+    3, 2, ENTRANCE_NONE, Fabricator.PROFILE
   );
   
   int eventCode = -1, styleCode = -1;
@@ -124,11 +124,6 @@ public class Edifice extends Venue {
 
   /**  Rendering and interface methods-
     */
-  public String fullName() {
-    return "Edifice";
-  }
-  
-  
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
     return VenuePane.configSimplePanel(this, panel, UI, null);
   }

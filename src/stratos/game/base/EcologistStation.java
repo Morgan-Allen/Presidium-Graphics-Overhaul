@@ -46,8 +46,8 @@ public class EcologistStation extends Venue {
   final static int EXTRA_CLAIM_SIZE = 4;
   
   final static VenueProfile PROFILE = new VenueProfile(
-    EcologistStation.class, "ecologist_station",
-    4, 3, ENTRANCE_EAST
+    EcologistStation.class, "ecologist_station", "Ecologist Station",
+    4, 3, ENTRANCE_EAST, null
   );
   
   
@@ -251,9 +251,6 @@ public class EcologistStation extends Venue {
   }
   
   
-  public String fullName() { return "Ecologist Station"; }
-  
-  
   public String helpInfo() {
     return
       "Ecologist Stations are responsible for agriculture and forestry, "+
@@ -265,26 +262,3 @@ public class EcologistStation extends Venue {
     return InstallTab.TYPE_ECOLOGIST;
   }
 }
-
-
-
-  /*
-  final static float GOOD_DISPLAY_OFFSETS[] = {
-    0.0f, 1.0f,
-    0.0f, 0.0f,
-    0.5f, 0.0f,
-    1.0f, 0.0f,
-  };
-  
-  protected float goodDisplayAmount(Traded good) {
-    if (good == GENE_SEED) return stocks.amountOf(good) > 0 ? 5 : 0;
-    return super.goodDisplayAmount(good);
-  }
-  
-  
-  protected float[] goodDisplayOffsets() {
-    return GOOD_DISPLAY_OFFSETS;
-  }
-  //*/
-  
-  

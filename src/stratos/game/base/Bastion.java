@@ -37,8 +37,8 @@ public class Bastion extends Venue {
     CLAIM_RADIUS = Stage.SECTOR_SIZE / 2;
   
   final static VenueProfile PROFILE = new VenueProfile(
-    Bastion.class, "bastion",
-    7, 4, ENTRANCE_EAST
+    Bastion.class, "bastion", "Bastion",
+    7, 4, ENTRANCE_EAST, null
   );
   
   
@@ -315,9 +315,6 @@ public class Bastion extends Venue {
   public Composite portrait(BaseUI UI) {
     return Composite.withImage(ICON, "bastion");
   }
-  
-  
-  public String fullName() { return "Bastion"; }
   
   
   public String helpInfo() {

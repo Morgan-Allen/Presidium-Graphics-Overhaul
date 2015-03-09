@@ -464,11 +464,6 @@ public class Nest extends Venue {
   
   /**  Rendering and interface methods-
     */
-  public String fullName() {
-    return species.name+" Nest";
-  }
-  
-  
   public Composite portrait(BaseUI UI) {
     return null;
   }

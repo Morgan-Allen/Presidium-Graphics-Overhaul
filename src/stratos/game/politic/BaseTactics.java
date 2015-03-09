@@ -31,7 +31,7 @@ public class BaseTactics {
   
   protected static boolean
     updatesVerbose = false,
-    shortWaiting   = true ,
+    shortWaiting   = false,
     extraVerbose   = false;
   protected static String
     verboseBase    = Base.KEY_ARTILECTS;

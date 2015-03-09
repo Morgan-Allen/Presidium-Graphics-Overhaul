@@ -15,7 +15,9 @@ import stratos.util.*;
 
 
 //  TODO:  Allow the player to control access to a given area by restricting
-//  what kind of personnel are allowed through given doors?
+//  what kind of personnel are allowed through given doors.
+
+//  *  Specify by base, or by social class, or by guild, or by activity?
 
 //  Actually, it might be better to make that area-specific, rather than door-
 //  specific (i.e, only available once you enclose an area, and automatically
@@ -29,8 +31,8 @@ public class BlastDoors extends ShieldWall implements TileConstants {
   /**  Fields, constants, constructors and save/load methods-
     */
   final static VenueProfile PROFILE = new VenueProfile(
-    BlastDoors.class, "blast_doors",
-    4, 2, ENTRANCE_NONE
+    BlastDoors.class, "blast_doors", "Blast Doors",
+    4, 2, ENTRANCE_NONE, TrooperLodge.PROFILE
   );
   
   
@@ -115,11 +117,6 @@ public class BlastDoors extends ShieldWall implements TileConstants {
   
   /**  Rendering and interface methods-
     */
-  public String fullName() {
-    return "Blast Doors";
-  }
-
-
   public Composite portrait(BaseUI UI) {
     return Composite.withImage(ShieldWall.ICON, "blast_doors");
   }

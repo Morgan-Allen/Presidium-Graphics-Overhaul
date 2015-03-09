@@ -128,11 +128,6 @@ public class NativeHall extends NativeHut implements Performance.Theatre {
   
   /**  Rendering and interface-
     */
-  public String fullName() {
-    return "Chief's Hall";
-  }
-  
-  
   public Composite portrait(BaseUI UI) {
     return super.portrait(UI);
   }
@@ -145,62 +140,5 @@ public class NativeHall extends NativeHut implements Performance.Theatre {
       "such as arranging marriage, arbitrating dispute or mounting raids.";
   }
 }
-
-
-
-
-
-
-
-
-/*
-  /**  Placement of natives-
-    */
-  
-  
-  /*
-  public void populateWithNatives(int tribeID) {
-    float meadowed = (1 + totalFertility) / 2f;
-    final int
-      numMajorHuts = (int) ((meadowed * numMajor) + 0.5f),
-      numMinorHuts = (int) ((meadowed * numMinor) + 0.5f);
-    I.say("Major/minor huts: "+numMajorHuts+"/"+numMinorHuts);
-    
-    final Base base = world.baseWithName("Natives", true, true);
-    
-    for (int n = numMajorHuts + numMinorHuts; n-- > 0;) {
-      final int SS = World.SECTOR_SIZE;
-      Coord pos = findBasePosition(null, 1);
-      I.say("Huts site at: "+pos);
-      final Tile centre = world.tileAt(
-        (pos.x + 0.5f) * SS,
-        (pos.y + 0.5f) * SS
-      );
-      final boolean minor = n < numMinorHuts;
-      int maxHuts = (minor ? 4 : 2) + Rand.index(3);
-      final Batch <Venue> huts = new Batch <Venue> ();
-      
-      final NativeHall hall = NativeHut.newHall(tribeID, base);
-      Placement.establishVenue(hall, centre.x, centre.y, true, world);
-      if (hall.inWorld()) huts.add(hall);
-      
-      while (maxHuts-- > 0) {
-        final NativeHut r = NativeHut.newHut(hall);
-        Placement.establishVenue(r, centre.x, centre.y, true, world);
-        if (r.inWorld()) huts.add(r);
-      }
-      
-      populateNatives(huts, minor);
-    }
-  }
-  
-  
-  //*/
-
-//*/
-
-
-
-
 
 

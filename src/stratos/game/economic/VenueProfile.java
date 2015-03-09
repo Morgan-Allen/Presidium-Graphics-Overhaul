@@ -27,7 +27,10 @@ import java.lang.reflect.*;
   final public Background careers  [];
   final public Conversion services [];
   //*/
-  
+
+//  TODO:  Get rid of entry-face and allow structures being placed to find
+//  their own.
+ 
 
 public class VenueProfile extends Index.Entry implements Session.Saveable {
   
@@ -35,21 +38,27 @@ public class VenueProfile extends Index.Entry implements Session.Saveable {
   final public static Index <VenueProfile> INDEX = new Index <VenueProfile> ();
   
   final public Class <? extends Venue> baseClass;
+  final public String name;
+  
+  final public VenueProfile required[];
   final public int size, high, entryFace;
   final public Conversion processed[];
-  
-  
-  //  TODO:  Have more of these, and specify within constructor.  Obviously...
   final public int maxIntegrity = Structure.DEFAULT_INTEGRITY;
   
+  
   public VenueProfile(
-    Class <? extends Venue> baseClass, String key,
-    int size, int high, int entryFace,
-    
+    Class <? extends Venue> baseClass, String key, String name,
+    int size, int high, int entryFace,  //  TODO:  GET RID OF ENTRY FACE!
+    VenueProfile required,
     Conversion... processed
   ) {
     super(INDEX, key);
     this.baseClass = baseClass;
+    
+    this.name = name;
+    this.required = required == null ?
+      new VenueProfile[0] :
+      new VenueProfile[] { required };
     
     this.size = size;
     this.high = high;
@@ -119,8 +128,7 @@ public class VenueProfile extends Index.Entry implements Session.Saveable {
   /**  Interface and debugging-
     */
   public String toString() {
-    //  TODO:  SPECIFY THE NAME FIELD HERE!
-    return baseClass.getSimpleName();
+    return name;
   }
 }
 

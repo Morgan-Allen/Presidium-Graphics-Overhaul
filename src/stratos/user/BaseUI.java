@@ -42,9 +42,10 @@ public class BaseUI extends HUD implements UIConstants {
   private CommsPanel commsPanel;
   //private PlanetPanel planetPanel;
   //private StarsPanel  starsPanel ;  //Just use the homeworld.
+  
   private Button commsButton;
   private Button optionsButton;
-  //  planetButton;
+  private Button buildButton;
   
   
   private UIGroup panelArea, infoArea;
@@ -177,7 +178,7 @@ public class BaseUI extends HUD implements UIConstants {
     //  TODO:  You'll need to find some way to re-do this.  Set up blank tabs
     //         at least, and remember the contents!
     //quickbar.setupPowersButtons();
-    quickbar.setupInstallButtons();
+    //quickbar.setupInstallButtons();
   }
   
   
@@ -185,27 +186,25 @@ public class BaseUI extends HUD implements UIConstants {
     
     final int PTS = PANEL_TAB_SIZE, HS = PTS / 2;
     
-    this.commsPanel = new CommsPanel(this);
-    this.commsButton = new Button(
-      this,
-      CommsPanel.COMMS_ICON.asTexture(),
-      CommsPanel.COMMS_ICON_LIT.asTexture(),
-      "messages"
-    ) {
-      protected void whenClicked() {
-        setInfoPanels(commsPanel, null);
-      }
-    };
-    commsButton.stretch = false;
-    commsButton.alignTop(0, PTS);
-    commsButton.alignLeft(MINIMAP_WIDE + HS - (PTS * 2), PTS);
-    commsButton.attachTo(this);
-    
     this.optionsButton = GameOptionsPane.createButton(this, scenario);
     optionsButton.stretch = false;
     optionsButton.alignTop(0, PTS);
     optionsButton.alignLeft(MINIMAP_WIDE + HS - (PTS * 1), PTS);
     optionsButton.attachTo(this);
+    
+    this.commsPanel = new CommsPanel(this);
+    this.commsButton = CommsPanel.createButton(this, commsPanel);
+    commsButton.stretch = false;
+    commsButton.alignTop(0, PTS);
+    commsButton.alignLeft(MINIMAP_WIDE + HS - (PTS * 2), PTS);
+    commsButton.attachTo(this);
+    
+    this.buildButton = InstallTab.createButton(this);
+    buildButton.stretch = false;
+    buildButton.alignTop(0, PTS);
+    buildButton.alignLeft(MINIMAP_WIDE + HS - (PTS * 3), PTS);
+    buildButton.attachTo(this);
+    
     /*
     this.planetPanel = new PlanetPanel(this);
     this.planetButton = new Button(

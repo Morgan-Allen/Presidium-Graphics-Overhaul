@@ -132,16 +132,16 @@ public class NativeHut extends Venue {
     for (int n = NUM_TRIBES; n-- > 0;) {
       final int tribeID = n;
       allProfiles.add(new VenueProfile(
-        NativeHut.class, "hall_"+tribeID,
-        2, 2, ENTRANCE_SOUTH
+        NativeHut.class, "hall_"+tribeID, "Chief's Hall ("+tribeID+")",
+        2, 2, ENTRANCE_SOUTH, null
       ) {
         public Venue sampleVenue(Base base) {
           return newHall(tribeID, base);
         }
       });
       allProfiles.add(new VenueProfile(
-        NativeHut.class, "hut_"+tribeID,
-        3, 2, ENTRANCE_SOUTH
+        NativeHut.class, "hut_"+tribeID, "Native Hut ("+tribeID+")",
+        3, 2, ENTRANCE_SOUTH, null
       ) {
         public Venue sampleVenue(Base base) {
           return newHut(tribeID, base);
@@ -298,11 +298,6 @@ public class NativeHut extends Venue {
 
   /**  Rendering and interface methods-
     */
-  public String fullName() {
-    return "Native Hutment";
-  }
-  
-  
   public Composite portrait(BaseUI UI) {
     return null;
   }

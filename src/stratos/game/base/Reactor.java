@@ -88,8 +88,8 @@ public class Reactor extends Venue {
   ;
   
   final static VenueProfile PROFILE = new VenueProfile(
-    Reactor.class, "reactor",
-    4, 2, ENTRANCE_NORTH,
+    Reactor.class, "reactor", "Reactor",
+    4, 2, ENTRANCE_NORTH, EngineerStation.PROFILE,
     METALS_TO_FUEL, TOPES_TO_ANTIMASS
   );
   
@@ -423,11 +423,6 @@ public class Reactor extends Venue {
     }
     
     return panel;
-  }
-  
-  
-  public String fullName() {
-    return "Reactor";
   }
   
   

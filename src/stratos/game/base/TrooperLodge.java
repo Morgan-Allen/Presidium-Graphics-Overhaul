@@ -29,8 +29,8 @@ public class TrooperLodge extends Venue {
   );
   
   final static VenueProfile PROFILE = new VenueProfile(
-    TrooperLodge.class, "trooper_lodge",
-    4, 3, ENTRANCE_SOUTH
+    TrooperLodge.class, "trooper_lodge", "Trooper Lodge",
+    4, 3, ENTRANCE_SOUTH, Bastion.PROFILE
   );
   
   
@@ -148,11 +148,6 @@ public class TrooperLodge extends Venue {
   
   /**  Rendering and interface methods-
     */
-  public String fullName() {
-    return "Trooper Lodge";
-  }
-  
-  
   public Composite portrait(BaseUI UI) {
     return Composite.withImage(ICON, "garrison");
   }

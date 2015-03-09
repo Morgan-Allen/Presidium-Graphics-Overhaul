@@ -45,8 +45,8 @@ public class Airfield extends Venue {
     );
   
   final static VenueProfile PROFILE = new VenueProfile(
-    Airfield.class, "airfield",
-    6, 3, ENTRANCE_WEST
+    Airfield.class, "airfield", "Airfield",
+    6, 3, ENTRANCE_WEST, StockExchange.PROFILE
   );
   
   private float fuelLevels;
@@ -185,11 +185,6 @@ public class Airfield extends Venue {
     */
   public Composite portrait(BaseUI UI) {
     return Composite.withImage(ICON, "airfield");
-  }
-  
-  
-  public String fullName() {
-    return "Airfield";
   }
   
   

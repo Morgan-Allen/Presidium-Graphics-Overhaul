@@ -41,8 +41,8 @@ public class EngineerStation extends Venue {
   ;
   
   final static VenueProfile PROFILE = new VenueProfile(
-    EngineerStation.class, "engineer_station",
-    3, 2, ENTRANCE_WEST,
+    EngineerStation.class, "engineer_station", "Engineer Station",
+    3, 2, ENTRANCE_WEST, null,
     METALS_TO_PARTS
   );
   
@@ -215,11 +215,6 @@ public class EngineerStation extends Venue {
   
   public Composite portrait(BaseUI UI) {
     return Composite.withImage(ICON, "foundry");
-  }
-
-
-  public String fullName() {
-    return "Engineer Station";
   }
   
   

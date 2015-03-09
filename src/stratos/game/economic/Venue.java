@@ -184,6 +184,14 @@ public abstract class Venue extends Structural implements
       c.structure.beginSalvage();
     }
     
+    //  TODO:  Extend the above to non-venue fixtures as well (instead of the
+    //  procedure below.)
+    for (Tile t : Spacing.perimeter(footprint(), world)) {
+      final Element fringes = t.onTop();
+      if (fringes == null || fringes.owningTier() >= owningTier()) continue;
+      else fringes.exitWorld();
+    }
+    
     world.presences.togglePresence(this, true);
     world.claims.assertNewClaim(this, areaClaimed());
     stocks.onWorldEntry();
@@ -388,6 +396,11 @@ public abstract class Venue extends Structural implements
     */
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
     return VenuePane.configStandardPanel(this, panel, UI, false);
+  }
+  
+  
+  public String fullName() {
+    return profile.name;
   }
   
   

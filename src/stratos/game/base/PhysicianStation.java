@@ -46,8 +46,8 @@ public class PhysicianStation extends Venue {
   ;
   
   final static VenueProfile PROFILE = new VenueProfile(
-    PhysicianStation.class, "physician_station",
-    3, 2, ENTRANCE_EAST,
+    PhysicianStation.class, "physician_station", "Sickbay",
+    3, 2, ENTRANCE_EAST, null,
     REAGENTS_TO_MEDICINE
   );
   
@@ -242,11 +242,6 @@ public class PhysicianStation extends Venue {
     */
   protected Traded[] goodsToShow() {
     return new Traded[] { REAGENTS, MEDICINE };
-  }
-  
-  
-  public String fullName() {
-    return "Sickbay";
   }
   
   

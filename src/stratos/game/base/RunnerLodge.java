@@ -86,8 +86,8 @@ public class RunnerLodge extends Venue {
     CLAIM_SIZE = 8;
   
   final static VenueProfile PROFILE = new VenueProfile(
-    RunnerLodge.class, "runner_lodge",
-    4, 2, ENTRANCE_SOUTH
+    RunnerLodge.class, "runner_lodge", "Runner Market",
+    4, 2, ENTRANCE_SOUTH, StockExchange.PROFILE
   );
   
   private int gangID = GANG_NONE;
@@ -268,11 +268,6 @@ public class RunnerLodge extends Venue {
   
   /**  Rendering and interface-
     */
-  public String fullName() {
-    return "Runner Market";
-  }
-  
-  
   public Composite portrait(BaseUI UI) {
     return Composite.withImage(ICON, "runner_market");
   }

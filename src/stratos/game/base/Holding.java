@@ -57,8 +57,8 @@ public class Holding extends Venue {
   ;
   
   final static VenueProfile PROFILE = new VenueProfile(
-    Holding.class, "holding",
-    2, 2, ENTRANCE_SOUTH,
+    Holding.class, "holding", "Holding",
+    2, 2, ENTRANCE_SOUTH, Bastion.PROFILE,
     PROVIDE_HOUSING
   );
   
@@ -470,24 +470,6 @@ public class Holding extends Venue {
   public Composite portrait(BaseUI UI) {
     return Composite.withImage(ICONS[upgradeLevel], "holding"+upgradeLevel);
   }
-  
-  
-  /*
-  public void renderSelection(Rendering rendering, boolean hovered) {
-    if (destroyed() || ! inWorld()) return;
-    //  TODO:  Add holding-extras to the structural group!
-    
-    final Batch <Fixture> group = new Batch <Fixture> ();
-    group.add(this);
-    for (Fixture f : extras) group.add(f);
-    
-    BaseUI.current().selection.renderTileOverlay(
-      rendering, world,
-      hovered ? Colour.transparency(0.5f) : Colour.WHITE,
-      Selection.SELECT_OVERLAY, this.h, true, group.toArray()
-    );
-  }
-  //*/
   
   
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {

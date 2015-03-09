@@ -57,8 +57,8 @@ public class Smelter extends Venue {
   final public static int SMELT_AMOUNT = 10;
   
   final static VenueProfile PROFILE = new VenueProfile(
-    Smelter.class, "smelter",
-    4, 2, ENTRANCE_WEST
+    Smelter.class, "smelter", "Smelter",
+    4, 2, ENTRANCE_WEST, ExcavationSite.PROFILE
   );
   
   protected ExcavationSite parent;

@@ -82,8 +82,8 @@ public class Cantina extends Venue implements Performance.Theatre {
     GAMBLE_MARGIN  = 0.2f;
   
   final static VenueProfile PROFILE = new VenueProfile(
-    Cantina.class, "cantina",
-    3, 2, ENTRANCE_EAST
+    Cantina.class, "cantina", "Cantina",
+    3, 2, ENTRANCE_EAST, StockExchange.PROFILE
   );
   
   

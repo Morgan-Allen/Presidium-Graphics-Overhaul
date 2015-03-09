@@ -42,8 +42,8 @@ public class ExcavationSite extends Venue implements TileConstants {
     SMELTER_REFRESH   = 10;
   
   final static VenueProfile PROFILE = new VenueProfile(
-    ExcavationSite.class, "excavation_site",
-    4, 1, ENTRANCE_WEST
+    ExcavationSite.class, "excavation_site", "Excavation Site",
+    4, 1, ENTRANCE_WEST, EngineerStation.PROFILE
   );
   
   
@@ -252,11 +252,6 @@ public class ExcavationSite extends Venue implements TileConstants {
   
   /**  Rendering and interface methods-
     */
-  public String fullName() {
-    return "Excavation Site";
-  }
-  
-  
   public Composite portrait(BaseUI UI) {
     return Composite.withImage(ICON, "excavation_site");
   }

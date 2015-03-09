@@ -18,7 +18,17 @@ public class CommsPanel extends SelectionInfoPane {
       CommsPanel.class, "media/GUI/Panels/comms_tab.png"
     ),
     COMMS_ICON_LIT = Button.CIRCLE_LIT;
-  final static String ALL_CATEGORIES[] = {};
+  
+  
+  public static Button createButton(
+    final BaseUI baseUI, final CommsPanel commsPanel
+  ) {
+    return new Button(baseUI, COMMS_ICON, COMMS_ICON_LIT, "Messages") {
+      protected void whenClicked() {
+        baseUI.setInfoPanels(commsPanel, null);
+      }
+    };
+  }
   
   
   public static interface CommSource extends Session.Saveable {
@@ -37,7 +47,7 @@ public class CommsPanel extends SelectionInfoPane {
   
   
   public CommsPanel(BaseUI UI) {
-    super(UI, null, null, false, ALL_CATEGORIES);
+    super(UI, null, null, false);
   }
   
   

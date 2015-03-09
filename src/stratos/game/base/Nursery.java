@@ -64,8 +64,8 @@ public class Nursery extends Venue implements TileConstants {
   //         demand evaluation.
   
   final static VenueProfile PROFILE = new VenueProfile(
-    Nursery.class, "nursery",
-    2, 2, ENTRANCE_SOUTH
+    Nursery.class, "nursery", "Nursery",
+    2, 2, ENTRANCE_SOUTH, EcologistStation.PROFILE
   );
   
   
@@ -338,11 +338,6 @@ public class Nursery extends Venue implements TileConstants {
   
   public Composite portrait(BaseUI UI) {
     return Composite.withImage(EcologistStation.ICON, "plantation");
-  }
-
-
-  public String fullName() {
-    return "Nursery";
   }
   
   

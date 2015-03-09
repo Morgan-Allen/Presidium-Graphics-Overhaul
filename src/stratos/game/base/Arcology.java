@@ -50,8 +50,8 @@ public class Arcology extends Venue {
     FULL_GROWTH_INTERVAL = Stage.STANDARD_DAY_LENGTH * 5;
   
   final static VenueProfile PROFILE = new VenueProfile(
-    Arcology.class, "arcology",
-    2, 2, ENTRANCE_NONE
+    Arcology.class, "arcology", "Arcology",
+    2, 2, ENTRANCE_NONE, EcologistStation.PROFILE
   );
   
   
@@ -205,9 +205,6 @@ public class Arcology extends Venue {
   public Composite portrait(BaseUI UI) {
     return Composite.withImage(ICON, "arcology");
   }
-  
-  
-  public String fullName() { return "Arcology"; }
   
   
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {

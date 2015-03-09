@@ -51,8 +51,8 @@ public class SolarBank extends Venue {
   };
   
   final static VenueProfile PROFILE = new VenueProfile(
-    SolarBank.class, "solar_bank",
-    2, 2, ENTRANCE_NONE
+    SolarBank.class, "solar_bank", "Solar Bank",
+    2, 2, ENTRANCE_NONE, EcologistStation.PROFILE
   );
   
   
@@ -193,11 +193,6 @@ public class SolarBank extends Venue {
   
   /**  Rendering and interface methods-
     */
-  public String fullName() {
-    return "Solar Bank";
-  }
-
-
   public Composite portrait(BaseUI UI) {
     return Composite.withImage(ICON, "solar_bank");
   }
@@ -221,38 +216,5 @@ public class SolarBank extends Venue {
   }
 }
 
-
-/*
-//  TODO:  Restore this?
-
-protected void configFromAdjacent(boolean[] near, int numNear) {
-  final Tile o = origin();
-  type = TYPE_SOLAR;
-  
-  if (numNear > 0 && numNear <= 2) {
-    if (near[N] || near[S]) {
-      facing = X_AXIS;
-      if (o.y % 8 == 0) {
-        type = TYPE_WIND;
-        attachModel(MODEL_CENTRE);
-      }
-      else attachModel(MODEL_LEFT);
-      return;
-    }
-    if (near[W] || near[E]) {
-      facing = Y_AXIS;
-      if (o.x % 8 == 0) {
-        type = TYPE_WIND;
-        attachModel(MODEL_CENTRE);
-      }
-      else attachModel(MODEL_RIGHT);
-      return;
-    }
-  }
-  
-  facing = CORNER;
-  attachModel(MODEL_RIGHT);
-}
-//*/
 
 

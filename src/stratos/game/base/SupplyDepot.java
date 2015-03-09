@@ -48,8 +48,8 @@ public class SupplyDepot extends Venue {
     );
   
   final static VenueProfile PROFILE = new VenueProfile(
-    SupplyDepot.class, "supply_depot",
-    4, 2, ENTRANCE_NORTH
+    SupplyDepot.class, "supply_depot", "Supply Depot",
+    4, 2, ENTRANCE_NORTH, StockExchange.PROFILE
   );
   
   private List <CargoBarge> barges = new List <CargoBarge> ();
@@ -317,11 +317,6 @@ public class SupplyDepot extends Venue {
 
   public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
     return VenuePane.configStandardPanel(this, panel, UI, true);
-  }
-  
-  
-  public String fullName() {
-    return "Supply Depot";
   }
   
   

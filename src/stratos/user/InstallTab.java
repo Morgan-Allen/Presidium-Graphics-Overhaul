@@ -5,9 +5,6 @@
   */
 
 package stratos.user;
-import com.badlogic.gdx.Input.Keys;
-
-import stratos.game.base.Bastion;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
@@ -16,6 +13,25 @@ import stratos.graphics.widgets.*;
 import stratos.util.*;
 import stratos.game.economic.Inventory.Owner;
 
+import com.badlogic.gdx.Input.Keys;
+
+
+//
+//  TODO:  You need to have the panes drop down, and the categories should
+//  still be visible as optional filters.
+
+//  TODO:  Allow listing of current structures.
+//  TODO:  Allow a general summary of demand for structures of this type.
+//  TODO:  Expand a little on the category-selection system.
+//  TODO:  List the structures that are *allowed* by building X or Y.
+
+//  In an impressions-style game, I generally go to a buildings-panel so I can
+//  construct an entire neighbourhood with many different structure-types.  So
+//  I want to be able to access them all easily at the same time.
+
+//  If I were making gradual, incremental adjustments, then having the tools
+//  for diagnosis and options to construct in the same pane would make sense.
+//  But due to the front-loaded nature of planning, the latter rarely happens.
 
 
 public class InstallTab extends SelectionInfoPane {
@@ -23,6 +39,34 @@ public class InstallTab extends SelectionInfoPane {
   
   /**  Initial background setup-
     */
+  final static ImageAsset GUILD_IMAGE_ASSETS[] = ImageAsset.fromImages(
+    Quickbar.class, BUTTONS_PATH,
+    "militant_category_button.png",
+    "merchant_category_button.png",
+    "aesthete_category_button.png",
+    "artificer_category_button.png",
+    "ecologist_category_button.png",
+    "physician_category_button.png"
+  );
+
+  final static ImageAsset
+    BUILD_ICON = ImageAsset.fromImage(
+      InstallTab.class, "media/GUI/Panels/installations_tab.png"
+    ),
+    BUILD_ICON_LIT = Button.CIRCLE_LIT;
+  
+  public static Button createButton(
+    final BaseUI baseUI
+  ) {
+    final InstallTab buildPanel = new InstallTab(baseUI);
+    return new Button(baseUI, BUILD_ICON, BUILD_ICON_LIT, "Installations") {
+      protected void whenClicked() {
+        baseUI.setInfoPanels(buildPanel, null);
+      }
+    };
+  }
+  
+  
   static class Category {
     String name;
     List <Venue> samples = new List <Venue> ();
@@ -36,8 +80,8 @@ public class InstallTab extends SelectionInfoPane {
   protected static void setupTypes() {
     initCategory(TYPE_SECURITY );
     initCategory(TYPE_COMMERCE );
-    initCategory(TYPE_AESTHETIC );
-    initCategory(TYPE_ENGINEER);
+    initCategory(TYPE_AESTHETIC);
+    initCategory(TYPE_ENGINEER );
     initCategory(TYPE_ECOLOGIST);
     initCategory(TYPE_PHYSICIAN);
     
@@ -70,15 +114,39 @@ public class InstallTab extends SelectionInfoPane {
   
   /**  Interface presented-
     */
-  final Category category;
-  private Class helpShown = null, listShown = null;
+  //private Class listShown = null;
+  private VenueProfile helpFor;
+  private Category category = null;
   
   
-  InstallTab(BaseUI UI, String catName) {
+  InstallTab(BaseUI UI) {
     super(UI, null, true, true);
     if (! setupDone) setupTypes();
-    this.category = categories.get(catName);
+    
+    for (int i = 0; i < NUM_GUILDS; i++) {
+      final String
+        help    = INSTALL_CATEGORIES[i]+" Structures",
+        catName = INSTALL_CATEGORIES[i];
+      
+      final Button button = new Button(UI, GUILD_IMAGE_ASSETS[i], help) {
+        protected void whenClicked() {
+          final BaseUI UI = BaseUI.current();
+          UI.beginPanelFade();
+          final Category match = categories.get(catName);
+          if (match != null && category == match) category = null;
+          else { category = match; helpFor = null; }
+        }
+      };
+      button.stretch = true;
+      final int
+        barW = (INFO_PANEL_WIDE / 2) - (PORTRAIT_SIZE + 20),
+        wide = (int) (barW / INSTALL_CATEGORIES.length);
+      button.alignBottom(10, BAR_BUTTON_SIZE - 10);
+      button.alignLeft  (10 + (wide * i), wide);
+      button.attachTo(innerRegion);
+    }
   }
+
   
   
   final Batch <Structure.Basis> listInstalled(BaseUI UI, Class type) {
@@ -98,70 +166,83 @@ public class InstallTab extends SelectionInfoPane {
   protected void updateText(
     final BaseUI UI, Text headerText, Text detailText, Text listingText
   ) {
-    final String name = category.name;
+    String name = category == null ? "All" : category.name;
+    headerText.setText(name+" Structures");
     detailText .setText("");
-    headerText .setText("");
     listingText.setText("");
     
-    final Series <Venue> sampled = category.samples;
-    if (helpShown == null) helpShown = sampled.first().getClass();
-    final Venue sample = (Venue) Visit.matchFor(helpShown, sampled);
+    final Series <Venue> sampled = new List <Venue> ();
+    for (Category cat : categories.values()) {
+      if (category != null && cat != category) continue;
+      for (Venue sample : cat.samples) {
+        if (checkPrerequisites(sample, UI.played().world) != null) continue;
+        else sampled.add(sample);
+      }
+    }
     
-    final Composite icon      = sample.portrait(UI);
-    final String    typeName  = sample.fullName()  ;
-    final String    typeDesc  = sample.helpInfo()  ;
-    final VenueProfile type = sample.profile;
-    //final Class     type      = sample.getClass()  ;
-
-    headerText.setText(name+" structures");
-    assignPortrait(icon);
-    
-    detailText.append("\n"+typeName+"\n\n");
-    detailText.append(typeDesc, Colour.LITE_GREY);
-    detailText.append("\n\n");
-    detailText.append(new Description.Link("(BUILD)") {
-      public void whenClicked() { initInstallTask(UI, type); }
-    });
-    //  TODO:  Allow listing of current structures.
-    //  TODO:  Allow a general summary of demand for structures of this type.
-    //  TODO:  Give multiple options for listing the various structure types!
-    
-    listingText.append("All Types: \n");
-    for (final Venue other : sampled) {
-      final Composite otherIcon = other.portrait(UI);
-      if (otherIcon == null) continue;
+    if (sampled.size() == 0) {
+      detailText.append("No structures available!");
+    }
+    else for (final Venue sample : sampled) {
+      if (helpFor == null) helpFor = sample.profile;
       
-      listingText.insert(
-        otherIcon.texture(), 40, new Description.Link(other.fullName()) {
+      final Composite otherIcon = sample.portrait(UI);
+      if (otherIcon != null) listingText.insert(
+        otherIcon.texture(), 40, new Description.Link(sample.fullName()) {
           public void whenClicked() {
-            helpShown = other.getClass();
+            helpFor = sample.profile;
           }
         }, false
       );
       listingText.append(" ");
+    }
+    
+    if (helpFor != null) {
+      final Venue sample = helpFor.sampleVenue(UI.played());
+      final Composite icon      = sample.portrait(UI);
+      final String    typeName  = sample.fullName()  ;
+      final String    typeDesc  = sample.helpInfo()  ;
+      final VenueProfile type   = sample.profile;
+      
+      assignPortrait(icon);
+      detailText.append(typeName+"  ");
+      detailText.append(new Description.Link("(BUILD)") {
+        public void whenClicked() { initInstallTask(UI, type); }
+      });
+      
+      detailText.append("\n\n");
+      detailText.append(typeDesc, Colour.LITE_GREY);
+      if (type.required.length > 0) {
+        detailText.appendList("\nRequires: ", (Object[]) type.required);
+      }
     }
   }
   
   
   /**  Getting a listing of current structures-
     */
-  private Batch <Venue> listInstalled(VenueProfile type) {
+  private Batch <Venue> listInstalled(
+    VenueProfile type, Stage world, boolean intact
+  ) {
     final Batch <Venue> installed = new Batch <Venue> ();
-    final Stage world = UI.played().world;
-    
     for (Object o : world.presences.matchesNear(type.baseClass, null, -1)) {
       final Venue v = (Venue) o;
+      if (intact && ! v.structure.intact()) continue;
       if (v.base() == UI.played()) installed.add(v);
     }
     return installed;
   }
   
   
-  private String checkPrerequisites(Venue sample, VenueProfile type) {
+  //  TODO:  Grey out/remove any venues for which this check fails.
+  private String checkPrerequisites(Venue sample, Stage world) {
     if (sample.owningTier() == Owner.TIER_UNIQUE) {
-      if (listInstalled(type).size() > 0) {
+      if (listInstalled(sample.profile, world, false).size() > 0) {
         return "You cannot have more than one "+sample;
       }
+    }
+    for (VenueProfile req : sample.profile.required) {
+      if (listInstalled(req, world, true).size() == 0) return "Requires "+req;
     }
     return null;
   }
@@ -217,7 +298,7 @@ public class InstallTab extends SelectionInfoPane {
       findPlacePointFrom(picked, 2);
       if (! onStage) return;
       
-      if ((message = checkPrerequisites(toInstall, type)) != null) {
+      if ((message = checkPrerequisites(toInstall, picked.world)) != null) {
         canPlace = false;
       }
       if (UI.played().finance.credits() < toInstall.structure().buildCost()) {

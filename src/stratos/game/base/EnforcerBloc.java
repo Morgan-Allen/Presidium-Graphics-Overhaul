@@ -31,18 +31,9 @@ public class EnforcerBloc extends Venue {
     EnforcerBloc.class, "media/GUI/Buttons/audit_office_button.gif"
   );
   
-  /*
-  final static FacilityProfile PROFILE = new FacilityProfile(
-    EnforcerBloc.class, Structure.TYPE_VENUE,
-    3, 450, 4, 0,
-    new TradeType[] {},
-    new Background[] { ENFORCER },
-    SERVICE_SECURITY
-  );
-  //*/
   final static VenueProfile PROFILE = new VenueProfile(
-    EnforcerBloc.class, "enforcer_bloc",
-    3, 3, ENTRANCE_EAST
+    EnforcerBloc.class, "enforcer_bloc", "Enforcer Bloc",
+    3, 3, ENTRANCE_EAST, Bastion.PROFILE
   );
   
   
@@ -145,11 +136,6 @@ public class EnforcerBloc extends Venue {
   
   /**  Rendering and interface methods-
     */
-  public String fullName() {
-    return "Enforcer Bloc";
-  }
-  
-  
   public Composite portrait(BaseUI UI) {
     return Composite.withImage(ICON, "enforcer_bloc");
   }

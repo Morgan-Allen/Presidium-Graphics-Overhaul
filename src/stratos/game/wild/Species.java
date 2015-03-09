@@ -114,7 +114,8 @@ public abstract class Species extends Background {
     int size, int high, int entryFace, final Species s, final ModelAsset model
   ) {
     return new VenueProfile(
-      Nest.class, s.name+"_nest", size, high, entryFace
+      Nest.class, s.name+"_nest", s.name+" Nest",
+      size, high, entryFace, null
     ) {
       public Venue sampleVenue(Base base) {
         return new Nest(this, base, s, model);

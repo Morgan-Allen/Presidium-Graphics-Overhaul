@@ -42,8 +42,8 @@ public class FormerPlant extends Venue {
   );
   
   final static VenueProfile PROFILE = new VenueProfile(
-    FormerPlant.class, "former_plant",
-    3, 2, ENTRANCE_EAST
+    FormerPlant.class, "former_plant", "Former Plant",
+    3, 2, ENTRANCE_EAST, EcologistStation.PROFILE
   );
   
   
@@ -379,11 +379,6 @@ public class FormerPlant extends Venue {
   
   protected float goodDisplayAmount(Traded good) {
     return Nums.min(5, stocks.amountOf(good));
-  }
-  
-  
-  public String fullName() {
-    return "Former Plant";
   }
   
   

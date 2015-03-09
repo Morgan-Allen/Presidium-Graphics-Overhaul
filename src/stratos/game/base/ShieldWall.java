@@ -80,8 +80,8 @@ public class ShieldWall extends Venue {
   };
   
   final static VenueProfile PROFILE = new VenueProfile(
-    ShieldWall.class, "shield_wall",
-    2, 2, ENTRANCE_NONE
+    ShieldWall.class, "shield_wall", "Shield Wall",
+    2, 2, ENTRANCE_NONE, TrooperLodge.PROFILE
   );
   
   private Boarding entrances[] = null;
@@ -478,7 +478,7 @@ public class ShieldWall extends Venue {
   
   
   public String fullName() {
-    return isTower() ? "Sentry Post" : "Shield Wall";
+    return isTower() ? "Sentry Post" : super.fullName();
   }
   
   

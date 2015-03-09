@@ -49,20 +49,10 @@ public class Archives extends Venue {
   ;
   
   final static VenueProfile PROFILE = new VenueProfile(
-    Archives.class, "archives",
-    3, 2, ENTRANCE_SOUTH,
+    Archives.class, "archives", "Archives",
+    3, 2, ENTRANCE_SOUTH, PhysicianStation.PROFILE,
     PARTS_TO_DATALINKS
   );
-  
-  /*
-  final public static FacilityProfile PROFILE = new FacilityProfile(
-    Archives.class, Structure.TYPE_VENUE,
-    3, 200, 3, 7,
-    new TradeType[] {},
-    new Background[] { ARCHIVE_SAVANT },
-    Economy.CIRCUITRY_TO_DATALINKS
-  );
-  //*/
   
   
   public Archives(Base base) {
@@ -137,11 +127,6 @@ public class Archives extends Venue {
   
   /**  Rendering and interface methods-
     */
-  public String fullName() {
-    return "Archives";
-  }
-  
-  
   public Composite portrait(BaseUI UI) {
     return Composite.withImage(ICON, "archives");
   }

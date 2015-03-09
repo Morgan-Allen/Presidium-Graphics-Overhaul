@@ -24,8 +24,8 @@ public class Condensor extends Venue {
   );
   
   final static VenueProfile PROFILE = new VenueProfile(
-    Condensor.class, "condensor",
-    3, 2, ENTRANCE_NONE
+    Condensor.class, "condensor", "Condensor",
+    3, 2, ENTRANCE_NONE, SolarBank.PROFILE
   );
   
   
@@ -79,11 +79,6 @@ public class Condensor extends Venue {
   
   /**  Rendering and interface methods-
     */
-  public String fullName() {
-    return "Condensor";
-  }
-  
-  
   public Composite portrait(BaseUI UI) {
     return Composite.withImage(ICON, "condensor");
   }

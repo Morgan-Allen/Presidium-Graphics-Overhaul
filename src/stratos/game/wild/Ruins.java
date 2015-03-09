@@ -63,8 +63,8 @@ public class Ruins extends Venue {
   static {
     VENUE_PROFILES = new VenueProfile[1];
     VENUE_PROFILES[0] = new VenueProfile(
-      Ruins.class, "ruins",
-      4, 2, ENTRANCE_EAST
+      Ruins.class, "ruins", "Ancient Ruins",
+      4, 2, ENTRANCE_EAST, null
     ) {
       public Venue sampleVenue(Base base) {
         final Venue sample = new Ruins(base);
@@ -152,11 +152,6 @@ public class Ruins extends Venue {
   
   /**  Rendering and interface methods-
     */
-  public String fullName() {
-    return "Ancient Ruins";
-  }
-  
-  
   public Composite portrait(BaseUI UI) {
     return null;
   }
