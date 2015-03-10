@@ -223,10 +223,7 @@ public class Stage {
     if (secChange && I.logEvents()) I.say("\nTime is "+currentTime);
     
     for (Base base : bases) {
-      base.transport.checkConsistency();
-      if (secChange) {
-        base.intelMap.updateFogValues();
-      }
+      if (secChange) base.intelMap.updateFogValues();
     }
     
     schedule.advanceSchedule(currentTime);

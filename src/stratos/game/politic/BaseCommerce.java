@@ -25,7 +25,7 @@ public class BaseCommerce {
   /**  Field definitions, constructor, save/load methods-
     */
   private static boolean
-    verbose        = true ,
+    verbose        = false,
     extraVerbose   = false,
     migrateVerbose = verbose && true ,
     tradeVerbose   = verbose && true ;
@@ -433,9 +433,7 @@ public class BaseCommerce {
   
   private void refreshShip(boolean forLanding) {
     final boolean report = verbose && base == BaseUI.current().played();
-    if (report) {
-      I.say("\nREFRESHING SHIP: "+ship);
-    }
+    if (report) I.say("\nREFRESHING SHIP: "+ship);
     
     if (ship == null || ship.destroyed()) {
       if (report) I.say("  New ship required!");

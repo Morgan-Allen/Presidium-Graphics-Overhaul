@@ -3,6 +3,7 @@
 package stratos.game.maps;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.user.BaseUI;
 import stratos.util.*;
 import static stratos.game.maps.StageTerrain.*;
 
@@ -48,16 +49,9 @@ public class PavingMap {
   /**  Modifier methods-
     */
   public void flagForPaving(Tile t, boolean is) {
-    
     final byte c = (roadCounter[t.x][t.y] += is ? 1 : -1);
     if (c < 0) I.complain("CANNOT HAVE NEGATIVE ROAD COUNTER: "+t);
-    
-    final boolean flag = needsPaving(t);
-    flagMap.set((byte) (flag ? 1 : 0), t.x, t.y);
-    
-    if (GameSettings.paveFree) {
-      setPaveLevel(t, c > 0 ? ROAD_LIGHT : ROAD_NONE, is);
-    }
+    refreshPaving(t);
   }
   
   
@@ -67,29 +61,29 @@ public class PavingMap {
   }
   
   
+  public boolean isFlagged(Tile t) {
+    return flagMap.getBaseValue(t.x, t.y) != 0;
+  }
+  
+  
   public boolean refreshPaving(Tile tiles[]) {
-    for (Tile t : tiles) if (! t.reserved()) {
-      final byte c = roadCounter[t.x][t.y];
-      
-      final boolean flag = needsPaving(t);
-      flagMap.set((byte) (flag ? 1 : 0), t.x, t.y);
-      
-      if (GameSettings.paveFree) {
-        setPaveLevel(t, c > 0 ? ROAD_LIGHT : ROAD_NONE, true);
-      }
-    }
+    for (Tile t : tiles) if (! t.reserved()) refreshPaving(t);
     return true;
   }
   
   
-  protected void updateFlags(Tile t) {
+  public void refreshPaving(Tile t) {
     final boolean flag = needsPaving(t);
+    final byte c = roadCounter[t.x][t.y];
+    if (GameSettings.paveFree) {
+      setPaveLevel(t, c > 0 ? ROAD_LIGHT : ROAD_NONE, true);
+    }
     flagMap.set((byte) (flag ? 1 : 0), t.x, t.y);
   }
   
 
   public static void setPaveLevel(Tile t, byte level, boolean clear) {
-    if (level > ROAD_NONE && t.onTop() != null && clear) {
+    if (clear && level > ROAD_NONE && t.onTop() != null) {
       t.onTop().setAsDestroyed();
     }
     t.world.terrain().setRoadType(t, level);
@@ -106,9 +100,18 @@ public class PavingMap {
   }
   
   
-  public static boolean pavingReserved(Tile t) {
+  public boolean needsPaving(Tile t) {
+    final byte c = roadCounter[t.x][t.y];
+    final boolean road = isRoad(t);
+    if (c > 0 && ! road) return true;
+    if (road && ! pavingReserved(t, false)) return true;
+    return false;
+  }
+  
+  
+  public static boolean pavingReserved(Tile t, boolean alreadyPaved) {
     final Stage world = t.world;
-    if (isRoad(t)) return true;
+    if (alreadyPaved && isRoad(t)) return true;
     for (Base b : world.bases()) {
       if (b.transport.map.roadCounter(t) > 0) return true;
     }
@@ -116,20 +119,23 @@ public class PavingMap {
   }
   
   
-  public boolean needsPaving(Tile t) {
-    //  If flagged positive by *your own* base, and unpaved, return true.
-    if (roadCounter[t.x][t.y] > 0 && ! isRoad(t)) return true;
-    //  If paved and flagged negative by *all* bases, return true.
-    if (! isRoad(t) && pavingReserved(t)) return true;
-    //  Otherwise return false.
-    return false;
-  }
   
-
   /**  Search method for getting the next tile that needs paving...
     */
-  
   private boolean refreshed = false;
+  
+  
+  public static void cleanupAllRoads(Stage world) {
+    for (Tile t : world.tilesIn(world.area(), false)) {
+      if (PavingMap.pavingReserved(t, false)) {
+        PavingMap.setPaveLevel(t, StageTerrain.ROAD_LIGHT, true );
+      }
+      else {
+        PavingMap.setPaveLevel(t, StageTerrain.ROAD_NONE , false);
+      }
+    }
+  }
+  
   
   public void refreshFlags() {
     if (refreshed) return;
@@ -165,7 +171,7 @@ public class PavingMap {
         I.say("\nWARNING: GOT TILE WHICH DOES NOT NEED PAVING: "+t);
         I.say("  Flagged value? "+flagMap.getTotalAt(t.x, t.y, 0));
       }
-      updateFlags(t);
+      refreshPaving(t);
       return null;
     }
     if (report) I.say("Next tile to pave: "+t);

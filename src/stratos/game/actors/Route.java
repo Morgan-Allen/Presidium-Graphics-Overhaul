@@ -16,9 +16,8 @@ public class Route {
   final public Tile start, end;
   final private int hash;
   
-  public Tile path[];
-  public float cost;
-  //public int useCounter = 0;
+  public Tile path[] = null;
+  public float cost = 0;
   
   
   public static void saveRoute(Route r, Session s) throws Exception {
@@ -113,6 +112,11 @@ public class Route {
     return "Route between "+start+" and "+end;
   }
 }
+
+
+
+
+
 
 
 

@@ -324,7 +324,7 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     final byte oldLevel = paveVals[t.x][t.y];
     paveVals[t.x][t.y] = level;
     
-    for (Base b : t.world.bases()) b.transport.map.updateFlags(t);
+    for (Base b : t.world.bases()) b.transport.map.refreshPaving(t);
     
     if (level != oldLevel) for (Tile n : t.vicinity(tempV)) if (n != null) {
       meshSet.flagUpdateAt(n.x, n.y, roadLayer);

@@ -207,7 +207,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
     priority = Nums.clamp(degree, LIMIT_PRIORITY);
     if (inceptTime == -1) inceptTime = base.world.currentTime();
     if (I.logEvents()) {
-      I.say("\nMISSION ASSIGNED PRIORITY "+priority+" ("+this+")");
+      I.say("\nMISSION ASSIGNED PRIORITY "+priority+" ("+base+" "+this+")");
     }
   }
   
@@ -217,7 +217,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
     this.missionType = type;
     resetMission();
     if (I.logEvents()) {
-      I.say("\nMISSION ASSIGNED TYPE "+missionType+" ("+this+")");
+      I.say("\nMISSION ASSIGNED TYPE "+missionType+" ("+base+" "+this+")");
     }
   }
   
@@ -225,7 +225,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   public void setObjective(int objectIndex) {
     this.objectIndex = objectIndex;
     if (I.logEvents()) {
-      I.say("\nMISSION ASSIGNED OBJECTIVE "+objectIndex+" ("+this+")");
+      I.say("\nMISSION ASSIGNED GOAL ID "+objectIndex+" ("+base+" "+this+")");
     }
   }
   

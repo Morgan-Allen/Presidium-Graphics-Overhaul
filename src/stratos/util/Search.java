@@ -158,6 +158,12 @@ public abstract class Search <T> {
   }
   
   
+  protected float fullCostEstimate(T spot) {
+    final Entry e = spot == null ? null : entryFor(spot);
+    return e == null ? 0 : e.total;
+  }
+  
+  
   public T[] bestPath(Class pathClass) {
     if (bestEntry == null) return null;
     final Batch <T> pathTiles = new Batch <T> ();

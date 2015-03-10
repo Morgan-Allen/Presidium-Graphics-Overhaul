@@ -120,6 +120,7 @@ public class Repairs extends Plan {
       final RoadsRepair r = new RoadsRepair(client, toPave);
       if (asDuty) r.setMotive(Plan.MOTIVE_JOB, Plan.CASUAL);
       choice.add(r);
+      if (report) I.say("  Next tile to pave: "+toPave);
     }
     //
     //  Evaluate the most urgent task and return-

@@ -6,6 +6,7 @@
 package stratos.start;
 import stratos.game.actors.*;
 import stratos.game.common.*;
+import stratos.game.maps.PavingMap;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
@@ -366,7 +367,6 @@ public abstract class Scenario implements Session.Saveable, Playable {
     //         the loop (if applicable.)  You can get nasty bugs otherwise.
     if (nextOp == DO_SAVE_EXIT) {
       saveGame(fullSavePath(savesPrefix, CURRENT_SUFFIX));
-      //PlayLoop.exitLoop();
       return true;
     }
     if (nextOp == DO_SAVE) {
@@ -399,7 +399,6 @@ public abstract class Scenario implements Session.Saveable, Playable {
   
   public void updateGameState() {
     if (world == null) return;
-    
     /*
     if ((! isDebug) && PlayLoop.gameSpeed() < 1) {
       Power.applyTimeDilation(PlayLoop.gameSpeed(), this);

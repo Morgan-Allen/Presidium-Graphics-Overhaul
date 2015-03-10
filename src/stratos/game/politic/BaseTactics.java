@@ -7,6 +7,7 @@ package stratos.game.politic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.plans.CombatUtils;
 import stratos.util.*;
 
 
@@ -175,10 +176,15 @@ public class BaseTactics {
     //  manpower available,) and either begin them or allow them to continue.
     //  Then you simply terminate (or discard) the remainder.
     final Batch <Mission> active = new Batch <Mission> ();
+    final int maxMissions = (int) Nums.clamp(
+      forceStrength * 2f / CombatUtils.MAX_POWER,
+      MIN_MISSIONS, MAX_MISSIONS
+    );
+    
     for (Rating r : sorting) {
       final Mission m = r.mission;
       final boolean begun = missions.includes(m);
-      if (active.size() < MAX_MISSIONS && r.rating > 0) {
+      if (active.size() < maxMissions && r.rating > 0) {
         //
         //  If a distinct mission of this type hasn't been registered yet, then
         //  do so now:
@@ -363,7 +369,7 @@ public class BaseTactics {
     for (Mobile m : base.world.allMobiles()) {
       if (m.base() != base || ! (m instanceof Actor)) continue;
       final Actor a = (Actor) m;
-      est += a.senses.powerLevel();
+      if (! a.destroyed()) est += a.senses.powerLevel();
     }
     //  TODO:  Get ratings for various skill-types relevant to each mission- or
     //  perform some kind of monte-carlo sampling to determine success-odds.

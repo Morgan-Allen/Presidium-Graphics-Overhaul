@@ -24,9 +24,9 @@ public class BaseTransport {
     */
   final static int PATH_RANGE = Stage.SECTOR_SIZE / 2;
   private static boolean
-    paveVerbose      = false,
+    paveVerbose      = true ,
     distroVerbose    = false,
-    checkConsistency = false,
+    checkConsistency = true ,
     extraVerbose     = false;
   
   final Stage world;
@@ -86,8 +86,6 @@ public class BaseTransport {
     //         world...
     if (! checkConsistency) return;
     
-    //I.say("CHECKING PAVING CONSISTENCY:");
-    
     final byte mask[][] = new byte[world.size][world.size];
     boolean okay = true;
     
@@ -111,12 +109,20 @@ public class BaseTransport {
     for (Coord c : Visit.grid(0, 0, world.size, world.size, 1)) {
       final Tile t = world.tileAt(c.x, c.y);
       final int pM = mask[c.x][c.y], tM = map.roadCounter(t);
+      final boolean iR = PavingMap.isRoad(t);
+      final boolean flagged = map.isFlagged(t);
+      
       if (pM != tM) {
-        I.say("Discrepancy at: "+c.x+" "+c.y+", "+pM+" =/= "+tM);
+        I.say("Discrepancy at: "+c+", "+pM+" =/= "+tM);
         okay = false;
       }
+      if (iR != tM > 0 && ! flagged) {
+        I.say("Unflagged discrepancy at "+c+", is road: "+iR+" "+tM);
+        map.refreshPaving(t);
+        I.say("  Flagged now? "+map.isFlagged(t));
+      }
     }
-    //if (okay) I.say("No discrepancies in paving map found.");
+    if (okay) I.say("No discrepancies in paving map found.");
   }
   
   
@@ -229,87 +235,6 @@ public class BaseTransport {
   }
   
   
-  private boolean checkRouteEfficiency(final Route r, Fixture f) {
-    final boolean report = I.talkAbout == f && paveVerbose && extraVerbose;
-    
-    final Tile tempB[] = new Tile[10];
-    final Search <Tile> routeSearch = new Search <Tile> (r.start, 25) {
-      
-      protected Tile[] adjacent(Tile spot) {
-        final List <Route> routes = tileRoutes.get(spot);
-        int i = 0;
-        Tile temp[] = tempB;
-        if (routes != null) {
-          if (routes.size() > 10) temp = new Tile[routes.size()];
-          for (Route r : routes) temp[i++] = r.opposite(spot);
-        }
-        while (i < temp.length) temp[i++] = null;
-        return tempB;
-      }
-      
-      
-      protected boolean endSearch(Tile best) {
-        return best == r.end;
-      }
-      
-      
-      protected float cost(Tile prior, Tile spot) {
-        //  In essence the purpose of this is to favour a series of short hops
-        //  between buildings over roads that leap long distances.
-        float dist = Spacing.distance(prior, spot);
-        dist = dist * dist / 10;
-        if (report) {
-          I.say(
-            "  Getting cost between:"+prior.entranceFor()+
-            " and "+spot.entranceFor()
-          );
-          I.say("    Cost: "+dist);
-        }
-        return dist;
-      }
-      
-      
-      protected float estimate(Tile spot) {
-        //  We also use an 'optimistic' estimate of pathing costs to the end-
-        //  point, so that cost-so-far is weighed more heavily than cost-to-
-        //  come (and which more accurately reflects actual road-transport
-        //  efficiency.)
-        return Spacing.distance(spot, r.end) / 2;
-      }
-      
-      
-      protected void setEntry(Tile spot, Entry flag) {
-        if (report && flag != null) {
-          I.say("  Setting entry for "+spot.entranceFor());
-        }
-        spot.flagWith(flag);
-      }
-      
-      
-      protected Entry entryFor(Tile spot) {
-        return (Entry) spot.flaggedWith();
-      }
-    };
-    
-    if (report) {
-      I.say("\nPerforming junction search between...");
-      I.say("  From: "+r.start.entranceFor());
-      I.say("  To:   "+r.end  .entranceFor());
-    }
-    routeSearch.doSearch();
-    final Tile junctions[] = routeSearch.bestPath(Tile.class);
-    if (report) {
-      I.say("  Final path:");
-      for (Tile t : junctions) I.say("    "+t.entranceFor());
-    }
-    
-    if (junctions != null && junctions.length > 1) {
-      if (r.end != junctions[1]) return false;
-    }
-    return true;
-  }
-  
-  
   public void updateJunction(
     Fixture v, Tile t, Batch <Tile> routesTo, boolean isMember
   ) {
@@ -329,7 +254,7 @@ public class BaseTransport {
       //  Otherwise, establish routes to all the nearby junctions compiled.
       for (Tile jT : routesTo) {
         if (! checkRouteEfficiency(new Route(t, jT), v)) continue;
-        if (report) I.say("  Paving to: "+jT);
+        if (report) I.say("  Routing to: "+jT+" ("+jT.entranceFor()+")");
         routeBetween(t, jT, report);
       }
     }
@@ -337,7 +262,7 @@ public class BaseTransport {
     //  All routes are flagged as obsolete if the fixture is no longer a
     //  map-member.  Either way, any obsolete routes are finally deleted.
     else if (oldRoutes != null) {
-      if (report) I.say("\nDeleting road junction: "+t);
+      if (report) I.say("\nDeleting old routes for: "+v);
       Visit.appendTo(toDelete, oldRoutes);
     }
     for (Route r : toDelete) {
@@ -347,14 +272,95 @@ public class BaseTransport {
   }
   
   
+  private boolean checkRouteEfficiency(final Route r, Fixture f) {
+    final boolean report = I.talkAbout == f && paveVerbose && extraVerbose;
+    
+    final Tile tempB[] = new Tile[10];
+    final Search <Tile> routeSearch = new Search <Tile> (r.start, 25) {
+      
+      protected Tile[] adjacent(Tile spot) {
+        final List <Route> routes = tileRoutes.get(spot);
+        if (report) {
+          I.say("    "+routes.size()+" routes at "+spot.entranceFor());
+        }
+        int i = 0;
+        Tile temp[] = tempB;
+        if (routes != null) {
+          if (routes.size() > 10) temp = new Tile[routes.size()];
+          for (Route r : routes) temp[i++] = r.opposite(spot);
+        }
+        while (i < temp.length) temp[i++] = null;
+        return tempB;
+      }
+      
+      protected boolean endSearch(Tile best) {
+        return best == r.end;
+      }
+      
+      protected float cost(Tile prior, Tile spot) {
+        //  In essence the purpose of this is to favour a series of short hops
+        //  between buildings over roads that leap long distances.
+        float dist = Spacing.distance(prior, spot);
+        dist = dist * dist / 10;
+        if (report) {
+          final Object from = prior.entranceFor(), to = spot.entranceFor();
+          I.say("  Getting cost between:"+from+" and "+to);
+          I.say("    Cost: "+dist);
+        }
+        return dist;
+      }
+      
+      protected float estimate(Tile spot) {
+        //  We also use an 'optimistic' estimate of pathing costs to the end-
+        //  point, so that cost-so-far is weighed more heavily than cost-to-
+        //  come (and which more accurately reflects actual road-transport
+        //  efficiency.)
+        return Spacing.distance(spot, r.end) / 2;
+      }
+      
+      protected void setEntry(Tile spot, Entry flag) {
+        spot.flagWith(flag);
+        if (report && flag != null) {
+          final Object at = spot.entranceFor();
+          I.say("  Total cost to "+at+": "+fullCostEstimate(spot));
+        }
+      }
+      
+      protected Entry entryFor(Tile spot) {
+        return (Entry) spot.flaggedWith();
+      }
+    };
+    
+    float dist = Spacing.distance(r.start, r.end);
+    final float directCost = dist * dist / 10;
+    
+    if (report) {
+      I.say("\nChecking route efficiency between...");
+      I.say("  From: "+r.start.entranceFor());
+      I.say("  To:   "+r.end  .entranceFor());
+    }
+    routeSearch.doSearch();
+    final Tile junctions[] = routeSearch.bestPath(Tile.class);
+    final float fullCost = routeSearch.totalCost();
+    final boolean bestRoute = junctions == null || (fullCost + 1) > directCost;
+    
+    if (report) {
+      I.say("  Final path:");
+      for (Tile t : junctions) I.say("    "+t.entranceFor());
+      I.say("  Path cost:   "+fullCost);
+      I.say("  Direct cost: "+directCost);
+      I.say("  Best route?  "+bestRoute);
+    }
+    return bestRoute;
+  }
+  
+  
   private boolean routeBetween(Tile a, Tile b, boolean report) {
     if (a == b || a == null || b == null) return false;
     //
     //  Firstly, determine the correct current route.
     final Route route = new Route(a, b);
     final RoadSearch search = new RoadSearch(route.start, route.end);
-      //route.start, route.end//, Element.FIXTURE_OWNS
-    //);
     search.doSearch();
     route.path = search.fullPath(Tile.class);
     route.cost = search.totalCost();
@@ -388,6 +394,8 @@ public class BaseTransport {
   
   private void deleteRoute(Route route) {
     if (route.cost < 0) return;
+    I.say("DELETING ROUTE: "+route);
+    
     map.flagForPaving(route.path, false);
     allRoutes.remove(route);
     toggleRoute(route, route.start, false);
