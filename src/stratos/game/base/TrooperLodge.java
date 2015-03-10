@@ -29,7 +29,7 @@ public class TrooperLodge extends Venue {
   );
   
   final static VenueProfile PROFILE = new VenueProfile(
-    TrooperLodge.class, "trooper_lodge", "Trooper Lodge",
+    TrooperLodge.class, "trooper_lodge", "Trooper Barracks",
     4, 3, ENTRANCE_SOUTH, Bastion.PROFILE
   );
   

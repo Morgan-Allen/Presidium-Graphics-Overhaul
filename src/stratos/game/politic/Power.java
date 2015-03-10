@@ -21,8 +21,11 @@ import stratos.util.*;
 //  TODO:  Merge with Techniques for the purpose.
 
 
-public class Power implements Qualities {
+public abstract class Power implements Qualities {
   
+  
+  private static boolean
+    applyVerbose = true ;
   
   final static String
     IMG_DIR = "media/GUI/Powers/",
@@ -47,12 +50,11 @@ public class Power implements Qualities {
   }
   
   
-  public boolean finishedWith(
+  public abstract boolean appliesTo(Actor caster, Target selected);
+  public abstract boolean finishedWith(
     Actor caster, String option,
-    Target selected, boolean clicked
-  ) {
-    return false;
-  }
+    Target selected, Target hovered
+  );
   
   
   public String[] options() {
@@ -197,6 +199,9 @@ public class Power implements Qualities {
   //*/
   
   
+  //  TODO:  You can probably get rid of the Foresight/Remembrance/
+  //  Time Dilation options now.
+  
   
   final public static Power
     
@@ -218,9 +223,13 @@ public class Power implements Qualities {
       }
       //*/
       
+      public boolean appliesTo(Actor caster, Target selected) {
+        return false;
+      }
+      
       public boolean finishedWith(
         Actor caster, String option,
-        Target selected, boolean clicked
+        Target selected, Target hovered
       ) {
         //  TODO:  ADD MORE SPECIAL FX HERE
         Scenario.current().scheduleSave();
@@ -251,9 +260,13 @@ public class Power implements Qualities {
       }
       //*/
       
+      public boolean appliesTo(Actor caster, Target selected) {
+        return false;
+      }
+      
       public boolean finishedWith(
         Actor caster, String option,
-        Target selected, boolean clicked
+        Target selected, Target hovered
       ) {
         //  Clean up arguments to allow garbage collection, and go back in the
         //  timeline-
@@ -282,9 +295,14 @@ public class Power implements Qualities {
       }
       
       
+      public boolean appliesTo(Actor caster, Target selected) {
+        return false;
+      }
+      
+      
       public boolean finishedWith(
         Actor caster, String option,
-        Target selected, boolean clicked
+        Target selected, Target hovered
       ) {
         if (option == null) {
           PlayLoop.setGameSpeed(1);
@@ -302,17 +320,18 @@ public class Power implements Qualities {
     },
     
     REMOTE_VIEWING = new Power(
-      "Remote Viewing", PLAYER_ONLY, "power_remote_viewing.gif",
-      "Grants you an extra-sensory perception of distant places or persons."+
-      "\n(Lifts fog around target terrain.)"
+      "Remote Viewing", PLAYER_ONLY, "power_remote_viewing.png",
+      "Lifts fog around target terrain."
     ) {
+      public boolean appliesTo(Actor caster, Target selected) {
+        return selected instanceof Tile;
+      }
+      
       public boolean finishedWith(
         Actor caster, String option,
-        Target selected, boolean clicked
+        Target selected, Target hovered
       ) {
-        if (clicked != true || ! (selected instanceof Tile)) return false;
         final Tile tile = (Tile) selected;
-        
         float bonus = 0;
         if (caster != null && ! GameSettings.psyFree) {
           bonus += caster.traits.usedLevel(PROJECTION) / 5;
@@ -346,78 +365,108 @@ public class Power implements Qualities {
     },
     
     TELEKINESIS = new Power(
-      "Telekinesis", NONE, "power_telekinesis.gif",
-      "Imparts spatial moment to a chosen material object.\n(Hurls or carries "+
-      "the target in an indicated direction.)"
+      "Telekinesis", NONE, "power_telekinesis.png",
+      "Hurls the target in an indicated direction."
     ) {
-      private Mobile grabbed = null;
       
+      public boolean appliesTo(Actor caster, Target selected) {
+        return
+          selected instanceof Mobile && caster != null &&
+          selected.base() != caster.base();
+      }
       
       public boolean finishedWith(
         Actor caster, String option,
-        Target selected, boolean clicked
+        Target selected, Target hovered
       ) {
-        if (grabbed == null) {
-          if (clicked && selected instanceof Mobile) {
-            grabbed = (Mobile) selected;
-          }
-          return false;
-        }
-        else if (clicked) {
-          grabbed = null;
+        if (BaseUI.current().mouseClicked()) {
+          pushSubject(caster, (Mobile) selected, hovered);
           return true;
         }
-        else return ! pushGrabbed(caster, selected);
+        BaseUI.setPopupMessage("Select throw target");
+        return false;
       }
       
-      
-      private boolean pushGrabbed(Actor caster, Target toward) {
-        if (grabbed == null || toward == null) return false;
-        
-        if (grabbed instanceof Actor) {
-          ((Actor) grabbed).enterStateKO(Action.FALL);
-        }
+      private void pushSubject(Actor caster, Mobile pushed, Target toward) {
+        if (pushed == null || toward == null) return;
+        final boolean report = applyVerbose;
         
         float maxDist = 1;
-        if (caster != null && ! GameSettings.psyFree) {
+        if (! GameSettings.psyFree) {
           maxDist = 1 + (caster.traits.usedLevel(TRANSDUCTION) / 10f);
-          final float drain = 4f / PlayLoop.FRAMES_PER_SECOND;
+          final float drain = 4f;
           caster.health.takeConcentration(drain);
           caster.skills.practiceAgainst(10, drain, TRANSDUCTION);
         }
-        maxDist *= 10f / PlayLoop.FRAMES_PER_SECOND;
-        maxDist /= 4 * grabbed.radius();
+        maxDist *= 10f;
+        maxDist /= 4 * pushed.radius();
         
-        final Vec3D pushed = new Vec3D();
-        toward.position(pushed).sub(grabbed.position(null));
-        if (pushed.length() > maxDist) pushed.normalise().scale(maxDist);
-        pushed.add(grabbed.position(null));
+        final Vec3D thrownTo = new Vec3D();
+        toward.position(thrownTo).sub(pushed.position(null));
+        if (thrownTo.length() > maxDist) thrownTo.normalise().scale(maxDist);
+        final float distance = thrownTo.length();
+        thrownTo.add(pushed.position(null));
         
-        grabbed.setHeading(pushed, -1, false, grabbed.world());
-        grabbed.world().ephemera.updateGhost(
-          grabbed, 1, TELEKINESIS_FX_MODEL, 0.2f
+        if (report) {
+          I.say("\nUsing TK to throw subject: "+pushed+" toward "+toward);
+          I.say("  Toward is at:      "+toward.position(null));
+          I.say("  Maximum distance:  "+maxDist);
+          I.say("  Throwing to:       "+thrownTo+" (distance "+distance+")");
+        }
+        
+        if (pushed instanceof Actor) {
+          final Actor hurt = (Actor) pushed;
+          final Target destination = hurt.pathing.target();
+          float oldDist = 0, newDist = 0;
+          
+          if (destination != null) {
+            oldDist = Spacing.distance(hurt, destination);
+            newDist = destination.position(null).distance(thrownTo);
+          }
+          float injury = distance / 5, dislike = 0;
+          dislike += (newDist - oldDist) / Stage.SECTOR_SIZE;
+          dislike += injury / hurt.health.maxHealth();
+          
+          hurt.enterStateKO(Action.FALL);
+          hurt.health.takeInjury(injury, false);
+          hurt.relations.incRelation(caster, 0 - dislike, 0.2f, 0);
+          
+          if (report) {
+            I.say("  Actor destination: "+destination);
+            I.say("  Old/new distance:  "+oldDist+"/"+newDist);
+            I.say("  Injury dealt:      "+injury);
+            I.say("  Dislike:           "+dislike);
+          }
+          if (dislike > 0 && hurt.base() == caster.base()) {
+            hurt.chat.addPhrase("Whoa!  Stop doing that!", TalkFX.FROM_LEFT);
+          }
+        }
+        
+        pushed.setHeading(thrownTo, -1, false, pushed.world());
+        pushed.world().ephemera.updateGhost(
+          pushed, 1, TELEKINESIS_FX_MODEL, 0.2f
         );
-        return true;
       }
     },
     
     FORCEFIELD = new Power(
-      "Forcefield", MAINTAINED, "power_forcefield.gif",
-      "Encloses the subject in a selectively permeable suspension barrier.\n"+
-      "(Temporarily raises shields on target.)"
+      "Forcefield", MAINTAINED, "power_forcefield.png",
+      "Temporarily raises shields on target."
     ) {
+      public boolean appliesTo(Actor caster, Target selected) {
+        return selected instanceof Actor;
+      }
+      
       public boolean finishedWith(
         Actor caster, String option,
-        Target selected, boolean clicked
+        Target selected, Target hovered
       ) {
-        if (clicked != true || ! (selected instanceof Actor)) return false;
         final Actor subject = (Actor) selected;
         
         if (caster == null || GameSettings.psyFree) {
           subject.gear.boostShields(5, false);
           return true;
         }
-        ///I.say("BOOSTING SHIELDS FOR "+selected);
         
         final float
           bonus = caster.traits.usedLevel(TRANSDUCTION) / 2,
@@ -430,15 +479,18 @@ public class Power implements Qualities {
     },
     
     SUSPENSION = new Power(
-      "Suspension", MAINTAINED, "power_suspension.gif",
-      "Suspends metabolic function in subject.\n(Can be used to arrest "+
-      "injury or incapacitate foes.)"
+      "Suspension", MAINTAINED, "power_suspension.png",
+      "Puts subject into suspended animation.  Can be used to incapacitate "+
+      "foes or delay bleedout."
     ) {
+      public boolean appliesTo(Actor caster, Target selected) {
+        return selected instanceof Actor;
+      }
+      
       public boolean finishedWith(
         Actor caster, String option,
-        Target selected, boolean clicked
+        Target selected, Target hovered
       ) {
-        if (clicked != true || ! (selected instanceof Actor)) return false;
         final Actor subject = (Actor) selected;
         
         float bonus = 1;
@@ -462,16 +514,17 @@ public class Power implements Qualities {
     },
     
     KINESTHESIA = new Power(
-      "Kinesthesia", MAINTAINED, "power_kinesthesia.gif",
-      "Augments hand-eye coordination and reflex response.\n(Boosts most "+
-      "combat and acrobatic skills.)"
+      "Kinesthesia", MAINTAINED, "power_kinesthesia.png",
+      "Boosts most combat-related and acrobatic skills."
     ) {
+      public boolean appliesTo(Actor caster, Target selected) {
+        return selected instanceof Actor;
+      }
       
       public boolean finishedWith(
         Actor caster, String option,
-        Target selected, boolean clicked
+        Target selected, Target hovered
       ) {
-        if (clicked != true || ! (selected instanceof Actor)) return false;
         final Actor subject = (Actor) selected;
         float bonus = 5f;
         
@@ -481,17 +534,16 @@ public class Power implements Qualities {
           caster.health.takeConcentration(cost);
           caster.skills.practiceAgainst(10, cost, SYNESTHESIA);
         }
+        
         subject.traits.incLevel(KINESTHESIA_EFFECT, bonus * 2 / 10f);
         return true;
       }
     },
     
     VOICE_OF_COMMAND = new Power(
-      "Voice of Command", PLAYER_ONLY, "power_voice_of_command.gif",
-      "Employs psychic suggestion to incite specific behavioural responses."+
-      "\n(Urges subject to fight, flee, help or speak.)"
+      "Voice of Command", PLAYER_ONLY, "power_voice_of_command.png",
+      "Psychically urges a subject to fight, flee, help or converse."
     ) {
-      
       final String options[] = new String[] {
         "Flee",
         "Fight",
@@ -499,39 +551,29 @@ public class Power implements Qualities {
         "Talk"
       };
       
-      Actor affects = null;
-      
       public String[] options() { return options; }
       
+      public boolean appliesTo(Actor caster, Target selected) {
+        return selected instanceof Actor;
+      }
       
       public boolean finishedWith(
         Actor caster, String option,
-        Target selected, boolean clicked
+        Target selected, Target hovered
       ) {
-        if (affects == null) BaseUI.setPopupMessage(
-          "Select a creature or person to influence."
-        );
-        else BaseUI.setPopupMessage(
+        BaseUI.setPopupMessage(
           "Select a focus for interaction."
         );
-        if (clicked && affects != null) {
-          return applyEffect(caster, option, selected);
-        }
-        if (clicked && affects == null) {
-          if (selected instanceof Actor) {
-            affects = (Actor) selected;
-            applyFX(affects, 0.5f);
-          }
-          else return true;
+        if (BaseUI.current().mouseClicked()) {
+          return applyEffect(caster, option, (Actor) selected, hovered);
         }
         return false;
       }
       
-      
       private boolean applyEffect(
-        Actor caster, String option, Target selected
+        Actor caster, String option, Actor affects, Target selected
       ) {
-        final boolean report = true;
+        final boolean report = applyVerbose;
         
         Plan command = null;
         if (option == options[0] && selected instanceof Tile ) {
@@ -593,19 +635,21 @@ public class Power implements Qualities {
           if (report) I.say("Compulsion resisted!");
         }
         
+        if (affects.health.goodHealth()) {
+          //  TODO:  INCLUDE NEGATIVE MORALE/RELATION FX!
+        }
+        
         applyFX(affects , 1.0f);
         applyFX(selected, 0.5f);
-
-        affects = null;
         return true;
       }
       
       
       private void applyFX(Target selected, float scale) {
         final Sprite selectFX = VOICE_OF_COMMAND_FX_MODEL.makeSprite();
-        selectFX.scale = scale;// selected.radius();
+        selectFX.scale = scale * selected.radius() * 2;
         selected.position(selectFX.position);
-        affects.world().ephemera.addGhost(
+        selected.world().ephemera.addGhost(
           selected, 1, selectFX, 0.5f
         );
       }

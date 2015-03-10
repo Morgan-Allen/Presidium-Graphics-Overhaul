@@ -34,7 +34,7 @@ public class KommandoLodge extends Venue {
   final static int CLAIM_RADIUS = Stage.SECTOR_SIZE / 2;
   
   final static VenueProfile PROFILE = new VenueProfile(
-    KommandoLodge.class, "kommando_lodge", "Kommand Lodge",
+    KommandoLodge.class, "kommando_lodge", "Kommando Lodge",
     4, 2, ENTRANCE_EAST, EcologistStation.PROFILE
   );
   

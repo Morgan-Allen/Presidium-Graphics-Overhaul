@@ -46,7 +46,8 @@ public class Airfield extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     Airfield.class, "airfield", "Airfield",
-    6, 3, ENTRANCE_WEST, StockExchange.PROFILE
+    6, 3, ENTRANCE_WEST,
+    new VenueProfile[] { StockExchange.PROFILE, TrooperLodge.PROFILE }
   );
   
   private float fuelLevels;

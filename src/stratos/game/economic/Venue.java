@@ -41,6 +41,8 @@ public abstract class Venue extends Structural implements
     SHIFTS_BY_24_HOUR  = 3,   //on for an entire day at a time.
     SHIFTS_BY_CALENDAR = 4;   //weekends and holidays off.  NOT DONE YET
   
+  final public static VenueProfile NO_REQUIREMENTS[] = new VenueProfile[0];
+  
   
   final public VenueProfile profile;
   final public Staff staff = new Staff(this);

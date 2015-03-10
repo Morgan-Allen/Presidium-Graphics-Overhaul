@@ -50,7 +50,7 @@ public class StockExchange extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     StockExchange.class, "stock_exchange", "Stock Exchange",
-    4, 1, ENTRANCE_SOUTH, null
+    4, 1, ENTRANCE_SOUTH, NO_REQUIREMENTS
   );
   
   private float catalogueSums[] = new float[ALL_STOCKED.length];

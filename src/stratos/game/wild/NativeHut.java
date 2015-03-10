@@ -131,17 +131,19 @@ public class NativeHut extends Venue {
     
     for (int n = NUM_TRIBES; n-- > 0;) {
       final int tribeID = n;
+      final String tribeName = TRIBE_NAMES[tribeID];
+      
       allProfiles.add(new VenueProfile(
-        NativeHut.class, "hall_"+tribeID, "Chief's Hall ("+tribeID+")",
-        2, 2, ENTRANCE_SOUTH, null
+        NativeHut.class, "hall_"+tribeID, "Native Hut ("+tribeName+")",
+        2, 2, ENTRANCE_SOUTH, NO_REQUIREMENTS
       ) {
         public Venue sampleVenue(Base base) {
           return newHall(tribeID, base);
         }
       });
       allProfiles.add(new VenueProfile(
-        NativeHut.class, "hut_"+tribeID, "Native Hut ("+tribeID+")",
-        3, 2, ENTRANCE_SOUTH, null
+        NativeHut.class, "hut_"+tribeID, "Chief's Hall ("+tribeName+")",
+        3, 2, ENTRANCE_SOUTH, NO_REQUIREMENTS
       ) {
         public Venue sampleVenue(Base base) {
           return newHut(tribeID, base);

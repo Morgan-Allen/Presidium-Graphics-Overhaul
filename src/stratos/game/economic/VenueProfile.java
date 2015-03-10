@@ -16,9 +16,8 @@ import java.lang.reflect.*;
 //  over to this class as possible:
   /*
   final public int facilityType;
-  //  TODO:  Also, name, icon, possibly model and any construction
-  //  dependancies- you need to be able to filter this, for both the player and
-  //  base AI.
+  //  TODO:  Also, icon, possibly model and any construction dependancies-
+  //  you need to be able to filter this, for both the player and base AI.
   
   final public int
     size, maxIntegrity, armouring, ambience;
@@ -45,6 +44,8 @@ public class VenueProfile extends Index.Entry implements Session.Saveable {
   final public Conversion processed[];
   final public int maxIntegrity = Structure.DEFAULT_INTEGRITY;
   
+  private Batch <VenueProfile> allows = new Batch <VenueProfile> ();
+  
   
   public VenueProfile(
     Class <? extends Venue> baseClass, String key, String name,
@@ -52,19 +53,38 @@ public class VenueProfile extends Index.Entry implements Session.Saveable {
     VenueProfile required,
     Conversion... processed
   ) {
+    this(
+      baseClass, key, name,
+      size, high, entryFace,
+      required == null ? null : new VenueProfile[] { required },
+      processed
+    );
+  }
+
+  public VenueProfile(
+    Class <? extends Venue> baseClass, String key, String name,
+    int size, int high, int entryFace,  //  TODO:  GET RID OF ENTRY FACE!
+    VenueProfile required[],
+    Conversion... processed
+  ) {
+
     super(INDEX, key);
     this.baseClass = baseClass;
-    
     this.name = name;
-    this.required = required == null ?
-      new VenueProfile[0] :
-      new VenueProfile[] { required };
     
     this.size = size;
     this.high = high;
     this.entryFace = entryFace;
     
+    this.required = required == null ? Venue.NO_REQUIREMENTS : required;
     this.processed = processed;
+    
+    for (VenueProfile p : required) p.allows.include(this);
+  }
+  
+  
+  public Series <VenueProfile> allows() {
+    return allows;
   }
   
   

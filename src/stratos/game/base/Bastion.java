@@ -38,7 +38,7 @@ public class Bastion extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     Bastion.class, "bastion", "Bastion",
-    7, 4, ENTRANCE_EAST, null
+    7, 4, ENTRANCE_EAST, NO_REQUIREMENTS
   );
   
   

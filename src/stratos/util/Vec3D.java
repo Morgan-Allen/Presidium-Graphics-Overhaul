@@ -225,6 +225,6 @@ public class Vec3D {
   
   
   public String toString() {
-    return " ( " + x + " " + y + " " + z + " )";
+    return "( " + x + " " + y + " " + z + " )";
   }
 }

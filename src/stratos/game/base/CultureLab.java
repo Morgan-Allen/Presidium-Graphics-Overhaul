@@ -69,8 +69,8 @@ public class CultureLab extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     CultureLab.class, "culture_lab", "Culture Lab",
-    3, 2, ENTRANCE_NORTH, EngineerStation.PROFILE,
-    
+    3, 2, ENTRANCE_NORTH,
+    new VenueProfile[] { EngineerStation.PROFILE, PhysicianStation.PROFILE },
     WASTE_TO_CARBS, WASTE_TO_REAGENTS,
     CARBS_TO_SOMA, CARBS_TO_PROTEIN,
     PROTEIN_TO_REPLICANTS, PROTEIN_TO_SPYCE_T

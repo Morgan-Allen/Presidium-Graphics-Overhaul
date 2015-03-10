@@ -17,10 +17,9 @@ import com.badlogic.gdx.Input.Keys;
 
 
 //
-//  TODO:  You need to have the panes drop down, and the categories should
-//  still be visible as optional filters.
+//  TODO:  You need to have the panes drop down.
 
-//  TODO:  Allow listing of current structures.
+//  TODO:  Allow listing of current structures, and greyed-out options.
 //  TODO:  Allow a general summary of demand for structures of this type.
 //  TODO:  Expand a little on the category-selection system.
 //  TODO:  List the structures that are *allowed* by building X or Y.
@@ -215,6 +214,9 @@ public class InstallTab extends SelectionInfoPane {
       if (type.required.length > 0) {
         detailText.appendList("\nRequires: ", (Object[]) type.required);
       }
+      if (type.allows().size() > 0) {
+        detailText.appendList("\nAllows: ", type.allows());
+      }
     }
   }
   
@@ -234,7 +236,8 @@ public class InstallTab extends SelectionInfoPane {
   }
   
   
-  //  TODO:  Grey out/remove any venues for which this check fails.
+  //  TODO:  MOVE THIS OUT TO THE VENUEPROFILE OR BASESETUP CLASS!
+  
   private String checkPrerequisites(Venue sample, Stage world) {
     if (sample.owningTier() == Owner.TIER_UNIQUE) {
       if (listInstalled(sample.profile, world, false).size() > 0) {
@@ -381,7 +384,7 @@ public class InstallTab extends SelectionInfoPane {
 
 
 
-
+//  TODO:  DERIVE THIS FROM BASESETUP OR VENUEPROFILE!
 /*
 for (final Venue other : category.samples) {
   final String    otherName = other.fullName()  ;

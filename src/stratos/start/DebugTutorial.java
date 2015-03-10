@@ -13,11 +13,15 @@ import stratos.util.*;
 
 /*  TUTORIAL TODO LIST:
 
-*  Limit the structure types available during the tutorial, and limit based on
-   structure-prereqs.  (Also, you might try merging into a single category.)
+*  Limit the powers available too- using upgrades or the household-panel?
+   ALSO- LIST PSY COSTS FOR ALL POWERS!  AND SHOW THE PSY METER!
 
-*  Limit the powers available too- have them rely on the ruler learning them,
-   one at a time.
+*  Have tutorial-messages appear as message-items along the right-hand side, in
+   a fashion similar to ongoing missions.
+
+*  Focus on the objectives that have an intuitive, emotional component- such as
+   survival (strike/defend) and comfort (the economy.)  Making those mandatory
+   isn't too bad.
 
 *  Use a linear sequence with much more detail on specific, simple steps.  You
    want to cover-
@@ -27,9 +31,8 @@ import stratos.util.*;
      Basic Research
      Housing + Manufacture + Sales and Imports (keep brief)
 
-*  Focus on the objectives that have an intuitive, emotional component- such as
-   survival (strike/defend) and comfort (the economy.)  Making those mandatory
-   isn't too bad.
+
+*  Limit the structure types available during the tutorial?
    
 *  Either that, or focus on the prime values:  Survival, Prosperity, Honour.
 //*/
@@ -89,9 +92,6 @@ BUILDING AND UPGRADES-
 
 
 CONTROL AND DIRECTION-
-
-*  Psy powers need some checkup- try including them in the target-options as
-   ongoing effects.
 
 *  Introduce Call-to-Arms at the Trooper Lodge (with respect to a particular
    mission at a time.)

@@ -10,11 +10,13 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
 import stratos.util.*;
-//import stratos.util.Search.Entry;
 
 
-//  TODO:  Also check if these routes are fully-paved (for distribution
-//  purposes.)
+//  TODO:  Also check if these routes are fully-paved for distribution
+//  purposes.
+
+
+
 public class BaseTransport {
   
   

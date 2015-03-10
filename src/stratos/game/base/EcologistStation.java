@@ -47,7 +47,7 @@ public class EcologistStation extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     EcologistStation.class, "ecologist_station", "Ecologist Station",
-    4, 3, ENTRANCE_EAST, null
+    4, 3, ENTRANCE_EAST, NO_REQUIREMENTS
   );
   
   

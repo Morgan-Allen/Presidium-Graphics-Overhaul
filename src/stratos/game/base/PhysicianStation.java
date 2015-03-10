@@ -47,7 +47,7 @@ public class PhysicianStation extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     PhysicianStation.class, "physician_station", "Sickbay",
-    3, 2, ENTRANCE_EAST, null,
+    3, 2, ENTRANCE_EAST, NO_REQUIREMENTS,
     REAGENTS_TO_MEDICINE
   );
   

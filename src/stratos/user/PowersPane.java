@@ -7,6 +7,7 @@ import stratos.game.politic.Power;  //  TODO:  Not the best package?
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
+
 import com.badlogic.gdx.Input.Keys;
 
 
@@ -14,8 +15,7 @@ import com.badlogic.gdx.Input.Keys;
 public class PowersPane extends SelectionInfoPane {
   
   
-
-  private OptionList optionList;
+  private static OptionList optionList;
   
   
   public PowersPane(BaseUI UI) {
@@ -27,48 +27,47 @@ public class PowersPane extends SelectionInfoPane {
     BaseUI UI, Text headerText, Text detailText, Text listingText
   ) {
     headerText.setText("Powers");
+    //  TODO:  You need to be able to avoid specifying a focus from the start
+    //         in order to use this pane.
     
+    /*
     for (final Power power : Power.BASIC_POWERS) {
       final PowerButton button = new PowerButton(UI, power, this);
       detailText.insert(button, BAR_BUTTON_SIZE, true);
     }
+    //*/
   }
   
   
-  private void dismissOptions() {
+  private static void dismissOptions() {
     if (optionList == null) return;
     optionList.detach();
     optionList = null;
   }
   
   
-  protected void updateState() {
-    if (KeyInput.wasTyped(Keys.ESCAPE)) {
-      dismissOptions();
-    }
-    super.updateState();
-  }
-  
-
-  
   
   /**
     */
-  private class PowerButton extends Button {
+  public static class PowerButton extends Button {
     
     final Power  power;
+    final Target focus;
     final UINode bar  ;
     final BaseUI UI   ;
     
     
-    PowerButton(BaseUI UI, Power p, UINode b) {
+    public PowerButton(BaseUI UI, Power p, Target focus, UINode parent) {
       super(
-        UI, p.buttonImage,
+        UI, p.buttonImage, CIRCLE_LIT,
         p.name.toUpperCase()+"\n  "+p.helpInfo
       );
-      this.UI = UI;
       this.power = p;
-      this.bar   = b;
+      this.focus = focus;
+      this.UI    = UI;
+      this.bar   = parent;
+      
+      if (focus == null) I.complain("NO SUBJECT!");
     }
     
     
@@ -79,7 +78,7 @@ public class PowersPane extends SelectionInfoPane {
       //  If another such task was ongoing, dismiss it.  (If this was the same
       //  task, you can quit.)
       if (optionList != null) {
-        final Power belongs = optionList.power;
+        final Power belongs = optionList.parent.power;
         dismissOptions();
         if (belongs == power) return;
       }
@@ -93,17 +92,14 @@ public class PowersPane extends SelectionInfoPane {
       final Actor caster = UI.played().ruler();
       final String options[] = power.options();
       if (options != null) {
-        optionList = new OptionList(UI, bar, power, options);
+        optionList = new OptionList(this, options);
         optionList.alignToMatch(this);
         optionList.alignBottom(BAR_BUTTON_SIZE + 10, 0);
         optionList.attachTo(bar);
         return;
       }
-      else if (power.finishedWith(caster, null, null, true)) {
-        return;
-      }
       else {
-        final PowerTask task = new PowerTask(bar, power, null, caster);
+        final PowerTask task = new PowerTask(UI, power, null, focus, caster);
         UI.beginTask(task);
       }
     }
@@ -111,9 +107,6 @@ public class PowersPane extends SelectionInfoPane {
     
     protected void updateState() {
       this.enabled = true;
-      //  TODO:  Restore this dependancy (except for remembrance and
-      //  foresight?)
-      ///this.enabled = BaseUI.currentPlayed().ruler() != null;
       super.updateState();
     }
     
@@ -127,25 +120,28 @@ public class PowersPane extends SelectionInfoPane {
   /**
     * 
     */
-  private class OptionList extends UIGroup {
+  private static class OptionList extends UIGroup {
     
-    final Power power;
+    final PowerButton parent;
     
     OptionList(
-      final BaseUI UI, final UINode bar, final Power power, String options[]
+      final PowerButton parent, String options[]
     ) {
-      super(UI);
-      this.power = power;
+      super(parent.UI);
+      this.parent = parent;
+      final BaseUI UI = parent.UI;
       
       float maxWide = 0;
-      
       final Batch <Text> links = new Batch <Text> ();
+      
       for (final String option : options) {
         final Text text = new Text(UI, UIConstants.INFO_FONT);
         text.append(new Description.Link(option) {
           public void whenClicked() {
             final Actor caster = UI.played().ruler();
-            final PowerTask task = new PowerTask(bar, power, option, caster);
+            final PowerTask task = new PowerTask(
+              UI, parent.power, option, parent.focus, caster
+            );
             UI.beginTask(task);
             dismissOptions();
           }
@@ -173,20 +169,27 @@ public class PowersPane extends SelectionInfoPane {
   
   /**  
     */
-  class PowerTask implements UITask {
+  private static class PowerTask implements UITask {
     
-    final Power power;
+    final BaseUI UI;
+    final Power  power;
     final String option;
-    final Actor caster;
+    final Actor  caster;
+    final Target focus;
+    
     final Image preview;
+    final static float PS = BAR_BUTTON_SIZE * 0.75f, HPS = PS / 2;
     
-    final float PS = BAR_BUTTON_SIZE * 0.75f, HPS = PS / 2;
     
-    
-    PowerTask(UINode bar, Power p, String o, Actor c) {
-      power = p;
-      option = o;
-      caster = c;
+    PowerTask(BaseUI UI, Power p, String o, Target focus, Actor casts) {
+      this.UI     = UI;
+      this.power  = p;
+      this.option = o;
+      this.caster = casts;
+      this.focus  = focus;
+      
+      if (focus == null) I.complain("NO SUBJECT!");
+      
       //  TODO:  CREATE A DEDICATED CURSOR CLASS.
       preview = new Image(UI, power.buttonImage);
       preview.blocksSelect = false;
@@ -196,7 +199,6 @@ public class PowersPane extends SelectionInfoPane {
     
     
     public void doTask() {
-      final boolean clicked = UI.mouseClicked();
       Object hovered = UI.selection.hovered();
       if (hovered == null) hovered = UI.selection.pickedTile();
       
@@ -208,7 +210,7 @@ public class PowersPane extends SelectionInfoPane {
       
       if (! (hovered instanceof Target)) hovered = null;
       final Target picked = (Target) hovered;
-      if (power.finishedWith(caster, option, picked, clicked)) {
+      if (power.finishedWith(caster, option, focus, picked)) {
         cancelTask();
       }
     }

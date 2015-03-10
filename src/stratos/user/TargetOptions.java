@@ -8,6 +8,7 @@ import stratos.game.plans.*;
 import stratos.game.politic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
+import stratos.user.PowersPane.PowerButton;
 import stratos.util.*;
 
 import com.badlogic.gdx.math.Vector2;
@@ -68,8 +69,9 @@ public class TargetOptions extends UIGroup {
   
   
   private void setup() {
-    final BaseUI BUI = (BaseUI) UI;
-    final Base base = BUI.played();
+    final BaseUI BUI   = (BaseUI) UI;
+    final Base   base  = BUI.played();
+    final Actor  ruler = base.ruler();
     final List <Button> options = new List <Button> ();
     
     if (
@@ -114,6 +116,11 @@ public class TargetOptions extends UIGroup {
         BUI, Mission.RECON_ICON, "Surveil or follow subject",
         new ReconMission(base, (Tile) subject)
       ));
+    }
+    
+    for (Power power : Power.BASIC_POWERS) {
+      if (! power.appliesTo(ruler, subject)) continue;
+      options.add(new PowersPane.PowerButton(BUI, power, subject, this));
     }
     
     int sumWide = options.size() * (OB_SIZE + OB_MARGIN), across = 0;
