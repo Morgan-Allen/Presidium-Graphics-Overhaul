@@ -47,17 +47,13 @@ public class CommercePane extends SelectionInfoPane {
     BaseUI UI, Text headerText, Text detailText, Text listingText
   ) {
     super.updateText(UI, headerText, detailText, listingText);
+    headerText.setText("Finance and Legislation");
+    
     final Base base = UI.played();
     final Description d = detailText;
     base.finance.describeTo(d);
   }
 }
-
-
-
-
-
-
 
 
 

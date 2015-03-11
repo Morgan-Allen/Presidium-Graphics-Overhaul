@@ -62,7 +62,6 @@ public class RosterPane extends SelectionInfoPane {
     BaseUI UI, Text headerText, Text detailText, Text listingText
   ) {
     super.updateText(UI, headerText, detailText, listingText);
-    headerText.setText("Roster");
     final Base base = UI.played();
     final Description d = detailText;
     
@@ -70,14 +69,14 @@ public class RosterPane extends SelectionInfoPane {
       detailText.append("\nOffworld Applicants:");
       for (Actor a : base.commerce.allCandidates()) {
         FindWork findWork = (FindWork) a.matchFor(FindWork.class, false);
+        if (findWork.employer() == null) continue;
         
         Background sought = a.vocation();
         if (findWork != null) sought = findWork.position();
         VenuePane.descApplicant(a, sought, detailText, UI);
         
         d.append("\n  Applying at: ");
-        if (findWork != null) d.append(findWork.employer());
-        else d.append("None.");
+        d.append(findWork.employer());
       }
     }
   }

@@ -42,8 +42,9 @@ public class Base implements
   final public DangerMap    dangerMap;
   final public IntelMap     intelMap ;
   
-  Actor ruler;
-  Venue commandPost;
+  private Actor ruler;
+  private Venue commandPost;
+  private boolean isNative;
   final public BaseRelations relations = initRelations();
   final public BaseTactics   tactics   = initTactics  ();
   
@@ -106,13 +107,14 @@ public class Base implements
     if (base != null) return base;
     else base = new Base(world, true);
     
+    base.isNative = true;
     final VenueProfile canBuild[] = NativeHut.VENUE_PROFILES[tribeID];
     return registerBase(base, world, title, Colour.LITE_YELLOW, canBuild);
   }
   
   
   public boolean isNative() {
-    return title.startsWith(KEY_NATIVES);
+    return isNative;
   }
   
   

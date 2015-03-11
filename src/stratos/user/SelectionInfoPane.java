@@ -245,6 +245,8 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
       headerText.setText(selected.fullName());
       headerText.append("\n");
     }
+    else headerText.setText("");
+    
     if (categories != null) {
       for (int i = 0; i < categories.length; i++) {
         final int index = i;
@@ -256,7 +258,7 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
       }
     }
     
-    detailText .setText("");
+    detailText.setText("");
     if (listingText != null) listingText.setText("");
   }
 }

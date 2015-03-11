@@ -307,8 +307,8 @@ public class NativeHut extends Venue {
   
   public String helpInfo() {
     return
-      "Native Hutments are simple but robust shelters constructed from local "+
-      "materials by indigenous primitives.";
+      "Native Hutments are simple but robust shelters constructed by "+
+      "indigenous primitives.";
   }
   
   

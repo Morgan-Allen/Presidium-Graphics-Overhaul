@@ -136,8 +136,7 @@ public class NativeHall extends NativeHut implements Performance.Theatre {
   public String helpInfo() {
     return
       "Native settlements will often have a central meeting place where "+
-      "the tribe's leadership and elders will gather to make decisions, "+
-      "such as arranging marriage, arbitrating dispute or mounting raids.";
+      "the tribe's leadership and elders will gather to make decisions.";
   }
 }
 
