@@ -24,11 +24,19 @@ public abstract class Structural extends Fixture implements
   
   /**  Setup and save/load methods-
     */
-  //private static boolean verbose = false;
+  final public static int
+    FACING_INIT   = -2,
+    FACING_NONE   = -1,
+    FACING_NORTH  =  N / 2,
+    FACING_EAST   =  E / 2,
+    FACING_SOUTH  =  S / 2,
+    FACING_WEST   =  W / 2,
+    ALL_FACINGS[] = { FACING_SOUTH, FACING_EAST, FACING_NORTH, FACING_WEST },
+    NUM_FACES     =  ALL_FACINGS.length;
   
   final public Structure structure = new Structure(this);
   protected Base base;
-  protected int facing = -1, type = -1;  //  TODO:  Dispense with
+  protected int facing = FACING_INIT, type = -1;
   
   protected BuildingSprite buildSprite;
   
@@ -120,6 +128,17 @@ public abstract class Structural extends Fixture implements
   
   /**  Placement and construction-preview methods-
     */
+  public void setFacing(int facing) {
+    I.say("\nSETTING FACING TO: "+facing);
+    this.facing = facing % NUM_FACES;
+  }
+  
+  
+  public int facing() {
+    return facing;
+  }
+  
+  
   public void doPlacement() {
     clearSurrounds();
     enterWorld();
@@ -254,8 +273,7 @@ public abstract class Structural extends Fixture implements
     BaseUI.current().selection.renderTileOverlay(
       rendering, origin().world,
       hovered ? Colour.transparency(0.5f) : Colour.WHITE,
-      Selection.SELECT_OVERLAY, key, true,
-      (Object[]) structure.asGroup()
+      Selection.SELECT_OVERLAY, key, true, (Object[]) structure.asGroup()
     );
   }
 }

@@ -15,10 +15,7 @@ import com.badlogic.gdx.math.Vector2;
 
 
 
-//  TODO:  Enclose together with the sector info in a single large panel?
-
-
-public class StarsPanel extends UIGroup implements UIConstants {
+public class StarsPane extends UIGroup implements UIConstants {
   
   final static String
     LOAD_PATH = "media/Charts/",
@@ -26,22 +23,22 @@ public class StarsPanel extends UIGroup implements UIConstants {
   
   final static ImageAsset
     STARS_ICON = ImageAsset.fromImage(
-      StarsPanel.class, "media/GUI/Panels/charts_tab.png"
+      StarsPane.class, "media/GUI/Panels/charts_tab.png"
     ),
     STARS_ICON_LIT = Button.CIRCLE_LIT;
   
   final static ImageAsset
     LEFT_BUTTON_IMG  = ImageAsset.fromImage(
-      StarsPanel.class  , LOAD_PATH+"button_left.png"
+      StarsPane.class  , LOAD_PATH+"button_left.png"
     ),
     RIGHT_BUTTON_IMG = ImageAsset.fromImage(
-      StarsPanel.class , LOAD_PATH+"button_right.png"
+      StarsPane.class , LOAD_PATH+"button_right.png"
     ),
     BACKING_TEX      = ImageAsset.fromImage(
-      StarsPanel.class, LOAD_PATH+"stars_backing.png"
+      StarsPane.class, LOAD_PATH+"stars_backing.png"
     ),
     BORDER_TEX       = ImageAsset.fromImage(
-      StarsPanel.class , LOAD_PATH+"planet_frame.png"
+      StarsPane.class , LOAD_PATH+"planet_frame.png"
     );
   
   
@@ -55,7 +52,7 @@ public class StarsPanel extends UIGroup implements UIConstants {
   final SectorPanel infoPanel;
   
   
-  public StarsPanel(HUD UI) {
+  public StarsPane(HUD UI) {
     super(UI);
     
     this.alignHorizontal(0.5f, CHARTS_WIDE + CHART_INFO_WIDE, 0);

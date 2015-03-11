@@ -38,9 +38,10 @@ public class VenueProfile extends Index.Entry implements Session.Saveable {
   
   final public Class <? extends Venue> baseClass;
   final public String name;
+  final public boolean isFixture;
   
   final public VenueProfile required[];
-  final public int size, high, entryFace;
+  final public int size, high;//, entryFace;
   final public Conversion processed[];
   final public int maxIntegrity = Structure.DEFAULT_INTEGRITY;
   
@@ -49,23 +50,20 @@ public class VenueProfile extends Index.Entry implements Session.Saveable {
   
   public VenueProfile(
     Class <? extends Venue> baseClass, String key, String name,
-    int size, int high, int entryFace,  //  TODO:  GET RID OF ENTRY FACE!
-    VenueProfile required,
-    Conversion... processed
+    int size, int high, boolean isFixture,
+    VenueProfile required, Conversion... processed
   ) {
     this(
       baseClass, key, name,
-      size, high, entryFace,
-      required == null ? null : new VenueProfile[] { required },
-      processed
+      size, high, isFixture,
+      required == null ? null : new VenueProfile[] { required }, processed
     );
   }
 
   public VenueProfile(
     Class <? extends Venue> baseClass, String key, String name,
-    int size, int high, int entryFace,  //  TODO:  GET RID OF ENTRY FACE!
-    VenueProfile required[],
-    Conversion... processed
+    int size, int high, boolean isFixture,
+    VenueProfile required[], Conversion... processed
   ) {
 
     super(INDEX, key);
@@ -74,7 +72,7 @@ public class VenueProfile extends Index.Entry implements Session.Saveable {
     
     this.size = size;
     this.high = high;
-    this.entryFace = entryFace;
+    this.isFixture = isFixture;
     
     this.required = required == null ? Venue.NO_REQUIREMENTS : required;
     this.processed = processed;

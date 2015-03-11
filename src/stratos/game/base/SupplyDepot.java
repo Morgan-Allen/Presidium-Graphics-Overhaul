@@ -49,7 +49,7 @@ public class SupplyDepot extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     SupplyDepot.class, "supply_depot", "Supply Depot",
-    4, 2, ENTRANCE_NORTH, StockExchange.PROFILE
+    4, 2, false, StockExchange.PROFILE
   );
   
   private List <CargoBarge> barges = new List <CargoBarge> ();

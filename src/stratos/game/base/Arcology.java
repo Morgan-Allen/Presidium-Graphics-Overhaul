@@ -16,6 +16,15 @@ import static stratos.game.economic.Economy.*;
 
 
 
+//  TODO:  Restore the use of these?
+/*
+ART_MODELS[] = {
+  BEDS_MODELS[0][2], BEDS_MODELS[1][2], BEDS_MODELS[2][2],
+  BEDS_MODELS[0][3], BEDS_MODELS[1][3], BEDS_MODELS[2][3]
+};
+//*/
+
+
 public class Arcology extends Venue {
   
   
@@ -25,7 +34,7 @@ public class Arcology extends Venue {
   final static ModelAsset
     BEDS_MODELS[][] = CutoutModel.fromImageGrid(
       Arcology.class, IMG_DIR+"all_arcology.png",
-      4, 4, 2, 1
+      4, 4, 1, 1
     ),
     
     MODEL_BEDS_WEST  = BEDS_MODELS[0][1],
@@ -36,12 +45,6 @@ public class Arcology extends Venue {
     MODEL_BEDS_LEFT  = BEDS_MODELS[1][0],  //top goes west to east...
     MODEL_BEDS_NORTH = BEDS_MODELS[2][0];
     
-    /*
-    ART_MODELS[] = {
-      BEDS_MODELS[0][2], BEDS_MODELS[1][2], BEDS_MODELS[2][2],
-      BEDS_MODELS[0][3], BEDS_MODELS[1][3], BEDS_MODELS[2][3]
-    };
-  //*/
   final static ImageAsset ICON = ImageAsset.fromImage(
     Arcology.class, "media/GUI/Buttons/arcology_button.gif"
   );
@@ -51,7 +54,7 @@ public class Arcology extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     Arcology.class, "arcology", "Arcology",
-    2, 2, ENTRANCE_NONE, EcologistStation.PROFILE
+    2, 2, true, EcologistStation.PROFILE
   );
   
   

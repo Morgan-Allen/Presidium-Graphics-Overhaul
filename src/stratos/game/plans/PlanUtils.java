@@ -18,7 +18,7 @@ public class PlanUtils {
   
   
   private static boolean
-    verbose = false;
+    verbose = true ;
   
   private static boolean reportOn(Actor a) {
     return I.talkAbout == a && verbose;
@@ -83,6 +83,7 @@ public class PlanUtils {
     if (reportOn(actor) && priority > 0) I.reportVars(
       "\nRetreat priority for "+actor, "  ",
       "incentive   ", incentive,
+      "fear level  ", actor.senses.fearLevel(),
       "loseChance  ", loseChance,
       "homeDistance", homeDistance,
       "escapeChance", escapeChance,
@@ -256,7 +257,8 @@ public class PlanUtils {
   public static float combatWinChance(Actor actor, Target around) {
     float fearLevel = actor.senses.fearLevel ();
     float strength  = actor.senses.powerLevel();
-    float health = 1f - actor.health.injuryLevel();
+    float health    = 1f - actor.health.injuryLevel();
+    float courage   = 1 + actor.traits.relativeLevel(Qualities.FEARLESS);
     
     Tile at = actor.world().tileAt(around);
     float danger = actor.base().dangerMap.sampleAround(
@@ -264,17 +266,17 @@ public class PlanUtils {
     );
     
     if (fearLevel == 0) danger = 0;
-    else danger = Nums.max(fearLevel, danger / strength);
-    
-    
-    float chance = Nums.clamp(health * (1 - danger), 0, 1);
-    
-    if (around instanceof Actor) {
-      float power = CombatUtils.powerLevelRelative(actor, (Actor) around);
-      chance -= Nums.clamp(1f - power, 0, 1);
+    else {
+      danger = Nums.max(fearLevel, danger / strength);
+      danger /= courage;
     }
     
-    chance *= 1 + actor.traits.relativeLevel(Qualities.FEARLESS);
+    float chance = Nums.clamp(health * (1 - danger), 0, 1);
+    if (around instanceof Actor) {
+      float power = CombatUtils.powerLevelRelative(actor, (Actor) around);
+      power *= courage;
+      chance -= Nums.clamp(1f - power, 0, 1) / 2;
+    }
     return Nums.clamp(chance, 0, 1);
   }
   

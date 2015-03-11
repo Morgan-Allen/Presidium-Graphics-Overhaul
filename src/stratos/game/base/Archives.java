@@ -50,8 +50,7 @@ public class Archives extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     Archives.class, "archives", "Archives",
-    3, 2, ENTRANCE_SOUTH, PhysicianStation.PROFILE,
-    PARTS_TO_DATALINKS
+    3, 2, false, PhysicianStation.PROFILE, PARTS_TO_DATALINKS
   );
   
   
@@ -140,7 +139,7 @@ public class Archives extends Venue {
   
   
   public String objectCategory() {
-    return InstallTab.TYPE_PHYSICIAN;
+    return InstallationPane.TYPE_PHYSICIAN;
   }
 }
 

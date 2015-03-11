@@ -24,9 +24,9 @@ public class BaseTransport {
     */
   final static int PATH_RANGE = Stage.SECTOR_SIZE / 2;
   private static boolean
-    paveVerbose      = true ,
+    paveVerbose      = false,
     distroVerbose    = false,
-    checkConsistency = true ,
+    checkConsistency = false,
     extraVerbose     = false;
   
   final Stage world;
@@ -35,7 +35,6 @@ public class BaseTransport {
   
   Table <Tile, List <Route>> tileRoutes = new Table(1000);
   Table <Route, Route> allRoutes = new Table <Route, Route> (1000);
-  
   
   
   public BaseTransport(Stage world) {
@@ -279,8 +278,10 @@ public class BaseTransport {
     final Search <Tile> routeSearch = new Search <Tile> (r.start, 25) {
       
       protected Tile[] adjacent(Tile spot) {
+        //  We consider the opposite end-points of any routes attached to a
+        //  given tile to be 'adjacent' for search purposes.
         final List <Route> routes = tileRoutes.get(spot);
-        if (report) {
+        if (report && routes != null) {
           I.say("    "+routes.size()+" routes at "+spot.entranceFor());
         }
         int i = 0;
@@ -291,10 +292,6 @@ public class BaseTransport {
         }
         while (i < temp.length) temp[i++] = null;
         return tempB;
-      }
-      
-      protected boolean endSearch(Tile best) {
-        return best == r.end;
       }
       
       protected float cost(Tile prior, Tile spot) {
@@ -329,6 +326,10 @@ public class BaseTransport {
       protected Entry entryFor(Tile spot) {
         return (Entry) spot.flaggedWith();
       }
+      
+      protected boolean endSearch(Tile best) {
+        return best == r.end;
+      }
     };
     
     float dist = Spacing.distance(r.start, r.end);
@@ -340,9 +341,9 @@ public class BaseTransport {
       I.say("  To:   "+r.end  .entranceFor());
     }
     routeSearch.doSearch();
-    final Tile junctions[] = routeSearch.bestPath(Tile.class);
-    final float fullCost = routeSearch.totalCost();
-    final boolean bestRoute = junctions == null || (fullCost + 1) > directCost;
+    final Tile  junctions[] = routeSearch.bestPath(Tile.class);
+    final float fullCost    = routeSearch.totalCost();
+    final boolean bestRoute = fullCost == -1 || (fullCost + 1) > directCost;
     
     if (report) {
       I.say("  Final path:");
@@ -394,8 +395,6 @@ public class BaseTransport {
   
   private void deleteRoute(Route route) {
     if (route.cost < 0) return;
-    I.say("DELETING ROUTE: "+route);
-    
     map.flagForPaving(route.path, false);
     allRoutes.remove(route);
     toggleRoute(route, route.start, false);

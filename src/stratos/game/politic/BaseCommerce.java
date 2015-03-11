@@ -184,7 +184,7 @@ public class BaseCommerce {
       if (demand <= 0) { jobDemand.set(b, 0); continue; }
       
       float applyChance = (demand - supply) / demand;
-      applyChance *= TIME_SLICE;
+      applyChance *= TIME_SLICE * MAX_APPLICANTS;
       
       if (report) {
         I.say("  Hire chance for "+b+" is "+applyChance);

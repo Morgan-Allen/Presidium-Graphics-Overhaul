@@ -82,7 +82,10 @@ public class Base implements
     Base base = namedBase(world, KEY_WILDLIFE);
     if (base != null) return base;
     else base = new Base(world, true);
-    return registerBase(base, world, KEY_WILDLIFE, Colour.LITE_GREEN);
+    
+    //  TODO:  Use animal nests instead!
+    final VenueProfile canBuild[] = new VenueProfile[0];
+    return registerBase(base, world, KEY_WILDLIFE, Colour.LITE_GREEN, canBuild);
   }
   
   
@@ -90,18 +93,20 @@ public class Base implements
     ArtilectBase base = (ArtilectBase) namedBase(world, KEY_ARTILECTS);
     if (base != null) return base;
     else base = new ArtilectBase(world);
-    registerBase(base, world, KEY_ARTILECTS, Colour.LITE_RED);
+    
+    final VenueProfile canBuild[] = new VenueProfile[0];
+    registerBase(base, world, KEY_ARTILECTS, Colour.LITE_RED, canBuild);
     return base;
   }
   
   
   public static Base natives(Stage world, int tribeID) {
     final String title = NativeHut.TRIBE_NAMES[tribeID];
-    final VenueProfile canBuild[] = NativeHut.VENUE_PROFILES[tribeID];
-    
     Base base = namedBase(world, title);
     if (base != null) return base;
     else base = new Base(world, true);
+    
+    final VenueProfile canBuild[] = NativeHut.VENUE_PROFILES[tribeID];
     return registerBase(base, world, title, Colour.LITE_YELLOW, canBuild);
   }
   

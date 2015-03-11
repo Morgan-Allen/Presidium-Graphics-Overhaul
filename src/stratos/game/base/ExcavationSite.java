@@ -43,7 +43,7 @@ public class ExcavationSite extends Venue implements TileConstants {
   
   final static VenueProfile PROFILE = new VenueProfile(
     ExcavationSite.class, "excavation_site", "Excavation Site",
-    4, 1, ENTRANCE_WEST, EngineerStation.PROFILE
+    4, 1, false, EngineerStation.PROFILE
   );
   
   
@@ -265,7 +265,7 @@ public class ExcavationSite extends Venue implements TileConstants {
   
   
   public String objectCategory() {
-    return InstallTab.TYPE_ENGINEER;
+    return InstallationPane.TYPE_ENGINEER;
   }
 }
 

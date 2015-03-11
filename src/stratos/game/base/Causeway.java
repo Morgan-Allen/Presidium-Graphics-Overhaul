@@ -160,7 +160,7 @@ public class Causeway extends Structural {
   
   
   public String objectCategory() {
-    return InstallTab.TYPE_HIDDEN;
+    return InstallationPane.TYPE_HIDDEN;
   }
 }
 

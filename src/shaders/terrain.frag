@@ -8,6 +8,7 @@ uniform sampler2D u_fog_old;
 uniform sampler2D u_fog_new;
 
 uniform float u_opacity;
+uniform vec4 u_texColor;
 
 uniform bool u_fogFlag;
 uniform vec2 u_fogSize;
@@ -19,6 +20,7 @@ varying vec3 v_position;
 
 void main() {
 	vec4 color = texture2D(u_texture, v_texCoords0);
+	color *= u_texColor;
 	
 	if(u_fogFlag) {
 		vec2 sampled = vec2(

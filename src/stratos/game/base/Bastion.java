@@ -38,7 +38,7 @@ public class Bastion extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     Bastion.class, "bastion", "Bastion",
-    7, 4, ENTRANCE_EAST, NO_REQUIREMENTS
+    7, 4, false, NO_REQUIREMENTS
   );
   
   
@@ -326,7 +326,7 @@ public class Bastion extends Venue {
   
   
   public String objectCategory() {
-    return InstallTab.TYPE_SECURITY;
+    return InstallationPane.TYPE_SECURITY;
   }
 }
 

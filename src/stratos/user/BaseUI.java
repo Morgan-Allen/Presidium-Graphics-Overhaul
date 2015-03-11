@@ -39,7 +39,7 @@ public class BaseUI extends HUD implements UIConstants {
   private Readout readout;
   
   //  TODO:  Also a policies panel?  ...Yeah.  Why not.
-  private CommsPanel commsPanel;
+  private CommsPane commsPanel;
   //private PlanetPanel planetPanel;
   //private StarsPanel  starsPanel ;  //Just use the homeworld.
   
@@ -97,7 +97,7 @@ public class BaseUI extends HUD implements UIConstants {
   public Stage world() { return world ; }
   
   
-  public CommsPanel commsPanel() { return commsPanel; }
+  public CommsPane commsPanel() { return commsPanel; }
   
   
   public static BaseUI current() {
@@ -192,14 +192,14 @@ public class BaseUI extends HUD implements UIConstants {
     optionsButton.alignLeft(MINIMAP_WIDE + HS - (PTS * 1), PTS);
     optionsButton.attachTo(this);
     
-    this.commsPanel = new CommsPanel(this);
-    this.commsButton = CommsPanel.createButton(this, commsPanel);
+    this.commsPanel = new CommsPane(this);
+    this.commsButton = CommsPane.createButton(this, commsPanel);
     commsButton.stretch = false;
     commsButton.alignTop(0, PTS);
     commsButton.alignLeft(MINIMAP_WIDE + HS - (PTS * 2), PTS);
     commsButton.attachTo(this);
     
-    this.buildButton = InstallTab.createButton(this);
+    this.buildButton = InstallationPane.createButton(this);
     buildButton.stretch = false;
     buildButton.alignTop(0, PTS);
     buildButton.alignLeft(MINIMAP_WIDE + HS - (PTS * 3), PTS);

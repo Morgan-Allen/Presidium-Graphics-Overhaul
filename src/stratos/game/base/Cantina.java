@@ -83,7 +83,7 @@ public class Cantina extends Venue implements Performance.Theatre {
   
   final static VenueProfile PROFILE = new VenueProfile(
     Cantina.class, "cantina", "Cantina",
-    3, 2, ENTRANCE_EAST, StockExchange.PROFILE
+    3, 2, false, StockExchange.PROFILE
   );
   
   

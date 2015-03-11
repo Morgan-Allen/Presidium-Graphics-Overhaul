@@ -52,7 +52,7 @@ public class SolarBank extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     SolarBank.class, "solar_bank", "Solar Bank",
-    2, 2, ENTRANCE_NONE, EcologistStation.PROFILE
+    2, 2, true, EcologistStation.PROFILE
   );
   
   
@@ -212,7 +212,7 @@ public class SolarBank extends Venue {
   
   
   public String objectCategory() {
-    return InstallTab.TYPE_ECOLOGIST;
+    return InstallationPane.TYPE_ECOLOGIST;
   }
 }
 

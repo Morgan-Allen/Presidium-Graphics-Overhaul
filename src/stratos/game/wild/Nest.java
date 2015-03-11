@@ -499,7 +499,7 @@ public class Nest extends Venue {
   
   
   public String objectCategory() {
-    return InstallTab.TYPE_HIDDEN;
+    return InstallationPane.TYPE_HIDDEN;
   }
   
 

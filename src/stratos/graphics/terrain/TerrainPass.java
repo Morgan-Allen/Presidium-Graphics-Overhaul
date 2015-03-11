@@ -137,6 +137,7 @@ public class TerrainPass {
         //  render the predecessor semi-transparently-
         if (chunk.fadeOut != null) {
           final float alpha = (chunk.fadeIncept + 1) - Rendering.activeTime();
+          shader.setUniformf("u_texColor", c.r, c.g, c.b, 1);
           
           if (alpha > 0) {
             final float outAlpha = Nums.clamp(alpha * 2, 0, 1);
@@ -155,12 +156,14 @@ public class TerrainPass {
         }
         
         //  Otherwise just render directly.  In either case, flag as complete.
-        //  TODO:  Allow true blending with chunk colour.
         else {
+          shader.setUniformf("u_texColor", c.r, c.g, c.b, 1);
           shader.setUniformf("u_opacity", opacity * c.a);
           chunk.mesh().render(shader, GL20.GL_TRIANGLES);
         }
-        chunk.resetRenderFlag();
+        
+        if (chunk.throwAway) chunk.dispose();
+        else chunk.resetRenderFlag();
       }
       if (tex.length == 1) break;
     }

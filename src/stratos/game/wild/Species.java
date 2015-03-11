@@ -115,7 +115,7 @@ public abstract class Species extends Background {
   ) {
     return new VenueProfile(
       Nest.class, s.name+"_nest", s.name+" Nest",
-      size, high, entryFace, Venue.NO_REQUIREMENTS
+      size, high, false, Venue.NO_REQUIREMENTS
     ) {
       public Venue sampleVenue(Base base) {
         return new Nest(this, base, s, model);
@@ -169,7 +169,7 @@ public abstract class Species extends Background {
       0.65f  //sight
     ) {
       final VenueProfile PROFILE = nestProfile(
-        2, 2, Venue.ENTRANCE_EAST, this, MODEL_NEST_QUUD
+        2, 2, Venue.FACING_EAST, this, MODEL_NEST_QUUD
       );
       public Actor sampleFor(Base base) { return new Qudu(base); }
       public VenueProfile nestProfile() { return PROFILE; }
@@ -193,7 +193,7 @@ public abstract class Species extends Background {
       1.00f  //sight
     ) {
       final VenueProfile PROFILE = nestProfile(
-        2, 2, Venue.ENTRANCE_EAST, this, MODEL_NEST_VAREEN
+        2, 2, Venue.FACING_EAST, this, MODEL_NEST_VAREEN
       );
       public Actor sampleFor(Base base) { return new Vareen(base); }
       public VenueProfile nestProfile() { return PROFILE; }
@@ -217,7 +217,7 @@ public abstract class Species extends Background {
       1.50f  //sight
     ) {
       final VenueProfile PROFILE = nestProfile(
-        3, 2, Venue.ENTRANCE_EAST, this, MODEL_NEST_MICOVORE
+        3, 2, Venue.FACING_EAST, this, MODEL_NEST_MICOVORE
       );
       public Actor sampleFor(Base base) { return new Lictovore(base); }
       public VenueProfile nestProfile() { return PROFILE; }

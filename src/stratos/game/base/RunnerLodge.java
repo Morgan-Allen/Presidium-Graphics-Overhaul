@@ -87,7 +87,7 @@ public class RunnerLodge extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     RunnerLodge.class, "runner_lodge", "Runner Market",
-    4, 2, ENTRANCE_SOUTH, StockExchange.PROFILE
+    4, 2, false, StockExchange.PROFILE
   );
   
   private int gangID = GANG_NONE;
@@ -282,7 +282,7 @@ public class RunnerLodge extends Venue {
   
   
   public String objectCategory() {
-    return InstallTab.TYPE_COMMERCE;
+    return InstallationPane.TYPE_COMMERCE;
   }
 }
 

@@ -58,7 +58,7 @@ public class Smelter extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     Smelter.class, "smelter", "Smelter",
-    4, 2, ENTRANCE_WEST, ExcavationSite.PROFILE
+    4, 2, false, ExcavationSite.PROFILE
   );
   
   protected ExcavationSite parent;
@@ -270,7 +270,7 @@ public class Smelter extends Venue {
   
   
   public String objectCategory() {
-    return InstallTab.TYPE_HIDDEN;
+    return InstallationPane.TYPE_HIDDEN;
   }
 }
 

@@ -10,6 +10,7 @@ import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
+import stratos.graphics.terrain.*;
 import stratos.util.*;
 import stratos.game.economic.Inventory.Owner;
 
@@ -33,7 +34,7 @@ import com.badlogic.gdx.Input.Keys;
 //  But due to the front-loaded nature of planning, the latter rarely happens.
 
 
-public class InstallTab extends SelectionInfoPane {
+public class InstallationPane extends SelectionInfoPane {
   
   
   /**  Initial background setup-
@@ -50,14 +51,17 @@ public class InstallTab extends SelectionInfoPane {
 
   final static ImageAsset
     BUILD_ICON = ImageAsset.fromImage(
-      InstallTab.class, "media/GUI/Panels/installations_tab.png"
+      InstallationPane.class, "media/GUI/Panels/installations_tab.png"
+    ),
+    FOOTPRINT_TEX = ImageAsset.fromImage(
+      InstallationPane.class, "media/GUI/blank_back.png"
     ),
     BUILD_ICON_LIT = Button.CIRCLE_LIT;
   
   public static Button createButton(
     final BaseUI baseUI
   ) {
-    final InstallTab buildPanel = new InstallTab(baseUI);
+    final InstallationPane buildPanel = new InstallationPane(baseUI);
     return new Button(baseUI, BUILD_ICON, BUILD_ICON_LIT, "Installations") {
       protected void whenClicked() {
         baseUI.setInfoPanels(buildPanel, null);
@@ -118,7 +122,7 @@ public class InstallTab extends SelectionInfoPane {
   private Category category = null;
   
   
-  InstallTab(BaseUI UI) {
+  InstallationPane(BaseUI UI) {
     super(UI, null, true, true);
     if (! setupDone) setupTypes();
     
@@ -285,7 +289,7 @@ public class InstallTab extends SelectionInfoPane {
   
   class InstallTask implements UITask {
     
-    InstallTab tab;
+    InstallationPane tab;
     BaseUI UI;
     VenueProfile type;
     Venue toInstall;
@@ -334,10 +338,29 @@ public class InstallTab extends SelectionInfoPane {
       
       else for (Structure.Basis i : group) {
         i.previewPlacement(canPlace, UI.rendering);
-        if (canPlace) message = "(Enter or press Esc to cancel)";
+        if (canPlace) message =
+          "(Enter to place, Esc to cancel, E to change entrance)"
+        ;
+      }
+      BaseUI.setPopupMessage(message);
+      
+      if (KeyInput.wasTyped('e')) {
+        toInstall.setFacing(toInstall.facing() + 1);
       }
       
-      BaseUI.setPopupMessage(message);
+      //
+      //  Finally, render a suitable terrain overlay to show the entrance:
+      final Object o[];
+      if (group.length == 1) {
+        o = new Object[] { toInstall, toInstall.mainEntrance() };
+      }
+      else o = group;
+      
+      UI.selection.renderTileOverlay(
+        UI.rendering, picked.world,
+        canPlace ? Colour.SOFT_GREEN : Colour.SOFT_RED,
+        FOOTPRINT_TEX, "install_preview", false, o
+      );
     }
     
     

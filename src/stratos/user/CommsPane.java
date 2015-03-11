@@ -10,18 +10,18 @@ import stratos.util.*;
 
 
 
-public class CommsPanel extends SelectionInfoPane {
+public class CommsPane extends SelectionInfoPane {
   
   
   final static ImageAsset
     COMMS_ICON = ImageAsset.fromImage(
-      CommsPanel.class, "media/GUI/Panels/comms_tab.png"
+      CommsPane.class, "media/GUI/Panels/comms_tab.png"
     ),
     COMMS_ICON_LIT = Button.CIRCLE_LIT;
   
   
   public static Button createButton(
-    final BaseUI baseUI, final CommsPanel commsPanel
+    final BaseUI baseUI, final CommsPane commsPanel
   ) {
     return new Button(baseUI, COMMS_ICON, COMMS_ICON_LIT, "Messages") {
       protected void whenClicked() {
@@ -32,7 +32,7 @@ public class CommsPanel extends SelectionInfoPane {
   
   
   public static interface CommSource extends Session.Saveable {
-    MessagePanel messageFor(String title, CommsPanel comms, boolean useCache);
+    MessagePanel messageFor(String title, CommsPane comms, boolean useCache);
   }
   
   private class Message {
@@ -46,7 +46,7 @@ public class CommsPanel extends SelectionInfoPane {
   
   
   
-  public CommsPanel(BaseUI UI) {
+  public CommsPane(BaseUI UI) {
     super(UI, null, null, false);
   }
   

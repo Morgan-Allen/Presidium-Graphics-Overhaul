@@ -130,8 +130,10 @@
 	<animation name="carry"        start="83"  end="143"  duration="3" />
 	<animation name="look"        start="144"  end="204"  duration="4" />
 	<animation name="build"        start="205"  end="305"  duration="3" />
-	<animation name="Bpsychic"        start="307"  end="380"  duration="2" />
-	
+	<animation name="BigPsy"        start="307"  end="389"  duration="2" />
+	<animation name="QuickPsy1"        start="391"  end="424"  duration="1.2" />
+	<animation name="PhysicalAttack1"        start="426"  end="471"  duration="1.5" />
+	<animation name="PhysicalAttack2"        start="472"  end="555"  duration="2" />
 	
   </animations>
   

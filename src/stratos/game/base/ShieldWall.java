@@ -81,7 +81,7 @@ public class ShieldWall extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     ShieldWall.class, "shield_wall", "Shield Wall",
-    2, 2, ENTRANCE_NONE, TrooperLodge.PROFILE
+    2, 2, true, TrooperLodge.PROFILE
   );
   
   private Boarding entrances[] = null;
@@ -499,7 +499,7 @@ public class ShieldWall extends Venue {
   
   
   public String objectCategory() {
-    return InstallTab.TYPE_SECURITY;
+    return InstallationPane.TYPE_SECURITY;
   }
 }
 

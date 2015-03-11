@@ -46,7 +46,7 @@ public class Fabricator extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     Fabricator.class, "fabricator", "Fabricator",
-    3, 2, ENTRANCE_WEST, EngineerStation.PROFILE,
+    3, 2, false, EngineerStation.PROFILE,
     LCHC_TO_PLASTICS, PLASTICS_TO_DECOR
   );
   
@@ -202,7 +202,7 @@ public class Fabricator extends Venue {
   
   
   public String objectCategory() {
-    return InstallTab.TYPE_ENGINEER;
+    return InstallationPane.TYPE_ENGINEER;
   }
 }
 

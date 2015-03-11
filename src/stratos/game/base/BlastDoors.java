@@ -32,7 +32,7 @@ public class BlastDoors extends ShieldWall implements TileConstants {
     */
   final static VenueProfile PROFILE = new VenueProfile(
     BlastDoors.class, "blast_doors", "Blast Doors",
-    4, 2, ENTRANCE_NONE, TrooperLodge.PROFILE
+    4, 2, true, TrooperLodge.PROFILE
   );
   
   
@@ -130,7 +130,7 @@ public class BlastDoors extends ShieldWall implements TileConstants {
   
   
   public String objectCategory() {
-    return InstallTab.TYPE_SECURITY;
+    return InstallationPane.TYPE_SECURITY;
   }
 }
 

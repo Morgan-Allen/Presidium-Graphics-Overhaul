@@ -65,7 +65,7 @@ public class Nursery extends Venue implements TileConstants {
   
   final static VenueProfile PROFILE = new VenueProfile(
     Nursery.class, "nursery", "Nursery",
-    2, 2, ENTRANCE_SOUTH, EcologistStation.PROFILE
+    2, 2, false, EcologistStation.PROFILE
   );
   
   
@@ -354,7 +354,7 @@ public class Nursery extends Venue implements TileConstants {
   
   
   public String objectCategory() {
-    return InstallTab.TYPE_ECOLOGIST;
+    return InstallationPane.TYPE_ECOLOGIST;
   }
 }
 

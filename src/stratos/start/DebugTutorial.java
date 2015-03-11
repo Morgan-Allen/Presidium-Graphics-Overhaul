@@ -31,37 +31,23 @@ import stratos.util.*;
      Basic Research
      Housing + Manufacture + Sales and Imports (keep brief)
 
-
 *  Limit the structure types available during the tutorial?
-   
-*  Either that, or focus on the prime values:  Survival, Prosperity, Honour.
 //*/
 
 
 
 /*  BIG TODO LIST:
 
-INTERFACE AND DEBUGGING
-
-*  The UI needs to use a few unified panes rather than separate build-buttons-
-   for Personnel, Sectors and Installations.
-
-*  Read definitions, tutorial messages, etc. from .xml and allow for later
-   translations.
-
-*  Try to implement some global debugging-levels.
-
 
 ENEMIES AND ENVIRONMENT-
 
 *  Extra concept art for new creatures/vermin:
-     Avrodil, Sea Bean, Rem Leech, Mistaken, Desert Maw, Hirex Body.
+     Avrodil, Rem Leech, Mistaken, Desert Maw, Hirex Body.
 
-*  Need service hatches to allow access to vermin.
-     Need to write vermin behaviour (see Vermin class.)
+*  Need to write vermin behaviour (see Vermin class.)
 
-*  Need to restore animal nests and surface behaviours.
-     Need to ensure auto-distribution of predator and prey nests.
+*  Need to restore animal nests and check their breeding behaviours.
+   Need to ensure auto-distribution of predator and prey nests.
 
 
 BUILDING AND UPGRADES-
@@ -74,7 +60,8 @@ BUILDING AND UPGRADES-
 
 *  Use service hatches to initiate heavier paving and utility-transmission.
 
-*  Buildings need to have multiple levels.
+*  Buildings need to have multiple levels.  (At least for the main/root-guild
+   structures.)
 
 *  Ensure that spontaneous-buildings can 'migrate' to new sites if conditions
    change.  (Allow that for buildings in general?)
@@ -97,6 +84,16 @@ CONTROL AND DIRECTION-
    mission at a time.)
 
 *  Make Pledges more persistent and nuanced (see Proposal class.)
+
+
+INTERFACE AND DEBUGGING
+
+*  Include a Personnel and Finances/Economy pane.
+
+*  Read definitions, tutorial messages, etc. from .xml and allow for later
+   translations.
+
+*  Try to implement some global debugging-levels.
 
 
 CITIZEN BEHAVIOUR-

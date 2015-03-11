@@ -183,22 +183,22 @@ public class Placement implements TileConstants {
 
   
   public static int[] entranceCoords(int xdim, int ydim, float face) {
-    if (face == Venue.ENTRANCE_NONE) return new int[] { 0, 0 };
-    face = (face + 0.5f) % Venue.NUM_SIDES;
+    if (face == Venue.FACING_NONE) return new int[] { 0, 0 };
+    face = (face + 0.5f) % Venue.NUM_FACES;
     float edgeVal = face % 1;
     
     int enterX = 1, enterY = -1;
-    if (face < Venue.ENTRANCE_EAST) {
+    if (face < Venue.FACING_EAST) {
       //  This is the north edge.
       enterX = xdim;
       enterY = (int) (ydim * edgeVal);
     }
-    else if (face < Venue.ENTRANCE_SOUTH) {
+    else if (face < Venue.FACING_SOUTH) {
       //  This is the east edge.
       enterX = (int) (ydim * (1 - edgeVal));
       enterY = xdim;
     }
-    else if (face < Venue.ENTRANCE_WEST) {
+    else if (face < Venue.FACING_WEST) {
       //  This is the south edge.
       enterX = -1;
       enterY = (int) (ydim * (1 - edgeVal));
@@ -213,7 +213,12 @@ public class Placement implements TileConstants {
   
   
   //  TODO:  Return a set of venues/fixtures/elements that conflict with the
-  //  one being placed instead!
+  //  one being placed?
+  
+  //  TODO:  The perimeter-guarantee needs to be 2-tiles wide, including a
+  //  viable entrance.
+  
+  //  TODO:  You must allow for manual rotation of the entrance-face!
   
   //
   //  This method checks whether the placement of the given element in this
@@ -225,6 +230,7 @@ public class Placement implements TileConstants {
     final Box2D area = element.area(tA);
     final Tile perim[] = Spacing.perimeter(area, world);
     final int tier = element.owningTier();
+    
     //
     //  Here, we check the first perimeter.  First, determine where the first
     //  taken (reserved) tile after a contiguous gap is-
@@ -255,59 +261,67 @@ public class Placement implements TileConstants {
       index = (index + 1) % perim.length;
     }
     if (numSpaces > 1) return false;
-    //
-    //  Finally, try to prevent clustering among structures that belong to
-    //  different portions of the map:
-    area.expandBy(1);
-    final Tile outerPerim[] = Spacing.perimeter(area, world);
-    if (! checkClustering(world, element, outerPerim)) return false;
+    
     //
     //  If you run the gauntlet, return true-
     return true;
   }
   
   
-  //  TODO:  Reserve this strictly for venues?  (Better yet, just use the
-  //  claims-system if possible.)
+  public static boolean isViableEntrance(Venue v, Tile e) {
+    return e != null && ! e.reserved();
+  }
   
-  //*
-  public static boolean checkClustering(
-    Stage world, Element f, Tile outerPerim[]
-  ) {
-    final boolean report = false;
-    final int tier = f.owningTier();
-    
-    final Tile belongs = clusterTile(f);
-    if (report) I.say("\nChecking for clustering by "+f+" (at "+belongs+")");
-    
-    for (Tile t : outerPerim) {
-      if (t == null || t.owningTier() < tier) continue;
-      
-      //  TODO:  You can ignore any structures whose claim you could normally
-      //  override!
-      final Tile cluster = clusterTile(t.onTop());
-      if (report) I.say("  "+t.onTop()+" belongs to "+cluster);
-      if (cluster != belongs) return false;
-    }
-    return true;
+  /*
+  public static boolean isViableEntrance(Venue v, int facing, Stage world) {
+    final int off[] = Placement.entranceCoords(v.size, v.size, facing);
+    final Tile o = v.origin();
+    final Tile e = world.tileAt(o.x + off[0], o.y + off[1]);
+    return e != null && ! e.reserved();
   }
   //*/
-  
-  final static int CLUSTER_SIZE = 16;
-  
-  private static Tile clusterTile(Element e) {
-    final Tile at = e.origin();
-    final int
-      res = CLUSTER_SIZE,
-      cX = (at.x / res) * res,
-      cY = (at.y / res) * res;
-    return at.world.tileAt(cX, cY);
-  }
 }
 
 
 
 
+
+//  TODO:  Reserve this strictly for venues?  (Better yet, just use the
+//  claims-system if possible.)
+
+/*
+public static boolean checkClustering(
+  Stage world, Element f, Tile outerPerim[]
+) {
+  final boolean report = false;
+  final int tier = f.owningTier();
+  
+  final Tile belongs = clusterTile(f);
+  if (report) I.say("\nChecking for clustering by "+f+" (at "+belongs+")");
+  
+  for (Tile t : outerPerim) {
+    if (t == null || t.owningTier() < tier) continue;
+    
+    //  TODO:  You can ignore any structures whose claim you could normally
+    //  override!
+    final Tile cluster = clusterTile(t.onTop());
+    if (report) I.say("  "+t.onTop()+" belongs to "+cluster);
+    if (cluster != belongs) return false;
+  }
+  return true;
+}
+//*/
+/*
+final static int CLUSTER_SIZE = 16;
+private static Tile clusterTile(Element e) {
+  final Tile at = e.origin();
+  final int
+    res = CLUSTER_SIZE,
+    cX = (at.x / res) * res,
+    cY = (at.y / res) * res;
+  return at.world.tileAt(cX, cY);
+}
+//*/
 
 
 

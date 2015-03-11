@@ -33,7 +33,7 @@ public class EnforcerBloc extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     EnforcerBloc.class, "enforcer_bloc", "Enforcer Bloc",
-    3, 3, ENTRANCE_EAST, Bastion.PROFILE
+    3, 3, false, Bastion.PROFILE
   );
   
   

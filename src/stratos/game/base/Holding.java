@@ -58,8 +58,7 @@ public class Holding extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     Holding.class, "holding", "Holding",
-    2, 2, ENTRANCE_SOUTH, Bastion.PROFILE,
-    PROVIDE_HOUSING
+    2, 2, false, Bastion.PROFILE, PROVIDE_HOUSING
   );
   
   
@@ -133,9 +132,6 @@ public class Holding extends Venue {
     if (baseDemand <= 0 || claims != base) return -1;
     float rating = 1;
     
-    //  TODO:  Don't rate by ambience.  Just rate by proximity to other
-    //  structures and holdings.
-    
     if (exact) {
       final Tile at = (Tile) point;
       final float range = Stage.SECTOR_SIZE;
@@ -146,13 +142,6 @@ public class Holding extends Venue {
       
       near = at.world.presences.nearestMatch(SERVICE_HOUSING, at, range);
       if (near != null) rating *= 1f / (1 + Spacing.distance(near, at));
-      
-      /*
-      rating *= 1 + point.world().ecology().ambience.valueAt(at);
-      rating *= 1 - base.dangerMap.sampleAround(at.x, at.y, Stage.SECTOR_SIZE);
-      if (report) I.say("  Rating from ambience: "+rating);
-      rating = baseDemand * Plan.PARAMOUNT * rating / 4;
-      //*/
     }
     else {
       for (int level = 0 ; level < NUM_LEVELS; level++) {
@@ -458,7 +447,7 @@ public class Holding extends Venue {
   
   
   public String objectCategory() {
-    return InstallTab.TYPE_PHYSICIAN;
+    return InstallationPane.TYPE_PHYSICIAN;
   }
   
   

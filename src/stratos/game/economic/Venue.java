@@ -23,14 +23,6 @@ public abstract class Venue extends Structural implements
   /**  Field definitions, constants, constructors, and save/load methods.
     */
   final public static int
-    ENTRANCE_NONE  = -1,
-    ENTRANCE_NORTH =  N / 2,
-    ENTRANCE_EAST  =  E / 2,
-    ENTRANCE_SOUTH =  S / 2,
-    ENTRANCE_WEST  =  W / 2,
-    NUM_SIDES      =  4;
-  
-  final public static int
     PRIMARY_SHIFT      = 1,
     SECONDARY_SHIFT    = 2,
     OFF_DUTY           = 3,
@@ -132,6 +124,41 @@ public abstract class Venue extends Structural implements
   
   /**  Structure.Basis and positioning-
     */
+  public boolean setPosition(float x, float y, Stage world) {
+    if (! super.setPosition(x, y, world)) return false;
+    
+    final Tile o = origin();
+    if (profile.isFixture) {
+      entrance = null;
+    }
+    else {
+      //
+      //  If our current facing is viable, stick with that.
+      Tile e = entrance = null;
+      if (facing != FACING_INIT) {
+        final int off[] = Placement.entranceCoords(size, size, facing);
+        e = world.tileAt(o.x + off[0], o.y + off[1]);
+      }
+      if (Placement.isViableEntrance(this, e)) {
+        entrance = e;
+      }
+      //
+      //  Otherwise, find the next facing that allows proper access-
+      else for (int f : ALL_FACINGS) {
+        final int off[] = Placement.entranceCoords(size, size, f);
+        e = world.tileAt(o.x + off[0], o.y + off[1]);
+        if (Placement.isViableEntrance(this, e)) {
+          entrance = e;
+          facing   = f;
+          break;
+        }
+      }
+    }
+    if (entrance == null && ! profile.isFixture) return false;
+    return true;
+  }
+  
+  
   public boolean canPlace() {
     if (origin() == null) return false;
     final Stage world = origin().world;
@@ -161,23 +188,6 @@ public abstract class Venue extends Structural implements
   }
   
   
-  public boolean setPosition(float x, float y, Stage world) {
-    if (! super.setPosition(x, y, world)) return false;
-    final int entryFace = profile.entryFace;
-    final Tile o = origin();
-    if (entryFace == ENTRANCE_NONE) {
-      entrance = null;
-    }
-    else {
-      final int off[] = Placement.entranceCoords(size, size, entryFace);
-      entrance = world.tileAt(o.x + off[0], o.y + off[1]);
-    }
-    return true;
-  }
-  
-  
-  //  TODO:  Reserve the salvage-orders strictly for the doPlacement method?
-  
   public boolean enterWorldAt(int x, int y, Stage world) {
     if (! super.enterWorldAt(x, y, world)) return false;
     if (base == null) I.complain("VENUES MUST HAVE A BASED ASSIGNED! "+this);
@@ -188,7 +198,7 @@ public abstract class Venue extends Structural implements
     
     //  TODO:  Extend the above to non-venue fixtures as well (instead of the
     //  procedure below.)
-    for (Tile t : Spacing.perimeter(footprint(), world)) {
+    for (Tile t : Spacing.perimeter(footprint(), world)) if (t != null) {
       final Element fringes = t.onTop();
       if (fringes == null || fringes.owningTier() >= owningTier()) continue;
       else fringes.exitWorld();
@@ -512,16 +522,6 @@ public abstract class Venue extends Structural implements
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (destroyed() || origin() == null) return;
     super.renderSelection(rendering, hovered);
-    
-    if (footprint() == areaClaimed()) return;
-    ///I.say("Rendering area claimed: "+areaClaimed());
-    
-    final String key = origin()+"_area_"+this;
-    BaseUI.current().selection.renderTileOverlay(
-      rendering, origin().world,
-      Colour.transparency(hovered ? 0.25f : 0.5f),
-      Selection.SELECT_OVERLAY, key, true, areaClaimed()
-    );
   }
 }
 

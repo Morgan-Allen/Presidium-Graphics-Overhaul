@@ -15,7 +15,7 @@ import com.badlogic.gdx.graphics.*;
 
 
 
-public class PlanetPanel extends UIGroup implements UIConstants {
+public class PlanetPane extends UIGroup implements UIConstants {
   
   
   final static String
@@ -24,22 +24,22 @@ public class PlanetPanel extends UIGroup implements UIConstants {
   
   final static ImageAsset
     PLANET_ICON     = ImageAsset.fromImage(
-      PlanetPanel.class, "media/GUI/Panels/planet_tab.png"
+      PlanetPane.class, "media/GUI/Panels/planet_tab.png"
     ),
     PLANET_ICON_LIT = Button.CIRCLE_LIT;
   
   final static ImageAsset
     LEFT_BUTTON_IMG  = ImageAsset.fromImage(
-      PlanetPanel.class , LOAD_PATH+"button_left.png"
+      PlanetPane.class , LOAD_PATH+"button_left.png"
     ),
     RIGHT_BUTTON_IMG = ImageAsset.fromImage(
-      PlanetPanel.class, LOAD_PATH+"button_right.png"
+      PlanetPane.class, LOAD_PATH+"button_right.png"
     ),
     BACKING_TEX      = ImageAsset.fromImage(
-      StarsPanel.class, LOAD_PATH+"stars_backing.png"
+      StarsPane.class, LOAD_PATH+"stars_backing.png"
     ),
     BORDER_TEX       = ImageAsset.fromImage(
-      PlanetPanel.class, LOAD_PATH+"planet_frame.png"
+      PlanetPane.class, LOAD_PATH+"planet_frame.png"
     );
   
   
@@ -52,7 +52,7 @@ public class PlanetPanel extends UIGroup implements UIConstants {
   final SectorPanel infoPanel;
   
   
-  public PlanetPanel(HUD UI) {
+  public PlanetPane(HUD UI) {
     super(UI);
     
     this.alignHorizontal(0.5f, CHARTS_WIDE + CHART_INFO_WIDE, 0);
@@ -137,10 +137,10 @@ public class PlanetPanel extends UIGroup implements UIConstants {
       keysNode    = xml.child("sectorKeys");
     
     final MS3DModel globeModel = MS3DModel.loadFrom(
-      path, modelNode.value("name"), PlanetPanel.class, null, null
+      path, modelNode.value("name"), PlanetPane.class, null, null
     );
     final ImageAsset sectorKeys = ImageAsset.fromImage(
-      PlanetPanel.class, path + keysNode.value("name")
+      PlanetPane.class, path + keysNode.value("name")
     );
     Assets.loadNow(globeModel);
     Assets.loadNow(sectorKeys);

@@ -35,7 +35,7 @@ public class KommandoLodge extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     KommandoLodge.class, "kommando_lodge", "Kommando Lodge",
-    4, 2, ENTRANCE_EAST, EcologistStation.PROFILE
+    4, 2, false, EcologistStation.PROFILE
   );
   
   private Venue fleshStill = null;

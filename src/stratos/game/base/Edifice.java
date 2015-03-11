@@ -66,7 +66,7 @@ public class Edifice extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     Edifice.class, "edifice", "Edifice",
-    3, 2, ENTRANCE_NONE, Fabricator.PROFILE
+    3, 2, true, Fabricator.PROFILE
   );
   
   int eventCode = -1, styleCode = -1;

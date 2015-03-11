@@ -89,7 +89,7 @@ public class Reactor extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     Reactor.class, "reactor", "Reactor",
-    4, 2, ENTRANCE_NORTH, EngineerStation.PROFILE,
+    4, 2, false, EngineerStation.PROFILE,
     METALS_TO_FUEL, TOPES_TO_ANTIMASS
   );
   

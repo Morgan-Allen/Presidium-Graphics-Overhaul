@@ -42,8 +42,7 @@ public class EngineerStation extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     EngineerStation.class, "engineer_station", "Engineer Station",
-    3, 2, ENTRANCE_WEST, NO_REQUIREMENTS,
-    METALS_TO_PARTS
+    3, 2, false, NO_REQUIREMENTS, METALS_TO_PARTS
   );
   
   
@@ -225,7 +224,7 @@ public class EngineerStation extends Venue {
   
   
   public String objectCategory() {
-    return InstallTab.TYPE_ENGINEER;
+    return InstallationPane.TYPE_ENGINEER;
   }
 }
 

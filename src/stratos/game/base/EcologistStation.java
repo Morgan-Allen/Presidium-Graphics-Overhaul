@@ -47,7 +47,7 @@ public class EcologistStation extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     EcologistStation.class, "ecologist_station", "Ecologist Station",
-    4, 3, ENTRANCE_EAST, NO_REQUIREMENTS
+    4, 3, false, NO_REQUIREMENTS
   );
   
   
@@ -259,6 +259,6 @@ public class EcologistStation extends Venue {
   
   
   public String objectCategory() {
-    return InstallTab.TYPE_ECOLOGIST;
+    return InstallationPane.TYPE_ECOLOGIST;
   }
 }

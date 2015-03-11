@@ -10,6 +10,7 @@ import stratos.game.base.*;
 import stratos.game.economic.*;
 import stratos.game.politic.*;
 import stratos.game.wild.*;
+import stratos.graphics.widgets.KeyInput;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.start.TutorialScript.*;
@@ -32,7 +33,7 @@ import static stratos.start.TutorialScript.*;
 
 
 public class TutorialScenario extends StartupScenario implements
-  CommsPanel.CommSource
+  CommsPane.CommSource
 {
   
   private static boolean
@@ -122,10 +123,14 @@ public class TutorialScenario extends StartupScenario implements
   
   /**  Checking objectives and message display-
     */
-  ///private int plus = 0;
-  
   public void updateGameState() {
     super.updateGameState();
+    
+    /*
+    if (KeyInput.wasTyped('k')) {
+      base().transport.checkConsistency();
+    }
+    //*/
 
     if (showMessages()) {
       ///plus++;
@@ -224,7 +229,7 @@ public class TutorialScenario extends StartupScenario implements
   
   
   private void registerAllTopics() {
-    final CommsPanel comms = UI().commsPanel();
+    final CommsPane comms = UI().commsPanel();
     for (String topicKey : ALL_TOPIC_TITLES) {
       final MessagePanel panel = comms.messageWith(topicKey);
       if (panel != null) continue;
@@ -234,7 +239,7 @@ public class TutorialScenario extends StartupScenario implements
 
   
   private void pushMessage(String eventKey) {
-    final CommsPanel comms = UI().commsPanel();
+    final CommsPane comms = UI().commsPanel();
     
     if (! comms.hasMessage(eventKey)) {
       if (verbose || I.logEvents()) I.say("\nPUSHING NEW MESSAGE: "+eventKey);
@@ -244,7 +249,7 @@ public class TutorialScenario extends StartupScenario implements
   
   
   public MessagePanel messageFor(
-    String title, CommsPanel comms, boolean useCache
+    String title, CommsPane comms, boolean useCache
   ) {
     return new TutorialScript(this).messageFor(title, comms, useCache);
   }

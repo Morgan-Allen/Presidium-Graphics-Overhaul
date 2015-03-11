@@ -4,7 +4,6 @@ package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-//import stratos.game.maps.*;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -46,8 +45,7 @@ public class Airfield extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     Airfield.class, "airfield", "Airfield",
-    6, 3, ENTRANCE_WEST,
-    new VenueProfile[] { StockExchange.PROFILE, TrooperLodge.PROFILE }
+    6, 3, false, new VenueProfile[] { StockExchange.PROFILE, TrooperLodge.PROFILE }
   );
   
   private float fuelLevels;

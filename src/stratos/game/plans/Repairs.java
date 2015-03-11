@@ -228,7 +228,7 @@ public class Repairs extends Plan {
       }
       else if (m.pilot() != null) return null;
     }
-    if (built instanceof Venue && built.structure().intact() && ! roll) {
+    if (built instanceof Venue && built.structure().intact()) {
       if (((Venue) built).mainEntrance() != null) moveSet = true;
     }
     //
@@ -270,10 +270,10 @@ public class Repairs extends Plan {
     //  structure.  Require construction materials for full efficiency.
     if (salvage) {
       success *= actor.skills.test(skillUsed, 5, 1) ? 1 : 0.5f;
-      final float amount = structure.repairBy(0 - success);
+      final float amount = 0 - structure.repairBy(0 - success);
       if (! free) {
-        final float cost = amount * structure.buildCost();
-        base.finance.incCredits(cost * 0.5f, BaseFinance.SOURCE_REPAIRS);
+        final float cost = amount * structure.buildCost() * 0.5f;
+        base.finance.incCredits(cost, BaseFinance.SOURCE_REPAIRS);
       }
       if (report) I.say("Salvage sucess: "+success);
       if (report) I.say("Repair level: "+structure.repairLevel());

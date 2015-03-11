@@ -11,7 +11,7 @@ import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
-
+import static stratos.game.economic.Economy.*;
 
 
 
@@ -23,7 +23,7 @@ public class ServiceHatch extends Venue {
   private static boolean verbose = true;
   
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    ServiceHatch.class, "media/Buildings/civilian/access_hatch_0.png", 2, 1
+    ServiceHatch.class, "media/Buildings/civilian/access_hatch_0.png", 1, 1
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
     ServiceHatch.class, "media/GUI/Buttons/access_hatch_button.gif"
@@ -31,7 +31,7 @@ public class ServiceHatch extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     ServiceHatch.class, "service_hatch", "Service Hatch",
-    2, 1, ENTRANCE_NONE, Bastion.PROFILE
+    1, 1, true, Bastion.PROFILE
   );
   
   
@@ -52,6 +52,11 @@ public class ServiceHatch extends Venue {
   }
   
   
+  public int owningTier() {
+    return TIER_PRIVATE;
+  }
+  
+  
   
   /**  Updates and economic methods-
     */
@@ -59,23 +64,50 @@ public class ServiceHatch extends Venue {
   public Traded[] services() { return null; }
   
   
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "service_hatch");
+  public float ratePlacing(Target point, boolean exact) {
+    Stage world = point.world();
+    final Object key = ServiceHatch.class;
+    final float range = Stage.SECTOR_SIZE / 2, abutRange = 2;
+    
+    if (exact) {
+      Target near = null;
+      near = world.presences.nearestMatch(base, this, abutRange);
+      if (near == null || ! Spacing.adjacent(near, this)) return -1;
+      near = world.presences.nearestMatch(key, this, range);
+      if (near != null) return -1;
+      return 5;
+    }
+    else {
+      float supply = base.demands.supplyAround(point, key, range);
+      return 5 * (1 - supply);
+    }
+  }
+  
+  
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
+    structure.assignOutputs(Item.withAmount(ATMO, 2));
+    structure.setAmbienceVal(-2);
   }
   
   
   
   /**  Rendering and interface methods-
     */
+  public Composite portrait(BaseUI UI) {
+    return Composite.withImage(ICON, "service_hatch");
+  }
+  
+  
   public String helpInfo() {
     return
-      "Service Hatches provide additional life support and help to combat "+
-      "squalor, but can also allow entry to dangerous vermin.";
+      "Service Hatches are neccesary for maintenance of urban "+
+      "infrastructure, but can allow entry to dangerous vermin.";
   }
   
   
   public String objectCategory() {
-    return UIConstants.TYPE_ENGINEER;
+    return UIConstants.TYPE_HIDDEN;
   }
 }
 

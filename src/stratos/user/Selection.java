@@ -6,7 +6,6 @@
 
 package stratos.user;
 import stratos.game.common.*;
-import stratos.game.economic.*;
 import stratos.game.politic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.terrain.*;
@@ -235,6 +234,7 @@ public class Selection implements UIConstants {
         Box2D area = null;
         if (o instanceof Fixture) area = ((Fixture) o).footprint();
         if (o instanceof Box2D  ) area = (Box2D) o;
+        if (o instanceof Tile   ) area = ((Tile) o).area(null);
         if (area != null) for (Tile t : world.tilesIn(area, true)) {
           if (limit == null) limit = new Box2D(t.x, t.y, 0, 0);
           limit.include(t.x, t.y, 0.5f);
@@ -260,6 +260,7 @@ public class Selection implements UIConstants {
       overlay = world.terrain().createOverlay(limit, layer);
       for (Tile t : under) t.flagWith(null);
       if (cache) addToCache(overlay, key);
+      else overlay.throwAway = true;
     }
     
     //  Use a glow-colour, and ready for rendering-

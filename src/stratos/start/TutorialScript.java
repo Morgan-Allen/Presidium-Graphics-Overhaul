@@ -59,7 +59,7 @@ public class TutorialScript {
   
   
   private Text.Clickable linkFor(String linkText, final String title) {
-    final CommsPanel comms = tutorial.UI().commsPanel();
+    final CommsPane comms = tutorial.UI().commsPanel();
     return new Description.Link(linkText) {
       public void whenClicked() {
         MessagePanel message = comms.messageWith(title);
@@ -71,7 +71,7 @@ public class TutorialScript {
   
   
   protected MessagePanel messageFor(
-    String title, CommsPanel comms, boolean useCache
+    String title, CommsPane comms, boolean useCache
   ) {
     if (useCache && comms.hasMessage(title)) return comms.messageWith(title);
     

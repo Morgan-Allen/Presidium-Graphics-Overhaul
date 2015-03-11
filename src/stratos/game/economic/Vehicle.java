@@ -38,7 +38,7 @@ public abstract class Vehicle extends Mobile implements
   private Venue hangar;
   private float pilotBonus;
   
-  protected float entranceFace = Venue.ENTRANCE_NONE;
+  protected float entranceFace = Venue.FACING_NONE;
   protected Boarding dropPoint;
   
   final TalkFX chat = new TalkFX();

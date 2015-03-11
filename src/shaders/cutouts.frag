@@ -15,17 +15,6 @@ varying vec4 v_color;
 void main() {
   vec4 color = texture2D(u_texture, v_texCoords0);
   if (u_glowFlag) {
-    /*
-    //
-    //  Here, in essence, you convert any darker areas over to the glow-tone.
-    float alpha = color.a * v_color.a;
-    ///float grey = (color.r + color.g + color.b) / 3;
-    float grey = max(color.r, max(color.g, color.b));
-    ///color = mix(color, vec4(0, 0, 0, 1), grey);
-    color = mix(color, v_color, 1 - grey);
-    color.a = alpha;
-    //*/
-    
     color = color * v_color * u_lighting;
   }
   else {
