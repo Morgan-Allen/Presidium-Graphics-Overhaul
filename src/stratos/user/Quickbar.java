@@ -31,8 +31,8 @@ public class Quickbar extends UIGroup implements UIConstants {
     slotsGroup.attachTo(this);
     
     guildsGroup = new UIGroup(UI);
-    guildsGroup.alignRight (0, GUILDS_WIDE);
-    guildsGroup.alignBottom(0, 0          );
+    guildsGroup.alignRight (0, INFO_PANEL_WIDE);
+    guildsGroup.alignBottom(0, 0              );
     guildsGroup.attachTo(this);
   }
   

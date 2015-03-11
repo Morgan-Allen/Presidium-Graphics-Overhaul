@@ -52,7 +52,6 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
   }
   
   
-  
   static Button createButton(final BaseUI baseUI, Scenario played) {
     final GameOptionsPane pane = new GameOptionsPane(baseUI, played);
     

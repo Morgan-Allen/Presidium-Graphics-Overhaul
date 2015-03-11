@@ -13,7 +13,7 @@ import stratos.util.*;
 
 
 
-public class MessagePanel extends SelectionInfoPane implements UIConstants {
+public class MessagePane extends SelectionInfoPane implements UIConstants {
   
   
   final String title;
@@ -22,7 +22,7 @@ public class MessagePanel extends SelectionInfoPane implements UIConstants {
   private Clickable options[];
   
   
-  public MessagePanel(
+  public MessagePane(
     BaseUI UI, Composite portrait,
     String title, String initText,
     Target focus,
@@ -35,7 +35,7 @@ public class MessagePanel extends SelectionInfoPane implements UIConstants {
   }
   
   
-  public MessagePanel(
+  public MessagePane(
     BaseUI UI, Composite portrait,
     String title, String initText,
     Target focus,
@@ -60,6 +60,7 @@ public class MessagePanel extends SelectionInfoPane implements UIConstants {
   ) {
     headerText.setText(title);
     detailText.setText(initText);
+    detailText.append("\n  ");
     for (Clickable option : options) {
       detailText.append("\n  ");
       detailText.append(option);
@@ -70,8 +71,8 @@ public class MessagePanel extends SelectionInfoPane implements UIConstants {
   public static boolean hasFocus(Target subject) {
     final BaseUI UI = BaseUI.current();
     if (UI == null) return false;
-    if (UI.currentPane() instanceof MessagePanel) {
-      final MessagePanel panel = (MessagePanel) UI.currentPane();
+    if (UI.currentPane() instanceof MessagePane) {
+      final MessagePane panel = (MessagePane) UI.currentPane();
       return panel.focus == subject;
     }
     return false;

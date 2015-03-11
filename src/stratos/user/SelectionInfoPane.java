@@ -31,9 +31,10 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
       SelectionInfoPane.class, "media/GUI/scroll_grab.gif"
     );
   final public static int
-    MARGIN_WIDTH  = 10,
-    HEADER_HEIGHT = 35,
-    PORTRAIT_SIZE = 80;
+    MARGIN_SIZE    = 10 ,
+    HEADER_HIGH    = 35 ,
+    CORE_INFO_HIGH = 160,
+    PORTRAIT_SIZE  = 80 ;
   
   
   final static Class INFO_CLASSES[] = {
@@ -89,10 +90,11 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
   ) {
     super(UI);
     this.UI = UI;
-    this.alignTop       (0   , INFO_PANEL_HIGH   );
-    this.alignHorizontal(0.5f, INFO_PANEL_WIDE, 0);
+    this.alignVertical(0, PANEL_TABS_HIGH);
+    this.alignRight   (0, INFO_PANEL_WIDE);
     
-    final int across = hasPortrait ? (PORTRAIT_SIZE + 10) : 0;
+    int down = hasPortrait ? (PORTRAIT_SIZE + MARGIN_SIZE) : 0;
+    down += HEADER_HIGH;
     final int
       TM = 40, BM = 40,  //top and bottom margins
       LM = 40, RM = 40;  //left and right margins
@@ -107,15 +109,33 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
     border.attachTo(this);
     
     this.innerRegion = new UIGroup(UI);
-    innerRegion.alignHorizontal(-15 + across, -15);
-    innerRegion.alignVertical  (-15         , -15);
+    innerRegion.alignHorizontal(-15, -15);
+    innerRegion.alignVertical  (-15, -15);
     innerRegion.attachTo(border.inside);
     
     headerText = new Text(UI, BaseUI.INFO_FONT);
-    headerText.alignTop   (0, HEADER_HEIGHT);
-    headerText.alignAcross(0, 1            );
+    headerText.alignTop   (0, HEADER_HIGH);
+    headerText.alignAcross(0, 1          );
     headerText.attachTo(innerRegion);
-
+    
+    
+    if (hasPortrait) {
+      portraitFrame = new UINode(UI) {
+        protected void render(WidgetsPass batch2d) {
+          if (portrait == null) return;
+          portrait.drawTo(batch2d, bounds, absAlpha);
+        }
+      };
+      portraitFrame.alignTop (HEADER_HIGH, PORTRAIT_SIZE);
+      portraitFrame.alignLeft(0          , PORTRAIT_SIZE);
+      portraitFrame.attachTo(innerRegion);
+    }
+    else {
+      this.portrait      = null;
+      this.portraitFrame = null;
+    }
+    
+    
     detailText = new Text(UI, BaseUI.INFO_FONT) {
       protected void whenLinkClicked(Clickable link) {
         super.whenLinkClicked(link);
@@ -126,30 +146,31 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
     detailText.attachTo(innerRegion);
     
     if (hasListing) {
+      detailText.alignHorizontal(0, 0);
+      detailText.alignTop(down, CORE_INFO_HIGH);
+      
       listingText = new Text(UI, BaseUI.INFO_FONT) {
         protected void whenLinkClicked(Clickable link) {
           super.whenLinkClicked(link);
           ((BaseUI) UI).beginPanelFade();
         }
       };
-      listingText.alignVertical(0   , HEADER_HEIGHT);
-      listingText.alignAcross  (0.5f, 1            );
+      listingText.alignVertical  (0, CORE_INFO_HIGH + down);
+      listingText.alignHorizontal(0, 0                    );
       listingText.scale = 0.75f;
       listingText.attachTo(innerRegion);
-
-      detailText.alignVertical(0, HEADER_HEIGHT);
-      detailText.alignAcross  (0, 0.5f         );
       scrollbar = listingText.makeScrollBar(SCROLL_TEX);
+      scrollbar.alignToMatch(listingText);
     }
     else {
       listingText = null;
-      detailText.alignVertical(0, HEADER_HEIGHT);
-      detailText.alignAcross  (0, 1.0f         );
+      detailText.alignHorizontal(0, 0   );
+      detailText.alignVertical  (0, down);
       scrollbar = detailText .makeScrollBar(SCROLL_TEX);
+      scrollbar.alignToMatch(detailText);
     }
     
-    scrollbar.alignRight(0, SCROLLBAR_WIDE);
-    scrollbar.alignDown (0, 1             );
+    scrollbar.alignRight(0 - SCROLLBAR_WIDE, SCROLLBAR_WIDE);
     scrollbar.attachTo(innerRegion);
     
     this.selected = selected;
@@ -162,22 +183,6 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
       if (catID != null) categoryID = Nums.clamp(catID, categories.length);
     }
     else categoryID = 0;
-    
-    if (hasPortrait) {
-      portraitFrame = new UINode(UI) {
-        protected void render(WidgetsPass batch2d) {
-          if (portrait == null) return;
-          portrait.drawTo(batch2d, bounds, absAlpha);
-        }
-      };
-      portraitFrame.alignTop (25, PORTRAIT_SIZE);
-      portraitFrame.alignLeft(25, PORTRAIT_SIZE);
-      portraitFrame.attachTo(border);
-    }
-    else {
-      this.portrait = null;
-      this.portraitFrame = null;
-    }
   }
   
   
@@ -188,7 +193,8 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
   
   protected Vec2D screenTrackPosition() {
     Vec2D middle = UI.trueBounds().centre();
-    middle.y -= INFO_PANEL_HIGH / 2;
+    middle.x -= INFO_PANEL_WIDE / 2;
+    //middle.y -= INFO_PANEL_HIGH / 2;
     return middle;
   }
   

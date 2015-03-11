@@ -156,6 +156,11 @@ public class BaseCommerce {
   }
   
   
+  public List <Actor> allCandidates() {
+    return candidates;
+  }
+  
+  
   
   /**  Dealing with migrants and cargo-
     */

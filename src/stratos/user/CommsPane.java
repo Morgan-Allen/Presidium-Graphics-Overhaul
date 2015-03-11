@@ -32,13 +32,13 @@ public class CommsPane extends SelectionInfoPane {
   
   
   public static interface CommSource extends Session.Saveable {
-    MessagePanel messageFor(String title, CommsPane comms, boolean useCache);
+    MessagePane messageFor(String title, CommsPane comms, boolean useCache);
   }
   
   private class Message {
     CommSource source;
     String keyTitle;
-    MessagePanel panel;
+    MessagePane panel;
     //  TODO:  Optional time-stamps?
   }
   
@@ -55,7 +55,7 @@ public class CommsPane extends SelectionInfoPane {
     for (int n = s.loadInt(); n-- > 0;) {
       final CommSource    source = (CommSource) s.loadObject();
       final String        key    = s.loadString();
-      final MessagePanel panel  = source.messageFor(key, this, false);
+      final MessagePane panel  = source.messageFor(key, this, false);
       
       if (messageWith(key) == null && panel != null) {
         final Message m = new Message();
@@ -102,7 +102,7 @@ public class CommsPane extends SelectionInfoPane {
   }
   
   
-  public MessagePanel messageWith(String keyTitle) {
+  public MessagePane messageWith(String keyTitle) {
     for (Message m : messages) if (m.keyTitle.equals(keyTitle)) {
       return m.panel;
     }
@@ -110,10 +110,10 @@ public class CommsPane extends SelectionInfoPane {
   }
   
   
-  public MessagePanel addMessage(
-    CommSource source, String title, MessagePanel panel
+  public MessagePane addMessage(
+    CommSource source, String title, MessagePane panel
   ) {
-    final MessagePanel old = messageWith(title);
+    final MessagePane old = messageWith(title);
     if (old != null) return old;
     if (panel == null) I.complain("CANNOT PUSH NULL PANEL! "+title);
     
@@ -126,7 +126,7 @@ public class CommsPane extends SelectionInfoPane {
   }
   
   
-  public MessagePanel addMessage(
+  public MessagePane addMessage(
     CommSource source, String title, Composite portrait,
     String mainText, Clickable... options
   ) {
@@ -138,7 +138,7 @@ public class CommsPane extends SelectionInfoPane {
         }
       }
     };
-    final MessagePanel panel = new MessagePanel(
+    final MessagePane panel = new MessagePane(
       UI, portrait, title, mainText, null,
       (Clickable[]) Visit.compose(Clickable.class, options, navOptions)
     );

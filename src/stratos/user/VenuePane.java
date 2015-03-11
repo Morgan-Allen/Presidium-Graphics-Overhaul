@@ -23,10 +23,10 @@ public class VenuePane extends SelectionInfoPane {
   
   
   final public static String
-    CAT_UPGRADES = "UPGRADES",
+    CAT_UPGRADES = "UPGRADE" ,
     CAT_STOCK    = "STOCK"   ,
-    CAT_STAFFING = "STAFFING",
-    CAT_VISITORS = "VISITORS";
+    CAT_STAFFING = "STAFFING";
+    //CAT_VISITORS = "VISITS" ;
   
   final Venue v;  //  TODO:  Apply to Properties, like, e.g, vehicles?
   private Upgrade lastCU = null;
@@ -42,7 +42,7 @@ public class VenuePane extends SelectionInfoPane {
     Venue venue, SelectionInfoPane panel, BaseUI UI, boolean stocksOrders
   ) {
     final String categories[] = {
-      CAT_UPGRADES, CAT_STOCK, CAT_STAFFING, CAT_VISITORS
+      CAT_UPGRADES, CAT_STOCK, CAT_STAFFING//, CAT_VISITORS
     };
     if (panel == null) panel = new VenuePane(UI, venue, categories);
     final VenuePane VD = (VenuePane) panel;
@@ -57,7 +57,7 @@ public class VenuePane extends SelectionInfoPane {
       else              VD.describeStocks     (l, UI);
     }
     if (category == CAT_STAFFING) VD.describeStaffing(l, UI);
-    if (category == CAT_VISITORS) VD.describeVisitors(l, UI);
+    //if (category == CAT_VISITORS) VD.describeVisitors(l, UI);
     return panel;
   }
   
@@ -276,6 +276,8 @@ public class VenuePane extends SelectionInfoPane {
   
   private void describeStaffing(Description d, BaseUI UI) {
     final Background c[] = v.careers();
+    Batch <Actor> mentioned = new Batch <Actor> ();
+    
     if (c != null && c.length > 0) {
       
       for (Background b : c) {
@@ -291,32 +293,9 @@ public class VenuePane extends SelectionInfoPane {
         
         for (final FindWork a : v.staff.applications()) {
           if (a.employer() != v || a.position() != b) continue;
-          
           final Actor p = a.actor();
-          final Composite comp = p.portrait(UI);
-          if (comp != null) ((Text) d).insert(comp.texture(), 40, true);
-          else d.append("\n");
-          
-          d.append(p);
-          d.append(p.inWorld() ? " (" : " (Offworld ");
-          d.append(p.vocation().name+")");
-          
-          final Series <Trait>
-            TD = HumanDescription.sortTraits(p.traits.personality(), p),
-            SD = HumanDescription.sortTraits(p.traits.skillSet()   , p);
-          
-          int numS = 0;
-          for (Trait s : SD) {
-            if (a.position().skillLevel((Skill) s) <= 0) continue;
-            if (++numS > 3) break;
-            d.append("\n  "+s+" ("+((int) p.traits.traitLevel(s))+") ");
-          }
-          d.append("\n  ");
-          int numT = 0;
-          for (Trait t : TD) {
-            if (++numT > 3) break;
-            d.append(t+" ");
-          }
+          mentioned.include(p);
+          descApplicant(p, a.position(), d, UI);
           
           d.append("\n  ");
           final String hireDesc = "Hire for "+a.hiringFee()+" credits";
@@ -330,40 +309,35 @@ public class VenuePane extends SelectionInfoPane {
         
         for (Actor a : v.staff.workers()) if (a.vocation() == b) {
           descActor(a, d, UI);
+          d.append("\n  ");
+          d.append(descDuty(a));
+          mentioned.include(a);
         }
         d.append("\n");
       }
     }
     
-    //  TODO:  Make residency a kind of 'opening' for these purposes?
     ((Text) d).cancelBullet();
     d.append("Residents: ");
-    if (v.staff.residents().size() == 0) d.append("\n  No residents.");
-    for (Actor a : v.staff.residents()) descActor(a, d, UI);
-  }
-  
-  
-  private void describeVisitors(Description d, BaseUI UI) {
-    d.append("Visitors:");
-    for (Mobile m : v.inside()) descActor(m, d, UI);
-  }
-  
-  
-  private void descActor(Mobile m, Description d, BaseUI UI) {
-    
-    if (d instanceof Text && m instanceof Actor) {
-      final Composite p = ((Actor) m).portrait(UI);
-      if (p != null) ((Text) d).insert(p.texture(), 40, true);
-      else d.append("\n");
+    boolean anyLives = false;
+    for (Actor a : v.staff.residents()) {
+      if (mentioned.includes(a)) continue;
+      descActor(a, d, UI);
+      anyLives = true;
     }
-    else d.append("\n\n  ");
-    d.append(m);
-    d.append("\n  ");
-    m.describeStatus(d);
-    if (m instanceof Actor) {
-      d.append("\n  ");
-      d.append(descDuty((Actor) m));
+    if (! anyLives) d.append("None.");
+    d.append("\n");
+
+    ((Text) d).cancelBullet();
+    d.append("Visitors: ");
+    boolean anyVisit = false;
+    for (Mobile m : v.inside()) {
+      if (v.staff.doesBelong(m)) continue;
+      descActor(m, d, UI);
+      anyVisit = true;
     }
+    if (! anyVisit) d.append("None.");
+    d.append("\n");
   }
   
   
@@ -485,6 +459,52 @@ public class VenuePane extends SelectionInfoPane {
   }
   
   
+  
+  /**  Utility methods for actor-description that tend to get re-used
+    *  elsewhere...
+    */
+  public static void descApplicant(
+    Actor a, Background sought, Description d, BaseUI UI
+  ) {
+    final Composite comp = a.portrait(UI);
+    if (comp != null) ((Text) d).insert(comp.texture(), 40, true);
+    else d.append("\n");
+    
+    d.append(a);
+    d.append(a.inWorld() ? " (" : " (Offworld ");
+    d.append(a.vocation().name+")");
+    
+    final Series <Trait>
+      TD = HumanDescription.sortTraits(a.traits.personality(), a),
+      SD = HumanDescription.sortTraits(a.traits.skillSet()   , a);
+    
+    int numS = 0;
+    for (Trait s : SD) {
+      if (sought.skillLevel((Skill) s) <= 0) continue;
+      if (++numS > 3) break;
+      d.append("\n  "+s+" ("+((int) a.traits.traitLevel(s))+") ");
+    }
+    d.append("\n  ");
+    int numT = 0;
+    for (Trait t : TD) {
+      if (++numT > 3) break;
+      d.append(t+" ");
+    }
+  }
+  
+  
+  public static void descActor(Mobile m, Description d, BaseUI UI) {
+    
+    if (d instanceof Text && m instanceof Actor) {
+      final Composite p = ((Actor) m).portrait(UI);
+      if (p != null) ((Text) d).insert(p.texture(), 40, true);
+      else d.append("\n");
+    }
+    else d.append("\n\n  ");
+    d.append(m);
+    d.append("\n  ");
+    m.describeStatus(d);
+  }
 }
 
 

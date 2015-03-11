@@ -22,10 +22,10 @@ public class HumanDescription implements Qualities {
     showRelations  = true ;
   
   final static String
-    CAT_GEAR      = "GEAR"     ,
-    CAT_SKILLS    = "SKILLS"   ,
-    CAT_PROFILE   = "AGENDA"   ,
-    CAT_RELATIONS = "RELATIONS";
+    CAT_GEAR      = "GEAR"  ,
+    CAT_SKILLS    = "SKILLS",
+    CAT_PROFILE   = "AGENDA",
+    CAT_RELATIONS = "PEERS" ;
   
   final Actor h;
   
@@ -91,7 +91,7 @@ public class HumanDescription implements Qualities {
     final int
       MS = (int) h.gear.maxShields  (),
       SC = (int) h.gear.shieldCharge(),
-      FC = (int) h.gear.powerCells  (),
+      PC = (int) h.gear.powerCells  (),
       IL = (int) h.health.injury    (),
       FL = (int) h.health.fatigue   (),
       MH = (int) h.health.maxHealth ();
@@ -100,18 +100,20 @@ public class HumanDescription implements Qualities {
     if (FL > 0) d.append(" (Fatigue "+FL+")");
     
     final Item device = h.gear.deviceEquipped();
+    
     if (device != null) {
       d.append("\n  "+device+" ("+((int) h.gear.attackDamage())+")");
+      if (PC > 0) d.append(" (Power "+PC+")");
     }
-    else d.append("\n  No device");
-    if (FC > 0) d.append(" (Power "+FC+")");
     
     final Item outfit = h.gear.outfitEquipped();
+    final boolean showShields = MS > 0 || SC > 0;
     if (outfit != null) {
       d.append("\n  "+outfit+" ("+((int) h.gear.armourRating())+")");
     }
-    else d.append("\n  No outfit");
-    if (MS > 0 || SC > 0) d.append(" (Shields "+SC+"/"+MS+")");
+    else if (showShields) d.append("\n  No outfit");
+    if (showShields) d.append(" (Shields "+SC+"/"+MS+")");
+    
     //
     //  Describe any special status FX:
     final Batch <String   > healthDesc = new Batch <String> ();

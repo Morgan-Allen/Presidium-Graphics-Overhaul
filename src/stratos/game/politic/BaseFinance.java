@@ -42,6 +42,9 @@ public class BaseFinance {
   
   float credits = 0, interest = 0;
   
+  //  TODO:  Keep a record of income/outlays from all sources going back much
+  //         further than this.  Break it down into 6-day intervals.
+  
   private float lastUpdate = -1;
   final Tally <String>
     outlay = new Tally <String> (),
@@ -119,7 +122,6 @@ public class BaseFinance {
     
     //final float repaid = credits * interest / 100f;
     //if (repaid > 0) incCredits(0 - repaid);
-    //  TODO:  This needs to have some form of visual interface!
     
     if (report) {
       I.say("\nFINANCE REPORT FOR "+base);
@@ -138,18 +140,19 @@ public class BaseFinance {
     income.clear();
     outlay.clear();
   }
+  
+  
+  public void describeTo(Description d) {
+    d.append("FINANCE REPORT FOR "+base);
+    d.append("\n  Income sources:");
+    for (String key : income.keys()) {
+      d.append("/n    "+key+": "+income.valueFor(key));
+    }
+    d.append("\n  Outlay sources:");
+    for (String key : outlay.keys()) {
+      d.append("\n    "+key+": "+outlay.valueFor(key));
+    }
+  }
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 

@@ -42,10 +42,13 @@ public class BaseUI extends HUD implements UIConstants {
   private CommsPane commsPanel;
   //private PlanetPanel planetPanel;
   //private StarsPanel  starsPanel ;  //Just use the homeworld.
-  
-  private Button commsButton;
+
   private Button optionsButton;
+  private Button commsButton;  //  TODO:  GET RID OF THIS
+  
   private Button buildButton;
+  private Button rosterButton;
+  private Button edictsButton;
   
   
   private UIGroup panelArea, infoArea;
@@ -148,12 +151,13 @@ public class BaseUI extends HUD implements UIConstants {
     mapsPanel.attachTo(this);
     
     this.readout = new Readout(this);
-    readout.alignHorizontal(MINIMAP_WIDE + PANEL_TAB_SIZE, GUILDS_WIDE);
+    readout.alignHorizontal(MINIMAP_WIDE + PANEL_TAB_SIZE, INFO_PANEL_WIDE);
     readout.alignTop(0, READOUT_HIGH);
     readout.attachTo(this);
     
     this.panelArea = new UIGroup(this);
-    panelArea.alignVertical(QUICKBAR_HIGH, READOUT_HIGH);
+    //panelArea.alignVertical(QUICKBAR_HIGH, PANEL_TABS_HIGH);
+    panelArea.alignVertical  (0, 0);
     panelArea.alignHorizontal(0, 0);
     panelArea.attachTo(this);
     
@@ -174,36 +178,43 @@ public class BaseUI extends HUD implements UIConstants {
     quickbar.alignAcross(0, 1);
     quickbar.alignBottom(0, 0);
     quickbar.attachTo(this);
-    
-    //  TODO:  You'll need to find some way to re-do this.  Set up blank tabs
-    //         at least, and remember the contents!
-    //quickbar.setupPowersButtons();
-    //quickbar.setupInstallButtons();
   }
   
   
   private void configPanels() {
     
-    final int PTS = PANEL_TAB_SIZE, HS = PTS / 2;
-    
+    final int PTS = PANEL_TAB_SIZE, PTH = PANEL_TABS_HIGH;
     this.optionsButton = GameOptionsPane.createButton(this, scenario);
     optionsButton.stretch = false;
-    optionsButton.alignTop(0, PTS);
-    optionsButton.alignLeft(MINIMAP_WIDE + HS - (PTS * 1), PTS);
+    optionsButton.alignTop (0, PTH);
+    optionsButton.alignLeft(0, PTS);
     optionsButton.attachTo(this);
     
+    //  TODO:  Get rid of this!  Replace with message alerts!
     this.commsPanel = new CommsPane(this);
     this.commsButton = CommsPane.createButton(this, commsPanel);
     commsButton.stretch = false;
-    commsButton.alignTop(0, PTS);
-    commsButton.alignLeft(MINIMAP_WIDE + HS - (PTS * 2), PTS);
+    commsButton.alignTop(0, PTH);
+    commsButton.alignRight(PTS * 0, PTS);
     commsButton.attachTo(this);
     
     this.buildButton = InstallationPane.createButton(this);
     buildButton.stretch = false;
-    buildButton.alignTop(0, PTS);
-    buildButton.alignLeft(MINIMAP_WIDE + HS - (PTS * 3), PTS);
+    buildButton.alignTop(0, PTH);
+    buildButton.alignRight(PTS * 1, PTS);
     buildButton.attachTo(this);
+    
+    this.rosterButton = RosterPane.createButton(this);
+    rosterButton.stretch = false;
+    rosterButton.alignTop(0, PTH);
+    rosterButton.alignRight(PTS * 2, PTS);
+    rosterButton.attachTo(this);
+    
+    this.edictsButton = CommercePane.createButton(this);
+    edictsButton.stretch = false;
+    edictsButton.alignTop(0, PTH);
+    edictsButton.alignRight(PTS * 3, PTS);
+    edictsButton.attachTo(this);
     
     /*
     this.planetPanel = new PlanetPanel(this);

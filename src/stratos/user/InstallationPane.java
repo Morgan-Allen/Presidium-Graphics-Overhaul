@@ -10,28 +10,16 @@ import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
-import stratos.graphics.terrain.*;
+//import stratos.graphics.terrain.*;
 import stratos.util.*;
 import stratos.game.economic.Inventory.Owner;
 
 import com.badlogic.gdx.Input.Keys;
 
 
-//
-//  TODO:  You need to have the panes drop down.
-
 //  TODO:  Allow listing of current structures, and greyed-out options.
 //  TODO:  Allow a general summary of demand for structures of this type.
 //  TODO:  Expand a little on the category-selection system.
-//  TODO:  List the structures that are *allowed* by building X or Y.
-
-//  In an impressions-style game, I generally go to a buildings-panel so I can
-//  construct an entire neighbourhood with many different structure-types.  So
-//  I want to be able to access them all easily at the same time.
-
-//  If I were making gradual, incremental adjustments, then having the tools
-//  for diagnosis and options to construct in the same pane would make sense.
-//  But due to the front-loaded nature of planning, the latter rarely happens.
 
 
 public class InstallationPane extends SelectionInfoPane {
@@ -117,7 +105,6 @@ public class InstallationPane extends SelectionInfoPane {
   
   /**  Interface presented-
     */
-  //private Class listShown = null;
   private VenueProfile helpFor;
   private Category category = null;
   
@@ -125,6 +112,10 @@ public class InstallationPane extends SelectionInfoPane {
   InstallationPane(BaseUI UI) {
     super(UI, null, true, true);
     if (! setupDone) setupTypes();
+    
+    final UIGroup bar = new UIGroup(UI);
+    bar.alignToMatch(detailText);
+    bar.attachTo(innerRegion);
     
     for (int i = 0; i < NUM_GUILDS; i++) {
       final String
@@ -142,11 +133,12 @@ public class InstallationPane extends SelectionInfoPane {
       };
       button.stretch = true;
       final int
-        barW = (INFO_PANEL_WIDE / 2) - (PORTRAIT_SIZE + 20),
+        barW = INFO_PANEL_WIDE - 50,
         wide = (int) (barW / INSTALL_CATEGORIES.length);
+      
       button.alignBottom(10, BAR_BUTTON_SIZE - 10);
-      button.alignLeft  (10 + (wide * i), wide);
-      button.attachTo(innerRegion);
+      button.alignLeft  ((wide * i), wide);
+      button.attachTo(bar);
     }
   }
 
@@ -163,8 +155,6 @@ public class InstallationPane extends SelectionInfoPane {
     return installed;
   }
   
-  
-  //  TODO:  This could use some elaboration...
   
   protected void updateText(
     final BaseUI UI, Text headerText, Text detailText, Text listingText
@@ -331,8 +321,6 @@ public class InstallationPane extends SelectionInfoPane {
         for (Structure.Basis i : group) i.doPlacement();
         UI.endCurrentTask();
         if (multiples) tab.initInstallTask(UI, type);
-        else UI.selection.pushSelection(group[0]);
-        
         if (I.logEvents()) I.say("\nPLACED "+toInstall+" AT "+picked);
       }
       

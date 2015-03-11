@@ -66,11 +66,10 @@ public interface UIConstants {
     
     READOUT_HIGH    =  20,
     QUICKBAR_HIGH   =  65,
-    PANEL_TAB_SIZE  =  40,
+    PANEL_TAB_SIZE  =  65,
+    PANEL_TABS_HIGH =  65,
     
-    GUILDS_WIDE     = 320,
-    INFO_PANEL_HIGH = 240,
-    INFO_PANEL_WIDE = 640,
+    INFO_PANEL_WIDE = 280,
     SCROLLBAR_WIDE  =  20;
 }
 

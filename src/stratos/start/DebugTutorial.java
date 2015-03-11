@@ -58,14 +58,6 @@ BUILDING AND UPGRADES-
 *  Explicit or improved placement for shield walls and arcologies.
      Fresh art for shield walls.
 
-*  Use service hatches to initiate heavier paving and utility-transmission.
-
-*  Buildings need to have multiple levels.  (At least for the main/root-guild
-   structures.)
-
-*  Ensure that spontaneous-buildings can 'migrate' to new sites if conditions
-   change.  (Allow that for buildings in general?)
-
 *  Upgrades need to filled in and tested for:
      Stock Exchange
      Archives
@@ -75,7 +67,15 @@ BUILDING AND UPGRADES-
      Trooper Lodge (drilling)
      Cut out recruitment-extras for others.
 
+*  Use service hatches to initiate heavier paving and utility-transmission?
+
+*  Buildings need to have multiple levels.  (At least for the main/root-guild
+   structures.)
+
 *  Fresh art and level-depictions for all structures.
+
+*  Ensure that spontaneous-buildings can 'migrate' to new sites if conditions
+   change.  (Allow that for buildings in general?)
 
 
 CONTROL AND DIRECTION-
@@ -88,7 +88,7 @@ CONTROL AND DIRECTION-
 
 INTERFACE AND DEBUGGING
 
-*  Include a Personnel and Finances/Economy pane.
+*  Include an Advisors(?) and Finances/Economy pane.
 
 *  Read definitions, tutorial messages, etc. from .xml and allow for later
    translations.
