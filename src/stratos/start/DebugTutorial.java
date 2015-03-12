@@ -82,8 +82,7 @@ CONTROL AND DIRECTION-
 *  Make Pledges more persistent and nuanced (see Proposal class.)
 
 *  Psy abilities need to be persistent and list their associated costs.  And
-   show the psy meter, next to your portrait.
-   ...Consider deducting fatigue, rather than concentration?
+   show the psy meter next to your portrait.
 
 
 INTERFACE AND DEBUGGING

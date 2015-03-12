@@ -21,8 +21,8 @@ public class Supervision extends Plan {
   /**  Data fields, setup and save/load functions-
     */
   private static boolean
-    evalVerbose  = true ,
-    stepsVerbose = true ;
+    evalVerbose  = false,
+    stepsVerbose = false;
   
   public static enum Type {
     TYPE_VIP_STAY ,

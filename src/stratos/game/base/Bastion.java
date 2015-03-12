@@ -7,7 +7,6 @@ package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.economic.Inventory.Owner;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -159,6 +158,32 @@ public class Bastion extends Venue {
       Upgrade.THREE_LEVELS, null, 1,
       null, Bastion.class, ALL_UPGRADES
     );
+  
+  final static Condition SEAT_OF_POWER_EFFECT = new Condition(
+    "seat_of_power_effect", true, "Seat of Power"
+  ) {
+    public void affect(Actor a) {
+      if ((a.aboard() instanceof Bastion) && (a == a.base().ruler())) {
+        final Bastion b = (Bastion) a.aboard();
+        final Actor ruler = a;
+        final float bonus = (b.structure.upgradeLevel(SEAT_OF_POWER) + 2) / 5f;
+        
+        float psiGain = ruler.health.maxConcentration();
+        psiGain *= bonus / ActorHealth.CONCENTRATE_REGEN_TIME;
+        ruler.health.gainConcentration(psiGain);
+        
+        float hitGain = ruler.health.maxHealth();
+        hitGain *= bonus / Stage.STANDARD_DAY_LENGTH;
+        ruler.health.liftFatigue(hitGain * 2);
+        ruler.health.liftInjury (hitGain * 1);
+        
+        Resting.dineFrom(ruler, b);
+      }
+      else {
+        a.traits.setLevel(SEAT_OF_POWER_EFFECT, 0);
+      }
+    }
+  };
 
   
   
@@ -222,31 +247,15 @@ public class Bastion extends Venue {
   }
   
   
-  private void updateRulerStatus() {
-    final Actor ruler = base.ruler();
-    if (ruler == null || ruler.aboard() != this) return;
-    
-    final float bonus = (structure.upgradeLevel(SEAT_OF_POWER) + 2) / 5f;
-    
-    float psiGain = ruler.health.maxConcentration();
-    psiGain *= bonus / ActorHealth.CONCENTRATE_REGEN_TIME;
-    ruler.health.gainConcentration(psiGain);
-    
-    float hitGain = ruler.health.maxHealth();
-    hitGain *= bonus / Stage.STANDARD_DAY_LENGTH;
-    ruler.health.liftFatigue(hitGain);
-    ruler.health.liftInjury (hitGain);
-    
-    Resting.dineFrom(ruler, this);
-  }
-  
-  
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     //
     //  Look after the ruler and any other housebound guests-
-    updateRulerStatus();
+    final Actor ruler = base.ruler();
+    if (ruler != null && ruler.aboard() == this) {
+      ruler.traits.setLevel(SEAT_OF_POWER_EFFECT, 1);
+    }
     //
     //  Provide power and life support-
     final float condition = Nums.clamp(structure.repairLevel() + 0.5f, 0, 1);

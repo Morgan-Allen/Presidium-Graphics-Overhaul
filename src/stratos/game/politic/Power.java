@@ -555,7 +555,7 @@ public abstract class Power implements Qualities {
       }
       
       public int costFor(Actor caster, Target selected) {
-        return 4;
+        return 3;
       }
       
       public boolean finishedWith(
@@ -595,7 +595,7 @@ public abstract class Power implements Qualities {
       }
       
       public int costFor(Actor caster, Target selected) {
-        return 5;
+        return 2;
       }
       
       public boolean finishedWith(
