@@ -475,6 +475,7 @@ public class Text extends UINode implements Description {
       fullSize.include(entry);
       entry.incY(heightAdjust);
     }
+    fullSize.clipToMultiple(1);
     needsFormat = false;
   }
   

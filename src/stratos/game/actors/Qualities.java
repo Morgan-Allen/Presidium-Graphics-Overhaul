@@ -10,6 +10,11 @@ import stratos.util.*;
 
 
 
+//  TODO:  I think I know how to clean this up and simplify.  Use 4-5 main
+//  personality traits and under 20 main skills.  Everything else is a
+//  technique or a trait-variant.
+
+
 public interface Qualities {
   
   

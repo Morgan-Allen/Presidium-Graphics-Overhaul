@@ -143,9 +143,10 @@ public class I {
   }
   
   
-  public static String lengthen(int i, int decimals) {
-    String s = ""+(float) i;
-    while (s.length() < decimals) s+="0";
+  public static String lengthen(int i, int decimals, boolean whole) {
+    String s = whole ? ""+i : ""+(float) i;
+    if (whole) while (s.length() < decimals) s = "0"+s;
+    else while (s.length() < decimals) s+="0";
     return s;
   }
   

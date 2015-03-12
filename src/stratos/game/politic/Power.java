@@ -51,11 +51,12 @@ public abstract class Power implements Qualities {
   
   
   public abstract boolean appliesTo(Actor caster, Target selected);
+  public abstract int costFor(Actor caster, Target selected);
+  
   public abstract boolean finishedWith(
     Actor caster, String option,
     Target selected, Target hovered
   );
-  
   
   public String[] options() {
     return null;
@@ -151,7 +152,7 @@ public abstract class Power implements Qualities {
     final float
       bonus = caster.traits.usedLevel(PROJECTION) / 10f,
       drain = 1f / ((1 + bonus) * PlayLoop.UPDATES_PER_SECOND * gameSpeed);
-    caster.health.takeConcentration(drain);
+    caster.health.takeFatigue(drain);
     caster.skills.practiceAgainst(10, drain * 2, PROJECTION);
   }
   
@@ -193,7 +194,7 @@ public abstract class Power implements Qualities {
     final float
       bonus = caster.traits.usedLevel(PREMONITION) / 10,
       cost = 10f / (0.5f + bonus);
-    caster.health.takeConcentration(cost);
+    caster.health.takeFatigue(cost);
     caster.skills.practiceAgainst(10, cost, PREMONITION);
   }
   //*/
@@ -226,6 +227,12 @@ public abstract class Power implements Qualities {
       public boolean appliesTo(Actor caster, Target selected) {
         return false;
       }
+      
+      
+      public int costFor(Actor caster, Target selected) {
+        return 0;  //  TODO:  FIX UP
+      }
+      
       
       public boolean finishedWith(
         Actor caster, String option,
@@ -264,6 +271,12 @@ public abstract class Power implements Qualities {
         return false;
       }
       
+      
+      public int costFor(Actor caster, Target selected) {
+        return 0;  //  TODO:  FIX UP
+      }
+      
+      
       public boolean finishedWith(
         Actor caster, String option,
         Target selected, Target hovered
@@ -300,6 +313,11 @@ public abstract class Power implements Qualities {
       }
       
       
+      public int costFor(Actor caster, Target selected) {
+        return 0;  //  TODO:  FIX UP
+      }
+      
+      
       public boolean finishedWith(
         Actor caster, String option,
         Target selected, Target hovered
@@ -327,18 +345,22 @@ public abstract class Power implements Qualities {
         return selected instanceof Tile;
       }
       
+      public int costFor(Actor caster, Target selected) {
+        float dist = Spacing.distance(selected, caster) / Stage.SECTOR_SIZE;
+        float cost = 5 * Nums.sqrt(dist);
+        return (int) cost;
+      }
+      
       public boolean finishedWith(
         Actor caster, String option,
         Target selected, Target hovered
       ) {
         final Tile tile = (Tile) selected;
-        float bonus = 0;
+        float bonus = 0, cost = 0;
         if (caster != null && ! GameSettings.psyFree) {
           bonus += caster.traits.usedLevel(PROJECTION) / 5;
-
-          float dist = (float) Nums.sqrt(Spacing.distance(tile, caster));
-          float cost = 10 * (1 + (dist / Stage.SECTOR_SIZE));
-          caster.health.takeConcentration(cost);
+          cost = costFor(caster, selected);
+          caster.health.takeFatigue(cost);
           caster.skills.practiceAgainst(10, cost, PROJECTION);
         }
         
@@ -368,11 +390,14 @@ public abstract class Power implements Qualities {
       "Telekinesis", NONE, "power_telekinesis.png",
       "Hurls the target in an indicated direction."
     ) {
-      
       public boolean appliesTo(Actor caster, Target selected) {
         return
           selected instanceof Mobile && caster != null &&
           selected.base() != caster.base();
+      }
+      
+      public int costFor(Actor caster, Target selected) {
+        return 4;
       }
       
       public boolean finishedWith(
@@ -394,8 +419,8 @@ public abstract class Power implements Qualities {
         float maxDist = 1;
         if (! GameSettings.psyFree) {
           maxDist = 1 + (caster.traits.usedLevel(TRANSDUCTION) / 10f);
-          final float drain = 4f;
-          caster.health.takeConcentration(drain);
+          final float drain = costFor(caster, pushed);
+          caster.health.takeFatigue(drain);
           caster.skills.practiceAgainst(10, drain, TRANSDUCTION);
         }
         maxDist *= 10f;
@@ -457,6 +482,10 @@ public abstract class Power implements Qualities {
         return selected instanceof Actor;
       }
       
+      public int costFor(Actor caster, Target selected) {
+        return 5;
+      }
+      
       public boolean finishedWith(
         Actor caster, String option,
         Target selected, Target hovered
@@ -470,9 +499,9 @@ public abstract class Power implements Qualities {
         
         final float
           bonus = caster.traits.usedLevel(TRANSDUCTION) / 2,
-          cost = 5;
+          cost  = costFor(caster, selected);
         subject.gear.boostShields(5 + bonus, false);
-        caster.health.takeConcentration(cost);
+        caster.health.takeFatigue(cost);
         caster.skills.practiceAgainst(10, cost, TRANSDUCTION);
         return true;
       }
@@ -487,6 +516,10 @@ public abstract class Power implements Qualities {
         return selected instanceof Actor;
       }
       
+      public int costFor(Actor caster, Target selected) {
+        return 5;
+      }
+      
       public boolean finishedWith(
         Actor caster, String option,
         Target selected, Target hovered
@@ -495,8 +528,8 @@ public abstract class Power implements Qualities {
         
         float bonus = 1;
         if (caster != null && ! GameSettings.psyFree) {
-          final float cost = 5;
-          caster.health.takeConcentration(cost);
+          final float cost = costFor(caster, selected);
+          caster.health.takeFatigue(cost);
           bonus += caster.traits.usedLevel(METABOLISM) / 2;
           caster.skills.practiceAgainst(10, cost, METABOLISM);
         }
@@ -521,6 +554,10 @@ public abstract class Power implements Qualities {
         return selected instanceof Actor;
       }
       
+      public int costFor(Actor caster, Target selected) {
+        return 4;
+      }
+      
       public boolean finishedWith(
         Actor caster, String option,
         Target selected, Target hovered
@@ -530,8 +567,8 @@ public abstract class Power implements Qualities {
         
         if (caster != null && ! GameSettings.psyFree) {
           bonus += caster.traits.usedLevel(SYNESTHESIA) / 2;
-          final float cost = 2.5f;
-          caster.health.takeConcentration(cost);
+          final float cost = costFor(caster, selected);
+          caster.health.takeFatigue(cost);
           caster.skills.practiceAgainst(10, cost, SYNESTHESIA);
         }
         
@@ -555,6 +592,10 @@ public abstract class Power implements Qualities {
       
       public boolean appliesTo(Actor caster, Target selected) {
         return selected instanceof Actor;
+      }
+      
+      public int costFor(Actor caster, Target selected) {
+        return 5;
       }
       
       public boolean finishedWith(
@@ -602,9 +643,11 @@ public abstract class Power implements Qualities {
         
         float priorityMod = 0;
         if (cast) {
-          final float cost = 5f, magnitude = Nums.abs(affinity);
+          final float
+            cost      = costFor(caster, selected),
+            magnitude = Nums.abs(affinity);
           priorityMod += caster.traits.usedLevel(SUGGESTION) / 2f;
-          caster.health.takeConcentration(cost);
+          caster.health.takeFatigue(cost);
           caster.skills.practiceAgainst(10, cost, SYNESTHESIA);
           affects.relations.incRelation(caster, affinity, magnitude, -0.1f);
         }

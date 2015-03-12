@@ -188,11 +188,8 @@ public class Box2D {
   
   
   public void clipToMultiple(int m) {
-    int xm = 0, ym = 0;
-    while ((xm += m) < xdim);
-    while ((ym += m) < ydim);
-    xdim(xm);
-    ydim(ym);
+    xdim(Nums.round(xdim, m, true));
+    ydim(Nums.round(ydim, m, true));
   }
   
   

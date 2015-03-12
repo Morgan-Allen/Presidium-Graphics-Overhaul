@@ -130,7 +130,7 @@ public class VenuePane extends SelectionInfoPane {
       d.append(" "+I.shorten(amount, 1)+"/");
       
       final float maxTrade = v.spaceFor(t);
-      d.append(new Description.Link(I.lengthen(level, 4)) {
+      d.append(new Description.Link(I.lengthen(level, 4, false)) {
         public void whenClicked() {
           final int newLevel = (level >= maxTrade) ? 0 : (level + 5);
           v.stocks.forceDemand(t, newLevel, tier);

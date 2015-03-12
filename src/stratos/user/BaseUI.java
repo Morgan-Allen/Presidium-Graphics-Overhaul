@@ -52,7 +52,7 @@ public class BaseUI extends HUD implements UIConstants {
   
   
   private UIGroup panelArea, infoArea;
-  private MessagePopup popup;
+  private BorderedLabel popup;
   private Quickbar quickbar;
   
   private UIGroup currentPanel, newPanel;
@@ -136,7 +136,7 @@ public class BaseUI extends HUD implements UIConstants {
   
   public static void setPopupMessage(String message) {
     final BaseUI UI = current();
-    if (UI != null) UI.popup.setMessage(message);
+    if (UI != null) UI.popup.setMessage(message, true);
   }
   
   
@@ -156,7 +156,6 @@ public class BaseUI extends HUD implements UIConstants {
     readout.attachTo(this);
     
     this.panelArea = new UIGroup(this);
-    //panelArea.alignVertical(QUICKBAR_HIGH, PANEL_TABS_HIGH);
     panelArea.alignVertical  (0, 0);
     panelArea.alignHorizontal(0, 0);
     panelArea.attachTo(this);
@@ -166,7 +165,7 @@ public class BaseUI extends HUD implements UIConstants {
     infoArea.alignHorizontal(0, 0);
     infoArea.attachTo(this);
     
-    this.popup = new MessagePopup(this);
+    this.popup = new BorderedLabel(this);
     popup.alignHorizontal(0.5f, 0, 0);
     popup.alignBottom(QUICKBAR_HIGH, 0);
     popup.attachTo(this);

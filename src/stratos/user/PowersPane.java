@@ -12,10 +12,17 @@ import com.badlogic.gdx.Input.Keys;
 
 
 
+
+
 public class PowersPane extends SelectionInfoPane {
   
   
   private static OptionList optionList;
+  
+  final static ImageAsset
+    BUTTON_GREYED = ImageAsset.fromImage(
+      PowersPane.class, "media/GUI/Powers/power_greyed_out.png"
+    );
   
   
   public PowersPane(BaseUI UI) {
@@ -51,10 +58,10 @@ public class PowersPane extends SelectionInfoPane {
     */
   public static class PowerButton extends Button {
     
-    final Power  power;
-    final Target focus;
-    final UINode bar  ;
-    final BaseUI UI   ;
+    final Power  power ;
+    final Target focus ;
+    final UINode parent;
+    final BaseUI UI    ;
     
     
     public PowerButton(BaseUI UI, Power p, Target focus, UINode parent) {
@@ -62,10 +69,11 @@ public class PowersPane extends SelectionInfoPane {
         UI, p.buttonImage, CIRCLE_LIT,
         p.name.toUpperCase()+"\n  "+p.helpInfo
       );
-      this.power = p;
-      this.focus = focus;
-      this.UI    = UI;
-      this.bar   = parent;
+      this.power  = p;
+      this.focus  = focus;
+      this.UI     = UI;
+      this.parent = parent;
+      this.setGreyedTex(BUTTON_GREYED.asTexture());
       
       if (focus == null) I.complain("NO SUBJECT!");
     }
@@ -87,6 +95,7 @@ public class PowersPane extends SelectionInfoPane {
         task.cancelTask();
         if (task.power == power) return;
       }
+      
       //
       //  If there are options, display them instead.
       final Actor caster = UI.played().ruler();
@@ -95,7 +104,7 @@ public class PowersPane extends SelectionInfoPane {
         optionList = new OptionList(this, options);
         optionList.alignToMatch(this);
         optionList.alignBottom(BAR_BUTTON_SIZE + 10, 0);
-        optionList.attachTo(bar);
+        optionList.attachTo(parent);
         return;
       }
       else {
@@ -105,20 +114,30 @@ public class PowersPane extends SelectionInfoPane {
     }
     
     
+    private boolean costOkay() {
+      final Actor caster = UI.played().ruler();
+      final int cost = power.costFor(caster, focus);
+      float freshness = caster.health.maxHealth() - caster.health.fatigue();
+      return freshness >= cost;
+    }
+    
+    
     protected void updateState() {
-      this.enabled = true;
+      this.enabled = costOkay();
       super.updateState();
     }
     
     
     protected String disableInfo() {
+      final boolean okay = costOkay();
+      if (! okay) return "  (Insufficient psy points)";
       return "  (Unavailable: No governor)";
     }
   }
   
   
+  
   /**
-    * 
     */
   private static class OptionList extends UIGroup {
     
@@ -129,14 +148,15 @@ public class PowersPane extends SelectionInfoPane {
     ) {
       super(parent.UI);
       this.parent = parent;
-      final BaseUI UI = parent.UI;
       
-      float maxWide = 0;
-      final Batch <Text> links = new Batch <Text> ();
+      final BaseUI UI = parent.UI;
+      int maxWide = 0;
+      final Batch <BorderedLabel> labels = new Batch <BorderedLabel> ();
       
       for (final String option : options) {
-        final Text text = new Text(UI, UIConstants.INFO_FONT);
-        text.append(new Description.Link(option) {
+        final BorderedLabel label = new BorderedLabel(UI);
+        label.setMessage("", false);
+        label.text.append(new Description.Link(option) {
           public void whenClicked() {
             final Actor caster = UI.played().ruler();
             final PowerTask task = new PowerTask(
@@ -146,25 +166,20 @@ public class PowersPane extends SelectionInfoPane {
             dismissOptions();
           }
         }, Colour.GREY);
-
-        text.setToPreferredSize(1000);
-        maxWide = Nums.max(maxWide, text.preferredSize().xdim());
-        links.add(text);
+        labels.add(label);
+        
+        label.text.setToPreferredSize(1000);
+        maxWide = Nums.max(maxWide, (int) label.text.preferredSize().xdim());
       }
       
-      int i = 0; for (Text text : links) {
-        final Bordering bordering = new Bordering(UI, MessagePopup.BLACK_BAR);
-        bordering.setInsets(20, 20, 10, 10);
-        bordering.setUV(0.33f, 0.33f, 0.5f, 0.5f);
-        bordering.attachTo(this);
-        
-        text.alignBottom(i++ * 20, 16           );
-        text.alignLeft  (10      , (int) maxWide);
-        text.attachTo(this);
-        bordering.alignToMatch(text, 10, 2);
+      int i = 0; for (BorderedLabel label : labels) {
+        label.text.alignBottom    (i++ * 20, 16              );
+        label.text.alignHorizontal(0.5f, maxWide, maxWide / 2);
+        label.attachTo(this);
       }
     }
   }
+  
   
   
   /**  

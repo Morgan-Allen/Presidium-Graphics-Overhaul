@@ -254,13 +254,12 @@ public class Summons extends Plan {
   
   public static boolean canSummon(Target t, Base base) {
     final Actor ruler = base.ruler();
-    
     if (ruler == null || ! ruler.health.conscious()) return false;
     if (ruler.mind.work() == null) return false;
     if (ruler == t || ! (t instanceof Actor)) return false;
     
     final Actor a = (Actor) t;
-    if (a.base() != base || a.mind.hasToDo(Summons.class)) return false;
+    if (a.mind.hasToDo(Summons.class)) return false;
     return true;
   }
   

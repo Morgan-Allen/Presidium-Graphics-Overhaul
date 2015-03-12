@@ -1,15 +1,17 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.user;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
+import stratos.util.*;
 
 
-
-//  TODO:  The Psy display should be moved down to below the Power buttons.
 
 public class Readout extends UIGroup {
   
@@ -37,12 +39,28 @@ public class Readout extends UIGroup {
     
     if (read == null) return;
     read.setText("");
+    
     //
     //  Credits first-
     final int credits = played.finance.credits();
     if (credits >= 0) read.append(credits+" Credits", Colour.WHITE);
     else read.append((0 - credits)+" In Debt", Colour.YELLOW);
     read.append("   ");
+    
+    //
+    //  Then psy points-
+    final boolean ruled = played.ruler() != null;
+    final ActorHealth RH = ruled ? played.ruler().health : null;
+    int psyPoints = 0, maxPsy = 0;
+    if (played.ruler() != null) {
+      maxPsy    += RH.maxHealth();
+      psyPoints += maxPsy - RH.fatigue();
+      read.append("   Psy Points: ");
+      read.append(    I.lengthen(psyPoints, 2, true));
+      read.append("/"+I.lengthen(maxPsy   , 2, true));
+      read.append("   ");
+    }
+    
     //
     //  Then time and date-
     final float
@@ -66,35 +84,6 @@ public class Readout extends UIGroup {
       int demand = (int) p.allDemand(type);
       read.append(supply+"/"+demand+")");
     }
-    
-    
-    /*
-    //
-    //  And finally current psy points-
-    final boolean ruled = played.ruler() != null;
-    final ActorHealth RH = ruled ? played.ruler().health : null;
-    final int PS = ruled ? 2 * (int) RH.maxConcentration() : 0;
-    float psyPoints = 0;
-    if (played.ruler() != null) {
-      psyPoints += played.ruler().health.concentration();
-      psyPoints *= PS / RH.maxConcentration();
-    }
-    if (PS > 0 && psyPoints > 0) {
-      read.append("   Psy Points: ");
-      float a = psyPoints / PS;
-      Colour tone = new Colour().set((1 - a) / 2, a, (1 - a), 1);
-      while (--psyPoints > 0) {
-        read.append("|", tone);
-        a = psyPoints / PS;
-        tone = new Colour().set((1 - a) / 2, a, (1 - a), 1);
-        tone.setValue(1);
-      }
-      if ((psyPoints + 1) > 0) {
-        tone.a = psyPoints + 1;
-        read.append("|", tone);
-      }
-    }
-    //*/
   }
   
 }

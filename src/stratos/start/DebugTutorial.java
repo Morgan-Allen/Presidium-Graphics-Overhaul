@@ -14,7 +14,6 @@ import stratos.util.*;
 /*  TUTORIAL TODO LIST:
 
 *  Limit the powers available too- using upgrades or the household-panel?
-   ALSO- LIST PSY COSTS FOR ALL POWERS!  AND SHOW THE PSY METER!
 
 *  Have tutorial-messages appear as message-items along the right-hand side, in
    a fashion similar to ongoing missions.
@@ -38,7 +37,6 @@ import stratos.util.*;
 
 /*  BIG TODO LIST:
 
-
 ENEMIES AND ENVIRONMENT-
 
 *  Extra concept art for new creatures/vermin:
@@ -48,7 +46,6 @@ ENEMIES AND ENVIRONMENT-
 
 *  Need to restore animal nests and check their breeding behaviours.
    Need to ensure auto-distribution of predator and prey nests.
-
 
 BUILDING AND UPGRADES-
 
@@ -77,13 +74,16 @@ BUILDING AND UPGRADES-
 *  Ensure that spontaneous-buildings can 'migrate' to new sites if conditions
    change.  (Allow that for buildings in general?)
 
-
 CONTROL AND DIRECTION-
 
 *  Introduce Call-to-Arms at the Trooper Lodge (with respect to a particular
    mission at a time.)
 
 *  Make Pledges more persistent and nuanced (see Proposal class.)
+
+*  Psy abilities need to be persistent and list their associated costs.  And
+   show the psy meter, next to your portrait.
+   ...Consider deducting fatigue, rather than concentration?
 
 
 INTERFACE AND DEBUGGING

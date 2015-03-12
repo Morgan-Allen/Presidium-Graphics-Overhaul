@@ -15,10 +15,6 @@ import com.badlogic.gdx.math.Vector2;
 
 
 
-//  TODO:  This needs to be re-located in a consistent position near the foot
-//  of the screen.
-
-
 public class TargetOptions extends UIGroup {
   
   
@@ -72,7 +68,7 @@ public class TargetOptions extends UIGroup {
     final BaseUI BUI   = (BaseUI) UI;
     final Base   base  = BUI.played();
     final Actor  ruler = base.ruler();
-    final List <Button> options = new List <Button> ();
+    final List <UINode> options = new List <UINode> ();
     
     if (
       (subject instanceof Actor ||
@@ -95,7 +91,6 @@ public class TargetOptions extends UIGroup {
       ));
     }
     if (
-      //subject instanceof Actor &&
       Summons.canSummon(subject, base)
     ) {
       final ContactMission contactMission = new ContactMission(base, subject);
@@ -113,18 +108,33 @@ public class TargetOptions extends UIGroup {
       subject instanceof Tile
     ) {
       options.add(new OptionButton(
-        BUI, Mission.RECON_ICON, "Surveil or follow subject",
+        BUI, Mission.RECON_ICON, "Explore an area or follow subject",
         new ReconMission(base, (Tile) subject)
       ));
     }
     
     for (Power power : Power.BASIC_POWERS) {
       if (! power.appliesTo(ruler, subject)) continue;
-      options.add(new PowersPane.PowerButton(BUI, power, subject, this));
+      final UIGroup option = new UIGroup(BUI);
+      options.add(option);
+      final Button button;
+      button = new PowersPane.PowerButton(BUI, power, subject, option);
+      button.alignAcross(0, 1);
+      button.alignDown  (0, 1);
+      button.attachTo(option);
+      //
+      //  We also attach a label listing the psy cost of the power:
+      final int cost = power.costFor(ruler, subject);
+      final BorderedLabel costLabel = new BorderedLabel(BUI);
+      costLabel.attachTo(option);
+      costLabel.alignHorizontal(0.5f, 0, 0);
+      costLabel.alignTop(0, 0);
+      costLabel.text.scale = 0.75f;
+      costLabel.setMessage("Psy "+cost, false);
     }
     
     int sumWide = options.size() * (OB_SIZE + OB_MARGIN), across = 0;
-    for (Button option : options) {
+    for (UINode option : options) {
       option.alignToArea(across - (sumWide / 2), 0, OB_SIZE, OB_SIZE);
       option.attachTo(this);
       across += OB_SIZE + OB_MARGIN;
