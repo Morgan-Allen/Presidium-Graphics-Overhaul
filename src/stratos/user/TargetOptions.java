@@ -102,6 +102,11 @@ public class TargetOptions extends UIGroup {
           if (subject.base() == base) contactMission.setupAsSummons();
           super.whenClicked();
         }
+        
+        protected String info() {
+          if (subject.base() != base) return super.info();
+          return "Summon this citizen for discussion.";
+        }
       });
     }
     if (

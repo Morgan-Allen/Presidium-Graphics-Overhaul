@@ -35,9 +35,15 @@ public class NegotiationPane extends MissionPane {
   
   public SelectionInfoPane configOwningPanel() {
     final Description d = detail(), l = listing();
+    final Actor ruler = mission.base().ruler();
+    final Actor subject = (Actor) mission.subject();
+    if (ruler == null || subject == null) return null;
     
     if (contact.isSummons()) {
-      contact.describeMission(d);
+      d.append(subject);
+      d.append(" is being summoned to the ");
+      d.append(ruler.aboard());
+      d.append(".");
       return this;
     }
     
@@ -45,9 +51,6 @@ public class NegotiationPane extends MissionPane {
     super.describeStatus(contact, canChange, UI, d);
     super.describeOrders(canChange, d);
     
-    
-    final Actor ruler = mission.base().ruler();
-    final Actor subject = (Actor) mission.subject();
     offers.made = contact.pledgeOffers();
     sought.made = contact.pledgeSought();
     

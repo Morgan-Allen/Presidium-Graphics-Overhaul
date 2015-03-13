@@ -212,7 +212,7 @@ public class ShotFX extends SFX {
         ///I.say("  Difference: "+(initDepth - afterDepth));
       }
 
-      pass.compileQuad(model.tex, c, verts, 0, 0, 1, 1, model.vivid);
+      pass.compileQuad(model.tex, c, model.vivid, verts, 0, 0, 1, 1);
       if (! model.repeats)
         break;
     }

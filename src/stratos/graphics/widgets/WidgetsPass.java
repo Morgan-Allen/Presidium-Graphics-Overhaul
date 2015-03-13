@@ -42,9 +42,9 @@ public class WidgetsPass {
   private int blendDstFunc = GL20.GL_ONE_MINUS_SRC_ALPHA;
 
   private final ShaderProgram shader;
-
-  float color = Color.WHITE.toFloatBits();
-  private Color tempColor = new Color(1, 1, 1, 1);
+  
+  //float color = Color.WHITE.toFloatBits();
+  //private Color tempColor = new Color(1, 1, 1, 1);
   
   
   
@@ -177,36 +177,8 @@ public class WidgetsPass {
   }
   
   
-  public void setColor(Color tint) {
-    color = tint.toFloatBits();
-  }
-  
-  
-  public void setColor(float r, float g, float b, float a) {
-    int intBits = (int) (255 * a) << 24 | (int) (255 * b) << 16
-        | (int) (255 * g) << 8 | (int) (255 * r);
-    color = NumberUtils.intToFloatColor(intBits);
-  }
-  
-  
-  public void setColor(float color) {
-    this.color = color;
-  }
-  
-  
-  public Color getColor() {
-    int intBits = NumberUtils.floatToIntColor(color);
-    Color color = tempColor;
-    color.r = (intBits & 0xff) / 255f;
-    color.g = ((intBits >>> 8) & 0xff) / 255f;
-    color.b = ((intBits >>> 16) & 0xff) / 255f;
-    color.a = ((intBits >>> 24) & 0xff) / 255f;
-    return color;
-  }
-  
-
   public void draw(
-    Texture texture,
+    Texture texture, Colour colour,
     float x, float y, float width, float height,
     float u, float v, float u2, float v2
   ) {
@@ -223,8 +195,8 @@ public class WidgetsPass {
 
     final float fx2 = x + width;
     final float fy2 = y + height;
-
-    float color = this.color;
+    
+    float color = colour.floatBits;
     int idx = this.idx;
     vertices[idx++] = x;
     vertices[idx++] = y;

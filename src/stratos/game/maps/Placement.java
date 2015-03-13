@@ -215,55 +215,59 @@ public class Placement implements TileConstants {
   //  TODO:  Return a set of venues/fixtures/elements that conflict with the
   //  one being placed?
   
-  //  TODO:  The perimeter-guarantee needs to be 2-tiles wide, including a
-  //  viable entrance.
-  
-  //  TODO:  You must allow for manual rotation of the entrance-face!
-  
   //
   //  This method checks whether the placement of the given element in this
   //  location would create secondary 'gaps' along it's perimeter that might
   //  lead to the existence of inaccessible 'pockets' of terrain- that would
   //  cause pathing problems.
-  public static boolean perimeterFits(Element element) {
-    final Stage world = element.origin().world;
-    final Box2D area = element.area(tA);
-    final Tile perim[] = Spacing.perimeter(area, world);
+  public static boolean perimeterFits(
+    Element element, int spaceNeed, Stage world
+  ) {
+    //
+    //  We check recursively for pockets at a finer resolution:
+    if (spaceNeed > 1) {
+      final boolean fits = perimeterFits(element, spaceNeed -1, world);
+      if (! fits) return false;
+    }
+    final Box2D footprint = element.area(tA);
     final int tier = element.owningTier();
-    
     //
-    //  Here, we check the first perimeter.  First, determine where the first
-    //  taken (reserved) tile after a contiguous gap is-
-    boolean inClearSpace = false;
-    int index = perim.length - 1;
-    while (index >= 0) {
-      final Tile t = perim[index];
-      if (t == null || t.owningTier() >= tier) {
-        if (inClearSpace) break;
-      }
-      else { inClearSpace = true; }
-      index--;
+    //  If more than one tile of space is required, pull the footprint down by
+    //  the appropriate amount (so that the clearance-check has space to
+    //  operate.)
+    if (spaceNeed > 1) {
+      final int shift = spaceNeed - 1;
+      footprint.incX   (-shift);
+      footprint.incY   (-shift);
+      footprint.incHigh( shift);
+      footprint.incWide( shift);
     }
     //
-    //  Then, starting from that point, and scanning in the other direction,
-    //  ensure there's no more than a single contiguous clear space-
-    final int
-      firstTaken = (index + perim.length) % perim.length,
-      firstClear = (firstTaken + 1) % perim.length;
-    inClearSpace = false;
-    int numSpaces = 0;
-    for (index = firstClear; index != firstTaken;) {
-      final Tile t = perim[index];
-      if (t == null || t.owningTier() >= tier) {
-        inClearSpace = false;
-      }
-      else if (! inClearSpace) { inClearSpace = true; numSpaces++; }
-      index = (index + 1) % perim.length;
+    //  In essence, we scan along the perimeter and note how often the tiles
+    //  switch between being blocked and unblocked.
+    final Tile perim[] = Spacing.perimeter(footprint, world);
+    int inClear = -1, numGaps = 0;
+    for (Tile t : perim) {
+      int clear = checkClear(t, spaceNeed, tier) ? 0 : 1;
+      if (clear != inClear) { inClear = clear; if (clear == 1) numGaps++; }
     }
-    if (numSpaces > 1) return false;
-    
     //
-    //  If you run the gauntlet, return true-
+    //  There's a potential fail case if a gap lies across the first and last
+    //  tiles checked, so we decrement the count in that case-
+    final boolean tailGap =
+      checkClear(perim[0               ], spaceNeed, tier) &&
+      checkClear(perim[perim.length - 1], spaceNeed, tier);
+    if (tailGap) numGaps--;
+    return numGaps < 2;
+  }
+  
+  
+  private static boolean checkClear(Tile t, int space, int tier) {
+    if (t == null) return false;
+    for (int x = space, y; x-- > 0;) for (y = space; y-- > 0;) {
+      final Tile u = t.world.tileAt(x + t.x, y + t.y);
+      if (u == null || t.owningTier() >= tier) return false;
+    }
     return true;
   }
   
@@ -271,61 +275,7 @@ public class Placement implements TileConstants {
   public static boolean isViableEntrance(Venue v, Tile e) {
     return e != null && ! e.reserved();
   }
-  
-  /*
-  public static boolean isViableEntrance(Venue v, int facing, Stage world) {
-    final int off[] = Placement.entranceCoords(v.size, v.size, facing);
-    final Tile o = v.origin();
-    final Tile e = world.tileAt(o.x + off[0], o.y + off[1]);
-    return e != null && ! e.reserved();
-  }
-  //*/
 }
-
-
-
-
-
-//  TODO:  Reserve this strictly for venues?  (Better yet, just use the
-//  claims-system if possible.)
-
-/*
-public static boolean checkClustering(
-  Stage world, Element f, Tile outerPerim[]
-) {
-  final boolean report = false;
-  final int tier = f.owningTier();
-  
-  final Tile belongs = clusterTile(f);
-  if (report) I.say("\nChecking for clustering by "+f+" (at "+belongs+")");
-  
-  for (Tile t : outerPerim) {
-    if (t == null || t.owningTier() < tier) continue;
-    
-    //  TODO:  You can ignore any structures whose claim you could normally
-    //  override!
-    final Tile cluster = clusterTile(t.onTop());
-    if (report) I.say("  "+t.onTop()+" belongs to "+cluster);
-    if (cluster != belongs) return false;
-  }
-  return true;
-}
-//*/
-/*
-final static int CLUSTER_SIZE = 16;
-private static Tile clusterTile(Element e) {
-  final Tile at = e.origin();
-  final int
-    res = CLUSTER_SIZE,
-    cX = (at.x / res) * res,
-    cY = (at.y / res) * res;
-  return at.world.tileAt(cX, cY);
-}
-//*/
-
-
-
-
 
 
 

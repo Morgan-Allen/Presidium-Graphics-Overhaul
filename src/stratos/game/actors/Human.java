@@ -165,7 +165,7 @@ public class Human extends Actor implements Qualities {
     final Composite cached = Composite.fromCache(key);
     if (cached != null) return cached;
     
-    final boolean report = true;// mediaVerbose && I.talkAbout == c;
+    final boolean report = mediaVerbose && I.talkAbout == c;
     if (report) {
       I.say("\nGetting new face composite for "+c+" (key "+key+")");
     }

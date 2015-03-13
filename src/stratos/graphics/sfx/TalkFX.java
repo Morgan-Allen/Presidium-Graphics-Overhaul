@@ -240,21 +240,21 @@ public class TalkFX extends SFX {
     final Colour colour = Colour.transparency(bubble.alpha);
     pass.compileQuad(
       BUBBLE_TEX.asTexture(), colour,
-      minX, minY, capXL - minX, maxY - minY,
-      MIN_U, BOT_V, CAP_LU, TOP_V,
-      flatPoint.z, true, false
+      false, minX, minY, capXL - minX,
+      maxY - minY, MIN_U, BOT_V, CAP_LU,
+      TOP_V, flatPoint.z, true
     );
     pass.compileQuad(
       BUBBLE_TEX.asTexture(), colour,
-      capXL, minY, capXR - capXL, maxY - minY,
-      CAP_LU, BOT_V, CAP_RU, TOP_V,
-      flatPoint.z, true, false
+      false, capXL, minY, capXR - capXL,
+      maxY - minY, CAP_LU, BOT_V, CAP_RU,
+      TOP_V, flatPoint.z, true
     );
     pass.compileQuad(
       BUBBLE_TEX.asTexture(), colour,
-      capXR, minY, maxX - capXR, maxY - minY,
-      CAP_RU, BOT_V, MAX_U, TOP_V,
-      flatPoint.z, true, false
+      false, capXR, minY, maxX - capXR,
+      maxY - minY, CAP_RU, BOT_V, MAX_U,
+      TOP_V, flatPoint.z, true
     );
   }
 }

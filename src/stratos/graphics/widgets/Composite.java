@@ -160,9 +160,8 @@ public class Composite {
   public void drawTo(WidgetsPass pass, Box2D bounds, float alpha) {
     if (disposed) return;
     texture();
-    pass.setColor(1, 1, 1, alpha);
     pass.draw(
-      composed,
+      composed, Colour.transparency(alpha),
       bounds.xpos(), bounds.ypos(),
       bounds.xdim(), bounds.ydim(),
       0, 1, 1, 0

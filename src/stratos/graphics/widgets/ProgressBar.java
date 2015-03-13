@@ -9,6 +9,9 @@ import com.badlogic.gdx.graphics.*;
 
 
 
+//  TODO:  Consider merging this with the Healthbar class?  Or having it extend
+//         this class?
+
 public class ProgressBar extends UINode {
   
   
@@ -42,9 +45,8 @@ public class ProgressBar extends UINode {
     
     while (numUnits > 0) {
       final float wide = numUnits > 1 ? 1 : numUnits;
-      pass.setColor(c.r, c.g, c.b, c.a);
       pass.draw(
-        tex,
+        tex, c,
         across, bounds.ypos(), wide * repeatWidth, bounds.ydim(),
         0, 0, wide, 1
       );

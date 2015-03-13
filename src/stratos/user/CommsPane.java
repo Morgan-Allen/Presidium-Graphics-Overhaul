@@ -25,7 +25,12 @@ public class CommsPane extends SelectionInfoPane {
   ) {
     return new Button(baseUI, COMMS_ICON, COMMS_ICON_LIT, "Messages") {
       protected void whenClicked() {
-        baseUI.setInfoPanels(commsPanel, null);
+        if (baseUI.currentPane() == commsPanel) {
+          baseUI.setInfoPanels(null, null);
+        }
+        else {
+          baseUI.setInfoPanels(commsPanel, null);
+        }
       }
     };
   }

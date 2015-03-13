@@ -79,9 +79,8 @@ public class Fading {
       }
       
       final Box2D b = fade.area;
-      pass.setColor(1, 1, 1, fade.alpha);
       pass.draw(
-        fade.captured,
+        fade.captured, Colour.transparency(fade.alpha),
         b.xpos(), b.ypos(), b.xdim(), b.ydim(),
         0, 0, 1, 1
       );
@@ -94,9 +93,8 @@ public class Fading {
     
     final Colour c = rendering.foreColour;
     if (c != null) {
-      pass.setColor(c.r, c.g, c.b, c.a);
       pass.draw(
-        ImageAsset.WHITE_TEX(),
+        ImageAsset.WHITE_TEX(), c,
         0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(),
         0, 0, 1, 1
       );

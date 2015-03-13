@@ -70,10 +70,10 @@ public class Label extends SFX {
       
       pass.compileQuad(
         FONT.texture(), colour,
-        screenX + scanW, screenY,
-        l.width * fontScale, l.height * fontScale,
-        l.umin, l.vmin, l.umax, l.vmax,
-        screenZ, true, vivid
+        vivid, screenX + scanW,
+        screenY, l.width * fontScale,
+        l.height * fontScale, l.umin, l.vmin, l.umax,
+        l.vmax, screenZ, true
       );
       scanW += l.width * fontScale;
     }

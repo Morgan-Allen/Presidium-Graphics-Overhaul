@@ -89,9 +89,8 @@ public class Image extends UINode {
       drawn.ydim((int) drawn.ydim()); 
     }
     
-    pass.setColor(1, 1, 1, alpha);
     pass.draw(
-      tex,
+      tex, Colour.transparency(alpha),
       drawn.xpos(), drawn.ypos(), drawn.xdim(), drawn.ydim(),
       0.0f, 1.0f, 1.0f, 0.0f
     );

@@ -49,10 +49,15 @@ public class InstallationPane extends SelectionInfoPane {
   public static Button createButton(
     final BaseUI baseUI
   ) {
-    final InstallationPane buildPanel = new InstallationPane(baseUI);
+    final InstallationPane pane = new InstallationPane(baseUI);
     return new Button(baseUI, BUILD_ICON, BUILD_ICON_LIT, "Installations") {
       protected void whenClicked() {
-        baseUI.setInfoPanels(buildPanel, null);
+        if (baseUI.currentPane() == pane) {
+          baseUI.setInfoPanels(null, null);
+        }
+        else {
+          baseUI.setInfoPanels(pane, null);
+        }
       }
     };
   }

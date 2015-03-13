@@ -122,10 +122,9 @@ public class Bordering extends UIGroup {
       coordY[i] = area.ymax() - coordY[i];
     }
     
-    pass.setColor(c.r, c.g, c.b, c.a);
     for (int x = 3; x-- > 0;) for (int y = 3; y-- > 0;) {
       pass.draw(
-        borderTex,
+        borderTex, c,
         coordX[x],
         coordY[y],
         coordX[x + 1] - coordX[x],

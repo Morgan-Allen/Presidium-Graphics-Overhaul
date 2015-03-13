@@ -11,6 +11,11 @@ import stratos.util.*;
 
 
 
+//  TODO:  MAKE SURE FIELD HAND UPGRADE WORKS AT ECO STATION!
+//  TODO:  ADD STATUS-MESSAGES FOR PRODUCTION AT ENGINEER STATIONS, ETC.
+
+
+
 /*  TUTORIAL TODO LIST:
 
 *  Limit the powers available too- using upgrades or the household-panel?
@@ -33,27 +38,17 @@ import stratos.util.*;
 *  Limit the structure types available during the tutorial?
 //*/
 
+//  There's no ability to initiate recruitment.  That's the problem.  You need
+//  some kind of notification for new applicants.  Ah.  Yes.
+
 
 
 /*  BIG TODO LIST:
 
-ENEMIES AND ENVIRONMENT-
-
-*  Extra concept art for new creatures/vermin:
-     Avrodil, Rem Leech, Mistaken, Desert Maw, Hirex Body.
-
-*  Need to write vermin behaviour (see Vermin class.)
-
-*  Need to restore animal nests and check their breeding behaviours.
-   Need to ensure auto-distribution of predator and prey nests.
-
 BUILDING AND UPGRADES-
 
-*  Settle on a different division-system for structure-spacing.  The current
-   version is confusing and a tad opaque.
-
 *  Explicit or improved placement for shield walls and arcologies.
-     Fresh art for shield walls.
+     Fresh art for shield walls.  And give them for free!
 
 *  Upgrades need to filled in and tested for:
      Stock Exchange
@@ -74,20 +69,32 @@ BUILDING AND UPGRADES-
 *  Ensure that spontaneous-buildings can 'migrate' to new sites if conditions
    change.  (Allow that for buildings in general?)
 
+ENEMIES AND ENVIRONMENT-
+
+*  Extra concept art for new creatures/vermin:
+     Avrodil, Rem Leech, Mistaken, Desert Maw, Hirex Body.
+
+*  Need to write vermin behaviour (see Vermin class.)
+
+*  Need to restore animal nests and check their breeding behaviours.
+   Need to ensure auto-distribution of predator and prey nests.
+
 CONTROL AND DIRECTION-
 
 *  Introduce Call-to-Arms at the Trooper Lodge (with respect to a particular
    mission at a time.)
 
 *  Make Pledges more persistent and nuanced (see Proposal class.)
+   Also, try to allow negotiation with buildings, in some sense.
 
-*  Psy abilities need to be persistent and list their associated costs.  And
-   show the psy meter next to your portrait.
+*  Psy abilities need to be persistent.  And show the psy meter next to your
+   portrait.
 
 
 INTERFACE AND DEBUGGING
 
-*  Include an Advisors(?) and Finances/Economy pane.
+*  Include an Advisors(?) and more detail Finances/Economy pane.
+*  Include healthbars for psy-meter and target-descriptions?
 
 *  Read definitions, tutorial messages, etc. from .xml and allow for later
    translations.
@@ -142,6 +149,7 @@ public class DebugTutorial extends TutorialScenario {
   
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.fogFree = false;
+    
     super.configureScenario(world, base, UI);
     UI.selection.pushSelection(base.ruler());
     

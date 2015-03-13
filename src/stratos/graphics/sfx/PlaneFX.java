@@ -210,9 +210,9 @@ public class PlaneFX extends SFX {
     
     //  Compile geometry-
     pass.compileQuad(
-      model.texture, colour, verts,
-      f.xpos(), f.ypos(), f.xmax(), f.ymax(),
-      model.vivid
+      model.texture, colour, model.vivid,
+      verts, f.xpos(), f.ypos(), f.xmax(),
+      f.ymax()
     );
   }
 }

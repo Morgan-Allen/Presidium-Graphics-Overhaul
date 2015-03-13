@@ -184,7 +184,7 @@ public abstract class Venue extends Structural implements
     for (Tile t : Spacing.perimeter(footprint(), world)) {
       if (t == null || ! t.habitat().pathClear) return false;
     }
-    return Placement.perimeterFits(this);
+    return Placement.perimeterFits(this, 2, world);
   }
   
   

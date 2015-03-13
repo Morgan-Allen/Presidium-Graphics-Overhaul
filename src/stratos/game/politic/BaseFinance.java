@@ -10,11 +10,18 @@ import stratos.util.*;
 
 
 
+//  TODO:  Consider building up finance reports that go back week after week
+//  for up to a year.
+
+
 public class BaseFinance {
   
   
   private static boolean
     verboseSummary = false;
+  
+  final static int
+    EVAL_PERIOD = Stage.STANDARD_WEEK_LENGTH;
   
   final public static String
     
@@ -39,16 +46,14 @@ public class BaseFinance {
   
   
   final Base base;
-  
   float credits = 0, interest = 0;
-  
-  //  TODO:  Keep a record of income/outlays from all sources going back much
-  //         further than this.  Break it down into 6-day intervals.
   
   private float lastUpdate = -1;
   final Tally <String>
-    outlay = new Tally <String> (),
-    income = new Tally <String> ();
+    weekOutlay  = new Tally <String> (),
+    totalOutlay = new Tally <String> (),
+    weekIncome  = new Tally <String> (),
+    totalIncome = new Tally <String> ();
   
   
   public BaseFinance(Base base) {
@@ -64,13 +69,13 @@ public class BaseFinance {
     
     for (int n = s.loadInt(); n-- > 0;) {
       final String key = s.loadString();
-      final float value = s.loadFloat();
-      income.set(key, value);
+      weekIncome .set(key, s.loadFloat());
+      totalIncome.set(key, s.loadFloat());
     }
     for (int n = s.loadInt(); n-- > 0;) {
       final String key = s.loadString();
-      final float value = s.loadFloat();
-      outlay.set(key, value);
+      weekOutlay .set(key, s.loadFloat());
+      totalOutlay.set(key, s.loadFloat());
     }
   }
   
@@ -81,24 +86,31 @@ public class BaseFinance {
     
     s.saveFloat(lastUpdate);
     
-    s.saveInt(income.size());
-    for (String key : income.keys()) {
+    s.saveInt(weekIncome.size());
+    for (String key : weekIncome.keys()) {
       s.saveString(key);
-      s.saveFloat(outlay.valueFor(key));
+      s.saveFloat(weekIncome .valueFor(key));
+      s.saveFloat(totalIncome.valueFor(key));
     }
-    s.saveInt(outlay.size());
-    for (String key : outlay.keys()) {
+    s.saveInt(weekOutlay.size());
+    for (String key : weekOutlay.keys()) {
       s.saveString(key);
-      s.saveFloat(outlay.valueFor(key));
+      s.saveFloat(weekOutlay .valueFor(key));
+      s.saveFloat(totalOutlay.valueFor(key));
     }
   }
   
   
-  
   public void incCredits(float inc, String source) {
     credits += inc;
-    if (inc >= 0) income.add(inc, source);
-    else outlay.add(inc, source);
+    if (inc >= 0) {
+      weekIncome .add(inc, source);
+      totalIncome.add(inc, source);
+    }
+    else {
+      weekOutlay .add(inc, source);
+      totalOutlay.add(inc, source);
+    }
   }
   
 
@@ -118,41 +130,58 @@ public class BaseFinance {
   
   
   public void updateFinances(int interval) {
-    final boolean report = verboseSummary && BaseUI.current().played() == base;
+    final float time = base.world.currentTime();
+    if (lastUpdate == -1) lastUpdate = time;
+    final int
+      newWeek = (int) (time       / EVAL_PERIOD),
+      oldWeek = (int) (lastUpdate / EVAL_PERIOD);
     
-    //final float repaid = credits * interest / 100f;
-    //if (repaid > 0) incCredits(0 - repaid);
-    
-    if (report) {
-      I.say("\nFINANCE REPORT FOR "+base);
-      
-      I.say("  Income sources:");
-      for (String key : income.keys()) {
-        I.say("    "+key+": "+income.valueFor(key));
-      }
-      
-      I.say("  Outlay sources:");
-      for (String key : outlay.keys()) {
-        I.say("    "+key+": "+outlay.valueFor(key));
-      }
-    }
-    
-    income.clear();
-    outlay.clear();
+    if (newWeek == oldWeek) return;
+    else lastUpdate = time;
+    weekIncome.clear();
+    weekOutlay.clear();
   }
   
   
   public void describeTo(Description d) {
     d.append("FINANCE REPORT FOR "+base);
-    d.append("\n  Income sources:");
-    for (String key : income.keys()) {
-      d.append("/n    "+key+": "+income.valueFor(key));
+    int sumTI = 0, sumWI = 0, sumTO = 0, sumWO = 0, sumTB = 0, sumWB = 0;
+    
+    d.append("\n\n  Income sources: (week/total)");
+    for (String key : totalIncome.keys()) {
+      final int
+        week  = (int) weekIncome .valueFor(key),
+        total = (int) totalIncome.valueFor(key);
+      d.append("\n    "+key+" "+week+"/"+total);
+      sumWI += week ;
+      sumTI += total;
     }
-    d.append("\n  Outlay sources:");
-    for (String key : outlay.keys()) {
-      d.append("\n    "+key+": "+outlay.valueFor(key));
+    d.append("\n    Total income: "+sumWI+"/"+sumTI);
+    
+    d.append("\n\n  Outlay sources: (week/total)");
+    for (String key : totalOutlay.keys()) {
+      final int
+        week  = 0 - (int) weekOutlay .valueFor(key),
+        total = 0 - (int) totalOutlay.valueFor(key);
+      d.append("\n    "+key+" "+week+"/"+total);
+      sumWO += week ;
+      sumTO += total;
     }
+    d.append("\n    Total outlays: "+sumWO+"/"+sumTO);
+    
+    sumTB = sumTI - sumTO;
+    sumWB = sumWI - sumWO;
+    d.append("\n\n  Balance: "+sumWB+"/"+sumTB);
+    d.append("\n  Current credit: "+(int) credits);
   }
 }
+
+
+
+
+
+
+
+
 
 

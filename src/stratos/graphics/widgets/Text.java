@@ -25,10 +25,11 @@ public class Text extends UINode implements Description {
   
   
   private static boolean verbose = false;
+  private static Colour tint = new Colour();
   
-  final public static Colour LINK_COLOUR = new Colour().set(
-    0.2f, 0.6f, 0.8f, 1
-  );
+  final public static Colour
+    LINK_COLOUR  = new Colour().set(0.2f, 0.6f, 0.8f, 1),
+    HOVER_COLOUR = new Colour().set(1.0f, 1.0f, 0.0f, 1);
   
   
   
@@ -356,16 +357,18 @@ public class Text extends UINode implements Description {
     //  If this text links to something, we may need to colour the text (and
     //  possibly select it's link target if clicked.)
     if (link != null && entry.link == link) {
-      pass.setColor(1, 1, 0, absAlpha);
+      tint.set(HOVER_COLOUR);
+      tint.a = absAlpha;
+      tint.calcFloatBits();
     }
     else {
       final Colour c = entry.colour != null ? entry.colour : Colour.WHITE;
-      pass.setColor(c.r, c.g, c.b, c.a * absAlpha);
+      tint.set(c.r, c.g, c.b, c.a * absAlpha);
     }
     //
     //  Draw the text entry-
     pass.draw(
-      alphabet.fontTex,
+      alphabet.fontTex, tint,
       entry.xpos() + xpos() - scrolled.xpos(),
       entry.ypos() + ypos() - scrolled.ypos(),
       entry.xdim(), entry.ydim(),

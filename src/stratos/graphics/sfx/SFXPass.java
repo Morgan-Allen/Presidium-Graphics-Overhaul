@@ -1,11 +1,10 @@
 
 
 package stratos.graphics.sfx;
-import static stratos.graphics.common.GL.glBlendFunc;
-import static stratos.graphics.common.GL.glDepthMask;
-import static stratos.graphics.cutout.CutoutModel.VERT_INDICES;
 import stratos.graphics.common.*;
 import stratos.util.*;
+import static stratos.graphics.common.GL.*;
+import static stratos.graphics.cutout.CutoutModel.VERT_INDICES;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.*;
@@ -137,9 +136,8 @@ public class SFXPass {
   
   
   protected void compileQuad(
-    Texture tex, Colour colour, Vec3D verts[],
-    float umin, float vmin, float umax, float vmax,
-    boolean vivid
+    Texture tex, Colour colour, boolean vivid,
+    Vec3D verts[], float umin, float vmin, float umax, float vmax
   ) {
     if (tex != lastTex || vivid != vividMode || total > COMPILE_LIMIT) {
       compileAndRender(rendering.camera());
@@ -177,11 +175,10 @@ public class SFXPass {
   
   
   protected void compileQuad(
-    Texture tex, Colour colour,
+    Texture tex, Colour colour, boolean vivid,
     float x, float y, float wide, float high,
     float umin, float vmin, float umax, float vmax,
-    float zpos, boolean fromScreen,
-    boolean vivid
+    float zpos, boolean fromScreen
   ) {
     int i = 0; for (Vec3D v : SFX.verts) {
       v.set(
@@ -193,7 +190,7 @@ public class SFXPass {
       //  be preserved?
       if (fromScreen) rendering.view.translateFromScreen(v);
     }
-    compileQuad(tex, colour, SFX.verts, umin, vmin, umax, vmax, vivid);
+    compileQuad(tex, colour, vivid, SFX.verts, umin, vmin, umax, vmax);
   }
   
   
