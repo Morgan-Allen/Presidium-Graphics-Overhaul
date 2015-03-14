@@ -155,7 +155,7 @@ public class PowersPane extends SelectionInfoPane {
       
       for (final String option : options) {
         final BorderedLabel label = new BorderedLabel(UI);
-        label.setMessage("", false);
+        label.setMessage("", false, 0);
         label.text.append(new Description.Link(option) {
           public void whenClicked() {
             final Actor caster = UI.played().ruler();

@@ -351,6 +351,7 @@ public class Selection implements UIConstants {
       
       area.incHigh(1);
       area.incWide(1);
+      area.cropBy(world.area());
       overlay = world.terrain().createOverlay(area, layer);
       if (cache) addToCache(overlay, key);
     }

@@ -135,7 +135,7 @@ public class TargetOptions extends UIGroup {
       costLabel.alignHorizontal(0.5f, 0, 0);
       costLabel.alignTop(0, 0);
       costLabel.text.scale = 0.75f;
-      costLabel.setMessage("Psy "+cost, false);
+      costLabel.setMessage("Psy "+cost, false, 0.5f);
     }
     
     int sumWide = options.size() * (OB_SIZE + OB_MARGIN), across = 0;

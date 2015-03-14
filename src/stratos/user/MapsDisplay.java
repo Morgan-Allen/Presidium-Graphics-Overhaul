@@ -14,7 +14,7 @@ import com.badlogic.gdx.math.*;
 
 
 
-public class MapsPanel extends UIGroup {
+public class MapsDisplay extends UIGroup {
   
   
   final static int
@@ -24,7 +24,7 @@ public class MapsPanel extends UIGroup {
     MODE_MINERALS_MAP  = 3,
     NUM_MODES          = 4;
   final static ImageAsset MODE_ICONS[] = ImageAsset.fromImages(
-    MapsPanel.class, "media/GUI/Panels/",
+    MapsDisplay.class, "media/GUI/Panels/",
     "minimap_normal.png"   ,
     "minimap_ambience.png" ,
     "minimap_fertility.png",
@@ -50,7 +50,7 @@ public class MapsPanel extends UIGroup {
   final int RGBA[][];
   
   
-  public MapsPanel(BaseUI UI, Stage world, Base base) {
+  public MapsDisplay(BaseUI UI, Stage world, Base base) {
     super(UI);
     this.UI = UI;
     this.world = world;
@@ -66,7 +66,9 @@ public class MapsPanel extends UIGroup {
       ) {
         public void whenClicked() { setMapMode(modeID); }
       };
-      b.alignVertical  (0   , MBS, 0 - MBS       );
+      //b.alignVertical  (0   , MBS, 0 - MBS       );
+      //b.alignTop(0 - MBS, MBS);
+      b.alignBottom(0, MBS);
       b.alignHorizontal(0.5f, MBS, (n * MBS) - HS);
       b.attachTo(this);
       modeButtons[n] = b;

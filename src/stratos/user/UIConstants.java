@@ -61,6 +61,7 @@ public interface UIConstants {
   
   final public static int
     MINIMAP_WIDE    = 200,
+    MINIMAP_HIGH    = 200,
     CHARTS_WIDE     = 500,
     CHART_INFO_WIDE = 240,
     

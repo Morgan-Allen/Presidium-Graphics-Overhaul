@@ -35,11 +35,12 @@ public class BaseUI extends HUD implements UIConstants {
   final public SelectionTracking tracking;
   
   private UIGroup helpText;
-  private MapsPanel mapsPanel;
+  private MapsDisplay mapsPanel;
   private Readout readout;
   
   //  TODO:  Also a policies panel?  ...Yeah.  Why not.
   private CommsPane commsPanel;
+  private MessageListing messageListing;
   //private PlanetPanel planetPanel;
   //private StarsPanel  starsPanel ;  //Just use the homeworld.
 
@@ -136,7 +137,7 @@ public class BaseUI extends HUD implements UIConstants {
   
   public static void setPopupMessage(String message) {
     final BaseUI UI = current();
-    if (UI != null) UI.popup.setMessage(message, true);
+    if (UI != null) UI.popup.setMessage(message, true, 0.5f);
   }
   
   
@@ -145,8 +146,8 @@ public class BaseUI extends HUD implements UIConstants {
     */
   private void configLayout() {
     
-    this.mapsPanel = new MapsPanel(this, world, null);
-    mapsPanel.alignTop (0, MINIMAP_WIDE);
+    this.mapsPanel = new MapsDisplay(this, world, null);
+    mapsPanel.alignTop (0, MINIMAP_HIGH);
     mapsPanel.alignLeft(0, MINIMAP_WIDE);
     mapsPanel.attachTo(this);
     
@@ -189,6 +190,12 @@ public class BaseUI extends HUD implements UIConstants {
     optionsButton.alignLeft(0, PTS);
     optionsButton.attachTo(this);
     
+    
+    this.messageListing = new MessageListing(this);
+    messageListing.alignLeft(10, 100);
+    messageListing.alignVertical(QUICKBAR_HIGH, MINIMAP_HIGH);
+    messageListing.attachTo(this);
+    
     //  TODO:  Get rid of this!  Replace with message alerts!
     this.commsPanel = new CommsPane(this);
     this.commsButton = CommsPane.createButton(this, commsPanel);
@@ -196,6 +203,7 @@ public class BaseUI extends HUD implements UIConstants {
     commsButton.alignTop(0, PTH);
     commsButton.alignRight(PTS * 0, PTS);
     commsButton.attachTo(this);
+    
     
     this.buildButton = InstallationPane.createButton(this);
     buildButton.stretch = false;
