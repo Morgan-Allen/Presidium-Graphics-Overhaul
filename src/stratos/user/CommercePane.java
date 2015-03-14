@@ -6,6 +6,7 @@ import stratos.game.plans.*;
 import stratos.game.actors.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
+import stratos.user.notify.CommsPane;
 import stratos.util.*;
 
 

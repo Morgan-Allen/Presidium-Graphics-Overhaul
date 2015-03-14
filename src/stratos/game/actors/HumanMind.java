@@ -199,7 +199,7 @@ public class HumanMind extends ActorMind implements Qualities {
     }
 
     choice.add(Scenario.current().taskFor(actor));
-    choice.add(FindMission.attemptFor(actor));
+    choice.add(JoinMission.attemptFor(actor));
   }
   
   

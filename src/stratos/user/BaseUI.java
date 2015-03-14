@@ -9,6 +9,8 @@ import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.start.*;
+import stratos.user.notify.CommsPane;
+import stratos.user.notify.NotificationListing;
 import stratos.util.*;
 
 import com.badlogic.gdx.*;
@@ -38,9 +40,8 @@ public class BaseUI extends HUD implements UIConstants {
   private MapsDisplay mapsPanel;
   private Readout readout;
   
-  //  TODO:  Also a policies panel?  ...Yeah.  Why not.
   private CommsPane commsPanel;
-  private MessageListing messageListing;
+  private NotificationListing messageListing;
   //private PlanetPanel planetPanel;
   //private StarsPanel  starsPanel ;  //Just use the homeworld.
 
@@ -83,16 +84,16 @@ public class BaseUI extends HUD implements UIConstants {
   public void loadState(Session s) throws Exception {
     final Base played = (Base) s.loadObject();
     assignBaseSetup(played, null);
-    tracking.loadState(s);
-    selection.loadState(s);
+    tracking  .loadState(s);
+    selection .loadState(s);
     commsPanel.loadState(s);
   }
   
   
   public void saveState(Session s) throws Exception {
     s.saveObject(played);
-    tracking.saveState(s);
-    selection.saveState(s);
+    tracking  .saveState(s);
+    selection .saveState(s);
     commsPanel.saveState(s);
   }
   
@@ -191,9 +192,9 @@ public class BaseUI extends HUD implements UIConstants {
     optionsButton.attachTo(this);
     
     
-    this.messageListing = new MessageListing(this);
+    this.messageListing = new NotificationListing(this);
     messageListing.alignLeft(10, 100);
-    messageListing.alignVertical(QUICKBAR_HIGH, MINIMAP_HIGH);
+    messageListing.alignVertical(QUICKBAR_HIGH, MINIMAP_HIGH + 40);
     messageListing.attachTo(this);
     
     //  TODO:  Get rid of this!  Replace with message alerts!
@@ -252,28 +253,28 @@ public class BaseUI extends HUD implements UIConstants {
   
   /**  Tasks and target-selection helper methods-
     */
-  protected UITask currentTask() {
+  public UITask currentTask() {
     return currentTask;
   }
   
   
-  protected UIGroup currentPane() {
+  public UIGroup currentPane() {
     return newPanel;
   }
   
   
-  protected TargetOptions currentInfo() {
+  public TargetOptions currentInfo() {
     return newInfo;
   }
   
   
-  protected void beginTask(UITask task) {
+  public void beginTask(UITask task) {
     currentTask = task;
     if (I.logEvents()) I.say("\nBEGAN UI TASK: "+task);
   }
   
   
-  protected void endCurrentTask() {
+  public void endCurrentTask() {
     currentTask = null;
   }
   
@@ -362,14 +363,16 @@ public class BaseUI extends HUD implements UIConstants {
   }
   
   
-  protected void setPanelsInstant(UIGroup panel, TargetOptions options) {
+  public void setPanelsInstant(
+    UIGroup panel, TargetOptions options
+  ) {
     currentPanel = null; newPanel = panel  ;
     currentInfo  = null; newInfo  = options;
     capturePanel = false;
   }
   
   
-  protected void beginPanelFade() {
+  public void beginPanelFade() {
     capturePanel = true;
   }
 }

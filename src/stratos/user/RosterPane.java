@@ -4,7 +4,6 @@ package stratos.user;
 import stratos.game.common.*;
 import stratos.game.plans.*;
 import stratos.game.actors.*;
-//import stratos.game.politic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
@@ -18,14 +17,12 @@ import stratos.util.*;
 //  Sectors:   Migrations.  Relations.  Homeworld.
 
 
-//  TODO:  WHY ARE THE CATEGORIES HIDDEN?
-
 public class RosterPane extends SelectionInfoPane {
   
   
   final static ImageAsset
     ROSTER_ICON = ImageAsset.fromImage(
-      CommsPane.class, "media/GUI/Panels/roster_tab.png"
+      RosterPane.class, "media/GUI/Panels/roster_tab.png"
     ),
     ROSTER_ICON_LIT = Button.CIRCLE_LIT;
   

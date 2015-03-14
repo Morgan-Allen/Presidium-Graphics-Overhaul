@@ -360,6 +360,13 @@ public class List <T> extends ListEntry <T> implements Series <T> {
   }
   
   
+  final public boolean contentsMatch(Series <T> other) {
+    if (other.size() != size) return false;
+    for (T t : other) if (! includes(t)) return false;
+    return true;
+  }
+  
+  
   /**  Returns this list in printable form.
     */
   final public String toString() {
@@ -384,7 +391,6 @@ public class List <T> extends ListEntry <T> implements Series <T> {
     for (int n = 32; n-- > 0;) list.add(new Integer(Rand.index(32)));
     list.queueSort();
     
-    /*
     list.addLast(1);
     list.addLast(4);
     list.addLast(3);
@@ -395,10 +401,8 @@ public class List <T> extends ListEntry <T> implements Series <T> {
     list.addLast(new Integer(0));
     
     list.queueSort();
-    //*/
     
     
-    /*
     for (int i : list) {
       //if (i == 4) list.remove(i);
       I.say("Entry is: "+i);
@@ -410,7 +414,6 @@ public class List <T> extends ListEntry <T> implements Series <T> {
       I.say("  First member is:  " + list.removeFirst());
     list.clear();
     I.say("  List contents: " + list);
-    //*/
   }
 }
 

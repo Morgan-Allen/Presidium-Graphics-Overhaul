@@ -16,7 +16,11 @@ import static stratos.game.economic.Economy.*;
 //  TODO:  You can most likely remove the admin requirement, at least for
 //  public bounties.
 
-public class FindMission extends Plan {
+//  TODO:  Make this into a preliminary step for *all* missions- where you
+//         apply and wait for other applicants when possible.
+
+
+public class JoinMission extends Plan {
   
   
   private static boolean
@@ -26,7 +30,7 @@ public class FindMission extends Plan {
   
   
   
-  public static FindMission attemptFor(Actor actor) {
+  public static JoinMission attemptFor(Actor actor) {
     if (actor.mind.mission() != null) {
       return null;
     }
@@ -36,8 +40,7 @@ public class FindMission extends Plan {
     //  of invalid plans, since missions might not have steps available until
     //  approved-)
     if (report) {
-      I.say("\nEvaluating missions...");
-      I.say("  TIME IS: "+actor.world().currentTime());
+      I.say("\nEvaluating missions: "+actor+" ("+actor.vocation()+")");
     }
     final Choice choice = new Choice(actor) {
       protected boolean checkPlanValid(Behaviour b) {
@@ -84,19 +87,23 @@ public class FindMission extends Plan {
     final Behaviour pickStep = choice.weightedPick();
     final int index = steps.indexOf(pickStep);
     final Mission picked = missions.atIndex(index);
-    //final Mission picked = (Mission) choice.weightedPick();
+    
+    if (true) {
+      actor.mind.assignMission(picked);
+      return null;
+    }
     
     //  And try to apply for it-
     if (picked == null) return null;
     if (report) I.say("Mission picked: "+picked);
-    return new FindMission(actor, picked);
+    return new JoinMission(actor, picked);
   }
   
   
   protected static float competence(Actor actor, Mission mission) {
     if (! (actor instanceof Human)) return 1;
     final Behaviour step = mission.nextStepFor(actor, true);
-    if (step == null) return 1;
+    if (step == null) return 0;
     
     step.priorityFor(actor);
     if (step instanceof Plan) return ((Plan) step).competence();
@@ -104,15 +111,16 @@ public class FindMission extends Plan {
   }
   
   
-
-  private FindMission(Actor actor, Mission mission) {
+  
+  
+  private JoinMission(Actor actor, Mission mission) {
     super(actor, mission.subject(), MOTIVE_PERSONAL, NO_HARM);
     this.mission = mission;
     //this.admin = admin;
   }
 
 
-  public FindMission(Session s) throws Exception {
+  public JoinMission(Session s) throws Exception {
     super(s);
     mission = (Mission) s.loadObject();
     //admin = (Venue) s.loadObject();
@@ -127,7 +135,7 @@ public class FindMission extends Plan {
   
   
   public Plan copyFor(Actor other) {
-    return new FindMission(other, mission);
+    return new JoinMission(other, mission);
   }
   
   
@@ -235,7 +243,6 @@ public class FindMission extends Plan {
   public void describeBehaviour(Description d) {
     d.append("Joining mission: ");
     mission.describeMission(d);
-    //d.append(mission);
   }
 }
 

@@ -12,6 +12,7 @@ import stratos.game.politic.*;
 import stratos.game.wild.*;
 import stratos.graphics.widgets.KeyInput;
 import stratos.user.*;
+import stratos.user.notify.CommsPane;
 import stratos.util.*;
 import static stratos.start.TutorialScript.*;
 

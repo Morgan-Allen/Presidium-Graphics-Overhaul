@@ -383,7 +383,7 @@ public class Summons extends Plan {
           if (wouldAccept) {
             pushMissionResponse(UI, with, m);
           }
-          else if (FindMission.competence(with, m) < 1) {
+          else if (JoinMission.competence(with, m) < 1) {
             pushMissionDialogue(UI, with,
               "I fear I lack the skills required, my lord."
             );

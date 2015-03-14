@@ -7,6 +7,7 @@ package stratos.start;
 import stratos.game.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
+import stratos.user.notify.CommsPane;
 import stratos.util.*;
 
 

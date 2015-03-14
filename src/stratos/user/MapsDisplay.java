@@ -66,9 +66,9 @@ public class MapsDisplay extends UIGroup {
       ) {
         public void whenClicked() { setMapMode(modeID); }
       };
-      //b.alignVertical  (0   , MBS, 0 - MBS       );
+      b.alignVertical  (0   , MBS, 0 - MBS       );
       //b.alignTop(0 - MBS, MBS);
-      b.alignBottom(0, MBS);
+      //b.alignBottom(0, MBS);
       b.alignHorizontal(0.5f, MBS, (n * MBS) - HS);
       b.attachTo(this);
       modeButtons[n] = b;

@@ -1,10 +1,13 @@
 
 
-package stratos.user;
+package stratos.user.notify;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.graphics.widgets.Text.Clickable;
+import stratos.user.BaseUI;
+import stratos.user.MessagePane;
+import stratos.user.SelectionInfoPane;
 import stratos.util.*;
 
 

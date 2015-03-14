@@ -1,11 +1,13 @@
 
 
-package stratos.user;
+package stratos.user.notify;
 import stratos.game.common.*;
 import stratos.game.politic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
+import stratos.user.BaseUI;
+import stratos.user.BorderedLabel;
 import stratos.util.*;
 import stratos.game.common.Session.Saveable;
 
@@ -17,7 +19,7 @@ import stratos.game.common.Session.Saveable;
 //  TODO:  In principle, this could then replace the Comms panel.
 
 
-public class MessageListing extends UIGroup {
+public class NotificationListing extends UIGroup {
   
   
   final BaseUI UI;
@@ -33,7 +35,7 @@ public class MessageListing extends UIGroup {
   }
   
   
-  public MessageListing(BaseUI UI) {
+  public NotificationListing(BaseUI UI) {
     super(UI);
     this.UI = UI;
   }
@@ -49,30 +51,8 @@ public class MessageListing extends UIGroup {
     
     if (refers instanceof Mission) {
       final Mission m = (Mission) refers;
-      final UIGroup group = new UIGroup(UI);
-      
-      final Composite portrait = m.portrait(UI);
-      final Button button = new Button(
-        UI, portrait.texture(), Button.CIRCLE_LIT.asTexture(), m.fullName()
-      ) {
-        protected void whenClicked() {
-          BUI.selection.pushSelection(m);
-        }
-      };
-      button.alignVertical  (0, 0);
-      button.alignHorizontal(0, 0);
-      button.attachTo(group);
-      //  TODO:  List the portraits of current applicants, and a red-green-
-      //         amber indicator for approval status.
-      
-      final BorderedLabel label = new BorderedLabel(UI);
-      label.alignLeft  (0, 0);
-      label.alignBottom(0, 0);
-      label.text.scale = 0.75f;
-      label.setMessage(m.fullName(), false, 0);
-      label.attachTo(group);
-      
-      entry.shown = group;
+      //final UIGroup group = new UIGroup(UI);
+      entry.shown = new MissionEntry(UI, m);
     }
     
     final Entry after = entries.atIndex(afterIndex);
@@ -111,6 +91,7 @@ public class MessageListing extends UIGroup {
         e.fadeVal = 1;
       }
       if (e.fadeVal <= 0 && ! e.active) {
+        e.shown.detach();
         entries.remove(e);
       }
     }
