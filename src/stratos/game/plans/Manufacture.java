@@ -6,14 +6,12 @@
 
 
 package stratos.game.plans;
-import static stratos.game.economic.Economy.ORES;
-import static stratos.game.economic.Economy.PARTS;
-import static stratos.game.economic.Economy.POWER;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.user.*;
+//import stratos.user.*;
 import stratos.util.*;
+import static stratos.game.economic.Economy.*;
 
 
 

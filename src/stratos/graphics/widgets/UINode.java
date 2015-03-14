@@ -42,7 +42,7 @@ public abstract class UINode {
     absAlpha = 1;
   public boolean
     hidden  = false,
-    stretch = true;
+    stretch = true ;
   
   
   final protected HUD UI;

@@ -13,13 +13,13 @@ import stratos.game.common.Session.Saveable;
 
 
 
-//  TODO:  This needs to list tutorial-messages as well as ongoing missions,
+//  TODO:  This needs to list tutorial-messages as well as ongoing missions
 //         and other status-updates.
 
 //  TODO:  In principle, this could then replace the Comms panel.
 
 
-public class NotificationListing extends UIGroup {
+public class ReminderListing extends UIGroup {
   
   
   final BaseUI UI;
@@ -35,7 +35,7 @@ public class NotificationListing extends UIGroup {
   }
   
   
-  public NotificationListing(BaseUI UI) {
+  public ReminderListing(BaseUI UI) {
     super(UI);
     this.UI = UI;
   }
@@ -52,7 +52,7 @@ public class NotificationListing extends UIGroup {
     if (refers instanceof Mission) {
       final Mission m = (Mission) refers;
       //final UIGroup group = new UIGroup(UI);
-      entry.shown = new MissionEntry(UI, m);
+      entry.shown = new MissionReminder(UI, m);
     }
     
     final Entry after = entries.atIndex(afterIndex);

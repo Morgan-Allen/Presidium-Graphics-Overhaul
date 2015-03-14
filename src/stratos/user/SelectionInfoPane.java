@@ -116,6 +116,7 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
     headerText = new Text(UI, BaseUI.INFO_FONT);
     headerText.alignTop   (0, HEADER_HIGH);
     headerText.alignAcross(0, 1          );
+    headerText.scale = BIG_FONT_SIZE;
     headerText.attachTo(innerRegion);
     
     
@@ -142,7 +143,7 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
         ((BaseUI) UI).beginPanelFade();
       }
     };
-    detailText.scale = 0.75f;
+    detailText.scale = SMALL_FONT_SIZE;
     detailText.attachTo(innerRegion);
     
     if (hasListing) {
@@ -157,7 +158,7 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
       };
       listingText.alignVertical  (0, CORE_INFO_HIGH + down);
       listingText.alignHorizontal(0, 0                    );
-      listingText.scale = 0.75f;
+      listingText.scale = SMALL_FONT_SIZE;
       listingText.attachTo(innerRegion);
       scrollbar = listingText.makeScrollBar(SCROLL_TEX);
       scrollbar.alignToMatch(listingText);

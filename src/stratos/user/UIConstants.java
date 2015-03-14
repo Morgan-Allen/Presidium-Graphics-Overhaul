@@ -50,7 +50,7 @@ public interface UIConstants {
     TYPE_TERRAIN   = "<terrain>",
     TYPE_MISSION   = "<mission>";
   
-
+  
   final public static int
     BAR_BUTTON_SIZE = 40,
     BAR_SPACING     = 2 ,
@@ -59,7 +59,12 @@ public interface UIConstants {
   final public static int
     NUM_GUILDS = 6;
   
+  final public static float
+    BIG_FONT_SIZE   = 1.0f ,
+    SMALL_FONT_SIZE = 0.75f;
+  
   final public static int
+    
     MINIMAP_WIDE    = 200,
     MINIMAP_HIGH    = 200,
     CHARTS_WIDE     = 500,
@@ -71,7 +76,9 @@ public interface UIConstants {
     PANEL_TABS_HIGH =  65,
     
     INFO_PANEL_WIDE = 280,
-    SCROLLBAR_WIDE  =  20;
+    SCROLLBAR_WIDE  =  20,
+    DEFAULT_MARGIN  =  10,
+    MIN_WIDGET_SIZE =  20;
 }
 
 

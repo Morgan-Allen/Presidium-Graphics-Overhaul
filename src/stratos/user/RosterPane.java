@@ -37,8 +37,12 @@ public class RosterPane extends SelectionInfoPane {
   }
   
   
-  static Button createButton(final BaseUI baseUI) {
+  static UINode createButton(final BaseUI baseUI) {
+    
     final RosterPane pane = new RosterPane(baseUI);
+    final UIGroup tab = new UIGroup(baseUI);
+    final BorderedLabel appsLabel = new BorderedLabel(baseUI);
+    
     final Button button = new Button(
       baseUI, ROSTER_ICON, ROSTER_ICON_LIT, "Base Roster"
     ) {
@@ -50,8 +54,23 @@ public class RosterPane extends SelectionInfoPane {
           baseUI.setInfoPanels(pane, null);
         }
       }
+      
+      protected void updateState() {
+        int numApps = baseUI.played().commerce.allCandidates().size();
+        String message = ""+numApps;
+        appsLabel.setMessage(message, false, 0);
+      }
     };
-    return button;
+    button.stretch = false;
+    button.alignAcross(0, 1);
+    button.alignDown  (0, 1);
+    button.attachTo(tab);
+    
+    appsLabel.alignLeft(DEFAULT_MARGIN , 0);
+    appsLabel.alignTop (MIN_WIDGET_SIZE, 0);
+    appsLabel.attachTo(tab);
+    
+    return tab;
   }
   
   

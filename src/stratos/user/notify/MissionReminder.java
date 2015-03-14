@@ -11,14 +11,14 @@ import stratos.util.*;
 //  TODO:  List a red-green-amber indicator for approval status.
 
 
-public class MissionEntry extends UIGroup {
+public class MissionReminder extends UIGroup implements UIConstants {
   
   final Mission m;
   final List <Image> appImgs = new List <Image> ();
   private Batch <Actor> applied = new Batch <Actor> ();
   
   
-  MissionEntry(final BaseUI BUI, final Mission m) {
+  MissionReminder(final BaseUI BUI, final Mission m) {
     super(BUI);
     this.m = m;
 
@@ -36,8 +36,8 @@ public class MissionEntry extends UIGroup {
     
     final BorderedLabel label = new BorderedLabel(BUI);
     label.alignLeft  ( 0 , 0);
-    label.alignBottom(-10, 0);
-    label.text.scale = 0.75f;
+    label.alignBottom(-DEFAULT_MARGIN, 0);
+    label.text.scale = SMALL_FONT_SIZE;
     label.setMessage(m.fullName(), false, 0);
     label.attachTo(this);
   }
@@ -56,8 +56,9 @@ public class MissionEntry extends UIGroup {
         protected String info() { return a.fullName(); }
       };
       AI.blocksSelect = true;
-      AI.alignTop(0, 20);
-      AI.alignRight(++n * -20, 20);
+      final int size = MIN_WIDGET_SIZE;
+      AI.alignTop(0, size);
+      AI.alignRight(++n * -size, size);
       appImgs.add(AI);
       AI.attachTo(this);
     }

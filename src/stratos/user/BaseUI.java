@@ -10,7 +10,7 @@ import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.start.*;
 import stratos.user.notify.CommsPane;
-import stratos.user.notify.NotificationListing;
+import stratos.user.notify.ReminderListing;
 import stratos.util.*;
 
 import com.badlogic.gdx.*;
@@ -41,7 +41,7 @@ public class BaseUI extends HUD implements UIConstants {
   private Readout readout;
   
   private CommsPane commsPanel;
-  private NotificationListing messageListing;
+  private ReminderListing messageListing;
   //private PlanetPanel planetPanel;
   //private StarsPanel  starsPanel ;  //Just use the homeworld.
 
@@ -49,7 +49,7 @@ public class BaseUI extends HUD implements UIConstants {
   private Button commsButton;  //  TODO:  GET RID OF THIS
   
   private Button buildButton;
-  private Button rosterButton;
+  private UINode rosterButton;
   private Button edictsButton;
   
   
@@ -192,7 +192,7 @@ public class BaseUI extends HUD implements UIConstants {
     optionsButton.attachTo(this);
     
     
-    this.messageListing = new NotificationListing(this);
+    this.messageListing = new ReminderListing(this);
     messageListing.alignLeft(10, 100);
     messageListing.alignVertical(QUICKBAR_HIGH, MINIMAP_HIGH + 40);
     messageListing.attachTo(this);

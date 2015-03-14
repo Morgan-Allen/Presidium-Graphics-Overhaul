@@ -15,7 +15,7 @@ import com.badlogic.gdx.math.Vector2;
 
 
 
-public class TargetOptions extends UIGroup {
+public class TargetOptions extends UIGroup implements UIConstants {
   
   
   final int
@@ -134,7 +134,7 @@ public class TargetOptions extends UIGroup {
       costLabel.attachTo(option);
       costLabel.alignHorizontal(0.5f, 0, 0);
       costLabel.alignTop(0, 0);
-      costLabel.text.scale = 0.75f;
+      costLabel.text.scale = SMALL_FONT_SIZE;
       costLabel.setMessage("Psy "+cost, false, 0.5f);
     }
     

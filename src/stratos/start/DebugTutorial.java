@@ -11,11 +11,6 @@ import stratos.util.*;
 
 
 
-//  Add notifications for new applicants in the personnel pane- and consider
-//  just hiring them from there.
-
-
-
 /*  TUTORIAL TODO LIST:
 
 *  Limit the powers available too- using upgrades or the household-panel?
