@@ -219,16 +219,10 @@ public class Stocks extends Inventory {
   }
   
   
-  public float shortagePenalty(Traded type) {
-    if (GameSettings.needsFree && type.form == FORM_PROVISION) return 0;
-    final float
-      amount = amountOf(type),
-      demand = demandFor(type),
-      shortage = demand - amount;
-    return Nums.clamp(
-      (shortage - ((demand + 1f) / 2)) / (amount + 1),
-      0, 1
-    );
+  public float relativeShortage(Traded type) {
+    final float demand = demandFor(type);
+    if (demand == 0) return 0;
+    return (demand - amountOf(type)) / demand;
   }
   
   

@@ -126,34 +126,22 @@ public class Nursery extends Venue implements TileConstants {
   
   public float ratePlacing(Target point, boolean exact) {
     
-    //  TODO:  THESE HAVE TO BE ECOLOGIST STATIONS BELONGING TO THE SAME BASE.
-    //  ...It might be worth getting supply-and-demand in order here first.
-    
-    //  TODO:  Base the demand for this on the tech-level of the parent station
-    //  -by default, you only get one nursery.
-    
     final Stage world = point.world();
     final Presences presences = world.presences;
-    
     final EcologistStation station = (EcologistStation) presences.nearestMatch(
       EcologistStation.class, point, -1
     );
     if (station == null || station.base() != base) return -1;
-    
     final float distance = Spacing.distance(point, station);
-    if (distance > Stage.SECTOR_SIZE / 2) return -1;
+    if (distance > Stage.SECTOR_SIZE) return -1;
     
-    final Nursery nearby = (Nursery) presences.nearestMatch(
-      Nursery.class, point, Stage.SECTOR_SIZE
-    );
-    if (nearby != null & nearby != this) return -1;
-    
+    float demand = base.demands.globalShortage(Nursery.class);
     final Tile under = world.tileAt(point);
     float rating = 0;
     rating += world.terrain().fertilitySample (under);
     rating += world.terrain().insolationSample(under);
     rating /= 1 + (distance / Stage.SECTOR_SIZE);
-    return (rating / 2) * 10;
+    return rating * 10 * demand;
   }
   
   
@@ -165,13 +153,19 @@ public class Nursery extends Venue implements TileConstants {
     if (report) I.say("\nCROP AREA: "+cropArea);
     
     for (Tile t : world.tilesIn(cropArea, true)) {
-      if (PavingMap.pavingReserved(t, true) || t.reserved()) continue;
+      if (! couldPlant(t)) continue;
       grabbed.add(t);
       if (report && plantedAt(t) == null) I.say("  ADDING TILE: "+t);
     }
     
     //  TODO:  Grab contiguous areas and put 'covered' crops along one edge.
     toPlant = grabbed.toArray(Tile.class);
+  }
+  
+  
+  public boolean couldPlant(Tile t) {
+    if (PavingMap.pavingReserved(t, true) || t.reserved()) return false;
+    return true;
   }
   
   
@@ -235,93 +229,39 @@ public class Nursery extends Venue implements TileConstants {
   
   /**  Economic functions-
     */
-  public int numOpenings(Background v) {
-    int num = super.numOpenings(v);
-    if (v == CULTIVATOR) return num + 2;
-    return 0;
-  }
-  
-  
-  public Traded[] services() { return new Traded[] {
-    CARBS, PROTEIN, GREENS
-  }; }
-  
-  
-  public Background[] careers() { return new Background[] {
-    CULTIVATOR
-  }; }
-  
-  
-  public Behaviour jobFor(Actor actor, boolean onShift) {
-    final Choice choice = new Choice(actor);
-    
-    //  If you're really short on food, consider foraging in the surrounds or
-    //  farming 24/7.
-    final float shortages = (
-      stocks.shortagePenalty(CARBS ) +
-      stocks.shortagePenalty(GREENS)
-    ) / 2f;
-    if (shortages > 0) {
-      final Farming farming = new Farming(actor, this);
-      choice.add(farming);
-      
-      final Foraging foraging = new Foraging(actor, this);
-      foraging.setMotive(Plan.MOTIVE_EMERGENCY, Plan.PARAMOUNT * shortages);
-      choice.add(foraging);
-    }
-    
-    if (! staff.onShift(actor)) return choice.pickMostUrgent();
-    
-    //  Otherwise, consider normal deliveries and routine tending-
-    final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
-      this, services(), 1, 5, 5
-    );
-    choice.add(d);
-    choice.add(bestSeedCollection(actor));
-    choice.add(new Farming(actor, this));
-    
-    if (choice.empty()) {
-      //  In addition to forestry operations-
-      choice.add(Forestry.nextPlanting(actor, this));
-      choice.add(Forestry.nextCutting (actor, this));
-    }
-    return choice.pickMostUrgent();
-  }
-  
-  
-  private Delivery bestSeedCollection(Actor actor) {
-    final Pick <Delivery> pick = new Pick <Delivery> ();
-    
-    for (Object t : world.presences.sampleFromMap(
-      this, world, 3, null, EcologistStation.class
-    )) {
-      final EcologistStation station = (EcologistStation) t;
-      if (! station.allowsEntry(actor)) continue;
-      
-      final Batch <Item> seedTypes = new Batch <Item> ();
-      float rating = 0;
-      
-      for (Species s : Crop.ALL_VARIETIES) {
-        Item seed = Item.withReference(SAMPLES, s);
-        seed = station.stocks.bestSample(seed, 1);
-        if (seed == null || stocks.amountOf(seed) > 0) continue;
-        seedTypes.add(seed);
-        rating += seed.quality + 0.5f;
-      }
-      
-      final Delivery seedD = new Delivery(seedTypes, station, this);
-      if (Plan.competition(seedD, station, actor) > 0) continue;
-      seedD.replace = true;
-      pick.compare(seedD, rating);
-    }
-    
-    return pick.result();
-  }
+  public Traded    [] services() { return null; }
+  public Background[] careers () { return null; }
   
   
   
   /**  Rendering and interface methods-
     */
+  private String compileHealthReport() {
+    final StringBuffer s = new StringBuffer();
+    s.append(
+      "Plantations of cropland secure a high-quality food source, but need "+
+      "space and constant attention."
+    );
+    if (inWorld() && structure.intact()) {
+      float health = 0, growth = 0, numC = 0;
+      for (Tile t : toPlant) {
+        final Crop c = plantedAt(t);
+        if (c == null) continue;
+        numC++;
+        health += c.health();
+        growth += c.growStage();
+      }
+      if (numC > 0) {
+        final int GL = Nums.clamp((int) (growth / numC), 5);
+        final int HL = Nums.clamp((int) (health / numC), 5);
+        s.append("\n  Crop growth: "+Crop.STAGE_NAMES [GL]);
+        s.append("\n  Crop health: "+Crop.HEALTH_NAMES[HL]);
+      }
+    }
+    return s.toString();
+  }
+  
+  
   protected float[] goodDisplayOffsets() {
     return new float[] {
       0.0f, 0.0f,
@@ -347,9 +287,7 @@ public class Nursery extends Venue implements TileConstants {
   
   
   public String helpInfo() {
-    return
-      "Plantations of managed, mixed-culture cropland secure a high-quality "+
-      "food source for your base, but require space and constant attention.";
+    return compileHealthReport();
   }
   
   

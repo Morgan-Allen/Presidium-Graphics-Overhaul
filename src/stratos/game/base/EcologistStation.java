@@ -110,13 +110,12 @@ public class EcologistStation extends Venue {
       1,
       null, EcologistStation.class, ALL_UPGRADES
     ),
-    FIELD_HAND_STATION = new Upgrade(
-      "Field Hand Station",
-      "Hire additional field hands to plant and reap the harvest more "+
+    CULTIVATOR_STATION = new Upgrade(
+      "Cultivator Station",
+      "Hire additional cultivators to plant and reap harvests more "+
       "quickly, maintain equipment, and bring land under cultivation.",
       50,
-      Upgrade.THREE_LEVELS, Backgrounds.CULTIVATOR,
-      1,
+      Upgrade.THREE_LEVELS, Backgrounds.CULTIVATOR, 1,
       null, EcologistStation.class, ALL_UPGRADES
     ),
     TREE_FARMING = new Upgrade(
@@ -151,11 +150,14 @@ public class EcologistStation extends Venue {
   
   public Behaviour jobFor(Actor actor, boolean onShift) {
     if ((! structure.intact()) || ! (staff.onShift(actor))) return null;
+    
+    if (actor.vocation() == CULTIVATOR) {
+      return nextCultivatorJob(actor);
+    }
+    
+    //  TODO:  Split this off into a separate sub-method too.
+    
     final Choice choice = new Choice(actor);
-    
-    ///I.say("\nGETTING NEXT JOB FOR "+actor);
-    ///choice.isVerbose = true;
-    
     //
     //  Consider collecting gene samples-
     final boolean needsSeed = stocks.amountOf(GENE_SEED) < 5;
@@ -186,9 +188,58 @@ public class EcologistStation extends Venue {
     //  Or, finally, fall back on supervising the venue...
     if (choice.empty()) choice.add(Supervision.oversight(this, actor));
     
-    
-    
     return choice.weightedPick();
+  }
+  
+  
+  protected Behaviour nextCultivatorJob(Actor actor) {
+    final Choice choice = new Choice(actor);
+    
+    //
+    //  First of all, find a suitable nursery to tend:
+    final Pick <Nursery> pick = new Pick <Nursery> ();
+    for (Target t : world.presences.sampleFromMap(
+      this, world, 5, null, Nursery.class
+    )) {
+      final Nursery n = (Nursery) t;
+      if (n.base() != this.base()) continue;
+      if (Plan.competition(Farming.class, n, actor) > 0) continue;
+      pick.compare(n, n.needForTending());
+    }
+    final Nursery toFarm = pick.result();
+    
+    //
+    //  If you're really short on food, consider foraging in the surrounds or
+    //  farming 24/7.
+    final float shortages = (
+      stocks.relativeShortage(CARBS ) +
+      stocks.relativeShortage(GREENS)
+    ) / 2f;
+    if (shortages > 0 && toFarm != null) {
+      final Farming farming = new Farming(actor, this, toFarm);
+      choice.add(farming);
+    }
+    
+    final Foraging foraging = new Foraging(actor, this);
+    foraging.setMotive(Plan.MOTIVE_EMERGENCY, Plan.PARAMOUNT * shortages);
+    choice.add(foraging);
+    
+    if (! staff.onShift(actor)) return choice.pickMostUrgent();
+    
+    //
+    //  Otherwise, consider normal deliveries and routine tending-
+    final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
+      this, services(), 1, 5, 5
+    );
+    choice.add(d);
+    if (toFarm != null) choice.add(new Farming(actor, this, toFarm));
+    
+    if (choice.empty()) {
+      //  In addition to forestry operations-
+      choice.add(Forestry.nextPlanting(actor, this));
+      choice.add(Forestry.nextCutting (actor, this));
+    }
+    return choice.pickMostUrgent();
   }
   
   
@@ -208,8 +259,12 @@ public class EcologistStation extends Venue {
     //
     //  Demand supplies, if breeding is going on-
     final int numBred = AnimalBreeding.breedingAt(this).size() + 1;
-    stocks.forceDemand(CARBS  , numBred * 2, Tier.CONSUMER);
-    stocks.forceDemand(PROTEIN, numBred * 1, Tier.CONSUMER);
+    stocks.incDemand(CARBS  , numBred * 2, Tier.PRODUCER, 1);
+    stocks.incDemand(PROTEIN, numBred * 1, Tier.PRODUCER, 1);
+    //
+    //  And update demand for nursery-placement:
+    final float nurseryDemand = structure.upgradeLevel(CULTIVATOR_STATION) + 1;
+    base.demands.impingeDemand(Nursery.class, nurseryDemand, 1, this);
     //
     //  An update ambience-
     structure.setAmbienceVal(2);
@@ -223,7 +278,8 @@ public class EcologistStation extends Venue {
   
   public int numOpenings(Background v) {
     int num = super.numOpenings(v);
-    if (v == ECOLOGIST) return num + 2;
+    if (v == ECOLOGIST ) return num + 2;
+    if (v == CULTIVATOR) return num + 2;
     return 0;
   }
   
@@ -234,7 +290,7 @@ public class EcologistStation extends Venue {
   
   
   public Background[] careers() {
-    return new Background[] { ECOLOGIST };
+    return new Background[] { ECOLOGIST, CULTIVATOR };
   }
   
   

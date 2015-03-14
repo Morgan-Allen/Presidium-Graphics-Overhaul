@@ -79,6 +79,36 @@ public class GameSettings {
   }
   
   
+  
+  /**  Useful for toggling settings within the main UI for debug purposes:
+    */
+  public static String[] publishSimpleOptions() {
+    final Batch <String> names = new Batch <String> ();
+    for (Field setting : settings) {
+      if (setting.getType() == boolean.class) names.add(setting.getName());
+    }
+    return names.toArray(String.class);
+  }
+  
+  
+  public static Object valueForOption(String optionName) {
+    try {
+      final Field field = GameSettings.class.getField(optionName);
+      return field.get(null);
+    }
+    catch (Exception e) { return null; }
+  }
+  
+  
+  public static void assignOptionValue(Object value, String optionName) {
+    try {
+      final Field field = GameSettings.class.getField(optionName);
+      field.set(null, value);
+    }
+    catch (Exception e) { I.report(e); }
+  }
+  
+  
   /**  Public access methods for saving, loading, and resets to default values-
     */
   public static void setDefaults() {

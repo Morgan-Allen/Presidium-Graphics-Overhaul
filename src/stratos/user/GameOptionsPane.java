@@ -5,7 +5,10 @@
   */
 package stratos.user;
 import com.badlogic.gdx.Input.Keys;
+
 import stratos.start.*;
+import stratos.game.common.GameSettings;
+import stratos.graphics.common.Colour;
 import stratos.graphics.common.ImageAsset;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
@@ -109,6 +112,26 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
     //  TODO:  Make the file-path system more transparent and consistent!
     text.append("\n\nLoad Earlier Save:");
     appendLoadOptions(text, played.savesPrefix());
+    
+    text.append("\n\nDebug Options:");
+    appendDebugOptions(text);
+  }
+  
+  
+  protected void appendDebugOptions(Text text) {
+    for (final String option : GameSettings.publishSimpleOptions()) {
+      final Object value = GameSettings.valueForOption(option);
+      if (value == null) continue;
+      
+      text.append("\n  "+option+":  ", Colour.LITE_GREY);
+      final boolean toggled = Boolean.TRUE.equals(value);
+      
+      text.append(new Description.Link(""+value) {
+        public void whenClicked() {
+          GameSettings.assignOptionValue(! toggled, option);
+        }
+      });
+    }
   }
   
   

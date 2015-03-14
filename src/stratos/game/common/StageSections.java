@@ -88,14 +88,14 @@ public class StageSections implements TileConstants {
   }
   
   
-  public Batch <StageSection> sectionsUnder(Box2D area) {
+  public Batch <StageSection> sectionsUnder(Box2D area, int margin) {
     final Batch <StageSection> batch = new Batch <StageSection> ();
     
     final float s = 1f / resolution, dim = world.size / resolution;
     final Box2D clip = new Box2D();
     clip.setX(area.xpos() * s, area.xdim() * s);
     clip.setY(area.ypos() * s, area.ydim() * s);
-    clip.expandBy(1);
+    clip.expandBy(1 + margin);
     
     for (Coord c : Visit.grid(clip)) {
       if (c.x < 0 || c.x >= dim || c.y < 0 || c.y >= dim) continue;

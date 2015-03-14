@@ -7,6 +7,7 @@ package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.maps.Placement;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -33,12 +34,14 @@ public class Bastion extends Venue {
   );
   
   final static int
-    CLAIM_RADIUS = Stage.SECTOR_SIZE / 2;
+    EXCLUDE_RADIUS = 2,
+    CLAIM_RADIUS   = Stage.SECTOR_SIZE / 2;
   
   final static VenueProfile PROFILE = new VenueProfile(
     Bastion.class, "bastion", "Bastion",
     7, 4, false, NO_REQUIREMENTS
   );
+  private Box2D excludes, claims;
   
   
   public Bastion(Base base) {
@@ -71,13 +74,34 @@ public class Bastion extends Venue {
   
   
   protected Box2D areaClaimed() {
-    return new Box2D(footprint()).expandBy(CLAIM_RADIUS);
+    if (claims == null || ! inWorld()) {
+      claims = new Box2D(footprint()).expandBy(CLAIM_RADIUS);
+    }
+    return claims;
   }
   
   
   public boolean preventsClaimBy(Venue other) {
+    if (excludes == null || ! inWorld()) {
+      excludes = new Box2D(footprint()).expandBy(EXCLUDE_RADIUS);
+    }
+    if (other.footprint().overlaps(excludes)) {
+      return true;
+    }
     if (other.base() == base()) return false;
-    return super.preventsClaimBy(other);
+    else return super.preventsClaimBy(other);
+  }
+  
+  
+  public void setPosition(int x, int y, Stage world) {
+    super.setPosition(x, y, world);
+    this.facing = FACING_EAST;
+    
+    //  TODO:  SORT THIS OUT IN A CLEANER WAY
+    final Tile o = origin();
+    final int off[] = Placement.entranceCoords(size, size, facing);
+    Tile e = world.tileAt(o.x + off[0], o.y + off[1]);
+    this.entrance = e;
   }
   
   

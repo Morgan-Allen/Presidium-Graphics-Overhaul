@@ -202,7 +202,7 @@ public class BaseSetup {
       I.say("  Time: "+base.world.currentTime());
     }
     
-    for (StageSection section : world.sections.sectionsUnder(world.area())) {
+    for (StageSection section : world.sections.sectionsUnder(world.area(), 0)) {
       for (Venue sample : samples) {
         sample.assignBase(base);
         final Siting p = new Siting();

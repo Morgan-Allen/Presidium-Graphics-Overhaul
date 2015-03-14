@@ -74,8 +74,8 @@ public class PavingMap {
   
   public void refreshPaving(Tile t) {
     final boolean flag = needsPaving(t);
-    final byte c = roadCounter[t.x][t.y];
-    if (GameSettings.paveFree) {
+    if (flag && GameSettings.paveFree) {
+      final byte c = roadCounter[t.x][t.y];
       setPaveLevel(t, c > 0 ? ROAD_LIGHT : ROAD_NONE, true);
     }
     flagMap.set((byte) (flag ? 1 : 0), t.x, t.y);

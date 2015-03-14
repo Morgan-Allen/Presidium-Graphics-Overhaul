@@ -6,6 +6,7 @@
 package stratos.game.maps;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.economic.Inventory.Owner;
 import stratos.user.BaseUI;
 import stratos.util.*;
 
@@ -92,7 +93,7 @@ public class ClaimsGrid {
   public Venue[] venuesClaiming(Box2D area) {
     final Batch <Venue> venues = new Batch <Venue> ();
     
-    for (StageSection s : world.sections.sectionsUnder(area)) {
+    for (StageSection s : world.sections.sectionsUnder(area, 1)) {
       final List <Claim> claims = areaClaims[s.x][s.y];
       if (claims != null) for (Claim claim : claims) {
         if (! claim.area.overlaps(area)) continue;
@@ -100,6 +101,11 @@ public class ClaimsGrid {
       }
     }
     return venues.toArray(Venue.class);
+  }
+  
+  
+  public boolean venueClaims(Box2D area) {
+    return venuesClaiming(area).length > 0;
   }
   
   
@@ -113,19 +119,20 @@ public class ClaimsGrid {
   
   
   private Batch <Claim> claimsConflicting(Box2D area, Venue owner) {
-    final boolean report = verbose && extraVerbose && (
-      BaseUI.currentPlayed() == owner.base()
-    );
+    final boolean report = verbose && owner.owningTier() > Owner.TIER_PRIVATE;
+    
     final Batch <Claim> conflict = new Batch <Claim> ();
     if (report) {
       I.say("\nChecking for conflicts with claim by "+owner);
       I.say("  Area checked: "+area);
     }
     
-    for (StageSection s : world.sections.sectionsUnder(area)) {
+    for (StageSection s : world.sections.sectionsUnder(area, 1)) {
       final List <Claim> claims = areaClaims[s.x][s.y];
       
       if (claims != null) for (Claim claim : claims) {
+        if (report) I.say("  Potential conflict: "+claim.owner);
+        
         if ((! claim.flag) && claim.area.overlaps(area)) {
           
           final Venue other = claim.owner;
@@ -168,6 +175,7 @@ public class ClaimsGrid {
   
   public Claim assertNewClaim(Venue owner, Box2D area) {
     final boolean report = verbose && BaseUI.currentPlayed() == owner.base();
+    
     if (report) {
       I.say("\nAsserting new claim for "+owner);
       I.say("  Area claimed: "+area);
@@ -179,7 +187,7 @@ public class ClaimsGrid {
     newClaim.owner = owner;
     if (owner != null) venueClaims.put(owner, newClaim);
     
-    for (StageSection s : world.sections.sectionsUnder(area)) {
+    for (StageSection s : world.sections.sectionsUnder(area, 1)) {
       List <Claim> claims = areaClaims[s.x][s.y];
       if (claims == null) areaClaims[s.x][s.y] = claims = new List <Claim> ();
       claims.add(newClaim);
@@ -207,7 +215,7 @@ public class ClaimsGrid {
   
   
   private void removeClaim(Claim claim, boolean report) {
-    for (StageSection s : world.sections.sectionsUnder(claim.area)) {
+    for (StageSection s : world.sections.sectionsUnder(claim.area, 1)) {
       final List <Claim> claims = areaClaims[s.x][s.y];
       claims.remove(claim);
       if (claims.size() == 0) areaClaims[s.x][s.y] = null;

@@ -218,8 +218,10 @@ public class EngineerStation extends Venue {
   
   
   public String helpInfo() {
-    return
-      "Your Engineers manufacture parts, devices and armour for your citizens.";
+    return Manufacture.statusMessageFor(
+      "Engineers manufacture parts, devices and armour for your citizens.",
+      this, METALS_TO_PARTS, ASSEMBLY_LINE
+    );
   }
   
   
@@ -227,6 +229,11 @@ public class EngineerStation extends Venue {
     return InstallationPane.TYPE_ENGINEER;
   }
 }
+
+
+
+
+
 
 
 

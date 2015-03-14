@@ -75,6 +75,7 @@ public class TerrainPass {
     }
     shader.end();
     chunks.clear();
+    fogApplied = null;
   }
   
   

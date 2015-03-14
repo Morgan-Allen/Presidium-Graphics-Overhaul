@@ -6,6 +6,9 @@
 
 
 package stratos.game.plans;
+import static stratos.game.economic.Economy.ORES;
+import static stratos.game.economic.Economy.PARTS;
+import static stratos.game.economic.Economy.POWER;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
@@ -23,7 +26,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     evalVerbose = false,
     verbose     = false;
   
-  final static int
+  final public static int
     MAX_UNITS_PER_DAY = 5,
     TIME_PER_UNIT     = Stage.STANDARD_DAY_LENGTH / (3 * MAX_UNITS_PER_DAY),
     DEVICE_TIME_MULT  = 2,
@@ -36,10 +39,9 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   
   final public Property venue;
   final public Conversion conversion;
-  
-  public int checkBonus = 0;
   public Commission commission = null;
   
+  private float speedBonus = 1;
   private Item made, needed[];
   private float amountMade = 0;
   
@@ -62,7 +64,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     conversion = (Conversion) s.loadObject();
     made = Item.loadFrom(s);
     this.needed = conversion.raw;
-    checkBonus = s.loadInt();
+    speedBonus = s.loadFloat();
     amountMade = s.loadFloat();
     commission = (Commission) s.loadObject();
   }
@@ -73,7 +75,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     s.saveObject(venue);
     s.saveObject(conversion);
     Item.saveTo(s, made);
-    s.saveInt(checkBonus);
+    s.saveFloat(speedBonus);
     s.saveFloat(amountMade);
     s.saveObject(commission);
   }
@@ -103,22 +105,77 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   }
   
   
+  /**  Estimates, calculation and display of manufacturing rates, upgrade boni,
+    *  etc.
+    */
   public Manufacture setBonusFrom(
     Venue works, boolean required, Upgrade... upgrades
   ) {
+    //  TODO:  Limit the maximum quality that can be achieved in the absence of
+    //  a suitable facility upgrade!
+    this.speedBonus = estimatedOutput(works, conversion, upgrades);
+    return this;
+  }
+  
+  
+  public static float estimatedOutput(
+    Venue v, Conversion c, Upgrade... upgrades
+  ) {
+    float output = 1;
+    for (Item r : c.raw) if (v.stocks.relativeShortage(r.type) >= 1) {
+      output /= 2;
+    }
+    
     float upgradeBonus = 0;
     for (Upgrade upgrade : upgrades) {
-      final float bonus = works.structure.upgradeLevel(upgrade);
+      final float bonus = v.structure.upgradeLevel(upgrade);
       upgradeBonus += bonus / (upgrade.maxLevel * upgrades.length);
     }
-    if (required && upgradeBonus <= 0) return null;
+    output *= 1 + upgradeBonus;
     
-    //  TODO:  Limit the maximum quality that can be achieved in the absence of
-    //  a suitable facility upgrade.
+    final float powerCut = v.stocks.relativeShortage(Economy.POWER);
+    output *= (2 - powerCut) / 2;
     
-    final float powerCut = works.stocks.shortagePenalty(Economy.POWER);
-    this.checkBonus = (int) (10 * (upgradeBonus - powerCut));
-    return this;
+    return output;
+  }
+  
+  
+  public static String statusMessageFor(
+    String normal, Venue v, Conversion c, Upgrade... upgrades
+  ) {
+    if ((! v.structure.intact()) || (! v.inWorld())) {
+      return normal;
+    }
+    final StringBuffer s = new StringBuffer();
+    
+    float output = Manufacture.estimatedOutput(v, c, upgrades) / 2f;
+    output *= Manufacture.MAX_UNITS_PER_DAY * v.staff.workforce() / 2f;
+    
+    int numWorking = 0;
+    for (Actor a : v.staff.workers()) {
+      final Manufacture m = (Manufacture) a.matchFor(Manufacture.class, true);
+      if (m == null || a.aboard() != v) continue;
+      if (m.made().type == c.out.type) numWorking++;
+    }
+    
+    boolean needsOkay = true;
+    if (v.stocks.relativeShortage(POWER) > 0) {
+      needsOkay = false;
+      s.append(
+        "Manufacturing will be slowed without enough "+POWER+"."
+      );
+    }
+    else for (Item r : c.raw) if (v.stocks.relativeShortage(r.type) >= 1) {
+      needsOkay = false;
+      s.append(
+        "Manufacturing will be slowed without enough "+r.type+"."
+      );
+      break;
+    }
+    if (needsOkay) s.append(normal);
+    s.append("\n  Estimated "+c.out.type+" per day: "+output);
+    s.append("\n  "+numWorking+" active workers");
+    return s.toString();
   }
   
   
@@ -163,7 +220,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     if (report) {
       I.say("\n  Basic urgency: "+urgency+", boost: "+boost);
       I.say("  Amount/Demand: "+amount+"/"+demand);
-      I.say("  Check bonus:   "+checkBonus);
+      I.say("  Speed bonus:   "+speedBonus);
       
       I.say("\n  Needed items:");
       for (Item need : needed) {
@@ -199,9 +256,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     final Conversion c = conversion;
     float chance = 1.0f;
     for (int i = c.skills.length; i-- > 0;) {
-      chance *= actor.skills.chance(
-        c.skills[i], c.skillDCs[i] - checkBonus
-      );
+      chance *= actor.skills.chance(c.skills[i], c.skillDCs[i]);
     }
     chance = (chance + 1) / 2f;
     return chance;
@@ -272,14 +327,14 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     
     //  Secondly, make sure the skill tests all check out, and deplete any raw
     //  materials used up.
-    final float checkMod = (hasNeeded ? 0 : SHORTAGE_DC_MOD) - checkBonus;
+    final float checkMod = (hasNeeded ? 0 : SHORTAGE_DC_MOD);
     boolean success = true;
     //  TODO:  Have this average results, rather than '&' them...
     for (int i = c.skills.length; i-- > 0;) {
       success &= actor.skills.test(c.skills[i], c.skillDCs[i] + checkMod, 1);
     }
     
-    float increment = 1f / (made.amount * TIME_PER_UNIT);
+    float increment = 1f * speedBonus / (made.amount * TIME_PER_UNIT);
     if (made.type instanceof DeviceType) increment /= DEVICE_TIME_MULT;
     if (made.type instanceof OutfitType) increment /= OUTFIT_TIME_MULT;
     if (! hasNeeded) increment /= SHORTAGE_TIME_MULT;

@@ -196,12 +196,6 @@ public class CultureLab extends Venue {
     }
     //
     //  And spyce production-
-    /*
-    final Manufacture mT = stocks.nextManufacture(actor, CARBS_TO_SPYCE_N);
-    if (mT != null) {
-      choice.add(mT.setBonusFrom(this, true, SPYCE_CHEMISTRY));
-    }
-    //*/
     final Manufacture mN = stocks.nextManufacture(actor, PROTEIN_TO_SPYCE_T);
     if (mN != null) {
       choice.add(mN.setBonusFrom(this, true, SPYCE_CHEMISTRY));
@@ -262,9 +256,11 @@ public class CultureLab extends Venue {
   
   
   public String helpInfo() {
-    return
-      "The Culture Labs manufacture soma, basic foodstuffs and even cloned "+
-      "tissues for medical purposes.";
+    return Manufacture.statusMessageFor(
+      "The Culture Lab manufactures soma, basic foodstuffs and even cloned "+
+      "tissues for medical purposes.",
+      this, CARBS_TO_SOMA, DRUG_SYNTHESIS
+    );
   }
   
   

@@ -10,6 +10,7 @@ package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.maps.PavingMap;
 import stratos.game.wild.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
@@ -361,6 +362,8 @@ public class Forestry extends Plan {
       );
       tried = Spacing.nearestOpenTile(tried, actor);
       if (tried == null || ! Flora.canGrowAt(tried)) continue;
+      if (PavingMap.pavingReserved(tried, true)) continue;
+      if (actor.world().claims.venueClaims(tried.area(null))) continue;
       if (Spacing.distance(tried, nursery) > Stage.SECTOR_SIZE) continue;
       
       float rating = tried.habitat().moisture() / 10f;

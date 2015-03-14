@@ -15,38 +15,45 @@ import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
 
 
+//
+//  TODO:  Key farming efforts off a particular crop type, so you can check
+//  for the presence of the right seed type.
 
 public class Farming extends Plan {
   
   
   private static boolean
     evalVerbose  = false,
-    stepsVerbose = false;
+    stepsVerbose = true ;
   
+  final Venue seedDepot;
   final Nursery nursery;
   
   
   
-  public Farming(Actor actor, Nursery plantation) {
+  public Farming(Actor actor, Venue seedDepot, Nursery plantation) {
     super(actor, plantation, MOTIVE_JOB, NO_HARM);
-    this.nursery = plantation;
+    this.seedDepot = seedDepot ;
+    this.nursery   = plantation;
   }
   
   
   public Farming(Session s) throws Exception {
     super(s);
-    nursery = (Nursery) s.loadObject();
+    seedDepot = (Venue  ) s.loadObject();
+    nursery   = (Nursery) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(nursery);
+    s.saveObject(seedDepot);
+    s.saveObject(nursery  );
   }
   
   
   public Plan copyFor(Actor other) {
-    return new Farming(other, nursery);
+    return new Farming(other, seedDepot, nursery);
   }
   
   
@@ -67,20 +74,13 @@ public class Farming extends Plan {
     final float need = nursery.needForTending();
     
     final float priority = priorityForActorWith(
-      actor, nursery, ROUTINE,
-      (need - 0.5f) * ROUTINE, MILD_HELP,
+      actor, nursery,
+      ROUTINE, (need - 0.5f) * ROUTINE, MILD_HELP,
       MILD_COMPETITION, NO_FAIL_RISK,
       BASE_SKILLS, BASE_TRAITS, PARTIAL_DISTANCE_CHECK,
       report
     );
     return Nums.max(min, priority);
-  }
-  
-  
-  public boolean finished() {
-    final boolean f = super.finished();
-    //if (f && verbose) I.sayAbout(actor, "FARMING COMPLETE");
-    return f;
   }
   
   
@@ -102,7 +102,9 @@ public class Farming extends Plan {
     float minDist = Float.POSITIVE_INFINITY, dist;
     Tile toPlant = null;
     
-    if (canPlant) for (Tile t : nursery.toPlant()) if (! t.reserved()) {
+    if (canPlant) for (Tile t : nursery.toPlant()) {
+      if (! nursery.couldPlant(t)) continue;
+      if (report) I.say("  Checking tile: "+t);
       
       final Crop c = nursery.plantedAt(t);
       if (c == null || c.needsTending()) {
@@ -121,7 +123,7 @@ public class Farming extends Plan {
     //  planting to be done, pick up some seed.
     if (toPlant != null && nextSeedNeeded() != null) {
       final Action pickup = new Action(
-        actor, nursery,
+        actor, seedDepot,
         this, "actionCollectSeed",
         Action.REACH_DOWN, "Collecting seed"
       );
@@ -130,27 +132,28 @@ public class Farming extends Plan {
     
     if (toPlant != null) {
       Crop picked = nursery.plantedAt(toPlant);
-      if (picked == null) {
-        picked = new Crop(nursery, pickSpecies(toPlant, report));
-        picked.setPosition(toPlant.x, toPlant.y, toPlant.world);
-      }
-      
       final String actionName, anim, desc;
-      if (picked.blighted()) {
+      
+      if (picked != null && picked.blighted()) {
         actionName = "actionDisinfest";
         anim = Action.BUILD;
         desc = "Weeding "+picked;
       }
-      else if (picked.growStage() >= Crop.MIN_HARVEST) {
+      else if (picked != null && picked.growStage() >= Crop.MIN_HARVEST) {
         actionName = "actionHarvest";
         anim = Action.REACH_DOWN;
         desc = "Harvesting "+picked;
       }
       else {
+        if (picked == null || Rand.yes()) {
+          picked = new Crop(nursery, pickSpecies(toPlant, report));
+          picked.setPosition(toPlant.x, toPlant.y, toPlant.world);
+        }
         actionName = "actionPlant";
         anim = Action.BUILD;
         desc = "Planting "+picked;
       }
+      
       final Action plants = new Action(
         actor, picked,
         this, actionName,
@@ -179,7 +182,7 @@ public class Farming extends Plan {
     
     if (hasSample && sumHarvest == 0 && amountNeeded == 0) {
       final Action returnSeed = new Action(
-        actor, nursery,
+        actor, seedDepot,
         this, "actionReturnHarvest",
         Action.REACH_DOWN, "Returning seed"
       );
@@ -190,7 +193,7 @@ public class Farming extends Plan {
       return null;
     }
     final Action returnAction = new Action(
-      actor, nursery,
+      actor, seedDepot,
       this, "actionReturnHarvest",
       Action.REACH_DOWN, "Returning harvest"
     );
@@ -201,7 +204,7 @@ public class Farming extends Plan {
   private Item nextSeedNeeded() {
     for (Species s : Crop.ALL_VARIETIES) {
       final Item seed = Item.asMatch(SAMPLES, s);
-      if (nursery.stocks.amountOf(seed) == 0) continue;
+      if (seedDepot.stocks.amountOf(seed) == 0) continue;
       if (actor.gear.amountOf(seed) > 0) continue;
       return seed;
     }
@@ -211,19 +214,16 @@ public class Farming extends Plan {
   
   private boolean canPlant() {
     if (! GameSettings.hardCore) return true;
-    //
-    //  TODO:  Key farming efforts off a particular crop type, so you can check
-    //  for the presence of the right seed type.
     return
-      nursery.stocks.amountOf(SAMPLES) > 0 ||
+      seedDepot.stocks.amountOf(SAMPLES) > 0 ||
       actor.gear.amountOf(SAMPLES) > 0;
   }
   
   
-  public boolean actionCollectSeed(Actor actor, Nursery nursery) {
+  public boolean actionCollectSeed(Actor actor, Venue seedDepot) {
     Item seed = nextSeedNeeded();
     if (seed == null) return false;
-    actor.gear.addItem(nursery.stocks.bestSample(seed, 1));
+    actor.gear.addItem(seedDepot.stocks.bestSample(seed, 1));
     return true;
   }
   
@@ -232,10 +232,11 @@ public class Farming extends Plan {
   /**  Action Implementations-
     */
   public boolean actionPlant(Actor actor, Crop crop) {
-    final boolean report = I.talkAbout == actor && stepsVerbose;
-    
-    if (crop.origin().reserved()) return false;
-    if (! crop.inWorld()) crop.enterWorld();
+    //final boolean report = I.talkAbout == actor && stepsVerbose;
+    if (! crop.inWorld()) {
+      if (! nursery.couldPlant(crop.origin())) return false;
+      crop.enterWorld();
+    }
     
     //  Initial seed quality has a substantial impact on crop health.
     final Item seed = actor.gear.bestSample(
@@ -258,8 +259,7 @@ public class Farming extends Plan {
     health += actor.skills.test(CULTIVATION, plantDC, 1) ? 1 : 0;
     health += actor.skills.test(HARD_LABOUR, ROUTINE_DC, 1) ? 1 : 0;
     health *= Nursery.MAX_HEALTH_BONUS / 5;
-    final Species s = pickSpecies(crop.origin(), report);
-    crop.seedWith(s, health);
+    crop.seedWith(crop.species(), health);
     return true;
   }
   
@@ -270,7 +270,7 @@ public class Farming extends Plan {
     
     for (Species s : Crop.ALL_VARIETIES) {
       final Item seed = actor.gear.matchFor(Item.asMatch(SAMPLES, s));
-      final float stocked = 50 + nursery.stocks.amountOf(Crop.yieldType(s));
+      final float stocked = 50 + seedDepot.stocks.amountOf(Crop.yieldType(s));
       
       float chance = 1;
       chance *= Crop.habitatBonus(t, s) / stocked;

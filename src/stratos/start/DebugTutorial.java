@@ -11,8 +11,8 @@ import stratos.util.*;
 
 
 
-//  TODO:  MAKE SURE FIELD HAND UPGRADE WORKS AT ECO STATION!
-//  TODO:  ADD STATUS-MESSAGES FOR PRODUCTION AT ENGINEER STATIONS, ETC.
+//  Add notifications for new applicants in the personnel pane- and consider
+//  just hiring them from there.
 
 
 
@@ -20,8 +20,7 @@ import stratos.util.*;
 
 *  Limit the powers available too- using upgrades or the household-panel?
 
-*  Have tutorial-messages appear as message-items along the right-hand side, in
-   a fashion similar to ongoing missions.
+*  Have tutorial-messages appear as message-items along the right-hand side.
 
 *  Focus on the objectives that have an intuitive, emotional component- such as
    survival (strike/defend) and comfort (the economy.)  Making those mandatory
@@ -37,10 +36,6 @@ import stratos.util.*;
 
 *  Limit the structure types available during the tutorial?
 //*/
-
-//  There's no ability to initiate recruitment.  That's the problem.  You need
-//  some kind of notification for new applicants.  Ah.  Yes.
-
 
 
 /*  BIG TODO LIST:
@@ -100,6 +95,9 @@ INTERFACE AND DEBUGGING
    translations.
 
 *  Try to implement some global debugging-levels.
+   
+*  Delete all later saves if you restart a mission or revert to an earlier
+   point in time.
 
 
 CITIZEN BEHAVIOUR-

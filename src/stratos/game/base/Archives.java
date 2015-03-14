@@ -132,9 +132,11 @@ public class Archives extends Venue {
   
   
   public String helpInfo() {
-    return
+    return Manufacture.statusMessageFor(
       "The Archives facilitate research, administration and self-training by "+
-      "your base personnel.";
+      "your base personnel.",
+      this, PARTS_TO_DATALINKS
+    );
   }
   
   

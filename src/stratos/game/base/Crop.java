@@ -120,12 +120,12 @@ public class Crop extends Element {
   };
   
   final static Object CROP_SPECIES[][] = {
-    new Object[] { Species.ONI_RICE, CARBS    , CROP_MODELS[0] },
-    new Object[] { Species.DURWHEAT, CARBS    , CROP_MODELS[1] },
-    new Object[] { Species.TUBER_LILY, GREENS , CROP_MODELS[3] },
+    new Object[] { Species.ONI_RICE   , CARBS , CROP_MODELS[0] },
+    new Object[] { Species.DURWHEAT   , CARBS , CROP_MODELS[1] },
+    new Object[] { Species.TUBER_LILY , GREENS, CROP_MODELS[3] },
     new Object[] { Species.BROADFRUITS, GREENS, CROP_MODELS[2] },
     new Object[] {
-      Species.HIVE_GRUBS, PROTEIN ,
+      Species.HIVE_GRUBS, PROTEIN,
       new ModelAsset[] { GRUB_BOX_MODEL }
     },
     null,
@@ -306,6 +306,11 @@ public class Crop extends Element {
   }
   
   
+  public float health() {
+    return quality / (blighted ? 2f : 1f);
+  }
+  
+  
   public Species species() {
     return species;
   }
@@ -332,8 +337,9 @@ public class Crop extends Element {
   }
   
   
-  //  TODO:  Pass a Description object here instead?
   public String toString() {
+    return species.name;
+    /*
     final int stage = (int) Nums.clamp(growStage, 0, MAX_GROWTH);
     final String HD;
     if (blighted) HD = " (Infested)";
@@ -342,6 +348,7 @@ public class Crop extends Element {
       HD = " ("+HEALTH_NAMES[HL]+" health)";
     }
     return STAGE_NAMES[stage]+""+species.name+HD;
+    //*/
   }
 }
 

@@ -423,16 +423,16 @@ public abstract class Venue extends Structural implements
   
   protected void toggleStatusFor(Traded need, ModelAsset model) {
     if (! structure.intact()) buildSprite.toggleFX(need.model, false);
-    buildSprite.toggleFX(model, stocks.shortagePenalty(need) > 0);
+    buildSprite.toggleFX(model, stocks.relativeShortage(need) > 0.5f);
   }
   
   
   protected void toggleStatusDisplay() {
     final boolean showBurn = structure.burning();
     buildSprite.toggleFX(BuildingSprite.BLAST_MODEL, showBurn);
-    toggleStatusFor(ATMO, BuildingSprite.LIFE_SUPPORT_MODEL);
-    toggleStatusFor(POWER       , BuildingSprite.POWER_MODEL);
-    toggleStatusFor(WATER  , BuildingSprite.WATER_MODEL);
+    toggleStatusFor(ATMO , BuildingSprite.LIFE_SUPPORT_MODEL);
+    toggleStatusFor(POWER, BuildingSprite.POWER_MODEL);
+    toggleStatusFor(WATER, BuildingSprite.WATER_MODEL);
   }
   
   

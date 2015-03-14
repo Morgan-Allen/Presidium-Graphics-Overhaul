@@ -132,7 +132,7 @@ public class SeedTailoring extends Plan {
     if (! actor.skills.test(GENE_CULTURE, DC, 5.0f)) skillRating /= 2;
     if (! actor.skills.test(CULTIVATION , DC, 5.0f)) skillRating /= 2;
     skillRating += lab.structure.upgradeBonus(yield);
-    skillRating *= (1 - lab.stocks.shortagePenalty(POWER));
+    skillRating *= (1 - lab.stocks.relativeShortage(POWER));
     return skillRating;
   }
   

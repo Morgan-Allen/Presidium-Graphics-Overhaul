@@ -152,7 +152,7 @@ public class BaseFinance {
       final int
         week  = (int) weekIncome .valueFor(key),
         total = (int) totalIncome.valueFor(key);
-      d.append("\n    "+key+" "+week+"/"+total);
+      d.append("\n    "+key+": "+week+"/"+total);
       sumWI += week ;
       sumTI += total;
     }
@@ -163,7 +163,7 @@ public class BaseFinance {
       final int
         week  = 0 - (int) weekOutlay .valueFor(key),
         total = 0 - (int) totalOutlay.valueFor(key);
-      d.append("\n    "+key+" "+week+"/"+total);
+      d.append("\n    "+key+": "+week+"/"+total);
       sumWO += week ;
       sumTO += total;
     }

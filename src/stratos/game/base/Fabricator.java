@@ -195,9 +195,11 @@ public class Fabricator extends Venue {
   
   
   public String helpInfo() {
-    return
-      "The Fabricator manufactures plastics, pressfeed, decor and outfits "+
-      "for your citizens.";
+    return Manufacture.statusMessageFor(
+      "Fabricators manufacture plastics, pressfeed, decor and outfits for "+
+      "your citizens.",
+      this, LCHC_TO_PLASTICS, POLYMER_LOOM
+    );
   }
   
   

@@ -230,7 +230,7 @@ public class FormerPlant extends Venue {
     
     int powerNeed = 4 + (structure.numUpgrades() * 2);
     stocks.forceDemand(POWER, powerNeed, Tier.CONSUMER);
-    float yield = 2 - stocks.shortagePenalty(POWER);
+    float yield = 2 - stocks.relativeShortage(POWER);
     
     if (report) I.say("  Basic yield is: "+yield);
     
