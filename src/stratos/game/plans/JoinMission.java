@@ -88,15 +88,14 @@ public class JoinMission extends Plan {
     final int index = steps.indexOf(pickStep);
     final Mission picked = missions.atIndex(index);
     
-    if (true) {
+    //  And try to apply for it-
+    if (report) I.say("Mission picked: "+picked);
+    if (picked == null) return null;
+    if (picked.missionType() == Mission.TYPE_PUBLIC) {
       actor.mind.assignMission(picked);
       return null;
     }
-    
-    //  And try to apply for it-
-    if (picked == null) return null;
-    if (report) I.say("Mission picked: "+picked);
-    return new JoinMission(actor, picked);
+    else return new JoinMission(actor, picked);
   }
   
   

@@ -12,11 +12,9 @@ import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.plans.*;
 import stratos.game.politic.*;
-import stratos.game.wild.Flora;
-import stratos.game.wild.Habitat;
-import stratos.graphics.common.Colour;
-import stratos.graphics.common.Rendering;
-import stratos.graphics.widgets.KeyInput;
+import stratos.game.wild.*;
+import stratos.graphics.common.*;
+import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -52,6 +50,9 @@ public class DebugPlacing extends Scenario {
   
   public void updateGameState() {
     super.updateGameState();
+    if (base().finance.credits() < 1000) {
+      base().finance.incCredits(1000, BaseFinance.SOURCE_CHARITY);
+    }
   }
   
   

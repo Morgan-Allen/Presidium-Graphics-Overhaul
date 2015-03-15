@@ -136,7 +136,7 @@ public class Supervision extends Plan {
       venue.addTasks(choice, actor, actor.vocation());
       final Behaviour nextJob = choice.pickMostUrgent();
       
-      if (! nextJob.matchesPlan(this)) {
+      if (nextJob != null && ! nextJob.matchesPlan(this)) {
         if (report) {
           I.say("  Supervision complete!  Next task: "+nextJob);
           Plan.reportPlanDetails(nextJob, actor);

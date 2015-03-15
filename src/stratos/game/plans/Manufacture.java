@@ -171,7 +171,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
       break;
     }
     if (needsOkay) s.append(normal);
-    s.append("\n  Estimated "+c.out.type+" per day: "+output);
+    s.append("\n  Estimated "+c.out.type+" per day: "+I.shorten(output, 1));
     s.append("\n  "+numWorking+" active workers");
     return s.toString();
   }

@@ -67,12 +67,12 @@ public class ServiceHatch extends Venue {
   public float ratePlacing(Target point, boolean exact) {
     Stage world = point.world();
     final Object key = ServiceHatch.class;
-    final float range = Stage.SECTOR_SIZE / 2, abutRange = 2;
+    final float range = Stage.SECTOR_SIZE / 2, abutRange = 2 + 1;
     
     if (exact) {
       Target near = null;
       near = world.presences.nearestMatch(base, this, abutRange);
-      if (near == null || Spacing.adjacent(near, this)) return -1;
+      if (near == null) return -1;
       near = world.presences.nearestMatch(key, this, range);
       if (near != null) return -1;
       return 5;

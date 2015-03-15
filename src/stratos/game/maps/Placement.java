@@ -261,6 +261,10 @@ public class Placement implements TileConstants {
       int clear = checkClear(t, spaceNeed, tier, report) ? 0 : 1;
       if (report) I.add(" "+clear);
       if (clear != inClear) { inClear = clear; if (clear == 0) numGaps++; }
+      //
+      //  Don't allow immediate infringement on any structure of a higher
+      //  tier type.
+      if (spaceNeed == 1 && t != null && t.owningTier() > tier) return false;
     }
     //
     //  There's a potential fail case if a gap lies across the first and last
@@ -284,6 +288,8 @@ public class Placement implements TileConstants {
     if (t == null) return false;
     for (int x = space; x-- > 0;) for (int y = space; y-- > 0;) {
       final Tile u = t.world.tileAt(x + t.x, y + t.y);
+      //
+      //  Don't allow infringement on any artificial structure:
       if (u == null || u.owningTier() > Owner.TIER_NATURAL) {
         return false;
       }

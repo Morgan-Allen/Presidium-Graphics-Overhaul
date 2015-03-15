@@ -31,7 +31,7 @@ public class Repairs extends Plan {
   };
   
   final public static float
-    TIME_PER_25_HP     = Stage.STANDARD_HOUR_LENGTH / 2,
+    TIME_PER_25_HP     = Stage.STANDARD_HOUR_LENGTH / 5,
     MIN_SERVICE_DAMAGE = 0.25f;
   
   final Structure.Basis built;

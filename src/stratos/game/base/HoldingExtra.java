@@ -2,6 +2,7 @@
 
 package stratos.game.base;
 import stratos.game.common.*;
+import stratos.game.maps.Placement;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.util.*;
@@ -74,16 +75,7 @@ public class HoldingExtra extends Fixture implements TileConstants {
   
   public boolean canPlace() {
     if (! super.canPlace()) return false;
-    final Tile o = origin();
-    for (Tile n : o.allAdjacent(null)) {
-      if (n == null) continue;
-      final Element e = n.onTop();
-      if (e == null) continue;
-      if (e instanceof Holding) continue;
-      if (e instanceof HoldingExtra) continue;
-      return false;
-    }
-    return true;
+    return Placement.perimeterFits(this, 2, origin().world);
   }
   
   
@@ -134,6 +126,9 @@ public class HoldingExtra extends Fixture implements TileConstants {
     }
   }
   
+  
+  //  TODO:  See if you can simplify any of this, and maybe extend to Noble
+  //  Estates?
   
   private static void addExtras(
     Holding holding, List <HoldingExtra> extras, int level

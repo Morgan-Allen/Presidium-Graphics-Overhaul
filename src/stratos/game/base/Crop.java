@@ -7,6 +7,7 @@
 package stratos.game.base;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.economic.Inventory.Owner;
 import stratos.game.maps.*;
 import stratos.game.wild.Species;
 import stratos.graphics.common.*;
@@ -105,6 +106,14 @@ public class Crop extends Element {
   public int pathType() {
     if (covered) return Tile.PATH_BLOCKS;
     return Tile.PATH_HINDERS;
+  }
+  
+  
+  public int owningTier() {
+    if (parent != null && parent.structure.intact() && parent.inWorld()) {
+      return Owner.TIER_PRIVATE;
+    }
+    return Owner.TIER_NATURAL;
   }
   
   

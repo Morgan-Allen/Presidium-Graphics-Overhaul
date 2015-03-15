@@ -237,12 +237,6 @@ public class ActorTraits implements Qualities {
     final float ageMult = actor.health.ageMultiple();
     return (int) (0.5f + (traitLevel(parent) * ageMult / 5f));
   }
-  /*
-  public int rootBonus(Skill skill) {
-    final float ageMult = actor.health.ageMultiple();
-    return (int) (0.5f + (traitLevel(skill.parent) * ageMult / 5f));
-  }
-  //*/
   
   
   public float usedLevel(Trait type) {

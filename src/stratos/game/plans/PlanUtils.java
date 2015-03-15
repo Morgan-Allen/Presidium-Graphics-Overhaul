@@ -31,25 +31,27 @@ public class PlanUtils {
     Actor actor, Target subject, float rewardBonus
   ) {
     float incentive = 0, empathy = 0, winChance = 0, priority = 0;
+    float harmDone, dislike;
     
     incentive += rewardBonus;
-    incentive -= actor.relations.valueFor(subject) * 5;
-    incentive += harmIntendedBy(subject, actor, false) * 5;
+    incentive += dislike = actor.relations.valueFor(subject) * -5;
+    incentive += harmDone = harmIntendedBy(subject, actor, false) * 5;
     if (incentive <= 0) return -1;
     
-    empathy = actor.traits.relativeLevel(Qualities.EMPATHIC) * 10;
-    if (incentive < empathy) return -1;
-    
-    if (! isArmed(actor)) incentive -= 10;
+    if (! isArmed(actor)) incentive -= 5;
     else if (actor.senses.isEmergency()) incentive += 10;
     
+    empathy = 10 * (1 + actor.traits.relativeLevel(Qualities.EMPATHIC)) / 2;
     winChance = combatWinChance(actor, subject);
     priority  = incentive * winChance;
+    if (incentive < empathy) return -1;
     
     if (reportOn(actor) && priority > 0) I.reportVars(
       "\nCombat priority for "+actor, "  ",
       "subject  ", subject,
       "reward   ", rewardBonus,
+      "harmDone" , harmDone,
+      "dislike"  , dislike,
       "incentive", incentive,
       "empathy  ", empathy,
       "winChance", winChance,
@@ -73,9 +75,8 @@ public class PlanUtils {
     homeDistance = homeDistanceFactor(actor, actor.origin());
     if (! isArmed(actor)) {
       homeDistance = (homeDistance + 2) / 2;
-      if (actor.senses.isEmergency()) incentive += 10;
     }
-    
+    if (actor.senses.isEmergency()) incentive += 10;
     escapeChance = 1f - actor.health.fatigueLevel();
     
     priority = incentive * homeDistance * Nums.clamp(escapeChance, 0, 1);

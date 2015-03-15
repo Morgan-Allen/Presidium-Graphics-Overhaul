@@ -34,7 +34,7 @@ public class Arcology extends Venue {
   final static ModelAsset
     BEDS_MODELS[][] = CutoutModel.fromImageGrid(
       Arcology.class, IMG_DIR+"all_arcology.png",
-      4, 4, 1, 1
+      4, 4, 2, 1
     ),
     
     MODEL_BEDS_WEST  = BEDS_MODELS[0][1],

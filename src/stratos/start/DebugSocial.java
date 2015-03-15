@@ -75,9 +75,9 @@ public class DebugSocial extends Scenario {
     );
     
     if (false) testCareers(base);
-    if (true ) configDialogueScenario(world, base, UI);
+    if (false) configDialogueScenario(world, base, UI);
     if (false) configArtilectScenario(world, base, UI);
-    if (false) configContactScenario (world, base, UI);
+    if (true ) configContactScenario (world, base, UI);
     if (false) configWildScenario    (world, base, UI);
     if (false) applyJobScenario      (world, base, UI);
   }

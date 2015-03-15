@@ -349,6 +349,7 @@ public class InstallationPane extends SelectionInfoPane {
       final Object o[];
       if (group.length == 1) {
         o = new Object[] { toInstall, toInstall.mainEntrance() };
+        //o = new Object[] { toInstall.areaClaimed(), toInstall.mainEntrance() };
       }
       else o = group;
       

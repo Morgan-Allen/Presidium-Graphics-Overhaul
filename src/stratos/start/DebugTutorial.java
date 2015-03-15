@@ -11,6 +11,13 @@ import stratos.util.*;
 
 
 
+
+
+
+//  Actors are still a little too eager to apply for missions.
+
+
+
 /*  TUTORIAL TODO LIST:
 
 *  Limit the powers available too- using upgrades or the household-panel?
@@ -23,25 +30,12 @@ import stratos.util.*;
 
 *  Use a linear sequence with much more detail on specific, simple steps.  You
    want to cover-
-     Building
-     Recruitment
-     Mission Types
-     Basic Research
-     Housing + Manufacture + Sales and Imports (keep brief)
+     Building & Upgrades (space management.)
+     Recruitment & Missions (indirect control, motivation.)
+     Housing + Manufacture + Sales and Imports (having money.)
 
 *  Limit the structure types available during the tutorial?
 //*/
-
-
-//  Use claims-exclusion for the service hatch.
-//  Try tracking actors only when they wander outside your field of view (or
-//  start that way.)  And include tracking options in the UI.
-
-//  Actors appear to be *far* too enthusiastic about joining combat-missions
-//  for very little incentive.  (It's possible that too much of the base-
-//  relationship is being transferred to citizens, so they take it very
-//  personally.)  Also, they're too trigger-happy around natives, probably for
-//  similar reasons.
 
 
 
@@ -49,8 +43,12 @@ import stratos.util.*;
 
 BUILDING AND UPGRADES-
 
+  >>>>>>> DO THIS <<<<<<<
 *  Explicit or improved placement for shield walls and arcologies.
      Fresh art for shield walls.  And give them out for free!
+   
+*  There needs to be a more precise 'reservation' system to allow for zoning,
+   entrances and not-in-the-world-yet situations.
 
 *  Upgrades need to be filled in and tested for:
      Stock Exchange
@@ -73,30 +71,35 @@ BUILDING AND UPGRADES-
 
 ENEMIES AND ENVIRONMENT-
 
-*  Extra concept art for new creatures/vermin:
-     Avrodil, Rem Leech, Mistaken, Desert Maw, Hirex Body.
+  >>>>>>> DO THIS <<<<<<<
+*  Need to restore animal nests and check their breeding behaviours.
+   Need to ensure auto-distribution of predator and prey nests.
 
 *  Need to write vermin behaviour (see Vermin class.)
 
-*  Need to restore animal nests and check their breeding behaviours.
-   Need to ensure auto-distribution of predator and prey nests.
+*  Extra concept art for new creatures/vermin:
+     Avrodil, Rem Leech, Mistaken, Desert Maw, Hirex Body.
 
 CONTROL AND DIRECTION-
 
 *  Introduce Call-to-Arms at the Trooper Lodge (with respect to a particular
    mission at a time.)
 
+  >>>>>>> DO THIS <<<<<<<
 *  Make Pledges more persistent and nuanced (see Proposal class.)
    Also, try to allow negotiation with buildings, in some sense.
 
-*  Psy abilities need to be persistent.  And show the psy meter next to your
-   portrait.
+*  Psy abilities need to be persistent.
 
 
 INTERFACE AND DEBUGGING
 
 *  Include an Advisors(?) and more detail Finances/Economy pane.
-*  Include healthbars for psy-meter and target-descriptions?
+
+*  Include healthbars for psy-meter and target-descriptions?  Personal icon?
+
+*  Try tracking actors only when they wander outside your field of view (or
+   start that way.)  And include tracking options in the UI.
 
 *  Read definitions, tutorial messages, etc. from .xml and allow for later
    translations.
@@ -109,6 +112,7 @@ INTERFACE AND DEBUGGING
 
 CITIZEN BEHAVIOUR-
 
+  >>>>>>> DO THIS <<<<<<<
 *  Rework the migration system to that it's more gradual- colonists arrive from
    the homeworld on a scale of 1-2 months (10-20 days.)  Landing parties 'come
    ashore' every day or two, but those can't respond to job-demand as such.
@@ -119,6 +123,7 @@ CITIZEN BEHAVIOUR-
 
 *  General internal clean-up of plan routines.  (Look in PlanUtils.)
 
+  >>>>>>> DO THIS <<<<<<<
 *  Proper evaluation of mood and memory-events.
 //*/
 

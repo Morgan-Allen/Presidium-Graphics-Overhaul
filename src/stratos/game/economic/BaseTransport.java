@@ -461,15 +461,15 @@ public class BaseTransport {
       final Target next = agenda.removeFirst();
       final List <Route> routes = tileRoutes.get(next);
       
-      //  In the case of a structure, check every tile along the perimeter
-      //  and add any adjacent structures or road junctions.
+      //  In the case of a structure, allow transmission up to 2 tiles away, or
+      //  from any exit point.
       if (routes == null) {
         final Venue v = (Venue) next;
         if (v.base() != base) continue;
         reached.add(v);
         if (report) I.say("  Have reached: "+v);
         
-        tempB.setTo(v.footprint()).expandBy(2);
+        tempB.setTo(v.footprint()).expandBy(2 + 1);
         for (Venue c : world.claims.venuesClaiming(tempB)) {
           if (c.footprint().overlaps(tempB)) insertAgenda(c);
         }

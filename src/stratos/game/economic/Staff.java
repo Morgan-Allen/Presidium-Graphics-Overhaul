@@ -347,7 +347,7 @@ public class Staff {
             citizen.enterWorldAt(t, base.world);
           }
           else {
-            base.commerce.incDemand(v, 2 * (1 - crowding), REFRESH_INTERVAL);
+            base.commerce.incDemand(v, numOpenings(v), REFRESH_INTERVAL);
           }
         }
       }

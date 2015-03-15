@@ -27,8 +27,8 @@ public class BaseCommerce {
   private static boolean
     verbose        = false,
     extraVerbose   = false,
-    migrateVerbose = verbose && true ,
-    tradeVerbose   = verbose && true ;
+    migrateVerbose = verbose && false,
+    tradeVerbose   = verbose && false;
   
   final public static float
     SUPPLY_INTERVAL = Stage.STANDARD_DAY_LENGTH / 2f,
@@ -189,7 +189,7 @@ public class BaseCommerce {
       if (demand <= 0) { jobDemand.set(b, 0); continue; }
       
       float applyChance = (demand - supply) / demand;
-      applyChance *= TIME_SLICE * MAX_APPLICANTS;
+      applyChance *= TIME_SLICE;
       
       if (report) {
         I.say("  Hire chance for "+b+" is "+applyChance);
@@ -252,7 +252,7 @@ public class BaseCommerce {
   
   public void incDemand(Background b, float amount, int period) {
     final float inc = amount * period / APPLY_INTERVAL;
-    jobDemand.add(inc, b);
+    jobDemand.add(inc* MAX_APPLICANTS, b);
   }
   
   
@@ -311,6 +311,8 @@ public class BaseCommerce {
       I.say("Surpluses for "+localSurpluses.size()+" items");
       for (Item i : localSurpluses.allItems()) I.say("  "+i);
       I.say("");
+      //  Purely for diagnostic purposes-
+      this.getBestCargo(localShortages, 50, true);
     }
   }
   
@@ -499,7 +501,7 @@ public class BaseCommerce {
     final boolean report = tradeVerbose && base == BaseUI.current().played();
     if (report) {
       I.say("\nGetting best cargo from "+available.owner);
-      I.say("  Is import? "+imports);
+      I.say("  Is import? "+imports+", limit: "+fillLimit);
     }
     
     //  TODO:  Use the compressOrder() method from DeliveryUtils?
@@ -508,12 +510,21 @@ public class BaseCommerce {
     final Sorting <Item> sorting = new Sorting <Item> () {
       public int compare(Item a, Item b) {
         if (a == b) return 0;
-        final float
-          pA = a.amount / a.type.basePrice(),
-          pB = b.amount / b.type.basePrice();
-        return (imports ? 1 : -1) * (pA > pB ? 1 : -1);
+        float pA = a.amount, pB = b.amount;
+        if (imports) {
+          pA /= a.type.basePrice();
+          pB /= b.type.basePrice();
+        }
+        else {
+          pA *= a.type.basePrice();
+          pB *= b.type.basePrice();
+        }
+        return (pA > pB) ? -1 : 1;
       }
     };
+    
+    
+    float fullSum = 0;
     for (Item item : available.allItems()) {
       final Tier tier = available.demandTier(item.type);
       if (report) I.say("  Available: "+item+", demand tier: "+tier);
@@ -524,14 +535,21 @@ public class BaseCommerce {
         if (tier == Tier.CONSUMER || tier == Tier.EXPORTER) continue;
       }
       sorting.add(item);
+      fullSum += item.amount;
     }
     
     final Batch <Item> picked = new Batch <Item> ();
-    float totalAmount = 0;
+    final float fitFraction = Nums.min(fillLimit / fullSum, 1);
+    float sumSoFar = 0;
+    
     for (Item item : sorting) {
-      final float letAmount = Nums.min(item.amount, fillLimit - totalAmount);
+      float fairSum = item.amount * fitFraction;
+      fairSum = (fairSum + item.amount) / 2;
+      
+      final float letAmount = Nums.min(fairSum, fillLimit - sumSoFar);
       if (letAmount <= 0) break;
-      totalAmount += letAmount;
+      
+      sumSoFar += letAmount;
       item = Item.withAmount(item, letAmount);
       if (report) I.say("  Adding item: "+item);
       picked.add(item);
