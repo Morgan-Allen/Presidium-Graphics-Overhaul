@@ -154,11 +154,11 @@ public class HoldingUpgrades {
   protected static float supportNeed(Holding holding, int targetLevel) {
     final float
       population = holding.staff.residents().size(),
-      popDemand  = population * targetLevel * 1f / NUM_LEVELS;
-    final float
-      biomass  = holding.world().ecology().globalBiomass(),
-      bioBonus = Nums.sqrt(biomass) * BIOMASS_SUPPORT;
-    return Nums.clamp(popDemand - bioBonus, 0, population);
+      popDemand  = population * targetLevel * 1f / NUM_LEVELS,
+      biomass    = holding.world().ecology().globalBiomass(),
+      bioBonus   = Nums.sqrt(biomass) * BIOMASS_SUPPORT,
+      need       = Nums.clamp(popDemand - bioBonus, 0, population);
+    return need;
   }
   
   

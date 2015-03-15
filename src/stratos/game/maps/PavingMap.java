@@ -81,8 +81,9 @@ public class PavingMap {
     flagMap.set((byte) (flag ? 1 : 0), t.x, t.y);
   }
   
-
+  
   public static void setPaveLevel(Tile t, byte level, boolean clear) {
+    if (level > ROAD_NONE && ! t.canPave()) return;
     if (clear && level > ROAD_NONE && t.onTop() != null) {
       t.onTop().setAsDestroyed();
     }

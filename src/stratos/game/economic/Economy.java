@@ -12,6 +12,8 @@ import static stratos.game.actors.Qualities.*;
 
 
 
+//  TODO:  ...Organics.  That's the name for carbons.
+
 public final class Economy {
   
   

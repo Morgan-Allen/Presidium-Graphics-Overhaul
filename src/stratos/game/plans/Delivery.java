@@ -275,7 +275,7 @@ public class Delivery extends Plan {
     if (shops && stage <= STAGE_PICKUP) {
       if (! manned(origin)) {
         if (report) I.say("  Origin is not manned!");
-        return -1;
+        modifier -= ROUTINE;
       }
       
       int price = 0;

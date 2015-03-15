@@ -223,15 +223,16 @@ public class EcologistStation extends Venue {
     final Foraging foraging = new Foraging(actor, this);
     foraging.setMotive(Plan.MOTIVE_EMERGENCY, Plan.PARAMOUNT * shortages);
     choice.add(foraging);
+
+    final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
+      this, services(), 1, 5, 5
+    );
+    choice.add(d);
     
     if (! staff.onShift(actor)) return choice.pickMostUrgent();
     
     //
     //  Otherwise, consider normal deliveries and routine tending-
-    final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
-      this, services(), 1, 5, 5
-    );
-    choice.add(d);
     if (toFarm != null) choice.add(new Farming(actor, this, toFarm));
     
     if (choice.empty()) {

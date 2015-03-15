@@ -118,8 +118,9 @@ public class TargetOptions extends UIGroup implements UIConstants {
       ));
     }
     
-    for (Power power : Power.BASIC_POWERS) {
+    if (ruler != null) for (Power power : Power.BASIC_POWERS) {
       if (! power.appliesTo(ruler, subject)) continue;
+      
       final UIGroup option = new UIGroup(BUI);
       options.add(option);
       final Button button;

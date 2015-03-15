@@ -98,21 +98,23 @@ public class Supervision extends Plan {
   final static Trait BASE_TRAITS[] = { RELAXED, IGNORANT, DUTIFUL };
 
   protected float getPriority() {
+    final boolean report = evalVerbose && I.talkAbout == actor;
+    if (report) {
+      I.say("\nAssessing priority for supervision of "+venue);
+    }
+    
     if (type == Type.TYPE_VIP_STAY) {
       return actor.health.asleep() ? CASUAL : URGENT;
     }
     if (! venue.staff.onShift(actor)) return 0;
     
-    final boolean report = evalVerbose && I.talkAbout == actor;
-    if (report) {
-      I.say("\nAssessing priority for supervision of "+venue);
-      I.say("  Value of subject: "+actor.relations.valueFor(subject));
-    }
-    
+    final float competeFactor = type == Type.TYPE_OVERSIGHT ?
+      FULL_COMPETITION : NO_COMPETITION
+    ;
     return priorityForActorWith(
       actor, venue,
       ROUTINE, NO_MODIFIER,
-      NO_HARM, FULL_COMPETITION, NO_FAIL_RISK,
+      NO_HARM, competeFactor, NO_FAIL_RISK,
       NO_SKILLS, BASE_TRAITS, PARTIAL_DISTANCE_CHECK,
       report
     );
@@ -134,7 +136,7 @@ public class Supervision extends Plan {
       venue.addTasks(choice, actor, actor.vocation());
       final Behaviour nextJob = choice.pickMostUrgent();
       
-      if (! (nextJob instanceof Supervision)) {
+      if (! nextJob.matchesPlan(this)) {
         if (report) {
           I.say("  Supervision complete!  Next task: "+nextJob);
           Plan.reportPlanDetails(nextJob, actor);

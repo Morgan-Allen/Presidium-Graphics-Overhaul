@@ -84,9 +84,9 @@ public class Holding extends Venue {
     super(s);
     upgradeLevel = s.loadInt();
     targetLevel  = s.loadInt();
-    varID = s.loadInt();
+    varID        = s.loadInt();
     s.loadObjects(extras);
-    numTests = s.loadInt();
+    numTests       = s.loadInt();
     upgradeCounter = s.loadInt();
     devolveCounter = s.loadInt();
   }
@@ -96,9 +96,9 @@ public class Holding extends Venue {
     super.saveState(s);
     s.saveInt(upgradeLevel);
     s.saveInt(targetLevel );
-    s.saveInt(varID);
+    s.saveInt(varID       );
     s.saveObjects(extras);
-    s.saveInt(numTests);
+    s.saveInt(numTests      );
     s.saveInt(upgradeCounter);
     s.saveInt(devolveCounter);
   }
@@ -314,6 +314,7 @@ public class Holding extends Venue {
     for (Item i : rationNeeds(this, targetLevel)) {
       stocks.forceDemand(i.type, i.amount, Tier.CONSUMER);
     }
+    
     final float supportNeed = supportNeed(this, targetLevel);
     stocks.forceDemand(ATMO, supportNeed, Tier.CONSUMER);
   }

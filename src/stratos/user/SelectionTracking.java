@@ -70,8 +70,6 @@ public class SelectionTracking {
       target == null
     ) {
       lockTarget = null;
-      //UI.selection.setSelected(null);
-      //UI.voidSelection();
     }
     else {
       if (
@@ -92,10 +90,9 @@ public class SelectionTracking {
     
     final Stage world = UI.world();
     final Vec3D nextPos = new Vec3D(view.lookedAt);
-    nextPos.x += x;
-    nextPos.y += y;
+    nextPos.x = Nums.clamp(nextPos.x + x, 0, world.size - 1);
+    nextPos.y = Nums.clamp(nextPos.y + y, 0, world.size - 1);
     final Tile under = world.tileAt(nextPos.x, nextPos.y);
-    if (under == null) return;
     
     UI.selection.pushSelection(null);
     lockTarget = null;

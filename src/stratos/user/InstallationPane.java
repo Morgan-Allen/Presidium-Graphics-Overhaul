@@ -294,6 +294,8 @@ public class InstallationPane extends SelectionInfoPane {
     
     public void doTask() {
       final Tile picked = UI.selection.pickedTile();
+      final boolean buildFree = GameSettings.buildFree;
+      
       if (picked == null) return;
       
       onStage = canPlace = false;
@@ -301,11 +303,12 @@ public class InstallationPane extends SelectionInfoPane {
       if (! onStage) return;
       
       if ((message = checkPrerequisites(toInstall, picked.world)) != null) {
-        canPlace = false;
+        if (! buildFree) canPlace = false;
+        message = "Lacks pre-requisite...";
       }
       if (UI.played().finance.credits() < toInstall.structure().buildCost()) {
-        canPlace = false;
-        if (message == null) message = "Insufficient funds!";
+        if (! buildFree) canPlace = false;
+        message = "Insufficient funds!";
       }
       if (! canPlace) {
         onStage &= toInstall.setPosition(picked.x, picked.y, picked.world);
@@ -314,7 +317,7 @@ public class InstallationPane extends SelectionInfoPane {
         //  TODO:  Get an appropriate message from the canPlace() method?  It
         //  might be un-buildable terrain, or overlapping a road-buffer-zone,
         //  for example.
-        if (message == null) message = "Too close to another structure!";
+        message = "Too close to another structure!";
       }
       
       final Structure.Basis group[] = toInstall.structure().asGroup();
@@ -332,7 +335,7 @@ public class InstallationPane extends SelectionInfoPane {
       else for (Structure.Basis i : group) {
         i.previewPlacement(canPlace, UI.rendering);
         if (canPlace) message =
-          "(Enter to place, Esc to cancel, E to change entrance)"
+          "(Enter to place, Esc to cancel, E to change entrance) "
         ;
       }
       BaseUI.setPopupMessage(message);

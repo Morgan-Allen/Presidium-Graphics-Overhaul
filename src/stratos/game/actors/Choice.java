@@ -210,6 +210,7 @@ public class Choice implements Qualities {
     Actor actor, Behaviour last, Behaviour next, boolean stubborn,
     boolean report
   ) {
+    report &= verboseSwitch;
     if (report) I.say("\nConsidering switch from "+last+" to "+next);
     if (next == null || ! checkPlanValid(next, actor, report)) return false;
     if (last == null || ! checkPlanValid(last, actor, report)) return true ;

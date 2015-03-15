@@ -233,7 +233,7 @@ public class StockExchange extends Venue {
   
   public int numOpenings(Background p) {
     final int nO = super.numOpenings(p);
-    if ( p == Backgrounds.STOCK_VENDOR) return nO + 2;
+    if (p == Backgrounds.STOCK_VENDOR) return nO + 3;
     return 0;
   }
   
@@ -241,19 +241,14 @@ public class StockExchange extends Venue {
   public Behaviour jobFor(Actor actor, boolean onShift) {
     if (! onShift) return null;
     final Choice choice = new Choice(actor);
-    final Traded services[] = services();
+    
+    //  ...You basically don't want the stock vendor wandering too far, because
+    //  the venue has to be manned in order for citizens to come shopping.  So
+    //  stick with jobs that happen within the venue.
     
     //  TODO:  Consider patent-manufacture activities!
     
-    //
-    //  Otherwise, consider regular, local deliveries and supervision.
-    if (choice.empty()) {
-      choice.add(DeliveryUtils.bestBulkDeliveryFrom (this, services, 1, 5, 5));
-      choice.add(DeliveryUtils.bestBulkCollectionFor(this, services, 1, 5, 5));
-      choice.add(Supervision.inventory(this, actor));
-    }
-    
-    choice.add(Supervision.oversight(this, actor));
+    choice.add(Supervision.inventory(this, actor));
     return choice.weightedPick();
   }
   

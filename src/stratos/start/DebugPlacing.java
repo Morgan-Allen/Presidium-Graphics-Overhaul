@@ -45,6 +45,11 @@ public class DebugPlacing extends Scenario {
   }
   
   
+  public void beginGameSetup() {
+    super.initScenario("debug_placing");
+  }
+  
+  
   public void updateGameState() {
     super.updateGameState();
   }
@@ -58,22 +63,24 @@ public class DebugPlacing extends Scenario {
       I.say("TILE IS: "+over);
       I.say("  SHOULD PAVE? "+base().transport.map.needsPaving(over));
       I.say("  Owned:       "+over.reserved());
+      I.say("  Owner is:    "+over.onTop());
+      I.say("  Owning tier: "+over.owningTier());
     }
   }
 
 
   protected Stage createWorld() {
     final TerrainGen TG = new TerrainGen(
-      32, 0.2f,
+      64, 0.2f,
       Habitat.ESTUARY     , 2f,
       Habitat.MEADOW      , 3f,
       Habitat.BARRENS     , 2f,
       Habitat.DUNE        , 1f
     );
     final Stage world = new Stage(TG.generateTerrain());
-    TG.setupMinerals(world, 0.6f, 0, 0.2f);
+    //TG.setupMinerals(world, 0.6f, 0, 0.2f);
     world.terrain().readyAllMeshes();
-    Flora.populateFlora(world);
+    //Flora.populateFlora(world);
     return world;
   }
   
@@ -88,12 +95,28 @@ public class DebugPlacing extends Scenario {
     GameSettings.hireFree  = true;
     GameSettings.buildFree = true;
     GameSettings.paveFree  = true;
-    //GameSettings.fogFree   = true;
+    GameSettings.fogFree   = true;
     
-    if (true ) configTradeTest(world, base, UI);
+    if (true ) configPerimTest(world, base, UI);
+    if (false) configTradeTest(world, base, UI);
     if (false) configRoadsTest(world, base, UI);
     if (false) configMinesTest(world, base, UI);
     if (false) configPlantTest(world, base, UI);
+  }
+  
+  
+  private void configPerimTest(Stage world, Base base, BaseUI UI) {
+    
+    Venue v = null;
+    
+    v = new EngineerStation(base);
+    Placement.establishVenue(v, 4, 3, true, world);
+    
+    v = new EngineerStation(base);
+    Placement.establishVenue(v, 4, 9, true, world);
+    
+    v = new EngineerStation(base);
+    Placement.establishVenue(v, 4, 6, true, world);
   }
   
   

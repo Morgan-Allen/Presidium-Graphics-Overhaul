@@ -23,12 +23,15 @@ public class Ecology {
   final RandomScan growthMap;
   
   final public Ambience ambience;
-  final private BaseDemands abundances;
-  final private BlurMap
+  
+  private Base wildlife = null;
+  private BaseDemands abundances;
+  private BlurMap
     biomass,
     preyMap,
     hunterMap,
     speciesMaps[];
+  
   
   
   public Ecology(final Stage world) {
@@ -38,8 +41,37 @@ public class Ecology {
     growthMap = new RandomScan(world.size) {
       protected void scanAt(int x, int y) { growthAt(world.tileAt(x, y)); }
     };
-    ambience   = new Ambience(world);
-    abundances = Base.wildlife(world).demands;
+    ambience = new Ambience(world);
+    extractMaps();
+  }
+  
+  
+  public void loadState(Session s) throws Exception {
+    growthMap.loadState(s);
+    ambience.loadState(s);
+    //
+    //  We ensure that the wildlife base is loaded first, to ensure that the
+    //  associated demand maps can be extracted intact (see below.)
+    wildlife = (Base) s.loadObject();
+    abundances = null;
+    extractMaps();
+  }
+  
+  
+  public void saveState(Session s) throws Exception {
+    growthMap.saveState(s);
+    ambience.saveState(s);
+    s.saveObject(wildlife);
+  }
+  
+  
+  private void extractMaps() {
+    if (abundances != null) return;
+    //
+    //  I'm moving these init methods here to avoid potential complications
+    //  during the save/load process.
+    if (wildlife == null) wildlife = Base.wildlife(world);
+    abundances = wildlife.demands;
     
     biomass   = abundances.mapForSupply("Biomass");
     preyMap   = abundances.mapForSupply("Prey"   );
@@ -53,18 +85,6 @@ public class Ecology {
   }
   
   
-  public void loadState(Session s) throws Exception {
-    growthMap.loadState(s);
-    ambience.loadState(s);
-  }
-  
-  
-  public void saveState(Session s) throws Exception {
-    growthMap.saveState(s);
-    ambience.saveState(s);
-  }
-  
-  
   
   /**  Continuous updates-
     */
@@ -75,7 +95,6 @@ public class Ecology {
     float growIndex = (time % Stage.GROWTH_INTERVAL);
     growIndex *= size * size * 1f / Stage.GROWTH_INTERVAL;
     growthMap.scanThroughTo((int) growIndex);
-    abundances.updateAllMaps(1);
   }
   
   

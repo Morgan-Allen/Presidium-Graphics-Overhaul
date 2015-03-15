@@ -21,8 +21,8 @@ Mesa, Dune Sea, Cursed Earth, Strip Mining.
 terrain chance (scaled proportionately) = x * (1 - x) * (1 + tx)
 x = moisture
 t = terraform-progress  (1 as default).
-//  ...Organics.  That's the name for carbons.
 //*/
+
 
 public class StageTerrain implements TileConstants, Session.Saveable {
   
@@ -323,8 +323,6 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   public void setRoadType(Tile t, byte level) {
     final byte oldLevel = paveVals[t.x][t.y];
     paveVals[t.x][t.y] = level;
-    
-    for (Base b : t.world.bases()) b.transport.map.refreshPaving(t);
     
     if (level != oldLevel) for (Tile n : t.vicinity(tempV)) if (n != null) {
       meshSet.flagUpdateAt(n.x, n.y, roadLayer);

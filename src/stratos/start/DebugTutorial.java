@@ -33,14 +33,26 @@ import stratos.util.*;
 //*/
 
 
+//  Use claims-exclusion for the service hatch.
+//  Try tracking actors only when they wander outside your field of view (or
+//  start that way.)  And include tracking options in the UI.
+
+//  Actors appear to be *far* too enthusiastic about joining combat-missions
+//  for very little incentive.  (It's possible that too much of the base-
+//  relationship is being transferred to citizens, so they take it very
+//  personally.)  Also, they're too trigger-happy around natives, probably for
+//  similar reasons.
+
+
+
 /*  BIG TODO LIST:
 
 BUILDING AND UPGRADES-
 
 *  Explicit or improved placement for shield walls and arcologies.
-     Fresh art for shield walls.  And give them for free!
+     Fresh art for shield walls.  And give them out for free!
 
-*  Upgrades need to filled in and tested for:
+*  Upgrades need to be filled in and tested for:
      Stock Exchange
      Archives
      Runner Market

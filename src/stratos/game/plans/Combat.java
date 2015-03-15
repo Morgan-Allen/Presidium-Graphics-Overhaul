@@ -106,15 +106,6 @@ public class Combat extends Plan implements Qualities {
   }
   
   
-  public boolean valid() {
-    if (subject instanceof Mobile) {
-      final Mobile other = (Mobile) subject;
-      if (! other.aboard().allowsEntry(actor)) return false;
-    }
-    return super.valid();
-  }
-  
-  
   public int motionType(Actor actor) {
     if (CombatUtils.isDowned(subject, object)) return MOTION_ANY;
     final boolean
@@ -157,10 +148,10 @@ public class Combat extends Plan implements Qualities {
     
     //  TODO:  Look into potential 'siege' options for targets that you can't
     //  path to directly- i.e, when indoors, or going through walls.
-    /*
+    //*
     if (struck == subject && subject instanceof Actor) {
       final Actor foe = (Actor) struck;
-      if (foe.indoors()) struck = foe.aboard();
+      if (! foe.aboard().allowsEntry(actor)) struck = foe.aboard();
     }
     //*/
     

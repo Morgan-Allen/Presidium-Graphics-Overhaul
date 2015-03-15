@@ -4,9 +4,13 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.maps;
+import com.badlogic.gdx.Input.Keys;
+
 import stratos.game.actors.Backgrounds;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.economic.Inventory.Owner;
+import stratos.graphics.widgets.KeyInput;
 import stratos.util.*;
 
 
@@ -223,6 +227,10 @@ public class Placement implements TileConstants {
   public static boolean perimeterFits(
     Element element, int spaceNeed, Stage world
   ) {
+    boolean report = verbose && element.owningTier() > Owner.TIER_PRIVATE;
+    if (report && spaceNeed > 1) {
+      I.say("\nCHECKING PERIMETER FOR "+I.tagHash(element));
+    }
     //
     //  We check recursively for pockets at a finer resolution:
     if (spaceNeed > 1) {
@@ -246,27 +254,39 @@ public class Placement implements TileConstants {
     //  In essence, we scan along the perimeter and note how often the tiles
     //  switch between being blocked and unblocked.
     final Tile perim[] = Spacing.perimeter(footprint, world);
+    final Tile o = element.origin();
     int inClear = -1, numGaps = 0;
+    if (report) I.say("  Checking tiles along perim, origin: "+o.x+"/"+o.y);
     for (Tile t : perim) {
-      int clear = checkClear(t, spaceNeed, tier) ? 0 : 1;
-      if (clear != inClear) { inClear = clear; if (clear == 1) numGaps++; }
+      int clear = checkClear(t, spaceNeed, tier, report) ? 0 : 1;
+      if (report) I.add(" "+clear);
+      if (clear != inClear) { inClear = clear; if (clear == 0) numGaps++; }
     }
     //
     //  There's a potential fail case if a gap lies across the first and last
     //  tiles checked, so we decrement the count in that case-
     final boolean tailGap =
-      checkClear(perim[0               ], spaceNeed, tier) &&
-      checkClear(perim[perim.length - 1], spaceNeed, tier);
+      checkClear(perim[0               ], spaceNeed, tier, report) &&
+      checkClear(perim[perim.length - 1], spaceNeed, tier, report);
     if (tailGap) numGaps--;
+    
+    if (report) {
+      I.say("  Footprint was: "+footprint);
+      I.say("  Gap count is: "+numGaps+" (spacing "+spaceNeed+")");
+    }
     return numGaps < 2;
   }
   
   
-  private static boolean checkClear(Tile t, int space, int tier) {
+  private static boolean checkClear(
+    Tile t, int space, int tier, boolean report
+  ) {
     if (t == null) return false;
-    for (int x = space, y; x-- > 0;) for (y = space; y-- > 0;) {
+    for (int x = space; x-- > 0;) for (int y = space; y-- > 0;) {
       final Tile u = t.world.tileAt(x + t.x, y + t.y);
-      if (u == null || t.owningTier() >= tier) return false;
+      if (u == null || u.owningTier() > Owner.TIER_NATURAL) {
+        return false;
+      }
     }
     return true;
   }

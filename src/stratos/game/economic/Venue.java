@@ -423,7 +423,8 @@ public abstract class Venue extends Structural implements
   
   protected void toggleStatusFor(Traded need, ModelAsset model) {
     if (! structure.intact()) buildSprite.toggleFX(need.model, false);
-    buildSprite.toggleFX(model, stocks.relativeShortage(need) > 0.5f);
+    final boolean needs = stocks.relativeShortage(need) > 0.5f;
+    buildSprite.toggleFX(model, needs);
   }
   
   

@@ -51,7 +51,6 @@ public class ReminderListing extends UIGroup {
     
     if (refers instanceof Mission) {
       final Mission m = (Mission) refers;
-      //final UIGroup group = new UIGroup(UI);
       entry.shown = new MissionReminder(UI, m);
     }
     
@@ -80,7 +79,7 @@ public class ReminderListing extends UIGroup {
     //  Now, in essence, insert entries for anything not currently listed, and
     //  delete entries for anything listed that shouldn't be.
     
-    final int size = 40; int index = 0;
+    final int wide = 40, high = 40, pad = 20; int index = 0;
     
     for (Saveable s : needShow) {
       if (! hasEntry(s)) addEntry(s, entries.size() - 1);
@@ -104,8 +103,8 @@ public class ReminderListing extends UIGroup {
         e.fadeVal = Nums.clamp(e.fadeVal - DEFAULT_FADE_INC, 0, 1);
       }
       e.shown.relAlpha = e.fadeVal;
-      e.shown.alignLeft(0, size);
-      e.shown.alignTop(size * index, size);
+      e.shown.alignLeft(0, wide);
+      e.shown.alignTop((high + pad) * index, high);
       index++;
     }
     
