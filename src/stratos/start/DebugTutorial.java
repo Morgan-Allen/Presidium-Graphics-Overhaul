@@ -11,13 +11,6 @@ import stratos.util.*;
 
 
 
-
-
-
-//  Actors are still a little too eager to apply for missions.
-
-
-
 /*  TUTORIAL TODO LIST:
 
 *  Limit the powers available too- using upgrades or the household-panel?

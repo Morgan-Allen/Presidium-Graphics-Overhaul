@@ -7,6 +7,7 @@ package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.politic.*;
 import stratos.util.*;
 
 
@@ -18,7 +19,7 @@ public class PlanUtils {
   
   
   private static boolean
-    verbose = true ;
+    verbose = false;
   
   private static boolean reportOn(Actor a) {
     return I.talkAbout == a && verbose;
@@ -261,16 +262,17 @@ public class PlanUtils {
     float health    = 1f - actor.health.injuryLevel();
     float courage   = 1 + actor.traits.relativeLevel(Qualities.FEARLESS);
     
-    Tile at = actor.world().tileAt(around);
     float danger = actor.base().dangerMap.sampleAround(
-      at.x, at.y, Stage.SECTOR_SIZE
+      around, Stage.SECTOR_SIZE
     );
-    
-    if (fearLevel == 0) danger = 0;
-    else {
-      danger = Nums.max(fearLevel, danger / strength);
-      danger /= courage;
+    if (around.base() != null) {
+      final float foeSafe = 0 - around.base().dangerMap.sampleAround(
+        around, Stage.SECTOR_SIZE
+      );
+      danger = (danger + Nums.max(0, foeSafe)) / 2;
     }
+    danger = (courage > 1) ? (danger / courage) : (danger * (2 - courage));
+    danger = Nums.max(fearLevel, danger / (strength + danger));
     
     float chance = Nums.clamp(health * (1 - danger), 0, 1);
     if (around instanceof Actor) {
