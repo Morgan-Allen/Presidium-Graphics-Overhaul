@@ -7,6 +7,7 @@ package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.politic.Mission;
 import stratos.util.*;
 
 
@@ -36,13 +37,13 @@ public class Combat extends Plan implements Qualities {
 
   final public static String STYLE_NAMES[] = {
     "Ranged",
-    "Melee",
+    "Melee" ,
     "Either"
   };
   final public static String OBJECT_NAMES[] = {
     "Neutralise ",
-    "Capture ",
-    "Destroy ",
+    "Capture "   ,
+    "Destroy "   ,
   };
   
   
@@ -97,12 +98,14 @@ public class Combat extends Plan implements Qualities {
   
   
   protected float getPriority() {
-    return PlanUtils.combatPriority(actor, subject, motiveBonus());
+    int teamSize = motiveType() == MOTIVE_MISSION ? Mission.AVG_PARTY_LIMIT : 1;
+    return PlanUtils.combatPriority(actor, subject, motiveBonus(), teamSize);
   }
   
   
   public float successChanceFor(Actor actor) {
-    return PlanUtils.combatWinChance(actor, subject);
+    int teamSize = motiveType() == MOTIVE_MISSION ? Mission.AVG_PARTY_LIMIT : 1;
+    return PlanUtils.combatWinChance(actor, subject, teamSize);
   }
   
   

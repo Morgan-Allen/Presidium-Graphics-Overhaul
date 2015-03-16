@@ -72,6 +72,8 @@ public class ActorSenses implements Qualities {
   
   /**  Dealing with seen objects and reactions to them-
     */
+  //  TODO:  Move the decision-related bits of this to the Mind class.
+  
   public void updateSenses() {
     final boolean report = reactVerbose && I.talkAbout == actor;
     final float range = actor.health.sightRange();
@@ -128,11 +130,12 @@ public class ActorSenses implements Qualities {
     
     final Behaviour reaction = reactions.pickMostUrgent();
     if (reaction == null) return;
+    final Behaviour root = actor.mind.rootBehaviour();
     if (report) {
       I.say("\nTOP REACTION IS: "+reaction);
-      I.say("  Current behaviour: "+actor.mind.rootBehaviour());
+      I.say("  Current behaviour: "+root);
     }
-    if (actor.mind.wouldSwitchTo(reaction)) {
+    if (Choice.wouldSwitch(actor, root, reaction, true, report)) {
       if (report) I.say("  Switching over!");
       actor.mind.assignBehaviour(reaction);
     }

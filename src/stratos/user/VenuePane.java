@@ -300,10 +300,7 @@ public class VenuePane extends SelectionInfoPane {
           d.append("\n  ");
           final String hireDesc = "Hire for "+a.hiringFee()+" credits";
           d.append(new Description.Link(hireDesc) {
-            public void whenClicked() {
-              v.staff.confirmApplication(a);
-              if (I.logEvents()) I.say("\nHIRED: "+p+" ("+a.position()+")");
-            }
+            public void whenClicked() { v.staff.confirmApplication(a); }
           });
         }
         

@@ -107,7 +107,7 @@ public class VenueProfile extends Index.Entry implements Session.Saveable {
   public static Venue[] sampleVenues(
     int owningTier, VenueProfile... canPlace
   ) {
-    if (canPlace == null || canPlace.length == 0) canPlace = allProfiles();
+    if (canPlace == null) canPlace = allProfiles();
     final Batch <Venue> typeBatch = new Batch <Venue> ();
     
     for (VenueProfile profile : canPlace) {

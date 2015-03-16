@@ -2,6 +2,7 @@
 
 package stratos.user;
 import stratos.game.common.*;
+import stratos.game.economic.*;
 import stratos.game.plans.*;
 import stratos.game.actors.*;
 import stratos.graphics.common.*;
@@ -56,9 +57,10 @@ public class RosterPane extends SelectionInfoPane {
       }
       
       protected void updateState() {
-        int numApps = baseUI.played().commerce.allCandidates().size();
+        int numApps = pane.listApplied(baseUI.played()).size();
         String message = ""+numApps;
         appsLabel.setMessage(message, false, 0);
+        appsLabel.hidden = numApps == 0;
       }
     };
     button.stretch = false;
@@ -74,6 +76,18 @@ public class RosterPane extends SelectionInfoPane {
   }
   
   
+  
+  private Batch <Actor> listApplied(Base base) {
+    final Batch <Actor> applied = new Batch <Actor> ();
+    for (Actor a : base.commerce.allCandidates()) {
+      final FindWork findWork = (FindWork) a.matchFor(FindWork.class, false);
+      if (findWork == null || ! findWork.canOrDidApply()) continue;
+      applied.add(a);
+    }
+    return applied;
+  }
+  
+  
   protected void updateText(
     BaseUI UI, Text headerText, Text detailText, Text listingText
   ) {
@@ -83,20 +97,42 @@ public class RosterPane extends SelectionInfoPane {
     
     if (category() == CAT_APPLIES) {
       detailText.append("\nOffworld Applicants:");
-      for (Actor a : base.commerce.allCandidates()) {
-        FindWork findWork = (FindWork) a.matchFor(FindWork.class, false);
-        if (findWork.employer() == null) continue;
+      for (Actor a : listApplied(base)) {
         
-        Background sought = a.vocation();
-        if (findWork != null) sought = findWork.position();
+        final FindWork findWork = (FindWork) a.matchFor(FindWork.class, false);
+        final Background sought = findWork.position();
         VenuePane.descApplicant(a, sought, detailText, UI);
         
         d.append("\n  Applying at: ");
         d.append(findWork.employer());
+        d.append("\n  ");
+        final String hireDesc = "Hire for "+findWork.hiringFee()+" credits";
+        d.append(new Description.Link(hireDesc) {
+          public void whenClicked() {
+            findWork.employer().staff().confirmApplication(findWork);
+          }
+        });
+      }
+    }
+    if (category() == CAT_CURRENT) {
+      detailText.append("\nCurrent roster:");
+      
+      for (Object m : base.world.presences.matchesNear(base, null, -1)) {
+        final Venue v = (Venue) m;
+        if (v.staff.workforce() == 0) continue;
+        detailText.append("\n\n  ");
+        detailText.append(v);
+        for (Actor a : v.staff.workers()) {
+          detailText.append("\n    ");
+          detailText.append(a);
+          detailText.append(" ("+a.vocation()+")");
+        }
       }
     }
   }
 }
+
+
 
 
 

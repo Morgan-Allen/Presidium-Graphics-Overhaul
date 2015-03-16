@@ -6,6 +6,7 @@
 package stratos.game.economic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
+import stratos.game.economic.Inventory.Owner;
 import stratos.game.maps.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -190,7 +191,7 @@ public abstract class Venue extends Structural implements
   
   public boolean enterWorldAt(int x, int y, Stage world) {
     if (! super.enterWorldAt(x, y, world)) return false;
-    if (base == null) I.complain("VENUES MUST HAVE A BASED ASSIGNED! "+this);
+    if (base == null) I.complain("VENUES MUST HAVE A BASE ASSIGNED! "+this);
     
     for (Venue c : world.claims.venuesConflicting(areaClaimed(), this)) {
       c.structure.beginSalvage();
@@ -200,7 +201,7 @@ public abstract class Venue extends Structural implements
     //  procedure below.)
     for (Tile t : Spacing.perimeter(footprint(), world)) if (t != null) {
       final Element fringes = t.onTop();
-      if (fringes == null || fringes.owningTier() >= owningTier()) continue;
+      if (fringes == null || fringes.owningTier() > TIER_NATURAL) continue;
       else fringes.exitWorld();
     }
     

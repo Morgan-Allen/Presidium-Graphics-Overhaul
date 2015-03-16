@@ -19,7 +19,7 @@ public class PlanUtils {
   
   
   private static boolean
-    verbose = false;
+    verbose = true ;
   
   private static boolean reportOn(Actor a) {
     return I.talkAbout == a && verbose;
@@ -29,7 +29,7 @@ public class PlanUtils {
   /**  Combat-priority.  Should range from 0 to 30.
     */
   public static float combatPriority(
-    Actor actor, Target subject, float rewardBonus
+    Actor actor, Target subject, float rewardBonus, int teamSize
   ) {
     float incentive = 0, empathy = 0, winChance = 0, priority = 0;
     float harmDone, dislike;
@@ -43,23 +43,24 @@ public class PlanUtils {
     else if (actor.senses.isEmergency()) incentive += 10;
     
     empathy = 10 * (1 + actor.traits.relativeLevel(Qualities.EMPATHIC)) / 2;
-    winChance = combatWinChance(actor, subject);
+    winChance = combatWinChance(actor, subject, teamSize);
     priority  = incentive * winChance;
-    if (incentive < empathy) return -1;
     
     if (reportOn(actor) && priority > 0) I.reportVars(
       "\nCombat priority for "+actor, "  ",
-      "subject  ", subject,
+      "subject  ", subject    ,
       "reward   ", rewardBonus,
-      "harmDone" , harmDone,
-      "dislike"  , dislike,
-      "incentive", incentive,
-      "empathy  ", empathy,
-      "winChance", winChance,
-      "priority ", priority
+      "harmDone" , harmDone   ,
+      "dislike"  , dislike    ,
+      "incentive", incentive  ,
+      "empathy  ", empathy    ,
+      "winChance", winChance  ,
+      "priority ", priority   
     );
+    if (priority < empathy) return -1;
     return priority;
   }
+  
   
   
   /**  Retreat priority.  Should range from 0 to 30.
@@ -70,17 +71,16 @@ public class PlanUtils {
     float incentive = 0, loseChance = 0, priority = 0;
     float homeDistance = 0, escapeChance = 0;
     
-    loseChance = 1f - combatWinChance(actor, actor.origin());
+    loseChance = 1f - combatWinChance(actor, actor.origin(), 1);
+    if (actor.senses.fearLevel() == 0) loseChance = 0;
     incentive += loseChance * 10;
     
     homeDistance = homeDistanceFactor(actor, actor.origin());
-    if (! isArmed(actor)) {
-      homeDistance = (homeDistance + 2) / 2;
-    }
-    if (actor.senses.isEmergency()) incentive += 10;
-    escapeChance = 1f - actor.health.fatigueLevel();
+    if (! isArmed(actor)) homeDistance = (homeDistance + 2) / 2;
+    if (actor.senses.isEmergency()) homeDistance *= 1.5f;
     
-    priority = incentive * homeDistance * Nums.clamp(escapeChance, 0, 1);
+    escapeChance = Nums.clamp(1f - actor.health.fatigueLevel(), 0, 1);
+    priority = incentive * homeDistance * escapeChance;
     
     if (reportOn(actor) && priority > 0) I.reportVars(
       "\nRetreat priority for "+actor, "  ",
@@ -256,23 +256,30 @@ public class PlanUtils {
   }
   
   
-  public static float combatWinChance(Actor actor, Target around) {
+  public static float combatWinChance(
+    Actor actor, Target around, int teamSize
+  ) {
     float fearLevel = actor.senses.fearLevel ();
     float strength  = actor.senses.powerLevel();
     float health    = 1f - actor.health.injuryLevel();
     float courage   = 1 + actor.traits.relativeLevel(Qualities.FEARLESS);
-    
-    float danger = actor.base().dangerMap.sampleAround(
+
+    final Base otherBase = around.base(), ownBase = actor.base();
+    float danger = ownBase.dangerMap.sampleAround(
       around, Stage.SECTOR_SIZE
     );
-    if (around.base() != null) {
-      final float foeSafe = 0 - around.base().dangerMap.sampleAround(
+    if (otherBase != null) {
+      final float foeSafe = 0 - otherBase.dangerMap.sampleAround(
         around, Stage.SECTOR_SIZE
       );
       danger = (danger + Nums.max(0, foeSafe)) / 2;
     }
+    
+    strength += (teamSize - 1) * CombatUtils.AVG_POWER;
+    
     danger = (courage > 1) ? (danger / courage) : (danger * (2 - courage));
-    danger = Nums.max(fearLevel, danger / (strength + danger));
+    danger = danger / (strength + Nums.max(0, danger));
+    danger = Nums.max(fearLevel, danger);
     
     float chance = Nums.clamp(health * (1 - danger), 0, 1);
     if (around instanceof Actor) {
@@ -316,6 +323,8 @@ public class PlanUtils {
   }
   
   
+  //  TODO:  Consider passing in parent-Missions directly for purposes of
+  //         reward-evaluation and team-assessment.
   
   //  TODO:  Have a general 'isAgent' decision-check?
   

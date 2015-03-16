@@ -252,9 +252,9 @@ public class Nursery extends Venue implements TileConstants {
         growth += c.growStage();
       }
       if (numC > 0) {
-        final int GL = Nums.clamp((int) (growth / numC), 5);
         final int HL = Nums.clamp((int) (health / numC), 5);
-        s.append("\n  Crop growth: "+Crop.STAGE_NAMES [GL]);
+        final int PG = (int) (growth * 100 / (numC * Crop.MAX_GROWTH));
+        s.append("\n  Crop growth: "+PG+"%");
         s.append("\n  Crop health: "+Crop.HEALTH_NAMES[HL]);
       }
     }

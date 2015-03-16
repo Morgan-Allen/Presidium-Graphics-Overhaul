@@ -375,6 +375,11 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   }
   
   
+  public Plan setMotive(int type) {
+    return setMotive(type, motiveBonus);
+  }
+  
+  
   public Plan setMotiveFrom(Plan parent, float bonus) {
     return setMotive(parent.motiveType, parent.motiveBonus + bonus);
   }
@@ -562,16 +567,15 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     
     if (failRisk > 0) {
       final float chance = successChanceFor(actor);
+      if (report) I.say("  Success chance:              "+chance);
       chancePenalty = (1 - chance) * failRisk * PARAMOUNT;
     }
     
     if (distanceCheck != 0) {
-      //*
       final float range = rangePenalty(actor.base(), actor, subject);
       rangePenalty = range * distanceCheck;
       final float danger = dangerPenalty(subject, actor) * (1f + failRisk);
       dangerPenalty = danger * (1 + range) / 2f;
-      //*/
     }
     
     priority += extraPriority / 2;

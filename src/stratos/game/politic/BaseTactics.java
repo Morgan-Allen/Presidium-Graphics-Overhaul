@@ -98,11 +98,13 @@ public class BaseTactics {
   
   
   public void addMission(Mission t) {
+    if (I.logEvents()) I.say("\nADDING MISSION: ("+base+" "+t+")");
     missions.include(t);
   }
   
   
   public void removeMission(Mission t) {
+    if (I.logEvents()) I.say("\nREMOVING MISSION: ("+base+" "+t+")");
     missions.remove(t);
   }
   

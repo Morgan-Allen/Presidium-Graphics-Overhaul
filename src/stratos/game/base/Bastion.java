@@ -110,7 +110,7 @@ public class Bastion extends Venue {
     //  TODO:  This could probably be sophisticated a bit...
     
     final Stage world = point.world();
-    float rating = 2;
+    float rating = 5;
     if (inWorld()) return rating;
     
     final int SS = Stage.SECTOR_SIZE;

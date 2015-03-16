@@ -13,6 +13,13 @@ import stratos.util.*;
 /**  'Extras' for a venue serve a couple of functions- primarily decorative,
   *  but also as a mild comfort bonus for the occupants of the holding.
   */
+
+//  TODO:  I'm effectively disabling these for the moment, until I can sort out
+//         their spacing-problems...
+
+//  TODO:  See if you can simplify any of this, and maybe extend to Noble
+//         Estates?
+
 public class HoldingExtra extends Fixture implements TileConstants {
   
   
@@ -112,6 +119,12 @@ public class HoldingExtra extends Fixture implements TileConstants {
     if (numUpdates % 10 != 0 || ! holding.structure.intact()) return;
     //if (verbose) I.sayAbout(holding, "Updating extras for: "+holding);
     
+    if (true) {
+      removeExtras(holding, extras);
+      extras.clear();
+      return;
+    }
+    
     final int level = 1 + (int) Nums.floor(holding.upgradeLevel() / 3f);
     addExtras(holding, extras, level);
     //
@@ -126,9 +139,6 @@ public class HoldingExtra extends Fixture implements TileConstants {
     }
   }
   
-  
-  //  TODO:  See if you can simplify any of this, and maybe extend to Noble
-  //  Estates?
   
   private static void addExtras(
     Holding holding, List <HoldingExtra> extras, int level

@@ -5,6 +5,7 @@
   */
 package stratos.game.common;
 import stratos.game.economic.*;
+import stratos.game.wild.Flora;
 import stratos.util.*;
 
 import java.util.Iterator;
@@ -18,6 +19,8 @@ public class PresenceMap implements Session.Saveable {
   /**  Fields, constructors, and save/load methods-
     */
   private static boolean verbose = false;
+  
+  final static int DISTANCE_UNIT = Stage.PATCH_RESOLUTION;
   
   final Object key;  //  TODO:  Move this stuff to the Presences class(?)
   final Stage world;
@@ -230,7 +233,7 @@ public class PresenceMap implements Session.Saveable {
   final private static float heuristic(
     final Object n, final boolean leaf, final Tile origin
   ) {
-    return origin == null ? (Stage.PATCH_RESOLUTION + 0) : (leaf ?
+    return origin == null ? (DISTANCE_UNIT + 0) : (leaf ?
       Spacing.distance(origin, (Target) n) :
       ((Node) n).section.area.distance(origin.x, origin.y)
     );
@@ -358,14 +361,17 @@ public class PresenceMap implements Session.Saveable {
       //  For a given node level, iterate across all children and calculate the
       //  probability of visiting those.
       int i = 0; for (Object k : node) {
-        final float dist = heuristic(k, leaf, oT) / Stage.PATCH_RESOLUTION;
+        final float dist = heuristic(k, leaf, oT);
         final int   pop  = leaf ? 1 : ((Node) k).population;
         final float rating;
         if      (checkRange && dist > range) rating = 0;
         else if (! checkArea(k, leaf, area)) rating = 0;
-        else rating = pop / (1 + dist);
+        else rating = pop / (1 + (dist / DISTANCE_UNIT));
         sumWeights += weights[i++] = rating;
-        if (report) I.say("  Rating for "+I.tagHash(k)+" is "+rating);
+        if (report) {
+          I.say("  Rating for "+I.tagHash(k)+" is "+rating);
+          I.say("    Distance:  "+dist+", population: "+pop);
+        }
       }
       //
       //  If no child is a valid selection, quit.  Otherwise, choose one child

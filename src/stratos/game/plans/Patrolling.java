@@ -96,11 +96,8 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     urgency = Nums.clamp(relDanger * ROUTINE, IDLE, ROUTINE);
     
     float modifier = 0 - actor.senses.fearLevel();
-    if (actor.senses.isEmergency()) {
-      modifier = PARAMOUNT;
-      setMotive(MOTIVE_EMERGENCY, motiveBonus());
-    }
-    else setMotive(MOTIVE_JOB, motiveBonus());
+    if (actor.senses.isEmergency()) setMotive(MOTIVE_EMERGENCY);
+    else setMotive(MOTIVE_JOB);
     
     final float priority = priorityForActorWith(
       actor, guarded,
@@ -216,6 +213,10 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   
   
   public int motionType(Actor actor) {
+    
+    if (actor.senses.isEmergency()) {
+      return MOTION_FAST;
+    }
     
     if (guarded.isMobile()) {
       final Mobile m = (Mobile) guarded;

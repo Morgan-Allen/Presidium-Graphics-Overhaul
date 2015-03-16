@@ -7,6 +7,7 @@
 package stratos.game.economic;
 import stratos.game.base.*;
 import stratos.game.common.*;
+import stratos.game.economic.Inventory.Owner;
 import stratos.game.maps.*;
 import stratos.game.politic.*;
 import stratos.user.*;
@@ -19,7 +20,7 @@ public class ShipUtils {
   
   
   private static boolean
-    landVerbose = false,
+    landVerbose = true ,
     flyVerbose  = false,
     siteVerbose = false;
   
@@ -63,24 +64,31 @@ public class ShipUtils {
     }
     
     if (dropPoint instanceof Venue) {
+      //
       //  Rely on the docking functions of the landing site...
       ((Airfield) dropPoint).setToDock(ship);
       return dropPoint;
     }
     else {
       //
-      //  Claim any tiles underneath as owned, and evacuate any occupants-
+      //  Claim any tiles underneath as owned, and either crush or evacuate any
+      //  occupants-
       site.expandBy(-1);
+      final Batch <Mobile> under = new Batch <Mobile> ();
+      for (Tile t : Spacing.perimeter(site, world)) {
+        if (t.onTop() != null && t.owningTier() <= Owner.TIER_NATURAL) {
+          t.onTop().setAsDestroyed();
+        }
+      }
       for (Tile t : world.tilesIn(site, false)) {
         if (report) I.say("    Claiming tile: "+t);
         if (t.onTop() != null) t.onTop().setAsDestroyed();
+        Visit.appendTo(under, t.inside());
         t.setOnTop(ship);
       }
-      for (Tile t : world.tilesIn(site, false)) {
-        for (Mobile m : t.inside()) if (m != ship) {
-          final Tile e = Spacing.nearestOpenTile(m.origin(), m);
-          m.setPosition(e.x, e.y, world);
-        }
+      for (Mobile m : under) if (m != ship) {
+        final Tile e = Spacing.nearestOpenTile(m.origin(), m);
+        m.setPosition(e.x, e.y, world);
       }
       //
       //  Determine the position of the entrance tile-

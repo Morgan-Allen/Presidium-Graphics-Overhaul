@@ -222,13 +222,16 @@ public class Choice implements Qualities {
       I.say("  Last priority: "+lastPriority);
       I.say("  Next priority: "+nextPriority);
     }
-    
     if (nextPriority <= 0) return false;
     if (lastPriority <= 0) return true ;
     
     final boolean
       lastUrgent = last.isEmergency(),
       nextUrgent = next.isEmergency();
+    if (report) {
+      I.say("  Last urgent:   "+lastUrgent);
+      I.say("  Next urgent:   "+nextUrgent);
+    }
     if (lastUrgent && ! nextUrgent) return false;
     if (nextUrgent && ! lastUrgent) return true ;
     
@@ -245,9 +248,4 @@ public class Choice implements Qualities {
     return lastPriority < minPriority;
   }
 }
-
-
-
-
-
 

@@ -130,7 +130,8 @@ public class BlastDoors extends ShieldWall implements TileConstants {
   
   
   public String objectCategory() {
-    return InstallationPane.TYPE_SECURITY;
+    return UIConstants.TYPE_HIDDEN;
+    //return InstallationPane.TYPE_SECURITY;
   }
 }
 

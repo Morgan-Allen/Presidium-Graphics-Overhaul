@@ -238,31 +238,36 @@ public class NativeHut extends Venue {
   /**  Behaviour implementation-
     */
   public Behaviour jobFor(Actor actor, boolean onShift) {
-    if (! onShift) return null;
     final Choice choice = new Choice(actor);
+    final int numHome = staff.residents().size();
     
     if (actor.vocation() == HUNTER) {
-      final boolean needMeat = stocks.amountOf(PROTEIN) < 2.5f;
+      final boolean needMeat = stocks.amountOf(PROTEIN) < numHome;
       if (needMeat) for (Target t : actor.senses.awareOf()) {
         if (Hunting.validPrey(t, actor, true)) {
           final Hunting hunt = Hunting.asHarvest(actor, (Actor) t, this, false);
           choice.add(hunt.setMotive(Plan.MOTIVE_JOB, Plan.CASUAL));
         }
       }
-      choice.add(Patrolling.nextGuardPatrol(actor, this, Plan.CASUAL));
+      if (onShift) {
+        choice.add(Patrolling.nextGuardPatrol(actor, this, Plan.CASUAL));
+      }
     }
     
     if (actor.vocation() == GATHERER) {
-      final float needFood = 5 - Nums.max(
+      final float needFood = (numHome * 2.0f) - Nums.max(
         stocks.amountOf(CARBS ),
         stocks.amountOf(GREENS)
       );
       if (needFood > 0) {
         final Foraging forage = new Foraging(actor, this);
-        final float urge = Plan.ROUTINE * (needFood / 5);
-        choice.add(forage.setMotive(Plan.MOTIVE_JOB, urge));
+        final float urge = Plan.ROUTINE * (needFood / 4);
+        forage.setMotive(Plan.MOTIVE_JOB, urge);
+        choice.add(forage);
       }
-      choice.add(new Repairs(actor, this, Qualities.HANDICRAFTS));
+      if (onShift) {
+        choice.add(new Repairs(actor, this, Qualities.HANDICRAFTS));
+      }
     }
     
     return choice.weightedPick();

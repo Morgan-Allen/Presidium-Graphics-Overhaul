@@ -59,6 +59,8 @@ public abstract class Mission implements Session.Saveable, Selectable {
     1, 3, 3, 4, 4, 5
   };
   final public static int
+    MIN_PARTY_LIMIT = 3,
+    AVG_PARTY_LIMIT = 4,
     MAX_PARTY_LIMIT = 5;
   
   

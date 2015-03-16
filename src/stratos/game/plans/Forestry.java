@@ -386,7 +386,7 @@ public class Forestry extends Plan {
       Flora.class, near, Stage.SECTOR_SIZE / 2
     );
     if (cuts == null) cuts = (Flora) p.nearestMatch(
-      Flora.class, near, Stage.SECTOR_SIZE
+      Flora.class, near, Stage.SECTOR_SIZE * 1.5f
     );
     if (cuts == null) return null;
     

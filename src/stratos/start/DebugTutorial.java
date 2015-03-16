@@ -13,21 +13,16 @@ import stratos.util.*;
 
 /*  TUTORIAL TODO LIST:
 
-*  Limit the powers available too- using upgrades or the household-panel?
-
 *  Have tutorial-messages appear as message-items along the right-hand side.
-
-*  Focus on the objectives that have an intuitive, emotional component- such as
-   survival (strike/defend) and comfort (the economy.)  Making those mandatory
-   isn't too bad.
 
 *  Use a linear sequence with much more detail on specific, simple steps.  You
    want to cover-
      Building & Upgrades (space management.)
      Recruitment & Missions (indirect control, motivation.)
      Housing + Manufacture + Sales and Imports (having money.)
-
-*  Limit the structure types available during the tutorial?
+   Emphasis the emotive component here- survival, comfort, discovery, honour.
+   Limit the structure types available?
+   
 //*/
 
 
@@ -35,13 +30,13 @@ import stratos.util.*;
 /*  BIG TODO LIST:
 
 BUILDING AND UPGRADES-
-
-  >>>>>>> DO THIS <<<<<<<
-*  Explicit or improved placement for shield walls and arcologies.
-     Fresh art for shield walls.  And give them out for free!
    
+  >>>>>>> DO THIS <<<<<<<
 *  There needs to be a more precise 'reservation' system to allow for zoning,
    entrances and not-in-the-world-yet situations.
+
+*  Arcologies should have auto-placement.
+     Fresh art for shield walls.  And give them out for free!
 
 *  Upgrades need to be filled in and tested for:
      Stock Exchange
@@ -75,12 +70,20 @@ ENEMIES AND ENVIRONMENT-
 
 CONTROL AND DIRECTION-
 
-*  Introduce Call-to-Arms at the Trooper Lodge (with respect to a particular
-   mission at a time.)
-
   >>>>>>> DO THIS <<<<<<<
 *  Make Pledges more persistent and nuanced (see Proposal class.)
    Also, try to allow negotiation with buildings, in some sense.
+
+  >>>>>>> DO THIS <<<<<<<
+*  Limit the powers available- they have to be learnt from a Pseer School or
+   other psy institutions.   Then, as you use them, you acquire practice that
+   allows casting independantly (albeit with a greatly reduced skill rank.)
+   Boom, done.
+   
+   So all powers need to be Techniques known by the ruler.  Okay.
+
+*  Introduce Call-to-Arms at the Trooper Lodge (with respect to a particular
+   mission at a time.)
 
 *  Psy abilities need to be persistent.
 
@@ -110,14 +113,14 @@ CITIZEN BEHAVIOUR-
    the homeworld on a scale of 1-2 months (10-20 days.)  Landing parties 'come
    ashore' every day or two, but those can't respond to job-demand as such.
 
-*  Hide-and-seek needs to be more effective (both retreat and combat.)
-
-*  Figure out entry-permissions for structures and guests, and/or sieges.
+  >>>>>>> DO THIS <<<<<<<
+*  Proper evaluation of mood and memory-events.
 
 *  General internal clean-up of plan routines.  (Look in PlanUtils.)
 
-  >>>>>>> DO THIS <<<<<<<
-*  Proper evaluation of mood and memory-events.
+*  Hide-and-seek needs to be more effective (both retreat and combat.)
+
+*  Figure out entry-permissions for structures and guests, and/or sieges.
 //*/
 
 

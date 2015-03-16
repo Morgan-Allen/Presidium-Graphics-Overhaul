@@ -113,14 +113,16 @@ public class Resting extends Plan {
       actor.health.injuryLevel  (),
       0, 1
     );
-    if (report) I.say("  Stress level: "+stress);
+    if (report) {
+      I.say("  Stress level: "+stress);
+    }
     
     if (stress < 0.5f) {
       urgency *= stress * 2;
     }
     else {
       final float f = (stress - 0.5f) * 2;
-      urgency = (urgency * f) + (PARAMOUNT * (1 - f));
+      urgency = (urgency * (1 - f)) + (PARAMOUNT * f);
       modifier = f * PARAMOUNT;
     }
     

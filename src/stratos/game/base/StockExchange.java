@@ -247,6 +247,14 @@ public class StockExchange extends Venue {
     //  stick with jobs that happen within the venue.
     
     //  TODO:  Consider patent-manufacture activities!
+    if (Plan.competition(Supervision.class, this, actor) > 0) {
+      choice.add(DeliveryUtils.bestBulkDeliveryFrom(
+        this, services(), 2, 10, 5
+      ));
+      choice.add(DeliveryUtils.bestBulkCollectionFor(
+        this, services(), 2, 10, 5
+      ));
+    }
     
     choice.add(Supervision.inventory(this, actor));
     return choice.weightedPick();

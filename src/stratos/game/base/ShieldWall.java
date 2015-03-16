@@ -499,7 +499,8 @@ public class ShieldWall extends Venue {
   
   
   public String objectCategory() {
-    return InstallationPane.TYPE_SECURITY;
+    return UIConstants.TYPE_HIDDEN;
+    //return InstallationPane.TYPE_SECURITY;
   }
 }
 

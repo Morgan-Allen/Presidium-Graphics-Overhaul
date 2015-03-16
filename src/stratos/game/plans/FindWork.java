@@ -123,10 +123,17 @@ public class FindWork extends Plan {
   }
   
   
-  private boolean canApply() {
+  public boolean canOrDidApply() {
+    if (canApply()) return true;
+    if (employer == null) return false;
+    return employer.staff().applications().includes(this);
+  }
+  
+  
+  public boolean canApply() {
     return
-      position != null && employer.inWorld() &&
-      employer.structure().intact() &&
+      position != null && employer != null &&
+      employer.inWorld() && employer.structure().intact() &&
       employer.crowdRating(actor, position) < 1 &&
       ! employer.staff().applications().includes(this);
   }

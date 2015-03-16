@@ -75,11 +75,11 @@ public class ServiceHatch extends Venue {
       if (near == null) return -1;
       near = world.presences.nearestMatch(key, this, range);
       if (near != null) return -1;
-      return 5;
+      return 1;
     }
     else {
       float supply = base.demands.supplyAround(point, key, range);
-      return 5 * (1 - supply);
+      return 1 * (1 - supply);
     }
   }
   

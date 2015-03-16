@@ -18,7 +18,9 @@ public class CombatUtils {
   
   
   final public static float
-    MAX_POWER   = 20;
+    MAX_POWER   = 20,
+    AVG_POWER   = 10,
+    MIN_POWER   =  0;
   private static boolean
     threatsVerbose  = false,
     powerVerbose    = false,

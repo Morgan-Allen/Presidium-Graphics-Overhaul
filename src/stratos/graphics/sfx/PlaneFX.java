@@ -175,7 +175,10 @@ public class PlaneFX extends SFX {
     //  Determine the correct animation frame-
     final Box2D f;
     if (model.duration > 0) {
-      f = model.animUV[(int) (progress * model.animUV.length)];
+      final int
+        maxFrame = model.animUV.length,
+        frame    = Nums.clamp((int) (progress * maxFrame), maxFrame);
+      f = model.animUV[frame];
       if (report) I.say("  Animation frame: "+progress);
     }
     else f = model.animUV[0];

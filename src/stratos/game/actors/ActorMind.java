@@ -21,7 +21,7 @@ public abstract class ActorMind implements Qualities {
     */
   private static boolean
     decisionVerbose = Choice.mindVerbose,
-    stepsVerbose    = Choice.mindVerbose,
+    stepsVerbose    = Choice.mindVerbose && false,
     warnVerbose     = true ;
   
   

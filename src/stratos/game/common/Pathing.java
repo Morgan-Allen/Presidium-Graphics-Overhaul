@@ -21,10 +21,10 @@ public class Pathing {
     */
   final public static int MAX_PATH_SCAN = 8;
   private static boolean
-    verbose      = false,
+    verbose      = true ,
     moveVerbose  = false,
     pathVerbose  = false,
-    extraVerbose = false;
+    extraVerbose = true ;
   
   final Mobile mobile;
   Target trueTarget;
@@ -188,6 +188,7 @@ public class Pathing {
     final boolean report = verbose && I.talkAbout == mobile;
     if (report) {
       I.say("REFRESHING PATH TO: "+trueTarget);
+      I.say("  Current position: "+mobile.aboard());
     }
     
     final Boarding origin = location(mobile);
@@ -216,14 +217,21 @@ public class Pathing {
     //  If those pass inspection, we then select the next step in the currently
     //  approved path-
     else {
-      if (report && extraVerbose) {
+      if (report) {
         I.say("PATH IS: ");
         for (Boarding b : path) {
-          I.add(b+" "+PathSearch.blockedBy(b, mobile)+" ");
+          if (b instanceof Tile) {
+            final Tile t = (Tile) b;
+            I.add("["+t.x+" "+t.y+"]");
+          }
+          else I.add(b+" ");
         }
       }
       int index = 0;
-      while (index < path.length) if (path[index++] == origin) break;
+      while (index < path.length) {
+        if (path[index] == origin) break;
+        else index++;
+      }
       stepIndex = Nums.clamp(index, path.length);
       return true;
     }
@@ -231,7 +239,7 @@ public class Pathing {
   
   
   protected Boarding[] pathBetween(Boarding initB, Boarding destB) {
-    final boolean report = verbose && extraVerbose && I.talkAbout == mobile;
+    final boolean report = pathVerbose && extraVerbose && I.talkAbout == mobile;
     
     if (GameSettings.pathFree) {
       final PathSearch search = new PathSearch(initB, destB, false);

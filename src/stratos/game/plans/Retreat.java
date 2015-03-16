@@ -224,7 +224,8 @@ public class Retreat extends Plan implements Qualities {
     */
   protected float getPriority() {
     float priority = PlanUtils.retreatPriority(actor);
-    if (! actor.senses.isEmergency()) return priority;
+    if (actor.senses.isEmergency()) setMotive(MOTIVE_EMERGENCY);
+    else return priority;
     maxPriority = Nums.max(maxPriority, priority);
     return maxPriority;
   }

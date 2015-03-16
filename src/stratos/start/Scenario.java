@@ -37,7 +37,6 @@ public abstract class Scenario implements Session.Saveable, Playable {
   private float loadProgress = -1;
   
   private BaseUI UI;
-  //private List <String> timeStamps = new List <String> ();
   private String savesPrefix;
   private float lastSaveTime = -1;
   
@@ -56,7 +55,6 @@ public abstract class Scenario implements Session.Saveable, Playable {
     savesPrefix  = s.loadString();
     lastSaveTime = s.loadFloat();
     isDebug      = s.loadBool();
-    //for (int i = s.loadInt(); i-- > 0;) timeStamps.add(s.loadString());
     
     loadProgress = 1;
     UI = createUI(base, PlayLoop.rendering());
@@ -69,9 +67,6 @@ public abstract class Scenario implements Session.Saveable, Playable {
     s.saveString(savesPrefix      );
     s.saveFloat (lastSaveTime     );
     s.saveBool  (isDebug          );
-    //s.saveInt   (timeStamps.size());
-    //for (String stamp : timeStamps) s.saveString(stamp);
-    
     UI.saveState(s);
   }
   
@@ -91,6 +86,11 @@ public abstract class Scenario implements Session.Saveable, Playable {
   
   public String savesPrefix() {
     return savesPrefix;
+  }
+  
+  
+  protected void setSavesPrefix(String prefix) {
+    this.savesPrefix = prefix;
   }
   
   

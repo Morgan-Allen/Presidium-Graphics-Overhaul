@@ -277,6 +277,12 @@ public class Staff {
   
   
   public void confirmApplication(FindWork a) {
+    
+    if (I.logEvents()) {
+      I.say("\nHIRED: "+a.actor()+" ("+a.position()+")");
+      I.say("  At: "+employs+" ("+employs.base()+"");
+    }
+    
     final Base  base  = employs.base();
     final Stage world = base.world;
     final Actor works = a.actor();

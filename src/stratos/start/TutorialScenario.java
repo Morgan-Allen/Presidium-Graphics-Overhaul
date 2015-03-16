@@ -126,6 +126,7 @@ public class TutorialScenario extends StartupScenario implements
     */
   public void updateGameState() {
     super.updateGameState();
+    setSavesPrefix("tutorial_quick");
     
     /*
     if (KeyInput.wasTyped('k')) {

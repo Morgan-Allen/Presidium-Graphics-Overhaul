@@ -27,7 +27,7 @@ public class BaseCommerce {
   private static boolean
     verbose        = false,
     extraVerbose   = false,
-    migrateVerbose = verbose && false,
+    migrateVerbose = verbose && true ,
     tradeVerbose   = verbose && false;
   
   final public static float
@@ -187,9 +187,7 @@ public class BaseCommerce {
         demand = jobDemand.valueFor(b),
         supply = jobSupply.valueFor(b);
       if (demand <= 0) { jobDemand.set(b, 0); continue; }
-      
-      float applyChance = (demand - supply) / demand;
-      applyChance *= TIME_SLICE;
+      float applyChance = (demand - supply) * TIME_SLICE;
       
       if (report) {
         I.say("  Hire chance for "+b+" is "+applyChance);
@@ -240,7 +238,7 @@ public class BaseCommerce {
       if (a == null || b == null || Rand.num() < quitChance) {
         if (report) I.say("    Quitting...");
         candidates.removeEntry(e);
-        b.cancelApplication();
+        if (b != null) b.cancelApplication();
       }
       else if (b != null && b.position() != null) {
         if (report) I.say("    Applying at: "+b.employer());

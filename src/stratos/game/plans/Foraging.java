@@ -102,16 +102,15 @@ public class Foraging extends Plan {
       I.say("  Hunger level was: "+hunger);
       I.say("  Final priority: "+priority);
     }
-    if (priority < ROUTINE) return 0;
     return priority;
   }
   
   
   public float successChanceFor(Actor actor) {
     float chance = 1;
-    chance *= actor.skills.chance(HARD_LABOUR, ROUTINE_DC);
-    chance *= actor.skills.chance(CULTIVATION, MODERATE_DC);
-    return chance;
+    chance += actor.skills.chance(HARD_LABOUR, ROUTINE_DC );
+    chance += actor.skills.chance(CULTIVATION, MODERATE_DC);
+    return chance / 3;
   }
   
   
