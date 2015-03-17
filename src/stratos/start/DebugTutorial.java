@@ -20,8 +20,13 @@ import stratos.util.*;
      Building & Upgrades (space management.)
      Recruitment & Missions (indirect control, motivation.)
      Housing + Manufacture + Sales and Imports (having money.)
-   Emphasis the emotive component here- survival, comfort, discovery, honour.
+   Emphasise the emotive component here- survival, comfort, discovery, honour.
    Limit the structure types available?
+   
+*  Make sure the player can go back and review all previous messages.
+   
+*  This map is too small to allow for multiple factions, really.  Try for 3
+   separate mini-tutorials for each of the game's main aspects.
 //*/
 
 

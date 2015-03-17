@@ -6,7 +6,6 @@ import stratos.game.plans.*;
 import stratos.game.actors.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
-import stratos.user.notify.CommsPane;
 import stratos.util.*;
 
 
@@ -16,7 +15,7 @@ public class CommercePane extends SelectionInfoPane {
   
   final static ImageAsset
     COMMERCE_ICON = ImageAsset.fromImage(
-      CommsPane.class, "media/GUI/Panels/edicts_tab.png"  //  TODO:  CHANGE
+      CommercePane.class, "media/GUI/Panels/edicts_tab.png"  //  TODO:  CHANGE
     ),
     COMMERCE_ICON_LIT = Button.CIRCLE_LIT;
   

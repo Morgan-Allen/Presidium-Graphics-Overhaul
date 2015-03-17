@@ -10,32 +10,15 @@ import stratos.game.base.*;
 import stratos.game.economic.*;
 import stratos.game.politic.*;
 import stratos.game.wild.*;
-import stratos.graphics.widgets.KeyInput;
 import stratos.user.*;
-import stratos.user.notify.CommsPane;
+import stratos.user.notify.*;
 import stratos.util.*;
 import static stratos.start.TutorialScript.*;
 
 
 
-//  The raiding dynamics here need to be worked out, so that the natives and
-//  artilects can plausibly co-exist.
-//  Divide the map into regions, and arrange for *not* wandering outside of it.
-//  And have that show up on the minimap (regional claims.)
 
-//  TODO:  Consider providing 3 mandatory objectives, but being flexible about
-//  the order of completion- or have one feed into another.
-
-//  ...This map is too small to allow for multiple factions, really.  Consider
-//  creating 3 separate mini-tutorials for each of the game aspects- survival,
-//  prosperity and honour/prestige/legacy.
-
-
-
-
-public class TutorialScenario extends StartupScenario implements
-  CommsPane.CommSource
-{
+public class TutorialScenario extends StartupScenario {
   
   private static boolean
     verbose          = false,
@@ -44,6 +27,8 @@ public class TutorialScenario extends StartupScenario implements
   Bastion bastion;
   Batch <Ruins> ruins;
   Batch <NativeHut> huts;
+  
+  final TutorialScript script = new TutorialScript(this);
   
   
   public TutorialScenario(String prefix) {
@@ -128,19 +113,12 @@ public class TutorialScenario extends StartupScenario implements
     super.updateGameState();
     setSavesPrefix("tutorial_quick");
     
-    /*
-    if (KeyInput.wasTyped('k')) {
-      base().transport.checkConsistency();
-    }
-    //*/
-
     if (showMessages()) {
-      ///plus++;
-      pushMessage(EVENT_WELCOME);
+      pushMessage(EVENT_WELCOME, true);
 
       int numObjectives = 0;
       if (checkSecurityObjective()) {
-        pushMessage(EVENT_SECURITY_DONE);
+        pushMessage(EVENT_SECURITY_DONE, true);
         numObjectives++;
       }
       
@@ -152,11 +130,11 @@ public class TutorialScenario extends StartupScenario implements
       }
       //*/
       if (checkEconomicObjective()) {
-        pushMessage(EVENT_ECONOMY_DONE);
+        pushMessage(EVENT_ECONOMY_DONE, true);
         numObjectives++;
       }
       if (numObjectives >= 2) {
-        pushMessage(EVENT_CONGRATULATIONS);
+        pushMessage(EVENT_CONGRATULATIONS, true);
       }
       //I.say("\nTotal objectives: "+numObjectives+"/"+3);
     }
@@ -230,31 +208,41 @@ public class TutorialScenario extends StartupScenario implements
   protected boolean showMessages() { return true; }
   
   
+  //  Hang on.  Sunil specifically said he wanted to see all topics listed.  So
+  //  that is what I should do.  Have them available in a back-catalogue at
+  //  least.
   private void registerAllTopics() {
+    /*
     final CommsPane comms = UI().commsPanel();
     for (String topicKey : ALL_TOPIC_TITLES) {
-      final MessagePane panel = comms.messageWith(topicKey);
+      final DialoguePane panel = comms.messageWith(topicKey);
       if (panel != null) continue;
       comms.addMessage(this, topicKey, messageFor(topicKey, comms, false));
     }
+    //*/
   }
 
   
-  private void pushMessage(String eventKey) {
-    final CommsPane comms = UI().commsPanel();
+  private void pushMessage(String eventKey, boolean urgent) {
+    final ReminderListing reminders = UI().reminders();
     
-    if (! comms.hasMessage(eventKey)) {
+    if (! reminders.hasEntryFor(eventKey)) {
+      final DialoguePane message = script.messageFor(eventKey, UI());
+      if (message == null) return;
       if (verbose || I.logEvents()) I.say("\nPUSHING NEW MESSAGE: "+eventKey);
-      UI().setInfoPanels(messageFor(eventKey, comms, false), null);
+      UI().setInfoPanels(message, null);
+      reminders.addEntry(message, urgent);
     }
   }
   
   
-  public MessagePane messageFor(
+  /*
+  public DialoguePane messageFor(
     String title, CommsPane comms, boolean useCache
   ) {
     return new TutorialScript(this).messageFor(title, comms, useCache);
   }
+  //*/
 }
 
 

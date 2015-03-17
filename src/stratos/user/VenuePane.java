@@ -494,7 +494,7 @@ public class VenuePane extends SelectionInfoPane {
     
     if (d instanceof Text && m instanceof Actor) {
       final Composite p = ((Actor) m).portrait(UI);
-      if (p != null) ((Text) d).insert(p.texture(), 40, true);
+      if (p != null) ((Text) d).insert(p.delayedImage(UI), 40, true);
       else d.append("\n");
     }
     else d.append("\n\n  ");

@@ -42,9 +42,6 @@ public class EcologistStation extends Venue {
     STATION_MODEL = CutoutModel.fromImage(
       EcologistStation.class, IMG_DIR+"botanical_station.png", 4, 3
     );
-  
-  final static int EXTRA_CLAIM_SIZE = 4;
-  
   final static VenueProfile PROFILE = new VenueProfile(
     EcologistStation.class, "ecologist_station", "Ecologist Station",
     4, 3, false, NO_REQUIREMENTS
@@ -69,11 +66,6 @@ public class EcologistStation extends Venue {
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-  }
-  
-  
-  protected Box2D areaClaimed() {
-    return new Box2D().setTo(footprint()).expandBy(EXTRA_CLAIM_SIZE);
   }
   
   

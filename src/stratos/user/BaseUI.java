@@ -4,13 +4,12 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.user;
-import stratos.game.actors.*;
+//import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.start.*;
-import stratos.user.notify.CommsPane;
-import stratos.user.notify.ReminderListing;
+import stratos.user.notify.*;
 import stratos.util.*;
 
 import com.badlogic.gdx.*;
@@ -40,8 +39,8 @@ public class BaseUI extends HUD implements UIConstants {
   private MapsDisplay mapsPanel;
   private Readout readout;
   
-  private CommsPane commsPanel;
-  private ReminderListing messageListing;
+  //private CommsPane commsPanel;
+  private ReminderListing reminders;
   //private PlanetPanel planetPanel;
   //private StarsPanel  starsPanel ;  //Just use the homeworld.
 
@@ -86,7 +85,7 @@ public class BaseUI extends HUD implements UIConstants {
     assignBaseSetup(played, null);
     tracking  .loadState(s);
     selection .loadState(s);
-    commsPanel.loadState(s);
+    //commsPanel.loadState(s);
   }
   
   
@@ -94,15 +93,15 @@ public class BaseUI extends HUD implements UIConstants {
     s.saveObject(played);
     tracking  .saveState(s);
     selection .saveState(s);
-    commsPanel.saveState(s);
+    //commsPanel.saveState(s);
   }
   
   
   public Base played() { return played; }
   public Stage world() { return world ; }
   
-  
-  public CommsPane commsPanel() { return commsPanel; }
+  public ReminderListing reminders() { return reminders; }
+  //public CommsPane commsPanel() { return commsPanel; }
   
   
   public static BaseUI current() {
@@ -192,11 +191,12 @@ public class BaseUI extends HUD implements UIConstants {
     optionsButton.attachTo(this);
     
     
-    this.messageListing = new ReminderListing(this);
-    messageListing.alignLeft(10, 100);
-    messageListing.alignVertical(QUICKBAR_HIGH, MINIMAP_HIGH + 40);
-    messageListing.attachTo(this);
+    this.reminders = new ReminderListing(this);
+    reminders.alignLeft(10, 100);
+    reminders.alignVertical(QUICKBAR_HIGH, MINIMAP_HIGH + 40);
+    reminders.attachTo(this);
     
+    /*
     //  TODO:  Get rid of this!  Replace with message alerts!
     this.commsPanel = new CommsPane(this);
     this.commsButton = CommsPane.createButton(this, commsPanel);
@@ -204,7 +204,7 @@ public class BaseUI extends HUD implements UIConstants {
     commsButton.alignTop(0, PTH);
     commsButton.alignRight(PTS * 0, PTS);
     commsButton.attachTo(this);
-    
+    //*/
     
     this.buildButton = InstallationPane.createButton(this);
     buildButton.stretch = false;

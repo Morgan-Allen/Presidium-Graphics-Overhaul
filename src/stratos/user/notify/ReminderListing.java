@@ -1,13 +1,15 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.user.notify;
 import stratos.game.common.*;
 import stratos.game.politic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
-import stratos.user.BaseUI;
-import stratos.user.BorderedLabel;
+import stratos.user.*;
 import stratos.util.*;
 import stratos.game.common.Session.Saveable;
 
@@ -16,23 +18,19 @@ import stratos.game.common.Session.Saveable;
 //  TODO:  This needs to list tutorial-messages as well as ongoing missions
 //         and other status-updates.
 
+//  TODO:  Animate positional changes for new/expired entries?
+
 //  TODO:  In principle, this could then replace the Comms panel.
+
+//  TODO:  These also need to save and load!
 
 
 public class ReminderListing extends UIGroup {
   
   
   final BaseUI UI;
-  List <Entry> entries = new List <Entry> ();
-  
-  private class Entry {
-    Saveable refers;
-    boolean active;
-    
-    UINode shown;
-    float fadeVal;
-    Coord oldPos, newPos;
-  }
+  final List <Entry> entries = new List <Entry> ();
+  final List <DialoguePane> messages = new List <DialoguePane> ();
   
   
   public ReminderListing(BaseUI UI) {
@@ -41,47 +39,71 @@ public class ReminderListing extends UIGroup {
   }
   
   
-  private void addEntry(Saveable refers, int afterIndex) {
+  
+  /**  Maintaining the list of reminders-
+    */
+  protected static class Entry extends UIGroup implements UIConstants {
     
-    final BaseUI BUI = (BaseUI) UI;
-    final Entry entry = new Entry();
-    entry.refers  = refers;
-    entry.active  = true  ;
-    entry.fadeVal = 0     ;
+    final Object refers;
+    boolean active;
+    boolean urgent;
     
-    if (refers instanceof Mission) {
-      final Mission m = (Mission) refers;
-      entry.shown = new MissionReminder(UI, m);
+    final int high, wide;
+    float fadeVal;
+    Coord oldPos, newPos;
+    
+    protected Entry(BaseUI UI, Object refers, int wide, int high) {
+      super(UI);
+      this.refers = refers;
+      this.high   = high  ;
+      this.wide   = wide  ;
+      active  = true ;
+      urgent  = false;
+      fadeVal = 0    ;
     }
-    
-    final Entry after = entries.atIndex(afterIndex);
-    if (after == null) entries.addLast(entry);
-    else entries.addAfter(entries.match(after), entry);
-    entry.shown.attachTo(this);
   }
   
   
-  private boolean hasEntry(Saveable refers) {
+  private boolean hasEntry(Object refers) {
     for (Entry e : entries) if (e.refers == refers) return true;
     return false;
   }
   
   
+  private Entry addEntry(Object refers, int afterIndex) {
+    
+    Entry entry = null;
+    if (refers instanceof Mission) {
+      entry = new MissionReminder(UI, (Mission) refers);
+    }
+    if (refers instanceof DialoguePane) {
+      entry = new CommsReminder(UI, (DialoguePane) refers);
+    }
+    if (entry == null) {
+      I.complain("\nNO SUPPORTED ENTRY FOR "+refers);
+      return null;
+    }
+    
+    final Entry after = entries.atIndex(afterIndex);
+    if (after == null) entries.addLast(entry);
+    else entries.addAfter(entries.match(after), entry);
+    entry.attachTo(this);
+    return entry;
+  }
+  
+  
   protected void updateState() {
     //
-    //  Only do this if the missions-list has changed?  Animate positional
-    //  changes?
-    List <Saveable> needShow = new List <Saveable> ();
+    //  Include all currently ongoing missions and any special messages:
+    List <Object> needShow = new List <Object> ();
     for (final Mission mission : UI.played().tactics.allMissions()) {
       needShow.add(mission);
     }
+    for (Object o : messages) needShow.add(o);
     
     //  Now, in essence, insert entries for anything not currently listed, and
     //  delete entries for anything listed that shouldn't be.
-    
-    final int wide = 40, high = 40, pad = 20; int index = 0;
-    
-    for (Saveable s : needShow) {
+    for (Object s : needShow) {
       if (! hasEntry(s)) addEntry(s, entries.size() - 1);
     }
     for (Entry e : entries) {
@@ -90,11 +112,13 @@ public class ReminderListing extends UIGroup {
         e.fadeVal = 1;
       }
       if (e.fadeVal <= 0 && ! e.active) {
-        e.shown.detach();
+        e.detach();
         entries.remove(e);
       }
     }
     
+    final int padding = 20;
+    int down = 0;
     for (Entry e : entries) {
       if (e.active) {
         e.fadeVal = Nums.clamp(e.fadeVal + DEFAULT_FADE_INC, 0, 1);
@@ -102,16 +126,31 @@ public class ReminderListing extends UIGroup {
       else {
         e.fadeVal = Nums.clamp(e.fadeVal - DEFAULT_FADE_INC, 0, 1);
       }
-      e.shown.relAlpha = e.fadeVal;
-      e.shown.alignLeft(0, wide);
-      e.shown.alignTop((high + pad) * index, high);
-      index++;
+      e.relAlpha = e.fadeVal;
+      e.alignLeft(0   , e.wide);
+      e.alignTop (down, e.high);
+      down += e.high + padding;
     }
     
     super.updateState();
   }
+  
+  
+  
+  /**  Utility methods for message dialogues:
+    */
+  public boolean hasEntryFor(String messageKey) {
+    for (DialoguePane message : messages) {
+      if (message.title.equals(messageKey)) return true;
+    }
+    return false;
+  }
+  
+  
+  public void addEntry(DialoguePane message, boolean urgent) {
+    messages.include(message);
+  }
 }
-
 
 
 

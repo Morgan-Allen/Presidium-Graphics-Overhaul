@@ -106,7 +106,7 @@ public class XML {
   public static XML load(String fileName) {
     Object cached = Assets.getResource(fileName);
     if (cached != null) return (XML) cached;
-    final XML xml = new XML(Gdx.files.internal(fileName));
+    final XML xml = new XML(fileName);
     Assets.cacheResource(xml, fileName);
     return xml;
   }
@@ -117,29 +117,29 @@ public class XML {
     childList = new List <XML> ();
   private List <String>
     attributeList = new List <String> (),
-    valueList = new List <String> ();
+    valueList     = new List <String> ();
   
   /**  Constructs a new XML node from the given text file.
    */
-  private XML(FileHandle xmlF) {
+  private XML(String xmlF) {
     try {
       XML current = this;
       boolean
-        rTag = false,   //reading an opening tag.
-        rAtt = false,   //reading a tag or attribute name.
-        rVal = false,   //reading an attribute value.
+        rTag = false,  //reading an opening tag.
+        rAtt = false,  //reading a tag or attribute name.
+        rVal = false,  //reading an attribute value.
         rCon = false;  //reading content between open and closing tags.
       int
         cRead = 0,  //index for  start of content reading.
         aRead = 0,  //attribute reading...
         vRead = 0,  //value reading...
         index,      //current index in file.
-        length;    //total length of file.
+        length;     //total length of file.
       
-      //FileInputStream fR = new FileInputStream(xmlF);
-      final InputStream fR = xmlF.read();
+      final File baseFile = new File(xmlF);
+      final FileInputStream fR = new FileInputStream(baseFile);
       byte
-        chars[] = new byte[length = (int) xmlF.length()],
+        chars[] = new byte[length = (int) baseFile.length()],
         read;
       fR.read(chars);
       
@@ -245,6 +245,7 @@ public class XML {
       }
       ///I.say("\n\n___xxxBEGIN XML COMPILATIONxxx___");
       compile();
+      fR.close();
       ///I.say("\n___xxxEND OF XML COMPILATIONxxx___\n\n");
     }
     catch(IOException e) {
@@ -262,6 +263,7 @@ public class XML {
   
   private static int indent = 0;
   final static boolean print = false;
+  
   
   /**  Transforms the temporary member lists into proper arrays.
     */

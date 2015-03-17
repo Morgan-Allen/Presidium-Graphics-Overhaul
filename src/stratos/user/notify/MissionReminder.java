@@ -11,7 +11,7 @@ import stratos.util.*;
 //  TODO:  List a red-green-amber indicator for approval status.
 
 
-public class MissionReminder extends UIGroup implements UIConstants {
+public class MissionReminder extends ReminderListing.Entry {
   
   final Mission m;
   final List <Image> appImgs = new List <Image> ();
@@ -19,7 +19,7 @@ public class MissionReminder extends UIGroup implements UIConstants {
   
   
   MissionReminder(final BaseUI BUI, final Mission m) {
-    super(BUI);
+    super(BUI, m, 40, 40);
     this.m = m;
 
     final Composite portrait = m.portrait(BUI);

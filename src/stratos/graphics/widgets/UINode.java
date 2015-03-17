@@ -65,10 +65,10 @@ public abstract class UINode {
   }
   
   
-  public float xpos() { return bounds.xpos(); }
-  public float ypos() { return bounds.ypos(); }
-  public float xdim() { return bounds.xdim(); }
-  public float ydim() { return bounds.ydim(); }
+  public int xpos() { return (int) bounds.xpos(); }
+  public int ypos() { return (int) bounds.ypos(); }
+  public int xdim() { return (int) bounds.xdim(); }
+  public int ydim() { return (int) bounds.ydim(); }
   public Box2D trueBounds() { return bounds; }
   
   

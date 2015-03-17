@@ -8,6 +8,7 @@ import stratos.util.*;
 
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Pixmap.*;
+
 import static com.badlogic.gdx.graphics.Texture.TextureFilter.*;
 
 
@@ -154,6 +155,17 @@ public class Composite {
       composed.setFilter(Linear, Linear);
     }
     return composed;
+  }
+  
+  
+  public Image delayedImage(HUD UI) {
+    final Image image = new Image(UI, ImageAsset.WHITE_TEX()) {
+      protected void renderTex(Texture tex, float alpha, WidgetsPass pass) {
+        tex = texture();
+        super.renderTex(tex, alpha, pass);
+      }
+    };
+    return image;
   }
   
   

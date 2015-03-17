@@ -1,17 +1,20 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.user.notify;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.graphics.widgets.Text.Clickable;
 import stratos.user.BaseUI;
-import stratos.user.MessagePane;
 import stratos.user.SelectionInfoPane;
 import stratos.util.*;
 
 
 
+/*
 
 public class CommsPane extends SelectionInfoPane {
   
@@ -38,19 +41,22 @@ public class CommsPane extends SelectionInfoPane {
     };
   }
   
-  
-  public static interface CommSource extends Session.Saveable {
-    MessagePane messageFor(String title, CommsPane comms, boolean useCache);
+  //*
+  public static interface DialogueSource extends Session.Saveable {
+    DialoguePane messageFor(String title, CommsPane comms, boolean useCache);
   }
   
   private class Message {
-    CommSource source;
+    DialogueSource source;
     String keyTitle;
-    MessagePane panel;
+    DialoguePane panel;
+    boolean isUrgent;
     //  TODO:  Optional time-stamps?
   }
+  //*/
+/*
   
-  final List <Message> messages = new List <Message> ();
+  final private List <Message> messages = new List <Message> ();
   
   
   
@@ -61,15 +67,17 @@ public class CommsPane extends SelectionInfoPane {
   
   public void loadState(Session s) throws Exception {
     for (int n = s.loadInt(); n-- > 0;) {
-      final CommSource    source = (CommSource) s.loadObject();
-      final String        key    = s.loadString();
-      final MessagePane panel  = source.messageFor(key, this, false);
+      final DialogueSource source = (DialogueSource) s.loadObject();
+      final String         key    = s.loadString();
+      final boolean        urgent = s.loadBool  ();
+      final DialoguePane   panel  = source.messageFor(key, this, false);
       
       if (messageWith(key) == null && panel != null) {
         final Message m = new Message();
         m.source   = source;
         m.keyTitle = key   ;
         m.panel    = panel ;
+        m.isUrgent = urgent;
         messages.add(m);
       }
     }
@@ -87,6 +95,7 @@ public class CommsPane extends SelectionInfoPane {
     for (Message m : messages) {
       s.saveObject(m.source  );
       s.saveString(m.keyTitle);
+      s.saveBool  (m.isUrgent);
     }
     
     final Object pane = UI.currentPane();
@@ -96,6 +105,12 @@ public class CommsPane extends SelectionInfoPane {
     s.saveInt(index);
   }
   
+  
+  public Batch <DialoguePane> urgentMessages() {
+    final Batch <DialoguePane> panes = new Batch <DialoguePane> ();
+    for (Message m : messages) if (m.isUrgent) panes.add(m.panel);
+    return panes;
+  }
   
   
   public boolean hasMessage(String keyTitle) {
@@ -110,7 +125,7 @@ public class CommsPane extends SelectionInfoPane {
   }
   
   
-  public MessagePane messageWith(String keyTitle) {
+  public DialoguePane messageWith(String keyTitle) {
     for (Message m : messages) if (m.keyTitle.equals(keyTitle)) {
       return m.panel;
     }
@@ -118,10 +133,19 @@ public class CommsPane extends SelectionInfoPane {
   }
   
   
-  public MessagePane addMessage(
-    CommSource source, String title, MessagePane panel
+  public boolean setAsUrgent(String messageName, boolean isUrgent) {
+    for (Message m : messages) if (m.keyTitle.equals(messageName)) {
+      m.isUrgent = isUrgent;
+      return true;
+    }
+    return false;
+  }
+  
+  
+  public DialoguePane addMessage(
+    DialogueSource source, String title, DialoguePane panel
   ) {
-    final MessagePane old = messageWith(title);
+    final DialoguePane old = messageWith(title);
     if (old != null) return old;
     if (panel == null) I.complain("CANNOT PUSH NULL PANEL! "+title);
     
@@ -134,8 +158,8 @@ public class CommsPane extends SelectionInfoPane {
   }
   
   
-  public MessagePane addMessage(
-    CommSource source, String title, Composite portrait,
+  public DialoguePane addMessage(
+    DialogueSource source, String title, Composite portrait,
     String mainText, Clickable... options
   ) {
     final Clickable navOptions[] = {
@@ -146,7 +170,7 @@ public class CommsPane extends SelectionInfoPane {
         }
       }
     };
-    final MessagePane panel = new MessagePane(
+    final DialoguePane panel = new DialoguePane(
       UI, portrait, title, mainText, null,
       (Clickable[]) Visit.compose(Clickable.class, options, navOptions)
     );
@@ -173,6 +197,6 @@ public class CommsPane extends SelectionInfoPane {
     }
   }
 }
-
+//*/
 
 

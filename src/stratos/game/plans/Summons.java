@@ -5,6 +5,7 @@ import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.politic.*;
 import stratos.user.*;
+import stratos.user.notify.DialoguePane;
 import stratos.util.*;
 import stratos.game.economic.*;
 import stratos.game.politic.LawUtils.*;
@@ -219,7 +220,7 @@ public class Summons extends Plan {
     final Mission match = base.matchingMission(actor, ContactMission.class);
     if (
       (BaseUI.isSelected(actor) || BaseUI.isSelected(match)) &&
-      stays == base.HQ() && ! MessagePane.hasFocus(actor)
+      stays == base.HQ() && ! DialoguePane.hasFocus(actor)
     ) {
       final BaseUI UI = BaseUI.current();
       configDialogueFor(UI, actor, true);
@@ -273,7 +274,7 @@ public class Summons extends Plan {
   
   
   
-  public static MessagePane configDialogueFor(
+  public static DialoguePane configDialogueFor(
     final BaseUI UI, final Actor with, boolean pushNow
   ) {
     final Stack <Link> responses = new Stack();
@@ -314,7 +315,7 @@ public class Summons extends Plan {
       }
     });
     
-    final MessagePane panel = new MessagePane(
+    final DialoguePane panel = new DialoguePane(
       UI, with.portrait(UI), "Audience with "+with,
       "Yes, my liege?", with,
       responses
@@ -339,7 +340,7 @@ public class Summons extends Plan {
         }
     });
     
-    final MessagePane panel = new MessagePane(
+    final DialoguePane panel = new DialoguePane(
       UI, with.portrait(UI), "Audience with "+with,
       lead, with, responses
     );
@@ -350,7 +351,7 @@ public class Summons extends Plan {
   static void pushGiftResponse(
     final BaseUI UI, final Actor with, String lead
   ) {
-    final MessagePane panel = new MessagePane(
+    final DialoguePane panel = new DialoguePane(
       UI, with.portrait(UI), "Audience with "+with,
       lead, with,
       new Link("Very well, then...") {
@@ -401,7 +402,7 @@ public class Summons extends Plan {
       }
     });
     
-    final MessagePane panel = new MessagePane(
+    final DialoguePane panel = new DialoguePane(
       UI, with.portrait(UI), "Audience with "+with,
       lead, with, responses
     );
@@ -413,7 +414,7 @@ public class Summons extends Plan {
     final BaseUI UI, final Actor with, final Mission taken
   ) {
     //final Actor ruler = UI.played().ruler();
-    final MessagePane panel = new MessagePane(
+    final DialoguePane panel = new DialoguePane(
       UI, with.portrait(UI), "Audience with "+with,
       "My pleasure, your grace.", with,
       new Link("Very well, then...") {
