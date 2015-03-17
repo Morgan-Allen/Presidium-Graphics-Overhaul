@@ -26,7 +26,7 @@ public class TutorialScript {
   final static String
     SCRIPT_FILE = "media/Help/TutorialScript.xml";
   final static String
-    EVENT_WELCOME         = "Welcome"                    ,
+    EVENT_WELCOME         = "Welcome!"                   ,
     EVENT_SECURITY_DONE   = "Security Objective Complete",
     EVENT_CONTACT_DONE    = "Contact Objective Complete" ,
     EVENT_ECONOMY_DONE    = "Economy Objective Complete" ,
@@ -71,7 +71,9 @@ public class TutorialScript {
         
         public void whenClicked() {
           final DialoguePane message = messageFor(linkKey, UI);
-          if (message != null) UI.setInfoPanels(message, null);
+          if (message != null) {
+            UI.setInfoPanels(message, null);
+          }
           else I.say("\nNO TOPIC MATCHING: "+linkKey);
         }
       });

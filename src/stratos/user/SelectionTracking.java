@@ -92,15 +92,17 @@ public class SelectionTracking {
     final Vec3D nextPos = new Vec3D(view.lookedAt);
     nextPos.x = Nums.clamp(nextPos.x + x, 0, world.size - 1);
     nextPos.y = Nums.clamp(nextPos.y + y, 0, world.size - 1);
-    final Tile under = world.tileAt(nextPos.x, nextPos.y);
     
     UI.selection.pushSelection(null);
     lockTarget = null;
     view.lookedAt.setTo(nextPos);
     
-    final SelectionInfoPane pane = under.configPanel(null, UI);
-    final TargetOptions options = under.configInfo(null, UI);
-    UI.setInfoPanels(pane, options);
+    if (UI.currentPane() == null) {
+      final Tile under = world.tileAt(nextPos.x, nextPos.y);
+      final SelectionInfoPane pane = under.configPanel(null, UI);
+      final TargetOptions options  = under.configInfo (null, UI);
+      UI.setInfoPanels(pane, options);
+    }
   }
   
   

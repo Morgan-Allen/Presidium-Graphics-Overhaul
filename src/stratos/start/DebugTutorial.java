@@ -13,8 +13,6 @@ import stratos.util.*;
 
 /*  TUTORIAL TODO LIST:
 
-*  Have tutorial-messages appear as message-items along the right-hand side.
-
 *  Use a linear sequence with much more detail on specific, simple steps.  You
    want to cover-
      Building & Upgrades (space management.)
@@ -102,8 +100,7 @@ INTERFACE AND DEBUGGING
 *  Try tracking actors only when they wander outside your field of view (or
    start that way.)  And include tracking options in the UI.
 
-*  Read definitions, tutorial messages, etc. from .xml and allow for later
-   translations.
+*  Read definitions from .xml and allow for later string translations.
 
 *  Try to implement some global debugging-levels.
    

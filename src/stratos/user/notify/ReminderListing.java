@@ -11,6 +11,7 @@ import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
+import stratos.graphics.widgets.Text.Clickable;
 import stratos.game.common.Session.Saveable;
 
 
@@ -20,7 +21,8 @@ import stratos.game.common.Session.Saveable;
 
 //  TODO:  Animate positional changes for new/expired entries?
 
-//  TODO:  In principle, this could then replace the Comms panel.
+//  TODO:  Make sure you list ALL previous messages, within a single dialogue-
+//         entry.  (e.g, N previous messages.  Same icon.)
 
 //  TODO:  These also need to save and load!
 
@@ -30,7 +32,9 @@ public class ReminderListing extends UIGroup {
   
   final BaseUI UI;
   final List <Entry> entries = new List <Entry> ();
-  final List <DialoguePane> messages = new List <DialoguePane> ();
+  final List <DialoguePane>
+    oldMessages = new List <DialoguePane> (),
+    newMessages = new List <DialoguePane> ();
   
   
   public ReminderListing(BaseUI UI) {
@@ -51,6 +55,7 @@ public class ReminderListing extends UIGroup {
     final int high, wide;
     float fadeVal;
     Coord oldPos, newPos;
+    
     
     protected Entry(BaseUI UI, Object refers, int wide, int high) {
       super(UI);
@@ -77,7 +82,12 @@ public class ReminderListing extends UIGroup {
       entry = new MissionReminder(UI, (Mission) refers);
     }
     if (refers instanceof DialoguePane) {
-      entry = new CommsReminder(UI, (DialoguePane) refers);
+      entry = new CommsReminder(UI, refers, (DialoguePane) refers);
+    }
+    if (refers == oldMessages) {
+      entry = new CommsReminder(UI, oldMessages, forOldMessages());
+      final String label = oldMessages.size()+" other messages";
+      ((CommsReminder) entry).setLabel(label);
     }
     if (entry == null) {
       I.complain("\nNO SUPPORTED ENTRY FOR "+refers);
@@ -99,8 +109,13 @@ public class ReminderListing extends UIGroup {
     for (final Mission mission : UI.played().tactics.allMissions()) {
       needShow.add(mission);
     }
-    for (Object o : messages) needShow.add(o);
-    
+    for (DialoguePane o : newMessages) {
+      needShow.add(o);
+    }
+    if (oldMessages.size() > 0) {
+      needShow.add(oldMessages);
+    }
+    //
     //  Now, in essence, insert entries for anything not currently listed, and
     //  delete entries for anything listed that shouldn't be.
     for (Object s : needShow) {
@@ -140,7 +155,10 @@ public class ReminderListing extends UIGroup {
   /**  Utility methods for message dialogues:
     */
   public boolean hasEntryFor(String messageKey) {
-    for (DialoguePane message : messages) {
+    for (DialoguePane message : newMessages) {
+      if (message.title.equals(messageKey)) return true;
+    }
+    for (DialoguePane message : oldMessages) {
       if (message.title.equals(messageKey)) return true;
     }
     return false;
@@ -148,17 +166,34 @@ public class ReminderListing extends UIGroup {
   
   
   public void addEntry(DialoguePane message, boolean urgent) {
-    messages.include(message);
+    if (urgent) newMessages.include(message);
+    else        oldMessages.include(message);
+  }
+  
+  
+  private DialoguePane forOldMessages() {
+    
+    final Batch <Clickable> links = new Batch <Clickable> ();
+    for (final DialoguePane panel : oldMessages) {
+      final Clickable link = new Clickable() {
+        
+        public String fullName() {
+          return panel.title;
+        }
+        
+        public void whenClicked() {
+          UI.setInfoPanels(panel, null);
+        }
+      };
+      links.add(link);
+    }
+    
+    final DialoguePane pane = new DialoguePane(
+      UI, null, "Old Messages", "", null, links
+    );
+    return pane;
   }
 }
-
-
-
-
-
-
-
-
 
 
 

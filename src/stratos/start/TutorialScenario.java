@@ -32,7 +32,7 @@ public class TutorialScenario extends StartupScenario {
   
   
   public TutorialScenario(String prefix) {
-    super(config(), Scenario.uniqueVariant(prefix));
+    super(config(), prefix);
   }
   
   
@@ -111,7 +111,6 @@ public class TutorialScenario extends StartupScenario {
     */
   public void updateGameState() {
     super.updateGameState();
-    setSavesPrefix("tutorial_quick");
     
     if (showMessages()) {
       pushMessage(EVENT_WELCOME, true);

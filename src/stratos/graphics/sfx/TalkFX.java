@@ -36,7 +36,8 @@ public class TalkFX extends SFX {
     FROM_LEFT  = 1,
     FROM_RIGHT = 2;
   final static float
-    FADE_RATE  = 1f / (Rendering.FRAMES_PER_SECOND * 0.5f);
+    FADE_TIME  = 0.5f,
+    FADE_RATE  = 1f / (Rendering.FRAMES_PER_SECOND * FADE_TIME);
   
   public float fadeRate = 1.0f;
   final float LINE_HIGH, LINE_SPACE;
@@ -65,11 +66,11 @@ public class TalkFX extends SFX {
     for (Bubble b : showing) all.add(b);
     for (Bubble b : all) {
       Assets.writeString(out, b.phrase);
-      out.writeInt(b.type);
-      out.writeFloat(b.width);
-      out.writeFloat(b.xoff );
-      out.writeFloat(b.yoff );
-      out.writeFloat(b.alpha);
+      out.writeInt  (b.type   );
+      out.writeFloat(b.width  );
+      out.writeFloat(b.xoff   );
+      out.writeFloat(b.yoff   );
+      out.writeFloat(b.addTime);
     }
   }
   
@@ -79,12 +80,12 @@ public class TalkFX extends SFX {
     final int numT = in.readInt(), numS = in.readInt();
     for (int n = 0; n < numT + numS; n++) {
       final Bubble b = new Bubble();
-      b.phrase = Assets.readString(in);
-      b.type = in.readInt();
-      b.width = in.readFloat();
-      b.xoff  = in.readFloat();
-      b.yoff  = in.readFloat();
-      b.alpha = in.readFloat();
+      b.phrase  = Assets.readString(in);
+      b.type    = in.readInt();
+      b.width   = in.readFloat();
+      b.xoff    = in.readFloat();
+      b.yoff    = in.readFloat();
+      b.addTime = in.readFloat();
       if (n < numT) toShow.add(b);
       else showing.add(b);
     }
@@ -101,7 +102,14 @@ public class TalkFX extends SFX {
     
     float width;
     float xoff, yoff;
-    float alpha;
+    float addTime;
+    //float alpha;
+    
+    float alpha() {
+      float alpha = FADE_TIME + addTime - Rendering.activeTime();
+      alpha /= FADE_TIME;
+      return alpha;
+    }
   }
   
   
@@ -112,8 +120,9 @@ public class TalkFX extends SFX {
   
   public void addPhrase(String phrase, int bubbleType) {
     final Bubble b = new Bubble();
-    b.phrase = phrase;
-    b.type = bubbleType;
+    b.phrase  = phrase;
+    b.type    = bubbleType;
+    b.addTime = Rendering.activeTime();
     toShow.add(b);
   }
   
@@ -123,10 +132,11 @@ public class TalkFX extends SFX {
     //  If there are bubbles awaiting display, see if you can move the existing
     //  bubbles up to make room.
     final Bubble first = showing.first();
+    
     final boolean
       shouldMove = toShow.size() > 0,
-      canMove = showing.size() == 0 || first.alpha <= 1,
-      isSpace = showing.size() == 0 || first.yoff >= LINE_SPACE;
+      canMove    = showing.size() == 0 || first.alpha() <= 1,
+      isSpace    = showing.size() == 0 || first.yoff >= LINE_SPACE;
     
     if (shouldMove && canMove) {
       if (isSpace) {
@@ -138,10 +148,7 @@ public class TalkFX extends SFX {
     }
     //
     //  In either case, gradually fate out existing bubbles-
-    for (Bubble b : showing) {
-      b.alpha -= FADE_RATE * fadeRate / MAX_LINES;
-      if (b.alpha <= 0) showing.remove(b);
-    }
+    for (Bubble b : showing) if (b.alpha() <= 0) showing.remove(b);
     super.readyFor(rendering);
   }
   
@@ -157,7 +164,7 @@ public class TalkFX extends SFX {
     if (b.type == NOT_SPOKEN) b.xoff = width / -2;
     if (b.type == FROM_LEFT ) b.xoff = width / -2;
     if (b.type == FROM_RIGHT) b.xoff = width / -2;
-    b.alpha = 1.5f;
+    //b.alpha = 1.5f;
     showing.addFirst(b);
   }
   
@@ -184,11 +191,7 @@ public class TalkFX extends SFX {
     for (Bubble bubble : showing) {
       final boolean speaks = bubble.type != NOT_SPOKEN;
       final Colour c = new Colour(Colour.WHITE);
-      
-      float alpha = 0;
-      if (bubble.alpha < 1) alpha = bubble.alpha;
-      else if (speaks) alpha = 1;
-      else alpha = (1.5f - bubble.alpha) * 2;
+      float alpha = bubble.alpha();
       if (this.colour != null) alpha *= this.colour.a;
       
       if (speaks) c.blend(Colour.BLUE, 0.33f);
@@ -237,7 +240,7 @@ public class TalkFX extends SFX {
       capXR = maxX - (texWide * 0.25f);
     //
     //  Render the three segments of the bubble-
-    final Colour colour = Colour.transparency(bubble.alpha);
+    final Colour colour = Colour.transparency(bubble.alpha());
     pass.compileQuad(
       BUBBLE_TEX.asTexture(), colour,
       false, minX, minY, capXL - minX,

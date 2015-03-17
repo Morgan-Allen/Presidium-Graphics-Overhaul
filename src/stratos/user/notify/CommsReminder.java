@@ -20,10 +20,13 @@ public class CommsReminder extends ReminderListing.Entry {
     );
   
   final DialoguePane message;
+  final BorderedLabel label;
   
   
-  CommsReminder(final BaseUI baseUI, final DialoguePane message) {
-    super(baseUI, message, 40, 20);
+  CommsReminder(
+    final BaseUI baseUI, Object refers, final DialoguePane message
+  ) {
+    super(baseUI, refers, 60, 40);
     this.message = message;
     
     final Button button = new Button(
@@ -36,20 +39,20 @@ public class CommsReminder extends ReminderListing.Entry {
     button.stretch = false;
     button.alignToFill();
     button.attachTo(this);
-
-    final BorderedLabel label = new BorderedLabel(baseUI);
-    label.alignLeft  (0, 0);
+    
+    label = new BorderedLabel(baseUI);
+    label.alignLeft(0, 0);
     label.alignBottom(-DEFAULT_MARGIN, 0);
     label.text.scale = SMALL_FONT_SIZE;
     label.setMessage(message.title, false, 0);
     label.attachTo(this);
   }
   
+  
+  protected void setLabel(String message) {
+    label.setMessage(message, false, 0);
+  }
 }
-
-
-
-
 
 
 

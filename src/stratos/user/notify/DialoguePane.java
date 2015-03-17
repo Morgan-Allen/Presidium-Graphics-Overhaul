@@ -27,7 +27,6 @@ public class DialoguePane extends SelectionInfoPane implements UIConstants {
   
   
   
-  
   public DialoguePane(
     BaseUI UI, Composite portrait,
     String title, String initText,

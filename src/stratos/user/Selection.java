@@ -147,7 +147,7 @@ public class Selection implements UIConstants {
     if (s == null) {
       selected = null;
       UI.tracking.lockOn(null);
-      UI.setInfoPanels(null, null);
+      //UI.setInfoPanels(null, null);
       return;
     }
     
