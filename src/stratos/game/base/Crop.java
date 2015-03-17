@@ -204,13 +204,13 @@ public class Crop extends Element {
     else if (isCereal(s)) {
       bonus *= Nursery.CEREAL_BONUS;
     }
-    return Nums.clamp(bonus, 0, Nursery.MAX_HEALTH_BONUS);
+    return Nums.clamp(bonus, 0, MAX_HEALTH);
   }
   
   
   public void seedWith(Species s, float quality) {
     this.species   = s;
-    this.quality   = Nums.clamp(quality, 0, Nursery.MAX_HEALTH_BONUS);
+    this.quality   = Nums.clamp(quality, 0, MAX_HEALTH);
     this.growStage = MIN_GROWTH;
     this.covered   = (origin().x - parent.origin().x) % 4 == 0;
     //  TODO:  Try to smarten up the system for determining coverage.
@@ -219,33 +219,39 @@ public class Crop extends Element {
   
   
   public void onGrowth(Tile tile) {
-    
-    if (parent == null || ! parent.inWorld()) {
-      setAsDestroyed();
-      return;
-    }
+    //
+    //  Crops disappear once their parent nursery is salvaged or destroyed, and
+    //  can't grow if they're not seeded.
+    if (parent == null || ! parent.inWorld()) { setAsDestroyed(); return; }
     if (growStage == NOT_PLANTED || species == null) return;
     
-    //  TODO:  Possibly combine with irrigation effects from water supply or
-    //  life support?
-    
+    final boolean report = Nursery.verbose && I.talkAbout == parent;
     final Stage world = parent.world();
-    final float pollution = Nums.clamp(
-      tile.world.ecology().ambience.valueAt(tile), 0, 1
+    float
+      increment = Nursery.GROW_INCREMENT,
+      health    = quality / MAX_HEALTH,
+      growBonus = habitatBonus(tile, species),
+      pollution = 0 - world.ecology().ambience.valueAt(tile),
+      waterNeed = parent.stocks.relativeShortage(WATER);
+    
+    if (Rand.num() < increment * (1 - health)) blighted = true;
+    increment *= growBonus * MAX_GROWTH * (1 + health) / 2;
+    if (pollution > 0) increment *= (2 - pollution) / 2;
+    if (waterNeed > 0) increment *= (2 - waterNeed) / 2;
+    
+    if (report) I.reportVars("\nUpdating crop growth", "  ",
+      "Increment" , increment,
+      "Health"    , health   ,
+      "Grow bonus", growBonus,
+      "Pollution" , pollution,
+      "Water need", waterNeed,
+      "Grow stage", growStage,
+      "Blighted?" , blighted 
     );
     
-    float increment = 1f;
-    increment -= (pollution * Nursery.POLLUTE_GROW_PENALTY);
-    if (blighted) increment -= Nursery.INFEST_GROW_PENALTY;
-    if (increment > 0) {
-      increment *= Planet.dayValue(world) * 2;
-      increment *= quality * habitatBonus(tile, species);
-    }
-    increment *= Rand.num() * 2 * Nursery.GROW_INCREMENT * MAX_GROWTH;
-    
+    if (blighted) increment = -1f / Nursery.GROW_INCREMENT;
     growStage = Nums.clamp(growStage + increment, MIN_GROWTH, MAX_GROWTH);
-    checkBlight(pollution);
-
+    //
     //  Update biomass and possibly sprite state-
     world.ecology().impingeBiomass(
       origin(), growStage() / 2f, Stage.GROWTH_INTERVAL
@@ -254,6 +260,8 @@ public class Crop extends Element {
   }
   
   
+  //  I'm going to simplify this for the moment.
+  /*
   private void checkBlight(float pollution) {
     if (growStage <= MIN_GROWTH) { blighted = false; return; }
     float blightChance = (pollution + MAX_HEALTH - quality) / MAX_HEALTH;
@@ -277,6 +285,7 @@ public class Crop extends Element {
     if (Rand.num() < blightChance && ! blighted) blighted = true;
     if (growStage <= MIN_GROWTH) blighted = false;
   }
+  //*/
   
   
   public Item yieldCrop() {
@@ -316,7 +325,7 @@ public class Crop extends Element {
   
   
   public float health() {
-    return quality / (blighted ? 2f : 1f);
+    return quality / ((blighted ? 2f : 1f) * MAX_HEALTH);
   }
   
   

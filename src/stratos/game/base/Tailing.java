@@ -20,8 +20,8 @@ public class Tailing extends Element {
   private static boolean verbose = true;
   
   final static int
-    MIN_FILL = 0,
-    MAX_FILL = 4;
+    MIN_FILL =  0,
+    MAX_FILL = 40;
   
   final Traded wasteType;
   

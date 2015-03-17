@@ -3,9 +3,7 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.game.base;
-
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
@@ -26,13 +24,12 @@ import static stratos.game.economic.Economy.*;
 //  TODO:  Introduce sub-classes of the nursery specifically intended for
 //  aquaculture and forestry.
 
-
 public class Nursery extends Venue implements TileConstants {
   
   
   /**  Constructors, data fields, setup and save/load methods-
     */
-  private static boolean verbose = false;
+  protected static boolean verbose = false;
   
   final static String IMG_DIR = "media/Buildings/ecologist/";
   final static ModelAsset
@@ -43,13 +40,7 @@ public class Nursery extends Venue implements TileConstants {
   final public static float
     MATURE_DURATION = Stage.STANDARD_DAY_LENGTH * 5,
     GROW_INCREMENT  = Stage.GROWTH_INTERVAL / MATURE_DURATION,
-    
     EXTRA_CLAIM_SIZE = 4,
-    
-    MAX_HEALTH_BONUS     = 2.0f,
-    INFEST_GROW_PENALTY  = 0.5f,
-    POLLUTE_GROW_PENALTY = 0.5f,
-    UPGRADE_GROW_BONUS   = 0.25f,
     
     CEREAL_BONUS = 2.00f,
     HIVE_DIVISOR = 4.00f,
@@ -252,10 +243,10 @@ public class Nursery extends Venue implements TileConstants {
         growth += c.growStage();
       }
       if (numC > 0) {
-        final int HL = Nums.clamp((int) (health / numC), 5);
+        final int PH = (int) (health * 100 / numC);
         final int PG = (int) (growth * 100 / (numC * Crop.MAX_GROWTH));
         s.append("\n  Crop growth: "+PG+"%");
-        s.append("\n  Crop health: "+Crop.HEALTH_NAMES[HL]);
+        s.append("\n  Crop health: "+PH+"%");
       }
     }
     return s.toString();

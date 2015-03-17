@@ -35,7 +35,7 @@ public abstract class Mobile extends Element
     MAX_PATH_SCAN = Stage.SECTOR_SIZE;
   
   protected float
-    rotation,
+    rotation    ,
     nextRotation;
   protected final Vec3D
     position = new Vec3D(),

@@ -22,8 +22,8 @@ import stratos.util.*;
      Housing + Manufacture + Sales and Imports (having money.)
    Emphasis the emotive component here- survival, comfort, discovery, honour.
    Limit the structure types available?
-   
 //*/
+
 
 
 

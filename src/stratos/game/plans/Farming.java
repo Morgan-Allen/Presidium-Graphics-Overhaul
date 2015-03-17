@@ -24,7 +24,7 @@ public class Farming extends Plan {
   
   private static boolean
     evalVerbose  = false,
-    stepsVerbose = true ;
+    stepsVerbose = false;
   
   final Venue seedDepot;
   final Nursery nursery;
@@ -258,7 +258,7 @@ public class Farming extends Plan {
     //  So does expertise and elbow grease.
     health += actor.skills.test(CULTIVATION, plantDC, 1) ? 1 : 0;
     health += actor.skills.test(HARD_LABOUR, ROUTINE_DC, 1) ? 1 : 0;
-    health *= Nursery.MAX_HEALTH_BONUS / 5;
+    health *= Crop.MAX_HEALTH / 5;
     crop.seedWith(crop.species(), health);
     return true;
   }

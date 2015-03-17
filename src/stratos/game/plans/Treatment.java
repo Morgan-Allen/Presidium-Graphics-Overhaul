@@ -117,11 +117,22 @@ public class Treatment extends Plan implements Item.Passive {
   }
   
   
+  protected float severity() {
+    final float level = patient.traits.usedLevel(sickness);
+    return level * sickness.virulence / Conditions.EXTREME_VIRULENCE;
+  }
+  
+  
   protected float getPriority() {
     final boolean report = evalVerbose && (
       I.talkAbout == actor || I.talkAbout == patient
     );
-    if (report) I.say("Getting treatment priority for "+patient);
+    
+    final float severity = severity();//, modifier = typeModifier();
+    if (report) {
+      I.say("Getting treatment priority for "+patient);
+      I.say("  Severity: "+severity);
+    }
     
     if (patient.health.conscious() && ! patient.indoors()) {
       if (report) I.say("  Patient is up and about!");
@@ -131,21 +142,13 @@ public class Treatment extends Plan implements Item.Passive {
       if (report) I.say("  Patient already treated.");
       return 0;
     }
-    /*
-    final float bonus = getVenueBonus(false, PhysicianStation.APOTHECARY);
-    if (bonus <= 0) {
-      if (report) I.say("  Cannot treat without facilities!");
-      return 0;
-    }
-    //*/
     
-    final float severity = severity();//, modifier = typeModifier();
     final float priority = priorityForActorWith(
       actor, patient,
-      CASUAL + (severity * ROUTINE), NO_MODIFIER,
+      ROUTINE + (severity * ROUTINE), NO_MODIFIER,
       REAL_HELP, FULL_COOPERATION,
-      MILD_FAIL_RISK * severity, BASE_SKILLS,
-      BASE_TRAITS, PARTIAL_DISTANCE_CHECK,
+      MILD_FAIL_RISK * Nums.clamp(1 - severity, 0, 1),
+      BASE_SKILLS, BASE_TRAITS, PARTIAL_DISTANCE_CHECK,
       report
     );
     return priority;
@@ -167,9 +170,14 @@ public class Treatment extends Plan implements Item.Passive {
   //*/
   
   
-  protected float severity() {
-    final float level = patient.traits.usedLevel(sickness);
-    return level * sickness.virulence / Conditions.EXTREME_VIRULENCE;
+  public float successChanceFor(Actor actor) {
+    final float
+      severity = severity(),
+      bonus    = getVenueBonus(false, PhysicianStation.APOTHECARY);
+    float chance = 1;
+    chance += actor.skills.chance(PHARMACY    , (severity * 10) - bonus);
+    chance += actor.skills.chance(GENE_CULTURE, 5 - bonus              );
+    return chance / 3;
   }
   
   
@@ -254,17 +262,6 @@ public class Treatment extends Plan implements Item.Passive {
     bonus += 5 * sickbay.structure.upgradeLevel(tech);
     
     return bonus > 0 ? bonus : -5;
-  }
-  
-  
-  public float successChanceFor(Actor actor) {
-    final float
-      severity = severity(),
-      bonus    = getVenueBonus(false, PhysicianStation.APOTHECARY);
-    float chance = 1;
-    chance *= actor.skills.chance(PHARMACY    , (severity * 10) - bonus);
-    chance *= actor.skills.chance(GENE_CULTURE, 5 - bonus              );
-    return chance;
   }
   
   
