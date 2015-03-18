@@ -37,6 +37,8 @@ public class List <T> extends ListEntry <T> implements Series <T> {
   
   final public void add(final T r) { addLast(r); }
   
+  final public T pass(final T r) { add(r); return r; }
+  
   
   /**  Adds the given member at the head of the list.
     */

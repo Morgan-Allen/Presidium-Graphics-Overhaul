@@ -84,12 +84,15 @@ public abstract class Species extends Background {
     );
   
   public static enum Type {
-    BROWSER,
+    BROWSER ,
     PREDATOR,
     HUMANOID,
-    FLORA,
+    FLORA   ,
     ARTILECT
   }
+  final public static String
+    KEY_BROWSER  = Type.BROWSER .name(),
+    KEY_PREDATOR = Type.PREDATOR.name();
   
   
   

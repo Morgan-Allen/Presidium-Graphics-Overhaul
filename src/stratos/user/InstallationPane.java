@@ -304,11 +304,11 @@ public class InstallationPane extends SelectionPane {
       
       if ((message = checkPrerequisites(toInstall, picked.world)) != null) {
         if (! buildFree) canPlace = false;
-        message = "Lacks pre-requisite...";
+        if (message == null) message = "Lacks pre-requisite...";
       }
       if (UI.played().finance.credits() < toInstall.structure().buildCost()) {
         if (! buildFree) canPlace = false;
-        message = "Insufficient funds!";
+        if (message == null) message = "Insufficient funds!";
       }
       if (! canPlace) {
         onStage &= toInstall.setPosition(picked.x, picked.y, picked.world);
@@ -317,7 +317,7 @@ public class InstallationPane extends SelectionPane {
         //  TODO:  Get an appropriate message from the canPlace() method?  It
         //  might be un-buildable terrain, or overlapping a road-buffer-zone,
         //  for example.
-        message = "Too close to another structure!";
+        if (message == null) message = "Too close to another structure!";
       }
       
       final Structure.Basis group[] = toInstall.structure().asGroup();

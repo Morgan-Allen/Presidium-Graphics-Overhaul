@@ -120,6 +120,32 @@ public class BaseSetup {
   }
   
   
+  public Batch <Venue> doFullPlacements(VenueProfile... types) {
+    final Batch <Venue> placed = new Batch <Venue> ();
+    
+    for (StageSection section : world.sections.sectionsUnder(world.area(), 0)) {
+      final Pick <Venue> pick = new Pick <Venue> (null, 0);
+      
+      for (VenueProfile p : types) {
+        final Venue v = p.sampleVenue(base);
+        pick.compare(v, v.ratePlacing(section, false));
+      }
+      if (pick.result() != null) {
+        final Venue v = pick.result();
+        float x = section.absX + Rand.index(section.size);
+        float y = section.absY + Rand.index(section.size);
+        v.setPosition(x, y, world);
+        if (! v.canPlace()) continue;
+        v.enterWorld();
+        v.structure.setState(Structure.STATE_INTACT, 1);
+        placed.add(v);
+      }
+    }
+    
+    return placed;
+  }
+  
+  
   //  TODO:  Permit hints as to preferred placement-location, and an argument
   //  for instant-placement.
   public Batch <Venue> doPlacementsFor(VenueProfile type, int count) {

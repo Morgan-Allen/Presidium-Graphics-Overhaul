@@ -39,22 +39,21 @@ public class PlanUtils {
     incentive += harmDone = harmIntendedBy(subject, actor, false) * 5;
     
     empathy = 10 * (1 + actor.traits.relativeLevel(Qualities.EMPATHIC)) / 2;
-    if (incentive <= empathy) return -1;
-    
-    if (! isArmed(actor)) incentive -= 5;
+    if      (incentive <= empathy      ) return -1;
+    else if (! isArmed(actor)          ) incentive -= 5 ;
     else if (actor.senses.isEmergency()) incentive += 10;
     
     winChance = combatWinChance(actor, subject, teamSize);
     priority  = incentive * winChance;
     
-    if (reportOn(actor) && priority > 0) I.reportVars(
+    if (reportOn(actor)) I.reportVars(
       "\nCombat priority for "+actor, "  ",
       "subject  ", subject    ,
       "reward   ", rewardBonus,
       "harmDone" , harmDone   ,
       "dislike"  , dislike    ,
-      "incentive", incentive  ,
       "empathy  ", empathy    ,
+      "incentive", incentive  ,
       "winChance", winChance  ,
       "priority ", priority   
     );
@@ -305,20 +304,20 @@ public class PlanUtils {
   
   
   public static float harmIntendedBy(
-    Target near, Actor by, boolean asCombat
+    Target acts, Actor witness, boolean asCombat
   ) {
-    if (near instanceof Actor) {
-      final Actor other = (Actor) near;
+    if (acts instanceof Actor) {
+      final Actor other = (Actor) acts;
       final Target victim = asCombat ?
         other.planFocus(Combat.class, true) :
         other.actionFocus()
       ;
       if (victim != null) {
-        float protectUrge = by.relations.valueFor(victim);
+        float protectUrge = witness.relations.valueFor(victim);
         return other.harmIntended(victim) * protectUrge;
       }
     }
-    if (near instanceof Venue) {
+    if (acts instanceof Venue) {
     }
     return 0;
   }

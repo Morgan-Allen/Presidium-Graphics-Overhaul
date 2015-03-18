@@ -229,7 +229,9 @@ public class Pathing {
       }
       int index = 0;
       while (index < path.length) {
-        if (path[index] == origin) break;
+        final Boarding step = path[index];
+        if (inLocus(step)) { index++; break; }
+        else if (step == origin) break;
         else index++;
       }
       stepIndex = Nums.clamp(index, path.length);

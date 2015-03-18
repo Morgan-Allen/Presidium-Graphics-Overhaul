@@ -298,7 +298,10 @@ public abstract class Fauna extends Actor {
       Action.LOOK, description
     );
     migrates.setPriority(priority);
-    migrates.setMoveTarget(Spacing.pickFreeTileAround(wandersTo, this));
+    
+    final Tile around = Spacing.pickFreeTileAround(wandersTo, this);
+    if (around == null) return null;
+    migrates.setMoveTarget(around);
     return migrates;
   }
   

@@ -109,11 +109,14 @@ public class ActorSenses implements Qualities {
     updateDangerEval(awareOf);
     
     if (report) {
+      /*
       I.say("Currently aware of: (react limit "+reactLimit+")");
       for (Target e : awareOf) {
         final String dist = " (distance "+Spacing.distance(actor, e)+")";
         I.say("  "+e+(justSeen.includes(e) ? " (NEW)" : "")+dist);
       }
+      //*/
+      for (Target e : justSeen ) I.say("  Just saw "+e);
       for (Target e : lostSight) I.say("  Lost sight of "+e);
     }
     
@@ -310,43 +313,29 @@ public class ActorSenses implements Qualities {
     emergency = false;
     powerLevel = CombatUtils.powerLevel(actor);
     final Base attacked = CombatUtils.baseAttacked(actor);
-    final float worryThresh = (actor.traits.relativeLevel(NERVOUS) + 1) / 2;
-    
     
     for (Target t : awareOf) if ((t instanceof Actor) && (t != actor)) {
       final Actor near = (Actor) t;
-      float hostility = CombatUtils.hostileRating(actor, near), avoidance = 0;
-      
+      float hostility = PlanUtils.harmIntendedBy(near, actor, true);
+      emergency |= near.isDoing(Combat.class, null);
+      float avoidance = 0;
       //
-      //  Anything armed and dangerous triggers panic-fx:
-      if (hostility > worryThresh && PlanUtils.isArmed(near)) {
-        emergency = true;
-      //}
-      
-      //  We set the emergency flag only if the other actor is actively doing
-      //  something dangerous, and provide some bonuses to threat rating.
-      //if (hostility > 0) {
+      //  Anything armed and dangerous flags as an 'emergency', but only those
+      //  attacking a friend (or self) count as enemies-
+      if (hostility > 0 && PlanUtils.isArmed(near)) {
         if (report) I.say("  Enemy nearby: "+near+", hostility: "+hostility);
         float power = CombatUtils.powerLevelRelative(near, actor);
         hostility = Nums.clamp(hostility + 0.5f, 0, 1);
-        /*
-        if (CombatUtils.isActiveHostile(actor, near)) {
-          if (report) I.say("  Is active hostile!");
-          emergency = true;
-          hostility += 1;
-          power *= 2;
-        }
-        //*/
         final float foeRating = power * hostility;
-        sumFoes += foeRating;
-        avoidance = foeRating;
+        sumFoes   += foeRating;
+        avoidance  = foeRating;
       }
       else {
         float power = near.senses.powerLevel();
         if (report) I.say("  Ally nearby: "+near+", bond: "+(0 - hostility));
         sumAllies += power * (0.5f - hostility) * 2 / (1 + powerLevel);
       }
-
+      //
       //  If you're doing something harmful to a member of a given base, then
       //  anyone from that base is considered a potential fear-source (at least
       //  for pathing and cover-taking purposes.  Naturally, this also applies
@@ -385,7 +374,7 @@ public class ActorSenses implements Qualities {
       I.say("  Sum foes:       "+sumFoes      );
       I.say("  Personal power: "+powerLevel   );
       I.say("  Ambient danger: "+ambientDanger);
-      I.say("  Worry thresh:   "+worryThresh  );
+      //I.say("  Worry thresh:   "+worryThresh  );
       I.say("  Fear level:     "+fearLevel    );
       I.say("  Safe point:     "+safePoint    );
       I.say("  Emergency:      "+emergency    );

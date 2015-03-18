@@ -83,9 +83,7 @@ public class Base implements
     Base base = namedBase(world, KEY_WILDLIFE);
     if (base != null) return base;
     else base = new Base(world, true);
-    
-    //  TODO:  Use animal nests instead!
-    final VenueProfile canBuild[] = new VenueProfile[0];
+    final VenueProfile canBuild[] = Nest.VENUE_PROFILES;
     return registerBase(base, world, KEY_WILDLIFE, Colour.LITE_GREEN, canBuild);
   }
   

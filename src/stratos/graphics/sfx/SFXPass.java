@@ -73,7 +73,7 @@ public class SFXPass {
       VertexAttribute.Color(),
       VertexAttribute.TexCoords(0)
     );
-    vertComp = new float[COMPILE_LIMIT];
+    vertComp  = new float[COMPILE_LIMIT];
     compIndex = new short[MAX_QUADS * 6];
 
     for (int i = 0; i < compIndex.length; i++) {
@@ -114,7 +114,6 @@ public class SFXPass {
       if (batch == null) subPasses.put(s.model(), batch = new Batch());
       batch.add(s);
     }
-    
     for (int priority : SFX.ALL_PRIORITIES) {
       for (Batch <SFX> subPass : subPasses.values()) {
         if (subPass.first().priorityKey != priority) continue;
@@ -124,7 +123,6 @@ public class SFXPass {
         compileAndRender(rendering.camera());
       }
     }
-    
     glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
     clearAll();
   }
@@ -139,17 +137,15 @@ public class SFXPass {
     Texture tex, Colour colour, boolean vivid,
     Vec3D verts[], float umin, float vmin, float umax, float vmax
   ) {
-    if (tex != lastTex || vivid != vividMode || total > COMPILE_LIMIT) {
+    if (tex != lastTex || vivid != vividMode || total >= COMPILE_LIMIT) {
       compileAndRender(rendering.camera());
     }
     if (vivid != vividMode) {
       if (vivid) {
         glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
-        //glDepthMask(false);
       }
       else {
         glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-        //glDepthMask(true);
       }
       vividMode = vivid;
     }

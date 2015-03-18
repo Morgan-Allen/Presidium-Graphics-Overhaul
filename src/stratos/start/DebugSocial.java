@@ -77,8 +77,8 @@ public class DebugSocial extends Scenario {
     if (false) testCareers(base);
     if (false) configDialogueScenario(world, base, UI);
     if (false) configArtilectScenario(world, base, UI);
-    if (true ) configContactScenario (world, base, UI);
-    if (false) configWildScenario    (world, base, UI);
+    if (false) configContactScenario (world, base, UI);
+    if (true ) configWildScenario    (world, base, UI);
     if (false) applyJobScenario      (world, base, UI);
   }
   
@@ -233,6 +233,16 @@ public class DebugSocial extends Scenario {
   
   
   private void configWildScenario(Stage world, Base base, BaseUI UI) {
+    
+    GameSettings.fogFree = true;
+    final Base wildlife = Base.wildlife(world);
+    
+    final Batch <Venue> placed = wildlife.setup.doFullPlacements(
+      Nest.VENUE_PROFILES
+    );
+    wildlife.setup.fillVacancies(placed, true);
+    
+    //wildlife.setup.doFullPlacements();
     
     //  This is the last scenario to test.  Just introduce some animals, and
     //  see how they react to (A) eachother and (B) the nearby base.

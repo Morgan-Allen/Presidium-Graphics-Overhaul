@@ -192,25 +192,25 @@ public final class Spacing implements TileConstants {
       final Element e = (Element) t;
       perim = perimeter(e.area(tA), client.world());
     }
-    else return null;
+    else {
+      I.complain("UNSUPPORTED TARGET TYPE: "+t);
+      return null;
+    }
     //
     //  We want to avoid any tiles that are obstructed, including by other
     //  actors, and probably to stay in the same spot if possible.
     final Tile l = client.origin();
-    //final boolean inPerim = Visit.arrayIncludes(perim, l);
-    
     final float weights[] = new float[perim.length];
     float sumWeights = 0;
     int index = -1;
+    
     for (Tile p : perim) {
       index++;
       if (p == null || p.blocked()) continue;
-      if (p.inside().size() > 0) continue;
-      if (Spacing.adjacent(p, l)) return p;
+      if (p.inside().size() > 0   ) continue;
+      if (Spacing.adjacent(p, l)  ) return p;
       
-      //final float dist = Spacing.distance(p, l);
-      //if (inPerim && dist > 4) continue;
-      final float weight = 1f;// / (1 + dist);
+      final float weight = 1f;
       weights[index] = weight;
       sumWeights += weight;
     }
@@ -218,8 +218,8 @@ public final class Spacing implements TileConstants {
     float roll = Rand.num() * sumWeights;
     sumWeights = 0;
     for (int n = 0; n < perim.length; n++) {
-      if (roll < sumWeights) return perim[n];
       sumWeights += weights[n];
+      if (roll < sumWeights) return perim[n];
     }
     
     return nearestOpenTile(t, client);

@@ -25,12 +25,14 @@ public class TutorialScript {
   
   final static String
     SCRIPT_FILE = "media/Help/TutorialScript.xml";
+  
+  final static List <String> BIG_KEYS = new List <String> ();
   final static String
-    EVENT_WELCOME         = "Welcome!"                   ,
-    EVENT_SECURITY_DONE   = "Security Objective Complete",
-    EVENT_CONTACT_DONE    = "Contact Objective Complete" ,
-    EVENT_ECONOMY_DONE    = "Economy Objective Complete" ,
-    EVENT_CONGRATULATIONS = "Tutorial Complete!"         ;
+    EVENT_WELCOME         = BIG_KEYS.pass("Welcome!"                   ),
+    EVENT_SECURITY_DONE   = BIG_KEYS.pass("Security Objective Complete"),
+    EVENT_CONTACT_DONE    = BIG_KEYS.pass("Contact Objective Complete" ),
+    EVENT_ECONOMY_DONE    = BIG_KEYS.pass("Economy Objective Complete" ),
+    EVENT_CONGRATULATIONS = BIG_KEYS.pass("Tutorial Complete!"         );
   
   final TutorialScenario tutorial;
   final Table <String, Object> allTopics = new Table <String, Object> ();
@@ -43,9 +45,12 @@ public class TutorialScript {
     for (XML topicNode : xml.allChildrenMatching("topic")) {
       final String titleKey = topicNode.value("name");
       allTopics.put(titleKey, topicNode);
-      
       I.say("\nFOUND BASE TOPIC: "+titleKey);
     }
+    
+    for (String key : BIG_KEYS) if (allTopics.get(key) == null) I.say(
+      "\nWARNING: No matching topic found for "+key+" in "+SCRIPT_FILE
+    );
   }
   
   

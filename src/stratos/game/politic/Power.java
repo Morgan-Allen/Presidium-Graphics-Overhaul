@@ -710,16 +710,6 @@ public abstract class Power extends Technique implements Qualities {
           selected, 1, selectFX, 0.5f
         );
       }
-    },
-    
-    
-    BASIC_POWERS[] = {
-        FORESIGHT, REMEMBRANCE,
-        TIME_DILATION, REMOTE_VIEWING,
-        TELEKINESIS, FORCEFIELD,
-        SUSPENSION,
-        KINESTHESIA,
-        VOICE_OF_COMMAND
     }
  ;
 }

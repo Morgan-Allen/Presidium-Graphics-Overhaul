@@ -65,9 +65,11 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
       protected void whenClicked() {
         if (baseUI.currentPane() == pane) {
           baseUI.setInfoPanels(null, null);
+          PlayLoop.setPaused(false);
         }
         else {
           baseUI.setInfoPanels(pane, null);
+          PlayLoop.setPaused(true);
         }
       }
       
@@ -76,8 +78,9 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
         if (KeyInput.wasTyped(Keys.ESCAPE) && baseUI.currentTask() == null) {
           whenClicked();
         }
-        final boolean paneOpen = baseUI.currentPane() == pane;
-        PlayLoop.setPaused(paneOpen);
+        if (KeyInput.wasTyped('f')) {
+          PlayLoop.setPaused(! PlayLoop.paused());
+        }
       }
     };
     return button;

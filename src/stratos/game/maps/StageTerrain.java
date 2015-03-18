@@ -30,7 +30,9 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   final public static int
     MAX_INSOLATION  = 10,
     MAX_MOISTURE    = 10,
-    MAX_RADIATION   = 10;
+    MAX_RADIATION   = 10,
+    SAMPLE_RESOLUTION = Stage.SECTOR_SIZE;
+  
   final public static String MINERAL_NAMES[] = {
     "Rubble", "Metal Ore", "Artifacts", "Fuel Isotopes"
   };
@@ -54,7 +56,6 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   final static int
     TIME_INIT = -1,
     TIME_DONE = -2,
-    SAMPLE_RESOLUTION = Stage.SECTOR_SIZE,
     INDEX_FERTILITY  = 0,
     INDEX_INSOLATION = 1,
     INDEX_MINERALS   = 2,

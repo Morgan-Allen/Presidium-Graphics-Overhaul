@@ -95,6 +95,16 @@ public final class Nums {
   }
   
   
+  public static int square(int i) {
+    return i * i;
+  }
+  
+  
+  public static int cube(int i) {
+    return i * i * i;
+  }
+  
+  
   
   /**  Useful bounding methods:
     */

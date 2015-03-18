@@ -21,8 +21,8 @@ import stratos.util.*;
    Emphasise the emotive component here- survival, comfort, discovery, honour.
    Limit the structure types available?
    
-   Just don't insist the player stick on a single track all the time.  They
-   have access to all the tools if they want to use them.
+   Just don't railroad the player if they want to wander off and explore the
+   game's mechanics themselves.
    
 *  (This map is too small to allow for multiple factions, really.  Try for 3
    separate mini-tutorials for each of the game's main aspects.)
@@ -122,6 +122,8 @@ CITIZEN BEHAVIOUR-
 *  Proper evaluation of mood and memory-events.
 
 *  General internal clean-up of plan routines.  (Look in PlanUtils.)
+    Consider having the actor's agenda contain *only* plans:   Actions and
+    Missions can be handled separately.
 
 *  Hide-and-seek needs to be more effective (both retreat and combat.)
 

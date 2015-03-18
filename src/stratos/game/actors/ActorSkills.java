@@ -2,6 +2,7 @@
 package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.util.*;
+import stratos.game.politic.Power;
 
 
 
@@ -48,8 +49,8 @@ public class ActorSkills {
     for (Skill s : actor.traits.skillSet()) {
       final Series <Technique> learnt = Technique.learntFrom(s);
       if (learnt == null) continue;
-      
-      final float level = actor.traits.traitLevel(s);
+      float level = actor.traits.traitLevel(s);
+      level += actor.traits.bonusFrom(s.parent);
       for (Technique t : learnt) {
         if (level >= t.minLevel) known.include(t);
       }
@@ -64,6 +65,15 @@ public class ActorSkills {
   
   public Series <Technique> knownTechniques() {
     return known;
+  }
+  
+  
+  public Series <Power> knownPowers() {
+    final Batch <Power> powers = new Batch <Power> ();
+    for (Technique t : known) if (t.type == Technique.TYPE_SOVEREIGN_POWER) {
+      powers.add((Power) t);
+    }
+    return powers;
   }
   
   

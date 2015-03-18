@@ -93,45 +93,7 @@ public class CombatUtils {
   }
   
   
-  public static float hostileRating(Actor actor, Target near) {
-    final boolean report = dangerVerbose && I.talkAbout == actor;
-    //
-    //  Only consider conscious actors as capable of hostility.  Then, by
-    //  default, base the rating off intrinsic dislike of the subject.
-    if (! (near instanceof Actor)) return 0;
-    final Actor other = (Actor) near;
-    if (! other.health.alive()) return 0;
-    
-    final ActorRelations relations = actor.relations;
-    float rating = 0 - relations.valueFor(other);
-    if (report) I.say("\n  "+near+" dislike rating: "+rating);
-    //
-    //  However, this is modified by the context of the subject's behaviour.
-    //  If they are doing something harmful to another the actor cares about,
-    //  (including self), then up the rating.
-    final Target victim = other.planFocus(null, true);
-    final float
-      harmDone    = other.harmIntended(victim),
-      protectUrge = harmDone * relations.valueFor(victim);
-    rating += protectUrge;
-    if (victim == actor && harmDone > 0) rating += 0.5f;
-    
-    if (report) {
-      I.say("  Victim: "+victim+", value: "+relations.valueFor(victim));
-      I.say("  Protect urge: "+protectUrge);
-    }
-    //
-    //  Include a penalty if the subject is unarmed.
-    if (rating < 1 && ! PlanUtils.isArmed(other)) rating -= 1 - rating;
-    //
-    //  Limit to the range of +/-1, and return.
-    return Nums.clamp(rating, -1, 1);
-  }
-  
-  
   public static Base baseAttacked(Actor actor) {
-    //  TODO:  Consider having the actor's agenda contain *only* plans:  
-    //  Actions and Missions can be handled separately.
     final Behaviour current = actor.mind.rootBehaviour();
     if (! (current instanceof Plan)) return null;
     final Plan plan = (Plan) current;
@@ -167,27 +129,6 @@ public class CombatUtils {
     return ((Actor) subject).isDoing(Retreat.class, null);
   }
   
-  /*
-  public static float successChance(Actor actor, Target other) {
-    
-    final float danger = Nums.max(
-      actor.senses.fearLevel(),
-      Plan.dangerPenalty(other, actor)
-    );
-    float health = 1f - actor.health.injuryLevel();
-    /*
-    health *= (2 - actor.health.injuryLevel  ()) / 2f;
-    health *= (2 - actor.health.stressPenalty()) / 2f;
-    //*/
-  /*
-    
-    float chance = Nums.clamp(health * (1 - danger), 0, 1);
-    chance *= 1 + actor.traits.relativeLevel(Qualities.FEARLESS);
-    return Nums.clamp(chance, 0, 1);
-    
-  }
-  //*/
-  
 
   /**  Returns whatever nearby target seems to be most threatening to the given
     *  actor, partially weighted by distance from the 'primary' argument.  (If
@@ -204,7 +145,9 @@ public class CombatUtils {
     
     final boolean melee = actor.gear.meleeWeapon();
     Target best = asThreat ? primary : null;
-    float bestValue = asThreat ? (hostileRating(actor, primary) * 1.5f) : 0;
+    float bestValue = asThreat ?
+      (PlanUtils.harmIntendedBy(primary, actor, true) * 1.5f) : 0
+    ;
     if (best != null) bestValue = Nums.max(bestValue, 0.5f);
     
     for (Target t : actor.senses.awareOf()) {
@@ -212,7 +155,7 @@ public class CombatUtils {
       if (distance > Stage.SECTOR_SIZE) continue;
       if (actor.senses.indoors(t)) continue;
       
-      float value = hostileRating(actor, t);
+      float value = PlanUtils.harmIntendedBy(t, actor, true);
       if (value <= 0) continue;
       if (melee) value /= 1 + distance;
       else       value /= 1 + (distance / (Stage.SECTOR_SIZE / 2));
@@ -232,6 +175,64 @@ public class CombatUtils {
 
 
 
+/*
+public static float hostileRating(Actor actor, Target near) {
+  final boolean report = dangerVerbose && I.talkAbout == actor;
+  //
+  //  Only consider conscious actors as capable of hostility.  Then, by
+  //  default, base the rating off intrinsic dislike of the subject.
+  if (! (near instanceof Actor)) return 0;
+  final Actor other = (Actor) near;
+  if (! other.health.alive()) return 0;
+  
+  final ActorRelations relations = actor.relations;
+  float rating = 0 - relations.valueFor(other);
+  if (report) I.say("\n  "+near+" dislike rating: "+rating);
+  //
+  //  However, this is modified by the context of the subject's behaviour.
+  //  If they are doing something harmful to another the actor cares about,
+  //  (including self), then up the rating.
+  final Target victim = other.planFocus(null, true);
+  final float
+    harmDone    = other.harmIntended(victim),
+    protectUrge = harmDone * relations.valueFor(victim);
+  rating += protectUrge;
+  if (victim == actor && harmDone > 0) rating += 0.5f;
+  
+  if (report) {
+    I.say("  Victim: "+victim+", value: "+relations.valueFor(victim));
+    I.say("  Protect urge: "+protectUrge);
+  }
+  //
+  //  Include a penalty if the subject is unarmed.
+  if (rating < 1 && ! PlanUtils.isArmed(other)) rating -= 1 - rating;
+  //
+  //  Limit to the range of +/-1, and return.
+  return Nums.clamp(rating, -1, 1);
+}
+//*/
+
+
+/*
+public static float successChance(Actor actor, Target other) {
+  
+  final float danger = Nums.max(
+    actor.senses.fearLevel(),
+    Plan.dangerPenalty(other, actor)
+  );
+  float health = 1f - actor.health.injuryLevel();
+  /*
+  health *= (2 - actor.health.injuryLevel  ()) / 2f;
+  health *= (2 - actor.health.stressPenalty()) / 2f;
+  //*/
+/*
+  
+  float chance = Nums.clamp(health * (1 - danger), 0, 1);
+  chance *= 1 + actor.traits.relativeLevel(Qualities.FEARLESS);
+  return Nums.clamp(chance, 0, 1);
+  
+}
+//*/
   
   
   /*
