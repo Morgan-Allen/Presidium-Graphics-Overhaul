@@ -13,7 +13,7 @@ import static stratos.game.politic.Mission.*;
 
 
 
-public class MissionPane extends SelectionInfoPane {
+public class MissionPane extends SelectionPane {
   
   
   final BaseUI UI;
@@ -28,7 +28,7 @@ public class MissionPane extends SelectionInfoPane {
   }
 
 
-  public SelectionInfoPane configOwningPanel() {
+  public SelectionPane configOwningPanel() {
     //
     //  Obtain some basic facts about the mission and shorthand variables
     //  first-
@@ -110,7 +110,7 @@ public class MissionPane extends SelectionInfoPane {
   }
   
   
-  public SelectionInfoPane configPublicPanel() {
+  public SelectionPane configPublicPanel() {
     final Description d = detail(), l = listing();
     
     describeStatus(mission, false, UI, d);
@@ -119,7 +119,7 @@ public class MissionPane extends SelectionInfoPane {
   }
   
   
-  public SelectionInfoPane configScreenedPanel() {
+  public SelectionPane configScreenedPanel() {
     final Description d = detail(), l = listing();
     return this;
   }

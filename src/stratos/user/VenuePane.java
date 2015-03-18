@@ -19,7 +19,7 @@ import static stratos.game.economic.Economy.*;
 
 //  TODO:  At this point, you might as well write some custom widgets.
 
-public class VenuePane extends SelectionInfoPane {
+public class VenuePane extends SelectionPane {
   
   
   final public static String
@@ -38,8 +38,8 @@ public class VenuePane extends SelectionInfoPane {
   }
   
   
-  public static SelectionInfoPane configStandardPanel(
-    Venue venue, SelectionInfoPane panel, BaseUI UI, boolean stocksOrders
+  public static SelectionPane configStandardPanel(
+    Venue venue, SelectionPane panel, BaseUI UI, boolean stocksOrders
   ) {
     final String categories[] = {
       CAT_UPGRADES, CAT_STOCK, CAT_STAFFING//, CAT_VISITORS
@@ -62,8 +62,8 @@ public class VenuePane extends SelectionInfoPane {
   }
   
   
-  public static SelectionInfoPane configSimplePanel(
-    Venue venue, SelectionInfoPane panel,
+  public static SelectionPane configSimplePanel(
+    Venue venue, SelectionPane panel,
     BaseUI UI, String statusMessage
   ) {
     if (panel == null) panel = new VenuePane(

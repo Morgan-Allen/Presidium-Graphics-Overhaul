@@ -20,7 +20,7 @@ public class SectorPanel extends UIGroup {
   public SectorPanel(HUD UI) {
     super(UI);
     
-    this.border = new Bordering(UI, SelectionInfoPane.BORDER_TEX);
+    this.border = new Bordering(UI, SelectionPane.BORDER_TEX);
     border.setInsets(20, 20, 30, 30);
     border.setUV(0.2f, 0.2f, 0.3f, 0.3f);
     border.alignAcross(0, 1);

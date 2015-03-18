@@ -37,12 +37,13 @@ public class PlanUtils {
     incentive += rewardBonus;
     incentive += dislike = actor.relations.valueFor(subject) * -5;
     incentive += harmDone = harmIntendedBy(subject, actor, false) * 5;
-    if (incentive <= 0) return -1;
+    
+    empathy = 10 * (1 + actor.traits.relativeLevel(Qualities.EMPATHIC)) / 2;
+    if (incentive <= empathy) return -1;
     
     if (! isArmed(actor)) incentive -= 5;
     else if (actor.senses.isEmergency()) incentive += 10;
     
-    empathy = 10 * (1 + actor.traits.relativeLevel(Qualities.EMPATHIC)) / 2;
     winChance = combatWinChance(actor, subject, teamSize);
     priority  = incentive * winChance;
     

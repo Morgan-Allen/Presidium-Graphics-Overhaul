@@ -42,7 +42,7 @@ public class DebugUI extends VisualDebug {
       text.insert(ImageAsset.WHITE_TEX(), 25, false);
     }
     
-    final Scrollbar bar = text.makeScrollBar(SelectionInfoPane.SCROLL_TEX);
+    final Scrollbar bar = text.makeScrollBar(SelectionPane.SCROLL_TEX);
     bar.alignHorizontal(0, 20, 210);
     bar.alignDown(0, 1);
     bar.attachTo(UI);

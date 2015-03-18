@@ -9,12 +9,13 @@ import stratos.util.*;
 
 
 
-public abstract class Technique implements Session.Saveable {
-  
-  
+public abstract class Technique extends Index.Entry
+  implements Session.Saveable
+{
   final public static int
     TYPE_SKILL_USE_BASED    = 0,
-    TYPE_INDEPENDANT_ACTION = 1;
+    TYPE_INDEPENDANT_ACTION = 1,
+    TYPE_SOVEREIGN_POWER    = 2;
   /*
   final public static int
     SOURCE_SKILL  = 2,
@@ -49,8 +50,10 @@ public abstract class Technique implements Session.Saveable {
     EXTREME_HELP = Plan.EXTREME_HELP;
   
   
+  final static Index <Technique> INDEX = new Index <Technique> ();
+  final static Table <Object, List <Technique>> BY_SOURCE = new Table();
+  
   final public Class sourceClass;
-  final public int   uniqueID   ;
   
   final public String     name    ;
   final public ImageAsset icon    ;
@@ -74,8 +77,9 @@ public abstract class Technique implements Session.Saveable {
   
   public Technique(
     String name, String iconFile, String animName,
-    Class sourceClass, int uniqueID,
-    float power, float harm, float fatigue, float concentration,
+    Class sourceClass, String uniqueID,
+    float power, float harm,
+    float fatigue, float concentration,
     int type, Skill skillUsed, int minLevel
   ) {
     this(
@@ -89,11 +93,13 @@ public abstract class Technique implements Session.Saveable {
   
   public Technique(
     String name, String iconFile, String animName,
-    Class sourceClass, int uniqueID,
-    float power, float harm, float fatigue, float concentration,
+    Class sourceClass, String uniqueID,
+    float power, float harm,
+    float fatigue, float concentration,
     int type, Skill skillUsed, int minLevel,
     Object learnFrom, Object trigger
   ) {
+    super(INDEX, uniqueID);
     this.name     = name    ;
     this.animName = animName;
     
@@ -103,7 +109,6 @@ public abstract class Technique implements Session.Saveable {
     else this.icon = null;
     
     this.sourceClass = sourceClass;
-    this.uniqueID    = uniqueID   ;
     
     this.powerLevel        = power        ;
     this.harmFactor        = harm         ;
@@ -115,48 +120,29 @@ public abstract class Technique implements Session.Saveable {
     this.minLevel  = minLevel ;
     this.learnFrom = learnFrom;
     this.trigger   = trigger  ;
-
-    //  TODO:  Saving and loading of this condition (which is a trait, keyed off
-    //  ID,) also needs to work properly!  For that to work, you just need to
-    //  supply unique numeric IDs, or key off strings instead.
+    
+    List <Technique> bySource = BY_SOURCE.get(learnFrom);
+    if (bySource == null) BY_SOURCE.put(learnFrom, bySource = new List());
+    bySource.add(this);
     
     this.asCondition = new Condition(name, false) {
       public void affect(Actor a) { applyAsCondition(a); }
     };
-    
-    if (ATT.get(uniqueID) != null) I.complain(
-      "NON-UNIQUE TECHNIQUE ID: "+uniqueID
-    );
-    else {
-      ATT.put(uniqueID, this);
-      allTechniques.add(this);
-      ATA = null;
-    }
-  }
-  
-  
-  //  TODO:  REPLACE WITH REFS TO A STRINGINDEX
-  private static Batch <Technique> allTechniques = new Batch();
-  private static Technique ATA[] = null;
-  private static Table <Integer, Technique> ATT = new Table();
-  
-  
-  public static Technique[] ALL_TECHNIQUES() {
-    if (ATA != null) return ATA;
-    ATA = allTechniques.toArray(Technique.class);
-    return ATA;
   }
   
   
   public static Technique loadConstant(Session s) throws Exception {
-    s.loadClass();
-    return ATT.get(s.loadInt());
+    return INDEX.loadFromEntry(s.input());
   }
   
   
   public void saveState(Session s) throws Exception {
-    s.saveClass(sourceClass);
-    s.saveInt(uniqueID);
+    INDEX.saveEntry(this, s.output());
+  }
+  
+  
+  public static Series <Technique> learntFrom(Object source) {
+    return BY_SOURCE.get(source);
   }
   
   

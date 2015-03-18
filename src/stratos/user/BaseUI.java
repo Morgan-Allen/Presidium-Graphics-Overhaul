@@ -183,45 +183,38 @@ public class BaseUI extends HUD implements UIConstants {
   
   private void configPanels() {
     
-    final int PTS = PANEL_TAB_SIZE, PTH = PANEL_TABS_HIGH;
+    final int
+      PTS = PANEL_TAB_SIZE,
+      HTS = DEFAULT_MARGIN + (PTS / 2),
+      PTH = PANEL_TABS_HIGH;
+    
     this.optionsButton = GameOptionsPane.createButton(this, scenario);
     optionsButton.stretch = false;
     optionsButton.alignTop (0, PTH);
     optionsButton.alignLeft(0, PTS);
     optionsButton.attachTo(this);
     
-    
     this.reminders = new ReminderListing(this);
     reminders.alignLeft(10, 100);
     reminders.alignVertical(QUICKBAR_HIGH, MINIMAP_HIGH + 40);
     reminders.attachTo(this);
     
-    /*
-    //  TODO:  Get rid of this!  Replace with message alerts!
-    this.commsPanel = new CommsPane(this);
-    this.commsButton = CommsPane.createButton(this, commsPanel);
-    commsButton.stretch = false;
-    commsButton.alignTop(0, PTH);
-    commsButton.alignRight(PTS * 0, PTS);
-    commsButton.attachTo(this);
-    //*/
-    
     this.buildButton = InstallationPane.createButton(this);
     buildButton.stretch = false;
     buildButton.alignTop(0, PTH);
-    buildButton.alignRight(PTS * 1, PTS);
+    buildButton.alignRight((PTS * 0) + HTS, PTS);
     buildButton.attachTo(this);
     
     this.rosterButton = RosterPane.createButton(this);
     rosterButton.stretch = false;
     rosterButton.alignTop(0, PTH);
-    rosterButton.alignRight(PTS * 2, PTS);
+    rosterButton.alignRight((PTS * 1) + HTS, PTS);
     rosterButton.attachTo(this);
     
     this.edictsButton = CommercePane.createButton(this);
     edictsButton.stretch = false;
     edictsButton.alignTop(0, PTH);
-    edictsButton.alignRight(PTS * 3, PTS);
+    edictsButton.alignRight((PTS * 2) + HTS, PTS);
     edictsButton.attachTo(this);
     
     /*

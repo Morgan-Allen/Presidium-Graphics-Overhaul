@@ -87,22 +87,34 @@ public class SelectionTracking {
   
   
   protected void pushCamera(int x, int y) {
-    
+    //
+    //  First, we calculate a positional offset within the world and without
+    //  exiting it's bounds:
     final Stage world = UI.world();
     final Vec3D nextPos = new Vec3D(view.lookedAt);
     nextPos.x = Nums.clamp(nextPos.x + x, 0, world.size - 1);
     nextPos.y = Nums.clamp(nextPos.y + y, 0, world.size - 1);
-    
+    //
+    //  We can't continue tracking our lock-target once our field-of-view has
+    //  changed.  So if the current pane is dedicated to that target, we need
+    //  to dismiss it and focus on whatever comes in view instead.
+    if (lockTarget != null && lockTarget == paneSelection()) {
+      final Tile          under   = world.tileAt(nextPos.x, nextPos.y);
+      final SelectionPane pane    = under.configPanel(null, UI);
+      final TargetOptions options = under.configInfo (null, UI);
+      UI.setInfoPanels(pane, options);
+    }
+    //
+    //  Then clean up after.
     UI.selection.pushSelection(null);
     lockTarget = null;
     view.lookedAt.setTo(nextPos);
-    
-    if (UI.currentPane() == null) {
-      final Tile under = world.tileAt(nextPos.x, nextPos.y);
-      final SelectionInfoPane pane = under.configPanel(null, UI);
-      final TargetOptions options  = under.configInfo (null, UI);
-      UI.setInfoPanels(pane, options);
-    }
+  }
+  
+  
+  protected Selectable paneSelection() {
+    if (! (UI.currentPane() instanceof SelectionPane)) return null;
+    return ((SelectionPane) UI.currentPane()).selected;
   }
   
   
@@ -116,6 +128,8 @@ public class SelectionTracking {
       if (ruler != null) UI.selection.pushSelection(ruler);
     }
     
+    lockX = lockY = 0;
+    /*
     if (UI.currentPane() instanceof SelectionInfoPane) {
       final SelectionInfoPane pane = (SelectionInfoPane) UI.currentPane();
       final Vec2D
@@ -124,6 +138,7 @@ public class SelectionTracking {
       lockX = trackPos.x - centre.x;
       lockY = trackPos.y - centre.y;
     }
+    //*/
     
     if (pressed(Keys.UP   ) || pressed(Keys.W)) pushCamera( 1, -1);
     if (pressed(Keys.DOWN ) || pressed(Keys.S)) pushCamera(-1,  1);

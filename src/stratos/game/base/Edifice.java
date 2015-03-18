@@ -124,7 +124,7 @@ public class Edifice extends Venue {
 
   /**  Rendering and interface methods-
     */
-  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
+  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
     return VenuePane.configSimplePanel(this, panel, UI, null);
   }
   

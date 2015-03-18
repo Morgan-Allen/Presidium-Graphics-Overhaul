@@ -14,21 +14,21 @@ import stratos.util.*;
 
 
 
-//  TODO:  Adapt this to work in either vertical or horizontal format.
+//  TODO:  Adapt to work in an abbreviated horizontal format?  (More of a long-
+//         term project.)
 
 
-public class SelectionInfoPane extends UIGroup implements UIConstants {
-  
+public class SelectionPane extends UIGroup implements UIConstants {
   
   
   /**  Constants, fields and setup methods-
     */
   final public static ImageAsset
     BORDER_TEX = ImageAsset.fromImage(
-      SelectionInfoPane.class, "media/GUI/Panel.png"
+      SelectionPane.class, "media/GUI/Panel.png"
     ),
     SCROLL_TEX = ImageAsset.fromImage(
-      SelectionInfoPane.class, "media/GUI/scroll_grab.gif"
+      SelectionPane.class, "media/GUI/scroll_grab.gif"
     );
   final public static int
     MARGIN_SIZE    = 10 ,
@@ -73,7 +73,7 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
   private int    categoryID  ;
   
 
-  public SelectionInfoPane(
+  public SelectionPane(
     final BaseUI UI, Selectable selected,
     final Composite portrait,
     boolean hasListing, String... categories
@@ -83,7 +83,7 @@ public class SelectionInfoPane extends UIGroup implements UIConstants {
   }
   
   
-  public SelectionInfoPane(
+  public SelectionPane(
     final BaseUI UI, Selectable selected,
     boolean hasPortrait, boolean hasListing,
     String... categories

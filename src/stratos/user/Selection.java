@@ -155,9 +155,11 @@ public class Selection implements UIConstants {
     I.talkAbout = selected;
     if (! PlayLoop.onRenderThread()) return;
     
+    I.say("Pushing selection: "+s);
+    
     final Target locks = s.selectionLocksOn();
     if (locks.inWorld()) UI.tracking.lockOn(locks);
-    final SelectionInfoPane panel = s.configPanel(null, UI);
+    final SelectionPane panel = s.configPanel(null, UI);
     final TargetOptions info = s.configInfo(null, UI);
     UI.setInfoPanels(panel, info);
   }

@@ -170,7 +170,7 @@ public class Human extends Actor implements Qualities {
       I.say("\nGetting new face composite for "+c+" (key "+key+")");
     }
     
-    final int PS = SelectionInfoPane.PORTRAIT_SIZE;
+    final int PS = SelectionPane.PORTRAIT_SIZE;
     final Composite composite = Composite.withSize(PS, PS, key);
     composite.layer(PORTRAIT_BASE);
     
@@ -313,7 +313,7 @@ public class Human extends Actor implements Qualities {
   }
   
   
-  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
+  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
     return HumanDescription.configPanel(this, panel, UI);
   }
 }

@@ -378,7 +378,7 @@ public final class Tile implements
   }
   
   
-  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
+  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
     return null;
   }
   

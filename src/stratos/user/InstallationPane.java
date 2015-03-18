@@ -22,7 +22,7 @@ import com.badlogic.gdx.Input.Keys;
 //  TODO:  Expand a little on the category-selection system.
 
 
-public class InstallationPane extends SelectionInfoPane {
+public class InstallationPane extends SelectionPane {
   
   
   /**  Initial background setup-

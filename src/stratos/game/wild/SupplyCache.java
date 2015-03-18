@@ -126,8 +126,8 @@ public class SupplyCache extends Fixture implements Item.Dropped {
   }
   
 
-  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
-    if (panel == null) panel = new SelectionInfoPane(UI, this, null, true);
+  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
+    if (panel == null) panel = new SelectionPane(UI, this, null, true);
     
     final Description d = panel.detail(), l = panel.listing();
     d.append(helpInfo());

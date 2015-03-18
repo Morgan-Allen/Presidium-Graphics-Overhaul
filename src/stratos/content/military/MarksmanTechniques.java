@@ -48,7 +48,7 @@ public class MarksmanTechniques {
   
   final public static Technique STEADY_AIM = new Technique(
     "Steady Aim", DIR+"steady_aim.png", Action.FIRE,
-    MarksmanTechniques.class, 00,
+    MarksmanTechniques.class, "steady_aim",
     MINOR_POWER        ,
     REAL_HARM          ,
     NO_FATIGUE         ,
@@ -78,7 +78,7 @@ public class MarksmanTechniques {
   
   final public static Technique SUPPRESSION_FIRE = new Technique(
     "Suppression Fire", DIR+"suppression_fire.png", Action.FIRE,
-    MarksmanTechniques.class, 01,
+    MarksmanTechniques.class, "suppression_fire",
     MEDIUM_POWER       ,
     REAL_HARM          ,
     NO_FATIGUE         ,
@@ -123,7 +123,7 @@ public class MarksmanTechniques {
   
   final public static Technique ARMOUR_BYPASS = new Technique(
     "Armour Bypass", DIR+"armour_bypass.png", Action.FIRE,
-    MarksmanTechniques.class, 02,
+    MarksmanTechniques.class, "armour_bypass",
     MINOR_POWER         ,
     REAL_HARM           ,
     NO_FATIGUE          ,

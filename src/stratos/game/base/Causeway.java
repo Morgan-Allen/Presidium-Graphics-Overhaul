@@ -146,7 +146,7 @@ public class Causeway extends Structural {
   }
   
   
-  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
+  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
     return null;
     //return VenueDescription.configSimplePanel(this, panel, UI, "");
   }

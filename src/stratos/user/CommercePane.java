@@ -10,7 +10,7 @@ import stratos.util.*;
 
 
 
-public class CommercePane extends SelectionInfoPane {
+public class CommercePane extends SelectionPane {
   
   
   final static ImageAsset

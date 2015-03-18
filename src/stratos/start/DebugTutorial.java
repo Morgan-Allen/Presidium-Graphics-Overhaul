@@ -21,10 +21,11 @@ import stratos.util.*;
    Emphasise the emotive component here- survival, comfort, discovery, honour.
    Limit the structure types available?
    
-*  Make sure the player can go back and review all previous messages.
+   Just don't insist the player stick on a single track all the time.  They
+   have access to all the tools if they want to use them.
    
-*  This map is too small to allow for multiple factions, really.  Try for 3
-   separate mini-tutorials for each of the game's main aspects.
+*  (This map is too small to allow for multiple factions, really.  Try for 3
+   separate mini-tutorials for each of the game's main aspects.)
 //*/
 
 
@@ -38,8 +39,10 @@ BUILDING AND UPGRADES-
 *  There needs to be a more precise 'reservation' system to allow for zoning,
    entrances and not-in-the-world-yet situations.
 
-*  Arcologies should have auto-placement.
-     Fresh art for shield walls.  And give them out for free!
+*  Arcologies should have auto-placement.  In fact, I need an aesthetic option
+   for the early game that's easy to include spatially.
+
+*  Fresh art for shield walls.  And give them out for free!
 
 *  Upgrades need to be filled in and tested for:
      Stock Exchange

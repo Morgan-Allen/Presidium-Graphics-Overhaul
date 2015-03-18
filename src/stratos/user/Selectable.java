@@ -18,7 +18,7 @@ public interface Selectable extends Text.Clickable, Session.Saveable {
   String helpInfo();
   String objectCategory();
   
-  SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI);
+  SelectionPane configPanel(SelectionPane panel, BaseUI UI);
   TargetOptions configInfo(TargetOptions info, BaseUI UI);
   
   Target selectionLocksOn();

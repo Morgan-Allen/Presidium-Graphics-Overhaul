@@ -35,12 +35,12 @@ public class HumanDescription implements Qualities {
   }
   
   
-  public static SelectionInfoPane configPanel(
-    Actor human, SelectionInfoPane panel, BaseUI UI
+  public static SelectionPane configPanel(
+    Actor human, SelectionPane panel, BaseUI UI
   ) {
     //  TODO:  Break into Inventory, Skills, Traits and Relations.
     
-    if (panel == null) panel = new SelectionInfoPane(
+    if (panel == null) panel = new SelectionPane(
       UI, human, human.portrait(UI), true,
       CAT_GEAR, CAT_SKILLS, CAT_PROFILE, CAT_RELATIONS
     );
@@ -269,10 +269,10 @@ public class HumanDescription implements Qualities {
   
   /**  Abbreviated version for simpler creatures:
     */
-  public static SelectionInfoPane configSimplePanel(
-    Actor actor, SelectionInfoPane panel, BaseUI UI
+  public static SelectionPane configSimplePanel(
+    Actor actor, SelectionPane panel, BaseUI UI
   ) {
-    if (panel == null) panel = new SelectionInfoPane(
+    if (panel == null) panel = new SelectionPane(
       UI, actor, actor.portrait(UI), true
     );
     final Description d = panel.detail(), l = panel.listing();

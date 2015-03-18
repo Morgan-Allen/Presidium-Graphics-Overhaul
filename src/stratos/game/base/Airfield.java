@@ -202,7 +202,7 @@ public class Airfield extends Venue {
   final static String CAT_ORDERS = "ORDERS";
   
   
-  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
+  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
     return VenuePane.configStandardPanel(this, panel, UI, true);
   }
 }

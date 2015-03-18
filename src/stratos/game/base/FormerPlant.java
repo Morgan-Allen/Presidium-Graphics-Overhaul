@@ -400,7 +400,7 @@ public class FormerPlant extends Venue {
   }
   
   
-  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
+  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
     panel = super.configPanel(panel, UI);
     final Description d = panel.detail();
     if (true) {

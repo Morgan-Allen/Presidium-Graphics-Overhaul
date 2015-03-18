@@ -9,7 +9,7 @@ import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.graphics.widgets.Text.Clickable;
 import stratos.user.BaseUI;
-import stratos.user.SelectionInfoPane;
+import stratos.user.SelectionPane;
 import stratos.util.*;
 
 

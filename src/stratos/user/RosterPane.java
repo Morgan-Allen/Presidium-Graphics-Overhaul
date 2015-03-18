@@ -18,7 +18,7 @@ import stratos.util.*;
 //  Sectors:   Migrations.  Relations.  Homeworld.
 
 
-public class RosterPane extends SelectionInfoPane {
+public class RosterPane extends SelectionPane {
   
   
   final static ImageAsset

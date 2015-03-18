@@ -398,7 +398,7 @@ public abstract class Fauna extends Actor {
   //*/
   
   
-  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
+  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
     return HumanDescription.configSimplePanel(this, panel, UI);
   }
 }

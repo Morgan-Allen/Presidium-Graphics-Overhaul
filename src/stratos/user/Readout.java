@@ -24,7 +24,7 @@ public class Readout extends UIGroup {
     super(UI);
     this.UI = UI;
     
-    this.read = new Text(UI, SelectionInfoPane.INFO_FONT);
+    this.read = new Text(UI, SelectionPane.INFO_FONT);
     read.alignToFill();
     read.scale = 0.75f;
     read.attachTo(this);

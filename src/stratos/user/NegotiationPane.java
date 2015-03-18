@@ -33,7 +33,7 @@ public class NegotiationPane extends MissionPane {
   }
   
   
-  public SelectionInfoPane configOwningPanel() {
+  public SelectionPane configOwningPanel() {
     final Description d = detail(), l = listing();
     final Actor ruler = mission.base().ruler();
     final Actor subject = (Actor) mission.subject();

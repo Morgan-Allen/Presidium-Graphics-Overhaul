@@ -14,7 +14,7 @@ import com.badlogic.gdx.Input.Keys;
 
 
 
-public class PowersPane extends SelectionInfoPane {
+public class PowersPane extends SelectionPane {
   
   
   private static OptionList optionList;
@@ -66,7 +66,7 @@ public class PowersPane extends SelectionInfoPane {
     
     public PowerButton(BaseUI UI, Power p, Target focus, UINode parent) {
       super(
-        UI, p.buttonImage, CIRCLE_LIT,
+        UI, p.icon, CIRCLE_LIT,
         p.name.toUpperCase()+"\n  "+p.helpInfo
       );
       this.power  = p;
@@ -206,7 +206,7 @@ public class PowersPane extends SelectionInfoPane {
       if (focus == null) I.complain("NO SUBJECT!");
       
       //  TODO:  CREATE A DEDICATED CURSOR CLASS.
-      preview = new Image(UI, power.buttonImage);
+      preview = new Image(UI, power.icon);
       preview.blocksSelect = false;
       preview.attachTo(UI);
       preview.relAlpha = 0.5f;

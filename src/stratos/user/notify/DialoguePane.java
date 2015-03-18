@@ -10,13 +10,13 @@ import stratos.game.common.*;
 import stratos.graphics.widgets.*;
 import stratos.graphics.widgets.Text.Clickable;
 import stratos.user.BaseUI;
-import stratos.user.SelectionInfoPane;
+import stratos.user.SelectionPane;
 import stratos.user.UIConstants;
 import stratos.util.*;
 
 
 
-public class DialoguePane extends SelectionInfoPane implements UIConstants {
+public class DialoguePane extends SelectionPane implements UIConstants {
   
   
   final String title;

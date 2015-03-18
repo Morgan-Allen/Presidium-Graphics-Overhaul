@@ -657,7 +657,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
     int flagIndex = Visit.indexOf(flagModel, ALL_MODELS);
     final ImageAsset icon = ALL_ICONS[flagIndex];
     
-    final int size = SelectionInfoPane.PORTRAIT_SIZE;
+    final int size = SelectionPane.PORTRAIT_SIZE;
     final Composite c = Composite.withSize(size, size, key);
     c.layerFromGrid(icon, 0, 0, 1, 1);
     
@@ -674,7 +674,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   }
   
   
-  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
+  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
     if (panel == null) panel = new MissionPane(UI, this);
     final MissionPane MP = (MissionPane) panel;
     

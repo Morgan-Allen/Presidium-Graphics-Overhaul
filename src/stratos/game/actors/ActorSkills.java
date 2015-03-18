@@ -37,7 +37,7 @@ public class ActorSkills {
     s.saveObjects(known);
   }
   
-
+  
   
   /**  Called every 20 seconds or so.
     */
@@ -45,9 +45,12 @@ public class ActorSkills {
     //
     //  See if we've learned any new techniques based on practice in source
     //  skills or item proficiency.
-    for (Technique t : Technique.ALL_TECHNIQUES()) {
-      if (t.learnFrom instanceof Skill) {
-        final float level = actor.traits.traitLevel((Skill) t.learnFrom);
+    for (Skill s : actor.traits.skillSet()) {
+      final Series <Technique> learnt = Technique.learntFrom(s);
+      if (learnt == null) continue;
+      
+      final float level = actor.traits.traitLevel(s);
+      for (Technique t : learnt) {
         if (level >= t.minLevel) known.include(t);
       }
     }

@@ -251,7 +251,7 @@ public abstract class Artilect extends Actor {
   
   /**  Rendering and interface methods-
     */
-  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
+  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
     return HumanDescription.configSimplePanel(this, panel, UI);
   }
   

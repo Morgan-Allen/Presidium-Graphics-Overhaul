@@ -111,8 +111,8 @@ public class SpiceMidden extends Fixture implements Selectable {
   }
   
 
-  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
-    if (panel == null) panel = new SelectionInfoPane(UI, this, null, true);
+  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
+    if (panel == null) panel = new SelectionPane(UI, this, null, true);
     final Description d = panel.detail();
     d.append(helpInfo());
     d.append("\n\nContains: "+spice());

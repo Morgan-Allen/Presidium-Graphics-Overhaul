@@ -25,6 +25,9 @@ public interface AnimNames {
     BUILD      = "build",
     REACH_DOWN = "reach_down",
     
+    PSY_QUICK  = "psy_quick",
+    PSY_MAIN   = "psy_main" ,
+    
     FULL_RANGE = "full_range"
  ;
   

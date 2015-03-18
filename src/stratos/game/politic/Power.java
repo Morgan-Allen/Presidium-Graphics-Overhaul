@@ -21,7 +21,7 @@ import stratos.util.*;
 //  TODO:  Merge with Techniques for the purpose.
 
 
-public abstract class Power implements Qualities {
+public abstract class Power extends Technique implements Qualities {
   
   
   private static boolean
@@ -31,22 +31,23 @@ public abstract class Power implements Qualities {
     IMG_DIR = "media/GUI/Powers/",
     SFX_DIR = "media/SFX/";
   
-  final public static int
-    NONE        = 0,
-    PLAYER_ONLY = 1,
-    MAINTAINED  = 2;
+  final public String helpInfo;
   
   
-  final public String name, helpInfo;
-  final public ImageAsset buttonImage;
-  final int properties;
-  
-  
-  Power(String name, int properties, String imgFile, String helpInfo) {
-    this.name = name;
+  Power(
+    String name, String uniqueID, String imgFile, String helpInfo,
+    Skill skillUsed, int minLevel
+  ) {
+    super(
+      name, IMG_DIR+imgFile, Action.PSY_QUICK,
+      Power.class, uniqueID,
+      0, 0, 0, 0,
+      Technique.TYPE_SOVEREIGN_POWER, skillUsed, minLevel
+    );
+    //this.name        = name;
     this.helpInfo = helpInfo;
-    this.buttonImage = ImageAsset.fromImage(Power.class, IMG_DIR+imgFile);
-    this.properties = properties;
+    //this.buttonImage = ImageAsset.fromImage(Power.class, IMG_DIR+imgFile);
+    //this.properties  = properties;
   }
   
   
@@ -58,8 +59,14 @@ public abstract class Power implements Qualities {
     Target selected, Target hovered
   );
   
+  
   public String[] options() {
     return null;
+  }
+  
+  
+  public float bonusFor(Actor using, Skill skill, Target subject) {
+    return 0;
   }
   
   
@@ -207,9 +214,9 @@ public abstract class Power implements Qualities {
   final public static Power
     
     FORESIGHT = new Power(
-      "Foresight", PLAYER_ONLY, "power_foresight.gif",
+      "Foresight", "power_foresight", "power_foresight.gif",
       "Accept your vision of events and allow them to be fulfilled.\n(Saves "+
-      "current game.)"
+      "current game.)", PREMONITION, 5
     ) {
     /*
       final String
@@ -257,9 +264,9 @@ public abstract class Power implements Qualities {
     },
     
     REMEMBRANCE = new Power(
-      "Remembrance", PLAYER_ONLY, "power_remembrance.gif",
+      "Remembrance", "power_remembrance", "power_remembrance.gif",
       "Aborts your precognitive vision and lets you choose a different path."+
-      "\n(Loads a previous game.)"
+      "\n(Loads a previous game.)", PREMONITION, 5
     ) {
       /*
       public String[] options() {
@@ -291,8 +298,9 @@ public abstract class Power implements Qualities {
     },
     
     TIME_DILATION = new Power(
-      "Time Dilation", PLAYER_ONLY | MAINTAINED, "power_time_dilation.gif",
-      "Insulates your experience from temporal passage.\n(Reduces game speed.)"
+      "Time Dilation", "power_time_dilation", "power_time_dilation.gif",
+      "Insulates your experience from temporal passage.\n(Reduces game speed.)",
+      PROJECTION, 10
     ) {
       final String SPEED_SETTINGS[] = {
         "66% speed",
@@ -338,8 +346,9 @@ public abstract class Power implements Qualities {
     },
     
     REMOTE_VIEWING = new Power(
-      "Remote Viewing", PLAYER_ONLY, "power_remote_viewing.png",
-      "Lifts fog around target terrain."
+      "Remote Viewing", "power_remote_viewing", "power_remote_viewing.png",
+      "Lifts fog around target terrain.",
+      PROJECTION, 10
     ) {
       public boolean appliesTo(Actor caster, Target selected) {
         return selected instanceof Tile;
@@ -387,8 +396,9 @@ public abstract class Power implements Qualities {
     },
     
     TELEKINESIS = new Power(
-      "Telekinesis", NONE, "power_telekinesis.png",
-      "Hurls the target in an indicated direction."
+      "Telekinesis", "power_telekinesis", "power_telekinesis.png",
+      "Hurls the target in an indicated direction.",
+      TRANSDUCTION, 10
     ) {
       public boolean appliesTo(Actor caster, Target selected) {
         return
@@ -475,8 +485,9 @@ public abstract class Power implements Qualities {
     },
     
     FORCEFIELD = new Power(
-      "Forcefield", MAINTAINED, "power_forcefield.png",
-      "Temporarily raises shields on target."
+      "Forcefield", "power_forcefield", "power_forcefield.png",
+      "Temporarily raises shields on target.",
+      TRANSDUCTION, 10
     ) {
       public boolean appliesTo(Actor caster, Target selected) {
         return selected instanceof Actor;
@@ -508,9 +519,10 @@ public abstract class Power implements Qualities {
     },
     
     SUSPENSION = new Power(
-      "Suspension", MAINTAINED, "power_suspension.png",
+      "Suspension", "power_suspension", "power_suspension.png",
       "Puts subject into suspended animation.  Can be used to incapacitate "+
-      "foes or delay bleedout."
+      "foes or delay bleedout.",
+      METABOLISM, 5
     ) {
       public boolean appliesTo(Actor caster, Target selected) {
         return selected instanceof Actor;
@@ -547,8 +559,9 @@ public abstract class Power implements Qualities {
     },
     
     KINESTHESIA = new Power(
-      "Kinesthesia", MAINTAINED, "power_kinesthesia.png",
-      "Boosts most combat-related and acrobatic skills."
+      "Kinesthesia", "power_kinesthesia", "power_kinesthesia.png",
+      "Boosts most combat-related and acrobatic skills.",
+      SYNESTHESIA, 5
     ) {
       public boolean appliesTo(Actor caster, Target selected) {
         return selected instanceof Actor;
@@ -578,8 +591,9 @@ public abstract class Power implements Qualities {
     },
     
     VOICE_OF_COMMAND = new Power(
-      "Voice of Command", PLAYER_ONLY, "power_voice_of_command.png",
-      "Psychically urges a subject to fight, flee, help or converse."
+      "Voice of Command", "power_VOC", "power_voice_of_command.png",
+      "Psychically urges a subject to fight, flee, help or converse.",
+      SUGGESTION, 5
     ) {
       final String options[] = new String[] {
         "Flee",
