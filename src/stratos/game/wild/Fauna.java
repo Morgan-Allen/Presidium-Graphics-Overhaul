@@ -19,7 +19,7 @@ import stratos.util.*;
 
 
 
-//  TODO:  Home defence
+//  TODO:  Home defence!
 
 public abstract class Fauna extends Actor {
   
@@ -28,7 +28,7 @@ public abstract class Fauna extends Actor {
     */
   final public static float
     PLANT_CONVERSION = 4.0f,
-    MEAT_CONVERSION  = 4.0f;
+    MEAT_CONVERSION  = 8.0f;
   private static boolean
     verbose = true ;
   
@@ -69,18 +69,10 @@ public abstract class Fauna extends Actor {
   
   /**  Registering abundance with the ecology class-
     */
-  public boolean enterWorldAt(int x, int y, Stage world) {
-    if (! super.enterWorldAt(x, y, world)) return false;
-    world.ecology().impingeAbundance(this, Stage.STANDARD_DAY_LENGTH);
-    return true;
-  }
-  
-  
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     
     if (numUpdates % 10 == 0 && health.alive()) {
-      world.ecology().impingeAbundance(this, 10);
       float crowding = Nest.crowdingFor(this);
       if (crowding == 1) crowding += 0.1f;
       
@@ -392,7 +384,7 @@ public abstract class Fauna extends Actor {
   
   
   //  TODO:  Include this elsewhere?
-  /*
+  //*
   public void describeStatus(Description d) {
     super.describeStatus(d);
     final int BP = (int) (breedMetre * 100);

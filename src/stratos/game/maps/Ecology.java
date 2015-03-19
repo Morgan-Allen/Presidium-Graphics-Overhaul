@@ -10,9 +10,6 @@ import stratos.util.*;
 
 
 
-//  TODO:  Use the ratePlacing() methods for individual nests, instead of those
-//  extraneous placement methods.
-
 public class Ecology {
   
   
@@ -26,12 +23,7 @@ public class Ecology {
   
   private Base wildlife = null;
   private BaseDemands abundances;
-  private BlurMap
-    biomass,
-    preyMap,
-    hunterMap,
-    speciesMaps[];
-  
+  private BlurMap biomass;
   
   
   public Ecology(final Stage world) {
@@ -65,6 +57,8 @@ public class Ecology {
   }
   
   
+  //  TODO:  You can probably dispense with these soon enough...
+  
   private void extractMaps() {
     if (abundances != null) return;
     //
@@ -72,16 +66,7 @@ public class Ecology {
     //  during the save/load process.
     if (wildlife == null) wildlife = Base.wildlife(world);
     abundances = wildlife.demands;
-    
     biomass   = abundances.mapForSupply("Biomass");
-    preyMap   = abundances.mapForSupply("Prey"   );
-    hunterMap = abundances.mapForSupply("Hunters");
-    
-    final int numS = Species.ANIMAL_SPECIES.length;
-    speciesMaps = new BlurMap[numS];
-    for (int i = 0; i < numS; i++) {
-      speciesMaps[i] = abundances.mapForSupply(Species.ANIMAL_SPECIES[i]);
-    }
   }
   
   
@@ -109,24 +94,6 @@ public class Ecology {
   public void impingeBiomass(Tile t, float amount, float duration) {
     abundances.impingeSupply(biomass, amount, duration, t);
   }
-  
-  //*
-  public void impingeAbundance(Fauna f, float duration) {
-    final Tile t = f.origin();
-    final Species s = f.species;
-    final float inc = f.health.maxHealth();
-    
-    if (s.type == Species.Type.BROWSER ) {
-      abundances.impingeSupply(preyMap, inc, duration, t);
-    }
-    if (s.type == Species.Type.PREDATOR) {
-      abundances.impingeSupply(hunterMap, inc, duration, t);
-    }
-    
-    final int index = Visit.indexOf(s, Species.ANIMAL_SPECIES);
-    abundances.impingeSupply(speciesMaps[index], inc, duration, t);
-  }
-  //*/
   
   
   

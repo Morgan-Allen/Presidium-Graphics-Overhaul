@@ -8,6 +8,7 @@ import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.actors.*;
 import stratos.game.plans.*;
+import stratos.game.wild.Nest;
 import stratos.user.*;
 import stratos.util.*;
 import stratos.game.economic.Inventory.Owner;
@@ -115,33 +116,25 @@ public class BaseSetup {
   
   /**  Time-sliced automation of building-placement methods-
     */
-  //  Try to unify this with the placement methods below...
+  //  TODO:  Try to unify this with the placement methods below...
   
   public Batch <Venue> doFullPlacements(VenueProfile... types) {
     final Batch <Venue> placed = new Batch <Venue> ();
     
     for (StageSection section : world.sections.sectionsUnder(world.area(), 0)) {
-      final Pick <Venue> pick = new Pick <Venue> (null, 0);
-      
-      I.say("\nRating venues at "+section);
       for (VenueProfile p : types) {
         final Venue v = p.sampleVenue(base);
-        final float rating = v.ratePlacing(section, false);
-        I.say("  Rating for "+v+" is "+rating);
-        pick.compare(v, rating);
-      }
-      if (pick.result() != null) {
-        final Venue v = pick.result();
         float x = section.absX + Rand.index(section.size);
         float y = section.absY + Rand.index(section.size);
         v.setPosition(x, y, world);
         if (! v.canPlace()) continue;
+        final float rating = v.ratePlacing(v, false);
+        if (rating <= 0) continue;
         v.enterWorld();
         v.structure.setState(Structure.STATE_INTACT, 1);
         placed.add(v);
       }
     }
-    
     return placed;
   }
   

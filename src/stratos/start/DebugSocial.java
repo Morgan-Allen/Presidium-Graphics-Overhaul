@@ -240,28 +240,26 @@ public class DebugSocial extends Scenario {
     GameSettings.fogFree = true;
     final Base wildlife = Base.wildlife(world);
     
-    Tile around = world.tileAt(10, 10);
-    wildlife.demands.impingeSupply("TEST", 10, -1, around);
+    //  TODO:  Implement this more generally.
+    //  NOTE:  Browsers need to be introduced before predators, to ensure the
+    //         latter can assess food sources correctly.
     
-    wildlife.demands.updateAllMaps(1);
+    //  TODO:  You also need to ensure that fauna can find new nests themselves
+    //         and migrate to and from off-map.
     
-    /*
-    final Batch <Venue> placed = wildlife.setup.doFullPlacements(
-      Nest.VENUE_PROFILES
+    Flora.populateFlora(world);
+    
+    final VenueProfile P[] = Nest.VENUE_PROFILES;
+    Batch <Venue> placed = null;
+    placed = wildlife.setup.doFullPlacements(
+      P[0], P[1]
     );
     wildlife.setup.fillVacancies(placed, true);
-    //*/
     
-    //  PROBLEM:  Blur values will not be updated until the next turn, so the
-    //  map-sample will return nothing before then.  This prevents proper
-    //  supply-detection during the initial placement pass.
-    
-    //  In addition, it would be preferable if animal-nests used their resident
-    //  population to signal supply levels for meat/biomass etc.  (See the
-    //  impingeAbundance() method in the Ecology class.)
-    
-    float supply = wildlife.demands.supplyAround(around, "TEST", -1);
-    I.say("\nRegistered supply: "+supply);
+    placed = wildlife.setup.doFullPlacements(
+      P[2]
+    );
+    wildlife.setup.fillVacancies(placed, true);
   }
   
   

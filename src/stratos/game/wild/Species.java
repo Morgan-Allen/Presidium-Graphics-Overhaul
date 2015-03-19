@@ -167,14 +167,14 @@ public abstract class Species extends Background {
         XML_FILE, "Quud"
       ),
       Type.BROWSER,
-      1.00f, //bulk
-      0.15f, //speed
+      1.25f, //bulk
+      0.40f, //speed
       0.65f  //sight
     ) {
       final VenueProfile PROFILE = nestProfile(
         2, 2, Venue.FACING_EAST, this, MODEL_NEST_QUUD
       );
-      public Actor sampleFor(Base base) { return new Qudu(base); }
+      public Actor sampleFor(Base base) { return init(new Qudu(base)); }
       public VenueProfile nestProfile() { return PROFILE; }
     },
     
@@ -198,7 +198,7 @@ public abstract class Species extends Background {
       final VenueProfile PROFILE = nestProfile(
         2, 2, Venue.FACING_EAST, this, MODEL_NEST_VAREEN
       );
-      public Actor sampleFor(Base base) { return new Vareen(base); }
+      public Actor sampleFor(Base base) { return init(new Vareen(base)); }
       public VenueProfile nestProfile() { return PROFILE; }
     },
     
@@ -222,7 +222,7 @@ public abstract class Species extends Background {
       final VenueProfile PROFILE = nestProfile(
         3, 2, Venue.FACING_EAST, this, MODEL_NEST_MICOVORE
       );
-      public Actor sampleFor(Base base) { return new Lictovore(base); }
+      public Actor sampleFor(Base base) { return init(new Lictovore(base)); }
       public VenueProfile nestProfile() { return PROFILE; }
     },
     
@@ -374,11 +374,15 @@ public abstract class Species extends Background {
   }
   
   
-  public Actor sampleFor(Base base) { return null; }
+  protected Fauna init(Fauna f) {
+    f.health.setupHealth(Rand.num(), 0.9f, 0.1f);
+    return f;
+  }
+  
+  
   public VenueProfile nestProfile() { return null; }
   
-  
-  public boolean browser () { return type == Type.BROWSER; }
+  public boolean browser () { return type == Type.BROWSER ; }
   public boolean predator() { return type == Type.PREDATOR; }
   public boolean animal  () { return browser() || predator(); }
   

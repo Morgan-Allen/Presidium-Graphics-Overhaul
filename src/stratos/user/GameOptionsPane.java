@@ -96,12 +96,14 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
     text.append("\n  ");
     text.append(new Link("Save and Exit") { public void whenClicked() {
       I.say("EXITING GAME...");
+      PlayLoop.setPaused(false);
       played.scheduleSaveAndExit();
     }});
     
     text.append("\n  ");
     text.append(new Link("Save and Resume") { public void whenClicked() {
       I.say("SAVING GAME...");
+      PlayLoop.setPaused(false);
       played.scheduleSave();
       ((BaseUI) UI).setInfoPanels(null, null);
     }});

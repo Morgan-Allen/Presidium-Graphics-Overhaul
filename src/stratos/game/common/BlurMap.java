@@ -16,8 +16,8 @@ public class BlurMap {
   /**  Data fields, construction and save/load methods-
     */
   final protected int trueSize, patchSize, gridSize;
-  final float patchValues[][], blurValues[][];
-  final MipMap mipValues;
+  final float patchValues[][];
+  private float globalValue;
   
   final protected Object parent, key;
   
@@ -27,8 +27,6 @@ public class BlurMap {
     this.patchSize   = patchSize;
     this.gridSize    = trueSize / patchSize;
     this.patchValues = new float[gridSize][gridSize];
-    this.blurValues  = new float[gridSize][gridSize];
-    this.mipValues   = new MipMap(gridSize);
     
     this.parent = parent;
     this.key    = key;
@@ -38,18 +36,16 @@ public class BlurMap {
   protected void loadState(Session s) throws Exception {
     for (Coord c : Visit.grid(0, 0, gridSize, gridSize, 1)) {
       patchValues[c.x][c.y] = s.loadFloat();
-      blurValues [c.x][c.y] = s.loadFloat();
     }
-    mipValues.loadFrom(s.input());
+    globalValue = s.loadFloat();
   }
   
   
   protected void saveState(Session s) throws Exception {
     for (Coord c : Visit.grid(0, 0, gridSize, gridSize, 1)) {
       s.saveFloat(patchValues[c.x][c.y]);
-      s.saveFloat(blurValues [c.x][c.y]);
     }
-    mipValues.saveTo(s.output());
+    s.saveFloat(globalValue);
   }
   
   
@@ -62,15 +58,10 @@ public class BlurMap {
     
     for (Coord c : Visit.grid(0, 0, gridSize, gridSize, 1)) {
       final float value = patchValues[c.x][c.y], DV = 0 - value * decay;
-      if (report && value > 0) I.say("  "+value+" at "+c+", decay "+DV);
       impingeValue(DV, c.x * gridSize, c.y * gridSize);
+      if (report && value > 0) I.say("  "+value+" at "+c+", decay "+DV);
     }
-    
-    for (Coord c : Visit.grid(0, 0, gridSize, gridSize, 1)) {
-      float blur = patchValues[c.x][c.y];
-      blur += mipValues.blendValAt(c.x, c.y, 0.5f) / 2;
-      blurValues[c.x][c.y] = blur / 1.5f;
-    }
+    globalValue -= globalValue * decay;
   }
   
   
@@ -78,7 +69,7 @@ public class BlurMap {
     x /= gridSize;
     y /= gridSize;
     value = patchValues[x][y] += value;
-    mipValues.set((int) Nums.clamp(Nums.ceil(value), 0, 100), x, y);
+    globalValue += value;
   }
   
   
@@ -86,12 +77,12 @@ public class BlurMap {
   /**  External query functions-
     */
   protected int globalValue() {
-    return mipValues.getRootValue();
+    return (int) globalValue;
   }
   
   
   protected float sampleValue(float x, float y) {
-    return Nums.sampleMap(trueSize, blurValues, x, y);
+    return Nums.sampleMap(trueSize, patchValues, x, y);
   }
   
   
@@ -99,6 +90,11 @@ public class BlurMap {
     return patchValues[(int) (x / patchSize)][(int) (y / patchSize)];
   }
 }
+
+
+
+
+
 
 
 

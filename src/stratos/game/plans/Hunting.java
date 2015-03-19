@@ -28,7 +28,9 @@ public class Hunting extends Combat {
     TYPE_FEEDS   = 0,
     TYPE_HARVEST = 1,
     TYPE_SAMPLE  = 2;
-  final static String TYPE_DESC[] = { "Feeding", "Harvest", "Sampling" };
+  final static String TYPE_DESC[] = {
+    "Feeding", "Harvest", "Sampling"
+  };
   final static int
     STAGE_INIT          = 0,
     STAGE_HUNT          = 1,
@@ -260,6 +262,7 @@ public class Hunting extends Combat {
   
   
   public boolean actionFeed(Actor actor, Actor prey) {
+    //
     //  Determine just how large a chunk you can take out of the prey-
     final float
       before = prey.health.injuryLevel(),
@@ -267,7 +270,7 @@ public class Hunting extends Combat {
     prey.health.takeInjury(damage, true);
     float taken = prey.health.injuryLevel() - before;
     taken *= prey.health.maxHealth();
-    
+    //
     //  Then dispose of it appropriately-
     if (! prey.health.dying()) prey.health.setState(ActorHealth.STATE_DYING);
     actor.health.takeCalories(taken * Fauna.MEAT_CONVERSION, 1);
