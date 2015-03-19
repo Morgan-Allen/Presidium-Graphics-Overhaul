@@ -110,7 +110,7 @@ public class Ecology {
     abundances.impingeSupply(biomass, amount, duration, t);
   }
   
-  
+  //*
   public void impingeAbundance(Fauna f, float duration) {
     final Tile t = f.origin();
     final Species s = f.species;
@@ -122,8 +122,11 @@ public class Ecology {
     if (s.type == Species.Type.PREDATOR) {
       abundances.impingeSupply(hunterMap, inc, duration, t);
     }
-    abundances.impingeSupply(speciesMaps[s.ID], inc, duration, t);
+    
+    final int index = Visit.indexOf(s, Species.ANIMAL_SPECIES);
+    abundances.impingeSupply(speciesMaps[index], inc, duration, t);
   }
+  //*/
   
   
   

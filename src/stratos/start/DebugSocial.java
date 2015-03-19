@@ -234,18 +234,34 @@ public class DebugSocial extends Scenario {
   
   private void configWildScenario(Stage world, Base base, BaseUI UI) {
     
+    //  This is the last scenario to test.  Just introduce some animals, and
+    //  see how they react to (A) eachother and (B) the nearby base.
+    
     GameSettings.fogFree = true;
     final Base wildlife = Base.wildlife(world);
     
+    Tile around = world.tileAt(10, 10);
+    wildlife.demands.impingeSupply("TEST", 10, -1, around);
+    
+    wildlife.demands.updateAllMaps(1);
+    
+    /*
     final Batch <Venue> placed = wildlife.setup.doFullPlacements(
       Nest.VENUE_PROFILES
     );
     wildlife.setup.fillVacancies(placed, true);
+    //*/
     
-    //wildlife.setup.doFullPlacements();
+    //  PROBLEM:  Blur values will not be updated until the next turn, so the
+    //  map-sample will return nothing before then.  This prevents proper
+    //  supply-detection during the initial placement pass.
     
-    //  This is the last scenario to test.  Just introduce some animals, and
-    //  see how they react to (A) eachother and (B) the nearby base.
+    //  In addition, it would be preferable if animal-nests used their resident
+    //  population to signal supply levels for meat/biomass etc.  (See the
+    //  impingeAbundance() method in the Ecology class.)
+    
+    float supply = wildlife.demands.supplyAround(around, "TEST", -1);
+    I.say("\nRegistered supply: "+supply);
   }
   
   

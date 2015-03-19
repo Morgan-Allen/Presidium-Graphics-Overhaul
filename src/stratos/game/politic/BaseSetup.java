@@ -115,10 +115,7 @@ public class BaseSetup {
   
   /**  Time-sliced automation of building-placement methods-
     */
-  public void doFullPlacements() {
-    //  TODO:  IMPLEMENT THIS
-  }
-  
+  //  Try to unify this with the placement methods below...
   
   public Batch <Venue> doFullPlacements(VenueProfile... types) {
     final Batch <Venue> placed = new Batch <Venue> ();
@@ -126,9 +123,12 @@ public class BaseSetup {
     for (StageSection section : world.sections.sectionsUnder(world.area(), 0)) {
       final Pick <Venue> pick = new Pick <Venue> (null, 0);
       
+      I.say("\nRating venues at "+section);
       for (VenueProfile p : types) {
         final Venue v = p.sampleVenue(base);
-        pick.compare(v, v.ratePlacing(section, false));
+        final float rating = v.ratePlacing(section, false);
+        I.say("  Rating for "+v+" is "+rating);
+        pick.compare(v, rating);
       }
       if (pick.result() != null) {
         final Venue v = pick.result();

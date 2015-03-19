@@ -79,7 +79,6 @@ public class Lictovore extends Fauna {
   protected void addReactions(Target seen, Choice choice) {
     if (seen == null) return;
     if (seen instanceof Actor) {
-      I.say("\nHAVE SEEN: "+seen+"\n");
       choice.add(new Retreat(this));
       choice.add(new Combat(this, (Actor) seen));
     }

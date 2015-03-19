@@ -119,28 +119,11 @@ public class Nest extends Venue {
   
   /**  Methods for determining crowding and site placement-
     */
-  public static Nest findNestFor(Fauna fauna) {
-    //  TODO:  Work this out.
-    
-    return null;
-  }
-  
-  
-  public static int forageRange(Species s) {
-    return s.predator() ? PREDATOR_SEPARATION : BROWSER_SEPARATION;
-  }
-  
-  
-  public static float crowdingFor(Actor fauna) {
-    return crowdingFor(fauna.mind.home(), fauna.species(), fauna.world());
-  }
-  
-  
-  public static float crowdingFor(Target point, Species species, Stage world) {
-    if (point == null || species == null) return 1;
-    
-    float foodSupply = 0;
+  private static float idealPopulation(
+    Target point, Species species, Stage world
+  ) {
     final Base base = Base.wildlife(world);
+    float foodSupply = 0;
     
     if (species.browser()) {
       foodSupply = world.terrain().fertilitySample(world.tileAt(point));
@@ -150,22 +133,50 @@ public class Nest extends Venue {
       foodSupply = base.demands.supplyAround(point, Species.KEY_BROWSER, -1);
       foodSupply /= PREDATOR_RATIO;
     }
+    return foodSupply / species.metabolism();
+  }
+  
+
+  public static float crowdingFor(Target point, Species species, Stage world) {
+    if (point == null || species == null) return 1;
     
+    final float idealPop = idealPopulation(point, species, world);
+    if (idealPop == 0) return 1;
+    
+    final Base   base     = Base.wildlife(world);
     final float  mass     = species.metabolism();
     final String category = species.type.name() ;
     final float
       allType     = base.demands.supplyAround(point, category, -1),
       allSpecies  = base.demands.supplyAround(point, species , -1),
       rarity      = Nums.clamp(1 - (allSpecies / allType), 0, 1),
-      competition = allType * 2 / (1 + rarity);
+      competition = allType / ((1 + rarity) * mass);
     
-    return (competition - foodSupply) / (mass * MAX_CROWDING);
+    if (true) I.reportVars(
+      "\nGetting crowding at "+point+" for "+species, "  ",
+      "all of type", allType,
+      "all of species", allSpecies,
+      "rarity", rarity,
+      "competition", competition,
+      "metabolic mass", mass,
+      "ideal population", idealPop
+    );
+    return competition / idealPop;
+  }
+  
+  
+  public static float crowdingFor(Actor fauna) {
+    return crowdingFor(fauna.mind.home(), fauna.species(), fauna.world());
   }
   
   
   public float ratePlacing(Target point, boolean exact) {
-    //  TODO:  Cache the crowd-rating if possible?
-    return 1 - crowdingFor(point, species, point.world());
+    final float
+      idealPop = idealPopulation(point, species, point.world()),
+      crowding = crowdingFor    (point, species, point.world());
+    
+    //  TODO:  Cache the crowd-rating/ideal-pop if possible?
+    return idealPop * (1 - crowding);
   }
   
   
@@ -173,21 +184,37 @@ public class Nest extends Venue {
     super.updateAsScheduled(numUpdates, instant);
     final int INTERVAL = 10;
     
-    //  TODO:  I think the nest itself needs to impose these supply quotients,
-    //  and will have to do so upon entry as well.
-    
-    //  In addition, you need something closer to randomised placement.
-    
-    
-    if (numUpdates % INTERVAL == 0) {
-      for (Actor a : staff.residents()) {
-        final Species species  = a.species();
-        final float   mass     = species.metabolism();
-        final String  category = species.type.name() ;
-        base.demands.impingeSupply(species , mass, INTERVAL, this);
-        base.demands.impingeSupply(category, mass, INTERVAL, this);
-      }
+    //  TODO:  Impose these supply quotients on world-entry as well.
+    if (numUpdates % INTERVAL == 0 && ! instant) {
+      impingeDemands(base.demands, INTERVAL);
     }
+  }
+  
+  
+  public boolean enterWorldAt(int x, int y, Stage world) {
+    if (! super.enterWorldAt(x, y, world)) return false;
+    impingeDemands(base.demands, -1);
+    return true;
+  }
+  
+  
+  protected void impingeDemands(BaseDemands demands, int period) {
+    final float  idealPop = idealPopulation(this, species, world);
+    final float  mass     = species.metabolism() * idealPop;
+    final String category = species.type.name();
+    demands.impingeSupply(species , mass, period, this);
+    demands.impingeSupply(category, mass, period, this);
+  }
+  
+  
+  public static Nest findNestFor(Fauna fauna) {
+    //  TODO:  Work this out.
+    return null;
+  }
+  
+  
+  public static int forageRange(Species s) {
+    return s.predator() ? PREDATOR_SEPARATION : BROWSER_SEPARATION;
   }
   
   

@@ -131,6 +131,10 @@ public class BaseDemands {
   }
   
   
+  /**  Imposes a supply-signal on the map.  (The period is used to 'dilute' the
+    *  signal based on how frequently or slowly updates occur, and thus allow
+    *  for gradual introduction.  Use a -1 value to bypass this.)
+    */
   public void impingeSupply(
     Object key, float amount, float period, Target at
   ) {
@@ -152,6 +156,10 @@ public class BaseDemands {
   }
   
   
+  /**  Imposes a demand-signal on the map.  (The period is used to 'dilute' the
+    *  signal based on how frequently or slowly updates occur, and thus allow
+    *  for gradual introduction.  Use a -1 value to bypass this.)
+    */
   public void impingeDemand(
     Object key, float amount, float period, Target at
   ) {

@@ -109,13 +109,6 @@ public class ActorSenses implements Qualities {
     updateDangerEval(awareOf);
     
     if (report) {
-      /*
-      I.say("Currently aware of: (react limit "+reactLimit+")");
-      for (Target e : awareOf) {
-        final String dist = " (distance "+Spacing.distance(actor, e)+")";
-        I.say("  "+e+(justSeen.includes(e) ? " (NEW)" : "")+dist);
-      }
-      //*/
       for (Target e : justSeen ) I.say("  Just saw "+e);
       for (Target e : lostSight) I.say("  Lost sight of "+e);
     }
