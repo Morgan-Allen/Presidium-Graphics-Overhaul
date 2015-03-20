@@ -21,9 +21,13 @@ public class BaseDemands {
   private static Object
     reportKey = Economy.SERVICE_HOUSING;
   
+  final static int
+    DEFAULT_PATCH_SIZE  = Stage.SECTOR_SIZE * 2,
+    DEFAULT_TIME_PERIOD = Stage.STANDARD_DAY_LENGTH;
+  
   final Stage world;
   final Base base;
-  final int size, patchSize, updatePeriod;
+  final int size, patchSize, timePeriod;
   
   final Table <Object, BlurMap>
     supply = new Table <Object, BlurMap> (),
@@ -35,11 +39,11 @@ public class BaseDemands {
   
   
   public BaseDemands(Base base, Stage world) {
-    this.world        = world;
-    this.base         = base;
-    this.size         = world.size;
-    this.patchSize    = Stage.PATCH_RESOLUTION;
-    this.updatePeriod = Stage.STANDARD_DAY_LENGTH;
+    this.world      = world;
+    this.base       = base;
+    this.size       = world.size;
+    this.patchSize  = DEFAULT_PATCH_SIZE;
+    this.timePeriod = DEFAULT_TIME_PERIOD;
   }
   
   
@@ -113,13 +117,13 @@ public class BaseDemands {
     if (report) I.say("\nUPDATING BASE DEMANDS FOR "+base);
     
     for (BlurMap map : supply.values()) {
-      map.updateAllValues(period * 1f / updatePeriod);
+      map.updateAllValues(period * 1f / timePeriod);
       if (report) {
         I.say("  Global supply for "+map.key+" is: "+map.globalValue());
       }
     }
     for (BlurMap map : demand.values()) {
-      map.updateAllValues(period * 1f / updatePeriod);
+      map.updateAllValues(period * 1f / timePeriod);
       if (report) {
         I.say("  Global demand for "+map.key+" is: "+map.globalValue());
       }
@@ -146,7 +150,7 @@ public class BaseDemands {
     
     final BlurMap map = mapForSupply(key);
     at.position(temp);
-    if (period > 0) amount *= period / updatePeriod;
+    if (period > 0) amount *= period / timePeriod;
     map.impingeValue(amount, (int) temp.x, (int) temp.y);
     
     if (report) {
@@ -171,7 +175,7 @@ public class BaseDemands {
 
     final BlurMap map = mapForDemand(key);
     at.position(temp);
-    if (period > 0) amount *= period / updatePeriod;
+    if (period > 0) amount *= period / timePeriod;
     map.impingeValue(amount, (int) temp.x, (int) temp.y);
     
     if (report) {
@@ -235,10 +239,16 @@ public class BaseDemands {
     final BlurMap map = mapForKeyFrom(table, key);
     point.position(temp);
     float value = map.sampleValue(temp.x, temp.y);
-    if (radius > 0) value *= (radius * radius) / (patchSize * patchSize);
+    if (radius > 0) value *= (radius * radius * 4) / (patchSize * patchSize);
     return value;
   }
 }
+
+
+
+
+
+
 
 
 

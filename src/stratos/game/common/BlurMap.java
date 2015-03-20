@@ -66,8 +66,8 @@ public class BlurMap {
   
   
   protected void impingeValue(float value, int x, int y) {
-    x /= gridSize;
-    y /= gridSize;
+    x /= patchSize;
+    y /= patchSize;
     value = patchValues[x][y] += value;
     globalValue += value;
   }
@@ -76,17 +76,17 @@ public class BlurMap {
   
   /**  External query functions-
     */
-  protected int globalValue() {
+  public int globalValue() {
     return (int) globalValue;
   }
   
   
-  protected float sampleValue(float x, float y) {
+  public float sampleValue(float x, float y) {
     return Nums.sampleMap(trueSize, patchValues, x, y);
   }
   
   
-  protected float patchValue(float x, float y) {
+  public float patchValue(float x, float y) {
     return patchValues[(int) (x / patchSize)][(int) (y / patchSize)];
   }
 }

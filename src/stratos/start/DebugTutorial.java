@@ -30,6 +30,21 @@ import stratos.util.*;
 
 
 
+/*  IMMEDIATE BUGFIXES:
+
+*  Animals need to either shy away from or attack strangers (or predators who
+   get too close.)  This counts as an emergency to them.
+
+*  Razing nests is counted as a crime by your own citizens.  Is that wrong?
+
+*  Nests too close to the bastion are being salvaged and left in an incorrect
+   mechanical sprite-state (plus the inhabitants are still on-map.)
+
+*  If hire-free is true, humans can wind up being 'hired' at animal nests...
+
+//*/
+
+
 
 /*  BIG TODO LIST:
 
@@ -63,16 +78,18 @@ BUILDING AND UPGRADES-
 *  Ensure that spontaneous-buildings can 'migrate' to new sites if conditions
    change.  (Allow that for buildings in general?)
 
+
 ENEMIES AND ENVIRONMENT-
 
   >>>>>>> DO THIS <<<<<<<
-*  Need to restore animal nests and check their breeding behaviours.
-   Need to ensure auto-distribution of predator and prey nests.
-
 *  Need to write vermin behaviour (see Vermin class.)
+   Allow hunting behaviours to apply to humans as well, if they're convenient.
 
 *  Extra concept art for new creatures/vermin:
      Avrodil, Rem Leech, Mistaken, Desert Maw, Hirex Body.
+
+*  Make sure animals can breed/migrate/build new nests correctly.
+
 
 CONTROL AND DIRECTION-
 
@@ -81,22 +98,24 @@ CONTROL AND DIRECTION-
    Also, try to allow negotiation with buildings, in some sense.
 
   >>>>>>> DO THIS <<<<<<<
-*  Limit the powers available- they have to be learnt from a Pseer School or
-   other psy institutions.   Then, as you use them, you acquire practice that
-   allows casting independantly (albeit with a greatly reduced skill rank.)
-   Boom, done.
-   
-   So all powers need to be Techniques known by the ruler.  Okay.
-
 *  Introduce Call-to-Arms at the Trooper Lodge (with respect to a particular
    mission at a time.)
 
 *  Psy abilities need to be persistent.
 
+*  Allow psy abilities to be learnt from the Pseer School and other psy
+   institutions.  Then, as you use them, you acquire practice that allows
+   independant casting independantly (with reduced skill rank.)
+
 
 INTERFACE AND DEBUGGING
 
-*  Include an Advisors(?) and more detail Finances/Economy pane.
+*  Try to implement some global debugging-levels.
+   
+*  Delete all later saves if you restart a mission or revert to an earlier
+   point in time.
+
+*  Include Advisors(?) and more detail Finances/Economy pane.
 
 *  Include healthbars for psy-meter and target-descriptions?  Personal icon?
 
@@ -104,11 +123,6 @@ INTERFACE AND DEBUGGING
    start that way.)  And include tracking options in the UI.
 
 *  Read definitions from .xml and allow for later string translations.
-
-*  Try to implement some global debugging-levels.
-   
-*  Delete all later saves if you restart a mission or revert to an earlier
-   point in time.
 
 
 CITIZEN BEHAVIOUR-

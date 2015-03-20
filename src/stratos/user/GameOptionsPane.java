@@ -111,6 +111,7 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
     text.append("\n  ");
     text.append(new Link("Restart") { public void whenClicked() {
       I.say("WILL RESTART...");
+      PlayLoop.setPaused(false);
       played.scheduleReset();
     }});
     

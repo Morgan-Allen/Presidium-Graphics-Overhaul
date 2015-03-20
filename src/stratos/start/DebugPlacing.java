@@ -73,6 +73,7 @@ public class DebugPlacing extends Scenario {
   protected Stage createWorld() {
     final TerrainGen TG = new TerrainGen(
       64, 0.2f,
+      Habitat.OCEAN       , 1f,
       Habitat.ESTUARY     , 2f,
       Habitat.MEADOW      , 3f,
       Habitat.BARRENS     , 2f,
@@ -81,7 +82,6 @@ public class DebugPlacing extends Scenario {
     final Stage world = new Stage(TG.generateTerrain());
     //TG.setupMinerals(world, 0.6f, 0, 0.2f);
     world.terrain().readyAllMeshes();
-    //Flora.populateFlora(world);
     return world;
   }
   
@@ -98,7 +98,8 @@ public class DebugPlacing extends Scenario {
     GameSettings.paveFree  = true;
     GameSettings.fogFree   = true;
     
-    if (true ) configPerimTest(world, base, UI);
+    if (true ) configEcology  (world, base, UI);
+    if (false) configPerimTest(world, base, UI);
     if (false) configTradeTest(world, base, UI);
     if (false) configRoadsTest(world, base, UI);
     if (false) configMinesTest(world, base, UI);
@@ -106,8 +107,20 @@ public class DebugPlacing extends Scenario {
   }
   
   
-  private void configPerimTest(Stage world, Base base, BaseUI UI) {
+  private void configEcology(Stage world, Base base, BaseUI UI) {
+    GameSettings.hireFree = false;
+    Flora.populateFlora(world);
     
+    Ruins.populateRuins(world, 1, Species.ARTILECT_SPECIES);
+    
+    Nest.populateFauna(world, Species.ANIMAL_SPECIES);
+    
+    final Bastion b = new Bastion(base);
+    base.setup.doPlacementsFor(b);
+  }
+  
+  
+  private void configPerimTest(Stage world, Base base, BaseUI UI) {
     Venue v = null;
     
     v = new EngineerStation(base);

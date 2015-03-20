@@ -29,7 +29,7 @@ public class EngineerStation extends Venue {
     EngineerStation.class, "media/GUI/Buttons/artificer_button.gif"
   );
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    EngineerStation.class, "media/Buildings/artificer/artificer.png", 3, 2
+    EngineerStation.class, "media/Buildings/artificer/artificer.png", 4, 2
   );
   
   final public static Conversion
@@ -42,7 +42,7 @@ public class EngineerStation extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     EngineerStation.class, "engineer_station", "Engineer Station",
-    3, 2, false, NO_REQUIREMENTS, METALS_TO_PARTS
+    4, 2, false, NO_REQUIREMENTS, METALS_TO_PARTS
   );
   
   
@@ -200,7 +200,19 @@ public class EngineerStation extends Venue {
   
   
   public void addServices(Choice choice, Actor forActor) {
-    Commission.addCommissions(forActor, this, choice, services());
+    //  TODO:  Disallow commisions for certain gear if you don't have the
+    //         right upgrades.
+    
+    final DeviceType DT = forActor.gear.deviceType();
+    final OutfitType OT = forActor.gear.outfitType();
+    final Class ownType = this.getClass();
+    
+    if (DT != null && DT.materials().facility == ownType) {
+      Commission.addCommissions(forActor, this, choice, DT);
+    }
+    if (OT != null && OT.materials().facility == ownType) {
+      Commission.addCommissions(forActor, this, choice, OT);
+    }
   }
   
 

@@ -11,7 +11,6 @@ import stratos.util.*;
 
 
 
-
 //  TODO:  3 ACTIVITIES- HIDING, FINDING HOMES/BIRTHING, AND STEALING.
 
 //  TODO:  ADAPT BROWSING FOR THIS PURPOSE?  Avrodils and Rem Leeches
@@ -169,7 +168,7 @@ public class Vermin extends Actor {
   
   
   public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
-    return HumanDescription.configSimplePanel(this, panel, UI);
+    return ActorDescription.configSimplePanel(this, panel, UI);
   }
 }
 

@@ -46,6 +46,7 @@ public class MapsDisplay extends UIGroup {
   final Button modeButtons[];
   
   private float lastTime = -1;
+  private String mapTip = null;
   final Minimap minimap;
   final int RGBA[][];
   
@@ -67,8 +68,6 @@ public class MapsDisplay extends UIGroup {
         public void whenClicked() { setMapMode(modeID); }
       };
       b.alignVertical  (0   , MBS, 0 - MBS       );
-      //b.alignTop(0 - MBS, MBS);
-      //b.alignBottom(0, MBS);
       b.alignHorizontal(0.5f, MBS, (n * MBS) - HS);
       b.attachTo(this);
       modeButtons[n] = b;
@@ -115,6 +114,7 @@ public class MapsDisplay extends UIGroup {
     //  TODO:  Try and have this fade in gradually...
     final float time = Rendering.activeTime();
     if (((int) lastTime) != ((int) time)) {
+      mapTip = null;
       final int WS = world.size;
       for (Coord c : Visit.grid(0, 0, WS, WS, 1)) {
         RGBA[c.x][c.y] = colourFor(c);
@@ -130,7 +130,15 @@ public class MapsDisplay extends UIGroup {
   }
   
   
-  
+  protected String info() {
+    return mapTip;
+  }
+
+
+
+
+
+
   /**  Utility methods for getting appropriate tile-colours for various display
     *  modes...
     */
@@ -209,12 +217,35 @@ public class MapsDisplay extends UIGroup {
   }
   
   
+  //  TODO:  Restore display modes for browsers and predators once you figure
+  //         out context-sensitive tooltips.
+  
+  //private BlurMap browserMap;
+  //private Base wild;
+  
   private Colour fertilityTone(Tile t) {
     //  TODO:  Include radiation, et cetera.
+    
+    /*
+    String keyB = Species.Type.BROWSER.name();
+    String keyP = Species.Type.PREDATOR.name();
+    if (browserMap == null) {
+      wild = base.wildlife(BaseUI.current().world());
+      browserMap = wild.demands.mapForSupply(keyB);
+    }
+    //*/
+    
+    float f = world.terrain().fertilitySample(t);
+    float b = 0;//Nums.clamp(wild.demands.supplyAround(t, keyB, -1) / 4, 0, 1);
+    float p = 0;//Nums.clamp(wild.demands.supplyAround(t, keyP, -1) / 4, 0, 1);
+    return modeTone.set(p, f, b, 1);
+    
+    /*
     final float
       f = world.terrain().fertilitySample(t),
       s = safeRange(0 - world.ecology().ambience.valueAt(t) / 5);
-    return modeTone.set(s, f, s, Nums.max(f, s));
+    return modeTone.set(0, f, 0, 1);//Nums.max(f, s));
+    //*/
   }
   
   

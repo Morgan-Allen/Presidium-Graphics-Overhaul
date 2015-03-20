@@ -113,9 +113,12 @@ public class Bastion extends Venue {
     float rating = 5;
     if (inWorld()) return rating;
     
-    final int SS = Stage.SECTOR_SIZE;
+    //  TODO:  Also minerals & insolation, etc?
+    rating *= 1 + world.terrain().fertilitySample(world.tileAt(point));
+    
     final Target nearest = world.presences.nearestMatch(Venue.class, point, -1);
     if (nearest == null) return rating;
+    final int SS = Stage.SECTOR_SIZE;
     return rating * (SS + Spacing.distance(point, nearest)) / SS;
   }
   

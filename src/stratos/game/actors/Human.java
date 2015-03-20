@@ -314,7 +314,7 @@ public class Human extends Actor implements Qualities {
   
   
   public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
-    return HumanDescription.configPanel(this, panel, UI);
+    return ActorDescription.configPanel(this, panel, UI);
   }
 }
 

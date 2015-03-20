@@ -138,7 +138,7 @@ public class Ruins extends Venue {
     int space = 0;
     if (b == Species.CRANIAL) space = 0;// (int) (spaceLevel * 1);
     if (b == Species.TRIPOD ) space = 1;// (int) (spaceLevel * 3);
-    if (b == Species.DRONE  ) space = 2;//(int) (spaceLevel * 5);
+    if (b == Species.DRONE  ) space = 2;// (int) (spaceLevel * 5);
     if (report) I.say("  "+space+" openings for "+b+" at "+this);
     return space;
   }
@@ -147,6 +147,17 @@ public class Ruins extends Venue {
   //  TODO:  Allow for mutants, etc.?
   public Background[] careers() { return Species.ARTILECT_SPECIES; }
   public Traded[] services() { return null; }
+  
+  
+  public static void populateRuins(
+    Stage world, int numRuins, Species... inhabit
+  ) {
+    final Base artilects = Base.artilects(world);
+    final Batch <Venue> placed = artilects.setup.doPlacementsFor(
+      Ruins.VENUE_PROFILES[0], numRuins
+    );
+    artilects.setup.fillVacancies(placed, true);
+  }
   
   
   

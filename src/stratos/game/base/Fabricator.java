@@ -152,16 +152,6 @@ public class Fabricator extends Venue {
   }
   
   
-  public void addServices(Choice choice, Actor forActor) {
-    //  TODO:  Disallow commisions for finery or camouflage if you don't have
-    //  the needed upgrades.
-    Commission.addCommissions(
-      forActor, this, choice,
-      OVERALLS, SEALSUIT, STEALTH_SUIT, FINERY
-    );
-  }
-  
-  
   public int numOpenings(Background v) {
     int nO = super.numOpenings(v);
     if (v == Backgrounds.FABRICATOR) return nO + 2;
@@ -170,14 +160,26 @@ public class Fabricator extends Venue {
   
   
   public Traded[] services() {
-    return new Traded[] {
-      PLASTICS, OVERALLS, SEALSUIT, STEALTH_SUIT, DECOR, FINERY
-    };
+    return new Traded[] { PLASTICS, DECOR };
   }
   
   
   public Background[] careers() {
     return new Background[] { Backgrounds.FABRICATOR };
+  }
+  
+  
+  public void addServices(Choice choice, Actor forActor) {
+    
+    //  TODO:  Disallow commissions for certain outfits if you don't have the
+    //  needed upgrades.
+    
+    final OutfitType OT = forActor.gear.outfitType();
+    final Class ownType = this.getClass();
+    
+    if (OT != null && OT.materials().facility == ownType) {
+      Commission.addCommissions(forActor, this, choice, OT);
+    }
   }
   
   

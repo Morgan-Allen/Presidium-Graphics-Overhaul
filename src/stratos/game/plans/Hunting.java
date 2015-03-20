@@ -144,19 +144,19 @@ public class Hunting extends Combat {
     final float hunger = actor.health.hungerLevel();
     
     if (type == TYPE_FEEDS) {
-      urgency = hunger * PARAMOUNT * (0.5f + Nums.min(crowding, hunger));
-      harmLevel = REAL_HARM;
+      urgency    = hunger * PARAMOUNT * (1 + Nums.min(crowding, hunger));
+      harmLevel  = REAL_HARM;
       baseTraits = Combat.BASE_TRAITS;
     }
     else if (type == TYPE_HARVEST) {
       if (crowding < 1) return 0;
-      urgency = Nums.clamp(ROUTINE * crowding, CASUAL, URGENT);
-      harmLevel = REAL_HARM;
+      urgency    = Nums.clamp(ROUTINE * crowding, CASUAL, URGENT);
+      harmLevel  = REAL_HARM;
       baseTraits = HARVEST_TRAITS;
     }
     else {
-      urgency = ROUTINE;
-      harmLevel = NO_HARM;
+      urgency    = ROUTINE;
+      harmLevel  = NO_HARM;
       baseTraits = SAMPLE_TRAITS;
     }
     

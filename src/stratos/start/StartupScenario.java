@@ -206,14 +206,16 @@ public class StartupScenario extends Scenario {
     //  Pick out some random colonists-
     final List <Human> colonists = colonists(base);
     //
-    //  Establish starting positions for the locals-
-    establishLocals(world);
-    //
-    //  And finally, establish the position of the base site-
+    //  Establish the position of the base site-
     final Bastion bastion = establishBastion(
       world, base, ruler, advisors, colonists
     );
     UI.assignBaseSetup(base, bastion.position(null));
+    //
+    //  Establish starting positions for the locals.  (We actually do this last
+    //  largely for balance reasons, though strictly speaking the locals would
+    //  of course be there first.)
+    establishLocals(world);
   }
   
   
@@ -340,17 +342,14 @@ public class StartupScenario extends Scenario {
     
     //  TODO:  Allow for natives as well?
     int maxRuins = 0;
-    VenueProfile nestTypes[] = null;
+    Species nesting[] = null;
     
     if (config.siteLevel == SITE_SETTLED) {
-      nestTypes = new VenueProfile[] {
-        Species.QUDU  .nestProfile(),
-        Species.HAREEN.nestProfile()
-      };
+      nesting = new Species[] { Species.QUDU, Species.HAREEN } ;
     }
     if (config.siteLevel == SITE_WILDERNESS) {
       maxRuins = world.size / (Stage.SECTOR_SIZE * 4);
-      nestTypes = Nest.VENUE_PROFILES;
+      nesting = Species.ANIMAL_SPECIES;
     }
     if (config.siteLevel == SITE_WASTELAND) {
       maxRuins = world.size / (Stage.SECTOR_SIZE * 2);
@@ -360,11 +359,7 @@ public class StartupScenario extends Scenario {
       Ruins.VENUE_PROFILES[0], maxRuins
     );
     Base.artilects(world).setup.fillVacancies(ruins, true);
-    
-    if (nestTypes != null) {
-      Base.wildlife(world).setup.setAvailableVenues(nestTypes);
-      Base.wildlife(world).setup.doFullPlacements();
-    }
+    if (nesting != null) Nest.populateFauna(world, nesting);
   }
 }
 

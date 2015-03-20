@@ -128,7 +128,7 @@ public class BaseSetup {
         float y = section.absY + Rand.index(section.size);
         v.setPosition(x, y, world);
         if (! v.canPlace()) continue;
-        final float rating = v.ratePlacing(v, false);
+        final float rating = v.ratePlacing(world.tileAt(v), false);
         if (rating <= 0) continue;
         v.enterWorld();
         v.structure.setState(Structure.STATE_INTACT, 1);

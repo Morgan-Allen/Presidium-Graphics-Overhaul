@@ -16,18 +16,16 @@ import stratos.util.*;
 
 public class Nest extends Venue {
   
-  
-  
   /**  Fields, constructors, and save/load methods-
     */
   private static boolean
-    ratingVerbose   = false,
-    updateVerbose   = false;
+    ratingVerbose = false,
+    updateVerbose = false;
   
   final public static int
-    BROWSER_FORAGE_DIST  = Stage.SECTOR_SIZE  / 2,
-    PREDATOR_FORAGE_DIST = Stage.SECTOR_SIZE  * 2,
-    MAX_SEPARATION       = Stage.SECTOR_SIZE  * 2,
+    BROWSER_FORAGE_DIST  = Stage.SECTOR_SIZE / 2,
+    PREDATOR_FORAGE_DIST = Stage.SECTOR_SIZE * 2,
+    MAX_SEPARATION       = Stage.SECTOR_SIZE * 2,
     SAMPLE_AREA          = Nums.square(BROWSER_FORAGE_DIST),
     
     BROWSER_RATIO   = 12,
@@ -38,16 +36,6 @@ public class Nest extends Venue {
   
   final Species species;
   private float cachedIdealPop = -1;
-  
-  
-  final public static VenueProfile VENUE_PROFILES[];
-  static {
-    final Species nesting[] = Species.ANIMAL_SPECIES;
-    VENUE_PROFILES = new VenueProfile[nesting.length];
-    for (int n = nesting.length ; n-- > 0;) {
-      VENUE_PROFILES[n] = nesting[n].nestProfile();
-    }
-  }
   
   
   /**  More typical construction and save/load methods-
@@ -87,12 +75,16 @@ public class Nest extends Venue {
     return new Background[] { species };
   }
   
+  
+  //  TODO:  Get rid of these.  Fauna are residents, not employees.
+  
   public int numOpenings(Background b) {
     final int nO = super.numOpenings(b);
     if (cachedIdealPop == -1) return 0;
     if (b == species) return nO + (int) cachedIdealPop;
     return 0;
   }
+  
   
   public float crowdRating(Actor a, Background b) {
     if (b == species) return super.crowdRating(a, b);
@@ -139,14 +131,9 @@ public class Nest extends Venue {
       );
       foodSupply /= PREDATOR_RATIO;
     }
-    
-    if (I.talkAbout == point) {
-      I.say("FOOD SUPPLY IS: "+foodSupply);
-    }
-    
     //
     //  If possible, we cache the result obtained for later use:
-    final int estimate = (int) (foodSupply / species.metabolism());
+    final float estimate = (foodSupply / species.metabolism());
     if (n != null) n.cachedIdealPop = estimate;
     return estimate;
   }
@@ -190,13 +177,27 @@ public class Nest extends Venue {
   }
   
   
+  //private static Nest lastRated = null;
+  
   public float ratePlacing(Target point, boolean exact) {
-    Stage world = origin().world;
+    final Stage world = point.world();
     final float
       idealPop = idealPopulation(point, species, world),
       crowding = crowdingFor    (point, species, world),
       mass     = species.metabolism();
-    return idealPop * mass * (1 - crowding);
+    
+    if (true && species.predator()) {
+      final Vec3D p = point.position(null);
+      I.say("\n  "+p+" Ideal pop: "+idealPop+", crowding: "+crowding);
+      final BaseDemands bd = Base.wildlife(world).demands;
+      final int fr = PREDATOR_FORAGE_DIST;
+      
+      float ls = bd.supplyAround(point, Species.Type.BROWSER.name(), fr);
+      float gs = bd.globalSupply(Species.Type.BROWSER.name());
+      I.say("    Global browser supply: "+gs+", map size:    "+world.size);
+      I.say("    Local browser supply:  "+ls+", forage dist: "+fr        );
+    }
+    return ((int) idealPop) * mass * (1 - crowding);
   }
   
   
@@ -228,12 +229,6 @@ public class Nest extends Venue {
   }
   
   
-  public static Nest findNestFor(Fauna fauna) {
-    //  TODO:  Work this out.
-    return null;
-  }
-  
-  
   public static int forageRange(Species s) {
     return s.predator() ? PREDATOR_FORAGE_DIST : BROWSER_FORAGE_DIST;
   }
@@ -245,9 +240,10 @@ public class Nest extends Venue {
   
   
   public boolean preventsClaimBy(Venue other) {
+    final float distance = Spacing.distance(this, other);
+    
     if (other instanceof Nest) {
       final Nest near = (Nest) other;
-      final float distance = Spacing.distance(this, near);
       
       if (species.predator() || near.species.predator()) {
         final float minDist = species.predator() && near.species.predator() ?
@@ -255,13 +251,51 @@ public class Nest extends Venue {
         ;
         if (distance < minDist) return true;
       }
-      
       else {
         if (distance < BROWSER_FORAGE_DIST) return true;
       }
       return false;
     }
-    else return false;
+    else return distance <= BROWSER_FORAGE_DIST;
+  }
+  
+  
+  
+  /**  Utility methods for Nest-establishment.
+    */
+  final public static VenueProfile VENUE_PROFILES[];
+  static {
+    final Species nesting[] = Species.ANIMAL_SPECIES;
+    VENUE_PROFILES = new VenueProfile[nesting.length];
+    for (int n = nesting.length ; n-- > 0;) {
+      VENUE_PROFILES[n] = nesting[n].nestProfile();
+    }
+  }
+  
+  
+  private static void populate(Stage world, Species with[], Species.Type type) {
+    final Base wildlife = Base.wildlife(world);
+    
+    final Batch <VenueProfile> profiles = new Batch <VenueProfile> ();
+    for (Species s : with) if (s.type == type) {
+      profiles.add(s.nestProfile());
+    }
+    final Batch <Venue> placed = wildlife.setup.doFullPlacements(
+      profiles.toArray(VenueProfile.class)
+    );
+    wildlife.setup.fillVacancies(placed, true);
+  }
+  
+  
+  public static void populateFauna(Stage world, Species... available) {
+    populate(world, available, Species.Type.BROWSER );
+    populate(world, available, Species.Type.PREDATOR);
+  }
+  
+  
+  public static Nest findNestFor(Fauna fauna) {
+    //  TODO:  Work this out.
+    return null;
   }
   
   
@@ -284,7 +318,7 @@ public class Nest extends Venue {
     //*
     final Description d = panel.detail(), l = panel.listing();
     
-    int idealPop = (int) cachedIdealPop;
+    float idealPop = cachedIdealPop;
     int actualPop = staff.residents().size();
     
     l.append("\n\n  Nesting: ("+actualPop+"/"+idealPop+")");

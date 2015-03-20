@@ -238,28 +238,8 @@ public class DebugSocial extends Scenario {
     //  see how they react to (A) eachother and (B) the nearby base.
     
     GameSettings.fogFree = true;
-    final Base wildlife = Base.wildlife(world);
-    
-    //  TODO:  Implement this more generally.
-    //  NOTE:  Browsers need to be introduced before predators, to ensure the
-    //         latter can assess food sources correctly.
-    
-    //  TODO:  You also need to ensure that fauna can find new nests themselves
-    //         and migrate to and from off-map.
-    
     Flora.populateFlora(world);
-    
-    final VenueProfile P[] = Nest.VENUE_PROFILES;
-    Batch <Venue> placed = null;
-    placed = wildlife.setup.doFullPlacements(
-      P[0], P[1]
-    );
-    wildlife.setup.fillVacancies(placed, true);
-    
-    placed = wildlife.setup.doFullPlacements(
-      P[2]
-    );
-    wildlife.setup.fillVacancies(placed, true);
+    Nest.populateFauna(world, Species.ANIMAL_SPECIES);
   }
   
   

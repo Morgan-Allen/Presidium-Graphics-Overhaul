@@ -374,7 +374,7 @@ public abstract class Species extends Background {
   }
   
   
-  protected Fauna init(Fauna f) {
+  protected Actor init(Actor f) {
     f.health.setupHealth(Rand.num(), 0.9f, 0.1f);
     return f;
   }

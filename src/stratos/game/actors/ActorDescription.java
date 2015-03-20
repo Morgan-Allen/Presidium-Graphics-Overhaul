@@ -14,7 +14,7 @@ import stratos.util.*;
 
 //  NOTE:  I'm moving these methods here essentially for the sake of reducing
 //  clutter/space demands within the main Human or Actor classes.
-public class HumanDescription implements Qualities {
+public class ActorDescription implements Qualities {
   
   
   private static boolean
@@ -30,7 +30,7 @@ public class HumanDescription implements Qualities {
   final Actor h;
   
   
-  private HumanDescription(Actor human) {
+  private ActorDescription(Actor human) {
     this.h = human;
   }
   
@@ -47,7 +47,7 @@ public class HumanDescription implements Qualities {
     final int categoryID = panel.categoryID();
     final Description d = panel.detail(), l = panel.listing();
     
-    final HumanDescription HD = new HumanDescription(human);
+    final ActorDescription HD = new ActorDescription(human);
     HD.describeStatus(d, UI);
     
     if (categoryID == 0) HD.describeGear     (l, UI);
@@ -277,7 +277,7 @@ public class HumanDescription implements Qualities {
     );
     final Description d = panel.detail(), l = panel.listing();
     
-    final HumanDescription HD = new HumanDescription(actor);
+    final ActorDescription HD = new ActorDescription(actor);
     HD.describeStatus(d, UI);
     
     final Batch <Skill> skills = actor.traits.skillSet();

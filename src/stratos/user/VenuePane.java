@@ -472,8 +472,8 @@ public class VenuePane extends SelectionPane {
     d.append(a.vocation().name+")");
     
     final Series <Trait>
-      TD = HumanDescription.sortTraits(a.traits.personality(), a),
-      SD = HumanDescription.sortTraits(a.traits.skillSet()   , a);
+      TD = ActorDescription.sortTraits(a.traits.personality(), a),
+      SD = ActorDescription.sortTraits(a.traits.skillSet()   , a);
     
     int numS = 0;
     for (Trait s : SD) {
