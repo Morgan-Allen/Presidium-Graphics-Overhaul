@@ -392,7 +392,13 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   public Plan addMotives(int props) {
-    return addMotives(props, motiveBonus);
+    return addMotives(props, 0);
+  }
+  
+  
+  public void clearMotives() {
+    this.motiveProperties = MOTIVE_NONE;
+    this.motiveBonus      = 0;
   }
   
   
@@ -403,12 +409,6 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   public float motiveBonus() {
     return this.motiveBonus;
-  }
-  
-  
-  public void clearMotives() {
-    this.motiveProperties = MOTIVE_NONE;
-    this.motiveBonus      = 0;
   }
   
   
