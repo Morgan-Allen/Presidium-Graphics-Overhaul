@@ -118,7 +118,7 @@ public class DebugSocial extends Scenario {
     a3.gear.addItem(gift);
     
     final Proposal d2 = new Proposal(a3, a4);
-    d2.setMotive(Plan.MOTIVE_LEISURE, Plan.ROUTINE);
+    d2.addMotives(Plan.MOTIVE_LEISURE, Plan.ROUTINE);
     d2.setTerms(Pledge.giftPledge(gift, a3, a3, a4), null);
     a3.mind.assignBehaviour(d2);
     
@@ -242,11 +242,18 @@ public class DebugSocial extends Scenario {
     Actor fauna = Species.HAREEN.sampleFor(wild);
     fauna.enterWorldAt(9, 9, world);
     
-    //Actor meets = new Human(Backgrounds.VOLUNTEER, base);
-    Actor meets = Species.LICTOVORE.sampleFor(wild);
-    meets.enterWorldAt(10, 10, world);
+    Actor meets = new Human(Backgrounds.VOLUNTEER, base);
+    meets.enterWorldAt(12, 12, world);
     
-    UI.selection.pushSelection(fauna);
+    Actor watch = new Human(Backgrounds.ECOLOGIST, base);
+    watch.enterWorldAt(13, 13, world);
+    
+    Mission.quickSetup(
+      new StrikeMission(base, fauna),
+      Mission.PRIORITY_ROUTINE, Mission.TYPE_PUBLIC,
+      meets
+    );
+    UI.selection.pushSelection(watch);
   }
   
   

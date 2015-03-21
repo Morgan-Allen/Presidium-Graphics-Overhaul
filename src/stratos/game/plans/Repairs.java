@@ -103,7 +103,7 @@ public class Repairs extends Plan {
       if (near.base() != client.base()) continue;
       if (needForRepair(near) <= 0) continue;
       final Repairs b = new Repairs(client, near);
-      if (asDuty) b.setMotive(Plan.MOTIVE_JOB, Plan.ROUTINE);
+      if (asDuty) b.addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE);
       choice.add(b);
       
       if (report) {
@@ -118,7 +118,7 @@ public class Repairs extends Plan {
     final Tile toPave = p.nextTileToPave(client, null);
     if (toPave != null) {
       final RoadsRepair r = new RoadsRepair(client, toPave);
-      if (asDuty) r.setMotive(Plan.MOTIVE_JOB, Plan.CASUAL);
+      if (asDuty) r.addMotives(Plan.MOTIVE_JOB, Plan.CASUAL);
       choice.add(r);
       if (report) I.say("  Next tile to pave: "+toPave);
     }

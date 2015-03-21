@@ -94,7 +94,7 @@ public class ReconMission extends Mission {
       endMission(true);
       doneRecon = true;
     }
-    else explore.setMotive(Plan.MOTIVE_MISSION, basePriority(actor));
+    else explore.addMotives(Plan.MOTIVE_MISSION, basePriority(actor));
     return cacheStepFor(actor, explore);
   }
   

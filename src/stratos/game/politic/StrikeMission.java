@@ -94,7 +94,7 @@ public class StrikeMission extends Mission {
     final Combat combat = new Combat(
       actor, (Element) subject, Combat.STYLE_EITHER, objective()
     );
-    combat.setMotive(Plan.MOTIVE_MISSION, basePriority(actor));
+    combat.addMotives(Plan.MOTIVE_MISSION, basePriority(actor));
     
     return cacheStepFor(actor, combat);
   }

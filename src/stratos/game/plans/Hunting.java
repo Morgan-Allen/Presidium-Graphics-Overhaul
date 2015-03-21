@@ -64,7 +64,7 @@ public class Hunting extends Combat {
     if (depot == null) return null;
     final float hunger = actor.health.hungerLevel() * Plan.PARAMOUNT;
     final Hunting h = new Hunting(actor, prey, TYPE_HARVEST, depot);
-    return (Hunting) h.setMotive(Plan.MOTIVE_EMERGENCY, hunger);
+    return (Hunting) h.addMotives(Plan.MOTIVE_EMERGENCY, hunger);
   }
   
   

@@ -96,8 +96,8 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     urgency = Nums.clamp(relDanger * ROUTINE, IDLE, ROUTINE);
     
     float modifier = 0 - actor.senses.fearLevel();
-    if (actor.senses.isEmergency()) setMotive(MOTIVE_EMERGENCY);
-    else setMotive(MOTIVE_JOB);
+    if (actor.senses.isEmergency()) addMotives(MOTIVE_EMERGENCY);
+    else addMotives(MOTIVE_JOB);
     
     final float priority = priorityForActorWith(
       actor, guarded,
@@ -143,14 +143,14 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
       if (PlanUtils.harmIntendedBy(t, actor, true) <= 0) continue;
       final float dist = Spacing.distance(t, guarded) / range;
       final float bonus = Plan.ROUTINE * (1 - dist);
-      choice.add(new Combat(actor, (Element) t).setMotiveFrom(this, bonus));
+      choice.add(new Combat(actor, (Element) t).setMotivesFrom(this, bonus));
     }
     
     if (guarded instanceof Actor) {
-      choice.add(new FirstAid(actor, (Actor) guarded).setMotiveFrom(this, 0));
+      choice.add(new FirstAid(actor, (Actor) guarded).setMotivesFrom(this, 0));
     }
     if (guarded instanceof Venue) {
-      choice.add(new Repairs(actor, (Venue) guarded).setMotiveFrom(this, 0));
+      choice.add(new Repairs(actor, (Venue) guarded).setMotivesFrom(this, 0));
     }
     final Behaviour picked = choice.pickMostUrgent();
     if (Choice.wouldSwitch(actor, old, picked, true, report)) {
@@ -415,7 +415,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     if (report) I.say("  Venue picked: "+pick);
     if (pick != null) {
       final Patrolling p = Patrolling.aroundPerimeter(actor, pick, world);
-      p.setMotive(Plan.MOTIVE_JOB, priority);
+      p.addMotives(Plan.MOTIVE_JOB, priority);
       return p;
     }
     

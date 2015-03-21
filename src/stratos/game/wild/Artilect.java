@@ -171,7 +171,7 @@ public abstract class Artilect extends Actor {
     //  Security and defence related tasks-
     if (! isCranial) {
       final Plan patrol = Patrolling.aroundPerimeter(this, guards, world);
-      choice.add(patrol.setMotive(Plan.MOTIVE_JOB, Plan.IDLE));
+      choice.add(patrol.addMotives(Plan.MOTIVE_JOB, Plan.IDLE));
       choice.add(JoinMission.attemptFor(this));
     }
     //if (distance > 1)
@@ -184,8 +184,8 @@ public abstract class Artilect extends Actor {
     }
     if (home != null && ! home.staff().onShift(this)) {
       final Resting rest = new Resting(this, mind.home());
-      if (isDrone) rest.setMotive(Plan.MOTIVE_JOB, Plan.CASUAL);
-      else rest.setMotive(Plan.MOTIVE_JOB, Plan.ROUTINE);
+      if (isDrone) rest.addMotives(Plan.MOTIVE_JOB, Plan.CASUAL);
+      else rest.addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE);
       choice.add(rest);
     }
     //
@@ -198,13 +198,13 @@ public abstract class Artilect extends Actor {
           final Human other = (Human) t;
           if (other.health.conscious()) continue;
           final Plan recovery = new StretcherDelivery(this, other, home);
-          choice.add(recovery.setMotive(Plan.MOTIVE_JOB, Plan.CASUAL));
+          choice.add(recovery.addMotives(Plan.MOTIVE_JOB, Plan.CASUAL));
         }
         if (t instanceof Artilect) {
           final Artilect other = (Artilect) t;
           if (other.health.conscious()) continue;
           final Plan recovery = new StretcherDelivery(this, other, home);
-          choice.add(recovery.setMotive(Plan.MOTIVE_JOB, Plan.CASUAL));
+          choice.add(recovery.addMotives(Plan.MOTIVE_JOB, Plan.CASUAL));
         }
       }
     }

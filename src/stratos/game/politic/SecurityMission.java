@@ -97,7 +97,7 @@ public class SecurityMission extends Mission implements Qualities {
       actor, (Element) subject, base.world
     );
     final float basePriority = basePriority(actor);
-    patrol.setMotive(Plan.MOTIVE_MISSION, basePriority);
+    patrol.addMotives(Plan.MOTIVE_MISSION, basePriority);
     return cacheStepFor(actor, patrol);
   }
   

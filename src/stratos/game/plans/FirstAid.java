@@ -28,7 +28,7 @@ public class FirstAid extends Treatment {
   
   
   public FirstAid(Actor actor, Actor patient, Boarding refuge) {
-    super(actor, patient, INJURY, MOTIVE_JOB, refuge);
+    super(actor, patient, INJURY, null, refuge);
   }
   
   
@@ -85,7 +85,7 @@ public class FirstAid extends Treatment {
     
     final float severity = severity();
     if (severity <= 0) return 0;
-    if (severity > 0.5f) setMotive(MOTIVE_EMERGENCY, motiveBonus());
+    if (severity > 0.5f) addMotives(MOTIVE_EMERGENCY);
     
     //  Try to avoid giving first aid in the middle of a firefight...
     float modifier = 0;//actor.senses.isEmergency() ? -1 : 0;
@@ -121,6 +121,9 @@ public class FirstAid extends Treatment {
     final boolean report = stepsVerbose && I.talkAbout == actor;
     if (report) I.say("\nGetting next first aid step for "+actor);
     
+    //
+    //  You can't perform actual treatment while under fire, but you can get
+    //  the patient out of harm's way (see below.)
     final boolean underFire = actor.senses.isEmergency();
     
     if (patient.health.bleeding() && ! underFire) {
@@ -145,7 +148,7 @@ public class FirstAid extends Treatment {
       }
     }
     
-    if (Treatment.hasTreatment(INJURY, patient, hasBegun())) {
+    if (underFire || Treatment.hasTreatment(INJURY, patient, hasBegun())) {
       return null;
     }
     final Action aids = new Action(

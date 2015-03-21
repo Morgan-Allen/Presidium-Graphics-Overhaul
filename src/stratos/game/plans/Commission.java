@@ -276,7 +276,7 @@ public class Commission extends Plan {
     final int price = (int) calcPrice();
     shop .inventory().incCredits(0 - price);
     actor.inventory().incCredits(    price);
-    order.setMotive(Plan.MOTIVE_CANCELLED, 0);
+    order.addMotives(Plan.MOTIVE_CANCELLED, 0);
     delivered = true;
     return true;
   }

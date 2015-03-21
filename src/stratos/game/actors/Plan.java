@@ -11,18 +11,22 @@ import stratos.util.*;
 
 
 
+//  TODO:  Some of the reasoning here is a little opaque.  Rewrite this to
+//  have a single 'update' method, then read off everything else passively.
+
 public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   /**  Fields, constructors, and save/load methods-
     */
   final public static int
-    MOTIVE_LEISURE   = 0,
-    MOTIVE_JOB       = 1,
-    MOTIVE_PERSONAL  = 2,
-    MOTIVE_EMERGENCY = 3,
-    MOTIVE_MISSION   = 4,
-    MOTIVE_CANCELLED = 5;
+    MOTIVE_NONE      = 0 ,
+    MOTIVE_LEISURE   = 1 ,
+    MOTIVE_JOB       = 2 ,
+    MOTIVE_PERSONAL  = 4 ,
+    MOTIVE_EMERGENCY = 8 ,
+    MOTIVE_MISSION   = 16,
+    MOTIVE_CANCELLED = 32;
   
   final static float
     NULL_PRIORITY = -100;
@@ -46,10 +50,10 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     nextStep = null,
     lastStep = null;
   
-  private int   motiveType  = -1;
-  private float motiveBonus =  0;
+  private int   motiveProperties = -1;
+  private float motiveBonus      =  0;
   private float harmFactor = 0, competence = 1;
-  private boolean begun;  //  TODO:  Have a general 'stage' counter.
+  private boolean begun;  //  TODO:  Have a general 'stage' counter?
   
   
   
@@ -58,7 +62,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   ) {
     this.actor      = actor     ;
     this.subject    = subject   ;
-    this.motiveType = motiveType;
+    this.motiveProperties = motiveType;
     this.harmFactor = harmFactor;
     if (subject == null) I.complain("NULL PLAN SUBJECT");
   }
@@ -73,8 +77,9 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     this.priorityEval = s.loadFloat();
     this.nextStep     = (Behaviour) s.loadObject();
     this.lastStep     = (Behaviour) s.loadObject();
-    this.motiveType   = s.loadInt();
-    this.motiveBonus  = s.loadFloat();
+    
+    this.motiveProperties = s.loadInt  ();
+    this.motiveBonus      = s.loadFloat();
     
     this.harmFactor = s.loadFloat();
     this.competence = s.loadFloat();
@@ -90,8 +95,9 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     s.saveFloat (priorityEval);
     s.saveObject(nextStep    );
     s.saveObject(lastStep    );
-    s.saveInt   (motiveType  );
-    s.saveFloat (motiveBonus );
+    
+    s.saveInt  (motiveProperties);
+    s.saveFloat(motiveBonus     );
     
     s.saveFloat(harmFactor);
     s.saveFloat(competence);
@@ -126,12 +132,12 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   public boolean persistent() {
-    return motiveType == MOTIVE_JOB || motiveType == MOTIVE_PERSONAL;
+    return hasMotives(MOTIVE_JOB) || hasMotives(MOTIVE_PERSONAL);
   }
   
   
   public boolean isEmergency() {
-    return motiveType == MOTIVE_EMERGENCY;
+    return hasMotives(MOTIVE_EMERGENCY);
   }
   
   
@@ -151,7 +157,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     nextStep = lastStep = null;
     priorityEval = NULL_PRIORITY;
     actor.mind.cancelBehaviour(this, cause);
-    setMotive(MOTIVE_CANCELLED, 0);
+    addMotives(MOTIVE_CANCELLED, 0);
   }
   
   
@@ -233,7 +239,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     final boolean report = priorityVerbose && I.talkAbout == actor && hasBegun() && (
       verboseClass == null || verboseClass == this.getClass()
     );
-    if (motiveType == MOTIVE_CANCELLED) return -1;
+    if (hasMotives(MOTIVE_CANCELLED)) return -1;
     if (report && extraVerbose) {
       I.say("\nCurrent priority for "+this+" is: "+priorityEval);
     }
@@ -257,7 +263,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     final boolean report = stepsVerbose && I.talkAbout == actor && hasBegun() && (
       verboseClass == null || verboseClass == this.getClass()
     );
-    if (motiveType == MOTIVE_CANCELLED) return null;
+    if (hasMotives(MOTIVE_CANCELLED)) return null;
     
     if (report && extraVerbose) {
       I.say("\nCurrent plan step for "+this+" is: "+I.tagHash(nextStep));
@@ -299,11 +305,10 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   public boolean finished() {
-    final boolean report = (stepsVerbose || priorityVerbose) && hasBegun() && I.talkAbout == actor;
-    if (motiveType == MOTIVE_CANCELLED) return true;
-    
-    //  TODO:  Some of the reasoning here is a little opaque.  Rewrite this to
-    //  have a single 'update' method, then read off everything else passively.
+    final boolean report =
+      (stepsVerbose || priorityVerbose) &&
+      hasBegun() && I.talkAbout == actor;
+    if (hasMotives(MOTIVE_CANCELLED)) return true;
     
     if (actor == null) return false;
     
@@ -367,26 +372,32 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   /**  Assorted utility evaluation methods-
     */
-  public Plan setMotive(int type, float bonus) {
-    this.motiveType  = type ;
-    this.motiveBonus = bonus;
+  //
+  //  NOTE:  Motive properties can be OR'd together to signify that you have
+  //  more than one.
+  public Plan addMotives(int props, float bonus) {
+    this.motiveProperties |= props;
+    this.motiveBonus      += bonus;
     this.lastEvalTime = -1;
     return this;
   }
   
   
-  public Plan setMotive(int type) {
-    return setMotive(type, motiveBonus);
+  public Plan setMotivesFrom(Plan parent, float bonus) {
+    this.motiveProperties = parent.motiveProperties;
+    this.motiveBonus      = parent.motiveBonus + bonus;
+    this.lastEvalTime = -1;
+    return this;
   }
   
   
-  public Plan setMotiveFrom(Plan parent, float bonus) {
-    return setMotive(parent.motiveType, parent.motiveBonus + bonus);
+  public Plan addMotives(int props) {
+    return addMotives(props, motiveBonus);
   }
   
   
-  public boolean hasMotiveType(int type) {
-    return this.motiveType == type;
+  public boolean hasMotives(int props) {
+    return (this.motiveProperties ^ props) == props;
   }
   
   
@@ -395,8 +406,9 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   }
   
   
-  public int motiveType() {
-    return motiveType;
+  public void clearMotives() {
+    this.motiveProperties = MOTIVE_NONE;
+    this.motiveBonus      = 0;
   }
   
   
@@ -466,12 +478,12 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     
     boolean report
   ) {
-    if (motiveType == MOTIVE_CANCELLED) return PRIORITY_NEVER;
+    if (hasMotives(MOTIVE_CANCELLED)) return PRIORITY_NEVER;
     if (doesVerbose && hasBegun() && I.talkAbout == actor) report = true;
     
     this.harmFactor    = subjectHarm ;
     //this.competeFactor = peersCompete;
-    final boolean mission = motiveType == MOTIVE_MISSION;
+    final boolean mission = hasMotives(MOTIVE_MISSION);
     float priority = PARAMOUNT, relation = 0;
     
     //  Firstly, we calculate the effect of internal and external motivations,
@@ -500,7 +512,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     
     if (report) {
       I.say("  Default priority range:      "+defaultRange);
-      I.say("  Motive type/bonus:           "+motiveType+"/"+motiveBonus);
+      I.say("  Motive type/bonus:           "+motiveProperties+"/"+motiveBonus);
       I.say("  After motive effects:        "+priority+"/"+defaultRange);
     }
     
@@ -755,20 +767,6 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     return PRIORITY_DESCRIPTIONS[Nums.clamp((int) index, maxIndex)];
   }
 }
-
-
-
-
-/*
-//  We do not cache steps for dormant or 'under consideration' plans, since
-//  that can screw up proper sequence of evaluation/execution.  Start from
-//  scratch instead.
-if (! isActive()) {
-  if (report) I.say("\nNEXT STEP GOT WHILE INACTIVE.");
-  clearEval(actor);
-  return getNextStep();
-}
-//*/
 
 
 

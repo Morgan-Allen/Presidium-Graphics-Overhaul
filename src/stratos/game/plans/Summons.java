@@ -210,7 +210,7 @@ public class Summons extends Plan {
     final Summons summons = new Summons(
       subject, host, (Venue) venue, TYPE_GUEST
     );
-    summons.setMotive(Plan.MOTIVE_JOB, priority);
+    summons.addMotives(Plan.MOTIVE_JOB, priority);
     return summons;
   }
   

@@ -207,7 +207,7 @@ public class CultureLab extends Venue {
       final Actor a = (Actor) match.refers;
       if (a.aboard() instanceof Venue) {
         final Delivery d = new Delivery(match, this, (Venue) a.aboard());
-        d.setMotive(Plan.MOTIVE_EMERGENCY, Plan.URGENT);
+        d.addMotives(Plan.MOTIVE_EMERGENCY, Plan.URGENT);
         choice.add(d.setWithPayment(this, false));
       }
     }

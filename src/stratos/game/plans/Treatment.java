@@ -32,12 +32,13 @@ public class Treatment extends Plan implements Item.Passive {
   
   protected Treatment(
     Actor treats, Actor patient,
-    Condition treated, int motiveType, Boarding sickbay
+    Condition treated, Plan parent, Boarding sickbay
   ) {
-    super(treats, patient, motiveType, REAL_HELP);
+    super(treats, patient, MOTIVE_JOB, REAL_HELP);
     this.patient  = patient;
     this.sickness = treated;
     this.sickbay  = sickbay;
+    if (parent != null) setMotivesFrom(parent, 0);
   }
   
   
@@ -58,7 +59,7 @@ public class Treatment extends Plan implements Item.Passive {
   
   
   public Plan copyFor(Actor other) {
-    return new Treatment(other, patient, sickness, motiveType(), sickbay);
+    return new Treatment(other, patient, sickness, this, sickbay);
   }
   
   
@@ -87,9 +88,12 @@ public class Treatment extends Plan implements Item.Passive {
       I.say("  Most pressing condition: "+pick.result());
       I.say("  Danger level: "+pick.bestRating());
     }
-    final boolean urgent = pick.bestRating() > 0.5f;
-    final int motive = urgent ? MOTIVE_EMERGENCY : MOTIVE_JOB;
-    return new Treatment(treats, patient, pick.result(), motive, sickbay);
+    
+    final Treatment treatment = new Treatment(
+      treats, patient, pick.result(), null, sickbay
+    );
+    if (pick.bestRating() > 0.5f) treatment.addMotives(MOTIVE_EMERGENCY);
+    return treatment;
   }
   
   

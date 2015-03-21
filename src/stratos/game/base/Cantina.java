@@ -150,13 +150,13 @@ public class Cantina extends Venue implements Performance.Theatre {
           actor, this, Recreation.TYPE_EROTICS, a, LODGING_PRICE
         );
         if (staff.assignedTo(p) > 0) continue;
-        p.setMotive(Plan.MOTIVE_JOB, Plan.ROUTINE);
+        p.addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE);
         return p;
       }
       final Performance p = new Performance(
         actor, this, Recreation.TYPE_SONG, null, SONG_TIP
       );
-      p.setMotive(Plan.MOTIVE_JOB, Plan.CASUAL);
+      p.addMotives(Plan.MOTIVE_JOB, Plan.CASUAL);
       return p;
     }
     return null;

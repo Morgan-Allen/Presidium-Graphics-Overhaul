@@ -21,7 +21,7 @@ public class PlanUtils {
   
   
   private static boolean
-    verbose = false;
+    verbose = true ;
   
   private static boolean reportOn(Actor a) {
     return I.talkAbout == a && verbose;

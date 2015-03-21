@@ -143,7 +143,7 @@ public class DebugMissions extends Scenario {
     vet.enterWorldAt(4, 4, world);
     
     final Combat combat = new Combat(robot, vet);
-    combat.setMotive(Plan.MOTIVE_EMERGENCY, 100);
+    combat.addMotives(Plan.MOTIVE_EMERGENCY, 100);
     robot.mind.assignBehaviour(combat);
     
     final Mission security = new SecurityMission(base, vet);

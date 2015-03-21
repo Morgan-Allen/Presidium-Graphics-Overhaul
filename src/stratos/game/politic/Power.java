@@ -667,7 +667,7 @@ public abstract class Power extends Technique implements Qualities {
         }
         else priorityMod = Plan.ROUTINE;
         priorityMod *= (0.5f + Rand.avgNums(2));
-        command.setMotive(Plan.MOTIVE_EMERGENCY, priorityMod);
+        command.addMotives(Plan.MOTIVE_EMERGENCY, priorityMod);
         final float activePriority = command.priorityFor(affects);
         
         if (report) {

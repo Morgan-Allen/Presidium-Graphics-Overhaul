@@ -173,7 +173,7 @@ public class PhysicianStation extends Venue {
     
     for (Target m : around) if (m instanceof Actor) {
       final FirstAid t = new FirstAid(actor, (Actor) m, this);
-      t.setMotive(Plan.MOTIVE_JOB, Plan.ROUTINE);
+      t.addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE);
       choice.add(t);
       choice.add(Treatment.nextTreatment(actor, (Actor) m, this));
     }

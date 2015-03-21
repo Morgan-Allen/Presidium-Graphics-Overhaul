@@ -172,6 +172,20 @@ public abstract class Mission implements Session.Saveable, Selectable {
   }
   
   
+  public static void quickSetup(
+    Mission mission, int priority, int type, Actor... toAssign
+  ) {
+    mission.assignPriority(priority > 0 ? priority : PRIORITY_ROUTINE);
+    mission.setMissionType(type     > 0 ? type     : TYPE_PUBLIC     );
+    for (Actor meets : toAssign) {
+      meets.mind.assignMission(mission);
+      mission.setApprovalFor(meets, true);
+    }
+    mission.base.tactics.addMission(mission);
+    mission.beginMission();
+  }
+  
+  
   
   /**  General life-cycle, justification and setup methods-
     */
@@ -365,7 +379,9 @@ public abstract class Mission implements Session.Saveable, Selectable {
     
     final Role oldRole = roleFor(actor);
     if (is) {
-      if (actor.mind.mission() != this) I.complain("MUST CALL setMission()!");
+      if (actor.mind.mission() != this) {
+        I.complain("MUST CALL assignMission() for "+actor+"!");
+      }
       if (oldRole != null) return;
       Role role = new Role();
       role.applicant = actor;

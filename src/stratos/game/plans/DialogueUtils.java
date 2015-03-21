@@ -109,7 +109,7 @@ public class DialogueUtils implements Qualities {
     final float urge = DialogueUtils.talkResult(
       SUASION, ROUTINE_DC, actor, other
     ) * Plan.CASUAL;
-    copy.setMotive(Plan.MOTIVE_LEISURE, urge + copy.motiveBonus());
+    copy.addMotives(Plan.MOTIVE_LEISURE, urge + copy.motiveBonus());
     
     //  TODO:  Compare with whatever the actor has on their todo-list, or from
     //  a mission.

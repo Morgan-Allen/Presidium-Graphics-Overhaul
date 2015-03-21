@@ -103,7 +103,7 @@ public class DebugSecurity extends Scenario {
     );
     station.stocks.addItem(Item.withAmount(breeding.asSeed(), 0.95f));
     
-    breeding.setMotive(Plan.MOTIVE_JOB, Plan.CASUAL);
+    breeding.addMotives(Plan.MOTIVE_JOB, Plan.CASUAL);
     ecologist.mind.assignBehaviour(breeding);
     UI.selection.pushSelection(ecologist);
   }
@@ -124,7 +124,7 @@ public class DebugSecurity extends Scenario {
     final Looting loots = new Looting(
       runner, looted, Item.withAmount(Economy.GREENS, 1), runnerMarket
     );
-    loots.setMotive(Plan.MOTIVE_EMERGENCY, Plan.ROUTINE);
+    loots.addMotives(Plan.MOTIVE_EMERGENCY, Plan.ROUTINE);
     runner.mind.assignBehaviour(loots);
     runner.goAboard(looted.mainEntrance(), world);
     

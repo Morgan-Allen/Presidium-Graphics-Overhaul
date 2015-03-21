@@ -21,9 +21,10 @@ public class Joining extends Plan {
   
   
   public Joining(Actor actor, Plan basis, Actor joined) {
-    super(actor, basis.subject, basis.motiveType(), MILD_HELP);
+    super(actor, basis.subject, MOTIVE_NONE, MILD_HELP);
     this.basis = (basis.actor() == actor) ? basis : basis.copyFor(actor);
     this.joined = joined;
+    this.setMotivesFrom(basis, 0);
   }
   
   
@@ -55,7 +56,7 @@ public class Joining extends Plan {
   
   protected float getPriority() {
     if (! joined.isDoing(basis.getClass(), basis.subject())) return -1;
-    setMotiveFrom(basis, 0);
+    setMotivesFrom(basis, 0);
     return basis.priorityFor(actor);
   }
   

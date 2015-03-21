@@ -31,6 +31,10 @@ import stratos.util.*;
 
 /*  IMMEDIATE BUGFIXES:
 
+*  Just allow loading from last save, rather than prefixing 'current'.  (And
+   delete all later saves if you restart a mission or revert to an earlier
+   point in time, while you're at it.)
+
 *  Razing nests is counted as a crime by your own citizens.  Is that wrong?
 
 *  Nests too close to the bastion are being salvaged and left in an incorrect
@@ -105,9 +109,6 @@ CONTROL AND DIRECTION-
 INTERFACE AND DEBUGGING
 
 *  Try to implement some global debugging-levels.
-   
-*  Delete all later saves if you restart a mission or revert to an earlier
-   point in time.
 
 *  Include Advisors(?) and more detail Finances/Economy pane.
 

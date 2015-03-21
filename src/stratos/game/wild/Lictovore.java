@@ -110,7 +110,7 @@ public class Lictovore extends Fauna {
     crowding += 1 - ((health.caloryLevel() + 0.5f) / 2);
     final Fauna fights = findCompetition();
     if (fights != null && crowding > 1) {
-      final Plan fighting = new Combat(this, fights).setMotive(
+      final Plan fighting = new Combat(this, fights).addMotives(
         Plan.MOTIVE_EMERGENCY,
         (crowding - 1) * Plan.PARAMOUNT
       );

@@ -342,7 +342,10 @@ public abstract class ActorMind implements Qualities {
     if (behaviour == null) I.complain("CANNOT ASSIGN NULL BEHAVIOUR.");
     final boolean report = I.talkAbout == actor && decisionVerbose;
     
-    if (report) I.say("\nASSIGNING BEHAVIOUR "+behaviour);
+    if (report) {
+      I.say("\nASSIGNING BEHAVIOUR "+behaviour);
+      if (warnVerbose) I.reportStackTrace();
+    }
     actor.assignAction(null);
     
     final Behaviour replaced = rootBehaviour();

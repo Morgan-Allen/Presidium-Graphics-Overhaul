@@ -171,14 +171,14 @@ public class KommandoLodge extends Venue {
     
     final Exploring e = Exploring.nextExploration(actor);
     if (e != null) {
-      e.setMotive(Plan.MOTIVE_JOB, Plan.ROUTINE);
+      e.addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE);
       choice.add(e);
     }
     
     final float food = stocks.amountOf(CARBS) + stocks.amountOf(GREENS);
     if (food < 10) {
       final Foraging f = new Foraging(actor, this);
-      f.setMotive(Plan.MOTIVE_JOB, ((10 - food) / 10) * Plan.ROUTINE);
+      f.addMotives(Plan.MOTIVE_JOB, ((10 - food) / 10) * Plan.ROUTINE);
       choice.add(f);
     }
     //  TODO:  Add mounting behaviours, massed raiding against specified

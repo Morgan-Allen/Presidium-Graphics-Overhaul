@@ -135,7 +135,7 @@ public class Gifting extends Plan implements Qualities {
     if (actor.gear.hasItem(gift)) {
       if (giving.finished()) return null;
       this.stage = STAGE_GIVES;
-      giving.setMotiveFrom(this, 0);
+      giving.setMotivesFrom(this, 0);
       if (giving.priorityFor(actor) <= 0) return null;
       if (report) {
         I.say("  Entering dialogue mode for gift-giving.");
@@ -172,7 +172,7 @@ public class Gifting extends Plan implements Qualities {
     
     if (buys.mind.hasToDo(Gifting.class)) return null;
     final Dialogue d = new Dialogue(buys, receives);
-    if (parent != null) d.setMotiveFrom(parent, 0);
+    if (parent != null) d.setMotivesFrom(parent, 0);
     if (d.priorityFor(buys) <= 0) return null;
     
     float rating, bestRating = 0;

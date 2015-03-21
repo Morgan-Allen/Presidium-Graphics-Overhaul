@@ -129,7 +129,7 @@ public class ContactMission extends Mission {
     final Proposal talks = new Proposal(actor, with);
     final float novelty = with.relations.noveltyFor(actor);
     talks.setTerms(offers, sought);
-    talks.setMotive(Plan.MOTIVE_MISSION, basePriority(actor));
+    talks.addMotives(Plan.MOTIVE_MISSION, basePriority(actor));
     
     if (report) {
       I.say("Motive bonus is:    "+talks.motiveBonus());

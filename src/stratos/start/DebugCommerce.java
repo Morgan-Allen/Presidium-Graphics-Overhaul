@@ -158,7 +158,7 @@ public class DebugCommerce extends Scenario {
     );
     final Dropship ship = base.commerce.allVessels().atIndex(0);
     final Smuggling smuggle = new Smuggling(runner, runnerMarket, ship, moved);
-    smuggle.setMotive(Plan.MOTIVE_JOB, Plan.ROUTINE);
+    smuggle.addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE);
     runner.mind.assignBehaviour(smuggle);
     runner.goAboard(world.tileAt(13, 13), world);
     

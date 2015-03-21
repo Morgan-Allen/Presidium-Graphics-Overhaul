@@ -289,7 +289,7 @@ public class Arrest extends Plan {
     final float commandBonus = DialogueUtils.talkResult(
       COMMAND, MODERATE_DC, actor, other
     ) * ROUTINE;
-    sentence.setMotive(Plan.MOTIVE_EMERGENCY, commandBonus);
+    sentence.addMotives(Plan.MOTIVE_EMERGENCY, commandBonus);
     
     //  TODO:  The priority for the command needs to be at least paramount-
     //  nobody wants to be locked up, no matter how 'idle' they are...
