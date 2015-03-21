@@ -102,15 +102,24 @@ public class Exploring extends Plan implements Qualities {
   public static Exploring nextSurvey(
     Base base, Actor actor, Target point, float range
   ) {
-    final Tile core = Spacing.nearestOpenTile(point, point);
-    final Tile toExplore = (range > 0) ? IntelMap.getUnexplored(
+    Tile core      = Spacing.nearestOpenTile(point, point);
+    Tile toExplore = (range > 0) ? IntelMap.getUnexplored(
       base, actor, point, Stage.SECTOR_SIZE, range
     ) : core;
     if (toExplore == null) return null;
+    if (core == null) core = toExplore;
     
     final Exploring e = new Exploring(actor, base, TYPE_SURVEY, core, 0);
     e.lookedAt = toExplore;
     return e;
+  }
+  
+  
+  public static boolean canExplore(Base base, Target point) {
+    final Tile toExplore = IntelMap.getUnexplored(
+      base, null, point, Stage.SECTOR_SIZE, Stage.SECTOR_SIZE / 2
+    );
+    return toExplore != null;
   }
   
   
