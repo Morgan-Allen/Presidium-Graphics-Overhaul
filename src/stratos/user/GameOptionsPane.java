@@ -143,30 +143,26 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
   
   public static void appendLoadOptions(Text text, String prefix) {
     
-    final int
-      prefLength =  prefix == null ? 0 : prefix.length(),
-      extLength  = (prefix == null ? "-current.rep" : ".rep").length();
+    //  TODO:  List any associated Psi costs here, based on time-stamp.
+    final Series <String> saves = prefix == null ?
+      SaveUtils.latestSaves()     :
+      SaveUtils.savedFiles(prefix);
     
-    //  TODO:  List any associated Psi costs here (for non-current saves.)
-    for (final String path : Scenario.savedFiles(prefix)) {
-      final boolean current = path.endsWith("-current.rep");
-      //if (prefix != null &&   current) continue;
-      if (prefix == null && ! current) continue;
-      
-      String titlePath = path.substring(
-        prefLength, path.length() - extLength
-      );
-      if (prefix != null && current) {
-        titlePath = "Last Save";
-      }
+    for (final String path : saves) {
+      final String titlePath;
+      if (prefix == null) titlePath = SaveUtils.prefixFor(path);
+      else                titlePath = SaveUtils.suffixFor(path);
       
       text.append("\n  ");
       text.append(new Link(titlePath) { public void whenClicked() {
-        Scenario.loadGame("saves/"+path, true);
+        SaveUtils.loadGame("saves/"+path, true);
       }});
     }
   }
 }
+
+
+
 
 
 

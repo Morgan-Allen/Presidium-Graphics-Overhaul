@@ -73,7 +73,7 @@ public class TargetOptions extends UIGroup implements UIConstants {
     if (
       (subject instanceof Actor ||
        subject instanceof Venue)
-      && subject.base() != base
+      && (base.relations.relationWith(subject.base()) <= 0)
     ) {
       options.add(new OptionButton(
         BUI, Mission.STRIKE_ICON, "Destroy or capture subject",

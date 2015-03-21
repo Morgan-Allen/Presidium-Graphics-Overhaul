@@ -176,7 +176,8 @@ public class Nest extends Venue {
     final Target home = fauna.mind.home();
     if (! (home instanceof Nest)) return 1;
     final Nest nest = (Nest) home;
-    if (nest.cachedIdealPop <= 0) return 1;
+    if (nest.cachedIdealPop == -1) return 0;
+    if (nest.cachedIdealPop ==  0) return 1;
     return nest.staff.residents().size() * 1f / nest.cachedIdealPop;
   }
   
@@ -282,7 +283,7 @@ public class Nest extends Venue {
   }
   
   
-  protected Box2D areaClaimed() {
+  public Box2D areaClaimed() {
     return new Box2D(footprint()).expandBy(forageRange(species));
   }
   
@@ -304,7 +305,7 @@ public class Nest extends Venue {
       }
       return false;
     }
-    else return distance <= BROWSER_FORAGE_DIST;
+    else return distance <= PREDATOR_FORAGE_DIST;
   }
   
   

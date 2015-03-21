@@ -109,6 +109,11 @@ public class ClaimsGrid {
   }
   
   
+  public Venue[] venuesConflicting(Venue owner) {
+    return venuesConflicting(owner.areaClaimed(), owner);
+  }
+  
+  
   public Venue[] venuesConflicting(Box2D newClaim, Venue owner) {
     final Batch <Claim> against = claimsConflicting(newClaim, owner);
     final Venue conflict[] = new Venue[against.size()];
@@ -134,8 +139,9 @@ public class ClaimsGrid {
         if (report) I.say("  Potential conflict: "+claim.owner);
         
         if ((! claim.flag) && claim.area.overlaps(area)) {
-          
           final Venue other = claim.owner;
+          if (other == owner) continue;
+          
           final boolean
             ownerClash = owner.preventsClaimBy(other),
             otherClash = other.preventsClaimBy(owner);

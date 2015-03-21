@@ -242,6 +242,9 @@ public class DebugSocial extends Scenario {
     Actor fauna = Species.HAREEN.sampleFor(wild);
     fauna.enterWorldAt(9, 9, world);
     
+    Venue nests = Species.HAREEN.nestProfile().sampleVenue(wild);
+    Placement.establishVenue(nests, fauna.origin(), true, world);
+    
     Actor meets = new Human(Backgrounds.VOLUNTEER, base);
     meets.enterWorldAt(12, 12, world);
     
@@ -249,8 +252,8 @@ public class DebugSocial extends Scenario {
     watch.enterWorldAt(13, 13, world);
     
     Mission.quickSetup(
-      new StrikeMission(base, fauna),
-      Mission.PRIORITY_ROUTINE, Mission.TYPE_PUBLIC,
+      new StrikeMission(base, nests),
+      Mission.PRIORITY_ROUTINE, Mission.TYPE_SCREENED,
       meets
     );
     UI.selection.pushSelection(watch);

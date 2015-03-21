@@ -3,9 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
-
 package stratos.game.wild;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -31,13 +28,6 @@ public class Lictovore extends Fauna {
   
   public Lictovore(Session s) throws Exception {
     super(s);
-    /*
-    if (! inWorld()) I.say("Must be dead...");
-    if (! health.alive()) {
-      I.say("DEAD LICTOVORE STILL REFERENCED");
-      //new Exception().printStackTrace();
-    }
-    //*/
   }
   
   
@@ -106,9 +96,9 @@ public class Lictovore extends Fauna {
     super.addChoices(choice);
     //
     //  Determine whether you should fight with others of your kind-
-    float crowding = Nest.crowdingFor(this);
-    crowding += 1 - ((health.caloryLevel() + 0.5f) / 2);
+    float crowding = Nest.crowdingFor(this) + 0.5f - health.caloryLevel();
     final Fauna fights = findCompetition();
+    
     if (fights != null && crowding > 1) {
       final Plan fighting = new Combat(this, fights).addMotives(
         Plan.MOTIVE_EMERGENCY,
@@ -203,8 +193,8 @@ public class Lictovore extends Fauna {
     final Tile free = Spacing.nearestOpenTile(tried, tried);
     if (free == null) return null;
     
-    final PresenceMap markMap = world.presences.mapFor(SpiceMidden.class);
-    final SpiceMidden near = (SpiceMidden) markMap.pickNearest(free, range);
+    final PresenceMap markMap = world.presences.mapFor(SpyceMidden.class);
+    final SpyceMidden near = (SpyceMidden) markMap.pickNearest(free, range);
     final float dist = near == null ? 10 : Spacing.distance(near, free);
     if (dist < 5) return null;
     
@@ -214,7 +204,7 @@ public class Lictovore extends Fauna {
   
   public boolean actionMarkTerritory(Lictovore actor, Tile toMark) {
     if (toMark.onTop() != null || toMark.blocked()) return false;
-    final SpiceMidden midden = new SpiceMidden();
+    final SpyceMidden midden = new SpyceMidden();
     midden.enterWorldAt(toMark.x, toMark.y, world);
     return true;
   }

@@ -76,7 +76,7 @@ public abstract class Species extends Background {
       Species.class, LAIR_DIR+"nest_micovore.png", 3.5f, 3
     ),
     MODEL_MIDDENS[] = CutoutModel.fromImages(
-      Species.class, LAIR_DIR, 1.35f, 1, false,
+      Species.class, LAIR_DIR, 1.0f, 1, false,
       "midden_a.png",
       "midden_b.png",
       "midden_c.png"
@@ -377,6 +377,10 @@ public abstract class Species extends Background {
   protected Actor init(Actor f) {
     f.health.setupHealth(Rand.num(), 0.9f, 0.1f);
     f.relations.setRelation(f.base(), 0.5f, 0);
+    
+    if (predator()) {
+      I.say("STARTING INJURY IS: "+f.health.injuryLevel());
+    }
     return f;
   }
   

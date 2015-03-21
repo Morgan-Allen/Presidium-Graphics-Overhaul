@@ -302,8 +302,16 @@ public class StartupScenario extends Scenario {
     
     base.setup.doPlacementsFor(bastion);
     
+    //
+    //  We clear away any structures that might have conflicted with the
+    //  bastion, along with their inhabitants-
+    for (Venue v : world.claims.venuesConflicting(bastion)) {
+      v.exitWorld();
+      for (Actor a : v.staff.residents()) a.exitWorld();
+    }
+    
     if (! bastion.inWorld()) I.complain("NO LANDING SITE FOUND!");
-    bastion.clearSurrounds();
+    
     for (Actor a : advisors) {
       a.mind.setHome(bastion);
       a.mind.setWork(bastion);

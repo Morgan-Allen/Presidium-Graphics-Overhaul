@@ -12,38 +12,30 @@ import stratos.user.*;
 import stratos.util.*;
 
 
-//
-//  TODO:  Try refurbishing this into a more general 'item-drop' class, where
-//  you supply the content, sprite and decay rate externally.
-//
-//  ...What about the flavour text and title?  Or just have it extend the
-//  ItemDrop class?
 
-
-public class SpiceMidden extends Fixture implements Selectable {
+public class SpyceMidden extends SupplyCache {
   
   
   /**  Construction and save/load methods-
     */
-  private float spiceAmount;
+  final static Traded SPYCE = Economy.SPYCE_T;
   
   
-  protected SpiceMidden() {
-    super(1, 1);
-    spiceAmount = 1 + (Rand.num() * 2);
+  protected SpyceMidden() {
+    super();
+    final float spiceAmount = 1 + (Rand.num() * 2);
+    this.stored.addItem(Item.withAmount(SPYCE, spiceAmount));
     attachSprite(Species.MODEL_MIDDENS[Rand.index(3)].makeSprite());
   }
   
   
-  public SpiceMidden(Session s) throws Exception {
+  public SpyceMidden(Session s) throws Exception {
     super(s);
-    spiceAmount = s.loadFloat();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveFloat(spiceAmount);
   }
   
   
@@ -52,13 +44,13 @@ public class SpiceMidden extends Fixture implements Selectable {
     */
   public boolean enterWorldAt(int x, int y, Stage world) {
     if (! super.enterWorldAt(x, y, world)) return false;
-    world.presences.togglePresence(this, origin(), true, SpiceMidden.class);
+    world.presences.togglePresence(this, origin(), true, SpyceMidden.class);
     return true;
   }
   
   
   public void exitWorld() {
-    world.presences.togglePresence(this, origin(), false, SpiceMidden.class);
+    world.presences.togglePresence(this, origin(), false, SpyceMidden.class);
     super.exitWorld();
   }
   
@@ -69,13 +61,8 @@ public class SpiceMidden extends Fixture implements Selectable {
   
   
   public void onGrowth(Tile t) {
-    spiceAmount -= Rand.num() / 2;
-    if (spiceAmount <= 0) setAsDestroyed();
-  }
-  
-  
-  public Item spice() {
-    return Item.withAmount(Economy.SPYCE_T, spiceAmount);
+    stored.removeItem(Item.withAmount(SPYCE, Rand.num() / 2));
+    if (stored.amountOf(SPYCE) <= 0) setAsDestroyed();
   }
   
   
@@ -95,14 +82,15 @@ public class SpiceMidden extends Fixture implements Selectable {
   }
   
   
-  public String objectCategory() {
-    return UIConstants.TYPE_TERRAIN;
-  }
-
-
   public Composite portrait(BaseUI UI) {
     //  TODO:  Fix this.
     return null;//new Composite(UI);
+  }
+  
+
+  /*
+  public String objectCategory() {
+    return UIConstants.TYPE_TERRAIN;
   }
   
   
@@ -134,7 +122,6 @@ public class SpiceMidden extends Fixture implements Selectable {
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (destroyed() || origin() == null) return;
     BaseUI.current().selection.renderCircleOnGround(rendering, this, hovered);
-    /*
     BaseUI.current().selection.renderPlane(
       rendering, world,
       position(null), (xdim() / 2f) + 0.5f,
@@ -142,8 +129,8 @@ public class SpiceMidden extends Fixture implements Selectable {
       Selection.SELECT_CIRCLE,
       true, this+""
     );
-    //*/
   }
+    //*/
 }
 
 

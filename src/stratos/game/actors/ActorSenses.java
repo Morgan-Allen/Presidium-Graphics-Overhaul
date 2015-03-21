@@ -306,7 +306,8 @@ public class ActorSenses implements Qualities {
       final boolean active      = near.health.conscious();
       
       //  TODO:  Unify this with the hostility-evaluation used in the Combat-
-      //         priority method in PlanUtils?
+      //         priority method in PlanUtils?  Look into CombatLoseChance in
+      //         particular.
       
       final float   hostility   = Nums.max(
         PlanUtils.harmIntendedBy(near, actor, true),

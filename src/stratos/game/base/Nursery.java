@@ -105,7 +105,7 @@ public class Nursery extends Venue implements TileConstants {
   }
   
   
-  protected Box2D areaClaimed() {
+  public Box2D areaClaimed() {
     return areaClaimed;
   }
   

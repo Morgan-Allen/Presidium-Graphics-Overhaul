@@ -75,7 +75,7 @@ public class KommandoLodge extends Venue {
   
   /**  Placement and area-claims:
     */
-  protected Box2D areaClaimed() {
+  public Box2D areaClaimed() {
     final Box2D area = new Box2D(footprint());
     area.expandBy(CLAIM_RADIUS);
     return area;

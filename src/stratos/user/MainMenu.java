@@ -302,7 +302,7 @@ public class MainMenu extends UIGroup {
   //  name of the ruler/subjects,) before committing to the landing choice.
   public void beginNewGame(Object args[]) {
     final Sector sector = (Sector) config.house;
-    final String title = Scenario.uniqueVariant(sector.houseName);
+    final String title = SaveUtils.uniqueVariant(sector.houseName);
     PlayLoop.setupAndLoop(new StartupScenario(config, title));
   }
   

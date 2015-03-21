@@ -174,7 +174,7 @@ public class NativeHut extends Venue {
   
   /**  Placement and construction-
     */
-  protected Box2D areaClaimed() {
+  public Box2D areaClaimed() {
     return new Box2D(footprint()).expandBy(RADIUS_CLAIMED);
   }
   

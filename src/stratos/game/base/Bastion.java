@@ -73,7 +73,7 @@ public class Bastion extends Venue {
   }
   
   
-  protected Box2D areaClaimed() {
+  public Box2D areaClaimed() {
     if (claims == null || ! inWorld()) {
       claims = new Box2D(footprint()).expandBy(CLAIM_RADIUS);
     }

@@ -109,7 +109,7 @@ public class ExcavationSite extends Venue implements TileConstants {
   }
   
   
-  protected Box2D areaClaimed() {
+  public Box2D areaClaimed() {
     return new Box2D(footprint()).expandBy(EXTRA_CLAIM_RANGE);
   }
   

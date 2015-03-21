@@ -47,7 +47,7 @@ public class PlanUtils {
     else if (actor.senses.isEmergency()) incentive += 10;
     
     winChance  = combatWinChance(actor, subject, teamSize);
-    inhibition = Nums.max(fear = (1 - winChance) * 5, conscience);
+    inhibition = Nums.max(fear = 0 * 5, conscience);
     priority   = incentive * winChance;
     
     if (report) I.reportVars(

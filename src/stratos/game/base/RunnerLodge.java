@@ -214,7 +214,7 @@ public class RunnerLodge extends Venue {
   }
   
   
-  protected Box2D areaClaimed() {
+  public Box2D areaClaimed() {
     return new Box2D(footprint()).expandBy(CLAIM_SIZE);
   }
   

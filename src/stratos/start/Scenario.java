@@ -6,12 +6,11 @@
 package stratos.start;
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.maps.PavingMap;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
-
+import static stratos.start.SaveUtils.*;
 import java.io.*;
 
 
@@ -25,8 +24,6 @@ public abstract class Scenario implements Session.Saveable, Playable {
     DO_SAVE_EXIT =  1,
     DO_LOAD      =  2,
     DO_RESTART   =  3;
-  final static String
-    CURRENT_SUFFIX = "-current";
   
   
   private int nextOp = DO_PLAY;
@@ -102,13 +99,13 @@ public abstract class Scenario implements Session.Saveable, Playable {
   }
   
   
-  protected void initScenario(String fromSave) {
-    final String savePath = fullSavePath(fromSave, null);
+  protected void initScenario(String prefix) {
+    final String savePath = latestSave(prefix);
     I.say("\nSave path is: "+savePath);
     
-    if (fromSave != null && Scenario.saveExists(savePath)) {
+    if (prefix != null && SaveUtils.saveExists(savePath)) {
       I.say("\n\nLoading scenario from save file...");
-      Scenario.loadGame(savePath, false);
+      loadGame(savePath, false);
       return;
     }
     
@@ -243,120 +240,6 @@ public abstract class Scenario implements Session.Saveable, Playable {
   }
   
   
-  //  TODO:  CONSIDER MOVING THESE TO A SCENARIO-UTILS CLASS
-  
-  //  TODO:  This method should *definitely* only be called from a specific
-  //  point in the overall play-loop sequence.  Fix that.
-  public static void loadGame(
-    final String saveFile, final boolean fromMenu
-  ) {
-    PlayLoop.sessionStateWipe();
-    I.say("Should be loading game from: "+saveFile);
-    final Playable loading = new Playable() {
-      
-      private boolean begun = false, done = false;
-      private Scenario loaded = null;
-
-      public HUD UI() { return null; }
-      public void updateGameState() {}
-      public void renderVisuals(Rendering rendering) {}
-      
-      public void beginGameSetup() {
-        final Thread loadThread = new Thread() {
-          public void run() {
-            I.say("Beginning loading...");
-            try {
-              final Session s = Session.loadSession(saveFile);
-              try { Thread.sleep(250); }
-              catch (Exception e) {}
-              loaded = s.scenario();
-              I.say("  Loaded scenario is: "+loaded);
-              done = true;
-            }
-            catch (Exception e) { I.report(e); }
-          }
-        };
-        loadThread.start();
-        begun = true;
-      }
-      
-      
-      public boolean shouldExitLoop() {
-        if (loaded == null) return false;
-        I.say("Loading complete...");
-        PlayLoop.setupAndLoop(loaded);
-        return false;
-      }
-      
-      
-      public boolean isLoading() {
-        return begun;
-      }
-      
-      public float loadProgress() {
-        //  TODO:  Implement some kind of progress readout here.
-        return done ? 1.0f : 0;//Session.loadProgress();
-      }
-    };
-    PlayLoop.setupAndLoop(loading);
-  }
-  
-  
-  public static String fullSavePath(String prefix, String suffix) {
-    if (suffix == null) suffix = CURRENT_SUFFIX;
-    return "saves/"+prefix+suffix+".rep";
-  }
-  
-  
-  public static boolean saveExists(String saveFile) {
-    final File file = new File(saveFile);
-    if (! file.exists()) return false;
-    else return true;
-  }
-  
-  
-  public static String uniqueVariant(String prefix) {
-    while (true) {
-      final String fullPath = fullSavePath(prefix, null);
-      if (saveExists(fullPath)) prefix = prefix+"I";
-      else break;
-    }
-    return prefix;
-  }
-
-  
-  public static List <String> savedFiles(String prefix) {
-    final List <String> allSaved = new List <String> ();
-    final File savesDir = new File("saves/");
-    
-    for (File saved : savesDir.listFiles()) {
-      final String name = saved.getName();
-      if (! name.endsWith(".rep")) continue;
-      if (prefix == null) {
-        if (! name.endsWith(CURRENT_SUFFIX+".rep")) continue;
-      }
-      else if (! name.startsWith(prefix)) continue;
-      allSaved.add(name);
-    }
-    
-    return allSaved;
-  }
-  
-  
-  private String timeStamp() {
-    final float time = world.currentTime() / Stage.STANDARD_DAY_LENGTH;
-    String
-      day = "Day "+(int) time,
-      hour = ""+(int) (24 * (time % 1)),
-      minute = ""+(int) (((24 * (time % 1)) % 1) * 60);
-    while (hour.length() < 2) hour = "0"+hour;
-    while (minute.length() < 2) minute = "0"+minute;
-    
-    final String newStamp = day+", "+hour+minute+" Hours";
-    return newStamp;
-  }
-  
-  
   
   /**  Methods for override by subclasses-
     */
@@ -366,17 +249,17 @@ public abstract class Scenario implements Session.Saveable, Playable {
     //         in order to ensure that the old scenario has the chance to exit
     //         the loop (if applicable.)  You can get nasty bugs otherwise.
     if (nextOp == DO_SAVE_EXIT) {
-      saveGame(fullSavePath(savesPrefix, CURRENT_SUFFIX));
+      saveGame(fullSavePath(savesPrefix, timeStamp(world)));
       return true;
     }
     if (nextOp == DO_SAVE) {
-      saveGame(fullSavePath(savesPrefix, timeStamp()));
+      saveGame(fullSavePath(savesPrefix, timeStamp(world)));
     }
     if (nextOp == DO_RESTART) {
       resetScenario();
     }
     if (nextOp == DO_LOAD) {
-      loadGame(fullSavePath(savesPrefix, CURRENT_SUFFIX), true);
+      loadGame(latestSave(savesPrefix), true);
     }
     nextOp = DO_PLAY;
     return false;

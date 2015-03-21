@@ -258,7 +258,7 @@ public abstract class Venue extends Structural implements
   }
   
   
-  protected Box2D areaClaimed() {
+  public Box2D areaClaimed() {
     return footprint();
   }
   

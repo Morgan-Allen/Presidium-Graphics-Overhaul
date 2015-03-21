@@ -75,7 +75,7 @@ public class Ruins extends Venue {
   }
   
   
-  protected Box2D areaClaimed() {
+  public Box2D areaClaimed() {
     return new Box2D(footprint()).expandBy(MIN_RUINS_SPACING);
   }
   
