@@ -30,36 +30,7 @@ public abstract class Artilect extends Actor {
   final static String
     FILE_DIR = "media/Actors/artilects/",
     XML_FILE = "ArtilectModels.xml";
-  final public static ModelAsset
-    MODEL_TRIPOD = MS3DModel.loadFrom(
-      FILE_DIR, "Tripod.ms3d", Species.class,
-      XML_FILE, "Tripod"
-    ),
-    MODEL_DEFENCE_DRONE = MS3DModel.loadFrom(
-      FILE_DIR, "DefenceDrone.ms3d", Species.class,
-      XML_FILE, "Defence Drone"
-    ),
-    MODEL_RECON_DRONE = MS3DModel.loadFrom(
-      FILE_DIR, "ReconDrone.ms3d", Species.class,
-      XML_FILE, "Recon Drone"
-    ),
-    MODEL_BLAST_DRONE = MS3DModel.loadFrom(
-      FILE_DIR, "BlastDrone.ms3d", Species.class,
-      XML_FILE, "Blast Drone"
-    ),
-    DRONE_MODELS[] = {
-      MODEL_DEFENCE_DRONE, MODEL_RECON_DRONE, MODEL_BLAST_DRONE
-    },
-    
-    MODEL_CRANIAL = MS3DModel.loadFrom(
-      FILE_DIR, "Cranial.ms3d", Species.class,
-      XML_FILE, "Cranial"
-    ),
-    MODEL_TESSERACT = MS3DModel.loadFrom(
-      FILE_DIR, "Tesseract.ms3d", Species.class,
-      XML_FILE, "Tesseract"
-    )
- ;
+  
   
   private static boolean verbose = false;
   

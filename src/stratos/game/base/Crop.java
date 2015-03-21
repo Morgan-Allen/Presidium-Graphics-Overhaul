@@ -7,13 +7,14 @@
 package stratos.game.base;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.economic.Inventory.Owner;
 import stratos.game.maps.*;
-import stratos.game.wild.Species;
+import stratos.game.wild.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.util.*;
+import stratos.game.economic.Inventory.Owner;
 import static stratos.game.economic.Economy.*;
+import static stratos.game.wild.Flora.*;
 
 
 
@@ -121,25 +122,25 @@ public class Crop extends Element {
   /**  Growth calculations-
     */
   final public static Species ALL_VARIETIES[] = {
-    Species.ONI_RICE,
-    Species.DURWHEAT,
-    Species.TUBER_LILY,
-    Species.BROADFRUITS,
-    Species.HIVE_GRUBS
+    ONI_RICE,
+    DURWHEAT,
+    TUBER_LILY,
+    BROADFRUITS,
+    HIVE_GRUBS
   };
   
   final static Object CROP_SPECIES[][] = {
-    new Object[] { Species.ONI_RICE   , CARBS , CROP_MODELS[0] },
-    new Object[] { Species.DURWHEAT   , CARBS , CROP_MODELS[1] },
-    new Object[] { Species.TUBER_LILY , GREENS, CROP_MODELS[3] },
-    new Object[] { Species.BROADFRUITS, GREENS, CROP_MODELS[2] },
+    new Object[] { ONI_RICE   , CARBS , CROP_MODELS[0] },
+    new Object[] { DURWHEAT   , CARBS , CROP_MODELS[1] },
+    new Object[] { TUBER_LILY , GREENS, CROP_MODELS[3] },
+    new Object[] { BROADFRUITS, GREENS, CROP_MODELS[2] },
     new Object[] {
-      Species.HIVE_GRUBS, PROTEIN,
+      HIVE_GRUBS, PROTEIN,
       new ModelAsset[] { GRUB_BOX_MODEL }
     },
     null,
     null,
-    new Object[] { Species.TIMBER, GREENS, null },
+    new Object[] { TIMBER, GREENS, null },
   };
   
   
@@ -151,17 +152,17 @@ public class Crop extends Element {
   
   
   static boolean isHive(Species s) {
-    return s == Species.HIVE_GRUBS || s == Species.BLUE_VALVES;
+    return s == HIVE_GRUBS || s == BLUE_VALVES;
   }
   
   
   static boolean isCereal(Species s) {
-    return s == Species.DURWHEAT || s == Species.ONI_RICE;
+    return s == DURWHEAT || s == ONI_RICE;
   }
   
   
   static boolean isDryland(Species s) {
-    return s == Species.DURWHEAT || s == Species.BROADFRUITS;
+    return s == DURWHEAT || s == BROADFRUITS;
   }
   
   

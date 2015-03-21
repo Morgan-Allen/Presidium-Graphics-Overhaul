@@ -93,8 +93,8 @@ public class ActorMotives {
   
   
   public float attraction(Actor other) {
-    if (actor.species() != Species.HUMAN) return 0.5f;
-    if (other.species() != Species.HUMAN) return 0;
+    if (actor.species() != Human.SPECIES) return 0.5f;
+    if (other.species() != Human.SPECIES) return 0;
     if (actor.health.juvenile() || other.health.juvenile()) return 0;
     //
     //  TODO:  Create other exceptions based on kinship modifiers.

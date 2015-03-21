@@ -136,9 +136,9 @@ public class Ruins extends Venue {
     spaceLevel *= 1 + world.terrain().varAt(origin());
     spaceLevel *= 1f / StageTerrain.TILE_VAR_LIMIT;
     int space = 0;
-    if (b == Species.CRANIAL) space = 0;// (int) (spaceLevel * 1);
-    if (b == Species.TRIPOD ) space = 1;// (int) (spaceLevel * 3);
-    if (b == Species.DRONE  ) space = 2;// (int) (spaceLevel * 5);
+    if (b == Cranial.SPECIES) space = 0;// (int) (spaceLevel * 1);
+    if (b == Tripod .SPECIES) space = 1;// (int) (spaceLevel * 3);
+    if (b == Drone  .SPECIES) space = 2;// (int) (spaceLevel * 5);
     if (report) I.say("  "+space+" openings for "+b+" at "+this);
     return space;
   }

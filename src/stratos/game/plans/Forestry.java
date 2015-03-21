@@ -240,9 +240,7 @@ public class Forestry extends Plan {
   
   
   private Item seedMatch() {
-    return Item.withAmount(Item.withReference(
-      GENE_SEED, Species.TIMBER
-    ), 0.1f);
+    return Item.withAmount(Item.withReference(GENE_SEED, Flora.TIMBER), 0.1f);
   }
   
   

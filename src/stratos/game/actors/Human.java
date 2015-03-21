@@ -30,6 +30,28 @@ public class Human extends Actor implements Qualities {
   private static boolean
     mediaVerbose = false;
   
+  final public static Species SPECIES = new Species(
+    Species.class,
+    "Human",
+    "Humans are the most common intelligent space-faring species in the "+
+    "known systems of the local cluster.  According to homeworld records, "+
+    "they owe their excellent visual perception, biped gait and manual "+
+    "dexterity to arboreal ancestry, but morphology and appearance vary "+
+    "considerably in response to a system's climate and gravity, sexual "+
+    "dimorphism, mutagenic factors and history of eugenic practices. "+
+    "Generally omnivorous, they make capable endurance hunters, but most "+
+    "populations have shifted to agriponics and vats-culture to sustain "+
+    "their numbers.  Though inquisitive and gregarious, human cultures are "+
+    "riven by clannish instincts and long-running traditions of feudal "+
+    "governance, spurring conflicts that may threaten their ultimate "+
+    "survival.",
+    null,
+    null,
+    Species.Type.SAPIENT, 1, 1, 1
+  ) {
+    public Actor sampleFor(Base base) { return null; }
+  };
+  
   
   
   /**  Field definitions, constructors and save/load methods-
@@ -70,7 +92,7 @@ public class Human extends Actor implements Qualities {
   
   public Career career() { return career; }
   
-  public Species species() { return Species.HUMAN; }
+  public Species species() { return SPECIES; }
   
   public void setVocation(Background b) {
     career.recordVocation(b);

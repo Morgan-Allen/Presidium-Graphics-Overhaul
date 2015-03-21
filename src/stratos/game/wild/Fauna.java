@@ -21,6 +21,11 @@ public abstract class Fauna extends Actor {
   
   /**  Field definitions, constructors, and save/load functionality-
     */
+  final static String
+    FILE_DIR = "media/Actors/fauna/",
+    LAIR_DIR = "media/Buildings/lairs and ruins/",
+    XML_FILE = "FaunaModels.xml";
+  
   final public static float
     PLANT_CONVERSION = 4.0f,
     MEAT_CONVERSION  = 8.0f,
@@ -44,17 +49,17 @@ public abstract class Fauna extends Actor {
   
   public Fauna(Session s) throws Exception {
     super(s);
-    species = Species.ALL_SPECIES[s.loadInt()];
-    breedMetre = s.loadFloat();
+    species          = (Species) s.loadObject();
+    breedMetre       = s.loadFloat();
     lastMigrateCheck = s.loadFloat();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveInt(species.ID);
-    s.saveFloat(breedMetre);
-    s.saveFloat(lastMigrateCheck);
+    s.saveObject(species         );
+    s.saveFloat (breedMetre      );
+    s.saveFloat (lastMigrateCheck);
   }
   
   

@@ -5,12 +5,38 @@
  */
 
 package stratos.game.wild;
+import static stratos.game.economic.Economy.CARBS;
+import static stratos.game.economic.Economy.GREENS;
+import static stratos.game.economic.Economy.PROTEIN;
+import static stratos.game.economic.Economy.SPYCE_T;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.wild.Species.Type;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.util.*;
 
+
+
+/*
+ Crops and Flora include:
+   Durwheat                     (primary carbs on land)
+   Bulrice                      (primary carbs in water)
+   Broadfruits                  (secondary greens on land)
+   Tuber lily                   (secondary greens in water)
+   Ant/termite/bee/worm cells   (tertiary protein on land)
+   Fish/mussel/clam farming     (tertiary protein in water)
+   
+   Vapok Canopy/Broadleaves  (tropical)
+   Mixtaob Tree/Glass Cacti  (desert)
+   Redwood/Cushion Plants    (tundra)
+   Strain XV97/Mycon Bloom   (wastes)
+   Lichens/Annuals           (pioneer species)
+   Coral Beds/Algal Forest   (rivers/oceans)
+   
+   Lumen forest (changer) + Rhizome (glaive knight) + Manna tree (collective)
+   Albedan ecology:  Carpets + Metastases + Amoeba Clade
+//*/
 
 
 public class Flora extends Element implements TileConstants {
@@ -23,10 +49,52 @@ public class Flora extends Element implements TileConstants {
     initVerbose    = false,
     updatesVerbose = false;
   
+  final public static Species
+    ONI_RICE    = new Species(
+      Flora.class, "Oni Rice"   , Type.FLORA, 2, CARBS
+    ) {},
+    DURWHEAT    = new Species(
+      Flora.class, "Durwheat"   , Type.FLORA, 2, CARBS
+    ) {},
+    SABLE_OAT   = new Species(
+      Flora.class, "Sable Oat"  , Type.FLORA, 1, CARBS
+    ) {},
+    
+    TUBER_LILY  = new Species(
+      Flora.class, "Tuber Lily" , Type.FLORA, 2, GREENS
+    ) {},
+    BROADFRUITS = new Species(
+      Flora.class, "Broadfruits", Type.FLORA, 2, GREENS
+    ) {},
+    HIBERNUTS   = new Species(
+      Flora.class, "Hibernuts"  , Type.FLORA, 1, GREENS
+    ) {},
+    
+    HIVE_GRUBS  = new Species(
+      Flora.class, "Hive Grubs" , Type.FLORA, 1, PROTEIN
+    ) {},
+    BLUE_VALVES = new Species(
+      Flora.class, "Blue Valves", Type.FLORA, 1, PROTEIN
+    ) {},
+    CLAN_BORE   = new Species(
+      Flora.class, "Clan Bore"  , Type.FLORA, 1, PROTEIN
+    ) {},
+    
+    GORG_APHID  = new Species(
+      Flora.class, "Gorg Aphid" , Type.FLORA, 1, SPYCE_T
+    ) {},
+    PIONEERS    = new Species(
+      Flora.class, "Pioneers"   , Type.FLORA
+    ) {},
+    TIMBER      = new Species(
+      Flora.class, "Timber"     , Type.FLORA
+    ) {};
+  
   final public static int
     MAX_GROWTH = 4;
   final public static float
     GROWTH_PER_UPDATE = 0.25f;  //  TODO:  THIS IS NOT BEING USED!  FIX!
+  
   
   final Habitat habitat;
   final int varID;  //  TODO:  Use a Species here, maybe?

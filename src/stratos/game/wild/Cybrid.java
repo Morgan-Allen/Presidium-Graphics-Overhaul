@@ -17,7 +17,7 @@ public class Cybrid extends Artilect {
   
   
   public Cybrid(Base base) {
-    super(base, Species.HUMAN);
+    super(base, Human.SPECIES);
   }
   
   

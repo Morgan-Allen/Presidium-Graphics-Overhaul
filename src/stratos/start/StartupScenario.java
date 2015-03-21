@@ -353,7 +353,7 @@ public class StartupScenario extends Scenario {
     Species nesting[] = null;
     
     if (config.siteLevel == SITE_SETTLED) {
-      nesting = new Species[] { Species.QUDU, Species.HAREEN } ;
+      nesting = new Species[] { Qudu.SPECIES, Hareen.SPECIES };
     }
     if (config.siteLevel == SITE_WILDERNESS) {
       maxRuins = world.size / (Stage.SECTOR_SIZE * 4);

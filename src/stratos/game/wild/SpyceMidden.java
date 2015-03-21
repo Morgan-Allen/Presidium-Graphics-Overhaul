@@ -25,7 +25,7 @@ public class SpyceMidden extends SupplyCache {
     super();
     final float spiceAmount = 1 + (Rand.num() * 2);
     this.stored.addItem(Item.withAmount(SPYCE, spiceAmount));
-    attachSprite(Species.MODEL_MIDDENS[Rand.index(3)].makeSprite());
+    attachSprite(Lictovore.MODEL_MIDDENS[Rand.index(3)].makeSprite());
   }
   
   

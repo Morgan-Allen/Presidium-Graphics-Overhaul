@@ -239,10 +239,10 @@ public class DebugSocial extends Scenario {
     GameSettings.fogFree = true;
     final Base wild = Base.wildlife(world);
     
-    Actor fauna = Species.HAREEN.sampleFor(wild);
+    Actor fauna = Hareen.SPECIES.sampleFor(wild);
     fauna.enterWorldAt(9, 9, world);
     
-    Venue nests = Species.HAREEN.nestProfile().sampleVenue(wild);
+    Venue nests = Hareen.SPECIES.nestProfile().sampleVenue(wild);
     Placement.establishVenue(nests, fauna.origin(), true, world);
     
     Actor meets = new Human(Backgrounds.VOLUNTEER, base);

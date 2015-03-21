@@ -9,6 +9,10 @@ import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.plans.*;
+import stratos.game.wild.Species.Type;
+import stratos.graphics.common.ModelAsset;
+import stratos.graphics.cutout.CutoutModel;
+import stratos.graphics.solids.MS3DModel;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
@@ -21,8 +25,44 @@ public class Lictovore extends Fauna {
   
   /**  Constructors, setup and save/load methods-
     */
+  final public static ModelAsset
+    MODEL_NEST_MICOVORE = CutoutModel.fromImage(
+      Lictovore.class, LAIR_DIR+"nest_micovore.png", 3.5f, 3
+    ),
+    MODEL_MIDDENS[] = CutoutModel.fromImages(
+      Lictovore.class, LAIR_DIR, 1.0f, 1, false,
+      "midden_a.png",
+      "midden_b.png",
+      "midden_c.png"
+    );
+  
+  final static Species SPECIES = new Species(
+    Lictovore.class,
+    "Lictovore",
+    "The Lictovore is an imposing bipedal obligate carnivore capable of "+
+    "substantial bursts of speed and tackling even the most stubborn prey. "+
+    "They defend established nest sites where they tend their young, using "+
+    "scented middens, rich in spyce, to mark the limits of their territory.",
+    FILE_DIR+"MicovorePortrait.png",
+    MS3DModel.loadFrom(
+      FILE_DIR, "Micovore.ms3d", Species.class,
+      XML_FILE, "Micovore"
+    ),
+    Type.PREDATOR,
+    2.50f, //bulk
+    1.30f, //speed
+    1.50f  //sight
+  ) {
+    final VenueProfile PROFILE = Nest.constructProfile(
+      3, 2, Venue.FACING_EAST, this, MODEL_NEST_MICOVORE
+    );
+    public Actor sampleFor(Base base) { return init(new Lictovore(base)); }
+    public VenueProfile nestProfile() { return PROFILE; }
+  };
+  
+  
   public Lictovore(Base base) {
-    super(Species.LICTOVORE, base);
+    super(SPECIES, base);
   }
   
   

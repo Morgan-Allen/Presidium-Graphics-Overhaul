@@ -20,7 +20,7 @@ public class ActorSenses implements Qualities {
   private static boolean
     reactVerbose  = false,
     noticeVerbose = false,
-    dangerVerbose = true ;
+    dangerVerbose = false;
   
   final static int NUM_DIRS = TileConstants.T_INDEX.length / 2;
   

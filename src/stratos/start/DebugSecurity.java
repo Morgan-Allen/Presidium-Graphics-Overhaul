@@ -99,7 +99,7 @@ public class DebugSecurity extends Scenario {
     station.stocks.bumpItem(Economy.PROTEIN, 5);
     
     final AnimalBreeding breeding = AnimalBreeding.breedingFor(
-      ecologist, station, Species.HAREEN, world.tileAt(25, 25)
+      ecologist, station, Hareen.SPECIES, world.tileAt(25, 25)
     );
     station.stocks.addItem(Item.withAmount(breeding.asSeed(), 0.95f));
     
@@ -153,7 +153,7 @@ public class DebugSecurity extends Scenario {
     );
     
     final Base wildlife = Base.wildlife(world);
-    final Actor prey = new Vareen(wildlife);
+    final Actor prey = new Hareen(wildlife);
     prey.enterWorldAt(world.tileAt(9, 9), world);
     
     //prey.health.takeFatigue(prey.health.maxHealth());

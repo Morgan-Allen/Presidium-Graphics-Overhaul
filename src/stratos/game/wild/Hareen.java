@@ -11,16 +11,50 @@ import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.plans.Hunting;
+import stratos.game.wild.Species.Type;
+import stratos.graphics.common.ModelAsset;
+import stratos.graphics.cutout.CutoutModel;
+import stratos.graphics.solids.MS3DModel;
 import stratos.util.*;
 
 
 
-public class Vareen extends Fauna {
+public class Hareen extends Fauna {
   
   
   
   /**  Fields, constructors, and save/load methods-
     */
+  final public static ModelAsset
+    MODEL_NEST_VAREEN = CutoutModel.fromImage(
+      Hareen.class, LAIR_DIR+"nest_vareen.png", 2.5f, 3
+    );
+  
+  final public static Species SPECIES = new Species(
+    Hareen.class,
+    "Hareen",
+    "Hareen are sharp-eyed aerial omnivores active by day, with a twinned "+
+    "pair of wings that makes them highly maneuverable flyers.  Their "+
+    "diet includes fruit, nuts, insects and carrion, but symbiotic algae "+
+    "in their skin also allow them to subsist partially on sunlight.",
+    FILE_DIR+"VareenPortrait.png",
+    MS3DModel.loadFrom(
+      FILE_DIR, "Vareen.ms3d", Species.class,
+      XML_FILE, "Vareen"
+    ),
+    Type.BROWSER,
+    0.50f, //bulk
+    1.60f, //speed
+    1.00f  //sight
+  ) {
+    final VenueProfile PROFILE = Nest.constructProfile(
+      2, 2, Venue.FACING_EAST, this, MODEL_NEST_VAREEN
+    );
+    public Actor sampleFor(Base base) { return init(new Hareen(base)); }
+    public VenueProfile nestProfile() { return PROFILE; }
+  };
+  
+  
   final static float DEFAULT_FLY_HEIGHT = 2.5f;
   final static int FLY_PATH_LIMIT = 16;
   
@@ -29,12 +63,12 @@ public class Vareen extends Fauna {
   
   
   
-  public Vareen(Base base) {
-    super(Species.HAREEN, base);
+  public Hareen(Base base) {
+    super(SPECIES, base);
   }
   
   
-  public Vareen(Session s) throws Exception {
+  public Hareen(Session s) throws Exception {
     super(s);
     flyHeight = s.loadFloat();
     nest = (Nest) s.loadObject();

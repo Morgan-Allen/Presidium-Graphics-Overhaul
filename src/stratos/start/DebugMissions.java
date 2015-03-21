@@ -136,7 +136,7 @@ public class DebugMissions extends Scenario {
   private void securityScenario(Stage world, Base base, BaseUI UI) {
     final Base artilects = Base.artilects(world);
     
-    final Actor robot = Species.TRIPOD.sampleFor(artilects);
+    final Actor robot = Tripod.SPECIES.sampleFor(artilects);
     robot.enterWorldAt(32, 32, world);
     
     final Actor vet = new Human(Backgrounds.TROOPER, base);

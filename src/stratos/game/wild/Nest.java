@@ -56,14 +56,14 @@ public class Nest extends Venue {
   
   public Nest(Session s) throws Exception {
     super(s);
-    species = Species.ALL_SPECIES[s.loadInt()];
+    species = (Species) s.loadObject();
     cachedIdealPop = s.loadFloat();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveInt(species.ID);
+    s.saveObject(species);
     s.saveFloat(cachedIdealPop);
   }
   
@@ -206,6 +206,20 @@ public class Nest extends Venue {
     for (int n = nesting.length ; n-- > 0;) {
       VENUE_PROFILES[n] = nesting[n].nestProfile();
     }
+  }
+  
+  
+  protected static VenueProfile constructProfile(
+    int size, int high, int entryFace, final Species s, final ModelAsset model
+  ) {
+    return new VenueProfile(
+      Nest.class, s.name+"_nest", s.name+" Nest",
+      size, high, false, Venue.NO_REQUIREMENTS
+    ) {
+      public Venue sampleVenue(Base base) {
+        return new Nest(this, base, s, model);
+      }
+    };
   }
   
   

@@ -30,8 +30,23 @@ import stratos.util.*;
 
 
 
-
 /*  BIG TODO LIST:
+
+ENEMIES AND ENVIRONMENT-
+
+  >>>>>>> DO THIS <<<<<<<
+*  Need to write vermin behaviour (see Vermin class.)
+   Allow hunting behaviours to apply to humans as well, if they're convenient.
+
+*  Extra concept art for new creatures/vermin:
+     Avrodil, Rem Leech, Mistaken, Desert Maw, Hirex Body.
+
+*  Try to adapt standard behaviours (such as FindHome, Repairs, Foraging, etc.
+   for use by animals.)  Then get rid of the custom-coding.
+
+*  There needs to be a super-fast system for testing pathability to different
+   areas of the map.  (And maybe caching dangers en-route?)
+
 
 BUILDING AND UPGRADES-
    
@@ -62,20 +77,6 @@ BUILDING AND UPGRADES-
 
 *  Ensure that spontaneous-buildings can 'migrate' to new sites if conditions
    change.  (Allow that for buildings in general?)
-
-
-ENEMIES AND ENVIRONMENT-
-
-  >>>>>>> DO THIS <<<<<<<
-*  Need to write vermin behaviour (see Vermin class.)
-   Allow hunting behaviours to apply to humans as well, if they're convenient.
-
-*  Extra concept art for new creatures/vermin:
-     Avrodil, Rem Leech, Mistaken, Desert Maw, Hirex Body.
-
-*  Try to adapt standard behaviours (such as FindHome, Repairs, Foraging, etc.
-   for use by animals.)  Then get rid of the custom-coding.
-
 
 
 CONTROL AND DIRECTION-

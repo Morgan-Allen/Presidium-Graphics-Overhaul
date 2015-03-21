@@ -6,6 +6,7 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
+import stratos.game.wild.Species.Type;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
 import stratos.graphics.widgets.*;
@@ -23,11 +24,31 @@ public class Cranial extends Artilect {
   
   /**  Construction and save/load methods-
     */
+  final public static ModelAsset
+    MODEL_CRANIAL = MS3DModel.loadFrom(
+      FILE_DIR, "Cranial.ms3d", Cranial.class,
+      XML_FILE, "Cranial"
+    );
+  
+  final static Species SPECIES = new Species(
+    Cranial.class,
+    "Cranial",
+    "Cranials are cunning, quasi-organic machine intelligences that direct "+
+    "the efforts of their lesser brethren.  They appear to have a marked "+
+    "propensity for tortuous experiments on living creatures.",
+    null,
+    null,
+    Type.ARTILECT, 1, 1, 1
+  ) {
+    public Actor sampleFor(Base base) { return new Cranial(base); }
+  };
+  
+  
   final String name;
   
   
   public Cranial(Base base) {
-    super(base, Species.CRANIAL);
+    super(base, SPECIES);
     
     traits.initAtts(10, 20, 30);
     health.initStats(

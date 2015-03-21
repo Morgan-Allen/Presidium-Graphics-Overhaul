@@ -6,6 +6,7 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
+import stratos.game.wild.Species.Type;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
 import stratos.graphics.widgets.*;
@@ -20,11 +21,41 @@ public class Drone extends Artilect {
   
   /**  Construction and save/load methods-
     */
+  final static Species SPECIES = new Species(
+    Drone.class,
+    "Drone",
+    "Defence Drones are simple, disposable automatons capable of limited "+
+    "field operations without supervision.",
+    null,
+    null,
+    Type.ARTILECT, 1, 1, 1
+  ) {
+    public Actor sampleFor(Base base) { return new Drone(base); }
+  };
+
+  final public static ModelAsset
+    MODEL_DEFENCE_DRONE = MS3DModel.loadFrom(
+      FILE_DIR, "DefenceDrone.ms3d", Drone.class,
+      XML_FILE, "Defence Drone"
+    ),
+    MODEL_RECON_DRONE = MS3DModel.loadFrom(
+      FILE_DIR, "ReconDrone.ms3d", Drone.class,
+      XML_FILE, "Recon Drone"
+    ),
+    MODEL_BLAST_DRONE = MS3DModel.loadFrom(
+      FILE_DIR, "BlastDrone.ms3d", Drone.class,
+      XML_FILE, "Blast Drone"
+    ),
+    DRONE_MODELS[] = {
+      MODEL_DEFENCE_DRONE, MODEL_RECON_DRONE, MODEL_BLAST_DRONE
+    };
+  
+  
   final String name;
   
   
   public Drone(Base base) {
-    super(base, Species.DRONE);
+    super(base, SPECIES);
     
     traits.initAtts(15, 10, 5);
     health.initStats(

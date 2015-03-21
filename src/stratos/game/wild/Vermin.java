@@ -48,7 +48,7 @@ public class Vermin extends Actor {
   final Species species;
   
   
-  public Vermin(Base b, Species s) {
+  public Vermin(Species s, Base b) {
     super();
     this.species = s;
     assignBase(b);
@@ -64,6 +64,11 @@ public class Vermin extends Actor {
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     s.saveObject(species);
+  }
+  
+  
+  public Species species() {
+    return species;
   }
   
   
