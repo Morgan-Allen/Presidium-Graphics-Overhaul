@@ -374,12 +374,23 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     */
   //
   //  NOTE:  Motive properties can be OR'd together to signify that you have
-  //  more than one.
+  //  more than one.  It is not recommended that you modify their bonus after
+  //  a plan has started, however (or you might get indefinite-increments over
+  //  time.)
+  
   public Plan addMotives(int props, float bonus) {
+    if (begun && bonus != 0) I.complain(
+      "\nWARNING:  Should not alter motive bonus once a plan begins! "+this
+    );
     this.motiveProperties |= props;
     this.motiveBonus      += bonus;
     this.lastEvalTime = -1;
     return this;
+  }
+  
+  
+  public Plan addMotives(int props) {
+    return addMotives(props, 0);
   }
   
   
@@ -388,11 +399,6 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     this.motiveBonus      = parent.motiveBonus + bonus;
     this.lastEvalTime = -1;
     return this;
-  }
-  
-  
-  public Plan addMotives(int props) {
-    return addMotives(props, 0);
   }
   
   

@@ -97,7 +97,6 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     
     float modifier = 0 - actor.senses.fearLevel();
     if (actor.senses.isEmergency()) addMotives(MOTIVE_EMERGENCY);
-    else addMotives(MOTIVE_JOB);
     
     final float priority = priorityForActorWith(
       actor, guarded,
