@@ -347,7 +347,7 @@ public class Staff {
         final float crowding = employs.crowdRating(null, v);
         if (crowding < 1) {
           if (GameSettings.hireFree) {
-            final Human citizen = new Human(v, employs.base());
+            final Actor citizen = v.sampleFor(base);
             citizen.mind.setWork(employs);
             final Boarding t = employs.canBoard()[0];
             citizen.enterWorldAt(t, base.world);

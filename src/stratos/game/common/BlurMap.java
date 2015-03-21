@@ -58,18 +58,21 @@ public class BlurMap {
     
     for (Coord c : Visit.grid(0, 0, gridSize, gridSize, 1)) {
       final float value = patchValues[c.x][c.y], DV = 0 - value * decay;
-      impingeValue(DV, c.x * gridSize, c.y * gridSize);
-      if (report && value > 0) I.say("  "+value+" at "+c+", decay "+DV);
+      if (value > 0 && report) I.say("  "+value+" at "+c+", decay "+DV);
+      patchValues[c.x][c.y] += DV;
     }
-    globalValue -= globalValue * decay;
+    
+    final float DV = 0 - globalValue * decay;
+    if (report) I.say("  Global value: "+globalValue+", decay: "+DV);
+    globalValue += DV;
   }
   
   
   protected void impingeValue(float value, int x, int y) {
     x /= patchSize;
     y /= patchSize;
-    value = patchValues[x][y] += value;
-    globalValue += value;
+    globalValue       += value;
+    patchValues[x][y] += value;
   }
   
   

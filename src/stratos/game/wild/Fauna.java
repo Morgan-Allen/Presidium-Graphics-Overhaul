@@ -3,8 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.wild;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -18,9 +16,6 @@ import stratos.util.*;
 
 
 
-
-//  TODO:  Home defence!
-
 public abstract class Fauna extends Actor {
   
   
@@ -28,7 +23,8 @@ public abstract class Fauna extends Actor {
     */
   final public static float
     PLANT_CONVERSION = 4.0f,
-    MEAT_CONVERSION  = 8.0f;
+    MEAT_CONVERSION  = 8.0f,
+    NEST_INTERVAL    = Stage.STANDARD_DAY_LENGTH;
   private static boolean
     verbose = true ;
   
@@ -175,8 +171,6 @@ public abstract class Fauna extends Actor {
   
   
   protected Behaviour nextBrowsing() {
-    //  TODO:  Use Foraging here.
-    
     final float range = Nest.forageRange(species);
     Target centre = mind.home();
     if (centre == null) centre = this;
@@ -232,17 +226,17 @@ public abstract class Fauna extends Actor {
       Action.FALL, "Resting"
     );
     final float fatigue = health.fatigueLevel();
-    if (fatigue < 0) return null;
-    final float priority = fatigue * Action.PARAMOUNT;
+    
+    final float priority = Action.IDLE + (fatigue * Action.PARAMOUNT);
     rest.setPriority(priority);
     return rest;
   }
   
   
   public boolean actionRest(Fauna actor, Target point) {
-    actor.health.setState(ActorHealth.STATE_RESTING);
-    final Nest nest = (Nest) actor.mind.home();
-    if (nest != point) return true;
+    if (actor.health.fatigue() >= 1) {
+      actor.health.setState(ActorHealth.STATE_RESTING);
+    }
     return true;
   }
   
@@ -260,19 +254,15 @@ public abstract class Fauna extends Actor {
     final float timeSinceCheck = world.currentTime() - lastMigrateCheck;
     if (report) {
       I.say("\nChecking migration for "+this);
-      I.say("  Last check: "+timeSinceCheck+"/"+Stage.GROWTH_INTERVAL);
+      I.say("  Last check: "+timeSinceCheck+"/"+NEST_INTERVAL);
     }
     
-    if (timeSinceCheck > Stage.GROWTH_INTERVAL) {
+    if (timeSinceCheck > NEST_INTERVAL) {
       final boolean crowded = home == null || Nest.crowdingFor(this) > 0.5f;
-      if (report) I.say("  Crowded? "+crowded);
       newNest = crowded ? Nest.findNestFor(this) : null;
       lastMigrateCheck = world.currentTime();
     }
-    
-    
     if (newNest != null && newNest != home) {
-      if (report) I.say("  Found new nest! "+newNest.origin());
       wandersTo = newNest;
       description = "Migrating";
       priority = Action.ROUTINE;
@@ -283,7 +273,7 @@ public abstract class Fauna extends Actor {
         centre, Nest.forageRange(species) / 2, world
       );
       description = "Wandering";
-      priority = Action.IDLE * Planet.dayValue(world);
+      priority = Action.IDLE * (Planet.dayValue(world) + 1) / 2;
     }
     if (wandersTo == null) return null;
     
@@ -293,6 +283,12 @@ public abstract class Fauna extends Actor {
       Action.LOOK, description
     );
     migrates.setPriority(priority);
+    
+    if (report) {
+      I.say("  Wander point:    "+wandersTo);
+      I.say("  Action priority: "+migrates.priorityFor(this));
+      I.say("  Description:     "+description);
+    }
     
     final Tile around = Spacing.pickFreeTileAround(wandersTo, this);
     if (around == null) return null;
@@ -304,11 +300,15 @@ public abstract class Fauna extends Actor {
   public boolean actionMigrate(Fauna actor, Target point) {
     if (point instanceof Nest) {
       final Nest nest = (Nest) point;
-      if (Nest.crowdingFor(nest, species, world) > 0.5f) return false;
       
+      if (Nest.crowdingFor(nest, species, world) >= 1) {
+        return false;
+      }
       if (! nest.inWorld()) {
+        if (! nest.canPlace()) {
+          return false;
+        }
         nest.assignBase(actor.base());
-        nest.clearSurrounds();
         nest.enterWorld();
         nest.structure.setState(Structure.STATE_INTACT, 0.01f);
       }
@@ -322,14 +322,15 @@ public abstract class Fauna extends Actor {
     final Nest nest = (Nest) this.mind.home();
     if (nest == null) return null;
     final float repair = nest.structure.repairLevel();
-    if (repair >= 1) return null;
+    if (repair >= 0.99f) return null;
     final Action buildNest = new Action(
       this, nest,
       this, "actionBuildNest",
       Action.STRIKE, "Repairing Nest"
     );
     buildNest.setMoveTarget(Spacing.pickFreeTileAround(nest, this));
-    buildNest.setPriority(((1f - repair) * Action.ROUTINE));
+    float priority = Action.CASUAL + ((1f - repair) * Action.ROUTINE);
+    buildNest.setPriority(priority);
     return buildNest;
   }
   
@@ -355,14 +356,21 @@ public abstract class Fauna extends Actor {
   public boolean actionBreed(Fauna actor, Nest nests) {
     actor.breedMetre = 0;
     final int maxKids = 1 + (int) Nums.sqrt(10f / health.lifespan());
+    
     for (int numKids = 1 + Rand.index(maxKids); numKids-- > 0;) {
       final Fauna young = (Fauna) species.sampleFor(base());
+      
       young.assignBase(this.base());
       young.health.setupHealth(0, 1, 0);
       young.mind.setHome(nests);
-      final Tile e = nests.mainEntrance();
+      
+      final Tile e = nests.world().tileAt(nests);
       young.enterWorldAt(e.x, e.y, e.world);
-      I.say("Giving birth to new "+actor.species.name+" at: "+nests);
+      young.goAboard(nests, world);
+      
+      if (I.logEvents()) {
+        I.say("Giving birth to new "+actor.species.name+" at: "+nests);
+      }
     }
     return true;
   }

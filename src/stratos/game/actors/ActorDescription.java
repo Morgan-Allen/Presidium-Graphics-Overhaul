@@ -65,8 +65,15 @@ public class ActorDescription implements Qualities {
     if (showPriorities) {
       final Behaviour b = h.mind.rootBehaviour();
       float priority = Plan.ROUTINE;
-      if (h.health.asleep()) priority = Resting.sleepPriority(h);
-      else if (b instanceof Plan) priority = ((Plan) b).priorityEval;
+      if (b instanceof Plan) {
+        priority = ((Plan) b).priorityEval;
+      }
+      else if (h.currentAction() != null) {
+        priority = h.currentAction().priorityFor(h);
+      }
+      else if (h.health.asleep()) {
+        priority = Resting.sleepPriority(h);
+      }
       d.append("  (Priority "+I.shorten(priority, 1)+" ");
       d.append(": "+Plan.priorityDescription(priority)+")");
     }

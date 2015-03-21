@@ -14,12 +14,16 @@ import stratos.util.*;
 
 
 
+//  TODO:  Use the FindHome behaviour and the BaseSetup auto-placement methods
+//         to site/join nests if you possibly can.
+
+
 public class Nest extends Venue {
   
   /**  Fields, constructors, and save/load methods-
     */
   private static boolean
-    ratingVerbose = false,
+    ratingVerbose = true ,
     updateVerbose = false;
   
   final public static int
@@ -113,7 +117,7 @@ public class Nest extends Venue {
     //  If possible, we return the cached value associated with a given nest:
     final Nest n = (point instanceof Nest) ? ((Nest) point) : null;
     if (n != null) {
-      final float estimate = ((Nest) point).cachedIdealPop;
+      final float estimate = n.cachedIdealPop;
       if (estimate != -1) return estimate;
     }
     //
@@ -141,10 +145,10 @@ public class Nest extends Venue {
 
   public static float crowdingFor(Target point, Species species, Stage world) {
     if (point == null || species == null) return 1;
-    final boolean report = ratingVerbose;
+    final boolean report = ratingVerbose && I.talkAbout == point;
     
     final float idealPop = idealPopulation(point, species, world);
-    if (idealPop <= 0) return 1;
+    if ((int) idealPop <= 0) return 1;
     
     final Base   base     = Base.wildlife(world);
     final float  mass     = species.metabolism();
@@ -164,7 +168,7 @@ public class Nest extends Venue {
       "metabolic mass"  , mass       ,
       "ideal population", idealPop   
     );
-    return competition / idealPop;
+    return competition / (int) idealPop;
   }
   
   
@@ -174,49 +178,6 @@ public class Nest extends Venue {
     final Nest nest = (Nest) home;
     if (nest.cachedIdealPop <= 0) return 1;
     return nest.staff.residents().size() * 1f / nest.cachedIdealPop;
-  }
-  
-  
-  //private static Nest lastRated = null;
-  
-  public float ratePlacing(Target point, boolean exact) {
-    final Stage world = point.world();
-    final float
-      idealPop = idealPopulation(point, species, world),
-      crowding = crowdingFor    (point, species, world),
-      mass     = species.metabolism();
-    
-    if (true && species.predator()) {
-      final Vec3D p = point.position(null);
-      I.say("\n  "+p+" Ideal pop: "+idealPop+", crowding: "+crowding);
-      final BaseDemands bd = Base.wildlife(world).demands;
-      final int fr = PREDATOR_FORAGE_DIST;
-      
-      float ls = bd.supplyAround(point, Species.Type.BROWSER.name(), fr);
-      float gs = bd.globalSupply(Species.Type.BROWSER.name());
-      I.say("    Global browser supply: "+gs+", map size:    "+world.size);
-      I.say("    Local browser supply:  "+ls+", forage dist: "+fr        );
-    }
-    return ((int) idealPop) * mass * (1 - crowding);
-  }
-  
-  
-  public void updateAsScheduled(int numUpdates, boolean instant) {
-    super.updateAsScheduled(numUpdates, instant);
-    final int INTERVAL = 10;
-    
-    if (numUpdates % INTERVAL == 0 && ! instant) {
-      cachedIdealPop = -1;
-      cachedIdealPop = idealPopulation(this, species, world);
-      impingeDemands(base.demands, INTERVAL);
-    }
-  }
-  
-  
-  public boolean enterWorldAt(int x, int y, Stage world) {
-    if (! super.enterWorldAt(x, y, world)) return false;
-    impingeDemands(base.demands, -1);
-    return true;
   }
   
   
@@ -231,32 +192,6 @@ public class Nest extends Venue {
   
   public static int forageRange(Species s) {
     return s.predator() ? PREDATOR_FORAGE_DIST : BROWSER_FORAGE_DIST;
-  }
-  
-  
-  protected Box2D areaClaimed() {
-    return new Box2D(footprint()).expandBy(forageRange(species));
-  }
-  
-  
-  public boolean preventsClaimBy(Venue other) {
-    final float distance = Spacing.distance(this, other);
-    
-    if (other instanceof Nest) {
-      final Nest near = (Nest) other;
-      
-      if (species.predator() || near.species.predator()) {
-        final float minDist = species.predator() && near.species.predator() ?
-          PREDATOR_FORAGE_DIST : 2
-        ;
-        if (distance < minDist) return true;
-      }
-      else {
-        if (distance < BROWSER_FORAGE_DIST) return true;
-      }
-      return false;
-    }
-    else return distance <= BROWSER_FORAGE_DIST;
   }
   
   
@@ -294,8 +229,101 @@ public class Nest extends Venue {
   
   
   public static Nest findNestFor(Fauna fauna) {
-    //  TODO:  Work this out.
-    return null;
+    final Pick <Nest> pick = new Pick <Nest> (null, 0);
+    
+    final Stage world = fauna.world();
+    final Species species = fauna.species;
+    final Batch <Nest> nests = new Batch <Nest> ();
+    world.presences.sampleFromMap(fauna, world, 5, nests, Nest.class);
+    //
+    //  First, we check the rating for our current home-
+    if (fauna.mind.home() instanceof Nest) {
+      final Nest home = (Nest) fauna.mind.home();
+      final float rating = 1 - Nest.crowdingFor(home, species, world);
+      pick.compare(home, rating * 1.5f);
+    }
+    //
+    //  Then compare against any suitable nests nearby.
+    for (Nest v : nests) if (v.species == species) {
+      pick.compare(v, 1 - Nest.crowdingFor(v, species, world));
+    }
+    //
+    //  And finally, we consider the attraction of establishing an entirely new
+    //  nest.
+    final Base wild    = Base.wildlife(world);
+    final Tile at      = Spacing.pickRandomTile(fauna, 8, world);
+    final Nest newNest = (Nest) fauna.species.nestProfile().sampleVenue(wild);
+    newNest.setPosition(at.x, at.y, world);
+    if (newNest.canPlace()) {
+      pick.compare(newNest, 1 - Nest.crowdingFor(at, species, world));
+    }
+    
+    return pick.result();
+  }
+  
+  
+  
+  /**  Overrides for standard venue methods-
+    */
+  public float ratePlacing(Target point, boolean exact) {
+    final Stage world = point.world();
+    final float
+      idealPop = idealPopulation(point, species, world),
+      crowding = crowdingFor    (point, species, world),
+      mass     = species.metabolism();
+    return ((int) idealPop) * mass * (1 - crowding);
+  }
+  
+  
+  public boolean enterWorldAt(int x, int y, Stage world) {
+    if (! super.enterWorldAt(x, y, world)) return false;
+    impingeDemands(base.demands, -1);
+    return true;
+  }
+  
+  
+  protected Box2D areaClaimed() {
+    return new Box2D(footprint()).expandBy(forageRange(species));
+  }
+  
+  
+  public boolean preventsClaimBy(Venue other) {
+    final float distance = Spacing.distance(this, other);
+    
+    if (other instanceof Nest) {
+      final Nest near = (Nest) other;
+      
+      if (species.predator() || near.species.predator()) {
+        final float minDist = species.predator() && near.species.predator() ?
+          PREDATOR_FORAGE_DIST : 2
+        ;
+        if (distance < minDist) return true;
+      }
+      else {
+        if (distance < BROWSER_FORAGE_DIST) return true;
+      }
+      return false;
+    }
+    else return distance <= BROWSER_FORAGE_DIST;
+  }
+  
+  
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
+    final int INTERVAL = 10;
+    
+    if (species.predator()) {
+      final String keyB = Species.KEY_BROWSER;
+      I.say("\nGlobal food supply: "+base.demands.globalSupply(keyB));
+      float ls = base.demands.supplyAround(this, keyB, -1);
+      I.say("  Local supply: "+ls);
+    }
+    
+    if (numUpdates % INTERVAL == 0 && ! instant) {
+      cachedIdealPop = -1;
+      cachedIdealPop = idealPopulation(this, species, world);
+      impingeDemands(base.demands, INTERVAL);
+    }
   }
   
   
@@ -315,24 +343,10 @@ public class Nest extends Venue {
   public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
     panel = VenuePane.configSimplePanel(this, panel, UI, null);
     
-    //*
     final Description d = panel.detail(), l = panel.listing();
-    
     float idealPop = cachedIdealPop;
     int actualPop = staff.residents().size();
-    
     l.append("\n\n  Nesting: ("+actualPop+"/"+idealPop+")");
-    /*
-    if (staff.residents().size() == 0) {
-      l.append("Unoccupied");
-    }
-    else for (Actor actor : staff.residents()) {
-      final Composite portrait = actor.portrait(UI);
-      ((Text) l).insert(portrait.texture(), 40, true);
-      l.append(" ");
-      l.append(actor);
-    }
-    //*/
     return panel;
   }
   

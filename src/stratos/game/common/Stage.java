@@ -71,11 +71,11 @@ public class Stage {
     claims   = new ClaimsGrid(this);
     schedule = new Schedule(currentTime);
     
-    ecology = new Ecology(this);
-    activities = new Activities(this);
+    ecology      = new Ecology     (this);
+    activities   = new Activities  (this);
     pathingCache = new PathingCache(this);
-    presences = new Presences(this);
-    ephemera = new Ephemera(this);
+    presences    = new Presences   (this);
+    ephemera     = new Ephemera    (this);
   }
   
   

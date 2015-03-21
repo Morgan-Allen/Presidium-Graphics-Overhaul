@@ -237,13 +237,14 @@ public class DebugSocial extends Scenario {
     //  This is the last scenario to test.  Just introduce some animals, and
     //  see how they react to (A) eachother and (B) the nearby base.
     GameSettings.fogFree = true;
-    
     final Base wild = Base.wildlife(world);
-    Actor fauna = Species.LICTOVORE.sampleFor(wild);
+    
+    Actor fauna = Species.HAREEN.sampleFor(wild);
     fauna.enterWorldAt(9, 9, world);
     
-    Actor meets = new Human(Backgrounds.VOLUNTEER, base);
-    meets.enterWorldAt(12, 12, world);
+    //Actor meets = new Human(Backgrounds.VOLUNTEER, base);
+    Actor meets = Species.LICTOVORE.sampleFor(wild);
+    meets.enterWorldAt(10, 10, world);
     
     UI.selection.pushSelection(fauna);
   }

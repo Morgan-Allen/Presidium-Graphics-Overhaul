@@ -21,7 +21,7 @@ public class ActorSenses implements Qualities {
     reactVerbose  = false,
     noticeVerbose = false,
     sightVerbose  = false,
-    dangerVerbose = true ;
+    dangerVerbose = false;
   
   final static int NUM_DIRS = TileConstants.T_INDEX.length / 2;
   
@@ -178,17 +178,6 @@ public class ActorSenses implements Qualities {
     final boolean report = noticeVerbose && I.talkAbout == actor;
     if (report) I.say("\nChecking to notice: "+e);
     
-    /*
-    //  TODO:  TEMPORARY KLUGE, WORK OUT LATER
-    if (e instanceof Actor) {
-      final Actor a = (Actor) e;
-      if (a.actionFocus() == actor) {
-        if (report) I.say("\nHave noticed "+e+" (is targeting self)");
-        return true;
-      }
-    }
-    //*/
-    
     final float distance = Spacing.distance(e, actor);
     final Base  base     = actor.base();
     final float fog      = base.intelMap.fogAt(e);
@@ -313,9 +302,13 @@ public class ActorSenses implements Qualities {
       final Actor near = (Actor) t;
       //
       //  By default, strangers are considered at least a little scary.
-      final float strangeness = actor.relations.noveltyFor(near.base());
-      final boolean active = near.health.conscious();
-      final float hostility = Nums.max(
+      final float   strangeness = actor.relations.noveltyFor(near.base());
+      final boolean active      = near.health.conscious();
+      
+      //  TODO:  Unify this with the hostility-evaluation used in the Combat-
+      //         priority method in PlanUtils?
+      
+      final float   hostility   = Nums.max(
         PlanUtils.harmIntendedBy(near, actor, true),
         (0 - actor.relations.valueFor(near)) +
         Nums.clamp((strangeness - neophilia), 0, 0.5f)

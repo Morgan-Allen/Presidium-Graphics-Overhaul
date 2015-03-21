@@ -68,6 +68,7 @@ public class Base implements
     base.colour.set(colour);
     base.setup.setAvailableVenues(canBuild);
     world.registerBase(base, true);
+    if (I.logEvents()) I.say("\nREGISTERING NEW BASE: "+base);
     return base;
   }
   
@@ -83,6 +84,7 @@ public class Base implements
     Base base = namedBase(world, KEY_WILDLIFE);
     if (base != null) return base;
     else base = new Base(world, true);
+    
     final VenueProfile canBuild[] = Nest.VENUE_PROFILES;
     return registerBase(base, world, KEY_WILDLIFE, Colour.LITE_GREEN, canBuild);
   }

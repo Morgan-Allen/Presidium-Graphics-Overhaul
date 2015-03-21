@@ -114,16 +114,20 @@ public class BaseDemands {
     */
   public void updateAllMaps(int period) {
     final boolean report = verbose && BaseUI.currentPlayed() == base;
-    if (report) I.say("\nUPDATING BASE DEMANDS FOR "+base);
+    final float decay = period * 1f / timePeriod;
+    if (report) {
+      I.say("\nUPDATING BASE DEMANDS FOR "+I.tagHash(base));
+      I.say("  Decay rate: "+decay);
+    }
     
     for (BlurMap map : supply.values()) {
-      map.updateAllValues(period * 1f / timePeriod);
+      map.updateAllValues(decay);
       if (report) {
         I.say("  Global supply for "+map.key+" is: "+map.globalValue());
       }
     }
     for (BlurMap map : demand.values()) {
-      map.updateAllValues(period * 1f / timePeriod);
+      map.updateAllValues(decay);
       if (report) {
         I.say("  Global demand for "+map.key+" is: "+map.globalValue());
       }

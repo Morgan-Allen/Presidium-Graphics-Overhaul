@@ -76,7 +76,9 @@ public class Vareen extends Fauna {
     final Target target = this.planFocus(null, true);
     float idealHeight = DEFAULT_FLY_HEIGHT;
     
-    if (! health.conscious()) idealHeight = 0;
+    if (indoors() || ! health.conscious()) {
+      idealHeight = 0;
+    }
     else if (
       (target != null && target != this) &&
       (Spacing.distance(this, target) < 2)

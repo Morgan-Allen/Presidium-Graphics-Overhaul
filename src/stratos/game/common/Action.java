@@ -70,13 +70,13 @@ public class Action implements Behaviour, AnimNames {
     if (actor == null || target == null) {
       I.complain("Null arguments for action!");
     }
-    this.actor = actor;
-    this.basis = basis;
-    this.toCall = namedMethodFor(basis, methodName);
-    this.priority = ROUTINE;
+    this.actor        = actor;
+    this.basis        = basis;
+    this.toCall       = namedMethodFor(basis, methodName);
+    this.priority     = ROUTINE;
     this.actionTarget = this.moveTarget = target;
-    this.animName = animName;
-    this.description = description;
+    this.animName     = animName;
+    this.description  = description;
   }
   
   
@@ -93,38 +93,38 @@ public class Action implements Behaviour, AnimNames {
   public Action(Session s) throws Exception {
     s.cacheInstance(this);
     
-    actor = (Actor) s.loadObject();
-    basis = s.loadObject();
-    toCall = namedMethodFor(basis, s.loadString());
+    actor    = (Actor) s.loadObject();
+    basis    = s.loadObject();
+    toCall   = namedMethodFor(basis, s.loadString());
     priority = s.loadFloat();
     
-    properties = s.loadInt();
-    moveState = (byte) s.loadInt();
+    properties   = s.loadInt();
+    moveState    = (byte) s.loadInt();
     actionTarget = s.loadTarget();
-    moveTarget = s.loadTarget();
+    moveTarget   = s.loadTarget();
     
-    progress = s.loadFloat();
-    oldProgress = s.loadFloat();
-    animName = s.loadString();
+    progress    = s.loadFloat ();
+    oldProgress = s.loadFloat ();
+    animName    = s.loadString();
     description = s.loadString();
   }
   
   
   public void saveState(Session s) throws Exception {
     
-    s.saveObject(actor);
-    s.saveObject(basis);
+    s.saveObject(actor           );
+    s.saveObject(basis           );
     s.saveString(toCall.getName());
-    s.saveFloat(priority);
+    s.saveFloat (priority        );
     
-    s.saveInt(properties);
-    s.saveInt(moveState);
+    s.saveInt   (properties  );
+    s.saveInt   (moveState   );
     s.saveTarget(actionTarget);
-    s.saveTarget(moveTarget);
+    s.saveTarget(moveTarget  );
     
-    s.saveFloat(progress);
-    s.saveFloat(oldProgress);
-    s.saveString(animName);
+    s.saveFloat (progress   );
+    s.saveFloat (oldProgress);
+    s.saveString(animName   );
     s.saveString(description);
   }
   

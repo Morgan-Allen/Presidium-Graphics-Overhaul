@@ -29,16 +29,12 @@ import stratos.util.*;
 //*/
 
 
-
 /*  IMMEDIATE BUGFIXES:
 
 *  Razing nests is counted as a crime by your own citizens.  Is that wrong?
 
 *  Nests too close to the bastion are being salvaged and left in an incorrect
    mechanical sprite-state (plus the inhabitants are still on-map.)
-
-*  If hire-free is true, humans can wind up being 'hired' at animal nests...
-
 //*/
 
 
@@ -85,7 +81,8 @@ ENEMIES AND ENVIRONMENT-
 *  Extra concept art for new creatures/vermin:
      Avrodil, Rem Leech, Mistaken, Desert Maw, Hirex Body.
 
-*  Make sure animals can breed/migrate/build new nests correctly.
+*  Try to adapt standard behaviours (such as FindHome, Repairs, Foraging, etc.
+   for use by animals.)  Then get rid of the custom-coding.
 
 
 CONTROL AND DIRECTION-

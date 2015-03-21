@@ -17,13 +17,10 @@ public class Ecology {
     */
   final Stage world;
   final int SR, SS;
-  final RandomScan growthMap;
   
+  final RandomScan growthMap;
   final public Ambience ambience;
   
-  private Base wildlife = null;
-  private BaseDemands abundances;
-  private BlurMap biomass;
   
   
   public Ecology(final Stage world) {
@@ -34,39 +31,18 @@ public class Ecology {
       protected void scanAt(int x, int y) { growthAt(world.tileAt(x, y)); }
     };
     ambience = new Ambience(world);
-    extractMaps();
   }
   
   
   public void loadState(Session s) throws Exception {
     growthMap.loadState(s);
     ambience.loadState(s);
-    //
-    //  We ensure that the wildlife base is loaded first, to ensure that the
-    //  associated demand maps can be extracted intact (see below.)
-    wildlife = (Base) s.loadObject();
-    abundances = null;
-    extractMaps();
   }
   
   
   public void saveState(Session s) throws Exception {
     growthMap.saveState(s);
     ambience.saveState(s);
-    s.saveObject(wildlife);
-  }
-  
-  
-  //  TODO:  You can probably dispense with these soon enough...
-  
-  private void extractMaps() {
-    if (abundances != null) return;
-    //
-    //  I'm moving these init methods here to avoid potential complications
-    //  during the save/load process.
-    if (wildlife == null) wildlife = Base.wildlife(world);
-    abundances = wildlife.demands;
-    biomass   = abundances.mapForSupply("Biomass");
   }
   
   
@@ -91,25 +67,40 @@ public class Ecology {
   }
   
   
+  
+  /**  Querying sample values-
+    */
+  private BlurMap biomass = null;
+  private BaseDemands abundances;
+  
+  private boolean checkMapsInit() {
+    if (biomass != null) return true;
+    abundances = Base.wildlife(world).demands;
+    biomass    = abundances.mapForSupply("Biomass");
+    return true;
+  }
+  
+  
   public void impingeBiomass(Tile t, float amount, float duration) {
+    checkMapsInit();
     abundances.impingeSupply(biomass, amount, duration, t);
   }
   
   
-  
-  /**  Querying sample values-
-    */
   public float biomassRating(Tile t) {
+    checkMapsInit();
     return abundances.supplyAround(t, biomass, Stage.SECTOR_SIZE) * 4;
   }
   
   
   public float globalBiomass() {
+    checkMapsInit();
     return abundances.globalSupply(biomass) * 4;
   }
   
   
   public float forestRating(Tile t) {
+    checkMapsInit();
     float fertility = world.terrain().fertilitySample(t);
     float foresting = abundances.supplyAround(t, biomass, Stage.SECTOR_SIZE);
     if (fertility <= 0) return 1;
