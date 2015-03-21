@@ -110,7 +110,7 @@ public class TargetOptions extends UIGroup implements UIConstants {
       });
     }
     if (
-      subject instanceof Tile
+      subject instanceof Tile && Exploring.canExplore(base, subject)
     ) {
       options.add(new OptionButton(
         BUI, Mission.RECON_ICON, "Explore an area or follow subject",
