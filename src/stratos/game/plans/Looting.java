@@ -175,7 +175,7 @@ public class Looting extends Plan {
       if (report) I.say("  You've been marked!  Scram!");
       
       final float range = actor.health.sightRange();
-      final Target point = Retreat.pickHidePoint(actor, range, actor, false);
+      final Target point = Retreat.pickHidePoint(actor, range, actor, -1);
       final Action hide = new Action(
         actor, actor,
         this, "actionHide",

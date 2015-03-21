@@ -236,10 +236,16 @@ public class DebugSocial extends Scenario {
     
     //  This is the last scenario to test.  Just introduce some animals, and
     //  see how they react to (A) eachother and (B) the nearby base.
-    
     GameSettings.fogFree = true;
-    Flora.populateFlora(world);
-    Nest.populateFauna(world, Species.ANIMAL_SPECIES);
+    
+    final Base wild = Base.wildlife(world);
+    Actor fauna = Species.LICTOVORE.sampleFor(wild);
+    fauna.enterWorldAt(9, 9, world);
+    
+    Actor meets = new Human(Backgrounds.VOLUNTEER, base);
+    meets.enterWorldAt(12, 12, world);
+    
+    UI.selection.pushSelection(fauna);
   }
   
   

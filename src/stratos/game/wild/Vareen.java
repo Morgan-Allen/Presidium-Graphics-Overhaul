@@ -77,14 +77,14 @@ public class Vareen extends Fauna {
     float idealHeight = DEFAULT_FLY_HEIGHT;
     
     if (! health.conscious()) idealHeight = 0;
-    else if (target == null) idealHeight = flyHeight;
-    else if (target instanceof Tile) idealHeight = DEFAULT_FLY_HEIGHT;
-    else if (Spacing.distance(target, this) < health.sightRange()) {
+    else if (
+      (target != null && target != this) &&
+      (Spacing.distance(this, target) < 2)
+    ) {
       idealHeight = target.position(null).z + (target.height() / 2f) - 0.5f;
     }
+    flyHeight = idealHeight;
     
-    final float MFI = 1f / (2 * Stage.UPDATES_PER_SECOND);
-    flyHeight = Nums.clamp(idealHeight, flyHeight - MFI, flyHeight + MFI);
     super.updateAsMobile();
   }
   

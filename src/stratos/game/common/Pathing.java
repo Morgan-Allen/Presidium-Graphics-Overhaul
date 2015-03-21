@@ -227,14 +227,20 @@ public class Pathing {
           else I.add(b+" ");
         }
       }
-      int index = 0;
-      while (index < path.length) {
-        final Boarding step = path[index];
-        if (inLocus(step)) { index++; break; }
-        else if (step == origin) break;
-        else index++;
-      }
-      stepIndex = Nums.clamp(index, path.length);
+      //
+      //  We start off with whatever step forward on the path is closest- which
+      //  is either the origin tile or the one immediately after.
+      int pickIndex  = Nums.clamp(Visit.indexOf(origin, path), path.length);
+      int afterIndex = Nums.clamp(pickIndex + 1              , path.length);
+      Boarding firstStep = path[pickIndex], stepAfter = path[afterIndex];
+      //
+      //  If the first step is already behind the actor (or, somehow, further
+      //  away than the second,) then we use the second step.
+      final Vec3D forward =     Spacing.between(mobile, stepAfter) ;
+      float distF = forward.dot(Spacing.between(mobile, firstStep));
+      if (distF <= 0 || distF > forward.length()) pickIndex = afterIndex;
+      
+      stepIndex = pickIndex;
       return true;
     }
   }

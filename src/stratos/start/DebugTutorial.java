@@ -32,9 +32,6 @@ import stratos.util.*;
 
 /*  IMMEDIATE BUGFIXES:
 
-*  Animals need to either shy away from or attack strangers (or predators who
-   get too close.)  This counts as an emergency to them.
-
 *  Razing nests is counted as a crime by your own citizens.  Is that wrong?
 
 *  Nests too close to the bastion are being salvaged and left in an incorrect

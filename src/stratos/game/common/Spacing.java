@@ -347,6 +347,11 @@ public final class Spacing implements TileConstants {
     if (a.y == b.y) return a.x == b.x + 1 || a.x == b.x - 1;
     return false;
   }
+  
+  
+  public static Vec3D between(Target a, Target b) {
+    return new Vec3D(b.position(pA).sub(a.position(pB)));
+  }
 }
 
 

@@ -44,8 +44,12 @@ public class CombatUtils {
   
   
   public static float powerLevelRelative(Actor actor, Actor other) {
+    //
     //  TODO:  Also consider effects of psy abilities, techniques, et cetera.
-    final boolean report = powerVerbose && I.talkAbout == actor;
+    
+    final boolean report = powerVerbose && (
+      I.talkAbout == actor || I.talkAbout == other
+    );
     
     final float
       otherPower = other.senses.powerLevel(),

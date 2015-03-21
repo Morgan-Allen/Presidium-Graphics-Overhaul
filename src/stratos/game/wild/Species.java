@@ -51,8 +51,6 @@ public abstract class Species extends Background {
   
   /**  Type, instance and media definitions-
     */
-  //  TODO:  Allow Species to be defined within their own Actor sub-classes, in
-  //  a fashion similar to Sprites and ModelAssets.
   
   //  TODO:  Include these as arguments as one would for normal Backgrounds!
   protected static enum Stat {
@@ -61,7 +59,8 @@ public abstract class Species extends Background {
     ARMOUR, DAMAGE
   }
   
-  
+
+  //  TODO:  Move these out to their respective implementing classes.
   final static String
     FILE_DIR = "media/Actors/fauna/",
     LAIR_DIR = "media/Buildings/lairs and ruins/",
@@ -86,9 +85,10 @@ public abstract class Species extends Background {
   public static enum Type {
     BROWSER ,
     PREDATOR,
-    HUMANOID,
+    VERMIN  ,
     FLORA   ,
-    ARTILECT
+    SAPIENT ,
+    ARTILECT,
   }
   final public static String
     KEY_BROWSER  = Type.BROWSER .name(),
@@ -146,7 +146,7 @@ public abstract class Species extends Background {
       "survival.",
       null,
       null,
-      Type.HUMANOID, 1, 1, 1
+      Type.SAPIENT, 1, 1, 1
     ) {
       public Actor sampleFor(Base base) { return null; }
       public Nest createNest() { return null; }
@@ -376,6 +376,7 @@ public abstract class Species extends Background {
   
   protected Actor init(Actor f) {
     f.health.setupHealth(Rand.num(), 0.9f, 0.1f);
+    f.relations.setRelation(f.base(), 0.5f, 0);
     return f;
   }
   
@@ -384,7 +385,13 @@ public abstract class Species extends Background {
   
   public boolean browser () { return type == Type.BROWSER ; }
   public boolean predator() { return type == Type.PREDATOR; }
+  public boolean artilect() { return type == Type.ARTILECT; }
+  public boolean sapient () { return type == Type.SAPIENT ; }
+  public boolean vermin  () { return type == Type.VERMIN  ; }
+  public boolean floral  () { return type == Type.FLORA   ; }
+  
   public boolean animal  () { return browser() || predator(); }
+  public boolean living  () { return sapient() || animal  (); }
   
   public Item[] nutrients() { return nutrients; }
   public float metabolism() { return baseBulk * baseSpeed; }

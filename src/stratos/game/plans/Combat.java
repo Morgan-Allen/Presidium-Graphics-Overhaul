@@ -248,7 +248,7 @@ public class Combat extends Plan implements Qualities {
       //  at random otherwise.  (Anything further away than max. firing range
       //  is probably pointless.)
       Target WP = Retreat.pickHidePoint(
-        actor, range, struck, ! underFire
+        actor, range, struck, underFire ? -1 : 1
       );
       if (WP == null || WP == origin) {
         WP = Spacing.pickRandomTile(actor, range, actor.world());

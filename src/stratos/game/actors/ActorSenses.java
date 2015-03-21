@@ -21,7 +21,7 @@ public class ActorSenses implements Qualities {
     reactVerbose  = false,
     noticeVerbose = false,
     sightVerbose  = false,
-    dangerVerbose = false;
+    dangerVerbose = true ;
   
   final static int NUM_DIRS = TileConstants.T_INDEX.length / 2;
   
@@ -30,8 +30,8 @@ public class ActorSenses implements Qualities {
   final Batch <Target> awareOf = new Batch <Target> ();
 
   private boolean emergency  = false;
-  private float   powerLevel = 0    ;
-  private float   fearLevel  = 0    ;
+  private float   powerLevel = -1   ;
+  private float   fearLevel  =  0   ;
   
   private float fearByDirection[] = new float[4];
   private Target  safePoint  = null ;
@@ -301,32 +301,53 @@ public class ActorSenses implements Qualities {
     //  of hostility, and sum for all allies and enemies nearby.  (We also
     //  split the counts up by quadrant, to allow for directional decisions
     //  about where to retreat.)
-    float sumAllies = 1, sumFoes = 0;
-    for (int n = NUM_DIRS; n-- > 0;) fearByDirection[n] = 0;
-    emergency = false;
-    powerLevel = CombatUtils.powerLevel(actor);
+    float sumAllies = 1, sumFoes = 0, neophilia = 0;
     final Base attacked = CombatUtils.baseAttacked(actor);
+    for (int n = NUM_DIRS; n-- > 0;) fearByDirection[n] = 0;
+    
+    emergency  = actor.isDoing(Combat.class, null);
+    powerLevel = CombatUtils.powerLevel(actor);
+    neophilia  = (1 + actor.traits.relativeLevel(CURIOUS )) / 2;
     
     for (Target t : awareOf) if ((t instanceof Actor) && (t != actor)) {
       final Actor near = (Actor) t;
-      float hostility = PlanUtils.harmIntendedBy(near, actor, true);
-      emergency |= near.isDoing(Combat.class, null);
+      //
+      //  By default, strangers are considered at least a little scary.
+      final float strangeness = actor.relations.noveltyFor(near.base());
+      final boolean active = near.health.conscious();
+      final float hostility = Nums.max(
+        PlanUtils.harmIntendedBy(near, actor, true),
+        (0 - actor.relations.valueFor(near)) +
+        Nums.clamp((strangeness - neophilia), 0, 0.5f)
+      );
       float avoidance = 0;
+      if (near.isDoing(Combat.class, null) ) emergency = true;
       //
       //  Anything armed and dangerous flags as an 'emergency', but only those
       //  attacking a friend (or self) count as enemies-
       if (hostility > 0 && PlanUtils.isArmed(near)) {
-        if (report) I.say("  Enemy nearby: "+near+", hostility: "+hostility);
-        float power = CombatUtils.powerLevelRelative(near, actor);
-        hostility = Nums.clamp(hostility + 0.5f, 0, 1);
-        final float foeRating = power * hostility;
+        final float power = CombatUtils.powerLevelRelative(near, actor);
+        final float foeRating = power * Nums.clamp(0.5f + hostility, 0, 1);
         sumFoes   += foeRating;
         avoidance  = foeRating;
+        //
+        //  And here's where the strangeness comes in-
+        if ((strangeness * power) > neophilia && active) {
+          emergency = true;
+        }
+        if (report) {
+          I.say("  Enemy nearby: "+near+", hostility: "+hostility);
+          I.say("                power: "+power+", strangeness: "+strangeness);
+        }
       }
       else {
-        float power = near.senses.powerLevel();
-        if (report) I.say("  Ally nearby: "+near+", bond: "+(0 - hostility));
-        sumAllies += power * (0.5f - hostility) * 2 / (1 + powerLevel);
+        final float power = near.senses.powerLevel();
+        final float friendRating = Nums.clamp(0.5f - hostility, 0, 1);
+        sumAllies += power * friendRating / (1 + powerLevel);
+        if (report) {
+          I.say("  Ally nearby: "+near+", bond: "+friendRating);
+          I.say("               power: "+power);
+        }
       }
       //
       //  If you're doing something harmful to a member of a given base, then
@@ -367,7 +388,7 @@ public class ActorSenses implements Qualities {
       I.say("  Sum foes:       "+sumFoes      );
       I.say("  Personal power: "+powerLevel   );
       I.say("  Ambient danger: "+ambientDanger);
-      //I.say("  Worry thresh:   "+worryThresh  );
+      I.say("  Neophilia:      "+neophilia    );
       I.say("  Fear level:     "+fearLevel    );
       I.say("  Safe point:     "+safePoint    );
       I.say("  Emergency:      "+emergency    );
@@ -379,13 +400,14 @@ public class ActorSenses implements Qualities {
   }
   
   
-  public boolean isEmergency() {
-    return emergency;
+  public float powerLevel() {
+    if (powerLevel == -1) powerLevel = CombatUtils.powerLevel(actor);
+    return powerLevel;
   }
   
   
-  public float powerLevel() {
-    return powerLevel;
+  public boolean isEmergency() {
+    return emergency;
   }
   
   

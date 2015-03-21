@@ -74,30 +74,51 @@ public class Retreat extends Plan implements Qualities {
   public static Boarding nearestHaven(
     final Actor actor, Class prefClass, final boolean emergency
   ) {
+    final Target oldHaven = actor.senses.haven();
+    final Stage world = actor.world();
+    final float
+      runRange   = actor.health.sightRange() + Stage.SECTOR_SIZE,
+      sightHaven = Stage.SECTOR_SIZE / 2;
+    final boolean
+      atHaven  = actor.aboard() == oldHaven,
+      mustMove = atHaven && actor.senses.isEmergency() && ! actor.indoors();
     
-    //  TODO:  Use baseSpeed here instead?
-    final float runRange = actor.health.sightRange() + Stage.SECTOR_SIZE;
+    if (mustMove && I.talkAbout == actor) {
+      I.say("\nObtaining retreat point for "+actor);
+    }
     
     final Pick <Boarding> pick = new Pick <Boarding> () {
       
       public void compare(Boarding next, float rating) {
         if (next == null || ! next.allowsEntry(actor)) return;
-        if (actor.base().intelMap.fogAt(next) <= 0) return;
-        //  TODO:  Add some random salt here?
-        if (PathSearch.blockedBy(next, actor)) return;
-        final float dist = 1 + (Spacing.distance(actor, next) / runRange);
+        
+        final float absDist = Spacing.distance(actor, next);
+        if (mustMove && absDist <= sightHaven) return;
+        
+        final int direction = Spacing.compassDirection(
+          actor.origin(), world.tileAt(next)
+        );
+        rating *= 1 - actor.senses.dangerFromDirection(direction);
+        
+        final float dist = 1 + (absDist / runRange);
         super.compare(next, rating / (dist * (emergency ? 0.5f : 0.2f)));
       }
     };
     
+    if (emergency) {
+      if (pick.empty()) {
+        pick.compare(pickHidePoint(actor, runRange, actor, -2), 2);
+      }
+      if (pick.empty()) {
+        pick.compare(pickHidePoint(actor, runRange, actor,  0), 1);
+      }
+      if (pick.empty()) {
+        pick.compare(Spacing.pickRandomTile(actor, runRange, world), 0);
+      }
+    }
+    
     pick.compare(actor.mind.home(), 10);
     pick.compare(actor.mind.work(), 5 );
-    
-    final Tile ground = emergency ? (Tile) pickHidePoint(
-      actor, runRange,
-      actor, false
-    ) : null;
-    pick.compare(ground, 0);
     
     final Presences presences = actor.world().presences;
     final Target refuge = presences.nearestMatch(
@@ -113,8 +134,8 @@ public class Retreat extends Plan implements Qualities {
     pick.compare((Boarding) pref  , 10                );
     pick.compare((Boarding) cover , emergency ? 1 : 2 );
     
-    return pick.result();
-    //*/
+    if (pick.result() != null) return pick.result();
+    else return actor.aboard();
   }
   
   
@@ -123,8 +144,8 @@ public class Retreat extends Plan implements Qualities {
     *  to a full-blown long-distance retreat.)  Used to perform hit-and-run
     *  tactics, stealth while travelling, or an emergency hide.
     */
-  public static Target pickHidePoint(
-    final Actor actor, float range, Target from, final boolean advance
+  public static Tile pickHidePoint(
+    final Actor actor, float range, Target from, final int advanceFactor
   ) {
     final boolean report = havenVerbose && I.talkAbout == actor;
     if (report) I.say("\nPICKING POINT OF WITHDRAWAL FROM "+actor.origin());
@@ -136,7 +157,8 @@ public class Retreat extends Plan implements Qualities {
     final Tile  at    = actor.origin();
     final Pick <Tile> pick = new Pick <Tile> () {
       public void compare(Tile next, float rating) {
-        rating *= rateTileCover(actor, next, advance);
+        if (advanceFactor == 0) rating *= 1;
+        else rating *= rateTileCover(actor, next, advanceFactor);
         if (report) I.say("  Rating for "+next+" was: "+rating);
         super.compare(next, rating);
       }
@@ -167,7 +189,7 @@ public class Retreat extends Plan implements Qualities {
   }
   
   
-  private static float rateTileCover(Actor actor, Tile t, boolean advance) {
+  private static float rateTileCover(Actor actor, Tile t, int advanceFactor) {
     //  TODO:  Check to make sure the tile is reachable!
     if (t == null || t.blocked()) return 0;
 
@@ -207,7 +229,7 @@ public class Retreat extends Plan implements Qualities {
     final float maxMove = ActorHealth.DEFAULT_SIGHT * actor.health.baseSpeed();
     
     float dirBonus = actor.senses.dangerFromDirection(direction);
-    dirBonus *= distance * (advance ? 1 : -1) / maxMove;
+    dirBonus *= distance * advanceFactor / maxMove;
     if (report && dirBonus > 0) I.say("    Direction bonus: "+dirBonus);
     
     return rating * Nums.clamp(1 + dirBonus, 0, 2);

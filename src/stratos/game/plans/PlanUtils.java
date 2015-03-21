@@ -8,7 +8,9 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.politic.*;
+import stratos.game.wild.*;
 import stratos.util.*;
+import static stratos.game.actors.Qualities.*;
 
 
 
@@ -19,7 +21,7 @@ public class PlanUtils {
   
   
   private static boolean
-    verbose = true ;
+    verbose = false;
   
   private static boolean reportOn(Actor a) {
     return I.talkAbout == a && verbose;
@@ -31,33 +33,37 @@ public class PlanUtils {
   public static float combatPriority(
     Actor actor, Target subject, float rewardBonus, int teamSize
   ) {
-    float incentive = 0, empathy = 0, winChance = 0, priority = 0;
-    float harmDone, dislike;
+    float incentive = 0, winChance, inhibition, priority;
+    float harmDone, dislike, conscience, fear;
+    final boolean report = reportOn(actor);
     
     incentive += rewardBonus;
-    incentive += dislike = actor.relations.valueFor(subject) * -5;
-    incentive += harmDone = harmIntendedBy(subject, actor, false) * 5;
+    incentive += dislike  = actor.relations.valueFor(subject)     * -5;
+    incentive += harmDone = harmIntendedBy(subject, actor, false) *  5;
     
-    empathy = 10 * (1 + actor.traits.relativeLevel(Qualities.EMPATHIC)) / 2;
-    if      (incentive <= empathy      ) return -1;
+    conscience = 10 * baseConscience(actor, subject);
+    if      (incentive <= conscience   ) return -1      ;
     else if (! isArmed(actor)          ) incentive -= 5 ;
     else if (actor.senses.isEmergency()) incentive += 10;
     
-    winChance = combatWinChance(actor, subject, teamSize);
-    priority  = incentive * winChance;
+    winChance  = combatWinChance(actor, subject, teamSize);
+    inhibition = Nums.max(fear = (1 - winChance) * 5, conscience);
+    priority   = incentive * winChance;
     
-    if (reportOn(actor)) I.reportVars(
+    if (report) I.reportVars(
       "\nCombat priority for "+actor, "  ",
-      "subject  ", subject    ,
-      "reward   ", rewardBonus,
-      "harmDone" , harmDone   ,
-      "dislike"  , dislike    ,
-      "empathy  ", empathy    ,
-      "incentive", incentive  ,
-      "winChance", winChance  ,
-      "priority ", priority   
+      "subject  " , subject    ,
+      "reward   " , rewardBonus,
+      "harmDone"  , harmDone   ,
+      "dislike"   , dislike    ,
+      "conscience", conscience ,
+      "fear"      , fear       ,
+      "inhibition", inhibition ,
+      "incentive" , incentive  ,
+      "winChance" , winChance  ,
+      "priority " , priority   
     );
-    if (priority < empathy) return -1;
+    if (priority < inhibition) return -1;
     return priority;
   }
   
@@ -68,8 +74,9 @@ public class PlanUtils {
   public static float retreatPriority(
     Actor actor
   ) {
-    float incentive = 0, loseChance = 0, priority = 0;
-    float homeDistance = 0, escapeChance = 0;
+    float incentive = 0, loseChance, priority;
+    float homeDistance, escapeChance;
+    final boolean report = reportOn(actor);
     
     loseChance = 1f - combatWinChance(actor, actor.origin(), 1);
     if (actor.senses.fearLevel() == 0) loseChance = 0;
@@ -82,10 +89,11 @@ public class PlanUtils {
     escapeChance = Nums.clamp(1f - actor.health.fatigueLevel(), 0, 1);
     priority = incentive * homeDistance * escapeChance;
     
-    if (reportOn(actor) && priority > 0) I.reportVars(
+    if (report) I.reportVars(
       "\nRetreat priority for "+actor, "  ",
       "incentive   ", incentive,
       "fear level  ", actor.senses.fearLevel(),
+      "emergency   ", actor.senses.isEmergency(),
       "loseChance  ", loseChance,
       "homeDistance", homeDistance,
       "escapeChance", escapeChance,
@@ -245,6 +253,23 @@ public class PlanUtils {
   
   
   
+  /**  Social-related utility methods-
+    */
+  public static float baseConscience(Actor actor, Target toward) {
+    if (! actor.species().sapient()) return 0;
+    float conscience = (1 + actor.traits.relativeLevel(EMPATHIC)) / 2;
+    
+    if (toward instanceof Actor) {
+      final Species s = ((Actor) toward).species();
+      if      (s.sapient()) conscience /= 1;
+      else if (s.living ()) conscience /= 2;
+      else                  conscience /= 4;
+    }
+    else conscience /= 4;
+    
+    return conscience;
+  }
+  
   
   
   /**  Combat-related utility methods.
@@ -262,7 +287,7 @@ public class PlanUtils {
     float fearLevel = actor.senses.fearLevel ();
     float strength  = actor.senses.powerLevel();
     float health    = 1f - actor.health.injuryLevel();
-    float courage   = 1 + actor.traits.relativeLevel(Qualities.FEARLESS);
+    float courage   = 1 + actor.traits.relativeLevel(FEARLESS);
 
     final Base otherBase = around.base(), ownBase = actor.base();
     float danger = ownBase.dangerMap.sampleAround(

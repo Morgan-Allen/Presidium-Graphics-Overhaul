@@ -114,19 +114,20 @@ public abstract class Fauna extends Actor {
   protected ActorRelations initRelations() {
     return new ActorRelations(this) {
       //
-      //  We install some default relationships with other animals-
+      //  We install some default relationships with other animals, etc.-
       public float valueFor(Object object) {
         if (object == actor || object == actor.mind.home()) {
           return 1.0f;
         }
         else if (object instanceof Actor) {
           final Actor other = (Actor) object;
-          if (other.health.animal()) {
+          if (other.species().animal()) {
             final Fauna f = (Fauna) other;
             if (f.species == species) return 0.25f;
             if (f.species.type == Species.Type.BROWSER) return 0;
             if (f.species.predator()) return -0.5f;
           }
+          if (other.base() == actor.base()) return 0.5f;
           return -0.25f;
         }
         else return 0;
@@ -139,11 +140,11 @@ public abstract class Fauna extends Actor {
     for (Target t : senses.awareOf()) {
       addReactions(t, choice);
     }
-    if (species.browser()) choice.add(nextBrowsing());
-    if (species.predator()) choice.add(nextHunting());
+    if (species.browser () ) choice.add(nextBrowsing());
+    if (species.predator() ) choice.add(nextHunting ());
     if (breedMetre >= 0.99f) choice.add(nextBreeding());
-    choice.add(nextResting());
-    choice.add(nextMigration());
+    choice.add(nextResting     ());
+    choice.add(nextMigration   ());
     choice.add(nextBuildingNest());
   }
   
@@ -174,6 +175,8 @@ public abstract class Fauna extends Actor {
   
   
   protected Behaviour nextBrowsing() {
+    //  TODO:  Use Foraging here.
+    
     final float range = Nest.forageRange(species);
     Target centre = mind.home();
     if (centre == null) centre = this;
@@ -390,10 +393,6 @@ public abstract class Fauna extends Actor {
     return p;
   }
 }
-
-
-
-
 
 
 
