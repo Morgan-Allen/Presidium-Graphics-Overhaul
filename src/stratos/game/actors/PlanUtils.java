@@ -3,11 +3,10 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-package stratos.game.plans;
-import stratos.game.actors.*;
+package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.politic.*;
+import stratos.game.plans.*;
 import stratos.game.wild.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
@@ -31,23 +30,26 @@ public class PlanUtils {
   /**  Combat-priority.  Should range from 0 to 30.
     */
   public static float combatPriority(
-    Actor actor, Target subject, float rewardBonus, int teamSize
+    Actor actor, Target subject,
+    float rewardBonus, int teamSize, boolean asRealTask
   ) {
     float incentive = 0, winChance, inhibition, priority;
-    float harmDone, dislike, conscience, fear;
+    float harmDone, dislike, wierdness, conscience;
     final boolean report = reportOn(actor);
     
     incentive += rewardBonus;
-    incentive += dislike  = actor.relations.valueFor(subject)     * -5;
-    incentive += harmDone = harmIntendedBy(subject, actor, false) *  5;
+    incentive += dislike   = actor.relations.valueFor(subject)     * -5;
+    incentive += harmDone  = harmIntendedBy(subject, actor, false) *  5;
+    incentive += wierdness = baseCuriosity(actor, subject, false)  *  5;
+    if (! asRealTask) return incentive;
     
     conscience = 10 * baseConscience(actor, subject);
-    if      (incentive <= conscience   ) return -1      ;
-    else if (! isArmed(actor)          ) incentive -= 5 ;
-    else if (actor.senses.isEmergency()) incentive += 10;
+    if      (incentive <= conscience   ) return -1     ;
+    else if (! isArmed(actor)          ) incentive -= 5;
+    else if (actor.senses.isEmergency()) incentive += 5;
     
     winChance  = combatWinChance(actor, subject, teamSize);
-    inhibition = Nums.max(fear = 0 * 5, conscience);
+    inhibition = Nums.max(0, conscience);
     priority   = incentive * winChance;
     
     if (report) I.reportVars(
@@ -56,8 +58,8 @@ public class PlanUtils {
       "reward   " , rewardBonus,
       "harmDone"  , harmDone   ,
       "dislike"   , dislike    ,
+      "wierdness" , wierdness  ,
       "conscience", conscience ,
-      "fear"      , fear       ,
       "inhibition", inhibition ,
       "incentive" , incentive  ,
       "winChance" , winChance  ,
@@ -271,6 +273,16 @@ public class PlanUtils {
   }
   
   
+  public static float baseCuriosity(
+    Actor actor, Target toward, boolean positive
+  ) {
+    float strangeness = actor.relations.noveltyFor(toward.base());
+    float curiosity = (1 + actor.traits.relativeLevel(CURIOUS)) / 2;
+    if (positive) return curiosity * strangeness;
+    else return Nums.clamp(strangeness - curiosity, 0, 1);
+  }
+  
+  
   
   /**  Combat-related utility methods.
     */
@@ -278,6 +290,18 @@ public class PlanUtils {
     final DeviceType type = actor.gear.deviceType();
     final float baseDamage = actor.gear.baseDamage();
     return baseDamage > 0 || ((type != null) && type.baseDamage > 0);
+  }
+  
+  
+  public static float homeDistanceFactor(Actor actor, Target around) {
+    final Stage world = actor.world();
+    float baseMult = 1;
+    
+    final Tile at   = world.tileAt(around);
+    final Base owns = world.claims.baseClaiming(at);
+    if (owns != null) baseMult -= owns.relations.relationWith(actor.base());
+    
+    return Nums.clamp(baseMult, 0, 2);
   }
   
   
@@ -313,18 +337,6 @@ public class PlanUtils {
       chance -= Nums.clamp(1f - power, 0, 1) / 2;
     }
     return Nums.clamp(chance, 0, 1);
-  }
-  
-  
-  public static float homeDistanceFactor(Actor actor, Target around) {
-    final Stage world = actor.world();
-    float baseMult = 1;
-    
-    final Tile at = world.tileAt(around);
-    final Base owns = world.claims.baseClaiming(at);
-    if (owns != null) baseMult -= owns.relations.relationWith(actor.base());
-    
-    return Nums.clamp(baseMult, 0, 2);
   }
   
   

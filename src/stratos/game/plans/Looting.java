@@ -244,7 +244,7 @@ public class Looting extends Plan {
   public boolean actionHide(Actor actor, Actor self) {
     final boolean report = stepsVerbose && I.talkAbout == actor;
     if (report) I.say("\nHiding at "+self.origin());
-    return ActorSenses.breaksPursuit(actor);
+    return SenseUtils.breaksPursuit(actor);
   }
   
   

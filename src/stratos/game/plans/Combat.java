@@ -99,7 +99,9 @@ public class Combat extends Plan implements Qualities {
   
   protected float getPriority() {
     int teamSize = hasMotives(MOTIVE_MISSION) ? Mission.AVG_PARTY_LIMIT : 1;
-    return PlanUtils.combatPriority(actor, subject, motiveBonus(), teamSize);
+    return PlanUtils.combatPriority(
+      actor, subject, motiveBonus(), teamSize, true
+    );
   }
   
   

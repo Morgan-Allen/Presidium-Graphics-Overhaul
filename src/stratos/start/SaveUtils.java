@@ -45,6 +45,7 @@ public class SaveUtils {
   
   
   public static boolean saveExists(String saveFile) {
+    if (saveFile == null) return false;
     final File file = new File(saveFile);
     if (! file.exists()) return false;
     else return true;

@@ -6,18 +6,16 @@
 
 
 package stratos.game.common;
-import stratos.game.actors.ActorSenses;
-import stratos.game.actors.Behaviour;
-import stratos.game.actors.Plan;
+import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
 import stratos.util.*;
+import static stratos.game.actors.Qualities.*;
 
 import java.lang.reflect.*;
 
-import static stratos.game.actors.Qualities.*;
 
 
 //  TODO:  ...You need to arrange for actions to terminate if you wind up
@@ -344,7 +342,7 @@ public class Action implements Behaviour, AnimNames {
       if (report) I.say("  Must have facing and line of sight.");
       //  TODO:  Build line-of-sight considerations into the actor's reaction
       //  algorithms instead?
-      final boolean seen = ActorSenses.hasLineOfSight(
+      final boolean seen = SenseUtils.hasLineOfSight(
         actor, actionTarget, Nums.max(maxDist, sightRange)
       );
       

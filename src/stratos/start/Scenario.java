@@ -95,7 +95,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
   /**  Default methods for creating a new world, base, and user interface.
     */
   public void beginGameSetup() {
-    initScenario(null);
+    initScenario(savesPrefix);
   }
   
   
@@ -235,7 +235,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
     this.base  = null;
     this.UI    = null;
     PlayLoop.sessionStateWipe();
-    initScenario(null);
+    initScenario(savesPrefix);
     PlayLoop.setupAndLoop(this);
   }
   
